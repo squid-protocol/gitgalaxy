@@ -30,7 +30,7 @@
     "tests/equivalence/genapp-lgapdb01/**"
    ],
    "files": 2,
-   "sha256": "da39af16f8d36dcda71e4366fe868480f626d6817738f39bef33a314127e8eb6"
+   "sha256": "d663589b286b13d2fc7cf4ce938466d091748c76f54e1b0d2ca4083019c3a1b5"
   },
   "harness": {
    "paths": [
@@ -54,10 +54,10 @@
     "tests/tools/equivalence_ims.py"
    ],
    "files": 18,
-   "sha256": "93e40b9bbb2b1d6c1d0e3c27d815a85062312c011fb8eb0db48af9e45a7df173",
+   "sha256": "4aa149fdf2da2f1e0c37127b8d173d337335275f3ceab77281cdc9cb6aba7f87",
    "components": {
     "harness:cics": "92ccd39aae83d84431d25678a302453a9dfd55558c5f98ebae82b6405af32180",
-    "harness:core": "7b994d3dcdb03f604ab6bb31bf3d859039409b67409bdd1d79d9f989a31bad99",
+    "harness:core": "44d38a01abc69857283e736186feda6396e1cf6e297c12e07a097730aee7f15f",
     "harness:db2": "389a27466f489f7499560289b5ceaeabaac2feaeb5b38eabc35b4227ffe604e1"
    }
   },
@@ -243,13 +243,13 @@
    },
    "runtime_sha256": "95d95b29ee402f9e60e387bd556e5076af66d0bd4c4f549241f603b4f4c3cc89"
   },
-  "digest": "0ee7c03a5b1a1d8062a8342354a1b26fc42a91bff14a0551a14d2c85e8df7e69"
+  "digest": "1c0eba85e6011e0ffb8c7e9a1edd9e217f57326c13d7e9283a22451c679f2ab3"
  },
  "proof": {
-  "at": "2026-10-26T09:15:09Z",
+  "at": "2026-10-27T08:40:20Z",
   "verdict": "proven",
-  "runs": 14,
-  "fault_runs": 7,
+  "runs": 16,
+  "fault_runs": 8,
   "environments": null,
   "outputs": {
    "add-house": {
@@ -277,6 +277,14 @@
     ]
    },
    "add-endowment": {
+    "equal": 4,
+    "records": 4,
+    "commands": [
+     "LINK",
+     "RETURN"
+    ]
+   },
+   "add-endowment-padded": {
     "equal": 4,
     "records": 4,
     "commands": [
@@ -410,6 +418,22 @@
      "WRITEQ TD",
      "WRITEQ TS"
     ]
+   },
+   "add-endowment-padded--sql-lgapdb01-346": {
+    "equal": 9,
+    "records": 9,
+    "commands": [
+     "ABEND",
+     "LINK",
+     "RETURN",
+     "WRITEQ-TD",
+     "WRITEQ-TS"
+    ],
+    "assumes": "X6",
+    "x6_padded": [
+     "WRITEQ TD",
+     "WRITEQ TS"
+    ]
    }
   },
   "return_code_equal": null,
@@ -418,16 +442,16 @@
   "java_failed": false,
   "facade": {
    "verdict": "proven",
-   "runs": 14,
-   "passed": 14,
+   "runs": 16,
+   "passed": 16,
    "entry_points": [
     "handleLink"
    ],
    "failed": [],
    "error": null
   },
-  "harness_commit": "4aa4de078f6003045f656399c83c80cbdac89e87+uncommitted",
-  "inputs_digest": "0ee7c03a5b1a1d8062a8342354a1b26fc42a91bff14a0551a14d2c85e8df7e69"
+  "harness_commit": "1d6f3cf38af5b208fd6bc7067434705b4713c1ce+uncommitted",
+  "inputs_digest": "1c0eba85e6011e0ffb8c7e9a1edd9e217f57326c13d7e9283a22451c679f2ab3"
  },
  "coverage": {
   "paragraphs": {
@@ -435,7 +459,7 @@
    "live": 7
   },
   "branches": {
-   "covered": 28,
+   "covered": 29,
    "total": 31
   },
   "uncovered_branches": [
@@ -444,12 +468,6 @@
     "kind": "EVALUATE",
     "outcome": "OTHER",
     "unit": "MAINLINE"
-   },
-   {
-    "line": 342,
-    "kind": "IF",
-    "outcome": "true",
-    "unit": "INSERT-ENDOW"
    },
    {
     "line": 581,
@@ -463,7 +481,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "0ee7c03a5b1a1d8062a8342354a1b26fc42a91bff14a0551a14d2c85e8df7e69"
+  "inputs_digest": "1c0eba85e6011e0ffb8c7e9a1edd9e217f57326c13d7e9283a22451c679f2ab3"
  },
  "reach": {
   "entry_points": [
@@ -597,7 +615,7 @@
   "compiler_options": null,
   "image": {
    "name": "gitgalaxy-gnucobol-db2:3",
-   "id": "sha256:5130ea614eb826d35a07f5ad1b0f45ee1cf738c5d15451f58cedaa7275b0f8ec",
+   "id": "sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc",
    "base": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
    "matches_pin": true,
    "mismatches": []

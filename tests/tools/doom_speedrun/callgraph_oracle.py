@@ -102,7 +102,9 @@ TEXT_NODES = {"comment", "string_literal", "raw_string_literal", "char_literal",
 # nested function definition): comments and literals blanked, then every ``name (`` that is not a keyword.
 STRIP = re.compile(r"/\*.*?\*/|//[^\n]*|\"(?:\\.|[^\"\\\n])*\"|'(?:\\.|[^'\\\n])*'", re.S)
 # An explicit destructor call (`p->~T(`, `x.~T(`, `T::~T(`) names the unit `~T`, as tree-sitter's destructor_name does.
-TEXT_CALL = re.compile(r"(?:(?<=->)|(?<=\.)|(?<=::))\s*~\s*([A-Za-z_]\w*)\s*(?:<[^;{}()]*>\s*)?\(|\b([A-Za-z_]\w*)\s*\(")
+TEXT_CALL = re.compile(
+    r"(?:(?<=->)|(?<=\.)|(?<=::))\s*~\s*([A-Za-z_]\w*)\s*(?:<[^;{}()]*>\s*)?\(|\b([A-Za-z_]\w*)\s*\("
+)
 # A class or struct definition head: the last word before its `:` base list or `{` is the class name.
 CLASS_HEAD = re.compile(r"\b(?:class|struct)\b[^;{}()<>]*?\b([A-Za-z_]\w*)\s*(?:final\s*)?[:{]")
 # A class head with a base list: `class A : public B, virtual C<T> {` (the entries after the lone `:`).
@@ -318,6 +320,10 @@ class TextBody(Body):
         for name in _head_initializer_names(head):
             if name in known:
                 self.calls.setdefault(name, "ctor-init")
+        args = _head_initializer_arguments(head)  # `_n(std::move(v))`: part of the constructor
+        news = re.compile(r"\bnew\s+(?:[A-Za-z_]\w*\s*::\s*)*([A-Za-z_]\w*)")  # `d(new Impl(this))`: a type, as in Body
+        self.types |= set(news.findall(args))
+        self._text_calls(news.sub(" ", args).encode())
         self.refs = set(re.findall(r"\b[A-Za-z_]\w*\b", body)) - set(self.calls)
         self.text_only = [m.group(0) for m in STRIP.finditer(raw[open_at : end + 1])]
 
@@ -336,6 +342,29 @@ def _head_initializer_names(head):
         elif tok == ":" and depth == 0:
             listed = True
     return names
+
+
+def _head_initializer_arguments(head):
+    """The text inside each entry of a constructor head's initializer list (`: Base(f(x)), m(g(y))` -> `f(x) g(y)`): the
+    arguments are calls of the constructor, the entry names are not (a base class is read by `_head_initializer_names`)."""
+    depth, listed, out = 0, False, []
+    for m in re.finditer(r"::|[:()]|[^:()]+", head):
+        tok = m.group(0)
+        if tok == "(":
+            depth += 1
+            if depth > 1 and listed:
+                out.append(tok)
+        elif tok == ")":
+            depth -= 1
+            if depth >= 1 and listed:
+                out.append(tok)
+            elif depth == 0 and listed:
+                out.append(" ; ")  # entries apart: `a` then `(x)` of the next must not read as a call `a(x)`
+        elif tok == ":" and depth == 0:
+            listed = True
+        elif listed and depth >= 1:
+            out.append(tok)
+    return "".join(out)
 
 
 def _initializers(node):
@@ -444,7 +473,9 @@ def _is_real_nested_function(node):
     decl = node.child_by_field_name("declarator")
     body = node.child_by_field_name("body")
     head = node.text[: body.start_byte - node.start_byte] if body is not None else node.text
-    if _has_toplevel_semicolon(head):  # `CLEAR_MEMORY(a, bool, 16);\n stmt;\n ...`: statements read as a head (edge-classic)
+    if _has_toplevel_semicolon(
+        head
+    ):  # `CLEAR_MEMORY(a, bool, 16);\n stmt;\n ...`: statements read as a head (edge-classic)
         return False
     while decl is not None and decl.type in ("pointer_declarator", "reference_declarator"):
         # `Hash &hashFor(int)` / `Item *find()`: the function_declarator sits under the `&` / `*` (a DE_PIMPL method
@@ -581,7 +612,9 @@ class Port:
                 # Braces ending earlier: the node ran over the code below (srb2's bare macro statements, MSVC __asm,
                 # #6266), unless the braces hold whole methods (a broken DE_PIMPL class: their calls are theirs)
                 ends = node.end_point[0] + 1
-                earlier = braces.end_line < ends and all(row > braces.end_line for row in body.nested)
+                # A macro class is read by its braces anyway: TextBody keeps only its member initializers.
+                macro_class = bool(MACRO_CLASS_HEAD.match(src.split(b"\n")[start - 1].decode("latin-1")))
+                earlier = braces.end_line < ends and (macro_class or all(row > braces.end_line for row in body.nested))
                 if braces.calls is not None and (braces.end_line > ends or earlier):
                     body = braces
             caller = bare(fname)

@@ -111,6 +111,16 @@
    "why": "INSERT-ENDOW, the caller passed exactly the required 152 bytes (28 header + 124): WS-VARY-LEN 0, the INSERT without PADDINGDATA (X23: no storage overlay at this length, X8)"
   },
   {
+   "name": "add-endowment-padded",
+   "commarea": {
+    "CA-REQUEST-ID": "01AEND",
+    "CA-CUSTOMER-NUM": "3",
+    "CA-REQUEST-SPECIFIC": "00000000002026-01-012027-01-01                          0000000007REF0000001001234YNYGROWTH    25250000A. N. OTHER                    PADDING!"
+   },
+   "commarea_length": 32500,
+   "why": "INSERT-ENDOW, the caller passed the record's full 32500 bytes, 32348 over the required 152 (X23: the whole of CA-E-PADDING-DATA is within EIBCALEN, so the MOVE reads nothing past it): SUBTRACT GIVING the PIC S9(4) COMP WS-VARY-LEN truncates 32348 to 2348 (TRUNC(STD)), which is greater than zero, so CA-E-PADDING-DATA moves into WS-VARY-CHAR(1:2348) and the INSERT with PADDINGDATA runs (line 342 true arm)"
+  },
+  {
    "name": "add-endowment-short",
    "commarea": {
     "CA-REQUEST-ID": "01AEND",

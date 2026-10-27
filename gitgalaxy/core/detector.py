@@ -2133,6 +2133,8 @@ _CALLS_OUT_GLOBAL_IGNORE = frozenset(
         "try",
         "except",
         "finally",
+        # #6266: the MSVC structured-exception clause `__except (filter) {`, a keyword of C and C++.
+        "__except",
     }
 )
 

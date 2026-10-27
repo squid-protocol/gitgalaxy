@@ -250,7 +250,8 @@ DEFINITION: dict[str, Any] = {
             + r"]["
             + ID_CONTINUE
             + r"]*){0,5})?[ \t]*\{[ \t]*){0,3}"
-            r"(?!(?:if|for|while|switch|catch|else)\b)"
+            # #6266: `case T(x):` before a block is a label, not a definition named `T`.
+            r"(?!(?:if|for|while|switch|catch|else|case)\b)"
             r"(?:template[ \t\n]*<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>[ \t\n]*)?"
             # 2. LINKAGE & STORAGE MODIFIERS (Now supports vertical formatting)
             r"(?:(?:static|inline|extern|virtual|_Noreturn|constexpr|consteval|constinit|__inline__|__forceinline)[ \t\n]+){0,5}"

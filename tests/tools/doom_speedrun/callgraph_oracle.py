@@ -424,11 +424,28 @@ MACRO_STATEMENT = re.compile(
 )
 
 
+def _has_toplevel_semicolon(head):
+    """A `;` outside every bracket pair: a lambda in a constructor initializer (`c ? c : [] { return x; }`) has its own."""
+    depth = 0
+    for ch in head:  # bytes: ints
+        if ch in b"({[":
+            depth += 1
+        elif ch in b")}]":
+            depth -= 1
+        elif ch == 59 and depth <= 0:
+            return True
+    return False
+
+
 def _is_real_nested_function(node):
     """A nested ``function_definition`` that is a function (a GNU C nested function), not the ``else if (...) {`` that
     ``#ifdef`` splitting makes tree-sitter read as one (its type or declarator name is a keyword) nor a macro statement."""
     kind = node.child_by_field_name("type")
     decl = node.child_by_field_name("declarator")
+    body = node.child_by_field_name("body")
+    head = node.text[: body.start_byte - node.start_byte] if body is not None else node.text
+    if _has_toplevel_semicolon(head):  # `CLEAR_MEMORY(a, bool, 16);\n stmt;\n ...`: statements read as a head (edge-classic)
+        return False
     while decl is not None and decl.type in ("pointer_declarator", "reference_declarator"):
         # `Hash &hashFor(int)` / `Item *find()`: the function_declarator sits under the `&` / `*` (a DE_PIMPL method
         # returning one was read as no function, so its calls were credited to the class, 1085 doomsday misses, #6266)

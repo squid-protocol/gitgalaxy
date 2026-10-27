@@ -35,3 +35,18 @@ def test_cpp_destructor_header_is_not_a_call_to_the_class():
 def test_a_bitwise_not_of_a_real_call_is_still_a_call():
     code = "int f(int x) {\n  return ~g(x);\n}\n"
     assert _calls("cpp", code, "f") == ["g"]
+
+
+@pytest.mark.parametrize(
+    "stmt",
+    ["p->~Node();", "x.~Node();", "this->~Node();", "p-> ~Node();", "Node::~Node();"],
+)
+def test_cpp_explicit_destructor_call_is_a_call_to_the_destructor_unit(stmt):
+    # #5630: gzdoom's `p->~player_t()` named the class, not the `~player_t` unit it runs
+    code = "void f(Node *p) {\n  " + stmt + "\n  g(p);\n}\n"
+    assert _calls("cpp", code, "f") == ["~Node", "g"]
+
+
+def test_cpp_explicit_destructor_call_in_a_destructor_of_another_class_is_kept():
+    code = "Owner::~Owner()\n{\n  item->~Item();\n  free(item);\n}\n"
+    assert _calls("cpp", code, "Owner::~Owner") == ["~Item", "free"]

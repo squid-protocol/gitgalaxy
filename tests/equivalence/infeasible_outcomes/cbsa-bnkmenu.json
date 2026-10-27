@@ -3,6 +3,13 @@
   "case": "cbsa-bnkmenu",
   "entries": [
     {
+      "unit": "IOT999",
+      "kind": "PARAGRAPH",
+      "outcome": "entered",
+      "family": "G",
+      "reason": "IOT999 (l.968, EXIT) is entered only by falling out of INVOKE-OTHER-TXNS (l.377), and every path out of it ends the task. PMM010 (l.254) performs the section only when VALID-DATA, and EDIT-MENU-DATA (l.363) leaves VALID-DATA-SW 'Y' only for ACTIONI 1-7 or A, each of which has an IF at l.386-897 whose EXEC CICS RETURN TRANSID IMMEDIATE does not return when it succeeds and whose RESP NOT = NORMAL arm ends in PERFORM ABEND-THIS-TASK. Nothing PERFORMs or GO TOs IOT999."
+    },
+    {
       "unit": "A010",
       "line": 178,
       "kind": "IF",

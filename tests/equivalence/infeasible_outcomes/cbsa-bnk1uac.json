@@ -11,6 +11,14 @@
       "reason": "Same test (303): a RETURN that succeeds ends the task, so the fall-through arm where RESP is NORMAL is never executed."
     },
     {
+      "unit": "VD010",
+      "line": 625,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "The re-count (l.610) is reached only when the first count (l.596, CHARACTERS AFTER '.') exceeded 2 at l.598, so at least three characters follow the only point. It tallies INTRTI(WS-NUM-COUNT-POINT:INTRTL) with WS-NUM-COUNT-POINT = characters before the point + 2, which starts at the first of those characters. AFTER '.' binds only to the last item (FOR ALL '+'); the items for 0-9 and '-' count wherever they sit, and every character after the point is a digit (the checks above reject anything else). So the tally is at least 3 and l.625 > 2 is always true."
+    },
+    {
       "unit": "SM010",
       "line": 1149,
       "kind": "IF",

@@ -45,8 +45,10 @@ def test_dbcrfun_covers_update_and_proctran_insert_failing():
 def test_bnkmenu_states_its_unreachable_arms():
     path = EQUIV / "infeasible_outcomes" / "cbsa-bnkmenu.json"
     entries = json.loads(path.read_text(encoding="utf-8"))["entries"]
-    menu = {(e["unit"], e["line"], e["outcome"]): e for e in entries}
+    menu = {(e["unit"], e.get("line"), e["outcome"]): e for e in entries}
     assert ("IOT010", 897, "false") in menu
+    # IOT999 is entered only by falling out of INVOKE-OTHER-TXNS, and every path out of it ends the task (#6072)
+    assert ("IOT999", None, "entered") in menu
     # the RESP-fault scenarios (#6292) reach the failing-RETURN / SEND MAP arms, and a planned INVREQ on the
     # plain RETURN TRANSID reaches A010's (#6271), so those are no longer stated
     assert ("IOT010", 394, "true") not in menu

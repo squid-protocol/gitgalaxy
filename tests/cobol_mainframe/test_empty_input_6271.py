@@ -1,6 +1,6 @@
 """#6271: empty-field inputs the harness cannot represent are stated or refused by name, never claimed proven.
 
-X54: a field of typed blanks arrives with length 0 (oracle side). X26: BIF DEEDIT of a field with no digit is refused by name.
+X54: a field of typed blanks arrives with length 0 (oracle side). X26: BIF DEEDIT of a field with no digit leaves zeros (ASSUMED).
 The stated infeasible outcomes BNK1CRA 988 / BNK1TFN 1026 rest on the first.
 """
 
@@ -31,10 +31,10 @@ def test_leading_blanks_count_trailing_do_not(text, length):
     assert len(text.rstrip(" ")) == length
 
 
-def test_deedit_of_a_field_with_no_digit_is_refused_by_name():
+def test_deedit_of_a_field_with_no_digit_is_no_longer_refused():
     from gitgalaxy.standards.cics.commands.task import BIF_DEEDIT
 
-    assert any("no digit left" in (r.java or "") for r in BIF_DEEDIT.runtime_refusals)
+    assert not any("no digit left" in (r.java or "") for r in BIF_DEEDIT.runtime_refusals)
 
 
 @pytest.mark.parametrize("case,line", [("cbsa-bnk1cra", 988), ("cbsa-bnk1tfn", 1026)])

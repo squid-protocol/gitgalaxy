@@ -28,3 +28,48 @@ def test_scoped_import_still_resolves_to_the_declaring_file():
 
 def test_other_languages_keep_the_bare_stem_edge():
     assert _edges("dart", "util", "lib/util.dart", "dart") == {"lib/util.dart"}
+
+
+def _scoped(token, decls, importer="Sources/App/main.swift"):
+    """Edges from a scoped import; `decls` maps path -> declared names (as the detector records them)."""
+    files = [{"path": importer, "lang_id": "swift", "raw_imports": [token]}]
+    files += [
+        {"path": p, "lang_id": "swift", "raw_imports": [], "classes": [{"name": n} for n in names]}
+        for p, names in decls.items()
+    ]
+    return {dst for (_src, dst) in NetworkRiskSensor()._resolve_edges(files)}
+
+
+@pytest.mark.parametrize("kind", ["struct", "class", "enum", "protocol", "typealias", "func", "var", "let"])
+def test_scoped_import_finds_a_declaration_in_a_file_not_named_after_it(kind):
+    decls = {"Sources/Lib/Deep/Misc.swift": ["Widget"], "Sources/Other/Widget2.swift": ["Gadget"]}
+    assert _scoped("Lib.Widget", decls) == {"Sources/Lib/Deep/Misc.swift"}, kind
+
+
+def test_nested_name_falls_back_to_its_owner():
+    assert _scoped("Lib.Outer.Inner", {"Sources/Lib/Misc.swift": ["Outer"]}) == {"Sources/Lib/Misc.swift"}
+
+
+def test_declaration_outside_the_named_target_is_not_linked():
+    assert _scoped("Lib.Widget", {"Sources/Other/Widget.swift": ["Widget"]}) == set()
+
+
+def test_ambiguous_declaration_draws_no_edge():
+    decls = {"Sources/Lib/A.swift": ["Widget"], "Sources/Lib/B.swift": ["Widget"]}
+    assert _scoped("Lib.Widget", decls) == set()
+
+
+def test_test_target_decoy_is_ignored_for_production_importer():
+    decls = {"Sources/Lib/A.swift": ["Widget"], "Tests/Lib/B.swift": ["Widget"]}
+    assert _scoped("Lib.Widget", decls) == {"Sources/Lib/A.swift"}
+
+
+def test_declaration_capture_reads_top_level_names_only():
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    rx = LANGUAGE_DEFINITIONS["swift"]["rules"]["_declaration_capture"]
+    src = (
+        "public struct A {}\n@MainActor final class B {}\nextension C: P {}\nfunc d() {}\n"
+        "    struct Nested {}\nprivate struct Hidden {}\ntypealias E = Int\nlet f = 1\n"
+    )
+    assert [m.group(1) for m in rx.finditer(src)] == ["A", "B", "C", "d", "E", "f"]

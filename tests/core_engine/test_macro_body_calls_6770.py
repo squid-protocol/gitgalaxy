@@ -136,3 +136,35 @@ def test_a_scan_with_no_macro_define_expands_nothing(tmp_path):
 def test_the_cpp_lane_reads_the_table_too(tmp_path):
     calls = _scan(tmp_path, {"run.cpp": C_SOURCE, "z.h": C_HEADER})
     assert {"Z_ChangeTag2", "I_Error"} <= calls["tagged"] and "FixedMul" in calls["scaled"]
+
+
+# #6266: a function named like a macro (a debug-allocator wrapper, an alias for a native-resolution variant) holds
+# the macro's name only in its own header, which no expansion reaches; a recursive use of the name still does.
+NAMED_AS_MACRO_SOURCE = """\
+#include "alloc.h"
+void *M_Malloc_Dbg(unsigned n, const char *f, int l) { return 0; }
+void *M_Malloc(unsigned n)
+{
+    return 0;
+}
+void *M_Calloc(unsigned n)
+{
+    return M_Calloc(n - 1);
+}
+void *caller(unsigned n)
+{
+    return M_Malloc(n);
+}
+"""
+NAMED_AS_MACRO_HEADER = """\
+#define M_Malloc(s) M_Malloc_Dbg(s, __FILE__, __LINE__)
+#define M_Calloc(s) M_Malloc_Dbg(s, __FILE__, __LINE__)
+"""
+
+
+@pytest.mark.parametrize("ext", ["c", "cpp"])
+def test_a_function_named_like_a_macro_is_not_expanded_at_its_own_header(tmp_path, ext):
+    calls = _scan(tmp_path, {f"run.{ext}": NAMED_AS_MACRO_SOURCE, "alloc.h": NAMED_AS_MACRO_HEADER})
+    assert "M_Malloc_Dbg" not in calls["M_Malloc"]
+    assert "M_Malloc_Dbg" in calls["M_Calloc"]
+    assert "M_Malloc_Dbg" in calls["caller"]

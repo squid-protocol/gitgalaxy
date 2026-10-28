@@ -8,6 +8,7 @@ import os
 import posixpath
 import re
 from collections import defaultdict
+from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
 
@@ -387,11 +388,13 @@ class NetworkRiskSensor:
         and five false edges appeared. A target in `NON_IMPORTABLE_LANGS` is accepted only
         when the token spells that file's own extension (`require("./data.json")`, `source
         ci.yml`), which is a positive statement that a data file is meant."""
-        if src_lang == "swift" and "." not in target_token and "/" not in target_token:
+        if src_lang == "swift" and "/" not in target_token:
             # #3798 (import contract C7): `import Foundation` names a module, which has no file of
             # its own; the stem search would hand it a local `Foundation.swift`. `import struct
-            # Mod.Name` carries a dot and still resolves.
-            return None
+            # Mod.Name` names a declaration in target Mod: the per-target declaration index.
+            if "." not in target_token:
+                return None
+            return self._resolve_swift_scoped(target_token, resolution_map, curr_path, file_facts)
         hit = self._resolve_target_unguarded(
             target_token, resolution_map, curr_path, folded_maps, fold_lang, src_lang, file_facts
         )
@@ -1011,6 +1014,39 @@ class NetworkRiskSensor:
             if beside is not None:
                 return beside
         return self._resolve_path_tail(tail, resolution_map)
+
+    def _resolve_swift_scoped(
+        self,
+        target_token: str,
+        resolution_map: dict[str, list[str]],
+        curr_path: str,
+        file_facts: dict[str, tuple[str, bool]] | None,
+    ) -> str | None:
+        """#3798: `Mod.Name[.Nested]` -> the one Swift file declaring `Name` (a nested name falls
+        back to its owner) under a directory named `Mod`, the SwiftPM target's default location
+        (`Sources/Mod/...`). Zero or several files draw no edge."""
+        parts = target_token.split(".")
+        if len(parts) < 2:
+            return None
+        module, name = parts[0], parts[1]
+
+        def in_target(candidates: Iterable[str]) -> list[str]:
+            hits = [
+                c
+                for c in dict.fromkeys(candidates)
+                if module in posixpath.dirname(c.replace("\\", "/")).split("/")
+                and c.endswith(".swift")
+                and (not file_facts or (file_facts.get(c) or ("", False))[0] == "swift")
+            ]
+            if not _is_test_path(curr_path):
+                hits = [c for c in hits if not _is_test_path(c)]
+            return hits
+
+        hits = in_target(self._declared_in.get(name, ()))
+        # No extracted declaration: the file named after the type, in the target's directory.
+        if not hits:
+            hits = in_target(resolution_map.get(name, ()))
+        return hits[0] if len(hits) == 1 else None
 
     def _resolve_declaration(
         self,

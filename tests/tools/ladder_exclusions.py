@@ -42,7 +42,7 @@ EXCLUSIONS: dict[tuple[str, str], dict[str, str]] = {
     ("zecs", "zecs002.asm"): {
         "kind": "not_cobol",
         "issue": "#5859",
-        "reason": "CICS Assembler member; the HLASM front end lowers it and the det translator translates it whole (slices 3b-3e: reserved-word names renamed, GGCVER stub); no equivalence case yet: its USERID holds EBCDIC bytes (the program converts ASCII to EBCDIC) and a fault-plan verdict is ASCII-only",
+        "reason": "CICS Assembler member; the HLASM front end lowers it and the det translator translates it whole (slices 3b-3e: reserved-word names renamed, GGCVER stub); its equivalence case tests/equivalence/zecs-zecs002 proves the port of the lowering (11 scenarios; the VERIFY verdict is keyed by userid_hex), and tests/cobol_mainframe/test_hlasm_interp_5859.py cross-checks the lowering with an independent interpreter",
     },
     ("dbb-mortgage-application", "epscsmrd.cbl"): {
         "kind": "owner_held",

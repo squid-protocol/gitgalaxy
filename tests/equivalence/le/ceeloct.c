@@ -13,7 +13,10 @@
  *   fc                 the 12-byte feedback token, all zero on success
  * The local time is the run's pinned clock, $COB_CURRENT_DATE ("YYYY/MM/DD HH:MM:SS.CC", the case's clock, which the
  * runner also gives GnuCOBOL's FUNCTION CURRENT-DATE). Without it the model refuses (exit 98): no proof rests on the
- * wall clock. output_seconds is written as a native IEEE double (GnuCOBOL's COMP-2; the Java side holds the same
+ * wall clock. A scenario's fault plan (#6882, faults.cfg in $GGCICS_DIR) can plan IBM's one failure, CEE2F3 (severity 3,
+ * message 2531, "The local time was not available from the system"): `CALL-CEELOCT - NTH 2531 0`. The call then writes
+ * that 12-byte token, leaves the three outputs untouched and logs the fault to $GGCICS_OUT/faults.txt, as the
+ * ggcics stub logs its own. output_seconds is written as a native IEEE double (GnuCOBOL's COMP-2; the Java side holds the same
  * value in the item's own usage, register C6).
  */
 #include <stdio.h>
@@ -29,7 +32,43 @@ static long civil(int y, int m, int d) {
     return era * 146097 + doe;
 }
 
+/* the planned failure of this call (the nth in the task), as the Java side's task.planned("CALL-CEELOCT", "-") gives it */
+static int planned_failure(int n) {
+    const char *dir = getenv("GGCICS_DIR");
+    char path[3000], line[256], cmd[32], name[32], nth[16];
+    int resp, resp2 = 0, hit = 0;
+    snprintf(path, sizeof path, "%s/faults.cfg", dir ? dir : ".");
+    FILE *f = fopen(path, "r");
+    while (f && !hit && fgets(line, sizeof line, f)) {
+        resp2 = 0;
+        if (sscanf(line, "%31s %31s %15s %d %d", cmd, name, nth, &resp, &resp2) < 4) continue;
+        if (strcmp(cmd, "CALL-CEELOCT") != 0 || (nth[0] != '*' && atoi(nth) != n)) continue;
+        hit = resp;
+    }
+    if (f) fclose(f);
+    if (hit) {
+        const char *out = getenv("GGCICS_OUT");
+        snprintf(path, sizeof path, "%s/faults.txt", out ? out : ".");
+        FILE *log = fopen(path, "a");
+        if (log) { fprintf(log, "CALL-CEELOCT - %d %d %d\n", n, hit, resp2); fclose(log); }
+    }
+    return hit;
+}
+
 int CEELOCT(unsigned char *lilian, unsigned char *seconds, unsigned char *gregorian, unsigned char *fc) {
+    static int calls;
+    int failed = planned_failure(++calls);
+    if (failed) { /* CEE2F3: condition token, severity 3, message number, case 1 / severity 3 / control 1, "CEE" */
+        memset(fc, 0, 12);
+        fc[1] = 0x03;
+        fc[2] = (unsigned char)(failed >> 8);
+        fc[3] = (unsigned char)(failed & 0xff);
+        fc[4] = 0x59;
+        fc[5] = 0xC3;
+        fc[6] = 0xC5;
+        fc[7] = 0xC5;
+        return 0;
+    }
     const char *s = getenv("COB_CURRENT_DATE");
     int y, mo, d, hh, mi, ss, hs = 0;
     if (!s || sscanf(s, "%d/%d/%d %d:%d:%d.%d", &y, &mo, &d, &hh, &mi, &ss, &hs) < 6) {

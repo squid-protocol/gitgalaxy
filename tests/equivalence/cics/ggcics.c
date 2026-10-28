@@ -1093,8 +1093,8 @@ static int listed(const char *file, const char *name) {
  * and padded on the left with zeros; a field that ends in a minus sign (X'60') or CR gets the negative zone X'D' in its
  * rightmost byte; a rightmost byte whose zone is X'A'-X'F' is returned unaltered ("This permits the application
  * program to operate on a zoned numeric field"); a 1-byte field is returned unaltered. LENGERR if LENGTH is less than
- * 1 (IBM lists no RESP2). Refused by name: a byte beyond 7-bit ASCII, a LENGTH past the field (flen), and a field with
- * no digit left (IBM does not say what it becomes). c->num is LENGTH. */
+ * 1 (IBM lists no RESP2). Refused by name: a byte beyond 7-bit ASCII, a LENGTH past the field (flen). A field with
+ * no digit left becomes all zeros (ASSUMED: IBM does not say). c->num is LENGTH. */
 static const unsigned char ASCII_TO_EBCDIC[128] = {
     0x00, 0x01, 0x02, 0x03, 0x37, 0x2D, 0x2E, 0x2F, 0x16, 0x05, 0x25, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
     0x10, 0x11, 0x12, 0x13, 0x3C, 0x3D, 0x32, 0x26, 0x18, 0x19, 0x3F, 0x27, 0x1C, 0x1D, 0x1E, 0x1F,
@@ -1126,7 +1126,7 @@ int GGCDEED(gg_cics *c, char *field, int flen) {
     else if ((e[n - 1] & 0xF0) >= 0xA0) { kept = e[n - 1]; end = n - 1; }
     for (i = 0; i < end; i++)
         if (e[i] >= 0xF0 && e[i] <= 0xF9) digits[k++] = e[i];
-    if (k == 0 && kept < 0) refuse("BIF DEEDIT of a field with no digit left");
+    /* no digit left: all zeros (IBM's rule read literally; ASSUMED, register X26) */
     memset(out, 0xF0, (size_t)n);
     last = n - 1;
     if (kept >= 0) { out[last] = (unsigned char)kept; last--; }

@@ -131,6 +131,7 @@ void dead_toggle(void) { }
 void dead_ifdef(void) { }
 void kept_defined(void) { }
 void kept_built(void) { }
+void kept_vs(void) { }
 void kept_else(void) { }
 void run(void)
 {
@@ -150,6 +151,9 @@ void run(void)
 #if defined(BUILT_BY_CMAKE)
     kept_built();
 #endif
+#ifdef BUILT_BY_VS
+    kept_vs();
+#endif
 #ifdef NEVER_ELSE
 #else
     kept_else();
@@ -164,6 +168,8 @@ def test_a_scan_drops_dead_branch_calls_and_keeps_the_rest(tmp_path):
     (src / "run.c").write_text(C_SOURCE)
     (src / "net.h").write_text("#define DEFINED_IN_HEADER 1\n")
     (src / "CMakeLists.txt").write_text("add_definitions(-DBUILT_BY_CMAKE)\n")
+    # #6266: the aperture blocks a `.vcxproj` for its extension, but its compiler defines still make a toggle live
+    (src / "app.vcxproj").write_text("<PreprocessorDefinitions>NDEBUG;BUILT_BY_VS</PreprocessorDefinitions>\n")
     out = tmp_path / "out"
     env = {
         **os.environ,
@@ -189,6 +195,6 @@ def test_a_scan_drops_dead_branch_calls_and_keeps_the_rest(tmp_path):
         }
     finally:
         con.close()
-    assert {"live", "kept_defined", "kept_built", "kept_else"} <= calls
+    assert {"live", "kept_defined", "kept_built", "kept_vs", "kept_else"} <= calls
     assert not {"dead_zero", "dead_toggle", "dead_ifdef"} & calls
     assert Path(dbs[0]).exists()

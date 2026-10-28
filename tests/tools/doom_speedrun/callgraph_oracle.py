@@ -98,6 +98,11 @@ STATEMENT_NODES = {
     "for_range_loop", "try_statement", "expression_statement",
 }  # fmt: skip
 TEXT_NODES = {"comment", "string_literal", "raw_string_literal", "char_literal", "concatenated_string"}
+# `#define NAME(params) body` (continuation lines joined by the caller): the callees a function-like macro's body names.
+MACRO_DEFINE = re.compile(
+    r"^[ \t]*#[ \t]*define[ \t]+([A-Za-z_]\w*)\(([^)\n]*)\)[ \t]*((?:[^\n\\]|\\\r?\n|\\.)*)", re.M
+)
+MACRO_EXPANSION_DEPTH = 4
 # Text fallback for a region tree-sitter misparsed (an ERROR node, or an ``else if`` split by ``#ifdef`` read as a
 # nested function definition): comments and literals blanked, then every ``name (`` that is not a keyword.
 STRIP = re.compile(r"/\*.*?\*/|//[^\n]*|\"(?:\\.|[^\"\\\n])*\"|'(?:\\.|[^'\\\n])*'", re.S)
@@ -705,6 +710,43 @@ def find_db(scan_dir):
     return hits[0] if hits else None
 
 
+def macro_body_callees(repo, vendored=None):
+    """Function-like macro name -> the words before ``(`` in its body, over every C-family file of ``repo``.
+
+    Tree-sitter reads a macro invocation as a call to the macro, so a function's lexical body never holds the calls the
+    macro expands to (#6770). A name two files define differently is left out, as the compiler's expansion depends on
+    which definition a unit sees (crispy-doom's per-game `FTOM`): the oracle claims only what every definition agrees on."""
+    table, conflicted = {}, set()
+    root = Path(repo)
+    for path in sorted(root.rglob("*")):
+        if path.suffix.lower() not in {".c", ".h", ".cc", ".cpp", ".hpp", ".inl"} or not path.is_file():
+            continue
+        if vendored and vendored(path.relative_to(root).as_posix()):
+            continue
+        try:
+            text = decode_bytes(path.read_bytes())
+        except OSError:
+            continue
+        for m in MACRO_DEFINE.finditer(text):
+            params = {x.strip() for x in m.group(2).split(",")}
+            body = STRIP.sub(" ", m.group(3).replace("\\\n", " "))
+            calls = {c for c in re.findall(r"\b([A-Za-z_]\w*)\s*\(", body) if c not in params}
+            if table.setdefault(m.group(1), calls) != calls:
+                conflicted.add(m.group(1))
+    return {n: c for n, c in table.items() if n not in conflicted}
+
+
+def macro_reaches(table, invoked, callee):
+    """True when a macro among ``invoked`` expands (through macros that call macros, bounded) to a call of ``callee``."""
+    level, seen = {n for n in invoked if n in table}, set()
+    for _ in range(MACRO_EXPANSION_DEPTH):
+        if any(callee in table[n] for n in level):
+            return True
+        seen |= level
+        level = {c for n in level for c in table[n] if c in table} - seen
+    return False
+
+
 def load_port(repo, db, vendored=None):
     """Engine functions of a scan: [(relpath, language, name, start_line, calls_out_to list)] for C and C++ files.
 
@@ -744,6 +786,7 @@ class Port:
         self.defined = {bare(r[2]) for r in rows}
         self.functions = []  # (rel, name, start, engine callee set, Body / TextBody or None)
         self.edges = set()
+        self.macros = macro_body_callees(self.repo, doom_scorer._engine_vendor_test(self.repo))
         trees = {}
         classes = (
             class_names(self.repo, doom_scorer._engine_vendor_test(self.repo))
@@ -798,6 +841,7 @@ class Port:
 def body_oracle(port):
     """Per-port recall/precision of ``calls_out_to`` against the tree-sitter call set, misses by shape."""
     misses, extra = collections.Counter(), collections.Counter()
+    expanded = 0
     examples = collections.defaultdict(list)
     n_or = n_eng = agree = unmatched = text = 0
     for rel, caller, start, eng, body in port.functions:
@@ -818,6 +862,9 @@ def body_oracle(port):
         for callee in sorted(eng - oracle):
             kind = body.presence(callee) or "absent"
             kind = "function-pointer" if kind.startswith("call:") else kind  # a call the oracle saw is in `oracle`
+            if kind in ("absent", "macro") and macro_reaches(port.macros, body.calls, callee):
+                expanded += 1  # a macro this body invokes expands to the call (#6770): not a false edge
+                kind = "macro-expansion"
             extra[kind] += 1
             if len(examples["engine-only:" + kind]) < EXAMPLES:
                 examples["engine-only:" + kind].append(f"{rel}:{start} {caller} -> {callee}")
@@ -829,15 +876,24 @@ def body_oracle(port):
         "engine_calls": n_eng,
         "agree": agree,
         "recall": round(agree / n_or, 4) if n_or else 1.0,
-        "precision": round(agree / n_eng, 4) if n_eng else 1.0,
+        "precision": round(agree / (n_eng - expanded), 4) if n_eng - expanded else 1.0,
+        "macro_expansion_calls": expanded,
         "misses_by_shape": dict(misses.most_common()),
         "engine_only_by_kind": dict(extra.most_common()),
         "examples": {k: v for k, v in sorted(examples.items())},
     }
 
 
-def _presence(port, a, b):
+def _presence(port, a, b, expanded=False):
+    """How ``b`` appears in the body of ``a``. ``expanded`` also counts a call a macro of that body expands to (#6770):
+    right for clearing an engine edge as a false-edge suspect, wrong for a hole (a macro call inside a dead `#if 0`
+    would read as an engine miss)."""
     hits = [f[4].presence(b) for f in port.bodies(a)]
+    if expanded:
+        hits = [
+            h or ("macro-expansion" if macro_reaches(port.macros, f[4].calls, b) else None)
+            for h, f in zip(hits, port.bodies(a))
+        ]
     hits = [h for h in hits if h and h != "comment/string"]
     return (hits[0], port.bodies(a)[0]) if hits else (None, (port.bodies(a) or [None])[0])
 
@@ -864,7 +920,7 @@ def consensus(ports):
             holders = [q for q in sibs if a in q.defined and b in q.defined]
             if len(holders) < MIN_LONE_HOLDERS or any((a, b) in q.edges for q in holders) or not p.bodies(a):
                 continue
-            why, f = _presence(p, a, b)
+            why, f = _presence(p, a, b, expanded=True)
             if not why:
                 suspects.append({"port": p.name, "edge": f"{a} -> {b}", "votes": f"0/{len(holders)}",
                                  "at": f"{f[0]}:{f[2]}"})  # fmt: skip
@@ -968,6 +1024,7 @@ def baseline_view(result):
                 "agree",
                 "recall",
                 "precision",
+                "macro_expansion_calls",
                 "misses_by_shape",
                 "engine_only_by_kind",
             )

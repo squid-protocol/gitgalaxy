@@ -1,30 +1,17 @@
 {
  "programs": 186,
  "non_burned": 0,
- "whole": 166,
+ "whole": 167,
  "whole_non_burned": 0,
- "refused": 2,
+ "refused": 1,
  "histogram": {
-  "0": 166,
-  "1": 8,
+  "0": 167,
+  "1": 7,
   "2": 8,
   "3": 3,
   "8": 1
  },
  "gaps": [
-  {
-   "gap": "refused: CICS Assembler",
-   "only": 2,
-   "only_burned": 2,
-   "only_non_burned": 0,
-   "one_away": 0,
-   "one_away_burned": 0,
-   "one_away_non_burned": 0,
-   "touched": 2,
-   "touched_burned": 2,
-   "touched_non_burned": 0,
-   "refuses_program": true
-  },
   {
    "gap": "EXEC CICS <name>: a pointer a REDEFINES overlays",
    "only": 1,
@@ -102,6 +89,19 @@
    "touched_burned": 1,
    "touched_non_burned": 0,
    "refuses_program": false
+  },
+  {
+   "gap": "refused: CICS Assembler",
+   "only": 1,
+   "only_burned": 1,
+   "only_non_burned": 0,
+   "one_away": 0,
+   "one_away_burned": 0,
+   "one_away_non_burned": 0,
+   "touched": 1,
+   "touched_burned": 1,
+   "touched_non_burned": 0,
+   "refuses_program": true
   },
   {
    "gap": "<name>: a pointer a REDEFINES overlays",

@@ -88,7 +88,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | C3 | compiler | An integer literal truncated to zero keeps no sign | DIFFERS | no |
 | C4 | compiler | An unsigned binary taken below zero by ADD/SUBTRACT: IBM keeps the absolute value, and so does the det runtime; cobc's native arithmetic wraps (#4684) | MATCHED (det runtime = IBM) / DIFFERS (oracle vs IBM, declared; no cobc option turns it off) | no |
 | C5 | compiler | `NUMPROC(MIG)` as Enterprise COBOL 5+ compiles it (NOPFD), `NUMPROC(PFD)` with preferred signs (#4271); `TRUNC(OPT)` with conforming binary values, `ARITH(EXTEND)` with intermediates within 30 digits (#4706); `INTDATE(LILIAN)` | MATCHED (NUMPROC) / MODELLED (TRUNC(OPT) and ARITH(EXTEND), det ports, a stop by name; INTDATE(LILIAN), det port, no oracle) / REFUSED (the rest) | NUMPROC: no; TRUNC(OPT): CBSA (det ports); ARITH(EXTEND): DBB EPSCSMRD (det ports) |
-| C6 | compiler | COMP-1 / COMP-2: IBM hexadecimal floating point, and float-mode evaluation of the whole expression | MODELLED in the det runtime (HFP, #4271 slice 1); the oracle DIFFERS (IEEE, decimal evaluation): proven by IBM-cited vectors and on exact values; what the oracle cannot decide REFUSED by name | no (DBB EPSMPMT: its float `**` is an ASSUMED routine; the case waits on z/OS captures) |
+| C6 | compiler | COMP-1 / COMP-2: IBM hexadecimal floating point, and float-mode evaluation of the whole expression | MODELLED in the det runtime (HFP, #4271 slice 1); the oracle DIFFERS (IEEE, decimal evaluation): proven by IBM-cited vectors and on exact values; what the oracle cannot decide REFUSED by name | no (DBB EPSMPMT: its payment formula is IEEE binary64 by owner decision, #5867, but the oracle is not binary64 there; every other float `**` is an ASSUMED routine waiting on z/OS captures) |
 | C7 | compiler | COMP-5 byte order: little-endian vs z/OS big-endian | DIFFERS; byte uses REFUSED by name in the det translator (#4271) | read as numbers only (a VALUE beyond the PICTURE: fixed, #4501) |
 | C8 | compiler | DISPLAY of signed zoned, binary and packed items | MATCHED | yes |
 | C9 | compiler | POINTER is 8 bytes in GnuCOBOL (x86-64), 4 on z/OS | DIFFERS (declared: each side's fields read by its own layout, compared by name; a POINTER only as NULL or not) | only NULL (CBSA, data after one included) |
@@ -586,12 +586,13 @@ instrument). The rows below are rendered by one table in code (`compiler_options
   mask and Language Environment), a NUMVAL argument past 18 digits or 15 significant ones. `ggdisplay.c` still
   refuses the DISPLAY of a float on the COBOL side (C8), so no proof compares one.
 - **Waiting on it.**
-  - `mortgage-mpmt` (EPSMPMT): its interest rate is now computed in long HFP, but the payment's `(1 + C) ** N`, N
-    with decimal places, is a floating-point exponentiation: since the `**` slice below it translates (ASSUMED
-    `Hfp.power`), but no z/OS capture agrees with the assumption, so the case stays unproven. Its det port is in the
-    det sweep's baseline (KNOWN_UNPROVEN) for the one hole left, the dead-code `FUNCTION ANNUITY` (#5867). Its
-    callers `mortgage-csmrt` and `mortgage-cmort` are listed only through the called-hole rule. It would also round
-    where GnuCOBOL truncates.
+  - `mortgage-mpmt` (EPSMPMT): its interest rate is computed in long HFP and stored as short HFP; the payment's
+    `(1 + C) ** N` and the dead-code `FUNCTION ANNUITY` are IEEE binary64 by owner decision (bullet below), so the port
+    translates whole (27 of 27 statements, no hole). It stays in the det sweep's baseline (KNOWN_UNPROVEN) on the
+    oracle side: 2 of its 11 calls differ by cents (`maximum-principal` GnuCOBOL 599550.79, det 599550.44;
+    `high-rate` 16666.50, 16666.49). Its callers `mortgage-csmrt` and `mortgage-cmort` left the baseline (#5867).
+    The store into the fixed-point payment truncates on both sides (an earlier note here said the port rounds: it does
+    not, `Cobol.store` truncates unless ROUNDED).
   - **A non-exact COMP-2 amount into a 2-decimal field (#5703 evidence, BNK1TFN line 494).** 12.34, 9999999999.99 and 0.01
     moved to `S9(10)V99` differ between GnuCOBOL and the port where the double is below the decimal (12.34 -> cobc 12.33,
     9999999999.99 -> cobc 9999999999.98, port 12.34 / 9999999999.99). IBM's MOVE rounding is documented ("Conversions and
@@ -645,8 +646,25 @@ instrument). The rows below are rendered by one table in code (`compiler_options
   `mortgage-mpmt` stays in KNOWN_UNPROVEN (the oracle cannot run HFP). Refused by name: a range overflow or underflow,
   `0 ** 0`, 0 to a negative power, a negative base with a fractional exponent, an integer exponent past +-1000. A
   fixed-point `**` is not affected (the oracle's decimal rule, C2; `test_a_fixed_point_exponentiation_is_not_refused`).
-  `FUNCTION ANNUITY` (the same power plus an undocumented float result) stays a Hole. Among the burned estates only
-  EPSMPMT (line 125) reaches it.
+  `FUNCTION ANNUITY` (the same power plus an undocumented float result) stays a Hole, except in EPSMPMT (line 144,
+  binary64 by owner decision, below), the only burned program that reaches a float `**` (line 125).
+- **EPSMPMT's payment formula is IEEE 754 binary64 by owner decision (2026-10-27, #5867).** Scope: DBB EPSMPMT
+  only (`IEEE_BINARY64_PROGRAMS` in `det/gen.py`); #4702 and the ASSUMED HFP power above still govern every other
+  program. In EPSMPMT a COMPUTE whose expression holds `**` or `FUNCTION ANNUITY` (line 125, the payment, and line
+  144, dead A300-TRY2) is evaluated in Java double: each operand converted to the nearest double (the COMP-1 rate from
+  its short HFP value, exact in a double), each operation one double operation, `**` as `StrictMath.pow` (fdlibm,
+  the same bits on every JVM), ANNUITY as IBM's formula `r / (1 - (1 + r) ** -n)` (`1 / n` when r is 0); the double is
+  stored into the fixed-point receiver like any arithmetic result (truncated unless ROUNDED). A float receiver for such
+  a statement is refused by name (no ruling on the double -> HFP conversion). It is an owner-stated assumption, not a
+  z/OS calibration. Pinned by `test_det_hfp.py` `test_ibm_dbb_epsmpmt_translates_its_payment_formula_in_ieee_binary64`,
+  `test_binary64_is_epsmpmts_alone` and `test_a_binary64_result_into_a_float_item_is_a_named_hole`.
+  - **The oracle is not binary64 there (measured, GnuCOBOL 3.1.2, `-std=ibm`).** The COMP-1 rate is IEEE binary32
+    (5% / 12 -> 0.004999999888...; the port holds short HFP, #4702); cobc reads it as a 19-digit decimal and takes the
+    power as an exact decimal (`(1 + C) ** N` stored alone: 6.022574971161645864), but inside the larger expression it
+    loses about 1e-6 relative, and the loss depends on operand order (`C * ((1 + C) ** N)` = 0.030112764..., where the
+    exact product of the same operands is 0.030112874...). So the oracle side of the ruling needs a stand-in that
+    computes this statement in binary64 (an `LD_PRELOAD` routine or a case-level source rewrite), and the owner's word
+    on the rate's binary32 (GnuCOBOL) vs short HFP (port): until then `mortgage-mpmt` stays unproven.
 - **What would settle it.** A z/OS run of EPSMPMT's scenarios (#4050): the exponentiation, and the ASSUMED
   conversions above, checked where the oracle cannot.
   - **Where a capture lands (#4271, #4050).** `tests/cobol_mainframe/zos_captures/hfp.json` is a table of expected HFP
@@ -700,9 +718,9 @@ instrument). The rows below are rendered by one table in code (`compiler_options
     (2) PR: `ingest` the HFPCAP SYSOUT as `zos-run` records, and settle any ASSUMED rule the run disagrees with (power,
     store, DISPLAY, float-to-fixed) in `det/hfp.py`, `Hfp.java` and `cobolrt_rules.json`, never in a record;
     (3) PR: `ingest --kit asm` the HFPCAPA SYSOUT, and re-check EPSMPMT's float `**` against it;
-    (4) PR: if the `**` agrees and `FUNCTION ANNUITY` is closed (#5867), move `mortgage-mpmt`, `mortgage-csmrt` and
-    `mortgage-cmort` out of `KNOWN_UNPROVEN` and `det_sweep_baseline.json`, update this register and the ground-truth ledger.
-    Burned programs gated: EPSMPMT (lines 2-4). Unsettled siblings: `FUNCTION ANNUITY` stays a Hole (EPSMPMT only); a
+    (4) PR: if the `**` agrees, settle every other float `**`; EPSMPMT's is binary64 by owner decision (#5867), and
+    `mortgage-csmrt` / `mortgage-cmort` already left `det_sweep_baseline.json` (#5867).
+    Burned programs gated: EPSMPMT (lines 2-4). Unsettled siblings: `FUNCTION ANNUITY` stays a Hole outside EPSMPMT (no other burned program reaches it); a
     non-exact COMP-2 MOVEd into a 2-decimal field differs between GnuCOBOL and the det port (BNK1TFN, line 494), IBM
     behaviour unsettled, so the CBSA case draws only exactly-representable amounts.
 - **IEEE <-> HFP conversion model (#4271).** `det/hfp.py` `ieee_value`, `from_ieee`, `to_ieee`, `exact_in_both`, proven by

@@ -12,8 +12,8 @@ the charter in `definition_of_done.md`. Counts only; a level is an evidence leve
 | L0 inventoried | 2 |
 | L1 translated whole | 0 |
 | L2 executed equivalent | 0 |
-| L3 paragraph coverage | 8 |
-| L4 branch coverage | 34 |
+| L3 paragraph coverage | 4 |
+| L4 branch coverage | 38 |
 | L5 mutants accounted for | 0 |
 
 - translated whole: 42 / 44 (95%); with holes: 2; refused: 0
@@ -31,11 +31,11 @@ era 0: 0, era 1: 5, era 2: 22, era 3: 15, era 4: 0, era none: 2
 |---|---|---|---|---|---|
 | 1 | <name>: <name> is not defined in a record of file <name> | 2 | 0 | 2 | era 3: 2 |
 
-### Proof blockers (42 programs translated whole, 34 with no proof gap; top 1 of 1 classes, `proof_blockers.py` statistics)
+### Proof blockers (42 programs translated whole, 38 with no proof gap; top 1 of 1 classes, `proof_blockers.py` statistics)
 
 | rank | what stops the proof | alone | one gap away | touched |
 |---|---|---|---|---|
-| 1 | coverage: branch outcomes below the bar | 8 | 0 | 8 |
+| 1 | coverage: branch outcomes below the bar | 4 | 0 | 4 |
 
 ### Missing inputs
 
@@ -119,8 +119,8 @@ era 0: 0, era 1: 0, era 2: 0, era 3: 0, era 4: 7, era none: 3
 | L0 inventoried | 0 |
 | L1 translated whole | 0 |
 | L2 executed equivalent | 0 |
-| L3 paragraph coverage | 10 |
-| L4 branch coverage | 21 |
+| L3 paragraph coverage | 4 |
+| L4 branch coverage | 27 |
 | L5 mutants accounted for | 0 |
 
 - translated whole: 31 / 31 (100%); with holes: 0; refused: 0
@@ -137,11 +137,11 @@ era 0: 0, era 1: 0, era 2: 22, era 3: 1, era 4: 6, era none: 2
 | rank | rule (gap class) | makes whole alone | one rule away | touched | era mix of the alone-set |
 |---|---|---|---|---|---|
 
-### Proof blockers (31 programs translated whole, 21 with no proof gap; top 1 of 1 classes, `proof_blockers.py` statistics)
+### Proof blockers (31 programs translated whole, 27 with no proof gap; top 1 of 1 classes, `proof_blockers.py` statistics)
 
 | rank | what stops the proof | alone | one gap away | touched |
 |---|---|---|---|---|
-| 1 | coverage: branch outcomes below the bar | 10 | 0 | 10 |
+| 1 | coverage: branch outcomes below the bar | 4 | 0 | 4 |
 
 ### Missing inputs
 
@@ -239,42 +239,39 @@ era 0: 0, era 1: 4, era 2: 24, era 3: 0, era 4: 3, era none: 0
 
 | level | programs at exactly this level |
 |---|---|
-| L0 inventoried | 2 |
-| L1 translated whole | 2 |
-| L2 executed equivalent | 1 |
+| L0 inventoried | 1 |
+| L1 translated whole | 0 |
+| L2 executed equivalent | 0 |
 | L3 paragraph coverage | 0 |
-| L4 branch coverage | 1 |
+| L4 branch coverage | 5 |
 | L5 mutants accounted for | 0 |
 
-- translated whole: 4 / 6 (67%); with holes: 2; refused: 0
-- whole-translated but a CALL / LINK target has holes (below L2 until it is closed): 2
-- executed equivalent (L2 and above): 2 / 6
+- translated whole: 5 / 6 (83%); with holes: 1; refused: 0
+- whole-translated but a CALL / LINK target has holes (below L2 until it is closed): 0
+- executed equivalent (L2 and above): 5 / 6
 - charter bars for L3 / L4: paragraphs 100.0%, branches 100.0%
 
 Era evidence (programs by latest era a tell reaches):
 
 era 0: 0, era 1: 0, era 2: 2, era 3: 0, era 4: 1, era none: 3
 
-### Rules to land (9 gap classes; top 9, the `cics_census.py blockers` order)
+### Rules to land (8 gap classes; top 8, the `cics_census.py blockers` order)
 
 | rank | rule (gap class) | makes whole alone | one rule away | touched | era mix of the alone-set |
 |---|---|---|---|---|---|
-| 1 | COMPUTE FUNCTION ANNUITY (IBM defines arg-N / (…) but not the bits of the power or of the floating-point resul | 1 | 0 | 1 | era none: 1 |
-| 2 | <name> ADDRESS OF <name>: not an item of <name> or LINKAGE | 0 | 0 | 1 | - |
-| 3 | CEEHDLR: registering an LE user condition handler is not modelled | 0 | 0 | 1 | - |
-| 4 | CEEHDLU: unregistering an LE user condition handler is not modelled | 0 | 0 | 1 | - |
-| 5 | EPSCSMRI: no service of its own, its translation is refused: epscsmrd.cbl:N: the PICTURE N (…) is not modelled | 0 | 0 | 1 | - |
-| 6 | EPSCSMRO: no service of its own, its translation is refused: OS/VS COBOL BLL addressing: SERVICE LABEL (…): no | 0 | 0 | 1 | - |
-| 7 | EXEC CICS GETMAIN without INITIMG: IBM gives acquired storage no default contents | 0 | 0 | 1 | - |
-| 8 | EXEC CICS SOAPFAULT CREATE | 0 | 0 | 1 | - |
-| 9 | SET TO ENTRY: procedure / function pointers are not modelled | 0 | 0 | 1 | - |
+| 1 | <name> ADDRESS OF <name>: not an item of <name> or LINKAGE | 0 | 0 | 1 | - |
+| 2 | CEEHDLR: registering an LE user condition handler is not modelled | 0 | 0 | 1 | - |
+| 3 | CEEHDLU: unregistering an LE user condition handler is not modelled | 0 | 0 | 1 | - |
+| 4 | EPSCSMRI: no service of its own, its translation is refused: epscsmrd.cbl:N: the PICTURE N (…) is not modelled | 0 | 0 | 1 | - |
+| 5 | EPSCSMRO: no service of its own, its translation is refused: OS/VS COBOL BLL addressing: SERVICE LABEL (…): no | 0 | 0 | 1 | - |
+| 6 | EXEC CICS GETMAIN without INITIMG: IBM gives acquired storage no default contents | 0 | 0 | 1 | - |
+| 7 | EXEC CICS SOAPFAULT CREATE | 0 | 0 | 1 | - |
+| 8 | SET TO ENTRY: procedure / function pointers are not modelled | 0 | 0 | 1 | - |
 
-### Proof blockers (4 programs translated whole, 1 with no proof gap; top 2 of 2 classes, `proof_blockers.py` statistics)
+### Proof blockers (5 programs translated whole, 5 with no proof gap; top 0 of 0 classes, `proof_blockers.py` statistics)
 
 | rank | what stops the proof | alone | one gap away | touched |
 |---|---|---|---|---|
-| 1 | callee has holes | 2 | 0 | 2 |
-| 2 | coverage: paragraphs below the bar | 1 | 0 | 1 |
 
 ### Missing inputs
 
@@ -301,21 +298,21 @@ era 0: 0, era 1: 0, era 2: 2, era 3: 0, era 4: 1, era none: 3
 
 | level | programs at exactly this level |
 |---|---|
-| L0 inventoried | 2 |
+| L0 inventoried | 1 |
 | L1 translated whole | 0 |
-| L2 executed equivalent | 1 |
-| L3 paragraph coverage | 2 |
-| L4 branch coverage | 2 |
+| L2 executed equivalent | 2 |
+| L3 paragraph coverage | 0 |
+| L4 branch coverage | 4 |
 | L5 mutants accounted for | 0 |
 
-- translated whole: 5 / 7 (71%); with holes: 0; refused: 2
+- translated whole: 6 / 7 (86%); with holes: 0; refused: 1
 - whole-translated but a CALL / LINK target has holes (below L2 until it is closed): 0
-- executed equivalent (L2 and above): 5 / 7
+- executed equivalent (L2 and above): 6 / 7
 - charter bars for L3 / L4: paragraphs 100.0%, branches 100.0%
 
 Refused whole, by reason:
 
-- 2 x refused: CICS Assembler
+- 1 x refused: CICS Assembler
 
 Era evidence (programs by latest era a tell reaches):
 
@@ -325,13 +322,13 @@ era 0: 0, era 1: 0, era 2: 0, era 3: 0, era 4: 4, era none: 3
 
 | rank | rule (gap class) | makes whole alone | one rule away | touched | era mix of the alone-set |
 |---|---|---|---|---|---|
-| 1 | refused: CICS Assembler (refuses the whole program: upper bound) | 2 | 0 | 2 | era none: 2 |
+| 1 | refused: CICS Assembler (refuses the whole program: upper bound) | 1 | 0 | 1 | era none: 1 |
 
-### Proof blockers (5 programs translated whole, 2 with no proof gap; top 2 of 2 classes, `proof_blockers.py` statistics)
+### Proof blockers (6 programs translated whole, 4 with no proof gap; top 2 of 2 classes, `proof_blockers.py` statistics)
 
 | rank | what stops the proof | alone | one gap away | touched |
 |---|---|---|---|---|
-| 1 | coverage: branch outcomes below the bar | 2 | 0 | 2 |
+| 1 | coverage: not measured | 1 | 0 | 1 |
 | 2 | coverage: paragraphs below the bar | 1 | 0 | 1 |
 
 ### Missing inputs

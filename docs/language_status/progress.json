@@ -1,5 +1,5 @@
 {
- "commit": "ddac10785",
+ "commit": "9ac6c5773",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -123,7 +123,7 @@
   },
   "translator": {
    "of": 129,
-   "whole": 123
+   "whole": 125
   }
  },
  "eras": {
@@ -138,38 +138,38 @@
    "programs": 9
   },
   "2": {
-   "l2_plus": 69,
-   "l4_plus": 57,
+   "l2_plus": 70,
+   "l4_plus": 67,
    "programs": 70
   },
   "3": {
    "l2_plus": 14,
-   "l4_plus": 9,
+   "l4_plus": 11,
    "programs": 16
   },
   "4": {
    "l2_plus": 19,
-   "l4_plus": 15,
+   "l4_plus": 17,
    "programs": 21
   },
   "none": {
-   "l2_plus": 9,
-   "l4_plus": 9,
+   "l2_plus": 12,
+   "l4_plus": 11,
    "programs": 13
   }
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-28T10:06:58Z",
+  "as_of": "2026-10-28T10:36:45Z",
   "core": {
    "closed": 186,
-   "open": 18,
-   "total": 204
+   "open": 19,
+   "total": 205
   },
   "core_last_window": {
    "closed": 33,
-   "net_closed": 14,
-   "opened": 19
+   "net_closed": 13,
+   "opened": 20
   },
   "core_milestone": {
    "closed": 98,
@@ -184,7 +184,7 @@
    "4893": "open",
    "4894": "open"
   },
-  "eta": "9 days",
+  "eta": "10 days",
   "frontier": {
    "closed": 113,
    "found_last_window": 8,
@@ -430,15 +430,15 @@
    "aws-mainframe-modernization-carddemo": {
     "l2_plus": 42,
     "l2_plus_pct": 95.5,
-    "l4_plus": 34,
-    "l4_plus_pct": 77.3,
+    "l4_plus": 38,
+    "l4_plus_pct": 86.4,
     "l5": 0,
     "levels": {
      "L0": 2,
      "L1": 0,
      "L2": 0,
-     "L3": 8,
-     "L4": 34,
+     "L3": 4,
+     "L4": 38,
      "L5": 0
     },
     "programs": 44,
@@ -464,15 +464,15 @@
    "cics-banking-sample-application-cbsa": {
     "l2_plus": 31,
     "l2_plus_pct": 100.0,
-    "l4_plus": 21,
-    "l4_plus_pct": 67.7,
+    "l4_plus": 27,
+    "l4_plus_pct": 87.1,
     "l5": 0,
     "levels": {
      "L0": 0,
      "L1": 0,
      "L2": 0,
-     "L3": 10,
-     "L4": 21,
+     "L3": 4,
+     "L4": 27,
      "L5": 0
     },
     "programs": 31,
@@ -496,86 +496,82 @@
     "translated_whole": 31
    },
    "dbb-mortgage-application": {
-    "l2_plus": 2,
-    "l2_plus_pct": 33.3,
-    "l4_plus": 1,
-    "l4_plus_pct": 16.7,
+    "l2_plus": 5,
+    "l2_plus_pct": 83.3,
+    "l4_plus": 5,
+    "l4_plus_pct": 83.3,
     "l5": 0,
     "levels": {
-     "L0": 2,
-     "L1": 2,
-     "L2": 1,
+     "L0": 1,
+     "L1": 0,
+     "L2": 0,
      "L3": 0,
-     "L4": 1,
+     "L4": 5,
      "L5": 0
     },
     "programs": 6,
-    "translated_whole": 4
+    "translated_whole": 5
    },
    "zecs": {
-    "l2_plus": 5,
-    "l2_plus_pct": 71.4,
-    "l4_plus": 2,
-    "l4_plus_pct": 28.6,
+    "l2_plus": 6,
+    "l2_plus_pct": 85.7,
+    "l4_plus": 4,
+    "l4_plus_pct": 57.1,
     "l5": 0,
     "levels": {
-     "L0": 2,
+     "L0": 1,
      "L1": 0,
-     "L2": 1,
-     "L3": 2,
-     "L4": 2,
+     "L2": 2,
+     "L3": 0,
+     "L4": 4,
      "L5": 0
     },
     "programs": 7,
-    "translated_whole": 5
+    "translated_whole": 6
    }
   },
   "total": {
-   "l2_plus": 120,
-   "l2_plus_pct": 93.0,
-   "l4_plus": 98,
-   "l4_plus_pct": 76.0,
+   "l2_plus": 124,
+   "l2_plus_pct": 96.1,
+   "l4_plus": 114,
+   "l4_plus_pct": 88.4,
    "l5": 0,
    "levels": {
-    "L0": 6,
-    "L1": 3,
+    "L0": 4,
+    "L1": 1,
     "L2": 2,
-    "L3": 20,
-    "L4": 98,
+    "L3": 8,
+    "L4": 114,
     "L5": 0
    },
    "programs": 129,
-   "reachable": 123,
-   "translated_whole": 123,
+   "reachable": 125,
+   "translated_whole": 125,
    "unreachable": {
-    "count": 6,
+    "count": 4,
     "kinds": {
      "not_cobol": {
-      "count": 2,
+      "count": 1,
       "issues": [
        "#5859"
       ],
       "programs": [
-       "zecs/Source/ZECS002.asm",
-       "zecs/Source/ZECSNC.asm"
+       "zecs/Source/ZECS002.asm"
       ],
       "reasons": [
-       "CICS Assembler member; the translator is a COBOL translator"
+       "CICS Assembler member; the HLASM front end refuses it at DC 08XL01'40' (slice 3 of #5859 lowers it)"
       ]
      },
      "owner_held": {
-      "count": 2,
+      "count": 1,
       "issues": [
-       "#5106",
-       "#5867"
+       "#5106"
       ],
       "programs": [
-       "dbb-mortgage-application/zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
-       "dbb-mortgage-application/zBuilder/MortgageApplication/cobol/epsmpmt.cbl"
+       "dbb-mortgage-application/zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
       ],
       "reasons": [
-       "Language Environment condition handlers (CEEHDLR) refused by name, owner ruling 2026-10-21",
-       "floating-point power and FUNCTION ANNUITY need captured z/OS results (oracle_assumptions.md C6)"
+       "Language Environment condition handlers (CEEHDLR) refused by name, owner ruling 2026-10-21"
       ]
      },
      "source_defect": {
@@ -591,7 +587,10 @@
        "RECORD KEY names an item defined in WORKING-STORAGE, not in a record of the file; IBM requires it in a record description of that file (Enterprise COBOL Language Reference, RECORD KEY clause)"
       ]
      }
-    }
+    },
+    "stale": [
+     "dbb-mortgage-application/zBuilder/MortgageApplication/cobol/epsmpmt.cbl"
+    ]
    }
   }
  },

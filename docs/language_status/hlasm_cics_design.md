@@ -33,20 +33,22 @@ construct and its line. `source.py` turns that into the #5121 refusal shape:
 | Entry | `DFHEIENT CODEREG= DATAREG= EIBREG=` | `PROGRAM-ID`; the named registers are reserved |
 | Storage | `DSECT`, `DS` / `DC` of C, X, H, F (D as `DS` only); `0CLn` groups; `DS 0F/0H/0D`; `nCLm` / `nXLm` copies (one field of n elements) | see Storage below |
 | Symbols | `EQU n`, `EQU *-sym` (a length) | a constant |
-| Load / store | `L`, `ST`, `STH`, `LA` of a constant | `MOVE`; `STH` is `MOD(r + 32768, 65536) - 32768`, the low halfword, signed |
+| Load / store | `L`, `ST`, `STH`, `LA` of a constant or of a symbol (below) | `MOVE`; `STH` is `MOD(r + 32768, 65536) - 32768`, the low halfword, signed |
 | Move | `MVC` with a static symbol, `+disp` and `(len)`, or a `=C'..'` literal exactly the destination's length | `MOVE` with reference modification; an overlapping move is refused |
 | Clear / count | `SR Rn,Rn`, `XC X,X` (also `XC X(n),X`), `BCT Rn,label` | `MOVE 0`; `MOVE LOW-VALUES`; a wrapping 32-bit decrement and `IF NOT = 0 GO TO`. None sets a CC a `BC` may read |
-| Compare | `CLC`, `CLI`, `CH`, `OC X,X` | a condition on the next `BC` |
+| Address model (3b) | `LA Rn,sym[+d]`, `LA Rn,d(,Rm)`; `d(Rm)` / `d(,Rm)` / `d(1,Rm)` and `SYM(Rx)` operands on `CLI`, one-byte `MVC`, `IC`, `STCM`, `TR`; `SLL Rn,k`, `SLDL Re,k` | an address is `region * 65536 + offset`; a dereference is `EVALUATE` on the region and reference modification (Address model below) |
+| Compare | `CLC`, `CLI` (also through a register), `CH`, `OC X,X` | a condition on the next `BC` |
 | Branch | `B`, `BC mask`, `BAS`, `BCR 15` | `GO TO`; `BAS`/`BCR` use return ids (below) |
 | CICS | `EXEC CICS ...` with operands that are symbols, EIB fields, literals or numbers | `EXEC CICS ... END-EXEC` |
 | Ignored | `AMODE`, `RMODE`, `PRINT`, `LTORG`, `END`, an unnamed branch-around `DC` | nothing |
 
 Anything else is refused by name. That includes:
 
-- any other instruction (`IC`, `SR`, `BCT`, `SLL`, `TR`, `XC`, ...);
-- base-displacement operands (`0(1,R6)`);
+- any other instruction (`ICM`, `A`, `S`, ...);
+- a base-displacement operand on any instruction other than the ones in the Address model row, a displacement past 4095,
+  an index register on a non-SS operand, a shift count that is not an immediate;
 - a duplication factor other than 0 on H, F or D (they need alignment and an array);
-- `LA` of an address;
+- arithmetic on an address (`A`, `S`, ... on a register that holds one), `LA` of a binary field, a store into a CSECT region;
 - a store into a program constant or the EIB;
 - a DSECT that no `USING` addresses;
 - a constant reached by fall-through.
@@ -67,6 +69,26 @@ Anything else is refused by name. That includes:
 - Code addresses are opaque return ids. `BAS` stores the id of its return point. `BCR 15,Rn` dispatches with
   `GO TO ... DEPENDING ON`. An id no `BAS` stored is a branch to an address the program never took, so it is a
   program check: `ABEND ABCODE('ASRA')`.
+
+## Address model (slice 3b)
+
+- Only a symbol whose address an `LA` takes becomes a region (found by a prescan); the region is its top-level unit: a
+  01 of DFHEISTG or of the CSECT, or the whole COMMAREA. Region ids count from 1 in order of first use.
+- An address is `region * 65536 + offset` in the register (a fullword). `LA Rn,d(,Rm)` is `MOD(Rm + d, 2**31)`, the
+  31-bit address wrap (POPS, LOAD ADDRESS). No other arithmetic on an address is accepted (assumption 4).
+- A dereference runs `DIVIDE Rm BY 65536 GIVING HL-RG REMAINDER HL-OF`, `EVALUATE HL-RG` over the regions, a range guard
+  per region, then reference modification `REGION(HL-OF + 1:n)`. An address outside every region, past a region's end,
+  or a store into a CSECT (constant) region is `EXEC CICS ABEND ABCODE('ASRA') NODUMP`: the program check on z/OS
+  (assumption 5).
+- A region holding a binary field (H, F, D) or a valued C constant is refused: its bytes differ between the COBOL cell
+  and z/OS (little endian; ASCII vs EBCDIC). An X-valued table (`B64XLT`, 256 bytes) is accepted.
+- A byte becomes a number through `HL-W2` / `HL-N` (a 2-byte big-endian binary over `HL-HI`, `HL-LO`): `FUNCTION ORD`
+  is not in the det translator.
+- `IC` replaces the low 8 bits of the register and keeps the rest. `STCM` takes the bytes the mask names (bit 8 is the
+  high byte of the low 32 bits) and stores them side by side. `TR` replaces each byte by the table byte it indexes
+  (up to 16 bytes). `SLL` is a wrapping 32-bit logical left shift; `SLDL` shifts the even/odd pair as one 64-bit value
+  (an even register with a free odd partner, a count 1 to 31). `CLI` against a `C` literal compares the cp037 byte.
+- Every generated line must end by column 72; a longer one is refused (it would be silently cut).
 
 ## Condition code
 
@@ -99,6 +121,8 @@ operand.
 3. **Character data is compared for equality only**, as for the COBOL cases: the EBCDIC vs ASCII question is not
    raised by `=` / `NOT =`.
 4. **The address representation is opaque.** No program arithmetic on a code or data address is accepted.
+5. **An address outside our storage abends `ASRA`.** On z/OS it may name other storage or take a different program check;
+   a case must not rely on it. Which region numbers an address carries is not observable by the program.
 
 ## Status
 
@@ -106,7 +130,8 @@ operand.
   - `WRITE OPERATOR ... TEXTLENGTH ROUTECODES NUMROUTES EVENTUAL`.
 
   `ABEND ... NOHANDLE` is modelled (IBM lists no ABEND condition, so it suppresses nothing). ZECSNC is still L0.
-- ZECS002 is refused at its first construct outside the subset: `IC` (line 189), the first of the address-model instructions. Slice 3a lowers its duplicated constants, `SR`, `XC`, `BCT` and the `=C'00'` literal.
+- ZECS002 lowers whole since slice 3b (the address model), 1181 COBOL lines. Not run against GnuCOBOL in this slice; it is
+  the det translator does not model `EXEC CICS VERIFY` yet (3c: `equivalence_cics.translate_command` says "not modelled"), so it stays L0.
 - The ladder report keeps both programs in the fixed 129-program denominator. ZECS002 is listed apart in the "refused
   whole: not COBOL" row of the progress page (`tests/tools/ladder_exclusions.py`, #5280), so it is not read as COBOL
   translator work; the page reports the entry as stale once it leaves L0. ZECSNC has no entry: it lowers and
@@ -122,7 +147,6 @@ operand.
    non-linked program is not compared (nothing observes it). The case is `tests/equivalence/zecs-zecsnc/`; an X register
    entry for assumption 1 is still to do.
 3. **3a (done):** duplicated `C` / `X` storage, `SR Rn,Rn`, `XC X,X`, `BCT`, the `=C'..'` literal move.
-   **3b:** the address model: a register holding a byte address into storage, `LA Rn,sym`, `n(Rm)` / `n(,Rm)` operands, `IC`,
-   `STCM`, `TR` (with the `B64XLT` / `A_TO_E` tables), `SLL`, `SLDL`. **3c:** `EXEC CICS VERIFY` (registry, `det/cics.py`,
+   **3b (done):** the address model (above). **3c:** `EXEC CICS VERIFY` (registry, `det/cics.py`,
    `ggcics.c`, `CicsTask`). **3d:** the `zecs-zecs002` equivalence case.
 4. **4:** an independent S/390-subset interpreter that cross-checks the lowering instruction by instruction.

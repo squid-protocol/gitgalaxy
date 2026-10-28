@@ -193,6 +193,7 @@
    "about": "What a det port does around a CICS command: the bytes it passes and receives. The command semantics (conditions, RESP2) are the CICS stub's (CicsTask), outside the runtime.",
    "plumbing": [
     "withFindById",
+    "undefined",
     "findById",
     "key",
     "rows",

@@ -294,7 +294,12 @@ def test_check_fails_on_an_edited_report(tmp_path, monkeypatch):
     for name in ("report.json", "report.md"):
         (tmp_path / estate / name).write_text((er.OUT / estate / name).read_text("utf-8"))
     monkeypatch.setattr(er, "OUT", tmp_path)
-    er.write(er.expected())  # the committed JSON may predate a format change (#4730): the bot regenerates it on main
+    # the test is about edit detection, not the computation: expected() re-reads every ledger (CI 25.7s with three
+    # calls, #6942), so pin it to the copied report
+    want = {
+        tmp_path / estate / name: (tmp_path / estate / name).read_text("utf-8") for name in ("report.json", "report.md")
+    }
+    monkeypatch.setattr(er, "expected", lambda live=False, built=None: want)
     assert er.main(["--check"]) == 0
     md = tmp_path / estate / "report.md"
     md.write_text(md.read_text().replace("| L0 |", "| L0 (edited) |", 1))

@@ -73,7 +73,9 @@ Known traps: `ladder_gaps.py` crashes on a paragraph entry from a copybook (`NAM
   case, add CLI; check its state before relying on it). CBPAUP0C `6000-EXIT` has been rediscovered 5+ times: check the
   infeasible entries first (`ladder_gaps.py` lists them).
 - **Owner holds**: BANKDATA held (PR #5958). CRECUST is back in the ladder (owner 2026-10-27: its CEEDAYS slack is
-  blank, register L1, CRECUST only; any other CEEDAYS overrun stays refused) and so are the EPSMPMT callers (#5867, ruled IEEE double).
+  blank, register L1, CRECUST only; any other CEEDAYS overrun stays refused). EPSMPMT's `**` / ANNUITY are IEEE
+  binary64 (owner 2026-10-27, register C6, #5867): its callers mortgage-csmrt / mortgage-cmort are L3; EPSMPMT itself is
+  L1, held on an oracle stand-in for that binary64 and the owner's word on its COMP-1 rate (GnuCOBOL binary32, det HFP).
 
 ## 5. Refresh chain (after every edit AND after every `git merge origin/main`)
 

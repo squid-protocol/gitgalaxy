@@ -1,6 +1,6 @@
 # Progress
 
-Generated from main at `4c7d83b17` by `tests/tools/progress_report.py` (#5280); do not edit. Every
+Generated from main at `cde0fc2aa` by `tests/tools/progress_report.py` (#5280); do not edit. Every
 denominator is fixed and every number names its source below. A level is an evidence level, never a bare
 claim of correctness: the oracle is GnuCOBOL plus IBM documentation, not z/OS.
 
@@ -13,7 +13,7 @@ Reachable denominator: 125 programs (129 - 2 - 1 - 1). These programs stay in th
 | Not reachable for a non-translator reason | Programs | Issue | Reason |
 |---|---|---|---|
 | source defect (source IBM rejects) | 2: `aws-mainframe-modernization-carddemo/app/cbl/CBEXPORT.cbl`, `aws-mainframe-modernization-carddemo/app/cbl/CBIMPORT.cbl` | #5866 | RECORD KEY names an item defined in WORKING-STORAGE, not in a record of the file; IBM requires it in a record description of that file (Enterprise COBOL Language Reference, RECORD KEY clause) |
-| refused whole: not COBOL | 1: `zecs/Source/ZECS002.asm` | #5859 | CICS Assembler member; the HLASM front end lowers it and the det translator translates it whole (slices 3b-3e: reserved-word names renamed, GGCVER stub); no equivalence case yet: its USERID holds EBCDIC bytes (the program converts ASCII to EBCDIC) and a fault-plan verdict is ASCII-only |
+| refused whole: not COBOL | 1: `zecs/Source/ZECS002.asm` | #5859 | CICS Assembler member; the HLASM front end lowers it and the det translator translates it whole (slices 3b-3e: reserved-word names renamed, GGCVER stub); its equivalence case tests/equivalence/zecs-zecs002 proves the port of the lowering (11 scenarios; the VERIFY verdict is keyed by userid_hex), and tests/cobol_mainframe/test_hlasm_interp_5859.py cross-checks the lowering with an independent interpreter |
 | held by an owner ruling or z/OS calibration | 1: `dbb-mortgage-application/zBuilder/MortgageApplication/cobol/epscsmrd.cbl` | #5106 | Language Environment condition handlers (CEEHDLR) refused by name, owner ruling 2026-10-21 |
 
 Entries that no longer hold (the program is above L0): dbb-mortgage-application/zBuilder/MortgageApplication/cobol/epsmpmt.cbl.
@@ -61,7 +61,7 @@ Source: tests/fixtures/feature_inventory/<estate>.json (era_tags.py). Programs p
 
 ## 4. Core burn-down
 
-Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-10-28T20:08:12Z.
+Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-10-28T20:13:56Z.
 
 - `scope:core`: 20 open, 187 closed.
 - Milestone 28: 6 open, 98 closed.

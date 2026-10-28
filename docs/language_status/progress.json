@@ -1,5 +1,5 @@
 {
- "commit": "4c7d83b17",
+ "commit": "cde0fc2aa",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -160,7 +160,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-28T20:08:12Z",
+  "as_of": "2026-10-28T20:13:56Z",
   "core": {
    "closed": 187,
    "open": 20,
@@ -559,7 +559,7 @@
        "zecs/Source/ZECS002.asm"
       ],
       "reasons": [
-       "CICS Assembler member; the HLASM front end lowers it and the det translator translates it whole (slices 3b-3e: reserved-word names renamed, GGCVER stub); no equivalence case yet: its USERID holds EBCDIC bytes (the program converts ASCII to EBCDIC) and a fault-plan verdict is ASCII-only"
+       "CICS Assembler member; the HLASM front end lowers it and the det translator translates it whole (slices 3b-3e: reserved-word names renamed, GGCVER stub); its equivalence case tests/equivalence/zecs-zecs002 proves the port of the lowering (11 scenarios; the VERIFY verdict is keyed by userid_hex), and tests/cobol_mainframe/test_hlasm_interp_5859.py cross-checks the lowering with an independent interpreter"
       ]
      },
      "owner_held": {

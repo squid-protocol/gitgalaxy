@@ -4204,21 +4204,42 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   already says that "CICS installs whichever is loaded last, which the source tree cannot say".
 - **Refused.** Any claim that a resource is installed, enabled, or has a given runtime value. A dump of CEMT / CEDA output
   placed in a repository is not a definition source and is not read.
-- **Assumed.** Still by name, because IBM has no page for them in the CICS TS 5.x library (re-tried for #5154): DFHJCT
-  `JFILEID=` / `JTYPE=` (IBM says only that JFILEID is "supported for compatibility purposes only"), DFHPCT's operand
-  list, DFHPPT `PARTITIONSET=` / `PARTSET=`, and DCT SDSCI `RECFORM=UNDEFINED`. The CICS/VS and
-  CICS/ESA 3.x macro manuals are the references to confirm against.
-- **Confirmed (no longer assumed).** DFHSIT `SUFFIX=`: one or two characters, not NO or DY, SIT only (TS 5.4
-  dfha2_suffix); the SIT row is named DFHSIT + suffix.
+- **Assumed.** Still by name: DFHPPT `PARTITIONSET=` (an alias of the macro's `PARTSET=` spelling, which maps to RDO
+  `PARTITIONSET` in SC33-1653-05 p.349, p.372).
+- **Confirmed (no longer assumed).** HLASM macro-instruction statement syntax (`SC26-4940-05` p.15, p.19, p.296-297:
+  alternative statement format with per-line remarks after a trailing comma, continuation lines starting after column 16
+  treated as remarks, spaces inside quoted operands, and ordinary/sequence/variable symbols in the name field).
+  `TYPE=INITIAL,SUFFIX=xx` (1 or 2 characters). DFHSIT `SUFFIX=`: one or two characters, not NO or DY, SIT only (TS 5.4
+  dfha2_suffix); the SIT row is named DFHSIT + suffix. DFHPCT `TYPE=ENTRY` (`TRANSID=`, `PROGRAM=`, `TWASIZE=`,
+  `TRNPRTY=` -> `PRIORITY`, `SYSIDNT=` -> `REMOTESYSTEM`, `RMTNAME=` -> `REMOTENAME`, `PARTSET=` -> `PARTITIONSET`,
+  `DTB=` -> `INDOUBT`, plus `transactions` routing to the target program: SH20-1043-6 p.104-106; SC33-1653-05 Appendix C p.347-351 & Appendix E p.365-368). DFHPPT
+  `TYPE=ENTRY` (`PROGRAM=`, `MAPSET=`, `PARTSET=` -> `PARTITIONSET`, `PROGRAM=` with `USAGE=MAP` -> `MAPSET` with
+  `USAGE(TRANSIENT)`, `PGMLANG=` -> `LANGUAGE`, `RES=YES|NO` -> `RESIDENT`, `PGMSTAT=` -> `STATUS`: SH20-1043-6
+  p.108-109; SC33-1653-05 Appendix C p.348-350 & Appendix F p.372). DFHDCT `TYPE=SDSCI` `RECFORM=UNDEFINED`: outside the
+  manual's `FIXUNB` / `FIXBLK` / `VARUNB` / `VARBLK` set in both SH20-1043-6 p.95-96 and SC33-1684-30 p.376, so
+  `record_format` is `None`. DFHJCT `TYPE=ENTRY` (`JFILEID={SYSTEM|nn}` for the system log or user journal 1-99,
+  `JTYPE={TAPE1|TAPE2|DISK1|DISK2|SMF}`, `BUFSIZE=`, `JOUROPT=`: SC33-1653-05 ch.29 Table 41 p.270-272). DFHTCT
+  `TYPE=GPENTRY` (`TRMIDNT=xxxx` sequential terminal definition, `GPBLKSZ=`, `GPTYPE=`, `LININL=`: SC33-1653-05 ch.33
+  p.297), `TYPE=REGION` (`SYSIDNT={ssss|LOCAL}` sets `REMOTESYSTEM(ssss)` on following `TYPE=TERMINAL` definitions until
+  `SYSIDNT=LOCAL` or a `SYSIDNT` matching `TYPE=INITIAL,SYSIDNT=`: SC33-1684-30 p.473-475 & ch.17 p.552-553), and RDO
+  cross-reference restatements (`REMOTESYSTEM`, `REMOTENAME`, `INDIRECTNAME`, `ACCESSMETHOD`: SC33-1684-30 ch.16
+  p.529-534). DFHPLT `TYPE=ENTRY` (`PROGRAM=(p1,p2,...)` -> one `PLT` row per startup/shutdown program with `STAGE(1|2)`
+  across `PROGRAM=DFHDELIM`: SC33-1684-30 ch.13 p.415-418). DSNCRCT `TYPE=INIT|GROUP|ENTRY` (`TYPE=INIT` -> `DB2CONN`
+  named `RDONAME=` or `DFHRCTxx`, `PLANI=`, `SUBID=`, `SIGNID=`, `THRDMAX=`; `TYPE=ENTRY,TXID=(...)` -> one `DB2ENTRY`
+  row per transaction, inheriting `PLANI=` or defaulting a single `TXID` to its own plan name when `PLNEXIT` is not
+  `YES`: SC33-1684-30 ch.13 p.419-432 & ch.16 p.529-541).
 - **Refused, with the IBM reason.** SIT parameters (table suffixes, GRPLIST=) as rows: they select what a start-up
   loads, and `SIT=` / SYSIN can override them. DFHMCT `TYPE=RECORD` (selects performance fields, no named resource).
-  DFHTCT `TYPE=GPENTRY` (no IBM page in the TS 5.x library, so nothing is read). DFHTCT `TYPE=SDSCI` / `TYPE=LINE` (a DD of a simulated sequential device, and the join of two of them; the terminal
-  is the `TYPE=TERMINAL` row).
-- **Joined.** An assembler step (or a DFHAUPLE call) whose `SYSIN DD` is `DSN=lib(MEMBER)`: `GalaxyIR.job_macro_tables`
+  DFHPLT `PROGRAM=DFHDELIM` ("not a program — it serves as a delimiter only" between PLTPI/PLTSD passes: SC33-1684-30
+  p.417). DSNCRCT `TYPE=COMD` and `TYPE=POOL` (DB2CONN command and pool thread defaults, no standalone resource name:
+  SC33-1684-30 p.424-425). DFHTCT `TYPE=SDSCI` / `TYPE=LINE` (a DD of a simulated sequential device, and the join of two
+  of them; the terminal is the `TYPE=TERMINAL` row).
+- **Joined.** An assembler step, a DFHAUPLE call, or an in-stream / repository procedure whose inner step runs an
+  assembler, when its `SYSIN DD` is `DSN=lib(MEMBER)`: `GalaxyIR.job_macro_tables`
   names the member's macro-table rows beside the job step, one entry per DD (an unnamed DD concatenated after the SYSIN
-  is its own entry; DFHAUPLE's override is `//PROCSTEP.SYSIN`, reported under the EXEC step). Each entry carries a
+  is its own entry; a wrapper proc's override is `//PROCSTEP.SYSIN`, reported under the EXEC step). Each entry carries a
   `status`: `joined`, `no_tables` (the member file is found and has no macro-table row), `not_found`, or `ambiguous`
-  (two files of that name; no guess). **Refused by name:** any other wrapper proc, a qualified `//STEP.PROCSTEP.SYSIN`
+  (two files of that name; no guess). **Refused by name:** any unresolvable wrapper proc, a qualified `//STEP.PROCSTEP.SYSIN`
   DD, and a DSN with no member.
 
 ### X63. POST, WAIT EVENT and terminal CONVERSE modelled; WAIT EXTERNAL / WAITCICS, CONVERSE on a conversation and SEND PAGE / PURGE MESSAGE refused by name (#5079)

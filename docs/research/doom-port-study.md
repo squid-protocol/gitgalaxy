@@ -26,14 +26,14 @@ README. Read the table with three cautions:
 - **Passing is not the same as measured.** A port shown `(vacuous)` has no first-party file the scorer recognises
   (its source extension is outside the scorer's set), so its coverage check passes on zero files. Those rows prove
   nothing about the port.
-- **The call-graph check fails 17 ports** (14 of them existed in round 2, 3 are newer). That is the new check finding
-  misses, not a regression of the other six.
+- **The call-graph check fails 2 ports** (`doom3-bfg`, `doomsday`; both existed in round 2). It failed 17 at the first
+  scan that had it, so engine fixes since then cleared 15. Two newer ports (`sqldoom`, `cssdoom`) fail the functions check.
 - **Coverage and health failures from round 2 are gone** for every port that existed then (missed files now 0
   everywhere; `doomsday` went from 993 missed files to 0).
 
 <!-- study:clean-scan begin -->
 
-33 of 44 ports pass every scored check now; 18 of them failed at least one in round 2 (`n/a` = the port was added after round 2; `(vacuous)` = the scorer saw no first-party source files, so the pass proves nothing; `not compared` = ctags has no reading of that language). The call-graph check did not exist in round 2.
+40 of 44 ports pass every scored check now; 24 of them failed at least one in round 2 (`n/a` = the port was added after round 2; `(vacuous)` = the scorer saw no first-party source files, so the pass proves nothing; `not compared` = ctags has no reading of that language). The call-graph check did not exist in round 2.
 
 | port | failed checks, round 2 | failed checks, now | first-party files, now | missed files, round 2 | now | functions vs ctags %, round 2 | now | functions now |
 |---|---|---|---|---|---|---|---|---|
@@ -45,9 +45,9 @@ README. Read the table with three cautions:
 | prboom-plus | - | - | 286 | 0 | 0 | 2.3 | 2.3 | 2517 |
 | dsda-doom | - | - | 506 | 0 | 0 | 0.4 | 0.4 | 4937 |
 | woof | coverage health | - | 399 | 1 | 0 | 0.8 | 0.8 | 3783 |
-| eternity | coverage health | callgraph | 584 | 2 | 0 | -0.1 | 3.7 | 7328 |
-| odamex | coverage functions | callgraph | 590 | 3 | 0 | -3.3 | -1.8 | 8678 |
-| gzdoom | coverage | callgraph | 1567 | 4 | 0 | 0.0 | 1.8 | 18489 |
+| eternity | coverage health | - | 584 | 2 | 0 | -0.1 | 3.3 | 7305 |
+| odamex | coverage functions | - | 590 | 3 | 0 | -3.3 | -1.9 | 8670 |
+| gzdoom | coverage | - | 1567 | 4 | 0 | 0.0 | 0.5 | 18260 |
 | room4doom | coverage | - | 385 | 10 | 0 | 0.7 | 0.7 | 4684 |
 | gore | coverage | - | 9 | 1 | 0 | 0.0 | 8.4 | 1025 |
 | managed-doom | - | - | 245 | 0 | 0 | 0.0 | -0.1 | 1300 |
@@ -57,23 +57,23 @@ README. Read the table with three cautions:
 | fastdoom | coverage | - | 387 | 2 | 0 | 1.7 | 1.5 | 1736 |
 | puredoom | coverage | - | 130 | 2 | 0 | 0.9 | 1.0 | 1560 |
 | doom-ios | language | - | 304 | 0 | 0 | 1.0 | 1.0 | 1958 |
-| doom3-bfg | coverage | callgraph | 888 | 3 | 0 | -2.1 | 0.8 | 16380 |
+| doom3-bfg | coverage | callgraph | 888 | 3 | 0 | -2.1 | 0.8 | 16379 |
 | doom-ascii | coverage health | - | 180 | 1 | 0 | 0.0 | 0.0 | 1019 |
-| srb2 | coverage | callgraph | 422 | 1 | 0 | 2.1 | 2.5 | 6762 |
+| srb2 | coverage | - | 422 | 1 | 0 | 2.1 | 2.5 | 6759 |
 | freedoom | - | - | 13 | 0 | 0 | -0.7 | 0.0 | 119 |
-| helion | coverage functions | callgraph | 1518 | 1 | 0 | 4.0 | 3.9 | 9801 |
-| doomsday | coverage functions health | callgraph | 2552 | 993 | 0 | 16.2 | 14.8 | 25618 |
-| edge-classic | coverage health | callgraph | 388 | 3 | 0 | 0.9 | 0.8 | 4964 |
+| helion | coverage functions | - | 1518 | 1 | 0 | 4.0 | 3.7 | 9780 |
+| doomsday | coverage functions health | callgraph | 2552 | 993 | 0 | 16.2 | 14.0 | 25450 |
+| edge-classic | coverage health | - | 388 | 3 | 0 | 0.9 | 0.8 | 4963 |
 | nugget-doom | coverage health | - | 401 | 1 | 0 | 0.7 | 0.7 | 4168 |
 | inter-doom | coverage | - | 475 | 7 | 0 | 0.2 | 0.2 | 6236 |
 | sdl-doom | coverage | - | 182 | 2 | 0 | 0.1 | 0.1 | 1079 |
 | doom3do | coverage | - | 200 | 1 | 0 | 0.0 | 0.0 | 511 |
-| sqldoom | n/a | functions callgraph | 41 | n/a | 0 | n/a | 11.4 | 419 |
+| sqldoom | n/a | functions | 41 | n/a | 0 | n/a | 11.4 | 419 |
 | doomf77 | n/a | - | 14 | n/a | 0 | n/a | not compared | 0 |
 | doom-scheme | n/a | - | 74 | n/a | 0 | n/a | -1.1 | 92 |
 | dartdoom | n/a | - | 92 | n/a | 0 | n/a | not compared | 0 |
 | doo-cr | n/a | - | 43 | n/a | 0 | n/a | not compared | 0 |
-| kocoa-doom | n/a | callgraph | 441 | n/a | 0 | n/a | not compared | 0 |
+| kocoa-doom | n/a | - | 441 | n/a | 0 | n/a | not compared | 0 |
 | fsharp-doom | n/a | - | 18 | n/a | 0 | n/a | not compared | 0 |
 | cssdoom | n/a | functions | 54 | n/a | 0 | n/a | 4.7 | 225 |
 | doom-fx | n/a | - | 71 | n/a | 0 | n/a | -88.9 | 1 |
@@ -193,32 +193,32 @@ token mass, arguments) and linuxdoom's. It is a shape comparison, not a correctn
 | dartdoom | dart | enhanced | 865 | 2 | 14.3 | 10 | 0.17 |
 | managed-doom | csharp | compatible | 1300 | 1 | 9.5 | 15 | 0.18 |
 | woof | c | enhanced | 3795 | 2 | 13.6 | 16 | 0.18 |
-| eternity | cpp | enhanced | 7331 | 1 | 13.1 | 12 | 0.21 |
+| eternity | cpp | enhanced | 7308 | 1 | 13.2 | 12 | 0.20 |
 | nugget-doom | c | enhanced | 4180 | 2 | 14.7 | 16 | 0.21 |
 | agentic-cobol-doom-codex | cobol | divergent | 162 | 2 | 8.0 | 10 | 0.23 |
-| doom-scheme | scheme | faithful | 1034 | 1 | 9.1 | 7 | 0.24 |
 | room4doom | rust | compatible | 4684 | 0 | 6.9 | 11 | 0.24 |
+| doom-scheme | scheme | faithful | 1034 | 1 | 9.1 | 7 | 0.24 |
 | dsda-doom | c | enhanced | 4937 | 2 | 13.5 | 13 | 0.25 |
 | sqldoom | python | faithful | 419 | 2 | 14.6 | 9 | 0.25 |
 | agentic-cobol-doom-cc | cobol | divergent | 45 | 4 | 17.8 | 25 | 0.26 |
 | doomf77 | fortran | compatible | 146 | 6 | 37.7 | 24 | 0.28 |
 | fastdoom | c | enhanced | 2135 | 1 | 12.9 | 20 | 0.29 |
-| srb2 | c | divergent | 6762 | 2 | 20.4 | 16 | 0.33 |
+| srb2 | c | divergent | 6759 | 2 | 20.4 | 16 | 0.33 |
 | fsharp-doom | fsharp | unstated | 53 | 1 | 9.4 | 12 | 0.34 |
-| edge-classic | cpp | enhanced | 4964 | 2 | 14.0 | 13 | 0.34 |
-| doom3-bfg | cpp | unstated | 16380 | 1 | 9.8 | 8 | 0.34 |
+| edge-classic | cpp | enhanced | 4963 | 2 | 14.0 | 13 | 0.34 |
+| doom3-bfg | cpp | unstated | 16379 | 1 | 9.8 | 8 | 0.34 |
 | fps-cob | cobol | divergent | 54 | 6 | 33.3 | 32 | 0.35 |
 | kocoa-doom | kotlin | unstated | 3565 | 0 | 5.5 | 5 | 0.36 |
 | mochadoom | java | unstated | 3781 | 0 | 5.3 | 5 | 0.36 |
-| odamex | cpp | compatible | 8678 | 1 | 9.3 | 8 | 0.36 |
+| odamex | cpp | compatible | 8670 | 1 | 9.4 | 8 | 0.36 |
 | doo-cr | crystal | divergent | 1509 | 0 | 7.5 | 3 | 0.37 |
 | rust-doom | rust | divergent | 616 | 0 | 4.4 | 5 | 0.37 |
-| helion | csharp | divergent | 9801 | 0 | 4.0 | 8 | 0.38 |
+| helion | csharp | divergent | 9780 | 0 | 4.0 | 8 | 0.38 |
 | doom-fx | assembly | unstated | 2004 | 0 | 2.1 | 12 | 0.39 |
 | gore | go | compatible | 1025 | 2 | 13.4 | 13 | 0.39 |
 | doomretro | c | enhanced | 2236 | 3 | 24.6 | 18 | 0.40 |
-| doomsday | cpp | enhanced | 25618 | 0 | 6.3 | 7 | 0.46 |
-| gzdoom | cpp | unstated | 20630 | 1 | 10.1 | 8 | 0.62 |
+| doomsday | cpp | enhanced | 25450 | 0 | 6.6 | 7 | 0.45 |
+| gzdoom | cpp | unstated | 20401 | 1 | 10.2 | 8 | 0.62 |
 
 | metric | linuxdoom median | population median | IQR of port medians | linuxdoom percentile |
 |---|---|---|---|---|
@@ -229,6 +229,62 @@ token mass, arguments) and linuxdoom's. It is a shape comparison, not a correctn
 | args | 1.0 | 1.0 | 1.0 - 1.0 | 50 |
 
 <!-- study:distribution end -->
+
+### By subsystem
+
+Each function goes to the subsystem of the linuxdoom function it descends from (`lineage.assign_subsystem`), vendored
+code dropped. A cell is the port's median complexity in that subsystem over linuxdoom's median in the same one; a blank
+is a subsystem with under 5 functions on either side. The full per-metric tables and heatmaps come from
+`subsystem_distribution.py` and `subsystem_plot.py`.
+
+<!-- study:subsystem begin -->
+
+| port | data-tables | game-loop | hud/ui | main/defs | misc | netcode | platform (i_*) | playsim | renderer | sound | video | wad | zone-alloc | other % |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| agentic-cobol-doom-cc |  |  |  |  |  |  |  |  |  |  |  |  |  | 98 |
+| agentic-cobol-doom-codex |  |  |  |  |  |  |  |  |  |  |  |  |  | 99 |
+| chocolate-doom |  | 1.50 | 1.00 | 0.75 | 0.67 | 0.57 |  | 0.67 | 1.09 | 2.00 | 0.17 | 0.67 | 0.60 | 28 |
+| crispy-doom |  | 1.00 | 1.50 | 0.75 | 0.67 | 0.57 |  | 0.67 | 1.09 | 3.00 | 0.17 | 0.67 | 0.60 | 27 |
+| cssdoom |  |  |  |  |  |  |  |  |  |  |  |  |  | 98 |
+| dartdoom |  | 0.50 | 1.50 | 0.12 | 0.00 |  |  | 0.67 | 0.64 | 2.00 |  |  |  | 30 |
+| doo-cr |  | 0.00 | 0.00 | 0.00 | 0.00 | 0.43 |  | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 17 |
+| doom-ascii |  | 2.00 | 1.00 | 1.00 | 0.67 | 0.43 |  | 0.67 | 1.09 | 2.00 | 0.17 | 0.50 | 0.70 | 5 |
+| doom-fx |  |  |  |  |  |  |  |  |  |  |  |  |  | 100 |
+| doom-ios |  | 2.00 | 1.50 | 1.25 | 0.67 |  |  | 1.33 | 0.55 | 1.50 | 0.08 | 0.67 | 0.40 | 45 |
+| doom-scheme |  | 0.00 | 0.50 |  | 0.67 | 0.71 |  | 0.33 | 0.36 | 1.00 | 0.00 | 0.33 |  | 24 |
+| doom-wasm |  | 2.50 | 1.00 | 0.75 | 0.67 | 0.57 |  | 0.67 | 1.09 | 2.00 | 0.17 | 0.67 | 0.60 | 31 |
+| doom3-bfg |  | 1.25 | 1.00 | 0.50 | 0.67 | 0.29 |  | 1.33 | 1.09 | 3.00 | 1.00 | 0.50 | 0.60 | 95 |
+| doom3do |  | 0.50 | 2.75 |  |  |  |  | 1.33 | 0.55 | 3.00 |  |  |  | 61 |
+| doomf77 |  |  | 5.50 | 2.50 | 4.67 |  |  | 3.00 | 1.18 | 7.50 |  | 0.50 |  | 0 |
+| doomgeneric |  | 2.00 | 1.00 | 0.88 | 0.67 | 0.43 |  | 0.67 | 1.09 | 2.00 | 0.17 | 0.50 | 0.70 | 11 |
+| doomretro |  | 4.00 | 2.50 | 1.25 | 2.00 |  |  | 1.00 | 0.55 | 3.00 | 1.00 | 1.17 | 1.00 | 20 |
+| doomsday |  | 1.00 | 1.00 | 0.50 | 1.33 | 0.57 |  | 0.67 | 0.18 | 0.50 |  | 0.00 | 0.60 | 89 |
+| dsda-doom |  | 2.50 | 1.50 | 1.00 | 1.33 |  |  | 0.67 | 0.55 | 3.00 | 0.00 | 0.33 | 0.00 | 47 |
+| edge-classic |  | 1.50 | 1.00 |  | 1.33 |  |  | 1.33 | 0.36 | 3.00 |  | 0.67 |  | 67 |
+| eternity |  | 0.50 | 0.50 | 0.75 | 0.00 | 0.71 |  | 1.33 | 0.36 | 1.00 | 0.33 | 0.33 | 0.00 | 45 |
+| fastdoom |  | 0.50 | 1.25 | 1.25 | 0.67 | 1.57 |  | 1.33 | 1.27 | 4.00 | 0.67 | 1.00 | 0.60 | 51 |
+| fps-cob |  |  |  |  |  |  |  |  |  |  |  |  |  | 96 |
+| fsharp-doom |  |  |  |  |  |  |  | 0.33 |  |  |  |  |  | 87 |
+| gore |  | 2.00 | 1.50 | 0.25 | 0.67 |  |  | 1.00 | 0.91 | 2.00 | 0.83 | 0.50 |  | 44 |
+| gzdoom |  | 0.50 | 0.00 | 0.50 | 0.00 | 0.57 |  | 0.67 | 0.00 | 0.00 | 0.00 | 0.00 |  | 71 |
+| helion |  |  | 6.50 |  | 1.67 |  |  | 0.33 | 0.18 | 2.50 |  |  |  | 99 |
+| inter-doom |  | 1.00 | 2.00 | 0.75 | 0.67 | 0.57 |  | 0.67 | 0.91 | 2.00 | 0.83 | 0.67 | 0.60 | 41 |
+| kocoa-doom |  | 0.00 | 1.00 | 0.00 | 0.00 | 1.71 |  | 0.33 | 0.55 | 0.00 | 0.00 | 0.00 |  | 71 |
+| managed-doom |  | 0.00 | 1.75 |  | 1.00 |  |  | 0.33 | 0.73 | 0.00 |  |  |  | 74 |
+| mochadoom |  | 0.00 | 1.00 | 0.12 | 0.00 | 0.86 |  | 0.67 | 0.00 | 0.00 | 0.00 | 0.00 |  | 70 |
+| mood |  | 1.00 | 1.00 | 1.00 | 1.33 | 1.14 |  | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 19 |
+| nugget-doom |  | 1.00 | 2.00 | 0.75 | 0.67 | 0.57 |  | 1.00 | 0.73 | 2.00 | 0.50 | 0.33 | 1.00 | 28 |
+| odamex |  | 0.50 | 1.50 | 0.25 | 0.00 | 0.29 |  | 0.67 | 0.18 | 0.00 | 0.00 | 0.33 | 0.00 | 43 |
+| prboom-plus |  | 2.00 | 1.50 | 1.25 | 0.67 | 0.00 |  | 1.33 | 0.73 | 3.00 | 0.00 | 0.67 | 0.40 | 37 |
+| puredoom |  | 1.00 | 1.00 | 0.25 | 0.67 | 1.86 |  | 1.00 | 1.00 | 2.00 | 1.00 | 1.00 | 1.00 | 15 |
+| room4doom |  | 2.00 | 0.00 | 0.38 | 0.00 |  |  | 1.00 | 0.73 | 1.00 |  |  |  | 94 |
+| rust-doom |  |  |  |  |  |  |  |  |  |  |  |  |  | 98 |
+| sdl-doom |  | 2.00 | 1.00 | 1.00 | 0.67 | 0.43 |  | 0.67 | 1.09 | 2.00 | 0.17 | 0.50 | 0.70 | 4 |
+| sqldoom |  |  |  |  |  |  |  |  |  |  |  |  |  | 99 |
+| srb2 |  | 1.50 | 3.00 | 0.75 | 1.33 | 1.14 |  | 2.00 | 0.55 | 0.00 | 0.83 | 0.83 | 0.60 | 39 |
+| woof |  | 1.00 | 1.50 | 0.75 | 0.67 | 0.86 |  | 1.00 | 0.55 | 2.00 | 0.50 | 0.50 | 1.00 | 35 |
+
+<!-- study:subsystem end -->
 
 ## Cross-language calibration: landmark functions
 

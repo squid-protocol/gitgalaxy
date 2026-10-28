@@ -131,6 +131,7 @@ from equivalence_common import (
     reuse,
     run_cobol_step,
     step_reused,
+    write_java_failure,
 )
 import codecs  # noqa: F401 -- kept (#4496)
 from equivalence_common import DEFAULT_DATA_ENCODING  # noqa: F401 -- re-exported / kept (#4496)
@@ -946,9 +947,7 @@ def main() -> int:
                                             stop=differs if args.first_difference else None,
                                             entries=tuple(entries), one_jvm=args.one_jvm)  # fmt: skip
     except RuntimeError as e:  # the port does not compile, or its run fails: the loop's feedback, not a crash
-        failed = java_failure_report(case, work, str(e))
-        (work / "report.json").write_text(json.dumps(failed, indent=2) + "\n", encoding="utf-8")
-        print(f"{case['program']}: the Java side failed -- see {work / 'report.json'}")
+        write_java_failure(case, work, str(e))
         return _recorded(args, work, 1)
     report: dict[str, Any] = {"case": args.case, "program": case["program"], "outputs": {},
                               "java": "generated" if args.generated_only else "ported", "collation": COLLATION,

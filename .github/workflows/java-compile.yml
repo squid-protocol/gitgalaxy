@@ -36,6 +36,9 @@ on:
       - "gitgalaxy/cobol_refractor_controller.py"
       - "gitgalaxy/tools/cobol_to_java/**"
       - "gitgalaxy/tools/cobol_to_cobol/**"
+      # #6278 slice 4: the two package READMEs are prose the generator never reads (the classifier lists only test readers)
+      - "!gitgalaxy/tools/cobol_to_java/README.md"
+      - "!gitgalaxy/tools/cobol_to_cobol/README.md"
       - "gitgalaxy/standards/yaml_reader.py"
       - "gitgalaxy/standards/fact_channel_confidence.json"
       - "tests/tools/java_target_matrix.py"

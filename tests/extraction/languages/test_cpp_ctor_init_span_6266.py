@@ -86,7 +86,7 @@ def test_an_init_entry_naming_a_class_no_included_file_declares_is_no_base():
         "a/Node.cpp": ([_ctor("Node::Node", 1)], []),
         "b/user.cpp": ([_ctor("User::User", 1, ["Node"], init=True)], []),
     }
-    assert ("User::User", "Node::Node") not in _init_edges(files)
+    assert ("User::User", "Node::Node") not in _init_edges(files, [("b/user.cpp", "b/user.h")])
 
 
 def test_an_init_entry_matching_two_included_nested_classes_is_a_member_not_a_base():
@@ -98,3 +98,36 @@ def test_an_init_entry_matching_two_included_nested_classes_is_a_member_not_a_ba
         "s/sym.cpp": ([_ctor("Sym::Sym", 1, ["Node"], init=True)], []),
     }
     assert ("Sym::Sym", "Node::Node") not in _init_edges(files, [("s/sym.cpp", "u/arr.h"), ("s/sym.cpp", "u/arena.h")])
+
+
+def test_an_init_entry_in_a_file_with_no_includes_stays_a_base():
+    # doom3-bfg `class idAllocError : public idException { idAllocError(..) : idException(text) {} }`: Class.h has no
+    # `#include` (it reaches idException through the precompiled header), so visibility cannot rule the base out
+    files = {
+        "idlib/Lib.h": (
+            [_ctor("idException::idException", 2)],
+            [{"name": "idException", "start_line": 1, "inheritance": []}],
+        ),
+        "gamesys/Class.h": ([_ctor("idAllocError::idAllocError", 3, ["idException"], init=True)], []),
+    }
+    assert ("idAllocError::idAllocError", "idException::idException") in _init_edges(files)
+
+
+def test_an_init_entry_naming_one_included_class_among_namesakes_elsewhere_stays_a_call():
+    # doomsday `AboutDialog() : DialogWidget(..)`: de::DialogWidget (libs/gui) and de::term::DialogWidget (libs/core)
+    # both live outside the caller's directory; only the gui one is in its include closure, so the entry is a base
+    # call (kept, even though the tie leaves it unresolved), not a data member
+    from gitgalaxy.core.call_resolver import resolve_calls
+
+    widget = [{"name": "DialogWidget", "start_line": 1, "inheritance": []}]
+    files = {
+        "gui/dialogwidget.h": ([], widget),
+        "gui/dialogwidget.cpp": ([_ctor("DialogWidget::DialogWidget", 1)], []),
+        "term/dialogwidget.h": ([], widget),
+        "term/dialogwidget.cpp": ([_ctor("DialogWidget::DialogWidget", 1)], []),
+        "app/aboutdialog.cpp": ([_ctor("AboutDialog::AboutDialog", 1, ["DialogWidget"], init=True)], []),
+    }
+    parsed = [{"path": p, "lang_id": "cpp", "functions": fns, "classes": cls} for p, (fns, cls) in files.items()]
+    includes = [("app/aboutdialog.cpp", "app/aboutdialog.h"), ("app/aboutdialog.h", "gui/dialogwidget.h")]
+    resolve_calls(parsed, [{"src": s, "dst": d, "edge_kind": "import"} for s, d in includes])
+    assert parsed[-1]["functions"][0]["calls_out_to"] == ["DialogWidget"]

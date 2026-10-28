@@ -1042,8 +1042,10 @@ def _init_entry_not_a_base(
 ) -> bool:
     """#6266: a ctor-init entry names a base only when a class of that name is visible from the file (its own, its
     directory's, or its include closure's). A tie among several classes of that name (a nested `Node`, another
-    platform's copy of a base) pins only the one in the caller's own directory; a class and its own constructor
-    function tying is no ambiguity."""
+    platform's copy of a base) pins the one in the caller's own directory, else the one the include closure reaches
+    (doomsday's `de::DialogWidget` beside `de::term::DialogWidget`); a class and its own constructor
+    function tying is no ambiguity. A file with no includes at all reaches its bases some other way (doom3-bfg
+    headers get `idException` from a precompiled header): visibility says nothing there, so its entries stay bases."""
     visible = [
         d
         for d in bucket.defs
@@ -1055,9 +1057,10 @@ def _init_entry_not_a_base(
         )
     ]
     if step == "tie" and sum(d.kind == "class" for d in bucket.defs) > 1:
-        near = [d for d in visible if d.kind == "class" and (d.path == src_path or _dirname(d.path) == caller_dir)]
-        return len(near) != 1
-    return not visible
+        seen = [d for d in visible if d.kind == "class"]
+        near = [d for d in seen if d.path == src_path or _dirname(d.path) == caller_dir]
+        return len(near or seen) != 1
+    return not visible and bool(imports.get(src_path))
 
 
 def _imports_by_file(dependency_edges: list[dict[str, Any]] | None) -> dict[str, set[str]]:

@@ -109,3 +109,37 @@ def test_the_gate_still_triggers_on_its_own_inputs(name):
     paths = paths_of(name)
     assert wi.triggers(paths, "pyproject.toml")
     assert wi.triggers(paths, f".github/workflows/{name}")
+
+
+# the Java compile gate: the generator's two package READMEs are prose to it (the classifier lists only test readers)
+JAVA_READMES = ("gitgalaxy/tools/cobol_to_java/README.md", "gitgalaxy/tools/cobol_to_cobol/README.md")
+
+
+def test_java_compile_skips_the_generator_readmes_but_keeps_every_generator_input():
+    paths = paths_of("java-compile.yml")
+    assert not any(wi.triggers(paths, f) for f in JAVA_READMES)
+    assert all(wi.triggers(paths, f) for f in TRANSLATOR)
+    assert wi.triggers(paths, "gitgalaxy/tools/cobol_to_java/det/copy/CEEIGZCT.cpy")
+    assert wi.triggers(paths, "gitgalaxy/tools/cobol_to_cobol/galaxy_ir.py")
+    assert wi.triggers(paths, "tests/tools/java_target_matrix.py")
+
+
+def test_the_readmes_java_compile_skips_are_not_read_by_the_generator():
+    cc = pytest.importorskip("change_classifier")
+    refs = cc.load()
+    for f in JAVA_READMES:
+        assert all(r.startswith("tests/") for r in cc.readers_of(f, refs)), f
+
+
+def test_muninn_triggers_on_every_area_a_secret_or_workflow_scanner_reads():
+    """Muninn (gitleaks, semgrep, zizmor, checkov ...) reads engine, workflow and agent files; it skips tests and docs."""
+    paths = paths_of("muninn.yml")
+    cc = pytest.importorskip("change_classifier")
+    for f, area in (
+        ("gitgalaxy/core/detector.py", "engine"),
+        (".github/workflows/ci.yml", "workflow"),
+        (".claude/rules/x.md", "agent-config"),
+    ):
+        assert cc.area(f) == area and wi.triggers(paths, f), f
+    for f, area in (("docs/ci.md", "test-read-doc"), ("tests/tools/test_x.py", "test-tooling")):
+        assert cc.area(f) in (area, "prose") and not wi.triggers(paths, f), f

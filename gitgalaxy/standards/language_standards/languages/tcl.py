@@ -15,6 +15,87 @@ from gitgalaxy.standards.language_standards.identifiers import ID_CONTINUE, ID_S
 
 from .._shared_patterns import GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
+# #5909: a `switch` arm is `label body`. The label is a pattern, not a command, and a one-line body
+# (`x { doX }`) is not at command position. `_expose_switch_arms` blanks each label and puts the body on
+# its own line, with `;` as a line break. A label is told from a script-taking custom command only by the
+# `switch` context, which a regex cannot see (balanced braces).
+_WS = " \t\r\n"
+
+
+def _word_end(text: str, i: int, stop: str) -> int:
+    """Index just past the Tcl word at `i`: a braced / quoted / bracketed word, or a bare one up to `stop`."""
+    close = {"{": "}", '"': '"', "[": "]"}.get(text[i])
+    n = len(text)
+    if close is None:
+        while i < n and text[i] not in stop:
+            i += 2 if text[i] == "\\" else 1
+        return min(i, n)
+    opener, depth, i = text[i], 1, i + 1
+    while i < n:
+        ch = text[i]
+        if ch == "\\":
+            i += 2
+            continue
+        depth += ch == opener != close
+        depth -= ch == close
+        i += 1
+        if depth == 0:
+            return i
+    return n
+
+
+def _skip_blank(text: str, i: int, newlines: bool) -> int:
+    ws = _WS if newlines else " \t"
+    while i < len(text) and (text[i] in ws or text.startswith("\\\n", i)):
+        i += 2 if text[i] == "\\" else 1
+    return i
+
+
+def _expose_switch_arms(text: str) -> str:
+    """`text` with each `switch` arm's label blanked and its braced body moved to its own line (same length)."""
+    out = list(text)
+    pos = 0
+    while True:
+        at = text.find("switch", pos)
+        if at < 0:
+            return "".join(out)
+        pos = at + 6
+        before = text[:at].rstrip(" \t")[-1:]
+        if (before and before not in "\n[{;") or text[pos : pos + 1] not in (" ", "\t"):
+            continue
+        i = _skip_blank(text, pos, False)
+        while i < len(text) and text[i] == "-":  # options, then `--`
+            i = _skip_blank(text, _word_end(text, i, _WS), False)
+        if i >= len(text) or text[i] in "\n;]":
+            continue
+        i = _skip_blank(text, _word_end(text, i, _WS + ";]"), False)  # the subject
+        if text[i : i + 1] == "{":
+            end = _word_end(text, i, _WS)
+            i, newlines = i + 1, True
+            end -= 1
+        else:
+            end, newlines = len(text), False
+        while True:
+            i = _skip_blank(text, i, newlines)
+            if i >= end or text[i] in "\n;]":
+                break
+            label_end = _word_end(text, i, _WS + ";]")
+            for q in range(i, label_end):
+                if out[q] != "\n":
+                    out[q] = " "
+            i = _skip_blank(text, label_end, newlines)
+            if i >= end or text[i] in "\n;]":
+                break
+            body_end = _word_end(text, i, _WS + ";]")
+            if text[i] == "{":
+                out[i] = "\n"
+                out[body_end - 1] = " "
+                for q in range(i + 1, body_end - 1):
+                    if out[q] == ";":
+                        out[q] = "\n"
+            i = body_end
+
+
 DEFINITION: dict[str, Any] = {
     "_meta": {
         "target_version": "Tcl 8.6 / SQLite Test Suite",
@@ -55,6 +136,8 @@ DEFINITION: dict[str, Any] = {
             + r":-]))"
             r"([" + ID_START + r"][" + ID_CONTINUE + r":-]*)(?<=[" + ID_CONTINUE + r"])(?![" + ID_CONTINUE + r"])"
         ),
+        # #5909: a one-line `switch` arm body and a label that is not a command.
+        "_calls_out_rewrite": _expose_switch_arms,
         "_calls_out_ignore": frozenset(
             {
                 "proc",

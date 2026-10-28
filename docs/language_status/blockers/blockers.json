@@ -3,7 +3,7 @@
  "non_burned": 0,
  "whole": 167,
  "whole_non_burned": 0,
- "refused": 1,
+ "refused": 0,
  "histogram": {
   "0": 167,
   "1": 7,
@@ -78,7 +78,7 @@
    "refuses_program": false
   },
   {
-   "gap": "EXEC CICS WsRec: no key",
+   "gap": "EXEC CICS VERIFY",
    "only": 1,
    "only_burned": 1,
    "only_non_burned": 0,
@@ -91,7 +91,7 @@
    "refuses_program": false
   },
   {
-   "gap": "refused: CICS Assembler",
+   "gap": "EXEC CICS WsRec: no key",
    "only": 1,
    "only_burned": 1,
    "only_non_burned": 0,
@@ -101,7 +101,7 @@
    "touched": 1,
    "touched_burned": 1,
    "touched_non_burned": 0,
-   "refuses_program": true
+   "refuses_program": false
   },
   {
    "gap": "<name>: a pointer a REDEFINES overlays",

@@ -113958,6 +113958,7 @@
         ],
         "_missing_apache_modules@533": [
           "_get_apachectl",
+          "print",
           "install_string",
           "keys",
           "_check_apache_module",
@@ -113978,6 +113979,7 @@
           "die",
           "grep",
           "getlines",
+          "print",
           "close"
         ],
         "check_requirements@484": [
@@ -115339,7 +115341,9 @@
           "EscapeHTML",
           "EscapeXML"
         ],
-        "Error@357": [],
+        "Error@357": [
+          "Warn"
+        ],
         "EscapeJSON@3799": [
           "lc",
           "defined",
@@ -115426,6 +115430,7 @@
           "keys",
           "SetAlternateFile",
           "lc",
+          "ExifTool",
           "Array",
           "hex",
           "close",
@@ -115663,6 +115668,7 @@
         "SetWindowTitle@4213": [
           "shift",
           "tr",
+          "system",
           "printf"
         ],
         "SigCont@368": [],
@@ -116003,6 +116009,7 @@
           "shift",
           "ref",
           "all",
+          "splice",
           "clone",
           "then",
           "resolve",
@@ -116112,6 +116119,7 @@
           "trace",
           "verbose",
           "_wrap",
+          "die",
           "ref"
         ],
         "render@163": [

@@ -57,6 +57,13 @@ def test_unset_toggles_keeps_only_repo_owned_toggles():
     assert names == {"COMMENTED_OUT"}  # defined, built, code-used, platform and guard names are all undecided
 
 
+def test_unset_toggles_leaves_system_header_macro_shapes_undecided():
+    source = (
+        "#ifdef UINT_MAX\nint a;\n#endif\n#ifdef Q_WS_X11\nint b;\n#endif\n#if defined(MY_FEATURE)\nint c;\n#endif\n"
+    )
+    assert unset_toggles([source], []) == {"MY_FEATURE"}
+
+
 def test_unset_toggles_is_off_for_an_oversized_scan(monkeypatch):
     from gitgalaxy.core import preproc_toggles
 

@@ -19,6 +19,9 @@ from collections.abc import Iterable
 _EXTERNAL_NAMES = frozenset(
     {"unix", "linux", "i386", "WIN32", "WIN64", "NDEBUG", "DEBUG", "EMSCRIPTEN", "ANDROID", "MSDOS", "DJGPP"}
 )
+# System-header shapes (`<limits.h>` `UINT_MAX`, Qt `Q_WS_X11`, SDL/GL feature macros, `FOO_VERSION`): a header outside the
+# scan defines them, and the repo reads them only in conditionals, so "no definition seen" decides nothing.
+_SYSTEM_NAME_RE = re.compile(r"^(?:Q_|SDL_|GL_)|(?:_MAX|_MIN|_BITS?|_VERSION)$")
 _DEFINE_RE = re.compile(r"^[ \t]*#[ \t]*(?:define|undef)[ \t]+([A-Za-z_]\w*)", re.M)
 _COND_RE = re.compile(r"^[ \t]*#[ \t]*(?:if|ifdef|ifndef|elif|elifdef|elifndef)\b([^\n]*)", re.M)
 # A directive other than `#define` (whose body is code) and a whole-line `//` comment: not code.
@@ -49,7 +52,11 @@ def unset_toggles(c_texts: Iterable[str], build_texts: Iterable[str]) -> frozens
         blocked.update(_IDENT_RE.findall(text))
         blocked.update(_COMMAND_LINE_DEFINE_RE.findall(text))
     candidates.discard("defined")
-    return frozenset(n for n in candidates if n not in blocked and not n.startswith("_") and n not in _EXTERNAL_NAMES)
+    return frozenset(
+        n
+        for n in candidates
+        if n not in blocked and not n.startswith("_") and n not in _EXTERNAL_NAMES and not _SYSTEM_NAME_RE.search(n)
+    )
 
 
 _TOKEN_RE = re.compile(

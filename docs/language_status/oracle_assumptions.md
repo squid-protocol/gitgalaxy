@@ -88,7 +88,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | C3 | compiler | An integer literal truncated to zero keeps no sign | DIFFERS | no |
 | C4 | compiler | An unsigned binary taken below zero by ADD/SUBTRACT: IBM keeps the absolute value, and so does the det runtime; cobc's native arithmetic wraps (#4684) | MATCHED (det runtime = IBM) / DIFFERS (oracle vs IBM, declared; no cobc option turns it off) | no |
 | C5 | compiler | `NUMPROC(MIG)` as Enterprise COBOL 5+ compiles it (NOPFD), `NUMPROC(PFD)` with preferred signs (#4271); `TRUNC(OPT)` with conforming binary values, `ARITH(EXTEND)` with intermediates within 30 digits (#4706); `INTDATE(LILIAN)` | MATCHED (NUMPROC) / MODELLED (TRUNC(OPT) and ARITH(EXTEND), det ports, a stop by name; INTDATE(LILIAN), det port, no oracle) / REFUSED (the rest) | NUMPROC: no; TRUNC(OPT): CBSA (det ports); ARITH(EXTEND): DBB EPSCSMRD (det ports) |
-| C6 | compiler | COMP-1 / COMP-2: IBM hexadecimal floating point, and float-mode evaluation of the whole expression | MODELLED in the det runtime (HFP, #4271 slice 1); the oracle DIFFERS (IEEE, decimal evaluation): proven by IBM-cited vectors and on exact values; what the oracle cannot decide REFUSED by name | no (DBB EPSMPMT: its payment formula is IEEE binary64 by owner decision, #5867, but the oracle is not binary64 there; every other float `**` is an ASSUMED routine waiting on z/OS captures) |
+| C6 | compiler | COMP-1 / COMP-2: IBM hexadecimal floating point, and float-mode evaluation of the whole expression | MODELLED in the det runtime (HFP, #4271 slice 1); the oracle DIFFERS (IEEE, decimal evaluation): proven by IBM-cited vectors and on exact values; what the oracle cannot decide REFUSED by name | no (DBB EPSMPMT: its payment formula is IEEE binary64 by owner decision, #5867, and the oracle states it through a stand-in, `equivalence_binary64.py`; every other float `**` is an ASSUMED routine waiting on z/OS captures) |
 | C7 | compiler | COMP-5 byte order: little-endian vs z/OS big-endian | DIFFERS; byte uses REFUSED by name in the det translator (#4271) | read as numbers only (a VALUE beyond the PICTURE: fixed, #4501) |
 | C8 | compiler | DISPLAY of signed zoned, binary and packed items | MATCHED | yes |
 | C9 | compiler | POINTER is 8 bytes in GnuCOBOL (x86-64), 4 on z/OS | DIFFERS (declared: each side's fields read by its own layout, compared by name; a POINTER only as NULL or not) | only NULL (CBSA, data after one included) |
@@ -588,9 +588,8 @@ instrument). The rows below are rendered by one table in code (`compiler_options
 - **Waiting on it.**
   - `mortgage-mpmt` (EPSMPMT): its interest rate is computed in long HFP and stored as short HFP; the payment's
     `(1 + C) ** N` and the dead-code `FUNCTION ANNUITY` are IEEE binary64 by owner decision (bullet below), so the port
-    translates whole (27 of 27 statements, no hole). It stays in the det sweep's baseline (KNOWN_UNPROVEN) on the
-    oracle side: 2 of its 11 calls differ by cents (`maximum-principal` GnuCOBOL 599550.79, det 599550.44;
-    `high-rate` 16666.50, 16666.49). Its callers `mortgage-csmrt` and `mortgage-cmort` left the baseline (#5867).
+    translates whole (27 of 27 statements, no hole). The oracle states the same binary64 through a stand-in
+    (bullet below), so it is proved on 11 of 11 calls and left the det sweep's baseline. Its callers `mortgage-csmrt` and `mortgage-cmort` left the baseline (#5867).
     The store into the fixed-point payment truncates on both sides (an earlier note here said the port rounds: it does
     not, `Cobol.store` truncates unless ROUNDED).
   - **A non-exact COMP-2 amount into a 2-decimal field (#5703 evidence, BNK1TFN line 494).** 12.34, 9999999999.99 and 0.01
@@ -658,13 +657,22 @@ instrument). The rows below are rendered by one table in code (`compiler_options
   a statement is refused by name (no ruling on the double -> HFP conversion). It is an owner-stated assumption, not a
   z/OS calibration. Pinned by `test_det_hfp.py` `test_ibm_dbb_epsmpmt_translates_its_payment_formula_in_ieee_binary64`,
   `test_binary64_is_epsmpmts_alone` and `test_a_binary64_result_into_a_float_item_is_a_named_hole`.
-  - **The oracle is not binary64 there (measured, GnuCOBOL 3.1.2, `-std=ibm`).** The COMP-1 rate is IEEE binary32
-    (5% / 12 -> 0.004999999888...; the port holds short HFP, #4702); cobc reads it as a 19-digit decimal and takes the
-    power as an exact decimal (`(1 + C) ** N` stored alone: 6.022574971161645864), but inside the larger expression it
-    loses about 1e-6 relative, and the loss depends on operand order (`C * ((1 + C) ** N)` = 0.030112764..., where the
-    exact product of the same operands is 0.030112874...). So the oracle side of the ruling needs a stand-in that
-    computes this statement in binary64 (an `LD_PRELOAD` routine or a case-level source rewrite), and the owner's word
-    on the rate's binary32 (GnuCOBOL) vs short HFP (port): until then `mortgage-mpmt` stays unproven.
+  - **The oracle is not binary64 there (measured, GnuCOBOL 3.1.2, `-std=ibm`), so a stand-in states it (#5867 slice 2).**
+    The COMP-1 rate is IEEE binary32 (5% / 12 -> 0.004999999888...; the port holds short HFP, #4702); cobc reads it as a
+    19-digit decimal and takes the power as an exact decimal, but inside the larger expression it loses about 1e-6
+    relative, and the loss depends on operand order (`C * ((1 + C) ** N)` = 0.030112764..., where the exact product of
+    the same operands is 0.030112874...). `tests/tools/equivalence_binary64.py` lowers the two ruled statements of
+    EPSMPMT (and only those, refusing any other shape or a PIC it does not expect) into CALLs of
+    `tests/equivalence/faults/ggb64.c`, which evaluates them in double with the port's operation order (glibc `powl`
+    cut to double for `StrictMath.pow`). Line numbers and the coverage trace are kept. The stub does not read the
+    binary32 rate: it rebuilds the port's short HFP rate from the quoted rate (`(rate / 100) / 12` in long HFP, then
+    LOAD ROUNDED; held to `det/hfp.py` for every quoted rate by `test_equivalence_binary64.py`), because the
+    2 cent differences (`maximum-principal`, `high-rate`) were exactly binary32 vs short HFP (measured: with the
+    binary32 rate the stub gave 599550.51 / 16666.50 against the port's 599550.44 / 16666.49; with the HFP rate all
+    11 calls are equal). That choice is the owner's word still open (the HFP rate is what z/OS holds, but it makes the
+    stand-in follow the port there). `mortgage-mpmt` is proved on 11 of 11 calls, 4/4 paragraphs and 12/12 branches
+    and left the det sweep's baseline. The callers `mortgage-csmrt` / `mortgage-cmort` run EPSMPMT as a CICS
+    subprogram and never reach the formula, so they have no lowering; a scenario that did would need one.
 - **What would settle it.** A z/OS run of EPSMPMT's scenarios (#4050): the exponentiation, and the ASSUMED
   conversions above, checked where the oracle cannot.
   - **Where a capture lands (#4271, #4050).** `tests/cobol_mainframe/zos_captures/hfp.json` is a table of expected HFP

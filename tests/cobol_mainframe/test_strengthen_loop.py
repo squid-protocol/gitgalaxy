@@ -132,6 +132,7 @@ _FAULT_RESP = {
     "INQ-TERMINAL": ("TERMIDERR", 1),
     "RUN-TRANSID": ("TRANSIDERR", 1),
     "FETCH-ANY": ("NOTFND", 1),
+    "CALL-CEELOCT": ("CEE2F3", 0),  # #6882: the LE feedback code IBM lists; no RESP2
     "PUT-CONTAINER": ("CONTAINERERR", 18),
     "GET-CONTAINER": ("CONTAINERERR", 10),
 }  # #6271 (X71, X72)
@@ -148,6 +149,7 @@ _NAMELESS = (
     "FETCH-ANY",
     "PUT-CONTAINER",
     "GET-CONTAINER",
+    "CALL-CEELOCT",
 )  # fault_lines names them "-"  # #5089 (X60): the one condition IBM lists for ENQ that a plan raises; no RESP2
 
 
@@ -164,10 +166,14 @@ def test_the_strengthen_loop_plans_a_fault_for_every_fault_command(cmd):
     """Every FAULT_COMMANDS member the equivalence harness takes, the loop's validator accepts (#4648 added LINK)."""
     sc = _fault_member_scenario(cmd)
     ec = st.eq_cics()
+    from equivalence_cics_faults import LE_FEEDBACK
+
     assert st.validate(CICS, sc, set(), set()) is None
     name = "-" if cmd in _NAMELESS else "TARGET1"
     resp, resp2 = _FAULT_RESP.get(cmd, ("NOTAUTH", 101))
-    assert ec.fault_lines(sc) == [f"{cmd} {name} 1 {ec.CICS_RESP.get(resp) or ec.DFHRESP[resp]} {resp2}"]
+    assert ec.fault_lines(sc) == [
+        f"{cmd} {name} 1 {LE_FEEDBACK.get(resp) or ec.CICS_RESP.get(resp) or ec.DFHRESP[resp]} {resp2}"
+    ]
 
 
 @pytest.mark.parametrize("cmd", st.eq_cics().FAULT_COMMANDS)

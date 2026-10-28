@@ -3086,6 +3086,13 @@ class Gen:
                 target = self.field_expr(E.Ref("RETURN-CODE"))
                 return [f"{ind}int {rc} = {lib[0]}({', '.join(refs)});",
                         f"{ind}Cobol.store({target}, BigDecimal.valueOf({rc}), false, CS);"]  # fmt: skip
+            if (
+                prog == "CEELOCT" and self.cics is not None
+            ):  # #6882: IBM's one failure, CEE2F3, may be planned (faults.cfg)
+                plan = self.tmpname("plan")
+                return [f"{ind}int[] {plan} = task.planned(\"CALL-CEELOCT\", \"-\");",
+                        f"{ind}if ({plan}[0] != 0) {{ {lib[0].rpartition('.')[0]}.fail({refs[-2]}, {plan}[0]); }}",
+                        f"{ind}else {{ {lib[0]}({', '.join(refs)}); }}"]  # fmt: skip
             return [f"{ind}{lib[0]}({', '.join(refs)});"]
         from gitgalaxy.tools.cobol_to_java.det import mq
 

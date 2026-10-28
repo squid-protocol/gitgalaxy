@@ -1846,12 +1846,35 @@ int GGCURIP(gg_cics *c, char *area, int len) {
 }
 
 /* WRITE OPERATOR TEXT(from) of GG-LEN bytes: a message to the console, recorded with its text. A text IBM reformats
- * (DFHnnnn / DFHaannnn) or splits (over 113 characters) is refused. */
-int GGCWTO(gg_cics *c, char *from) {
+ * (DFHnnnn / DFHaannnn) or splits (over 113 characters) is refused. #5859 (X32), as CicsTask.writeOperator: GG-FLAGS
+ * TEXTLENGTH says GG-LEN is the TEXTLENGTH value (IBM: 0-690, else INVREQ RESP2 1; the text is the first GG-LEN bytes of the
+ * area, and one past the area is refused); GG-FLAGS ROUTES says `routes` holds GG-NUM route codes (each 1-28, else INVREQ
+ * RESP2 3; GG-NUM below 1 or past the area is a case IBM leaves open, refused). The routes are no observable (the
+ * console is not modelled) and EVENTUAL changes only when the operator acts. `area` is the text area's size, `routes_len`
+ * the routes area's. */
+int GGCWTO(gg_cics *c, char *from, int area, char *routes, int routes_len) {
     char ev[64];
-    int n = c->len, k = 0;
+    int n, k = 0, i;
     c->resp = NORMAL;
     c->resp2 = 0;
+    if (strstr(c->flags, "TEXTLENGTH")) {
+        if (c->len < 0 || c->len > 690) {
+            c->resp = INVREQ;
+            c->resp2 = 1;
+            return 0;
+        }
+        if (c->len > area) refuse("WRITE OPERATOR TEXTLENGTH past the text area");
+    }
+    if (strstr(c->flags, "ROUTES")) {
+        if (c->num < 1 || c->num > routes_len) refuse("WRITE OPERATOR NUMROUTES IBM leaves open");
+        for (i = 0; i < c->num; i++)
+            if ((unsigned char)routes[i] < 1 || (unsigned char)routes[i] > 28) {
+                c->resp = INVREQ;
+                c->resp2 = 3;
+                return 0;
+            }
+    }
+    n = c->len;
     while (n > 0 && from[n - 1] == ' ') n--;
     if (c->len > 113) refuse("WRITE OPERATOR text IBM reformats");
     if (n >= 7 && strncmp(from, "DFH", 3) == 0) {

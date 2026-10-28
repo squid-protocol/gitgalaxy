@@ -1632,12 +1632,18 @@ def test_inquire_urimap_browse_and_write_operator():
     )  # (EVENTUAL alone: the plain form)
 
 
-def test_write_operator_routing_options_are_refused_by_the_stub_translator():
-    """#5859: the det port models TEXTLENGTH / ROUTECODES / NUMROUTES, the stub's GGCWTO not yet: refused by name, never dropped."""
+def test_write_operator_routing_options_lower_to_the_stub_call():
+    """#5859 (ZECSNC): TEXTLENGTH / ROUTECODES + NUMROUTES reach the stub's GGCWTO through GG-LEN, GG-NUM and the flags;
+    one of ROUTECODES / NUMROUTES alone is refused by name, never dropped."""
     import equivalence_cics as ec  # noqa: PLC0415 (tests/tools is on sys.path above)
 
-    for opt in ("TEXTLENGTH(WS-N)", "ROUTECODES(WS-RC) NUMROUTES(WS-N)"):
-        with pytest.raises(ec.Unsupported, match="not modelled by the stub runtime"):
+    plain = " ".join(ec.translate_command("WRITE OPERATOR TEXT(WS-MSG) EVENTUAL"))
+    assert "GGCWTO" in plain and "TEXTLENGTH" not in plain and "ROUTES" not in plain
+    out = " ".join(ec.translate_command("WRITE OPERATOR TEXT(WS-MSG) TEXTLENGTH(WS-N) ROUTECODES(WS-RC) NUMROUTES(WS-NR) EVENTUAL"))
+    assert "GGCWTO" in out and "TEXTLENGTH ROUTES" in out and "TO GG-LEN" in out and "TO GG-NUM" in out
+    assert "WS-RC" in out and "WS-NR" in out
+    for opt in ("ROUTECODES(WS-RC)", "NUMROUTES(WS-NR)"):
+        with pytest.raises(ec.Unsupported, match="go together"):
             ec.translate_command(f"WRITE OPERATOR TEXT(WS-MSG) {opt} EVENTUAL")
 
 

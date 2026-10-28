@@ -153,7 +153,7 @@
    "carddemo-acctupdate": [
     95,
     95,
-    315,
+    377,
     397
    ],
    "carddemo-acctview": [
@@ -237,7 +237,7 @@
    "carddemo-coacct01": [
     13,
     13,
-    6,
+    31,
     33
    ],
    "carddemo-cobswait": [
@@ -261,19 +261,19 @@
    "carddemo-codate01": [
     13,
     13,
-    6,
+    26,
     28
    ],
    "carddemo-copaua0c": [
     41,
     41,
-    65,
+    66,
     71
    ],
    "carddemo-copaus0c": [
     20,
     20,
-    88,
+    90,
     93
    ],
    "carddemo-copaus1c": [
@@ -567,7 +567,7 @@
    "cbsa-bnk1ccs": [
     33,
     33,
-    124,
+    126,
     143
    ],
    "cbsa-bnk1ccs-generated": [
@@ -579,7 +579,7 @@
    "cbsa-bnk1cra": [
     28,
     28,
-    60,
+    61,
     67
    ],
    "cbsa-bnk1cra-generated": [
@@ -603,7 +603,7 @@
    "cbsa-bnk1dcs": [
     51,
     51,
-    90,
+    92,
     102
    ],
    "cbsa-bnk1dcs-generated": [
@@ -615,7 +615,7 @@
    "cbsa-bnk1tfn": [
     28,
     28,
-    61,
+    62,
     72
    ],
    "cbsa-bnk1tfn-generated": [
@@ -687,7 +687,7 @@
    "cbsa-crecust": [
     37,
     37,
-    38,
+    46,
     70
    ],
    "cbsa-crecust-generated": [
@@ -705,7 +705,7 @@
    "cbsa-dbcrfun": [
     21,
     22,
-    33,
+    34,
     35
    ],
    "cbsa-dbcrfun-generated": [
@@ -753,7 +753,7 @@
    "cbsa-inqacc": [
     24,
     25,
-    23,
+    24,
     25
    ],
    "cbsa-inqacc-generated": [
@@ -765,19 +765,19 @@
    "cbsa-inqacccu": [
     21,
     22,
-    31,
+    32,
     33
    ],
    "cbsa-inqacccu-generated": [
     18,
     22,
-    23,
+    24,
     33
    ],
    "cbsa-inqcust": [
     24,
     25,
-    42,
+    44,
     46
    ],
    "cbsa-updacc": [
@@ -927,7 +927,7 @@
    "genapp-lgicdb01": [
     3,
     4,
-    4,
+    5,
     12
    ],
    "genapp-lgicdb01-generated": [
@@ -969,7 +969,7 @@
    "genapp-lgipdb01-generated": [
     12,
     12,
-    55,
+    73,
     74
    ],
    "genapp-lgipol01": [
@@ -993,7 +993,7 @@
    "genapp-lgipvs01-linked": [
     1,
     1,
-    4,
+    6,
     6
    ],
    "genapp-lgsetup": null,
@@ -1072,7 +1072,7 @@
    "genapp-lgupdb01-generated": [
     9,
     9,
-    29,
+    38,
     38
    ],
    "genapp-lgupol01": [
@@ -1099,12 +1099,22 @@
     2,
     2
    ],
-   "mortgage-cmort": null,
-   "mortgage-csmrt": null,
-   "mortgage-mlist": [
-    5,
+   "mortgage-cmort": [
     6,
-    14,
+    6,
+    19,
+    21
+   ],
+   "mortgage-csmrt": [
+    1,
+    1,
+    2,
+    2
+   ],
+   "mortgage-mlist": [
+    6,
+    6,
+    15,
     15
    ],
    "mortgage-mlist-generated": [
@@ -1113,7 +1123,12 @@
     7,
     15
    ],
-   "mortgage-mpmt": null,
+   "mortgage-mpmt": [
+    4,
+    4,
+    12,
+    12
+   ],
    "mortgage-nbrvl": [
     3,
     3,
@@ -1129,20 +1144,26 @@
    "zecs-zecs000": [
     38,
     38,
-    47,
+    48,
     48
    ],
    "zecs-zecs001": [
-    71,
+    82,
     119,
-    91,
+    104,
     208
    ],
    "zecs-zecs003": [
     21,
     21,
-    29,
+    30,
     30
+   ],
+   "zecs-zecsnc": [
+    0,
+    0,
+    0,
+    0
    ],
    "zecs-zecsplt": [
     11,
@@ -1452,12 +1473,10 @@
     },
     "program": "zBuilder/MortgageApplication/cobol/epsmpmt.cbl",
     "row": {
-     "holes": [
-      "line 144: COMPUTE FUNCTION ANNUITY (IBM defines arg-1 / (1 - (1 + arg-1) ** -arg-2) but not the bits of the power or of the floating-point result; oracle_assumptions.md C6)"
-     ],
+     "holes": [],
      "kind": "call",
      "statements": 27,
-     "translated": 26
+     "translated": 27
     },
     "source_read": true
    },
@@ -1628,10 +1647,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "051e25bfc0acde4a631b7e7811ed7ba00e8dbfc2",
+   "sha": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2",
    "translator": {
-    "files": 149,
-    "sha256": "64effbe3408195c4352889c0c57b0d59b721746a1448bc6f984499d00280d2f1"
+    "files": 150,
+    "sha256": "a270a75e347468a700adada70850bc5eda533f3c0ce6c2c3bb6a8d1bf397772a"
    }
   },
   "sweeps": {}
@@ -1801,720 +1820,6 @@
    "assumptions": {
     "facts_stated": [],
     "facts_unstated": [],
-    "named_by_commands": [],
-    "reach": "not measured",
-    "source_read": true
-   },
-   "coverage": {
-    "branch_net_pct": 100.0,
-    "branch_pct": 100.0,
-    "branches": {
-     "covered": 22,
-     "total": 22
-    },
-    "branches_net": {
-     "covered": 22,
-     "total": 22
-    },
-    "current": true,
-    "infeasible_netted": [],
-    "infeasible_refuted": [],
-    "infeasible_stated": [],
-    "paragraph_pct": 100.0,
-    "paragraphs": {
-     "covered": 3,
-     "live": 3
-    },
-    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
-    "uncovered_branches": [],
-    "uncovered_paragraphs": "not recorded"
-   },
-   "equivalence": {
-    "cases": [
-     {
-      "case": "mortgage-nbrvl",
-      "case_scenarios": null,
-      "db2": false,
-      "det": {
-       "source": "CI det-sweep ratchet on main",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "program"
-     }
-    ],
-    "chosen": {
-     "case": "mortgage-nbrvl",
-     "case_scenarios": null,
-     "db2": false,
-     "det": {
-      "source": "CI det-sweep ratchet on main",
-      "state": "equal"
-     },
-     "record": null,
-     "role": "program"
-    }
-   },
-   "level": "L4",
-   "level_current": true,
-   "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
-    "l5": false,
-    "score": null
-   },
-   "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
-   ],
-   "options": {
-    "assumed": 6,
-    "compiler": {
-     "product": "Enterprise COBOL",
-     "version": "6.1"
-    },
-    "deviations": [],
-    "estate_file": true,
-    "found": 0,
-    "record_differences": [],
-    "runtime": [
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.ABTERMENC",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ABEND"
-     },
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.STORAGE",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NONE,NONE,NONE,0K"
-     },
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.TRAP",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ON,SPIE"
-     },
-     {
-      "effect": "no effect",
-      "option": "db2.bind.packages",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "none"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.ccsid.SQLCCSID",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NO"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.DATE",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ISO"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.DEC",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "15"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.DECPT",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "."
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.TIME",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ISO"
-     },
-     {
-      "effect": "no effect",
-      "option": "db2.precompile.coprocessor",
-      "provenance": "found",
-      "source": "zBuilder/LanguageConfiguration/application/config/epscmort.cbl.yaml:3",
-      "value": "integrated (compileParms CICS,SQL)"
-     },
-     {
-      "effect": "honoured",
-      "option": "cics.region.LOCALCCSID",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "037"
-     },
-     {
-      "effect": "no effect",
-      "option": "cics.translator.options",
-      "provenance": "found",
-      "source": "zBuilder/LanguageConfiguration/application/config/epscsmrt.cbl.yaml:3",
-      "value": "CICS"
-     }
-    ],
-    "values": [
-     {
-      "option": "ARITH",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "COMPAT"
-     },
-     {
-      "option": "INTDATE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ANSI"
-     },
-     {
-      "option": "NUMPROC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NOPFD"
-     },
-     {
-      "option": "TRUNC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "STD"
-     },
-     {
-      "option": "CODEPAGE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "1140"
-     },
-     {
-      "option": "NSYMBOL",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NATIONAL"
-     }
-    ]
-   },
-   "oracle_backing": [],
-   "program": "zBuilder/MortgageApplication/cobol/epsnbrvl.cbl",
-   "residual": {
-    "assumed_or_differs_named": [],
-    "branch_outcomes_unrun": 0,
-    "commands": 0,
-    "commands_backed": 0,
-    "commands_not_backed": [],
-    "facts_unstated": 0,
-    "holes": 0,
-    "paragraphs_unrun": 0,
-    "refused": null
-   },
-   "stale_inputs": [],
-   "stale_since": null,
-   "survey_stale": false,
-   "translation": {
-    "gap_classes": [],
-    "hole_count": 0,
-    "holes": [],
-    "refused": null,
-    "source_defects": [],
-    "statements": 52,
-    "translated": 52,
-    "whole": true
-   }
-  },
-  {
-   "assumptions": {
-    "facts_stated": [],
-    "facts_unstated": [],
-    "named_by_commands": [
-     {
-      "area": "CICS",
-      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
-      "id": "X27",
-      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
-     },
-     {
-      "area": "CICS",
-      "entry": "SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system`",
-      "id": "X31",
-      "status": "ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)"
-     },
-     {
-      "area": "CICS",
-      "entry": "READ NOTFND RESP2 80 and INVREQ 25 / 26 / 42 for a KEYLENGTH (#5092), READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key",
-      "id": "X52",
-      "status": "ASSUMED (REFUSED where IBM is silent)"
-     }
-    ],
-    "reach": "not measured",
-    "source_read": true
-   },
-   "coverage": {
-    "branch_net_pct": 93.3,
-    "branch_pct": 93.3,
-    "branches": {
-     "covered": 14,
-     "total": 15
-    },
-    "branches_net": {
-     "covered": 14,
-     "total": 15
-    },
-    "current": true,
-    "infeasible_netted": [],
-    "infeasible_refuted": [],
-    "infeasible_stated": [],
-    "paragraph_pct": 83.3,
-    "paragraphs": {
-     "covered": 5,
-     "live": 6
-    },
-    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
-    "uncovered_branches": [],
-    "uncovered_paragraphs": "not recorded"
-   },
-   "equivalence": {
-    "cases": [
-     {
-      "case": "mortgage-cmort",
-      "case_scenarios": 15,
-      "db2": true,
-      "det": {
-       "state": "not equal",
-       "why": [
-        "ledgered as differing in det_sweep_baseline.json (#4803): EPSCMORT's ENTER path LINKs EPSCSMRT (PROGRAM from a variable), which CALLs EPSMPMT, which has a hole. EPSMPMT's one hole is FUNCTION ANNUITY (line 144, paragraph A300-TRY2, dead code: its PERFORM is commented out), refused by name because IBM does not document the bits of the power or of the result (oracle_assumptions.md C6). The payment's (1 + C) ** N (line 125) is no longer a hole since #5999: it translates through Hfp.power, an ASSUMED routine. The case's 15 scenarios run equal on both sides (runTask and java-facade) and the ENTER / WHEN OTHER scenarios stay on EPSMPMT's validation paths, but a program is not shown equal while a program it LINKs or CALLs has holes, whichever scenarios were written (owner decision 2026-10-11, mainframe-evidence-policy.md 4): the proof passes, the port stays unproven until that hole is closed, which is owner-held frontier work (#5867: it needs captured z/OS results, #4050)."
-       ]
-      },
-      "record": null,
-      "role": "linked"
-     },
-     {
-      "case": "mortgage-mlist",
-      "case_scenarios": 9,
-      "db2": false,
-      "det": {
-       "source": "CI det-sweep ratchet on main",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "program"
-     },
-     {
-      "case": "mortgage-mlist-generated",
-      "case_scenarios": 0,
-      "db2": false,
-      "det": {
-       "source": "CI det-sweep ratchet on main",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "program"
-     }
-    ],
-    "chosen": {
-     "case": "mortgage-mlist",
-     "case_scenarios": 9,
-     "db2": false,
-     "det": {
-      "source": "CI det-sweep ratchet on main",
-      "state": "equal"
-     },
-     "record": null,
-     "role": "program"
-    }
-   },
-   "level": "L2",
-   "level_current": true,
-   "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
-    "l5": false,
-    "score": null
-   },
-   "next": [
-    "paragraph coverage >= 100.0 (now 83.3)"
-   ],
-   "options": {
-    "assumed": 6,
-    "compiler": {
-     "product": "Enterprise COBOL",
-     "version": "6.1"
-    },
-    "deviations": [],
-    "estate_file": true,
-    "found": 0,
-    "record_differences": [],
-    "runtime": [
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.ABTERMENC",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ABEND"
-     },
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.STORAGE",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NONE,NONE,NONE,0K"
-     },
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.TRAP",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ON,SPIE"
-     },
-     {
-      "effect": "no effect",
-      "option": "db2.bind.packages",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "none"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.ccsid.SQLCCSID",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NO"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.DATE",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ISO"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.DEC",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "15"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.DECPT",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "."
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.TIME",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ISO"
-     },
-     {
-      "effect": "no effect",
-      "option": "db2.precompile.coprocessor",
-      "provenance": "found",
-      "source": "zBuilder/LanguageConfiguration/application/config/epscmort.cbl.yaml:3",
-      "value": "integrated (compileParms CICS,SQL)"
-     },
-     {
-      "effect": "honoured",
-      "option": "cics.region.LOCALCCSID",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "037"
-     },
-     {
-      "effect": "no effect",
-      "option": "cics.translator.options",
-      "provenance": "found",
-      "source": "zBuilder/LanguageConfiguration/application/config/epscsmrt.cbl.yaml:3",
-      "value": "CICS"
-     }
-    ],
-    "values": [
-     {
-      "option": "ARITH",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "COMPAT"
-     },
-     {
-      "option": "INTDATE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ANSI"
-     },
-     {
-      "option": "NUMPROC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NOPFD"
-     },
-     {
-      "option": "TRUNC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "STD"
-     },
-     {
-      "option": "CODEPAGE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "1140"
-     },
-     {
-      "option": "NSYMBOL",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NATIONAL"
-     }
-    ]
-   },
-   "oracle_backing": [
-    {
-     "backed": false,
-     "command": "ENDBR",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "LINK",
-     "crucible_cases": [
-      {
-       "case": "ca-channel-containers",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-link-lengths",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X27"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": false,
-     "command": "READNEXT",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [
-      "X52"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "RETURN",
-     "crucible_cases": [
-      {
-       "case": "ca-channel-containers",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-link-lengths",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-xctl-versions",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-assign-startcode",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-options",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-retrieve",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-terminal-coalesce",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-eoc-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-handle-aid",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-ignore-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-perform-range",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-eoc",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-receive",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-attr-bytes",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-extended-cursor",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X27"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "SEND MAP",
-     "crucible_cases": [
-      {
-       "case": "hx-attr-bytes",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-extended-cursor",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X31"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": false,
-     "command": "STARTBR",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    }
-   ],
-   "program": "zBuilder/MortgageApplication/cobol/epsmlist.cbl",
-   "residual": {
-    "assumed_or_differs_named": [
-     "X27",
-     "X31",
-     "X52"
-    ],
-    "branch_outcomes_unrun": 1,
-    "commands": 6,
-    "commands_backed": 3,
-    "commands_not_backed": [
-     "ENDBR",
-     "READNEXT",
-     "STARTBR"
-    ],
-    "facts_unstated": 0,
-    "holes": 0,
-    "paragraphs_unrun": 1,
-    "refused": null
-   },
-   "stale_inputs": [],
-   "stale_since": null,
-   "survey_stale": false,
-   "translation": {
-    "gap_classes": [],
-    "hole_count": 0,
-    "holes": [],
-    "refused": null,
-    "source_defects": [],
-    "statements": 51,
-    "translated": 51,
-    "whole": true
-   }
-  },
-  {
-   "assumptions": {
-    "facts_stated": [],
-    "facts_unstated": [],
     "named_by_commands": [
      {
       "area": "CICS",
@@ -2539,17 +1844,48 @@
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
+    "branch_net_pct": 100.0,
+    "branch_pct": 90.5,
+    "branches": {
+     "covered": 19,
+     "total": 21
+    },
+    "branches_net": {
+     "covered": 19,
+     "total": 19
+    },
     "current": true,
-    "infeasible_netted": [],
+    "infeasible_netted": [
+     "A300-SEND-MAP:156:WHEN@157",
+     "A300-SEND-MAP:156:none"
+    ],
     "infeasible_refuted": [],
-    "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
+    "infeasible_stated": [
+     {
+      "family": "G",
+      "key": "A300-SEND-MAP:156:WHEN@157",
+      "kind": "EVALUATE",
+      "line": 156,
+      "outcome": "WHEN@157",
+      "reason": "`WHEN SEND-MAPONLY` (W-SEND-FLAG '3'): every PERFORM of A300-SEND-MAP (85, 92, 111, 152) follows a SET of W-SEND-FLAG to SEND-ERASE ('1'), SEND-ALL ('5') or SEND-DATAONLY ('2'); the only SET SEND-DATAONLY-ALARM ('4') is commented out (138-139) and nothing SETs SEND-MAPONLY ('3') or MOVEs to W-SEND-FLAG.",
+      "unit": "A300-SEND-MAP"
+     },
+     {
+      "family": "G",
+      "key": "A300-SEND-MAP:156:none",
+      "kind": "EVALUATE",
+      "line": 156,
+      "outcome": "none",
+      "reason": "no WHEN matches: the flag is always '1', '2' or '5' when A300 runs, each named by a WHEN (every PERFORM of A300-SEND-MAP (85, 92, 111, 152) follows a SET of W-SEND-FLAG to SEND-ERASE ('1'), SEND-ALL ('5') or SEND-DATAONLY ('2'); the only SET SEND-DATAONLY-ALARM ('4') is commented out (138-139) and nothing SETs SEND-MAPONLY ('3') or MOVEs to W-SEND-FLAG.)",
+      "unit": "A300-SEND-MAP"
+     }
+    ],
+    "paragraph_pct": 100.0,
+    "paragraphs": {
+     "covered": 6,
+     "live": 6
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
     "stale_inputs": [],
     "stale_since": null,
     "uncovered_branches": [],
@@ -2559,13 +1895,11 @@
     "cases": [
      {
       "case": "mortgage-cmort",
-      "case_scenarios": 15,
+      "case_scenarios": 16,
       "db2": true,
       "det": {
-       "state": "not equal",
-       "why": [
-        "ledgered as differing in det_sweep_baseline.json (#4803): EPSCMORT's ENTER path LINKs EPSCSMRT (PROGRAM from a variable), which CALLs EPSMPMT, which has a hole. EPSMPMT's one hole is FUNCTION ANNUITY (line 144, paragraph A300-TRY2, dead code: its PERFORM is commented out), refused by name because IBM does not document the bits of the power or of the result (oracle_assumptions.md C6). The payment's (1 + C) ** N (line 125) is no longer a hole since #5999: it translates through Hfp.power, an ASSUMED routine. The case's 15 scenarios run equal on both sides (runTask and java-facade) and the ENTER / WHEN OTHER scenarios stay on EPSMPMT's validation paths, but a program is not shown equal while a program it LINKs or CALLs has holes, whichever scenarios were written (owner decision 2026-10-11, mainframe-evidence-policy.md 4): the proof passes, the port stays unproven until that hole is closed, which is owner-held frontier work (#5867: it needs captured z/OS results, #4050)."
-       ]
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
       },
       "record": null,
       "role": "program"
@@ -2573,19 +1907,17 @@
     ],
     "chosen": {
      "case": "mortgage-cmort",
-     "case_scenarios": 15,
+     "case_scenarios": 16,
      "db2": true,
      "det": {
-      "state": "not equal",
-      "why": [
-       "ledgered as differing in det_sweep_baseline.json (#4803): EPSCMORT's ENTER path LINKs EPSCSMRT (PROGRAM from a variable), which CALLs EPSMPMT, which has a hole. EPSMPMT's one hole is FUNCTION ANNUITY (line 144, paragraph A300-TRY2, dead code: its PERFORM is commented out), refused by name because IBM does not document the bits of the power or of the result (oracle_assumptions.md C6). The payment's (1 + C) ** N (line 125) is no longer a hole since #5999: it translates through Hfp.power, an ASSUMED routine. The case's 15 scenarios run equal on both sides (runTask and java-facade) and the ENTER / WHEN OTHER scenarios stay on EPSMPMT's validation paths, but a program is not shown equal while a program it LINKs or CALLs has holes, whichever scenarios were written (owner decision 2026-10-11, mainframe-evidence-policy.md 4): the proof passes, the port stays unproven until that hole is closed, which is owner-held frontier work (#5867: it needs captured z/OS results, #4050)."
-      ]
+      "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+      "state": "equal"
      },
      "record": null,
      "role": "program"
     }
    },
-   "level": "L1",
+   "level": "L4",
    "level_current": true,
    "mutation": {
     "current": false,
@@ -2594,7 +1926,7 @@
     "score": null
    },
    "next": [
-    "its det port equal on every scenario of mortgage-cmort: ledgered as differing in det_sweep_baseline.json (#4803): EPSCMORT's ENTER path LINKs EPSCSMRT (PROGRAM from a variable), which CALLs EPSMPMT, which has a hole. EPSMPMT's one hole is FUNCTION ANNUITY (line 144, paragraph A300-TRY2, dead code: its PERFORM is commented out), refused by name because IBM does not document the bits of the power or of the result (oracle_assumptions.md C6). The payment's (1 + C) ** N (line 125) is no longer a hole since #5999: it translates through Hfp.power, an ASSUMED routine. The case's 15 scenarios run equal on both sides (runTask and java-facade) and the ENTER / WHEN OTHER scenarios stay on EPSMPMT's validation paths, but a program is not shown equal while a program it LINKs or CALLs has holes, whichever scenarios were written (owner decision 2026-10-11, mainframe-evidence-policy.md 4): the proof passes, the port stays unproven until that hole is closed, which is owner-held frontier work (#5867: it needs captured z/OS results, #4050)."
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
    ],
    "options": {
     "assumed": 6,
@@ -3020,13 +2352,13 @@
      "X27",
      "X31"
     ],
-    "branch_outcomes_unrun": null,
+    "branch_outcomes_unrun": 2,
     "commands": 5,
     "commands_backed": 5,
     "commands_not_backed": [],
     "facts_unstated": 0,
     "holes": 0,
-    "paragraphs_unrun": null,
+    "paragraphs_unrun": 0,
     "refused": null
    },
    "stale_inputs": [],
@@ -3052,17 +2384,26 @@
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
+    "branch_net_pct": 100.0,
+    "branch_pct": 100.0,
+    "branches": {
+     "covered": 2,
+     "total": 2
+    },
+    "branches_net": {
+     "covered": 2,
+     "total": 2
+    },
     "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
+    "paragraph_pct": 100.0,
+    "paragraphs": {
+     "covered": 1,
+     "live": 1
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
     "stale_inputs": [],
     "stale_since": null,
     "uncovered_branches": [],
@@ -3072,46 +2413,51 @@
     "cases": [
      {
       "case": "mortgage-cmort",
-      "case_scenarios": 15,
+      "case_scenarios": 16,
       "db2": true,
       "det": {
-       "state": "not equal",
-       "why": [
-        "ledgered as differing in det_sweep_baseline.json (#4803): EPSCMORT's ENTER path LINKs EPSCSMRT (PROGRAM from a variable), which CALLs EPSMPMT, which has a hole. EPSMPMT's one hole is FUNCTION ANNUITY (line 144, paragraph A300-TRY2, dead code: its PERFORM is commented out), refused by name because IBM does not document the bits of the power or of the result (oracle_assumptions.md C6). The payment's (1 + C) ** N (line 125) is no longer a hole since #5999: it translates through Hfp.power, an ASSUMED routine. The case's 15 scenarios run equal on both sides (runTask and java-facade) and the ENTER / WHEN OTHER scenarios stay on EPSMPMT's validation paths, but a program is not shown equal while a program it LINKs or CALLs has holes, whichever scenarios were written (owner decision 2026-10-11, mainframe-evidence-policy.md 4): the proof passes, the port stays unproven until that hole is closed, which is owner-held frontier work (#5867: it needs captured z/OS results, #4050)."
-       ]
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
       },
       "record": null,
       "role": "linked"
      },
      {
       "case": "mortgage-csmrt",
-      "case_scenarios": 5,
+      "case_scenarios": 6,
       "db2": false,
       "det": {
-       "state": "not equal",
-       "why": [
-        "ledgered as differing in det_sweep_baseline.json (#4803): EPSCSMRT CALLs EPSMPMT, which has a hole. EPSMPMT's one hole is FUNCTION ANNUITY (line 144, paragraph A300-TRY2, dead code: its PERFORM is commented out), refused by name because IBM does not document the bits of the power or of the result (oracle_assumptions.md C6). The payment's (1 + C) ** N (line 125) is no longer a hole since #5999: it translates through Hfp.power, an ASSUMED routine. The case's five validation-path scenarios run equal on both sides and never reach it, but a program is not shown equal while a program it CALLs has holes, whichever scenarios were written (owner decision 2026-10-11, mainframe-evidence-policy.md 4): the proof passes, the port stays unproven until that hole is closed, which is owner-held frontier work (#5867: it needs captured z/OS results, #4050)."
-       ]
+       "source": "CI det-sweep ratchet on main",
+       "state": "equal"
       },
       "record": null,
       "role": "program"
+     },
+     {
+      "case": "mortgage-mlist",
+      "case_scenarios": 10,
+      "db2": false,
+      "det": {
+       "source": "CI det-sweep ratchet on main",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "linked"
      }
     ],
     "chosen": {
      "case": "mortgage-csmrt",
-     "case_scenarios": 5,
+     "case_scenarios": 6,
      "db2": false,
      "det": {
-      "state": "not equal",
-      "why": [
-       "ledgered as differing in det_sweep_baseline.json (#4803): EPSCSMRT CALLs EPSMPMT, which has a hole. EPSMPMT's one hole is FUNCTION ANNUITY (line 144, paragraph A300-TRY2, dead code: its PERFORM is commented out), refused by name because IBM does not document the bits of the power or of the result (oracle_assumptions.md C6). The payment's (1 + C) ** N (line 125) is no longer a hole since #5999: it translates through Hfp.power, an ASSUMED routine. The case's five validation-path scenarios run equal on both sides and never reach it, but a program is not shown equal while a program it CALLs has holes, whichever scenarios were written (owner decision 2026-10-11, mainframe-evidence-policy.md 4): the proof passes, the port stays unproven until that hole is closed, which is owner-held frontier work (#5867: it needs captured z/OS results, #4050)."
-      ]
+      "source": "CI det-sweep ratchet on main",
+      "state": "equal"
      },
      "record": null,
      "role": "program"
     }
    },
-   "level": "L1",
+   "level": "L4",
    "level_current": true,
    "mutation": {
     "current": false,
@@ -3120,7 +2466,7 @@
     "score": null
    },
    "next": [
-    "its det port equal on every scenario of mortgage-csmrt: ledgered as differing in det_sweep_baseline.json (#4803): EPSCSMRT CALLs EPSMPMT, which has a hole. EPSMPMT's one hole is FUNCTION ANNUITY (line 144, paragraph A300-TRY2, dead code: its PERFORM is commented out), refused by name because IBM does not document the bits of the power or of the result (oracle_assumptions.md C6). The payment's (1 + C) ** N (line 125) is no longer a hole since #5999: it translates through Hfp.power, an ASSUMED routine. The case's five validation-path scenarios run equal on both sides and never reach it, but a program is not shown equal while a program it CALLs has holes, whichever scenarios were written (owner decision 2026-10-11, mainframe-evidence-policy.md 4): the proof passes, the port stays unproven until that hole is closed, which is owner-held frontier work (#5867: it needs captured z/OS results, #4050)."
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
    ],
    "options": {
     "assumed": 5,
@@ -3267,13 +2613,13 @@
    "program": "zBuilder/MortgageApplication/cobol/epscsmrt.cbl",
    "residual": {
     "assumed_or_differs_named": [],
-    "branch_outcomes_unrun": null,
+    "branch_outcomes_unrun": 0,
     "commands": 0,
     "commands_backed": 0,
     "commands_not_backed": [],
     "facts_unstated": 0,
     "holes": 0,
-    "paragraphs_unrun": null,
+    "paragraphs_unrun": 0,
     "refused": null
    },
    "stale_inputs": [],
@@ -3287,6 +2633,957 @@
     "source_defects": [],
     "statements": 13,
     "translated": 13,
+    "whole": true
+   }
+  },
+  {
+   "assumptions": {
+    "facts_stated": [],
+    "facts_unstated": [],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system`",
+      "id": "X31",
+      "status": "ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)"
+     },
+     {
+      "area": "CICS",
+      "entry": "READ NOTFND RESP2 80 and INVREQ 25 / 26 / 42 for a KEYLENGTH (#5092), READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key",
+      "id": "X52",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     }
+    ],
+    "reach": "not measured",
+    "source_read": true
+   },
+   "coverage": {
+    "branch_net_pct": 100.0,
+    "branch_pct": 100.0,
+    "branches": {
+     "covered": 15,
+     "total": 15
+    },
+    "branches_net": {
+     "covered": 15,
+     "total": 15
+    },
+    "current": true,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
+    "paragraph_pct": 100.0,
+    "paragraphs": {
+     "covered": 6,
+     "live": 6
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
+    "stale_inputs": [],
+    "stale_since": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [
+     {
+      "case": "mortgage-cmort",
+      "case_scenarios": 16,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "mortgage-mlist",
+      "case_scenarios": 10,
+      "db2": false,
+      "det": {
+       "source": "CI det-sweep ratchet on main",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "program"
+     },
+     {
+      "case": "mortgage-mlist-generated",
+      "case_scenarios": 0,
+      "db2": false,
+      "det": {
+       "source": "CI det-sweep ratchet on main",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "program"
+     }
+    ],
+    "chosen": {
+     "case": "mortgage-mlist",
+     "case_scenarios": 10,
+     "db2": false,
+     "det": {
+      "source": "CI det-sweep ratchet on main",
+      "state": "equal"
+     },
+     "record": null,
+     "role": "program"
+    }
+   },
+   "level": "L4",
+   "level_current": true,
+   "mutation": {
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
+   },
+   "next": [
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+   ],
+   "options": {
+    "assumed": 6,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.1"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 0,
+    "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.packages",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "none"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.ccsid.SQLCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.precompile.coprocessor",
+      "provenance": "found",
+      "source": "zBuilder/LanguageConfiguration/application/config/epscmort.cbl.yaml:3",
+      "value": "integrated (compileParms CICS,SQL)"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "found",
+      "source": "zBuilder/LanguageConfiguration/application/config/epscsmrt.cbl.yaml:3",
+      "value": "CICS"
+     }
+    ],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "STD"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
+   "oracle_backing": [
+    {
+     "backed": false,
+     "command": "ENDBR",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "LINK",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X27"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "READNEXT",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [
+      "X52"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "RETURN",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-eoc-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-handle-aid",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-ignore-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-perform-range",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-eoc",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-receive",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X27"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "SEND MAP",
+     "crucible_cases": [
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X31"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "STARTBR",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    }
+   ],
+   "program": "zBuilder/MortgageApplication/cobol/epsmlist.cbl",
+   "residual": {
+    "assumed_or_differs_named": [
+     "X27",
+     "X31",
+     "X52"
+    ],
+    "branch_outcomes_unrun": 0,
+    "commands": 6,
+    "commands_backed": 3,
+    "commands_not_backed": [
+     "ENDBR",
+     "READNEXT",
+     "STARTBR"
+    ],
+    "facts_unstated": 0,
+    "holes": 0,
+    "paragraphs_unrun": 0,
+    "refused": null
+   },
+   "stale_inputs": [],
+   "stale_since": null,
+   "survey_stale": false,
+   "translation": {
+    "gap_classes": [],
+    "hole_count": 0,
+    "holes": [],
+    "refused": null,
+    "source_defects": [],
+    "statements": 51,
+    "translated": 51,
+    "whole": true
+   }
+  },
+  {
+   "assumptions": {
+    "facts_stated": [],
+    "facts_unstated": [],
+    "named_by_commands": [],
+    "reach": "not measured",
+    "source_read": true
+   },
+   "coverage": {
+    "branch_net_pct": 100.0,
+    "branch_pct": 100.0,
+    "branches": {
+     "covered": 12,
+     "total": 12
+    },
+    "branches_net": {
+     "covered": 12,
+     "total": 12
+    },
+    "current": true,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
+    "paragraph_pct": 100.0,
+    "paragraphs": {
+     "covered": 4,
+     "live": 4
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
+    "stale_inputs": [],
+    "stale_since": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [
+     {
+      "case": "mortgage-mpmt",
+      "case_scenarios": null,
+      "db2": false,
+      "det": {
+       "source": "CI det-sweep ratchet on main",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "program"
+     }
+    ],
+    "chosen": {
+     "case": "mortgage-mpmt",
+     "case_scenarios": null,
+     "db2": false,
+     "det": {
+      "source": "CI det-sweep ratchet on main",
+      "state": "equal"
+     },
+     "record": null,
+     "role": "program"
+    }
+   },
+   "level": "L4",
+   "level_current": true,
+   "mutation": {
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
+   },
+   "next": [
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+   ],
+   "options": {
+    "assumed": 5,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.1"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 1,
+    "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.packages",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "none"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.ccsid.SQLCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.precompile.coprocessor",
+      "provenance": "found",
+      "source": "zBuilder/LanguageConfiguration/application/config/epscmort.cbl.yaml:3",
+      "value": "integrated (compileParms CICS,SQL)"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "found",
+      "source": "zBuilder/LanguageConfiguration/application/config/epscsmrt.cbl.yaml:3",
+      "value": "CICS"
+     }
+    ],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "program card",
+      "provenance": "found",
+      "source": "zBuilder/MortgageApplication/cobol/epsmpmt.cbl:1",
+      "value": "MIG"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "STD"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
+   "oracle_backing": [],
+   "program": "zBuilder/MortgageApplication/cobol/epsmpmt.cbl",
+   "residual": {
+    "assumed_or_differs_named": [],
+    "branch_outcomes_unrun": 0,
+    "commands": 0,
+    "commands_backed": 0,
+    "commands_not_backed": [],
+    "facts_unstated": 0,
+    "holes": 0,
+    "paragraphs_unrun": 0,
+    "refused": null
+   },
+   "stale_inputs": [],
+   "stale_since": null,
+   "survey_stale": false,
+   "translation": {
+    "gap_classes": [],
+    "hole_count": 0,
+    "holes": [],
+    "refused": null,
+    "source_defects": [],
+    "statements": 27,
+    "translated": 27,
+    "whole": true
+   }
+  },
+  {
+   "assumptions": {
+    "facts_stated": [],
+    "facts_unstated": [],
+    "named_by_commands": [],
+    "reach": "not measured",
+    "source_read": true
+   },
+   "coverage": {
+    "branch_net_pct": 100.0,
+    "branch_pct": 100.0,
+    "branches": {
+     "covered": 22,
+     "total": 22
+    },
+    "branches_net": {
+     "covered": 22,
+     "total": 22
+    },
+    "current": true,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
+    "paragraph_pct": 100.0,
+    "paragraphs": {
+     "covered": 3,
+     "live": 3
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
+    "stale_inputs": [],
+    "stale_since": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [
+     {
+      "case": "mortgage-nbrvl",
+      "case_scenarios": null,
+      "db2": false,
+      "det": {
+       "source": "CI det-sweep ratchet on main",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "program"
+     }
+    ],
+    "chosen": {
+     "case": "mortgage-nbrvl",
+     "case_scenarios": null,
+     "db2": false,
+     "det": {
+      "source": "CI det-sweep ratchet on main",
+      "state": "equal"
+     },
+     "record": null,
+     "role": "program"
+    }
+   },
+   "level": "L4",
+   "level_current": true,
+   "mutation": {
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
+   },
+   "next": [
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+   ],
+   "options": {
+    "assumed": 6,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.1"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 0,
+    "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.packages",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "none"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.ccsid.SQLCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.precompile.coprocessor",
+      "provenance": "found",
+      "source": "zBuilder/LanguageConfiguration/application/config/epscmort.cbl.yaml:3",
+      "value": "integrated (compileParms CICS,SQL)"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "found",
+      "source": "zBuilder/LanguageConfiguration/application/config/epscsmrt.cbl.yaml:3",
+      "value": "CICS"
+     }
+    ],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "STD"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
+   "oracle_backing": [],
+   "program": "zBuilder/MortgageApplication/cobol/epsnbrvl.cbl",
+   "residual": {
+    "assumed_or_differs_named": [],
+    "branch_outcomes_unrun": 0,
+    "commands": 0,
+    "commands_backed": 0,
+    "commands_not_backed": [],
+    "facts_unstated": 0,
+    "holes": 0,
+    "paragraphs_unrun": 0,
+    "refused": null
+   },
+   "stale_inputs": [],
+   "stale_since": null,
+   "survey_stale": false,
+   "translation": {
+    "gap_classes": [],
+    "hole_count": 0,
+    "holes": [],
+    "refused": null,
+    "source_defects": [],
+    "statements": 52,
+    "translated": 52,
     "whole": true
    }
   },
@@ -3769,256 +4066,12 @@
     "translated": 50,
     "whole": false
    }
-  },
-  {
-   "assumptions": {
-    "facts_stated": [],
-    "facts_unstated": [],
-    "named_by_commands": [],
-    "reach": "not measured",
-    "source_read": true
-   },
-   "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
-    "current": true,
-    "infeasible_netted": [],
-    "infeasible_refuted": [],
-    "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
-    "stale_inputs": [],
-    "stale_since": null,
-    "uncovered_branches": [],
-    "uncovered_paragraphs": "not recorded"
-   },
-   "equivalence": {
-    "cases": [
-     {
-      "case": "mortgage-mpmt",
-      "case_scenarios": null,
-      "db2": false,
-      "det": {
-       "state": "not equal",
-       "why": [
-        "ledgered as differing in det_sweep_baseline.json (#4271): IBM DBB EPSMPMT computes its payment through a COMP-1 item in hexadecimal floating point on z/OS, truncated decimal on GnuCOBOL. The det runtime models HFP (#4271), and the payment's (1 + C) ** N, N with decimal places, translates through Hfp.power since #5999, a routine ASSUMED to match IBM's (oracle_assumptions.md C6; the CBL NUMPROC(MIG) is modelled, C5). One hole is left: the dead-code FUNCTION ANNUITY (line 144, paragraph A300-TRY2, its PERFORM commented out) is refused by name, since IBM defines the formula, arg-1 / (1 - (1 + arg-1) ** -arg-2), but not the bits of the power or of the result. Owner-held frontier work (#5867, needs captured z/OS results, #4050); the callers mortgage-csmrt and mortgage-cmort keep it."
-       ]
-      },
-      "record": null,
-      "role": "program"
-     }
-    ],
-    "chosen": {
-     "case": "mortgage-mpmt",
-     "case_scenarios": null,
-     "db2": false,
-     "det": {
-      "state": "not equal",
-      "why": [
-       "ledgered as differing in det_sweep_baseline.json (#4271): IBM DBB EPSMPMT computes its payment through a COMP-1 item in hexadecimal floating point on z/OS, truncated decimal on GnuCOBOL. The det runtime models HFP (#4271), and the payment's (1 + C) ** N, N with decimal places, translates through Hfp.power since #5999, a routine ASSUMED to match IBM's (oracle_assumptions.md C6; the CBL NUMPROC(MIG) is modelled, C5). One hole is left: the dead-code FUNCTION ANNUITY (line 144, paragraph A300-TRY2, its PERFORM commented out) is refused by name, since IBM defines the formula, arg-1 / (1 - (1 + arg-1) ** -arg-2), but not the bits of the power or of the result. Owner-held frontier work (#5867, needs captured z/OS results, #4050); the callers mortgage-csmrt and mortgage-cmort keep it."
-      ]
-     },
-     "record": null,
-     "role": "program"
-    }
-   },
-   "ladder_exclusion": {
-    "issue": "#5867",
-    "kind": "owner_held",
-    "kind_label": "held by an owner ruling or z/OS calibration",
-    "reason": "floating-point power and FUNCTION ANNUITY need captured z/OS results (oracle_assumptions.md C6)"
-   },
-   "level": "L0",
-   "level_current": true,
-   "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
-    "l5": false,
-    "score": null
-   },
-   "next": [
-    "translated whole (1 holes left)"
-   ],
-   "options": {
-    "assumed": 5,
-    "compiler": {
-     "product": "Enterprise COBOL",
-     "version": "6.1"
-    },
-    "deviations": [],
-    "estate_file": true,
-    "found": 1,
-    "record_differences": [],
-    "runtime": [
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.ABTERMENC",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ABEND"
-     },
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.STORAGE",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NONE,NONE,NONE,0K"
-     },
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.TRAP",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ON,SPIE"
-     },
-     {
-      "effect": "no effect",
-      "option": "db2.bind.packages",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "none"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.ccsid.SQLCCSID",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NO"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.DATE",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ISO"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.DEC",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "15"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.DECPT",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "."
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.TIME",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ISO"
-     },
-     {
-      "effect": "no effect",
-      "option": "db2.precompile.coprocessor",
-      "provenance": "found",
-      "source": "zBuilder/LanguageConfiguration/application/config/epscmort.cbl.yaml:3",
-      "value": "integrated (compileParms CICS,SQL)"
-     },
-     {
-      "effect": "honoured",
-      "option": "cics.region.LOCALCCSID",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "037"
-     },
-     {
-      "effect": "no effect",
-      "option": "cics.translator.options",
-      "provenance": "found",
-      "source": "zBuilder/LanguageConfiguration/application/config/epscsmrt.cbl.yaml:3",
-      "value": "CICS"
-     }
-    ],
-    "values": [
-     {
-      "option": "ARITH",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "COMPAT"
-     },
-     {
-      "option": "INTDATE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ANSI"
-     },
-     {
-      "option": "NUMPROC",
-      "origin": "program card",
-      "provenance": "found",
-      "source": "zBuilder/MortgageApplication/cobol/epsmpmt.cbl:1",
-      "value": "MIG"
-     },
-     {
-      "option": "TRUNC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "STD"
-     },
-     {
-      "option": "CODEPAGE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "1140"
-     },
-     {
-      "option": "NSYMBOL",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NATIONAL"
-     }
-    ]
-   },
-   "oracle_backing": [],
-   "program": "zBuilder/MortgageApplication/cobol/epsmpmt.cbl",
-   "residual": {
-    "assumed_or_differs_named": [],
-    "branch_outcomes_unrun": null,
-    "commands": 0,
-    "commands_backed": 0,
-    "commands_not_backed": [],
-    "facts_unstated": 0,
-    "holes": 1,
-    "paragraphs_unrun": null,
-    "refused": null
-   },
-   "stale_inputs": [],
-   "stale_since": null,
-   "survey_stale": false,
-   "translation": {
-    "gap_classes": [
-     "COMPUTE FUNCTION ANNUITY (IBM defines arg-N / (\u2026) but not the bits of the power or of the floating-point result; oracle_assumptions.md <name>)"
-    ],
-    "hole_count": 1,
-    "holes": [
-     "COMPUTE FUNCTION ANNUITY (IBM defines arg-1 / (1 - (1 + arg-1) ** -arg-2) but not the bits of the power or of the floating-point result; oracle_assumptions.md C6)"
-    ],
-    "refused": null,
-    "source_defects": [],
-    "statements": 27,
-    "translated": 26,
-    "whole": false
-   }
   }
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 051e25bfc0acde4a631b7e7811ed7ba00e8dbfc2",
-   "python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha 051e25bfc0acde4a631b7e7811ed7ba00e8dbfc2",
+   "python tests/tools/cics_census.py survey --baseline --sha 4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2",
+   "python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha 4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases mortgage-cmort,mortgage-csmrt,mortgage-mlist,mortgage-mlist-generated,mortgage-mpmt,mortgage-nbrvl  # Db2 cases (1) need the Db2 container",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -4039,24 +4092,24 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "051e25bfc0acde4a631b7e7811ed7ba00e8dbfc2",
+   "sha": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2",
    "translator": {
-    "files": 149,
-    "sha256": "64effbe3408195c4352889c0c57b0d59b721746a1448bc6f984499d00280d2f1"
+    "files": 150,
+    "sha256": "a270a75e347468a700adada70850bc5eda533f3c0ce6c2c3bb6a8d1bf397772a"
    }
   },
-  "translator_commit": "051e25bfc0acde4a631b7e7811ed7ba00e8dbfc2",
+  "translator_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
   "cics_programs": 3,
-  "det_equal": 2,
+  "det_equal": 5,
   "histogram": {
-   "L0": 2,
-   "L1": 2,
-   "L2": 1,
+   "L0": 1,
+   "L1": 0,
+   "L2": 0,
    "L3": 0,
-   "L4": 1,
+   "L4": 5,
    "L5": 0
   },
   "histogram_stale": {
@@ -4075,19 +4128,19 @@
    "L4": 0,
    "L5": 0
   },
-  "holes": 10,
+  "holes": 9,
   "levels_stale": 0,
   "levels_stale_survey": 0,
   "programs": 6,
   "records_current": 0,
   "refused_whole": 0,
   "source_unread": 0,
-  "translated_whole": 4,
+  "translated_whole": 5,
   "with_case": 5,
   "with_record": 0
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "64effbe3408195c4352889c0c57b0d59b721746a1448bc6f984499d00280d2f1"
+  "fingerprint": "a270a75e347468a700adada70850bc5eda533f3c0ce6c2c3bb6a8d1bf397772a"
  }
 }

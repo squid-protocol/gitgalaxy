@@ -4,9 +4,9 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `051e25bfc0acde4a631b7e7811ed7ba00e8dbfc2` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
-The translation survey matches the translator in the tree (translator fingerprint `64effbe34081`).
+The translation survey matches the translator in the tree (translator fingerprint `a270a75e3474`).
 
 ## How to read this report
 
@@ -551,7 +551,7 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Options in force** (compile options that change results; Enterprise COBOL 6.1; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(285) [found at base/cntl/cobol.jcl:49]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.CURRENTDATA=NO [no effect; found at base/cntl/db2bind.jcl:16]; db2.bind.DYNAMICRULES=BIND [no effect; found at base/cntl/db2bind.jcl:19]; db2.bind.ISOLATION=CS [no effect; found at base/cntl/db2bind.jcl:15]; db2.bind.VALIDATE=BIND [no effect; found at base/cntl/db2bind.jcl:26]; db2.ccsid.EBCDIC_CCSID=285 [declared; found at base/Installation.md:92]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.coprocessor=integrated (SQL via the program's PROCESS SQL card) [no effect; found at base/src/lgacdb01.cbl:1]; cics.region.DB2CONN=YES [no effect; found at base/Building.md:58]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS via the compile OPTFILE [no effect; found at base/cntl/cobol.jcl:48]
 - **Executed equivalence** (genapp-lgicdb01, program, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record (the case's committed port): shown equal, unapproved; its proof: all equal, 12/12 scenarios equal, 24/24 records equal, 12 runs (0 fault runs); through its deployed entry points 12/12
+  - evidence record (the case's committed port): shown equal, unapproved; its proof: all equal, 13/13 scenarios equal, 26/26 records equal, 13 runs (0 fault runs); through its deployed entry points 13/13
 - **Executed equivalence** (genapp-lgicdb01-generated, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (6 scenarios in case.json)
 - **Executed equivalence** (genapp-lgicus01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
@@ -656,7 +656,7 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Executed equivalence** (genapp-lgipdb01, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (47 scenarios in case.json)
 - **Executed equivalence** (genapp-lgipdb01-generated, program, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (0 scenarios in case.json)
+  - evidence record: none (17 scenarios in case.json)
 - **Executed equivalence** (genapp-lgipol01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (10 scenarios in case.json)
 - **Executed equivalence** (genapp-lgipol01-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
@@ -735,7 +735,7 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Executed equivalence** (genapp-lgipvs01, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (7 scenarios in case.json)
 - **Executed equivalence** (genapp-lgipvs01-linked, program): det port equal (CI det-sweep ratchet on main)
-  - evidence record: none (4 scenarios in case.json)
+  - evidence record: none (5 scenarios in case.json)
 - **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 1/1 (100.0%), branch outcomes 6/6 (100.0%) raw, 6/6 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
@@ -806,7 +806,7 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Executed equivalence** (genapp-lgipdb01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (47 scenarios in case.json)
 - **Executed equivalence** (genapp-lgipdb01-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (0 scenarios in case.json)
+  - evidence record: none (17 scenarios in case.json)
 - **Executed equivalence** (genapp-lgipol01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (10 scenarios in case.json)
 - **Executed equivalence** (genapp-lgipol01-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
@@ -835,6 +835,8 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
   - evidence record: none (10 scenarios in case.json)
 - **Executed equivalence** (genapp-lgupdb01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record (the case's committed port): shown equal, unapproved; its proof: all equal, 22/22 scenarios equal, 158/158 records equal, 22 runs (12 fault runs); through its deployed entry points 22/22
+- **Executed equivalence** (genapp-lgupdb01-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (25 scenarios in case.json)
 - **Executed equivalence** (genapp-lgupol01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (10 scenarios in case.json)
 - **Executed equivalence** (genapp-lgupol01-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
@@ -1131,7 +1133,7 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Executed equivalence** (genapp-lgupdb01, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record (the case's committed port): shown equal, unapproved; its proof: all equal, 22/22 scenarios equal, 158/158 records equal, 22 runs (12 fault runs); through its deployed entry points 22/22
 - **Executed equivalence** (genapp-lgupdb01-generated, program, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (19 scenarios in case.json)
+  - evidence record: none (25 scenarios in case.json)
 - **Executed equivalence** (genapp-lgupol01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (10 scenarios in case.json)
 - **Executed equivalence** (genapp-lgupol01-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
@@ -1213,7 +1215,7 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Executed equivalence** (genapp-lgupdb01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record (the case's committed port): shown equal, unapproved; its proof: all equal, 22/22 scenarios equal, 158/158 records equal, 22 runs (12 fault runs); through its deployed entry points 22/22
 - **Executed equivalence** (genapp-lgupdb01-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (19 scenarios in case.json)
+  - evidence record: none (25 scenarios in case.json)
 - **Executed equivalence** (genapp-lgupol01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (10 scenarios in case.json)
 - **Executed equivalence** (genapp-lgupol01-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
@@ -1326,18 +1328,18 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `051e25bfc0acde4a631b7e7811ed7ba00e8dbfc2`
+- translator commit (the survey's): `4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2`
 - corpus pin: `cics-genapp` at `f6f3f4b2580d31b7d8dcc31ce3e3676f4cceaaaa`
 - crucible pins: cics `v0.10.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.10.0 (01e11fe6)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
 - oracle base image: `debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251`
-- oracle images the evidence records ran on: `sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc`, `sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f`, `sha256:ec6700c84dabf72e2db919f1f6fc8a9b22a6b435527935374d970be021754989`
+- oracle images the evidence records ran on: `sha256:35d04c68f2d357d250dc65598708c1bce67842bb261cb979beb53d6033309572`, `sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f`
 
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 051e25bfc0acde4a631b7e7811ed7ba00e8dbfc2
-python tests/tools/evidence_report.py cics-genapp --baseline --sha 051e25bfc0acde4a631b7e7811ed7ba00e8dbfc2
+python tests/tools/cics_census.py survey --baseline --sha 4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2
+python tests/tools/evidence_report.py cics-genapp --baseline --sha 4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases genapp-lgacdb01,genapp-lgacdb01-generated,genapp-lgacdb02,genapp-lgacdb02-generated,genapp-lgacus01,genapp-lgacus01-generated,genapp-lgacvs01,genapp-lgapdb01,genapp-lgapdb01-generated,genapp-lgapol01,genapp-lgapol01-generated,genapp-lgapvs01,genapp-lgastat1,genapp-lgdpdb01,genapp-lgdpdb01-generated,genapp-lgdpol01,genapp-lgdpol01-generated,genapp-lgdpvs01,genapp-lgicdb01,genapp-lgicdb01-generated,genapp-lgicus01,genapp-lgicus01-generated,genapp-lgicvs01,genapp-lgicvs01-linked,genapp-lgipdb01,genapp-lgipdb01-generated,genapp-lgipol01,genapp-lgipol01-generated,genapp-lgipvs01,genapp-lgipvs01-linked,genapp-lgsetup,genapp-lgstsq,genapp-lgtestc1,genapp-lgtestp1,genapp-lgtestp2,genapp-lgtestp3,genapp-lgtestp4,genapp-lgucdb01,genapp-lgucdb01-generated,genapp-lgucus01,genapp-lgucus01-generated,genapp-lgucvs01,genapp-lgupdb01,genapp-lgupdb01-generated,genapp-lgupol01,genapp-lgupol01-generated,genapp-lgupvs01,genapp-lgwebst5  # Db2 cases (35) need the Db2 container
 python tests/tools/evidence.py prove genapp-lgapdb01 genapp-lgapvs01 genapp-lgicdb01 genapp-lgstsq genapp-lgupdb01 genapp-lgupvs01

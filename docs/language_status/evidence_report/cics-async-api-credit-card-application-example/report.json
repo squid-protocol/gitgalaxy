@@ -141,7 +141,7 @@
    "carddemo-acctupdate": [
     95,
     95,
-    315,
+    377,
     397
    ],
    "carddemo-acctview": [
@@ -225,7 +225,7 @@
    "carddemo-coacct01": [
     13,
     13,
-    6,
+    31,
     33
    ],
    "carddemo-cobswait": [
@@ -249,19 +249,19 @@
    "carddemo-codate01": [
     13,
     13,
-    6,
+    26,
     28
    ],
    "carddemo-copaua0c": [
     41,
     41,
-    65,
+    66,
     71
    ],
    "carddemo-copaus0c": [
     20,
     20,
-    88,
+    90,
     93
    ],
    "carddemo-copaus1c": [
@@ -555,7 +555,7 @@
    "cbsa-bnk1ccs": [
     33,
     33,
-    124,
+    126,
     143
    ],
    "cbsa-bnk1ccs-generated": [
@@ -567,7 +567,7 @@
    "cbsa-bnk1cra": [
     28,
     28,
-    60,
+    61,
     67
    ],
    "cbsa-bnk1cra-generated": [
@@ -591,7 +591,7 @@
    "cbsa-bnk1dcs": [
     51,
     51,
-    90,
+    92,
     102
    ],
    "cbsa-bnk1dcs-generated": [
@@ -603,7 +603,7 @@
    "cbsa-bnk1tfn": [
     28,
     28,
-    61,
+    62,
     72
    ],
    "cbsa-bnk1tfn-generated": [
@@ -675,7 +675,7 @@
    "cbsa-crecust": [
     37,
     37,
-    38,
+    46,
     70
    ],
    "cbsa-crecust-generated": [
@@ -693,7 +693,7 @@
    "cbsa-dbcrfun": [
     21,
     22,
-    33,
+    34,
     35
    ],
    "cbsa-dbcrfun-generated": [
@@ -741,7 +741,7 @@
    "cbsa-inqacc": [
     24,
     25,
-    23,
+    24,
     25
    ],
    "cbsa-inqacc-generated": [
@@ -753,19 +753,19 @@
    "cbsa-inqacccu": [
     21,
     22,
-    31,
+    32,
     33
    ],
    "cbsa-inqacccu-generated": [
     18,
     22,
-    23,
+    24,
     33
    ],
    "cbsa-inqcust": [
     24,
     25,
-    42,
+    44,
     46
    ],
    "cbsa-updacc": [
@@ -915,7 +915,7 @@
    "genapp-lgicdb01": [
     3,
     4,
-    4,
+    5,
     12
    ],
    "genapp-lgicdb01-generated": [
@@ -957,7 +957,7 @@
    "genapp-lgipdb01-generated": [
     12,
     12,
-    55,
+    73,
     74
    ],
    "genapp-lgipol01": [
@@ -981,7 +981,7 @@
    "genapp-lgipvs01-linked": [
     1,
     1,
-    4,
+    6,
     6
    ],
    "genapp-lgsetup": null,
@@ -1060,7 +1060,7 @@
    "genapp-lgupdb01-generated": [
     9,
     9,
-    29,
+    38,
     38
    ],
    "genapp-lgupol01": [
@@ -1087,12 +1087,22 @@
     2,
     2
    ],
-   "mortgage-cmort": null,
-   "mortgage-csmrt": null,
-   "mortgage-mlist": [
-    5,
+   "mortgage-cmort": [
     6,
-    14,
+    6,
+    19,
+    21
+   ],
+   "mortgage-csmrt": [
+    1,
+    1,
+    2,
+    2
+   ],
+   "mortgage-mlist": [
+    6,
+    6,
+    15,
     15
    ],
    "mortgage-mlist-generated": [
@@ -1101,7 +1111,12 @@
     7,
     15
    ],
-   "mortgage-mpmt": null,
+   "mortgage-mpmt": [
+    4,
+    4,
+    12,
+    12
+   ],
    "mortgage-nbrvl": [
     3,
     3,
@@ -1117,20 +1132,26 @@
    "zecs-zecs000": [
     38,
     38,
-    47,
+    48,
     48
    ],
    "zecs-zecs001": [
-    71,
+    82,
     119,
-    91,
+    104,
     208
    ],
    "zecs-zecs003": [
     21,
     21,
-    29,
+    30,
     30
+   ],
+   "zecs-zecsnc": [
+    0,
+    0,
+    0,
+    0
    ],
    "zecs-zecsplt": [
     11,
@@ -1764,10 +1785,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "051e25bfc0acde4a631b7e7811ed7ba00e8dbfc2",
+   "sha": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2",
    "translator": {
-    "files": 149,
-    "sha256": "64effbe3408195c4352889c0c57b0d59b721746a1448bc6f984499d00280d2f1"
+    "files": 150,
+    "sha256": "a270a75e347468a700adada70850bc5eda533f3c0ce6c2c3bb6a8d1bf397772a"
    }
   },
   "sweeps": {}
@@ -6574,8 +6595,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 051e25bfc0acde4a631b7e7811ed7ba00e8dbfc2",
-   "python tests/tools/evidence_report.py cics-async-api-credit-card-application-example --baseline --sha 051e25bfc0acde4a631b7e7811ed7ba00e8dbfc2",
+   "python tests/tools/cics_census.py survey --baseline --sha 4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2",
+   "python tests/tools/evidence_report.py cics-async-api-credit-card-application-example --baseline --sha 4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases asynccc-asyncpnt,asynccc-crdtchk,asynccc-csstats2,asynccc-csstatus,asynccc-getaddr,asynccc-getname,asynccc-getpol,asynccc-getspnd,asynccc-seqpnt,asynccc-updcsdb",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -6596,13 +6617,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "051e25bfc0acde4a631b7e7811ed7ba00e8dbfc2",
+   "sha": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2",
    "translator": {
-    "files": 149,
-    "sha256": "64effbe3408195c4352889c0c57b0d59b721746a1448bc6f984499d00280d2f1"
+    "files": 150,
+    "sha256": "a270a75e347468a700adada70850bc5eda533f3c0ce6c2c3bb6a8d1bf397772a"
    }
   },
-  "translator_commit": "051e25bfc0acde4a631b7e7811ed7ba00e8dbfc2",
+  "translator_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -6645,6 +6666,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "64effbe3408195c4352889c0c57b0d59b721746a1448bc6f984499d00280d2f1"
+  "fingerprint": "a270a75e347468a700adada70850bc5eda533f3c0ce6c2c3bb6a8d1bf397772a"
  }
 }

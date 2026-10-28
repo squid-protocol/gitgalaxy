@@ -227,7 +227,7 @@ cics_mainframe_facts.md	tests/tools/test_progress_report.py
 cics_spec_status.json	tests/cobol_mainframe,tests/tools/cics_spec_status.py,tests/tools/progress_report.py
 cics_spec_status.md	tests/tools/cics_spec_status.py,tests/tools/test_generated_docs.py
 clean_check.md	tests/tools/doom_speedrun
-cobolrt_rules.json	tests/cobol_mainframe,tests/tools/cobolrt_rules.py,tests/tools/progress_report.py,tests/tools/support_matrix.py
+cobolrt_rules.json	gitgalaxy,tests/cobol_mainframe,tests/tools/cobolrt_rules.py,tests/tools/progress_report.py,tests/tools/support_matrix.py
 cobolrt_rules.md	tests/tools/cobolrt_rules.py
 construct_correspondence.md	tests/tools/test_progress_report.py
 core/README.md	gitgalaxy
@@ -285,7 +285,12 @@ docs/language_status/cics_crucible.md.	tests/tools/cics_crucible.py
 docs/language_status/cics_field_testing.md	tests/tools/field_testing.py
 docs/language_status/cics_spec_status.json	tests/cobol_mainframe,tests/tools/cics_spec_status.py,tests/tools/progress_report.py
 docs/language_status/cics_spec_status.md	tests/tools/cics_spec_status.py,tests/tools/generated_docs.py,tests/tools/test_generated_branch.py
-docs/language_status/cobolrt_rules.json	tests/cobol_mainframe,tests/tools/cobolrt_rules.py,tests/tools/progress_report.py,tests/tools/support_matrix.py
+docs/language_status/cobol_arith_matrix.md	gitgalaxy
+docs/language_status/cobol_compare_matrix.md	gitgalaxy
+docs/language_status/cobol_func_matrix.md	gitgalaxy
+docs/language_status/cobol_move_matrix.md	gitgalaxy
+docs/language_status/cobol_string_matrix.md	gitgalaxy
+docs/language_status/cobolrt_rules.json	gitgalaxy,tests/cobol_mainframe,tests/tools/cobolrt_rules.py,tests/tools/progress_report.py,tests/tools/support_matrix.py
 docs/language_status/cobolrt_rules.md	tests/tools/cobolrt_rules.py,tests/tools/generated_docs.py,tests/tools/test_generated_branch.py
 docs/language_status/det_port_design.md	tests/cobol_mainframe,tests/tools/test_progress_report.py
 docs/language_status/det_survey.md	tests/tools/test_progress_report.py

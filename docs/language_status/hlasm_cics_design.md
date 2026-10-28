@@ -111,11 +111,11 @@ operand.
 
 1. **2a-2:** `WRITE OPERATOR` `TEXTLENGTH`, `ROUTECODES` + `NUMROUTES`, `EVENTUAL`: the registry, `det/cics.py`, `CicsTask`, the stub
    (`ggcics.c` `GGCWTO`) and a register X32 entry. This takes ZECSNC to L1.
-2. **2b:** an equivalence case `tests/equivalence/zecs-zecsnc/`. It needs:
-   - a lowering hook in `tests/tools/equivalence_cics.py`, beside `bll.lower_text`;
-   - an X register entry for assumption 1.
-
-   This takes ZECSNC to L2.
+2. **2b (done) and 2c (done):** an untyped COMMAREA for a case with no layout: a scenario's `"commarea_hex"` is the exact
+   bytes the caller passed (EIBCALEN is their count; `commarea.exact` on the stub side, a `byte[]` on the port's).
+   ZECSNC scenarios: EIBCALEN 0 (terminal), 8 (non-terminal start), and 1, 4 and 9 (ABEND). The end-state COMMAREA of a
+   non-linked program is not compared (nothing observes it). The case is `tests/equivalence/zecs-zecsnc/`; an X register
+   entry for assumption 1 is still to do.
 3. **3:** ZECS002. It needs:
    - base-displacement addressing;
    - `IC`, `SR`, `BCT`, `SLL`, `SLDL`, `STCM`, `TR`, `XC`;

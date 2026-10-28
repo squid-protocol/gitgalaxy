@@ -886,7 +886,9 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
         # (EVENTUAL changes nothing observable). The areas' sizes go by value; the flags are cleared after the call.
         flags = " ".join(f for f, o in (("TEXTLENGTH", "TEXTLENGTH"), ("ROUTES", "ROUTECODES")) if o in opts)
         routes = opts.get("ROUTECODES") or text
-        lines = [f"MOVE {opts['TEXTLENGTH']} TO GG-LEN" if opts.get("TEXTLENGTH") else f"MOVE LENGTH OF {text} TO GG-LEN"]
+        lines = [
+            f"MOVE {opts['TEXTLENGTH']} TO GG-LEN" if opts.get("TEXTLENGTH") else f"MOVE LENGTH OF {text} TO GG-LEN"
+        ]
         if opts.get("NUMROUTES"):
             lines.append(f"MOVE {opts['NUMROUTES']} TO GG-NUM")
         lines.append(f"MOVE '{flags}' TO GG-FLAGS")
@@ -1342,7 +1344,9 @@ def translate(source: str, copy_dirs: list[Path] | None = None) -> tuple[str, bo
     COPY members found in `copy_dirs`), so GnuCOBOL runs the program the port was translated from."""
     from gitgalaxy.tools.cobol_to_java.det import bll, hlasm
 
-    if re.search(r"(?mi)^\S+\s+DFHEIENT\b", source):  # #5859: a command-level CICS assembler program, lowered to COBOL as det does
+    if re.search(
+        r"(?mi)^\S+\s+DFHEIENT\b", source
+    ):  # #5859: a command-level CICS assembler program, lowered to COBOL as det does
         try:
             source = hlasm.lower_text(source, "program.asm")
         except hlasm.Refused as e:
@@ -2103,6 +2107,28 @@ def commarea_length(sc: dict[str, Any], ca_fields: list[dict[str, Any]]) -> int 
     return n
 
 
+def untyped_commarea(case: dict[str, Any], sc: dict[str, Any], ca_fields: list[dict[str, Any]]) -> bytes | None:
+    """#5859 (ZECSNC, an HLASM program: its DSECT is no copybook, so the case has `"commarea": null` and no layout): a
+    scenario's `"commarea_hex": "<hex>"` is the exact bytes the caller passed (in the case's data page, as the stub
+    reads them; the port gets them in the region's), so EIBCALEN is their count -- the
+    shorter, longer or exact lengths a program tests EIBCALEN against. Both sides get those bytes and no more
+    (commarea.exact / CicsTask(..., byte[], length)). None when the scenario states none; refused by name when it is
+    not hex, is empty (EIBCALEN 0 is the absence of the key), or mixes with a typed COMMAREA."""
+    raw = sc.get("commarea_hex")
+    if raw is None:
+        return None
+    name = sc.get("name")
+    if ca_fields or case.get("commarea") is not None:
+        raise Unsupported(f'scenario {name}: "commarea_hex" is for a case with "commarea": null (no layout); '
+                          'a typed COMMAREA states "commarea" / "commarea_length"', ["COMMAREA"])  # fmt: skip
+    if sc.get("commarea") is not None or sc.get("commarea_length") is not None:
+        raise Unsupported(f'scenario {name}: "commarea_hex" with "commarea" / "commarea_length"', ["COMMAREA"])
+    if not isinstance(raw, str) or not raw or not re.fullmatch(r"(?:[0-9A-Fa-f]{2})+", raw):
+        raise Unsupported(f'scenario {name}: "commarea_hex" is a non-empty string of hex byte pairs (EIBCALEN 0: '
+                          "state no COMMAREA)", ["COMMAREA"])  # fmt: skip
+    return bytes.fromhex(raw)
+
+
 # #4950 (X18): the characters IBM's PUT CONTAINER page allows in a channel / container name ("A-Z a-z 0-9 $ @ # / % ?
 # ! : | " = , ; > . - and _"). RUN TRANSID's page also lists & < and the not sign, PUT CONTAINER's does not: the pages
 # disagree, so the harness refuses them, as both runtimes do (ggcics.c, the forge's NAME_CHARS)
@@ -2489,7 +2515,11 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             f"{_cfg_file_name(case, f)} /work/scenarios/{sc['name']}/files/{f['base']} {f['reclen']} {f['key_offset']} "
             f"{f['key_length']}{_cfg_flags(case, f)}\n" for f in files
         ), encoding="ascii")  # fmt: skip
-        if sc.get("commarea") is not None:
+        raw_area = untyped_commarea(case, sc, ca_fields)
+        if raw_area is not None:  # #5859: the caller's bytes as stated; the stub gives the program exactly these
+            (d / "commarea.exact").write_text(f"{len(raw_area)}\n", encoding="ascii")
+            (d / "commarea.in").write_bytes(raw_area)
+        elif sc.get("commarea") is not None:
             if not ca_fields:
                 raise Unsupported(f'scenario {sc["name"]}: a COMMAREA, in a case whose program takes none ("commarea": '
                                   "null)", ["COMMAREA"])  # fmt: skip
@@ -3926,8 +3956,12 @@ class EquivalenceRunTest {{
 {chr(10).join(loads)}
 {db2_reset}
             Object commarea = {commarea_java};
+            if (sc.hasNonNull("commarea_hex")) {{  // #5859: an untyped COMMAREA (HLASM): the caller's bytes, EIBCALEN their count
+                commarea = java.util.HexFormat.of().parseHex(sc.get("commarea_hex").asText());
+            }}
             // #4270 (X23): a stated COMMAREA length (EIBCALEN) shorter than the record: the area is that long
-            Integer calen = sc.path("commarea_length").isInt() ? Integer.valueOf(sc.get("commarea_length").asInt()) : null;
+            Integer calen = sc.path("commarea_length").isInt() ? Integer.valueOf(sc.get("commarea_length").asInt())
+                    : sc.path("untyped_length").isInt() ? Integer.valueOf(sc.get("untyped_length").asInt()) : null;
             Map<String, Object> received = new LinkedHashMap<>();
             JsonNode r = sc.get("receive");
 {chr(10).join(recv)}
@@ -4313,6 +4347,7 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
                           "dli_faults": dli_fault_lines(case, sc),
                           "sql_unjudged": sql_unjudged(sc.get("sql_plan", []), seams),
                           "derived": bool(sc.get("derived")), "commarea_length": commarea_length(sc, ca_read),
+                          **_java_untyped_commarea(case, sc, ca_read),
                           "channel": _channel_json(case, sc),
                           "counters": _counters(case, sc), "taskn": task_number(case, sc),
                           "startcode": task_facts(case, sc)[0], "terminal": task_facts(case, sc)[1],
@@ -4344,6 +4379,18 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
     finally:
         if sessions:
             sessions.close()
+
+
+def _java_untyped_commarea(case: dict[str, Any], sc: dict[str, Any], ca_fields: list[dict[str, Any]]) -> dict[str, Any]:
+    """#5859: an untyped COMMAREA for the Java side: the stated bytes are in the case's data page (what the stub's
+    commarea.in holds), the port's are in the region's (CCSID 037), as for a START's data (_java_mq); its length is EIBCALEN."""
+    from gitgalaxy.tools.cobol_to_java.det.cics import REGION_PAGE
+
+    raw = untyped_commarea(case, sc, ca_fields)
+    if raw is None:
+        return {}
+    page = raw.decode(common.data_encoding(case)).encode(REGION_PAGE)
+    return {"commarea_hex": page.hex().upper(), "untyped_length": len(page)}
 
 
 def _run_facade(ej: Any, project: Path, work: Path, inputs: Path, props: str, sessions: Any, case: dict[str, Any],
@@ -4468,9 +4515,13 @@ def _java_events(case: dict[str, Any], out: Path, shape: dict[str, Any],
                 e.update(cics_taskcontrol.java_retrieve_as_compared(e))
             if e.get("event") in ("COMMAREA", "RETURN") and e.get("area") is not None:  # #4765: the bytes the port left
                 # #6072: a RETURN too, when the scenario states raw COMMAREA bytes (its DTO holds a number for them)
-                if e.get("event") == "COMMAREA" and sc.get("dto_entry") and isinstance(e.get("commarea"), dict):  # #5863: the DTO too (compare_events)
+                if (
+                    e.get("event") == "COMMAREA" and sc.get("dto_entry") and isinstance(e.get("commarea"), dict)
+                ):  # #5863: the DTO too (compare_events)
                     e["dto"] = java_commarea(e["commarea"], shape, ca_fields or [], enc)
                 e["commarea"] = java_area(e.pop("area"), ca_fields or [], enc)
+            elif e.get("event") == "COMMAREA" and isinstance(e.get("commarea"), str) and not ca_fields:
+                pass  # #5859: an untyped COMMAREA's end storage: linked_result drops it for a program not LINKed to, as the stub's
             elif "commarea" in e:
                 if isinstance(e["commarea"], dict):  # #4778: a DTO -- no property holds a FILLER (compare_events)
                     e["commarea_dto"] = True

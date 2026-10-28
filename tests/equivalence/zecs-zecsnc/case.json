@@ -38,6 +38,34 @@
     "/ZC01_ZECS": 1
    },
    "why": "the DEFINE DCOUNTER fails because the counter exists: the ER_0020 message path"
+  },
+  {
+   "name": "commarea-non-terminal-start",
+   "commarea": null,
+   "commarea_hex": "000000005A433031",
+   "startcode": "S",
+   "why": "an 8-byte COMMAREA (the DSECT's length, EIBCALEN 8): started, not typed at a terminal -- the transid comes from CA_TRAN, no RECEIVE"
+  },
+  {
+   "name": "commarea-too-short",
+   "commarea": null,
+   "commarea_hex": "5A433031",
+   "startcode": "S",
+   "why": "EIBCALEN 4, not 0 and not the DSECT's 8: ABEND with ABCODE(EIBTRNID), NOHANDLE"
+  },
+  {
+   "name": "commarea-one-byte",
+   "commarea": null,
+   "commarea_hex": "31",
+   "startcode": "S",
+   "why": "EIBCALEN 1, the smallest non-zero length: the same ABEND"
+  },
+  {
+   "name": "commarea-too-long",
+   "commarea": null,
+   "commarea_hex": "000000005A43303120",
+   "startcode": "S",
+   "why": "EIBCALEN 9, longer than the DSECT: the same ABEND (the test is equality, not a minimum)"
   }
  ]
 }

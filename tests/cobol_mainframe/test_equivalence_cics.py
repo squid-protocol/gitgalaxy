@@ -2258,6 +2258,41 @@ int main(int argc, char **argv) {
 
 @pytest.mark.skipif(__import__("sys").platform == "win32" or not __import__("shutil").which("gcc"),
                     reason="needs gcc and a POSIX guard page")  # fmt: skip
+def test_a_scenario_states_untyped_commarea_bytes_for_a_case_with_no_layout():
+    """#5859 (ZECSNC): `"commarea_hex"` is the exact bytes the caller passed to a program with no typed COMMAREA (an
+    HLASM DSECT); EIBCALEN is their count. Refused by name when typed, mixed with a typed key, empty or not hex."""
+    case = {"commarea": None}
+    assert ec.untyped_commarea(case, {"name": "s"}, []) is None
+    assert ec.untyped_commarea(case, {"name": "s", "commarea_hex": "00ff5A43"}, []) == b"\x00\xffZC"
+    for bad in ("", "0", "zz", 12, "00 00"):
+        with pytest.raises(ec.Unsupported, match="hex byte pairs"):
+            ec.untyped_commarea(case, {"name": "s", "commarea_hex": bad}, [])
+    for extra in ({"commarea": {}}, {"commarea_length": 4}):
+        with pytest.raises(ec.Unsupported, match="commarea_length"):
+            ec.untyped_commarea(case, {"name": "s", "commarea_hex": "0000", **extra}, [])
+    with pytest.raises(ec.Unsupported, match="no layout"):
+        ec.untyped_commarea({"commarea": {}}, {"name": "s", "commarea_hex": "0000"}, [{"name": "A"}])
+    with pytest.raises(ec.Unsupported, match="no layout"):
+        ec.untyped_commarea(case, {"name": "s", "commarea_hex": "0000"}, [{"name": "A"}])
+
+
+def test_the_java_side_gets_the_untyped_commarea_in_the_region_page():
+    """#5859: the stub reads commarea.in in the case's data page; the port's byte[] is in the region's (CCSID 037),
+    as a START's data is, and its length is EIBCALEN."""
+    case = {"commarea": None, "data_encoding": "ascii"}
+    got = ec._java_untyped_commarea(case, {"name": "s", "commarea_hex": "5A433031"}, [])
+    assert got == {"commarea_hex": "E9C3F0F1", "untyped_length": 4}
+    assert ec._java_untyped_commarea(case, {"name": "s"}, []) == {}
+
+
+def test_the_java_template_reads_an_untyped_commarea():
+    """#5859: the generated test builds the byte[] from `commarea_hex` and passes its length as EIBCALEN."""
+    src = Path(ec.__file__).read_text(encoding="utf-8")
+    assert 'sc.hasNonNull("commarea_hex")' in src
+    assert "HexFormat.of().parseHex" in src
+    assert 'sc.path("untyped_length")' in src
+
+
 def test_the_stub_stops_a_reference_past_a_stated_commarea_length(tmp_path):
     """#4270 (X23): with commarea.exact, GGCAREA copies the COMMAREA to the end of a page before an inaccessible one:
     the last byte is the program's, the next stops the run (98, "COMMAREA past EIBCALEN: not modelled"). Without it,

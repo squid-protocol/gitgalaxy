@@ -437,3 +437,74 @@ def test_a_copy_gap_ignores_the_members_own_call_of_a_program_with_that_name():
     sc = ec.Score()
     ec.score_gaps(sc, "p.cbl", {"gaps": [{"kind": "copy", "name": "PRICE", "line": 5, "why": ""}]}, eng)
     assert _statuses(sc) == [("gaps", "copy PRICE @5", "pass", None)]
+
+
+def test_cics_macro_table_resources_and_explicit_phantoms_are_scored():
+    ef = SimpleNamespace(
+        screen_fields=[],
+        csd_resources=[
+            SimpleNamespace(
+                resource_type="FILE",
+                name="SHPFILE",
+                group=None,
+                macro_table="DFHFCT01",
+                line=5,
+                program=None,
+                dsname="PROD.SHIP.MASTER",
+                ddname=None,
+                record_format="F",
+            ),
+            SimpleNamespace(
+                resource_type="SRT",
+                name="S0C7",
+                group=None,
+                macro_table="DFHSRT01",
+                line=9,
+                program=None,
+                dsname=None,
+                ddname=None,
+                record_format=None,
+            ),
+        ],
+        transactions=[
+            SimpleNamespace(transid="SHPM", program="SHPINQ", line=12, resolves_to="apps/SHIP/cobol/SHPINQ.cbl")
+        ],
+    )
+    eng = FakeEngine(files={"apps/SHIP/asm/SHPTBL.asm": ef})
+    entry = {
+        "csd_resources": [
+            {
+                "type": "FILE",
+                "name": "SHPFILE",
+                "group": "DFHFCT01",
+                "line": 5,
+                "dsname": "PROD.SHIP.MASTER",
+                "record_format": "F",
+                "horror": "H-0061",
+            }
+        ],
+        "transactions": [
+            {
+                "transid": "SHPM",
+                "program": "SHPINQ",
+                "group": "DFHPCT01",
+                "line": 12,
+                "resolves_to": "apps/SHIP/cobol/SHPINQ.cbl",
+                "horror": "H-0061",
+            }
+        ],
+        "phantoms": [
+            {"channel": "csd_resources", "type": "SRT", "name": "S0C7", "why": "RECOVER=NO", "horror": "H-0061"},
+            {"channel": "csd_resources", "type": "TERMINAL", "name": "LINE", "why": "TYPE=LINE", "horror": "H-0061"},
+        ],
+    }
+    sc = ec.Score()
+    ec.score_cics(sc, "apps/SHIP/asm/SHPTBL.asm", entry, eng)
+    assert _statuses(sc) == sorted(
+        [
+            ("csd_resources", "FILE SHPFILE", "pass", "H-0061"),
+            ("csd_resources", "SRT S0C7", "phantom", "H-0061"),
+            ("csd_resources", "not TERMINAL LINE", "pass", "H-0061"),
+            ("transactions", "SHPM", "pass", "H-0061"),
+        ]
+    )

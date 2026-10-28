@@ -611,3 +611,51 @@ def test_the_new_tables_are_cpu_bounded():
     start = time.process_time()
     _rows(src)
     assert time.process_time() - start < 5
+
+
+def test_hlasm_alternative_statement_format_continuation_and_label_rules():
+    """HLASM Language Reference (SC26-4940-05) ch.2 'Continuation lines' (p.15) and ch.8 'Alternative formats
+    for a macro instruction' (p.296):
+    1. In the alternative format, each continued line may carry remarks after its trailing comma; only the
+       operand prefix before the remark space is joined into the macro's operands.
+    2. If an operand on a continuation line begins after column 16 (column 16 is blank) outside a continued
+       quoted string, HLASM treats that line and any following continuation lines as remarks.
+    3. Long labels (up to 63 chars, with underscores) and sequence symbols (.SKIP) in the name field are accepted.
+    4. Sequence numbers in columns 73-80 are ignored.
+    """
+
+    def _card(body: str, cont: str = " ", seq: int = 100) -> str:
+        return body.ljust(71) + cont + f"{seq:08d}"
+
+    src = "\n".join(
+        [
+            _card("         DFHFCT TYPE=INITIAL,SUFFIX=01", " ", 100),
+            # Alternative format: remarks on each continued line, plus a trailing remark continuation starting at col 17
+            _card("LONG_FILE_LABEL_01 DFHFCT TYPE=FILE,    DEFINE MASTER FILE", "X", 200),
+            _card("               FILE=ACCTDAT,            FILE IDENTIFIER", "X", 300),
+            _card("               DSNAME=BANK.ACCT.DAM,    VSAM DATASET NAME", "X", 400),
+            _card("               RECFORM=(FIXED,BLOCKED), FIXED BLOCKED RECORDS", "X", 500),
+            _card("               KEYLEN=11,LRECL=300      KEY AND RECORD LENGTH", "X", 600),
+            _card("                DSNAME=FAKE.REMARK.DSN,LRECL=999", "X", 700),
+            _card("               KEYLEN=99", " ", 800),
+            # Sequence symbol in the name field + quoted operand containing a space
+            _card(".PCT01   DFHPCT TYPE=ENTRY,TRANSID=BA01,DESC='INQUIRY TRAN',", "X", 900),
+            _card("               PROGRAM=BANKINQ,TRNPRTY=100", " ", 1000),
+            _card("         DFHFCT TYPE=FINAL", " ", 1100),
+        ]
+    )
+    b = extract_boundary("hlasm", src)
+    rows = {r["name"]: r for r in b["csd_resources"]}
+    acct = rows["ACCTDAT"]
+    assert (acct["dsname"], acct["record_format"], acct["key_length"], acct["record_size"], acct["line"]) == (
+        "BANK.ACCT.DAM",
+        "F",
+        11,
+        300,
+        2,
+    )
+    ba01 = rows["BA01"]
+    assert (ba01["program"], ba01["transid"], _rdo(ba01)) == ("BANKINQ", "BA01", "PRIORITY(100)")
+    assert b["transactions"] == [
+        {"transid": "BA01", "program": "BANKINQ", "group": "DFHPCT", "profile": None, "line": 9}
+    ]

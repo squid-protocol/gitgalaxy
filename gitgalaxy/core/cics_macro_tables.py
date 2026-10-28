@@ -402,7 +402,9 @@ def cics_macro_table_resources(code_stream: str) -> list[dict[str, Any]]:
         keyed = _operands(text)
         kind = _type_of(keyed)
         if kind == "INITIAL" and keyed.get("SUFFIX"):
-            suffix.setdefault(op, keyed["SUFFIX"].strip("'\"").upper())
+            sfx = _name(keyed.get("SUFFIX"))
+            if sfx and 1 <= len(sfx) <= 2 and (op != "DFHSIT" or sfx not in ("NO", "DY")):
+                suffix.setdefault(op, sfx)
         if op == "DFHTCT" and kind == "INITIAL" and keyed.get("SYSIDNT") and tct_home is None:
             tct_home = _name(keyed.get("SYSIDNT"))
         elif op == "DFHDCT" and kind == "SDSCI" and keyed.get("DSCNAME"):
@@ -520,3 +522,21 @@ def cics_macro_table_resources(code_stream: str) -> list[dict[str, Any]]:
             suffix_ = _sit_suffix(keyed.get("SUFFIX"))
             rows.append(_row("SIT", "DFHSIT" + suffix_, "DFHSIT" + suffix_, line, text))
     return rows
+
+
+def cics_macro_table_transactions(code_stream: str) -> list[dict[str, Any]]:
+    """Every transaction route a DFHPCT TYPE=ENTRY macro statement defines (`transid` -> `program`)."""
+    out: list[dict[str, Any]] = []
+    for row in cics_macro_table_resources(code_stream):
+        if row["resource_type"] == "TRANSACTION" and row.get("transid"):
+            out.append(
+                {
+                    "transid": row["transid"],
+                    "program": row.get("program"),
+                    "group": row.get("macro_table"),
+                    "profile": None,
+                    "line": row["line"],
+                }
+            )
+    out.sort(key=lambda t: (t["line"], t["transid"]))
+    return out

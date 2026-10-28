@@ -65,8 +65,15 @@ def test_tables_only_estate_produces_every_resource_type_with_provenance(tables_
     audt = entries[("TDQUEUE", "AUDT")]["merged"]
     assert (audt["ddname"], audt["dsname"], audt["queue_type"]) == ("AUDITDD", None, "EXTRA")  # SDSCI has no DSNAME
     assert entries[("TDQUEUE", "CSSL")]["merged"]["transid"] == "CSML"
-    assert ("FILE", "RMTFIL") in entries and ("MAPSET", "BANKMAP") in entries
+    assert ("FILE", "RMTFIL") in entries and ("MAPSET", "BANKMAP") in entries and ("MAPSET", "BANKM2") in entries
+    assert {n for t, n in entries if t == "PARTITIONSET"} == {"BANKPS", "BANKP2"}
     assert entries[("TRANSACTION", "BA01")]["merged"]["program"] == "BANKINQ"
+    pct_res = {r.name: r for r in tables_only.files["DFHPCT.asm"].csd_resources}
+    assert "PRIORITY(100) INDOUBT(WAIT)" in pct_res["BA01"].attributes
+    assert [(t.transid, t.program, t.group) for t in tables_only.files["DFHPCT.asm"].transactions] == [
+        ("BA01", "BANKINQ", "DFHPCT01"),
+        ("BA02", "BANKUPD", "DFHPCT01"),
+    ]
     assert {n for t, n in entries if t == "TSMODEL"} == {"BANK", "AUDT", "RCV", "SEC", "RMT"}
 
 
@@ -74,7 +81,10 @@ def test_sibling_tables_carry_their_provenance_through_a_real_scan(tables_only):
     entries = {(e["resource_type"], e["name"]): e for e in tables_only.resource_map()}
     assert {n for t, n in entries if t == "SRT"} == {"S0C1", "S0C4", "U1234"}  # S0C7 is RECOVER=NO: a removal
     assert {n for t, n in entries if t == "JOURNAL"} == {"SYSTEM", "03"}
-    assert {n for t, n in entries if t == "TERMINAL"} == {"T001", "R001"}
+    assert {n for t, n in entries if t == "TERMINAL"} == {"T001", "T002", "SEQ1", "R001"}
+    tct_res = {r.name: r for r in tables_only.files["DFHTCT.asm"].csd_resources}
+    assert "REMOTESYSTEM(SYSB)" in tct_res["T002"].attributes
+    assert "REMOTESYSTEM" not in tct_res["SEQ1"].attributes
     assert {n for t, n in entries if t == "MONITORPOINT"} == {"USER.202", "BANK.180"}
     (d,) = entries[("SIT", "DFHSIT")]["definitions"]
     assert (d["macro_table"], d["defined_in"], d["line"]) == ("DFHSIT", "DFHSIT.asm", 4)

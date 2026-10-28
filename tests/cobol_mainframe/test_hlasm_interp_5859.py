@@ -230,3 +230,97 @@ def test_zecs002_interpreted_end_states_equal_the_oracle_run_of_the_lowering():
             assert got[:2].decode(H.EBCDIC) == want[:2].decode("ascii"), sc["name"]
             got, want = got[2:], want[2:]
         assert got == want, sc["name"]
+
+
+# ---- ZECSNC end to end (slice 5) -------------------------------------------------------------------------------------
+ZNC_CASE = ROOT / "tests" / "equivalence" / "zecs-zecsnc" / "case.json"
+_CREATED = (
+    "323032362f31302f30312031303a33303a3135205a4330315f5a4543532020202d207a4543532020204e616d656420436f756e74657220"
+    "63726561746564202020202020202020202020"
+)
+_ER20 = (
+    "616c726561647920646566696e65642e2020596f75206d696768742077616e7420746f20636f6e736964657220636865636b696e6720"
+    "4446484e432a20"
+)
+_CREATE = (  # the creation path: TD record, operator message, START of the expiration transaction, the terminal reply
+    ("WRITEQ TD", _CREATED),
+    ("WRITE OPERATOR", _CREATED),
+    ("START", "5a433031"),
+)
+# The oracle run of the lowered ZECSNC (equivalence.py run zecs-zecsnc, GnuCOBOL + the CICS stub, 2026-10-28): each
+# scenario's events with the payload bytes the stub logged (RECEIVE, which the interpreter does not log, left out), and
+# the named counters it ends with. The lowered COBOL holds text as ASCII, z/OS as EBCDIC: payloads compare as text.
+ZNC_ORACLE = {
+    "terminal-new": ((*_CREATE, ("SEND", _CREATED), ("RETURN", None)), {"ZC01_ZECS": (1, 1, 0xFFFFFFFF)}),
+    "terminal-bad-input": (
+        # "ZNCD" alone passes the transid test: the counter name is the unfilled rest of TC_DATA, which DEFINE refuses
+        (("SEND", "202020205f5a454353202020" + _ER20), ("RETURN", None)),
+        {},
+    ),
+    "terminal-duplicate-counter": ((("SEND", "5a4330315f5a454353202020" + _ER20), ("RETURN", None)), {}),
+    "commarea-non-terminal-start": ((*_CREATE, ("RETURN", None)), {"ZC01_ZECS": (1, 1, 0xFFFFFFFF)}),
+    "commarea-too-short": ((("ABEND", "ZNCD"),), {}),
+    "commarea-one-byte": ((("ABEND", "ZNCD"),), {}),
+    "commarea-too-long": ((("ABEND", "ZNCD"),), {}),
+}
+EBC_SPACE = 0x40
+
+
+def _ascii_to_ebcdic(b: bytes) -> bytes:
+    return b.decode("latin-1").encode(H.EBCDIC)
+
+
+def _ascii_hex(b: bytes) -> str:
+    return b.decode(H.EBCDIC).encode("ascii").hex()
+
+
+def _zecsnc_run(src: str, case: dict, sc: dict) -> H.Result:
+    return H.Machine(src).run(
+        _ascii_to_ebcdic(bytes.fromhex(sc.get("commarea_hex", ""))),
+        facts={
+            "transid": case["transid"],
+            "startcode": sc["startcode"],
+            "terminal": _ascii_to_ebcdic(sc.get("terminal", "").encode()),
+            "counters": {k.lstrip("/").ljust(16).encode(H.EBCDIC) for k in sc.get("counters", {})},
+            "clock": case["clock"][:19],
+            "fill": EBC_SPACE,
+        },
+    )
+
+
+def _observed(res: H.Result) -> tuple[tuple, dict]:
+    """The interpreter's events in the oracle's terms: (kind, payload hex), and the counters it created."""
+    events, created = [], {}
+    for e in res.events:
+        kind = e[0]
+        if kind == "DEFINE DCOUNTER":
+            if e[5]:
+                created[e[1].decode(H.EBCDIC).rstrip()] = e[2:5]
+        elif kind in ("RETURN", "ABEND"):
+            events.append((kind, e[1] if kind == "ABEND" else None))
+        else:
+            events.append((kind, _ascii_hex(e[2] if kind in ("WRITEQ TD", "START") else e[1])))
+    return tuple(events), created
+
+
+@pytest.mark.skipif(not (ZECS / "ZECSNC.asm").is_file(), reason="zecs corpus not fetched (mainframe_corpus.py fetch)")
+def test_zecsnc_interpreted_events_equal_the_oracle_run_of_the_lowering():
+    case = json.loads(ZNC_CASE.read_text(encoding="utf-8"))
+    src = (ZECS / "ZECSNC.asm").read_text(encoding="latin-1")
+    assert set(ZNC_ORACLE) == {s["name"] for s in case["scenarios"]}
+    for sc in case["scenarios"]:
+        res = _zecsnc_run(src, case, sc)
+        assert _observed(res) == ZNC_ORACLE[sc["name"]], sc["name"]
+        if ZNC_ORACLE[sc["name"]][0][-1][0] == "ABEND":
+            assert res.outcome == "ABEND:ZNCD", sc["name"]
+
+
+@pytest.mark.skipif(not (ZECS / "ZECSNC.asm").is_file(), reason="zecs corpus not fetched (mainframe_corpus.py fetch)")
+def test_zecsnc_operator_message_carries_the_routecodes_the_source_declares():
+    # The stub logs only the WRITE OPERATOR text length, so ROUTECODES / NUMROUTES (slice 2a) have no oracle record:
+    # the interpreter reads them from the source's DC XL02'0111' and DC F'02'.
+    case = json.loads(ZNC_CASE.read_text(encoding="utf-8"))
+    src = (ZECS / "ZECSNC.asm").read_text(encoding="latin-1")
+    res = _zecsnc_run(src, case, case["scenarios"][0])
+    (wto,) = [e for e in res.events if e[0] == "WRITE OPERATOR"]
+    assert (wto[2], wto[3], len(wto[1])) == (bytes.fromhex("0111"), 2, 74)

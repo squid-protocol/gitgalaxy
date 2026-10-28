@@ -459,7 +459,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 46
+   "tests": 47
   },
   {
    "corpus": "cics-banking-sample-application-cbsa",
@@ -946,9 +946,9 @@
    ],
    "reasons": {
     "coverage: LINKed program INQACCCU has live paragraphs no scenario runs": "16/22 paragraphs",
-    "coverage: LINKed program INQCUST has live paragraphs no scenario runs": "16/25 paragraphs"
+    "coverage: LINKed program INQCUST has live paragraphs no scenario runs": "18/25 paragraphs"
    },
-   "tests": 46,
+   "tests": 47,
    "blocker": "coverage: LINKed program INQCUST has live paragraphs no scenario runs"
   },
   {
@@ -980,7 +980,7 @@
     "coverage: live paragraphs no scenario runs": "82/119 paragraphs",
     "fact: EIBRCODE (no harness states it)": ""
    },
-   "tests": 31,
+   "tests": 38,
    "blocker": "coverage: live paragraphs no scenario runs"
   },
   {
@@ -1591,7 +1591,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 46,
+   "tests": 47,
    "non_vsam": [
     "db2"
    ]
@@ -2132,7 +2132,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 31
+   "tests": 38
   },
   "zecs-zecs003": {
    "generated": [],
@@ -2569,7 +2569,7 @@
     "src/base/cobol_src/XFRFUN.cbl",
     "zBuilder/MortgageApplication/cobol/epscmort.cbl"
    ],
-   "tests_held": 1032
+   "tests_held": 1033
   },
   {
    "cause": "ims",

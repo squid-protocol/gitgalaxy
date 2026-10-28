@@ -127,6 +127,8 @@ _FAULT_RESP = {
     "ROLLBACK": ("INVREQ", 200),
     "DELAY": ("INVREQ", 6),
     "SEND-TEXT": ("TSIOERR", 0),
+    "SET-TERMINAL": ("INVREQ", 43),
+    "INQ-TERMINAL": ("TERMIDERR", 1),
 }  # #6271 (X71, X72)
 _NAMELESS = (
     "RETRIEVE",
@@ -135,6 +137,8 @@ _NAMELESS = (
     "ROLLBACK",
     "DELAY",
     "SEND-TEXT",
+    "SET-TERMINAL",
+    "INQ-TERMINAL",
 )  # fault_lines names them "-"  # #5089 (X60): the one condition IBM lists for ENQ that a plan raises; no RESP2
 
 

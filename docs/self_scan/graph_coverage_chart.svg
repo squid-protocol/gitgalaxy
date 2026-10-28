@@ -61,15 +61,15 @@
 <text class="n" x="324" y="155">n=873 imports</text>
 <text class="n" x="324" y="167">repos 2 · files 384</text>
 </g>
-<g><title>c callee names: precision 99.7% of 13,047, recall 99.3% of 13,064 (raw 99.4% / 99.3%; 19 shapes without a verdict)</title>
+<g><title>c callee names: precision 97.7% of 12,925, recall 96.4% of 13,064 (raw 97.4% / 96.4%; 19 shapes without a verdict)</title>
 <text class="pr" x="426" y="154.5">Precision</text>
 <rect class="track" x="472" y="147" width="110" height="8" rx="2"/>
-<rect x="472" y="147" width="109.7" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="587" y="155">99.7%*</text>
+<rect x="472" y="147" width="107.5" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="587" y="155">97.7%*</text>
 <text class="pr" x="426" y="166.5">Recall</text>
 <rect class="track" x="472" y="159" width="110" height="8" rx="2"/>
-<rect x="472" y="159" width="109.2" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="587" y="167">99.3%*</text>
+<rect x="472" y="159" width="106.0" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="587" y="167">96.4%*</text>
 <text class="n" x="630" y="155">n=13,064 calls</text>
 <text class="n" x="630" y="167">functions 2,561</text>
 </g>
@@ -110,15 +110,15 @@
 <text class="n" x="324" y="189">n=171 imports</text>
 <text class="n" x="324" y="201">repos 1 · files 73</text>
 </g>
-<g><title>cpp callee names: precision 99.3% of 7,817, recall 99.0% of 7,757 (raw 98.2% / 99.0%; 8 shapes without a verdict)</title>
+<g><title>cpp callee names: precision 98.9% of 7,746, recall 97.6% of 7,757 (raw 97.8% / 97.6%; 8 shapes without a verdict)</title>
 <text class="pr" x="426" y="188.5">Precision</text>
 <rect class="track" x="472" y="181" width="110" height="8" rx="2"/>
-<rect x="472" y="181" width="109.2" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="587" y="189">99.3%*</text>
+<rect x="472" y="181" width="108.8" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="587" y="189">98.9%*</text>
 <text class="pr" x="426" y="200.5">Recall</text>
 <rect class="track" x="472" y="193" width="110" height="8" rx="2"/>
-<rect x="472" y="193" width="108.9" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="587" y="201">99.0%*</text>
+<rect x="472" y="193" width="107.4" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="587" y="201">97.6%*</text>
 <text class="n" x="630" y="189">n=7,757 calls</text>
 <text class="n" x="630" y="201">functions 1,291</text>
 </g>
@@ -981,15 +981,15 @@
 <text class="n" x="324" y="971">n=804 imports</text>
 <text class="n" x="324" y="983">repos 1 · files 784</text>
 </g>
-<g><title>tcl callee names: precision 93.6% of 2,277, recall 71.2% of 2,231 (raw 69.8% / 71.2%; 13 shapes without a verdict)</title>
+<g><title>tcl callee names: precision 93.7% of 2,230, recall 69.3% of 2,231 (raw 69.3% / 69.3%; 13 shapes without a verdict)</title>
 <text class="pr" x="426" y="970.5">Precision</text>
 <rect class="track" x="472" y="963" width="110" height="8" rx="2"/>
-<rect x="472" y="963" width="103.0" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="587" y="971">93.6%*</text>
+<rect x="472" y="963" width="103.1" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="587" y="971">93.7%*</text>
 <text class="pr" x="426" y="982.5">Recall</text>
 <rect class="track" x="472" y="975" width="110" height="8" rx="2"/>
-<rect x="472" y="975" width="78.3" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="587" y="983">71.2%</text>
+<rect x="472" y="975" width="76.2" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="587" y="983">69.3%</text>
 <text class="n" x="630" y="971">n=2,231 calls</text>
 <text class="n" x="630" y="983">functions 369</text>
 </g>

@@ -44,7 +44,14 @@
       }
     }
   },
-  "commarea": null,
+  "commarea": {
+    "segments": [
+      {
+        "copybook": "Source/ZECS001.cbl",
+        "record": "ZECS003-COMM-AREA"
+      }
+    ]
+  },
   "linked": false,
   "screens": {},
   "http_request": {
@@ -504,6 +511,32 @@
         "body": null
       },
       "why": "DELETE with a 7-byte query clear=x: 1320-CLEAR unstrings it, 1325-CLEAR-TYPE runs, CLEAR-TEXT is not '*' so no XCTL to ZECS003"
+    },
+    {
+      "name": "delete-clear-star",
+      "commarea": null,
+      "tod": "5050505050500708090A0B0C0D0E0F10",
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-ops.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey-ops.bin"
+        }
+      },
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "DELETE",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/clearstar",
+        "query": "clear=*",
+        "headers": [],
+        "mediatype": null,
+        "body": null
+      },
+      "why": "DELETE with a 7-byte query clear=*: 1320-CLEAR sets CLEAR-TEXT '*' and XCTLs to ZECS003 with ZECS003-COMM-AREA"
     },
     {
       "name": "post-body-empty",

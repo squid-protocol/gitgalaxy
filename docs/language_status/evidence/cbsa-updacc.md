@@ -8,8 +8,8 @@ The status above judges the record alone (policy: ported_unproven = block). Whet
 
 | | |
 |---|---|
-| proof | proven at 2026-10-27T11:05:24Z, harness `051e25bfc0acde4a631b7e7811ed7ba00e8dbfc2+uncommitted` |
-| inputs digest | `8bd51a666a0955044c5c1fe580b843ae4e4ee5a2c2f27b2e9a8c36b03f69f22d` |
+| proof | proven at 2026-10-28T13:19:57Z, harness `616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted` |
+| inputs digest | `d186293278e6c422191de71a4d6ca8e97110e16aa1c752629c6d8a36c762a224` |
 | port | 1 files `24b6d4456a62d826` |
 | case | 2 files `008f3455b236c9ab` |
 | corpus | cics-banking-sample-application-cbsa @ `417334533178ab6e753cc64b0e0e5cf0b4952704` `7a4c86e6d6688f15` |
@@ -17,10 +17,10 @@ The status above judges the record alone (policy: ported_unproven = block). Whet
 | options |  `8ca112619bacfa8a` |
 | runtime options | `150386a124b56e8e` (cics 5, db2 8, le 3): cics.program_definition.CONCURRENCY=THREADSAFE, cics.program_definition.EXECKEY=USER, cics.region.DB2CONN=YES, cics.region.LOCALCCSID=037, cics.translator.options=CICS('SP,EDF') via the program's CBL card, db2.bind.ACTION=REPLACE, db2.bind.ISOLATION=UR, db2.ccsid.SQLCCSID=NO, db2.format.DATE=ISO, db2.format.DEC=15, db2.format.DECPT=., db2.format.TIME=ISO, db2.precompile.coprocessor=integrated (CICS + SQL on the compile PARM / CBL cards), le.runtime_options.ABTERMENC=ABEND, le.runtime_options.STORAGE=NONE,NONE,NONE,0K, le.runtime_options.TRAP=ON,SPIE |
 | compiler options | `3fb9a52d3da63e71` (4): ARITH=COMPAT, INTDATE=ANSI, NUMPROC=NOPFD, TRUNC=OPT |
-| harness | 18 files `4aa149fdf2da2f1e` |
-| oracle | 46 files `848c34c7d886f87f` |
-| generator | 113 files `aa03dfbf49d4b3b2` |
-| oracle run | gnucobol-models: cobc (GnuCOBOL) 3.1.2.0, image `sha256:ec6700c84dab` (matches pin: True) |
+| harness | 18 files `67b2106b6501b8b1` |
+| oracle | 47 files `f5c8b9e1a9746147` |
+| generator | 114 files `32ad960ce9cbdc4c` |
+| oracle run | gnucobol-models: cobc (GnuCOBOL) 3.1.2.0, image `sha256:f094c8e046ff` (matches pin: True) |
 | written by | model `claude-sonnet-5-5`, attempt 1 |
 
 ## Proof outputs

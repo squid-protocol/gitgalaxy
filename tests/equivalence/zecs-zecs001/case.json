@@ -548,6 +548,249 @@
         "body": null
       },
       "why": "#6072: GET of GETEXP, a record past its TTL: 3310-CHECK-TTL answers 204, deletes the key record and the file segments and returns"
+    },
+    {
+      "name": "post-key-read-ioerr",
+      "commarea": null,
+      "tod": "5757575757570708090A0B0C0D0E0F10",
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "POST",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/flt1",
+        "query": "",
+        "headers": [],
+        "mediatype": "application/octet-stream",
+        "body": "v"
+      },
+      "faults": [
+        {
+          "cmd": "READ",
+          "file": "ZC01KEY",
+          "resp": "IOERR",
+          "why": "key file read fails"
+        }
+      ],
+      "why": "POST with the key-file READ answering IOERR: 4100-READ-KEY takes the error arm, 9200-KEY-ERROR answers"
+    },
+    {
+      "name": "post-key-write-nospace",
+      "commarea": null,
+      "tod": "4747474747470708090A0B0C0D0E0F10",
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "POST",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/flt2",
+        "query": "",
+        "headers": [],
+        "mediatype": "application/octet-stream",
+        "body": "v"
+      },
+      "faults": [
+        {
+          "cmd": "WRITE",
+          "file": "ZC01KEY",
+          "resp": "NOSPACE",
+          "why": "key file full"
+        }
+      ],
+      "why": "POST with the key-file WRITE answering NOSPACE: 4120-WRITE-KEY error arm, 9200-KEY-ERROR NOSPACE branch"
+    },
+    {
+      "name": "post-key-write-ioerr",
+      "commarea": null,
+      "tod": "4848484848480708090A0B0C0D0E0F10",
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "POST",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/flt3",
+        "query": "",
+        "headers": [],
+        "mediatype": "application/octet-stream",
+        "body": "v"
+      },
+      "faults": [
+        {
+          "cmd": "WRITE",
+          "file": "ZC01KEY",
+          "resp": "IOERR",
+          "why": "key file write fails"
+        }
+      ],
+      "why": "POST with the key-file WRITE answering IOERR: 9200-KEY-ERROR general error"
+    },
+    {
+      "name": "post-file-write-nospace",
+      "commarea": null,
+      "tod": "5858585858580708090A0B0C0D0E0F10",
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "POST",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/flt4",
+        "query": "",
+        "headers": [],
+        "mediatype": "application/octet-stream",
+        "body": "v"
+      },
+      "faults": [
+        {
+          "cmd": "WRITE",
+          "file": "ZC01FILE",
+          "resp": "NOSPACE",
+          "why": "data file full"
+        }
+      ],
+      "why": "POST with the data-file WRITE answering NOSPACE: 4400-WRITE-FILE error arm, 9100-FILE-ERROR NOSPACE branch and rollback"
+    },
+    {
+      "name": "post-file-write-ioerr",
+      "commarea": null,
+      "tod": "4A4A4A4A4A4A0708090A0B0C0D0E0F10",
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "POST",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/flt5",
+        "query": "",
+        "headers": [],
+        "mediatype": "application/octet-stream",
+        "body": "v"
+      },
+      "faults": [
+        {
+          "cmd": "WRITE",
+          "file": "ZC01FILE",
+          "resp": "IOERR",
+          "why": "data file write fails"
+        }
+      ],
+      "why": "POST with the data-file WRITE answering IOERR: 9100-FILE-ERROR general error and rollback"
+    },
+    {
+      "name": "post-key-write-duprec",
+      "commarea": null,
+      "tod": "4B4B4B4B4B4B0708090A0B0C0D0E0F10",
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "POST",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/flt6",
+        "query": "",
+        "headers": [],
+        "mediatype": "application/octet-stream",
+        "body": "v"
+      },
+      "faults": [
+        {
+          "cmd": "WRITE",
+          "file": "ZC01KEY",
+          "resp": "DUPREC",
+          "why": "a concurrent POST wrote the key"
+        }
+      ],
+      "why": "POST with the key-file WRITE answering DUPREC: another POST wrote the key first, 4130-READ-KEY re-reads it"
+    },
+    {
+      "name": "get-key-read-ioerr",
+      "commarea": null,
+      "tod": "5252525252520708090A0B0C0D0E0F10",
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-ops.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey-ops.bin"
+        }
+      },
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "GET",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/gethit",
+        "query": "",
+        "headers": [],
+        "mediatype": null,
+        "body": null
+      },
+      "why": "GET of GETHIT with the key-file READ answering IOERR: 3200-READ-KEY error arm",
+      "faults": [
+        {
+          "cmd": "READ",
+          "file": "ZC01KEY",
+          "resp": "IOERR",
+          "why": "key file read fails"
+        }
+      ]
+    },
+    {
+      "name": "get-file-read-ioerr",
+      "commarea": null,
+      "tod": "5353535353530708090A0B0C0D0E0F10",
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-ops.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey-ops.bin"
+        }
+      },
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "GET",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/gethit",
+        "query": "",
+        "headers": [],
+        "mediatype": null,
+        "body": null
+      },
+      "why": "GET of GETHIT (a live key record) with the data-file READ answering IOERR: 3300-READ-FILE error arm and 9100-FILE-ERROR",
+      "faults": [
+        {
+          "cmd": "READ",
+          "file": "ZC01FILE",
+          "resp": "IOERR",
+          "why": "data file read fails"
+        }
+      ]
+    },
+    {
+      "name": "post-no-dc-template",
+      "commarea": null,
+      "tod": "5B5B5B5B5B5B0708090A0B0C0D0E0F10",
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "POST",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/nodckey",
+        "query": "",
+        "headers": [],
+        "mediatype": "application/octet-stream",
+        "body": "v"
+      },
+      "why": "POST with no ZC01DC document template installed: 8000-GET-URL DOCUMENT CREATE fails, so no replication URL is read",
+      "doctemplates": {}
     }
   ],
   "compiler_options": [

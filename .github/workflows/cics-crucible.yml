@@ -31,6 +31,11 @@ on:
     branches: [main]
     paths:
       - "gitgalaxy/**"
+      # #6278 item 4: a standalone tool nothing here imports and two generator READMEs the pipeline never reads
+      # (test_engine_reach_workflows.py proves both from the import closure and the classifier)
+      - "!gitgalaxy/tools/terabyte_log_scanning/**"
+      - "!gitgalaxy/tools/cobol_to_java/README.md"
+      - "!gitgalaxy/tools/cobol_to_cobol/README.md"
       - "pyproject.toml"
       - "tests/tools/cics_crucible*.py"
       - "tests/tools/crucible_port_provenance.py"

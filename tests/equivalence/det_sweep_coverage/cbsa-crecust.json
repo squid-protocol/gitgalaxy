@@ -94,7 +94,7 @@
   "case": "da3000b134b1140359aed22886c0c56cf7c8f5d74f7820dadac88b1d7a8d1cc6",
   "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
   "harness": "1bff6e9449468f9f3214f21587587d13832bd6dd1efeecba0b681a7532db3146",
-  "oracle": "96617f89f41e6ef92d4557e201c6ddaa4a4413d4532cf8bfe39f61cbb25ab508",
+  "oracle": "aa4eb15e4f5b47ad8327f0c6b59ad6449f616a6ec8f3934ddefc152ad532d2f3",
   "components": {
    "harness": {
     "harness:cics": "e4523ed6cc2c22eb2d52bfbcfafd3b45d68f183c612030b27fbbd8b82a7e1381",
@@ -102,7 +102,7 @@
     "harness:db2": "389a27466f489f7499560289b5ceaeabaac2feaeb5b38eabc35b4227ffe604e1"
    },
    "oracle": {
-    "oracle:cics-stub": "36b1f203a21055b9b130e4b63bac56d0c76e909f9c19cb7e974de03976b44ef7",
+    "oracle:cics-stub": "8886b8de162b5ad9a82f3775c65d9070a2876e66458ad6fb70e7d80b3a4c38e0",
     "oracle:core": "b4bb775f0a30746a6054f259b4c8613e08cb0d8cf3b40f4a789d953aca4144a0",
     "oracle:db2": "fa83d3d62d91ff633b4697cd7ff1965722d024ee9453567ef5e2b0240d6eb44f",
     "oracle:image-db2": "f138cc0d724e5e2bb4ff947dcd4c1cfed39aa35bfd7dcb27ff18a4e20b2c6198",
@@ -110,5 +110,5 @@
    }
   }
  },
- "measured_at": "e97f94fe5c8850bec13a6947cf0d44ad498c71da"
+ "measured_at": "c3e3cb1d3f99900ac951e0d1e17e92395dbb1569"
 }

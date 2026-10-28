@@ -55,6 +55,8 @@ def test_scenarios_cover_the_credit_check_and_the_paths_around_the_ceedays_hole(
         # #6882: PUT CONTAINER and GET CONTAINER faults
         "put-container-first-containererr",
         "get-container-first-containererr",
+        # #6882: CEELOCT feedback-code failure
+        "ceeloct-local-time-unavailable",
     ]
 
 

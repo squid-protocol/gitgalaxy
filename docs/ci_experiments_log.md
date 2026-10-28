@@ -176,6 +176,26 @@ since it would only tighten slack jobs. Sample is 4 runs per workflow: re-run th
 
 ---
 
+## 2026-10-28 evidence-test cost survey (#5156, third item)
+
+Question: are evidence tests still the root of full-suite growth (the #5152 note said 40-240 s each)? Method: the
+committed `.test_durations` (last refreshed 2026-10-23, 23581 tests, 2808 s serial) filtered to paths naming `evidence`
+or `equivalence`, plus a local `--durations` run of the slowest one.
+
+| Measure | Value |
+|---|---|
+| Evidence/equivalence tests | 1146 tests, 155 s of 2808 s (5.5%) |
+| Slowest evidence test | `test_evidence_components.py::test_the_components_partition_each_input`: 27.7 s recorded, 20.5 s local |
+| Any evidence test at 40-240 s | none: the Docker/e2e proofs are gated off the suite (`EQUIVALENCE_E2E`) |
+| Tests over 15 s, whole suite | 11, only 1 of them evidence |
+
+Result: evidence tests are no longer the growth driver, so no marking or trimming is made. The one large test is
+already in `time_ratchet.IGNORED`; a cProfile shows 47 of 64 profiled seconds in `evidence.component_shas` (recomputed
+for every file x representative target). If it is ever worth cutting, memoise the per-component hash across edits
+rather than re-hashing every component per file: a test-design change, left alone here. Sample is one durations file.
+
+---
+
 ## Earlier work (summaries; details in docs/ci.md)
 
 | When | Issue | What | Measured result |

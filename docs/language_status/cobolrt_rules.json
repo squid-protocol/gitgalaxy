@@ -196,11 +196,16 @@
    "title": "intrinsic functions",
    "files": [
     "Funcs.java",
-    "Accept.java"
+    "Accept.java",
+    "FuncSpec.java"
    ],
    "done": true,
    "about": "The intrinsic functions the translator calls.",
-   "plumbing": []
+   "plumbing": [
+    "categoryName",
+    "functionCategory",
+    "ruleId"
+   ]
   },
   {
    "id": "CICS",

@@ -48,6 +48,17 @@ from gitgalaxy.standards.cobol.compare import (
     COMPARE_RULES,
     COMPARE_VECTORS,
 )
+from gitgalaxy.standards.cobol.func import (
+    CATEGORY_DATE_TIME,
+    CATEGORY_IO,
+    CATEGORY_MATH,
+    CATEGORY_PARSING,
+    CATEGORY_STRING,
+    FUNC_CATEGORIES,
+    FUNC_RULES,
+    FUNC_SPECS,
+    FUNC_VECTORS,
+)
 from gitgalaxy.standards.cobol.move import (
     ACTIONS,
     CATEGORIES,
@@ -82,14 +93,17 @@ MOVE_JAVA_FILE = Path("gitgalaxy/tools/cobol_to_java/det/cobolrt/MoveSpec.java")
 COMPARE_JAVA_FILE = Path("gitgalaxy/tools/cobol_to_java/det/cobolrt/CompareSpec.java")
 ARITH_JAVA_FILE = Path("gitgalaxy/tools/cobol_to_java/det/cobolrt/ArithSpec.java")
 STRING_JAVA_FILE = Path("gitgalaxy/tools/cobol_to_java/det/cobolrt/StringSpec.java")
+FUNC_JAVA_FILE = Path("gitgalaxy/tools/cobol_to_java/det/cobolrt/FuncSpec.java")
 MOVE_DOCS_FILE = Path("docs/language_status/cobol_move_matrix.md")
 COMPARE_DOCS_FILE = Path("docs/language_status/cobol_compare_matrix.md")
 ARITH_DOCS_FILE = Path("docs/language_status/cobol_arith_matrix.md")
 STRING_DOCS_FILE = Path("docs/language_status/cobol_string_matrix.md")
+FUNC_DOCS_FILE = Path("docs/language_status/cobol_func_matrix.md")
 MOVE_TEST_FILE = Path("tests/cobol_mainframe/test_cobol_move_vectors.py")
 COMPARE_TEST_FILE = Path("tests/cobol_mainframe/test_cobol_compare_vectors.py")
 ARITH_TEST_FILE = Path("tests/cobol_mainframe/test_cobol_arith_vectors.py")
 STRING_TEST_FILE = Path("tests/cobol_mainframe/test_cobol_string_vectors.py")
+FUNC_TEST_FILE = Path("tests/cobol_mainframe/test_cobol_func_vectors.py")
 JAVA_PACKAGE = "__PACKAGE__.cobolrt"
 
 
@@ -211,6 +225,23 @@ def as_json() -> dict[str, Any]:
                 for v in STRING_VECTORS
             ],
         },
+        "func": {
+            "categories": dict(FUNC_CATEGORIES),
+            "specs": {k: dataclasses.asdict(v) for k, v in FUNC_SPECS.items()},
+            "rules": {k: dataclasses.asdict(r) for k, r in FUNC_RULES.items()},
+            "vectors": [
+                {
+                    "id": v.id,
+                    "title": v.title,
+                    "rule_id": v.rule_id,
+                    "function": v.function,
+                    "args": v.args,
+                    "expected_result": v.expected_result,
+                    "note": v.note,
+                }
+                for v in FUNC_VECTORS
+            ],
+        },
     }
 
 
@@ -259,6 +290,7 @@ def problems() -> list[str]:
             out.extend(
                 f"STRING rule {rid} not found in cobolrt_rules.json" for rid in STRING_RULES if rid not in known_ids
             )
+            out.extend(f"FUNC rule {rid} not found in cobolrt_rules.json" for rid in FUNC_RULES if rid not in known_ids)
         except Exception as e:
             out.append(f"unable to verify against cobolrt_rules.json: {e}")
 
@@ -282,6 +314,11 @@ def problems() -> list[str]:
         f"STRING test vector {vec.id} cites unknown rule {vec.rule_id}"
         for vec in STRING_VECTORS
         if vec.rule_id not in STRING_RULES
+    )
+    out.extend(
+        f"FUNC test vector {vec.id} cites unknown rule {vec.rule_id}"
+        for vec in FUNC_VECTORS
+        if vec.rule_id not in FUNC_RULES
     )
 
     return out
@@ -1244,6 +1281,222 @@ def test_unstring_simulation_delimited_by_all():
 '''
 
 
+def render_func_java(package: str = JAVA_PACKAGE) -> str:
+    """Generate FuncSpec.java."""
+    rule_cases = "\n".join(f'            case "{r}" -> "{r}";' for r in sorted(FUNC_RULES))
+
+    return f"""// {BANNER}
+package {package};
+
+/**
+ * Declarative COBOL Intrinsic Functions specification.
+ *
+ * <p>Reference: IBM Enterprise COBOL for z/OS 6.4 Language Reference (SC26-4940-06).
+ * Follows the table-driven code generation pattern established by CicsSpec.java (#4586, #4608).
+ */
+public final class FuncSpec {{
+    private FuncSpec() {{
+    }}
+
+    public static final int CATEGORY_STRING = {CATEGORY_STRING};
+    public static final int CATEGORY_MATH = {CATEGORY_MATH};
+    public static final int CATEGORY_PARSING = {CATEGORY_PARSING};
+    public static final int CATEGORY_DATE_TIME = {CATEGORY_DATE_TIME};
+    public static final int CATEGORY_IO = {CATEGORY_IO};
+
+    /** Category name for diagnostics and evidence logging. */
+    public static String categoryName(int cat) {{
+        return switch (cat) {{
+            case CATEGORY_STRING -> "STRING";
+            case CATEGORY_MATH -> "MATH";
+            case CATEGORY_PARSING -> "PARSING";
+            case CATEGORY_DATE_TIME -> "DATE_TIME";
+            case CATEGORY_IO -> "IO";
+            default -> "UNKNOWN";
+        }};
+    }}
+
+    /** Functional classification of an intrinsic function. */
+    public static int functionCategory(String funcName) {{
+        return switch (funcName) {{
+            case "UPPER-CASE", "LOWER-CASE", "REVERSE", "TRIM" -> CATEGORY_STRING;
+            case "MOD", "REM", "INTEGER", "INTEGER-PART", "ABS", "MIN", "MAX", "RANDOM" -> CATEGORY_MATH;
+            case "NUMVAL", "NUMVAL-C", "TEST-NUMVAL", "TEST-NUMVAL-C" -> CATEGORY_PARSING;
+            case "CURRENT-DATE", "INTEGER-OF-DATE", "DATE-OF-INTEGER", "ACCEPT-DATE" -> CATEGORY_DATE_TIME;
+            case "ACCEPT-SYSIN" -> CATEGORY_IO;
+            default -> -1;
+        }};
+    }}
+
+    /** Get registered rule ID from key. */
+    public static String ruleId(String key) {{
+        return switch (key) {{
+{rule_cases}
+            default -> "UNKNOWN";
+        }};
+    }}
+}}
+"""
+
+
+def render_func_markdown() -> str:
+    """Generate docs/language_status/cobol_func_matrix.md."""
+    cat_rows = [f"| `{cat_id}` | `{name}` |" for cat_id, name in sorted(FUNC_CATEGORIES.items())]
+    cat_table = "\n".join(cat_rows)
+
+    spec_rows = []
+    for name, spec in sorted(FUNC_SPECS.items()):
+        spec_rows.append(
+            f"| `{name}` | `{spec.rule_id}` | `{spec.category}` | `{spec.return_type}` | {spec.ibm_section} | {spec.description} |"
+        )
+    spec_table = "\n".join(spec_rows)
+
+    r_rows = []
+    for rid, meta in sorted(FUNC_RULES.items()):
+        doc_sec = f"{meta.ibm['doc']}: {meta.ibm['section']}" if meta.ibm else (meta.ibm_note or "-")
+        reg = ", ".join(f"`{x}`" for x in meta.register) if meta.register else "-"
+        r_rows.append(f"| `{rid}` | `{meta.status}` | {meta.title} | {doc_sec} | {reg} |")
+    r_table = "\n".join(r_rows)
+
+    v_rows = []
+    for vec in FUNC_VECTORS:
+        args_str = ", ".join(str(a) for a in vec.args)
+        v_rows.append(
+            f"| `{vec.id}` | {vec.title} | `{vec.rule_id}` | `{vec.function}` | `{args_str}` | `{vec.expected_result}` | {vec.note} |"
+        )
+    v_table = "\n".join(v_rows)
+
+    return f"""<!-- {BANNER} -->
+# COBOL Intrinsic Functions Specification (#4712)
+
+Part of the **cobolrt-as-a-product** epic ([#4710](https://github.com/squid-protocol/gitgalaxy/issues/4710)).
+Single source of truth: [`gitgalaxy/standards/cobol/func.py`](../../gitgalaxy/standards/cobol/func.py).
+Generated by `python -m gitgalaxy.standards.cobol regen`.
+
+Reference: **IBM Enterprise COBOL for z/OS 6.4 Language Reference (SC26-4940-06)**
+Chapter: *Intrinsic functions*, *ACCEPT statement*.
+
+## 1. Rule Catalogue (FUNC Family)
+
+| Rule ID | Status | Title | IBM Manual Reference | Register |
+| :--- | :--- | :--- | :--- | :--- |
+{r_table}
+
+## 2. Intrinsic Function Categories
+
+| ID | Category Name |
+| :--- | :--- |
+{cat_table}
+
+## 3. Function Inventory & Return Types
+
+| Function Name | Governed By Rule | Category | Return Type | IBM Manual Section | Description |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+{spec_table}
+
+## 4. Deterministic Test Vectors
+
+| Vector ID | Title | Rule Verified | Function | Arguments | Expected Result | Note |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+{v_table}
+"""
+
+
+def render_func_tests() -> str:
+    """Generate tests/cobol_mainframe/test_cobol_func_vectors.py."""
+    return '''# ==============================================================================
+# GitGalaxy
+# Copyright (c) 2026 Joe Esquibel
+#
+# This source code is licensed under the PolyForm Noncommercial License 1.0.0.
+# You may not use this file except in compliance with the License.
+# A copy of the license can be found in the LICENSE file in the root directory
+# of this project, or at https://polyformproject.org/licenses/noncommercial/1.0.0/
+# ==============================================================================
+"""Test vectors for the COBOL Intrinsic Functions rules (#4712, epic #4710).
+
+Generated from gitgalaxy/standards/cobol by `python -m gitgalaxy.standards.cobol regen`.
+Verifies that the declarative function rules, categories, return types,
+and deterministic test vectors execute directly in CI without requiring Docker or external compilers.
+"""
+
+from __future__ import annotations
+
+import sys
+from decimal import Decimal
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parents[2]
+if str(REPO) not in sys.path:
+    sys.path.insert(0, str(REPO))
+
+import pytest
+
+from gitgalaxy.standards.cobol.cli import problems, stale
+from gitgalaxy.standards.cobol.func import (
+    FUNC_CATEGORIES,
+    FUNC_RULES,
+    FUNC_SPECS,
+    FUNC_VECTORS,
+    evaluate_date_of_integer_ansi,
+    evaluate_integer_of_date_ansi,
+    evaluate_mod,
+    evaluate_numval,
+    evaluate_numval_c,
+    evaluate_rem,
+)
+
+
+def test_cobol_func_spec_has_no_problems():
+    """Verify internal consistency of standards/cobol intrinsic function rules."""
+    errs = problems()
+    assert errs == [], f"cobol spec has consistency problems: {errs}"
+
+
+def test_cobol_func_generated_files_are_not_stale():
+    """Verify committed FuncSpec.java, docs, and tests match the standards tables."""
+    diff = stale()
+    assert diff == [], f"standards generated files are stale: {diff}; run `python -m gitgalaxy.standards.cobol regen`"
+
+
+def test_all_func_categories_and_rules_defined():
+    """Verify categories, specs, and rules are defined."""
+    assert len(FUNC_CATEGORIES) == 5
+    assert len(FUNC_RULES) == 12
+    assert len(FUNC_SPECS) >= 20
+    assert len(FUNC_VECTORS) >= 20
+
+
+@pytest.mark.parametrize("vec", FUNC_VECTORS, ids=lambda v: v.id)
+def test_func_vector_rule_alignment(vec):
+    """Verify each test vector correctly aligns with a registered rule."""
+    assert vec.rule_id in FUNC_RULES
+    meta = FUNC_RULES[vec.rule_id]
+    assert meta.id == vec.rule_id
+
+
+def test_func_simulation_mod_and_rem():
+    """Verify MOD (floor) and REM (trunc) semantics."""
+    assert evaluate_mod(Decimal("10"), Decimal("3")) == Decimal("1")
+    assert evaluate_mod(Decimal("-10"), Decimal("3")) == Decimal("2")
+    assert evaluate_mod(Decimal("10"), Decimal("0")) == Decimal("0")
+    assert evaluate_rem(Decimal("-10"), Decimal("3")) == Decimal("-1")
+
+
+def test_func_simulation_numval():
+    """Verify NUMVAL and NUMVAL-C parsing."""
+    assert evaluate_numval(" 123.45- ") == Decimal("-123.45")
+    assert evaluate_numval(" 987.65CR ") == Decimal("-987.65")
+    assert evaluate_numval_c(" $1,234,567.89 ") == Decimal("1234567.89")
+
+
+def test_func_simulation_date_integer_ansi():
+    """Verify INTEGER-OF-DATE and DATE-OF-INTEGER under ANSI."""
+    assert evaluate_integer_of_date_ansi(16010101) == 1
+    assert evaluate_date_of_integer_ansi(1) == 16010101
+'''
+
+
 def generated() -> dict[Path, str]:
     """The committed generated files and the text the spec renders for each."""
     return {
@@ -1251,14 +1504,17 @@ def generated() -> dict[Path, str]:
         COMPARE_JAVA_FILE: render_compare_java(),
         ARITH_JAVA_FILE: render_arith_java(),
         STRING_JAVA_FILE: render_string_java(),
+        FUNC_JAVA_FILE: render_func_java(),
         MOVE_DOCS_FILE: render_move_markdown(),
         COMPARE_DOCS_FILE: render_compare_markdown(),
         ARITH_DOCS_FILE: render_arith_markdown(),
         STRING_DOCS_FILE: render_string_markdown(),
+        FUNC_DOCS_FILE: render_func_markdown(),
         MOVE_TEST_FILE: render_move_tests(),
         COMPARE_TEST_FILE: render_compare_tests(),
         ARITH_TEST_FILE: render_arith_tests(),
         STRING_TEST_FILE: render_string_tests(),
+        FUNC_TEST_FILE: render_func_tests(),
     }
 
 
@@ -1314,13 +1570,18 @@ def main(argv: Sequence[str] | None = None) -> int:
             )
             for rid, sr in sorted(STRING_RULES.items()):
                 print(f"  {rid:<38} {sr.status:<9} {sr.title[:45]}")
+            print(
+                f"COBOL FUNC Standards: {len(FUNC_RULES)} rules, {len(FUNC_CATEGORIES)} categories, {len(FUNC_VECTORS)} vectors"
+            )
+            for rid, fr in sorted(FUNC_RULES.items()):
+                print(f"  {rid:<38} {fr.status:<9} {fr.title[:45]}")
         return 0
 
     if args.cmd == "check":
         found = problems()
         for p in found:
             print(p)
-        total_rules = len(MOVE_RULES) + len(COMPARE_RULES) + len(ARITH_RULES) + len(STRING_RULES)
+        total_rules = len(MOVE_RULES) + len(COMPARE_RULES) + len(ARITH_RULES) + len(STRING_RULES) + len(FUNC_RULES)
         print(
             f"cobol spec: {total_rules} rules, {len(MOVE_MATRIX) + len(COMPARE_MATRIX)} matrix cells, {'ok' if not found else f'{len(found)} problem(s)'}"
         )

@@ -1,12 +1,12 @@
 {
  "format": "det-sweep-coverage/2",
- "scenarios": 22,
+ "scenarios": 30,
  "paragraphs": {
-  "covered": 71,
+  "covered": 82,
   "live": 119
  },
  "branches": {
-  "covered": 91,
+  "covered": 103,
   "total": 208
  },
  "uncovered": {
@@ -28,7 +28,6 @@
    "3600-EXIT:1236",
    "4110-PRIME-KEY:1299",
    "4110-EXIT:1309",
-   "4130-READ-KEY:1361",
    "4130-EXIT:1392",
    "4500-UPDATE-KEY:1528",
    "4500-EXIT:1547",
@@ -48,17 +47,7 @@
    "8200-WEB-CONVERSE:1847",
    "8200-EXIT:1919",
    "8300-WEB-CLOSE:1925",
-   "8300-EXIT:1932",
-   "9100-FILE-ERROR:1965",
-   "9100-EXIT:1977",
-   "9200-KEY-ERROR:1983",
-   "9200-EXIT:1993",
-   "9500-STATUS-409:2034",
-   "9500-EXIT:2052",
-   "9800-STATUS-507:2105",
-   "9800-EXIT:2119",
-   "9999-ROLLBACK:2159",
-   "9999-EXIT:2163"
+   "8300-EXIT:1932"
   ],
   "branches": [
    "492:false",
@@ -100,13 +89,11 @@
    "854:true",
    "854:false",
    "913:true",
-   "940:true",
    "999:false",
    "1002:true",
    "1007:true",
    "1007:false",
    "1010:true",
-   "1042:false",
    "1072:false",
    "1093:true",
    "1093:false",
@@ -131,11 +118,6 @@
    "1212:true",
    "1212:false",
    "1275:true",
-   "1278:false",
-   "1281:true",
-   "1338:true",
-   "1341:true",
-   "1375:true",
    "1375:false",
    "1380:true",
    "1380:false",
@@ -145,7 +127,6 @@
    "1468:true",
    "1472:true",
    "1490:false",
-   "1506:true",
    "1517:true",
    "1535:true",
    "1535:false",
@@ -174,10 +155,6 @@
    "1881:false",
    "1902:true",
    "1902:false",
-   "1968:true",
-   "1968:false",
-   "1984:true",
-   "1984:false",
    "paragraph:1500-EXIT",
    "paragraph:1600-USER-ACCESS",
    "paragraph:1600-EXIT",
@@ -195,7 +172,6 @@
    "paragraph:3600-EXIT",
    "paragraph:4110-PRIME-KEY",
    "paragraph:4110-EXIT",
-   "paragraph:4130-READ-KEY",
    "paragraph:4130-EXIT",
    "paragraph:4500-UPDATE-KEY",
    "paragraph:4500-EXIT",
@@ -215,35 +191,25 @@
    "paragraph:8200-WEB-CONVERSE",
    "paragraph:8200-EXIT",
    "paragraph:8300-WEB-CLOSE",
-   "paragraph:8300-EXIT",
-   "paragraph:9100-FILE-ERROR",
-   "paragraph:9100-EXIT",
-   "paragraph:9200-KEY-ERROR",
-   "paragraph:9200-EXIT",
-   "paragraph:9500-STATUS-409",
-   "paragraph:9500-EXIT",
-   "paragraph:9800-STATUS-507",
-   "paragraph:9800-EXIT",
-   "paragraph:9999-ROLLBACK",
-   "paragraph:9999-EXIT"
+   "paragraph:8300-EXIT"
   ]
  },
  "inputs": {
-  "case": "af7c7a1d70154c29632e8d9a788849d432cb6075335a5812cb91218fa482f4e9",
+  "case": "a63db3f2df431dcca45d28cf94b9e0c2bb9cb4076e7ec823f041ff3979880e5b",
   "corpus": "09feecf8028c77a136bbff56380f9babddf0b2e28fbb6a7ad7ba456273989ff6",
-  "harness": "4aa149fdf2da2f1e0c37127b8d173d337335275f3ceab77281cdc9cb6aba7f87",
-  "oracle": "2fda9277b9029544924e64ed08da853d100d9933535ff74d02517f6355e1b98e",
+  "harness": "6988330d2a2ef0d9f73a6fb0808e8d6f5050859a5ef3390d26f5cff890db896c",
+  "oracle": "954624ee1e0c30c8c38ee60299b0094ce0f148623a4167b73cef50db4d6644a7",
   "components": {
    "harness": {
-    "harness:cics": "92ccd39aae83d84431d25678a302453a9dfd55558c5f98ebae82b6405af32180",
-    "harness:core": "44d38a01abc69857283e736186feda6396e1cf6e297c12e07a097730aee7f15f"
+    "harness:cics": "b396ecfeaa74a6c589eedc9e7e66e12ae217baf380db1a2c850444df0869f205",
+    "harness:core": "945494f198a90b8ec29af9cf851de4b6cb237aa0afdc1d6b77d37eb46ba12ef0"
    },
    "oracle": {
-    "oracle:cics-stub": "ff253648e975e1c52de5ed72217b45fa3842747ce167813a7e61257f5a71dd98",
+    "oracle:cics-stub": "97aa35cdf56b4fc4673edb1c15f2a018ee334b41f676d4f0131265ae15a52b01",
     "oracle:core": "b5ba772713fe1ad0da7935c39e6bcfe79fcdaf13f631fb62ed6e2a003fab534a",
     "oracle:le": "c918b12c6862c8e08ab03dacb85cd3fff0fd1e2388e3dda05e2810c6c4648bc0"
    }
   }
  },
- "measured_at": "ae9c218aa4e3c045f5965a487c9a74ffdfe07591"
+ "measured_at": "8cebe10c4b695d1d80e972680c6862b64771c4a5"
 }

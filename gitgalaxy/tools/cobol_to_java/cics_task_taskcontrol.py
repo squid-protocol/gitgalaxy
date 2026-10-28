@@ -344,6 +344,18 @@ TASKCONTROL_JAVA = """\
             throw new UnsupportedOperationException("RUN TRANSID in a RUN TRANSID child task " + MAX_RUN_DEPTH
                     + " levels below a task (a great-great-grandchild): the depth the harness models ends here");
         }
+        int[] planned = task.injected("RUN-TRANSID", "-");  // #6882 (X18): a planned condition; no child is started
+        if (planned != null) {
+            Map<String, Object> p = new LinkedHashMap<>();
+            p.put("event", "RUN");
+            p.put("transid", transid);
+            p.put("resp", respName(planned[0]));
+            if (planned[1] != 0) {
+                p.put("resp2", planned[1]);
+            }
+            add(p);
+            return new RunResult(respName(planned[0]), planned[1], null);
+        }
         String name = channel == null ? null : handedChannel(channel);
         boolean badName = channel != null && name == null;
         boolean undefined = programs != null && !programs.transaction(transid);
@@ -577,6 +589,10 @@ TASKCONTROL_JAVA = """\
         if ("TIMEOUT".equals(mode) && (timeout < 0 || timeout > 4080000)) {
             throw new UnsupportedOperationException("FETCH TIMEOUT(" + timeout + "): outside 0 to 4080000 "
                     + "milliseconds (IBM's FETCH ANY and FETCH CHILD pages give different maximums), not modelled");
+        }
+        int[] planned = child == null ? task.injected("FETCH-ANY", "-") : null;  // #6882 (X18): nothing is fetched
+        if (planned != null) {
+            return fetched(respName(planned[0]), planned[1], null, null);
         }
         Child one = null;
         if (child != null) {

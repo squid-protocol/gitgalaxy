@@ -870,6 +870,17 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
                 ]
             lines.append("END-IF")
         return lines + _resp(opts, True, labels)
+    # #5859 (X32): GGCVER -- the verdict a scenario states for the USERID
+    if verb == "VERIFY" and not ({"PHRASE", "TOKEN"} & set(opts)):
+        _check_spec("VERIFY PASSWORD", opts, (verb,), lambda bad: [f"VERIFY PASSWORD {bad[0]}"])
+        for need in ("USERID", "PASSWORD"):
+            if not opts.get(need):
+                raise Unsupported(f"VERIFY PASSWORD without {need}", ["VERIFY PASSWORD"])
+        user = opts["USERID"]
+        return (_call("GGCVER", [f"BY REFERENCE {user}", f"BY VALUE LENGTH OF {user}"])
+                + _resp(opts, True, labels))  # fmt: skip
+    if verb == "VERIFY":
+        raise _stub_only("VERIFY PHRASE / VERIFY TOKEN")
     if verb == "WRITE" and "OPERATOR" in opts:  # #4270 zECS (X32): a plain message to the console
         _check_spec("WRITE OPERATOR", opts, (verb, "OPERATOR"))
         text = opts.get("TEXT")
@@ -2287,7 +2298,7 @@ def screen_key(f: dict[str, Any]) -> tuple[str, str]:
 CICS_RESP = {c: DFHRESP[c] for c in ("NORMAL", "FILENOTFOUND", "NOTFND", "DUPREC", "DUPKEY", "INVREQ", "IOERR", "NOSPACE",
                                      "NOTOPEN", "ILLOGIC", "LENGERR", "PGMIDERR", "NOTAUTH", "DISABLED", "LOADING",
                                      "ENDFILE", "TERMIDERR", "ITEMERR", "TRANSIDERR", "QIDERR", "SYSIDERR",
-                                     "ISCINVREQ", "LOCKED", "ENQBUSY", "QBUSY", "INVMPSZ", "TSIOERR", "EXPIRED")}  # fmt: skip
+                                     "ISCINVREQ", "LOCKED", "ENQBUSY", "QBUSY", "INVMPSZ", "TSIOERR", "EXPIRED", "USERIDERR")}  # fmt: skip
 
 
 def case_file_records(case: dict[str, Any], corpus: Path, spec: dict[str, Any], reclen: int, enc: str) -> bytes:
@@ -4739,6 +4750,16 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
             queue = re.search(r"\bqueue=(\S*)", args).group(1)
             resp = re.search(r"\bresp=(\S*)", args).group(1)
             out.append({"event": "WRITEQ-TD", "queue": queue, "text": next(records) if resp == "0" else None})
+        # #5859 (X32): as CicsTask.verifyPassword records it -- the USERID and the verdict
+        elif verb == "VERIFY-PASSWORD":
+            kv = dict(a.split("=", 1) for a in args.split() if "=" in a)
+            out.append(
+                {
+                    "event": "VERIFY-PASSWORD",
+                    "userid": kv["userid"],
+                    "resp": RESP_NAMES.get(int(kv["resp"]), kv["resp"]),
+                }
+            )
         elif verb == "WRITE-OPERATOR":  # #4270 zECS (X32): CicsTask.writeOperator records the text
             out.append({"event": "WRITE-OPERATOR", "text": next(operator)})
         elif verb == "WEB-CONVERSE":  # #4767 (X35): CicsTask.webConverse records the request sent

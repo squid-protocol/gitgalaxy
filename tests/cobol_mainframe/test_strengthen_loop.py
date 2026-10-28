@@ -117,8 +117,9 @@ def test_a_cics_proposal_may_set_any_commarea_field_of_the_layout_and_plan_a_fau
 
 
 _FAULT_KEY = {"XCTL": "program", "LINK": "program", "WRITEQ-TS": "queue", "START": "transid", "CANCEL": "reqid",
-              "ENQ": "resource", "SEND-MAP": "map", "RECEIVE-MAP": "map"}  # fmt: skip
+              "ENQ": "resource", "SEND-MAP": "map", "RECEIVE-MAP": "map", "VERIFY": "userid"}  # fmt: skip
 _FAULT_RESP = {
+    "VERIFY": ("NOTAUTH", 0),  # #5859 (X32): IBM states no RESP2 for VERIFY PASSWORD
     "ENQ": ("ENQBUSY", 0),
     "SEND-MAP": ("TSIOERR", 0),
     "RECEIVE-MAP": ("INVMPSZ", 0),

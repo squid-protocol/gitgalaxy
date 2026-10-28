@@ -52,9 +52,9 @@
     "tests/tools/equivalence_ims.py"
    ],
    "files": 18,
-   "sha256": "102e3110b567a6fd03c1020551e9f3dba45d8ff1ba0a7db7d97c19854cf935c1",
+   "sha256": "b1bf7f49a6296fe3688e5c762ee3da5c774469f385c65d0f0792882568a58853",
    "components": {
-    "harness:core": "945494f198a90b8ec29af9cf851de4b6cb237aa0afdc1d6b77d37eb46ba12ef0"
+    "harness:core": "d921abf8b3c5676cf34888c5707aa4c2625e4d20b7435f644db351842492d76e"
    }
   },
   "oracle": {
@@ -70,7 +70,7 @@
     "tests/equivalence/ims/ggdli.c"
    ],
    "files": 47,
-   "sha256": "59aed6596f90fe5a3fe9524fbce7244a231f1c06169fea750cb71e877023e834",
+   "sha256": "f5c8b9e1a974614769dd626b80691d628a4828b54de8e1ae58630c6234d9bb86",
    "components": {
     "oracle:core": "b4bb775f0a30746a6054f259b4c8613e08cb0d8cf3b40f4a789d953aca4144a0",
     "oracle:file-io": "e74b2733865b6c48f5ccf8d292c81c28e4827e0229e7383baeb7a3a26327f501",
@@ -187,10 +187,10 @@
    },
    "runtime_sha256": "486d6880280039b47962e4e97342fe0740f30e991fc7aff36d0fd384b1810abc"
   },
-  "digest": "0fcedbb158030ac52c572112b76cca8e4b6ebfa51a2fb0ca446b46c979942205"
+  "digest": "9d8c65bff7c38b26db26dbccc4d6672614814bdf5dd01ac1964219eecb439e2e"
  },
  "proof": {
-  "at": "2026-10-28T03:31:41Z",
+  "at": "2026-10-28T10:18:40Z",
   "verdict": "proven",
   "runs": 14,
   "fault_runs": 13,
@@ -209,8 +209,8 @@
   "sysout_compared": true,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "8d2a6810f89231c94d6d86f9e5f3853547afc4c5+uncommitted",
-  "inputs_digest": "0fcedbb158030ac52c572112b76cca8e4b6ebfa51a2fb0ca446b46c979942205"
+  "harness_commit": "ddac1078503e362e1fd605e72aa429c4970679a9+uncommitted",
+  "inputs_digest": "9d8c65bff7c38b26db26dbccc4d6672614814bdf5dd01ac1964219eecb439e2e"
  },
  "coverage": {
   "paragraphs": {
@@ -246,7 +246,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "0fcedbb158030ac52c572112b76cca8e4b6ebfa51a2fb0ca446b46c979942205"
+  "inputs_digest": "9d8c65bff7c38b26db26dbccc4d6672614814bdf5dd01ac1964219eecb439e2e"
  },
  "reach": {
   "entry_points": [
@@ -319,7 +319,7 @@
    },
    {
     "path": "tests/equivalence/cics/ggcics.c",
-    "sha256": "51cdbc52d6cf23fefc637b9adb1c878a73c0d6f57ed2a3c9e0ae03cf44a17de8"
+    "sha256": "8bfdbc0eed05771bded6ba6b90028355776601cfe11b66ac323202250f82cf6d"
    },
    {
     "path": "tests/equivalence/cics/ggcics_conditions.c",

@@ -89,3 +89,12 @@ def test_subsystem_block_is_a_port_by_subsystem_ratio_matrix():
     assert "| dartdoom | 2.00 | 1.25 | 0 |" in text
     assert "| gore | 0.50 |  | 12 |" in text
     assert "linuxdoom" not in text
+
+
+def test_subsystem_block_shows_median_over_zero_when_linuxdoom_median_is_zero():
+    zero = dict(subsystem="i", complexity_vs_linuxdoom=None, complexity_med=2.0, comparable=True)
+    small = dict(subsystem="d", complexity_vs_linuxdoom=None, complexity_med=2.0)  # under the minimum: stays blank
+    result = {"linuxdoom": ([], 0.0), "gore": ([zero, small], 0.0)}
+    text = study_report.subsystem_block(result)
+    assert "| port | d | i | other % |" in text
+    assert "| gore |  | 2/0 | 0 |" in text

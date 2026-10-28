@@ -115,18 +115,29 @@ def distribution_block(summary, fid):
     return table + "\n" + place
 
 
+def _ratio_cell(row):
+    if row is None:
+        return ""
+    ratio = row.get("complexity_vs_linuxdoom")
+    if ratio is not None:
+        return f"{ratio:.2f}"
+    return f"{row['complexity_med']:g}/0" if row.get("comparable") else ""
+
+
 def subsystem_block(result):
     """Median complexity of each port's subsystems over linuxdoom's same subsystem (``subsystem_distribution.run``).
 
-    One row per port, one column per subsystem; blank where a side has under ``MIN_SUBSYSTEM`` functions."""
+    One row per port, one column per subsystem; blank where a side has under ``MIN_SUBSYSTEM`` functions. Where both
+    sides are big enough but linuxdoom's median is 0 (its ``i_*`` platform code), a ratio is undefined and the cell
+    shows the port's median over zero (``2/0``) instead of looking like missing data."""
     subs = sorted({r["subsystem"] for rows, _ in result.values() for r in rows if r["subsystem"] != "other"})
     body = []
     for port in sorted(result):
         if port == lineage.BASE:
             continue
         rows, other = result[port]
-        got = {r["subsystem"]: r.get("complexity_vs_linuxdoom") for r in rows}
-        body.append([port, *("" if got.get(s) is None else f"{got[s]:.2f}" for s in subs), f"{other:.0f}"])
+        got = {r["subsystem"]: r for r in rows}
+        body.append([port, *(_ratio_cell(got.get(s)) for s in subs), f"{other:.0f}"])
     return _md(["port", *subs, "other %"], body)
 
 

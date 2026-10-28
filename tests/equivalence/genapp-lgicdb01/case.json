@@ -192,9 +192,18 @@
     }
    ],
    "why": "SQLCODE -904 (resource unavailable) on the SELECT: another WHEN OTHER sqlcode, '90' and WRITE-ERROR-MESSAGE with EM-SQLRC -00904"
+  },
+  {
+   "name": "no-commarea",
+   "commarea": {
+    "CA-REQUEST-ID": "01ICUS",
+    "CA-CUSTOMER-NUM": 3
+   },
+   "commarea_length": 0,
+   "why": "EIBCALEN 0: NO COMMAREA RECEIVED to WRITE-ERROR-MESSAGE (no COMMAREA copy), then ABEND LGCA"
   }
  ],
- "notes": "GenApp's Db2 'inquire customer' (LGICDB01, LINKed by LGICUS01 with the 32500-byte LGCMAREA COMMAREA; the COMMAREA is described by the record the caller passes, LGICUS01's DFHCOMMAREA (COPY LGCMAREA), since LGICDB01 includes the same copybook with EXEC SQL INCLUDE: the generated DTO is the caller's): EIBCALEN is checked against 72+18 bytes, CA-CUSTOMER-NUM is moved to an S9(9) COMP host variable, and a SELECT INTO from CUSTOMER (unqualified: the bind's QUALIFIER, GENASA1) fills the nine customer fields of CA-CUSTOMER-REQUEST directly. SQLCODE 0 gives CA-RETURN-CODE '00', +100 (or -913) '01', anything else '90' and WRITE-ERROR-MESSAGE. The table is GenApp's own (base/cntl/db2cre.jcl: DDL and its ten customer INSERTs, <DB2DBID> = GENASA1) and is compared after every scenario. Not reachable here: EIBCALEN 0 (ABEND LGCA, l.119-123) and EIBCALEN < 90 ('98', l.140-143) -- the harness passes the whole 32500-byte COMMAREA, with no per-scenario length; SQLCODE -913 (l.197) and any other negative SQLCODE (l.199-202) are planned SQL faults on the SELECT (line 169, the det runtime's DetSql seam the port reaches Db2 through, #6882); the '90' path LINKs LGSTSQ, GenApp's TS/TD logger, which the case now runs (programs). Derived from the CICS General Insurance Application (GenApp, github.com/cicsdev/cics-genapp; (C) Copyright IBM Corp. 2011, 2021), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own, NOTICE names the source and what was derived.",
+ "notes": "GenApp's Db2 'inquire customer' (LGICDB01, LINKed by LGICUS01 with the 32500-byte LGCMAREA COMMAREA; the COMMAREA is described by the record the caller passes, LGICUS01's DFHCOMMAREA (COPY LGCMAREA), since LGICDB01 includes the same copybook with EXEC SQL INCLUDE: the generated DTO is the caller's): EIBCALEN is checked against 72+18 bytes, CA-CUSTOMER-NUM is moved to an S9(9) COMP host variable, and a SELECT INTO from CUSTOMER (unqualified: the bind's QUALIFIER, GENASA1) fills the nine customer fields of CA-CUSTOMER-REQUEST directly. SQLCODE 0 gives CA-RETURN-CODE '00', +100 (or -913) '01', anything else '90' and WRITE-ERROR-MESSAGE. The table is GenApp's own (base/cntl/db2cre.jcl: DDL and its ten customer INSERTs, <DB2DBID> = GENASA1) and is compared after every scenario. EIBCALEN 0 (no-commarea, commarea_length 0: WRITE-ERROR-MESSAGE without a COMMAREA copy, then ABEND LGCA, l.119-123) and EIBCALEN 60 ('98', l.140-143) are scenarios; not reachable here: a failing SELECT with EIBCALEN 90 (WRITE-ERROR-MESSAGE l.231 true, stated infeasible); SQLCODE -913 (l.197) and any other negative SQLCODE (l.199-202) are planned SQL faults on the SELECT (line 169, the det runtime's DetSql seam the port reaches Db2 through, #6882); the '90' path LINKs LGSTSQ, GenApp's TS/TD logger, which the case now runs (programs). Derived from the CICS General Insurance Application (GenApp, github.com/cicsdev/cics-genapp; (C) Copyright IBM Corp. 2011, 2021), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own, NOTICE names the source and what was derived.",
  "programs": [
   {
    "program": "LGSTSQ",

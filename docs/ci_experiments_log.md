@@ -196,6 +196,24 @@ rather than re-hashing every component per file: a test-design change, left alon
 
 ---
 
+## 2026-10-28 evidence components: memoise the partition (#5156, fourth item)
+
+Question: can the slowest evidence test be cut without loosening it? The survey above named the cost: `component_shas`
+re-derived the component partition (an fnmatch per file per component) and the runtime-class edges (a regex per class
+pair) for every file x representative target, though both are pure in their inputs. Change: `evidence._partition`
+(memoised on the input name and matched files) and `evidence._names_class` (memoised per class pair); the fingerprints
+are unchanged and the test asserts what it did.
+
+| Measure | Before | After |
+|---|---|---|
+| `test_the_components_partition_each_input`, local | 20.5 s | 12.7 s |
+| `test_evidence_components.py`, local | not measured | 32 s |
+
+Dropped: caching per-file digests inside `tree_sha256` (8 s of hashing remains; the keys would hold every edited file's
+bytes). Sample is one local run each; the committed `.test_durations` is refreshed by the nightly, not here.
+
+---
+
 ## Earlier work (summaries; details in docs/ci.md)
 
 | When | Issue | What | Measured result |

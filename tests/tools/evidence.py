@@ -370,10 +370,12 @@ def det_imports(source: str) -> frozenset[str]:
     return frozenset(out)
 
 
-def component_shas(
-    input_name: str, matched: list[str], t: Target, files: tuple[str, ...], read: Any = None
-) -> dict[str, str]:
-    """{component: sha256} of the components of `input_name` this target USES, over the input's matched files."""
+@functools.lru_cache(maxsize=256)
+def _partition(
+    input_name: str, matched: tuple[str, ...]
+) -> tuple[dict[str, list[str]], dict[str, str], dict[str, str]]:
+    """(component -> its files, runtime classes, det modules) of an input's matched files: pure in its arguments, and
+    the same for every target and edit that matches the same files, so memoised (callers only read the result)."""
     left = set(matched)
     parts: dict[str, list[str]] = {}
     for c in COMPONENTS:
@@ -391,7 +393,14 @@ def component_shas(
         left -= set(rt) | set(det)
     if left:
         parts[f"{input_name}:core"] = sorted(left)
+    return parts, rt, det
 
+
+def component_shas(
+    input_name: str, matched: list[str], t: Target, files: tuple[str, ...], read: Any = None
+) -> dict[str, str]:
+    """{component: sha256} of the components of `input_name` this target USES, over the input's matched files."""
+    parts, rt, det = _partition(input_name, tuple(matched))
     def source(p: str) -> str:
         return (read(p) if read else (REPO_ROOT / p).read_bytes()).decode("utf-8", "replace")
 
@@ -434,7 +443,13 @@ def component_shas(
 @functools.lru_cache(maxsize=32)
 def _rt_edges(code: tuple[tuple[str, str], ...]) -> dict[str, set[str]]:
     """{runtime class: the runtime classes its code names}."""
-    return {s: {x for x, _ in code if re.search(rf"\b{x}\b", c)} for s, c in code}
+    return {s: {x for x, _ in code if _names_class(x, c)} for s, c in code}
+
+
+@functools.lru_cache(maxsize=65536)
+def _names_class(stem: str, code: str) -> bool:
+    """Whether `code` names the runtime class `stem` (memoised per pair: an edit re-reads one class, not all of them)."""
+    return re.search(rf"\b{stem}\b", code) is not None
 
 
 def _closure(roots: set[str], edges: dict[str, set[str]]) -> set[str]:

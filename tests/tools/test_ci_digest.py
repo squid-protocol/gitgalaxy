@@ -217,6 +217,15 @@ def test_det_with_no_failed_part_stays_real():
     assert d["failed"][0]["triage"] == "real"
 
 
+def test_a_cancelled_roll_up_with_no_failed_part_keeps_its_infra_triage():  # #5276: no part to take a verdict from
+    for rollup in cd.PARTS:
+        d = cd.digest(7, fake_api([run(1, rollup, "cancelled")]), lambda i: "")
+        (f,) = d["failed"]
+        assert f["check"] == rollup and f["triage"] == "infra"
+    runs = [run(1, "det", "cancelled"), run(2, "shard 1/6", "success")]  # parts that passed do not change it
+    assert cd.digest(7, fake_api(runs), lambda i: "")["failed"][0]["triage"] == "infra"
+
+
 FIXED = "tests/core_engine/test_x.py"
 STALE_LOG = f"FAILED {FIXED}::test_y - AssertionError"
 

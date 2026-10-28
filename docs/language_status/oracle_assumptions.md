@@ -192,6 +192,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | L4 | LE | CEEIGZCT: a stand-in declaring the symbolic feedback code CEE000 only (CBSA CRECUST, #4884) | ASSUMED | yes (cbsa-crecust, #4952) |
 | L5 | LE | CEELOCT: Lilian day, seconds and YYYYMMDDHHMISS999 from the pinned clock, feedback all zero; the unwritten tail of IBM's longer Gregorian field and the float's representation assumed | ASSUMED | yes (CBSA CRECUST, cbsa-crecust, #4952) |
 | L6 | LE | LE date/time services: Lilian date / seconds semantics and the documented feedback codes; GMT is the pinned clock; the VSTRING output layout assumed; open conditions refused by name | MATCHED / ASSUMED / REFUSED | no (CBSA BANKDATA, the caller of CEEGMT and CEEDATM, has no equivalence case: its CUSTOMER-FILE and its Db2 estate are not a case yet) |
+| L7 | LE | CEELOCT's one IBM-listed failure, CEE2F3 (severity 3, message 2531), can be planned in a scenario's fault plan: the 12-byte token is written, the three outputs are left untouched; what IBM leaves in the outputs and the exact token bytes are assumed | ASSUMED | yes (CBSA CRECUST, cbsa-crecust scenario ceeloct-local-time-unavailable, #6882) |
 | A1 | assembler | CardDemo's COBDATFT, translated instruction for instruction; load-module-dependent paths refused | MATCHED / REFUSED | yes (CardDemo READACCT) |
 | A2 | z/OS control blocks | a batch program's PSA -> TCB -> TIOT walk reads stand-in blocks built from the stated step; no step stated is refused | ASSUMED | yes (CardDemo CBSTM03A; det and oracle modelled, equivalence case pending) |
 | Q1 | Db2 | Db2 for Linux runs the SQL, not Db2 for z/OS | ASSUMED | yes |
@@ -4662,7 +4663,7 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   usage (HFP, C6), the C side as a native IEEE double; the byte patterns differ, which is why the translator passes
   the item by value and any other use of its bytes stays refused (C6). (3) IBM's Gregorian field is longer than the
   17 characters of the documented form; only the 17 are written, and what the remaining bytes hold is not documented
-  (CRECUST's item is 17 bytes). (4) A leap second, a DST fold or an unset clock are not modelled.
+  (CRECUST's item is 17 bytes). (4) A leap second, a DST fold or an unset clock are not modelled. IBM's one failure, CEE2F3, is a planned fault, not a clock condition (L7).
 - **IBM references.** https://www.ibm.com/docs/en/SSLTBW_2.1.0/com.ibm.zos.v2r1.ceea800/cblex1.htm (the COBOL example).
 
 ### L6. CEEGMT / CEEUTC, CEEDATM, CEESECS, CEEDATE, CEEISEC, CEESECI, CEEDYWK, CEEQCEN, CEESCEN — IBM's conditions where documented; the clock, the output item and what IBM leaves open assumed or refused
@@ -4756,6 +4757,29 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
 - **Not modelled, no burned program needs them (#5003).** CEEFMDA / CEEFMDT / CEEFMDV and null (default) pictures; CEE2526 / CEE2527
   truncation is refused on both sides (above) (CEESECI and CEEDYWK are modelled, above). A sweep of the burned estates finds no call to any of them (CRECUST and CSUTLDTC call CEEDAYS, BANKDATA CEEGMT and
   CEEDATM with a 14-byte picture and an 80-byte output), so there is nothing to prove; they stay refused by name (the CALL is a hole that names the service). `tests/cobol_mainframe/test_le_fmd_census_5003.py` pins the census: it fails when a burned source calls CEEFMDx, omits a picture, or writes an output shorter than the picture's result, and when the translator stops refusing CEEFMDx.
+
+### L7. CEELOCT failure CEE2F3 — a planned feedback code; the outputs left as they were, the token bytes assumed
+- **What IBM documents** (Language Environment Programming Reference, "CEELOCT -- Get current local time",
+  https://www.ibm.com/docs/en/SSLTBW_2.1.0/com.ibm.zos.v2r1.ceea300/clcloct.htm; the COBOL example is
+  https://www.ibm.com/docs/en/SSLTBW_2.1.0/com.ibm.zos.v2r1.ceea800/cblex1.htm). The service lists one failure feedback code:
+  CEE2F3, severity 3, message number 2531, "The local time was not available from the system". The COBOL example tests
+  the feedback code after the call, as CBSA CRECUST does (`IF NOT CEE000 OF FC`, L4).
+- **Modelled** (#6882). A scenario's fault plan plans the failure with the line `CALL-CEELOCT - NTH 2531 0`
+  (`faults.cfg`; the scenario's fault is `{"cmd": "CALL-CEELOCT", "resp": "CEE2F3", "nth": N}`). The COBOL side is
+  `tests/equivalence/le/ceeloct.c` (GnuCOBOL is the instrument: it links the model and runs the program); the Java side is
+  `cobolrt/le/Ceeloct.java` `fail`, which the det translator's call site (`gen.py`) runs instead of `call` when the call is
+  planned (a CICS program only). Both write the same 12-byte token, leave `output_Lilian`, `output_seconds` and
+  `output_Gregorian` as they were, and the fault is logged to `faults.txt` as the ggcics stub logs its own faults. Reached by
+  `cbsa-crecust`, scenario `ceeloct-local-time-unavailable`: the DOB check refuses with `WS-DATE-OF-BIRTH-ERROR Y`, sets
+  no `COMM-FAIL-CODE` (the `CEEDLOCT failed` DISPLAY arm) and no customer is written.
+- **Assumed.** (1) The token bytes: severity as a halfword 3 (`00 03`), the message number as a halfword (2531 =
+  `09 E3`), then the case / severity / control byte `0x59` (case 1, severity 3, control 1), the facility ID "CEE" in EBCDIC
+  (`C3 C5 C5`) and the 4-byte `I-S-INFO` zero. This is our reading of the documented condition-token layout, not a z/OS
+  capture. (2) The three outputs are untouched on failure: IBM does not say what they hold. (3) The failure carries no
+  RESP2. (4) `IF NOT CEE000 OF FC` is true for this token: CEE000 is the all-zero token (L4).
+- **Not modelled.** A real clock failure, a failure with any other message number, and any other CEELOCT condition (IBM
+  lists none). Without a plan the call never fails (L5).
+- **Not calibrated on z/OS.** No run on z/OS has compared the token or the outputs; the oracle is GnuCOBOL plus our stub.
 
 ## Assembler routines
 
@@ -5566,4 +5590,4 @@ Each answer becomes either a model that matches (MATCHED) or a declared differen
   render` writes a local copy to read.
 
 ### z/OS calibration
-0 of 142 entries have a measured z/OS result (none: the IBM side stays as the entry states it; no z/OS run is recorded).
+0 of 143 entries have a measured z/OS result (none: the IBM side stays as the entry states it; no z/OS run is recorded).

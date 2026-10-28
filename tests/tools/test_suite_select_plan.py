@@ -62,8 +62,10 @@ def test_selected_paths_exist_and_have_no_nested_duplicates():
     "files",
     [
         ["gitgalaxy/core/prism.py"],
-        ["tests/tools/test_zos_probes.py"],
-        ["tests/tools/equivalence.py"],
+        ["tests/tools/equivalence.py"],  # a helper: no test module to map it to
+        ["tests/conftest.py"],
+        ["tests/fixtures/evidence_report/x.json"],
+        ["tests/tools/test_zos_probes.py", "gitgalaxy/core/prism.py"],  # a test module beside an engine file
         [".github/workflows/smoke-test.yml"],
         ["pyproject.toml"],
         ["README.md", "gitgalaxy/core/prism.py"],  # one engine file beside a doc
@@ -196,3 +198,29 @@ def test_the_replay_cli_reports_and_a_gh_failure_is_exit_1(monkeypatch, capsys):
 
     monkeypatch.setattr(sp, "run_replay", boom)
     assert sp.main() == 1 and "replay failed" in capsys.readouterr().err
+
+
+def test_a_test_module_runs_itself_its_importers_and_the_tree_guards():
+    p = plan(["tests/tools/test_zos_probes.py"])
+    assert p["mode"] == "select"
+    assert "tests/tools/test_zos_probes.py" in p["paths"]
+    assert set(sp.TREE_GUARDS) <= set(p["paths"])
+    assert p["paths"] == sorted(p["paths"]) and len(p["paths"]) < 12
+
+
+def test_a_test_module_that_others_import_runs_those_importers():
+    p = plan(["tests/cics_crucible/test_cics_runtimes.py", "README.md"])
+    assert p["mode"] == "select"
+    assert "tests/cics_crucible/test_file_events_4443.py" in p["paths"]
+
+
+def test_a_deleted_test_module_runs_only_the_guards_and_every_path_exists():
+    root = TOOLS.parents[1]
+    p = plan(["tests/tools/test_no_such_module_6278.py"])
+    assert p["mode"] == "select" and "tests/tools/test_no_such_module_6278.py" not in p["paths"]
+    assert all((root / t).exists() for t in p["paths"])
+
+
+def test_the_tree_guards_exist():
+    root = TOOLS.parents[1]
+    assert all((root / g).exists() for g in sp.TREE_GUARDS)

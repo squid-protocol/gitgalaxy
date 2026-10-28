@@ -122,6 +122,7 @@ def test_dfhfct_remote_and_the_refused_and_unnamed_forms():
         ("FILE", "A", None, None, None, None, None, None, None, None),
     ]
     assert "SYSIDNT=SYSB" in _rows(src)[0]["attributes"]
+    assert _rdo(_rows(src)[0]) == "REMOTESYSTEM(SYSB) REMOTENAME(O)"
 
 
 # --- DFHPCT / DFHPPT --------------------------------------------------------------------------
@@ -269,7 +270,9 @@ def test_indirect_and_remote_queues():
         ("TDQUEUE", "RMTQ", None, None, None, None, 80, "REMOTE", None, None),
     ]
     assert "INDDEST=CSSL" in _rows(src)[0]["attributes"]
+    assert _rdo(_rows(src)[0]) == "INDIRECTNAME(CSSL)"
     assert "RMTNAME=O1" in _rows(src)[1]["attributes"]
+    assert _rdo(_rows(src)[1]) == "REMOTESYSTEM(SYSB) REMOTENAME(O1)"
 
 
 # --- DFHTST -----------------------------------------------------------------------------------
@@ -445,7 +448,37 @@ def test_dfhtct_terminals_and_systems(operands, rtype, expected):
 def test_dfhtct_keeps_the_operands_it_does_not_lift():
     (row,) = _rows("         DFHTCT TYPE=REMOTE,SYSIDNT=SYSB,TRMIDNT=R001,RMTNAME=RR01\n")
     assert "SYSIDNT=SYSB" in row["attributes"] and "RMTNAME=RR01" in row["attributes"]
+    assert _rdo(row) == "REMOTESYSTEM(SYSB) REMOTENAME(RR01)"
     assert row["macro_table"] == "DFHTCT"
+
+
+def test_dfhtct_region_and_initial_sysidnt_control_remote_terminal_routing():
+    """RDG p.473-475 & p.552-553: TYPE=REGION sets REMOTESYSTEM until LOCAL or matching TYPE=INITIAL,SYSIDNT=."""
+    src = "\n".join(
+        [
+            "         DFHTCT TYPE=INITIAL,SUFFIX=01,SYSIDNT=HOME",
+            "         DFHTCT TYPE=TERMINAL,TRMIDNT=T001,ACCMETH=VTAM",
+            "         DFHTCT TYPE=REGION,SYSIDNT=SYSB",
+            "         DFHTCT TYPE=TERMINAL,TRMIDNT=T002,ACCMETH=VTAM",
+            "         DFHTCT TYPE=REGION,SYSIDNT=LOCAL",
+            "         DFHTCT TYPE=TERMINAL,TRMIDNT=T003,ACCMETH=VTAM",
+            "         DFHTCT TYPE=REGION,SYSIDNT=HOME",
+            "         DFHTCT TYPE=TERMINAL,TRMIDNT=T004,ACCMETH=VTAM",
+            "         DFHTCT TYPE=REMOTE,SYSIDNT=HOME,TRMIDNT=T005,RMTNAME=RR05",  # matches INITIAL SYSIDNT -> local
+            "         DFHTCT TYPE=REMOTE,SYSIDNT=SYSC,TRMIDNT=T006,RMTNAME=RR06",
+            "         DFHTCT TYPE=SYSTEM,SYSIDNT=SYSB,ACCMETH=IRC",
+        ]
+    )
+    rows = {r["name"]: r for r in _rows(src)}
+    assert [(n, _rdo(rows[n])) for n in ("T001", "T002", "T003", "T004", "T005", "T006", "SYSB")] == [
+        ("T001", ""),
+        ("T002", "REMOTESYSTEM(SYSB)"),
+        ("T003", ""),
+        ("T004", ""),
+        ("T005", "REMOTENAME(RR05)"),
+        ("T006", "REMOTESYSTEM(SYSC) REMOTENAME(RR06)"),
+        ("SYSB", "ACCESSMETHOD(IRC)"),
+    ]
 
 
 @pytest.mark.parametrize(

@@ -23,8 +23,10 @@
 #          Guide", SC33-1684-30 (CICS TS 1.3). Chapter 13 "Resource definition with
 #          macros": DFHDCT p.368-385 (TYPE=SDSCI p.375, EXTRA p.377, INDIRECT p.379,
 #          INTRA p.380-383, REMOTE p.383), DFHFCT p.391-403 (TYPE=FILE p.392,
-#          TYPE=REMOTE p.401), DFHTST p.482-488. Chapter 16 "Attribute cross-reference
-#          tables" p.530-535 (macro operand -> RDO attribute, notes 1 and 7).
+#          TYPE=REMOTE p.401), DFHTCT p.437-475 (TYPE=INITIAL p.441, TYPE=REGION p.473,
+#          TYPE=TERMINAL p.474, TYPE=REMOTE p.474-475), DFHTST p.482-488. Chapter 16
+#          "Attribute cross-reference tables" p.529-535 (macro operand -> RDO attribute,
+#          notes 1 and 7), Chapter 17 "Migrating the TCT to the CSD file" p.551-553.
 #   [MIG]  CICS for MVS/ESA Migration Guide, Version 4 Release 1, GC33-1162-04,
 #          ch.3 "Resource definition (macro) changes": the DFHPCT / DFHPPT macros are
 #          not shipped in CICS/ESA 4.1 (not supported since the introduction of
@@ -72,7 +74,8 @@
 #   DFHFCT TYPE=FILE,FILE=      FILE     DSNAME=, RECFORM=(UNDEFINED|VARIABLE|FIXED,..)
 #          [TYPE=DATASET,DATASET= is the retained pre-CICS/ESA spelling, "exactly the same"
 #          [RDG p.391, p.402]]            -> U / V / F, KEYLEN=, LRECL= -> record_size [RDG p.531]
-#   DFHFCT TYPE=REMOTE,FILE=    FILE     KEYLEN=, LRECL=; SYSIDNT= / RMTNAME= ride in `attributes`
+#   DFHFCT TYPE=REMOTE,FILE=    FILE     KEYLEN=, LRECL=; SYSIDNT= / RMTNAME= -> REMOTESYSTEM /
+#                               REMOTENAME in `attributes` [RDG p.532-533]
 #   DFHPCT TYPE=ENTRY           TRANSACTION  TRANSID=, PROGRAM=; RDO attribute restatements from
 #                               [SPRM p.104-106] and [VSE p.347-351, p.365-368] (PRIORITY,
 #                               REMOTESYSTEM, REMOTENAME, PARTITIONSET, INDOUBT)
@@ -88,8 +91,9 @@
 #          EXTRA:    DSCNAME= -> ddname; LENGTH= -> record_size; the SDSCI of that DSCNAME
 #                    supplies RECFORM / RECSIZE (below). A DESTID of more than four
 #                    characters is truncated on the right [RDG p.378].
-#          INDIRECT: INDDEST= rides in `attributes` (RDO INDIRECTNAME)
-#          REMOTE:   SYSIDNT= / RMTNAME= in `attributes`; LENGTH= -> record_size
+#          INDIRECT: INDDEST= -> INDIRECTNAME in `attributes` [RDG p.379, p.531]
+#          REMOTE:   SYSIDNT= / RMTNAME= -> REMOTESYSTEM / REMOTENAME in `attributes` [RDG p.532-533];
+#                    LENGTH= -> record_size
 #          TYPE=SDSCI,DSCNAME=  not a row: it is the DCB of the EXTRA entries naming it.
 #            RECFORM = FIXUNB FIXBLK VARUNB VARBLK, each with the A (ASA) or M (machine)
 #            control-character suffix [RDG p.376, SPRM p.95-96] -> record_format FIXED / VARIABLE
@@ -109,8 +113,13 @@
 #   DFHJCT TYPE=ENTRY,JFILEID=SYSTEM|nn   JOURNAL  [VSE ch.29 Table 41, p.270-272]: `JFILEID=SYSTEM`
 #          (system log) or decimal `nn` (1-99 user journal; 01-99 accepted); `JTYPE=`, `BUFSIZE=`,
 #          `JOUROPT=` stay in `attributes`.
-#   DFHTCT TYPE=TERMINAL|REMOTE|GPENTRY,TRMIDNT=  TERMINAL [TS, VSE p.297]; TYPE=SYSTEM,SYSIDNT=
-#          CONNECTION [TS]. TRMTYPE, ACCMETH, NETNAME, SYSIDNT, RMTNAME ride in `attributes`.
+#   DFHTCT TYPE=TERMINAL|REMOTE|GPENTRY,TRMIDNT=  TERMINAL [TS, RDG p.473-475, VSE p.297];
+#          `TYPE=REGION,SYSIDNT={ssss|LOCAL}` sets the region for subsequent `TYPE=TERMINAL`
+#          entries ("Remote terminals, method 1", [RDG Table 74 p.473-474, p.551]); `SYSIDNT=`
+#          (when not `LOCAL` and not the home region's `TYPE=INITIAL,SYSIDNT=`) and `RMTNAME=` are
+#          restated as `REMOTESYSTEM` / `REMOTENAME` [RDG p.532-533, p.551].
+#          TYPE=SYSTEM,SYSIDNT=  CONNECTION [TS, RDG p.529, p.553]; `ACCMETH=` restated as
+#          `ACCESSMETHOD(IRC|VTAM|INDIRECT|XM)`.
 #   DFHMCT TYPE=EMP,CLASS=PERFORM,ID=  MONITORPOINT (a user event monitoring point; it has no CSD
 #          counterpart; ID is `number`, `(PP,number)` or `entryname.number`, kept as written) [TS].
 #   DFHSIT TYPE=CSECT|DSECT  SIT  one row, named as IBM names the table: DFHSIT + SUFFIX= (one or two
@@ -164,6 +173,7 @@ _SDSCI_CONTROL = {"": None, "A": "ASA", "M": "MACHINE"}
 _TST_TYPES = frozenset({"LOCAL", "REMOTE", "RECOVERY", "SECURITY", "ENTRY"})
 _TRIGLEV_MAX = 32767  # [RDG p.383]
 _PCT_DTB = {"YES": "BACKOUT", "YES,NO": "COMMIT", "YES,WAIT": "WAIT"}  # [VSE p.348, p.367]
+_TCT_ACCMETH = {"INDIRECT": "INDIRECT", "IRC": "IRC", "VTAM": "VTAM", "IRC,XM": "XM"}  # [RDG p.529]
 _RDO_SEP = " => "
 
 
@@ -263,6 +273,14 @@ def _dct_row(line: int, text: str, keyed: dict[str, str], kind: str, table: str,
                 rdo.append(f"RECFORM({detail['RECFORM'].strip('()').upper()})")
     elif kind == "REMOTE":
         extra["record_size"] = _int(keyed.get("LENGTH"))
+        rdo += [
+            f"{k}({v})"
+            for k, v in (("REMOTESYSTEM", _name(keyed.get("SYSIDNT"))), ("REMOTENAME", _name(keyed.get("RMTNAME"))))
+            if v
+        ]
+    elif kind == "INDIRECT":
+        if ind := _name(keyed.get("INDDEST") or keyed.get("INDEST")):
+            rdo.append(f"INDIRECTNAME({ind})")
     elif kind == "INTRA":
         transid = _name(keyed.get("TRANSID"))
         trigger = _int(keyed.get("TRIGLEV"))
@@ -379,14 +397,18 @@ def cics_macro_table_resources(code_stream: str) -> list[dict[str, Any]]:
     # A table's suffix comes from its TYPE=INITIAL (DFHFCT TYPE=INITIAL,SUFFIX=01).
     suffix: dict[str, str] = {}
     sdsci: dict[str, dict[str, str]] = {}
+    tct_home: str | None = None
     for _line, _label, op, text in statements:
         keyed = _operands(text)
         kind = _type_of(keyed)
         if kind == "INITIAL" and keyed.get("SUFFIX"):
             suffix.setdefault(op, keyed["SUFFIX"].strip("'\"").upper())
+        if op == "DFHTCT" and kind == "INITIAL" and keyed.get("SYSIDNT") and tct_home is None:
+            tct_home = _name(keyed.get("SYSIDNT"))
         elif op == "DFHDCT" and kind == "SDSCI" and keyed.get("DSCNAME"):
             sdsci.setdefault(keyed["DSCNAME"].strip("'\"").upper(), keyed)
     rows: list[dict[str, Any]] = []
+    tct_region: str | None = None
     for line, _label, op, text in statements:
         keyed = _operands(text)
         kind = _type_of(keyed)
@@ -395,6 +417,18 @@ def cics_macro_table_resources(code_stream: str) -> list[dict[str, Any]]:
             # DATASET= / TYPE=DATASET: "retained for compatibility ... exactly the same" [RDG p.391, p.402]
             name = _name(keyed.get("FILE") or keyed.get("DATASET"))
             if name:
+                rdo = (
+                    [
+                        f"{k}({v})"
+                        for k, v in (
+                            ("REMOTESYSTEM", _name(keyed.get("SYSIDNT"))),
+                            ("REMOTENAME", _name(keyed.get("RMTNAME"))),
+                        )
+                        if v
+                    ]
+                    if kind == "REMOTE"
+                    else []
+                )
                 rows.append(
                     _row(
                         "FILE",
@@ -402,6 +436,7 @@ def cics_macro_table_resources(code_stream: str) -> list[dict[str, Any]]:
                         table,
                         line,
                         text,
+                        rdo,
                         dsname=_name(keyed.get("DSNAME")),
                         record_format=_fct_recform(keyed.get("RECFORM")),
                         key_length=_int(keyed.get("KEYLEN")),
@@ -452,14 +487,30 @@ def cics_macro_table_resources(code_stream: str) -> list[dict[str, Any]]:
             name = _jfileid(keyed.get("JFILEID"))
             if name:
                 rows.append(_row("JOURNAL", name, table, line, text))
+        elif op == "DFHTCT" and kind == "REGION":
+            # Remote terminals, method 1 [RDG Table 74 p.473-474, p.551]: SYSIDNT=LOCAL or the
+            # home region's SYSIDNT resets subsequent TYPE=TERMINAL macros to the local region.
+            reg = _name(keyed.get("SYSIDNT"))
+            tct_region = None if reg in (None, "LOCAL", tct_home) else reg
         elif op == "DFHTCT" and kind in ("TERMINAL", "REMOTE", "GPENTRY"):
             name = _name(keyed.get("TRMIDNT"))
             if name:
-                rows.append(_row("TERMINAL", name, table, line, text))
+                sysid = _name(keyed.get("SYSIDNT")) or (tct_region if kind == "TERMINAL" else None)
+                remote_sys = None if sysid in (None, "LOCAL", tct_home) else sysid
+                rdo = [
+                    f"{k}({v})"
+                    for k, v in (("REMOTESYSTEM", remote_sys), ("REMOTENAME", _name(keyed.get("RMTNAME"))))
+                    if v
+                ]
+                rows.append(_row("TERMINAL", name, table, line, text, rdo))
         elif op == "DFHTCT" and kind == "SYSTEM":
             name = _name(keyed.get("SYSIDNT"))
             if name:
-                rows.append(_row("CONNECTION", name, table, line, text))
+                accm = ",".join(
+                    p.strip("() '\"").upper() for p in (keyed.get("ACCMETH") or "").split(",") if p.strip("() '\"")
+                )
+                rdo = [f"ACCESSMETHOD({m})"] if (m := _TCT_ACCMETH.get(accm)) else []
+                rows.append(_row("CONNECTION", name, table, line, text, rdo))
         elif op == "DFHMCT" and kind == "EMP":
             name = _emp_id(keyed.get("ID"))
             if name:

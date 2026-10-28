@@ -125,6 +125,7 @@ ALIAS_DECL = re.compile(
     r"|\busing\s+([A-Z]\w*)\s*=\s*(?:typename\s+)?([A-Za-z_][\w:]*)"
 )
 CLASS_DECL = re.compile(r"\b(?:class|struct)\s+(?:[A-Z_]+\s+)?([A-Za-z_]\w*)\s*[:{<;]")
+WRAPPER_EXTS = frozenset(".template .tmpl .bak .old .orig .dist .gen .in".split())  # language_lens SAFE_WRAPPERS
 ALIASES = ""  # the key of `class_names` that holds the alias names (no class is named "")
 CPP_EXTS = frozenset(".h .hh .hpp .hxx .inl .cc .cpp .cxx".split())
 KEYWORDS = frozenset(
@@ -461,13 +462,8 @@ def _initializers(node):
 
 
 def _owner(node):
-    """The class a constructor definition belongs to: the class body it sits in, else the scope of ``Cls::Cls``."""
-    up = node.parent
-    while up is not None:
-        if up.type in ("class_specifier", "struct_specifier"):
-            name = up.child_by_field_name("name")
-            return decode_bytes(name.text) if name is not None else None
-        up = up.parent
+    """The class a constructor definition belongs to: the scope of ``Cls::Cls`` when it is written so (an out-of-line
+    constructor inside an enclosing class body is still ``Cls``'s), else the class body it sits in."""
     decl = node.child_by_field_name("declarator")
     while decl is not None and decl.type != "qualified_identifier":
         decl = decl.child_by_field_name("declarator")
@@ -481,7 +477,15 @@ def _owner(node):
             inner,
             inner.child_by_field_name("scope") or scope,
         )  # `A::B::B` nests: the class is the innermost scope
-    return bare(decode_bytes(scope.text)) if scope is not None else None
+    if scope is not None:
+        return bare(decode_bytes(scope.text))
+    up = node.parent
+    while up is not None:
+        if up.type in ("class_specifier", "struct_specifier"):
+            name = up.child_by_field_name("name")
+            return decode_bytes(name.text) if name is not None else None
+        up = up.parent
+    return None
 
 
 def _bases(classes, node):
@@ -489,7 +493,15 @@ def _bases(classes, node):
     owner = _owner(node)
     if owner in classes:
         return classes[owner] | classes.get(ALIASES, set())
-    return set().union(*classes.values()) if owner is None else classes.get(ALIASES, set())
+    return set().union(*classes.values())  # an owner declared nowhere scanned (a library's) may list any base
+
+
+def _cpp_ext(name):
+    """Whether a file name is C++ source, a wrapper suffix (`.cpp.old`, `.h.bak`) looked through as the engine does."""
+    stem, ext = os.path.splitext(name.lower())
+    if ext in WRAPPER_EXTS:
+        ext = os.path.splitext(stem)[1]
+    return ext in CPP_EXTS
 
 
 def class_names(repo, vendored=None):
@@ -501,7 +513,7 @@ def class_names(repo, vendored=None):
     for root, dirs, files in os.walk(repo):
         dirs[:] = [d for d in dirs if d != ".git"]
         for f in files:
-            if os.path.splitext(f)[1].lower() in CPP_EXTS:
+            if _cpp_ext(f):
                 if vendored and vendored(os.path.relpath(Path(root) / f, repo).replace("\\", "/")):
                     continue
                 try:
@@ -518,6 +530,8 @@ def class_names_of_text(*texts):
     for text in texts:
         clean = STRIP.sub(" ", text)
         declared.update(CLASS_DECL.findall(clean))
+        for name in CLASS_DECL.findall(clean):
+            bases_of.setdefault(name, set())  # a declared class with no base list owns no base entries
         aliases.extend((m.group(2) or m.group(3), m.group(1) or m.group(4)) for m in ALIAS_DECL.finditer(clean))
         for head in BASE_LIST.finditer(clean):
             owner = CLASS_HEAD.search(head.group(0))

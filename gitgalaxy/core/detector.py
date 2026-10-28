@@ -1966,7 +1966,7 @@ _NON_NEWLINE = re.compile(r"[^\n]")
 # others -- a rust `fn def(..)` or go `func Class(..)` called by its name was dropped. Per language,
 # the words that are NOT keywords there.
 _C_FAMILY_NOT_KEYWORDS = frozenset(
-    {"def", "function", "include", "require", "require_once", "include_once", "except", "finally"}
+    {"def", "function", "include", "require", "require_once", "include_once", "except", "finally", "import"}
 )
 _CALLS_OUT_GLOBAL_IGNORE_NOT_KEYWORDS: dict[str, frozenset[str]] = {
     "rust": frozenset(
@@ -2036,8 +2036,8 @@ def _ctor_init_span(text: str) -> tuple[int, int] | None:
     The list is the text after a lone `:` that follows the parameter list's `)` and precedes the body's first `{`
     (a brace-initialised member ends the span early, so entries after it keep today's behaviour).
     """
-    end = text.find("{")
-    head = text if end < 0 else text[:end]
+    body = _ctor_body_start(text)
+    head = text if body < 0 else text[:body]
     depth = 0
     closed = False
     i = 0
@@ -2057,6 +2057,19 @@ def _ctor_init_span(text: str) -> tuple[int, int] | None:
             return None
         i += 1
     return None
+
+
+def _ctor_body_start(text: str) -> int:
+    """The index of the first `{` outside any parenthesis (a `{}` default argument sits inside the parameter list), else -1."""
+    depth = 0
+    for i, ch in enumerate(text):
+        if ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth -= 1
+        elif ch == "{" and depth <= 0:
+            return i
+    return -1
 
 
 def _in_init_list_head(text: str, span: tuple[int, int] | None, pos: int) -> bool:

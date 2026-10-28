@@ -256,8 +256,9 @@ DEFINITION: dict[str, Any] = {
             r"(?!(?:if|for|while|switch|catch|else|case|__except|__finally|RpcExcept|RpcFinally|foreach|Q_FOREACH|forever)\b)"
             # #6266: an indented `SERVER_ONLY(\n if (x) {..})` (the body starts on the next line) or `AGOBJECT_FOREACH_CHILD(d,
             # &list, t) {` (an address-of argument) is a statement macro inside a body, not a definition. Plain-identifier
-            # arguments (`DEFINE_THING(a, b) {`) stay a definition; column 0 is the function-macro branch's, below.
-            r"(?!(?<=[ \t])[A-Z][A-Z0-9]*_[A-Z0-9_]*[ \t]*\((?:[ \t]*\n|[^()\n]*&))"
+            # arguments (`DEFINE_THING(a, b) {`) stay a definition; column 0 is the function-macro branch's, below. A bare
+            # `LOG_AS("x")` (no `;`) before an indented `try {` is a statement, not a function-try-block head.
+            r"(?!(?<=[ \t])[A-Z][A-Z0-9]*_[A-Z0-9_]*[ \t]*\((?:[ \t]*\n|[^()\n]*&|[^()\n]*\)[ \t]*\n[ \t]*try\b))"
             r"(?:template[ \t\n]*<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>[ \t\n]*)?"
             # 2. LINKAGE & STORAGE MODIFIERS (Now supports vertical formatting)
             r"(?:(?:static|inline|extern|virtual|_Noreturn|constexpr|consteval|constinit|__inline__|__forceinline)[ \t\n]+){0,5}"

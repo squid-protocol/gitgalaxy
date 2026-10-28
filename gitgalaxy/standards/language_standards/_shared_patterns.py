@@ -274,9 +274,11 @@ CALLS_OUT_C_STYLE_NO_ANNOTATION = re.compile(rf"(?<!@)\b([{ID_START}][{ID_CONTIN
 # `a <> (b)` is no C++/TypeScript/C# comparison, and the list still opens right after the name.
 _GENERIC_ARG_CHAR = r"[^<>()\n;{}=|!?\"']"
 _GENERIC_FNPTR = r"\([ \t]*[^<>()\n;{}=|!?\"'*&]{0,100}[*&][ \t]*\)[ \t]*\(" + _GENERIC_ARG_CHAR + r"{0,200}\)"
+# #6266: `de::map<decltype(segs)>(f)`: a `decltype(` ... `)` operand is a fourth element (one level, bounded).
+_GENERIC_DECLTYPE = r"decltype[ \t]*\(" + _GENERIC_ARG_CHAR + r"{0,100}\)"
 CALLS_OUT_C_STYLE_GENERIC = re.compile(
     rf"\b([{ID_START}][{ID_CONTINUE}]*)"
-    r"(?:<(?:" + _GENERIC_ARG_CHAR + r"|<" + _GENERIC_ARG_CHAR + r"{0,200}>|" + _GENERIC_FNPTR + r"){0,200}>[ \t]*)?"
+    r"(?:<(?:" + _GENERIC_ARG_CHAR + r"|<" + _GENERIC_ARG_CHAR + r"{0,200}>|" + _GENERIC_FNPTR + r"|" + _GENERIC_DECLTYPE + r"){0,200}>[ \t]*)?"
     r"\s*\("
 )
 

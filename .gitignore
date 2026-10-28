@@ -273,3 +273,5 @@ docs/language_status/progress_issues_cache.json
 
 # #4980: fetched by equivalence_db2.fetch_odbc_cli() into the Docker build context; never committed
 tests/equivalence/linuxx64_odbc_cli.tar.gz
+*.db-shm
+*.db-wal

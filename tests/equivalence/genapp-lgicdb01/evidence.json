@@ -27,7 +27,7 @@
     "tests/equivalence/genapp-lgicdb01/**"
    ],
    "files": 1,
-   "sha256": "c221c56f351b0654faa1bddc70b1b51bba20a721227c5ac20d997782375c82c5"
+   "sha256": "07ab3d379525dc48a7126a82933d8756e4859788fdf92e430654624380d9a690"
   },
   "harness": {
    "paths": [
@@ -71,9 +71,9 @@
     "tests/equivalence/ims/ggdli.c"
    ],
    "files": 47,
-   "sha256": "96617f89f41e6ef92d4557e201c6ddaa4a4413d4532cf8bfe39f61cbb25ab508",
+   "sha256": "aa4eb15e4f5b47ad8327f0c6b59ad6449f616a6ec8f3934ddefc152ad532d2f3",
    "components": {
-    "oracle:cics-stub": "36b1f203a21055b9b130e4b63bac56d0c76e909f9c19cb7e974de03976b44ef7",
+    "oracle:cics-stub": "8886b8de162b5ad9a82f3775c65d9070a2876e66458ad6fb70e7d80b3a4c38e0",
     "oracle:core": "b4bb775f0a30746a6054f259b4c8613e08cb0d8cf3b40f4a789d953aca4144a0",
     "oracle:db2": "fa83d3d62d91ff633b4697cd7ff1965722d024ee9453567ef5e2b0240d6eb44f",
     "oracle:image-db2": "f138cc0d724e5e2bb4ff947dcd4c1cfed39aa35bfd7dcb27ff18a4e20b2c6198",
@@ -85,7 +85,7 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 114,
-   "sha256": "dc49d5b2e6d1281ca8546934dd97e89a6de95d2846dbc1b04b08524c7d2c476f",
+   "sha256": "677fa62263ff7acbf2597c620fa35c8bcd3c5e0c01f879c446792cfe50524c49",
    "components": {
     "generator:cobolrt/Accept.java": "4bc260fc6386c11e4654cc76eb67a87ca1fad76647373d1e75484ed61b6a0cf3",
     "generator:cobolrt/Cobol.java": "0e5d898e6fb899e23c540e201d019a4dcd8a372df07d6b1d9c80a7df261a0c9f",
@@ -102,7 +102,7 @@
     "generator:cobolrt/Storage.java": "597fe5b2cd4190c4b87dfafd7facc73de3079efebe6188bac5862b78d3b3edf3",
     "generator:cobolrt/Zoned.java": "089f829155664fdd82f2f99a0699cfb58e40910621b1136eabd2b16c51415349",
     "generator:cobolrt/batch/DetFiles.java": "fe03a6459ba1dcc2a8ad367c4b7cd1debaf1ab9c661697c4841c726f99354ba1",
-    "generator:cobolrt/cics/DetCics.java": "3ac8d4ca4c7a9b524beed9e846fc1bcae354b2eebb6cd7e72bcbc04df79d0727",
+    "generator:cobolrt/cics/DetCics.java": "58cd6b397022a40e8ecceecbfb06de21305bebb9b40677695838a7ddf8fb4a97",
     "generator:cobolrt/cics/DetJustify.java": "ecf7fab2a14ac125e87f05d7be9bbb13610d1423fc7410c644d00b5767fb812a",
     "generator:cobolrt/cics/DetMq.java": "40204edf5e82cd78739db956e424860a0121cb3ec44e0a9c1e508ed41fcf3187",
     "generator:cobolrt/dli/DetDli.java": "56e263bc5b387bd987e6a86ee14ec69a1f72f489bdd2aa921b3e8ae4c96c8902",
@@ -241,12 +241,12 @@
    },
    "runtime_sha256": "95d95b29ee402f9e60e387bd556e5076af66d0bd4c4f549241f603b4f4c3cc89"
   },
-  "digest": "3a675f91356208fe07037145d4a4b30dd9448441b5d2b61cd2dcc11a71604cac"
+  "digest": "5612d27bbed8f78423b1f1a5586c63011817a36fdb22c178e526d6be275b1859"
  },
  "proof": {
-  "at": "2026-10-28T20:45:37Z",
+  "at": "2026-10-28T23:24:12Z",
   "verdict": "proven",
-  "runs": 17,
+  "runs": 18,
   "fault_runs": 4,
   "environments": null,
   "outputs": {
@@ -378,6 +378,17 @@
      "WRITEQ TS"
     ]
    },
+   "no-commarea": {
+    "equal": 5,
+    "records": 5,
+    "commands": [
+     "ABEND",
+     "LINK",
+     "RETURN",
+     "WRITEQ-TD",
+     "WRITEQ-TS"
+    ]
+   },
    "customer-1--sql-lgicdb01-169": {
     "equal": 2,
     "records": 2,
@@ -392,16 +403,16 @@
   "java_failed": false,
   "facade": {
    "verdict": "proven",
-   "runs": 17,
-   "passed": 17,
+   "runs": 18,
+   "passed": 18,
    "entry_points": [
     "handleLink"
    ],
    "failed": [],
    "error": null
   },
-  "harness_commit": "73bcf2df6d209fa4dce8790960a2acbc036522b4+uncommitted",
-  "inputs_digest": "3a675f91356208fe07037145d4a4b30dd9448441b5d2b61cd2dcc11a71604cac"
+  "harness_commit": "45c15c28668dd0d6742f688eb1588c687b55abc8+uncommitted",
+  "inputs_digest": "5612d27bbed8f78423b1f1a5586c63011817a36fdb22c178e526d6be275b1859"
  },
  "coverage": {
   "paragraphs": {
@@ -409,22 +420,10 @@
    "live": 4
   },
   "branches": {
-   "covered": 9,
+   "covered": 11,
    "total": 12
   },
   "uncovered_branches": [
-   {
-    "line": 119,
-    "kind": "IF",
-    "outcome": "true",
-    "unit": "MAINLINE"
-   },
-   {
-    "line": 230,
-    "kind": "IF",
-    "outcome": "false",
-    "unit": "WRITE-ERROR-MESSAGE"
-   },
    {
     "line": 231,
     "kind": "IF",
@@ -437,7 +436,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "3a675f91356208fe07037145d4a4b30dd9448441b5d2b61cd2dcc11a71604cac"
+  "inputs_digest": "5612d27bbed8f78423b1f1a5586c63011817a36fdb22c178e526d6be275b1859"
  },
  "reach": {
   "entry_points": [
@@ -555,7 +554,7 @@
    },
    {
     "path": "tests/equivalence/cics/ggcics.c",
-    "sha256": "051d73e14b40b46d78e39c5cdb4f9ee137dc821cf00867692c26c86ae01d757a"
+    "sha256": "53c4e18aac66f6d5b26dbd658cfabc30493c909af9ce6c5f0345f3b76bb29a64"
    },
    {
     "path": "tests/equivalence/cics/ggcics_conditions.c",

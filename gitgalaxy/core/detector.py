@@ -2816,6 +2816,10 @@ def _blank_line(line: str) -> str:
 # Languages whose indentation scan treats an open bracket as a continuation (#6266).
 _BRACKET_CONTINUATION_LANGS = frozenset({"python", "micropython", "embedded_python"})
 
+# GCC `__asm__(...)` is a statement of the C family's own grammar, not a foreign block (#6266): handing it to the
+# assembly segment cut the enclosing function there (srb2 win_dbg.c RecordExceptionInfo lost 380 lines of calls).
+_NATIVE_INLINE_ASM_HOSTS = frozenset({"c", "cpp", "objective-c"})
+
 
 class StructuralExtractor:
     """
@@ -4221,6 +4225,8 @@ class StructuralExtractor:
 
         for t in triggers:
             if t["start"] < last_idx:
+                continue
+            if t["target"] == "assembly" and primary_id in _NATIVE_INLINE_ASM_HOSTS:
                 continue
 
             if t["pair"]:

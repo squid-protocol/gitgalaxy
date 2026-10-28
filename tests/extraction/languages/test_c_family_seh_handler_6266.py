@@ -73,3 +73,23 @@ def test_a_function_whose_name_holds_test_keeps_its_name(name):
 @pytest.mark.parametrize("macro, unit", [("TEST(Suite, Name)", "Name"), ("TEST_F(Fixture, Case)", "Case")])
 def test_a_test_macro_at_the_start_of_a_line_still_names_the_test(macro, unit):
     assert list(_units("cpp", "%s\n{\n  check();\n}\n" % macro)) == [unit]
+
+
+@pytest.mark.parametrize("lang", ["c", "cpp", "objective-c"])
+@pytest.mark.parametrize(
+    "stmt",
+    [
+        '__asm__("nop");',
+        '__asm__ __volatile__("movl %%fs : 4, %%eax": "=a"(top));',
+        '__asm__ volatile ("nop");',
+        "__asm__(\n    \"nop\"\n    : \"=a\"(top));",
+    ],
+)
+def test_a_line_leading_gcc_asm_statement_does_not_cut_the_unit(lang, stmt):
+    code = f"long f(int *p)\n{{\n  before(p);\n  {stmt}\n  after(p);\n  return 0;\n}}\nvoid g(void)\n{{\n  other();\n}}\n"
+    units = _units(lang, code)
+    assert list(units) == ["f", "g"]
+    # the qualifier word (`volatile`) can still read as a call: only the unit's extent is pinned here
+    calls = units["f"]["calls_out_to"]
+    assert calls[0] == "before" and calls[-1] == "after"
+    assert units["g"]["calls_out_to"] == ["other"]

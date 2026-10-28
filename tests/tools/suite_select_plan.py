@@ -9,11 +9,8 @@
 ground_truth_plan.py does for `ground-truth`):
 
 * `skip`   every changed file is `prose` (docs / Markdown no test or engine code opens): nothing to run, report success.
-* `select` every changed file is `prose`, `test-read-doc`, `agent-config` or a test module, and each reader the classifier lists for the
+* `select` every changed file is `prose`, `test-read-doc` or `agent-config`, and each reader the classifier lists for the
            test-read ones is a test: run only those (`paths`, pytest arguments).
-* `select` also when a changed file is a test module (`tests/**/test_*.py`, #6278 item 5): that module, the test modules
-           that import it by name, and TREE_GUARDS (the tests that scan the tests/ tree for a repo rule) run. Any other
-           `tests/` file (conftest, fixtures, data, a helper) is full: a test file cannot be mapped to what reads it.
 * `full`   anything else, any reader that is the engine or a root-level script (it cannot be mapped to a test), an
            unreadable or empty diff, the `shepherd:full` label, and every event that is not a pull_request.
 
@@ -37,31 +34,6 @@ import change_classifier  # noqa: E402
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SELECTABLE = ("prose", "test-read-doc", "agent-config")
 FULL_LABEL = "shepherd:full"
-# Tests that read the whole tests/ tree, so any new or edited test file can trip them (the worker pre-PR guard list).
-TREE_GUARDS = (
-    "tests/test_source_reads.py",
-    "tests/test_unicode_gauntlet.py",
-    "tests/test_golden_store.py",
-    "tests/cobol_mainframe/test_java_subprocess_utf8.py",
-    "tests/cobol_mainframe/test_proof_reach.py",
-    "tests/tools/test_posix_only_imports_4934.py",
-)
-
-
-def is_test_module(f: str) -> bool:
-    return f.startswith("tests/") and f.endswith(".py") and Path(f).name.startswith("test_")
-
-
-def test_module_targets(f: str, root: Path = REPO_ROOT) -> list[str]:
-    """A changed test module (when it still exists), plus every test module that imports it by its bare name."""
-    stem = Path(f).stem
-    rx = re.compile(rf"^[ \t]*(?:from|import)[ \t]+{re.escape(stem)}\b", re.M)
-    hits = [f] if (root / f).exists() else []
-    for t in sorted((root / "tests").rglob("test_*.py")):
-        rel = t.relative_to(root).as_posix()
-        if rel != f and rx.search(change_classifier._text(t)):
-            hits.append(rel)
-    return hits
 
 
 def test_target(scope: str, root: Path = REPO_ROOT) -> list[str] | None:
@@ -97,17 +69,12 @@ def plan(
         return {**full, "reason": "no changed files found (the diff is unreadable or empty)"}
     refs = change_classifier.load() if refs is None else refs
     areas = {f: change_classifier.area(f, refs) for f in files}
-    modules = [f for f in files if is_test_module(f)]
-    other = sorted(f for f, a in areas.items() if a not in SELECTABLE and f not in modules)
+    other = sorted(f for f, a in areas.items() if a not in SELECTABLE)
     if other:
         return {**full, "reason": f"{len(other)} changed file(s) are not docs / agent config, first: {other[0]}"}
     targets: set[str] = set()
-    for f in modules:
-        targets.update(test_module_targets(f, root))
-    if modules:
-        targets.update(g for g in TREE_GUARDS if (root / g).exists())
     for f, a in areas.items():
-        if a == "prose" or f in modules:
+        if a == "prose":
             continue
         for scope in change_classifier.readers_of(f, refs):
             t = test_target(scope, root)
@@ -117,7 +84,7 @@ def plan(
     if not targets:
         return {"mode": "skip", "reason": "every changed file is prose no test or engine code opens", "paths": []}
     paths = sorted(t for t in targets if not any(t != u and t.startswith(u + "/") for u in targets))
-    return {"mode": "select", "reason": f"docs / agent config / test modules only: the {len(paths)} reader(s) run", "paths": paths}
+    return {"mode": "select", "reason": f"docs / agent config only: the {len(paths)} reader(s) run", "paths": paths}
 
 
 def replay(prs: list[dict], refs: dict | None = None, root: Path = REPO_ROOT) -> dict:

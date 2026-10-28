@@ -337,7 +337,7 @@ The critical path (time-to-green) is unchanged on an engine PR: it is `full-suit
 
 
 ## Smoke suite plan (#6278 item 3)
-`suite_select_plan.py` (the classifier's `area()`) plans the `full-suite` on a PR: `skip` (prose nothing opens, `full-suite` reports success), `select` (docs / agent config / test modules only: just the tests that read the docs, or a changed test module, the test modules that import it and the tree-wide guards `TREE_GUARDS`; any other `tests/` file is `full`) or `full`; `shepherd:full` forces full. Push, nightly and dispatch always run the full suite. `push: paths-ignore: docs/**` stays on purpose: a push cannot be planned (the diff is not a PR's), and dropping it would run the full suite on every docs-bot push to main; the PR run already tested those docs.
+`suite_select_plan.py` (the classifier's `area()`) plans the `full-suite` on a PR: `skip` (prose nothing opens, `full-suite` reports success), `select` (docs / agent config only: just the tests that read them) or `full`; `shepherd:full` forces full. Push, nightly and dispatch always run the full suite. `push: paths-ignore: docs/**` stays on purpose: a push cannot be planned (the diff is not a PR's), and dropping it would run the full suite on every docs-bot push to main; the PR run already tested those docs.
 
 `python tests/tools/suite_select_plan.py --replay 50` (needs `gh`) plans the last N merged PRs and prints the skip / select / full counts. Measured 2026-10-25 on the last 50 merged PRs: 0 skip, 8 select (16%), 42 full (84%). The suite runs in full for most PRs because most change the engine or `tests/tools`; the select share is the docs / agent-config PRs, each running only its readers instead of the whole suite.
 

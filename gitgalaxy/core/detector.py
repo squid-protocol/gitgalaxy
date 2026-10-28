@@ -1361,15 +1361,17 @@ def c_macro_body_calls(code: str) -> dict[str, frozenset[str] | None]:
 
 
 def c_repo_macro_body_calls(texts: Any) -> dict[str, frozenset[str]]:
-    """#6770: `c_macro_body_calls` over many C/C++ texts. A macro two files define differently, or one that calls
-    nothing, is left out."""
+    """#6770: `c_macro_body_calls` over many C/C++ texts. Every function-like macro is listed, so an expansion can tell
+    a macro its body invokes from a function: one that calls nothing, or that two files define differently, maps to
+    the empty set. Empty when no macro calls anything."""
     table: dict[str, frozenset[str] | None] = {}
     for text in texts:
         if "#" not in text or "define" not in text:
             continue
         for name, calls in c_macro_body_calls(text).items():
             table[name] = calls if table.get(name, calls) == calls else None
-    return {name: calls for name, calls in table.items() if calls}
+    out = {name: calls or frozenset() for name, calls in table.items()}
+    return out if any(out.values()) else {}
 
 
 def set_c_repo_macro_calls(table: dict[str, frozenset[str]]) -> None:
@@ -1379,7 +1381,8 @@ def set_c_repo_macro_calls(table: dict[str, frozenset[str]]) -> None:
 
 
 def _macro_expansion_callees(callees: Any, table: dict[str, frozenset[str]]) -> list[str]:
-    """#6770: the functions the macros among `callees` call, through macros that call macros (bounded, cycle-safe)."""
+    """#6770: the functions the macros among `callees` call, through macros that call macros (bounded, cycle-safe).
+    A macro a body invokes is expanded in turn, never listed: the compiler calls no macro."""
     out: dict[str, None] = {}
     seen: set[str] = set()
     level = [c for c in callees if c in table]
@@ -1390,9 +1393,10 @@ def _macro_expansion_callees(callees: Any, table: dict[str, frozenset[str]]) -> 
                 continue
             seen.add(macro)
             for callee in sorted(table[macro]):
-                out[callee] = None
                 if callee in table:
                     nxt.append(callee)
+                else:
+                    out[callee] = None
         level = nxt
     return list(out)
 

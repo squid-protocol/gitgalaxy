@@ -255,6 +255,7 @@ def _init_worker(
     census: set[str],
     offline: bool = False,
     c_macro_args: dict[str, Any] | None = None,
+    c_unset_toggles: frozenset[str] | None = None,
 ):
     """
     Initializes the CPU-bound optical modules within the worker process's isolated memory.
@@ -267,8 +268,9 @@ def _init_worker(
     compiled regex objects across the IPC (Inter-Process Communication) boundary.
     """
     from gitgalaxy.core.detector import StructuralExtractor as OpticalDetector
-    from gitgalaxy.core.detector import set_c_repo_macro_args
+    from gitgalaxy.core.detector import set_c_repo_macro_args, set_c_repo_unset_toggles
 
+    set_c_repo_unset_toggles(c_unset_toggles or frozenset())  # #6770: reset like the macro table below
     set_c_repo_macro_args(c_macro_args or {})  # #5563: always reset, so an in-process scan never inherits the last one
 
     if offline:  # #5235: a spawn-start worker is a fresh interpreter; the assess guard does not reach it by inheritance
@@ -2493,6 +2495,49 @@ class Orchestrator:
 
         return c_repo_macro_name_args(texts())
 
+    # #6770: C-family sources (headers included) and the build files that may define a toggle on a command line.
+    _C_SOURCE_EXTS = _C_HEADER_EXTS | frozenset({".c", ".cc", ".cpp", ".cxx", ".c++", ".m", ".mm", ".def", ".inc"})
+    _BUILD_FILE_NAMES = frozenset(
+        {
+            "cmakelists.txt",
+            "makefile",
+            "gnumakefile",
+            "meson.build",
+            "meson_options.txt",
+            "configure.ac",
+            "configure.in",
+        }
+        | {"sconstruct", "sconscript", "build", "build.bazel", "workspace", "package.json"}
+    )
+    _BUILD_FILE_EXTS = frozenset(
+        {".cmake", ".mk", ".am", ".ac", ".in", ".gyp", ".gypi", ".bazel", ".bzl", ".pro", ".pri", ".vcxproj", ".props"}
+        | {".build", ".make", ".mak", ".gradle", ".cbp", ".dsp", ".sh", ".yml", ".yaml"}
+    )
+
+    def _c_repo_unset_toggles(self) -> frozenset[str]:
+        """#6770: the feature toggles tested in a C/C++ conditional that no file of the scan defines, names in a
+        build file or reads in code (`preproc_toggles.unset_toggles`). Empty when the scan has no C/C++ source."""
+        from gitgalaxy.core.preproc_toggles import unset_toggles
+
+        rels = sorted({*self.stem_map.values(), *self.ram_cache.keys()})
+        c_rels = [r for r in rels if Path(r).suffix.lower() in self._C_SOURCE_EXTS]
+        if not any(Path(r).suffix.lower() in (".c", ".cc", ".cpp", ".cxx", ".c++", ".m", ".mm") for r in c_rels):
+            return frozenset()
+        build_rels = [
+            r
+            for r in rels
+            if Path(r).name.lower() in self._BUILD_FILE_NAMES or Path(r).suffix.lower() in self._BUILD_FILE_EXTS
+        ]
+
+        def texts(group):
+            for rel in group:
+                try:
+                    yield read_source(self.root / self.disk_paths.get(rel, rel), limit=2_000_000).text
+                except OSError:
+                    continue
+
+        return unset_toggles(texts(c_rels), texts(build_rels))
+
     def _extract_features_parallel(self):
         """
         Phase 1: Parallel Extraction & Asset Filtering via Multi-Core Map-Reduce.
@@ -2525,6 +2570,7 @@ class Orchestrator:
             self.census,
             os.environ.get("GITGALAXY_ASSESS_OFFLINE") == "1",
             self._c_repo_macro_args(),
+            self._c_repo_unset_toggles(),
         )
         # #3913: never more workers than files, and none at all for a small scan (or a pinned
         # single worker) -- the files are extracted in this process, by the same worker code.

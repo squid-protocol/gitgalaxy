@@ -1,0 +1,22 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "mortgage-cmort",
+  "entries": [
+    {
+      "unit": "A300-SEND-MAP",
+      "line": 156,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@157",
+      "family": "G",
+      "reason": "`WHEN SEND-MAPONLY` (W-SEND-FLAG '3'): every PERFORM of A300-SEND-MAP (85, 92, 111, 152) follows a SET of W-SEND-FLAG to SEND-ERASE ('1'), SEND-ALL ('5') or SEND-DATAONLY ('2'); the only SET SEND-DATAONLY-ALARM ('4') is commented out (138-139) and nothing SETs SEND-MAPONLY ('3') or MOVEs to W-SEND-FLAG."
+    },
+    {
+      "unit": "A300-SEND-MAP",
+      "line": 156,
+      "kind": "EVALUATE",
+      "outcome": "none",
+      "family": "G",
+      "reason": "no WHEN matches: the flag is always '1', '2' or '5' when A300 runs, each named by a WHEN (every PERFORM of A300-SEND-MAP (85, 92, 111, 152) follows a SET of W-SEND-FLAG to SEND-ERASE ('1'), SEND-ALL ('5') or SEND-DATAONLY ('2'); the only SET SEND-DATAONLY-ALARM ('4') is commented out (138-139) and nothing SETs SEND-MAPONLY ('3') or MOVEs to W-SEND-FLAG.)"
+    }
+  ]
+}

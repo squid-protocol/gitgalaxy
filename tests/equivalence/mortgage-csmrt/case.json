@@ -27,7 +27,7 @@
   "version": "6.1",
   "evidence": "Migration/jclToZBuilder/samples/BLDMORT.jcl compiles EPSMPMT with STEPLIB IGY.V6R1M0.SIGYCOMP (Enterprise COBOL 6.1) and no PARM: the program's CBL NUMPROC(MIG) compiles as the default NUMPROC(NOPFD) (oracle_assumptions.md C5)"
  },
- "notes": "IBM DBB MortgageApplication's CICS-LINKed front for the payment calculator: EPSCSMRT moves its COMMAREA into EPSPDATA, CALLs the program its table names (WS-CALLED-PROGRAM = EPSMPMT, a case `subprograms` entry: det-translated and run through handleCall, #4803), and copies the payment, the error text and a return code (0, or 8 when the text is not spaces) back. Its scenarios are the VALIDATION paths only (principal not > 0, over 100000000.01, rate not > 0): EPSMPMT's A999 returns before the annuity formula, so its float `**` (line 125, oracle_assumptions.md C6) and the dead FUNCTION ANNUITY (line 144) are never reached. The payment itself (the success path) is not compared: mortgage-mpmt carries it, unproven on purpose (#4271).",
+ "notes": "IBM DBB MortgageApplication's CICS-LINKed front for the payment calculator: EPSCSMRT moves its COMMAREA into EPSPDATA, CALLs the program its table names (WS-CALLED-PROGRAM = EPSMPMT, a case `subprograms` entry: det-translated and run through handleCall, #4803), and copies the payment, the error text and a return code (0, or 8 when the text is not spaces) back. Its scenarios are the VALIDATION paths (principal not > 0, over 100000000.01, rate not > 0: EPSMPMT's A999 returns before the annuity formula) and one 30-year payment (payment-30-years, #6072), which runs EPSMPMT's annuity formula and its IEEE binary64 `**` (line 125, oracle_assumptions.md C6) and takes the RETURN-ERROR = SPACES arm. The dead FUNCTION ANNUITY (line 144) is never reached.",
  "scenarios": [
   {
    "name": "principal-zero",
@@ -88,6 +88,18 @@
     "EPSPCOM-YEAR-MONTH-IND": "Y"
    },
    "why": "a negative rate: error 3"
+  },
+  {
+   "name": "payment-30-years",
+   "commarea": {
+    "PROCESS-INDICATOR": "3",
+    "EPSPCOM-PRINCIPLE-DATA": "200000.00",
+    "EPSPCOM-NUMBER-OF-YEARS": 30,
+    "EPSPCOM-NUMBER-OF-MONTHS": 0,
+    "EPSPCOM-QUOTED-INTEREST-RATE": "5.250",
+    "EPSPCOM-YEAR-MONTH-IND": "Y"
+   },
+   "why": "a valid 30-year loan: EPSMPMT returns a payment and no error text, so EPSPDATA-RETURN-ERROR = SPACES is true and RETCODE is 0 (the payment itself runs EPSMPMT's binary64 `**`, oracle_assumptions.md C6, the same inputs as mortgage-mpmt thirty-years)"
   }
  ]
 }

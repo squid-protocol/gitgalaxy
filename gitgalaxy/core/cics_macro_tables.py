@@ -659,17 +659,16 @@ def cics_macro_table_resources(code_stream: str) -> list[dict[str, Any]]:
 
 def cics_macro_table_transactions(code_stream: str) -> list[dict[str, Any]]:
     """Every transaction route a DFHPCT TYPE=ENTRY macro statement defines (`transid` -> `program`)."""
-    out: list[dict[str, Any]] = []
-    for row in cics_macro_table_resources(code_stream):
-        if row["resource_type"] == "TRANSACTION" and row.get("transid"):
-            out.append(
-                {
-                    "transid": row["transid"],
-                    "program": row.get("program"),
-                    "group": row.get("macro_table"),
-                    "profile": None,
-                    "line": row["line"],
-                }
-            )
+    out: list[dict[str, Any]] = [
+        {
+            "transid": row["transid"],
+            "program": row.get("program"),
+            "group": row.get("macro_table"),
+            "profile": None,
+            "line": row["line"],
+        }
+        for row in cics_macro_table_resources(code_stream)
+        if row["resource_type"] == "TRANSACTION" and row.get("transid")
+    ]
     out.sort(key=lambda t: (t["line"], t["transid"]))
     return out

@@ -480,7 +480,7 @@ def test_cics_macro_table_resources_and_explicit_phantoms_are_scored():
                 "line": 5,
                 "dsname": "PROD.SHIP.MASTER",
                 "record_format": "F",
-                "horror": "H-0061",
+                "horror": "H-0063",
             }
         ],
         "transactions": [
@@ -490,21 +490,21 @@ def test_cics_macro_table_resources_and_explicit_phantoms_are_scored():
                 "group": "DFHPCT01",
                 "line": 12,
                 "resolves_to": "apps/SHIP/cobol/SHPINQ.cbl",
-                "horror": "H-0061",
+                "horror": "H-0063",
             }
         ],
         "phantoms": [
-            {"channel": "csd_resources", "type": "SRT", "name": "S0C7", "why": "RECOVER=NO", "horror": "H-0061"},
-            {"channel": "csd_resources", "type": "TERMINAL", "name": "LINE", "why": "TYPE=LINE", "horror": "H-0061"},
+            {"channel": "csd_resources", "type": "SRT", "name": "S0C7", "why": "RECOVER=NO", "horror": "H-0063"},
+            {"channel": "csd_resources", "type": "TERMINAL", "name": "LINE", "why": "TYPE=LINE", "horror": "H-0063"},
         ],
     }
     sc = ec.Score()
     ec.score_cics(sc, "apps/SHIP/asm/SHPTBL.asm", entry, eng)
     assert _statuses(sc) == sorted(
         [
-            ("csd_resources", "FILE SHPFILE", "pass", "H-0061"),
-            ("csd_resources", "SRT S0C7", "phantom", "H-0061"),
-            ("csd_resources", "not TERMINAL LINE", "pass", "H-0061"),
-            ("transactions", "SHPM", "pass", "H-0061"),
+            ("csd_resources", "FILE SHPFILE", "pass", "H-0063"),
+            ("csd_resources", "SRT S0C7", "phantom", "H-0063"),
+            ("csd_resources", "not TERMINAL LINE", "pass", "H-0063"),
+            ("transactions", "SHPM", "pass", "H-0063"),
         ]
     )

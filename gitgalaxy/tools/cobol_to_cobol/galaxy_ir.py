@@ -4686,7 +4686,7 @@ class GalaxyIR:
                 "resources": [{**x.__dict__, "defined_in": mf.file_path if mf else None} for x in rows],
             }
 
-        out = []
+        out: list[dict[str, Any]] = []
         for f in sorted(self.files.values(), key=lambda x: x.file_path):
             job = next((r for r in f.job_flow if r.kind == "JOB"), None)
             if job is None:

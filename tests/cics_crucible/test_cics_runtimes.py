@@ -2524,7 +2524,7 @@ int main(int argc, char **argv) {
 def test_the_stub_bif_deedit_and_the_terminal_uctranst(tmp_path):
     """#4415 slice 1 (register X26), IBM EXEC CICS BIF DEEDIT / INQUIRE TERMINAL / SET TERMINAL: DEEDIT in the region's
     EBCDIC page (IBM's two examples, the negative zone, a zoned rightmost byte, LENGTH below 1 is LENGERR); a field with
-    no digit left or beyond 7-bit ASCII is refused. UCTRANST: the CVDA the runner states; TERMIDERR RESP2 1 / 23, INVREQ
+    no digit left becomes zeros (ASSUMED); one beyond 7-bit ASCII is refused. UCTRANST: the CVDA the runner states; TERMIDERR RESP2 1 / 23, INVREQ
     RESP2 43; unstated, or another terminal's, refused."""
     exe = _stub(tmp_path, "#include <stdlib.h>\n" + _DEED_MAIN)
     base = {"GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path)}
@@ -2536,9 +2536,11 @@ def test_the_stub_bif_deedit_and_the_terminal_uctranst(tmp_path):
                            ("1.5CR", "5", "0001N"), ("A", "1", "A"), ("ab12cd3C", "8", "0000123C")):  # fmt: skip
         assert run({}, "deedit", field, n).stdout.strip() == f"0/0/[{want}]", field
     assert run({}, "deedit", "x7", "2", "0").stdout.strip() == "22/0/[x7]"
-    for bad, why in (("abc", "no digit left"), ("\xe91", "7-bit ASCII")):
-        got = run({}, "deedit", bad, "3" if bad == "abc" else "2")
-        assert got.returncode == 98 and why in got.stdout, bad
+    for none, n in (("abc", "3"), ("___", "3"), ("__________", "10"), ("-", "1"), ("--", "2"), ("a-", "2")):  # ASSUMED, X26
+        want = {"-": "-", "--": "0}", "a-": "0}"}.get(none, "0" * len(none))
+        assert run({}, "deedit", none, n).stdout.strip() == f"0/0/[{want}]", none
+    got = run({}, "deedit", "\xe91", "2")
+    assert got.returncode == 98 and "7-bit ASCII" in got.stdout
     terminal = {"GGCICS_FACILITY": "T001", "GGCICS_UCTRANST": "UCTRAN"}
     assert run(terminal, "inq", "T001").stdout.strip() == "0/0/450"
     assert run(terminal, "set", "T001", "451").stdout.strip() == "0/0/451"

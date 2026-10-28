@@ -1030,6 +1030,28 @@ def _include_closure(imports: dict[str, set[str]], path: str, memo: dict[str, se
     return memo[path]
 
 
+def _init_entry_not_a_base(
+    bucket: "_Bucket",
+    callee: str,
+    lang: str,
+    src_path: str,
+    caller_dir: str,
+    imports: dict[str, set[str]],
+    closures: dict[str, set[str]],
+    step: str,
+) -> bool:
+    """#6266: a ctor-init entry names a base only when a class of that name is visible from the file (its own, its
+    directory's, or its include closure's); a tie among several visible classes is a nested `Node`, not a base to pin
+    (a tie with one visible class, the others another platform's copy, still pins that one)."""
+    visible = [
+        d
+        for d in bucket.defs
+        if (d.kind == "class" or d.owner_key == _key(callee, lang))
+        and (d.path == src_path or _dirname(d.path) == caller_dir or d.path in _include_closure(imports, src_path, closures))
+    ]
+    return not visible or (step == "tie" and sum(d.kind == "class" for d in visible) > 1)
+
+
 def _imports_by_file(dependency_edges: list[dict[str, Any]] | None) -> dict[str, set[str]]:
     out: dict[str, set[str]] = {}
     for e in dependency_edges or []:
@@ -1700,16 +1722,7 @@ def resolve_calls(
                 ) or (
                     init_only
                     and bucket is not None
-                    and (
-                        step == "tie"  # several classes of that name in scope: a nested `Node`, not a base to pin
-                        or not any(
-                            d.path == src_path
-                            or _dirname(d.path) == caller.dir
-                            or d.path in _include_closure(imports, src_path, closures)
-                            for d in bucket.defs
-                            if d.kind == "class" or d.owner_key == _key(str(callee), lang)
-                        )
-                    )
+                    and _init_entry_not_a_base(bucket, str(callee), lang, src_path, caller.dir, imports, closures, step)
                 ):
                     recursive.append(callee)  # a data member `: type(t)`, not a call, whatever function shares its name
                     continue

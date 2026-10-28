@@ -192,3 +192,37 @@ def test_sysin_member_join_covers_every_shape_and_member_state(tmp_path_factory)
     ]
     for key in (("EMPTY", "EMPTY01"), ("MISSING", "NOSUCH"), ("TWOFILES", "DUP01")):
         assert by[key]["resources"] == []
+
+
+def test_resolved_wrapper_proc_joins_its_assembler_step_sysin(tmp_path):
+    """#5218: a procedure in the repository whose inner step runs an assembler joins its SYSIN (override or proc DD),
+    while a non-assembler inner step's SYSIN and an unresolvable proc name stay ignored."""
+    base = tmp_path / "wrap"
+    repo = base / "region"
+    shutil.copytree(FIXTURES / "jcl_sysin_shapes", repo)
+    (repo / "procs").mkdir()
+    (repo / "procs" / "BANKASM.prc").write_text(
+        "//BANKASM  PROC\n"
+        "//PRE      EXEC PGM=IEFBR14\n"
+        "//ASMSTEP  EXEC PGM=ASMA90\n"
+        "//SYSIN    DD DSN=BANK.SRCLIB(EMPTY01),DISP=SHR\n",
+        encoding="utf-8",
+    )
+    (repo / "WRAPJOB.jcl").write_text(
+        "//WRAPJOB  JOB (ACCT),'WRAP',CLASS=A\n"
+        "//OVR      EXEC BANKASM\n"
+        "//ASMSTEP.SYSIN DD DSN=BANK.SRCLIB(TBL01),DISP=SHR\n"
+        "//DEF      EXEC BANKASM\n"
+        "//NOTASM   EXEC BANKASM\n"
+        "//PRE.SYSIN DD DSN=BANK.SRCLIB(TBL01),DISP=SHR\n"
+        "//UNKNOWN  EXEC MYASM\n"
+        "//ASMSTEP.SYSIN DD DSN=BANK.SRCLIB(TBL01),DISP=SHR\n",
+        encoding="utf-8",
+    )
+    ir = load_galaxy_ir(scan_to_db(repo, base / "scan"))
+    got = [(r["step"], r["member"], r["status"]) for r in ir.job_macro_tables() if r["file"] == "WRAPJOB.jcl"]
+    assert got == [
+        ("OVR", "TBL01", "joined"),  # //ASMSTEP.SYSIN override wins over the proc's own SYSIN
+        ("DEF", "EMPTY01", "no_tables"),  # no override: the proc's own ASMSTEP SYSIN
+        ("NOTASM", "EMPTY01", "no_tables"),  # //PRE.SYSIN is for IEFBR14, not ASMSTEP, so not an override of ASMSTEP
+    ]

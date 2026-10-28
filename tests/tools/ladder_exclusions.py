@@ -4,7 +4,8 @@ The ladder keeps every program (the denominator is fixed). These are reported in
 denominator, with the issue and the citation, so a reader does not mistake them for core translator work:
 
   source_defect  source IBM's compiler rejects (the oracle refuses it too)
-  not_cobol      refused whole because the member is not COBOL (assembler)
+  not_cobol      refused whole because the member is not COBOL (an assembler member the HLASM front end does not yet
+                 lower; the entry goes when the member leaves L0 and the page lists it as stale until then)
   owner_held     held by an owner ruling or by a z/OS calibration that cannot be taken from this box
 
 Stdlib only (progress_report and evidence_report both import it).
@@ -41,12 +42,7 @@ EXCLUSIONS: dict[tuple[str, str], dict[str, str]] = {
     ("zecs", "zecs002.asm"): {
         "kind": "not_cobol",
         "issue": "#5859",
-        "reason": "CICS Assembler member; the translator is a COBOL translator",
-    },
-    ("zecs", "zecsnc.asm"): {
-        "kind": "not_cobol",
-        "issue": "#5859",
-        "reason": "CICS Assembler member; the translator is a COBOL translator",
+        "reason": "CICS Assembler member; the HLASM front end refuses it at DC 08XL01'40' (slice 3 of #5859 lowers it)",
     },
     ("dbb-mortgage-application", "epscsmrd.cbl"): {
         "kind": "owner_held",

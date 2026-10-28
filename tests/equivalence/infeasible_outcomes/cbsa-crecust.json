@@ -3,6 +3,22 @@
   "case": "cbsa-crecust",
   "entries": [
     {
+      "unit": "ENC010",
+      "line": 453,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "R",
+      "reason": "ENQ RESOURCE(NCS-CUST-NO-NAME) LENGTH(16) carries no NOSUSPEND, so a held resource suspends the task instead of returning ENQBUSY (the model refuses a planned-busy ENQ without NOSUSPEND), and the 16-byte length equals the name's size (CBSACUST + 6-byte sort code + 2 filler), so LENGERR and INVREQ are not raised either: RESP is always NORMAL."
+    },
+    {
+      "unit": "DNC010",
+      "line": 478,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "R",
+      "reason": "DEQ RESOURCE(NCS-CUST-NO-NAME) LENGTH(16) follows the ENQ of the same 16-byte name in the same task, so the resource is held and the length matches: the DEQ always completes NORMAL."
+    },
+    {
       "unit": "CC010",
       "line": 532,
       "kind": "EVALUATE",

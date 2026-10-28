@@ -843,3 +843,40 @@ def test_the_text_fallback_leaves_a_local_classs_methods_to_their_own_unit():
     )
     body = co.TextBody(src, 1)
     assert "outer" in body.calls and "inner" not in body.calls
+
+
+TEMPLATED_BASES_SRC = (
+    "template <class T, class E, bool A = true>\nclass storage_t;\n"
+    "template <class T, class E>\nclass storage_t<T, E, true> : public storage_t_impl<T, E>\n{\npublic:\n"
+    "\texplicit storage_t(bool v) : storage_t_impl<T, E>(v) {}\n};\n"
+    "template <class P, class Fn>\nclass scope_exit : public scope_guard<P, Fn>, private Other\n{\npublic:\n"
+    "\tscope_exit(Fn a) : scope_guard<P, Fn>(a) {}\n};\n"
+)
+
+
+def test_a_specialization_owns_its_bases_and_a_templated_base_list_splits_at_top_level_commas():
+    """odamex tinylibs expected.hpp / scope.hpp (#6266): `class S<T, true> : Base<T, E>` and `: G<P, Fn>, H` list real bases."""
+    classes = co.class_names_of_text(TEMPLATED_BASES_SRC)
+    assert classes["storage_t"] == {"storage_t_impl"} and classes["scope_exit"] == {"scope_guard", "Other"}
+    for ctor, base in (("storage_t", "storage_t_impl"), ("scope_exit", "scope_guard")):
+        node = next(
+            n
+            for n in co.function_nodes(co._parser("cpp").parse(TEMPLATED_BASES_SRC.encode()))
+            if ctor.encode() in n.text[:30]
+        )
+        assert co.Body(node, classes).calls[base] == "ctor-init"
+
+
+def test_a_ctor_after_an_unknown_macro_reads_the_calls_of_its_misparsed_initializer_list():
+    """odamex span.hpp (#6266): `span_constexpr span(C &c) : size_(to_size(c.size())) {}` leaves ERROR children outside the body."""
+    src = b"class span {\n    span_constexpr span( C & c )\n        : n_( to_size( c.size() ) )\n    {}\n};\n"
+    node = next(n for n in co.function_nodes(co._parser("cpp").parse(src)))
+    body = co.Body(node, {})
+    assert "to_size" in body.calls and "size" in body.calls
+
+
+def test_a_call_in_a_trailing_return_type_is_a_call_of_the_text_fallback_unit():
+    """odamex expected.hpp (#6266): `auto test(int) -> std::integral_constant<bool, satisfies<T>()>{}` calls satisfies."""
+    src = b"template< typename T >\nstatic auto test( int ) -> std::integral_constant<bool, satisfies<T>()>{}\n"
+    body = co.TextBody(src, 1)
+    assert body.calls == {"satisfies": "unparsed"}

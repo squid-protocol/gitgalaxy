@@ -1041,15 +1041,23 @@ def _init_entry_not_a_base(
     step: str,
 ) -> bool:
     """#6266: a ctor-init entry names a base only when a class of that name is visible from the file (its own, its
-    directory's, or its include closure's); a tie among several visible classes is a nested `Node`, not a base to pin
-    (a tie with one visible class, the others another platform's copy, still pins that one)."""
+    directory's, or its include closure's). A tie among several classes of that name (a nested `Node`, another
+    platform's copy of a base) pins only the one in the caller's own directory; a class and its own constructor
+    function tying is no ambiguity."""
     visible = [
         d
         for d in bucket.defs
         if (d.kind == "class" or d.owner_key == _key(callee, lang))
-        and (d.path == src_path or _dirname(d.path) == caller_dir or d.path in _include_closure(imports, src_path, closures))
+        and (
+            d.path == src_path
+            or _dirname(d.path) == caller_dir
+            or d.path in _include_closure(imports, src_path, closures)
+        )
     ]
-    return not visible or (step == "tie" and sum(d.kind == "class" for d in visible) > 1)
+    if step == "tie" and sum(d.kind == "class" for d in bucket.defs) > 1:
+        near = [d for d in visible if d.kind == "class" and (d.path == src_path or _dirname(d.path) == caller_dir)]
+        return len(near) != 1
+    return not visible
 
 
 def _imports_by_file(dependency_edges: list[dict[str, Any]] | None) -> dict[str, set[str]]:

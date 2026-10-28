@@ -1,0 +1,86 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "cbsa-crecust",
+  "entries": [
+    {
+      "unit": "CC010",
+      "line": 532,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@543",
+      "family": "G",
+      "reason": "The loop at 522 runs WS-CC-CNT from 1 to 5 (UNTIL WS-CC-CNT > 5), so the EVALUATE at 532 only ever sees 1 to 5 and each of those has a WHEN: neither WHEN 6 to 9 nor the no-WHEN arm is reachable."
+    },
+    {
+      "unit": "CC010",
+      "line": 532,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@545",
+      "family": "G",
+      "reason": "The loop at 522 runs WS-CC-CNT from 1 to 5 (UNTIL WS-CC-CNT > 5), so the EVALUATE at 532 only ever sees 1 to 5 and each of those has a WHEN: neither WHEN 6 to 9 nor the no-WHEN arm is reachable."
+    },
+    {
+      "unit": "CC010",
+      "line": 532,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@547",
+      "family": "G",
+      "reason": "The loop at 522 runs WS-CC-CNT from 1 to 5 (UNTIL WS-CC-CNT > 5), so the EVALUATE at 532 only ever sees 1 to 5 and each of those has a WHEN: neither WHEN 6 to 9 nor the no-WHEN arm is reachable."
+    },
+    {
+      "unit": "CC010",
+      "line": 532,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@549",
+      "family": "G",
+      "reason": "The loop at 522 runs WS-CC-CNT from 1 to 5 (UNTIL WS-CC-CNT > 5), so the EVALUATE at 532 only ever sees 1 to 5 and each of those has a WHEN: neither WHEN 6 to 9 nor the no-WHEN arm is reachable."
+    },
+    {
+      "unit": "CC010",
+      "line": 532,
+      "kind": "EVALUATE",
+      "outcome": "none",
+      "family": "G",
+      "reason": "The loop at 522 runs WS-CC-CNT from 1 to 5 (UNTIL WS-CC-CNT > 5), so the EVALUATE at 532 only ever sees 1 to 5 and each of those has a WHEN: neither WHEN 6 to 9 nor the no-WHEN arm is reachable."
+    },
+    {
+      "unit": "CC010",
+      "line": 859,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@876",
+      "family": "G",
+      "reason": "Only five children are RUN (WS-CC-CNT 1 to 5 fills WS-CHILD-TKN(1) to (5)), so a token FETCH ANY returns is one of those five: the first five WHENs match it, and WHEN WS-CHILD-TKN(6) to (9) (never filled) and the no-WHEN arm are not reachable."
+    },
+    {
+      "unit": "CC010",
+      "line": 859,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@879",
+      "family": "G",
+      "reason": "Only five children are RUN (WS-CC-CNT 1 to 5 fills WS-CHILD-TKN(1) to (5)), so a token FETCH ANY returns is one of those five: the first five WHENs match it, and WHEN WS-CHILD-TKN(6) to (9) (never filled) and the no-WHEN arm are not reachable."
+    },
+    {
+      "unit": "CC010",
+      "line": 859,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@882",
+      "family": "G",
+      "reason": "Only five children are RUN (WS-CC-CNT 1 to 5 fills WS-CHILD-TKN(1) to (5)), so a token FETCH ANY returns is one of those five: the first five WHENs match it, and WHEN WS-CHILD-TKN(6) to (9) (never filled) and the no-WHEN arm are not reachable."
+    },
+    {
+      "unit": "CC010",
+      "line": 859,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@885",
+      "family": "G",
+      "reason": "Only five children are RUN (WS-CC-CNT 1 to 5 fills WS-CHILD-TKN(1) to (5)), so a token FETCH ANY returns is one of those five: the first five WHENs match it, and WHEN WS-CHILD-TKN(6) to (9) (never filled) and the no-WHEN arm are not reachable."
+    },
+    {
+      "unit": "CC010",
+      "line": 859,
+      "kind": "EVALUATE",
+      "outcome": "none",
+      "family": "G",
+      "reason": "Only five children are RUN (WS-CC-CNT 1 to 5 fills WS-CHILD-TKN(1) to (5)), so a token FETCH ANY returns is one of those five: the first five WHENs match it, and WHEN WS-CHILD-TKN(6) to (9) (never filled) and the no-WHEN arm are not reachable."
+    }
+  ]
+}

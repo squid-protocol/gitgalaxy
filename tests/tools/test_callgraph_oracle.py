@@ -138,6 +138,23 @@ static void *Start(int c)
     assert body.presence("skipped") == "macro"
 
 
+def test_the_brace_fallback_reads_a_declared_local_as_a_declaration_not_a_call():
+    src = """void Dlg::build()
+{
+    SequentialLayout layout(a.left(), a.top());
+    std::unique_ptr<Rec> map(new Rec);
+    Reader from(block);
+    layout.add(x);
+    emit self().changed();
+    HUDONLY checked(c);
+    return real(c);
+}
+"""
+    body = co.TextBody(src.encode(), 1)
+    assert set(body.calls) == {"left", "top", "add", "self", "changed", "checked", "real"}
+    assert "layout" not in body.calls and "map" not in body.calls and "from" not in body.calls
+
+
 def make_port(work, name, files, funcs):
     """files: {rel: source}; funcs: [(rel, name, start_line, [callees])]."""
     repo = work / "repos" / name
@@ -771,8 +788,9 @@ static int draw(int x)
         (FUSED_HEAD_SRC, 4, 14, 11, {"checked", "helper"}),
     ],
 )
+@pytest.mark.parametrize("crlf", [False, True], ids=["lf", "crlf"])
 def test_a_node_tree_sitter_closed_inside_a_macro_or_fused_into_the_head_takes_the_brace_body(
-    tmp_path, monkeypatch, src, start, closes, body_row, want
+    tmp_path, monkeypatch, src, start, closes, body_row, want, crlf
 ):
     from types import SimpleNamespace
 
@@ -786,6 +804,8 @@ def test_a_node_tree_sitter_closed_inside_a_macro_or_fused_into_the_head_takes_t
     name = "render" if start == 3 else "draw"
     funcs = [("m.c", "helper", 1, []), ("m.c", "slope", 2, []), ("m.c", name, start, sorted(want))]
     repo, scan = make_port(tmp_path, "linuxdoom", {"m.c": src}, funcs)
+    # Bytes, not write_text: Windows would turn every case CRLF, and the LF case must stay LF there too.
+    (repo / "m.c").write_bytes((src.replace("\n", "\r\n") if crlf else src).encode())
     port = co.Port("linuxdoom", repo, co.load_port(repo, co.find_db(scan)))
     body = next(f for f in port.functions if f[1] == name)[4]
     assert isinstance(body, co.TextBody)
@@ -802,3 +822,24 @@ def test_a_macro_defined_in_a_function_is_not_that_functions_calls():
     body = co.TextBody(MACRO_IN_FUNCTION_SRC.encode(), 3, {})
     assert "slope" not in body.calls and "helper" in body.calls
     assert len(body.preproc) == 1 and body.preproc[0].startswith("#define SETUP")
+
+
+def test_a_ctor_initializer_list_after_an_unknown_macro_still_gets_the_base_call():
+    """doom3-bfg StrStatic.h (#6266): `ID_INLINE Cls(x) : Base() {` reads the list as an ERROR child of the definition."""
+    src = (
+        b"class Base {};\nclass Cls : public Base {\n\tID_INLINE Cls( int x ) : \n\t\tBase() {\n\t\tgo( x );\n\t}\n};\n"
+    )
+    node = next(n for n in co.function_nodes(co._parser("cpp").parse(src)) if b"Cls" in n.text[:20])
+    assert not co._initializers(node)  # the premise: tree-sitter did not make a field_initializer
+    body = co.Body(node, co.class_names_of_text(src.decode()))
+    assert body.calls["Base"] == "ctor-init" and body.calls["go"] == "statement"
+
+
+def test_the_text_fallback_leaves_a_local_classs_methods_to_their_own_unit():
+    """doom3-bfg CONSOLE_COMMAND (#6266): a method of a class declared inside the body owns its calls, as in the engine."""
+    src = (
+        b'CONSOLE_COMMAND( t, "d", 0 ) {\n\tclass Local : public Base {\n\tpublic:\n\t\tint Call() { inner(); return 0; }\n'
+        b"\t};\n\touter();\n}\n"
+    )
+    body = co.TextBody(src, 1)
+    assert "outer" in body.calls and "inner" not in body.calls

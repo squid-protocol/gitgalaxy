@@ -779,26 +779,57 @@ INQUIRE_URIMAP = Command(
 
 # WRITE OPERATOR (EXEC CICS WRITE OPERATOR): a message to the system console; TEXTLENGTH "is required only for C and C++"
 # (a COBOL program names a data area, whose length is the text's). IBM's INVREQ RESP2 1-8 are for values the program gives
-# (TEXTLENGTH, NUMROUTES, ROUTECODES, MAXLENGTH, TIMEOUT, ACTION, CONSNAME), none of which is modelled; ERROR (the MVS WTO
-# failed) cannot arise in this region. A text IBM reformats (DFHnnnn / DFHaannnn: a CICS message) or splits into lines (over
+# (TEXTLENGTH, NUMROUTES, ROUTECODES are modelled, #5859; MAXLENGTH, TIMEOUT, ACTION, CONSNAME are not); ERROR (the MVS
+# WTO failed) cannot arise in this region. EVENTUAL ("the operator should take action when there is time") changes nothing
+# the program or the event sees. A text IBM reformats (DFHnnnn / DFHaannnn: a CICS message) or splits into lines (over
 # 113 characters) is refused: only the plain single-line message is modelled
 WRITE_OPERATOR = Command(
     key="WRITE OPERATOR",
     ibm=ibm("EXEC CICS WRITE OPERATOR", "summary-write-operator"),
     status="modelled",
     register="X32",
-    options={"TEXT": Arg("area_in"), **RESP_OPTIONS},
+    options={
+        "TEXT": Arg("area_in"),
+        "TEXTLENGTH": Arg("value"),
+        "ROUTECODES": Arg("area_in"),
+        "NUMROUTES": Arg("value"),
+        "EVENTUAL": Arg("flag"),
+        **RESP_OPTIONS,
+    },
     default_refusal=Refusal(
-        "only the plain message to the console is modelled (no routing, reply, action or console name)", "X32"
+        "only the plain message to the console is modelled (TEXTLENGTH and routing codes aside; no reply, other action or console name)",
+        "X32",
     ),
-    groups=(required("TEXT", msg="WRITE OPERATOR without TEXT"),),
-    outcomes=(Outcome("NORMAL", 0, ""),),
+    groups=(
+        required("TEXT", msg="WRITE OPERATOR without TEXT"),
+        requires(
+            ("ROUTECODES",),
+            ("NUMROUTES",),
+            "WRITE OPERATOR ROUTECODES and NUMROUTES go together (IBM: NUMROUTES counts the codes; without codes the default is one, 2)",
+            both_ways=True,
+        ),
+    ),
+    outcomes=(
+        Outcome("NORMAL", 0, ""),
+        Outcome("INVREQ", 1, "TEXTLENGTH is not valid (IBM: 0-690 bytes without REPLY)", raised_by=("TEXTLENGTH",)),
+        Outcome("INVREQ", 3, "ROUTECODES is not valid (IBM: each code 1-28)", raised_by=("ROUTECODES",)),
+    ),
     runtime_refusals=(
         RuntimeRefusal(
             "a text over 113 characters, or one that begins DFHnnnn / DFHaannnn: IBM reformats it, not modelled",
             "X32",
             java="WRITE OPERATOR text IBM reformats",
             c="WRITE OPERATOR text IBM reformats",
+        ),
+        RuntimeRefusal(
+            "a TEXTLENGTH longer than the text area (the bytes past it are no fact)",
+            "X32",
+            java="WRITE OPERATOR TEXTLENGTH past the text area",
+        ),
+        RuntimeRefusal(
+            "a NUMROUTES below 1 or past the ROUTECODES area (IBM states neither)",
+            "X32",
+            java="WRITE OPERATOR NUMROUTES IBM leaves open",
         ),
     ),
     state=("handle_table",),

@@ -36,8 +36,17 @@ def test_case_runs_the_five_children_and_has_a_db2_seed():
 
 def test_scenarios_cover_the_credit_check_and_the_paths_around_the_ceedays_hole():
     names = [s["name"] for s in _case()["scenarios"]]
-    # create-customer and born-in-the-future reach CEEDAYS (L1); born-before-1601 ends before it
-    assert names == ["create-customer", "born-before-1601", "born-in-the-future"]
+    # create-customer, born-in-the-future, born-30-feb and born-over-150 reach CEEDAYS (L1); born-before-1601 ends before it
+    assert names[:5] == ["create-customer", "born-before-1601", "born-in-the-future", "born-30-feb", "born-over-150"]
+    # #6072: the CUSTOMER control-record and new-record fault scenarios (the SYSIDERR retries and the other RESPs)
+    assert names[5:] == [
+        "control-read-sysiderr-retried",
+        "control-read-io-error",
+        "control-rewrite-sysiderr-retried",
+        "control-rewrite-io-error",
+        "write-sysiderr-retried",
+        "write-sysiderr-exhausted",
+    ]
 
 
 def test_notes_name_the_assumptions_and_forbid_reading_the_level_from_them():

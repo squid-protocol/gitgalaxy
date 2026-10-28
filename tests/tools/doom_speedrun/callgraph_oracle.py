@@ -105,10 +105,12 @@ STRIP = re.compile(r"/\*.*?\*/|//[^\n]*|\"(?:\\.|[^\"\\\n])*\"|'(?:\\.|[^'\\\n])
 TEXT_CALL = re.compile(
     r"(?:(?<=->)|(?<=\.)|(?<=::))\s*~\s*([A-Za-z_]\w*)\s*(?:<[^;{}()]*>\s*)?\(|\b([A-Za-z_]\w*)\s*\("
 )
-# `Type name(`: the word before a declared name is a type, not a keyword that precedes an expression.
-DECLARATOR_BEFORE = re.compile(
-    r"(?<![\w.>:])(?!(?:return|else|case|new|delete|throw|do|sizeof|goto|typeof|co_return|co_await|co_yield)\b)"
-    r"[A-Za-z_]\w*[ \t]+$"
+# `Type name(args)` in a text-fallback body declares a local (tree-sitter's declaration, never a call to `name`): the
+# name follows a type word (optionally `<...>`) and a blank. These words before a name are keywords or Qt statement
+# macros, so the name after them is a real call (`return f(x)`, `emit self().changed()`); so is one after an ALL-CAPS word.
+DECL_TAIL = re.compile(r"([A-Za-z_]\w*)(?:[ \t]*<[^;{}()]{0,120}>)?[ \t]+\Z")
+NOT_A_TYPE = frozenset(
+    "return else new delete throw case goto co_return co_await co_yield emit typeid not and or xor".split()
 )
 # A class or struct definition head: the last word before its `:` base list or `{` is the class name.
 CLASS_HEAD = re.compile(r"\b(?:class|struct)\b[^;{}()<>]*?\b([A-Za-z_]\w*)\s*(?:final\s*)?[:{]")
@@ -126,8 +128,8 @@ CLASS_DECL = re.compile(r"\b(?:class|struct)\s+(?:[A-Z_]+\s+)?([A-Za-z_]\w*)\s*[
 ALIASES = ""  # the key of `class_names` that holds the alias names (no class is named "")
 CPP_EXTS = frozenset(".h .hh .hpp .hxx .inl .cc .cpp .cxx".split())
 KEYWORDS = frozenset(
-    "if else while for do switch return sizeof alignof _Alignof defined case goto typeof decltype".split()
-)
+    "if else while for do switch return sizeof alignof _Alignof defined case goto typeof decltype foreach Q_FOREACH".split()
+)  # foreach / Q_FOREACH: Qt loop statements, which tree-sitter reads as a definition of that name
 
 
 def bare(name):
@@ -151,6 +153,8 @@ def callee_node(fn):
             fn = fn.child_by_field_name("field")
         elif fn.type in ("qualified_identifier", "template_function", "template_method"):
             fn = fn.child_by_field_name("name")
+        elif fn.type == "dependent_name":  # `q::template f<T>(x)`: the `template` keyword wraps the template method (#6266)
+            fn = fn.named_children[0] if fn.named_children else None
         else:
             return None
     return None
@@ -202,6 +206,14 @@ class Body:
                 name = init.children[0].child_by_field_name("name")  # `: TMap<K, V>(), info(x)`: a templated base
             if name is not None and decode_bytes(name.text) in _bases(classes or {}, node):
                 self.calls.setdefault(decode_bytes(name.text), "ctor-init")
+        for (
+            err
+        ) in node.children:  # `ID_INLINE Cls(x) : Base() {`: an unknown macro before the name makes the list an ERROR
+            if err.type == "ERROR" and decode_bytes(err.text).lstrip().startswith(":"):
+                head = decode_bytes(err.text)
+                for name in _head_initializer_names(head):
+                    if name in _bases(classes or {}, node):
+                        self.calls.setdefault(name, "ctor-init")
         body = node.child_by_field_name("body") or node
         stack = [body]
         for init in _initializers(node):  # `d(new Impl(this))`, `base(f(x))`: the arguments are part of the constructor
@@ -250,8 +262,8 @@ class Body:
         text = STRIP.sub(" ", decode_bytes(raw))
         for m in TEXT_CALL.finditer(text):
             name = "~" + m.group(1) if m.group(1) else m.group(2)
-            if m.group(2) and DECLARATOR_BEFORE.search(text[: m.start()]):
-                continue  # `FString s(k);`: a local variable declaration, not a call of `s`
+            if m.group(2) and _declares_local(text, m.start(2)):
+                continue
             if name not in KEYWORDS:
                 self.calls.setdefault(name, "unparsed")
 
@@ -305,8 +317,8 @@ def _member_initializers(body):
 
 
 # A preprocessor directive with its `\`-continued lines: a macro defined inside a function is not that function's calls
-# (the engine blanks it too, #6793; the tree-sitter walk skips the node).
-DIRECTIVE = r"^[ \t]*#(?:[^\n]*\\\n)*[^\n]*$"
+# (the engine blanks it too, #6793; the tree-sitter walk skips the node). A CRLF source continues with CR LF.
+DIRECTIVE = r"^[ \t]*#(?:[^\n]*\\\r?\n)*[^\n]*$"
 
 
 def _head_has_statement(head):
@@ -321,10 +333,33 @@ def _head_has_statement(head):
     return False
 
 
+def _declares_local(text, pos):
+    """True when the name at ``pos`` follows a type word, so ``Type name(args)`` declares a local, not a call."""
+    tail = DECL_TAIL.search(text[max(0, pos - 160) : pos])
+    return tail is not None and tail.group(1) not in NOT_A_TYPE and not tail.group(1).isupper()  # HUDONLY f(x): a macro
+
+
 def _ends_in_continued_line(lines, end_line):
     """True when the tree-sitter node's last line continues a backslash: a `#define` body closed the function early (srb2's
     `SETUP3DVERT` inside `HWR_RenderPlane`: the macro's own `}` ended the node, #6266)."""
     return end_line >= 2 and lines[end_line - 2].rstrip().endswith("\\")
+
+
+LOCAL_CLASS_OPEN = re.compile(r"\b(?:class|struct)\s+[A-Za-z_]\w*[^;{}()]*\{")
+
+
+def _blank_local_classes(body):
+    """``body`` with the braces of each local ``class X : Base { ... }`` blanked (newlines kept): its methods own their
+    calls (a CONSOLE_COMMAND macro body that declares `class idSWFScriptFunction_Continue`, doom3-bfg, #6266)."""
+    out, pos = [], 0
+    while (m := LOCAL_CLASS_OPEN.search(body, pos)) is not None:
+        depth, i = 1, m.end()
+        while i < len(body) and depth:
+            depth += (body[i] == "{") - (body[i] == "}")
+            i += 1
+        out.append(body[pos : m.end()] + re.sub(r"[^\n]", " ", body[m.end() : i]))
+        pos = i
+    return "".join(out) + body[pos:]
 
 
 class TextBody(Body):
@@ -361,6 +396,7 @@ class TextBody(Body):
         body = text[open_at : end + 1]
         self.preproc = re.findall(DIRECTIVE, body, flags=re.M)
         body = re.sub(DIRECTIVE, " ", body, flags=re.M)
+        body = _blank_local_classes(body)  # a local class's methods are their own units (as in Body)
         if MACRO_CLASS_HEAD.match(lines[line - 1]):
             self._text_calls(_member_initializers(body).encode())
         else:

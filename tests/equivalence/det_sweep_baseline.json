@@ -2,18 +2,6 @@
  "format": "det-sweep-baseline/1",
  "about": "#4463: the det ports `proof_sweep.py --det-only` does not prove, each with the issue that owns it. A two-way ratchet: CI fails on a port not listed here that is not proven, and on a listed port that is now proven. When a fix lands, run `python tests/tools/proof_sweep.py --det-only --skip-db2 --work DIR --update-baseline` and commit the shortened file; a new entry is only ever added by hand, with its true cause.",
  "det": {
-  "mortgage-mpmt": {
-   "issue": "#4271",
-   "why": "IBM DBB EPSMPMT computes its payment through a COMP-1 item in hexadecimal floating point on z/OS, truncated decimal on GnuCOBOL. The det runtime models HFP (#4271), and the payment's (1 + C) ** N, N with decimal places, translates through Hfp.power since #5999, a routine ASSUMED to match IBM's (oracle_assumptions.md C6; the CBL NUMPROC(MIG) is modelled, C5). One hole is left: the dead-code FUNCTION ANNUITY (line 144, paragraph A300-TRY2, its PERFORM commented out) is refused by name, since IBM defines the formula, arg-1 / (1 - (1 + arg-1) ** -arg-2), but not the bits of the power or of the result. Owner-held frontier work (#5867, needs captured z/OS results, #4050); the callers mortgage-csmrt and mortgage-cmort keep it."
-  },
-  "mortgage-csmrt": {
-   "issue": "#4803",
-   "why": "EPSCSMRT CALLs EPSMPMT, which has a hole. EPSMPMT's one hole is FUNCTION ANNUITY (line 144, paragraph A300-TRY2, dead code: its PERFORM is commented out), refused by name because IBM does not document the bits of the power or of the result (oracle_assumptions.md C6). The payment's (1 + C) ** N (line 125) is no longer a hole since #5999: it translates through Hfp.power, an ASSUMED routine. The case's five validation-path scenarios run equal on both sides and never reach it, but a program is not proven while a program it CALLs has holes, whichever scenarios were written (owner decision 2026-10-11, mainframe-evidence-policy.md 4): the proof passes, the port stays unproven until that hole is closed, which is owner-held frontier work (#5867: it needs captured z/OS results, #4050)."
-  },
-  "mortgage-cmort": {
-   "issue": "#4803",
-   "why": "EPSCMORT's ENTER path LINKs EPSCSMRT (PROGRAM from a variable), which CALLs EPSMPMT, which has a hole. EPSMPMT's one hole is FUNCTION ANNUITY (line 144, paragraph A300-TRY2, dead code: its PERFORM is commented out), refused by name because IBM does not document the bits of the power or of the result (oracle_assumptions.md C6). The payment's (1 + C) ** N (line 125) is no longer a hole since #5999: it translates through Hfp.power, an ASSUMED routine. The case's 15 scenarios run equal on both sides (runTask and java-facade) and the ENTER / WHEN OTHER scenarios stay on EPSMPMT's validation paths, but a program is not proven while a program it LINKs or CALLs has holes, whichever scenarios were written (owner decision 2026-10-11, mainframe-evidence-policy.md 4): the proof passes, the port stays unproven until that hole is closed, which is owner-held frontier work (#5867: it needs captured z/OS results, #4050)."
-  },
   "genapp-lgsetup": {
    "issue": "#5252",
    "why": "LGSETUP's SEND TEXT FROM(WRITE-MSG-H) LENGTH(24) sends WRITE-MSG-H and the item after it, WRITE-MSG-HIGH PIC 9(10). The det port holds that numeric as a typed BigDecimal that never reaches the record's bytes (DetCics.withinRecord reads the bytes), so Java sends 0000000000 where GnuCOBOL sends the customer number. Unmasked on 2026-10-21 when X6 became ASSUMED: the run used to stop at the WRITEQ TS past FROM (98) before this SEND TEXT. Fix: pack the enclosing record's typed items before a past-FROM read (the pack_ methods are emitted only under --groups)."

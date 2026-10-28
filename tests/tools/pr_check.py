@@ -240,12 +240,42 @@ def conditional_api(store: Path, run: Callable[[list[str]], subprocess.Completed
         if etag:
             try:
                 store.mkdir(parents=True, exist_ok=True)
-                file.write_text(json.dumps({"etag": etag[1], "body": body}), encoding="utf-8")
+                tmp = file.with_suffix(".tmp")  # atomic: a cache saved mid-write never holds a torn entry
+                tmp.write_text(json.dumps({"etag": etag[1], "body": body}), encoding="utf-8")
+                tmp.replace(file)
             except OSError:
                 pass  # no store: the next read is plain
         return body
 
     return api
+
+
+def prune_api_store(
+    store: Path, max_age_s: float = 7 * 86400, max_entries: int = 2000, now: float | None = None
+) -> int:
+    """Keep a conditional-read store that persists across passes small (#6534): drop entries older than `max_age_s`
+    (a 304 rewrites nothing, so an entry's mtime is the last time its body changed), leftover temp files, then the
+    oldest beyond `max_entries`. Returns how many were removed; a missing or unreadable store removes none."""
+    import time
+
+    now = time.time() if now is None else now
+    try:
+        files = [(f.stat().st_mtime, f) for f in store.iterdir() if f.suffix in (".json", ".tmp")]
+    except OSError:
+        return 0
+    files.sort(key=lambda t: t[0], reverse=True)
+    entries = [(m, f) for m, f in files if f.suffix == ".json"]
+    drop = [f for m, f in files if f.suffix == ".tmp"] + [
+        f for i, (m, f) in enumerate(entries) if now - m > max_age_s or i >= max_entries
+    ]
+    removed = 0
+    for f in drop:
+        try:
+            f.unlink()
+            removed += 1
+        except OSError:
+            pass
+    return removed
 
 
 def classify(runs: list[dict[str, Any]], statuses: list[dict[str, Any]]) -> dict[str, Any]:

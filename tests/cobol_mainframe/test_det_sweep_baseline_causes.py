@@ -1,4 +1,4 @@
-"""#6072: the DBB mortgage det-sweep baseline entries name their real cause (EPSMPMT's one hole), not a stale one."""
+"""#6072 / #5867: the DBB mortgage det-sweep baseline entries name their real cause, not a stale one."""
 
 from __future__ import annotations
 
@@ -7,24 +7,15 @@ from pathlib import Path
 
 BASELINE = Path(__file__).resolve().parents[1] / "equivalence" / "det_sweep_baseline.json"
 DET = json.loads(BASELINE.read_text(encoding="utf-8"))["det"]
-CASES = ("mortgage-mpmt", "mortgage-csmrt", "mortgage-cmort")
 
 
-def test_the_three_mortgage_ports_are_listed():
-    for case in CASES:
-        assert case in DET, case
-
-
-def test_each_names_the_annuity_hole_and_its_owner_issue():
-    for case in CASES:
-        why = DET[case]["why"]
-        assert "FUNCTION ANNUITY" in why, case
-        assert "#5867" in why, case
-
-
-def test_the_callers_say_it_is_the_called_hole_rule_not_a_differing_port():
+def test_the_callers_left_the_baseline_once_epsmpmt_had_no_hole():
+    """EPSMPMT's ANNUITY was the callers' only cause (the called-hole rule); binary64 by owner decision (#5867)
+    closed it, so mortgage-csmrt and mortgage-cmort are equal and must not be listed."""
     for case in ("mortgage-csmrt", "mortgage-cmort"):
-        why = DET[case]["why"]
-        assert "EPSMPMT" in why, case
-        assert "the proof passes" in why, case
-        assert "no longer a hole since #5999" in why, case
+        assert case not in DET, case
+
+
+def test_epsmpmt_left_the_baseline_once_the_oracle_stated_binary64():
+    """The oracle stand-in (equivalence_binary64.py, #5867 slice 2) proves it on 11 of 11 calls."""
+    assert "mortgage-mpmt" not in DET

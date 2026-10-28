@@ -10,7 +10,14 @@ from contextlib import contextmanager
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from gitgalaxy.core.cics_macro_level import ASSEMBLER_SUFFIXES, Hit, assembler_hits, cobol_hits, refusal_text
+from gitgalaxy.core.cics_macro_level import (
+    ASSEMBLER_SUFFIXES,
+    FAMILY_ASSEMBLER,
+    Hit,
+    assembler_hits,
+    cobol_hits,
+    refusal_text,
+)
 from gitgalaxy.core.cobol_conditional import Conditional, options_defines
 from gitgalaxy.core.cobol_preprocessor import (
     MappedLine,
@@ -37,6 +44,7 @@ from gitgalaxy.core.cobol_source_format import (
 )
 from gitgalaxy.core.compiler_options import cards, compiler_options
 from gitgalaxy.core.source_text import read_source
+from gitgalaxy.tools.cobol_to_java.det import hlasm
 
 # a copybook's own extensions before a program's: `COPY GETCOMPY` in GETCOMPY.cbl means the member, not the program
 COPYBOOK_EXTS = ("", ".cpy", ".CPY", ".copy", ".COPY", ".dcl", ".DCL")  # (.dcl: a DCLGEN member)
@@ -749,6 +757,8 @@ def program_lines(program: Path, dirs: list[Path], engine: EngineCopies | None =
         engine = engine.with_program(program)
     names: set[str] = set()
     raw = _raw_lines(program, engine)
+    if not unmasked("cics-macro-level"):
+        raw = assembler_lowered(raw, str(program))
     check_cobol(raw, str(program))
     own = logical_lines(raw, str(program))
     # #5121: named before COPY expansion, so a macro-level program's missing DFHCSADS / DFHTCADS is not `missing copybook`
@@ -771,6 +781,24 @@ def assembler_refusal(raw: list[str], file: str) -> str | None:
     if Path(file).suffix.lower() not in ASSEMBLER_SUFFIXES:
         hits = [h for h in hits if h.what != "EXEC CICS"]
     return refusal_text(hits[0], Path(file).name) if hits else None
+
+
+def assembler_lowered(raw: list[str], file: str) -> list[str]:
+    """#5859: a command-level CICS assembler program read as the COBOL program the HLASM front end lowers it to
+    (det/hlasm.py, docs/language_status/hlasm_cics_design.md); refused by name (MacroLevelCics) outside its subset.
+    Any other file is returned as it is."""
+    if Path(file).suffix.lower() not in ASSEMBLER_SUFFIXES or assembler_refusal(raw, file) is None:
+        return raw
+    hits = assembler_hits(raw)
+    if any(h.family != FAMILY_ASSEMBLER for h in hits):  # (macro-level calls: era 0, no front end)
+        return raw
+    try:
+        return hlasm.lower_text("\n".join(raw), file).splitlines()
+    except hlasm.Refused as e:  # (refusal_text's shape: refusal_map.json and cics_census.error_key match it)
+        raise MacroLevelCics(
+            f"{Path(file).name}:{hits[0].line}: {FAMILY_ASSEMBLER} not supported ({hits[0].what}): outside the HLASM "
+            f"lowering's subset (#5859): {e}; named and refused, never translated"
+        ) from None
 
 
 class UnitRefused(ValueError):

@@ -877,6 +877,10 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
             raise Unsupported(_rule("WRITE OPERATOR", "required", "TEXT"), ["WRITE OPERATOR"])
         if _literal(text):  # (IBM's COBOL form takes a data area)
             raise Unsupported("WRITE OPERATOR TEXT as a literal: a data area is the COBOL form", ["WRITE OPERATOR"])
+        # #5859: the det port and CicsTask model these, the stub not yet
+        for o in ("TEXTLENGTH", "ROUTECODES", "NUMROUTES"):
+            if o in opts:
+                raise _stub_only(f"WRITE OPERATOR {o}")
         return ([f"MOVE LENGTH OF {text} TO GG-LEN"] + _call("GGCWTO", [f"BY REFERENCE {text}"])
                 + _resp(opts, True, labels))  # fmt: skip
     if verb in ("INQUIRE", "SET") and "TDQUEUE" in opts:  # #5168 round 3 (X61): an extrapartition queue's open state
@@ -1227,9 +1231,10 @@ def refuse_dli_call_interface(source: str) -> None:
         )
 
 
-def dli_stage(case: dict[str, Any], corpus: Path, dest: Path) -> list[str]:
+def dli_stage(case: dict[str, Any], corpus: Path, dest: Path, sc: dict[str, Any] | None = None) -> list[str]:
     """#5278: the stated databases of a case whose program issues EXEC DLI -- dbd.cfg, psb.cfg and each seed, into
-    `dest` (the stub reads them from the scenario's directory, the port from gitgalaxy.dli.dir). The DBDs' names."""
+    `dest` (the stub reads them from the scenario's directory, the port from gitgalaxy.dli.dir). The DBDs' names.
+    #6072: a scenario's `ims_seed` adds segments to the seed for its own task."""
     try:
         dbds, pcbs = equivalence_ims.definitions(case, corpus, cics=True)
         dest.mkdir(parents=True, exist_ok=True)
@@ -1237,7 +1242,7 @@ def dli_stage(case: dict[str, Any], corpus: Path, dest: Path) -> list[str]:
         (dest / "dbd.cfg").write_text(dbd_cfg, encoding="ascii")
         (dest / "psb.cfg").write_text(psb_cfg, encoding="ascii")
         for name, db in dbds.items():
-            (dest / f"seed.{name}").write_bytes(equivalence_ims.seed(case, corpus, name, db))
+            (dest / f"seed.{name}").write_bytes(equivalence_ims.seed(case, corpus, name, db, sc))
     except equivalence_ims.Unsupported as e:
         raise Unsupported(f"EXEC DLI: {e}", ["EXEC DLI"]) from e
     return list(dbds)
@@ -1797,7 +1802,28 @@ def commarea_record(fields: list[dict[str, Any]], values: dict[str, Any], enc: s
     occurrences=True)), each field not named INITIALIZEd, as INITIALIZE does a group's every occurrence. A value named
     as the DTO names it (COMM-EYE: an OCCURS group's field, listed once) is the first occurrence's (COMM-EYE(1))."""
     first = {f["base"]: f["name"] for f in fields if f.get("subscripts") and all(k == 1 for k in f["subscripts"])}
-    return encode_record(fields, {first.get(k, k): v for k, v in values.items()}, b"init", enc)
+    width = {f["name"]: f["bytes"] for f in fields}
+    named = {first.get(k, k): v for k, v in raw_commarea_bytes(values).items()}
+    for k, v in named.items():
+        if isinstance(v, bytes) and k in width and len(v) != width[k]:
+            raise ValueError(f"COMMAREA {k}: hex is {len(v)} bytes, the field is {width[k]}")
+    return encode_record(fields, named, b"init", enc)
+
+
+def raw_commarea_bytes(values: dict[str, Any]) -> dict[str, Any]:
+    """#6072: a COMMAREA value `{"hex": "F1F2..."}` is the field's raw bytes -- storage no PICTURE can say, such as
+    letters in a PIC 9 field for an IS NUMERIC false arm. Every other value is returned as stated."""
+    return {k: bytes.fromhex(v["hex"]) if isinstance(v, dict) and set(v) == {"hex"} else v for k, v in values.items()}
+
+
+def raw_names_of(sc: dict[str, Any]) -> set[str]:
+    """#6072: the scenario's COMMAREA fields stated as raw bytes (none when it has no COMMAREA)."""
+    return raw_commarea_names(sc["commarea"]) if sc.get("commarea") is not None else set()
+
+
+def raw_commarea_names(values: dict[str, Any]) -> set[str]:
+    """#6072: the COMMAREA fields a scenario states as raw bytes."""
+    return {k for k, v in values.items() if isinstance(v, dict) and set(v) == {"hex"}}
 
 
 def decode_record(data: bytes, fields: list[dict[str, Any]], enc: str = common.DEFAULT_DATA_ENCODING,
@@ -2483,7 +2509,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         for i, data in enumerate(equivalence_mq.start_data(case, sc, enc), 1):  # #4892: the data it was started with
             (d / f"retrieve_{i:03d}.bin").write_bytes(data)
         if DLI_CALL.search(source):  # #5278: the databases (the stub's $GGCICS_DIR)
-            dli_stage(case, corpus, d)
+            dli_stage(case, corpus, d, sc)
         if equivalence_mq.state(case, sc) is not None:  # #4892 (W): the queue manager its MQI calls reach
             (d / "mq.cfg").write_text(equivalence_mq.cfg(equivalence_mq.state(case, sc), enc), encoding="ascii")
         if task_facts(case, sc)[1] is not None:  # #4270: what the operator typed (an unformatted RECEIVE)
@@ -4053,6 +4079,10 @@ class EquivalenceRunTest {{
             List<Map<String, Object>> events = new ArrayList<>();
             for (Map<String, Object> e : task.events()) {{
                 Map<String, Object> copy = new LinkedHashMap<>(e);
+                if (sc.path("raw_commarea").asBoolean() && "RETURN".equals(e.get("event")) && e.get("commarea") != null
+                        && task.returnedBytes() != null) {{  // #6072: the bytes the RETURN passed, a DTO holds a long
+                    copy.put("area", java.util.Base64.getEncoder().encodeToString(task.returnedBytes()));
+                }}
 {screen_copy}                events.add(copy);
             }}
             if (task.currentChannel() != null) {{  // #4270 (X24): the containers left on the task's current channel
@@ -4235,7 +4265,11 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
         ca, area = None, None
         if sc.get("commarea") is not None:  # the very COMMAREA the COBOL task started with, as the DTO
             enc = common.data_encoding(case)  # #3815
-            values = decode_record(commarea_record(ca_read, sc["commarea"], enc), ca_fields, enc, keep_nulls=True)
+            raw_names = raw_commarea_names(
+                sc["commarea"]
+            )  # #6072: bytes the DTO cannot hold; the port gets them as `area`
+            dto_ca = {k: v for k, v in sc["commarea"].items() if k not in raw_names}
+            values = decode_record(commarea_record(ca_read, dto_ca, enc), ca_fields, enc, keep_nulls=True)
             # a value the DTO has no field for would reach the port as nothing at all: the case must name the
             # COMMAREA as the contract DTO's record does
             # #5233: a table's later occurrence (CDEMO-CPVS-AUTH-KEYS(3)) is the DTO's list property, set by the bytes
@@ -4246,7 +4280,7 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
                 raise Unsupported(f"scenario {sc['name']}: the COMMAREA DTO {ca_cls} has no field for {lost} -- "
                                   f"describe the COMMAREA with the record the DTO is generated from")  # fmt: skip
             ca = to_java(values, shape, alphanumeric(ca_fields))
-            if (case.get("linked") or tabled) and not sc.get(
+            if (case.get("linked") or tabled or raw_names) and not sc.get(
                 "dto_entry"
             ):  # #4765: the very bytes the COBOL task was LINKed with (CicsTask.withLinkArea)
                 # #5863: a scenario with "dto_entry" gives the port the DTO alone -- the bytes would overwrite every
@@ -4258,7 +4292,7 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
             m: {f.removesuffix("I"): v for f, v in typed.items()} for m, typed in (sc.get("receive") or {}).items()
         }
         scenarios.append({"name": sc["name"], "aid": sc.get("aid", "DFHENTER").removeprefix("DFH"),
-                          "commarea": ca, "area": area, "receive": receive, "faults": fault_lines(sc), "sql_faults": sc.get("sql_plan", []),
+                          "commarea": ca, "area": area, **({"raw_commarea": True} if raw_names_of(sc) else {}), "receive": receive, "faults": fault_lines(sc), "sql_faults": sc.get("sql_plan", []),
                           "dli_faults": dli_fault_lines(case, sc),
                           "sql_unjudged": sql_unjudged(sc.get("sql_plan", []), seams),
                           "derived": bool(sc.get("derived")), "commarea_length": commarea_length(sc, ca_read),
@@ -4272,7 +4306,7 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
                           **({"td": td_seed(case, sc)} if td_seed(case, sc) else {}),
                           "doctemplates": doctemplates(case, sc), "http_peers": http_peers(case, sc),
                           "http_request": http_request(case, sc), "tcpip": tcpip(case, sc),
-                          **_java_mq(case, sc, inputs, len(scenarios)), **_java_dli(case, corpus, inputs)})  # fmt: skip
+                          **_java_mq(case, sc, inputs, len(scenarios)), **_java_dli(case, corpus, inputs, sc)})  # fmt: skip
     (inputs / "scenarios.json").write_text(json.dumps(scenarios, indent=1), encoding="utf-8")
     props = ej.data_charset_arg(case)
     if case.get("db2"):  # the seed and the dump queries, and the harness's Db2
@@ -4314,11 +4348,12 @@ def _run_facade(ej: Any, project: Path, work: Path, inputs: Path, props: str, se
             facade["refused"][sc["name"]] = why.read_text(encoding="utf-8")
 
 
-def _java_dli(case: dict[str, Any], corpus: Path, inputs: Path) -> dict[str, Any]:
+def _java_dli(case: dict[str, Any], corpus: Path, inputs: Path, sc: dict[str, Any]) -> dict[str, Any]:
     """#5278: a case whose program issues EXEC DLI: the databases' directory (the very files the stub reads) and their names."""
     if not case.get("ims") or not DLI_CALL.search(common.read_program(case, corpus / case["program_source"])[0]):
         return {}
-    return {"dli": {"dir": "dli", "dbs": dli_stage(case, corpus, inputs / "dli")}}
+    where = f"dli-{sc['name']}" if sc.get("ims_seed") else "dli"  # #6072: a scenario's own seed, its own directory
+    return {"dli": {"dir": where, "dbs": dli_stage(case, corpus, inputs / where, sc)}}
 
 
 def _java_mq(case: dict[str, Any], sc: dict[str, Any], inputs: Path, n: int) -> dict[str, Any]:
@@ -4414,8 +4449,9 @@ def _java_events(case: dict[str, Any], out: Path, shape: dict[str, Any],
                 e.update(cics_taskcontrol.java_start_as_compared(e))
             if e.get("event") == "RETRIEVE":  # #5089: the data's bytes as text
                 e.update(cics_taskcontrol.java_retrieve_as_compared(e))
-            if e.get("event") == "COMMAREA" and e.get("area") is not None:  # #4765: the bytes the port left
-                if sc.get("dto_entry") and isinstance(e.get("commarea"), dict):  # #5863: the DTO too (compare_events)
+            if e.get("event") in ("COMMAREA", "RETURN") and e.get("area") is not None:  # #4765: the bytes the port left
+                # #6072: a RETURN too, when the scenario states raw COMMAREA bytes (its DTO holds a number for them)
+                if e.get("event") == "COMMAREA" and sc.get("dto_entry") and isinstance(e.get("commarea"), dict):  # #5863: the DTO too (compare_events)
                     e["dto"] = java_commarea(e["commarea"], shape, ca_fields or [], enc)
                 e["commarea"] = java_area(e.pop("area"), ca_fields or [], enc)
             elif "commarea" in e:

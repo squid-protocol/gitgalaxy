@@ -1,5 +1,5 @@
 {
- "commit": "bbe38ee5a",
+ "commit": "ade30ed57",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -160,7 +160,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-28T13:53:39Z",
+  "as_of": "2026-10-28T15:00:09Z",
   "core": {
    "closed": 186,
    "open": 19,
@@ -187,7 +187,7 @@
   "eta": "7 days",
   "frontier": {
    "closed": 113,
-   "found_last_window": 7,
+   "found_last_window": 6,
    "open": 84,
    "total": 197
   },

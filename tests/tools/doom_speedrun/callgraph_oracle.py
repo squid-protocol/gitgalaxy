@@ -862,7 +862,7 @@ def body_oracle(port):
         for callee in sorted(eng - oracle):
             kind = body.presence(callee) or "absent"
             kind = "function-pointer" if kind.startswith("call:") else kind  # a call the oracle saw is in `oracle`
-            if kind in ("absent", "macro") and macro_reaches(port.macros, body.calls, callee):
+            if kind in ("absent", "macro", "comment/string") and macro_reaches(port.macros, body.calls, callee):
                 expanded += 1  # a macro this body invokes expands to the call (#6770): not a false edge
                 kind = "macro-expansion"
             extra[kind] += 1

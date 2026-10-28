@@ -165,3 +165,45 @@ def test_the_db2_files_are_the_ones_the_workflow_splits_off():
     flat = text.replace('"', "'")
     assert "needs.plan.outputs.db2 != 'none'" in flat
     assert "db2: ${{ steps.plan.outputs.db2 }}" in text
+
+
+# --- scope zos: a test_zos_probes-only change runs one shard, one file -------------------------------------------------
+def test_a_zos_probes_only_change_is_scoped_to_one_file():
+    for files in (["tests/tools/test_zos_probes.py"], ["tests/tools/zos_probes.py", "README.md"]):
+        p = plan(files)
+        assert (p["mode"], p["db2"], p.get("scope")) == ("run", "none", "zos")
+
+
+def test_a_doc_only_the_zos_test_reads_is_scoped_too():
+    docs = [
+        d
+        for d, readers in REFS.items()
+        if "*" not in d and d.startswith("docs/") and set(readers) == {"tests/tools/test_zos_probes.py"}
+    ]
+    for d in docs:
+        assert plan([d]).get("scope") == "zos"
+
+
+@pytest.mark.parametrize(
+    "files",
+    [
+        ["tests/tools/test_zos_probes.py", "tests/cobol_mainframe/test_det_funcs.py"],
+        ["tests/tools/test_zos_probes.py", "gitgalaxy/tools/cobol_to_java/det/translator.py"],
+        ["tests/tools/test_zos_probes.py", ".github/workflows/equivalence-e2e.yml"],
+        ["tests/tools/zos_probes.py", "tests/tools/equivalence.py"],
+    ],
+)
+def test_anything_else_in_the_area_keeps_all_shards(files):
+    assert plan(files).get("scope") is None
+
+
+def test_label_and_nightly_never_narrow():
+    assert plan(["tests/tools/test_zos_probes.py"], labels=["shepherd:full"]).get("scope") is None
+    assert plan(["tests/tools/test_zos_probes.py"], "schedule").get("scope") is None
+
+
+def test_the_workflow_narrows_the_shards_on_scope_zos():
+    text = (REPO / ".github" / "workflows" / "equivalence-e2e.yml").read_text(encoding="utf-8")
+    assert "scope: ${{ steps.plan.outputs.scope }}" in text
+    assert "needs.plan.outputs.scope == 'zos' && '[1]' || '[1, 2, 3]'" in text
+    assert text.count("needs.plan.outputs.scope == 'zos'") >= 2 and "scope != 'zos'" in text

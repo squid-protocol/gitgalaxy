@@ -71,6 +71,7 @@ jobs:
     outputs:
       mode: ${{ steps.plan.outputs.mode }}
       db2: ${{ steps.plan.outputs.db2 }}
+      scope: ${{ steps.plan.outputs.scope }}  # zos: only test_zos_probes.py can move (one shard); empty or all: the three
     steps:
       - name: Check out the planner
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -120,7 +121,7 @@ jobs:
     strategy:
       fail-fast: false  # every shard reports its own failures
       matrix:
-        group: [1, 2, 3]
+        group: ${{ fromJSON(needs.plan.outputs.scope == 'zos' && '[1]' || '[1, 2, 3]') }}
     env:
       GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
       PYTHONUTF8: "1"
@@ -226,7 +227,17 @@ jobs:
       # the selector (#6664: only the files whose result can differ from ground-truth's, tests/tools/equivalence_e2e_select.py).
       # The split weighs tests by tests/equivalence_e2e_durations.json: .test_durations is recorded by ground-truth, where
       # these tests skip, so it weighs them ~0 s (refresh: docs/ci_env_gated_tests.md).
+      # scope zos (the planner): a change to only test_zos_probes.py / zos_probes.py (or a doc only that test reads) runs that
+      # one file on one runner; the whole selection below runs for every other change
+      - name: tests/tools/test_zos_probes.py under EQUIVALENCE_E2E (plan scope zos)
+        if: ${{ needs.plan.outputs.scope == 'zos' }}
+        env:
+          EQUIVALENCE_E2E: "1"
+          GITGALAXY_ORACLE_STRICT: "1"
+        run: pytest tests/tools/test_zos_probes.py -q -ra --timeout=1200 -p no:cacheprovider
+
       - name: tests/cobol_mainframe under EQUIVALENCE_E2E, shard ${{ matrix.group }}/3
+        if: ${{ needs.plan.outputs.scope != 'zos' }}
         env:
           EQUIVALENCE_E2E: "1"
           GITGALAXY_ORACLE_STRICT: "1"

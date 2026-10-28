@@ -135,7 +135,15 @@ def statements(text: str) -> list[Stmt]:
         start, body = i, raw[:71]
         while _continues(lines[i]) and i + 1 < len(lines):
             i += 1
-            body += " " + lines[i][15:71].strip()
+            # HLASM resumes a continuation at column 16 and wants columns 1-15 blank. zECS's ZECS002 starts `NOHANDLE` in
+            # column 15; the CICS translator, which reads an EXEC CICS before the assembler does, takes the line's text
+            # wherever it starts, so that is the rule for EXEC CICS. Any other statement is refused, never a letter dropped.
+            if lines[i][:15].strip():
+                if " ".join(body.split()[:3]).find("EXEC CICS") < 0:
+                    raise Refused(f"line {i + 1}: continuation text before column 16")
+                body += " " + lines[i][:71].strip()
+            else:
+                body += " " + lines[i][15:71].strip()
         i += 1
         label = "" if body[:1] in (" ", "\t") else body.split()[0]
         rest = body[len(label) :].strip()

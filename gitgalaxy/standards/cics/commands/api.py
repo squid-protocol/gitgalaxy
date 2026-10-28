@@ -184,7 +184,6 @@ _NAME_ONLY: tuple[tuple[str, str | None, str], ...] = (
     ("SIGNOFF", None, _SECURITY),
     ("SIGNON", None, _SECURITY),
     ("SIGNON TOKEN", None, _SECURITY),
-    ("VERIFY PASSWORD", None, _SECURITY),
     ("VERIFY PHRASE", None, _SECURITY),
     ("VERIFY TOKEN", None, _SECURITY),
     # documents

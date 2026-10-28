@@ -95,6 +95,8 @@ def test_a_ruled_program_without_the_ruled_statements_is_refused():
 
 @pytest.fixture(scope="module")
 def stub(tmp_path_factory):
+    if os.name == "nt":  # the stub is a posix oracle part; a mingw .so has no runtime DLLs to load (#6821)
+        pytest.skip("posix oracle stub")
     cc = shutil.which("gcc") or shutil.which("cc")
     if not cc:
         pytest.skip("no C compiler")
@@ -155,8 +157,6 @@ def test_the_annuity_of_a_zero_rate_is_one_over_n(stub):
 
 
 def test_the_stub_fails_loudly_where_binary64_has_no_fixed_point_value(stub, tmp_path):
-    if os.name == "nt":
-        pytest.skip("posix subprocess")
     cc = shutil.which("gcc") or shutil.which("cc")
     driver = tmp_path / "d.c"
     driver.write_text(

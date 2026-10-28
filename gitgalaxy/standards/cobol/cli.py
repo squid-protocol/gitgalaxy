@@ -28,6 +28,20 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
+from gitgalaxy.standards.cobol.arith import (
+    ARITH_RULES,
+    ARITH_VECTORS,
+    NAN_SCALE,
+    ROUND_NEAREST_AWAY_FROM_ZERO,
+    ROUND_NEAREST_EVEN,
+    ROUND_NEAREST_TOWARD_ZERO,
+    ROUND_PROHIBITED,
+    ROUND_TOWARD_GREATER,
+    ROUND_TOWARD_LESSER,
+    ROUND_TRUNCATION,
+    ROUNDING_MODES,
+    SIZE_ERROR_CONDITIONS,
+)
 from gitgalaxy.standards.cobol.compare import (
     COMPARE_MATRIX,
     COMPARE_MODES,
@@ -50,10 +64,13 @@ BANNER = "generated from gitgalaxy/standards/cobol by `python -m gitgalaxy.stand
 ROOT = Path(__file__).resolve().parents[3]
 MOVE_JAVA_FILE = Path("gitgalaxy/tools/cobol_to_java/det/cobolrt/MoveSpec.java")
 COMPARE_JAVA_FILE = Path("gitgalaxy/tools/cobol_to_java/det/cobolrt/CompareSpec.java")
+ARITH_JAVA_FILE = Path("gitgalaxy/tools/cobol_to_java/det/cobolrt/ArithSpec.java")
 MOVE_DOCS_FILE = Path("docs/language_status/cobol_move_matrix.md")
 COMPARE_DOCS_FILE = Path("docs/language_status/cobol_compare_matrix.md")
+ARITH_DOCS_FILE = Path("docs/language_status/cobol_arith_matrix.md")
 MOVE_TEST_FILE = Path("tests/cobol_mainframe/test_cobol_move_vectors.py")
 COMPARE_TEST_FILE = Path("tests/cobol_mainframe/test_cobol_compare_vectors.py")
+ARITH_TEST_FILE = Path("tests/cobol_mainframe/test_cobol_arith_vectors.py")
 JAVA_PACKAGE = "__PACKAGE__.cobolrt"
 
 
@@ -122,6 +139,38 @@ def as_json() -> dict[str, Any]:
                 for v in COMPARE_VECTORS
             ],
         },
+        "arith": {
+            "rounding_modes": {
+                k: {
+                    "mode_id": v.mode_id,
+                    "name": v.name,
+                    "java_mode": v.java_mode,
+                    "description": v.description,
+                    "ibm_clause": v.ibm_clause,
+                }
+                for k, v in ROUNDING_MODES.items()
+            },
+            "size_error_conditions": [dataclasses.asdict(c) for c in SIZE_ERROR_CONDITIONS],
+            "rules": {k: dataclasses.asdict(r) for k, r in ARITH_RULES.items()},
+            "vectors": [
+                {
+                    "id": v.id,
+                    "title": v.title,
+                    "rule_id": v.rule_id,
+                    "operation": v.operation,
+                    "operand_a": v.operand_a,
+                    "operand_b": v.operand_b,
+                    "scale": v.scale,
+                    "digits": v.digits,
+                    "signed": v.signed,
+                    "rounded_mode": v.rounded_mode,
+                    "expected_result": v.expected_result,
+                    "expected_size_error": v.expected_size_error,
+                    "note": v.note,
+                }
+                for v in ARITH_VECTORS
+            ],
+        },
     }
 
 
@@ -164,6 +213,9 @@ def problems() -> list[str]:
             out.extend(
                 f"COMPARE rule {rid} not found in cobolrt_rules.json" for rid in COMPARE_RULES if rid not in known_ids
             )
+            out.extend(
+                f"ARITH rule {rid} not found in cobolrt_rules.json" for rid in ARITH_RULES if rid not in known_ids
+            )
         except Exception as e:
             out.append(f"unable to verify against cobolrt_rules.json: {e}")
 
@@ -177,6 +229,11 @@ def problems() -> list[str]:
         f"COMPARE test vector {vec.id} cites unknown rule {vec.rule_id}"
         for vec in COMPARE_VECTORS
         if vec.rule_id not in COMPARE_RULES
+    )
+    out.extend(
+        f"ARITH test vector {vec.id} cites unknown rule {vec.rule_id}"
+        for vec in ARITH_VECTORS
+        if vec.rule_id not in ARITH_RULES
     )
 
     return out
@@ -638,15 +695,275 @@ def test_compare_nonnumeric_space_padded():
 '''
 
 
+def render_arith_java(package: str = JAVA_PACKAGE) -> str:
+    """Generate ArithSpec.java."""
+    rule_cases = "\n".join(f'            case "{r}" -> "{r}";' for r in sorted(ARITH_RULES))
+
+    return f"""// {BANNER}
+package {package};
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.math.RoundingMode;
+
+/**
+ * Declarative COBOL Arithmetic, Rounding, Intermediate Precision, and Size Error specification.
+ *
+ * <p>Reference: IBM Enterprise COBOL for z/OS 6.4 Language Reference (SC26-4940-06).
+ * Follows the table-driven code generation pattern established by CicsSpec.java (#4586, #4608).
+ */
+public final class ArithSpec {{
+    private ArithSpec() {{
+    }}
+
+    // Rounding modes (IBM Enterprise COBOL ROUNDED / ROUNDED MODE IS ...)
+    public static final int ROUND_TRUNCATION = {ROUND_TRUNCATION};
+    public static final int ROUND_NEAREST_AWAY_FROM_ZERO = {ROUND_NEAREST_AWAY_FROM_ZERO};
+    public static final int ROUND_NEAREST_EVEN = {ROUND_NEAREST_EVEN};
+    public static final int ROUND_NEAREST_TOWARD_ZERO = {ROUND_NEAREST_TOWARD_ZERO};
+    public static final int ROUND_TOWARD_GREATER = {ROUND_TOWARD_GREATER};
+    public static final int ROUND_TOWARD_LESSER = {ROUND_TOWARD_LESSER};
+    public static final int ROUND_PROHIBITED = {ROUND_PROHIBITED};
+
+    public static final int NAN_SCALE = {NAN_SCALE};
+
+    /** Map integer rounding mode to java.math.RoundingMode. */
+    public static RoundingMode roundingMode(int mode) {{
+        return switch (mode) {{
+            case ROUND_TRUNCATION -> RoundingMode.DOWN;
+            case ROUND_NEAREST_AWAY_FROM_ZERO -> RoundingMode.HALF_UP;
+            case ROUND_NEAREST_EVEN -> RoundingMode.HALF_EVEN;
+            case ROUND_NEAREST_TOWARD_ZERO -> RoundingMode.HALF_DOWN;
+            case ROUND_TOWARD_GREATER -> RoundingMode.CEILING;
+            case ROUND_TOWARD_LESSER -> RoundingMode.FLOOR;
+            case ROUND_PROHIBITED -> RoundingMode.UNNECESSARY;
+            default -> throw new IllegalArgumentException("Unknown rounding mode: " + mode);
+        }};
+    }}
+
+    /** COBOL standard clause name for rounding mode. */
+    public static String modeName(int mode) {{
+        return switch (mode) {{
+            case ROUND_TRUNCATION -> "TRUNCATION";
+            case ROUND_NEAREST_AWAY_FROM_ZERO -> "NEAREST-AWAY-FROM-ZERO";
+            case ROUND_NEAREST_EVEN -> "NEAREST-EVEN";
+            case ROUND_NEAREST_TOWARD_ZERO -> "NEAREST-TOWARD-ZERO";
+            case ROUND_TOWARD_GREATER -> "TOWARD-GREATER";
+            case ROUND_TOWARD_LESSER -> "TOWARD-LESSER";
+            case ROUND_PROHIBITED -> "PROHIBITED";
+            default -> "UNKNOWN";
+        }};
+    }}
+
+    /** Intermediate division quotient scale: 38 + max(scaleA - scaleB, 0). */
+    public static int divideIntermediateScale(int scaleA, int scaleB) {{
+        return 38 + Math.max(scaleA - scaleB, 0);
+    }}
+
+    /** DIVIDE ... REMAINDER formula: dividend - (quotient.setScale(scale, DOWN) * divisor). */
+    public static BigDecimal divideRemainder(BigDecimal a, BigDecimal q, BigDecimal b, int scale) {{
+        if (q.scale() == NAN_SCALE) {{
+            return q;
+        }}
+        return a.subtract(q.setScale(scale, RoundingMode.DOWN).multiply(b));
+    }}
+
+    /** True if scaled value exceeds the receiver's PICTURE integer capacity. */
+    public static boolean isOverflow(BigDecimal value, int digits, int scale) {{
+        BigDecimal v = value.setScale(scale, RoundingMode.DOWN);
+        return v.unscaledValue().abs().compareTo(BigInteger.TEN.pow(digits)) >= 0;
+    }}
+
+    /** Get registered rule ID from key. */
+    public static String ruleId(String key) {{
+        return switch (key) {{
+{rule_cases}
+            default -> "UNKNOWN";
+        }};
+    }}
+}}
+"""
+
+
+def render_arith_markdown() -> str:
+    """Generate docs/language_status/cobol_arith_matrix.md."""
+    rm_rows = [
+        f"| `{spec.mode_id}` | `{spec.name}` | `{spec.java_mode}` | {spec.ibm_clause} | {spec.description} |"
+        for _, spec in sorted(ROUNDING_MODES.items())
+    ]
+    rm_table = "\n".join(rm_rows)
+
+    se_rows = [
+        f"| `{se.condition}` | {se.trigger} | {se.receiver_action} | `{se.rule_id}` | {se.description} |"
+        for se in SIZE_ERROR_CONDITIONS
+    ]
+    se_table = "\n".join(se_rows)
+
+    r_rows = []
+    for rid, meta in sorted(ARITH_RULES.items()):
+        doc_sec = f"{meta.ibm['doc']}: {meta.ibm['section']}" if meta.ibm else (meta.ibm_note or "-")
+        reg = ", ".join(f"`{x}`" for x in meta.register) if meta.register else "-"
+        r_rows.append(f"| `{rid}` | `{meta.status}` | {meta.title} | {doc_sec} | {reg} |")
+    r_table = "\n".join(r_rows)
+
+    v_rows = [
+        f"| `{vec.id}` | {vec.title} | `{vec.rule_id}` | `{vec.operation}` | `{vec.expected_result}` | {'YES' if vec.expected_size_error else 'NO'} | {vec.note} |"
+        for vec in ARITH_VECTORS
+    ]
+    v_table = "\n".join(v_rows)
+
+    return f"""<!-- {BANNER} -->
+# COBOL Arithmetic, Rounding & Intermediate Precision Specification (#4712)
+
+Part of the **cobolrt-as-a-product** epic ([#4710](https://github.com/squid-protocol/gitgalaxy/issues/4710)).
+Single source of truth: [`gitgalaxy/standards/cobol/arith.py`](../../gitgalaxy/standards/cobol/arith.py).
+Generated by `python -m gitgalaxy.standards.cobol regen`.
+
+Reference: **IBM Enterprise COBOL for z/OS 6.4 Language Reference (SC26-4940-06)**
+Chapters: *Arithmetic statements*, *Common phrases and concepts for arithmetic statements*,
+*DIVIDE statement*, *COMPUTE statement*.
+
+## 1. Rule Catalogue (ARITH Family)
+
+| Rule ID | Status | Title | IBM Manual Reference | Register |
+| :--- | :--- | :--- | :--- | :--- |
+{r_table}
+
+## 2. Rounding Modes (IBM Enterprise COBOL ROUNDED / ROUNDED MODE IS ...)
+
+| ID | Mode Name | Java RoundingMode | IBM Syntax Clause | Behavior |
+| :--- | :--- | :--- | :--- | :--- |
+{rm_table}
+
+## 3. Size Error Conditions (ON SIZE ERROR Phrase)
+
+| Condition | Trigger Event | Receiver Action | Governed By Rule | Description |
+| :--- | :--- | :--- | :--- | :--- |
+{se_table}
+
+## 4. Intermediate Precision & Scaling Specifications
+
+- **Division Intermediate Quotient Scale Formula:**
+  `scale = 38 + max(scaleA - scaleB, 0)` with `RoundingMode.DOWN`.
+- **DIVIDE ... REMAINDER Formula:**
+  `Remainder = Dividend - (Quotient_truncated_to_giving_scale * Divisor)`.
+- **NaN Scale Marker:** `-32768` (`Cobol.NAN_SCALE` / libcob `COB_DECIMAL_NAN`).
+- **Unsigned Binary Native Arithmetic Rule:** Absolute value taken under IBM Enterprise COBOL semantics.
+
+## 5. Deterministic Test Vectors
+
+| Vector ID | Title | Rule Verified | Operation | Expected Result | Size Error? | Note |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+{v_table}
+"""
+
+
+def render_arith_tests() -> str:
+    """Generate tests/cobol_mainframe/test_cobol_arith_vectors.py."""
+    return '''# ==============================================================================
+# GitGalaxy
+# Copyright (c) 2026 Joe Esquibel
+#
+# This source code is licensed under the PolyForm Noncommercial License 1.0.0.
+# You may not use this file except in compliance with the License.
+# A copy of the license can be found in the LICENSE file in the root directory
+# of this project, or at https://polyformproject.org/licenses/noncommercial/1.0.0/
+# ==============================================================================
+"""Test vectors for the COBOL Arithmetic and Rounding rules (#4712, epic #4710).
+
+Generated from gitgalaxy/standards/cobol by `python -m gitgalaxy.standards.cobol regen`.
+Verifies that the declarative arithmetic rules, rounding modes, size error conditions,
+and deterministic test vectors execute directly in CI without requiring Docker or external compilers.
+"""
+
+from __future__ import annotations
+
+import sys
+from decimal import Decimal
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parents[2]
+if str(REPO) not in sys.path:
+    sys.path.insert(0, str(REPO))
+
+import pytest
+
+from gitgalaxy.standards.cobol.arith import (
+    ARITH_RULES,
+    ARITH_VECTORS,
+    ROUNDING_MODES,
+    SIZE_ERROR_CONDITIONS,
+    calculate_divide_intermediate_scale,
+    calculate_divide_remainder,
+)
+from gitgalaxy.standards.cobol.cli import problems, stale
+
+
+def test_cobol_arith_spec_has_no_problems():
+    """Verify internal consistency of standards/cobol arithmetic rules."""
+    errs = problems()
+    assert errs == [], f"cobol spec has consistency problems: {errs}"
+
+
+def test_cobol_arith_generated_files_are_not_stale():
+    """Verify committed ArithSpec.java, docs, and tests match the standards tables."""
+    diff = stale()
+    assert diff == [], f"standards generated files are stale: {diff}; run `python -m gitgalaxy.standards.cobol regen`"
+
+
+def test_all_arith_modes_and_rules_defined():
+    """Verify all rounding modes, size error specs, and rules are defined."""
+    assert len(ROUNDING_MODES) == 7
+    assert len(SIZE_ERROR_CONDITIONS) == 5
+    assert len(ARITH_RULES) == 10
+    assert len(ARITH_VECTORS) >= 12
+
+
+@pytest.mark.parametrize("vec", ARITH_VECTORS, ids=lambda v: v.id)
+def test_arith_vector_rule_alignment(vec):
+    """Verify each test vector correctly aligns with a registered rule."""
+    assert vec.rule_id in ARITH_RULES
+    meta = ARITH_RULES[vec.rule_id]
+    assert meta.id == vec.rule_id
+
+
+def test_divide_intermediate_scale_formula():
+    """Verify intermediate quotient scale calculation."""
+    assert calculate_divide_intermediate_scale(2, 1) == 39
+    assert calculate_divide_intermediate_scale(0, 2) == 38
+    assert calculate_divide_intermediate_scale(5, 0) == 43
+
+
+def test_divide_remainder_scale_truncation():
+    """Verify DIVIDE ... REMAINDER formula with scale truncation."""
+    dividend = Decimal("100")
+    divisor = Decimal("7")
+    giving_scale = 1
+    rem = calculate_divide_remainder(dividend, divisor, giving_scale)
+    assert rem == Decimal("0.6")
+
+
+def test_rounding_modes_mapping():
+    """Verify each COBOL rounding mode maps to a valid decimal rounding mode."""
+    for mode in ROUNDING_MODES.values():
+        if mode.python_mode is not None:
+            val = Decimal("1.25").quantize(Decimal("1.1"), rounding=mode.python_mode)
+            assert isinstance(val, Decimal)
+'''
+
+
 def generated() -> dict[Path, str]:
     """The committed generated files and the text the spec renders for each."""
     return {
         MOVE_JAVA_FILE: render_move_java(),
         COMPARE_JAVA_FILE: render_compare_java(),
+        ARITH_JAVA_FILE: render_arith_java(),
         MOVE_DOCS_FILE: render_move_markdown(),
         COMPARE_DOCS_FILE: render_compare_markdown(),
+        ARITH_DOCS_FILE: render_arith_markdown(),
         MOVE_TEST_FILE: render_move_tests(),
         COMPARE_TEST_FILE: render_compare_tests(),
+        ARITH_TEST_FILE: render_arith_tests(),
     }
 
 
@@ -692,14 +1009,20 @@ def main(argv: Sequence[str] | None = None) -> int:
             )
             for rid, cr in sorted(COMPARE_RULES.items()):
                 print(f"  {rid:<38} {cr.status:<9} {cr.title[:45]}")
+            print(
+                f"COBOL ARITH Standards: {len(ARITH_RULES)} rules, {len(ROUNDING_MODES)} rounding modes, {len(ARITH_VECTORS)} vectors"
+            )
+            for rid, ar in sorted(ARITH_RULES.items()):
+                print(f"  {rid:<38} {ar.status:<9} {ar.title[:45]}")
         return 0
 
     if args.cmd == "check":
         found = problems()
         for p in found:
             print(p)
+        total_rules = len(MOVE_RULES) + len(COMPARE_RULES) + len(ARITH_RULES)
         print(
-            f"cobol spec: {len(MOVE_RULES) + len(COMPARE_RULES)} rules, {len(MOVE_MATRIX) + len(COMPARE_MATRIX)} matrix cells, {'ok' if not found else f'{len(found)} problem(s)'}"
+            f"cobol spec: {total_rules} rules, {len(MOVE_MATRIX) + len(COMPARE_MATRIX)} matrix cells, {'ok' if not found else f'{len(found)} problem(s)'}"
         )
         return 1 if found else 0
 

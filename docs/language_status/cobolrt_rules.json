@@ -105,7 +105,8 @@
    "files": [
     "Cobol.java",
     "MoveSpec.java",
-    "CompareSpec.java"
+    "CompareSpec.java",
+    "ArithSpec.java"
    ],
    "done": true,
    "about": "MOVE, arithmetic stores and intermediates, comparisons, class tests, DISPLAY, STRING / UNSTRING / INSPECT, the LINK COMMAREA.",
@@ -122,7 +123,11 @@
     "modeName",
     "isNumericComparison",
     "requiresDigitConversion",
-    "compareBytes"
+    "compareBytes",
+    "roundingMode",
+    "divideIntermediateScale",
+    "divideRemainder",
+    "isOverflow"
    ]
   },
   {

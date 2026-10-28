@@ -1860,7 +1860,10 @@ int GGCVER(gg_cics *c, char *userid, int ulen) {
     while (n > 0 && userid[n - 1] == ' ') n--;
     memcpy(id, userid, (size_t)n);
     id[n] = '\0';
-    if (!injected("VERIFY", id, &fresp, &fresp2)) refuse("VERIFY PASSWORD with no stated verdict");
+    if (!injected("VERIFY", id, &fresp, &fresp2)) {
+        snprintf(ev, sizeof ev, "VERIFY PASSWORD with no stated verdict for USERID '%s'", id);
+        refuse(ev);
+    }
     c->resp = fresp;
     c->resp2 = fresp2;
     snprintf(ev, sizeof ev, "VERIFY-PASSWORD userid=%s resp=%d", id, c->resp);

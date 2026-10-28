@@ -374,3 +374,37 @@ def test_a_line_past_column_72_is_refused_rather_than_truncated():
             "         EXEC CICS RETURN",
             data=(f"{name} DS CL4",),
         )
+
+
+# ---- slice 3e: assembler symbols spelled like a COBOL reserved word (ZECS002's PASSWORD field) ---------------------------
+def test_reserved_word_field_is_renamed_where_declared_and_used():
+    out = lower(
+        "         MVC   PASSWORD,W_A",
+        "         EXEC CICS VERIFY USERID(W_A) PASSWORD(PASSWORD) NOHANDLE",
+        "         EXEC CICS RETURN",
+        data=("PASSWORD DS    CL4",),
+    )
+    code = [ln for ln in out.splitlines() if not ln.startswith("      *")]
+    assert "TO PASSWORD-HL" in " ".join(code) and "PASSWORD(PASSWORD-HL)" in " ".join(code)
+    assert "       01  PASSWORD-HL PIC X(4)." in code
+
+
+@pytest.mark.parametrize("word", ["DATE", "TIME", "FILE", "KEY", "LABEL", "STATUS"])
+def test_other_reserved_words_are_renamed(word):
+    out = lower("         MVC   " + word + ",W_A", "         EXEC CICS RETURN", data=(f"{word:<8} DS    CL4",))
+    assert f"{word}-HL" in out
+
+
+def test_reserved_word_label_is_renamed():
+    out = lower("         B     DATE", "DATE     DS    0H", "         EXEC CICS RETURN")
+    assert "DATE-HL" in out
+
+
+def test_a_name_that_is_not_reserved_is_untouched():
+    out = lower("         MVC   W_A,W_B", "         EXEC CICS RETURN")
+    assert "-HL" not in out.replace("HL-R", "")
+
+
+def test_rename_collision_is_refused():
+    with pytest.raises(hlasm.Refused, match="collides"):
+        lower("         EXEC CICS RETURN", data=("PASSWORD DS    CL8", "PASSWORD_HL DS CL8"))

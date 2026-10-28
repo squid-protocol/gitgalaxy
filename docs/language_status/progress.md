@@ -1,6 +1,6 @@
 # Progress
 
-Generated from main at `fc840891b` by `tests/tools/progress_report.py` (#5280); do not edit. Every
+Generated from main at `6001f6be0` by `tests/tools/progress_report.py` (#5280); do not edit. Every
 denominator is fixed and every number names its source below. A level is an evidence level, never a bare
 claim of correctness: the oracle is GnuCOBOL plus IBM documentation, not z/OS.
 
@@ -59,12 +59,12 @@ Source: tests/fixtures/feature_inventory/<estate>.json (era_tags.py). Programs p
 
 ## 4. Core burn-down
 
-Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-10-27T23:49:00Z.
+Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-10-28T00:15:44Z.
 
-- `scope:core`: 18 open, 185 closed.
-- Milestone 28: 5 open, 98 closed.
-- Last 7 days: 18 opened, 34 closed, net +16 closed.
-- ETA (open / net closure rate): **8 days**.
+- `scope:core`: 19 open, 185 closed.
+- Milestone 28: 6 open, 98 closed.
+- Last 7 days: 19 opened, 34 closed, net +15 closed.
+- ETA (open / net closure rate): **9 days**.
 
 ## 5. Gap Atlas
 

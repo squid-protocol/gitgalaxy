@@ -1,5 +1,5 @@
 {
- "commit": "fc840891b",
+ "commit": "6001f6be0",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -160,22 +160,22 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-27T23:49:00Z",
+  "as_of": "2026-10-28T00:15:44Z",
   "core": {
    "closed": 185,
-   "open": 18,
-   "total": 203
+   "open": 19,
+   "total": 204
   },
   "core_last_window": {
    "closed": 34,
-   "net_closed": 16,
-   "opened": 18
+   "net_closed": 15,
+   "opened": 19
   },
   "core_milestone": {
    "closed": 98,
    "number": 28,
-   "open": 5,
-   "total": 103
+   "open": 6,
+   "total": 104
   },
   "epics": {
    "4890": "open",
@@ -184,7 +184,7 @@
    "4893": "open",
    "4894": "open"
   },
-  "eta": "8 days",
+  "eta": "9 days",
   "frontier": {
    "closed": 112,
    "found_last_window": 7,
@@ -382,9 +382,9 @@
    {
     "closed": 259,
     "number": 28,
-    "open": 6,
+    "open": 7,
     "title": "Training Montage \ud83c\udfcb\ufe0f \u2014 Prepping to one-shot our 4th CICS to Java translation attempt",
-    "total": 265
+    "total": 266
    },
    {
     "closed": 1,

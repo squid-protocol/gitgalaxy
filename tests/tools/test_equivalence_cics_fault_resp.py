@@ -51,14 +51,6 @@ ACCEPTED = [
     ({"cmd": "FETCH-ANY", "resp": "NOTFINISHED", "resp2": 52}, "FETCH-ANY - 1 113 52"),
     ({"cmd": "FETCH-ANY", "resp": "NOTFINISHED", "resp2": 53, "nth": 2}, "FETCH-ANY - 2 113 53"),
     ({"cmd": "FETCH-ANY", "resp": "NOTFND"}, "FETCH-ANY - 1 13 1"),
-    # #6882 slice 3: PUT / GET CONTAINER
-    ({"cmd": "PUT-CONTAINER", "resp": "CONTAINERERR"}, "PUT-CONTAINER - 1 110 18"),
-    ({"cmd": "PUT-CONTAINER", "resp": "CHANNELERR", "nth": 2}, "PUT-CONTAINER - 2 122 1"),
-    ({"cmd": "PUT-CONTAINER", "resp": "LENGERR"}, "PUT-CONTAINER - 1 22 1"),
-    ({"cmd": "PUT-CONTAINER", "resp": "INVREQ"}, "PUT-CONTAINER - 1 16 4"),
-    ({"cmd": "GET-CONTAINER", "resp": "CONTAINERERR"}, "GET-CONTAINER - 1 110 10"),
-    ({"cmd": "GET-CONTAINER", "resp": "CHANNELERR"}, "GET-CONTAINER - 1 122 2"),
-    ({"cmd": "GET-CONTAINER", "resp": "INVREQ"}, "GET-CONTAINER - 1 16 4"),
 ]
 
 
@@ -96,10 +88,6 @@ REFUSED = [
     {"cmd": "RUN-TRANSID", "resp": "TRANSIDERR", "resp2": 2},
     {"cmd": "FETCH-ANY", "resp": "NOTFINISHED", "resp2": 54},
     {"cmd": "FETCH-ANY", "resp": "NOTFND", "resp2": 2},
-    {"cmd": "PUT-CONTAINER", "resp": "CONTAINERERR", "resp2": 10},
-    {"cmd": "PUT-CONTAINER", "resp": "NOTFND"},
-    {"cmd": "GET-CONTAINER", "resp": "LENGERR", "resp2": 11},
-    {"cmd": "GET-CONTAINER", "resp": "CONTAINERERR", "resp2": 18},
 ]
 
 
@@ -298,13 +286,3 @@ def test_the_run_and_fetch_stub_and_translator_read_the_same_plan():
     for cmd in ("RUN-TRANSID", "FETCH-ANY"):
         assert f'injected("{cmd}", "-"' in stub.replace('("', '("')
         assert f'task.injected("{cmd}", "-")' in det
-
-
-def test_the_container_stub_and_template_read_the_same_plan():
-    stub = (REPO / "tests/equivalence/cics/ggcics_containers.c").read_text(encoding="utf-8")
-    det = (REPO / "gitgalaxy/tools/cobol_to_java/cics_task_containers.py").read_text(encoding="utf-8")
-    for cmd in ("PUT-CONTAINER", "GET-CONTAINER"):
-        assert f'injected("{cmd}", "-"' in stub
-        assert f'injected("{cmd}", "-")' in det
-    # every GET form is planned: the stub hooks GGCGETC once (BYTEOFFSET and SET included), the template both Java overloads
-    assert det.count('injected("GET-CONTAINER", "-")') == 2

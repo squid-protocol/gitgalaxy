@@ -56,6 +56,7 @@ FAULT_COMMANDS = (
     "SYNCPOINT",
     "ROLLBACK",
     "DELAY",  # #6271 (register X72): nameless, like RETURN
+    "VERIFY",  # #5859 (register X32): its `userid`; NORMAL, USERIDERR, NOTAUTH, INVREQ, no RESP2
     "SET-TERMINAL",  # #6882 (register X26): nameless (only the task's own terminal is allowed); INQ-TERMINAL too
     "INQ-TERMINAL",
     "RUN-TRANSID",  # #6882 (register X18): nameless; FETCH-ANY too (FETCH CHILD is not planned: no burned program codes RESP on it)
@@ -75,6 +76,7 @@ _FAULT_NAME = (
     "reqid",
     "resource",
     "map",
+    "userid",  # #5859 (X32): VERIFY PASSWORD's USERID
 )  # #4049: the resource a fault names, by key
 
 # #5044 (register X49, extends #4623's X48): the conditions a file command may be planned with, per command, and the RESP2
@@ -219,6 +221,9 @@ UI_FAULT_CONDITIONS: dict[str, dict[str, tuple[int, ...]]] = {
     # #6271 (X72): DELAY -- EXPIRED (a TIME already past; no RESP2) and INVREQ RESP2 4 / 5 / 6 / 22 (hours / minutes / seconds /
     # milliseconds out of range). IBM's NORMAL RESP2 23 (cancelled by another task) needs a second task: refused (X72)
     "DELAY": {"EXPIRED": (), "INVREQ": (4, 5, 6, 22)},
+    # #5859 (X32): VERIFY PASSWORD -- the verdict the scenario states for the USERID (no security manager here); no RESP2 is
+    # stated (IBM's reason codes are not copied), and the password is not compared
+    "VERIFY": {"NORMAL": (), "USERIDERR": (), "NOTAUTH": (), "INVREQ": ()},
     # #6882 (X26): SET TERMINAL -- TERMIDERR RESP2 23 (the terminal cannot be found), INVREQ RESP2 43 (invalid UCTRANST CVDA);
     # INQUIRE TERMINAL -- TERMIDERR RESP2 1. Every other condition IBM lists needs a device or remote system: refused (X26)
     "SET-TERMINAL": {"TERMIDERR": (23,), "INVREQ": (43,)},
@@ -255,6 +260,8 @@ def _ui_fault_resp2(sc: dict[str, Any], f: dict[str, Any], cmd: str, resp2: int)
     reg = (
         "X72"
         if cmd == "DELAY"
+        else "X32"
+        if cmd == "VERIFY"
         else "X26"
         if cmd.endswith("-TERMINAL")
         else "X18"

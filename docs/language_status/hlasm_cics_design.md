@@ -106,6 +106,10 @@ operand.
 
   `ABEND ... NOHANDLE` is modelled (IBM lists no ABEND condition, so it suppresses nothing). ZECSNC is still L0.
 - ZECS002 is refused at its first construct outside the subset: `DC 08XL01'40'`.
+- The ladder report keeps both programs in the fixed 129-program denominator. ZECS002 is listed apart in the "refused
+  whole: not COBOL" row of the progress page (`tests/tools/ladder_exclusions.py`, #5280), so it is not read as COBOL
+  translator work; the page reports the entry as stale once it leaves L0. ZECSNC has no entry: it lowers and
+  translates, so it is core work counted in the reachable denominator.
 
 ## Remaining slices
 

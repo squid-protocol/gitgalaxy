@@ -10,6 +10,9 @@ distance from 1. Blue is below linuxdoom, red above, white equal. A cell with no
 column is the port's ``other`` share (functions no subsystem could place), so a port whose renderer sits under
 ``other`` is visible as such. Standard library only (no matplotlib): the SVG is written by hand.
 
+``--metric cx10`` plots the share of a subsystem's functions with complexity >= 10 instead: not a ratio, so a linear
+white -> red scale from 0% to ``CX10_FULL`` %, labels in whole percent, no cell grey except where the subsystem is absent.
+
 Outputs ``<work>/results/<sha>/distribution/subsystem_<metric>.svg``.
 """
 
@@ -31,11 +34,12 @@ import doom_speedrun  # noqa: E402
 CELL_W, CELL_H, LEFT, TOP = 64, 22, 150, 90
 SPAN = math.log(4)  # the colour saturates at 4x or 0.25x
 GREY = "#e5e5e5"
+CX10_FULL = 50.0  # the cx10 colour saturates at this share (%)
 
 
 def read_ratios(path, metric):
     """{port: {subsystem: ratio or None}} and {port: other_pct} from a ``subsystem_distribution.csv``."""
-    col = f"{metric}_vs_linuxdoom"
+    col = "cx10" if metric == "cx10" else f"{metric}_vs_linuxdoom"
     ratios, other = {}, {}
     with open(path, newline="") as fh:
         reader = csv.DictReader(fh)
@@ -59,16 +63,31 @@ def colour(ratio):
     return f"rgb(255,{fade},{fade})" if t > 0 else f"rgb({fade},{fade},255)"
 
 
+def colour_share(pct):
+    """Fill of one cx10 cell: grey for no value, else white -> red linearly up to ``CX10_FULL`` %."""
+    if pct is None:
+        return GREY
+    fade = round(255 * (1 - max(0.0, min(1.0, pct / CX10_FULL))))
+    return f"rgb(255,{fade},{fade})"
+
+
 def render(ratios, other, metric):
     """The heatmap as SVG text. Subsystems are columns in name order, ``other`` last; ports are rows in name order."""
+    share = metric == "cx10"
     subs = sorted({s for row in ratios.values() for s in row} - {"other"}) + ["other"]
     ports = sorted(ratios)
     width = LEFT + CELL_W * (len(subs) + 1) + 20
     height = TOP + CELL_H * len(ports) + 40
+    if share:
+        head = "share of functions with complexity >= 10 (%), per subsystem"
+        sub_head = f"linear, white 0% to red {CX10_FULL:.0f}% and over, grey = absent from the port"
+    else:
+        head = "port median over linuxdoom median, per subsystem"
+        sub_head = "log scale, red above linuxdoom, blue below, grey = no ratio (under the minimum, or absent)"
     out = [
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" font-family="sans-serif" font-size="11">',
-        f'<text x="8" y="18" font-size="14">{escape(metric)}: port median over linuxdoom median, per subsystem</text>',
-        f'<text x="8" y="34">log scale, red above linuxdoom, blue below, grey = no ratio (under the minimum, or absent)</text>',
+        f'<text x="8" y="18" font-size="14">{escape(metric)}: {head}</text>',
+        f'<text x="8" y="34">{escape(sub_head)}</text>',
     ]  # fmt: skip
     for j, sub in enumerate(subs + ["other %"]):
         x = LEFT + CELL_W * j + CELL_W / 2
@@ -79,9 +98,9 @@ def render(ratios, other, metric):
         for j, sub in enumerate(subs):
             ratio = ratios[port].get(sub)
             x = LEFT + CELL_W * j
-            label = "" if ratio is None else f"{ratio:.2f}"
+            label = "" if ratio is None else (f"{ratio:.0f}" if share else f"{ratio:.2f}")
             out.append(
-                f'<rect x="{x}" y="{y}" width="{CELL_W}" height="{CELL_H}" fill="{colour(ratio)}" stroke="#fff">'
+                f'<rect x="{x}" y="{y}" width="{CELL_W}" height="{CELL_H}" fill="{(colour_share if share else colour)(ratio)}" stroke="#fff">'
                 f"<title>{escape(port)} / {escape(sub)}: {label or 'no ratio'}</title></rect>"
                 f'<text x="{x + CELL_W / 2}" y="{y + 15}" text-anchor="middle">{label}</text>'
             )
@@ -93,7 +112,7 @@ def render(ratios, other, metric):
 
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("--metric", default="complexity", choices=distribution.FIELDS, help="metric to plot")
+    ap.add_argument("--metric", default="complexity", choices=[*distribution.FIELDS, "cx10"], help="metric to plot")
     ap.add_argument("--work", type=Path, default=doom_speedrun.DEFAULT_WORK, help="doom_speedrun work dir")
     ap.add_argument("--sha", help="engine SHA of the results to read (default: this checkout's HEAD)")
     ap.add_argument("--csv", type=Path, help="a subsystem_distribution.csv (default: the one under --work / --sha)")

@@ -767,7 +767,7 @@ def test_rerun_det_failure_other_error_is_logged_as_failed():
 
 
 def test_reconcile_exit_code_zero_when_rerun_skipped_already_running(monkeypatch):
-    monkeypatch.setattr(sg, "open_labelled", lambda api, *a: [7])
+    monkeypatch.setattr(sg, "open_prs", lambda api, *a: [7])
     monkeypatch.setattr(sg.ci_digest, "main_tip", lambda api, graphql=None: None)
     monkeypatch.setattr(sg, "_graphql_prs", lambda graphql, numbers: {})
     monkeypatch.setattr(
@@ -777,7 +777,7 @@ def test_reconcile_exit_code_zero_when_rerun_skipped_already_running(monkeypatch
 
 
 def test_reconcile_exit_code_one_when_action_failed(monkeypatch):
-    monkeypatch.setattr(sg, "open_labelled", lambda api, *a: [7])
+    monkeypatch.setattr(sg, "open_prs", lambda api, *a: [7])
     monkeypatch.setattr(sg.ci_digest, "main_tip", lambda api, graphql=None: None)
     monkeypatch.setattr(sg, "_graphql_prs", lambda graphql, numbers: {})
     monkeypatch.setattr(

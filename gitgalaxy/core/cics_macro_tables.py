@@ -611,7 +611,7 @@ def cics_macro_table_resources(code_stream: str) -> list[dict[str, Any]]:
         elif op == "DFHJCT" and kind == "ENTRY":
             name = _jfileid(keyed.get("JFILEID"))
             if name:
-                rows.append(_row("JOURNAL", name, table, line, text))
+                rows.append(_row("JOURNAL", name, table, line, text, dsname=_name(keyed.get("DSNAME"))))
         elif op == "DFHTCT" and kind == "REGION":
             # Remote terminals, method 1 [RDG Table 74 p.473-474, p.551]: SYSIDNT=LOCAL or the
             # home region's SYSIDNT resets subsequent TYPE=TERMINAL macros to the local region.

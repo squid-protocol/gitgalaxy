@@ -932,15 +932,15 @@
 </g>
 <rect class="stripe" x="16" y="922" width="1212" height="34"/>
 <text class="lang" x="22" y="943.0">swift</text>
-<g><title>swift imports: precision 85.3% of 348, recall 65.3% of 510 (raw 85.3% / 65.3%; 5 shapes without a verdict); corpus apple/swift-argument-parser, swiftlang/swift-package-manager</title>
+<g><title>swift imports: precision 100.0% of 302, recall 72.9% of 510 (raw 100.0% / 72.9%; 3 shapes without a verdict); corpus apple/swift-argument-parser, swiftlang/swift-package-manager</title>
 <text class="pr" x="120" y="936.5">Precision</text>
 <rect class="track" x="166" y="929" width="110" height="8" rx="2"/>
-<rect x="166" y="929" width="93.8" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="281" y="937">85.3%*</text>
+<rect x="166" y="929" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="281" y="937">100.0%</text>
 <text class="pr" x="120" y="948.5">Recall</text>
 <rect class="track" x="166" y="941" width="110" height="8" rx="2"/>
-<rect x="166" y="941" width="71.8" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="281" y="949">65.3%*</text>
+<rect x="166" y="941" width="80.2" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="281" y="949">72.9%*</text>
 <text class="n" x="324" y="937">n=510 imports</text>
 <text class="n" x="324" y="949">repos 2 · files 2,019</text>
 </g>
@@ -957,15 +957,15 @@
 <text class="n" x="630" y="949">functions 132</text>
 </g>
 <text class="none" x="732" y="942.0">not measured</text>
-<g><title>swift hubs: 50% / -0.25 (repos=1, small n) (overlap@10 / Spearman)</title>
+<g><title>swift hubs: 60% / -0.13 (repos=1, small n) (overlap@10 / Spearman)</title>
 <text class="pr" x="1038" y="936.5">overlap@10</text>
 <rect class="track" x="1090" y="929" width="110" height="8" rx="2"/>
-<rect x="1090" y="929" width="55.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
-<text class="val" x="1205" y="937">50%</text>
+<rect x="1090" y="929" width="66.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
+<text class="val" x="1205" y="937">60%</text>
 <text class="pr" x="1038" y="948.5">Spearman</text>
 <rect class="track" x="1090" y="941" width="110" height="8" rx="2"/>
 <rect x="1090" y="941" width="2.0" height="8" rx="2" fill="#eda100" opacity="0.35"/>
-<text class="val" x="1205" y="949">-0.25</text>
+<text class="val" x="1205" y="949">-0.13</text>
 <text class="n" x="1240" y="937">repos=1</text>
 </g>
 <text class="lang" x="22" y="977.0">tcl</text>

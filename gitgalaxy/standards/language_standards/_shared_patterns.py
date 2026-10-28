@@ -278,7 +278,15 @@ _GENERIC_FNPTR = r"\([ \t]*[^<>()\n;{}=|!?\"'*&]{0,100}[*&][ \t]*\)[ \t]*\(" + _
 _GENERIC_DECLTYPE = r"decltype[ \t]*\(" + _GENERIC_ARG_CHAR + r"{0,100}\)"
 CALLS_OUT_C_STYLE_GENERIC = re.compile(
     rf"\b([{ID_START}][{ID_CONTINUE}]*)"
-    r"(?:<(?:" + _GENERIC_ARG_CHAR + r"|<" + _GENERIC_ARG_CHAR + r"{0,200}>|" + _GENERIC_FNPTR + r"|" + _GENERIC_DECLTYPE + r"){0,200}>[ \t]*)?"
+    r"(?:<(?:"
+    + _GENERIC_ARG_CHAR
+    + r"|<"
+    + _GENERIC_ARG_CHAR
+    + r"{0,200}>|"
+    + _GENERIC_FNPTR
+    + r"|"
+    + _GENERIC_DECLTYPE
+    + r"){0,200}>[ \t]*)?"
     r"\s*\("
 )
 

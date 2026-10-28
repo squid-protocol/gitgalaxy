@@ -668,6 +668,14 @@ def test_a_misparsed_ctor_with_a_qualified_base_still_gets_the_ctor_call():
     assert body.calls["ActionItem"] == "ctor-init" and "_level" not in body.calls
 
 
+def test_a_ctor_of_no_declared_class_reads_any_declared_class_as_a_base():
+    """#6266 doomsday `DE_PIMPL(C)` heads `struct C::Impl : public Private<C>`: `Impl` is no class the repo declares,
+    so `: Base(i)` (a typedef of the base) is a base call as the tree-sitter view reads it, not a data member."""
+    src = b"Impl(Public *i)\n    : Base(i)\n    , _v(1)\n{}\n"
+    body = co.TextBody(src, 1, {co.ALIASES: {"Base"}})
+    assert body.calls["Base"] == "ctor-init" and "_v" not in body.calls
+
+
 def test_text_fallback_names_a_template_destructor_call_by_its_unit():
     # gzdoom `p->~TArray<FString>()`: template arguments sit between the unit name and its `(`
     body = co.TextBody(b"void f() { p->~TArray<FString>(); q.~Map<int, TArray<int>> (); a = b < c; }", 1)

@@ -154,3 +154,33 @@ def test_an_init_entry_matching_two_reached_classes_keeps_the_one_fewest_include
     ]
     resolve_calls(parsed, [{"src": s, "dst": d, "edge_kind": "import"} for s, d in includes])
     assert parsed[-1]["functions"][0]["calls_out_to"] == ["Widget"]
+
+
+def test_an_init_entry_naming_a_class_typedef_stays_a_base_whichever_class_shares_the_name():
+    # doomsday `DE_PIMPL(C)`: `Impl(..) : Base(i)`, `Base` a typedef of `Private<C>` in a header the .cpp does not include
+    from gitgalaxy.core.call_resolver import resolve_calls
+
+    def edges(aliases):
+        files = {
+            "inc/Private.h": (
+                [_ctor("Private::Private", 1)],
+                [{"name": "Private", "start_line": 1}],
+            ),
+            "log/Log.h": ([], [{"name": "Base", "start_line": 1}]),  # an unrelated nested `LogEntry::Arg::Base`
+            "src/w.cpp": ([_ctor("Impl", 1, ["Base", "v"], init=True)], []),
+        }
+        parsed = [{"path": p, "lang_id": "cpp", "functions": f, "classes": c} for p, (f, c) in files.items()]
+        sites, _ = resolve_calls(
+            parsed, [{"src": "src/w.cpp", "dst": "inc/Private.h", "edge_kind": "import"}], None, None, aliases
+        )
+        return {(s["src_name"], s["dst_name"]) for s in sites if s["dst_name"]}
+
+    assert edges(frozenset({"Base"})) == {("Impl", "Base")}  # the data member `v` is still no call
+    assert edges(frozenset()) == set()
+
+
+def test_class_alias_names_reads_typedef_and_using_of_a_declared_class_only():
+    from gitgalaxy.core.call_resolver import class_alias_names
+
+    hdr = "template <typename P> class Private {};\ntypedef Private<P> Base;\nusing Alias = Private;\ntypedef int Count;\n"
+    assert class_alias_names([hdr]) == {"Base", "Alias"}

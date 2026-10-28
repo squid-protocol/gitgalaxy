@@ -131,3 +131,26 @@ def test_an_init_entry_naming_one_included_class_among_namesakes_elsewhere_stays
     includes = [("app/aboutdialog.cpp", "app/aboutdialog.h"), ("app/aboutdialog.h", "gui/dialogwidget.h")]
     resolve_calls(parsed, [{"src": s, "dst": d, "edge_kind": "import"} for s, d in includes])
     assert parsed[-1]["functions"][0]["calls_out_to"] == ["DialogWidget"]
+
+
+def test_an_init_entry_matching_two_reached_classes_keeps_the_one_fewest_includes_away():
+    # doomsday `StatusWidget() : Widget(..)`: its header includes term/widget.h, which includes ../widget.h: both
+    # `Widget` classes are in the closure, the nearer one is the base
+    from gitgalaxy.core.call_resolver import resolve_calls
+
+    widget = [{"name": "Widget", "start_line": 1, "inheritance": []}]
+    files = {
+        "core/widget.h": ([], widget),
+        "core/widget.cpp": ([_ctor("Widget::Widget", 1)], []),
+        "core/term/widget.h": ([], widget),
+        "core/term/widget.cpp": ([_ctor("Widget::Widget", 1)], []),
+        "tools/statuswidget.cpp": ([_ctor("StatusWidget::StatusWidget", 1, ["Widget"], init=True)], []),
+    }
+    parsed = [{"path": p, "lang_id": "cpp", "functions": fns, "classes": cls} for p, (fns, cls) in files.items()]
+    includes = [
+        ("tools/statuswidget.cpp", "tools/statuswidget.h"),
+        ("tools/statuswidget.h", "core/term/widget.h"),
+        ("core/term/widget.h", "core/widget.h"),
+    ]
+    resolve_calls(parsed, [{"src": s, "dst": d, "edge_kind": "import"} for s, d in includes])
+    assert parsed[-1]["functions"][0]["calls_out_to"] == ["Widget"]

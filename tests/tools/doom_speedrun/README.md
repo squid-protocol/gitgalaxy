@@ -140,8 +140,8 @@ Blind spots of this oracle:
   (`config.h`, `SDL.h`): clang then guesses types and can lose a call to a function of the same file, so the output
   counts `disagreements_in_clean_files` apart and most of the delta is that artefact. What survives is a lead, e.g. a
   call made only through a function-like macro (`FTOM(x)` expanding to `FixedMul(...)`, am_map.c in chocolate-doom
-  and puredoom): the compiler saw it, the engine did not (closed by #6881; the remaining clean-file leads are the
-  header `static inline` blind spot of the reference, below).
+  and puredoom): the compiler saw it, the engine did not (closed by #6881; the header `static inline` blind spot of the
+  reference, below, is closed too).
 - **Pinned SHAs are the ports' HEAD at study time** (2026-10-18); a force-pushed upstream makes `fetch` fail loudly.
 - **Round 2's CSV was produced at engine `585c243e9`**; the current engine will differ, which is the point.
 - **`#ifdef`/`#else` alternate definitions are both counted.** A static scan cannot know the build configuration, so both branches are real source (owner ruling nyx-o9, 2026-10-21, #5462).
@@ -218,7 +218,7 @@ file" is one clang parsed without a fatal error. The baseline's `disagreements_i
 |---|---|---|---|---|
 | call inside a disabled preprocessor branch: `#if 0` or `#if defined(I_NET_ENABLED)` with the macro never defined (27 engine-only edges on puredoom before #6770) | engine-only | 0 (was 27) | puredoom | fixed in #6770: `calls_out_to` drops statically dead branches |
 | call made by a function-like macro's body: `Z_ChangeTag(p, t)` expands to `Z_ChangeTag2`, `I_Error`, `doom_concat`, `doom_itoa`, `doom_strcpy`; `FTOM`/`MTOF`/`CXMTOF` to `FixedMul` | clang-only | 0 (was 34 = 28 + 6); inter-doom 0 (was 3 via `stbiw__sbgrow` -> `stbiw__sbgrowf`) | puredoom, inter-doom | fixed in #6881: `calls_out_to` of a function now includes the callees of each function-like macro it invokes (34 -> 0, 3 -> 0) |
-| `static inline` function defined in a header (`p_saveg.h` `saveg_grow` -> `saveg_check_size`, `Z_Realloc`; `m_array.h` `M_ArrayGrow` -> `I_Malloc`, `I_Realloc`) | engine-only | 6 + 6 + 2 | nugget-doom, woof, doomretro | reference blind spot: the edges are in the source; the reference lists none for a header-defined function |
+| `static inline` function defined in a header (`p_saveg.h` `saveg_grow` -> `saveg_check_size`, `Z_Realloc`; `m_array.h` `M_ArrayGrow` -> `I_Malloc`, `I_Realloc`) | engine-only | 6 + 6 + 2 (until the reference was fixed) | nugget-doom, woof, doomretro | reference blind spot, fixed in `clang_callgraph.py` (#6770): the pip wheel has no `stddef.h`, so `size_t` was unknown and the call named no function; the compiler builtin header dir is now on the path, and a header function's calls are the union over every includer's parse (macros such as `M_ARRAY_MALLOC` differ per includer) |
 
 The 8 `sdl_example.c` edges of puredoom's engine-only list are in a fatal-error file (`SDL3/SDL.h` missing) and are not
 counted in the baseline numbers. The 34 was the macro-body row (before #6770, 61 = 27 + 34).

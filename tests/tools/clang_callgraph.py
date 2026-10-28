@@ -29,6 +29,11 @@ the bundled libclang recovers from the headers it cannot find.
   definitions, then the shared ones. One function written as several `#if` variants in a file is one unit, as
   the engine sees it: an edge to one variant is an edge to all.
 
+* A function defined in a header (typically `static inline`) is walked once per translation unit that includes it
+  and its calls are the union: a macro it calls through (`M_ARRAY_MALLOC`) expands differently per includer. The
+  compiler's builtin headers (`stddef.h`, `stdarg.h`) are on the path (BUILTIN_INCLUDE): the pip wheel carries none,
+  so `size_t` was unknown, the callee's declaration was invalid and the call named no function (#6770).
+
 C++ (`cpp`) differs in four ways:
 * Sources are .cc/.cpp/.cxx, parsed as C++; definitions are found in namespaces and
   classes (methods, constructors, destructors, conversion operators, templates).
@@ -75,6 +80,26 @@ CPP_HEADERS = frozenset({".h", ".hh", ".hpp", ".hxx"})  # each header's director
 GTEST_MACRO = re.compile(r"\b(?:TEST|TEST_F|TEST_P|TYPED_TEST|TYPED_TEST_P)\s*\(\s*\w+\s*,\s*(\w+)")
 # `TEST_IMPL(name) {` and its siblings define `run_test_name`; the engine names the unit `name` (#3784)
 IMPL_MACRO = re.compile(r"^\s*[A-Z][A-Z0-9_]*\(\s*(\w+)\s*\)\s*\{?\s*$")
+
+
+def builtin_include() -> str | None:
+    """The host compiler's builtin header dir (`stddef.h`, `stdarg.h`, `stdint.h`), which the pip libclang wheel lacks;
+    None when no host compiler carries one. Only this dir, not libc's: the parse stays as it was otherwise (#6770)."""
+    for cc in ("gcc", "cc", "clang"):
+        try:
+            out = subprocess.run(  # noqa: S603 -- fixed argv
+                [cc, "-print-file-name=include"],
+                capture_output=True,
+                text=True,
+                timeout=30,
+            ).stdout.strip()
+        except (OSError, subprocess.TimeoutExpired):
+            continue
+        if out and (Path(out) / "stddef.h").is_file():
+            return out
+    return None
+
+
 CPP_ARGS = ("-x", "c++", "-std=c++20", "-w", "-ferror-limit=0")
 
 
@@ -117,7 +142,16 @@ def build(repo: Path, lang: str = "c") -> dict[str, Any]:
             sources.append(p)
         elif p.suffix == ".h":
             include_dirs.add(str(p.parent))
-    args = ["-x", "c", "-w", "-ferror-limit=0", f"-I{repo}", *(f"-I{d}" for d in sorted(include_dirs))]
+    builtin = builtin_include()
+    args = [
+        "-x",
+        "c",
+        "-w",
+        "-ferror-limit=0",
+        f"-I{repo}",
+        *(f"-I{d}" for d in sorted(include_dirs)),
+        *([f"-idirafter{builtin}"] if builtin else []),
+    ]
     kinds = cindex.CursorKind
     index = cindex.Index.create()
 
@@ -125,7 +159,7 @@ def build(repo: Path, lang: str = "c") -> dict[str, Any]:
     calls: list[tuple[tuple[str, str, int], str, int, str]] = []  # caller, external callee name, line, group
     static_edges: dict[tuple[tuple, tuple], int] = {}
     linkage: dict[tuple[str, str, int], bool] = {}  # key -> has external linkage
-    seen_callers: set[tuple[tuple[str, str, int], str]] = set()
+    seen_calls: set[tuple[tuple[str, str, int], str, int, str]] = set()  # a header function's call met again
     fatal: set[str] = (
         set()
     )  # sources whose parse hit a fatal error (a missing generated header): types after it are guesses
@@ -168,9 +202,8 @@ def build(repo: Path, lang: str = "c") -> dict[str, Any]:
                     continue
                 defs[caller].add(group)
                 linkage[caller] = top.storage_class != cindex.StorageClass.STATIC
-                if (caller, group) in seen_callers:  # a header function met again through another .c file
-                    continue
-                seen_callers.add((caller, group))
+                # a header function met again through another .c file is walked again: its macros and types
+                # can differ per includer, so its calls are the union over every parse
                 for node in top.walk_preorder():
                     if node.kind != kinds.CALL_EXPR:
                         continue
@@ -182,8 +215,9 @@ def build(repo: Path, lang: str = "c") -> dict[str, Any]:
                         callee = key_of(body) if body is not None else None
                         if callee and callee != caller:
                             static_edges.setdefault((caller, callee), node.location.line)
-                    else:
-                        calls.append((caller, target.spelling, node.location.line, group))
+                    elif (call := (caller, target.spelling, node.location.line, group)) not in seen_calls:
+                        seen_calls.add(call)
+                        calls.append(call)
 
     # link groups: a def the base parse saw is shared; one only a platform parse saw belongs to that platform
     by_group: dict[str, dict[str, list[tuple[str, str, int]]]] = {g: defaultdict(list) for g in (BASE, *PLATFORMS)}

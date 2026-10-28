@@ -5,7 +5,7 @@ Run by .github/workflows/shepherd-event.yml (pull_request_target: a label was ad
 and .github/workflows/shepherd-reconcile.yml (workflow_run after CI, a cron, a manual dispatch):
 
     python tests/tools/shepherd_gh.py event --event-path "$GITHUB_EVENT_PATH" [--dry-run]
-    python tests/tools/shepherd_gh.py reconcile [--dry-run]         # every open PR carrying a shepherd:* label
+    python tests/tools/shepherd_gh.py reconcile [--dry-run]         # every open PR (labels, plus the ci-gate status)
     python tests/tools/shepherd_gh.py ensure-labels                 # create or refresh the label set (idempotent)
 
 Requests (set by a maintainer with write access):
@@ -83,6 +83,14 @@ MATRIX_WORKFLOW = "full-suite-gate.yml"
 # main's ruleset "main: required checks" (#4825). shepherd-reconcile.yml triggers on exactly the workflows behind these
 # plus the matrix (#4935; tests/tools/test_shepherd_gh.py keeps the two in step). Change both together.
 REQUIRED_CHECKS = ("det", "full-suite", "ground-truth", "mypy-audit", "ruff-audit")
+# #6919: the commit status the shepherd posts on every open PR's head, so a path-filtered check (DOOM-rosetta, the call
+# graph accuracy audit, ...) holds the merge once the ruleset requires it. Pending until the required checks have
+# reported and nothing else runs, failure on any real failure, success otherwise. No runner waits for it.
+GATE = "ci-gate"
+GATE_OK = "every check that ran on this head passed"
+# slow path-filtered workflows whose finish should not wait for the 20-minute cron to update the gate
+GATE_TRIGGERS = ("DOOM-rosetta", "Call Graph Accuracy Audit")
+ADVISORY: tuple[str, ...] = ()  # check names whose failure never holds a merge (#6919 asks about equivalence-e2e)
 DET_WORKFLOW = "det-sweep.yml"  # shepherd:full reruns its latest pull_request run (it no longer runs on label events)
 DEPENDS = re.compile(r"Depends on #(\d+)", re.I)
 DOCS = "docs/ci.md"
@@ -141,6 +149,36 @@ def writer(permission: str | None) -> bool:
     return permission in WRITE
 
 
+def _gates(check: str) -> bool:
+    """Whether a check's result holds the merge (#6919): not the shepherd's own jobs, not an ADVISORY check."""
+    own = check == "shepherd" or check.startswith("shepherd (")  # "shepherd (label event)", its base name, a pending one
+    return not own and _base_name(check) not in ADVISORY
+
+
+def _names(checks: list[str]) -> str:
+    text = ", ".join(sorted(set(checks)))
+    return text if len(text) <= 120 else text[:117] + "..."  # a commit status description holds 140 characters
+
+
+def gate_status(
+    s: dict[str, Any], needs: list[dict[str, Any]], waiting: list[dict[str, Any]], retrying: list[dict[str, Any]]
+) -> tuple[str, str] | None:
+    """The ci-gate status for this head (#6919), from decide()'s triage; None for a closed PR."""
+    if s["state"] != "open":
+        return None
+    failing = [_base_name(f["check"]) for f in needs if _gates(f["check"])]
+    if failing:
+        return "failure", "failing: " + _names(failing)
+    if s["draft"]:  # #5104: a draft's heavy checks are skipped, and a skip reads as green
+        return "pending", "draft: the checks run once it is ready for review"
+    waits = [_base_name(f["check"]) for f in waiting + retrying if _gates(f["check"])]
+    waits += [_base_name(p) for p in s.get("gate_pending", []) if _gates(p)]
+    waits += s.get("required_missing", [])  # created right after a push; until then other runs may not exist yet
+    if waits:
+        return "pending", "waiting on: " + _names(waits)
+    return "success", GATE_OK
+
+
 # --- pure decision ---------------------------------------------------------------------------------------------------
 
 
@@ -196,9 +234,43 @@ def decide(s: dict[str, Any]) -> list[dict[str, Any]]:
         )
     req = labels & set(REQUESTS)
 
+    needs: list[dict[str, Any]] = []
+    waiting: list[dict[str, Any]] = []
+    retrying: list[dict[str, Any]] = []
+    reran_runs: set[int] = set()
+    # #5484: main turned green under a PR that was waiting on it. The same stale failure now triages `real`, but the head
+    # has not been tested with main's fix yet: it keeps waiting (and gets main merged in) until it has.
+    green = {_base_name(x) for x in s.get("main_green") or ()}
+    stale = WAITING in s["labels"] and bool(s.get("main_sha")) and not s.get("contains_main")
+    stale_hit = False
+    for f in s["failed"]:
+        t = f["triage"]
+        if t == "real" and stale and _base_name(f["check"]) in green:
+            t = "main"
+            stale_hit = True
+        if t == "main":
+            waiting.append(f)
+        elif t in ("infra", "flake") and f.get("run_id") is not None and f.get("attempts", 0) < INFRA_RERUNS:
+            rid = f["run_id"]
+            if rid not in reran_runs and s["now"] - (f.get("updated_at") or 0) >= RETRY_GAP:
+                acts.append({"op": "rerun", "run_id": rid, "check": f["check"]})
+                reran_runs.add(rid)
+            retrying.append(f)
+        else:  # real, a dirty tree, an infra failure with its reruns used up, or no run to rerun
+            needs.append(f)
+    if s["mergeable_state"] == "dirty":
+        needs.append({"check": "merge conflict", "triage": "dirty"})
+    if s["matrix"] == "red":
+        needs.append({"check": "full-suite matrix", "triage": "real"})
+
     blocked = []
     if HOLD in labels:
         blocked.append(f"{HOLD} is set")
+    # #6919: a real failure of any check that gates, not only a required one, turns auto-merge off until the head is
+    # green again; with the required checks alone a red path-filtered check merged (#6881, #6894, #6895)
+    blocking = [_base_name(f["check"]) for f in needs if _gates(f["check"])]
+    if blocking and MERGE in labels:
+        blocked.append("failing: " + _names(blocking))
     for d in s.get("depends_open", []):
         blocked.append(f"Depends on #{d}, which is still open")
     if MATRIX in labels and s["matrix"] != "green":
@@ -228,35 +300,6 @@ def decide(s: dict[str, Any]) -> list[dict[str, Any]]:
         acts.append({"op": "automerge", "on": False})
     if MATRIX in labels and s["matrix"] == "none" and not s["head_fork"]:
         acts.append({"op": "dispatch", "ref": s["head_ref"]})
-
-    needs: list[dict[str, Any]] = []
-    waiting: list[dict[str, Any]] = []
-    retrying: list[dict[str, Any]] = []
-    reran_runs: set[int] = set()
-    # #5484: main turned green under a PR that was waiting on it. The same stale failure now triages `real`, but the head
-    # has not been tested with main's fix yet: it keeps waiting (and gets main merged in) until it has.
-    green = {_base_name(x) for x in s.get("main_green") or ()}
-    stale = WAITING in s["labels"] and bool(s.get("main_sha")) and not s.get("contains_main")
-    stale_hit = False
-    for f in s["failed"]:
-        t = f["triage"]
-        if t == "real" and stale and _base_name(f["check"]) in green:
-            t = "main"
-            stale_hit = True
-        if t == "main":
-            waiting.append(f)
-        elif t in ("infra", "flake") and f.get("run_id") is not None and f.get("attempts", 0) < INFRA_RERUNS:
-            rid = f["run_id"]
-            if rid not in reran_runs and s["now"] - (f.get("updated_at") or 0) >= RETRY_GAP:
-                acts.append({"op": "rerun", "run_id": rid, "check": f["check"]})
-                reran_runs.add(rid)
-            retrying.append(f)
-        else:  # real, a dirty tree, an infra failure with its reruns used up, or no run to rerun
-            needs.append(f)
-    if s["mergeable_state"] == "dirty":
-        needs.append({"check": "merge conflict", "triage": "dirty"})
-    if s["matrix"] == "red":
-        needs.append({"check": "full-suite matrix", "triage": "real"})
 
     # no update_branch for a PR that is merely behind main (#5134): each push restarts its CI. The one case the bot does
     # merge main (#5484) is stale_hit above, once per main head; a conflict (dirty) stays the worker's.
@@ -301,6 +344,9 @@ def decide(s: dict[str, Any]) -> list[dict[str, Any]]:
     present = set(s["labels"]) & set(STATUS)
     if desired != present:
         acts.append({"op": "labels", "add": sorted(desired - present), "remove": sorted(present - desired)})
+    gate = gate_status(s, needs, waiting, retrying)
+    if gate and gate != s.get("gate_now"):  # every open PR, labelled or not: a merge by hand is gated too (#6919)
+        acts.append({"op": "gate", "sha": sha, "state": gate[0], "description": gate[1]})
     return acts
 
 
@@ -458,7 +504,7 @@ def graphql_reads(p: dict[str, Any]) -> dict[str, Any]:
         "comments": [{"body": c["body"], "user": _login(c["author"])} for c in _whole(p["comments"])],
         "runs": runs,
         "statuses": [
-            {"context": c["context"], "state": c["state"].lower()}
+            {"context": c["context"], "state": c["state"].lower(), "description": c.get("description")}
             for c in ((commit.get("status") or {}).get("contexts") or [])
         ],
         "events": [
@@ -561,7 +607,12 @@ def gather(
     )
     runs = got["runs"] if got else pr_check.paged(api, f"repos/{REPO_SLUG}/commits/{sha}/check-runs", "check_runs")
     statuses = got["statuses"] if got else (api(f"repos/{REPO_SLUG}/commits/{sha}/status") or {}).get("statuses", [])
+    # #6919: the shepherd's own ci-gate status is its output, never an input (a pending gate would wait on itself)
+    own = [st for st in statuses if st.get("context") == GATE]
+    gate_now = (own[0]["state"], own[0].get("description") or "") if own else None
+    statuses = [st for st in statuses if st.get("context") != GATE]
     checks = pr_check.classify(runs, statuses)
+    reported = {r.get("name") for r in runs}
     digest: dict[str, Any] = {"failed": []}
     if checks["failed"]:
         digest = ci_digest.digest(n, api, on_main=on_main, flaky=flaky, pr=pr, runs=runs)
@@ -696,6 +747,9 @@ def gather(
         "sender": sender,
         "failed": digest["failed"],
         "pending": checks["pending"],
+        "gate_pending": checks["pending"],
+        "required_missing": [c for c in REQUIRED_CHECKS if c not in reported],
+        "gate_now": gate_now,
         "digest_text": digest_text,
         "digest_posted": f"<!-- shepherd-digest {sha} -->" in marks_text,
         "now": now if now is not None else time.time(),
@@ -781,6 +835,15 @@ def apply(n: int, s: dict[str, Any], acts: list[dict[str, Any]], run: Run = _run
             )
         elif op == "automerge":
             gh(["gh", "pr", "merge", str(n), "-R", REPO_SLUG, "--disable-auto"], "auto-merge off")
+        elif op == "gate":
+            gh(
+                [
+                    "gh", "api", f"repos/{REPO_SLUG}/statuses/{a['sha']}", "-f", f"state={a['state']}",
+                    "-f", f"context={GATE}", "-f", f"description={a['description']}",
+                    "-f", f"target_url=https://github.com/{REPO_SLUG}/pull/{n}/checks",
+                ],
+                f"{GATE} {a['state']}: {a['description']}",
+            )  # fmt: skip
         elif op == "update_main":
             old, main_sha = a["sha"], a["main"]
             r = run(["gh", "api", f"repos/{REPO_SLUG}/issues/{n}/comments", "-f",
@@ -937,6 +1000,20 @@ def open_labelled(api: Api, graphql: pr_check.GraphQL | None = None) -> list[int
     return [p["number"] for p in prs if any(x["name"] in REQUESTS + STATUS for x in p.get("labels") or [])]
 
 
+def open_prs(api: Api, graphql: pr_check.GraphQL | None = None) -> list[int]:
+    """Every open PR (#6919: each gets a ci-gate status, labelled or not): one GraphQL read, REST when it fails."""
+    if graphql:
+        owner, name = REPO_SLUG.split("/")
+        try:
+            conn = graphql(LABELLED_QUERY, {"owner": owner, "name": name})["repository"]["pullRequests"]
+            if conn["pageInfo"]["hasNextPage"]:
+                raise pr_check.Truncated
+            return [p["number"] for p in conn["nodes"]]
+        except (SystemExit, KeyError, TypeError, AttributeError, ValueError):
+            pass
+    return [p["number"] for p in pr_check.paged(api, f"repos/{REPO_SLUG}/pulls?state=open")]
+
+
 def ensure_labels(run: Run = _run) -> list[str]:
     out = []
     for name, (colour, desc) in LABELS.items():
@@ -996,7 +1073,7 @@ def main(
         lines = []
         api = pass_cached(pr_check.pass_cache(api))  # #6534: plus the finished SHAs' reads
         flaky = learned_flakes(args.flake_cache)  # once per pass
-        prs = prs_for_head(api, args.head_sha) if args.head_sha else open_labelled(api, graphql)
+        prs = prs_for_head(api, args.head_sha) if args.head_sha else open_prs(api, graphql)
         tip = ci_digest.main_tip(api, graphql)  # one read of main's tip for both below
         on_main = ci_digest.main_failures(api, graphql=graphql, tip=tip) if len(prs) > 1 else None
         main_state = ci_digest.main_green(api, graphql=graphql, tip=tip)  # #5484: only a reconcile merges main

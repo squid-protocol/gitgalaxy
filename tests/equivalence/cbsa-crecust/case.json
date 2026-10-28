@@ -323,6 +323,131 @@
      "why": "130 on every WRITE"
     }
    ]
+  },
+  {
+   "name": "run-transid-first-transiderr",
+   "commarea": {
+    "SUBPGM-EYECATCHER": "CUST",
+    "SUBPGM-SORTCODE": "987654",
+    "SUBPGM-NUMBER": "0000000000",
+    "SUBPGM-NAME": "Mrs Fiona K Laidlaw",
+    "SUBPGM-ADDRESS": "17 Abbey Road, Winchester, SO23 7AA",
+    "SUBPGM-DATE-OF-BIRTH": "12071985",
+    "SUBPGM-CREDIT-SCORE": "0",
+    "SUBPGM-CS-REVIEW-DATE": "0",
+    "SUBPGM-SUCCESS": " ",
+    "SUBPGM-FAIL-CODE": " "
+   },
+   "why": "The first RUN TRANSID (OCR1) answers TRANSIDERR RESP2 1 (X18): no child starts, the failure arm sets COMM-FAIL-CODE B and leaves",
+   "faults": [
+    {
+     "cmd": "RUN-TRANSID",
+     "resp": "TRANSIDERR",
+     "resp2": 1,
+     "nth": 1,
+     "why": "589 true on the first RUN"
+    }
+   ]
+  },
+  {
+   "name": "fetch-any-notfinished-nothing-retrieved",
+   "commarea": {
+    "SUBPGM-EYECATCHER": "CUST",
+    "SUBPGM-SORTCODE": "987654",
+    "SUBPGM-NUMBER": "0000000000",
+    "SUBPGM-NAME": "Mrs Fiona K Laidlaw",
+    "SUBPGM-ADDRESS": "17 Abbey Road, Winchester, SO23 7AA",
+    "SUBPGM-DATE-OF-BIRTH": "12071985",
+    "SUBPGM-CREDIT-SCORE": "0",
+    "SUBPGM-CS-REVIEW-DATE": "0",
+    "SUBPGM-SUCCESS": " ",
+    "SUBPGM-FAIL-CODE": " "
+   },
+   "why": "The first FETCH ANY answers NOTFINISHED 52 with no reply retrieved: WS-CREDIT-CHECK-ERROR Y (657/664 true, 371 true)",
+   "faults": [
+    {
+     "cmd": "FETCH-ANY",
+     "resp": "NOTFINISHED",
+     "resp2": 52,
+     "nth": 1,
+     "why": "no reply yet"
+    }
+   ]
+  },
+  {
+   "name": "fetch-any-notfinished-after-a-reply",
+   "commarea": {
+    "SUBPGM-EYECATCHER": "CUST",
+    "SUBPGM-SORTCODE": "987654",
+    "SUBPGM-NUMBER": "0000000000",
+    "SUBPGM-NAME": "Mrs Fiona K Laidlaw",
+    "SUBPGM-ADDRESS": "17 Abbey Road, Winchester, SO23 7AA",
+    "SUBPGM-DATE-OF-BIRTH": "12071985",
+    "SUBPGM-CREDIT-SCORE": "0",
+    "SUBPGM-CS-REVIEW-DATE": "0",
+    "SUBPGM-SUCCESS": " ",
+    "SUBPGM-FAIL-CODE": " "
+   },
+   "why": "The second FETCH ANY answers NOTFINISHED 52 after one reply was retrieved: the average of what came (664 false)",
+   "faults": [
+    {
+     "cmd": "FETCH-ANY",
+     "resp": "NOTFINISHED",
+     "resp2": 52,
+     "nth": 2,
+     "why": "one reply retrieved, none more in time"
+    }
+   ]
+  },
+  {
+   "name": "fetch-any-notfnd-nothing-retrieved",
+   "commarea": {
+    "SUBPGM-EYECATCHER": "CUST",
+    "SUBPGM-SORTCODE": "987654",
+    "SUBPGM-NUMBER": "0000000000",
+    "SUBPGM-NAME": "Mrs Fiona K Laidlaw",
+    "SUBPGM-ADDRESS": "17 Abbey Road, Winchester, SO23 7AA",
+    "SUBPGM-DATE-OF-BIRTH": "12071985",
+    "SUBPGM-CREDIT-SCORE": "0",
+    "SUBPGM-CS-REVIEW-DATE": "0",
+    "SUBPGM-SUCCESS": " ",
+    "SUBPGM-FAIL-CODE": " "
+   },
+   "why": "The first FETCH ANY answers NOTFND RESP2 1 with no reply retrieved (780 true)",
+   "faults": [
+    {
+     "cmd": "FETCH-ANY",
+     "resp": "NOTFND",
+     "resp2": 1,
+     "nth": 1,
+     "why": "no unfetched child left"
+    }
+   ]
+  },
+  {
+   "name": "fetch-any-notfnd-after-a-reply",
+   "commarea": {
+    "SUBPGM-EYECATCHER": "CUST",
+    "SUBPGM-SORTCODE": "987654",
+    "SUBPGM-NUMBER": "0000000000",
+    "SUBPGM-NAME": "Mrs Fiona K Laidlaw",
+    "SUBPGM-ADDRESS": "17 Abbey Road, Winchester, SO23 7AA",
+    "SUBPGM-DATE-OF-BIRTH": "12071985",
+    "SUBPGM-CREDIT-SCORE": "0",
+    "SUBPGM-CS-REVIEW-DATE": "0",
+    "SUBPGM-SUCCESS": " ",
+    "SUBPGM-FAIL-CODE": " "
+   },
+   "why": "The second FETCH ANY answers NOTFND RESP2 1 after one reply was retrieved (780 false)",
+   "faults": [
+    {
+     "cmd": "FETCH-ANY",
+     "resp": "NOTFND",
+     "resp2": 1,
+     "nth": 2,
+     "why": "no unfetched child left"
+    }
+   ]
   }
  ],
  "notes": "CBSA's create-customer service (CRECUST, LINKed by BNK1CCS -- transaction OCCS -- with its SUBPGM-PARMS, the CRECUST copybook's layout). #4950: its credit check is the async API. It PUTs its COMMAREA into containers CIPA-CIPE of channel CIPCREDCHANN, RUNs transactions OCR1-OCR5 (\"child_programs\": CRDTAGY1-5, as the CSD's TRANSACTION definitions name them) with that channel, DELAYs 3 seconds, then FETCH ANY NOSUSPENDs the replies, GETs each child's container back from its reply channel, and averages the scores. The schedule is the harness's (oracle_assumptions.md X18, ASSUMED: a child runs at its parent's wait, in RUN order, and completes at its dispatch plus its own DELAYs; a task takes no processor time, X4); each child's events and the containers it leaves are compared (the CHILD event). FUNCTION RANDOM is the oracle's generator (C12) seeded by EIBTASKN: the parent's stated 4242 (X21), a child's 4242 plus its RUN number. Then the date-of-birth check, ENQ of the customer counter, the CUSTOMER control record READ UPDATE / REWRITE, the new CUSTOMER record, a PROCTRAN 'OCC' row (Db2), DEQ. CUSTOMER, ABNDFILE and PROCTRAN are compared after every scenario. Not reached: a child that does not complete within the 3 seconds (every CRDTAGY delays 1 or 2), a credit agency's failure paths, and the failures no fault can be injected on (#6271: a busy ENQ without NOSUSPEND, DEQ, PUT CONTAINER, RUN TRANSID, FETCH ANY, GET CONTAINER, CEELOCT); the SYSIDERR retries and other RESPs of the CUSTOMER READ UPDATE, REWRITE and WRITE are fault scenarios. Data: seed.sql is cbsa-creacc's, customer.txt cbsa-custctrl's (the control record says 42 customers), both SYNTHETIC. Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived. #4952, #5089 -- ASSUMED (register): (1) L1: DATE-OF-BIRTH-CHECK's CEEDAYS call passes a length-10 picture and date over 8 'YYYYMMDD' bytes; the picture's 2 extra bytes are the storage after the item, which IBM does not specify: the owner ruled them blank (2026-10-23, restated 2026-10-27, CRECUST only, ASSUMED), as the blank picture tail (2026-10-14), so create-customer and born-in-the-future run; (2) X18: the child schedule is ASSUMED. L4 is settled: FC is the 12-byte token LE writes (its 8-byte CONDITION-TOKEN-VALUE is the group inside it). Not recorded as evidence here: a proof rests on those assumptions, so read its level from the evidence report, never from this note. Burned estate (CBSA)."

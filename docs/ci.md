@@ -274,6 +274,8 @@ on `main` and so writes the cache scope every PR reads.
 
 **No cache is saved by a pull request (#6675).** On 2026-10-25 the Actions cache held 10.69 GB in 127 entries against GitHub's 10 GB limit, the oldest last read 10.6 h earlier: past the limit GitHub evicts the least recently used, so a cache main saved lived about half a day (`cache-prune.yml` trims nightly, and PRs refilled it within ~12 h). A PR's save is scoped to its own ref, which no other PR reads, and 20 combined `actions/cache` steps in 7 PR workflows still saved there (2.18 GB of scip-java from graph-accuracy alone, which never ran on main; 9 PR copies of `db2-odbc-cli` re-saved after main's was evicted). Each is now `actions/cache/restore` plus an `actions/cache/save` at the end of its job that runs only off pull requests and only on a miss (continue-on-error, as #5024 did for the corpora); setup-go's built-in cache is off on a PR; graph-accuracy-audit.yml has a nightly run that seeds its caches on main (and Main Watch watches it). `test_cache_keys.py` fails on a combined cache step in a PR workflow and on a save a PR can reach.
 
+**Equivalence E2E shards restore the Db2 ODBC driver cache (#6921).** A shard's Db2-backed proofs (`cbsa-updacc`) build the Db2 image, and without the `db2-odbc-cli` cache a cold curl to IBM timed out (exit 28) and turned main red. The `shard` job now restores the same entry as the `db2` job and saves it on main only, on a miss; `test_db2_odbc_pin.py` pins both jobs.
+
 ## Main is red (main-watch)
 
 `.github/workflows/main-watch.yml` opens one `ci-red-main` issue per workflow that fails on main and closes it when

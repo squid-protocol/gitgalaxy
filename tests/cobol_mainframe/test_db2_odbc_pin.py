@@ -71,6 +71,22 @@ def test_every_workflow_that_builds_the_db2_image_caches_the_driver_on_the_pin(w
     assert re.search(r"hashFiles\('gitgalaxy/tests/equivalence/odbc_cli\.pin'\)", text)
 
 
+@pytest.mark.parametrize("job", ["shard", "db2"])
+def test_every_equivalence_e2e_job_that_can_build_the_db2_image_restores_and_saves_the_driver(job):
+    """#6921: a shard's cbsa-updacc proof built the Db2 image with no driver cache and failed on an IBM curl timeout."""
+    text = (REPO / ".github" / "workflows" / "equivalence-e2e.yml").read_text(encoding="utf-8")
+    body = re.split(rf"^  {job}:\n", text, flags=re.M)[1]
+    body = re.split(r"^  [a-z0-9-]+:\n", body, flags=re.M)[0]
+    key = r"db2-odbc-cli-\$\{\{ hashFiles\('tests/equivalence/odbc_cli\.pin'\) \}\}"
+    assert re.search(
+        rf"actions/cache/restore@.*\n\s+with:\n\s+path: tests/equivalence/linuxx64_odbc_cli\.tar\.gz\n\s+key: {key}",
+        body,
+    )
+    save = body.split("Save the Db2 ODBC CLI driver to the cache")[1]
+    assert "github.event_name != 'pull_request'" in save and "actions/cache/save@" in save
+    assert "continue-on-error: true" in save
+
+
 # --- the fetch ------------------------------------------------------------------------------------------------------
 
 

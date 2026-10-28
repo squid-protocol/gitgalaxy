@@ -6,6 +6,9 @@
  "copy_dirs": [
   "zBuilder/MortgageApplication/copybook"
  ],
+ "subprograms": [
+  "zBuilder/MortgageApplication/cobol/epsmpmt.cbl"
+ ],
  "transid": "EPSP",
  "clock": "2026/10/03 10:30:15.00",
  "linked": true,
@@ -155,7 +158,30 @@
     }
    ],
    "why": "A150's inner ELSE: 'ERROR WITH READ NEXT' and the RESP (17) in the first line; END-OF-FILE stays 'N', so the loop reads on (the failed READNEXT left the browse where STARTBR put it) through the four records to ENDFILE"
+  },
+  {
+   "name": "list-two-companies",
+   "aid": "DFHENTER",
+   "commarea": {
+    "PROCESS-INDICATOR": "9",
+    "EPSPCOM-PRINCIPLE-DATA": "200000.00",
+    "EPSPCOM-NUMBER-OF-YEARS": 30,
+    "EPSPCOM-QUOTED-INTEREST-RATE": "5.000",
+    "EPSPCOM-YEAR-MONTH-IND": "Y"
+   },
+   "why": "A150's test true: two of the four companies have a loan above 200000.00 and a rate below 5.000, so A600-CALCULATE-MORTGAGE runs for each: LINK EPSCSMRT, which CALLs EPSMPMT for the payment (IEEE binary64 power, owner ruling #5867)"
   }
  ],
- "notes": "IBM DBB MortgageApplication's company list (EPSMLIST, LINKed by EPSCMORT on PF9 and ENTER from the list): it browses the ESDS EPSMORTF by relative byte address (STARTBR RIDFLD(RID-LENGTH) RBA EQUAL with RBA 0, then READNEXT ... RBA) and lists, on map EPSMLIS (generated from epsmlis.bms, `@bms/`), each company whose loan exceeds the principal and whose rate is below the quoted rate. The repository ships no CSD or IDCAMS DEFINE for EPSMORTF and no data: the dataset is stated by the case (`csd`) and the four records are the case's own. Not reachable here: a company that passes A150's test LINKs EPSCSMRT for the payment, whose CALL of EPSMPMT the engine does not resolve and whose payment is computed in floating point (oracle_assumptions.md C6; its CBL NUMPROC(MIG) is modelled since #4271, C5), so no scenario lists a company. EIBCALEN 0 (first-entry) MOVEs the unaddressed DFHCOMMAREA first, as EPSCMORT does (oracle_assumptions.md X12). No record's contents reach an output without that LINK, so the proof judges the browse by its outcomes (each READNEXT NORMAL until ENDFILE, the STARTBR and READNEXT error paths, ENDBR); the RBA rules themselves are pinned on both sides by tests/cics_crucible/test_cics_runtimes.py."
+ "notes": "IBM DBB MortgageApplication's company list (EPSMLIST, LINKed by EPSCMORT on PF9 and ENTER from the list): it browses the ESDS EPSMORTF by relative byte address (STARTBR RIDFLD(RID-LENGTH) RBA EQUAL with RBA 0, then READNEXT ... RBA) and lists, on map EPSMLIS (generated from epsmlis.bms, `@bms/`), each company whose loan exceeds the principal and whose rate is below the quoted rate. The repository ships no CSD or IDCAMS DEFINE for EPSMORTF and no data: the dataset is stated by the case (`csd`) and the four records are the case's own. A company that passes A150's test LINKs EPSCSMRT for the payment, whose CALL of EPSMPMT is a case `subprograms` entry and whose payment is computed in floating point (oracle_assumptions.md C6; EPSMPMT is IEEE binary64 by owner ruling, #5867; its CBL NUMPROC(MIG) is modelled, C5): the list-two-companies scenario lists two. EIBCALEN 0 (first-entry) MOVEs the unaddressed DFHCOMMAREA first, as EPSCMORT does (oracle_assumptions.md X12). No record's contents reach an output without that LINK, so the proof judges the browse by its outcomes (each READNEXT NORMAL until ENDFILE, the STARTBR and READNEXT error paths, ENDBR); the RBA rules themselves are pinned on both sides by tests/cics_crucible/test_cics_runtimes.py.",
+ "programs": [
+  {
+   "program": "EPSCSMRT",
+   "program_source": "zBuilder/MortgageApplication/cobol/epscsmrt.cbl"
+  }
+ ],
+ "compiler": {
+  "product": "Enterprise COBOL",
+  "version": "6.1",
+  "evidence": "Migration/jclToZBuilder/samples/BLDMORT.jcl compiles EPSMPMT with STEPLIB IGY.V6R1M0.SIGYCOMP (Enterprise COBOL 6.1) and no PARM: the program's CBL NUMPROC(MIG) compiles as the default NUMPROC(NOPFD) (oracle_assumptions.md C5)"
+ }
 }

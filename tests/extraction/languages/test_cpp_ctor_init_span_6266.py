@@ -184,3 +184,11 @@ def test_class_alias_names_reads_typedef_and_using_of_a_declared_class_only():
 
     hdr = "template <typename P> class Private {};\ntypedef Private<P> Base;\nusing Alias = Private;\ntypedef int Count;\n"
     assert class_alias_names([hdr]) == {"Base", "Alias"}
+
+
+def test_class_alias_names_leaves_out_a_name_some_class_declares_as_a_data_member():
+    # gzdoom `PType *Type = nullptr;` and `PSymbolType(..) : Type(ty)`, beside a library's `typedef Node Type;`
+    from gitgalaxy.core.call_resolver import class_alias_names
+
+    hdr = "struct Node {};\ntypedef Node Type;\ntypedef Node Base;\nstruct S {\n\tNode *Type = nullptr;\n\treturn Base;\n};\n"
+    assert class_alias_names([hdr]) == {"Base"}

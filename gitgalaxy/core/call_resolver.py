@@ -1051,18 +1051,31 @@ _ALIAS_DECL = re.compile(
     r"|\busing\s+([A-Z]\w*)\s*=\s*(?:typename\s+)?([A-Za-z_][\w:]*)"
 )
 _CLASS_DECL = re.compile(r"\b(?:class|struct)\s+(?:[A-Z_]+\s+)?([A-Za-z_]\w*)\s*[:{<;]")
+# a data member `PType *Type = nullptr;` (the declared type, then the name, at a line start)
+_FIELD_DECL = re.compile(
+    r"(?m)^[ \t]*(?:(?:static|mutable|const|constexpr|volatile|inline)[ \t]+)*([A-Za-z_][\w:]*(?:<[^;{}()]*>)?)[ \t*&]+"
+    r"([A-Z]\w*)[ \t]*(?:=[^;{}]*|\{[^;{}]*\})?;"
+)
+_NOT_A_TYPE = frozenset({"return", "typedef", "using", "delete", "goto", "case", "else", "throw", "break", "continue"})
 _COMMENT = re.compile(r"/\*.*?\*/|//[^\n]*", re.S)
 
 
 def class_alias_names(texts: Any) -> frozenset[str]:
-    """#6266: the names that alias a class the texts declare (`Base` of `typedef Private<P> Base;`), over C++ sources."""
+    """#6266: the names that alias a class the texts declare (`Base` of `typedef Private<P> Base;`), over C++ sources.
+    A name some class also declares as a data member (gzdoom's `PType *Type;` beside rapidjson's `typedef T1 Type;`) is
+    a member more than an alias: its init-list entry `Type(ty)` must stay no base."""
     declared: set[str] = set()
-    aliases: list[tuple[str, str]] = []
+    aliases: set[tuple[str, str]] = set()
+    fields: set[str] = set()
     for text in texts:
         clean = _COMMENT.sub(" ", text)
         declared.update(_CLASS_DECL.findall(clean))
-        aliases.extend((m.group(2) or m.group(3), m.group(1) or m.group(4)) for m in _ALIAS_DECL.finditer(clean))
-    return frozenset(name for name, target in aliases if target.rsplit("::", 1)[-1] in declared)
+        for m in _ALIAS_DECL.finditer(clean):
+            aliases.add((m.group(2) or m.group(3), (m.group(1) or m.group(4)).rsplit("::", 1)[-1]))
+        fields.update(
+            m.group(2) for m in _FIELD_DECL.finditer(_ALIAS_DECL.sub(" ", clean)) if m.group(1) not in _NOT_A_TYPE
+        )
+    return frozenset(name for name, target in aliases if target in declared and name not in fields)
 
 
 def _init_entry_not_a_base(

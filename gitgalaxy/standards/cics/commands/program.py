@@ -98,8 +98,9 @@ ABEND = Command(
     key="ABEND",
     ibm=ibm("EXEC CICS ABEND", "summary-abend"),
     status="modelled",
-    # NODUMP: a dump is no state the program or its caller sees
-    options={"ABCODE": Arg("name", width=4), "CANCEL": Arg("flag"), "NODUMP": Arg("flag")},
+    # NODUMP: a dump is no state the program or its caller sees. NOHANDLE: IBM's ABEND page lists no condition, so there
+    # is none to suppress (ZECSNC, #5859)
+    options={"ABCODE": Arg("name", width=4), "CANCEL": Arg("flag"), "NODUMP": Arg("flag"), "NOHANDLE": Arg("flag")},
     outcomes=(Outcome("NORMAL", 0, "never: the task abends (to a HANDLE ABEND exit unless CANCEL)"),),
 )
 

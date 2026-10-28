@@ -858,6 +858,19 @@ public class CicsTask {
         return new int[] {0, 0};
     }
 
+    /** VERIFY PASSWORD USERID(userid) PASSWORD(password) (#5859, register X32; IBM EXEC CICS VERIFY PASSWORD): the region has
+     *  no security manager, so the verdict is the fault-plan entry a scenario states for the USERID (trailing blanks
+     *  dropped): none stated is refused. The password is not compared (nothing here can know it). Returns {RESP, RESP2}. */
+    public int[] verifyPassword(String userid) {
+        String id = userid.stripTrailing();
+        int[] planned = root().injected("VERIFY", id);
+        if (planned == null) {
+            throw refused("VERIFY PASSWORD with no stated verdict");
+        }
+        event("VERIFY-PASSWORD", "userid", id, "resp", respName(planned[0]));
+        return planned;
+    }
+
     // #4769 zECS (register X33): the document handler's DOCUMENT CREATE and DOCUMENT RETRIEVE (IBM CICS TS, EXEC CICS
     // DOCUMENT CREATE, DOCUMENT RETRIEVE). A document is the bytes the task built, named by a 16-byte DOCTOKEN CICS gives;
     // it lives as long as the task (every program the task LINKs to shares it). The installed DOCTEMPLATEs (name and the

@@ -3,15 +3,17 @@
 DFHJCT / DFHTCT / DFHMCT) as
 `csd_resources` rows -- core/cics_macro_tables.py through `extract_boundary` as hlasm.
 
-The syntax is read from IBM's macro reference, cited in the module header:
+The syntax is read from IBM's macro reference, cited in the module header (register X62):
 "CICS Resource Definition Guide", CICS TS for OS/390 Release 3, SC33-1684-30,
 ch.13 (DFHFCT TYPE=FILE|REMOTE, DFHDCT TYPE=SDSCI|EXTRA|INDIRECT|INTRA|REMOTE,
-DFHTST TYPE=LOCAL|RECOVERY|REMOTE|SECURITY) and ch.16 (macro -> RDO attribute
-table); CICS for MVS/ESA Migration Guide V4R1 GC33-1162-04 (DFHPCT / DFHPPT); IBM
-APAR II05097 (`DFHPPT TYPE=ENTRY,MAPSET=`). Operands those sources leave open
-(DFHPCT's operand list, the PPT PARTITIONSET= spelling, DCT RECFORM=UNDEFINED, DFHJCT's
-JFILEID= / JTYPE=) are ASSUMED in the module and pinned here as such; #5154 re-tried IBM's
-library and found no page for them. DFHSIT SUFFIX= and the refusals of DFHMCT TYPE=RECORD and
+DFHTCT TYPE=INITIAL|REGION|TERMINAL|REMOTE, DFHTST TYPE=LOCAL|RECOVERY|REMOTE|SECURITY),
+ch.16 (macro -> RDO attribute table) and ch.17 (migrating the TCT to the CSD);
+"Resource Definition Guide", CICS TS for VSE/ESA Release 1, SC33-1653-05, ch.29 (DFHJCT
+TYPE=ENTRY,JFILEID={SYSTEM|nn}), ch.33 (DFHTCT TYPE=GPENTRY), and Appendices C/E/F (DFHPCT,
+DFHPPT PROGRAM=/MAPSET=/PARTSET=/USAGE=MAP); CICS/VS System Programmer's Reference Manual
+SH20-1043-6 (DFHDCT, DFHPCT, DFHPPT); CICS for MVS/ESA Migration Guide V4R1 GC33-1162-04;
+and IBM APAR II05097 (`DFHPPT TYPE=ENTRY,MAPSET=`). The PPT `PARTITIONSET=` spelling is
+ASSUMED as an alias of `PARTSET=` (register X62). DFHSIT SUFFIX= and the refusals of DFHMCT TYPE=RECORD and
 DFHTCT TYPE=LINE / SDSCI are read from the CICS TS 5.x pages the module header cites. Every fixture is hand-written, with a
 labelled and an unlabelled statement, column-72 continuation, comments and lower case.
 """

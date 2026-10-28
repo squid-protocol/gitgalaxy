@@ -132,7 +132,7 @@
 #          tables as in-stream SYSIN; mainframe_boundary reads them through the same function, and
 #          the row's `line` is the line in the job. A SYSIN that is a separate member is that member's:
 #          `GalaxyIR.job_macro_tables` joins the member's tables to the job step (#5154).
-#   CEDA / CEMT runtime state is REFUSED: installed state is not in a source tree (register entry).
+#   CEDA / CEMT runtime state is REFUSED: installed state is not in a source tree (register X62).
 #
 #   REFUSED (read nothing rather than guess): FCT `RECSIZE=` (not an FCT operand; the
 #   record length is LRECL); DATAID=() (the "any other queue" null, it names no prefix);

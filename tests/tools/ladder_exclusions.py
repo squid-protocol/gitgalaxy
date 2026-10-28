@@ -42,7 +42,7 @@ EXCLUSIONS: dict[tuple[str, str], dict[str, str]] = {
     ("zecs", "zecs002.asm"): {
         "kind": "not_cobol",
         "issue": "#5859",
-        "reason": "CICS Assembler member; the HLASM front end refuses it at DC 08XL01'40' (slice 3 of #5859 lowers it)",
+        "reason": "CICS Assembler member; the HLASM front end lowers it and the det translator translates it whole (slices 3b, 3c); no equivalence case yet (3d)",
     },
     ("dbb-mortgage-application", "epscsmrd.cbl"): {
         "kind": "owner_held",

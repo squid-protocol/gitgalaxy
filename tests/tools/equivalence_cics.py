@@ -870,6 +870,8 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
                 ]
             lines.append("END-IF")
         return lines + _resp(opts, True, labels)
+    if verb == "VERIFY":  # #5859 (X32): the det port asks a stated verdict; the stub has none until slice 3d
+        raise _stub_only("VERIFY PASSWORD")
     if verb == "WRITE" and "OPERATOR" in opts:  # #4270 zECS (X32): a plain message to the console
         _check_spec("WRITE OPERATOR", opts, (verb, "OPERATOR"))
         text = opts.get("TEXT")

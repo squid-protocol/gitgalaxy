@@ -1049,7 +1049,7 @@ _RESP_SAMPLES = {
     "RUN": "RUN TRANSID('T') CHILD(REC)", "BIF DEEDIT": "BIF DEEDIT FIELD(REC)", "FREE CHILD": "FREE CHILD(REC)",
     "INQUIRE TERMINAL": "INQUIRE TERMINAL(KEY) UCTRANST(REC)",
     "INQUIRE TDQUEUE": "INQUIRE TDQUEUE(KEY) TYPE(REC)",
-    "DELETEQ TS": "DELETEQ TS QUEUE('Q')", "QUERY COUNTER": "QUERY COUNTER(KEY) VALUE(REC)", "INQUIRE ASSOCIATION": "INQUIRE ASSOCIATION(EIBTASKN) ODAPPLID(REC)", "INQUIRE URIMAP": "INQUIRE URIMAP(REC) NEXT", "WRITE OPERATOR": "WRITE OPERATOR TEXT(REC)",
+    "DELETEQ TS": "DELETEQ TS QUEUE('Q')", "QUERY COUNTER": "QUERY COUNTER(KEY) VALUE(REC)", "INQUIRE ASSOCIATION": "INQUIRE ASSOCIATION(EIBTASKN) ODAPPLID(REC)", "INQUIRE URIMAP": "INQUIRE URIMAP(REC) NEXT", "WRITE OPERATOR": "WRITE OPERATOR TEXT(REC)", "VERIFY PASSWORD": "VERIFY PASSWORD(REC) USERID(KEY)",
     "DEFINE COUNTER": "DEFINE COUNTER(KEY)", "DELETE COUNTER": "DELETE COUNTER(KEY)",
     "REWIND COUNTER": "REWIND COUNTER(KEY)", "UPDATE COUNTER": "UPDATE COUNTER(KEY) VALUE(7)",
     "DOCUMENT CREATE": "DOCUMENT CREATE DOCTOKEN(REC)",
@@ -1632,6 +1632,21 @@ def test_inquire_urimap_browse_and_write_operator():
     )  # (EVENTUAL alone: the plain form)
 
 
+def test_verify_password_asks_the_stated_verdict_and_refuses_what_it_cannot_model():
+    """#5859 (ZECS002, register X32), IBM VERIFY PASSWORD(pw) USERID(id): the region has no security manager, so the port asks
+    CicsTask for the verdict a scenario states for the USERID and answers through RESP / RESP2 like any command; the
+    password is not compared. A missing operand or an option outside the plain form is refused by name."""
+    c = _ChanCics()
+    v = c.command("VERIFY PASSWORD(REC) USERID(KEY) NOHANDLE", "")
+    assert v[0].startswith("int[] ver") and ".verifyPassword(Cobol.text(" in v[0]
+    assert "[0]" in " ".join(v[1:]) and "[1]" in " ".join(v[1:])
+    for bad, why in (("VERIFY PASSWORD(REC)", "without USERID"),
+                     ("VERIFY USERID(KEY)", "not modelled"),
+                     ("VERIFY PASSWORD(REC) USERID(KEY) NEWPASSWORD(REC)", "only USERID and PASSWORD")):  # fmt: skip
+        with pytest.raises(C.CicsError, match=why):
+            c.command(bad, "")
+
+
 def test_write_operator_routing_options_lower_to_the_stub_call():
     """#5859 (ZECSNC): TEXTLENGTH / ROUTECODES + NUMROUTES reach the stub's GGCWTO through GG-LEN, GG-NUM and the flags;
     one of ROUTECODES / NUMROUTES alone is refused by name, never dropped."""
@@ -1639,7 +1654,9 @@ def test_write_operator_routing_options_lower_to_the_stub_call():
 
     plain = " ".join(ec.translate_command("WRITE OPERATOR TEXT(WS-MSG) EVENTUAL"))
     assert "GGCWTO" in plain and "TEXTLENGTH" not in plain and "ROUTES" not in plain
-    out = " ".join(ec.translate_command("WRITE OPERATOR TEXT(WS-MSG) TEXTLENGTH(WS-N) ROUTECODES(WS-RC) NUMROUTES(WS-NR) EVENTUAL"))
+    out = " ".join(
+        ec.translate_command("WRITE OPERATOR TEXT(WS-MSG) TEXTLENGTH(WS-N) ROUTECODES(WS-RC) NUMROUTES(WS-NR) EVENTUAL")
+    )
     assert "GGCWTO" in out and "TEXTLENGTH ROUTES" in out and "TO GG-LEN" in out and "TO GG-NUM" in out
     assert "WS-RC" in out and "WS-NR" in out
     for opt in ("ROUTECODES(WS-RC)", "NUMROUTES(WS-NR)"):

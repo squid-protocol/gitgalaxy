@@ -18,6 +18,8 @@ on:
       - "gitgalaxy/**"
       # #6278 slice 4: a standalone tool nothing here imports (test_engine_reach_workflows.py proves it from the import closure)
       - "!gitgalaxy/tools/terabyte_log_scanning/**"
+      # #6278 slice 4: the engine package's prose READMEs / how-tos are read by tests, never by this job (pinned in test_engine_reach_workflows.py)
+      - "!gitgalaxy/**/*.md"
       - "pyproject.toml"
       - "tests/cics_crucible/ports/**"
       - "tests/equivalence/*/port/**"

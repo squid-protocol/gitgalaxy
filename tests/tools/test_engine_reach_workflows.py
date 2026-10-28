@@ -153,3 +153,21 @@ def test_muninn_triggers_on_every_area_a_secret_or_workflow_scanner_reads():
         assert cc.area(f) == area and wi.triggers(paths, f), f
     for f, area in (("docs/ci.md", "test-read-doc"), ("tests/tools/test_x.py", "test-tooling")):
         assert cc.area(f) in (area, "prose") and not wi.triggers(paths, f), f
+
+
+# built, not spelled: a literal .md path would make the classifier list this test as that page's reader
+ENGINE_PROSE = tuple(f"gitgalaxy/{d}.{ext}" for d, ext in (("core/README", "md"), ("standards/how_to_add_a_language", "md")))
+
+
+@pytest.mark.parametrize("name", ["unicode-gauntlet.yml", "rosetta-audit.yml", "ports-compile.yml"])
+def test_scan_and_compile_gates_skip_engine_prose_but_keep_code_and_copybooks(name):
+    """No gate here reads a .md under gitgalaxy/ (tests do, and the suite plan runs those); a code or copybook file still triggers."""
+    paths = paths_of(name)
+    assert not any(wi.triggers(paths, f) for f in ENGINE_PROSE)
+    assert all(wi.triggers(paths, f) for f in ENGINE)
+    assert wi.triggers(paths, "gitgalaxy/tools/cobol_to_java/det/copy/CEEIGZCT.cpy")
+
+
+def test_engine_prose_is_never_imported_or_opened_by_a_gate_entry():
+    reach = closure((*SCAN_ENTRY, "gitgalaxy.cobol_to_java_controller", "gitgalaxy.cobol_refractor_controller"))
+    assert not [f for f in reach if f.endswith(".md")]

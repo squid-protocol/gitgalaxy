@@ -1,5 +1,5 @@
 {
- "commit": "73bcf2df6",
+ "commit": "c30a3c574",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -160,7 +160,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-28T20:35:03Z",
+  "as_of": "2026-10-28T21:11:38Z",
   "core": {
    "closed": 188,
    "open": 19,
@@ -174,8 +174,8 @@
   "core_milestone": {
    "closed": 98,
    "number": 28,
-   "open": 6,
-   "total": 104
+   "open": 10,
+   "total": 108
   },
   "epics": {
    "4890": "open",
@@ -194,13 +194,13 @@
   "frontier_milestone": {
    "closed": 5,
    "number": 30,
-   "open": 44,
-   "total": 49
+   "open": 45,
+   "total": 50
   },
   "infra": {
    "closed": 228,
-   "open": 33,
-   "total": 261
+   "open": 35,
+   "total": 263
   },
   "measured": true,
   "milestones": [
@@ -270,9 +270,9 @@
    {
     "closed": 45,
     "number": 12,
-    "open": 2,
+    "open": 14,
     "title": "Yes, but can it go faster...?",
-    "total": 47
+    "total": 59
    },
    {
     "closed": 57,
@@ -319,9 +319,9 @@
    {
     "closed": 16,
     "number": 19,
-    "open": 3,
+    "open": 5,
     "title": "New Challenger Approaches \ud83e\udd4a \u2014 Fresh Estates",
-    "total": 19
+    "total": 21
    },
    {
     "closed": 19,
@@ -375,16 +375,16 @@
    {
     "closed": 19,
     "number": 27,
-    "open": 3,
+    "open": 4,
     "title": "Save Integrity \ud83d\udcbe \u2014 Same Code, Same Answer",
-    "total": 22
+    "total": 23
    },
    {
     "closed": 259,
     "number": 28,
-    "open": 7,
+    "open": 11,
     "title": "Training Montage \ud83c\udfcb\ufe0f \u2014 Prepping to one-shot our 4th CICS to Java translation attempt",
-    "total": 266
+    "total": 270
    },
    {
     "closed": 1,
@@ -396,9 +396,9 @@
    {
     "closed": 5,
     "number": 30,
-    "open": 44,
+    "open": 45,
     "title": "Gap Atlas \ud83d\uddfa\ufe0f \u2014 mapped, not yet built",
-    "total": 49
+    "total": 50
    },
    {
     "closed": 44,

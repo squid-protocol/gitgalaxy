@@ -1845,6 +1845,25 @@ int GGCURIP(gg_cics *c, char *area, int len) {
     return 0;
 }
 
+/* #5859 (X32): EXEC CICS VERIFY PASSWORD USERID(userid) PASSWORD(password). The region has no security manager, so the verdict
+ * is the planned `VERIFY USERID NTH RESP 0` line a scenario states for the USERID (trailing blanks dropped), the way
+ * CicsTask.verifyPassword reads it; none stated is refused by name. The password is not compared. Event, as the task logs it. */
+int GGCVER(gg_cics *c, char *userid, int ulen) {
+    char id[33], ev[96];
+    int fresp, fresp2, n = ulen < 32 ? ulen : 32;
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    while (n > 0 && userid[n - 1] == ' ') n--;
+    memcpy(id, userid, (size_t)n);
+    id[n] = '\0';
+    if (!injected("VERIFY", id, &fresp, &fresp2)) refuse("VERIFY PASSWORD with no stated verdict");
+    c->resp = fresp;
+    c->resp2 = fresp2;
+    snprintf(ev, sizeof ev, "VERIFY-PASSWORD userid=%s resp=%d", id, c->resp);
+    event(ev, NULL, 0);
+    return 0;
+}
+
 /* WRITE OPERATOR TEXT(from) of GG-LEN bytes: a message to the console, recorded with its text. A text IBM reformats
  * (DFHnnnn / DFHaannnn) or splits (over 113 characters) is refused. #5859 (X32), as CicsTask.writeOperator: GG-FLAGS
  * TEXTLENGTH says GG-LEN is the TEXTLENGTH value (IBM: 0-690, else INVREQ RESP2 1; the text is the first GG-LEN bytes of the

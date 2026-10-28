@@ -564,8 +564,8 @@ SYNCPOINT_ROLLBACK = Command(
 )
 
 # #4415 slice 1, register X26. IBM (EXEC CICS BIF DEEDIT) lists LENGERR "if the LENGTH value is less than 1" and no
-# RESP2 value; what it leaves out is refused by name at run time (a field with no digit left, a character beyond 7-bit
-# ASCII, a LENGTH past the field)
+# RESP2 value; what it leaves out is refused by name at run time (a character beyond 7-bit ASCII, a LENGTH past the
+# field); a field with no digit left becomes all zeros (ASSUMED, X26)
 BIF_DEEDIT = Command(
     key="BIF DEEDIT",
     ibm=ibm("EXEC CICS BIF DEEDIT", "summary-bif-deedit"),
@@ -578,12 +578,6 @@ BIF_DEEDIT = Command(
         Outcome("LENGERR", None, "The LENGTH value is less than 1 (IBM lists no RESP2)"),
     ),
     runtime_refusals=(
-        RuntimeRefusal(
-            "a field with no digit left: IBM does not say what it becomes",
-            "X26",
-            java="BIF DEEDIT of a field with no digit left",
-            c="BIF DEEDIT of a field with no digit left",
-        ),
         RuntimeRefusal(
             "a character beyond 7-bit ASCII in the field",
             "X26",

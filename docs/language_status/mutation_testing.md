@@ -319,6 +319,10 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
   survivor read (#4047): most are harness gaps (the error-message text is judged only through the refused WRITEQ,
   X6 #4050, or the statement needs a Db2 fault the harness cannot inject); the case gaps are the absent-policy and
   zero-row motor update scenarios and an LGUPVS01 failure.
+- LGICDB01 re-run after #6882 (SELECT through `DetSql`, three `sql_faults` scenarios; seed 0, 150 of 196 mutants):
+  94 caught, 42 survived, 14 stillborn (was 51 / 79 / 20). The 42: 15 harness gaps (the LGSTSQ LINK-failure arms, the
+  error-message text behind X6, the too-short COMMAREA check), 14 equivalent, 11 unreachable (facade entry, no
+  COMMAREA), 2 case gaps (a NULL column read, SQLCODE read as 8 bytes needs a fault with a message token).
 - UPDACC on generated Db2 rows (cbsa-updacc-generated, #4507, all 139 mutants run, seed 0): 103 killed, 36 survived
   (7 harness gaps, 17 equivalent, 12 unreachable). The seven harness gaps are the `-904` UPDATE-failure arm: a
   `sql_faults` scenario was tried and the proof refuses it ("no SQL fault hook in UPDACC": the model-written port
@@ -372,7 +376,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | UPDACC (cbsa-updacc-generated) | equivalence | 139/139 | 103/139 (74%) | 103/110 (94%) | 0 / 7 / 17 / 12 / 0 |
 | LGAPDB01 (genapp-lgapdb01) | equivalence | 150/444 | 58/137 (42%) | 58/129 (45%) | 71 / 0 / 1 / 7 / 0 |
 | LGAPVS01 (genapp-lgapvs01) | equivalence | 150/184 | 72/125 (58%) | 72/113 (64%) | 0 / 41 / 1 / 11 / 0 |
-| LGICDB01 (genapp-lgicdb01) | equivalence | 150/201 | 51/130 (39%) | 51/107 (48%) | 1 / 55 / 8 / 15 / 0 |
+| LGICDB01 (genapp-lgicdb01) | equivalence | 150/196 | 94/136 (69%) | 94/111 (85%) | 2 / 15 / 14 / 11 / 0 |
 | LGSTSQ (genapp-lgstsq) | equivalence | 89/89 | 25/78 (32%) | 25/69 (36%) | 43 / 1 / 1 / 8 / 0 |
 | LGUPDB01 (genapp-lgupdb01) | equivalence | 150/403 | 68/140 (49%) | 68/120 (57%) | 6 / 46 / 5 / 15 / 0 |
 | LGUPVS01 (genapp-lgupvs01) | equivalence | 150/160 | 66/119 (55%) | 66/100 (66%) | 0 / 34 / 4 / 15 / 0 |
@@ -398,20 +402,20 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | PCCONF (pc-wizard) | crucible | 24/838 | 15/23 (65%) | 15/15 (100%) | 0 / 0 / 4 / 4 / 0 |
 | PCWIZ (pc-wizard) | crucible | 24/146 | 16/23 (70%) | 16/16 (100%) | 0 / 0 / 4 / 3 / 0 |
 | **all crucible** | | 504 run | **319/476 (67%)** | **319/354 (90%)** | 35 / 0 / 88 / 34 / 0 |
-| **all equivalence** | | 5119 run | **3246/4731 (69%)** | **3246/3685 (88%)** | 239 / 199 / 646 / 400 / 0 + 1 declared |
-| **all estate** | | 5623 run | **3565/5207 (68%)** | **3565/4039 (88%)** | 274 / 199 / 734 / 434 / 0 + 1 declared |
+| **all equivalence** | | 5119 run | **3289/4737 (69%)** | **3289/3689 (89%)** | 240 / 159 / 652 / 396 / 0 + 1 declared |
+| **all estate** | | 5623 run | **3608/5213 (69%)** | **3608/4043 (89%)** | 275 / 159 / 740 / 430 / 0 + 1 declared |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
-| AOR | 231/286 (81%) | 231/255 (91%) |
+| AOR | 235/287 (82%) | 235/256 (92%) |
 | BDM | 27/52 (52%) | 27/28 (96%) |
-| CON | 468/1062 (44%) | 468/577 (81%) |
+| CON | 474/1065 (45%) | 474/574 (83%) |
 | COR | 229/353 (65%) | 229/263 (87%) |
-| DEL | 619/878 (71%) | 619/688 (90%) |
-| LIT | 731/990 (74%) | 731/815 (90%) |
-| NEG | 622/703 (88%) | 622/668 (93%) |
-| RET | 58/105 (55%) | 58/93 (62%) |
-| ROR | 580/778 (75%) | 580/652 (89%) |
+| DEL | 623/876 (71%) | 623/688 (91%) |
+| LIT | 743/993 (75%) | 743/819 (91%) |
+| NEG | 629/704 (89%) | 629/669 (94%) |
+| RET | 60/105 (57%) | 60/93 (65%) |
+| ROR | 588/778 (76%) | 588/653 (90%) |
 
 | port | AOR | BDM | CON | COR | DEL | LIT | NEG | RET | ROR |
 |---|---|---|---|---|---|---|---|---|---|
@@ -449,7 +453,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | UPDACC (cbsa-updacc-generated) | 4/4 | 0/3 | 17/30 | 10/11 | 17/28 | 28/34 | 8/8 | - | 19/21 |
 | LGAPDB01 (genapp-lgapdb01) | 5/13 | - | 8/23 | 0/2 | 7/21 | 12/23 | 13/23 | 2/10 | 11/22 |
 | LGAPVS01 (genapp-lgapvs01) | 14/16 | - | 25/41 | 0/1 | 6/11 | 12/28 | 6/9 | - | 9/19 |
-| LGICDB01 (genapp-lgicdb01) | 2/5 | - | 9/28 | 1/5 | 6/20 | 14/27 | 9/16 | 1/7 | 9/22 |
+| LGICDB01 (genapp-lgicdb01) | 6/6 | - | 15/31 | 1/5 | 10/18 | 26/30 | 16/17 | 3/7 | 17/22 |
 | LGSTSQ (genapp-lgstsq) | 1/5 | - | 1/21 | 0/1 | 5/11 | 10/21 | 5/6 | - | 3/13 |
 | LGUPDB01 (genapp-lgupdb01) | 11/12 | - | 11/22 | 0/2 | 5/22 | 12/22 | 14/22 | 3/17 | 12/21 |
 | LGUPVS01 (genapp-lgupvs01) | 14/14 | - | 29/44 | 0/1 | 4/10 | 10/31 | 7/10 | - | 2/9 |

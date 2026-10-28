@@ -5,6 +5,10 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.gitgalaxy.modernized.cics.CicsTask;
+import com.gitgalaxy.modernized.cobolrt.Cobol;
+import com.gitgalaxy.modernized.cobolrt.Field;
+import com.gitgalaxy.modernized.cobolrt.Storage;
+import com.gitgalaxy.modernized.cobolrt.sql.DetSql;
 import com.gitgalaxy.modernized.dto.contract.LgstsqDfhcommarea;
 import com.gitgalaxy.modernized.dto.contract.Lgicdb01Dfhcommarea;
 import com.gitgalaxy.modernized.entity.vsam.CobolRecords;
@@ -12,14 +16,9 @@ import com.gitgalaxy.modernized.exception.*;
 import com.gitgalaxy.modernized.repository.db2.CustomerRepository;
 import com.gitgalaxy.modernized.repository.db2.Db2Dates;
 import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.dao.DataAccessException;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.dao.IncorrectResultSizeDataAccessException;
-import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.Charset;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -31,6 +30,7 @@ public class Lgicdb01Service {
 
     private static final Logger log = LoggerFactory.getLogger(Lgicdb01Service.class);
 
+    private static final int SQLCA_LEN = 136;
     private static final int DFHCOMMAREA_LEN = 32500;
     private static final int SPECIFIC_LEN = 32482;
     private static final int WS_CUSTOMER_LEN = 72;          // WS-CUSTOMER-LEN (lgpolicy.cpy)
@@ -112,13 +112,17 @@ public class Lgicdb01Service {
     /** GET-CUSTOMER-INFO; false when the task has ended (RETURN or an abend inside). */
     private boolean getCustomerInfo(CicsTask task, Lgicdb01Dfhcommarea ca, long db2CustomerNumber,
                                     String emCusnum, int calen, Charset cs) {
-        int sqlcode;
-        Map<String, Object> row = null;
-        try {
-            Map<String, Object> params = new HashMap<>();
-            params.put("db2CustomernumberInt", db2CustomerNumber);
-            row = customerRepository.selectL169Lgicdb01(params);
-            sqlcode = 0;
+        // #6882: the SELECT runs through the det runtime's DetSql, which keeps the SQLCA and takes a planned SQL fault
+        // for "LGICDB01:169" (the seam a model port lacked). SQLCODE is read back from that SQLCA.
+        Storage sqlcaStore = new Storage(SQLCA_LEN);
+        Field sqlca = Field.group(sqlcaStore, 0, SQLCA_LEN);
+        Field sqlcodeField = Field.binary(sqlcaStore, 12, 9, 0, true, true);   // SQLCODE, COMP-5 at offset 12
+        Map<String, Object> params = new HashMap<>();
+        params.put("db2CustomernumberInt", db2CustomerNumber);
+        Map<String, Object> row = DetSql.selectOne(sqlca, "LGICDB01:169",
+                () -> customerRepository.selectL169Lgicdb01(params), cs);
+        int sqlcode = Cobol.num(sqlcodeField, cs).intValue();
+        if (row != null) {
             // a NULL column with no indicator variable is SQLCODE -305 in DB2
             for (String col : COLUMNS) {
                 if (row.get(col) == null) {
@@ -126,14 +130,6 @@ public class Lgicdb01Service {
                     break;
                 }
             }
-        } catch (EmptyResultDataAccessException e) {
-            sqlcode = 100;
-        } catch (IncorrectResultSizeDataAccessException e) {
-            sqlcode = -811;
-        } catch (PessimisticLockingFailureException e) {
-            sqlcode = -913;
-        } catch (DataAccessException e) {
-            sqlcode = otherSqlcode(e);
         }
 
         // SELECT ... INTO: host variables are set only on SQLCODE 0 (the row's columns overlay CA-REQUEST-SPECIFIC)
@@ -186,8 +182,9 @@ public class Lgicdb01Service {
                 + String.format(Locale.ROOT, "%05d", Math.abs((long) sqlcode) % 100000L);
         String variable = CobolRecords.fit(emVariable, 47, cs).substring(0, 41) + emSqlrc;
 
-        // EXEC CICS ASKTIME / FORMATTIME MMDDYYYY(WS-DATE) TIME(WS-TIME)
-        long abstime = task.asktime();
+        // EXEC CICS ASKTIME ABSTIME(WS-ABSTIME): WS-ABSTIME is PIC S9(8) COMP, so only the low 8 digits are kept (X11)
+        // EXEC CICS FORMATTIME MMDDYYYY(WS-DATE) TIME(WS-TIME)
+        long abstime = task.asktime() % 100_000_000L;
         String wsDate = CobolRecords.fit(CicsTask.formatDate(abstime, "MMDDYYYY", ""), 10, cs);
         String wsTime = CobolRecords.fit(CicsTask.formatTime(abstime, ""), 8, cs);
         String emDate = wsDate.substring(0, 8);     // MOVE WS-DATE TO EM-DATE
@@ -207,7 +204,7 @@ public class Lgicdb01Service {
         if (ca != null && calen > 0) {
             int n = Math.min(calen, 90);   // < 91: DFHCOMMAREA(1:EIBCALEN); else DFHCOMMAREA(1:90)
             LgstsqDfhcommarea caMsg = new LgstsqDfhcommarea();
-            caMsg.setCaData(CobolRecords.fit(commareaText(ca, cs).substring(0, n), 90, cs));
+            caMsg.setCaData("COMMAREA=" + CobolRecords.fit(commareaText(ca, cs).substring(0, n), 90, cs));   // CA-ERROR-MSG: 'COMMAREA=' + CA-DATA X(90)
             // EXEC CICS LINK PROGRAM('LGSTSQ') COMMAREA(CA-ERROR-MSG) LENGTH(99)
             if (!linked(task, task.link("LGSTSQ", caMsg, 99))) {
                 return false;
@@ -248,15 +245,6 @@ public class Lgicdb01Service {
             return Db2Dates.date(v);   // DB2 DATE in a character host variable (iso)
         }
         return v.toString();
-    }
-
-    /** SQLCODE for a failure the program treats as WHEN OTHER: the negated vendor code, else -1. */
-    private static int otherSqlcode(DataAccessException e) {
-        Throwable t = e.getRootCause();
-        if (t instanceof SQLException se && se.getErrorCode() != 0) {
-            return -Math.abs(se.getErrorCode());
-        }
-        return -1;
     }
 
     /** Another program LINKed / XCTLed to this one (#4343): the program at that level in the region

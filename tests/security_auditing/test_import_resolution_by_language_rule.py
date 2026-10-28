@@ -240,6 +240,46 @@ def test_an_extensionless_include_names_an_extensionless_file():
     assert edges == {("test/perf.cc", "include/fmt/format.h"), ("test/perf.cc", "vendor/QtCore/QString")}
 
 
+def test_a_generated_forwarder_include_names_the_lowercase_header_under_its_directory():
+    # #6266, doomsday: `<de/EmbeddedApp>` is written by the build; the repository holds de/embeddedapp.h
+    edges = _edges(
+        [
+            ("apps/gloomed/editorapp.h", "cpp", ["de/EmbeddedApp", "de/String", "chrono", "Foo"]),
+            ("libs/core/include/de/embeddedapp.h", "cpp", []),
+            ("libs/core/include/de/string.h", "cpp", []),
+            ("libs/core/include/foo.h", "cpp", []),
+            ("libs/core/include/chrono.h", "cpp", []),
+        ]
+    )
+    # the forwarder shape needs a directory and a capital: `<chrono>` and a bare `<Foo>` stay unresolved
+    assert edges == {
+        ("apps/gloomed/editorapp.h", "libs/core/include/de/embeddedapp.h"),
+        ("apps/gloomed/editorapp.h", "libs/core/include/de/string.h"),
+    }
+    # two headers claiming the forwarder's path name nothing
+    two = _edges(
+        [
+            ("a/x.h", "cpp", ["de/Widget"]),
+            ("p/de/widget.h", "cpp", []),
+            ("q/de/widget.hpp", "cpp", []),
+        ]
+    )
+    assert two == set()
+
+
+def test_a_quoted_include_repeated_across_module_trees_takes_the_importers_own_module():
+    # #6266, doomsday gamekit: hud/widgets/armoriconwidget.h under libs/doom/include and libs/doom64/include
+    edges = _edges(
+        [
+            ("libs/doom/src/hud/widgets/armoriconwidget.cpp", "cpp", ["hud/widgets/armoriconwidget.h"]),
+            ("libs/doom/include/hud/widgets/armoriconwidget.h", "cpp", []),
+            ("libs/doom64/include/hud/widgets/armoriconwidget.h", "cpp", []),
+            ("tools/other.cpp", "cpp", ["hud/widgets/armoriconwidget.h"]),
+        ]
+    )
+    assert edges == {("libs/doom/src/hud/widgets/armoriconwidget.cpp", "libs/doom/include/hud/widgets/armoriconwidget.h")}
+
+
 def test_a_bare_js_specifier_is_a_package_not_a_same_named_file():
     edges = _edges(
         [

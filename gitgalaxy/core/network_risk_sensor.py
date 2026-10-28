@@ -528,7 +528,9 @@ class NetworkRiskSensor:
 
         # `#include <chrono>` names a file called exactly `chrono`, never chrono.h.
         if src_def.get("include_names_file_literally") and not posixpath.splitext(target_token)[1]:
-            return self._resolve_literal_file(target_token, resolution_map)
+            return self._resolve_literal_file(target_token, resolution_map) or self._resolve_header_forwarder(
+                target_token, resolution_map
+            )
 
         # #4128: an import here names source of these languages only. A resource
         # that mirrors the package path (circe's resources/io/circe/tests/examples/
@@ -770,6 +772,11 @@ class NetworkRiskSensor:
             variant = self._build_variant(path_matches, curr_path)
             if variant is not None:
                 return variant
+            # #6266: a C-family include searched from the importer's own module tree
+            if LANGUAGE_DEFINITIONS.get(src_lang or "", {}).get("include_names_file_literally"):
+                nearest = self._nearest_tree(path_matches, curr_path)
+                if nearest is not None:
+                    return nearest
 
         # Stage 3 (#3199): the token carries no path context that separates
         # these candidates. Dropping the edge outright threw away most real
@@ -1040,6 +1047,48 @@ class NetworkRiskSensor:
         name = token.rsplit("/", 1)[-1]
         same = [c for c in dict.fromkeys(resolution_map.get(name, ())) if self._path_ends_with(c, token)]
         return same[0] if len(same) == 1 else None
+
+    def _resolve_header_forwarder(self, target_token: str, resolution_map: dict[str, list[str]]) -> str | None:
+        """#6266: `<de/EmbeddedApp>` -> .../de/embeddedapp.h, or None.
+
+        A directory-qualified, extensionless include with a capital in its name is a generated forwarder header
+        (Doomsday's `de/`, Qt's `QtCore/QString`): the build writes it, so the repository holds only the lowercase
+        header it forwards to. One such header under the token's directory is the file; several claim nothing.
+        """
+        token = LEADING_RELATIVE_MARKER.sub("", target_token.replace("\\", "/")).strip("/")
+        directory, _, name = token.rpartition("/")
+        if not directory or name == name.lower():
+            return None
+        same = [
+            c
+            for ext in (".h", ".hpp", ".hh", ".hxx")
+            for c in dict.fromkeys(resolution_map.get(name.lower() + ext, ()))
+            if self._path_ends_with(c, f"{directory}/{name.lower()}{ext}")
+        ]
+        return same[0] if len(same) == 1 else None
+
+    @staticmethod
+    def _nearest_tree(candidates: list[str], curr_path: str) -> str | None:
+        """#6266: of several same-path headers, the one sharing the longest directory prefix with the importer, or None.
+
+        `"hud/widgets/armoriconwidget.h"` exists under `libs/doom/include/` and `libs/doom64/include/`; the one in the
+        importer's own module (`libs/doom/src/...`) is the one its include path reaches. A tie, or no shared directory
+        at all, stays ambiguous.
+        """
+        here = curr_path.replace("\\", "/").split("/")[:-1]
+
+        def shared(path: str) -> int:
+            n = 0
+            for a, b in zip(here, path.replace("\\", "/").split("/")[:-1], strict=False):
+                if a != b:
+                    break
+                n += 1
+            return n
+
+        ranked = sorted(((shared(c), c) for c in dict.fromkeys(candidates)), reverse=True)
+        if ranked[0][0] == 0 or (len(ranked) > 1 and ranked[0][0] == ranked[1][0]):
+            return None
+        return ranked[0][1]
 
     @staticmethod
     def _path_ends_with(path: str, tail: str) -> bool:

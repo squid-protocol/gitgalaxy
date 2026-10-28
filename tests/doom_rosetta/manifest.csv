@@ -24,7 +24,7 @@ doom-ascii,https://github.com/wojciech-graj/doom-ascii,940528f138e12431e5a141735
 srb2,https://github.com/STJr/SRB2,639b58c6d718452ef343a0bc927d043bed9e40d6,,,engine-port,GPL-2.0,Doom Legacy <- Doom,callgraph,divergent,README.md,3D Sonic the Hedgehog fangame,
 freedoom,https://github.com/freedoom/freedoom,3ac019628d70b812ffb722f7f2365771b76a9d29,,,assets,BSD-3-Clause / CC0-1.0 (COPYING.adoc),"asset project (content, not engine)",,compatible,README.adoc,aims for compatibility with,
 helion,https://github.com/Helion-Engine/Helion,0e5a78fbd503f18ca51623a9e107c65ede5a129f,,,reimplementation,GPL-3.0,C# modern engine (Boom/ZDoom-compatible),,divergent,README.adoc,written from the ground up,
-doomsday,https://github.com/skyjake/Doomsday-Engine,aa09feba6449efe3b426013a71499bf7c310de15,,,engine-port,GPL-3.0 (doc/LICENSE),Doomsday engine (own lineage),callgraph,enhanced,README.md,"a portable, enhanced source port",
+doomsday,https://github.com/skyjake/Doomsday-Engine,aa09feba6449efe3b426013a71499bf7c310de15,,,engine-port,GPL-3.0 (doc/LICENSE),Doomsday engine (own lineage),,enhanced,README.md,"a portable, enhanced source port",
 edge-classic,https://github.com/edge-classic/EDGE-classic,50b901f2f9b3abe23ca363cd9165679869697e51,,,engine-port,GPL-3.0,EDGE (Boom-derived),,enhanced,README.md,"advanced features, ease of modding",
 nugget-doom,https://github.com/MrAlaux/Nugget-Doom,42efefeb3c2a2e79ff4aa3563e0d140a5bde63ff,,,engine-port,GPL-2.0,Woof,,enhanced,README.md,simply intended to implement additional features,
 inter-doom,https://github.com/JNechaevsky/inter-doom,e3018d269c1b703ec0f597688b49d291a360fdc5,,,engine-port,GPL-2.0,Crispy Doom,,compatible,README.md,Compatibility with vanilla-engine demos,

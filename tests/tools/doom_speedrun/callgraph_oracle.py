@@ -154,7 +154,9 @@ def callee_node(fn):
             fn = fn.child_by_field_name("field")
         elif fn.type in ("qualified_identifier", "template_function", "template_method"):
             fn = fn.child_by_field_name("name")
-        elif fn.type == "dependent_name":  # `q::template f<T>(x)`: the `template` keyword wraps the template method (#6266)
+        elif (
+            fn.type == "dependent_name"
+        ):  # `q::template f<T>(x)`: the `template` keyword wraps the template method (#6266)
             fn = fn.named_children[0] if fn.named_children else None
         else:
             return None
@@ -241,6 +243,10 @@ class Body:
             elif n.type == "ERROR":
                 self.broken = True
                 self._text_calls(n.text)
+            elif n.type == "compound_literal_expression" and decode_bytes(n.text).lstrip().startswith("else"):
+                self.broken = True  # `else {..}` after an `#ifdef`-split `else if` reads as a literal `else{..}`
+            elif n.type == "call_expression" and _is_comparison_chain(n):
+                pass  # `delta < eps || delta > (360 - eps)` reads as a template call `delta<..>(..)`: two comparisons
             elif n.type == "call_expression":
                 name = callee_node(n.child_by_field_name("function"))
                 if name is not None and decode_bytes(name.text) not in KEYWORDS:  # `SERVER_ONLY(\n if (x) {..})`
@@ -390,7 +396,8 @@ class TextBody(Body):
         self.end_line = line + text.count("\n", 0, end)
         self.open_line = line + text.count("\n", 0, open_at)
         body = text[open_at : end + 1]
-        self.preproc = re.findall(DIRECTIVE, body, flags=re.M)
+        body, dead = _split_dead_branches(body)  # `#if 0` code is preprocessor text, as tree-sitter's preproc node
+        self.preproc = re.findall(DIRECTIVE, body, flags=re.M) + dead
         body = re.sub(DIRECTIVE, " ", body, flags=re.M)
         body = _blank_local_classes(body)  # a local class's methods are their own units (as in Body)
         if MACRO_CLASS_HEAD.match(lines[line - 1]):
@@ -412,6 +419,48 @@ class TextBody(Body):
         self._text_calls(news.sub(" ", args).encode())
         self.refs = set(re.findall(r"\b[A-Za-z_]\w*\b", body)) - set(self.calls)
         self.text_only = [m.group(0) for m in STRIP.finditer(raw[open_at : end + 1])]
+
+
+def _split_dead_branches(body):
+    """``body`` with each ``#if 0`` ... ``#endif`` region (nested conditionals inside it included) blanked line by line,
+    and the text of those regions: tree-sitter reads a conditional as one preprocessor node, which holds no call."""
+    out, dead, region, depth = [], [], [], 0
+    for line in body.split("\n"):
+        directive = re.match(r"[ \t]*#[ \t]*(\w+)(.*)", line)
+        word = directive.group(1) if directive else ""
+        if depth == 0 and word == "if" and directive.group(2).strip() == "0":
+            depth = 1
+        elif depth and word in ("if", "ifdef", "ifndef"):
+            depth += 1
+        elif depth and word == "endif":
+            depth -= 1
+            if depth == 0:
+                dead.append("\n".join(region))
+                region = []
+                out.append("")
+                continue
+        if depth:
+            region.append(line)
+            out.append("")
+        else:
+            out.append(line)
+    return "\n".join(out), dead
+
+
+def _label_follows(lines, ends):
+    """Whether the line after a definition's last line is a `goto` label (`abortLine:`): tree-sitter closed the function
+    at an unknown loop macro (`forever {..}`) and the code after the label is no declaration but the function's own."""
+    return (
+        ends < len(lines)
+        and re.match(r"[ \t]*(?!public|private|protected|default|case)\w+[ \t]*:[ \t]*(?://.*)?$", lines[ends])
+        is not None
+    )
+
+
+@functools.lru_cache(maxsize=4)
+def lines_of(src):
+    """A source's lines (bytes decoded once per file)."""
+    return decode_bytes(src).split("\n")
 
 
 def _head_initializer_names(head):
@@ -630,6 +679,31 @@ def _keyword_named(node):
     return name is not None and decode_bytes(name.text) in KEYWORDS
 
 
+def _is_comparison_chain(call):
+    """A call whose callee is a template function with a logical operator in its argument list: two comparisons."""
+    fn = call.child_by_field_name("function")
+    return (
+        fn is not None and fn.type == "template_function" and re.search(r"\|\||&&", decode_bytes(fn.text)) is not None
+    )
+
+
+def _head_swallows_declarations(n, body, row):
+    """True when a multi-line head, not starting on ``row``, holds a `;` outside parentheses: a class body of macros
+    (`DE_AUDIENCE(..)` with no semicolon) fused into one bogus definition, whose braces are an inline method's."""
+    if n.start_point[0] == row or n.start_point[0] == body.start_point[0]:
+        return False
+    head = STRIP.sub(" ", decode_bytes(n.text[: body.start_byte - n.start_byte]))
+    depth = 0
+    for ch in head:
+        if ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth -= 1
+        elif ch == ";" and depth <= 0:
+            return True
+    return False
+
+
 def definition_at(nodes, line):
     """The function_definition whose head spans 1-based ``line`` (start row <= line <= body's first row); never a
     keyword-named misparse, whose head would swallow every function below it."""
@@ -637,7 +711,7 @@ def definition_at(nodes, line):
     best = None
     for n in nodes:
         body = n.child_by_field_name("body")
-        if body is None or _keyword_named(n):
+        if body is None or _keyword_named(n) or _head_swallows_declarations(n, body, row):
             continue
         if n.start_point[0] <= row <= body.start_point[0] and (best is None or n.start_point[0] >= best.start_point[0]):
             best = n
@@ -712,7 +786,7 @@ class Port:
                 lines = split_lines.setdefault(key, decode_bytes(src).split("\n"))
                 ends, opens = node.end_point[0] + 1, node.child_by_field_name("body")
                 late = opens is not None and _head_has_statement("\n".join(lines[start - 1 : opens.start_point[0]]))
-                if late or _ends_in_continued_line(lines, ends):
+                if late or _ends_in_continued_line(lines, ends) or _label_follows(lines, ends):
                     braces = TextBody(src, start, classes)
                     if braces.calls is not None and (
                         braces.open_line < opens.start_point[0] + 1 if late else braces.end_line > ends
@@ -729,6 +803,19 @@ class Port:
                 earlier = braces.end_line < ends and (macro_class or all(row > braces.end_line for row in body.nested))
                 if braces.calls is not None and (braces.end_line > ends or earlier):
                     body = braces
+                elif braces.calls is not None and braces.end_line == ends:
+                    # the same extent: what the misparse hid from the tree (a call after a literal-gluing macro, code in
+                    # an `#if 0` method) is still the body's, read from its text
+                    body.preproc.extend(braces.preproc)
+                    if not re.search(
+                        r"\b(?:struct|class)\b", decode_bytes(node.text)
+                    ):  # a local class's methods are theirs
+                        for callee, shape_ in braces.calls.items():
+                            body.calls.setdefault(callee, shape_)
+            if node is not None and body.node is not None and MACRO_CLASS_HEAD.match(lines_of(src)[start - 1]):
+                braces = TextBody(src, start, classes)  # a method in a macro class's `#if 0` is preprocessor text
+                if braces.calls is not None:
+                    body.preproc.extend(braces.preproc)
             caller = bare(fname)
             eng = {bare(c) for c in callees} & self.defined
             eng.discard(caller)

@@ -944,6 +944,21 @@
     }
    },
    "why": "account 5 with a second detail whose PA-AUTH-RESP-CODE is '05' (declined): the list shows it 'D', the first (approved '00') 'A'"
+  },
+  {
+   "name": "entered-with-account-id-letters",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-ACCT-ID": {
+     "hex": "4142434445464748494A4B"
+    }
+   },
+   "why": "CDEMO-PGM-CONTEXT 0 with letters in CDEMO-ACCT-ID (raw bytes): IS NUMERIC is false, the account field is blanked and WS-ACCT-ID gets LOW-VALUES"
   }
  ]
 }

@@ -1334,6 +1334,9 @@ def _c_macro_definition_name(invocation: str, entry: tuple[int, tuple[int, ...]]
     return "::".join(parts)
 
 
+_TEST_MACRO_OPEN = re.compile(r"\s*\w*(?:BOOST_|TEST)")
+
+
 def _c_macro_branch_match(safe_code: str, match: Any) -> str | None:
     """#5461: the macro's name when `match` came from the C/C++ function-macro branch of `func_start`, else None."""
     global _C_MACRO_BRANCH
@@ -2137,6 +2140,9 @@ _CALLS_OUT_GLOBAL_IGNORE = frozenset(
         "finally",
         # #6266: the MSVC structured-exception clause `__except (filter) {`, a keyword of C and C++.
         "__except",
+        # #6266: the Windows RPC macros that expand to it, `RpcExcept(1) {` / `RpcFinally {` (eternity i_midirpc.cpp).
+        "RpcExcept",
+        "RpcFinally",
     }
 )
 
@@ -7781,7 +7787,11 @@ class StructuralExtractor:
                     args_search_text = args_search_text[last_branch_end:]
 
             raw_name = match.group(match.lastindex) if match.lastindex else match.group(0)
-            if any(m in raw_name for m in ["BOOST_", "TEST", "TEST_F", "TEST_CASE"]):
+            # #6266: only when the match opens on the test macro itself; `inline bool EE_PLATFORM_TEST(int flags)` is a
+            # function whose name holds "TEST" (the whole match read as the name was then named `int`, eternity).
+            if any(m in raw_name for m in ["BOOST_", "TEST", "TEST_F", "TEST_CASE"]) and _TEST_MACRO_OPEN.match(
+                match.group(0)
+            ):
                 raw_name = match.group(0)
             if lang_id in ("typescript", "javascript"):
                 raw_name = _ts_js_quoted_method_name(code, match) or raw_name  # #3760

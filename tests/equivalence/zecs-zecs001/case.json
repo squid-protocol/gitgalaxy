@@ -515,7 +515,7 @@
     {
       "name": "delete-clear-star",
       "commarea": null,
-      "tod": "4747474747470708090A0B0C0D0E0F10",
+      "tod": "5050505050500708090A0B0C0D0E0F10",
       "datasets": {
         "ZECS.ZC01FILE.TEST": {
           "input": "@case/zcfile-ops.bin"

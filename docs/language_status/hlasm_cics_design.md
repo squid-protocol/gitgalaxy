@@ -145,6 +145,12 @@ operand.
   1, 4, 9), plus the ROUTECODES / NUMROUTES the stub does not record. The interpreter gained DEFINE DCOUNTER name rules,
   the WRITE OPERATOR routecodes, a DFHEISTG fill fact, and two fixes (FORMATTIME, `D(L)` lengths). Register X74.
 - Slice 6: the per-instruction differential against `cobc` (item 4 below): 71 snippets, 0 differences.
+- Slice 7: the same differential over storage bytes: 97 more snippets (168 in all, 0 differences). `MVC` (lengths 1-8, offsets,
+  the `=C` literal), `XC`, `OC X,X` (a halfword / fullword zero test), `CLC` / `CLI` (equal / not equal), `STCM` (all 15
+  masks, and at an offset), `IC` (a byte, and `IC R,TBL(R)`), `TR` (1, 3, 8 bytes over a 256-byte table). The fields' bytes
+  are compared raw for binary data, and as characters for text (the interpreter is EBCDIC, the lowering ASCII: assumption 3),
+  so a text case keeps to letters. The lowering refuses `BC` high / low after `CLC` / `CLI` by name, because EBCDIC and ASCII
+  collate differently; a test pins that refusal. No defect surfaced in the lowering or the interpreter.
 - The ladder report keeps both programs in the fixed 129-program denominator. ZECS002 is listed apart in the "refused
   whole: not COBOL" row of the progress page (`tests/tools/ladder_exclusions.py`, #5280), so it is not read as COBOL
   translator work; the page reports the entry as stale once it leaves L0. ZECSNC has no entry: it lowers and
@@ -166,6 +172,6 @@ operand.
 4. **4 (done, above):** the interpreter cross-checks ZECS002 and ZECSNC (slices 4, 5). Slice 6 adds the per-instruction
    differential: `tests/tools/hlasm_diff.py` runs 71 boundary snippets (LA, SLL, SLDL, SR, BCT, STH, CH with eight masks
    branch masks) through the interpreter and, lowered, through `cobc` in the pinned oracle image (one container);
-   registers agree on all 71, zero differences. Left: instructions outside this set (MVC, TR, STCM, IC, CLC, CLI, OC,
-   XC need storage-byte observation; `MVI` is outside the subset) and a general assembler path for non-zECS programs
+   registers agree on all 71, zero differences. Slice 7 (done) adds the storage-byte instructions (above). Left: `MVI`
+   (outside the subset), high / low collation after `CLC` / `CLI` (refused by name), and a general assembler path for non-zECS programs
    (frontier, no burned program needs it).

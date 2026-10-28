@@ -140,7 +140,8 @@ Blind spots of this oracle:
   (`config.h`, `SDL.h`): clang then guesses types and can lose a call to a function of the same file, so the output
   counts `disagreements_in_clean_files` apart and most of the delta is that artefact. What survives is a lead, e.g. a
   call made only through a function-like macro (`FTOM(x)` expanding to `FixedMul(...)`, am_map.c in chocolate-doom
-  and puredoom): the compiler sees it, the engine does not.
+  and puredoom): the compiler saw it, the engine did not (closed by #6881; the remaining clean-file leads are the
+  header `static inline` blind spot of the reference, below).
 - **Pinned SHAs are the ports' HEAD at study time** (2026-10-18); a force-pushed upstream makes `fetch` fail loudly.
 - **Round 2's CSV was produced at engine `585c243e9`**; the current engine will differ, which is the point.
 - **`#ifdef`/`#else` alternate definitions are both counted.** A static scan cannot know the build configuration, so both branches are real source (owner ruling nyx-o9, 2026-10-21, #5462).
@@ -209,17 +210,25 @@ Blind spots:
 ### Clean-file disagreements of the libclang reference (#5630, slice 3)
 
 Read in source at scan `2ac09c8ae` (engine unchanged for these shapes since), each line against the clone. A "clean
-file" is one clang parsed without a fatal error; the baseline's `disagreements_in_clean_files`: puredoom 34, nugget-doom
-6, woof 6, inter-doom 3, doomretro 2, the other ten ports 0.
+file" is one clang parsed without a fatal error. The baseline's `disagreements_in_clean_files` was puredoom 34, nugget-doom
+6, woof 6, inter-doom 3, doomretro 2, the other ten ports 0; since #6881 (baseline at engine `2a023d320`) it is nugget-doom
+6, woof 6, doomretro 2, the other twelve ports 0 (puredoom 34 -> 0, inter-doom 3 -> 0).
 
 | shape | side | edges | ports | verdict |
 |---|---|---|---|---|
 | call inside a disabled preprocessor branch: `#if 0` or `#if defined(I_NET_ENABLED)` with the macro never defined (27 engine-only edges on puredoom before #6770) | engine-only | 0 (was 27) | puredoom | fixed in #6770: `calls_out_to` drops statically dead branches |
-| call made by a function-like macro's body: `Z_ChangeTag(p, t)` expands to `Z_ChangeTag2`, `I_Error`, `doom_concat`, `doom_itoa`, `doom_strcpy`; `FTOM`/`MTOF`/`CXMTOF` to `FixedMul` | clang-only | 34 (28 + 6); inter-doom: 3 via `stbiw__sbgrow` -> `stbiw__sbgrowf` | puredoom, inter-doom | engine miss by design (no macro expansion); the call is real at run time |
+| call made by a function-like macro's body: `Z_ChangeTag(p, t)` expands to `Z_ChangeTag2`, `I_Error`, `doom_concat`, `doom_itoa`, `doom_strcpy`; `FTOM`/`MTOF`/`CXMTOF` to `FixedMul` | clang-only | 0 (was 34 = 28 + 6); inter-doom 0 (was 3 via `stbiw__sbgrow` -> `stbiw__sbgrowf`) | puredoom, inter-doom | fixed in #6881: `calls_out_to` of a function now includes the callees of each function-like macro it invokes (34 -> 0, 3 -> 0) |
 | `static inline` function defined in a header (`p_saveg.h` `saveg_grow` -> `saveg_check_size`, `Z_Realloc`; `m_array.h` `M_ArrayGrow` -> `I_Malloc`, `I_Realloc`) | engine-only | 6 + 6 + 2 | nugget-doom, woof, doomretro | reference blind spot: the edges are in the source; the reference lists none for a header-defined function |
 
 The 8 `sdl_example.c` edges of puredoom's engine-only list are in a fatal-error file (`SDL3/SDL.h` missing) and are not
-counted in the 34. 34 = the macro-body row (before #6770, 61 = 27 + 34).
+counted in the baseline numbers. The 34 was the macro-body row (before #6770, 61 = 27 + 34).
+
+#6881's side effect on the clang reference: the engine now lists macro-expanded edges clang cannot confirm in
+fatal-error files, so clang precision fell for dsda-doom (0.8666 -> 0.8618), fastdoom (0.9648 -> 0.9561), nugget-doom
+(0.9185 -> 0.8862), prboom-plus (0.8638 -> 0.8311) and woof (0.9136 -> 0.8853), while recall rose for every port
+(e.g. woof 0.9357 -> 0.9805, nugget-doom 0.9369 -> 0.9837, puredoom 0.9818 -> 1.0). The clean-file metric did not move
+for the five. Body-oracle residual: doomsday (C++) precision 0.9686 -> 0.9679 (`absent` 42 -> 63, `type` 2009 -> 2037,
+macros expanding to a constructor such as `LOG_*`), not yet read against source (#6770).
 
 ## Lineage vs linuxdoom (`lineage.py`, #5620)
 

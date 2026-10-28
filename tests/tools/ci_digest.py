@@ -97,7 +97,7 @@ RATCHET_SLACK = 1.5  # an overage within this multiple of its limit is runner no
 
 # A roll-up / dependent check -> the part jobs it only summarises; it takes their non-real triage (#5273). The
 # check-runs API carries no `needs`, so this mirrors smoke-test.yml, mainframe-ground-truth.yml, det-sweep.yml,
-# equivalence-e2e.yml and cics-crucible.yml (test_ci_digest.py fails when a roll-up over a matrix job is missing).
+# equivalence-e2e.yml and cics-crucible.yml (a test fails when a roll-up over a matrix job is missing).
 # Since ci-gate holds a merge on every red check (#6919), a roll-up left out here turns a cancelled shard into a real
 # failure: equivalence-e2e on #6951. Part names shared between workflows (`shard N/M`, `plan`) only keep a roll-up
 # `real` when any of them is: the safe side.

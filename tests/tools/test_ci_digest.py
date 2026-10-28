@@ -295,7 +295,7 @@ MATRIX_SAMPLE = {"matrix.group": "1", "matrix.shard": "1/4", "matrix.total": "2"
 NOT_ROLLUPS = {
     ("mainframe-ground-truth.yml", "publish-history"): "push-only history writer",
     ("smoke-test.yml", "full-suite-durations"): "writes the durations file, gates nothing",
-    ("smoke-test.yml", "suite-time"): "suite time budget, not required (docs/ci.md)",
+    ("smoke-test.yml", "suite-time"): "suite time budget, not a required check",
 }
 
 

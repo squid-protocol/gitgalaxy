@@ -134,6 +134,7 @@ def test_the_refractor_writes_skeletons_that_carry_the_engine_facts(scanned, tmp
 
     estate = json.loads((skel / "estate.json").read_text(encoding="utf-8"))
     assert set(estate["sections"]) == set(ESTATE_JOINS) and "score" in estate["completeness"]
+    assert estate["sections"]["job_macro_tables"]["ledger_field"] == "CSD resources"
     report = (clean / "03_audit_reports" / "master_refraction_audit.txt").read_text(encoding="utf-8")
     assert "Verified skeletons (06_skeleton): 2 programs + estate.json" in report
 

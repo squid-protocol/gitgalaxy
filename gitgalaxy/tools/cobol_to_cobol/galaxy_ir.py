@@ -4647,59 +4647,104 @@ class GalaxyIR:
     def job_macro_tables(self) -> list:
         """The CICS macro tables an assembler step reads from a separate SYSIN member (#5154).
 
-        One entry per `SYSIN DD DSN=lib(MEMBER)` of a job step that runs an assembler, or calls
-        a known assembler proc (`_ASSEMBLER_PROCS`: DFHAUPLE; its SYSIN is a `//PROCSTEP.SYSIN`
-        override DD, reported under the EXEC step). Unnamed DDs after the SYSIN (a concatenation) are each their own entry.
+        One entry per `SYSIN DD DSN=lib(MEMBER)` of a job step that runs an assembler, calls a
+        known assembler proc (`_ASSEMBLER_PROCS`: DFHAUPLE; its SYSIN is a `//PROCSTEP.SYSIN`
+        override DD, reported under the EXEC step), or calls an in-stream / repository procedure
+        whose inner step runs `_ASSEMBLER_PROGRAMS` (its SYSIN is `//SYSIN` or `//PROCSTEP.SYSIN`
+        for that inner assembler step, or the procedure's own `SYSIN DD`). Unnamed DDs after the
+        SYSIN (a concatenation) are each their own entry.
         `file` / `job` / `step` / `line` (the DD), `member`, `member_file` and `resources`, the
         macro-table rows (`source` "MACRO") of the one hlasm file whose name is the member, each
         row as `csd_resources` gives it plus `defined_in`. `status`, always present: `joined`
         (one file, with tables), `no_tables` (one file, no macro-table row: found, nothing to
         join; `member_file` is set), `not_found` (no file) or `ambiguous` (several files;
         `member_file` None, `resources` empty). A finding, not a guess. In-stream SYSIN is the
-        job's own `csd_resources`; any other wrapper proc is not read (REFUSED by name).
+        job's own `csd_resources`; any unresolvable wrapper proc is not read (REFUSED by name).
         """
         members: dict[str, list] = {}
         for f in self.files.values():
             if f.language == "hlasm" or any(r.source == "MACRO" for r in f.csd_resources):
                 members.setdefault(nfc(Path(f.file_path).stem.upper()), []).append(f)
-        out = []
+
+        def entry(job_file: str, job_name: str, step_name: str | None, r: EngineJobFlow) -> dict | None:
+            m = re.fullmatch(r"[^()]+\(([^()]+)\)", (r.dsn or "").strip())
+            if not m:
+                return None
+            member = m.group(1).upper()
+            hits = members.get(nfc(member), [])
+            mf = hits[0] if len(hits) == 1 else None
+            rows = [x for x in (mf.csd_resources if mf else []) if x.source == "MACRO"]
+            status = "ambiguous" if len(hits) > 1 else "not_found" if not hits else "joined" if rows else "no_tables"
+            return {
+                "file": job_file,
+                "job": job_name,
+                "step": step_name,
+                "line": r.line,
+                "member": member,
+                "member_file": mf.file_path if mf else None,
+                "status": status,
+                "resources": [{**x.__dict__, "defined_in": mf.file_path if mf else None} for x in rows],
+            }
+
+        out: list[dict[str, Any]] = []
         for f in sorted(self.files.values(), key=lambda x: x.file_path):
             job = next((r for r in f.job_flow if r.kind == "JOB"), None)
             if job is None:
                 continue
             assemblers: set[str | None] = set()
-            wrapper: tuple[str | None] | None = None  # the DFHAUPLE-style step in force: (its name,)
+            # (exec step name, allowed DD step_names or None for any); a job-level override wins over proc DDs
+            wrapper: tuple[str | None, set[str | None] | None] | None = None
+            proc_dds: list[EngineJobFlow] = []
+            overridden = False
             for r in f.job_flow:
                 if r.in_proc:
                     continue
                 if r.kind == "STEP":
+                    if wrapper and proc_dds and not overridden:
+                        out.extend(row for pr in proc_dds if (row := entry(f.file_path, job.name, wrapper[0], pr)))
                     prog, proc = (r.program or "").upper(), (r.proc or "").upper()
-                    wrapper = (r.step_name,) if not prog and proc in self._ASSEMBLER_PROCS else None
+                    wrapper, proc_dds, overridden = None, [], False
+                    if not prog and proc in self._ASSEMBLER_PROCS:
+                        wrapper = (r.step_name, None)
+                    elif not prog and proc:
+                        where, inner = self._proc_steps(f, proc)
+                        asm_inner = {
+                            (ps.step_name or "").upper()
+                            for ps in inner
+                            if (ps.program or "").upper() in self._ASSEMBLER_PROGRAMS
+                        }
+                        if asm_inner:
+                            wrapper = (
+                                r.step_name,
+                                asm_inner | ({(r.step_name or "").upper()} if r.step_name else set()),
+                            )
+                            pf = self.files.get(where or "")
+                            if pf is not None:
+                                proc_name = (inner[0].in_proc if inner else proc).upper()
+                                proc_dds = [
+                                    pr
+                                    for pr in pf.job_flow
+                                    if pr.kind == "DD"
+                                    and (pr.in_proc or "").upper() == proc_name
+                                    and (pr.dd_name or "").upper() == "SYSIN"
+                                    and (pr.step_name or "").upper() in asm_inner
+                                ]
                     if prog in self._ASSEMBLER_PROGRAMS:
                         assemblers.add(r.step_name)
-                elif r.kind == "DD" and (r.dd_name or "").upper() == "SYSIN" and (wrapper or r.step_name in assemblers):
-                    m = re.fullmatch(r"[^()]+\(([^()]+)\)", (r.dsn or "").strip())
-                    if not m:
-                        continue
-                    member = m.group(1).upper()
-                    hits = members.get(nfc(member), [])
-                    mf = hits[0] if len(hits) == 1 else None
-                    rows = [x for x in (mf.csd_resources if mf else []) if x.source == "MACRO"]
-                    status = (
-                        "ambiguous" if len(hits) > 1 else "not_found" if not hits else "joined" if rows else "no_tables"
+                elif (
+                    r.kind == "DD"
+                    and (r.dd_name or "").upper() == "SYSIN"
+                    and (
+                        (wrapper and (wrapper[1] is None or (r.step_name or "").upper() in wrapper[1]))
+                        or r.step_name in assemblers
                     )
-                    out.append(
-                        {
-                            "file": f.file_path,
-                            "job": job.name,
-                            "step": wrapper[0] if wrapper else r.step_name,
-                            "line": r.line,
-                            "member": member,
-                            "member_file": mf.file_path if mf else None,
-                            "status": status,
-                            "resources": [{**x.__dict__, "defined_in": mf.file_path if mf else None} for x in rows],
-                        }
-                    )
+                ):
+                    if wrapper:
+                        overridden = True
+                    if row := entry(f.file_path, job.name, wrapper[0] if wrapper else r.step_name, r):
+                        out.append(row)
+            if wrapper and proc_dds and not overridden:
+                out.extend(row for pr in proc_dds if (row := entry(f.file_path, job.name, wrapper[0], pr)))
         return out
 
     def job_dataset_flow(self) -> list:

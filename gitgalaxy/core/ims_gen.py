@@ -34,17 +34,40 @@ import re
 from typing import Any
 
 _MACROS = frozenset({"PSBGEN", "PCB", "SENSEG", "DBD", "SEGM", "FIELD", "LCHILD", "DATASET"})
-_STMT = re.compile(r"^([A-Z@#$][A-Z0-9@#$]{0,7})?[ \t]+([A-Z]{2,8})(?:[ \t]+(.*))?$", re.I)
+_STMT = re.compile(r"^([.&]?[A-Z@#$][A-Z0-9@#$_.]*)?[ \t]+([A-Z]{2,8})(?:[ \t]+(.*))?$", re.I)
 _STATEMENT_LIMIT = 4000
 _REGION_PARM = re.compile(r"PARM=\(?'?([^')]{0,200})'?\)?", re.I)
 
 
+def _operand_prefix(segment: str, quote: str | None, depth: int) -> tuple[str, str | None, int]:
+    """The operand prefix of one physical line segment (before any unquoted, top-level remark space)."""
+    for i, ch in enumerate(segment):
+        if quote:
+            if ch == quote:
+                quote = None
+        elif ch in "'\"":
+            quote = ch
+        elif ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth = max(0, depth - 1)
+        elif ch in " \t" and depth == 0:
+            return segment[:i], quote, depth
+    return segment, quote, depth
+
+
 def _operands(text: str) -> dict[str, str]:
-    """The KEY=value operands of one macro operand field (up to the first blank)."""
-    field = text.split(" ", 1)[0]
+    """The KEY=value operands of one macro operand field (up to the first unquoted, top-level blank)."""
+    field, _, _ = _operand_prefix(text, None, 0)
     parts, depth, start = [], 0, 0
+    quote: str | None = None
     for i, ch in enumerate(field):
-        if ch == "(":
+        if quote:
+            if ch == quote:
+                quote = None
+        elif ch in "'\"":
+            quote = ch
+        elif ch == "(":
             depth += 1
         elif ch == ")":
             depth = max(0, depth - 1)
@@ -69,7 +92,20 @@ def _first(value: str | None) -> str | None:
 
 
 def _statements(code_stream: str) -> list[tuple[int, str, str, str]]:
-    """(line, label, operation, operands) with column-72 continuations joined."""
+    """(line, label, operation, operands) with column-72 continuations joined.
+
+    Per HLASM Language Reference (SC26-4940-05) ch.2 "Continuation lines" (p.15) and
+    ch.8 "Alternative formats for a macro instruction" (p.296):
+    1. A non-space character in column 72 continues the statement on the next line,
+       starting in column 16.
+    2. Columns 1-15 of a continuation line must be spaces; if an operand on a
+       continuation line begins after column 16 (column 16 is blank) outside a
+       continued quoted string, the assembler treats that line and any following
+       continuation lines as remarks.
+    3. In the alternative macro format, each continued line may carry remarks after
+       its trailing comma (separated by one or more spaces); only the operand prefix
+       of each continued line is joined into the macro operand list.
+    """
     out: list[tuple[int, str, str, str]] = []
     lines = code_stream.split("\n")
     i = 0
@@ -79,15 +115,38 @@ def _statements(code_stream: str) -> list[tuple[int, str, str, str]]:
             i += 1
             continue
         start = i
-        text = raw[:71].rstrip()
-        # Continued while column 72 is non-blank; the next line resumes at column 16.
-        while len(lines[i]) > 71 and lines[i][71] != " " and i + 1 < len(lines) and len(text) < _STATEMENT_LIMIT:
+        first_body = raw[:71].rstrip()
+        m = _STMT.match(first_body)
+        if not m:
+            while len(lines[i]) > 71 and lines[i][71] != " " and i + 1 < len(lines):
+                i += 1
             i += 1
-            text += lines[i][15:71].rstrip()
+            continue
+        label = (m.group(1) or "").upper()
+        op = m.group(2).upper()
+        first_ops = (m.group(3) or "").strip()
+        has_cont = len(lines[i]) > 71 and lines[i][71] != " " and i + 1 < len(lines)
+        if not has_cont:
+            out.append((start + 1, label, op, first_ops))
+            i += 1
+            continue
+        op_text, quote, depth = _operand_prefix(first_ops, None, 0)
+        remark_only = False
+        while len(lines[i]) > 71 and lines[i][71] != " " and i + 1 < len(lines) and len(op_text) < _STATEMENT_LIMIT:
+            i += 1
+            cont = lines[i]
+            if remark_only:
+                continue
+            # Columns 1-15 must be spaces; if column 16 is also blank (outside a continued quote),
+            # HLASM takes this line and any following continuation lines as remarks [SC26-4940-05 p.15, p.296].
+            if len(cont) <= 15 or cont[:15].strip() or (quote is None and cont[15:16] in ("", " ", "\t")):
+                remark_only = True
+                continue
+            seg = cont[15:71] if quote else cont[15:71].rstrip()
+            piece, quote, depth = _operand_prefix(seg, quote, depth)
+            op_text += piece
         i += 1
-        m = _STMT.match(text)
-        if m:
-            out.append((start + 1, (m.group(1) or "").upper(), m.group(2).upper(), (m.group(3) or "").strip()))
+        out.append((start + 1, label, op, op_text))
     return out
 
 

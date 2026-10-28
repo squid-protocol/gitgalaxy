@@ -1,0 +1,9 @@
+* DFHPLT: hand-written fixture (#5154), syntax per IBM CICS TS for OS/390 R3 Resource Definition Guide
+* SC33-1684-30 ch.13 p.415-418 (Table 49-51, Figure 52).
+DFHPLT   CSECT
+         DFHPLT TYPE=INITIAL,SUFFIX=I1
+         DFHPLT TYPE=ENTRY,PROGRAM=(BANKPLT1,BANKPLT2)
+         DFHPLT TYPE=ENTRY,PROGRAM=DFHDELIM
+         DFHPLT TYPE=ENTRY,PROGRAM=BANKPLT3
+         DFHPLT TYPE=FINAL
+         END

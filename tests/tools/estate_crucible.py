@@ -789,16 +789,40 @@ def score_cics(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None
             sc.add("csd_resources", path, label, "missing", f.get("horror"))
             continue
         used.add(id(r))
-        pairs = [("group", f["group"], _u(r.group)), ("line", f["line"], r.line)]
+        pairs = [("group", f["group"], _u(r.group) or _u(getattr(r, "macro_table", None))), ("line", f["line"], r.line)]
         if f.get("program"):
             pairs.append(("program", f["program"], _u(r.program)))
         if f.get("dsname"):
             pairs.append(("dsname", f["dsname"], _u(r.dsname)))
+        if f.get("ddname"):
+            pairs.append(("ddname", f["ddname"], _u(r.ddname)))
+        if f.get("record_format"):
+            pairs.append(("record_format", f["record_format"], _u(r.record_format)))
+        if f.get("plan"):
+            pairs.append(("plan", f["plan"], _u(r.plan)))
+        if f.get("transid"):
+            pairs.append(("transid", f["transid"], _u(r.transid)))
         d = _diff(pairs)
         sc.add("csd_resources", path, label, "fail" if d else "pass", f.get("horror"), d)
+    explicit_res = {(_u(p["type"]), _u(p["name"])): p for p in _phantoms(entry, "csd_resources")}
+    seen_res: set = set()
     for r in res:
         if id(r) not in used:
-            sc.add("csd_resources", path, f"{r.resource_type} {r.name}", "phantom", None, "not in the key")
+            key = (_u(r.resource_type), _u(r.name))
+            p = explicit_res.get(key)
+            if p:
+                seen_res.add(key)
+            sc.add(
+                "csd_resources",
+                path,
+                f"{r.resource_type} {r.name}",
+                "phantom",
+                p.get("horror") if p else None,
+                p["why"] if p else "not in the key",
+            )
+    for (rtype, rname), p in explicit_res.items():
+        if (rtype, rname) not in seen_res:
+            sc.add("csd_resources", path, f"not {rtype} {rname}", "pass", p.get("horror"))
     txs = list(ef.transactions) if ef else []
     for f in entry.get("transactions", []):
         t = next((x for x in txs if _u(x.transid) == f["transid"]), None)
@@ -814,9 +838,24 @@ def score_cics(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None
             ]
         )
         sc.add("transactions", path, f["transid"], "fail" if d else "pass", f.get("horror"), d)
+    explicit_tx = {_u(p["transid"]): p for p in _phantoms(entry, "transactions")}
+    seen_tx: set = set()
     for t in txs:
         if id(t) not in used:
-            sc.add("transactions", path, t.transid, "phantom", None, "not in the key")
+            p = explicit_tx.get(_u(t.transid))
+            if p:
+                seen_tx.add(_u(t.transid))
+            sc.add(
+                "transactions",
+                path,
+                t.transid,
+                "phantom",
+                p.get("horror") if p else None,
+                p["why"] if p else "not in the key",
+            )
+    for txid, p in explicit_tx.items():
+        if txid not in seen_tx:
+            sc.add("transactions", path, f"not {txid}", "pass", p.get("horror"))
 
 
 def score_cics_resources(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:

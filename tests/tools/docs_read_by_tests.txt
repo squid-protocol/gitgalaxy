@@ -64,6 +64,7 @@
 /SYNTOY.cbl	tests/cobol_mainframe
 /SYSTOY.cbl	tests/cobol_mainframe
 /TAGCOPY.cpy	tests/cobol_mainframe
+/WRAPJOB.jcl	tests/cobol_mainframe
 /Z*.cpy	tests/cobol_mainframe
 /ZZPGMONE.cbl	tests/tools/test_blocker_estate_feed.py
 /__init__.py	tests/tools/import_graph_accuracy.py
@@ -137,6 +138,7 @@
 /photo.jpg	tests/security_auditing
 /pkg	tests/core_engine
 /private.key	tests/security_auditing
+/procs	tests/cobol_mainframe
 /production.pem	tests/security_auditing
 /provision.json	tests/tools/equivalence_env.py,tests/tools/test_equivalence_env.py
 /pyproject.toml	tests/core_engine,tests/security_auditing

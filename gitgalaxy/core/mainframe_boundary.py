@@ -85,7 +85,7 @@ from gitgalaxy.core.bms_screen_fields import bms_screen_fields
 # #3351-#3354: CICS resource operations (FILE/MAP/QUEUE/CONTAINER/CHANNEL) live in
 # their own module and ride out of extract_boundary as `cics_resources`.
 from gitgalaxy.core.call_using import blank_stream, call_using_args, entry_points
-from gitgalaxy.core.cics_macro_tables import cics_macro_table_resources
+from gitgalaxy.core.cics_macro_tables import cics_macro_table_resources, cics_macro_table_transactions
 from gitgalaxy.core.cics_resources import cobol_move_literals, extract_cics_resources
 from gitgalaxy.core.cics_tasks import extract_cics_tasks
 from gitgalaxy.core.cobol_conditional import active_source
@@ -2359,6 +2359,13 @@ def _jcl_macro_table_resources(code_stream: str) -> list[dict[str, Any]]:
     return cics_macro_table_resources(code_stream)
 
 
+def _jcl_macro_table_transactions(code_stream: str) -> list[dict[str, Any]]:
+    """The DFHPCT transaction routes in the inline SYSIN of a JCL assembler step (#5154), or []."""
+    if not _JCL_ASSEMBLER.search(code_stream):
+        return []
+    return cics_macro_table_transactions(code_stream)
+
+
 def _pli_value_map(records: list[dict[str, Any]]) -> dict[str, str]:
     """PL/I name -> its `INIT`/`VALUE` string (first declaration wins), the PL/I
     analog of `_cobol_value_map` for CICS operand resolution (#3351-#3354).
@@ -2676,7 +2683,7 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
     if dialect == "jcl":
         boundary = _jcl_boundary(code_stream)
         boundary["records"] = []
-        boundary["transactions"] = _jcl_csd_transactions(code_stream)
+        boundary["transactions"] = _jcl_csd_transactions(code_stream) + _jcl_macro_table_transactions(code_stream)
         boundary["csd_resources"] = _jcl_csd_resources(code_stream) + _jcl_macro_table_resources(
             code_stream
         )  # #3356, #5154
@@ -2702,7 +2709,7 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
             "calls": _cobol_calls(stream, dc, cics_only=True),
             "datasets": [],
             "records": [],
-            "transactions": [],
+            "transactions": cics_macro_table_transactions(code_stream),
             "ims_gen": ims_gen_macros(code_stream),
             # #5120: DFHFCT / DFHPCT / DFHPPT / DFHDCT / DFHTST macro tables, as CSD-shaped rows.
             "csd_resources": cics_macro_table_resources(code_stream),

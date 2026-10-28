@@ -265,11 +265,9 @@ def test_summary_counts_programs_raised_by_a_copybook_only_when_any():
 def test_every_tell_cites_an_ibm_release():
     assert set(et.CITE) == {t[0] for t in et.TELLS}  # noqa: S101
     for tell, c in et.CITE.items():
-        assert c["ibm"] and isinstance(c["verified"], bool), tell  # noqa: S101
-        assert not c["verified"] or c["source"].startswith("https://"), tell  # noqa: S101
-        # #5195: a cite is either backed by an opened IBM page or says what was tried; never a bare unverified claim
-        assert c["verified"] or c.get("note"), tell  # noqa: S101
-        assert "source" not in c or urlparse(c["source"]).hostname in IBM_HOSTS, tell  # noqa: S101
+        assert c["ibm"] and c["verified"] is True, tell  # noqa: S101
+        assert c["source"].startswith("https://"), tell  # noqa: S101
+        assert urlparse(c["source"]).hostname in IBM_HOSTS, tell  # noqa: S101
 
 
 def test_skipped_marker_is_added_only_when_set():

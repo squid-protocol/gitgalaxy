@@ -51,9 +51,9 @@
     "tests/tools/equivalence_ims.py"
    ],
    "files": 18,
-   "sha256": "b1bf7f49a6296fe3688e5c762ee3da5c774469f385c65d0f0792882568a58853",
+   "sha256": "67b2106b6501b8b1abbdda18b2240fbb2f1ca5785742ed74c04a0a7ed733a73f",
    "components": {
-    "harness:cics": "d99d239f2b2facc1de905bb36e10af55772e514815cbc4e346cd862c5add0159",
+    "harness:cics": "a4ca8f21ff588fb1e2c6dee4dded4db6120953505800f2a9ee0d44aa8268ef36",
     "harness:core": "d921abf8b3c5676cf34888c5707aa4c2625e4d20b7435f644db351842492d76e",
     "harness:ims": "802ab48aa0aaa1f897bb052b7caeae1516cdbb5b6cb88fabf2f07f86a4f93752"
    }
@@ -84,7 +84,7 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 114,
-   "sha256": "84eb3c8869efd04fd27d4af6e7c97846f4199b0ad703e9cc484bb6700c55179e",
+   "sha256": "32ad960ce9cbdc4c431faf38705abc857e8cbdfe711cf5fe6d87d13634afb686",
    "components": {
     "generator:cobolrt/Cobol.java": "0e5d898e6fb899e23c540e201d019a4dcd8a372df07d6b1d9c80a7df261a0c9f",
     "generator:cobolrt/Codec.java": "8f64df479294b444eba647528c55b25615d5a4fa962e7447757d0d48d5c342ab",
@@ -105,7 +105,7 @@
     "generator:cobolrt/mq/QueueManager.java": "30bc5f1cae55df5b40a609f31ebeb402b7c0f3c74f53dbcc66b82e0e6e0af04c",
     "generator:cobolrt/standalone/CobolAbend.java": "f8b72030ecb8862738c562b0c826ff9b1a085d92050664082f96e6107d5dfdb7",
     "generator:cobolrt/standalone/Sysout.java": "290bd3e17b89bb6883cee226df6137927b753f3858fe5cfb1e3021ff7f8d5c44",
-    "generator:core": "917f53215dad2f76e4ec1f99b42e643e95afcf1337716072847dade78637e78a",
+    "generator:core": "fe93e141906f2975981e9c3603c049c6bfd7f5f969f874b259c31cdafc0919fd",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
     "generator:det/cics": "5e112b6cc0a975084b2cb676287b38d6220ea4b5cef3cda9ee082b719c373c20",
     "generator:det/cics_conditions": "c5bfb6ed32df1a582cf010bf59f1f16dd7440e4caa075a0458f62ca9b85f6219",
@@ -120,7 +120,7 @@
     "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
     "generator:det/gen": "375213313139b241a300f9f96db53a2bc1a84dd1a3e30182469800b94bf0ebd9",
     "generator:det/hfp": "d7d641dafd602da31535a68f7f219c201a8d867cb7a1fec1c879be38e9ff86b7",
-    "generator:det/hlasm": "edc032951e21128754849b8d018cdb45378b3eb3b078ce16fc26b7b28c12fc76",
+    "generator:det/hlasm": "167317c8a1e9a107c41980a26bd4ce86405eed623cf59c9a96e2c39fdbec3f16",
     "generator:det/layout": "e3c70e4dcbb512324b5b16a57dac4010e60d18b7926c06fff5edbd6cf1a79e3e",
     "generator:det/mq": "25055224f7c943069e828db7a79887ca1f4e6f4a06ec3b9781c97b31226491a0",
     "generator:det/osvs": "4ca3599a4d9a49bd17def291a921278d6f4f45858f65acaf75ae817c17644dd5",
@@ -209,10 +209,10 @@
    },
    "runtime_sha256": "486d6880280039b47962e4e97342fe0740f30e991fc7aff36d0fd384b1810abc"
   },
-  "digest": "237f5d40c133666a3146ab20ca7bf88576daeb5613228831fef7d0bb6e3fb015"
+  "digest": "03767835dc2b0268d4467298663702076a8d5b92ac0a9e6737c8acff68d70dc3"
  },
  "proof": {
-  "at": "2026-10-28T10:19:12Z",
+  "at": "2026-10-28T13:13:11Z",
   "verdict": "proven",
   "runs": 26,
   "fault_runs": 7,
@@ -563,8 +563,8 @@
    "failed": [],
    "error": null
   },
-  "harness_commit": "ddac1078503e362e1fd605e72aa429c4970679a9+uncommitted",
-  "inputs_digest": "237f5d40c133666a3146ab20ca7bf88576daeb5613228831fef7d0bb6e3fb015"
+  "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
+  "inputs_digest": "03767835dc2b0268d4467298663702076a8d5b92ac0a9e6737c8acff68d70dc3"
  },
  "coverage": {
   "paragraphs": {
@@ -612,7 +612,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "237f5d40c133666a3146ab20ca7bf88576daeb5613228831fef7d0bb6e3fb015"
+  "inputs_digest": "03767835dc2b0268d4467298663702076a8d5b92ac0a9e6737c8acff68d70dc3"
  },
  "reach": {
   "entry_points": [
@@ -683,7 +683,7 @@
   "compiler_options": null,
   "image": {
    "name": "gitgalaxy-gnucobol:3",
-   "id": "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005",
+   "id": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
    "base": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
    "matches_pin": true,
    "mismatches": []

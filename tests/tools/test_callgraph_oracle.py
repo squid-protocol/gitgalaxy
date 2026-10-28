@@ -882,6 +882,42 @@ def test_a_call_in_a_trailing_return_type_is_a_call_of_the_text_fallback_unit():
     assert body.calls == {"satisfies": "unparsed"}
 
 
+def test_a_macro_body_names_its_callees_through_continuations_and_quoted_backslashes(tmp_path):
+    """#6770: a quote escape in the body (`\\"`) must not end the `#define`; parameters and strings are no callees."""
+    (tmp_path / "m.h").write_text(
+        '#define SDLERR(func, off) \\\n    fail("call to %s() \\"failed\\"", \\\n        func, fmt(__LINE__ + off), leaf(__FILE__))\n'
+        "#define ARRAY_GROW(v, n) ((v) = grow(v, sizeof(*(v)), n))\n"
+        "#define OBJ 3\n"
+    )
+    table = co.macro_body_callees(tmp_path)
+    assert table["SDLERR"] == {"fail", "fmt", "leaf"}
+    assert table["ARRAY_GROW"] == {"grow", "sizeof"}
+    assert "OBJ" not in table
+
+
+def test_a_macro_two_files_define_differently_is_left_out(tmp_path):
+    (tmp_path / "a.h").write_text("#define TOF(x) conv(x)\n#define SAME(x) one(x)\n")
+    (tmp_path / "b.h").write_text("#define TOF(x) ((x) << 16)\n#define SAME(x) one(x)\n")
+    assert co.macro_body_callees(tmp_path) == {"SAME": {"one"}}
+
+
+def test_a_macro_reaches_the_callee_of_a_macro_it_calls_but_not_a_cycle_or_a_stranger():
+    table = {"A": {"B"}, "B": {"target"}, "X": {"Y"}, "Y": {"X"}}
+    assert co.macro_reaches(table, {"A"}, "target")
+    assert not co.macro_reaches(table, {"X"}, "target")
+    assert not co.macro_reaches(table, {"plain"}, "target")
+
+
+def test_an_engine_edge_a_macro_expands_to_is_not_a_false_edge_of_the_body_oracle(tmp_path):
+    src = "#define GROW(v) ((v) = grow(v))\nvoid grow(int *v) {}\nvoid f(int *v)\n{\n    GROW(v);\n}\n"
+    (tmp_path / "x.c").write_text(src)
+    port = co.Port("p", tmp_path, [("x.c", "c", "f", 3, ["grow"]), ("x.c", "c", "grow", 2, [])])
+    result = co.body_oracle(port)
+    assert result["engine_only_by_kind"] == {"macro-expansion": 1}
+    assert result["macro_expansion_calls"] == 1
+    assert result["precision"] == 1.0
+
+
 DEAD_BRANCHES = """void f(int x)
 {
     live();

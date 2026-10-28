@@ -6936,7 +6936,8 @@
           "IsLinux",
           "IsAarch64",
           "SystemCall",
-          "CallSystem"
+          "CallSystem",
+          "SupportsLinux"
         ],
         "AccessCommand@586": [
           "MemMove",
@@ -6948,12 +6949,14 @@
         "CallSystem@366": [
           "__attribute__",
           "IsXnu",
-          "SystemCall"
+          "SystemCall",
+          "SupportsXnu"
         ],
         "Close@391": [
           "IsLinux",
           "IsAarch64",
-          "CallSystem"
+          "CallSystem",
+          "SupportsLinux"
         ],
         "Commandv@615": [
           "StrLen",
@@ -6965,7 +6968,8 @@
           "IsLinux",
           "IsAarch64",
           "CallSystem",
-          "__builtin_unreachable"
+          "__builtin_unreachable",
+          "SupportsLinux"
         ],
         "GetEnv@321": [],
         "Itoa@360": [
@@ -6983,22 +6987,30 @@
           "IsOpenbsd",
           "IsNetbsd",
           "__builtin_unreachable",
-          "SystemCall"
+          "SystemCall",
+          "SupportsLinux",
+          "SupportsXnu",
+          "SupportsFreebsd",
+          "SupportsOpenbsd",
+          "SupportsNetbsd"
         ],
         "Mprotect@466": [
           "IsLinux",
           "IsAarch64",
-          "CallSystem"
+          "CallSystem",
+          "SupportsLinux"
         ],
         "Msyscall@449": [
           "IsOpenbsd",
-          "SystemCall"
+          "SystemCall",
+          "SupportsOpenbsd"
         ],
         "Open@457": [
           "IsLinux",
           "IsAarch64",
           "SystemCall",
-          "CallSystem"
+          "CallSystem",
+          "SupportsLinux"
         ],
         "Perror@571": [
           "Itoa",
@@ -7017,7 +7029,12 @@
           "IsOpenbsd",
           "IsNetbsd",
           "__builtin_unreachable",
-          "SystemCall"
+          "SystemCall",
+          "SupportsLinux",
+          "SupportsXnu",
+          "SupportsFreebsd",
+          "SupportsOpenbsd",
+          "SupportsNetbsd"
         ],
         "Print@503": [
           "__builtin_va_start",
@@ -7050,7 +7067,8 @@
           "Close",
           "Msyscall",
           "Launch",
-          "IsFreebsd"
+          "IsFreebsd",
+          "SupportsFreebsd"
         ],
         "StrCmp@239": [],
         "StrLen@232": [],
@@ -7065,7 +7083,8 @@
         "Write@427": [
           "IsLinux",
           "IsAarch64",
-          "CallSystem"
+          "CallSystem",
+          "SupportsLinux"
         ]
       },
       "assembly/cosmopolitan/start.S": {
@@ -10246,7 +10265,9 @@
           "_PyTuple_FromPair",
           "Py_XDECREF",
           "_PyCompile_ExitScope",
-          "compiler_free"
+          "compiler_free",
+          "PyDict_SetItemString",
+          "PyLong_FromLong"
         ],
         "_PyCompile_ConstCacheMergeOne@1363": [
           "const_cache_insert",
@@ -10666,7 +10687,8 @@
           "PyFrozenDict_Check",
           "frozendict_does_not_support",
           "PyErr_BadInternalCall",
-          "dict_merge_from_seq2"
+          "dict_merge_from_seq2",
+          "PyErr_SetString"
         ],
         "PyDict_New@1023": [
           "new_dict"
@@ -10701,7 +10723,8 @@
           "frozendict_does_not_support",
           "PyErr_BadInternalCall",
           "_PyDict_SetItem_Take2",
-          "Py_NewRef"
+          "Py_NewRef",
+          "PyErr_SetString"
         ],
         "PyDict_SetItemString@5390": [
           "PyUnicode_FromString",
@@ -10713,7 +10736,8 @@
         "PyDict_Size@4483": [
           "PyAnyDict_Check",
           "PyErr_BadInternalCall",
-          "GET_USED"
+          "GET_USED",
+          "FT_ATOMIC_LOAD_SSIZE_RELAXED"
         ],
         "PyDict_Unwatch@8017": [
           "PyDict_Check",
@@ -10760,7 +10784,8 @@
           "IS_DICT_SHARED",
           "STORE_USED",
           "Py_CLEAR",
-          "_PyObject_ManagedDictPointer"
+          "_PyObject_ManagedDictPointer",
+          "FT_ATOMIC_STORE_SSIZE_RELAXED"
         ],
         "PyObject_GenericGetDict@7895": [
           "Py_TYPE",
@@ -10860,14 +10885,19 @@
           "_PyAnyDict_CAST",
           "assert",
           "can_modify_dict",
-          "FT_ATOMIC_STORE_UINT32_RELAXED"
+          "FT_ATOMIC_STORE_UINT32_RELAXED",
+          "PyAnyDict_Check",
+          "_Py_CAST"
         ],
         "_PyDict_Clear_LockHeld@3075": [
           "clear_lock_held"
         ],
         "_PyDict_Contains_KnownHash@5145": [
           "_PyAnyDict_CAST",
-          "_Py_dict_lookup"
+          "_Py_dict_lookup",
+          "PyAnyDict_Check",
+          "_Py_CAST",
+          "assert"
         ],
         "_PyDict_CopyAsDict@4466": [
           "assert",
@@ -10904,7 +10934,8 @@
           "_Py_dict_lookup",
           "_PyErr_SetKeyError",
           "_PyDict_NotifyEvent",
-          "delitem_common"
+          "delitem_common",
+          "PyErr_SetString"
         ],
         "_PyDict_DetachFromObject@7824": [
           "ASSERT_WORLD_STOPPED_OR_OBJ_LOCKED",
@@ -11095,7 +11126,8 @@
           "delitem_common",
           "Py_NewRef",
           "ASSERT_CONSISTENT",
-          "Py_DECREF"
+          "Py_DECREF",
+          "_PyDict_CheckConsistency"
         ],
         "_PyDict_SendEvent@8072": [
           "_PyInterpreterState_GET",
@@ -11111,7 +11143,8 @@
           "PyErr_BadInternalCall",
           "Py_BEGIN_CRITICAL_SECTION",
           "_PyDict_SetItem_KnownHash_LockHeld",
-          "Py_END_CRITICAL_SECTION"
+          "Py_END_CRITICAL_SECTION",
+          "PyErr_SetString"
         ],
         "_PyDict_SetItem_KnownHash_LockHeld@2808": [
           "insert_to_emptydict",
@@ -11126,7 +11159,8 @@
           "_PyObject_HashFast",
           "dict_unhashable_type",
           "_PyDict_DelItem_KnownHash_LockHeld",
-          "setitem_lock_held"
+          "setitem_lock_held",
+          "PyErr_SetString"
         ],
         "_PyDict_SetItem_Take2@2752": [
           "Py_BEGIN_CRITICAL_SECTION",
@@ -11153,7 +11187,8 @@
           "Py_BEGIN_CRITICAL_SECTION",
           "_PyDict_SetItem_LockHeld",
           "ASSERT_CONSISTENT",
-          "Py_END_CRITICAL_SECTION"
+          "Py_END_CRITICAL_SECTION",
+          "_PyDict_CheckConsistency"
         ],
         "_PyObject_InitInlineValues@7099": [
           "assert",
@@ -11177,7 +11212,8 @@
           "FT_ATOMIC_LOAD_PTR_RELAXED",
           "_PyObject_GetManagedDict",
           "_PyObject_ComputedDictPointer",
-          "GET_USED"
+          "GET_USED",
+          "FT_ATOMIC_LOAD_SSIZE_RELAXED"
         ],
         "_PyObject_MaterializeManagedDict@7172": [
           "_PyObject_GetManagedDict",
@@ -11320,14 +11356,16 @@
         "build_indices_generic@2060": [
           "DK_MASK",
           "dictkeys_get_index",
-          "dictkeys_set_index"
+          "dictkeys_set_index",
+          "DK_SIZE"
         ],
         "build_indices_unicode@2075": [
           "DK_MASK",
           "unicode_get_hash",
           "assert",
           "dictkeys_get_index",
-          "dictkeys_set_index"
+          "dictkeys_set_index",
+          "DK_SIZE"
         ],
         "calculate_log2_keysize@578": [
           "Py_MAX",
@@ -11365,7 +11403,9 @@
           "set_values",
           "Py_CLEAR",
           "free_values",
-          "ASSERT_CONSISTENT"
+          "ASSERT_CONSISTENT",
+          "FT_ATOMIC_STORE_SSIZE_RELAXED",
+          "_PyDict_CheckConsistency"
         ],
         "clone_combined_dict_keys@962": [
           "assert",
@@ -11450,7 +11490,9 @@
           "new_dict",
           "ASSERT_CONSISTENT",
           "dict_merge",
-          "Py_DECREF"
+          "Py_DECREF",
+          "_PyDict_CheckConsistency",
+          "assert"
         ],
         "copy_values@4303": [
           "new_values",
@@ -11483,7 +11525,10 @@
           "STORE_VALUE",
           "DK_ENTRIES",
           "STORE_HASH",
-          "Py_DECREF"
+          "Py_DECREF",
+          "FT_ATOMIC_STORE_SSIZE_RELAXED",
+          "FT_ATOMIC_STORE_PTR_RELEASE",
+          "_PyDict_CheckConsistency"
         ],
         "delitemif_lock_held@2961": [
           "int",
@@ -11494,7 +11539,9 @@
           "_Py_dict_lookup",
           "predicate",
           "_PyDict_NotifyEvent",
-          "delitem_common"
+          "delitem_common",
+          "PyAnyDict_Check",
+          "_Py_CAST"
         ],
         "detach_dict_from_object@7747": [
           "assert",
@@ -11507,7 +11554,8 @@
           "copy_values",
           "PyErr_NoMemory",
           "invalidate_and_clear_inline_values",
-          "ASSERT_CONSISTENT"
+          "ASSERT_CONSISTENT",
+          "_PyDict_CheckConsistency"
         ],
         "dict___contains___impl@4601": [
           "dict_contains"
@@ -11591,7 +11639,9 @@
           "_PyDict_Contains_KnownHash",
           "_PyErr_SetKeyError",
           "Py_DECREF",
-          "PyErr_SetString"
+          "PyErr_SetString",
+          "FT_ATOMIC_STORE_SSIZE_RELAXED",
+          "_PyDict_CheckConsistency"
         ],
         "dict_equal@4559": [
           "Py_BEGIN_CRITICAL_SECTION2",
@@ -11655,7 +11705,11 @@
         ],
         "dict_length@3644": [
           "GET_USED",
-          "_PyAnyDict_CAST"
+          "_PyAnyDict_CAST",
+          "FT_ATOMIC_LOAD_SSIZE_RELAXED",
+          "PyAnyDict_Check",
+          "_Py_CAST",
+          "assert"
         ],
         "dict_merge@4157": [
           "assert",
@@ -11676,14 +11730,17 @@
           "PyObject_GetItem",
           "setitem_lock_held",
           "PyErr_Occurred",
-          "Py_END_CRITICAL_SECTION"
+          "Py_END_CRITICAL_SECTION",
+          "_Py_CAST",
+          "_PyDict_CheckConsistency"
         ],
         "dict_merge_api@4248": [
           "PyDict_Check",
           "PyFrozenDict_Check",
           "frozendict_does_not_support",
           "PyErr_BadInternalCall",
-          "dict_merge"
+          "dict_merge",
+          "PyErr_SetString"
         ],
         "dict_merge_from_seq2@4032": [
           "Py_BEGIN_CRITICAL_SECTION",
@@ -11696,7 +11753,8 @@
           "tp_alloc",
           "ASSERT_CONSISTENT",
           "_PyObject_GC_IS_TRACKED",
-          "_PyObject_GC_TRACK"
+          "_PyObject_GC_TRACK",
+          "_PyDict_CheckConsistency"
         ],
         "dict_new_presized@2267": [
           "USABLE_FRACTION",
@@ -11743,7 +11801,10 @@
           "PyTuple_SET_ITEM",
           "STORE_KEYS_NENTRIES",
           "STORE_USED",
-          "ASSERT_CONSISTENT"
+          "ASSERT_CONSISTENT",
+          "FT_ATOMIC_STORE_PTR_RELEASE",
+          "FT_ATOMIC_STORE_SSIZE_RELAXED",
+          "_PyDict_CheckConsistency"
         ],
         "dict_repr@3634": [
           "Py_BEGIN_CRITICAL_SECTION",
@@ -11795,7 +11856,10 @@
           "insert_combined_dict",
           "Py_DECREF",
           "STORE_USED",
-          "ASSERT_CONSISTENT"
+          "ASSERT_CONSISTENT",
+          "PyErr_SetString",
+          "FT_ATOMIC_STORE_SSIZE_RELAXED",
+          "_PyDict_CheckConsistency"
         ],
         "dict_subscript@3656": [
           "_PyObject_HashFast",
@@ -12010,7 +12074,8 @@
           "load_keys_nentries",
           "_PyTuple_FromPairSteal",
           "Py_DECREF",
-          "_PyObject_GC_TRACK"
+          "_PyObject_GC_TRACK",
+          "FT_ATOMIC_LOAD_SSIZE_RELAXED"
         ],
         "dictiter_reduce@6200": [
           "Py_UNUSED",
@@ -12092,7 +12157,9 @@
           "free_keys_object",
           "STORE_KEYS_USABLE",
           "STORE_KEYS_NENTRIES",
-          "ASSERT_CONSISTENT"
+          "ASSERT_CONSISTENT",
+          "FT_ATOMIC_STORE_SSIZE_RELAXED",
+          "_PyDict_CheckConsistency"
         ],
         "dictreviter_iter_lock_held@6066": [
           "assert",
@@ -12134,7 +12201,8 @@
           "PyObject_GC_Del"
         ],
         "dictview_len@6263": [
-          "GET_USED"
+          "GET_USED",
+          "FT_ATOMIC_LOAD_SSIZE_RELAXED"
         ],
         "dictview_mapping@6296": [
           "Py_UNUSED",
@@ -12205,7 +12273,8 @@
           "DK_MASK",
           "dictkeys_get_index",
           "check_lookup",
-          "Py_UNREACHABLE"
+          "Py_UNREACHABLE",
+          "DK_SIZE"
         ],
         "dump_entries@666": [
           "DK_IS_UNICODE",
@@ -12252,7 +12321,8 @@
           "assert",
           "DK_MASK",
           "dictkeys_get_index",
-          "is_unusable_slot"
+          "is_unusable_slot",
+          "DK_SIZE"
         ],
         "free_keys_object@843": [
           "DK_LOG_SIZE",
@@ -12282,10 +12352,16 @@
           "PyDict_Next",
           "PyObject_Hash",
           "_shuffle_bits",
-          "FT_ATOMIC_STORE_SSIZE_RELAXED"
+          "FT_ATOMIC_STORE_SSIZE_RELAXED",
+          "PyAnyDict_Check",
+          "_Py_CAST",
+          "assert"
         ],
         "frozendict_length@3650": [
-          "_PyAnyDict_CAST"
+          "_PyAnyDict_CAST",
+          "PyAnyDict_Check",
+          "_Py_CAST",
+          "assert"
         ],
         "frozendict_new@8231": [
           "dict_new",
@@ -12294,14 +12370,17 @@
           "_PyAnyDict_CAST",
           "_PyFrozenDictObject_CAST",
           "dict_update_common",
-          "Py_DECREF"
+          "Py_DECREF",
+          "PyAnyDict_Check",
+          "_Py_CAST"
         ],
         "frozendict_or@5043": [
           "PyFrozenDict_CheckExact",
           "GET_USED",
           "Py_NewRef",
           "PyAnyDict_CheckExact",
-          "dict_or"
+          "dict_or",
+          "FT_ATOMIC_LOAD_SSIZE_RELAXED"
         ],
         "frozendict_repr@8158": [
           "_PyAnyDict_CAST",
@@ -12310,7 +12389,9 @@
           "anydict_repr_impl",
           "assert",
           "PyUnicode_Check",
-          "Py_DECREF"
+          "Py_DECREF",
+          "PyAnyDict_Check",
+          "_Py_CAST"
         ],
         "frozendict_vectorcall@5252": [
           "PyVectorcall_NARGS",
@@ -12352,7 +12433,9 @@
           "DK_ENTRIES",
           "STORE_HASH",
           "STORE_KEYS_USABLE",
-          "STORE_KEYS_NENTRIES"
+          "STORE_KEYS_NENTRIES",
+          "FT_ATOMIC_STORE_PTR_RELEASE",
+          "FT_ATOMIC_STORE_SSIZE_RELAXED"
         ],
         "insert_split_key@1882": [
           "assert",
@@ -12378,7 +12461,10 @@
           "_PyDictValues_AddToInsertionOrder",
           "STORE_USED",
           "Py_DECREF",
-          "ASSERT_CONSISTENT"
+          "ASSERT_CONSISTENT",
+          "FT_ATOMIC_STORE_PTR_RELEASE",
+          "FT_ATOMIC_STORE_SSIZE_RELAXED",
+          "_PyDict_CheckConsistency"
         ],
         "insert_to_emptydict@2013": [
           "assert",
@@ -12392,7 +12478,8 @@
           "STORE_VALUE",
           "DK_ENTRIES",
           "STORE_USED",
-          "FT_ATOMIC_STORE_PTR_RELEASE"
+          "FT_ATOMIC_STORE_PTR_RELEASE",
+          "FT_ATOMIC_STORE_SSIZE_RELAXED"
         ],
         "insertdict@1942": [
           "assert",
@@ -12412,7 +12499,10 @@
           "DK_UNICODE_ENTRIES",
           "STORE_VALUE",
           "DK_ENTRIES",
-          "Py_XDECREF"
+          "Py_XDECREF",
+          "FT_ATOMIC_STORE_SSIZE_RELAXED",
+          "_PyDict_CheckConsistency",
+          "FT_ATOMIC_STORE_PTR_RELEASE"
         ],
         "insertion_resize@1832": [
           "dictresize",
@@ -12458,7 +12548,8 @@
         "lookdict_index@1031": [
           "DK_MASK",
           "dictkeys_get_index",
-          "Py_UNREACHABLE"
+          "Py_UNREACHABLE",
+          "DK_SIZE"
         ],
         "lookup_threadsafe_unicode@1638": [
           "assert",
@@ -12493,7 +12584,8 @@
           "dict_setdefault_ref_lock_held",
           "ASSERT_CONSISTENT",
           "Py_XDECREF",
-          "Py_SAFE_DOWNCAST"
+          "Py_SAFE_DOWNCAST",
+          "_PyDict_CheckConsistency"
         ],
         "new_dict@924": [
           "_Py_FREELIST_POP",
@@ -12507,7 +12599,8 @@
           "dictkeys_decref",
           "free_values",
           "ASSERT_CONSISTENT",
-          "_PyObject_GC_TRACK"
+          "_PyObject_GC_TRACK",
+          "_PyDict_CheckConsistency"
         ],
         "new_dict_with_shared_keys@946": [
           "shared_keys_usable_size",
@@ -12542,7 +12635,8 @@
           "can_modify_dict",
           "_PyObject_HashFast",
           "dict_unhashable_type",
-          "_PyDict_Pop_KnownHash"
+          "_PyDict_Pop_KnownHash",
+          "PyErr_SetString"
         ],
         "replace_dict_probably_inline_materialized@7631": [
           "_Py_CRITICAL_SECTION_ASSERT_OBJECT_LOCKED",
@@ -12564,12 +12658,18 @@
         ],
         "set_keys@202": [
           "ASSERT_OWNED_OR_SHARED",
-          "_Py_atomic_store_ptr_release"
+          "_Py_atomic_store_ptr_release",
+          "IS_DICT_SHARED",
+          "_Py_IsOwnedByCurrentThread",
+          "assert"
         ],
         "set_keys@269": [],
         "set_values@209": [
           "ASSERT_OWNED_OR_SHARED",
-          "_Py_atomic_store_ptr_release"
+          "_Py_atomic_store_ptr_release",
+          "IS_DICT_SHARED",
+          "_Py_IsOwnedByCurrentThread",
+          "assert"
         ],
         "set_values@275": [],
         "setitem_lock_held@2798": [
@@ -12622,7 +12722,8 @@
           "_PyDictValues_AddToInsertionOrder",
           "STORE_USED",
           "delete_index_from_values",
-          "Py_DECREF"
+          "Py_DECREF",
+          "FT_ATOMIC_STORE_SSIZE_RELAXED"
         ],
         "try_set_dict_inline_only_or_other_dict@7595": [
           "Py_BEGIN_CRITICAL_SECTION",
@@ -12828,7 +12929,9 @@
           "PyStackRef_CLEAR",
           "Py_CLEAR",
           "_PyFrame_GetLocalsArray",
-          "PyObject_GC_Del"
+          "PyObject_GC_Del",
+          "PyObject_TypeCheck",
+          "assert"
         ],
         "frame_generator_get_impl@1900": [
           "_PyGen_GetGeneratorFromFrame",
@@ -12915,14 +13018,17 @@
           "PyFrame_GetLineNumber",
           "_PyFrame_GetCode",
           "PyUnicode_FromFormat",
-          "Py_END_CRITICAL_SECTION"
+          "Py_END_CRITICAL_SECTION",
+          "PyObject_TypeCheck",
+          "assert"
         ],
         "frame_tp_clear@1978": [
           "PyFrameObject_CAST",
           "Py_CLEAR",
           "_PyFrame_GetLocalsArray",
           "assert",
-          "PyStackRef_CLEAR"
+          "PyStackRef_CLEAR",
+          "PyObject_TypeCheck"
         ],
         "frame_trace_get_impl@1858": [
           "Py_NewRef"
@@ -12942,7 +13048,8 @@
           "PyFrameObject_CAST",
           "Py_VISIT",
           "assert",
-          "_PyFrame_Traverse"
+          "_PyFrame_Traverse",
+          "PyObject_TypeCheck"
         ],
         "framelocalsproxy___contains__@714": [
           "framelocalsproxy_contains",
@@ -12951,7 +13058,9 @@
         "framelocalsproxy_contains@693": [
           "PyFrameLocalsProxyObject_CAST",
           "framelocalsproxy_getkeyindex",
-          "PyDict_Contains"
+          "PyDict_Contains",
+          "PyObject_TypeCheck",
+          "assert"
         ],
         "framelocalsproxy_copy@846": [
           "Py_UNUSED",
@@ -12964,7 +13073,9 @@
           "PyObject_GC_UnTrack",
           "Py_CLEAR",
           "Py_TYPE",
-          "tp_free"
+          "tp_free",
+          "PyObject_TypeCheck",
+          "assert"
         ],
         "framelocalsproxy_get@734": [
           "PyErr_SetString",
@@ -12978,7 +13089,8 @@
           "framelocalsproxy_getkeyindex",
           "assert",
           "PyDict_GetItemRef",
-          "PyErr_Format"
+          "PyErr_Format",
+          "PyObject_TypeCheck"
         ],
         "framelocalsproxy_getkeyindex@95": [
           "assert",
@@ -13020,7 +13132,9 @@
           "PyList_Append",
           "Py_DECREF",
           "PyDict_Next",
-          "_PyTuple_FromPair"
+          "_PyTuple_FromPair",
+          "PyObject_TypeCheck",
+          "assert"
         ],
         "framelocalsproxy_iter@469": [
           "framelocalsproxy_keys",
@@ -13038,7 +13152,8 @@
           "Py_DECREF",
           "assert",
           "PyDict_Check",
-          "PyDict_Next"
+          "PyDict_Next",
+          "PyObject_TypeCheck"
         ],
         "framelocalsproxy_length@673": [
           "PyFrameLocalsProxyObject_CAST",
@@ -13046,7 +13161,8 @@
           "assert",
           "PyDict_Check",
           "PyDict_Size",
-          "framelocalsproxy_hasval"
+          "framelocalsproxy_hasval",
+          "PyObject_TypeCheck"
         ],
         "framelocalsproxy_merge@323": [
           "PyDict_Check",
@@ -13083,7 +13199,9 @@
           "PyErr_SetString",
           "Py_XNewRef",
           "_PyErr_SetKeyError",
-          "PyDict_Pop"
+          "PyDict_Pop",
+          "PyObject_TypeCheck",
+          "assert"
         ],
         "framelocalsproxy_repr@514": [
           "Py_ReprEnter",
@@ -13108,7 +13226,9 @@
           "PyDict_New",
           "PyDict_Update",
           "Py_DECREF",
-          "PyObject_RichCompare"
+          "PyObject_RichCompare",
+          "PyObject_TypeCheck",
+          "assert"
         ],
         "framelocalsproxy_setdefault@762": [
           "PyErr_SetString",
@@ -13141,11 +13261,14 @@
           "PyDict_New",
           "PyDict_Check",
           "PyDict_DelItem",
-          "PyDict_SetItem"
+          "PyDict_SetItem",
+          "PyObject_TypeCheck"
         ],
         "framelocalsproxy_tp_clear@453": [
           "PyFrameLocalsProxyObject_CAST",
-          "Py_CLEAR"
+          "Py_CLEAR",
+          "PyObject_TypeCheck",
+          "assert"
         ],
         "framelocalsproxy_update@723": [
           "framelocalsproxy_merge",
@@ -13159,11 +13282,15 @@
           "framelocalsproxy_getval",
           "PyList_Append",
           "Py_DECREF",
-          "PyDict_Next"
+          "PyDict_Next",
+          "PyObject_TypeCheck",
+          "assert"
         ],
         "framelocalsproxy_visit@461": [
           "PyFrameLocalsProxyObject_CAST",
-          "Py_VISIT"
+          "Py_VISIT",
+          "PyObject_TypeCheck",
+          "assert"
         ],
         "init_frame@2104": [
           "_PyFrame_Initialize",
@@ -13241,7 +13368,8 @@
           "_PyObject_GC_IS_TRACKED",
           "gc_list_remove",
           "get_gc_state",
-          "PyObject_Free"
+          "PyObject_Free",
+          "_Py_AS_GC"
         ],
         "PyObject_GC_IsFinalized@2554": [
           "_PyObject_IS_GC",
@@ -13305,7 +13433,8 @@
         ],
         "_PyGC_Dump@2325": [
           "PyObject_Dump",
-          "FROM_GC"
+          "FROM_GC",
+          "_Py_FROM_GC"
         ],
         "_PyGC_DumpShutdownStats@2246": [
           "PyList_GET_SIZE",
@@ -13368,7 +13497,8 @@
         ],
         "_PyObject_GC_Link@2407": [
           "AS_GC",
-          "_PyObject_ASSERT"
+          "_PyObject_ASSERT",
+          "_Py_AS_GC"
         ],
         "_PyObject_GC_New@2446": [
           "_PyType_PreHeaderSize",
@@ -13417,14 +13547,16 @@
         "append_objects@361": [
           "GC_NEXT",
           "FROM_GC",
-          "PyList_Append"
+          "PyList_Append",
+          "_Py_FROM_GC"
         ],
         "assess_work_to_do@1710": [],
         "clear_unreachable_mask@833": [
           "_PyObject_ASSERT",
           "FROM_GC",
           "GC_NEXT",
-          "validate_list"
+          "validate_list",
+          "_Py_FROM_GC"
         ],
         "clear_weakrefs@1084": [
           "GC_NEXT",
@@ -13434,7 +13566,8 @@
           "_PyType_SUPPORTS_WEAKREFS",
           "Py_TYPE",
           "_PyObject_GET_WEAKREFS_LISTPTR_FROM_OFFSET",
-          "_PyObject_ASSERT"
+          "_PyObject_ASSERT",
+          "_Py_FROM_GC"
         ],
         "completed_scavenge@1547": [
           "gc_list_is_empty",
@@ -13469,7 +13602,8 @@
           "PyErr_FormatUnraisable",
           "Py_DECREF",
           "gc_clear_collecting",
-          "gc_list_move"
+          "gc_list_move",
+          "_Py_FROM_GC"
         ],
         "do_gc_callback@1924": [
           "assert",
@@ -13494,7 +13628,8 @@
           "_Py_IsImmortal",
           "gc_list_move",
           "Py_TYPE",
-          "traverse"
+          "traverse",
+          "_Py_FROM_GC"
         ],
         "finalize_garbage@1171": [
           "gc_list_init",
@@ -13510,7 +13645,8 @@
           "assert",
           "_PyErr_Occurred",
           "Py_DECREF",
-          "gc_list_merge"
+          "gc_list_merge",
+          "_Py_FROM_GC"
         ],
         "finalize_unlink_gc_head@2288": [
           "GC_PREV",
@@ -13556,7 +13692,8 @@
           "expand_region_transitively_reachable",
           "validate_list",
           "gc_collect_region",
-          "completed_scavenge"
+          "completed_scavenge",
+          "_Py_FROM_GC"
         ],
         "gc_collect_region@1829": [
           "assert",
@@ -13579,7 +13716,8 @@
           "clear_weakrefs",
           "gc_list_size",
           "delete_garbage",
-          "handle_legacy_finalizers"
+          "handle_legacy_finalizers",
+          "_Py_FROM_GC"
         ],
         "gc_collect_young@1454": [
           "validate_spaces",
@@ -13592,7 +13730,8 @@
         "gc_decref@94": [
           "_PyObject_ASSERT_WITH_MSG",
           "FROM_GC",
-          "gc_get_refs"
+          "gc_get_refs",
+          "_Py_FROM_GC"
         ],
         "gc_flip_old_space@116": [],
         "gc_get_prev_stats@1414": [],
@@ -13650,7 +13789,8 @@
           "FROM_GC",
           "Py_TYPE",
           "traverse",
-          "PyList_Append"
+          "PyList_Append",
+          "_Py_FROM_GC"
         ],
         "gc_reset_refs@86": [],
         "gc_set_old_space@122": [
@@ -13668,7 +13808,8 @@
           "has_legacy_finalizer",
           "PyList_Append",
           "_PyErr_Clear",
-          "gc_list_merge"
+          "gc_list_merge",
+          "_Py_FROM_GC"
         ],
         "handle_resurrected_objects@1340": [
           "gc_list_clear_collecting",
@@ -13695,7 +13836,9 @@
           "PyObject_CallOneArg",
           "PyErr_FormatUnraisable",
           "Py_DECREF",
-          "gc_set_old_space"
+          "gc_set_old_space",
+          "_Py_FROM_GC",
+          "_Py_AS_GC"
         ],
         "has_legacy_finalizer@797": [
           "Py_TYPE"
@@ -13712,7 +13855,8 @@
           "FROM_GC",
           "Py_TYPE",
           "traverse",
-          "gc_list_validate_space"
+          "gc_list_validate_space",
+          "_Py_FROM_GC"
         ],
         "mark_at_start@1696": [
           "mark_global_roots",
@@ -13744,13 +13888,15 @@
           "PyThreadState_Next",
           "mark_all_reachable",
           "assert",
-          "gc_list_is_empty"
+          "gc_list_is_empty",
+          "_Py_AS_GC"
         ],
         "move_legacy_finalizer_reachable@874": [
           "GC_NEXT",
           "Py_TYPE",
           "FROM_GC",
-          "traverse"
+          "traverse",
+          "_Py_FROM_GC"
         ],
         "move_legacy_finalizers@808": [
           "_PyObject_ASSERT",
@@ -13758,7 +13904,8 @@
           "GC_NEXT",
           "has_legacy_finalizer",
           "gc_clear_collecting",
-          "gc_list_move"
+          "gc_list_move",
+          "_Py_FROM_GC"
         ],
         "move_to_reachable@1575": [
           "_Py_IsImmortal",
@@ -13767,7 +13914,8 @@
           "_PyObject_GC_IS_TRACKED",
           "gc_old_space",
           "gc_flip_old_space",
-          "gc_list_move"
+          "gc_list_move",
+          "_Py_AS_GC"
         ],
         "move_unreachable@687": [
           "GC_NEXT",
@@ -13780,7 +13928,8 @@
           "_PyGCHead_SET_PREV",
           "gc_clear_collecting",
           "GC_PREV",
-          "_PyGCHead_NEXT"
+          "_PyGCHead_NEXT",
+          "_Py_FROM_GC"
         ],
         "other_space@109": [
           "assert"
@@ -13799,13 +13948,15 @@
           "GC_NEXT",
           "FROM_GC",
           "Py_TYPE",
-          "traverse"
+          "traverse",
+          "_Py_FROM_GC"
         ],
         "untrack_tuples@782": [
           "GC_NEXT",
           "FROM_GC",
           "PyTuple_CheckExact",
-          "_PyTuple_MaybeUntrack"
+          "_PyTuple_MaybeUntrack",
+          "_Py_FROM_GC"
         ],
         "update_refs@486": [
           "GC_NEXT",
@@ -13817,7 +13968,8 @@
           "gc_reset_refs",
           "Py_REFCNT",
           "_PyObject_ASSERT",
-          "gc_get_refs"
+          "gc_get_refs",
+          "_Py_FROM_GC"
         ],
         "validate_consistent_old_space@457": [
           "GC_NEXT",
@@ -13843,7 +13995,8 @@
           "_PyObject_GC_IS_TRACKED",
           "gc_old_space",
           "gc_flip_old_space",
-          "gc_list_move"
+          "gc_list_move",
+          "_Py_AS_GC"
         ],
         "visit_decref@534": [
           "OBJECT_STAT_INC",
@@ -13852,14 +14005,16 @@
           "_PyObject_IS_GC",
           "AS_GC",
           "gc_is_collecting",
-          "gc_decref"
+          "gc_decref",
+          "_Py_AS_GC"
         ],
         "visit_generation@2563": [
           "GC_NEXT",
           "FROM_GC",
           "Py_INCREF",
           "callback",
-          "Py_DECREF"
+          "Py_DECREF",
+          "_Py_FROM_GC"
         ],
         "visit_move@854": [
           "OBJECT_STAT_INC",
@@ -13867,7 +14022,8 @@
           "AS_GC",
           "gc_is_collecting",
           "gc_list_move",
-          "gc_clear_collecting"
+          "gc_clear_collecting",
+          "_Py_AS_GC"
         ],
         "visit_reachable@610": [
           "OBJECT_STAT_INC",
@@ -13882,7 +14038,9 @@
           "_PyGCHead_SET_PREV",
           "gc_list_append",
           "gc_set_refs",
-          "_PyObject_ASSERT_WITH_MSG"
+          "_PyObject_ASSERT_WITH_MSG",
+          "_Py_AS_GC",
+          "_Py_FROM_GC"
         ],
         "visit_validate@2333": [
           "_PyObject_CAST",
@@ -15255,7 +15413,11 @@
           "MCACHE_CACHEABLE_NAME",
           "PyStackRef_AsPyObjectBorrow",
           "update_cache",
-          "Py_DECREF"
+          "Py_DECREF",
+          "FT_ATOMIC_LOAD_UINT_RELAXED",
+          "MCACHE_HASH",
+          "PyUnicode_CheckExact",
+          "PyUnicode_GET_LENGTH"
         ],
         "_PyType_LookupSubclasses@747": [
           "lookup_tp_subclasses"
@@ -15752,7 +15914,8 @@
           "COPYSLOT",
           "_PyType_HasFeature",
           "type_add_flags",
-          "overrides_hash"
+          "overrides_hash",
+          "SLOTDEFINED"
         ],
         "inherit_special@8569": [
           "type_add_flags",
@@ -16289,7 +16452,9 @@
         "shape_differs@3760": [],
         "should_assign_version_tag@6167": [
           "FT_ATOMIC_LOAD_UINT16_RELAXED",
-          "MCACHE_CACHEABLE_NAME"
+          "MCACHE_CACHEABLE_NAME",
+          "PyUnicode_CheckExact",
+          "PyUnicode_GET_LENGTH"
         ],
         "signature_from_flags@928": [],
         "skip_signature@855": [
@@ -18415,7 +18580,8 @@
           "MP_PARSE_NODE_IS_STRUCT_KIND",
           "MP_PARSE_NODE_TESTLIST_COMP_HAS_COMP_FOR",
           "compile_comprehension",
-          "compile_generic_tuple"
+          "compile_generic_tuple",
+          "MP_PARSE_NODE_STRUCT_NUM_NODES"
         ],
         "compile_await_object_method@1790": [
           "EMIT_ARG",
@@ -19122,7 +19288,8 @@
           "adjust_stack",
           "emit_call_with_imm_arg",
           "ASM_MOV_REG_REG",
-          "vtype_to_qstr"
+          "vtype_to_qstr",
+          "mp_obj_new_exception_msg_varg"
         ],
         "emit_native_build@2667": [
           "MP_STATIC_ASSERT",
@@ -19333,7 +19500,8 @@
           "need_stack_settled",
           "ASM_JUMP_IF_REG_NONZERO",
           "ASM_JUMP_IF_REG_ZERO",
-          "emit_post"
+          "emit_post",
+          "mp_obj_new_exception_msg_varg"
         ],
         "emit_native_jump_if_or_pop@2061": [
           "DEBUG_printf",
@@ -19411,7 +19579,8 @@
           "emit_post_push_reg",
           "need_reg_single",
           "emit_native_mov_reg_state",
-          "LOCAL_IDX_LOCAL_VAR"
+          "LOCAL_IDX_LOCAL_VAR",
+          "mp_obj_new_exception_msg_varg"
         ],
         "emit_native_load_global@1477": [
           "MP_STATIC_ASSERT",
@@ -19464,7 +19633,8 @@
           "vtype_to_qstr",
           "ASM_LOAD8_REG_REG_REG",
           "ASM_LOAD16_REG_REG_REG",
-          "ASM_LOAD32_REG_REG_REG"
+          "ASM_LOAD32_REG_REG_REG",
+          "mp_obj_new_exception_msg_varg"
         ],
         "emit_native_make_closure@2784": [
           "emit_native_pre",
@@ -19551,7 +19721,8 @@
           "EMIT_NATIVE_VIPER_TYPE_ERROR",
           "MP_ERROR_TEXT",
           "emit_call",
-          "mp_asm_base_suppress_code"
+          "mp_asm_base_suppress_code",
+          "mp_obj_new_exception_msg_varg"
         ],
         "emit_native_return_value@2882": [
           "DEBUG_printf",
@@ -19571,7 +19742,8 @@
           "emit_call_with_imm_arg",
           "ASM_MOV_REG_REG",
           "assert",
-          "NEED_GLOBAL_EXC_HANDLER"
+          "NEED_GLOBAL_EXC_HANDLER",
+          "mp_obj_new_exception_msg_varg"
         ],
         "emit_native_rot_three@2002": [
           "DEBUG_printf",
@@ -19681,7 +19853,8 @@
           "emit_post",
           "EMIT_NATIVE_VIPER_TYPE_ERROR",
           "MP_ERROR_TEXT",
-          "vtype_to_qstr"
+          "vtype_to_qstr",
+          "mp_obj_new_exception_msg_varg"
         ],
         "emit_native_store_global@1719": [
           "MP_STATIC_ASSERT",
@@ -19727,7 +19900,8 @@
           "emit_pre_pop_reg",
           "ASM_STORE8_REG_REG_REG",
           "ASM_STORE16_REG_REG_REG",
-          "ASM_STORE32_REG_REG_REG"
+          "ASM_STORE32_REG_REG_REG",
+          "mp_obj_new_exception_msg_varg"
         ],
         "emit_native_subscr@1955": [
           "emit_native_load_subscr",
@@ -19746,7 +19920,8 @@
           "MP_ERROR_TEXT",
           "emit_pre_pop_reg",
           "emit_call_with_imm_arg",
-          "vtype_to_qstr"
+          "vtype_to_qstr",
+          "mp_obj_new_exception_msg_varg"
         ],
         "emit_native_unpack_ex@2758": [
           "DEBUG_printf",
@@ -19917,7 +20092,8 @@
           "ATB_FREE_TO_HEAD",
           "ATB_FREE_TO_TAIL",
           "memset",
-          "gc_dump_alloc_table"
+          "gc_dump_alloc_table",
+          "BLOCK_SHIFT"
         ],
         "gc_collect_end@579": [
           "gc_deal_with_stack_overflow",
@@ -19937,7 +20113,8 @@
           "ATB_GET_KIND",
           "TRACE_MARK_R",
           "ATB_HEAD_TO_MARK",
-          "gc_mark_subtree"
+          "gc_mark_subtree",
+          "BLOCK_SHIFT"
         ],
         "gc_collect_start@437": [
           "gc_collect_start_common",
@@ -19956,7 +20133,8 @@
           "NEXT_AREA",
           "MICROPY_GC_HOOK_LOOP",
           "ATB_GET_KIND",
-          "gc_mark_subtree"
+          "gc_mark_subtree",
+          "BLOCK_SHIFT"
         ],
         "gc_dump_alloc_table@1277": [
           "GC_ENTER",
@@ -19965,7 +20143,8 @@
           "mp_printf",
           "ATB_GET_KIND",
           "mp_print_str",
-          "GC_EXIT"
+          "GC_EXIT",
+          "BLOCK_SHIFT"
         ],
         "gc_dump_info@1265": [
           "gc_info",
@@ -19982,7 +20161,8 @@
           "BLOCK_FROM_PTR",
           "ATB_GET_KIND",
           "ATB_ANY_TO_FREE",
-          "gc_dump_alloc_table"
+          "gc_dump_alloc_table",
+          "BLOCK_SHIFT"
         ],
         "gc_get_ptr@744": [
           "__attribute__"
@@ -19997,7 +20177,8 @@
           "NEXT_AREA",
           "MICROPY_GC_HOOK_LOOP",
           "ATB_GET_KIND",
-          "GC_EXIT"
+          "GC_EXIT",
+          "BLOCK_SHIFT"
         ],
         "gc_init@233": [
           "DEBUG_printf",
@@ -20021,7 +20202,8 @@
           "VERIFY_PTR",
           "BLOCK_FROM_PTR",
           "TRACE_MARK_S",
-          "ATB_HEAD_TO_MARK"
+          "ATB_HEAD_TO_MARK",
+          "BLOCK_SHIFT"
         ],
         "gc_nbytes@1083": [
           "GC_ENTER",
@@ -20029,7 +20211,8 @@
           "MP_STATE_MEM",
           "BLOCK_FROM_PTR",
           "ATB_GET_KIND",
-          "GC_EXIT"
+          "GC_EXIT",
+          "BLOCK_SHIFT"
         ],
         "gc_realloc@1115": [
           "gc_alloc",
@@ -20048,7 +20231,8 @@
           "MAX",
           "memset",
           "DEBUG_printf",
-          "memcpy"
+          "memcpy",
+          "BLOCK_SHIFT"
         ],
         "gc_setup_area@146": [
           "assert",
@@ -20069,7 +20253,8 @@
           "PTR_FROM_BLOCK",
           "ATB_ANY_TO_FREE",
           "memset",
-          "ATB_MARK_TO_HEAD"
+          "ATB_MARK_TO_HEAD",
+          "BLOCK_SHIFT"
         ],
         "gc_sweep_run_finalisers@618": [],
         "gc_try_add_heap@284": [
@@ -20091,7 +20276,8 @@
           "MP_STATE_MEM",
           "BLOCK_FROM_PTR",
           "ATB_GET_KIND",
-          "WTB_SET"
+          "WTB_SET",
+          "BLOCK_SHIFT"
         ]
       },
       "c/micropython/modmachine.c": {
@@ -20751,11 +20937,13 @@
         ],
         "OptNArgs@2241": [
           "ISOPT",
-          "strcmp"
+          "strcmp",
+          "strchr"
         ],
         "OptPrint@2268": [
           "lemonStrlen",
-          "fprintf"
+          "fprintf",
+          "strlen"
         ],
         "Parse@3083": [
           "memset",
@@ -20773,7 +20961,10 @@
           "ISSPACE",
           "ISALNUM",
           "ISALPHA",
-          "parseonetoken"
+          "parseonetoken",
+          "isspace",
+          "isalnum",
+          "isalpha"
         ],
         "Plink_add@3266": [
           "Plink_new"
@@ -20843,13 +21034,17 @@
           "rule_print",
           "translate_code",
           "emit_code",
-          "acttab_free"
+          "acttab_free",
+          "isspace",
+          "strlen",
+          "isalnum"
         ],
         "Reprint@3382": [
           "printf",
           "lemonStrlen",
           "assert",
-          "rule_print"
+          "rule_print",
+          "strlen"
         ],
         "ResortStates@5312": [
           "compute_action",
@@ -20896,7 +21091,8 @@
         ],
         "State_new@5802": [
           "lemon_calloc",
-          "MemoryCheck"
+          "MemoryCheck",
+          "memory_error"
         ],
         "Strsafe@5428": [
           "Strsafe_find",
@@ -20904,7 +21100,9 @@
           "lemonStrlen",
           "lemon_strcpy",
           "Strsafe_insert",
-          "MemoryCheck"
+          "MemoryCheck",
+          "strlen",
+          "memory_error"
         ],
         "Strsafe_find@5544": [
           "strhash",
@@ -20945,7 +21143,9 @@
           "MemoryCheck",
           "Strsafe",
           "ISUPPER",
-          "Symbol_insert"
+          "Symbol_insert",
+          "memory_error",
+          "isupper"
         ],
         "Symbolcmpp@5602": [],
         "actioncmp@594": [],
@@ -20975,11 +21175,13 @@
           "lemonStrlen",
           "lemon_realloc",
           "lemon_sprintf",
-          "lemon_strcpy"
+          "lemon_strcpy",
+          "strlen"
         ],
         "argindex@2073": [
           "ISOPT",
-          "strcmp"
+          "strcmp",
+          "strchr"
         ],
         "axset_compare@4382": [
           "assert"
@@ -21010,7 +21212,8 @@
         ],
         "errline@2047": [
           "fprintf",
-          "lemonStrlen"
+          "lemonStrlen",
+          "strlen"
         ],
         "eval_preprocessor_boolean@2919": [
           "ISSPACE",
@@ -21018,7 +21221,10 @@
           "ISALNUM",
           "strncmp",
           "fprintf",
-          "exit"
+          "exit",
+          "isspace",
+          "isalpha",
+          "isalnum"
         ],
         "file_makename@3306": [
           "strrchr",
@@ -21027,7 +21233,8 @@
           "fprintf",
           "exit",
           "lemon_strcpy",
-          "lemon_strcat"
+          "lemon_strcat",
+          "strlen"
         ],
         "file_open@3341": [
           "lemon_free",
@@ -21048,7 +21255,8 @@
           "State_new",
           "MemoryCheck",
           "State_insert",
-          "buildshifts"
+          "buildshifts",
+          "memory_error"
         ],
         "handle_D_option@1607": [
           "lemon_realloc",
@@ -21056,13 +21264,15 @@
           "exit",
           "lemon_malloc",
           "lemonStrlen",
-          "lemon_strcpy"
+          "lemon_strcpy",
+          "strlen"
         ],
         "handle_T_option@1662": [
           "lemon_malloc",
           "lemonStrlen",
           "memory_error",
-          "lemon_strcpy"
+          "lemon_strcpy",
+          "strlen"
         ],
         "handle_U_option@1635": [
           "strcmp"
@@ -21072,14 +21282,16 @@
           "lemonStrlen",
           "fprintf",
           "exit",
-          "lemon_strcpy"
+          "lemon_strcpy",
+          "strlen"
         ],
         "handleflags@2094": [
           "strncmp",
           "lemonStrlen",
           "fprintf",
           "errline",
-          "void"
+          "void",
+          "strlen"
         ],
         "handleswitch@2130": [
           "strchr",
@@ -21129,7 +21341,8 @@
           "va_arg",
           "memcmp",
           "fprintf",
-          "exit"
+          "exit",
+          "isdigit"
         ],
         "main@1740": [
           "OptInit",
@@ -21167,7 +21380,8 @@
           "ReportTable",
           "ReportHeader",
           "stats_line",
-          "lemon_free_all"
+          "lemon_free_all",
+          "isupper"
         ],
         "memory_error@1594": [
           "fprintf",
@@ -21202,7 +21416,12 @@
           "ISALNUM",
           "lemonStrlen",
           "lemon_sprintf",
-          "memcpy"
+          "memcpy",
+          "islower",
+          "isupper",
+          "isalpha",
+          "isalnum",
+          "strlen"
         ],
         "pathsearch@3648": [
           "strrchr",
@@ -21213,14 +21432,16 @@
           "lemon_strcpy",
           "strchr",
           "access",
-          "lemon_free"
+          "lemon_free",
+          "strlen"
         ],
         "preprocess_input@3020": [
           "strncmp",
           "ISSPACE",
           "eval_preprocessor_boolean",
           "fprintf",
-          "exit"
+          "exit",
+          "isspace"
         ],
         "print_stack_union@4220": [
           "lemon_calloc",
@@ -21231,7 +21452,9 @@
           "ISSPACE",
           "strcmp",
           "lemon_strcpy",
-          "lemon_free"
+          "lemon_free",
+          "strlen",
+          "isspace"
         ],
         "resolve_conflict@1319": [
           "assert"
@@ -21247,7 +21470,8 @@
         "statehash@5791": [],
         "stats_line@1723": [
           "lemonStrlen",
-          "printf"
+          "printf",
+          "strlen"
         ],
         "strhash@5417": [],
         "tplt_linedir@3820": [
@@ -21276,7 +21500,8 @@
           "fgets",
           "strncmp",
           "ISALPHA",
-          "fprintf"
+          "fprintf",
+          "isalpha"
         ],
         "translate_code@3974": [
           "has_destructor",
@@ -21288,7 +21513,10 @@
           "strstr",
           "lemonStrlen",
           "ISALPHA",
-          "ISALNUM"
+          "ISALNUM",
+          "strlen",
+          "isalpha",
+          "isalnum"
         ],
         "writeRuleText@4397": [
           "fprintf"
@@ -47006,7 +47234,10 @@
           "system",
           "pclose",
           "close",
-          "fdcobsync"
+          "fdcobsync",
+          "errno_cob_sts",
+          "unlikely",
+          "write"
         ],
         "cob_file_complete@4943": [],
         "cob_file_create@4686": [
@@ -47183,7 +47414,9 @@
         "cob_file_write_opt@2548": [
           "unlikely",
           "cob_linage_write_opt",
-          "COB_CHECKED_PUTC"
+          "COB_CHECKED_PUTC",
+          "errno_cob_sts",
+          "putc"
         ],
         "cob_file_xfdname@4980": [],
         "cob_findkey@5737": [],
@@ -47229,7 +47462,9 @@
           "COB_CHECKED_PUTC",
           "file_linage_check",
           "cob_set_int",
-          "cob_add_int"
+          "cob_add_int",
+          "errno_cob_sts",
+          "putc"
         ],
         "cob_new_item@6500": [
           "COB_UNUSED",
@@ -47311,7 +47546,10 @@
           "memcpy"
         ],
         "cob_seq_write_opt@2527": [
-          "COB_CHECKED_WRITE"
+          "COB_CHECKED_WRITE",
+          "errno_cob_sts",
+          "unlikely",
+          "write"
         ],
         "cob_set_file_defaults@1039": [],
         "cob_set_file_format@1185": [
@@ -47582,7 +47820,10 @@
           "IS_BAD_CHAR",
           "unlikely",
           "cob_file_write_opt",
-          "fflush"
+          "fflush",
+          "errno_cob_sts",
+          "fwrite",
+          "putc"
         ],
         "lineseq_write@3603": [
           "COB_UNUSED",
@@ -47594,7 +47835,8 @@
           "fwrite",
           "errno_cob_sts",
           "IS_BAD_CHAR",
-          "fflush"
+          "fflush",
+          "putc"
         ],
         "lock_record@1786": [
           "memset",
@@ -47741,7 +47983,8 @@
           "STBINLE4",
           "STCOMPX2",
           "write",
-          "COB_CHECKED_WRITE"
+          "COB_CHECKED_WRITE",
+          "errno_cob_sts"
         ],
         "set_file_lock@1994": [
           "memcmp",
@@ -47825,7 +48068,8 @@
           "memcpy",
           "cob_decimal_set_field",
           "cob_decimal_get_double",
-          "FLOAT_EQ"
+          "FLOAT_EQ",
+          "fabs"
         ],
         "cob_cmp_int@2241": [
           "cob_decimal_set_field",
@@ -47859,7 +48103,8 @@
         "cob_decimal_add@1834": [
           "DECIMAL_CHECK",
           "align_decimal",
-          "mpz_add"
+          "mpz_add",
+          "unlikely"
         ],
         "cob_decimal_adjust@451": [
           "mpz_cmpabs",
@@ -47974,7 +48219,8 @@
           "COB_FIELD_DIGITS",
           "cob_malloc",
           "cob_move",
-          "cob_free"
+          "cob_free",
+          "_isnan"
         ],
         "cob_decimal_get_ieee128dec@607": [
           "mpz_sgn",
@@ -48022,7 +48268,8 @@
         ],
         "cob_decimal_mul@1850": [
           "DECIMAL_CHECK",
-          "mpz_mul"
+          "mpz_mul",
+          "unlikely"
         ],
         "cob_decimal_pop@2599": [
           "va_start",
@@ -48163,7 +48410,8 @@
         "cob_decimal_sub@1842": [
           "DECIMAL_CHECK",
           "align_decimal",
-          "mpz_sub"
+          "mpz_sub",
+          "unlikely"
         ],
         "cob_div@1940": [
           "cob_decimal_set_field",
@@ -54790,7 +55038,8 @@
           "DEFVAL",
           "ADD_SIGNAL",
           "MethodInfo",
-          "PropertyInfo"
+          "PropertyInfo",
+          "get_gdtype_static_mutable"
         ],
         "EditorNode::_bottom_panel_resized@8243": [
           "set_bottom_panel_offset",
@@ -59050,7 +59299,12 @@
           "get_class_static",
           "ADD_GROUP",
           "ADD_SUBGROUP",
-          "GDVIRTUAL_BIND"
+          "GDVIRTUAL_BIND",
+          "get_gdtype_static_mutable",
+          "StringName",
+          "add_property",
+          "add_property_group",
+          "add_property_subgroup"
         ],
         "Node::_call_deferred_thread_group_bind@3628": [
           "Variant",
@@ -59506,7 +59760,12 @@
           "add_child",
           "_update_children_cache",
           "_move_child",
-          "get_index"
+          "get_index",
+          "TMPL_EXTRACT_PARAM_OR_FAIL",
+          "void",
+          "_STR",
+          "_err_print_error",
+          "unlikely"
         ],
         "Node::add_to_group@2457": [
           "ERR_THREAD_GUARD",
@@ -59799,7 +60058,11 @@
           "push_back",
           "get_name",
           "is_empty",
-          "reverse"
+          "reverse",
+          "TMPL_EXTRACT_PARAM_OR_FAIL",
+          "_STR",
+          "_err_print_error",
+          "unlikely"
         ],
         "Node::get_persistent_group_count@2527": [
           "ERR_THREAD_GUARD_V"
@@ -59890,7 +60153,11 @@
         ],
         "Node::input@3616": [],
         "Node::is_ancestor_of@2150": [
-          "EXTRACT_PARAM_OR_FAIL_V"
+          "EXTRACT_PARAM_OR_FAIL_V",
+          "TMPL_EXTRACT_PARAM_OR_FAIL",
+          "_STR",
+          "_err_print_error",
+          "unlikely"
         ],
         "Node::is_connected@4252": [
           "ERR_THREAD_GUARD_V",
@@ -59910,7 +60177,11 @@
           "EXTRACT_PARAM_OR_FAIL_V",
           "ERR_FAIL_COND_V",
           "_update_children_cache",
-          "get_index"
+          "get_index",
+          "TMPL_EXTRACT_PARAM_OR_FAIL",
+          "_STR",
+          "_err_print_error",
+          "unlikely"
         ],
         "Node::is_in_group@2452": [
           "ERR_THREAD_GUARD_V",
@@ -59967,7 +60238,12 @@
           "vformat",
           "_move_child",
           "size",
-          "get_child_count"
+          "get_child_count",
+          "TMPL_EXTRACT_PARAM_OR_FAIL",
+          "void",
+          "_STR",
+          "_err_print_error",
+          "unlikely"
         ],
         "Node::move_child_notify@610": [],
         "Node::notify_deferred_thread_group@3686": [
@@ -60048,7 +60324,12 @@
           "erase",
           "emit_signal",
           "SNAME",
-          "_propagate_after_exit_tree"
+          "_propagate_after_exit_tree",
+          "TMPL_EXTRACT_PARAM_OR_FAIL",
+          "void",
+          "_STR",
+          "_err_print_error",
+          "unlikely"
         ],
         "Node::remove_child_notify@606": [],
         "Node::remove_from_group@2481": [
@@ -60510,7 +60791,9 @@
           "ADD_SIGNAL",
           "BIND_OBJ_CORE_METHOD",
           "BIND_CONSTANT",
-          "BIND_BITFIELD_FLAG"
+          "BIND_BITFIELD_FLAG",
+          "get_gdtype_static_mutable",
+          "get_class_static"
         ],
         "Object::_call_bind@599": [
           "Variant",
@@ -61882,7 +62165,8 @@
           "hash_compare_color",
           "recursive_equal",
           "hash_compare_packed_array",
-          "evaluate"
+          "evaluate",
+          "is_nan"
         ],
         "Variant::identity_compare@3359": [
           "_get_obj",
@@ -110821,7 +111105,8 @@
           "display_line"
         ],
         "Unknown_Block@353": [
-          "new_line"
+          "new_line",
+          "split_line"
         ],
         "Unknown_Block@378": [
           "blank_lines"
@@ -110849,7 +111134,8 @@
         ],
         "Unknown_Block@544": [
           "new_line",
-          "fill_screen"
+          "fill_screen",
+          "split_line"
         ],
         "Unknown_Block@559": [
           "fprintf"
@@ -111131,7 +111417,8 @@
           "free"
         ],
         "appendCharacter@1361": [
-          "OUTPUT"
+          "OUTPUT",
+          "end_output"
         ],
         "appendEnd@1305": [
           "free",
@@ -111158,7 +111445,9 @@
           "apply"
         ],
         "appendText@1367": [
-          "OUTPUTS"
+          "OUTPUTS",
+          "OUTPUT",
+          "end_output"
         ],
         "apply@606": [
           "destination"
@@ -113669,6 +113958,7 @@
         ],
         "_missing_apache_modules@533": [
           "_get_apachectl",
+          "print",
           "install_string",
           "keys",
           "_check_apache_module",
@@ -113689,6 +113979,7 @@
           "die",
           "grep",
           "getlines",
+          "print",
           "close"
         ],
         "check_requirements@484": [
@@ -115050,7 +115341,9 @@
           "EscapeHTML",
           "EscapeXML"
         ],
-        "Error@357": [],
+        "Error@357": [
+          "Warn"
+        ],
         "EscapeJSON@3799": [
           "lc",
           "defined",
@@ -115137,6 +115430,7 @@
           "keys",
           "SetAlternateFile",
           "lc",
+          "ExifTool",
           "Array",
           "hex",
           "close",
@@ -115374,6 +115668,7 @@
         "SetWindowTitle@4213": [
           "shift",
           "tr",
+          "system",
           "printf"
         ],
         "SigCont@368": [],
@@ -115714,6 +116009,7 @@
           "shift",
           "ref",
           "all",
+          "splice",
           "clone",
           "then",
           "resolve",
@@ -115823,6 +116119,7 @@
           "trace",
           "verbose",
           "_wrap",
+          "die",
           "ref"
         ],
         "render@163": [
@@ -145133,7 +145430,9 @@
           "DDATA",
           "IDATA",
           "PyErr_Occurred",
-          "Py_BuildValue"
+          "Py_BuildValue",
+          "BLAS_FUNC",
+          "PyArray_DATA"
         ],
         "lapack_lite_dgeqrf@169": [
           "TRY",
@@ -145142,7 +145441,9 @@
           "FNAME",
           "DDATA",
           "PyErr_Occurred",
-          "Py_BuildValue"
+          "Py_BuildValue",
+          "BLAS_FUNC",
+          "PyArray_DATA"
         ],
         "lapack_lite_dorgqr@203": [
           "TRY",
@@ -145151,7 +145452,9 @@
           "FNAME",
           "DDATA",
           "PyErr_Occurred",
-          "Py_BuildValue"
+          "Py_BuildValue",
+          "BLAS_FUNC",
+          "PyArray_DATA"
         ],
         "lapack_lite_exec@382": [
           "PyErr_SetString",
@@ -145162,7 +145465,8 @@
         ],
         "lapack_lite_xerbla@350": [
           "FNAME",
-          "PyErr_Occurred"
+          "PyErr_Occurred",
+          "BLAS_FUNC"
         ],
         "lapack_lite_zgelsd@232": [
           "TRY",
@@ -145173,7 +145477,9 @@
           "DDATA",
           "IDATA",
           "PyErr_Occurred",
-          "Py_BuildValue"
+          "Py_BuildValue",
+          "BLAS_FUNC",
+          "PyArray_DATA"
         ],
         "lapack_lite_zgeqrf@285": [
           "TRY",
@@ -145182,7 +145488,9 @@
           "FNAME",
           "ZDATA",
           "PyErr_Occurred",
-          "Py_BuildValue"
+          "Py_BuildValue",
+          "BLAS_FUNC",
+          "PyArray_DATA"
         ],
         "lapack_lite_zungqr@318": [
           "TRY",
@@ -145191,7 +145499,9 @@
           "FNAME",
           "ZDATA",
           "PyErr_Occurred",
-          "Py_BuildValue"
+          "Py_BuildValue",
+          "BLAS_FUNC",
+          "PyArray_DATA"
         ]
       },
       "python/numpy/numpy_api.py": {

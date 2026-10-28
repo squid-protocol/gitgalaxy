@@ -1030,6 +1030,19 @@ def _include_closure(imports: dict[str, set[str]], path: str, memo: dict[str, se
     return memo[path]
 
 
+def _include_depths(imports: dict[str, set[str]], path: str) -> dict[str, int]:
+    """#6266: how many include hops each file reachable from `path` is away (a direct include is 1)."""
+    depth: dict[str, int] = {}
+    level = list(imports.get(path, ()))
+    hops = 1
+    while level:
+        level = [f for f in dict.fromkeys(level) if f not in depth]
+        depth.update(dict.fromkeys(level, hops))
+        level = [n for f in level for n in imports.get(f, ())]
+        hops += 1
+    return depth
+
+
 def _init_entry_not_a_base(
     bucket: "_Bucket",
     callee: str,
@@ -1044,7 +1057,8 @@ def _init_entry_not_a_base(
     directory's, or its include closure's). A tie among several classes of that name (a nested `Node`, another
     platform's copy of a base) pins the one in the caller's own directory, else the one the include closure reaches
     (doomsday's `de::DialogWidget` beside `de::term::DialogWidget`); a class and its own constructor
-    function tying is no ambiguity. A file with no includes at all reaches its bases some other way (doom3-bfg
+    function tying is no ambiguity; failing both, the class fewest include hops away (`term::Widget`, not the `de::Widget`
+    its header includes). A file with no includes at all reaches its bases some other way (doom3-bfg
     headers get `idException` from a precompiled header): visibility says nothing there, so its entries stay bases."""
     visible = [
         d
@@ -1059,6 +1073,10 @@ def _init_entry_not_a_base(
     if step == "tie" and sum(d.kind == "class" for d in bucket.defs) > 1:
         seen = [d for d in visible if d.kind == "class"]
         near = [d for d in seen if d.path == src_path or _dirname(d.path) == caller_dir]
+        if not near and len(seen) > 1:  # none beside the caller: the one its includes reach first
+            hops = _include_depths(imports, src_path)
+            nearest = min(hops[d.path] for d in seen)
+            seen = [d for d in seen if hops[d.path] == nearest]
         return len(near or seen) != 1
     return not visible and bool(imports.get(src_path))
 

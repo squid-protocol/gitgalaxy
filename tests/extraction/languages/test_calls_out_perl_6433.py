@@ -72,6 +72,18 @@ def _callees(line: str) -> list[str]:
         ("open my $fh, '<', $f;", ["open"]),
         ("opendir DH, $d;", ["opendir"]),
         ("sub o { return sprintf '%o', shift }", ["sprintf", "shift"]),
+        # slice 4: new openers, handles, indirect-object new, qualified commands
+        ("{ push @a, 1 }", ["push"]),
+        ("if ($x) { push @a, 1; }", ["if", "push"]),
+        ("my $s = $a . join ',', @a;", ["join"]),
+        ("$x ? push @a, 1 : 0;", ["push"]),
+        ("a(); push @a, $o;", ["a", "push"]),
+        ("print STDERR join ',', @a;", ["print", "join"]),
+        ("print {$fh} join ',', 1;", ["print", "join"]),
+        ("print STDERR 'x';", ["print"]),
+        ("my $o = new Foo;", ["new"]),
+        ("new Foo::Bar;", ["new"]),
+        ("Foo::bar $x;", ["bar"]),
     ],
 )
 def test_callees(line, expected):
@@ -107,6 +119,15 @@ def test_callees(line, expected):
         "$x = foo {a} + 1;",
         "-e $file",
         "my $r = rand_name;",
+        "$h{push}",
+        "foo ? bar : baz;",
+        "$a . $b",
+        "{ name => 1 }",
+        "x::y",
+        "package Foo::Bar;",
+        "sub new { 1 }",
+        "print STDERR;",
+        "my $n = new;",
     ],
 )
 def test_not_calls(line):
@@ -151,6 +172,10 @@ sub run {
         "x { " + "a" * 20000,
         "or " * 10000,
         "x " + "A_" * 10000,
+        "print " + "A" * 20000 + " ",
+        "print {" + "a" * 20000,
+        "; " * 10000,
+        "A::" * 10000 + " ",
     ],
 )
 def test_redos_immune(payload):

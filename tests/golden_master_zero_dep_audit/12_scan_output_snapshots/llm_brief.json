@@ -1500,7 +1500,7 @@
     "## 15. FUNCTION CALL RESOLUTION (Call Graph Confidence)",
     "> **AI CONTEXT:** Each function's callee names, linked to the definition they most plausibly mean. *scoped* = same class/file, an imported file, or a class-qualified call; *unique* = the only definition in the repository; *ambiguous* = several candidates or an untyped receiver (never a graph edge); *external* = defined nowhere here (built-ins, packages). A high scoped/unique share means the resolver made a confident choice, not that the choice was correct; resolution accuracy is measured separately (gitgalaxy#3332). Detail in `fcall_data` / `fcall_rate_data`.",
     "",
-    "- **Repository:** 164430 call pairs -- scoped 29.9%, unique 1.4%, ambiguous 6.2%, external 62.5%",
+    "- **Repository:** 164437 call pairs -- scoped 29.9%, unique 1.4%, ambiguous 6.2%, external 62.5%",
     "",
     "| Language | Pairs | Scoped | Unique | Ambiguous | External |",
     "|---|---|---|---|---|---|",

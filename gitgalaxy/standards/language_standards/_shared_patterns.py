@@ -403,8 +403,14 @@ CALLS_OUT_PERL = re.compile(
     r"(?:(?<=->)(?:SUPER::)?"
     rf"|(?<![$@%{ID_CONTINUE}>-])(?={_PERL_NAME}[ \t]*\()"
     rf"|(?<![$@%&{ID_CONTINUE}>:-])(?={_PERL_BUILTIN})"
+    rf"|(?<![$@%&{ID_CONTINUE}>:-])(?=(?:print|printf|say)(?![{ID_CONTINUE}])[ \t]+(?:[A-Z][A-Z0-9_]*|\{{[^{{}}\n]{{0,100}}\}})[ \t]+[a-z$\"'@])"
     rf"|(?<![$@%&{ID_CONTINUE}>:-])(?=split(?![{ID_CONTINUE}])[ \t]*/)"
+    # #6433: an indirect-object constructor, `new Foo;`, and a qualified command, `Foo::bar $x;`.
+    rf"|(?<![$@%&{ID_CONTINUE}>:-])(?=new[ \t]+[{ID_START}][{ID_CONTINUE}:]*[ \t]*[;,)])"
+    rf"|(?:^[ \t]*|(?<==[ \t]))(?:{_PERL_NAME}::){{1,6}}(?={_PERL_NAME}[ \t]+{_PERL_ARG})"
     rf"|(?:^[ \t]*|(?<==[ \t])|(?<=\()|(?<=!)|(?<=,[ \t])|(?<=&&[ \t])|(?<=\|\|[ \t])|(?<=return[ \t])"
+    # #6433: after a block opener, a statement end, `?`, `.`, a file handle or a `{$fh}` block.
+    r"|(?<=[{;?.][ \t])|(?<=[A-Z]{2}[ \t])|(?<=\}[ \t])"
     rf"|(?<![$@%&{ID_CONTINUE}>:-])(?:or|and|xor|not)[ \t]+)"
     rf"(?!{_PERL_KEYWORD})(?!{_PERL_NOT_CALL})(?={_PERL_NAME}[ \t]+{_PERL_ARG}))"
     rf"({_PERL_NAME})",

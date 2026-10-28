@@ -42,3 +42,9 @@ def test_kotlin_companion_sizeof_is_a_callee():
     """Kotlin has no `sizeof` either (kocoa: `ByteArray((length * filelump_t.sizeof()).toInt())`)."""
     code = "class A {\n    fun f(): Int {\n        val toc = ByteArray((n * Filelump.sizeof()).toInt())\n        return 1\n    }\n}\n"
     assert "sizeof" in _calls("kotlin", code)
+
+
+def test_kotlin_require_stays_dropped():
+    """Only `sizeof` is exempt for kotlin: keyword-rosetta's kotlin a.kt is locked with `require(..)` dropped."""
+    code = "class A {\n    fun f(v: Int): Int {\n        require(v > 0)\n        return 1\n    }\n}\n"
+    assert "require" not in _calls("kotlin", code)

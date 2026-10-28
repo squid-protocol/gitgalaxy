@@ -628,7 +628,7 @@ _IBM_OPTIONS = {
     "ASSIGN": "ABCODE APPLID INVOKINGPROG PROGRAM SYSID USERID NETNAME OPID TERMCODE STARTCODE TWALENG CWALENG "
     "CHANNEL FACILITY FCI SCRNHT SCRNWD DEFSCRNHT DEFSCRNWD ALTSCRNHT ALTSCRNWD TCTUALENG TASKPRIORITY RETURNPROG "
     "PRINSYSID OPCLASS OPSECURITY USERNAME QNAME OPERKEYS",
-    "ABEND": "ABCODE CANCEL NODUMP",
+    "ABEND": "ABCODE CANCEL NODUMP NOHANDLE",
     "FORMATTIME": "ABSTIME DATE FULLDATE DATEFORM DATESEP DAYCOUNT DAYOFMONTH DAYOFWEEK DDMMYY DDMMYYYY MILLISECONDS "
     "MMDDYY MMDDYYYY MONTHOFYEAR STRINGFORMAT TIME TIMESEP YEAR YYDDD YYDDMM YYMMDD YYYYDDD YYYYDDMM YYYYMMDD",
     "SEND MAP": "MAP MAPSET FROM DATAONLY MAPONLY LENGTH CURSOR FORMFIELD ERASE ERASEAUP PRINT FREEKB ALARM FRSET "
@@ -1619,6 +1619,14 @@ def test_inquire_urimap_browse_and_write_operator():
                      ("WRITE OPERATOR TEXT(REC) REPLY(REC)", "only the plain message to the console")):  # fmt: skip
         with pytest.raises(C.CicsError, match=why):
             c.command(bad, "")
+
+
+def test_abend_nohandle_is_the_plain_abend():
+    """#5859 (ZECSNC): IBM's ABEND page lists no condition, so NOHANDLE suppresses nothing: the same lines as without."""
+    assert _HandleCics().command("ABEND ABCODE('HCX1') NOHANDLE", "") == _HandleCics().command(
+        "ABEND ABCODE('HCX1')", ""
+    )
+    assert _HandleCics().command("ABEND NOHANDLE", "") == _HandleCics().command("ABEND", "")
 
 
 def test_web_send_is_the_response_to_the_stated_request():

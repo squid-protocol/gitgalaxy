@@ -791,6 +791,74 @@
       },
       "why": "POST with no ZC01DC document template installed: 8000-GET-URL DOCUMENT CREATE fails, so no replication URL is read",
       "doctemplates": {}
+    },
+    {
+      "name": "https-no-sd-template",
+      "commarea": null,
+      "tod": "6161616161610708090A0B0C0D0E0F10",
+      "http_request": {
+        "scheme": "HTTPS",
+        "host": "zecs.example.com",
+        "port": 8443,
+        "method": "GET",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/nosdkey",
+        "query": "",
+        "headers": [],
+        "mediatype": null,
+        "body": null
+      },
+      "why": "an https request with the ZC01SD security template not installed: 1210-ZCXXSD DOCUMENT CREATE answers non-NORMAL, SD-RESP sets AUTHENTICATE to N, so no authentication and the GET runs as for http",
+      "doctemplates": {
+        "ZC01DC": "type: A1\r%"
+      }
+    },
+    {
+      "name": "post-ttl-700000-ettl-pgmiderr",
+      "commarea": null,
+      "tod": "6464646464640708090A0B0C0D0E0F10",
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "POST",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/ttlettlpgm",
+        "query": "ttl=700000",
+        "headers": [],
+        "mediatype": "application/octet-stream",
+        "body": "v"
+      },
+      "faults": [
+        {
+          "cmd": "INQUIRE",
+          "program": "ZC01ETTL",
+          "nth": 1,
+          "resp": "PGMIDERR"
+        }
+      ],
+      "why": "ttl=700000 (> 24 h) with the extended-TTL program not defined (INQUIRE PROGRAM PGMIDERR, IBM CICS TS INQUIRE PROGRAM conditions): ETTL-RESP is not NORMAL, so 1310-TTL caps the TTL at 24 h"
+    },
+    {
+      "name": "post-dc-url-single",
+      "commarea": null,
+      "tod": "6565656565650708090A0B0C0D0E0F10",
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "POST",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/dcurlkey",
+        "query": "",
+        "headers": [],
+        "mediatype": "application/octet-stream",
+        "body": "v"
+      },
+      "doctemplates": {
+        "ZC01DC": "type: A1\r%http://zecs2.example.com:8081\r%"
+      },
+      "why": "the ZC01DC data-centre template carries a peer URL after the type (A1, single): 8000-GET-URL parses it (WEB PARSE NORMAL) and keeps the type A1, so no replication runs"
     }
   ],
   "compiler_options": [

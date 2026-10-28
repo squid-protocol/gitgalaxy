@@ -448,6 +448,56 @@
      "why": "no unfetched child left"
     }
    ]
+  },
+  {
+   "name": "put-container-first-containererr",
+   "commarea": {
+    "SUBPGM-EYECATCHER": "CUST",
+    "SUBPGM-SORTCODE": "987654",
+    "SUBPGM-NUMBER": "0000000000",
+    "SUBPGM-NAME": "Mrs Fiona K Laidlaw",
+    "SUBPGM-ADDRESS": "17 Abbey Road, Winchester, SO23 7AA",
+    "SUBPGM-DATE-OF-BIRTH": "12071985",
+    "SUBPGM-CREDIT-SCORE": "0",
+    "SUBPGM-CS-REVIEW-DATE": "0",
+    "SUBPGM-SUCCESS": " ",
+    "SUBPGM-FAIL-CODE": " "
+   },
+   "why": "The first PUT CONTAINER (CIPA) answers CONTAINERERR RESP2 18 (X17): the command is not performed, the failure arm sets COMM-FAIL-CODE A and leaves (565 true)",
+   "faults": [
+    {
+     "cmd": "PUT-CONTAINER",
+     "resp": "CONTAINERERR",
+     "resp2": 18,
+     "nth": 1,
+     "why": "565 true on the first PUT"
+    }
+   ]
+  },
+  {
+   "name": "get-container-first-containererr",
+   "commarea": {
+    "SUBPGM-EYECATCHER": "CUST",
+    "SUBPGM-SORTCODE": "987654",
+    "SUBPGM-NUMBER": "0000000000",
+    "SUBPGM-NAME": "Mrs Fiona K Laidlaw",
+    "SUBPGM-ADDRESS": "17 Abbey Road, Winchester, SO23 7AA",
+    "SUBPGM-DATE-OF-BIRTH": "12071985",
+    "SUBPGM-CREDIT-SCORE": "0",
+    "SUBPGM-CS-REVIEW-DATE": "0",
+    "SUBPGM-SUCCESS": " ",
+    "SUBPGM-FAIL-CODE": " "
+   },
+   "why": "The first GET CONTAINER of a reply channel answers CONTAINERERR RESP2 10 (X17): the score is 0 and the review date is the original date (900 true)",
+   "faults": [
+    {
+     "cmd": "GET-CONTAINER",
+     "resp": "CONTAINERERR",
+     "resp2": 10,
+     "nth": 1,
+     "why": "900 true on the first GET"
+    }
+   ]
   }
  ],
  "notes": "CBSA's create-customer service (CRECUST, LINKed by BNK1CCS -- transaction OCCS -- with its SUBPGM-PARMS, the CRECUST copybook's layout). #4950: its credit check is the async API. It PUTs its COMMAREA into containers CIPA-CIPE of channel CIPCREDCHANN, RUNs transactions OCR1-OCR5 (\"child_programs\": CRDTAGY1-5, as the CSD's TRANSACTION definitions name them) with that channel, DELAYs 3 seconds, then FETCH ANY NOSUSPENDs the replies, GETs each child's container back from its reply channel, and averages the scores. The schedule is the harness's (oracle_assumptions.md X18, ASSUMED: a child runs at its parent's wait, in RUN order, and completes at its dispatch plus its own DELAYs; a task takes no processor time, X4); each child's events and the containers it leaves are compared (the CHILD event). FUNCTION RANDOM is the oracle's generator (C12) seeded by EIBTASKN: the parent's stated 4242 (X21), a child's 4242 plus its RUN number. Then the date-of-birth check, ENQ of the customer counter, the CUSTOMER control record READ UPDATE / REWRITE, the new CUSTOMER record, a PROCTRAN 'OCC' row (Db2), DEQ. CUSTOMER, ABNDFILE and PROCTRAN are compared after every scenario. Not reached: a child that does not complete within the 3 seconds (every CRDTAGY delays 1 or 2), a credit agency's failure paths, and the failures no fault can be injected on (#6271: a busy ENQ without NOSUSPEND, DEQ, PUT CONTAINER, RUN TRANSID, FETCH ANY, GET CONTAINER, CEELOCT); the SYSIDERR retries and other RESPs of the CUSTOMER READ UPDATE, REWRITE and WRITE are fault scenarios. Data: seed.sql is cbsa-creacc's, customer.txt cbsa-custctrl's (the control record says 42 customers), both SYNTHETIC. Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived. #4952, #5089 -- ASSUMED (register): (1) L1: DATE-OF-BIRTH-CHECK's CEEDAYS call passes a length-10 picture and date over 8 'YYYYMMDD' bytes; the picture's 2 extra bytes are the storage after the item, which IBM does not specify: the owner ruled them blank (2026-10-23, restated 2026-10-27, CRECUST only, ASSUMED), as the blank picture tail (2026-10-14), so create-customer and born-in-the-future run; (2) X18: the child schedule is ASSUMED. L4 is settled: FC is the 12-byte token LE writes (its 8-byte CONDITION-TOKEN-VALUE is the group inside it). Not recorded as evidence here: a proof rests on those assumptions, so read its level from the evidence report, never from this note. Burned estate (CBSA)."

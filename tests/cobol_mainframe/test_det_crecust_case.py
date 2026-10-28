@@ -52,6 +52,9 @@ def test_scenarios_cover_the_credit_check_and_the_paths_around_the_ceedays_hole(
         "fetch-any-notfinished-after-a-reply",
         "fetch-any-notfnd-nothing-retrieved",
         "fetch-any-notfnd-after-a-reply",
+        # #6882: PUT CONTAINER and GET CONTAINER faults
+        "put-container-first-containererr",
+        "get-container-first-containererr",
     ]
 
 

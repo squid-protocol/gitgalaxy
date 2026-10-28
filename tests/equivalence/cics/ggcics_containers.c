@@ -198,6 +198,8 @@ int GGCPUTC(gg_cics *c, char *from) {
     from_ccsid = strstr(flags, "FROMCCSID") != NULL ? c->num : -1; /* GG-NUM: the CCSID of FROM's data (#4270, X17) */
     c->resp = NORMAL;
     c->resp2 = 0;
+    int fresp, fresp2; /* #6882 (X17): a planned condition: the PUT is not performed */
+    if (injected("PUT-CONTAINER", "-", &fresp, &fresp2)) { c->resp = fresp; c->resp2 = fresp2; return 0; }
     int bad_name = cics_name_check(c->qname, name, "container");
     int bad_chan = 0;
     if (strstr(flags, "CHANNEL")) {
@@ -286,6 +288,8 @@ int GGCGETC(gg_cics *c, char *into) {
     trim(c->flags, 40, flags);
     c->resp = NORMAL;
     c->resp2 = 0;
+    int fresp, fresp2; /* #6882 (X17): a planned condition: nothing is read */
+    if (injected("GET-CONTAINER", "-", &fresp, &fresp2)) { c->resp = fresp; c->resp2 = fresp2; return 0; }
     cics_name(c->qname, name, "container");
     int into_ccsid = strstr(flags, "INTOCCSID") != NULL ? c->num : -1; /* GG-NUM in: INTOCCSID / INTOCODEPAGE (#4270, X17) */
     ch = command_channel(c, 0, into_ccsid >= 0 ? 2 : 4);

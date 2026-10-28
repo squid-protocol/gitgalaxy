@@ -60,6 +60,8 @@ FAULT_COMMANDS = (
     "INQ-TERMINAL",
     "RUN-TRANSID",  # #6882 (register X18): nameless; FETCH-ANY too (FETCH CHILD is not planned: no burned program codes RESP on it)
     "FETCH-ANY",
+    "PUT-CONTAINER",  # #6882 (register X17): nameless; GET-CONTAINER too (DELETE / MOVE CONTAINER are not planned: no burned program codes RESP on them)
+    "GET-CONTAINER",
 )  # a file command (FILE), an INQUIRE PROGRAM (the program's name in `file`)
 
 # #4986 (register X43): IBM's LINK conditions the region does not raise and that have no sourced abend code
@@ -226,6 +228,11 @@ UI_FAULT_CONDITIONS: dict[str, dict[str, tuple[int, ...]]] = {
     # a planned RUN starts no child, a planned FETCH takes none. The rest (NOTAUTH, SYSIDERR ...) needs a remote system: refused
     "RUN-TRANSID": {"TRANSIDERR": (1,)},
     "FETCH-ANY": {"NOTFINISHED": (52, 53), "NOTFND": (1,), "INVREQ": (52,)},
+    # #6882 (X17): PUT CONTAINER -- CHANNELERR 1 / CONTAINERERR 18 (an illegal name), INVREQ 4 (no channel), LENGERR 1 (FLENGTH below
+    # zero); GET CONTAINER -- CHANNELERR 2, CONTAINERERR 10 (not found), INVREQ 4. The command is not performed. LENGERR 11 (a short
+    # INTO) is no plan: the data is returned. The rest (CCSIDERR, CODEPAGEERR, INVREQ for a data type ...) follows from the operands
+    "PUT-CONTAINER": {"CHANNELERR": (1,), "CONTAINERERR": (18,), "INVREQ": (4,), "LENGERR": (1,)},
+    "GET-CONTAINER": {"CHANNELERR": (2,), "CONTAINERERR": (10,), "INVREQ": (4,)},
 }
 UI_NAMELESS = (
     "RETURN",
@@ -237,6 +244,8 @@ UI_NAMELESS = (
     "INQ-TERMINAL",
     "RUN-TRANSID",
     "FETCH-ANY",
+    "PUT-CONTAINER",
+    "GET-CONTAINER",
 )
 
 
@@ -250,6 +259,8 @@ def _ui_fault_resp2(sc: dict[str, Any], f: dict[str, Any], cmd: str, resp2: int)
         if cmd.endswith("-TERMINAL")
         else "X18"
         if cmd in ("RUN-TRANSID", "FETCH-ANY")
+        else "X17"
+        if cmd.endswith("-CONTAINER")
         else "X71"
     )
     ibm = UI_FAULT_CONDITIONS[cmd].get(f["resp"])

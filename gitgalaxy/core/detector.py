@@ -11178,7 +11178,10 @@ class StructuralExtractor:
 
         # #6770: a macro invoked here calls what its body calls, as the compiler's expansion makes it this unit's call.
         if _C_REPO_MACRO_CALLS and self.primary_lang_id in _UNSET_TOGGLE_LANGS:
-            for c in _macro_expansion_callees(raw_calls, _C_REPO_MACRO_CALLS):
+            # #6266: a function named like a macro (`M_Malloc` over `#define M_Malloc(s) M_Malloc_Dbg(...)`) names
+            # its own header, which the macro never expands at; only a recursive use of the name does.
+            seeds = raw_calls if bare_self_hits else [c for c in raw_calls if c != name]
+            for c in _macro_expansion_callees(seeds, _C_REPO_MACRO_CALLS):
                 raw_calls.append(c)
                 if qualifiers_seen:
                     qualifiers_seen.setdefault(c, [""])

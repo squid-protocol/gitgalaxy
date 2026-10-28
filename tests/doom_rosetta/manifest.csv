@@ -16,10 +16,10 @@ managed-doom,https://github.com/sinshu/managed-doom,9365696eb44326a3aab72c4bab21
 mochadoom,https://github.com/AXDOOMER/mochadoom,c0af1322ee5fd168b5cf8aaaf504cab2d1aabe93,,,engine-port,GPL-3.0,Java port of linuxdoom (Mocha Doom),,unstated,,,readme-silent
 rust-doom,https://github.com/cristicbz/rust-doom,6aa7681cee4e181a2b13ecc9acfa3fcaa2df4014,,,reimplementation,Apache-2.0,Rust rewrite (from scratch; reads Doom WADs),,divergent,README.md,not a port of the original Doom C source code into Rust,
 doom-wasm,https://github.com/cloudflare/doom-wasm,65e0d3ae2ffa604155eebd96ed40da6567bd08f4,,,engine-port,GPL-2.0,Chocolate Doom (WebAssembly port),,unstated,,,readme-silent
-fastdoom,https://github.com/viti95/FastDoom,3e7a7a9c017304e2c62e840a6eba20668c315ddd,,,engine-port,GPL-2.0,linuxdoom (DOS x86 asm-optimised fork),callgraph,enhanced,README.md,Uncapped FPS mode support,
+fastdoom,https://github.com/viti95/FastDoom,3e7a7a9c017304e2c62e840a6eba20668c315ddd,,,engine-port,GPL-2.0,linuxdoom (DOS x86 asm-optimised fork),,enhanced,README.md,Uncapped FPS mode support,
 puredoom,https://github.com/Daivuk/PureDOOM,355cfbd16fac119718879239336ee2ea408886bd,,,engine-port,GPL-2.0,PrBoom (single-header port),,enhanced,README.md,Crosshair option,
 doom-ios,https://github.com/id-Software/DOOM-IOS,3bf2af22f381441faccb13652bcf992a43bb8eb5,,,engine-port,GPL-2.0,id Software iOS release (linuxdoom lineage),,unstated,,,readme-silent
-doom3-bfg,https://github.com/id-Software/DOOM-3-BFG,1caba1979589971b5ed44e315d9ead30b278d8b4,,,separate-engine,GPL-3.0,id Tech 4 / Doom 3 BFG (separate engine),callgraph,unstated,,,readme-silent
+doom3-bfg,https://github.com/id-Software/DOOM-3-BFG,1caba1979589971b5ed44e315d9ead30b278d8b4,,,separate-engine,GPL-3.0,id Tech 4 / Doom 3 BFG (separate engine),,unstated,,,readme-silent
 doom-ascii,https://github.com/wojciech-graj/doom-ascii,940528f138e12431e5a1417351863709f1620078,,,engine-port,GPL-2.0,Chocolate Doom (terminal renderer),,unstated,,,readme-silent
 srb2,https://github.com/STJr/SRB2,639b58c6d718452ef343a0bc927d043bed9e40d6,,,engine-port,GPL-2.0,Doom Legacy <- Doom,,divergent,README.md,3D Sonic the Hedgehog fangame,
 freedoom,https://github.com/freedoom/freedoom,3ac019628d70b812ffb722f7f2365771b76a9d29,,,assets,BSD-3-Clause / CC0-1.0 (COPYING.adoc),"asset project (content, not engine)",,compatible,README.adoc,aims for compatibility with,

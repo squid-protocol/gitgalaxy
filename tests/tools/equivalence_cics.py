@@ -4513,7 +4513,14 @@ def _java_events(case: dict[str, Any], out: Path, shape: dict[str, Any],
                 e.update(cics_taskcontrol.java_start_as_compared(e))
             if e.get("event") == "RETRIEVE":  # #5089: the data's bytes as text
                 e.update(cics_taskcontrol.java_retrieve_as_compared(e))
-            if e.get("event") in ("COMMAREA", "RETURN") and e.get("area") is not None:  # #4765: the bytes the port left
+            xctl_bytes = (
+                e.get("event") == "XCTL" and e.get("area") is not None and bool(ca_fields)
+                and isinstance(e.get("commarea"), dict) and not set(e["commarea"]) <= set(shape)
+            )  # fmt: skip
+            # #6072: an XCTL area of another program's DTO (ZECS001 -> ZECS003), not this program's shape: its bytes
+            if xctl_bytes or (
+                e.get("event") in ("COMMAREA", "RETURN") and e.get("area") is not None
+            ):  # #4765: the bytes the port left
                 # #6072: a RETURN too, when the scenario states raw COMMAREA bytes (its DTO holds a number for them)
                 if (
                     e.get("event") == "COMMAREA" and sc.get("dto_entry") and isinstance(e.get("commarea"), dict)

@@ -58,6 +58,22 @@ from gitgalaxy.standards.cobol.move import (
     MOVE_RULES,
     MOVE_VECTORS,
 )
+from gitgalaxy.standards.cobol.string_ops import (
+    INSPECT_ALL,
+    INSPECT_CHARACTERS,
+    INSPECT_FIRST,
+    INSPECT_LEADING,
+    INSPECT_MODES,
+    PHRASE_CONVERTING,
+    PHRASE_REPLACING,
+    PHRASE_TALLYING,
+    PHRASE_TYPES,
+    STATEMENT_INSPECT,
+    STATEMENT_STRING,
+    STATEMENT_UNSTRING,
+    STRING_RULES,
+    STRING_VECTORS,
+)
 
 BANNER = "generated from gitgalaxy/standards/cobol by `python -m gitgalaxy.standards.cobol regen`; do not edit"
 
@@ -65,12 +81,15 @@ ROOT = Path(__file__).resolve().parents[3]
 MOVE_JAVA_FILE = Path("gitgalaxy/tools/cobol_to_java/det/cobolrt/MoveSpec.java")
 COMPARE_JAVA_FILE = Path("gitgalaxy/tools/cobol_to_java/det/cobolrt/CompareSpec.java")
 ARITH_JAVA_FILE = Path("gitgalaxy/tools/cobol_to_java/det/cobolrt/ArithSpec.java")
+STRING_JAVA_FILE = Path("gitgalaxy/tools/cobol_to_java/det/cobolrt/StringSpec.java")
 MOVE_DOCS_FILE = Path("docs/language_status/cobol_move_matrix.md")
 COMPARE_DOCS_FILE = Path("docs/language_status/cobol_compare_matrix.md")
 ARITH_DOCS_FILE = Path("docs/language_status/cobol_arith_matrix.md")
+STRING_DOCS_FILE = Path("docs/language_status/cobol_string_matrix.md")
 MOVE_TEST_FILE = Path("tests/cobol_mainframe/test_cobol_move_vectors.py")
 COMPARE_TEST_FILE = Path("tests/cobol_mainframe/test_cobol_compare_vectors.py")
 ARITH_TEST_FILE = Path("tests/cobol_mainframe/test_cobol_arith_vectors.py")
+STRING_TEST_FILE = Path("tests/cobol_mainframe/test_cobol_string_vectors.py")
 JAVA_PACKAGE = "__PACKAGE__.cobolrt"
 
 
@@ -171,6 +190,27 @@ def as_json() -> dict[str, Any]:
                 for v in ARITH_VECTORS
             ],
         },
+        "string": {
+            "inspect_modes": {k: dataclasses.asdict(v) for k, v in INSPECT_MODES.items()},
+            "phrase_types": {k: dataclasses.asdict(v) for k, v in PHRASE_TYPES.items()},
+            "rules": {k: dataclasses.asdict(r) for k, r in STRING_RULES.items()},
+            "vectors": [
+                {
+                    "id": v.id,
+                    "title": v.title,
+                    "rule_id": v.rule_id,
+                    "statement": v.statement,
+                    "source_text": v.source_text,
+                    "pointer_init": v.pointer_init,
+                    "options": v.options,
+                    "expected_output": v.expected_output,
+                    "expected_pointer": v.expected_pointer,
+                    "expected_overflow": v.expected_overflow,
+                    "note": v.note,
+                }
+                for v in STRING_VECTORS
+            ],
+        },
     }
 
 
@@ -216,6 +256,9 @@ def problems() -> list[str]:
             out.extend(
                 f"ARITH rule {rid} not found in cobolrt_rules.json" for rid in ARITH_RULES if rid not in known_ids
             )
+            out.extend(
+                f"STRING rule {rid} not found in cobolrt_rules.json" for rid in STRING_RULES if rid not in known_ids
+            )
         except Exception as e:
             out.append(f"unable to verify against cobolrt_rules.json: {e}")
 
@@ -234,6 +277,11 @@ def problems() -> list[str]:
         f"ARITH test vector {vec.id} cites unknown rule {vec.rule_id}"
         for vec in ARITH_VECTORS
         if vec.rule_id not in ARITH_RULES
+    )
+    out.extend(
+        f"STRING test vector {vec.id} cites unknown rule {vec.rule_id}"
+        for vec in STRING_VECTORS
+        if vec.rule_id not in STRING_RULES
     )
 
     return out
@@ -952,18 +1000,265 @@ def test_rounding_modes_mapping():
 '''
 
 
+def render_string_java(package: str = JAVA_PACKAGE) -> str:
+    """Generate StringSpec.java."""
+    rule_cases = "\n".join(f'            case "{r}" -> "{r}";' for r in sorted(STRING_RULES))
+
+    return f"""// {BANNER}
+package {package};
+
+/**
+ * Declarative COBOL String Manipulation specification (STRING, UNSTRING, INSPECT).
+ *
+ * <p>Reference: IBM Enterprise COBOL for z/OS 6.4 Language Reference (SC26-4940-06).
+ * Follows the table-driven code generation pattern established by CicsSpec.java (#4586, #4608).
+ */
+public final class StringSpec {{
+    private StringSpec() {{
+    }}
+
+    // Statements
+    public static final int STATEMENT_STRING = {STATEMENT_STRING};
+    public static final int STATEMENT_UNSTRING = {STATEMENT_UNSTRING};
+    public static final int STATEMENT_INSPECT = {STATEMENT_INSPECT};
+
+    // INSPECT evaluation modes
+    public static final int INSPECT_CHARACTERS = {INSPECT_CHARACTERS};
+    public static final int INSPECT_ALL = {INSPECT_ALL};
+    public static final int INSPECT_LEADING = {INSPECT_LEADING};
+    public static final int INSPECT_FIRST = {INSPECT_FIRST};
+
+    // INSPECT phrase types
+    public static final int PHRASE_TALLYING = {PHRASE_TALLYING};
+    public static final int PHRASE_REPLACING = {PHRASE_REPLACING};
+    public static final int PHRASE_CONVERTING = {PHRASE_CONVERTING};
+
+    /** COBOL standard clause name for inspect mode. */
+    public static String inspectModeName(int mode) {{
+        return switch (mode) {{
+            case INSPECT_CHARACTERS -> "CHARACTERS";
+            case INSPECT_ALL -> "ALL";
+            case INSPECT_LEADING -> "LEADING";
+            case INSPECT_FIRST -> "FIRST";
+            default -> "UNKNOWN";
+        }};
+    }}
+
+    /** Name of the inspect phrase type. */
+    public static String phraseTypeName(int type) {{
+        return switch (type) {{
+            case PHRASE_TALLYING -> "TALLYING";
+            case PHRASE_REPLACING -> "REPLACING";
+            case PHRASE_CONVERTING -> "CONVERTING";
+            default -> "UNKNOWN";
+        }};
+    }}
+
+    /** Returns true if 1-based pointer is within bounds [1, length]. */
+    public static boolean isPointerValid(int pointer, int length) {{
+        return pointer >= 1 && pointer <= length;
+    }}
+
+    /** Get registered rule ID from key. */
+    public static String ruleId(String key) {{
+        return switch (key) {{
+{rule_cases}
+            default -> "UNKNOWN";
+        }};
+    }}
+}}
+"""
+
+
+def render_string_markdown() -> str:
+    """Generate docs/language_status/cobol_string_matrix.md."""
+    mode_rows = [
+        f"| `{spec.mode_id}` | `{spec.name}` | {spec.ibm_clause} | {spec.description} |"
+        for _, spec in sorted(INSPECT_MODES.items())
+    ]
+    mode_table = "\n".join(mode_rows)
+
+    phrase_rows = [
+        f"| `{spec.type_id}` | `{spec.name}` | {spec.description} |" for _, spec in sorted(PHRASE_TYPES.items())
+    ]
+    phrase_table = "\n".join(phrase_rows)
+
+    r_rows = []
+    for rid, meta in sorted(STRING_RULES.items()):
+        doc_sec = f"{meta.ibm['doc']}: {meta.ibm['section']}" if meta.ibm else (meta.ibm_note or "-")
+        reg = ", ".join(f"`{x}`" for x in meta.register) if meta.register else "-"
+        r_rows.append(f"| `{rid}` | `{meta.status}` | {meta.title} | {doc_sec} | {reg} |")
+    r_table = "\n".join(r_rows)
+
+    v_rows = [
+        f"| `{vec.id}` | {vec.title} | `{vec.rule_id}` | `{vec.statement}` | `{vec.expected_output}` | {'YES' if vec.expected_overflow else 'NO'} | {vec.note} |"
+        for vec in STRING_VECTORS
+    ]
+    v_table = "\n".join(v_rows)
+
+    return f"""<!-- {BANNER} -->
+# COBOL String Manipulation Specification: STRING, UNSTRING, INSPECT (#4712)
+
+Part of the **cobolrt-as-a-product** epic ([#4710](https://github.com/squid-protocol/gitgalaxy/issues/4710)).
+Single source of truth: [`gitgalaxy/standards/cobol/string_ops.py`](../../gitgalaxy/standards/cobol/string_ops.py).
+Generated by `python -m gitgalaxy.standards.cobol regen`.
+
+Reference: **IBM Enterprise COBOL for z/OS 6.4 Language Reference (SC26-4940-06)**
+Chapters: *STRING statement*, *UNSTRING statement*, *INSPECT statement*.
+
+## 1. Rule Catalogue (STRING Family)
+
+| Rule ID | Status | Title | IBM Manual Reference | Register |
+| :--- | :--- | :--- | :--- | :--- |
+{r_table}
+
+## 2. INSPECT Evaluation Modes
+
+| ID | Mode Name | IBM Syntax Clause | Behavior |
+| :--- | :--- | :--- | :--- |
+{mode_table}
+
+## 3. INSPECT Phrase Types
+
+| ID | Phrase Type | Description |
+| :--- | :--- | :--- |
+{phrase_table}
+
+## 4. Statement Invariants & Pointer Rules
+
+- **STRING Statement**:
+  - Operands transferred sequentially into receiving field from pointer position.
+  - Receiver is **not padded with spaces** (only transferred positions are overwritten).
+  - Pointer value is incremented past the last transferred character position.
+  - ON OVERFLOW raised when: initial pointer < 1 or > receiver length, or transferred data exceeds receiver capacity.
+- **UNSTRING Statement**:
+  - Scans source string, extracting substrings delimited by delimiters into successive receiving items.
+  - `DELIMITED BY ALL`: Contiguous occurrences of delimiter treated as one.
+  - `DELIMITER IN`: Delimiter characters copied into receiving field.
+  - `COUNT IN`: Number of characters transferred recorded in count field.
+  - `TALLYING IN`: Incremented by the number of receiving areas filled.
+  - ON OVERFLOW raised when: initial pointer < 1 or > source length, or unexamined characters remain after receiving areas exhausted.
+- **INSPECT Statement**:
+  - Earlier clause takes characters first (marking mechanism).
+  - TALLYING and REPLACING act as separate passes.
+  - `BEFORE` / `AFTER INITIAL`: Restricts examination bounds.
+
+## 5. Deterministic Test Vectors
+
+| Vector ID | Title | Rule Verified | Statement | Expected Output | Overflow? | Note |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+{v_table}
+"""
+
+
+def render_string_tests() -> str:
+    """Generate tests/cobol_mainframe/test_cobol_string_vectors.py."""
+    return '''# ==============================================================================
+# GitGalaxy
+# Copyright (c) 2026 Joe Esquibel
+#
+# This source code is licensed under the PolyForm Noncommercial License 1.0.0.
+# You may not use this file except in compliance with the License.
+# A copy of the license can be found in the LICENSE file in the root directory
+# of this project, or at https://polyformproject.org/licenses/noncommercial/1.0.0/
+# ==============================================================================
+"""Test vectors for the COBOL String Manipulation rules (#4712, epic #4710).
+
+Generated from gitgalaxy/standards/cobol by `python -m gitgalaxy.standards.cobol regen`.
+Verifies that the declarative string rules, inspect modes, phrase types,
+and deterministic test vectors execute directly in CI without requiring Docker or external compilers.
+"""
+
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parents[2]
+if str(REPO) not in sys.path:
+    sys.path.insert(0, str(REPO))
+
+import pytest
+
+from gitgalaxy.standards.cobol.cli import problems, stale
+from gitgalaxy.standards.cobol.string_ops import (
+    INSPECT_MODES,
+    PHRASE_TYPES,
+    STRING_RULES,
+    STRING_VECTORS,
+    execute_string,
+    execute_unstring,
+)
+
+
+def test_cobol_string_spec_has_no_problems():
+    """Verify internal consistency of standards/cobol string manipulation rules."""
+    errs = problems()
+    assert errs == [], f"cobol spec has consistency problems: {errs}"
+
+
+def test_cobol_string_generated_files_are_not_stale():
+    """Verify committed StringSpec.java, docs, and tests match the standards tables."""
+    diff = stale()
+    assert diff == [], f"standards generated files are stale: {diff}; run `python -m gitgalaxy.standards.cobol regen`"
+
+
+def test_all_string_modes_and_rules_defined():
+    """Verify inspect modes, phrase types, and string rules are defined."""
+    assert len(INSPECT_MODES) == 4
+    assert len(PHRASE_TYPES) == 3
+    assert len(STRING_RULES) == 4
+    assert len(STRING_VECTORS) >= 14
+
+
+@pytest.mark.parametrize("vec", STRING_VECTORS, ids=lambda v: v.id)
+def test_string_vector_rule_alignment(vec):
+    """Verify each test vector correctly aligns with a registered rule."""
+    assert vec.rule_id in STRING_RULES
+    meta = STRING_RULES[vec.rule_id]
+    assert meta.id == vec.rule_id
+
+
+def test_string_simulation_basic_and_no_pad():
+    """Verify STRING statement simulation preserves unwritten receiver positions."""
+    out, ptr, ovf = execute_string("ABCDEFGHIJ", [("123", None)], pointer=1)
+    assert out == "123DEFGHIJ"
+    assert ptr == 4
+    assert not ovf
+
+
+def test_string_simulation_overflow():
+    """Verify STRING overflow on receiver capacity exceeded."""
+    out, ptr, ovf = execute_string("..........", [("1234567890EXTRA", None)], pointer=1)
+    assert out == "1234567890"
+    assert ptr == 11
+    assert ovf
+
+
+def test_unstring_simulation_delimited_by_all():
+    """Verify UNSTRING simulation with DELIMITED BY ALL."""
+    results, ptr, ovf = execute_unstring("ONE    TWO   THREE", [(" ", True)], [5, 5, 5], pointer=1)
+    assert results == ["ONE  ", "TWO  ", "THREE"]
+    assert ptr == 19
+    assert not ovf
+'''
+
+
 def generated() -> dict[Path, str]:
     """The committed generated files and the text the spec renders for each."""
     return {
         MOVE_JAVA_FILE: render_move_java(),
         COMPARE_JAVA_FILE: render_compare_java(),
         ARITH_JAVA_FILE: render_arith_java(),
+        STRING_JAVA_FILE: render_string_java(),
         MOVE_DOCS_FILE: render_move_markdown(),
         COMPARE_DOCS_FILE: render_compare_markdown(),
         ARITH_DOCS_FILE: render_arith_markdown(),
+        STRING_DOCS_FILE: render_string_markdown(),
         MOVE_TEST_FILE: render_move_tests(),
         COMPARE_TEST_FILE: render_compare_tests(),
         ARITH_TEST_FILE: render_arith_tests(),
+        STRING_TEST_FILE: render_string_tests(),
     }
 
 
@@ -1014,13 +1309,18 @@ def main(argv: Sequence[str] | None = None) -> int:
             )
             for rid, ar in sorted(ARITH_RULES.items()):
                 print(f"  {rid:<38} {ar.status:<9} {ar.title[:45]}")
+            print(
+                f"COBOL STRING Standards: {len(STRING_RULES)} rules, {len(INSPECT_MODES)} inspect modes, {len(STRING_VECTORS)} vectors"
+            )
+            for rid, sr in sorted(STRING_RULES.items()):
+                print(f"  {rid:<38} {sr.status:<9} {sr.title[:45]}")
         return 0
 
     if args.cmd == "check":
         found = problems()
         for p in found:
             print(p)
-        total_rules = len(MOVE_RULES) + len(COMPARE_RULES) + len(ARITH_RULES)
+        total_rules = len(MOVE_RULES) + len(COMPARE_RULES) + len(ARITH_RULES) + len(STRING_RULES)
         print(
             f"cobol spec: {total_rules} rules, {len(MOVE_MATRIX) + len(COMPARE_MATRIX)} matrix cells, {'ok' if not found else f'{len(found)} problem(s)'}"
         )

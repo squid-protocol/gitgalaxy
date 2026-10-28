@@ -106,7 +106,8 @@
     "Cobol.java",
     "MoveSpec.java",
     "CompareSpec.java",
-    "ArithSpec.java"
+    "ArithSpec.java",
+    "StringSpec.java"
    ],
    "done": true,
    "about": "MOVE, arithmetic stores and intermediates, comparisons, class tests, DISPLAY, STRING / UNSTRING / INSPECT, the LINK COMMAREA.",
@@ -127,7 +128,10 @@
     "roundingMode",
     "divideIntermediateScale",
     "divideRemainder",
-    "isOverflow"
+    "isOverflow",
+    "inspectModeName",
+    "phraseTypeName",
+    "isPointerValid"
    ]
   },
   {

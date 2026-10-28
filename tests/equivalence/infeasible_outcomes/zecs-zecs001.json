@@ -1,0 +1,14 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "zecs-zecs001",
+  "entries": [
+    {
+      "unit": "1310-TTL",
+      "line": 718,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "`IF ETTL-RESP EQUAL DFHRESP(NORMAL) OR ETTL-STATUS EQUAL DFHVALUE(ENABLED)` (718) in 1310-TTL sits inside `IF ZF-TTL GREATER THAN SEVEN-DAYS` (716, 604800 s). ZF-TTL exceeds seven days only if it also exceeds twenty-four hours (86400 s), and then the test at 712-715 ran first: when ETTL-RESP is not NORMAL (or ETTL-STATUS is DISABLED) it MOVEs TWENTY-FOUR-HOURS to ZF-TTL, so 716 is false. Line 718 is therefore reached only with ETTL-RESP NORMAL, and its first operand ETTL-RESP EQUAL NORMAL is then true; no input makes both operands false."
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 {
- "commit": "baab61709",
+ "commit": "45c15c286",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -114,12 +114,12 @@
    }
   },
   "mutation": {
-   "adjusted_kill_pct": 88.3,
-   "adjusted_total": 4039,
-   "killed": 3565,
+   "adjusted_kill_pct": 89.2,
+   "adjusted_total": 4043,
+   "killed": 3608,
    "ports": 59,
-   "raw_kill_pct": 68.5,
-   "raw_total": 5207
+   "raw_kill_pct": 69.2,
+   "raw_total": 5213
   },
   "translator": {
    "of": 129,
@@ -160,7 +160,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-28T23:02:24Z",
+  "as_of": "2026-10-28T23:23:30Z",
   "core": {
    "closed": 188,
    "open": 19,

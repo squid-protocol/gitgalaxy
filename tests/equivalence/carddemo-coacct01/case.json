@@ -292,6 +292,50 @@
    "why": "MQ fault (#6072): the input queue's MQCLOSE in 5000-CLOSE-INPUT-QUEUE answers 2009 (MQCLOSE call 1): its non-OK arm; the nested 8000-TERMINATION it PERFORMs closes the three queues and ends the task"
   },
   {
+   "name": "close-output-fails",
+   "mq_messages": {
+    "CARDDEMO.REQUEST.QUEUE": [
+     {
+      "data": "INQA00000000001",
+      "format": "MQSTR",
+      "msgtype": 1,
+      "replytoq": "CARD.DEMO.REPLY.ACCT",
+      "correlid": "REQ-0001"
+     }
+    ]
+   },
+   "mq_faults": [
+    {
+     "call": "MQCLOSE",
+     "nth": 2,
+     "reason": 2009
+    }
+   ],
+   "why": "MQ fault (#6072): the output queue's MQCLOSE in 5100-CLOSE-OUTPUT-QUEUE answers 2009 (MQCLOSE call 2): its non-OK arm; the nested 8000-TERMINATION it PERFORMs closes the queues again and ends the task"
+  },
+  {
+   "name": "close-error-fails",
+   "mq_messages": {
+    "CARDDEMO.REQUEST.QUEUE": [
+     {
+      "data": "INQA00000000001",
+      "format": "MQSTR",
+      "msgtype": 1,
+      "replytoq": "CARD.DEMO.REPLY.ACCT",
+      "correlid": "REQ-0001"
+     }
+    ]
+   },
+   "mq_faults": [
+    {
+     "call": "MQCLOSE",
+     "nth": 3,
+     "reason": 2009
+    }
+   ],
+   "why": "MQ fault (#6072): the error queue's MQCLOSE in 5200-CLOSE-ERROR-QUEUE answers 2009 (MQCLOSE call 3): its non-OK arm; the nested 8000-TERMINATION it PERFORMs closes the queues again and ends the task"
+  },
+  {
    "name": "error-put-fails",
    "mq_messages": {
     "CARDDEMO.REQUEST.QUEUE": [

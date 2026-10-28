@@ -2556,6 +2556,7 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   every other condition, a RESP2 IBM does not pair with the condition (TERMIDERR 1 on SET, INVREQ on INQUIRE), and a terminal
   name. Burned use: CBSA BNK1CCS RM010 / STD010 and BNK1DCS RM010 / STORE-TERM-DEF reach their SET-failure arms; no burned
   program INQUIREs a terminal, so INQ-TERMINAL is unit-proven only.
+  Pinned by `tests/cobol_mainframe/test_set_terminal_fault_scenarios_6882.py`: BNK1CCS and BNK1DCS each plan both INVREQ and TERMIDERR.
 
 ### X27. RETURN ... IMMEDIATE, LINK ... SYNCONRETURN — ASSUMED, REFUSED where IBM is silent (#4270 slice)
 - **RETURN IMMEDIATE** (CICS TS 6.x, EXEC CICS RETURN, https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-return).

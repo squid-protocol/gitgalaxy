@@ -330,7 +330,51 @@ names. `nan` rows (doom-fx) mean the tool could not compute a similarity.
 
 <!-- study:subway begin -->
 
-_No `--subway` file given: run `sfs compare` (see the header of `study_report.py`) and pass its `subway.csv`._
+| port | functions | wiring similarity | linuxdoom calls kept | graph-shape distance |
+|---|---|---|---|---|
+| mood | 1859 | 0.9912 | 0.9994 | 0.7090 |
+| doom-ascii | 1019 | 0.9880 | 0.8450 | 0.3015 |
+| sdl-doom | 1079 | 0.9810 | 0.8450 | 0.3327 |
+| doomgeneric | 1192 | 0.9766 | 0.8432 | 0.4213 |
+| puredoom | 1546 | 0.9719 | 0.9253 | 0.5919 |
+| crispy-doom | 5869 | 0.9515 | 0.7535 | 0.5019 |
+| doom-scheme | 798 | 0.9501 | 0.4944 | 0.8180 |
+| chocolate-doom | 5128 | 0.9484 | 0.7183 | 0.4386 |
+| dartdoom | 723 | 0.9326 | 0.4147 | 0.5498 |
+| doomf77 | 146 | 0.9142 | 0.0000 | 0.7713 |
+| dsda-doom | 4930 | 0.9035 | 0.4605 | 0.5550 |
+| inter-doom | 6094 | 0.8838 | 0.6474 | 0.5370 |
+| doom-ios | 1768 | 0.8779 | 0.6085 | 0.7174 |
+| prboom-plus | 2430 | 0.8709 | 0.5985 | 0.6908 |
+| gore | 996 | 0.8586 | 0.7723 | 0.3900 |
+| doomretro | 2233 | 0.8324 | 0.5031 | 0.4565 |
+| mochadoom | 3037 | 0.8107 | 0.3494 | 1.3236 |
+| doom3do | 511 | 0.7910 | 0.1644 | 0.7244 |
+| nugget-doom | 4173 | 0.7654 | 0.5088 | 0.5309 |
+| kocoa-doom | 2902 | 0.7536 | 0.2635 | 1.4951 |
+| srb2 | 6808 | 0.7448 | 0.1939 | 0.6957 |
+| managed-doom | 1285 | 0.7253 | 0.2133 | 0.9603 |
+| odamex | 7765 | 0.7218 | 0.3657 | 0.8709 |
+| eternity | 6662 | 0.7131 | 0.4203 | 0.7148 |
+| woof | 3788 | 0.6769 | 0.4868 | 0.5347 |
+| doom-wasm | 2034 | 0.6475 | 0.7547 | 0.5834 |
+| edge-classic | 5150 | 0.6438 | 0.0257 | 0.8129 |
+| fastdoom | 2114 | 0.5709 | 0.4987 | 0.9319 |
+| helion | 8407 | 0.5254 | 0.0113 | 1.1503 |
+| gzdoom | 18662 | 0.5104 | 0.0734 | 1.1258 |
+| cssdoom | 217 | 0.5030 | 0.0000 | 0.9207 |
+| agentic-cobol-doom-cc | 45 | 0.4959 | 0.0000 | 1.7431 |
+| doomsday | 23397 | 0.3879 | 0.1625 | 1.0363 |
+| doom3-bfg | 13860 | 0.3198 | 0.8338 | 0.8795 |
+| room4doom | 4582 | 0.2499 | 0.1129 | 1.3576 |
+| doo-cr | 1488 | 0.1441 | 0.0414 | 2.9977 |
+| sqldoom | 475 | 0.1281 | 0.0038 | 1.3725 |
+| freedoom | 106 | 0.1139 | 0.0000 | 2.3723 |
+| agentic-cobol-doom-codex | 152 | 0.1104 | 0.0000 | 0.8964 |
+| fsharp-doom | 47 | 0.0881 | 0.0000 | 2.8052 |
+| rust-doom | 582 | 0.0846 | 0.0000 | 1.8223 |
+| fps-cob | 51 | 0.0763 | 0.0000 | 0.9526 |
+| doom-fx | 1865 | nan | 0.0000 | 3.2104 |
 
 <!-- study:subway end -->
 

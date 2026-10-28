@@ -1632,6 +1632,15 @@ def test_inquire_urimap_browse_and_write_operator():
     )  # (EVENTUAL alone: the plain form)
 
 
+def test_write_operator_routing_options_are_refused_by_the_stub_translator():
+    """#5859: the det port models TEXTLENGTH / ROUTECODES / NUMROUTES, the stub's GGCWTO not yet: refused by name, never dropped."""
+    import equivalence_cics as ec  # noqa: PLC0415 (tests/tools is on sys.path above)
+
+    for opt in ("TEXTLENGTH(WS-N)", "ROUTECODES(WS-RC) NUMROUTES(WS-N)"):
+        with pytest.raises(ec.Unsupported, match="not modelled by the stub runtime"):
+            ec.translate_command(f"WRITE OPERATOR TEXT(WS-MSG) {opt} EVENTUAL")
+
+
 def test_web_send_is_the_response_to_the_stated_request():
     """#4767 zECS (register X37), IBM WEB SEND (server): CicsTask.webSend takes FROM's text and FROMLENGTH, MEDIATYPE's text
     (null when absent), ACTION's value (0 absent), STATUSCODE (-1), STATUSTEXT's text and STATUSLEN (-1: the whole area) and

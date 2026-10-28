@@ -36,6 +36,8 @@ on:
       - "!gitgalaxy/tools/cobol_to_java/det/cobolrt/**"
       - "!gitgalaxy/cobol_to_java_controller.py"
       - "!gitgalaxy/cobol_refractor_controller.py"
+      # #6278 slice 4: the engine package's prose READMEs / how-tos are read by tests, never by this job (pinned in test_engine_reach_workflows.py)
+      - "!gitgalaxy/**/*.md"
       - "pyproject.toml"
       - "tests/tools/rosetta_audit.py"
       - ".github/workflows/rosetta-audit.yml"

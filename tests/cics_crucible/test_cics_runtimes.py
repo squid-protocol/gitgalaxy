@@ -521,6 +521,50 @@ def test_cics_task_failed_xctl_and_link_end_with_the_condition_abend_code(tmp_pa
 
 
 @needs_javac
+def test_an_injected_abend_goes_to_the_exit_of_the_level_that_issued_the_command(tmp_path):
+    """#6882 (register X70), IBM HANDLE ABEND: the exit search starts "at the logical level of the application program
+    in which the abend occurred". A planned `READ F 1 -1 0 AFCR` abend at a LINKed level takes that level's own
+    exit; with none there it unwinds to the linking program's; with none anywhere the task ends."""
+    out = _cics_task(
+        tmp_path,
+        """
+        CicsTask.Programs programs = new CicsTask.Programs() {
+            public boolean defined(String p) {
+                return true;
+            }
+
+            public void run(String p, CicsTask task) {
+                if (p.startsWith("MAIN")) {
+                    if (!p.equals("MAINX")) {
+                        task.handleAbend("MAIN-ABEND");
+                    }
+                    task.link(p.equals("MAINA") ? "SUBOWN" : "SUBNOEXIT" , new StringBuilder("CA"), 2);
+                    System.out.println(p + " back: exit=" + task.abendExit() + " ended=" + task.ended());
+                } else {
+                    if (p.equals("SUBOWN")) {
+                        task.handleAbend("SUB-ABEND");
+                    }
+                    CicsTask.FileRead<String> r = task.read("F", () -> java.util.Optional.<String>empty());
+                    System.out.println(p + " read resp=" + r.resp() + " exit=" + task.abendExit() + " ended=" + task.ended());
+                }
+            }
+        };
+        for (String main : new String[] {"MAINA", "MAINB", "MAINX"}) {
+            new CicsTask("HC04", "ENTER", null, null).withPrograms(programs)
+                    .withFaults(java.util.List.of("READ F 1 -1 0 AFCR"), null).run(main);
+        }
+        """,
+    )
+    lines = out.splitlines()
+    # the LINKed program's own exit takes it (the repro: today the root's exit, or none, did)
+    assert lines[:2] == ["SUBOWN read resp=0 exit=SUB-ABEND ended=false", "MAINA back: exit=null ended=false"]
+    # no exit in the callee: the caller's takes it (the callee is gone, the task goes on)
+    assert lines[2:4] == ["SUBNOEXIT read resp=0 exit=null ended=true", "MAINB back: exit=MAIN-ABEND ended=false"]
+    # no exit anywhere: the task is terminated
+    assert lines[4:] == ["SUBNOEXIT read resp=0 exit=null ended=true", "MAINX back: exit=null ended=true"]
+
+
+@needs_javac
 def test_cics_task_receive_text_records_the_event_and_truncates_with_lengerr(tmp_path):
     out = _cics_task(
         tmp_path,

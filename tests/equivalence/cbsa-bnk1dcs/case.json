@@ -731,6 +731,31 @@
    ]
   },
   {
+   "name": "delete-customer-read-abends-afcr",
+   "aid": "DFHPF5",
+   "commarea": {
+    "WS-COMM-TERM": 451
+   },
+   "why": "#6882 (X70): PF5 delete of customer 1 while INQCUST's READ of CUSTOMER (linked by DELCUS, linked by BNK1DCS) abends AFCR: INQCUST's own HANDLE ABEND exit (ABEND-HANDLING) takes it at its level -- the storm-drain arm, 'N' / '2' -- and DELCUS and BNK1DCS go on",
+   "receive": {
+    "BNK1DC": {
+     "CUSTNOI": "0000000001",
+     "SORTCI": "987654",
+     "CUSTNO2I": "0000000001"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CUSTOMER",
+     "nth": 1,
+     "resp": "ABEND",
+     "abcode": "AFCR",
+     "why": "RLS abend on the first READ of CUSTOMER in the task (INQCUST linked by DELCUS)"
+    }
+   ]
+  },
+  {
    "name": "link-inqcust-pgmiderr",
    "aid": "DFHENTER",
    "commarea": {

@@ -24,12 +24,13 @@ def test_every_entry_has_a_known_kind_and_names_its_issue():
     for (estate, base), e in lx.EXCLUSIONS.items():
         assert e["kind"] in lx.KINDS and e["issue"].startswith("#") and e["reason"], (estate, base)
         assert base == base.lower()
-    assert [sum(e["kind"] == k for e in lx.EXCLUSIONS.values()) for k in lx.KINDS] == [2, 2, 2]
+    assert [sum(e["kind"] == k for e in lx.EXCLUSIONS.values()) for k in lx.KINDS] == [2, 1, 2]
 
 
 def test_lookup_matches_the_basename_whatever_the_path_and_case():
     assert lx.lookup("zecs", "Source/ZECS002.asm")["kind"] == "not_cobol"
-    assert lx.lookup("zecs", "ZECSNC.ASM")["issue"] == "#5859"
+    assert lx.lookup("zecs", "Source/ZECS002.asm")["issue"] == "#5859"
+    assert lx.lookup("zecs", "ZECSNC.ASM") is None  # lowered and translated since #6826: core work, not a held member
     assert lx.lookup("zecs", "Source/ZECS001.cbl") is None  # a translator hole, core work (#5945)
     assert lx.lookup("cics-genapp", "ZECS002.asm") is None  # the estate is part of the key
 
@@ -38,13 +39,15 @@ def test_summarize_counts_l0_entries_by_kind_and_reports_a_risen_entry_as_stale(
     out = lx.summarize(
         {
             "zecs": rows(
-                "zecs", ("Source/ZECS002.asm", "L0"), ("Source/ZECSNC.asm", "L1"), ("Source/ZECS000.cbl", "L1")
+                "zecs", ("Source/ZECS002.asm", "L0"), ("Source/ZECSNC.asm", "L0"), ("Source/ZECS000.cbl", "L1")
             ),
             "aws-mainframe-modernization-carddemo": rows("c", ("app/cbl/CBEXPORT.cbl", "L0")),
         }
     )
     assert out["count"] == 2 and list(out["kinds"]) == ["source_defect", "not_cobol"]
-    assert out["stale"] == ["zecs/Source/ZECSNC.asm"]
+    assert "stale" not in out and out["kinds"]["not_cobol"]["programs"] == ["zecs/Source/ZECS002.asm"]
+    risen = lx.summarize({"zecs": rows("zecs", ("Source/ZECS002.asm", "L1"))})  # lowered later: the entry is stale
+    assert risen["count"] == 0 and risen["stale"] == ["zecs/Source/ZECS002.asm"]
 
 
 def test_summarize_is_none_when_no_entry_matches():

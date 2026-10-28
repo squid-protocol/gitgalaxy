@@ -52,14 +52,14 @@
     "tests/tools/cics_crucible_compare.py"
    ],
    "files": 20,
-   "sha256": "90bd43828415b14603471fcd12aa098fca794b78a78a4a606bac307ce9ac4899",
+   "sha256": "b4cd75dde22134d7be408e350d24d6b7b60e88fe49f69649dc88621f81cea16c",
    "components": {
-    "harness:call": "ad0a0be475fedc958efdb0cba1bf3bcce0d369541d89bcd822ea85eacff4e8e9",
-    "harness:cics": "92ccd39aae83d84431d25678a302453a9dfd55558c5f98ebae82b6405af32180",
-    "harness:core": "44d38a01abc69857283e736186feda6396e1cf6e297c12e07a097730aee7f15f",
+    "harness:call": "92bdf0ee04a3153ef83fb7351b6b0d59eb67c7ea4490457401b2b14a4e36e667",
+    "harness:cics": "a4ca8f21ff588fb1e2c6dee4dded4db6120953505800f2a9ee0d44aa8268ef36",
+    "harness:core": "d921abf8b3c5676cf34888c5707aa4c2625e4d20b7435f644db351842492d76e",
     "harness:crucible": "35a01d0e383c918f6926561df7ac02c171c13139f9f9109971bc7020f9d8e0ed",
     "harness:db2": "389a27466f489f7499560289b5ceaeabaac2feaeb5b38eabc35b4227ffe604e1",
-    "harness:ims": "788b0fe6a7e9624935a9cefaea81ef0813293eda1404c5f3030db620538f842f"
+    "harness:ims": "802ab48aa0aaa1f897bb052b7caeae1516cdbb5b6cb88fabf2f07f86a4f93752"
    }
   },
   "oracle": {
@@ -72,8 +72,8 @@
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
-   "files": 113,
-   "sha256": "aa03dfbf49d4b3b2904ea2d0520f0020e8923b9247d9f8d51f6707321a897cff",
+   "files": 114,
+   "sha256": "32ad960ce9cbdc4c431faf38705abc857e8cbdfe711cf5fe6d87d13634afb686",
    "components": {
     "generator:cobolrt/Accept.java": "4bc260fc6386c11e4654cc76eb67a87ca1fad76647373d1e75484ed61b6a0cf3",
     "generator:cobolrt/Cobol.java": "0e5d898e6fb899e23c540e201d019a4dcd8a372df07d6b1d9c80a7df261a0c9f",
@@ -111,14 +111,14 @@
     "generator:cobolrt/le/LeTime.java": "0f07e6aec9a364c52b425c5a86adcc9946f9182edc37caa92010bb3986d5f5a8",
     "generator:cobolrt/le/Mvswait.java": "41482047bde3829fba1da896ce716536e5535ee7d637142d426efd650ec64672",
     "generator:cobolrt/le/Zuidstck.java": "e16376df0eeed8b8815210b35854eb6369e5f690a9cb056f8b4841140e0b24a1",
-    "generator:cobolrt/mq/QueueManager.java": "6c04ae9207b4375362dd3ec1dd7558c330dfa14f785a9e76e4ee3293e7074308",
+    "generator:cobolrt/mq/QueueManager.java": "30bc5f1cae55df5b40a609f31ebeb402b7c0f3c74f53dbcc66b82e0e6e0af04c",
     "generator:cobolrt/sql/DetSql.java": "6b04507a609ed3fc607fd152de0bff932798865b6657ba34ab1cbc35c4a6cfb0",
     "generator:cobolrt/standalone/CobolAbend.java": "f8b72030ecb8862738c562b0c826ff9b1a085d92050664082f96e6107d5dfdb7",
     "generator:cobolrt/standalone/Sysout.java": "290bd3e17b89bb6883cee226df6137927b753f3858fe5cfb1e3021ff7f8d5c44",
-    "generator:core": "1ac9c6427102b5346f29a2a36cafb29a6189425423168c3a16a8e473bafb3fae",
+    "generator:core": "fe93e141906f2975981e9c3603c049c6bfd7f5f969f874b259c31cdafc0919fd",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
     "generator:det/bll": "51a3de21e2afa9301080d7613bf7ba13c0a053a90c9b4c1b92acfd676b923163",
-    "generator:det/cics": "6fd3b3f809e6ca8bfd5d9dac922b1dc2961ae0280dad4172457ecf02c20f2295",
+    "generator:det/cics": "5e112b6cc0a975084b2cb676287b38d6220ea4b5cef3cda9ee082b719c373c20",
     "generator:det/cics_conditions": "c5bfb6ed32df1a582cf010bf59f1f16dd7440e4caa075a0458f62ca9b85f6219",
     "generator:det/cics_containers": "5fc989229d444423f5b14d2c65a2c7c541efbe6cd0e5dc5a833beaf90c578b6b",
     "generator:det/cics_faults": "022b25e0d5807e27992c2e0598d06fff3258412b4333821efc748dd7be728b4c",
@@ -130,14 +130,15 @@
     "generator:det/engine_layout": "a0019c6bd31e188fbba788e04b5271ce8a342e3b986a2ed1b6c5e8333c40f928",
     "generator:det/entity": "b6aa37067dc0413f6700ac83e7dd35610d8e2474aa607bdf54b5b8419ee4c7d6",
     "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
-    "generator:det/gen": "ecd3abfa6639c3c666279138c25ef6c3a6493105f163716dea9b3040f649f7fe",
+    "generator:det/gen": "375213313139b241a300f9f96db53a2bc1a84dd1a3e30182469800b94bf0ebd9",
     "generator:det/hfp": "d7d641dafd602da31535a68f7f219c201a8d867cb7a1fec1c879be38e9ff86b7",
+    "generator:det/hlasm": "167317c8a1e9a107c41980a26bd4ce86405eed623cf59c9a96e2c39fdbec3f16",
     "generator:det/layout": "e3c70e4dcbb512324b5b16a57dac4010e60d18b7926c06fff5edbd6cf1a79e3e",
     "generator:det/mq": "25055224f7c943069e828db7a79887ca1f4e6f4a06ec3b9781c97b31226491a0",
     "generator:det/osvs": "4ca3599a4d9a49bd17def291a921278d6f4f45858f65acaf75ae817c17644dd5",
     "generator:det/program": "130206871ef0273870d68c8372ee614ea339d9194d00f78e48fa0bf01ae35fca",
     "generator:det/refine": "4daa99d7534a589b4b46b8517f4109b95f64c956cd101a890e57b6a59eac4e44",
-    "generator:det/source": "dd5dec2f1f4f9a6a780228a8216daae573cf51aab899fe35dc71745fec33f2dd",
+    "generator:det/source": "fd7d20e0f7824a4d3b74201b0690914daf79834567b3fa5f064c98beb4d50e0b",
     "generator:det/sql": "31b1c21e12d64b304b46dd4d1a666ccad11f9efa4ae558d1394680b85585044b",
     "generator:det/stmt": "72ade7437769eb7b8d8e94511613964e6f5cb98f30b4a4c5d6295709534b5176"
    }
@@ -177,10 +178,10 @@
    },
    "runtime_sha256": "7c2b870db10a743ccc413269481a8a87b2a85fb6515efcad194d907b8ef94764"
   },
-  "digest": "0f3e08fc2b1fef5ba5e79abd86e13a5e21896dc06806cb0341b6cab93f02eff6"
+  "digest": "0c51122a6498c27a1d48aa7294dad258562cb4ee5f7cac18aa6cbe9f9d8d7fca"
  },
  "proof": {
-  "at": "2026-10-27T11:08:58Z",
+  "at": "2026-10-28T13:00:08Z",
   "verdict": "proven",
   "runs": 4,
   "fault_runs": 0,
@@ -210,8 +211,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "051e25bfc0acde4a631b7e7811ed7ba00e8dbfc2+uncommitted",
-  "inputs_digest": "0f3e08fc2b1fef5ba5e79abd86e13a5e21896dc06806cb0341b6cab93f02eff6"
+  "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
+  "inputs_digest": "0c51122a6498c27a1d48aa7294dad258562cb4ee5f7cac18aa6cbe9f9d8d7fca"
  },
  "coverage": {
   "paragraphs": {
@@ -226,7 +227,7 @@
   "handler_labels": null,
   "source": "tests/cics_crucible/coverage.json#programs/pc-aid-menu/PCMENU",
   "ledger_sha256": "3507a37672aaaa5813c020bbe64d8937ff518cfa3c377af8b85c04629aa93eb6",
-  "inputs_digest": "0f3e08fc2b1fef5ba5e79abd86e13a5e21896dc06806cb0341b6cab93f02eff6"
+  "inputs_digest": "0c51122a6498c27a1d48aa7294dad258562cb4ee5f7cac18aa6cbe9f9d8d7fca"
  },
  "reach": {
   "entry_points": [

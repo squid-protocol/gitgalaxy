@@ -3498,7 +3498,8 @@
    "title": "CEELOCT: the run's pinned clock as local time: Lilian day, Lilian seconds and the 17-character Gregorian form",
    "methods": [
     "le/Ceeloct.java:call",
-    "le/Ceeloct.java:civil"
+    "le/Ceeloct.java:civil",
+    "le/Ceeloct.java:fail"
    ],
    "site": "le/Ceeloct.java:call",
    "ibm": {

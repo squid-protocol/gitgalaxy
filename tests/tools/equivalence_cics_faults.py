@@ -63,6 +63,7 @@ FAULT_COMMANDS = (
     "FETCH-ANY",
     "PUT-CONTAINER",  # #6882 (register X17): nameless; GET-CONTAINER too (DELETE / MOVE CONTAINER are not planned: no burned program codes RESP on them)
     "GET-CONTAINER",
+    "CALL-CEELOCT",  # #6882: the LE callable service CEELOCT's one failure, CEE2F3; nameless (see LE_FEEDBACK)
 )  # a file command (FILE), an INQUIRE PROGRAM (the program's name in `file`)
 
 # #4986 (register X43): IBM's LINK conditions the region does not raise and that have no sourced abend code
@@ -238,7 +239,11 @@ UI_FAULT_CONDITIONS: dict[str, dict[str, tuple[int, ...]]] = {
     # INTO) is no plan: the data is returned. The rest (CCSIDERR, CODEPAGEERR, INVREQ for a data type ...) follows from the operands
     "PUT-CONTAINER": {"CHANNELERR": (1,), "CONTAINERERR": (18,), "INVREQ": (4,), "LENGERR": (1,)},
     "GET-CONTAINER": {"CHANNELERR": (2,), "CONTAINERERR": (10,), "INVREQ": (4,)},
+    # #6882: CALL "CEELOCT" -- IBM (z/OS LE Programming Reference, CEELOCT, ceea300/clcloct.htm) lists CEE2F3, severity 3, message 2531 ("The local time
+    # was not available from the system") and no other failure. The call is not performed: its outputs stay, FC holds the token
+    "CALL-CEELOCT": {"CEE2F3": ()},
 }
+LE_FEEDBACK = {"CEE2F3": 2531}  # #6882: a planned LE feedback code's message number, the plan line's RESP field
 UI_NAMELESS = (
     "RETURN",
     "SYNCPOINT",
@@ -251,6 +256,7 @@ UI_NAMELESS = (
     "FETCH-ANY",
     "PUT-CONTAINER",
     "GET-CONTAINER",
+    "CALL-CEELOCT",
 )
 
 
@@ -268,6 +274,8 @@ def _ui_fault_resp2(sc: dict[str, Any], f: dict[str, Any], cmd: str, resp2: int)
         if cmd in ("RUN-TRANSID", "FETCH-ANY")
         else "X17"
         if cmd.endswith("-CONTAINER")
+        else "the LE feedback code IBM lists"
+        if cmd.startswith("CALL-")
         else "X71"
     )
     ibm = UI_FAULT_CONDITIONS[cmd].get(f["resp"])
@@ -366,7 +374,9 @@ def fault_lines(sc: dict[str, Any]) -> list[str]:
             name = _verify_userid_bytes(sc, f)
         if not name:
             raise ec.Unsupported(f"scenario {sc['name']}: fault {f} names no {'/'.join(_FAULT_NAME)}")
-        out.append(f"{cmd} {name} {nth} {ec.CICS_RESP.get(f['resp']) or ec.DFHRESP[f['resp']]} {resp2}")
+        out.append(
+            f"{cmd} {name} {nth} {LE_FEEDBACK.get(f['resp']) or ec.CICS_RESP.get(f['resp']) or ec.DFHRESP[f['resp']]} {resp2}"
+        )
     return [*out, *sc.get("sql_abend_plan", [])]  # #6271 (X73): the Db2 statements planned to abend AD2Z
 
 

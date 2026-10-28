@@ -84,6 +84,18 @@ def _callees(line: str) -> list[str]:
         ("my $o = new Foo;", ["new"]),
         ("new Foo::Bar;", ["new"]),
         ("Foo::bar $x;", ["bar"]),
+        # slice 5: digit-first arguments and `select` with a handle
+        ("plan 4;", ["plan"]),
+        ("skip 3, 'why';", ["skip"]),
+        ("my $v = fetch 5;", ["fetch"]),
+        ("fetch -1;", ["fetch"]),
+        ("print STDERR 5;", ["print"]),
+        ("sleep 5;", ["sleep"]),
+        ("exit 0;", ["exit"]),
+        ("select STDOUT;", ["select"]),
+        ("my $old = select STDERR;", ["select"]),
+        ("select $fh;", ["select"]),
+        ("select(STDOUT);", ["select"]),
     ],
 )
 def test_callees(line, expected):
@@ -128,6 +140,14 @@ def test_callees(line, expected):
         "sub new { 1 }",
         "print STDERR;",
         "my $n = new;",
+        "$h{select}",
+        "select => 1,",
+        "my $n = 5;",
+        "my @r = (1) x 3;",
+        "my $r = $a x 3;",
+        "my @s = (1 .. 3);",
+        "my $v = $a - 5;",
+        "my $sel = 3;",
     ],
 )
 def test_not_calls(line):

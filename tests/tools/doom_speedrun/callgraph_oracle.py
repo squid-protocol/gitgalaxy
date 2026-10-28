@@ -97,7 +97,6 @@ STATEMENT_NODES = {
     "for_statement", "while_statement", "do_statement", "if_statement", "switch_statement", "return_statement",
     "for_range_loop", "try_statement", "expression_statement",
 }  # fmt: skip
-CONDITIONAL_NODES = {"preproc_if", "preproc_ifdef"}
 TEXT_NODES = {"comment", "string_literal", "raw_string_literal", "char_literal", "concatenated_string"}
 # `#define NAME(params) body` (continuation lines joined by the caller): the callees a function-like macro's body names.
 MACRO_DEFINE = re.compile(
@@ -783,11 +782,9 @@ def _runs_into_statements(node):
     nxt = node.next_sibling
     while nxt is not None and nxt.type == "comment":
         nxt = nxt.next_sibling
-    if nxt is not None and nxt.type in CONDITIONAL_NODES:  # `#ifdef X if (..) {..} #endif` right after the closed body
-        nxt = next((c for c in nxt.children if c.type in STATEMENT_NODES), nxt)
     return (
         node.parent is not None
-        and (node.parent.type == "translation_unit" or node.parent.type in CONDITIONAL_NODES)
+        and node.parent.type == "translation_unit"
         and nxt is not None
         and nxt.type in STATEMENT_NODES
     )

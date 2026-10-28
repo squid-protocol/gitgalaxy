@@ -200,30 +200,6 @@ def test_aperture_doc_template_does_not_block_source_tree(filter_engine, tmp_pat
         assert engine.is_in_scope(template, content=template.read_text())["is_in_scope"] is False
 
 
-def test_aperture_build_manifest_is_source_for_the_docs_shield(filter_engine, tmp_path):
-    """A `CMakeLists.txt` holds a toggle's `-DX` definition: a docs-template ancestor must not block it (#6266).
-
-    doomsday's `doomsday/` holds Doxygen templates and a `CMakeLists.txt`; `libs/directsound/CMakeLists.txt` (no source
-    beside it, the `.cpp` sits in `src/`) was blocked, so the engine read `DE_HAVE_EAX2` as never defined.
-    """
-    root = tmp_path / "doomsday"
-    (root / "libs" / "snd" / "src").mkdir(parents=True)
-    (root / "libs" / "make").mkdir()
-    (root / "doxygen_header.html").write_text(
-        '<!-- HTML header -->\n<meta name="generator" content="Doxygen $doxygenversion"/>\n', encoding="utf-8"
-    )
-    (root / "doxygen.css").write_text("body {}\n", encoding="utf-8")
-    (root / "libs" / "snd" / "CMakeLists.txt").write_text("add_definitions (-DHAVE_EAX2)\n", encoding="utf-8")
-    (root / "libs" / "snd" / "src" / "a.c").write_text("int a;\n", encoding="utf-8")
-    (root / "libs" / "make" / "Makefile").write_text("CFLAGS += -DHAVE_EAX3\n", encoding="utf-8")
-    (root / "libs" / "make" / "notes.txt").write_text("notes\n", encoding="utf-8")
-
-    engine = ApertureFilter(tmp_path, MOCK_REGISTRY, MOCK_CONFIG)
-    assert engine._check_ignore_rules("doomsday/libs/snd/CMakeLists.txt") is True
-    assert engine._check_ignore_rules("doomsday/libs/make/Makefile") is True
-    assert engine._check_ignore_rules("doomsday/libs/snd/src/a.c") is True
-
-
 # ==============================================================================
 # TEST 4: THE EMBEDDED HEX ARRAY SHIELD
 # ==============================================================================

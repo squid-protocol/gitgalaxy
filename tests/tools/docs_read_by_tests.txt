@@ -106,7 +106,6 @@
 /custom_spec.json	tests/security_auditing
 /database_config.py	tests/security_auditing
 /deploy.sh	tests/security_auditing
-/doxygen.css	tests/core_engine
 /doxygen_header.html	tests/core_engine
 /empty.png	tests/security_auditing
 /encrypted.dat	tests/security_auditing

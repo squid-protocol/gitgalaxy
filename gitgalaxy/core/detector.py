@@ -2147,6 +2147,50 @@ def _ctor_init_span(text: str) -> tuple[int, int] | None:
     return None
 
 
+_NOT_A_MEMBER_DECL = re.compile(
+    r"^(?:(?:using|typedef|friend|template|static_assert|namespace)\b|(?:class|struct|union|enum(?:[ \t]+class)?)[ \t]+\w+$)"
+)
+_ACCESS_LABEL = re.compile(r"\b(?:public|private|protected|signals|slots)[ \t\n]*:(?!:)")
+_MEMBER_NAME = re.compile(r"([A-Za-z_]\w*)[ \t\n]*$")
+
+
+def _cpp_data_member_names(body: str) -> frozenset[str]:
+    """#6266: the names of the data members a C++ class body declares at its own brace depth (`T *Node = nullptr;`,
+    `int a, b;`). A constructor's initializer entry with such a name initialises that member, not a base: no call.
+    A member the scan cannot read (nested class definition, function-pointer declarator) is simply absent."""
+    names: set[str] = set()
+    buf: list[str] = []
+    depth = 0
+    for ch in body:
+        if ch == "{":
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+            if depth <= 0:
+                break
+            if depth == 1 and "(" in "".join(buf):
+                buf = []  # a method body ended: its header is not a member declaration
+        elif depth == 1:
+            if ch != ";":
+                buf.append(ch)
+                continue
+            stmt = _ACCESS_LABEL.sub(" ", "".join(buf)).strip()
+            buf = []
+            if not stmt or "(" in stmt or _NOT_A_MEMBER_DECL.match(stmt):
+                continue
+            while True:
+                stmt, hits = re.subn(r"<[^<>]*>", "", stmt)
+                if not hits:
+                    break
+            for n, piece in enumerate(stmt.split(",")):
+                decl = re.split(r"=|\[|(?<!:):(?!:)", piece, maxsplit=1)[0]
+                found = _MEMBER_NAME.search(decl)
+                # the first declarator carries the type; later ones (`int a, b`) are the bare name
+                if found and (n or len(decl.split()) > 1 or "*" in decl or "&" in decl):
+                    names.add(found.group(1))
+    return frozenset(names)
+
+
 def _in_init_list_head(text: str, span: tuple[int, int] | None, pos: int) -> bool:
     """True when `pos` is an initializer-list entry's own name: inside the span and outside any parenthesis."""
     if span is None or not span[0] <= pos < span[1]:
@@ -3524,6 +3568,7 @@ class StructuralExtractor:
             def _line_at(idx: int) -> int:
                 return bisect.bisect_left(_nl_offsets, idx) + 1
 
+            class_body_spans: dict[int, tuple[int, int]] = {}
             for i, match in enumerate(class_matches):
                 if self.primary_lang_id == "cpp":
                     if not _cpp_class_has_body(code_stream, match.end()):
@@ -3638,6 +3683,7 @@ class StructuralExtractor:
                         "state_entanglement": 0.0,
                     }
                 )
+                class_body_spans[id(classes[-1])] = (start_idx, end_idx)
 
             # ---> LINK FUNCTIONS TO CLASSES & CALCULATE CLASS PHYSICS <---
             # Assign each function to its innermost (most specific) enclosing
@@ -3647,6 +3693,7 @@ class StructuralExtractor:
             # count toward every enclosing outer class too, not just the nested
             # class itself.
             class_methods_by_id: dict[int, list[FunctionNode]] = {id(cls): [] for cls in classes}
+            member_names: dict[tuple[int, int], frozenset[str]] = {}
             for func in functions:
                 func_line = func.get("start_line", 0)
                 innermost_cls: _ClassInfoWithBounds | None = None
@@ -3670,6 +3717,17 @@ class StructuralExtractor:
                 if innermost_cls is not None:
                     func["parent_class_name"] = innermost_cls["name"]
                     class_methods_by_id[id(innermost_cls)].append(func)
+                    if self.primary_lang_id == "cpp" and INIT_LIST_QUALIFIER in str(func["calls_out_qualifiers"]):
+                        span = class_body_spans[id(innermost_cls)]
+                        members = member_names.get(span)
+                        if members is None:
+                            members = member_names[span] = _cpp_data_member_names(class_safe_stream[span[0] : span[1]])
+                        # #6266: `: Base(a), Node(n)` where the class declares a data member `Node` is no call to `Node`
+                        for callee in members.intersection(func["calls_out_to"]):
+                            if all(q == INIT_LIST_QUALIFIER for q in func["calls_out_qualifiers"].get(callee) or ()):
+                                func["calls_out_to"] = [c for c in func["calls_out_to"] if c != callee]
+                                func["calls_out_qualifiers"].pop(callee, None)
+                                func.get("calls_out_arities", {}).pop(callee, None)
 
             for cls in classes:
                 class_methods = class_methods_by_id[id(cls)]

@@ -45,7 +45,9 @@ def _continues(line: str) -> bool:
     return len(body.rstrip()) == 73 and body[71] == " "
 
 
-SUBSET = frozenset({"B", "BC", "BCR", "BAS", "L", "LA", "ST", "STH", "CH", "CLC", "CLI", "MVC", "OC"})
+SUBSET = frozenset(
+    {"B", "BC", "BCR", "BAS", "L", "LA", "ST", "STH", "CH", "CLC", "CLI", "MVC", "OC", "SR", "XC", "BCT"}
+)
 _IGNORED = frozenset({"AMODE", "RMODE", "PRINT", "LTORG", "END", "EJECT", "SPACE", "TITLE"})
 _RESERVED_REGS = {13}  # the save area, never a work register here
 _ALIGN = {"H": 2, "F": 4, "D": 8}
@@ -181,11 +183,19 @@ class _Lowering:
             if not m:
                 raise self.refuse(s, f"{s.op} {s.operands}")
             dup, typ, ln, val = m.group(1), m.group(2).upper(), m.group(3), m.group(4)
-            if dup not in ("", "0") or (ln and typ in _SIZE) or (s.op == "DC" and val is None and dup != "0"):
+            dup = str(int(dup)) if dup else ""
+            if dup == "1":
+                dup = ""
+            if (
+                (dup not in ("", "0") and typ not in ("C", "X"))  # H / F / D copies need alignment and an array
+                or (ln and typ in _SIZE)
+                or (s.op == "DC" and val is None and dup != "0")
+            ):
                 raise self.refuse(s, f"{s.op} {s.operands}")
             length = int(ln) if ln else _SIZE.get(typ, 1) if typ != "C" or val is None else len(val.replace("''", "'"))
             if not ln and typ == "X" and val is not None:
                 length = (len(val) + 1) // 2
+            copies = int(dup) if dup not in ("", "0") else 1
             if typ in _ALIGN:
                 aligned = -(-loc // _ALIGN[typ]) * _ALIGN[typ]
                 if aligned > loc:  # the boundary's skipped bytes keep every later offset in a group or the COMMAREA
@@ -208,7 +218,11 @@ class _Lowering:
                 continue  # an unnamed constant (the eyecatcher a `B` jumps around): nothing names or reads it
             if s.op == "DS" and section == "*CSECT":
                 raise self.refuse(s, "DS storage in the program CSECT")
-            item = Item(s.label.upper() if s.label else "", section, loc, length, typ, self._value(s, typ, length, val))
+            value = self._value(s, typ, length, val)
+            if copies > 1:  # `n C/X` copies of one element: one field of n elements
+                length *= copies
+                value = value * copies if value is not None else None
+            item = Item(s.label.upper() if s.label else "", section, loc, length, typ, value)
             self._place(s, item, groups)
             loc += length
             while groups and loc >= groups[-1].off + groups[-1].length:
@@ -439,7 +453,41 @@ class _Lowering:
             if n is None or not 0 <= n <= 4095:
                 raise self.refuse(s, f"LA of an address ({s.operands})")
             return [f"           MOVE {n} TO {reg}"]
+        if op == "SR":
+            if len(ops) != 2 or self._reg(s, ops[0]) != self._reg(s, ops[1]):
+                raise self.refuse(s, f"SR {s.operands} (only SR Rn,Rn, a register clear)")
+            return [f"           MOVE 0 TO {self.work_reg(s, ops[0])}"]
+        if op == "XC":
+            if len(ops) != 2:
+                raise self.refuse(s, f"XC {s.operands}")
+            item, disp, length = self.storage(s, ops[0])
+            other, odisp, olen = self.storage(s, ops[1])
+            if (other, odisp) != (item, disp) or olen < length:  # `XC X(n),X` is the same field, as for OC X,X
+                raise self.refuse(s, f"XC {s.operands} (only XC X,X, a field clear)")
+            if item.typ in ("H", "F", "D") or item.doubleword:
+                raise self.refuse(s, "XC on binary fields")
+            self._writable(s, item)
+            return [f"           MOVE LOW-VALUES TO {self.ref(item, disp, length)}"]
+        if op == "BCT":
+            if len(ops) != 2:
+                raise self.refuse(s, f"BCT {s.operands}")
+            reg, tgt = self.work_reg(s, ops[0]), self.target(s, ops[1])
+            return [  # POPS: subtract 1 from the fullword (wrapping), branch while the result is not zero; CC unchanged
+                f"           COMPUTE {reg} =",
+                f"               FUNCTION MOD({reg} - 1 + 2147483648, 4294967296) - 2147483648",
+                f"           IF {reg} NOT = 0",
+                f"               GO TO {tgt}",
+                "           END-IF",
+            ]
         if op == "MVC":
+            lit = re.fullmatch(r"=C'((?:[^'&]|'')*)'", ops[1].strip(), re.I) if len(ops) == 2 else None
+            if lit:  # a literal-pool constant: the destination must be exactly its length
+                text = lit.group(1).replace("''", "'")
+                dst, dd, dl = self.storage(s, ops[0])
+                if dl != len(text) or dst.typ in ("H", "F", "D") or dst.doubleword:
+                    raise self.refuse(s, f"MVC {s.operands}")
+                self._writable(s, dst)
+                return [f"           MOVE {_quote(text)}", f"             TO {self.ref(dst, dd, dl)}"]
             dst, dd, dl = self.storage(s, ops[0])
             m = re.fullmatch(r"([A-Z][A-Z0-9_]*(?:\+\d+)?)", ops[1].strip(), re.I) if len(ops) == 2 else None
             if not m:

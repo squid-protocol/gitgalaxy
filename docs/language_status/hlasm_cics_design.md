@@ -31,10 +31,11 @@ construct and its line. `source.py` turns that into the #5121 refusal shape:
 | Area | Accepted | Lowered as |
 |---|---|---|
 | Entry | `DFHEIENT CODEREG= DATAREG= EIBREG=` | `PROGRAM-ID`; the named registers are reserved |
-| Storage | `DSECT`, `DS` / `DC` of C, X, H, F (D as `DS` only); `0CLn` groups; `DS 0F/0H/0D` | see Storage below |
+| Storage | `DSECT`, `DS` / `DC` of C, X, H, F (D as `DS` only); `0CLn` groups; `DS 0F/0H/0D`; `nCLm` / `nXLm` copies (one field of n elements) | see Storage below |
 | Symbols | `EQU n`, `EQU *-sym` (a length) | a constant |
 | Load / store | `L`, `ST`, `STH`, `LA` of a constant | `MOVE`; `STH` is `MOD(r + 32768, 65536) - 32768`, the low halfword, signed |
-| Move | `MVC` with a static symbol, `+disp` and `(len)` | `MOVE` with reference modification; an overlapping move is refused |
+| Move | `MVC` with a static symbol, `+disp` and `(len)`, or a `=C'..'` literal exactly the destination's length | `MOVE` with reference modification; an overlapping move is refused |
+| Clear / count | `SR Rn,Rn`, `XC X,X` (also `XC X(n),X`), `BCT Rn,label` | `MOVE 0`; `MOVE LOW-VALUES`; a wrapping 32-bit decrement and `IF NOT = 0 GO TO`. None sets a CC a `BC` may read |
 | Compare | `CLC`, `CLI`, `CH`, `OC X,X` | a condition on the next `BC` |
 | Branch | `B`, `BC mask`, `BAS`, `BCR 15` | `GO TO`; `BAS`/`BCR` use return ids (below) |
 | CICS | `EXEC CICS ...` with operands that are symbols, EIB fields, literals or numbers | `EXEC CICS ... END-EXEC` |
@@ -44,7 +45,7 @@ Anything else is refused by name. That includes:
 
 - any other instruction (`IC`, `SR`, `BCT`, `SLL`, `TR`, `XC`, ...);
 - base-displacement operands (`0(1,R6)`);
-- a duplication factor other than 0;
+- a duplication factor other than 0 on H, F or D (they need alignment and an array);
 - `LA` of an address;
 - a store into a program constant or the EIB;
 - a DSECT that no `USING` addresses;
@@ -105,7 +106,7 @@ operand.
   - `WRITE OPERATOR ... TEXTLENGTH ROUTECODES NUMROUTES EVENTUAL`.
 
   `ABEND ... NOHANDLE` is modelled (IBM lists no ABEND condition, so it suppresses nothing). ZECSNC is still L0.
-- ZECS002 is refused at its first construct outside the subset: `DC 08XL01'40'`.
+- ZECS002 is refused at its first construct outside the subset: `IC` (line 189), the first of the address-model instructions. Slice 3a lowers its duplicated constants, `SR`, `XC`, `BCT` and the `=C'00'` literal.
 - The ladder report keeps both programs in the fixed 129-program denominator. ZECS002 is listed apart in the "refused
   whole: not COBOL" row of the progress page (`tests/tools/ladder_exclusions.py`, #5280), so it is not read as COBOL
   translator work; the page reports the entry as stale once it leaves L0. ZECSNC has no entry: it lowers and
@@ -120,9 +121,8 @@ operand.
    ZECSNC scenarios: EIBCALEN 0 (terminal), 8 (non-terminal start), and 1, 4 and 9 (ABEND). The end-state COMMAREA of a
    non-linked program is not compared (nothing observes it). The case is `tests/equivalence/zecs-zecsnc/`; an X register
    entry for assumption 1 is still to do.
-3. **3:** ZECS002. It needs:
-   - base-displacement addressing;
-   - `IC`, `SR`, `BCT`, `SLL`, `SLDL`, `STCM`, `TR`, `XC`;
-   - duplicated `X'40'` data (the EBCDIC storage question);
-   - `EXEC CICS VERIFY`.
+3. **3a (done):** duplicated `C` / `X` storage, `SR Rn,Rn`, `XC X,X`, `BCT`, the `=C'..'` literal move.
+   **3b:** the address model: a register holding a byte address into storage, `LA Rn,sym`, `n(Rm)` / `n(,Rm)` operands, `IC`,
+   `STCM`, `TR` (with the `B64XLT` / `A_TO_E` tables), `SLL`, `SLDL`. **3c:** `EXEC CICS VERIFY` (registry, `det/cics.py`,
+   `ggcics.c`, `CicsTask`). **3d:** the `zecs-zecs002` equivalence case.
 4. **4:** an independent S/390-subset interpreter that cross-checks the lowering instruction by instruction.

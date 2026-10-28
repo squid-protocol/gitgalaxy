@@ -1043,6 +1043,41 @@ def _include_depths(imports: dict[str, set[str]], path: str) -> dict[str, int]:
     return depth
 
 
+# #6266: a type alias of a class (`typedef Private<PublicType> Base;` / `using Base = Private<P>;`). A ctor-init entry
+# naming one (doomsday's DE_PIMPL `Impl(Public *i) : Base(i)`) calls the aliased base's constructor. Capitalised names
+# only, and only where the target is a class the repo declares: `typedef int Bool;` shares its name with a data member.
+_ALIAS_DECL = re.compile(
+    r"\btypedef\b\s*(?:typename\s+)?([A-Za-z_][\w:]*)\s*(?:<[^;{}()]*>)?[\s*&]*([A-Z]\w*)\s*;"
+    r"|\busing\s+([A-Z]\w*)\s*=\s*(?:typename\s+)?([A-Za-z_][\w:]*)"
+)
+_CLASS_DECL = re.compile(r"\b(?:class|struct)\s+(?:[A-Z_]+\s+)?([A-Za-z_]\w*)\s*[:{<;]")
+# a data member `PType *Type = nullptr;` (the declared type, then the name, at a line start)
+_FIELD_DECL = re.compile(
+    r"(?m)^[ \t]*(?:(?:static|mutable|const|constexpr|volatile|inline)[ \t]+)*([A-Za-z_][\w:]*(?:<[^;{}()]*>)?)[ \t*&]+"
+    r"([A-Z]\w*)[ \t]*(?:=[^;{}]*|\{[^;{}]*\})?;"
+)
+_NOT_A_TYPE = frozenset({"return", "typedef", "using", "delete", "goto", "case", "else", "throw", "break", "continue"})
+_COMMENT = re.compile(r"/\*.*?\*/|//[^\n]*", re.S)
+
+
+def class_alias_names(texts: Any) -> frozenset[str]:
+    """#6266: the names that alias a class the texts declare (`Base` of `typedef Private<P> Base;`), over C++ sources.
+    A name some class also declares as a data member (gzdoom's `PType *Type;` beside rapidjson's `typedef T1 Type;`) is
+    a member more than an alias: its init-list entry `Type(ty)` must stay no base."""
+    declared: set[str] = set()
+    aliases: set[tuple[str, str]] = set()
+    fields: set[str] = set()
+    for text in texts:
+        clean = _COMMENT.sub(" ", text)
+        declared.update(_CLASS_DECL.findall(clean))
+        for m in _ALIAS_DECL.finditer(clean):
+            aliases.add((m.group(2) or m.group(3), (m.group(1) or m.group(4)).rsplit("::", 1)[-1]))
+        fields.update(
+            m.group(2) for m in _FIELD_DECL.finditer(_ALIAS_DECL.sub(" ", clean)) if m.group(1) not in _NOT_A_TYPE
+        )
+    return frozenset(name for name, target in aliases if target in declared and name not in fields)
+
+
 def _init_entry_not_a_base(
     bucket: "_Bucket",
     callee: str,
@@ -1052,6 +1087,7 @@ def _init_entry_not_a_base(
     imports: dict[str, set[str]],
     closures: dict[str, set[str]],
     step: str,
+    class_aliases: frozenset[str] = frozenset(),
 ) -> bool:
     """#6266: a ctor-init entry names a base only when a class of that name is visible from the file (its own, its
     directory's, or its include closure's). A tie among several classes of that name (a nested `Node`, another
@@ -1059,7 +1095,11 @@ def _init_entry_not_a_base(
     (doomsday's `de::DialogWidget` beside `de::term::DialogWidget`); a class and its own constructor
     function tying is no ambiguity; failing both, the class fewest include hops away (`term::Widget`, not the `de::Widget`
     its header includes). A file with no includes at all reaches its bases some other way (doom3-bfg
-    headers get `idException` from a precompiled header): visibility says nothing there, so its entries stay bases."""
+    headers get `idException` from a precompiled header): visibility says nothing there, so its entries stay bases.
+    An entry naming a class alias (`Base` of DE_PIMPL's `typedef Private<P> Base`, declared in a header the file need
+    not include itself) is a base call whatever class of that name is in view."""
+    if callee in class_aliases:
+        return False
     visible = [
         d
         for d in bucket.defs
@@ -1592,11 +1632,13 @@ def resolve_calls(
     dependency_edges: list[dict[str, Any]] | None = None,
     namespace_aliases: dict[str, dict[str, str]] | None = None,
     star_exports: dict[str, set[str]] | None = None,
+    class_aliases: frozenset[str] = frozenset(),
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     """Resolve every (caller function, callee name) pair in the repository.
 
     `namespace_aliases` (#3788) maps a JS/TS file to the modules its namespace imports
     name (`{file: {alias: module path}}`), so `ns.f()` reaches the module `ns` is bound to.
+    `class_aliases` (#6266) are the repo's class-typedef names (`class_alias_names`): a C++ ctor-init entry naming one is a base call.
 
     Returns `(sites, stats)`:
       - `sites`: one row per distinct callee name per caller (calls_out_to is
@@ -1746,12 +1788,15 @@ def resolve_calls(
                         step, dst = free_step, free_dst
                 if (
                     init_only
+                    and str(callee) not in class_aliases
                     and not (bucket is not None and any(d.kind == "class" for d in bucket.defs))
                     and (dst is None or (dst.kind != "class" and dst.owner_key != _key(str(callee), lang)))
                 ) or (
                     init_only
                     and bucket is not None
-                    and _init_entry_not_a_base(bucket, str(callee), lang, src_path, caller.dir, imports, closures, step)
+                    and _init_entry_not_a_base(
+                        bucket, str(callee), lang, src_path, caller.dir, imports, closures, step, class_aliases
+                    )
                 ):
                     recursive.append(callee)  # a data member `: type(t)`, not a call, whatever function shares its name
                     continue

@@ -546,7 +546,13 @@ class TextBody(Body):
             r"\s*(?:[\w:<>~*&\s]*?[\s*&:])?([A-Za-z_]\w*)\s*\(", head
         )  # a constructor is named for its class
         classes = classes or {}
-        known = classes.get(ctor.group(1), set()) | classes.get(ALIASES, set()) if ctor else set()
+        known = set()
+        if ctor and ctor.group(1) in classes:
+            known = classes[ctor.group(1)] | classes.get(ALIASES, set())
+        elif (
+            ctor
+        ):  # a constructor of no class the repo declares (`Impl` of a macro-headed DE_PIMPL): as `_bases`, any base
+            known = set().union(*classes.values())
         for name in _head_initializer_names(head):
             if name in known:
                 self.calls.setdefault(name, "ctor-init")

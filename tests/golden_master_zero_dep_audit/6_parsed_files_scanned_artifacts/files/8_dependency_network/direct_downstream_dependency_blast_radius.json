@@ -366,7 +366,7 @@
       "assembly/xv6_x86_kernel/bootasm.S": 0,
       "assembly/xv6_x86_kernel/entry.S": 0,
       "assembly/xv6_x86_kernel/entryother.S": 0,
-      "assembly/xv6_x86_kernel/initcode.S": 5,
+      "assembly/xv6_x86_kernel/initcode.S": 4,
       "assembly/xv6_x86_kernel/swtch.S": 0,
       "assembly/xv6_x86_kernel/trapasm.S": 0,
       "assembly/xv6_x86_kernel/usys.S": 0

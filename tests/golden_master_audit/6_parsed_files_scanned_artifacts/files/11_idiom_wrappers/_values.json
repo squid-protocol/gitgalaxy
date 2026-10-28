@@ -221,8 +221,8 @@
     "lua/redis": {
       "lua/redis/printf.lua": [
         {
-          "Call Sites": 159,
-          "Calling Files": 15,
+          "Call Sites": 133,
+          "Calling Files": 14,
           "Kind": "function",
           "Name": "printf",
           "Rule": "debug_prints",

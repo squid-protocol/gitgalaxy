@@ -4101,7 +4101,6 @@
     },
     "scheme/racket": {
       "scheme/racket/eval.c": [
-        "fcall:assembly/xv6_x86_kernel/initcode.S",
         "fcall:scheme/racket/fun.c"
       ],
       "scheme/racket/fun.c": [

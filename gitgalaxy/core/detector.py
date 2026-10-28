@@ -27,6 +27,7 @@ from gitgalaxy.core.call_resolver import BARE_CALL_SKIPS_METHODS, INIT_LIST_QUAL
 from gitgalaxy.core.cobol_source_format import FIXED, line_formats
 from gitgalaxy.core.fortran_calls import fortran_call_names
 from gitgalaxy.core.network_risk_sensor import CASE_INSENSITIVE_IMPORT_LANGS
+from gitgalaxy.core.preproc_toggles import toggle_condition_value
 from gitgalaxy.core.prism import CPP_CHAR_LITERAL_PATTERN, CPP_DIGIT_SEPARATED_NUMBER_PATTERN, CPP_LANG_IDS
 from gitgalaxy.core.rule_prefilter import (
     Gate as RulePrefilterGate,
@@ -2704,7 +2705,20 @@ _PREPROC_IF_OPENERS = frozenset({"if", "ifdef", "ifndef"})
 _PREPROC_ELIF_KEYWORDS = frozenset({"elif", "elseif", "elifdef", "elifndef"})
 
 
-def _preproc_condition_value(condition: str) -> bool | None:
+# #6770: the repo's feature toggles that no file defines (`preproc_toggles.unset_toggles`), installed per worker like
+# `_C_REPO_MACRO_ARGS`. Empty means "decide nothing" (an unscanned file, a repo with none, an oversized one).
+_C_REPO_UNSET_TOGGLES: frozenset[str] = frozenset()
+# Only the C and C++ lanes read it: a C# `#if DEBUG` is set by the project file, which this scan does not model.
+_UNSET_TOGGLE_LANGS = ("c", "cpp", "objective-c")
+
+
+def set_c_repo_unset_toggles(names: frozenset[str] | set[str]) -> None:
+    """#6770: install the scan's never-defined toggle names in this (worker) process."""
+    global _C_REPO_UNSET_TOGGLES
+    _C_REPO_UNSET_TOGGLES = frozenset(names)
+
+
+def _preproc_condition_value(condition: str, unset: frozenset[str] = frozenset()) -> bool | None:
     """Static value of a `#if` / `#elif` condition: True, False, or None (unknown).
 
     Only literal conditions are decided (`0`, `1`, `(0)`, `0x0`, `true`,
@@ -2730,6 +2744,7 @@ def _preproc_condition_value(condition: str) -> bool | None:
         parts.append(" ")
         pos = close_idx + 2
     text = "".join(parts).strip()
+    whole = text
     # Peel wrapping parens. Only a paren-free literal is decided below, so a
     # non-wrapping pair such as `(0) || (1)` can only peel into an unknown.
     while len(text) >= 2 and text[0] == "(" and text[-1] == ")":
@@ -2740,14 +2755,25 @@ def _preproc_condition_value(condition: str) -> bool | None:
         return False
     m = _PREPROC_INT_LITERAL_RE.fullmatch(text)
     if not m:
-        return None
+        return toggle_condition_value(whole, unset) if unset else None
     digits = m.group(1)
     if digits[:2] in ("0x", "0X", "0b", "0B"):
         digits = digits[2:]
     return digits.strip("0") != ""
 
 
-def _preproc_line_liveness(lines: list[str]) -> list[tuple[bool, bool]]:
+def _directive_value(keyword: str, rest: str, unset: frozenset[str]) -> bool | None:
+    """Static value of an `#if`-family directive's condition, None when it is not decidable (#6770)."""
+    if keyword in ("if", "elif", "elseif"):
+        return _preproc_condition_value(rest, unset)
+    if unset and keyword in ("ifdef", "ifndef", "elifdef", "elifndef"):
+        name = rest.split("//", 1)[0].split("/*", 1)[0].strip()
+        if name in unset:
+            return keyword.endswith("ndef")
+    return None
+
+
+def _preproc_line_liveness(lines: list[str], unset: frozenset[str] = frozenset()) -> list[tuple[bool, bool]]:
     """Per-line `(is_directive, is_live)` for C-family source split into lines.
 
     The single home of the #if/#elif/#else policy (#1720), shared by
@@ -2769,6 +2795,9 @@ def _preproc_line_liveness(lines: list[str]) -> list[tuple[bool, bool]]:
     dead; the `#else` of a live `#if 0` is live); any other directive, and
     every non-directive line, takes the liveness of the region it sits in.
     Unbalanced `#else`/`#elif`/`#endif` (no open `#if`) change nothing.
+
+    `unset` (#6770) names toggles no file defines: `#ifdef X` / `defined(X)` of one is statically false, `#ifndef X`
+    true. Empty (the default) leaves every such condition unknown, as before.
     """
     states: list[tuple[bool, bool]] = []
     # One frame per open #if: [enclosing region live?, a branch of this chain was statically true?]
@@ -2795,13 +2824,13 @@ def _preproc_line_liveness(lines: list[str]) -> list[tuple[bool, bool]]:
         line_live = live
         if keyword in _PREPROC_IF_OPENERS:
             # A condition continued onto the next line is not decided here: unknown.
-            value = _preproc_condition_value(rest) if keyword == "if" and not continued else None
+            value = _directive_value(keyword, rest, unset) if not continued else None
             stack.append([live, value is True])
             live = live and value is not False
         elif keyword in _PREPROC_ELIF_KEYWORDS and stack:
             frame = stack[-1]
             line_live = frame[0]
-            value = _preproc_condition_value(rest) if keyword in ("elif", "elseif") and not continued else None
+            value = _directive_value(keyword, rest, unset) if not continued else None
             live = frame[0] and not frame[1] and value is not False
             frame[1] = frame[1] or value is True
         elif keyword == "else" and stack:
@@ -2816,6 +2845,27 @@ def _preproc_line_liveness(lines: list[str]) -> list[tuple[bool, bool]]:
         if continued:
             continuation_live = line_live
     return states
+
+
+def _mask_block_comment_lines(lines: list[str]) -> list[str]:
+    """`lines` with every line that begins inside a `/* */` comment emptied (#6770), so no directive is read there."""
+    out: list[str] = []
+    in_comment = False
+    for line in lines:
+        out.append("" if in_comment else line)
+        pos = 0
+        while True:
+            if in_comment:
+                close = line.find("*/", pos)
+                if close == -1:
+                    break
+                in_comment, pos = False, close + 2
+            else:
+                open_ = line.find("/*", pos)
+                if open_ == -1:
+                    break
+                in_comment, pos = True, open_ + 2
+    return out
 
 
 def _blank_line(line: str) -> str:
@@ -6351,7 +6401,9 @@ class StructuralExtractor:
 
         return safe_code
 
-    def _blank_dead_preproc_branches(self, code: str, lang_id: str) -> str:
+    def _blank_dead_preproc_branches(
+        self, code: str, lang_id: str, unset: frozenset[str] = frozenset(), mask_comments: bool = False
+    ) -> str:
         """
         Blanks the bodies of statically-dead C-family preprocessor branches
         (`#if 0`, and the dead side of `#if 1`) so a rule regex in
@@ -6376,7 +6428,10 @@ class StructuralExtractor:
             return code
         lines = code.split("\n")
         changed = False
-        for i, (_is_directive, is_live) in enumerate(_preproc_line_liveness(lines)):
+        # `mask_comments`: the text is not comment-free (the call scan runs before its shield), so a `#if 0` line
+        # inside a `/* */` span decides nothing.
+        seen = _mask_block_comment_lines(lines) if mask_comments else lines
+        for i, (_is_directive, is_live) in enumerate(_preproc_line_liveness(seen, unset)):
             if not is_live:
                 lines[i] = _blank_line(lines[i])
                 changed = True
@@ -10452,6 +10507,10 @@ class StructuralExtractor:
         exposed first (`csharp_interpolation`); every other language shields as before."""
         if self.primary_lang_id == "csharp":
             text = csharp_interpolation.expose_holes(text)
+        # #6770: dead branches (`#if 0`, `#if defined(X)` of a toggle nothing defines) are no calls. Blanked BEFORE the
+        # shield, which reads every directive line as a comment and drops it.
+        unset = _C_REPO_UNSET_TOGGLES if self.primary_lang_id in _UNSET_TOGGLE_LANGS else frozenset()
+        text = self._blank_dead_preproc_branches(text, self.primary_lang_id, unset, mask_comments=True)
         return self._apply_literal_shield(text, self.primary_lang_id)
 
     def _drop_nested_unit_calls(

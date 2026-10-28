@@ -9318,8 +9318,6 @@
         ],
         "PyUnstable_Eval_RequestCodeExtraIndex@3570": [
           "_PyInterpreterState_GET",
-          "FT_MUTEX_LOCK",
-          "FT_MUTEX_UNLOCK",
           "FT_ATOMIC_STORE_SSIZE_RELEASE"
         ],
         "PyUnstable_ThreadState_ResetStackProtection@265": [
@@ -9442,10 +9440,8 @@
           "_PyEval_FrameClearAndPop",
           "PyStackRef_FromPyObjectNew",
           "_Py_EnterRecursivePy",
-          "_PyEval_GetExecutableCode",
-          "_PyFrame_GetCode",
-          "_PyFrame_GetBytecode",
           "_Py_Instrument",
+          "_PyFrame_GetCode",
           "monitor_throw",
           "_PyFrame_GetStackPointer",
           "_TAIL_CALL_error",
@@ -9825,15 +9821,9 @@
         ],
         "_PyTier2Interpreter@1371": [
           "assert",
-          "dump_stack",
-          "printf",
-          "dump_cache_item",
-          "_PyUOpPrint",
-          "fflush",
           "OPT_STAT_INC",
           "UOP_STAT_INC",
           "UOP_PAIR_INC",
-          "Py_FatalError",
           "Py_UNREACHABLE",
           "uop_get_error_target",
           "uop_get_jump_target"
@@ -9907,7 +9897,6 @@
           "Py_DECREF",
           "do_raise",
           "PyStackRef_CLOSE",
-          "_PyUOpPrint",
           "PyStackRef_FromPyObjectSteal",
           "PyStackRef_FromPyObjectNew",
           "missing_arguments",
@@ -9948,7 +9937,6 @@
           "PyStackRef_IsNull",
           "do_raise",
           "PyStackRef_CLOSE",
-          "_PyUOpPrint",
           "PyStackRef_FromPyObjectSteal",
           "PyDict_New",
           "_Py_SINGLETON",
@@ -9982,7 +9970,6 @@
           "offsetof",
           "PyStackRef_IsNull",
           "do_raise",
-          "_PyUOpPrint",
           "PyStackRef_FromPyObjectSteal",
           "PyDict_New"
         ],
@@ -10657,8 +10644,6 @@
           "PyErr_BadInternalCall",
           "_PyObject_HashFast",
           "dict_unhashable_type",
-          "_Py_dict_lookup_threadsafe",
-          "Py_XDECREF",
           "_Py_dict_lookup",
           "assert"
         ],
@@ -10882,9 +10867,7 @@
         ],
         "_PyDict_Contains_KnownHash@5145": [
           "_PyAnyDict_CAST",
-          "_Py_dict_lookup_threadsafe",
-          "_Py_dict_lookup",
-          "Py_DECREF"
+          "_Py_dict_lookup"
         ],
         "_PyDict_CopyAsDict@4466": [
           "assert",
@@ -10929,9 +10912,7 @@
         ],
         "_PyDict_EnablePerThreadRefcounting@1783": [
           "assert",
-          "PyDict_Check",
-          "_PyObject_AssignUniqueId",
-          "_PyObject_ReleaseUniqueId"
+          "PyDict_Check"
         ],
         "_PyDict_EnsureSharedOnRead@1381": [
           "ensure_shared_on_read"
@@ -10972,7 +10953,6 @@
           "PyObject_SetItem"
         ],
         "_PyDict_GetItemRef_KnownHash@2498": [
-          "_Py_dict_lookup_threadsafe",
           "_Py_dict_lookup",
           "assert",
           "Py_NewRef"
@@ -11006,8 +10986,6 @@
         "_PyDict_GetItem_KnownHash@2449": [
           "PyAnyDict_Check",
           "PyErr_BadInternalCall",
-          "_Py_dict_lookup_threadsafe",
-          "Py_XDECREF",
           "_Py_dict_lookup",
           "assert"
         ],
@@ -11020,16 +10998,11 @@
           "assert",
           "PyUnicode_CheckExact",
           "hash_unicode_key",
-          "_Py_IsOwnedByCurrentThread",
-          "IS_DICT_SHARED",
-          "_Py_atomic_load_ptr_acquire",
-          "lookup_threadsafe_unicode",
-          "PyStackRef_IsNull",
-          "PyStackRef_XSETREF",
           "Py_INCREF",
           "_Py_dict_lookup_threadsafe",
           "Py_DECREF",
           "PyStackRef_CLEAR",
+          "PyStackRef_XSETREF",
           "PyStackRef_FromPyObjectSteal"
         ],
         "_PyDict_HasOnlyStringKeys@1768": [
@@ -11186,10 +11159,6 @@
           "assert",
           "CACHED_KEYS",
           "OBJECT_STAT_INC",
-          "_Py_atomic_load_ssize_relaxed",
-          "LOCK_KEYS",
-          "_Py_atomic_store_ssize",
-          "UNLOCK_KEYS",
           "shared_keys_usable_size",
           "_PyObject_InlineValues",
           "_PyObject_ManagedDictPointer"
@@ -11233,18 +11202,14 @@
           "Py_BEGIN_CRITICAL_SECTION",
           "_PyObject_InlineValuesConsistencyCheck",
           "Py_END_CRITICAL_SECTION",
-          "try_set_dict_inline_only_or_other_dict",
-          "Py_BEGIN_CRITICAL_SECTION2",
           "_PyObject_GetManagedDict",
-          "replace_dict_probably_inline_materialized",
-          "Py_END_CRITICAL_SECTION2",
-          "decref_maybe_delay",
           "set_dict_inline_values",
           "_PyDict_DetachFromObject",
           "_PyObject_ManagedDictPointer",
           "Py_XNewRef",
           "Py_DECREF",
-          "FT_ATOMIC_STORE_PTR"
+          "FT_ATOMIC_STORE_PTR",
+          "decref_maybe_delay"
         ],
         "_PyObject_StoreInstanceAttribute@7345": [
           "_PyObject_InlineValues",
@@ -11253,9 +11218,7 @@
           "PyObject_GenericGetDict",
           "store_instance_attr_dict",
           "Py_DECREF",
-          "Py_BEGIN_CRITICAL_SECTION",
-          "store_instance_attr_lock_held",
-          "Py_END_CRITICAL_SECTION"
+          "store_instance_attr_lock_held"
         ],
         "_PyObject_TryGetInstanceAttribute@7428": [
           "assert",
@@ -11265,19 +11228,11 @@
           "CACHED_KEYS",
           "Py_TYPE",
           "_PyDictKeys_StringLookupSplit",
-          "_Py_atomic_load_ptr_acquire",
-          "_Py_TryIncrefCompare",
-          "_PyObject_GetManagedDict",
-          "Py_BEGIN_CRITICAL_SECTION",
-          "_Py_XNewRefWithLock",
-          "Py_END_CRITICAL_SECTION",
-          "_Py_atomic_load_ptr_consume",
           "Py_XNewRef"
         ],
         "_Py_dict_lookup@1298": [
           "_Py_CRITICAL_SECTION_ASSERT_OBJECT_LOCKED",
           "PyUnicode_CheckExact",
-          "unicodekeys_lookup_split",
           "unicodekeys_lookup_unicode",
           "INCREF_KEYS_FT",
           "LOCK_KEYS_IF_SPLIT",
@@ -11425,9 +11380,7 @@
           "DK_IS_UNICODE",
           "DK_UNICODE_ENTRIES",
           "DK_ENTRIES",
-          "Py_INCREF",
-          "_Py_IncRefTotal",
-          "_PyThreadState_GET"
+          "Py_INCREF"
         ],
         "compare_generic@1152": [
           "assert",
@@ -11677,10 +11630,7 @@
           "_PyObject_HashFast",
           "PyErr_FormatUnraisable",
           "_PyThreadState_GET",
-          "_Py_EnsureTstateNotNULL",
           "_PyErr_GetRaisedException",
-          "_Py_dict_lookup_threadsafe",
-          "Py_XDECREF",
           "_Py_dict_lookup",
           "_PyErr_Occurred",
           "PyErr_GivenExceptionMatches",
@@ -11977,7 +11927,6 @@
           "Py_END_CRITICAL_SECTION"
         ],
         "dictiter_iternextitem@5994": [
-          "dictiter_iternext_threadsafe",
           "dictiter_iternextitem_lock_held",
           "acquire_iter_result",
           "PyTuple_GET_ITEM",
@@ -11987,7 +11936,6 @@
           "_PyTuple_FromPairSteal",
           "PyVarObject_HEAD_INIT",
           "assert",
-          "Py_BEGIN_CRITICAL_SECTION",
           "Py_UNUSED",
           "Py_TYPE",
           "PyDoc_STR",
@@ -11997,12 +11945,6 @@
           "dictitems_reversed",
           "dictvalues_reversed",
           "CACHED_KEYS",
-          "_PyObject_ManagedDictPointer",
-          "PyDict_Check",
-          "_PyObject_ManagedDictValidityCheck",
-          "CHECK",
-          "_PyManagedDictPointer_IsValues",
-          "_PyManagedDictPointer_GetValues",
           "FT_ATOMIC_LOAD_PTR_ACQUIRE",
           "_PyType_HasFeature"
         ],
@@ -12022,7 +11964,6 @@
           "Py_DECREF"
         ],
         "dictiter_iternextkey@5593": [
-          "dictiter_iternext_threadsafe",
           "dictiter_iternextkey_lock_held"
         ],
         "dictiter_iternextkey_lock_held@5524": [
@@ -12040,7 +11981,6 @@
           "Py_DECREF"
         ],
         "dictiter_iternextvalue@5716": [
-          "dictiter_iternext_threadsafe",
           "dictiter_iternextvalue_lock_held"
         ],
         "dictiter_iternextvalue_lock_held@5649": [
@@ -12091,8 +12031,6 @@
           "FT_ATOMIC_LOAD_SSIZE_RELAXED",
           "assert",
           "FT_ATOMIC_LOAD_SSIZE",
-          "_Py_DecRefTotal",
-          "_PyThreadState_GET",
           "DECREF_KEYS",
           "DK_IS_UNICODE",
           "DK_UNICODE_ENTRIES",
@@ -12114,8 +12052,6 @@
         "dictkeys_incref@465": [
           "FT_ATOMIC_LOAD_SSIZE_RELAXED",
           "assert",
-          "_Py_IncRefTotal",
-          "_PyThreadState_GET",
           "INCREF_KEYS"
         ],
         "dictkeys_iter@6431": [
@@ -12153,8 +12089,6 @@
           "invalidate_and_clear_inline_values",
           "free_values",
           "memcpy",
-          "_Py_DecRefTotal",
-          "_PyThreadState_GET",
           "free_keys_object",
           "STORE_KEYS_USABLE",
           "STORE_KEYS_NENTRIES",
@@ -12285,29 +12219,23 @@
           "FT_ATOMIC_LOAD_UINT8",
           "_PyObject_InlineValues",
           "_PyObject_MaterializeManagedDict",
-          "Py_BEGIN_CRITICAL_SECTION",
           "new_dict_with_shared_keys",
           "CACHED_KEYS",
           "FT_ATOMIC_STORE_PTR_RELEASE",
-          "_PyObject_ManagedDictPointer",
-          "Py_END_CRITICAL_SECTION"
+          "_PyObject_ManagedDictPointer"
         ],
         "ensure_nonmanaged_dict@7864": [
           "FT_ATOMIC_LOAD_PTR_ACQUIRE",
-          "Py_BEGIN_CRITICAL_SECTION",
           "Py_TYPE",
           "_PyType_HasFeature",
           "CACHED_KEYS",
           "assert",
           "new_dict_with_shared_keys",
           "PyDict_New",
-          "FT_ATOMIC_STORE_PTR_RELEASE",
-          "Py_END_CRITICAL_SECTION"
+          "FT_ATOMIC_STORE_PTR_RELEASE"
         ],
         "ensure_shared_on_keys_version_assignment@1408": [
-          "ASSERT_DICT_LOCKED",
-          "IS_DICT_SHARED",
-          "SET_DICT_SHARED"
+          "ASSERT_DICT_LOCKED"
         ],
         "ensure_shared_on_read@1365": [
           "_Py_IsOwnedByCurrentThread",
@@ -12316,12 +12244,7 @@
           "SET_DICT_SHARED",
           "Py_END_CRITICAL_SECTION"
         ],
-        "ensure_shared_on_resize@1388": [
-          "_Py_CRITICAL_SECTION_ASSERT_OBJECT_LOCKED",
-          "_Py_IsOwnedByCurrentThread",
-          "IS_DICT_SHARED",
-          "SET_DICT_SHARED"
-        ],
+        "ensure_shared_on_resize@1388": [],
         "estimate_log2_keysize@605": [
           "calculate_log2_keysize"
         ],
@@ -12332,16 +12255,12 @@
           "is_unusable_slot"
         ],
         "free_keys_object@843": [
-          "_PyMem_FreeDelayed",
-          "_PyDict_KeysSize",
           "DK_LOG_SIZE",
           "_Py_FREELIST_FREE",
           "PyMem_Free"
         ],
         "free_values@887": [
           "assert",
-          "_PyMem_FreeDelayed",
-          "values_size_from_count",
           "PyMem_Free"
         ],
         "frozendict_copy_impl@8286": [
@@ -12411,10 +12330,7 @@
           "assert",
           "get_insertion_order_array"
         ],
-        "get_next_dict_keys_version@7940": [
-          "_Py_atomic_load_uint32_relaxed",
-          "_Py_atomic_compare_exchange_uint32"
-        ],
+        "get_next_dict_keys_version@7940": [],
         "hash_unicode_key@1192": [
           "assert",
           "PyUnicode_CheckExact",
@@ -12441,7 +12357,6 @@
         "insert_split_key@1882": [
           "assert",
           "PyUnicode_CheckExact",
-          "unicodekeys_lookup_unicode_threadsafe",
           "LOCK_KEYS",
           "unicodekeys_lookup_unicode",
           "FT_ATOMIC_STORE_UINT32_RELAXED",
@@ -12611,8 +12526,6 @@
           "_Py_FREELIST_POP_MEM",
           "PyMem_Malloc",
           "PyErr_NoMemory",
-          "_Py_IncRefTotal",
-          "_PyThreadState_GET",
           "memset"
         ],
         "new_values@872": [
@@ -12696,8 +12609,6 @@
           "unicode_get_hash",
           "tp_hash",
           "insert_split_key",
-          "shared_keys_usable_size",
-          "OBJECT_STAT_INC",
           "make_dict_from_instance_attributes",
           "_PyDict_SetItem_LockHeld",
           "Py_XDECREF",
@@ -12737,10 +12648,7 @@
         "unicodekeys_lookup_split@1210": [
           "assert",
           "PyUnicode_CheckExact",
-          "unicodekeys_lookup_unicode_threadsafe",
-          "LOCK_KEYS",
-          "unicodekeys_lookup_unicode",
-          "UNLOCK_KEYS"
+          "unicodekeys_lookup_unicode"
         ],
         "unicodekeys_lookup_unicode@1146": [
           "do_lookup"
@@ -13333,10 +13241,6 @@
           "_PyObject_GC_IS_TRACKED",
           "gc_list_remove",
           "get_gc_state",
-          "PyErr_GetRaisedException",
-          "PyErr_WarnExplicitFormat",
-          "PyErr_FormatUnraisable",
-          "PyErr_SetRaisedException",
           "PyObject_Free"
         ],
         "PyObject_GC_IsFinalized@2554": [
@@ -13351,9 +13255,7 @@
           "_PyObject_CAST",
           "_PyObject_GC_IS_TRACKED",
           "_PyObject_ASSERT_FAILED_MSG",
-          "_PyObject_GC_TRACK",
-          "Py_TYPE",
-          "traverse"
+          "_PyObject_GC_TRACK"
         ],
         "PyObject_GC_UnTrack@2368": [
           "_PyObject_CAST",
@@ -13394,7 +13296,6 @@
           "PyDTrace_GC_DONE",
           "_PyErr_SetRaisedException",
           "GC_STAT_ADD",
-          "_PyStats_GET",
           "validate_spaces",
           "_Py_atomic_store_int"
         ],
@@ -14172,8 +14073,6 @@
           "Py_TYPE",
           "PyUnicode_FromFormat",
           "_PyThreadState_GET",
-          "assert",
-          "_PyErr_Occurred",
           "_Py_EnterRecursiveCallTstate",
           "_Py_LeaveRecursiveCallTstate",
           "PyUnicode_Check",
@@ -14235,13 +14134,12 @@
           "Py_TYPE",
           "PyObject_Repr",
           "_PyThreadState_GET",
-          "assert",
-          "_PyErr_Occurred",
           "_Py_EnterRecursiveCallTstate",
           "_Py_LeaveRecursiveCallTstate",
           "PyUnicode_Check",
           "_PyErr_Format",
           "Py_DECREF",
+          "assert",
           "_PyUnicode_CheckConsistency"
         ],
         "PyRefTracer_GetTracer@3405": [
@@ -14254,22 +14152,13 @@
           "PyErr_Occurred",
           "_PyEval_StartTheWorldAll"
         ],
-        "PyUnstable_EnableTryIncRef@2864": [
-          "_PyObject_SetMaybeWeakref"
-        ],
+        "PyUnstable_EnableTryIncRef@2864": [],
         "PyUnstable_IsImmortal@3464": [
           "_Py_AssertHoldsTstate",
           "assert",
           "_Py_IsImmortal"
         ],
-        "PyUnstable_Object_EnableDeferredRefcount@2802": [
-          "PyType_IS_GC",
-          "Py_TYPE",
-          "_Py_atomic_load_uint8",
-          "_Py_atomic_compare_exchange_uint8",
-          "_Py_atomic_add_ssize",
-          "_Py_REF_SHARED"
-        ],
+        "PyUnstable_Object_EnableDeferredRefcount@2802": [],
         "PyUnstable_Object_IsUniqueReferencedTemporary@2831": [
           "_PyObject_IsUniquelyReferenced",
           "_PyEval_GetFrame",
@@ -14409,9 +14298,7 @@
           "_PyList_DebugMallocStats",
           "_PyTuple_DebugMallocStats"
         ],
-        "_PyObject_FiniState@2511": [
-          "refchain_fini"
-        ],
+        "_PyObject_FiniState@2511": [],
         "_PyObject_FunctionStr@972": [
           "assert",
           "PyErr_Occurred",
@@ -14443,7 +14330,6 @@
           "_PyObject_MaterializeManagedDict",
           "_PyObject_GetManagedDict",
           "_PyObject_ComputedDictPointer",
-          "_Py_atomic_load_ptr_acquire",
           "PyDict_GetItemRef",
           "Py_DECREF",
           "PyStackRef_AsPyObjectSteal",
@@ -14550,8 +14436,6 @@
           "_PyObject_SetAttributeErrorContext"
         ],
         "_PyObject_InitState@2500": [
-          "refchain_init",
-          "_PyStatus_NO_MEMORY",
           "_PyStatus_OK"
         ],
         "_PyObject_IsAbstract@1248": [
@@ -14584,7 +14468,6 @@
           "_Py_IsImmortal",
           "_Py_IsOwnedByCurrentThread",
           "_Py_ExplicitMergeRefcount",
-          "_Py_ForgetReference",
           "_Py_DecRefSharedIsDead"
         ],
         "_PyObject_SetAttributeErrorContext@1279": [
@@ -14598,14 +14481,7 @@
           "Py_DECREF",
           "PyErr_SetRaisedException"
         ],
-        "_PyObject_SetDeferredRefcount@2790": [
-          "assert",
-          "PyType_IS_GC",
-          "Py_TYPE",
-          "_Py_IsOwnedByCurrentThread",
-          "_PyObject_SET_GC_BITS",
-          "_Py_REF_SHARED"
-        ],
+        "_PyObject_SetDeferredRefcount@2790": [],
         "_PyObject_VisitType@3481": [
           "assert",
           "Py_TYPE",
@@ -14639,7 +14515,6 @@
         ],
         "_PyTrash_thread_destroy_chain@3182": [
           "Py_TYPE",
-          "_Py_atomic_store_ssize_relaxed",
           "_Py_AS_GC",
           "_PyObject_GC_TRACK",
           "_PyObject_ASSERT",
@@ -14680,14 +14555,7 @@
           "_PyThreadState_GET",
           "_Py_RecursionLimit_GetMargin",
           "_PyTrash_thread_deposit_object",
-          "assert",
-          "Py_XINCREF",
-          "Py_INCREF",
-          "_Py_ForgetReference",
           "_PyReftracerTrack",
-          "_Py_FatalErrorFormat",
-          "Py_XDECREF",
-          "Py_DECREF",
           "_PyTrash_thread_destroy_chain"
         ],
         "_Py_DecRef@354": [
@@ -14702,12 +14570,7 @@
         ],
         "_Py_DecRefSharedIsDead@375": [
           "_Py_atomic_load_ssize_relaxed",
-          "_Py_REF_IS_MERGED",
-          "is_dead",
-          "_Py_NegativeRefcount",
           "_Py_atomic_compare_exchange_ssize",
-          "_Py_IncRefTotal",
-          "_PyThreadState_GET",
           "_Py_brc_queue_object"
         ],
         "_Py_DecRefTotal@299": [
@@ -14716,8 +14579,6 @@
         "_Py_ExplicitMergeRefcount@467": [
           "assert",
           "_Py_IsImmortal",
-          "_Py_AddRefTotal",
-          "_PyThreadState_GET",
           "_Py_atomic_store_uint32_relaxed",
           "_Py_atomic_store_uintptr_relaxed",
           "_Py_atomic_load_ssize_relaxed",
@@ -14728,13 +14589,7 @@
         "_Py_FinalizeRefTotal@109": [
           "get_global_reftotal"
         ],
-        "_Py_ForgetReference@2891": [
-          "Py_REFCNT",
-          "_PyObject_ASSERT_FAILED_MSG",
-          "_PyInterpreterState_GET",
-          "_PyRefchain_Get",
-          "_PyRefchain_Remove"
-        ],
+        "_Py_ForgetReference@2891": [],
         "_Py_GetConstant_Init@3428": [
           "_PyLong_GetZero",
           "_PyLong_GetOne",
@@ -14785,8 +14640,6 @@
           "_PyObject_AssertFailed"
         ],
         "_Py_NewReference@2746": [
-          "_Py_IncRefTotal",
-          "_PyThreadState_GET",
           "new_reference"
         ],
         "_Py_NewReferenceNoTotal@2755": [
@@ -14815,9 +14668,7 @@
           "_Py_hashtable_foreach",
           "REFCHAIN"
         ],
-        "_Py_ResurrectReference@2883": [
-          "_Py_AddToAllObjects"
-        ],
+        "_Py_ResurrectReference@2883": [],
         "_Py_SetImmortal@2781": [
           "PyObject_IS_GC",
           "_PyObject_GC_IS_TRACKED",
@@ -14825,8 +14676,7 @@
           "_Py_SetImmortalUntracked"
         ],
         "_Py_SetImmortalUntracked@2761": [
-          "_Py_IsImmortal",
-          "_Py_atomic_or_uint8"
+          "_Py_IsImmortal"
         ],
         "_Py_SetRefcnt@3382": [
           "Py_SET_REFCNT"
@@ -14885,9 +14735,7 @@
         ],
         "get_legacy_reftotal@76": [],
         "get_reftotal@123": [
-          "REFTOTAL",
-          "_Py_FOR_EACH_TSTATE_UNLOCKED",
-          "_Py_atomic_load_ssize_relaxed"
+          "REFTOTAL"
         ],
         "has_own_refchain@182": [
           "_Py_IsMainInterpreter",
@@ -14896,12 +14744,6 @@
         "is_dead@362": [],
         "new_reference@2713": [
           "assert",
-          "_Py_atomic_store_uintptr_relaxed",
-          "_Py_ThreadId",
-          "_Py_atomic_store_uint8_relaxed",
-          "_Py_atomic_store_uint32_relaxed",
-          "_Py_atomic_store_ssize_relaxed",
-          "_Py_AddToAllObjects",
           "_PyReftracerTrack"
         ],
         "none_bool@2303": [],
@@ -14940,7 +14782,6 @@
           "_Py_hashtable_new_full"
         ],
         "reftotal_add@88": [
-          "_Py_atomic_store_ssize_relaxed",
           "REFTOTAL"
         ]
       },
@@ -15009,7 +14850,6 @@
           "set_tp_bases",
           "Py_TYPE",
           "_PyHeapType_GET_MEMBERS",
-          "_PyObject_AssignUniqueId",
           "PyType_Ready",
           "check_basicsize_includes_size_and_offsets",
           "lookup_tp_dict",
@@ -15248,14 +15088,12 @@
           "BEGIN_TYPE_LOCK",
           "_PyFunction_GetVersionForCurrentState",
           "_PyFunction_IsVersionValid",
-          "_PyObject_HasDeferredRefcount",
           "FT_ATOMIC_STORE_PTR_RELEASE",
           "FT_ATOMIC_STORE_UINT32_RELAXED",
           "END_TYPE_LOCK"
         ],
         "_PyType_CacheInitForSpecialization@6277": [
           "BEGIN_TYPE_LOCK",
-          "_PyObject_HasDeferredRefcount",
           "FT_ATOMIC_STORE_PTR_RELEASE",
           "END_TYPE_LOCK"
         ],
@@ -15402,15 +15240,9 @@
         "_PyType_LookupStackRefAndVersion@6175": [
           "MCACHE_HASH_METHOD",
           "get_type_cache",
-          "_PySeqLock_BeginRead",
-          "_Py_atomic_load_uint32_acquire",
-          "_Py_atomic_load_ptr_relaxed",
+          "assert",
           "OBJECT_STAT_INC_COND",
           "is_dunder_name",
-          "_Py_TryXGetStackRef",
-          "_PySeqLock_EndRead",
-          "PyStackRef_XCLOSE",
-          "assert",
           "PyStackRef_FromPyObjectNew",
           "PyErr_Occurred",
           "_PyInterpreterState_GET",
@@ -15422,7 +15254,6 @@
           "END_TYPE_LOCK",
           "MCACHE_CACHEABLE_NAME",
           "PyStackRef_AsPyObjectBorrow",
-          "update_cache_gil_disabled",
           "update_cache",
           "Py_DECREF"
         ],
@@ -15460,11 +15291,7 @@
           "_PyInterpreterState_GET",
           "END_TYPE_LOCK"
         ],
-        "_PyTypes_AfterFork@6131": [
-          "get_type_cache",
-          "_PySeqLock_AfterFork",
-          "Py_SETREF"
-        ],
+        "_PyTypes_AfterFork@6131": [],
         "_PyTypes_Fini@1039": [
           "type_cache_clear",
           "assert"
@@ -16457,7 +16284,6 @@
         "set_version_unlocked@1137": [
           "assert",
           "_PyInterpreterState_GET",
-          "_Py_atomic_add_uint16",
           "FT_ATOMIC_STORE_UINT_RELAXED"
         ],
         "shape_differs@3760": [],
@@ -16907,9 +16733,7 @@
           "PyDict_GetItemRef"
         ],
         "type_add_common_descriptor@4621": [
-          "PyMutex_Lock",
           "PyDescr_NewGetSet",
-          "PyMutex_Unlock",
           "PyDict_SetDefaultRef",
           "PyDescr_NAME"
         ],
@@ -16951,16 +16775,13 @@
           "type_add_method"
         ],
         "type_cache_clear@984": [
-          "_PySeqLock_LockWrite",
           "Py_XSETREF",
-          "_Py_XNewRef",
-          "_PySeqLock_UnlockWrite"
+          "_Py_XNewRef"
         ],
         "type_call@2429": [
           "PyTypeObject_CAST",
           "_PyThreadState_GET",
           "assert",
-          "_PyErr_Occurred",
           "PyTuple_Check",
           "PyDict_Check",
           "PyTuple_GET_SIZE",
@@ -16974,6 +16795,7 @@
           "_Py_CheckFunctionResult",
           "PyObject_TypeCheck",
           "tp_init",
+          "_PyErr_Occurred",
           "Py_SETREF"
         ],
         "type_check_new_bases@1864": [
@@ -17141,7 +16963,6 @@
         "type_modified_unlocked@1169": [
           "ASSERT_NEW_TYPE_OR_LOCKED",
           "assert",
-          "types_world_is_stopped",
           "lookup_tp_subclasses",
           "PyDict_CheckExact",
           "PyDict_Next",
@@ -17207,8 +17028,7 @@
           "tp_alloc",
           "type_set_flags",
           "set_tp_bases",
-          "Py_NewRef",
-          "_PyObject_AssignUniqueId"
+          "Py_NewRef"
         ],
         "type_new_classmethod@4593": [
           "PyDict_GetItemWithError",
@@ -17433,7 +17253,6 @@
           "is_readying",
           "start_readying",
           "type_ready_pre_checks",
-          "_Py_AddToAllObjects",
           "type_ready_set_dict",
           "type_ready_set_base",
           "type_ready_set_type",
@@ -17713,9 +17532,6 @@
           "Py_DECREF",
           "assert",
           "_PyType_HasFeature",
-          "PyFunction_Check",
-          "_PyObject_HasDeferredRefcount",
-          "PyUnstable_Object_EnableDeferredRefcount",
           "_PyType_LookupRef",
           "f",
           "BEGIN_TYPE_LOCK",
@@ -17804,8 +17620,7 @@
           "PyCFunction_GET_FUNCTION",
           "_PyCFunction_CAST",
           "type_clear_flags",
-          "PyStackRef_CLOSE",
-          "queue_slot_update"
+          "PyStackRef_CLOSE"
         ],
         "update_slot@11894": [
           "ASSERT_TYPE_LOCK_HELD",
@@ -17815,10 +17630,7 @@
           "update_subclasses"
         ],
         "update_slot_after_setattr@6579": [
-          "assert",
-          "update_slot",
-          "apply_type_slot_updates",
-          "ASSERT_TYPE_LOCK_HELD"
+          "update_slot"
         ],
         "update_slots_callback@11878": [
           "ASSERT_NEW_TYPE_OR_LOCKED",
@@ -18109,11 +17921,6 @@
           "memset"
         ],
         "IdentifyVersion@563": [
-          "getenv",
-          "malloc",
-          "strlen",
-          "sprintf",
-          "I_Error",
           "M_CheckParm",
           "D_AddFile",
           "strcpy",
@@ -18157,7 +17964,6 @@
         ],
         "I_Tactile@54": [],
         "I_WaitVBL@126": [
-          "sginap",
           "sleep",
           "usleep"
         ],
@@ -18501,17 +18307,7 @@
           "comp_next_label",
           "compile_node"
         ],
-        "check_for_doc_string@2993": [
-          "MP_PARSE_NODE_IS_STRUCT_KIND",
-          "MP_PARSE_NODE_STRUCT_NUM_NODES",
-          "MP_PARSE_NODE_IS_LEAF",
-          "MP_PARSE_NODE_LEAF_KIND",
-          "MP_PARSE_NODE_LEAF_ARG",
-          "mp_obj_is_str",
-          "get_const_object",
-          "compile_node",
-          "compile_store_id"
-        ],
+        "check_for_doc_string@2993": [],
         "close_over_variables_etc@617": [
           "assert",
           "EMIT_LOAD_FAST",
@@ -18610,9 +18406,7 @@
           "compile_syntax_error",
           "MP_ERROR_TEXT",
           "EMIT_ARG",
-          "compile_trailer_paren_helper",
-          "MP_PARSE_NODE_IS_STRUCT_KIND",
-          "compile_atom_brace_helper"
+          "compile_trailer_paren_helper"
         ],
         "compile_atom_paren@2521": [
           "MP_PARSE_NODE_IS_NULL",
@@ -18710,7 +18504,6 @@
           "MP_PARSE_NODE_IS_NULL",
           "MP_PARSE_NODE_STRUCT_KIND",
           "compile_funcdef_helper",
-          "MP_PARSE_NODE_IS_STRUCT",
           "compile_classdef_helper",
           "compile_store_id"
         ],
@@ -18854,8 +18647,6 @@
           "MP_PARSE_NODE_IS_NULL",
           "mp_parse_node_extract_list",
           "MP_PARSE_NODE_IS_TOKEN_KIND",
-          "compile_syntax_error",
-          "MP_ERROR_TEXT",
           "EMIT_ARG",
           "do_import_name",
           "MP_PARSE_NODE_LEAF_ARG",
@@ -18927,8 +18718,6 @@
           "compile_node"
         ],
         "compile_return_stmt@1037": [
-          "compile_syntax_error",
-          "MP_ERROR_TEXT",
           "MP_PARSE_NODE_IS_NULL",
           "EMIT_ARG",
           "MP_PARSE_NODE_IS_STRUCT_KIND",
@@ -19065,7 +18854,6 @@
           "compile_node",
           "EMIT",
           "MP_PARSE_NODE_IS_STRUCT_KIND",
-          "compile_namedexpr_helper",
           "MP_PARSE_NODE_IS_ID",
           "EMIT_ARG",
           "MP_PARSE_NODE_LEAF_ARG",
@@ -19192,36 +18980,26 @@
           "MP_STATE_VM",
           "scope_new_and_link",
           "emit_bc_new",
-          "compile_scope_inline_asm",
           "compile_scope",
           "scope_check_to_close_over",
           "scope_compute_things",
           "emit_bc_set_max_num_labels",
-          "ASM_EMITTER",
           "mp_obj_new_exception_msg",
           "MP_ERROR_TEXT",
           "NATIVE_EMITTER",
           "compile_error_set_line",
           "mp_obj_exception_add_traceback",
           "mp_emit_common_populate_module_context",
-          "mp_bytecode_print",
           "emit_bc_free",
           "mp_parse_tree_clear",
           "scope_free",
           "nlr_raise"
         ],
         "mp_emit_common_init@218": [
-          "mp_map_init",
-          "mp_map_lookup",
-          "MP_OBJ_NEW_QSTR",
-          "MP_OBJ_NEW_SMALL_INT",
           "mp_obj_list_init"
         ],
         "mp_emit_common_populate_module_context@241": [
-          "mp_module_context_alloc_tables",
-          "mp_map_slot_is_filled",
-          "MP_OBJ_SMALL_INT_VALUE",
-          "MP_OBJ_QSTR_VALUE"
+          "mp_module_context_alloc_tables"
         ],
         "mp_emit_common_start_pass@229": [
           "m_new0"
@@ -19325,13 +19103,10 @@
           "DEBUG_printf",
           "peek_vtype",
           "emit_pre_pop_reg_reg",
-          "ASM_LSL_REG",
-          "ASM_LSR_REG",
-          "ASM_ASR_REG",
-          "emit_post_push_reg",
           "EMIT_NATIVE_VIPER_TYPE_ERROR",
           "MP_ERROR_TEXT",
           "emit_call",
+          "emit_post_push_reg",
           "emit_pre_pop_reg_flexible",
           "emit_pre_pop_reg",
           "ASM_LSL_REG_REG",
@@ -19344,26 +19119,6 @@
           "ASM_SUB_REG_REG",
           "ASM_MUL_REG_REG",
           "need_reg_single",
-          "asm_x64_xor_r64_r64",
-          "asm_x64_cmp_r64_with_r64",
-          "asm_x64_setcc_r8",
-          "asm_x86_xor_r32_r32",
-          "asm_x86_cmp_r32_with_r32",
-          "asm_x86_setcc_r8",
-          "asm_thumb_cmp_rlo_rlo",
-          "asm_thumb_allow_armv7m",
-          "asm_thumb_op16",
-          "asm_thumb_mov_rlo_i8",
-          "asm_thumb_bcc_rel9",
-          "asm_thumb_b_rel12",
-          "asm_arm_cmp_reg_reg",
-          "asm_arm_setcc_reg",
-          "asm_xtensa_setcc_reg_reg_reg",
-          "asm_rv32_meta_comparison_lt",
-          "asm_rv32_meta_comparison_eq",
-          "asm_rv32_meta_comparison_le",
-          "asm_rv32_meta_comparison_ne",
-          "asm_debug_setcc_reg_reg_reg",
           "adjust_stack",
           "emit_call_with_imm_arg",
           "ASM_MOV_REG_REG",
@@ -19371,7 +19126,6 @@
         ],
         "emit_native_build@2667": [
           "MP_STATIC_ASSERT",
-          "emit_native_build_slice",
           "emit_native_pre",
           "emit_get_stack_pointer_to_reg_for_pop",
           "emit_call_with_imm_arg",
@@ -19467,8 +19221,6 @@
           "ASM_END_PASS",
           "mp_asm_base_get_code",
           "mp_asm_base_get_code_size",
-          "memcpy",
-          "m_new",
           "m_renew",
           "mp_emit_glue_assign_native"
         ],
@@ -19477,8 +19229,6 @@
           "emit_get_stack_pointer_to_reg_for_pop",
           "adjust_stack",
           "emit_call",
-          "ASM_MOV_REG_IMM",
-          "ASM_JUMP_IF_REG_EQ",
           "MP_STATIC_ASSERT",
           "ASM_JUMP_IF_REG_ZERO",
           "emit_post_push_reg"
@@ -19865,14 +19615,6 @@
           "DEBUG_printf",
           "m_renew",
           "assert",
-          "vstr_new",
-          "qstr_len",
-          "qstr_data",
-          "vstr_hint_size",
-          "memmove",
-          "memcpy",
-          "vstr_ins_char",
-          "vstr_null_terminated_str",
           "mp_asm_base_start_pass",
           "NEED_GLOBAL_EXC_HANDLER",
           "NEED_THROW_VAL",
@@ -19881,7 +19623,6 @@
           "MP_OBJ_FROM_PTR",
           "CAN_USE_REGS_FOR_LOCALS",
           "ASM_ENTRY",
-          "asm_x86_mov_arg_to_r32",
           "ASM_LOAD_REG_REG_OFFSET",
           "NEED_FUN_OBJ",
           "ASM_MOV_LOCAL_REG",
@@ -19901,10 +19642,7 @@
           "mp_asm_base_data",
           "LOCAL_IDX_THROW_VAL",
           "emit_native_mov_state_imm_via",
-          "ASM_MOV_REG_LOCAL_ADDR",
-          "asm_thumb_bl_ind",
-          "asm_arm_bl_ind",
-          "vstr_free"
+          "ASM_MOV_REG_LOCAL_ADDR"
         ],
         "emit_native_store_attr@1741": [
           "peek_vtype",
@@ -19975,7 +19713,6 @@
           "peek_stack",
           "emit_pre_pop_discard",
           "emit_pre_pop_reg_flexible",
-          "emit_pre_pop_reg",
           "EMIT_NATIVE_VIPER_TYPE_ERROR",
           "MP_ERROR_TEXT",
           "vtype_to_qstr",
@@ -19987,6 +19724,7 @@
           "ASM_STORE16_REG_REG",
           "ASM_STORE32_REG_REG_OFFSET",
           "ASM_STORE32_REG_REG",
+          "emit_pre_pop_reg",
           "ASM_STORE8_REG_REG_REG",
           "ASM_STORE16_REG_REG_REG",
           "ASM_STORE32_REG_REG_REG"
@@ -20167,20 +19905,18 @@
           "MP_STATE_THREAD",
           "GC_ENTER",
           "MP_STATE_MEM",
-          "GC_EXIT",
-          "gc_collect",
           "NEXT_AREA",
           "MICROPY_GC_HOOK_LOOP",
           "ATB_0_IS_FREE",
           "ATB_1_IS_FREE",
           "ATB_2_IS_FREE",
           "ATB_3_IS_FREE",
-          "gc_try_add_heap",
+          "GC_EXIT",
+          "gc_collect",
           "MAX",
           "ATB_FREE_TO_HEAD",
           "ATB_FREE_TO_TAIL",
           "memset",
-          "FTB_SET",
           "gc_dump_alloc_table"
         ],
         "gc_collect_end@579": [
@@ -20190,14 +19926,12 @@
           "MP_STATE_MEM",
           "NEXT_AREA",
           "MP_STATE_THREAD",
-          "GC_EXIT",
-          "gc_weakref_sweep"
+          "GC_EXIT"
         ],
         "gc_collect_root@465": [
           "MP_STATE_MEM",
           "MICROPY_GC_HOOK_LOOP",
           "gc_get_ptr",
-          "gc_get_ptr_area",
           "VERIFY_PTR",
           "BLOCK_FROM_PTR",
           "ATB_GET_KIND",
@@ -20207,7 +19941,6 @@
         ],
         "gc_collect_start@437": [
           "gc_collect_start_common",
-          "MP_STATE_MEM",
           "offsetof",
           "gc_collect_root",
           "MP_STATE_THREAD"
@@ -20231,7 +19964,6 @@
           "NEXT_AREA",
           "mp_printf",
           "ATB_GET_KIND",
-          "MP_STATE_VM",
           "mp_print_str",
           "GC_EXIT"
         ],
@@ -20244,20 +19976,16 @@
           "GC_ENTER",
           "DEBUG_printf",
           "GC_EXIT",
-          "gc_get_ptr_area",
           "assert",
           "VERIFY_PTR",
           "MP_STATE_MEM",
           "BLOCK_FROM_PTR",
           "ATB_GET_KIND",
-          "FTB_CLEAR",
-          "WTB_GET",
           "ATB_ANY_TO_FREE",
           "gc_dump_alloc_table"
         ],
         "gc_get_ptr@744": [
-          "__attribute__",
-          "VALGRIND_CHECK_MEM_IS_ADDRESSABLE"
+          "__attribute__"
         ],
         "gc_get_ptr_area@397": [
           "MP_STATE_MEM",
@@ -20269,7 +19997,6 @@
           "NEXT_AREA",
           "MICROPY_GC_HOOK_LOOP",
           "ATB_GET_KIND",
-          "gc_get_max_new_split",
           "GC_EXIT"
         ],
         "gc_init@233": [
@@ -20291,7 +20018,6 @@
           "assert",
           "PTR_FROM_BLOCK",
           "MICROPY_GC_HOOK_LOOP",
-          "gc_get_ptr_area",
           "VERIFY_PTR",
           "BLOCK_FROM_PTR",
           "TRACE_MARK_S",
@@ -20299,7 +20025,6 @@
         ],
         "gc_nbytes@1083": [
           "GC_ENTER",
-          "gc_get_ptr_area",
           "VERIFY_PTR",
           "MP_STATE_MEM",
           "BLOCK_FROM_PTR",
@@ -20311,7 +20036,6 @@
           "gc_free",
           "MP_STATE_THREAD",
           "GC_ENTER",
-          "gc_get_ptr_area",
           "assert",
           "VERIFY_PTR",
           "MP_STATE_MEM",
@@ -20323,7 +20047,6 @@
           "ATB_FREE_TO_TAIL",
           "MAX",
           "memset",
-          "FTB_GET",
           "DEBUG_printf",
           "memcpy"
         ],
@@ -20346,26 +20069,9 @@
           "PTR_FROM_BLOCK",
           "ATB_ANY_TO_FREE",
           "memset",
-          "ATB_MARK_TO_HEAD",
-          "MP_PLAT_FREE_HEAP"
+          "ATB_MARK_TO_HEAD"
         ],
-        "gc_sweep_run_finalisers@618": [
-          "MP_STATIC_ASSERT",
-          "MP_STATE_MEM",
-          "NEXT_AREA",
-          "assert",
-          "MICROPY_GC_HOOK_LOOP",
-          "ATB_GET_KIND",
-          "PTR_FROM_BLOCK",
-          "mp_load_method_maybe",
-          "MP_OBJ_FROM_PTR",
-          "mp_sched_lock",
-          "mp_call_function_1_protected",
-          "mp_sched_unlock",
-          "FTB_CLEAR",
-          "gc_weakref_about_to_be_freed",
-          "WTB_CLEAR"
-        ],
+        "gc_sweep_run_finalisers@618": [],
         "gc_try_add_heap@284": [
           "MAX",
           "gc_get_max_new_split",
@@ -20380,7 +20086,6 @@
           "MP_STATE_THREAD"
         ],
         "gc_weakref_mark@830": [
-          "gc_get_ptr_area",
           "assert",
           "VERIFY_PTR",
           "MP_STATE_MEM",
@@ -20444,10 +20149,7 @@
         "instance_count_native_bases@54": [
           "mp_obj_is_native_type",
           "MP_OBJ_TYPE_HAS_SLOT",
-          "MP_OBJ_TYPE_GET_SLOT",
-          "assert",
-          "mp_obj_is_type",
-          "MP_OBJ_TO_PTR"
+          "MP_OBJ_TYPE_GET_SLOT"
         ],
         "instance_get_buffer@925": [
           "MP_OBJ_TO_PTR",
@@ -20477,14 +20179,11 @@
         ],
         "instance_unary_op@405": [
           "MP_OBJ_TO_PTR",
-          "MP_UNLIKELY",
-          "instance_count_native_bases",
-          "mp_obj_get_type",
-          "MP_OBJ_NEW_SMALL_INT",
           "MP_OBJ_TYPE_OFFSETOF_SLOT",
           "mp_obj_class_lookup",
           "mp_unary_op",
           "mp_call_function_1",
+          "MP_OBJ_NEW_SMALL_INT",
           "mp_obj_get_int_truncated",
           "mp_obj_is_int",
           "mp_raise_TypeError"
@@ -20524,13 +20223,10 @@
           "mp_map_lookup",
           "MP_OBJ_NEW_QSTR",
           "mp_convert_member_lookup",
-          "mp_raise_msg",
-          "MP_ERROR_TEXT",
           "mp_obj_print_helper",
           "mp_obj_get_type_str",
           "MP_OBJ_TO_PTR",
-          "mp_load_method_maybe",
-          "mp_obj_is_type"
+          "mp_load_method_maybe"
         ],
         "mp_obj_instance_attr@814": [
           "mp_obj_instance_load_attr",
@@ -20570,8 +20266,6 @@
           "MP_OBJ_TO_PTR",
           "mp_map_lookup",
           "MP_OBJ_NEW_QSTR",
-          "mp_obj_dict_copy",
-          "MP_OBJ_FROM_PTR",
           "mp_obj_class_lookup",
           "mp_obj_is_type",
           "mp_obj_property_get",
@@ -20579,6 +20273,7 @@
           "MP_ERROR_TEXT",
           "mp_call_function_n_kw",
           "mp_load_method_maybe",
+          "MP_OBJ_FROM_PTR",
           "mp_call_method_n_kw"
         ],
         "mp_obj_instance_make_new@288": [
@@ -20624,8 +20319,8 @@
           "mp_obj_is_type",
           "MP_OBJ_TO_PTR",
           "MP_OBJ_TYPE_HAS_SLOT",
-          "MP_OBJ_TYPE_GET_SLOT",
-          "MP_OBJ_FROM_PTR"
+          "MP_OBJ_FROM_PTR",
+          "MP_OBJ_TYPE_GET_SLOT"
         ],
         "mp_obj_new_instance@99": [
           "instance_count_native_bases",
@@ -20706,16 +20401,13 @@
           "assert",
           "mp_obj_is_type",
           "MP_OBJ_TO_PTR",
-          "MP_OBJ_NEW_QSTR",
-          "MP_OBJ_TYPE_GET_SLOT_OR_NULL",
-          "MP_OBJ_FROM_PTR",
-          "mp_obj_dict_copy",
-          "MP_OBJ_TYPE_HAS_SLOT",
-          "MP_OBJ_TYPE_GET_SLOT",
-          "mp_obj_new_tuple",
           "mp_obj_class_lookup",
+          "MP_OBJ_TYPE_HAS_SLOT",
           "mp_obj_is_dict_or_ordereddict",
+          "MP_OBJ_FROM_PTR",
+          "MP_OBJ_TYPE_GET_SLOT",
           "mp_map_lookup",
+          "MP_OBJ_NEW_QSTR",
           "check_for_special_accessors",
           "mp_raise_msg",
           "MP_ERROR_TEXT"
@@ -20751,12 +20443,6 @@
           "strlen"
         ],
         "mp_vfs_autodetect@166": [
-          "nlr_push",
-          "mp_vfs_blockdev_init",
-          "mp_vfs_blockdev_read_ext",
-          "memcmp",
-          "MP_OBJ_TYPE_GET_SLOT",
-          "nlr_pop",
           "mp_raise_OSError"
         ],
         "mp_vfs_chdir@345": [
@@ -20863,15 +20549,12 @@
           "MP_OBJ_FROM_PTR",
           "MP_OBJ_NEW_QSTR",
           "mp_call_function_2",
-          "mp_obj_list_append",
           "nlr_pop"
         ],
         "mp_vfs_open@320": [
           "MP_ROM_QSTR",
           "MP_ARRAY_SIZE",
           "mp_arg_parse_all",
-          "mp_obj_is_small_int",
-          "mp_vfs_posix_file_open",
           "lookup_path",
           "mp_vfs_proxy_call"
         ],
@@ -21120,8 +20803,6 @@
           "fprintf",
           "lemon_sprintf",
           "ConfigPrint",
-          "SetPrint",
-          "PlinkPrint",
           "PrintAction",
           "SetFind",
           "strlen",
@@ -21153,7 +20834,6 @@
           "compute_action",
           "acttab_action",
           "acttab_insert",
-          "printf",
           "acttab_action_size",
           "acttab_yyaction",
           "acttab_lookahead_size",
@@ -21288,8 +20968,7 @@
           "assert",
           "lemon_realloc",
           "fprintf",
-          "exit",
-          "printf"
+          "exit"
         ],
         "append_str@3926": [
           "assert",
@@ -21510,7 +21189,6 @@
         "notnull@4417": [],
         "parseonetoken@2374": [
           "Strsafe",
-          "printf",
           "ISLOWER",
           "Symbol_new",
           "ErrorMsg",
@@ -45755,8 +45433,6 @@
           "CB_PROTOTYPE",
           "cb_ref",
           "strcmp",
-          "output_block_open",
-          "output_line",
           "CB_REFERENCE_P",
           "CB_FIELD_P",
           "CB_REFERENCE",
@@ -45771,6 +45447,8 @@
           "cb_int",
           "CB_NUMERIC_LITERAL_P",
           "CB_BINARY_OP_P",
+          "output_block_open",
+          "output_line",
           "output_bin_field",
           "CB_CAST_P",
           "CB_TREE_TAG",
@@ -46415,12 +46093,12 @@
           "CB_BINARY_OP",
           "cb_fits_int",
           "output_param",
-          "cb_code_field",
           "CB_CAST",
           "output_data",
           "cobc_err_msg",
           "_",
           "COBC_ABORT",
+          "cb_code_field",
           "output_base",
           "output_func_1"
         ],
@@ -46476,7 +46154,6 @@
           "strcpy",
           "output_base",
           "CB_TREE_CLASS",
-          "output_coerce_linkage",
           "output_screen_init",
           "output_ml_generate_init",
           "sprintf",
@@ -46596,8 +46273,6 @@
           "CB_INTRINSIC",
           "CB_LITERAL",
           "CB_TREE_CLASS",
-          "debug_call_by_value",
-          "printf",
           "CB_SIZES_INT_UNSIGNED",
           "cb_get_u_long_long",
           "CB_SIZES_INT"
@@ -46734,10 +46409,10 @@
           "CB_DECIMAL_LITERAL",
           "CB_FILE",
           "CB_REPORT_PTR",
-          "CB_REFERENCE",
           "CB_FIELD",
           "cb_lookup_literal",
           "cb_build_field_reference",
+          "CB_REFERENCE",
           "CB_LOCALE_NAME_P",
           "CB_REPORT_P",
           "cobc_err_msg",
@@ -47080,9 +46755,7 @@
           "CB_LITERAL",
           "cb_get_long_long",
           "output_param",
-          "output_block_open",
           "CB_CAST",
-          "output_block_close",
           "force_cache",
           "output_initialize",
           "CB_INITIALIZE",
@@ -47101,6 +46774,8 @@
           "CB_IF",
           "CB_BINARY_OP",
           "output_cond",
+          "output_block_open",
+          "output_block_close",
           "output_perform",
           "CB_PERFORM",
           "CB_CHAIN",
@@ -47266,7 +46941,6 @@
           "close"
         ],
         "cob_commit@5645": [
-          "cob_file_unlock",
           "get_io_ptr",
           "commit"
         ],
@@ -47324,9 +46998,6 @@
           "COB_UNUSED",
           "putc",
           "COB_CHECKED_WRITE",
-          "memset",
-          "fcntl",
-          "cob_runtime_warning",
           "fclose",
           "kill",
           "waitpid",
@@ -47464,8 +47135,8 @@
         "cob_file_sort_init_key@7062": [],
         "cob_file_sort_process@6712": [
           "cob_sort_queues",
-          "unlikely",
           "likely",
+          "unlikely",
           "cob_write_block",
           "rewind",
           "cob_get_sort_tempfile",
@@ -47506,9 +47177,6 @@
         "cob_file_unlock@4637": [
           "COB_FILE_SPECIAL",
           "fdcobsync",
-          "memset",
-          "fcntl",
-          "cob_runtime_warning",
           "get_io_ptr",
           "iounlock"
         ],
@@ -47544,17 +47212,8 @@
           "cob_fast_malloc",
           "cob_malloc",
           "cob_strdup",
-          "void",
-          "cob_load_lib",
-          "cob_runtime_error",
-          "_",
-          "exit",
-          "ioinit",
           "cob_isam_init_fileio",
           "cob_bdb_init_fileio",
-          "cob_lmdb_init_fileio",
-          "cob_odbc_init_fileio",
-          "cob_oci_init_fileio",
           "cob_index_init_fileio",
           "cob_seqra_init_fileio"
         ],
@@ -47645,7 +47304,6 @@
           "rewrite"
         ],
         "cob_rollback@5662": [
-          "cob_file_unlock",
           "get_io_ptr",
           "rollback"
         ],
@@ -47942,8 +47600,6 @@
           "memset",
           "fcntl",
           "cob_sys_getpid",
-          "sigaction",
-          "alarm",
           "cob_sleep_msec"
         ],
         "lock_record@1967": [
@@ -48134,10 +47790,8 @@
         ],
         "cob_add_int@2179": [
           "unlikely",
-          "COB_FIELD_TYPE",
-          "cob_add_packed",
-          "cob_display_add_int",
           "cob_decimal_set_field",
+          "COB_FIELD_TYPE",
           "mpz_set_si",
           "cob_decimal_add",
           "cob_decimal_get_field",
@@ -48179,7 +47833,6 @@
           "cob_decimal_cmp"
         ],
         "cob_cmp_llint@2259": [
-          "mpz_set_si",
           "mpz_set_ui",
           "mpz_mul_2exp",
           "mpz_add_ui",
@@ -48190,8 +47843,7 @@
         "cob_cmp_numdisp@2523": [
           "unlikely",
           "COB_D2I",
-          "cob_get_long_ebcdic_sign",
-          "cob_get_long_ascii_sign"
+          "cob_get_long_ebcdic_sign"
         ],
         "cob_cmp_packed@2342": [
           "cob_packed_get_sign",
@@ -48267,11 +47919,11 @@
           "COB_FIELD_BINARY_TRUNC",
           "mpz_cmpabs",
           "cob_binary_set_uint64",
-          "mpz_get_ui",
-          "cob_binary_set_int64",
-          "mpz_get_si",
           "mpz_get_ull",
+          "cob_binary_set_int64",
           "mpz_get_sll",
+          "mpz_get_ui",
+          "mpz_get_si",
           "mpz_fdiv_q_2exp",
           "cob_set_exception"
         ],
@@ -48352,8 +48004,6 @@
           "mpz_sgn",
           "cob_set_packed_zero",
           "mpz_abs",
-          "unlikely",
-          "mpz_sizeinbase",
           "mpz_get_str",
           "strlen",
           "COB_FIELD_DIGITS",
@@ -48407,12 +48057,10 @@
           "COB_FIELD_HAVE_SIGN",
           "mpz_import",
           "mpz_com",
-          "mpz_set_sll",
-          "cob_binary_get_sint64",
-          "mpz_set_ull",
-          "cob_binary_get_uint64",
           "mpz_set_si",
+          "cob_binary_get_sint64",
           "mpz_set_ui",
+          "cob_binary_get_uint64",
           "mpz_mul_2exp",
           "mpz_add_ui",
           "mpz_neg",
@@ -48432,14 +48080,7 @@
           "mpz_set_str",
           "cob_free",
           "mpz_sgn",
-          "COB_PUT_SIGN",
-          "cob_set_exception",
-          "memcpy",
-          "display_add_int",
-          "display_sub_int",
-          "COB_UNUSED",
-          "cob_display_add_int",
-          "COB_I2D"
+          "COB_PUT_SIGN"
         ],
         "cob_decimal_set_double@730": [
           "memset",
@@ -48494,7 +48135,6 @@
           "cob_set_exception"
         ],
         "cob_decimal_set_llint@341": [
-          "mpz_set_si",
           "mpz_set_ui",
           "mpz_mul_2exp",
           "mpz_add_ui",
@@ -54928,15 +54568,13 @@
           "set_anchor",
           "set_end",
           "Point2",
-          "get_constant",
-          "set_h_size_flags",
-          "set_v_size_flags",
-          "_touch_actions_panel_mode_changed",
           "set_name",
           "set_vertical",
+          "set_v_size_flags",
           "SideDockTabContainer",
           "Rect2i",
           "push_back",
+          "set_h_size_flags",
           "set_collapsed",
           "BottomSideDockTabContainer",
           "add_vsplit",
@@ -54974,12 +54612,8 @@
           "ED_SHORTCUT_ARRAY_AND_COMMAND",
           "int32_t",
           "ED_SHORTCUT_OVERRIDE_ARRAY",
-          "has_system_menu",
-          "set_system_menu",
-          "_add_to_main_menu",
-          "add_shortcut",
-          "add_separator",
           "set_mouse_filter",
+          "_add_to_main_menu",
           "_update_main_menu_type",
           "add_theme_font_override",
           "get_font",
@@ -55012,6 +54646,7 @@
           "get_icon",
           "get_popup",
           "add_radio_check_item",
+          "add_separator",
           "_update_update_spinner",
           "SceneTreeDock",
           "add_dock",
@@ -55056,7 +54691,6 @@
           "get_ticks_msec",
           "get_frames_drawn",
           "add_export_plugin",
-          "add_platform",
           "add_parser",
           "_edit_current",
           "set_process",
@@ -55612,9 +55246,6 @@
           "String",
           "vformat",
           "left",
-          "get_environment",
-          "capitalize",
-          "remove_char",
           "get_current_rendering_driver_name",
           "to_lower",
           "get_current_rendering_method",
@@ -55925,7 +55556,6 @@
           "vformat",
           "TTR",
           "generate_doc",
-          "create_singleton",
           "is_scene_changed",
           "update_scene_tabs",
           "is_visible",
@@ -55956,9 +55586,6 @@
           "set_snap_2d_transforms_to_pixel",
           "set_snap_2d_vertices_to_pixel",
           "set_auto_accept_quit",
-          "set_quit_on_go_back",
-          "EDITOR_DEF",
-          "window_set_mode",
           "register_shortcuts_as_command",
           "_begin_first_scan",
           "is_dark_mode",
@@ -56031,9 +55658,7 @@
           "size",
           "_update_update_spinner",
           "_update_main_menu_type",
-          "_update_vsync_mode",
-          "reset_cache",
-          "_touch_actions_panel_mode_changed"
+          "_update_vsync_mode"
         ],
         "EditorNode::_notify_nodes_scene_reimported@7052": [
           "cast_to",
@@ -56838,17 +56463,7 @@
           "push_back",
           "erase",
           "update_imports",
-          "_update_translations",
-          "set_debug_navigation_edge_connection_color",
-          "set_debug_navigation_geometry_edge_color",
-          "set_debug_navigation_geometry_face_color",
-          "set_debug_navigation_geometry_edge_disabled_color",
-          "set_debug_navigation_geometry_face_disabled_color",
-          "set_debug_navigation_enable_edge_connections",
-          "set_debug_navigation_enable_edge_lines",
-          "set_debug_navigation_enable_geometry_face_random_color",
-          "set_debug_navigation_enable_edge_connections_xray",
-          "set_debug_navigation_enable_edge_lines_xray"
+          "_update_translations"
         ],
         "EditorNode::_update_layouts_menu@6583": [
           "clear",
@@ -56897,8 +56512,6 @@
           "set_switch_on_hover",
           "add_submenu_node_item",
           "get_name",
-          "set_custom_minimum_size",
-          "Vector2",
           "add_child",
           "move_child",
           "get_index",
@@ -56946,10 +56559,8 @@
           "get_color",
           "SNAME",
           "EditorStringName",
-          "get_singleton",
-          "free_singleton",
-          "create_singleton",
           "push_back",
+          "get_singleton",
           "get_default_theme",
           "get_theme_context",
           "set_themes",
@@ -56979,8 +56590,7 @@
           "get_image",
           "update_tab_styles",
           "update_docks_menu",
-          "set_tab_icon_max_width",
-          "window_set_color"
+          "set_tab_icon_max_width"
         ],
         "EditorNode::_update_title@365": [
           "GLOBAL_GET",
@@ -58425,7 +58035,6 @@
           "cleanup",
           "remove_print_handler",
           "cleanup_doc",
-          "free_singleton",
           "memdelete",
           "destroy",
           "finalize",
@@ -58555,7 +58164,6 @@
           "ERR_FAIL_INDEX_V_MSG",
           "ERR_FAIL_NULL_V_MSG",
           "itos",
-          "_get_var_type",
           "get_type_name",
           "Type"
         ],
@@ -58590,16 +58198,6 @@
           "GodotProfileZoneScript",
           "_get_default_variant_for_data_type",
           "unlikely",
-          "get_instance",
-          "is_valid",
-          "is_empty",
-          "StringName",
-          "String",
-          "_err_print_error",
-          "utf8",
-          "get_data",
-          "get_singleton",
-          "debug_break",
           "ptr",
           "size",
           "is_vararg",
@@ -58617,9 +58215,8 @@
           "construct",
           "resize",
           "object_assign_without_ref_unsafe",
+          "get_singleton",
           "enter_function",
-          "get_ticks_usec",
-          "increment",
           "ptrw",
           "OPCODE_WHILE",
           "OPCODE_SWITCH",
@@ -58630,8 +58227,6 @@
           "get_type",
           "lock",
           "get_validated_operator_evaluator",
-          "get_type_name",
-          "get_operator_name",
           "unlock",
           "get_operator_return_type",
           "initialize",
@@ -58660,12 +58255,6 @@
           "get_script",
           "get_base_script",
           "set",
-          "is_read_only",
-          "_get_var_type",
-          "get_validated_object",
-          "has_property",
-          "get_property_setter",
-          "vformat",
           "setter",
           "get_int",
           "get",
@@ -58674,36 +58263,17 @@
           "get_named",
           "set_property",
           "get_property",
-          "can_convert_strict",
           "const_cast",
-          "_get_element_type",
           "get_name",
-          "get_path",
-          "get_file",
           "LOAD_INSTRUCTION_ARGS",
           "Type",
           "GET_INSTRUCTION_ARG",
-          "_get_call_error",
           "constructor",
           "set_typed",
           "reserve",
           "GodotProfileZoneScriptSystemCall",
           "callp",
-          "get_method",
-          "CoreStringName",
-          "has_return",
-          "has_builtin_method",
-          "has_builtin_method_return_value",
-          "is_class_ptr",
-          "get_class_ptr_static",
-          "_profile_count_as_native",
-          "_profile_native_call",
-          "is_ref_counted",
-          "_get_callable_call_error",
-          "METHOD_CALL_ON_FREED_INSTANCE_ERROR",
-          "METHOD_CALL_ON_NULL_VALUE_ERROR",
-          "call",
-          "get_instance_class"
+          "call"
         ],
         "_get_element_type@52": [
           "is_valid",
@@ -58750,7 +58320,6 @@
           "get_singleton",
           "benchmark_begin_measure",
           "ERR_FAIL_COND",
-          "flush_frame_parsed_events",
           "shutdown",
           "get_interface_count",
           "get_interface",
@@ -58771,10 +58340,9 @@
           "global_shader_parameters_clear",
           "set_primary_interface",
           "Ref",
+          "cleanup",
           "deinitialize_extensions",
           "uninitialize_modules",
-          "unregister_editor_types",
-          "cleanup",
           "unregister_platform_apis",
           "unregister_driver_types",
           "unregister_scene_types",
@@ -58859,14 +58427,9 @@
           "set_physics_process_time",
           "set_navigation_process_time",
           "add_frame",
-          "doing_first_scan",
           "is_accessibility_enabled",
           "add_frame_delay",
-          "window_can_draw",
-          "set_exit_code",
-          "ERR_FAIL_V_MSG",
-          "call_build",
-          "unload_editor_addons"
+          "window_can_draw"
         ],
         "Main::print_header@437": [
           "get_singleton",
@@ -58914,76 +58477,38 @@
           "make_main_thread",
           "set_current_thread_safe_for_nodes",
           "print_header",
-          "create",
-          "are_paths_valid",
-          "ERR_FAIL_COND_V",
-          "dir_exists_absolute",
-          "get_config_dir",
-          "get_existing_settings_path",
-          "exists",
-          "open",
-          "is_valid",
-          "is_empty",
-          "Variant",
-          "clear",
-          "String",
-          "parse_tag_assign_eof",
-          "int",
-          "get_environment",
-          "is_self_contained",
-          "get_resource_path",
-          "get_executable_path",
-          "get_base_dir",
-          "ERR_PRINT",
-          "set_exit_code",
-          "instantiate",
-          "load",
-          "get_project_settings_dir",
-          "path_join",
-          "get_value",
-          "Vector2i",
-          "benchmark_end_measure",
           "memnew",
+          "instantiate",
           "add_interface",
           "initialize_server_manager",
           "register_server_types",
           "initialize_modules",
           "initialize_extensions",
+          "benchmark_end_measure",
           "initialize_joypads",
+          "is_empty",
           "GLOBAL_GET",
           "get_create_function_count",
           "get_create_function_name",
           "GLOBAL_DEF_BASIC",
           "set_early_window_clear_color_override",
           "int64_t",
+          "create",
           "WARN_VERBOSE",
           "vformat",
           "set_mode",
           "get_current_rendering_driver_name",
           "WARN_PRINT",
+          "ERR_PRINT",
           "memdelete",
           "deinitialize_extensions",
           "uninitialize_modules",
           "unregister_server_types",
-          "get_auto_display_scale",
-          "window_set_size",
-          "Size2",
           "has_feature",
-          "window_get_size",
-          "screen_get_usable_rect",
-          "window_set_position",
           "show_window",
           "screen_set_orientation",
           "_set_max_fps",
           "get_max_fps",
-          "window_get_mode",
-          "window_get_position",
-          "window_get_current_screen",
-          "get_end",
-          "min",
-          "get_position",
-          "max",
-          "window_get_min_size",
           "print_line",
           "GLOBAL_DEF_RST_NOVAL",
           "PropertyInfo",
@@ -58997,7 +58522,6 @@
           "init",
           "set_render_loop_enabled",
           "set_print_gpu_profile",
-          "has_environment",
           "initialize",
           "register_core_singletons",
           "MAIN_PRINT",
@@ -59006,6 +58530,7 @@
           "Color",
           "set_default_clear_color",
           "setup_boot_logo",
+          "String",
           "GLOBAL_DEF",
           "set_agile_input_event_flushing",
           "is_touchscreen_available",
@@ -59038,22 +58563,21 @@
           "push_back",
           "class_exists",
           "GLOBAL_DEF_NOVAL",
-          "set_current_api",
-          "register_editor_types",
           "register_platform_apis",
           "Vector2",
           "Point2",
+          "load",
+          "is_valid",
           "set_custom_mouse_cursor",
           "initialize_physics",
           "register_server_singletons",
           "init_languages",
           "initialize_theme",
           "load_default_bus_layout",
-          "get_cmdline_args",
-          "handle_cmdline_args",
           "is_active",
           "profiler_enable",
           "global_shader_parameters_load_settings",
+          "set_current_api",
           "uitos",
           "get_api_hash",
           "begins_with",
@@ -59062,43 +58586,20 @@
           "get_id_path",
           "ends_with",
           "start",
+          "ERR_FAIL_COND_V",
           "get_ticks_usec",
+          "get_cmdline_args",
           "front",
           "next",
           "get",
-          "set_flag",
-          "ensure_path",
           "length",
-          "ERR_FAIL_COND_V_MSG",
-          "split",
+          "ensure_path",
           "is_editor_hint",
-          "set_editor_hint",
-          "load_doc_translations",
-          "is_null",
-          "dir_exists",
-          "generate",
-          "has_flag",
-          "is_relative_path",
-          "has",
-          "insert",
-          "create_for_path",
-          "make_dir_recursive",
-          "itos",
-          "load_classes",
-          "merge_from",
-          "erase_classes",
-          "save_classes",
-          "get_cache_full_path",
-          "remove_file_or_error",
-          "generate_gdextension_interface_file",
-          "generate_gdextension_interface_header",
-          "generate_extension_json_file",
-          "validate_extension_json_file",
-          "ProjectConverter3To4",
-          "convert",
-          "validate_conversion",
+          "exists",
           "get_cache_file",
           "alert",
+          "ERR_FAIL_COND_V_MSG",
+          "is_null",
           "can_instantiate",
           "get_instance_base_type",
           "cast_to",
@@ -59107,15 +58608,6 @@
           "get_global_class_path",
           "ERR_FAIL_NULL_V_MSG",
           "set_main_loop",
-          "set_debug_collisions_hint",
-          "set_debug_paths_hint",
-          "set_debug_navigation_hint",
-          "set_debug_navigation_enabled",
-          "set_debug_avoidance_enabled",
-          "set_active",
-          "set_debug_enabled",
-          "canvas_item_set_debug_redraw",
-          "set_debug_mute",
           "set_disable_node_threading",
           "get_root",
           "set_embedding_subwindows",
@@ -59125,6 +58617,7 @@
           "get_language_count",
           "get_language",
           "add_global_constant",
+          "Variant",
           "get_resource_type",
           "set_path",
           "reload_from_file",
@@ -59138,11 +58631,9 @@
           "get_singleton",
           "initialize",
           "get_cwd",
-          "get_bundle_resource_dir",
-          "is_empty",
-          "is_absolute_path",
           "get_executable_path",
           "get_base_dir",
+          "is_empty",
           "set_cwd",
           "benchmark_begin_measure",
           "memnew",
@@ -59162,8 +58653,6 @@
           "unescape_cmdline",
           "strip_edges",
           "next",
-          "add_pack_source",
-          "begins_with",
           "print_line",
           "get_full_version_string",
           "get_driver_count",
@@ -59179,16 +58668,10 @@
           "get_slicec",
           "Point2",
           "ERR_PRINT",
-          "contains",
-          "itos",
           "ends_with",
-          "MAX",
-          "rfind_char",
-          "substr",
           "split",
           "set_time_scale",
           "to_float",
-          "set_debug_stringnames",
           "set_write_movie_path",
           "disable_crash_handler",
           "to_lower",
@@ -59197,8 +58680,6 @@
           "set_use_benchmark",
           "set_benchmark_file",
           "set_embedded_in_editor",
-          "setup_remote_filesystem",
-          "printerr",
           "setup",
           "get_file",
           "get_basename",
@@ -59206,17 +58687,6 @@
           "path_join",
           "alert",
           "init",
-          "GLOBAL_GET",
-          "set_environment",
-          "unset_environment",
-          "set_crash_handler_silent",
-          "_test_create_rendering_device",
-          "_test_create_rendering_device_and_gl",
-          "set_editor_hint",
-          "set_extension_reloading_enabled",
-          "create_lock_file",
-          "set_project_manager_hint",
-          "set_recovery_mode_hint",
           "set_cmdline",
           "set_physics_ticks_per_second",
           "GLOBAL_DEF_BASIC",
@@ -59228,6 +58698,7 @@
           "ensure_user_data_dir",
           "set_low_processor_usage_mode",
           "set_low_processor_usage_mode_sleep_usec",
+          "GLOBAL_GET",
           "register_early_core_singletons",
           "initialize_modules",
           "register_core_extensions",
@@ -59236,11 +58707,11 @@
           "fix_autoload_paths",
           "has_custom_feature",
           "enable_for_stealing_focus",
-          "set_disabled",
           "get_create_func",
           "add_logger",
           "RotatedFileLogger",
           "String",
+          "set_editor_hint",
           "load_default",
           "load_from_project_settings",
           "set_flush_stdout_on_print",
@@ -59278,10 +58749,7 @@
           "set_boot_image_with_stretch",
           "memnew",
           "Image",
-          "set_default_clear_color",
-          "has_feature",
-          "get_bundle_icon_path",
-          "set_icon"
+          "set_default_clear_color"
         ],
         "Main::start@3987": [
           "GodotProfileZone",
@@ -59294,57 +58762,28 @@
           "front",
           "next",
           "get",
-          "set_flag",
-          "ensure_path",
-          "ERR_FAIL_V_MSG",
           "ERR_PRINT",
           "length",
           "is_empty",
+          "ensure_path",
           "ends_with",
           "begins_with",
-          "ERR_FAIL_COND_V_MSG",
-          "split",
+          "ERR_FAIL_V_MSG",
           "GLOBAL_DEF",
           "PropertyInfo",
           "is_editor_hint",
-          "set_editor_hint",
-          "load_doc_translations",
-          "open",
-          "is_null",
-          "dir_exists",
-          "generate",
-          "print_line",
-          "has_flag",
-          "is_relative_path",
-          "path_join",
-          "has",
-          "insert",
-          "create_for_path",
-          "make_dir_recursive",
-          "itos",
-          "load_classes",
-          "merge_from",
-          "erase_classes",
-          "save_classes",
-          "exists",
-          "get_cache_full_path",
-          "remove_file_or_error",
-          "generate_gdextension_interface_file",
-          "generate_gdextension_interface_header",
-          "generate_extension_json_file",
-          "validate_extension_json_file",
-          "ProjectConverter3To4",
-          "convert",
-          "validate_conversion",
-          "GLOBAL_GET",
           "String",
+          "GLOBAL_GET",
           "text_to_id",
           "has_id",
+          "exists",
           "get_cache_file",
           "alert",
           "get_id_path",
           "memnew",
           "load",
+          "ERR_FAIL_COND_V_MSG",
+          "is_null",
           "is_valid",
           "can_instantiate",
           "get_instance_base_type",
@@ -59358,15 +58797,6 @@
           "get_global_class_path",
           "ERR_FAIL_NULL_V_MSG",
           "set_main_loop",
-          "set_debug_collisions_hint",
-          "set_debug_paths_hint",
-          "set_debug_navigation_hint",
-          "set_debug_navigation_enabled",
-          "set_debug_avoidance_enabled",
-          "set_active",
-          "set_debug_enabled",
-          "canvas_item_set_debug_redraw",
-          "set_debug_mute",
           "set_disable_node_threading",
           "has_feature",
           "get_root",
@@ -59387,13 +58817,6 @@
           "push_back",
           "add_child",
           "benchmark_end_measure",
-          "get_files_with_extension",
-          "get_documentation",
-          "add_doc",
-          "set_translation_domain",
-          "get_editor_domain",
-          "set_pseudolocalization_enabled",
-          "export_preset",
           "set_auto_accept_quit",
           "set_quit_on_go_back",
           "Size2i",
@@ -59411,34 +58834,25 @@
           "DefaultCanvasItemTextureFilter",
           "set_default_canvas_item_texture_repeat",
           "DefaultCanvasItemTextureRepeat",
-          "EDITOR_GET",
-          "int",
           "replace_char",
           "size",
           "is_using_datapack",
           "rfind_char",
           "create",
           "get_current_dir",
+          "path_join",
+          "open",
           "substr",
           "localize_path",
-          "has_scenes_in_session",
-          "load_scene",
-          "set_keep_open",
           "load_default_certificates",
           "add_current_scene",
-          "get_bundle_resource_dir",
-          "get_bundle_icon_name",
-          "get_bundle_icon_path",
-          "set_native_icon",
           "load_image",
           "set_icon",
-          "get_setting",
-          "set_recovery_mode_hint",
+          "get_bundle_icon_path",
           "Image",
           "begin",
           "get_write_movie_path",
           "startup",
-          "process_events",
           "delay_usec",
           "benchmark_dump"
         ],
@@ -59454,7 +58868,6 @@
           "clear_base_helpers",
           "deinitialize_extensions",
           "uninitialize_modules",
-          "unregister_editor_types",
           "unregister_platform_apis",
           "unregister_driver_types",
           "unregister_scene_types",
@@ -59477,9 +58890,6 @@
         "Main::test_entrypoint@974": [
           "strlen",
           "strncmp",
-          "test_setup",
-          "test_main",
-          "test_cleanup",
           "ERR_PRINT"
         ],
         "Main::test_setup@736": [
@@ -59519,8 +58929,6 @@
           "register_scene_types",
           "register_driver_types",
           "register_scene_singletons",
-          "set_current_api",
-          "register_editor_types",
           "register_platform_apis",
           "initialize_theme_noproject",
           "ERR_FAIL_COND_V",
@@ -59531,7 +58939,8 @@
           "has_feature",
           "load_support_data",
           "get_support_data_filename",
-          "ERR_FAIL_V_MSG"
+          "ERR_FAIL_V_MSG",
+          "set_current_api"
         ],
         "_parse_resource_dummy@2988": [
           "get_token",
@@ -59587,8 +58996,7 @@
       },
       "cpp/godot/node.cpp": {
         "Node::Node@4084": [
-          "_define_ancestry",
-          "increment"
+          "_define_ancestry"
         ],
         "Node::_acquire_unique_name_in_owner@2233": [
           "ERR_FAIL_NULL",
@@ -59729,7 +59137,6 @@
           "get_name",
           "String",
           "set_name",
-          "insert",
           "get_groups",
           "add_to_group",
           "add_child",
@@ -59910,9 +59317,6 @@
           "set_physics_process",
           "is_main_thread",
           "cancel_free",
-          "is_editor_hint",
-          "get_edited_scene_root",
-          "vformat",
           "_clean_up_owner",
           "is_empty",
           "back",
@@ -59941,12 +59345,9 @@
           "emit_signalp",
           "SNAME",
           "is_inside_tree",
-          "_propagate_enter_tree",
-          "add_to_cache"
+          "_propagate_enter_tree"
         ],
         "Node::_propagate_exit_tree@412": [
-          "is_empty",
-          "remove_from_cache",
           "last",
           "_propagate_exit_tree",
           "GDVIRTUAL_CALL",
@@ -60091,9 +59492,7 @@
           "ERR_THREAD_GUARD",
           "vformat",
           "get_name",
-          "is_ancestor_of",
           "_validate_child_name",
-          "WARN_PRINT",
           "_add_child_nocheck"
         ],
         "Node::add_child_notify@602": [],
@@ -60154,8 +59553,7 @@
         ],
         "Node::connect@4222": [
           "ERR_THREAD_GUARD_V",
-          "connect",
-          "_emit_editor_state_changed"
+          "connect"
         ],
         "Node::create_tween@2618": [
           "ERR_THREAD_GUARD_V",
@@ -60166,9 +59564,7 @@
           "bind_node"
         ],
         "Node::disconnect@4235": [
-          "get_signal_connection_flags",
-          "_disconnect",
-          "_emit_editor_state_changed"
+          "_disconnect"
         ],
         "Node::duplicate@2928": [
           "ERR_THREAD_GUARD_V",
@@ -60374,11 +59770,7 @@
           "is_popup",
           "get_parent_visible_window"
         ],
-        "Node::get_orphan_node_ids@3443": [
-          "clear",
-          "debug_objects",
-          "push_back"
-        ],
+        "Node::get_orphan_node_ids@3443": [],
         "Node::get_owned_by@2200": [
           "push_back",
           "get_owned_by"
@@ -60592,13 +59984,7 @@
         "Node::prevalidate_child_name@1506": [
           "_generate_serial_child_name"
         ],
-        "Node::print_orphan_nodes@3427": [
-          "clear",
-          "debug_objects",
-          "print_line",
-          "itos",
-          "get"
-        ],
+        "Node::print_orphan_nodes@3427": [],
         "Node::print_tree@2544": [
           "print_line",
           "_get_tree_string"
@@ -60668,8 +60054,7 @@
         "Node::remove_from_group@2481": [
           "find",
           "remove_from_group",
-          "remove",
-          "_emit_editor_state_changed"
+          "remove"
         ],
         "Node::remove_meta@4166": [
           "remove_meta",
@@ -60851,12 +60236,7 @@
           "can_process",
           "_is_enabled",
           "ERR_FAIL_MSG",
-          "_propagate_process_owner",
-          "get_singleton",
-          "is_editor_hint",
-          "emit_signal",
-          "SNAME",
-          "_emit_editor_state_changed"
+          "_propagate_process_owner"
         ],
         "Node::set_process_priority@1153": [
           "ERR_THREAD_GUARD",
@@ -60955,21 +60335,14 @@
         "Node::shortcut_input@3619": [],
         "Node::unhandled_input@3622": [],
         "Node::unhandled_key_input@3625": [],
-        "Node::update_configuration_warnings@3535": [
-          "ERR_THREAD_GUARD",
-          "get_edited_scene_root",
-          "is_ancestor_of",
-          "emit_signal",
-          "SceneStringName"
-        ],
+        "Node::update_configuration_warnings@3535": [],
         "Node::validate_child_name@1500": [
           "_generate_serial_child_name"
         ],
         "Node::~Node@4126": [
           "clear",
           "ERR_FAIL_COND",
-          "size",
-          "decrement"
+          "size"
         ],
         "_add_nodes_to_options@3475": [
           "get_owner",
@@ -61159,8 +60532,7 @@
           "clear_internal_resource_paths"
         ],
         "Object::_construct_object@2274": [
-          "add_instance",
-          "init"
+          "add_instance"
         ],
         "Object::_disconnect@1616": [
           "ERR_FAIL_COND_V_MSG",
@@ -61195,7 +60567,6 @@
           "size",
           "get_virtual_call_data",
           "get_virtual",
-          "memnew",
           "reinterpret_cast"
         ],
         "Object::_get_bind@1675": [
@@ -61275,11 +60646,7 @@
         "Object::_predelete@157": [
           "notification",
           "memdelete",
-          "untrack_instance",
-          "free_instance",
-          "get_singleton",
-          "is_extension_reloading_enabled",
-          "untrack_instance_binding"
+          "free_instance"
         ],
         "Object::_remove_user_signal@1113": [
           "ObjectSignalLock",
@@ -61336,11 +60703,8 @@
         ],
         "Object::callp@754": [
           "CoreStringName",
-          "Variant",
-          "is_ref_counted",
-          "ERR_FAIL_V_MSG",
-          "get",
           "memdelete",
+          "Variant",
           "OBJ_DEBUG_LOCK",
           "callp",
           "get_method",
@@ -61411,19 +60775,11 @@
         "Object::emit_signalp@1164": [
           "ObjectSignalLock",
           "getptr",
-          "has_signal",
-          "get_class_name",
-          "ERR_FAIL_COND_V_MSG",
-          "get_script",
-          "has_script_signal",
-          "vformat",
           "size",
           "memalloc",
           "memnew_placement",
           "Callable",
           "DEV_ASSERT",
-          "get_singleton",
-          "is_editor_hint",
           "_disconnect",
           "cast_to",
           "reference",
@@ -61431,12 +60787,14 @@
           "get_unbound_arguments_count",
           "resize",
           "ptrw",
+          "get_singleton",
           "push_callablep",
           "callp",
           "get_object",
-          "is_tool",
           "class_exists",
+          "get_class_name",
           "ERR_PRINT",
+          "vformat",
           "String",
           "get_callable_error_text",
           "~Callable",
@@ -61455,7 +60813,6 @@
           "CoreStringName",
           "get_script",
           "getptr",
-          "property_get_fallback",
           "_getv",
           "Variant"
         ],
@@ -61478,7 +60835,6 @@
           "get_name"
         ],
         "Object::get_class_name_for_extension@2110": [
-          "unlikely",
           "get_class_name",
           "is_class_exposed",
           "get_parent_class",
@@ -61502,10 +60858,7 @@
           "unlikely",
           "next_power_of_2",
           "memrealloc",
-          "create_callback",
-          "get_singleton",
-          "is_extension_reloading_enabled",
-          "track_instance_binding"
+          "create_callback"
         ],
         "Object::get_meta@1033": [
           "has",
@@ -61536,7 +60889,6 @@
           "get_property_list",
           "push_back",
           "PropertyInfo",
-          "likely",
           "free_property_list2",
           "free_property_list",
           "_get_property_listv",
@@ -61690,7 +61042,6 @@
           "begins_with",
           "set_meta",
           "replace_first",
-          "property_set_fallback",
           "_setv"
         ],
         "Object::set_block_signals@1992": [],
@@ -61841,8 +61192,7 @@
         "ObjectDB::remove_instance@2485": [
           "get_instance_id",
           "lock",
-          "unlock",
-          "ERR_FAIL_COND"
+          "unlock"
         ],
         "ObjectDB::setup@2518": [],
         "ObjectGDExtension::create_gdtype@116": [
@@ -62601,9 +61951,6 @@
           "reinterpret_cast",
           "_get_obj",
           "RID",
-          "is_active",
-          "ERR_FAIL_NULL_V_MSG",
-          "get_instance",
           "callp",
           "CoreStringName",
           "get_type"
@@ -65088,7 +64435,6 @@
           "move"
         ],
         "Start@243": [
-          "IsDebuggerPresent",
           "SetWindowsHookExW",
           "GetLastError",
           "show_last_error_message"
@@ -111761,11 +111107,8 @@
           "setVertScrollerRequired",
           "setHorizScrollerRequired",
           "getFrame",
-          "sizeWindow",
-          "moveTopLeftTo",
           "getFrameRect",
           "placeWindow",
-          "renewRuns",
           "reenableFlushWindow",
           "display"
         ],
@@ -111863,9 +111206,7 @@
         ],
         "initialize@50": [],
         "isIndex@369": [],
-        "keyDown@1426": [
-          "printf"
-        ],
+        "keyDown@1426": [],
         "linkSelTo@442": [
           "HTStyleNew",
           "isEditable",
@@ -111922,8 +111263,6 @@
           "setNoWrap",
           "setFont",
           "newFont",
-          "getFrame",
-          "renewRuns",
           "adjustWindow"
         ],
         "referenceAll@490": [],
@@ -169725,9 +169064,6 @@
           "GC_REG_TRAV"
         ],
         "scheme_case_lambda_execute@1874": [
-          "scheme_make_native_case_closure",
-          "SCHEME_PROCP",
-          "scheme_make_native_closure",
           "scheme_malloc_tagged",
           "SAME_TYPE",
           "SCHEME_TYPE",
@@ -169761,8 +169097,6 @@
           "SCHEME_TRUEP"
         ],
         "scheme_do_eval@2157": [
-          "do_eval_stack_overflow",
-          "printf",
           "evacuate_runstack",
           "UPDATE_THREAD_RSPTR",
           "make_tail_buffer_safe",
@@ -169789,7 +169123,6 @@
           "scheme_delay_load_closure",
           "UPDATE_THREAD_RSPTR_FOR_PROC_MARK",
           "scheme_set_cont_mark",
-          "start_code",
           "scheme_jump_to_continuation",
           "scheme_escape_to_continuation",
           "SCHEME_REDIRECTS_STRUCTP",
@@ -169967,29 +169300,15 @@
           "scheme_clear_escape"
         ],
         "scheme_init_eval@215": [
-          "register_traversers",
           "REGISTER_SO",
           "scheme_alloc_eternal_object",
           "scheme_make_symbol",
           "ADD_PRIM_W_ARITY",
           "ADD_PARAMETER"
         ],
-        "scheme_init_eval_places@253": [
-          "scheme_do_eval"
-        ],
+        "scheme_init_eval_places@253": [],
         "scheme_init_stack_check@481": [
-          "scheme_get_deeper_address",
-          "scheme_console_printf",
-          "printf",
-          "exit",
-          "scheme_get_current_os_thread_stack_base",
-          "find_exe_stack_size",
-          "StackSpace",
-          "SysGetStackInfo",
-          "getrlimit",
-          "adjust_stack_base",
-          "pthread_stackseg_np",
-          "pthread_self"
+          "scheme_get_deeper_address"
         ],
         "scheme_install_macro@1658": [
           "scheme_alloc_small_object",
@@ -170045,9 +169364,6 @@
           "scheme_longjmp"
         ],
         "scheme_make_closure@2002": [
-          "SAME_TYPE",
-          "SCHEME_TYPE",
-          "scheme_make_native_closure",
           "scheme_malloc_tagged",
           "SCHEME_CLOSURE_CODE"
         ],
@@ -170147,9 +169463,7 @@
         ]
       },
       "scheme/racket/fun.c": {
-        "ASSERT_SUSPEND_BREAK_ZERO@11": [
-          "abort"
-        ],
+        "ASSERT_SUSPEND_BREAK_ZERO@11": [],
         "X_scheme_apply_to_list@1721": [
           "scheme_list_length",
           "MALLOC_N",
@@ -170321,10 +169635,7 @@
           "_scheme_apply_multi",
           "SAME_OBJ"
         ],
-        "can_apply_lightweight_continuation@9351": [
-          "SCHEME_TRUEP",
-          "scheme_handle_stack_overflow"
-        ],
+        "can_apply_lightweight_continuation@9351": [],
         "can_apply_lwc_k@9392": [
           "can_apply_lightweight_continuation"
         ],
@@ -170475,7 +169786,6 @@
           "scheme_make_hash_table",
           "scheme_make_vector",
           "scheme_raise_exn",
-          "scheme_native_stack_trace",
           "scheme_log_abort",
           "abort",
           "MALLOC_ONE_TAGGED"
@@ -170600,9 +169910,6 @@
           "scheme_longjmp"
         ],
         "do_apply_chaperone@3720": [
-          "MALLOC_N",
-          "memcpy",
-          "scheme_handle_stack_overflow",
           "scheme_apply_chaperone"
         ],
         "do_apply_with_prompt@1622": [
@@ -170887,21 +170194,9 @@
           "scheme_extract_struct_procedure",
           "SCHEME_PROCP",
           "SCHEME_USE_FUEL",
-          "scheme_get_native_arity",
-          "SCHEME_BOXP",
-          "SCHEME_BOX_VAL",
-          "SCHEME_STRUCTP",
-          "SCHEME_INT_VAL",
-          "SCHEME_INTP",
-          "SCHEME_NULLP",
-          "SCHEME_CAR",
-          "SCHEME_CDR",
-          "SCHEME_PAIRP",
-          "make_arity",
-          "scheme_make_pair",
-          "scheme_native_arity_check",
           "SCHEME_CHAPERONE_VAL",
-          "make_arity_mask"
+          "make_arity_mask",
+          "make_arity"
         ],
         "get_set_cont_mark_by_pos@8992": [
           "SAME_OBJ",
@@ -170923,7 +170218,6 @@
           "scheme_make_weak_box",
           "clone_overflows",
           "MALLOC_N",
-          "scheme_native_stack_trace",
           "copy_out_runstack",
           "scheme_prompt_runstack_boundary_start",
           "clone_runstack_saved",
@@ -170962,11 +170256,7 @@
           "scheme_is_cm_deeper",
           "scheme_extract_one_cc_mark",
           "SCHEME_WEAK_BOX_VAL",
-          "scheme_native_stack_trace",
           "find_shareable_marks",
-          "SCHEME_PAIRP",
-          "SCHEME_CAR",
-          "SCHEME_CDR",
           "grab_continuation",
           "_scheme_tail_apply",
           "scheme_zero_unneeded_rands",
@@ -171138,9 +170428,7 @@
           "SAME_TYPE",
           "SCHEME_TYPE",
           "SCHEME_LAMBDA_FLAGS",
-          "SCHEME_CLOSURE_CODE",
-          "scheme_get_native_arity",
-          "SCHEME_BOXP"
+          "SCHEME_CLOSURE_CODE"
         ],
         "procedure_arity@2910": [
           "SCHEME_PROCP",
@@ -171203,7 +170491,6 @@
           "SCHEME_LAMBDA_FLAGS",
           "SCHEME_CLOSURE_CODE",
           "scheme_make_integer",
-          "scheme_native_closure_is_single_result",
           "SCHEME_PRIMP",
           "scheme_make_arity",
           "SCHEME_STRUCTP",
@@ -171212,13 +170499,7 @@
         ],
         "procedure_specialize@3539": [
           "SCHEME_PROCP",
-          "scheme_wrong_contract",
-          "SAME_TYPE",
-          "SCHEME_TYPE",
-          "SCHEME_NATIVE_LAMBDA_FLAGS",
-          "scheme_malloc_atomic",
-          "MALLOC_ONE_TAGGED",
-          "memcpy"
+          "scheme_wrong_contract"
         ],
         "procedure_to_method@3409": [
           "SCHEME_PROCP",
@@ -171434,7 +170715,6 @@
         "scheme_clear_prompt_cache@1397": [],
         "scheme_closure_preserves_marks@2284": [
           "SCHEME_TYPE",
-          "scheme_native_closure_preserves_marks",
           "SCHEME_CLOSURE_CODE",
           "SCHEME_LAMBDA_FLAGS"
         ],
@@ -171709,7 +170989,6 @@
           "scheme_stx_property"
         ],
         "scheme_init_fun@200": [
-          "register_traversers",
           "REGISTER_SO",
           "scheme_alloc_eternal_object",
           "scheme_make_folding_prim",
@@ -171904,7 +171183,6 @@
           "allocate_prompt",
           "initialize_prompt",
           "PROMPT_STACK",
-          "scheme_get_external_stack_val",
           "scheme_create_overflow",
           "scheme_save_env_stack_w_thread",
           "scheme_push_continuation_frame",
@@ -171913,7 +171191,6 @@
           "SAME_OBJ",
           "reset_cjs",
           "scheme_restore_env_stack_w_thread",
-          "scheme_set_external_stack_val",
           "scheme_pop_continuation_frame",
           "scheme_longjmp",
           "scheme_check_break_now",

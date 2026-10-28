@@ -4,45 +4,45 @@
    "agree": 11096,
    "clang_edges": 11166,
    "disagreements_in_clean_files": 0,
-   "engine_edges": 12062,
+   "engine_edges": 12046,
    "files_fatal": 324,
-   "precision": 0.9199,
+   "precision": 0.9211,
    "recall": 0.9937
   },
   "crispy-doom": {
    "agree": 12723,
    "clang_edges": 12779,
    "disagreements_in_clean_files": 0,
-   "engine_edges": 13943,
+   "engine_edges": 13921,
    "files_fatal": 356,
-   "precision": 0.9125,
+   "precision": 0.9139,
    "recall": 0.9956
   },
   "doom-ascii": {
    "agree": 1829,
    "clang_edges": 1846,
    "disagreements_in_clean_files": 0,
-   "engine_edges": 1954,
+   "engine_edges": 1947,
    "files_fatal": 81,
-   "precision": 0.936,
+   "precision": 0.9394,
    "recall": 0.9908
   },
   "doom-wasm": {
    "agree": 3656,
    "clang_edges": 3673,
    "disagreements_in_clean_files": 0,
-   "engine_edges": 4002,
+   "engine_edges": 3996,
    "files_fatal": 161,
-   "precision": 0.9135,
+   "precision": 0.9149,
    "recall": 0.9954
   },
   "doomgeneric": {
    "agree": 1958,
    "clang_edges": 1969,
    "disagreements_in_clean_files": 0,
-   "engine_edges": 2124,
+   "engine_edges": 2118,
    "files_fatal": 92,
-   "precision": 0.9218,
+   "precision": 0.9245,
    "recall": 0.9944
   },
   "doomretro": {
@@ -58,9 +58,9 @@
    "agree": 9163,
    "clang_edges": 9310,
    "disagreements_in_clean_files": 0,
-   "engine_edges": 10579,
+   "engine_edges": 10574,
    "files_fatal": 246,
-   "precision": 0.8661,
+   "precision": 0.8666,
    "recall": 0.9842
   },
   "fastdoom": {
@@ -76,69 +76,69 @@
    "agree": 12826,
    "clang_edges": 12988,
    "disagreements_in_clean_files": 3,
-   "engine_edges": 13517,
+   "engine_edges": 13511,
    "files_fatal": 282,
-   "precision": 0.9489,
+   "precision": 0.9493,
    "recall": 0.9875
   },
   "linuxdoom": {
    "agree": 1493,
    "clang_edges": 1512,
    "disagreements_in_clean_files": 0,
-   "engine_edges": 1535,
+   "engine_edges": 1527,
    "files_fatal": 59,
-   "precision": 0.9726,
+   "precision": 0.9777,
    "recall": 0.9874
   },
   "nugget-doom": {
-   "agree": 8292,
+   "agree": 8272,
    "clang_edges": 8829,
    "disagreements_in_clean_files": 6,
-   "engine_edges": 9028,
+   "engine_edges": 9006,
    "files_fatal": 213,
    "precision": 0.9185,
-   "recall": 0.9392
+   "recall": 0.9369
   },
   "prboom-plus": {
    "agree": 3774,
    "clang_edges": 3997,
    "disagreements_in_clean_files": 0,
-   "engine_edges": 4393,
+   "engine_edges": 4369,
    "files_fatal": 133,
-   "precision": 0.8591,
+   "precision": 0.8638,
    "recall": 0.9442
   },
   "puredoom": {
    "agree": 1830,
    "clang_edges": 1864,
-   "disagreements_in_clean_files": 61,
-   "engine_edges": 1865,
+   "disagreements_in_clean_files": 34,
+   "engine_edges": 1838,
    "files_fatal": 3,
-   "precision": 0.9812,
+   "precision": 0.9956,
    "recall": 0.9818
   },
   "sdl-doom": {
    "agree": 1899,
    "clang_edges": 1910,
    "disagreements_in_clean_files": 0,
-   "engine_edges": 2051,
+   "engine_edges": 2045,
    "files_fatal": 82,
-   "precision": 0.9259,
+   "precision": 0.9286,
    "recall": 0.9942
   },
   "woof": {
-   "agree": 7485,
+   "agree": 7484,
    "clang_edges": 7998,
    "disagreements_in_clean_files": 6,
-   "engine_edges": 8193,
+   "engine_edges": 8192,
    "files_fatal": 212,
    "precision": 0.9136,
-   "recall": 0.9359
+   "recall": 0.9357
   }
  },
  "consensus": {
-  "divergent": 319,
-  "engine_missed": 2,
+  "divergent": 311,
+  "engine_missed": 7,
   "false_edge_suspects": 0,
   "family": [
    "linuxdoom",
@@ -151,102 +151,143 @@
    "doom-wasm",
    "inter-doom"
   ],
-  "holes": 321,
+  "holes": 318,
   "missed_by_port": {
-   "crispy-doom": 1,
-   "inter-doom": 1
+   "crispy-doom": 3,
+   "inter-doom": 1,
+   "puredoom": 3
   },
   "missed_by_shape": {
-   "function-pointer": 2
+   "assignment-rhs": 1,
+   "function-pointer": 2,
+   "statement": 4
   },
   "quorum": 0.75
  },
- "engine_sha": "590c80513",
+ "engine_sha": "b0b339a35",
  "ports": {
   "chocolate-doom": {
-   "agree": 12132,
-   "engine_calls": 12132,
+   "agree": 12115,
+   "engine_calls": 12115,
    "engine_only_by_kind": {},
    "functions": 5026,
-   "misses_by_shape": {},
+   "misses_by_shape": {
+    "after-cast": 1,
+    "after-operator": 4,
+    "assignment-rhs": 3,
+    "nested-argument": 1,
+    "statement": 8
+   },
    "oracle_calls": 12132,
    "precision": 1.0,
-   "recall": 1.0,
+   "recall": 0.9986,
    "text_fallback_functions": 14,
    "unmatched_functions": 0
   },
   "crispy-doom": {
-   "agree": 14043,
-   "engine_calls": 14043,
+   "agree": 14020,
+   "engine_calls": 14020,
    "engine_only_by_kind": {},
    "functions": 5767,
-   "misses_by_shape": {},
+   "misses_by_shape": {
+    "after-cast": 1,
+    "after-operator": 4,
+    "assignment-rhs": 3,
+    "nested-argument": 1,
+    "statement": 13,
+    "unparsed": 1
+   },
    "oracle_calls": 14043,
    "precision": 1.0,
-   "recall": 1.0,
+   "recall": 0.9984,
    "text_fallback_functions": 15,
    "unmatched_functions": 0
   },
   "doom-ascii": {
-   "agree": 1980,
-   "engine_calls": 1980,
+   "agree": 1973,
+   "engine_calls": 1973,
    "engine_only_by_kind": {},
    "functions": 1019,
-   "misses_by_shape": {},
+   "misses_by_shape": {
+    "after-operator": 3,
+    "nested-argument": 1,
+    "statement": 3
+   },
    "oracle_calls": 1980,
    "precision": 1.0,
-   "recall": 1.0,
+   "recall": 0.9965,
    "text_fallback_functions": 0,
    "unmatched_functions": 0
   },
   "doom-wasm": {
-   "agree": 4069,
-   "engine_calls": 4069,
+   "agree": 4062,
+   "engine_calls": 4062,
    "engine_only_by_kind": {},
    "functions": 2052,
-   "misses_by_shape": {},
+   "misses_by_shape": {
+    "after-operator": 1,
+    "assignment-rhs": 1,
+    "nested-argument": 1,
+    "statement": 4
+   },
    "oracle_calls": 4069,
    "precision": 1.0,
-   "recall": 1.0,
+   "recall": 0.9983,
    "text_fallback_functions": 5,
    "unmatched_functions": 0
   },
   "doom3-bfg": {
-   "agree": 47973,
-   "engine_calls": 48744,
+   "agree": 47612,
+   "engine_calls": 48378,
    "engine_only_by_kind": {
     "function-pointer": 21,
-    "type": 750
+    "type": 745
    },
    "functions": 16379,
-   "misses_by_shape": {},
-   "oracle_calls": 47973,
+   "misses_by_shape": {
+    "after-cast": 3,
+    "after-operator": 67,
+    "assignment-rhs": 42,
+    "condition/return": 10,
+    "nested-argument": 32,
+    "other": 12,
+    "statement": 149,
+    "unparsed": 48
+   },
+   "oracle_calls": 47975,
    "precision": 0.9842,
-   "recall": 1.0,
+   "recall": 0.9924,
    "text_fallback_functions": 622,
    "unmatched_functions": 3
   },
   "doom3do": {
-   "agree": 884,
-   "engine_calls": 884,
+   "agree": 879,
+   "engine_calls": 879,
    "engine_only_by_kind": {},
    "functions": 511,
-   "misses_by_shape": {},
+   "misses_by_shape": {
+    "after-cast": 2,
+    "assignment-rhs": 1,
+    "statement": 2
+   },
    "oracle_calls": 884,
    "precision": 1.0,
-   "recall": 1.0,
+   "recall": 0.9943,
    "text_fallback_functions": 0,
    "unmatched_functions": 0
   },
   "doomgeneric": {
-   "agree": 2163,
-   "engine_calls": 2163,
+   "agree": 2156,
+   "engine_calls": 2156,
    "engine_only_by_kind": {},
    "functions": 1192,
-   "misses_by_shape": {},
+   "misses_by_shape": {
+    "after-operator": 2,
+    "statement": 5
+   },
    "oracle_calls": 2163,
    "precision": 1.0,
-   "recall": 1.0,
+   "recall": 0.9968,
    "text_fallback_functions": 0,
    "unmatched_functions": 0
   },
@@ -263,222 +304,276 @@
    "unmatched_functions": 1
   },
   "doomsday": {
-   "agree": 69033,
-   "engine_calls": 71315,
+   "agree": 68625,
+   "engine_calls": 70853,
    "engine_only_by_kind": {
-    "absent": 28,
+    "absent": 42,
     "comment/string": 3,
-    "function-pointer": 231,
-    "macro": 7,
-    "type": 2013
+    "function-pointer": 174,
+    "type": 2009
    },
-   "functions": 25449,
+   "functions": 25436,
    "misses_by_shape": {
-    "after-operator": 4,
-    "assignment-rhs": 3,
-    "condition/return": 3,
-    "nested-argument": 4,
-    "other": 3,
-    "statement": 4,
-    "unparsed": 14
+    "after-operator": 48,
+    "assignment-rhs": 45,
+    "condition/return": 17,
+    "ctor-init": 26,
+    "nested-argument": 47,
+    "other": 50,
+    "statement": 122,
+    "unparsed": 19
    },
-   "oracle_calls": 69068,
-   "precision": 0.968,
-   "recall": 0.9995,
-   "text_fallback_functions": 834,
+   "oracle_calls": 68999,
+   "precision": 0.9686,
+   "recall": 0.9946,
+   "text_fallback_functions": 836,
    "unmatched_functions": 1
   },
   "dsda-doom": {
-   "agree": 10775,
-   "engine_calls": 10782,
+   "agree": 10773,
+   "engine_calls": 10777,
    "engine_only_by_kind": {
-    "function-pointer": 3,
     "type": 4
    },
    "functions": 4934,
-   "misses_by_shape": {},
-   "oracle_calls": 10775,
-   "precision": 0.9994,
-   "recall": 1.0,
+   "misses_by_shape": {
+    "statement": 5
+   },
+   "oracle_calls": 10778,
+   "precision": 0.9996,
+   "recall": 0.9995,
    "text_fallback_functions": 4,
    "unmatched_functions": 0
   },
   "edge-classic": {
-   "agree": 10538,
-   "engine_calls": 10667,
+   "agree": 10508,
+   "engine_calls": 10636,
    "engine_only_by_kind": {
-    "function-pointer": 2,
+    "function-pointer": 1,
     "type": 127
    },
    "functions": 4963,
-   "misses_by_shape": {},
+   "misses_by_shape": {
+    "after-operator": 1,
+    "assignment-rhs": 2,
+    "nested-argument": 9,
+    "statement": 18
+   },
    "oracle_calls": 10538,
-   "precision": 0.9879,
-   "recall": 1.0,
-   "text_fallback_functions": 41,
+   "precision": 0.988,
+   "recall": 0.9972,
+   "text_fallback_functions": 42,
    "unmatched_functions": 0
   },
   "eternity": {
-   "agree": 15834,
-   "engine_calls": 16031,
+   "agree": 15825,
+   "engine_calls": 16022,
    "engine_only_by_kind": {
     "function-pointer": 63,
     "type": 134
    },
    "functions": 7161,
-   "misses_by_shape": {},
+   "misses_by_shape": {
+    "assignment-rhs": 1,
+    "statement": 6,
+    "unparsed": 2
+   },
    "oracle_calls": 15834,
    "precision": 0.9877,
-   "recall": 1.0,
+   "recall": 0.9994,
    "text_fallback_functions": 464,
    "unmatched_functions": 0
   },
   "fastdoom": {
-   "agree": 2885,
-   "engine_calls": 2886,
+   "agree": 2868,
+   "engine_calls": 2869,
    "engine_only_by_kind": {
     "function-pointer": 1
    },
    "functions": 1715,
-   "misses_by_shape": {},
+   "misses_by_shape": {
+    "statement": 17
+   },
    "oracle_calls": 2885,
    "precision": 0.9997,
-   "recall": 1.0,
+   "recall": 0.9941,
    "text_fallback_functions": 2,
    "unmatched_functions": 2
   },
   "gzdoom": {
-   "agree": 43025,
-   "engine_calls": 44519,
+   "agree": 42958,
+   "engine_calls": 44452,
    "engine_only_by_kind": {
+    "absent": 1,
     "function-pointer": 191,
-    "type": 1303
+    "type": 1302
    },
    "functions": 18050,
-   "misses_by_shape": {},
+   "misses_by_shape": {
+    "after-cast": 5,
+    "after-operator": 17,
+    "assignment-rhs": 14,
+    "condition/return": 3,
+    "nested-argument": 4,
+    "other": 1,
+    "statement": 21,
+    "unparsed": 2
+   },
    "oracle_calls": 43025,
    "precision": 0.9664,
-   "recall": 1.0,
+   "recall": 0.9984,
    "text_fallback_functions": 545,
    "unmatched_functions": 0
   },
   "inter-doom": {
-   "agree": 13640,
-   "engine_calls": 13640,
+   "agree": 13633,
+   "engine_calls": 13633,
    "engine_only_by_kind": {},
    "functions": 6233,
-   "misses_by_shape": {},
+   "misses_by_shape": {
+    "after-operator": 1,
+    "assignment-rhs": 1,
+    "nested-argument": 1,
+    "statement": 4
+   },
    "oracle_calls": 13640,
    "precision": 1.0,
-   "recall": 1.0,
+   "recall": 0.9995,
    "text_fallback_functions": 9,
    "unmatched_functions": 0
   },
   "linuxdoom": {
-   "agree": 1597,
-   "engine_calls": 1597,
+   "agree": 1589,
+   "engine_calls": 1589,
    "engine_only_by_kind": {},
    "functions": 779,
-   "misses_by_shape": {},
+   "misses_by_shape": {
+    "after-operator": 2,
+    "statement": 6
+   },
    "oracle_calls": 1597,
    "precision": 1.0,
-   "recall": 1.0,
+   "recall": 0.995,
    "text_fallback_functions": 0,
    "unmatched_functions": 0
   },
   "nugget-doom": {
-   "agree": 8967,
-   "engine_calls": 8988,
-   "engine_only_by_kind": {
-    "macro": 21
-   },
+   "agree": 8966,
+   "engine_calls": 8966,
+   "engine_only_by_kind": {},
    "functions": 4108,
-   "misses_by_shape": {},
+   "misses_by_shape": {
+    "assignment-rhs": 1
+   },
    "oracle_calls": 8967,
-   "precision": 0.9977,
-   "recall": 1.0,
+   "precision": 1.0,
+   "recall": 0.9999,
    "text_fallback_functions": 10,
    "unmatched_functions": 0
   },
   "odamex": {
-   "agree": 20221,
-   "engine_calls": 20574,
+   "agree": 20204,
+   "engine_calls": 20554,
    "engine_only_by_kind": {
-    "function-pointer": 53,
-    "type": 300
+    "function-pointer": 52,
+    "type": 298
    },
-   "functions": 8639,
-   "misses_by_shape": {},
+   "functions": 8633,
+   "misses_by_shape": {
+    "after-operator": 2,
+    "assignment-rhs": 6,
+    "nested-argument": 1,
+    "statement": 8
+   },
    "oracle_calls": 20221,
-   "precision": 0.9828,
-   "recall": 1.0,
-   "text_fallback_functions": 300,
+   "precision": 0.983,
+   "recall": 0.9992,
+   "text_fallback_functions": 293,
    "unmatched_functions": 1
   },
   "prboom-plus": {
-   "agree": 4603,
-   "engine_calls": 4604,
+   "agree": 4575,
+   "engine_calls": 4576,
    "engine_only_by_kind": {
     "type": 1
    },
    "functions": 2331,
-   "misses_by_shape": {},
+   "misses_by_shape": {
+    "after-operator": 3,
+    "assignment-rhs": 4,
+    "condition/return": 1,
+    "statement": 20
+   },
    "oracle_calls": 4603,
    "precision": 0.9998,
-   "recall": 1.0,
+   "recall": 0.9939,
    "text_fallback_functions": 4,
    "unmatched_functions": 3
   },
   "puredoom": {
-   "agree": 3733,
-   "engine_calls": 3733,
+   "agree": 3675,
+   "engine_calls": 3675,
    "engine_only_by_kind": {},
    "functions": 1558,
-   "misses_by_shape": {},
+   "misses_by_shape": {
+    "after-operator": 2,
+    "assignment-rhs": 4,
+    "condition/return": 8,
+    "nested-argument": 8,
+    "statement": 36
+   },
    "oracle_calls": 3733,
    "precision": 1.0,
-   "recall": 1.0,
+   "recall": 0.9845,
    "text_fallback_functions": 2,
    "unmatched_functions": 0
   },
   "sdl-doom": {
-   "agree": 2083,
-   "engine_calls": 2083,
+   "agree": 2076,
+   "engine_calls": 2076,
    "engine_only_by_kind": {},
    "functions": 1079,
-   "misses_by_shape": {},
+   "misses_by_shape": {
+    "after-operator": 2,
+    "statement": 5
+   },
    "oracle_calls": 2083,
    "precision": 1.0,
-   "recall": 1.0,
+   "recall": 0.9966,
    "text_fallback_functions": 0,
    "unmatched_functions": 0
   },
   "srb2": {
-   "agree": 19227,
-   "engine_calls": 19229,
+   "agree": 19142,
+   "engine_calls": 19144,
    "engine_only_by_kind": {
     "function-pointer": 1,
     "type": 1
    },
    "functions": 6732,
-   "misses_by_shape": {},
+   "misses_by_shape": {
+    "after-cast": 1,
+    "after-operator": 4,
+    "assignment-rhs": 17,
+    "condition/return": 1,
+    "nested-argument": 7,
+    "statement": 50,
+    "unparsed": 5
+   },
    "oracle_calls": 19227,
    "precision": 0.9999,
-   "recall": 1.0,
+   "recall": 0.9956,
    "text_fallback_functions": 283,
    "unmatched_functions": 8
   },
   "woof": {
-   "agree": 8148,
-   "engine_calls": 8156,
-   "engine_only_by_kind": {
-    "function-pointer": 7,
-    "macro": 1
-   },
+   "agree": 8155,
+   "engine_calls": 8155,
+   "engine_only_by_kind": {},
    "functions": 3723,
    "misses_by_shape": {},
-   "oracle_calls": 8148,
-   "precision": 0.999,
+   "oracle_calls": 8155,
+   "precision": 1.0,
    "recall": 1.0,
    "text_fallback_functions": 4,
    "unmatched_functions": 0

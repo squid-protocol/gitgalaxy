@@ -4,6 +4,7 @@
 .claude/*	tests/tools/test_evidence_report_single_source.py
 .claude/agents/gitgalaxy-pr-worker.md	tests/tools/box
 .claude/rules/a.md	tests/tools/test_context_pack.py
+.claude/rules/x.md	tests/tools/test_engine_reach_workflows.py
 .claude/skills/rule-contract-audit/SKILL.md	tests/signal_contract_audit.py
 /*.cbl	tests/cobol_mainframe
 /*.json	tests/test_golden_store.py,tests/tools/test_gap_prevalence.py
@@ -249,7 +250,7 @@ docs/args_rule_contract.md	gitgalaxy
 docs/bias_data.json	tests/core_engine,tests/tools/fidelity_table.py
 docs/branch_rule_contract.md	gitgalaxy
 docs/calls_out_rule_contract.md	gitgalaxy
-docs/ci.md	tests/tools/shepherd_gh.py,tests/tools/test_ci_critical_path_split.py,tests/tools/test_post_merge_dispatch.py
+docs/ci.md	tests/tools/shepherd_gh.py,tests/tools/test_ci_critical_path_split.py,tests/tools/test_engine_reach_workflows.py,tests/tools/test_post_merge_dispatch.py
 docs/ci_env_gated_tests.md	tests/tools/test_env_gated_tests_run_in_ci_5954.py
 docs/class_start_rule_contract.md	gitgalaxy
 docs/cleanup_rule_contract.md	gitgalaxy
@@ -418,8 +419,8 @@ gap_prevalence.md	tests/tools/gap_prevalence.py
 generated/docs/language_status/progress.md	tests/tools/test_progress_report.py,tests/tools/test_status_page_snapshots.py
 gitgalaxy/README.md	tests/tools/test_ci_critical_path_split.py,tests/tools/test_post_merge_dispatch.py,tests/tools/test_readme_hand_counts.py
 gitgalaxy/standards/cics/README.md	tests/tools/test_progress_report.py
-gitgalaxy/tools/cobol_to_cobol/README.md	tests/tools/test_progress_report.py
-gitgalaxy/tools/cobol_to_java/README.md	tests/tools/test_progress_report.py,tests/tools/test_progress_slide.py
+gitgalaxy/tools/cobol_to_cobol/README.md	tests/tools/test_engine_reach_workflows.py,tests/tools/test_progress_report.py
+gitgalaxy/tools/cobol_to_java/README.md	tests/tools/test_engine_reach_workflows.py,tests/tools/test_progress_report.py,tests/tools/test_progress_slide.py
 gitgalaxy/tools/cobol_to_java/det/NOTES.md	tests/cobol_mainframe
 gitgalaxy/tools/supply_chain_security/README.md	tests/tools/test_readme_hand_counts.py
 github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md	tests/tools/test_progress_slide.py

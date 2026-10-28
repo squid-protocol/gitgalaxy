@@ -375,6 +375,9 @@ def test_the_fixture_estates_read_every_table():
         "TERMINAL",
         "CONNECTION",
         "MONITORPOINT",
+        "PLT",
+        "DB2CONN",
+        "DB2ENTRY",
     }
 
 
@@ -658,4 +661,101 @@ def test_hlasm_alternative_statement_format_continuation_and_label_rules():
     assert (ba01["program"], ba01["transid"], _rdo(ba01)) == ("BANKINQ", "BA01", "PRIORITY(100)")
     assert b["transactions"] == [
         {"transid": "BA01", "program": "BANKINQ", "group": "DFHPCT", "profile": None, "line": 9}
+    ]
+
+
+def test_dfhplt_programs_and_dfhdelim_stage_delimiter():
+    """DFHPLT TYPE=ENTRY [SC33-1684-30 p.415-418]: PROGRAM=(p1,p2) defines one PLT row per program;
+    PROGRAM=DFHDELIM 'is not a program -- it serves as a delimiter only' and flips STAGE(1) to STAGE(2)."""
+    src = (
+        "         DFHPLT TYPE=INITIAL,SUFFIX=I1\n"
+        "         DFHPLT TYPE=ENTRY,PROGRAM=(TRAQA,TRAQB)\n"
+        "         DFHPLT TYPE=ENTRY,PROGRAM=DFHDELIM\n"
+        "         DFHPLT TYPE=ENTRY,PROGRAM=TRASA\n"
+        "         DFHPLT TYPE=FINAL\n"
+    )
+    rows = _rows(src)
+    assert [(r["resource_type"], r["name"], r["program"], r["macro_table"], r["line"], _rdo(r)) for r in rows] == [
+        ("PLT", "TRAQA", "TRAQA", "DFHPLTI1", 2, "STAGE(1)"),
+        ("PLT", "TRAQB", "TRAQB", "DFHPLTI1", 2, "STAGE(1)"),
+        ("PLT", "TRASA", "TRASA", "DFHPLTI1", 4, "STAGE(2)"),
+    ]
+
+
+def test_dsncrct_db2conn_db2entry_plan_inheritance_and_group():
+    """DSNCRCT [SC33-1684-30 p.419-432, p.529-541]:
+    - TYPE=INIT emits DB2CONN (named RDONAME= or DFHRCT + SUFFIX, with SUFFIX=NO|DY|BA rejected) and sets PLANI/PLNPGMI.
+    - TYPE=COMD and TYPE=POOL emit no standalone resource row.
+    - TYPE=GROUP sets the group for following entries (`GROUP=*DEFAULT` resets to None).
+    - TYPE=ENTRY emits one DB2ENTRY per TXID, inheriting PLANI when PLAN= is omitted (unless PLNEXIT=YES),
+      or defaulting to the single TXID when neither PLAN= nor PLANI= is coded."""
+    src = "\n".join(
+        [
+            _cont("         DSNCRCT TYPE=INIT,SUFFIX=01,SUBID=DB2A,SIGNID=CICSAUTH,", "PLANI=DEFPLAN,PLNPGMI=DEFEXIT,THRDMAX=16"),
+            "         DSNCRCT TYPE=COMD,AUTH=USERID,THRDM=1,THRDA=1",
+            "         DSNCRCT TYPE=POOL,PLAN=POOLPLN,THRDM=3,THRDA=3",
+            "         DSNCRCT TYPE=GROUP,GROUP=DB2GRP1",
+            _cont("         DSNCRCT TYPE=ENTRY,TXID=(TX01),PLAN=PLN01,RDONAME=ENT01,", "THRDA=4,THRDS=2,TWAIT=POOL"),
+            "         DSNCRCT TYPE=ENTRY,TXID=(TX02,TX03),THRDA=2,TWAIT=YES",
+            "         DSNCRCT TYPE=GROUP,GROUP=*DEFAULT",
+            "         DSNCRCT TYPE=ENTRY,TXID=TX04,PLNEXIT=YES",
+            "         DSNCRCT TYPE=FINAL",
+        ]
+    )
+    rows = _rows(src)
+    assert [
+        (r["resource_type"], r["name"], r["macro_table"], r["group"], r["plan"], r["transid"], _rdo(r)) for r in rows
+    ] == [
+        (
+            "DB2CONN",
+            "DFHRCT01",
+            "DFHRCT01",
+            None,
+            "DEFPLAN",
+            None,
+            "DB2ID(DB2A) SIGNID(CICSAUTH) PLANEXITNAME(DEFEXIT) TCBLIMIT(16)",
+        ),
+        (
+            "DB2ENTRY",
+            "ENT01",
+            "DFHRCT01",
+            "DB2GRP1",
+            "PLN01",
+            "TX01",
+            "PLAN(PLN01) THREADLIMIT(4) PROTECTNUM(2) THREADWAIT(POOL) TRANSID(TX01)",
+        ),
+        (
+            "DB2ENTRY",
+            "TX02",
+            "DFHRCT01",
+            "DB2GRP1",
+            "DEFPLAN",
+            "TX02",
+            "PLAN(DEFPLAN) THREADLIMIT(2) THREADWAIT(YES) TRANSID(TX02)",
+        ),
+        (
+            "DB2ENTRY",
+            "TX03",
+            "DFHRCT01",
+            "DB2GRP1",
+            "DEFPLAN",
+            "TX03",
+            "PLAN(DEFPLAN) THREADLIMIT(2) THREADWAIT(YES) TRANSID(TX03)",
+        ),
+        (
+            "DB2ENTRY",
+            "TX04",
+            "DFHRCT01",
+            None,
+            None,
+            "TX04",
+            "PLANEXITNAME(DEFEXIT) TRANSID(TX04)",
+        ),
+    ]
+    # Without PLANI on TYPE=INIT, a single-TXID TYPE=ENTRY defaults its plan to TXID [SC33-1684-30 p.421, p.428];
+    # SUFFIX=BA is disallowed on DSNCRCT [p.423].
+    rows2 = _rows("         DSNCRCT TYPE=INIT,SUFFIX=BA,RDONAME=MYDB2C\n         DSNCRCT TYPE=ENTRY,TXID=TX99\n")
+    assert [(r["resource_type"], r["name"], r["macro_table"], r["plan"]) for r in rows2] == [
+        ("DB2CONN", "MYDB2C", "DFHRCT", None),
+        ("DB2ENTRY", "TX99", "DFHRCT", "TX99"),
     ]

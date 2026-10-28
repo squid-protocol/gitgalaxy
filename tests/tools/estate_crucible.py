@@ -798,6 +798,10 @@ def score_cics(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None
             pairs.append(("ddname", f["ddname"], _u(r.ddname)))
         if f.get("record_format"):
             pairs.append(("record_format", f["record_format"], _u(r.record_format)))
+        if f.get("plan"):
+            pairs.append(("plan", f["plan"], _u(r.plan)))
+        if f.get("transid"):
+            pairs.append(("transid", f["transid"], _u(r.transid)))
         d = _diff(pairs)
         sc.add("csd_resources", path, label, "fail" if d else "pass", f.get("horror"), d)
     explicit_res = {(_u(p["type"]), _u(p["name"])): p for p in _phantoms(entry, "csd_resources")}

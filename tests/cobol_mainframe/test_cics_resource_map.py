@@ -56,6 +56,9 @@ def test_tables_only_estate_produces_every_resource_type_with_provenance(tables_
         "TERMINAL",
         "CONNECTION",
         "MONITORPOINT",
+        "PLT",
+        "DB2CONN",
+        "DB2ENTRY",
     }
     acct = entries[("FILE", "ACCTDAT")]
     assert acct["sources"] == ["MACRO"]
@@ -90,6 +93,16 @@ def test_sibling_tables_carry_their_provenance_through_a_real_scan(tables_only):
     assert (d["macro_table"], d["defined_in"], d["line"]) == ("DFHSIT", "DFHSIT.asm", 4)
     (d,) = entries[("CONNECTION", "SYSB")]["definitions"]
     assert (d["macro_table"], d["defined_in"]) == ("DFHTCT01", "DFHTCT.asm")
+    assert {n for t, n in entries if t == "PLT"} == {"BANKPLT1", "BANKPLT2", "BANKPLT3"}
+    plt_res = {r.name: r for r in tables_only.files["DFHPLT.asm"].csd_resources}
+    assert "STAGE(1)" in plt_res["BANKPLT2"].attributes and "STAGE(2)" in plt_res["BANKPLT3"].attributes
+    assert entries[("DB2CONN", "DFHRCT01")]["merged"]["plan"] == "BANKPLN"
+    assert {n for t, n in entries if t == "DB2ENTRY"} == {"BA01", "BA02", "BA03"}
+    assert entries[("DB2ENTRY", "BA01")]["merged"]["plan"] == "BANKINQP"
+    assert entries[("DB2ENTRY", "BA02")]["merged"]["plan"] == "BANKPLN"
+    plans = {p["transid"]: p for p in tables_only.transaction_db2_plans()}
+    assert (plans["BA01"]["plan"], plans["BA01"]["programs"]) == ("BANKINQP", ["BANKINQ"])
+    assert (plans["BA02"]["plan"], plans["BA02"]["programs"]) == ("BANKPLN", ["BANKUPD"])
 
 
 def test_tables_assembled_inside_jcl_reach_the_resource_map(tmp_path_factory):

@@ -23,10 +23,13 @@
 #          Guide", SC33-1684-30 (CICS TS 1.3). Chapter 13 "Resource definition with
 #          macros": DFHDCT p.368-385 (TYPE=SDSCI p.375, EXTRA p.377, INDIRECT p.379,
 #          INTRA p.380-383, REMOTE p.383), DFHFCT p.391-403 (TYPE=FILE p.392,
-#          TYPE=REMOTE p.401), DFHTCT p.437-475 (TYPE=INITIAL p.441, TYPE=REGION p.473,
+#          TYPE=REMOTE p.401), DFHPLT p.415-418 (TYPE=INITIAL p.416, TYPE=ENTRY,PROGRAM=
+#          p.416-417, PROGRAM=DFHDELIM stage delimiter p.417), DSNCRCT p.419-432
+#          (TYPE=INIT p.419-424, TYPE=COMD p.424, TYPE=POOL p.425, TYPE=ENTRY p.426-431,
+#          TYPE=GROUP p.432), DFHTCT p.437-475 (TYPE=INITIAL p.441, TYPE=REGION p.473,
 #          TYPE=TERMINAL p.474, TYPE=REMOTE p.474-475), DFHTST p.482-488. Chapter 16
-#          "Attribute cross-reference tables" p.529-535 (macro operand -> RDO attribute,
-#          notes 1 and 7), Chapter 17 "Migrating the TCT to the CSD file" p.551-553.
+#          "Attribute cross-reference tables" p.529-541 (macro operand -> RDO attribute,
+#          notes 1, 7, 8, 9, 10, 11), Chapter 17 "Migrating the TCT to the CSD file" p.551-553.
 #   [MIG]  CICS for MVS/ESA Migration Guide, Version 4 Release 1, GC33-1162-04,
 #          ch.3 "Resource definition (macro) changes": the DFHPCT / DFHPPT macros are
 #          not shipped in CICS/ESA 4.1 (not supported since the introduction of
@@ -122,6 +125,22 @@
 #          `ACCESSMETHOD(IRC|VTAM|INDIRECT|XM)`.
 #   DFHMCT TYPE=EMP,CLASS=PERFORM,ID=  MONITORPOINT (a user event monitoring point; it has no CSD
 #          counterpart; ID is `number`, `(PP,number)` or `entryname.number`, kept as written) [TS].
+#   DFHPLT TYPE=ENTRY,PROGRAM=(p1,p2,...)  PLT  [RDG p.415-418, Table 50-51]: one PLT row per named
+#          program (`name=prog`, `program=prog`, `macro_table=DFHPLTxx`), except `PROGRAM=DFHDELIM`
+#          which "is not a program -- it serves as a delimiter only" [RDG p.417] and is refused as a
+#          row while flipping the pass delimiter (`STAGE(1)` before `DFHDELIM`, `STAGE(2)` after).
+#   DSNCRCT TYPE=INIT|ENTRY  [RDG p.419-432, p.529-541]:
+#          TYPE=INIT  -> DB2CONN (`name` = `RDONAME=` or `DFHRCT` + `SUFFIX=` when `SUFFIX=` is 1-2
+#          characters not in `NO|DY|BA` [RDG p.421, p.423], `macro_table=DFHRCTxx`, `plan` = `PLANI=`,
+#          plus RDO restatements `DB2ID(SUBID)`, `SIGNID(SIGNID)`, `TCBLIMIT(THRDMAX)`,
+#          `PLANEXITNAME(PLNPGMI)`).
+#          TYPE=ENTRY -> one DB2ENTRY row per transaction in `TXID=(t1,t2,...)` (`name` = `RDONAME=`
+#          when a single transaction is listed, else the transaction ID; `transid` = the transaction ID;
+#          `plan` = `PLAN=`, or `PLANI=` from `TYPE=INIT` when `PLNEXIT` is not `YES`, or the single
+#          `TXID` when `PLNEXIT` is not `YES` and neither `PLAN=` nor `PLANI=` is specified [RDG p.421,
+#          p.428]; `THRDA=` -> `THREADLIMIT`, `THRDS=` -> `PROTECTNUM`, `TWAIT=` -> `THREADWAIT` [RDG
+#          p.533-534]). `TYPE=COMD` and `TYPE=POOL` modify DB2CONN command/pool thread defaults and
+#          carry no resource name of their own (REFUSED as standalone rows).
 #   DFHSIT TYPE=CSECT|DSECT  SIT  one row, named as IBM names the table: DFHSIT + SUFFIX= (one or two
 #          characters, not NO or DY [TS]; a SUFFIX outside that names nothing and the row is DFHSIT),
 #          `macro_table` the same. SUFFIX is confirmed, not ASSUMED. The system initialization
@@ -141,7 +160,9 @@
 #   manual does not list; DFHTCT TYPE=LINE / SDSCI (sequential-device plumbing: SDSCI is the DD of the
 #   simulated device and LINE joins two SDSCIs by ISADSCN= / OSADSCN= [TS]; the terminal it serves is
 #   the TYPE=TERMINAL row); DFHMCT TYPE=RECORD (selects
-#   performance fields, names no resource [TS]); DFHJCT TYPE=INITIAL / FINAL.
+#   performance fields, names no resource [TS]); DFHPLT PROGRAM=DFHDELIM (pass delimiter, "not a
+#   program" [RDG p.417]); DSNCRCT TYPE=COMD / TYPE=POOL (DB2CONN command/pool thread defaults, no
+#   named resource [RDG p.424-425]); DFHJCT TYPE=INITIAL / FINAL.
 #
 # SCOPE AND NON-SCOPE:
 #   - Extraction only, per file. Joining a macro FILE to its JCL dataset, and
@@ -156,8 +177,21 @@ from typing import Any
 
 from gitgalaxy.core.ims_gen import _first, _operands, _statements
 
-_TABLES = ("DFHFCT", "DFHPCT", "DFHPPT", "DFHDCT", "DFHTST", "DFHSIT", "DFHSRT", "DFHJCT", "DFHTCT", "DFHMCT")
-_GATE = re.compile(r"\bDFH(?:FCT|PCT|PPT|DCT|TST|SIT|SRT|JCT|TCT|MCT)\b", re.I)
+_TABLES = (
+    "DFHFCT",
+    "DFHPCT",
+    "DFHPPT",
+    "DFHDCT",
+    "DFHTST",
+    "DFHSIT",
+    "DFHSRT",
+    "DFHJCT",
+    "DFHTCT",
+    "DFHMCT",
+    "DFHPLT",
+    "DSNCRCT",
+)
+_GATE = re.compile(r"\b(?:DFH(?:FCT|PCT|PPT|DCT|TST|SIT|SRT|JCT|TCT|MCT|PLT)|DSNCRCT)\b", re.I)
 _SRT_SYSTEM_CODE = re.compile(r"[0-9A-F]{3}\Z")  # TYPE=SYSTEM: "three hexadecimal digits" [CICS TS 5.3 DFHSRT]
 _SRT_USER_CODE = re.compile(r"[0-9]{1,4}\Z")  # TYPE=USER: "a decimal number (nnnn)"
 # FCT RECFORM's first element [RDG p.392]; the RDO FILE RECORDFORMAT is U | V | F [RDG p.532].
@@ -387,6 +421,83 @@ def _srt_rows(line: int, text: str, keyed: dict[str, str], kind: str, table: str
     return [_row("SRT", prefix + code, table, line, text, ["RECOVER(YES)"]) for code in codes if shape.match(code)]
 
 
+def _plt_rows(line: int, text: str, keyed: dict[str, str], table: str, stage: int) -> tuple[list[dict[str, Any]], int]:
+    """DFHPLT TYPE=ENTRY,PROGRAM=(p1,p2,...) -> one PLT row per program [RDG p.415-418, Table 50-51].
+
+    `PROGRAM=DFHDELIM` "is not a program -- it serves as a delimiter only" [RDG p.417] between the
+    first and second passes of PLTPI / PLTSD, so it flips `stage` from 1 to 2 and produces no row.
+    """
+    out: list[dict[str, Any]] = []
+    for raw in (keyed.get("PROGRAM") or "").split(","):
+        prog = raw.strip("() '\"").upper()
+        if not prog:
+            continue
+        if prog == "DFHDELIM":
+            stage = 2
+            continue
+        out.append(_row("PLT", prog, table, line, text, [f"STAGE({stage})"], program=prog))
+    return out, stage
+
+
+def _rct_init_row(line: int, text: str, keyed: dict[str, str], table: str) -> dict[str, Any]:
+    """DSNCRCT TYPE=INIT -> one DB2CONN row [RDG p.419-424, p.530-534]."""
+    name = _name(keyed.get("RDONAME")) or table
+    rdo: list[str] = []
+    for op_name, rdo_name in (("SUBID", "DB2ID"), ("SIGNID", "SIGNID"), ("PLNPGMI", "PLANEXITNAME")):
+        if val := _name(keyed.get(op_name)):
+            rdo.append(f"{rdo_name}({val})")
+    if (tcb := _int(keyed.get("THRDMAX"))) is not None:
+        rdo.append(f"TCBLIMIT({tcb})")
+    return _row("DB2CONN", name, table, line, text, rdo, plan=_name(keyed.get("PLANI")))
+
+
+def _rct_entry_rows(
+    line: int,
+    text: str,
+    keyed: dict[str, str],
+    table: str,
+    plani: str | None,
+    plnpgmi: str | None,
+    group: str | None,
+) -> list[dict[str, Any]]:
+    """DSNCRCT TYPE=ENTRY -> one DB2ENTRY row per transaction in TXID=(...) [RDG p.421, p.426-431, p.532-534]."""
+    txids = [t.strip("() '\"").upper() for t in (keyed.get("TXID") or "").split(",") if t.strip("() '\"")]
+    if not txids:
+        return []
+    plnexit = _name(keyed.get("PLNEXIT")) == "YES"
+    explicit_plan = None if plnexit else _name(keyed.get("PLAN"))
+    rdoname = _name(keyed.get("RDONAME"))
+    rdo: list[str] = []
+    if plnexit and (exit_prog := _name(keyed.get("PLNPGME")) or plnpgmi):
+        rdo.append(f"PLANEXITNAME({exit_prog})")
+    if (thrda := _int(keyed.get("THRDA"))) is not None:
+        rdo.append(f"THREADLIMIT({thrda})")
+    if (thrds := _int(keyed.get("THRDS"))) is not None:
+        rdo.append(f"PROTECTNUM({thrds})")
+    if (twait := _name(keyed.get("TWAIT"))) in ("YES", "NO", "POOL"):
+        rdo.append(f"THREADWAIT({twait})")
+    out: list[dict[str, Any]] = []
+    for txid in txids:
+        entry_name = rdoname if (rdoname and len(txids) == 1) else txid
+        plan = None if plnexit else (explicit_plan or plani or (txid if len(txids) == 1 else None))
+        row_rdo = ([f"PLAN({plan})"] if plan else []) + rdo + [f"TRANSID({txid})"]
+        out.append(
+            _row(
+                "DB2ENTRY",
+                entry_name,
+                table,
+                line,
+                text,
+                row_rdo,
+                group=group,
+                plan=plan,
+                db2_entry=entry_name,
+                transid=txid,
+            )
+        )
+    return out
+
+
 def cics_macro_table_resources(code_stream: str) -> list[dict[str, Any]]:
     """Every resource a DFHFCT / DFHPCT / DFHPPT / DFHDCT / DFHTST macro statement defines."""
     if not code_stream or not _GATE.search(code_stream):
@@ -394,28 +505,40 @@ def cics_macro_table_resources(code_stream: str) -> list[dict[str, Any]]:
     statements = [s for s in _statements(code_stream) if s[2] in _TABLES]
     if not statements:
         return []
-    # A table's suffix comes from its TYPE=INITIAL (DFHFCT TYPE=INITIAL,SUFFIX=01).
+    # A table's suffix comes from its TYPE=INITIAL (DFHFCT TYPE=INITIAL,SUFFIX=01) or DSNCRCT TYPE=INIT.
     suffix: dict[str, str] = {}
     sdsci: dict[str, dict[str, str]] = {}
     tct_home: str | None = None
+    rct_plani: str | None = None
+    rct_plnpgmi: str | None = None
     for _line, _label, op, text in statements:
         keyed = _operands(text)
         kind = _type_of(keyed)
-        if kind == "INITIAL" and keyed.get("SUFFIX"):
+        if (kind == "INITIAL" or (op == "DSNCRCT" and kind == "INIT")) and keyed.get("SUFFIX"):
             sfx = _name(keyed.get("SUFFIX"))
-            if sfx and 1 <= len(sfx) <= 2 and (op != "DFHSIT" or sfx not in ("NO", "DY")):
+            disallowed = ("NO", "DY", "BA") if op == "DSNCRCT" else ("NO", "DY") if op == "DFHSIT" else ()
+            if sfx and 1 <= len(sfx) <= 2 and sfx not in disallowed:
                 suffix.setdefault(op, sfx)
+        if op == "DSNCRCT" and kind == "INIT":
+            if rct_plani is None and keyed.get("PLANI"):
+                rct_plani = _name(keyed.get("PLANI"))
+            if rct_plnpgmi is None and keyed.get("PLNPGMI"):
+                rct_plnpgmi = _name(keyed.get("PLNPGMI"))
         if op == "DFHTCT" and kind == "INITIAL" and keyed.get("SYSIDNT") and tct_home is None:
             tct_home = _name(keyed.get("SYSIDNT"))
         elif op == "DFHDCT" and kind == "SDSCI" and keyed.get("DSCNAME"):
             sdsci.setdefault(keyed["DSCNAME"].strip("'\"").upper(), keyed)
     rows: list[dict[str, Any]] = []
     tct_region: str | None = None
+    plt_stage = 1
+    rct_group: str | None = None
     for line, _label, op, text in statements:
         keyed = _operands(text)
         kind = _type_of(keyed)
-        table = op + suffix.get(op, "")
-        if op == "DFHFCT" and kind in ("FILE", "DATASET", "REMOTE"):
+        table = ("DFHRCT" if op == "DSNCRCT" else op) + suffix.get(op, "")
+        if op == "DFHPLT" and kind == "INITIAL":
+            plt_stage = 1
+        elif op == "DFHFCT" and kind in ("FILE", "DATASET", "REMOTE"):
             # DATASET= / TYPE=DATASET: "retained for compatibility ... exactly the same" [RDG p.391, p.402]
             name = _name(keyed.get("FILE") or keyed.get("DATASET"))
             if name:
@@ -517,6 +640,16 @@ def cics_macro_table_resources(code_stream: str) -> list[dict[str, Any]]:
             name = _emp_id(keyed.get("ID"))
             if name:
                 rows.append(_row("MONITORPOINT", name, table, line, text))
+        elif op == "DFHPLT" and kind == "ENTRY":
+            plt_out, plt_stage = _plt_rows(line, text, keyed, table, plt_stage)
+            rows.extend(plt_out)
+        elif op == "DSNCRCT" and kind == "GROUP":
+            grp = _name(keyed.get("GROUP"))
+            rct_group = None if grp in (None, "*DEFAULT") else grp
+        elif op == "DSNCRCT" and kind == "INIT":
+            rows.append(_rct_init_row(line, text, keyed, table))
+        elif op == "DSNCRCT" and kind == "ENTRY":
+            rows.extend(_rct_entry_rows(line, text, keyed, table, rct_plani, rct_plnpgmi, rct_group))
         elif op == "DFHSIT" and kind in ("CSECT", "DSECT"):
             # One row per table; the table-selection operands (FCT=, DCT=, ...) ride in `attributes`.
             suffix_ = _sit_suffix(keyed.get("SUFFIX"))

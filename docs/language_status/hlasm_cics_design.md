@@ -101,17 +101,16 @@ operand.
 
 ## Status
 
-- ZECSNC lowers whole. Translated, it has 2 holes left, both in `det/cics.py` option modelling:
-  - `ABEND ... NOHANDLE`;
+- ZECSNC lowers whole. Since slice 2a it has 1 hole left, in `det/cics.py` option modelling:
   - `WRITE OPERATOR ... TEXTLENGTH ROUTECODES NUMROUTES EVENTUAL`.
 
-  So ZECSNC is still L0, but the reason changes from "refused whole" to "2 holes left".
+  `ABEND ... NOHANDLE` is modelled (IBM lists no ABEND condition, so it suppresses nothing). ZECSNC is still L0.
 - ZECS002 is refused at its first construct outside the subset: `DC 08XL01'40'`.
 
 ## Remaining slices
 
-1. **2a:** `det/cics.py`, the stub and a register entry for `ABEND NOHANDLE` and the `WRITE OPERATOR` routing
-   options. This takes ZECSNC to L1.
+1. **2a-2:** `WRITE OPERATOR` `TEXTLENGTH`, `ROUTECODES` + `NUMROUTES`, `EVENTUAL`: the registry, `det/cics.py`, `CicsTask`, the stub
+   (`ggcics.c` `GGCWTO`) and a register X32 entry. This takes ZECSNC to L1.
 2. **2b:** an equivalence case `tests/equivalence/zecs-zecsnc/`. It needs:
    - a lowering hook in `tests/tools/equivalence_cics.py`, beside `bll.lower_text`;
    - an X register entry for assumption 1.

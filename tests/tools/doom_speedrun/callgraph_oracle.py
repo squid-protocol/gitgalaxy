@@ -153,6 +153,10 @@ def callee_node(fn):
             fn = fn.child_by_field_name("field")
         elif fn.type in ("qualified_identifier", "template_function", "template_method"):
             fn = fn.child_by_field_name("name")
+        elif (
+            fn.type == "dependent_name"
+        ):  # `q::template f<T>(x)`: the `template` keyword wraps the template method (#6266)
+            fn = fn.named_children[0] if fn.named_children else None
         else:
             return None
     return None
@@ -200,6 +204,8 @@ class Body:
         callees = set()
         for init in _initializers(node):  # `: Base(x), member(y)`: a base class entry is a constructor call
             name = callee_node(init.children[0]) if init.children else None
+            if name is None and init.children and init.children[0].type == "template_type":
+                name = init.children[0].child_by_field_name("name")  # `: TMap<K, V>(), info(x)`: a templated base
             if name is not None and decode_bytes(name.text) in _bases(classes or {}, node):
                 self.calls.setdefault(decode_bytes(name.text), "ctor-init")
         for (
@@ -241,8 +247,11 @@ class Body:
             elif n.type == "call_expression":
                 name = callee_node(n.child_by_field_name("function"))
                 if name is not None and decode_bytes(name.text) not in KEYWORDS:  # `SERVER_ONLY(\n if (x) {..})`
-                    self.calls.setdefault(decode_bytes(name.text), shape(n))
+                    # `p->~T<A>()`: the destructor's unit is `~T`, template arguments dropped
+                    self.calls.setdefault(decode_bytes(name.text).split("<", 1)[0], shape(n))
                     callees.add(name.id)
+            elif n.type == "destructor_name" and n.id not in callees and _templated_dtor(n):
+                self.calls.setdefault(decode_bytes(n.text), "statement")  # `p->~T<A>()` parses as `p->~T < A > ()`
             elif n.type == "identifier" and n.id not in callees:  # a struct field is never a function reference
                 self.refs.add(decode_bytes(n.text))
             elif n.type == "type_identifier":  # C++ `new T(...)` / `T v(...)`: a constructor, not a named call
@@ -450,6 +459,13 @@ def _head_initializer_arguments(head):
     return "".join(out)
 
 
+def _templated_dtor(name):
+    """True for the `~T` of `p->~T<A>()`, which tree-sitter reads as the comparison `p->~T < A > ()`."""
+    field = name.parent
+    after = field.next_sibling if field is not None and field.type == "field_expression" else None
+    return after is not None and after.type == "<"
+
+
 def _initializers(node):
     """The ``field_initializer`` entries of a constructor's initializer list (a child of the definition, not of its body)."""
     for child in node.children:
@@ -509,6 +525,37 @@ def class_names(repo, vendored=None):
     return class_names_of_text(*texts)
 
 
+def _alias_owner(text, heads, pos):
+    """The class an alias declared at `pos` is a member of (the nearest class head before it that opens the same line
+    or sits at a lesser indent), None for a namespace-scope alias at column 0."""
+    line_start = text.rfind("\n", 0, pos) + 1
+    indent = pos - line_start
+    if indent == 0:
+        return None
+    for at, name in reversed(heads):
+        if at >= pos:
+            continue
+        head_start = text.rfind("\n", 0, at) + 1
+        if head_start == line_start or len(text[head_start:at]) - len(text[head_start:at].lstrip()) < indent:
+            return name
+    return None
+
+
+def _split_bases(listing):
+    """A base list's entries: split at top-level commas only (`TArray<T, TT>` is one entry)."""
+    parts, depth, start = [], 0, 0
+    for i, ch in enumerate(listing):
+        if ch == "<":
+            depth += 1
+        elif ch == ">":
+            depth -= 1
+        elif ch == "," and depth == 0:
+            parts.append(listing[start:i])
+            start = i + 1
+    parts.append(listing[start:])
+    return parts
+
+
 def class_names_of_text(*texts):
     """``class_names`` over source texts."""
     bases_of: dict[str, set[str]] = {}
@@ -516,15 +563,24 @@ def class_names_of_text(*texts):
     for text in texts:
         clean = STRIP.sub(" ", text)
         declared.update(CLASS_DECL.findall(clean))
-        aliases.extend((m.group(2) or m.group(3), m.group(1) or m.group(4)) for m in ALIAS_DECL.finditer(clean))
+        heads = [(m.start(), m.group(1)) for m in CLASS_DECL.finditer(clean)]
+        aliases.extend(
+            (m.group(2) or m.group(3), m.group(1) or m.group(4), _alias_owner(clean, heads, m.start()))
+            for m in ALIAS_DECL.finditer(clean)
+        )
         for head in BASE_LIST.finditer(clean):
             owner = CLASS_HEAD.search(head.group(0))
             if owner is None:
                 continue
             bases_of.setdefault(owner.group(1), set()).update(
-                m.group(1) for b in head.group(1).split(",") if (m := BASE_NAME.search(b))
+                m.group(1) for b in _split_bases(head.group(1)) if (m := BASE_NAME.search(b))
             )
-    bases_of[ALIASES] = {name for name, target in aliases if target.rsplit("::", 1)[-1] in declared}
+    for name, target, owner in aliases:  # a member alias is the base name only inside its own class
+        if owner is not None and target.rsplit("::", 1)[-1] in declared:
+            bases_of.setdefault(owner, set()).add(name)
+    bases_of[ALIASES] = {
+        name for name, target, owner in aliases if owner is None and target.rsplit("::", 1)[-1] in declared
+    }
     return bases_of
 
 

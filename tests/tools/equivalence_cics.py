@@ -877,6 +877,10 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
             raise Unsupported(_rule("WRITE OPERATOR", "required", "TEXT"), ["WRITE OPERATOR"])
         if _literal(text):  # (IBM's COBOL form takes a data area)
             raise Unsupported("WRITE OPERATOR TEXT as a literal: a data area is the COBOL form", ["WRITE OPERATOR"])
+        # #5859: the det port and CicsTask model these, the stub not yet
+        for o in ("TEXTLENGTH", "ROUTECODES", "NUMROUTES"):
+            if o in opts:
+                raise _stub_only(f"WRITE OPERATOR {o}")
         return ([f"MOVE LENGTH OF {text} TO GG-LEN"] + _call("GGCWTO", [f"BY REFERENCE {text}"])
                 + _resp(opts, True, labels))  # fmt: skip
     if verb in ("INQUIRE", "SET") and "TDQUEUE" in opts:  # #5168 round 3 (X61): an extrapartition queue's open state
@@ -1810,6 +1814,11 @@ def raw_commarea_bytes(values: dict[str, Any]) -> dict[str, Any]:
     """#6072: a COMMAREA value `{"hex": "F1F2..."}` is the field's raw bytes -- storage no PICTURE can say, such as
     letters in a PIC 9 field for an IS NUMERIC false arm. Every other value is returned as stated."""
     return {k: bytes.fromhex(v["hex"]) if isinstance(v, dict) and set(v) == {"hex"} else v for k, v in values.items()}
+
+
+def raw_names_of(sc: dict[str, Any]) -> set[str]:
+    """#6072: the scenario's COMMAREA fields stated as raw bytes (none when it has no COMMAREA)."""
+    return raw_commarea_names(sc["commarea"]) if sc.get("commarea") is not None else set()
 
 
 def raw_commarea_names(values: dict[str, Any]) -> set[str]:
@@ -4070,6 +4079,10 @@ class EquivalenceRunTest {{
             List<Map<String, Object>> events = new ArrayList<>();
             for (Map<String, Object> e : task.events()) {{
                 Map<String, Object> copy = new LinkedHashMap<>(e);
+                if (sc.path("raw_commarea").asBoolean() && "RETURN".equals(e.get("event")) && e.get("commarea") != null
+                        && task.returnedBytes() != null) {{  // #6072: the bytes the RETURN passed, a DTO holds a long
+                    copy.put("area", java.util.Base64.getEncoder().encodeToString(task.returnedBytes()));
+                }}
 {screen_copy}                events.add(copy);
             }}
             if (task.currentChannel() != null) {{  // #4270 (X24): the containers left on the task's current channel
@@ -4279,7 +4292,7 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
             m: {f.removesuffix("I"): v for f, v in typed.items()} for m, typed in (sc.get("receive") or {}).items()
         }
         scenarios.append({"name": sc["name"], "aid": sc.get("aid", "DFHENTER").removeprefix("DFH"),
-                          "commarea": ca, "area": area, "receive": receive, "faults": fault_lines(sc), "sql_faults": sc.get("sql_plan", []),
+                          "commarea": ca, "area": area, **({"raw_commarea": True} if raw_names_of(sc) else {}), "receive": receive, "faults": fault_lines(sc), "sql_faults": sc.get("sql_plan", []),
                           "dli_faults": dli_fault_lines(case, sc),
                           "sql_unjudged": sql_unjudged(sc.get("sql_plan", []), seams),
                           "derived": bool(sc.get("derived")), "commarea_length": commarea_length(sc, ca_read),
@@ -4436,8 +4449,9 @@ def _java_events(case: dict[str, Any], out: Path, shape: dict[str, Any],
                 e.update(cics_taskcontrol.java_start_as_compared(e))
             if e.get("event") == "RETRIEVE":  # #5089: the data's bytes as text
                 e.update(cics_taskcontrol.java_retrieve_as_compared(e))
-            if e.get("event") == "COMMAREA" and e.get("area") is not None:  # #4765: the bytes the port left
-                if sc.get("dto_entry") and isinstance(e.get("commarea"), dict):  # #5863: the DTO too (compare_events)
+            if e.get("event") in ("COMMAREA", "RETURN") and e.get("area") is not None:  # #4765: the bytes the port left
+                # #6072: a RETURN too, when the scenario states raw COMMAREA bytes (its DTO holds a number for them)
+                if e.get("event") == "COMMAREA" and sc.get("dto_entry") and isinstance(e.get("commarea"), dict):  # #5863: the DTO too (compare_events)
                     e["dto"] = java_commarea(e["commarea"], shape, ca_fields or [], enc)
                 e["commarea"] = java_area(e.pop("area"), ca_fields or [], enc)
             elif "commarea" in e:

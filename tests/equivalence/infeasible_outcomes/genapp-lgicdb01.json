@@ -1,0 +1,14 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "genapp-lgicdb01",
+  "entries": [
+    {
+      "unit": "WRITE-ERROR-MESSAGE",
+      "line": 231,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "`IF EIBCALEN < 91` (the inner test of WRITE-ERROR-MESSAGE's COMMAREA copy) is true only for EIBCALEN 90 here: LGICDB01 returns '98' for EIBCALEN < 90 (line 140: WS-CUSTOMER-LEN 72 + header and trailer 18), and WRITE-ERROR-MESSAGE runs only after the SELECT (line 169, the -913 arm continues, any other SQLCODE reaches it) or for EIBCALEN 0. Reaching it takes a failing SELECT with EIBCALEN exactly 90, but the SELECT's INTO host variables (CA-PHONE-MOBILE, CA-PHONE-HOME, CA-EMAIL-ADDRESS of LGCMAREA) lie past byte 90, so the task would reference storage past EIBCALEN, which IBM leaves undefined and X23 refuses on both sides (measured: a scenario with commarea_length 90 and an injected -811 fires the fault on the COBOL side only, 'faults fired differ'). The only caller, LGICUS01 (line 122), LINKs with LENGTH(32500), so EIBCALEN is 32500 on every call."
+    }
+  ]
+}

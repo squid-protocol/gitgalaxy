@@ -1,45 +1,32 @@
 {
  "format": "det-sweep-coverage/2",
- "scenarios": 10,
+ "scenarios": 9,
  "paragraphs": {
-  "covered": 6,
+  "covered": 5,
   "live": 6
  },
  "branches": {
-  "covered": 15,
+  "covered": 14,
   "total": 15
  },
- "linked": {
-  "EPSCSMRT": {
-   "paragraphs": {
-    "covered": 1,
-    "live": 1
-   },
-   "branches": {
-    "covered": 1,
-    "total": 2
-   }
-  },
-  "EPSMPMT": {
-   "paragraphs": {
-    "covered": 3,
-    "live": 4
-   },
-   "branches": {
-    "covered": 6,
-    "total": 12
-   }
-  }
+ "uncovered": {
+  "paragraphs": [
+   "A600-CALCULATE-MORTGAGE:209"
+  ],
+  "branches": [
+   "162:true",
+   "paragraph:A600-CALCULATE-MORTGAGE"
+  ]
  },
  "inputs": {
-  "case": "b0e62d6b99a2bd0e687494c65e132fc59e84c58c7719a19425ed392db5744a05",
+  "case": "1bc8cc50bfabc9561912399023b410c2636605f171281cb2178b4cb3b2a4d1d7",
   "corpus": "1143e0fef7c983b7ade463d33d49481f5572d79e8f95593a2219fdb494a1e7f2",
-  "harness": "c3d5b431c95c3a424111b5742b70a86771832c71f9fcbe3c54496a2396a87d1d",
+  "harness": "4305e6af44e184a166d3eb893fc1d85b5a814b3393e4dc821dfcbf22d97678d7",
   "oracle": "954624ee1e0c30c8c38ee60299b0094ce0f148623a4167b73cef50db4d6644a7",
   "components": {
    "harness": {
-    "harness:cics": "26a652a1f568cf82518305cc8448f50de19ffbf7b10ec0bd5b891bc37cb18a7e",
-    "harness:core": "945494f198a90b8ec29af9cf851de4b6cb237aa0afdc1d6b77d37eb46ba12ef0"
+    "harness:cics": "66a4af3a0b053fe542dab3033314cf15ff1cd6c1bae80f2658592c3168ec6c92",
+    "harness:core": "44d38a01abc69857283e736186feda6396e1cf6e297c12e07a097730aee7f15f"
    },
    "oracle": {
     "oracle:cics-stub": "97aa35cdf56b4fc4673edb1c15f2a018ee334b41f676d4f0131265ae15a52b01",
@@ -48,5 +35,5 @@
    }
   }
  },
- "measured_at": "714cfc77d5e684b9400b565fd879a7645a820328"
+ "measured_at": "c26fda52fe5e6d51bb0ea672141f9712ae6bca32"
 }

@@ -22,7 +22,10 @@ runtime or data file some module reads), an equivalence case they name or shared
 or the job's own files. The required `det` check re-proves the Db2 det ports on every PR; push, nightly and manual runs
 always run the job, and Main Watch watches the workflow on main.
 
-It fails open: any doubt is `run`. Prints JSON {mode, db2, reason}; with --github-output appends mode=none|run and
+`scope` (shard job): `zos` when every changed file that can move a proof is tests/tools/test_zos_probes.py, zos_probes.py or a
+doc only that test reads (and db2 is none): one shard runs that file alone; otherwise `all`.
+
+It fails open: any doubt is `run`. Prints JSON {mode, db2, reason[, scope]}; with --github-output appends mode=none|run and
 db2=none|run. Stdlib only.
 """
 
@@ -66,6 +69,9 @@ TEST_AREA = (
     "tests/conftest.py",
     "tests/crucible_pins.toml",
 )
+# A change to only these (and the docs only they read) can move nothing but test_zos_probes.py: one shard, not three.
+ZOS_ONLY = ("tests/tools/test_zos_probes.py", "tests/tools/zos_probes.py")
+ZOS_READER = "tests/tools/test_zos_probes.py"
 # Whatever installs or schedules the job.
 JOB_AREA = (
     ".github/workflows/equivalence-e2e.yml",
@@ -195,6 +201,15 @@ def in_area(path: str, refs: dict[str, list[str]] | None = None) -> bool:
     return False
 
 
+def zos_only(files: list[str], refs: dict[str, list[str]] | None = None) -> bool:
+    """Is every file that can move a shard proof one only test_zos_probes.py reads? Any doubt answers no."""
+    moving = [f for f in files if in_area(f, refs)]
+    return bool(moving) and all(
+        f in ZOS_ONLY or (f.startswith("docs/") and set(change_classifier.readers_of(f, refs)) == {ZOS_READER})
+        for f in moving
+    )
+
+
 def plan(files: list[str], event: str, labels: tuple[str, ...] = (), refs: dict | None = None,
          db2: tuple[frozenset[str], frozenset[str]] | None = None) -> dict:  # fmt: skip
     if event not in ("pull_request", "push"):
@@ -218,7 +233,11 @@ def plan(files: list[str], event: str, labels: tuple[str, ...] = (), refs: dict 
         if db2_hit
         else "db2: no changed file is an input of the Db2 files"
     )
-    return {"mode": "run", "db2": "run" if db2_hit else "none", "reason": reason}
+    out = {"mode": "run", "db2": "run" if db2_hit else "none", "reason": reason}
+    if not db2_hit and zos_only(files, refs):
+        out["scope"] = "zos"
+        out["reason"] += "; scope zos: only test_zos_probes.py can move, one shard"
+    return out
 
 
 def changed_files(base: str) -> list[str]:
@@ -247,7 +266,7 @@ def main() -> int:
     print(json.dumps(p, indent=1))
     if args.github_output:
         with args.github_output.open("a", encoding="utf-8") as fh:
-            fh.write(f"mode={p['mode']}\ndb2={p['db2']}\n")
+            fh.write(f"mode={p['mode']}\ndb2={p['db2']}\nscope={p.get('scope', 'all')}\n")
     return 0
 
 

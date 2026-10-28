@@ -2256,8 +2256,6 @@ int main(int argc, char **argv) {
 """
 
 
-@pytest.mark.skipif(__import__("sys").platform == "win32" or not __import__("shutil").which("gcc"),
-                    reason="needs gcc and a POSIX guard page")  # fmt: skip
 def test_a_scenario_states_untyped_commarea_bytes_for_a_case_with_no_layout():
     """#5859 (ZECSNC): `"commarea_hex"` is the exact bytes the caller passed to a program with no typed COMMAREA (an
     HLASM DSECT); EIBCALEN is their count. Refused by name when typed, mixed with a typed key, empty or not hex."""
@@ -2293,6 +2291,8 @@ def test_the_java_template_reads_an_untyped_commarea():
     assert 'sc.path("untyped_length")' in src
 
 
+@pytest.mark.skipif(__import__("sys").platform == "win32" or not __import__("shutil").which("gcc"),
+                    reason="needs gcc and a POSIX guard page")  # fmt: skip
 def test_the_stub_stops_a_reference_past_a_stated_commarea_length(tmp_path):
     """#4270 (X23): with commarea.exact, GGCAREA copies the COMMAREA to the end of a page before an inaccessible one:
     the last byte is the program's, the next stops the run (98, "COMMAREA past EIBCALEN: not modelled"). Without it,
@@ -2315,6 +2315,17 @@ def test_the_stub_stops_a_reference_past_a_stated_commarea_length(tmp_path):
     (d / "commarea.exact").write_text("60\n", encoding="ascii")
     assert run("60", "59") == (0, "moved=1 first=x\nwrote\n")
     assert run("60", "60") == (98, "moved=1 first=x\nCOMMAREA past EIBCALEN: not modelled\n")
+
+
+def test_the_x23_stub_test_is_skipped_where_there_is_no_guard_page():
+    """#6886: #6875 inserted tests between this test's `skipif` and its def, so it ran on Windows (the stub refuses a
+    stated COMMAREA length there). The decorator must stay on the test it guards."""
+    import ast
+
+    tree = ast.parse(Path(__file__).read_text(encoding="utf-8"))
+    fn = next(n for n in tree.body if isinstance(n, ast.FunctionDef)
+              and n.name == "test_the_stub_stops_a_reference_past_a_stated_commarea_length")  # fmt: skip
+    assert any("skipif" in ast.unparse(d) and "win32" in ast.unparse(d) for d in fn.decorator_list)
 
 
 # ---- #4270: a task started with a channel; the containers it leaves compared (X24); a case's transactions ----------

@@ -128,28 +128,53 @@ def test_dfhfct_remote_and_the_refused_and_unnamed_forms():
 
 
 def test_dfhpct_entry_is_a_transaction_routing_to_its_program():
-    src = "         DFHPCT TYPE=ENTRY,TRANSID=BA01,PROGRAM=BANKINQ,TWASIZE=64\n         DFHPCT TYPE=GROUP,FN=X\n"
-    assert _lifted(src) == [("TRANSACTION", "BA01", None, None, None, None, None, None, "BANKINQ", "BA01")]
+    src = "\n".join(
+        [
+            _cont(
+                "         DFHPCT TYPE=ENTRY,TRANSID=BA01,PROGRAM=BANKINQ,TWASIZE=64,",
+                "TRNPRTY=100,DTB=(YES,WAIT)",
+            ),
+            _cont(
+                "         DFHPCT TYPE=ENTRY,TRANSID=RMT1,SYSIDNT=SYSB,RMTNAME=RR01,",
+                "PARTSET=PS1,DTB=YES",
+            ),
+            "         DFHPCT TYPE=GROUP,FN=X",
+        ]
+    )
+    assert _lifted(src) == [
+        ("TRANSACTION", "BA01", None, None, None, None, None, None, "BANKINQ", "BA01"),
+        ("TRANSACTION", "RMT1", None, None, None, None, None, None, None, "RMT1"),
+    ]
+    rows = _rows(src)
+    assert _rdo(rows[0]) == "PRIORITY(100) INDOUBT(WAIT)"
+    assert _rdo(rows[1]) == "REMOTESYSTEM(SYSB) REMOTENAME(RR01) PARTITIONSET(PS1) INDOUBT(BACKOUT)"
 
 
 def test_dfhppt_entry_names_a_program_a_mapset_or_a_partition_set():
     src = "\n".join(
         [
-            "         DFHPPT TYPE=ENTRY,PROGRAM=BANKINQ,PGMLANG=COBOL,RES=NO",
-            "         DFHPPT TYPE=ENTRY,MAPSET=DSTMAPSM",  # IBM APAR II05097
+            _cont("         DFHPPT TYPE=ENTRY,PROGRAM=BANKINQ,PGMLANG=COBOL,RES=NO,", "PGMSTAT=ENABLED"),
+            "         DFHPPT TYPE=ENTRY,PROGRAM=BANKMAP,USAGE=MAP",  # SC33-1653-05 p.372: PROGRAM + USAGE=MAP -> MAPSET
+            "         DFHPPT TYPE=ENTRY,PROGRAM=BANKASM,PGMLANG=ASSEMBLER,USAGE=MAP",  # ASSEMBLER + USAGE=MAP -> MAPSET
+            "         DFHPPT TYPE=ENTRY,PROGRAM=BANKCBL,PGMLANG=COBOL,USAGE=MAP",  # non-ASSEMBLER stays PROGRAM
+            "         DFHPPT TYPE=ENTRY,MAPSET=DSTMAPSM,RES=YES",  # IBM APAR II05097; SC33-1653-05 p.372
             "         DFHPPT TYPE=ENTRY,PARTITIONSET=BANKPS",
-            "         DFHPPT TYPE=ENTRY,PARTSET=OLDPS",
+            "         DFHPPT TYPE=ENTRY,PARTSET=OLDPS,USAGE=MAP",  # SC33-1653-05 p.349, p.372
             "         DFHPPT TYPE=ENTRY",
             "         DFHPPT TYPE=FINAL",
         ]
     )
-    assert [(r["resource_type"], r["name"], r["program"]) for r in _rows(src)] == [
-        ("PROGRAM", "BANKINQ", "BANKINQ"),
-        ("MAPSET", "DSTMAPSM", None),
-        ("PARTITIONSET", "BANKPS", None),
-        ("PARTITIONSET", "OLDPS", None),
+    rows = _rows(src)
+    assert [(r["resource_type"], r["name"], r["program"], _rdo(r)) for r in rows] == [
+        ("PROGRAM", "BANKINQ", "BANKINQ", "LANGUAGE(COBOL) RESIDENT(NO) STATUS(ENABLED)"),
+        ("MAPSET", "BANKMAP", None, "USAGE(TRANSIENT)"),
+        ("MAPSET", "BANKASM", None, "USAGE(TRANSIENT)"),
+        ("PROGRAM", "BANKCBL", "BANKCBL", "LANGUAGE(COBOL) USAGE(TRANSIENT)"),
+        ("MAPSET", "DSTMAPSM", None, "RESIDENT(YES)"),
+        ("PARTITIONSET", "BANKPS", None, ""),
+        ("PARTITIONSET", "OLDPS", None, "USAGE(TRANSIENT)"),
     ]
-    assert "PGMLANG=COBOL" in _rows(src)[0]["attributes"]
+    assert "PGMLANG=COBOL" in rows[0]["attributes"]
 
 
 # --- DFHDCT -----------------------------------------------------------------------------------

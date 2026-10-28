@@ -29,6 +29,21 @@
 #          ch.3 "Resource definition (macro) changes": the DFHPCT / DFHPPT macros are
 #          not shipped in CICS/ESA 4.1 (not supported since the introduction of
 #          CICS/ESA); CICS/ESA 4.1 installs only BDAM files from an FCT.
+#   [VSE]  CICS Transaction Server for VSE/ESA Release 1, "Resource Definition
+#          Guide", SC33-1653-05. Appendix C "Keyword cross-reference tables" p.347-356
+#          (macro operand -> RDO attribute for DFHPCT, DFHPPT, DFHFCT, DFHDCT, DFHTCT,
+#          DFHTST), Appendix E "Migrating the PCT to the CSD" p.365-370 (DFHPCT
+#          TYPE=INITIAL|ENTRY|GROUP|PROFILE|OPTGRP|FINAL), Appendix F "Migrating the
+#          PPT to the CSD" p.371-374 (`PROGRAM=name` without `USAGE=MAP` -> PROGRAM;
+#          `PROGRAM=name` with `USAGE=MAP` and no non-ASSEMBLER `PGMLANG=` -> MAPSET,
+#          with `USAGE(TRANSIENT)`; `MAPSET=name` -> MAPSET; `PARTSET=name` ->
+#          PARTITIONSET).
+#   [SPRM] CICS/VS System Programmer's Reference Manual, SH20-1043-6 (Seventh Edition,
+#          March 1975): DFHDCT p.86-103 (`TYPE=SDSCI` `RECFORM=FIXUNB|FIXBLK|VARUNB|VARBLK`
+#          with optional `A`/`M`, p.95-96), DFHPCT p.104-107 (`TYPE=INITIAL|ENTRY|FINAL`,
+#          `TRANSID=`, `TRNPRTY=`, `TRANSEC=`, `TWASIZE=`, `PROGRAM=`, `TPURGE=`,
+#          `SPURGE=`, `COMPAT=`), DFHPPT p.108-109 (`TYPE=INITIAL|ENTRY|FINAL`,
+#          `PROGRAM=`, `PGMLANG=ASSEMBLER|COBOL|PL/I`, `RES=YES|NO`, `RELOAD=YES|NO`).
 #   [APAR] IBM APAR II05097 (CICS/MVS 1.7 -> CICS/ESA 3.1.1 migration):
 #          `DFHPPT TYPE=ENTRY,MAPSET=name` and `DFHPPT TYPE=ENTRY,PROGRAM=name`.
 #   [TS]   IBM CICS TS 5.x "Reference: system management / resources / macros" pages (#5154):
@@ -47,10 +62,6 @@
 #          and DDNAME=, TYPE=LINE names them in ISADSCN= / OSADSCN=, the DD statement is named by DDNAME)
 #          and DFHJCT's JFILEID ("supported for compatibility purposes only", SSGMCP_5.3.0 application
 #          programming "Recovery and journaling", dfhp3_recov_journaling.html).
-#   The CICS/VS and CICS/ESA 3.x "Resource Definition (Macro)" manuals themselves
-#   were NOT retrievable (re-tried 2026-10-15 for #5154: no IBM page for DFHJCT, DFHPCT, DFHPPT
-#   or DFHTCT TYPE=GPENTRY exists in the TS 5.x library); where a statement below rests on [MIG] /
-#   [APAR] / a retained-spelling note instead of a syntax table, it is marked ASSUMED.
 #
 # MACRO -> RESOURCE:
 #
@@ -58,10 +69,15 @@
 #          [TYPE=DATASET,DATASET= is the retained pre-CICS/ESA spelling, "exactly the same"
 #          [RDG p.391, p.402]]            -> U / V / F, KEYLEN=, LRECL= -> record_size [RDG p.531]
 #   DFHFCT TYPE=REMOTE,FILE=    FILE     KEYLEN=, LRECL=; SYSIDNT= / RMTNAME= ride in `attributes`
-#   DFHPCT TYPE=ENTRY           TRANSACTION  TRANSID=, PROGRAM=                     (ASSUMED, [MIG])
-#   DFHPPT TYPE=ENTRY           PROGRAM | MAPSET | PARTITIONSET
-#                               by which of PROGRAM= / MAPSET= / PARTITIONSET= (PARTSET=) names it
-#                               ([APAR] for PROGRAM= and MAPSET=; PARTITIONSET=/PARTSET= ASSUMED)
+#   DFHPCT TYPE=ENTRY           TRANSACTION  TRANSID=, PROGRAM=; RDO attribute restatements from
+#                               [SPRM p.104-106] and [VSE p.347-351, p.365-368] (PRIORITY,
+#                               REMOTESYSTEM, REMOTENAME, PARTITIONSET, INDOUBT)
+#   DFHPPT TYPE=ENTRY           PROGRAM | MAPSET | PARTITIONSET [SPRM p.108-109, VSE p.348-350, p.372]
+#                               `PROGRAM=name` -> PROGRAM (or MAPSET with `USAGE(TRANSIENT)` when
+#                               `USAGE=MAP` is coded without a non-ASSEMBLER `PGMLANG=` [VSE p.372]);
+#                               `MAPSET=name` -> MAPSET; `PARTSET=name` -> PARTITIONSET ([VSE p.349,
+#                               p.372]; `PARTITIONSET=` is accepted as an ASSUMED alias). `PGMLANG=`,
+#                               `RES=YES|NO`, `PGMSTAT=` restated as `LANGUAGE`, `RESIDENT`, `STATUS`.
 #   DFHDCT TYPE=INTRA|EXTRA|INDIRECT|REMOTE  DESTID=   TDQUEUE  (queue_type = the TYPE)
 #          INTRA:    TRANSID= -> transid; TRIGLEV= (default 1 when TRANSID= is coded) ->
 #                    TRIGGERLEVEL in `attributes` [RDG p.383, ch.16]
@@ -72,12 +88,12 @@
 #          REMOTE:   SYSIDNT= / RMTNAME= in `attributes`; LENGTH= -> record_size
 #          TYPE=SDSCI,DSCNAME=  not a row: it is the DCB of the EXTRA entries naming it.
 #            RECFORM = FIXUNB FIXBLK VARUNB VARBLK, each with the A (ASA) or M (machine)
-#            control-character suffix [RDG p.376] -> record_format FIXED / VARIABLE (the CSD
-#            TDQUEUE RECORDFORMAT spelling), BLOCKFORMAT BLOCKED / UNBLOCKED and
+#            control-character suffix [RDG p.376, SPRM p.95-96] -> record_format FIXED / VARIABLE
+#            (the CSD TDQUEUE RECORDFORMAT spelling), BLOCKFORMAT BLOCKED / UNBLOCKED and
 #            PRINTCONTROL ASA / MACHINE in `attributes` [RDG p.534 note 7]; RECSIZE= ->
 #            record_size. SDSCI has NO DSNAME operand: the dataset is the JCL DD named
-#            DSCNAME, so dsname is never lifted here. RECFORM=UNDEFINED is not in [RDG]
-#            (ASSUMED from the CICS/ESA reviewer note): record_format None, text kept.
+#            DSCNAME, so dsname is never lifted here. RECFORM=UNDEFINED is outside both
+#            [RDG p.376] and [SPRM p.95-96]: record_format None, text kept.
 #   DFHTST TYPE=RECOVERY|ENTRY|LOCAL|REMOTE|SECURITY  DATAID=  TSMODEL  (name = the prefix,
 #          RDO PREFIX [RDG p.531]); one row per DATAID string. TYPE=ENTRY is "retained for
 #          compatibility ... exactly the same as TYPE=RECOVERY" [RDG p.484]. RECOVERY(YES) /
@@ -146,6 +162,7 @@ _SDSCI_BASE = {
 _SDSCI_CONTROL = {"": None, "A": "ASA", "M": "MACHINE"}
 _TST_TYPES = frozenset({"LOCAL", "REMOTE", "RECOVERY", "SECURITY", "ENTRY"})
 _TRIGLEV_MAX = 32767  # [RDG p.383]
+_PCT_DTB = {"YES": "BACKOUT", "YES,NO": "COMMIT", "YES,WAIT": "WAIT"}  # [VSE p.348, p.367]
 _RDO_SEP = " => "
 
 
@@ -259,6 +276,54 @@ def _dct_row(line: int, text: str, keyed: dict[str, str], kind: str, table: str,
     return _row("TDQUEUE", name, table, line, text, rdo, **extra)
 
 
+def _pct_rdo(keyed: dict[str, str]) -> list[str]:
+    """DFHPCT TYPE=ENTRY operands spelled differently in RDO -> their RDO attribute restatement [VSE p.347-351, p.367]."""
+    rdo: list[str] = []
+    if (prio := _int(keyed.get("TRNPRTY"))) is not None and 0 <= prio <= 255:
+        rdo.append(f"PRIORITY({prio})")
+    for op_name, rdo_name in (("SYSIDNT", "REMOTESYSTEM"), ("RMTNAME", "REMOTENAME"), ("PARTSET", "PARTITIONSET")):
+        if val := _name(keyed.get(op_name)):
+            rdo.append(f"{rdo_name}({val})")
+    dtb = ",".join(p.strip("() '\"").upper() for p in (keyed.get("DTB") or "").split(",") if p.strip("() '\""))
+    if indoubt := _PCT_DTB.get(dtb):
+        rdo.append(f"INDOUBT({indoubt})")
+    return rdo
+
+
+def _ppt_rows(line: int, text: str, keyed: dict[str, str], table: str) -> list[dict[str, Any]]:
+    """DFHPPT TYPE=ENTRY -> PROGRAM | MAPSET | PARTITIONSET [SPRM p.108-109, VSE p.348-350, p.372].
+
+    `PROGRAM=name` with `USAGE=MAP` (unless `PGMLANG` names a language other than ASSEMBLER) defines
+    a MAPSET with `USAGE(TRANSIENT)` [VSE p.372]; `PARTSET=name` defines a PARTITIONSET [VSE p.349,
+    p.372] (`PARTITIONSET=` is accepted as an ASSUMED alias).
+    """
+    usage_map = _name(keyed.get("USAGE")) == "MAP"
+    lang = _name(keyed.get("PGMLANG"))
+    res = _name(keyed.get("RES"))
+    stat = _name(keyed.get("PGMSTAT"))
+    out: list[dict[str, Any]] = []
+    for operand, rtype in (
+        ("PROGRAM", "MAPSET" if usage_map and lang in (None, "ASSEMBLER") else "PROGRAM"),
+        ("MAPSET", "MAPSET"),
+        ("PARTITIONSET", "PARTITIONSET"),
+        ("PARTSET", "PARTITIONSET"),
+    ):
+        name = _name(keyed.get(operand))
+        if not name:
+            continue
+        rdo: list[str] = []
+        if rtype == "PROGRAM" and lang:
+            rdo.append(f"LANGUAGE({lang})")
+        if res == "YES" or (rtype == "PROGRAM" and res == "NO"):
+            rdo.append(f"RESIDENT({res})")
+        if stat:
+            rdo.append(f"STATUS({stat})")
+        if usage_map:
+            rdo.append("USAGE(TRANSIENT)")
+        out.append(_row(rtype, name, table, line, text, rdo, program=name if rtype == "PROGRAM" else None))
+    return out
+
+
 def _sit_suffix(value: str | None) -> str:
     """DFHSIT SUFFIX= -> its one or two characters, or "" (any other value is not a SUFFIX) [TS dfha2_suffix]."""
     text = (_first(value) or "").strip("'\"").upper()
@@ -338,18 +403,19 @@ def cics_macro_table_resources(code_stream: str) -> list[dict[str, Any]]:
             name = _name(keyed.get("TRANSID"))
             if name:
                 rows.append(
-                    _row("TRANSACTION", name, table, line, text, transid=name, program=_name(keyed.get("PROGRAM")))
+                    _row(
+                        "TRANSACTION",
+                        name,
+                        table,
+                        line,
+                        text,
+                        _pct_rdo(keyed),
+                        transid=name,
+                        program=_name(keyed.get("PROGRAM")),
+                    )
                 )
         elif op == "DFHPPT" and kind == "ENTRY":
-            for operand, rtype in (
-                ("PROGRAM", "PROGRAM"),
-                ("MAPSET", "MAPSET"),
-                ("PARTITIONSET", "PARTITIONSET"),
-                ("PARTSET", "PARTITIONSET"),
-            ):
-                name = _name(keyed.get(operand))
-                if name:
-                    rows.append(_row(rtype, name, table, line, text, program=name if rtype == "PROGRAM" else None))
+            rows.extend(_ppt_rows(line, text, keyed, table))
         elif op == "DFHDCT" and kind in ("INTRA", "EXTRA", "INDIRECT", "REMOTE"):
             row = _dct_row(line, text, keyed, kind, table, sdsci)
             if row:

@@ -1,6 +1,6 @@
 # Progress
 
-Generated from main at `4e739d992` by `tests/tools/progress_report.py` (#5280); do not edit. Every
+Generated from main at `82e8a440a` by `tests/tools/progress_report.py` (#5280); do not edit. Every
 denominator is fixed and every number names its source below. A level is an evidence level, never a bare
 claim of correctness: the oracle is GnuCOBOL plus IBM documentation, not z/OS.
 
@@ -13,7 +13,7 @@ Reachable denominator: 125 programs (129 - 2 - 1 - 1). These programs stay in th
 | Not reachable for a non-translator reason | Programs | Issue | Reason |
 |---|---|---|---|
 | source defect (source IBM rejects) | 2: `aws-mainframe-modernization-carddemo/app/cbl/CBEXPORT.cbl`, `aws-mainframe-modernization-carddemo/app/cbl/CBIMPORT.cbl` | #5866 | RECORD KEY names an item defined in WORKING-STORAGE, not in a record of the file; IBM requires it in a record description of that file (Enterprise COBOL Language Reference, RECORD KEY clause) |
-| refused whole: not COBOL | 1: `zecs/Source/ZECS002.asm` | #5859 | CICS Assembler member; the HLASM front end refuses it at DC 08XL01'40' (slice 3 of #5859 lowers it) |
+| refused whole: not COBOL | 1: `zecs/Source/ZECS002.asm` | #5859 | CICS Assembler member; the HLASM front end lowers it and the det translator translates it whole (slices 3b-3e: reserved-word names renamed, GGCVER stub); no equivalence case yet: its USERID holds EBCDIC bytes (the program converts ASCII to EBCDIC) and a fault-plan verdict is ASCII-only |
 | held by an owner ruling or z/OS calibration | 1: `dbb-mortgage-application/zBuilder/MortgageApplication/cobol/epscsmrd.cbl` | #5106 | Language Environment condition handlers (CEEHDLR) refused by name, owner ruling 2026-10-21 |
 
 Entries that no longer hold (the program is above L0): dbb-mortgage-application/zBuilder/MortgageApplication/cobol/epsmpmt.cbl.
@@ -44,7 +44,7 @@ mutants caught (`definition_of_done.md`).
 
 CICS commands not modelled on both runtimes: `(unlisted) ASKTIME NOHANDLE`, `(unlisted) GET`, `(unlisted) INQUIRE`, `(unlisted) INQUIRE URIMAP`, `(unlisted) SET`, `(unlisted) SYNCPOINT NOHANDLE`, `(unparsed)`, `SOAPFAULT CREATE`.
 
-Frontier context, not the denominator above: the whole CICS spec has 257 entries, 102 full, 2 engine-only and 153 refused by name.
+Frontier context, not the denominator above: the whole CICS spec has 257 entries, 103 full, 2 engine-only and 152 refused by name.
 
 ## 3. Eras
 
@@ -61,7 +61,7 @@ Source: tests/fixtures/feature_inventory/<estate>.json (era_tags.py). Programs p
 
 ## 4. Core burn-down
 
-Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-10-28T17:25:23Z.
+Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-10-28T17:52:41Z.
 
 - `scope:core`: 21 open, 186 closed.
 - Milestone 28: 6 open, 98 closed.

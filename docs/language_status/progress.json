@@ -1,5 +1,5 @@
 {
- "commit": "4e739d992",
+ "commit": "82e8a440a",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -18,8 +18,8 @@
    "spec": {
     "engine_only": 2,
     "entries": 257,
-    "full": 102,
-    "name_only": 153
+    "full": 103,
+    "name_only": 152
    },
    "unlisted_or_unparsed": 7
   },
@@ -160,7 +160,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-28T17:25:23Z",
+  "as_of": "2026-10-28T17:52:41Z",
   "core": {
    "closed": 186,
    "open": 21,
@@ -559,7 +559,7 @@
        "zecs/Source/ZECS002.asm"
       ],
       "reasons": [
-       "CICS Assembler member; the HLASM front end refuses it at DC 08XL01'40' (slice 3 of #5859 lowers it)"
+       "CICS Assembler member; the HLASM front end lowers it and the det translator translates it whole (slices 3b-3e: reserved-word names renamed, GGCVER stub); no equivalence case yet: its USERID holds EBCDIC bytes (the program converts ASCII to EBCDIC) and a fault-plan verdict is ASCII-only"
       ]
      },
      "owner_held": {

@@ -2802,6 +2802,16 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   MAXLENGTH ...), a literal TEXT, and at run time a text IBM reformats or splits (DFHnnnn / DFHaannnn prefix, over 113 characters).
   The stub (`GGCWTO`) does not model TEXTLENGTH / ROUTECODES / NUMROUTES yet: `tests/tools/equivalence_cics.py` refuses them
   ("not modelled by the stub runtime") until slice 2b, so no equivalence case can rely on them.
+- **VERIFY PASSWORD** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-verify-password). USERID and PASSWORD name data areas;
+  the external security manager checks the pair. The region has no security manager, so the verdict is a fact the scenario
+  states (the fault plan, `CicsTask.injected("VERIFY", userid)`), recorded as a VERIFY-PASSWORD event with the USERID. ASSUMED:
+  (1) the password is never compared, the stated verdict stands for the pair; (2) the verdict is one of NORMAL, USERIDERR, NOTAUTH,
+  INVREQ; (3) RESP2 is not stated (IBM's reason codes are not copied). **Refused by name** at run time: a VERIFY for a USERID
+  the scenario states no verdict for. **Refused by name** (translation): NEWPASSWORD, PHRASE, TOKEN-style forms and every other option,
+  and VERIFY PHRASE / VERIFY TOKEN (still name-only in `api.py`). The stub models VERIFY PASSWORD (`GGCVER`: the trimmed USERID looks up the
+  fault plan's `VERIFY` line, one VERIFY-PASSWORD event, the password is not passed to the stub); `equivalence_cics_faults.py` accepts only
+  those four verdicts and no RESP2. VERIFY PHRASE / TOKEN stay refused by the translator. No equivalence case runs it yet: zecs-zecs002 is
+  blocked because the HLASM lowering emits the DSECT field `PASSWORD` as a COBOL data name and GnuCOBOL reserves that word (#5859, next slice). Residual risk: a port that compares the password itself passes equivalence.
 - **Not modelled / unobserved**: the console itself (the event is the message sent, not a screen); whether the case's browse order
   matches z/OS (it cannot be told from IBM's pages, so the case counts and never orders).
 - **Status:** ASSUMED where listed, REFUSED where IBM is silent. Proven through cics-crucible `gt-urimap-browse` on the cobol-stub

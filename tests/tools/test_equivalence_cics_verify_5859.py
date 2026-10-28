@@ -76,3 +76,33 @@ def test_the_stub_the_task_and_the_translator_name_the_same_hook():
     assert 'injected("VERIFY", id)' in forge
     assert "VERIFY-PASSWORD userid=%s resp=%d" in stub
     assert 'event("VERIFY-PASSWORD", "userid"' in forge
+
+
+def test_userid_hex_is_the_fields_own_bytes_as_latin_1_text():
+    assert _lines(cmd="VERIFY", userid_hex="C1D3C9C3C5404040", resp="NORMAL") == [
+        "VERIFY \xc1\xd3\xc9\xc3\xc5@@@ 1 0 0"
+    ]
+
+
+@pytest.mark.parametrize(
+    ("fault", "match"),
+    [
+        ({"userid": "ALICE", "userid_hex": "C1"}, "once"),
+        ({"userid_hex": "C1G1"}, "userid_hex"),
+        ({"userid_hex": "C1C2C3C4C5C6C7C8C9"}, "userid_hex"),
+        ({"userid_hex": "C120C2"}, "userid_hex"),
+        ({"userid_hex": "C101"}, "userid_hex"),
+        ({"userid_hex": ""}, "userid_hex"),
+    ],
+)
+def test_a_bad_userid_hex_is_refused(fault, match):
+    with pytest.raises(ec.Unsupported, match=match):
+        _lines(cmd="VERIFY", resp="NORMAL", **fault)
+
+
+def test_fired_reads_each_side_in_its_own_encoding_and_splits_on_newline_only(tmp_path):
+    line = "VERIFY \xc1\x85\xd3@@@ 1 0 0"  # \x85 is a line break to str.splitlines
+    cobol, java = tmp_path / "c.txt", tmp_path / "j.txt"
+    cobol.write_bytes((line + "\n").encode("latin-1"))
+    java.write_bytes((line + "\n").encode("utf-8"))
+    assert ec._fired(cobol, "latin-1") == ec._fired(java) == [line]

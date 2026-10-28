@@ -2603,7 +2603,9 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             (d / "region.cfg").write_text(f"APPLID {case['region']['applid']}\nSYSID {case['region']['sysid']}\n",
                                           encoding="ascii")  # fmt: skip
         if sc.get("faults") or sc.get("sql_abend_plan"):  # #4023 follow-up: the stub's injected conditions
-            (d / "faults.cfg").write_text("".join(x + "\n" for x in fault_lines(sc)), encoding="ascii")
+            (d / "faults.cfg").write_text(
+                "".join(x + "\n" for x in fault_lines(sc)), encoding="latin-1"
+            )  # #5859 userid_hex
         if sc.get("dli_faults"):  # #5233: the DL/I stub's planned statuses
             (d / "dlifaults.cfg").write_text("".join(x + "\n" for x in dli_fault_lines(case, sc)), encoding="ascii")
         if sc.get("sql_plan"):  # #4173: the SQL stub's planned faults (resolved by sql_fault_plan)
@@ -5228,8 +5230,10 @@ def x6_judged(sc: dict[str, Any], java_out: Path, cev: list[dict[str, Any]],
                               "assumes": kind(cobol) or kind(java)}  # fmt: skip
 
 
-def _fired(log: Path) -> list[str]:
-    return sorted(x for x in log.read_text(encoding="ascii").splitlines() if x.strip()) if log.is_file() else []
+def _fired(log: Path, encoding: str = "utf-8") -> list[str]:
+    # #5859 userid_hex: the COBOL stub writes the USERID's raw bytes (latin-1); Java writes the same chars as UTF-8.
+    # Split on "\n" only: str.splitlines also breaks at \x85, which an EBCDIC byte can be.
+    return sorted(x for x in log.read_text(encoding=encoding).split("\n") if x.strip()) if log.is_file() else []
 
 
 FACADE_WHY = ("#4449: the scenario once more through the program's deployed entry point (its Spring facade), the "
@@ -5277,7 +5281,7 @@ def judge_facade(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]]
                 o["link_area"] = area
                 ok = False
         if sc.get("faults") or sc.get("sql_plan") or sc.get("dli_faults"):
-            fired = {"cobol": _fired(cobol_work / "scenarios" / name / "out" / "faults.txt"),
+            fired = {"cobol": _fired(cobol_work / "scenarios" / name / "out" / "faults.txt", "latin-1"),
                      "java": _fired(out / f"{name}.faults")}  # fmt: skip
             o["fired"] = fired
             ok &= bool(fired["cobol"]) and fired["cobol"] == fired["java"]
@@ -5421,7 +5425,7 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
                 print(f"{case['program']} {name}: the COMMAREA LINKed to {sc['prefix_link']} differs: {area}")
         # #4023 follow-up (#4173: SQL faults too): the same injected conditions fired on both sides, and at least one
         if sc.get("faults") or sc.get("sql_plan") or sc.get("dli_faults"):
-            fired = {"cobol": _fired(work / "cobol" / "scenarios" / name / "out" / "faults.txt"),
+            fired = {"cobol": _fired(work / "cobol" / "scenarios" / name / "out" / "faults.txt", "latin-1"),
                      "java": _fired(work / "java" / "out" / f"{name}.faults")}  # fmt: skip
             report["outputs"][name]["fired"] = fired
             if not fired["cobol"] or fired["cobol"] != fired["java"]:

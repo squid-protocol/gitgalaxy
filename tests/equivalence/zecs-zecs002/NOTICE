@@ -1,0 +1,9 @@
+zECS (z/OS Enterprise Caching Service)
+https://github.com/walmartlabs/zECS
+Authors: Randy Frerking and Rich Jackson (Walmart Technology)
+
+Licensed under the Apache License, Version 2.0 (see LICENSE, the corpus's own
+licence file). The program under test, Source/ZECSNC.asm, is zECS's, used
+unmodified from the corpus.
+
+The scenarios in case.json are written for this case.

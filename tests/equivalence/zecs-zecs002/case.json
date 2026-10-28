@@ -1,0 +1,150 @@
+{
+ "kind": "cics",
+ "corpus": "zecs",
+ "program": "ZECS002",
+ "program_source": "Source/ZECS002.asm",
+ "copy_dirs": [],
+ "transid": "ZSEC",
+ "clock": "2026/10/01 10:30:15.00",
+ "datasets": {},
+ "commarea": null,
+ "linked": false,
+ "screens": {},
+ "region": {
+  "applid": "ZECSAPPL",
+  "sysid": "ZECS"
+ },
+ "notes": "zECS's CICS/REST Basic Authentication program (ZECS002, HLASM). It Base64-decodes the 24-byte field of a 66-byte COMMAREA, splits UserID:Password, and asks the security manager through EXEC CICS VERIFY PASSWORD. The region has no security manager, so each scenario states the verdict for the UserID, named by `userid_hex` as the EBCDIC bytes of the program's own 8-byte field, padding included (register X32: the password is never compared, so a port that compares it itself passes equivalence; residual risk). A non-zero EIBRESP sets RC 08 and writes the failure record to the TD queue; the decode failure sets RC 12.",
+ "scenarios": [
+  {
+   "name": "verified",
+   "commarea": null,
+   "commarea_hex": "4040404040404040404040404040404040404040D8E4A7D1D8F0E4F6E4F0E5C4E492E5E4C9C3C187C9C3C18740404040404040404040404040404040404040404040",
+   "why": "UserID ALICE, password SECRET decoded from the Base64 field; VERIFY answers NORMAL (EIBRESP 0): the RC stays 00 and the task RETURNs",
+   "faults": [
+    {
+     "cmd": "VERIFY",
+     "resp": "NORMAL",
+     "why": "the verdict the scenario states for ALICE: the region has no security manager (register X32)",
+     "userid_hex": "C1D3C9C3C5404040"
+    }
+   ]
+  },
+  {
+   "name": "userid-not-found",
+   "commarea": null,
+   "commarea_hex": "4040404040404040404040404040404040404040D892F9C3D693C2E7D4E2C187C9C3C187C9C3C187C9C3C18740404040404040404040404040404040404040404040",
+   "why": "VERIFY answers USERIDERR: RC 08, the TD record and the clock",
+   "faults": [
+    {
+     "cmd": "VERIFY",
+     "resp": "USERIDERR",
+     "why": "the verdict the scenario states for BOB: the region has no security manager (register X32)",
+     "userid_hex": "C2D6C24040404040"
+    }
+   ]
+  },
+  {
+   "name": "password-wrong",
+   "commarea": null,
+   "commarea_hex": "4040404040404040404040404040404040404040D8F0C6E2E3F0A6F6D892C6C5E4C5C6E3E4A8C187C9C3C18740404040404040404040404040404040404040404040",
+   "why": "VERIFY answers NOTAUTH: RC 08",
+   "faults": [
+    {
+     "cmd": "VERIFY",
+     "resp": "NOTAUTH",
+     "why": "the verdict the scenario states for CAROL: the region has no security manager (register X32)",
+     "userid_hex": "C3C1D9D6D3404040"
+    }
+   ]
+  },
+  {
+   "name": "verify-invreq",
+   "commarea": null,
+   "commarea_hex": "4040404040404040404040404040404040404040D9C5C6E6D9E397E8E6E59687C9C3C187C9C3C187C9C3C18740404040404040404040404040404040404040404040",
+   "why": "VERIFY answers INVREQ (any non-zero EIBRESP is RC 08)",
+   "faults": [
+    {
+     "cmd": "VERIFY",
+     "resp": "INVREQ",
+     "why": "the verdict the scenario states for DAVE: the region has no security manager (register X32)",
+     "userid_hex": "C4C1E5C540404040"
+    }
+   ]
+  },
+  {
+   "name": "userid-eight-chars",
+   "commarea": null,
+   "commarea_hex": "4040404040404040404040404040404040404040D8E4D1C4D9C5E5C7D9F087F6E4C5C6E3E4F184D7E492D88740404040404040404040404040404040404040404040",
+   "why": "an 8-character UserID: the move loop ends on the count (BCT) before it finds the colon",
+   "faults": [
+    {
+     "cmd": "VERIFY",
+     "resp": "NORMAL",
+     "why": "the verdict the scenario states for ABCDEFGH: the region has no security manager (register X32)",
+     "userid_hex": "C1C2C3C4C5C6C7C8"
+    }
+   ]
+  },
+  {
+   "name": "userid-over-eight",
+   "commarea": null,
+   "commarea_hex": "4040404040404040404040404040404040404040D8E4D1C4D9C5E5C7D9F088D1E29197D8E5A8C187C9C3C18740404040404040404040404040404040404040404040",
+   "why": "a 10-character UserID: only the first 8 are moved, then the password is taken one byte past",
+   "faults": [
+    {
+     "cmd": "VERIFY",
+     "resp": "NOTAUTH",
+     "why": "the verdict the scenario states for ABCDEFGH: the region has no security manager (register X32)",
+     "userid_hex": "C1C2C3C4C5C6C7C8"
+    }
+   ]
+  },
+  {
+   "name": "password-eight-chars",
+   "commarea": null,
+   "commarea_hex": "4040404040404040404040404040404040404040D993D1C6D9C496A7D491D4F0D5E3E8F3D6C3C187C9C3C18740404040404040404040404040404040404040404040",
+   "why": "an 8-character password ends on the count",
+   "faults": [
+    {
+     "cmd": "VERIFY",
+     "resp": "NORMAL",
+     "why": "the verdict the scenario states for FRED: the region has no security manager (register X32)",
+     "userid_hex": "C6D9C5C440404040"
+    }
+   ]
+  },
+  {
+   "name": "no-colon",
+   "commarea": null,
+   "commarea_hex": "4040404040404040404040404040404040404040E293E5E3E5C5C6E5E4F0E5E2E392C6D5D9E488C6E492E48740404040404040404040404040404040404040404040",
+   "why": "no colon in the decoded text: the UserID loop ends on the count",
+   "faults": [
+    {
+     "cmd": "VERIFY",
+     "resp": "USERIDERR",
+     "why": "the verdict the scenario states for JUSTAUSE: the region has no security manager (register X32)",
+     "userid_hex": "D1E4E2E3C1E4E2C5"
+    }
+   ]
+  },
+  {
+   "name": "invalid-encoding",
+   "commarea": null,
+   "commarea_hex": "4040404040404040404040404040404040404040D8E4A7D1D8F0E4F6E4F0E5C4E492E5E47E7E7E7E7E7E7E7E40404040404040404040404040404040404040404040",
+   "why": "an '=' (EBCDIC 7E) in the encoded field: RC 12, no VERIFY"
+  },
+  {
+   "name": "commarea-short",
+   "commarea": null,
+   "commarea_hex": "4040404040404040",
+   "why": "EIBCALEN 8, not the DSECT's 66: ABEND Z001 (NOHANDLE) before any decode"
+  },
+  {
+   "name": "commarea-long",
+   "commarea": null,
+   "commarea_hex": "4040404040404040404040404040404040404040D8E397C3C9C3C187C9C3C187C9C3C187C9C3C187C9C3C1874040404040404040404040404040404040404040404040",
+   "why": "EIBCALEN 67: the test is equality, so the same ABEND Z001"
+  }
+ ]
+}

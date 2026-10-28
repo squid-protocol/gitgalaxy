@@ -88,6 +88,7 @@ ESTATE_JOINS = {
     "job_dataset_flow": "JCL job flow",
     "job_dds": "JCL job flow",  # #3622: each job step's DD statements (PROC steps expanded)
     "csd_resources": "CSD resources",
+    "job_macro_tables": "CSD resources",  # #5218: each assembler step's SYSIN member -> its CICS macro-table rows
     "cics_file_datasets": "CSD resources",
     "tdqueue_datasets": "CSD resources",
     "transaction_db2_plans": "CSD resources",

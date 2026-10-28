@@ -135,7 +135,15 @@ def statements(text: str) -> list[Stmt]:
         start, body = i, raw[:71]
         while _continues(lines[i]) and i + 1 < len(lines):
             i += 1
-            body += " " + lines[i][15:71].strip()
+            # HLASM resumes a continuation at column 16 and wants columns 1-15 blank. zECS's ZECS002 starts `NOHANDLE` in
+            # column 15; the CICS translator, which reads an EXEC CICS before the assembler does, takes the line's text
+            # wherever it starts, so that is the rule for EXEC CICS. Any other statement is refused, never a letter dropped.
+            if lines[i][:15].strip():
+                if " ".join(body.split()[:3]).find("EXEC CICS") < 0:
+                    raise Refused(f"line {i + 1}: continuation text before column 16")
+                body += " " + lines[i][:71].strip()
+            else:
+                body += " " + lines[i][15:71].strip()
         i += 1
         label = "" if body[:1] in (" ", "\t") else body.split()[0]
         rest = body[len(label) :].strip()
@@ -167,8 +175,36 @@ def _args(text: str) -> list[str]:
     return [*out, cur]
 
 
+# GnuCOBOL / IBM COBOL reserved words an assembler symbol can be spelled like (a DSECT field `PASSWORD`, a label `DATE`):
+# cobc stops at one with "syntax error, unexpected PASSWORD" (#5859). The lowering gives such a name a suffix.
+_RESERVED_WORDS = frozenset(
+    re.findall(
+        r"[A-Z0-9-]+",
+        "ACCEPT ACCESS ADD ADDRESS ALL ALPHABET ALTER AND ARE AREA AREAS AT AUTHOR BEFORE BLANK BLOCK BY CALL CANCEL CD CF CH"
+        " CHARACTER CLASS CLOSE CODE COLLATING COLUMN COMMA COMMON COMPUTE CONFIGURATION CONTAINS CONTENT CONTINUE CONTROL"
+        " CONVERTING COPY CORR COUNT CURRENCY DATA DATE DAY DE DEBUGGING DECIMAL-POINT DELETE DELIMITED DELIMITER DEPENDING"
+        " DESCENDING DESTINATION DETAIL DISABLE DISPLAY DIVIDE DIVISION DOWN DUPLICATES DYNAMIC EGI ELSE EMI ENABLE END ENTER"
+        " ENVIRONMENT EOP EQUAL ERROR ESI EVALUATE EVERY EXCEPTION EXIT EXTEND EXTERNAL FALSE FD FILE FILLER FINAL FIRST FOOTING"
+        " FOR FROM FUNCTION GENERATE GIVING GLOBAL GO GOBACK GROUP HEADING I-O ID IDENTIFICATION IF IN INDEX INDEXED INDICATE"
+        " INITIAL INITIALIZE INITIATE INPUT INSPECT INSTALLATION INTO INVALID IS JUST JUSTIFIED KEY LABEL LAST LEADING LEFT"
+        " LENGTH LIMIT LIMITS LINAGE LINE LINES LINKAGE LOCK MEMORY MERGE MESSAGE MODE MODULES MOVE MULTIPLE NATIVE NEGATIVE"
+        " NEXT NO NOT NULL NUMBER NUMERIC OBJECT OCCURS OF OFF OMITTED ON OPEN OPTIONAL OR ORDER ORGANIZATION OTHER OUTPUT"
+        " OVERFLOW PACKED-DECIMAL PADDING PAGE PASSWORD PERFORM PIC PICTURE PLUS POINTER POSITION POSITIVE PRINTING PROCEDURE"
+        " PROCEED PROGRAM PROGRAM-ID PURGE QUEUE QUOTE QUOTES RANDOM RD READ RECEIVE RECORD RECORDS REDEFINES REEL REFERENCE"
+        " REFERENCES RELATIVE RELEASE REMAINDER REMOVAL RENAMES REPLACE REPLACING REPORT REPORTS RERUN RESERVE RESET RETURN"
+        " RETURNING REVERSED REWIND REWRITE RF RH RIGHT ROUNDED RUN SAME SD SEARCH SECTION SECURITY SEGMENT SELECT SEND SENTENCE"
+        " SEPARATE SEQUENCE SEQUENTIAL SET SIGN SIZE SORT SORT-MERGE SOURCE SOURCES SPACE SPACES SPECIAL-NAMES STANDARD START"
+        " STATUS STOP STRING SUB-QUEUE-1 SUBTRACT SUM SUPPRESS SYMBOLIC SYNC SYNCHRONIZED TABLE TALLYING TAPE TERMINAL TERMINATE"
+        " TEST TEXT THAN THEN THROUGH THRU TIME TIMES TO TOP TRAILING TRUE TYPE UNIT UNSTRING UNTIL UP UPON USAGE USE USING"
+        " VALUE VALUES VARYING WHEN WITH WORDS WORKING-STORAGE WRITE ZERO ZEROES ZEROS",
+    )
+)
+_RESERVED_SUFFIX = "-HL"
+
+
 def _cobol(name: str) -> str:
-    return name.upper().replace("_", "-")
+    out = name.upper().replace("_", "-")
+    return out + _RESERVED_SUFFIX if out in _RESERVED_WORDS else out
 
 
 class _Lowering:
@@ -306,6 +342,8 @@ class _Lowering:
         if item.name:
             if not _SYMBOL.match(item.name) or item.name in self.items:
                 raise self.refuse(s, f"symbol {item.name}")
+            if _cobol(item.name).endswith(_RESERVED_SUFFIX) and _cobol(item.name) in {_cobol(n) for n in self.items}:
+                raise self.refuse(s, f"symbol {item.name} collides with its reserved-word rename")
             self.items[item.name] = item
         (groups[-1].children if groups else self.sections[item.section]).append(item)
 

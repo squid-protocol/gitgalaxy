@@ -236,6 +236,15 @@ jobs:
           GITGALAXY_ORACLE_STRICT: "1"
         run: pytest tests/tools/test_zos_probes.py -q -ra --timeout=1200 -p no:cacheprovider
 
+      # IBM's ODBC driver (#4980, #6921): a shard's Db2-backed proofs (cbsa-updacc) build the Db2 image, so a cold curl to IBM
+      # timed out on main; same path and key as the db2 job, so main's entry is shared
+      - name: Cache the Db2 ODBC CLI driver (#4980)
+        id: db2_odbc_cli_driver
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: tests/equivalence/linuxx64_odbc_cli.tar.gz
+          key: db2-odbc-cli-${{ hashFiles('tests/equivalence/odbc_cli.pin') }}
+
       - name: tests/cobol_mainframe under EQUIVALENCE_E2E, shard ${{ matrix.group }}/3
         if: ${{ needs.plan.outputs.scope != 'zos' }}
         env:
@@ -283,6 +292,15 @@ jobs:
         with:
           path: ${{ runner.temp }}/gnucobol-image.tar
           key: gnucobol-image-${{ hashFiles('tests/equivalence/gnucobol.Dockerfile') }}
+
+      # #6675: main only; only on a miss. A shard that never built the Db2 image has no file to save: best effort
+      - name: Save the Db2 ODBC CLI driver to the cache
+        if: success() && github.event_name != 'pull_request' && steps.db2_odbc_cli_driver.outputs.cache-hit != 'true' && hashFiles('tests/equivalence/linuxx64_odbc_cli.tar.gz') != ''
+        continue-on-error: true  # best effort: a lost save race (three shards) must not fail the job
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: tests/equivalence/linuxx64_odbc_cli.tar.gz
+          key: db2-odbc-cli-${{ hashFiles('tests/equivalence/odbc_cli.pin') }}
 
   # #5954 slice 3: the five test files that also need a Db2 container, in one job (the shards `--ignore` them). One runner
   # and a pool of three databases, one per xdist worker: the rows file alone is ~34 min serial (50 proofs of ~45 s), so the

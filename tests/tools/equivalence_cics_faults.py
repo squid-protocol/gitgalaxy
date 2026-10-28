@@ -56,6 +56,7 @@ FAULT_COMMANDS = (
     "SYNCPOINT",
     "ROLLBACK",
     "DELAY",  # #6271 (register X72): nameless, like RETURN
+    "VERIFY",  # #5859 (register X32): its `userid`; NORMAL, USERIDERR, NOTAUTH, INVREQ, no RESP2
     "SET-TERMINAL",  # #6882 (register X26): nameless (only the task's own terminal is allowed); INQ-TERMINAL too
     "INQ-TERMINAL",
     "RUN-TRANSID",  # #6882 (register X18): nameless; FETCH-ANY too (FETCH CHILD is not planned: no burned program codes RESP on it)
@@ -73,6 +74,7 @@ _FAULT_NAME = (
     "reqid",
     "resource",
     "map",
+    "userid",  # #5859 (X32): VERIFY PASSWORD's USERID
 )  # #4049: the resource a fault names, by key
 
 # #5044 (register X49, extends #4623's X48): the conditions a file command may be planned with, per command, and the RESP2
@@ -217,6 +219,9 @@ UI_FAULT_CONDITIONS: dict[str, dict[str, tuple[int, ...]]] = {
     # #6271 (X72): DELAY -- EXPIRED (a TIME already past; no RESP2) and INVREQ RESP2 4 / 5 / 6 / 22 (hours / minutes / seconds /
     # milliseconds out of range). IBM's NORMAL RESP2 23 (cancelled by another task) needs a second task: refused (X72)
     "DELAY": {"EXPIRED": (), "INVREQ": (4, 5, 6, 22)},
+    # #5859 (X32): VERIFY PASSWORD -- the verdict the scenario states for the USERID (no security manager here); no RESP2 is
+    # stated (IBM's reason codes are not copied), and the password is not compared
+    "VERIFY": {"NORMAL": (), "USERIDERR": (), "NOTAUTH": (), "INVREQ": ()},
     # #6882 (X26): SET TERMINAL -- TERMIDERR RESP2 23 (the terminal cannot be found), INVREQ RESP2 43 (invalid UCTRANST CVDA);
     # INQUIRE TERMINAL -- TERMIDERR RESP2 1. Every other condition IBM lists needs a device or remote system: refused (X26)
     "SET-TERMINAL": {"TERMIDERR": (23,), "INVREQ": (43,)},
@@ -246,6 +251,8 @@ def _ui_fault_resp2(sc: dict[str, Any], f: dict[str, Any], cmd: str, resp2: int)
     reg = (
         "X72"
         if cmd == "DELAY"
+        else "X32"
+        if cmd == "VERIFY"
         else "X26"
         if cmd.endswith("-TERMINAL")
         else "X18"
@@ -269,6 +276,21 @@ def _ui_fault_resp2(sc: dict[str, Any], f: dict[str, Any], cmd: str, resp2: int)
             f"{where}: IBM's {f['resp']} on {cmd} has RESP2 {'/'.join(map(str, ibm))}: name one ({reg})"
         )
     return resp2
+
+
+def _verify_userid_bytes(sc: dict[str, Any], f: dict[str, Any]) -> str:
+    """#5859 (X32): `userid_hex` is the USERID field's own bytes (a translated assembler program holds EBCDIC, so its
+    padding is X'40', not a blank): both stubs read the plan's name as those bytes in the data page (latin-1), with no
+    trailing blank to drop. A byte that is whitespace in any reader would split the plan line, so it is refused."""
+    if f.get("userid"):
+        raise ec.Unsupported(f"scenario {sc['name']}: fault {f}: name the USERID once: userid or userid_hex")
+    try:
+        text = bytes.fromhex(f["userid_hex"]).decode("latin-1")
+    except ValueError as exc:
+        raise ec.Unsupported(f"scenario {sc['name']}: fault {f}: userid_hex is not hexadecimal bytes") from exc
+    if not text or len(text) > 8 or any(c.isspace() or not c.isprintable() and c < "\xa0" for c in text):
+        raise ec.Unsupported(f"scenario {sc['name']}: fault {f}: userid_hex is 1 to 8 bytes, none a space or a control")
+    return text
 
 
 def fault_lines(sc: dict[str, Any]) -> list[str]:
@@ -329,6 +351,8 @@ def fault_lines(sc: dict[str, Any]) -> list[str]:
             f = {**f, "resource": enq_fault_key(f.get("resource"))}
         nth = "*" if f.get("nth", 1) == "*" else int(f.get("nth", 1))
         name = "-" if cmd == "RETRIEVE" or cmd in UI_NAMELESS else next((f[k] for k in _FAULT_NAME if f.get(k)), None)
+        if cmd == "VERIFY" and f.get("userid_hex"):  # #5859 (X32): the USERID as the bytes the program holds
+            name = _verify_userid_bytes(sc, f)
         if not name:
             raise ec.Unsupported(f"scenario {sc['name']}: fault {f} names no {'/'.join(_FAULT_NAME)}")
         out.append(f"{cmd} {name} {nth} {ec.CICS_RESP.get(f['resp']) or ec.DFHRESP[f['resp']]} {resp2}")

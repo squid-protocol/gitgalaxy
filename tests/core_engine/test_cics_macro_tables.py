@@ -3,15 +3,17 @@
 DFHJCT / DFHTCT / DFHMCT) as
 `csd_resources` rows -- core/cics_macro_tables.py through `extract_boundary` as hlasm.
 
-The syntax is read from IBM's macro reference, cited in the module header:
+The syntax is read from IBM's macro reference, cited in the module header (register X62):
 "CICS Resource Definition Guide", CICS TS for OS/390 Release 3, SC33-1684-30,
 ch.13 (DFHFCT TYPE=FILE|REMOTE, DFHDCT TYPE=SDSCI|EXTRA|INDIRECT|INTRA|REMOTE,
-DFHTST TYPE=LOCAL|RECOVERY|REMOTE|SECURITY) and ch.16 (macro -> RDO attribute
-table); CICS for MVS/ESA Migration Guide V4R1 GC33-1162-04 (DFHPCT / DFHPPT); IBM
-APAR II05097 (`DFHPPT TYPE=ENTRY,MAPSET=`). Operands those sources leave open
-(DFHPCT's operand list, the PPT PARTITIONSET= spelling, DCT RECFORM=UNDEFINED, DFHJCT's
-JFILEID= / JTYPE=) are ASSUMED in the module and pinned here as such; #5154 re-tried IBM's
-library and found no page for them. DFHSIT SUFFIX= and the refusals of DFHMCT TYPE=RECORD and
+DFHTCT TYPE=INITIAL|REGION|TERMINAL|REMOTE, DFHTST TYPE=LOCAL|RECOVERY|REMOTE|SECURITY),
+ch.16 (macro -> RDO attribute table) and ch.17 (migrating the TCT to the CSD);
+"Resource Definition Guide", CICS TS for VSE/ESA Release 1, SC33-1653-05, ch.29 (DFHJCT
+TYPE=ENTRY,JFILEID={SYSTEM|nn}), ch.33 (DFHTCT TYPE=GPENTRY), and Appendices C/E/F (DFHPCT,
+DFHPPT PROGRAM=/MAPSET=/PARTSET=/USAGE=MAP); CICS/VS System Programmer's Reference Manual
+SH20-1043-6 (DFHDCT, DFHPCT, DFHPPT); CICS for MVS/ESA Migration Guide V4R1 GC33-1162-04;
+and IBM APAR II05097 (`DFHPPT TYPE=ENTRY,MAPSET=`). The PPT `PARTITIONSET=` spelling is
+ASSUMED as an alias of `PARTSET=` (register X62). DFHSIT SUFFIX= and the refusals of DFHMCT TYPE=RECORD and
 DFHTCT TYPE=LINE / SDSCI are read from the CICS TS 5.x pages the module header cites. Every fixture is hand-written, with a
 labelled and an unlabelled statement, column-72 continuation, comments and lower case.
 """
@@ -122,34 +124,60 @@ def test_dfhfct_remote_and_the_refused_and_unnamed_forms():
         ("FILE", "A", None, None, None, None, None, None, None, None),
     ]
     assert "SYSIDNT=SYSB" in _rows(src)[0]["attributes"]
+    assert _rdo(_rows(src)[0]) == "REMOTESYSTEM(SYSB) REMOTENAME(O)"
 
 
 # --- DFHPCT / DFHPPT --------------------------------------------------------------------------
 
 
 def test_dfhpct_entry_is_a_transaction_routing_to_its_program():
-    src = "         DFHPCT TYPE=ENTRY,TRANSID=BA01,PROGRAM=BANKINQ,TWASIZE=64\n         DFHPCT TYPE=GROUP,FN=X\n"
-    assert _lifted(src) == [("TRANSACTION", "BA01", None, None, None, None, None, None, "BANKINQ", "BA01")]
+    src = "\n".join(
+        [
+            _cont(
+                "         DFHPCT TYPE=ENTRY,TRANSID=BA01,PROGRAM=BANKINQ,TWASIZE=64,",
+                "TRNPRTY=100,DTB=(YES,WAIT)",
+            ),
+            _cont(
+                "         DFHPCT TYPE=ENTRY,TRANSID=RMT1,SYSIDNT=SYSB,RMTNAME=RR01,",
+                "PARTSET=PS1,DTB=YES",
+            ),
+            "         DFHPCT TYPE=GROUP,FN=X",
+        ]
+    )
+    assert _lifted(src) == [
+        ("TRANSACTION", "BA01", None, None, None, None, None, None, "BANKINQ", "BA01"),
+        ("TRANSACTION", "RMT1", None, None, None, None, None, None, None, "RMT1"),
+    ]
+    rows = _rows(src)
+    assert _rdo(rows[0]) == "PRIORITY(100) INDOUBT(WAIT)"
+    assert _rdo(rows[1]) == "REMOTESYSTEM(SYSB) REMOTENAME(RR01) PARTITIONSET(PS1) INDOUBT(BACKOUT)"
 
 
 def test_dfhppt_entry_names_a_program_a_mapset_or_a_partition_set():
     src = "\n".join(
         [
-            "         DFHPPT TYPE=ENTRY,PROGRAM=BANKINQ,PGMLANG=COBOL,RES=NO",
-            "         DFHPPT TYPE=ENTRY,MAPSET=DSTMAPSM",  # IBM APAR II05097
+            _cont("         DFHPPT TYPE=ENTRY,PROGRAM=BANKINQ,PGMLANG=COBOL,RES=NO,", "PGMSTAT=ENABLED"),
+            "         DFHPPT TYPE=ENTRY,PROGRAM=BANKMAP,USAGE=MAP",  # SC33-1653-05 p.372: PROGRAM + USAGE=MAP -> MAPSET
+            "         DFHPPT TYPE=ENTRY,PROGRAM=BANKASM,PGMLANG=ASSEMBLER,USAGE=MAP",  # ASSEMBLER + USAGE=MAP -> MAPSET
+            "         DFHPPT TYPE=ENTRY,PROGRAM=BANKCBL,PGMLANG=COBOL,USAGE=MAP",  # non-ASSEMBLER stays PROGRAM
+            "         DFHPPT TYPE=ENTRY,MAPSET=DSTMAPSM,RES=YES",  # IBM APAR II05097; SC33-1653-05 p.372
             "         DFHPPT TYPE=ENTRY,PARTITIONSET=BANKPS",
-            "         DFHPPT TYPE=ENTRY,PARTSET=OLDPS",
+            "         DFHPPT TYPE=ENTRY,PARTSET=OLDPS,USAGE=MAP",  # SC33-1653-05 p.349, p.372
             "         DFHPPT TYPE=ENTRY",
             "         DFHPPT TYPE=FINAL",
         ]
     )
-    assert [(r["resource_type"], r["name"], r["program"]) for r in _rows(src)] == [
-        ("PROGRAM", "BANKINQ", "BANKINQ"),
-        ("MAPSET", "DSTMAPSM", None),
-        ("PARTITIONSET", "BANKPS", None),
-        ("PARTITIONSET", "OLDPS", None),
+    rows = _rows(src)
+    assert [(r["resource_type"], r["name"], r["program"], _rdo(r)) for r in rows] == [
+        ("PROGRAM", "BANKINQ", "BANKINQ", "LANGUAGE(COBOL) RESIDENT(NO) STATUS(ENABLED)"),
+        ("MAPSET", "BANKMAP", None, "USAGE(TRANSIENT)"),
+        ("MAPSET", "BANKASM", None, "USAGE(TRANSIENT)"),
+        ("PROGRAM", "BANKCBL", "BANKCBL", "LANGUAGE(COBOL) USAGE(TRANSIENT)"),
+        ("MAPSET", "DSTMAPSM", None, "RESIDENT(YES)"),
+        ("PARTITIONSET", "BANKPS", None, ""),
+        ("PARTITIONSET", "OLDPS", None, "USAGE(TRANSIENT)"),
     ]
-    assert "PGMLANG=COBOL" in _rows(src)[0]["attributes"]
+    assert "PGMLANG=COBOL" in rows[0]["attributes"]
 
 
 # --- DFHDCT -----------------------------------------------------------------------------------
@@ -244,7 +272,9 @@ def test_indirect_and_remote_queues():
         ("TDQUEUE", "RMTQ", None, None, None, None, 80, "REMOTE", None, None),
     ]
     assert "INDDEST=CSSL" in _rows(src)[0]["attributes"]
+    assert _rdo(_rows(src)[0]) == "INDIRECTNAME(CSSL)"
     assert "RMTNAME=O1" in _rows(src)[1]["attributes"]
+    assert _rdo(_rows(src)[1]) == "REMOTESYSTEM(SYSB) REMOTENAME(O1)"
 
 
 # --- DFHTST -----------------------------------------------------------------------------------
@@ -345,6 +375,9 @@ def test_the_fixture_estates_read_every_table():
         "TERMINAL",
         "CONNECTION",
         "MONITORPOINT",
+        "PLT",
+        "DB2CONN",
+        "DB2ENTRY",
     }
 
 
@@ -385,6 +418,11 @@ def test_dfhsrt_row_provenance():
     [
         ("TYPE=ENTRY,JFILEID=SYSTEM,JTYPE=DISK2", ["SYSTEM"]),
         ("TYPE=ENTRY,JFILEID=(05),JTYPE=TAPE", ["05"]),
+        ("TYPE=ENTRY,JFILEID=2,JTYPE=DISK1,BUFSIZE=1500", ["2"]),
+        ("TYPE=ENTRY,JFILEID=99,JTYPE=SMF,FORMAT=SMF", ["99"]),
+        ("TYPE=ENTRY,JFILEID=0,JTYPE=DISK1", []),  # outside 1-99
+        ("TYPE=ENTRY,JFILEID=100,JTYPE=DISK1", []),  # more than two digits
+        ("TYPE=ENTRY,JFILEID=BOGUS,JTYPE=DISK1", []),  # neither SYSTEM nor nn
         ("TYPE=ENTRY,JTYPE=DISK1", []),  # no JFILEID
         ("TYPE=INITIAL,SUFFIX=01", []),
         ("TYPE=FINAL", []),
@@ -399,10 +437,11 @@ def test_dfhjct_entry_is_a_journal(operands, expected):
     [
         ("TYPE=TERMINAL,TRMIDNT=T001,ACCMETH=VTAM,TRMTYPE=3270", "TERMINAL", ["T001"]),
         ("TYPE=REMOTE,SYSIDNT=SYSB,TRMIDNT=r001,RMTNAME=RR01", "TERMINAL", ["R001"]),
+        ("TYPE=GPENTRY,TRMIDNT=SEQ2,GPBLKSZ=(80,80),GPTYPE=(2540,1403),LININL=80", "TERMINAL", ["SEQ2"]),
         ("TYPE=SYSTEM,SYSIDNT=SYSB,ACCMETH=IRC", "CONNECTION", ["SYSB"]),
         ("TYPE=TERMINAL,ACCMETH=VTAM", "TERMINAL", []),  # no TRMIDNT
         ("TYPE=LINE,ACCMETH=VTAM", "TERMINAL", []),
-        ("TYPE=GPENTRY,ENTRY=TERMINAL", "TERMINAL", []),
+        ("TYPE=GPENTRY,ENTRY=TERMINAL", "TERMINAL", []),  # no TRMIDNT
         ("TYPE=SDSCI,DSCNAME=X", "TERMINAL", []),
         ("TYPE=INITIAL,SUFFIX=01,SYSIDNT=HOME", "CONNECTION", []),
     ],
@@ -414,7 +453,37 @@ def test_dfhtct_terminals_and_systems(operands, rtype, expected):
 def test_dfhtct_keeps_the_operands_it_does_not_lift():
     (row,) = _rows("         DFHTCT TYPE=REMOTE,SYSIDNT=SYSB,TRMIDNT=R001,RMTNAME=RR01\n")
     assert "SYSIDNT=SYSB" in row["attributes"] and "RMTNAME=RR01" in row["attributes"]
+    assert _rdo(row) == "REMOTESYSTEM(SYSB) REMOTENAME(RR01)"
     assert row["macro_table"] == "DFHTCT"
+
+
+def test_dfhtct_region_and_initial_sysidnt_control_remote_terminal_routing():
+    """RDG p.473-475 & p.552-553: TYPE=REGION sets REMOTESYSTEM until LOCAL or matching TYPE=INITIAL,SYSIDNT=."""
+    src = "\n".join(
+        [
+            "         DFHTCT TYPE=INITIAL,SUFFIX=01,SYSIDNT=HOME",
+            "         DFHTCT TYPE=TERMINAL,TRMIDNT=T001,ACCMETH=VTAM",
+            "         DFHTCT TYPE=REGION,SYSIDNT=SYSB",
+            "         DFHTCT TYPE=TERMINAL,TRMIDNT=T002,ACCMETH=VTAM",
+            "         DFHTCT TYPE=REGION,SYSIDNT=LOCAL",
+            "         DFHTCT TYPE=TERMINAL,TRMIDNT=T003,ACCMETH=VTAM",
+            "         DFHTCT TYPE=REGION,SYSIDNT=HOME",
+            "         DFHTCT TYPE=TERMINAL,TRMIDNT=T004,ACCMETH=VTAM",
+            "         DFHTCT TYPE=REMOTE,SYSIDNT=HOME,TRMIDNT=T005,RMTNAME=RR05",  # matches INITIAL SYSIDNT -> local
+            "         DFHTCT TYPE=REMOTE,SYSIDNT=SYSC,TRMIDNT=T006,RMTNAME=RR06",
+            "         DFHTCT TYPE=SYSTEM,SYSIDNT=SYSB,ACCMETH=IRC",
+        ]
+    )
+    rows = {r["name"]: r for r in _rows(src)}
+    assert [(n, _rdo(rows[n])) for n in ("T001", "T002", "T003", "T004", "T005", "T006", "SYSB")] == [
+        ("T001", ""),
+        ("T002", "REMOTESYSTEM(SYSB)"),
+        ("T003", ""),
+        ("T004", ""),
+        ("T005", "REMOTENAME(RR05)"),
+        ("T006", "REMOTESYSTEM(SYSC) REMOTENAME(RR06)"),
+        ("SYSB", "ACCESSMETHOD(IRC)"),
+    ]
 
 
 @pytest.mark.parametrize(
@@ -545,3 +614,148 @@ def test_the_new_tables_are_cpu_bounded():
     start = time.process_time()
     _rows(src)
     assert time.process_time() - start < 5
+
+
+def test_hlasm_alternative_statement_format_continuation_and_label_rules():
+    """HLASM Language Reference (SC26-4940-05) ch.2 'Continuation lines' (p.15) and ch.8 'Alternative formats
+    for a macro instruction' (p.296):
+    1. In the alternative format, each continued line may carry remarks after its trailing comma; only the
+       operand prefix before the remark space is joined into the macro's operands.
+    2. If an operand on a continuation line begins after column 16 (column 16 is blank) outside a continued
+       quoted string, HLASM treats that line and any following continuation lines as remarks.
+    3. Long labels (up to 63 chars, with underscores) and sequence symbols (.SKIP) in the name field are accepted.
+    4. Sequence numbers in columns 73-80 are ignored.
+    """
+
+    def _card(body: str, cont: str = " ", seq: int = 100) -> str:
+        return body.ljust(71) + cont + f"{seq:08d}"
+
+    src = "\n".join(
+        [
+            _card("         DFHFCT TYPE=INITIAL,SUFFIX=01", " ", 100),
+            # Alternative format: remarks on each continued line, plus a trailing remark continuation starting at col 17
+            _card("LONG_FILE_LABEL_01 DFHFCT TYPE=FILE,    DEFINE MASTER FILE", "X", 200),
+            _card("               FILE=ACCTDAT,            FILE IDENTIFIER", "X", 300),
+            _card("               DSNAME=BANK.ACCT.DAM,    VSAM DATASET NAME", "X", 400),
+            _card("               RECFORM=(FIXED,BLOCKED), FIXED BLOCKED RECORDS", "X", 500),
+            _card("               KEYLEN=11,LRECL=300      KEY AND RECORD LENGTH", "X", 600),
+            _card("                DSNAME=FAKE.REMARK.DSN,LRECL=999", "X", 700),
+            _card("               KEYLEN=99", " ", 800),
+            # Sequence symbol in the name field + quoted operand containing a space
+            _card(".PCT01   DFHPCT TYPE=ENTRY,TRANSID=BA01,DESC='INQUIRY TRAN',", "X", 900),
+            _card("               PROGRAM=BANKINQ,TRNPRTY=100", " ", 1000),
+            _card("         DFHFCT TYPE=FINAL", " ", 1100),
+        ]
+    )
+    b = extract_boundary("hlasm", src)
+    rows = {r["name"]: r for r in b["csd_resources"]}
+    acct = rows["ACCTDAT"]
+    assert (acct["dsname"], acct["record_format"], acct["key_length"], acct["record_size"], acct["line"]) == (
+        "BANK.ACCT.DAM",
+        "F",
+        11,
+        300,
+        2,
+    )
+    ba01 = rows["BA01"]
+    assert (ba01["program"], ba01["transid"], _rdo(ba01)) == ("BANKINQ", "BA01", "PRIORITY(100)")
+    assert b["transactions"] == [
+        {"transid": "BA01", "program": "BANKINQ", "group": "DFHPCT", "profile": None, "line": 9}
+    ]
+
+
+def test_dfhplt_programs_and_dfhdelim_stage_delimiter():
+    """DFHPLT TYPE=ENTRY [SC33-1684-30 p.415-418]: PROGRAM=(p1,p2) defines one PLT row per program;
+    PROGRAM=DFHDELIM 'is not a program -- it serves as a delimiter only' and flips STAGE(1) to STAGE(2)."""
+    src = (
+        "         DFHPLT TYPE=INITIAL,SUFFIX=I1\n"
+        "         DFHPLT TYPE=ENTRY,PROGRAM=(TRAQA,TRAQB)\n"
+        "         DFHPLT TYPE=ENTRY,PROGRAM=DFHDELIM\n"
+        "         DFHPLT TYPE=ENTRY,PROGRAM=TRASA\n"
+        "         DFHPLT TYPE=FINAL\n"
+    )
+    rows = _rows(src)
+    assert [(r["resource_type"], r["name"], r["program"], r["macro_table"], r["line"], _rdo(r)) for r in rows] == [
+        ("PLT", "TRAQA", "TRAQA", "DFHPLTI1", 2, "STAGE(1)"),
+        ("PLT", "TRAQB", "TRAQB", "DFHPLTI1", 2, "STAGE(1)"),
+        ("PLT", "TRASA", "TRASA", "DFHPLTI1", 4, "STAGE(2)"),
+    ]
+
+
+def test_dsncrct_db2conn_db2entry_plan_inheritance_and_group():
+    """DSNCRCT [SC33-1684-30 p.419-432, p.529-541]:
+    - TYPE=INIT emits DB2CONN (named RDONAME= or DFHRCT + SUFFIX, with SUFFIX=NO|DY|BA rejected) and sets PLANI/PLNPGMI.
+    - TYPE=COMD and TYPE=POOL emit no standalone resource row.
+    - TYPE=GROUP sets the group for following entries (`GROUP=*DEFAULT` resets to None).
+    - TYPE=ENTRY emits one DB2ENTRY per TXID, inheriting PLANI when PLAN= is omitted (unless PLNEXIT=YES),
+      or defaulting to the single TXID when neither PLAN= nor PLANI= is coded."""
+    src = "\n".join(
+        [
+            _cont("         DSNCRCT TYPE=INIT,SUFFIX=01,SUBID=DB2A,SIGNID=CICSAUTH,", "PLANI=DEFPLAN,PLNPGMI=DEFEXIT,THRDMAX=16"),
+            "         DSNCRCT TYPE=COMD,AUTH=USERID,THRDM=1,THRDA=1",
+            "         DSNCRCT TYPE=POOL,PLAN=POOLPLN,THRDM=3,THRDA=3",
+            "         DSNCRCT TYPE=GROUP,GROUP=DB2GRP1",
+            _cont("         DSNCRCT TYPE=ENTRY,TXID=(TX01),PLAN=PLN01,RDONAME=ENT01,", "THRDA=4,THRDS=2,TWAIT=POOL"),
+            "         DSNCRCT TYPE=ENTRY,TXID=(TX02,TX03),THRDA=2,TWAIT=YES",
+            "         DSNCRCT TYPE=GROUP,GROUP=*DEFAULT",
+            "         DSNCRCT TYPE=ENTRY,TXID=TX04,PLNEXIT=YES",
+            "         DSNCRCT TYPE=FINAL",
+        ]
+    )
+    rows = _rows(src)
+    assert [
+        (r["resource_type"], r["name"], r["macro_table"], r["group"], r["plan"], r["transid"], _rdo(r)) for r in rows
+    ] == [
+        (
+            "DB2CONN",
+            "DFHRCT01",
+            "DFHRCT01",
+            None,
+            "DEFPLAN",
+            None,
+            "DB2ID(DB2A) SIGNID(CICSAUTH) PLANEXITNAME(DEFEXIT) TCBLIMIT(16)",
+        ),
+        (
+            "DB2ENTRY",
+            "ENT01",
+            "DFHRCT01",
+            "DB2GRP1",
+            "PLN01",
+            "TX01",
+            "PLAN(PLN01) THREADLIMIT(4) PROTECTNUM(2) THREADWAIT(POOL) TRANSID(TX01)",
+        ),
+        (
+            "DB2ENTRY",
+            "TX02",
+            "DFHRCT01",
+            "DB2GRP1",
+            "DEFPLAN",
+            "TX02",
+            "PLAN(DEFPLAN) THREADLIMIT(2) THREADWAIT(YES) TRANSID(TX02)",
+        ),
+        (
+            "DB2ENTRY",
+            "TX03",
+            "DFHRCT01",
+            "DB2GRP1",
+            "DEFPLAN",
+            "TX03",
+            "PLAN(DEFPLAN) THREADLIMIT(2) THREADWAIT(YES) TRANSID(TX03)",
+        ),
+        (
+            "DB2ENTRY",
+            "TX04",
+            "DFHRCT01",
+            None,
+            None,
+            "TX04",
+            "PLANEXITNAME(DEFEXIT) TRANSID(TX04)",
+        ),
+    ]
+    # Without PLANI on TYPE=INIT, a single-TXID TYPE=ENTRY defaults its plan to TXID [SC33-1684-30 p.421, p.428];
+    # SUFFIX=BA is disallowed on DSNCRCT [p.423].
+    rows2 = _rows("         DSNCRCT TYPE=INIT,SUFFIX=BA,RDONAME=MYDB2C\n         DSNCRCT TYPE=ENTRY,TXID=TX99\n")
+    assert [(r["resource_type"], r["name"], r["macro_table"], r["plan"]) for r in rows2] == [
+        ("DB2CONN", "MYDB2C", "DFHRCT", None),
+        ("DB2ENTRY", "TX99", "DFHRCT", "TX99"),
+    ]

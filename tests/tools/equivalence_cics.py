@@ -870,6 +870,17 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
                 ]
             lines.append("END-IF")
         return lines + _resp(opts, True, labels)
+    # #5859 (X32): GGCVER -- the verdict a scenario states for the USERID
+    if verb == "VERIFY" and not ({"PHRASE", "TOKEN"} & set(opts)):
+        _check_spec("VERIFY PASSWORD", opts, (verb,), lambda bad: [f"VERIFY PASSWORD {bad[0]}"])
+        for need in ("USERID", "PASSWORD"):
+            if not opts.get(need):
+                raise Unsupported(f"VERIFY PASSWORD without {need}", ["VERIFY PASSWORD"])
+        user = opts["USERID"]
+        return (_call("GGCVER", [f"BY REFERENCE {user}", f"BY VALUE LENGTH OF {user}"])
+                + _resp(opts, True, labels))  # fmt: skip
+    if verb == "VERIFY":
+        raise _stub_only("VERIFY PHRASE / VERIFY TOKEN")
     if verb == "WRITE" and "OPERATOR" in opts:  # #4270 zECS (X32): a plain message to the console
         _check_spec("WRITE OPERATOR", opts, (verb, "OPERATOR"))
         text = opts.get("TEXT")
@@ -2287,7 +2298,7 @@ def screen_key(f: dict[str, Any]) -> tuple[str, str]:
 CICS_RESP = {c: DFHRESP[c] for c in ("NORMAL", "FILENOTFOUND", "NOTFND", "DUPREC", "DUPKEY", "INVREQ", "IOERR", "NOSPACE",
                                      "NOTOPEN", "ILLOGIC", "LENGERR", "PGMIDERR", "NOTAUTH", "DISABLED", "LOADING",
                                      "ENDFILE", "TERMIDERR", "ITEMERR", "TRANSIDERR", "QIDERR", "SYSIDERR",
-                                     "ISCINVREQ", "LOCKED", "ENQBUSY", "QBUSY", "INVMPSZ", "TSIOERR", "EXPIRED")}  # fmt: skip
+                                     "ISCINVREQ", "LOCKED", "ENQBUSY", "QBUSY", "INVMPSZ", "TSIOERR", "EXPIRED", "USERIDERR")}  # fmt: skip
 
 
 def case_file_records(case: dict[str, Any], corpus: Path, spec: dict[str, Any], reclen: int, enc: str) -> bytes:
@@ -2592,7 +2603,9 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             (d / "region.cfg").write_text(f"APPLID {case['region']['applid']}\nSYSID {case['region']['sysid']}\n",
                                           encoding="ascii")  # fmt: skip
         if sc.get("faults") or sc.get("sql_abend_plan"):  # #4023 follow-up: the stub's injected conditions
-            (d / "faults.cfg").write_text("".join(x + "\n" for x in fault_lines(sc)), encoding="ascii")
+            (d / "faults.cfg").write_text(
+                "".join(x + "\n" for x in fault_lines(sc)), encoding="latin-1"
+            )  # #5859 userid_hex
         if sc.get("dli_faults"):  # #5233: the DL/I stub's planned statuses
             (d / "dlifaults.cfg").write_text("".join(x + "\n" for x in dli_fault_lines(case, sc)), encoding="ascii")
         if sc.get("sql_plan"):  # #4173: the SQL stub's planned faults (resolved by sql_fault_plan)
@@ -4739,6 +4752,16 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
             queue = re.search(r"\bqueue=(\S*)", args).group(1)
             resp = re.search(r"\bresp=(\S*)", args).group(1)
             out.append({"event": "WRITEQ-TD", "queue": queue, "text": next(records) if resp == "0" else None})
+        # #5859 (X32): as CicsTask.verifyPassword records it -- the USERID and the verdict
+        elif verb == "VERIFY-PASSWORD":
+            kv = dict(a.split("=", 1) for a in args.split() if "=" in a)
+            out.append(
+                {
+                    "event": "VERIFY-PASSWORD",
+                    "userid": kv["userid"],
+                    "resp": RESP_NAMES.get(int(kv["resp"]), kv["resp"]),
+                }
+            )
         elif verb == "WRITE-OPERATOR":  # #4270 zECS (X32): CicsTask.writeOperator records the text
             out.append({"event": "WRITE-OPERATOR", "text": next(operator)})
         elif verb == "WEB-CONVERSE":  # #4767 (X35): CicsTask.webConverse records the request sent
@@ -5207,8 +5230,10 @@ def x6_judged(sc: dict[str, Any], java_out: Path, cev: list[dict[str, Any]],
                               "assumes": kind(cobol) or kind(java)}  # fmt: skip
 
 
-def _fired(log: Path) -> list[str]:
-    return sorted(x for x in log.read_text(encoding="ascii").splitlines() if x.strip()) if log.is_file() else []
+def _fired(log: Path, encoding: str = "utf-8") -> list[str]:
+    # #5859 userid_hex: the COBOL stub writes the USERID's raw bytes (latin-1); Java writes the same chars as UTF-8.
+    # Split on "\n" only: str.splitlines also breaks at \x85, which an EBCDIC byte can be.
+    return sorted(x for x in log.read_text(encoding=encoding).split("\n") if x.strip()) if log.is_file() else []
 
 
 FACADE_WHY = ("#4449: the scenario once more through the program's deployed entry point (its Spring facade), the "
@@ -5256,7 +5281,7 @@ def judge_facade(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]]
                 o["link_area"] = area
                 ok = False
         if sc.get("faults") or sc.get("sql_plan") or sc.get("dli_faults"):
-            fired = {"cobol": _fired(cobol_work / "scenarios" / name / "out" / "faults.txt"),
+            fired = {"cobol": _fired(cobol_work / "scenarios" / name / "out" / "faults.txt", "latin-1"),
                      "java": _fired(out / f"{name}.faults")}  # fmt: skip
             o["fired"] = fired
             ok &= bool(fired["cobol"]) and fired["cobol"] == fired["java"]
@@ -5400,7 +5425,7 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
                 print(f"{case['program']} {name}: the COMMAREA LINKed to {sc['prefix_link']} differs: {area}")
         # #4023 follow-up (#4173: SQL faults too): the same injected conditions fired on both sides, and at least one
         if sc.get("faults") or sc.get("sql_plan") or sc.get("dli_faults"):
-            fired = {"cobol": _fired(work / "cobol" / "scenarios" / name / "out" / "faults.txt"),
+            fired = {"cobol": _fired(work / "cobol" / "scenarios" / name / "out" / "faults.txt", "latin-1"),
                      "java": _fired(work / "java" / "out" / f"{name}.faults")}  # fmt: skip
             report["outputs"][name]["fired"] = fired
             if not fired["cobol"] or fired["cobol"] != fired["java"]:

@@ -130,8 +130,9 @@ operand.
   - `WRITE OPERATOR ... TEXTLENGTH ROUTECODES NUMROUTES EVENTUAL`.
 
   `ABEND ... NOHANDLE` is modelled (IBM lists no ABEND condition, so it suppresses nothing). ZECSNC is still L0.
-- ZECS002 lowers whole since slice 3b (the address model), 1181 COBOL lines. Not run against GnuCOBOL in this slice; it is
-  the det translator does not model `EXEC CICS VERIFY` yet (3c: `equivalence_cics.translate_command` says "not modelled"), so it stays L0.
+- ZECS002 lowers whole since slice 3b (the address model), 1181 COBOL lines, and translates whole since slice 3c
+  (`EXEC CICS VERIFY PASSWORD`, register X32; `det_survey` zecs: 7 of 7 whole, all compile). Not run against GnuCOBOL: the
+  stub has no VERIFY yet (`equivalence_cics.py` refuses it as stub-only), so there is no case and no run (3d).
 - The ladder report keeps both programs in the fixed 129-program denominator. ZECS002 is listed apart in the "refused
   whole: not COBOL" row of the progress page (`tests/tools/ladder_exclusions.py`, #5280), so it is not read as COBOL
   translator work; the page reports the entry as stale once it leaves L0. ZECSNC has no entry: it lowers and
@@ -147,6 +148,7 @@ operand.
    non-linked program is not compared (nothing observes it). The case is `tests/equivalence/zecs-zecsnc/`; an X register
    entry for assumption 1 is still to do.
 3. **3a (done):** duplicated `C` / `X` storage, `SR Rn,Rn`, `XC X,X`, `BCT`, the `=C'..'` literal move.
-   **3b (done):** the address model (above). **3c:** `EXEC CICS VERIFY` (registry, `det/cics.py`,
-   `ggcics.c`, `CicsTask`). **3d:** the `zecs-zecs002` equivalence case.
+   **3b (done):** the address model (above). **3c (done):** `EXEC CICS VERIFY PASSWORD` (registry, `det/cics.py`,
+   `CicsTask.verifyPassword`; a column-15 EXEC CICS continuation in the front end). **3d:** the stub's `GGCVER` in `ggcics.c`, the
+   fault-plan validation in `equivalence_cics_faults.py`, and the `zecs-zecs002` equivalence case.
 4. **4:** an independent S/390-subset interpreter that cross-checks the lowering instruction by instruction.

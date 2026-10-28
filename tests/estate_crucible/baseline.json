@@ -1,6 +1,6 @@
 {
  "format": "estate-crucible-baseline/1",
- "pinned_ref": "v0.4.0",
+ "pinned_ref": "v0.5.0",
  "key_generator": {
   "version": "0.4.0",
   "seed": 1,
@@ -66,53 +66,56 @@
   "H-0057": "PASS",
   "H-0058": "PASS",
   "H-0059": "PASS",
-  "H-0060": "PASS"
+  "H-0060": "PASS",
+  "H-0061": "FAIL",
+  "H-0062": "FAIL",
+  "H-0063": "PASS"
  },
  "channels": {
   "programs": {
-   "pass": 45,
+   "pass": 48,
    "fail": 0,
    "missing": 0,
    "phantom": 0,
    "unscored": 0
   },
   "units": {
-   "pass": 136,
+   "pass": 142,
    "fail": 0,
    "missing": 0,
    "phantom": 0,
    "unscored": 0
   },
   "edges": {
-   "pass": 109,
+   "pass": 112,
    "fail": 0,
    "missing": 0,
    "phantom": 0,
    "unscored": 0
   },
   "call_sites": {
-   "pass": 49,
+   "pass": 50,
    "fail": 0,
    "missing": 0,
    "phantom": 0,
    "unscored": 0
   },
   "copies": {
-   "pass": 63,
+   "pass": 66,
    "fail": 0,
    "missing": 0,
    "phantom": 0,
    "unscored": 0
   },
   "data_items": {
-   "pass": 449,
+   "pass": 479,
    "fail": 0,
    "missing": 0,
    "phantom": 0,
    "unscored": 0
   },
   "layouts": {
-   "pass": 143,
+   "pass": 159,
    "fail": 0,
    "missing": 0,
    "phantom": 0,
@@ -133,18 +136,18 @@
    "unscored": 0
   },
   "jcl_steps": {
-   "pass": 22,
+   "pass": 23,
    "fail": 0,
    "missing": 0,
    "phantom": 0,
    "unscored": 0
   },
   "jcl_dds": {
-   "pass": 33,
+   "pass": 35,
    "fail": 0,
    "missing": 0,
    "phantom": 0,
-   "unscored": 11
+   "unscored": 13
   },
   "screen_fields": {
    "pass": 16,
@@ -154,14 +157,14 @@
    "unscored": 0
   },
   "csd_resources": {
-   "pass": 18,
+   "pass": 46,
    "fail": 0,
    "missing": 0,
    "phantom": 0,
    "unscored": 0
   },
   "transactions": {
-   "pass": 6,
+   "pass": 7,
    "fail": 0,
    "missing": 0,
    "phantom": 0,
@@ -169,44 +172,44 @@
   },
   "cics_resources": {
    "pass": 7,
-   "fail": 0,
+   "fail": 2,
    "missing": 0,
    "phantom": 0,
    "unscored": 0
   },
   "jcl_datasets": {
-   "pass": 33,
+   "pass": 35,
    "fail": 0,
    "missing": 0,
    "phantom": 0,
    "unscored": 0
   },
   "file_control": {
-   "pass": 9,
+   "pass": 11,
    "fail": 0,
    "missing": 0,
    "phantom": 0,
    "unscored": 0
   },
   "entry_points": {
-   "pass": 45,
+   "pass": 48,
    "fail": 0,
    "missing": 0,
    "phantom": 0,
    "unscored": 0
   },
   "file_edges": {
-   "pass": 24,
+   "pass": 25,
    "fail": 0,
    "missing": 0,
    "phantom": 0,
    "unscored": 0
   },
   "data_moves": {
-   "pass": 132,
+   "pass": 139,
    "fail": 0,
    "missing": 0,
-   "phantom": 0,
+   "phantom": 5,
    "unscored": 0
   },
   "copy_collisions": {
@@ -232,11 +235,20 @@
   }
  },
  "not_passing": {
+  "cics_resources|apps/INVT/cobol/INVTONL.cbl|READ FILE INVTMST @32": "fail",
+  "cics_resources|apps/INVT/cobol/INVTRLD.cbl|READ FILE INVTMST @30": "fail",
+  "data_moves|apps/INVT/cobol/INVTBAT.cbl|MOVE 'Y' -> WS-EOF @49": "phantom",
+  "data_moves|apps/INVT/cobol/INVTBAT.cbl|READ STOCK-FILE -> WS-REC @49": "phantom",
+  "data_moves|apps/INVT/cobol/INVTRLD.cbl|ADD WS-BUMP -> RELOAD @33": "phantom",
+  "data_moves|apps/INVT/cobol/INVTRLD.cbl|ADD WS-BUMP -> SERVICE @33": "phantom",
+  "data_moves|apps/INVT/cobol/INVTRLD.cbl|ADD WS-BUMP -> STK-AREA @33": "phantom",
   "jcl_dds|apps/ACCT/jcl/ACCTDLY.jcl|STEP030.SYSOUT @13": "unscored",
   "jcl_dds|apps/ACCT/jcl/ACCTDLY.jcl|STEP040.RPTOUT @17": "unscored",
   "jcl_dds|apps/ACCT/proclib/ACCTPRC.prc|POST.SYSOUT @8": "unscored",
   "jcl_dds|apps/BILL/jcl/BILLMTH.jcl|CALC.SYSOUT @10": "unscored",
   "jcl_dds|apps/INVN/jcl/INVDB.jcl|STATS.SYSPRINT @5": "unscored",
+  "jcl_dds|apps/INVT/jcl/INVTDLY.jcl|STEP010.STKLIST @7": "unscored",
+  "jcl_dds|apps/INVT/jcl/INVTDLY.jcl|STEP010.SYSOUT @8": "unscored",
   "jcl_dds|apps/LOAN/jcl/LNBATCH.jcl|RESET.SYSOUT @7": "unscored",
   "jcl_dds|apps/ORDR/jcl/ORDNITE.jcl|STEP010.SYSOUT @8": "unscored",
   "jcl_dds|apps/PCED/jcl/PCEDLOAD.jcl|LOAD.SYSOUT @6": "unscored",
@@ -251,5 +263,5 @@
   "sql_statements|apps/CUST/cobol/CUSTDBIO.cbl|CALL @38 procedure PRODPROC.CUSTBAL": "unscored",
   "sql_statements|apps/CUST/cobol/CUSTDBIO.cbl|CALL @42 procedure CUSTAUDT": "unscored"
  },
- "checks_total": 1398
+ "checks_total": 1516
 }

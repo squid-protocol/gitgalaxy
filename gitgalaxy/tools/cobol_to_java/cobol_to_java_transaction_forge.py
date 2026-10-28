@@ -476,7 +476,7 @@ public class CicsTask {
         callee.passChannel(linkChannel, java.util.Set.of());  // #4270: LINK CHANNEL (none: the callee has no channel)
         CicsTask linked = callee;
         for (int hop = 0; callee != null && hop < 32; hop++) {
-            programs.run(callee.program, callee);
+            runProgram(callee);
             if (callee.xctlTarget != null) {
                 CicsTask prev = callee;
                 String by = callee.program;
@@ -499,6 +499,22 @@ public class CicsTask {
         return resp;
     }
 
+    private CicsTask running;  // #6882: the task whose program is executing now (the root's); null until one runs
+
+    /** #6882: runs `t`'s program and records it as the executing level, so an abend a fault plan injects (injected) is
+     *  searched for an exit from the level of the program that issued the command, as CICS does -- a LINKed
+     *  program's own HANDLE ABEND exit takes it -- not from the root. */
+    private void runProgram(CicsTask t) {
+        CicsTask r = root();
+        CicsTask before = r.running;
+        r.running = t;
+        try {
+            programs.run(t.program, t);
+        } finally {
+            r.running = before;
+        }
+    }
+
     private boolean linkAreaBack;  // #4806: whether the last LINK's program took the COMMAREA's bytes
 
     /** #4806: whether the program the last LINK ran took the COMMAREA's bytes (linkArea): then those bytes are what
@@ -514,7 +530,7 @@ public class CicsTask {
         this.program = program;
         CicsTask current = this;
         for (int hop = 0; current != null && hop < 32; hop++) {
-            programs.run(current.program, current);
+            runProgram(current);
             CicsTask next = current.xctlTarget == null ? null
                     : new CicsTask(this, 1, current.xctlTarget, current.xctlCommarea, current.xctlLength, null);
             if (next != null) {

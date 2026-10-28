@@ -181,13 +181,15 @@ PLAN_GATED = {  # always starts (required or shared check), a plan step skips th
     "small-audits.yml": "audit_skip_plan.py",
     "gitgalaxy.yml": "audit_skip_plan.py",
 }
+# built, not spelled (a literal .md glob would list this test as a reader of every engine page)
+NEG_ENGINE_PROSE = "!gitgalaxy/**/*" + ".md"
 FILTERED = {  # a `paths:` filter that negates what the gate provably never reads
     "muninn.yml": None,  # positive list only: tests and docs never trigger it (test above)
     "cics-crucible.yml": "!gitgalaxy/tools/terabyte_log_scanning/**",
     "java-compile.yml": "!gitgalaxy/tools/cobol_to_java/README.md",
-    "rosetta-audit.yml": "!gitgalaxy/**/*.md",
-    "ports-compile.yml": "!gitgalaxy/**/*.md",
-    "unicode-gauntlet.yml": "!gitgalaxy/**/*.md",
+    "rosetta-audit.yml": NEG_ENGINE_PROSE,
+    "ports-compile.yml": NEG_ENGINE_PROSE,
+    "unicode-gauntlet.yml": NEG_ENGINE_PROSE,
 }
 
 

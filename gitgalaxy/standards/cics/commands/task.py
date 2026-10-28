@@ -835,6 +835,38 @@ WRITE_OPERATOR = Command(
     state=("handle_table",),
 )
 
+# VERIFY PASSWORD (EXEC CICS VERIFY PASSWORD, #5859 zECS ZECS002): ask the external security manager whether USERID's PASSWORD is
+# right. The region has no security manager: the verdict is a fact the scenario states (a fault-plan entry named for the USERID
+# as written, X32). IBM's RESP2 values for the failures are not copied here (not stated: None); no verdict stated is refused.
+# Only the plain USERID + PASSWORD form is modelled (no new password, security-manager reason codes, phrase or token)
+VERIFY_PASSWORD = Command(
+    key="VERIFY PASSWORD",
+    ibm=ibm("EXEC CICS VERIFY PASSWORD", "summary-verify-password"),
+    status="modelled",
+    register="X32",
+    options={"USERID": Arg("area_in"), "PASSWORD": Arg("area_in"), **RESP_OPTIONS},
+    default_refusal=Refusal(
+        "only USERID and PASSWORD are modelled (no new password, security-manager reason codes or phrase)", "X32"
+    ),
+    groups=(
+        required("USERID", msg="VERIFY PASSWORD without USERID"),
+        required("PASSWORD", msg="VERIFY PASSWORD without PASSWORD"),
+    ),
+    outcomes=(
+        Outcome("NORMAL", 0, "the scenario states the password is right for the USERID"),
+        Outcome("USERIDERR", None, "the scenario states the security manager does not know the USERID"),
+        Outcome("NOTAUTH", None, "the scenario states the password is wrong or the USERID is revoked"),
+        Outcome("INVREQ", None, "the scenario states the command is invalid in the region"),
+    ),
+    runtime_refusals=(
+        RuntimeRefusal(
+            "a VERIFY for a USERID the scenario states no verdict for (the region has no security manager to ask)",
+            "X32",
+            java="VERIFY PASSWORD with no stated verdict",
+        ),
+    ),
+)
+
 COMMANDS = (
     ENQ,
     DEQ,
@@ -856,4 +888,5 @@ COMMANDS = (
     INQUIRE_ASSOCIATION,
     INQUIRE_URIMAP,
     WRITE_OPERATOR,
+    VERIFY_PASSWORD,
 )

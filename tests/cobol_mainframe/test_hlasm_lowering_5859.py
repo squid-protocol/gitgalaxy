@@ -240,6 +240,23 @@ def test_zecsnc_and_zecs002_lower():
         assert all(len(line.rstrip()) <= 72 for line in lowered)
 
 
+# ---- slice 3c: EXEC CICS continuation (ZECS002's VERIFY PASSWORD ... OHANDLE) -------------------------------------------
+def test_exec_cics_continuation_may_start_before_column_16():
+    """The EXEC CICS translator takes continuation text wherever it starts, so a line continued in column 15 keeps
+    its trailing option (NOHANDLE) instead of losing the first character."""
+    out = lower(
+        "         EXEC CICS VERIFY USERID(W_A) PASSWORD(W_B)".ljust(71) + "X",
+        "              NOHANDLE",
+        "         EXEC CICS RETURN",
+    )
+    assert "VERIFY" in out and "NOHANDLE" in out and "OHANDLE NOHANDLE" not in out
+
+
+def test_non_exec_continuation_before_column_16_is_refused():
+    with pytest.raises(hlasm.Refused, match="continuation text before column 16"):
+        lower("         MVC   W_A(4),W_B".ljust(71) + "X", "      W_B2", "         EXEC CICS RETURN")
+
+
 # ---- slice 3b: the address model (a register holding an address) -------------------------------------------------------
 ADDR = ("W_TAB    DS    CL256", "W_BUF    DS    CL8")
 ASRA = "EXEC CICS ABEND ABCODE('ASRA') NODUMP END-EXEC"

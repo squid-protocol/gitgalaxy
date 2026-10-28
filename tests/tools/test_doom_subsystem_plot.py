@@ -17,7 +17,7 @@ import subsystem_plot as sp  # noqa: E402
 
 
 def write_csv(path, rows):
-    fields = ["port", "other_pct", "subsystem", "n", "share", "cx10"] + [
+    fields = ["port", "other_pct", "subsystem", "n", "share", "cx10", "comparable"] + [
         f"{f}_{k}" for f in distribution.FIELDS for k in ("med", "p90", "vs_linuxdoom")
     ]
     with open(path, "w", newline="") as fh:
@@ -96,5 +96,25 @@ def test_cx10_is_an_absolute_share_on_a_linear_scale(tmp_path):
     root = ET.fromstring(sp.render(shares, {"gore": 0.0}, "cx10"))
     ns = "{http://www.w3.org/2000/svg}"
     fills = [r.get("fill") for r in root.findall(f"{ns}rect")]
-    assert fills == ["rgb(255,128,128)", "rgb(255,255,255)", sp.GREY, sp.GREY]  # 0% white; s_ blank and the empty other column grey
+    assert fills == [
+        "rgb(255,128,128)",
+        "rgb(255,255,255)",
+        sp.GREY,
+        sp.GREY,
+    ]  # 0% white; s_ blank and the empty other column grey
     assert "25" in [t.text for t in root.findall(f"{ns}text")]
+
+
+def test_median_zero_baseline_is_not_greyed_out(tmp_path):
+    rows = [
+        dict(port="a", other_pct=0, subsystem="p_", comparable="True", complexity_med=3, complexity_vs_linuxdoom=""),
+        dict(port="a", other_pct=0, subsystem="r_", comparable="True", complexity_med=0, complexity_vs_linuxdoom=""),
+        dict(port="a", other_pct=0, subsystem="s_", complexity_med=3, complexity_vs_linuxdoom=""),
+    ]
+    write_csv(tmp_path / "s.csv", rows)
+    ratios, _ = sp.read_ratios(tmp_path / "s.csv", "complexity")
+    assert ratios["a"] == {"p_": float("inf"), "r_": 1.0, "s_": None}
+    assert sp.colour(float("inf")) == "rgb(255,0,0)"
+    svg = sp.render(ratios, {"a": 0.0}, "complexity")
+    ET.fromstring(svg)
+    assert "a / p_: x/0" in svg and "a / s_: no ratio" in svg

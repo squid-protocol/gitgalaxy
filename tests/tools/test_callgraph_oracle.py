@@ -964,3 +964,99 @@ def test_a_literal_dead_preprocessor_branch_is_no_call_in_the_text_fallback():
 def test_literal_conditions_are_zero_one_hex_zero_and_parenthesised_only():
     assert [co._literal_value(c) for c in ("0", " (0) ", "0x0", "1", "(1)")] == [False, False, False, True, True]
     assert [co._literal_value(c) for c in ("FEATURE", "defined(X)", "2", "0 || X")] == [None] * 4
+
+
+TOGGLE_BRANCHES = """void f(void)
+{
+#ifdef NEVER_SET
+    dead_ifdef();
+#endif
+#ifndef NEVER_SET
+    live_ifndef();
+#endif
+#if defined(NEVER_SET)
+    dead_defined();
+#else
+    live_else();
+#endif
+#ifdef SET_SOMEWHERE
+    kept_ifdef();
+#endif
+}
+"""
+TOGGLE_LIVE = {"live_ifndef", "live_else", "kept_ifdef"}
+
+
+@pytest.mark.parametrize("view", ["tree-sitter", "text"])
+def test_a_toggle_no_file_defines_is_dead_as_the_engine_reads_it(monkeypatch, view):
+    """#6266: after #6870 the engine drops a branch on a toggle the port never defines; the oracle must too."""
+    monkeypatch.setattr(co, "_UNSET", frozenset({"NEVER_SET"}))
+    body = body_of(TOGGLE_BRANCHES) if view == "tree-sitter" else co.TextBody(TOGGLE_BRANCHES.encode(), 1)
+    assert isinstance(body, co.TextBody) == (view == "text")
+    assert set(body.calls) == TOGGLE_LIVE
+
+
+def test_without_a_toggle_table_every_toggle_branch_is_read():
+    assert set(body_of(TOGGLE_BRANCHES).calls) == TOGGLE_LIVE | {"dead_ifdef", "dead_defined"}
+
+
+def test_the_toggle_table_is_the_engines_over_the_ports_c_and_build_files(tmp_path):
+    (tmp_path / "f.c").write_text(TOGGLE_BRANCHES)
+    (tmp_path / "Makefile").write_text("CFLAGS += -DSET_SOMEWHERE\n")
+    assert "NEVER_SET" in co.unset_toggles_of(tmp_path)
+    assert "SET_SOMEWHERE" not in co.unset_toggles_of(tmp_path)
+    (tmp_path / "f.c").rename(tmp_path / "f.txt")
+    assert co.unset_toggles_of(tmp_path) == frozenset()
+
+
+def test_a_vendored_librarys_define_is_not_in_the_toggle_table(tmp_path):
+    """srb2: libpng defines `PNG_TEXT_SUPPORTED` under libs/, which the scan drops, so the engine reads it as unset."""
+    (tmp_path / "f.c").write_text("#ifdef LIB_FEATURE\nvoid f(void) {}\n#endif\n")
+    (tmp_path / "libs").mkdir()
+    (tmp_path / "libs" / "lib.h").write_text("#define LIB_FEATURE\n")
+    assert "LIB_FEATURE" not in co.unset_toggles_of(tmp_path)
+    assert "LIB_FEATURE" in co.unset_toggles_of(tmp_path, lambda rel: rel.startswith("libs/"))
+
+
+MISPAIRED = {  # tree-sitter pairs each `#ifdef` with the wrong `#endif` (srb2's M_PNGText and PNG_Read, #6266)
+    "inner-endif": """void f(void)
+{
+#ifdef NEVER_SET
+    int a;
+#ifdef OTHER
+    dead_a();
+#elif defined(THIRD)
+    dead_b();
+#else
+    dead_c();
+#endif
+    int b;
+    dead_d();
+#endif
+    live();
+}
+""",
+    "split-if-head": """void f(void)
+{
+#ifdef NEVER_SET
+    if (dead_cond())
+#else
+    if (live_cond())
+#endif
+    {
+        live_a();
+    }
+    live_b();
+}
+""",
+}
+
+
+@pytest.mark.parametrize(
+    "case, live", [("inner-endif", {"live"}), ("split-if-head", {"live_cond", "live_a", "live_b"})]
+)
+def test_a_conditional_paired_with_the_wrong_endif_is_read_by_its_directive_lines(tmp_path, monkeypatch, case, live):
+    monkeypatch.setattr(co, "unset_toggles_of", lambda repo, vendored=None: frozenset({"NEVER_SET"}))
+    (tmp_path / "f.c").write_text(MISPAIRED[case])
+    port = co.Port("p", tmp_path, [("f.c", "c", "f", 1, [])])
+    assert set(port.functions[0][4].calls) == live

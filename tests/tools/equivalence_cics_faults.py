@@ -56,6 +56,8 @@ FAULT_COMMANDS = (
     "SYNCPOINT",
     "ROLLBACK",
     "DELAY",  # #6271 (register X72): nameless, like RETURN
+    "SET-TERMINAL",  # #6882 (register X26): nameless (only the task's own terminal is allowed); INQ-TERMINAL too
+    "INQ-TERMINAL",
 )  # a file command (FILE), an INQUIRE PROGRAM (the program's name in `file`)
 
 # #4986 (register X43): IBM's LINK conditions the region does not raise and that have no sourced abend code
@@ -213,14 +215,18 @@ UI_FAULT_CONDITIONS: dict[str, dict[str, tuple[int, ...]]] = {
     # #6271 (X72): DELAY -- EXPIRED (a TIME already past; no RESP2) and INVREQ RESP2 4 / 5 / 6 / 22 (hours / minutes / seconds /
     # milliseconds out of range). IBM's NORMAL RESP2 23 (cancelled by another task) needs a second task: refused (X72)
     "DELAY": {"EXPIRED": (), "INVREQ": (4, 5, 6, 22)},
+    # #6882 (X26): SET TERMINAL -- TERMIDERR RESP2 23 (the terminal cannot be found), INVREQ RESP2 43 (invalid UCTRANST CVDA);
+    # INQUIRE TERMINAL -- TERMIDERR RESP2 1. Every other condition IBM lists needs a device or remote system: refused (X26)
+    "SET-TERMINAL": {"TERMIDERR": (23,), "INVREQ": (43,)},
+    "INQ-TERMINAL": {"TERMIDERR": (1,)},
 }
-UI_NAMELESS = ("RETURN", "SYNCPOINT", "ROLLBACK", "DELAY", "SEND-TEXT")
+UI_NAMELESS = ("RETURN", "SYNCPOINT", "ROLLBACK", "DELAY", "SEND-TEXT", "SET-TERMINAL", "INQ-TERMINAL")
 
 
 def _ui_fault_resp2(sc: dict[str, Any], f: dict[str, Any], cmd: str, resp2: int) -> int:
     """The RESP2 of a SEND MAP / RECEIVE MAP / RETURN / SYNCPOINT fault, or ec.Unsupported naming register X71."""
     where = f"scenario {sc['name']}: fault {f}"
-    reg = "X72" if cmd == "DELAY" else "X71"
+    reg = "X72" if cmd == "DELAY" else "X26" if cmd.endswith("-TERMINAL") else "X71"
     ibm = UI_FAULT_CONDITIONS[cmd].get(f["resp"])
     if ibm is None:
         listed = "/".join(UI_FAULT_CONDITIONS[cmd])

@@ -81,7 +81,13 @@ def port_case(name: str, work: Path, project: Path, corpus: Path, style: str = "
 
     case = eq.load_case(name)
     svc = ej._service_class(case["program"])
-    stub = (project / "src/main/java" / PKG_DIR / "service" / f"{svc}.java").read_text(encoding="utf-8")
+    stub_file = project / "src/main/java" / PKG_DIR / "service" / f"{svc}.java"
+    if stub_file.is_file():
+        stub = stub_file.read_text(encoding="utf-8")
+    else:  # #5859: the forge makes no service for an HLASM program; the stub is the translator's own
+        from gitgalaxy.tools.cobol_to_java.det import hlasm
+
+        stub = hlasm.service_stub(Path(case["program_source"]).stem, PKG)
     dirs = [corpus / d for d in case.get("copy_dirs", ["app/cpy"])]
     dirs += [corpus / d for d in (case.get("db2") or {}).get("include_dirs", [])]  # DCLGEN members
     # symbolic maps the estate does not check in, generated from its BMS sources (after its own copybooks)

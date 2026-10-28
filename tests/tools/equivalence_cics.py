@@ -877,12 +877,22 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
             raise Unsupported(_rule("WRITE OPERATOR", "required", "TEXT"), ["WRITE OPERATOR"])
         if _literal(text):  # (IBM's COBOL form takes a data area)
             raise Unsupported("WRITE OPERATOR TEXT as a literal: a data area is the COBOL form", ["WRITE OPERATOR"])
-        # #5859: the det port and CicsTask model these, the stub not yet
-        for o in ("TEXTLENGTH", "ROUTECODES", "NUMROUTES"):
-            if o in opts:
-                raise _stub_only(f"WRITE OPERATOR {o}")
-        return ([f"MOVE LENGTH OF {text} TO GG-LEN"] + _call("GGCWTO", [f"BY REFERENCE {text}"])
-                + _resp(opts, True, labels))  # fmt: skip
+        if ("ROUTECODES" in opts) != ("NUMROUTES" in opts):  # (the rule goes both ways)
+            raise Unsupported(_rule("WRITE OPERATOR", "requires", "ROUTECODES"), ["WRITE OPERATOR"])
+        if not any(o in opts for o in ("TEXTLENGTH", "ROUTECODES")):
+            return ([f"MOVE LENGTH OF {text} TO GG-LEN"] + _call("GGCWTO", [f"BY REFERENCE {text}"])
+                    + _resp(opts, True, labels))  # fmt: skip
+        # #5859 (X32): TEXTLENGTH is GG-LEN, ROUTECODES / NUMROUTES the routes area and GG-NUM; GG-FLAGS says which were given
+        # (EVENTUAL changes nothing observable). The areas' sizes go by value; the flags are cleared after the call.
+        flags = " ".join(f for f, o in (("TEXTLENGTH", "TEXTLENGTH"), ("ROUTES", "ROUTECODES")) if o in opts)
+        routes = opts.get("ROUTECODES") or text
+        lines = [f"MOVE {opts['TEXTLENGTH']} TO GG-LEN" if opts.get("TEXTLENGTH") else f"MOVE LENGTH OF {text} TO GG-LEN"]
+        if opts.get("NUMROUTES"):
+            lines.append(f"MOVE {opts['NUMROUTES']} TO GG-NUM")
+        lines.append(f"MOVE '{flags}' TO GG-FLAGS")
+        lines += _call("GGCWTO", [f"BY REFERENCE {text}", f"BY VALUE LENGTH OF {text}", f"BY REFERENCE {routes}",
+                                  f"BY VALUE LENGTH OF {routes}"])  # fmt: skip
+        return lines + ["MOVE SPACES TO GG-FLAGS"] + _resp(opts, True, labels)
     if verb in ("INQUIRE", "SET") and "TDQUEUE" in opts:  # #5168 round 3 (X61): an extrapartition queue's open state
         key = f"{verb} TDQUEUE"
         _check_spec(key, opts, (verb,), lambda bad: [key])
@@ -1330,8 +1340,13 @@ def translate(source: str, copy_dirs: list[Path] | None = None) -> tuple[str, bo
     COMMAREA through LINKAGE). Raises Unsupported naming each command it cannot model. #5119 (X56): an OS/VS COBOL
     program's BLL cells and SERVICE RELOAD are lowered first, as the det translator lowers them (det/bll.py; its
     COPY members found in `copy_dirs`), so GnuCOBOL runs the program the port was translated from."""
-    from gitgalaxy.tools.cobol_to_java.det import bll
+    from gitgalaxy.tools.cobol_to_java.det import bll, hlasm
 
+    if re.search(r"(?mi)^\S+\s+DFHEIENT\b", source):  # #5859: a command-level CICS assembler program, lowered to COBOL as det does
+        try:
+            source = hlasm.lower_text(source, "program.asm")
+        except hlasm.Refused as e:
+            raise Unsupported(str(e), ["HLASM"]) from None
     try:
         source = bll.lower_text(source, copy_dirs or [])
     except bll.Refused as e:
@@ -3184,6 +3199,8 @@ def commarea_class(case: dict[str, Any], src: Path, svc_file: Path) -> str | Non
     m = re.search(r"handleTransaction\(String transid, (\w+) request\)", svc_text) or re.search(
         r"handleLink\((\w+) request\)", svc_text
     )  # a LINKed program (CBSA): its contract COMMAREA DTO
+    if m and m.group(1) == "Object":  # #5859: an HLASM program's facade (hlasm.service_stub) types no COMMAREA
+        return None
     if m:
         return m.group(1)
     if "commarea" in case and case["commarea"] is None:  # #4270: a program that takes none (handleLink()): no DTO

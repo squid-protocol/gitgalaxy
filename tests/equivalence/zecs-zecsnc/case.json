@@ -1,0 +1,43 @@
+{
+ "kind": "cics",
+ "corpus": "zecs",
+ "program": "ZECSNC",
+ "program_source": "Source/ZECSNC.asm",
+ "copy_dirs": [],
+ "transid": "ZNCD",
+ "clock": "2026/10/01 10:30:15.00",
+ "datasets": {},
+ "commarea": null,
+ "linked": false,
+ "screens": {},
+ "region": {
+  "applid": "ZECSAPPL",
+  "sysid": "ZECS"
+ },
+ "scenarios": [
+  {
+   "name": "terminal-new",
+   "commarea": null,
+   "startcode": "TD",
+   "terminal": "ZNCD,ZC01",
+   "why": "a new zECS tranid typed at a terminal: the counter is defined, the TD record written, WRITE OPERATOR sent with TEXTLENGTH 74, ROUTECODES X'0111' and NUMROUTES 2, then the START and the SEND"
+  },
+  {
+   "name": "terminal-bad-input",
+   "commarea": null,
+   "startcode": "TD",
+   "terminal": "ZNCD",
+   "why": "input shorter than transid,tranid: the ER_0010 message path, no counter defined"
+  },
+  {
+   "name": "terminal-duplicate-counter",
+   "commarea": null,
+   "startcode": "TD",
+   "terminal": "ZNCD,ZC01",
+   "counters": {
+    "/ZC01_ZECS": 1
+   },
+   "why": "the DEFINE DCOUNTER fails because the counter exists: the ER_0020 message path"
+  }
+ ]
+}

@@ -36,7 +36,8 @@ truncation (#4204) and `MOVE ALL X'..'` (#4205).
 
 `tests/tools/det_survey.py --corpus dbb-mortgage-application`: **202 of 204 statements (99.0%) translate
 deterministically.** Of 6 programs, 3 translate whole and 2 with one hole each: EPSCSMRT's dynamic `CALL
-WS-CALLED-PROGRAM` and EPSMPMT's `FUNCTION ANNUITY`, in A300-TRY2, which is dead code. EPSCSMRD is refused: its
+WS-CALLED-PROGRAM` and EPSMPMT's `FUNCTION ANNUITY`, in A300-TRY2, which is dead code (the survey's figure; since
+#6831 the det port translates both of EPSMPMT's float COMPUTEs as IEEE binary64, an owner-stated assumption, #5867). EPSCSMRD is refused: its
 DATA DIVISION is nine programs'. Before the fixes below, all 6 were refused.
 
 ## Cases
@@ -44,9 +45,9 @@ DATA DIVISION is nine programs'. Before the fixes below, all 6 were refused.
 | case | program | kind | result | coverage |
 |---|---|---|---|---|
 | `mortgage-nbrvl` | EPSNBRVL, number validator | CALL, group USING item | **proven**, 15 calls | 3/3 paragraphs, 22/22 branches |
-| `mortgage-cmort` | EPSCMORT, mortgage screen | CICS, BMS (generated map), Db2 `SYSIBM.SYSDUMMY1`, CALL EPSNBRVL, LINK EPSMLIST (#4213) | **proven**, 16 scenarios (15 written, plus the automatic SQL-fault task on its SELECT, #4200); the det port is listed unproven in `det_sweep_baseline.json` only because EPSMPMT, which its ENTER path reaches through EPSCSMRT, has a hole (FUNCTION ANNUITY, dead code; #4803, #5867) | 3/6 paragraphs, 15/21 branches |
+| `mortgage-cmort` | EPSCMORT, mortgage screen | CICS, BMS (generated map), Db2 `SYSIBM.SYSDUMMY1`, CALL EPSNBRVL, LINK EPSMLIST (#4213) | **proven**, 16 scenarios (15 written, plus the automatic SQL-fault task on its SELECT, #4200); EPSMPMT, which its ENTER path reaches through EPSCSMRT, has no hole since #6831 (its float power and ANNUITY are owner-stated binary64, #5867), so the det port is no longer listed in `det_sweep_baseline.json`; the payment it reaches rests on that assumption, not on a z/OS capture | 3/6 paragraphs, 15/21 branches |
 | `mortgage-mlist` | EPSMLIST, company list | CICS, BMS (generated map), an ESDS browsed by RBA (STARTBR / READNEXT ... RBA, #4213), the dataset stated by the case | **proven**, 9 scenarios (2 with injected STARTBR / READNEXT conditions) | 5/6 paragraphs, 14/15 branches |
-| `mortgage-mpmt` | EPSMPMT, payment calculator | CALL, binary arguments as field values | **not proven on purpose**: the payment is computed through a COMP-1 item, in hexadecimal floating point on z/OS and in truncated decimal on GnuCOBOL. Since #4271 slice 1 the det runtime models HFP and the interest COMPUTE translates, but the payment's `(1 + C) ** N` (N with decimal places) is a floating-point exponentiation IBM does not document bit for bit. Since #5999 it translates through `Hfp.power`, an ASSUMED routine (the capture kit's reference power; C6, pinned by `test_det_hfp.py`; line 125), no longer a hole, but no z/OS capture agrees with it, so the case stays unproven until one does (#4050; the oracle cannot run HFP). Its `CBL NUMPROC(MIG)` compiles as NUMPROC(NOPFD) under the estate's Enterprise COBOL 6.1 (C5, #4271) | — |
+| `mortgage-mpmt` | EPSMPMT, payment calculator | CALL, binary arguments as field values | **proven**, 11 calls, 4/4 paragraphs, 12/12 branches, under an owner-stated assumption, not a z/OS calibration (owner decision 2026-10-27, #5867): for EPSMPMT only, the `(1 + C) ** N` power (line 125) and `FUNCTION ANNUITY` (line 144, dead code) are IEEE 754 binary64 on both sides, the det port (#6831) and the oracle (a C stand-in, `equivalence_binary64.py`, #6844). z/OS would compute them in hexadecimal floating point and IBM does not document the bits of the power; no z/OS capture agrees or disagrees. Every other float power or ANNUITY stays under #4702 (real z/OS calibration only). Its `CBL NUMPROC(MIG)` compiles as NUMPROC(NOPFD) under the estate's Enterprise COBOL 6.1 (C5, #4271) | 4/4 paragraphs, 12/12 branches |
 
 **Generated Db2 rows (#4507): nothing to prove.** EPSCMORT is the only source of the estate with an `EXEC SQL`, and its
 only table is Db2's own one-row `SYSIBM.SYSDUMMY1` (A805): there is no DDL or DCLGEN to generate rows from and no seed
@@ -56,13 +57,14 @@ to vary. Its SQLCODE branches are run by the automatic SQL-fault task; +100 cann
 **Not reached, and why:**
 - EPSCMORT's ENTER (indicator '3') and WHEN OTHER paths LINK EPSCSMRT. EPSCSMRT CALLs EPSMPMT through a data
   name the engine does not resolve (`CALL WS-CALLED-PROGRAM`, its value from a REDEFINES table), and EPSMPMT's
-  payment is computed in floating point (C6). Its `NUMPROC(MIG)` is no longer the obstacle (C5, #4271).
+  payment is computed in floating point (C6; since #6831 binary64 by owner decision, #5867, not a z/OS calibration).
+  Its `NUMPROC(MIG)` is no longer the obstacle (C5, #4271).
 - A company EPSMLIST lists LINKs EPSCSMRT for its payment (the same reasons), so no scenario lists one: EPSMLIST's
   A600 and the branch into it are not reached, and no record's contents reach an output. Measured 2026-10-26 (#6072):
   a tenth scenario (principal 200000.00, rate 5.000: two of the four records pass A150) with EPSCSMRT and EPSMPMT
-  listed in the case runs equal on both sides (10 scenarios, 6/6 paragraphs, 15/15 branches), but the sweep then counts
-  EPSMPMT's hole (`called_holes` 1), so EPSMLIST is NOT PROVEN (L1) while it LINKs a program with a hole (owner decision
-  2026-10-11, #4803). The case therefore stays at 9 scenarios, L2, until the FUNCTION ANNUITY hole is settled (#5867). The RBA browse is judged by
+  listed in the case runs equal on both sides (10 scenarios, 6/6 paragraphs, 15/15 branches), but the sweep then counted
+  EPSMPMT's hole (`called_holes` 1), so EPSMLIST was NOT PROVEN (L1) while it LINKed a program with a hole (owner decision
+  2026-10-11, #4803). That hole is closed (#6831, #5867: binary64 by owner decision), so the tenth scenario is no longer blocked by it. The RBA browse is judged by
   its outcomes there, and pinned rule by rule on both sides by `tests/cics_crucible/test_cics_runtimes.py`
   (oracle_assumptions.md X13).
 - EPSCSMRD has no case: nine programs in one source, LE condition handlers, channels and containers.

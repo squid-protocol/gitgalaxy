@@ -3808,7 +3808,7 @@
       "tcl/macports_registry/receipt_flat.tcl": 7.488,
       "tcl/macports_registry/receipt_sqlite.tcl": 5.907,
       "tcl/macports_registry/registry.tcl": 4.789,
-      "tcl/macports_registry/registry_util.tcl": 6.833
+      "tcl/macports_registry/registry_util.tcl": 6.864
     },
     "tcl/sqlite": {
       "tcl/sqlite/LICENSE.md": 0.0,

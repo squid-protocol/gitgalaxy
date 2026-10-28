@@ -5,7 +5,7 @@
   ],
   "value": {
     "Galaxy Column Digests": {
-      "a_dists": "1504cfc5d2d5",
+      "a_dists": "ea9567763c2c",
       "a_ids": "bd9bd9342100",
       "ai_threats": "702f60aa030f",
       "author_distribution": "702f60aa030f",
@@ -29,7 +29,7 @@
       "tel_cfr": "80a0c077f9a2",
       "tel_lt": "a5110b875769",
       "tel_pid": "729eb627fcbc",
-      "tel_pop": "27ea980a732a",
+      "tel_pop": "d57b00778705",
       "tel_purp": "64d3ca5df8c8"
     },
     "Galaxy Files": {
@@ -3211,12 +3211,12 @@
       "tcl/macports_registry/common.tcl": "98a9769427d8",
       "tcl/macports_registry/depends.tcl": "9c8d00dffc95",
       "tcl/macports_registry/entry.tcl": "b671b0992db6",
-      "tcl/macports_registry/portimage.tcl": "83951f69691b",
-      "tcl/macports_registry/portuninstall.tcl": "ea601441516f",
+      "tcl/macports_registry/portimage.tcl": "88a94404ace6",
+      "tcl/macports_registry/portuninstall.tcl": "07f4143ce9ea",
       "tcl/macports_registry/receipt_flat.tcl": "39de5703919b",
       "tcl/macports_registry/receipt_sqlite.tcl": "63f12ea61602",
       "tcl/macports_registry/registry.tcl": "6792e88e5019",
-      "tcl/macports_registry/registry_util.tcl": "0dde696fb9ee",
+      "tcl/macports_registry/registry_util.tcl": "e6a4bd5904c4",
       "tcl/sqlite/LICENSE.md": "3104492ed4aa",
       "tcl/sqlite/README.md": "cc660a4e1af8",
       "tcl/sqlite/malloc_common.tcl": "dbacb3fbdb18",
@@ -3412,7 +3412,7 @@
       "ecosystem_audits": "8cd74d065301",
       "ecosystem_fingerprint": "4350181b84f3",
       "health": "9a86f5e4c9a0",
-      "network_macro": "b1fbcc761b79",
+      "network_macro": "2ca1476e7c84",
       "repo_macro_species": "2bd4f962ad9c",
       "summary": "bbe85aa5375c",
       "typosquat_hits": "5feceb66ffc8",

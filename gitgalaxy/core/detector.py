@@ -1067,6 +1067,12 @@ _DECREMENT_OPERATOR_LANGS = frozenset(
 _QUALIFIED_CALLS_OUT_SOURCES = frozenset(getattr(p, "pattern", p) for p in QUALIFIED_CALLS_OUT_PATTERNS)
 
 
+def _rewrite_for_calls(rules: dict[str, Any], text: str) -> str:
+    """`text` through the language's `_calls_out_rewrite`, when it declares one (#5909)."""
+    rewrite = rules.get("_calls_out_rewrite")
+    return rewrite(text) if callable(rewrite) else text
+
+
 def _is_qualified_calls_out(pattern: Any) -> bool:
     return getattr(pattern, "pattern", pattern) in _QUALIFIED_CALLS_OUT_SOURCES
 
@@ -4845,7 +4851,9 @@ class StructuralExtractor:
             # `--vars[ReadVar()];` (or `for (;; --i, x.f())`) was blanked to its end,
             # taking every call after the `--` with it.
             comment_markers = r"#|//"
-        elif lang_id in ("shell", "bash"):
+        elif lang_id in ("shell", "bash", "tcl"):
+            # #5909: tcl too: `switch -exact -- $v {` lost the rest of its line (the arm list's opening brace)
+            # to a `--` "comment"; prism has already blanked tcl's real `#` comments.
             # Shell's ONLY line-comment marker is `#`. `--` is the end-of-options
             # delimiter (`alert --stop ...`, `git checkout -- file`) and `//` has
             # no comment meaning at all -- both appear constantly in ordinary
@@ -10465,7 +10473,7 @@ class StructuralExtractor:
             pattern = rules.get("calls_out")
             if blanked is None or not isinstance(pattern, re.Pattern):
                 continue
-            safe = self._call_scan_shield(blanked)
+            safe = _rewrite_for_calls(rules, self._call_scan_shield(blanked))
             kept: dict[str, list[str]] = {}
             for m in pattern.finditer(safe):
                 seen = kept.setdefault(m.group(1), [])
@@ -11021,6 +11029,9 @@ class StructuralExtractor:
                     # #6454: a named group `mask` blanks only that span (rust `matches!(x, PATTERN)`
                     # keeps the macro name a call); a pattern without one blanks the whole match.
                     safe_block = masked.sub(_blank_masked_match, safe_block)
+                # #5909: a context a regex cannot carry (balanced braces / parens): the language's own
+                # same-length rewrite blanks what is not a call and puts a hidden body in command position.
+                safe_block = _rewrite_for_calls(rules, safe_block)
                 raw_calls = invocation_pattern.findall(safe_block)
                 if invocation_pattern.groups > 1:
                     # #5639: one group per alternative (Objective-C: C call, message selector)

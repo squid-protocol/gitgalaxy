@@ -19,6 +19,79 @@ from .._shared_patterns import CALLS_OUT_LISP_FAMILY, GLOBAL_FRAGILE_DEBT, GLOBA
 _SYMBOL_DATUM = r"[A-Za-z_*<>/+-][^\s()\[\]?=;]*"
 _LITERAL_DATUM = r"(?:[+-]?[0-9][0-9a-zA-Z.#/+-]*|#\\[^\s()\[\]]+|#[tf]|\"[^\"\n]*\")"
 
+# #5909: a binder is a name, not a call. Every `let`-family form binds with `((name init) ...)`, which a
+# fixed-width lookbehind reaches only for the first binding of a plain `let`. Walked with balanced parens.
+_BINDING_FORMS = ("let", "let*", "letrec", "letrec*", "fluid-let", "do")
+_VALUES_FORMS = ("let-values", "let*-values")
+_ATOM_END = " \t\r\n()"
+
+
+def _skip_group(text: str, i: int) -> int:
+    """Index just past the balanced `(...)` opening at `i` (`#\\(` is a character, not a paren)."""
+    depth, n = 0, len(text)
+    while i < n:
+        ch = text[i]
+        if ch == "#" and text[i + 1 : i + 2] == "\\":
+            i += 3
+            continue
+        depth += ch == "("
+        depth -= ch == ")"
+        i += 1
+        if depth == 0:
+            break
+    return i
+
+
+def _skip_atom(text: str, i: int) -> int:
+    while i < len(text) and text[i] not in _ATOM_END:
+        i += 1
+    return i
+
+
+def _skip_ws(text: str, i: int) -> int:
+    while i < len(text) and text[i] in _ATOM_END[:4]:
+        i += 1
+    return i
+
+
+def _blank_let_binders(text: str) -> str:
+    """`text` with every `let`-family binder blanked (same length): `(a init)` of any binding, a named let's
+    first one included, and the `(a b)` formals of `let-values`. The init expression stays, so its calls count."""
+    out = list(text)
+    pos = 0
+    while True:
+        at = text.find("(", pos)
+        if at < 0:
+            return "".join(out)
+        pos = at + 1
+        end = _skip_atom(text, pos)
+        form = text[pos:end]
+        if form not in _BINDING_FORMS and form not in _VALUES_FORMS:
+            continue
+        i = _skip_ws(text, end)
+        if form == "let" and i < len(text) and text[i] not in "()":
+            i = _skip_ws(text, _skip_atom(text, i))  # the name of a named let
+        if text[i : i + 1] != "(":
+            continue
+        i = _skip_ws(text, i + 1)
+        while i < len(text) and text[i] != ")":
+            if text[i] != "(":
+                i = _skip_ws(text, _skip_atom(text, i))
+                continue
+            j = _skip_ws(text, i + 1)
+            if form in _VALUES_FORMS and text[j : j + 1] == "(":
+                blank_to = _skip_group(text, j)
+            else:
+                blank_to = _skip_atom(text, j)
+                init = _skip_ws(text, blank_to)
+                if text[init : init + 1] not in ("(", ")", ""):  # `(a b)`: the bare init `b` is no call either
+                    blank_to = _skip_atom(text, init)
+            for q in range(i, blank_to):
+                if out[q] not in "\n":
+                    out[q] = " "
+            i = _skip_ws(text, _skip_group(text, i))
+
+
 DEFINITION: dict[str, Any] = {
     "_meta": {
         "target_version": "R5RS / R6RS / Guile (GnuPG gpgscm)",
@@ -53,12 +126,9 @@ DEFINITION: dict[str, Any] = {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         # #5640: the family pattern, minus the formals list of a `(lambda (y) ...)` / `(named-lambda (f y) ...)`,
         # which is a parameter list and not a call (`(y` read as one).
-        # The first binding name of a `let` form is not a call either (`(let ((a (g x)) ...)`): fixed-width
-        # lookbehinds, so a named let (`(let loop ((i 0))`) and later bindings are a known gap.
-        "calls_out": re.compile(
-            r"(?<!\(lambda\s)(?<!\(named-lambda\s)(?<!\(let\s\()(?<!\(let\*\s\()(?<!\(letrec\s\()(?<!\(letrec\*\s\()"
-            + CALLS_OUT_LISP_FAMILY.pattern
-        ),
+        # A `let`-family binder is a name, not a call: `_calls_out_rewrite` blanks every binding (#5909).
+        "calls_out": re.compile(r"(?<!\(lambda\s)(?<!\(named-lambda\s)" + CALLS_OUT_LISP_FAMILY.pattern),
+        "_calls_out_rewrite": _blank_let_binders,
         "_calls_out_ignore": frozenset(
             {
                 "define",

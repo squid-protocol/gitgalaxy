@@ -4244,10 +4244,6 @@
         "import:tcl/macports_registry/portimage.tcl",
         "import:tcl/macports_registry/receipt_flat.tcl",
         "import:tcl/macports_registry/receipt_sqlite.tcl"
-      ],
-      "tcl/macports_registry/registry_util.tcl": [
-        "fcall:tcl/macports_registry/portimage.tcl",
-        "fcall:tcl/macports_registry/portuninstall.tcl"
       ]
     },
     "tcl/sqlite": {

@@ -31,10 +31,11 @@ import doom_diff  # noqa: E402
 import doom_speedrun  # noqa: E402
 import fidelity  # noqa: E402
 import lineage  # noqa: E402
+import subsystem_distribution  # noqa: E402
 
 DOC = REPO_ROOT / "docs" / "research" / "doom-port-study.md"
 BEGIN, END = "<!-- study:{} begin -->", "<!-- study:{} end -->"
-BLOCKS = ("clean-scan", "fidelity", "lineage", "distribution", "landmarks", "subway")
+BLOCKS = ("clean-scan", "fidelity", "lineage", "distribution", "subsystem", "landmarks", "subway")
 # The study's faithful translations (the manifest's own lineage text says so): the calibration question is asked of these.
 TRANSLATIONS = ("managed-doom", "dartdoom", "kocoa-doom", "mochadoom", "doom-scheme", "doomf77", "gore")
 
@@ -114,6 +115,21 @@ def distribution_block(summary, fid):
     return table + "\n" + place
 
 
+def subsystem_block(result):
+    """Median complexity of each port's subsystems over linuxdoom's same subsystem (``subsystem_distribution.run``).
+
+    One row per port, one column per subsystem; blank where a side has under ``MIN_SUBSYSTEM`` functions."""
+    subs = sorted({r["subsystem"] for rows, _ in result.values() for r in rows if r["subsystem"] != "other"})
+    body = []
+    for port in sorted(result):
+        if port == lineage.BASE:
+            continue
+        rows, other = result[port]
+        got = {r["subsystem"]: r.get("complexity_vs_linuxdoom") for r in rows}
+        body.append([port, *("" if got.get(s) is None else f"{got[s]:.2f}" for s in subs), f"{other:.0f}"])
+    return _md(["port", *subs, "other %"], body)
+
+
 def landmark_block(canon):
     """Landmark functions of each translation against linuxdoom's: complexity and LOC ratios (found / 12)."""
     by = collections.defaultdict(dict)
@@ -159,12 +175,14 @@ def build(work, sha, before_ref, manifest, subway):
     out, skipped = lineage.run([r for r in rows if r["name"] in lineage.LICENSED], work, sha)
     dist_rows = [r for r in rows if r["name"] in lineage.LICENSED]
     summary, _ = distribution.run(dist_rows, work, sha)
+    sub_result, _ = subsystem_distribution.run(dist_rows, work, sha)
     fid = {r["name"]: r.get("fidelity") or "unstated" for r in rows}
     blocks = {
         "clean-scan": clean_scan_block(rows, before, after),
         "fidelity": fidelity.report(rows_all),
         "lineage": lineage_block(out, rows),
         "distribution": distribution_block(summary, fid),
+        "subsystem": subsystem_block(sub_result),
         "landmarks": landmark_block(out["canonical_functions.csv"]),
         "subway": subway_block(subway, [r["name"] for r in rows]),
     }

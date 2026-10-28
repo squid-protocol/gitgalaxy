@@ -132,6 +132,8 @@ _FAULT_RESP = {
     "INQ-TERMINAL": ("TERMIDERR", 1),
     "RUN-TRANSID": ("TRANSIDERR", 1),
     "FETCH-ANY": ("NOTFND", 1),
+    "PUT-CONTAINER": ("CONTAINERERR", 18),
+    "GET-CONTAINER": ("CONTAINERERR", 10),
 }  # #6271 (X71, X72)
 _NAMELESS = (
     "RETRIEVE",
@@ -144,6 +146,8 @@ _NAMELESS = (
     "INQ-TERMINAL",
     "RUN-TRANSID",
     "FETCH-ANY",
+    "PUT-CONTAINER",
+    "GET-CONTAINER",
 )  # fault_lines names them "-"  # #5089 (X60): the one condition IBM lists for ENQ that a plan raises; no RESP2
 
 

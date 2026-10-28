@@ -214,6 +214,21 @@ bytes). Sample is one local run each; the committed `.test_durations` is refresh
 
 ---
 
+## 2026-10-28 time baseline: re-lowered to the committed durations (#5156, fifth item)
+
+Question: is anything still unmarked at 40-240 s? Method: `.test_durations` (2026-10-22, 23581 tests) by file and by
+test. Result: no. The largest test files are `test_cics_runtimes.py` 159 s over many tests, `test_det_nondigit_zoned.py`
+124 s over 497 tests (none over 6.2 s); evidence files hold 78 s (`test_evidence_report.py`, 76 tests, max 8.8 s) and
+50 s (`test_evidence_components.py`, ignored). Every test over 15 s is `slow`-marked or baselined, `time_ratchet.py check`
+reports 0 over the limit. What had drifted was the baseline: entries recorded at 56-67 s now measure 10-45 s.
+Change: `time_ratchet.py update --times .test_durations` (lower-only): 29 entries -> 16, `suite_budget_s` 3415 -> 2758.3,
+so the 2.5x guard and the nightly >10% budget fail at the current cost, not at the old one. No proof or test changed.
+
+Dropped: marking more tests slow (nothing is over the limit); splitting `test_det_nondigit_zoned` (no single test cost).
+Sample is one durations file; the nightly refreshes it.
+
+---
+
 ## Earlier work (summaries; details in docs/ci.md)
 
 | When | Issue | What | Measured result |

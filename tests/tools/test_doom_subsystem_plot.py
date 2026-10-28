@@ -80,3 +80,21 @@ def test_cli_writes_the_svg_beside_the_csv(tmp_path):
 def test_cli_without_a_csv_says_to_run_the_distribution_first(tmp_path):
     with pytest.raises(SystemExit, match="run subsystem_distribution.py first"):
         sp.main(["--work", str(tmp_path), "--sha", "abc"])
+
+
+def test_cx10_is_an_absolute_share_on_a_linear_scale(tmp_path):
+    rows = [
+        dict(port="gore", other_pct=0, subsystem="p_", cx10=25.0),
+        dict(port="gore", other_pct=0, subsystem="r_", cx10=0.0),
+        dict(port="gore", other_pct=0, subsystem="s_", cx10=""),
+    ]
+    write_csv(tmp_path / "s.csv", rows)
+    shares, _ = sp.read_ratios(tmp_path / "s.csv", "cx10")
+    assert shares["gore"] == {"p_": 25.0, "r_": 0.0, "s_": None}
+    assert sp.colour_share(0.0) == "rgb(255,255,255)" and sp.colour_share(sp.CX10_FULL) == "rgb(255,0,0)"
+    assert sp.colour_share(500.0) == sp.colour_share(sp.CX10_FULL) and sp.colour_share(None) == sp.GREY
+    root = ET.fromstring(sp.render(shares, {"gore": 0.0}, "cx10"))
+    ns = "{http://www.w3.org/2000/svg}"
+    fills = [r.get("fill") for r in root.findall(f"{ns}rect")]
+    assert fills == ["rgb(255,128,128)", "rgb(255,255,255)", sp.GREY, sp.GREY]  # 0% white; s_ blank and the empty other column grey
+    assert "25" in [t.text for t in root.findall(f"{ns}text")]

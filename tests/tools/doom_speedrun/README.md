@@ -306,10 +306,10 @@ Blind spots:
 
 ### Plots (`subsystem_plot.py`, #6097)
 
-`subsystem_plot.py [--metric complexity|loc|func_fan_out|token_mass|args] [--sha SHA] [--csv FILE]` reads `subsystem_distribution.csv` and
+`subsystem_plot.py [--metric complexity|loc|func_fan_out|token_mass|args|cx10] [--sha SHA] [--csv FILE]` reads `subsystem_distribution.csv` and
 writes `subsystem_<metric>.svg` beside it: a heatmap, ports by linuxdoom subsystem, each cell the port's median over
 linuxdoom's (log scale, red above, blue below), with the port's `other %` as the last column. A cell with no ratio is
-grey and empty. Standard library only. Not yet run on a real scan; `study_report.py` does not embed it yet.
+grey and empty. `--metric cx10` plots the share of functions with complexity >= 10 instead (absolute, linear white to red at 50%, a 0% cell is white, not grey). The p90 columns stay in the CSV and md only: a p90 has no ratio column to colour. Standard library only. Not yet embedded; `study_report.py` does not embed it yet.
 
 ## Study write-up tables (`study_report.py`, #5620)
 

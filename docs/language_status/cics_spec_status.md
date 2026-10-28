@@ -104,7 +104,7 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | SET TERMINAL | full | yes (5 options) | yes | X26 | — | 0 | — |
 | INQUIRE ASSOCIATION | full | yes (9 options) | yes | X29 | origin | 0 | — |
 | INQUIRE URIMAP | full | yes (9 options) | yes | X32 | urimaps | 0 | — |
-| WRITE OPERATOR | full | yes (4 options) | yes | X32 | — | 1 (1 / 0) | — |
+| WRITE OPERATOR | full | yes (8 options) | yes | X32 | — | 1 (1 / 0) | — |
 | WEB OPEN | full | yes (9 options, 4 refused by name) | yes | X35 | http_peers | 5 (4 / 1) | — |
 | WEB CONVERSE | full | yes (23 options, 8 refused by name) | yes | X35 | http_peers | 5 (4 / 1) | — |
 | WEB CLOSE | full | yes (4 options) | yes | X35 | http_peers | 4 (4 / 0) | — |

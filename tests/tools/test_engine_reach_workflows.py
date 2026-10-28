@@ -131,6 +131,16 @@ def test_the_readmes_java_compile_skips_are_not_read_by_the_generator():
         assert all(r.startswith("tests/") for r in cc.readers_of(f, refs)), f
 
 
+def test_cics_crucible_skips_the_standalone_tool_and_generator_readmes_but_keeps_every_input():
+    paths = paths_of("cics-crucible.yml")
+    reach = closure((*SCAN_ENTRY, "gitgalaxy.cobol_to_java_controller", "gitgalaxy.tools.cobol_to_java.det.cics"))
+    assert not [f for f in reach if not wi.triggers(paths, f)], "imported by the gate but not a trigger"
+    assert not any(wi.triggers(paths, f) for f in STANDALONE + JAVA_READMES)
+    assert all(wi.triggers(paths, f) for f in TRANSLATOR + ENGINE)
+    assert wi.triggers(paths, "tests/tools/cics_crucible.py")
+    assert wi.triggers(paths, ".github/workflows/cics-crucible.yml")
+
+
 def test_muninn_triggers_on_every_area_a_secret_or_workflow_scanner_reads():
     """Muninn (gitleaks, semgrep, zizmor, checkov ...) reads engine, workflow and agent files; it skips tests and docs."""
     paths = paths_of("muninn.yml")

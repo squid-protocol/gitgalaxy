@@ -2743,13 +2743,14 @@ def test_cics_task_deleteq_ts_inquire_association_and_query_counter_as_the_stub_
 
 _X32_MAIN = r"""
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
                  char qname[16]; int item; int num; int go_to; char chan[16]; int hours, mins, secs;
                  char rtran[4], rterm[4], rqueue[8]; } gg_cics;
 int GGCURIB(gg_cics *c);
 int GGCURIP(gg_cics *c, char *area, int len);
-int GGCWTO(gg_cics *c, char *from);
+int GGCWTO(gg_cics *c, char *from, int area, char *routes, int routes_len);
 static gg_cics c;
 static void step(const char *what) {
     memset(c.flags, ' ', 40);
@@ -2760,8 +2761,25 @@ int main(int argc, char **argv) {
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "wto") == 0) {
             c.len = (int)strlen(argv[i + 1]);
-            GGCWTO(&c, argv[++i]);
+            memset(c.flags, ' ', 40);
+            GGCWTO(&c, argv[++i], 0, 0, 0);
             printf("wto %d/%d\n", c.resp, c.resp2);
+            continue;
+        }
+        if (strcmp(argv[i], "wtoo") == 0) {  /* wtoo TEXT TEXTLENGTH|- ROUTE,ROUTE|- NUMROUTES: the option form */
+            char *text = argv[i + 1], *tl = argv[i + 2], *rt = argv[i + 3], routes[40];
+            int n = 0;
+            memset(c.flags, ' ', 40);
+            c.len = (int)strlen(text);
+            if (strcmp(tl, "-") != 0) { c.len = atoi(tl); memcpy(c.flags, "TEXTLENGTH", 10); }
+            if (strcmp(rt, "-") != 0) {
+                for (char *p = rt; *p; ) { routes[n++] = (char)atoi(p); while (*p && *p != ',') p++; if (*p) p++; }
+                c.num = atoi(argv[i + 4]);
+                memcpy(c.flags + 11, "ROUTES", 6);
+            }
+            GGCWTO(&c, text, (int)strlen(text), routes, n);
+            printf("wtoo %d/%d\n", c.resp, c.resp2);
+            i += 4;
             continue;
         }
         step(argv[i]);
@@ -2827,6 +2845,17 @@ def test_the_stub_inquire_urimap_browse_and_write_operator(tmp_path):
         refused = run("wto", text, check=False)
         assert refused.returncode == 98 and "IBM reformats" in refused.stdout, text
     assert run("wto", "DFHx plain").stdout.strip() == "wto 0/0"  # (not DFHnnnn / DFHaannnn)
+    # #5859 (ZECSNC): TEXTLENGTH cuts the text; 0-690 else INVREQ 16/1; a route code outside 1-28 is 16/3
+    assert run("wtoo", "zECS start ZXAA", "5", "-", "0").stdout.strip() == "wtoo 0/0"
+    assert "WRITE-OPERATOR pgm= len=5 resp=0" in (tmp_path / "out" / "events.txt").read_text(encoding="ascii")
+    assert run("wtoo", "abc", "691", "-", "0").stdout.strip() == "wtoo 16/1"
+    assert run("wtoo", "abc", "-1", "-", "0").stdout.strip() == "wtoo 16/1"
+    assert run("wtoo", "abc", "-", "1,28", "2").stdout.strip() == "wtoo 0/0"
+    for codes in ("0,1", "1,29"):
+        assert run("wtoo", "abc", "-", codes, "2").stdout.strip() == "wtoo 16/3", codes
+    for args in (("abc", "9", "-", "0"), ("abc", "-", "1,2", "0"), ("abc", "-", "1,2", "3")):
+        refused = run("wtoo", *args, check=False)
+        assert refused.returncode == 98 and "WRITE OPERATOR" in refused.stdout, args
 
 
 @needs_javac
@@ -2856,6 +2885,23 @@ def test_cics_task_inquire_urimap_browse_and_write_operator_as_the_stub_does(tmp
             }
         }
         System.out.println(t.writeOperator("DFHx plain") + " " + t.writeOperator("zECS start ZXAA"));
+        // #5859 (ZECSNC): the option form answers as the stub's GGCWTO does (above)
+        String codes = "\u0001\u001c";
+        System.out.println(java.util.Arrays.toString(t.writeOperator("zECS start ZXAA", 5, null, null))
+                + java.util.Arrays.toString(t.writeOperator("abc", 691, null, null))
+                + java.util.Arrays.toString(t.writeOperator("abc", -1, null, null))
+                + java.util.Arrays.toString(t.writeOperator("abc", null, codes, 2))
+                + java.util.Arrays.toString(t.writeOperator("abc", null, "\u0000\u0001", 2))
+                + java.util.Arrays.toString(t.writeOperator("abc", null, "\u0001\u001d", 2)));
+        for (Runnable bad : new Runnable[] {() -> t.writeOperator("abc", 9, null, null),
+                () -> t.writeOperator("abc", null, "\u0001\u0002", 0),
+                () -> t.writeOperator("abc", null, "\u0001\u0002", 3)}) {
+            try {
+                bad.run();
+            } catch (UnsupportedOperationException e) {
+                System.out.println(e.getMessage());
+            }
+        }
         System.out.println(t.events().stream().filter(e -> "WRITE-OPERATOR".equals(e.get("event"))).map(e -> e.get("text"))
                 .collect(java.util.stream.Collectors.toList()));""",
     )
@@ -2865,7 +2911,11 @@ def test_cics_task_inquire_urimap_browse_and_write_operator_as_the_stub_does(tmp
         "INQUIRE URIMAP NEXT or END with no browse started: not modelled",
         "the installed URIMAP definitions are not stated (withUrimaps): not modelled",
         "WRITE OPERATOR text IBM reformats: not modelled", "WRITE OPERATOR text IBM reformats: not modelled",
-        "0 0", "[DFHx plain, zECS start ZXAA]"]  # fmt: skip
+        "0 0", "[0, 0][16, 1][16, 1][0, 0][16, 3][16, 3]",
+        "WRITE OPERATOR TEXTLENGTH past the text area: not modelled",
+        "WRITE OPERATOR NUMROUTES IBM leaves open: not modelled",
+        "WRITE OPERATOR NUMROUTES IBM leaves open: not modelled",
+        "[DFHx plain, zECS start ZXAA, zECS , abc]"]  # fmt: skip
 
 
 _X34_MAIN = r"""

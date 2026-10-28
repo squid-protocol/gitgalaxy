@@ -95,6 +95,8 @@ def summarise(by_sub, base, min_subsystem=MIN_SUBSYSTEM):
             if comparable:
                 med = statistics.median(ref[f])
                 row[f + "_vs_linuxdoom"] = row[f + "_med"] / med if med else None
+        if comparable:
+            row["comparable"] = True  # both sides big enough: a blank ratio then means linuxdoom's median is 0
         row["cx10"] = 100 * sum(c >= 10 for c in vals["complexity"]) / n
         rows.append(row)
     other = by_sub.get("other")
@@ -205,7 +207,7 @@ def main(argv=None):
         f"{f}_{k}" for f in FIELDS for k in ("med", "p90", "vs_linuxdoom")
     ]
     with open(dest / "subsystem_distribution.csv", "w", newline="") as fh:
-        w = csv.DictWriter(fh, fieldnames=fields, lineterminator="\n")
+        w = csv.DictWriter(fh, fieldnames=fields, extrasaction="ignore", lineterminator="\n")
         w.writeheader()
         for port, (rows, other) in sorted(result.items()):
             for r in rows:

@@ -18,7 +18,7 @@ import subsystem_distribution as sd  # noqa: E402
 SHA = "abc123def"
 
 
-def make_scan(work, name, funcs):
+def make_scan(work, name, funcs, names=None):
     """funcs: [(file_path, language, complexity)] or with (loc, fan_out, token_mass, args) appended."""
     scan = work / "scans" / SHA / name
     scan.mkdir(parents=True)
@@ -26,15 +26,17 @@ def make_scan(work, name, funcs):
     con = sqlite3.connect(scan / f"{name}_galaxy_master.db")
     con.execute("create table file_data (id integer primary key, file_path text, language text)")
     con.execute(
-        "create table function_data (file_id integer, complexity integer, loc integer, func_fan_out integer, "
+        "create table function_data (file_id integer, func_name text, complexity integer, loc integer, func_fan_out integer, "
         "token_mass integer, args integer)"
     )
-    ids = {}
-    for path, lang, cx, *rest in funcs:
+    ids, names = {}, names or {}
+    for i, (path, lang, cx, *rest) in enumerate(funcs):
         fid = ids.setdefault(
             path, con.execute("insert into file_data (file_path, language) values (?, ?)", (path, lang)).lastrowid
         )
-        con.execute("insert into function_data values (?, ?, ?, ?, ?, ?)", (fid, cx, *(rest or (cx, 0, 0, 0))))
+        con.execute(
+            "insert into function_data values (?, ?, ?, ?, ?, ?, ?)", (fid, names.get(i), cx, *(rest or (cx, 0, 0, 0)))
+        )
     con.commit()
     con.close()
 
@@ -125,3 +127,30 @@ def test_main_refuses_unlicensed_ports_and_writes_results(work):
         recs = list(csv.DictReader(fh))
     assert {r["port"] for r in recs} == {"linuxdoom", "gore"}
     assert "| gore | 50 | renderer | 20 |" in (dest / "subsystem_distribution.md").read_text()
+
+
+def test_lineage_places_a_renamed_file_by_the_namesake_and_prefix_fallback_keeps_the_rest(tmp_path):
+    base = [("r_draw.c", "c", 1), ("p_map.c", "c", 1), ("m_misc.c", "c", 1), ("i_main.c", "c", 1)]
+    make_scan(tmp_path, "linuxdoom", base, {0: "R_DrawColumn", 1: "P_UseSpecialLine", 2: "M_Init", 3: "main"})
+    port = [("Game.go", "go", 1)] * 3 + [("p_map.go", "go", 1), ("Util.go", "go", 1), ("Util2.go", "go", 1)]
+    names = {0: "r_draw_column", 1: "UseSpecialLine", 2: "main", 3: "Helper", 4: "Init", 5: "DrawColumnX"}
+    make_scan(tmp_path, "gore", port, names)
+    rows = [{"name": "linuxdoom"}, {"name": "gore"}]
+    got, _ = sd.run(rows, tmp_path, SHA, min_functions=1)
+    counts = {r["subsystem"]: r["n"] for r in got["gore"][0]}
+    # r_draw_column -> renderer, UseSpecialLine (bare) -> playsim, Helper in p_map.go -> playsim by prefix;
+    # main / Init / DrawColumnX have no prefixed namesake, so they stay in "other"
+    assert counts == {"renderer": 1, "playsim": 2, "other": 3}
+    prefix, _ = sd.run(rows, tmp_path, SHA, min_functions=1, assign="prefix")
+    assert {r["subsystem"]: r["n"] for r in prefix["gore"][0]} == {"playsim": 1, "other": 5}
+
+
+def test_name_index_drops_ambiguous_and_unprefixed_names():
+    import lineage
+
+    full, bare = lineage.name_index(
+        [("R_Init", "r_main.c"), ("P_Init", "p_setup.c"), ("main", "i_main.c"), ("P_Ticker", "p_tick.c"),
+         ("P_Ticker", "r_main.c"), ("P_SpawnMapThing", "p_mobj.c")]
+    )  # fmt: skip
+    assert full == {"rinit": "renderer", "pinit": "playsim", "pspawnmapthing": "playsim"}
+    assert bare == {"spawnmapthing": "playsim"}  # "Init" too short; "Ticker" ambiguous; "main" has no prefix

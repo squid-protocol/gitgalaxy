@@ -55,6 +55,7 @@ LICENSED = callgraph_oracle.LICENSED | frozenset(
 MIN_TOKENS = 20  # trivial bodies (empty stubs, one-line returns) hash-match spuriously
 NEAR, DERIVED = 0.9, 0.6
 MAX_CANDIDATES = 20
+PREFIXED_NAME = re.compile(r"[A-Za-z]{1,2}_[A-Za-z]")
 MIN_BARE_NAME = 6  # a prefix-less landmark name must be longer than this to match on its own
 C_STYLE = frozenset(
     "c cpp objective-c c_header cuda rust go java csharp kotlin dart javascript typescript swift".split()
@@ -84,6 +85,36 @@ def subsystem(path):
     if path.startswith(("ipx/", "sersrc/")) or name.startswith(("d_net", "i_net", "net_")):
         return "netcode"
     return SUBSYSTEM_BY_PREFIX.get(name.split("_")[0].split(".")[0], "other")
+
+
+def name_index(base_functions):
+    """Subsystem index of linuxdoom's functions by normalised name: ``(full, bare)`` dicts {nname: subsystem}.
+
+    Only ``X_Name`` / ``XX_Name`` functions (linuxdoom's prefix convention: ``main`` or ``Init`` say nothing) and only
+    names whose definitions all sit in one subsystem. ``bare`` is the name without its prefix (``UseSpecialLine``), kept
+    when longer than ``MIN_BARE_NAME`` and not itself a full name or ambiguous."""
+    seen = collections.defaultdict(set)
+    bare_seen = collections.defaultdict(set)
+    for name, path in base_functions:
+        tail = name.split("::")[-1].split(".")[-1]
+        if not PREFIXED_NAME.match(tail):
+            continue
+        sub = subsystem(path)
+        seen[norm_name(tail)].add(sub)
+        bare = norm_name(tail.split("_", 1)[1])
+        if len(bare) > MIN_BARE_NAME:
+            bare_seen[bare].add(sub)
+    full = {k: next(iter(v)) for k, v in seen.items() if len(v) == 1}
+    bare = {k: next(iter(v)) for k, v in bare_seen.items() if len(v) == 1 and k not in seen}
+    return full, bare
+
+
+def assign_subsystem(name, path, index):
+    """Subsystem of a port's function: the linuxdoom subsystem of the function it descends from (same name, with or
+    without the ``p_`` / ``r_`` prefix), else the file-name placement of ``subsystem``."""
+    full, bare = index
+    key = norm_name(name or "")
+    return full.get(key) or bare.get(key) or subsystem(path)
 
 
 def norm_name(name):

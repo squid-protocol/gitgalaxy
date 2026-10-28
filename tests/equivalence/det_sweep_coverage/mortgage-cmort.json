@@ -1,12 +1,12 @@
 {
  "format": "det-sweep-coverage/2",
- "scenarios": 16,
+ "scenarios": 17,
  "paragraphs": {
   "covered": 6,
   "live": 6
  },
  "branches": {
-  "covered": 18,
+  "covered": 19,
   "total": 21
  },
  "linked": {
@@ -54,29 +54,28 @@
  "uncovered": {
   "branches": [
    "156:WHEN@157",
-   "156:none",
-   "245:true"
+   "156:none"
   ]
  },
  "inputs": {
-  "case": "272a230d0bf2575facbc8a0c5ebd0c1c13750777712f3bbe59ede14ea02ea135",
+  "case": "24fdf105357d9336e6a18f78e597485f35598070f7b21d4db99e65c5fa5d7dad",
   "corpus": "1143e0fef7c983b7ade463d33d49481f5572d79e8f95593a2219fdb494a1e7f2",
-  "harness": "4305e6af44e184a166d3eb893fc1d85b5a814b3393e4dc821dfcbf22d97678d7",
-  "oracle": "954624ee1e0c30c8c38ee60299b0094ce0f148623a4167b73cef50db4d6644a7",
+  "harness": "102e3110b567a6fd03c1020551e9f3dba45d8ff1ba0a7db7d97c19854cf935c1",
+  "oracle": "59aed6596f90fe5a3fe9524fbce7244a231f1c06169fea750cb71e877023e834",
   "components": {
    "harness": {
-    "harness:cics": "66a4af3a0b053fe542dab3033314cf15ff1cd6c1bae80f2658592c3168ec6c92",
-    "harness:core": "44d38a01abc69857283e736186feda6396e1cf6e297c12e07a097730aee7f15f",
+    "harness:cics": "eedbeee3f5546f02ba180aba278ba8b05ee7e588673065bd69da0fcca3d9f769",
+    "harness:core": "945494f198a90b8ec29af9cf851de4b6cb237aa0afdc1d6b77d37eb46ba12ef0",
     "harness:db2": "389a27466f489f7499560289b5ceaeabaac2feaeb5b38eabc35b4227ffe604e1"
    },
    "oracle": {
     "oracle:cics-stub": "97aa35cdf56b4fc4673edb1c15f2a018ee334b41f676d4f0131265ae15a52b01",
-    "oracle:core": "b5ba772713fe1ad0da7935c39e6bcfe79fcdaf13f631fb62ed6e2a003fab534a",
+    "oracle:core": "b4bb775f0a30746a6054f259b4c8613e08cb0d8cf3b40f4a789d953aca4144a0",
     "oracle:db2": "fa83d3d62d91ff633b4697cd7ff1965722d024ee9453567ef5e2b0240d6eb44f",
     "oracle:image-db2": "f138cc0d724e5e2bb4ff947dcd4c1cfed39aa35bfd7dcb27ff18a4e20b2c6198",
     "oracle:le": "c918b12c6862c8e08ab03dacb85cd3fff0fd1e2388e3dda05e2810c6c4648bc0"
    }
   }
  },
- "measured_at": "c26fda52fe5e6d51bb0ea672141f9712ae6bca32"
+ "measured_at": "1d8e783b3c26300fb196cd628b09f0cf29c6ad05"
 }

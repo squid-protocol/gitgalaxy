@@ -49,7 +49,7 @@
     "tests/tools/equivalence_ims.py"
    ],
    "files": 18,
-   "sha256": "c3d5b431c95c3a424111b5742b70a86771832c71f9fcbe3c54496a2396a87d1d",
+   "sha256": "102e3110b567a6fd03c1020551e9f3dba45d8ff1ba0a7db7d97c19854cf935c1",
    "components": {
     "harness:core": "945494f198a90b8ec29af9cf851de4b6cb237aa0afdc1d6b77d37eb46ba12ef0",
     "harness:ims": "802ab48aa0aaa1f897bb052b7caeae1516cdbb5b6cb88fabf2f07f86a4f93752"
@@ -67,10 +67,10 @@
     "tests/tools/equivalence_sql.py",
     "tests/equivalence/ims/ggdli.c"
    ],
-   "files": 46,
-   "sha256": "954624ee1e0c30c8c38ee60299b0094ce0f148623a4167b73cef50db4d6644a7",
+   "files": 47,
+   "sha256": "59aed6596f90fe5a3fe9524fbce7244a231f1c06169fea750cb71e877023e834",
    "components": {
-    "oracle:core": "b5ba772713fe1ad0da7935c39e6bcfe79fcdaf13f631fb62ed6e2a003fab534a",
+    "oracle:core": "b4bb775f0a30746a6054f259b4c8613e08cb0d8cf3b40f4a789d953aca4144a0",
     "oracle:file-io": "e74b2733865b6c48f5ccf8d292c81c28e4827e0229e7383baeb7a3a26327f501",
     "oracle:ims": "2fa9d872d0bbc1d6dd15a1ec51ed261d56219565607bef18489e4be7be3857d7",
     "oracle:le": "c918b12c6862c8e08ab03dacb85cd3fff0fd1e2388e3dda05e2810c6c4648bc0"
@@ -81,7 +81,7 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 114,
-   "sha256": "55e8df9438390ca64e8291854c30d871fdc1f3632f304e58c22fd57070bd4b74",
+   "sha256": "84eb3c8869efd04fd27d4af6e7c97846f4199b0ad703e9cc484bb6700c55179e",
    "components": {
     "generator:cobolrt/Accept.java": "4bc260fc6386c11e4654cc76eb67a87ca1fad76647373d1e75484ed61b6a0cf3",
     "generator:cobolrt/Cobol.java": "0e5d898e6fb899e23c540e201d019a4dcd8a372df07d6b1d9c80a7df261a0c9f",
@@ -100,7 +100,7 @@
     "generator:cobolrt/dli/DetDli.java": "56e263bc5b387bd987e6a86ee14ec69a1f72f489bdd2aa921b3e8ae4c96c8902",
     "generator:cobolrt/standalone/CobolAbend.java": "f8b72030ecb8862738c562b0c826ff9b1a085d92050664082f96e6107d5dfdb7",
     "generator:cobolrt/standalone/Sysout.java": "290bd3e17b89bb6883cee226df6137927b753f3858fe5cfb1e3021ff7f8d5c44",
-    "generator:core": "0439114f9e022879f789f7337f67926a8520af5d2047fbca13fd71b102da308a",
+    "generator:core": "917f53215dad2f76e4ec1f99b42e643e95afcf1337716072847dade78637e78a",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
     "generator:det/hlasm": "edc032951e21128754849b8d018cdb45378b3eb3b078ce16fc26b7b28c12fc76",
     "generator:det/source": "fd7d20e0f7824a4d3b74201b0690914daf79834567b3fa5f064c98beb4d50e0b"
@@ -187,10 +187,10 @@
    },
    "runtime_sha256": "486d6880280039b47962e4e97342fe0740f30e991fc7aff36d0fd384b1810abc"
   },
-  "digest": "246b23d46b57c2ba796c3a9a2a991063d9dfbe4834f73411e1d138391ed3c718"
+  "digest": "e9cf0039f0a4cadbbaa16690049468b992bd43e9d2ee0e61fcd8e2f05d9fd3bf"
  },
  "proof": {
-  "at": "2026-10-28T00:19:55Z",
+  "at": "2026-10-28T03:30:39Z",
   "verdict": "proven",
   "runs": 13,
   "fault_runs": 12,
@@ -205,8 +205,8 @@
   "sysout_compared": true,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "fc840891b02076a0d09fb4e85d9fa242540d9ffa+uncommitted",
-  "inputs_digest": "246b23d46b57c2ba796c3a9a2a991063d9dfbe4834f73411e1d138391ed3c718"
+  "harness_commit": "8d2a6810f89231c94d6d86f9e5f3853547afc4c5+uncommitted",
+  "inputs_digest": "e9cf0039f0a4cadbbaa16690049468b992bd43e9d2ee0e61fcd8e2f05d9fd3bf"
  },
  "coverage": {
   "paragraphs": {
@@ -236,7 +236,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "246b23d46b57c2ba796c3a9a2a991063d9dfbe4834f73411e1d138391ed3c718"
+  "inputs_digest": "e9cf0039f0a4cadbbaa16690049468b992bd43e9d2ee0e61fcd8e2f05d9fd3bf"
  },
  "reach": {
   "entry_points": [
@@ -404,6 +404,10 @@
    {
     "path": "tests/equivalence/faults/ggabend.c",
     "sha256": "ad701b6e6ad8cd6af830ae24eabe64cfb93fae7ab8b3af3e50c1c80853aebd44"
+   },
+   {
+    "path": "tests/equivalence/faults/ggb64.c",
+    "sha256": "3ef9b61f213c44d6bb2224a5b61ffb634ac3680b626001a41a28b4e2a6925e5e"
    },
    {
     "path": "tests/equivalence/faults/ggdisplay.c",

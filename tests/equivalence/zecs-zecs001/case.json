@@ -772,6 +772,25 @@
           "why": "data file read fails"
         }
       ]
+    },
+    {
+      "name": "post-no-dc-template",
+      "commarea": null,
+      "tod": "5B5B5B5B5B5B0708090A0B0C0D0E0F10",
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "POST",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/nodckey",
+        "query": "",
+        "headers": [],
+        "mediatype": "application/octet-stream",
+        "body": "v"
+      },
+      "why": "POST with no ZC01DC document template installed: 8000-GET-URL DOCUMENT CREATE fails, so no replication URL is read",
+      "doctemplates": {}
     }
   ],
   "compiler_options": [

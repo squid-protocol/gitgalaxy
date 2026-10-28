@@ -405,25 +405,18 @@
    "unmatched_functions": 0
   },
   "odamex": {
-   "agree": 20225,
-   "engine_calls": 20611,
+   "agree": 20221,
+   "engine_calls": 20574,
    "engine_only_by_kind": {
-    "absent": 27,
-    "function-pointer": 52,
-    "macro": 7,
+    "function-pointer": 53,
     "type": 300
    },
-   "functions": 8641,
-   "misses_by_shape": {
-    "after-operator": 11,
-    "nested-argument": 6,
-    "other": 2,
-    "statement": 2
-   },
-   "oracle_calls": 20246,
-   "precision": 0.9813,
-   "recall": 0.999,
-   "text_fallback_functions": 293,
+   "functions": 8639,
+   "misses_by_shape": {},
+   "oracle_calls": 20221,
+   "precision": 0.9828,
+   "recall": 1.0,
+   "text_fallback_functions": 300,
    "unmatched_functions": 1
   },
   "prboom-plus": {

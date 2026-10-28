@@ -113,7 +113,8 @@ NOT_A_TYPE = frozenset(
     "return else new delete throw case goto co_return co_await co_yield emit typeid not and or xor".split()
 )
 # A class or struct definition head: the last word before its `:` base list or `{` is the class name.
-CLASS_HEAD = re.compile(r"\b(?:class|struct)\b[^;{}()<>]*?\b([A-Za-z_]\w*)\s*(?:final\s*)?[:{]")
+# A specialization (`class Box<T, true> : Base<T> {`) carries its template arguments between the name and the `:`.
+CLASS_HEAD = re.compile(r"\b(?:class|struct)\b[^;{}()<>]*?\b([A-Za-z_]\w*)\s*(?:<[^;{}()]*>\s*)?(?:final\s*)?[:{]")
 # A class head with a base list: `class A : public B, virtual C<T> {` (the entries after the lone `:`).
 BASE_LIST = re.compile(r"\b(?:class|struct)\b[^;{}()]*?[^:]:(?!:)([^;{}]*)\{")
 BASE_NAME = re.compile(r"([A-Za-z_]\w*)\s*(?:<[^<>]*>)?\s*$")
@@ -153,7 +154,9 @@ def callee_node(fn):
             fn = fn.child_by_field_name("field")
         elif fn.type in ("qualified_identifier", "template_function", "template_method"):
             fn = fn.child_by_field_name("name")
-        elif fn.type == "dependent_name":  # `q::template f<T>(x)`: the `template` keyword wraps the template method (#6266)
+        elif (
+            fn.type == "dependent_name"
+        ):  # `q::template f<T>(x)`: the `template` keyword wraps the template method (#6266)
             fn = fn.named_children[0] if fn.named_children else None
         else:
             return None
@@ -214,6 +217,15 @@ class Body:
                         self.calls.setdefault(name, "ctor-init")
         body = node.child_by_field_name("body") or node
         stack = [body]
+        # `span_constexpr span(Cont &c) : size_(f(c)) {}`: an unknown macro before the name leaves the signature and the
+        # initializer list as ERROR children outside the body: read its arguments from the head text, as TextBody does (#6266)
+        if not _initializers(node) and any(
+            err.type == "ERROR" and err.start_byte < body.start_byte for err in node.children
+        ):
+            head = re.split(r"[;}]", decode_bytes(node.text[: body.start_byte - node.start_byte]))[
+                -1
+            ]  # past a folded neighbour
+            self._text_calls(_head_initializer_arguments(head).encode())
         for init in _initializers(node):  # `d(new Impl(this))`, `base(f(x))`: the arguments are part of the constructor
             stack.extend(init.children[1:])
         while stack:
@@ -409,6 +421,12 @@ class TextBody(Body):
         news = re.compile(r"\bnew\s+(?:[A-Za-z_]\w*\s*::\s*)*([A-Za-z_]\w*)")  # `d(new Impl(this))`: a type, as in Body
         self.types |= set(news.findall(args))
         self._text_calls(news.sub(" ", args).encode())
+        trailing = re.search(r"\)[\w\s&]*->(?!\*)(.*)$", head, flags=re.S)  # `auto f() -> C<bool, g<T>()> {}`
+        if trailing:
+            self._text_calls(trailing.group(1).encode())
+            for name in re.findall(r"\b([A-Za-z_]\w*)\s*<[^;{}()<>]*>\s*\(", trailing.group(1)):  # `g<T>()`
+                if name not in KEYWORDS:
+                    self.calls.setdefault(name, "unparsed")
         self.refs = set(re.findall(r"\b[A-Za-z_]\w*\b", body)) - set(self.calls)
         self.text_only = [m.group(0) for m in STRIP.finditer(raw[open_at : end + 1])]
 
@@ -466,7 +484,7 @@ def _owner(node):
     while up is not None:
         if up.type in ("class_specifier", "struct_specifier"):
             name = up.child_by_field_name("name")
-            return decode_bytes(name.text) if name is not None else None
+            return decode_bytes(name.text).split("<")[0].strip() if name is not None else None  # `Box<T, true>` -> Box
         up = up.parent
     decl = node.child_by_field_name("declarator")
     while decl is not None and decl.type != "qualified_identifier":
@@ -511,6 +529,21 @@ def class_names(repo, vendored=None):
     return class_names_of_text(*texts)
 
 
+def _split_top_level(text):
+    """``text`` split at the commas outside `<...>` (`public G< P, Fn >, H` is two bases, not three)."""
+    parts, depth, start = [], 0, 0
+    for i, ch in enumerate(text):
+        if ch == "<":
+            depth += 1
+        elif ch == ">":
+            depth = max(depth - 1, 0)
+        elif ch == "," and depth == 0:
+            parts.append(text[start:i])
+            start = i + 1
+    parts.append(text[start:])
+    return parts
+
+
 def class_names_of_text(*texts):
     """``class_names`` over source texts."""
     bases_of: dict[str, set[str]] = {}
@@ -524,7 +557,9 @@ def class_names_of_text(*texts):
             if owner is None:
                 continue
             bases_of.setdefault(owner.group(1), set()).update(
-                m.group(1) for b in head.group(1).split(",") if (m := BASE_NAME.search(b))
+                m.group(1)
+                for b in _split_top_level(head.group(1))
+                if "std::" not in b and (m := BASE_NAME.search(b))  # a library base is no repo class
             )
     bases_of[ALIASES] = {name for name, target in aliases if target.rsplit("::", 1)[-1] in declared}
     return bases_of

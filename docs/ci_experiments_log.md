@@ -152,6 +152,30 @@ to checks that are not required.** Median queue wait 2–13 min per job.
 
 ---
 
+## 2026-10-28 timeout-cap survey (#5156)
+
+Question: which fixed `timeout-minutes` caps sit close to the measured wall time (the #5152 class)? Method: for every
+non-shepherd workflow, the longest successful job over its 4 most recent completed runs (any branch), against the cap in
+the YAML. Sharded jobs are planned (#5919) and were not hand-capped; the ones listed are the fixed caps.
+
+| Job | Cap | Measured max | Ratio |
+|---|---|---|---|
+| evidence-refresh `db2 records` | 20 | 10.2 | 0.51 |
+| graph-accuracy-audit | 25 | 12.5 | 0.50 |
+| mainframe-ground-truth parts (cap 35, #5137) | 35 | 7.7 | 0.22 |
+| smoke-test `full-suite` parts (planned) | planned | 6.3 | n/a |
+| `plan` / gate jobs (cap 5) | 5 | 0.1-0.9 | <= 0.18 |
+| publish.yml, os-smoke-grid, mirror-tag-sync, generated-docs | 10-15 | 1.1-1.8 | <= 0.12 |
+| referee-panel | 240 | 21.1 | 0.09 |
+| blocker-baseline | 60 | 7.9 | 0.13 |
+
+Result: no fixed cap is above 0.51 of its measured wall time, so no re-cap and no new shard. Caps far above the
+measurement (referee-panel 240, blocker-baseline 60, evidence-refresh `refresh` 60) are slack, not a risk: left alone
+(a hang costs a runner for the cap; lowering them is a separate speed change). Dropped: re-capping at 1.5x measured,
+since it would only tighten slack jobs. Sample is 4 runs per workflow: re-run the survey if a leg is cancelled at its cap.
+
+---
+
 ## Earlier work (summaries; details in docs/ci.md)
 
 | When | Issue | What | Measured result |

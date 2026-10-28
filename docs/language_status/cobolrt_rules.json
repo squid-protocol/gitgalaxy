@@ -104,7 +104,8 @@
    "title": "statements and data movement",
    "files": [
     "Cobol.java",
-    "MoveSpec.java"
+    "MoveSpec.java",
+    "CompareSpec.java"
    ],
    "done": true,
    "about": "MOVE, arithmetic stores and intermediates, comparisons, class tests, DISPLAY, STRING / UNSTRING / INSPECT, the LINK COMMAREA.",
@@ -116,7 +117,12 @@
     "categoryName",
     "isPermissible",
     "ruleId",
-    "action"
+    "action",
+    "comparisonMode",
+    "modeName",
+    "isNumericComparison",
+    "requiresDigitConversion",
+    "compareBytes"
    ]
   },
   {

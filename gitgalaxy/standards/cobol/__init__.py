@@ -10,7 +10,7 @@
 """The COBOL standards and rules-as-data package (#4712).
 
 Declarative tables for the COBOL language standards and deterministic runtime rules
-(cobolrt), starting with the MOVE family (#4712, epic #4710).
+(cobolrt), covering the MOVE and COMPARE families (#4712, epic #4710).
 
 Follows the table-driven code generation pattern established by CicsSpec.java (#4586, #4608).
 """
@@ -26,6 +26,10 @@ _LAZY = {
     "CATEGORIES": "gitgalaxy.standards.cobol.move",
     "KINDS": "gitgalaxy.standards.cobol.move",
     "ACTIONS": "gitgalaxy.standards.cobol.move",
+    "COMPARE_RULES": "gitgalaxy.standards.cobol.compare",
+    "COMPARE_MATRIX": "gitgalaxy.standards.cobol.compare",
+    "COMPARE_VECTORS": "gitgalaxy.standards.cobol.compare",
+    "COMPARE_MODES": "gitgalaxy.standards.cobol.compare",
 }
 
 __all__ = sorted(_LAZY)

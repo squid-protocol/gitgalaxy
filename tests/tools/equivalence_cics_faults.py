@@ -278,6 +278,21 @@ def _ui_fault_resp2(sc: dict[str, Any], f: dict[str, Any], cmd: str, resp2: int)
     return resp2
 
 
+def _verify_userid_bytes(sc: dict[str, Any], f: dict[str, Any]) -> str:
+    """#5859 (X32): `userid_hex` is the USERID field's own bytes (a translated assembler program holds EBCDIC, so its
+    padding is X'40', not a blank): both stubs read the plan's name as those bytes in the data page (latin-1), with no
+    trailing blank to drop. A byte that is whitespace in any reader would split the plan line, so it is refused."""
+    if f.get("userid"):
+        raise ec.Unsupported(f"scenario {sc['name']}: fault {f}: name the USERID once: userid or userid_hex")
+    try:
+        text = bytes.fromhex(f["userid_hex"]).decode("latin-1")
+    except ValueError as exc:
+        raise ec.Unsupported(f"scenario {sc['name']}: fault {f}: userid_hex is not hexadecimal bytes") from exc
+    if not text or len(text) > 8 or any(c.isspace() or not c.isprintable() and c < "\xa0" for c in text):
+        raise ec.Unsupported(f"scenario {sc['name']}: fault {f}: userid_hex is 1 to 8 bytes, none a space or a control")
+    return text
+
+
 def fault_lines(sc: dict[str, Any]) -> list[str]:
     """A scenario's `faults` as both sides read them: `CMD NAME NTH RESP RESP2` (faults.cfg, CicsTask.withFaults) --
     NAME the file a READ names, or the program an INQUIRE PROGRAM names."""
@@ -336,6 +351,8 @@ def fault_lines(sc: dict[str, Any]) -> list[str]:
             f = {**f, "resource": enq_fault_key(f.get("resource"))}
         nth = "*" if f.get("nth", 1) == "*" else int(f.get("nth", 1))
         name = "-" if cmd == "RETRIEVE" or cmd in UI_NAMELESS else next((f[k] for k in _FAULT_NAME if f.get(k)), None)
+        if cmd == "VERIFY" and f.get("userid_hex"):  # #5859 (X32): the USERID as the bytes the program holds
+            name = _verify_userid_bytes(sc, f)
         if not name:
             raise ec.Unsupported(f"scenario {sc['name']}: fault {f} names no {'/'.join(_FAULT_NAME)}")
         out.append(f"{cmd} {name} {nth} {ec.CICS_RESP.get(f['resp']) or ec.DFHRESP[f['resp']]} {resp2}")

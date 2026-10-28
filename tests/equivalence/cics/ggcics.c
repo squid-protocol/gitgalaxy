@@ -1169,6 +1169,8 @@ static void uctranst_init(void) {
 }
 
 int GGCINQT(gg_cics *c) {
+    int fresp, fresp2; /* #6882 (X26): a planned TERMIDERR: the INQUIRE is not performed */
+    if (injected("INQ-TERMINAL", "-", &fresp, &fresp2)) { c->resp = fresp; c->resp2 = fresp2; return 0; }
     if (uctranst_terminal(c, 1)) {
         uctranst_init();
         c->num = uctranst_cvda;
@@ -1178,6 +1180,8 @@ int GGCINQT(gg_cics *c) {
 
 int GGCSETT(gg_cics *c) {
     int cvda = c->num;
+    int fresp, fresp2; /* #6882 (X26): a planned TERMIDERR / INVREQ: the SET is not performed (uctranst_cvda and _set stay) */
+    if (injected("SET-TERMINAL", "-", &fresp, &fresp2)) { c->resp = fresp; c->resp2 = fresp2; return 0; }
     if (uctranst_terminal(c, 23)) {
         if (cvda != 450 && cvda != 451 && cvda != 452) { c->resp = INVREQ; c->resp2 = 43; return 0; }
         uctranst_cvda = cvda;

@@ -363,6 +363,14 @@ int GGCRUNT(gg_cics *c, char *child) {
     if (run_depth() >= MAX_RUN_DEPTH) /* #5089 (X18): a child may RUN children of its own, to a stated depth */
         refuse("RUN TRANSID in a RUN TRANSID child task 3 levels below a task (a great-great-grandchild): the depth the "
                "harness models ends here");
+    int fresp, fresp2;
+    if (injected("RUN-TRANSID", "-", &fresp, &fresp2)) { /* #6882 (X18): a planned condition; no child is started */
+        c->resp = fresp;
+        c->resp2 = fresp2;
+        snprintf(ev, sizeof ev, "RUN transid=%s resp=%d resp2=%d", transid, c->resp, c->resp2);
+        event(ev, NULL, 0);
+        return 0;
+    }
     if (strstr(c->flags, "CHANNEL")) bad = !handed_channel(c, name);
     c->resp = NORMAL;
     c->resp2 = 0;
@@ -687,6 +695,12 @@ int GGCFETCH(gg_cics *c) {
     if (timed && (timeout < 0 || timeout > 4080000)) {
         snprintf(msg, sizeof msg, "FETCH TIMEOUT(%d) outside 0 to 4080000 milliseconds", (int)timeout);
         refuse(msg);
+    }
+    int fresp, fresp2;
+    if (!strstr(c->flags, "CHILD") && injected("FETCH-ANY", "-", &fresp, &fresp2)) { /* #6882 (X18): nothing is fetched */
+        c->resp = fresp;
+        c->resp2 = fresp2;
+        goto done;
     }
     if (strstr(c->flags, "CHILD")) {
         one = kid_of(c->qname);

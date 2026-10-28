@@ -46,6 +46,12 @@ def test_scenarios_cover_the_credit_check_and_the_paths_around_the_ceedays_hole(
         "control-rewrite-io-error",
         "write-sysiderr-retried",
         "write-sysiderr-exhausted",
+        # #6882: RUN TRANSID and FETCH ANY faults
+        "run-transid-first-transiderr",
+        "fetch-any-notfinished-nothing-retrieved",
+        "fetch-any-notfinished-after-a-reply",
+        "fetch-any-notfnd-nothing-retrieved",
+        "fetch-any-notfnd-after-a-reply",
     ]
 
 

@@ -103,6 +103,9 @@ MACRO_DEFINE = re.compile(
     r"^[ \t]*#[ \t]*define[ \t]+([A-Za-z_]\w*)\(([^)\n]*)\)[ \t]*((?:[^\n\\]|\\\r?\n|\\.)*)", re.M
 )
 MACRO_EXPANSION_DEPTH = 4
+# A conditional's opening and closing directive lines, to check tree-sitter paired a `#if` with its own `#endif`.
+OPENS_CONDITIONAL = re.compile(r"[ \t]*#[ \t]*if")
+CLOSES_CONDITIONAL = re.compile(r"[ \t]*#[ \t]*endif\b")
 # Text fallback for a region tree-sitter misparsed (an ERROR node, or an ``else if`` split by ``#ifdef`` read as a
 # nested function definition): comments and literals blanked, then every ``name (`` that is not a keyword.
 STRIP = re.compile(r"/\*.*?\*/|//[^\n]*|\"(?:\\.|[^\"\\\n])*\"|'(?:\\.|[^'\\\n])*'", re.S)
@@ -207,15 +210,80 @@ def _literal_value(cond):
     return None if m is None else m.group(1).strip("0xX") != ""
 
 
-def _live_children(n):
-    """Children of a ``#if`` / ``#elif`` node the preprocessor keeps: a literal ``0`` drops its own body and keeps the
-    alternative, a literal ``1`` the reverse. The engine drops these branches too (#6770), so a call there is no call."""
-    cond, alt = n.child_by_field_name("condition"), n.child_by_field_name("alternative")
-    value = (
-        _literal_value(decode_bytes(cond.text))
-        if cond is not None and n.type in ("preproc_if", "preproc_elif")
-        else None
+# The port's feature toggles no file defines (#6266): `Port` installs them before it reads any body, as the engine's
+# Orchestrator does for its workers (#6770). Empty decides nothing beyond a literal condition.
+_UNSET = frozenset()
+
+
+def _condition_value(kind, rest):
+    """True / False / None for an ``#if``-family directive: a literal, then the engine's own rule over the port's
+    never-defined toggles (``#ifdef X`` / ``defined(X)`` of one is false), so the oracle drops what the engine drops."""
+    value = _literal_value(rest) if kind in ("if", "elif") else None
+    if value is None and _UNSET:
+        from gitgalaxy.core.detector import _directive_value
+
+        value = _directive_value(kind, rest, _UNSET)
+    return value
+
+
+def unset_toggles_of(repo, vendored=None):
+    """The engine's never-defined toggle table (`preproc_toggles.unset_toggles`) over ``repo``'s C-family and build
+    files, chosen as the Orchestrator chooses them; empty when the repo has no C/C++ source. ``vendored`` drops what the
+    scan drops: a vendored library's define is not in the engine's table (srb2's libpng `PNG_TEXT_SUPPORTED`)."""
+    from gitgalaxy.core.preproc_toggles import unset_toggles
+    from gitgalaxy.galaxyscope import Orchestrator as O
+
+    root = Path(repo)
+    files = sorted(
+        p
+        for p in root.rglob("*")
+        if ".git" not in p.relative_to(root).parts
+        and p.is_file()
+        and not (vendored and vendored(p.relative_to(root).as_posix()))
     )
+    c_files = [p for p in files if p.suffix.lower() in O._C_SOURCE_EXTS]
+    if not any(p.suffix.lower() in (".c", ".cc", ".cpp", ".cxx", ".c++", ".m", ".mm") for p in c_files):
+        return frozenset()
+    build = [p for p in files if p.name.lower() in O._BUILD_FILE_NAMES or p.suffix.lower() in O._BUILD_FILE_EXTS]
+
+    def texts(group):
+        for p in group:
+            try:
+                yield decode_bytes(p.read_bytes()[:2_000_000])
+            except OSError:
+                continue
+
+    return unset_toggles(texts(c_files), texts(build))
+
+
+def _closes_on_its_last_line(n):
+    """Whether a ``#if`` / ``#ifdef`` node's own ``#endif`` is its last line. Tree-sitter can pair the ``#if`` with an
+    inner ``#endif`` (srb2's M_PNGText) or run past its own; a ``#else`` splitting an ``if`` head (PNG_Read) leaves an
+    ERROR node inside instead, which the caller checks."""
+    depth = 0
+    lines = decode_bytes(n.text).split("\n")
+    for i, line in enumerate(lines):
+        if OPENS_CONDITIONAL.match(line):
+            depth += 1
+        elif CLOSES_CONDITIONAL.match(line):
+            depth -= 1
+            if depth == 0:
+                return i == len(lines) - 1
+    return False
+
+
+def _live_children(n):
+    """Children of a ``#if`` / ``#elif`` / ``#ifdef`` node the preprocessor keeps: a false condition (literal ``0``, or
+    a toggle the port never defines, #6266) drops its own body and keeps the alternative, a true one the reverse. The
+    engine drops these branches too (#6770, #6870), so a call there is no call."""
+    cond, alt = n.child_by_field_name("condition"), n.child_by_field_name("alternative")
+    value = None
+    if cond is not None and n.type in ("preproc_if", "preproc_elif"):
+        value = _condition_value(n.type.removeprefix("preproc_"), decode_bytes(cond.text))
+    elif n.type in ("preproc_ifdef", "preproc_elifdef") and n.children:  # `#ifdef X` / `#ifndef X` of a toggle
+        cond = n.child_by_field_name("name")
+        kind = decode_bytes(n.children[0].text).lstrip("#").strip()
+        value = _condition_value(kind, decode_bytes(cond.text)) if cond is not None else None
     if value is None:
         return n.children
     return [c for c in n.children if c.id != cond.id and (alt is not None and c.id == alt.id) != value]
@@ -229,6 +297,7 @@ class Body:
         self.node = node
         self.calls, self.refs, self.preproc, self.text_only, self.types = {}, set(), [], [], set()
         self.broken = False  # an ERROR node inside: tree-sitter may have closed the body early
+        self.unbalanced = False  # a conditional not ending at its own `#endif`, or holding a stray `#else`: misread
         self.nested = []  # 1-based last lines of real nested definitions (methods, or functions a misparse ran over)
         callees = set()
         for init in _initializers(node):  # `: Base(x), member(y)`: a base class entry is a constructor call
@@ -260,7 +329,9 @@ class Body:
             stack.extend(init.children[1:])
         while stack:
             n = stack.pop()
-            if n.type in ("preproc_if", "preproc_elif"):
+            if n.type in ("preproc_if", "preproc_elif", "preproc_ifdef", "preproc_elifdef"):
+                if n.type in ("preproc_if", "preproc_ifdef") and (n.has_error or not _closes_on_its_last_line(n)):
+                    self.unbalanced = True
                 stack.extend(reversed(_live_children(n)))
                 continue
             if n.type in PREPROC:
@@ -416,12 +487,12 @@ def _blank_dead_branches(text):
         pos = m.start()
         kind, rest = m.group(1), m.group(2).split("//", 1)[0]
         if kind in ("if", "ifdef", "ifndef"):
-            value = _literal_value(rest) if kind == "if" else None
+            value = _condition_value(kind, rest)
             stack.append([live, value is True])
             live = live and value is not False
         elif kind in ("elif", "else") and stack:
             frame = stack[-1]
-            value = True if kind == "else" else _literal_value(rest)
+            value = True if kind == "else" else _condition_value(kind, rest)
             live = frame[0] and not frame[1] and value is not False
             frame[1] = frame[1] or value is True
         elif kind == "endif" and stack:
@@ -839,6 +910,8 @@ class Port:
         self.functions = []  # (rel, name, start, engine callee set, Body / TextBody or None)
         self.edges = set()
         self.macros = macro_body_callees(self.repo, doom_scorer._engine_vendor_test(self.repo))
+        global _UNSET
+        _UNSET = unset_toggles_of(self.repo, doom_scorer._engine_vendor_test(self.repo))
         trees = {}
         classes = (
             class_names(self.repo, doom_scorer._engine_vendor_test(self.repo))
@@ -869,6 +942,13 @@ class Port:
                         braces.open_line < opens.start_point[0] + 1 if late else braces.end_line > ends
                     ):
                         body = braces
+            if node is not None and not isinstance(body, TextBody) and body.unbalanced:
+                # srb2's M_PNGText / PNG_Read: tree-sitter paired a conditional with the wrong `#endif`, so a dead
+                # branch spills into the live body or the reverse; the text view pairs directives by line (#6266),
+                # when its braces agree on where the function ends (eternity's concurrentqueue: they run past it)
+                braces = TextBody(src, start, classes)
+                if braces.calls is not None and braces.end_line == node.end_point[0] + 1:
+                    body = braces
             if node is not None and body.broken:
                 braces = TextBody(src, start, classes)
                 # end_point[0], never .row: .row on the temporary Point read freed memory (tree-sitter 0.26, #5630).

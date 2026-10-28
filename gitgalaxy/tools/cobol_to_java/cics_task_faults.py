@@ -78,9 +78,10 @@ FAULTS_JAVA = """\
                 int resp = Integer.parseInt(f[3]);
                 int resp2 = f.length > 4 ? Integer.parseInt(f[4]) : 0;
                 if (resp == -1 && f.length > 5) {  // #6271 (X70): `CMD FILE NTH -1 0 ABCODE` abends the task, as the stub
-                    String exit = abend(f[5], "system", null, false);
+                    CicsTask at = running == null ? this : running;  // #6882: the level of the program that issued it
+                    String exit = at.abend(f[5], "system", null, false);
                     if (exit != null) {
-                        unwoundTo = exit;  // the exit at this level: the port reads it with abendExit()
+                        at.unwoundTo = exit;  // the exit at this level: the port reads it with abendExit()
                     }
                     logAbend(cmd + " " + file, n, f[5]);
                     return new int[] {0, 0};

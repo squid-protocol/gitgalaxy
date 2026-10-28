@@ -51,3 +51,10 @@ def test_ecs001_infeasible_entries_name_a_family_and_a_reason():
     for e in entries:
         assert e["family"] in "GCR"
         assert e["reason"]
+
+
+def test_zecs001_clear_star_xctls_with_the_zecs003_area():
+    case = _case("zecs-zecs001")
+    sc = _scenarios("zecs-zecs001")["delete-clear-star"]
+    assert sc["http_request"]["query"] == "clear=*"
+    assert case["commarea"]["segments"][0]["record"] == "ZECS003-COMM-AREA"

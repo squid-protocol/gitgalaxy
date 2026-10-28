@@ -465,21 +465,17 @@
    "unmatched_functions": 0
   },
   "srb2": {
-   "agree": 19191,
-   "engine_calls": 19260,
+   "agree": 19227,
+   "engine_calls": 19229,
    "engine_only_by_kind": {
-    "absent": 14,
-    "function-pointer": 17,
-    "macro": 28,
-    "type": 10
+    "function-pointer": 1,
+    "type": 1
    },
-   "functions": 6735,
-   "misses_by_shape": {
-    "unparsed": 2
-   },
-   "oracle_calls": 19193,
-   "precision": 0.9964,
-   "recall": 0.9999,
+   "functions": 6732,
+   "misses_by_shape": {},
+   "oracle_calls": 19227,
+   "precision": 0.9999,
+   "recall": 1.0,
    "text_fallback_functions": 283,
    "unmatched_functions": 8
   },

@@ -63453,6 +63453,7 @@
           "getCustomCode",
           "Insert",
           "make_pair",
+          "make_unique",
           "move",
           "CreateOperator",
           "CreateVector",
@@ -65015,8 +65016,6 @@
           "DefWindowProc"
         ],
         "FancyZones@72": [
-          "m_hinstance",
-          "m_draggingState",
           "PostMessageW",
           "SetThreadPriority",
           "GetCurrentThread",

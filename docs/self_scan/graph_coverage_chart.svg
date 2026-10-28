@@ -981,11 +981,11 @@
 <text class="n" x="324" y="971">n=804 imports</text>
 <text class="n" x="324" y="983">repos 1 · files 784</text>
 </g>
-<g><title>tcl callee names: precision 93.8% of 2,277, recall 71.2% of 2,231 (raw 69.8% / 71.2%; 13 shapes without a verdict)</title>
+<g><title>tcl callee names: precision 93.6% of 2,277, recall 71.2% of 2,231 (raw 69.8% / 71.2%; 13 shapes without a verdict)</title>
 <text class="pr" x="426" y="970.5">Precision</text>
 <rect class="track" x="472" y="963" width="110" height="8" rx="2"/>
-<rect x="472" y="963" width="103.2" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="587" y="971">93.8%*</text>
+<rect x="472" y="963" width="103.0" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="587" y="971">93.6%*</text>
 <text class="pr" x="426" y="982.5">Recall</text>
 <rect class="track" x="472" y="975" width="110" height="8" rx="2"/>
 <rect x="472" y="975" width="78.3" height="8" rx="2" fill="#eda100"/>

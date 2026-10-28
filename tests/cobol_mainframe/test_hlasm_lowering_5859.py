@@ -104,10 +104,13 @@ def test_mvc_displacement_and_explicit_length_are_reference_modification():
         ("         MVC   W_A,W_C", "past its source symbol"),
         ("         MVC   W_A(2),W_H", "binary fields"),
         ("         IC    R2,W_C", "instruction IC"),
-        ("         SR    R2,R2", "instruction SR"),
+        ("         SR    R2,R14", "only SR Rn,Rn"),
+        ("         XC    W_A,W_B", "only XC X,X"),
+        ("         XC    W_H,W_H", "XC on binary fields"),
+        ("         MVC   W_A,=C'AB'", "MVC W_A"),
+        ("         BCT   R2,NOWHERE", "branch target NOWHERE"),
         ("         ST    R12,W_F", "reserved register 12"),
         ("         LA    R2,W_A", "LA of an address"),
-        ("         MVC   W_A,=C'ABCD'", "MVC W_A"),
     ],
 )
 def test_outside_the_subset_is_refused_by_name(code, why):
@@ -161,6 +164,60 @@ def test_the_service_stub_marks_the_program_as_a_cics_task():
     assert "runTask(CicsTask" in stub and "package com.example.port.service;" in stub
 
 
+def test_duplicated_c_and_x_storage_is_one_field_of_n_elements():
+    out = lower(
+        "         EXEC CICS RETURN",
+        data=("W_D1     DS    4CL2", "W_D2     DS    3XL1", "W_D3     DS    1CL3", "W_D4     DS    CL1"),
+    )
+    assert "W-D1 PIC X(8)." in out and "W-D2 PIC X(3)." in out and "W-D3 PIC X(3)." in out
+    csect = "\n".join(
+        [
+            *DATA,
+            "PROG     DFHEIENT CODEREG=(R12),DATAREG=R10,EIBREG=R11",
+            "         LTORG",
+            "EIGHT_40 DC    08XL01'40'",
+            "ASC_20   DC    3XL02'2021'",
+            "CHARS    DC    2CL3'AB'",
+            *REGS,
+            "         END   PROG",
+        ]
+    )
+    out = hlasm.lower_text(csect + "\n", "T.asm")
+    assert "PIC X(8)\n" in out and "VALUE X'4040404040404040'." in out
+    assert "VALUE X'202120212021'." in out  # each copy is the element, so the pair repeats
+    assert "PIC X(6)" in out and "VALUE 'AB AB '." in out
+
+
+@pytest.mark.parametrize("data", ["W_H2     DS    2H", "W_F2     DS    2F", "W_D8     DS    2D"])
+def test_duplicated_binary_storage_is_refused(data):
+    with pytest.raises(hlasm.Refused, match="DS 2"):
+        lower("         EXEC CICS RETURN", data=(data,))
+
+
+def test_sr_xc_bct_and_the_literal_pool_move():
+    out = lower(
+        "         SR    R2,R2",
+        "         XC    W_A,W_A",
+        "         XC    W_G+2(2),W_G+2",
+        "         MVC   W_A,=C'ab''c'",
+        "LOOP     DS    0H",
+        "         BCT   R2,LOOP",
+        "         EXEC CICS RETURN",
+    )
+    assert "MOVE 0 TO HL-R2" in out
+    assert "MOVE LOW-VALUES TO W-A\n" in out
+    assert "MOVE LOW-VALUES TO W-G(3:2)" in out
+    assert "MOVE 'ab''c'\n             TO W-A" in out
+    assert "FUNCTION MOD(HL-R2 - 1 + 2147483648, 4294967296) - 2147483648" in out
+    assert "IF HL-R2 NOT = 0\n               GO TO LOOP" in out
+
+
+def test_a_conditional_branch_after_sr_xc_or_bct_is_refused():
+    for setter in ("SR    R2,R2", "XC    W_A,W_A", "BCT   R2,DONE"):
+        with pytest.raises(hlasm.Refused):
+            _branch(f"         {setter}", "B'1000'")
+
+
 ZECS = Path(os.environ.get("GITGALAXY_MAINFRAME_CORPORA", ROOT / ".mainframe_corpora")) / "zecs" / "Source"
 
 
@@ -171,6 +228,6 @@ def test_zecsnc_lowers_and_zecs002_is_refused_by_name():
     assert lowered is not nc and any("PROGRAM-ID. ZECSNC." in t for t in lowered)
     z2 = ZECS / "ZECS002.asm"
     with pytest.raises(
-        SRC.MacroLevelCics, match=r"ZECS002\.asm:\d+: CICS Assembler not supported \(DFHEIENT.*DC 08XL01"
+        SRC.MacroLevelCics, match=r"ZECS002\.asm:\d+: CICS Assembler not supported \(DFHEIENT.*instruction IC at line"
     ):
         SRC.assembler_lowered(z2.read_text(encoding="latin-1").splitlines(), str(z2))

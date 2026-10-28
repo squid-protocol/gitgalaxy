@@ -305,14 +305,10 @@ era 0: 0, era 1: 0, era 2: 2, era 3: 0, era 4: 1, era none: 3
 | L4 branch coverage | 4 |
 | L5 mutants accounted for | 0 |
 
-- translated whole: 6 / 7 (86%); with holes: 0; refused: 1
+- translated whole: 6 / 7 (86%); with holes: 1; refused: 0
 - whole-translated but a CALL / LINK target has holes (below L2 until it is closed): 0
 - executed equivalent (L2 and above): 6 / 7
 - charter bars for L3 / L4: paragraphs 100.0%, branches 100.0%
-
-Refused whole, by reason:
-
-- 1 x refused: CICS Assembler
 
 Era evidence (programs by latest era a tell reaches):
 
@@ -322,7 +318,7 @@ era 0: 0, era 1: 0, era 2: 0, era 3: 0, era 4: 4, era none: 3
 
 | rank | rule (gap class) | makes whole alone | one rule away | touched | era mix of the alone-set |
 |---|---|---|---|---|---|
-| 1 | refused: CICS Assembler (refuses the whole program: upper bound) | 1 | 0 | 1 | era none: 1 |
+| 1 | EXEC CICS VERIFY | 1 | 0 | 1 | era none: 1 |
 
 ### Proof blockers (6 programs translated whole, 4 with no proof gap; top 2 of 2 classes, `proof_blockers.py` statistics)
 

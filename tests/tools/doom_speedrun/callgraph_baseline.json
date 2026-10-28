@@ -137,8 +137,8 @@
   }
  },
  "consensus": {
-  "divergent": 311,
-  "engine_missed": 7,
+  "divergent": 315,
+  "engine_missed": 3,
   "false_edge_suspects": 0,
   "family": [
    "linuxdoom",
@@ -153,18 +153,16 @@
   ],
   "holes": 318,
   "missed_by_port": {
-   "crispy-doom": 3,
-   "inter-doom": 1,
-   "puredoom": 3
+   "crispy-doom": 2,
+   "inter-doom": 1
   },
   "missed_by_shape": {
-   "assignment-rhs": 1,
    "function-pointer": 2,
-   "statement": 4
+   "statement": 1
   },
   "quorum": 0.75
  },
- "engine_sha": "b0b339a35",
+ "engine_sha": "3daa21338",
  "ports": {
   "chocolate-doom": {
    "agree": 12115,
@@ -172,15 +170,13 @@
    "engine_only_by_kind": {},
    "functions": 5026,
    "misses_by_shape": {
-    "after-cast": 1,
-    "after-operator": 4,
-    "assignment-rhs": 3,
+    "assignment-rhs": 1,
     "nested-argument": 1,
-    "statement": 8
+    "statement": 3
    },
-   "oracle_calls": 12132,
+   "oracle_calls": 12120,
    "precision": 1.0,
-   "recall": 0.9986,
+   "recall": 0.9996,
    "text_fallback_functions": 14,
    "unmatched_functions": 0
   },
@@ -190,16 +186,13 @@
    "engine_only_by_kind": {},
    "functions": 5767,
    "misses_by_shape": {
-    "after-cast": 1,
-    "after-operator": 4,
-    "assignment-rhs": 3,
+    "assignment-rhs": 1,
     "nested-argument": 1,
-    "statement": 13,
-    "unparsed": 1
+    "statement": 6
    },
-   "oracle_calls": 14043,
+   "oracle_calls": 14028,
    "precision": 1.0,
-   "recall": 0.9984,
+   "recall": 0.9994,
    "text_fallback_functions": 15,
    "unmatched_functions": 0
   },
@@ -209,13 +202,12 @@
    "engine_only_by_kind": {},
    "functions": 1019,
    "misses_by_shape": {
-    "after-operator": 3,
-    "nested-argument": 1,
-    "statement": 3
+    "after-operator": 1,
+    "nested-argument": 1
    },
-   "oracle_calls": 1980,
+   "oracle_calls": 1975,
    "precision": 1.0,
-   "recall": 0.9965,
+   "recall": 0.999,
    "text_fallback_functions": 0,
    "unmatched_functions": 0
   },
@@ -225,14 +217,13 @@
    "engine_only_by_kind": {},
    "functions": 2052,
    "misses_by_shape": {
-    "after-operator": 1,
     "assignment-rhs": 1,
     "nested-argument": 1,
-    "statement": 4
+    "statement": 2
    },
-   "oracle_calls": 4069,
+   "oracle_calls": 4066,
    "precision": 1.0,
-   "recall": 0.9983,
+   "recall": 0.999,
    "text_fallback_functions": 5,
    "unmatched_functions": 0
   },
@@ -245,19 +236,18 @@
    },
    "functions": 16379,
    "misses_by_shape": {
-    "after-cast": 3,
-    "after-operator": 67,
-    "assignment-rhs": 42,
-    "condition/return": 10,
-    "nested-argument": 32,
-    "other": 12,
-    "statement": 149,
-    "unparsed": 48
+    "after-operator": 9,
+    "assignment-rhs": 12,
+    "condition/return": 7,
+    "nested-argument": 20,
+    "other": 6,
+    "statement": 60,
+    "unparsed": 7
    },
-   "oracle_calls": 47975,
+   "oracle_calls": 47733,
    "precision": 0.9842,
-   "recall": 0.9924,
-   "text_fallback_functions": 622,
+   "recall": 0.9975,
+   "text_fallback_functions": 621,
    "unmatched_functions": 3
   },
   "doom3do": {
@@ -265,14 +255,10 @@
    "engine_calls": 879,
    "engine_only_by_kind": {},
    "functions": 511,
-   "misses_by_shape": {
-    "after-cast": 2,
-    "assignment-rhs": 1,
-    "statement": 2
-   },
-   "oracle_calls": 884,
+   "misses_by_shape": {},
+   "oracle_calls": 879,
    "precision": 1.0,
-   "recall": 0.9943,
+   "recall": 1.0,
    "text_fallback_functions": 0,
    "unmatched_functions": 0
   },
@@ -282,12 +268,11 @@
    "engine_only_by_kind": {},
    "functions": 1192,
    "misses_by_shape": {
-    "after-operator": 2,
-    "statement": 5
+    "statement": 2
    },
-   "oracle_calls": 2163,
+   "oracle_calls": 2158,
    "precision": 1.0,
-   "recall": 0.9968,
+   "recall": 0.9991,
    "text_fallback_functions": 0,
    "unmatched_functions": 0
   },
@@ -304,29 +289,29 @@
    "unmatched_functions": 1
   },
   "doomsday": {
-   "agree": 68625,
+   "agree": 68626,
    "engine_calls": 70853,
    "engine_only_by_kind": {
     "absent": 42,
     "comment/string": 3,
-    "function-pointer": 174,
+    "function-pointer": 173,
     "type": 2009
    },
    "functions": 25436,
    "misses_by_shape": {
-    "after-operator": 48,
-    "assignment-rhs": 45,
-    "condition/return": 17,
+    "after-operator": 7,
+    "assignment-rhs": 2,
+    "condition/return": 5,
     "ctor-init": 26,
-    "nested-argument": 47,
-    "other": 50,
-    "statement": 122,
-    "unparsed": 19
+    "nested-argument": 6,
+    "other": 8,
+    "statement": 19,
+    "unparsed": 1
    },
-   "oracle_calls": 68999,
+   "oracle_calls": 68700,
    "precision": 0.9686,
-   "recall": 0.9946,
-   "text_fallback_functions": 836,
+   "recall": 0.9989,
+   "text_fallback_functions": 832,
    "unmatched_functions": 1
   },
   "dsda-doom": {
@@ -354,12 +339,11 @@
    },
    "functions": 4963,
    "misses_by_shape": {
-    "after-operator": 1,
     "assignment-rhs": 2,
     "nested-argument": 9,
     "statement": 18
    },
-   "oracle_calls": 10538,
+   "oracle_calls": 10537,
    "precision": 0.988,
    "recall": 0.9972,
    "text_fallback_functions": 42,
@@ -376,11 +360,11 @@
    "misses_by_shape": {
     "assignment-rhs": 1,
     "statement": 6,
-    "unparsed": 2
+    "unparsed": 1
    },
-   "oracle_calls": 15834,
+   "oracle_calls": 15833,
    "precision": 0.9877,
-   "recall": 0.9994,
+   "recall": 0.9995,
    "text_fallback_functions": 464,
    "unmatched_functions": 0
   },
@@ -401,28 +385,22 @@
    "unmatched_functions": 2
   },
   "gzdoom": {
-   "agree": 42958,
+   "agree": 42956,
    "engine_calls": 44452,
    "engine_only_by_kind": {
     "absent": 1,
-    "function-pointer": 191,
-    "type": 1302
+    "function-pointer": 190,
+    "type": 1305
    },
    "functions": 18050,
    "misses_by_shape": {
-    "after-cast": 5,
-    "after-operator": 17,
-    "assignment-rhs": 14,
-    "condition/return": 3,
-    "nested-argument": 4,
-    "other": 1,
-    "statement": 21,
-    "unparsed": 2
+    "after-operator": 1,
+    "statement": 1
    },
-   "oracle_calls": 43025,
-   "precision": 0.9664,
-   "recall": 0.9984,
-   "text_fallback_functions": 545,
+   "oracle_calls": 42958,
+   "precision": 0.9663,
+   "recall": 1.0,
+   "text_fallback_functions": 543,
    "unmatched_functions": 0
   },
   "inter-doom": {
@@ -431,14 +409,13 @@
    "engine_only_by_kind": {},
    "functions": 6233,
    "misses_by_shape": {
-    "after-operator": 1,
     "assignment-rhs": 1,
     "nested-argument": 1,
-    "statement": 4
+    "statement": 2
    },
-   "oracle_calls": 13640,
+   "oracle_calls": 13637,
    "precision": 1.0,
-   "recall": 0.9995,
+   "recall": 0.9997,
    "text_fallback_functions": 9,
    "unmatched_functions": 0
   },
@@ -448,12 +425,11 @@
    "engine_only_by_kind": {},
    "functions": 779,
    "misses_by_shape": {
-    "after-operator": 2,
-    "statement": 6
+    "statement": 2
    },
-   "oracle_calls": 1597,
+   "oracle_calls": 1591,
    "precision": 1.0,
-   "recall": 0.995,
+   "recall": 0.9987,
    "text_fallback_functions": 0,
    "unmatched_functions": 0
   },
@@ -480,14 +456,13 @@
    },
    "functions": 8633,
    "misses_by_shape": {
-    "after-operator": 2,
-    "assignment-rhs": 6,
-    "nested-argument": 1,
-    "statement": 8
+    "after-operator": 1,
+    "assignment-rhs": 1,
+    "statement": 4
    },
-   "oracle_calls": 20221,
+   "oracle_calls": 20210,
    "precision": 0.983,
-   "recall": 0.9992,
+   "recall": 0.9997,
    "text_fallback_functions": 293,
    "unmatched_functions": 1
   },
@@ -499,14 +474,13 @@
    },
    "functions": 2331,
    "misses_by_shape": {
-    "after-operator": 3,
-    "assignment-rhs": 4,
-    "condition/return": 1,
-    "statement": 20
+    "after-operator": 2,
+    "assignment-rhs": 2,
+    "statement": 8
    },
-   "oracle_calls": 4603,
+   "oracle_calls": 4587,
    "precision": 0.9998,
-   "recall": 0.9939,
+   "recall": 0.9974,
    "text_fallback_functions": 4,
    "unmatched_functions": 3
   },
@@ -516,16 +490,14 @@
    "engine_only_by_kind": {},
    "functions": 1558,
    "misses_by_shape": {
-    "after-operator": 2,
-    "assignment-rhs": 4,
-    "condition/return": 8,
-    "nested-argument": 8,
-    "statement": 36
+    "assignment-rhs": 2,
+    "nested-argument": 4,
+    "statement": 26
    },
-   "oracle_calls": 3733,
+   "oracle_calls": 3707,
    "precision": 1.0,
-   "recall": 0.9845,
-   "text_fallback_functions": 2,
+   "recall": 0.9914,
+   "text_fallback_functions": 0,
    "unmatched_functions": 0
   },
   "sdl-doom": {
@@ -534,12 +506,11 @@
    "engine_only_by_kind": {},
    "functions": 1079,
    "misses_by_shape": {
-    "after-operator": 2,
-    "statement": 5
+    "statement": 2
    },
-   "oracle_calls": 2083,
+   "oracle_calls": 2078,
    "precision": 1.0,
-   "recall": 0.9966,
+   "recall": 0.999,
    "text_fallback_functions": 0,
    "unmatched_functions": 0
   },
@@ -553,16 +524,16 @@
    "functions": 6732,
    "misses_by_shape": {
     "after-cast": 1,
-    "after-operator": 4,
-    "assignment-rhs": 17,
+    "after-operator": 1,
+    "assignment-rhs": 8,
     "condition/return": 1,
-    "nested-argument": 7,
-    "statement": 50,
-    "unparsed": 5
+    "nested-argument": 5,
+    "statement": 40,
+    "unparsed": 3
    },
-   "oracle_calls": 19227,
+   "oracle_calls": 19201,
    "precision": 0.9999,
-   "recall": 0.9956,
+   "recall": 0.9969,
    "text_fallback_functions": 283,
    "unmatched_functions": 8
   },

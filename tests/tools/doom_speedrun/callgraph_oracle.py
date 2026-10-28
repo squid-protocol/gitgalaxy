@@ -193,6 +193,29 @@ def _macro_prefixed_call(n):
     )
 
 
+_LITERAL_CONDITION = re.compile(r"\(*\s*(0[xX]0+|0+|1)\s*\)*")
+
+
+def _literal_value(cond):
+    """True / False for a literal ``#if`` condition (``0``, ``1``, ``(0)``), None for any other (#6266)."""
+    m = _LITERAL_CONDITION.fullmatch(cond.strip())
+    return None if m is None else m.group(1).strip("0xX") != ""
+
+
+def _live_children(n):
+    """Children of a ``#if`` / ``#elif`` node the preprocessor keeps: a literal ``0`` drops its own body and keeps the
+    alternative, a literal ``1`` the reverse. The engine drops these branches too (#6770), so a call there is no call."""
+    cond, alt = n.child_by_field_name("condition"), n.child_by_field_name("alternative")
+    value = (
+        _literal_value(decode_bytes(cond.text))
+        if cond is not None and n.type in ("preproc_if", "preproc_elif")
+        else None
+    )
+    if value is None:
+        return n.children
+    return [c for c in n.children if c.id != cond.id and (alt is not None and c.id == alt.id) != value]
+
+
 class Body:
     """One function body: its calls (name -> shape of the first call), other identifier references, preprocessor and
     comment/literal text."""
@@ -232,6 +255,9 @@ class Body:
             stack.extend(init.children[1:])
         while stack:
             n = stack.pop()
+            if n.type in ("preproc_if", "preproc_elif"):
+                stack.extend(reversed(_live_children(n)))
+                continue
             if n.type in PREPROC:
                 self.preproc.append(decode_bytes(n.text))
                 continue
@@ -374,6 +400,31 @@ def _blank_local_classes(body):
     return "".join(out) + body[pos:]
 
 
+_BRANCH_DIRECTIVE = re.compile(r"^[ \t]*#[ \t]*(if|elif|else|endif|ifdef|ifndef)\b([^\n]*)$", re.M)
+
+
+def _blank_dead_branches(text):
+    """``text`` with the lines of every literal ``#if 0`` / ``#if 1 ... #else`` dead branch emptied (newlines kept)."""
+    out, pos, stack, live = [], 0, [], True  # frame: [enclosing live, a branch was already taken, decided]
+    for m in _BRANCH_DIRECTIVE.finditer(text):
+        out.append(text[pos : m.start()] if live else re.sub(r"[^\n]", " ", text[pos : m.start()]))
+        pos = m.start()
+        kind, rest = m.group(1), m.group(2).split("//", 1)[0]
+        if kind in ("if", "ifdef", "ifndef"):
+            value = _literal_value(rest) if kind == "if" else None
+            stack.append([live, value is True])
+            live = live and value is not False
+        elif kind in ("elif", "else") and stack:
+            frame = stack[-1]
+            value = True if kind == "else" else _literal_value(rest)
+            live = frame[0] and not frame[1] and value is not False
+            frame[1] = frame[1] or value is True
+        elif kind == "endif" and stack:
+            live = stack.pop()[0]
+    out.append(text[pos:] if live else re.sub(r"[^\n]", " ", text[pos:]))
+    return "".join(out)
+
+
 class TextBody(Body):
     """Fallback for a function tree-sitter folds into a neighbour (a macro table above it with no semicolon): the
     brace-matched body from its start line, comments and literals blanked, preprocessor lines dropped; every call is
@@ -407,6 +458,7 @@ class TextBody(Body):
         self.open_line = line + text.count("\n", 0, open_at)
         body = text[open_at : end + 1]
         self.preproc = re.findall(DIRECTIVE, body, flags=re.M)
+        body = _blank_dead_branches(body)
         body = re.sub(DIRECTIVE, " ", body, flags=re.M)
         body = _blank_local_classes(body)  # a local class's methods are their own units (as in Body)
         if MACRO_CLASS_HEAD.match(lines[line - 1]):

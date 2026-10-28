@@ -26,7 +26,7 @@ def snap(**kw):
          "action": None, "event_label": None, "removed": None, "sender": None, "failed": [],
          "pending": 0, "digest_text": "", "digest_posted": False, "now": NOW,
          "label_actors": {x: {"login": "joe", "permission": "admin"} for x in sg.REQUESTS},
-         "approved": True, "pending_update": False}  # fmt: skip
+         "approved": True, "pending_update": False, "gate_now": ("success", sg.GATE_OK)}  # fmt: skip
     s.update(kw)
     return s
 
@@ -46,8 +46,9 @@ def test_merge_label_by_writer_marks_ready_and_enables_auto_merge():
     acts = sg.decide(
         snap(draft=True, action="labeled", event_label=sg.MERGE, sender={"login": "joe", "permission": "admin"})
     )
-    # #5104: a draft is only marked ready; auto-merge waits until the ready_for_review runs exist
-    assert kinds(acts) == ["ready"]
+    # #5104: a draft is only marked ready; auto-merge waits until the ready_for_review runs exist, and so does the gate
+    assert kinds(acts) == ["ready", "gate"]
+    assert by_op(acts, "gate")[0]["state"] == "pending"
     acts = sg.decide(
         snap(draft=False, action="labeled", event_label=sg.MERGE, sender={"login": "joe", "permission": "admin"})
     )
@@ -401,7 +402,8 @@ class Gh:
                 ], "filteredCount"),
                 "commits": {"nodes": [{"commit": {
                     "oid": pr["head"]["sha"],
-                    "status": {"contexts": [{"context": x["context"], "state": x["state"].upper()}
+                    "status": {"contexts": [{"context": x["context"], "state": x["state"].upper(),
+                                             "description": x.get("description")}
                                             for x in self.statuses]} if self.statuses else None,
                     "checkSuites": conn(suites),
                 }}]},
@@ -410,11 +412,21 @@ class Gh:
 
     def run(self, argv):
         self.cmds.append(argv)
+        if len(argv) > 2 and "/statuses/" in argv[2]:  # a commit status the module posted: the next read sees it
+            f = dict(a.split("=", 1) for a in argv[3:] if "=" in a)
+            self.statuses = [x for x in self.statuses if x["context"] != f["context"]] + [
+                {"context": f["context"], "state": f["state"], "description": f["description"]}
+            ]
         for arg in argv:  # a comment the module posted: the bot's account wrote it
             if arg.startswith("body="):
                 self.comments.append(bot_comment(arg[len("body=") :]))
         out = "d" * 40 if "-q" in argv else ""
         return subprocess.CompletedProcess(argv, 0, out, "")
+
+
+def no_gate(lines):
+    """The log lines without the ci-gate status posts (#6919), for tests about the labels and auto-merge."""
+    return [x for x in lines if f"#7 {sg.GATE} " not in x]
 
 
 def merged_by(gh):
@@ -505,7 +517,7 @@ def test_no_marker_yet_is_quiet_no_drop_no_merge():
     gh.dep_state = "closed"
     gh.comments = []
     gh.pushed_at = None  # #4854: only an unknown push (or label) time leaves it undecided
-    lines = sg.process(7, gh.api, gh.run, None)
+    lines = no_gate(sg.process(7, gh.api, gh.run, None))
     assert not any("unlabel" in x for x in lines) and not merged_by(gh)
     assert lines == ["#7 shepherd:merge: awaiting approval marker; re-add the label to approve (no action)"]
     assert not any(c[:3] == ["gh", "api", f"repos/{sg.REPO_SLUG}/issues/7/labels/shepherd%3Amerge"] for c in gh.cmds)
@@ -590,7 +602,7 @@ def test_a_learned_flaky_checks_first_failure_is_triaged_flake_in_the_reconcile_
 def test_main_computes_the_learned_set_once_per_pass(monkeypatch, tmp_path):
     gh = Gh()
     got = []
-    monkeypatch.setattr(sg, "open_labelled", lambda api, *a: [7, 8])
+    monkeypatch.setattr(sg, "open_prs", lambda api, *a: [7, 8])
     monkeypatch.setattr(sg.ci_digest, "main_tip", lambda api, graphql=None: None)
     monkeypatch.setattr(sg, "_graphql_prs", lambda graphql, numbers: {})
     monkeypatch.setattr(sg.ci_digest, "main_failures", lambda api, **k: set())
@@ -618,12 +630,12 @@ def test_gather_and_process_for_a_labelled_event_marks_ready_and_enables_auto_me
     gh = Gh()
     gh.pr["draft"] = True
     gh.dep_state = "closed"  # #6 merged: no block
-    lines = sg.process(7, gh.api, gh.run, {"action": "labeled", "label": sg.MERGE, "sender": "joe"})
+    lines = no_gate(sg.process(7, gh.api, gh.run, {"action": "labeled", "label": sg.MERGE, "sender": "joe"}))
     assert lines == ["#7 ready for review: ok"]
     assert not any(c[:3] == ["gh", "pr", "merge"] for c in gh.cmds)
     gh.pr["draft"] = False  # what `gh pr ready` did
     gh.cmds.clear()
-    lines = sg.process(7, gh.api, gh.run, None)
+    lines = no_gate(sg.process(7, gh.api, gh.run, None))
     assert lines == ["#7 auto-merge on: ok"]
     assert not any(c[:3] == ["gh", "pr", "ready"] for c in gh.cmds)
     merge = next(c for c in gh.cmds if c[:3] == ["gh", "pr", "merge"])
@@ -941,7 +953,7 @@ def test_an_unknown_merge_state_is_read_through_rest_so_a_dirty_pr_is_not_missed
 def test_a_reconcile_pass_reads_each_pr_with_one_query(monkeypatch):
     def reads(graphql):
         gh = Gh()
-        monkeypatch.setattr(sg, "open_labelled", lambda api, *a: [7, 7, 7])
+        monkeypatch.setattr(sg, "open_prs", lambda api, *a: [7, 7, 7])
         monkeypatch.setattr(sg.ci_digest, "main_tip", lambda api, graphql=None: None)
         monkeypatch.setattr(sg.ci_digest, "main_failures", lambda api, **k: set())
         monkeypatch.setattr(sg.ci_digest, "main_green", lambda api, **k: ("f" * 40, set()))
@@ -1277,7 +1289,11 @@ def test_reconcile_triggers_on_the_required_checks_workflows_and_the_matrix_only
     matrix = yaml.safe_load((wf_dir / sg.MATRIX_WORKFLOW).read_text(encoding="utf-8"))["name"]
     rec = yaml.safe_load((wf_dir / "shepherd-reconcile.yml").read_text(encoding="utf-8"))
     on = rec.get("on", rec.get(True))
-    assert set(on["workflow_run"]["workflows"]) == set().union(*names.values()) | {matrix}
+    # #6919: plus the slow gated workflows, so the ci-gate status turns green when they finish, not at the next cron
+    gated = set().union(*names.values()) | {matrix} | set(sg.GATE_TRIGGERS)
+    assert set(on["workflow_run"]["workflows"]) == gated
+    titles = {yaml.safe_load(f.read_text(encoding="utf-8")).get("name") for f in wf_dir.glob("*.yml")}
+    assert set(sg.GATE_TRIGGERS) <= titles, "a GATE_TRIGGERS entry names no workflow"
     assert on["workflow_run"]["branches-ignore"] == ["main"]
     assert "schedule" in on  # the cron still covers every other check and the rerun gap
 
@@ -1611,8 +1627,9 @@ def test_the_5950_sequence_has_no_label_churn_and_no_retry_after_the_refusal():
     assert len(merges) == 1  # never retried while the owner status is set
     assert not any(c for c in calls if "DELETE" in c)  # no status label removed...
     assert labels == [sg.MERGE, sg.OWNER]  # ...and needs-fix never added
-    api = [c for c in calls if c[:2] == ["gh", "api"]]
+    api = [c for c in calls if c[:2] == ["gh", "api"] and "/statuses/" not in c[2]]
     assert len(api) == 2  # one label add, one comment: nothing else, in 6 passes
+    assert len([c for c in calls if c[:2] == ["gh", "api"] and "/statuses/" in c[2]]) <= 1  # the gate, once
     assert not any("FAILED" in x for x in logs)
 
 
@@ -1659,3 +1676,83 @@ def test_trusted_bots_come_from_the_workflow_then_the_tokens_own_account(monkeyp
         "squid-protocol"
     }  # the PAT, as before
     assert sg.trusted_bots(no_user) == set()  # nothing trusted: no marker counts (never everyone)
+
+
+# --- ci-gate and auto-merge on red (#6919) ----------------------------------------------------------------------------
+
+
+def gate_of(acts):
+    got = by_op(acts, "gate")
+    return (got[0]["state"], got[0]["description"]) if got else None
+
+
+def test_a_red_path_filtered_check_turns_auto_merge_off_and_fails_the_gate():
+    """#6881/#6894/#6895 merged with DOOM-rosetta red: only the required checks held the merge."""
+    acts = sg.decide(snap(auto_merge=True, failed=[failure("real", check="shard 2 (1666363 LOC)")]))
+    assert by_op(acts, "automerge") == [{"op": "automerge", "on": False}]
+    assert gate_of(acts) == ("failure", "failing: shard 2")
+    acts = sg.decide(snap(failed=[failure("real", check="call-graph-accuracy-audit")]))
+    assert "automerge" not in kinds(acts)  # never turned on while red
+
+
+def test_the_shepherd_own_red_run_neither_blocks_nor_fails_the_gate():
+    acts = sg.decide(snap(failed=[failure("real", check="shepherd (label event)")]))
+    assert by_op(acts, "automerge")[0]["on"] is True and gate_of(acts) is None
+
+
+def test_the_gate_posts_only_when_it_changes():
+    assert gate_of(sg.decide(snap())) is None  # already green on this head
+    assert gate_of(sg.decide(snap(gate_now=None))) == ("success", sg.GATE_OK)
+    assert gate_of(sg.decide(snap(gate_now=("pending", "waiting on: det")))) == ("success", sg.GATE_OK)
+
+
+def test_the_gate_waits_on_running_checks_missing_required_ones_and_reruns():
+    # the shepherd's own queued job is not waited on (it is the job deciding)
+    acts = sg.decide(snap(gate_pending=["DOOM-rosetta shard 1 (queued)", "shepherd (label event) (in_progress)"]))
+    assert gate_of(acts) == ("pending", "waiting on: DOOM-rosetta shard 1")
+    assert gate_of(sg.decide(snap(required_missing=["det", "full-suite"]))) == ("pending", "waiting on: det, full-suite")
+    assert gate_of(sg.decide(snap(failed=[failure("flake", updated=NOW - 60)])))[0] == "pending"
+    assert gate_of(sg.decide(snap(failed=[{"check": "det", "triage": "main"}])))[0] == "pending"
+    assert gate_of(sg.decide(snap(draft=True, labels=[])))[0] == "pending"  # #5104: a draft's skips read as green
+
+
+def test_every_open_pr_gets_the_gate_and_a_closed_one_none():
+    acts = sg.decide(snap(labels=[], failed=[failure("real", check="det")]))
+    assert gate_of(acts) == ("failure", "failing: det") and "automerge" not in kinds(acts)
+    assert sg.decide(snap(state="closed", labels=[], gate_now=None)) == []
+
+
+def test_a_long_failing_list_fits_a_commit_status():
+    names = [f"check-{i:02d}-with-a-long-name" for i in range(12)]
+    state, text = gate_of(sg.decide(snap(failed=[failure("real", check=x) for x in names])))
+    assert state == "failure" and len(text) <= 140 and text.endswith("...")
+
+
+def test_gather_leaves_its_own_status_out_and_finds_missing_required_checks():
+    gh = Gh()
+    gh.dep_state = "closed"
+    gh.statuses = [{"context": sg.GATE, "state": "pending", "description": "waiting on: det"}]
+    s = sg.gather(7, gh.api, None, now=NOW, on_main=set(), flaky=set())
+    assert s["gate_now"] == ("pending", "waiting on: det") and s["gate_pending"] == []
+    assert s["required_missing"] == list(sg.REQUIRED_CHECKS)  # the fake head has only "smoke"
+    url = gh.runs[0]["html_url"]
+    gh.runs = [{"id": i, "name": c, "status": "completed", "conclusion": "success", "html_url": url, "details_url": url,
+                "app": {"slug": "github-actions"}} for i, c in enumerate(sg.REQUIRED_CHECKS, 2)]  # fmt: skip
+    lines = sg.process(7, gh.api, gh.run, None)
+    assert f"#7 {sg.GATE} success: {sg.GATE_OK}: ok" in lines
+    assert gh.statuses == [{"context": sg.GATE, "state": "success", "description": sg.GATE_OK}]
+    assert not [x for x in sg.process(7, gh.api, gh.run, None) if sg.GATE in x]  # posted once
+
+
+def test_apply_posts_the_gate_as_a_commit_status_on_the_head():
+    gh = Gh()
+    sg.apply(7, snap(), [{"op": "gate", "sha": SHA, "state": "failure", "description": "failing: det"}], run=gh.run)
+    argv = gh.cmds[0]
+    assert argv[:3] == ["gh", "api", f"repos/{sg.REPO_SLUG}/statuses/{SHA}"]
+    assert {"state=failure", f"context={sg.GATE}", "description=failing: det"} <= set(argv)
+
+
+def test_open_prs_lists_unlabelled_prs_too():
+    gh = Gh()
+    gh.pr["labels"] = []
+    assert sg.open_labelled(gh.api) == [] and sg.open_prs(gh.api) == [7] and sg.open_prs(gh.api, gh.graphql) == [7]

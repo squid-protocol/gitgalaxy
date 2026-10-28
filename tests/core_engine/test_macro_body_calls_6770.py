@@ -11,7 +11,6 @@ import sys
 import pytest
 
 from gitgalaxy.core import detector as det
-from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
 
 def _table(code):

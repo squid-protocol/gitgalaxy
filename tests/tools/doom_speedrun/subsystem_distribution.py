@@ -9,9 +9,11 @@ fan-out, token mass, args): function count, median, 90th percentile (complexity 
 the port's subsystem median to linuxdoom's in the same subsystem. Vendored code is dropped as in ``distribution.py``.
 Reads the scans ``doom_speedrun.py`` leaves and the port clone (only to tell vendored code).
 
-A port that renamed its files (``Renderer.cs``, ``game/play.rs``) puts those functions under ``other``: the table
-reports ``other`` like any subsystem, and ``other_pct`` per port says how much of the port the file-prefix split could
-not place. Ports under ``--min-functions`` code functions are skipped; a subsystem under ``--min-subsystem`` functions
+A function is placed by lineage (slice 3): the subsystem of its linuxdoom namesake (``P_UseSpecialLine``, or
+``UseSpecialLine`` / ``use_special_line`` with the prefix dropped; ``lineage.name_index``), so a port that renamed its
+files (``Renderer.cs``, ``game/play.rs``) keeps its renderer functions in ``renderer``. A function with no namesake falls
+back to its file-name prefix (``--assign prefix`` uses that alone). ``other`` is what neither can place, and ``other_pct``
+per port says how much that is. Ports under ``--min-functions`` code functions are skipped; a subsystem under ``--min-subsystem`` functions
 keeps its count but no ratio.
 
 Outputs ``<work>/results/<sha>/distribution/``: subsystem_distribution.csv and .md. Licensed ports
@@ -42,25 +44,29 @@ FIELDS = distribution.FIELDS
 MIN_SUBSYSTEM = 5  # below this a subsystem's median is not compared
 
 
-def load_by_subsystem(db, vendored=None):
+def load_by_subsystem(db, vendored=None, index=None):
     """Metrics of every code function of one scan, grouped: {subsystem: {field: [values]}}; None when it has none.
 
-    ``vendored`` (see ``doom_scorer._engine_vendor_test``) drops vendored code, as ``distribution.load_metrics`` does."""
+    ``vendored`` (see ``doom_scorer._engine_vendor_test``) drops vendored code, as ``distribution.load_metrics`` does.
+    ``index`` (``lineage.name_index``) places a function by the linuxdoom function it descends from; without it a
+    function is placed by its file name alone."""
     con = sqlite3.connect(f"file:{db}?mode=ro", uri=True)
     try:
         rows = con.execute(
-            "select f.file_path, f.language, fn.complexity, fn.loc, fn.func_fan_out, fn.token_mass, fn.args "
+            "select fn.func_name, f.file_path, f.language, fn.complexity, fn.loc, fn.func_fan_out, fn.token_mass, fn.args "
             "from function_data fn join file_data f on f.id = fn.file_id"
         ).fetchall()
     finally:
         con.close()
     out = {}
-    for path, language, *vals in rows:
+    for name, path, language, *vals in rows:
         path = (path or "").replace("\\", "/")
         if language not in distribution.CODE_LANGUAGES or (vendored and vendored(path)):
             continue
         vals[-1] = distribution._count(vals[-1])
-        bucket = out.setdefault(lineage.subsystem(path), {f: [] for f in FIELDS})
+        bucket = out.setdefault(
+            lineage.assign_subsystem(name, path, index) if index else lineage.subsystem(path), {f: [] for f in FIELDS}
+        )
         for f, v in zip(FIELDS, vals):
             bucket[f].append(float(v or 0))
     return out or None
@@ -95,16 +101,41 @@ def summarise(by_sub, base, min_subsystem=MIN_SUBSYSTEM):
     return rows, 100 * len(other["complexity"]) / total if other else 0.0
 
 
-def run(rows, work, sha, min_functions=distribution.MIN_FUNCTIONS, min_subsystem=MIN_SUBSYSTEM):
-    """{port: (subsystem rows, other_pct)} for every usable port in manifest ``rows`` (BASE among them), and the skipped."""
-    loaded, skipped = {}, []
+def base_index(db, vendored=None):
+    """``lineage.name_index`` of linuxdoom's own scan (first-party code functions)."""
+    con = sqlite3.connect(f"file:{db}?mode=ro", uri=True)
+    try:
+        rows = con.execute(
+            "select fn.func_name, f.file_path, f.language from function_data fn join file_data f on f.id = fn.file_id"
+        ).fetchall()
+    finally:
+        con.close()
+    paths = [(n or "", (p or "").replace("\\", "/"), lang) for n, p, lang in rows]
+    return lineage.name_index(
+        [(n, p) for n, p, lang in paths if lang in distribution.CODE_LANGUAGES and not (vendored and vendored(p))]
+    )
+
+
+def run(rows, work, sha, min_functions=distribution.MIN_FUNCTIONS, min_subsystem=MIN_SUBSYSTEM, assign="lineage"):
+    """{port: (subsystem rows, other_pct)} for every usable port in manifest ``rows`` (BASE among them), and the skipped.
+
+    ``assign`` is ``lineage`` (a function goes to the subsystem of its linuxdoom namesake) or ``prefix`` (file name only)."""
+    loaded, skipped, index = {}, [], None
+    if assign == "lineage":
+        for row in rows:
+            if row["name"] == BASE:
+                db, repo = callgraph_oracle.find_db(work / "scans" / sha / BASE), work / "repos" / BASE
+                if db and repo.is_dir():
+                    index = base_index(db, doom_scorer._engine_vendor_test(repo))
     for row in rows:
         name = row["name"]
         if row.get("class") == "assets":
             continue
         db = callgraph_oracle.find_db(work / "scans" / sha / name)
         repo = work / "repos" / name
-        got = load_by_subsystem(db, doom_scorer._engine_vendor_test(repo)) if db and repo.is_dir() else None
+        got = None
+        if db and repo.is_dir():
+            got = load_by_subsystem(db, doom_scorer._engine_vendor_test(repo), index if name != BASE else None)
         if got is None or size(got) < min_functions:
             skipped.append(name)
             continue
@@ -114,12 +145,18 @@ def run(rows, work, sha, min_functions=distribution.MIN_FUNCTIONS, min_subsystem
     return {n: summarise(v, loaded[BASE], min_subsystem) for n, v in loaded.items()}, skipped
 
 
-def render(result, sha):
+def render(result, sha, assign="lineage"):
+    placed = (
+        "Subsystem of the linuxdoom function a function descends from (same name, prefix optional), else by file-name "
+        "prefix (`lineage.assign_subsystem`)"
+        if assign == "lineage"
+        else "Subsystem by file-name prefix (`lineage.subsystem`)"
+    )
     lines = [
         f"# DOOM per-subsystem metric distributions vs linuxdoom: engine `{sha}`", "",
-        "Subsystem by file-name prefix (`lineage.subsystem`); vendored code dropped. `vs linuxdoom` is the port's "
+        f"{placed}; vendored code dropped. `vs linuxdoom` is the port's "
         "subsystem median divided by linuxdoom's in the same subsystem (blank under the minimum count). `other` holds "
-        "files the prefix split cannot place, so a port that renamed its files is mostly `other`.", "",
+        "functions neither placement can place.", "",
     ]  # fmt: skip
     for f in FIELDS:
         extra = " | % complexity >= 10" if f == "complexity" else ""
@@ -147,6 +184,9 @@ def main(argv=None):
     ap.add_argument("--sha", help="engine SHA of the scans to read (default: this checkout's HEAD)")
     ap.add_argument("--manifest", type=Path, help="alternate manifest CSV")
     ap.add_argument("--min-functions", type=int, default=distribution.MIN_FUNCTIONS, help="skip a port below this")
+    ap.add_argument(
+        "--assign", choices=("lineage", "prefix"), default="lineage", help="how a function gets its subsystem"
+    )
     ap.add_argument("--min-subsystem", type=int, default=MIN_SUBSYSTEM, help="no ratio for a subsystem below this")
     args = ap.parse_args(argv)
     only = [n for n in (args.only or "").split(",") if n]
@@ -155,12 +195,12 @@ def main(argv=None):
     wanted = set(only or LICENSED) | {BASE}
     manifest = [r for r in doom_speedrun.read_manifest(args.manifest, None) if r["name"] in wanted & LICENSED]
     work, sha = args.work.resolve(), args.sha or doom_speedrun.engine_sha()
-    result, skipped = run(manifest, work, sha, args.min_functions, args.min_subsystem)
+    result, skipped = run(manifest, work, sha, args.min_functions, args.min_subsystem, args.assign)
     for name in skipped:
         print(f"subsystem_distribution: no scan, or under {args.min_functions} code functions, for {name} at {sha}")
     dest = work / "results" / sha / "distribution"
     dest.mkdir(parents=True, exist_ok=True)
-    (dest / "subsystem_distribution.md").write_text(render(result, sha))
+    (dest / "subsystem_distribution.md").write_text(render(result, sha, args.assign))
     fields = ["port", "other_pct", "subsystem", "n", "share", "cx10"] + [
         f"{f}_{k}" for f in FIELDS for k in ("med", "p90", "vs_linuxdoom")
     ]

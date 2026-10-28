@@ -5,7 +5,7 @@
 
 For maintainers. A label on a pull request tells the CI shepherd what to do with it. You set a **request** label; the
 bot sets the **status** labels and posts at most one digest comment per head. Nothing merges unless the required
-checks on `main` are green.
+checks on `main` are green, and (#6919) no check that ran on the head is red: see **The `ci-gate` status** below.
 
 ## Request labels (maintainers with write access set these)
 
@@ -39,13 +39,33 @@ A label added by someone without write access is removed too, on any pass (the t
 
 | Label | Meaning | What you do |
 |---|---|---|
-| `shepherd:needs-fix` | A real failure, a merge conflict or a red matrix on this head. One digest comment says what failed and the local command that reproduces it. | Fix it, push. |
+| `shepherd:needs-fix` | A real failure, a merge conflict or a red matrix on this head. One digest comment says what failed and the local command that reproduces it. Auto-merge is off while it is set (#6919), whether or not the failing check is a required one. | Fix it, push. |
 | `shepherd:needs-owner` | Auto-merge was refused for good (the shepherd token lacks a permission, e.g. Workflows for a PR that edits `.github/workflows/`). One comment says why; the shepherd stops retrying while it is set. | Merge by hand, or fix the token and remove the label. |
 | `shepherd:waiting-on-main` | The failing check fails on `main` too, or did until `main` went green and this head has not been re-tested with the fix. | Nothing on this PR: main's owner fixes it, then the reconcile pass merges `main` in once (#5484) and the label stays until a run on that head finishes. |
 | `shepherd:retrying` | An infra or flake failure is being rerun (up to 3 times, 15 minutes apart). | Nothing; wait. |
 | `shepherd:reapprove` | New commits dropped `shepherd:merge` (an approval is bound to its head). | Review the new head, re-add `shepherd:merge`. |
 
 Status labels are cleared when no request label is left, except `shepherd:reapprove` (it marks exactly that case).
+
+## The `ci-gate` status (#6919)
+
+Path-filtered workflows (DOOM-rosetta, the call-graph accuracy audit, ...) run only when a change can affect them (#6278),
+but the ruleset requires only `det`, `full-suite`, `ground-truth`, `mypy-audit` and `ruff-audit`. Before #6919 a red
+path-filtered check merged anyway (#6881, #6894, #6895 with `shepherd:needs-fix` on them; #6899 half a minute before its
+31-minute DOOM-rosetta run finished). Two rules close that:
+
+- **A real failure turns auto-merge off.** Any failing check, required or not, other than the shepherd's own jobs and
+  `ADVISORY` in `shepherd_gh.py` (empty).
+- **The shepherd posts a `ci-gate` commit status on every open PR's head**, labelled or not, in both passes. `pending`:
+  a draft, a check still running or being rerun, a failure that is main's, or a required check that has not reported yet
+  (they always report, so this also covers runs not yet created right after a push). `failure`: a real failure.
+  `success`: otherwise. It is posted only when it changes, and it is never read back as one of the checks. No runner waits
+  for it: a reconcile pass updates it when a required workflow, DOOM-rosetta or the accuracy audit finishes
+  (`GATE_TRIGGERS`), or at the 20-minute cron for any other workflow.
+
+`ci-gate` holds a merge only once the owner adds it to ruleset 24824983, from the squid-shepherd app (which needs
+Commit statuses: write). Until then it reports and the auto-merge rule above is the guard. With it required, a PR with no
+`ci-gate` yet waits for the next reconcile pass.
 
 ## Other rules
 
@@ -57,7 +77,7 @@ Status labels are cleared when no request label is left, except `shepherd:reappr
 ## Where the logic runs
 
 - `.github/workflows/shepherd-event.yml`: a label added or removed, or new commits (`pull_request_target`).
-- `.github/workflows/shepherd-reconcile.yml`: when a workflow behind a required check (or the Full Suite Gate) finishes on a PR, every 20 minutes, or by hand. Each pass reconciles every labelled PR, so a burst of finishing runs coalesces into one pass and nothing waits for the cron (#4935).
+- `.github/workflows/shepherd-reconcile.yml`: when a workflow behind a required check (or the Full Suite Gate, DOOM-rosetta, the call-graph accuracy audit) finishes on a PR, every 20 minutes, or by hand. Each pass reconciles every open PR (labels on labelled ones, `ci-gate` on all), so a burst of finishing runs coalesces into one pass and nothing waits for the cron (#4935).
 - `tests/tools/shepherd_gh.py`: the rules (`decide()` is pure and tested in `tests/tools/test_shepherd_gh.py`).
 - Triage and the digest: `tests/tools/ci_digest.py`. Readiness: `tests/tools/pr_check.py`.
 

@@ -127,7 +127,7 @@ PR_FIELDS = """
         filteredCount nodes { ... on LabeledEvent { actor { __typename login } createdAt label { name } } }
       }
       commits(last: 1) { nodes { commit { oid
-        status { contexts { context state } }
+        status { contexts { context state description } }
         @@SUITES@@
       } } }
 """
@@ -137,7 +137,7 @@ CHECK_FIELDS = """
       id number title state merged isDraft mergeable mergeStateStatus headRefOid
       files(first: 100) { totalCount nodes { path additions deletions changeType } }
       commits(last: 1) { nodes { commit { oid
-        status { contexts { context state } }
+        status { contexts { context state description } }
         @@SUITES@@
       } } }
 """.replace("@@SUITES@@", SUITES_SELECTION)

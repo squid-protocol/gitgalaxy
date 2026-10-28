@@ -151,6 +151,12 @@ operand.
   are compared raw for binary data, and as characters for text (the interpreter is EBCDIC, the lowering ASCII: assumption 3),
   so a text case keeps to letters. The lowering refuses `BC` high / low after `CLC` / `CLI` by name, because EBCDIC and ASCII
   collate differently; a test pins that refusal. No defect surfaced in the lowering or the interpreter.
+- Slice 8: the branch-and-link and fullword instructions (13 more snippets, 181 in all, 0 differences). `BAS` / `BCR 15,R14`
+  (one call, two calls, a nested call that saves R14 with `ST` and reloads it with `L`), `BCR 0` (no branch), `BC` masks 0 and 15,
+  and an `ST` / `L` round trip over six words including the sign bit. R14 is never compared (an address in the interpreter, a
+  return index in the lowering: assumption 4); the cases observe the path taken and the register `L` reloads. The bytes of a
+  stored fullword are not compared: the lowering keeps `F` as a native binary item (other byte order), and it refuses every
+  byte access to one (`MVC`, `STCM`, `IC`, `CLC` before a `BC`); a test pins those refusals. No defect surfaced.
 - The ladder report keeps both programs in the fixed 129-program denominator. ZECS002 is listed apart in the "refused
   whole: not COBOL" row of the progress page (`tests/tools/ladder_exclusions.py`, #5280), so it is not read as COBOL
   translator work; the page reports the entry as stale once it leaves L0. ZECSNC has no entry: it lowers and
@@ -172,6 +178,6 @@ operand.
 4. **4 (done, above):** the interpreter cross-checks ZECS002 and ZECSNC (slices 4, 5). Slice 6 adds the per-instruction
    differential: `tests/tools/hlasm_diff.py` runs 71 boundary snippets (LA, SLL, SLDL, SR, BCT, STH, CH with eight masks
    branch masks) through the interpreter and, lowered, through `cobc` in the pinned oracle image (one container);
-   registers agree on all 71, zero differences. Slice 7 (done) adds the storage-byte instructions (above). Left: `MVI`
+   registers agree on all 71, zero differences. Slice 7 (done) adds the storage-byte instructions and slice 8 (done) the linkage and fullword ones (above). Left: `MVI`
    (outside the subset), high / low collation after `CLC` / `CLI` (refused by name), and a general assembler path for non-zECS programs
    (frontier, no burned program needs it).

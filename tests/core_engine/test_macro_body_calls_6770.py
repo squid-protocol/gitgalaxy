@@ -15,7 +15,7 @@ from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
 
 def _table(code):
-    return det.c_repo_macro_body_calls([code])
+    return {k: v for k, v in det.c_repo_macro_body_calls([code]).items() if v}
 
 
 @pytest.mark.parametrize(
@@ -42,13 +42,23 @@ def test_macro_body_call_table(code, expected):
 
 def test_a_macro_two_files_define_differently_records_nothing():
     assert det.c_repo_macro_body_calls(["#define A(x) B(x)\n", "#define A(x) C(x)\n"]) == {}
+    table = det.c_repo_macro_body_calls(["#define A(x) B(x)\n#define D(x) A(x)\n", "#define D(x) E(x)\n"])
+    assert table == {"A": frozenset({"B"}), "D": frozenset()}  # D is still known as a macro
     assert set(det.c_repo_macro_body_calls(["#define A(x) B(x)\n", "int z;\n"])["A"]) == {"B"}
 
 
 def test_expansion_follows_macros_that_call_macros_and_survives_a_cycle():
     table = {"A": frozenset({"B", "real"}), "B": frozenset({"C"}), "C": frozenset({"A", "deep"})}
-    assert set(det._macro_expansion_callees(["A"], table)) == {"B", "real", "C", "A", "deep"}
+    assert set(det._macro_expansion_callees(["A"], table)) == {"real", "deep"}
     assert det._macro_expansion_callees(["plain"], table) == []
+
+
+def test_a_macro_a_body_invokes_is_expanded_never_listed():
+    """micropython `ATB_GET_KIND(b)` -> `BLOCK_SHIFT(b)`: a macro that calls nothing adds no callee of its own."""
+    table = det.c_repo_macro_body_calls(
+        ["#define SHIFT(b) (2 * (b))\n#define KIND(b) (load(b) >> SHIFT(b))\n#define CHECK(o) assert(KIND(o))\n"]
+    )
+    assert det._macro_expansion_callees(["CHECK"], table) == ["assert", "load"]
 
 
 C_SOURCE = """\

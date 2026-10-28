@@ -256,6 +256,7 @@ def _init_worker(
     offline: bool = False,
     c_macro_args: dict[str, Any] | None = None,
     c_unset_toggles: frozenset[str] | None = None,
+    c_macro_calls: dict[str, frozenset[str]] | None = None,
 ):
     """
     Initializes the CPU-bound optical modules within the worker process's isolated memory.
@@ -268,9 +269,10 @@ def _init_worker(
     compiled regex objects across the IPC (Inter-Process Communication) boundary.
     """
     from gitgalaxy.core.detector import StructuralExtractor as OpticalDetector
-    from gitgalaxy.core.detector import set_c_repo_macro_args, set_c_repo_unset_toggles
+    from gitgalaxy.core.detector import set_c_repo_macro_args, set_c_repo_macro_calls, set_c_repo_unset_toggles
 
     set_c_repo_unset_toggles(c_unset_toggles or frozenset())  # #6770: reset like the macro table below
+    set_c_repo_macro_calls(c_macro_calls or {})  # #6770: the macro-body call table, reset the same way
     set_c_repo_macro_args(c_macro_args or {})  # #5563: always reset, so an in-process scan never inherits the last one
 
     if offline:  # #5235: a spawn-start worker is a fresh interpreter; the assess guard does not reach it by inheritance
@@ -2538,6 +2540,24 @@ class Orchestrator:
 
         return unset_toggles(texts(c_rels), texts(build_rels))
 
+    def _c_repo_macro_calls(self) -> dict[str, frozenset[str]]:
+        """#6770: the repo-wide table of function-like macros whose body calls functions
+        (`detector.c_repo_macro_body_calls`) over every C-family source of the scan, the delta scan's cached files
+        included. Empty when the scan has no C/C++ source."""
+        from gitgalaxy.core.detector import c_repo_macro_body_calls
+
+        rels = sorted({*self.stem_map.values(), *self.ram_cache.keys()})
+        c_rels = [r for r in rels if Path(r).suffix.lower() in self._C_SOURCE_EXTS]
+
+        def texts():
+            for rel in c_rels:
+                try:
+                    yield read_source(self.root / self.disk_paths.get(rel, rel), limit=2_000_000).text
+                except OSError:
+                    continue
+
+        return c_repo_macro_body_calls(texts())
+
     def _extract_features_parallel(self):
         """
         Phase 1: Parallel Extraction & Asset Filtering via Multi-Core Map-Reduce.
@@ -2571,6 +2591,7 @@ class Orchestrator:
             os.environ.get("GITGALAXY_ASSESS_OFFLINE") == "1",
             self._c_repo_macro_args(),
             self._c_repo_unset_toggles(),
+            self._c_repo_macro_calls(),
         )
         # #3913: never more workers than files, and none at all for a small scan (or a pinned
         # single worker) -- the files are extracted in this process, by the same worker code.

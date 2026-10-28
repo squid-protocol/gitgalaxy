@@ -1216,8 +1216,10 @@ class ApertureFilter:
             cached = False
             for name in self._list_dir_files(rel_dir):
                 ext = os.path.splitext(name)[1].lower()
-                if name in self.exact_match_files or name.lower() in self._BUILD_MANIFEST_NAMES or (
-                    ext in self.whitelisted_extensions and ext not in self._DOC_ASSET_EXTENSIONS
+                if (
+                    name in self.exact_match_files
+                    or name.lower() in self._BUILD_MANIFEST_NAMES
+                    or (ext in self.whitelisted_extensions and ext not in self._DOC_ASSET_EXTENSIONS)
                 ):
                     cached = True
                     break

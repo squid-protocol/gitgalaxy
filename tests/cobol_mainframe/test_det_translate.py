@@ -3040,7 +3040,7 @@ public class Main {
     assert out[:9] == ["[14-6704/B] -> [00146704B]", "[$25.68   ] -> [000002568]", "[123-] -> [012L]",
                        "[1.5CR] -> [0001N]", "[5-] -> [0N]", "[12}] -> [12}]", "[A] -> [A]",
                        "[ab12cd34] -> [00001234]", "[ab12cd34] -> [0012cd34]"]  # fmt: skip
-    assert "refused: BIF DEEDIT of a field with no digit left" in out[9]
+    assert out[9] == "[abc] -> [000]"
     assert "beyond 7-bit ASCII" in out[10] and "LENGTH 6 > FIELD's 5 bytes" in out[11]
 
 

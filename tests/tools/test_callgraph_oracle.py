@@ -880,3 +880,51 @@ def test_a_call_in_a_trailing_return_type_is_a_call_of_the_text_fallback_unit():
     src = b"template< typename T >\nstatic auto test( int ) -> std::integral_constant<bool, satisfies<T>()>{}\n"
     body = co.TextBody(src, 1)
     assert body.calls == {"satisfies": "unparsed"}
+
+
+DEAD_BRANCHES = """void f(int x)
+{
+    live();
+#if 0
+    dead_if0();
+#endif
+#if 1
+    live_if1();
+#else
+    dead_else();
+#endif
+#if 0
+    dead_before_else();
+#else
+    live_else();
+#endif
+#if 0
+    dead_a();
+#elif 1
+    live_elif();
+#else
+    dead_b();
+#endif
+#if FEATURE
+    unknown_toggle();
+#endif
+}
+"""
+LIVE = {"live", "live_if1", "live_else", "live_elif", "unknown_toggle"}
+DEAD = {"dead_if0", "dead_else", "dead_before_else", "dead_a", "dead_b"}
+
+
+def test_a_literal_dead_preprocessor_branch_is_no_call_in_the_tree_sitter_walk():
+    body = body_of(DEAD_BRANCHES)
+    assert isinstance(body, co.Body)
+    assert set(body.calls) == LIVE
+
+
+def test_a_literal_dead_preprocessor_branch_is_no_call_in_the_text_fallback():
+    body = co.TextBody(DEAD_BRANCHES.encode(), 1)
+    assert set(body.calls) == LIVE
+
+
+def test_literal_conditions_are_zero_one_hex_zero_and_parenthesised_only():
+    assert [co._literal_value(c) for c in ("0", " (0) ", "0x0", "1", "(1)")] == [False, False, False, True, True]
+    assert [co._literal_value(c) for c in ("FEATURE", "defined(X)", "2", "0 || X")] == [None] * 4

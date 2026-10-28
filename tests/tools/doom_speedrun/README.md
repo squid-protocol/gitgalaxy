@@ -209,21 +209,17 @@ Blind spots:
 ### Clean-file disagreements of the libclang reference (#5630, slice 3)
 
 Read in source at scan `2ac09c8ae` (engine unchanged for these shapes since), each line against the clone. A "clean
-file" is one clang parsed without a fatal error; the baseline's `disagreements_in_clean_files`: nugget-doom
-6, woof 6, doomretro 2, the other twelve ports 0 (puredoom was 34 and inter-doom 3 before #6770).
+file" is one clang parsed without a fatal error; the baseline's `disagreements_in_clean_files`: puredoom 34, nugget-doom
+6, woof 6, inter-doom 3, doomretro 2, the other ten ports 0.
 
 | shape | side | edges | ports | verdict |
 |---|---|---|---|---|
 | call inside a disabled preprocessor branch: `#if 0` or `#if defined(I_NET_ENABLED)` with the macro never defined (27 engine-only edges on puredoom before #6770) | engine-only | 0 (was 27) | puredoom | fixed in #6770: `calls_out_to` drops statically dead branches |
-| call made by a function-like macro's body: `Z_ChangeTag(p, t)` expands to `Z_ChangeTag2`, `I_Error`, `doom_concat`, `doom_itoa`, `doom_strcpy`; `FTOM`/`MTOF`/`CXMTOF` to `FixedMul` | clang-only | 0 (was 34 = 28 + 6; inter-doom 3 via `stbiw__sbgrow` -> `stbiw__sbgrowf`) | puredoom, inter-doom | fixed in #6770: `calls_out_to` expands a function-like macro's body calls at the use site (repo-wide table, nested to depth 4, a macro defined differently in two files is skipped). The body oracle counts an engine edge a macro expands to as `macro-expansion`, not a false edge |
+| call made by a function-like macro's body: `Z_ChangeTag(p, t)` expands to `Z_ChangeTag2`, `I_Error`, `doom_concat`, `doom_itoa`, `doom_strcpy`; `FTOM`/`MTOF`/`CXMTOF` to `FixedMul` | clang-only | 34 (28 + 6); inter-doom: 3 via `stbiw__sbgrow` -> `stbiw__sbgrowf` | puredoom, inter-doom | engine miss by design (no macro expansion); the call is real at run time |
 | `static inline` function defined in a header (`p_saveg.h` `saveg_grow` -> `saveg_check_size`, `Z_Realloc`; `m_array.h` `M_ArrayGrow` -> `I_Malloc`, `I_Realloc`) | engine-only | 6 + 6 + 2 | nugget-doom, woof, doomretro | reference blind spot: the edges are in the source; the reference lists none for a header-defined function |
 
 The 8 `sdl_example.c` edges of puredoom's engine-only list are in a fatal-error file (`SDL3/SDL.h` missing) and are not
-counted in the table. Before #6770 the table held 61 = 27 + 34 edges for puredoom.
-
-The clang precision of dsda-doom, fastdoom, nugget-doom, prboom-plus and woof fell by 0.3 to 3.3 points in the #6770 baseline: the engine now lists macro-expanded edges that clang cannot confirm in a fatal-error file (the file does not parse, so the macro body is not expanded). `disagreements_in_clean_files` is the exact metric and did not move for those ports.
-
-Open residual: doomsday's body-oracle `absent` engine-only edges rose from 42 to 63 (and `type` from 2009 to 2037) with macro expansion: C++ macros that expand to a constructor (`LOG_*` -> `de::LogEntryStager(...)`) or a name the oracle's table does not reach. Its check-7 precision moved 0.9686 -> 0.9678.
+counted in the 34. 34 = the macro-body row (before #6770, 61 = 27 + 34).
 
 ## Lineage vs linuxdoom (`lineage.py`, #5620)
 

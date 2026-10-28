@@ -5,7 +5,7 @@
   ],
   "value": {
     "Galaxy Column Digests": {
-      "a_dists": "1504cfc5d2d5",
+      "a_dists": "9972890b7bd1",
       "a_ids": "bd9bd9342100",
       "ai_threats": "702f60aa030f",
       "author_distribution": "702f60aa030f",
@@ -29,7 +29,7 @@
       "tel_cfr": "80a0c077f9a2",
       "tel_lt": "a5110b875769",
       "tel_pid": "729eb627fcbc",
-      "tel_pop": "27ea980a732a",
+      "tel_pop": "4bc8152a0a19",
       "tel_purp": "64d3ca5df8c8"
     },
     "Galaxy Files": {
@@ -348,7 +348,7 @@
       "assembly/xv6_x86_kernel/bootasm.S": "9e56df4e4bd6",
       "assembly/xv6_x86_kernel/entry.S": "5261aca408b2",
       "assembly/xv6_x86_kernel/entryother.S": "81ccc35f25c7",
-      "assembly/xv6_x86_kernel/initcode.S": "aad2574bf37c",
+      "assembly/xv6_x86_kernel/initcode.S": "b9da57a0d4e9",
       "assembly/xv6_x86_kernel/swtch.S": "b520020e7675",
       "assembly/xv6_x86_kernel/trapasm.S": "bd653156e242",
       "assembly/xv6_x86_kernel/usys.S": "1dc8b22cc845",
@@ -2795,7 +2795,7 @@
       "scheme/SOURCES.md": "0be07a68aab7",
       "scheme/racket/LICENSE.txt": "131593612173",
       "scheme/racket/cpnanopass.ss": "c4f2a8c9125a",
-      "scheme/racket/eval.c": "061a840b8cc5",
+      "scheme/racket/eval.c": "b607752ed1f3",
       "scheme/racket/fun.c": "4b0a28792520",
       "scheme/racket/io.ss": "2f7c59f7cdbd",
       "scheme/racket/schemify.rkt": "7c71a5684cb0",
@@ -3412,7 +3412,7 @@
       "ecosystem_audits": "8cd74d065301",
       "ecosystem_fingerprint": "4350181b84f3",
       "health": "9a86f5e4c9a0",
-      "network_macro": "b1fbcc761b79",
+      "network_macro": "88f5b045040d",
       "repo_macro_species": "2bd4f962ad9c",
       "summary": "bbe85aa5375c",
       "typosquat_hits": "5feceb66ffc8",

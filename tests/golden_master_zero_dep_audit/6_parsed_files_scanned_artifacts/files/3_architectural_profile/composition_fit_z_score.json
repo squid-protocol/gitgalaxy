@@ -366,7 +366,7 @@
       "assembly/xv6_x86_kernel/bootasm.S": 1.869,
       "assembly/xv6_x86_kernel/entry.S": 3.301,
       "assembly/xv6_x86_kernel/entryother.S": 2.213,
-      "assembly/xv6_x86_kernel/initcode.S": 2.954,
+      "assembly/xv6_x86_kernel/initcode.S": 2.934,
       "assembly/xv6_x86_kernel/swtch.S": -0.415,
       "assembly/xv6_x86_kernel/trapasm.S": 2.307,
       "assembly/xv6_x86_kernel/usys.S": -0.654
@@ -452,7 +452,7 @@
       "c/micropython/modmachine.c": 0.539,
       "c/micropython/modmachine.h": 1.452,
       "c/micropython/objtype.c": -0.065,
-      "c/micropython/objtype.h": 0.31,
+      "c/micropython/objtype.h": 0.277,
       "c/micropython/vfs.c": 0.43,
       "c/micropython/vfs.h": 0.047,
       "c/micropython/vm.c": -0.519
@@ -576,7 +576,7 @@
       "cobol/aws-mainframe-modernization-carddemo/CSMSG01Y.cpy": 0.0,
       "cobol/aws-mainframe-modernization-carddemo/CSMSG02Y.cpy": 0.345,
       "cobol/aws-mainframe-modernization-carddemo/CSSETATY.cpy": 0.517,
-      "cobol/aws-mainframe-modernization-carddemo/CSSTRPFY.cpy": 3.404,
+      "cobol/aws-mainframe-modernization-carddemo/CSSTRPFY.cpy": 3.389,
       "cobol/aws-mainframe-modernization-carddemo/CSUSR01Y.cpy": 0.0,
       "cobol/aws-mainframe-modernization-carddemo/CSUTLDPY.cpy": 3.375,
       "cobol/aws-mainframe-modernization-carddemo/CSUTLDTC.cbl": 3.291,
@@ -585,7 +585,7 @@
       "cobol/aws-mainframe-modernization-carddemo/CVACT01Y.cpy": 0.0,
       "cobol/aws-mainframe-modernization-carddemo/CVACT02Y.cpy": 0.258,
       "cobol/aws-mainframe-modernization-carddemo/CVACT03Y.cpy": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/CVCRD01Y.cpy": -0.332,
+      "cobol/aws-mainframe-modernization-carddemo/CVCRD01Y.cpy": -0.37,
       "cobol/aws-mainframe-modernization-carddemo/CVCUS01Y.cpy": -0.193,
       "cobol/aws-mainframe-modernization-carddemo/CVTRA01Y.cpy": 0.0,
       "cobol/aws-mainframe-modernization-carddemo/CVTRA02Y.cpy": 0.0,
@@ -875,7 +875,7 @@
       "cobol/cics-banking-sample-application-cbsa/DELACC.cpy": -0.533,
       "cobol/cics-banking-sample-application-cbsa/DELACCZ.cpy": -0.615,
       "cobol/cics-banking-sample-application-cbsa/DELCUS.cbl": 1.102,
-      "cobol/cics-banking-sample-application-cbsa/DELCUS.cpy": -0.332,
+      "cobol/cics-banking-sample-application-cbsa/DELCUS.cpy": -0.368,
       "cobol/cics-banking-sample-application-cbsa/GETCOMPY.cbl": -0.627,
       "cobol/cics-banking-sample-application-cbsa/GETCOMPY.cpy": 0.0,
       "cobol/cics-banking-sample-application-cbsa/GETSCODE.cbl": 3.144,
@@ -2645,7 +2645,7 @@
       "pli/zopeneditor_sample/PROVENANCE.md": 0.0,
       "pli/zopeneditor_sample/PSAM1.pli": 2.617,
       "pli/zopeneditor_sample/PSAM1LIB.pli": 2.36,
-      "pli/zopeneditor_sample/PSAM2.pli": -0.386
+      "pli/zopeneditor_sample/PSAM2.pli": -0.419
     },
     "powershell": {
       "powershell/SOURCES.md": 0.0
@@ -3299,8 +3299,8 @@
     "scheme/racket": {
       "scheme/racket/LICENSE.txt": 0.0,
       "scheme/racket/cpnanopass.ss": 1.206,
-      "scheme/racket/eval.c": 0.331,
-      "scheme/racket/fun.c": 0.101,
+      "scheme/racket/eval.c": 0.404,
+      "scheme/racket/fun.c": 0.223,
       "scheme/racket/io.ss": 1.887,
       "scheme/racket/schemify.rkt": 0.818,
       "scheme/racket/thread.rkt": 1.332

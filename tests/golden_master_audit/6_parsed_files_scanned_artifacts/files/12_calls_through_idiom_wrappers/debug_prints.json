@@ -3,7 +3,7 @@
     "c/cpython": {
       "c/cpython/ceval.c": {
         "Literal Sites": 13,
-        "Wrapped Sites": 13
+        "Wrapped Sites": 2
       },
       "c/cpython/dictobject.c": {
         "Literal Sites": 2,
@@ -27,13 +27,13 @@
     "c/sqlite": {
       "c/sqlite/lemon.c": {
         "Literal Sites": 287,
-        "Wrapped Sites": 76
+        "Wrapped Sites": 71
       }
     },
     "cobol/gnucobol_internals": {
       "cobol/gnucobol_internals/codegen.c": {
         "Literal Sites": 3,
-        "Wrapped Sites": 7
+        "Wrapped Sites": 2
       }
     },
     "fortran/wrf": {
@@ -95,7 +95,7 @@
       },
       "objective-c/worldwideweb/HyperText.m": {
         "Literal Sites": 51,
-        "Wrapped Sites": 44
+        "Wrapped Sites": 42
       },
       "objective-c/worldwideweb/TcpAccess.m": {
         "Literal Sites": 2,
@@ -106,12 +106,6 @@
       "perl/exiftool/exiftool": {
         "Literal Sites": 165,
         "Wrapped Sites": 1
-      }
-    },
-    "scheme/racket": {
-      "scheme/racket/eval.c": {
-        "Literal Sites": 3,
-        "Wrapped Sites": 3
       }
     }
   },

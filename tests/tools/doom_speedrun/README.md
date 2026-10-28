@@ -200,24 +200,26 @@ Blind spots:
   `PYTHONMALLOC=debug`, so it looks like a flake).
 - **Names, not symbols.** Edges are compared by unqualified name and restricted to names the port defines, so a call
   to a same-named function in another scope, or through a function-pointer variable, is outside it.
-- **Code under `#if 0` counts** in the engine and the tree-sitter oracle (neither preprocesses); libclang (#3784,
-  `--clang`) sees the active configuration only, so it is the check that separates them (see the clean-file triage
-  below).
+- **Code under `#if 0` counts** in the tree-sitter oracle (it does not preprocess), so a port with dead-branch code
+  can read 6/7 on check 7 though the engine is right. The engine drops calls in statically dead branches (`#if 0`, the
+  dead side of `#if 1`, a `#if defined(X)` / `#ifdef X` of a toggle no file or build file of the scan defines, #6770);
+  libclang (#3784, `--clang`) sees the active configuration only, so it is the check that separates them (see the
+  clean-file triage below).
 
 ### Clean-file disagreements of the libclang reference (#5630, slice 3)
 
 Read in source at scan `2ac09c8ae` (engine unchanged for these shapes since), each line against the clone. A "clean
-file" is one clang parsed without a fatal error; the baseline's `disagreements_in_clean_files`: puredoom 61, nugget-doom
+file" is one clang parsed without a fatal error; the baseline's `disagreements_in_clean_files`: puredoom 34, nugget-doom
 6, woof 6, inter-doom 3, doomretro 2, the other ten ports 0.
 
 | shape | side | edges | ports | verdict |
 |---|---|---|---|---|
-| call inside a disabled preprocessor branch: `#if 0` (`D_DoomLoop` -> `I_InitGraphics`, `G_Responder` -> `G_DeathMatchSpawnPlayer`, `R_StoreWallRange` -> `FixedDiv`, `AM_drawFline` -> `doom_itoa`) or `#if defined(I_NET_ENABLED)` with the macro never defined (`i_net.c`, 14 edges) | engine-only | 27 | puredoom | engine defect: `calls_out_to` counts the dead branch; clang is right |
+| call inside a disabled preprocessor branch: `#if 0` or `#if defined(I_NET_ENABLED)` with the macro never defined (27 engine-only edges on puredoom before #6770) | engine-only | 0 (was 27) | puredoom | fixed in #6770: `calls_out_to` drops statically dead branches |
 | call made by a function-like macro's body: `Z_ChangeTag(p, t)` expands to `Z_ChangeTag2`, `I_Error`, `doom_concat`, `doom_itoa`, `doom_strcpy`; `FTOM`/`MTOF`/`CXMTOF` to `FixedMul` | clang-only | 34 (28 + 6); inter-doom: 3 via `stbiw__sbgrow` -> `stbiw__sbgrowf` | puredoom, inter-doom | engine miss by design (no macro expansion); the call is real at run time |
 | `static inline` function defined in a header (`p_saveg.h` `saveg_grow` -> `saveg_check_size`, `Z_Realloc`; `m_array.h` `M_ArrayGrow` -> `I_Malloc`, `I_Realloc`) | engine-only | 6 + 6 + 2 | nugget-doom, woof, doomretro | reference blind spot: the edges are in the source; the reference lists none for a header-defined function |
 
 The 8 `sdl_example.c` edges of puredoom's engine-only list are in a fatal-error file (`SDL3/SDL.h` missing) and are not
-counted in the 61. 61 = 27 + 34.
+counted in the 34. 34 = the macro-body row (before #6770, 61 = 27 + 34).
 
 ## Lineage vs linuxdoom (`lineage.py`, #5620)
 

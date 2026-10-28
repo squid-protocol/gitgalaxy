@@ -554,7 +554,7 @@
    "cbsa-bnk1dcs": [
     51,
     51,
-    92,
+    93,
     102
    ],
    "cbsa-bnk1dcs-generated": [
@@ -1101,7 +1101,7 @@
    "zecs-zecs001": [
     82,
     119,
-    104,
+    116,
     208
    ],
    "zecs-zecs003": [
@@ -2382,10 +2382,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2",
+   "sha": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407",
    "translator": {
     "files": 150,
-    "sha256": "a270a75e347468a700adada70850bc5eda533f3c0ce6c2c3bb6a8d1bf397772a"
+    "sha256": "0140cb6666f05dc5e3c1509b67f1c507cb68ae076151c86030304f27fafedf08"
    }
   },
   "sweeps": {}
@@ -11182,8 +11182,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2",
-   "python tests/tools/evidence_report.py cics-crucible --baseline --sha 4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2",
+   "python tests/tools/cics_census.py survey --baseline --sha 616550df8da3cb1a0d4d513d0bb7c3dcf299b407",
+   "python tests/tools/evidence_report.py cics-crucible --baseline --sha 616550df8da3cb1a0d4d513d0bb7c3dcf299b407",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
   ],
@@ -11203,13 +11203,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2",
+   "sha": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407",
    "translator": {
     "files": 150,
-    "sha256": "a270a75e347468a700adada70850bc5eda533f3c0ce6c2c3bb6a8d1bf397772a"
+    "sha256": "0140cb6666f05dc5e3c1509b67f1c507cb68ae076151c86030304f27fafedf08"
    }
   },
-  "translator_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2",
+  "translator_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -11252,6 +11252,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "a270a75e347468a700adada70850bc5eda533f3c0ce6c2c3bb6a8d1bf397772a"
+  "fingerprint": "0140cb6666f05dc5e3c1509b67f1c507cb68ae076151c86030304f27fafedf08"
  }
 }

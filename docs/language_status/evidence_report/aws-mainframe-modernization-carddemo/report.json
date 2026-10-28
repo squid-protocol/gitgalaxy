@@ -633,7 +633,7 @@
    "cbsa-bnk1dcs": [
     51,
     51,
-    92,
+    93,
     102
    ],
    "cbsa-bnk1dcs-generated": [
@@ -1180,7 +1180,7 @@
    "zecs-zecs001": [
     82,
     119,
-    104,
+    116,
     208
    ],
    "zecs-zecs003": [
@@ -2314,10 +2314,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2",
+   "sha": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407",
    "translator": {
     "files": 150,
-    "sha256": "a270a75e347468a700adada70850bc5eda533f3c0ce6c2c3bb6a8d1bf397772a"
+    "sha256": "0140cb6666f05dc5e3c1509b67f1c507cb68ae076151c86030304f27fafedf08"
    }
   },
   "sweeps": {}
@@ -3793,7 +3793,7 @@
        "fault_runs": 14,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:35d04c68f2d357d250dc65598708c1bce67842bb261cb979beb53d6033309572",
+       "oracle_image": "sha256:f094c8e046ff731badd051064f7e5eed80d65890b9b64b4a2cd8ff51f1f12fbd",
        "oracle_matches_pin": true,
        "records_compared": 175,
        "records_equal": 175,
@@ -3835,7 +3835,7 @@
       "fault_runs": 14,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:35d04c68f2d357d250dc65598708c1bce67842bb261cb979beb53d6033309572",
+      "oracle_image": "sha256:f094c8e046ff731badd051064f7e5eed80d65890b9b64b4a2cd8ff51f1f12fbd",
       "oracle_matches_pin": true,
       "records_compared": 175,
       "records_equal": 175,
@@ -4357,7 +4357,7 @@
        "fault_runs": 14,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:35d04c68f2d357d250dc65598708c1bce67842bb261cb979beb53d6033309572",
+       "oracle_image": "sha256:f094c8e046ff731badd051064f7e5eed80d65890b9b64b4a2cd8ff51f1f12fbd",
        "oracle_matches_pin": true,
        "records_compared": 175,
        "records_equal": 175,
@@ -24314,8 +24314,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2",
-   "python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha 4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2",
+   "python tests/tools/cics_census.py survey --baseline --sha 616550df8da3cb1a0d4d513d0bb7c3dcf299b407",
+   "python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha 616550df8da3cb1a0d4d513d0bb7c3dcf299b407",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases carddemo-acctupdate,carddemo-acctview,carddemo-acctview-generated,carddemo-adminmenu,carddemo-adminmenu-generated,carddemo-billpay,carddemo-billpay-generated,carddemo-cardlist,carddemo-cardupdate,carddemo-cardview,carddemo-cardview-generated,carddemo-cbpaup0c,carddemo-cbstm03a,carddemo-cbstm03b,carddemo-coacct01,carddemo-cobswait,carddemo-cobtupdt,carddemo-cobtupdt-generated,carddemo-codate01,carddemo-copaua0c,carddemo-copaus0c,carddemo-copaus1c,carddemo-copaus2c,carddemo-copaus2c-generated,carddemo-cotrtlic,carddemo-cotrtlic-generated,carddemo-cotrtupc,carddemo-dailyval,carddemo-dateutil,carddemo-dbunldgs,carddemo-intcalc,carddemo-intcalc-generated,carddemo-menu,carddemo-menu-generated,carddemo-paudblod,carddemo-paudbunl,carddemo-posttran,carddemo-posttran-generated,carddemo-readacct,carddemo-readcard,carddemo-readcard-generated,carddemo-readcust,carddemo-readcust-generated,carddemo-readxref,carddemo-readxref-generated,carddemo-report,carddemo-report-generated,carddemo-signon,carddemo-signon-generated,carddemo-tranadd,carddemo-tranlist,carddemo-tranview,carddemo-tranview-generated,carddemo-trnrpt,carddemo-useradd,carddemo-useradd-generated,carddemo-userdel,carddemo-userdel-generated,carddemo-userlist,carddemo-userupd,carddemo-userupd-generated  # Db2 cases (8) need the Db2 container",
    "python tests/tools/evidence.py prove carddemo-acctview carddemo-acctview-generated carddemo-adminmenu carddemo-adminmenu-generated carddemo-billpay carddemo-billpay-generated carddemo-cardlist carddemo-cardview carddemo-cbpaup0c carddemo-cbstm03a carddemo-copaua0c carddemo-copaus0c carddemo-copaus1c carddemo-dailyval carddemo-dateutil carddemo-intcalc carddemo-menu carddemo-menu-generated carddemo-posttran carddemo-readcard carddemo-readcust carddemo-readxref carddemo-report carddemo-signon carddemo-signon-generated carddemo-tranadd carddemo-tranlist carddemo-tranview carddemo-tranview-generated carddemo-trnrpt carddemo-useradd carddemo-userdel carddemo-userlist carddemo-userupd",
@@ -24332,22 +24332,22 @@
   },
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
-   "sha256:35d04c68f2d357d250dc65598708c1bce67842bb261cb979beb53d6033309572",
    "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
-   "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005"
+   "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005",
+   "sha256:f094c8e046ff731badd051064f7e5eed80d65890b9b64b4a2cd8ff51f1f12fbd"
   ],
   "pin_manifest": "tests/crucible_pins.toml",
   "record_status_from": "evidence.py status at build time",
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2",
+   "sha": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407",
    "translator": {
     "files": 150,
-    "sha256": "a270a75e347468a700adada70850bc5eda533f3c0ce6c2c3bb6a8d1bf397772a"
+    "sha256": "0140cb6666f05dc5e3c1509b67f1c507cb68ae076151c86030304f27fafedf08"
    }
   },
-  "translator_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2",
+  "translator_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -24390,6 +24390,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "a270a75e347468a700adada70850bc5eda533f3c0ce6c2c3bb6a8d1bf397772a"
+  "fingerprint": "0140cb6666f05dc5e3c1509b67f1c507cb68ae076151c86030304f27fafedf08"
  }
 }

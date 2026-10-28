@@ -651,7 +651,7 @@
    "cbsa-bnk1dcs": [
     51,
     51,
-    92,
+    93,
     102
    ],
    "cbsa-bnk1dcs-generated": [
@@ -1198,7 +1198,7 @@
    "zecs-zecs001": [
     82,
     119,
-    104,
+    116,
     208
    ],
    "zecs-zecs003": [
@@ -2889,10 +2889,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2",
+   "sha": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407",
    "translator": {
     "files": 150,
-    "sha256": "a270a75e347468a700adada70850bc5eda533f3c0ce6c2c3bb6a8d1bf397772a"
+    "sha256": "0140cb6666f05dc5e3c1509b67f1c507cb68ae076151c86030304f27fafedf08"
    }
   },
   "sweeps": {}
@@ -3288,7 +3288,7 @@
      },
      {
       "case": "cbsa-bnk1dcs",
-      "case_scenarios": 46,
+      "case_scenarios": 47,
       "db2": true,
       "det": {
        "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
@@ -3534,7 +3534,7 @@
          "option": "TRUNC"
         }
        ],
-       "oracle_image": "sha256:35d04c68f2d357d250dc65598708c1bce67842bb261cb979beb53d6033309572",
+       "oracle_image": "sha256:f094c8e046ff731badd051064f7e5eed80d65890b9b64b4a2cd8ff51f1f12fbd",
        "oracle_matches_pin": true,
        "records_compared": 64,
        "records_equal": 29,
@@ -14204,7 +14204,7 @@
      },
      {
       "case": "cbsa-bnk1dcs",
-      "case_scenarios": 46,
+      "case_scenarios": 47,
       "db2": true,
       "det": {
        "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
@@ -14672,7 +14672,7 @@
     "cases": [
      {
       "case": "cbsa-bnk1dcs",
-      "case_scenarios": 46,
+      "case_scenarios": 47,
       "db2": true,
       "det": {
        "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
@@ -16137,7 +16137,7 @@
          "option": "TRUNC"
         }
        ],
-       "oracle_image": "sha256:35d04c68f2d357d250dc65598708c1bce67842bb261cb979beb53d6033309572",
+       "oracle_image": "sha256:f094c8e046ff731badd051064f7e5eed80d65890b9b64b4a2cd8ff51f1f12fbd",
        "oracle_matches_pin": true,
        "records_compared": 64,
        "records_equal": 29,
@@ -16201,7 +16201,7 @@
         "option": "TRUNC"
        }
       ],
-      "oracle_image": "sha256:35d04c68f2d357d250dc65598708c1bce67842bb261cb979beb53d6033309572",
+      "oracle_image": "sha256:f094c8e046ff731badd051064f7e5eed80d65890b9b64b4a2cd8ff51f1f12fbd",
       "oracle_matches_pin": true,
       "records_compared": 64,
       "records_equal": 29,
@@ -16805,7 +16805,7 @@
      },
      {
       "case": "cbsa-bnk1dcs",
-      "case_scenarios": 46,
+      "case_scenarios": 47,
       "db2": true,
       "det": {
        "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
@@ -17521,7 +17521,7 @@
      },
      {
       "case": "cbsa-bnk1dcs",
-      "case_scenarios": 46,
+      "case_scenarios": 47,
       "db2": true,
       "det": {
        "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
@@ -18225,7 +18225,7 @@
        "fault_runs": 0,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:35d04c68f2d357d250dc65598708c1bce67842bb261cb979beb53d6033309572",
+       "oracle_image": "sha256:f094c8e046ff731badd051064f7e5eed80d65890b9b64b4a2cd8ff51f1f12fbd",
        "oracle_matches_pin": true,
        "records_compared": 54,
        "records_equal": 54,
@@ -18323,7 +18323,7 @@
       "fault_runs": 0,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:35d04c68f2d357d250dc65598708c1bce67842bb261cb979beb53d6033309572",
+      "oracle_image": "sha256:f094c8e046ff731badd051064f7e5eed80d65890b9b64b4a2cd8ff51f1f12fbd",
       "oracle_matches_pin": true,
       "records_compared": 54,
       "records_equal": 54,
@@ -18751,7 +18751,7 @@
     "cases": [
      {
       "case": "cbsa-bnk1dcs",
-      "case_scenarios": 46,
+      "case_scenarios": 47,
       "db2": true,
       "det": {
        "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
@@ -21610,14 +21610,14 @@
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": 96.8,
-    "branch_pct": 90.2,
+    "branch_net_pct": 97.9,
+    "branch_pct": 91.2,
     "branches": {
-     "covered": 92,
+     "covered": 93,
      "total": 102
     },
     "branches_net": {
-     "covered": 92,
+     "covered": 93,
      "total": 95
     },
     "current": true,
@@ -21711,7 +21711,7 @@
     "cases": [
      {
       "case": "cbsa-bnk1dcs",
-      "case_scenarios": 46,
+      "case_scenarios": 47,
       "db2": true,
       "det": {
        "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
@@ -21734,7 +21734,7 @@
     ],
     "chosen": {
      "case": "cbsa-bnk1dcs",
-     "case_scenarios": 46,
+     "case_scenarios": 47,
      "db2": true,
      "det": {
       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
@@ -21753,7 +21753,7 @@
     "score": null
    },
    "next": [
-    "branch coverage >= 100.0 net (now 90.2 raw, 96.8 net of the reviewed infeasible outcomes)"
+    "branch coverage >= 100.0 net (now 91.2 raw, 97.9 net of the reviewed infeasible outcomes)"
    ],
    "options": {
     "assumed": 4,
@@ -22343,7 +22343,7 @@
      "X31",
      "X46"
     ],
-    "branch_outcomes_unrun": 10,
+    "branch_outcomes_unrun": 9,
     "commands": 14,
     "commands_backed": 8,
     "commands_not_backed": [
@@ -23166,8 +23166,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2",
-   "python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha 4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2",
+   "python tests/tools/cics_census.py survey --baseline --sha 616550df8da3cb1a0d4d513d0bb7c3dcf299b407",
+   "python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha 616550df8da3cb1a0d4d513d0bb7c3dcf299b407",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases cbsa-abndproc,cbsa-acctctrl,cbsa-acctctrl-generated,cbsa-bankdata,cbsa-bnk1cac,cbsa-bnk1cac-generated,cbsa-bnk1cca,cbsa-bnk1cca-generated,cbsa-bnk1ccs,cbsa-bnk1ccs-generated,cbsa-bnk1cra,cbsa-bnk1cra-generated,cbsa-bnk1dac,cbsa-bnk1dac-generated,cbsa-bnk1dcs,cbsa-bnk1dcs-generated,cbsa-bnk1tfn,cbsa-bnk1tfn-generated,cbsa-bnk1uac,cbsa-bnk1uac-generated,cbsa-bnkmenu,cbsa-crdtagy1,cbsa-crdtagy2,cbsa-crdtagy3,cbsa-crdtagy4,cbsa-crdtagy5,cbsa-creacc,cbsa-creacc-generated,cbsa-crecust,cbsa-crecust-generated,cbsa-custctrl,cbsa-dbcrfun,cbsa-dbcrfun-generated,cbsa-delacc,cbsa-delacc-generated,cbsa-delcus,cbsa-delcus-generated,cbsa-getcompy,cbsa-getscode,cbsa-inqacc,cbsa-inqacc-generated,cbsa-inqacccu,cbsa-inqacccu-generated,cbsa-inqcust,cbsa-updacc,cbsa-updacc-faults,cbsa-updacc-generated,cbsa-updcust,cbsa-xfrfun,cbsa-xfrfun-generated  # Db2 cases (39) need the Db2 container",
    "python tests/tools/evidence.py prove cbsa-inqacc cbsa-updacc cbsa-updacc-generated",
@@ -23184,21 +23184,21 @@
   },
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
-   "sha256:35d04c68f2d357d250dc65598708c1bce67842bb261cb979beb53d6033309572",
-   "sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc"
+   "sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc",
+   "sha256:f094c8e046ff731badd051064f7e5eed80d65890b9b64b4a2cd8ff51f1f12fbd"
   ],
   "pin_manifest": "tests/crucible_pins.toml",
   "record_status_from": "evidence.py status at build time",
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2",
+   "sha": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407",
    "translator": {
     "files": 150,
-    "sha256": "a270a75e347468a700adada70850bc5eda533f3c0ce6c2c3bb6a8d1bf397772a"
+    "sha256": "0140cb6666f05dc5e3c1509b67f1c507cb68ae076151c86030304f27fafedf08"
    }
   },
-  "translator_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2",
+  "translator_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -23241,6 +23241,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "a270a75e347468a700adada70850bc5eda533f3c0ce6c2c3bb6a8d1bf397772a"
+  "fingerprint": "0140cb6666f05dc5e3c1509b67f1c507cb68ae076151c86030304f27fafedf08"
  }
 }

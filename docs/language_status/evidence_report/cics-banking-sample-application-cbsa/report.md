@@ -4,9 +4,9 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `616550df8da3cb1a0d4d513d0bb7c3dcf299b407` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
-The translation survey matches the translator in the tree (translator fingerprint `a270a75e3474`).
+The translation survey matches the translator in the tree (translator fingerprint `0140cb6666f0`).
 
 ## How to read this report
 
@@ -122,7 +122,7 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 | src/base/cobol_src/XFRFUN.cbl | L4 | 426/426 | 0 | cbsa-xfrfun | equal | 43 | none | 27/28 (96.4%) | 78/81 (96.3%) | 78/78 (100.0%) | — | not measured (no det_mutation/ entry) | 5/9 |
 | src/base/cobol_src/BNK1CAC.cbl | L3 | 389/389 | 0 | cbsa-bnk1cac | equal | 45 | none | 25/25 (100.0%) | 76/97 (78.4%) | 76/81 (93.8%) | — | not measured (no det_mutation/ entry) | 7/11 |
 | src/base/cobol_src/BNK1CCS.cbl | L3 | 573/573 | 0 | cbsa-bnk1ccs | equal | 97 | none | 33/33 (100.0%) | 126/143 (88.1%) | 126/128 (98.4%) | — | not measured (no det_mutation/ entry) | 8/12 |
-| src/base/cobol_src/BNK1DCS.cbl | L3 | 648/648 | 0 | cbsa-bnk1dcs | equal | 46 | none | 51/51 (100.0%) | 92/102 (90.2%) | 92/95 (96.8%) | — | not measured (no det_mutation/ entry) | 8/14 |
+| src/base/cobol_src/BNK1DCS.cbl | L3 | 648/648 | 0 | cbsa-bnk1dcs | equal | 47 | none | 51/51 (100.0%) | 93/102 (91.2%) | 93/95 (97.9%) | — | not measured (no det_mutation/ entry) | 8/14 |
 | src/base/cobol_src/CRECUST.cbl | L3 | 321/321 | 0 | cbsa-crecust | equal | 11 | none | 37/37 (100.0%) | 46/70 (65.7%) | 46/60 (76.7%) | — | not measured (no det_mutation/ entry) | 4/16 |
 
 ## Per program
@@ -157,7 +157,7 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 - **Executed equivalence** (cbsa-bnk1dac-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (7 scenarios in case.json)
 - **Executed equivalence** (cbsa-bnk1dcs, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (46 scenarios in case.json)
+  - evidence record: none (47 scenarios in case.json)
 - **Executed equivalence** (cbsa-bnk1dcs-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (5 scenarios in case.json)
 - **Executed equivalence** (cbsa-bnk1tfn, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
@@ -835,7 +835,7 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 - **Executed equivalence** (cbsa-bnk1dac-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (7 scenarios in case.json)
 - **Executed equivalence** (cbsa-bnk1dcs, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (46 scenarios in case.json)
+  - evidence record: none (47 scenarios in case.json)
 - **Executed equivalence** (cbsa-bnk1dcs-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (5 scenarios in case.json)
 - **Executed equivalence** (cbsa-delacc, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
@@ -873,7 +873,7 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 - **Options in force** (compile options that change results; Enterprise COBOL 6.3; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(OPT) [found at etc/install/base/buildjcl/CICS.jcl:7]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.ACTION=REPLACE [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:96]; db2.bind.ISOLATION=UR [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:115]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.coprocessor=integrated (CICS + SQL on the compile PARM / CBL cards) [no effect; found at etc/install/base/buildjcl/CICS.jcl:7]; cics.program_definition.CONCURRENCY=THREADSAFE [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.program_definition.EXECKEY=USER [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.region.DB2CONN=YES [no effect; found at etc/install/base/installjcl/DFH$SIP1.jcl:12]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP,EDF') via the program's CBL card [no effect; found at src/base/cobol_src/ACCTCTRL.cbl:1]
 - **Executed equivalence** (cbsa-bnk1dcs, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (46 scenarios in case.json)
+  - evidence record: none (47 scenarios in case.json)
 - **Executed equivalence** (cbsa-bnk1dcs-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (5 scenarios in case.json)
 - **Executed equivalence** (cbsa-delcus, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
@@ -1003,7 +1003,7 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 - **Executed equivalence** (cbsa-bnk1cca-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (10 scenarios in case.json)
 - **Executed equivalence** (cbsa-bnk1dcs, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (46 scenarios in case.json)
+  - evidence record: none (47 scenarios in case.json)
 - **Executed equivalence** (cbsa-bnk1dcs-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (5 scenarios in case.json)
 - **Executed equivalence** (cbsa-creacc, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
@@ -1057,7 +1057,7 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 - **Executed equivalence** (cbsa-bnk1cca-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (10 scenarios in case.json)
 - **Executed equivalence** (cbsa-bnk1dcs, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (46 scenarios in case.json)
+  - evidence record: none (47 scenarios in case.json)
 - **Executed equivalence** (cbsa-bnk1dcs-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (5 scenarios in case.json)
 - **Executed equivalence** (cbsa-creacc, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
@@ -1142,7 +1142,7 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 - **Options in force** (compile options that change results; Enterprise COBOL 6.3; 2 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [found at src/base/cobol_src/UPDCUST.cbl:1]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [found at src/base/cobol_src/UPDCUST.cbl:1]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.ACTION=REPLACE [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:96]; db2.bind.ISOLATION=UR [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:115]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.coprocessor=integrated (CICS + SQL on the compile PARM / CBL cards) [no effect; found at etc/install/base/buildjcl/CICS.jcl:7]; cics.program_definition.CONCURRENCY=THREADSAFE [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.program_definition.EXECKEY=USER [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.region.DB2CONN=YES [no effect; found at etc/install/base/installjcl/DFH$SIP1.jcl:12]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP,EDF') via the program's CBL card [no effect; found at src/base/cobol_src/ACCTCTRL.cbl:1]
 - **Executed equivalence** (cbsa-bnk1dcs, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (46 scenarios in case.json)
+  - evidence record: none (47 scenarios in case.json)
 - **Executed equivalence** (cbsa-bnk1dcs-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (5 scenarios in case.json)
 - **Executed equivalence** (cbsa-updcust, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
@@ -1308,16 +1308,16 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 
 ### src/base/cobol_src/BNK1DCS.cbl -- L3
 
-- **Executed equivalent** on the 46 scenarios of cbsa-bnk1dcs against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
-- **Next level needs:** branch coverage >= 100.0 net (now 90.2 raw, 96.8 net of the reviewed infeasible outcomes)
+- **Executed equivalent** on the 47 scenarios of cbsa-bnk1dcs against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
+- **Next level needs:** branch coverage >= 100.0 net (now 91.2 raw, 97.9 net of the reviewed infeasible outcomes)
 - **Translation:** 648/648 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 6.3; 2 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [found at src/base/cobol_src/BNK1DCS.cbl:1]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [found at src/base/cobol_src/BNK1DCS.cbl:1]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.ACTION=REPLACE [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:96]; db2.bind.ISOLATION=UR [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:115]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.coprocessor=integrated (CICS + SQL on the compile PARM / CBL cards) [no effect; found at etc/install/base/buildjcl/CICS.jcl:7]; cics.program_definition.CONCURRENCY=THREADSAFE [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.program_definition.EXECKEY=USER [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.region.DB2CONN=YES [no effect; found at etc/install/base/installjcl/DFH$SIP1.jcl:12]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP,EDF') via the program's CBL card [no effect; found at src/base/cobol_src/ACCTCTRL.cbl:1]
 - **Executed equivalence** (cbsa-bnk1dcs, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (46 scenarios in case.json)
+  - evidence record: none (47 scenarios in case.json)
 - **Executed equivalence** (cbsa-bnk1dcs-generated, program, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (5 scenarios in case.json)
-- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 51/51 (100.0%), branch outcomes 92/102 (90.2%) raw, 92/95 (96.8%) net of 7 stated infeasible; unrun paragraphs by name: not recorded
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 51/51 (100.0%), branch outcomes 93/102 (91.2%) raw, 93/95 (97.9%) net of 7 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
@@ -1349,7 +1349,7 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
   - stated infeasible branch outcome (reviewed claim, family C): SM010:1496:true (IF) -- The RESP test inside the `IF SEND-DATAONLY` block (1486), which is never entered.
   - stated infeasible branch outcome (reviewed claim, family G): SM010:1563:false (IF) -- `IF SEND-DATAONLY-ALARM` is reached only with the flag '3': '1' (SEND-ERASE) takes the SEND MAP ERASE branch ahead of it and ends at SM999, and '2' is never set (see 1486), so the test is always true.
 - **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 10 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X15, X19, X26, X27, X31, X46; commands without oracle backing: ASKTIME, BIF DEEDIT, FORMATTIME, INQUIRE TERMINAL, SEND CONTROL, SET TERMINAL; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 9 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X15, X19, X26, X27, X31, X46; commands without oracle backing: ASKTIME, BIF DEEDIT, FORMATTIME, INQUIRE TERMINAL, SEND CONTROL, SET TERMINAL; assumption reach and the migration dimensions above: not measured
 
 ### src/base/cobol_src/CRECUST.cbl -- L3
 
@@ -1432,18 +1432,18 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2`
+- translator commit (the survey's): `616550df8da3cb1a0d4d513d0bb7c3dcf299b407`
 - corpus pin: `cics-banking-sample-application-cbsa` at `417334533178ab6e753cc64b0e0e5cf0b4952704`
 - crucible pins: cics `v0.10.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.10.0 (01e11fe6)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
 - oracle base image: `debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251`
-- oracle images the evidence records ran on: `sha256:35d04c68f2d357d250dc65598708c1bce67842bb261cb979beb53d6033309572`, `sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc`
+- oracle images the evidence records ran on: `sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc`, `sha256:f094c8e046ff731badd051064f7e5eed80d65890b9b64b4a2cd8ff51f1f12fbd`
 
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2
-python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha 4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2
+python tests/tools/cics_census.py survey --baseline --sha 616550df8da3cb1a0d4d513d0bb7c3dcf299b407
+python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha 616550df8da3cb1a0d4d513d0bb7c3dcf299b407
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases cbsa-abndproc,cbsa-acctctrl,cbsa-acctctrl-generated,cbsa-bankdata,cbsa-bnk1cac,cbsa-bnk1cac-generated,cbsa-bnk1cca,cbsa-bnk1cca-generated,cbsa-bnk1ccs,cbsa-bnk1ccs-generated,cbsa-bnk1cra,cbsa-bnk1cra-generated,cbsa-bnk1dac,cbsa-bnk1dac-generated,cbsa-bnk1dcs,cbsa-bnk1dcs-generated,cbsa-bnk1tfn,cbsa-bnk1tfn-generated,cbsa-bnk1uac,cbsa-bnk1uac-generated,cbsa-bnkmenu,cbsa-crdtagy1,cbsa-crdtagy2,cbsa-crdtagy3,cbsa-crdtagy4,cbsa-crdtagy5,cbsa-creacc,cbsa-creacc-generated,cbsa-crecust,cbsa-crecust-generated,cbsa-custctrl,cbsa-dbcrfun,cbsa-dbcrfun-generated,cbsa-delacc,cbsa-delacc-generated,cbsa-delcus,cbsa-delcus-generated,cbsa-getcompy,cbsa-getscode,cbsa-inqacc,cbsa-inqacc-generated,cbsa-inqacccu,cbsa-inqacccu-generated,cbsa-inqcust,cbsa-updacc,cbsa-updacc-faults,cbsa-updacc-generated,cbsa-updcust,cbsa-xfrfun,cbsa-xfrfun-generated  # Db2 cases (39) need the Db2 container
 python tests/tools/evidence.py prove cbsa-inqacc cbsa-updacc cbsa-updacc-generated

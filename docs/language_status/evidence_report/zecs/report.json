@@ -693,7 +693,7 @@
    "cbsa-bnk1dcs": [
     51,
     51,
-    92,
+    93,
     102
    ],
    "cbsa-bnk1dcs-generated": [
@@ -1240,7 +1240,7 @@
    "zecs-zecs001": [
     82,
     119,
-    104,
+    116,
     208
    ],
    "zecs-zecs003": [
@@ -1411,8 +1411,12 @@
     },
     "program": "Source/ZECS002.asm",
     "row": {
-     "error": "MacroLevelCics: ZECS002.asm:68: CICS Assembler not supported (DFHEIENT): outside the HLASM lowering's subset (#5859): DC 08XL01'40' at line 319; named and refused, never translated",
-     "kind": "assembler"
+     "holes": [
+      "line 430: EXEC EXEC CICS: EXEC CICS VERIFY not modelled"
+     ],
+     "kind": "cics",
+     "statements": 511,
+     "translated": 510
     },
     "source_read": true
    },
@@ -1650,10 +1654,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2",
+   "sha": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407",
    "translator": {
     "files": 150,
-    "sha256": "a270a75e347468a700adada70850bc5eda533f3c0ce6c2c3bb6a8d1bf397772a"
+    "sha256": "0140cb6666f05dc5e3c1509b67f1c507cb68ae076151c86030304f27fafedf08"
    }
   },
   "sweeps": {}
@@ -4107,20 +4111,32 @@
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": 50.0,
-    "branch_pct": 50.0,
+    "branch_net_pct": 56.0,
+    "branch_pct": 55.8,
     "branches": {
-     "covered": 104,
+     "covered": 116,
      "total": 208
     },
     "branches_net": {
-     "covered": 104,
-     "total": 208
+     "covered": 116,
+     "total": 207
     },
     "current": true,
-    "infeasible_netted": [],
+    "infeasible_netted": [
+     "1310-TTL:718:false"
+    ],
     "infeasible_refuted": [],
-    "infeasible_stated": [],
+    "infeasible_stated": [
+     {
+      "family": "G",
+      "key": "1310-TTL:718:false",
+      "kind": "IF",
+      "line": 718,
+      "outcome": "false",
+      "reason": "`IF ETTL-RESP EQUAL DFHRESP(NORMAL) OR ETTL-STATUS EQUAL DFHVALUE(ENABLED)` (718) in 1310-TTL sits inside `IF ZF-TTL GREATER THAN SEVEN-DAYS` (716, 604800 s). ZF-TTL exceeds seven days only if it also exceeds twenty-four hours (86400 s), and then the test at 712-715 ran first: when ETTL-RESP is not NORMAL (or ETTL-STATUS is DISABLED) it MOVEs TWENTY-FOUR-HOURS to ZF-TTL, so 716 is false. Line 718 is therefore reached only with ETTL-RESP NORMAL, and its first operand ETTL-RESP EQUAL NORMAL is then true; no input makes both operands false.",
+      "unit": "1310-TTL"
+     }
+    ],
     "paragraph_pct": 68.9,
     "paragraphs": {
      "covered": 82,
@@ -4136,7 +4152,7 @@
     "cases": [
      {
       "case": "zecs-zecs001",
-      "case_scenarios": 31,
+      "case_scenarios": 38,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -4148,7 +4164,7 @@
     ],
     "chosen": {
      "case": "zecs-zecs001",
-     "case_scenarios": 31,
+     "case_scenarios": 38,
      "db2": false,
      "det": {
       "source": "CI det-sweep ratchet on main",
@@ -4708,7 +4724,7 @@
      "X52",
      "X53"
     ],
-    "branch_outcomes_unrun": 104,
+    "branch_outcomes_unrun": 92,
     "commands": 27,
     "commands_backed": 3,
     "commands_not_backed": [
@@ -4794,7 +4810,7 @@
     "cases": [
      {
       "case": "zecs-zecsnc",
-      "case_scenarios": 3,
+      "case_scenarios": 7,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -4806,7 +4822,7 @@
     ],
     "chosen": {
      "case": "zecs-zecsnc",
-     "case_scenarios": 3,
+     "case_scenarios": 7,
      "db2": false,
      "det": {
       "source": "CI det-sweep ratchet on main",
@@ -4993,7 +5009,7 @@
     "issue": "#5859",
     "kind": "not_cobol",
     "kind_label": "refused whole: not COBOL",
-    "reason": "CICS Assembler member; the translator is a COBOL translator"
+    "reason": "CICS Assembler member; the HLASM front end refuses it at DC 08XL01'40' (slice 3 of #5859 lowers it)"
    },
    "level": "L0",
    "level_current": true,
@@ -5004,7 +5020,7 @@
     "score": null
    },
    "next": [
-    "translated whole (refused whole by the translator)"
+    "translated whole (1 holes left)"
    ],
    "options": {
     "assumed": 6,
@@ -5121,31 +5137,33 @@
     "commands_backed": 0,
     "commands_not_backed": [],
     "facts_unstated": 0,
-    "holes": 0,
+    "holes": 1,
     "paragraphs_unrun": null,
-    "refused": "refused: CICS Assembler"
+    "refused": null
    },
    "stale_inputs": [],
    "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [
-     "refused: CICS Assembler"
+     "EXEC CICS VERIFY"
     ],
-    "hole_count": 0,
-    "holes": [],
-    "refused": "refused: CICS Assembler",
+    "hole_count": 1,
+    "holes": [
+     "EXEC EXEC CICS: EXEC CICS VERIFY not modelled"
+    ],
+    "refused": null,
     "source_defects": [],
-    "statements": null,
-    "translated": null,
+    "statements": 511,
+    "translated": 510,
     "whole": false
    }
   }
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2",
-   "python tests/tools/evidence_report.py zecs --baseline --sha 4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2",
+   "python tests/tools/cics_census.py survey --baseline --sha 616550df8da3cb1a0d4d513d0bb7c3dcf299b407",
+   "python tests/tools/evidence_report.py zecs --baseline --sha 616550df8da3cb1a0d4d513d0bb7c3dcf299b407",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases zecs-ecs001,zecs-zecs000,zecs-zecs001,zecs-zecs003,zecs-zecsnc,zecs-zecsplt",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -5166,13 +5184,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2",
+   "sha": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407",
    "translator": {
     "files": 150,
-    "sha256": "a270a75e347468a700adada70850bc5eda533f3c0ce6c2c3bb6a8d1bf397772a"
+    "sha256": "0140cb6666f05dc5e3c1509b67f1c507cb68ae076151c86030304f27fafedf08"
    }
   },
-  "translator_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2",
+  "translator_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -5202,12 +5220,12 @@
    "L4": 0,
    "L5": 0
   },
-  "holes": 0,
+  "holes": 1,
   "levels_stale": 0,
   "levels_stale_survey": 0,
   "programs": 7,
   "records_current": 0,
-  "refused_whole": 1,
+  "refused_whole": 0,
   "source_unread": 0,
   "translated_whole": 6,
   "with_case": 6,
@@ -5215,6 +5233,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "a270a75e347468a700adada70850bc5eda533f3c0ce6c2c3bb6a8d1bf397772a"
+  "fingerprint": "0140cb6666f05dc5e3c1509b67f1c507cb68ae076151c86030304f27fafedf08"
  }
 }

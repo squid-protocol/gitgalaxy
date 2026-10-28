@@ -71,6 +71,13 @@ public final class DetCics {
             this.cs = cs;
         }
 
+        /** #6072: the store of a file name no region can define (CicsTask.undefinableFile): it holds no record and takes
+         *  none. The file command answers FILENOTFOUND before it reads or writes it (CicsTask.fileFault); this store
+         *  only lets a command's eagerly evaluated arguments (a WRITE's `exists`) run first. */
+        public static <E> Store<E> undefined(Charset cs) {
+            return new Store<>(List::of, e -> new byte[0], b -> null, e -> { }, e -> { }, 0, 0, cs);
+        }
+
         /** A keyed read through the repository's findById: `byId` gets a buffer with the key in its record place. */
         public Store<E> withFindById(Function<byte[], Optional<E>> byId) {
             this.byId = byId;

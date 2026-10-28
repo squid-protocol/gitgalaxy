@@ -2329,6 +2329,21 @@ def scenario_datasets(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, dic
     return out
 
 
+def stage_scenario_inputs(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]], inputs: Path) -> None:
+    """#4622: the Java side's input of each file a scenario states its own records for (`inputs/<DD>.<scenario>.in`),
+    built from those stated records: the bytes the COBOL task started with. #6839 (row A): it was copied from the
+    COBOL scenario's files/ copy, which is that task's working file -- the stub updates it in place, so after the
+    COBOL run it held the task's end state (a DELETE already done, a WRITE already there) and the Java task started
+    from another file (ZECS001's DELETE of a stored key answered 204; ZECS000's expiry scenarios ran on files the
+    COBOL task had already pruned)."""
+    enc = common.data_encoding(case)
+    reclens = {f["base"]: f["reclen"] for f in files}
+    for sc in case["scenarios"]:
+        for base, over in scenario_datasets(case, sc).items():
+            data = case_file_records(case, corpus, over, reclens[base], enc)
+            (inputs / f"{base}.{sc['name']}.in").write_bytes(data)
+
+
 def sql_first_id(table: str) -> int:
     """#4270: the first GG-SQL-ID (PIC 9(4)) of the next program's statements in a task's shared table: the next
     hundred after the ids already taken. A range per program by its place in "programs" (1000 x its index) ran past
@@ -4319,9 +4334,7 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
     inputs.mkdir(parents=True, exist_ok=True)
     for f in files:
         shutil.copy(cobol_work / "files" / f["base"], inputs / f"{f['base']}.in")
-    for sc in case["scenarios"]:  # #4622: a file a scenario states its own records for
-        for base in scenario_datasets(case, sc):
-            shutil.copy(cobol_work / "scenarios" / sc["name"] / "files" / base, inputs / f"{base}.{sc['name']}.in")
+    stage_scenario_inputs(case, corpus, files, inputs)
     ca_fields = commarea_fields(corpus, case)  # as the DTO lists them: an OCCURS group's fields once
     ca_read = commarea_fields(corpus, case, occurrences=True)  # #4765: the whole record, every occurrence
     scenarios = []

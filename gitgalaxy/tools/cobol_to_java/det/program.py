@@ -1809,6 +1809,11 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
         "",
         '    @SuppressWarnings("unchecked")',
         "    private <E> DetCics.Store<E> store(String name) {",
+        # #6072: a name no region defines has no store and takes no record: its command answers FILENOTFOUND
+        # (CicsTask.fileFault); the empty store lets the command's eager arguments (a WRITE's exists) run first
+        "        if (CicsTask.undefinableFile(name)) {",
+        "            return DetCics.Store.undefined(CS);",
+        "        }",
         *(
             [
                 f"        return (DetCics.Store<E>) stores.computeIfAbsent(name, n -> switch ({FC.file_key_call(cx.stores, 'n')}) {{",

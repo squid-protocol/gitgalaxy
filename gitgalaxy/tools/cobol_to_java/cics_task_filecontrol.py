@@ -14,7 +14,7 @@ FILECONTROL_JAVA = """\
     /** READ FILE(file) (#4023 follow-up): `lookup` is the service's generated read method. RESP NORMAL (0) and the
      *  record, or NOTFND (13) without one -- or the condition the harness planned, and then nothing is read. */
     public <T> FileRead<T> read(String file, java.util.function.Supplier<Optional<T>> lookup) {
-        int[] planned = root().injected("READ", file);
+        int[] planned = root().fileFault("READ", file);
         if (planned != null) {
             return new FileRead<>(planned[0], planned[1], null);
         }
@@ -45,7 +45,7 @@ FILECONTROL_JAVA = """\
         if (update && root().held.contains(file)) {
             return new FileRead<>(16, 28, null);
         }
-        int[] planned = root().injected("READ", file);
+        int[] planned = root().fileFault("READ", file);
         if (planned != null) {
             return new FileRead<>(planned[0], planned[1], null);
         }
@@ -60,7 +60,7 @@ FILECONTROL_JAVA = """\
         if (update && root().held.contains(file)) {
             return new FileRead<>(16, 28, null);  // #5092
         }
-        int[] planned = root().injected("READ", file);
+        int[] planned = root().fileFault("READ", file);
         if (planned != null) {
             return new FileRead<>(planned[0], planned[1], null);
         }
@@ -79,7 +79,7 @@ FILECONTROL_JAVA = """\
      *  else `store` saves the record (the service's generated repository save) and RESP is NORMAL -- or the
      *  condition the harness planned, and nothing is written. */
     public int write(String file, boolean exists, Runnable store) {
-        int[] planned = root().injected("WRITE", file);
+        int[] planned = root().fileFault("WRITE", file);
         if (planned != null) {
             return done(planned[0], planned[1]);  // #5044: the plan's RESP2 (IBM's), as the stub's WRITE sets it
         }
@@ -92,7 +92,7 @@ FILECONTROL_JAVA = """\
 
     /** REWRITE FILE(file) FROM: replaces the record a readForUpdate holds (INVREQ, 16, when none is held). */
     public int rewrite(String file, Runnable store) {
-        int[] planned = root().injected("REWRITE", file);
+        int[] planned = root().fileFault("REWRITE", file);
         if (planned != null) {
             return done(planned[0], planned[1]);  // #5044
         }
@@ -107,7 +107,7 @@ FILECONTROL_JAVA = """\
     /** DELETE FILE(file) RIDFLD: `exists` says whether the key is there (NOTFND, 13, when not); else `remove`
      *  deletes it (the service's generated repository delete) -- or the condition the harness planned. */
     public int delete(String file, boolean exists, Runnable remove) {
-        int[] planned = root().injected("DELETE", file);
+        int[] planned = root().fileFault("DELETE", file);
         if (planned != null) {
             return done(planned[0], planned[1]);
         }
@@ -120,7 +120,7 @@ FILECONTROL_JAVA = """\
     /** DELETE FILE(file) GENERIC (#5092, X22): as `delete` over every record with the generic key; a file that is not a
      *  KSDS (an ESDS here) is INVREQ RESP2 22 (IBM: "A generic delete is issued for a file that is not a VSAM KSDS"). */
     public int deleteGeneric(String file, boolean exists, Runnable remove) {
-        int[] planned = root().injected("DELETE", file);
+        int[] planned = root().fileFault("DELETE", file);
         if (planned != null) {
             return done(planned[0], planned[1]);
         }
@@ -134,7 +134,7 @@ FILECONTROL_JAVA = """\
      *  not shorter than the key / below zero) or 26 (a KEYLENGTH without GENERIC that is not the key's length). Nothing is
      *  deleted; a planned condition comes first, then an ESDS (21, generic 22), as the stub orders them. */
     public int deleteInvalid(String file, boolean generic, int resp2) {
-        int[] planned = root().injected("DELETE", file);
+        int[] planned = root().fileFault("DELETE", file);
         if (planned != null) {
             return done(planned[0], planned[1]);
         }
@@ -152,7 +152,7 @@ FILECONTROL_JAVA = """\
 
     /** DELETE FILE(file) without RIDFLD: the record a readForUpdate holds (INVREQ, 16, when none is held). */
     public int deleteHeld(String file, Runnable remove) {
-        int[] planned = root().injected("DELETE", file);
+        int[] planned = root().fileFault("DELETE", file);
         if (planned != null) {
             return done(planned[0], planned[1]);  // #5044
         }
@@ -191,7 +191,7 @@ FILECONTROL_JAVA = """\
     /** REWRITE FILE(file) FROM TOKEN(token): replaces the record the token holds; `key` is FROM's record's key (a key
      *  other than the held record's is refused: IBM does not say). */
     public int rewriteToken(String file, int token, byte[] key, Runnable store) {
-        int[] planned = root().injected("REWRITE", file);
+        int[] planned = root().fileFault("REWRITE", file);
         if (planned != null) {
             return done(planned[0], planned[1]);
         }
@@ -210,7 +210,7 @@ FILECONTROL_JAVA = """\
 
     /** DELETE FILE(file) TOKEN(token), no RIDFLD: deletes the record the token holds (`remove` is given its key). */
     public int deleteToken(String file, int token, java.util.function.Consumer<byte[]> remove) {
-        int[] planned = root().injected("DELETE", file);
+        int[] planned = root().fileFault("DELETE", file);
         if (planned != null) {
             return done(planned[0], planned[1]);
         }
@@ -401,7 +401,7 @@ FILECONTROL_JAVA = """\
      *  file's keys, in key order (e.g. the repository's ids as a TreeSet). */
     public int startbr(String file, String key, boolean equal,
                        java.util.function.Supplier<java.util.NavigableSet<String>> keys) {
-        int[] planned = root().injected("STARTBR", file);
+        int[] planned = root().fileFault("STARTBR", file);
         if (planned != null) {
             return done(planned[0], planned[1]);
         }
@@ -428,7 +428,7 @@ FILECONTROL_JAVA = """\
      *  RIDFLD to it and look the record up by it. A RIDFLD the program changed, or a READNEXT after a READPREV,
      *  repositions at the first key >= RIDFLD. ENDFILE (20) past the last; INVREQ (16) with no browse. */
     public Browsed readnext(String file, String ridfld) {
-        int[] planned = root().injected("READNEXT", file);
+        int[] planned = root().fileFault("READNEXT", file);
         if (planned != null) {
             return new Browsed(planned[0], planned.length > 1 ? planned[1] : 0, null);
         }
@@ -463,7 +463,7 @@ FILECONTROL_JAVA = """\
      *  record -- so it reads again the record READNEXT just read; after a HIGH-VALUES STARTBR, the last record.
      *  ENDFILE (20) before the first; INVREQ (16) with no browse. */
     public Browsed readprev(String file, String ridfld) {
-        int[] planned = root().injected("READPREV", file);
+        int[] planned = root().fileFault("READPREV", file);
         if (planned != null) {
             return new Browsed(planned[0], planned.length > 1 ? planned[1] : 0, null);
         }
@@ -570,7 +570,7 @@ FILECONTROL_JAVA = """\
     /** STARTBR FILE(file) RIDFLD(rba) RBA [EQUAL]: positions on the record at `rba`, or at the end for X'FFFFFFFF'.
      *  INVREQ (16) when a browse of the file is active. */
     public int startbrRba(String file, long rba) {
-        int[] planned = root().injected("STARTBR", file);
+        int[] planned = root().fileFault("STARTBR", file);
         if (planned != null) {
             return done(planned[0], planned[1]);
         }
@@ -605,7 +605,7 @@ FILECONTROL_JAVA = """\
     }
 
     private BrowsedRba rbaRead(String verb, int dir, String file, long ridfld, int intoLength) {
-        int[] planned = root().injected(verb, file);
+        int[] planned = root().fileFault(verb, file);
         if (planned != null) {
             return new BrowsedRba(planned[0], planned.length > 1 ? planned[1] : 0, ridfld, null);
         }
@@ -658,7 +658,7 @@ FILECONTROL_JAVA = """\
 
     /** ENDBR FILE(file): the browse ends; INVREQ (16) when none is active. */
     public int endbr(String file) {
-        int[] planned = root().injected("ENDBR", file);
+        int[] planned = root().fileFault("ENDBR", file);
         if (planned != null) {
             return done(planned[0], planned[1]);
         }

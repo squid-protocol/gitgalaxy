@@ -73,6 +73,7 @@ class FileControlCommands:
 
         def ref(self, text: str) -> E.Ref: ...
         def name(self, text: str) -> str: ...
+        def file_name(self, text: str) -> str: ...
         def int_(self, text: str) -> str: ...
         def field(self, text: str) -> str: ...
         def read_field(self, text: str) -> str: ...
@@ -108,7 +109,7 @@ class FileControlCommands:
     def rba_browse(self, verb: str, opts: dict, ind: str) -> list[str]:
         from gitgalaxy.tools.cobol_to_java.det.cics import _arg
 
-        file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
+        file = self.file_name(_arg(opts.get("DATASET") or opts.get("FILE")))
         rid = self.field(opts["RIDFLD"])
         rba = f"CicsTask.rba(DetCics.bytes({rid}, 4))"
         if verb == "STARTBR":
@@ -254,7 +255,7 @@ class FileControlCommands:
                 KeylengthInvreq
             ) as bad:  # #5092 (X52): the read is not done: INVREQ with IBM's RESP2 (CicsTask.readInvalid)
                 r = self.g.tmpname("read")
-                file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
+                file = self.file_name(_arg(opts.get("DATASET") or opts.get("FILE")))
                 update = "true" if "UPDATE" in opts and "TOKEN" not in opts else "false"
                 return [
                     f"{ind}CicsTask.FileRead<byte[]> {r} = task.readInvalid({file}, {update}, {bad.resp2});",
@@ -266,7 +267,7 @@ class FileControlCommands:
             return self.read_set(verb, opts, ind)
         length = self._read_length(verb, opts)
         st = self.store(opts)
-        file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
+        file = self.file_name(_arg(opts.get("DATASET") or opts.get("FILE")))
         into = self.field(opts["INTO"])
         rid = self.field(opts["RIDFLD"])
         if verb == "READ" and length is not None:
@@ -309,7 +310,7 @@ class FileControlCommands:
         g = self.g
         ptr = self.pointer(opts["SET"])
         st = self.store(opts)
-        file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
+        file = self.file_name(_arg(opts.get("DATASET") or opts.get("FILE")))
         rid = self.field(opts["RIDFLD"])
         length = None
         if "LENGTH" in opts:
@@ -436,7 +437,7 @@ class FileControlCommands:
             raise CicsError(f"DELETE GENERIC KEYLENGTH({arg}): not a known length")
         if n == 0:
             raise CicsError(f"DELETE GENERIC KEYLENGTH({arg}) = {n}: not above zero (undocumented)")
-        file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
+        file = self.file_name(_arg(opts.get("DATASET") or opts.get("FILE")))
         name = self.constant(opts.get("DATASET") or opts.get("FILE"))
         g = self.g
         r = g.tmpname("resp")
@@ -480,7 +481,7 @@ class FileControlCommands:
         if verb == "DELETE" and opts.get("RIDFLD"):
             raise CicsError(_msg("DELETE", "at_most_one", "RIDFLD", "RIDFLD", "TOKEN"))
         st = self.store(opts)
-        file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
+        file = self.file_name(_arg(opts.get("DATASET") or opts.get("FILE")))
         tok = self.int_(_arg(opts["TOKEN"]))
         r = self.g.tmpname("resp")
         if verb == "REWRITE":
@@ -505,21 +506,21 @@ class FileControlCommands:
         if "TOKEN" in opts:  # #5078 (X52): the record a READ UPDATE TOKEN holds
             return self.token_update(verb, opts, ind)
         if verb == "UNLOCK":  # #5079 (X52): the file's tokenless hold
-            file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
+            file = self.file_name(_arg(opts.get("DATASET") or opts.get("FILE")))
             r = self.g.tmpname("resp")
             return [f"{ind}int {r} = task.unlockHeld({file});", *self.outcome(opts, r, "task.resp2()", ind)]
         if verb == "DELETE":
             try:
                 self._keylength(verb, opts)
             except KeylengthInvreq as bad:  # #5092 (X22): IBM INVREQ 26, a KEYLENGTH that is not the key's length
-                file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
+                file = self.file_name(_arg(opts.get("DATASET") or opts.get("FILE")))
                 r = self.g.tmpname("resp")
                 return [f"{ind}int {r} = task.deleteInvalid({file}, false, {bad.resp2});",
                         *self.outcome(opts, r, "task.resp2()", ind)]  # fmt: skip
         else:
             self._keylength(verb, opts)
         st = self.store(opts)
-        file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
+        file = self.file_name(_arg(opts.get("DATASET") or opts.get("FILE")))
         g = self.g
         r = g.tmpname("resp")
         if verb == "WRITE":

@@ -6,7 +6,9 @@
 One SVG heatmap per metric: a row per port, a column per linuxdoom subsystem, each cell the port's subsystem median over
 linuxdoom's median in the same subsystem (``<metric>_vs_linuxdoom``), on a log scale so 2x and 0.5x are the same
 distance from 1. Blue is below linuxdoom, red above, white equal. A cell with no ratio (a subsystem under
-``--min-subsystem`` functions on either side, or absent from the port) is grey and empty, never zero. The right-hand
+``--min-subsystem`` functions on either side, or absent from the port) is grey and empty, never zero. A cell whose
+linuxdoom median is 0 but which is comparable (``comparable`` column) is not missing: the port's median over 0 is
+unbounded, so it is saturated red and labelled ``x/0`` (or white ``0/0`` when the port's median is 0 too). The right-hand
 column is the port's ``other`` share (functions no subsystem could place), so a port whose renderer sits under
 ``other`` is visible as such. Standard library only (no matplotlib): the SVG is written by hand.
 
@@ -47,7 +49,10 @@ def read_ratios(path, metric):
             raise SystemExit(f"subsystem_plot: {path} has no column {col}")
         for r in reader:
             val = r[col]
-            ratios.setdefault(r["port"], {})[r["subsystem"]] = float(val) if val else None
+            ratio = float(val) if val else None
+            if ratio is None and col != "cx10" and r.get("comparable"):  # linuxdoom's median is 0, not missing
+                ratio = math.inf if float(r[f"{metric}_med"]) > 0 else 1.0
+            ratios.setdefault(r["port"], {})[r["subsystem"]] = ratio
             other[r["port"]] = float(r["other_pct"])
     return ratios, other
 
@@ -91,14 +96,18 @@ def render(ratios, other, metric):
     ]  # fmt: skip
     for j, sub in enumerate(subs + ["other %"]):
         x = LEFT + CELL_W * j + CELL_W / 2
-        out.append(f'<text x="{x}" y="{TOP - 6}" text-anchor="start" transform="rotate(-45 {x} {TOP - 6})">{escape(sub)}</text>')
+        out.append(
+            f'<text x="{x}" y="{TOP - 6}" text-anchor="start" transform="rotate(-45 {x} {TOP - 6})">{escape(sub)}</text>'
+        )
     for i, port in enumerate(ports):
         y = TOP + CELL_H * i
         out.append(f'<text x="{LEFT - 6}" y="{y + 15}" text-anchor="end">{escape(port)}</text>')
         for j, sub in enumerate(subs):
             ratio = ratios[port].get(sub)
             x = LEFT + CELL_W * j
-            label = "" if ratio is None else (f"{ratio:.0f}" if share else f"{ratio:.2f}")
+            label = (
+                "" if ratio is None else (f"{ratio:.0f}" if share else "x/0" if math.isinf(ratio) else f"{ratio:.2f}")
+            )
             out.append(
                 f'<rect x="{x}" y="{y}" width="{CELL_W}" height="{CELL_H}" fill="{(colour_share if share else colour)(ratio)}" stroke="#fff">'
                 f"<title>{escape(port)} / {escape(sub)}: {label or 'no ratio'}</title></rect>"

@@ -203,7 +203,7 @@ def main(argv=None):
     dest = work / "results" / sha / "distribution"
     dest.mkdir(parents=True, exist_ok=True)
     (dest / "subsystem_distribution.md").write_text(render(result, sha, args.assign))
-    fields = ["port", "other_pct", "subsystem", "n", "share", "cx10"] + [
+    fields = ["port", "other_pct", "subsystem", "n", "share", "cx10", "comparable"] + [
         f"{f}_{k}" for f in FIELDS for k in ("med", "p90", "vs_linuxdoom")
     ]
     with open(dest / "subsystem_distribution.csv", "w", newline="") as fh:

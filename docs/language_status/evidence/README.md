@@ -14,7 +14,7 @@ One record per ported program (#4048): docs/language_status/evidence_records.md 
 | [CBPAUP0C](carddemo-cbpaup0c.md) | carddemo-cbpaup0c | batch | proven, unapproved |  | 13 | 15/16 / 38/40 | - | 0 | - |
 | [CBSTM03A](carddemo-cbstm03a.md) | carddemo-cbstm03a | batch | proven, unapproved |  | 14 | 25/25 / 43/46 | - | 0 | - |
 | [COPAUA0C](carddemo-copaua0c.md) | carddemo-copaua0c | cics | proven, unapproved |  | 26 | 41/41 / 66/71 | - | 0 | - |
-| [COPAUS0C](carddemo-copaus0c.md) | carddemo-copaus0c | cics | proven, unapproved |  | 38 | 20/20 / 89/93 | - | 0 | - |
+| [COPAUS0C](carddemo-copaus0c.md) | carddemo-copaus0c | cics | proven, unapproved |  | 39 | 20/20 / 90/93 | - | 0 | - |
 | [COPAUS1C](carddemo-copaus1c.md) | carddemo-copaus1c | cics | proven, unapproved |  | 35 | 15/15 / 50/50 | - | 0 | - |
 | [CBTRN01C](carddemo-dailyval.md) | carddemo-dailyval | batch | proven, unapproved |  | 21 | 18/18 / 65/66 | 63/96 / 63/71 | 0 | - |
 | [CSUTLDTC](carddemo-dateutil.md) | carddemo-dateutil | call | proven, unapproved |  | 1 | 2/2 / 4/10 | 197/260 / 197/197 | 0 | - |

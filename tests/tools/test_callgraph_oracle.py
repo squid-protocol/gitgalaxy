@@ -632,7 +632,16 @@ struct Plain : Core { Plain() : Core(1), Base_x(2) {} int Base_x; };
 def test_a_typedef_or_using_alias_names_a_base_class_ctor_call():
     """`typedef Private<P> Base;` then `: Base(i)` calls the aliased base's constructor (doomsday DE_PIMPL, #6266)."""
     aliases = co.class_names_of_text(ALIAS_SRC)[co.ALIASES]
-    assert {"Base", "Core", "Alias"} <= aliases and not {"type", "count", "Bool", "Plain"} & aliases
+    assert {"Core", "Alias"} <= aliases and not {"type", "count", "Bool", "Plain", "Base"} & aliases
+    # a member alias names a base only inside its own class (gzdoom: `using Type = X;` in one struct, a `Type(t)` member
+    # entry in an unrelated class)
+    assert "Base" in co.class_names_of_text(ALIAS_SRC)["Widget"]
+    assert "Base" not in co.class_names_of_text(ALIAS_SRC)["Plain"]
+
+
+def test_a_templated_base_list_entry_is_one_base():
+    bases = co.class_names_of_text("template <class T, class TT = T>\nclass Del : public TArray<T, TT>, Other\n{};\n")
+    assert bases["Del"] == {"TArray", "Other"}
 
 
 @pytest.mark.parametrize(

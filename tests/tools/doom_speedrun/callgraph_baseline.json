@@ -348,22 +348,18 @@
    "unmatched_functions": 2
   },
   "gzdoom": {
-   "agree": 43032,
-   "engine_calls": 44546,
+   "agree": 43025,
+   "engine_calls": 44519,
    "engine_only_by_kind": {
-    "absent": 16,
-    "function-pointer": 195,
+    "function-pointer": 191,
     "type": 1303
    },
-   "functions": 18067,
-   "misses_by_shape": {
-    "after-operator": 1,
-    "unparsed": 5
-   },
-   "oracle_calls": 43038,
-   "precision": 0.966,
-   "recall": 0.9999,
-   "text_fallback_functions": 550,
+   "functions": 18050,
+   "misses_by_shape": {},
+   "oracle_calls": 43025,
+   "precision": 0.9664,
+   "recall": 1.0,
+   "text_fallback_functions": 545,
    "unmatched_functions": 0
   },
   "inter-doom": {

@@ -1016,6 +1016,50 @@ def _constructor_of(index: dict[tuple[str, str], "_Bucket"], cls: _Definition, l
     return None
 
 
+def _include_closure(imports: dict[str, set[str]], path: str, memo: dict[str, set[str]]) -> set[str]:
+    """#6266: every file `path` reaches through imports, transitively (a C++ include's own includes are visible too)."""
+    if path not in memo:
+        seen: set[str] = set()
+        todo = list(imports.get(path, ()))
+        while todo:
+            nxt = todo.pop()
+            if nxt not in seen:
+                seen.add(nxt)
+                todo.extend(imports.get(nxt, ()))
+        memo[path] = seen
+    return memo[path]
+
+
+def _init_entry_not_a_base(
+    bucket: "_Bucket",
+    callee: str,
+    lang: str,
+    src_path: str,
+    caller_dir: str,
+    imports: dict[str, set[str]],
+    closures: dict[str, set[str]],
+    step: str,
+) -> bool:
+    """#6266: a ctor-init entry names a base only when a class of that name is visible from the file (its own, its
+    directory's, or its include closure's). A tie among several classes of that name (a nested `Node`, another
+    platform's copy of a base) pins only the one in the caller's own directory; a class and its own constructor
+    function tying is no ambiguity."""
+    visible = [
+        d
+        for d in bucket.defs
+        if (d.kind == "class" or d.owner_key == _key(callee, lang))
+        and (
+            d.path == src_path
+            or _dirname(d.path) == caller_dir
+            or d.path in _include_closure(imports, src_path, closures)
+        )
+    ]
+    if step == "tie" and sum(d.kind == "class" for d in bucket.defs) > 1:
+        near = [d for d in visible if d.kind == "class" and (d.path == src_path or _dirname(d.path) == caller_dir)]
+        return len(near) != 1
+    return not visible
+
+
 def _imports_by_file(dependency_edges: list[dict[str, Any]] | None) -> dict[str, set[str]]:
     out: dict[str, set[str]] = {}
     for e in dependency_edges or []:
@@ -1553,6 +1597,7 @@ def resolve_calls(
     # a candidate set is shared by every caller in that directory
     cache: _Cache = {}
     imports = _with_reexports(_imports_by_file(dependency_edges), star_exports)
+    closures: dict[str, set[str]] = {}
     sites: list[dict[str, Any]] = []
     by_step: Counter[str] = Counter()
     by_lang: dict[str, Counter[str]] = {}
@@ -1682,6 +1727,10 @@ def resolve_calls(
                     init_only
                     and not (bucket is not None and any(d.kind == "class" for d in bucket.defs))
                     and (dst is None or (dst.kind != "class" and dst.owner_key != _key(str(callee), lang)))
+                ) or (
+                    init_only
+                    and bucket is not None
+                    and _init_entry_not_a_base(bucket, str(callee), lang, src_path, caller.dir, imports, closures, step)
                 ):
                     recursive.append(callee)  # a data member `: type(t)`, not a call, whatever function shares its name
                     continue

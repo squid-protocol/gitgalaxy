@@ -30,7 +30,11 @@
 #          not shipped in CICS/ESA 4.1 (not supported since the introduction of
 #          CICS/ESA); CICS/ESA 4.1 installs only BDAM files from an FCT.
 #   [VSE]  CICS Transaction Server for VSE/ESA Release 1, "Resource Definition
-#          Guide", SC33-1653-05. Appendix C "Keyword cross-reference tables" p.347-356
+#          Guide", SC33-1653-05. Chapter 29 "JCT -- journal control table" Table 41
+#          p.270-273 (`DFHJCT TYPE=ENTRY,JFILEID={SYSTEM|nn},BUFSIZE=,...,JTYPE=
+#          {TAPE1|TAPE2|DISK1|DISK2|SMF},JOUROPT=`), Chapter 33 "Sequential devices
+#          method 2 -- DFHTCT TYPE=GPENTRY" p.297 (`TRMIDNT=xxxx`, `GPBLKSZ=`, `GPTYPE=`,
+#          `LININL=`), Appendix C "Keyword cross-reference tables" p.347-356
 #          (macro operand -> RDO attribute for DFHPCT, DFHPPT, DFHFCT, DFHDCT, DFHTCT,
 #          DFHTST), Appendix E "Migrating the PCT to the CSD" p.365-370 (DFHPCT
 #          TYPE=INITIAL|ENTRY|GROUP|PROFILE|OPTGRP|FINAL), Appendix F "Migrating the
@@ -102,14 +106,11 @@
 #   DFHSRT TYPE=SYSTEM|USER,ABCODE=(..),RECOVER=YES   SRT  one row per code, named as MVS names it
 #          (Sxxx three hex digits / Unnnn decimal) [TS]. RECOVER=NO or no RECOVER REMOVES the codes
 #          [TS]: that is not a definition, so no row. (The operand is ABCODE, not CODE.)
-#   DFHJCT TYPE=ENTRY,JFILEID=SYSTEM|nn   JOURNAL  ASSUMED (kept by name, #5154): IBM has no JCT syntax
-#          page in the TS 5.x library; the only IBM statement found is that the JFILEID option is
-#          "supported for compatibility purposes only" [TS]. JFILEID= / JTYPE= (and the JTYPE=DISK2
-#          spelling) rest on secondary sources (Xephon CICS Update 1999-04); the CICS TS 1.3 RDG is the
-#          reference to confirm against. Only JFILEID names the row; every other operand stays in
-#          `attributes`.
-#   DFHTCT TYPE=TERMINAL|REMOTE,TRMIDNT=  TERMINAL; TYPE=SYSTEM,SYSIDNT=  CONNECTION [TS]. TRMTYPE,
-#          ACCMETH, NETNAME, SYSIDNT, RMTNAME ride in `attributes`.
+#   DFHJCT TYPE=ENTRY,JFILEID=SYSTEM|nn   JOURNAL  [VSE ch.29 Table 41, p.270-272]: `JFILEID=SYSTEM`
+#          (system log) or decimal `nn` (1-99 user journal; 01-99 accepted); `JTYPE=`, `BUFSIZE=`,
+#          `JOUROPT=` stay in `attributes`.
+#   DFHTCT TYPE=TERMINAL|REMOTE|GPENTRY,TRMIDNT=  TERMINAL [TS, VSE p.297]; TYPE=SYSTEM,SYSIDNT=
+#          CONNECTION [TS]. TRMTYPE, ACCMETH, NETNAME, SYSIDNT, RMTNAME ride in `attributes`.
 #   DFHMCT TYPE=EMP,CLASS=PERFORM,ID=  MONITORPOINT (a user event monitoring point; it has no CSD
 #          counterpart; ID is `number`, `(PP,number)` or `entryname.number`, kept as written) [TS].
 #   DFHSIT TYPE=CSECT|DSECT  SIT  one row, named as IBM names the table: DFHSIT + SUFFIX= (one or two
@@ -130,7 +131,7 @@
 #   control and CSD-migration statements, not resources); a TYPE= or RECFORM word the
 #   manual does not list; DFHTCT TYPE=LINE / SDSCI (sequential-device plumbing: SDSCI is the DD of the
 #   simulated device and LINE joins two SDSCIs by ISADSCN= / OSADSCN= [TS]; the terminal it serves is
-#   the TYPE=TERMINAL row); DFHTCT TYPE=GPENTRY (no IBM page); DFHMCT TYPE=RECORD (selects
+#   the TYPE=TERMINAL row); DFHMCT TYPE=RECORD (selects
 #   performance fields, names no resource [TS]); DFHJCT TYPE=INITIAL / FINAL.
 #
 # SCOPE AND NON-SCOPE:
@@ -324,6 +325,14 @@ def _ppt_rows(line: int, text: str, keyed: dict[str, str], table: str) -> list[d
     return out
 
 
+def _jfileid(value: str | None) -> str | None:
+    """DFHJCT JFILEID= -> `SYSTEM` or a 1-2 digit journal identifier (`01`-`99`) [VSE Table 41, p.270-271]."""
+    name = _name(value)
+    if name == "SYSTEM" or (name and name.isdigit() and 1 <= len(name) <= 2 and 1 <= int(name) <= 99):
+        return name
+    return None
+
+
 def _sit_suffix(value: str | None) -> str:
     """DFHSIT SUFFIX= -> its one or two characters, or "" (any other value is not a SUFFIX) [TS dfha2_suffix]."""
     text = (_first(value) or "").strip("'\"").upper()
@@ -440,11 +449,10 @@ def cics_macro_table_resources(code_stream: str) -> list[dict[str, Any]]:
         elif op == "DFHSRT" and kind in ("SYSTEM", "USER"):
             rows.extend(_srt_rows(line, text, keyed, kind, table))
         elif op == "DFHJCT" and kind == "ENTRY":
-            # ASSUMED (no IBM syntax page retrievable): JFILEID= SYSTEM | nn names the journal.
-            name = _name(keyed.get("JFILEID"))
+            name = _jfileid(keyed.get("JFILEID"))
             if name:
                 rows.append(_row("JOURNAL", name, table, line, text))
-        elif op == "DFHTCT" and kind in ("TERMINAL", "REMOTE"):
+        elif op == "DFHTCT" and kind in ("TERMINAL", "REMOTE", "GPENTRY"):
             name = _name(keyed.get("TRMIDNT"))
             if name:
                 rows.append(_row("TERMINAL", name, table, line, text))

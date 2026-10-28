@@ -410,6 +410,11 @@ def test_dfhsrt_row_provenance():
     [
         ("TYPE=ENTRY,JFILEID=SYSTEM,JTYPE=DISK2", ["SYSTEM"]),
         ("TYPE=ENTRY,JFILEID=(05),JTYPE=TAPE", ["05"]),
+        ("TYPE=ENTRY,JFILEID=2,JTYPE=DISK1,BUFSIZE=1500", ["2"]),
+        ("TYPE=ENTRY,JFILEID=99,JTYPE=SMF,FORMAT=SMF", ["99"]),
+        ("TYPE=ENTRY,JFILEID=0,JTYPE=DISK1", []),  # outside 1-99
+        ("TYPE=ENTRY,JFILEID=100,JTYPE=DISK1", []),  # more than two digits
+        ("TYPE=ENTRY,JFILEID=BOGUS,JTYPE=DISK1", []),  # neither SYSTEM nor nn
         ("TYPE=ENTRY,JTYPE=DISK1", []),  # no JFILEID
         ("TYPE=INITIAL,SUFFIX=01", []),
         ("TYPE=FINAL", []),
@@ -424,10 +429,11 @@ def test_dfhjct_entry_is_a_journal(operands, expected):
     [
         ("TYPE=TERMINAL,TRMIDNT=T001,ACCMETH=VTAM,TRMTYPE=3270", "TERMINAL", ["T001"]),
         ("TYPE=REMOTE,SYSIDNT=SYSB,TRMIDNT=r001,RMTNAME=RR01", "TERMINAL", ["R001"]),
+        ("TYPE=GPENTRY,TRMIDNT=SEQ2,GPBLKSZ=(80,80),GPTYPE=(2540,1403),LININL=80", "TERMINAL", ["SEQ2"]),
         ("TYPE=SYSTEM,SYSIDNT=SYSB,ACCMETH=IRC", "CONNECTION", ["SYSB"]),
         ("TYPE=TERMINAL,ACCMETH=VTAM", "TERMINAL", []),  # no TRMIDNT
         ("TYPE=LINE,ACCMETH=VTAM", "TERMINAL", []),
-        ("TYPE=GPENTRY,ENTRY=TERMINAL", "TERMINAL", []),
+        ("TYPE=GPENTRY,ENTRY=TERMINAL", "TERMINAL", []),  # no TRMIDNT
         ("TYPE=SDSCI,DSCNAME=X", "TERMINAL", []),
         ("TYPE=INITIAL,SUFFIX=01,SYSIDNT=HOME", "CONNECTION", []),
     ],

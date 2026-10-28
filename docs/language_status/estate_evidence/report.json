@@ -49,9 +49,9 @@
      "oracle": "gnucobol-models",
      "program": "COACTVWC",
      "proof": {
-      "at": "2026-10-28T09:52:25Z",
+      "at": "2026-10-28T13:04:54Z",
       "fault_runs": 7,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407",
       "runs": 37
      },
      "reach": {
@@ -115,9 +115,9 @@
      "oracle": "gnucobol-models",
      "program": "COADM01C",
      "proof": {
-      "at": "2026-10-28T09:52:18Z",
+      "at": "2026-10-28T12:42:12Z",
       "fault_runs": 5,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407",
       "runs": 34
      },
      "reach": {
@@ -181,9 +181,9 @@
      "oracle": "gnucobol-models",
      "program": "COBIL00C",
      "proof": {
-      "at": "2026-10-28T09:51:42Z",
+      "at": "2026-10-28T13:12:45Z",
       "fault_runs": 13,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407",
       "runs": 35
      },
      "reach": {
@@ -247,9 +247,9 @@
      "oracle": "gnucobol-models",
      "program": "COCRDLIC",
      "proof": {
-      "at": "2026-10-28T09:53:52Z",
+      "at": "2026-10-28T12:47:05Z",
       "fault_runs": 9,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407",
       "runs": 46
      },
      "reach": {
@@ -313,9 +313,9 @@
      "oracle": "gnucobol-models",
      "program": "COCRDSLC",
      "proof": {
-      "at": "2026-10-28T09:52:28Z",
+      "at": "2026-10-28T12:53:55Z",
       "fault_runs": 3,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407",
       "runs": 25
      },
      "reach": {
@@ -364,9 +364,9 @@
      "oracle": "gnucobol-models",
      "program": "CBPAUP0C",
      "proof": {
-      "at": "2026-10-28T09:53:56Z",
+      "at": "2026-10-28T13:06:29Z",
       "fault_runs": 12,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2+uncommitted",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
       "runs": 13
      },
      "reach": {
@@ -415,9 +415,9 @@
      "oracle": "gnucobol-models",
      "program": "CBSTM03A",
      "proof": {
-      "at": "2026-10-28T09:54:21Z",
+      "at": "2026-10-28T12:43:33Z",
       "fault_runs": 13,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2+uncommitted",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
       "runs": 14
      },
      "reach": {
@@ -466,9 +466,9 @@
      "oracle": "gnucobol-models",
      "program": "COPAUA0C",
      "proof": {
-      "at": "2026-10-28T09:52:06Z",
+      "at": "2026-10-28T13:13:11Z",
       "fault_runs": 7,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2+uncommitted",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
       "runs": 26
      },
      "reach": {
@@ -517,9 +517,9 @@
      "oracle": "gnucobol-models",
      "program": "COPAUS0C",
      "proof": {
-      "at": "2026-10-28T09:54:35Z",
+      "at": "2026-10-28T12:47:46Z",
       "fault_runs": 12,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2+uncommitted",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
       "runs": 39
      },
      "reach": {
@@ -570,9 +570,9 @@
      "oracle": "gnucobol-models",
      "program": "COPAUS1C",
      "proof": {
-      "at": "2026-10-28T09:56:02Z",
+      "at": "2026-10-28T13:18:09Z",
       "fault_runs": 14,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407",
       "runs": 35
      },
      "reach": {
@@ -636,9 +636,9 @@
      "oracle": "gnucobol-models",
      "program": "CBTRN01C",
      "proof": {
-      "at": "2026-10-28T09:54:58Z",
+      "at": "2026-10-28T12:56:30Z",
       "fault_runs": 20,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2+uncommitted",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
       "runs": 21
      },
      "reach": {
@@ -702,9 +702,9 @@
      "oracle": "gnucobol-models",
      "program": "CSUTLDTC",
      "proof": {
-      "at": "2026-10-28T09:54:16Z",
+      "at": "2026-10-28T13:06:49Z",
       "fault_runs": 0,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2+uncommitted",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
       "runs": 1
      },
      "reach": {
@@ -768,9 +768,9 @@
      "oracle": "gnucobol-models",
      "program": "CBACT04C",
      "proof": {
-      "at": "2026-10-28T09:57:03Z",
+      "at": "2026-10-28T12:45:17Z",
       "fault_runs": 19,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2+uncommitted",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
       "runs": 20
      },
      "reach": {
@@ -834,9 +834,9 @@
      "oracle": "gnucobol-models",
      "program": "COMEN01C",
      "proof": {
-      "at": "2026-10-28T09:52:22Z",
+      "at": "2026-10-28T13:13:30Z",
       "fault_runs": 2,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2+uncommitted",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
       "runs": 16
      },
      "reach": {
@@ -900,9 +900,9 @@
      "oracle": "gnucobol-models",
      "program": "CBTRN02C",
      "proof": {
-      "at": "2026-10-28T09:58:23Z",
+      "at": "2026-10-28T12:51:21Z",
       "fault_runs": 28,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2+uncommitted",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
       "runs": 29
      },
      "reach": {
@@ -966,9 +966,9 @@
      "oracle": "gnucobol-models",
      "program": "CBACT02C",
      "proof": {
-      "at": "2026-10-28T09:55:49Z",
+      "at": "2026-10-28T12:57:22Z",
       "fault_runs": 6,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2+uncommitted",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
       "runs": 7
      },
      "reach": {
@@ -1032,9 +1032,9 @@
      "oracle": "gnucobol-models",
      "program": "CBCUS01C",
      "proof": {
-      "at": "2026-10-28T09:55:12Z",
+      "at": "2026-10-28T13:07:43Z",
       "fault_runs": 6,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2+uncommitted",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
       "runs": 7
      },
      "reach": {
@@ -1098,9 +1098,9 @@
      "oracle": "gnucobol-models",
      "program": "CBACT03C",
      "proof": {
-      "at": "2026-10-28T09:58:03Z",
+      "at": "2026-10-28T12:45:55Z",
       "fault_runs": 6,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2+uncommitted",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
       "runs": 7
      },
      "reach": {
@@ -1164,9 +1164,9 @@
      "oracle": "gnucobol-models",
      "program": "CORPT00C",
      "proof": {
-      "at": "2026-10-28T09:52:41Z",
+      "at": "2026-10-28T13:13:52Z",
       "fault_runs": 2,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2+uncommitted",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
       "runs": 30
      },
      "reach": {
@@ -1230,9 +1230,9 @@
      "oracle": "gnucobol-models",
      "program": "COSGN00C",
      "proof": {
-      "at": "2026-10-28T09:58:52Z",
+      "at": "2026-10-28T12:51:49Z",
       "fault_runs": 5,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2+uncommitted",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
       "runs": 22
      },
      "reach": {
@@ -1296,9 +1296,9 @@
      "oracle": "gnucobol-models",
      "program": "COTRN02C",
      "proof": {
-      "at": "2026-10-28T09:56:23Z",
+      "at": "2026-10-28T12:57:55Z",
       "fault_runs": 11,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2+uncommitted",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
       "runs": 78
      },
      "reach": {
@@ -1362,9 +1362,9 @@
      "oracle": "gnucobol-models",
      "program": "COTRN00C",
      "proof": {
-      "at": "2026-10-28T09:55:48Z",
+      "at": "2026-10-28T13:08:17Z",
       "fault_runs": 6,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2+uncommitted",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
       "runs": 36
      },
      "reach": {
@@ -1428,9 +1428,9 @@
      "oracle": "gnucobol-models",
      "program": "COTRN01C",
      "proof": {
-      "at": "2026-10-28T09:58:36Z",
+      "at": "2026-10-28T12:46:17Z",
       "fault_runs": 4,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2+uncommitted",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
       "runs": 25
      },
      "reach": {
@@ -1494,9 +1494,9 @@
      "oracle": "gnucobol-models",
      "program": "CBTRN03C",
      "proof": {
-      "at": "2026-10-28T09:54:44Z",
+      "at": "2026-10-28T13:16:13Z",
       "fault_runs": 24,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2+uncommitted",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
       "runs": 25
      },
      "reach": {
@@ -1560,9 +1560,9 @@
      "oracle": "gnucobol-models",
      "program": "COUSR01C",
      "proof": {
-      "at": "2026-10-28T09:59:22Z",
+      "at": "2026-10-28T12:52:17Z",
       "fault_runs": 3,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2+uncommitted",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
       "runs": 25
      },
      "reach": {
@@ -1626,9 +1626,9 @@
      "oracle": "gnucobol-models",
      "program": "COUSR03C",
      "proof": {
-      "at": "2026-10-28T09:56:49Z",
+      "at": "2026-10-28T12:58:22Z",
       "fault_runs": 6,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2+uncommitted",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
       "runs": 32
      },
      "reach": {
@@ -1692,9 +1692,9 @@
      "oracle": "gnucobol-models",
      "program": "COUSR00C",
      "proof": {
-      "at": "2026-10-28T09:56:24Z",
+      "at": "2026-10-28T13:08:52Z",
       "fault_runs": 16,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2+uncommitted",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
       "runs": 72
      },
      "reach": {
@@ -1758,9 +1758,9 @@
      "oracle": "gnucobol-models",
      "program": "COUSR02C",
      "proof": {
-      "at": "2026-10-28T09:59:08Z",
+      "at": "2026-10-28T12:46:37Z",
       "fault_runs": 4,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2+uncommitted",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
       "runs": 32
      },
      "reach": {
@@ -1883,9 +1883,9 @@
      "oracle": "gnucobol-models",
      "program": "INQACC",
      "proof": {
-      "at": "2026-10-28T09:57:01Z",
+      "at": "2026-10-28T13:19:20Z",
       "fault_runs": 9,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2+uncommitted",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
       "runs": 23
      },
      "reach": {
@@ -1951,9 +1951,9 @@
      "oracle": "gnucobol-models",
      "program": "UPDACC",
      "proof": {
-      "at": "2026-10-28T09:57:32Z",
+      "at": "2026-10-28T13:19:57Z",
       "fault_runs": 0,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2+uncommitted",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
       "runs": 27
      },
      "reach": {
@@ -2076,9 +2076,9 @@
      "oracle": "crucible-expected-logs",
      "program": "CALINK",
      "proof": {
-      "at": "2026-10-28T09:56:48Z",
+      "at": "2026-10-28T13:09:15Z",
       "fault_runs": 0,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2+uncommitted",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
       "runs": 4
      },
      "reach": {
@@ -2144,9 +2144,9 @@
      "oracle": "crucible-expected-logs",
      "program": "CASUB",
      "proof": {
-      "at": "2026-10-28T09:59:33Z",
+      "at": "2026-10-28T12:46:55Z",
       "fault_runs": 0,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2+uncommitted",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
       "runs": 3
      },
      "reach": {
@@ -2212,9 +2212,9 @@
      "oracle": "crucible-expected-logs",
      "program": "CAXA",
      "proof": {
-      "at": "2026-10-28T09:55:35Z",
+      "at": "2026-10-28T13:17:04Z",
       "fault_runs": 0,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2+uncommitted",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
       "runs": 3
      },
      "reach": {
@@ -2280,9 +2280,9 @@
      "oracle": "crucible-expected-logs",
      "program": "CAXB",
      "proof": {
-      "at": "2026-10-28T10:00:37Z",
+      "at": "2026-10-28T12:53:29Z",
       "fault_runs": 0,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2+uncommitted",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
       "runs": 3
      },
      "reach": {
@@ -2348,9 +2348,9 @@
      "oracle": "crucible-expected-logs",
      "program": "GTSTART",
      "proof": {
-      "at": "2026-10-28T09:57:55Z",
+      "at": "2026-10-28T12:59:26Z",
       "fault_runs": 0,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2+uncommitted",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
       "runs": 6
      },
      "reach": {
@@ -2416,9 +2416,9 @@
      "oracle": "crucible-expected-logs",
      "program": "GTWORK",
      "proof": {
-      "at": "2026-10-28T09:57:11Z",
+      "at": "2026-10-28T13:09:38Z",
       "fault_runs": 0,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2+uncommitted",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
       "runs": 5
      },
      "reach": {
@@ -2484,9 +2484,9 @@
      "oracle": "crucible-expected-logs",
      "program": "GTSHOW",
      "proof": {
-      "at": "2026-10-28T09:59:58Z",
+      "at": "2026-10-28T12:47:11Z",
       "fault_runs": 0,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2+uncommitted",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
       "runs": 3
      },
      "reach": {
@@ -2552,9 +2552,9 @@
      "oracle": "crucible-expected-logs",
      "program": "GTTERM",
      "proof": {
-      "at": "2026-10-28T09:55:52Z",
+      "at": "2026-10-28T13:17:21Z",
       "fault_runs": 0,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2+uncommitted",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
       "runs": 4
      },
      "reach": {
@@ -2620,9 +2620,9 @@
      "oracle": "crucible-expected-logs",
      "program": "HCMAIN",
      "proof": {
-      "at": "2026-10-28T10:01:00Z",
+      "at": "2026-10-28T12:53:51Z",
       "fault_runs": 0,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2+uncommitted",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
       "runs": 5
      },
      "reach": {
@@ -2688,9 +2688,9 @@
      "oracle": "crucible-expected-logs",
      "program": "HCSUB",
      "proof": {
-      "at": "2026-10-28T09:58:16Z",
+      "at": "2026-10-28T12:59:47Z",
       "fault_runs": 0,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2+uncommitted",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
       "runs": 3
      },
      "reach": {
@@ -2754,9 +2754,9 @@
      "oracle": "crucible-expected-logs",
      "program": "HCQREAD",
      "proof": {
-      "at": "2026-10-28T09:57:34Z",
+      "at": "2026-10-28T13:10:00Z",
       "fault_runs": 0,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2+uncommitted",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
       "runs": 4
      },
      "reach": {
@@ -2820,9 +2820,9 @@
      "oracle": "crucible-expected-logs",
      "program": "HXATTR",
      "proof": {
-      "at": "2026-10-28T10:00:22Z",
+      "at": "2026-10-28T12:47:26Z",
       "fault_runs": 0,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2+uncommitted",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
       "runs": 4
      },
      "reach": {
@@ -2886,9 +2886,9 @@
      "oracle": "crucible-expected-logs",
      "program": "HXEXT",
      "proof": {
-      "at": "2026-10-28T09:56:08Z",
+      "at": "2026-10-28T13:17:39Z",
       "fault_runs": 0,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2+uncommitted",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
       "runs": 3
      },
      "reach": {
@@ -2954,9 +2954,9 @@
      "oracle": "crucible-expected-logs",
      "program": "PCDETL",
      "proof": {
-      "at": "2026-10-28T10:01:24Z",
+      "at": "2026-10-28T12:54:14Z",
       "fault_runs": 0,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2+uncommitted",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
       "runs": 3
      },
      "reach": {
@@ -3022,9 +3022,9 @@
      "oracle": "crucible-expected-logs",
      "program": "PCMENU",
      "proof": {
-      "at": "2026-10-28T09:58:37Z",
+      "at": "2026-10-28T13:00:08Z",
       "fault_runs": 0,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2+uncommitted",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
       "runs": 4
      },
      "reach": {
@@ -3092,9 +3092,9 @@
      "oracle": "crucible-expected-logs",
      "program": "PCIMMA",
      "proof": {
-      "at": "2026-10-28T09:57:58Z",
+      "at": "2026-10-28T13:10:23Z",
       "fault_runs": 0,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2+uncommitted",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
       "runs": 4
      },
      "reach": {
@@ -3162,9 +3162,9 @@
      "oracle": "crucible-expected-logs",
      "program": "PCIMMB",
      "proof": {
-      "at": "2026-10-28T10:00:46Z",
+      "at": "2026-10-28T12:47:43Z",
       "fault_runs": 0,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2+uncommitted",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
       "runs": 1
      },
      "reach": {
@@ -3232,9 +3232,9 @@
      "oracle": "crucible-expected-logs",
      "program": "PCIMML",
      "proof": {
-      "at": "2026-10-28T09:56:26Z",
+      "at": "2026-10-28T13:17:57Z",
       "fault_runs": 0,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2+uncommitted",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
       "runs": 2
      },
      "reach": {
@@ -3302,9 +3302,9 @@
      "oracle": "crucible-expected-logs",
      "program": "PCIMMS",
      "proof": {
-      "at": "2026-10-28T10:01:48Z",
+      "at": "2026-10-28T12:54:37Z",
       "fault_runs": 0,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2+uncommitted",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
       "runs": 1
      },
      "reach": {
@@ -3370,9 +3370,9 @@
      "oracle": "crucible-expected-logs",
      "program": "PCCONF",
      "proof": {
-      "at": "2026-10-28T09:58:59Z",
+      "at": "2026-10-28T13:00:30Z",
       "fault_runs": 0,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2+uncommitted",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
       "runs": 5
      },
      "reach": {
@@ -3438,9 +3438,9 @@
      "oracle": "crucible-expected-logs",
      "program": "PCWIZ",
      "proof": {
-      "at": "2026-10-28T09:58:22Z",
+      "at": "2026-10-28T13:10:47Z",
       "fault_runs": 0,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2+uncommitted",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
       "runs": 6
      },
      "reach": {
@@ -3564,9 +3564,9 @@
      "oracle": "gnucobol-models",
      "program": "LGAPDB01",
      "proof": {
-      "at": "2026-10-28T09:58:32Z",
+      "at": "2026-10-28T13:21:09Z",
       "fault_runs": 8,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2+uncommitted",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
       "runs": 16
      },
      "reach": {
@@ -3632,9 +3632,9 @@
      "oracle": "gnucobol-models",
      "program": "LGAPVS01",
      "proof": {
-      "at": "2026-10-28T09:55:17Z",
+      "at": "2026-10-28T13:16:46Z",
       "fault_runs": 4,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2+uncommitted",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
       "runs": 13
      },
      "reach": {
@@ -3698,9 +3698,9 @@
      "oracle": "gnucobol-models",
      "program": "LGICDB01",
      "proof": {
-      "at": "2026-10-28T09:59:02Z",
+      "at": "2026-10-28T13:21:43Z",
       "fault_runs": 0,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2+uncommitted",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
       "runs": 13
      },
      "reach": {
@@ -3764,9 +3764,9 @@
      "oracle": "gnucobol-models",
      "program": "LGSTSQ",
      "proof": {
-      "at": "2026-10-28T10:00:13Z",
+      "at": "2026-10-28T12:53:07Z",
       "fault_runs": 0,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2+uncommitted",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
       "runs": 8
      },
      "reach": {
@@ -3833,9 +3833,9 @@
      "oracle": "gnucobol-models",
      "program": "LGUPDB01",
      "proof": {
-      "at": "2026-10-28T09:59:39Z",
+      "at": "2026-10-28T13:22:29Z",
       "fault_runs": 12,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2+uncommitted",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
       "runs": 22
      },
      "reach": {
@@ -3901,9 +3901,9 @@
      "oracle": "gnucobol-models",
      "program": "LGUPVS01",
      "proof": {
-      "at": "2026-10-28T09:57:34Z",
+      "at": "2026-10-28T12:59:05Z",
       "fault_runs": 5,
-      "harness_commit": "4a5dfee9f5a9b8f05f2d94d97c880f2a7b4a8ca2+uncommitted",
+      "harness_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407+uncommitted",
       "runs": 12
      },
      "reach": {

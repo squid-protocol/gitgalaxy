@@ -14,9 +14,9 @@
    "pct": 99.7
   },
   "branches": {
-   "covered": 1137,
-   "total": 1211,
-   "pct": 93.9
+   "covered": 1149,
+   "total": 1219,
+   "pct": 94.3
   },
   "cases_measured": 25,
   "cases": 98
@@ -24,8 +24,8 @@
  "status_counts": {
   "proven": 80,
   "differs": 0,
-  "ran, coverage open": 20,
-  "couldn't run": 3,
+  "ran, coverage open": 21,
+  "couldn't run": 2,
   "not attempted": 0
  },
  "programs": [
@@ -36,7 +36,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 25
+   "tests": 26
   },
   {
    "corpus": "aws-mainframe-modernization-carddemo",
@@ -45,7 +45,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 37
+   "tests": 39
   },
   {
    "corpus": "aws-mainframe-modernization-carddemo",
@@ -90,7 +90,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 14
+   "tests": 16
   },
   {
    "corpus": "aws-mainframe-modernization-carddemo",
@@ -99,7 +99,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 13
+   "tests": 15
   },
   {
    "corpus": "aws-mainframe-modernization-carddemo",
@@ -108,7 +108,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 140
+   "tests": 249
   },
   {
    "corpus": "aws-mainframe-modernization-carddemo",
@@ -423,7 +423,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 95
+   "tests": 97
   },
   {
    "corpus": "cics-banking-sample-application-cbsa",
@@ -441,7 +441,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 29
+   "tests": 31
   },
   {
    "corpus": "cics-banking-sample-application-cbsa",
@@ -459,7 +459,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 45
+   "tests": 46
   },
   {
    "corpus": "cics-banking-sample-application-cbsa",
@@ -486,7 +486,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 22
+   "tests": 23
   },
   {
    "corpus": "cics-banking-sample-application-cbsa",
@@ -495,7 +495,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 29
+   "tests": 30
   },
   {
    "corpus": "cics-banking-sample-application-cbsa",
@@ -729,7 +729,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 18
+   "tests": 19
   },
   {
    "corpus": "zecs",
@@ -738,7 +738,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 17
+   "tests": 18
   },
   {
    "corpus": "zecs",
@@ -760,7 +760,7 @@
    "reasons": {
     "coverage: LINKed program DBCRFUN has live paragraphs no scenario runs": "16/22 paragraphs"
    },
-   "tests": 31,
+   "tests": 32,
    "blocker": "coverage: LINKed program DBCRFUN has live paragraphs no scenario runs"
   },
   {
@@ -788,7 +788,7 @@
    "reasons": {
     "coverage: LINKed program XFRFUN has live paragraphs no scenario runs": "27/28 paragraphs"
    },
-   "tests": 50,
+   "tests": 51,
    "blocker": "coverage: LINKed program XFRFUN has live paragraphs no scenario runs"
   },
   {
@@ -816,7 +816,7 @@
    "reasons": {
     "coverage: LINKed program INQCUST has live paragraphs no scenario runs": "7/25 paragraphs"
    },
-   "tests": 21,
+   "tests": 22,
    "blocker": "coverage: LINKed program INQCUST has live paragraphs no scenario runs"
   },
   {
@@ -891,31 +891,17 @@
   },
   {
    "corpus": "dbb-mortgage-application",
-   "program": "zBuilder/MortgageApplication/cobol/epscmort.cbl",
-   "case": "mortgage-cmort",
-   "status": "couldn't run",
-   "gaps": [
-    "known unproven: #4803"
-   ],
-   "reasons": {
-    "known unproven: #4803": "EPSCMORT's ENTER path LINKs EPSCSMRT (PROGRAM from a variable), which CALLs EPSMPMT, which has a hole. EPSMPMT's one hole is FUNCTION ANNUITY (line 144, paragraph A300-TRY2, dead code: its PERFORM is commented out), refused by name because IBM does not document the bits of the power or of the result (oracle_assumptions.md C6). The payment's (1 + C) ** N (line 125) is no longer a hole since #5999: it translates through Hfp.power, an ASSUMED routine. The case's 15 scenarios run equal on both sides (runTask and java-facade) and the ENTER / WHEN OTHER scenarios stay on EPSMPMT's validation paths, but a program is not proven while a program it LINKs or CALLs has holes, whichever scenarios were written (owner decision 2026-10-11, mainframe-evidence-policy.md 4): the proof passes, the port stays unproven until that hole is closed, which is owner-held frontier work (#5867: it needs captured z/OS results, #4050)."
-   },
-   "tests": 15,
-   "blocker": "known unproven: #4803"
-  },
-  {
-   "corpus": "dbb-mortgage-application",
    "program": "zBuilder/MortgageApplication/cobol/epsmlist.cbl",
    "case": "mortgage-mlist",
    "status": "ran, coverage open",
    "gaps": [
-    "coverage: live paragraphs no scenario runs"
+    "coverage: LINKed program EPSMPMT has live paragraphs no scenario runs"
    ],
    "reasons": {
-    "coverage: live paragraphs no scenario runs": "5/6 paragraphs"
+    "coverage: LINKed program EPSMPMT has live paragraphs no scenario runs": "3/4 paragraphs"
    },
-   "tests": 9,
-   "blocker": "coverage: live paragraphs no scenario runs"
+   "tests": 10,
+   "blocker": "coverage: LINKed program EPSMPMT has live paragraphs no scenario runs"
   },
   {
    "corpus": "cics-banking-sample-application-cbsa",
@@ -962,8 +948,24 @@
     "coverage: LINKed program INQACCCU has live paragraphs no scenario runs": "16/22 paragraphs",
     "coverage: LINKed program INQCUST has live paragraphs no scenario runs": "16/25 paragraphs"
    },
-   "tests": 45,
+   "tests": 46,
    "blocker": "coverage: LINKed program INQCUST has live paragraphs no scenario runs"
+  },
+  {
+   "corpus": "dbb-mortgage-application",
+   "program": "zBuilder/MortgageApplication/cobol/epscmort.cbl",
+   "case": "mortgage-cmort",
+   "status": "ran, coverage open",
+   "gaps": [
+    "coverage: LINKed program EPSMLIST has live paragraphs no scenario runs",
+    "coverage: LINKed program EPSMPMT has live paragraphs no scenario runs"
+   ],
+   "reasons": {
+    "coverage: LINKed program EPSMLIST has live paragraphs no scenario runs": "5/6 paragraphs",
+    "coverage: LINKed program EPSMPMT has live paragraphs no scenario runs": "3/4 paragraphs"
+   },
+   "tests": 16,
+   "blocker": "coverage: LINKed program EPSMPMT has live paragraphs no scenario runs"
   },
   {
    "corpus": "zecs",
@@ -975,10 +977,10 @@
     "fact: EIBRCODE (no harness states it)"
    ],
    "reasons": {
-    "coverage: live paragraphs no scenario runs": "71/119 paragraphs",
+    "coverage: live paragraphs no scenario runs": "82/119 paragraphs",
     "fact: EIBRCODE (no harness states it)": ""
    },
-   "tests": 22,
+   "tests": 31,
    "blocker": "coverage: live paragraphs no scenario runs"
   },
   {
@@ -1000,7 +1002,7 @@
     "coverage: LINKed program CRDTAGY4 has live paragraphs no scenario runs": "0/7 paragraphs",
     "coverage: LINKed program CRDTAGY5 has live paragraphs no scenario runs": "0/7 paragraphs"
    },
-   "tests": 95,
+   "tests": 97,
    "blocker": "coverage: LINKed program CRDTAGY1 has live paragraphs no scenario runs"
   },
   {
@@ -1262,7 +1264,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 140
+   "tests": 249
   },
   "carddemo-acctview": {
    "generated": [],
@@ -1327,7 +1329,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 14,
+   "tests": 16,
    "non_vsam": [
     "mq"
    ]
@@ -1337,7 +1339,7 @@
    "shipped": [],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 13,
+   "tests": 15,
    "non_vsam": [
     "mq"
    ]
@@ -1351,7 +1353,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 25,
+   "tests": 26,
    "non_vsam": [
     "ims",
     "mq"
@@ -1366,7 +1368,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 37,
+   "tests": 39,
    "non_vsam": [
     "ims"
    ]
@@ -1552,7 +1554,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 95,
+   "tests": 97,
    "non_vsam": [
     "db2"
    ]
@@ -1564,7 +1566,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 31,
+   "tests": 32,
    "non_vsam": [
     "db2"
    ]
@@ -1589,7 +1591,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 45,
+   "tests": 46,
    "non_vsam": [
     "db2"
    ]
@@ -1601,7 +1603,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 50,
+   "tests": 51,
    "non_vsam": [
     "db2"
    ]
@@ -1691,7 +1693,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 29,
+   "tests": 31,
    "non_vsam": [
     "db2"
    ]
@@ -1727,7 +1729,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 22,
+   "tests": 23,
    "non_vsam": [
     "db2"
    ]
@@ -1740,7 +1742,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 21,
+   "tests": 22,
    "non_vsam": [
     "db2"
    ]
@@ -1753,7 +1755,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 29
+   "tests": 30
   },
   "cbsa-updacc": {
    "generated": [],
@@ -2090,7 +2092,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 15,
+   "tests": 16,
    "non_vsam": [
     "db2"
    ]
@@ -2102,7 +2104,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 9
+   "tests": 10
   },
   "zecs-ecs001": {
    "generated": [],
@@ -2120,7 +2122,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 18
+   "tests": 19
   },
   "zecs-zecs001": {
    "generated": [],
@@ -2130,7 +2132,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 22
+   "tests": 31
   },
   "zecs-zecs003": {
    "generated": [],
@@ -2140,7 +2142,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 17
+   "tests": 18
   },
   "zecs-zecsplt": {
    "generated": [],
@@ -2177,7 +2179,7 @@
     "cbsa-bnk1tfn"
    ],
    "programs_unlocked": 1,
-   "tests_unlocked": 50,
+   "tests_unlocked": 51,
    "programs_also_blocked": [],
    "then_needs": {}
   },
@@ -2191,31 +2193,9 @@
     "cbsa-bnk1cra"
    ],
    "programs_unlocked": 1,
-   "tests_unlocked": 31,
+   "tests_unlocked": 32,
    "programs_also_blocked": [],
    "then_needs": {}
-  },
-  {
-   "gap": "coverage: live paragraphs no scenario runs",
-   "fix": "Add scenarios that reach the paragraphs / branches nothing runs in 3 programs: Source/ZECS001.cbl, base/src/lgapol01.cbl, zBuilder/MortgageApplication/cobol/epsmlist.cbl (cases: genapp-lgtestp1, mortgage-mlist, zecs-zecs001).",
-   "programs": [
-    "Source/ZECS001.cbl",
-    "base/src/lgapol01.cbl",
-    "zBuilder/MortgageApplication/cobol/epsmlist.cbl"
-   ],
-   "cases": [
-    "genapp-lgtestp1",
-    "mortgage-mlist",
-    "zecs-zecs001"
-   ],
-   "programs_unlocked": 2,
-   "tests_unlocked": 24,
-   "programs_also_blocked": [],
-   "then_needs": {
-    "Source/ZECS001.cbl": [
-     "fact: EIBRCODE (no harness states it)"
-    ]
-   }
   },
   {
    "gap": "coverage: LINKed program INQCUST has live paragraphs no scenario runs",
@@ -2233,7 +2213,7 @@
     "cbsa-inqacccu"
    ],
    "programs_unlocked": 1,
-   "tests_unlocked": 21,
+   "tests_unlocked": 22,
    "programs_also_blocked": [],
    "then_needs": {
     "src/base/cobol_src/BNK1CAC.cbl": [
@@ -2248,18 +2228,44 @@
    }
   },
   {
-   "gap": "known unproven: #4803",
-   "fix": "Fix #4803 (EPSCMORT's ENTER path LINKs EPSCSMRT (PROGRAM from a variable), which CALLs EPSMPMT, which has a hole. EPSMPMT's one hole is FUNCTION ANNUITY (line 144, para...) to prove 1 program: zBuilder/MortgageApplication/cobol/epscmort.cbl (cases: mortgage-cmort).",
+   "gap": "coverage: live paragraphs no scenario runs",
+   "fix": "Add scenarios that reach the paragraphs / branches nothing runs in 2 programs: Source/ZECS001.cbl, base/src/lgapol01.cbl (cases: genapp-lgtestp1, zecs-zecs001).",
    "programs": [
-    "zBuilder/MortgageApplication/cobol/epscmort.cbl"
+    "Source/ZECS001.cbl",
+    "base/src/lgapol01.cbl"
    ],
    "cases": [
-    "mortgage-cmort"
+    "genapp-lgtestp1",
+    "zecs-zecs001"
    ],
    "programs_unlocked": 1,
    "tests_unlocked": 15,
    "programs_also_blocked": [],
-   "then_needs": {}
+   "then_needs": {
+    "Source/ZECS001.cbl": [
+     "fact: EIBRCODE (no harness states it)"
+    ]
+   }
+  },
+  {
+   "gap": "coverage: LINKed program EPSMPMT has live paragraphs no scenario runs",
+   "fix": "Add scenarios that reach the paragraphs / branches nothing runs in 2 programs: zBuilder/MortgageApplication/cobol/epscmort.cbl, zBuilder/MortgageApplication/cobol/epsmlist.cbl (cases: mortgage-cmort, mortgage-mlist).",
+   "programs": [
+    "zBuilder/MortgageApplication/cobol/epscmort.cbl",
+    "zBuilder/MortgageApplication/cobol/epsmlist.cbl"
+   ],
+   "cases": [
+    "mortgage-cmort",
+    "mortgage-mlist"
+   ],
+   "programs_unlocked": 1,
+   "tests_unlocked": 10,
+   "programs_also_blocked": [],
+   "then_needs": {
+    "zBuilder/MortgageApplication/cobol/epscmort.cbl": [
+     "coverage: LINKed program EPSMLIST has live paragraphs no scenario runs"
+    ]
+   }
   },
   {
    "gap": "coverage: LINKed program LGAPVS01 has live paragraphs no scenario runs",
@@ -2563,7 +2569,7 @@
     "src/base/cobol_src/XFRFUN.cbl",
     "zBuilder/MortgageApplication/cobol/epscmort.cbl"
    ],
-   "tests_held": 1022
+   "tests_held": 1032
   },
   {
    "cause": "ims",
@@ -2583,7 +2589,7 @@
     "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl",
     "app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl"
    ],
-   "tests_held": 95
+   "tests_held": 98
   },
   {
    "cause": "mq",
@@ -2603,7 +2609,7 @@
     "app/app-vsam-mq/cbl/COACCT01.cbl",
     "app/app-vsam-mq/cbl/CODATE01.cbl"
    ],
-   "tests_held": 52
+   "tests_held": 57
   }
  ],
  "untranslated": [

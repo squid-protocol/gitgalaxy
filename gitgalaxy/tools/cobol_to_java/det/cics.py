@@ -832,6 +832,7 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
                 f"e -> task.write({G_jstr(name)}, () -> {repo}.delete(e)), {off}, {length}, CS)"
                 # the base cluster's key: findById; an alternate index keeps the ordered scan
                 + (self.g.find_by_id(entity, repo) if prop is None else "")
+                + f".withLengths(CicsTask.recordLengths({G_jstr(entity)}))"  # #6839: a variable-length file's
             )
             self.g.entities.add(entity)
         return f"store({self.file_name(arg)})"

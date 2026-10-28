@@ -555,6 +555,26 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
         with self.g.reading():
             return self.field(text)
 
+    def past_from(self, text: str, length: int | None) -> None:
+        """#6072 (#5252): a command that reads `length` bytes from FROM's first (None: not known at translation) reads
+        the storage after FROM in its record too (SEND TEXT / CONVERSE / a file's FROM LENGTH, a COMMAREA past its
+        DTO). A typed field there (B3) never reaches those bytes, so every lifted item the read can span is a lift
+        violation and stays byte storage (GenApp LGSETUP: SEND TEXT FROM(WRITE-MSG-H) LENGTH(24) sends WRITE-MSG-High,
+        which Java held as a typed number and sent as 0000000000). A subscripted or reference-modified FROM starts
+        where translation cannot tell: from FROM's item to the record's end."""
+        if not getattr(self.g, "lifted", None):
+            return  # nothing is typed: every item is byte storage already
+        r = self.ref(text)
+        it = self.g.resolve(r)
+        rec = it
+        while rec.parent is not None:
+            rec = rec.parent
+        start = it.offset
+        end = start + length if length is not None and not r.subscripts and r.refmod is None else None
+        for x in rec.walk():
+            if id(x) in self.g.lifted and x.offset + x.size * x.occurs > start and (end is None or x.offset < end):
+                self.g.violate(x)
+
     def size(self, text: str) -> int:
         r = self.ref(text)
         it = self.g.resolve(r)
@@ -774,6 +794,8 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
             # #4501 / #4679: a LENGTH past the DTO passes that many bytes (DetCics.commareaOut), which the DTO cannot hold
             known = self.constant_int(opts["LENGTH"])
             if known is None or known > d.extent:
+                if known is None or known > size:
+                    self.past_from(opts["COMMAREA"], known)  # #6072: the bytes after the area stay byte storage
                 dto = f"DetCics.commareaOut({dto}, {f}, {length}, {d.extent}, CS)"
                 self.passes_bytes = True
         elif d.size > d.extent:
@@ -1021,10 +1043,11 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
             fixed_len = self.constant_int(_arg(opts["LENGTH"])) if opts.get("LENGTH") else None
             # #4270 (GenApp LGICVS01: FROM(WRITE-MSG-H) X(14) LENGTH(24)): CICS sends LENGTH bytes from FROM's first,
             # so a LENGTH past FROM sends the items after it in its record; past the record, refused (X6)
+            within = not opts.get("LENGTH") or (fixed_len is not None and fixed_len <= self.size(_arg(opts["FROM"])))
+            if not within:
+                self.past_from(_arg(opts["FROM"]), fixed_len)
             text = (
-                "Cobol.text({}, CS)"
-                if not opts.get("LENGTH") or (fixed_len is not None and fixed_len <= self.size(_arg(opts["FROM"])))
-                else 'new String(DetCics.withinRecord({}, {}, "SEND TEXT"), CS)'
+                "Cobol.text({}, CS)" if within else 'new String(DetCics.withinRecord({}, {}, "SEND TEXT"), CS)'
             ).format(f, n)
             pl = g.tmpname("planned")  # #6271 (X71): a planned TSIOERR / INVREQ / LENGERR sends nothing
             return [f"{ind}String {t} = {text};",

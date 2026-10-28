@@ -25,6 +25,7 @@ class TaskControlCommands:
         def int_(self, text: str) -> str: ...
         def field(self, text: str) -> str: ...
         def read_field(self, text: str) -> str: ...
+        def past_from(self, text: str, length: int | None) -> None: ...
         def size(self, text: str) -> int: ...
         def constant_int(self, text: str) -> int | None: ...
         def outcome(self, opts: dict, resp: str, resp2: str, ind: str) -> list[str]: ...
@@ -292,11 +293,12 @@ class TaskControlCommands:
         n = self.int_(sent) if sent else str(self.size(frm))
         fixed = self.constant_int(sent) if sent else None
         t, r = g.tmpname("text"), g.tmpname("conversed")
-        text = (
-            "Cobol.text({}, CS)"
-            if not sent or (fixed is not None and fixed <= self.size(frm))
-            else 'new String(DetCics.withinRecord({}, {}, "CONVERSE"), CS)'
-        ).format(self.read_field(frm), n)
+        within = not sent or (fixed is not None and fixed <= self.size(frm))
+        if not within:
+            self.past_from(frm, fixed)  # #6072: the items after FROM that it sends stay byte storage
+        text = ("Cobol.text({}, CS)" if within else 'new String(DetCics.withinRecord({}, {}, "CONVERSE"), CS)').format(
+            self.read_field(frm), n
+        )
         target = self.field(opts["INTO"])
         limit = self.int_(most) if most else self.int_(length) if length else str(self.size(opts["INTO"]))
         out = [f"{ind}String {t} = {text};",

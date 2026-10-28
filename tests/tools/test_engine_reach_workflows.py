@@ -159,7 +159,7 @@ def test_muninn_triggers_on_every_area_a_secret_or_workflow_scanner_reads():
 ENGINE_PROSE = tuple(f"gitgalaxy/{d}.{ext}" for d, ext in (("core/README", "md"), ("standards/how_to_add_a_language", "md")))
 
 
-@pytest.mark.parametrize("name", ["unicode-gauntlet.yml", "rosetta-audit.yml", "ports-compile.yml"])
+@pytest.mark.parametrize("name", ["unicode-gauntlet.yml", "rosetta-audit.yml", "ports-compile.yml", "cics-crucible.yml"])
 def test_scan_and_compile_gates_skip_engine_prose_but_keep_code_and_copybooks(name):
     """No gate here reads a .md under gitgalaxy/ (tests do, and the suite plan runs those); a code or copybook file still triggers."""
     paths = paths_of(name)
@@ -185,7 +185,7 @@ PLAN_GATED = {  # always starts (required or shared check), a plan step skips th
 NEG_ENGINE_PROSE = "!gitgalaxy/**/*" + ".md"
 FILTERED = {  # a `paths:` filter that negates what the gate provably never reads
     "muninn.yml": None,  # positive list only: tests and docs never trigger it (test above)
-    "cics-crucible.yml": "!gitgalaxy/tools/terabyte_log_scanning/**",
+    "cics-crucible.yml": NEG_ENGINE_PROSE,
     "java-compile.yml": "!gitgalaxy/tools/cobol_to_java/README.md",
     "rosetta-audit.yml": NEG_ENGINE_PROSE,
     "ports-compile.yml": NEG_ENGINE_PROSE,

@@ -1325,6 +1325,78 @@ def set_c_repo_macro_args(table: dict[str, tuple[int, tuple[int, ...]] | None]) 
     _C_REPO_MACRO_ARGS = dict(table)
 
 
+# #6770: the repo-wide table of function-like macros whose body calls functions, set per scan like the table above.
+# A unit that invokes the macro gets those callees as its own, as the compiler's expansion gives them.
+_C_REPO_MACRO_CALLS: dict[str, frozenset[str]] = {}
+_C_MACRO_BODY_CALL = re.compile(r"(?<![#\w.])(?<!->)([" + ID_START + "][" + ID_CONTINUE + r"]*)[ \t]*\(")
+_C_MACRO_STRING = re.compile(r'"(?:[^"\\\n]|\\.)*"|\'(?:[^\'\\\n]|\\.)*\'')
+_C_MACRO_NOT_CALLS = frozenset(["sizeof", "defined", "alignof", "_Alignof", "typeof", "__typeof__", "offsetof"])
+_C_MACRO_EXPANSION_DEPTH = 4
+
+
+def c_macro_body_calls(code: str) -> dict[str, frozenset[str] | None]:
+    """#6770: each function-like `#define NAME(params) body` in `code` -> the functions its body calls.
+
+    The body is read as the preprocessor leaves it: strings blanked, `\\` continuations joined. A callee is an
+    identifier before `(` that is no parameter, statement word, `sizeof`-like operator or `##`-pasted name. A macro
+    that expands to a function signature (#5461) calls nothing of its own. Variants that disagree (an `#if` ladder)
+    record None.
+    """
+    signature = _c_function_like_defines(code)
+    out: dict[str, frozenset[str] | None] = {}
+    for m in _C_DEFINE_WITH_PARAMS.finditer(code):
+        name = m.group(1)
+        if any(signature.get(name, ())):
+            out[name] = None
+            continue
+        params = {p.strip() for p in m.group(2).split(",")}
+        body = re.sub(r"[ \t]*##[ \t]*", "##", _C_MACRO_STRING.sub('""', re.sub(r"\\\r?\n", " ", m.group(3))))
+        calls = frozenset(
+            c
+            for c in _C_MACRO_BODY_CALL.findall(body)
+            if c not in params and c not in _C_STATEMENT_WORDS and c not in _C_MACRO_NOT_CALLS and c != name
+        )
+        out[name] = calls if out.get(name, calls) == calls else None
+    return out
+
+
+def c_repo_macro_body_calls(texts: Any) -> dict[str, frozenset[str]]:
+    """#6770: `c_macro_body_calls` over many C/C++ texts. A macro two files define differently, or one that calls
+    nothing, is left out."""
+    table: dict[str, frozenset[str] | None] = {}
+    for text in texts:
+        if "#" not in text or "define" not in text:
+            continue
+        for name, calls in c_macro_body_calls(text).items():
+            table[name] = calls if table.get(name, calls) == calls else None
+    return {name: calls for name, calls in table.items() if calls}
+
+
+def set_c_repo_macro_calls(table: dict[str, frozenset[str]]) -> None:
+    """#6770: install the scan's macro-body call table in this (worker) process."""
+    global _C_REPO_MACRO_CALLS
+    _C_REPO_MACRO_CALLS = dict(table)
+
+
+def _macro_expansion_callees(callees: Any, table: dict[str, frozenset[str]]) -> list[str]:
+    """#6770: the functions the macros among `callees` call, through macros that call macros (bounded, cycle-safe)."""
+    out: dict[str, None] = {}
+    seen: set[str] = set()
+    level = [c for c in callees if c in table]
+    for _ in range(_C_MACRO_EXPANSION_DEPTH):
+        nxt: list[str] = []
+        for macro in level:
+            if macro in seen:
+                continue
+            seen.add(macro)
+            for callee in sorted(table[macro]):
+                out[callee] = None
+                if callee in table:
+                    nxt.append(callee)
+        level = nxt
+    return list(out)
+
+
 def _c_macro_definition_name(invocation: str, entry: tuple[int, tuple[int, ...]]) -> str | None:
     """#5563: the name `entry` reads from `MACRO(a, b, ...) {`: the naming argument, prefixed `Q::` by each
     qualifier argument. None when an argument it needs is missing or not a plain identifier."""
@@ -10540,6 +10612,9 @@ class StructuralExtractor:
                 qualifier = _mark_macro_qualifier(self.primary_lang_id, safe, m.end(1), qualifier)
                 if qualifier not in seen:
                     seen.append(qualifier)
+            if _C_REPO_MACRO_CALLS and self.primary_lang_id in _UNSET_TOGGLE_LANGS:
+                for c in _macro_expansion_callees(list(kept), _C_REPO_MACRO_CALLS):
+                    kept.setdefault(c, [""])
             sat["calls_out_to"] = [c for c in sat["calls_out_to"] if c in kept]
             sat["calls_out_qualifiers"] = {c: kept[c] for c in sat["calls_out_to"]}
 
@@ -11100,6 +11175,13 @@ class StructuralExtractor:
                 if self.languages.get(self.primary_lang_id, {}).get("calls_out_function_refs"):
                     scanned = fortran_call_names(safe_block, rules.get("_calls_out_ignore") or frozenset())
                     raw_calls = scanned + [c for c in raw_calls if c not in scanned]
+
+        # #6770: a macro invoked here calls what its body calls, as the compiler's expansion makes it this unit's call.
+        if _C_REPO_MACRO_CALLS and self.primary_lang_id in _UNSET_TOGGLE_LANGS:
+            for c in _macro_expansion_callees(raw_calls, _C_REPO_MACRO_CALLS):
+                raw_calls.append(c)
+                if qualifiers_seen:
+                    qualifiers_seen.setdefault(c, [""])
 
         # Per-language additions to the global ignore set (Epic #3264 Phase 3).
         # Authored lowercase in the profile. A case-insensitive language

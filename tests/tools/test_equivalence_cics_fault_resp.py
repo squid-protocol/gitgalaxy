@@ -42,6 +42,15 @@ ACCEPTED = [
     ({"cmd": "DELAY", "resp": "INVREQ", "resp2": 5}, "DELAY - 1 16 5"),
     ({"cmd": "DELAY", "resp": "INVREQ", "resp2": 6, "nth": 2}, "DELAY - 2 16 6"),
     ({"cmd": "DELAY", "resp": "INVREQ", "resp2": 22, "nth": "*"}, "DELAY - * 16 22"),
+    # #6882 (X26): SET / INQUIRE TERMINAL
+    ({"cmd": "SET-TERMINAL", "resp": "INVREQ"}, "SET-TERMINAL - 1 16 43"),
+    ({"cmd": "SET-TERMINAL", "resp": "TERMIDERR", "resp2": 23, "nth": 2}, "SET-TERMINAL - 2 11 23"),
+    ({"cmd": "INQ-TERMINAL", "resp": "TERMIDERR"}, "INQ-TERMINAL - 1 11 1"),
+    # #6882 slice 2: RUN TRANSID / FETCH ANY
+    ({"cmd": "RUN-TRANSID", "resp": "TRANSIDERR"}, "RUN-TRANSID - 1 28 1"),
+    ({"cmd": "FETCH-ANY", "resp": "NOTFINISHED", "resp2": 52}, "FETCH-ANY - 1 113 52"),
+    ({"cmd": "FETCH-ANY", "resp": "NOTFINISHED", "resp2": 53, "nth": 2}, "FETCH-ANY - 2 113 53"),
+    ({"cmd": "FETCH-ANY", "resp": "NOTFND"}, "FETCH-ANY - 1 13 1"),
 ]
 
 
@@ -71,6 +80,14 @@ REFUSED = [
     {"cmd": "DELAY", "resp": "NORMAL", "resp2": 23},  # cancelled by another task: needs a second task, refused
     {"cmd": "DELAY", "resp": "SYSIDERR"},
     {"cmd": "DELAY", "resp": "ISCINVREQ"},
+    {"cmd": "SET-TERMINAL", "resp": "INVREQ", "resp2": 44},  # IBM's INVREQ RESP2 is 43
+    {"cmd": "SET-TERMINAL", "resp": "NOTAUTH"},
+    {"cmd": "SET-TERMINAL", "resp": "TERMIDERR", "resp2": 1},  # 1 is INQUIRE's
+    {"cmd": "INQ-TERMINAL", "resp": "INVREQ"},
+    {"cmd": "RUN-TRANSID", "resp": "INVREQ"},
+    {"cmd": "RUN-TRANSID", "resp": "TRANSIDERR", "resp2": 2},
+    {"cmd": "FETCH-ANY", "resp": "NOTFINISHED", "resp2": 54},
+    {"cmd": "FETCH-ANY", "resp": "NOTFND", "resp2": 2},
 ]
 
 
@@ -249,3 +266,23 @@ def test_no_burned_cbsa_send_control_codes_resp():
             found += 1
             assert "RESP" not in m.group(1).upper(), f.name
     assert found
+
+
+def test_the_terminal_stub_and_translator_read_the_same_plan():
+    stub = (REPO / "tests/equivalence/cics/ggcics.c").read_text(encoding="utf-8")
+    det = (REPO / "gitgalaxy/tools/cobol_to_java/det/cics.py").read_text(encoding="utf-8")
+    for cmd, fn in (("SET-TERMINAL", "int GGCSETT"), ("INQ-TERMINAL", "int GGCINQT")):
+        body = stub[stub.index(fn) :]
+        # planned before the terminal is looked up: a failed command changes nothing
+        assert body.index(f'injected("{cmd}", "-"') < body.index("uctranst_terminal(c")
+        assert f'task.planned(\\"{cmd}\\", \\"-\\"); if ({{r}}[0] == 0)' in det
+    with pytest.raises(ec.Unsupported, match="X26"):
+        _lines(cmd="SET-TERMINAL", resp="INVREQ", resp2=44)
+
+
+def test_the_run_and_fetch_stub_and_translator_read_the_same_plan():
+    stub = (REPO / "tests/equivalence/cics/ggcics_taskcontrol.c").read_text(encoding="utf-8")
+    det = (REPO / "gitgalaxy/tools/cobol_to_java/cics_task_taskcontrol.py").read_text(encoding="utf-8")
+    for cmd in ("RUN-TRANSID", "FETCH-ANY"):
+        assert f'injected("{cmd}", "-"' in stub.replace('("', '("')
+        assert f'task.injected("{cmd}", "-")' in det

@@ -56,6 +56,10 @@ FAULT_COMMANDS = (
     "SYNCPOINT",
     "ROLLBACK",
     "DELAY",  # #6271 (register X72): nameless, like RETURN
+    "SET-TERMINAL",  # #6882 (register X26): nameless (only the task's own terminal is allowed); INQ-TERMINAL too
+    "INQ-TERMINAL",
+    "RUN-TRANSID",  # #6882 (register X18): nameless; FETCH-ANY too (FETCH CHILD is not planned: no burned program codes RESP on it)
+    "FETCH-ANY",
 )  # a file command (FILE), an INQUIRE PROGRAM (the program's name in `file`)
 
 # #4986 (register X43): IBM's LINK conditions the region does not raise and that have no sourced abend code
@@ -213,14 +217,41 @@ UI_FAULT_CONDITIONS: dict[str, dict[str, tuple[int, ...]]] = {
     # #6271 (X72): DELAY -- EXPIRED (a TIME already past; no RESP2) and INVREQ RESP2 4 / 5 / 6 / 22 (hours / minutes / seconds /
     # milliseconds out of range). IBM's NORMAL RESP2 23 (cancelled by another task) needs a second task: refused (X72)
     "DELAY": {"EXPIRED": (), "INVREQ": (4, 5, 6, 22)},
+    # #6882 (X26): SET TERMINAL -- TERMIDERR RESP2 23 (the terminal cannot be found), INVREQ RESP2 43 (invalid UCTRANST CVDA);
+    # INQUIRE TERMINAL -- TERMIDERR RESP2 1. Every other condition IBM lists needs a device or remote system: refused (X26)
+    "SET-TERMINAL": {"TERMIDERR": (23,), "INVREQ": (43,)},
+    "INQ-TERMINAL": {"TERMIDERR": (1,)},
+    # #6882 (X18): RUN TRANSID -- TRANSIDERR RESP2 1 (the transaction is not defined); FETCH ANY -- NOTFINISHED 52 (NOSUSPEND, no
+    # reply yet) / 53 (TIMEOUT elapsed), NOTFND 1 (no unfetched child left), INVREQ 52 (no children). The command is not performed:
+    # a planned RUN starts no child, a planned FETCH takes none. The rest (NOTAUTH, SYSIDERR ...) needs a remote system: refused
+    "RUN-TRANSID": {"TRANSIDERR": (1,)},
+    "FETCH-ANY": {"NOTFINISHED": (52, 53), "NOTFND": (1,), "INVREQ": (52,)},
 }
-UI_NAMELESS = ("RETURN", "SYNCPOINT", "ROLLBACK", "DELAY", "SEND-TEXT")
+UI_NAMELESS = (
+    "RETURN",
+    "SYNCPOINT",
+    "ROLLBACK",
+    "DELAY",
+    "SEND-TEXT",
+    "SET-TERMINAL",
+    "INQ-TERMINAL",
+    "RUN-TRANSID",
+    "FETCH-ANY",
+)
 
 
 def _ui_fault_resp2(sc: dict[str, Any], f: dict[str, Any], cmd: str, resp2: int) -> int:
     """The RESP2 of a SEND MAP / RECEIVE MAP / RETURN / SYNCPOINT fault, or ec.Unsupported naming register X71."""
     where = f"scenario {sc['name']}: fault {f}"
-    reg = "X72" if cmd == "DELAY" else "X71"
+    reg = (
+        "X72"
+        if cmd == "DELAY"
+        else "X26"
+        if cmd.endswith("-TERMINAL")
+        else "X18"
+        if cmd in ("RUN-TRANSID", "FETCH-ANY")
+        else "X71"
+    )
     ibm = UI_FAULT_CONDITIONS[cmd].get(f["resp"])
     if ibm is None:
         listed = "/".join(UI_FAULT_CONDITIONS[cmd])
@@ -263,7 +294,9 @@ def fault_lines(sc: dict[str, Any]) -> list[str]:
             cmd in FILE_FAULT_COMMANDS and f.get("resp") in FILE_FAULT_REFUSED
         )  # named in X49, not just unknown
         if (cmd not in FAULT_COMMANDS and cmd != TD_READ_COMMAND) or (
-            f.get("resp") not in ec.CICS_RESP and not refused_file
+            f.get("resp") not in ec.CICS_RESP
+            and not refused_file
+            and f.get("resp") not in UI_FAULT_CONDITIONS.get(cmd, {})
         ):
             raise ec.Unsupported(
                 f"scenario {sc['name']}: fault {f} ({'/'.join((*FAULT_COMMANDS, TD_READ_COMMAND))} with a ec.CICS_RESP condition)"
@@ -298,7 +331,7 @@ def fault_lines(sc: dict[str, Any]) -> list[str]:
         name = "-" if cmd == "RETRIEVE" or cmd in UI_NAMELESS else next((f[k] for k in _FAULT_NAME if f.get(k)), None)
         if not name:
             raise ec.Unsupported(f"scenario {sc['name']}: fault {f} names no {'/'.join(_FAULT_NAME)}")
-        out.append(f"{cmd} {name} {nth} {ec.CICS_RESP[f['resp']]} {resp2}")
+        out.append(f"{cmd} {name} {nth} {ec.CICS_RESP.get(f['resp']) or ec.DFHRESP[f['resp']]} {resp2}")
     return [*out, *sc.get("sql_abend_plan", [])]  # #6271 (X73): the Db2 statements planned to abend AD2Z
 
 

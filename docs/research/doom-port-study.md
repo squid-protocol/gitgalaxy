@@ -230,6 +230,19 @@ token mass, arguments) and linuxdoom's. It is a shape comparison, not a correctn
 
 <!-- study:distribution end -->
 
+### By subsystem
+
+Each function goes to the subsystem of the linuxdoom function it descends from (`lineage.assign_subsystem`), vendored
+code dropped. A cell is the port's median complexity in that subsystem over linuxdoom's median in the same one; a blank
+is a subsystem with under 5 functions on either side. The full per-metric tables and heatmaps come from
+`subsystem_distribution.py` and `subsystem_plot.py`.
+
+<!-- study:subsystem begin -->
+
+_Not generated yet: run `study_report.py --work DIR --write` over scans at the current engine SHA._
+
+<!-- study:subsystem end -->
+
 ## Cross-language calibration: landmark functions
 
 Twelve named linuxdoom functions are looked up in each translation; the ratio is the translation's complexity or LOC

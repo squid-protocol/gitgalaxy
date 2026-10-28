@@ -73,3 +73,19 @@ def test_subway_block_filters_to_listed_ports(tmp_path):
     assert "| gore | 100 | 0.9 | 0.77 | 0.5 |" in text
     assert "unlisted" not in text and "| linuxdoom |" not in text
     assert "No `--subway` file" in study_report.subway_block(None, [])
+
+
+def test_subsystem_block_is_a_port_by_subsystem_ratio_matrix():
+    def sub(name, ratio):
+        return dict(subsystem=name, complexity_vs_linuxdoom=ratio)
+
+    result = {
+        "linuxdoom": ([sub("p", None), sub("r", None)], 0.0),
+        "gore": ([sub("p", 0.5), sub("r", None), sub("other", None)], 12.4),
+        "dartdoom": ([sub("p", 2.0), sub("r", 1.25)], 0.0),
+    }
+    text = study_report.subsystem_block(result)
+    assert text.splitlines()[0] == "| port | p | r | other % |"
+    assert "| dartdoom | 2.00 | 1.25 | 0 |" in text
+    assert "| gore | 0.50 |  | 12 |" in text
+    assert "linuxdoom" not in text

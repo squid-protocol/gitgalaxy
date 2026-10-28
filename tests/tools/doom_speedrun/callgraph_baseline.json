@@ -1,22 +1,22 @@
 {
  "clang": {
   "chocolate-doom": {
-   "agree": 11162,
+   "agree": 11160,
    "clang_edges": 11166,
    "disagreements_in_clean_files": 0,
-   "engine_edges": 12117,
+   "engine_edges": 12115,
    "files_fatal": 324,
    "precision": 0.9212,
-   "recall": 0.9996
+   "recall": 0.9995
   },
   "crispy-doom": {
-   "agree": 12759,
+   "agree": 12757,
    "clang_edges": 12779,
    "disagreements_in_clean_files": 0,
-   "engine_edges": 13962,
+   "engine_edges": 13960,
    "files_fatal": 356,
    "precision": 0.9138,
-   "recall": 0.9984
+   "recall": 0.9983
   },
   "doom-ascii": {
    "agree": 1844,
@@ -64,13 +64,13 @@
    "recall": 0.9983
   },
   "fastdoom": {
-   "agree": 2416,
+   "agree": 2407,
    "clang_edges": 2416,
    "disagreements_in_clean_files": 0,
-   "engine_edges": 2527,
+   "engine_edges": 2514,
    "files_fatal": 120,
-   "precision": 0.9561,
-   "recall": 1.0
+   "precision": 0.9574,
+   "recall": 0.9963
   },
   "inter-doom": {
    "agree": 12988,
@@ -100,13 +100,13 @@
    "recall": 0.9837
   },
   "prboom-plus": {
-   "agree": 3986,
+   "agree": 3848,
    "clang_edges": 3997,
    "disagreements_in_clean_files": 0,
-   "engine_edges": 4796,
+   "engine_edges": 4443,
    "files_fatal": 133,
-   "precision": 0.8311,
-   "recall": 0.9972
+   "precision": 0.8661,
+   "recall": 0.9627
   },
   "puredoom": {
    "agree": 1864,
@@ -162,16 +162,16 @@
   },
   "quorum": 0.75
  },
- "engine_sha": "2a023d320",
+ "engine_sha": "5d1ee9f44",
  "ports": {
   "chocolate-doom": {
    "agree": 12115,
-   "engine_calls": 12186,
+   "engine_calls": 12184,
    "engine_only_by_kind": {
-    "macro-expansion": 71
+    "macro-expansion": 69
    },
    "functions": 5026,
-   "macro_expansion_calls": 71,
+   "macro_expansion_calls": 69,
    "misses_by_shape": {
     "assignment-rhs": 1,
     "nested-argument": 1,
@@ -185,12 +185,12 @@
   },
   "crispy-doom": {
    "agree": 14020,
-   "engine_calls": 14061,
+   "engine_calls": 14059,
    "engine_only_by_kind": {
-    "macro-expansion": 41
+    "macro-expansion": 39
    },
    "functions": 5767,
-   "macro_expansion_calls": 41,
+   "macro_expansion_calls": 39,
    "misses_by_shape": {
     "assignment-rhs": 1,
     "nested-argument": 1,
@@ -313,16 +313,16 @@
   },
   "doomsday": {
    "agree": 68626,
-   "engine_calls": 73361,
+   "engine_calls": 73334,
    "engine_only_by_kind": {
     "absent": 63,
     "comment/string": 3,
     "function-pointer": 176,
-    "macro-expansion": 2456,
+    "macro-expansion": 2429,
     "type": 2037
    },
    "functions": 25436,
-   "macro_expansion_calls": 2456,
+   "macro_expansion_calls": 2429,
    "misses_by_shape": {
     "after-operator": 7,
     "assignment-rhs": 2,
@@ -401,14 +401,14 @@
   },
   "fastdoom": {
    "agree": 2868,
-   "engine_calls": 2956,
+   "engine_calls": 2941,
    "engine_only_by_kind": {
     "absent": 1,
     "function-pointer": 1,
-    "macro-expansion": 86
+    "macro-expansion": 71
    },
    "functions": 1715,
-   "macro_expansion_calls": 86,
+   "macro_expansion_calls": 71,
    "misses_by_shape": {
     "statement": 17
    },
@@ -571,14 +571,14 @@
   },
   "srb2": {
    "agree": 19142,
-   "engine_calls": 21673,
+   "engine_calls": 21191,
    "engine_only_by_kind": {
     "function-pointer": 1,
-    "macro-expansion": 2529,
+    "macro-expansion": 2047,
     "type": 1
    },
    "functions": 6732,
-   "macro_expansion_calls": 2529,
+   "macro_expansion_calls": 2047,
    "misses_by_shape": {
     "after-cast": 1,
     "after-operator": 1,

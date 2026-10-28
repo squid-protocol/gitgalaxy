@@ -6936,8 +6936,7 @@
           "IsLinux",
           "IsAarch64",
           "SystemCall",
-          "CallSystem",
-          "SupportsLinux"
+          "CallSystem"
         ],
         "AccessCommand@586": [
           "MemMove",
@@ -6949,14 +6948,12 @@
         "CallSystem@366": [
           "__attribute__",
           "IsXnu",
-          "SystemCall",
-          "SupportsXnu"
+          "SystemCall"
         ],
         "Close@391": [
           "IsLinux",
           "IsAarch64",
-          "CallSystem",
-          "SupportsLinux"
+          "CallSystem"
         ],
         "Commandv@615": [
           "StrLen",
@@ -6968,8 +6965,7 @@
           "IsLinux",
           "IsAarch64",
           "CallSystem",
-          "__builtin_unreachable",
-          "SupportsLinux"
+          "__builtin_unreachable"
         ],
         "GetEnv@321": [],
         "Itoa@360": [
@@ -6987,30 +6983,22 @@
           "IsOpenbsd",
           "IsNetbsd",
           "__builtin_unreachable",
-          "SystemCall",
-          "SupportsLinux",
-          "SupportsXnu",
-          "SupportsFreebsd",
-          "SupportsOpenbsd",
-          "SupportsNetbsd"
+          "SystemCall"
         ],
         "Mprotect@466": [
           "IsLinux",
           "IsAarch64",
-          "CallSystem",
-          "SupportsLinux"
+          "CallSystem"
         ],
         "Msyscall@449": [
           "IsOpenbsd",
-          "SystemCall",
-          "SupportsOpenbsd"
+          "SystemCall"
         ],
         "Open@457": [
           "IsLinux",
           "IsAarch64",
           "SystemCall",
-          "CallSystem",
-          "SupportsLinux"
+          "CallSystem"
         ],
         "Perror@571": [
           "Itoa",
@@ -7029,12 +7017,7 @@
           "IsOpenbsd",
           "IsNetbsd",
           "__builtin_unreachable",
-          "SystemCall",
-          "SupportsLinux",
-          "SupportsXnu",
-          "SupportsFreebsd",
-          "SupportsOpenbsd",
-          "SupportsNetbsd"
+          "SystemCall"
         ],
         "Print@503": [
           "__builtin_va_start",
@@ -7067,8 +7050,7 @@
           "Close",
           "Msyscall",
           "Launch",
-          "IsFreebsd",
-          "SupportsFreebsd"
+          "IsFreebsd"
         ],
         "StrCmp@239": [],
         "StrLen@232": [],
@@ -7083,8 +7065,7 @@
         "Write@427": [
           "IsLinux",
           "IsAarch64",
-          "CallSystem",
-          "SupportsLinux"
+          "CallSystem"
         ]
       },
       "assembly/cosmopolitan/start.S": {
@@ -12659,7 +12640,6 @@
         "set_keys@202": [
           "ASSERT_OWNED_OR_SHARED",
           "_Py_atomic_store_ptr_release",
-          "IS_DICT_SHARED",
           "_Py_IsOwnedByCurrentThread",
           "assert"
         ],
@@ -12667,7 +12647,6 @@
         "set_values@209": [
           "ASSERT_OWNED_OR_SHARED",
           "_Py_atomic_store_ptr_release",
-          "IS_DICT_SHARED",
           "_Py_IsOwnedByCurrentThread",
           "assert"
         ],
@@ -15415,7 +15394,6 @@
           "update_cache",
           "Py_DECREF",
           "FT_ATOMIC_LOAD_UINT_RELAXED",
-          "MCACHE_HASH",
           "PyUnicode_CheckExact",
           "PyUnicode_GET_LENGTH"
         ],
@@ -15914,8 +15892,7 @@
           "COPYSLOT",
           "_PyType_HasFeature",
           "type_add_flags",
-          "overrides_hash",
-          "SLOTDEFINED"
+          "overrides_hash"
         ],
         "inherit_special@8569": [
           "type_add_flags",
@@ -20092,8 +20069,7 @@
           "ATB_FREE_TO_HEAD",
           "ATB_FREE_TO_TAIL",
           "memset",
-          "gc_dump_alloc_table",
-          "BLOCK_SHIFT"
+          "gc_dump_alloc_table"
         ],
         "gc_collect_end@579": [
           "gc_deal_with_stack_overflow",
@@ -20113,8 +20089,7 @@
           "ATB_GET_KIND",
           "TRACE_MARK_R",
           "ATB_HEAD_TO_MARK",
-          "gc_mark_subtree",
-          "BLOCK_SHIFT"
+          "gc_mark_subtree"
         ],
         "gc_collect_start@437": [
           "gc_collect_start_common",
@@ -20133,8 +20108,7 @@
           "NEXT_AREA",
           "MICROPY_GC_HOOK_LOOP",
           "ATB_GET_KIND",
-          "gc_mark_subtree",
-          "BLOCK_SHIFT"
+          "gc_mark_subtree"
         ],
         "gc_dump_alloc_table@1277": [
           "GC_ENTER",
@@ -20143,8 +20117,7 @@
           "mp_printf",
           "ATB_GET_KIND",
           "mp_print_str",
-          "GC_EXIT",
-          "BLOCK_SHIFT"
+          "GC_EXIT"
         ],
         "gc_dump_info@1265": [
           "gc_info",
@@ -20161,8 +20134,7 @@
           "BLOCK_FROM_PTR",
           "ATB_GET_KIND",
           "ATB_ANY_TO_FREE",
-          "gc_dump_alloc_table",
-          "BLOCK_SHIFT"
+          "gc_dump_alloc_table"
         ],
         "gc_get_ptr@744": [
           "__attribute__"
@@ -20177,8 +20149,7 @@
           "NEXT_AREA",
           "MICROPY_GC_HOOK_LOOP",
           "ATB_GET_KIND",
-          "GC_EXIT",
-          "BLOCK_SHIFT"
+          "GC_EXIT"
         ],
         "gc_init@233": [
           "DEBUG_printf",
@@ -20202,8 +20173,7 @@
           "VERIFY_PTR",
           "BLOCK_FROM_PTR",
           "TRACE_MARK_S",
-          "ATB_HEAD_TO_MARK",
-          "BLOCK_SHIFT"
+          "ATB_HEAD_TO_MARK"
         ],
         "gc_nbytes@1083": [
           "GC_ENTER",
@@ -20211,8 +20181,7 @@
           "MP_STATE_MEM",
           "BLOCK_FROM_PTR",
           "ATB_GET_KIND",
-          "GC_EXIT",
-          "BLOCK_SHIFT"
+          "GC_EXIT"
         ],
         "gc_realloc@1115": [
           "gc_alloc",
@@ -20231,8 +20200,7 @@
           "MAX",
           "memset",
           "DEBUG_printf",
-          "memcpy",
-          "BLOCK_SHIFT"
+          "memcpy"
         ],
         "gc_setup_area@146": [
           "assert",
@@ -20253,8 +20221,7 @@
           "PTR_FROM_BLOCK",
           "ATB_ANY_TO_FREE",
           "memset",
-          "ATB_MARK_TO_HEAD",
-          "BLOCK_SHIFT"
+          "ATB_MARK_TO_HEAD"
         ],
         "gc_sweep_run_finalisers@618": [],
         "gc_try_add_heap@284": [
@@ -20276,8 +20243,7 @@
           "MP_STATE_MEM",
           "BLOCK_FROM_PTR",
           "ATB_GET_KIND",
-          "WTB_SET",
-          "BLOCK_SHIFT"
+          "WTB_SET"
         ]
       },
       "c/micropython/modmachine.c": {
@@ -59761,7 +59727,6 @@
           "_update_children_cache",
           "_move_child",
           "get_index",
-          "TMPL_EXTRACT_PARAM_OR_FAIL",
           "void",
           "_STR",
           "_err_print_error",
@@ -60059,7 +60024,6 @@
           "get_name",
           "is_empty",
           "reverse",
-          "TMPL_EXTRACT_PARAM_OR_FAIL",
           "_STR",
           "_err_print_error",
           "unlikely"
@@ -60154,7 +60118,6 @@
         "Node::input@3616": [],
         "Node::is_ancestor_of@2150": [
           "EXTRACT_PARAM_OR_FAIL_V",
-          "TMPL_EXTRACT_PARAM_OR_FAIL",
           "_STR",
           "_err_print_error",
           "unlikely"
@@ -60178,7 +60141,6 @@
           "ERR_FAIL_COND_V",
           "_update_children_cache",
           "get_index",
-          "TMPL_EXTRACT_PARAM_OR_FAIL",
           "_STR",
           "_err_print_error",
           "unlikely"
@@ -60239,7 +60201,6 @@
           "_move_child",
           "size",
           "get_child_count",
-          "TMPL_EXTRACT_PARAM_OR_FAIL",
           "void",
           "_STR",
           "_err_print_error",
@@ -60325,7 +60286,6 @@
           "emit_signal",
           "SNAME",
           "_propagate_after_exit_tree",
-          "TMPL_EXTRACT_PARAM_OR_FAIL",
           "void",
           "_STR",
           "_err_print_error",
@@ -111446,7 +111406,6 @@
         ],
         "appendText@1367": [
           "OUTPUTS",
-          "OUTPUT",
           "end_output"
         ],
         "apply@606": [

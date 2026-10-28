@@ -1746,7 +1746,7 @@
       "issue": 6271,
       "refused_by_name": false,
       "new_class": false,
-      "summary": "A GET that hits a stored ZECS001 record cannot be proven: the harness serves every VSAM record at the dataset's fixed reclen, so READ ... LENGTH(ZF-LENGTH) returns the area length (32700) where IBM returns the record's own length, and 3400-STAGE's ZF-DATA(1:ZF-LENGTH) / WEB SEND FROMLENGTH run past 32000 bytes (libcob out of bounds, WEB SEND length beyond its area). The text/* WEB RECEIVE second pass is also not modelled. Also, on the det side, ZECS001 DELETE of a stored key and POST / PUT over an existing key diverge from GnuCOBOL (204 Record not found; SYNCPOINT rollback); cause not diagnosed, so those scenarios were not committed (re-tried at round 5 with DEPEXP01's ABS set one second before the clock: the expired /deplicate DELETE still answers 204 Record not found on the det side, 200 OK on GnuCOBOL). ZECS001 4600-REPLICATE is likewise unprovable: with an AA or AS data centre type and an http_peers exchange the oracle accepts the peer, but GnuCOBOL sends WEB CONVERSE FROM(CACHE-MESSAGE) with an empty body where the det port sends the stored body, then dies with SIGSEGV at the converse (PROGRAM.cbl:2113), so 8100-8300 and the replicate arms stay open. Round 6 (#6072): a POST body of 32000 or 40000 bytes is refused by the det runtime (SET ADDRESS OF a record longer than its storage: not modelled), so 4400-WRITE-FILE's segmented arms and 3500-READ-SEGMENTS stay open; an Authorization header over six bytes LINKs ZECS002 (HLASM, refused: the case runs one program), so 1500-AUTHENTICATE's long-header arms and 1600-USER-ACCESS / 1610-SCAN-ZCXXSD stay open. Round 7 (#6072): a `clear=*` GET XCTLs to ZECS003 with its COMMAREA, but the Java facade drops the COMMAREA (a case-level commarea of ZECS003-COMM-AREA gave 0 of 1 events equal), so that arm stays open; `ttl=abc` (the NUMERIC false arm) is likewise not reached."
+      "summary": "A GET that hits a stored ZECS001 record cannot be proven: the harness serves every VSAM record at the dataset's fixed reclen, so READ ... LENGTH(ZF-LENGTH) returns the area length (32700) where IBM returns the record's own length, and 3400-STAGE's ZF-DATA(1:ZF-LENGTH) / WEB SEND FROMLENGTH run past 32000 bytes (libcob out of bounds, WEB SEND length beyond its area). The text/* WEB RECEIVE second pass is also not modelled. Also, on the det side, ZECS001 DELETE of a stored key and POST / PUT over an existing key diverge from GnuCOBOL (204 Record not found; SYNCPOINT rollback); cause not diagnosed, so those scenarios were not committed (re-tried at round 5 with DEPEXP01's ABS set one second before the clock: the expired /deplicate DELETE still answers 204 Record not found on the det side, 200 OK on GnuCOBOL). ZECS001 4600-REPLICATE is likewise unprovable: with an AA or AS data centre type and an http_peers exchange the oracle accepts the peer, but GnuCOBOL sends WEB CONVERSE FROM(CACHE-MESSAGE) with an empty body where the det port sends the stored body, then dies with SIGSEGV at the converse (PROGRAM.cbl:2113), so 8100-8300 and the replicate arms stay open. Round 6 (#6072): a POST body of 32000 or 40000 bytes is refused by the det runtime (SET ADDRESS OF a record longer than its storage: not modelled), so 4400-WRITE-FILE's segmented arms and 3500-READ-SEGMENTS stay open; an Authorization header over six bytes LINKs ZECS002 (HLASM, refused: the case runs one program), so 1500-AUTHENTICATE's long-header arms and 1600-USER-ACCESS / 1610-SCAN-ZCXXSD stay open. Round 7 (#6072): `ttl=abc` (the NUMERIC false arm) is not reached (the oracle's UNSTRING into PIC 9(06) still tests NUMERIC); the `clear=*` XCTL arm is closed (the harness reads an XCTL area of another program's DTO by its bytes)."
     },
     {
       "id": "P118",
@@ -1762,6 +1762,23 @@
       "refused_by_name": false,
       "new_class": false,
       "summary": "CBSA BNK1CRA / BNK1TFN VALIDATE-AMOUNT cannot be proven for an amount with a 9 after the point (AMTI 1.900): the COMP-1 amount is stored truncated by GnuCOBOL (1.89) and rounded by the Java runtime (1.90), so the two outputs differ (COBOL 1001.89, Java 1001.90); no exactly-binary amount reaches the arm. A 4-decimal amount whose third and fourth digits are both below 5 (AMTI 1.9944) is stored the same by both and does reach it: scenario amount-four-places-nines closes CRA 1114:false and TFN 1171:false. Other L3->L4 gaps in the slice are oracle or harness limits, not scenario gaps: X8 bounds refusals, BIF DEEDIT of an empty field, SET TERMINAL UCTRANST then RECEIVE MAP, X54 (an all-blank amount arrives with length 0), and abend injection (#6271, cited by P117)."
+    },
+    {
+      "id": "P119",
+      "estate": "cics-banking-sample-application-cbsa",
+      "after_round": 2,
+      "side": "runtime",
+      "class": "cics-command",
+      "programs": [
+        "bnk1dcs",
+        "delcus",
+        "inqcust"
+      ],
+      "issue": 6882,
+      "fixed_by": "#6884",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "A LINKed program's Java port did not take its own HANDLE ABEND exit for an injected abend (AFCR on INQCUST's READ, LINKed by DELCUS): CicsTask searched for the exit from the root task, not from the level of the program that issued the command, so the task ABENDed (BNK1DCS 1055:true, 4/13 events equal). The root now records the executing task (running) and injected() abends from there; scenario delete-customer-read-abends-afcr proves it."
     }
   ]
 }

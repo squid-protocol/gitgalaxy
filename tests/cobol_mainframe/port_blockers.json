@@ -1778,7 +1778,7 @@
       "fixed_by": "#6884",
       "refused_by_name": false,
       "new_class": false,
-      "summary": "A LINKed program's Java port did not take its own HANDLE ABEND exit for an injected abend (AFCR on INQCUST's READ, LINKed by DELCUS): CicsTask searched for the exit from the root task, not from the level of the program that issued the command, so the task ABENDed (BNK1DCS 1055:true, 4/13 events equal). The root now records the executing task (running) and injected() abends from there; scenario delete-customer-read-abends-afcr proves it."
+      "summary": "A LINKed program's Java port did not take its own HANDLE ABEND exit for an injected abend (AFCR on INQCUST's READ, LINKed by DELCUS): CicsTask searched for the exit from the root task, not from the level of the program that issued the command, so the task ABENDed (BNK1DCS 1055:true, 4/13 events equal). The root now records the executing task (running) and injected() abends from there; scenario delete-customer-read-abends-afcr proves it (re-proved at 8180945ce, det_port run --faults all: BNK1DCS 1347/1347 translated, the scenario 9/9 events equal, the Java ABEND event leaves by INQCUST's ABEND-HANDLING exit)."
     }
   ]
 }

@@ -143,6 +143,7 @@ _FORM_OPTION = {
     "GET": ("COUNTER",),
     "INQUIRE": ("PROGRAM", "TERMINAL", "ASSOCIATION", "URIMAP", "TDQUEUE"),
     "SET": ("TERMINAL", "TDQUEUE"),
+    "VERIFY": ("PASSWORD",),  # #5859: VERIFY PASSWORD(pw) USERID(id), the form word is an option
     "WEB READ": ("HTTPHEADER", "FORMFIELD", "QUERYPARM"),  # #4767 / #4940 (X38): the form word is an option
     "WEB WRITE": ("HTTPHEADER",),
     "WEB STARTBROWSE": ("HTTPHEADER", "FORMFIELD", "QUERYPARM"),  # #4940 (X38): the WEB browse forms
@@ -1258,6 +1259,13 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
             rc = f"Cobol.text({self.read_field(_arg(opts['ROUTECODES']))}, CS)" if opts.get("ROUTECODES") else "null"
             nr = f"Integer.valueOf({self.int_(_arg(opts['NUMROUTES']))})" if opts.get("NUMROUTES") else "null"
             return [f"{ind}int[] {r} = task.writeOperator(Cobol.text({f}, CS), {n}, {rc}, {nr});",
+                    *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]  # fmt: skip
+        if key == "VERIFY PASSWORD":  # #5859 zECS ZECS002: the verdict a scenario states for the USERID (register X32)
+            if not (opts.get("USERID") and opts.get("PASSWORD")):
+                raise CicsError(_msg("VERIFY PASSWORD", "required", "USERID" if not opts.get("USERID") else "PASSWORD"))
+            r = g.tmpname("ver")
+            u = self.read_field(_arg(opts["USERID"]))
+            return [f"{ind}int[] {r} = task.verifyPassword(Cobol.text({u}, CS));",
                     *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]  # fmt: skip
         if key in ("INQUIRE TERMINAL", "SET TERMINAL"):  # #4415 slice 1: the terminal's UCTRANST CVDA (register X26)
             if "UCTRANST" not in opts:

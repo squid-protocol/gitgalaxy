@@ -142,6 +142,13 @@ _ALIGN = {"H": 2, "F": 4, "D": 8}
 _SIZE = {"H": 2, "F": 4, "D": 8}
 
 
+def _counter_name_ok(name: str) -> bool:
+    """IBM (EXEC CICS DEFINE COUNTER / DCOUNTER): A-Z $ @ # first, then also 0-9 and _; no embedded or leading blanks."""
+    return bool(name) and all(
+        c in "ABCDEFGHIJKLMNOPQRSTUVWXYZ$@#" or (i and c in "0123456789_") for i, c in enumerate(name)
+    )
+
+
 class Machine:
     def __init__(self, source: str):
         self.stmts = parse(source)
@@ -253,7 +260,7 @@ class Machine:
         raise Unsupported(f"length of {text}")
 
     def _ss_len(self, text: str) -> int | None:
-        m = re.search(r"\((\d+),", text)
+        m = re.search(r"\((\d+)[,)]", text)  # D(L,B) or D(L): a bare number in an SS first operand is the length
         return int(m.group(1)) if m else None
 
     def _address(self, text: str, regs: list[int], ss_first: bool = False) -> int:
@@ -324,7 +331,9 @@ class Machine:
         mem = self.mem
         regs = [0] * 16
         cc = 0
-        mem[WS : WS + 0x1000] = bytes(0x1000)
+        mem[WS : WS + 0x1000] = (
+            bytes([facts.get("fill", 0)]) * 0x1000
+        )  # DFHEISTG is not initialised (design doc assumption 2)
         mem[CA : CA + len(commarea)] = commarea
         for name, v in (
             ("EIBTRNID", facts.get("transid", "ZSEC").ljust(4).encode(EBCDIC)),
@@ -471,10 +480,14 @@ class Machine:
             cmd = cmd.split()[0]
             rest = body[len(cmd) :]
         opts: dict[str, str] = {}
+        if cmd == "DEFINE DCOUNTER":  # the command's own name operand: DEFINE DCOUNTER(name)
+            opts["DCOUNTER"] = ""
         for m in re.finditer(r"([A-Z0-9]+)\s*\(((?:[^()']|'[^']*')*)\)", rest):
             opts[m.group(1)] = m.group(2).strip()
         for w in re.findall(r"\b([A-Z]+)\b(?!\s*\()", re.sub(r"\([^)]*\)", "", rest)):
             opts.setdefault(w, "")
+        if cmd == "DEFINE DCOUNTER":
+            opts["DCOUNTER"] = re.match(r"\s*\(([^)]*)\)", rest).group(1).strip()
         return cmd, opts
 
     def _operand_bytes(self, arg: str, regs: list[int], mem: bytearray, length: int | None = None) -> bytes:
@@ -503,8 +516,10 @@ class Machine:
         elif cmd == "FORMATTIME":
             clock = facts.get("clock", "2026/10/01 10:30:15")
             d, t = clock.split(" ")
-            mem[self._address(o["YYYYMMDD"], regs) :][:10] = d.encode(EBCDIC)
-            mem[self._address(o["TIME"], regs) :][:8] = t.encode(EBCDIC)
+            a = self._address(o["YYYYMMDD"], regs)
+            mem[a : a + 10] = d.encode(EBCDIC)
+            a = self._address(o["TIME"], regs)
+            mem[a : a + 8] = t.encode(EBCDIC)
         elif cmd == "WRITEQ TD":
             n = (
                 int.from_bytes(self._operand_bytes(o["LENGTH"], regs, mem), "big")
@@ -514,7 +529,9 @@ class Machine:
             res.events.append(("WRITEQ TD", o["QUEUE"].strip("'"), self._operand_bytes(o["FROM"], regs, mem, n)))
         elif cmd == "WRITE OPERATOR":
             n = int.from_bytes(self._operand_bytes(o["TEXTLENGTH"], regs, mem), "big")
-            res.events.append(("WRITE OPERATOR", self._operand_bytes(o["TEXT"], regs, mem, n)))
+            nroutes = int.from_bytes(self._operand_bytes(o["NUMROUTES"], regs, mem), "big")
+            codes = self._operand_bytes(o["ROUTECODES"], regs, mem, nroutes)
+            res.events.append(("WRITE OPERATOR", self._operand_bytes(o["TEXT"], regs, mem, n), codes, nroutes))
         elif cmd == "VERIFY":
             uid = self._operand_bytes(o["USERID"], regs, mem, 8)
             pw = self._operand_bytes(o["PASSWORD"], regs, mem, 8)
@@ -535,12 +552,20 @@ class Machine:
             data = facts.get("terminal", b"")
             a = self._address(o["INTO"], regs)
             n = self._lenattr(o["INTO"])
-            mem[a : a + n] = data[:n].ljust(n, b"\x00") if data else bytes(n)
+            mem[a : a + min(n, len(data))] = data[:n]  # the bytes beyond the input are left as they were
         elif cmd == "DEFINE DCOUNTER":
             name = self._operand_bytes(o["DCOUNTER"], regs, mem, 16)
             exists = name in (facts.get("counters") or ())
-            res.events.append(("DEFINE DCOUNTER", name))
-            setresp(RESP["DUPREC"] if exists else 0)
+            bad = not _counter_name_ok(name.decode(EBCDIC).rstrip(" "))
+            dw = [
+                int.from_bytes(self._operand_bytes(o[k], regs, mem, 8), "big") for k in ("VALUE", "MINIMUM", "MAXIMUM")
+            ]
+            res.events.append(("DEFINE DCOUNTER", name, *dw, not (bad or exists)))
+            if bad or exists:  # IBM: INVREQ, RESP2 404 for a name outside the rules, 202 for a counter already defined
+                setresp(RESP["INVREQ"])
+                mem[EIB + EIB_FIELDS["EIBRESP2"][0] :][:4] = (404 if bad else 202).to_bytes(4, "big")
+            else:
+                setresp(0)
         elif cmd == "START":
             res.events.append(
                 (

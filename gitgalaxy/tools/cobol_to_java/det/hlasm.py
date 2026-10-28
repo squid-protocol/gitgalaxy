@@ -28,6 +28,7 @@ Everything outside the subset is refused by name (`Refused`), so a program is tr
 from __future__ import annotations
 
 import re
+from collections.abc import Callable
 from dataclasses import dataclass, field
 
 
@@ -45,9 +46,10 @@ def _continues(line: str) -> bool:
     return len(body.rstrip()) == 73 and body[71] == " "
 
 
-SUBSET = frozenset(
-    {"B", "BC", "BCR", "BAS", "L", "LA", "ST", "STH", "CH", "CLC", "CLI", "MVC", "OC", "SR", "XC", "BCT"}
-)
+SUBSET = frozenset({
+    "B", "BC", "BCR", "BAS", "L", "LA", "ST", "STH", "CH", "CLC", "CLI", "MVC", "OC", "SR", "XC", "BCT",
+    "IC", "STCM", "TR", "SLL", "SLDL",
+})  # fmt: skip
 _IGNORED = frozenset({"AMODE", "RMODE", "PRINT", "LTORG", "END", "EJECT", "SPACE", "TITLE"})
 _RESERVED_REGS = {13}  # the save area, never a work register here
 _ALIGN = {"H": 2, "F": 4, "D": 8}
@@ -61,6 +63,15 @@ _EIB = {
 # DCOUNTER options CICS reads or writes as an unsigned doubleword: an XL8 operand there is a number, not bytes
 _DOUBLEWORD_OPTIONS = {"VALUE", "MINIMUM", "MAXIMUM", "INCREMENT", "COMPAREMIN", "COMPAREMAX"}
 _SYMBOL = re.compile(r"[A-Z][A-Z0-9_]{0,29}$", re.I)
+_DYN = re.compile(r"([^()]*)\(([^(),]*)(?:,([^(),]*))?\)")  # d(b), d(,b), d(l,b), SYM(x)
+_ASRA = "EXEC CICS ABEND ABCODE('ASRA') NODUMP END-EXEC"  # (a program check: the address names no storage of ours)
+_SPAN = 65536  # an address is region * _SPAN + offset: the region is a top-level storage unit (docs, "Address model")
+# The scratch cells of the address model, each emitted only when a lowering uses it: name -> PICTURE
+_CELLS = {
+    "RG": "S9(9) COMP-5 VALUE 0", "OF": "S9(9) COMP-5 VALUE 0", "B": "X", "BUF": "X(4)", "OUT": "X(4)",
+    "T": "S9(18) COMP-5 VALUE 0", "U": "S9(18) COMP-5 VALUE 0", "X": "S9(18) COMP-5 VALUE 0",
+    "Y": "S9(18) COMP-5 VALUE 0",
+}  # fmt: skip
 _DC_ITEM = re.compile(r"^(\d*)([CXHFD])(?:L(\d+))?(?:'((?:[^']|'')*)')?$", re.I)
 
 
@@ -74,6 +85,16 @@ class Stmt:
     label: str
     op: str
     operands: str
+
+
+@dataclass
+class Region:
+    """A storage unit a register-held address can name: its id (the address divided by _SPAN), COBOL name, length."""
+
+    id: int
+    cobol: str
+    length: int
+    writable: bool
 
 
 @dataclass
@@ -129,6 +150,23 @@ def statements(text: str) -> list[Stmt]:
     return out
 
 
+def _args(text: str) -> list[str]:
+    """The operands of an instruction: split at the commas outside parentheses and quotes."""
+    out: list[str] = []
+    cur, depth, quoted = "", 0, False
+    for ch in text:
+        if ch == "'":
+            quoted = not quoted
+        elif not quoted and ch in "()":
+            depth += 1 if ch == "(" else -1
+        if ch == "," and depth == 0 and not quoted:
+            out.append(cur)
+            cur = ""
+        else:
+            cur += ch
+    return [*out, cur]
+
+
 def _cobol(name: str) -> str:
     return name.upper().replace("_", "-")
 
@@ -146,6 +184,9 @@ class _Lowering:
         self.labels: list[str] = []
         self.used_regs: set[int] = set()
         self.returns: list[str] = []
+        self.regions: dict[str, Region] = {}  # the units an `LA Rn,SYM` can put in a register
+        self.cells: set[str] = set()  # the scratch cells (_CELLS, "N") the lowering uses
+        self.unit: dict[int, Item] = {}  # id(item) -> the top-level item holding it
 
     def refuse(self, s: Stmt | None, what: str) -> Refused:
         return Refused(f"{what} at line {s.line}" if s else what)
@@ -156,7 +197,11 @@ class _Lowering:
         loc = 0
         groups: list[Item] = []  # open 0CLn groups
         entry: list[tuple[Stmt, str]] = []
+        ext: Item | None = None  # the named X constant the next unnamed X rows of its width continue (a table)
+        row = 0
         for s in self.stmts:
+            if s.op in ("DSECT", "DFHEIENT"):
+                ext = None
             if s.op == "DSECT":
                 section, loc, groups = s.label.upper(), 0, []
                 self.sections[section] = []
@@ -215,15 +260,31 @@ class _Lowering:
             if s.op == "DC" and section != "*CSECT":
                 raise self.refuse(s, "DC in a DSECT")
             if section == "*CSECT" and not s.label and not groups:
+                # the next row of a table: `T DC XL16'..'` then `DC XL16'..'`
+                if (
+                    ext is not None
+                    and typ == "X"
+                    and val is not None
+                    and dup == ""
+                    and length == row
+                    and loc == ext.off + ext.length
+                ):
+                    ext.value = (ext.value or "") + (self._value(s, typ, length, val) or "")
+                    ext.length += length
+                    loc += length
+                    continue
+                ext = None
                 continue  # an unnamed constant (the eyecatcher a `B` jumps around): nothing names or reads it
             if s.op == "DS" and section == "*CSECT":
                 raise self.refuse(s, "DS storage in the program CSECT")
             value = self._value(s, typ, length, val)
+            row = length
             if copies > 1:  # `n C/X` copies of one element: one field of n elements
                 length *= copies
                 value = value * copies if value is not None else None
             item = Item(s.label.upper() if s.label else "", section, loc, length, typ, value)
             self._place(s, item, groups)
+            ext = item if item.name and typ == "X" and section == "*CSECT" and not groups and copies == 1 else None
             loc += length
             while groups and loc >= groups[-1].off + groups[-1].length:
                 g = groups.pop()
@@ -233,6 +294,13 @@ class _Lowering:
             raise self.refuse(None, "no DFHEIENT entry")
         for s, r in entry:  # (the register EQUs follow the code)
             self.entry_regs.add(self._reg(s, r))
+        for tops in self.sections.values():
+            for top in tops:
+                todo = [top]
+                while todo:
+                    it = todo.pop()
+                    self.unit[id(it)] = top
+                    todo += it.children
 
     def _place(self, s: Stmt, item: Item, groups: list[Item]) -> None:
         if item.name:
@@ -316,8 +384,17 @@ class _Lowering:
                     it = self.items.get(arg.strip().upper())
                     if opt.upper() in _DOUBLEWORD_OPTIONS and it and it.typ == "X" and it.length == 8:
                         it.doubleword = True
+        for s in code:  # the units an `LA Rn,SYM` puts in a register, before any code dereferences one
+            arg = _args(s.operands)[-1].strip() if s.op == "LA" else ""
+            m = re.fullmatch(r"([A-Z][A-Z0-9_]*)(?:\+\d+)?", arg, re.I)
+            if m and self._number(arg) is None and m.group(1).upper() in self.items:
+                self.region(s, self.items[m.group(1).upper()])
         proc = self._procedure(code)
-        return "\n".join(self._data() + proc) + "\n"
+        lines = self._data() + proc
+        for line in lines:  # fixed format ends at column 72: a longer line would lose its tail silently
+            if len(line) > 72:
+                raise Refused(f"generated line past column 72: {line.strip()[:40]}")
+        return "\n".join(lines) + "\n"
 
     def _code_stmts(self) -> list[Stmt]:
         """The executable statements of the CSECT: from DFHEIENT to LTORG / END, unnamed branch-around DCs dropped."""
@@ -364,7 +441,7 @@ class _Lowering:
                 prev = None
                 continue
             body.append(f"      *    {self.file.rsplit('/', 1)[-1]}:{s.line}: {s.op} {s.operands}"[:72].rstrip())
-            ops = s.operands.split(",") if s.op != "EXEC" else []
+            ops = _args(s.operands) if s.op != "EXEC" else []
             if s.op == "USING":
                 dsect, reg = (o.strip().upper() for o in ops) if len(ops) == 2 else ("", "")
                 if dsect not in self.sections or self._reg(s, reg) not in loaded or self.commarea:
@@ -448,11 +525,37 @@ class _Lowering:
             return []  # CH: only sets the condition code, read by the next BC
         if op == "LA":
             reg = self.work_reg(s, ops[0])
-            v = ops[1].strip().upper() if len(ops) == 2 else ""
-            n = int(v) if v.isdigit() else self.equ.get(v)
-            if n is None or not 0 <= n <= 4095:
-                raise self.refuse(s, f"LA of an address ({s.operands})")
-            return [f"           MOVE {n} TO {reg}"]
+            v = ops[1].strip() if len(ops) == 2 else ""
+            n = self._number(v)
+            if n is not None:
+                if not 0 <= n <= 4095:
+                    raise self.refuse(s, f"LA of an address ({s.operands})")
+                return [f"           MOVE {n} TO {reg}"]
+            dyn = self.operand(s, v)
+            if dyn is not None:  # LA Rn,d(,Rm): the address plus d, in 31 bits (POPS, LOAD ADDRESS)
+                if dyn[0] != "dyn" or dyn[3] is not None:
+                    raise self.refuse(s, f"LA {s.operands} (an index register)")
+                plus = f" + {dyn[2]}" if dyn[2] else ""
+                return [f"           COMPUTE {reg} =", f"               FUNCTION MOD({dyn[1]}{plus}, 2147483648)"]
+            item, disp, _ = self.storage(s, v)
+            region, off = self.region(s, item)
+            return [f"           MOVE {region.id * _SPAN + off + disp} TO {reg}"]
+        if op == "IC":
+            if len(ops) != 2:
+                raise self.refuse(s, f"IC {s.operands}")
+            reg = self.work_reg(s, ops[0])
+            self.cells.add("N")
+            return [  # POPS: the byte replaces bits 24-31 of the register, its other bits stay
+                *self._fetch(s, ops[1]),
+                "           MOVE HL-B TO HL-LO",
+                f"           COMPUTE {reg} = {reg} - FUNCTION MOD({reg}, 256) + HL-N",
+            ]
+        if op in ("SLL", "SLDL"):
+            return self._shift(s, ops)
+        if op == "STCM":
+            return self._stcm(s, ops)
+        if op == "TR":
+            return self._tr(s, ops)
         if op == "SR":
             if len(ops) != 2 or self._reg(s, ops[0]) != self._reg(s, ops[1]):
                 raise self.refuse(s, f"SR {s.operands} (only SR Rn,Rn, a register clear)")
@@ -474,12 +577,19 @@ class _Lowering:
             reg, tgt = self.work_reg(s, ops[0]), self.target(s, ops[1])
             return [  # POPS: subtract 1 from the fullword (wrapping), branch while the result is not zero; CC unchanged
                 f"           COMPUTE {reg} =",
-                f"               FUNCTION MOD({reg} - 1 + 2147483648, 4294967296) - 2147483648",
+                f"               FUNCTION MOD({reg} - 1 + 2147483648, 4294967296)",
+                "               - 2147483648",
                 f"           IF {reg} NOT = 0",
                 f"               GO TO {tgt}",
                 "           END-IF",
             ]
         if op == "MVC":
+            dst_op = self.operand(s, ops[0], True)
+            if dst_op is not None or (len(ops) == 2 and self.operand(s, ops[1], True) is not None):
+                n = self.storage(s, ops[0])[2] if dst_op is None else (dst_op[3] or 1) if dst_op[0] == "dyn" else 0
+                if n != 1:  # (a longer copy through a register may overlap itself, byte by byte: not modelled)
+                    raise self.refuse(s, f"MVC {s.operands} (only one byte through a register)")
+                return [*self._fetch(s, ops[1], True), *self._store(s, ops[0], 1, "HL-B")]
             lit = re.fullmatch(r"=C'((?:[^'&]|'')*)'", ops[1].strip(), re.I) if len(ops) == 2 else None
             if lit:  # a literal-pool constant: the destination must be exactly its length
                 text = lit.group(1).replace("''", "'")
@@ -501,9 +611,253 @@ class _Lowering:
             if self._overlap(dst, dd, src, sd, dl):
                 raise self.refuse(s, "overlapping MVC")
             return [f"           MOVE {self.ref(src, sd, dl)}", f"             TO {self.ref(dst, dd, dl)}"]
+        if op == "CLI" and self.operand(s, ops[0]) is not None:
+            return self._fetch(s, ops[0])  # the byte is compared by the BC that follows (_compare_operands)
         if op in ("CLC", "CLI", "OC"):
             return []  # set the condition code only (OC X,X leaves X as it is): read by the next BC
         raise self.refuse(s, f"instruction {op}")
+
+    # ---- the address model (slice 3b) ----------------------------------------------------------------------------
+    def _number(self, text: str) -> int | None:
+        t = text.strip().upper()
+        return int(t) if t.isdigit() else self.equ.get(t)
+
+    def operand(self, s: Stmt, text: str, ss: bool = False) -> tuple | None:
+        """`d(b)`, `d(,b)`, `d(l,b)` (ss: an SS-format operand, where the first field is a length) ->
+        ("dyn", base cell, d, length | None); `SYM(x)`, a symbol indexed by a register -> ("idx", item, d, cell);
+        None for a plain symbol (storage())."""
+        m = _DYN.fullmatch(text.strip())
+        if not m:
+            return None
+        d, x, b = m.group(1).strip(), m.group(2).strip(), m.group(3)
+        disp = 0 if not d else self._number(d)
+        if disp is not None:
+            if not 0 <= disp <= 4095:
+                raise self.refuse(s, f"displacement {text}")
+            if b is None:
+                return ("dyn", self.work_reg(s, x), disp, None)
+            length = self._number(x) if x else None
+            if x and (length is None or not ss):
+                raise self.refuse(s, f"index register in {text}")
+            return ("dyn", self.work_reg(s, b), disp, length)
+        if b is None and x and not x.isdigit():
+            item, sdisp, _ = self.storage(s, d)
+            return ("idx", item, sdisp, self.work_reg(s, x))
+        return None
+
+    def _unit(self, s: Stmt, item: Item) -> tuple[str, str, int, int, bool]:
+        """(key, COBOL name, offset of `item` in the unit, unit length, writable) of the storage an address into `item`
+        reaches: the top-level 01 of DFHEISTG or the program CSECT, or the whole COMMAREA."""
+        if item.section == "*EIB":
+            raise self.refuse(s, f"address of the EIB field {item.name}")
+        if item.section in ("DFHEISTG", "*CSECT"):
+            top = self.unit[id(item)]
+            if not top.name:
+                raise self.refuse(s, f"address into unnamed storage ({item.name or 'FILLER'})")
+            tops, key, cob, base, length = [top], top.name, _cobol(top.name), top.off, top.length
+        else:
+            tops = self.sections[item.section]
+            key, cob, base = item.section, "DFHCOMMAREA", 0
+            length = max(t.off + t.length for t in tops)
+        todo = list(tops)
+        while todo:
+            it = todo.pop()
+            if it.typ in ("H", "F", "D") or it.doubleword:  # (the bytes of a binary field differ: little endian here)
+                raise self.refuse(s, f"address into {cob}, which holds the binary field {it.name or 'FILLER'}")
+            if it.typ == "C" and it.value is not None:  # (a C constant is ASCII here and EBCDIC on z/OS)
+                raise self.refuse(s, f"address into {cob}, which holds the character constant {it.name or 'FILLER'}")
+            todo += it.children
+        return key, cob, item.off - base, length, item.section != "*CSECT"
+
+    def region(self, s: Stmt, item: Item) -> tuple[Region, int]:
+        """The Region an address of `item` lies in (registered on first use) and the offset of `item` in it."""
+        key, cob, off, length, writable = self._unit(s, item)
+        region = self.regions.get(key)
+        if region is None:
+            region = self.regions[key] = Region(len(self.regions) + 1, cob, length, writable)
+        return region, off
+
+    def _locate(self, cell: str, disp: int) -> list[str]:
+        """HL-RG, HL-OF := the region and offset of the address in `cell`, plus `disp`."""
+        self.cells |= {"RG", "OF"}
+        out = [f"           DIVIDE {cell} BY {_SPAN} GIVING HL-RG REMAINDER HL-OF"]
+        return [*out, f"           ADD {disp} TO HL-OF"] if disp else out
+
+    def _switch(self, n: int, write: bool, action: Callable[[str], list[str]]) -> list[str]:
+        """`action(region name)` for the `n` bytes at HL-OF of the region HL-RG names; an address outside every region
+        that can hold one (or past its end, or a store into a constant) is a program check: ASRA."""
+        out = ["           EVALUATE HL-RG"]
+        for r in self.regions.values():
+            if r.length < n or (write and not r.writable):
+                continue
+            out += [
+                f"               WHEN {r.id}",
+                f"                   IF HL-OF < 0 OR HL-OF > {r.length - n}",
+                f"                       {_ASRA}",
+                "                   ELSE",
+                *(f"                       {line}" for line in action(r.cobol)),
+                "                   END-IF",
+            ]
+        return [*out, "               WHEN OTHER", f"                   {_ASRA}", "           END-EVALUATE"]
+
+    def _plain(self, s: Stmt, item: Item) -> None:
+        if item.typ in ("H", "F", "D") or item.doubleword or (item.typ == "C" and item.value is not None):
+            raise self.refuse(s, f"byte of {item.name} ({item.typ})")
+
+    def _fetch(self, s: Stmt, text: str, ss: bool = False) -> list[str]:
+        """Lines leaving the first byte of the operand in HL-B."""
+        self.cells.add("B")
+        op = self.operand(s, text, ss)
+        if op is None:
+            item, disp, _ = self.storage(s, text)
+            self._plain(s, item)
+            return [f"           MOVE {self.ref(item, disp, 1)} TO HL-B"]
+        if op[0] == "idx":  # IC R5,TABLE(R5): the register is the byte offset into the table
+            _, item, disp, cell = op
+            _, cob, off, length, _w = self._unit(s, item)
+            self.cells.add("OF")
+            return [
+                f"           COMPUTE HL-OF = {off + disp} + {cell}",
+                f"           IF HL-OF < 0 OR HL-OF > {length - 1}",
+                f"               {_ASRA}",
+                "           ELSE",
+                f"               MOVE {cob}(HL-OF + 1:1) TO HL-B",
+                "           END-IF",
+            ]
+        return [*self._locate(op[1], op[2]), *self._switch(1, False, lambda r: [f"MOVE {r}(HL-OF + 1:1) TO HL-B"])]
+
+    def _store(self, s: Stmt, text: str, n: int, src: str) -> list[str]:
+        """Lines storing the `n` bytes `src` (a COBOL operand) at the operand."""
+        op = self.operand(s, text, True)
+        if op is None:
+            item, disp, length = self.storage(s, text)
+            if length < n:
+                raise self.refuse(s, f"store of {n} bytes into {text}")
+            self._plain(s, item)
+            self._writable(s, item)
+            return [f"           MOVE {src}", f"             TO {self.ref(item, disp, n)}"]
+        if op[0] == "idx" or (op[3] is not None and op[3] != n):
+            raise self.refuse(s, f"store through {text}")
+        return [
+            *self._locate(op[1], op[2]),
+            *self._switch(n, True, lambda r: [f"MOVE {src}", f"  TO {r}(HL-OF + 1:{n})"]),
+        ]
+
+    def _byte_literal(self, s: Stmt, text: str) -> str:
+        """The byte of `C'x'` (EBCDIC cp037, as z/OS compares it) or `X'hh'`, as a COBOL hex literal."""
+        lit = re.fullmatch(r"([CX])'([^']*)'", text.strip(), re.I)
+        if not lit:
+            raise self.refuse(s, f"CLI {s.operands}")
+        if lit.group(1).upper() == "X":
+            if not re.fullmatch(r"[0-9A-F]{2}", lit.group(2), re.I):
+                raise self.refuse(s, f"CLI {s.operands}")
+            return f"X'{lit.group(2).upper()}'"
+        if len(lit.group(2)) != 1:
+            raise self.refuse(s, f"CLI {s.operands}")
+        return f"X'{lit.group(2).encode('cp037').hex().upper()}'"
+
+    def _shift(self, s: Stmt, ops: list[str]) -> list[str]:
+        """SLL Rn,k (a 32-bit logical left shift) and SLDL Rn,k (the even/odd pair as one 64-bit value): POPS, chapter 7.
+        k is an immediate here; no condition code is set."""
+        k = self._number(ops[1]) if len(ops) == 2 else None
+        if k is None or not 0 <= k <= 63:
+            raise self.refuse(s, f"{s.op} {s.operands} (a shift count that is not an immediate)")
+        reg = self.work_reg(s, ops[0])
+
+        def wrap(dst: str, src: str) -> list[str]:  # (to a signed 32-bit value)
+            return [
+                f"           COMPUTE {dst} =",
+                f"               FUNCTION MOD({src} + 2147483648, 4294967296)",
+                "               - 2147483648",
+            ]
+
+        if s.op == "SLL":
+            if k == 0:
+                return []
+            if k >= 32:
+                return [f"           MOVE 0 TO {reg}"]
+            self.cells.add("T")
+            return [
+                f"           COMPUTE HL-T = FUNCTION MOD({reg}, {2 ** (32 - k)}) * {2**k}",
+                *wrap(reg, "HL-T"),
+            ]
+        n = self._reg(s, ops[0])
+        if n % 2 or n + 1 in self.entry_regs:
+            raise self.refuse(s, f"SLDL on {ops[0]}: not an even register with a free odd partner")
+        odd = self.work_reg(s, str(n + 1))
+        if not 0 < k < 32:
+            raise self.refuse(s, f"SLDL by {k} (only 1 to 31)")
+        self.cells |= {"T", "U", "X", "Y"}
+        m, f = 2 ** (32 - k), 2**k
+        return [  # even' = (even mod 2^(32-k)) * 2^k + (odd div 2^(32-k)), odd' = (odd mod 2^(32-k)) * 2^k, unsigned
+            f"           COMPUTE HL-U = FUNCTION MOD({reg}, 4294967296)",
+            f"           COMPUTE HL-T = FUNCTION MOD({odd}, 4294967296)",
+            f"           DIVIDE HL-T BY {m} GIVING HL-X REMAINDER HL-Y",
+            f"           COMPUTE HL-U = FUNCTION MOD(HL-U, {m}) * {f} + HL-X",
+            f"           COMPUTE HL-T = HL-Y * {f}",
+            *wrap(reg, "HL-U"),
+            *wrap(odd, "HL-T"),
+        ]
+
+    def _stcm(self, s: Stmt, ops: list[str]) -> list[str]:
+        """STCM Rn,mask,d(b): the bytes of the register the mask picks (bit 8 the high byte), stored side by side."""
+        if len(ops) != 3:
+            raise self.refuse(s, f"STCM {s.operands}")
+        reg, mask = self.work_reg(s, ops[0]), self._mask(ops[1])
+        if mask is None or mask == 0:
+            raise self.refuse(s, f"STCM mask {ops[1]}")
+        picked = [i for i in range(4) if mask & (8 >> i)]
+        self.cells |= {"T", "U", "X", "BUF", "OUT", "N"}
+        lines = [f"           COMPUTE HL-T = FUNCTION MOD({reg}, 4294967296)"]
+        for pos, (src, dst) in zip((4, 3, 2), (("T", "U"), ("U", "T"), ("T", "U")), strict=True):
+            lines += [
+                f"           DIVIDE HL-{src} BY 256 GIVING HL-{dst} REMAINDER HL-X",
+                "           MOVE HL-X TO HL-N",
+                f"           MOVE HL-LO TO HL-BUF({pos}:1)",
+            ]
+        lines += ["           MOVE HL-U TO HL-N", "           MOVE HL-LO TO HL-BUF(1:1)"]
+        lines += [f"           MOVE HL-BUF({i + 1}:1) TO HL-OUT({j + 1}:1)" for j, i in enumerate(picked)]
+        return [*lines, *self._store(s, ops[2], len(picked), f"HL-OUT(1:{len(picked)})")]
+
+    def _mask(self, text: str) -> int | None:
+        return _mask(text) if _mask(text) is not None else self._number(text)
+
+    def _tr(self, s: Stmt, ops: list[str]) -> list[str]:
+        """TR d(l,b),TABLE: each of the l bytes is replaced by the table byte its value indexes (POPS: TRANSLATE)."""
+        if len(ops) != 2:
+            raise self.refuse(s, f"TR {s.operands}")
+        table, tdisp, _ = self.storage(s, ops[1])
+        _, tcob, toff, tlen, _w = self._unit(s, table)
+        if tlen < toff + tdisp + 256:
+            raise self.refuse(s, f"TR table {table.name} shorter than 256 bytes")
+        dst = self.operand(s, ops[0], True)
+        self.cells |= {"N"}
+        pick = f"MOVE {tcob}(HL-N + {toff + tdisp + 1}:1)"
+        if dst is None:
+            item, disp, n = self.storage(s, ops[0])
+            self._plain(s, item)
+            self._writable(s, item)
+            if self._unit(s, item)[1] == tcob:
+                raise self.refuse(s, "TR over its own table")
+            if n > 16:
+                raise self.refuse(s, f"TR of {n} bytes (only up to 16)")
+            out: list[str] = []
+            for i in range(n):
+                at = self.ref(item, disp + i, 1)
+                out += [f"           MOVE {at} TO HL-LO", f"           {pick}", f"             TO {at}"]
+            return out
+        if dst[0] == "idx" or not 1 <= (dst[3] or 1) <= 16:
+            raise self.refuse(s, f"TR {s.operands}")
+        n = dst[3] or 1
+
+        def action(r: str) -> list[str]:
+            out = []
+            for i in range(1, n + 1):
+                at = f"{r}(HL-OF + {i}:1)"
+                out += [f"MOVE {at} TO HL-LO", pick, f"  TO {at}"]
+            return out
+
+        return [*self._locate(dst[1], dst[2]), *self._switch(n, True, action)]
 
     def _writable(self, s: Stmt, item: Item) -> None:
         if item.section in ("*CSECT", "*EIB"):
@@ -520,7 +874,7 @@ class _Lowering:
         if setter is None or s.label or setter.op not in ("CLC", "CLI", "CH", "OC"):
             raise self.refuse(s, "conditional BC not directly after its CC-setting instruction")
         taken = {cc for cc, bit in enumerate((8, 4, 2, 1)) if mask & bit}
-        ops = [o.strip() for o in setter.operands.split(",")]
+        ops = [o.strip() for o in _args(setter.operands)]
         if setter.op == "OC":
             if len(ops) != 2 or ops[0].upper() != ops[1].upper():
                 raise self.refuse(setter, "OC other than OC X,X")
@@ -552,6 +906,8 @@ class _Lowering:
     def _compare_operands(self, s: Stmt, ops: list[str]) -> tuple[str, str]:
         if len(ops) != 2:
             raise self.refuse(s, f"{s.op} {s.operands}")
+        if s.op == "CLI" and self.operand(s, ops[0]) is not None:
+            return "HL-B", self._byte_literal(s, ops[1])
         item, disp, length = self.storage(s, ops[0])
         lit = re.fullmatch(r"(=)?([CXHF])'([^']*)'", ops[1], re.I)
         if s.op == "CLI":
@@ -613,6 +969,16 @@ class _Lowering:
         if self.used_regs:
             out.append("       01  HL-REGISTERS.")
             out += [f"           05  HL-R{n} PIC S9(9) COMP-5 VALUE 0." for n in sorted(self.used_regs)]
+        if self.cells:
+            out.append("       01  HL-WORK.")
+            out += [f"           05  HL-{n} PIC {pic}." for n, pic in _CELLS.items() if n in self.cells]
+        if "N" in self.cells:  # a byte as a number and back: the low byte of a 2-byte binary (big endian)
+            out += [
+                "       01  HL-W2.",
+                "           05  HL-HI PIC X VALUE LOW-VALUE.",
+                "           05  HL-LO PIC X VALUE LOW-VALUE.",
+                "       01  HL-N REDEFINES HL-W2 PIC 9(4) COMP.",
+            ]
         for sec in ("DFHEISTG", "*CSECT"):
             for it in self.sections.get(sec, []):
                 out += self._item(it, 1)
@@ -649,8 +1015,15 @@ class _Lowering:
             return [f"{ind}{lvl}  {name} PIC 9(18) COMP-5" + (f" VALUE {v}." if v is not None else ".")]
         if it.value is None:
             return [f"{ind}{lvl}  {name} PIC X({it.length})."]
-        if it.typ == "X":
+        if it.typ == "X" and len(it.value) <= 40:
             return [f"{ind}{lvl}  {name} PIC X({it.length})", f"{ind}        VALUE X'{it.value}'."]
+        if it.typ == "X":  # a table: one FILLER per 16 bytes, as a long C value is split
+            out = [f"{ind}{lvl}  {name}."]
+            sub = f"{level + 5 if level > 1 else 5:02d}"
+            for i in range(0, len(it.value), 32):
+                part = it.value[i : i + 32]
+                out += [f"{ind}    {sub}  FILLER PIC X({len(part) // 2})", f"{ind}        VALUE X'{part}'."]
+            return out
         chunks = [it.value[i : i + 40] for i in range(0, len(it.value), 40)]
         if len(chunks) == 1:
             return [f"{ind}{lvl}  {name} PIC X({it.length})", f"{ind}        VALUE {_quote(it.value)}."]

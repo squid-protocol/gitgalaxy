@@ -1265,9 +1265,10 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
             r = g.tmpname("term")
             term = self.name(_arg(opts.get("TERMINAL")))
             if key == "SET TERMINAL":
-                return [f"{ind}int[] {r} = task.setUctranst({term}, {self.int_(_arg(opts['UCTRANST']))});",
+                # #6882 (X26): a scenario's planned TERMIDERR / INVREQ answers instead and the SET is not performed
+                return [f"{ind}int[] {r} = task.planned(\"SET-TERMINAL\", \"-\"); if ({r}[0] == 0) {r} = task.setUctranst({term}, {self.int_(_arg(opts['UCTRANST']))});",
                         *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]  # fmt: skip
-            return [f"{ind}int[] {r} = task.inquireUctranst({term});",
+            return [f"{ind}int[] {r} = task.planned(\"INQ-TERMINAL\", \"-\"); if ({r}[0] == 0) {r} = task.inquireUctranst({term});",
                     f"{ind}if ({r}[0] == 0) "
                     + g.store_into(self.ref(_arg(opts["UCTRANST"])), f"BigDecimal.valueOf({r}[2])", False),
                     *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]  # fmt: skip

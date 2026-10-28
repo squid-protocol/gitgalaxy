@@ -1049,6 +1049,42 @@
      "resp": "TSIOERR"
     }
    ]
+  },
+  {
+   "name": "first-entry-set-terminal-invreq",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "uctranst": "UCTRAN",
+   "why": "EIBCALEN 0 at a UCTRAN terminal: STORE-TERM-DEF's SET TERMINAL NOUCTRAN fails INVREQ RESP2 43 (planned, X26)",
+   "faults": [
+    {
+     "cmd": "SET-TERMINAL",
+     "nth": 1,
+     "resp": "INVREQ"
+    }
+   ]
+  },
+  {
+   "name": "inquire-uctran-set-terminal-termiderr",
+   "aid": "DFHENTER",
+   "commarea": {
+    "WS-COMM-TERM": 450
+   },
+   "uctranst": "UCTRAN",
+   "why": "returning ENTER at a UCTRAN terminal: RM010's SET TERMINAL fails TERMIDERR RESP2 23 (planned, X26)",
+   "receive": {
+    "BNK1DC": {
+     "CUSTNOI": "0000000001",
+     "SORTCI": "987654"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "SET-TERMINAL",
+     "nth": 1,
+     "resp": "TERMIDERR"
+    }
+   ]
   }
  ],
  "notes": "CBSA's display / amend / delete-customer screen (BNK1DCS, transaction ODCS, BMS map BNK1DC of mapset BNK1DCM: the symbolic map is generated from src/base/bms_src/BNK1DCM.bms, @bms/BNK1DCM.cpy). Its terminal is a stated fact of the run: T001 (EIBTRMID), UCTRANST NOUCTRAN unless a scenario says UCTRAN (INQUIRE / SET TERMINAL UCTRANST, oracle_assumptions.md X26); a first task stores the terminal's UCTRANST in the COMMAREA and turns translation off, and every exit (PF3 / PF12 / CLEAR, an abend) SETs it back from the COMMAREA (WS-COMM-TERM 451 in every returning scenario). ENTER inquires (LINK INQCUST); PF10 checks the customer and unprotects the name and address for amending (COMM-UPD 'Y'); ENTER with COMM-UPD 'Y' validates the title and address and LINKs UPDCUST; PF5 deletes through DELCUS. INQCUST, UPDCUST and ABNDPROC run in the task, as in cbsa-inqcust / cbsa-updcust. The COMMAREA compared is the one the program RETURNs, WS-COMM-AREA (LENGTH 266). CUSTOMER and ABNDFILE are compared after every scenario. Not reached: a valid PF5 delete -- DELCUS is not translated whole (cics_census: 4 holes), so no scenario LINKs it --; a terminal whose translation is on when a RECEIVE follows the SET (IBM does not say when a SET UCTRANST takes effect: refused by both runtimes, X26), a customer number with no digit after BIF DEEDIT (not modelled), a PF10 whose date / credit-score fields came back empty (UNPROT-CUST-DATA MOVEs the symbolic map's LOW-VALUES through a 9(8) REDEFINES: non-digit data in a numeric MOVE, oracle_assumptions.md C11 -- the scenarios give PF10 the screen's fields as shown), and the failure branches after SEND MAP / SEND TEXT / SEND CONTROL / RETURN / LINK / INQUIRE / SET (no fault can be injected on them). Data: customer.txt is cbsa-updcust's (SYNTHETIC). Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived.",

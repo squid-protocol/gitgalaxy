@@ -34,6 +34,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 from gitgalaxy.tools.cobol_to_java.det import hfp as H  # noqa: E402
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
@@ -362,10 +363,10 @@ def test_what_the_oracle_cannot_decide_is_a_named_hole(stmt, why, tmp_path):
     assert "oracle_assumptions.md C6" in r.stats["holes"][0] or "C6" in r.java
 
 
-def test_ibm_dbb_epsmpmt_translates_its_float_exponentiation_as_an_assumption(tmp_path):
-    """mortgage-mpmt's program: WS-CALC-INTEREST (COMP-1) is computed in long HFP and the payment's
-    `(1 + C) ** N` is Hfp.power, the capture kit's reference (ASSUMED, C6); only the dead FUNCTION ANNUITY stays a hole.
-    The case stays KNOWN_UNPROVEN (proof_sweep.py): no z/OS capture agrees with the assumption yet (#4050)."""
+def test_ibm_dbb_epsmpmt_translates_its_payment_formula_in_ieee_binary64(tmp_path):
+    """mortgage-mpmt's program: WS-CALC-INTEREST (COMP-1) is still computed in long HFP (line 120), while the payment's
+    `(1 + C) ** N` (line 125) and the dead FUNCTION ANNUITY (line 144) are IEEE 754 binary64 by owner decision
+    (2026-10-27, #5867, register C6): Java double, StrictMath.pow, no hole left."""
     pytest.importorskip("tree_sitter_language_pack")
     corpora = Path(os.environ.get("GITGALAXY_MAINFRAME_CORPORA", ROOT / ".mainframe_corpora"))
     src = corpora / "dbb-mortgage-application/zBuilder/MortgageApplication/cobol/epsmpmt.cbl"
@@ -376,12 +377,55 @@ def test_ibm_dbb_epsmpmt_translates_its_float_exponentiation_as_an_assumption(tm
     (tmp_path / "project").mkdir()
     r = P.translate(src, [src.parent.parent / "copybook"], "public class EpsmpmtService {\n}\n", "p", None,
                     tmp_path / "project")  # fmt: skip
-    holes = r.stats["holes"]
-    assert not any("exponentiation" in h for h in holes), holes
-    annuity = [h for h in holes if "FUNCTION ANNUITY" in h]  # A300-TRY2, dead code: refused with its reason
-    assert len(annuity) == 1 and "not the bits of the power" in annuity[0] and "C6" in annuity[0], holes
+    assert r.stats["holes"] == []
     assert "Hfp.divide(Hfp.divide(Hfp.of(" in r.java  # (rate / 100) / 12 into the COMP-1: long HFP
-    assert "Hfp.power(" in r.java
+    assert "Hfp.power(" not in r.java
+    payment = next(x for x in r.java.splitlines() if "StrictMath.pow((D1.doubleValue() + Cobol.num(" in x)
+    assert "Hfp." not in payment  # the whole line-125 expression is binary64, operands included
+    assert "r / (1 - StrictMath.pow(1 + r, -n))" in r.java  # IBM's ANNUITY formula, line 144
+
+
+def _flt(tmp_path, program_id: str, stmt: str):
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    tmp_path.mkdir(exist_ok=True)
+    cbl = tmp_path / f"{program_id}.cbl"
+    cbl.write_text("       IDENTIFICATION DIVISION.\n" f"       PROGRAM-ID. {program_id}.\n       DATA DIVISION.\n"
+                   "       WORKING-STORAGE SECTION.\n" + FLOAT_DATA + "       PROCEDURE DIVISION.\n"
+                   f"           {stmt}\n           GOBACK.\n", encoding="ascii")  # fmt: skip
+    (tmp_path / "project").mkdir()
+    return P.translate(cbl, [], "public class FltService {\n}\n", "p", None, tmp_path / "project")
+
+
+@pytest.mark.parametrize(
+    "stmt, ieee",
+    [
+        ("COMPUTE N = (1 + S1) ** N", True),  # a float `**`: binary64 in EPSMPMT
+        ("COMPUTE N = FUNCTION ANNUITY(N N)", True),  # ANNUITY in fixed point: binary64 in EPSMPMT
+        ("COMPUTE N = N * (2 + FUNCTION ANNUITY(N N))", True),  # ANNUITY nested: the whole statement
+        ("COMPUTE L1 = S1 / 3", False),  # no `**`, no ANNUITY: HFP as everywhere
+        ("COMPUTE N = N ** 2", True),
+    ],
+)
+def test_binary64_is_epsmpmts_alone(stmt, ieee, tmp_path):
+    """The owner's ruling (#5867) names EPSMPMT: the same statement in any other program keeps its HFP power or its
+    refusal (#4702), and only a statement holding `**` or ANNUITY changes."""
+    pytest.importorskip("tree_sitter_language_pack")
+    ruled = _flt(tmp_path / "a", "EPSMPMT", stmt)
+    assert ruled.stats["holes"] == [], ruled.stats["holes"]
+    assert ("StrictMath.pow" in ruled.java or "doubleValue() *" in ruled.java) == ieee
+    other = _flt(tmp_path / "b", "FLT", stmt)
+    assert "StrictMath" not in other.java and "doubleValue() *" not in other.java
+    if "ANNUITY" in stmt:
+        assert len(other.stats["holes"]) == 1 and "not the bits of the power" in other.stats["holes"][0]
+
+
+def test_a_binary64_result_into_a_float_item_is_a_named_hole(tmp_path):
+    """The ruling covers the payment's fixed-point receiver: a double stored into COMP-1 / COMP-2 would need a
+    double -> HFP conversion nobody ruled on."""
+    pytest.importorskip("tree_sitter_language_pack")
+    r = _flt(tmp_path, "EPSMPMT", "COMPUTE L1 = (1 + S1) ** N")
+    assert len(r.stats["holes"]) == 1 and "binary64 COMPUTE" in r.stats["holes"][0] and "C6" in r.stats["holes"][0]
 
 
 # ---- FUNCTION NUMVAL in a floating-point expression (#4270: CBSA BNK1CAC, BNK1TFN, BNK1CRA, BNK1UAC) --------------

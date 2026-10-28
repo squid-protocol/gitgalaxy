@@ -12261,7 +12261,7 @@
         "WRI-WRITE-GF-01@513": 1.7e-05,
         "WRI-WRITE-GF-02@628": 1.7e-05,
         "WRITE-LINE@401": 0.000174,
-        "WRT-LN@417": 0.000162
+        "WRT-LN@417": 0.000161
       },
       "cobol/che-che4z_nist_ccvs85/IX2184.2.cbl": {
         "BAIL-OUT-EX@443": 2.8e-05,
@@ -14302,7 +14302,7 @@
         "TH3-WRITE-GF-1@474": 1.8e-05,
         "TH3-WRITE-GF-2@496": 1.8e-05,
         "TH3-WRITE-GF-3@520": 1.8e-05,
-        "WRITE-LINE@288": 0.000195,
+        "WRITE-LINE@288": 0.000194,
         "WRT-LN@300": 0.000178
       },
       "cobol/che-che4z_nist_ccvs85/NC2404.2.cbl": {
@@ -24717,7 +24717,7 @@
         "growslice@3873": 1.4e-05,
         "ifaceE2I@3832": 1.4e-05,
         "isZero@1752": 1.1e-05,
-        "kind@86": 0.00108,
+        "kind@86": 0.001079,
         "lenNonSlice@1869": 2e-05,
         "makeBytes@3561": 1.4e-05,
         "makeComplex@3542": 1.4e-05,
@@ -29813,7 +29813,7 @@
         "ulReadmore@1128": 1.1e-05,
         "ulRemoveAuthSocketRefs@953": 1.6e-05,
         "ulSendAuthMessage@3885": 2.4e-05,
-        "ulSendCallback@3924": 9.7e-05,
+        "ulSendCallback@3924": 9.6e-05,
         "ulSendDataP@3033": 1.1e-05,
         "ulSendMessage@3906": 6.1e-05,
         "ulSocketTimeout@4538": 1.1e-05,
@@ -31657,7 +31657,7 @@
         "SigInt@363": 1.1e-05,
         "SlurpFile@4861": 1.1e-05,
         "SuggestedExtension@4560": 1.1e-05,
-        "Warn@349": 0.000112,
+        "Warn@349": 0.000144,
         "WarnOnce@358": 1.8e-05,
         "Warning@4128": 2.4e-05
       }
@@ -38008,7 +38008,7 @@
         "eigvals@1183": 1.1e-05,
         "eigvalsh@1271": 1.6e-05,
         "inv@549": 2.3e-05,
-        "isComplexType@169": 7.4e-05,
+        "isComplexType@169": 7.3e-05,
         "lstsq@2418": 1.1e-05,
         "matmul@3318": 1.5e-05,
         "matrix_norm@3439": 1.1e-05,
@@ -38195,7 +38195,7 @@
         "enabled@2469": 1.3e-05,
         "fill_value@3802": 1.1e-05,
         "fill_value@3844": 3.2e-05,
-        "filled@3866": 0.000111,
+        "filled@3866": 0.00011,
         "filled@631": 0.0001,
         "filled@6627": 1.1e-05,
         "fix_invalid@775": 1.1e-05,
@@ -44924,7 +44924,7 @@
         "createEnumDeclaration@488": 1.4e-05,
         "createEnumValueDeclaration@498": 1.5e-05,
         "createExportDefaultStatement@516": 1.1e-05,
-        "createExportImportStatement@523": 1.6e-05,
+        "createExportImportStatement@523": 1.5e-05,
         "createExportMember@531": 1.9e-05,
         "createExportStatement@507": 1.6e-05,
         "createExpressionStatement@540": 1.8e-05,
@@ -47321,7 +47321,7 @@
         "createTypePredicate@16121": 3.2e-05,
         "createTypePredicateFromTypePredicateNode@16461": 1.7e-05,
         "createTypeReference@16922": 0.000206,
-        "createTypeWithSymbol@5525": 0.000432,
+        "createTypeWithSymbol@5525": 0.000431,
         "createTypedPropertyDescriptorType@17714": 1.2e-05,
         "createTypeofType@5563": 1.1e-05,
         "createUnionOfSignaturesForOverloadFailure@36894": 1.4e-05,

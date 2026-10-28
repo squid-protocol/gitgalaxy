@@ -144,6 +144,7 @@ operand.
 - Slice 5: the same comparison for ZECSNC's 7 scenarios (events, payload text, counters created; ABEND codes for EIBCALEN
   1, 4, 9), plus the ROUTECODES / NUMROUTES the stub does not record. The interpreter gained DEFINE DCOUNTER name rules,
   the WRITE OPERATOR routecodes, a DFHEISTG fill fact, and two fixes (FORMATTIME, `D(L)` lengths). Register X74.
+- Slice 6: the per-instruction differential against `cobc` (item 4 below): 71 snippets, 0 differences.
 - The ladder report keeps both programs in the fixed 129-program denominator. ZECS002 is listed apart in the "refused
   whole: not COBOL" row of the progress page (`tests/tools/ladder_exclusions.py`, #5280), so it is not read as COBOL
   translator work; the page reports the entry as stale once it leaves L0. ZECSNC has no entry: it lowers and
@@ -162,5 +163,9 @@ operand.
    **3b (done):** the address model (above). **3c (done):** `EXEC CICS VERIFY PASSWORD` (registry, `det/cics.py`,
    `CicsTask.verifyPassword`; a column-15 EXEC CICS continuation in the front end). **3d:** the stub's `GGCVER` in `ggcics.c`, the
    fault-plan validation in `equivalence_cics_faults.py`, and the `zecs-zecs002` equivalence case.
-4. **4 (partial, above):** left: a per-instruction differential of the interpreter against the lowered COBOL under GnuCOBOL
-   (`cobc` is Docker-only on this box). ZECSNC's scenarios through the interpreter are slice 5 (done, X74).
+4. **4 (done, above):** the interpreter cross-checks ZECS002 and ZECSNC (slices 4, 5). Slice 6 adds the per-instruction
+   differential: `tests/tools/hlasm_diff.py` runs 71 boundary snippets (LA, SLL, SLDL, SR, BCT, STH, CH with eight masks
+   branch masks) through the interpreter and, lowered, through `cobc` in the pinned oracle image (one container);
+   registers agree on all 71, zero differences. Left: instructions outside this set (MVC, TR, STCM, IC, CLC, CLI, OC,
+   XC need storage-byte observation; `MVI` is outside the subset) and a general assembler path for non-zECS programs
+   (frontier, no burned program needs it).

@@ -263,6 +263,10 @@ CONTAINERS_JAVA = """\
      *  container's data in its code page, so PREPEND with CHAR, FROMCCSID or onto a CHAR container is refused. */
     public ContainerResult putContainer(String channel, String container, byte[] data, int flength, String type,
                                         boolean append, int fromCcsid, boolean prepend) {
+        int[] planned = injected("PUT-CONTAINER", "-");  // #6882 (X17): a planned condition; the PUT is not performed
+        if (planned != null) {
+            return new ContainerResult(respName(planned[0]), planned[1], -1, null);
+        }
         boolean badChannel = channel != null && illegalName(channel, "channel");
         boolean badContainer = illegalName(container, "container");
         if (badChannel || badContainer) {
@@ -395,6 +399,10 @@ CONTAINERS_JAVA = """\
      *  The container's CCSID (0: BIT) is containerCcsid(). */
     public ContainerResult getContainer(String channel, String container, int maxLength, int intoCcsid,
                                         boolean noConvert) {
+        int[] planned = injected("GET-CONTAINER", "-");  // #6882 (X17): a planned condition; nothing is read
+        if (planned != null) {
+            return new ContainerResult(respName(planned[0]), planned[1], -1, null);
+        }
         Channel ch = channel == null ? currentChannel : scopeChannel(channel, false);
         String name = channelName(container, "container");
         if (ch == null) {
@@ -433,6 +441,10 @@ CONTAINERS_JAVA = """\
      *  requested code page) and an FLENGTH below the data left (LENGERR RESP2 11, and whether FLENGTH then holds the length
      *  returned or the container's is not said). On NORMAL the result's length is the length returned. */
     public ContainerResult getContainerAt(String channel, String container, int maxLength, int byteOffset) {
+        int[] planned = injected("GET-CONTAINER", "-");  // #6882 (X17): as getContainer (the stub plans every GET form)
+        if (planned != null) {
+            return new ContainerResult(respName(planned[0]), planned[1], -1, null);
+        }
         Channel ch = channel == null ? currentChannel : scopeChannel(channel, false);
         String name = channelName(container, "container");
         if (ch == null) {

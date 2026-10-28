@@ -34,6 +34,8 @@ SCENARIOS = [
     "select-row-4", "enter-account-probe-gnp-ends", "enter-schd-tc-once", "enter-schd-fails",
     # #6072: a second detail whose response code is not '00' (the scenario's own IMS seed)
     "enter-account-declined-detail",
+    # #6072: CDEMO-ACCT-ID holds letters, so IS NUMERIC is false (raw COMMAREA bytes)
+    "entered-with-account-id-letters",
 ]  # fmt: skip
 
 

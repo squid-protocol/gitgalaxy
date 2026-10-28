@@ -165,11 +165,36 @@ def test_ims_seed_on_a_database_with_no_unload_to_add_to_is_refused():
 
 
 # ---- the case ---------------------------------------------------------------------------------------------------------
-def test_the_case_states_the_declined_detail_scenario_and_not_the_one_the_port_cannot_hold():
+def test_the_case_states_the_declined_detail_and_the_account_id_letters_scenarios():
     by = {s["name"]: s for s in _case()["scenarios"]}
     declined = by["enter-account-declined-detail"]
     (ins,) = declined["ims_seed"]["DBPAUTP0"]["insert"]
     assert ins["fields"]["PA-AUTH-RESP-CODE"] != "00"
     assert declined["receive"]["COPAU0A"]["ACCTIDI"] == "00000000005" and declined["why"]
-    # P119: the port's DTO decodes a zoned field to a long, so letters in CDEMO-ACCT-ID differ (COBOL bytes vs a number)
-    assert "entered-with-account-id-letters" not in by
+    # 207:false: letters in CDEMO-ACCT-ID. The port's DTO holds a long, so its RETURN is read by the bytes it passed
+    letters = by["entered-with-account-id-letters"]
+    assert letters["commarea"]["CDEMO-ACCT-ID"] == {"hex": "4142434445464748494A4B"} and letters["why"]
+    assert ec.raw_names_of(letters) == {"CDEMO-ACCT-ID"}
+    assert ec.raw_names_of(declined) == set() and ec.raw_names_of({"commarea": None}) == set()
+
+
+# ---- (c) a RETURN whose DTO holds a number for the bytes -------------------------------------------------------------
+def _java_return(tmp_path, sc, event):
+    (tmp_path / "S.json").write_text(json.dumps([event]), encoding="utf-8")
+    case = {"scenarios": [{"name": "S", **sc}]}
+    return ec._java_events(case, tmp_path, {}, FIELDS)["S"][0]
+
+
+def test_a_return_with_raw_bytes_is_read_by_the_bytes_not_the_dto(tmp_path):
+    import base64
+
+    area = base64.b64encode(b"ABCDAB  \x00\x00\x0c").decode()
+    event = {"event": "RETURN", "transid": "CPVS", "commarea": {"cdemoId": 1}, "area": area}
+    got = _java_return(tmp_path, {"raw_commarea": True}, event)
+    assert got["commarea"] == {"ID": "<invalid b'ABCD'>", "NAME": "AB", "AMT": "0"}  # as the COBOL side's reads it
+    assert "area" not in got and "commarea_dto" not in got
+
+
+def test_a_return_without_the_raw_flag_keeps_its_dto(tmp_path):
+    event = {"event": "RETURN", "transid": "CPVS", "commarea": None}
+    assert _java_return(tmp_path, {}, event)["commarea"] is None

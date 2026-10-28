@@ -698,9 +698,7 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
     try:
         java = run_java(case, corpus, work / "java", port, port_dir, one_jvm)
     except RuntimeError as e:
-        failed = common.java_failure_report(case, work, str(e))
-        (work / "report.json").write_text(json.dumps(failed, indent=2) + "\n", encoding="utf-8")
-        print(f"{case['program']}: the Java side failed -- see {work / 'report.json'}")
+        common.write_java_failure(case, work, str(e))
         return 1
     if dto_items(case):
         jw = work / "java"

@@ -1043,6 +1043,20 @@ def java_failure_report(case: dict[str, Any], work: Path, error: str) -> dict[st
             "java_failed": True, "feedback": "### The Java side did not build or run\n\n```\n" + shown + "\n```"}  # fmt: skip
 
 
+JAVA_FAILURE_SHOWN = 1500  # characters of the reason a failed Java side prints (#6861)
+
+
+def write_java_failure(case: dict[str, Any], work: Path, error: str) -> dict[str, Any]:
+    """Write `work/report.json` for a Java side that did not build or run and say why on stdout (#6861): the report
+    sits in a temp dir CI does not keep, so a path alone left a red run (genapp-lgicdb01) without its reason."""
+    failed = java_failure_report(case, work, error)
+    (work / "report.json").write_text(json.dumps(failed, indent=2) + "\n", encoding="utf-8")
+    print(f"{case['program']}: the Java side failed -- see {work / 'report.json'}")
+    reason = failed["feedback"].split("```\n", 1)[-1].rsplit("\n```", 1)[0]
+    print(reason[:JAVA_FAILURE_SHOWN])
+    return failed
+
+
 # ---- --reuse: an earlier run's COBOL side and generated project ----------------------------------------------------
 # Mutation testing (tests/tools/mutation.py) proves hundreds of ports of ONE case. Each would redo the same COBOL
 # runs and regenerate the same estate; only the port differs. With `run --reuse EARLIER`, a COBOL step whose

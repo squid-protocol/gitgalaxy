@@ -1,12 +1,12 @@
 {
  "format": "det-sweep-coverage/2",
- "scenarios": 38,
+ "scenarios": 39,
  "paragraphs": {
-  "covered": 82,
+  "covered": 90,
   "live": 119
  },
  "branches": {
-  "covered": 116,
+  "covered": 124,
   "total": 208
  },
  "uncovered": {
@@ -31,8 +31,6 @@
    "4130-EXIT:1392",
    "4500-UPDATE-KEY:1528",
    "4500-EXIT:1547",
-   "4600-REPLICATE:1554",
-   "4600-EXIT:1563",
    "4700-DELETE:1570",
    "4700-EXIT:1577",
    "5000-EXIT:1605",
@@ -41,13 +39,7 @@
    "5400-REPLICATE:1681",
    "5400-EXIT:1691",
    "5500-EXIT:1722",
-   "5600-EXIT:1742",
-   "8100-WEB-OPEN:1824",
-   "8100-EXIT:1839",
-   "8200-WEB-CONVERSE:1847",
-   "8200-EXIT:1919",
-   "8300-WEB-CLOSE:1925",
-   "8300-EXIT:1932"
+   "5600-EXIT:1742"
   ],
   "branches": [
    "492:false",
@@ -113,7 +105,6 @@
    "1380:false",
    "1413:false",
    "1425:true",
-   "1449:true",
    "1468:true",
    "1472:true",
    "1490:false",
@@ -129,19 +120,12 @@
    "1719:false",
    "1737:false",
    "1825:true",
-   "1825:false",
    "1852:true",
-   "1852:false",
-   "1858:true",
    "1858:false",
-   "1860:true",
    "1860:false",
-   "1879:true",
    "1879:false",
    "1881:true",
-   "1881:false",
    "1902:true",
-   "1902:false",
    "paragraph:1500-EXIT",
    "paragraph:1600-USER-ACCESS",
    "paragraph:1600-EXIT",
@@ -162,8 +146,6 @@
    "paragraph:4130-EXIT",
    "paragraph:4500-UPDATE-KEY",
    "paragraph:4500-EXIT",
-   "paragraph:4600-REPLICATE",
-   "paragraph:4600-EXIT",
    "paragraph:4700-DELETE",
    "paragraph:4700-EXIT",
    "paragraph:5000-EXIT",
@@ -172,31 +154,25 @@
    "paragraph:5400-REPLICATE",
    "paragraph:5400-EXIT",
    "paragraph:5500-EXIT",
-   "paragraph:5600-EXIT",
-   "paragraph:8100-WEB-OPEN",
-   "paragraph:8100-EXIT",
-   "paragraph:8200-WEB-CONVERSE",
-   "paragraph:8200-EXIT",
-   "paragraph:8300-WEB-CLOSE",
-   "paragraph:8300-EXIT"
+   "paragraph:5600-EXIT"
   ]
  },
  "inputs": {
-  "case": "a97f2bc921b7433b1ec1b47b738fe802c8320c31de24e9f9a34de842933cbcfb",
+  "case": "29bb3c60c57874f4510718761a4c16e1998a1367668b0f228624a132e84b19c0",
   "corpus": "09feecf8028c77a136bbff56380f9babddf0b2e28fbb6a7ad7ba456273989ff6",
-  "harness": "81d4842720cfbde52e9d2bb2cbc705332747dcb728a1a264e93929b131c9c9c1",
-  "oracle": "db19e0d81d5190306a25cc1e87205884eee91b39fd58d776de1cbe92929d97b8",
+  "harness": "c578c903082f80527b1225d5f2a175be0cf10993d0f9fa991553002b6f74a66f",
+  "oracle": "ec403d2ee3a7fa3565d215153e799fe2dcc301da85fc4f27a7cab0986b64a202",
   "components": {
    "harness": {
-    "harness:cics": "dd42d66ff4665817ce74da73e1e9be0164542997b4ac92903dcb91b548b770cb",
-    "harness:core": "d921abf8b3c5676cf34888c5707aa4c2625e4d20b7435f644db351842492d76e"
+    "harness:cics": "ef81cbaba44bc0a45ce199f225b63b1d1edd1ab4bb7ad6b858f6013fa86fa2a1",
+    "harness:core": "8e1310bc564e3676298ff0dca730b1c7f6c4b82b77dba1c9b578fc98cebe8983"
    },
    "oracle": {
-    "oracle:cics-stub": "a855972936bc74b6fceecfa1346ab6c277ca6eef28055bc55279baaac87b9ae4",
+    "oracle:cics-stub": "1131c9bee295ebf6d841b43118e3699c4172d61796faa6cfdb9351578e676fa4",
     "oracle:core": "b4bb775f0a30746a6054f259b4c8613e08cb0d8cf3b40f4a789d953aca4144a0",
     "oracle:le": "40cd6e8dceaf92611cccb37449d02a18a107a9c5921e3edfb09bb5b9263e2ddf"
    }
   }
  },
- "measured_at": "7fdf2eedb25ec0b1895dc5584f7fad6c9f889e1b"
+ "measured_at": "9d1af5a21f3959393568bf5814d3a2cfc61b54d0"
 }

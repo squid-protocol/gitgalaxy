@@ -4800,6 +4800,12 @@ int main(int argc, char **argv) {
             p[s] = record;
         } else if (strcmp(w[0], "nul") == 0) {
             p[s] = NULL;
+        } else if (strcmp(w[0], "lo") == 0) {  /* #6839: the block's address, copied through a 4-byte view as ZECS001 does */
+            unsigned int view;
+            void *back = NULL;
+            memcpy(&view, &p[s], 4);
+            memcpy(&back, &view, 4);
+            printf("lo %d\n", p[s] != NULL && back == p[s] && ((unsigned long long)(size_t)p[s] >> 32) == 0);
         } else {
             printf("rd ");
             for (int j = 0; j < atoi(w[2]); j++) printf("%02X", ((unsigned char *)p[s])[j]);
@@ -4809,6 +4815,28 @@ int main(int argc, char **argv) {
     return 0;
 }
 """
+
+
+@needs_cc
+def test_task_storage_survives_a_four_byte_pointer_copy(tmp_path):
+    """#6839 (X47): ZECS001 copies CACHE-ADDRESS through its PIC S9(8) COMP view (4 of the oracle's 8 pointer bytes) and sets
+    CACHE-MESSAGE to the copy: every block GETMAIN and WEB RECEIVE SET hand out (small, 64 KiB, 1 MiB, several) must lie in
+    the low 4 GiB, or the copy is an unmapped address and WEB CONVERSE FROM(CACHE-MESSAGE) ends in SIGSEGV."""
+    exe = _stub(tmp_path, _X47_MAIN)
+    req = tmp_path / "webreq.cfg"
+    req.write_text(_x38_cfg("full"), encoding="ascii")
+    out = tmp_path / "out"
+    out.mkdir()
+    env = {**_stub_base_env(), "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(out), "GGCICS_WEBREQ": str(req)}
+    for steps, want in (
+        (["gm 0 1 0 0", "lo 0"], ["gm 0/0", "lo 1"]),
+        (["gm 0 65520 1 7", "lo 0"], ["gm 0/0", "lo 1"]),
+        (["gm 0 1048576 0 7", "lo 0"], ["gm 0/0", "lo 1"]),
+        (["gm 0 8 0 1", "gm 1 8 0 2", "lo 0", "lo 1"], ["gm 0/0", "gm 0/0", "lo 1", "lo 1"]),
+        (["rs 0 16", "lo 0"], ["rs 0/0 12|text/plain", "lo 1"]),
+    ):
+        run = subprocess.run([str(exe), *steps], env=env, capture_output=True, text=True, check=False)  # noqa: S603
+        assert run.returncode == 0 and run.stdout.splitlines() == want, (steps, run.stdout)
 
 
 @needs_cc

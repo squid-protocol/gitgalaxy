@@ -19,7 +19,8 @@ package inside a NESTED module found no edge at all. Go resolves an import path 
   the import path `X` to the local directory, relative to the file that declares it. A
   replacement outside the scan, or to another module version (`=> Y v1.2`), names no file.
   `go.work` `use ./dir` needs no reading: the module in `dir` is found through its own
-  `go.mod` like any other.
+  `go.mod` like any other. `vendor/modules.txt` is deliberately unread: `vendor/` is an ignored
+  directory, so a vendored package is never a scanned file and there is no target for an edge.
 
 `go.mod` / `go.work` are not scanned source files, so they are read from disk, only in
 directories that hold a scanned `.go` file or sit above one, with a small line reader

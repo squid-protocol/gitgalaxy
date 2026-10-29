@@ -1330,6 +1330,11 @@ def set_c_repo_macro_args(table: dict[str, tuple[int, tuple[int, ...]] | None]) 
 _C_REPO_MACRO_CALLS: dict[str, frozenset[str]] = {}
 _C_MACRO_BODY_CALL = re.compile(r"(?<![#\w.])(?<!->)([" + ID_START + "][" + ID_CONTINUE + r"]*)[ \t]*\(")
 _C_MACRO_STRING = re.compile(r'"(?:[^"\\\n]|\\.)*"|\'(?:[^\'\\\n]|\\.)*\'')
+# #6266: a comment in a macro body is no part of its expansion (the preprocessor drops comments before it expands):
+# fluidsynth's `#define fluid_sample_refcount(_s) ((_s)->refcount) /**< ... synthesis context (noteon ...) */` calls
+# nothing. A `//` comment runs to the end of the joined body; a block comment the line ends inside runs to it too.
+# One left-to-right pass with the literals, so a quote inside a comment (`/* don't */`) opens no literal, nor the reverse.
+_C_MACRO_COMMENT = re.compile(r"(" + _C_MACRO_STRING.pattern + r")|/\*.*?(?:\*/|\Z)|//.*", re.S)
 _C_MACRO_NOT_CALLS = frozenset(["sizeof", "defined", "alignof", "_Alignof", "typeof", "__typeof__", "offsetof"])
 _C_MACRO_EXPANSION_DEPTH = 4
 
@@ -1382,7 +1387,8 @@ def c_macro_body_calls(code: str) -> dict[str, frozenset[str] | None]:
             out[name] = None
             continue
         params = {p.strip() for p in m.group(2).split(",")}
-        body = re.sub(r"[ \t]*##[ \t]*", "##", _C_MACRO_STRING.sub('""', re.sub(r"\\\r?\n", " ", m.group(3))))
+        body = _C_MACRO_COMMENT.sub(lambda c: '""' if c.group(1) else " ", re.sub(r"\\\r?\n", " ", m.group(3)))
+        body = re.sub(r"[ \t]*##[ \t]*", "##", body)
         calls = frozenset(
             c
             for c in _C_MACRO_BODY_CALL.findall(body)

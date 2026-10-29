@@ -479,13 +479,44 @@ def program_id(text: str) -> str | None:
     return m.group(1).upper() if m else None
 
 
+_HLASM_ENTRY = re.compile(r"(?mi)^\S+\s+DFHEIENT\b")
+_ASM_REF = re.compile(r"^      \*\s+program\.asm:(\d+):")
+
+
+def lowered_original(text: str) -> str | None:
+    """#6839: a command-level CICS assembler program's lowered COBOL (det/hlasm.py, the text the harness compiles
+    before its own rewrites), None for any other program. An .asm member has no PROCEDURE DIVISION, so its units and
+    branches are those of the lowered program; a refused program has none (None)."""
+    if not _HLASM_ENTRY.search(text):
+        return None
+    from gitgalaxy.tools.cobol_to_java.det import hlasm
+
+    try:
+        return hlasm.lower_text(text, "program.asm")
+    except hlasm.Refused:
+        return None
+
+
+def asm_line(lowered: str, n: int) -> int | None:
+    """The assembler line (the `program.asm:N:` comment the lowering leaves before each statement) that lowered line
+    n stands for, None before the first one."""
+    lines = lowered.split("\n")
+    for i in range(min(n, len(lines)) - 1, -1, -1):
+        m = _ASM_REF.match(lines[i])
+        if m:
+            return int(m.group(1))
+    return None
+
+
 def inventory(path: Path, copybook_root: Path | None = None, encoding: str | None = None,
               text: str | None = None, label: str | None = None) -> Inventory:  # fmt: skip
     """What a program holds: its units (paragraphs and sections, with the dead ones -- the engine's
-    reachability, copybooks resolved as x_ray_dead_code resolves them), its branch points and HANDLE labels."""
+    reachability, copybooks resolved as x_ray_dead_code resolves them), its branch points and HANDLE labels.
+    #6839: an HLASM program is inventoried as its lowered COBOL (unit and branch lines are lowered lines)."""
     from gitgalaxy.core.source_text import read_source
 
     raw = text if text is not None else read_source(path, declared=encoding).text
+    raw = lowered_original(raw) or raw
     upper = raw.upper()
     content = gy.resolve_copybooks(upper, path, copybook_root, None, encoding) if path.exists() else upper
     split = gy.split_procedure_division(content)
@@ -885,6 +916,9 @@ def run_coverage(source: Path, original: str, compiled: str | None, traces: list
                  copybooks: Path | None = None, encoding: str | None = None) -> dict[str, Any]:  # fmt: skip
     """One program's coverage over a harness's traces: `source` the original (its path, for COPY members; its
     text `original`), `compiled` the text the harness compiled as `compiled_name` (None: the original)."""
+    lowered = lowered_original(original)  # #6839: an HLASM program is measured as its lowered COBOL
+    if lowered:
+        original, compiled = lowered, compiled if compiled is not None else lowered
     inv = inventory(source, copybooks, encoding, text=original)
     lines = LineMap(original, compiled)
     got = Hits()

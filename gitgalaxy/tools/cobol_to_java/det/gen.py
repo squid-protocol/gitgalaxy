@@ -160,7 +160,8 @@ class FileDef:
     why: str = ""
     varying: dict | None = None  # RECORD VARYING ... DEPENDING ON: {min, max, depending} (program.fd_entries)
     sort: bool = False  # an SD (sort-merge) file: SORT / MERGE / RELEASE / RETURN only
-    sort_length: int | None = None  # its records' length (None: records of different lengths)
+    sort_length: int | None = None  # its records' length: the longest record's, when they differ (sort_min_length)
+    sort_min_length: int | None = None  # the shortest record's length (the keys lie within it)
 
 
 @dataclass
@@ -188,6 +189,9 @@ class Gen:
         self.write_only_pointers: set[str] = set()  # program.write_only_pointers
         self.overlaid_pointers: set[str] = set()  # program.overlaid_pointers (#4771)
         self.pointer_views: set[str] = set()  # program.pointer_views (#4771)
+        self.pointer_byte_view_of: dict[
+            str, str
+        ] = {}  # program.pointer_byte_view_of (#6876): PIC X(4) view -> its pointer
         self.pointer_view_of: dict[str, str] = {}  # program.pointer_view_of (#4771): pure numeric view -> its pointer
         self.p = prog
         # structured: a program with no GO TO / HANDLE -- paragraphs are void methods called in order, no dispatcher
@@ -639,12 +643,19 @@ class Gen:
         elif isinstance(c, E.CondName):
             if c.abbrev is not None and self.resolve_cond(c.ref) is None:
                 rel = E.Rel(c.abbrev[0], c.abbrev[1], c.ref)
-                if not (self.null_relation(rel) or self.pointer_relation(rel)):
+                if not (
+                    self.null_relation(rel) or self.pointer_relation(rel) or self.byte_view_relation(rel) is not None
+                ):
                     out.append(self._relation(c.abbrev[1], c.ref, c.abbrev[0] == "="))
         elif isinstance(c, E.ClassCond):
             if c.kind in ("POSITIVE", "NEGATIVE", "ZERO"):
                 out.append(self._relation(c.operand, E.Fig("ZEROS")))  # cobc: x > ZERO, a constant
-        elif isinstance(c, E.Rel) and not self.null_relation(c) and not self.pointer_relation(c):
+        elif (
+            isinstance(c, E.Rel)
+            and not self.null_relation(c)
+            and not self.pointer_relation(c)
+            and self.byte_view_relation(c) is None
+        ):
             out.append(self._relation(c.left, c.right, c.op == "="))
 
     @staticmethod
@@ -1514,6 +1525,8 @@ class Gen:
                 return self.rel_address_null(c, c.left)
             if self.null_relation(c):
                 return self.rel_null(c)
+            if self.byte_view_relation(c) is not None:
+                return self.rel_pointer_bytes(c)
             if self.pointer_operand(c.left) and self.pointer_operand(c.right):
                 return self.rel_pointers(c)
             with self.relation():
@@ -1550,6 +1563,32 @@ class Gen:
         if not isinstance(sides[0], E.Ref) or sides[0].subscripts or sides[0].qualifiers or sides[0].refmod:
             raise Untranslatable("NULL compared with something that is not a plain pointer item (X56)")
         return f"Cobol.compareFigurative({self.pointer_item(sides[0].name)}, Figurative.LOW_VALUES, CS) == 0"
+
+    def byte_view_relation(self, c) -> str | None:
+        """#6876 (X59): the pointer whose `PIC X(4)` byte view a relation tests against X'FF000000' (IBM's ADDRESS COMMAREA
+        result for a task with no COMMAREA), either side; None for anything else (it stays refused by field_expr)."""
+        for view, lit in ((c.left, c.right), (c.right, c.left)):
+            if (
+                isinstance(view, E.Ref) and not (view.subscripts or view.qualifiers or view.refmod)
+                and isinstance(lit, E.Lit) and lit.value == b"\xff\x00\x00\x00"
+            ):  # fmt: skip
+                return self.pointer_byte_view_of.get(view.name.upper())
+        return None
+
+    def rel_pointer_bytes(self, c: E.Rel) -> str:
+        """#6876 (X59): `byte-view = X'FF000000'` (and NOT =, which the parser wraps in Not). A handle is not an address, so
+        the view is not compared as bytes: the runtime says whether the pointer is the no-COMMAREA address
+        (DetCics.isNoCommareaAddress). Only = is a test of it; any other operator is refused by name."""
+        if c.op != "=":
+            raise Untranslatable(
+                f"pointer byte view {c.op} X'FF000000': only = and NOT = test the no-COMMAREA address (X59)"
+            )
+        if self.cics is None:
+            raise Untranslatable("a pointer's byte view compared with X'FF000000' (CICS pointers)")
+        ptr = self.byte_view_relation(c)
+        if ptr is None:
+            raise Untranslatable("a pointer byte view compared with a literal other than X'FF000000' (X59)")
+        return f"DetCics.isNoCommareaAddress({self.pointer_item(ptr)})"
 
     def rel_pointers(self, c: E.Rel) -> str:
         """#5042 (X56): `pointer = pointer` (and NOT =, which the parser wraps in Not). IBM allows only = and NOT = between
@@ -3358,7 +3397,7 @@ class Gen:
         if fd is None:
             raise Untranslatable(f"{name}: no SD file")
         if fd.record is None or fd.sort_length is None:
-            raise Untranslatable(f"{name}: an SD with no record, or records of different lengths")
+            raise Untranslatable(f"{name}: an SD with no record")
         return fd
 
     def sort_table(self, d: dict, ind: str) -> list[str]:
@@ -3442,6 +3481,10 @@ class Gen:
                 raise Untranslatable(f"{verb} KEY {ref.name}: not in a record of {sd.fd}")
             if _occurs_chain(it) or it.depending:
                 raise Untranslatable(f"{verb} KEY {ref.name}: under an OCCURS")
+            if sd.sort_min_length is not None and it.offset + it.size > sd.sort_min_length:
+                # IBM: a key lies within every record of the sort; past a shorter record's end it names no byte
+                raise Untranslatable(f"{verb} KEY {ref.name}: past the end of the shortest record of {sd.fd} "
+                                     f"({sd.sort_min_length} bytes): not modelled")  # fmt: skip
             if coll and it.category != "NUMERIC" and not _text_item(it):
                 # the alphabet orders characters: a packed, binary or zoned byte is no character of the data's
                 # code page (on z/OS its byte is the same in ASCII and EBCDIC; a character's is not)
@@ -3528,8 +3571,13 @@ class Gen:
             raise Untranslatable(f"{verb} USING / GIVING {name}: no such file")
         if fd.handle is None:
             raise Untranslatable(f"{name}: {fd.why}")
-        if fd.varying is not None or fd.record is None or fd.record.size != sd.sort_length:
+        if fd.varying is not None or fd.record is None:
             raise Untranslatable(f"{verb} USING / GIVING {name}: records not the sort file's length: not modelled")
+        lo, hi = sd.sort_min_length or 0, sd.sort_length or 0
+        if not lo <= fd.record.size <= hi:
+            # IBM: a USING / GIVING record is no shorter than the SD's shortest record nor longer than its longest
+            raise Untranslatable(f"{verb} USING / GIVING {name}: records of {fd.record.size} bytes, outside the sort "
+                                 f"file's {lo}..{hi}: not modelled")  # fmt: skip
         self.check_record_bytes(fd.record, f"{verb} USING / GIVING {name}")
         return fd, fd.record
 
@@ -3552,7 +3600,7 @@ class Gen:
         fd, record = self._sort_io_file(verb, sd, name)
         v, rec, st, what = jname(fd.select), self.ids[id(record)], self.tmpname("st"), f"{verb} GIVING {name}"
         r = self.tmpname("r")
-        return [f"{ind}{var}.rewind();", f'{ind}String {st} = {v}.open("OUTPUT");',
+        return [f"{ind}{var}.rewind({record.size});", f'{ind}String {st} = {v}.open("OUTPUT");',
                 f'{ind}Sort.expect({st}, {jstr(what + ": OPEN")}, "00");',
                 f"{ind}for (byte[] {r} = {var}.next(); {r} != null; {r} = {var}.next()) {{",
                 f"{ind}    {rec}.putRaw({r});", f"{ind}    {st} = {v}.write({record.size});",
@@ -3566,8 +3614,8 @@ class Gen:
         if s.kind == "RELEASE":
             it = self.resolve(s.data["record"])
             sd = self.sort_file(it.fd or "")
-            if it.size != sd.sort_length:
-                raise Untranslatable(f"RELEASE {it.name}: not the sort file's record length")
+            if it.parent is not None or it.size > (sd.sort_length or 0):
+                raise Untranslatable(f"RELEASE {it.name}: not a record of the sort file")
             var = f"sort_{jname(sd.select)}"
             out = [ind + self.move(s.data["from"], s.data["record"])] if s.data["from"] is not None else []
             what = jstr(f"RELEASE {it.name} outside an input procedure")
@@ -3580,7 +3628,8 @@ class Gen:
         reg = self.field_expr(E.Ref("SORT-RETURN"))
         out = [f'{ind}String {st} = Sort.active({var}, {what}).returnInto({rec}, {reg}, CS) ? "00" : "10";']
         if s.data["into"] is not None:
-            out += [f'{ind}if ({st}.equals("00")) {{', f"{ind}    Cobol.move({rec}, {self.field_expr(s.data['into'])}, CS);",
+            out += [f'{ind}if ({st}.equals("00")) {{',
+                    f"{ind}    {var}.returnInto({rec}, {self.field_expr(s.data['into'])});",
                     f"{ind}}}"]  # fmt: skip
         return out + self.io_phrases(s, st, ind, at_end="10", invalid=())
 

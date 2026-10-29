@@ -317,6 +317,37 @@ def test_a_data_tree_reader_set_is_direct_only(tmp_path):
     assert sp.data_targets("tests/doom_rosetta/manifest.csv", tmp_path) == ["tests/tools/test_a.py"]
 
 
+@pytest.mark.parametrize(
+    "f",
+    [
+        "tests/cobol_mainframe/ground_truth_ledger.json",
+        "tests/cobol_mainframe/field_testing.json",
+        "tests/ruff_audit_baseline.json",
+        "tests/equivalence/det_sweep_coverage/asynccc-getname.json",
+    ],
+)
+def test_a_named_data_file_selects_the_tests_that_name_it(f):
+    p = plan([f])
+    assert p["mode"] == "select"
+    assert "tests/test_source_reads.py" in p["paths"]  # the tree guards ride along
+    assert 1 < len(p["paths"]) < 60 and all((sp.REPO_ROOT / x).exists() for x in p["paths"])
+
+
+def test_named_data_with_no_direct_reader_or_beside_an_unmapped_file_runs_everything(tmp_path):
+    (tmp_path / "tests" / "tools").mkdir(parents=True)
+    (tmp_path / "tests" / "tools" / "test_a.py").write_text("import other\n")
+    assert sp.named_data_targets("tests/x_baseline.json", tmp_path) is None
+    (tmp_path / "tests" / "tools" / "test_a.py").write_text("run('ruff_audit --ci')  # x\n")
+    assert sp.named_data_targets("tests/ruff_audit_baseline.json", tmp_path) == ["tests/tools/test_a.py"]
+    assert sp.named_data_targets("tests/ruff_audit_baseline.json", tmp_path, limit=0) is None
+    assert plan(["tests/cobol_mainframe/field_testing.json", "tests/golden_master_audit/x.json"])["mode"] == "full"
+
+
+@pytest.mark.parametrize("f", ["tests/cobol_mainframe/x.py", "tests/equivalence/db2/seed.json", "tests/a/b.json"])
+def test_only_top_level_baselines_and_sweep_records_are_named_data(f):
+    assert not sp.is_named_data_file(f)
+
+
 SLICE7 = ["cics/DetJustify.java", "cics/DetMq.java", "mq/QueueManager.java", "dli/DetDli.java", "sql/DetSql.java"]
 SLICE7 += ["batch/DetFiles.java", "DetMvs.java"]
 

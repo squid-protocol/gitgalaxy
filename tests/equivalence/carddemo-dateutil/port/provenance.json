@@ -19,6 +19,6 @@
  "ticket_sha256": "8ccd5424cb92d0fe2a99ae2f064baffdbd0b8cf43ec64c58d8e4019b580d6229",
  "prompt_tokens": 19968,
  "proof": "tests/tools/equivalence.py run carddemo-dateutil (every output / call / scenario and every fault run equal)",
- "edited_after": "ceedays() hand-edited for #4049: a DDD (Julian YYYYDDD) token, answered as the LE model does (2508 day out of range, 2513 before the first Lilian day); the rest is the model's answer",
+ "edited_after": "ceedays() hand-edited for #4049: a DDD (Julian YYYYDDD) token, answered as the LE model does (2508 day out of range, 2513 before the first Lilian day); the rest is the model's answer; hand-edited for #6967: a numeric month outside 1-12 is 2508 (owner ruling 2026-10-29, register L1), not 2517",
  "licence": "derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates) -- see LICENSE and NOTICE in this case's directory"
 }

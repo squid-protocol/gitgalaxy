@@ -29,8 +29,9 @@
  * its 2 extra bytes are the storage that follows the item, which IBM does not specify and z/OS would read as picture
  * text; the owner ruled them blank (2026-10-23, register L1: ASSUMED). This model cannot see where the item ends, so
  * a NUL tail byte (cobc's alignment padding after a 01 item) counts as that slack; Ceedays.java skips them by bound.
- * NOT modelled, and refused the same way: a numeric month outside 1-12 (2508 or 2517 -- IBM's documentation does
- * not settle it); a trailing blank on the part of the date the picture covers, all blanks included (#4049: whether CEEDAYS
+ * A numeric month outside 1-12 is CEE2EC (2508): IBM's documentation does not settle 2508 vs 2517, the owner ruled
+ * 2508 on 2026-10-29 (register L1, ASSUMED).
+ * NOT modelled, and refused by name: a trailing blank on the part of the date the picture covers, all blanks included (#4049: whether CEEDAYS
  * ignores them -- 2507, insufficient data, once the date is shorter than the picture -- or reads a blank in a
  * numeric position as 2520 is not documented either; the test-strengthening loop found a port and this model
  * disagreeing on exactly that). Any other picture -- YY (a century window), month names, eras, a null or blank
@@ -219,11 +220,10 @@ int CEEDAYS(unsigned char *date, unsigned char *pic, unsigned char *lilian, unsi
         days = civil(y, 1, 1) + doy - 1 - civil(1582, 10, 14);
     } else {
         if (m < 1 || m > 12) {
-            /* Not modelled: IBM's documentation leaves open whether a numeric month outside 1-12 is CEE2EC (2508,
-             * date value not valid) or CEE2EL (2517, month not recognized) -- and CSUTLDTC itself tests for both. */
-            fprintf(stderr, "CEEDAYS: a month outside 1-12 is not modelled (2508 or 2517?): '%.*s'\n", span,
-                    (const char *)d);
-            exit(98);
+            /* Owner ruling 2026-10-29 (register L1, ASSUMED: IBM's documentation does not say): a numeric month
+             * outside 1-12 is CEE2EC (2508, date value not valid), not CEE2EL (2517, month not recognized). */
+            put_fc(fc, 2508);
+            return 0;
         }
         if (dd < 1 || dd > mdays[m - 1] + (m == 2 && leap(y))) {
             put_fc(fc, 2508);

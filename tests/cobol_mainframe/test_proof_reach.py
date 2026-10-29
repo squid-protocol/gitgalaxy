@@ -346,7 +346,10 @@ def test_every_survivor_in_code_no_proof_runs_was_triaged_as_out_of_the_proofs_r
     # #6692 re-ran both det ports (seed 0, 150 mutants each): 9 flagged survivors, all unreachable: the facade's
     # lastLinkBytes assignments and accessor, ABNDPROC's abended() level test, its paragraph() throw and runProgram().
     # 60 -> 69.
-    assert len(flagged) == 69 and verdicts.count("unreachable") == 66 and verdicts.count("equivalent") == 3
+    # #6967 changed the dateutil port again (a numeric month outside 1-12 is 2508) and re-proved CORPT00C and COTRN02C: their
+    # recorded mutation runs judge the older callee, so their 2 flagged survivors (both unreachable) are skipped until the
+    # next run. 69 -> 67.
+    assert len(flagged) == 67 and verdicts.count("unreachable") == 64 and verdicts.count("equivalent") == 3
     assert not {prog for prog, _ in flagged} & {"CSUTLDTC"}
     assert {prog for prog, _ in flagged} & {"COACTVWC", "COMEN01C"} == {"COACTVWC", "COMEN01C"}
 

@@ -139,7 +139,10 @@ public final class Ceedays {
             days = civil(y, 1, 1) + doy - 1 - civil(1582, 10, 14);
         } else {
             if (m < 1 || m > 12) {
-                throw new UnsupportedOperationException("CEEDAYS: a month outside 1-12 is not modelled");
+                // owner ruling 2026-10-29 (register L1, ASSUMED: IBM's documentation does not say): a numeric month
+                // outside 1-12 is CEE2EC (2508, date value not valid), not CEE2EL (2517)
+                putFc(fc, 2508);
+                return;
             }
             if (dd < 1 || dd > mdays[m - 1] + (m == 2 && leap(y) ? 1 : 0)) {
                 putFc(fc, 2508);

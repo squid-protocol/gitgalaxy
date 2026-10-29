@@ -297,6 +297,7 @@ class Body:
     def __init__(self, node, classes=None):
         self.node = node
         self.calls, self.refs, self.preproc, self.text_only, self.types = {}, set(), [], [], set()
+        self._local_names = None
         self.broken = False  # an ERROR node inside: tree-sitter may have closed the body early
         self.unbalanced = False  # a conditional not ending at its own `#endif`, or holding a stray `#else`: misread
         self.nested = []  # 1-based last lines of real nested definitions (methods, or functions a misparse ran over)
@@ -358,7 +359,12 @@ class Body:
                 self.broken = True
                 self._text_calls(n.text)
             elif n.type == "call_expression":
-                name = callee_node(n.child_by_field_name("function"))
+                fn = n.child_by_field_name("function")
+                name = callee_node(fn)
+                if fn is not None and fn.type == "template_function" and decode_bytes(name.text) in self._locals(node):
+                    name = (
+                        None  # `delta < e || delta > (x)` reads as `delta<e || delta>(x)`: a local is never a template
+                    )
                 if name is not None and decode_bytes(name.text) not in KEYWORDS:  # `SERVER_ONLY(\n if (x) {..})`
                     # `p->~T<A>()`: the destructor's unit is `~T`, template arguments dropped
                     self.calls.setdefault(decode_bytes(name.text).split("<", 1)[0], shape(n))
@@ -372,6 +378,19 @@ class Body:
             stack.extend(reversed(n.children))
         if _runs_into_statements(node):  # `QRYNEWINFO(7) {..} else {..}` (an `if` macro) ends the node with no ERROR
             self.broken = True
+
+    def _locals(self, node):
+        """Names the function declares as variables (`double delta = ...`), read once on the first need."""
+        if self._local_names is None:
+            self._local_names, stack = set(), [node]
+            while stack:
+                d = stack.pop()
+                if d.type == "init_declarator":
+                    ident = d.child_by_field_name("declarator")
+                    if ident is not None and ident.type == "identifier":
+                        self._local_names.add(decode_bytes(ident.text))
+                stack.extend(d.children)
+        return self._local_names
 
     def _text_calls(self, raw):
         text = STRIP.sub(" ", decode_bytes(raw))
@@ -444,6 +463,16 @@ def _head_has_statement(head):
         paren += (ch == "(") - (ch == ")")
         brace += (ch == "{") - (ch == "}")
         if ch == ";" and paren <= 0 and brace > 0:
+            return True
+    return False
+
+
+def _head_folds_members(head):
+    """A `;` at parenthesis depth 0 in the text before a function's own line: whole declarations sit inside its head."""
+    paren = 0
+    for ch in STRIP.sub(" ", head):
+        paren += (ch == "(") - (ch == ")")
+        if ch == ";" and paren <= 0:
             return True
     return False
 
@@ -939,6 +968,14 @@ class Port:
             src, nodes = trees[key]
             node = definition_at(nodes, start)
             body = Body(node, classes) if node is not None else TextBody(src, start, classes)
+            if node is not None and node.start_point[0] + 1 < start:
+                # a macro call with no `;` (surface.h's `DE_AUDIENCE(..)`) made the node's head fold the members above
+                # the function: its calls are the ones the braces from the function's own line hold (#6266)
+                lines = split_lines.setdefault(key, decode_bytes(src).split("\n"))
+                if _head_folds_members("\n".join(lines[node.start_point[0] : start - 1])):
+                    braces = TextBody(src, start, classes)
+                    if braces.calls is not None:
+                        body = braces
             if node is not None and not body.broken:
                 # tree-sitter closed the node inside a `#define` body (srb2's `SETUP3DVERT`), or opened its body at a
                 # later brace than the function's own (`HUDONLY\n f(x);` fused into the head, #6266): the braces win

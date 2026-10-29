@@ -39,3 +39,14 @@ development data.
 Never ship IBM's copybooks. A stand-in written from public docs, recorded as a register assumption, is allowed only
 where GitGalaxy models the runtime behind it (LE `CEEIGZCT`: yes, #4884). MQ copybooks stay refused until an MQ
 model exists (#4514). The same holds for other vendors' copybooks.
+
+### 7. Undefined by IBM (owner, 2026-10-29, #6072)
+An outcome reachable only through an out-of-range subscript or reference modification, where IBM (no SSRANGE) leaves the
+result undefined and GnuCOBOL refuses (register X8, `bounds_refused`), is its own class: **undefined by IBM**, family `U`
+in `tests/equivalence/infeasible_outcomes/<case>.json`.
+* Report it by name with counts (the evidence report's "undefined by IBM" line). Never as proven, never as infeasible: an
+  input does reach it, and IBM does not say what happens.
+* The branch bar is taken net of it, as of stated infeasible outcomes; a proof that reaches one still refutes the entry.
+* First members: BNK1CAC `ED010` 611:true, 637:true, 637:false, 717:true. The harness slice that would judge them is queued
+  in #6072 (Remaining slices).
+

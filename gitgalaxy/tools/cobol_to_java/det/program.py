@@ -329,12 +329,31 @@ def pointer_view_of(records: list) -> dict[str, str]:
     return out
 
 
+def pointer_byte_view_of(records: list) -> dict[str, str]:
+    """#6876 (X59): the byte views of a POINTER -- an elementary `PIC X(4)` item that REDEFINES a plain POINTER, nothing under
+    it and nothing else overlaying either (CAADDR's WS-PTR-X). The only use modelled is the IBM test of an ADDRESS
+    COMMAREA result against X'FF000000' (Gen.rel_pointer_bytes); the view's bytes are never read otherwise (a handle holds
+    no address). {view name: pointer name}, upper case."""
+    items = [x for r in records for x in r.walk()]
+    out: dict[str, str] = {}
+    for x in items:
+        if not x.redefines or x.occurs > 1 or x.children or x.usage != "DISPLAY" or x.category != "ALPHANUMERIC":
+            continue
+        ptr = next((y for y in items if y.name.upper() == x.redefines.upper()), None)
+        if ptr is None or ptr.usage != "POINTER" or ptr.occurs > 1 or ptr.children or ptr.redefines:
+            continue
+        over = [y for y in items if (y.redefines or "").upper() in (x.name.upper(), ptr.name.upper())]
+        if len(over) == 1 and x.picture() == "XXXX":
+            out[x.name.upper()] = ptr.name.upper()
+    return out
+
+
 def overlaid_pointers(records: list) -> set[str]:
     """#4771 (X47): the POINTER items a REDEFINES overlays other than by a pure numeric view (pointer_view_of), or that sit
     in a group one overlays, or redefine something: their bytes can be read or changed as a number, which a handle does
     not model."""
     items = [x for r in records for x in r.walk()]
-    views = pointer_view_of(records)
+    views = pointer_view_of(records) | pointer_byte_view_of(records)
     redefined = {x.redefines.upper() for x in items if x.redefines and x.name.upper() not in views}
     out = set()
     for x in items:
@@ -362,6 +381,7 @@ def pointer_views(records: list) -> set[str]:
             view = list(x.walk())
             if any(y.category == "NUMERIC" for y in view):  # a byte (PIC X) view stays bytes
                 out.update(y.name.upper() for y in view)
+    out.update(pointer_byte_view_of(records))  # #6876: a byte view is read only by Gen.rel_pointer_bytes
     return out | set(pointer_view_of(records))  # #5856: and the numeric item a POINTER redefines (BUMP-TIOT)
 
 
@@ -919,6 +939,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     gen.overlaid_pointers = overlaid_pointers(records)
     gen.pointer_views = pointer_views(records)
     gen.pointer_view_of = pointer_view_of(records)
+    gen.pointer_byte_view_of = pointer_byte_view_of(records)
     # #4270: a floating-point expression under ARITH(EXTEND) is extended-precision HFP, refused (Gen.fnum)
     gen.arith_extend = arith_extend(program, options, engine.page(program) if engine is not None else None)
     # #4271: every COMP-1 / COMP-2 item's bytes, by storage, for the refusal of byte uses that overlap one

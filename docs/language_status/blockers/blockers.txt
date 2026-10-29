@@ -1,6 +1,6 @@
-# blockers in baseline 616550df8da3 (burned + local corpora (no census) + cics-crucible): programs with an EXEC CICS command
-translated whole: 167 / 186 (non-burned: not surveyed); refused whole (no statements translated): 0
-distinct gap classes per program: 0: 167, 1: 7, 2: 8, 3: 3, 8: 1
+# blockers in baseline 7fdf2eedb25e (burned + local corpora (no census) + cics-crucible): programs with an EXEC CICS command
+translated whole: 168 / 186 (non-burned: not surveyed); refused whole (no statements translated): 0
+distinct gap classes per program: 0: 168, 1: 6, 2: 8, 3: 3, 8: 1
 
  only gap (B/NB)  one away (B/NB)  touched  gap  (* = refuses the whole program: its count is an upper bound; `--unmask GAP` shows what it hides)
      1 ( 1/ 0)      3 ( 3/ 0)        4   EXEC CICS <name>: a pointer a REDEFINES overlays
@@ -8,7 +8,6 @@ distinct gap classes per program: 0: 167, 1: 7, 2: 8, 3: 3, 8: 1
      1 ( 1/ 0)      0 ( 0/ 0)        1   EXEC CICS (no reason given)
      1 ( 1/ 0)      0 ( 0/ 0)        1   EXEC CICS ADDRESS OF <name>: undeclared item
      1 ( 1/ 0)      0 ( 0/ 0)        1   EXEC CICS RECEIVE SET without MAXLENGTH: the most it takes is not documented
-     1 ( 1/ 0)      0 ( 0/ 0)        1   EXEC CICS VERIFY
      1 ( 1/ 0)      0 ( 0/ 0)        1   EXEC CICS WsRec: no key
      0 ( 0/ 0)      4 ( 4/ 0)        5   <name>: a pointer a REDEFINES overlays
      0 ( 0/ 0)      2 ( 2/ 0)        3   EXEC CICS WEB SEND CHARACTERSET HOSTCODEPAGE

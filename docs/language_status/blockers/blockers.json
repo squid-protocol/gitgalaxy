@@ -1,12 +1,12 @@
 {
  "programs": 186,
  "non_burned": 0,
- "whole": 167,
+ "whole": 168,
  "whole_non_burned": 0,
  "refused": 0,
  "histogram": {
-  "0": 167,
-  "1": 7,
+  "0": 168,
+  "1": 6,
   "2": 8,
   "3": 3,
   "8": 1
@@ -66,19 +66,6 @@
   },
   {
    "gap": "EXEC CICS RECEIVE SET without MAXLENGTH: the most it takes is not documented",
-   "only": 1,
-   "only_burned": 1,
-   "only_non_burned": 0,
-   "one_away": 0,
-   "one_away_burned": 0,
-   "one_away_non_burned": 0,
-   "touched": 1,
-   "touched_burned": 1,
-   "touched_non_burned": 0,
-   "refuses_program": false
-  },
-  {
-   "gap": "EXEC CICS VERIFY",
    "only": 1,
    "only_burned": 1,
    "only_non_burned": 0,

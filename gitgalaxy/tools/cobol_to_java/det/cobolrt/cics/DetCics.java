@@ -789,6 +789,14 @@ public final class DetCics {
         setPointer(ptr, task.addressOf(bytes, (int) at));
     }
 
+    /** `IF byte-view = X'FF000000'` over a PIC X(4) REDEFINES of a pointer (#6876, X59): true when the pointer is the address
+     *  ADDRESS COMMAREA gives a task with no COMMAREA. That command is refused at run time (addressCommarea), so no pointer
+     *  of this runtime holds it: a handle is never X'FF000000' and the answer is false. */
+    public static boolean isNoCommareaAddress(Field ptr) {
+        pointerValue(ptr);
+        return false;
+    }
+
     /** `IF ptr-a = ptr-b` (#5042, X56): the two pointers address the same storage (CicsTask.samePointer). */
     public static boolean samePointer(CicsTask task, Field a, Field b) {
         return task.samePointer(pointerValue(a), pointerValue(b));

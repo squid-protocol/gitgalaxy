@@ -188,6 +188,7 @@ class Gen:
         self.write_only_pointers: set[str] = set()  # program.write_only_pointers
         self.overlaid_pointers: set[str] = set()  # program.overlaid_pointers (#4771)
         self.pointer_views: set[str] = set()  # program.pointer_views (#4771)
+        self.pointer_byte_view_of: dict[str, str] = {}  # program.pointer_byte_view_of (#6876): PIC X(4) view -> its pointer
         self.pointer_view_of: dict[str, str] = {}  # program.pointer_view_of (#4771): pure numeric view -> its pointer
         self.p = prog
         # structured: a program with no GO TO / HANDLE -- paragraphs are void methods called in order, no dispatcher
@@ -638,12 +639,17 @@ class Gen:
         elif isinstance(c, E.CondName):
             if c.abbrev is not None and self.resolve_cond(c.ref) is None:
                 rel = E.Rel(c.abbrev[0], c.abbrev[1], c.ref)
-                if not (self.null_relation(rel) or self.pointer_relation(rel)):
+                if not (self.null_relation(rel) or self.pointer_relation(rel) or self.byte_view_relation(rel) is not None):
                     out.append(self._relation(c.abbrev[1], c.ref, c.abbrev[0] == "="))
         elif isinstance(c, E.ClassCond):
             if c.kind in ("POSITIVE", "NEGATIVE", "ZERO"):
                 out.append(self._relation(c.operand, E.Fig("ZEROS")))  # cobc: x > ZERO, a constant
-        elif isinstance(c, E.Rel) and not self.null_relation(c) and not self.pointer_relation(c):
+        elif (
+            isinstance(c, E.Rel)
+            and not self.null_relation(c)
+            and not self.pointer_relation(c)
+            and self.byte_view_relation(c) is None
+        ):
             out.append(self._relation(c.left, c.right, c.op == "="))
 
     @staticmethod
@@ -1513,6 +1519,8 @@ class Gen:
                 return self.rel_address_null(c, c.left)
             if self.null_relation(c):
                 return self.rel_null(c)
+            if self.byte_view_relation(c) is not None:
+                return self.rel_pointer_bytes(c)
             if self.pointer_operand(c.left) and self.pointer_operand(c.right):
                 return self.rel_pointers(c)
             with self.relation():
@@ -1549,6 +1557,29 @@ class Gen:
         if not isinstance(sides[0], E.Ref) or sides[0].subscripts or sides[0].qualifiers or sides[0].refmod:
             raise Untranslatable("NULL compared with something that is not a plain pointer item (X56)")
         return f"Cobol.compareFigurative({self.pointer_item(sides[0].name)}, Figurative.LOW_VALUES, CS) == 0"
+
+    def byte_view_relation(self, c) -> str | None:
+        """#6876 (X59): the pointer whose `PIC X(4)` byte view a relation tests against X'FF000000' (IBM's ADDRESS COMMAREA
+        result for a task with no COMMAREA), either side; None for anything else (it stays refused by field_expr)."""
+        for view, lit in ((c.left, c.right), (c.right, c.left)):
+            if (
+                isinstance(view, E.Ref) and not (view.subscripts or view.qualifiers or view.refmod)
+                and isinstance(lit, E.Lit) and lit.value == b"\xff\x00\x00\x00"
+            ):  # fmt: skip
+                return self.pointer_byte_view_of.get(view.name.upper())
+        return None
+
+    def rel_pointer_bytes(self, c: E.Rel) -> str:
+        """#6876 (X59): `byte-view = X'FF000000'` (and NOT =, which the parser wraps in Not). A handle is not an address, so
+        the view is not compared as bytes: the runtime says whether the pointer is the no-COMMAREA address
+        (DetCics.isNoCommareaAddress). Only = is a test of it; any other operator is refused by name."""
+        if c.op != "=":
+            raise Untranslatable(f"pointer byte view {c.op} X'FF000000': only = and NOT = test the no-COMMAREA address (X59)")
+        if self.cics is None:
+            raise Untranslatable("a pointer's byte view compared with X'FF000000' (CICS pointers)")
+        ptr = self.byte_view_relation(c)
+        assert ptr is not None
+        return f"DetCics.isNoCommareaAddress({self.pointer_item(ptr)})"
 
     def rel_pointers(self, c: E.Rel) -> str:
         """#5042 (X56): `pointer = pointer` (and NOT =, which the parser wraps in Not). IBM allows only = and NOT = between

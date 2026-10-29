@@ -17,6 +17,7 @@ import tempfile
 from pathlib import Path
 
 import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
@@ -101,6 +102,13 @@ SORT_LOAD = [
     "SHOW-INTO-X.",
     "    EXIT.",
 ]  # fmt: skip
+
+SORTTB_SHOW = [
+    "PERFORM VARYING I FROM 1 BY 1 UNTIL I > 8",
+    "    MOVE E-AMT(I) TO AMT-ED",
+    "    DISPLAY E-DEPT(I) ' ' AMT-ED ' ' E-NAME(I)",
+    "END-PERFORM",
+]
 
 # SORT under an alphabet: an alphanumeric, a group (of characters only), a zoned, an edited key; eight records
 SORTCS_SD = ["SD  SORT-FILE.", "01  SR.", "    05 SR-A PIC X(2).", "    05 SR-G.", "       10 SR-G1 PIC X.",
@@ -350,6 +358,34 @@ PROGRAMS = {
             "         OUTPUT PROCEDURE SHOW-INTO THRU SHOW-INTO-X",
             "    GOBACK.",
             *SORT_LOAD,
+        ],
+    ),
+    # SORT of a table (format 2): the entries of an OCCURS group ordered in place, a zoned key ascending and a signed
+    # separate-sign key descending WITH DUPLICATES IN ORDER (three entries tie), an alphanumeric key descending, an
+    # alphanumeric key under a literal alphabet, and an elementary table sorted on itself (a duplicate value)
+    "SORTTB": program(
+        "SORTTB",
+        [
+            *SORT_DATA[: SORT_DATA.index("01  I       PIC 9(2) VALUE 0.")],
+            "01  I PIC 9(2) VALUE 0.",
+            "01  AMT-ED PIC -ZZZZ9.",
+            "01  RC-OUT PIC 9(4).",
+            "01  NT-D PIC X(18) VALUE '042007100007999042'.",
+            "01  NT REDEFINES NT-D.",
+            "    05 N PIC 9(3) OCCURS 6 TIMES.",
+        ],
+        [
+            "SORT ENT ON ASCENDING KEY E-DEPT DESCENDING KEY E-AMT",
+            "    WITH DUPLICATES IN ORDER",
+            *SORTTB_SHOW,
+            "SORT ENT ON DESCENDING KEY E-NAME",
+            *SORTTB_SHOW,
+            "SORT N ON ASCENDING KEY N",
+            "PERFORM VARYING I FROM 1 BY 1 UNTIL I > 6",
+            "    DISPLAY 'N ' N(I)",
+            "END-PERFORM",
+            "MOVE SORT-RETURN TO RC-OUT",
+            "DISPLAY 'SORT-RETURN ' RC-OUT",
         ],
     ),
     # SORT under an alphabet (IBM Enterprise COBOL 6.4 Language Reference, ALPHABET clause, SORT COLLATING
@@ -1990,8 +2026,10 @@ def _holes(tmp_path: Path, src: str) -> list[str]:
           "         OUTPUT PROCEDURE SHOW-RECS"], ["ALPHABET HV IS 'A' HIGH-VALUE."], "HIGH-VALUE in"),
         # IBM: 16 in SORT-RETURN ends the sort at the next RELEASE / RETURN
         (["    MOVE 16 TO SORT-RETURN"], None, "SORT-RETURN set by the program"),
-        # format 2: a table, not an SD file
-        (["    SORT ENT ON ASCENDING KEY E-NAME"], None, "SORT of a table (format 2) not modelled"),
+        # format 2: a table whose key is outside an entry, or a table that is not one fixed OCCURS level
+        (["    SORT ENT ON ASCENDING KEY WS-OUT"], None, "not a data item of one entry of the table"),
+        (["    SORT ENT ON ASCENDING KEY E-NAME(1)"], None, "not a data item of one entry of the table"),
+        (["    SORT I ON ASCENDING KEY I"], None, "not a table of one fixed OCCURS level"),
         # a key outside the SD's record
         (["    SORT SORT-FILE ASCENDING E-DEPT INPUT PROCEDURE LOAD-RECS", "         OUTPUT PROCEDURE SHOW-RECS"],
          None, "not in a record of SORT-FILE"),

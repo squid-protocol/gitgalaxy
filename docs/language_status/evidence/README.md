@@ -38,7 +38,7 @@ One record per ported program (#4048): docs/language_status/evidence_records.md 
 | [UPDACC](cbsa-updacc.md) | cbsa-updacc | cics | proven, unapproved |  | 27 | 7/7 / 5/6 | 103/139 / 103/110 | 0 | - |
 | [LGAPDB01](genapp-lgapdb01.md) | genapp-lgapdb01 | cics | proven, unapproved |  | 16 | 7/7 / 29/31 | 58/137 / 58/129 | 0 | - |
 | [LGAPVS01](genapp-lgapvs01.md) | genapp-lgapvs01 | cics | proven, unapproved |  | 13 | 3/3 / 10/11 | 72/125 / 72/113 | 0 | - |
-| [LGICDB01](genapp-lgicdb01.md) | genapp-lgicdb01 | cics | proven, unapproved |  | 17 | 4/4 / 9/12 | 94/136 / 94/111 | 0 | - |
+| [LGICDB01](genapp-lgicdb01.md) | genapp-lgicdb01 | cics | proven, unapproved |  | 18 | 4/4 / 11/12 | 94/136 / 94/111 | 0 | - |
 | [LGSTSQ](genapp-lgstsq.md) | genapp-lgstsq | cics | proven, unapproved |  | 8 | 1/1 / 4/6 | 25/78 / 25/69 | 0 | - |
 | [LGUPDB01](genapp-lgupdb01.md) | genapp-lgupdb01 | cics | proven, unapproved |  | 22 | 9/9 / 38/38 | 68/140 / 68/120 | 0 | - |
 | [LGUPVS01](genapp-lgupvs01.md) | genapp-lgupvs01 | cics | proven, unapproved |  | 12 | 3/3 / 12/13 | 66/119 / 66/100 | 0 | - |

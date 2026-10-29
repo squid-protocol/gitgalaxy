@@ -28,6 +28,9 @@
 #     cross-job ORDER is therefore unknown, and producer -> consumer edges across
 #     jobs are candidates, not a schedule.
 #   - Only DDs that name a DSN are DD rows (not SYSOUT / DUMMY / in-stream `*`).
+#     An in-stream control deck (`DD *` / `DD DATA` named SYSIN, SYMNAMES, SORTCNTL, DFSPARM, #4268) is an
+#     INSTREAM row: step_name, dd_name, in_proc, line, instream (the body as written). Other in-stream DDs
+#     (SYSTSIN has its own channel, runs / systsin_member) are not kept.
 #   - Its own statement reader, bounded per statement: a DD with a dotted
 #     override name (`//PRC001.FILEIN DD`) and IF / ELSE / ENDIF, which the
 #     dataset reader does not keep, are read here.
@@ -123,6 +126,38 @@ def _statements(code_stream: str) -> list[tuple[int, str, str, str]]:
     return out
 
 
+_INSTREAM_DD = re.compile(r"^//([^ \t]*)[ \t]+DD[ \t]+(\*|DATA)(?:,([^ \t]*))?(?:[ \t]|$)", re.I)
+_DLM = re.compile(r"DLM=(?:'(..)'|(..))", re.I)
+# The control-statement DDs a utility reads in-stream (DFSORT: SYSIN / SYMNAMES, SORTCNTL, DFSPARM).
+_CONTROL_DDS = frozenset({"SYSIN", "SYMNAMES", "SORTCNTL", "DFSPARM"})
+
+
+def _instream_bodies(code_stream: str) -> dict[int, str]:
+    """DD statement line -> the in-stream body of a `DD *` / `DD DATA` named in `_CONTROL_DDS` (#4268).
+
+    `DD *` ends at `/*`, at the next `//` statement, or at its `DLM=xx` delimiter; `DD DATA` ends at `/*` (or its
+    DLM) only, a `//` line being data. A DD whose operands continue on the next line is not read (none seen)."""
+    lines = code_stream.split("\n")
+    out: dict[int, str] = {}
+    i = 0
+    while i < len(lines):
+        m = _INSTREAM_DD.match(lines[i][:72])
+        i += 1
+        if not m or m.group(1).rsplit(".", 1)[-1].upper() not in _CONTROL_DDS:
+            continue
+        dd_line = i
+        dlm = _DLM.search(m.group(3) or "")
+        end = (dlm.group(1) or dlm.group(2)) if dlm else "/*"
+        body: list[str] = []
+        while i < len(lines):
+            if lines[i].startswith(end) or (m.group(2) == "*" and not dlm and lines[i].startswith("//")):
+                break
+            body.append(lines[i].rstrip())
+            i += 1
+        out[dd_line] = "\n".join(body).rstrip("\n")
+    return out
+
+
 def _disp(value: str | None) -> str | None:
     if value is None:
         return None
@@ -187,6 +222,7 @@ def jcl_job_flow(code_stream: str) -> list[dict[str, Any]]:
     step: str | None = None
     last_dd: str | None = None
     ifs: list[str] = []
+    bodies = _instream_bodies(code_stream)
     for line, name, op, field in _statements(code_stream):
         if op == "JOB":
             job_ops = dict(_split(field))
@@ -235,6 +271,19 @@ def jcl_job_flow(code_stream: str) -> list[dict[str, Any]]:
                 last_dd = dd_name
             else:
                 dd_name = last_dd or ""
+            if line in bodies:  # #4268: presence-keyed kind; no existing reader looks at it
+                rows.append(
+                    dict(
+                        blank,
+                        kind="INSTREAM",
+                        step_name=dd_step,
+                        dd_name=dd_name or None,
+                        in_proc=in_proc,
+                        line=line,
+                        instream=bodies[line],
+                    )  # fmt: skip
+                )
+                continue
             keyed = {k: v for k, v in _split(field) if k}
             dsn = keyed.get("DSN") or keyed.get("DSNAME")
             if not dsn:

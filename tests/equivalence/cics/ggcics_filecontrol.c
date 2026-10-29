@@ -52,7 +52,7 @@ int GGCREAD(gg_cics *c, char *ridfld, int keylen, char *into, int intolen) {
     int reclen, keyoff, klen, fresp, fresp2;
     trim(c->name1, 8, want);
     c->resp = FILENOTFOUND;
-    c->resp2 = 0;
+    c->resp2 = 1;  /* IBM: RESP2 1, the file is not defined to CICS (X75) */
     if (strstr(c->flags, "UPDATE") && !strstr(c->flags, "TOKEN") && has_hold(want)) {
         c->resp = INVREQ;  /* #5092: a second READ UPDATE without a token, nothing released between */
         c->resp2 = 28;
@@ -339,6 +339,7 @@ int GGCSTBR(gg_cics *c, char *ridfld, int keylen) {
     }
     if (!file_cfg(want, path, &reclen, &keyoff, &klen)) {
         c->resp = FILENOTFOUND;
+        c->resp2 = 1;  /* IBM: RESP2 1, the file is not defined to CICS (X75) */
         browse_event("STARTBR", want, ridfld, keylen, c, -1, NULL, 0);
         return 0;
     }
@@ -392,6 +393,7 @@ static int browse_read(gg_cics *c, int dir, char *ridfld, int keylen, char *into
     int s = browse_slot(want, 0);
     if (!file_cfg(want, path, &reclen, &keyoff, &klen)) {
         c->resp = FILENOTFOUND;
+        c->resp2 = 1;  /* IBM: RESP2 1, the file is not defined to CICS (X75) */
     } else if (s < 0 || !br[s].active) {
         c->resp = INVREQ;
         c->resp2 = 34;
@@ -503,6 +505,7 @@ int GGCDELT(gg_cics *c, char *ridfld, int keylen) {
     }
     if (!file_cfg(want, path, &reclen, &keyoff, &klen)) {
         c->resp = FILENOTFOUND;
+        c->resp2 = 1;  /* IBM: RESP2 1, the file is not defined to CICS (X75) */
         file_event("DELETE", want, ridfld, by_hold ? 0 : keylen, c->resp);
         return 0;
     }
@@ -592,6 +595,7 @@ int GGCUNLK(gg_cics *c) {
     c->resp2 = 0;
     if (!file_cfg(want, path, &reclen, &keyoff, &klen)) {
         c->resp = FILENOTFOUND;
+        c->resp2 = 1;  /* IBM: RESP2 1, the file is not defined to CICS (X75) */
         unlock_event(c, want);
         return 0;
     }

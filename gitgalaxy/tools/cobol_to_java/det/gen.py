@@ -160,7 +160,8 @@ class FileDef:
     why: str = ""
     varying: dict | None = None  # RECORD VARYING ... DEPENDING ON: {min, max, depending} (program.fd_entries)
     sort: bool = False  # an SD (sort-merge) file: SORT / MERGE / RELEASE / RETURN only
-    sort_length: int | None = None  # its records' length (None: records of different lengths)
+    sort_length: int | None = None  # its records' length: the longest record's, when they differ (sort_min_length)
+    sort_min_length: int | None = None  # the shortest record's length (the keys lie within it)
 
 
 @dataclass
@@ -3358,7 +3359,7 @@ class Gen:
         if fd is None:
             raise Untranslatable(f"{name}: no SD file")
         if fd.record is None or fd.sort_length is None:
-            raise Untranslatable(f"{name}: an SD with no record, or records of different lengths")
+            raise Untranslatable(f"{name}: an SD with no record")
         return fd
 
     def sort_table(self, d: dict, ind: str) -> list[str]:
@@ -3442,6 +3443,10 @@ class Gen:
                 raise Untranslatable(f"{verb} KEY {ref.name}: not in a record of {sd.fd}")
             if _occurs_chain(it) or it.depending:
                 raise Untranslatable(f"{verb} KEY {ref.name}: under an OCCURS")
+            if sd.sort_min_length is not None and it.offset + it.size > sd.sort_min_length:
+                # IBM: a key lies within every record of the sort; past a shorter record's end it names no byte
+                raise Untranslatable(f"{verb} KEY {ref.name}: past the end of the shortest record of {sd.fd} "
+                                     f"({sd.sort_min_length} bytes): not modelled")  # fmt: skip
             if coll and it.category != "NUMERIC" and not _text_item(it):
                 # the alphabet orders characters: a packed, binary or zoned byte is no character of the data's
                 # code page (on z/OS its byte is the same in ASCII and EBCDIC; a character's is not)
@@ -3566,8 +3571,8 @@ class Gen:
         if s.kind == "RELEASE":
             it = self.resolve(s.data["record"])
             sd = self.sort_file(it.fd or "")
-            if it.size != sd.sort_length:
-                raise Untranslatable(f"RELEASE {it.name}: not the sort file's record length")
+            if it.parent is not None or it.size > (sd.sort_length or 0):
+                raise Untranslatable(f"RELEASE {it.name}: not a record of the sort file")
             var = f"sort_{jname(sd.select)}"
             out = [ind + self.move(s.data["from"], s.data["record"])] if s.data["from"] is not None else []
             what = jstr(f"RELEASE {it.name} outside an input procedure")
@@ -3580,7 +3585,8 @@ class Gen:
         reg = self.field_expr(E.Ref("SORT-RETURN"))
         out = [f'{ind}String {st} = Sort.active({var}, {what}).returnInto({rec}, {reg}, CS) ? "00" : "10";']
         if s.data["into"] is not None:
-            out += [f'{ind}if ({st}.equals("00")) {{', f"{ind}    Cobol.move({rec}, {self.field_expr(s.data['into'])}, CS);",
+            out += [f'{ind}if ({st}.equals("00")) {{',
+                    f"{ind}    {var}.returnInto({rec}, {self.field_expr(s.data['into'])});",
                     f"{ind}}}"]  # fmt: skip
         return out + self.io_phrases(s, st, ind, at_end="10", invalid=())
 

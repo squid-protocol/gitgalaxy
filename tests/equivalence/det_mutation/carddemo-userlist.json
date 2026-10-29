@@ -484,7 +484,7 @@
    "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
    "harness": "d2af894d90223b538c15d3b03fc51ccf3772afbccff34faebda26f29bf1c55df",
    "oracle": "07517ec3431588d67d67ed60be3f71579d0c3ee85c19d09a3ac4b455a41a95a4",
-   "survivors": "6ace18c7ff0bb3be425ea00d852709385d3b4b2102b4343eb21241777c8bea98"
+   "survivors": "cde87497865dcb6725cfd65c8434559fc2d03f6d94bc322d1215fe1eaa1ba779"
   },
   "components": {
    "generator": {

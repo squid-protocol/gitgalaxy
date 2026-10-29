@@ -5005,7 +5005,7 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
             for key in ("child", "transid"):
                 if c.get(key) != j.get(key):
                     bad.append({"field": key, "cobol": c.get(key), "java": j.get(key)})
-            sub = compare_events(c.get("events") or [], j.get("events") or [])
+            sub = compare_events(c.get("events") or [], [_link_as_compared(x) for x in j.get("events") or []])  # #6967
             if sub["diffs"]:
                 bad.append({"field": "events", "cobol": sub["diffs"], "java": None})
         if bad:

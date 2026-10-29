@@ -494,7 +494,9 @@ TASKCONTROL_JAVA = """\
             if (k.channel != null) {
                 c.withChannel(copyOf(k.channel, k.channel.name));
             }
+            java.nio.file.Path fired = task.childFaults(c, k.transid.strip());
             c.run(program);
+            task.childFired(fired, k.transid.strip());
             Map<String, Object> last = null;
             for (Map<String, Object> e : c.events) {
                 if ("ABEND".equals(e.get("event"))) {
@@ -524,6 +526,47 @@ TASKCONTROL_JAVA = """\
                 did.add(left);
             }
             event("CHILD", "child", k.token, "transid", k.transid, "events", did);
+        }
+    }
+
+    /** #6967 (X18): the lines of this task's fault plan for a RUN child of `transid` (`@TRANSID CMD NAME NTH RESP
+     *  RESP2 [ABCODE]`, as the stub's faults.cfg) become the child's own plan, the prefix off: the child counts its
+     *  commands as a task of its own. What fires in it goes to a log of its own (null: none planned), see childFired. */
+    private java.nio.file.Path childFaults(CicsTask c, String transid) {
+        List<String> plan = new ArrayList<>();
+        for (String[] f : faultPlan) {
+            if (f[0].equals("@" + transid)) {
+                plan.add(String.join(" ", java.util.Arrays.copyOfRange(f, 1, f.length)));
+            }
+        }
+        if (plan.isEmpty()) {
+            return null;
+        }
+        try {
+            java.nio.file.Path log = java.nio.file.Files.createTempFile("ggchild", ".faults");
+            c.withFaults(plan, log);
+            return log;
+        } catch (java.io.IOException e) {
+            throw new java.io.UncheckedIOException(e);
+        }
+    }
+
+    /** #6967 (X18): the faults that fired in a child, appended to this task's log at its end (as the stub appends the
+     *  child directory's faults.txt after the child process exits), each line `@TRANSID ` first. */
+    private void childFired(java.nio.file.Path log, String transid) {
+        if (log == null) {
+            return;
+        }
+        try {
+            for (String line : java.nio.file.Files.readAllLines(log)) {
+                if (faultLog != null) {
+                    java.nio.file.Files.writeString(faultLog, "@" + transid + " " + line + System.lineSeparator(),
+                            java.nio.file.StandardOpenOption.CREATE, java.nio.file.StandardOpenOption.APPEND);
+                }
+            }
+            java.nio.file.Files.deleteIfExists(log);
+        } catch (java.io.IOException e) {
+            throw new java.io.UncheckedIOException(e);
         }
     }
 

@@ -1,5 +1,5 @@
 {
- "commit": "ba80d9483",
+ "commit": "5346a3401",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -160,7 +160,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-29T13:49:52Z",
+  "as_of": "2026-10-29T14:23:07Z",
   "core": {
    "closed": 192,
    "open": 17,
@@ -235,9 +235,9 @@
    {
     "closed": 54,
     "number": 6,
-    "open": 8,
+    "open": 9,
     "title": "Side Quests \ud83d\uddfa\ufe0f",
-    "total": 62
+    "total": 63
    },
    {
     "closed": 170,
@@ -410,8 +410,8 @@
   ],
   "sweep": {
    "closed": 89,
-   "open": 8,
-   "total": 97
+   "open": 9,
+   "total": 98
   },
   "title_counts": {
    "cics": {
@@ -420,7 +420,7 @@
    },
    "cobol": {
     "closed": 130,
-    "total": 145
+    "total": 146
    }
   },
   "window_days": 7

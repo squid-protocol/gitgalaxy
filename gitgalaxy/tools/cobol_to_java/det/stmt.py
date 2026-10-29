@@ -1437,8 +1437,9 @@ def _sort_merge(text: str, line: int) -> Stmt:
     """SORT file [ON] {ASCENDING | DESCENDING} [KEY] [IS] key ... [WITH DUPLICATES [IN ORDER]]
     [COLLATING SEQUENCE [IS] alphabet] {INPUT PROCEDURE [IS] p [THRU q] | USING file ...}
     {OUTPUT PROCEDURE [IS] p [THRU q] | GIVING file ...}; MERGE the same without DUPLICATES and INPUT PROCEDURE.
-    data: file, keys [(Ref, ascending)], duplicates, collating, using [file], input (p, q), giving [file],
-    output (p, q)."""
+    data: file (the SD, or the table of format 2: SORT table KEY phrases [DUPLICATES] [COLLATING], no
+    USING / INPUT / GIVING / OUTPUT), table, keys [(Ref, ascending)], duplicates, collating, using [file],
+    input (p, q), giving [file], output (p, q)."""
     toks = E.tokenize(text)
     verb = toks[0].upper()
     p = E.Parser(toks[1:])
@@ -1480,9 +1481,8 @@ def _sort_merge(text: str, line: int) -> Stmt:
             d["output"] = _proc_range(p)
         if not p.done():
             raise E.ExprError(f"{verb}: left over {' '.join(p.t[p.i :])}")
-        if verb == "SORT" and not (d["using"] or d["input"] or d["giving"] or d["output"]):
-            raise E.ExprError("SORT of a table (format 2) not modelled")
-        if not (d["using"] or d["input"]) or not (d["giving"] or d["output"]):
+        d["table"] = verb == "SORT" and not (d["using"] or d["input"] or d["giving"] or d["output"])  # format 2
+        if not d["table"] and (not (d["using"] or d["input"]) or not (d["giving"] or d["output"])):
             raise E.ExprError(f"{verb}: no input or no output phrase")
         if verb == "MERGE" and (d["duplicates"] or d["input"] or len(d["using"]) < 2):
             raise E.ExprError("MERGE takes two or more USING files and no DUPLICATES / INPUT PROCEDURE")

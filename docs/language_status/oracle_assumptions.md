@@ -1789,12 +1789,16 @@ states each (`none (gap)`: no entry does). Only fields a burned corpus's COBOL n
     record, RETURN INTO moving the record's own length (IBM: the receiver is space-padded). Where IBM leaves the
     bytes past a shorter record's end undefined, the port follows cobc (the whole area travels with each record). Proved
     in `SORTVL` (#4268).
+  - A fixed USING / GIVING file whose record is shorter than the SD's longest (IBM: a file's record lies between the SD's
+    shortest and longest): its records go in at the file's own length and a GIVING file of the same length receives
+    them (the oracle writes the first bytes of the area; measured, cobc 3.1.2). Proved in `SORTSH`, with SORT USING /
+    GIVING, USING / OUTPUT PROCEDURE and MERGE (#4268). A run whose sorted records are not all the GIVING file's length
+    (USING files of two lengths) stops by name.
   - Refused by name: a format 2 table that is a nested OCCURS, a subscripted key, no KEY phrase over an OCCURS clause
     with no KEY, or with two or more (IBM orders by every OCCURS key, GnuCOBOL by the first only), a key under OCCURS in an SD record, a key past the end of the SD's shortest
-    record, a GIVING of records of different lengths (IBM writes each at its own length, GnuCOBOL the whole area), a
-    USING / GIVING file whose records are not the SD's longest record's length or that is RECORD VARYING,
-    an
-    alphabet ordinal (a numeric literal names a native code: EBCDIC on z/OS), HIGH-VALUE / LOW-VALUE in an
+    record, a GIVING file whose length differs from a sorted record's (IBM writes each at its own length, GnuCOBOL the file's
+    fixed record), a USING / GIVING file whose records fall outside the SD's shortest..longest or that is RECORD VARYING,
+    an alphabet ordinal (a numeric literal names a native code: EBCDIC on z/OS), HIGH-VALUE / LOW-VALUE in an
     alphabet, and a group key holding numeric items under an alphabet.
 
 ### F5. RECORD KEY / ALTERNATE RECORD KEY outside the file's record

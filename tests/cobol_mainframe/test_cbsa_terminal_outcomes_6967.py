@@ -1,4 +1,4 @@
-"""#6967: every open outcome of the burned CBSA BMS screens (BNK1CAC, BNK1CCS, BNK1DCS) is stated infeasible with a reason.
+"""#6967: every open outcome of the burned CBSA BMS screens (the BNK1* programs and BNKMENU) is stated infeasible with a reason.
 
 The terminal fault command exists (register X71: SEND MAP, SEND TEXT and RECEIVE MAP conditions). These checks read only
 the committed sweep-coverage and infeasible-outcome files, so a new open SEND / RECEIVE arm fails here instead of
@@ -13,7 +13,7 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
-CASES = ("bnk1cac", "bnk1ccs", "bnk1dcs")
+CASES = ("bnk1cac", "bnk1cca", "bnk1ccs", "bnk1cra", "bnk1dac", "bnk1dcs", "bnk1tfn", "bnk1uac", "bnkmenu")
 DEEDIT_OPEN = {"bnk1cac": {(611, "true"), (637, "true"), (637, "false"), (717, "true")}}
 
 
@@ -29,8 +29,9 @@ def _key(branch: str) -> tuple[int, str]:
 
 @pytest.mark.parametrize("case", CASES)
 def test_every_uncovered_branch_is_stated_infeasible_or_a_known_deedit_arm(case):
-    stated = {(e["line"], e["outcome"]) for e in _load("infeasible_outcomes", case)["entries"]}
-    open_arms = {_key(b) for b in _load("det_sweep_coverage", case)["uncovered"]["branches"]} - stated
+    stated = {(int(e["line"]), e["outcome"]) for e in _load("infeasible_outcomes", case)["entries"] if "line" in e}
+    uncovered = _load("det_sweep_coverage", case)["uncovered"]["branches"]
+    open_arms = {_key(b) for b in uncovered if not b.startswith("paragraph:")} - stated
     assert open_arms == DEEDIT_OPEN.get(case, set())
 
 

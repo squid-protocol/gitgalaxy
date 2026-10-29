@@ -317,6 +317,40 @@ def test_a_data_tree_reader_set_is_direct_only(tmp_path):
     assert sp.data_targets("tests/doom_rosetta/manifest.csv", tmp_path) == ["tests/tools/test_a.py"]
 
 
+@pytest.mark.parametrize("name", ["cics/DetCics.java", "Sort.java"])
+def test_det_runtime_file_selects_the_tests_that_name_its_class(name):
+    p = plan([sp.RUNTIME_DIR + name])
+    assert p["mode"] == "select"
+    assert set(sp.RUNTIME_TREE_READERS) <= set(p["paths"])
+    assert "tests/test_source_reads.py" in p["paths"]  # the tree guards ride along
+    assert len(p["paths"]) < 60
+
+
+def test_det_runtime_class_readers_differ_per_file():
+    cics = set(plan([sp.RUNTIME_DIR + "cics/DetCics.java"])["paths"])
+    sort = set(plan([sp.RUNTIME_DIR + "Sort.java"])["paths"])
+    assert "tests/cobol_mainframe/test_dfsort_4268.py" in sort - cics
+    assert "tests/cobol_mainframe/test_det_translate.py" in cics - sort
+
+
+@pytest.mark.parametrize("name", ["Cobol.java", "Field.java", "sql/Sql.java"])
+def test_other_det_runtime_files_stay_full(name):
+    assert plan([sp.RUNTIME_DIR + name])["mode"] == "full"
+
+
+def test_det_runtime_beside_an_unmapped_file_runs_everything():
+    assert plan([sp.RUNTIME_DIR + "Sort.java", "tests/golden_master_audit/x.json"])["mode"] == "full"
+
+
+def test_runtime_reader_set_is_direct_and_capped(tmp_path):
+    (tmp_path / "tests").mkdir()
+    (tmp_path / "tests" / "test_a.py").write_text("x = 'new Sort.Key(r -> 1)'\n")
+    (tmp_path / "tests" / "test_b.py").write_text("x = 'Sort of'\n")  # the bare word is not a reader
+    f = sp.RUNTIME_DIR + "Sort.java"
+    assert sp.runtime_targets(f, tmp_path) == ["tests/test_a.py"]
+    assert sp.runtime_targets(f, tmp_path, limit=0) is None
+
+
 def test_engine_module_selects_the_tests_the_coverage_map_names():
     cmap = {
         "version": 1,

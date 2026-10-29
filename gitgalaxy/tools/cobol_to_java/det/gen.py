@@ -3469,6 +3469,9 @@ class Gen:
             out += self.procedure_range(d["output"], ind)
         for name in d["giving"]:
             out += self.giving_file(verb, var, sd, name, ind)
+            if any(self.p.files[u].varying is not None for u in d["using"] if u in self.p.files):
+                raise Untranslatable(f"{verb} GIVING {name}: records of a RECORD VARYING USING file (IBM writes each at "
+                                     f"its own length; a fixed file receives them padded by the oracle): not modelled")  # fmt: skip
         out.append(f"{ind}{var} = null;")
         out.append(f"{ind}Sort.finished({self.field_expr(E.Ref('SORT-RETURN'))}, CS);")
         return out
@@ -3526,17 +3529,26 @@ class Gen:
             raise Untranslatable(f"{what}: an empty alphabet")
         return f"Sort.Collating.alphabet({jstr(name)}, CS, {', '.join(jstr(e) for e in entries)})"
 
-    def _sort_io_file(self, verb: str, sd: FileDef, name: str) -> tuple[FileDef, L.Item]:
+    def _sort_io_file(self, verb: str, sd: FileDef, name: str, using: bool) -> tuple[FileDef, L.Item]:
         """A USING / GIVING file and its record (checked present, so callers get it as a non-optional Item)."""
         fd = self.p.files.get(name)
         if fd is None or fd.sort:
             raise Untranslatable(f"{verb} USING / GIVING {name}: no such file")
         if fd.handle is None:
             raise Untranslatable(f"{name}: {fd.why}")
-        if fd.varying is not None or fd.record is None:
-            raise Untranslatable(f"{verb} USING / GIVING {name}: records not the sort file's length: not modelled")
+        if fd.record is None:
+            raise Untranslatable(f"{verb} USING / GIVING {name}: no record")
         lo, hi = sd.sort_min_length or 0, sd.sort_length or 0
-        if not lo <= fd.record.size <= hi:
+        if fd.varying is not None:
+            lengths = (fd.varying["min"], fd.varying["max"])
+            if not using:
+                raise Untranslatable(f"{verb} GIVING {name}: a RECORD VARYING file (IBM writes each record at its own "
+                                     f"length; the oracle writes an empty file): not modelled")  # fmt: skip
+            if lengths[1] != fd.record.size or lengths[0] is None or not lo <= lengths[0]:
+                raise Untranslatable(f"{verb} USING {name}: RECORD VARYING {lengths[0]} TO {lengths[1]} over a "
+                                     f"{fd.record.size}-byte record, outside the sort file's {lo}..{hi}, or not "
+                                     f"FROM m TO n filling the record: not modelled")  # fmt: skip
+        elif not lo <= fd.record.size <= hi:
             # IBM: a USING / GIVING record is no shorter than the SD's shortest record nor longer than its longest
             raise Untranslatable(f"{verb} USING / GIVING {name}: records of {fd.record.size} bytes, outside the sort "
                                  f"file's {lo}..{hi}: not modelled")  # fmt: skip
@@ -3546,20 +3558,24 @@ class Gen:
     def using_file(self, verb: str, var: str, sd: FileDef, name: str, ind: str) -> list[str]:
         """USING: the file opened, every record read into the sort, closed. Its FILE STATUS item is left as it was:
         GnuCOBOL's implicit I/O does not set it (and IBM's depends on FASTSRT: register F4)."""
-        fd, record = self._sort_io_file(verb, sd, name)
+        fd, record = self._sort_io_file(verb, sd, name, True)
         v, rec, st, what = jname(fd.select), self.ids[id(record)], self.tmpname("st"), f"{verb} USING {name}"
+        # a RECORD VARYING file's DEPENDING ON item holds each record's length as it is read (the oracle's implicit
+        # READ sets it; IBM does not say): the port follows it
+        dep = [f"{ind}    Cobol.move(java.math.BigDecimal.valueOf({v}.lastLength()), "
+               f"{self.field_expr(E.Ref(fd.varying['depending']))}, CS);"] if fd.varying is not None else []  # fmt: skip
         return [f'{ind}String {st} = {v}.open("INPUT");',
                 f'{ind}Sort.expect({st}, {jstr(what + ": OPEN")}, "00");',
                 f"{ind}while (true) {{", f"{ind}    {st} = {v}.readNext();",
                 f'{ind}    if ({st}.equals("10")) {{', f"{ind}        break;", f"{ind}    }}",
-                f'{ind}    Sort.expect({st}, {jstr(what + ": READ")}, "00");', f"{ind}    {var}.add({rec});", f"{ind}}}",
+                f'{ind}    Sort.expect({st}, {jstr(what + ": READ")}, "00");', *dep, f"{ind}    {var}.add({rec});", f"{ind}}}",
                 f"{ind}{st} = {v}.close();",
                 f'{ind}Sort.expect({st}, {jstr(what + ": CLOSE")}, "00");']  # fmt: skip
 
     def giving_file(self, verb: str, var: str, sd: FileDef, name: str, ind: str) -> list[str]:
         """GIVING: the file opened OUTPUT, every record in order written from its record area, closed (its FILE
         STATUS left as it was, as USING)."""
-        fd, record = self._sort_io_file(verb, sd, name)
+        fd, record = self._sort_io_file(verb, sd, name, False)
         v, rec, st, what = jname(fd.select), self.ids[id(record)], self.tmpname("st"), f"{verb} GIVING {name}"
         r = self.tmpname("r")
         return [f"{ind}{var}.rewind({record.size});", f'{ind}String {st} = {v}.open("OUTPUT");',

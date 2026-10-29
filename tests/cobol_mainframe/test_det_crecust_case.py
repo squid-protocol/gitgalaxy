@@ -164,3 +164,56 @@ def test_a_child_fault_fires_only_in_the_child_and_fetch_any_reports_its_abend(t
     )
     assert out.splitlines() == ["parent DELAY 0/0", "child DELAY 16/6", "NORMAL 900 KIDA"]
     assert log.read_text(encoding="utf-8").splitlines() == ["@KC DELAY - 1 16 6"]
+
+
+def _faulted(child):
+    return {"name": "s", "faults": [{"cmd": "DELAY", "child": child, "resp": "INVREQ", "resp2": 6}]}
+
+
+@pytest.mark.parametrize("child", sorted(CHILDREN))
+def test_a_fault_in_a_child_the_case_runs_is_accepted(child):  # #6967
+    ecf.check_child_faults(_case(), _faulted(child))
+
+
+@pytest.mark.parametrize(
+    "case", [_case(), {"kind": "cics", "programs": []}], ids=["other-transid", "no-child-programs"]
+)
+def test_a_fault_in_a_child_no_child_programs_entry_runs_is_refused(case):
+    with pytest.raises(ec.Unsupported, match="never fires"):
+        ecf.check_child_faults(case, _faulted("ZZZ9"))
+
+
+def test_a_fault_without_child_needs_no_child_programs():
+    ecf.check_child_faults(
+        {"kind": "cics", "programs": []}, {"name": "s", "faults": [{"cmd": "DELAY", "resp": "EXPIRED"}]}
+    )
+
+
+def test_every_committed_child_fault_names_a_child_of_its_case():
+    seen = 0
+    for path in sorted((ROOT / "tests/equivalence").glob("*/case.json")):
+        case = json.loads(path.read_text(encoding="utf-8"))
+        for sc in case.get("scenarios", []):
+            if any("child" in f for f in sc.get("faults") or []):
+                ecf.check_child_faults(case, sc)
+                seen += 1
+    assert seen >= 1
+
+
+def test_every_terminal_verb_of_the_burned_cbsa_screens_has_a_fault_command_or_a_refusal():
+    """#6967: SEND MAP / SEND TEXT / RECEIVE MAP are planned (X71); SEND CONTROL is refused by name; no screen uses a
+    bare RECEIVE, CONVERSE or SEND PAGE, so no terminal outcome lacks a command."""
+    import os
+
+    base = os.environ.get("GITGALAXY_MAINFRAME_CORPORA")
+    src = Path(base or "") / "cics-banking-sample-application-cbsa/src/base/cobol_src"
+    if not base or not src.is_dir():
+        pytest.skip("the CBSA corpus is not fetched")
+    verbs = set()
+    for f in src.glob("BNK1*.cbl"):
+        text = f.read_text(encoding="latin-1")
+        for m in re.finditer(r"(?is)\bEXEC\s+CICS\s+(SEND|RECEIVE|CONVERSE)\s+(\w+)", text):
+            verbs.add(f"{m.group(1).upper()} {m.group(2).upper()}")
+    assert verbs <= {"SEND MAP", "SEND TEXT", "RECEIVE MAP", "SEND CONTROL"}, verbs
+    for v in ("SEND MAP", "SEND TEXT", "RECEIVE MAP"):
+        assert v.replace(" ", "-") in ecf.FAULT_COMMANDS

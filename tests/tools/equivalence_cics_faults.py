@@ -329,6 +329,19 @@ def _child_tag(sc: dict[str, Any], f: dict[str, Any]) -> str:
     return f"@{child} "
 
 
+def check_child_faults(case: dict[str, Any], sc: dict[str, Any]) -> None:
+    """#6967 (X18): a fault's `child` must be a TRANSID the case's `child_programs` runs, or it never fires (the child is
+    never dispatched) and nothing says so: refused by name."""
+    kids = ec.case_child_programs(case)
+    for f in sc.get("faults") or []:
+        child = f.get("child")
+        if child is not None and child not in kids:
+            raise ec.Unsupported(
+                f"scenario {sc['name']}: fault {f}: `child` {child!r} is no transaction of the case's child_programs "
+                f"({', '.join(sorted(kids)) or 'none'}): no child runs it, so the fault never fires"
+            )
+
+
 def fault_lines(sc: dict[str, Any]) -> list[str]:
     """A scenario's `faults` as both sides read them: `CMD NAME NTH RESP RESP2` (faults.cfg, CicsTask.withFaults) --
     NAME the file a READ names, or the program an INQUIRE PROGRAM names. A fault with `child` is the RUN TRANSID

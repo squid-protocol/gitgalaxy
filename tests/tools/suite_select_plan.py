@@ -29,6 +29,8 @@ ground_truth_plan.py does for `ground-truth`):
            as the emitted call, plus the tests that hash / compile the runtime tree, plus TREE_GUARDS. Other runtime files stay `full`.
 * `select` also when a changed file is a baseline / ledger JSON (`tests/*.json`, `tests/cobol_mainframe/*.json`) or a
            `det_sweep_coverage` record (slice 8): the tests that name it directly, plus TREE_GUARDS; none naming it is `full`.
+* `select` also for a per-case record `tests/equivalence/infeasible_outcomes/*.json` or `det_mutation/*.json` (slice 9): the
+           tests that name the directory or the case id, plus TREE_GUARDS.
 * `full`   anything else, any reader that is the engine or a root-level script (it cannot be mapped to a test), an
            unreadable or empty diff, the `shepherd:full` label, and every event that is not a pull_request.
 
@@ -151,7 +153,11 @@ def data_targets(f: str, root: Path = REPO_ROOT, limit: int = HELPER_MAX) -> lis
 # it. Direct only, like DOOM_READERS: a helper that names the file is named by most of the suite (654 test files).
 # No direct reader at all means the file is read some way a name search cannot see (a glob), so it stays `full`.
 SWEEP_COVERAGE_DIR = "tests/equivalence/det_sweep_coverage/"
-NAMED_DATA_DIRS = ("tests", "tests/cobol_mainframe")
+# Slice 9: the per-case records beside the sweep coverage. A test opens one through its directory name (`infeasible_outcomes`,
+# `det_mutation`: 16 and 5 test files name each) or its case id; the readers that glob all of tests/equivalence are
+# case-agnostic helpers (a closure through them is 654 files), so direct naming is the map, as for the sweep records.
+RECORD_DIRS = ("tests/equivalence/infeasible_outcomes", "tests/equivalence/det_mutation")
+NAMED_DATA_DIRS = ("tests", "tests/cobol_mainframe") + RECORD_DIRS
 
 
 def is_named_data_file(f: str) -> bool:
@@ -164,6 +170,8 @@ def named_data_targets(f: str, root: Path = REPO_ROOT, limit: int = HELPER_MAX) 
     p = Path(f)
     if f.startswith(SWEEP_COVERAGE_DIR):
         seeds = {"det_sweep_coverage"}
+    elif p.parent.as_posix() in RECORD_DIRS:
+        seeds = {p.parent.name, p.stem}
     else:
         seeds = {p.name, p.stem, re.sub(r"_(?:baseline|ledger)$", "", p.stem)}
     hit = _closure(seeds, f, root, limit, direct=True)

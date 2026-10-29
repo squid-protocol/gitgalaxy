@@ -1772,6 +1772,13 @@ states each (`none (gap)`: no entry does). Only fields a burned corpus's COBOL n
   - COLLATING SEQUENCE (or PROGRAM COLLATING SEQUENCE): NATIVE, STANDARD-1 and STANDARD-2 are the data's byte order
     (D1). EBCDIC and literal alphabets (#4268) order the alphanumeric keys; see D1 for where IBM and GnuCOBOL
     differ.
+  - SORT-RETURN (the S9(4) BINARY special register) is read and written like any item. IBM: moving 16 to it in a
+    procedure ends the sort at the next RELEASE / RETURN, and a successful sort leaves it 0. GnuCOBOL (measured: a
+    16 set in an input procedure and in an output procedure, three sorts) ignores the 16, runs the sort to its end and
+    leaves the program's value (a later good sort does not reset it). The two disagree, so the run stops by name
+    (`Sort.endsSort`, `Sort.finished`) at a RELEASE / RETURN reached with the register at 16, and at the end of a
+    sort with the register not 0. A register set and restored to 0 inside the procedures, or only read, runs
+    as both do (SORTRC, three modes against GnuCOBOL). The oracle cannot show IBM's early end; it is not modelled.
   - SORT of a table (format 2: `SORT table ON ASCENDING | DESCENDING KEY k ... [WITH DUPLICATES]`) puts each entry of
     a one-level, fixed-count OCCURS item through the same `Sort` and writes the ordered entries back; the keys are
     items of one entry (or the entry itself, for an elementary table). Proved against GnuCOBOL in `SORTTB` (#4268).
@@ -1780,7 +1787,7 @@ states each (`none (gap)`: no entry does). Only fields a burned corpus's COBOL n
     SORT with no KEY phrase uses the OCCURS clause's own single KEY (IBM): proved in `SORTDP` (#4268).
   - Refused by name: a format 2 table that is a nested OCCURS, a subscripted key, no KEY phrase over an OCCURS clause
     with no KEY, or with two or more (IBM orders by every OCCURS key, GnuCOBOL by the first only), a key under OCCURS in an SD record, an SD whose records differ in length, a USING /
-    GIVING file whose records are not the SD record's length, SORT-RETURN set by the program (16 ends a sort), an
+    GIVING file whose records are not the SD record's length, an
     alphabet ordinal (a numeric literal names a native code: EBCDIC on z/OS), HIGH-VALUE / LOW-VALUE in an
     alphabet, and a group key holding numeric items under an alphabet.
 

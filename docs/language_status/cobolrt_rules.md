@@ -19,12 +19,12 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 | DLI: IMS DL/I database calls | `dli/DetDli.java` | 16 | yes |
 | MQ: IBM MQ (MQI from CICS) | `mq/QueueManager.java`, `cics/DetMq.java` | 7 | yes |
 | DATA: items and storage | `Field.java`, `Storage.java`, `Lossless.java`, `Figurative.java`, `Hole.java` | 5 | yes |
-| SORT: SORT / MERGE and collating sequences | `Sort.java` | 6 | yes |
+| SORT: SORT / MERGE and collating sequences | `Sort.java` | 7 | yes |
 | FILE: batch files | `batch/DetFiles.java` | 3 | yes |
 | SYS: standalone SYSOUT and abends | `standalone/CobolAbend.java`, `standalone/Sysout.java` | 2 | yes |
 | MVS: z/OS control blocks a batch program reads | `DetMvs.java` | 1 | yes |
 
-186 rules: 87 MATCHED, 23 DIFFERS, 13 REFUSED, 63 ASSUMED; 0 measured on z/OS (#4702).
+187 rules: 87 MATCHED, 23 DIFFERS, 14 REFUSED, 63 ASSUMED; 0 measured on z/OS (#4702).
 
 ## IBM documents
 
@@ -320,6 +320,7 @@ One SORT or MERGE over its SD file, and the PROGRAM COLLATING SEQUENCE.
 | RT-SORT-KEYS | SORT / MERGE keys compare as their items do in a relation condition (numeric by value, others byte by byte), the first the major key, ASCENDING / DESCENDING each | `cobol-lr` SORT statement: KEY phrase | - | - | MATCHED | uncalibrated |
 | RT-SORT-STABLE-ORDER | Equal keys come out in the order they went in (WITH DUPLICATES IN ORDER; the model keeps it always); MERGE: equal keys in the order the files are named | `cobol-lr` SORT statement: DUPLICATES phrase | - | - | MATCHED | uncalibrated |
 | RT-SORT-PROCEDURES | RELEASE / RETURN only inside the input / output procedure, USING files' records as they are, GIVING files each receiving every record; an implicit OPEN / READ / CLOSE that fails stops by name | `cobol-lr` RELEASE statement, RETURN statement | - | - | MATCHED | uncalibrated |
+| RT-SORT-RETURN | SORT-RETURN written by the program: a 16 at a RELEASE / RETURN, or a value left in it when a sort ends, stops by name (IBM ends the sort at the 16 and resets the register to 0; GnuCOBOL does neither) | `cobol-lr` SORT statement: SORT-RETURN special register | - | F4 (PARTIAL (DFSORT subset modelled; other utility steps refused)) | REFUSED | uncalibrated |
 
 ## FILE: batch files
 

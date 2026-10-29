@@ -241,6 +241,41 @@ def eib_records() -> list:
     return L.parse(logical_lines(raw, "DFHEIBLK.cpy"))  # fmt: skip
 
 
+PERFORM_STACK = 255  # libcob's COB_STACK_SIZE: the nested PERFORMs `-fstack-check` allows
+
+
+def performs_cyclically(proc: S.Procedure) -> bool:
+    """Whether a paragraph can PERFORM itself, through any chain of PERFORMs (a recursive PERFORM: C20). Such a port
+    can recurse without end, so its dispatcher stops at the depth GnuCOBOL's stack check does (PerformDepthExceeded)."""
+    index = {p.name: i for i, p in enumerate(proc.paragraphs)}
+    edges: list[set[int]] = []
+    for p in proc.paragraphs:
+        out: set[int] = set()
+        for s in S.walk(p.body):
+            t = s.data.get("target") if s.kind == "PERFORM" else None
+            if t not in index:
+                continue
+            thru = s.data.get("thru") or t
+            if thru not in index:
+                continue
+            if proc.paragraphs[index[t]].section == t and s.data.get("thru") is None:
+                out.update(i for i, q in enumerate(proc.paragraphs) if q.section == t)
+            else:
+                out.update(range(index[t], index[thru] + 1))
+        edges.append(out)
+    state = [0] * len(edges)  # 0 new, 1 on the stack, 2 done
+
+    def cyclic(i: int) -> bool:
+        state[i] = 1
+        for j in edges[i]:
+            if state[j] == 1 or (state[j] == 0 and cyclic(j)):
+                return True
+        state[i] = 2
+        return False
+
+    return any(state[i] == 0 and cyclic(i) for i in range(len(edges)))
+
+
 def structurable(proc: S.Procedure) -> bool:
     """Whether paragraphs can be plain methods called in order: no GO TO (nor ALTER), no EXEC CICS HANDLE (its
     exits transfer control like a GO TO), no SECTION. Then PERFORM a THRU b is a, ..., b in turn, and falling off a
@@ -1352,6 +1387,15 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         "            performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
         "        }",
         "        performThru[performDepth++] = thru;",
+        *(
+            [
+                f"        if (performDepth >= {PERFORM_STACK}) {{",
+                "            throw new PerformDepthExceeded();",
+                "        }",
+            ]
+            if performs_cyclically(proc)
+            else []
+        ),
         "        try {",
         "            int i = from;",
         "            while (true) {",
@@ -1390,6 +1434,18 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         "    }",
         "",
     ]
+    if performs_cyclically(proc):  # a named stop, never an end state: the harness judges the events up to it
+        dispatcher[dispatcher.index("    private int run(int i) {") : 0] = [
+            "    /** C20: a PERFORM nested past the depth GnuCOBOL's stack check allows (the run stops there). */",
+            "    private static final class PerformDepthExceeded extends RuntimeException {",
+            "        private static final long serialVersionUID = 1L;",
+            "",
+            "        PerformDepthExceeded() {",
+            '            super("stack overflow, possible PERFORM depth exceeded", null, false, false);',
+            "        }",
+            "    }",
+            "",
+        ]
     out = [
         # a comment only: it declares the file a deterministic port, which GitGalaxy's aperture admits to a scan
         f"{DET_PORT_MARKER} COBOL {prog.name} ({program.name}), translated by rule, statement for statement",
@@ -1809,6 +1865,11 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
         "",
         '    @SuppressWarnings("unchecked")',
         "    private <E> DetCics.Store<E> store(String name) {",
+        # #6072: a name no region defines has no store and takes no record: its command answers FILENOTFOUND
+        # (CicsTask.fileFault); the empty store lets the command's eager arguments (a WRITE's exists) run first
+        "        if (CicsTask.undefinableFile(name)) {",
+        "            return DetCics.Store.undefined(CS);",
+        "        }",
         *(
             [
                 f"        return (DetCics.Store<E>) stores.computeIfAbsent(name, n -> switch ({FC.file_key_call(cx.stores, 'n')}) {{",

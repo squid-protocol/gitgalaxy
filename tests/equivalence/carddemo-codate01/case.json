@@ -293,7 +293,52 @@
     }
    ],
    "why": "MQ fault (#6072): request-too-long's MQPUT of the error message in 9000-ERROR answers 2051 (MQPUT call 1): its non-OK arm; the nested 8000-TERMINATION it PERFORMs closes the three queues and ends the task"
+  },
+  {
+   "name": "close-reply-fails",
+   "mq_messages": {
+    "CARDDEMO.REQUEST.QUEUE": [
+     {
+      "data": "DATE",
+      "format": "MQSTR",
+      "msgtype": 1,
+      "replytoq": "CARD.DEMO.REPLY.DATE",
+      "correlid": "REQ-0001"
+     }
+    ]
+   },
+   "mq_faults": [
+    {
+     "call": "MQCLOSE",
+     "nth": 2,
+     "reason": 2009
+    }
+   ],
+   "why": "MQ fault (#6967): the reply queue's MQCLOSE in 8000-TERMINATION answers 2009 (MQCLOSE call 2): the WHEN OTHER PERFORMs 8000-TERMINATION again while it is active, which re-closes the input queue (its open flag is never reset) and recurses without end; both sides stop at the PERFORM stack check (register C20), judged up to it"
+  },
+  {
+   "name": "close-error-fails",
+   "mq_messages": {
+    "CARDDEMO.REQUEST.QUEUE": [
+     {
+      "data": "DATE",
+      "format": "MQSTR",
+      "msgtype": 1,
+      "replytoq": "CARD.DEMO.REPLY.DATE",
+      "correlid": "REQ-0001"
+     }
+    ]
+   },
+   "mq_faults": [
+    {
+     "call": "MQCLOSE",
+     "nth": 3,
+     "reason": 2009
+    }
+   ],
+   "why": "MQ fault (#6967): the error queue's MQCLOSE in 8000-TERMINATION answers 2009 (MQCLOSE call 3): the WHEN OTHER PERFORMs 8000-TERMINATION again while it is active, which re-closes the input queue (its open flag is never reset) and recurses without end; both sides stop at the PERFORM stack check (register C20), judged up to it"
   }
  ],
- "notes": "CardDemo's MQ date inquiry (transaction CDRD, program CODATE01, app-vsam-mq): each request on the trigger's queue is answered on CARD.DEMO.REPLY.DATE with the ASKTIME / FORMATTIME date and time (the case's pinned clock), a SYNCPOINT after each; errors go to CARD.DEMO.ERROR. The queue manager is a stated fact (\"mq\": its name CSQ1 and CCSID 37 are illustrative, CardDemo fixes neither; the request, reply and error queues the program names), given alike to both sides (register W3). The task is started by the CKTI trigger monitor in production; here its START data is stated: an MQTM (\"start_data\", CMQTML layout) naming the request queue (W8). The MQ copybooks are GitGalaxy-written stand-ins (W1); every MQI call is an event compared on both sides with its completion and reason code, and the queues the task leaves (its normal end commits it, W5) are compared. A wait on the empty request queue ends at once with MQRC_NO_MSG_AVAILABLE (W2). A failed MQCLOSE's WHEN OTHER PERFORMs 8000-TERMINATION while it is active (a recursive PERFORM, which IBM leaves unpredictable: register C20); the oracle is GnuCOBOL's, whose nested 8000 closes the queues still marked open and ends the task (close-input-fails). A failed close of the reply or error queue is not stated: the input queue's open flag is never reset after its close, so the nested 8000 closes it again (2019), takes WHEN OTHER again and recurses until the stack runs out on both sides. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."
+ "notes": "CardDemo's MQ date inquiry (transaction CDRD, program CODATE01, app-vsam-mq): each request on the trigger's queue is answered on CARD.DEMO.REPLY.DATE with the ASKTIME / FORMATTIME date and time (the case's pinned clock), a SYNCPOINT after each; errors go to CARD.DEMO.ERROR. The queue manager is a stated fact (\"mq\": its name CSQ1 and CCSID 37 are illustrative, CardDemo fixes neither; the request, reply and error queues the program names), given alike to both sides (register W3). The task is started by the CKTI trigger monitor in production; here its START data is stated: an MQTM (\"start_data\", CMQTML layout) naming the request queue (W8). The MQ copybooks are GitGalaxy-written stand-ins (W1); every MQI call is an event compared on both sides with its completion and reason code, and the queues the task leaves (its normal end commits it, W5) are compared. A wait on the empty request queue ends at once with MQRC_NO_MSG_AVAILABLE (W2). A failed MQCLOSE's WHEN OTHER PERFORMs 8000-TERMINATION while it is active (a recursive PERFORM, which IBM leaves unpredictable: register C20); the oracle is GnuCOBOL's, whose nested 8000 closes the queues still marked open and ends the task (close-input-fails). A failed close of the reply or error queue re-closes the input queue (its open flag is never reset after its close; 2019), takes WHEN OTHER again and recurses without end: the case runs the oracle with -fstack-check (\"perform_stack_check\"), and both sides stop at libcob's 255 nested PERFORMs, judged up to that stop (close-reply-fails, close-error-fails; register C20). Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own.",
+ "perform_stack_check": true
 }

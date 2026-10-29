@@ -2331,6 +2331,21 @@ def scenario_datasets(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, dic
     return out
 
 
+def stage_scenario_inputs(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]], inputs: Path) -> None:
+    """#4622: the Java side's input of each file a scenario states its own records for (`inputs/<DD>.<scenario>.in`),
+    built from those stated records: the bytes the COBOL task started with. #6839 (row A): it was copied from the
+    COBOL scenario's files/ copy, which is that task's working file -- the stub updates it in place, so after the
+    COBOL run it held the task's end state (a DELETE already done, a WRITE already there) and the Java task started
+    from another file (ZECS001's DELETE of a stored key answered 204; ZECS000's expiry scenarios ran on files the
+    COBOL task had already pruned)."""
+    enc = common.data_encoding(case)
+    reclens = {f["base"]: f["reclen"] for f in files}
+    for sc in case["scenarios"]:
+        for base, over in scenario_datasets(case, sc).items():
+            data = case_file_records(case, corpus, over, reclens[base], enc)
+            (inputs / f"{base}.{sc['name']}.in").write_bytes(data)
+
+
 def sql_first_id(table: str) -> int:
     """#4270: the first GG-SQL-ID (PIC 9(4)) of the next program's statements in a task's shared table: the next
     hundred after the ids already taken. A range per program by its place in "programs" (1000 x its index) ran past
@@ -2684,6 +2699,14 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
                 refused[sc["name"]] = why
                 continue
             overruns.append(f"scenario {sc['name']}: {why}")
+            continue
+        if (
+            rc.is_file()
+            and rc.read_text().strip() == "1"
+            and said.is_file()
+            and PERFORM_DEPTH in said.read_text(encoding="latin-1")
+        ):
+            sc["prefix_x6"] = PERFORM_DEPTH  # C20: the recursive PERFORM's stack check: judged up to it, as X6
             continue
         if rc.is_file() and rc.read_text().strip() == "98" and said.is_file():
             x6 = judged_refusal(said.read_text(encoding="latin-1"))
@@ -4127,7 +4150,8 @@ class EquivalenceRunTest {{
                     // statement) is not judged -- recorded, never passed; any other failure stays a failure.
                     // #4607 x X6: a WRITEQ whose LENGTH is over 32767 (DetCics.PastFrom) ends the task there,
                     // as the stub stops it: judged up to it (equivalence_cics.x6_judged)
-                    boolean x6 = "PastFrom".equals(e.getClass().getSimpleName());
+                    boolean x6 = "PastFrom".equals(e.getClass().getSimpleName())
+                            || "PerformDepthExceeded".equals(e.getClass().getSimpleName());
                     if (!x6 && (!sc.path("derived").asBoolean() || !"Hole".equals(e.getClass().getSimpleName()))) {{
                         throw e;
                     }}
@@ -4322,9 +4346,7 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
     inputs.mkdir(parents=True, exist_ok=True)
     for f in files:
         shutil.copy(cobol_work / "files" / f["base"], inputs / f"{f['base']}.in")
-    for sc in case["scenarios"]:  # #4622: a file a scenario states its own records for
-        for base in scenario_datasets(case, sc):
-            shutil.copy(cobol_work / "scenarios" / sc["name"] / "files" / base, inputs / f"{base}.{sc['name']}.in")
+    stage_scenario_inputs(case, corpus, files, inputs)
     ca_fields = commarea_fields(corpus, case)  # as the DTO lists them: an OCCURS group's fields once
     ca_read = commarea_fields(corpus, case, occurrences=True)  # #4765: the whole record, every occurrence
     scenarios = []
@@ -5200,6 +5222,9 @@ def _to_link(events: list[dict[str, Any]], program: str) -> list[dict[str, Any]]
     return events
 
 
+PERFORM_DEPTH = "stack overflow, possible PERFORM depth exceeded"
+PERFORM_DEPTH_JUDGED = ("the stack check of a recursive PERFORM (C20: IBM leaves it unpredictable; both sides stop at "
+                        "libcob's 255 nested PERFORMs) -- what the task did before it is compared, its end state is not")  # fmt: skip
 X6_JUDGED = ("the refused WRITEQ (X6: its LENGTH is over 32767, past the pad record; a LENGTH past FROM alone is written padded, #6573; not settled on z/OS, #4050) -- what the task did "
              "before it is compared, its end state (files, tables, the COMMAREA it leaves) is not")  # fmt: skip
 X23_JUDGED = ("the refused reference past EIBCALEN (X23: a COMMAREA of a stated length; z/OS shows whatever storage "
@@ -5209,7 +5234,7 @@ X23_JUDGED = ("the refused reference past EIBCALEN (X23: a COMMAREA of a stated 
 
 def judged_to(x6: dict[str, Any]) -> str:
     """The report's `judged_to` for a task stopped at a refusal (x6_judged): X6's words, or X23's."""
-    return X23_JUDGED if x6.get("assumes") == "X23" else X6_JUDGED
+    return {"X23": X23_JUDGED, "C20": PERFORM_DEPTH_JUDGED}.get(x6.get("assumes"), X6_JUDGED)
 
 
 def x6_judged(sc: dict[str, Any], java_out: Path, cev: list[dict[str, Any]],
@@ -5227,7 +5252,7 @@ def x6_judged(sc: dict[str, Any], java_out: Path, cev: list[dict[str, Any]],
     cobol = sc.get("prefix_x6")
 
     def kind(said: str | None) -> str | None:  # #4270: which refusal -- both sides must have stopped at the same one
-        return None if not said else "X23" if "EIBCALEN" in said else "X6"
+        return None if not said else "C20" if PERFORM_DEPTH in said else "X23" if "EIBCALEN" in said else "X6"
 
     return left[0], left[1], {"cobol": cobol, "java": java, "ok": bool(cobol and java) and kind(cobol) == kind(java),
                               "assumes": kind(cobol) or kind(java)}  # fmt: skip

@@ -341,15 +341,15 @@ _WS_LEN = ("       01  WS-NUM ", "       01  WS-LEN                 PIC S9(4) CO
 @pytest.mark.parametrize(
     "command, java, stub",
     [
-        ("READ FILE('F') RIDFLD(WS-OUT) SET(FRPTR)", '"READ " + "F".strip()', "GGCRDST"),
+        ("READ FILE('F') RIDFLD(WS-OUT) SET(FRPTR)", '"READ " + "F".stripTrailing()', "GGCRDST"),
         # IBM's own order (p. 22): `READ UPDATE DATASET(...)`, UPDATE an option after the verb, never a second verb word
         (
             "READ UPDATE DATASET('FILEA') RIDFLD(WS-OUT)\n                SET(FRPTR) LENGTH(WS-LEN)",
             '"READ " + "FILEA"',
             "GGCRDST",
         ),
-        ("READNEXT FILE('F') RIDFLD(WS-OUT) SET(FRPTR)", '"BROWSE " + "F".strip()', "GGCRDNS"),
-        ("READPREV FILE('F') RIDFLD(WS-OUT) SET(FRPTR)", '"BROWSE " + "F".strip()', "GGCRDPS"),
+        ("READNEXT FILE('F') RIDFLD(WS-OUT) SET(FRPTR)", '"BROWSE " + "F".stripTrailing()', "GGCRDNS"),
+        ("READPREV FILE('F') RIDFLD(WS-OUT) SET(FRPTR)", '"BROWSE " + "F".stripTrailing()', "GGCRDPS"),
         ("RECEIVE SET(FRPTR) LENGTH(WS-LEN)\n                MAXLENGTH(80)", '"RECEIVE"', "GGCRECP"),
         ("RETRIEVE SET(FRPTR) LENGTH(WS-LEN)", "null", "GGCRTRS"),
         ("READQ TS QUEUE('Q') SET(FRPTR)\n                LENGTH(WS-LEN) ITEM(1)", '"READQ"', "GGCRDQS"),

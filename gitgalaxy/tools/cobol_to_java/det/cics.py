@@ -537,6 +537,12 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
         """A resource name (a literal, or a data area's text), trimmed."""
         return f"{self.text(text)}.strip()"
 
+    def file_name(self, text: str) -> str:
+        """#6072: a FILE / DATASET name, its trailing blanks dropped and its leading ones kept: IBM pads a file name
+        with trailing blanks, so '    FILE' (a prefix never moved in) is not FILE, and no region defines it
+        (CicsTask.undefinableFile: FILENOTFOUND, as the stub answers it)."""
+        return f"{self.text(text)}.stripTrailing()"
+
     def int_(self, text: str) -> str:
         return self.g.int_expr(self.operand(text))
 
@@ -828,7 +834,7 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
                 + (self.g.find_by_id(entity, repo) if prop is None else "")
             )
             self.g.entities.add(entity)
-        return f"store({self.name(arg)})"
+        return f"store({self.file_name(arg)})"
 
     # -- the command
     def command(self, text: str, ind: str) -> list[str]:
@@ -1684,15 +1690,16 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
                 raise CicsError(_requires(key, "SET", "LENGTH"))
             if "SRVCONVERT" in opts and "NOSRVCONVERT" in opts:
                 raise CicsError(_msg(key, "at_most_one", "SRVCONVERT"))
+            conv = 1 if "SRVCONVERT" in opts else 2 if "NOSRVCONVERT" in opts else 0
             if "SET" in opts:  # #4771 (X47): the body in a new block of task storage the pointer addresses
                 ptr = self.pointer(opts["SET"])
                 most = self.int_(req("MAXLENGTH")) if opts.get("MAXLENGTH") else "Integer.MAX_VALUE"
-                out = [f"{ind}CicsTask.WebReceived {r} = task.webReceive({most}, Integer.MAX_VALUE);",
+                out = [f"{ind}CicsTask.WebReceived {r} = task.webReceive({most}, Integer.MAX_VALUE, {conv});",
                        f"{ind}if ({r}.body() != null) {{",
                        f"{ind}    DetCics.receivedBlock(task, {ptr}, {r}.body(), CS);"]  # fmt: skip
             else:
                 into = req("INTO")
-                call = f"task.webReceive({self.int_(req('MAXLENGTH'))}, {self.size(into)})"
+                call = f"task.webReceive({self.int_(req('MAXLENGTH'))}, {self.size(into)}, {conv})"
                 out = [f"{ind}CicsTask.WebReceived {r} = {call};", f"{ind}if ({r}.body() != null) {{",
                        put(into, f"{r}.body().getBytes(CS)", "WEB RECEIVE INTO")]  # fmt: skip
             if "LENGTH" in opts:

@@ -71,7 +71,7 @@ WEB_SESSION_JAVA = """\
     private Object[] webHeld;  // #4941 (X37): the ACTION(EVENTUAL) response held for the end of the task (WEB-SEND's fields)
     private byte[] webHeldDoc;  // the document an EVENTUAL DOCTOKEN send (not DOCDELETE) sent, as it was sent
     private String webHeldToken;  // the DOCTOKEN WEB RETRIEVE gave for webHeldDoc (null: not retrieved yet)
-    private boolean webReceived;
+    private int webReceived;  // 0 none yet, 1 a receive that was not SRVCONVERT, 2 NOSRVCONVERT, 3 a SRVCONVERT pass after it
 
     /** The HTTP request this task serves (a web-attached task). Not stated (never called), WEB SEND is refused. */
     public CicsTask withHttpRequest(HttpRequest request) {
@@ -595,12 +595,20 @@ WEB_SESSION_JAVA = """\
      *  Recorded as WEB-RECEIVE (the request's media type and the body returned, null on LENGERR 16; RESP, RESP2) --
      *  the crucible SPEC's event, so a runner can tell what the program read. Refused: no request stated, a request with no body, a second receive, a MAXLENGTH past INTO. */
     public WebReceived webReceive(int maxLength, int intoCap) {
+        return webReceive(maxLength, intoCap, 0);
+    }
+
+    /** As above with the conversion option: conv 0 neither, 1 SRVCONVERT, 2 NOSRVCONVERT. A second receive is allowed only as
+     *  SRVCONVERT after a NOSRVCONVERT one (ZECS001's text/* pass; ASSUMED, register X38: IBM does not say what a body already
+     *  received returns again; the model returns the same body and media type, as conversion changes nothing); any other
+     *  repeat, and a third receive, is refused. */
+    public WebReceived webReceive(int maxLength, int intoCap, int conv) {
         CicsTask r = statedRequest();
         HttpRequest q = r.httpRequest;
         if (q.body() == null) {
             throw refused("WEB RECEIVE of a request with no body");
         }
-        if (r.webReceived) {
+        if (r.webReceived != 0 && !(r.webReceived == 2 && conv == 1)) {
             throw refused("a second WEB RECEIVE");
         }
         if (maxLength > intoCap) {
@@ -610,7 +618,7 @@ WEB_SESSION_JAVA = """\
             event("WEB-RECEIVE", "mediatype", null, "body", null, "resp", 22, "resp2", 16);
             return new WebReceived(22, 16, null, null);
         }
-        r.webReceived = true;
+        r.webReceived = r.webReceived == 2 ? 3 : conv == 2 ? 2 : 1;
         boolean cut = q.body().length() > maxLength;
         WebReceived got = new WebReceived(cut ? 22 : 0, cut ? 57 : 0, cut ? q.body().substring(0, maxLength) : q.body(), q.mediaType());
         event("WEB-RECEIVE", "mediatype", got.mediaType(), "body", got.body(), "resp", got.resp(), "resp2", got.resp2());

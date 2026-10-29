@@ -985,6 +985,159 @@
         }
       ],
       "why": "POST with the key-file WRITE answering DUPREC and the re-read in 4130-READ-KEY answering IOERR: not NOTFND, so 4130 takes the key-error arm (507)"
+    },
+    {
+      "name": "delete-stored",
+      "commarea": null,
+      "tod": "7070707070700708090A0B0C0D0E0F10",
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-ops.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey-ops.bin"
+        }
+      },
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "DELETE",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/delkey",
+        "query": "",
+        "headers": [],
+        "mediatype": null,
+        "body": null
+      },
+      "why": "#6839 row A: DELETE of DELKEY, a stored key: 5000 READ answers NORMAL, 5100 deletes the key record, 5200 deletes its file segments until NOTFND, 5300 sends 200 (P117's 'stored-key DELETE diverges' was the harness handing the Java side the COBOL task's updated file)"
+    },
+    {
+      "name": "post-existing",
+      "commarea": null,
+      "tod": "7171717171710708090A0B0C0D0E0F10",
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-ops.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey-ops.bin"
+        }
+      },
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "POST",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/delkey",
+        "query": "",
+        "headers": [],
+        "mediatype": "application/octet-stream",
+        "body": "new value"
+      },
+      "why": "#6839 row A: POST over DELKEY, a stored key: 4100 READ UPDATE answers NORMAL, 4110 primes a new file key, 4400 writes the new segment, 4500 rewrites the key record (DUPLICATE-POST), 4300 syncpoints, sends 200 and 4700 deletes the old segments"
+    },
+    {
+      "name": "put-existing",
+      "commarea": null,
+      "tod": "7272727272720708090A0B0C0D0E0F10",
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-ops.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey-ops.bin"
+        }
+      },
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "PUT",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/delkey",
+        "query": "",
+        "headers": [],
+        "mediatype": "application/octet-stream",
+        "body": "put value"
+      },
+      "why": "#6839 row A: the same update through PUT (2000-PROCESS-REQUEST takes POST or PUT)"
+    },
+    {
+      "name": "post-existing-rewrite-ioerr",
+      "commarea": null,
+      "tod": "7373737373730708090A0B0C0D0E0F10",
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-ops.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey-ops.bin"
+        }
+      },
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "POST",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/delkey",
+        "query": "",
+        "headers": [],
+        "mediatype": "application/octet-stream",
+        "body": "new value"
+      },
+      "faults": [
+        {
+          "cmd": "REWRITE",
+          "file": "ZC01KEY",
+          "resp": "IOERR",
+          "why": "the key record's rewrite fails"
+        }
+      ],
+      "why": "#6839 row A: POST over DELKEY with 4500's REWRITE of the key record answering IOERR: 9200-KEY-ERROR and 507"
+    },
+    {
+      "name": "post-replicate-aa",
+      "commarea": null,
+      "tod": "7A7A7A7A7A7A0708090A0B0C0D0E0F10",
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "POST",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/repkey",
+        "query": "",
+        "headers": [],
+        "mediatype": "application/octet-stream",
+        "body": "v"
+      },
+      "doctemplates": {
+        "ZC01DC": "type: AA\r%http://zecs-b.example.com:8081\r%"
+      },
+      "http_peers": [
+        {
+          "scheme": "HTTP",
+          "host": "zecs-b.example.com",
+          "port": 8081,
+          "urimap": null,
+          "path": null,
+          "exchanges": [
+            {
+              "method": "POST",
+              "path": "/replicate/ecs/walmart/cache/repkey",
+              "query": "",
+              "status": 200,
+              "statustext": "OK",
+              "mediatype": "text/plain",
+              "body": ""
+            }
+          ]
+        }
+      ],
+      "why": "#6839 row G: type AA on /resources: 4600-REPLICATE opens the peer, WEB CONVERSE POST /replicate/... FROM(CACHE-MESSAGE) (SAVE-ADDRESS copied through the 4-byte CACHE-ADDRESS-X view), closes it"
     }
   ],
   "compiler_options": [

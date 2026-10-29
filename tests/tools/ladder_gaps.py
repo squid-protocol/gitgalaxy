@@ -318,6 +318,7 @@ def build_case_report(case: str, sweep: Path | None, led: dict[str, dict[str, An
     def asm_of(n: int | None) -> dict[str, str]:
         at = cov.asm_line(lowered, n) if lowered and n else None
         return {"asm": f"program.asm:{at}"} if at else {}  # (the key only when there is one)
+
     inv = cov.inventory(src)
     entry = inv.units[0]["name"] if inv.units else None
     kind_unit = {b.line: (b.kind, b.unit) for b in [*inv.branches, *inv.after_transfer]}
@@ -376,7 +377,10 @@ def render_md(reports: list[dict[str, Any]]) -> str:
             out.append(f"\nmeasured from {r['origin']}; scan {r['scan']}; entry paragraph `{r['entry']}`; "
                        f"{len(r['paragraphs'])} paragraph gap(s), {len(r['branches'])} branch gap(s)\n")  # fmt: skip
             if r["paragraphs"]:
-                out += ["| paragraph | file:line | complexity | loc | PERFORM path | infeasible |", "|---|---|---|---|---|---|"]
+                out += [
+                    "| paragraph | file:line | complexity | loc | PERFORM path | infeasible |",
+                    "|---|---|---|---|---|---|",
+                ]
                 for p in r["paragraphs"]:
                     inf = f"{p['infeasible']['family']}: {p['infeasible']['reason']}" if "infeasible" in p else ""
                     out.append(f"| `{p['name']}` | {_where(p)} | {p['complexity']} | {p['loc']} | "

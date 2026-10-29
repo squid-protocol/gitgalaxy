@@ -257,6 +257,18 @@ ZNC_ORACLE = {
         (("SEND", "202020205f5a454353202020" + _ER20), ("RETURN", None)),
         {},
     ),
+    "terminal-wrong-transid": (
+        # "ABCD,ZC01": the first four bytes are not EIBTRNID, so ER_0010 ("Invalid format. ...") and no counter (#6839)
+        (
+            (
+                "SEND",
+                "496e76616c696420666f726d61742e20204d757374206265205452414e2c78787878207768657265207878787820697320"
+                "746865207a4543532020205472616e73616374696f6e204944",
+            ),
+            ("RETURN", None),
+        ),
+        {},
+    ),
     "terminal-duplicate-counter": ((("SEND", "5a4330315f5a454353202020" + _ER20), ("RETURN", None)), {}),
     "commarea-non-terminal-start": ((*_CREATE, ("RETURN", None)), {"ZC01_ZECS": (1, 1, 0xFFFFFFFF)}),
     "commarea-too-short": ((("ABEND", "ZNCD"),), {}),

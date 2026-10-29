@@ -1,0 +1,38 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "carddemo-dateutil",
+  "entries": [
+    {
+      "unit": "A000-MAIN",
+      "line": 128,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@131",
+      "family": "G",
+      "reason": "FC-INSUFFICIENT-DATA (CEE2EB, 2507) needs a date shorter than the picture's span. A000-MAIN sets VSTRING-LENGTH OF WS-DATE-TO-TEST to LENGTH OF LS-DATE (line 108, a PIC X(10) LINKAGE item, always 10) and the longest picture CEEDAYS is modelled for spans 10 (YYYY-MM-DD); every caller (COTRN02C, CORPT00C: 'YYYY-MM-DD'; CSUTLDPY: 'YYYYMMDD') passes a constant picture of span 8 or 10, so the date is never shorter. Ceedays.java and ceedays.c do return 2507; only this program cannot reach it."
+    },
+    {
+      "unit": "A000-MAIN",
+      "line": 128,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@135",
+      "family": "G",
+      "reason": "FC-INVALID-ERA (CEE2ED, 2509) is raised for an era name in the date string, which needs an era picture (JJJJ / ERA). Every caller of CSUTLDTC passes a constant numeric picture ('YYYY-MM-DD' in COTRN02C and CORPT00C WS-DATE-FORMAT, 'YYYYMMDD' in CSUTLDPY), and the oracle refuses an era picture by name, so no run reaches it."
+    },
+    {
+      "unit": "A000-MAIN",
+      "line": 128,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@141",
+      "family": "G",
+      "reason": "FC-BAD-PIC-STRING (CEE2EM, 2518) needs a picture string IBM rejects. Every caller passes a constant, valid numeric picture (COTRN02C / CORPT00C 'YYYY-MM-DD', CSUTLDPY 'YYYYMMDD'); a picture the oracle does not model is refused by name (exit 98), never answered, so no run reaches it."
+    },
+    {
+      "unit": "A000-MAIN",
+      "line": 128,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@145",
+      "family": "G",
+      "reason": "FC-YEAR-IN-ERA-ZERO (CEE2EP, 2521) is raised for a year of zero in an era-based date (era picture). Every caller passes a numeric Gregorian picture with YYYY, where year 0000 is outside the supported range (2513, taken by the year-zero scenario); an era picture is refused by the oracle by name, so no run reaches it."
+    }
+  ]
+}

@@ -100,10 +100,12 @@ def helper_targets(f: str, root: Path = REPO_ROOT, limit: int = HELPER_MAX) -> l
         seen.add(name)
         rx = re.compile(rf"\b{re.escape(name)}\b")
         for rel, text in files:
-            if rel == f or not rx.search(text):
+            if rel == f or name not in text or not rx.search(text):  # the substring test is far cheaper than the regex
                 continue
             if is_test_module(rel):
                 tests.add(rel)
+                if len(tests) > limit:  # a spine helper: stop at the cap instead of scanning every name
+                    return None
             elif (stem := Path(rel).stem) not in seen and stem not in NOT_HELPERS:
                 names.add(stem)
         if len(tests) > limit:

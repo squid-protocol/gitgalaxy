@@ -22,6 +22,9 @@ ground_truth_plan.py does for `ground-truth`):
            coverage map (coverage_map.py, `--coverage-map`) holds it: the test files that executed it, plus the tests that
            read the engine tree, plus TREE_GUARDS. A module the map lacks, one only import-time lines cover, or one most of
            the suite covers (`core`, `standards`) is `full`, and so is a missing map.
+* `select` also when a changed file is data under tests/doom_rosetta or tests/golden_doom_rosetta (#6278 item 5): the
+           tests that name the doom tree as a word, transitively through helpers, plus TREE_GUARDS. tests/equivalence
+           case data stays `full` (every case-enumerating test and helper reads it; see DATA_TREES).
 * `full`   anything else, any reader that is the engine or a root-level script (it cannot be mapped to a test), an
            unreadable or empty diff, the `shepherd:full` label, and every event that is not a pull_request.
 
@@ -88,29 +91,55 @@ def is_helper_module(f: str) -> bool:
     )
 
 
-def helper_targets(f: str, root: Path = REPO_ROOT, limit: int = HELPER_MAX) -> list[str] | None:
-    """Every test file that names the helper `f` or a non-test helper that (transitively) names it, as a word; None when
-    that is more than `limit` files (the caller runs everything). A deleted helper maps by its old name the same way."""
+def _closure(seeds: set[str], skip: str, root: Path, limit: int, direct: bool = False) -> list[str] | None:
+    """Every test file that names a seed as a word, or a non-test file that (transitively) names one; None when that is
+    more than `limit` test files. `direct`: only the tests that name a seed, no helper expansion."""
     files = [
         (t.relative_to(root).as_posix(), change_classifier._text(t)) for t in sorted((root / "tests").rglob("*.py"))
     ]
-    names, seen, tests = {Path(f).stem}, set(), set()
+    names, seen, tests = set(seeds), set(), set()
     while names:
         name = names.pop()
         seen.add(name)
         rx = re.compile(rf"\b{re.escape(name)}\b")
         for rel, text in files:
-            if rel == f or name not in text or not rx.search(text):  # the substring test is far cheaper than the regex
+            if (
+                rel == skip or name not in text or not rx.search(text)
+            ):  # the substring test is far cheaper than the regex
                 continue
             if is_test_module(rel):
                 tests.add(rel)
-                if len(tests) > limit:  # a spine helper: stop at the cap instead of scanning every name
-                    return None
-            elif (stem := Path(rel).stem) not in seen and stem not in NOT_HELPERS:
+            elif not direct and (stem := Path(rel).stem) not in seen and stem not in NOT_HELPERS:
                 names.add(stem)
-        if len(tests) > limit:
+        if len(tests) > limit:  # a spine name: stop at the cap instead of scanning every name
             return None
     return sorted(tests)
+
+
+def helper_targets(f: str, root: Path = REPO_ROOT, limit: int = HELPER_MAX) -> list[str] | None:
+    """Every test file that names the helper `f` or a non-test helper that (transitively) names it, as a word; None when
+    that is more than `limit` files (the caller runs everything). A deleted helper maps by its old name the same way."""
+    return _closure({Path(f).stem}, f, root, limit)
+
+
+# The data trees whose files tests open by directory name. tests/equivalence is NOT here: its cases are read by every test
+# that globs them or names a helper that does (equivalence.py, evidence.py, det_port.py ...), 170+ test files by direct
+# naming and 650+ transitively, so a case file stays `full` (a per-case coverage map would be needed, #6278 item 5).
+DATA_TREES = ("tests/doom_rosetta/", "tests/golden_doom_rosetta/")
+
+
+def is_data_file(f: str) -> bool:
+    """A non-Python file inside a mapped data tree (the doom manifest or a golden)."""
+    return f.startswith(DATA_TREES) and not f.endswith(".py") and f.count("/") >= 2
+
+
+DOOM_READERS = {"doom_rosetta", "golden_doom_rosetta", "doom_rosetta_check", "doom_speedrun", "crucible_shard_plan"}
+
+
+def data_targets(f: str, root: Path = REPO_ROOT, limit: int = HELPER_MAX) -> list[str] | None:
+    """The tests that read data file `f`: those naming the doom_rosetta tree or a tool that reads it (DOOM_READERS) as a
+    word. Direct only: doom_speedrun / bugfix_kit are named by most of the suite, so expanding through helpers is full."""
+    return _closure(DOOM_READERS, f, root, limit, direct=True)
 
 
 def test_target(scope: str, root: Path = REPO_ROOT) -> list[str] | None:
@@ -157,9 +186,12 @@ def plan(
     areas = {f: change_classifier.area(f, refs) for f in files}
     modules = [f for f in files if is_test_module(f)]
     helpers = [f for f in files if is_helper_module(f)]
+    data = [f for f in files if is_data_file(f)]
     engine = [f for f in files if is_engine_module(f)]
     other = sorted(
-        f for f, a in areas.items() if a not in SELECTABLE and f not in modules and f not in helpers and f not in engine
+        f
+        for f, a in areas.items()
+        if a not in SELECTABLE and f not in modules and f not in helpers and f not in engine and f not in data
     )
     if other:
         return {**full, "reason": f"{len(other)} changed file(s) are not docs / agent config, first: {other[0]}"}
@@ -171,15 +203,20 @@ def plan(
         if hit is None:
             return {**full, "reason": f"{f} is named by more than {HELPER_MAX} test files"}
         targets.update(hit)
+    for f in data:
+        hit = data_targets(f, root)
+        if hit is None:
+            return {**full, "reason": f"{f} is read by more than {HELPER_MAX} test files"}
+        targets.update(hit)
     if engine:
         hit, why = coverage_map.select(engine, cmap, root)
         if hit is None:
             return {**full, "reason": why}
         targets.update(hit)
-    if modules or helpers or engine:
+    if modules or helpers or engine or data:
         targets.update(g for g in TREE_GUARDS if (root / g).exists())
     for f, a in areas.items():
-        if a == "prose" or f in modules or f in helpers or f in engine:
+        if a == "prose" or f in modules or f in helpers or f in engine or f in data:
             continue
         for scope in change_classifier.readers_of(f, refs):
             t = test_target(scope, root)
@@ -196,31 +233,39 @@ def plan(
     }
 
 
-def replay(prs: list[dict], refs: dict | None = None, root: Path = REPO_ROOT) -> dict:
+def replay(prs: list[dict], refs: dict | None = None, root: Path = REPO_ROOT, cmap: dict | None = None) -> dict:
     """Plan the pull requests in `prs` (`gh pr list --json number,files`) and count each mode. A PR whose `files` list
-    holds 100 entries may be cut short by gh, and one with no files is unreadable: both count as full (when in doubt, run)."""
+    holds 100 entries may be cut short by gh, and one with no files is unreadable: both count as full (when in doubt, run).
+    With `cmap` (the coverage map) an engine-touching PR may select; `engine_prs` / `engine_select` count the PRs that
+    change a `gitgalaxy/**.py` file and how many of them select, the share the map exists to move."""
     refs = change_classifier.load() if refs is None else refs
     modes: dict[str, list[int]] = {"skip": [], "select": [], "full": []}
+    engine_prs = engine_select = 0
     for pr in prs:
         files = [f["path"] for f in pr.get("files") or [] if f.get("path")]
-        mode = "full" if len(files) >= 100 else plan(files, "pull_request", (), refs, root)["mode"]
+        mode = "full" if len(files) >= 100 else plan(files, "pull_request", (), refs, root, cmap)["mode"]
         modes[mode].append(pr["number"])
+        if any(is_engine_module(f) for f in files):
+            engine_prs += 1
+            engine_select += mode == "select"
     n = len(prs)
     out: dict = {"prs": n}
     for m, nums in modes.items():
         out[m] = len(nums)
         out[f"{m}_share"] = round(len(nums) / n, 3) if n else 0.0
+    out["engine_prs"] = engine_prs
+    out["engine_select"] = engine_select
     out["skipped_prs"] = modes["skip"]
     out["selected_prs"] = modes["select"]
     return out
 
 
-def run_replay(n: int) -> dict:
+def run_replay(n: int, cmap: dict | None = None) -> dict:
     proc = subprocess.run(["gh", "pr", "list", "--state", "merged", "-L", str(n), "--json", "number,files"],  # noqa: S603, S607
                           cwd=REPO_ROOT, capture_output=True, text=True, check=False)  # fmt: skip
     if proc.returncode != 0:
         raise RuntimeError(proc.stderr.strip() or "gh pr list failed")
-    return replay(json.loads(proc.stdout))
+    return replay(json.loads(proc.stdout), cmap=cmap)
 
 
 def changed_files(base: str) -> list[str]:
@@ -247,7 +292,7 @@ def main() -> int:
     args = ap.parse_args()
     if args.replay:
         try:
-            print(json.dumps(run_replay(args.replay), indent=1))
+            print(json.dumps(run_replay(args.replay, coverage_map.load(args.coverage_map)), indent=1))
         except (RuntimeError, OSError, ValueError) as e:
             print(f"replay failed: {e}", file=sys.stderr)
             return 1

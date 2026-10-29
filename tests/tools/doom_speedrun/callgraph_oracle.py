@@ -654,13 +654,26 @@ def _initializers(node):
     return []
 
 
+def _ctor_name(node):
+    """The unqualified name a function definition declares (`PackagesWidget::PackagesWidget(..)` -> PackagesWidget), or None."""
+    decl = node.child_by_field_name("declarator")
+    while decl is not None and decl.type not in ("identifier", "qualified_identifier", "field_identifier"):
+        decl = decl.child_by_field_name("declarator")
+    return bare(decode_bytes(decl.text)) if decl is not None else None
+
+
 def _owner(node):
     """The class a constructor definition belongs to: the class body it sits in, else the scope of ``Cls::Cls``."""
+    ctor = _ctor_name(node)
     up = node.parent
     while up is not None:
         if up.type in ("class_specifier", "struct_specifier"):
             name = up.child_by_field_name("name")
-            return decode_bytes(name.text).split("<")[0].strip() if name is not None else None  # `Box<T, true>` -> Box
+            owner = decode_bytes(name.text).split("<")[0].strip() if name is not None else None  # `Box<T, true>` -> Box
+            # a constructor is named for its class: a class that is not (a misread unclosed `class` run over the rest of
+            # the file, packageswidget.cpp's `PackageListItemWidget`) is not its owner, so keep climbing (#6266)
+            if ctor is None or owner is None or owner == ctor:
+                return owner
         up = up.parent
     decl = node.child_by_field_name("declarator")
     while decl is not None and decl.type != "qualified_identifier":

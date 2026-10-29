@@ -22,6 +22,11 @@ ground_truth_plan.py does for `ground-truth`):
            coverage map (coverage_map.py, `--coverage-map`) holds it: the test files that executed it, plus the tests that
            read the engine tree, plus TREE_GUARDS. A module the map lacks, one only import-time lines cover, or one most of
            the suite covers (`core`, `standards`) is `full`, and so is a missing map.
+* `select` also when a changed file is data under tests/doom_rosetta or tests/golden_doom_rosetta (#6278 item 5): the
+           tests that name the doom tree as a word, transitively through helpers, plus TREE_GUARDS. tests/equivalence
+           case data stays `full` (every case-enumerating test and helper reads it; see DATA_TREES).
+* `select` also when a changed file is the det Java runtime `DetCics.java` or `Sort.java` (slice 6): the tests naming the class
+           as the emitted call, plus the tests that hash / compile the runtime tree, plus TREE_GUARDS. Other runtime files stay `full`.
 * `full`   anything else, any reader that is the engine or a root-level script (it cannot be mapped to a test), an
            unreadable or empty diff, the `shepherd:full` label, and every event that is not a pull_request.
 
@@ -88,29 +93,88 @@ def is_helper_module(f: str) -> bool:
     )
 
 
-def helper_targets(f: str, root: Path = REPO_ROOT, limit: int = HELPER_MAX) -> list[str] | None:
-    """Every test file that names the helper `f` or a non-test helper that (transitively) names it, as a word; None when
-    that is more than `limit` files (the caller runs everything). A deleted helper maps by its old name the same way."""
+def _closure(seeds: set[str], skip: str, root: Path, limit: int, direct: bool = False) -> list[str] | None:
+    """Every test file that names a seed as a word, or a non-test file that (transitively) names one; None when that is
+    more than `limit` test files. `direct`: only the tests that name a seed, no helper expansion."""
     files = [
         (t.relative_to(root).as_posix(), change_classifier._text(t)) for t in sorted((root / "tests").rglob("*.py"))
     ]
-    names, seen, tests = {Path(f).stem}, set(), set()
+    names, seen, tests = set(seeds), set(), set()
     while names:
         name = names.pop()
         seen.add(name)
         rx = re.compile(rf"\b{re.escape(name)}\b")
         for rel, text in files:
-            if rel == f or name not in text or not rx.search(text):  # the substring test is far cheaper than the regex
+            if (
+                rel == skip or name not in text or not rx.search(text)
+            ):  # the substring test is far cheaper than the regex
                 continue
             if is_test_module(rel):
                 tests.add(rel)
-                if len(tests) > limit:  # a spine helper: stop at the cap instead of scanning every name
-                    return None
-            elif (stem := Path(rel).stem) not in seen and stem not in NOT_HELPERS:
+            elif not direct and (stem := Path(rel).stem) not in seen and stem not in NOT_HELPERS:
                 names.add(stem)
-        if len(tests) > limit:
+        if len(tests) > limit:  # a spine name: stop at the cap instead of scanning every name
             return None
     return sorted(tests)
+
+
+def helper_targets(f: str, root: Path = REPO_ROOT, limit: int = HELPER_MAX) -> list[str] | None:
+    """Every test file that names the helper `f` or a non-test helper that (transitively) names it, as a word; None when
+    that is more than `limit` files (the caller runs everything). A deleted helper maps by its old name the same way."""
+    return _closure({Path(f).stem}, f, root, limit)
+
+
+# The data trees whose files tests open by directory name. tests/equivalence is NOT here: its cases are read by every test
+# that globs them or names a helper that does (equivalence.py, evidence.py, det_port.py ...), 170+ test files by direct
+# naming and 650+ transitively, so a case file stays `full` (a per-case coverage map would be needed, #6278 item 5).
+DATA_TREES = ("tests/doom_rosetta/", "tests/golden_doom_rosetta/")
+
+
+def is_data_file(f: str) -> bool:
+    """A non-Python file inside a mapped data tree (the doom manifest or a golden)."""
+    return f.startswith(DATA_TREES) and not f.endswith(".py") and f.count("/") >= 2
+
+
+DOOM_READERS = {"doom_rosetta", "golden_doom_rosetta", "doom_rosetta_check", "doom_speedrun", "crucible_shard_plan"}
+
+
+def data_targets(f: str, root: Path = REPO_ROOT, limit: int = HELPER_MAX) -> list[str] | None:
+    """The tests that read data file `f`: those naming the doom_rosetta tree or a tool that reads it (DOOM_READERS) as a
+    word. Direct only: doom_speedrun / bugfix_kit are named by most of the suite, so expanding through helpers is full."""
+    return _closure(DOOM_READERS, f, root, limit, direct=True)
+
+
+RUNTIME_DIR = "gitgalaxy/tools/cobol_to_java/det/cobolrt/"
+# The det Java runtime files a test reaches by naming their class (#6278 item 5, slice 6): a translated port or a test
+# asserts on the emitted `DetCics.` / `Sort.Key` call, so the word search is sound for these two. Every other file under
+# the runtime stays `full` (a bare class name like `Field` or `Cobol` is a word in half the suite).
+RUNTIME_READERS = {
+    "cics/DetCics.java": r"\bDetCics\b",
+    "Sort.java": r"\bSort\.(?:Key|Collating|NotModelled|active|expect|finished)\b|\bcobolrt[./]Sort\b|\bdfsort\b",
+}
+# These read the whole runtime tree (they hash it, compile it or drive its self-test), so any mapped file runs them too.
+RUNTIME_TREE_READERS = (
+    "tests/cobol_mainframe/test_cobolrt.py",
+    "tests/cics_crucible/test_port_provenance.py",
+    "tests/cics_crucible/test_ports_compile_check.py",
+)
+
+
+def is_runtime_file(f: str) -> bool:
+    return f.startswith(RUNTIME_DIR) and f[len(RUNTIME_DIR) :] in RUNTIME_READERS
+
+
+def runtime_targets(f: str, root: Path = REPO_ROOT, limit: int = HELPER_MAX) -> list[str] | None:
+    """The test files that name runtime file `f`'s class as RUNTIME_READERS says, plus RUNTIME_TREE_READERS; None when
+    more than `limit` (the caller runs everything). Direct only: a port test names the class, not a helper that does."""
+    rx = re.compile(RUNTIME_READERS[f[len(RUNTIME_DIR) :]])
+    tests = {
+        rel
+        for t in sorted((root / "tests").rglob("test_*.py"))
+        if rx.search(change_classifier._text(t)) and (rel := t.relative_to(root).as_posix())
+    }
+    tests.update(g for g in RUNTIME_TREE_READERS if (root / g).exists())
+    return sorted(tests) if len(tests) <= limit else None
 
 
 def test_target(scope: str, root: Path = REPO_ROOT) -> list[str] | None:
@@ -157,9 +221,18 @@ def plan(
     areas = {f: change_classifier.area(f, refs) for f in files}
     modules = [f for f in files if is_test_module(f)]
     helpers = [f for f in files if is_helper_module(f)]
+    data = [f for f in files if is_data_file(f)]
+    runtime = [f for f in files if is_runtime_file(f)]
     engine = [f for f in files if is_engine_module(f)]
     other = sorted(
-        f for f, a in areas.items() if a not in SELECTABLE and f not in modules and f not in helpers and f not in engine
+        f
+        for f, a in areas.items()
+        if a not in SELECTABLE
+        and f not in modules
+        and f not in helpers
+        and f not in engine
+        and f not in data
+        and f not in runtime
     )
     if other:
         return {**full, "reason": f"{len(other)} changed file(s) are not docs / agent config, first: {other[0]}"}
@@ -171,15 +244,25 @@ def plan(
         if hit is None:
             return {**full, "reason": f"{f} is named by more than {HELPER_MAX} test files"}
         targets.update(hit)
+    for f in data:
+        hit = data_targets(f, root)
+        if hit is None:
+            return {**full, "reason": f"{f} is read by more than {HELPER_MAX} test files"}
+        targets.update(hit)
+    for f in runtime:
+        hit = runtime_targets(f, root)
+        if hit is None:
+            return {**full, "reason": f"{f} is named by more than {HELPER_MAX} test files"}
+        targets.update(hit)
     if engine:
         hit, why = coverage_map.select(engine, cmap, root)
         if hit is None:
             return {**full, "reason": why}
         targets.update(hit)
-    if modules or helpers or engine:
+    if modules or helpers or engine or data or runtime:
         targets.update(g for g in TREE_GUARDS if (root / g).exists())
     for f, a in areas.items():
-        if a == "prose" or f in modules or f in helpers or f in engine:
+        if a == "prose" or f in modules or f in helpers or f in engine or f in data or f in runtime:
             continue
         for scope in change_classifier.readers_of(f, refs):
             t = test_target(scope, root)

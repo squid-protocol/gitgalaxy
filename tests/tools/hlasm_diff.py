@@ -30,6 +30,7 @@ PRELUDE = [
     "W_F      DS    F",
     "W_B      DS    CL8",
     "W_C      DS    CL8",
+    "W_S      DS    F",
     "PROG     DFHEIENT CODEREG=(R12),DATAREG=R10,EIBREG=R11",
 ]
 ENDING = [f"R{n}       EQU   {n}" for n in (2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 14)] + ["         END   PROG"]
@@ -79,6 +80,32 @@ def cases() -> dict[str, list[str]]:
                                          "         B     DONE", "T        DS    0H", "         LA    R5,2",
                                          "DONE     DS    0H"]  # fmt: skip
     out.update(byte_cases())
+    out.update(link_cases())
+    return out
+
+
+def link_cases() -> dict[str, list[str]]:
+    """Slice 8: branch-and-link, the fullword load / store and the unconditional / never BC masks. R14 holds an address in
+    the interpreter and a return index in the lowering (design doc assumption 4), so it is never compared: the cases
+    observe which path ran (R5) and the values that went through storage, read back by `L`. The bytes of a stored fullword are
+    not compared: the lowering keeps it as a native COMP-5 (other byte order), and refuses every byte access to it."""
+    out: dict[str, list[str]] = {}
+    out["bas-return"] = ["         LA    R5,1", "         BAS   R14,SUB", "         LA    R4,9", "         B     DONE",
+                         "SUB      DS    0H", "         LA    R5,2", "         BCR   15,R14", "DONE     DS    0H"]  # fmt: skip
+    out["bas-twice"] = ["         LA    R5,0", "         BAS   R14,SUB", "         BAS   R14,SUB", "         LA    R4,9",
+                        "         B     DONE", "SUB      DS    0H", "         LA    R5,3(,R5)", "         BCR   15,R14",
+                        "DONE     DS    0H"]  # fmt: skip
+    out["bas-nested"] = ["         LA    R5,0", "         BAS   R14,OUTER", "         LA    R4,9", "         B     DONE",
+                         "OUTER    DS    0H", "         ST    R14,W_S", "         LA    R5,1(,R5)", "         BAS   R14,INNER",
+                         "         LA    R5,100(,R5)", "         L     R14,W_S", "         BCR   15,R14", "INNER    DS    0H",
+                         "         LA    R5,10(,R5)", "         BCR   15,R14", "DONE     DS    0H"]  # fmt: skip
+    out["bcr-never"] = ["         LA    R5,1", "         BCR   0,R14", "         LA    R5,2"]
+    for mask in (0, 15):
+        out[f"bc-mask-{mask}"] = ["         LA    R5,1", f"         BC    {mask},T", "         LA    R4,7", "         B     DONE",
+                                  "T        DS    0H", "         LA    R5,2", "DONE     DS    0H"]  # fmt: skip
+    for hi, lo in ((0, 0), (0, 1), (0x7FFF, 0xFFFF), (0x8000, 0), (0xFFFF, 0xFFFF), (0xA1B2, 0xC3D4)):
+        name = f"stl-{hi:04x}{lo:04x}"
+        out[name] = [*word(hi, lo), "         ST    R2,W_F", "         LA    R2,5", "         L     R3,W_F"]  # fmt: skip
     return out
 
 

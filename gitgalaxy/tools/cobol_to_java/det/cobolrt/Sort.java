@@ -357,8 +357,11 @@ public final class Sort {
             for (int i = 1; i < all.size(); i++) {
                 // under a Collating, every neighbour pair compared once more: the order is then IBM's and the
                 // oracle's (a pair the two decide differently stops the run), whichever pairs the sort compared
-                if (compare(all.get(i - 1), all.get(i)) == 0 && !duplicatesInOrder
-                        && !sameRecord(all.get(i - 1), all.get(i))) {
+                byte[] x = all.get(i - 1);
+                byte[] y = all.get(i);
+                int n = lengths.get(x);  // two records IBM cannot tell apart: the same length, the same bytes within it
+                if (compare(x, y) == 0 && !duplicatesInOrder
+                        && !(n == lengths.get(y) && Arrays.equals(Arrays.copyOf(x, n), Arrays.copyOf(y, n)))) {
                     throw new NotModelled("SORT " + name + " without DUPLICATES: records with equal keys (IBM: "
                             + "their order is undefined)");
                 }
@@ -366,12 +369,6 @@ public final class Sort {
         }
         sorted = all;
         next = 0;
-    }
-
-    /** Two records IBM cannot tell apart: the same length and the same bytes within it. */
-    private boolean sameRecord(byte[] a, byte[] b) {
-        int n = lengths.get(a);
-        return n == lengths.get(b) && Arrays.equals(Arrays.copyOf(a, n), Arrays.copyOf(b, n));
     }
 
     /** MERGE: every USING file's records, merged in key order; equal keys in the order the files are named. */
@@ -411,10 +408,10 @@ public final class Sort {
         return true;
     }
 
-    /** The record the last RETURN gave, as IBM's INTO moves it: only its own length (a RETURN INTO of a shorter
-     *  record pads the receiver with spaces; the oracle moves the whole area). */
-    public Field returned(Field record) {
-        return Field.group(record.storage(), record.offset() - record.storage().base, lastLength);
+    /** RETURN ... INTO: the record the last RETURN gave moves to `into` as IBM's INTO does, only its own length (a
+     *  shorter record pads `into` with spaces; the oracle moves the whole area). */
+    public void returnInto(Field record, Field into) {
+        Cobol.move(Field.group(record.storage(), record.offset() - record.storage().base, lastLength), into, cs);
     }
 
     /** The next record in order (a RETURN, or a GIVING file's next record), or null at the end. */

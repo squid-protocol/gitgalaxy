@@ -3590,7 +3590,7 @@ class Gen:
         if s.kind == "RELEASE":
             it = self.resolve(s.data["record"])
             sd = self.sort_file(it.fd or "")
-            if it.parent is not None or it.size > sd.sort_length:
+            if it.parent is not None or it.size > (sd.sort_length or 0):
                 raise Untranslatable(f"RELEASE {it.name}: not a record of the sort file")
             var = f"sort_{jname(sd.select)}"
             out = [ind + self.move(s.data["from"], s.data["record"])] if s.data["from"] is not None else []
@@ -3603,7 +3603,7 @@ class Gen:
         out = [f'{ind}String {st} = Sort.active({var}, {what}).returnInto({rec}) ? "00" : "10";']
         if s.data["into"] is not None:
             out += [f'{ind}if ({st}.equals("00")) {{',
-                    f"{ind}    Cobol.move({var}.returned({rec}), {self.field_expr(s.data['into'])}, CS);",
+                    f"{ind}    {var}.returnInto({rec}, {self.field_expr(s.data['into'])});",
                     f"{ind}}}"]  # fmt: skip
         return out + self.io_phrases(s, st, ind, at_end="10", invalid=())
 

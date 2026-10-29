@@ -438,6 +438,7 @@ int GGCWRIT(gg_cics *c, char *ridfld, int keylen, char *from, int fromlen) {
     keyed_on_esds("WRITE", want);
     if (!file_cfg(want, path, &reclen, &keyoff, &klen)) {
         c->resp = FILENOTFOUND;
+        c->resp2 = 1;  /* IBM: RESP2 1, the file is not defined to CICS (X75) */
     } else if (find_key(path, reclen, keyoff, klen < keylen ? klen : keylen, ridfld) >= 0) {
         c->resp = DUPREC;
     } else {
@@ -479,6 +480,7 @@ int GGCREWR(gg_cics *c, char *from, int fromlen) {
     }
     if (!have) {
         c->resp = FILENOTFOUND;
+        c->resp2 = 1;  /* IBM: RESP2 1, the file is not defined to CICS (X75) */
     } else if (strstr(c->flags, "TOKEN") ? token_find(c->num, want) < 0 : !held_key(want, key, klen)) {
         c->resp = INVREQ;
         if (strstr(c->flags, "TOKEN")) c->resp2 = 47;

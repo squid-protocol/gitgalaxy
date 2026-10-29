@@ -105,7 +105,7 @@ The other COBOL-to-Java pages here: [`gitgalaxy/tools/cobol_to_java/README.md`](
 runtime contract and every proven result), [`det_survey.md`](det_survey.md) (how much of six estates it translates),
 [`statement_inventory.md`](statement_inventory.md) (what a deterministic translator could take over, by statement
 kind), [`porting_loop.md`](porting_loop.md) (model-written ports), [`mutation_testing.md`](mutation_testing.md) and
-[`cics_crucible.md`](cics_crucible.md). [`estate4_dbb_mortgage.md`](estate4_dbb_mortgage.md): the fourth estate (IBM DBB MortgageApplication), what was proven and what onboarding it needed. [`estate4_async_creditcard.md`](estate4_async_creditcard.md): the cicsdev async credit-card example, pinned as a development (burned) estate (#4270). [`transferability.md`](transferability.md): a dated record of how far burned-estate translation carried over to non-burned code (#6069). The wiki's summary is `docs/wiki/05-19-proven-cobol-to-java-ports.md`.
+[`cics_crucible.md`](cics_crucible.md). [`hlasm_cics_design.md`](hlasm_cics_design.md): how command-level CICS assembler is lowered to COBOL and proven (#5859). [`estate4_dbb_mortgage.md`](estate4_dbb_mortgage.md): the fourth estate (IBM DBB MortgageApplication), what was proven and what onboarding it needed. [`estate4_async_creditcard.md`](estate4_async_creditcard.md): the cicsdev async credit-card example, pinned as a development (burned) estate (#4270). [`transferability.md`](transferability.md): a dated record of how far burned-estate translation carried over to non-burned code (#6069). The wiki's summary is `docs/wiki/05-19-proven-cobol-to-java-ports.md`.
 
 ## Signature-bearing languages
 

@@ -437,6 +437,7 @@ TASKCONTROL_JAVA = """\
         private boolean freed;
         private long completes;
         private String abcode;
+        private int secerror;
         private Channel reply;
 
         private Child(String token, String transid, Channel channel, int number) {
@@ -688,6 +689,12 @@ TASKCONTROL_JAVA = """\
             task.waited = Math.max(now, first.completes);
         }
         first.fetched = true;
+        int[] secerror = task.injected("FETCH-STATUS", "-");  // #6967 (X18): the child failed a security check
+        if (secerror != null && first.abcode != null) {
+            throw new UnsupportedOperationException("a planned SECERROR COMPSTATUS for a child that abended (IBM does "
+                    + "not say which status wins): not modelled");
+        }
+        first.secerror = secerror == null ? 0 : secerror[0];
         String reply = null;
         if (wantChannel) {
             if (first.reply == null) {
@@ -712,17 +719,19 @@ TASKCONTROL_JAVA = """\
         e.put("resp2", resp2);
         if (k != null) {
             e.put("child", k.token);
-            e.put("compstatus", k.abcode == null ? "NORMAL" : "ABEND");
+            e.put("compstatus", k.secerror != 0 ? "SECERROR" : k.abcode == null ? "NORMAL" : "ABEND");
             e.put("abcode", k.abcode);
             e.put("channel", reply);
         }
         add(e);
         return k == null ? new FetchResult(resp, resp2)
-                : new FetchResult(resp, resp2, k.token, reply, k.abcode, k.abcode == null ? 1016 : 900);
+                : new FetchResult(resp, resp2, k.token, reply, k.abcode,
+                        k.secerror != 0 ? k.secerror : k.abcode == null ? 1016 : 900);
     }
 
     /** #4884, #4950: a FETCH's condition and RESP2; on NORMAL the child's token, the reply channel's name (null when
-     *  not asked), its abend code (null: it completed normally) and COMPSTATUS's CVDA (NORMAL 1016, ABEND 900). */
+     *  not asked), its abend code (null: it completed normally) and COMPSTATUS's CVDA (NORMAL 1016, ABEND 900; SECERROR 1214 when
+     *  the plan has a FETCH-STATUS, #6967). */
     public record FetchResult(String resp, int resp2, String child, String channel, String abcode, int compstatus) {
         public FetchResult(String resp, int resp2) {
             this(resp, resp2, null, null, null, 0);

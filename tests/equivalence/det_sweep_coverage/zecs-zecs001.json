@@ -1,21 +1,28 @@
 {
  "format": "det-sweep-coverage/2",
- "scenarios": 38,
+ "scenarios": 46,
  "paragraphs": {
-  "covered": 82,
+  "covered": 87,
   "live": 119
  },
  "branches": {
-  "covered": 116,
+  "covered": 145,
   "total": 208
+ },
+ "linked": {
+  "ZECS002": {
+   "paragraphs": {
+    "covered": 0,
+    "live": 0
+   },
+   "branches": {
+    "covered": 0,
+    "total": 0
+   }
+  }
  },
  "uncovered": {
   "paragraphs": [
-   "1500-EXIT:809",
-   "1600-USER-ACCESS:816",
-   "1600-EXIT:830",
-   "1610-SCAN-ZCXXSD:836",
-   "1610-EXIT:859",
    "3000-EXIT:897",
    "3310-EXIT:1083",
    "3400-STAGE:1092",
@@ -54,35 +61,6 @@
    "540:true",
    "704:false",
    "718:false",
-   "793:true",
-   "800:true",
-   "800:false",
-   "804:false",
-   "826:true",
-   "826:false",
-   "837:true",
-   "837:false",
-   "838:true",
-   "838:false",
-   "839:true",
-   "839:false",
-   "842:true",
-   "842:false",
-   "843:true",
-   "843:false",
-   "844:true",
-   "844:false",
-   "847:true",
-   "847:false",
-   "848:true",
-   "848:false",
-   "849:true",
-   "849:false",
-   "852:true",
-   "852:false",
-   "853:true",
-   "853:false",
-   "854:true",
    "854:false",
    "913:true",
    "999:false",
@@ -142,11 +120,6 @@
    "1881:false",
    "1902:true",
    "1902:false",
-   "paragraph:1500-EXIT",
-   "paragraph:1600-USER-ACCESS",
-   "paragraph:1600-EXIT",
-   "paragraph:1610-SCAN-ZCXXSD",
-   "paragraph:1610-EXIT",
    "paragraph:3000-EXIT",
    "paragraph:3310-EXIT",
    "paragraph:3400-STAGE",
@@ -182,14 +155,14 @@
   ]
  },
  "inputs": {
-  "case": "a97f2bc921b7433b1ec1b47b738fe802c8320c31de24e9f9a34de842933cbcfb",
+  "case": "5508f43bb388a0de8e5f85f1345ddeb14611534190814e3cf77dc810bd61d2b8",
   "corpus": "09feecf8028c77a136bbff56380f9babddf0b2e28fbb6a7ad7ba456273989ff6",
-  "harness": "81d4842720cfbde52e9d2bb2cbc705332747dcb728a1a264e93929b131c9c9c1",
+  "harness": "c578c903082f80527b1225d5f2a175be0cf10993d0f9fa991553002b6f74a66f",
   "oracle": "db19e0d81d5190306a25cc1e87205884eee91b39fd58d776de1cbe92929d97b8",
   "components": {
    "harness": {
-    "harness:cics": "dd42d66ff4665817ce74da73e1e9be0164542997b4ac92903dcb91b548b770cb",
-    "harness:core": "d921abf8b3c5676cf34888c5707aa4c2625e4d20b7435f644db351842492d76e"
+    "harness:cics": "ef81cbaba44bc0a45ce199f225b63b1d1edd1ab4bb7ad6b858f6013fa86fa2a1",
+    "harness:core": "8e1310bc564e3676298ff0dca730b1c7f6c4b82b77dba1c9b578fc98cebe8983"
    },
    "oracle": {
     "oracle:cics-stub": "a855972936bc74b6fceecfa1346ab6c277ca6eef28055bc55279baaac87b9ae4",
@@ -198,5 +171,5 @@
    }
   }
  },
- "measured_at": "7fdf2eedb25ec0b1895dc5584f7fad6c9f889e1b"
+ "measured_at": "5fa15006f026634a351ecac95690d38a64be0c4d"
 }

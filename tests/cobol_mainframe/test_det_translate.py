@@ -3345,7 +3345,7 @@ class _OverCics(_ChanCics):
     def __init__(self):
         super().__init__()
         self.gp.dto = lambda cls: type("D", (), {"size": 80, "extent": 80})()  # the 80-byte DTO, on the inherited stub
-        self.dto_for = lambda area, size, program=None: "Dto"
+        self.dto_for = lambda area, size, program=None, link=False: "Dto"
         self.codec = lambda cls: cls
         self.g.reading = lambda: __import__("contextlib").nullcontext()
         self.g.field_expr = lambda ref: f"f_{ref.name}"
@@ -3471,13 +3471,47 @@ public class Main {
     assert out == ["ABCDEFG..", "dto", "CDEFG.", "AByD|ExG"]
 
 
+def test_a_link_area_no_dto_types_is_not_the_callers_contract():
+    """#6839: ZECS001 LINKs the HLASM ZECS002 with its 66-byte ZECS002-COMM-AREA. The forge gives ZECS002 no contract
+    and no DTO types the record, so the LINK passes the bytes (#4679); typing it as ZECS001's own 1-byte DFHCOMMAREA
+    made DetCics refuse the call (#5053). A RETURN / XCTL of such an area keeps the program's contract."""
+    c = object.__new__(C.Cics)
+    c.gp = type("GP", (), {"xctl": {}, "links": {}, "records": {}, "contract": "Own",
+                           "target_contract": lambda self, p: None,
+                           "dto": lambda self, cls: type("D", (), {"size": 1})()})()  # fmt: skip
+    c.g = type("G", (), {"resolve": lambda self, ref: ref})()
+    c.codec = lambda cls: cls
+    area = E.Ref("ZECS002-COMM-AREA")
+    with pytest.raises(C.CicsError, match="no generated DTO"):
+        c.dto_for(area, 66, "ZECS002", link=True)
+    assert c.dto_for(area, 66, "ZECS002") == "Own"
+    c.gp.records = {"ZECS002-COMM-AREA": "Zecs002CommArea"}  # a record the forge does type travels as its DTO
+    assert c.dto_for(area, 66, "ZECS002", link=True) == "Zecs002CommArea"
+
+
+def test_det_port_gives_an_hlasm_link_target_the_translators_stub(tmp_path):
+    """#6839: det_port translates a LINK target onto the forge's service, and an HLASM one (the forge reads COBOL only,
+    so it made none) onto the translator's own stub, as the case's main HLASM program already was (#5859)."""
+    import det_port  # noqa: PLC0415 (tests/tools is on sys.path above)
+    from gitgalaxy.tools.cobol_to_java.det import hlasm  # noqa: PLC0415
+
+    service = tmp_path / "src/main/java" / det_port.PKG_DIR / "service"
+    service.mkdir(parents=True)
+    (service / "Zecs001Service.java").write_text("// the forge's ZECS001 service\n", encoding="utf-8")
+    assert det_port._service_stub(tmp_path, "ZECS001", "Source/ZECS001.cbl") == "// the forge's ZECS001 service\n"
+    stub = det_port._service_stub(tmp_path, "ZECS002", "Source/ZECS002.asm")
+    assert stub == hlasm.service_stub("ZECS002", det_port.PKG) and "public class Zecs002Service" in stub
+    case = json.loads((ROOT / "tests/equivalence/zecs-zecs001/case.json").read_text(encoding="utf-8"))
+    assert {"program": "ZECS002", "program_source": "Source/ZECS002.asm"} in det_port._extra_programs(case)
+
+
 def test_link_to_a_target_no_dto_types_passes_the_bytes():
     """#4679 (cics-crucible ca-link-lengths undefined-program): CALINK LINKs CAGONE, which no CSD defines, with
     COMMAREA(WS-CA100) LENGTH(100) RESP2: no generated DTO types it, so the COMMAREA travels as its LENGTH bytes
     (DetCics.commareaBytes, by reference) rather than the LINK being a hole -- and its PGMIDERR is RESP2 1."""
     c = _OverCics()
 
-    def no_dto(area, size, program=None):
+    def no_dto(area, size, program=None, link=False):
         raise C.CicsError(f"no generated DTO for COMMAREA {area.name}")
 
     c.dto_for = no_dto

@@ -11,7 +11,9 @@
 /*.json	tests/test_golden_store.py,tests/tools/test_gap_prevalence.py
 /*.out	tests/tools/porting_loop.py
 /.bms-scratch	tests/tools/cics_crucible_det.py
+/.coverage	tests/tools/coverage_map.py
 /.crucible_venvs	tests/tools/crucible_check.py
+/.engine_test_map.json	tests/tools/coverage_map.py
 /.galaxyscope.yaml	tests/ast_accuracy_audit.py,tests/tools/self_scan.py,tests/tools/tree_sitter_accuracy_audit.py
 /.git	tests/security_auditing,tests/tools/pr_gates.py
 /.gitignore	tests/cobol_mainframe,tests/core_engine,tests/tools/test_evidence_report_single_source.py,tests/tools/test_generated_branch.py
@@ -161,7 +163,7 @@
 /swagger1.json	tests/security_auditing
 /swagger2.json	tests/security_auditing
 /templates	tests/core_engine,tests/tools/stamp_template_pins.py
-/tests	tests/cobol_mainframe,tests/core_engine,tests/security_auditing,tests/test_golden_store.py,tests/test_signal_contract_sheet.py,tests/test_source_reads.py,tests/tools/audit_check.py,tests/tools/cics_crucible.py,tests/tools/crucible_path_check.py,tests/tools/crucible_port_provenance.py,tests/tools/equivalence_env.py,tests/tools/estate_crucible.py,tests/tools/evidence.py,tests/tools/evidence_report.py,tests/tools/graph_coverage_chart.py,tests/tools/ladder_refresh.py,tests/tools/test_env_gated_tests_run_in_ci_5954.py,tests/tools/test_posix_only_imports_4934.py,tests/tools/test_timeouts_4904.py,tests/tools/tree_sitter_accuracy_audit.py
+/tests	tests/cobol_mainframe,tests/core_engine,tests/security_auditing,tests/test_golden_store.py,tests/test_signal_contract_sheet.py,tests/test_source_reads.py,tests/tools/audit_check.py,tests/tools/cics_crucible.py,tests/tools/coverage_map.py,tests/tools/crucible_path_check.py,tests/tools/crucible_port_provenance.py,tests/tools/equivalence_env.py,tests/tools/estate_crucible.py,tests/tools/evidence.py,tests/tools/evidence_report.py,tests/tools/graph_coverage_chart.py,tests/tools/ladder_refresh.py,tests/tools/test_env_gated_tests_run_in_ci_5954.py,tests/tools/test_posix_only_imports_4934.py,tests/tools/test_timeouts_4904.py,tests/tools/tree_sitter_accuracy_audit.py
 /unreadable.dat	tests/security_auditing
 /zlib	tests/tools/test_callgraph_oracle.py
 08-03-transforming-regex-counts.md	tests/tools/fidelity_table.py

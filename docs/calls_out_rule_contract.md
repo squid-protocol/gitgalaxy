@@ -70,8 +70,9 @@ takes macros (`format!(`, `vec![`) and turbofish calls (`collect::<Vec<_>>()`). 
 (`F: Fn(&T)`, `impl FnOnce(u8)`) is a type, and `Fn`/`FnMut`/`FnOnce` are in rust's keyword set (C2).
 The pattern operand of `matches!` / `assert_matches!` / `debug_assert_matches!` (`matches!(x, A(_) | B(..))`)
 is a pattern too, though its last alternative is followed by the macro's `)`: rust's `_calls_out_masked_blocks`
-blanks it (its `mask` group, #6454). The macro name, a guard's calls and a first operand's calls stay; a
-`matches!` whose first operand holds a call is not masked (a known gap).
+blanks it (its `mask` group, #6454). The macro name, a guard's calls and a first operand's calls stay; the
+first operand may hold calls, `[..]` arrays and `{}` closure bodies (balanced groups, two deep), and the pattern is
+still masked.
 
 **C4 · A transfer is not a call.** An unconditional jump that does not return (`goto`, COBOL
 `GO TO`, assembly `jmp`, AGC `TC Q` used as a return) is not an invocation. The branch contract

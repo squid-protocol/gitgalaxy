@@ -1,21 +1,28 @@
 {
  "format": "det-sweep-coverage/2",
- "scenarios": 44,
+ "scenarios": 52,
  "paragraphs": {
-  "covered": 99,
+  "covered": 104,
   "live": 119
  },
  "branches": {
-  "covered": 134,
+  "covered": 163,
   "total": 208
+ },
+ "linked": {
+  "ZECS002": {
+   "paragraphs": {
+    "covered": 0,
+    "live": 0
+   },
+   "branches": {
+    "covered": 0,
+    "total": 0
+   }
+  }
  },
  "uncovered": {
   "paragraphs": [
-   "1500-EXIT:809",
-   "1600-USER-ACCESS:816",
-   "1600-EXIT:830",
-   "1610-SCAN-ZCXXSD:836",
-   "1610-EXIT:859",
    "3000-EXIT:897",
    "3310-EXIT:1083",
    "3400-STAGE:1092",
@@ -37,35 +44,6 @@
    "540:true",
    "704:false",
    "718:false",
-   "793:true",
-   "800:true",
-   "800:false",
-   "804:false",
-   "826:true",
-   "826:false",
-   "837:true",
-   "837:false",
-   "838:true",
-   "838:false",
-   "839:true",
-   "839:false",
-   "842:true",
-   "842:false",
-   "843:true",
-   "843:false",
-   "844:true",
-   "844:false",
-   "847:true",
-   "847:false",
-   "848:true",
-   "848:false",
-   "849:true",
-   "849:false",
-   "852:true",
-   "852:false",
-   "853:true",
-   "853:false",
-   "854:true",
    "854:false",
    "913:true",
    "999:false",
@@ -107,11 +85,6 @@
    "1879:false",
    "1881:true",
    "1902:true",
-   "paragraph:1500-EXIT",
-   "paragraph:1600-USER-ACCESS",
-   "paragraph:1600-EXIT",
-   "paragraph:1610-SCAN-ZCXXSD",
-   "paragraph:1610-EXIT",
    "paragraph:3000-EXIT",
    "paragraph:3310-EXIT",
    "paragraph:3400-STAGE",
@@ -130,7 +103,7 @@
   ]
  },
  "inputs": {
-  "case": "104b851927a7c28a83128ae96ec36143eb3f8a3fad585e4fd73961e3c5c221c6",
+  "case": "83ac5b63da235aa5ed0faf9d32f32222cc8a05bd65b1ab8c996aa1bee7953df5",
   "corpus": "09feecf8028c77a136bbff56380f9babddf0b2e28fbb6a7ad7ba456273989ff6",
   "harness": "6c043a2747a3f02617d9c80d05d3db6e75a1c91b2f35604f3497ada9c1979ebf",
   "oracle": "ce3c101cffb6e6f1cd6d8cd66127f9835e830b4205fdcd11b5f0d51829ab44ac",
@@ -146,5 +119,5 @@
    }
   }
  },
- "measured_at": "f95ccab8b1a97c9dcb15e4e1614c526098450d48"
+ "measured_at": "33738ce9db36be4f0fc7f2700f6d5f69b67d9e43"
 }

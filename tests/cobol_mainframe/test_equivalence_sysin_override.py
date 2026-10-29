@@ -47,6 +47,7 @@ def test_the_cbpaup0c_scenarios_each_state_a_card_that_differs():
         "checkpoint-display-compare",
         "checkpoint-freq-compare",
         "expiry-not-numeric",
+        "declined-expired",
     }
     assert len({*cards.values(), case["sysin"]}) == 9
     # the control-card runs inject no file status, bar the frequency card (its CHKP drops the position, so a GN

@@ -52,7 +52,7 @@ measurement it prints the `heavy-run.sh ... proof_sweep.py --det-only` command t
 ```sh
 $PY tests/tools/proof_sweep.py --work $SCRATCH/sw --det-only --cases CASE --faults all   # CI's numbers (SQL-fault tasks count)
 $PY tests/tools/proof_blockers.py --sweep $SCRATCH/sw --branches ...                       # what is open
-$PY tests/tools/equivalence.py run CASE --keep $SCRATCH/k   # then $SCRATCH/k/cobol/coverage.json: branches.uncovered
+$PY tests/tools/equivalence.py run CASE --keep $SCRATCH/k   # then $SCRATCH/k/coverage.json (not k/cobol/): branches.uncovered
 ```
 Plain `equivalence.py run` leaves out the SQL-fault tasks (lgapdb01 read 6/7 there vs 7/7 in the sweep): never take
 before/after numbers from it. `det_port.py run` does not write the ledger.
@@ -105,3 +105,12 @@ Run targeted tests, not the whole `tests/cobol_mainframe` (it times out); CI run
 - No per-slice JSON-only test file: the det-sweep ratchet already checks the cases.
 - Body: before/after table per program (paragraphs live/run, net branches, infeasible added with reasons), the
   outcomes left open and why (#6271 cite, owner hold), "Part of #6072".
+
+## 7. Traps from earlier slices
+- Before planning an L3->L4 slice, check each open branch for needed seed / abend / CEEDAYS faults the harness cannot inject: most remaining CardDemo gaps do (#6072). For CBSA, read #6788's table and the X26, X8, X54 register entries first: the open outcomes are catalogued.
+- A brief can name a block an earlier slice already moved: check the forge's `CICS_TASK_JAVA +=` lines and `git log` before planning (#6719).
+- Before writing a scenario for an uncovered outcome, read the scenario's trace: if the program already takes the path, the gap is measurement (line skew after lone-`.` lines), not data.
+- A ladder report entry can be a data-dependent IF (e.g. a response code), not the named test: read the source line before choosing a scenario.
+- `equivalence.py run CASE --keep DIR` leaves uncovered lists in `DIR/coverage.json`; sweep `--cases` and `ladder_gaps.py --sweep` need comma-separated cases plus a sweep dir.
+- `ladder_refresh` diffs that only change the oracle sha are not coverage movement: discard them.
+- `ggcics_web.c` caps WEB OPEN sessions at 64 per task; a scenario needing more is refused Unsupported (#6725).

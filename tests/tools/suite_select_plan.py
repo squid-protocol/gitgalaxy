@@ -146,10 +146,18 @@ def data_targets(f: str, root: Path = REPO_ROOT, limit: int = HELPER_MAX) -> lis
 
 RUNTIME_DIR = "gitgalaxy/tools/cobol_to_java/det/cobolrt/"
 # The det Java runtime files a test reaches by naming their class (#6278 item 5, slice 6): a translated port or a test
-# asserts on the emitted `DetCics.` / `Sort.Key` call, so the word search is sound for these two. Every other file under
-# the runtime stays `full` (a bare class name like `Field` or `Cobol` is a word in half the suite).
+# asserts on the emitted `DetCics.` / `Sort.Key` call, so the word search is sound for these two. Slice 7 adds the
+# `Det*` / `QueueManager` classes, whose names occur in at most 10 test files each. Every other file under the runtime
+# stays `full` (a bare class name like `Field` or `Cobol` is a word in half the suite).
 RUNTIME_READERS = {
     "cics/DetCics.java": r"\bDetCics\b",
+    "cics/DetJustify.java": r"\bDetJustify\b",
+    "cics/DetMq.java": r"\bDetMq\b",
+    "mq/QueueManager.java": r"\bQueueManager\b",
+    "dli/DetDli.java": r"\bDetDli\b",
+    "sql/DetSql.java": r"\bDetSql\b",
+    "batch/DetFiles.java": r"\bDetFiles\b",
+    "DetMvs.java": r"\bDetMvs\b",
     "Sort.java": r"\bSort\.(?:Key|Collating|NotModelled|active|expect|finished)\b|\bcobolrt[./]Sort\b|\bdfsort\b",
 }
 # These read the whole runtime tree (they hash it, compile it or drive its self-test), so any mapped file runs them too.

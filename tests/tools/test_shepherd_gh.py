@@ -250,6 +250,51 @@ def test_infra_failure_inside_the_gap_waits_without_a_rerun():
     assert by_op(acts, "labels")[0]["add"] == [sg.RETRYING]
 
 
+def test_infra_failure_waits_without_a_rerun_while_a_newer_run_of_its_workflow_is_live():
+    # #6971 / #7026: the rerun would join the per-PR concurrency group and cancel the newer run testing the head
+    f = {**failure("infra"), "sibling_live": True}
+    acts = sg.decide(snap(failed=[f], pending=0))
+    assert "rerun" not in kinds(acts)
+    assert by_op(acts, "labels")[0]["add"] == [sg.RETRYING]  # still retrying, not needs-fix
+    assert "comment" not in kinds(acts)
+
+
+def _rerun_api(siblings, run=None):
+    run = {"run_attempt": 1, "updated_at": "2026-10-10T19:00:00Z", "workflow_id": 77, "head_branch": "churn/1-x",
+           **(run or {})}  # fmt: skip
+    seen = []
+
+    def api(path):
+        seen.append(path)
+        if bare_is(path, "/actions/runs/500"):
+            return run
+        if bare_is(path, "/actions/workflows/77/runs"):
+            return {"workflow_runs": [{"id": 500, "status": "completed"}, *siblings]}
+        raise AssertionError(path)
+
+    return api, seen
+
+
+@pytest.mark.parametrize(
+    ("siblings", "live"),
+    [
+        ([{"id": 501, "status": "in_progress"}], True),
+        ([{"id": 501, "status": "queued"}], True),
+        ([{"id": 501, "status": "completed"}], False),  # finished: the rerun cancels nothing
+        ([], False),
+    ],
+)
+def test_attempts_reports_a_live_sibling_run_of_the_same_workflow_on_the_branch(siblings, live):
+    api, seen = _rerun_api(siblings)
+    assert sg._attempts(api, 500) == (0, sg._to_epoch("2026-10-10T19:00:00Z"), live)
+    assert "branch=churn%2F1-x" in seen[1]
+
+
+def test_attempts_without_a_workflow_id_asks_nothing_more():
+    api, seen = _rerun_api([], run={"workflow_id": None})
+    assert sg._attempts(api, 500)[2] is False and len(seen) == 1
+
+
 def test_infra_failure_after_three_reruns_is_needs_fix_with_one_digest():
     acts = sg.decide(snap(failed=[failure("infra", attempts=3)], digest_text="muninn: rate limit"))
     assert "rerun" not in kinds(acts)

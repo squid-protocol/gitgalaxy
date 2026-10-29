@@ -423,7 +423,9 @@ DEFINITION: dict[str, Any] = {
             # (`= {}`, `= {1, 2}`). A call passing a multi-line lambda AFTER its first argument
             # (`walk(node, [&](T& x) noexcept {` ... `if (f(x)) {`) otherwise ran through the
             # lambda's body to a later `) {` and was counted as a definition of `walk`.
-            r"[ \t\n]{0,200}(?:ARGS\d+\s*\([^)]*\)|\((?![ \t\n]{0,20}\[(?!\[))(?:[^)(;{}]|\([^);{}]*\)|\{[^(){};]*\})*\)|NOARGS)"
+            # #6266: the brace-init default may hold a flat call, `Line(const WrappedLine &ln = {CString(), 0})` (doomsday):
+            # without it the nested constructor was no unit and its head's calls went to the enclosing class.
+            r"[ \t\n]{0,200}(?:ARGS\d+\s*\([^)]*\)|\((?![ \t\n]{0,20}\[(?!\[))(?:[^)(;{}]|\([^);{}]*\)|\{(?:[^(){};]|\([^(){};]*\))*\})*\)|NOARGS)"
             # 8. POST-PARAMETER MODIFIERS & TRAILING RETURN TYPES
             # [OVERLAP PREVENTION]: Removed ambiguous \s* inside attribute matcher.
             # #5462: also `noexcept(expr)`, `throw(...)`, a specifier macro (`readBit() THROWS {`),

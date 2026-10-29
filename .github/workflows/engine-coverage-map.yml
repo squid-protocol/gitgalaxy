@@ -66,3 +66,12 @@ jobs:
         with:
           path: engine-map-cache
           key: engine-test-map-${{ github.run_id }}
+
+      # the same file as a downloadable artifact: the cache cannot be read outside a workflow, and
+      # `suite_select_plan.py --coverage-map` replays need it locally (14-day retention, it is 18 KB)
+      - name: Upload the coverage map
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: engine-test-map
+          path: engine-map-cache/engine_test_map.json
+          retention-days: 14

@@ -200,7 +200,8 @@ public class CsutldtcService {
             return FC_BAD_DATE_VALUE;
         }
         if (month < 1 || month > 12) {
-            return FC_INVALID_MONTH;
+            // owner ruling 2026-10-29 (register L1, ASSUMED): a numeric month outside 1-12 is 2508, not 2517
+            return FC_BAD_DATE_VALUE;
         }
         LocalDate date1;
         try {

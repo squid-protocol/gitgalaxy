@@ -32,8 +32,9 @@ import java.util.List;
  * its length is that record's; the sort's `length` is the longest. The bytes of the record area past a shorter
  * record's length are undefined in IBM and are kept as GnuCOBOL keeps them (the whole area goes in and comes out);
  * a RETURN INTO moves only the record's own bytes, space-padded, as IBM moves the record just read. The keys lie
- * within the shortest record (the translator checks), and a GIVING file receives the records only when they are all
- * the sort's length: IBM writes each at its own length, the oracle the whole area, so a mixed run stops by name.</li>
+ * within the shortest record (the translator checks). A fixed USING file's records go in at the file's length (between
+ * the shortest and the longest); a GIVING file receives the records only when they are all its length: IBM writes
+ * each at its own length, the oracle the file's fixed record, so a mixed run stops by name.</li>
  * </ul>
  */
 public final class Sort {
@@ -354,8 +355,8 @@ public final class Sort {
         inputs.get(inputs.size() - 1).add(r);
     }
 
-    /** A record of a USING file. Its bytes go in as they are (the translator refuses a USING file whose records are
-     *  not the SD record's length). */
+    /** A record of a USING file, at the file's own record length (the translator keeps it between the SD's shortest
+     *  and longest record). Its bytes go in as they are. */
     public void add(Field record) {
         release(record);
     }
@@ -456,13 +457,14 @@ public final class Sort {
         return next < sorted.size() ? sorted.get(next++) : null;
     }
 
-    /** GIVING: the records again from the first (each GIVING file receives them all). Records of different lengths
-     *  stop the run by name: IBM writes each at its own length, the oracle the whole area (a fixed file's record). */
-    public void rewind() {
+    /** GIVING: the records again from the first (each GIVING file receives them all). A GIVING file of `size` bytes
+     *  takes records of that length only: records of other lengths stop the run by name (IBM writes each at its own
+     *  length, the oracle the file's fixed record). */
+    public void rewind(int size) {
         for (byte[] r : sorted) {
-            if (lengths.get(r) != length) {
+            if (lengths.get(r) != size) {
                 throw new NotModelled("GIVING of " + name + ": records of different lengths (IBM writes each at its "
-                        + "own length, the oracle the whole area)");
+                        + "own length, the oracle the file's fixed record of " + size + " bytes)");
             }
         }
         next = 0;

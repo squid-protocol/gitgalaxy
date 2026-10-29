@@ -286,3 +286,22 @@ def test_cobtupdt_open_guard_and_sqlcode_evaluates_are_stated_for_both_cases():
         assert all(e["reason"] for e in ledger[case])
         uncovered = [{"line": line, "kind": kind, "outcome": outcome} for _, line, kind, outcome, _ in want]
         assert io.adjust(case, (9, 9, 16, 20), uncovered, ledger)[0] == (9, 9, 16, 16)
+
+
+def test_undefined_by_ibm_is_its_own_class_netted_but_named():
+    u = dict(E, line=11, family="U")
+    ledger = {"c": [E, u]}
+    assert "U" in io.FAMILIES and io.is_undefined(u) and not io.is_undefined(E)
+    assert io.problems_in(ledger, io.CASES) == ["infeasible outcomes: c: no such case"]
+    cov, taken, reached = io.adjust("c", (3, 3, 5, 9), ["9:true", "11:true"], ledger)
+    assert cov == (3, 3, 5, 7) and reached == []
+    assert io.split_undefined(taken, ledger["c"]) == (["P:9:true"], ["P:11:true"])
+    # the proof reaching a U entry refutes it like any other
+    assert io.adjust("c", (3, 3, 5, 9), ["9:true"], ledger)[2] == ["P:11:true"]
+
+
+def test_bnk1cac_x8_bounds_refusals_are_the_four_undefined_by_ibm_outcomes():
+    entries = io.load()["cbsa-bnk1cac"]
+    got = {(e["line"], e["outcome"]) for e in entries if io.is_undefined(e)}
+    assert got == {(611, "true"), (637, "true"), (637, "false"), (717, "true")}
+    assert all("2026-10-29" in e["reason"] for e in entries if io.is_undefined(e))

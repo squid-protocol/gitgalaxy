@@ -29,7 +29,8 @@ Rules, all in decide() (pure: a snapshot in, actions out):
     cheap audits only, and re-adding the label marks it ready, which starts the full set once on the reviewed head;
   * "Depends on #N" in the body blocks auto-merge until #N is merged;
   * an infra/flake failure is rerun up to INFRA_RERUNS times, RETRY_GAP seconds apart (the count is run_attempt
-    of the run, kept by GitHub: no local state);
+    of the run, kept by GitHub: no local state), never while another run of that workflow is live on the PR's
+    branch (the rerun would cancel it through the per-PR concurrency group);
   * a real failure, a merge conflict or a red matrix gets ONE digest comment per head (marker in the comment);
   * behind main is NOT acted on: the bot never updates a branch to keep it current (#5134, option A). The one exception
     (#5484, reconcile only): a PR labelled shepherd:waiting-on-main whose failing check is now green on main's newest
@@ -263,8 +264,14 @@ def decide(s: dict[str, Any]) -> list[dict[str, Any]]:
             waiting.append(f)
         elif t in ("infra", "flake") and f.get("run_id") is not None and f.get("attempts", 0) < INFRA_RERUNS:
             rid = f["run_id"]
-            # a rerun replays the old event (draft=false): on a draft it would start the heavy jobs the draft skips
-            if not draft and rid not in reran_runs and s["now"] - (f.get("updated_at") or 0) >= RETRY_GAP:
+            # a rerun replays the old event (draft=false): on a draft it would start the heavy jobs the draft skips;
+            # nor while a newer run of the workflow is live on the PR: the rerun would cancel it (_attempts)
+            if (
+                not draft
+                and not f.get("sibling_live")
+                and rid not in reran_runs
+                and s["now"] - (f.get("updated_at") or 0) >= RETRY_GAP
+            ):
                 acts.append({"op": "rerun", "run_id": rid, "check": f["check"]})
                 reran_runs.add(rid)
             retrying.append(f)
@@ -369,9 +376,25 @@ APPROVE_MARK = re.compile(r"<!-- shepherd:approved sha=([0-9a-f]{40}) by=([A-Za-
 UPDATE_MARK = re.compile(r"<!-- shepherd-update from=([0-9a-f]{40})(?: to=([0-9a-f]{40}))? -->")
 
 
-def _attempts(api: Api, run_id: int) -> tuple[int, float | None]:
+def _attempts(api: Api, run_id: int) -> tuple[int, float | None, bool]:
+    """(reruns used, last update, whether another run of the same workflow is queued or running on the same branch).
+    2026-10-29 (#6971, #7026): a rerun joins the workflow's per-PR concurrency group, and `cancel-in-progress` then
+    cancels the newer run already testing the head; its cancelled shards failed the gate jobs, which triaged infra and
+    were rerun in turn. While a sibling run is live the rerun waits: that run's own result decides the check."""
     r = api(f"repos/{REPO_SLUG}/actions/runs/{run_id}")
-    return int(r.get("run_attempt") or 1) - 1, _to_epoch(r.get("updated_at"))
+    used, updated = int(r.get("run_attempt") or 1) - 1, _to_epoch(r.get("updated_at"))
+    wid, branch = r.get("workflow_id"), r.get("head_branch")
+    if not wid or not branch:
+        return used, updated, False
+    try:
+        page = api(f"repos/{REPO_SLUG}/actions/workflows/{wid}/runs?branch={quote(branch, safe='')}&per_page=20")
+    except SystemExit:
+        return used, updated, False  # unreadable: rerun as before rather than hold the PR
+    live = any(
+        x.get("id") != run_id and x.get("status") in ("queued", "in_progress", "waiting", "pending", "requested")
+        for x in (page or {}).get("workflow_runs") or []
+    )
+    return used, updated, live
 
 
 def _files(api: Api, base: str, head: str) -> dict[str, tuple[str, str]] | None:
@@ -628,13 +651,13 @@ def gather(
     digest: dict[str, Any] = {"failed": []}
     if checks["failed"]:
         digest = ci_digest.digest(n, api, on_main=on_main, flaky=flaky, pr=pr, runs=runs)
-        attempts_by_run: dict[int, tuple[int, float | None]] = {}
+        attempts_by_run: dict[int, tuple[int, float | None, bool]] = {}
         for f in digest["failed"]:
             if f["triage"] in ("infra", "flake") and f.get("run_id") is not None:
                 rid = f["run_id"]
                 if rid not in attempts_by_run:
                     attempts_by_run[rid] = _attempts(api, rid)
-                f["attempts"], f["updated_at"] = attempts_by_run[rid]
+                f["attempts"], f["updated_at"], f["sibling_live"] = attempts_by_run[rid]
     # who last added each request label (the timeline; no commit ids are used)
     events = (got["events"] if got else pr_check.paged(api, f"repos/{REPO_SLUG}/issues/{n}/events")) if labels else []
     actors: dict[str, dict[str, Any] | None] = {}

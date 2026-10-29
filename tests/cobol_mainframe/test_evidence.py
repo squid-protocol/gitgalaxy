@@ -412,7 +412,7 @@ def test_a_mistyped_name_signs_nothing(tmp_path):
 def test_the_claim_is_derived_from_the_numbers():
     t, rec = _dateutil()
     text = ev.claim(rec, ev.status(rec, t, live=False))
-    assert text.startswith("**CSUTLDTC**: byte-identical on **34 calls**")
+    assert text.startswith("**CSUTLDTC**: byte-identical on **36 calls**")
     assert "Proven through **handleCall** only; **0 ported method(s) that no proof runs**" in text
     rec = _with_unproven(rec)
     text = ev.claim(rec, ev.status(rec, t, live=False))

@@ -1498,6 +1498,180 @@ FILE_PROGRAMS = {
             "    END-PERFORM.",
         ],
     ),
+    # an SD of records of 10 and 5 bytes whose USING and GIVING files hold 8-byte records (IBM: a file's record lies
+    # between the SD's shortest and longest): SORT USING / GIVING with duplicates in order, USING / OUTPUT PROCEDURE
+    # (RETURN INTO moves the record's own 8 bytes), and MERGE of two 8-byte files GIVING a third
+    "SORTSH": fprogram(
+        "SORTSH",
+        [],
+        [
+            "SELECT IN-FILE ASSIGN TO INFILE.",
+            "SELECT OUT-FILE ASSIGN TO OUTFILE.",
+            "SELECT M1-FILE ASSIGN TO M1FILE.",
+            "SELECT M2-FILE ASSIGN TO M2FILE.",
+            "SELECT MG-FILE ASSIGN TO MGFILE.",
+            "SELECT SORT-FILE ASSIGN TO SORTWK1.",
+        ],
+        [
+            *[x for f in ("IN", "OUT", "M1", "M2", "MG") for x in (f"FD  {f}-FILE.", f"01  {f}-REC PIC X(8).")],
+            "SD  SORT-FILE.",
+            "01  LONG-REC.",
+            "    05 L-KEY  PIC X(3).",
+            "    05 L-REST PIC X(7).",
+            "01  SHORT-REC.",
+            "    05 S-KEY  PIC X(3).",
+            "    05 S-REST PIC X(2).",
+        ],
+        ["01  EOF     PIC X VALUE 'N'.", "01  WS-OUT  PIC X(12).", "01  W-REC PIC X(8)."],
+        [
+            "MAIN-PARA.",
+            "    OPEN OUTPUT IN-FILE",
+            *[
+                f"    MOVE '{r}' TO W-REC WRITE IN-REC FROM W-REC"
+                for r in ("ccc11111", "aaa22222", "bbb33333", "aaa44444", "bbb55555")
+            ],
+            "    CLOSE IN-FILE",
+            "    SORT SORT-FILE ON ASCENDING KEY L-KEY",
+            "         WITH DUPLICATES IN ORDER",
+            "         USING IN-FILE GIVING OUT-FILE",
+            "    PERFORM SHOW-OUT",
+            "    SORT SORT-FILE ON DESCENDING KEY S-KEY",
+            "         WITH DUPLICATES IN ORDER",
+            "         USING IN-FILE OUTPUT PROCEDURE SHOW-SORT",
+            "    OPEN OUTPUT M1-FILE M2-FILE",
+            *[f"    MOVE '{r}' TO W-REC WRITE M1-REC FROM W-REC" for r in ("aaa00001", "ccc00002", "ccc00003")],
+            *[f"    MOVE '{r}' TO W-REC WRITE M2-REC FROM W-REC" for r in ("bbb00004", "ccc00005")],
+            "    CLOSE M1-FILE M2-FILE",
+            "    MERGE SORT-FILE ON ASCENDING KEY L-KEY",
+            "          USING M1-FILE M2-FILE GIVING MG-FILE",
+            "    DISPLAY '--'",
+            "    PERFORM SHOW-MG",
+            "    GOBACK.",
+            "SHOW-OUT.",
+            "    OPEN INPUT OUT-FILE",
+            "    MOVE 'N' TO EOF",
+            "    PERFORM UNTIL EOF = 'Y'",
+            "        READ OUT-FILE INTO WS-OUT",
+            "            AT END MOVE 'Y' TO EOF",
+            "            NOT AT END DISPLAY '[' WS-OUT ']'",
+            "        END-READ",
+            "    END-PERFORM",
+            "    CLOSE OUT-FILE.",
+            "SHOW-MG.",
+            "    OPEN INPUT MG-FILE",
+            "    MOVE 'N' TO EOF",
+            "    PERFORM UNTIL EOF = 'Y'",
+            "        READ MG-FILE INTO WS-OUT",
+            "            AT END MOVE 'Y' TO EOF",
+            "            NOT AT END DISPLAY '[' WS-OUT ']'",
+            "        END-READ",
+            "    END-PERFORM",
+            "    CLOSE MG-FILE.",
+            "SHOW-SORT.",
+            "    DISPLAY '--'",
+            "    MOVE 'N' TO EOF",
+            "    PERFORM UNTIL EOF = 'Y'",
+            "        MOVE ALL '*' TO WS-OUT",
+            "        RETURN SORT-FILE INTO WS-OUT",
+            "            AT END MOVE 'Y' TO EOF",
+            "            NOT AT END DISPLAY '[' WS-OUT ']'",
+            "        END-RETURN",
+            "    END-PERFORM.",
+        ],
+    ),
+    # SORT / MERGE USING of RECORD VARYING files (an SD of 10- and 5-byte records, the files' records 5 to 10 bytes):
+    # the records are read at their own length, the rest of the area is spaces, and the DEPENDING ON items hold the
+    # last length read (the oracle sets them; IBM does not say). GIVING a varying file is refused (SORTVR GIVING tests)
+    "SORTVR": fprogram(
+        "SORTVR",
+        [],
+        [
+            "SELECT IN-FILE ASSIGN TO INFILE.",
+            "SELECT M1-FILE ASSIGN TO M1FILE.",
+            "SELECT M2-FILE ASSIGN TO M2FILE.",
+            "SELECT SORT-FILE ASSIGN TO SORTWK1.",
+        ],
+        [
+            *[
+                x
+                for f in ("IN", "M1", "M2")
+                for x in (
+                    f"FD  {f}-FILE",
+                    f"    RECORD IS VARYING IN SIZE FROM 5 TO 10 DEPENDING ON {f}-LEN.",
+                    f"01  {f}-REC PIC X(10).",
+                )
+            ],
+            "SD  SORT-FILE.",
+            "01  LONG-REC.",
+            "    05 L-KEY  PIC X(3).",
+            "    05 L-REST PIC X(7).",
+            "01  SHORT-REC.",
+            "    05 S-KEY  PIC X(3).",
+            "    05 S-REST PIC X(2).",
+        ],
+        [
+            "01  EOF     PIC X VALUE 'N'.",
+            "01  WS-OUT  PIC X(12).",
+            "01  W-REC   PIC X(10).",
+            "01  IN-LEN  PIC 9(4).",
+            "01  M1-LEN  PIC 9(4).",
+            "01  M2-LEN  PIC 9(4).",
+        ],
+        [
+            "MAIN-PARA.",
+            "    OPEN OUTPUT IN-FILE",
+            *[
+                x
+                for r, n in (("ccc1111111", 10), ("aaa22", 5), ("bbb333333", 9), ("aaa4444", 7), ("bbb55", 5))
+                for x in (f"    MOVE '{r}' TO W-REC", f"    MOVE {n} TO IN-LEN", "    WRITE IN-REC FROM W-REC")
+            ],
+            "    CLOSE IN-FILE",
+            "    MOVE 99 TO IN-LEN",
+            "    SORT SORT-FILE ON ASCENDING KEY L-KEY",
+            "         WITH DUPLICATES IN ORDER",
+            "         USING IN-FILE OUTPUT PROCEDURE SHOW-SORT",
+            "    DISPLAY 'IN-LEN=' IN-LEN",
+            "    SORT SORT-FILE ON DESCENDING KEY S-KEY",
+            "         WITH DUPLICATES IN ORDER",
+            "         USING IN-FILE OUTPUT PROCEDURE SHOW-AREA",
+            "    OPEN OUTPUT M1-FILE M2-FILE",
+            *[
+                x
+                for r, n in (("aaa00001", 8), ("ccc00002", 8), ("ccc3", 5))
+                for x in (f"    MOVE '{r}' TO W-REC", f"    MOVE {n} TO M1-LEN", "    WRITE M1-REC FROM W-REC")
+            ],
+            *[
+                x
+                for r, n in (("bbb0004", 7), ("ccc5555555", 10))
+                for x in (f"    MOVE '{r}' TO W-REC", f"    MOVE {n} TO M2-LEN", "    WRITE M2-REC FROM W-REC")
+            ],
+            "    CLOSE M1-FILE M2-FILE",
+            "    MOVE 99 TO M1-LEN M2-LEN",
+            "    MERGE SORT-FILE ON ASCENDING KEY L-KEY",
+            "          USING M1-FILE M2-FILE OUTPUT PROCEDURE SHOW-SORT",
+            "    DISPLAY 'M1-LEN=' M1-LEN ' M2-LEN=' M2-LEN",
+            "    GOBACK.",
+            "SHOW-SORT.",
+            "    DISPLAY '--'",
+            "    MOVE 'N' TO EOF",
+            "    PERFORM UNTIL EOF = 'Y'",
+            "        MOVE ALL '*' TO WS-OUT",
+            "        RETURN SORT-FILE INTO WS-OUT",
+            "            AT END MOVE 'Y' TO EOF",
+            "            NOT AT END DISPLAY '[' WS-OUT ']'",
+            "        END-RETURN",
+            "    END-PERFORM.",
+            "SHOW-AREA.",
+            "    DISPLAY '--'",
+            "    MOVE 'N' TO EOF",
+            "    PERFORM UNTIL EOF = 'Y'",
+            "        RETURN SORT-FILE",
+            "            AT END MOVE 'Y' TO EOF",
+            "            NOT AT END DISPLAY '[' LONG-REC ']'",
+            "        END-RETURN",
+            "    END-PERFORM.",
+        ],
+    ),
 }
 # #4557: a relation with an ALL literal (IBM Enterprise COBOL 6.4 Language Reference, "Figurative constants": the
 # literal repeated, or cut, to the length of the other operand), and the figuratives ALL SPACES / ZEROS / QUOTES,
@@ -1694,7 +1868,11 @@ PROGRAMS["DPCOMMA"] = dpc_program(
 )  # fmt: skip
 
 
-FILE_DDS = {"SORTUG": ["INFILE", "OUTFILE", "M1FILE", "M2FILE", "MGFILE"]}
+FILE_DDS = {
+    "SORTUG": ["INFILE", "OUTFILE", "M1FILE", "M2FILE", "MGFILE"],
+    "SORTSH": ["INFILE", "OUTFILE", "M1FILE", "M2FILE", "MGFILE"],
+    "SORTVR": ["INFILE", "M1FILE", "M2FILE"],
+}
 
 
 def _java() -> Path | None:
@@ -2156,12 +2334,15 @@ def _sort_variant(proc: list[str], special: list[str] | None = None) -> str:
                     ["MAIN-PARA.", *proc, "    GOBACK.", *SORT_LOAD])  # fmt: skip
 
 
-def _holes(tmp_path: Path, src: str) -> list[str]:
+def _holes(tmp_path: Path, src: str, batch: bool = False) -> list[str]:
+    """The holes of a translation; `batch`: into a project with its batch package (a program with files)."""
     from gitgalaxy.tools.cobol_to_java.det import program as P
 
     tmp_path.mkdir(exist_ok=True)
     (tmp_path / "SORTX.cbl").write_text(src)
     (tmp_path / "project").mkdir(exist_ok=True)
+    if batch:
+        _batch_package(tmp_path / "project/src/main/java")
     return P.translate(tmp_path / "SORTX.cbl", [], "public class SortxService {\n}\n", PKG, None,
                        tmp_path / "project").stats["holes"]  # fmt: skip
 
@@ -2305,6 +2486,55 @@ def test_sort_giving_records_of_different_lengths_stops_by_name(tmp_path):
     with pytest.raises(subprocess.CalledProcessError) as e:
         _java_run_batch("SORTVL", src, tmp_path, ["OUTFILE"])
     assert "GIVING of SORT-FILE: records of different lengths" in e.value.stderr
+
+
+def test_sort_using_file_shorter_than_the_shortest_sd_record_is_refused(tmp_path):
+    """IBM: a USING / GIVING record lies between the SD's shortest (5 bytes) and longest (10) record: a 4-byte file is
+    refused by name at translation; a 5-byte one is not."""
+    pytest.importorskip("tree_sitter_language_pack")
+    src = FILE_PROGRAMS["SORTSH"].replace("01  IN-REC PIC X(8).", "01  IN-REC PIC X(4).")
+    assert src != FILE_PROGRAMS["SORTSH"]
+    holes = _holes(tmp_path, src, batch=True)
+    assert any("USING / GIVING IN-FILE: records of 4 bytes, outside the sort file's 5..10" in h for h in holes), holes
+    assert not any("IN-FILE" in h for h in _holes(tmp_path / "ok", src.replace("PIC X(4)", "PIC X(5)"), batch=True))
+
+
+def test_sort_giving_records_of_the_using_files_different_lengths_stops_by_name(tmp_path):
+    """M1 holds 8-byte records, M2 6-byte ones, both inside the SD's 5..10: the merged records differ in length, and
+    the 8-byte GIVING file would receive some of 6: the run stops by name (IBM writes each at its own length)."""
+    pytest.importorskip("tree_sitter_language_pack")
+    if _java() is None:
+        pytest.skip("needs JAVA_HOME / JDK_17")
+    src = FILE_PROGRAMS["SORTSH"].replace("01  M2-REC PIC X(8).", "01  M2-REC PIC X(6).")
+    assert src != FILE_PROGRAMS["SORTSH"]
+    with pytest.raises(subprocess.CalledProcessError) as e:
+        _java_run_batch("SORTSH", src, tmp_path, FILE_DDS["SORTSH"])
+    assert "GIVING of SORT-FILE: records of different lengths" in e.value.stderr
+
+
+def test_sort_giving_a_record_varying_file_or_after_a_varying_using_is_refused(tmp_path):
+    """The oracle writes an empty file for a RECORD VARYING GIVING file (measured, cobc 3.1.2) and pads a fixed one;
+    IBM writes each record at its own length: both stop at translation, by name. A varying USING file whose lengths
+    fall outside the SD's 5..10 or that does not fill its record is refused too; the program as proved is not."""
+    pytest.importorskip("tree_sitter_language_pack")
+    base = FILE_PROGRAMS["SORTVR"]
+    fixed_out = base.replace("SELECT M2-FILE", "SELECT OUT-FILE ASSIGN TO OUTFILE.\n           SELECT M2-FILE")
+    fixed_out = fixed_out.replace(
+        "       SD  SORT-FILE.", "       FD  OUT-FILE.\n       01  OUT-REC PIC X(10).\n       SD  SORT-FILE."
+    )
+    giving = fixed_out.replace("USING IN-FILE OUTPUT PROCEDURE SHOW-SORT", "USING IN-FILE GIVING OUT-FILE")
+    assert giving != fixed_out
+    assert any(
+        "GIVING OUT-FILE: records of a RECORD VARYING USING file" in h
+        for h in _holes(tmp_path / "a", giving, batch=True)
+    )
+    vgiving = base.replace("USING IN-FILE OUTPUT PROCEDURE SHOW-SORT", "USING M1-FILE GIVING M2-FILE")
+    assert any("GIVING M2-FILE: a RECORD VARYING file" in h for h in _holes(tmp_path / "b", vgiving, batch=True))
+    short = base.replace("FROM 5 TO 10 DEPENDING ON IN-LEN", "FROM 4 TO 10 DEPENDING ON IN-LEN")
+    assert any("USING IN-FILE: RECORD VARYING 4 TO 10" in h for h in _holes(tmp_path / "c", short, batch=True))
+    wide = base.replace("FROM 5 TO 10 DEPENDING ON IN-LEN", "FROM 5 TO 8 DEPENDING ON IN-LEN")
+    assert any("USING IN-FILE: RECORD VARYING 5 TO 8" in h for h in _holes(tmp_path / "d", wide, batch=True))
+    assert not any("IN-FILE" in h or "M1-FILE" in h for h in _holes(tmp_path / "ok", base, batch=True))
 
 
 def test_alphabets_keep_each_definition_whole():

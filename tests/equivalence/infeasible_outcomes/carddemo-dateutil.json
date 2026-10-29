@@ -22,6 +22,14 @@
       "unit": "A000-MAIN",
       "line": 128,
       "kind": "EVALUATE",
+      "outcome": "WHEN@139",
+      "family": "G",
+      "reason": "FC-INVALID-MONTH (CEE2EL, 2517) is the message for a month not recognized. IBM's documentation does not say what a numeric month outside 1-12 is; the owner ruled 2026-10-29 that it is CEE2EC (2508, date value not valid), recorded as ASSUMED in register L1 (not z/OS calibration). Under that ruling the model never raises 2517 for a numeric picture, and every caller of CSUTLDTC (COTRN02C and CORPT00C 'YYYY-MM-DD', CSUTLDPY 'YYYYMMDD') passes one; a month name needs a month-name picture, which the oracle refuses by name. The month-13 date itself is run (carddemo-dateutil month-13, month-00) and takes the 2508 arm."
+    },
+    {
+      "unit": "A000-MAIN",
+      "line": 128,
+      "kind": "EVALUATE",
       "outcome": "WHEN@141",
       "family": "G",
       "reason": "FC-BAD-PIC-STRING (CEE2EM, 2518) needs a picture string IBM rejects. Every caller passes a constant, valid numeric picture (COTRN02C / CORPT00C 'YYYY-MM-DD', CSUTLDPY 'YYYYMMDD'); a picture the oracle does not model is refused by name (exit 98), never answered, so no run reaches it."

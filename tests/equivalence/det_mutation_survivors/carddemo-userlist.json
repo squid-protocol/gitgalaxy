@@ -164,6 +164,24 @@
    "reason": "the USRSEC store's write lambda: COUSR00C only browses USRSEC (STARTBR, READNEXT, READPREV, ENDBR) and has no WRITE or REWRITE, so the lambda is never called"
   },
   {
+   "id": "c7c6029152",
+   "op": "CON",
+   "line": 711,
+   "before": "java.util.Map.entry(\"PROCESS-PF8-KEY\", 3),",
+   "after": "java.util.Map.entry(\"PROCESS-PF8-KEY\", 4),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS is read only by paragraph(), for a HANDLE ABEND label (task.abendOnCondition); COUSR00C issues no HANDLE"
+  },
+  {
+   "id": "0094267b55",
+   "op": "LIT",
+   "line": 712,
+   "before": "java.util.Map.entry(\"PROCESS-PF7-KEY\", 2),",
+   "after": "java.util.Map.entry(\"XROCESS-PF7-KEY\", 2),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS is read only by paragraph(), for a HANDLE ABEND label (task.abendOnCondition); COUSR00C issues no HANDLE"
+  },
+  {
    "id": "dc1b341b03",
    "op": "AOR",
    "line": 782,
@@ -171,6 +189,15 @@
    "after": "d.setCdemoFromTranid(Cobol.text(Field.alphanumeric(s, base - 0, 4, false), CS));",
    "verdict": "equivalent",
    "reason": "`base + 0` and `base - 0` are the same offset"
+  },
+  {
+   "id": "255d341836",
+   "op": "DEL",
+   "line": 841,
+   "before": "System.arraycopy(IMAGE_s_CCDA_COMMON_MESSAGES, 0, s_CCDA_COMMON_MESSAGES.bytes, 0, IMAGE_s_CCDA_COMMON_MESSAGES.length);",
+   "after": "/* System.arraycopy(IMAGE_s_CCDA_COMMON_MESSAGES, 0, s_CCDA_COMMON_MESSAGES.bytes, 0, IMAGE_s_CCDA_COMMON_MESSAGES.length); */",
+   "verdict": "equivalent",
+   "reason": "CCDA-COMMON-MESSAGES fields (CCDA-MSG-INVALID-KEY) are lifted to Java String fields (f809_CCDA_MSG_INVALID_KEY) initialized directly in initialState; the underlying storage s_CCDA_COMMON_MESSAGES is never read"
   },
   {
    "id": "112c95692a",
@@ -189,6 +216,15 @@
    "after": "Cobol.store(f925_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L - now.getMinute() * 100L + now.getSecond()), false, CS);",
    "verdict": "equivalent",
    "reason": "EIBDATE / EIBTIME are never read by COUSR00C (its date and time come from FUNCTION CURRENT-DATE), and the proof compares neither"
+  },
+  {
+   "id": "f591441e02",
+   "op": "LIT",
+   "line": 909,
+   "before": "case \"STRF\" -> Cobol.move(f825_DFHSTRF, f933_EIBAID, CS);",
+   "after": "case \"XTRF\" -> Cobol.move(f825_DFHSTRF, f933_EIBAID, CS);",
+   "verdict": "equivalent",
+   "reason": "no scenario sends AID 'STRF'; if sent, EIBAID would retain its initial byte (a space), which matches none of DFHENTER / DFHPF3 / DFHPF7 / DFHPF8, taking WHEN OTHER exactly as DFHSTRF does"
   },
   {
    "id": "33d6b2d71c",
@@ -351,6 +387,15 @@
    "after": "DetCics.subfields(sub15, \"XNAME06\", f264_FNAME06L, f267_FNAME06A, f621_FNAME06C, f623_FNAME06H, CS);",
    "verdict": "case-gap",
    "reason": "the field name subfields() looks the L / A / C / H bytes up by: COUSR00C reads only USRIDINL, but the SEND MAP comparison reads those bytes when the scenario states a subfield. Needs SEND MAP events that state them"
+  },
+  {
+   "id": "c16b4812c3",
+   "op": "ROR",
+   "line": 2049,
+   "before": "int resp20 = planned21[0] != 0 ? planned21[0] : received18.isPresent() ? 0 : 36;",
+   "after": "int resp20 = planned21[0] == 0 ? planned21[0] : received18.isPresent() ? 0 : 36;",
+   "verdict": "equivalent",
+   "reason": "no planned faults exist on RECEIVE-MAP (planned21[0] == 0), and all scenarios entering RECEIVE-MAP have a screen present (received18.isPresent() == true), so resp20 evaluates to 0 in both original and mutated code"
   }
  ]
 }

@@ -140,6 +140,24 @@
       "why": "#4049 (proposed for 51b9571025, 7484e9fd0b): day 00 in a valid-format date: the day value check"
     },
     {
+      "name": "month-13",
+      "args": [
+        "2022-13-01",
+        "YYYY-MM-DD",
+        ""
+      ],
+      "why": "month 13: #6967 owner ruling 2026-10-29 (register L1, ASSUMED; IBM does not say 2508 or 2517): a numeric month outside 1-12 is CEE2EC (2508, date value not valid); COTRN02C and CORPT00C do not check the month before CSUTLDTC"
+    },
+    {
+      "name": "month-00",
+      "args": [
+        "2022-00-15",
+        "YYYY-MM-DD",
+        ""
+      ],
+      "why": "month 00: #6967 owner ruling 2026-10-29 (register L1, ASSUMED; IBM does not say 2508 or 2517): a numeric month outside 1-12 is CEE2EC (2508, date value not valid); COTRN02C and CORPT00C do not check the month before CSUTLDTC"
+    },
+    {
       "name": "january-date",
       "args": [
         "2022-01-15",
@@ -329,5 +347,5 @@
       "why": "#4049 (Julian YYYYDDD, the DDD token): a '-' joins the two tokens: valid"
     }
   ],
-  "notes": "CardDemo's shared date check CSUTLDTC, CALLed by COTRN02C, CORPT00C and the CSUTLDPY copybook: it passes the date and picture to the Language Environment service CEEDAYS and returns a message (severity, message number, result, date, picture) in LS-RESULT, and the severity as RETURN-CODE. GnuCOBOL has no CEEDAYS: the COBOL side runs against tests/equivalence/le/ceedays.c, a model of IBM's documented behaviour for the pictures it models (YYYY-MM-DD and its '/' and '.' forms) -- every call here is one of those; each `why` cites the rule. CardDemo's callers also pass 'YYYYMMDD' in the 10-byte field, which that model does not cover (how CEEDAYS treats the trailing blanks is not modelled), so no call here uses it; nor a month outside 1-12, whose condition (2508 or 2517) IBM's documentation does not settle. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."
+  "notes": "CardDemo's shared date check CSUTLDTC, CALLed by COTRN02C, CORPT00C and the CSUTLDPY copybook: it passes the date and picture to the Language Environment service CEEDAYS and returns a message (severity, message number, result, date, picture) in LS-RESULT, and the severity as RETURN-CODE. GnuCOBOL has no CEEDAYS: the COBOL side runs against tests/equivalence/le/ceedays.c, a model of IBM's documented behaviour for the pictures it models (YYYY-MM-DD and its '/' and '.' forms) -- every call here is one of those; each `why` cites the rule. CardDemo's callers also pass 'YYYYMMDD' in the 10-byte field, which that model does not cover (how CEEDAYS treats the trailing blanks is not modelled), so no call here uses it; a month outside 1-12 is 2508 on the owner's ruling of 2026-10-29 (IBM's documentation does not settle 2508 vs 2517; register L1, ASSUMED), run by month-13 and month-00. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."
 }

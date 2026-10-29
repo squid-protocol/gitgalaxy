@@ -236,24 +236,6 @@
    "reason": "PARAGRAPHS is read only by paragraph(), for a HANDLE ABEND label (task.abendOnCondition); COUSR03C issues no HANDLE"
   },
   {
-   "id": "cd59dc1461",
-   "op": "NEG",
-   "line": 401,
-   "before": "if (i == null) {",
-   "after": "if (!(i == null)) {",
-   "verdict": "unreachable",
-   "reason": "paragraph() is called only from condition() for a HANDLE ABEND label; COUSR03C issues no HANDLE"
-  },
-  {
-   "id": "8b922239d3",
-   "op": "NEG",
-   "line": 496,
-   "before": "if (s_DFHCOMMAREA.bytes != whole) {",
-   "after": "if (!(s_DFHCOMMAREA.bytes != whole)) {",
-   "verdict": "equivalent",
-   "reason": "caWhole(whole) restores the full DFHCOMMAREA array after a task whose area was cut to EIBCALEN (X23); a restore skipped leaves the cut array, which only matters to a later reference past EIBCALEN, and COUSR03C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN); each task starts by copying the full image back in initialState"
-  },
-  {
    "id": "0db67b338a",
    "op": "DEL",
    "line": 527,
@@ -335,6 +317,15 @@
    "reason": "the byte[] COMMAREA entry (`ca instanceof byte[]`) runs only for a LINK from a Java caller handing raw bytes; no CardDemo program LINKs this program (no EXEC CICS LINK exists in the app; it is a terminal program reached by XCTL), so the area is always the typed DTO"
   },
   {
+   "id": "c57063bf91",
+   "op": "DEL",
+   "line": 638,
+   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+   "after": "/* caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } }; */",
+   "verdict": "unreachable",
+   "reason": "the raw-area write-back runs only for a task entered with a LINK area (task.linkArea() non-null); COUSR03C is a terminal transaction (the case enters by handleTransaction), so linkArea is always null"
+  },
+  {
    "id": "e2a42b63e2",
    "op": "NEG",
    "line": 638,
@@ -351,6 +342,15 @@
    "after": "if (task.exactCommarea() || calen < s_DFHCOMMAREA.bytes.length) {",
    "verdict": "equivalent",
    "reason": "cutting DFHCOMMAREA to EIBCALEN bytes (X23) matters only to a reference past EIBCALEN; COUSR03C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN), the plumbing's own in_ runs before the cut and fill_ after caWhole restores the whole array, and at calen == the area's length the cut keeps every byte, so cutting or not is unobservable"
+  },
+  {
+   "id": "b9309bd60c",
+   "op": "DEL",
+   "line": 646,
+   "before": "caBack = () -> { caWhole(whole); typed.run(); };",
+   "after": "/* caBack = () -> { caWhole(whole); typed.run(); }; */",
+   "verdict": "equivalent",
+   "reason": "caWhole(whole) in caBack restores the full DFHCOMMAREA array; runTask's finally block (lines 661-663) unconditionally calls caWhole(caWhole) on task exit anyway, so skipping caWhole here has no effect on subsequent operations"
   },
   {
    "id": "945f8eb552",
@@ -407,15 +407,6 @@
    "reason": "handleLink is the LINKed-program facade and lastLinkBytes its raw-area answer; COUSR03C is a terminal transaction (the case enters by handleTransaction), so neither is called"
   },
   {
-   "id": "50a5880dc9",
-   "op": "CON",
-   "line": 758,
-   "before": "private int performDepth = 0;",
-   "after": "private int performDepth = 1;",
-   "verdict": "unreachable",
-   "reason": "perform() reaches this only after a paragraph that is not its range's last returns, or for a GO TO; COUSR03C's PERFORMs of single paragraphs (from == thru) return at `i == thru`, it has no GO TO or THRU, and MAIN-PARA (runTask's perform(0, 10), the one multi-paragraph range) always ends in RETURN / XCTL / an abend, so no paragraph falls through, the outer-PERFORM scan never iterates, no PerformExit is thrown and the stack never grows (it nests a handful of paragraphs deep, not 64)"
-  },
-  {
    "id": "953c3c255d",
    "op": "DEL",
    "line": 777,
@@ -443,6 +434,15 @@
    "reason": "perform() reaches this only after a paragraph that is not its range's last returns, or for a GO TO; COUSR03C's PERFORMs of single paragraphs (from == thru) return at `i == thru`, it has no GO TO or THRU, and MAIN-PARA (runTask's perform(0, 10), the one multi-paragraph range) always ends in RETURN / XCTL / an abend, so no paragraph falls through, the outer-PERFORM scan never iterates, no PerformExit is thrown and the stack never grows (it nests a handful of paragraphs deep, not 64)"
   },
   {
+   "id": "fc6669ef96",
+   "op": "NEG",
+   "line": 791,
+   "before": "if (performThru[d] == i) {",
+   "after": "if (!(performThru[d] == i)) {",
+   "verdict": "unreachable",
+   "reason": "perform() reaches this only after a paragraph that is not its range's last returns, or for a GO TO; COUSR03C's PERFORMs of single paragraphs (from == thru) return at i == thru, it has no GO TO or THRU, and MAIN-PARA (runTask's perform(0, 10)) always ends in RETURN / XCTL / an abend, so performThru[d] == i is only reached at depth 0 where d is -1"
+  },
+  {
    "id": "db8338fff3",
    "op": "CON",
    "line": 796,
@@ -457,15 +457,6 @@
    "line": 796,
    "before": "if (next >= 11) {",
    "after": "if (next < 11) {",
-   "verdict": "unreachable",
-   "reason": "perform() reaches this only after a paragraph that is not its range's last returns, or for a GO TO; COUSR03C's PERFORMs of single paragraphs (from == thru) return at `i == thru`, it has no GO TO or THRU, and MAIN-PARA (runTask's perform(0, 10), the one multi-paragraph range) always ends in RETURN / XCTL / an abend, so no paragraph falls through, the outer-PERFORM scan never iterates, no PerformExit is thrown and the stack never grows (it nests a handful of paragraphs deep, not 64)"
-  },
-  {
-   "id": "0e0f27e411",
-   "op": "NEG",
-   "line": 802,
-   "before": "if (e.depth != mine) {",
-   "after": "if (!(e.depth != mine)) {",
    "verdict": "unreachable",
    "reason": "perform() reaches this only after a paragraph that is not its range's last returns, or for a GO TO; COUSR03C's PERFORMs of single paragraphs (from == thru) return at `i == thru`, it has no GO TO or THRU, and MAIN-PARA (runTask's perform(0, 10), the one multi-paragraph range) always ends in RETURN / XCTL / an abend, so no paragraph falls through, the outer-PERFORM scan never iterates, no PerformExit is thrown and the stack never grows (it nests a handful of paragraphs deep, not 64)"
   },
@@ -497,40 +488,85 @@
    "reason": "`CDEMO-TO-PROGRAM = LOW-VALUES AND = SPACES` for OR: every caller of RETURN-TO-PREV-SCREEN moves a program name into CDEMO-TO-PROGRAM first ('COSGN00C', CDEMO-FROM-PROGRAM when it is not blank, else 'COADM01C'), so it is neither, and both conditions are false"
   },
   {
-   "id": "e9b3082d42",
-   "op": "DEL",
-   "line": 1037,
-   "before": "Cobol.store(f364_EIBRESP, BigDecimal.valueOf(0), false, CS);",
-   "after": "/* Cobol.store(f364_EIBRESP, BigDecimal.valueOf(0), false, CS); */",
-   "verdict": "equivalent",
-   "reason": "no statement of COUSR03C reads EIBRESP (every command names RESP(WS-RESP-CD) or none), DFHEIBLK is not compared, and each command stores EIBRESP afresh before the generator reads it"
-  },
-  {
-   "id": "09ab098506",
-   "op": "ROR",
-   "line": 1041,
+   "id": "e00517133d",
+   "op": "NEG",
+   "line": 999,
    "before": "if (to >= 0) return GOTO | to;",
-   "after": "if (to < 0) return GOTO | to;",
+   "after": "if (!(to >= 0)) return GOTO | to;",
    "verdict": "unreachable",
-   "reason": "condition() returns a value only for a handled, ignored or ERROR-handled condition; COUSR03C sets no handler, so after a failed XCTL it throws (the abend) and `to` is never tested"
+   "reason": "condition() returns a value only for a handled, ignored, or ERROR-handled condition; COUSR03C sets no condition handlers, so after an unhandled XCTL failure condition() executes throw abended() and to >= 0 is never tested"
   },
   {
-   "id": "60ea8d5f72",
-   "op": "LIT",
-   "line": 1069,
-   "before": "if (typed6.get(\"CURTIME\") != null) {",
-   "after": "if (typed6.get(\"XURTIME\") != null) {",
-   "verdict": "equivalent",
-   "reason": "a received CURTIME (FSET) is no longer stored: CURTIMEI is never read, POPULATE-HEADER-INFO writes CURTIMEO (the same bytes) before every SEND, and CURTIMEL is read only by SEND MAP's cursor test, which RECEIVE never sets"
-  },
-  {
-   "id": "746f31ef26",
+   "id": "8f4ebc67ed",
    "op": "DEL",
-   "line": 1136,
-   "before": "Cobol.store(f365_EIBRESP2, BigDecimal.valueOf(read8.resp2()), false, CS);",
-   "after": "/* Cobol.store(f365_EIBRESP2, BigDecimal.valueOf(read8.resp2()), false, CS); */",
+   "line": 1038,
+   "before": "Cobol.store(f364_EIBRESP, BigDecimal.valueOf(planned5[0]), false, CS);",
+   "after": "/* Cobol.store(f364_EIBRESP, BigDecimal.valueOf(planned5[0]), false, CS); */",
    "verdict": "equivalent",
-   "reason": "COUSR03C never reads EIBRESP2, so its value cannot show"
+   "reason": "SEND-USRDEL-SCREEN is only called immediately before task exit (EXEC CICS RETURN); EIBRESP is never read after SEND MAP, DFHEIBLK is not compared, and the next transaction re-initializes DFHEIBLK in runTask"
+  },
+  {
+   "id": "6a72b782cd",
+   "op": "NEG",
+   "line": 1042,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (!(to >= 0)) return GOTO | to;",
+   "verdict": "unreachable",
+   "reason": "the SEND MAP condition check is reached only when planned5[0] != 0 (planned faults); no SEND MAP faults are planned in any scenario, and even if planned, COUSR03C sets no condition handlers so condition() throws abended() directly"
+  },
+  {
+   "id": "a53f930853",
+   "op": "ROR",
+   "line": 1042,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to > 0) return GOTO | to;",
+   "verdict": "unreachable",
+   "reason": "the SEND MAP condition check is reached only when planned5[0] != 0 (planned faults); no SEND MAP faults are planned in any scenario, and even if planned, COUSR03C sets no condition handlers so condition() throws abended() directly"
+  },
+  {
+   "id": "b0f2250625",
+   "op": "LIT",
+   "line": 1050,
+   "before": "int[] planned9 = task.planned(\"RECEIVE-MAP\", \"COUSR3A\");",
+   "after": "int[] planned9 = task.planned(\"RECEIVE-MAP\", \"XOUSR3A\");",
+   "verdict": "equivalent",
+   "reason": "task.planned(\"RECEIVE-MAP\", ...) queries the mock planned-fault table; no RECEIVE-MAP faults are planned in any scenario, so both \"COUSR3A\" and \"XOUSR3A\" return {0, 0}"
+  },
+  {
+   "id": "b371ea994d",
+   "op": "LIT",
+   "line": 1065,
+   "before": "if (typed7.get(\"PGMNAME\") != null) {",
+   "after": "if (typed7.get(\"XGMNAME\") != null) {",
+   "verdict": "equivalent",
+   "reason": "received map field PGMNAMEI is never read anywhere in COUSR03C's PROCEDURE DIVISION, and SEND MAP overwrites the map fields with POPULATE-HEADER-INFO values, so storing or skipping PGMNAME has no observable effect"
+  },
+  {
+   "id": "12919b30e7",
+   "op": "LIT",
+   "line": 1068,
+   "before": "if (typed7.get(\"TITLE02\") != null) {",
+   "after": "if (typed7.get(\"XITLE02\") != null) {",
+   "verdict": "equivalent",
+   "reason": "received map field TITLE02I is never read anywhere in COUSR03C's PROCEDURE DIVISION, and SEND MAP overwrites the map fields with POPULATE-HEADER-INFO values, so storing or skipping TITLE02 has no observable effect"
+  },
+  {
+   "id": "e2324054e8",
+   "op": "DEL",
+   "line": 1093,
+   "before": "Cobol.store(f8_WS_REAS_CD, BigDecimal.valueOf(0), false, CS);",
+   "after": "/* Cobol.store(f8_WS_REAS_CD, BigDecimal.valueOf(0), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "COUSR03C only reads WS-REAS-CD in DISPLAY statements immediately following READ or DELETE operations; each file READ or DELETE command overwrites WS-REAS-CD from RESP2, so clearing WS-REAS-CD to 0 beforehand is never observed"
+  },
+  {
+   "id": "c4e53e1239",
+   "op": "DEL",
+   "line": 1138,
+   "before": "Cobol.store(f365_EIBRESP2, BigDecimal.valueOf(read10.resp2()), false, CS);",
+   "after": "/* Cobol.store(f365_EIBRESP2, BigDecimal.valueOf(read10.resp2()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "COUSR03C never reads EIBRESP2 anywhere in its PROCEDURE DIVISION (reads RESP2 into WS-REAS-CD directly), DFHEIBLK is not compared, and each command re-stores EIBRESP2 before any subsequent task could see it"
   }
  ]
 }

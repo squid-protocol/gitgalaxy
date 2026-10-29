@@ -627,3 +627,70 @@ public class Main {
     assert run(two.lower()) == [two, wrong_size]  # (any 16 bytes: the program never reads them as a time)
     for bad in (None, "", one[:-2], one + "00", "ZZ" + one[2:]):
         assert run(bad) == [refusal], bad
+
+
+_BYTE_VIEW_HEAD = """\
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. PTRLN.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-PTR                 POINTER.
+       01  WS-PTR-X REDEFINES WS-PTR PIC X(4).
+       01  WS-OUT                 PIC X(8) VALUE SPACES.
+       01  WS-NUM                 PIC S9(8) COMP VALUE 0.
+       LINKAGE SECTION.
+       01  DFHCOMMAREA            PIC X(8).
+       01  LS-VIEW                PIC X(8).
+       PROCEDURE DIVISION.
+           EXEC CICS ADDRESS COMMAREA(WS-PTR)
+           END-EXEC.
+"""
+
+
+def test_a_pic_x4_byte_view_tested_against_the_no_commarea_address_translates_whole(tmp_path):
+    """#6876 (X59), CAADDR / CAADSB / CAEBCA / CAEBSB: `IF WS-PTR-X = X'FF000000'` after ADDRESS COMMAREA, then SET ADDRESS OF
+    a view TO the pointer. The test goes to the runtime (the handle's bytes are never compared); both spellings of the
+    relation (literal on either side, NOT =) translate, and the pointer's own statements are no longer refused."""
+    body = (
+        "           IF WS-PTR-X = X'FF000000'\n               MOVE 'ABSENT' TO WS-OUT\n"
+        "           ELSE\n               MOVE 'PRESENT' TO WS-OUT\n"
+        "               SET ADDRESS OF LS-VIEW TO WS-PTR\n           END-IF.\n"
+        "           IF X'FF000000' NOT = WS-PTR-X\n               MOVE 'P' TO WS-OUT\n           END-IF.\n"
+        "           EXEC CICS RETURN END-EXEC.\n"
+    )
+    r = _translate(tmp_path, _BYTE_VIEW_HEAD + body)
+    assert r.stats["holes"] == [], r.stats["holes"]
+    assert r.java.count("DetCics.isNoCommareaAddress(") == 2
+    assert "DetCics.setAddress(task, " in r.java
+
+
+@pytest.mark.parametrize(
+    "statement",
+    [
+        "MOVE WS-PTR-X TO WS-OUT.",  # the handle's bytes
+        "MOVE 'ABCD' TO WS-PTR-X.",
+        "IF WS-PTR-X = 'ABCD' MOVE 'Y' TO WS-OUT END-IF.",
+        "IF WS-PTR-X = LOW-VALUES MOVE 'Y' TO WS-OUT END-IF.",
+        "IF WS-PTR-X > X'FF000000' MOVE 'Y' TO WS-OUT END-IF.",
+        "IF WS-PTR-X (1:1) = X'FF' MOVE 'Y' TO WS-OUT END-IF.",
+    ],
+)
+def test_any_other_use_of_a_pointer_byte_view_is_a_hole(tmp_path, statement):
+    source = _BYTE_VIEW_HEAD + "           " + statement + "\n           EXEC CICS RETURN END-EXEC.\n"
+    r = _translate(tmp_path, source)
+    assert any("REDEFINES overlays a POINTER" in h or "pointer byte view" in h for h in r.stats["holes"]), r.stats[
+        "holes"
+    ]
+    assert r.stats["translated"] < r.stats["statements"]
+
+
+def test_a_byte_view_of_the_wrong_width_or_shared_with_another_overlay_stays_refused(tmp_path):
+    for old, new in (
+        ("PIC X(4).", "PIC X(8)."),  # not the pointer's width
+        ("PIC X(4).", "PIC X(4).\n       01  WS-PTR-N REDEFINES WS-PTR PIC S9(8) COMP."),  # a second overlay
+    ):
+        source = _BYTE_VIEW_HEAD.replace(old, new, 1) + (
+            "           IF WS-PTR-X = X'FF000000' MOVE 'A' TO WS-OUT END-IF.\n           EXEC CICS RETURN END-EXEC.\n"
+        )
+        r = _translate(tmp_path, source)
+        assert r.stats["holes"], (new, "must stay a hole")

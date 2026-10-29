@@ -331,6 +331,17 @@ jobs:
           # in full-suite, which has no corpora); same pin as smoke-test.yml
           tests/tools/ci_retry.sh 4 10 -- pip install --require-hashes -r ci/requirements/treesitter.txt
 
+      # #6730: the det tests fetch tree-sitter parsers from github.com at run time; a 504 on parsers.json failed part 3/4 on
+      # the first attempt and passed on rerun. Same cache as smoke-test.yml (#6675): main saves it, a PR restores it.
+      - name: Cache tree-sitter language pack
+        id: tree_sitter_language_pack
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/tree-sitter-language-pack
+          key: tree-sitter-${{ runner.os }}-${{ hashFiles('gitgalaxy/ci/requirements/treesitter.txt') }}
+          restore-keys: |
+            tree-sitter-${{ runner.os }}-
+
       - name: Cache the pinned corpora
         id: corpora
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -436,6 +447,15 @@ jobs:
           # scans are unpacked from the warm job, so no test pays a cold scan
           PYTHONPATH="$PWD" python -m pytest -q -n auto --durations=25 tests/cobol_mainframe/ \
             --splits ${{ matrix.parts }} --splitting-algorithm least_duration --group ${{ matrix.group }}
+
+      # #6730: main only (a PR's save is scoped to its ref, which nothing else reads); only on a miss
+      - name: Save the tree-sitter language pack to the cache
+        if: success() && github.event_name != 'pull_request' && steps.tree_sitter_language_pack.outputs.cache-hit != 'true'
+        continue-on-error: true  # best effort: a lost save race must not fail the job
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/tree-sitter-language-pack
+          key: tree-sitter-${{ runner.os }}-${{ hashFiles('gitgalaxy/ci/requirements/treesitter.txt') }}
 
       # #5166 part B: the per-test time gate, as in smoke-test.yml (a test over 15 s needs a slow marker or a baseline entry;
       # a baselined one fails over its recorded time x 2.5). smoke-test ignores tests/cobol_mainframe on a PR, so this is the

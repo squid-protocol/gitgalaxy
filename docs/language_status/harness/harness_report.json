@@ -6,26 +6,26 @@
   "programs": 103,
   "with_case": 103,
   "with_case_pct": 100.0,
-  "proven": 80,
-  "proven_pct": 77.7,
+  "proven": 81,
+  "proven_pct": 78.6,
   "paragraphs": {
-   "covered": 365,
-   "live": 366,
+   "covered": 369,
+   "live": 370,
    "pct": 99.7
   },
   "branches": {
-   "covered": 1149,
-   "total": 1219,
+   "covered": 1161,
+   "total": 1231,
    "pct": 94.3
   },
-  "cases_measured": 25,
+  "cases_measured": 26,
   "cases": 98
  },
  "status_counts": {
-  "proven": 80,
+  "proven": 81,
   "differs": 0,
   "ran, coverage open": 21,
-  "couldn't run": 2,
+  "couldn't run": 1,
   "not attempted": 0
  },
  "programs": [
@@ -414,7 +414,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 45
+   "tests": 47
   },
   {
    "corpus": "cics-banking-sample-application-cbsa",
@@ -423,7 +423,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 97
+   "tests": 99
   },
   {
    "corpus": "cics-banking-sample-application-cbsa",
@@ -459,7 +459,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 47
+   "tests": 49
   },
   {
    "corpus": "cics-banking-sample-application-cbsa",
@@ -599,11 +599,11 @@
   {
    "corpus": "cics-genapp",
    "program": "base/src/lgicdb01.cbl",
-   "case": "genapp-lgicdb01-generated",
+   "case": "genapp-lgicdb01",
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 22
+   "tests": 17
   },
   {
    "corpus": "cics-genapp",
@@ -640,6 +640,15 @@
    "gaps": [],
    "reasons": {},
    "tests": 7
+  },
+  {
+   "corpus": "cics-genapp",
+   "program": "base/src/lgsetup.cbl",
+   "case": "genapp-lgsetup",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 2
   },
   {
    "corpus": "cics-genapp",
@@ -876,20 +885,6 @@
    "blocker": "coverage: LINKed program LGICDB01 has live paragraphs no scenario runs"
   },
   {
-   "corpus": "cics-genapp",
-   "program": "base/src/lgsetup.cbl",
-   "case": "genapp-lgsetup",
-   "status": "couldn't run",
-   "gaps": [
-    "known unproven: #5252"
-   ],
-   "reasons": {
-    "known unproven: #5252": "LGSETUP's SEND TEXT FROM(WRITE-MSG-H) LENGTH(24) sends WRITE-MSG-H and the item after it, WRITE-MSG-HIGH PIC 9(10). The det port holds that numeric as a typed BigDecimal that never reaches the record's bytes (DetCics.withinRecord reads the bytes), so Java sends 0000000000 where GnuCOBOL sends the customer number. Unmasked on 2026-10-21 when X6 became ASSUMED: the run used to stop at the WRITEQ TS past FROM (98) before this SEND TEXT. Fix: pack the enclosing record's typed items before a past-FROM read (the pack_ methods are emitted only under --groups)."
-   },
-   "tests": 2,
-   "blocker": "known unproven: #5252"
-  },
-  {
    "corpus": "dbb-mortgage-application",
    "program": "zBuilder/MortgageApplication/cobol/epsmlist.cbl",
    "case": "mortgage-mlist",
@@ -916,7 +911,7 @@
     "coverage: LINKed program INQACCCU has live paragraphs no scenario runs": "16/22 paragraphs",
     "coverage: LINKed program INQCUST has live paragraphs no scenario runs": "13/25 paragraphs"
    },
-   "tests": 45,
+   "tests": 47,
    "blocker": "coverage: LINKed program INQCUST has live paragraphs no scenario runs"
   },
   {
@@ -948,7 +943,7 @@
     "coverage: LINKed program INQACCCU has live paragraphs no scenario runs": "16/22 paragraphs",
     "coverage: LINKed program INQCUST has live paragraphs no scenario runs": "18/25 paragraphs"
    },
-   "tests": 47,
+   "tests": 49,
    "blocker": "coverage: LINKed program INQCUST has live paragraphs no scenario runs"
   },
   {
@@ -1002,7 +997,7 @@
     "coverage: LINKed program CRDTAGY4 has live paragraphs no scenario runs": "0/7 paragraphs",
     "coverage: LINKed program CRDTAGY5 has live paragraphs no scenario runs": "0/7 paragraphs"
    },
-   "tests": 97,
+   "tests": 99,
    "blocker": "coverage: LINKed program CRDTAGY1 has live paragraphs no scenario runs"
   },
   {
@@ -1528,7 +1523,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 45,
+   "tests": 47,
    "non_vsam": [
     "db2"
    ]
@@ -1554,7 +1549,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 97,
+   "tests": 99,
    "non_vsam": [
     "db2"
    ]
@@ -1591,7 +1586,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 47,
+   "tests": 49,
    "non_vsam": [
     "db2"
    ]
@@ -1880,12 +1875,12 @@
    "scenarios_generated": false,
    "tests": 8
   },
-  "genapp-lgicdb01-generated": {
+  "genapp-lgicdb01": {
    "generated": [],
    "shipped": [],
    "skipped": [],
-   "scenarios_generated": true,
-   "tests": 22,
+   "scenarios_generated": false,
+   "tests": 17,
    "non_vsam": [
     "db2"
    ]
@@ -2375,20 +2370,6 @@
    "then_needs": {}
   },
   {
-   "gap": "known unproven: #5252",
-   "fix": "Fix #5252 (LGSETUP's SEND TEXT FROM(WRITE-MSG-H) LENGTH(24) sends WRITE-MSG-H and the item after it, WRITE-MSG-HIGH PIC 9(10). The det port holds that numeric as a type...) to prove 1 program: base/src/lgsetup.cbl (cases: genapp-lgsetup).",
-   "programs": [
-    "base/src/lgsetup.cbl"
-   ],
-   "cases": [
-    "genapp-lgsetup"
-   ],
-   "programs_unlocked": 1,
-   "tests_unlocked": 2,
-   "programs_also_blocked": [],
-   "then_needs": {}
-  },
-  {
    "gap": "coverage: LINKed program CRDTAGY1 has live paragraphs no scenario runs",
    "fix": "Add scenarios that reach the paragraphs / branches nothing runs in 1 program: src/base/cobol_src/BNK1CCS.cbl (cases: cbsa-bnk1ccs).",
    "programs": [
@@ -2440,7 +2421,7 @@
  "input_blockers": [
   {
    "cause": "db2",
-   "fix": "Provide DDL or sample rows for the Db2 tables (generated rows cover only some programs): 39 input(s) in carddemo-copaus1c, carddemo-copaus2c, carddemo-cotrtlic, carddemo-cotrtupc, cbsa-acctctrl, cbsa-bnk1cac, cbsa-bnk1cca, cbsa-bnk1ccs, cbsa-bnk1cra, cbsa-bnk1dac, cbsa-bnk1dcs, cbsa-bnk1tfn, cbsa-bnk1uac, cbsa-custctrl, cbsa-dbcrfun, cbsa-delacc, cbsa-inqacc, cbsa-inqacccu, cbsa-updacc, cbsa-xfrfun, genapp-lgacdb02, genapp-lgacus01, genapp-lgapdb01, genapp-lgdpdb01-generated, genapp-lgdpol01-generated, genapp-lgicdb01-generated, genapp-lgicus01, genapp-lgipdb01, genapp-lgipol01, genapp-lgtestc1, genapp-lgtestp1, genapp-lgtestp2, genapp-lgtestp3, genapp-lgtestp4, genapp-lgucdb01-generated, genapp-lgucus01-generated, genapp-lgupdb01, genapp-lgupol01, mortgage-cmort.",
+   "fix": "Provide DDL or sample rows for the Db2 tables (generated rows cover only some programs): 39 input(s) in carddemo-copaus1c, carddemo-copaus2c, carddemo-cotrtlic, carddemo-cotrtupc, cbsa-acctctrl, cbsa-bnk1cac, cbsa-bnk1cca, cbsa-bnk1ccs, cbsa-bnk1cra, cbsa-bnk1dac, cbsa-bnk1dcs, cbsa-bnk1tfn, cbsa-bnk1uac, cbsa-custctrl, cbsa-dbcrfun, cbsa-delacc, cbsa-inqacc, cbsa-inqacccu, cbsa-updacc, cbsa-xfrfun, genapp-lgacdb02, genapp-lgacus01, genapp-lgapdb01, genapp-lgdpdb01-generated, genapp-lgdpol01-generated, genapp-lgicdb01, genapp-lgicus01, genapp-lgipdb01, genapp-lgipol01, genapp-lgtestc1, genapp-lgtestp1, genapp-lgtestp2, genapp-lgtestp3, genapp-lgtestp4, genapp-lgucdb01-generated, genapp-lgucus01-generated, genapp-lgupdb01, genapp-lgupol01, mortgage-cmort.",
    "items": [
     "carddemo-copaus1c: case input",
     "carddemo-copaus2c: case input",
@@ -2467,7 +2448,7 @@
     "genapp-lgapdb01: case input",
     "genapp-lgdpdb01-generated: case input",
     "genapp-lgdpol01-generated: case input",
-    "genapp-lgicdb01-generated: case input",
+    "genapp-lgicdb01: case input",
     "genapp-lgicus01: case input",
     "genapp-lgipdb01: case input",
     "genapp-lgipol01: case input",
@@ -2508,7 +2489,7 @@
     "genapp-lgapdb01",
     "genapp-lgdpdb01-generated",
     "genapp-lgdpol01-generated",
-    "genapp-lgicdb01-generated",
+    "genapp-lgicdb01",
     "genapp-lgicus01",
     "genapp-lgipdb01",
     "genapp-lgipol01",
@@ -2569,7 +2550,7 @@
     "src/base/cobol_src/XFRFUN.cbl",
     "zBuilder/MortgageApplication/cobol/epscmort.cbl"
    ],
-   "tests_held": 1033
+   "tests_held": 1034
   },
   {
    "cause": "ims",

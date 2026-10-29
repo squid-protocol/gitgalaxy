@@ -188,7 +188,9 @@ class Gen:
         self.write_only_pointers: set[str] = set()  # program.write_only_pointers
         self.overlaid_pointers: set[str] = set()  # program.overlaid_pointers (#4771)
         self.pointer_views: set[str] = set()  # program.pointer_views (#4771)
-        self.pointer_byte_view_of: dict[str, str] = {}  # program.pointer_byte_view_of (#6876): PIC X(4) view -> its pointer
+        self.pointer_byte_view_of: dict[
+            str, str
+        ] = {}  # program.pointer_byte_view_of (#6876): PIC X(4) view -> its pointer
         self.pointer_view_of: dict[str, str] = {}  # program.pointer_view_of (#4771): pure numeric view -> its pointer
         self.p = prog
         # structured: a program with no GO TO / HANDLE -- paragraphs are void methods called in order, no dispatcher
@@ -639,7 +641,9 @@ class Gen:
         elif isinstance(c, E.CondName):
             if c.abbrev is not None and self.resolve_cond(c.ref) is None:
                 rel = E.Rel(c.abbrev[0], c.abbrev[1], c.ref)
-                if not (self.null_relation(rel) or self.pointer_relation(rel) or self.byte_view_relation(rel) is not None):
+                if not (
+                    self.null_relation(rel) or self.pointer_relation(rel) or self.byte_view_relation(rel) is not None
+                ):
                     out.append(self._relation(c.abbrev[1], c.ref, c.abbrev[0] == "="))
         elif isinstance(c, E.ClassCond):
             if c.kind in ("POSITIVE", "NEGATIVE", "ZERO"):
@@ -1574,11 +1578,14 @@ class Gen:
         the view is not compared as bytes: the runtime says whether the pointer is the no-COMMAREA address
         (DetCics.isNoCommareaAddress). Only = is a test of it; any other operator is refused by name."""
         if c.op != "=":
-            raise Untranslatable(f"pointer byte view {c.op} X'FF000000': only = and NOT = test the no-COMMAREA address (X59)")
+            raise Untranslatable(
+                f"pointer byte view {c.op} X'FF000000': only = and NOT = test the no-COMMAREA address (X59)"
+            )
         if self.cics is None:
             raise Untranslatable("a pointer's byte view compared with X'FF000000' (CICS pointers)")
         ptr = self.byte_view_relation(c)
-        assert ptr is not None
+        if ptr is None:
+            raise Untranslatable("a pointer byte view compared with a literal other than X'FF000000' (X59)")
         return f"DetCics.isNoCommareaAddress({self.pointer_item(ptr)})"
 
     def rel_pointers(self, c: E.Rel) -> str:

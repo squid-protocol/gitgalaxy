@@ -669,7 +669,9 @@ def test_a_pic_x4_byte_view_tested_against_the_no_commarea_address_translates_wh
 def test_any_other_use_of_a_pointer_byte_view_is_a_hole(tmp_path, statement):
     source = _BYTE_VIEW_HEAD + "           " + statement + "\n           EXEC CICS RETURN END-EXEC.\n"
     r = _translate(tmp_path, source)
-    assert any("REDEFINES overlays a POINTER" in h or "pointer byte view" in h for h in r.stats["holes"]), r.stats["holes"]
+    assert any("REDEFINES overlays a POINTER" in h or "pointer byte view" in h for h in r.stats["holes"]), r.stats[
+        "holes"
+    ]
     assert r.stats["translated"] < r.stats["statements"]
 
 
@@ -679,8 +681,7 @@ def test_a_byte_view_of_the_wrong_width_or_shared_with_another_overlay_stays_ref
         ("PIC X(4).", "PIC X(4).\n       01  WS-PTR-N REDEFINES WS-PTR PIC S9(8) COMP."),  # a second overlay
     ):
         source = _BYTE_VIEW_HEAD.replace(old, new, 1) + (
-            "           IF WS-PTR-X = X'FF000000' MOVE 'A' TO WS-OUT END-IF.\n"
-            "           EXEC CICS RETURN END-EXEC.\n"
+            "           IF WS-PTR-X = X'FF000000' MOVE 'A' TO WS-OUT END-IF.\n           EXEC CICS RETURN END-EXEC.\n"
         )
         r = _translate(tmp_path, source)
         assert r.stats["holes"], (new, "must stay a hole")

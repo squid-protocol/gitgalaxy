@@ -1144,3 +1144,37 @@ def test_a_function_whose_head_folded_the_members_above_it_is_read_by_its_braces
     calls = port.functions[0][4].calls
     assert {"has", "other"} <= set(calls)
     assert "notify" not in calls
+
+
+MISREAD_OWNER_SRC = """\
+struct Private {};
+typedef Private<PW> Base;
+struct PW : public GuiWidget {};
+struct Item
+    : public Home
+    , DE_OBSERVES(Org, Create) // note
+    , DE_OBSERVES(Org, Update)
+{
+public:
+    Item(int a) : Home(a) {}
+    int v;
+};
+struct PW::Impl : public Private<PW>
+{
+    Impl(Public *i) : Base(i) {}
+};
+PW::PW(const String &name)
+    : GuiWidget(name)
+{}
+"""
+
+
+def test_a_ctor_names_its_own_class_as_owner_when_a_misread_class_encloses_it():
+    """doomsday packageswidget.cpp (#6266): a base list ending in `DE_OBSERVES(..) // c` leaves an unclosed class over the
+    rest of the file; `Impl(..) : Base(i)` and `PW::PW() : GuiWidget(..)` are not constructors of it."""
+    classes = co.class_names_of_text(MISREAD_OWNER_SRC)
+    nodes = co.function_nodes(co._parser("cpp").parse(MISREAD_OWNER_SRC.encode()))
+    by_name = {co._ctor_name(n): n for n in nodes}
+    assert co.Body(by_name["Impl"], classes).calls.get("Base") == "ctor-init"
+    assert co.Body(by_name["PW"], classes).calls.get("GuiWidget") == "ctor-init"
+    assert co.Body(by_name["Item"], classes).calls.get("Home") == "ctor-init"

@@ -230,6 +230,27 @@ fatal-error files, so clang precision fell for dsda-doom (0.8666 -> 0.8618), fas
 for the five. Body-oracle residual: doomsday (C++) precision 0.9686 -> 0.9679 (`absent` 42 -> 63, `type` 2009 -> 2037,
 macros expanding to a constructor such as `LOG_*`), not yet read against source (#6770).
 
+**Nightly red 2026-10-27..29 (#6266).** Two separate causes. (1) An engine regression from #6922: a macro that a macro
+body invokes was expanded and never listed, also when the scan declares a function of that name, so prboom-plus lost
+every edge `free(p)` -> `Z_Free(p)` -> `(Z_Free)(...)` makes (clang recall 0.9975 -> 0.9303), fastdoom `LL_AddToTail` ->
+`LL_AddNode` (a macro in `ns_ll.h`, a function in `ns_llm.h`; 1.0 -> 0.9963) and chocolate/crispy-doom `DEH_String`.
+Fixed: such a macro lists its own name (`c_repo_macro_body_calls`), as a direct call of the name does; every engine
+number of the 15 C ports is again the one of engine `2a023d320`. (2) #6930 changed the reference: with the compiler's
+builtin headers on the path, `stddef.h` / `stdarg.h` no longer end a parse, so fatal-error files fell (linuxdoom 59 -> 2,
+doom-ascii 81 -> 4, doomgeneric 92 -> 12, doomretro 95 -> 20, sdl-doom 82 -> 22, fastdoom 120 -> 82, prboom-plus 133 ->
+106) and disagreements already present became clean-file ones. With the new reference the clean-file count is the same
+at engine `2a023d320` and after the fix (doom-ascii 14, doomgeneric 15, doomretro 19, dsda-doom 22, fastdoom 27,
+linuxdoom 2, prboom-plus 18, sdl-doom 13, nugget-doom 3, woof 3), so only the `clang` section of
+`callgraph_baseline.json` was re-measured (engine `e1767b0c7`, the body-oracle section unchanged). Shapes, read in source:
+
+| shape | side | ports | verdict |
+|---|---|---|---|
+| call in an `#if ORIGCODE` block, the macro defined nowhere (`#if` of an undefined identifier is 0) | engine-only | doomgeneric, doom-ascii, sdl-doom (`d_loop.c`, `m_argv.c`, `statdump.c`, `i_joystick.c`, `m_config.c`) | engine gap: the #6770 dead-branch rule reads `#ifdef X` / `defined(X)` only |
+| object-like macro naming a function: `#define saveg_read_think_t saveg_read_actionf_t`, `#define saveg_write_bool saveg_write8`, `#define OVERLAYTEXTX I_GetOverlayTextX()` | clang-only | doomgeneric, doom-ascii, sdl-doom, doomretro | engine gap: only function-like macros are expanded |
+| call under a build or platform toggle the reference parses unset (`#ifndef SNDSERV`; fastdoom `MODE_X` ...; `SIMPLECHECKS`; the music players; a Windows `closedir` shim) | engine-only | linuxdoom, fastdoom, dsda-doom, prboom-plus | configuration: the engine reads the build files (#6951), libclang gets no `-D` |
+| plain direct calls clang does not report (dsda-doom `string_view.c`, functions returning `dboolean`) | engine-only | dsda-doom | engine right in source; why the reference loses them is not yet traced |
+| `static inline` `M_ArrayGrow` in `m_array.h` | clang-only | nugget-doom, woof | residual of the header-function row above |
+
 ## Lineage vs linuxdoom (`lineage.py`, #5620)
 
 How much of id Software's linuxdoom-1.10 survives in each port: the round-1 study's survival and landmark-function

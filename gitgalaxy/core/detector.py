@@ -1356,8 +1356,13 @@ def _c_macro_init_entries(body: str) -> frozenset[str]:
     parts = [p for p in parts if p] if leading else parts
     if len(parts) < 2 and not leading:
         return frozenset()
-    names = [m.group(1) if (m := _C_MACRO_INIT_ENTRY.fullmatch(p)) else None for p in parts]
-    return frozenset(names) if None not in names else frozenset()
+    names: set[str] = set()
+    for part in parts:
+        m = _C_MACRO_INIT_ENTRY.fullmatch(part)
+        if m is None:
+            return frozenset()
+        names.add(m.group(1))
+    return frozenset(names)
 
 
 def c_macro_body_calls(code: str) -> dict[str, frozenset[str] | None]:

@@ -34,7 +34,10 @@ def _table(code):
         ("#define A(x) B(x)\n#define A(y) B(y)\n", {"A": {"B"}}),  # variants that agree record it
         ("#define DEF(n) static int n(void) { return B(); }\n", {}),  # a signature macro is a definition
         # #6266: a body that is a constructor init list also lists its member names, under the `<init>` key
-        ("#define M() \\\n  prev(*this, 1) \\\n  , next(*this, 2)\n", {"M": {"prev", "next"}, "<init>M": {"prev", "next"}}),
+        (
+            "#define M() \\\n  prev(*this, 1) \\\n  , next(*this, 2)\n",
+            {"M": {"prev", "next"}, "<init>M": {"prev", "next"}},
+        ),
         ("#define M(a) , init(a, f(1))\n", {"M": {"init", "f"}, "<init>M": {"init"}}),
         ("#define M(a) B(a), C(a)\n", {"M": {"B", "C"}, "<init>M": {"B", "C"}}),
         ("#define M(a) B(a) + C(a)\n", {"M": {"B", "C"}}),  # no comma at depth 0: not an init list

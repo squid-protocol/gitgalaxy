@@ -309,6 +309,7 @@ class Gen:
         # the PROGRAM COLLATING SEQUENCE's Sort.Collating once a relation condition compares under it (#4539): the
         # service's COLLATING constant
         self.pcs_used: str | None = None
+        self.sorts_table = False  # a SORT of a table (format 2): the runtime's Sort is imported without an SD file
 
     # ---- references ---------------------------------------------------------------------------------------------
     def resolve(self, ref: E.Ref) -> L.Item:
@@ -3379,6 +3380,41 @@ class Gen:
             raise Untranslatable(f"{name}: an SD with no record, or records of different lengths")
         return fd
 
+    def sort_table(self, d: dict, ind: str) -> list[str]:
+        """SORT table ON {ASCENDING | DESCENDING} KEY k ... (format 2): the table's entries, each a record of the
+        sort, ordered by the keys inside an entry and put back in place. One OCCURS level with a fixed count; a key
+        is a data item of the entry (or the entry itself, for an elementary table); SORT-RETURN 0."""
+        tbl = self.resolve(E.Ref(d["file"]))
+        if _occurs_chain(tbl) != [tbl] or tbl.depending or tbl.occurs < 2:
+            raise Untranslatable(f"SORT {d['file']}: not a table of one fixed OCCURS level")
+        self.check_record_bytes(tbl, f"SORT {d['file']}")
+        coll = self.collating("SORT", d["collating"] or self.program_collating)
+        keys = []
+        for ref, asc in d["keys"]:
+            it = self.resolve(ref)
+            top = it
+            while top is not tbl and top.parent is not None:
+                top = top.parent
+            if top is not tbl or _occurs_chain(it) != [tbl] or ref.subscripts:
+                raise Untranslatable(f"SORT {d['file']} KEY {ref.name}: not a data item of one entry of the table")
+            if coll and it.category != "NUMERIC" and not _text_item(it):
+                raise Untranslatable(f"SORT {d['file']} KEY {ref.name}: holds numeric or national items, under "
+                                     f"COLLATING SEQUENCE {d['collating'] or self.program_collating}: not modelled")  # fmt: skip
+            keys.append(f"new Sort.Key(r -> {self.factory(it, 'r', str(it.offset - tbl.offset))}, {_b(asc)})")
+        self.sorts_table = True
+        var, i, n = self.tmpname("tsort"), self.tmpname("i"), tbl.occurs
+        entry = f"{self.field_expr(E.Ref(d['file']))}.at({i}, {tbl.size})"
+        out = [
+            f"{ind}Sort {var} = new Sort({jstr(d['file'])}, {tbl.size}, {_b(d['duplicates'])}, CS,"
+            + (f" {coll}," if coll else "")
+        ]
+        out += [f"{ind}        {k}{',' if m < len(keys) - 1 else ');'}" for m, k in enumerate(keys)]
+        out += [f"{ind}for (int {i} = 1; {i} <= {n}; {i}++) {{", f"{ind}    {var}.add({entry});", f"{ind}}}",
+                f"{ind}{var}.sort();",
+                f"{ind}for (int {i} = 1; {i} <= {n}; {i}++) {{", f"{ind}    {entry}.putRaw({var}.next());", f"{ind}}}",
+                f"{ind}Cobol.store({self.field_expr(E.Ref('SORT-RETURN'))}, BigDecimal.ZERO, false, CS);"]  # fmt: skip
+        return out
+
     def procedure_range(self, rng: tuple, ind: str) -> list[str]:
         """An INPUT / OUTPUT PROCEDURE: run as PERFORM name [THRU name] runs it (a section: its paragraphs)."""
         t, thru = rng
@@ -3393,6 +3429,8 @@ class Gen:
         """SORT / MERGE: a Sort over the SD's records, filled from the USING files or the INPUT PROCEDURE's RELEASEs,
         ordered, then emptied into the GIVING files or by the OUTPUT PROCEDURE's RETURNs; SORT-RETURN 0."""
         d, verb = s.data, s.kind
+        if d["table"]:
+            return self.sort_table(d, ind)
         sd = self.sort_file(d["file"])
         var = f"sort_{jname(sd.select)}"
         coll = self.collating(verb, d["collating"] or self.program_collating)

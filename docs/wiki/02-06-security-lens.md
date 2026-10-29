@@ -15,7 +15,7 @@ To detect structural attack patterns, dynamic execution threats, and credential 
 Traditional scanners rely on CVEs or brittle signatures. Modern threats use obfuscation, zero-width characters, and dynamic logic (e.g., arbitrary `eval`, prototype poisoning) that bypass standard signatures. A structural approach is necessary to identify these mechanics.
 
 ## Design
-The engine decouples threat measurement from policy enforcement, allowing dynamic threat threshold injection (e.g., `--paranoid` mode). It scans for 13 distinct structural threat patterns, including obfuscation, security control bypasses, dynamic execution (`eval`), prototype poisoning, steganography, memory overrides, and agentic RCE paths. It utilizes content scanning (Shannon entropy for packed payloads) and data flow taint analysis (tracking untrusted I/O into execution sinks). Threat density is normalized against executable lines of code, scaled exponentially by network centrality metrics.
+The engine decouples threat measurement from policy enforcement, allowing dynamic threat threshold injection (e.g., `--paranoid` mode). It scans for 13 distinct structural threat patterns, including obfuscation, security control bypasses, dynamic execution (`eval`), prototype poisoning, steganography, self-propagation (a file copying or overwriting itself), memory overrides, and agentic RCE paths. It utilizes content scanning (Shannon entropy for packed payloads) and data flow taint analysis (tracking untrusted I/O into execution sinks). Threat density is normalized against executable lines of code, scaled exponentially by network centrality metrics.
 
 ## Pipeline Integration
 Inputs: Analyzable source code, network centrality metrics, and runtime policies.

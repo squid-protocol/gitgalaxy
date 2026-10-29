@@ -152,6 +152,59 @@ def test_new_commits_drop_the_merge_label_so_an_unreviewed_head_never_merges():
     assert "automerge" in kinds(acts) and "ready" not in kinds(acts)
 
 
+def test_a_dropped_head_goes_back_to_draft_so_only_the_cheap_audits_run_on_it():
+    # #6278 item 6: the heavy jobs wait for the label; a draft cannot merge, so no required check is weakened
+    acts = sg.decide(snap(action="synchronize", approved=False))
+    assert by_op(acts, "draft") == [{"op": "draft", "sha": SHA}]
+    assert "cheap audits only" in by_op(acts, "comment")[0]["body"]
+    assert "draft" not in kinds(sg.decide(snap(action="synchronize", approved=False, draft=True)))  # already one
+    assert "draft" not in kinds(sg.decide(snap(action="synchronize", approved=True)))  # an approved head keeps running
+    assert "draft" not in kinds(sg.decide(snap(labels=[sg.REAPPROVE])))  # only the drop itself converts
+
+
+def test_relabelling_a_dropped_draft_marks_it_ready_so_the_full_set_runs_once():
+    acts = sg.decide(snap(draft=True, labels=[sg.MERGE, sg.REAPPROVE], approved=True))
+    assert "ready" in kinds(acts) and "draft" not in kinds(acts) and "automerge" not in kinds(acts)
+
+
+def test_no_infra_rerun_on_a_draft_or_a_head_just_dropped_to_one():
+    # a rerun replays the old pull_request event (draft=false) and would start the heavy jobs the draft skips
+    for s in (snap(draft=True, failed=[failure("infra")]),
+              snap(action="synchronize", approved=False, failed=[failure("infra")])):  # fmt: skip
+        acts = sg.decide(s)
+        assert "rerun" not in kinds(acts)
+    assert by_op(sg.decide(snap(failed=[failure("infra")])), "rerun")  # a ready PR still gets its rerun
+
+
+def test_apply_draft_converts_then_cancels_only_the_heavy_runs_still_going():
+    runs = [
+        {"id": 1, "name": "Det Sweep", "status": "in_progress", "path": ".github/workflows/det-sweep.yml"},
+        {"id": 2, "name": "Ruff Audit", "status": "in_progress", "path": ".github/workflows/ruff-audit.yml"},
+        {"id": 3, "name": "Smoke", "status": "completed", "path": ".github/workflows/smoke-test.yml"},
+        {"id": 4, "name": "Ground Truth", "status": "queued", "path": ".github/workflows/mainframe-ground-truth.yml"},
+    ]
+    cmds = []
+
+    def run(argv):
+        cmds.append(argv)
+        out = json.dumps({"workflow_runs": runs}) if argv[:2] == ["gh", "api"] else ""
+        return subprocess.CompletedProcess(argv, 0, out, "")
+
+    lines = sg.apply(7, snap(), [{"op": "draft", "sha": SHA}], run=run)
+    assert cmds[0] == ["gh", "pr", "ready", "7", "-R", sg.REPO_SLUG, "--undo"]
+    assert f"head_sha={SHA}&event=pull_request" in cmds[1][2]
+    assert [c[3] for c in cmds if c[:3] == ["gh", "run", "cancel"]] == ["1", "4"]
+    assert lines[0] == "#7 back to draft: ok" and len(lines) == 3
+
+
+def test_apply_draft_reports_an_unreadable_run_list():
+    def run(argv):
+        return subprocess.CompletedProcess(argv, 1 if argv[:2] == ["gh", "api"] else 0, "", "boom")
+
+    lines = sg.apply(7, snap(), [{"op": "draft", "sha": SHA}], run=run)
+    assert lines == ["#7 back to draft: ok", f"#7 cancel heavy runs on {SHA[:12]}: FAILED to list runs"]
+
+
 def test_a_dropped_merge_label_leaves_reapprove_so_the_pr_is_findable():
     acts = sg.decide(snap(action="synchronize", auto_merge=True, approved=False, labels=[sg.MERGE, sg.NEEDS]))
     assert by_op(acts, "labels") == [{"op": "labels", "add": [sg.REAPPROVE], "remove": [sg.NEEDS]}]
@@ -441,7 +494,8 @@ def test_reconcile_after_an_unapproved_push_drops_the_label_and_never_merges():
     gh.parents = {"b" * 40: ["a" * 40, "c" * 40]}  # the marker names A; B came from nowhere the bot knows
     lines = sg.process(7, gh.api, gh.run, None)
     assert any("unlabel" in x for x in lines)
-    assert not merged_by(gh) and not any(c[:3] == ["gh", "pr", "ready"] for c in gh.cmds)
+    ready = [c for c in gh.cmds if c[:3] == ["gh", "pr", "ready"]]
+    assert not merged_by(gh) and ready == [["gh", "pr", "ready", "7", "-R", sg.REPO_SLUG, "--undo"]]  # back to draft
 
 
 def test_reconcile_keeps_the_label_through_the_bot_update_branch():

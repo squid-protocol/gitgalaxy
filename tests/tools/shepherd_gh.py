@@ -24,7 +24,9 @@ Rules, all in decide() (pure: a snapshot in, actions out):
     label. The one exception is a plain merge of main (a worker's, or one the bot made before #5134; the latter leaves
     a marker pair). The
     drop sets shepherd:reapprove, which outlives the request labels, so a PR that lost its approval is findable
-    (`label:shepherd:reapprove`) instead of sitting silently (#4858 waited on a dropped label, 2026-10-10);
+    (`label:shepherd:reapprove`) instead of sitting silently (#4858 waited on a dropped label, 2026-10-10). The drop
+    also turns the PR back into a draft and cancels the head's heavy runs (#6278 item 6): intermediate pushes run the
+    cheap audits only, and re-adding the label marks it ready, which starts the full set once on the reviewed head;
   * "Depends on #N" in the body blocks auto-merge until #N is merged;
   * an infra/flake failure is rerun up to INFRA_RERUNS times, RETRY_GAP seconds apart (the count is run_attempt
     of the run, kept by GitHub: no local state);
@@ -91,6 +93,9 @@ GATE_OK = "every check that ran on this head passed"
 # slow path-filtered workflows whose finish should not wait for the 20-minute cron to update the gate
 GATE_TRIGGERS = ("DOOM-rosetta", "Call Graph Accuracy Audit")
 ADVISORY: tuple[str, ...] = ()  # check names whose failure never holds a merge (#6919 asks about equivalence-e2e)
+# #6278 item 6: the pull_request workflows that run on a draft (#5104); a drop cancels every other one on the head.
+# test_workflow_draft_gate.py reads this set, so the two cannot drift.
+CHEAP_ON_DRAFT = frozenset({"ruff-audit.yml", "mypy-audit.yml", "small-audits.yml", "answer-key-guard.yml"})
 DET_WORKFLOW = "det-sweep.yml"  # shepherd:full reruns its latest pull_request run (it no longer runs on label events)
 DEPENDS = re.compile(r"Depends on #(\d+)", re.I)
 DOCS = "docs/ci.md"
@@ -229,9 +234,15 @@ def decide(s: dict[str, Any]) -> list[dict[str, Any]]:
                 "body": f"CI shepherd: the head of this PR ({sha[:12]}) is not the one a "
                 f"maintainer labelled `{MERGE}` on (new commits, or never approved), so the label was removed and "
                 f"nothing merges unreviewed code. Re-add the label when the new head is ready (`{REAPPROVE}` marks "
-                "this PR until then).",
+                "this PR until then). Until then it is a draft and runs the cheap audits only; re-adding the label "
+                "marks it ready, which starts the full set on that head.",
             }
         )
+        if not s["draft"]:
+            # #6278 item 6: heavy jobs on a head nobody may merge are wasted; a draft skips them (#5104) and cannot
+            # merge, so no required check is weakened
+            acts.append({"op": "draft", "sha": sha})
+    draft = s["draft"] or dropped
     req = labels & set(REQUESTS)
 
     needs: list[dict[str, Any]] = []
@@ -252,7 +263,8 @@ def decide(s: dict[str, Any]) -> list[dict[str, Any]]:
             waiting.append(f)
         elif t in ("infra", "flake") and f.get("run_id") is not None and f.get("attempts", 0) < INFRA_RERUNS:
             rid = f["run_id"]
-            if rid not in reran_runs and s["now"] - (f.get("updated_at") or 0) >= RETRY_GAP:
+            # a rerun replays the old event (draft=false): on a draft it would start the heavy jobs the draft skips
+            if not draft and rid not in reran_runs and s["now"] - (f.get("updated_at") or 0) >= RETRY_GAP:
                 acts.append({"op": "rerun", "run_id": rid, "check": f["check"]})
                 reran_runs.add(rid)
             retrying.append(f)
@@ -828,6 +840,21 @@ def apply(n: int, s: dict[str, Any], acts: list[dict[str, Any]], run: Run = _run
             log.append(f"#{n} {a['msg']}")
         elif op == "ready":
             gh(["gh", "pr", "ready", str(n), "-R", REPO_SLUG], "ready for review")
+        elif op == "draft":
+            gh(["gh", "pr", "ready", str(n), "-R", REPO_SLUG, "--undo"], "back to draft")
+            r = run(
+                ["gh", "api", f"repos/{REPO_SLUG}/actions/runs?head_sha={a['sha']}&event=pull_request&per_page=100"]
+            )
+            try:
+                runs = None if r.returncode else json.loads(r.stdout or "{}").get("workflow_runs", [])
+            except ValueError:
+                runs = None
+            if runs is None:
+                log.append(f"#{n} cancel heavy runs on {a['sha'][:12]}: FAILED to list runs")
+            for x in runs or []:
+                if x.get("status") == "completed" or (x.get("path") or "").rsplit("/", 1)[-1] in CHEAP_ON_DRAFT:
+                    continue
+                gh(["gh", "run", "cancel", str(x["id"]), "-R", REPO_SLUG], f"cancel {x.get('name')} (run {x['id']})")
         elif op == "automerge" and a["on"]:
             refused(
                 ["gh", "pr", "merge", str(n), "-R", REPO_SLUG, "--auto", "--squash", "--match-head-commit", a["sha"]],

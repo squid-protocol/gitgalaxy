@@ -6,14 +6,18 @@ The free-tier runner pool is shared, and churn workers push WIP to draft PRs. A 
 push / schedule / dispatch runs (`github.event.pull_request.draft` is null there).
 """
 
+import sys
 from pathlib import Path
 
 import pytest
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+import shepherd_gh  # noqa: E402
+
 yaml = pytest.importorskip("yaml")
 
 WORKFLOWS = Path(__file__).resolve().parents[2] / ".github" / "workflows"
-CHEAP = {"ruff-audit.yml", "mypy-audit.yml", "small-audits.yml", "answer-key-guard.yml"}  # run on drafts too
+CHEAP = shepherd_gh.CHEAP_ON_DRAFT  # run on drafts too; a shepherd drop cancels every other run (#6278 item 6)
 NOT_ON_PR = {  # jobs that cannot start on a pull_request event (their own `if` excludes it)
     ("generated-docs.yml", "publish"),
     ("gitgalaxy.yml", "full-report"),

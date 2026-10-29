@@ -54,6 +54,7 @@
 /PGMC.cbl	tests/cobol_mainframe
 /PLI	tests/cobol_mainframe
 /PRG1.cbl	tests/cobol_mainframe
+/PROCJOB.jcl	tests/core_engine
 /PROG.CBL	tests/cobol_mainframe
 /PROG.cbl	tests/cobol_mainframe
 /PTRTOY.cbl	tests/cobol_mainframe
@@ -61,6 +62,7 @@
 /SEQCOPY.cpy	tests/cobol_mainframe
 /SEQPGM.cbl	tests/cobol_mainframe
 /SEQPGM2.cbl	tests/cobol_mainframe
+/SORTJOB.jcl	tests/core_engine
 /SPEC.md	tests/tools/test_crucible_case.py
 /SYNTOY.cbl	tests/cobol_mainframe
 /SYSTOY.cbl	tests/cobol_mainframe

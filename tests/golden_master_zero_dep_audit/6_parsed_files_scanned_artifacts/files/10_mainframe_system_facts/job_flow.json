@@ -29,6 +29,12 @@
           "Kind": "DD",
           "Line": 8,
           "Step": "BIND"
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 12,
+          "Step": "BIND"
         }
       ],
       "jcl/cash-account-cobol/DB2DDL.jcl": [
@@ -52,11 +58,23 @@
           "Step Ordinal": 1
         },
         {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 16,
+          "Step": "CREATE"
+        },
+        {
           "Kind": "STEP",
           "Line": 36,
           "Program": "IKJEFT01",
           "Step": "CRTABS",
           "Step Ordinal": 2
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 44,
+          "Step": "CRTABS"
         },
         {
           "Kind": "STEP",
@@ -66,11 +84,23 @@
           "Step Ordinal": 3
         },
         {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 76,
+          "Step": "CRGRACC"
+        },
+        {
           "Kind": "STEP",
           "Line": 87,
           "Program": "IKJEFT01",
           "Step": "CRINDX",
           "Step Ordinal": 4
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 95,
+          "Step": "CRINDX"
         }
       ],
       "jcl/cash-account-cobol/DEFKSDS.jcl": [
@@ -85,6 +115,12 @@
           "Program": "IDCAMS",
           "Step": "STEPNAME",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 8,
+          "Step": "STEPNAME"
         }
       ]
     },
@@ -127,11 +163,23 @@
           "Step Ordinal": 1
         },
         {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 39,
+          "Step": "BANKDAT0"
+        },
+        {
           "Kind": "STEP",
           "Line": 56,
           "Program": "IDCAMS",
           "Step": "BANKDAT1",
           "Step Ordinal": 2
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 59,
+          "Step": "BANKDAT1"
         },
         {
           "Kind": "STEP",
@@ -535,6 +583,12 @@
           "Program": "IKJEFT01",
           "Step": "GRANT",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 18,
+          "Step": "GRANT"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/CBSACSD.jcl": [
@@ -1581,6 +1635,12 @@
           "Program": "IKJEFT01",
           "Step": "GRANT",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 18,
+          "Step": "GRANT"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/CREDB2L.jcl": [
@@ -1634,6 +1694,12 @@
           "Program": "IKJEFT01",
           "Step": "GRANT",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 18,
+          "Step": "GRANT"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/CREI201.jcl": [
@@ -1655,6 +1721,12 @@
           "Program": "IKJEFT01",
           "Step": "GRANT",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 18,
+          "Step": "GRANT"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/CREI301.jcl": [
@@ -1676,6 +1748,12 @@
           "Program": "IKJEFT01",
           "Step": "GRANT",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 18,
+          "Step": "GRANT"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/CREL001.jcl": [
@@ -1973,6 +2051,12 @@
           "Program": "IKJEFT01",
           "Step": "GRANT",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 18,
+          "Step": "GRANT"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/CRESG02.jcl": [
@@ -1994,6 +2078,12 @@
           "Program": "IKJEFT01",
           "Step": "GRANT",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 18,
+          "Step": "GRANT"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/CRESG03.jcl": [
@@ -2015,6 +2105,12 @@
           "Program": "IKJEFT01",
           "Step": "GRANT",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 18,
+          "Step": "GRANT"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/CRETB01.jcl": [
@@ -2036,6 +2132,12 @@
           "Program": "IKJEFT01",
           "Step": "GRANT",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 18,
+          "Step": "GRANT"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/CRETB02.jcl": [
@@ -2057,6 +2159,12 @@
           "Program": "IKJEFT01",
           "Step": "GRANT",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 18,
+          "Step": "GRANT"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/CRETB03.jcl": [
@@ -2078,6 +2186,12 @@
           "Program": "IKJEFT01",
           "Step": "GRANT",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 18,
+          "Step": "GRANT"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/CRETS01.jcl": [
@@ -2099,6 +2213,12 @@
           "Program": "IKJEFT01",
           "Step": "GRANT",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 18,
+          "Step": "GRANT"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/CRETS02.jcl": [
@@ -2120,6 +2240,12 @@
           "Program": "IKJEFT01",
           "Step": "GRANT",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 18,
+          "Step": "GRANT"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/CRETS03.jcl": [
@@ -2141,6 +2267,12 @@
           "Program": "IKJEFT01",
           "Step": "GRANT",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 18,
+          "Step": "GRANT"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/DB2BIND.jcl": [
@@ -2274,6 +2406,12 @@
           "Kind": "DD",
           "Line": 92,
           "Step": "GRANT"
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 100,
+          "Step": "GRANT"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/DBCRFUN.jcl": [
@@ -2319,6 +2457,12 @@
           "Program": "IKJEFT01",
           "Step": "GRANT",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 18,
+          "Step": "GRANT"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/DRPDB00.jcl": [
@@ -2340,6 +2484,12 @@
           "Program": "IKJEFT01",
           "Step": "GRANT",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 18,
+          "Step": "GRANT"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/DRPI101.jcl": [
@@ -2361,6 +2511,12 @@
           "Program": "IKJEFT01",
           "Step": "GRANT",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 18,
+          "Step": "GRANT"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/DRPI201.jcl": [
@@ -2382,6 +2538,12 @@
           "Program": "IKJEFT01",
           "Step": "GRANT",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 18,
+          "Step": "GRANT"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/DRPI301.jcl": [
@@ -2403,6 +2565,12 @@
           "Program": "IKJEFT01",
           "Step": "GRANT",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 18,
+          "Step": "GRANT"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/DRPSG01.jcl": [
@@ -2424,6 +2592,12 @@
           "Program": "IKJEFT01",
           "Step": "GRANT",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 18,
+          "Step": "GRANT"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/DRPSG02.jcl": [
@@ -2445,6 +2619,12 @@
           "Program": "IKJEFT01",
           "Step": "GRANT",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 18,
+          "Step": "GRANT"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/DRPSG03.jcl": [
@@ -2466,6 +2646,12 @@
           "Program": "IKJEFT01",
           "Step": "GRANT",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 18,
+          "Step": "GRANT"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/DRPTB01.jcl": [
@@ -2487,6 +2673,12 @@
           "Program": "IKJEFT01",
           "Step": "GRANT",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 18,
+          "Step": "GRANT"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/DRPTB02.jcl": [
@@ -2508,6 +2700,12 @@
           "Program": "IKJEFT01",
           "Step": "GRANT",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 18,
+          "Step": "GRANT"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/DRPTB03.jcl": [
@@ -2529,6 +2727,12 @@
           "Program": "IKJEFT01",
           "Step": "GRANT",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 18,
+          "Step": "GRANT"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/DRPTS01.jcl": [
@@ -2550,6 +2754,12 @@
           "Program": "IKJEFT01",
           "Step": "GRANT",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 18,
+          "Step": "GRANT"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/DRPTS02.jcl": [
@@ -2571,6 +2781,12 @@
           "Program": "IKJEFT01",
           "Step": "GRANT",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 18,
+          "Step": "GRANT"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/DRPTS03.jcl": [
@@ -2592,6 +2808,12 @@
           "Program": "IKJEFT01",
           "Step": "GRANT",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 18,
+          "Step": "GRANT"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/EXTDCUST.jcl": [
@@ -2661,6 +2883,12 @@
           "Program": "IKJEFT01",
           "Step": "GRANT",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 33,
+          "Step": "GRANT"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/MAPGEN.jcl": [
@@ -2847,6 +3075,12 @@
           "Kind": "DD",
           "Line": 13,
           "Step": "JOBSTEP"
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 17,
+          "Step": "JOBSTEP"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/REPLSIP.jcl": [
@@ -2876,6 +3110,12 @@
           "DSN": "DFH560.SYSIN",
           "Kind": "DD",
           "Line": 13,
+          "Step": "JOBSTEP"
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 17,
           "Step": "JOBSTEP"
         }
       ],
@@ -2989,11 +3229,23 @@
           "Step Ordinal": 1
         },
         {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 7,
+          "Step": "DELETE1"
+        },
+        {
           "Kind": "STEP",
           "Line": 12,
           "Program": "IDCAMS",
           "Step": "DEFINE1",
           "Step Ordinal": 2
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 14,
+          "Step": "DEFINE1"
         },
         {
           "Kind": "STEP",
@@ -3003,11 +3255,23 @@
           "Step Ordinal": 3
         },
         {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 32,
+          "Step": "DELETE2"
+        },
+        {
           "Kind": "STEP",
           "Line": 37,
           "Program": "IDCAMS",
           "Step": "DEFINE2",
           "Step Ordinal": 4
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 39,
+          "Step": "DEFINE2"
         },
         {
           "COND": "(7,LT,DEFINE1)",
@@ -3016,6 +3280,12 @@
           "Program": "IDCAMS",
           "Step": "CUSTDATA",
           "Step Ordinal": 5
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 57,
+          "Step": "CUSTDATA"
         },
         {
           "DD": "DDIN",
@@ -3040,6 +3310,12 @@
           "Program": "IDCAMS",
           "Step": "POLYDATA",
           "Step Ordinal": 6
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 67,
+          "Step": "POLYDATA"
         },
         {
           "DD": "DDIN",
@@ -3250,6 +3526,12 @@
           "Kind": "DD",
           "Line": 10,
           "Step": "CSDDEFS"
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 13,
+          "Step": "CSDDEFS"
         }
       ],
       "jcl/cics-genapp/cdef122.jcl": [
@@ -3279,6 +3561,12 @@
           "DSN": "<CSDNAME>",
           "Kind": "DD",
           "Line": 10,
+          "Step": "CSDDEFS"
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 13,
           "Step": "CSDDEFS"
         }
       ],
@@ -3310,6 +3598,12 @@
           "Kind": "DD",
           "Line": 10,
           "Step": "CSDDEFS"
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 13,
+          "Step": "CSDDEFS"
         }
       ],
       "jcl/cics-genapp/cdef124.jcl": [
@@ -3340,6 +3634,12 @@
           "Kind": "DD",
           "Line": 10,
           "Step": "CSDDEFS"
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 13,
+          "Step": "CSDDEFS"
         }
       ],
       "jcl/cics-genapp/cdef125.jcl": [
@@ -3369,6 +3669,12 @@
           "DSN": "<CSDNAME>",
           "Kind": "DD",
           "Line": 10,
+          "Step": "CSDDEFS"
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 13,
           "Step": "CSDDEFS"
         }
       ],
@@ -3850,6 +4156,12 @@
           "Proc": "EYUJXBTP",
           "Step": "EYU9XDBT",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 14,
+          "Step": "EYU9XDBT"
         }
       ],
       "jcl/cics-genapp/db2bind.jcl": [
@@ -3880,6 +4192,12 @@
           "Kind": "DD",
           "Line": 8,
           "Step": "BIND"
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 144,
+          "Step": "BIND"
         }
       ],
       "jcl/cics-genapp/db2cre.jcl": [
@@ -3903,12 +4221,24 @@
           "Step Ordinal": 1
         },
         {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 20,
+          "Step": "CREATE"
+        },
+        {
           "COND": "(4,LT)",
           "Kind": "STEP",
           "Line": 91,
           "Program": "IKJEFT01",
           "Step": "CRTABS",
           "Step Ordinal": 2
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 100,
+          "Step": "CRTABS"
         },
         {
           "COND": "(4,LT)",
@@ -3919,12 +4249,24 @@
           "Step Ordinal": 3
         },
         {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 151,
+          "Step": "CRTABS"
+        },
+        {
           "COND": "(4,LT)",
           "Kind": "STEP",
           "Line": 184,
           "Program": "IKJEFT01",
           "Step": "CRTABS",
           "Step Ordinal": 4
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 193,
+          "Step": "CRTABS"
         },
         {
           "COND": "(4,LT)",
@@ -3935,12 +4277,24 @@
           "Step Ordinal": 5
         },
         {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 230,
+          "Step": "CRTABS"
+        },
+        {
           "COND": "(4,LT)",
           "Kind": "STEP",
           "Line": 256,
           "Program": "IKJEFT01",
           "Step": "CRTABS",
           "Step Ordinal": 6
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 265,
+          "Step": "CRTABS"
         },
         {
           "COND": "(4,LT)",
@@ -3951,6 +4305,12 @@
           "Step Ordinal": 7
         },
         {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 303,
+          "Step": "CRTABS"
+        },
+        {
           "COND": "(4,LT)",
           "Kind": "STEP",
           "Line": 342,
@@ -3959,12 +4319,24 @@
           "Step Ordinal": 8
         },
         {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 351,
+          "Step": "CRTABS"
+        },
+        {
           "COND": "(4,LT)",
           "Kind": "STEP",
           "Line": 375,
           "Program": "IKJEFT01",
           "Step": "CRGRACC",
           "Step Ordinal": 9
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 384,
+          "Step": "CRGRACC"
         },
         {
           "Kind": "STEP",
@@ -3979,6 +4351,12 @@
           "DSN": "<DB2HLQ>.SDSNLOAD",
           "Kind": "DD",
           "Line": 405,
+          "Step": "INSERT"
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 414,
           "Step": "INSERT"
         }
       ],
@@ -4001,6 +4379,12 @@
           "Program": "IKJEFT01",
           "Step": "DELETE",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 23,
+          "Step": "DELETE"
         }
       ],
       "jcl/cics-genapp/defdrep.jcl": [
@@ -4017,11 +4401,23 @@
           "Step Ordinal": 1
         },
         {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 11,
+          "Step": "DELWREP"
+        },
+        {
           "Kind": "STEP",
           "Line": 19,
           "Program": "IDCAMS",
           "Step": "DEFDREP",
           "Step Ordinal": 2
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 21,
+          "Step": "DEFDREP"
         },
         {
           "COND": "(8,LT)",
@@ -4062,11 +4458,23 @@
           "Step Ordinal": 1
         },
         {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 11,
+          "Step": "DELWREP"
+        },
+        {
           "Kind": "STEP",
           "Line": 19,
           "Program": "IDCAMS",
           "Step": "DEFWREP",
           "Step Ordinal": 2
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 21,
+          "Step": "DEFWREP"
         }
       ],
       "jcl/cics-genapp/itpentr.jcl": [
@@ -4150,6 +4558,12 @@
           "DSN": "<WSIMLGX>",
           "Kind": "DD",
           "Line": 9,
+          "Step": "LOGLIST"
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 10,
           "Step": "LOGLIST"
         }
       ],
@@ -4490,6 +4904,12 @@
           "Kind": "DD",
           "Line": 46,
           "Step": "CMAS"
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 47,
+          "Step": "CMAS"
         }
       ],
       "jcl/cics-genapp/sampncs.jcl": [
@@ -4716,6 +5136,12 @@
           "Kind": "DD",
           "Line": 65,
           "Step": "GENAPP1"
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 66,
+          "Step": "GENAPP1"
         }
       ],
       "jcl/cics-genapp/wsaac01.jcl": [
@@ -4914,6 +5340,12 @@
           "Program": "IDCAMS",
           "Step": "DEFINE",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 6,
+          "Step": "DEFINE"
         }
       ]
     },
@@ -4961,6 +5393,12 @@
           "DSN": "&SYSUID..LOAD",
           "Kind": "DD",
           "Line": 13,
+          "Step": "STEP2"
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 17,
           "Step": "STEP2"
         }
       ],
@@ -6072,6 +6510,12 @@
           "Proc": "DB2JCL",
           "Step": "SQLEXEC",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 7,
+          "Step": "SQL"
         }
       ],
       "jcl/cobol-programming-course/DB2CBL.jcl": [
@@ -6292,6 +6736,12 @@
           "DSN": "ZOS.PUBLIC.DB2.CBL",
           "Kind": "DD",
           "Line": 11,
+          "Step": "JOBSTEP"
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 14,
           "Step": "JOBSTEP"
         },
         {
@@ -6792,12 +7242,24 @@
           "Step": "LOAD"
         },
         {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 8,
+          "Step": "LOAD"
+        },
+        {
           "COND": "(0,NE)",
           "Kind": "STEP",
           "Line": 22,
           "Proc": "DSNUPROC",
           "Step": "RUNSTAT",
           "Step Ordinal": 2
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 23,
+          "Step": "RUNSTAT"
         }
       ],
       "jcl/cobol-programming-course/PAYROL00.jcl": [
@@ -6840,6 +7302,12 @@
           "Proc": "DB2JCL",
           "Step": "SQLEXEC",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "INSTREAM",
+          "Line": 7,
+          "Step": "SQLEXEC"
         }
       ],
       "jcl/cobol-programming-course/SRCHBINJ.jcl": [

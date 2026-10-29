@@ -301,15 +301,17 @@ def _outrec(operand: str, syms: dict[str, Field | Const]) -> tuple[Field | Const
             t = tokens[i] = at.group(2).strip()
         fill = re.fullmatch(r"(\d+)([XZ])", t.upper())
         sym = syms.get(t.upper())
+        lit = sym if isinstance(sym, Const) else (None if t.isdigit() or sym else _const(t))
+        item: Field | Const | Fill
         if fill:
-            item: Field | Const | Fill = Fill(int(fill.group(1)), fill.group(2) == "Z")
-            if item.length < 1:
+            if int(fill.group(1)) < 1:
                 raise Refused(f"OUTREC {t}")
+            item = Fill(int(fill.group(1)), fill.group(2) == "Z")
             i += 1
-        elif isinstance(sym, Const) or (sym is None and not t.isdigit() and _const(t) is not None):
-            item = sym if isinstance(sym, Const) else _const(t)  # type: ignore[assignment]
-            if item.kind == "N" or not item.text:
+        elif lit is not None:
+            if lit.kind == "N" or not lit.text:
                 raise Refused(f"OUTREC constant {t} (only non-empty C'...' and X'...')")
+            item = lit
             i += 1
         else:
             f, i = _field(tokens, i, syms, "CH", False)

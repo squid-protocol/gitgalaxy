@@ -68,7 +68,13 @@ def test_and_binds_tighter_than_or_and_parentheses_group():
 
 def test_outrec_items_are_parsed_in_order():
     c = D.parse(" SORT FIELDS=(1,2,CH,A)\n OUTREC FIELDS=(1:3,4,5X,2Z,C'a''b',X'f1f2')\n")
-    assert c.outrec == (D.Field(3, 4, "CH"), D.Fill(5, False), D.Fill(2, True), D.Const("C", "a'b"), D.Const("X", "F1F2"))
+    assert c.outrec == (
+        D.Field(3, 4, "CH"),
+        D.Fill(5, False),
+        D.Fill(2, True),
+        D.Const("C", "a'b"),
+        D.Const("X", "F1F2"),
+    )
 
 
 def test_outrec_takes_symbols_and_build_and_continues_lines():
@@ -231,8 +237,21 @@ def _need_java() -> None:
 @pytest.mark.slow(reason="javac of the batch runtime and a GnuCOBOL container per step")
 @pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1" or not shutil.which("docker"),
                     reason="needs EQUIVALENCE_E2E=1 and Docker")  # fmt: skip
-@pytest.mark.parametrize("step", ["TRANREPT", "SORTTEST", "COMBTRAN", "COPYOMIT", "EQUALSPD", "MERGEINC",
-                                  "OUTRECSORT", "OUTRECCOPY", "OUTRECMERGE", "OUTRECZD"])
+@pytest.mark.parametrize(
+    "step",
+    [
+        "TRANREPT",
+        "SORTTEST",
+        "COMBTRAN",
+        "COPYOMIT",
+        "EQUALSPD",
+        "MERGEINC",
+        "OUTRECSORT",
+        "OUTRECCOPY",
+        "OUTRECMERGE",
+        "OUTRECZD",
+    ],
+)
 def test_sort_step_output_is_gnucobols_byte_for_byte(step, tmp_path):
     _need_java()
     src, inputs = _steps()[step]
@@ -244,7 +263,9 @@ def test_sort_step_output_is_gnucobols_byte_for_byte(step, tmp_path):
     want = (cob / "SORTOUT").read_bytes()
     (tmp_path / "port").mkdir()
     got = _java_step(src, tmp_path / "port", inputs, "SORTOUT")
-    out_len = {"OUTRECSORT": 16 + 2 + 10 + 1 + 1 + 3, "OUTRECCOPY": 26, "OUTRECMERGE": 26, "OUTRECZD": 32}.get(step, RECLEN)
+    out_len = {"OUTRECSORT": 16 + 2 + 10 + 1 + 1 + 3, "OUTRECCOPY": 26, "OUTRECMERGE": 26, "OUTRECZD": 32}.get(
+        step, RECLEN
+    )
     assert len(want) % out_len == 0 and want, "the oracle kept no record"
     assert got == want
     if step in ("TRANREPT", "SORTTEST", "COPYOMIT"):  # the INCLUDE / OMIT kept some records and dropped others

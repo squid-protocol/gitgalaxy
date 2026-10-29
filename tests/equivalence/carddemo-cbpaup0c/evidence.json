@@ -80,8 +80,8 @@
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
-   "files": 114,
-   "sha256": "677fa62263ff7acbf2597c620fa35c8bcd3c5e0c01f879c446792cfe50524c49",
+   "files": 119,
+   "sha256": "d13d870feeedd7860526a9a7d0197bf4b433ab2c94f8d9247b31ac6a2e8e3b0f",
    "components": {
     "generator:cobolrt/Accept.java": "4bc260fc6386c11e4654cc76eb67a87ca1fad76647373d1e75484ed61b6a0cf3",
     "generator:cobolrt/Cobol.java": "0e5d898e6fb899e23c540e201d019a4dcd8a372df07d6b1d9c80a7df261a0c9f",
@@ -187,10 +187,10 @@
    },
    "runtime_sha256": "486d6880280039b47962e4e97342fe0740f30e991fc7aff36d0fd384b1810abc"
   },
-  "digest": "f35550cab61289936501248e6e7bf4ef854a00d97bdf8fcab31a65ccdd460bcc"
+  "digest": "5bbaca9cee3b58f89f3e0e2397c103a9770e0725503f062e683a7aa0febb9ecf"
  },
  "proof": {
-  "at": "2026-10-28T23:15:58Z",
+  "at": "2026-10-29T00:25:05Z",
   "verdict": "proven",
   "runs": 13,
   "fault_runs": 12,
@@ -205,8 +205,8 @@
   "sysout_compared": true,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "baab61709b7cae0a5afa163cabb2afae1d498c5f+uncommitted",
-  "inputs_digest": "f35550cab61289936501248e6e7bf4ef854a00d97bdf8fcab31a65ccdd460bcc"
+  "harness_commit": "1884cfcedccb4c3b026e72bde1dc4e7555c50e89",
+  "inputs_digest": "5bbaca9cee3b58f89f3e0e2397c103a9770e0725503f062e683a7aa0febb9ecf"
  },
  "coverage": {
   "paragraphs": {
@@ -236,7 +236,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "f35550cab61289936501248e6e7bf4ef854a00d97bdf8fcab31a65ccdd460bcc"
+  "inputs_digest": "5bbaca9cee3b58f89f3e0e2397c103a9770e0725503f062e683a7aa0febb9ecf"
  },
  "reach": {
   "entry_points": [

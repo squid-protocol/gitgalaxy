@@ -54,7 +54,11 @@ FAMILIES = {
     "G": "a guard every caller has already satisfied (data flow)",
     "C": "a test of a constant: a copybook VALUE never written, a table built once, a loop index with fixed bounds",
     "R": "a response the command never raises (IBM's documented conditions; the reason cites the page)",
+    "U": "undefined by IBM: reachable only through an out-of-range subscript or reference modification without SSRANGE "
+    "(IBM leaves the result undefined, GnuCOBOL refuses; owner ruling 2026-10-29). Netted from the bar like the others, "
+    "but reported by name with counts as its own class, never as proven or as infeasible",
 }
+UNDEFINED = "U"  # the family of an 'undefined by IBM' outcome
 
 
 def load(path: Path | None = None) -> dict[str, list[dict[str, Any]]]:
@@ -69,6 +73,18 @@ def load(path: Path | None = None) -> dict[str, list[dict[str, Any]]]:
         for f in sorted(path.glob("*.json")):
             out[f.stem] = json.loads(f.read_text(encoding="utf-8")).get("entries", [])
     return out
+
+
+def is_undefined(entry: dict[str, Any]) -> bool:
+    """An 'undefined by IBM' outcome (family U): a class of its own, not an infeasible one."""
+    return entry.get("family") == UNDEFINED
+
+
+def split_undefined(keys: Iterable[str], entries: Iterable[dict[str, Any]]) -> tuple[list[str], list[str]]:
+    """(the keys that are infeasible, the keys that are undefined by IBM) of `keys`, by the family of their entries."""
+    und = {key(e) for e in entries if is_undefined(e)}
+    ks = list(keys)
+    return [k for k in ks if k not in und], [k for k in ks if k in und]
 
 
 def is_paragraph(entry: dict[str, Any]) -> bool:
@@ -212,7 +228,10 @@ def check(det: dict[str, dict[str, Any]], ledger: dict[str, list[dict[str, Any]]
 
 def table(cases: list[str] | None = None) -> str:
     """The entries as a Markdown table (the PR body's review table)."""
-    rows = ["| case | paragraph:line | outcome | family | why no input reaches it |", "|---|---|---|---|---|"]
+    rows = [
+        "| case | paragraph:line | outcome | family (U = undefined by IBM) | why no input reaches it |",
+        "|---|---|---|---|---|",
+    ]
     for case, entries in sorted(load().items()):
         if cases and case not in cases:
             continue

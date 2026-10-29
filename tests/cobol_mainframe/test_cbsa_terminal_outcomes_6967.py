@@ -2,7 +2,8 @@
 
 The terminal fault command exists (register X71: SEND MAP, SEND TEXT and RECEIVE MAP conditions). These checks read only
 the committed sweep-coverage and infeasible-outcome files, so a new open SEND / RECEIVE arm fails here instead of
-reading as covered. BNK1CAC keeps four open arms in the numeric-edit region (the DEEDIT item of #6967), allowlisted.
+reading as covered. BNK1CAC keeps four open arms in the numeric-edit region (the DEEDIT item of #6967): stated family U,
+"undefined by IBM" (owner ruling 2026-10-29, `.claude/rules/mainframe-evidence-policy.md` section 7).
 """
 
 from __future__ import annotations
@@ -14,7 +15,7 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
 CASES = ("bnk1cac", "bnk1cca", "bnk1ccs", "bnk1cra", "bnk1dac", "bnk1dcs", "bnk1tfn", "bnk1uac", "bnkmenu")
-DEEDIT_OPEN = {"bnk1cac": {(611, "true"), (637, "true"), (637, "false"), (717, "true")}}
+UNDEFINED_BY_IBM = {"bnk1cac": {(611, "true"), (637, "true"), (637, "false"), (717, "true")}}
 
 
 def _load(kind: str, case: str) -> dict:
@@ -28,11 +29,14 @@ def _key(branch: str) -> tuple[int, str]:
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_every_uncovered_branch_is_stated_infeasible_or_a_known_deedit_arm(case):
-    stated = {(int(e["line"]), e["outcome"]) for e in _load("infeasible_outcomes", case)["entries"] if "line" in e}
+def test_every_uncovered_branch_is_stated_infeasible_or_undefined_by_ibm(case):
+    entries = [e for e in _load("infeasible_outcomes", case)["entries"] if "line" in e]
+    stated = {(int(e["line"]), e["outcome"]) for e in entries}
     uncovered = _load("det_sweep_coverage", case)["uncovered"]["branches"]
     open_arms = {_key(b) for b in uncovered if not b.startswith("paragraph:")} - stated
-    assert open_arms == DEEDIT_OPEN.get(case, set())
+    assert open_arms == set()
+    undefined = {(int(e["line"]), e["outcome"]) for e in entries if e["family"] == "U"}
+    assert undefined == UNDEFINED_BY_IBM.get(case, set())
 
 
 @pytest.mark.parametrize("case", CASES)

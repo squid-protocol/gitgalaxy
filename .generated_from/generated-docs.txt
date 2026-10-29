@@ -1,2 +1,2 @@
-Generated output only, never edit by hand. Source: main @ a3bbeb82ae3c3d3b45f1ed5a1c0f135752ffd11e
+Generated output only, never edit by hand. Source: main @ 72df6f01efcca5daf3371b965530a7f617cc6c40
 Writer: generated-docs

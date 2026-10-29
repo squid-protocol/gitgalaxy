@@ -384,7 +384,10 @@
    ],
    "done": true,
    "about": "Each SELECT over its FD record, through CobolFiles.",
-   "plumbing": []
+   "plumbing": [
+    "frames",
+    "lastLength"
+   ]
   },
   {
    "id": "SYS",

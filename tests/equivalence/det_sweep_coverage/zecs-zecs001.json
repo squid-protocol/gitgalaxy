@@ -1,12 +1,12 @@
 {
  "format": "det-sweep-coverage/2",
- "scenarios": 43,
+ "scenarios": 44,
  "paragraphs": {
-  "covered": 91,
+  "covered": 99,
   "live": 119
  },
  "branches": {
-  "covered": 126,
+  "covered": 134,
   "total": 208
  },
  "uncovered": {
@@ -27,18 +27,10 @@
    "3600-SEND-RESPONSE:1192",
    "3600-EXIT:1236",
    "4130-EXIT:1392",
-   "4600-REPLICATE:1554",
-   "4600-EXIT:1563",
    "5400-REPLICATE:1681",
    "5400-EXIT:1691",
    "5500-EXIT:1722",
-   "5600-EXIT:1742",
-   "8100-WEB-OPEN:1824",
-   "8100-EXIT:1839",
-   "8200-WEB-CONVERSE:1847",
-   "8200-EXIT:1919",
-   "8300-WEB-CLOSE:1925",
-   "8300-EXIT:1932"
+   "5600-EXIT:1742"
   ],
   "branches": [
    "492:false",
@@ -101,7 +93,6 @@
    "1212:true",
    "1212:false",
    "1380:false",
-   "1449:true",
    "1468:true",
    "1490:false",
    "1651:true",
@@ -110,19 +101,12 @@
    "1719:false",
    "1737:false",
    "1825:true",
-   "1825:false",
    "1852:true",
-   "1852:false",
-   "1858:true",
    "1858:false",
-   "1860:true",
    "1860:false",
-   "1879:true",
    "1879:false",
    "1881:true",
-   "1881:false",
    "1902:true",
-   "1902:false",
    "paragraph:1500-EXIT",
    "paragraph:1600-USER-ACCESS",
    "paragraph:1600-EXIT",
@@ -139,36 +123,28 @@
    "paragraph:3600-SEND-RESPONSE",
    "paragraph:3600-EXIT",
    "paragraph:4130-EXIT",
-   "paragraph:4600-REPLICATE",
-   "paragraph:4600-EXIT",
    "paragraph:5400-REPLICATE",
    "paragraph:5400-EXIT",
    "paragraph:5500-EXIT",
-   "paragraph:5600-EXIT",
-   "paragraph:8100-WEB-OPEN",
-   "paragraph:8100-EXIT",
-   "paragraph:8200-WEB-CONVERSE",
-   "paragraph:8200-EXIT",
-   "paragraph:8300-WEB-CLOSE",
-   "paragraph:8300-EXIT"
+   "paragraph:5600-EXIT"
   ]
  },
  "inputs": {
-  "case": "c4739ee7c601b3339df4292e7f3eda72555b86098c37be22496dfddc78810ed8",
+  "case": "104b851927a7c28a83128ae96ec36143eb3f8a3fad585e4fd73961e3c5c221c6",
   "corpus": "09feecf8028c77a136bbff56380f9babddf0b2e28fbb6a7ad7ba456273989ff6",
   "harness": "6c043a2747a3f02617d9c80d05d3db6e75a1c91b2f35604f3497ada9c1979ebf",
-  "oracle": "9846b9e75bc9ba2608f88c3d9f030cdddfba7652f9a90036b8a90e2980ff2ef9",
+  "oracle": "ce3c101cffb6e6f1cd6d8cd66127f9835e830b4205fdcd11b5f0d51829ab44ac",
   "components": {
    "harness": {
     "harness:cics": "994f4737853d6c4cf64df2cb1d93100e7f0789f25ab9f407f8e69e9d62e90f7e",
     "harness:core": "8e1310bc564e3676298ff0dca730b1c7f6c4b82b77dba1c9b578fc98cebe8983"
    },
    "oracle": {
-    "oracle:cics-stub": "a734764a0fd68b7a28cf90cb397ca1a3b2b408043164c2b4fa2b9c1a7550c9e2",
+    "oracle:cics-stub": "965902714bdbef866c712c819e563ebd1972652a2750e86023e7925aa0a49177",
     "oracle:core": "b4bb775f0a30746a6054f259b4c8613e08cb0d8cf3b40f4a789d953aca4144a0",
     "oracle:le": "40cd6e8dceaf92611cccb37449d02a18a107a9c5921e3edfb09bb5b9263e2ddf"
    }
   }
  },
- "measured_at": "9f6e06c583366e3701c704a78b9217ee1c0afa7f"
+ "measured_at": "f95ccab8b1a97c9dcb15e4e1614c526098450d48"
 }

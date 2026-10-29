@@ -1,5 +1,5 @@
 {
- "commit": "e57552d25",
+ "commit": "dec2ed355",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -160,21 +160,21 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-29T00:51:27Z",
+  "as_of": "2026-10-29T00:58:21Z",
   "core": {
-   "closed": 188,
-   "open": 19,
+   "closed": 190,
+   "open": 17,
    "total": 207
   },
   "core_last_window": {
-   "closed": 33,
-   "net_closed": 20,
-   "opened": 13
+   "closed": 35,
+   "net_closed": 23,
+   "opened": 12
   },
   "core_milestone": {
-   "closed": 98,
+   "closed": 99,
    "number": 28,
-   "open": 10,
+   "open": 9,
    "total": 108
   },
   "epics": {
@@ -184,7 +184,7 @@
    "4893": "open",
    "4894": "open"
   },
-  "eta": "7 days",
+  "eta": "5 days",
   "frontier": {
    "closed": 115,
    "found_last_window": 6,
@@ -192,9 +192,9 @@
    "total": 198
   },
   "frontier_milestone": {
-   "closed": 6,
+   "closed": 7,
    "number": 30,
-   "open": 44,
+   "open": 43,
    "total": 50
   },
   "infra": {
@@ -380,9 +380,9 @@
     "total": 23
    },
    {
-    "closed": 259,
+    "closed": 260,
     "number": 28,
-    "open": 11,
+    "open": 10,
     "title": "Training Montage \ud83c\udfcb\ufe0f \u2014 Prepping to one-shot our 4th CICS to Java translation attempt",
     "total": 270
    },
@@ -394,9 +394,9 @@
     "total": 8
    },
    {
-    "closed": 6,
+    "closed": 7,
     "number": 30,
-    "open": 44,
+    "open": 43,
     "title": "Gap Atlas \ud83d\uddfa\ufe0f \u2014 mapped, not yet built",
     "total": 50
    },

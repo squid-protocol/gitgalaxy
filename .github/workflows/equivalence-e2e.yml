@@ -134,6 +134,26 @@ jobs:
           fetch-depth: 1
           persist-credentials: false
 
+      # #7002: a shard's Db2-backed proof (cbsa-updacc) starts the Db2 container; its cold icr.io pull timed out on main.
+      # Same cache entry and background load as the db2 job (main saves it), so the harness finds the image on the host
+      - name: Name the Db2 image cache entry (#5262)
+        id: db2key
+        run: echo "key=$(python3 tests/tools/db2_image_cache.py key)" >> "$GITHUB_OUTPUT"
+
+      - name: Restore the pinned Db2 image from the cache (#5262)
+        id: db2image
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/db2-image-cache
+          key: ${{ steps.db2key.outputs.key }}
+
+      # the pull (or the load) overlaps the installs below, as in det-sweep.yml; a final failure is only logged, the harness pulls again
+      - name: Load or pull the pinned Db2 image in the background
+        run: |
+          image=$(grep -oE 'icr\.io/db2_community/db2@sha256:[0-9a-f]{64}' tests/tools/equivalence_db2.py | head -1)
+          echo "Db2 image: \`$image\` (cache: ${{ steps.db2image.outputs.cache-hit == 'true' && 'hit' || 'miss' }})" >> "$GITHUB_STEP_SUMMARY"
+          setsid nohup bash -c "python3 tests/tools/db2_image_cache.py load '$RUNNER_TEMP/db2-image-cache' || tests/tools/ci_retry.sh 4 15 -- docker pull -q '$image'; date +%s > '$RUNNER_TEMP/pull-done'" > "$RUNNER_TEMP/pull.log" 2>&1 &
+
       - name: Set up Python 3.12
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:

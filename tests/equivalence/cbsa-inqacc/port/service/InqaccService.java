@@ -1,120 +1,595 @@
+// gitgalaxy-det-port: COBOL INQACC (INQACC.cbl), translated by rule, statement for statement
 package com.gitgalaxy.modernized.service;
 
-import org.springframework.stereotype.Service;
-import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.gitgalaxy.modernized.batch.CobolAbend;
+import com.gitgalaxy.modernized.batch.CobolFiles;
+import com.gitgalaxy.modernized.batch.DatasetResolver;
+import com.gitgalaxy.modernized.batch.Dd;
+import com.gitgalaxy.modernized.batch.MainframeClock;
 import com.gitgalaxy.modernized.batch.Sysout;
-import com.gitgalaxy.modernized.cics.CicsTask;
-import com.gitgalaxy.modernized.dto.contract.AbndprocDfhcommarea;
-import com.gitgalaxy.modernized.dto.contract.InqaccDfhcommarea;
+import com.gitgalaxy.modernized.cobolrt.batch.DetFiles;
+import com.gitgalaxy.modernized.cobolrt.Cobol;
+import com.gitgalaxy.modernized.cobolrt.Field;
+import com.gitgalaxy.modernized.cobolrt.Figurative;
+import com.gitgalaxy.modernized.cobolrt.Funcs;
+import com.gitgalaxy.modernized.cobolrt.Hole;
+import com.gitgalaxy.modernized.cobolrt.Storage;
 import com.gitgalaxy.modernized.entity.vsam.CobolRecords;
-import com.gitgalaxy.modernized.exception.*;
+import com.gitgalaxy.modernized.cics.CicsTask;
+import com.gitgalaxy.modernized.cobolrt.cics.DetCics;
+import com.gitgalaxy.modernized.dto.screen.*;
+import com.gitgalaxy.modernized.dto.contract.*;
+import com.gitgalaxy.modernized.entity.vsam.*;
+import com.gitgalaxy.modernized.repository.vsam.*;
+import com.gitgalaxy.modernized.cobolrt.sql.DetSql;
 import com.gitgalaxy.modernized.repository.db2.AccountRepository;
-import com.gitgalaxy.modernized.repository.db2.Db2Dates;
-import com.gitgalaxy.modernized.util.CobolCompare;
 import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.math.RoundingMode;
+import java.nio.charset.Charset;
+import java.util.Base64;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.dao.DataAccessException;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Service;
 
 /**
- * Response handling (field testing: field-tested (6 public / 0 private estates)):
- * SYNCPOINT at line 682 tests NORMAL
+ * INQACC: a deterministic port (gitgalaxy/tools/cobol_to_java/det). Storage is the program's own bytes;
+ * each statement is the runtime's (cobolrt) rule for it; untranslated statements throw Hole.
+ * Statements: 227, translated 227, holes 0.
  */
 @Service
-@Transactional
-@RequiredArgsConstructor
 public class InqaccService {
 
-    private static final Logger log = LoggerFactory.getLogger(InqaccService.class);
+    private static final Charset CS = Cobol.recordCharset(CobolRecords.charset());
+    private static final int GOTO = 1 << 20;
+    private static final BigDecimal D99999999 = new BigDecimal("99999999");
+    private static final BigDecimal D0 = new BigDecimal("0");
+    private static final BigDecimal D100 = new BigDecimal("100");
+    private static final BigDecimal D923 = new BigDecimal("923");
 
-    /** SORTCODE copybook: 77 SORTCODE PIC 9(6) VALUE 987654. */
-    private static final int SORTCODE = 987654;
-    /** WS-ABEND-PGM PIC X(8) VALUE 'ABNDPROC'. */
-    private static final String WS_ABEND_PGM = "ABNDPROC";
-    /** NCS-ACC-NO-NAME: 'HBNKACCT' + 6 spaces + 2 spaces. */
-    private static final String NCS_ACC_NO_NAME = "HBNKACCT      " + "  ";
-    private static final String NOT_STORM_DRAIN = "Not Storm Drain     ";
-    /** SQLCODE used when the JDBC call fails: DB2's real code is not known to the port. */
-    private static final int SQLCODE_FAILED = -904;
-    /** SQLCODE DB2 returns when a NULL column is fetched into a host variable without an indicator. */
-    private static final int SQLCODE_NULL_NO_INDICATOR = -305;
-    /** Nullable ACCOUNT columns fetched without indicator variables (ACCDB2: all but SORTCODE and NUMBER). */
-    private static final String[] NULLABLE_COLUMNS = {
-        "ACCOUNT_EYECATCHER", "ACCOUNT_CUSTOMER_NUMBER", "ACCOUNT_TYPE", "ACCOUNT_INTEREST_RATE",
-        "ACCOUNT_OPENED", "ACCOUNT_OVERDRAFT_LIMIT", "ACCOUNT_LAST_STATEMENT", "ACCOUNT_NEXT_STATEMENT",
-        "ACCOUNT_AVAILABLE_BALANCE", "ACCOUNT_ACTUAL_BALANCE"};
+    private static final byte[] IMAGE_s_SORTCODE = Base64.getDecoder().decode(String.join("",
+            "OTg3NjU0"));
+    private static final byte[] IMAGE_s_HOST_ACCOUNT_ROW = Base64.getDecoder().decode(String.join("",
+            "ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgAAAADCAgICAgICAgICAAAAAAICAgICAgICAgICAgICAgICAgICAAAAAAAAAMAAAAAAAADA=="));
+    private static final byte[] IMAGE_s_SQLCA = Base64.getDecoder().decode(String.join("",
+            "ICAgICAgICAAAAAAAAAAAAAAICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAICAgICAgICAgICAgICAgIA=="));
+    private static final byte[] IMAGE_s_WS_CICS_WORK_AREA = Base64.getDecoder().decode(String.join("",
+            "AAAAAAAAAAA="));
+    private static final byte[] IMAGE_s_OUTPUT_DATA = Base64.getDecoder().decode(String.join("",
+            "ICAgIDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCAgICAgICAgMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA="));
+    private static final byte[] IMAGE_s_RETURNED_DATA = Base64.getDecoder().decode(String.join("",
+            "ICAgIDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCAgICAgICAgMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA="));
+    private static final byte[] IMAGE_s_DESIRED_KEY = Base64.getDecoder().decode(String.join("",
+            "AAAAAAAAAAA="));
+    private static final byte[] IMAGE_s_DB2_DATE_REFORMAT = Base64.getDecoder().decode(String.join("",
+            "MDAwMCAwMCAwMA=="));
+    private static final byte[] IMAGE_s_ACCOUNT_KY = Base64.getDecoder().decode(String.join("",
+            "MDAwMDAwMDAwMDAwMDA="));
+    private static final byte[] IMAGE_s_MY_ABEND_CODE = Base64.getDecoder().decode(String.join("",
+            "ICAgIA=="));
+    private static final byte[] IMAGE_s_SQLCODE_DISPLAY = Base64.getDecoder().decode(String.join("",
+            "KzAwMDAwMDAw"));
+    private static final byte[] IMAGE_s_NCS_ACC_NO_STUFF = Base64.getDecoder().decode(String.join("",
+            "SEJOS0FDQ1QgICAgICAgIAAAAAAAAAAAAAAAAAAAAAAwMA=="));
+    private static final byte[] IMAGE_s_ACCOUNT_KY2 = Base64.getDecoder().decode(String.join("",
+            "MDAwMDAwMDAwMDAwMDA="));
+    private static final byte[] IMAGE_s_WS_POINTER = Base64.getDecoder().decode(String.join("",
+            "AAAAAAAAAAA="));
+    private static final byte[] IMAGE_s_WS_U_TIME = Base64.getDecoder().decode(String.join("",
+            "AAAAAAAAAAw="));
+    private static final byte[] IMAGE_s_WS_ORIG_DATE = Base64.getDecoder().decode(String.join("",
+            "ICAgICAgICAgIA=="));
+    private static final byte[] IMAGE_s_WS_ORIG_DATE_GRP_X = Base64.getDecoder().decode(String.join("",
+            "ICAuICAuICAgIA=="));
+    private static final byte[] IMAGE_s_WS_TIME_DATA = Base64.getDecoder().decode(String.join("",
+            "MDAwMDAw"));
+    private static final byte[] IMAGE_s_ABNDINFO_REC = Base64.getDecoder().decode(String.join("",
+            "AAAAAAAAAAwwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKzAwMDAwMDAwKzAwMDAwMDAwKzAwMDAwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg",
+            "ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg",
+            "ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg"));
+    private static final byte[] IMAGE_s_DFHCOMMAREA = Base64.getDecoder().decode(String.join("",
+            "ICAgIDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCAgICAgICAgMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+            "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+            "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+            "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+            "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+            "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+            "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="));
+    private static final byte[] IMAGE_s_DFHEIBLK = Base64.getDecoder().decode(String.join("",
+            "AAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA=="));
+    private static final byte[] IMAGE_s_GG_RETURN_CODE = Base64.getDecoder().decode(String.join("",
+            "AAA="));
+    private final Storage s_SORTCODE = new Storage(IMAGE_s_SORTCODE.length);
+    private final Storage s_HOST_ACCOUNT_ROW = new Storage(IMAGE_s_HOST_ACCOUNT_ROW.length);
+    private final Storage s_SQLCA = new Storage(IMAGE_s_SQLCA.length);
+    private final Storage s_WS_CICS_WORK_AREA = new Storage(IMAGE_s_WS_CICS_WORK_AREA.length);
+    private final Storage s_OUTPUT_DATA = new Storage(IMAGE_s_OUTPUT_DATA.length);
+    private final Storage s_RETURNED_DATA = new Storage(IMAGE_s_RETURNED_DATA.length);
+    private final Storage s_DESIRED_KEY = new Storage(IMAGE_s_DESIRED_KEY.length);
+    private final Storage s_DB2_DATE_REFORMAT = new Storage(IMAGE_s_DB2_DATE_REFORMAT.length);
+    private final Storage s_ACCOUNT_KY = new Storage(IMAGE_s_ACCOUNT_KY.length);
+    private final Storage s_MY_ABEND_CODE = new Storage(IMAGE_s_MY_ABEND_CODE.length);
+    private final Storage s_SQLCODE_DISPLAY = new Storage(IMAGE_s_SQLCODE_DISPLAY.length);
+    private final Storage s_NCS_ACC_NO_STUFF = new Storage(IMAGE_s_NCS_ACC_NO_STUFF.length);
+    private final Storage s_ACCOUNT_KY2 = new Storage(IMAGE_s_ACCOUNT_KY2.length);
+    private final Storage s_WS_POINTER = new Storage(IMAGE_s_WS_POINTER.length);
+    private final Storage s_WS_U_TIME = new Storage(IMAGE_s_WS_U_TIME.length);
+    private final Storage s_WS_ORIG_DATE = new Storage(IMAGE_s_WS_ORIG_DATE.length);
+    private final Storage s_WS_ORIG_DATE_GRP_X = new Storage(IMAGE_s_WS_ORIG_DATE_GRP_X.length);
+    private final Storage s_WS_TIME_DATA = new Storage(IMAGE_s_WS_TIME_DATA.length);
+    private final Storage s_ABNDINFO_REC = new Storage(IMAGE_s_ABNDINFO_REC.length);
+    private final Storage s_DFHCOMMAREA = new Storage(IMAGE_s_DFHCOMMAREA.length);
+    private final Storage s_DFHEIBLK = new Storage(IMAGE_s_DFHEIBLK.length);
+    private final Storage s_GG_RETURN_CODE = new Storage(IMAGE_s_GG_RETURN_CODE.length);
 
-    private final ObjectProvider<AbndprocService> abndprocService;
-    private final AccountRepository accountRepository;
+    private final Field f1_SORTCODE = Field.zoned(s_SORTCODE, 0, 6, 0, false, false, false);
+    private final Field f3_HV_ACCOUNT_EYECATCHER = Field.alphanumeric(s_HOST_ACCOUNT_ROW, 0, 4, false);
+    private final Field f4_HV_ACCOUNT_CUST_NO = Field.alphanumeric(s_HOST_ACCOUNT_ROW, 4, 10, false);
+    private final Field f5_HV_ACCOUNT_SORTCODE = Field.alphanumeric(s_HOST_ACCOUNT_ROW, 14, 6, false);
+    private final Field f6_HV_ACCOUNT_ACC_NO = Field.alphanumeric(s_HOST_ACCOUNT_ROW, 20, 8, false);
+    private final Field f7_HV_ACCOUNT_ACC_TYPE = Field.alphanumeric(s_HOST_ACCOUNT_ROW, 28, 8, false);
+    private final Field f8_HV_ACCOUNT_INT_RATE = Field.packed(s_HOST_ACCOUNT_ROW, 36, 6, 2, true);
+    private final Field f9_HV_ACCOUNT_OPENED = Field.alphanumeric(s_HOST_ACCOUNT_ROW, 40, 10, false);
+    private final Field f10_HV_ACCOUNT_OVERDRAFT_LIM = Field.binary(s_HOST_ACCOUNT_ROW, 50, 9, 0, true, false);
+    private final Field f11_HV_ACCOUNT_LAST_STMT = Field.alphanumeric(s_HOST_ACCOUNT_ROW, 54, 10, false);
+    private final Field f12_HV_ACCOUNT_NEXT_STMT = Field.alphanumeric(s_HOST_ACCOUNT_ROW, 64, 10, false);
+    private final Field f13_HV_ACCOUNT_AVAIL_BAL = Field.packed(s_HOST_ACCOUNT_ROW, 74, 12, 2, true);
+    private final Field f14_HV_ACCOUNT_ACTUAL_BAL = Field.packed(s_HOST_ACCOUNT_ROW, 81, 12, 2, true);
+    private final Field f15_SQLCA = Field.group(s_SQLCA, 0, 136);
+    private final Field f18_SQLCODE = Field.binary(s_SQLCA, 12, 9, 0, true, true);
+    private final Field f20_SQLERRML = Field.binary(s_SQLCA, 16, 4, 0, true, true);
+    private final Field f21_SQLERRMC = Field.alphanumeric(s_SQLCA, 18, 70, false);
+    private final Field f23_SQLERRD = Field.binary(s_SQLCA, 96, 9, 0, true, true);
+    private final Field f36_SQLSTATE = Field.alphanumeric(s_SQLCA, 131, 5, false);
+    private final Field f38_WS_CICS_RESP = Field.binary(s_WS_CICS_WORK_AREA, 0, 8, 0, true, false);
+    private final Field f39_WS_CICS_RESP2 = Field.binary(s_WS_CICS_WORK_AREA, 4, 8, 0, true, false);
+    private final Field f41_OUTPUT_DATA = Field.group(s_OUTPUT_DATA, 0, 98);
+    private final Field f43_ACCOUNT_EYE_CATCHER = Field.alphanumeric(s_OUTPUT_DATA, 0, 4, false);
+    private final Field f44_ACCOUNT_CUST_NO = Field.zoned(s_OUTPUT_DATA, 4, 10, 0, false, false, false);
+    private final Field f46_ACCOUNT_SORT_CODE = Field.zoned(s_OUTPUT_DATA, 14, 6, 0, false, false, false);
+    private final Field f47_ACCOUNT_NUMBER = Field.zoned(s_OUTPUT_DATA, 20, 8, 0, false, false, false);
+    private final Field f48_ACCOUNT_TYPE = Field.alphanumeric(s_OUTPUT_DATA, 28, 8, false);
+    private final Field f49_ACCOUNT_INTEREST_RATE = Field.zoned(s_OUTPUT_DATA, 36, 6, 2, false, false, false);
+    private final Field f50_ACCOUNT_OPENED = Field.zoned(s_OUTPUT_DATA, 42, 8, 0, false, false, false);
+    private final Field f52_ACCOUNT_OPENED_DAY = Field.zoned(s_OUTPUT_DATA, 42, 2, 0, false, false, false);
+    private final Field f53_ACCOUNT_OPENED_MONTH = Field.zoned(s_OUTPUT_DATA, 44, 2, 0, false, false, false);
+    private final Field f54_ACCOUNT_OPENED_YEAR = Field.zoned(s_OUTPUT_DATA, 46, 4, 0, false, false, false);
+    private final Field f55_ACCOUNT_OVERDRAFT_LIMIT = Field.zoned(s_OUTPUT_DATA, 50, 8, 0, false, false, false);
+    private final Field f56_ACCOUNT_LAST_STMT_DATE = Field.zoned(s_OUTPUT_DATA, 58, 8, 0, false, false, false);
+    private final Field f58_ACCOUNT_LAST_STMT_DAY = Field.zoned(s_OUTPUT_DATA, 58, 2, 0, false, false, false);
+    private final Field f59_ACCOUNT_LAST_STMT_MONTH = Field.zoned(s_OUTPUT_DATA, 60, 2, 0, false, false, false);
+    private final Field f60_ACCOUNT_LAST_STMT_YEAR = Field.zoned(s_OUTPUT_DATA, 62, 4, 0, false, false, false);
+    private final Field f61_ACCOUNT_NEXT_STMT_DATE = Field.zoned(s_OUTPUT_DATA, 66, 8, 0, false, false, false);
+    private final Field f63_ACCOUNT_NEXT_STMT_DAY = Field.zoned(s_OUTPUT_DATA, 66, 2, 0, false, false, false);
+    private final Field f64_ACCOUNT_NEXT_STMT_MONTH = Field.zoned(s_OUTPUT_DATA, 68, 2, 0, false, false, false);
+    private final Field f65_ACCOUNT_NEXT_STMT_YEAR = Field.zoned(s_OUTPUT_DATA, 70, 4, 0, false, false, false);
+    private final Field f66_ACCOUNT_AVAILABLE_BALANCE = Field.zoned(s_OUTPUT_DATA, 74, 12, 2, true, false, false);
+    private final Field f67_ACCOUNT_ACTUAL_BALANCE = Field.zoned(s_OUTPUT_DATA, 86, 12, 2, true, false, false);
+    private final Field f83_DB2_DATE_REFORMAT = Field.group(s_DB2_DATE_REFORMAT, 0, 10);
+    private final Field f84_DB2_DATE_REF_YR = Field.zoned(s_DB2_DATE_REFORMAT, 0, 4, 0, false, false, false);
+    private final Field f86_DB2_DATE_REF_MNTH = Field.zoned(s_DB2_DATE_REFORMAT, 5, 2, 0, false, false, false);
+    private final Field f88_DB2_DATE_REF_DAY = Field.zoned(s_DB2_DATE_REFORMAT, 8, 2, 0, false, false, false);
+    private final Field f94_REQUIRED_SORT_CODE = Field.zoned(s_ACCOUNT_KY, 0, 6, 0, false, false, false);
+    private final Field f96_MY_ABEND_CODE = Field.alphanumeric(s_MY_ABEND_CODE, 0, 4, false);
+    private final Field f99_SQLCODE_DISPLAY = Field.zoned(s_SQLCODE_DISPLAY, 0, 8, 0, true, true, true);
+    private final Field f101_NCS_ACC_NO_NAME = Field.group(s_NCS_ACC_NO_STUFF, 0, 16);
+    private final Field f106_NCS_ACC_NO_VALUE = Field.binary(s_NCS_ACC_NO_STUFF, 24, 16, 0, false, false);
+    private final Field f111_REQUIRED_ACC_NUMBER2 = Field.zoned(s_ACCOUNT_KY2, 6, 8, 0, false, false, false);
+    private final Field f116_WS_U_TIME = Field.packed(s_WS_U_TIME, 0, 15, 0, true);
+    private final Field f117_WS_ORIG_DATE = Field.alphanumeric(s_WS_ORIG_DATE, 0, 10, false);
+    private final Field f131_WS_TIME_NOW = Field.zoned(s_WS_TIME_DATA, 0, 6, 0, false, false, false);
+    private final Field f133_WS_TIME_NOW_GRP_HH = Field.zoned(s_WS_TIME_DATA, 0, 2, 0, false, false, false);
+    private final Field f134_WS_TIME_NOW_GRP_MM = Field.zoned(s_WS_TIME_DATA, 2, 2, 0, false, false, false);
+    private final Field f137_ABNDINFO_REC = Field.group(s_ABNDINFO_REC, 0, 681);
+    private final Field f139_ABND_UTIME_KEY = Field.packed(s_ABNDINFO_REC, 0, 15, 0, true);
+    private final Field f140_ABND_TASKNO_KEY = Field.zoned(s_ABNDINFO_REC, 8, 4, 0, false, false, false);
+    private final Field f141_ABND_APPLID = Field.alphanumeric(s_ABNDINFO_REC, 12, 8, false);
+    private final Field f142_ABND_TRANID = Field.alphanumeric(s_ABNDINFO_REC, 20, 4, false);
+    private final Field f143_ABND_DATE = Field.alphanumeric(s_ABNDINFO_REC, 24, 10, false);
+    private final Field f144_ABND_TIME = Field.alphanumeric(s_ABNDINFO_REC, 34, 8, false);
+    private final Field f145_ABND_CODE = Field.alphanumeric(s_ABNDINFO_REC, 42, 4, false);
+    private final Field f146_ABND_PROGRAM = Field.alphanumeric(s_ABNDINFO_REC, 46, 8, false);
+    private final Field f147_ABND_RESPCODE = Field.zoned(s_ABNDINFO_REC, 54, 8, 0, true, true, true);
+    private final Field f148_ABND_RESP2CODE = Field.zoned(s_ABNDINFO_REC, 63, 8, 0, true, true, true);
+    private final Field f149_ABND_SQLCODE = Field.zoned(s_ABNDINFO_REC, 72, 8, 0, true, true, true);
+    private final Field f150_ABND_FREEFORM = Field.alphanumeric(s_ABNDINFO_REC, 81, 600, false);
+    private final Field f152_INQACC_EYE = Field.alphanumeric(s_DFHCOMMAREA, 0, 4, false);
+    private final Field f153_INQACC_CUSTNO = Field.zoned(s_DFHCOMMAREA, 4, 10, 0, false, false, false);
+    private final Field f154_INQACC_SCODE = Field.zoned(s_DFHCOMMAREA, 14, 6, 0, false, false, false);
+    private final Field f155_INQACC_ACCNO = Field.zoned(s_DFHCOMMAREA, 20, 8, 0, false, false, false);
+    private final Field f156_INQACC_ACC_TYPE = Field.alphanumeric(s_DFHCOMMAREA, 28, 8, false);
+    private final Field f157_INQACC_INT_RATE = Field.zoned(s_DFHCOMMAREA, 36, 6, 2, false, false, false);
+    private final Field f158_INQACC_OPENED = Field.zoned(s_DFHCOMMAREA, 42, 8, 0, false, false, false);
+    private final Field f163_INQACC_OVERDRAFT = Field.zoned(s_DFHCOMMAREA, 50, 8, 0, false, false, false);
+    private final Field f164_INQACC_LAST_STMT_DT = Field.zoned(s_DFHCOMMAREA, 58, 8, 0, false, false, false);
+    private final Field f169_INQACC_NEXT_STMT_DT = Field.zoned(s_DFHCOMMAREA, 66, 8, 0, false, false, false);
+    private final Field f174_INQACC_AVAIL_BAL = Field.zoned(s_DFHCOMMAREA, 74, 12, 2, true, false, false);
+    private final Field f175_INQACC_ACTUAL_BAL = Field.zoned(s_DFHCOMMAREA, 86, 12, 2, true, false, false);
+    private final Field f176_INQACC_SUCCESS = Field.alphanumeric(s_DFHCOMMAREA, 98, 1, false);
+    private final Field f179_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);
+    private final Field f180_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);
+    private final Field f181_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 4, false);
+    private final Field f182_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);
+    private final Field f183_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);
+    private final Field f186_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);
+    private final Field f207_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);
+    private final Field f208_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);
+    private final Field f210_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);
+    private String f40_EXIT_BROWSE_LOOP;  // EXIT-BROWSE-LOOP PIC X
+    private String f69_RETURNED_EYE_CATCHER;  // RETURNED-EYE-CATCHER PIC X(4)
+    private BigDecimal f70_RETURNED_CUST_NO;  // RETURNED-CUST-NO PIC 9(10) DISPLAY
+    private BigDecimal f72_RETURNED_SORT_CODE;  // RETURNED-SORT-CODE PIC 9(6) DISPLAY
+    private BigDecimal f73_RETURNED_NUMBER;  // RETURNED-NUMBER PIC 9(8) DISPLAY
+    private String f74_RETURNED_TYPE;  // RETURNED-TYPE PIC X(8)
+    private BigDecimal f75_RETURNED_INTEREST_RATE;  // RETURNED-INTEREST-RATE PIC 9(4)V99 DISPLAY
+    private BigDecimal f76_RETURNED_OPENED;  // RETURNED-OPENED PIC 9(8) DISPLAY
+    private BigDecimal f77_RETURNED_OVERDRAFT_LIMIT;  // RETURNED-OVERDRAFT-LIMIT PIC 9(8) DISPLAY
+    private BigDecimal f78_RETURNED_LAST_STMT_DATE;  // RETURNED-LAST-STMT-DATE PIC 9(8) DISPLAY
+    private BigDecimal f79_RETURNED_NEXT_STMT_DATE;  // RETURNED-NEXT-STMT-DATE PIC 9(8) DISPLAY
+    private BigDecimal f80_RETURNED_AVAILABLE_BALANCE;  // RETURNED-AVAILABLE-BALANCE PIC S9(10)V99 DISPLAY
+    private BigDecimal f81_RETURNED_ACTUAL_BALANCE;  // RETURNED-ACTUAL-BALANCE PIC S9(10)V99 DISPLAY
+    private String f89_DATA_STORE_TYPE;  // DATA-STORE-TYPE PIC X
+    private String f90_DB2_EXIT_LOOP;  // DB2-EXIT-LOOP PIC X
+    private long f91_FETCH_DATA_CNT;  // FETCH-DATA-CNT PIC 9(4) BINARY
+    private long f92_WS_CUST_ALT_KEY_LEN;  // WS-CUST-ALT-KEY-LEN PIC S9(4) BINARY
+    private BigDecimal f95_REQUIRED_ACC_NUM;  // REQUIRED-ACC-NUM PIC 9(8) DISPLAY
+    private String f97_WS_STORM_DRAIN;  // WS-STORM-DRAIN PIC X
+    private String f98_STORM_DRAIN_CONDITION;  // STORM-DRAIN-CONDITION PIC X(20)
+    private String f107_NCS_ACC_NO_RESP;  // NCS-ACC-NO-RESP PIC XX
+    private BigDecimal f108_WS_DISP_ACC_NO_VAL;  // WS-DISP-ACC-NO-VAL PIC S9(18) DISPLAY
+    private BigDecimal f110_REQUIRED_SORT_CODE2;  // REQUIRED-SORT-CODE2 PIC 9(6) DISPLAY
+    private BigDecimal f115_WS_POINTER_NUMBER_DISPLAY;  // WS-POINTER-NUMBER-DISPLAY PIC 9(8) DISPLAY
+    private String f125_WS_ORIG_DATE_DD_X;  // WS-ORIG-DATE-DD-X PIC XX
+    private String f127_WS_ORIG_DATE_MM_X;  // WS-ORIG-DATE-MM-X PIC XX
+    private String f129_WS_ORIG_DATE_YYYY_X;  // WS-ORIG-DATE-YYYY-X PIC X(4)
+    private String f136_WS_ABEND_PGM;  // WS-ABEND-PGM PIC X(8)
 
-    /** The program's WORKING-STORAGE for one task. */
-    private static final class Work {
-        InqaccDfhcommarea ca;
-        int sqlcode;
-        int eibresp;
-        int eibresp2;
-        String stormDrain = "N";                 // WS-STORM-DRAIN
-        String sqlstate = "00000";               // SQLCA, never set by the port
-        List<Map<String, Object>> rows = List.of();
-        // HOST-ACCOUNT-ROW
-        String hvEye = "    ";
-        String hvCust = "          ";
-        String hvSortcode = "      ";
-        String hvAccNo = "        ";
-        String hvType = "        ";
-        BigDecimal hvRate = BigDecimal.ZERO;
-        String hvOpened = "          ";
-        int hvOverdraft;
-        String hvLast = "          ";
-        String hvNext = "          ";
-        BigDecimal hvAvail = BigDecimal.ZERO;
-        BigDecimal hvActual = BigDecimal.ZERO;
-        // OUTPUT-DATA (copybook ACCOUNT); dates held as {day, month, year}
-        String eye;
-        long custNo;
-        int sortCode;
-        int number;
-        String type;
-        BigDecimal rate;
-        int[] opened;
-        int overdraft;
-        int[] last;
-        int[] next;
-        BigDecimal avail;
-        BigDecimal actual;
+    private CicsTask task;
+    private final java.util.Map<String, Integer> handlers = new java.util.HashMap<>();
+    private final java.util.Map<String, DetCics.Store<?>> stores = new java.util.HashMap<>();
+    private final java.util.Map<String, byte[]> heldKey = new java.util.HashMap<>();
+    /** Writes the COMMAREA's bytes back into the object the task carries (a LINKed program's is its caller's). */
+    private Runnable caBack = () -> { };
 
-        /** INITIALIZE OUTPUT-DATA */
-        void initOutput() {
-            eye = "    ";
-            custNo = 0;
-            sortCode = 0;
-            number = 0;
-            type = "        ";
-            rate = new BigDecimal("0.00");
-            opened = new int[3];
-            overdraft = 0;
-            last = new int[3];
-            next = new int[3];
-            avail = new BigDecimal("0.00");
-            actual = new BigDecimal("0.00");
+    /** The program ends because of an abend: a LINKed program's COMMAREA writes stay its caller's. */
+    private Goback abended() {
+        if (task.level() > 1) {
+            caBack.run();
+        }
+        return new Goback();
+    }
+
+    @SuppressWarnings("unchecked")
+    private <E> DetCics.Store<E> store(String name) {
+        throw new Hole("CICS file " + name + ": the program names no file the generated project stores");
+    }
+
+    private static final java.util.Map<String, Integer> PARAGRAPHS = java.util.Map.ofEntries(
+            java.util.Map.entry("PTD999", 26),
+            java.util.Map.entry("PTD010", 25),
+            java.util.Map.entry("POPULATE-TIME-DATE", 24),
+            java.util.Map.entry("GLAD999", 23),
+            java.util.Map.entry("GLAD010", 22),
+            java.util.Map.entry("GET-LAST-ACCOUNT-DB2", 21),
+            java.util.Map.entry("RAN999", 20),
+            java.util.Map.entry("RAN010", 19),
+            java.util.Map.entry("READ-ACCOUNT-LAST", 18),
+            java.util.Map.entry("AH999", 17),
+            java.util.Map.entry("AH010", 16),
+            java.util.Map.entry("ABEND-HANDLING", 15),
+            java.util.Map.entry("CFSDCD999", 14),
+            java.util.Map.entry("CFSDCD010", 13),
+            java.util.Map.entry("CHECK-FOR-STORM-DRAIN-DB2", 12),
+            java.util.Map.entry("GMOFH999", 11),
+            java.util.Map.entry("GMOFH010", 10),
+            java.util.Map.entry("GET-ME-OUT-OF-HERE", 9),
+            java.util.Map.entry("FD999", 8),
+            java.util.Map.entry("FD010", 7),
+            java.util.Map.entry("FETCH-DATA", 6),
+            java.util.Map.entry("RAD999", 5),
+            java.util.Map.entry("RAD010", 4),
+            java.util.Map.entry("READ-ACCOUNT-DB2", 3),
+            java.util.Map.entry("A999", 2),
+            java.util.Map.entry("A010", 1),
+            java.util.Map.entry("PREMIERE", 0)
+    );
+
+    private static int paragraph(String name) {
+        Integer i = PARAGRAPHS.get(name);
+        if (i == null) {
+            throw new IllegalStateException("no paragraph " + name);
+        }
+        return i;
+    }
+
+    /** A condition the command did not return in RESP: its HANDLE CONDITION label, or -1 (go on) when IGNOREd
+     *  (#4414); else CICS's default action -- -1 for one whose default is to ignore it (#4413: EOC); else the
+     *  ERROR label (#4502: IBM, HANDLE CONDITION: "if the default action for such a condition terminates the
+     *  task abnormally, and the condition ERROR has been specified, the action for ERROR is taken"); else an
+     *  abend, to this program's HANDLE ABEND exit or ending the task. */
+    private int condition(String cond) {
+        Integer h = handlers.get(cond);
+        if (h != null) {
+            return h;
+        }
+        if (DetCics.ignoredByDefault(cond)) {
+            return -1;
+        }
+        Integer error = handlers.get("ERROR");
+        if (error != null) {
+            return error;
+        }
+        String label = task.abendOnCondition(cond);
+        if (label == null) {
+            throw abended();
+        }
+        return paragraph(label);
+    }
+
+    private static int cx(CicsTask task, int whole) {
+        return task.eibcalen() == null ? whole : task.eibcalen();
+    }
+
+    private void in_AbndprocDfhcommarea(AbndprocDfhcommarea d, Storage s, int base) {
+        if (d == null) {
+            return;
+        }
+        Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS);
+        Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 0, false, false, false), CS);
+        Cobol.move(d.getAbndApplid() == null ? "" : d.getAbndApplid(), Field.alphanumeric(s, base + 12, 8, false), CS);
+        Cobol.move(d.getAbndTranid() == null ? "" : d.getAbndTranid(), Field.alphanumeric(s, base + 20, 4, false), CS);
+        Cobol.move(d.getAbndDate() == null ? "" : d.getAbndDate(), Field.alphanumeric(s, base + 24, 10, false), CS);
+        Cobol.move(d.getAbndTime() == null ? "" : d.getAbndTime(), Field.alphanumeric(s, base + 34, 8, false), CS);
+        Cobol.move(d.getAbndCode() == null ? "" : d.getAbndCode(), Field.alphanumeric(s, base + 42, 4, false), CS);
+        Cobol.move(d.getAbndProgram() == null ? "" : d.getAbndProgram(), Field.alphanumeric(s, base + 46, 8, false), CS);
+        Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 8, 0, true, true, true), CS);
+        Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 0, true, true, true), CS);
+        Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 0, true, true, true), CS);
+        Cobol.move(d.getAbndFreeform() == null ? "" : d.getAbndFreeform(), Field.alphanumeric(s, base + 81, 600, false), CS);
+    }
+
+    private void fill_AbndprocDfhcommarea(AbndprocDfhcommarea d, Storage s, int base) {
+        d.setAbndUtimeKey(Cobol.num(Field.packed(s, base + 0, 15, 0, true), CS).longValue());
+        d.setAbndTasknoKey(Cobol.num(Field.zoned(s, base + 8, 4, 0, false, false, false), CS).intValue());
+        d.setAbndApplid(Cobol.text(Field.alphanumeric(s, base + 12, 8, false), CS));
+        d.setAbndTranid(Cobol.text(Field.alphanumeric(s, base + 20, 4, false), CS));
+        d.setAbndDate(Cobol.text(Field.alphanumeric(s, base + 24, 10, false), CS));
+        d.setAbndTime(Cobol.text(Field.alphanumeric(s, base + 34, 8, false), CS));
+        d.setAbndCode(Cobol.text(Field.alphanumeric(s, base + 42, 4, false), CS));
+        d.setAbndProgram(Cobol.text(Field.alphanumeric(s, base + 46, 8, false), CS));
+        d.setAbndRespcode(Cobol.num(Field.zoned(s, base + 54, 8, 0, true, true, true), CS).intValue());
+        d.setAbndResp2Code(Cobol.num(Field.zoned(s, base + 63, 8, 0, true, true, true), CS).intValue());
+        d.setAbndSqlcode(Cobol.num(Field.zoned(s, base + 72, 8, 0, true, true, true), CS).intValue());
+        d.setAbndFreeform(Cobol.text(Field.alphanumeric(s, base + 81, 600, false), CS));
+    }
+
+    private AbndprocDfhcommarea out_AbndprocDfhcommarea(Storage s, int base) {
+        AbndprocDfhcommarea d = new AbndprocDfhcommarea();
+        fill_AbndprocDfhcommarea(d, s, base);
+        return d;
+    }
+
+    private void in_InqaccDfhcommarea(InqaccDfhcommarea d, Storage s, int base) {
+        if (d == null) {
+            return;
+        }
+        Cobol.move(d.getInqaccEye() == null ? "" : d.getInqaccEye(), Field.alphanumeric(s, base + 0, 4, false), CS);
+        Cobol.move(d.getInqaccCustno() == null ? BigDecimal.ZERO : new BigDecimal(d.getInqaccCustno().toString()), Field.zoned(s, base + 4, 10, 0, false, false, false), CS);
+        Cobol.move(d.getInqaccScode() == null ? BigDecimal.ZERO : new BigDecimal(d.getInqaccScode().toString()), Field.zoned(s, base + 14, 6, 0, false, false, false), CS);
+        Cobol.move(d.getInqaccAccno() == null ? BigDecimal.ZERO : new BigDecimal(d.getInqaccAccno().toString()), Field.zoned(s, base + 20, 8, 0, false, false, false), CS);
+        Cobol.move(d.getInqaccAccType() == null ? "" : d.getInqaccAccType(), Field.alphanumeric(s, base + 28, 8, false), CS);
+        Cobol.move(d.getInqaccIntRate() == null ? BigDecimal.ZERO : new BigDecimal(d.getInqaccIntRate().toString()), Field.zoned(s, base + 36, 6, 2, false, false, false), CS);
+        Cobol.move(d.getInqaccOpened() == null ? BigDecimal.ZERO : new BigDecimal(d.getInqaccOpened().toString()), Field.zoned(s, base + 42, 8, 0, false, false, false), CS);
+        Cobol.move(d.getInqaccOverdraft() == null ? BigDecimal.ZERO : new BigDecimal(d.getInqaccOverdraft().toString()), Field.zoned(s, base + 50, 8, 0, false, false, false), CS);
+        Cobol.move(d.getInqaccLastStmtDt() == null ? BigDecimal.ZERO : new BigDecimal(d.getInqaccLastStmtDt().toString()), Field.zoned(s, base + 58, 8, 0, false, false, false), CS);
+        Cobol.move(d.getInqaccNextStmtDt() == null ? BigDecimal.ZERO : new BigDecimal(d.getInqaccNextStmtDt().toString()), Field.zoned(s, base + 66, 8, 0, false, false, false), CS);
+        Cobol.move(d.getInqaccAvailBal() == null ? BigDecimal.ZERO : new BigDecimal(d.getInqaccAvailBal().toString()), Field.zoned(s, base + 74, 12, 2, true, false, false), CS);
+        Cobol.move(d.getInqaccActualBal() == null ? BigDecimal.ZERO : new BigDecimal(d.getInqaccActualBal().toString()), Field.zoned(s, base + 86, 12, 2, true, false, false), CS);
+        Cobol.move(d.getInqaccSuccess() == null ? "" : d.getInqaccSuccess(), Field.alphanumeric(s, base + 98, 1, false), CS);
+        DetCics.pointerIn(d.getInqaccPcb1Pointer(), s, base + 99, 8);
+    }
+
+    private void fill_InqaccDfhcommarea(InqaccDfhcommarea d, Storage s, int base) {
+        d.setInqaccEye(Cobol.text(Field.alphanumeric(s, base + 0, 4, false), CS));
+        d.setInqaccCustno(Cobol.num(Field.zoned(s, base + 4, 10, 0, false, false, false), CS).longValue());
+        d.setInqaccScode(Cobol.num(Field.zoned(s, base + 14, 6, 0, false, false, false), CS).intValue());
+        d.setInqaccAccno(Cobol.num(Field.zoned(s, base + 20, 8, 0, false, false, false), CS).intValue());
+        d.setInqaccAccType(Cobol.text(Field.alphanumeric(s, base + 28, 8, false), CS));
+        d.setInqaccIntRate(Cobol.num(Field.zoned(s, base + 36, 6, 2, false, false, false), CS));
+        d.setInqaccOpened(Cobol.num(Field.zoned(s, base + 42, 8, 0, false, false, false), CS).intValue());
+        d.setInqaccOverdraft(Cobol.num(Field.zoned(s, base + 50, 8, 0, false, false, false), CS).intValue());
+        d.setInqaccLastStmtDt(Cobol.num(Field.zoned(s, base + 58, 8, 0, false, false, false), CS).intValue());
+        d.setInqaccNextStmtDt(Cobol.num(Field.zoned(s, base + 66, 8, 0, false, false, false), CS).intValue());
+        d.setInqaccAvailBal(Cobol.num(Field.zoned(s, base + 74, 12, 2, true, false, false), CS));
+        d.setInqaccActualBal(Cobol.num(Field.zoned(s, base + 86, 12, 2, true, false, false), CS));
+        d.setInqaccSuccess(Cobol.text(Field.alphanumeric(s, base + 98, 1, false), CS));
+        d.setInqaccPcb1Pointer(DetCics.pointerOut(s, base + 99, 8));
+    }
+
+    private InqaccDfhcommarea out_InqaccDfhcommarea(Storage s, int base) {
+        InqaccDfhcommarea d = new InqaccDfhcommarea();
+        fill_InqaccDfhcommarea(d, s, base);
+        return d;
+    }
+
+    /** #4270 (X23): DFHCOMMAREA's whole record again, with what the task left in its EIBCALEN bytes. */
+    private void caWhole(byte[] whole) {
+        if (s_DFHCOMMAREA.bytes != whole) {
+            System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);
+            s_DFHCOMMAREA.bytes = whole;
         }
     }
 
-    // @facade-helper: the bytes the last byte-carrying handleLink's program left in the COMMAREA
-    private byte[] lastLinkBytes;
 
-    /** #5053: handleLink with the raw bytes of the LINK's COMMAREA (passed by address: what the program
-     *  leaves there the caller sees); lastLinkBytes() then answers the bytes it left. */
+    private final AccountRepository accountRepository;
+    private final DatasetResolver datasets;
+    private final CobolFiles files;
+    private final MainframeClock clock;
+
+    public InqaccService(AccountRepository accountRepository, DatasetResolver datasets, CobolFiles files, MainframeClock clock) {
+        this.accountRepository = accountRepository;
+        this.datasets = datasets;
+        this.files = files;
+        this.clock = clock;
+    }
+
+    /** WORKING-STORAGE (and every storage) as its VALUE clauses set it: each entry point starts from here. */
+    private void initialState() {
+        System.arraycopy(IMAGE_s_SORTCODE, 0, s_SORTCODE.bytes, 0, IMAGE_s_SORTCODE.length);
+        System.arraycopy(IMAGE_s_HOST_ACCOUNT_ROW, 0, s_HOST_ACCOUNT_ROW.bytes, 0, IMAGE_s_HOST_ACCOUNT_ROW.length);
+        System.arraycopy(IMAGE_s_SQLCA, 0, s_SQLCA.bytes, 0, IMAGE_s_SQLCA.length);
+        System.arraycopy(IMAGE_s_WS_CICS_WORK_AREA, 0, s_WS_CICS_WORK_AREA.bytes, 0, IMAGE_s_WS_CICS_WORK_AREA.length);
+        System.arraycopy(IMAGE_s_OUTPUT_DATA, 0, s_OUTPUT_DATA.bytes, 0, IMAGE_s_OUTPUT_DATA.length);
+        System.arraycopy(IMAGE_s_RETURNED_DATA, 0, s_RETURNED_DATA.bytes, 0, IMAGE_s_RETURNED_DATA.length);
+        System.arraycopy(IMAGE_s_DESIRED_KEY, 0, s_DESIRED_KEY.bytes, 0, IMAGE_s_DESIRED_KEY.length);
+        System.arraycopy(IMAGE_s_DB2_DATE_REFORMAT, 0, s_DB2_DATE_REFORMAT.bytes, 0, IMAGE_s_DB2_DATE_REFORMAT.length);
+        System.arraycopy(IMAGE_s_ACCOUNT_KY, 0, s_ACCOUNT_KY.bytes, 0, IMAGE_s_ACCOUNT_KY.length);
+        System.arraycopy(IMAGE_s_MY_ABEND_CODE, 0, s_MY_ABEND_CODE.bytes, 0, IMAGE_s_MY_ABEND_CODE.length);
+        System.arraycopy(IMAGE_s_SQLCODE_DISPLAY, 0, s_SQLCODE_DISPLAY.bytes, 0, IMAGE_s_SQLCODE_DISPLAY.length);
+        System.arraycopy(IMAGE_s_NCS_ACC_NO_STUFF, 0, s_NCS_ACC_NO_STUFF.bytes, 0, IMAGE_s_NCS_ACC_NO_STUFF.length);
+        System.arraycopy(IMAGE_s_ACCOUNT_KY2, 0, s_ACCOUNT_KY2.bytes, 0, IMAGE_s_ACCOUNT_KY2.length);
+        System.arraycopy(IMAGE_s_WS_POINTER, 0, s_WS_POINTER.bytes, 0, IMAGE_s_WS_POINTER.length);
+        System.arraycopy(IMAGE_s_WS_U_TIME, 0, s_WS_U_TIME.bytes, 0, IMAGE_s_WS_U_TIME.length);
+        System.arraycopy(IMAGE_s_WS_ORIG_DATE, 0, s_WS_ORIG_DATE.bytes, 0, IMAGE_s_WS_ORIG_DATE.length);
+        System.arraycopy(IMAGE_s_WS_ORIG_DATE_GRP_X, 0, s_WS_ORIG_DATE_GRP_X.bytes, 0, IMAGE_s_WS_ORIG_DATE_GRP_X.length);
+        System.arraycopy(IMAGE_s_WS_TIME_DATA, 0, s_WS_TIME_DATA.bytes, 0, IMAGE_s_WS_TIME_DATA.length);
+        System.arraycopy(IMAGE_s_ABNDINFO_REC, 0, s_ABNDINFO_REC.bytes, 0, IMAGE_s_ABNDINFO_REC.length);
+        System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length);
+        System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length);
+        System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);
+        f40_EXIT_BROWSE_LOOP = "N";
+        f69_RETURNED_EYE_CATCHER = "    ";
+        f70_RETURNED_CUST_NO = new BigDecimal("0");
+        f72_RETURNED_SORT_CODE = new BigDecimal("0");
+        f73_RETURNED_NUMBER = new BigDecimal("0");
+        f74_RETURNED_TYPE = "        ";
+        f75_RETURNED_INTEREST_RATE = new BigDecimal("0");
+        f76_RETURNED_OPENED = new BigDecimal("0");
+        f77_RETURNED_OVERDRAFT_LIMIT = new BigDecimal("0");
+        f78_RETURNED_LAST_STMT_DATE = new BigDecimal("0");
+        f79_RETURNED_NEXT_STMT_DATE = new BigDecimal("0");
+        f80_RETURNED_AVAILABLE_BALANCE = new BigDecimal("0");
+        f81_RETURNED_ACTUAL_BALANCE = new BigDecimal("0");
+        f89_DATA_STORE_TYPE = " ";
+        f90_DB2_EXIT_LOOP = " ";
+        f91_FETCH_DATA_CNT = 0L;
+        f92_WS_CUST_ALT_KEY_LEN = 10L;
+        f95_REQUIRED_ACC_NUM = new BigDecimal("0");
+        f97_WS_STORM_DRAIN = "N";
+        f98_STORM_DRAIN_CONDITION = "                    ";
+        f107_NCS_ACC_NO_RESP = "00";
+        f108_WS_DISP_ACC_NO_VAL = new BigDecimal("0");
+        f110_REQUIRED_SORT_CODE2 = new BigDecimal("0");
+        f115_WS_POINTER_NUMBER_DISPLAY = new BigDecimal("0");
+        f125_WS_ORIG_DATE_DD_X = "  ";
+        f127_WS_ORIG_DATE_MM_X = "  ";
+        f129_WS_ORIG_DATE_YYYY_X = "    ";
+        f136_WS_ABEND_PGM = "ABNDPROC";
+    }
+
+    /** The program run on its own (no JCL step, no CICS task, no caller): the PROCEDURE DIVISION from its
+     *  initial storage; RETURN-CODE. */
+    public int runProgram() {
+        initialState();
+        performDepth = 0;
+        try {
+            perform(0, 26);
+        } catch (Goback g) {
+            // the program ended
+        }
+        return Cobol.num(f210_GG_RETURN_CODE, CS).intValue();
+    }
+
+    /** One task of the program: the EIB and COMMAREA from the task, then the PROCEDURE DIVISION. */
+    public void runTask(CicsTask task) {
+        boolean truncBefore = Cobol.swapTruncBinary(true);  // TRUNC(OPT)
+        boolean optBefore = Cobol.swapTruncOpt(true);  // TRUNC(OPT): a value past the PICTURE stops
+        boolean pfdBefore = Cobol.swapNumprocPfd(false);  // NUMPROC(NOPFD)
+        try {
+            this.task = task;
+            DetSql.closeAll();  // a task's cursors are its own
+            caBack = () -> { };
+            handlers.clear();
+            heldKey.clear();
+            initialState();
+            Cobol.move(task.transid(), f181_EIBTRNID, CS);
+            Cobol.move(task.termid() == null ? "" : task.termid(), f183_EIBTRMID, CS);
+            Cobol.store(f182_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS);
+            java.time.LocalDateTime now = task.now();
+            Cobol.store(f180_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);
+            Cobol.store(f179_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);
+            switch (task.aid() == null ? "" : task.aid()) {
+                default -> { }
+            }
+            Object ca = task.hasCommarea() ? task.commarea(Object.class) : null;
+            int calen = 0;
+            if (ca instanceof InqaccDfhcommarea x) {
+                in_InqaccDfhcommarea(x, s_DFHCOMMAREA, 0);
+                caBack = () -> fill_InqaccDfhcommarea(x, s_DFHCOMMAREA, 0);
+                calen = cx(task, 107);
+            } else if (ca instanceof AbndprocDfhcommarea x) {
+                in_AbndprocDfhcommarea(x, s_DFHCOMMAREA, 0);
+                caBack = () -> fill_AbndprocDfhcommarea(x, s_DFHCOMMAREA, 0);
+                calen = cx(task, 681);
+            }
+            s_DFHCOMMAREA.beyond = null;
+            if (ca instanceof byte[] cb0) {
+                byte[] cb = DetCics.commareaIn(cb0, CS);
+                System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));
+                if (cb.length > s_DFHCOMMAREA.bytes.length) {
+                    s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length);
+                }
+                calen = cx(task, cb.length);
+            }
+            byte[] raw = task.linkArea();
+            if (raw != null) {
+                System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));
+                int keep = s_DFHCOMMAREA.bytes.length;
+                s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;
+                Runnable typed = caBack;
+                caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };
+            }
+            byte[] caWhole = null;
+            if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {
+                caWhole = s_DFHCOMMAREA.bytes;
+                s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen);
+                Runnable typed = caBack;
+                byte[] whole = caWhole;
+                caBack = () -> { caWhole(whole); typed.run(); };
+            }
+            Cobol.store(f186_EIBCALEN, BigDecimal.valueOf(calen), false, CS);
+            try {
+                try {
+                    perform(0, 26);
+                } catch (Goback g) {
+                    // RETURN / XCTL / an abend ended the program
+                }
+            } catch (IndexOutOfBoundsException e) {
+                if (caWhole == null) {
+                    throw e;
+                }
+                throw new DetCics.PastFrom("COMMAREA past EIBCALEN (" + calen + " bytes): not modelled");
+            } finally {
+                if (caWhole != null) {
+                    caWhole(caWhole);
+                }
+            }
+            if (!task.ended()) {
+                caBack.run();
+                task.returnTransid(null, null);  // a GOBACK is a RETURN
+            }
+        } finally {
+            Cobol.swapTruncOpt(optBefore);
+            Cobol.swapTruncBinary(truncBefore);
+            Cobol.swapNumprocPfd(pfdBefore);
+        }
+    }
+
+    public InqaccDfhcommarea handleLink(InqaccDfhcommarea request) {
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.linked("INQACC", request);
+        region.run(task, "INQACC", this::runTask);
+        return request;
+    }
+
     public InqaccDfhcommarea handleLink(InqaccDfhcommarea request, byte[] area) {
-        log.info("Inqacc: handleLink (bytes)");
         CicsTask.Region region = CicsTask.region();
         CicsTask task = region.linked("INQACC", request, area);
         region.run(task, "INQACC", this::runTask);
@@ -123,537 +598,983 @@ public class InqaccService {
         return request;
     }
 
-    /** The bytes the last byte-carrying handleLink's program left in the LINK COMMAREA (a copy; null: it took
-     *  none -- its DTO is the COMMAREA). @facade-helper */
+    // @facade-helper: the bytes the last byte-carrying handleLink's program left in the COMMAREA
+    private byte[] lastLinkBytes;
+
+    /** The bytes the last byte-carrying handleLink's program left in the LINK COMMAREA (a copy; null: it
+     *  took none -- its DTO is the COMMAREA). @facade-helper */
     public byte[] lastLinkBytes() {
         return lastLinkBytes == null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);
     }
 
-    /** PROCEDURE DIVISION USING DFHCOMMAREA (section PREMIERE, paragraph A010). */
-    public void runTask(CicsTask task) {
-        log.info("Inqacc: runTask");
-        Work w = new Work();
-        w.ca = task.commarea(InqaccDfhcommarea.class);
-        InqaccDfhcommarea ca = w.ca;
 
-        // A010: INITIALIZE OUTPUT-DATA
-        w.initOutput();
-        // A010: EXEC CICS HANDLE ABEND LABEL(ABEND-HANDLING)
-        task.handleAbend("ABEND-HANDLING");
-        // A010: MOVE SORTCODE TO REQUIRED-SORT-CODE OF ACCOUNT-KY (constant 987654, used below)
+    /** GOBACK / STOP RUN. */
+    private static final class Goback extends RuntimeException {
+        private static final long serialVersionUID = 1L;
 
-        int accno = ca.getInqaccAccno() == null ? 0 : ca.getInqaccAccno();
-        boolean stop = accno == 99999999 ? readAccountLast(task, w) : readAccountDb2(task, w, accno);
-        if (stop) {
-            return;
+        Goback() {
+            super(null, null, false, false);
         }
-
-        // A010: return the ACCOUNT data to the COMMAREA
-        if (isSpacesOrLowValues(w.type)) {
-            ca.setInqaccSuccess("N");
-        } else {
-            ca.setInqaccEye(w.eye);
-            ca.setInqaccCustno(w.custNo);
-            ca.setInqaccScode(w.sortCode);
-            ca.setInqaccAccno(w.number);
-            ca.setInqaccAccType(w.type);
-            ca.setInqaccIntRate(w.rate);
-            ca.setInqaccOpened(dateNum(w.opened));
-            ca.setInqaccOverdraft(w.overdraft);
-            ca.setInqaccLastStmtDt(dateNum(w.last));
-            ca.setInqaccNextStmtDt(dateNum(w.next));
-            ca.setInqaccAvailBal(w.avail);
-            ca.setInqaccActualBal(w.actual);
-            ca.setInqaccSuccess("Y");
-        }
-
-        // A010: PERFORM GET-ME-OUT-OF-HERE -> GMOFH010: EXEC CICS RETURN (GOBACK is not reached)
-        task.returnTransid(null, null);
     }
 
-    /** Another program LINKed / XCTLed to this one (#4343): the program at that level in the region
-     *  (CicsTask.region()), run through runTask on `request`, passed by reference -- what it changes, the caller sees. */
-    public InqaccDfhcommarea handleLink(InqaccDfhcommarea request) {
-        log.info("Inqacc: handleLink");
-        CicsTask.Region region = CicsTask.region();
-        CicsTask task = region.linked("INQACC", request);
-        region.run(task, "INQACC", this::runTask);
-        return request;
+    private static Dd dd(List<Dd> dds, String name) {
+        return dds.stream().filter(d -> name.equals(d.name())).findFirst().orElse(null);
     }
 
-    // ------------------------------------------------------------------ READ-ACCOUNT-DB2 (RAD010)
-
-    /** @return true when the task has ended (abend) and runTask must return. */
-    private boolean readAccountDb2(CicsTask task, Work w, int accno) {
-        // RAD010: MOVE INQACC-ACCNO TO HV-ACCOUNT-ACC-NO; MOVE SORTCODE TO HV-ACCOUNT-SORTCODE
-        w.hvAccNo = String.format(Locale.ROOT, "%08d", accno);
-        w.hvSortcode = String.format(Locale.ROOT, "%06d", SORTCODE);
-
-        // RAD010: EXEC SQL OPEN ACC-CURSOR (the query runs here; FETCH reads its first row)
+    /** The batch entry. */
+    public int runBatch(List<Dd> dds, String parm) {
+        boolean truncBefore = Cobol.swapTruncBinary(true);  // TRUNC(OPT)
+        boolean optBefore = Cobol.swapTruncOpt(true);  // TRUNC(OPT): a value past the PICTURE stops
+        boolean pfdBefore = Cobol.swapNumprocPfd(false);  // NUMPROC(NOPFD)
         try {
-            w.rows = accountRepository.cursorAccCursorL66Inqacc(
-                    Map.of("hvAccountSortcode", w.hvSortcode, "hvAccountAccNo", w.hvAccNo));
-            w.sqlcode = 0;
-        } catch (DataAccessException e) {
-            w.rows = List.of();
-            w.sqlcode = SQLCODE_FAILED;
+            DetSql.closeAll();  // a step's cursors are its own
+            initialState();
+            byte[] parmText = (parm == null ? "" : parm).getBytes(CS);
+            s_DFHCOMMAREA.bytes[0] = (byte) (parmText.length >> 8);
+            s_DFHCOMMAREA.bytes[1] = (byte) parmText.length;
+            System.arraycopy(parmText, 0, s_DFHCOMMAREA.bytes, 2, Math.min(parmText.length, s_DFHCOMMAREA.bytes.length - 2));
+            try {
+                perform(0, 26);
+            } catch (Goback g) {
+                // the program ended
+            }
+            return Cobol.num(f210_GG_RETURN_CODE, CS).intValue();
+        } finally {
+            Cobol.swapTruncOpt(optBefore);
+            Cobol.swapTruncBinary(truncBefore);
+            Cobol.swapNumprocPfd(pfdBefore);
         }
-        if (w.sqlcode != 0) {
-            String sd = signSeparate(w.sqlcode);
-            return abendSequence(task, w, this::dispatchWsAbendPgmL321, "HRAC",
-                    "RAD010 -Failure when attempting to OPEN DB2 " + "CURSOR. Check SQLCODE. " + "SQLCODE=" + sd,
-                    "Failure when attempting to open DB2 CURSOR " + "ACC-CURSOR. With SQL code=" + sd,
-                    true);
-        }
-
-        // RAD010: PERFORM FETCH-DATA
-        if (fetchData(task, w)) {
-            return true;
-        }
-
-        // RAD010: EXEC SQL CLOSE ACC-CURSOR
-        w.sqlcode = 0;
-        if (w.sqlcode != 0) {   // a CLOSE of an open cursor cannot fail here; port kept for review
-            String sd = signSeparate(w.sqlcode);
-            return abendSequence(task, w, this::dispatchWsAbendPgmL401, "HRAC",
-                    "RAD010 -Failure when attempting to CLOSE DB2 " + "CURSOR (ACC-CUSOR). Check SQLCODE" + "SQLCODE=" + sd,
-                    "Failure when attempting to close the DB2 CURSOR" + " ACC-CURSOR. With SQL code=" + sd,
-                    true);
-        }
-        return false;
     }
 
-    // ------------------------------------------------------------------ FETCH-DATA (FD010)
+    /** The active PERFORMs' last paragraphs, outermost first. */
+    private int[] performThru = new int[64];
+    private int performDepth = 0;
 
-    private boolean fetchData(CicsTask task, Work w) {
-        // FD010: EXEC SQL FETCH FROM ACC-CURSOR INTO :HV-...
-        if (w.rows.isEmpty()) {
-            w.sqlcode = 100;
-        } else if (hasNullColumn(w.rows.get(0))) {
-            // A NULL column fetched into a host variable with no indicator: SQLCODE -305, host variables untouched.
-            w.sqlcode = SQLCODE_NULL_NO_INDICATOR;
-        } else {
-            w.sqlcode = 0;
-            loadHostRow(w, w.rows.get(0));
+    /** Control reached the end of an outer active PERFORM's range: that PERFORM returns (`depth`). */
+    private static final class PerformExit extends RuntimeException {
+        private static final long serialVersionUID = 1L;
+        final int depth;
+
+        PerformExit(int depth) {
+            super(null, null, false, false);
+            this.depth = depth;
         }
-
-        // FD010: IF SQLCODE = +100 (no data: return a low-value record)
-        if (w.sqlcode == 100) {
-            w.initOutput();
-            w.sortCode = SORTCODE;
-            w.number = w.ca.getInqaccAccno() == null ? 0 : w.ca.getInqaccAccno();
-            return false;   // GO TO FD999
-        }
-
-        // FD010: IF SQLCODE NOT = 0
-        if (w.sqlcode != 0) {
-            checkForStormDrain(w);
-            String sd = signSeparate(w.sqlcode);
-            return abendSequence(task, w, this::dispatchWsAbendPgmL516, "HRAC",
-                    "FD010 -Failure when attempting to FETCH from " + "DB2 CURSOR (ACC-CURSOR). Check SQLCODE" + "SQLCODE=" + sd,
-                    "Failure when attempting to FETCH from the DB2 " + "CURSOR ACC-CURSOR. With SQL code=" + sd,
-                    false);
-        }
-
-        // FD010: if we found a matching account record
-        moveHostToOutput(w);
-        return false;
     }
 
-    // ------------------------------------------------------------------ READ-ACCOUNT-LAST / GET-LAST-ACCOUNT-DB2
-
-    private boolean readAccountLast(CicsTask task, Work w) {
-        // RAN010: PERFORM GET-LAST-ACCOUNT-DB2
-        // GLAD010
-        w.initOutput();
-        w.hvAccNo = String.format(Locale.ROOT, "%08d", 0);          // MOVE REQUIRED-ACC-NUMBER2 (0)
-        w.hvSortcode = String.format(Locale.ROOT, "%06d", SORTCODE); // REQUIRED-SORT-CODE, then SORTCODE
-        Map<String, Object> row = null;
+    /** PERFORM from THRU thru. When control falls off the end of a paragraph, the innermost active PERFORM
+     *  whose range ends there returns -- this one, or an outer one a GO TO reached the end of, abandoning
+     *  the PERFORMs inside it (GnuCOBOL, as IBM: test_det_programs.py, GOTOOUT). */
+    private void perform(int from, int thru) {
+        int mine = performDepth;
+        if (mine == performThru.length) {
+            performThru = java.util.Arrays.copyOf(performThru, mine * 2);
+        }
+        performThru[performDepth++] = thru;
         try {
-            row = accountRepository.selectL843Inqacc(Map.of("hvAccountSortcode", w.hvSortcode));
-            w.sqlcode = hasNullColumn(row) ? SQLCODE_NULL_NO_INDICATOR : 0;
-        } catch (EmptyResultDataAccessException e) {
-            w.sqlcode = 100;
-        } catch (DataAccessException e) {
-            w.sqlcode = SQLCODE_FAILED;
-        }
-
-        if (w.sqlcode != 0) {   // IF SQLCODE IS NOT EQUAL TO ZERO (+100 included)
-            String sd = signSeparate(w.sqlcode);
-            return abendSequence(task, w, this::dispatchWsAbendPgmL924, "HNCS",
-                    "GLAD010 -ACCOUNT NCS " + NCS_ACC_NO_NAME + " CANNOT be accessed and DB2 " + " SELECT failed. SQLCODE=" + sd,
-                    "INQACC - ACCOUNT NCS " + NCS_ACC_NO_NAME + " CANNOT BE ACCESSED AND DB2 SELECT FAILED. SQLCODE=" + sd,
-                    false);
-        }
-        loadHostRow(w, row);
-        moveHostToOutput(w);
-        // RAN010: MOVE REQUIRED-ACC-NUMBER2 TO NCS-ACC-NO-VALUE: never read afterwards, no output effect.
-        return false;
-    }
-
-    // ------------------------------------------------------------------ CHECK-FOR-STORM-DRAIN-DB2 (CFSDCD010)
-
-    private void checkForStormDrain(Work w) {
-        String condition = w.sqlcode == 923 ? "DB2 Connection lost " : NOT_STORM_DRAIN;
-        String sd = signSeparate(w.sqlcode);
-        if (!CobolCompare.eq(condition, NOT_STORM_DRAIN)) {
-            Sysout.display("INQACC: Check-For-Storm-Drain-DB2: Storm " + "Drain condition (" + condition + ") "
-                    + "has been met (" + sd + ").");
-        }
-    }
-
-    // ------------------------------------------------------------------ ABEND-HANDLING (AH010)
-
-    /** HANDLE ABEND LABEL(ABEND-HANDLING) at line 210: the logic runs in abendHandling(task, work), reached from
-     *  runTask when a program LINKed to reports an abend into this program's exit (CicsTask.abendExit()). */
-    public void onAbendL210(CicsAbendException e) {
-        log.info("HANDLE ABEND LABEL ABEND-HANDLING at line 210", e);
-    }
-
-    /** ABEND-HANDLING section. Always ends the task (see the note on the fall-through below). */
-    private boolean abendHandling(CicsTask task, Work w) {
-        // AH010: EXEC CICS ASSIGN ABCODE(MY-ABEND-CODE)
-        String myAbendCode = CobolRecords.fit(task.abcode(), 4, CobolRecords.charset());
-
-        if (CobolCompare.eq(myAbendCode, "AD2Z")) {
-            // WHEN 'AD2Z'
-            String sd = signSeparate(w.sqlcode);
-            Sysout.display("DB2 DEADLOCK DETECTED IN INQACC, SQLCODE=" + sd);
-            Sysout.display("DB2 DEADLOCK FOR ACCOUNT " + w.hvAccNo);
-            // The SQLCA is not modelled by the port: SQLSTATE 00000, SQLERRML 0 (empty SQLERRMC), SQLERRD all 0.
-            String zero = Sysout.number(BigDecimal.ZERO, 9, 0, true);
-            Sysout.display("SQLSTATE=" + w.sqlstate + ",SQLERRMC=" + ""
-                    + ",SQLERRD(1)=" + zero + ",SQLERRD(2)=" + zero + ",SQLERRD(3)=" + zero
-                    + ",SQLERRD(4)=" + zero + ",SQLERRD(5)=" + zero + ",SQLERRD(6)=" + zero);
-        } else if (CobolCompare.eq(myAbendCode, "AFCR") || CobolCompare.eq(myAbendCode, "AFCS")
-                || CobolCompare.eq(myAbendCode, "AFCT")) {
-            // WHEN 'AFCR' / 'AFCS' fall through to the body of WHEN 'AFCT'
-            w.stormDrain = "Y";
-            Sysout.display("INQACC: Check-For-Storm-Drain-VSAM: Storm " + "Drain condition (Abend " + myAbendCode + ") "
-                    + "has been met.");
-
-            // EXEC CICS SYNCPOINT ROLLBACK RESP(WS-CICS-RESP) RESP2(WS-CICS-RESP2)
-            task.rollback();
-            int resp = 0;
-            int resp2 = 0;
-            w.eibresp = resp;
-            w.eibresp2 = resp2;
-
-            if (resp != 0) {   // IF WS-CICS-RESP NOT = DFHRESP(NORMAL); rollback always answers NORMAL here
-                String freeform = "AH010 -Unable to perform SYNCPOINT ROLLBACK." + " Possible integrity issue following VSAM RLS "
-                        + " abend." + " EIBRESP=" + signSeparate(w.eibresp) + " RESP2=" + signSeparate(w.eibresp2);
-                AbndprocDfhcommarea rec = buildAbndRec(task, w, "HROL", 0, freeform);
-                if (linkAbndproc(task, w, rec, this::dispatchWsAbendPgmL738)) {
-                    return true;
+            int i = from;
+            while (true) {
+                int next = run(i);
+                boolean jumped = (next & GOTO) != 0;
+                next &= ~GOTO;
+                if (!jumped) {
+                    if (i == thru) {
+                        return;
+                    }
+                    for (int d = mine - 1; d >= 0; d--) {
+                        if (performThru[d] == i) {
+                            throw new PerformExit(d);
+                        }
+                    }
                 }
-                Sysout.display("INQACC: Unable to perform Syncpoint " + "Rollback. Possible Integrity issue "
-                        + " following VSAM RLS abend. " + " RESP CODE=" + Sysout.number(BigDecimal.valueOf(resp), 8, 0, true)
-                        + " RESP2 CODE=" + Sysout.number(BigDecimal.valueOf(resp2), 8, 0, true));
-                task.abendCancel("HROL");
-                return true;
+                if (next >= 27) {
+                    throw new Goback();
+                }
+                i = next;
             }
+        } catch (PerformExit e) {
+            if (e.depth != mine) {
+                throw e;
+            }
+        } finally {
+            performDepth = mine;
+        }
+    }
 
-            // MOVE 'N' TO INQACC-SUCCESS; EXEC CICS RETURN
-            w.ca.setInqaccSuccess("N");
+    private int run(int i) {
+        switch (i) {
+            case 0: return p0();
+            case 1: return p1();
+            case 2: return p2();
+            case 3: return p3();
+            case 4: return p4();
+            case 5: return p5();
+            case 6: return p6();
+            case 7: return p7();
+            case 8: return p8();
+            case 9: return p9();
+            case 10: return p10();
+            case 11: return p11();
+            case 12: return p12();
+            case 13: return p13();
+            case 14: return p14();
+            case 15: return p15();
+            case 16: return p16();
+            case 17: return p17();
+            case 18: return p18();
+            case 19: return p19();
+            case 20: return p20();
+            case 21: return p21();
+            case 22: return p22();
+            case 23: return p23();
+            case 24: return p24();
+            case 25: return p25();
+            case 26: return p26();
+            default: throw new IllegalStateException("paragraph " + i);
+        }
+    }
+
+    /** PREMIERE. */
+    private int p0() {
+
+        return 1;
+    }
+
+    /** A010. */
+    private int p1() {
+        // INITIALIZE OUTPUT-DATA
+        Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f41_OUTPUT_DATA.storage(), f41_OUTPUT_DATA.offset() + 0, 4, false), CS);
+        Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f41_OUTPUT_DATA.storage(), f41_OUTPUT_DATA.offset() + 4, 10, 0, false, false, false), CS);
+        Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f41_OUTPUT_DATA.storage(), f41_OUTPUT_DATA.offset() + 14, 6, 0, false, false, false), CS);
+        Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f41_OUTPUT_DATA.storage(), f41_OUTPUT_DATA.offset() + 20, 8, 0, false, false, false), CS);
+        Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f41_OUTPUT_DATA.storage(), f41_OUTPUT_DATA.offset() + 28, 8, false), CS);
+        Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f41_OUTPUT_DATA.storage(), f41_OUTPUT_DATA.offset() + 36, 6, 2, false, false, false), CS);
+        Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f41_OUTPUT_DATA.storage(), f41_OUTPUT_DATA.offset() + 42, 8, 0, false, false, false), CS);
+        Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f41_OUTPUT_DATA.storage(), f41_OUTPUT_DATA.offset() + 50, 8, 0, false, false, false), CS);
+        Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f41_OUTPUT_DATA.storage(), f41_OUTPUT_DATA.offset() + 58, 8, 0, false, false, false), CS);
+        Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f41_OUTPUT_DATA.storage(), f41_OUTPUT_DATA.offset() + 66, 8, 0, false, false, false), CS);
+        Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f41_OUTPUT_DATA.storage(), f41_OUTPUT_DATA.offset() + 74, 12, 2, true, false, false), CS);
+        Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f41_OUTPUT_DATA.storage(), f41_OUTPUT_DATA.offset() + 86, 12, 2, true, false, false), CS);
+        // EXEC CICS HANDLE ABEND LABEL(ABEND-HANDLING) END-EXEC
+        task.handleAbend("ABEND-HANDLING");
+        // MOVE SORTCODE TO REQUIRED-SORT-CODE OF ACCOUNT-KY
+        Cobol.move(f1_SORTCODE, f94_REQUIRED_SORT_CODE, CS);
+        // IF INQACC-ACCNO = 99999999
+        if (Cobol.cmpNum(f155_INQACC_ACCNO, CS).compareTo(D99999999) == 0) {
+            // PERFORM READ-ACCOUNT-LAST
+            perform(18, 20);
+        } else {
+            // PERFORM READ-ACCOUNT-DB2
+            perform(3, 5);
+        }
+        // IF ACCOUNT-TYPE = SPACES OR LOW-VALUES
+        if ((Cobol.compareFigurative(f48_ACCOUNT_TYPE, Figurative.SPACES, CS) == 0 || Cobol.compareFigurative(f48_ACCOUNT_TYPE, Figurative.LOW_VALUES, CS) == 0)) {
+            // MOVE 'N' TO INQACC-SUCCESS
+            Cobol.move("N", f176_INQACC_SUCCESS, CS);
+        } else {
+            // MOVE ACCOUNT-EYE-CATCHER TO INQACC-EYE
+            Cobol.move(f43_ACCOUNT_EYE_CATCHER, f152_INQACC_EYE, CS);
+            // MOVE ACCOUNT-CUST-NO TO INQACC-CUSTNO
+            Cobol.move(f44_ACCOUNT_CUST_NO, f153_INQACC_CUSTNO, CS);
+            // MOVE ACCOUNT-SORT-CODE TO INQACC-SCODE
+            Cobol.move(f46_ACCOUNT_SORT_CODE, f154_INQACC_SCODE, CS);
+            // MOVE ACCOUNT-NUMBER TO INQACC-ACCNO
+            Cobol.move(f47_ACCOUNT_NUMBER, f155_INQACC_ACCNO, CS);
+            // MOVE ACCOUNT-TYPE TO INQACC-ACC-TYPE
+            Cobol.move(f48_ACCOUNT_TYPE, f156_INQACC_ACC_TYPE, CS);
+            // MOVE ACCOUNT-INTEREST-RATE TO INQACC-INT-RATE
+            Cobol.move(f49_ACCOUNT_INTEREST_RATE, f157_INQACC_INT_RATE, CS);
+            // MOVE ACCOUNT-OPENED TO INQACC-OPENED
+            Cobol.move(f50_ACCOUNT_OPENED, f158_INQACC_OPENED, CS);
+            // MOVE ACCOUNT-OVERDRAFT-LIMIT TO INQACC-OVERDRAFT
+            Cobol.move(f55_ACCOUNT_OVERDRAFT_LIMIT, f163_INQACC_OVERDRAFT, CS);
+            // MOVE ACCOUNT-LAST-STMT-DATE TO INQACC-LAST-STMT-DT
+            Cobol.move(f56_ACCOUNT_LAST_STMT_DATE, f164_INQACC_LAST_STMT_DT, CS);
+            // MOVE ACCOUNT-NEXT-STMT-DATE TO INQACC-NEXT-STMT-DT
+            Cobol.move(f61_ACCOUNT_NEXT_STMT_DATE, f169_INQACC_NEXT_STMT_DT, CS);
+            // MOVE ACCOUNT-AVAILABLE-BALANCE TO INQACC-AVAIL-BAL
+            Cobol.move(f66_ACCOUNT_AVAILABLE_BALANCE, f174_INQACC_AVAIL_BAL, CS);
+            // MOVE ACCOUNT-ACTUAL-BALANCE TO INQACC-ACTUAL-BAL
+            Cobol.move(f67_ACCOUNT_ACTUAL_BALANCE, f175_INQACC_ACTUAL_BAL, CS);
+            // MOVE 'Y' TO INQACC-SUCCESS
+            Cobol.move("Y", f176_INQACC_SUCCESS, CS);
+        }
+        // PERFORM GET-ME-OUT-OF-HERE
+        perform(9, 11);
+        return 2;
+    }
+
+    /** A999. */
+    private int p2() {
+        // EXIT
+        return 3;
+    }
+
+    /** READ-ACCOUNT-DB2. */
+    private int p3() {
+
+        return 4;
+    }
+
+    /** RAD010. */
+    private int p4() {
+        // MOVE INQACC-ACCNO TO HV-ACCOUNT-ACC-NO
+        Cobol.move(f155_INQACC_ACCNO, f6_HV_ACCOUNT_ACC_NO, CS);
+        // MOVE SORTCODE TO HV-ACCOUNT-SORTCODE
+        Cobol.move(f1_SORTCODE, f5_HV_ACCOUNT_SORTCODE, CS);
+        // EXEC SQL OPEN ACC-CURSOR END-EXEC
+        java.util.Map<String, Object> sqlParams1 = new java.util.HashMap<>();
+        sqlParams1.put("hvAccountAccNo", DetSql.charIn(f6_HV_ACCOUNT_ACC_NO, CS));
+        sqlParams1.put("hvAccountSortcode", DetSql.charIn(f5_HV_ACCOUNT_SORTCODE, CS));
+        DetSql.open(f15_SQLCA, "INQACC:270", "ACC-CURSOR", () -> accountRepository.cursorAccCursorL66Inqacc(sqlParams1), CS);
+        task.planned("SQL", "INQACC:270");
+        String exit2 = task.abendExit();
+        if (exit2 != null) return GOTO | paragraph(exit2);
+        if (task.ended()) throw abended();
+        // IF SQLCODE NOT = 0
+        if (!(Cobol.num(f18_SQLCODE, CS).compareTo(D0) == 0)) {
+            // MOVE SQLCODE TO SQLCODE-DISPLAY
+            Cobol.move(f18_SQLCODE, f99_SQLCODE_DISPLAY, CS);
+            // INITIALIZE ABNDINFO-REC
+            Cobol.moveFigurative(Figurative.ZEROS, Field.packed(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 0, 15, 0, true), CS);
+            Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 8, 4, 0, false, false, false), CS);
+            Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 12, 8, false), CS);
+            Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 20, 4, false), CS);
+            Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 24, 10, false), CS);
+            Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 34, 8, false), CS);
+            Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 42, 4, false), CS);
+            Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 46, 8, false), CS);
+            Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 54, 8, 0, true, true, true), CS);
+            Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 63, 8, 0, true, true, true), CS);
+            Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 72, 8, 0, true, true, true), CS);
+            Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 81, 600, false), CS);
+            // MOVE EIBRESP TO ABND-RESPCODE
+            Cobol.move(f207_EIBRESP, f147_ABND_RESPCODE, CS);
+            // MOVE EIBRESP2 TO ABND-RESP2CODE
+            Cobol.move(f208_EIBRESP2, f148_ABND_RESP2CODE, CS);
+            // EXEC CICS ASSIGN APPLID(ABND-APPLID) END-EXEC
+            DetCics.putText(f141_ABND_APPLID, task.assignApplid(), CS);
+            // MOVE EIBTASKN TO ABND-TASKNO-KEY
+            Cobol.move(f182_EIBTASKN, f140_ABND_TASKNO_KEY, CS);
+            // MOVE EIBTRNID TO ABND-TRANID
+            Cobol.move(f181_EIBTRNID, f142_ABND_TRANID, CS);
+            // PERFORM POPULATE-TIME-DATE
+            perform(24, 26);
+            // MOVE WS-ORIG-DATE TO ABND-DATE
+            Cobol.move(f117_WS_ORIG_DATE, f143_ABND_DATE, CS);
+            // STRING WS-TIME-NOW-GRP-HH DELIMITED BY SIZE, ':' DELIMITED BY SIZE, WS-TIME-NOW-GRP-MM DELIMITED BY SIZE, ':' DELIMITED BY SIZE, WS-TIME-NOW-GRP-MM DE
+            Cobol.string(f144_ABND_TIME, null, CS, Cobol.StringPart.size(f133_WS_TIME_NOW_GRP_HH), Cobol.StringPart.size(":", CS), Cobol.StringPart.size(f134_WS_TIME_NOW_GRP_MM), Cobol.StringPart.size(":", CS), Cobol.StringPart.size(f134_WS_TIME_NOW_GRP_MM));
+            // MOVE WS-U-TIME TO ABND-UTIME-KEY
+            Cobol.move(f116_WS_U_TIME, f139_ABND_UTIME_KEY, CS);
+            // MOVE 'HRAC' TO ABND-CODE
+            Cobol.move("HRAC", f145_ABND_CODE, CS);
+            // EXEC CICS ASSIGN PROGRAM(ABND-PROGRAM) END-EXEC
+            DetCics.putText(f146_ABND_PROGRAM, "INQACC  ", CS);
+            // MOVE SQLCODE-DISPLAY TO ABND-SQLCODE
+            Cobol.move(f99_SQLCODE_DISPLAY, f149_ABND_SQLCODE, CS);
+            // STRING 'RAD010 -Failure when attempting to OPEN DB2 ' DELIMITED BY SIZE, 'CURSOR. Check SQLCODE. ' DELIMITED BY SIZE, 'SQLCODE=' DELIMITED BY SIZE, SQ
+            Cobol.string(f150_ABND_FREEFORM, null, CS, Cobol.StringPart.size("RAD010 -Failure when attempting to OPEN DB2 ", CS), Cobol.StringPart.size("CURSOR. Check SQLCODE. ", CS), Cobol.StringPart.size("SQLCODE=", CS), Cobol.StringPart.size(f99_SQLCODE_DISPLAY));
+            // EXEC CICS LINK PROGRAM(WS-ABEND-PGM) COMMAREA(ABNDINFO-REC) END-EXEC
+            Storage cw5 = Cobol.commarea(f137_ABNDINFO_REC, 681);
+            AbndprocDfhcommarea ca4 = out_AbndprocDfhcommarea(cw5, 0);
+            String lr3 = task.link(f136_WS_ABEND_PGM.strip(), ca4, 681, cw5.bytes);
+            if ("NORMAL".equals(lr3)) {
+                if (!task.linkAreaBack()) { in_AbndprocDfhcommarea(ca4, cw5, 0); }
+                Cobol.commareaBack(cw5, f137_ABNDINFO_REC);
+            }
+            String exit6 = task.abendExit();
+            if (exit6 != null) return GOTO | paragraph(exit6);
+            if (task.ended()) throw abended();
+            Cobol.store(f207_EIBRESP, BigDecimal.valueOf(DetCics.resp(lr3)), false, CS);
+            Cobol.store(f208_EIBRESP2, BigDecimal.valueOf(task.transferResp2()), false, CS);
+            if (DetCics.resp(lr3) != 0) {
+                int to = condition(DetCics.condition(DetCics.resp(lr3)));
+                if (to >= 0) return GOTO | to;
+            }
+            // DISPLAY 'Failure when attempting to open DB2 CURSOR ' 'ACC-CURSOR. With SQL code=' SQLCODE-DISPLAY
+            Sysout.display("Failure when attempting to open DB2 CURSOR ", "ACC-CURSOR. With SQL code=", Cobol.displayText(f99_SQLCODE_DISPLAY, CS));
+            // PERFORM CHECK-FOR-STORM-DRAIN-DB2
+            perform(12, 14);
+            // EXEC CICS ABEND ABCODE('HRAC') CANCEL NODUMP END-EXEC
+            String exit7 = task.abendCancel("HRAC".strip());
+            if (exit7 == null) throw abended();
+            if (true) return GOTO | paragraph(exit7);
+        }
+        // PERFORM FETCH-DATA
+        perform(6, 8);
+        // EXEC SQL CLOSE ACC-CURSOR END-EXEC
+        DetSql.close(f15_SQLCA, "INQACC:350", "ACC-CURSOR", CS);
+        task.planned("SQL", "INQACC:350");
+        String exit9 = task.abendExit();
+        if (exit9 != null) return GOTO | paragraph(exit9);
+        if (task.ended()) throw abended();
+        // IF SQLCODE NOT = 0
+        if (!(Cobol.num(f18_SQLCODE, CS).compareTo(D0) == 0)) {
+            // MOVE SQLCODE TO SQLCODE-DISPLAY
+            Cobol.move(f18_SQLCODE, f99_SQLCODE_DISPLAY, CS);
+            // INITIALIZE ABNDINFO-REC
+            Cobol.moveFigurative(Figurative.ZEROS, Field.packed(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 0, 15, 0, true), CS);
+            Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 8, 4, 0, false, false, false), CS);
+            Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 12, 8, false), CS);
+            Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 20, 4, false), CS);
+            Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 24, 10, false), CS);
+            Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 34, 8, false), CS);
+            Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 42, 4, false), CS);
+            Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 46, 8, false), CS);
+            Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 54, 8, 0, true, true, true), CS);
+            Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 63, 8, 0, true, true, true), CS);
+            Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 72, 8, 0, true, true, true), CS);
+            Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 81, 600, false), CS);
+            // MOVE EIBRESP TO ABND-RESPCODE
+            Cobol.move(f207_EIBRESP, f147_ABND_RESPCODE, CS);
+            // MOVE EIBRESP2 TO ABND-RESP2CODE
+            Cobol.move(f208_EIBRESP2, f148_ABND_RESP2CODE, CS);
+            // EXEC CICS ASSIGN APPLID(ABND-APPLID) END-EXEC
+            DetCics.putText(f141_ABND_APPLID, task.assignApplid(), CS);
+            // MOVE EIBTASKN TO ABND-TASKNO-KEY
+            Cobol.move(f182_EIBTASKN, f140_ABND_TASKNO_KEY, CS);
+            // MOVE EIBTRNID TO ABND-TRANID
+            Cobol.move(f181_EIBTRNID, f142_ABND_TRANID, CS);
+            // PERFORM POPULATE-TIME-DATE
+            perform(24, 26);
+            // MOVE WS-ORIG-DATE TO ABND-DATE
+            Cobol.move(f117_WS_ORIG_DATE, f143_ABND_DATE, CS);
+            // STRING WS-TIME-NOW-GRP-HH DELIMITED BY SIZE, ':' DELIMITED BY SIZE, WS-TIME-NOW-GRP-MM DELIMITED BY SIZE, ':' DELIMITED BY SIZE, WS-TIME-NOW-GRP-MM DE
+            Cobol.string(f144_ABND_TIME, null, CS, Cobol.StringPart.size(f133_WS_TIME_NOW_GRP_HH), Cobol.StringPart.size(":", CS), Cobol.StringPart.size(f134_WS_TIME_NOW_GRP_MM), Cobol.StringPart.size(":", CS), Cobol.StringPart.size(f134_WS_TIME_NOW_GRP_MM));
+            // MOVE WS-U-TIME TO ABND-UTIME-KEY
+            Cobol.move(f116_WS_U_TIME, f139_ABND_UTIME_KEY, CS);
+            // MOVE 'HRAC' TO ABND-CODE
+            Cobol.move("HRAC", f145_ABND_CODE, CS);
+            // EXEC CICS ASSIGN PROGRAM(ABND-PROGRAM) END-EXEC
+            DetCics.putText(f146_ABND_PROGRAM, "INQACC  ", CS);
+            // MOVE SQLCODE-DISPLAY TO ABND-SQLCODE
+            Cobol.move(f99_SQLCODE_DISPLAY, f149_ABND_SQLCODE, CS);
+            // STRING 'RAD010 -Failure when attempting to CLOSE DB2 ' DELIMITED BY SIZE, 'CURSOR (ACC-CUSOR). Check SQLCODE' DELIMITED BY SIZE, 'SQLCODE=' DELIMITED 
+            Cobol.string(f150_ABND_FREEFORM, null, CS, Cobol.StringPart.size("RAD010 -Failure when attempting to CLOSE DB2 ", CS), Cobol.StringPart.size("CURSOR (ACC-CUSOR). Check SQLCODE", CS), Cobol.StringPart.size("SQLCODE=", CS), Cobol.StringPart.size(f99_SQLCODE_DISPLAY));
+            // EXEC CICS LINK PROGRAM(WS-ABEND-PGM) COMMAREA(ABNDINFO-REC) END-EXEC
+            Storage cw12 = Cobol.commarea(f137_ABNDINFO_REC, 681);
+            AbndprocDfhcommarea ca11 = out_AbndprocDfhcommarea(cw12, 0);
+            String lr10 = task.link(f136_WS_ABEND_PGM.strip(), ca11, 681, cw12.bytes);
+            if ("NORMAL".equals(lr10)) {
+                if (!task.linkAreaBack()) { in_AbndprocDfhcommarea(ca11, cw12, 0); }
+                Cobol.commareaBack(cw12, f137_ABNDINFO_REC);
+            }
+            String exit13 = task.abendExit();
+            if (exit13 != null) return GOTO | paragraph(exit13);
+            if (task.ended()) throw abended();
+            Cobol.store(f207_EIBRESP, BigDecimal.valueOf(DetCics.resp(lr10)), false, CS);
+            Cobol.store(f208_EIBRESP2, BigDecimal.valueOf(task.transferResp2()), false, CS);
+            if (DetCics.resp(lr10) != 0) {
+                int to = condition(DetCics.condition(DetCics.resp(lr10)));
+                if (to >= 0) return GOTO | to;
+            }
+            // DISPLAY 'Failure when attempting to close the DB2 CURSOR' ' ACC-CURSOR. With SQL code=' SQLCODE-DISPLAY
+            Sysout.display("Failure when attempting to close the DB2 CURSOR", " ACC-CURSOR. With SQL code=", Cobol.displayText(f99_SQLCODE_DISPLAY, CS));
+            // PERFORM CHECK-FOR-STORM-DRAIN-DB2
+            perform(12, 14);
+            // EXEC CICS ABEND ABCODE('HRAC') CANCEL NODUMP END-EXEC
+            String exit14 = task.abendCancel("HRAC".strip());
+            if (exit14 == null) throw abended();
+            if (true) return GOTO | paragraph(exit14);
+        }
+        return 5;
+    }
+
+    /** RAD999. */
+    private int p5() {
+        // EXIT
+        return 6;
+    }
+
+    /** FETCH-DATA. */
+    private int p6() {
+
+        return 7;
+    }
+
+    /** FD010. */
+    private int p7() {
+        // EXEC SQL FETCH FROM ACC-CURSOR INTO :HV-ACCOUNT-EYECATCHER, :HV-ACCOUNT-CUST-NO, :HV-ACCOUNT-SORTCODE, :HV-ACCOUNT-ACC-NO, :HV-ACCOUNT-ACC-TYPE, :HV-A
+        java.util.Map<String, Object> sqlRow16 = DetSql.fetch(f15_SQLCA, "INQACC:431", "ACC-CURSOR", CS);
+        if (sqlRow16 != null) {
+            DetSql.into(f15_SQLCA, sqlRow16, "XXXXXNXNXXNN", new Field[] {f3_HV_ACCOUNT_EYECATCHER, f4_HV_ACCOUNT_CUST_NO, f5_HV_ACCOUNT_SORTCODE, f6_HV_ACCOUNT_ACC_NO, f7_HV_ACCOUNT_ACC_TYPE, f8_HV_ACCOUNT_INT_RATE, f9_HV_ACCOUNT_OPENED, f10_HV_ACCOUNT_OVERDRAFT_LIM, f11_HV_ACCOUNT_LAST_STMT, f12_HV_ACCOUNT_NEXT_STMT, f13_HV_ACCOUNT_AVAIL_BAL, f14_HV_ACCOUNT_ACTUAL_BAL}, new Field[] {null, null, null, null, null, null, null, null, null, null, null, null}, null, CS);
+        }
+        task.planned("SQL", "INQACC:431");
+        String exit17 = task.abendExit();
+        if (exit17 != null) return GOTO | paragraph(exit17);
+        if (task.ended()) throw abended();
+        // IF SQLCODE = +100
+        if (Cobol.num(f18_SQLCODE, CS).compareTo(D100) == 0) {
+            // INITIALIZE OUTPUT-DATA
+            Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f41_OUTPUT_DATA.storage(), f41_OUTPUT_DATA.offset() + 0, 4, false), CS);
+            Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f41_OUTPUT_DATA.storage(), f41_OUTPUT_DATA.offset() + 4, 10, 0, false, false, false), CS);
+            Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f41_OUTPUT_DATA.storage(), f41_OUTPUT_DATA.offset() + 14, 6, 0, false, false, false), CS);
+            Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f41_OUTPUT_DATA.storage(), f41_OUTPUT_DATA.offset() + 20, 8, 0, false, false, false), CS);
+            Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f41_OUTPUT_DATA.storage(), f41_OUTPUT_DATA.offset() + 28, 8, false), CS);
+            Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f41_OUTPUT_DATA.storage(), f41_OUTPUT_DATA.offset() + 36, 6, 2, false, false, false), CS);
+            Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f41_OUTPUT_DATA.storage(), f41_OUTPUT_DATA.offset() + 42, 8, 0, false, false, false), CS);
+            Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f41_OUTPUT_DATA.storage(), f41_OUTPUT_DATA.offset() + 50, 8, 0, false, false, false), CS);
+            Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f41_OUTPUT_DATA.storage(), f41_OUTPUT_DATA.offset() + 58, 8, 0, false, false, false), CS);
+            Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f41_OUTPUT_DATA.storage(), f41_OUTPUT_DATA.offset() + 66, 8, 0, false, false, false), CS);
+            Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f41_OUTPUT_DATA.storage(), f41_OUTPUT_DATA.offset() + 74, 12, 2, true, false, false), CS);
+            Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f41_OUTPUT_DATA.storage(), f41_OUTPUT_DATA.offset() + 86, 12, 2, true, false, false), CS);
+            // MOVE SORTCODE TO ACCOUNT-SORT-CODE OF OUTPUT-DATA
+            Cobol.move(f1_SORTCODE, f46_ACCOUNT_SORT_CODE, CS);
+            // MOVE INQACC-ACCNO TO ACCOUNT-NUMBER OF OUTPUT-DATA
+            Cobol.move(f155_INQACC_ACCNO, f47_ACCOUNT_NUMBER, CS);
+            // GO TO FD999
+            if (true) return GOTO | 8;
+        }
+        // IF SQLCODE NOT = 0
+        if (!(Cobol.num(f18_SQLCODE, CS).compareTo(D0) == 0)) {
+            // PERFORM CHECK-FOR-STORM-DRAIN-DB2
+            perform(12, 14);
+            // MOVE SQLCODE TO SQLCODE-DISPLAY
+            Cobol.move(f18_SQLCODE, f99_SQLCODE_DISPLAY, CS);
+            // INITIALIZE ABNDINFO-REC
+            Cobol.moveFigurative(Figurative.ZEROS, Field.packed(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 0, 15, 0, true), CS);
+            Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 8, 4, 0, false, false, false), CS);
+            Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 12, 8, false), CS);
+            Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 20, 4, false), CS);
+            Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 24, 10, false), CS);
+            Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 34, 8, false), CS);
+            Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 42, 4, false), CS);
+            Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 46, 8, false), CS);
+            Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 54, 8, 0, true, true, true), CS);
+            Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 63, 8, 0, true, true, true), CS);
+            Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 72, 8, 0, true, true, true), CS);
+            Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 81, 600, false), CS);
+            // MOVE EIBRESP TO ABND-RESPCODE
+            Cobol.move(f207_EIBRESP, f147_ABND_RESPCODE, CS);
+            // MOVE EIBRESP2 TO ABND-RESP2CODE
+            Cobol.move(f208_EIBRESP2, f148_ABND_RESP2CODE, CS);
+            // EXEC CICS ASSIGN APPLID(ABND-APPLID) END-EXEC
+            DetCics.putText(f141_ABND_APPLID, task.assignApplid(), CS);
+            // MOVE EIBTASKN TO ABND-TASKNO-KEY
+            Cobol.move(f182_EIBTASKN, f140_ABND_TASKNO_KEY, CS);
+            // MOVE EIBTRNID TO ABND-TRANID
+            Cobol.move(f181_EIBTRNID, f142_ABND_TRANID, CS);
+            // PERFORM POPULATE-TIME-DATE
+            perform(24, 26);
+            // MOVE WS-ORIG-DATE TO ABND-DATE
+            Cobol.move(f117_WS_ORIG_DATE, f143_ABND_DATE, CS);
+            // STRING WS-TIME-NOW-GRP-HH DELIMITED BY SIZE, ':' DELIMITED BY SIZE, WS-TIME-NOW-GRP-MM DELIMITED BY SIZE, ':' DELIMITED BY SIZE, WS-TIME-NOW-GRP-MM DE
+            Cobol.string(f144_ABND_TIME, null, CS, Cobol.StringPart.size(f133_WS_TIME_NOW_GRP_HH), Cobol.StringPart.size(":", CS), Cobol.StringPart.size(f134_WS_TIME_NOW_GRP_MM), Cobol.StringPart.size(":", CS), Cobol.StringPart.size(f134_WS_TIME_NOW_GRP_MM));
+            // MOVE WS-U-TIME TO ABND-UTIME-KEY
+            Cobol.move(f116_WS_U_TIME, f139_ABND_UTIME_KEY, CS);
+            // MOVE 'HRAC' TO ABND-CODE
+            Cobol.move("HRAC", f145_ABND_CODE, CS);
+            // EXEC CICS ASSIGN PROGRAM(ABND-PROGRAM) END-EXEC
+            DetCics.putText(f146_ABND_PROGRAM, "INQACC  ", CS);
+            // MOVE SQLCODE-DISPLAY TO ABND-SQLCODE
+            Cobol.move(f99_SQLCODE_DISPLAY, f149_ABND_SQLCODE, CS);
+            // STRING 'FD010 -Failure when attempting to FETCH from ' DELIMITED BY SIZE, 'DB2 CURSOR (ACC-CURSOR). Check SQLCODE' DELIMITED BY SIZE, 'SQLCODE=' DELIM
+            Cobol.string(f150_ABND_FREEFORM, null, CS, Cobol.StringPart.size("FD010 -Failure when attempting to FETCH from ", CS), Cobol.StringPart.size("DB2 CURSOR (ACC-CURSOR). Check SQLCODE", CS), Cobol.StringPart.size("SQLCODE=", CS), Cobol.StringPart.size(f99_SQLCODE_DISPLAY));
+            // EXEC CICS LINK PROGRAM(WS-ABEND-PGM) COMMAREA(ABNDINFO-REC) END-EXEC
+            Storage cw20 = Cobol.commarea(f137_ABNDINFO_REC, 681);
+            AbndprocDfhcommarea ca19 = out_AbndprocDfhcommarea(cw20, 0);
+            String lr18 = task.link(f136_WS_ABEND_PGM.strip(), ca19, 681, cw20.bytes);
+            if ("NORMAL".equals(lr18)) {
+                if (!task.linkAreaBack()) { in_AbndprocDfhcommarea(ca19, cw20, 0); }
+                Cobol.commareaBack(cw20, f137_ABNDINFO_REC);
+            }
+            String exit21 = task.abendExit();
+            if (exit21 != null) return GOTO | paragraph(exit21);
+            if (task.ended()) throw abended();
+            Cobol.store(f207_EIBRESP, BigDecimal.valueOf(DetCics.resp(lr18)), false, CS);
+            Cobol.store(f208_EIBRESP2, BigDecimal.valueOf(task.transferResp2()), false, CS);
+            if (DetCics.resp(lr18) != 0) {
+                int to = condition(DetCics.condition(DetCics.resp(lr18)));
+                if (to >= 0) return GOTO | to;
+            }
+            // DISPLAY 'Failure when attempting to FETCH from the DB2 ' 'CURSOR ACC-CURSOR. With SQL code=' SQLCODE-DISPLAY
+            Sysout.display("Failure when attempting to FETCH from the DB2 ", "CURSOR ACC-CURSOR. With SQL code=", Cobol.displayText(f99_SQLCODE_DISPLAY, CS));
+            // EXEC CICS ABEND ABCODE('HRAC') CANCEL NODUMP END-EXEC
+            String exit22 = task.abendCancel("HRAC".strip());
+            if (exit22 == null) throw abended();
+            if (true) return GOTO | paragraph(exit22);
+        }
+        // MOVE HV-ACCOUNT-EYECATCHER TO ACCOUNT-EYE-CATCHER OF OUTPUT-DATA
+        Cobol.move(f3_HV_ACCOUNT_EYECATCHER, f43_ACCOUNT_EYE_CATCHER, CS);
+        // MOVE HV-ACCOUNT-CUST-NO TO ACCOUNT-CUST-NO OF OUTPUT-DATA
+        Cobol.move(f4_HV_ACCOUNT_CUST_NO, f44_ACCOUNT_CUST_NO, CS);
+        // MOVE HV-ACCOUNT-SORTCODE TO ACCOUNT-SORT-CODE OF OUTPUT-DATA
+        Cobol.move(f5_HV_ACCOUNT_SORTCODE, f46_ACCOUNT_SORT_CODE, CS);
+        // MOVE HV-ACCOUNT-ACC-NO TO ACCOUNT-NUMBER OF OUTPUT-DATA
+        Cobol.move(f6_HV_ACCOUNT_ACC_NO, f47_ACCOUNT_NUMBER, CS);
+        // MOVE HV-ACCOUNT-ACC-TYPE TO ACCOUNT-TYPE OF OUTPUT-DATA
+        Cobol.move(f7_HV_ACCOUNT_ACC_TYPE, f48_ACCOUNT_TYPE, CS);
+        // MOVE HV-ACCOUNT-INT-RATE TO ACCOUNT-INTEREST-RATE OF OUTPUT-DATA
+        Cobol.move(f8_HV_ACCOUNT_INT_RATE, f49_ACCOUNT_INTEREST_RATE, CS);
+        // MOVE HV-ACCOUNT-OPENED TO DB2-DATE-REFORMAT
+        Cobol.move(f9_HV_ACCOUNT_OPENED, f83_DB2_DATE_REFORMAT, CS);
+        // MOVE DB2-DATE-REF-DAY TO ACCOUNT-OPENED-DAY OF OUTPUT-DATA
+        Cobol.move(f88_DB2_DATE_REF_DAY, f52_ACCOUNT_OPENED_DAY, CS);
+        // MOVE DB2-DATE-REF-MNTH TO ACCOUNT-OPENED-MONTH OF OUTPUT-DATA
+        Cobol.move(f86_DB2_DATE_REF_MNTH, f53_ACCOUNT_OPENED_MONTH, CS);
+        // MOVE DB2-DATE-REF-YR TO ACCOUNT-OPENED-YEAR OF OUTPUT-DATA
+        Cobol.move(f84_DB2_DATE_REF_YR, f54_ACCOUNT_OPENED_YEAR, CS);
+        // MOVE HV-ACCOUNT-OVERDRAFT-LIM TO ACCOUNT-OVERDRAFT-LIMIT OF OUTPUT-DATA
+        Cobol.move(f10_HV_ACCOUNT_OVERDRAFT_LIM, f55_ACCOUNT_OVERDRAFT_LIMIT, CS);
+        // MOVE HV-ACCOUNT-LAST-STMT TO DB2-DATE-REFORMAT
+        Cobol.move(f11_HV_ACCOUNT_LAST_STMT, f83_DB2_DATE_REFORMAT, CS);
+        // MOVE DB2-DATE-REF-DAY TO ACCOUNT-LAST-STMT-DAY OF OUTPUT-DATA
+        Cobol.move(f88_DB2_DATE_REF_DAY, f58_ACCOUNT_LAST_STMT_DAY, CS);
+        // MOVE DB2-DATE-REF-MNTH TO ACCOUNT-LAST-STMT-MONTH OF OUTPUT-DATA
+        Cobol.move(f86_DB2_DATE_REF_MNTH, f59_ACCOUNT_LAST_STMT_MONTH, CS);
+        // MOVE DB2-DATE-REF-YR TO ACCOUNT-LAST-STMT-YEAR OF OUTPUT-DATA
+        Cobol.move(f84_DB2_DATE_REF_YR, f60_ACCOUNT_LAST_STMT_YEAR, CS);
+        // MOVE HV-ACCOUNT-NEXT-STMT TO DB2-DATE-REFORMAT
+        Cobol.move(f12_HV_ACCOUNT_NEXT_STMT, f83_DB2_DATE_REFORMAT, CS);
+        // MOVE DB2-DATE-REF-DAY TO ACCOUNT-NEXT-STMT-DAY OF OUTPUT-DATA
+        Cobol.move(f88_DB2_DATE_REF_DAY, f63_ACCOUNT_NEXT_STMT_DAY, CS);
+        // MOVE DB2-DATE-REF-MNTH TO ACCOUNT-NEXT-STMT-MONTH OF OUTPUT-DATA
+        Cobol.move(f86_DB2_DATE_REF_MNTH, f64_ACCOUNT_NEXT_STMT_MONTH, CS);
+        // MOVE DB2-DATE-REF-YR TO ACCOUNT-NEXT-STMT-YEAR OF OUTPUT-DATA
+        Cobol.move(f84_DB2_DATE_REF_YR, f65_ACCOUNT_NEXT_STMT_YEAR, CS);
+        // MOVE HV-ACCOUNT-AVAIL-BAL TO ACCOUNT-AVAILABLE-BALANCE OF OUTPUT-DATA
+        Cobol.move(f13_HV_ACCOUNT_AVAIL_BAL, f66_ACCOUNT_AVAILABLE_BALANCE, CS);
+        // MOVE HV-ACCOUNT-ACTUAL-BAL TO ACCOUNT-ACTUAL-BALANCE OF OUTPUT-DATA
+        Cobol.move(f14_HV_ACCOUNT_ACTUAL_BAL, f67_ACCOUNT_ACTUAL_BALANCE, CS);
+        return 8;
+    }
+
+    /** FD999. */
+    private int p8() {
+        // EXIT
+        return 9;
+    }
+
+    /** GET-ME-OUT-OF-HERE. */
+    private int p9() {
+
+        return 10;
+    }
+
+    /** GMOFH010. */
+    private int p10() {
+        // EXEC CICS RETURN END-EXEC
+        caBack.run();
+        task.returnTransid(null, null);
+        if (true) throw new Goback();
+        // GOBACK
+        if (true) throw new Goback();
+        return 11;
+    }
+
+    /** GMOFH999. */
+    private int p11() {
+        // EXIT
+        return 12;
+    }
+
+    /** CHECK-FOR-STORM-DRAIN-DB2. */
+    private int p12() {
+
+        return 13;
+    }
+
+    /** CFSDCD010. */
+    private int p13() {
+        // EVALUATE SQLCODE
+        if ((Cobol.num(f18_SQLCODE, CS).compareTo(D923) == 0)) {
+            // MOVE 'DB2 Connection lost ' TO STORM-DRAIN-CONDITION
+            f98_STORM_DRAIN_CONDITION = "DB2 Connection lost ";
+        } else if (true) {
+            // MOVE 'Not Storm Drain ' TO STORM-DRAIN-CONDITION
+            f98_STORM_DRAIN_CONDITION = "Not Storm Drain     ";
+        }
+        // MOVE SQLCODE TO SQLCODE-DISPLAY
+        Cobol.move(f18_SQLCODE, f99_SQLCODE_DISPLAY, CS);
+        // IF STORM-DRAIN-CONDITION NOT EQUAL 'Not Storm Drain '
+        if (!(f98_STORM_DRAIN_CONDITION.equals("Not Storm Drain     "))) {
+            // DISPLAY 'INQACC: Check-For-Storm-Drain-DB2: Storm ' 'Drain condition (' STORM-DRAIN-CONDITION ') ' 'has been met (' SQLCODE-DISPLAY ').'
+            Sysout.display("INQACC: Check-For-Storm-Drain-DB2: Storm ", "Drain condition (", f98_STORM_DRAIN_CONDITION, ") ", "has been met (", Cobol.displayText(f99_SQLCODE_DISPLAY, CS), ").");
+        } else {
+            // CONTINUE
+        }
+        return 14;
+    }
+
+    /** CFSDCD999. */
+    private int p14() {
+        // EXIT
+        return 15;
+    }
+
+    /** ABEND-HANDLING. */
+    private int p15() {
+
+        return 16;
+    }
+
+    /** AH010. */
+    private int p16() {
+        // EXEC CICS ASSIGN ABCODE(MY-ABEND-CODE) END-EXEC
+        DetCics.putText(f96_MY_ABEND_CODE, task.abcode(), CS);
+        // EVALUATE MY-ABEND-CODE
+        if ((Cobol.compare(f96_MY_ABEND_CODE, "AD2Z", CS) == 0)) {
+            // MOVE SQLCODE TO SQLCODE-DISPLAY
+            Cobol.move(f18_SQLCODE, f99_SQLCODE_DISPLAY, CS);
+            // DISPLAY 'DB2 DEADLOCK DETECTED IN INQACC, SQLCODE=' SQLCODE-DISPLAY
+            Sysout.display("DB2 DEADLOCK DETECTED IN INQACC, SQLCODE=", Cobol.displayText(f99_SQLCODE_DISPLAY, CS));
+            // DISPLAY 'DB2 DEADLOCK FOR ACCOUNT ' HV-ACCOUNT-ACC-NO
+            Sysout.display("DB2 DEADLOCK FOR ACCOUNT ", Cobol.displayText(f6_HV_ACCOUNT_ACC_NO, CS));
+            // DISPLAY 'SQLSTATE=' SQLSTATE ',SQLERRMC=' sqlerrmc(1:sqlerrmL) ',SQLERRD(1)=' SQLERRD(1) ',SQLERRD(2)=' SQLERRD(2) ',SQLERRD(3)=' SQLERRD(3) ',SQLERRD
+            Sysout.display("SQLSTATE=", Cobol.displayText(f36_SQLSTATE, CS), ",SQLERRMC=", Cobol.displayText(f21_SQLERRMC.ref(1, Integer.valueOf(Cobol.num(f20_SQLERRML, CS).intValue())), CS), ",SQLERRD(1)=", Cobol.displayText(f23_SQLERRD.at(1, 4), CS), ",SQLERRD(2)=", Cobol.displayText(f23_SQLERRD.at(2, 4), CS), ",SQLERRD(3)=", Cobol.displayText(f23_SQLERRD.at(3, 4), CS), ",SQLERRD(4)=", Cobol.displayText(f23_SQLERRD.at(4, 4), CS), ",SQLERRD(5)=", Cobol.displayText(f23_SQLERRD.at(5, 4), CS), ",SQLERRD(6)=", Cobol.displayText(f23_SQLERRD.at(6, 4), CS));
+        } else if ((Cobol.compare(f96_MY_ABEND_CODE, "AFCR", CS) == 0) || (Cobol.compare(f96_MY_ABEND_CODE, "AFCS", CS) == 0) || (Cobol.compare(f96_MY_ABEND_CODE, "AFCT", CS) == 0)) {
+            // MOVE 'Y' TO WS-STORM-DRAIN
+            f97_WS_STORM_DRAIN = "Y";
+            // DISPLAY 'INQACC: Check-For-Storm-Drain-VSAM: Storm ' 'Drain condition (Abend ' MY-ABEND-CODE ') ' 'has been met.'
+            Sysout.display("INQACC: Check-For-Storm-Drain-VSAM: Storm ", "Drain condition (Abend ", Cobol.displayText(f96_MY_ABEND_CODE, CS), ") ", "has been met.");
+            // EXEC CICS SYNCPOINT ROLLBACK RESP(WS-CICS-RESP) RESP2(WS-CICS-RESP2) END-EXEC
+            int[] planned23 = task.planned("ROLLBACK", "-");
+            if (planned23[0] == 0) task.rollback();
+            Cobol.store(f207_EIBRESP, BigDecimal.valueOf(planned23[0]), false, CS);
+            Cobol.store(f208_EIBRESP2, BigDecimal.valueOf(planned23[1]), false, CS);
+            Cobol.store(f38_WS_CICS_RESP, BigDecimal.valueOf(planned23[0]), false, CS);
+            Cobol.store(f39_WS_CICS_RESP2, BigDecimal.valueOf(planned23[1]), false, CS);
+            // IF WS-CICS-RESP NOT = DFHRESP(NORMAL)
+            if (!(Cobol.num(f38_WS_CICS_RESP, CS).compareTo(D0) == 0)) {
+                // INITIALIZE ABNDINFO-REC
+                Cobol.moveFigurative(Figurative.ZEROS, Field.packed(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 0, 15, 0, true), CS);
+                Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 8, 4, 0, false, false, false), CS);
+                Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 12, 8, false), CS);
+                Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 20, 4, false), CS);
+                Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 24, 10, false), CS);
+                Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 34, 8, false), CS);
+                Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 42, 4, false), CS);
+                Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 46, 8, false), CS);
+                Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 54, 8, 0, true, true, true), CS);
+                Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 63, 8, 0, true, true, true), CS);
+                Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 72, 8, 0, true, true, true), CS);
+                Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 81, 600, false), CS);
+                // MOVE EIBRESP TO ABND-RESPCODE
+                Cobol.move(f207_EIBRESP, f147_ABND_RESPCODE, CS);
+                // MOVE EIBRESP2 TO ABND-RESP2CODE
+                Cobol.move(f208_EIBRESP2, f148_ABND_RESP2CODE, CS);
+                // EXEC CICS ASSIGN APPLID(ABND-APPLID) END-EXEC
+                DetCics.putText(f141_ABND_APPLID, task.assignApplid(), CS);
+                // MOVE EIBTASKN TO ABND-TASKNO-KEY
+                Cobol.move(f182_EIBTASKN, f140_ABND_TASKNO_KEY, CS);
+                // MOVE EIBTRNID TO ABND-TRANID
+                Cobol.move(f181_EIBTRNID, f142_ABND_TRANID, CS);
+                // PERFORM POPULATE-TIME-DATE
+                perform(24, 26);
+                // MOVE WS-ORIG-DATE TO ABND-DATE
+                Cobol.move(f117_WS_ORIG_DATE, f143_ABND_DATE, CS);
+                // STRING WS-TIME-NOW-GRP-HH DELIMITED BY SIZE, ':' DELIMITED BY SIZE, WS-TIME-NOW-GRP-MM DELIMITED BY SIZE, ':' DELIMITED BY SIZE, WS-TIME-NOW-GRP-MM DE
+                Cobol.string(f144_ABND_TIME, null, CS, Cobol.StringPart.size(f133_WS_TIME_NOW_GRP_HH), Cobol.StringPart.size(":", CS), Cobol.StringPart.size(f134_WS_TIME_NOW_GRP_MM), Cobol.StringPart.size(":", CS), Cobol.StringPart.size(f134_WS_TIME_NOW_GRP_MM));
+                // MOVE WS-U-TIME TO ABND-UTIME-KEY
+                Cobol.move(f116_WS_U_TIME, f139_ABND_UTIME_KEY, CS);
+                // MOVE 'HROL' TO ABND-CODE
+                Cobol.move("HROL", f145_ABND_CODE, CS);
+                // EXEC CICS ASSIGN PROGRAM(ABND-PROGRAM) END-EXEC
+                DetCics.putText(f146_ABND_PROGRAM, "INQACC  ", CS);
+                // MOVE 0 TO ABND-SQLCODE
+                Cobol.move(D0, f149_ABND_SQLCODE, CS);
+                // STRING 'AH010 -Unable to perform SYNCPOINT ROLLBACK.' DELIMITED BY SIZE, ' Possible integrity issue following VSAM RLS ' DELIMITED BY SIZE, ' abend.' 
+                Cobol.string(f150_ABND_FREEFORM, null, CS, Cobol.StringPart.size("AH010 -Unable to perform SYNCPOINT ROLLBACK.", CS), Cobol.StringPart.size(" Possible integrity issue following VSAM RLS ", CS), Cobol.StringPart.size(" abend.", CS), Cobol.StringPart.size(" EIBRESP=", CS), Cobol.StringPart.size(f147_ABND_RESPCODE), Cobol.StringPart.size(" RESP2=", CS), Cobol.StringPart.size(f148_ABND_RESP2CODE));
+                // EXEC CICS LINK PROGRAM(WS-ABEND-PGM) COMMAREA(ABNDINFO-REC) END-EXEC
+                Storage cw26 = Cobol.commarea(f137_ABNDINFO_REC, 681);
+                AbndprocDfhcommarea ca25 = out_AbndprocDfhcommarea(cw26, 0);
+                String lr24 = task.link(f136_WS_ABEND_PGM.strip(), ca25, 681, cw26.bytes);
+                if ("NORMAL".equals(lr24)) {
+                    if (!task.linkAreaBack()) { in_AbndprocDfhcommarea(ca25, cw26, 0); }
+                    Cobol.commareaBack(cw26, f137_ABNDINFO_REC);
+                }
+                String exit27 = task.abendExit();
+                if (exit27 != null) return GOTO | paragraph(exit27);
+                if (task.ended()) throw abended();
+                Cobol.store(f207_EIBRESP, BigDecimal.valueOf(DetCics.resp(lr24)), false, CS);
+                Cobol.store(f208_EIBRESP2, BigDecimal.valueOf(task.transferResp2()), false, CS);
+                if (DetCics.resp(lr24) != 0) {
+                    int to = condition(DetCics.condition(DetCics.resp(lr24)));
+                    if (to >= 0) return GOTO | to;
+                }
+                // DISPLAY 'INQACC: Unable to perform Syncpoint ' 'Rollback. Possible Integrity issue ' ' following VSAM RLS abend. ' ' RESP CODE=' WS-CICS-RESP ' RESP2 
+                Sysout.display("INQACC: Unable to perform Syncpoint ", "Rollback. Possible Integrity issue ", " following VSAM RLS abend. ", " RESP CODE=", Cobol.displayText(f38_WS_CICS_RESP, CS), " RESP2 CODE=", Cobol.displayText(f39_WS_CICS_RESP2, CS));
+                // EXEC CICS ABEND ABCODE ('HROL') NODUMP CANCEL END-EXEC
+                String exit28 = task.abendCancel("HROL".strip());
+                if (exit28 == null) throw abended();
+                if (true) return GOTO | paragraph(exit28);
+            }
+            // MOVE 'N' TO INQACC-SUCCESS
+            Cobol.move("N", f176_INQACC_SUCCESS, CS);
+            // EXEC CICS RETURN END-EXEC
+            caBack.run();
             task.returnTransid(null, null);
-            return true;
+            if (true) throw new Goback();
         }
-
-        // AH010: IF WS-STORM-DRAIN = 'N'
-        if ("N".equals(w.stormDrain)) {
-            String freeform = "AH010 -WVS-STORM-DRAIN=N" + " EIBRESP=" + signSeparate(w.eibresp) + " RESP2=" + signSeparate(w.eibresp2);
-            AbndprocDfhcommarea rec = buildAbndRec(task, w, myAbendCode, 0, freeform);
-            if (linkAbndproc(task, w, rec, this::dispatchWsAbendPgmL810)) {
-                return true;
+        // IF WS-STORM-DRAIN = 'N'
+        if (f97_WS_STORM_DRAIN.equals("N")) {
+            // INITIALIZE ABNDINFO-REC
+            Cobol.moveFigurative(Figurative.ZEROS, Field.packed(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 0, 15, 0, true), CS);
+            Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 8, 4, 0, false, false, false), CS);
+            Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 12, 8, false), CS);
+            Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 20, 4, false), CS);
+            Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 24, 10, false), CS);
+            Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 34, 8, false), CS);
+            Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 42, 4, false), CS);
+            Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 46, 8, false), CS);
+            Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 54, 8, 0, true, true, true), CS);
+            Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 63, 8, 0, true, true, true), CS);
+            Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 72, 8, 0, true, true, true), CS);
+            Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 81, 600, false), CS);
+            // MOVE EIBRESP TO ABND-RESPCODE
+            Cobol.move(f207_EIBRESP, f147_ABND_RESPCODE, CS);
+            // MOVE EIBRESP2 TO ABND-RESP2CODE
+            Cobol.move(f208_EIBRESP2, f148_ABND_RESP2CODE, CS);
+            // EXEC CICS ASSIGN APPLID(ABND-APPLID) END-EXEC
+            DetCics.putText(f141_ABND_APPLID, task.assignApplid(), CS);
+            // MOVE EIBTASKN TO ABND-TASKNO-KEY
+            Cobol.move(f182_EIBTASKN, f140_ABND_TASKNO_KEY, CS);
+            // MOVE EIBTRNID TO ABND-TRANID
+            Cobol.move(f181_EIBTRNID, f142_ABND_TRANID, CS);
+            // PERFORM POPULATE-TIME-DATE
+            perform(24, 26);
+            // MOVE WS-ORIG-DATE TO ABND-DATE
+            Cobol.move(f117_WS_ORIG_DATE, f143_ABND_DATE, CS);
+            // STRING WS-TIME-NOW-GRP-HH DELIMITED BY SIZE, ':' DELIMITED BY SIZE, WS-TIME-NOW-GRP-MM DELIMITED BY SIZE, ':' DELIMITED BY SIZE, WS-TIME-NOW-GRP-MM DE
+            Cobol.string(f144_ABND_TIME, null, CS, Cobol.StringPart.size(f133_WS_TIME_NOW_GRP_HH), Cobol.StringPart.size(":", CS), Cobol.StringPart.size(f134_WS_TIME_NOW_GRP_MM), Cobol.StringPart.size(":", CS), Cobol.StringPart.size(f134_WS_TIME_NOW_GRP_MM));
+            // MOVE WS-U-TIME TO ABND-UTIME-KEY
+            Cobol.move(f116_WS_U_TIME, f139_ABND_UTIME_KEY, CS);
+            // MOVE MY-ABEND-CODE TO ABND-CODE
+            Cobol.move(f96_MY_ABEND_CODE, f145_ABND_CODE, CS);
+            // EXEC CICS ASSIGN PROGRAM(ABND-PROGRAM) END-EXEC
+            DetCics.putText(f146_ABND_PROGRAM, "INQACC  ", CS);
+            // MOVE ZEROS TO ABND-SQLCODE
+            Cobol.moveFigurative(Figurative.ZEROS, f149_ABND_SQLCODE, CS);
+            // STRING 'AH010 -WVS-STORM-DRAIN=N' DELIMITED BY SIZE, ' EIBRESP=' DELIMITED BY SIZE, ABND-RESPCODE DELIMITED BY SIZE, ' RESP2=' DELIMITED BY SIZE, ABND
+            Cobol.string(f150_ABND_FREEFORM, null, CS, Cobol.StringPart.size("AH010 -WVS-STORM-DRAIN=N", CS), Cobol.StringPart.size(" EIBRESP=", CS), Cobol.StringPart.size(f147_ABND_RESPCODE), Cobol.StringPart.size(" RESP2=", CS), Cobol.StringPart.size(f148_ABND_RESP2CODE));
+            // EXEC CICS LINK PROGRAM(WS-ABEND-PGM) COMMAREA(ABNDINFO-REC) END-EXEC
+            Storage cw31 = Cobol.commarea(f137_ABNDINFO_REC, 681);
+            AbndprocDfhcommarea ca30 = out_AbndprocDfhcommarea(cw31, 0);
+            String lr29 = task.link(f136_WS_ABEND_PGM.strip(), ca30, 681, cw31.bytes);
+            if ("NORMAL".equals(lr29)) {
+                if (!task.linkAreaBack()) { in_AbndprocDfhcommarea(ca30, cw31, 0); }
+                Cobol.commareaBack(cw31, f137_ABNDINFO_REC);
             }
-            task.abendCancel(myAbendCode);
-            return true;
-        }
-        // DEFECT (kept): had WS-STORM-DRAIN been 'Y' without the AFC* branch (impossible: that branch sets it and
-        // RETURNs), control would fall off AH999 into READ-ACCOUNT-LAST. Unreachable; fix: end the section with a GOBACK.
-        return true;
-    }
-
-    // ------------------------------------------------------------------ shared pieces
-
-    /**
-     * The ABEND block common to the failing SQL paragraphs: build ABNDINFO-REC, LINK to the abend program, DISPLAY,
-     * optionally CHECK-FOR-STORM-DRAIN-DB2, EXEC CICS ABEND ... CANCEL.
-     * @return always true: the task has ended or an abend exit took over.
-     */
-    private boolean abendSequence(CicsTask task, Work w, AbendLink site, String abcode, String freeform, String display, boolean stormAfterDisplay) {
-        AbndprocDfhcommarea rec = buildAbndRec(task, w, abcode, w.sqlcode, freeform);
-        if (linkAbndproc(task, w, rec, site)) {
-            return true;
-        }
-        Sysout.display(display);
-        if (stormAfterDisplay) {
-            checkForStormDrain(w);
-        }
-        task.abendCancel(abcode);
-        return true;
-    }
-
-    /** The LINK PROGRAM(WS-ABEND-PGM) of one COBOL site: its dispatcher (#4342). */
-    private interface AbendLink {
-        String link(CicsTask task, String program, Object commarea, int length);
-    }
-
-    /** EXEC CICS LINK PROGRAM(WS-ABEND-PGM) COMMAREA(ABNDINFO-REC), through the site's dispatcher `site` (#4342).
-     *  @return true when runTask must stop. */
-    private boolean linkAbndproc(CicsTask task, Work w, AbndprocDfhcommarea rec, AbendLink site) {
-        site.link(task, WS_ABEND_PGM, rec, 681);
-        String exit = task.abendExit();
-        if (exit != null) {
-            // an abend in the abend program reached this program's HANDLE ABEND exit: GO TO ABEND-HANDLING
-            abendHandling(task, w);
-            return true;
-        }
-        return task.ended();
-    }
-
-    /** INITIALIZE ABNDINFO-REC and the MOVEs / STRING that fill it, with POPULATE-TIME-DATE (PTD010). */
-    private AbndprocDfhcommarea buildAbndRec(CicsTask task, Work w, String abcode, int sqlcode, String freeform) {
-        java.nio.charset.Charset cs = CobolRecords.charset();
-        AbndprocDfhcommarea r = new AbndprocDfhcommarea();
-        r.setAbndUtimeKey(0L);
-        r.setAbndTasknoKey(0);
-        r.setAbndApplid(CobolRecords.fit("", 8, cs));
-        r.setAbndTranid(CobolRecords.fit("", 4, cs));
-        r.setAbndDate(CobolRecords.fit("", 10, cs));
-        r.setAbndTime(CobolRecords.fit("", 8, cs));
-        r.setAbndCode(CobolRecords.fit("", 4, cs));
-        r.setAbndProgram(CobolRecords.fit("", 8, cs));
-        r.setAbndRespcode(0);
-        r.setAbndResp2Code(0);
-        r.setAbndSqlcode(0);
-        r.setAbndFreeform(CobolRecords.fit("", 600, cs));
-
-        r.setAbndRespcode(w.eibresp);                       // MOVE EIBRESP
-        r.setAbndResp2Code(w.eibresp2);                     // MOVE EIBRESP2
-        r.setAbndApplid(task.assignApplid());               // ASSIGN APPLID
-        r.setAbndTasknoKey(0);                              // MOVE EIBTASKN: not exposed by CicsTask, 0
-        r.setAbndTranid(CobolRecords.fit(task.transid(), 4, cs)); // MOVE EIBTRNID
-
-        // PERFORM POPULATE-TIME-DATE: ASKTIME, FORMATTIME DDMMYYYY(WS-ORIG-DATE) TIME(WS-TIME-NOW) DATESEP
-        long abstime = task.asktime();
-        String date = CicsTask.formatDate(abstime, "DDMMYYYY", "/");
-        String time = CicsTask.formatTime(abstime, "");
-        r.setAbndDate(CobolRecords.fit(date, 10, cs));
-        // DEFECT (kept): the STRING uses WS-TIME-NOW-GRP-MM twice, so ABND-TIME is hh:mm:mm and the seconds are lost.
-        // Fix: use WS-TIME-NOW-GRP-SS for the last part.
-        String hh = time.substring(0, 2);
-        String mm = time.substring(2, 4);
-        r.setAbndTime(CobolRecords.fit(hh + ":" + mm + ":" + mm, 8, cs));
-        r.setAbndUtimeKey(abstime);
-        r.setAbndCode(CobolRecords.fit(abcode, 4, cs));
-        r.setAbndProgram(CobolRecords.fit("INQACC", 8, cs));   // ASSIGN PROGRAM
-        r.setAbndSqlcode(sqlcode);
-        r.setAbndFreeform(CobolRecords.fit(freeform, 600, cs)); // STRING ... INTO ABND-FREEFORM
-        return r;
-    }
-
-    /** True when a column fetched without an indicator variable is NULL (DB2 answers SQLCODE -305). */
-    private static boolean hasNullColumn(Map<String, Object> row) {
-        for (String c : NULLABLE_COLUMNS) {
-            if (row.get(c) == null) {
-                return true;
+            String exit32 = task.abendExit();
+            if (exit32 != null) return GOTO | paragraph(exit32);
+            if (task.ended()) throw abended();
+            Cobol.store(f207_EIBRESP, BigDecimal.valueOf(DetCics.resp(lr29)), false, CS);
+            Cobol.store(f208_EIBRESP2, BigDecimal.valueOf(task.transferResp2()), false, CS);
+            if (DetCics.resp(lr29) != 0) {
+                int to = condition(DetCics.condition(DetCics.resp(lr29)));
+                if (to >= 0) return GOTO | to;
             }
+            // EXEC CICS ABEND ABCODE( MY-ABEND-CODE) NODUMP CANCEL END-EXEC
+            String exit33 = task.abendCancel(Cobol.text(f96_MY_ABEND_CODE, CS).strip());
+            if (exit33 == null) throw abended();
+            if (true) return GOTO | paragraph(exit33);
         }
-        return false;
+        return 17;
     }
 
-    /** FETCH / SELECT INTO the host variables (HOST-ACCOUNT-ROW). */
-    private void loadHostRow(Work w, Map<String, Object> row) {
-        java.nio.charset.Charset cs = CobolRecords.charset();
-        w.hvEye = CobolRecords.fit(str(row.get("ACCOUNT_EYECATCHER")), 4, cs);
-        w.hvCust = CobolRecords.fit(str(row.get("ACCOUNT_CUSTOMER_NUMBER")), 10, cs);
-        w.hvSortcode = CobolRecords.fit(str(row.get("ACCOUNT_SORTCODE")), 6, cs);
-        w.hvAccNo = CobolRecords.fit(str(row.get("ACCOUNT_NUMBER")), 8, cs);
-        w.hvType = CobolRecords.fit(str(row.get("ACCOUNT_TYPE")), 8, cs);
-        w.hvRate = fixed(CobolRecords.decimal(row.get("ACCOUNT_INTEREST_RATE")), 4, 2, true);
-        w.hvOpened = CobolRecords.fit(str(Db2Dates.date(row.get("ACCOUNT_OPENED"))), 10, cs);
-        w.hvOverdraft = fixed(CobolRecords.decimal(row.get("ACCOUNT_OVERDRAFT_LIMIT")), 9, 0, true).intValue();
-        w.hvLast = CobolRecords.fit(str(Db2Dates.date(row.get("ACCOUNT_LAST_STATEMENT"))), 10, cs);
-        w.hvNext = CobolRecords.fit(str(Db2Dates.date(row.get("ACCOUNT_NEXT_STATEMENT"))), 10, cs);
-        w.hvAvail = fixed(CobolRecords.decimal(row.get("ACCOUNT_AVAILABLE_BALANCE")), 10, 2, true);
-        w.hvActual = fixed(CobolRecords.decimal(row.get("ACCOUNT_ACTUAL_BALANCE")), 10, 2, true);
+    /** AH999. */
+    private int p17() {
+        // EXIT
+        return 18;
     }
 
-    /** The MOVE HV-... TO ... OF OUTPUT-DATA block of FD010 / GLAD010. */
-    private void moveHostToOutput(Work w) {
-        w.eye = w.hvEye;
-        w.custNo = toDigits(w.hvCust, 10);
-        w.sortCode = (int) toDigits(w.hvSortcode, 6);
-        w.number = (int) toDigits(w.hvAccNo, 8);
-        w.type = w.hvType;
-        w.rate = fixed(w.hvRate, 4, 2, false);
-        w.opened = reformat(w.hvOpened);
-        w.overdraft = fixed(BigDecimal.valueOf(w.hvOverdraft), 8, 0, false).intValue();
-        w.last = reformat(w.hvLast);
-        w.next = reformat(w.hvNext);
-        w.avail = w.hvAvail;
-        w.actual = w.hvActual;
+    /** READ-ACCOUNT-LAST. */
+    private int p18() {
+
+        return 19;
     }
 
-    /** MOVE host date TO DB2-DATE-REFORMAT: yyyy-mm-dd (ISO) -> {day, month, year}. */
-    private static int[] reformat(String hv) {
-        return new int[] {(int) toDigits(hv.substring(8, 10), 2), (int) toDigits(hv.substring(5, 7), 2),
-                (int) toDigits(hv.substring(0, 4), 4)};
+    /** RAN010. */
+    private int p19() {
+        // PERFORM GET-LAST-ACCOUNT-DB2
+        perform(21, 23);
+        // MOVE REQUIRED-ACC-NUMBER2 TO NCS-ACC-NO-VALUE
+        Cobol.move(f111_REQUIRED_ACC_NUMBER2, f106_NCS_ACC_NO_VALUE, CS);
+        return 20;
     }
 
-    /** ACCOUNT-OPENED / -LAST-STMT-DATE / -NEXT-STMT-DATE as PIC 9(8) ddmmyyyy. */
-    private static int dateNum(int[] dmy) {
-        return dmy[0] * 1_000_000 + dmy[1] * 10_000 + dmy[2];
+    /** RAN999. */
+    private int p20() {
+        // EXIT
+        return 21;
     }
 
-    /** MOVE of an alphanumeric item to PIC 9(n): digits, high-order truncation; non-numeric data reads as 0. */
-    private static long toDigits(String s, int digits) {
-        try {
-            return CobolRecords.numval(s).abs().toBigInteger().mod(BigInteger.TEN.pow(digits)).longValue();
-        } catch (NumberFormatException e) {
-            return 0;
+    /** GET-LAST-ACCOUNT-DB2. */
+    private int p21() {
+
+        return 22;
+    }
+
+    /** GLAD010. */
+    private int p22() {
+        // INITIALIZE OUTPUT-DATA
+        Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f41_OUTPUT_DATA.storage(), f41_OUTPUT_DATA.offset() + 0, 4, false), CS);
+        Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f41_OUTPUT_DATA.storage(), f41_OUTPUT_DATA.offset() + 4, 10, 0, false, false, false), CS);
+        Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f41_OUTPUT_DATA.storage(), f41_OUTPUT_DATA.offset() + 14, 6, 0, false, false, false), CS);
+        Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f41_OUTPUT_DATA.storage(), f41_OUTPUT_DATA.offset() + 20, 8, 0, false, false, false), CS);
+        Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f41_OUTPUT_DATA.storage(), f41_OUTPUT_DATA.offset() + 28, 8, false), CS);
+        Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f41_OUTPUT_DATA.storage(), f41_OUTPUT_DATA.offset() + 36, 6, 2, false, false, false), CS);
+        Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f41_OUTPUT_DATA.storage(), f41_OUTPUT_DATA.offset() + 42, 8, 0, false, false, false), CS);
+        Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f41_OUTPUT_DATA.storage(), f41_OUTPUT_DATA.offset() + 50, 8, 0, false, false, false), CS);
+        Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f41_OUTPUT_DATA.storage(), f41_OUTPUT_DATA.offset() + 58, 8, 0, false, false, false), CS);
+        Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f41_OUTPUT_DATA.storage(), f41_OUTPUT_DATA.offset() + 66, 8, 0, false, false, false), CS);
+        Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f41_OUTPUT_DATA.storage(), f41_OUTPUT_DATA.offset() + 74, 12, 2, true, false, false), CS);
+        Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f41_OUTPUT_DATA.storage(), f41_OUTPUT_DATA.offset() + 86, 12, 2, true, false, false), CS);
+        // MOVE REQUIRED-ACC-NUMBER2 TO HV-ACCOUNT-ACC-NO
+        Cobol.move(f111_REQUIRED_ACC_NUMBER2, f6_HV_ACCOUNT_ACC_NO, CS);
+        // MOVE REQUIRED-SORT-CODE TO HV-ACCOUNT-SORTCODE
+        Cobol.move(f94_REQUIRED_SORT_CODE, f5_HV_ACCOUNT_SORTCODE, CS);
+        // MOVE SORTCODE TO HV-ACCOUNT-SORTCODE
+        Cobol.move(f1_SORTCODE, f5_HV_ACCOUNT_SORTCODE, CS);
+        // EXEC SQL SELECT ACCOUNT_EYECATCHER, ACCOUNT_CUSTOMER_NUMBER, ACCOUNT_SORTCODE, ACCOUNT_NUMBER, ACCOUNT_TYPE, ACCOUNT_INTEREST_RATE, ACCOUNT_OPENED, AC
+        java.util.Map<String, Object> sqlParams34 = new java.util.HashMap<>();
+        sqlParams34.put("hvAccountSortcode", DetSql.charIn(f5_HV_ACCOUNT_SORTCODE, CS));
+        java.util.Map<String, Object> sqlRow35 = DetSql.selectOne(f15_SQLCA, "INQACC:843", () -> accountRepository.selectL843Inqacc(sqlParams34), CS);
+        if (sqlRow35 != null) {
+            DetSql.into(f15_SQLCA, sqlRow35, "XXXXXNXNXXNN", new Field[] {f3_HV_ACCOUNT_EYECATCHER, f4_HV_ACCOUNT_CUST_NO, f5_HV_ACCOUNT_SORTCODE, f6_HV_ACCOUNT_ACC_NO, f7_HV_ACCOUNT_ACC_TYPE, f8_HV_ACCOUNT_INT_RATE, f9_HV_ACCOUNT_OPENED, f10_HV_ACCOUNT_OVERDRAFT_LIM, f11_HV_ACCOUNT_LAST_STMT, f12_HV_ACCOUNT_NEXT_STMT, f13_HV_ACCOUNT_AVAIL_BAL, f14_HV_ACCOUNT_ACTUAL_BAL}, new Field[] {null, null, null, null, null, null, null, null, null, null, null, null}, null, CS);
         }
-    }
-
-    /** MOVE to PIC [S]9(digits)V9(scale): truncates both ends; an unsigned target keeps the magnitude. */
-    private static BigDecimal fixed(BigDecimal v, int digits, int scale, boolean signed) {
-        BigInteger u = v.setScale(scale, RoundingMode.DOWN).unscaledValue();
-        BigInteger m = u.abs().mod(BigInteger.TEN.pow(digits + scale));
-        if (signed && u.signum() < 0) {
-            m = m.negate();
+        task.planned("SQL", "INQACC:843");
+        String exit36 = task.abendExit();
+        if (exit36 != null) return GOTO | paragraph(exit36);
+        if (task.ended()) throw abended();
+        // IF SQLCODE IS NOT EQUAL TO ZERO
+        if (!(Cobol.num(f18_SQLCODE, CS).compareTo(BigDecimal.ZERO) == 0)) {
+            // MOVE SQLCODE TO SQLCODE-DISPLAY
+            Cobol.move(f18_SQLCODE, f99_SQLCODE_DISPLAY, CS);
+            // INITIALIZE ABNDINFO-REC
+            Cobol.moveFigurative(Figurative.ZEROS, Field.packed(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 0, 15, 0, true), CS);
+            Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 8, 4, 0, false, false, false), CS);
+            Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 12, 8, false), CS);
+            Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 20, 4, false), CS);
+            Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 24, 10, false), CS);
+            Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 34, 8, false), CS);
+            Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 42, 4, false), CS);
+            Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 46, 8, false), CS);
+            Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 54, 8, 0, true, true, true), CS);
+            Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 63, 8, 0, true, true, true), CS);
+            Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 72, 8, 0, true, true, true), CS);
+            Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f137_ABNDINFO_REC.storage(), f137_ABNDINFO_REC.offset() + 81, 600, false), CS);
+            // MOVE EIBRESP TO ABND-RESPCODE
+            Cobol.move(f207_EIBRESP, f147_ABND_RESPCODE, CS);
+            // MOVE EIBRESP2 TO ABND-RESP2CODE
+            Cobol.move(f208_EIBRESP2, f148_ABND_RESP2CODE, CS);
+            // EXEC CICS ASSIGN APPLID(ABND-APPLID) END-EXEC
+            DetCics.putText(f141_ABND_APPLID, task.assignApplid(), CS);
+            // MOVE EIBTASKN TO ABND-TASKNO-KEY
+            Cobol.move(f182_EIBTASKN, f140_ABND_TASKNO_KEY, CS);
+            // MOVE EIBTRNID TO ABND-TRANID
+            Cobol.move(f181_EIBTRNID, f142_ABND_TRANID, CS);
+            // PERFORM POPULATE-TIME-DATE
+            perform(24, 26);
+            // MOVE WS-ORIG-DATE TO ABND-DATE
+            Cobol.move(f117_WS_ORIG_DATE, f143_ABND_DATE, CS);
+            // STRING WS-TIME-NOW-GRP-HH DELIMITED BY SIZE, ':' DELIMITED BY SIZE, WS-TIME-NOW-GRP-MM DELIMITED BY SIZE, ':' DELIMITED BY SIZE, WS-TIME-NOW-GRP-MM DE
+            Cobol.string(f144_ABND_TIME, null, CS, Cobol.StringPart.size(f133_WS_TIME_NOW_GRP_HH), Cobol.StringPart.size(":", CS), Cobol.StringPart.size(f134_WS_TIME_NOW_GRP_MM), Cobol.StringPart.size(":", CS), Cobol.StringPart.size(f134_WS_TIME_NOW_GRP_MM));
+            // MOVE WS-U-TIME TO ABND-UTIME-KEY
+            Cobol.move(f116_WS_U_TIME, f139_ABND_UTIME_KEY, CS);
+            // MOVE 'HNCS' TO ABND-CODE
+            Cobol.move("HNCS", f145_ABND_CODE, CS);
+            // EXEC CICS ASSIGN PROGRAM(ABND-PROGRAM) END-EXEC
+            DetCics.putText(f146_ABND_PROGRAM, "INQACC  ", CS);
+            // MOVE SQLCODE-DISPLAY TO ABND-SQLCODE
+            Cobol.move(f99_SQLCODE_DISPLAY, f149_ABND_SQLCODE, CS);
+            // STRING 'GLAD010 -ACCOUNT NCS ' DELIMITED BY SIZE, NCS-ACC-NO-NAME DELIMITED BY SIZE, ' CANNOT be accessed and DB2 ' DELIMITED BY SIZE, ' SELECT failed
+            Cobol.string(f150_ABND_FREEFORM, null, CS, Cobol.StringPart.size("GLAD010 -ACCOUNT NCS ", CS), Cobol.StringPart.size(f101_NCS_ACC_NO_NAME), Cobol.StringPart.size(" CANNOT be accessed and DB2 ", CS), Cobol.StringPart.size(" SELECT failed. SQLCODE=", CS), Cobol.StringPart.size(f99_SQLCODE_DISPLAY));
+            // EXEC CICS LINK PROGRAM(WS-ABEND-PGM) COMMAREA(ABNDINFO-REC) END-EXEC
+            Storage cw39 = Cobol.commarea(f137_ABNDINFO_REC, 681);
+            AbndprocDfhcommarea ca38 = out_AbndprocDfhcommarea(cw39, 0);
+            String lr37 = task.link(f136_WS_ABEND_PGM.strip(), ca38, 681, cw39.bytes);
+            if ("NORMAL".equals(lr37)) {
+                if (!task.linkAreaBack()) { in_AbndprocDfhcommarea(ca38, cw39, 0); }
+                Cobol.commareaBack(cw39, f137_ABNDINFO_REC);
+            }
+            String exit40 = task.abendExit();
+            if (exit40 != null) return GOTO | paragraph(exit40);
+            if (task.ended()) throw abended();
+            Cobol.store(f207_EIBRESP, BigDecimal.valueOf(DetCics.resp(lr37)), false, CS);
+            Cobol.store(f208_EIBRESP2, BigDecimal.valueOf(task.transferResp2()), false, CS);
+            if (DetCics.resp(lr37) != 0) {
+                int to = condition(DetCics.condition(DetCics.resp(lr37)));
+                if (to >= 0) return GOTO | to;
+            }
+            // DISPLAY 'INQACC - ACCOUNT NCS ' NCS-ACC-NO-NAME ' CANNOT BE ACCESSED AND DB2 SELECT FAILED. SQLCODE=' SQLCODE-DISPLAY
+            Sysout.display("INQACC - ACCOUNT NCS ", Cobol.displayText(f101_NCS_ACC_NO_NAME, CS), " CANNOT BE ACCESSED AND DB2 SELECT FAILED. SQLCODE=", Cobol.displayText(f99_SQLCODE_DISPLAY, CS));
+            // EXEC CICS ABEND ABCODE('HNCS') NODUMP CANCEL END-EXEC
+            String exit41 = task.abendCancel("HNCS".strip());
+            if (exit41 == null) throw abended();
+            if (true) return GOTO | paragraph(exit41);
+        } else {
+            // MOVE HV-ACCOUNT-EYECATCHER TO ACCOUNT-EYE-CATCHER OF OUTPUT-DATA
+            Cobol.move(f3_HV_ACCOUNT_EYECATCHER, f43_ACCOUNT_EYE_CATCHER, CS);
+            // MOVE HV-ACCOUNT-CUST-NO TO ACCOUNT-CUST-NO OF OUTPUT-DATA
+            Cobol.move(f4_HV_ACCOUNT_CUST_NO, f44_ACCOUNT_CUST_NO, CS);
+            // MOVE HV-ACCOUNT-SORTCODE TO ACCOUNT-SORT-CODE OF OUTPUT-DATA
+            Cobol.move(f5_HV_ACCOUNT_SORTCODE, f46_ACCOUNT_SORT_CODE, CS);
+            // MOVE HV-ACCOUNT-ACC-NO TO ACCOUNT-NUMBER OF OUTPUT-DATA
+            Cobol.move(f6_HV_ACCOUNT_ACC_NO, f47_ACCOUNT_NUMBER, CS);
+            // MOVE HV-ACCOUNT-ACC-TYPE TO ACCOUNT-TYPE OF OUTPUT-DATA
+            Cobol.move(f7_HV_ACCOUNT_ACC_TYPE, f48_ACCOUNT_TYPE, CS);
+            // MOVE HV-ACCOUNT-INT-RATE TO ACCOUNT-INTEREST-RATE OF OUTPUT-DATA
+            Cobol.move(f8_HV_ACCOUNT_INT_RATE, f49_ACCOUNT_INTEREST_RATE, CS);
+            // MOVE HV-ACCOUNT-OPENED TO DB2-DATE-REFORMAT
+            Cobol.move(f9_HV_ACCOUNT_OPENED, f83_DB2_DATE_REFORMAT, CS);
+            // MOVE DB2-DATE-REF-DAY TO ACCOUNT-OPENED-DAY OF OUTPUT-DATA
+            Cobol.move(f88_DB2_DATE_REF_DAY, f52_ACCOUNT_OPENED_DAY, CS);
+            // MOVE DB2-DATE-REF-MNTH TO ACCOUNT-OPENED-MONTH OF OUTPUT-DATA
+            Cobol.move(f86_DB2_DATE_REF_MNTH, f53_ACCOUNT_OPENED_MONTH, CS);
+            // MOVE DB2-DATE-REF-YR TO ACCOUNT-OPENED-YEAR OF OUTPUT-DATA
+            Cobol.move(f84_DB2_DATE_REF_YR, f54_ACCOUNT_OPENED_YEAR, CS);
+            // MOVE HV-ACCOUNT-OVERDRAFT-LIM TO ACCOUNT-OVERDRAFT-LIMIT OF OUTPUT-DATA
+            Cobol.move(f10_HV_ACCOUNT_OVERDRAFT_LIM, f55_ACCOUNT_OVERDRAFT_LIMIT, CS);
+            // MOVE HV-ACCOUNT-LAST-STMT TO DB2-DATE-REFORMAT
+            Cobol.move(f11_HV_ACCOUNT_LAST_STMT, f83_DB2_DATE_REFORMAT, CS);
+            // MOVE DB2-DATE-REF-DAY TO ACCOUNT-LAST-STMT-DAY OF OUTPUT-DATA
+            Cobol.move(f88_DB2_DATE_REF_DAY, f58_ACCOUNT_LAST_STMT_DAY, CS);
+            // MOVE DB2-DATE-REF-MNTH TO ACCOUNT-LAST-STMT-MONTH OF OUTPUT-DATA
+            Cobol.move(f86_DB2_DATE_REF_MNTH, f59_ACCOUNT_LAST_STMT_MONTH, CS);
+            // MOVE DB2-DATE-REF-YR TO ACCOUNT-LAST-STMT-YEAR OF OUTPUT-DATA
+            Cobol.move(f84_DB2_DATE_REF_YR, f60_ACCOUNT_LAST_STMT_YEAR, CS);
+            // MOVE HV-ACCOUNT-NEXT-STMT TO DB2-DATE-REFORMAT
+            Cobol.move(f12_HV_ACCOUNT_NEXT_STMT, f83_DB2_DATE_REFORMAT, CS);
+            // MOVE DB2-DATE-REF-DAY TO ACCOUNT-NEXT-STMT-DAY OF OUTPUT-DATA
+            Cobol.move(f88_DB2_DATE_REF_DAY, f63_ACCOUNT_NEXT_STMT_DAY, CS);
+            // MOVE DB2-DATE-REF-MNTH TO ACCOUNT-NEXT-STMT-MONTH OF OUTPUT-DATA
+            Cobol.move(f86_DB2_DATE_REF_MNTH, f64_ACCOUNT_NEXT_STMT_MONTH, CS);
+            // MOVE DB2-DATE-REF-YR TO ACCOUNT-NEXT-STMT-YEAR OF OUTPUT-DATA
+            Cobol.move(f84_DB2_DATE_REF_YR, f65_ACCOUNT_NEXT_STMT_YEAR, CS);
+            // MOVE HV-ACCOUNT-AVAIL-BAL TO ACCOUNT-AVAILABLE-BALANCE OF OUTPUT-DATA
+            Cobol.move(f13_HV_ACCOUNT_AVAIL_BAL, f66_ACCOUNT_AVAILABLE_BALANCE, CS);
+            // MOVE HV-ACCOUNT-ACTUAL-BAL TO ACCOUNT-ACTUAL-BALANCE OF OUTPUT-DATA
+            Cobol.move(f14_HV_ACCOUNT_ACTUAL_BAL, f67_ACCOUNT_ACTUAL_BALANCE, CS);
         }
-        return new BigDecimal(m, scale);
+        return 23;
     }
 
-    /** PIC S9(8) DISPLAY SIGN LEADING SEPARATE as text: '+' / '-' then 8 digits. */
-    private static String signSeparate(int v) {
-        long a = Math.abs((long) v) % 100_000_000L;
-        return (v < 0 ? "-" : "+") + String.format(Locale.ROOT, "%08d", a);
+    /** GLAD999. */
+    private int p23() {
+        // EXIT
+        return 24;
     }
 
-    private static boolean isSpacesOrLowValues(String s) {
-        return s.chars().allMatch(c -> c == ' ') || s.chars().allMatch(c -> c == 0);
+    /** POPULATE-TIME-DATE. */
+    private int p24() {
+
+        return 25;
     }
 
-    private static String str(Object o) {
-        return o == null ? "" : o.toString();
+    /** PTD010. */
+    private int p25() {
+        // EXEC CICS ASKTIME ABSTIME(WS-U-TIME) END-EXEC
+        Cobol.store(f116_WS_U_TIME, BigDecimal.valueOf(task.asktime()), false, CS);
+        // EXEC CICS FORMATTIME ABSTIME(WS-U-TIME) DDMMYYYY(WS-ORIG-DATE) TIME(WS-TIME-NOW) DATESEP END-EXEC
+        Cobol.move(CicsTask.formatDate(Cobol.num(f116_WS_U_TIME, CS).longValue(), "DDMMYYYY", "/"), f117_WS_ORIG_DATE, CS);
+        Cobol.move(CicsTask.formatTime(Cobol.num(f116_WS_U_TIME, CS).longValue(), ""), f131_WS_TIME_NOW, CS);
+        return 26;
     }
 
-    /** EXEC CICS LINK PROGRAM(WS-ABEND-PGM) at src/base/cobol_src/INQACC.cbl:321, COMMAREA(ABNDINFO-REC): the target is data-driven (candidates the engine found: ABNDPROC (value)).
-     *  CICS resolves the name when the command runs (#4342): `program` is the PROGRAM field as the
-     *  COBOL holds it, its trailing blanks the name's padding. Returns the command's condition
-     *  (NORMAL, PGMIDERR, ...).
-     *  Dynamic call targets field testing: open (5 public / 0 private estates). */
-    public String dispatchWsAbendPgmL321(CicsTask task, String program, Object commarea, int length) {
-        return task.link(program.stripTrailing(), commarea, length);
-    }
-
-    /** EXEC CICS LINK PROGRAM(WS-ABEND-PGM) at src/base/cobol_src/INQACC.cbl:401, COMMAREA(ABNDINFO-REC): the target is data-driven (candidates the engine found: ABNDPROC (value)).
-     *  CICS resolves the name when the command runs (#4342): `program` is the PROGRAM field as the
-     *  COBOL holds it, its trailing blanks the name's padding. Returns the command's condition
-     *  (NORMAL, PGMIDERR, ...).
-     *  Dynamic call targets field testing: open (5 public / 0 private estates). */
-    public String dispatchWsAbendPgmL401(CicsTask task, String program, Object commarea, int length) {
-        return task.link(program.stripTrailing(), commarea, length);
-    }
-
-    /** EXEC CICS LINK PROGRAM(WS-ABEND-PGM) at src/base/cobol_src/INQACC.cbl:516, COMMAREA(ABNDINFO-REC): the target is data-driven (candidates the engine found: ABNDPROC (value)).
-     *  CICS resolves the name when the command runs (#4342): `program` is the PROGRAM field as the
-     *  COBOL holds it, its trailing blanks the name's padding. Returns the command's condition
-     *  (NORMAL, PGMIDERR, ...).
-     *  Dynamic call targets field testing: open (5 public / 0 private estates). */
-    public String dispatchWsAbendPgmL516(CicsTask task, String program, Object commarea, int length) {
-        return task.link(program.stripTrailing(), commarea, length);
-    }
-
-    /** EXEC CICS LINK PROGRAM(WS-ABEND-PGM) at src/base/cobol_src/INQACC.cbl:738, COMMAREA(ABNDINFO-REC): the target is data-driven (candidates the engine found: ABNDPROC (value)).
-     *  CICS resolves the name when the command runs (#4342): `program` is the PROGRAM field as the
-     *  COBOL holds it, its trailing blanks the name's padding. Returns the command's condition
-     *  (NORMAL, PGMIDERR, ...).
-     *  Dynamic call targets field testing: open (5 public / 0 private estates). */
-    public String dispatchWsAbendPgmL738(CicsTask task, String program, Object commarea, int length) {
-        return task.link(program.stripTrailing(), commarea, length);
-    }
-
-    /** EXEC CICS LINK PROGRAM(WS-ABEND-PGM) at src/base/cobol_src/INQACC.cbl:810, COMMAREA(ABNDINFO-REC): the target is data-driven (candidates the engine found: ABNDPROC (value)).
-     *  CICS resolves the name when the command runs (#4342): `program` is the PROGRAM field as the
-     *  COBOL holds it, its trailing blanks the name's padding. Returns the command's condition
-     *  (NORMAL, PGMIDERR, ...).
-     *  Dynamic call targets field testing: open (5 public / 0 private estates). */
-    public String dispatchWsAbendPgmL810(CicsTask task, String program, Object commarea, int length) {
-        return task.link(program.stripTrailing(), commarea, length);
-    }
-
-    /** EXEC CICS LINK PROGRAM(WS-ABEND-PGM) at src/base/cobol_src/INQACC.cbl:924, COMMAREA(ABNDINFO-REC): the target is data-driven (candidates the engine found: ABNDPROC (value)).
-     *  CICS resolves the name when the command runs (#4342): `program` is the PROGRAM field as the
-     *  COBOL holds it, its trailing blanks the name's padding. Returns the command's condition
-     *  (NORMAL, PGMIDERR, ...).
-     *  Dynamic call targets field testing: open (5 public / 0 private estates). */
-    public String dispatchWsAbendPgmL924(CicsTask task, String program, Object commarea, int length) {
-        return task.link(program.stripTrailing(), commarea, length);
-    }
-
-    /**
-     * EXEC CICS SYNCPOINT ROLLBACK at src/base/cobol_src/INQACC.cbl:682 (paragraph AH010): rolls the unit of work back.
-     * Units of work and handlers field testing: field-tested (6 public / 0 private estates).
-     */
-    public void rollbackL682() {
-        throw new UnitOfWorkRollbackException("INQACC", "src/base/cobol_src/INQACC.cbl:682");
-    }
-
-    /**
-     * EXEC CICS ABEND ABCODE(HRAC) at src/base/cobol_src/INQACC.cbl:335 (paragraph paragraph).
-     * Units of work and handlers field testing: field-tested (6 public / 0 private estates).
-     * Note: resolved at run time if an identifier.
-     */
-    public void abendHracL335() {
-        throw new CicsAbendException("HRAC", "INQACC", "src/base/cobol_src/INQACC.cbl:335");
-    }
-
-    /**
-     * EXEC CICS ABEND ABCODE(HRAC) at src/base/cobol_src/INQACC.cbl:415 (paragraph paragraph).
-     * Units of work and handlers field testing: field-tested (6 public / 0 private estates).
-     * Note: resolved at run time if an identifier.
-     */
-    public void abendHracL415() {
-        throw new CicsAbendException("HRAC", "INQACC", "src/base/cobol_src/INQACC.cbl:415");
-    }
-
-    /**
-     * EXEC CICS ABEND ABCODE(HRAC) at src/base/cobol_src/INQACC.cbl:524 (paragraph paragraph).
-     * Units of work and handlers field testing: field-tested (6 public / 0 private estates).
-     * Note: resolved at run time if an identifier.
-     */
-    public void abendHracL524() {
-        throw new CicsAbendException("HRAC", "INQACC", "src/base/cobol_src/INQACC.cbl:524");
-    }
-
-    /**
-     * EXEC CICS ABEND ABCODE(HROL) at src/base/cobol_src/INQACC.cbl:748 (paragraph paragraph).
-     * Units of work and handlers field testing: field-tested (6 public / 0 private estates).
-     * Note: resolved at run time if an identifier.
-     */
-    public void abendHrolL748() {
-        throw new CicsAbendException("HROL", "INQACC", "src/base/cobol_src/INQACC.cbl:748");
-    }
-
-    /**
-     * EXEC CICS ABEND ABCODE(MY-ABEND-CODE) at src/base/cobol_src/INQACC.cbl:814 (paragraph paragraph).
-     * Units of work and handlers field testing: field-tested (6 public / 0 private estates).
-     * Note: resolved at run time if an identifier.
-     */
-    public void abendMyabendcodeL814() {
-        throw new CicsAbendException("MY-ABEND-CODE", "INQACC", "src/base/cobol_src/INQACC.cbl:814");
-    }
-
-    /**
-     * EXEC CICS ABEND ABCODE(HNCS) at src/base/cobol_src/INQACC.cbl:932 (paragraph paragraph).
-     * Units of work and handlers field testing: field-tested (6 public / 0 private estates).
-     * Note: resolved at run time if an identifier.
-     */
-    public void abendHncsL932() {
-        throw new CicsAbendException("HNCS", "INQACC", "src/base/cobol_src/INQACC.cbl:932");
+    /** PTD999. */
+    private int p26() {
+        // EXIT
+        return 27;
     }
 
 }

@@ -1,50 +1,8 @@
 {
- "format": "porting-loop-provenance/1",
+ "format": "det-port-provenance/1",
  "program": "LGICDB01",
- "written_by": "model (the #4023 follow-up porting loop), not a person",
- "model": "claude-sonnet-5-5",
- "backend": "claude-code-headless: claude -p, no tools, only the ticket's prompt",
- "proposed": "2026-10-02T20:43:41+00:00",
- "attempt": 1,
- "attempts": [
-  {
-   "n": 1,
-   "verdict": "proven"
-  }
- ],
- "ticket_sha256": "f8f3c55e8a0c8db3768ed55c428459cf424a31a91b73e2ad8cf080a45566fabe",
- "prompt_tokens": 39275,
- "proof": "tests/tools/equivalence.py run genapp-lgicdb01",
- "edited_after": "the deployed entry points (facades) were brought to the generator's by tests/tools/port_surface.py (#4343; see history 'resurfaced'); runTask and the logic it runs are the model's answer; getCustomerInfo's SELECT was hand-edited to run through cobolrt.sql.DetSql.selectOne (key LGICDB01:169) so a planned SQL fault can be injected (#6882); the model's SQLCODE evaluation, COMMAREA moves and WRITE-ERROR-MESSAGE are unchanged",
- "licence": "derived from the CICS General Insurance Application (EPL-2.0; Copyright IBM Corp.) -- see LICENSE and NOTICE in this case's directory",
- "history": [
-  {
-   "at": "2026-10-06T04:27:47+00:00",
-   "event": "resurfaced",
-   "by": "tests/tools/port_surface.py",
-   "generator_commit": "3c9c8b7df",
-   "generated_from": "service/Lgicdb01Service.java",
-   "removed": [
-    "handleTransaction"
-   ]
-  },
-  {
-   "at": "2026-10-17T19:05:43+00:00",
-   "event": "resurfaced",
-   "by": "tests/tools/port_surface.py",
-   "generator_commit": "b3b16bb72",
-   "generated_from": "service/Lgicdb01Service.java",
-   "added": [
-    "lastLinkBytes (field)",
-    "handleLink(Lgicdb01Dfhcommarea,byte[])",
-    "lastLinkBytes()"
-   ]
-  },
-  {
-   "at": "2026-10-28T21:00:00+00:00",
-   "event": "hand-edited",
-   "by": "churn worker (#6882)",
-   "what": "getCustomerInfo: the SELECT INTO goes through DetSql.selectOne at LGICDB01:169 with a task-local SQLCA; its catch blocks mapping Spring exceptions to SQLCODE are gone (DetSql maps them); otherSqlcode removed"
-  }
- ]
+ "translator": "det",
+ "written_by": "the deterministic translator (gitgalaxy/tools/cobol_to_java/det), no model and no person",
+ "command": "python tests/tools/det_port.py run genapp-lgicdb01 --faults none --work DIR",
+ "files": "service/ only; the cobolrt runtime is laid from this checkout at proof time (equivalence_java.det_runtime)"
 }

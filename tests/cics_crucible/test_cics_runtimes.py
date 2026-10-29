@@ -11,6 +11,7 @@ Each pins a CICS semantic the crucible's cases lean on, as IBM documents it (cit
 import atexit
 import functools
 import os
+import platform
 import re
 import shutil
 import subprocess
@@ -2536,7 +2537,14 @@ def test_the_stub_bif_deedit_and_the_terminal_uctranst(tmp_path):
                            ("1.5CR", "5", "0001N"), ("A", "1", "A"), ("ab12cd3C", "8", "0000123C")):  # fmt: skip
         assert run({}, "deedit", field, n).stdout.strip() == f"0/0/[{want}]", field
     assert run({}, "deedit", "x7", "2", "0").stdout.strip() == "22/0/[x7]"
-    for none, n in (("abc", "3"), ("___", "3"), ("__________", "10"), ("-", "1"), ("--", "2"), ("a-", "2")):  # ASSUMED, X26
+    for none, n in (
+        ("abc", "3"),
+        ("___", "3"),
+        ("__________", "10"),
+        ("-", "1"),
+        ("--", "2"),
+        ("a-", "2"),
+    ):  # ASSUMED, X26
         want = {"-": "-", "--": "0}", "a-": "0}"}.get(none, "0" * len(none))
         assert run({}, "deedit", none, n).stdout.strip() == f"0/0/[{want}]", none
     got = run({}, "deedit", "\xe91", "2")
@@ -4765,10 +4773,17 @@ _X47_CASES = [  # (fixture, steps, what both runtimes answer; a last answer that
     ("full", ["nul 0", "rs 0 0", "fm 0"], ["rs 22/16", "fm 16/1"]),  # (LENGERR 16 leaves the pointer as it was)
     ("full", ["rs 0 16", "fm 0"], ["rs 0/0 12|text/plain", "FREEMAIN of storage already freed or received"]),
     ("full", ["rs 0 16", "rs 1 16"], ["rs 0/0 12|text/plain", "a second WEB RECEIVE"]),
-    ("full", ["rs 0 16 r", "rs 1 16 c", "rd 0 12", "rd 1 12"],  # (ZECS001's text/* pass: a new block with the same bytes)
-     ["rs 0/0 12|text/plain", "rs 0/0 12|text/plain", "rd 68656C6C6F20776F726C6421", "rd 68656C6C6F20776F726C6421"]),
+    (
+        "full",
+        ["rs 0 16 r", "rs 1 16 c", "rd 0 12", "rd 1 12"],  # (ZECS001's text/* pass: a new block with the same bytes)
+        ["rs 0/0 12|text/plain", "rs 0/0 12|text/plain", "rd 68656C6C6F20776F726C6421", "rd 68656C6C6F20776F726C6421"],
+    ),
     ("full", ["rs 0 5 r", "rs 1 16 c"], ["rs 22/57 5|text/plain", "rs 0/0 12|text/plain"]),
-    ("full", ["rs 0 16 r", "rs 1 16 c", "rs 2 16 c"], ["rs 0/0 12|text/plain", "rs 0/0 12|text/plain", "a second WEB RECEIVE"]),
+    (
+        "full",
+        ["rs 0 16 r", "rs 1 16 c", "rs 2 16 c"],
+        ["rs 0/0 12|text/plain", "rs 0/0 12|text/plain", "a second WEB RECEIVE"],
+    ),
     ("full", ["rs 0 16 r", "rs 1 16 r"], ["rs 0/0 12|text/plain", "a second WEB RECEIVE"]),
     ("full", ["rs 0 16 c", "rs 1 16 c"], ["rs 0/0 12|text/plain", "a second WEB RECEIVE"]),
     ("bare", ["rs 0 16"], ["WEB RECEIVE of a request with no body"]),
@@ -4837,7 +4852,11 @@ int main(int argc, char **argv) {
 """
 
 
+_NO_LOW_MEMORY = sys.platform == "darwin" and platform.machine() == "arm64"  # Mach-O arm64 reserves the low 4 GiB
+
+
 @needs_cc
+@pytest.mark.skipif(_NO_LOW_MEMORY, reason="macOS arm64 cannot map a block below 4 GiB; the stub falls back to calloc")
 def test_task_storage_survives_a_four_byte_pointer_copy(tmp_path):
     """#6839 (X47): ZECS001 copies CACHE-ADDRESS through its PIC S9(8) COMP view (4 of the oracle's 8 pointer bytes) and sets
     CACHE-MESSAGE to the copy: every block GETMAIN and WEB RECEIVE SET hand out (small, 64 KiB, 1 MiB, several) must lie in
@@ -4857,6 +4876,36 @@ def test_task_storage_survives_a_four_byte_pointer_copy(tmp_path):
     ):
         run = subprocess.run([str(exe), *steps], env=env, capture_output=True, text=True, check=False)  # noqa: S603
         assert run.returncode == 0 and run.stdout.splitlines() == want, (steps, run.stdout)
+
+
+@needs_cc
+def test_getmain_still_answers_where_no_block_can_be_placed_low(tmp_path):
+    """#7021: a platform that cannot place a block below 4 GiB (macOS arm64: MAP_32BIT is defined, its mmap fails) falls back to
+    calloc; it must not refuse GETMAIN as 'length beyond the limit'. GGCICS_NO_LOW_BLOCKS takes that path on any host."""
+    obj = tmp_path / "ggcics_high.o"
+    built = subprocess.run(
+        [CC, "-DGGCICS_NO_LOW_BLOCKS", "-c", str(STUB), "-o", str(obj)], check=False, capture_output=True, text=True
+    )  # noqa: S603
+    assert built.returncode == 0, built.stderr
+    src = tmp_path / "main.c"
+    src.write_text("#include <stdlib.h>\n" + _with_stub_struct(_X47_MAIN), encoding="ascii")
+    exe = tmp_path / ("high.exe" if os.name == "nt" else "high")
+    built = subprocess.run([CC, "-o", str(exe), str(src), str(obj)], check=False, capture_output=True, text=True)  # noqa: S603
+    assert built.returncode == 0, built.stderr
+    req = tmp_path / "webreq.cfg"
+    req.write_text(_x38_cfg("full"), encoding="ascii")
+    out = tmp_path / "out"
+    out.mkdir()
+    env = {**_stub_base_env(), "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(out), "GGCICS_WEBREQ": str(req)}
+    for steps, want in (
+        (["gm 0 1 0 0"], ["gm 0/0"]),
+        (["gm 0 65520 1 7"], ["gm 0/0"]),
+        (["gm 0 1048576 0 7"], ["gm 0/0"]),
+        (["gm 0 8 0 1", "gm 1 8 0 2"], ["gm 0/0", "gm 0/0"]),
+        (["gm 0 65521 1 7"], ["GETMAIN length beyond the limit: not modelled"]),
+    ):
+        run = subprocess.run([str(exe), *steps], env=env, capture_output=True, text=True, check=False)  # noqa: S603
+        assert run.stdout.splitlines()[: len(want)] == want, (steps, run.stdout, run.stderr)
 
 
 @needs_cc

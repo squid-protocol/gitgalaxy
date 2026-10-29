@@ -102,7 +102,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | C17 | compiler | INITIALIZE REPLACING of a table holding an item of a category REPLACING does not name: GnuCOBOL gives that item the first occurrence's value, IBM leaves it as it is; the port stops by name when the occurrences differ | DIFFERS (oracle vs IBM) / GUARDED (the port stops by name at run time when the occurrences differ) | yes: CardDemo COPAUA0C 8400-UPDATE-SUMMARY (PA-ACCOUNT-STATUS X(02) OCCURS 5, REPLACING NUMERIC); CODATE01 has no table |
 | C18 | compiler | STORAGE, TRAP, ABTERMENC; Db2 DATE / TIME / DEC / DECPT / CCSID / bind options; CICS region and program-definition options: refuse, declare or no effect | DECLARED / REFUSED by name (LE, Db2 and CICS runtime options) | yes: every burned estate's recorded value resolves (STORAGE default via L3; GenApp EBCDIC CCSID 285 is declared) |
 | C19 | compiler | ALTER p TO [PROCEED TO] q: the GO TO of p goes to q until the next ALTER of p; the port keeps the target in a slot the paragraph dispatcher reads | MODELLED where the paragraph is a lone GO TO, REFUSED otherwise (#5560) | yes (ALTER1 / ALTER2 in test_det_programs.py against GnuCOBOL -std=ibm; CardDemo CBSTM03A, 9 -> 5 holes) |
-| C20 | compiler | A PERFORM of a range that is still active: GnuCOBOL runs the nested range and returns to the statement after it, as the det port's method call does; IBM does not define it | ASSUMED (IBM: unpredictable; the det runtime MATCHES the oracle) | yes: CardDemo COACCT01 and CODATE01, a WHEN OTHER of 5000-CLOSE-INPUT-QUEUE and 9000-ERROR PERFORMs 8000-TERMINATION from inside it (close-input-fails, error-put-fails) |
+| C20 | compiler | A PERFORM of a range that is still active: GnuCOBOL runs the nested range and returns to the statement after it, as the det port's method call does; IBM does not define it | ASSUMED (IBM: unpredictable; the det runtime MATCHES the oracle) | yes: CardDemo COACCT01 and CODATE01, a WHEN OTHER of 5000-CLOSE-INPUT-QUEUE and 9000-ERROR PERFORMs 8000-TERMINATION from inside it (close-input-fails, error-put-fails; COACCT01 close-reply-fails, close-error-fails without end) |
 | D1 | data | Text order is ASCII (Latin-1), not EBCDIC | DIFFERS | keys: no; comparisons: not audited |
 | D2 | data | Hex literals that name EBCDIC characters (`X'40'`); a hex literal is its raw bytes under every single-byte record charset (refused by name in a multi-byte one where it is not text), the SYSOUT record separator a plain LF (#4698) | DIFFERS (oracle vs IBM, characters) / MATCHED (the bytes, the oracle = the port = IBM) | yes (batch Sysout byte test, 4 record charsets, X'00'..X'FF' against cobc) |
 | D3 | data | Zoned signs in ASCII data (`{`, `}`, A–R overpunch) | MATCHED | yes |
@@ -1517,9 +1517,15 @@ states each (`none (gap)`: no entry does). Only fields a burned corpus's COBOL n
   was. The det port's PERFORM is a method call and does the same. Measured on CardDemo's own code (#6072): an
   MQCLOSE of the input queue that fails in 8000-TERMINATION's 5000-CLOSE-INPUT-QUEUE PERFORMs 8000 again, whose
   second close succeeds, the reply and error queues close, and EXEC CICS RETURN ends the task, on both sides.
-- **Not stated.** When the recursion does not end (CardDemo never resets a queue's open flag after its close, so a
-  failed close of the reply or error queue re-closes the closed input queue, 2019, and PERFORMs 8000 again), cobc
-  ends on SIGSEGV and the port on StackOverflowError: no scenario states it, and those arms stay open.
+- **Without end (assumed, #6967).** When the recursion does not end (CardDemo never resets a queue's open flag after its
+  close, so a failed close of the reply or error queue re-closes the closed input queue, 2019, and PERFORMs 8000
+  again), plain cobc ends on SIGSEGV and a port on StackOverflowError, whichever depth the process allows. A case with
+  `"perform_stack_check": true` compiles the oracle with `-fstack-check`, whose libcob stops the run with "stack
+  overflow, possible PERFORM depth exceeded" at 255 PERFORM frames, and a port whose PERFORM graph has a cycle stops at
+  the same depth (`PerformDepthExceeded`, det/program.py `performs_cyclically`). The scenario is judged up to that stop
+  (the X6 prefix: the MQ events before it are compared, its end state is not). IBM leaves the run unpredictable and
+  z/OS may end it elsewhere (storage, ABEND): the stop and its depth are the oracle's, not z/OS's. Reached:
+  COACCT01 close-reply-fails, close-error-fails; CODATE01 is the sibling still to add.
 
 ## Data and encoding
 

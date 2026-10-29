@@ -1,5 +1,5 @@
 {
- "commit": "52ee128c4",
+ "commit": "28fc8d358",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -123,7 +123,7 @@
   },
   "translator": {
    "of": 129,
-   "whole": 125
+   "whole": 126
   }
  },
  "eras": {
@@ -139,7 +139,7 @@
   },
   "2": {
    "l2_plus": 70,
-   "l4_plus": 67,
+   "l4_plus": 69,
    "programs": 70
   },
   "3": {
@@ -148,19 +148,19 @@
    "programs": 16
   },
   "4": {
-   "l2_plus": 19,
-   "l4_plus": 17,
+   "l2_plus": 20,
+   "l4_plus": 19,
    "programs": 21
   },
   "none": {
-   "l2_plus": 12,
+   "l2_plus": 13,
    "l4_plus": 11,
    "programs": 13
   }
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-29T11:21:35Z",
+  "as_of": "2026-10-29T11:32:29Z",
   "core": {
    "closed": 192,
    "open": 17,
@@ -464,32 +464,32 @@
    "cics-banking-sample-application-cbsa": {
     "l2_plus": 31,
     "l2_plus_pct": 100.0,
-    "l4_plus": 27,
-    "l4_plus_pct": 87.1,
+    "l4_plus": 30,
+    "l4_plus_pct": 96.8,
     "l5": 0,
     "levels": {
      "L0": 0,
      "L1": 0,
      "L2": 0,
-     "L3": 4,
-     "L4": 27,
+     "L3": 1,
+     "L4": 30,
      "L5": 0
     },
     "programs": 31,
     "translated_whole": 31
    },
    "cics-genapp": {
-    "l2_plus": 30,
-    "l2_plus_pct": 96.8,
-    "l4_plus": 30,
-    "l4_plus_pct": 96.8,
+    "l2_plus": 31,
+    "l2_plus_pct": 100.0,
+    "l4_plus": 31,
+    "l4_plus_pct": 100.0,
     "l5": 0,
     "levels": {
      "L0": 0,
-     "L1": 1,
+     "L1": 0,
      "L2": 0,
      "L3": 0,
-     "L4": 30,
+     "L4": 31,
      "L5": 0
     },
     "programs": 31,
@@ -513,55 +513,43 @@
     "translated_whole": 5
    },
    "zecs": {
-    "l2_plus": 6,
-    "l2_plus_pct": 85.7,
+    "l2_plus": 7,
+    "l2_plus_pct": 100.0,
     "l4_plus": 4,
     "l4_plus_pct": 57.1,
     "l5": 0,
     "levels": {
-     "L0": 1,
+     "L0": 0,
      "L1": 0,
-     "L2": 2,
+     "L2": 3,
      "L3": 0,
      "L4": 4,
      "L5": 0
     },
     "programs": 7,
-    "translated_whole": 6
+    "translated_whole": 7
    }
   },
   "total": {
-   "l2_plus": 124,
-   "l2_plus_pct": 96.1,
-   "l4_plus": 114,
-   "l4_plus_pct": 88.4,
+   "l2_plus": 126,
+   "l2_plus_pct": 97.7,
+   "l4_plus": 118,
+   "l4_plus_pct": 91.5,
    "l5": 0,
    "levels": {
-    "L0": 4,
-    "L1": 1,
-    "L2": 2,
-    "L3": 8,
-    "L4": 114,
+    "L0": 3,
+    "L1": 0,
+    "L2": 3,
+    "L3": 5,
+    "L4": 118,
     "L5": 0
    },
    "programs": 129,
-   "reachable": 125,
-   "translated_whole": 125,
+   "reachable": 126,
+   "translated_whole": 126,
    "unreachable": {
-    "count": 4,
+    "count": 3,
     "kinds": {
-     "not_cobol": {
-      "count": 1,
-      "issues": [
-       "#5859"
-      ],
-      "programs": [
-       "zecs/Source/ZECS002.asm"
-      ],
-      "reasons": [
-       "CICS Assembler member; the HLASM front end lowers it and the det translator translates it whole (slices 3b-3e: reserved-word names renamed, GGCVER stub); its equivalence case tests/equivalence/zecs-zecs002 proves the port of the lowering (11 scenarios; the VERIFY verdict is keyed by userid_hex), and tests/cobol_mainframe/test_hlasm_interp_5859.py cross-checks the lowering with an independent interpreter"
-      ]
-     },
      "owner_held": {
       "count": 1,
       "issues": [
@@ -589,7 +577,8 @@
      }
     },
     "stale": [
-     "dbb-mortgage-application/zBuilder/MortgageApplication/cobol/epsmpmt.cbl"
+     "dbb-mortgage-application/zBuilder/MortgageApplication/cobol/epsmpmt.cbl",
+     "zecs/Source/ZECS002.asm"
     ]
    }
   }

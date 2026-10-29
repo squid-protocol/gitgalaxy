@@ -271,7 +271,13 @@ class NetworkRiskSensor:
             # #3596: where each declaration lives, for languages whose import
             # names a declaration rather than a file (Kotlin top-level functions).
             if str(f.get("lang_id", "")).lower() in DECLARATION_IMPORT_LANGS:
-                for unit in (f.get("functions") or []) + (f.get("classes") or []):
+                # #3798: a Swift file's `_declaration_capture` reads top-level names only; its units also
+                # hold nested types (`struct BuildParameters` inside an enum), which a multi-file scoped
+                # import must not link, so the captured names stand in for the units when present.
+                units: list[Any] | None = (
+                    [] if (str(f.get("lang_id", "")).lower() == "swift" and f.get("declared_names")) else None
+                )
+                for unit in (f.get("functions") or []) + (f.get("classes") or []) if units is None else units:
                     name = unit.get("name") if isinstance(unit, dict) else None
                     if name:
                         self._declared_in[name].append(path)
@@ -1022,12 +1028,24 @@ class NetworkRiskSensor:
         curr_path: str,
         file_facts: dict[str, tuple[str, bool]] | None,
     ) -> str | None:
-        """#3798: `Mod.Name[.Nested]` -> the one Swift file declaring `Name` (a nested name falls
+        """The one file `_swift_scoped_hits` finds; zero or several give a single-target caller no file."""
+        hits = self._swift_scoped_hits(target_token, resolution_map, curr_path, file_facts)
+        return hits[0] if len(hits) == 1 else None
+
+    def _swift_scoped_hits(
+        self,
+        target_token: str,
+        resolution_map: dict[str, list[str]],
+        curr_path: str,
+        file_facts: dict[str, tuple[str, bool]] | None,
+    ) -> list[str]:
+        """#3798: `Mod.Name[.Nested]` -> every Swift file declaring `Name` (a nested name falls
         back to its owner) under a directory named `Mod`, the SwiftPM target's default location
-        (`Sources/Mod/...`). Zero or several files draw no edge."""
+        (`Sources/Mod/...`). A name declared in several files of the target (an `extension` in
+        another file) gets an edge to each; none draws no edge."""
         parts = target_token.split(".")
         if len(parts) < 2:
-            return None
+            return []
         module, name = parts[0], parts[1]
 
         def in_target(candidates: Iterable[str]) -> list[str]:
@@ -1046,7 +1064,7 @@ class NetworkRiskSensor:
         # No extracted declaration: the file named after the type, in the target's directory.
         if not hits:
             hits = in_target(resolution_map.get(name, ()))
-        return hits[0] if len(hits) == 1 else None
+        return hits
 
     def _resolve_declaration(
         self,
@@ -1413,7 +1431,17 @@ class NetworkRiskSensor:
                     entity = None
 
                 targets: list[str | None] = []
-                if members is not None and src_lang in SOURCE_MEMBER_IMPORT_LANGS and isinstance(target_token, str):
+                if (
+                    src_lang == "swift"
+                    and isinstance(target_token, str)
+                    and "/" not in target_token
+                    and "." in target_token
+                ):
+                    # #3798: a name declared in several files of the target links each of them
+                    targets = list(self._swift_scoped_hits(target_token, resolution_map, curr_path, file_facts))
+                    if not targets:
+                        continue
+                elif members is not None and src_lang in SOURCE_MEMBER_IMPORT_LANGS and isinstance(target_token, str):
                     # #4265: each COPY form of the member (`COPY X` and `COPY X IN LIB` can both occur)
                     # resolves through the declared libraries; _NO_DECLARATION falls back below.
                     libs = (f.get("import_libraries") or {}).get(target_token.upper(), [""])

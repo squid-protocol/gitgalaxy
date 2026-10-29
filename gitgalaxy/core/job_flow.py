@@ -281,7 +281,7 @@ def jcl_job_flow(code_stream: str) -> list[dict[str, Any]]:
                         in_proc=in_proc,
                         line=line,
                         instream=bodies[line],
-                    )  # fmt: skip
+                    )
                 )
                 continue
             keyed = {k: v for k, v in _split(field) if k}

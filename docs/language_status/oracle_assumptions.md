@@ -4141,6 +4141,7 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   on both runtimes (`CicsTask.enqChecked`, the stub's `GGCENQ`: GG-LEN / GG-NUM, GG-NAME2 'L' / 'M' say which were written); the
   failed ENQ records the event with its RESP2 and takes no resource. (5) LENGTH and MAXLIFETIME both bad at once: IBM names no
   order, so both runtimes REFUSE. A bad operand is checked before a plan's ENQBUSY (ASSUMED: IBM states no order).
+- **DEQ (#6967).** IBM (EXEC CICS DEQ, Conditions) lists LENGERR (RESP2 1, LENGTH outside 1 through 255) and INVREQ (RESP2 2, an incorrect MAXLIFETIME CVDA) and nothing else: a region raises no DEQ failure, so DEQ has no fault key and no plan. The runtimes answer every DEQ NORMAL and do NOT yet raise those two operand conditions as ENQ does (a gap; no burned program codes a DEQ with an out-of-range LENGTH or a MAXLIFETIME: CRECUST and CREACC use LENGTH(16)). The RESP-not-NORMAL arm after a burned DEQ is a reviewed infeasible outcome (infeasible_outcomes/cbsa-crecust.json line 478, cbsa-creacc.json line 419).
 - **Refused by name:** the list in the summary.
 - **Status:** ASSUMED for RESP2 0, REFUSED where listed. Unit-proven on both runtimes, LENGTH / MAXLIFETIME included (tests/cics_crucible/test_enq_fault_5089.py).
 

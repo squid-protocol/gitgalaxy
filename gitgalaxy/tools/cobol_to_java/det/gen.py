@@ -3562,8 +3562,10 @@ class Gen:
         v, rec, st, what = jname(fd.select), self.ids[id(record)], self.tmpname("st"), f"{verb} USING {name}"
         # a RECORD VARYING file's DEPENDING ON item holds each record's length as it is read (the oracle's implicit
         # READ sets it; IBM does not say): the port follows it
-        dep = [f"{ind}    Cobol.move(java.math.BigDecimal.valueOf({v}.lastLength()), "
-               f"{self.field_expr(E.Ref(fd.varying['depending']))}, CS);"] if fd.varying is not None else []  # fmt: skip
+        dep = []
+        if fd.varying is not None:
+            target = self.field_expr(E.Ref(fd.varying["depending"]))
+            dep.append(f"{ind}    Cobol.move(java.math.BigDecimal.valueOf({v}.lastLength()), {target}, CS);")
         return [f'{ind}String {st} = {v}.open("INPUT");',
                 f'{ind}Sort.expect({st}, {jstr(what + ": OPEN")}, "00");',
                 f"{ind}while (true) {{", f"{ind}    {st} = {v}.readNext();",

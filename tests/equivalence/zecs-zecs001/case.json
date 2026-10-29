@@ -1097,6 +1097,47 @@
         }
       ],
       "why": "#6839 row A: POST over DELKEY with 4500's REWRITE of the key record answering IOERR: 9200-KEY-ERROR and 507"
+    },
+    {
+      "name": "post-replicate-aa",
+      "commarea": null,
+      "tod": "7A7A7A7A7A7A0708090A0B0C0D0E0F10",
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "POST",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/repkey",
+        "query": "",
+        "headers": [],
+        "mediatype": "application/octet-stream",
+        "body": "v"
+      },
+      "doctemplates": {
+        "ZC01DC": "type: AA\r%http://zecs-b.example.com:8081\r%"
+      },
+      "http_peers": [
+        {
+          "scheme": "HTTP",
+          "host": "zecs-b.example.com",
+          "port": 8081,
+          "urimap": null,
+          "path": null,
+          "exchanges": [
+            {
+              "method": "POST",
+              "path": "/replicate/ecs/walmart/cache/repkey",
+              "query": "",
+              "status": 200,
+              "statustext": "OK",
+              "mediatype": "text/plain",
+              "body": ""
+            }
+          ]
+        }
+      ],
+      "why": "#6839 row G: type AA on /resources: 4600-REPLICATE opens the peer, WEB CONVERSE POST /replicate/... FROM(CACHE-MESSAGE) (SAVE-ADDRESS copied through the 4-byte CACHE-ADDRESS-X view), closes it"
     }
   ],
   "compiler_options": [

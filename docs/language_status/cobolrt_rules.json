@@ -4113,6 +4113,26 @@
    "calibration": "uncalibrated"
   },
   {
+   "id": "RT-SORT-RETURN",
+   "family": "SORT",
+   "title": "SORT-RETURN written by the program: a 16 at a RELEASE / RETURN, or a value left in it when a sort ends, stops by name (IBM ends the sort at the 16 and resets the register to 0; GnuCOBOL does neither)",
+   "methods": [
+    "endsSort",
+    "finished"
+   ],
+   "site": "endsSort",
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "SORT statement: SORT-RETURN special register"
+   },
+   "options": [],
+   "register": [
+    "F4"
+   ],
+   "status": "REFUSED",
+   "calibration": "uncalibrated"
+  },
+  {
    "id": "RT-FILE-FILE-STATUS",
    "family": "FILE",
    "title": "OPEN / CLOSE / READ / WRITE / REWRITE through CobolFiles, returning the FILE STATUS (the harness's planned statuses apply)",

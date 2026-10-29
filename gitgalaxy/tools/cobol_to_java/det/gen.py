@@ -2182,10 +2182,6 @@ class Gen:
             raise Untranslatable(s.data.get("why", "not parsed"))
         if _holds_wide(s):  # #4272: never translated with the stand-in byte (source.narrowed)
             raise Untranslatable(WIDE_WHY)
-        if self.sets_sort_return(s):
-            # IBM (SORT-RETURN special register): moving 16 to it in an input / output procedure ends the sort at
-            # the next RELEASE or RETURN; GnuCOBOL's behaviour is not measured
-            raise Untranslatable("SORT-RETURN set by the program (ends a sort early): not modelled")
         if k in ("SORT", "MERGE"):
             return [c, *self.sort(s, ind)]
         if k in ("RELEASE", "RETURN"):
@@ -3356,21 +3352,6 @@ class Gen:
         raise Untranslatable(k)
 
     # ---- SORT / MERGE / RELEASE / RETURN (IBM Enterprise COBOL for z/OS 6.4 Language Reference) ----------------
-    def sets_sort_return(self, s: S.Stmt) -> bool:
-        """Whether the statement stores into the SORT-RETURN special register."""
-        if self.items.get("SORT-RETURN"):
-            return False  # the program's own item of that name
-        d, targets = s.data, []
-        if s.kind == "MOVE":
-            targets = d["to"]
-        elif s.kind == "SET-TO":
-            targets = d["targets"]
-        elif s.kind == "INITIALIZE":
-            targets = d["refs"]
-        elif s.kind in ("COMPUTE", "ARITH"):
-            targets = [t[0] if isinstance(t, tuple) else t for t in (d.get("targets") or []) + (d.get("giving") or [])]
-        return any(isinstance(t, E.Ref) and t.name == "SORT-RETURN" for t in targets)
-
     def sort_file(self, name: str) -> FileDef:
         fd = next((f for f in self.p.files.values() if f.sort and name in (f.select, f.fd)), None)
         if fd is None:
@@ -3429,7 +3410,7 @@ class Gen:
         for name in d["giving"]:
             out += self.giving_file(verb, var, sd, name, ind)
         out.append(f"{ind}{var} = null;")
-        out.append(f"{ind}Cobol.store({self.field_expr(E.Ref('SORT-RETURN'))}, BigDecimal.ZERO, false, CS);")
+        out.append(f"{ind}Sort.finished({self.field_expr(E.Ref('SORT-RETURN'))}, CS);")
         return out
 
     def collating(self, verb: str, name: str | None) -> str | None:
@@ -3535,12 +3516,14 @@ class Gen:
             var = f"sort_{jname(sd.select)}"
             out = [ind + self.move(s.data["from"], s.data["record"])] if s.data["from"] is not None else []
             what = jstr(f"RELEASE {it.name} outside an input procedure")
-            return [*out, f"{ind}Sort.active({var}, {what}).release({self.field_expr(s.data['record'])});"]
+            reg = self.field_expr(E.Ref("SORT-RETURN"))
+            return [*out, f"{ind}Sort.active({var}, {what}).release({self.field_expr(s.data['record'])}, {reg}, CS);"]
         sd = self.sort_file(s.data["file"])
         self.check_record_bytes(sd.record, f"RETURN {sd.select}")
         var, rec, st = f"sort_{jname(sd.select)}", self.ids[id(sd.record)], self.tmpname("st")
         what = jstr(f"RETURN {s.data['file']} outside an output procedure")
-        out = [f'{ind}String {st} = Sort.active({var}, {what}).returnInto({rec}) ? "00" : "10";']
+        reg = self.field_expr(E.Ref("SORT-RETURN"))
+        out = [f'{ind}String {st} = Sort.active({var}, {what}).returnInto({rec}, {reg}, CS) ? "00" : "10";']
         if s.data["into"] is not None:
             out += [f'{ind}if ({st}.equals("00")) {{', f"{ind}    Cobol.move({rec}, {self.field_expr(s.data['into'])}, CS);",
                     f"{ind}}}"]  # fmt: skip

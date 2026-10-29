@@ -803,6 +803,7 @@ def test_a_node_tree_sitter_closed_inside_a_macro_or_fused_into_the_head_takes_t
     from types import SimpleNamespace
 
     fake = SimpleNamespace(
+        start_point=(start - 1, 0),
         end_point=(closes - 1, 1),
         child_by_field_name=lambda _name: SimpleNamespace(start_point=(body_row, 0)),
     )
@@ -1181,40 +1182,39 @@ def test_an_error_holding_a_stray_quote_reads_the_body_as_text(tmp_path):
     assert co._unescaped_quotes(b'"a\\"b" \'"\' "') == 3
 
 
-def test_a_comparison_on_a_local_that_parses_as_a_template_call_is_no_call():
-    """#6266 doomsday edgetip.h: `delta < eps || delta > (360 - eps)` on a local `double delta` reads as `delta<..>(..)`."""
-    body = body_of(
-        "int at(double eps)\n{\n    double delta = f();\n    if (delta < eps || delta > (360.0 - g()))\n        return 1;\n    return conv<int>(eps);\n}\n",
-        lang="cpp",
-    )
-    assert "delta" not in body.calls and {"f", "g", "conv"} <= set(body.calls)
+def test_a_local_variable_compared_in_a_condition_is_not_a_template_call():
+    """doomsday edgetip.h (#6266): `delta < e || delta > (360 - e)` parses as `delta<e || delta>(..)`; `delta` is a local."""
+    src = """struct S {
+    const T *at(double a, double e = 1.0) const {
+        for (const T &t : tips) {
+            double delta = de::abs(t.angle() - a);
+            if (delta < e || delta > (360.0 - e)) { return &t; }
+        }
+        return nullptr;
+    }
+};
+"""
+    calls = body_of(src, lang="cpp", line=2).calls
+    assert "abs" in calls
+    assert "delta" not in calls
+    assert "map" in body_of("void f() { x = de::map<decltype(x)>(s, g); }", lang="cpp").calls  # a real template call
 
 
-def test_a_head_run_over_declarations_above_the_function_takes_the_brace_body(tmp_path, monkeypatch):
-    """#6266 doomsday surface.h: a class-scope `DE_AUDIENCE(Name, void changed(T &))` with no `;` became the head of a
-    definition whose initializer list ran down to the next inline method, which was credited with `changed`. The node
-    (a stand-in: the real misparse needs the whole class) starts above the function and its head holds a `;`."""
-    from types import SimpleNamespace
+def test_a_function_whose_head_folded_the_members_above_it_is_read_by_its_braces(tmp_path):
+    """doomsday surface.h (#6266): `DE_AUDIENCE(..)` has no `;`, so tree-sitter reads the class members that follow as one
+    definition whose head spans the function; the audience's `void notify(..)` is not a call of the function."""
+    header = """class Surface {
+    DE_AUDIENCE(Change, void notify(Surface &s))
 
-    src = (
-        "class S\n{\n    DE_AUDIENCE(Move, void moved(S &s))\npublic:\n    S(int a);\n"
-        "    DE_AUDIENCE(Change, void changed(S &s))\n    bool has() const;\n    inline bool sky() const {\n"
-        "        return has();\n    }\n};\n"
-    )
-    for top, want_text in ((3, True), (8, False)):  # a head from line 3 runs over `;`; one on its own line does not
-        fake = SimpleNamespace(
-            start_point=(top - 1, 4),
-            end_point=(9, 5),
-            child_by_field_name=lambda _name: SimpleNamespace(start_point=(7, 0)),
-        )
-        stub = SimpleNamespace(
-            broken=False, unbalanced=False, calls={"changed": "nested-argument", "has": "x"}, nested=[]
-        )
-        monkeypatch.setattr(co, "definition_at", lambda nodes, line, fake=fake: fake if line == 8 else None)
-        monkeypatch.setattr(co, "Body", lambda node, classes=None, stub=stub: stub)
-        funcs = [("m.h", "sky", 8, ["has"]), ("m.h", "has", 7, []), ("m.h", "changed", 6, [])]
-        repo, scan = make_port(tmp_path / str(top), "doomsday", {"m.h": src}, funcs)
-        port = co.Port("doomsday", repo, co.load_port(repo, co.find_db(scan)))
-        body = next(f for f in port.functions if f[1] == "sky")[4]
-        assert isinstance(body, co.TextBody) is want_text
-        assert ("changed" in body.calls) is not want_text and "has" in body.calls
+    bool has() const;
+    int other() const;
+    inline bool sky() const {
+        return has() && other();
+    }
+};
+"""
+    (tmp_path / "s.h").write_text(header)
+    port = co.Port("p", tmp_path, [("s.h", "cpp", "sky", 6, ["has"])])
+    calls = port.functions[0][4].calls
+    assert {"has", "other"} <= set(calls)
+    assert "notify" not in calls

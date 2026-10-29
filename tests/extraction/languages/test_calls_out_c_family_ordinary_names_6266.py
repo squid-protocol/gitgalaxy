@@ -71,25 +71,19 @@ def test_log_as_statement_before_try_is_not_a_function_try_block_head():
     assert {"x", "init"} <= set(by_name["A"])  # a real function-try-block constructor is still one unit
 
 
-_TYPE_OPERATOR_BODY = """
-struct S {
-    void sortSegments(int o)
-    {
-        segments = de::mapA<decltype(segments)>(sorted, [](const P &v) { return v.second; });
-        b = mapB<sizeof(int)>(x);
-        e = flag<noexcept(t)>(x);
-        c = plain<int>(z);
-        if (lo < hi || lo > (hi - 1)) { d = 1; }
-    }
-};
+def test_a_template_argument_holding_an_unevaluated_operand_is_still_a_call():
+    # doomsday line.cpp: `de::map<decltype(segments)>(sorted, f)`: the `(..)` of decltype is part of the argument list.
+    code = """
+int f() {
+  segments = de::map<decltype(segments)>(sorted, g);
+  n = pick<sizeof(int)>(b);
+  m = take<noexcept(h)>(c);
+  return a < sizeof(int) > (b);
+}
 """
-
-
-def test_a_type_operator_in_a_template_argument_keeps_the_call():
-    # doomsday line.cpp: `de::map<decltype(segments)>(...)` lost its callee to the `(` inside the template arguments
-    calls = _calls("cpp", _TYPE_OPERATOR_BODY.replace("sortSegments", "f"))
-    assert {"mapA", "mapB", "plain", "flag"} <= set(calls)
-    assert not {"decltype", "sizeof", "lo", "hi"} & set(calls)
+    calls = _calls("cpp", code)
+    assert {"map", "pick", "take"} <= set(calls)
+    assert "a" not in calls
 
 
 _BRACE_DEFAULT_BODY = """

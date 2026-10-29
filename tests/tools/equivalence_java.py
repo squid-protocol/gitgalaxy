@@ -1015,8 +1015,8 @@ def _run_all(case: dict[str, Any], project: Path, work: Path, inputs: Path, envs
                 f" -Dgitgalaxy.sqlfaults.plan={area / 'sqlfaults.plan'}"
                 f" -Dgitgalaxy.sqlfaults.log={area / 'out' / 'FAULTS'}"
             )
-        dli_dir = Path(rest[3]) if len(rest) > 3 and rest[3] else None  # #6967: this run's own IMS seed
-        read = _run_area(case, project, area, inputs, envs[0], props, sessions.get() if sessions else None, dli_dir)
+        own = {"dli_dir": Path(rest[3])} if len(rest) > 3 and rest[3] else {}  # #6967: this run's own IMS seed
+        read = _run_area(case, project, area, inputs, envs[0], props, sessions.get() if sessions else None, **own)
         read.setdefault("FAULTS", b"")
         runs[f"fault:{name}"] = read
         if stop and stop(f"fault:{name}", read):

@@ -726,7 +726,7 @@ static int kid_of(const char *qname) {
  * token in GG-QNAME (else FETCH ANY), NOSUSPEND, TIMEOUT (GG-NUM milliseconds) or neither (it waits), CHANNEL (the reply
  * channel asked for). On NORMAL: the token in GG-QNAME, the reply channel's name in GG-CHAN, the abend code in GG-NAME1
  * (GG-ITEM 1: the child abended) and COMPSTATUS's CVDA in GG-NUM (NORMAL 1016, ABEND 900; SECERROR 1214 when the scenario
- * plans a FETCH-STATUS, #6967). */
+ * plans a FETCH-STATUS, #6967, and then the reply channel is empty). */
 int GGCFETCH(gg_cics *c) {
     char ev[200], msg[96], path[4300], dir[4096], reply[17];
     int one = 0, any = 0, first = -1;
@@ -780,11 +780,12 @@ int GGCFETCH(gg_cics *c) {
     memcpy(c->qname, k->token, 16);
     c->num = k->abended ? 900 : 1016;
     const char *compst = k->abended ? "ABEND" : "NORMAL";
-    int sresp, sresp2;
+    int sresp, sresp2, secerror = 0;
     if (injected("FETCH-STATUS", "-", &sresp, &sresp2)) { /* #6967 (X18): the child failed a security check */
         if (k->abended) refuse("a planned SECERROR COMPSTATUS for a child that abended (IBM does not say which status wins)");
         c->num = sresp;
         compst = "SECERROR";
+        secerror = 1;
     }
     if (k->abended) { memset(c->name1, ' ', 8); memcpy(c->name1, k->abcode, 4); c->item = 1; }
     reply[0] = 0;
@@ -792,7 +793,8 @@ int GGCFETCH(gg_cics *c) {
         kid_dir(k->number, dir, sizeof dir);
         snprintf(path, sizeof path, "%s/out/reply.cfg", dir);
         snprintf(reply, sizeof reply, "GGREPLY%09d", replies + 1);
-        if (!load_channel(path, reply)) refuse("FETCH CHANNEL of a child that left no current channel");
+        if (secerror) channel_named(reply, 1); /* #6967 (X18, owner): a child that failed security replies with an EMPTY channel */
+        else if (!load_channel(path, reply)) refuse("FETCH CHANNEL of a child that left no current channel");
         replies++;
         memset(c->chan, ' ', 16);
         memcpy(c->chan, reply, 16);

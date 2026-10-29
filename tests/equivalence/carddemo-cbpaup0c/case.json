@@ -139,6 +139,26 @@
    "sysin": "XX 00002 00005 N",
    "plan": [],
    "why": "#5857: a non-numeric expiry falls back to 5 days (the IS NUMERIC false branch)"
+  },
+  {
+   "name": "declined-expired",
+   "sysin": "13 00002 00005 N",
+   "plan": [],
+   "ims_seed": {
+    "DBPAUTP0": {
+     "insert": [
+      {
+       "after": 59,
+       "segment": "PAUTDTL1",
+       "fields": {
+        "PA-AUTH-TIME-9C": 996579985,
+        "PA-AUTH-RESP-CODE": "05"
+       }
+      }
+     ]
+    }
+   },
+   "why": "#6072: the shipped unload holds only approved ('00') details, so an expired detail never took the declined arm of 4000-CHECK-IF-EXPIRED (PA-AUTH-RESP-CODE = '00' false: the declined count and amount are subtracted). A declined detail copied from unload record 59 (an expired one, 0-based as skip counts) and inserted after it, with the next sequence time, reaches it on both sides (#6995 per-fault ims_seed)"
   }
  ]
 }

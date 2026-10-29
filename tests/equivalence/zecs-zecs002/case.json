@@ -145,6 +145,68 @@
    "commarea": null,
    "commarea_hex": "4040404040404040404040404040404040404040D8E397C3C9C3C187C9C3C187C9C3C187C9C3C187C9C3C1874040404040404040404040404040404040404040404040",
    "why": "EIBCALEN 67: the test is equality, so the same ABEND Z001"
+  },
+  {
+   "name": "octet-single",
+   "commarea": null,
+   "commarea_hex": "4040404040404040404040404040404040404040D8E4C9F6E4A67E7E4040404040404040404040404040404040404040404040404040404040404040404040404040",
+   "why": "'=' as the third encoded byte of the last group (SY-1030): one octet (SY-1100); UserID AB, password S",
+   "faults": [
+    {
+     "cmd": "VERIFY",
+     "resp": "NORMAL",
+     "why": "the verdict the scenario states for AB: the region has no security manager (register X32)",
+     "userid_hex": "C1C2404040404040"
+    }
+   ]
+  },
+  {
+   "name": "octet-double",
+   "commarea": null,
+   "commarea_hex": "4040404040404040404040404040404040404040D8E4C9F6E4F0E47E4040404040404040404040404040404040404040404040404040404040404040404040404040",
+   "why": "'=' as the fourth encoded byte of the last group (SY-1040): two octets (SY-1200); UserID AB, password SE",
+   "faults": [
+    {
+     "cmd": "VERIFY",
+     "resp": "NORMAL",
+     "why": "the verdict the scenario states for AB: the region has no security manager (register X32)",
+     "userid_hex": "C1C2404040404040"
+    }
+   ]
+  },
+  {
+   "name": "octet-double-null",
+   "commarea": null,
+   "commarea_hex": "4040404040404040404040404040404040404040D8E4C9F6E4A6C17E4040404040404040404040404040404040404040404040404040404040404040404040404040",
+   "why": "two final octets, the second a decoded X'00': the password loop ends on the null before the count (SY-0210)",
+   "faults": [
+    {
+     "cmd": "VERIFY",
+     "resp": "NORMAL",
+     "why": "the verdict the scenario states for AB: the region has no security manager (register X32)",
+     "userid_hex": "C1C2404040404040"
+    }
+   ]
+  },
+  {
+   "name": "equals-second-byte",
+   "commarea": null,
+   "commarea_hex": "4040404040404040404040404040404040404040D87E7E7E404040404040404040404040404040404040404040404040404040404040404040404040404040404040",
+   "why": "'=' as the second encoded byte of the first group: RC 12 at SY-1020, no VERIFY"
+  },
+  {
+   "name": "password-over-eight",
+   "commarea": null,
+   "commarea_hex": "4040404040404040404040404040404040404040D993D1C6D9C496A7D491D4F0D5E3E8F3D6C6877E4040404040404040404040404040404040404040404040404040",
+   "why": "a 9-character password: the move loop leaves on the count (BCT) with the next byte neither null nor space; only the first 8 are kept",
+   "faults": [
+    {
+     "cmd": "VERIFY",
+     "resp": "NORMAL",
+     "why": "the verdict the scenario states for FRED: the region has no security manager (register X32)",
+     "userid_hex": "C6D9C5C440404040"
+    }
+   ]
   }
  ]
 }

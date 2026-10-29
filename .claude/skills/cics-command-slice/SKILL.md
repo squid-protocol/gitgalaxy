@@ -171,3 +171,6 @@ are fine). `cics_census.py` warns about a census-root corpus that is not on the 
   a `reproven` entry, and never drop or write an approval -- only a person runs `evidence.py approve`.
 - Debugging a differing scenario, Db2 cases and the checklists for a translator / runtime / harness change: the
   `det-port` skill.
+- **A new two-word CICS command needs a `_FORM_OPTION` entry in `det/cics.py`,** or det_survey reports "EXEC CICS VERB not modelled" (#6902).
+- **A new modelled CICS command bumps the pinned counts in `tests/core_engine/test_cics_spec.py`** and needs a `_RESP_SAMPLES` entry in `test_det_translate.py` (#6902).
+- **A fault command key must be <=15 chars** (the stub parses `%15s`), and a new `FAULT_COMMANDS` member needs entries in `test_strengthen_loop.py` (`_FAULT_RESP`, `_NAMELESS`) (#6986).

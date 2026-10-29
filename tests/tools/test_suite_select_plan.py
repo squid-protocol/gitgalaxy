@@ -270,3 +270,42 @@ def test_a_helper_beside_an_engine_file_runs_everything():
 
 def test_the_spine_helper_equivalence_stays_full():
     assert plan(["tests/tools/equivalence.py"])["mode"] == "full"
+
+
+def test_engine_module_selects_the_tests_the_coverage_map_names():
+    cmap = {
+        "version": 1,
+        "tests": 100,
+        "always": ["tests/test_source_reads.py"],
+        "modules": {"gitgalaxy/core/prism.py": ["tests/core_engine/test_prism.py"]},
+    }
+    root = TOOLS.parents[1]
+    p = sp.plan(["gitgalaxy/core/prism.py"], "pull_request", (), REFS, root, cmap)
+    assert p["mode"] == "select"
+    assert "tests/test_source_reads.py" in p["paths"]
+    assert all((root / t).exists() for t in p["paths"])
+    mixed = sp.plan(["gitgalaxy/core/prism.py", "README.md"], "pull_request", (), REFS, root, cmap)
+    assert mixed["mode"] == "select"
+
+
+@pytest.mark.parametrize(
+    "files",
+    [
+        ["gitgalaxy/core/detector.py"],  # not in the map
+        ["gitgalaxy/core/prism.py", "gitgalaxy/standards/gitgalaxy_config.py"],  # one unmapped member
+        ["gitgalaxy/core/prism.py", "tests/conftest.py"],  # a mapped module beside a file nothing maps
+        ["gitgalaxy/standards/archetype_brains/x.json"],  # engine data: not a .py module
+    ],
+)
+def test_engine_changes_the_map_cannot_prove_stay_full(files):
+    cmap = {
+        "version": 1,
+        "tests": 100,
+        "always": [],
+        "modules": {"gitgalaxy/core/prism.py": ["tests/core_engine/test_prism.py"]},
+    }
+    assert sp.plan(files, "pull_request", (), REFS, TOOLS.parents[1], cmap)["mode"] == "full"
+
+
+def test_an_engine_change_is_full_without_a_map():
+    assert sp.plan(["gitgalaxy/core/prism.py"], "pull_request", (), REFS, TOOLS.parents[1], None)["mode"] == "full"

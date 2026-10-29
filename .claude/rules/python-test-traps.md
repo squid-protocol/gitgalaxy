@@ -87,3 +87,7 @@ globs: "gitgalaxy/**/*.py,tests/**/*.py"
 * **Shepherd GraphQL reads:** `timelineItems.totalCount` counts every item type (use `filteredCount` to detect truncation of a filtered connection); `mergeStateStatus` is often `UNKNOWN` (re-read over REST and keep the record only if the head sha matches) (#6539).
 * **`test_shepherd_gh.py`:** a test running `sg.main(['reconcile'])` with the real `gh_api` must monkeypatch `ci_digest.main_tip` and `sg._graphql_prs`, or it shells out to `gh` (#6546).
 * **A "does not hang" spawn test starts its timeout after the child signals readiness,** not at `p.start()` (#6585).
+* **`pr_gates --fast` lint misses `ruff format` drift in tests:** run the pinned `bin/ruff format --check` on your changed test files (#6614).
+* **A job-level `if: ... && success()` is false when any ancestor in `needs` was skipped:** use `!cancelled() && needs.<job>.result == 'success'` (#6629).
+* **`gh run view --json jobs` has no per-job `createdAt`,** so per-job queue wait can't be read from it (#6633).
+* **Test stubs that replace a translator method** (`_OverCics`, `no_dto` in `test_det_translate.py`) break on a new keyword arg: grep `dto_for =` / `def no_dto` when its signature changes (#7009).

@@ -8,11 +8,11 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 
 | family | files | rules | catalogued |
 |---|---|---|---|
-| CBL: statements and data movement | `Cobol.java` | 46 | yes |
+| CBL: statements and data movement | `Cobol.java`, `MoveSpec.java`, `CompareSpec.java`, `ArithSpec.java`, `StringSpec.java` | 46 | yes |
 | NUM: numeric storage codecs | `Codec.java`, `Zoned.java` | 13 | yes |
 | HFP: COMP-1 / COMP-2 as hexadecimal floating point | `Hfp.java` | 14 | yes |
 | EDIT: numeric editing | `Editing.java` | 5 | yes |
-| FUNC: intrinsic functions | `Funcs.java`, `Accept.java` | 12 | yes |
+| FUNC: intrinsic functions | `Funcs.java`, `Accept.java`, `FuncSpec.java` | 12 | yes |
 | CICS: EXEC CICS data movement | `cics/DetCics.java`, `cics/DetJustify.java` | 27 | yes |
 | SQL: embedded SQL | `sql/DetSql.java` | 10 | yes |
 | LE: Language Environment callable services | `le/Ceedate.java`, `le/Ceedatm.java`, `le/Ceedays.java`, `le/Ceedywk.java`, `le/Ceegmt.java`, `le/Ceegmto.java`, `le/Ceeisec.java`, `le/Ceeloct.java`, `le/Ceeqcen.java`, `le/Ceeseci.java`, `le/Ceesecs.java`, `le/Ceeutc.java`, `le/Cobdatft.java`, `le/Dsntiac.java`, `le/LeTime.java`, `le/Mvswait.java`, `le/Zuidstck.java` | 19 | yes |

@@ -384,10 +384,14 @@ _PERL_KEYWORD = (
     r"|do|eval|and|or|not|xor|x|lt|gt|le|ge|eq|ne|cmp|last|next|redo|goto|when|given|default|continue)"
     rf"(?![{ID_CONTINUE}])"
 )
+# #6433 slice 6: no-argument and optional-argument built-ins (`time`, `wantarray`, `fork`, `eof FH`); the
+# `sub` guard keeps a definition (`sub wait {`) from reading as a call.
 _PERL_BUILTIN = (
+    r"(?<!sub )(?<!sub\t)"
     r"(?:shift|pop|delete|defined|exists|ref|scalar|lc|uc|lcfirst|ucfirst|length|chomp|chop|chr|ord|int|abs|hex"
     r"|oct|sqrt|log|exp|sin|cos|keys|values|each|caller|undef|rmdir|readlink|chdir|quotemeta|sleep|rand|srand"
-    r"|exit|localtime|gmtime|close|readdir|closedir|stat|lstat|umask|fc|lock|select)"
+    r"|exit|localtime|gmtime|close|readdir|closedir|stat|lstat|umask|fc|lock|select"
+    r"|time|times|wait|wantarray|fork|getppid|getlogin|eof|pos|study|fileno|readline|chroot|rewinddir|telldir)"
     rf"(?![{ID_CONTINUE}])(?![ \t]*=>)(?!\}})"
 )
 # #6433: a block (`first { $_ > 0 } @l`, `bless {}, $c`), a `%hash`, a `qq{..}` string, or an

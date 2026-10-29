@@ -1563,7 +1563,7 @@ def test_web_receive_becomes_a_stub_call():
     t = ec.translate_command(
         "WEB RECEIVE INTO(WS-B) LENGTH(WS-L) MAXLENGTH(WS-M) MEDIATYPE(WS-T) NOSRVCONVERT NOHANDLE"
     )
-    assert t[:3] == ["MOVE WS-M TO GG-NUM", "MOVE 'MEDIA' TO GG-FLAGS", "CALL 'GGCWRCV' USING GG-CICS"]
+    assert t[:3] == ["MOVE WS-M TO GG-NUM", "MOVE 'MEDIA RAW' TO GG-FLAGS", "CALL 'GGCWRCV' USING GG-CICS"]
     assert t[3:7] == [
         "    BY REFERENCE WS-B",
         "    BY VALUE LENGTH OF WS-B",
@@ -1571,7 +1571,7 @@ def test_web_receive_becomes_a_stub_call():
         "    BY VALUE LENGTH OF WS-T",
     ]
     assert t[7:10] == ["IF GG-RESP = 0 OR GG-RESP2 = 57", "    MOVE GG-LEN TO WS-L", "END-IF"]
-    assert ec.translate_command("WEB RECEIVE INTO(WS-B) MAXLENGTH(WS-M) SRVCONVERT")[1] == "MOVE SPACES TO GG-FLAGS"
+    assert ec.translate_command("WEB RECEIVE INTO(WS-B) MAXLENGTH(WS-M) SRVCONVERT")[1] == "MOVE 'CONV' TO GG-FLAGS"
     for bad, why in (("WEB RECEIVE", "one of INTO / SET"),
                      ("WEB RECEIVE INTO(WS-B)", "INTO without MAXLENGTH"),
                      ("WEB RECEIVE INTO(WS-B) MAXLENGTH(WS-M) SRVCONVERT NOSRVCONVERT", "both SRVCONVERT and NOSRVCONVERT"),

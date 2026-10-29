@@ -113277,6 +113277,7 @@
           "url_param",
           "params",
           "_fix_utf8",
+          "wantarray",
           "keys"
         ],
         "redirect_search_url@565": [
@@ -114462,7 +114463,8 @@
           "GetFileExtension",
           "uc",
           "ref",
-          "undef"
+          "undef",
+          "wantarray"
         ],
         "GetFixed16s@6098": [
           "Get16s",
@@ -114492,6 +114494,7 @@
           "ref",
           "defined",
           "undef",
+          "wantarray",
           "sprintf",
           "ord",
           "MIE",
@@ -114538,7 +114541,8 @@
         ],
         "GetTableName@4590": [],
         "GetTagID@3724": [
-          "defined"
+          "defined",
+          "wantarray"
         ],
         "GetTagIndex@4601": [
           "undef"
@@ -114614,7 +114618,8 @@
           "Decode",
           "scalar",
           "DoEscape",
-          "Filter"
+          "Filter",
+          "wantarray"
         ],
         "GetWarning@2313": [],
         "GroupMatches@5195": [
@@ -114626,6 +114631,7 @@
           "defined",
           "IsSameID",
           "GetTagID",
+          "wantarray",
           "push"
         ],
         "HDump@6935": [
@@ -114964,7 +114970,8 @@
           "undef",
           "substr",
           "push",
-          "join"
+          "join",
+          "wantarray"
         ],
         "RemoveTagsFromList@5245": [
           "pop",
@@ -115018,7 +115025,8 @@
           "ref",
           "GetGroup",
           "GetTagName",
-          "delete"
+          "delete",
+          "wantarray"
         ],
         "SetGroup@9620": [
           "defined"
@@ -115860,6 +115868,7 @@
         ],
         "AWAIT_GET@18": [
           "shift",
+          "wantarray",
           "die",
           "ref",
           "croak"
@@ -116241,12 +116250,14 @@
         "_start_lookup@410": [
           "defined",
           "die",
+          "time",
           "exists",
           "dbg",
           "ref",
           "join"
         ],
         "abort_remaining_lookups@653": [
+          "time",
           "each",
           "keys",
           "sprintf",
@@ -116286,12 +116297,14 @@
           "domain_to_search_list",
           "sed_path",
           "stat",
+          "time",
           "unlink",
           "bgsend",
           "set_response_packet",
           "_start_lookup"
         ],
         "complete_lookups@526": [
+          "time",
           "defined",
           "each",
           "int",
@@ -116303,7 +116316,8 @@
           "join",
           "abort_remaining_lookups",
           "chomp",
-          "die"
+          "die",
+          "wantarray"
         ],
         "get_lookup@492": [
           "warn"
@@ -116328,6 +116342,7 @@
           "undef"
         ],
         "set_response_packet@733": [
+          "time",
           "defined",
           "keys",
           "dbg",
@@ -116791,6 +116806,7 @@
           "keys",
           "defined",
           "push",
+          "wantarray",
           "join"
         ],
         "get_body@514": [
@@ -116858,7 +116874,8 @@
         "get_pristine_header@481": [
           "defined",
           "n",
-          "get_header"
+          "get_header",
+          "wantarray"
         ],
         "get_rendered_body_text_array@1378": [
           "get_body_text_array_common"
@@ -116873,6 +116890,7 @@
           "dbg",
           "bless",
           "index",
+          "fileno",
           "sysread",
           "length",
           "die",
@@ -117372,6 +117390,7 @@
           "check_timed",
           "new",
           "run",
+          "time",
           "info"
         ],
         "check_cleanup@468": [
@@ -117443,6 +117462,7 @@
           "exists",
           "_get",
           "defined",
+          "wantarray",
           "join"
         ],
         "get_all_hdrs_in_rcvd_index_range@3456": [
@@ -117451,6 +117471,7 @@
           "split",
           "get_all_headers",
           "push",
+          "wantarray",
           "join",
           "undef"
         ],
@@ -117565,6 +117586,7 @@
           "learn_timed",
           "new",
           "run",
+          "time",
           "info"
         ],
         "learn_timed@563": [
@@ -117598,6 +117620,7 @@
           "ref",
           "undef",
           "dbg",
+          "time",
           "defined",
           "delete",
           "would_log",
@@ -117651,6 +117674,7 @@
           "Version",
           "time_to_rfc822_date",
           "sprintf",
+          "time",
           "int",
           "rand",
           "E",
@@ -117752,6 +117776,7 @@
           "delete",
           "dbg",
           "call_plugins",
+          "time",
           "parse",
           "undef",
           "new",
@@ -117948,6 +117973,7 @@
           "create_locker"
         ],
         "parse@596": [
+          "time",
           "init",
           "time_method",
           "ref",
@@ -118079,6 +118105,7 @@
           "dbg"
         ],
         "timer_end@1681": [
+          "time",
           "warn",
           "defined"
         ],

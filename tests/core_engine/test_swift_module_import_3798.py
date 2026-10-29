@@ -54,9 +54,42 @@ def test_declaration_outside_the_named_target_is_not_linked():
     assert _scoped("Lib.Widget", {"Sources/Other/Widget.swift": ["Widget"]}) == set()
 
 
-def test_ambiguous_declaration_draws_no_edge():
-    decls = {"Sources/Lib/A.swift": ["Widget"], "Sources/Lib/B.swift": ["Widget"]}
-    assert _scoped("Lib.Widget", decls) == set()
+def _scoped_edges(token, decls, importer="Sources/App/main.swift"):
+    files = [{"path": importer, "lang_id": "swift", "raw_imports": [token]}]
+    files += [
+        {"path": p, "lang_id": "swift", "raw_imports": [], "classes": [{"name": n} for n in names]}
+        for p, names in decls.items()
+    ]
+    return NetworkRiskSensor()._resolve_edges(files)
+
+
+def test_name_declared_in_several_files_links_each():
+    decls = {"Sources/Lib/A.swift": ["Widget"], "Sources/Lib/B.swift": ["Widget"], "Sources/Lib/C.swift": ["Gadget"]}
+    edges = _scoped_edges("Lib.Widget", decls)
+    assert set(edges) == {
+        ("Sources/App/main.swift", "Sources/Lib/A.swift"),
+        ("Sources/App/main.swift", "Sources/Lib/B.swift"),
+    }
+    assert all(e["weight"] == 1.0 and e["import_statements"] == 1 for e in edges.values())
+
+
+def test_nested_name_links_every_owner_file():
+    decls = {"Sources/Lib/A.swift": ["Outer"], "Sources/Lib/B.swift": ["Outer"]}
+    assert _scoped("Lib.Outer.Inner", decls) == {"Sources/Lib/A.swift", "Sources/Lib/B.swift"}
+
+
+def test_several_files_stay_inside_the_named_target():
+    decls = {"Sources/Lib/A.swift": ["Widget"], "Sources/Lib/B.swift": ["Widget"], "Sources/Other/C.swift": ["Widget"]}
+    assert _scoped("Lib.Widget", decls) == {"Sources/Lib/A.swift", "Sources/Lib/B.swift"}
+
+
+def test_several_files_in_a_test_importer_include_test_files():
+    decls = {"Sources/Lib/A.swift": ["Widget"], "Tests/Lib/B.swift": ["Widget"]}
+    assert _scoped("Lib.Widget", decls, importer="Tests/LibTests/T.swift") == set(decls)
+
+
+def test_undeclared_name_in_the_target_draws_no_edge():
+    assert _scoped("Lib.Nope", {"Sources/Lib/A.swift": ["Widget"], "Sources/Lib/B.swift": ["Widget"]}) == set()
 
 
 def test_test_target_decoy_is_ignored_for_production_importer():
@@ -73,3 +106,23 @@ def test_declaration_capture_reads_top_level_names_only():
         "    struct Nested {}\nprivate struct Hidden {}\ntypealias E = Int\nlet f = 1\n"
     )
     assert [m.group(1) for m in rx.finditer(src)] == ["A", "B", "C", "d", "E", "f"]
+
+
+def test_nested_type_of_another_file_is_not_a_declaration():
+    """A file's captured top-level names stand in for its units, which also hold nested types."""
+    files = [
+        {"path": "Sources/App/main.swift", "lang_id": "swift", "raw_imports": ["Lib.Widget"]},
+        {
+            "path": "Sources/Lib/A.swift",
+            "lang_id": "swift",
+            "classes": [{"name": "Widget"}],
+            "declared_names": ["Widget"],
+        },
+        {
+            "path": "Sources/Lib/Msg.swift",
+            "lang_id": "swift",
+            "classes": [{"name": "Msg"}, {"name": "Widget"}],
+            "declared_names": ["Msg"],
+        },
+    ]
+    assert {dst for (_s, dst) in NetworkRiskSensor()._resolve_edges(files)} == {"Sources/Lib/A.swift"}

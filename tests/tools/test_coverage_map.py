@@ -1,5 +1,6 @@
 """#6278 item 5: the per-test coverage map -- build from coverage.py's SQLite data, select conservatively."""
 
+import datetime as dt
 import sqlite3
 import sys
 from pathlib import Path
@@ -70,8 +71,10 @@ def test_the_engine_tree_readers_are_always_run(tmp_path):
     assert cm.engine_tree_readers(tmp_path) == ["tests/test_walk.py"]
 
 
+NOW = dt.datetime(2026, 10, 29, 12, tzinfo=dt.timezone.utc)
 MAP = {
     "version": cm.VERSION,
+    "built_at": NOW.isoformat(),
     "tests": 10,
     "always": ["tests/test_walk.py"],
     "modules": {
@@ -85,7 +88,7 @@ MAP = {
 
 def test_select_unions_the_covering_tests_and_the_tree_readers(tmp_path):
     tree(tmp_path, ["tests/test_a.py", "tests/test_b.py", "tests/test_walk.py"])
-    tests, why = cm.select(["gitgalaxy/a.py", "gitgalaxy/b.py"], MAP, tmp_path)
+    tests, why = cm.select(["gitgalaxy/a.py", "gitgalaxy/b.py"], MAP, tmp_path, NOW)
     assert tests == ["tests/test_a.py", "tests/test_b.py", "tests/test_walk.py"], why
 
 
@@ -98,8 +101,38 @@ def test_select_is_full_when_it_cannot_prove_the_reach(tmp_path):
         (["gitgalaxy/consts.py"], MAP),  # import-time lines only
         (["gitgalaxy/spine.py"], MAP),  # more than MAX_SHARE of the tests
     ]:
-        tests, why = cm.select(files, cmap, tmp_path)
+        tests, why = cm.select(files, cmap, tmp_path, NOW)
         assert tests is None and why, files
+
+
+def test_select_is_full_when_the_map_is_stale_unstamped_or_from_the_future(tmp_path):
+    tree(tmp_path, ["tests/test_a.py"])
+    day = dt.timedelta(days=1)
+    edge = cm.MAX_AGE_DAYS * day
+    for built in (NOW, NOW - edge):  # up to the limit still selects
+        tests, why = cm.select(["gitgalaxy/a.py"], {**MAP, "built_at": built.isoformat()}, tmp_path, NOW)
+        assert tests is not None, why
+    stale = {**MAP, "built_at": (NOW - edge - dt.timedelta(seconds=1)).isoformat()}
+    unstamped = {k: v for k, v in MAP.items() if k != "built_at"}
+    for cmap in (
+        stale,
+        unstamped,
+        {**MAP, "built_at": "yesterday"},
+        {**MAP, "built_at": None},
+        {**MAP, "built_at": (NOW + day).isoformat()},
+    ):
+        tests, why = cm.select(["gitgalaxy/a.py"], cmap, tmp_path, NOW)
+        assert tests is None and why, cmap.get("built_at")
+    naive = {**MAP, "built_at": NOW.replace(tzinfo=None).isoformat()}  # no zone: read as UTC
+    assert cm.select(["gitgalaxy/a.py"], naive, tmp_path, NOW)[0] is not None
+
+
+def test_build_stamps_the_map_with_the_build_time(tmp_path):
+    data = tmp_path / ".coverage"
+    make_data(data, [("gitgalaxy/a.py", "tests/test_a.py::t|run")])
+    (tmp_path / "tests").mkdir()
+    m = cm.build(data, tmp_path)
+    assert cm.map_age_problem(m) is None
 
 
 def test_load_rejects_a_missing_or_foreign_map(tmp_path):

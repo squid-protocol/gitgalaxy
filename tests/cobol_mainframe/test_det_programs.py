@@ -360,6 +360,55 @@ PROGRAMS = {
             *SORT_LOAD,
         ],
     ),
+    # SORT-RETURN written by the program (IBM: 0 after a good sort, 16 ends one): a value set in a procedure and
+    # restored before the sort ends, a test of the register after each SORT, a store from a data item, and a
+    # COMPUTE into it. GnuCOBOL ignores a 16 and leaves a stored value, so those stop the run by name (below)
+    "SORTRC": fprogram(
+        "SORTRC",
+        [],
+        ["SELECT SORT-FILE ASSIGN TO SORTWK1."],
+        SORT_SD,
+        [*SORT_DATA, "01  SAVE-RC PIC S9(4) COMP VALUE 4."],
+        [
+            "MAIN-PARA.",
+            "    MOVE 0 TO SORT-RETURN",
+            "    SORT SORT-FILE ON ASCENDING KEY SR-DEPT",
+            "         DESCENDING KEY SR-AMT",
+            "         WITH DUPLICATES IN ORDER",
+            "         INPUT PROCEDURE IS LOAD-RC",
+            "         OUTPUT PROCEDURE IS SHOW-RC",
+            "    IF SORT-RETURN NOT = 0",
+            "        DISPLAY 'BAD'",
+            "    ELSE",
+            "        DISPLAY 'GOOD'",
+            "    END-IF",
+            "    MOVE SORT-RETURN TO RC-OUT",
+            "    DISPLAY 'SORT-RETURN ' RC-OUT",
+            "    COMPUTE SORT-RETURN = 0",
+            "    GOBACK.",
+            "LOAD-RC.",
+            "    PERFORM VARYING I FROM 1 BY 1 UNTIL I > 8",
+            "        MOVE E-NAME(I) TO SR-NAME",
+            "        MOVE E-DEPT(I) TO SR-DEPT",
+            "        MOVE E-AMT(I) TO SR-AMT",
+            "        MOVE I TO SR-SEQ",
+            "        MOVE SAVE-RC TO SORT-RETURN",
+            "        MOVE 0 TO SORT-RETURN",
+            "        RELEASE SORT-REC",
+            "    END-PERFORM.",
+            "SHOW-RC.",
+            "    PERFORM UNTIL EOF = 'Y'",
+            "        MOVE 8 TO SORT-RETURN",
+            "        MOVE ZERO TO SORT-RETURN",
+            "        RETURN SORT-FILE",
+            "            AT END MOVE 'Y' TO EOF",
+            "            NOT AT END",
+            "                MOVE SORT-RETURN TO RC-OUT",
+            "                DISPLAY SR-DEPT ' ' SR-NAME ' ' SR-SEQ ' ' RC-OUT",
+            "        END-RETURN",
+            "    END-PERFORM.",
+        ],
+    ),
     # SORT of a table (format 2): the entries of an OCCURS group ordered in place, a zoned key ascending and a signed
     # separate-sign key descending WITH DUPLICATES IN ORDER (three entries tie), an alphanumeric key descending, an
     # alphanumeric key under a literal alphabet, and an elementary table sorted on itself (a duplicate value)
@@ -2110,6 +2159,7 @@ def _sort_variant(proc: list[str], special: list[str] | None = None) -> str:
 def _holes(tmp_path: Path, src: str) -> list[str]:
     from gitgalaxy.tools.cobol_to_java.det import program as P
 
+    tmp_path.mkdir(exist_ok=True)
     (tmp_path / "SORTX.cbl").write_text(src)
     (tmp_path / "project").mkdir(exist_ok=True)
     return P.translate(tmp_path / "SORTX.cbl", [], "public class SortxService {\n}\n", PKG, None,
@@ -2128,8 +2178,6 @@ def _holes(tmp_path: Path, src: str) -> list[str]:
         # an alphabet of HIGH-VALUE: defined by the collating sequence it is in
         (["    SORT SORT-FILE ASCENDING SR-NAME COLLATING SEQUENCE HV", "         INPUT PROCEDURE LOAD-RECS",
           "         OUTPUT PROCEDURE SHOW-RECS"], ["ALPHABET HV IS 'A' HIGH-VALUE."], "HIGH-VALUE in"),
-        # IBM: 16 in SORT-RETURN ends the sort at the next RELEASE / RETURN
-        (["    MOVE 16 TO SORT-RETURN"], None, "SORT-RETURN set by the program"),
         # format 2: a table whose key is outside an entry, or a table that is not one fixed OCCURS level
         (["    SORT ENT ON ASCENDING KEY WS-OUT"], None, "not a data item of one entry of the table"),
         (["    SORT ENT ON ASCENDING KEY E-NAME(1)"], None, "not a data item of one entry of the table"),
@@ -2186,6 +2234,35 @@ def test_sort_without_duplicates_refuses_equal_keys(tmp_path):
         _java_run("SORTX", src, tmp_path)
     assert "without DUPLICATES: records with equal keys" in e.value.stderr
     assert "not modelled" in e.value.stderr
+
+
+@pytest.mark.parametrize(
+    ("proc", "why"),
+    [
+        # IBM ends the sort at the next RELEASE; GnuCOBOL runs it on (measured): the run stops by name
+        (["    MOVE 16 TO SORT-RETURN"], "SORT-RETURN 16 set by the program before a RELEASE"),
+        # a COMPUTE stores it too
+        (["    COMPUTE SORT-RETURN = 4 * 4"], "SORT-RETURN 16 set by the program before a RELEASE"),
+        # IBM resets it to 0 after a good sort; GnuCOBOL leaves the program's value (measured)
+        (["    MOVE 4 TO SORT-RETURN"], "SORT-RETURN holds a value the program set"),
+    ],
+)
+def test_sort_return_the_program_set_stops_by_name_where_ibm_and_gnucobol_differ(proc, why, tmp_path):
+    pytest.importorskip("tree_sitter_language_pack")
+    if _java() is None:
+        pytest.skip("needs JAVA_HOME / JDK_17")
+    src = _sort_variant([*proc, "    SORT SORT-FILE ON ASCENDING KEY SR-NAME", "         INPUT PROCEDURE LOAD-RECS",
+                         "         OUTPUT PROCEDURE SHOW-RECS"])  # fmt: skip
+    assert not _holes(tmp_path / "t", src)  # translated whole: the stop is the runtime's
+    with pytest.raises(subprocess.CalledProcessError) as e:
+        _java_run("SORTX", src, tmp_path)
+    assert why in e.value.stderr and "not modelled" in e.value.stderr, e.value.stderr
+
+
+def test_sort_return_stored_in_every_statement_form_translates(tmp_path):
+    """SORTRC writes the register by MOVE, MOVE ZERO and COMPUTE; none is a hole any more."""
+    pytest.importorskip("tree_sitter_language_pack")
+    assert not _holes(tmp_path / "t", PROGRAMS["SORTRC"])
 
 
 def test_merge_refuses_an_input_out_of_order(tmp_path):

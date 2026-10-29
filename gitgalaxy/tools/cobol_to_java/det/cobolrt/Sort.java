@@ -303,6 +303,40 @@ public final class Sort {
         inputs.add(new ArrayList<>());
     }
 
+    /**
+     * The SORT-RETURN special register (S9(4) BINARY). IBM: moving 16 to it in an input or output procedure ends
+     * the sort at the next RELEASE or RETURN, and a successful sort leaves it 0. GnuCOBOL (measured, 3.x) ignores
+     * the 16, runs the sort to the end and leaves whatever value the program put there. Where the two differ the
+     * run stops by name; a program that only reads the register, or sets and restores it, runs as both do.
+     */
+    // [rule RT-SORT-RETURN]
+    static void endsSort(Field sortReturn, Charset cs, String verb) {
+        if (Cobol.num(sortReturn, cs).compareTo(java.math.BigDecimal.valueOf(16)) == 0) {
+            throw new NotModelled("SORT-RETURN 16 set by the program before a " + verb + " (IBM: ends the sort at it;"
+                + " GnuCOBOL ignores the register)");
+        }
+    }
+
+    /** The end of a SORT / MERGE: IBM leaves SORT-RETURN 0, GnuCOBOL leaves the program's value. */
+    public static void finished(Field sortReturn, Charset cs) {
+        if (Cobol.num(sortReturn, cs).signum() != 0) {
+            throw new NotModelled("SORT-RETURN holds a value the program set (IBM: 0 after a successful sort;"
+                + " GnuCOBOL leaves it)");
+        }
+    }
+
+    /** RELEASE from an input procedure, with the SORT-RETURN check. */
+    public void release(Field record, Field sortReturn, Charset cs) {
+        endsSort(sortReturn, cs, "RELEASE");
+        release(record);
+    }
+
+    /** RETURN from an output procedure, with the SORT-RETURN check. */
+    public boolean returnInto(Field record, Field sortReturn, Charset cs) {
+        endsSort(sortReturn, cs, "RETURN");
+        return returnInto(record);
+    }
+
     /** RELEASE: a copy of the SD record area (`record` is the SD record named: its length is the record's own),
      *  into the sort. */
     // [rule RT-SORT-PROCEDURES]

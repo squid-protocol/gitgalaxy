@@ -1133,13 +1133,44 @@ CICS_TASK_JAVA += """\
             throw refused("SET ADDRESS OF storage already freed");
         }
         if (b.bytes.length - b.off < need) {
-            if (b.kind == 2 || b.bound) {
+            if (b.kind == 2 && ownedByTaskBlock(b.bytes)) {
+                growShared(b.bytes, b.off + need);  // #6839: a window advanced over GETMAIN / received storage
+            } else if (b.kind == 2 || b.bound) {
                 throw refused("SET ADDRESS OF a record longer than its storage");
+            } else {
+                b.bytes = java.util.Arrays.copyOf(b.bytes, need);
             }
-            b.bytes = java.util.Arrays.copyOf(b.bytes, need);
         }
         b.bound = true;
         return b.bytes;
+    }
+
+    /** #6839: `bytes` is the array of a GETMAIN or received block (not a record's own storage). */
+    private boolean ownedByTaskBlock(byte[] bytes) {
+        for (Block o : root().blocks.values()) {
+            if (o.bytes == bytes && (o.kind == 0 || o.kind == 1)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** #6839 (X47): zero-extend a task block's array to `size`; every block and record index naming the old array follows. */
+    private void growShared(byte[] old, int size) {
+        byte[] grown = java.util.Arrays.copyOf(old, size);
+        for (Block o : root().blocks.values()) {
+            if (o.bytes == old) {
+                o.bytes = grown;
+            }
+        }
+        Long h = root().addressed.remove(old);
+        if (h != null) {
+            root().addressed.put(grown, h);
+        }
+        java.util.Map<Integer, Long> at = root().addressedAt.remove(old);
+        if (at != null) {
+            root().addressedAt.put(grown, at);
+        }
     }
 
     // ---- #5119 (register X56): an OS/VS COBOL address held in data (a chained storage area's fullword) -------------------

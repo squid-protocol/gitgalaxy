@@ -1,3 +1,5 @@
+import datetime as dt
+
 """#6278 item 3: the Smoke full-suite selection -- prose skips, test-read docs / agent config run only their readers,
 everything else (and every doubt) runs the whole suite. Real changed-file lists pin both directions."""
 
@@ -275,6 +277,7 @@ def test_the_spine_helper_equivalence_stays_full():
 def test_engine_module_selects_the_tests_the_coverage_map_names():
     cmap = {
         "version": 1,
+        "built_at": dt.datetime.now(dt.timezone.utc).isoformat(),
         "tests": 100,
         "always": ["tests/test_source_reads.py"],
         "modules": {"gitgalaxy/core/prism.py": ["tests/core_engine/test_prism.py"]},
@@ -300,6 +303,7 @@ def test_engine_module_selects_the_tests_the_coverage_map_names():
 def test_engine_changes_the_map_cannot_prove_stay_full(files):
     cmap = {
         "version": 1,
+        "built_at": dt.datetime.now(dt.timezone.utc).isoformat(),
         "tests": 100,
         "always": [],
         "modules": {"gitgalaxy/core/prism.py": ["tests/core_engine/test_prism.py"]},

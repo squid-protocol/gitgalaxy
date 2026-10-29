@@ -539,6 +539,13 @@ public class Main {
         System.out.println(DetCics.samePointer(t, save, ptr));
         refused(() -> DetCics.advancePointer(t, ptr, -1));
         refused(() -> DetCics.advancePointer(t, rec(8), 1));
+        DetCics.advancePointer(t, ptr, 4);
+        Field wide = rec(12);
+        DetCics.setAddress(t, wide, ptr);
+        System.out.println(wide.storage().base + " " + wide.storage().bytes.length + " " + text(wide).substring(4, 10));
+        Field again = rec(10);
+        DetCics.setAddress(t, again, save);
+        System.out.println(again.storage().bytes == wide.storage().bytes);
         t.freemain(DetCics.pointerValue(save));
         refused(() -> DetCics.advancePointer(t, save, 1));
     }
@@ -562,6 +569,8 @@ public class Main {
         "true",
         "pointer arithmetic leaves the storage the pointer addresses (-1 of 10 bytes)",
         "SET ADDRESS OF a null or unknown pointer: not modelled",
+        "4 16 xFGHIJ",  # (#6839: a record past the block's end reads zeros there; the block grew once)
+        "true",
         "SET ADDRESS OF storage already freed: not modelled",
     ]
 

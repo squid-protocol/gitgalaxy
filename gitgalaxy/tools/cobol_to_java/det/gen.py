@@ -3533,8 +3533,13 @@ class Gen:
             raise Untranslatable(f"{verb} USING / GIVING {name}: no such file")
         if fd.handle is None:
             raise Untranslatable(f"{name}: {fd.why}")
-        if fd.varying is not None or fd.record is None or fd.record.size != sd.sort_length:
+        if fd.varying is not None or fd.record is None:
             raise Untranslatable(f"{verb} USING / GIVING {name}: records not the sort file's length: not modelled")
+        lo, hi = sd.sort_min_length or 0, sd.sort_length or 0
+        if not lo <= fd.record.size <= hi:
+            # IBM: a USING / GIVING record is no shorter than the SD's shortest record nor longer than its longest
+            raise Untranslatable(f"{verb} USING / GIVING {name}: records of {fd.record.size} bytes, outside the sort "
+                                 f"file's {lo}..{hi}: not modelled")  # fmt: skip
         self.check_record_bytes(fd.record, f"{verb} USING / GIVING {name}")
         return fd, fd.record
 
@@ -3557,7 +3562,7 @@ class Gen:
         fd, record = self._sort_io_file(verb, sd, name)
         v, rec, st, what = jname(fd.select), self.ids[id(record)], self.tmpname("st"), f"{verb} GIVING {name}"
         r = self.tmpname("r")
-        return [f"{ind}{var}.rewind();", f'{ind}String {st} = {v}.open("OUTPUT");',
+        return [f"{ind}{var}.rewind({record.size});", f'{ind}String {st} = {v}.open("OUTPUT");',
                 f'{ind}Sort.expect({st}, {jstr(what + ": OPEN")}, "00");',
                 f"{ind}for (byte[] {r} = {var}.next(); {r} != null; {r} = {var}.next()) {{",
                 f"{ind}    {rec}.putRaw({r});", f"{ind}    {st} = {v}.write({record.size});",

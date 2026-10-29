@@ -28,6 +28,7 @@ Targets: Java 17 and 21, Maven and Gradle, five databases
 <a href="#coverage-across-cics-eras"><strong>CICS eras</strong></a> ·
 <a href="#one-cics-command-spec-both-runtimes"><strong>CICS spec</strong></a> ·
 <a href="#evidence-ladders-and-where-it-stands"><strong>Evidence</strong></a> ·
+<a href="#where-the-journey-stands"><strong>Journey</strong></a> ·
 <a href="#the-forges"><strong>Forges</strong></a> ·
 <a href="#choosing-the-java-you-get-the-target-config"><strong>Target config</strong></a> ·
 <a href="#limits"><strong>Limits</strong></a>
@@ -156,6 +157,9 @@ embedded SQL into a Spring service without calling an LLM ([full design and runt
 | [`det/cics.py`](det/cics.py), [`det/cvda.py`](det/cvda.py) | Lowers `EXEC CICS` commands, `HANDLE CONDITION / AID / ABEND` tables, `RESP`/`RESP2`, BMS map marshalling, channels/containers, files, queues, counters, web/document APIs, and `SYNCPOINT` |
 | [`det/bll.py`](det/bll.py), [`det/osvs.py`](det/osvs.py) | OS/VS COBOL `BLL` cell pointer aliasing, chained BLL cells, `SET cell TO NULL` on `MOVE ZERO / LOW-VALUES`, and `LANGLVL(1)` / `CMPR2` rules |
 | [`det/sql.py`](det/sql.py), [`det/dyncall.py`](det/dyncall.py), [`det/hfp.py`](det/hfp.py) | Embedded `EXEC SQL` (`SELECT`, cursors, host variables, `SQLCODE`), dynamic `CALL` resolution, and hexadecimal floating-point (`HFP`) rules |
+| [`det/dli.py`](det/dli.py), [`det/mq.py`](det/mq.py) | IMS DL/I: batch `CALL 'CBLTDLI'` under `ENTRY 'DLITCBL'` and, under CICS, `EXEC DLI` (`#4893`); IBM MQ: `MQOPEN`/`MQGET`/`MQPUT`/`MQPUT1`/`MQCLOSE` from a CICS program (`#4892`). Each runs on a modelled runtime with a COBOL-side twin; anything else is a named hole |
+| [`det/dfsort.py`](det/dfsort.py) | DFSORT step cards (`SORT FIELDS`, `OUTREC FIELDS`/`BUILD`) lowered to a COBOL `SORT` program and proven like any other (`#4268`) |
+| [`det/hlasm.py`](det/hlasm.py) | Command-level CICS assembler (`DFHEIENT`) lowered to a COBOL program inside a named subset, then translated like COBOL; outside the subset the program is refused whole, by name ([design](../../../docs/language_status/hlasm_cics_design.md), `#5859`) |
 | [`det/refine.py`](det/refine.py) | Method-by-method LLM readability refactoring gated on the equivalence proof |
 | [`det/cobolrt/`](det/cobolrt/) | Plain Java 17 runtime (`Storage`, `Field`, `Cobol`, `DetCics`, `CicsSpec`, `CobolSql`, `PerformDispatcher`) with zero Spring dependency |
 
@@ -173,7 +177,7 @@ call bolted on).
 
 | Era | IBM Stack & Period | Source Tells Detected (`era_tags.py`) | Burned-estate status | What Works Today vs. Named Refusals |
 |---|---|---|---|---|
-| **Era 0** | **CICS Macro Level** *(Pre-CICS/ESA 3.2)* | `DFHxx TYPE=` macro calls (`dfh-macro-call`), `DFHCSADS` / `DFHTCADS` (`csa-tca-dsect`) | **Application code refused by design** (`#5121`); **macro tables parsed** (`#5120`, `#5154`) | Macro-level code and HLASM `.asm` exits are refused up front. System macro tables (`DFHSIT`, `DFHPCT`, `DFHPPT`, `DFHFCT`, `DFHDCT`) are extracted; obsolete `DFHTCT LINE/SDSCI` & `DFHMCT RECORD` are refused with IBM cites. |
+| **Era 0** | **CICS Macro Level** *(Pre-CICS/ESA 3.2)* | `DFHxx TYPE=` macro calls (`dfh-macro-call`), `DFHCSADS` / `DFHTCADS` (`csa-tca-dsect`) | **Application code refused by design** (`#5121`); **macro tables parsed** (`#5120`, `#5154`) | Macro-level application code is refused up front. Command-level assembler (`DFHEIENT`) translates through the HLASM lowering when it stays inside its subset (`#5859`, the zECS programs); other assembler is refused by name. System macro tables (`DFHSIT`, `DFHPCT`, `DFHPPT`, `DFHFCT`, `DFHDCT`) are extracted; obsolete `DFHTCT LINE/SDSCI` & `DFHMCT RECORD` are refused with IBM cites. |
 | **Era 1** | **Command Level + OS/VS COBOL** | `BLL` cells (`bll-cells`), `SERVICE RELOAD`, `HANDLE CONDITION / AID / ABEND`, `CALL 'CBLTDLI'` / `EXEC DLI`, `LANGLVL(1)` | HANDLE + BLL programs and the IMS DL/I programs (`#4893`); level counts on the progress page | `HANDLE CONDITION/AID/ABEND`, `PUSH/POP HANDLE`, and chained `BLL` cells (`#5119`) are proven at L3/L4. IMS DL/I (`CBLTDLI`, `EXEC DLI`, `ENTRY 'DLITCBL'`) is actively landing (`#4893`, `#5233`). |
 | **Era 2** | **COBOL II / COBOL 85 + CICS/MVS & Db2** | `RESP` / `RESP2`, `EXEC SQL`, `ADDRESS OF`, `SET ADDRESS`, `LINK SYSID` (DPL), `CMPR2`, `LANGLVL(2)` | Level counts on the progress page (Eras table) | Full VSAM file control (including `UPDATE TOKEN` and `RESP2`), BMS 3270 maps, `LINK`/`XCTL`/`RETURN`, TS/TD queues (`SET/INQUIRE TDQUEUE`), `GETMAIN`/`FREEMAIN` + `SET ADDRESS OF`, `ENQ`/`DEQ`, `START`/`RETRIEVE`, `POST`/`WAIT`, and live Db2 `EXEC SQL`. |
 | **Era 3** | **LE / COBOL for OS/390 + IBM MQ** | `CALL 'CEExxxx'` (`le-callable`), `CALL 'MQOPEN/GET/PUT...'` (`mq-call`), `EXCI` (`DFHXCIS`), 3270 Bridge (`DFHBR*`) | LE-callable programs and the MQ programs (`#4892`); level counts on the progress page | LE date/time and abend services (`CEEDAYS`, `CEELOCT`, `CEE3ABD`) are proven; custom condition handlers (`CEEHDLR`/`CEEHDLU`) are refused, and so are the services a handler calls (`CEEMGET`, `CEESGL`, `CEENCOD`, `CEEMRCE`, `CEE3SRP`); the handler program's `SET ADDRESS OF ... TO token` is the `pointers` refusal (#5042) and its `SET RESUME TO TRUE` translates. MQI queue calls + CICS UOW backout are landing in `#4892`. |
@@ -222,6 +226,51 @@ GitGalaxy tracks two complementary evidence ladders ([`definition_of_done.md`](.
 The counts at each level, per estate and in total, the mutation kill rate ([`mutation_testing.md`](../../../docs/language_status/mutation_testing.md)),
 the crucibles and the era table are generated, not written here: see the [progress page](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md). Each number there names the
 artifact it was read from and the commit it was rendered at.
+
+---
+
+<a id="where-the-journey-stands"></a>
+
+## Where the journey stands (snapshot, 2026-10-29)
+
+This is a map of a typical CICS estate against what GitGalaxy covers, so the evidence numbers above can be read in
+proportion. It is a written judgment, dated; the measured counts stay on the
+[progress page](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md).
+
+Being useful on a CICS estate takes three jobs, and they are at very different points:
+
+1. **Scan**: inventory every member and map how they connect. Broad, shallow per item. Mostly in place for the
+   common mainframe languages.
+2. **Prove**: show what each program does, by evidence level. Narrow and deep. The method works and is trusted on
+   the burned estates, which are small public samples the translator was built against (development results,
+   not a blind trial; see [Limits](#limits)).
+3. **Run the system around the programs**: the batch, file, messaging and database runtimes programs depend on (the
+   Open World epics [#4890](https://github.com/squid-protocol/gitgalaxy/issues/4890)-[#4894](https://github.com/squid-protocol/gitgalaxy/issues/4894)).
+   Started in places; most of the remaining work is here.
+
+| Part of the estate | Scan | Prove / translate |
+|---|---|---|
+| COBOL online programs (CICS) | In place | The deepest work: most burned-estate programs are on the L1-L4 ladder |
+| COBOL batch programs | In place | Translated and proven per program; the batch world around them is partial (rows below) |
+| BMS screens | In place, screen fields included | Proven (screen text, attributes, cursor) |
+| Embedded Db2 SQL | In place | Proven against Db2 Community Edition, not Db2 for z/OS |
+| Copybooks | In place | In place; IBM's own copybooks are written stand-ins, never shipped |
+| JCL and PROCs | In place | Step flow, return codes, DD binding and restart are open ([#4891](https://github.com/squid-protocol/gitgalaxy/issues/4891)) |
+| Sort and utilities (DFSORT, IDCAMS, IEBGENER, GDGs) | Partial | DFSORT step cards and COBOL `SORT` translate and are proven; the other utilities are open ([#4890](https://github.com/squid-protocol/gitgalaxy/issues/4890), [#4268](https://github.com/squid-protocol/gitgalaxy/issues/4268)) |
+| VSAM | In place | KSDS file control (keyed I/O, browses, `RESP2`; spec above); ESDS, RRDS and alternate indexes are open ([#4894](https://github.com/squid-protocol/gitgalaxy/issues/4894)) |
+| IMS DL/I | Signals, PSB/DBD extraction | Batch DL/I calls and `EXEC DLI` translate on a modelled runtime; IMS TM / MFS are open ([#4893](https://github.com/squid-protocol/gitgalaxy/issues/4893)) |
+| IBM MQ | Signals | The core MQI calls from CICS programs translate; batch MQ and the rest of the MQI are open ([#4892](https://github.com/squid-protocol/gitgalaxy/issues/4892)) |
+| Assembler (HLASM) | Basics: structure, `EXEC CICS`, COPY, risk signals; only `=V(name)` calls become call-graph edges, and no large real-file probe has run ([status](../../../docs/language_status/hlasm.md)) | Command-level CICS assembler inside a narrow subset (the zECS programs); arithmetic, packed decimal and most addressing forms are refused |
+| CICS resource definitions (CSD) | Profile in place | Not used by the proofs yet |
+| PL/I, REXX, Easytrieve | Profiles in place | Not translated |
+| Language Environment services, EBCDIC, hex float | n/a | Modelled where IBM documents them; where IBM is silent, an owner-stated assumption in the [register](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/oracle_assumptions.md), else refused |
+| Scheduler definitions, RACF, CICS exits and system tables, SMP/E | System macro tables parsed; the rest not covered | Not covered ([#4514](https://github.com/squid-protocol/gitgalaxy/issues/4514)) |
+
+**What comes next, in order of impact.** Finish the L1-L4 ladder on the burned estates, which completes the proof
+of the method. Then the batch runtimes, JCL execution and the utilities first, since most production work runs in
+batch. The last stretch, calibration against real z/OS behaviour and the rare constructs a production estate holds,
+needs a real estate ([#4050](https://github.com/squid-protocol/gitgalaxy/issues/4050),
+[fresh-estate trials](../../../docs/language_status/fresh_estate_trials.md)); public samples cannot supply it.
 
 ---
 

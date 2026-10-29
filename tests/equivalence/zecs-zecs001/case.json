@@ -1318,9 +1318,44 @@
       ]
     },
     {
-      "name": "auth-user-not-listed",
+      "name": "auth-delete-only-post",
       "commarea": null,
       "tod": "8686868686860708090A0B0C0D0E0F10",
+      "doctemplates": {
+        "ZC01DC": "type: A1\r%",
+        "ZC01SD": "User=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,DELETE\r\n"
+      },
+      "http_request": {
+        "scheme": "HTTPS",
+        "host": "zecs.example.com",
+        "port": 8443,
+        "method": "POST",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/authkey",
+        "query": "",
+        "headers": [
+          [
+            "Authorization",
+            "Basic \u00e5\u00e5\u00d5\u00c6\u00e4\u0092\u0093\u00c5\u00d4\u0091\u0097\u00d8\u00d8\u00e5\u00d5\u00e3\u00e5\u00f0\u00f9\u00e2\u00d9\u00c3\u00c1\u0087"
+          ]
+        ],
+        "mediatype": "application/octet-stream",
+        "body": "value two"
+      },
+      "why": "#6072: an https POST by USERID2, granted DELETE only: 1610's DELETE entry matches user and access but WEB-HTTPMETHOD is POST, so 854:false; no arm grants, the scan ends on SD-LENGTH zero and 1600 answers 401 (credential and table bytes as auth-no-access)",
+      "faults": [
+        {
+          "cmd": "VERIFY",
+          "resp": "NORMAL",
+          "userid_hex": "E4E2C5D9C9C4F240",
+          "why": "the verdict the scenario states for USERID2: the region has no security manager (register X32)"
+        }
+      ]
+    },
+    {
+      "name": "auth-user-not-listed",
+      "commarea": null,
+      "tod": "8989898989890708090A0B0C0D0E0F10",
       "doctemplates": {
         "ZC01DC": "type: A1\r%",
         "ZC01SD": "User=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,UPDATE\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,DELETE\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\n"

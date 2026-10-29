@@ -192,3 +192,27 @@ def test_class_alias_names_leaves_out_a_name_some_class_declares_as_a_data_membe
 
     hdr = "struct Node {};\ntypedef Node Type;\ntypedef Node Base;\nstruct S {\n\tNode *Type = nullptr;\n\treturn Base;\n};\n"
     assert class_alias_names([hdr]) == {"Base"}
+
+
+def test_an_init_entry_naming_a_foreign_type_alias_is_no_base_call_in_the_file_that_declares_it():
+    # doomsday `List : std::vector<T>` with `using Base = std::vector<T>;` and `List(..) : Base(count)`, while
+    # `Private` (aliased as `Base` by DE_PIMPL elsewhere) and an unrelated class `Base` exist
+    from gitgalaxy.core.call_resolver import class_alias_tables, resolve_calls
+
+    list_h = "template <typename T>\nclass List : public std::vector<T> {\n    using Base = std::vector<T>;\n};\n"
+    pimpl_h = "class Private {};\ntypedef Private<P> Base;\n"
+    names, foreign = class_alias_tables([("de/list.h", list_h), ("de/pimpl.h", pimpl_h)])
+    assert names == {"Base"}
+    assert foreign == {"de/list.h": {"Base"}}
+
+    files = {
+        "de/list.h": ([_ctor("List::List", 1, ["Base"], init=True)], [{"name": "List", "start_line": 2}]),
+        "de/pimpl.h": ([_ctor("Private::Private", 1)], [{"name": "Private", "start_line": 1}]),
+        "log/Log.h": ([], [{"name": "Base", "start_line": 1}]),
+        "src/w.cpp": ([_ctor("Impl", 1, ["Base"], init=True)], []),
+    }
+    parsed = [{"path": p, "lang_id": "cpp", "functions": f, "classes": c} for p, (f, c) in files.items()]
+    sites, _ = resolve_calls(parsed, None, None, None, names, foreign)
+    edges = {(s["src_path"], s["dst_name"]) for s in sites if s["dst_name"]}
+    assert ("de/list.h", "Base") not in edges
+    assert ("src/w.cpp", "Base") in edges  # the pimpl alias is still a base call

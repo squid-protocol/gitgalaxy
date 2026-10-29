@@ -124,7 +124,7 @@ ledger, not yet ruled on) and Groovy (#3798: `import a.b.*` names a package, so 
 are scored against the files declaring C in a.b, read by pattern on masked text) and Swift (#3798: `import Mod` names a SwiftPM target, so no edge; only `import struct|class|...
 Mod.Name` is scored, against the files of Mod declaring Name; the engine no longer draws an edge from `import Foundation` to a file named
 `Foundation.swift`, ruled in the same PR; the engine resolves `Mod.Name` through the declarations indexed per file
-(`_declaration_capture`) under a directory named `Mod`, else the file named `Name.swift` there, and an ambiguous name draws no edge); Java and Go, where the
+(`_declaration_capture`) under a directory named `Mod`, else the file named `Name.swift` there, and a name declared in several files of the target draws an edge to each); Java and Go, where the
 engine's edge already lands inside the package and nothing disagrees, keep the "any file of the
 package" scoring.
 

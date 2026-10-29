@@ -1101,7 +1101,7 @@
     {
       "name": "auth-get-select",
       "commarea": null,
-      "tod": "7171717171710708090A0B0C0D0E0F10",
+      "tod": "8181818181810708090A0B0C0D0E0F10",
       "doctemplates": {
         "ZC01DC": "type: A1\r%",
         "ZC01SD": "User=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,UPDATE\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,DELETE\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\n"
@@ -1136,7 +1136,7 @@
     {
       "name": "auth-put-update",
       "commarea": null,
-      "tod": "7272727272720708090A0B0C0D0E0F10",
+      "tod": "8282828282820708090A0B0C0D0E0F10",
       "doctemplates": {
         "ZC01DC": "type: A1\r%",
         "ZC01SD": "User=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,UPDATE\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,DELETE\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\n"
@@ -1171,7 +1171,7 @@
     {
       "name": "auth-post-update",
       "commarea": null,
-      "tod": "7373737373730708090A0B0C0D0E0F10",
+      "tod": "8383838383830708090A0B0C0D0E0F10",
       "doctemplates": {
         "ZC01DC": "type: A1\r%",
         "ZC01SD": "User=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,UPDATE\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,DELETE\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\n"
@@ -1206,7 +1206,7 @@
     {
       "name": "auth-delete-delete",
       "commarea": null,
-      "tod": "7474747474740708090A0B0C0D0E0F10",
+      "tod": "8484848484840708090A0B0C0D0E0F10",
       "doctemplates": {
         "ZC01DC": "type: A1\r%",
         "ZC01SD": "User=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,UPDATE\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,DELETE\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\n"
@@ -1241,7 +1241,7 @@
     {
       "name": "auth-no-access",
       "commarea": null,
-      "tod": "7575757575750708090A0B0C0D0E0F10",
+      "tod": "8585858585850708090A0B0C0D0E0F10",
       "doctemplates": {
         "ZC01DC": "type: A1\r%",
         "ZC01SD": "User=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,UPDATE\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,DELETE\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\n"
@@ -1276,7 +1276,7 @@
     {
       "name": "auth-user-not-listed",
       "commarea": null,
-      "tod": "7676767676760708090A0B0C0D0E0F10",
+      "tod": "8686868686860708090A0B0C0D0E0F10",
       "doctemplates": {
         "ZC01DC": "type: A1\r%",
         "ZC01SD": "User=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,UPDATE\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,DELETE\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\n"
@@ -1311,7 +1311,7 @@
     {
       "name": "auth-verify-fails",
       "commarea": null,
-      "tod": "7777777777770708090A0B0C0D0E0F10",
+      "tod": "8787878787870708090A0B0C0D0E0F10",
       "doctemplates": {
         "ZC01DC": "type: A1\r%",
         "ZC01SD": "User=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,UPDATE\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,DELETE\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\n"
@@ -1346,7 +1346,7 @@
     {
       "name": "auth-decode-invalid",
       "commarea": null,
-      "tod": "7878787878780708090A0B0C0D0E0F10",
+      "tod": "8888888888880708090A0B0C0D0E0F10",
       "doctemplates": {
         "ZC01DC": "type: A1\r%",
         "ZC01SD": "User=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,UPDATE\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,DELETE\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\n"

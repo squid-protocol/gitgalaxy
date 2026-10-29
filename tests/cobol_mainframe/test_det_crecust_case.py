@@ -69,6 +69,9 @@ def test_scenarios_cover_the_credit_check_and_the_paths_around_the_ceedays_hole(
         "fetch-any-first-child-abends",
         # #6967: FETCH ANY returns a child with COMPSTATUS SECERROR (951)
         "fetch-any-first-child-secerror",
+        # #6967 (X70): an abend injected in a child -- FETCH ANY answers COMPSTATUS ABEND with that code
+        "fetch-any-first-child-abends-afcr",
+        "fetch-any-third-child-abends-afcs",
     ]
 
 
@@ -278,3 +281,78 @@ def test_the_planned_child_fetched_is_secerror_and_the_next_is_not(tmp_path):
     )
     assert out.splitlines() == ["NORMAL 1214 null", "NORMAL 1016 null"]
     assert log.read_text(encoding="utf-8").splitlines() == ["FETCH-STATUS - 1 1214 0"]
+
+
+# ---- #6967 (register X70): an abend injected in a RUN TRANSID child ------------------------------------------------
+
+
+@pytest.mark.parametrize("code", ecf.FILE_ABEND_CODES)
+def test_an_injected_abend_in_a_child_is_planned_in_that_child_with_its_code(code):
+    f = {"cmd": "LINK", "child": "OCR3", "program": "ABNDPROC", "resp": "ABEND", "abcode": code, "nth": 1}
+    assert ecf.fault_lines(_sc(f)) == [f"@OCR3 LINK ABNDPROC 1 -1 0 {code}"]
+    ecf.check_child_faults(_case(), _sc(f))
+
+
+def test_the_injected_abend_scenarios_plan_a_sourced_code_in_a_child_of_the_case():
+    by_name = {s["name"]: s for s in _case()["scenarios"]}
+    assert ecf.fault_lines(by_name["fetch-any-first-child-abends-afcr"]) == [
+        "@OCR1 DELAY - 1 16 6",
+        "@OCR1 LINK ABNDPROC 1 -1 0 AFCR",
+    ]
+    assert ecf.fault_lines(by_name["fetch-any-third-child-abends-afcs"]) == [
+        "@OCR3 DELAY - 1 16 6",
+        "@OCR3 LINK ABNDPROC 1 -1 0 AFCS",
+    ]
+    for name in ("fetch-any-first-child-abends-afcr", "fetch-any-third-child-abends-afcs"):
+        ecf.check_child_faults(_case(), by_name[name])
+
+
+@pytest.mark.parametrize("code", ["PLOP", "ASRA", ""])
+def test_an_injected_abend_code_x70_does_not_source_is_still_refused_in_a_child(code):
+    f = {"cmd": "LINK", "child": "OCR1", "program": "ABNDPROC", "resp": "ABEND", "abcode": code, "nth": 1}
+    with pytest.raises(ec.Unsupported, match="X70"):
+        ecf.fault_lines(_sc(f))
+
+
+@needs_javac
+@pytest.mark.slow(reason="first in its CI split part it pays the cold javac of the shared CicsTask build (#6018)")
+def test_an_abend_injected_in_a_child_is_the_code_fetch_reports_for_every_x70_code(tmp_path):
+    codes = list(ecf.FILE_ABEND_CODES)
+    plan = ", ".join(f'"@K{i} LINK ABNDPROC 1 -1 0 {c}"' for i, c in enumerate(codes))
+    runs = "\n".join(f'        t.runTransid("K{i}");' for i in range(len(codes)))
+    fetches = "\n".join(
+        '        f = t.fetch(null, "WAIT", 0, false);\n        System.out.println(f.resp() + " " + f.compstatus() + " " + f.abcode());'
+        for _ in codes
+    )
+    out = _cics_task(
+        tmp_path,
+        """
+        CicsTask t = new CicsTask("GTPA", "ENTER", null, null).withTaskNumber(100).withPrograms(new CicsTask.Programs() {
+            public boolean defined(String p) {
+                return true;
+            }
+
+            public String program(String tr) {
+                return "KIDPROG";
+            }
+
+            public boolean transaction(String tr) {
+                return true;
+            }
+
+            public void run(String p, CicsTask s) {
+                s.planned("LINK", "ABNDPROC");
+                if (s.ended()) {
+                    return;
+                }
+                s.returnTransid(null, null);
+            }
+        }).withFaults(java.util.List.of(%PLAN%), java.nio.file.Path.of("%LOG%"));
+%RUNS%
+        CicsTask.FetchResult f;
+%FETCHES%""".replace("%PLAN%", plan)
+        .replace("%LOG%", (tmp_path / "fired.txt").as_posix())
+        .replace("%RUNS%", runs)
+        .replace("%FETCHES%", fetches),
+    )
+    assert out.splitlines() == [f"NORMAL 900 {c}" for c in codes]

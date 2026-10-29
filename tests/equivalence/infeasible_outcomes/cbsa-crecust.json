@@ -16,7 +16,7 @@
       "kind": "IF",
       "outcome": "true",
       "family": "R",
-      "reason": "DEQ RESOURCE(NCS-CUST-NO-NAME) LENGTH(16) follows the ENQ of the same 16-byte name in the same task, so the resource is held and the length matches: the DEQ always completes NORMAL."
+      "reason": "DEQ RESOURCE(NCS-CUST-NO-NAME) LENGTH(16) follows the ENQ of the same 16-byte name in the same task, so the resource is held and the length matches: the DEQ always completes NORMAL. IBM (EXEC CICS DEQ, Conditions) lists only LENGERR (RESP2 1: LENGTH outside 1 through 255) and INVREQ (RESP2 2: MAXLIFETIME with an incorrect CVDA); this DEQ has LENGTH(16) and no MAXLIFETIME, so neither is raised, and IBM states no condition for a resource that is not held. Assumption: that is IBM's whole condition list for DEQ."
     },
     {
       "unit": "CC010",

@@ -1021,13 +1021,17 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
             fixed_len = self.constant_int(_arg(opts["LENGTH"])) if opts.get("LENGTH") else None
             # #4270 (GenApp LGICVS01: FROM(WRITE-MSG-H) X(14) LENGTH(24)): CICS sends LENGTH bytes from FROM's first,
             # so a LENGTH past FROM sends the items after it in its record; past the record, refused (X6)
+            past = bool(opts.get("LENGTH")) and not (
+                fixed_len is not None and fixed_len <= self.size(_arg(opts["FROM"]))
+            )
             text = (
-                "Cobol.text({}, CS)"
-                if not opts.get("LENGTH") or (fixed_len is not None and fixed_len <= self.size(_arg(opts["FROM"])))
-                else 'new String(DetCics.withinRecord({}, {}, "SEND TEXT"), CS)'
+                'new String(DetCics.withinRecord({}, {}, "SEND TEXT"), CS)' if past else "Cobol.text({}, CS)"
             ).format(f, n)
+            # #6882: the bytes after FROM are its record's: typed items in it are packed into them first
+            rec = g.record_bytes(self.ref(_arg(opts["FROM"]))) if past else None
             pl = g.tmpname("planned")  # #6271 (X71): a planned TSIOERR / INVREQ / LENGERR sends nothing
-            return [f"{ind}String {t} = {text};",
+            return [*([f"{ind}Field {g.tmpname('rec')} = {rec};"] if rec else []),
+                    f"{ind}String {t} = {text};",
                     f'{ind}int[] {pl} = task.planned("SEND-TEXT", "-");',
                     f"{ind}if ({pl}[0] == 0) task.sendText({t}.substring(0, Math.min({t}.length(), {n})), {n}"
                     f"{''.join(', ' + G_jstr(x) for x in flags)});",

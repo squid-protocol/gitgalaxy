@@ -292,14 +292,15 @@ class TaskControlCommands:
         n = self.int_(sent) if sent else str(self.size(frm))
         fixed = self.constant_int(sent) if sent else None
         t, r = g.tmpname("text"), g.tmpname("conversed")
-        text = (
-            "Cobol.text({}, CS)"
-            if not sent or (fixed is not None and fixed <= self.size(frm))
-            else 'new String(DetCics.withinRecord({}, {}, "CONVERSE"), CS)'
-        ).format(self.read_field(frm), n)
+        past = bool(sent) and not (fixed is not None and fixed <= self.size(frm))
+        text = ('new String(DetCics.withinRecord({}, {}, "CONVERSE"), CS)' if past else "Cobol.text({}, CS)").format(
+            self.read_field(frm), n
+        )
+        rec = g.record_bytes(self.ref(frm)) if past else None  # #6882: typed items in FROM's record packed first
         target = self.field(opts["INTO"])
         limit = self.int_(most) if most else self.int_(length) if length else str(self.size(opts["INTO"]))
-        out = [f"{ind}String {t} = {text};",
+        out = [*([f"{ind}Field {g.tmpname('rec')} = {rec};"] if rec else []),
+               f"{ind}String {t} = {text};",
                (f"{ind}CicsTask.Received {r} = task.converse({t}.substring(0, Math.min({t}.length(), Math.max({n}, 0))), "
                 f"{n}, {limit}, {str('NOTRUNCATE' in opts).lower()});"),
                f"{ind}if ({r}.data() != null) DetCics.received({target}, {r}.data(), CS);"]  # fmt: skip

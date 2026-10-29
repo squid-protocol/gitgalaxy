@@ -18,6 +18,10 @@ ground_truth_plan.py does for `ground-truth`):
            `__init__`, #6278 item 5): every test file in `tests/` that names it as a word, found transitively through the
            non-test helpers that name it, plus TREE_GUARDS. More than HELPER_MAX such tests (a helper most of the
            suite leans on) is `full`.
+* `select` also when a changed file is a `gitgalaxy/**.py` engine module (#6278 item 5) and the nightly per-test
+           coverage map (coverage_map.py, `--coverage-map`) holds it: the test files that executed it, plus the tests that
+           read the engine tree, plus TREE_GUARDS. A module the map lacks, one only import-time lines cover, or one most of
+           the suite covers (`core`, `standards`) is `full`, and so is a missing map.
 * `full`   anything else, any reader that is the engine or a root-level script (it cannot be mapped to a test), an
            unreadable or empty diff, the `shepherd:full` label, and every event that is not a pull_request.
 
@@ -37,6 +41,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import change_classifier  # noqa: E402
+import coverage_map  # noqa: E402
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SELECTABLE = ("prose", "test-read-doc", "agent-config")
@@ -127,8 +132,17 @@ def test_target(scope: str, root: Path = REPO_ROOT) -> list[str] | None:
     return hits
 
 
+def is_engine_module(f: str) -> bool:
+    return f.startswith("gitgalaxy/") and f.endswith(".py")
+
+
 def plan(
-    files: list[str], event: str, labels: tuple[str, ...] = (), refs: dict | None = None, root: Path = REPO_ROOT
+    files: list[str],
+    event: str,
+    labels: tuple[str, ...] = (),
+    refs: dict | None = None,
+    root: Path = REPO_ROOT,
+    cmap: dict | None = None,
 ) -> dict:
     full = {"mode": "full", "paths": []}
     if event != "pull_request":
@@ -141,7 +155,10 @@ def plan(
     areas = {f: change_classifier.area(f, refs) for f in files}
     modules = [f for f in files if is_test_module(f)]
     helpers = [f for f in files if is_helper_module(f)]
-    other = sorted(f for f, a in areas.items() if a not in SELECTABLE and f not in modules and f not in helpers)
+    engine = [f for f in files if is_engine_module(f)]
+    other = sorted(
+        f for f, a in areas.items() if a not in SELECTABLE and f not in modules and f not in helpers and f not in engine
+    )
     if other:
         return {**full, "reason": f"{len(other)} changed file(s) are not docs / agent config, first: {other[0]}"}
     targets: set[str] = set()
@@ -152,10 +169,15 @@ def plan(
         if hit is None:
             return {**full, "reason": f"{f} is named by more than {HELPER_MAX} test files"}
         targets.update(hit)
-    if modules or helpers:
+    if engine:
+        hit, why = coverage_map.select(engine, cmap, root)
+        if hit is None:
+            return {**full, "reason": why}
+        targets.update(hit)
+    if modules or helpers or engine:
         targets.update(g for g in TREE_GUARDS if (root / g).exists())
     for f, a in areas.items():
-        if a == "prose" or f in modules or f in helpers:
+        if a == "prose" or f in modules or f in helpers or f in engine:
             continue
         for scope in change_classifier.readers_of(f, refs):
             t = test_target(scope, root)
@@ -167,7 +189,7 @@ def plan(
     paths = sorted(t for t in targets if not any(t != u and t.startswith(u + "/") for u in targets))
     return {
         "mode": "select",
-        "reason": f"docs / agent config / test modules / tests/tools helpers only: the {len(paths)} reader(s) run",
+        "reason": f"docs / agent config / test modules / tests/tools helpers / mapped engine modules only: the {len(paths)} reader(s) run",
         "paths": paths,
     }
 
@@ -213,6 +235,9 @@ def main() -> int:
     ap.add_argument("--base", default="origin/main")
     ap.add_argument("--files", nargs="*", help="the changed files, instead of git diff --name-only BASE...HEAD")
     ap.add_argument("--labels", default="", help="comma-separated PR labels")
+    ap.add_argument(
+        "--coverage-map", type=Path, help="the nightly per-test coverage map (default: .engine_test_map.json)"
+    )
     ap.add_argument("--github-output", type=Path, help="append mode=skip|select|full and paths= for later steps")
     ap.add_argument(
         "--replay", type=int, metavar="N", help="plan the last N merged PRs (needs gh), report the mode shares"
@@ -229,7 +254,8 @@ def main() -> int:
         files = (
             args.files if args.files is not None else (changed_files(args.base) if args.event == "pull_request" else [])
         )
-        p = plan(files, args.event, tuple(x for x in args.labels.split(",") if x))
+        cmap = coverage_map.load(args.coverage_map)
+        p = plan(files, args.event, tuple(x for x in args.labels.split(",") if x), cmap=cmap)
     except RuntimeError as e:  # cannot tell what changed: everything
         p = {"mode": "full", "reason": f"cannot diff ({e})", "paths": []}
     print(json.dumps(p, indent=1))

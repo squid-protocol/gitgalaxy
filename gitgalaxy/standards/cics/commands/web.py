@@ -764,7 +764,7 @@ WEB_RECEIVE = Command(
     runtime_refusals=(
         _NO_REQUEST_READ,
         RuntimeRefusal(
-            "a request with no body, a second WEB RECEIVE (IBM does not say what a body already received returns again)",
+            "a request with no body, a second WEB RECEIVE other than one SRVCONVERT pass after a NOSRVCONVERT one (IBM does not say what a body already received returns again; the pass returns the same body and media type, ASSUMED)",
             "X38",
             java="WEB RECEIVE",
             c="WEB RECEIVE",

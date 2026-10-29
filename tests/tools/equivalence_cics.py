@@ -2684,6 +2684,14 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
                 continue
             overruns.append(f"scenario {sc['name']}: {why}")
             continue
+        if (
+            rc.is_file()
+            and rc.read_text().strip() == "1"
+            and said.is_file()
+            and PERFORM_DEPTH in said.read_text(encoding="latin-1")
+        ):
+            sc["prefix_x6"] = PERFORM_DEPTH  # C20: the recursive PERFORM's stack check: judged up to it, as X6
+            continue
         if rc.is_file() and rc.read_text().strip() == "98" and said.is_file():
             x6 = judged_refusal(said.read_text(encoding="latin-1"))
             if x6:  # owner decision on #4607 (X6): judged up to the refused WRITEQ (LENGTH > 32767 only since #6573), derived or not -- what ran before
@@ -4126,7 +4134,8 @@ class EquivalenceRunTest {{
                     // statement) is not judged -- recorded, never passed; any other failure stays a failure.
                     // #4607 x X6: a WRITEQ whose LENGTH is over 32767 (DetCics.PastFrom) ends the task there,
                     // as the stub stops it: judged up to it (equivalence_cics.x6_judged)
-                    boolean x6 = "PastFrom".equals(e.getClass().getSimpleName());
+                    boolean x6 = "PastFrom".equals(e.getClass().getSimpleName())
+                            || "PerformDepthExceeded".equals(e.getClass().getSimpleName());
                     if (!x6 && (!sc.path("derived").asBoolean() || !"Hole".equals(e.getClass().getSimpleName()))) {{
                         throw e;
                     }}
@@ -5199,6 +5208,9 @@ def _to_link(events: list[dict[str, Any]], program: str) -> list[dict[str, Any]]
     return events
 
 
+PERFORM_DEPTH = "stack overflow, possible PERFORM depth exceeded"
+PERFORM_DEPTH_JUDGED = ("the stack check of a recursive PERFORM (C20: IBM leaves it unpredictable; both sides stop at "
+                        "libcob's 255 nested PERFORMs) -- what the task did before it is compared, its end state is not")  # fmt: skip
 X6_JUDGED = ("the refused WRITEQ (X6: its LENGTH is over 32767, past the pad record; a LENGTH past FROM alone is written padded, #6573; not settled on z/OS, #4050) -- what the task did "
              "before it is compared, its end state (files, tables, the COMMAREA it leaves) is not")  # fmt: skip
 X23_JUDGED = ("the refused reference past EIBCALEN (X23: a COMMAREA of a stated length; z/OS shows whatever storage "
@@ -5208,7 +5220,7 @@ X23_JUDGED = ("the refused reference past EIBCALEN (X23: a COMMAREA of a stated 
 
 def judged_to(x6: dict[str, Any]) -> str:
     """The report's `judged_to` for a task stopped at a refusal (x6_judged): X6's words, or X23's."""
-    return X23_JUDGED if x6.get("assumes") == "X23" else X6_JUDGED
+    return {"X23": X23_JUDGED, "C20": PERFORM_DEPTH_JUDGED}.get(x6.get("assumes"), X6_JUDGED)
 
 
 def x6_judged(sc: dict[str, Any], java_out: Path, cev: list[dict[str, Any]],
@@ -5226,7 +5238,7 @@ def x6_judged(sc: dict[str, Any], java_out: Path, cev: list[dict[str, Any]],
     cobol = sc.get("prefix_x6")
 
     def kind(said: str | None) -> str | None:  # #4270: which refusal -- both sides must have stopped at the same one
-        return None if not said else "X23" if "EIBCALEN" in said else "X6"
+        return None if not said else "C20" if PERFORM_DEPTH in said else "X23" if "EIBCALEN" in said else "X6"
 
     return left[0], left[1], {"cobol": cobol, "java": java, "ok": bool(cobol and java) and kind(cobol) == kind(java),
                               "assumes": kind(cobol) or kind(java)}  # fmt: skip

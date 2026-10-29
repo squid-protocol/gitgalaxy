@@ -725,7 +725,8 @@ static int kid_of(const char *qname) {
 /* #4884, #4950: FETCH ANY / FETCH CHILD(token) (IBM, EXEC CICS FETCH), as CicsTask.fetch: GG-FLAGS 'CHILD' with the
  * token in GG-QNAME (else FETCH ANY), NOSUSPEND, TIMEOUT (GG-NUM milliseconds) or neither (it waits), CHANNEL (the reply
  * channel asked for). On NORMAL: the token in GG-QNAME, the reply channel's name in GG-CHAN, the abend code in GG-NAME1
- * (GG-ITEM 1: the child abended) and COMPSTATUS's CVDA in GG-NUM (NORMAL 1016, ABEND 900). */
+ * (GG-ITEM 1: the child abended) and COMPSTATUS's CVDA in GG-NUM (NORMAL 1016, ABEND 900; SECERROR 1214 when the scenario
+ * plans a FETCH-STATUS, #6967). */
 int GGCFETCH(gg_cics *c) {
     char ev[200], msg[96], path[4300], dir[4096], reply[17];
     int one = 0, any = 0, first = -1;
@@ -778,6 +779,13 @@ int GGCFETCH(gg_cics *c) {
     k->fetched = 1;
     memcpy(c->qname, k->token, 16);
     c->num = k->abended ? 900 : 1016;
+    const char *compst = k->abended ? "ABEND" : "NORMAL";
+    int sresp, sresp2;
+    if (injected("FETCH-STATUS", "-", &sresp, &sresp2)) { /* #6967 (X18): the child failed a security check */
+        if (k->abended) refuse("a planned SECERROR COMPSTATUS for a child that abended (IBM does not say which status wins)");
+        c->num = sresp;
+        compst = "SECERROR";
+    }
     if (k->abended) { memset(c->name1, ' ', 8); memcpy(c->name1, k->abcode, 4); c->item = 1; }
     reply[0] = 0;
     if (strstr(c->flags, "CHANNEL")) {
@@ -790,7 +798,7 @@ int GGCFETCH(gg_cics *c) {
         memcpy(c->chan, reply, 16);
     }
     snprintf(ev, sizeof ev, "FETCH resp=%d resp2=%d child=%s compstatus=%s abcode=%s channel=%s", c->resp, c->resp2,
-             k->token, k->abended ? "ABEND" : "NORMAL", k->abended ? k->abcode : "-", reply[0] ? reply : "-");
+             k->token, compst, k->abended ? k->abcode : "-", reply[0] ? reply : "-");
     event(ev, NULL, 0);
     return 0;
 done:

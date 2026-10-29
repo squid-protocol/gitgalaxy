@@ -61,6 +61,7 @@ FAULT_COMMANDS = (
     "INQ-TERMINAL",
     "RUN-TRANSID",  # #6882 (register X18): nameless; FETCH-ANY too (FETCH CHILD is not planned: no burned program codes RESP on it)
     "FETCH-ANY",
+    "FETCH-STATUS",  # #6967 (X18): nameless; the COMPSTATUS of the NTH child a FETCH returns, see UI_FAULT_CONDITIONS
     "PUT-CONTAINER",  # #6882 (register X17): nameless; GET-CONTAINER too (DELETE / MOVE CONTAINER are not planned: no burned program codes RESP on them)
     "GET-CONTAINER",
     "CALL-CEELOCT",  # #6882: the LE callable service CEELOCT's one failure, CEE2F3; nameless (see LE_FEEDBACK)
@@ -233,6 +234,9 @@ UI_FAULT_CONDITIONS: dict[str, dict[str, tuple[int, ...]]] = {
     # reply yet) / 53 (TIMEOUT elapsed), NOTFND 1 (no unfetched child left), INVREQ 52 (no children). The command is not performed:
     # a planned RUN starts no child, a planned FETCH takes none. The rest (NOTAUTH, SYSIDERR ...) needs a remote system: refused
     "RUN-TRANSID": {"TRANSIDERR": (1,)},
+    # #6967 (X18): FETCH ANY / FETCH CHILD -- the NTH child returned has COMPSTATUS SECERROR (CVDA 1214, IBM: the child failed a
+    # security check), the FETCH itself NORMAL. Planned on a child that completed normally only: a child that abended is refused
+    "FETCH-STATUS": {"SECERROR": ()},
     "FETCH-ANY": {"NOTFINISHED": (52, 53), "NOTFND": (1,), "INVREQ": (52,)},
     # #6882 (X17): PUT CONTAINER -- CHANNELERR 1 / CONTAINERERR 18 (an illegal name), INVREQ 4 (no channel), LENGERR 1 (FLENGTH below
     # zero); GET CONTAINER -- CHANNELERR 2, CONTAINERERR 10 (not found), INVREQ 4. The command is not performed. LENGERR 11 (a short
@@ -243,7 +247,8 @@ UI_FAULT_CONDITIONS: dict[str, dict[str, tuple[int, ...]]] = {
     # was not available from the system") and no other failure. The call is not performed: its outputs stay, FC holds the token
     "CALL-CEELOCT": {"CEE2F3": ()},
 }
-LE_FEEDBACK = {"CEE2F3": 2531}  # #6882: a planned LE feedback code's message number, the plan line's RESP field
+# #6882: a planned LE feedback code's message number, the plan line's RESP field; #6967: SECERROR, COMPSTATUS's CVDA
+LE_FEEDBACK = {"CEE2F3": 2531, "SECERROR": 1214}
 UI_NAMELESS = (
     "RETURN",
     "SYNCPOINT",
@@ -254,6 +259,7 @@ UI_NAMELESS = (
     "INQ-TERMINAL",
     "RUN-TRANSID",
     "FETCH-ANY",
+    "FETCH-STATUS",
     "PUT-CONTAINER",
     "GET-CONTAINER",
     "CALL-CEELOCT",
@@ -271,7 +277,7 @@ def _ui_fault_resp2(sc: dict[str, Any], f: dict[str, Any], cmd: str, resp2: int)
         else "X26"
         if cmd.endswith("-TERMINAL")
         else "X18"
-        if cmd in ("RUN-TRANSID", "FETCH-ANY")
+        if cmd in ("RUN-TRANSID", "FETCH-ANY", "FETCH-STATUS")
         else "X17"
         if cmd.endswith("-CONTAINER")
         else "the LE feedback code IBM lists"

@@ -132,6 +132,7 @@ _FAULT_RESP = {
     "INQ-TERMINAL": ("TERMIDERR", 1),
     "RUN-TRANSID": ("TRANSIDERR", 1),
     "FETCH-ANY": ("NOTFND", 1),
+    "FETCH-STATUS": ("SECERROR", 0),  # #6967 (X18): a child's COMPSTATUS, no RESP2
     "CALL-CEELOCT": ("CEE2F3", 0),  # #6882: the LE feedback code IBM lists; no RESP2
     "PUT-CONTAINER": ("CONTAINERERR", 18),
     "GET-CONTAINER": ("CONTAINERERR", 10),
@@ -147,6 +148,7 @@ _NAMELESS = (
     "INQ-TERMINAL",
     "RUN-TRANSID",
     "FETCH-ANY",
+    "FETCH-STATUS",
     "PUT-CONTAINER",
     "GET-CONTAINER",
     "CALL-CEELOCT",

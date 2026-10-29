@@ -1,12 +1,12 @@
 {
  "format": "det-sweep-coverage/2",
- "scenarios": 51,
+ "scenarios": 52,
  "paragraphs": {
   "covered": 104,
   "live": 119
  },
  "branches": {
-  "covered": 161,
+  "covered": 162,
   "total": 208
  },
  "linked": {
@@ -40,7 +40,6 @@
    "5600-EXIT:1742"
   ],
   "branches": [
-   "492:false",
    "540:true",
    "704:false",
    "718:false",
@@ -105,7 +104,7 @@
   ]
  },
  "inputs": {
-  "case": "0ec5d1c09a56a619e3b8b9c5acb7bf501ae30f4b5687cca297a958fbb2021131",
+  "case": "6bca84f325db06246e86eabf0e92bf86a6aa6408c4f287e42c29d2f290756563",
   "corpus": "09feecf8028c77a136bbff56380f9babddf0b2e28fbb6a7ad7ba456273989ff6",
   "harness": "6c043a2747a3f02617d9c80d05d3db6e75a1c91b2f35604f3497ada9c1979ebf",
   "oracle": "ce3c101cffb6e6f1cd6d8cd66127f9835e830b4205fdcd11b5f0d51829ab44ac",
@@ -121,5 +120,5 @@
    }
   }
  },
- "measured_at": "383f0c6a8728d863cc9723de1517eeb791236e20"
+ "measured_at": "c181b1b87ac09d2935dccd8c29be36e08597e5a9"
 }

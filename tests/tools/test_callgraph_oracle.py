@@ -803,6 +803,7 @@ def test_a_node_tree_sitter_closed_inside_a_macro_or_fused_into_the_head_takes_t
     from types import SimpleNamespace
 
     fake = SimpleNamespace(
+        start_point=(start - 1, 0),
         end_point=(closes - 1, 1),
         child_by_field_name=lambda _name: SimpleNamespace(start_point=(body_row, 0)),
     )
@@ -1105,3 +1106,41 @@ int init()
 """
     body = body_of(src, line=2)
     assert {"early", "pre", "check", "late"} <= set(body.calls)
+
+
+def test_a_local_variable_compared_in_a_condition_is_not_a_template_call():
+    """doomsday edgetip.h (#6266): `delta < e || delta > (360 - e)` parses as `delta<e || delta>(..)`; `delta` is a local."""
+    src = """struct S {
+    const T *at(double a, double e = 1.0) const {
+        for (const T &t : tips) {
+            double delta = de::abs(t.angle() - a);
+            if (delta < e || delta > (360.0 - e)) { return &t; }
+        }
+        return nullptr;
+    }
+};
+"""
+    calls = body_of(src, lang="cpp", line=2).calls
+    assert "abs" in calls
+    assert "delta" not in calls
+    assert "map" in body_of("void f() { x = de::map<decltype(x)>(s, g); }", lang="cpp").calls  # a real template call
+
+
+def test_a_function_whose_head_folded_the_members_above_it_is_read_by_its_braces(tmp_path):
+    """doomsday surface.h (#6266): `DE_AUDIENCE(..)` has no `;`, so tree-sitter reads the class members that follow as one
+    definition whose head spans the function; the audience's `void notify(..)` is not a call of the function."""
+    header = """class Surface {
+    DE_AUDIENCE(Change, void notify(Surface &s))
+
+    bool has() const;
+    int other() const;
+    inline bool sky() const {
+        return has() && other();
+    }
+};
+"""
+    (tmp_path / "s.h").write_text(header)
+    port = co.Port("p", tmp_path, [("s.h", "cpp", "sky", 6, ["has"])])
+    calls = port.functions[0][4].calls
+    assert {"has", "other"} <= set(calls)
+    assert "notify" not in calls

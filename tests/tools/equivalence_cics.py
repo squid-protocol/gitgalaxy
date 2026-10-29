@@ -1261,6 +1261,7 @@ def dli_stage(case: dict[str, Any], corpus: Path, dest: Path, sc: dict[str, Any]
     #6072: a scenario's `ims_seed` adds segments to the seed for its own task."""
     try:
         dbds, pcbs = equivalence_ims.definitions(case, corpus, cics=True)
+        equivalence_ims.check_seed_names(sc, dbds)  # #6967
         dest.mkdir(parents=True, exist_ok=True)
         dbd_cfg, psb_cfg = equivalence_ims.config(dbds, pcbs)
         (dest / "dbd.cfg").write_text(dbd_cfg, encoding="ascii")

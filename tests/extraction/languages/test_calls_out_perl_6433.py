@@ -96,6 +96,14 @@ def _callees(line: str) -> list[str]:
         ("my $old = select STDERR;", ["select"]),
         ("select $fh;", ["select"]),
         ("select(STDOUT);", ["select"]),
+        # slice 6: no-argument and optional-argument built-ins
+        ("my $t = time;", ["time"]),
+        ("return wantarray ? @r : $r;", ["wantarray"]),
+        ("wait;", ["wait"]),
+        ("my $pid = fork;", ["fork"]),
+        ("my $d = !eof FH;", ["eof"]),
+        ("my $p = pos $s;", ["pos"]),
+        ("my $e = time - $t0;", ["time"]),
     ],
 )
 def test_callees(line, expected):
@@ -148,6 +156,15 @@ def test_callees(line, expected):
         "my @s = (1 .. 3);",
         "my $v = $a - 5;",
         "my $sel = 3;",
+        "$h{time}",
+        "time => 1,",
+        "sub time { 1 }",
+        "sub wait {",
+        "sub\tfork { 1 }",
+        "$o->{wait}",
+        "$time = 3;",
+        "my $wait = 1;",
+        "$pos{x}",
     ],
 )
 def test_not_calls(line):
@@ -196,6 +213,8 @@ sub run {
         "print {" + "a" * 20000,
         "; " * 10000,
         "A::" * 10000 + " ",
+        "time " * 10000,
+        "sub " * 10000 + "wait",
     ],
 )
 def test_redos_immune(payload):

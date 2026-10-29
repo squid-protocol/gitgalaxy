@@ -312,14 +312,46 @@ def _verify_userid_bytes(sc: dict[str, Any], f: dict[str, Any]) -> str:
     return text
 
 
+# #6967 (register X18): a transaction ID as RUN TRANSID names one, 1 - 4 characters
+_CHILD_TRANSID = re.compile(r"[A-Z0-9@#$]{1,4}")
+
+
+def _child_tag(sc: dict[str, Any], f: dict[str, Any]) -> str:
+    """#6967 (X18): the `@TRANSID ` a fault's `child` puts first on its line -- planned in the RUN TRANSID child task of
+    that transaction (both stubs hand the child those lines, the prefix off), "" for the task's own."""
+    if "child" not in f:
+        return ""
+    child = f["child"]
+    if not isinstance(child, str) or not _CHILD_TRANSID.fullmatch(child):
+        raise ec.Unsupported(
+            f"scenario {sc['name']}: fault {f}: `child` is the TRANSID of a RUN TRANSID child (1 - 4 of A-Z 0-9 @ # $)"
+        )
+    return f"@{child} "
+
+
+def check_child_faults(case: dict[str, Any], sc: dict[str, Any]) -> None:
+    """#6967 (X18): a fault's `child` must be a TRANSID the case's `child_programs` runs, or it never fires (the child is
+    never dispatched) and nothing says so: refused by name."""
+    kids = ec.case_child_programs(case)
+    for f in sc.get("faults") or []:
+        child = f.get("child")
+        if child is not None and child not in kids:
+            raise ec.Unsupported(
+                f"scenario {sc['name']}: fault {f}: `child` {child!r} is no transaction of the case's child_programs "
+                f"({', '.join(sorted(kids)) or 'none'}): no child runs it, so the fault never fires"
+            )
+
+
 def fault_lines(sc: dict[str, Any]) -> list[str]:
     """A scenario's `faults` as both sides read them: `CMD NAME NTH RESP RESP2` (faults.cfg, CicsTask.withFaults) --
-    NAME the file a READ names, or the program an INQUIRE PROGRAM names."""
+    NAME the file a READ names, or the program an INQUIRE PROGRAM names. A fault with `child` is the RUN TRANSID
+    child's (#6967): `@TRANSID ` first."""
     out = []
     for f in sc.get("faults") or []:
+        tag = _child_tag(sc, f)
         cmd = f.get("cmd", "READ")
         if f.get("resp") == "ABEND":  # #6271 (register X70): the task abends instead of a condition
-            out.append(_abend_fault_line(sc, f, cmd))
+            out.append(tag + _abend_fault_line(sc, f, cmd))
             continue
         if cmd == "SEND-CONTROL":  # #6271 (register X71): IBM lists its conditions, no burned program codes RESP on it
             raise ec.Unsupported(
@@ -375,7 +407,7 @@ def fault_lines(sc: dict[str, Any]) -> list[str]:
         if not name:
             raise ec.Unsupported(f"scenario {sc['name']}: fault {f} names no {'/'.join(_FAULT_NAME)}")
         out.append(
-            f"{cmd} {name} {nth} {LE_FEEDBACK.get(f['resp']) or ec.CICS_RESP.get(f['resp']) or ec.DFHRESP[f['resp']]} {resp2}"
+            f"{tag}{cmd} {name} {nth} {LE_FEEDBACK.get(f['resp']) or ec.CICS_RESP.get(f['resp']) or ec.DFHRESP[f['resp']]} {resp2}"
         )
     return [*out, *sc.get("sql_abend_plan", [])]  # #6271 (X73): the Db2 statements planned to abend AD2Z
 

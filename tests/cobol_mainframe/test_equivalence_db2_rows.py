@@ -234,7 +234,7 @@ def test_the_updacc_port_holds_on_generated_db2_rows(tmp_path):
 
 @pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
 def test_the_inqacc_port_holds_on_generated_db2_rows(tmp_path):
-    """CBSA's INQACC (CICS, Db2 cursor) proves on 30 generated ACCOUNT rows and 41 LINKs: statements answered alike,
+    """CBSA's INQACC (CICS, Db2 cursor) proves on 30 generated ACCOUNT rows and 44 LINKs: statements answered alike,
     the table alike after every task, and a generated NULL last-statement date reaches FETCH -305 and the ABNDPROC
     LINK + HRAC abend on both sides (the harness folds -304 / -305 into the fetched row: the abend is the proof)."""
     import json
@@ -250,8 +250,10 @@ def test_the_inqacc_port_holds_on_generated_db2_rows(tmp_path):
     report = json.loads((tmp_path / "report.json").read_text())
     assert report["proven"] is True and report["db2_generated"] == {"IBMUSER.ACCOUNT": 30}
     outs = list(report["outputs"].values())
-    assert len(outs) == 41 and all(o["sql"]["statements"] and o["sql"]["equal"] == o["sql"]["statements"] for o in outs)
-    assert {x["sqlcode"] for o in outs for x in o["sql"]["cobol"]} >= {0, 100}
+    # a scenario that fires a declared sql_fault abends before it records a statement comparison: no "sql" entry
+    sql = [o["sql"] for o in outs if "sql" in o]
+    assert len(outs) == 44 and sql and all(q["statements"] and q["equal"] == q["statements"] for q in sql)
+    assert {x["sqlcode"] for q in sql for x in q["cobol"]} >= {0, 100}
     assert any(e.get("abcode") == "HRAC" for o in outs for e in o["cobol"])
 
 

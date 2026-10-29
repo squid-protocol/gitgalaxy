@@ -331,6 +331,9 @@ DEFINITION: dict[str, Any] = {
             # #5630: a macro-statement loop or observer dispatch is a statement, not a definition: doomsday's
             # `DE_FOR_EACH_CONST(T, i, c)\n{`, `DE_FOR_OBSERVERS(i, a)`, `DE_NOTIFY_PUBLIC(Swap, i) {`, `DE_NOTIFY_VAR(`.
             r"(?!DE_(?:FOR_(?:EACH|OBSERVERS)|NOTIFY)(?![" + ID_CONTINUE + r"]*[a-z]))"
+            # #6266: doomsday's `LOG_AS("Updater")` opens a log section with no `;`, so `LOG_AS("X")\n try {` reads as a
+            # function-try-block head (`f() try {`) and the real function loses its body's calls to a phantom `LOG_AS`.
+            r"(?!LOG_AS(?![" + ID_CONTINUE + r"]))"
             # #5630: gzdoom's scripting-call macros open a block like `if` (`IFVIRTUALPTRNAME(act, "Cls", Fn)\n{ VMCall(..); }`).
             r"(?!IF(?:VM|(?:OVERRIDEN)?VIRTUAL(?:PTR)?(?:NAME)?)(?![" + ID_CONTINUE + r"]))"
             # #5630: moodycamel's `MOODYCAMEL_CONSTEXPR_IF (c) {..}` (`if constexpr`) and `MOODYCAMEL_CATCH(...) {..}` open a block.

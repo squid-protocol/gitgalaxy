@@ -44,3 +44,28 @@ def test_cpp_keywords_in_the_same_set_are_still_dropped():
     calls = _calls("cpp", _CPP_BODY)
     assert {"def", "include", "function"} <= set(calls)
     assert not {"catch", "sizeof", "try"} & set(calls)
+
+
+_LOG_AS_BODY = """
+struct A {
+    void finished(Req &) override
+    {
+        LOG_AS("Updater")
+        try
+        {
+            handleReply();
+        }
+        catch (const Error &er) { LOG_WARNING("x") << er.asText(); }
+    }
+    A() try : x(1) { init(); } catch (...) { fail(); }
+};
+"""
+
+
+def test_log_as_statement_before_try_is_not_a_function_try_block_head():
+    # doomsday updater.cpp: `LOG_AS("Updater")` has no `;`, so the `try` after it is not a function-try-block.
+    functions = StructuralExtractor("cpp", LANGUAGE_DEFINITIONS).splice(_LOG_AS_BODY, "")["functions"]
+    by_name = {f["name"]: f["calls_out_to"] for f in functions}
+    assert "LOG_AS" not in by_name
+    assert {"LOG_AS", "handleReply", "asText"} <= set(by_name["finished"])
+    assert {"x", "init"} <= set(by_name["A"])  # a real function-try-block constructor is still one unit

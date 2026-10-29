@@ -44,9 +44,9 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
-          pip install --require-hashes -r ci/requirements/test.txt
-          pip install --require-hashes -r ci/requirements/treesitter.txt
+          tests/tools/ci_retry.sh 4 10 -- python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
+          tests/tools/ci_retry.sh 4 10 -- pip install --require-hashes -r ci/requirements/test.txt
+          tests/tools/ci_retry.sh 4 10 -- pip install --require-hashes -r ci/requirements/treesitter.txt
           pip install --no-build-isolation -e .
 
       # the suite as Smoke runs it (the same marks and the one ignore), under coverage with a context per test.

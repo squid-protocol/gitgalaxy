@@ -273,12 +273,14 @@ CALLS_OUT_C_STYLE_NO_ANNOTATION = re.compile(rf"(?<!@)\b([{ID_START}][{ID_CONTIN
 # #6266: the list may be empty, `DLList_Reverse<>(&head)` (every template argument deduced, eternity): `<>` then `(`.
 # `a <> (b)` is no C++/TypeScript/C# comparison, and the list still opens right after the name.
 #
-# #6266: a type operator's operand is a fourth element, `de::map<decltype(segments)>(src, fn)`, `f<sizeof(T)>(x)`
+# #6266: an unevaluated operand is a fourth element, `de::map<decltype(segments)>(src, fn)`, `f<sizeof(T)>(x)`
 # (doomsday): the keyword, then one flat `(...)`. It starts on a letter, as a plain argument character does, but it
 # ends only on `)`, which no other element takes, so a run of letters is read one way.
 _GENERIC_ARG_CHAR = r"[^<>()\n;{}=|!?\"']"
 _GENERIC_FNPTR = r"\([ \t]*[^<>()\n;{}=|!?\"'*&]{0,100}[*&][ \t]*\)[ \t]*\(" + _GENERIC_ARG_CHAR + r"{0,200}\)"
-_GENERIC_TYPE_OPERATOR = r"\b(?:decltype|sizeof|alignof|typeof|__typeof__)[ \t]*\(" + _GENERIC_ARG_CHAR + r"{0,200}\)"
+_GENERIC_TYPE_OPERATOR = (
+    r"\b(?:decltype|sizeof|alignof|noexcept|typeof|__typeof__)[ \t]*\(" + _GENERIC_ARG_CHAR + r"{0,200}\)"
+)
 CALLS_OUT_C_STYLE_GENERIC = re.compile(
     rf"\b([{ID_START}][{ID_CONTINUE}]*)"
     r"(?:<(?:"

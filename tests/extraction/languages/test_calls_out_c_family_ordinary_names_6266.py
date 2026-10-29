@@ -77,6 +77,7 @@ struct S {
     {
         segments = de::mapA<decltype(segments)>(sorted, [](const P &v) { return v.second; });
         b = mapB<sizeof(int)>(x);
+        e = flag<noexcept(t)>(x);
         c = plain<int>(z);
         if (lo < hi || lo > (hi - 1)) { d = 1; }
     }
@@ -87,7 +88,7 @@ struct S {
 def test_a_type_operator_in_a_template_argument_keeps_the_call():
     # doomsday line.cpp: `de::map<decltype(segments)>(...)` lost its callee to the `(` inside the template arguments
     calls = _calls("cpp", _TYPE_OPERATOR_BODY.replace("sortSegments", "f"))
-    assert {"mapA", "mapB", "plain"} <= set(calls)
+    assert {"mapA", "mapB", "plain", "flag"} <= set(calls)
     assert not {"decltype", "sizeof", "lo", "hi"} & set(calls)
 
 

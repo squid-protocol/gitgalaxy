@@ -985,10 +985,288 @@
         }
       ],
       "why": "POST with the key-file WRITE answering DUPREC and the re-read in 4130-READ-KEY answering IOERR: not NOTFND, so 4130 takes the key-error arm (507)"
+    },
+    {
+      "name": "auth-get-select",
+      "commarea": null,
+      "tod": "7171717171710708090A0B0C0D0E0F10",
+      "doctemplates": {
+        "ZC01DC": "type: A1\r%",
+        "ZC01SD": "User=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,UPDATE\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,DELETE\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\n"
+      },
+      "http_request": {
+        "scheme": "HTTPS",
+        "host": "zecs.example.com",
+        "port": 8443,
+        "method": "GET",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/authkey",
+        "query": "",
+        "headers": [
+          [
+            "Authorization",
+            "Basic \u00e5\u00e5\u00d5\u00c6\u00e4\u0092\u0093\u00c5\u00d4\u00e3\u0097\u00d8\u00d8\u00e5\u00d5\u00e3\u00e5\u00f0\u00f9\u00e2\u00d9\u00c3\u00c1\u0087"
+          ]
+        ],
+        "mediatype": null,
+        "body": null
+      },
+      "why": "an https GET with USERID1's Basic credentials: 1500 LINKs ZECS002 (RC 00, VERIFY NORMAL), 1610's SELECT/GET arm grants access, 1500-EXIT and 1600-EXIT run and the GET of a missing key answers; the Authorization value after 'Basic ' and ZC01SD's user ids are stated as the cp037 bytes z/OS holds (CICS hands the header over in EBCDIC; ZECS002's B64XLT is indexed by the EBCDIC code point and it returns CA-USERID in EBCDIC); SD-ACCESS stays in the code page of ZECS001's own SD-SELECT/UPDATE/DELETE literals (hlasm_cics_design.md assumption 3)",
+      "faults": [
+        {
+          "cmd": "VERIFY",
+          "resp": "NORMAL",
+          "userid_hex": "E4E2C5D9C9C4F140",
+          "why": "the verdict the scenario states for USERID1: the region has no security manager (register X32)"
+        }
+      ]
+    },
+    {
+      "name": "auth-put-update",
+      "commarea": null,
+      "tod": "7272727272720708090A0B0C0D0E0F10",
+      "doctemplates": {
+        "ZC01DC": "type: A1\r%",
+        "ZC01SD": "User=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,UPDATE\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,DELETE\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\n"
+      },
+      "http_request": {
+        "scheme": "HTTPS",
+        "host": "zecs.example.com",
+        "port": 8443,
+        "method": "PUT",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/authput",
+        "query": "",
+        "headers": [
+          [
+            "Authorization",
+            "Basic \u00e5\u00e5\u00d5\u00c6\u00e4\u0092\u0093\u00c5\u00d4\u00e3\u0097\u00d8\u00d8\u00e5\u00d5\u00e3\u00e5\u00f0\u00f9\u00e2\u00d9\u00c3\u00c1\u0087"
+          ]
+        ],
+        "mediatype": "application/octet-stream",
+        "body": "value put"
+      },
+      "why": "an https PUT by USERID1: 1610's UPDATE/PUT arm grants access and the PUT writes the key; the Authorization value after 'Basic ' and ZC01SD's user ids are stated as the cp037 bytes z/OS holds (CICS hands the header over in EBCDIC; ZECS002's B64XLT is indexed by the EBCDIC code point and it returns CA-USERID in EBCDIC); SD-ACCESS stays in the code page of ZECS001's own SD-SELECT/UPDATE/DELETE literals (hlasm_cics_design.md assumption 3)",
+      "faults": [
+        {
+          "cmd": "VERIFY",
+          "resp": "NORMAL",
+          "userid_hex": "E4E2C5D9C9C4F140",
+          "why": "the verdict the scenario states for USERID1: the region has no security manager (register X32)"
+        }
+      ]
+    },
+    {
+      "name": "auth-post-update",
+      "commarea": null,
+      "tod": "7373737373730708090A0B0C0D0E0F10",
+      "doctemplates": {
+        "ZC01DC": "type: A1\r%",
+        "ZC01SD": "User=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,UPDATE\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,DELETE\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\n"
+      },
+      "http_request": {
+        "scheme": "HTTPS",
+        "host": "zecs.example.com",
+        "port": 8443,
+        "method": "POST",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/authpost",
+        "query": "",
+        "headers": [
+          [
+            "Authorization",
+            "Basic \u00e5\u00e5\u00d5\u00c6\u00e4\u0092\u0093\u00c5\u00d4\u00e3\u0097\u00d8\u00d8\u00e5\u00d5\u00e3\u00e5\u00f0\u00f9\u00e2\u00d9\u00c3\u00c1\u0087"
+          ]
+        ],
+        "mediatype": "application/octet-stream",
+        "body": "value post"
+      },
+      "why": "an https POST by USERID1: 1610's UPDATE/POST arm grants access and the POST writes the key; the Authorization value after 'Basic ' and ZC01SD's user ids are stated as the cp037 bytes z/OS holds (CICS hands the header over in EBCDIC; ZECS002's B64XLT is indexed by the EBCDIC code point and it returns CA-USERID in EBCDIC); SD-ACCESS stays in the code page of ZECS001's own SD-SELECT/UPDATE/DELETE literals (hlasm_cics_design.md assumption 3)",
+      "faults": [
+        {
+          "cmd": "VERIFY",
+          "resp": "NORMAL",
+          "userid_hex": "E4E2C5D9C9C4F140",
+          "why": "the verdict the scenario states for USERID1: the region has no security manager (register X32)"
+        }
+      ]
+    },
+    {
+      "name": "auth-delete-delete",
+      "commarea": null,
+      "tod": "7474747474740708090A0B0C0D0E0F10",
+      "doctemplates": {
+        "ZC01DC": "type: A1\r%",
+        "ZC01SD": "User=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,UPDATE\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,DELETE\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\n"
+      },
+      "http_request": {
+        "scheme": "HTTPS",
+        "host": "zecs.example.com",
+        "port": 8443,
+        "method": "DELETE",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/authkey",
+        "query": "",
+        "headers": [
+          [
+            "Authorization",
+            "Basic \u00e5\u00e5\u00d5\u00c6\u00e4\u0092\u0093\u00c5\u00d4\u00e3\u0097\u00d8\u00d8\u00e5\u00d5\u00e3\u00e5\u00f0\u00f9\u00e2\u00d9\u00c3\u00c1\u0087"
+          ]
+        ],
+        "mediatype": null,
+        "body": null
+      },
+      "why": "an https DELETE by USERID1: 1610's DELETE/DELETE arm grants access and the DELETE of a missing key answers; the Authorization value after 'Basic ' and ZC01SD's user ids are stated as the cp037 bytes z/OS holds (CICS hands the header over in EBCDIC; ZECS002's B64XLT is indexed by the EBCDIC code point and it returns CA-USERID in EBCDIC); SD-ACCESS stays in the code page of ZECS001's own SD-SELECT/UPDATE/DELETE literals (hlasm_cics_design.md assumption 3)",
+      "faults": [
+        {
+          "cmd": "VERIFY",
+          "resp": "NORMAL",
+          "userid_hex": "E4E2C5D9C9C4F140",
+          "why": "the verdict the scenario states for USERID1: the region has no security manager (register X32)"
+        }
+      ]
+    },
+    {
+      "name": "auth-no-access",
+      "commarea": null,
+      "tod": "7575757575750708090A0B0C0D0E0F10",
+      "doctemplates": {
+        "ZC01DC": "type: A1\r%",
+        "ZC01SD": "User=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,UPDATE\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,DELETE\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\n"
+      },
+      "http_request": {
+        "scheme": "HTTPS",
+        "host": "zecs.example.com",
+        "port": 8443,
+        "method": "POST",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/authkey",
+        "query": "",
+        "headers": [
+          [
+            "Authorization",
+            "Basic \u00e5\u00e5\u00d5\u00c6\u00e4\u0092\u0093\u00c5\u00d4\u0091\u0097\u00d8\u00d8\u00e5\u00d5\u00e3\u00e5\u00f0\u00f9\u00e2\u00d9\u00c3\u00c1\u0087"
+          ]
+        ],
+        "mediatype": "application/octet-stream",
+        "body": "value two"
+      },
+      "why": "an https POST by USERID2, granted SELECT only: no 1610 arm matches, the scan ends on SD-LENGTH zero, USER-ACCESS stays N and 1600 answers 401; the Authorization value after 'Basic ' and ZC01SD's user ids are stated as the cp037 bytes z/OS holds (CICS hands the header over in EBCDIC; ZECS002's B64XLT is indexed by the EBCDIC code point and it returns CA-USERID in EBCDIC); SD-ACCESS stays in the code page of ZECS001's own SD-SELECT/UPDATE/DELETE literals (hlasm_cics_design.md assumption 3)",
+      "faults": [
+        {
+          "cmd": "VERIFY",
+          "resp": "NORMAL",
+          "userid_hex": "E4E2C5D9C9C4F240",
+          "why": "the verdict the scenario states for USERID2: the region has no security manager (register X32)"
+        }
+      ]
+    },
+    {
+      "name": "auth-user-not-listed",
+      "commarea": null,
+      "tod": "7676767676760708090A0B0C0D0E0F10",
+      "doctemplates": {
+        "ZC01DC": "type: A1\r%",
+        "ZC01SD": "User=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,UPDATE\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,DELETE\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\n"
+      },
+      "http_request": {
+        "scheme": "HTTPS",
+        "host": "zecs.example.com",
+        "port": 8443,
+        "method": "GET",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/authkey",
+        "query": "",
+        "headers": [
+          [
+            "Authorization",
+            "Basic \u00e5\u00e5\u00d5\u00c6\u00e4\u0092\u0093\u00c5\u00d4\u00a9\u0097\u00d8\u00d8\u00e5\u00d5\u00e3\u00e5\u00f0\u00f9\u00e2\u00d9\u00c3\u00c1\u0087"
+          ]
+        ],
+        "mediatype": null,
+        "body": null
+      },
+      "why": "an https GET by USERID3, verified but not in ZC01SD: no entry matches, the scan ends on SD-LENGTH zero and 1600 answers 401; the Authorization value after 'Basic ' and ZC01SD's user ids are stated as the cp037 bytes z/OS holds (CICS hands the header over in EBCDIC; ZECS002's B64XLT is indexed by the EBCDIC code point and it returns CA-USERID in EBCDIC); SD-ACCESS stays in the code page of ZECS001's own SD-SELECT/UPDATE/DELETE literals (hlasm_cics_design.md assumption 3)",
+      "faults": [
+        {
+          "cmd": "VERIFY",
+          "resp": "NORMAL",
+          "userid_hex": "E4E2C5D9C9C4F340",
+          "why": "the verdict the scenario states for USERID3: the region has no security manager (register X32)"
+        }
+      ]
+    },
+    {
+      "name": "auth-verify-fails",
+      "commarea": null,
+      "tod": "7777777777770708090A0B0C0D0E0F10",
+      "doctemplates": {
+        "ZC01DC": "type: A1\r%",
+        "ZC01SD": "User=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,UPDATE\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,DELETE\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\n"
+      },
+      "http_request": {
+        "scheme": "HTTPS",
+        "host": "zecs.example.com",
+        "port": 8443,
+        "method": "GET",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/authkey",
+        "query": "",
+        "headers": [
+          [
+            "Authorization",
+            "Basic \u00e5\u00e5\u00d5\u00c6\u00e4\u0092\u0093\u00c5\u00d4\u00e3\u0097\u00d8\u00d8\u00e5\u00d5\u00e3\u00e5\u00f0\u00f9\u00e2\u00d9\u00c3\u00c1\u0087"
+          ]
+        ],
+        "mediatype": null,
+        "body": null
+      },
+      "why": "an https GET whose VERIFY answers NOTAUTH: ZECS002 sets RC 08 and writes its TD record, 1500's RC-not-00 arm answers 401; the Authorization value after 'Basic ' and ZC01SD's user ids are stated as the cp037 bytes z/OS holds (CICS hands the header over in EBCDIC; ZECS002's B64XLT is indexed by the EBCDIC code point and it returns CA-USERID in EBCDIC); SD-ACCESS stays in the code page of ZECS001's own SD-SELECT/UPDATE/DELETE literals (hlasm_cics_design.md assumption 3)",
+      "faults": [
+        {
+          "cmd": "VERIFY",
+          "resp": "NOTAUTH",
+          "userid_hex": "E4E2C5D9C9C4F140",
+          "why": "the verdict the scenario states for USERID1: the region has no security manager (register X32)"
+        }
+      ]
+    },
+    {
+      "name": "auth-decode-invalid",
+      "commarea": null,
+      "tod": "7878787878780708090A0B0C0D0E0F10",
+      "doctemplates": {
+        "ZC01DC": "type: A1\r%",
+        "ZC01SD": "User=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,UPDATE\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,DELETE\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\n"
+      },
+      "http_request": {
+        "scheme": "HTTPS",
+        "host": "zecs.example.com",
+        "port": 8443,
+        "method": "GET",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/authkey",
+        "query": "",
+        "headers": [
+          [
+            "Authorization",
+            "Basic ~~~~~~~~~~~~~~~~~~~~~~~~"
+          ]
+        ],
+        "mediatype": null,
+        "body": null
+      },
+      "why": "an Authorization value whose first Base64 byte is '=' (X'7E' in cp037): ZECS002 stops at RC 12 before VERIFY, 1500 answers 401; the Authorization value after 'Basic ' and ZC01SD's user ids are stated as the cp037 bytes z/OS holds (CICS hands the header over in EBCDIC; ZECS002's B64XLT is indexed by the EBCDIC code point and it returns CA-USERID in EBCDIC); SD-ACCESS stays in the code page of ZECS001's own SD-SELECT/UPDATE/DELETE literals (hlasm_cics_design.md assumption 3)"
     }
   ],
   "compiler_options": [
     "TRUNC(BIN)"
   ],
-  "compiler_options_why": "#5089: the program MOVEs LENGTH OF ZF-RECORD (32700) to ZF-LENGTH, a PIC S9(04) COMP, then READs LENGTH(ZF-LENGTH): TRUNC(STD) stores 2700 there and every full-size record would be LENGERR (a record over 2700 bytes could never be read), so the program only works as shipped under TRUNC(BIN); ASMZECS.jcl's DFHYITVL step states no TRUNC option (assumption, register it)"
+  "compiler_options_why": "#5089: the program MOVEs LENGTH OF ZF-RECORD (32700) to ZF-LENGTH, a PIC S9(04) COMP, then READs LENGTH(ZF-LENGTH): TRUNC(STD) stores 2700 there and every full-size record would be LENGERR (a record over 2700 bytes could never be read), so the program only works as shipped under TRUNC(BIN); ASMZECS.jcl's DFHYITVL step states no TRUNC option (assumption, register it)",
+  "programs": [
+    {
+      "program": "ZECS002",
+      "program_source": "Source/ZECS002.asm"
+    }
+  ]
 }

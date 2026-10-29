@@ -157,6 +157,12 @@ operand.
   return index in the lowering: assumption 4); the cases observe the path taken and the register `L` reloads. The bytes of a
   stored fullword are not compared: the lowering keeps `F` as a native binary item (other byte order), and it refuses every
   byte access to one (`MVC`, `STCM`, `IC`, `CLC` before a `BC`); a test pins those refusals. No defect surfaced.
+- Slice 9: the estate census (`tests/cobol_mainframe/test_hlasm_estate_census_5859.py`). Every `.asm` in a burned estate is
+  either lowered (ZECS002, ZECSNC: opcodes inside `hlasm.SUBSET`, no `MVI`, so the high / low refusal is never reached) or a
+  named library model (CardDemo's `COBDATFT.asm` and `MVSWAIT.asm`: batch routines COBOL CALLs, modelled by runtime code,
+  oracle A1 and `Mvswait.java`, not lowered). A new burned assembler file fails the test until it is placed. This closes the
+  assembler path for the burned estates. Lowering COBDATFT / MVSWAIT would need `MVI`, `STM` / `LM` linkage and a batch
+  entry convention: frontier, and only if the library models are ever to be replaced by the source.
 - The ladder report keeps both programs in the fixed 129-program denominator. ZECS002 is listed apart in the "refused
   whole: not COBOL" row of the progress page (`tests/tools/ladder_exclusions.py`, #5280), so it is not read as COBOL
   translator work; the page reports the entry as stale once it leaves L0. ZECSNC has no entry: it lowers and
@@ -178,6 +184,6 @@ operand.
 4. **4 (done, above):** the interpreter cross-checks ZECS002 and ZECSNC (slices 4, 5). Slice 6 adds the per-instruction
    differential: `tests/tools/hlasm_diff.py` runs 71 boundary snippets (LA, SLL, SLDL, SR, BCT, STH, CH with eight masks
    branch masks) through the interpreter and, lowered, through `cobc` in the pinned oracle image (one container);
-   registers agree on all 71, zero differences. Slice 7 (done) adds the storage-byte instructions and slice 8 (done) the linkage and fullword ones (above). Left: `MVI`
-   (outside the subset), high / low collation after `CLC` / `CLI` (refused by name), and a general assembler path for non-zECS programs
-   (frontier, no burned program needs it).
+   registers agree on all 71, zero differences. Slice 7 (done) adds the storage-byte instructions and slice 8 (done) the linkage and fullword ones (above).
+   Not built, on purpose: `MVI` (outside the subset), high / low collation after `CLC` / `CLI` (refused by name), and a general
+   assembler path for non-zECS programs. No burned program needs them (slice 9 pins that).

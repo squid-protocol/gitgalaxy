@@ -69,3 +69,18 @@ def test_log_as_statement_before_try_is_not_a_function_try_block_head():
     assert "LOG_AS" not in by_name
     assert {"LOG_AS", "handleReply", "asText"} <= set(by_name["finished"])
     assert {"x", "init"} <= set(by_name["A"])  # a real function-try-block constructor is still one unit
+
+
+def test_a_template_argument_holding_an_unevaluated_operand_is_still_a_call():
+    # doomsday line.cpp: `de::map<decltype(segments)>(sorted, f)`: the `(..)` of decltype is part of the argument list.
+    code = """
+int f() {
+  segments = de::map<decltype(segments)>(sorted, g);
+  n = pick<sizeof(int)>(b);
+  m = take<noexcept(h)>(c);
+  return a < sizeof(int) > (b);
+}
+"""
+    calls = _calls("cpp", code)
+    assert {"map", "pick", "take"} <= set(calls)
+    assert "a" not in calls

@@ -558,6 +558,8 @@ def compile_options(case: dict[str, Any], source: str) -> tuple[str, list[str]]:
     if zero_length_refmod(case):  # X8: staged by stage_zero_length_conf; ahead of BOUND_FLAGS, which stay last
         flags.append(f"-conf=/work/src/{ZERO_LENGTH_CONF}")
     flags.extend(BOUND_FLAGS)
+    if case.get("perform_stack_check"):  # C20: a recursive PERFORM ends at libcob's 255 nested PERFORMs, not on SIGSEGV
+        flags.append("-fstack-check")
     flags.extend(not_reserved_flags(source))
     blank = {n for n, _ in cards(source)}
     lines = ibm_assumed_periods(source).split("\n")

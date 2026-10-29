@@ -67,9 +67,9 @@ python -m gitgalaxy.standards.cics regen
 | You ask | `gitgalaxy/standards/cics` gives you |
 |---|---|
 | *How do you keep the Java runtime and the C oracle stub from disagreeing on `DFHRESP` numbers or abend codes?* | [`resp.py`](resp.py) defines `DFHRESP`, condition aliases (`DSIDERR` = `FILENOTFOUND`), and `CONDITION_ABEND` (`AEI0`..`AEY9`) once; [`cli.py`](cli.py) renders both [`CicsSpec.java`](../../tools/cobol_to_java/CicsSpec.java) and `tests/equivalence/cics/ggcics_spec.h`. |
-| *What happens when a COBOL program uses a CICS option we haven't modelled yet (e.g. `READ UPDATE NOSUSPEND` or `GETMAIN SHARED`)?* | Every `CommandSpec` in [`commands/`](commands/) lists its accepted `options` and its `refused` option dictionary (`Refusal(reason, register)`). Both the `det` translator and `equivalence_cics.py` read the same spec entry and refuse the option by name with the same message. |
-| *How are mutually exclusive or required option combinations enforced?* | `OptionGroup` rules (`one_of`, `at_most_one`, `together`, `required`) in [`model.py`](model.py) validate option combinations structurally before code generation. |
-| *Where are the differences from IBM z/OS documented?* | Every modelled command or refusal links to its `X1`–`X63` entry in [`docs/language_status/register/`](../../../docs/language_status/register/) (rendered to [`oracle_assumptions.md`](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/oracle_assumptions.md)), and `python -m gitgalaxy.standards.cics check` verifies that option refusals match their command's register entry. |
+| *What happens when a COBOL program uses a CICS option we haven't modelled yet (e.g. `READ UPDATE NOSUSPEND` or `GETMAIN SHARED`)?* | Every `Command` in [`commands/`](commands/) lists the `options` it honours (`Arg`) and the ones it `refused` by name (`Refusal`). Both the `det` translator and `equivalence_cics.py` read the same spec entry and refuse the option by name with the same message. |
+| *How are mutually exclusive or required option combinations enforced?* | `Group` rules (`required`, `one_of`, `at_most_one`, `requires`) in [`model.py`](model.py) validate option combinations structurally before code generation. |
+| *Where are the differences from IBM z/OS documented?* | Every modelled command or refusal links to its X-family entry in [`docs/language_status/register/`](../../../docs/language_status/register/) (rendered to [`oracle_assumptions.md`](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/oracle_assumptions.md)), and `python -m gitgalaxy.standards.cics check` verifies that option refusals match their command's register entry. |
 
 ---
 
@@ -80,16 +80,19 @@ python -m gitgalaxy.standards.cics regen
 The command entries in [`commands/`](commands/) are organized by CICS functional domain
 ([live per-command table](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/cics_spec_status.md)):
 
-| Module | Domain | Modelled Commands (full and engine-only) | Refused by Name |
-|---|---|---|---|
-| [`commands/files.py`](commands/files.py) | **File control (VSAM)** | `READ`, `WRITE`, `REWRITE`, `DELETE`, `UNLOCK`, `STARTBR`, `READNEXT`, `READPREV`, `ENDBR`, `RESETBR` | RLS-only options (`UPDATE` on `READNEXT`/`READPREV`, `CONSISTENT`, `NOSUSPEND`) refused by option name |
-| [`commands/terminal.py`](commands/terminal.py), [`commands/send.py`](commands/send.py) | **BMS 3270 & terminal control** | `SEND MAP`, `RECEIVE MAP`, `SEND TEXT`, `SEND CONTROL`, `SEND`, `RECEIVE`, `CONVERSE`, `ISSUE ERASEAUP` | `SEND PAGE`, `PURGE MESSAGE`, LU6.2 / APPC conversation verbs (`ALLOCATE`, `CONNECT PROCESS`, `FREE`, `GDS *`, `ISSUE *`) |
-| [`commands/control.py`](commands/control.py), [`commands/task.py`](commands/task.py), [`commands/storage.py`](commands/storage.py) | **Program, task, syncpoint & storage** | `LINK`, `XCTL`, `RETURN`, `LOAD`, `RELEASE`, `ABEND`, `HANDLE CONDITION`, `HANDLE AID`, `HANDLE ABEND`, `IGNORE CONDITION`, `PUSH HANDLE`, `POP HANDLE`, `SYNCPOINT`, `SYNCPOINT ROLLBACK`, `ASSIGN`, `ADDRESS`, `ADDRESS SET`, `GETMAIN`, `FREEMAIN`, `ENQ`, `DEQ`, `SUSPEND`, `ENTER TRACENUM` | `GETMAIN` without `INITIMG`, `GETMAIN SHARED`, `FREEMAIN DATA`, `HANDLE ABEND PROGRAM`, `WAIT EXTERNAL`/`CICS` |
-| [`commands/containers.py`](commands/containers.py) | **Channels & containers** | `PUT CONTAINER`, `GET CONTAINER`, `MOVE CONTAINER`, `DELETE CONTAINER`, `STARTBROWSE CONTAINER`, `GETNEXT CONTAINER`, `ENDBROWSE CONTAINER`, `DELETE CHANNEL`, `QUERY CHANNEL` | `APPEND CONTAINER`, `PUT64`/`GET64 CONTAINER` |
-| [`commands/interval.py`](commands/interval.py), [`commands/async_api.py`](commands/async_api.py) | **Interval control, events & async** | `ASKTIME`, `FORMATTIME`, `DELAY`, `POST`, `WAIT EVENT`, `START`, `RETRIEVE`, `CANCEL`, `RUN TRANSID`, `FETCH CHILD`, `FETCH ANY`, `FREE CHILD` | `START BREXIT` / `TERMID` (multi-terminal), `FORMATTIME DATE`/`FULLDATE`/`DATESTRING` (region `DATFORM`-dependent) |
-| [`commands/queues.py`](commands/queues.py), [`commands/counters.py`](commands/counters.py) | **TS/TD queues & named counters** | `WRITEQ TS`, `READQ TS`, `DELETEQ TS`, `WRITEQ TD`, `READQ TD`, `DELETEQ TD`, `DEFINE/GET/QUERY/UPDATE/REWIND/DELETE COUNTER` & `DCOUNTER` | `UPDATE COMPAREMIN/MAX`, negative fullword counter values |
-| [`commands/web.py`](commands/web.py) | **Web, HTTP & documents** | `DOCUMENT CREATE/INSERT/SET/RETRIEVE`, `WEB OPEN/CONVERSE/SEND/RECEIVE/CLOSE/PARSE URL/EXTRACT`, `WEB READ/WRITE/STARTBROWSE/READNEXT/ENDBROWSE HTTPHEADER`, `EXTRACT WEB`, `EXTRACT TCPIP` | `SOAPFAULT CREATE/ADD/DELETE`, `INVOKE SERVICE`/`WEBSERVICE`, `TRANSFORM XMLTODATA`/`DATATOXML` |
-| [`commands/system.py`](commands/system.py), [`commands/refused.py`](commands/refused.py) | **SPI (`INQUIRE`/`SET`), security & rest** | `INQUIRE/SET FILE`, `INQUIRE/SET TDQUEUE`, `INQUIRE PROGRAM/TRANSACTION/SYSTEM/APPKEY`, `SIGNON`, `SIGNOFF`, `VERIFY/CHANGE PASSWORD`, `BIF DEEDIT` | `CREATE *`, `DISCARD *`, `PERFORM *`, `COLLECT STATISTICS`, FEPI (`FEPI *`), BTS (`DEFINE ACTIVITY`/`PROCESS`), Event Processing (`SIGNAL EVENT`), Socket/ONC RPC |
+| Module | Domain | Modelled commands |
+|---|---|---|
+| [`commands/files.py`](commands/files.py) | **File control (VSAM)** | `READ`, `WRITE`, `REWRITE`, `DELETE`, `UNLOCK`, `STARTBR`, `READNEXT`, `READPREV`, `ENDBR` |
+| [`commands/terminal.py`](commands/terminal.py), [`commands/send_text.py`](commands/send_text.py) | **BMS 3270 & terminal control** | `SEND MAP`, `RECEIVE MAP`, `SEND CONTROL`, `RECEIVE`, `CONVERSE`, `SEND TEXT` |
+| [`commands/program.py`](commands/program.py), [`commands/handles.py`](commands/handles.py) | **Program control & condition handling** | `LINK`, `XCTL`, `RETURN`, `ABEND`, `HANDLE ABEND`, `HANDLE CONDITION`, `HANDLE AID`, `IGNORE CONDITION`, `PUSH HANDLE`, `POP HANDLE` |
+| [`commands/storage.py`](commands/storage.py), [`commands/assign.py`](commands/assign.py) | **Storage & task facts** | `GETMAIN`, `FREEMAIN`, `ADDRESS`, `ASSIGN` |
+| [`commands/task.py`](commands/task.py) | **Task control, time, counters & inquiry** | `SYNCPOINT`, `SYNCPOINT ROLLBACK`, `ENQ`, `DEQ`, `ASKTIME`, `FORMATTIME`, `DELAY`, `BIF DEEDIT`, the named-counter commands, and the modelled `INQUIRE`/`SET` forms |
+| [`commands/containers.py`](commands/containers.py) | **Channels & containers** | `PUT`/`GET`/`MOVE`/`DELETE CONTAINER` (and the 64-bit forms), the container browse, `DELETE CHANNEL`, `QUERY CHANNEL` |
+| [`commands/interval.py`](commands/interval.py) | **Interval control, events & async** | `START`, `RETRIEVE`, `CANCEL`, `POST`, `WAIT EVENT`, `RUN TRANSID`, `FETCH CHILD`, `FETCH ANY`, `FREE CHILD` |
+| [`commands/queues.py`](commands/queues.py) | **TS / TD queues** | `WRITEQ`/`READQ`/`DELETEQ TS` and `TD`, `INQUIRE TDQUEUE`, `SET TDQUEUE` |
+| [`commands/web.py`](commands/web.py), [`commands/documents.py`](commands/documents.py) | **Web, HTTP & documents** | `WEB OPEN/CONVERSE/SEND/RECEIVE/CLOSE/PARSE URL/EXTRACT`, the HTTP header / form field / query parameter reads and browses, `EXTRACT WEB`, `EXTRACT TCPIP`, `DOCUMENT CREATE`, `DOCUMENT RETRIEVE` |
+| [`commands/api.py`](commands/api.py) | **Every other IBM API command, by name** | None: name-only entries, each refused whole with its IBM topic and reason ([live table](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/cics_spec_status.md)) |
+| [`commands/shared.py`](commands/shared.py) | Shared values | Constants several command families share |
 
 ---
 
@@ -118,7 +121,7 @@ either file is stale.
 
 | Module | Role |
 |---|---|
-| [`model.py`](model.py) | Immutable dataclasses: `CommandSpec`, `OptionSpec`, `OptionGroup`, `Refusal`, `Outcome`, `IbmDoc` |
+| [`model.py`](model.py) | Immutable dataclasses: `Command`, `Arg`, `Group`, `Doc`, `Refusal`, `RuntimeRefusal`, `Outcome`, `Abend`, `Fact`, `EngineFacts`, `Impl` |
 | [`resp.py`](resp.py) | `DFHRESP` condition numbers, condition aliases (`ALIASES`), and default unhandled abend codes (`CONDITION_ABEND`) |
 | [`eib.py`](eib.py) | Execute Interface Block (`DFHEIBLK`) field definitions, types, and lengths |
 | [`commands/`](commands/) | Per-domain command specifications assembled into `COMMANDS` |
@@ -134,7 +137,7 @@ To prevent duplicate hand-rolled CICS tables from creeping back into the codebas
 [`tests/core_engine/test_cics_spec.py`](../../../tests/core_engine/test_cics_spec.py) and
 [`tests/cobol_mainframe/test_cics_spec_equality.py`](../../../tests/cobol_mainframe/test_cics_spec_equality.py)
 enforce:
-1. **Explicit importer allowlist (`test_only_the_listed_modules_import_the_spec`):** Only designated translator, stub, and readiness modules may import `gitgalaxy.standards.cics`.
+1. **Explicit importer allowlist (`test_only_the_listed_consumers_import_the_spec`):** Only designated translator, stub, and readiness modules may import `gitgalaxy.standards.cics`.
 2. **Zero duplicate tables:** Translator and stub option/refusal/DFHRESP lookups must come from `COMMANDS` and `resp.py`.
 3. **Live status freshness (`tests/tools/cics_spec_status.py`):** Renders the live command matrix to the `generated` branch alongside census counts and CICS crucible coverage.
 
@@ -147,4 +150,4 @@ enforce:
 | [CICS command spec design (`cics_command_spec.md`)](../../../docs/language_status/cics_command_spec.md) | Architectural design and PR rollout plan for the unified CICS specification |
 | [Live CICS spec status (`generated` branch)](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/cics_spec_status.md) | Generated table of every command with census frequency and crucible test coverage |
 | [CICS to Java (`cobol_to_java/README.md`)](../../tools/cobol_to_java/README.md) | How the spec drives `det/cics.py`, `CicsTask`, and equivalence proofs |
-| [Oracle assumptions register (`generated` branch)](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/oracle_assumptions.md) | Full text of the `X1`–`X63` CICS oracle assumptions referenced by the spec |
+| [Oracle assumptions register (`generated` branch)](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/oracle_assumptions.md) | Full text of the X-family CICS oracle assumptions referenced by the spec |

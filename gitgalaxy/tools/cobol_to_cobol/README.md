@@ -16,13 +16,13 @@ gap—never guessed.
 <tr>
 <td align="center" width="190"><h2>7</h2></td>
 <td align="center" width="190"><h2>0</h2></td>
-<td align="center" width="190"><h2>5</h2></td>
+<td align="center" width="190"><h2>12</h2></td>
 <td align="center" width="190"><h2>live</h2></td>
 </tr>
 <tr>
 <td align="center" valign="top"><sub><strong>mainframe fact channels</strong><br />calls, CICS, UOW, DB2/IMS/MQ, layouts, JCL, BMS<br /><em><a href="#the-fact-channels-and-galaxyir">fact channels</a> · cross-checked in CI</em></sub></td>
 <td align="center" valign="top"><sub><strong>unexplained differential deltas</strong><br />on keyed corpora (<code>cbsa</code>, <code>zopeneditor</code>)<br /><em><a href="#accuracy-and-differential-verification">differential gate</a> · vs answer keys</em></sub></td>
-<td align="center" valign="top"><sub><strong>CICS macro table families parsed</strong><br /><code>DFHSIT</code>, <code>PCT</code>, <code>PPT</code>, <code>FCT</code>, <code>DCT</code><br /><em><a href="#cics-transaction-and-resource-extraction">resource reader</a> · + CSD</em></sub></td>
+<td align="center" valign="top"><sub><strong>CICS macro table families parsed</strong><br /><code>DFHSIT</code>, <code>PCT</code>, <code>PPT</code>, <code>FCT</code>, <code>DCT</code>, <code>TST</code> and six more<br /><em><a href="#cics-transaction-and-resource-extraction">resource reader</a> · + CSD</em></sub></td>
 <td align="center" valign="top"><sub><strong>programs staged per burned estate</strong><br />counted on the <a href="https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md">progress page</a>, feeding <code>cobol-to-java</code> &amp; <code>det</code><br /><em><a href="../cobol_to_java/README.md">translator</a> · burned estates</em></sub></td>
 </tr>
 </table>
@@ -102,7 +102,7 @@ verified skeleton ([`skeleton_export.py`](skeleton_export.py)) across seven main
 
 1. **Program & call graph:** `PROGRAM-ID`, static and dynamic `CALL` targets, `USING` parameter modes (`BY REFERENCE`, `BY CONTENT`, `BY VALUE`), CICS `LINK` and `XCTL` edges, and `RETURN TRANSID` next-transaction routing.
 2. **Record layouts & copybooks:** `01`–`49`, `66` (`RENAMES`), `77`, and `88` condition items; `PIC` clauses, `USAGE` (`BINARY`/`COMP`, `COMP-3`, `COMP-1`/`COMP-2`, `POINTER`), `REDEFINES`, `OCCURS [DEPENDING ON]`, `SIGN LEADING/TRAILING SEPARATE`, and `SYNCHRONIZED` slack bytes.
-3. **CICS transactions & resources (`cics_transaction_reader.py`):** CSD (`DEFINE TRANSACTION`, `PROGRAM`, `FILE`, `MAPSET`, `TDQUEUE`, `TSMODEL`) and assembler macro tables (`DFHSIT`, `DFHPCT`, `DFHPPT`, `DFHFCT`, `DFHDCT`), matched against each program's `EXEC CICS` operations.
+3. **CICS transactions & resources (`cics_transaction_reader.py`):** CSD (`DEFINE TRANSACTION`, `PROGRAM`, `FILE`, `MAPSET`, `TDQUEUE`, `TSMODEL`) and assembler macro tables (`DFHSIT`, `PCT`, `PPT`, `FCT`, `DCT`, `TST`, `SRT`, `JCT`, `TCT`, `MCT`, `PLT` and DB2's `DSNCRCT`, read by [`core/cics_macro_tables.py`](../../core/cics_macro_tables.py)), matched against each program's `EXEC CICS` operations.
 4. **BMS screen maps:** `.bms` `DFHMSD` / `DFHMDI` / `DFHMDF` macros parsed into field coordinates, lengths, attributes (`ASKIP`, `UNPROT`, `NUM`, `BRT`, `DRK`, `IC`, `FSET`), extended colours, and generated symbolic map layouts (`I`/`O`/`L`/`F`/`A` subfields).
 5. **Units of work & recovery:** `SYNCPOINT`, `SYNCPOINT ROLLBACK`, `HANDLE ABEND`, and transactional write sets across VSAM, Db2, TS/TD queues, and MQ.
 6. **Data stores (VSAM, Db2, IMS DL/I, IBM MQ):** `SELECT ... ASSIGN` to JCL `DD` dataset bindings, `EXEC SQL` tables/cursors/host variables, `CALL 'CBLTDLI'` / `EXEC DLI` PCBs, and `MQOPEN`/`MQGET`/`MQPUT`/`MQCLOSE` queue operations.
@@ -115,15 +115,17 @@ verified skeleton ([`skeleton_export.py`](skeleton_export.py)) across seven main
 ### CICS transaction and resource extraction
 
 Mainframe estates declare their CICS topology in two places: modern CSD dumps (`DFHCSDUP` text) and
-legacy assembler macro tables. [`cics_transaction_reader.py`](cics_transaction_reader.py) reads both:
+legacy assembler macro tables. [`cics_transaction_reader.py`](cics_transaction_reader.py) reads the CSD; the engine's
+[`core/cics_macro_tables.py`](../../core/cics_macro_tables.py) reads the macro tables, and `GalaxyIR.job_macro_tables` joins a member's tables to its job step:
 
 - **CSD definitions:** `DEFINE TRANSACTION`, `DEFINE PROGRAM`, `DEFINE FILE`, `DEFINE MAPSET`, `DEFINE TDQUEUE`, `DEFINE URIMAP`, `DEFINE WEBSERVICE`.
 - **Assembler macro tables (`#5120`, `#5154`):**
   - `DFHSIT`: system initialization parameters (including `SUFFIX` and separate `SYSIN` member joins).
   - `DFHPCT` & `DFHPPT`: transaction-to-program and program processing table entries.
   - `DFHFCT`: file control table entries (dataset bindings, key lengths, service requests).
-  - `DFHDCT`: destination control table entries (intrapartition and extrapartition transient data queues).
-  - **Explicit macro refusals:** obsolete telecommunication and monitoring macros that have no modern equivalent (`DFHTCT TYPE=LINE`, `DFHTCT TYPE=SDSCI`, `DFHMCT TYPE=RECORD`) are refused by name with IBM manual citations.
+  - `DFHDCT`: destination control table entries (intrapartition and extrapartition transient data queues, including `TYPE=SDSCI` data sets).
+  - `DFHTST`, `DFHSRT`, `DFHJCT`, `DFHTCT`, `DFHMCT`, `DFHPLT` and DB2's `DSNCRCT` (`#6918`): temporary storage, system recovery, journals, terminals, monitoring, program lists and the DB2 resource control table.
+  - Every operand is read with its IBM manual citation; what the manuals do not define, and installed CEDA / CEMT state, is refused by name rather than guessed.
 
 ---
 
@@ -134,7 +136,7 @@ legacy assembler macro tables. [`cics_transaction_reader.py`](cics_transaction_r
 | Module | Role |
 |---|---|
 | [`galaxy_ir.py`](galaxy_ir.py), [`engine_sourcing.py`](engine_sourcing.py), [`skeleton_export.py`](skeleton_export.py) | Intermediate representation, engine-DB fact join, and verified skeleton export for `cobol-to-java` |
-| [`cics_transaction_reader.py`](cics_transaction_reader.py) | Extracts CICS transactions, programs, files, queues, CSD definitions, and `DFHSIT`/`PCT`/`PPT`/`FCT`/`DCT` macro tables |
+| [`cics_transaction_reader.py`](cics_transaction_reader.py) | Extracts CICS transactions, programs, files, queues, CSD definitions (the assembler macro tables come from `core/cics_macro_tables.py`) |
 | [`completeness_report.py`](completeness_report.py) | Audits fact completeness across an estate and lists missing copybooks or unresolved targets |
 | [`cobol_graveyard_finder.py`](cobol_graveyard_finder.py) | Expands local copybooks and computes unreachable paragraphs and unused variables |
 | [`cobol_dag_architect.py`](cobol_dag_architect.py) | Builds the dataset and job execution DAG from JCL `DD`s and COBOL `SELECT` clauses |

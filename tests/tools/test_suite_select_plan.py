@@ -289,6 +289,79 @@ def test_the_spine_helper_equivalence_stays_full():
     assert plan(["tests/tools/equivalence.py"])["mode"] == "full"
 
 
+@pytest.mark.parametrize("f", ["tests/doom_rosetta/manifest.csv", "tests/golden_doom_rosetta/doomsday.json.gz"])
+def test_doom_rosetta_data_selects_the_tests_that_name_the_tree(f):
+    p = plan([f])
+    assert p["mode"] == "select"
+    assert "tests/doom_rosetta/test_doom_rosetta.py" in p["paths"]
+    assert "tests/test_source_reads.py" in p["paths"]  # the tree guards ride along
+    assert len(p["paths"]) < 40
+
+
+def test_doom_rosetta_data_beside_an_unmapped_file_runs_everything():
+    assert plan(["tests/doom_rosetta/manifest.csv", "tests/golden_master_audit/x.json"])["mode"] == "full"
+
+
+@pytest.mark.parametrize("f", ["tests/equivalence/asynccc-crdtchk/case.json", "tests/equivalence/db2/dynsql/seed.sql"])
+def test_equivalence_case_data_stays_full(f):
+    # every case-enumerating test and helper (equivalence.py, evidence.py, det_port.py) reads a case: no name search is sound
+    assert plan([f])["mode"] == "full"
+
+
+def test_a_data_tree_reader_set_is_direct_only(tmp_path):
+    (tmp_path / "tests" / "doom_rosetta").mkdir(parents=True)
+    (tmp_path / "tests" / "tools").mkdir()
+    (tmp_path / "tests" / "tools" / "test_a.py").write_text("import doom_speedrun\n")
+    (tmp_path / "tests" / "tools" / "test_b.py").write_text("import bugfix_kit\n")  # names a helper that names the tree
+    (tmp_path / "tests" / "tools" / "bugfix_kit.py").write_text("import doom_speedrun\n")
+    assert sp.data_targets("tests/doom_rosetta/manifest.csv", tmp_path) == ["tests/tools/test_a.py"]
+
+
+SLICE7 = ["cics/DetJustify.java", "cics/DetMq.java", "mq/QueueManager.java", "dli/DetDli.java", "sql/DetSql.java"]
+SLICE7 += ["batch/DetFiles.java", "DetMvs.java"]
+
+
+@pytest.mark.parametrize("name", ["cics/DetCics.java", "Sort.java", *SLICE7])
+def test_det_runtime_file_selects_the_tests_that_name_its_class(name):
+    p = plan([sp.RUNTIME_DIR + name])
+    assert p["mode"] == "select"
+    assert set(sp.RUNTIME_TREE_READERS) <= set(p["paths"])
+    assert "tests/test_source_reads.py" in p["paths"]  # the tree guards ride along
+    assert len(p["paths"]) < 60
+
+
+def test_det_runtime_class_readers_differ_per_file():
+    cics = set(plan([sp.RUNTIME_DIR + "cics/DetCics.java"])["paths"])
+    sort = set(plan([sp.RUNTIME_DIR + "Sort.java"])["paths"])
+    assert "tests/cobol_mainframe/test_dfsort_4268.py" in sort - cics
+    assert "tests/cobol_mainframe/test_det_translate.py" in cics - sort
+
+
+def test_every_mapped_runtime_file_exists_and_names_its_own_class():
+    for rel, rx in sp.RUNTIME_READERS.items():
+        assert (sp.REPO_ROOT / sp.RUNTIME_DIR / rel).is_file(), rel
+        if rel != "Sort.java":
+            assert rx == rf"\b{rel.rsplit('/', 1)[-1][:-5]}\b"
+
+
+@pytest.mark.parametrize("name", ["Cobol.java", "Field.java", "sql/Sql.java", "le/Ceedate.java", "Hole.java"])
+def test_other_det_runtime_files_stay_full(name):
+    assert plan([sp.RUNTIME_DIR + name])["mode"] == "full"
+
+
+def test_det_runtime_beside_an_unmapped_file_runs_everything():
+    assert plan([sp.RUNTIME_DIR + "Sort.java", "tests/golden_master_audit/x.json"])["mode"] == "full"
+
+
+def test_runtime_reader_set_is_direct_and_capped(tmp_path):
+    (tmp_path / "tests").mkdir()
+    (tmp_path / "tests" / "test_a.py").write_text("x = 'new Sort.Key(r -> 1)'\n")
+    (tmp_path / "tests" / "test_b.py").write_text("x = 'Sort of'\n")  # the bare word is not a reader
+    f = sp.RUNTIME_DIR + "Sort.java"
+    assert sp.runtime_targets(f, tmp_path) == ["tests/test_a.py"]
+    assert sp.runtime_targets(f, tmp_path, limit=0) is None
+
+
 def test_engine_module_selects_the_tests_the_coverage_map_names():
     cmap = {
         "version": 1,

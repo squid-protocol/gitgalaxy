@@ -317,7 +317,11 @@ def test_a_data_tree_reader_set_is_direct_only(tmp_path):
     assert sp.data_targets("tests/doom_rosetta/manifest.csv", tmp_path) == ["tests/tools/test_a.py"]
 
 
-@pytest.mark.parametrize("name", ["cics/DetCics.java", "Sort.java"])
+SLICE7 = ["cics/DetJustify.java", "cics/DetMq.java", "mq/QueueManager.java", "dli/DetDli.java", "sql/DetSql.java"]
+SLICE7 += ["batch/DetFiles.java", "DetMvs.java"]
+
+
+@pytest.mark.parametrize("name", ["cics/DetCics.java", "Sort.java", *SLICE7])
 def test_det_runtime_file_selects_the_tests_that_name_its_class(name):
     p = plan([sp.RUNTIME_DIR + name])
     assert p["mode"] == "select"
@@ -333,7 +337,14 @@ def test_det_runtime_class_readers_differ_per_file():
     assert "tests/cobol_mainframe/test_det_translate.py" in cics - sort
 
 
-@pytest.mark.parametrize("name", ["Cobol.java", "Field.java", "sql/Sql.java"])
+def test_every_mapped_runtime_file_exists_and_names_its_own_class():
+    for rel, rx in sp.RUNTIME_READERS.items():
+        assert (sp.REPO_ROOT / sp.RUNTIME_DIR / rel).is_file(), rel
+        if rel != "Sort.java":
+            assert rx == rf"\b{rel.rsplit('/', 1)[-1][:-5]}\b"
+
+
+@pytest.mark.parametrize("name", ["Cobol.java", "Field.java", "sql/Sql.java", "le/Ceedate.java", "Hole.java"])
 def test_other_det_runtime_files_stay_full(name):
     assert plan([sp.RUNTIME_DIR + name])["mode"] == "full"
 

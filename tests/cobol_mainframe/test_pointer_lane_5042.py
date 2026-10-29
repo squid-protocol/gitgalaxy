@@ -66,7 +66,7 @@ _SHAPES = [
     ),  # fmt: skip
     (
         "READ FILE('KSDS') SET(PTR) RIDFLD(KEY)",
-        ["setBlock(task, f_PTR, \"READ \" + 'KSDS'.strip(), read1.record(), false);"],
+        ["setBlock(task, f_PTR, \"READ \" + 'KSDS'.stripTrailing(), read1.record(), false);"],
     ),
     (
         "READ FILE('KSDS') SET(PTR) RIDFLD(KEY) LENGTH(RLEN)",
@@ -80,11 +80,11 @@ _SHAPES = [
     ("READ FILE('KSDS') SET(PTR) RIDFLD(KEY) GTEQ", ["read1.record(), false);"]),
     (
         "READNEXT FILE('KSDS') SET(PTR) RIDFLD(KEY)",
-        ["task.readnext(", "setBlock(task, f_PTR, \"BROWSE \" + 'KSDS'.strip(), rec", ", true);"],
+        ["task.readnext(", "setBlock(task, f_PTR, \"BROWSE \" + 'KSDS'.stripTrailing(), rec", ", true);"],
     ),
     (
         "READPREV FILE('KSDS') SET(PTR) RIDFLD(KEY)",
-        ["task.readprev(", "setBlock(task, f_PTR, \"BROWSE \" + 'KSDS'.strip(), rec", ", true);"],
+        ["task.readprev(", "setBlock(task, f_PTR, \"BROWSE \" + 'KSDS'.stripTrailing(), rec", ", true);"],
     ),
 ]
 

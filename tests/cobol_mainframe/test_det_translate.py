@@ -290,6 +290,9 @@ class _RbaCics(C.Cics):
     def name(self, text):
         return f"{text}.strip()"
 
+    def file_name(self, text):
+        return f"{text}.stripTrailing()"
+
     def store(self, opts):
         raise AssertionError("an RBA browse needs no keyed store")
 
@@ -303,11 +306,11 @@ def test_an_esds_browse_by_rba_is_translated_and_the_rest_refused():
     dropped RBA and browsed by key. GTEQ / KEYLENGTH with RBA, XRBA, RRN, and READ / WRITE / DELETE by RBA are holes."""
     c = _RbaCics()
     assert c.command("STARTBR DATASET('EPSMORTF') RIDFLD(RID) RBA EQUAL RESP(R)", "") == [
-        "int resp1 = task.startbrRba('EPSMORTF'.strip(), CicsTask.rba(DetCics.bytes(f_RID, 4)));",
+        "int resp1 = task.startbrRba('EPSMORTF'.stripTrailing(), CicsTask.rba(DetCics.bytes(f_RID, 4)));",
         "OUTCOME(resp1, task.resp2());",
     ]
     assert c.command("READNEXT FILE('EPSMORTF') INTO(REC) RIDFLD(RID) RBA RESP(R)", "") == [
-        "CicsTask.BrowsedRba read2 = task.readnextRba('EPSMORTF'.strip(), CicsTask.rba(DetCics.bytes(f_RID, 4)), 56);",
+        "CicsTask.BrowsedRba read2 = task.readnextRba('EPSMORTF'.stripTrailing(), CicsTask.rba(DetCics.bytes(f_RID, 4)), 56);",
         "if (read2.record() != null) {",
         "    DetCics.put(f_RID, CicsTask.rbaBytes(read2.rba()));",
         "    DetCics.put(f_REC, read2.record());",
@@ -452,13 +455,13 @@ def test_read_length_is_modelled_in_and_out():
     out = _LenCics().command("READ FILE('KSDS') INTO(REC) RIDFLD(KEY) LENGTH(VARLEN) KEYLENGTH(10) RESP(R) UPDATE", "")
     assert out == [
         "byte[] rec2 = DetCics.bytes(f_KEY);",
-        "CicsTask.FileRead<byte[]> read1 = task.readForUpdate('KSDS'.strip(), () -> store(F).find(rec2));",
+        "CicsTask.FileRead<byte[]> read1 = task.readForUpdate('KSDS'.stripTrailing(), () -> store(F).find(rec2));",
         "int resp3 = read1.resp();",
         "int resp24 = read1.resp2();",
         "if (read1.record() != null) {",
         "    resp3 = DetCics.readInto(f_REC, read1.record(), INT(VARLEN), true);",
         "    resp24 = resp3 == 22 ? 11 : 0;",
-        "    heldKey.put('KSDS'.strip(), rec2);",
+        "    heldKey.put('KSDS'.stripTrailing(), rec2);",
         "    STORE(VARLEN, BigDecimal.valueOf(read1.record().length));",
         "}",
         "OUTCOME(resp3, resp24);",
@@ -473,7 +476,7 @@ def test_read_gteq_searches_the_first_key_not_below_ridfld():
     out = _LenCics().command("READ FILE('KSDS') INTO(REC) RIDFLD(KEY) KEYLENGTH(10) GTEQ RESP(R)", "")
     assert out == [
         "byte[] rec2 = DetCics.bytes(f_KEY);",
-        "CicsTask.FileRead<byte[]> read1 = task.readSearch('KSDS'.strip(), false, () -> store(F).search(rec2, 10, true));",
+        "CicsTask.FileRead<byte[]> read1 = task.readSearch('KSDS'.stripTrailing(), false, () -> store(F).search(rec2, 10, true));",
         "if (read1.record() != null) {",
         "    DetCics.put(f_REC, read1.record());",
         "}",
@@ -488,10 +491,10 @@ def test_read_generic_gteq_update_holds_the_record_found():
         "READ FILE('KSDS') INTO(REC) RIDFLD(KEY) KEYLENGTH(6) GENERIC GTEQ LENGTH(VARLEN) UPDATE RESP(R)", ""
     )
     assert (
-        "CicsTask.FileRead<byte[]> read1 = task.readSearch('KSDS'.strip(), true, () -> store(F).search(rec2, 6, true));"
+        "CicsTask.FileRead<byte[]> read1 = task.readSearch('KSDS'.stripTrailing(), true, () -> store(F).search(rec2, 6, true));"
         in out
     )
-    assert "    heldKey.put('KSDS'.strip(), store(F).keyOf(read1.record()));" in out
+    assert "    heldKey.put('KSDS'.stripTrailing(), store(F).keyOf(read1.record()));" in out
     assert "    resp3 = DetCics.readInto(f_REC, read1.record(), INT(VARLEN), true);" in out
     plain = _LenCics().command("READ FILE('KSDS') INTO(REC) RIDFLD(KEY) KEYLENGTH(6) GENERIC RESP(R)", "")
     assert "() -> store(F).search(rec2, 6, false));" in plain[1]  # GENERIC alone: EQUAL on the generic key
@@ -503,8 +506,8 @@ def test_read_gteq_on_a_file_named_at_run_time_takes_that_files_key():
     RIDFLD shorter than that key is refused then (X6) -- as for a file named by a literal, only later."""
     out = _LenCics().command("READ FILE(WS-FILE) INTO(REC) RIDFLD(KEY) GTEQ LENGTH(VARLEN) RESP(R)", "")
     assert out[1] == (
-        "CicsTask.FileRead<byte[]> read1 = task.readSearch(WS-FILE.strip(), false, () -> { int keylen5 = switch "
-        '(WS-FILE.strip()) { case "KSDS" -> 10; default -> throw new Hole("CICS file " + WS-FILE.strip() + ": no store '
+        "CicsTask.FileRead<byte[]> read1 = task.readSearch(WS-FILE.stripTrailing(), false, () -> { int keylen5 = switch "
+        '(WS-FILE.stripTrailing()) { case "KSDS" -> 10; default -> throw new Hole("CICS file " + WS-FILE.stripTrailing() + ": no store '
         'in the generated project"); }; if (rec2.length < keylen5) throw new DetCics.PastFrom("READ RIDFLD(KEY) shorter '
         'than the key searched: not modelled"); return store(F).search(rec2, keylen5, true); });'
     )
@@ -516,7 +519,7 @@ def test_read_gteq_on_a_file_named_at_run_time_takes_that_files_key():
     bare.gp.files = {}  # (ZECS003: the generated project stores no file -- a Hole at run time, as store() makes it)
     none = bare.command("READ FILE(WS-FILE) INTO(REC) RIDFLD(KEY) GTEQ RESP(R)", "")
     assert none[1].endswith(
-        '() -> { throw new Hole("CICS file " + WS-FILE.strip() + ": the program names no file the '
+        '() -> { throw new Hole("CICS file " + WS-FILE.stripTrailing() + ": the program names no file the '
         'generated project stores"); });'
     )
 
@@ -530,21 +533,21 @@ def test_delete_generic_deletes_every_record_with_the_generic_key():
     assert out[0] == "byte[] generic2 = DetCics.bytes(f_KEY);"
     assert (
         out[1]
-        == "int resp1 = task.deleteGeneric('KSDS'.strip(), store(F).search(generic2, 6, false).isPresent(), () -> {"
+        == "int resp1 = task.deleteGeneric('KSDS'.stripTrailing(), store(F).search(generic2, 6, false).isPresent(), () -> {"
     )
     assert out[3] == ("    while ((found3 = store(F).search(generic2, 6, false)).isPresent()) "
                       "store(F).remove(store(F).keyOf(found3.get()));")  # fmt: skip
     assert "OUTCOME(resp1, task.resp2());" in out
     rt = _LenCics().command("DELETE FILE(WS-FILE) RIDFLD(KEY) KEYLENGTH(8) GENERIC NOHANDLE", "")
     assert rt[1] == "int resp1;"
-    assert rt[2].startswith('if (8 >= switch (WS-FILE.strip()) { case "KSDS" -> 10; default -> throw new Hole(')
-    assert rt[2].endswith("resp1 = task.deleteInvalid(WS-FILE.strip(), true, 25);")
-    assert rt[3].startswith("else resp1 = task.deleteGeneric(WS-FILE.strip(), ")
+    assert rt[2].startswith('if (8 >= switch (WS-FILE.stripTrailing()) { case "KSDS" -> 10; default -> throw new Hole(')
+    assert rt[2].endswith("resp1 = task.deleteInvalid(WS-FILE.stripTrailing(), true, 25);")
+    assert rt[3].startswith("else resp1 = task.deleteGeneric(WS-FILE.stripTrailing(), ")
     for text, want in (
-        ("KEYLENGTH(10) GENERIC", "task.deleteInvalid('KSDS'.strip(), true, 25);"),  # the key is 10
-        ("KEYLENGTH(11) GENERIC", "task.deleteInvalid('KSDS'.strip(), true, 25);"),
-        ("KEYLENGTH(-1) GENERIC", "task.deleteInvalid('KSDS'.strip(), true, 42);"),
-        ("KEYLENGTH(- 5) GENERIC", "task.deleteInvalid('KSDS'.strip(), true, 42);"),
+        ("KEYLENGTH(10) GENERIC", "task.deleteInvalid('KSDS'.stripTrailing(), true, 25);"),  # the key is 10
+        ("KEYLENGTH(11) GENERIC", "task.deleteInvalid('KSDS'.stripTrailing(), true, 25);"),
+        ("KEYLENGTH(-1) GENERIC", "task.deleteInvalid('KSDS'.stripTrailing(), true, 42);"),
+        ("KEYLENGTH(- 5) GENERIC", "task.deleteInvalid('KSDS'.stripTrailing(), true, 42);"),
     ):
         got = _LenCics().command(f"DELETE FILE('KSDS') RIDFLD(KEY) {text} RESP(R)", "")
         assert got[0].endswith(want) and "OUTCOME(" in got[1], got
@@ -554,9 +557,9 @@ def test_delete_generic_deletes_every_record_with_the_generic_key():
         ("KEYLENGTH(0)", 26),
     ):  # not GENERIC, not the key's 10
         got = _LenCics().command(f"DELETE FILE('KSDS') RIDFLD(KEY) {text} RESP(R)", "")
-        assert got[0].endswith(f"task.deleteInvalid('KSDS'.strip(), false, {resp2});"), got
+        assert got[0].endswith(f"task.deleteInvalid('KSDS'.stripTrailing(), false, {resp2});"), got
     assert (
-        "task.delete('KSDS'.strip(),"
+        "task.delete('KSDS'.stripTrailing(),"
         in _LenCics().command("DELETE FILE('KSDS') RIDFLD(KEY) KEYLENGTH(10) RESP(R)", "")[0]
     )
     for bad, why in (("DELETE FILE('KSDS') RIDFLD(KEY) GENERIC", "GENERIC without KEYLENGTH"),
@@ -602,7 +605,9 @@ def test_read_keylength_invreq_is_a_result_with_ibms_resp2(opts, resp2):
     """#5092 (X52), IBM, EXEC CICS READ: INVREQ RESP2 25 / 26 / 42 for a KEYLENGTH that is not the key's length (no
     GENERIC), or for a GENERIC one not shorter than the key / below zero; the read is not done (CicsTask.readInvalid)."""
     out = _LenCics().command(f"READ FILE('KSDS') INTO(REC) RIDFLD(KEY) {opts} RESP(R)", "")
-    assert out[0].endswith(f"task.readInvalid('KSDS'.strip(), {'true' if 'UPDATE' in opts else 'false'}, {resp2});")
+    assert out[0].endswith(
+        f"task.readInvalid('KSDS'.stripTrailing(), {'true' if 'UPDATE' in opts else 'false'}, {resp2});"
+    )
     assert not any("find(" in line or "search(" in line for line in out)
 
 

@@ -62,7 +62,7 @@ def test_unlock_without_a_token_releases_the_files_hold_on_the_stub_and_the_det_
     ul = ec.translate_command("UNLOCK DATASET('F')")
     assert ul[:3] == ["MOVE 'F' TO GG-NAME1", "MOVE SPACES TO GG-FLAGS", "CALL 'GGCUNLK' USING GG-CICS"]
     for text in ("UNLOCK FILE('KSDS') RESP(R)", "UNLOCK DATASET('KSDS')"):
-        assert any("task.unlockHeld('KSDS'.strip())" in x for x in _LenCics().command(text, ""))
+        assert any("task.unlockHeld('KSDS'.stripTrailing())" in x for x in _LenCics().command(text, ""))
 
 
 @pytest.mark.parametrize(
@@ -83,10 +83,10 @@ def test_what_the_token_class_leaves_open_is_refused_by_name_on_the_stub_side(te
 def test_the_det_port_holds_under_a_token_and_stores_it_into_the_field():
     out = _LenCics().command("READ FILE('KSDS') INTO(REC) RIDFLD(KEY) TOKEN(TK) RESP(R)", "")
     assert (
-        out[1] == "CicsTask.FileRead<byte[]> read1 = task.read('KSDS'.strip(), () -> store(F).find(rec2));"
+        out[1] == "CicsTask.FileRead<byte[]> read1 = task.read('KSDS'.stripTrailing(), () -> store(F).find(rec2));"
     )  # no tokenless hold
     assert not any("heldKey" in line for line in out)
-    assert any("task.holdToken('KSDS'.strip(), store(F).keyOf(read1.record()))" in line for line in out)
+    assert any("task.holdToken('KSDS'.stripTrailing(), store(F).keyOf(read1.record()))" in line for line in out)
     assert any(line.strip().startswith("STORE(TK, BigDecimal.valueOf(") for line in out)
 
 
@@ -94,7 +94,7 @@ def test_the_det_port_token_read_implies_update_with_length_and_search():
     out = _LenCics().command(
         "READ FILE('KSDS') INTO(REC) RIDFLD(KEY) KEYLENGTH(6) GENERIC GTEQ TOKEN(TK) LENGTH(VL)", ""
     )
-    assert "task.readSearch('KSDS'.strip(), false, " in " ".join(out)  # held by its token, not the file's hold
+    assert "task.readSearch('KSDS'.stripTrailing(), false, " in " ".join(out)  # held by its token, not the file's hold
     assert "DetCics.readInto(f_REC, read1.record(), INT(VL), true)" in " ".join(
         out
     )  # LENGERR refused: held or not unsaid
@@ -102,11 +102,11 @@ def test_the_det_port_token_read_implies_update_with_length_and_search():
 
 def test_the_det_port_rewrites_deletes_and_unlocks_by_token():
     c = _LenCics()
-    assert any("task.rewriteToken('KSDS'.strip(), INT(TK), store(F).keyOf(" in x
+    assert any("task.rewriteToken('KSDS'.stripTrailing(), INT(TK), store(F).keyOf(" in x
                for x in c.command("REWRITE FILE('KSDS') FROM(REC) TOKEN(TK) RESP(R)", ""))  # fmt: skip
-    assert any("task.deleteToken('KSDS'.strip(), INT(TK), k -> store(F).remove(k))" in x
+    assert any("task.deleteToken('KSDS'.stripTrailing(), INT(TK), k -> store(F).remove(k))" in x
                for x in _LenCics().command("DELETE FILE('KSDS') TOKEN(TK)", ""))  # fmt: skip
-    assert any("task.unlockToken('KSDS'.strip(), INT(TK))" in x
+    assert any("task.unlockToken('KSDS'.stripTrailing(), INT(TK))" in x
                for x in _LenCics().command("UNLOCK FILE('KSDS') TOKEN(TK)", ""))  # fmt: skip
 
 

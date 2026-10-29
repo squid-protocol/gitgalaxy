@@ -120,6 +120,14 @@ operand.
    must state the fill it relies on.
 3. **Character data is compared for equality only**, as for the COBOL cases: the EBCDIC vs ASCII question is not
    raised by `=` / `NOT =`.
+   At a COBOL -> HLASM LINK boundary (#6839, ZECS001 LINKs ZECS002) the lowered program reads its data as EBCDIC by
+   content: `B64XLT` is indexed by the cp037 code point, `CLI X'7E'` is EBCDIC `=`, and `TR ... A_TO_E` makes the
+   decoded user id EBCDIC. So the `zecs-zecs001` auth scenarios state each field in the code page z/OS holds it in, the
+   code page of what it is compared with: the Authorization value after `Basic ` as cp037 bytes (CICS converts the
+   header before `WEB READ HTTPHEADER`), the ZC01SD template's user id in cp037 (compared with ZECS002's `CA-USERID`),
+   its access word in the program's own code page (compared with ZECS001's literals). Residual risk: a re-hosted port
+   receives Unicode headers, and its EBCDIC-table ZECS002 would mis-decode them. That is a migration gap, not an
+   equivalence one.
 4. **The address representation is opaque.** No program arithmetic on a code or data address is accepted.
 5. **An address outside our storage abends `ASRA`.** On z/OS it may name other storage or take a different program check;
    a case must not rely on it. Which region numbers an address carries is not observable by the program.
@@ -134,6 +142,10 @@ operand.
   (`EXEC CICS VERIFY PASSWORD`, register X32; `det_survey` zecs: 7 of 7 whole, all compile). Since 3d it has the
   `zecs-zecs002` equivalence case (11 scenarios, the VERIFY verdict keyed by `userid_hex`) and is proved against GnuCOBOL
   plus the stub; ZECSNC has `zecs-zecsnc` (7 scenarios).
+- ZECS001's `1500-AUTHENTICATE` LINKs the lowered ZECS002 (#6839): `zecs-zecs001` lists it under `programs`, and det_port
+  gives an HLASM LINK target the translator's own service stub as it does a main HLASM program. 8 auth scenarios reach
+  1500-EXIT, 1600-USER-ACCESS and 1610-SCAN-ZCXXSD (the four access arms, no access, user not listed, VERIFY NOTAUTH,
+  an invalid encoding), proved on both legs. Code page at the boundary: assumption 3.
 - Slice 4 (partial): `tests/tools/hlasm_interp.py` interprets the subset from the Principles of Operation alone (EBCDIC
   storage, 32-bit registers, a real condition code, EXEC CICS as recorded events) and shares nothing with `det/hlasm.py`.
   The test compares (a) every `CH` mask of the lowering's branch condition with the interpreter, over boundary operand

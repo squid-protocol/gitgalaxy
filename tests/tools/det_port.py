@@ -75,19 +75,11 @@ def estate(corpus: Path, work: Path) -> Path:
 def port_case(name: str, work: Path, project: Path, corpus: Path, style: str = "dispatch",
               typed: bool = False, groups: bool = False) -> dict[str, Any]:  # fmt: skip
     import equivalence as eq
-    import equivalence_java as ej
 
     from gitgalaxy.tools.cobol_to_java.det import program as P
 
     case = eq.load_case(name)
-    svc = ej._service_class(case["program"])
-    stub_file = project / "src/main/java" / PKG_DIR / "service" / f"{svc}.java"
-    if stub_file.is_file():
-        stub = stub_file.read_text(encoding="utf-8")
-    else:  # #5859: the forge makes no service for an HLASM program; the stub is the translator's own
-        from gitgalaxy.tools.cobol_to_java.det import hlasm
-
-        stub = hlasm.service_stub(Path(case["program_source"]).stem, PKG)
+    stub = _service_stub(project, case["program"], case["program_source"])
     dirs = [corpus / d for d in case.get("copy_dirs", ["app/cpy"])]
     dirs += [corpus / d for d in (case.get("db2") or {}).get("include_dirs", [])]  # DCLGEN members
     # symbolic maps the estate does not check in, generated from its BMS sources (after its own copybooks)
@@ -121,8 +113,7 @@ def port_case(name: str, work: Path, project: Path, corpus: Path, style: str = "
         called_holes += [f"{x.stats['program']}: {h}" for h in x.stats["holes"]]  # (#4803: counted for the caller)
         translated.append(x)
     for extra in _extra_programs(case):  # the programs the task LINKs to, and those it CALLs: translated the same way
-        x_svc = ej._service_class(extra["program"])
-        x_stub = (project / "src/main/java" / PKG_DIR / "service" / f"{x_svc}.java").read_text(encoding="utf-8")
+        x_stub = _service_stub(project, extra["program"], extra["program_source"])  # #6839: an HLASM LINK target too
         try:
             x = P.translate(corpus / extra["program_source"], dirs, x_stub, PKG, P.estate_files(project), project,
                             style, typed, groups, effective_options(case, program=extra["program"]).layers,
@@ -178,6 +169,19 @@ def unlisted_callees(case: dict[str, Any], stats: list[dict[str, Any]]) -> list[
     called = {c.upper() for s in stats for c in s.get("callees", [])}
     return [f"{n}: not in the case (the Java side would run the generator's empty stub)"
             for n in sorted(called - have - set(LIBRARY))]  # fmt: skip
+
+
+def _service_stub(project: Path, program: str, source: str) -> str:
+    """The forge's service class for `program`, the stub the translator fills. The forge makes none for an HLASM
+    program (#5859), so that stub is the translator's own: for the case's program and for a LINK target (#6839)."""
+    import equivalence_java as ej
+
+    stub_file = project / "src/main/java" / PKG_DIR / "service" / f"{ej._service_class(program)}.java"
+    if stub_file.is_file():
+        return stub_file.read_text(encoding="utf-8")
+    from gitgalaxy.tools.cobol_to_java.det import hlasm
+
+    return hlasm.service_stub(Path(source).stem, PKG)
 
 
 def _extra_programs(case: dict[str, Any]) -> list[dict[str, str]]:

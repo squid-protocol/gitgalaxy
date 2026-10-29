@@ -2085,7 +2085,7 @@ _NON_NEWLINE = re.compile(r"[^\n]")
 # others -- a rust `fn def(..)` or go `func Class(..)` called by its name was dropped. Per language,
 # the words that are NOT keywords there.
 _C_FAMILY_NOT_KEYWORDS = frozenset(
-    {"def", "function", "include", "require", "require_once", "include_once", "except", "finally"}
+    {"def", "function", "include", "require", "require_once", "include_once", "except", "finally", "import"}
 )
 _CALLS_OUT_GLOBAL_IGNORE_NOT_KEYWORDS: dict[str, frozenset[str]] = {
     "rust": frozenset(
@@ -2104,7 +2104,8 @@ _CALLS_OUT_GLOBAL_IGNORE_NOT_KEYWORDS: dict[str, frozenset[str]] = {
     # #6454: `return` (Monad), `try`, `catch` and `finally` (Control.Exception) are ordinary functions in haskell
     "haskell": frozenset({"return", "try", "catch", "finally"}),
     # #6266: `def`, `function`, `include`, `require` ... are keywords of python / js / php / ruby, not of C or C++:
-    # `Definition::def()` (doomsday), `gloom::include()` and a `function(..)` helper are ordinary callees.
+    # `Definition::def()` (doomsday), `gloom::include()` and a `function(..)` helper are ordinary callees; `d->import(f)`
+    # (doomsday's `Impl::import`) too: a C++20 `import` declaration is never followed by `(`.
     "c": _C_FAMILY_NOT_KEYWORDS,
     "cpp": _C_FAMILY_NOT_KEYWORDS,
 }

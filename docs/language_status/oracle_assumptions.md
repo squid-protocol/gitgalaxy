@@ -110,7 +110,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | F1 | files | Natural FILE STATUS values come from GnuCOBOL's BDB files | ASSUMED | yes (00, 10, 23, 22) |
 | F2 | files | Fault FILE STATUS values are injected on both sides | MATCHED | yes |
 | F3 | files | RECFM=VB: records compared by content, framed as GnuCOBOL frames them, not as a z/OS RDW | ASSUMED | yes (CardDemo READACCT VBRCFILE) |
-| F4 | files | JCL utility steps (SORT, IDCAMS, IEBGENER) are not run; the COBOL SORT / MERGE verbs are translated (#4268) | REFUSED (utility steps) | — |
+| F4 | files | JCL utility steps: a DFSORT SORT / MERGE / COPY subset is lowered to a COBOL SORT program and proven; IDCAMS, IEBGENER and the rest are not run; the COBOL SORT / MERGE verbs are translated (#4268) | PARTIAL (DFSORT subset modelled; other utility steps refused) | — |
 | F5 | files | a key item that is not in a record of its own FD (WORKING-STORAGE, another file's record) is refused by name; GnuCOBOL does not compile it either (#4804) | REFUSED (key outside the record) | — |
 | X1 | CICS | Commands, RESP/RESP2 and EIB from IBM's API reference | ASSUMED | yes |
 | X2 | CICS | Screens compared as the symbolic map, not the 3270 stream | ASSUMED | yes |
@@ -1712,13 +1712,35 @@ states each (`none (gap)`: no entry does). Only fields a burned corpus's COBOL n
     cannot tell. Reached by CardDemo READACCT only.
   - Pending z/OS calibration (#4702 part 2): a VB file written on z/OS, compared record for record.
 
-### F4. JCL utility steps — out of scope
+### F4. JCL utility steps — a DFSORT subset modelled, the rest refused
 - A batch case runs one program step.
 - SORT, IDCAMS, IEBGENER and DFSORT steps are not run. The generated batch job refuses a utility step by name
   (`JclSteps.utility`: the job fails on its TODO, or with `gitgalaxy.batch.skip-unimplemented` the step is logged as
   skipped; never a silent success).
-  Next slice of #4268: DFSORT / ICETOOL control cards (SORT FIELDS, INCLUDE / OMIT, OUTREC / INREC, SUM), IEBGENER
-  and an IDCAMS REPRO / DEFINE subset in the oracle, and a multi-step job case.
+- **DFSORT subset (#4268).** `det/dfsort.py` parses a SORT step's SYSIN and SYMNAMES and lowers the step to a COBOL
+  SORT program; the oracle runs that program, the port is its det translation, and the SORTOUT bytes are compared
+  (`tests/cobol_mainframe/test_dfsort_4268.py`: CardDemo's TRANREPT STEP05R, SORTTEST and COMBTRAN cards, plus COPY /
+  OMIT, EQUALS with PD and BI keys, and MERGE with INCLUDE). The lowering is the assumption; **IBM.** z/OS DFSORT
+  Application Programming Guide (SC23-6878), "SORT control statement", "MERGE control statement", "INCLUDE control
+  statement", "OPTION control statement", "Using symbols for fields and constants":
+  - SORT / MERGE FIELDS=(p,m,f,o) with CH and BI (unsigned, byte order: D1) and ZD and PD (signed, by value); FIELDS=COPY.
+  - EQUALS (OPTION or SORT / MERGE operand) is WITH DUPLICATES IN ORDER. Without it (the shipped default, EQUALS=NO)
+    the order of equal keys is undefined: two such records with different bytes stop the run by name. A MERGE
+    without EQUALS is refused (COBOL's MERGE fixes an order DFSORT does not promise), as is a MERGE on a ZD / PD key.
+  - INCLUDE / OMIT COND: a field against a field of the same format and length (or two ZD / PD fields), a C'..'
+    constant (cut or blank-padded to the field), X'..' (cut or X'00'-padded) or a decimal against ZD / PD; AND / OR
+    with parentheses, AND binding tighter. Applied to each input record before the sort.
+  - SORTIN as a concatenation of datasets reads them in order (SORT USING F1 F2).
+  - **Declared difference.** The oracle's SORT rewrites a signed DISPLAY key's sign zone in the records it sorts
+    (`cobc -std=ibm -fsign=EBCDIC`, cobc 3.1.2, measured 2026-10-28: an unsigned key `0001` comes out `000A`); DFSORT
+    and Enterprise COBOL never change a record's bytes. The lowering therefore sorts a ZD / PD key as a copy carried
+    ahead of the record and writes only the record. The same oracle behaviour applies to a COBOL program's own SORT
+    on a signed DISPLAY key over unsigned data; the port keeps the bytes, as IBM does.
+  - Refused by name: OUTREC / INREC / OUTFIL / SUM / RECORD / ALTSEQ and every other statement, the other formats (FI,
+    AQ, AC ...), OPTION operands other than EQUALS / NOEQUALS, SORT operands such as SKIPREC, a statement label, a
+    field outside the record, a ZD / PD key over 18 digits, and comparisons DFSORT pads or converts across formats.
+  - Not yet run from a generated batch job: `JclSteps.utility` still refuses the SORT step; wiring the model into
+    the batch forge, IEBGENER, an IDCAMS REPRO / DEFINE subset and a multi-step job case are the next slices of #4268.
 - The COBOL SORT / MERGE / RELEASE / RETURN verbs and the SD entry are translated (#4286), onto `cobolrt/Sort`:
   - Keys compare as a relation condition compares their items: a numeric key (zoned, packed, binary, signed or
     not) by value, any other byte by byte. WITH DUPLICATES IN ORDER is a stable sort; without it, records with

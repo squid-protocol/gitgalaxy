@@ -196,31 +196,39 @@ def plan(
     }
 
 
-def replay(prs: list[dict], refs: dict | None = None, root: Path = REPO_ROOT) -> dict:
+def replay(prs: list[dict], refs: dict | None = None, root: Path = REPO_ROOT, cmap: dict | None = None) -> dict:
     """Plan the pull requests in `prs` (`gh pr list --json number,files`) and count each mode. A PR whose `files` list
-    holds 100 entries may be cut short by gh, and one with no files is unreadable: both count as full (when in doubt, run)."""
+    holds 100 entries may be cut short by gh, and one with no files is unreadable: both count as full (when in doubt, run).
+    With `cmap` (the coverage map) an engine-touching PR may select; `engine_prs` / `engine_select` count the PRs that
+    change a `gitgalaxy/**.py` file and how many of them select, the share the map exists to move."""
     refs = change_classifier.load() if refs is None else refs
     modes: dict[str, list[int]] = {"skip": [], "select": [], "full": []}
+    engine_prs = engine_select = 0
     for pr in prs:
         files = [f["path"] for f in pr.get("files") or [] if f.get("path")]
-        mode = "full" if len(files) >= 100 else plan(files, "pull_request", (), refs, root)["mode"]
+        mode = "full" if len(files) >= 100 else plan(files, "pull_request", (), refs, root, cmap)["mode"]
         modes[mode].append(pr["number"])
+        if any(is_engine_module(f) for f in files):
+            engine_prs += 1
+            engine_select += mode == "select"
     n = len(prs)
     out: dict = {"prs": n}
     for m, nums in modes.items():
         out[m] = len(nums)
         out[f"{m}_share"] = round(len(nums) / n, 3) if n else 0.0
+    out["engine_prs"] = engine_prs
+    out["engine_select"] = engine_select
     out["skipped_prs"] = modes["skip"]
     out["selected_prs"] = modes["select"]
     return out
 
 
-def run_replay(n: int) -> dict:
+def run_replay(n: int, cmap: dict | None = None) -> dict:
     proc = subprocess.run(["gh", "pr", "list", "--state", "merged", "-L", str(n), "--json", "number,files"],  # noqa: S603, S607
                           cwd=REPO_ROOT, capture_output=True, text=True, check=False)  # fmt: skip
     if proc.returncode != 0:
         raise RuntimeError(proc.stderr.strip() or "gh pr list failed")
-    return replay(json.loads(proc.stdout))
+    return replay(json.loads(proc.stdout), cmap=cmap)
 
 
 def changed_files(base: str) -> list[str]:
@@ -247,7 +255,7 @@ def main() -> int:
     args = ap.parse_args()
     if args.replay:
         try:
-            print(json.dumps(run_replay(args.replay), indent=1))
+            print(json.dumps(run_replay(args.replay, coverage_map.load(args.coverage_map)), indent=1))
         except (RuntimeError, OSError, ValueError) as e:
             print(f"replay failed: {e}", file=sys.stderr)
             return 1

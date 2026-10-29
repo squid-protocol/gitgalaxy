@@ -665,29 +665,41 @@ def _initializers(node):
     return []
 
 
-def _owner(node):
-    """The class a constructor definition belongs to: the scope of ``Cls::Cls``, else the class body it sits in. A
-    qualified name wins over the enclosing class, and a constructor named for another class is no member of it: a class
-    body tree-sitter fails to close (doomsday's ``DE_GUI_PIMPL`` holding a nested class) swallows the definitions below
-    it, ``PackagesWidget::PackagesWidget`` and ``Impl(Public *i)`` among them (#6266)."""
+def _ctor_name(node):
+    """The unqualified name a function definition declares (`PackagesWidget::PackagesWidget(..)` -> PackagesWidget), or None."""
     decl = node.child_by_field_name("declarator")
-    while decl is not None and decl.type not in ("qualified_identifier", "identifier", "field_identifier"):
+    while decl is not None and decl.type not in ("identifier", "qualified_identifier", "field_identifier"):
         decl = decl.child_by_field_name("declarator")
-    if decl is not None and decl.type == "qualified_identifier":
-        scope = decl.child_by_field_name("scope")
-        while (inner := decl.child_by_field_name("name")) is not None and inner.type == "qualified_identifier":
-            decl, scope = inner, inner.child_by_field_name("scope") or scope  # `A::B::B` nests: the innermost scope
-        return bare(decode_bytes(scope.text)) if scope is not None else None
+    return bare(decode_bytes(decl.text)) if decl is not None else None
+
+
+def _owner(node):
+    """The class a constructor definition belongs to: the class body it sits in, else the scope of ``Cls::Cls``."""
+    ctor = _ctor_name(node)
     up = node.parent
     while up is not None:
         if up.type in ("class_specifier", "struct_specifier"):
             name = up.child_by_field_name("name")
             owner = decode_bytes(name.text).split("<")[0].strip() if name is not None else None  # `Box<T, true>` -> Box
-            if decl is not None and _initializers(node) and decode_bytes(decl.text) != owner:
-                return None  # only a constructor has an initializer list, and it is named for its own class
-            return owner
+            # a constructor is named for its class: a class that is not (a misread unclosed `class` run over the rest of
+            # the file, packageswidget.cpp's `PackageListItemWidget`) is not its owner, so keep climbing (#6266)
+            if ctor is None or owner is None or owner == ctor:
+                return owner
         up = up.parent
-    return None
+    decl = node.child_by_field_name("declarator")
+    while decl is not None and decl.type != "qualified_identifier":
+        decl = decl.child_by_field_name("declarator")
+    scope = decl.child_by_field_name("scope") if decl is not None else None
+    while (
+        decl is not None
+        and (inner := decl.child_by_field_name("name")) is not None
+        and inner.type == "qualified_identifier"
+    ):
+        decl, scope = (
+            inner,
+            inner.child_by_field_name("scope") or scope,
+        )  # `A::B::B` nests: the class is the innermost scope
+    return bare(decode_bytes(scope.text)) if scope is not None else None
 
 
 class Classes(dict):

@@ -160,7 +160,8 @@ class FileDef:
     why: str = ""
     varying: dict | None = None  # RECORD VARYING ... DEPENDING ON: {min, max, depending} (program.fd_entries)
     sort: bool = False  # an SD (sort-merge) file: SORT / MERGE / RELEASE / RETURN only
-    sort_length: int | None = None  # its records' length (None: records of different lengths)
+    sort_length: int | None = None  # its records' length: the longest record's, when they differ (sort_min_length)
+    sort_min_length: int | None = None  # the shortest record's length (the keys lie within it)
 
 
 @dataclass
@@ -309,6 +310,7 @@ class Gen:
         # the PROGRAM COLLATING SEQUENCE's Sort.Collating once a relation condition compares under it (#4539): the
         # service's COLLATING constant
         self.pcs_used: str | None = None
+        self.sorts_table = False  # a SORT of a table (format 2): the runtime's Sort is imported without an SD file
 
     # ---- references ---------------------------------------------------------------------------------------------
     def resolve(self, ref: E.Ref) -> L.Item:
@@ -2182,10 +2184,6 @@ class Gen:
             raise Untranslatable(s.data.get("why", "not parsed"))
         if _holds_wide(s):  # #4272: never translated with the stand-in byte (source.narrowed)
             raise Untranslatable(WIDE_WHY)
-        if self.sets_sort_return(s):
-            # IBM (SORT-RETURN special register): moving 16 to it in an input / output procedure ends the sort at
-            # the next RELEASE or RETURN; GnuCOBOL's behaviour is not measured
-            raise Untranslatable("SORT-RETURN set by the program (ends a sort early): not modelled")
         if k in ("SORT", "MERGE"):
             return [c, *self.sort(s, ind)]
         if k in ("RELEASE", "RETURN"):
@@ -3356,28 +3354,65 @@ class Gen:
         raise Untranslatable(k)
 
     # ---- SORT / MERGE / RELEASE / RETURN (IBM Enterprise COBOL for z/OS 6.4 Language Reference) ----------------
-    def sets_sort_return(self, s: S.Stmt) -> bool:
-        """Whether the statement stores into the SORT-RETURN special register."""
-        if self.items.get("SORT-RETURN"):
-            return False  # the program's own item of that name
-        d, targets = s.data, []
-        if s.kind == "MOVE":
-            targets = d["to"]
-        elif s.kind == "SET-TO":
-            targets = d["targets"]
-        elif s.kind == "INITIALIZE":
-            targets = d["refs"]
-        elif s.kind in ("COMPUTE", "ARITH"):
-            targets = [t[0] if isinstance(t, tuple) else t for t in (d.get("targets") or []) + (d.get("giving") or [])]
-        return any(isinstance(t, E.Ref) and t.name == "SORT-RETURN" for t in targets)
-
     def sort_file(self, name: str) -> FileDef:
         fd = next((f for f in self.p.files.values() if f.sort and name in (f.select, f.fd)), None)
         if fd is None:
             raise Untranslatable(f"{name}: no SD file")
         if fd.record is None or fd.sort_length is None:
-            raise Untranslatable(f"{name}: an SD with no record, or records of different lengths")
+            raise Untranslatable(f"{name}: an SD with no record")
         return fd
+
+    def sort_table(self, d: dict, ind: str) -> list[str]:
+        """SORT table ON {ASCENDING | DESCENDING} KEY k ... (format 2): the table's entries, each a record of the
+        sort, ordered by the keys inside an entry and put back in place. One OCCURS level with a fixed count; a key
+        is a data item of the entry (or the entry itself, for an elementary table); SORT-RETURN 0. A table with
+        OCCURS ... DEPENDING ON sorts its first `count` entries, the count read when the SORT runs (IBM: the
+        DEPENDING ON item's value, within the OCCURS bounds, else undefined: the port stops by name); the entries
+        past the count are not touched. No KEY phrase: the OCCURS clause's own ASCENDING / DESCENDING KEY (IBM)."""
+        tbl = self.resolve(E.Ref(d["file"]))
+        if _occurs_chain(tbl) != [tbl] or tbl.occurs < 2:
+            raise Untranslatable(f"SORT {d['file']}: not a table of one OCCURS level")
+        self.check_record_bytes(tbl, f"SORT {d['file']}")
+        coll = self.collating("SORT", d["collating"] or self.program_collating)
+        keys = []
+        if not d["keys"] and not tbl.keys:
+            raise Untranslatable(f"SORT {d['file']}: no KEY phrase and no KEY in the OCCURS clause")
+        if not d["keys"] and len(tbl.keys) > 1:  # IBM orders by every key; GnuCOBOL (the oracle) by the first only
+            raise Untranslatable(f"SORT {d['file']}: no KEY phrase and {len(tbl.keys)} keys in the OCCURS clause: "
+                                 "IBM and GnuCOBOL differ")  # fmt: skip
+        for ref, asc in d["keys"] or [(E.Ref(name), asc) for asc, name in tbl.keys]:
+            it = self.resolve(ref)
+            top = it
+            while top is not tbl and top.parent is not None:
+                top = top.parent
+            if top is not tbl or _occurs_chain(it) != [tbl] or ref.subscripts:
+                raise Untranslatable(f"SORT {d['file']} KEY {ref.name}: not a data item of one entry of the table")
+            if coll and it.category != "NUMERIC" and not _text_item(it):
+                raise Untranslatable(f"SORT {d['file']} KEY {ref.name}: holds numeric or national items, under "
+                                     f"COLLATING SEQUENCE {d['collating'] or self.program_collating}: not modelled")  # fmt: skip
+            keys.append(f"new Sort.Key(r -> {self.factory(it, 'r', str(it.offset - tbl.offset))}, {_b(asc)})")
+        self.sorts_table = True
+        var, i, n = self.tmpname("tsort"), self.tmpname("i"), str(tbl.occurs)
+        pre: list[str] = []
+        if tbl.depending:
+            n = self.tmpname("n")
+            count = self.int_expr(E.Parser(E.tokenize(tbl.depending)).ref())
+            low = tbl.occurs_min if tbl.occurs_min is not None else 0
+            pre = [f"{ind}int {n} = {count};",
+                   f"{ind}if ({n} < {low} || {n} > {tbl.occurs}) throw new Hole("
+                   + jstr(f"SORT {d['file']}: {tbl.depending} outside {low} to {tbl.occurs} (IBM: undefined)") + ");"]  # fmt: skip
+        entry = f"{self.field_expr(E.Ref(d['file']))}.at({i}, {tbl.size})"
+        out = [
+            *pre,
+            f"{ind}Sort {var} = new Sort({jstr(d['file'])}, {tbl.size}, {_b(d['duplicates'])}, CS,"
+            + (f" {coll}," if coll else ""),
+        ]
+        out += [f"{ind}        {k}{',' if m < len(keys) - 1 else ');'}" for m, k in enumerate(keys)]
+        out += [f"{ind}for (int {i} = 1; {i} <= {n}; {i}++) {{", f"{ind}    {var}.add({entry});", f"{ind}}}",
+                f"{ind}{var}.sort();",
+                f"{ind}for (int {i} = 1; {i} <= {n}; {i}++) {{", f"{ind}    {entry}.putRaw({var}.next());", f"{ind}}}",
+                f"{ind}Cobol.store({self.field_expr(E.Ref('SORT-RETURN'))}, BigDecimal.ZERO, false, CS);"]  # fmt: skip
+        return out
 
     def procedure_range(self, rng: tuple, ind: str) -> list[str]:
         """An INPUT / OUTPUT PROCEDURE: run as PERFORM name [THRU name] runs it (a section: its paragraphs)."""
@@ -3393,6 +3428,8 @@ class Gen:
         """SORT / MERGE: a Sort over the SD's records, filled from the USING files or the INPUT PROCEDURE's RELEASEs,
         ordered, then emptied into the GIVING files or by the OUTPUT PROCEDURE's RETURNs; SORT-RETURN 0."""
         d, verb = s.data, s.kind
+        if d["table"]:
+            return self.sort_table(d, ind)
         sd = self.sort_file(d["file"])
         var = f"sort_{jname(sd.select)}"
         coll = self.collating(verb, d["collating"] or self.program_collating)
@@ -3406,6 +3443,10 @@ class Gen:
                 raise Untranslatable(f"{verb} KEY {ref.name}: not in a record of {sd.fd}")
             if _occurs_chain(it) or it.depending:
                 raise Untranslatable(f"{verb} KEY {ref.name}: under an OCCURS")
+            if sd.sort_min_length is not None and it.offset + it.size > sd.sort_min_length:
+                # IBM: a key lies within every record of the sort; past a shorter record's end it names no byte
+                raise Untranslatable(f"{verb} KEY {ref.name}: past the end of the shortest record of {sd.fd} "
+                                     f"({sd.sort_min_length} bytes): not modelled")  # fmt: skip
             if coll and it.category != "NUMERIC" and not _text_item(it):
                 # the alphabet orders characters: a packed, binary or zoned byte is no character of the data's
                 # code page (on z/OS its byte is the same in ASCII and EBCDIC; a character's is not)
@@ -3429,7 +3470,7 @@ class Gen:
         for name in d["giving"]:
             out += self.giving_file(verb, var, sd, name, ind)
         out.append(f"{ind}{var} = null;")
-        out.append(f"{ind}Cobol.store({self.field_expr(E.Ref('SORT-RETURN'))}, BigDecimal.ZERO, false, CS);")
+        out.append(f"{ind}Sort.finished({self.field_expr(E.Ref('SORT-RETURN'))}, CS);")
         return out
 
     def collating(self, verb: str, name: str | None) -> str | None:
@@ -3530,19 +3571,22 @@ class Gen:
         if s.kind == "RELEASE":
             it = self.resolve(s.data["record"])
             sd = self.sort_file(it.fd or "")
-            if it.size != sd.sort_length:
-                raise Untranslatable(f"RELEASE {it.name}: not the sort file's record length")
+            if it.parent is not None or it.size > (sd.sort_length or 0):
+                raise Untranslatable(f"RELEASE {it.name}: not a record of the sort file")
             var = f"sort_{jname(sd.select)}"
             out = [ind + self.move(s.data["from"], s.data["record"])] if s.data["from"] is not None else []
             what = jstr(f"RELEASE {it.name} outside an input procedure")
-            return [*out, f"{ind}Sort.active({var}, {what}).release({self.field_expr(s.data['record'])});"]
+            reg = self.field_expr(E.Ref("SORT-RETURN"))
+            return [*out, f"{ind}Sort.active({var}, {what}).release({self.field_expr(s.data['record'])}, {reg}, CS);"]
         sd = self.sort_file(s.data["file"])
         self.check_record_bytes(sd.record, f"RETURN {sd.select}")
         var, rec, st = f"sort_{jname(sd.select)}", self.ids[id(sd.record)], self.tmpname("st")
         what = jstr(f"RETURN {s.data['file']} outside an output procedure")
-        out = [f'{ind}String {st} = Sort.active({var}, {what}).returnInto({rec}) ? "00" : "10";']
+        reg = self.field_expr(E.Ref("SORT-RETURN"))
+        out = [f'{ind}String {st} = Sort.active({var}, {what}).returnInto({rec}, {reg}, CS) ? "00" : "10";']
         if s.data["into"] is not None:
-            out += [f'{ind}if ({st}.equals("00")) {{', f"{ind}    Cobol.move({rec}, {self.field_expr(s.data['into'])}, CS);",
+            out += [f'{ind}if ({st}.equals("00")) {{',
+                    f"{ind}    {var}.returnInto({rec}, {self.field_expr(s.data['into'])});",
                     f"{ind}}}"]  # fmt: skip
         return out + self.io_phrases(s, st, ind, at_end="10", invalid=())
 

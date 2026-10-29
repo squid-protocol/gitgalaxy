@@ -78,6 +78,17 @@ jobs:
           fetch-depth: 1
           persist-credentials: false
 
+      # #6278 item 5: the newest nightly's coverage map (engine-coverage-map.yml); a miss plans without it (engine edits run full)
+      - name: Restore the newest coverage map
+        if: ${{ github.event_name == 'pull_request' }}
+        continue-on-error: true
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: engine-map-cache
+          key: engine-test-map-${{ github.run_id }}  # never an exact hit: restore-keys takes the newest saved one
+          restore-keys: |
+            engine-test-map-
+
       - name: Plan the suite
         id: plan
         if: ${{ github.event_name == 'pull_request' }}
@@ -90,7 +101,7 @@ jobs:
           labels=$(gh api "repos/$REPO/issues/$PR/labels" --jq '[.[].name] | join(",")' || echo "shepherd:full")
           mapfile -t files < <(gh api --paginate "repos/$REPO/pulls/$PR/files" --jq '.[] | .filename, (.previous_filename // empty)' || true)
           count=$(gh api "repos/$REPO/pulls/$PR" --jq .changed_files || echo 0)
-          args=(--event pull_request --labels "$labels" --github-output "$GITHUB_OUTPUT" --files)
+          args=(--event pull_request --labels "$labels" --github-output "$GITHUB_OUTPUT" --coverage-map engine-map-cache/engine_test_map.json --files)
           if [ "${#files[@]}" -ge "$count" ]; then args+=("${files[@]}"); fi
           python3 tests/tools/suite_select_plan.py "${args[@]}" > suite-plan.json || { echo "mode=full" >> "$GITHUB_OUTPUT"; echo '{"mode": "full", "reason": "the planner failed"}' > suite-plan.json; }
           {

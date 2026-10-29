@@ -1,3 +1,5 @@
+import datetime as dt
+
 """#6278 item 3: the Smoke full-suite selection -- prose skips, test-read docs / agent config run only their readers,
 everything else (and every doubt) runs the whole suite. Real changed-file lists pin both directions."""
 
@@ -188,12 +190,27 @@ def test_replay_counts_each_mode_and_runs_full_when_in_doubt():
     assert sp.replay([], REFS)["full_share"] == 0.0
 
 
+def test_replay_with_a_map_counts_the_engine_prs_that_select():
+    cmap = {
+        "version": 1,
+        "built_at": dt.datetime.now(dt.timezone.utc).isoformat(),
+        "tests": 100,
+        "always": ["tests/test_source_reads.py"],
+        "modules": {"gitgalaxy/core/prism.py": ["tests/core_engine/test_prism.py"]},
+    }
+    prs = [_pr(1, "gitgalaxy/core/prism.py"), _pr(2, "gitgalaxy/core/detector.py"), _pr(3, "README.md")]
+    with_map = sp.replay(prs, REFS, cmap=cmap)
+    assert (with_map["engine_prs"], with_map["engine_select"]) == (2, 1)
+    without = sp.replay(prs, REFS)
+    assert (without["engine_prs"], without["engine_select"]) == (2, 0)
+
+
 def test_the_replay_cli_reports_and_a_gh_failure_is_exit_1(monkeypatch, capsys):
-    monkeypatch.setattr(sp, "run_replay", lambda n: {"prs": n})
+    monkeypatch.setattr(sp, "run_replay", lambda n, cmap=None: {"prs": n})
     monkeypatch.setattr(sys, "argv", ["x", "--replay", "3"])
     assert sp.main() == 0 and '"prs": 3' in capsys.readouterr().out
 
-    def boom(n):
+    def boom(n, cmap=None):
         raise RuntimeError("no gh")
 
     monkeypatch.setattr(sp, "run_replay", boom)
@@ -275,6 +292,7 @@ def test_the_spine_helper_equivalence_stays_full():
 def test_engine_module_selects_the_tests_the_coverage_map_names():
     cmap = {
         "version": 1,
+        "built_at": dt.datetime.now(dt.timezone.utc).isoformat(),
         "tests": 100,
         "always": ["tests/test_source_reads.py"],
         "modules": {"gitgalaxy/core/prism.py": ["tests/core_engine/test_prism.py"]},
@@ -300,6 +318,7 @@ def test_engine_module_selects_the_tests_the_coverage_map_names():
 def test_engine_changes_the_map_cannot_prove_stay_full(files):
     cmap = {
         "version": 1,
+        "built_at": dt.datetime.now(dt.timezone.utc).isoformat(),
         "tests": 100,
         "always": [],
         "modules": {"gitgalaxy/core/prism.py": ["tests/core_engine/test_prism.py"]},

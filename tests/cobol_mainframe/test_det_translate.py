@@ -1863,10 +1863,12 @@ def test_web_receive_set_puts_the_body_in_a_block_the_pointer_addresses():
     """#4771 (X47), IBM WEB RECEIVE (server) SET: the body goes into storage CICS hands the program (the pointer), LENGTH is
     the bytes returned and must be given; MAXLENGTH is optional with SET (all the remaining data)."""
     w = _PtrCics().command("WEB RECEIVE SET(PTR) LENGTH(R) MAXLENGTH(R2) MEDIATYPE(REC) NOSRVCONVERT NOHANDLE", "")
-    assert w[0] == "CicsTask.WebReceived web1 = task.webReceive(INT(R2), Integer.MAX_VALUE);"
+    assert w[0] == "CicsTask.WebReceived web1 = task.webReceive(INT(R2), Integer.MAX_VALUE, 2);"
     assert "DetCics.receivedBlock(task, f_PTR, web1.body(), CS);" in " ".join(w) and "STORE(R, " in " ".join(w)
     w = _PtrCics().command("WEB RECEIVE SET(PTR) LENGTH(R)", "")
-    assert w[0] == "CicsTask.WebReceived web1 = task.webReceive(Integer.MAX_VALUE, Integer.MAX_VALUE);"
+    assert w[0] == "CicsTask.WebReceived web1 = task.webReceive(Integer.MAX_VALUE, Integer.MAX_VALUE, 0);"
+    w = _PtrCics().command("WEB RECEIVE SET(PTR) LENGTH(R) SRVCONVERT", "")  # (the text/* pass: conv 1)
+    assert w[0] == "CicsTask.WebReceived web1 = task.webReceive(Integer.MAX_VALUE, Integer.MAX_VALUE, 1);"
     for bad, why in (("WEB RECEIVE SET(PTR) MAXLENGTH(R)", "SET without LENGTH"),
                      ("WEB RECEIVE SET(REC) LENGTH(R)", "not a plain USAGE POINTER"),
                      ("WEB RECEIVE SET(OVER-PTR) LENGTH(R)", "REDEFINES overlays"),

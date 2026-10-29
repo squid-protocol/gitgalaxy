@@ -1041,7 +1041,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
             fd.why = "a sort file (SD): SORT / MERGE / RELEASE / RETURN only"
             if fd.record is not None:
                 lengths = {r.size for r in records if r.section == "FILE" and r.fd == fd.fd}
-                fd.sort_length = lengths.pop() if len(lengths) == 1 else None
+                fd.sort_length, fd.sort_min_length = max(lengths), min(lengths)
             file_decls.append(f"    private Sort sort_{G.jname(fd.select)};")
             continue
         if fd.record is None:

@@ -603,40 +603,40 @@
   "port_sha256": "79755803d19000ce0eab72f14710ed1da7233c64eb71268a5267ba79460df403"
  },
  "mutation": {
-  "commit": "7a30cd45ca654ad7f7a9fb85f2f8d185e37546b2",
+  "commit": "609d71d7cb799b8615eafae2f0f06a663a081181",
   "rejudged": null,
   "seed": 0,
   "mode": null,
-  "mutants": 470,
+  "mutants": 2413,
   "chosen": 150,
-  "killed": 63,
-  "survived": 68,
-  "stillborn": 19,
+  "killed": 68,
+  "survived": 78,
+  "stillborn": 4,
   "survivors": {
-   "case_gap": 43,
+   "case_gap": 72,
    "harness_gap": 0,
-   "equivalent": 11,
-   "unreachable": 14,
+   "equivalent": 1,
+   "unreachable": 5,
    "untriaged": 0
   },
-  "score_raw": "63/131",
-  "score_adjusted": "63/106",
+  "score_raw": "68/146",
+  "score_adjusted": "68/140",
   "source": "docs/language_status/mutation_scores.json#cbsa-inqacc/INQACC",
   "inputs": {
    "port": {
-    "sha256": "bd2ddab9846da8fea3eb412e308d0c9aea0b35835d537f9d5f0f7d19bb9b630c"
+    "sha256": "79755803d19000ce0eab72f14710ed1da7233c64eb71268a5267ba79460df403"
    },
    "case": {
-    "sha256": "a39d307ace7093196d4217da06487c426d80acc673d572f5697f7a0c8d23af97"
+    "sha256": "efd54996573f9c4f7387d2fe133b7a6207a649c64951bddde09fa36cad20d6c6"
    },
    "corpus": {
     "sha256": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b"
    },
    "harness": {
-    "sha256": "49647c137ebef290b076dd0d77b7206f45e7ed386619cd9d2bb01f988a3b771e"
+    "sha256": "1bff6e9449468f9f3214f21587587d13832bd6dd1efeecba0b681a7532db3146"
    },
    "oracle": {
-    "sha256": "355ebe36f14803055dd9719fec0c352529cea642fced6db49a2915e2451f021f"
+    "sha256": "09a3601a9fb44d6f6a104225eb32b6b94c340dac1b6542303e8908cf6dafdf1c"
    }
   }
  },

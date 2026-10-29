@@ -106,3 +106,23 @@ def test_declaration_capture_reads_top_level_names_only():
         "    struct Nested {}\nprivate struct Hidden {}\ntypealias E = Int\nlet f = 1\n"
     )
     assert [m.group(1) for m in rx.finditer(src)] == ["A", "B", "C", "d", "E", "f"]
+
+
+def test_nested_type_of_another_file_is_not_a_declaration():
+    """A file's captured top-level names stand in for its units, which also hold nested types."""
+    files = [
+        {"path": "Sources/App/main.swift", "lang_id": "swift", "raw_imports": ["Lib.Widget"]},
+        {
+            "path": "Sources/Lib/A.swift",
+            "lang_id": "swift",
+            "classes": [{"name": "Widget"}],
+            "declared_names": ["Widget"],
+        },
+        {
+            "path": "Sources/Lib/Msg.swift",
+            "lang_id": "swift",
+            "classes": [{"name": "Msg"}, {"name": "Widget"}],
+            "declared_names": ["Msg"],
+        },
+    ]
+    assert {dst for (_s, dst) in NetworkRiskSensor()._resolve_edges(files)} == {"Sources/Lib/A.swift"}

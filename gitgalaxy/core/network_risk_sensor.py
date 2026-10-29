@@ -271,7 +271,13 @@ class NetworkRiskSensor:
             # #3596: where each declaration lives, for languages whose import
             # names a declaration rather than a file (Kotlin top-level functions).
             if str(f.get("lang_id", "")).lower() in DECLARATION_IMPORT_LANGS:
-                for unit in (f.get("functions") or []) + (f.get("classes") or []):
+                # #3798: a Swift file's `_declaration_capture` reads top-level names only; its units also
+                # hold nested types (`struct BuildParameters` inside an enum), which a multi-file scoped
+                # import must not link, so the captured names stand in for the units when present.
+                units: list[Any] | None = (
+                    [] if (str(f.get("lang_id", "")).lower() == "swift" and f.get("declared_names")) else None
+                )
+                for unit in (f.get("functions") or []) + (f.get("classes") or []) if units is None else units:
                     name = unit.get("name") if isinstance(unit, dict) else None
                     if name:
                         self._declared_in[name].append(path)

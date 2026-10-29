@@ -14,6 +14,10 @@ ground_truth_plan.py does for `ground-truth`):
 * `select` also when a changed file is a test module (`tests/**/test_*.py`, #6278 item 5): that module, the test modules
            that import it by name, and TREE_GUARDS (the tests that scan the tests/ tree for a repo rule) run. Any other
            `tests/` file (conftest, fixtures, data, a helper) is full: a test file cannot be mapped to what reads it.
+* `select` also when a changed file is a `tests/tools` helper (a `.py` that is not a test module and not conftest /
+           `__init__`, #6278 item 5): every test file in `tests/` that names it as a word, found transitively through the
+           non-test helpers that name it, plus TREE_GUARDS. More than HELPER_MAX such tests (a helper most of the
+           suite leans on) is `full`.
 * `full`   anything else, any reader that is the engine or a root-level script (it cannot be mapped to a test), an
            unreadable or empty diff, the `shepherd:full` label, and every event that is not a pull_request.
 
@@ -64,6 +68,44 @@ def test_module_targets(f: str, root: Path = REPO_ROOT) -> list[str]:
     return hits
 
 
+HELPER_MAX = 120  # a helper named by more test files than this is part of the suite's spine: run it all
+NOT_HELPERS = ("conftest", "__init__")
+
+
+def is_helper_module(f: str) -> bool:
+    """A non-test Python file under tests/tools (any depth): the kind a name search can map to its tests."""
+    p = Path(f)
+    return (
+        f.startswith("tests/tools/")
+        and p.suffix == ".py"
+        and not p.name.startswith("test_")
+        and p.stem not in NOT_HELPERS
+    )
+
+
+def helper_targets(f: str, root: Path = REPO_ROOT, limit: int = HELPER_MAX) -> list[str] | None:
+    """Every test file that names the helper `f` or a non-test helper that (transitively) names it, as a word; None when
+    that is more than `limit` files (the caller runs everything). A deleted helper maps by its old name the same way."""
+    files = [
+        (t.relative_to(root).as_posix(), change_classifier._text(t)) for t in sorted((root / "tests").rglob("*.py"))
+    ]
+    names, seen, tests = {Path(f).stem}, set(), set()
+    while names:
+        name = names.pop()
+        seen.add(name)
+        rx = re.compile(rf"\b{re.escape(name)}\b")
+        for rel, text in files:
+            if rel == f or not rx.search(text):
+                continue
+            if is_test_module(rel):
+                tests.add(rel)
+            elif (stem := Path(rel).stem) not in seen and stem not in NOT_HELPERS:
+                names.add(stem)
+        if len(tests) > limit:
+            return None
+    return sorted(tests)
+
+
 def test_target(scope: str, root: Path = REPO_ROOT) -> list[str] | None:
     """The pytest arguments for a reader scope, or None when no test maps to it (the engine, a root script). A
     non-test `tests/tools/<helper>` runs every tests/tools test that names it (its own `test_<helper>.py` among them)."""
@@ -98,16 +140,22 @@ def plan(
     refs = change_classifier.load() if refs is None else refs
     areas = {f: change_classifier.area(f, refs) for f in files}
     modules = [f for f in files if is_test_module(f)]
-    other = sorted(f for f, a in areas.items() if a not in SELECTABLE and f not in modules)
+    helpers = [f for f in files if is_helper_module(f)]
+    other = sorted(f for f, a in areas.items() if a not in SELECTABLE and f not in modules and f not in helpers)
     if other:
         return {**full, "reason": f"{len(other)} changed file(s) are not docs / agent config, first: {other[0]}"}
     targets: set[str] = set()
     for f in modules:
         targets.update(test_module_targets(f, root))
-    if modules:
+    for f in helpers:
+        hit = helper_targets(f, root)
+        if hit is None:
+            return {**full, "reason": f"{f} is named by more than {HELPER_MAX} test files"}
+        targets.update(hit)
+    if modules or helpers:
         targets.update(g for g in TREE_GUARDS if (root / g).exists())
     for f, a in areas.items():
-        if a == "prose" or f in modules:
+        if a == "prose" or f in modules or f in helpers:
             continue
         for scope in change_classifier.readers_of(f, refs):
             t = test_target(scope, root)
@@ -117,7 +165,11 @@ def plan(
     if not targets:
         return {"mode": "skip", "reason": "every changed file is prose no test or engine code opens", "paths": []}
     paths = sorted(t for t in targets if not any(t != u and t.startswith(u + "/") for u in targets))
-    return {"mode": "select", "reason": f"docs / agent config / test modules only: the {len(paths)} reader(s) run", "paths": paths}
+    return {
+        "mode": "select",
+        "reason": f"docs / agent config / test modules / tests/tools helpers only: the {len(paths)} reader(s) run",
+        "paths": paths,
+    }
 
 
 def replay(prs: list[dict], refs: dict | None = None, root: Path = REPO_ROOT) -> dict:

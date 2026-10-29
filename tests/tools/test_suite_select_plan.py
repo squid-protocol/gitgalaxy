@@ -324,6 +324,8 @@ def test_a_data_tree_reader_set_is_direct_only(tmp_path):
         "tests/cobol_mainframe/field_testing.json",
         "tests/ruff_audit_baseline.json",
         "tests/equivalence/det_sweep_coverage/asynccc-getname.json",
+        "tests/equivalence/infeasible_outcomes/zecs-zecs002.json",
+        "tests/equivalence/det_mutation/carddemo-userdel.json",
     ],
 )
 def test_a_named_data_file_selects_the_tests_that_name_it(f):
@@ -432,3 +434,22 @@ def test_engine_changes_the_map_cannot_prove_stay_full(files):
 
 def test_an_engine_change_is_full_without_a_map():
     assert sp.plan(["gitgalaxy/core/prism.py"], "pull_request", (), REFS, TOOLS.parents[1], None)["mode"] == "full"
+
+
+def test_a_case_record_is_read_by_its_directory_name_or_its_case_id(tmp_path):
+    for d in ("infeasible_outcomes", "det_mutation"):
+        (tmp_path / "tests" / "equivalence" / d).mkdir(parents=True)
+    (tmp_path / "tests" / "tools").mkdir()
+    (tmp_path / "tests" / "tools" / "test_a.py").write_text("root / 'infeasible_outcomes'\n")
+    (tmp_path / "tests" / "tools" / "test_b.py").write_text("case = 'cbsa-bnk1cac'\n")
+    (tmp_path / "tests" / "tools" / "test_c.py").write_text("det_mutation\n")
+    assert sp.named_data_targets("tests/equivalence/infeasible_outcomes/cbsa-bnk1cac.json", tmp_path) == [
+        "tests/tools/test_a.py",
+        "tests/tools/test_b.py",
+    ]
+    assert sp.named_data_targets("tests/equivalence/det_mutation/x.json", tmp_path) == ["tests/tools/test_c.py"]
+
+
+@pytest.mark.parametrize("f", ["tests/equivalence/infeasible_outcomes/x.py", "tests/equivalence/carddemo-a.json"])
+def test_other_equivalence_files_are_not_case_records(f):
+    assert not sp.is_named_data_file(f)

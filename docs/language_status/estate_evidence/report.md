@@ -13,11 +13,11 @@ Rolled up from the per-program evidence records (#4048, #4054). A level is evide
 ## All reported estates
 
 - Programs: 57; at E0 0, E1 5, E2 31, E3 21, E4 0; executed equivalent or above (E2+): 52/57 (91.2%).
-- Coverage over the programs with a record: paragraphs 571/574 (99.5%), branch outcomes 1724/1821 (94.7%).
-- Mutation: 52 program(s) measured, killed 2874/4212 (68.2%) raw (adjusted for equivalent / unreachable survivors: 2874/3340 (86.0%)); survivors case_gap 274, harness_gap 191, equivalent 516, unreachable 356, untriaged 0; open survivors 465.
-- Holes (stub / ported_unproven methods): 4. Declared differences: 13.
+- Coverage over the programs with a record: paragraphs 572/574 (99.7%), branch outcomes 1731/1821 (95.1%).
+- Mutation: 52 program(s) measured, killed 2868/4237 (67.7%) raw (adjusted for equivalent / unreachable survivors: 2868/3401 (84.3%)); survivors case_gap 388, harness_gap 144, equivalent 500, unreachable 336, untriaged 0; open survivors 532.
+- Holes (stub / ported_unproven methods): 3. Declared differences: 12.
 - Approved and current: 0. Stale records: 0 (stale mutation scores: 52).
-- Lines (PROCEDURE DIVISION code lines, copybooks not expanded; 57 of 57 programs measured): 11945 (15542 code lines in all); in programs at E2+ 10057/11945 (84.2%), E3+ 1070/11945 (9.0%), E4 0/11945 (0.0%); paragraph coverage weighted by lines 11890/11945 (99.5%).
+- Lines (PROCEDURE DIVISION code lines, copybooks not expanded; 57 of 57 programs measured): 11945 (15542 code lines in all); in programs at E2+ 10057/11945 (84.2%), E3+ 1070/11945 (9.0%), E4 0/11945 (0.0%); paragraph coverage weighted by lines 11913/11945 (99.7%).
 
 ## aws-mainframe-modernization-carddemo
 
@@ -62,15 +62,15 @@ Rolled up from the per-program evidence records (#4048, #4054). A level is evide
 ## cics-banking-sample-application-cbsa
 
 - Programs: 2; at E0 0, E1 1, E2 1, E3 0, E4 0; executed equivalent or above (E2+): 1/2 (50.0%).
-- Coverage over the programs with a record: paragraphs 31/32 (96.9%), branch outcomes 28/31 (90.3%).
-- Mutation: 2 program(s) measured, killed 166/270 (61.5%) raw (adjusted for equivalent / unreachable survivors: 166/216 (76.9%)); survivors case_gap 43, harness_gap 7, equivalent 28, unreachable 26, untriaged 0; open survivors 50.
-- Holes (stub / ported_unproven methods): 1. Declared differences: 1.
+- Coverage over the programs with a record: paragraphs 31/32 (96.9%), branch outcomes 29/31 (93.5%).
+- Mutation: 2 program(s) measured, killed 171/285 (60.0%) raw (adjusted for equivalent / unreachable survivors: 171/250 (68.4%)); survivors case_gap 72, harness_gap 7, equivalent 18, unreachable 17, untriaged 0; open survivors 79.
+- Holes (stub / ported_unproven methods): 0. Declared differences: 0.
 - Approved and current: 0. Stale records: 0 (stale mutation scores: 2).
 - Lines (PROCEDURE DIVISION code lines, copybooks not expanded; 2 of 2 programs measured): 642 (872 code lines in all); in programs at E2+ 118/642 (18.4%), E3+ 0/642 (0.0%), E4 0/642 (0.0%); paragraph coverage weighted by lines 621/642 (96.7%).
 
 | program | case | lines | level | proof | oracle | coverage (para / branch) | mutation | differences | approval | what stops the next level |
 |---|---|---|---|---|---|---|---|---|---|---|
-| INQACC | cbsa-inqacc | 524 | E1 | 23 runs / 9 fault | gnucobol-models | 24/25 / 23/25 | 63/131, open 43 | 1 | - | the proof did not compare equal on every scenario |
+| INQACC | cbsa-inqacc | 524 | E1 | 26 runs / 12 fault | gnucobol-models | 24/25 / 24/25 | 68/146, open 72 | 0 | - | a program it LINKs or CALLs has holes or no executed-equivalent record: program:ABNDPROC |
 | UPDACC | cbsa-updacc | 118 | E2 | 27 runs / 0 fault | gnucobol-models | 7/7 / 5/6 | 103/139, open 7 | 0 | - | coverage short: 7/7 paragraphs, 5/6 branch outcomes |
 
 ## cics-crucible
@@ -109,17 +109,17 @@ Rolled up from the per-program evidence records (#4048, #4054). A level is evide
 ## cics-genapp
 
 - Programs: 6; at E0 0, E1 0, E2 5, E3 1, E4 0; executed equivalent or above (E2+): 6/6 (100.0%).
-- Coverage over the programs with a record: paragraphs 26/27 (96.3%), branch outcomes 98/111 (88.3%).
-- Mutation: 6 program(s) measured, killed 340/729 (46.6%) raw (adjusted for equivalent / unreachable survivors: 340/638 (53.3%)); survivors case_gap 121, harness_gap 177, equivalent 20, unreachable 71, untriaged 0; open survivors 298.
+- Coverage over the programs with a record: paragraphs 27/27 (100.0%), branch outcomes 104/111 (93.7%).
+- Mutation: 6 program(s) measured, killed 329/739 (44.5%) raw (adjusted for equivalent / unreachable survivors: 329/665 (49.5%)); survivors case_gap 206, harness_gap 130, equivalent 14, unreachable 60, untriaged 0; open survivors 336.
 - Holes (stub / ported_unproven methods): 0. Declared differences: 12.
 - Approved and current: 0. Stale records: 0 (stale mutation scores: 6).
-- Lines (PROCEDURE DIVISION code lines, copybooks not expanded; 6 of 6 programs measured): 881 (1266 code lines in all); in programs at E2+ 881/881 (100.0%), E3+ 237/881 (26.9%), E4 0/881 (0.0%); paragraph coverage weighted by lines 858/881 (97.4%).
+- Lines (PROCEDURE DIVISION code lines, copybooks not expanded; 6 of 6 programs measured): 881 (1266 code lines in all); in programs at E2+ 881/881 (100.0%), E3+ 237/881 (26.9%), E4 0/881 (0.0%); paragraph coverage weighted by lines 881/881 (100.0%).
 
 | program | case | lines | level | proof | oracle | coverage (para / branch) | mutation | differences | approval | what stops the next level |
 |---|---|---|---|---|---|---|---|---|---|---|
 | LGAPDB01 | genapp-lgapdb01 | 326 | E2 | 16 runs / 8 fault | gnucobol-models | 7/7 / 29/31 | 58/137, open 71 | 2 | - | coverage short: 7/7 paragraphs, 29/31 branch outcomes |
 | LGAPVS01 | genapp-lgapvs01 | 79 | E2 | 13 runs / 4 fault | gnucobol-models | 3/3 / 10/11 | 72/125, open 41 | 2 | - | coverage short: 3/3 paragraphs, 10/11 branch outcomes |
-| LGICDB01 | genapp-lgicdb01 | 93 | E2 | 13 runs / 0 fault | gnucobol-models | 3/4 / 5/12 | 51/130, open 56 | 2 | - | coverage short: 3/4 paragraphs, 5/12 branch outcomes |
+| LGICDB01 | genapp-lgicdb01 | 93 | E2 | 18 runs / 4 fault | gnucobol-models | 4/4 / 11/12 | 40/140, open 94 | 2 | - | coverage short: 4/4 paragraphs, 11/12 branch outcomes |
 | LGSTSQ | genapp-lgstsq | 53 | E2 | 8 runs / 0 fault | gnucobol-models | 1/1 / 4/6 | 25/78, open 44 | 2 | - | coverage short: 1/1 paragraphs, 4/6 branch outcomes |
 | LGUPDB01 | genapp-lgupdb01 | 237 | E3 | 22 runs / 12 fault | gnucobol-models | 9/9 / 38/38 | 68/140, open 52 | 2 | - | mutation score stale: port, case, harness, oracle changed since it was judged (cacb629caac85834ee75b1a6ddb2514c3ed930bd) |
 | LGUPVS01 | genapp-lgupvs01 | 93 | E2 | 12 runs / 5 fault | gnucobol-models | 3/3 / 12/13 | 66/119, open 34 | 2 | - | coverage short: 3/3 paragraphs, 12/13 branch outcomes |

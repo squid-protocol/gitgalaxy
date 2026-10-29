@@ -1340,7 +1340,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         ctor_repos += list(gen.cics.repos.items())
         # the codecs added constants: none (they use their own literals)
 
-    if any(f.sort for f in prog.files.values()) or gen.pcs_used:
+    if any(f.sort for f in prog.files.values()) or gen.pcs_used or gen.sorts_table:
         extra_imports.append(f"{package}.cobolrt.Sort")
     if gen.uses_mvs:  # #5856 (A2): the z/OS control blocks a batch pointer addresses
         extra_imports.append(f"{package}.cobolrt.DetMvs")

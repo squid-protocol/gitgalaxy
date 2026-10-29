@@ -745,9 +745,11 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
         vals = getattr(it, "values", None) or []
         return vals[0][1].strip().upper() if vals and vals[0][0] == "lit" else None
 
-    def dto_for(self, area: E.Ref, size: int, program: str | None = None) -> str:
+    def dto_for(self, area: E.Ref, size: int, program: str | None = None, link: bool = False) -> str:
         """The DTO a COMMAREA travels as: the target's (XCTL), the program's own contract when the area is its size,
-        else the record's own DTO."""
+        else the record's own DTO. A LINK's area no DTO types is never the caller's own contract of another size
+        (#6839: ZECS001's 66-byte ZECS002-COMM-AREA to the HLASM ZECS002, which the forge gives no contract): it is
+        refused here, and the LINK passes the bytes (#4679)."""
         if program and program in self.gp.xctl:
             return self.codec(self.gp.xctl[program])
         if program and program in self.gp.links:
@@ -760,7 +762,7 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
         it = self.g.resolve(area)
         cls = self.gp.records.get(it.name)
         if cls is None:
-            if self.gp.contract:
+            if self.gp.contract and not link:
                 return self.codec(self.gp.contract)
             raise CicsError(f"no generated DTO for COMMAREA {area.name}")
         return self.codec(cls)
@@ -1063,7 +1065,7 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
             elif "COMMAREA" in opts:
                 area = self.ref(_arg(opts["COMMAREA"]))
                 try:
-                    cls = self.dto_for(area, self.size(_arg(opts["COMMAREA"])), prog_lit)
+                    cls = self.dto_for(area, self.size(_arg(opts["COMMAREA"])), prog_lit, link=True)
                 except CicsError as e:
                     if "no generated DTO" not in str(e):
                         raise

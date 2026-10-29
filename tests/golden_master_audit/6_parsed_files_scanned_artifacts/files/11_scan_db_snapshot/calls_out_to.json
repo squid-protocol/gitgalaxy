@@ -63044,6 +63044,7 @@
           "getCustomCode",
           "Insert",
           "make_pair",
+          "make_unique",
           "move",
           "CreateOperator",
           "CreateVector",

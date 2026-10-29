@@ -396,8 +396,15 @@ PROGRAMS = {
         "SORTVL",
         [],
         ["SELECT SORT-FILE ASSIGN TO SORTWK1."],
-        ["SD  SORT-FILE.", "01  LONG-REC.", "    05 L-KEY  PIC X(3).", "    05 L-REST PIC X(7).", "01  SHORT-REC.",
-         "    05 S-KEY  PIC X(3).", "    05 S-REST PIC X(2)."],
+        [
+            "SD  SORT-FILE.",
+            "01  LONG-REC.",
+            "    05 L-KEY  PIC X(3).",
+            "    05 L-REST PIC X(7).",
+            "01  SHORT-REC.",
+            "    05 S-KEY  PIC X(3).",
+            "    05 S-REST PIC X(2).",
+        ],
         ["01  EOF     PIC X VALUE 'N'.", "01  WS-OUT  PIC X(12)."],
         [
             "MAIN-PARA.",
@@ -2191,6 +2198,36 @@ def test_merge_refuses_an_input_out_of_order(tmp_path):
     with pytest.raises(subprocess.CalledProcessError) as e:
         _java_run_batch("SORTUG", src, tmp_path, FILE_DDS["SORTUG"])
     assert "MERGE SORT-FILE: an input file out of key order" in e.value.stderr
+
+
+def test_sort_of_records_of_different_lengths_refuses_a_key_past_the_shortest(tmp_path):
+    """IBM: a key lies within every record of the sort. L-REST starts at byte 4 of a 5-byte shortest record and ends at
+    10: refused by name at translation."""
+    pytest.importorskip("tree_sitter_language_pack")
+    src = PROGRAMS["SORTVL"].replace("ASCENDING KEY L-KEY", "ASCENDING KEY L-REST")
+    assert src != PROGRAMS["SORTVL"]
+    holes = _holes(tmp_path, src)
+    assert any("past the end of the shortest record of SORT-FILE (5 bytes)" in h for h in holes), holes
+
+
+def test_sort_giving_records_of_different_lengths_stops_by_name(tmp_path):
+    """IBM writes each record at its own length, the oracle the whole area: a GIVING of mixed lengths stops the run."""
+    pytest.importorskip("tree_sitter_language_pack")
+    if _java() is None:
+        pytest.skip("needs JAVA_HOME / JDK_17")
+    src = PROGRAMS["SORTVL"].replace(
+        "INPUT PROCEDURE LOAD-RECS OUTPUT PROCEDURE SHOW-RECS", "INPUT PROCEDURE LOAD-RECS GIVING OUTFILE"
+    )
+    src = src.replace(
+        "       SD  SORT-FILE.", "       FD  OUTFILE.\n       01  OUT-REC PIC X(10).\n       SD  SORT-FILE."
+    )
+    src = src.replace(
+        "SELECT SORT-FILE ASSIGN TO SORTWK1.",
+        "SELECT SORT-FILE ASSIGN TO SORTWK1.\n           SELECT OUTFILE ASSIGN TO OUTFILE.",
+    )
+    with pytest.raises(subprocess.CalledProcessError) as e:
+        _java_run_batch("SORTVL", src, tmp_path, ["OUTFILE"])
+    assert "GIVING of SORT-FILE: records of different lengths" in e.value.stderr
 
 
 def test_alphabets_keep_each_definition_whole():

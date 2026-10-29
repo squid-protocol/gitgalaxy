@@ -30,6 +30,13 @@
    "why": "input shorter than transid,tranid: the ER_0010 message path, no counter defined"
   },
   {
+   "name": "terminal-wrong-transid",
+   "commarea": null,
+   "startcode": "TD",
+   "terminal": "ABCD,ZC01",
+   "why": "the first four bytes of the input are not the transaction that ran (EIBTRNID ZNCD): CLC sets CC 1 or 2, the BC B'0111' is taken to ER_0010 (the true arm of the TransID check), no counter defined"
+  },
+  {
    "name": "terminal-duplicate-counter",
    "commarea": null,
    "startcode": "TD",

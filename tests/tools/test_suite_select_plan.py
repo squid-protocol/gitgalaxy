@@ -68,7 +68,7 @@ def test_selected_paths_exist_and_have_no_nested_duplicates():
         ["tests/conftest.py"],
         ["tests/fixtures/evidence_report/x.json"],
         ["tests/tools/test_zos_probes.py", "gitgalaxy/core/prism.py"],  # a test module beside an engine file
-        [".github/workflows/smoke-test.yml"],
+        [".github/dependabot.yml"],  # only .github/workflows/*.yml is mapped (slice 10)
         ["pyproject.toml"],
         ["README.md", "gitgalaxy/core/prism.py"],  # one engine file beside a doc
         ["docs/language_status/register/x.md", "tests/tools/change_classifier.py"],
@@ -453,3 +453,25 @@ def test_a_case_record_is_read_by_its_directory_name_or_its_case_id(tmp_path):
 @pytest.mark.parametrize("f", ["tests/equivalence/infeasible_outcomes/x.py", "tests/equivalence/carddemo-a.json"])
 def test_other_equivalence_files_are_not_case_records(f):
     assert not sp.is_named_data_file(f)
+
+
+def test_a_workflow_is_read_by_the_tests_that_name_the_directory_or_the_file(tmp_path):
+    (tmp_path / "tests" / "tools").mkdir(parents=True)
+    (tmp_path / "tests" / "tools" / "test_a.py").write_text("root / '.github' / 'workflows'\n")
+    (tmp_path / "tests" / "tools" / "test_b.py").write_text("name = 'det-sweep.yml'\n")
+    (tmp_path / "tests" / "tools" / "test_c.py").write_text("unrelated\n")
+    assert sp.workflow_targets(".github/workflows/det-sweep.yml", tmp_path) == [
+        "tests/tools/test_a.py",
+        "tests/tools/test_b.py",
+    ]
+    assert sp.workflow_targets(".github/workflows/x.yml", tmp_path, limit=0) is None
+
+
+def test_a_workflow_change_selects_and_other_github_files_stay_full(tmp_path):
+    (tmp_path / "tests" / "tools").mkdir(parents=True)
+    (tmp_path / "tests" / "tools" / "test_a.py").write_text("'workflows'\n")
+    got = sp.plan([".github/workflows/ci.yml"], "pull_request", (), REFS, tmp_path)
+    assert got["mode"] == "select" and got["paths"] == ["tests/tools/test_a.py"]
+    for f in (".github/dependabot.yml", ".github/workflows/sub/x.yml", ".github/workflows/run.sh"):
+        assert not sp.is_workflow_file(f)
+        assert sp.plan([f], "pull_request", (), REFS, tmp_path)["mode"] == "full"

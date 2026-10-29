@@ -31,6 +31,8 @@ ground_truth_plan.py does for `ground-truth`):
            `det_sweep_coverage` record (slice 8): the tests that name it directly, plus TREE_GUARDS; none naming it is `full`.
 * `select` also for a per-case record `tests/equivalence/infeasible_outcomes/*.json` or `det_mutation/*.json` (slice 9): the
            tests that name the directory or the case id, plus TREE_GUARDS.
+* `select` also for a workflow file `.github/workflows/*.yml` (slice 10): the tests that name the workflows directory or the
+           file as a word (direct only), plus TREE_GUARDS.
 * `full`   anything else, any reader that is the engine or a root-level script (it cannot be mapped to a test), an
            unreadable or empty diff, the `shepherd:full` label, and every event that is not a pull_request.
 
@@ -178,6 +180,24 @@ def named_data_targets(f: str, root: Path = REPO_ROOT, limit: int = HELPER_MAX) 
     return hit or None
 
 
+# Slice 10: a workflow file is read by the tests that name the workflows directory (`"workflows"`, `.github`: 88 test files,
+# the pin tests that glob every workflow) or the file itself by name. Direct only: a closure through the helpers that name
+# `workflows` is 677 files. A test that reads a workflow only through such a helper is not selected; the nightly full run
+# is the net for it.
+WORKFLOW_DIR = ".github/workflows/"
+
+
+def is_workflow_file(f: str) -> bool:
+    return f.startswith(WORKFLOW_DIR) and f.endswith((".yml", ".yaml")) and f.count("/") == 2
+
+
+def workflow_targets(f: str, root: Path = REPO_ROOT, limit: int = HELPER_MAX) -> list[str] | None:
+    """The tests that name the workflows directory or workflow `f` (its file name or stem) as a word; None when more than
+    `limit` (the caller runs everything). A deleted workflow maps the same way."""
+    p = Path(f)
+    return _closure({"workflows", "github", p.name, p.stem}, f, root, limit, direct=True)
+
+
 RUNTIME_DIR = "gitgalaxy/tools/cobol_to_java/det/cobolrt/"
 # The det Java runtime files a test reaches by naming their class (#6278 item 5, slice 6): a translated port or a test
 # asserts on the emitted `DetCics.` / `Sort.Key` call, so the word search is sound for these two. Slice 7 adds the
@@ -266,6 +286,7 @@ def plan(
     data = [f for f in files if is_data_file(f)]
     runtime = [f for f in files if is_runtime_file(f)]
     named = [f for f in files if is_named_data_file(f)]
+    workflows = [f for f in files if is_workflow_file(f)]
     engine = [f for f in files if is_engine_module(f)]
     other = sorted(
         f
@@ -277,6 +298,7 @@ def plan(
         and f not in data
         and f not in runtime
         and f not in named
+        and f not in workflows
     )
     if other:
         return {**full, "reason": f"{len(other)} changed file(s) are not docs / agent config, first: {other[0]}"}
@@ -303,15 +325,29 @@ def plan(
         if hit is None:
             return {**full, "reason": f"{f} has no test that names it, or more than {HELPER_MAX}"}
         targets.update(hit)
+    for f in workflows:
+        hit = workflow_targets(f, root)
+        if hit is None:
+            return {**full, "reason": f"{f} is named by more than {HELPER_MAX} test files"}
+        targets.update(hit)
     if engine:
         hit, why = coverage_map.select(engine, cmap, root)
         if hit is None:
             return {**full, "reason": why}
         targets.update(hit)
-    if modules or helpers or engine or data or runtime or named:
+    if modules or helpers or engine or data or runtime or named or workflows:
         targets.update(g for g in TREE_GUARDS if (root / g).exists())
     for f, a in areas.items():
-        if a == "prose" or f in modules or f in helpers or f in engine or f in data or f in runtime or f in named:
+        if (
+            a == "prose"
+            or f in modules
+            or f in helpers
+            or f in engine
+            or f in data
+            or f in runtime
+            or f in named
+            or f in workflows
+        ):
             continue
         for scope in change_classifier.readers_of(f, refs):
             t = test_target(scope, root)

@@ -477,6 +477,42 @@
       "why": "TTL query ttl=60: under FIVE-MINUTES, raised to 300"
     },
     {
+      "name": "post-text-plain",
+      "commarea": null,
+      "tod": "8B8B8B8B8B8B0708090A0B0C0D0E0F10",
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "POST",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/textkey",
+        "query": "",
+        "headers": [],
+        "mediatype": "text/plain",
+        "body": "hello text"
+      },
+      "why": "#6839 row F: a text/plain POST takes the second WEB RECEIVE (SRVCONVERT after NOSRVCONVERT, ZECS001.cbl:540 true); the model returns the same body and media type, conversion changes nothing (register X38, ASSUMED)"
+    },
+    {
+      "name": "put-application-xml",
+      "commarea": null,
+      "tod": "8A8A8A8A8A8A0708090A0B0C0D0E0F10",
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "PUT",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/xmlkey",
+        "query": "",
+        "headers": [],
+        "mediatype": "application/xml",
+        "body": "<a>b</a>"
+      },
+      "why": "#6839 row F: the other arm of the 540 test (WEB-MEDIA-TYPE(1:15) = application/xml) on PUT: the SRVCONVERT pass runs, same body and media type back (register X38, ASSUMED)"
+    },
+    {
       "name": "post-ttl-100000",
       "commarea": null,
       "tod": "4444444444440708090A0B0C0D0E0F10",

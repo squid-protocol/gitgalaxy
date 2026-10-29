@@ -41,3 +41,13 @@ def test_register_c11_names_the_zecs001_ttl_gap():
     text = (ROOT / "docs/language_status/register/C11.md").read_text(encoding="utf-8")
     assert "704:false" in text
     assert "post-ttl-nonnumeric" in text
+
+
+def test_row_f_text_and_xml_bodies_take_the_srvconvert_pass_and_540_true_is_covered():
+    sc = _scenarios()
+    assert sc["post-text-plain"]["http_request"]["mediatype"].startswith("text/")
+    assert sc["post-text-plain"]["http_request"]["method"] == "POST"
+    assert sc["put-application-xml"]["http_request"]["mediatype"] == "application/xml"
+    assert sc["put-application-xml"]["http_request"]["method"] == "PUT"
+    ledger = json.loads((ROOT / "tests/equivalence/det_sweep_coverage/zecs-zecs001.json").read_text(encoding="utf-8"))
+    assert "540:true" not in ledger["uncovered"]["branches"]

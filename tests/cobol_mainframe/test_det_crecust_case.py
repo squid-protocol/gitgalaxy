@@ -9,12 +9,20 @@ from __future__ import annotations
 
 import json
 import re
+import sys
 from pathlib import Path
+
+import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
 CASE_DIR = ROOT / "tests/equivalence/cbsa-crecust"
 REGISTER = ROOT / "docs/language_status/register"
 CHILDREN = {f"OCR{n}": f"CRDTAGY{n}" for n in range(1, 6)}
+sys.path.insert(0, str(ROOT / "tests" / "tools"))
+sys.path.insert(0, str(ROOT / "tests" / "cics_crucible"))
+import equivalence_cics as ec  # noqa: E402
+import equivalence_cics_faults as ecf  # noqa: E402
+from test_cics_runtimes import _cics_task, needs_javac  # noqa: E402
 
 
 def _case() -> dict:
@@ -57,6 +65,8 @@ def test_scenarios_cover_the_credit_check_and_the_paths_around_the_ceedays_hole(
         "get-container-first-containererr",
         # #6882: CEELOCT feedback-code failure
         "ceeloct-local-time-unavailable",
+        # #6967: a fault planned in a RUN child -- the child abends, FETCH ANY answers COMPSTATUS ABEND (853)
+        "fetch-any-first-child-abends",
     ]
 
 
@@ -78,3 +88,79 @@ def test_register_entries_agree_the_case_is_refused_not_proven():
     x18 = (REGISTER / "X18.md").read_text(encoding="utf-8")
     assert "cbsa-crecust" in l1 and "REFUSED" in l1
     assert "tests/equivalence/cbsa-crecust" in x18 and "BNK1CCS" in x18
+
+
+# ---- #6967 (register X18): a fault scoped to a RUN TRANSID child task ---------------------------------------------
+# A fault with "child": "<TRANSID>" is planned in the child the parent dispatches for that transaction: fault_lines writes
+# it `@TRANSID ` first, both stubs hand the child its lines with the prefix off (it counts its commands as a task of its
+# own), and what fires in the child comes back into the parent's fired log, `@TRANSID ` first.
+
+
+def _sc(*faults):
+    return {"name": "s", "faults": list(faults)}
+
+
+def test_a_child_fault_is_the_root_fault_line_with_its_transid_first():
+    forms = [
+        {"cmd": "DELAY", "resp": "INVREQ", "resp2": 6, "nth": 1},
+        {"cmd": "LINK", "program": "ABNDPROC", "resp": "PGMIDERR", "resp2": 3, "nth": 1},
+        {"cmd": "READ", "file": "CUSTOMER", "resp": "NOTFND", "nth": 2},
+        {"cmd": "READ", "file": "CUSTOMER", "resp": "ABEND", "abcode": "AFCR", "nth": 1},
+    ]
+    for f in forms:
+        root = ecf.fault_lines(_sc(f))
+        assert ecf.fault_lines(_sc({**f, "child": "OCR1"})) == ["@OCR1 " + line for line in root], f
+
+
+def test_the_child_abend_scenario_plans_its_faults_in_a_child_of_the_case():
+    """CRDTAGYn abends only by DELAY RESP != NORMAL -> LINK ABNDPROC (no RESP) -> ABEND; ABNDPROC writes ABNDFILE, a
+    region resource a child may not touch (R1), so its LINK fails PGMIDERR and the child abends on that condition."""
+    (sc,) = [s for s in _case()["scenarios"] if s["name"] == "fetch-any-first-child-abends"]
+    assert {f["child"] for f in sc["faults"]} <= set(CHILDREN)  # fault_lines has no case to check it against
+    assert ecf.fault_lines(sc) == ["@OCR1 DELAY - 1 16 6", "@OCR1 LINK ABNDPROC 1 27 3"]
+
+
+@pytest.mark.parametrize("child", ["", "OCR12", "ocr1", 7, None, "OC R"])
+def test_a_child_that_is_not_a_transaction_id_is_refused(child):
+    with pytest.raises(ec.Unsupported, match="child"):
+        ecf.fault_lines(_sc({"cmd": "DELAY", "child": child, "resp": "INVREQ", "resp2": 6}))
+
+
+@needs_javac
+@pytest.mark.slow(reason="first in its CI split part it pays the cold javac of the shared CicsTask build (#6018)")
+def test_a_child_fault_fires_only_in_the_child_and_fetch_any_reports_its_abend(tmp_path):
+    log = tmp_path / "fired.txt"
+    out = _cics_task(
+        tmp_path,
+        """
+        CicsTask t = new CicsTask("GTPA", "ENTER", null, null).withTaskNumber(100).withPrograms(new CicsTask.Programs() {
+            public boolean defined(String p) {
+                return true;
+            }
+
+            public String program(String tr) {
+                return "KIDPROG";
+            }
+
+            public boolean transaction(String tr) {
+                return tr.equals("KC");
+            }
+
+            public void run(String p, CicsTask s) {
+                int[] d = s.planned("DELAY", "-");
+                System.out.println("child DELAY " + d[0] + "/" + d[1]);
+                if (d[0] != 0) {
+                    s.abend("KIDA");
+                    return;
+                }
+                s.returnTransid(null, null);
+            }
+        }).withFaults(java.util.List.of("@KC DELAY - 1 16 6"), java.nio.file.Path.of("%LOG%"));
+        int[] d = t.planned("DELAY", "-");
+        System.out.println("parent DELAY " + d[0] + "/" + d[1]);
+        t.runTransid("KC");
+        CicsTask.FetchResult f = t.fetch(null, "WAIT", 0, false);
+        System.out.println(f.resp() + " " + f.compstatus() + " " + f.abcode());""".replace("%LOG%", log.as_posix()),
+    )
+    assert out.splitlines() == ["parent DELAY 0/0", "child DELAY 16/6", "NORMAL 900 KIDA"]
+    assert log.read_text(encoding="utf-8").splitlines() == ["@KC DELAY - 1 16 6"]

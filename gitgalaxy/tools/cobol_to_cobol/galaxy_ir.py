@@ -783,6 +783,7 @@ class EngineJobFlow:
     runs_via: str | None = None
     systsin_member: str | None = None
     parm: str | None = None  # #3624: the text EXEC PARM= passes the program
+    instream: str | None = None  # #4268: an INSTREAM row's SYSIN / SYMNAMES / SORTCNTL / DFSPARM body, as written
 
 
 @dataclass
@@ -4580,6 +4581,33 @@ class GalaxyIR:
         # #3909: a member the scan did not record is in the page of the job that reads it
         return read_source(hits[0], declared=self.source_page(from_file)).text if len(hits) == 1 else None
 
+    def job_sysin(self) -> list:
+        """The in-stream control decks of each job step (#4268): per JCL file with a JOB card, one row per
+        `DD *` / `DD DATA` named SYSIN, SYMNAMES, SORTCNTL or DFSPARM (a DFSORT / utility step's control
+        statements, core/job_flow.py), with `file`, `job`, `step` (the job step the DD follows), `ordinal`,
+        `program` (EXEC PGM=, None for a PROC call), `proc_step` (the procedure step of a `//PROCSTEP.SYSIN`
+        override, else None), `dd`, `line`, `body` (as written) and `lines`. A deck inside a PROC definition
+        is the procedure's, not a job step's: not listed."""
+        out = []
+        for f in sorted(self.files.values(), key=lambda x: x.file_path):
+            job = next((r for r in f.job_flow if r.kind == "JOB"), None)
+            if job is None:
+                continue
+            step = None
+            for r in f.job_flow:
+                if r.in_proc:
+                    continue
+                if r.kind == "STEP":
+                    step = r
+                elif r.kind == "INSTREAM" and step is not None:
+                    own = (r.step_name or "").upper() == (step.step_name or "").upper()
+                    body = r.instream or ""
+                    out.append({"file": f.file_path, "job": job.name, "step": step.step_name,
+                                "ordinal": step.step_ordinal, "program": step.program,
+                                "proc_step": None if own else r.step_name, "dd": r.dd_name, "line": r.line,
+                                "body": body, "lines": len(body.splitlines())})  # fmt: skip
+        return out
+
     def job_dds(self) -> list:
         """Every job step's DD statements (#3622): per JCL file with a JOB card, one row per
         DD of each step -- a PROC call's DDs are its procedure's, per procedure step -- with
@@ -6923,9 +6951,10 @@ def load_galaxy_ir(db_path: Path, repo_name: str | None = None) -> GalaxyIR:
                 "runs, runs_via, systsin_member" if _has_column(cur, "job_flow_data", "runs") else "NULL, NULL, NULL"
             )
             parm_col = "parm" if _has_column(cur, "job_flow_data", "parm") else "NULL"  # #3624
+            instream_col = "instream" if _has_column(cur, "job_flow_data", "instream") else "NULL"  # #4268
             for row in cur.execute(
                 "SELECT file_id, kind, job_name, step_ordinal, step_name, program, proc_name, cond, if_cond, in_proc, "  # noqa: S608 -- normal_col / runner_cols are literals
-                f"dd_name, dsn, disp, generation, line_number, {normal_col}, {runner_cols}, {parm_col} FROM job_flow_data "
+                f"dd_name, dsn, disp, generation, line_number, {normal_col}, {runner_cols}, {parm_col}, {instream_col} FROM job_flow_data "
                 "WHERE repo_name = ? AND commit_hash = ? ORDER BY file_id, line_number, id",
                 (repo_name, commit_hash),
             ):
@@ -6951,6 +6980,7 @@ def load_galaxy_ir(db_path: Path, repo_name: str | None = None) -> GalaxyIR:
                             runs_via=row[17],
                             systsin_member=row[18],
                             parm=row[19],
+                            instream=row[20],
                         )
                     )
         # #3455: file definitions. A pre-#3455 database has neither table.

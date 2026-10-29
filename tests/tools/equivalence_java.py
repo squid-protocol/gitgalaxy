@@ -1015,7 +1015,8 @@ def _run_all(case: dict[str, Any], project: Path, work: Path, inputs: Path, envs
                 f" -Dgitgalaxy.sqlfaults.plan={area / 'sqlfaults.plan'}"
                 f" -Dgitgalaxy.sqlfaults.log={area / 'out' / 'FAULTS'}"
             )
-        read = _run_area(case, project, area, inputs, envs[0], props, sessions.get() if sessions else None)
+        own = {"dli_dir": Path(rest[3])} if len(rest) > 3 and rest[3] else {}  # #6967: this run's own IMS seed
+        read = _run_area(case, project, area, inputs, envs[0], props, sessions.get() if sessions else None, **own)
         read.setdefault("FAULTS", b"")
         runs[f"fault:{name}"] = read
         if stop and stop(f"fault:{name}", read):
@@ -1032,7 +1033,8 @@ def _run_all(case: dict[str, Any], project: Path, work: Path, inputs: Path, envs
 
 
 def _run_area(case: dict[str, Any], project: Path, area: Path, inputs: Path, env: dict[str, str],
-              props: str = "", session: JvmSession | None = None) -> dict[str, bytes]:  # fmt: skip
+              props: str = "", session: JvmSession | None = None,
+              dli_dir: Path | None = None) -> dict[str, bytes]:  # fmt: skip
     """One run of the step from a fresh datasets area: {dd: bytes}, RETURN-CODE or ABEND, and FAULTS."""
     datasets = area / "datasets"
     datasets.mkdir(parents=True, exist_ok=True)
@@ -1055,7 +1057,7 @@ def _run_area(case: dict[str, Any], project: Path, area: Path, inputs: Path, env
         dliout = area / "out" / "dli"
         shutil.rmtree(dliout, ignore_errors=True)
         dliout.mkdir(parents=True)
-        props = f"{props} -Dgitgalaxy.dli.dir={inputs / 'dli'} -Dgitgalaxy.dli.out={dliout}"
+        props = f"{props} -Dgitgalaxy.dli.dir={dli_dir or inputs / 'dli'} -Dgitgalaxy.dli.out={dliout}"
     if case.get("mvs_step") is not None:  # #5856 (A2): the job step whose control blocks DetMvs lays
         props = f"{props} -Dgitgalaxy.mvs.step={case['mvs_step']}"
     if case.get("sysin") is not None and "-Dequivalence.sysin=" not in props:  # #5106: what the COBOL side read

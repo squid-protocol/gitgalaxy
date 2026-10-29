@@ -1,0 +1,77 @@
+name: Engine Coverage Map
+
+# #6278 item 5: one instrumented run of the suite per night (and on dispatch) records which test file executed which
+# gitgalaxy/ module (tests/tools/coverage_map.py) and saves the map under `engine-test-map-<run id>`. The Smoke
+# workflow's `suite-plan` restores the newest one and, for a PR that changes only mapped engine modules, runs just
+# the tests that covered them. Its own workflow so coverage's overhead never reaches the nightly's per-test times or
+# suite-time budget. Schedule and dispatch only, so no PR waits on it.
+on:
+  schedule:
+    - cron: "47 5 * * *"  # after the 04:23 nightly
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  map:
+    name: build the engine coverage map
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      PYTHONUTF8: "1"
+      GITGALAXY_LICENSE_KEY: "COMMUNITY_FREE_TIER"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 #
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            pyproject.toml
+            ci/requirements/*.txt
+
+      - name: Install dependencies
+        run: |
+          tests/tools/ci_retry.sh 4 10 -- python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
+          tests/tools/ci_retry.sh 4 10 -- pip install --require-hashes -r ci/requirements/test.txt
+          tests/tools/ci_retry.sh 4 10 -- pip install --require-hashes -r ci/requirements/treesitter.txt
+          pip install --no-build-isolation -e .
+
+      # the suite as Smoke runs it (the same marks and the one ignore), under coverage with a context per test.
+      # A failing test does not stop the map: what it executed before failing is still what covers the module.
+      - name: Run the suite under coverage
+        run: |
+          pytest tests/ -n auto -q --timeout=900 --cov=gitgalaxy --cov-context=test --cov-report= \
+            -m "not golden_crucible and not redos_sweep" --ignore=tests/cobol_mainframe/test_evidence_components.py || echo "::warning::some tests failed; the map is built from the run anyway"
+
+      - name: Build the map
+        run: |
+          mkdir -p engine-map-cache
+          python3 tests/tools/coverage_map.py build --data .coverage --out engine-map-cache/engine_test_map.json | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Cache the coverage map
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: engine-map-cache
+          key: engine-test-map-${{ github.run_id }}
+
+      # the same file as a downloadable artifact: the cache cannot be read outside a workflow, and
+      # `suite_select_plan.py --coverage-map` replays need it locally (14-day retention, it is 18 KB)
+      - name: Upload the coverage map
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: engine-test-map
+          path: engine-map-cache/engine_test_map.json
+          retention-days: 14

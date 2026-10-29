@@ -1108,6 +1108,80 @@ int init()
     assert {"early", "pre", "check", "late"} <= set(body.calls)
 
 
+UNCLOSED_CLASS_SRC = """class Widget : public GuiWidget {};
+struct Holder
+{
+    class Inner : public Other
+    {
+    public:
+        Inner() : Other() {}
+
+    Impl(Public *i)
+        : Base(i)
+    {}
+
+Widget::Widget(int n)
+    : GuiWidget(n)
+{}
+};
+"""
+
+
+def test_a_qualified_or_differently_named_constructor_is_no_member_of_the_class_around_it():
+    """#6266 doomsday packageswidget.cpp: tree-sitter leaves a class body open, so `Widget::Widget` and the macro class's
+    `Impl(Public *i)` sit inside `Inner`; the written name, not the enclosing class, owns the initializer list."""
+    data = UNCLOSED_CLASS_SRC.encode()
+    nodes = co.function_nodes(co._parser("cpp").parse(data))
+    classes = co.class_names_of_text(UNCLOSED_CLASS_SRC + "typedef Private<Public> Base;\nclass Private {};\n")
+    for line, base in ((9, "Base"), (13, "GuiWidget")):
+        node = co.definition_at(nodes, line)
+        assert node.parent.parent.type == "class_specifier"  # tree-sitter put both inside the unclosed `Inner`
+        assert co.Body(node, classes).calls.get(base) == "ctor-init"
+    assert co.Body(co.definition_at(nodes, 7), classes).calls.get("Other") == "ctor-init"
+
+
+def test_a_constructor_of_a_class_no_source_defines_reads_any_listed_base():
+    """#6266 doomsday `libraryfile.cpp.old`: its header is gone, so `LibraryFile` is defined nowhere; `: File(..)` is a
+    base call as `TextBody` reads it. A class defined with no base list still has none."""
+    src = "class File {};\nclass Folder : public File {};\nclass Plain {};\n"
+    classes = co.class_names_of_text(src)
+    assert "File" in classes.declared and "LibraryFile" not in classes.declared
+    for code, want in (
+        ("LibraryFile::LibraryFile(F *s)\n    : File(s)\n{}\n", "ctor-init"),
+        ("Plain::Plain(F *s)\n    : File(s)\n{}\n", None),
+    ):
+        node = co.definition_at(co.function_nodes(co._parser("cpp").parse(code.encode())), 1)
+        assert co.Body(node, classes).calls.get("File") == want
+
+
+def test_a_wrapped_backup_header_declares_classes_as_the_engine_reads_it(tmp_path):
+    """#6266: the engine scans `x.cpp.old` as C++ (`SAFE_WRAPPERS`), so the class its `x.h.old` declares is the port's."""
+    (tmp_path / "font.h.old").write_text("class SdlFont : public NativeFont\n{\n};\n")
+    (tmp_path / "notes.old").write_text("class Ignored : public Nothing {};\n")
+    classes = co.class_names(tmp_path)
+    assert classes["SdlFont"] == {"NativeFont"} and "Ignored" not in classes
+    assert co._cpp_ext("a.h.old") == ".h" and co._cpp_ext("a.old") == ".old" and co._cpp_ext("a.cpp") == ".cpp"
+
+
+def test_a_label_after_a_body_closed_early_is_the_rest_of_the_function():
+    """#6266 amethyst: tree-sitter closes the body before `abortLine:`; a label is only ever inside a function."""
+    src = "int f(void)\n{\n    int x = 0;\n}\nabortLine:\n    done();\n"
+    node = co.definition_at(co.function_nodes(co._parser("cpp").parse(src.encode())), 1)
+    assert co._runs_into_statements(node)
+
+
+def test_an_error_holding_a_stray_quote_reads_the_body_as_text(tmp_path):
+    """#6266 doomsday inputdevice.cpp: `_E(b) "%s" _E(.)` desyncs tree-sitter's string boundaries, so `name()` and
+    `isActive()` were read as string content; the text view, which blanks literals by their own quotes, calls them."""
+    src = 'String f()\n{\n    s = Stringf(_E(b) "%s" _E(.) _E(l) " (%s)" _E(.), name().c_str(), isActive() ? "on" : "off");\n    return s;\n}\nvoid name() {}\nvoid isActive() {}\n'
+    funcs = [("m.cpp", "f", 1, ["name", "isActive"]), ("m.cpp", "name", 6, []), ("m.cpp", "isActive", 7, [])]
+    repo, scan = make_port(tmp_path, "doomsday", {"m.cpp": src}, funcs)
+    port = co.Port("doomsday", repo, co.load_port(repo, co.find_db(scan)))
+    body = next(f for f in port.functions if f[1] == "f")[4]
+    assert {"name", "isActive"} <= set(body.calls)
+    assert co._unescaped_quotes(b'"a\\"b" \'"\' "') == 3
+
+
 def test_a_local_variable_compared_in_a_condition_is_not_a_template_call():
     """doomsday edgetip.h (#6266): `delta < e || delta > (360 - e)` parses as `delta<e || delta>(..)`; `delta` is a local."""
     src = """struct S {
@@ -1144,3 +1218,37 @@ def test_a_function_whose_head_folded_the_members_above_it_is_read_by_its_braces
     calls = port.functions[0][4].calls
     assert {"has", "other"} <= set(calls)
     assert "notify" not in calls
+
+
+MISREAD_OWNER_SRC = """\
+struct Private {};
+typedef Private<PW> Base;
+struct PW : public GuiWidget {};
+struct Item
+    : public Home
+    , DE_OBSERVES(Org, Create) // note
+    , DE_OBSERVES(Org, Update)
+{
+public:
+    Item(int a) : Home(a) {}
+    int v;
+};
+struct PW::Impl : public Private<PW>
+{
+    Impl(Public *i) : Base(i) {}
+};
+PW::PW(const String &name)
+    : GuiWidget(name)
+{}
+"""
+
+
+def test_a_ctor_names_its_own_class_as_owner_when_a_misread_class_encloses_it():
+    """doomsday packageswidget.cpp (#6266): a base list ending in `DE_OBSERVES(..) // c` leaves an unclosed class over the
+    rest of the file; `Impl(..) : Base(i)` and `PW::PW() : GuiWidget(..)` are not constructors of it."""
+    classes = co.class_names_of_text(MISREAD_OWNER_SRC)
+    nodes = co.function_nodes(co._parser("cpp").parse(MISREAD_OWNER_SRC.encode()))
+    by_name = {co._ctor_name(n): n for n in nodes}
+    assert co.Body(by_name["Impl"], classes).calls.get("Base") == "ctor-init"
+    assert co.Body(by_name["PW"], classes).calls.get("GuiWidget") == "ctor-init"
+    assert co.Body(by_name["Item"], classes).calls.get("Home") == "ctor-init"

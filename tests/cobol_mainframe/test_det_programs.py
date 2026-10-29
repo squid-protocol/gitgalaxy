@@ -17,6 +17,7 @@ import tempfile
 from pathlib import Path
 
 import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
@@ -101,6 +102,13 @@ SORT_LOAD = [
     "SHOW-INTO-X.",
     "    EXIT.",
 ]  # fmt: skip
+
+SORTTB_SHOW = [
+    "PERFORM VARYING I FROM 1 BY 1 UNTIL I > 8",
+    "    MOVE E-AMT(I) TO AMT-ED",
+    "    DISPLAY E-DEPT(I) ' ' AMT-ED ' ' E-NAME(I)",
+    "END-PERFORM",
+]
 
 # SORT under an alphabet: an alphanumeric, a group (of characters only), a zoned, an edited key; eight records
 SORTCS_SD = ["SD  SORT-FILE.", "01  SR.", "    05 SR-A PIC X(2).", "    05 SR-G.", "       10 SR-G1 PIC X.",
@@ -350,6 +358,187 @@ PROGRAMS = {
             "         OUTPUT PROCEDURE SHOW-INTO THRU SHOW-INTO-X",
             "    GOBACK.",
             *SORT_LOAD,
+        ],
+    ),
+    # SORT-RETURN written by the program (IBM: 0 after a good sort, 16 ends one): a value set in a procedure and
+    # restored before the sort ends, a test of the register after each SORT, a store from a data item, and a
+    # COMPUTE into it. GnuCOBOL ignores a 16 and leaves a stored value, so those stop the run by name (below)
+    "SORTRC": fprogram(
+        "SORTRC",
+        [],
+        ["SELECT SORT-FILE ASSIGN TO SORTWK1."],
+        SORT_SD,
+        [*SORT_DATA, "01  SAVE-RC PIC S9(4) COMP VALUE 4."],
+        [
+            "MAIN-PARA.",
+            "    MOVE 0 TO SORT-RETURN",
+            "    SORT SORT-FILE ON ASCENDING KEY SR-DEPT",
+            "         DESCENDING KEY SR-AMT",
+            "         WITH DUPLICATES IN ORDER",
+            "         INPUT PROCEDURE IS LOAD-RC",
+            "         OUTPUT PROCEDURE IS SHOW-RC",
+            "    IF SORT-RETURN NOT = 0",
+            "        DISPLAY 'BAD'",
+            "    ELSE",
+            "        DISPLAY 'GOOD'",
+            "    END-IF",
+            "    MOVE SORT-RETURN TO RC-OUT",
+            "    DISPLAY 'SORT-RETURN ' RC-OUT",
+            "    COMPUTE SORT-RETURN = 0",
+            "    GOBACK.",
+            "LOAD-RC.",
+            "    PERFORM VARYING I FROM 1 BY 1 UNTIL I > 8",
+            "        MOVE E-NAME(I) TO SR-NAME",
+            "        MOVE E-DEPT(I) TO SR-DEPT",
+            "        MOVE E-AMT(I) TO SR-AMT",
+            "        MOVE I TO SR-SEQ",
+            "        MOVE SAVE-RC TO SORT-RETURN",
+            "        MOVE 0 TO SORT-RETURN",
+            "        RELEASE SORT-REC",
+            "    END-PERFORM.",
+            "SHOW-RC.",
+            "    PERFORM UNTIL EOF = 'Y'",
+            "        MOVE 8 TO SORT-RETURN",
+            "        MOVE ZERO TO SORT-RETURN",
+            "        RETURN SORT-FILE",
+            "            AT END MOVE 'Y' TO EOF",
+            "            NOT AT END",
+            "                MOVE SORT-RETURN TO RC-OUT",
+            "                DISPLAY SR-DEPT ' ' SR-NAME ' ' SR-SEQ ' ' RC-OUT",
+            "        END-RETURN",
+            "    END-PERFORM.",
+        ],
+    ),
+    # SORT of a table (format 2): the entries of an OCCURS group ordered in place, a zoned key ascending and a signed
+    # separate-sign key descending WITH DUPLICATES IN ORDER (three entries tie), an alphanumeric key descending, an
+    # alphanumeric key under a literal alphabet, and an elementary table sorted on itself (a duplicate value)
+    "SORTTB": program(
+        "SORTTB",
+        [
+            *SORT_DATA[: SORT_DATA.index("01  I       PIC 9(2) VALUE 0.")],
+            "01  I PIC 9(2) VALUE 0.",
+            "01  AMT-ED PIC -ZZZZ9.",
+            "01  RC-OUT PIC 9(4).",
+            "01  NT-D PIC X(18) VALUE '042007100007999042'.",
+            "01  NT REDEFINES NT-D.",
+            "    05 N PIC 9(3) OCCURS 6 TIMES.",
+        ],
+        [
+            "SORT ENT ON ASCENDING KEY E-DEPT DESCENDING KEY E-AMT",
+            "    WITH DUPLICATES IN ORDER",
+            *SORTTB_SHOW,
+            "SORT ENT ON DESCENDING KEY E-NAME",
+            *SORTTB_SHOW,
+            "SORT N ON ASCENDING KEY N",
+            "PERFORM VARYING I FROM 1 BY 1 UNTIL I > 6",
+            "    DISPLAY 'N ' N(I)",
+            "END-PERFORM",
+            "MOVE SORT-RETURN TO RC-OUT",
+            "DISPLAY 'SORT-RETURN ' RC-OUT",
+        ],
+    ),
+    # an SD of two records of different lengths (IBM: each record keeps its own length through the sort; the key lies
+    # within the shortest): RELEASE of the long and of the short record, RETURN INTO moves the record's own length
+    # (the rest of the receiving item is space-filled). The area is set to SPACES before each RELEASE, so the bytes
+    # past a short record's end, which IBM leaves undefined and GnuCOBOL keeps, agree
+    "SORTVL": fprogram(
+        "SORTVL",
+        [],
+        ["SELECT SORT-FILE ASSIGN TO SORTWK1."],
+        [
+            "SD  SORT-FILE.",
+            "01  LONG-REC.",
+            "    05 L-KEY  PIC X(3).",
+            "    05 L-REST PIC X(7).",
+            "01  SHORT-REC.",
+            "    05 S-KEY  PIC X(3).",
+            "    05 S-REST PIC X(2).",
+        ],
+        ["01  EOF     PIC X VALUE 'N'.", "01  WS-OUT  PIC X(12)."],
+        [
+            "MAIN-PARA.",
+            "    SORT SORT-FILE ON ASCENDING KEY L-KEY",
+            "         WITH DUPLICATES IN ORDER",
+            "         INPUT PROCEDURE LOAD-RECS OUTPUT PROCEDURE SHOW-RECS",
+            "    GOBACK.",
+            "LOAD-RECS.",
+            "    MOVE SPACES TO LONG-REC",
+            "    MOVE 'ccc' TO L-KEY MOVE 'LONGC01' TO L-REST",
+            "    RELEASE LONG-REC",
+            "    MOVE SPACES TO LONG-REC",
+            "    MOVE 'aaa' TO S-KEY MOVE 'S1' TO S-REST",
+            "    RELEASE SHORT-REC",
+            "    MOVE SPACES TO LONG-REC",
+            "    MOVE 'bbb' TO L-KEY MOVE 'LONGB02' TO L-REST",
+            "    RELEASE LONG-REC",
+            "    MOVE SPACES TO LONG-REC",
+            "    MOVE 'bbb' TO S-KEY MOVE 'S2' TO S-REST",
+            "    RELEASE SHORT-REC",
+            "    MOVE SPACES TO LONG-REC",
+            "    MOVE 'aaa' TO L-KEY MOVE 'LONGA03' TO L-REST",
+            "    RELEASE LONG-REC.",
+            "SHOW-RECS.",
+            "    PERFORM UNTIL EOF = 'Y'",
+            "        MOVE ALL '*' TO WS-OUT",
+            "        RETURN SORT-FILE INTO WS-OUT",
+            "            AT END MOVE 'Y' TO EOF",
+            "            NOT AT END DISPLAY '[' WS-OUT ']'",
+            "        END-RETURN",
+            "    END-PERFORM.",
+        ],
+    ),
+    # SORT of a table whose count is a DEPENDING ON item: only the first count entries are ordered (the ones past it
+    # keep their sentinels), the count read when the SORT runs; the OCCURS clause's own key when the SORT names none,
+    # explicit keys with duplicates in order, a clause with no key, and counts of one and two
+    "SORTDP": program(
+        "SORTDP",
+        [
+            "01  D-N PIC 9(2) VALUE 0.",
+            "01  I   PIC 9(2) VALUE 0.",
+            "01  DT.",
+            "    05 D-ENT OCCURS 1 TO 8 TIMES DEPENDING ON D-N",
+            "          DESCENDING KEY IS D-K.",
+            "       10 D-K PIC 9(2).",
+            "       10 D-V PIC X(3).",
+            "01  ET.",
+            "    05 E-ENT OCCURS 1 TO 5 TIMES DEPENDING ON D-N.",
+            "       10 E-K PIC 9(2).",
+            "       10 E-V PIC X(3).",
+        ],
+        [
+            "MOVE 8 TO D-N",
+            "PERFORM VARYING I FROM 1 BY 1 UNTIL I > 8",
+            "    MOVE 99 TO D-K(I)",
+            "    MOVE 'ZZZ' TO D-V(I)",
+            "END-PERFORM",
+            "MOVE 5 TO D-N",
+            "MOVE 30 TO D-K(1) MOVE 'bb1' TO D-V(1)",
+            "MOVE 10 TO D-K(2) MOVE 'aa2' TO D-V(2)",
+            "MOVE 25 TO D-K(3) MOVE 'aa3' TO D-V(3)",
+            "MOVE 20 TO D-K(4) MOVE 'cc4' TO D-V(4)",
+            "MOVE 5 TO D-K(5) MOVE 'aa0' TO D-V(5)",
+            "SORT D-ENT",
+            "MOVE 8 TO D-N",
+            "PERFORM VARYING I FROM 1 BY 1 UNTIL I > 8",
+            "    DISPLAY 'D ' D-K(I) ' ' D-V(I)",
+            "END-PERFORM",
+            "MOVE 4 TO D-N",
+            "SORT D-ENT ON ASCENDING KEY D-V WITH DUPLICATES IN ORDER",
+            "MOVE 8 TO D-N",
+            "PERFORM VARYING I FROM 1 BY 1 UNTIL I > 8",
+            "    DISPLAY 'D ' D-K(I) ' ' D-V(I)",
+            "END-PERFORM",
+            "MOVE 5 TO D-N",
+            "MOVE 'q9' TO ET",
+            "MOVE 7 TO E-K(1) MOVE 'xyz' TO E-V(1)",
+            "MOVE 1 TO D-N",
+            "SORT E-ENT ON DESCENDING KEY E-K",
+            "DISPLAY 'E ' E-K(1) ' ' E-V(1)",
+            "MOVE 2 TO D-N",
+            "MOVE 3 TO E-K(1) MOVE 'bbb' TO E-V(1)",
+            "MOVE 4 TO E-K(2) MOVE 'aaa' TO E-V(2)",
+            "SORT E-ENT ON ASCENDING KEY E-V",
+            "DISPLAY 'E ' E-K(1) ' ' E-V(1) ' ' E-K(2) ' ' E-V(2)",
         ],
     ),
     # SORT under an alphabet (IBM Enterprise COBOL 6.4 Language Reference, ALPHABET clause, SORT COLLATING
@@ -1970,6 +2159,7 @@ def _sort_variant(proc: list[str], special: list[str] | None = None) -> str:
 def _holes(tmp_path: Path, src: str) -> list[str]:
     from gitgalaxy.tools.cobol_to_java.det import program as P
 
+    tmp_path.mkdir(exist_ok=True)
     (tmp_path / "SORTX.cbl").write_text(src)
     (tmp_path / "project").mkdir(exist_ok=True)
     return P.translate(tmp_path / "SORTX.cbl", [], "public class SortxService {\n}\n", PKG, None,
@@ -1988,10 +2178,11 @@ def _holes(tmp_path: Path, src: str) -> list[str]:
         # an alphabet of HIGH-VALUE: defined by the collating sequence it is in
         (["    SORT SORT-FILE ASCENDING SR-NAME COLLATING SEQUENCE HV", "         INPUT PROCEDURE LOAD-RECS",
           "         OUTPUT PROCEDURE SHOW-RECS"], ["ALPHABET HV IS 'A' HIGH-VALUE."], "HIGH-VALUE in"),
-        # IBM: 16 in SORT-RETURN ends the sort at the next RELEASE / RETURN
-        (["    MOVE 16 TO SORT-RETURN"], None, "SORT-RETURN set by the program"),
-        # format 2: a table, not an SD file
-        (["    SORT ENT ON ASCENDING KEY E-NAME"], None, "SORT of a table (format 2) not modelled"),
+        # format 2: a table whose key is outside an entry, or a table that is not one fixed OCCURS level
+        (["    SORT ENT ON ASCENDING KEY WS-OUT"], None, "not a data item of one entry of the table"),
+        (["    SORT ENT ON ASCENDING KEY E-NAME(1)"], None, "not a data item of one entry of the table"),
+        (["    SORT I ON ASCENDING KEY I"], None, "not a table of one OCCURS level"),
+        (["    SORT ENT"], None, "no KEY phrase and no KEY in the OCCURS clause"),
         # a key outside the SD's record
         (["    SORT SORT-FILE ASCENDING E-DEPT INPUT PROCEDURE LOAD-RECS", "         OUTPUT PROCEDURE SHOW-RECS"],
          None, "not in a record of SORT-FILE"),
@@ -2001,6 +2192,15 @@ def test_sort_refuses_by_name_what_ibm_leaves_open(proc, special, why, tmp_path)
     pytest.importorskip("tree_sitter_language_pack")
     holes = _holes(tmp_path, _sort_variant(proc, special))
     assert any(why in h for h in holes), holes
+
+
+def test_sort_of_a_table_with_two_occurs_keys_and_no_key_phrase_is_refused_by_name(tmp_path):
+    """IBM orders by every KEY of the OCCURS clause; GnuCOBOL (the oracle) by the first only: refused, not guessed."""
+    pytest.importorskip("tree_sitter_language_pack")
+    src = program("SORTX", ["01  T.", "    05 E OCCURS 3 TIMES ASCENDING KEY IS K1 DESCENDING KEY IS K2.",
+                            "       10 K1 PIC 9.", "       10 K2 PIC 9."], ["SORT E"])  # fmt: skip
+    holes = _holes(tmp_path, src)
+    assert any("2 keys in the OCCURS clause" in h for h in holes), holes
 
 
 def test_sort_translates_every_phrase(tmp_path):
@@ -2036,6 +2236,35 @@ def test_sort_without_duplicates_refuses_equal_keys(tmp_path):
     assert "not modelled" in e.value.stderr
 
 
+@pytest.mark.parametrize(
+    ("proc", "why"),
+    [
+        # IBM ends the sort at the next RELEASE; GnuCOBOL runs it on (measured): the run stops by name
+        (["    MOVE 16 TO SORT-RETURN"], "SORT-RETURN 16 set by the program before a RELEASE"),
+        # a COMPUTE stores it too
+        (["    COMPUTE SORT-RETURN = 4 * 4"], "SORT-RETURN 16 set by the program before a RELEASE"),
+        # IBM resets it to 0 after a good sort; GnuCOBOL leaves the program's value (measured)
+        (["    MOVE 4 TO SORT-RETURN"], "SORT-RETURN holds a value the program set"),
+    ],
+)
+def test_sort_return_the_program_set_stops_by_name_where_ibm_and_gnucobol_differ(proc, why, tmp_path):
+    pytest.importorskip("tree_sitter_language_pack")
+    if _java() is None:
+        pytest.skip("needs JAVA_HOME / JDK_17")
+    src = _sort_variant([*proc, "    SORT SORT-FILE ON ASCENDING KEY SR-NAME", "         INPUT PROCEDURE LOAD-RECS",
+                         "         OUTPUT PROCEDURE SHOW-RECS"])  # fmt: skip
+    assert not _holes(tmp_path / "t", src)  # translated whole: the stop is the runtime's
+    with pytest.raises(subprocess.CalledProcessError) as e:
+        _java_run("SORTX", src, tmp_path)
+    assert why in e.value.stderr and "not modelled" in e.value.stderr, e.value.stderr
+
+
+def test_sort_return_stored_in_every_statement_form_translates(tmp_path):
+    """SORTRC writes the register by MOVE, MOVE ZERO and COMPUTE; none is a hole any more."""
+    pytest.importorskip("tree_sitter_language_pack")
+    assert not _holes(tmp_path / "t", PROGRAMS["SORTRC"])
+
+
 def test_merge_refuses_an_input_out_of_order(tmp_path):
     """IBM: a MERGE's result is predictable only when every USING file is in key order. SORTUG with M1FILE's last
     record moved first in key order: the run stops by name at the MERGE."""
@@ -2046,6 +2275,36 @@ def test_merge_refuses_an_input_out_of_order(tmp_path):
     with pytest.raises(subprocess.CalledProcessError) as e:
         _java_run_batch("SORTUG", src, tmp_path, FILE_DDS["SORTUG"])
     assert "MERGE SORT-FILE: an input file out of key order" in e.value.stderr
+
+
+def test_sort_of_records_of_different_lengths_refuses_a_key_past_the_shortest(tmp_path):
+    """IBM: a key lies within every record of the sort. L-REST starts at byte 4 of a 5-byte shortest record and ends at
+    10: refused by name at translation."""
+    pytest.importorskip("tree_sitter_language_pack")
+    src = PROGRAMS["SORTVL"].replace("ASCENDING KEY L-KEY", "ASCENDING KEY L-REST")
+    assert src != PROGRAMS["SORTVL"]
+    holes = _holes(tmp_path, src)
+    assert any("past the end of the shortest record of SORT-FILE (5 bytes)" in h for h in holes), holes
+
+
+def test_sort_giving_records_of_different_lengths_stops_by_name(tmp_path):
+    """IBM writes each record at its own length, the oracle the whole area: a GIVING of mixed lengths stops the run."""
+    pytest.importorskip("tree_sitter_language_pack")
+    if _java() is None:
+        pytest.skip("needs JAVA_HOME / JDK_17")
+    src = PROGRAMS["SORTVL"].replace(
+        "INPUT PROCEDURE LOAD-RECS OUTPUT PROCEDURE SHOW-RECS", "INPUT PROCEDURE LOAD-RECS GIVING OUTFILE"
+    )
+    src = src.replace(
+        "       SD  SORT-FILE.", "       FD  OUTFILE.\n       01  OUT-REC PIC X(10).\n       SD  SORT-FILE."
+    )
+    src = src.replace(
+        "SELECT SORT-FILE ASSIGN TO SORTWK1.",
+        "SELECT SORT-FILE ASSIGN TO SORTWK1.\n           SELECT OUTFILE ASSIGN TO OUTFILE.",
+    )
+    with pytest.raises(subprocess.CalledProcessError) as e:
+        _java_run_batch("SORTVL", src, tmp_path, ["OUTFILE"])
+    assert "GIVING of SORT-FILE: records of different lengths" in e.value.stderr
 
 
 def test_alphabets_keep_each_definition_whole():

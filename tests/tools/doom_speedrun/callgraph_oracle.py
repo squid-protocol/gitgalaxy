@@ -96,6 +96,7 @@ PREPROC = {"preproc_def", "preproc_function_def", "preproc_call", "preproc_arg"}
 STATEMENT_NODES = {
     "for_statement", "while_statement", "do_statement", "if_statement", "switch_statement", "return_statement",
     "for_range_loop", "try_statement", "expression_statement",
+    "labeled_statement",  # `abortLine:` at file scope: a label is only ever inside a function (#6266, amethyst)
 }  # fmt: skip
 CONDITIONAL_NODES = {"preproc_if", "preproc_ifdef"}
 TEXT_NODES = {"comment", "string_literal", "raw_string_literal", "char_literal", "concatenated_string"}
@@ -290,6 +291,12 @@ def _live_children(n):
     return [c for c in n.children if c.id != cond.id and (alt is not None and c.id == alt.id) != value]
 
 
+def _unescaped_quotes(raw):
+    """The `"` of a byte string that no backslash escapes, and no `'` char literal holds."""
+    text = re.sub(rb"\\.|'(?:[^'\\\n]|\\.)'", b"", raw)
+    return text.count(b'"')
+
+
 class Body:
     """One function body: its calls (name -> shape of the first call), other identifier references, preprocessor and
     comment/literal text."""
@@ -301,6 +308,9 @@ class Body:
         self.broken = False  # an ERROR node inside: tree-sitter may have closed the body early
         self.unbalanced = False  # a conditional not ending at its own `#endif`, or holding a stray `#else`: misread
         self.nested = []  # 1-based last lines of real nested definitions (methods, or functions a misparse ran over)
+        # an ERROR holding an odd number of `"`: tree-sitter lost the string boundaries (doomsday's `_E(b) "%s" _E(.)`),
+        # so the literal nodes after it no longer mark text and calls (`name()`) are read as string content (#6266)
+        self.desynced = False
         callees = set()
         for init in _initializers(node):  # `: Base(x), member(y)`: a base class entry is a constructor call
             name = callee_node(init.children[0]) if init.children else None
@@ -357,6 +367,7 @@ class Body:
                 self._text_calls(n.text)
             elif n.type == "ERROR":
                 self.broken = True
+                self.desynced |= _unescaped_quotes(n.text) % 2 == 1
                 self._text_calls(n.text)
             elif n.type == "call_expression":
                 fn = n.child_by_field_name("function")
@@ -654,13 +665,26 @@ def _initializers(node):
     return []
 
 
+def _ctor_name(node):
+    """The unqualified name a function definition declares (`PackagesWidget::PackagesWidget(..)` -> PackagesWidget), or None."""
+    decl = node.child_by_field_name("declarator")
+    while decl is not None and decl.type not in ("identifier", "qualified_identifier", "field_identifier"):
+        decl = decl.child_by_field_name("declarator")
+    return bare(decode_bytes(decl.text)) if decl is not None else None
+
+
 def _owner(node):
     """The class a constructor definition belongs to: the class body it sits in, else the scope of ``Cls::Cls``."""
+    ctor = _ctor_name(node)
     up = node.parent
     while up is not None:
         if up.type in ("class_specifier", "struct_specifier"):
             name = up.child_by_field_name("name")
-            return decode_bytes(name.text).split("<")[0].strip() if name is not None else None  # `Box<T, true>` -> Box
+            owner = decode_bytes(name.text).split("<")[0].strip() if name is not None else None  # `Box<T, true>` -> Box
+            # a constructor is named for its class: a class that is not (a misread unclosed `class` run over the rest of
+            # the file, packageswidget.cpp's `PackageListItemWidget`) is not its owner, so keep climbing (#6266)
+            if ctor is None or owner is None or owner == ctor:
+                return owner
         up = up.parent
     decl = node.child_by_field_name("declarator")
     while decl is not None and decl.type != "qualified_identifier":
@@ -678,12 +702,34 @@ def _owner(node):
     return bare(decode_bytes(scope.text)) if scope is not None else None
 
 
+class Classes(dict):
+    """`class_names`: class -> the bases its head lists, plus ``declared``, every class some head defines."""
+
+    declared = frozenset()
+
+
 def _bases(classes, node):
-    """The base classes its owner lists (every listed base when the owner is not found)."""
+    """The base classes its owner lists (every listed base when the owner is not found, or is a class no C++ source
+    of the repo defines: a class whose header was dropped, read as `TextBody` reads such a constructor, #6266)."""
     owner = _owner(node)
     if owner in classes:
         return classes[owner] | classes.get(ALIASES, set())
-    return set().union(*classes.values()) if owner is None else classes.get(ALIASES, set())
+    if owner is None or (isinstance(classes, Classes) and owner not in classes.declared):
+        return set().union(*classes.values())
+    return classes.get(ALIASES, set())
+
+
+# The wrapper suffixes the engine reads through to the language beneath (`language_lens.SAFE_WRAPPERS`): it scans a
+# `sdlnativefont.cpp.old` as C++, so the class its `sdlnativefont.h.old` declares is a class of the scan (#6266).
+WRAPPER_EXTS = frozenset(".template .tmpl .bak .old .orig .dist .gen .in".split())
+
+
+def _cpp_ext(filename):
+    """The extension a file is read as: `x.h.old` -> `.h`, as the engine maps it."""
+    stem, ext = os.path.splitext(filename)
+    if ext.lower() in WRAPPER_EXTS and os.path.splitext(stem)[1]:
+        return os.path.splitext(stem)[1].lower()
+    return ext.lower()
 
 
 def class_names(repo, vendored=None):
@@ -695,7 +741,7 @@ def class_names(repo, vendored=None):
     for root, dirs, files in os.walk(repo):
         dirs[:] = [d for d in dirs if d != ".git"]
         for f in files:
-            if os.path.splitext(f)[1].lower() in CPP_EXTS:
+            if _cpp_ext(f) in CPP_EXTS:
                 if vendored and vendored(os.path.relpath(Path(root) / f, repo).replace("\\", "/")):
                     continue
                 try:
@@ -739,10 +785,11 @@ def _split_bases(listing):
 def class_names_of_text(*texts):
     """``class_names`` over source texts."""
     bases_of: dict[str, set[str]] = {}
-    declared, aliases = set(), []
+    declared, defined, aliases = set(), set(), []
     for text in texts:
         clean = STRIP.sub(" ", text)
         declared.update(CLASS_DECL.findall(clean))
+        defined.update(m.group(1) for m in CLASS_HEAD.finditer(clean))  # a definition head, not `class X;`
         heads = [(m.start(), m.group(1)) for m in CLASS_DECL.finditer(clean)]
         aliases.extend(
             (m.group(2) or m.group(3), m.group(1) or m.group(4), _alias_owner(clean, heads, m.start()))
@@ -761,7 +808,9 @@ def class_names_of_text(*texts):
     bases_of[ALIASES] = {
         name for name, target, owner in aliases if owner is None and target.rsplit("::", 1)[-1] in declared
     }
-    return bases_of
+    out = Classes(bases_of)
+    out.declared = frozenset(defined)
+    return out
 
 
 # Macro statements that take a body, like `for` (doomsday's `DE_FOR_EACH_CONST(T, i, c) { ... }`, `DE_NOTIFY_PUBLIC(N, i) ...`,
@@ -993,6 +1042,10 @@ class Port:
                 # branch spills into the live body or the reverse; the text view pairs directives by line (#6266),
                 # when its braces agree on where the function ends (eternity's concurrentqueue: they run past it)
                 braces = TextBody(src, start, classes)
+                if braces.calls is not None and braces.end_line == node.end_point[0] + 1:
+                    body = braces
+            if node is not None and getattr(body, "desynced", False):
+                braces = TextBody(src, start, classes)  # the text view blanks literals by their own quotes
                 if braces.calls is not None and braces.end_line == node.end_point[0] + 1:
                     body = braces
             if node is not None and body.broken:

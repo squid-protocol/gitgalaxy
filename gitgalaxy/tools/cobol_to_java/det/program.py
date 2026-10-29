@@ -875,8 +875,8 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     ):  # (#5233: a BMP that only CALLs CBLTDLI has no DIB)
         records += DLI.dib_records()  # #5278: EXEC DLI answers DIBSTAT (det/dli.py)
     # SORT-RETURN: the special register, S9(4) BINARY (IBM: 0 after a successful SORT / MERGE) -- only in a program
-    # that sorts or names it, so no other port's storage changes
-    sorts = any(s.kind in ("SORT", "MERGE") for p in proc.paragraphs for s in S.walk(p.body))
+    # that sorts, releases or returns, or names it, so no other port's storage changes
+    sorts = any(s.kind in ("SORT", "MERGE", "RELEASE", "RETURN") for p in proc.paragraphs for s in S.walk(p.body))
     named = any(re.search(r"\bSORT-RETURN\b", ln.text, re.I) for ln in lines)
     if (sorts or named) and not any(it.name == "SORT-RETURN" for r in records for it in r.walk()):
         srt = L.Item(1, "GG-SORT-RETURN", "WORKING-STORAGE", pic="S9(4)", usage="BINARY")
@@ -1041,7 +1041,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
             fd.why = "a sort file (SD): SORT / MERGE / RELEASE / RETURN only"
             if fd.record is not None:
                 lengths = {r.size for r in records if r.section == "FILE" and r.fd == fd.fd}
-                fd.sort_length = lengths.pop() if len(lengths) == 1 else None
+                fd.sort_length, fd.sort_min_length = max(lengths), min(lengths)
             file_decls.append(f"    private Sort sort_{G.jname(fd.select)};")
             continue
         if fd.record is None:
@@ -1340,7 +1340,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         ctor_repos += list(gen.cics.repos.items())
         # the codecs added constants: none (they use their own literals)
 
-    if any(f.sort for f in prog.files.values()) or gen.pcs_used:
+    if any(f.sort for f in prog.files.values()) or gen.pcs_used or gen.sorts_table:
         extra_imports.append(f"{package}.cobolrt.Sort")
     if gen.uses_mvs:  # #5856 (A2): the z/OS control blocks a batch pointer addresses
         extra_imports.append(f"{package}.cobolrt.DetMvs")

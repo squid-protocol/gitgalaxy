@@ -41,6 +41,11 @@ def _table(code):
         ("#define M(a) , init(a, f(1))\n", {"M": {"init", "f"}, "<init>M": {"init"}}),
         ("#define M(a) B(a), C(a)\n", {"M": {"B", "C"}, "<init>M": {"B", "C"}}),
         ("#define M(a) B(a) + C(a)\n", {"M": {"B", "C"}}),  # no comma at depth 0: not an init list
+        # #6266: a comment is gone before the expansion (fluidsynth `fluid_sample_refcount`'s trailing doc comment)
+        ("#define A(s) ((s)->n) /**< only in a synthesis context (noteon) */\n", {}),
+        ("#define A(x) B(x) // C(x)\n", {"A": {"B"}}),
+        ('#define A(x) B(x) /* don\'t */ + C("/*")\n', {"A": {"B", "C"}}),  # a quote in a comment opens no literal
+        ("#define A(x) \\\n  B(x) /* D(\\\n E() */ + C(x)\n", {"A": {"B", "C"}}),  # a comment over a continuation
     ],
 )
 def test_macro_body_call_table(code, expected):

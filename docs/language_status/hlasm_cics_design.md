@@ -114,7 +114,7 @@ operand.
 
 1. **The oracle proves the det port, not the lowering.** GnuCOBOL plus the CICS stub runs the *lowered* program, the
    same common mode as X56. The lowering's fidelity rests on the per-instruction POPS unit tests
-   (`tests/cobol_mainframe/test_hlasm_lowering_5859.py`). An independent interpreter cross-check is slice 4.
+   (`tests/cobol_mainframe/test_hlasm_lowering_5859.py`). Slice 4 adds an independent interpreter cross-check (`tests/tools/hlasm_interp.py`, `tests/cobol_mainframe/test_hlasm_interp_5859.py`): it covers the branch conditions, ZECS002's end states and (slice 5) ZECSNC's 7 scenarios, not every instruction against GnuCOBOL (see slice 4 below; register X74).
 2. **DFHEISTG initial contents.** IBM does not initialise DFHEISTG. The lowering leaves WORKING-STORAGE without
    `VALUE`, so its content is the runtime's initial fill. Slice 1 does not refuse a read before write. A case (slice 2)
    must state the fill it relies on.
@@ -131,8 +131,32 @@ operand.
 
   `ABEND ... NOHANDLE` is modelled (IBM lists no ABEND condition, so it suppresses nothing). ZECSNC is still L0.
 - ZECS002 lowers whole since slice 3b (the address model), 1181 COBOL lines, and translates whole since slice 3c
-  (`EXEC CICS VERIFY PASSWORD`, register X32; `det_survey` zecs: 7 of 7 whole, all compile). Not run against GnuCOBOL: the
-  stub has no VERIFY yet (`equivalence_cics.py` refuses it as stub-only), so there is no case and no run (3d).
+  (`EXEC CICS VERIFY PASSWORD`, register X32; `det_survey` zecs: 7 of 7 whole, all compile). Since 3d it has the
+  `zecs-zecs002` equivalence case (11 scenarios, the VERIFY verdict keyed by `userid_hex`) and is proved against GnuCOBOL
+  plus the stub; ZECSNC has `zecs-zecsnc` (7 scenarios).
+- Slice 4 (partial): `tests/tools/hlasm_interp.py` interprets the subset from the Principles of Operation alone (EBCDIC
+  storage, 32-bit registers, a real condition code, EXEC CICS as recorded events) and shares nothing with `det/hlasm.py`.
+  The test compares (a) every `CH` mask of the lowering's branch condition with the interpreter, over boundary operand
+  pairs (masks 1 and 14 are refused by name), (b) per-instruction semantics the Base64 decoder leans on, and (c) ZECS002's
+  end COMMAREA and CICS event sequence for all 11 scenarios with the GnuCOBOL run of the lowering. One difference
+  surfaced: the lowering stores `MVC CA_RC,=C'00'` as ASCII text (z/OS stores EBCDIC `F0F0`); same characters, other
+  encoding, the known cost of assumption 3. Everything else in the end COMMAREA is byte-identical.
+- Slice 5: the same comparison for ZECSNC's 7 scenarios (events, payload text, counters created; ABEND codes for EIBCALEN
+  1, 4, 9), plus the ROUTECODES / NUMROUTES the stub does not record. The interpreter gained DEFINE DCOUNTER name rules,
+  the WRITE OPERATOR routecodes, a DFHEISTG fill fact, and two fixes (FORMATTIME, `D(L)` lengths). Register X74.
+- Slice 6: the per-instruction differential against `cobc` (item 4 below): 71 snippets, 0 differences.
+- Slice 7: the same differential over storage bytes: 97 more snippets (168 in all, 0 differences). `MVC` (lengths 1-8, offsets,
+  the `=C` literal), `XC`, `OC X,X` (a halfword / fullword zero test), `CLC` / `CLI` (equal / not equal), `STCM` (all 15
+  masks, and at an offset), `IC` (a byte, and `IC R,TBL(R)`), `TR` (1, 3, 8 bytes over a 256-byte table). The fields' bytes
+  are compared raw for binary data, and as characters for text (the interpreter is EBCDIC, the lowering ASCII: assumption 3),
+  so a text case keeps to letters. The lowering refuses `BC` high / low after `CLC` / `CLI` by name, because EBCDIC and ASCII
+  collate differently; a test pins that refusal. No defect surfaced in the lowering or the interpreter.
+- Slice 8: the branch-and-link and fullword instructions (13 more snippets, 181 in all, 0 differences). `BAS` / `BCR 15,R14`
+  (one call, two calls, a nested call that saves R14 with `ST` and reloads it with `L`), `BCR 0` (no branch), `BC` masks 0 and 15,
+  and an `ST` / `L` round trip over six words including the sign bit. R14 is never compared (an address in the interpreter, a
+  return index in the lowering: assumption 4); the cases observe the path taken and the register `L` reloads. The bytes of a
+  stored fullword are not compared: the lowering keeps `F` as a native binary item (other byte order), and it refuses every
+  byte access to one (`MVC`, `STCM`, `IC`, `CLC` before a `BC`); a test pins those refusals. No defect surfaced.
 - The ladder report keeps both programs in the fixed 129-program denominator. ZECS002 is listed apart in the "refused
   whole: not COBOL" row of the progress page (`tests/tools/ladder_exclusions.py`, #5280), so it is not read as COBOL
   translator work; the page reports the entry as stale once it leaves L0. ZECSNC has no entry: it lowers and
@@ -145,10 +169,15 @@ operand.
 2. **2b (done) and 2c (done):** an untyped COMMAREA for a case with no layout: a scenario's `"commarea_hex"` is the exact
    bytes the caller passed (EIBCALEN is their count; `commarea.exact` on the stub side, a `byte[]` on the port's).
    ZECSNC scenarios: EIBCALEN 0 (terminal), 8 (non-terminal start), and 1, 4 and 9 (ABEND). The end-state COMMAREA of a
-   non-linked program is not compared (nothing observes it). The case is `tests/equivalence/zecs-zecsnc/`; an X register
-   entry for assumption 1 is still to do.
+   non-linked program is not compared (nothing observes it). The case is `tests/equivalence/zecs-zecsnc/`; the X register
+   entry for assumption 1 is X74 (slice 5, done).
 3. **3a (done):** duplicated `C` / `X` storage, `SR Rn,Rn`, `XC X,X`, `BCT`, the `=C'..'` literal move.
    **3b (done):** the address model (above). **3c (done):** `EXEC CICS VERIFY PASSWORD` (registry, `det/cics.py`,
    `CicsTask.verifyPassword`; a column-15 EXEC CICS continuation in the front end). **3d:** the stub's `GGCVER` in `ggcics.c`, the
    fault-plan validation in `equivalence_cics_faults.py`, and the `zecs-zecs002` equivalence case.
-4. **4:** an independent S/390-subset interpreter that cross-checks the lowering instruction by instruction.
+4. **4 (done, above):** the interpreter cross-checks ZECS002 and ZECSNC (slices 4, 5). Slice 6 adds the per-instruction
+   differential: `tests/tools/hlasm_diff.py` runs 71 boundary snippets (LA, SLL, SLDL, SR, BCT, STH, CH with eight masks
+   branch masks) through the interpreter and, lowered, through `cobc` in the pinned oracle image (one container);
+   registers agree on all 71, zero differences. Slice 7 (done) adds the storage-byte instructions and slice 8 (done) the linkage and fullword ones (above). Left: `MVI`
+   (outside the subset), high / low collation after `CLC` / `CLI` (refused by name), and a general assembler path for non-zECS programs
+   (frontier, no burned program needs it).

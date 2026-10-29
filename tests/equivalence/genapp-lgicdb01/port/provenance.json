@@ -15,7 +15,7 @@
  "ticket_sha256": "f8f3c55e8a0c8db3768ed55c428459cf424a31a91b73e2ad8cf080a45566fabe",
  "prompt_tokens": 39275,
  "proof": "tests/tools/equivalence.py run genapp-lgicdb01",
- "edited_after": "the deployed entry points (facades) were brought to the generator's by tests/tools/port_surface.py (#4343; see history 'resurfaced'); runTask and the logic it runs are the model's answer",
+ "edited_after": "the deployed entry points (facades) were brought to the generator's by tests/tools/port_surface.py (#4343; see history 'resurfaced'); runTask and the logic it runs are the model's answer; getCustomerInfo's SELECT was hand-edited to run through cobolrt.sql.DetSql.selectOne (key LGICDB01:169) so a planned SQL fault can be injected (#6882); the model's SQLCODE evaluation, COMMAREA moves and WRITE-ERROR-MESSAGE are unchanged",
  "licence": "derived from the CICS General Insurance Application (EPL-2.0; Copyright IBM Corp.) -- see LICENSE and NOTICE in this case's directory",
  "history": [
   {
@@ -39,6 +39,12 @@
     "handleLink(Lgicdb01Dfhcommarea,byte[])",
     "lastLinkBytes()"
    ]
+  },
+  {
+   "at": "2026-10-28T21:00:00+00:00",
+   "event": "hand-edited",
+   "by": "churn worker (#6882)",
+   "what": "getCustomerInfo: the SELECT INTO goes through DetSql.selectOne at LGICDB01:169 with a task-local SQLCA; its catch blocks mapping Spring exceptions to SQLCODE are gone (DetSql maps them); otherSqlcode removed"
   }
  ]
 }

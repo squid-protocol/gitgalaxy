@@ -298,16 +298,16 @@
     "repos": "OpenZeppelin/openzeppelin-contracts"
   },
   "swift": {
-    "engine_edges": 348,
+    "engine_edges": 302,
     "files": 2019,
-    "fn": 177,
-    "fp": 51,
-    "hub_overlap_at_10": 0.5,
+    "fn": 138,
+    "fp": 0,
+    "hub_overlap_at_10": 0.6,
     "hub_repos": 1,
-    "hub_spearman": -0.246,
+    "hub_spearman": -0.128,
     "imports": 510,
-    "precision_pct": 85.3,
-    "recall_pct": 65.3,
+    "precision_pct": 100.0,
+    "recall_pct": 72.9,
     "repos": "apple/swift-argument-parser, swiftlang/swift-package-manager"
   },
   "tcl": {

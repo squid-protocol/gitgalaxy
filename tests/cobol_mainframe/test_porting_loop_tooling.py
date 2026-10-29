@@ -222,6 +222,10 @@ def test_the_loops_committed_ports_are_proven(case, tmp_path):
     assert provenance["edited_after"].startswith(
         ("none", "the deployed entry points (facades) were brought", "ceedays() hand-edited for #4049")
     )
+    # #6882: its one hand edit (the SELECT through DetSql, the SQL fault seam) is recorded
+    if case == "genapp-lgicdb01":
+        assert "DetSql.selectOne" in provenance["edited_after"]
+        assert any(h["event"] == "hand-edited" for h in provenance["history"])
     proc = subprocess.run([sys.executable, str(Path(eq.__file__)), "run", case, "--keep", str(tmp_path)],  # noqa: S603
                           capture_output=True, text=True, check=False)  # fmt: skip
     assert proc.returncode == 0, proc.stdout[-3000:] + proc.stderr[-3000:]

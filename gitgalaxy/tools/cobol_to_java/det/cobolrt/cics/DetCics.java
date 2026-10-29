@@ -404,7 +404,8 @@ public final class DetCics {
      *  minus sign (X'60') or CR gets the negative zone X'D' in its rightmost byte; a rightmost byte whose zone is
      *  X'A'-X'F' is returned unaltered ("This permits the application program to operate on a zoned numeric field");
      *  a 1-byte field is returned unaltered. Refused by name (register X26): characters beyond 7-bit ASCII, a LENGTH
-     *  past the field, and a field in which no digit remains (IBM does not say what such a field becomes). */
+     *  past the field. A field in which no digit remains becomes all zeros (ASSUMED: IBM does not say, its rule read
+     *  literally gives that). */
     // [rule RT-CICS-BIF-DEEDIT]
     public static void deedit(Field f, int n, Charset cs, Charset region) {
         if (n > f.length()) {
@@ -444,10 +445,8 @@ public final class DetCics {
                 digits[k++] = e[i];
             }
         }
-        if (k == 0 && kept < 0) {
-            throw new UnsupportedOperationException("BIF DEEDIT of a field with no digit left: IBM does not say what"
-                    + " it becomes: not modelled");
-        }
+        // a field with no digit left: IBM's rule read literally (non-digits removed, the digits right-aligned and
+        // padded on the left with zeros) leaves all zeros (ASSUMED, register X26)
         byte[] out = new byte[n];
         Arrays.fill(out, (byte) 0xF0);
         int last = n - 1;

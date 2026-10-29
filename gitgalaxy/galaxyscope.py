@@ -2530,6 +2530,16 @@ class Orchestrator:
             for r in rels
             if Path(r).name.lower() in self._BUILD_FILE_NAMES or Path(r).suffix.lower() in self._BUILD_FILE_EXTS
         ]
+        # #6266: a build file the aperture blocks for its extension (a Visual Studio `.vcxproj`, doom3-bfg's
+        # `ID_RETAIL` in its Retail configuration) still defines the toggles it names on the compiler's command line.
+        have = set(rels)
+        for u in self.unparsable_files:
+            r = str(u.get("path", ""))
+            blocked = bool(r) and r not in have and "Unsupported Extension" in str(u.get("reason", ""))
+            if blocked and (
+                Path(r).name.lower() in self._BUILD_FILE_NAMES or Path(r).suffix.lower() in self._BUILD_FILE_EXTS
+            ):
+                build_rels.append(r)
 
         def texts(group):
             for rel in group:

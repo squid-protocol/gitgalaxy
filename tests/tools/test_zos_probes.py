@@ -60,6 +60,7 @@ NOT_PROBED_FAMILIES = {
 NOT_PROBED_IDS = {
     "A2": "z/OS control blocks (PSA / TCB / TIOT): stand-ins, no cobc equivalent",
     "J1": "VSAM on H2: no burned reach",
+    "L7": "CEELOCT's CEE2F3 failure: z/OS cannot be made to lose its clock on demand, and plain cobc has no CEELOCT (the planned fault is the model's)",
     "M2": "SQLCA after an injected SQL fault: EXEC SQL is not a cobc statement (the Db2 probes are the Q family)",
 }
 

@@ -387,7 +387,7 @@ _PERL_KEYWORD = (
 _PERL_BUILTIN = (
     r"(?:shift|pop|delete|defined|exists|ref|scalar|lc|uc|lcfirst|ucfirst|length|chomp|chop|chr|ord|int|abs|hex"
     r"|oct|sqrt|log|exp|sin|cos|keys|values|each|caller|undef|rmdir|readlink|chdir|quotemeta|sleep|rand|srand"
-    r"|exit|localtime|gmtime|close|readdir|closedir|stat|lstat|umask|fc|lock)"
+    r"|exit|localtime|gmtime|close|readdir|closedir|stat|lstat|umask|fc|lock|select)"
     rf"(?![{ID_CONTINUE}])(?![ \t]*=>)(?!\}})"
 )
 # #6433: a block (`first { $_ > 0 } @l`, `bless {}, $c`), a `%hash`, a `qq{..}` string, or an
@@ -396,14 +396,16 @@ _PERL_ARG = (
     rf"(?:[$@\\\"']|%[{ID_START}$]|<<[\"'A-Z_~]|{_PERL_NAME}[ \t]*=>|q[qwx]?[{{(\[<]"
     r"|\{[^{}\n]{0,200}\}[ \t]*[@$(,]|[A-Z][A-Z0-9_]*[ \t]+[$\"'@]"
     # #6433: `open FH, ...` (a bareword handle then a comma) and `open my $fh, ...`.
-    r"|[A-Z][A-Z0-9_]*[ \t]*,|my[ \t]+[$@%])"
+    r"|[A-Z][A-Z0-9_]*[ \t]*,|my[ \t]+[$@%]"
+    # #6433 slice 5: a digit-first argument, `plan 4;`, `skip 3, 'why';`, `fetch -1;`.
+    r"|-?[0-9])"
 )
 _PERL_NOT_CALL = rf"(?:map|grep|sort)(?![{ID_CONTINUE}])"
 CALLS_OUT_PERL = re.compile(
     r"(?:(?<=->)(?:SUPER::)?"
     rf"|(?<![$@%{ID_CONTINUE}>-])(?={_PERL_NAME}[ \t]*\()"
     rf"|(?<![$@%&{ID_CONTINUE}>:-])(?={_PERL_BUILTIN})"
-    rf"|(?<![$@%&{ID_CONTINUE}>:-])(?=(?:print|printf|say)(?![{ID_CONTINUE}])[ \t]+(?:[A-Z][A-Z0-9_]*|\{{[^{{}}\n]{{0,100}}\}})[ \t]+[a-z$\"'@])"
+    rf"|(?<![$@%&{ID_CONTINUE}>:-])(?=(?:print|printf|say)(?![{ID_CONTINUE}])[ \t]+(?:[A-Z][A-Z0-9_]*|\{{[^{{}}\n]{{0,100}}\}})[ \t]+[a-z0-9$\"'@])"
     rf"|(?<![$@%&{ID_CONTINUE}>:-])(?=split(?![{ID_CONTINUE}])[ \t]*/)"
     # #6433: an indirect-object constructor, `new Foo;`, and a qualified command, `Foo::bar $x;`.
     rf"|(?<![$@%&{ID_CONTINUE}>:-])(?=new[ \t]+[{ID_START}][{ID_CONTINUE}:]*[ \t]*[;,)])"

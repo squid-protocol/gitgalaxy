@@ -573,7 +573,7 @@
    "cbsa-bnk1cac": [
     25,
     25,
-    76,
+    77,
     97
    ],
    "cbsa-bnk1cac-generated": [
@@ -597,7 +597,7 @@
    "cbsa-bnk1ccs": [
     33,
     33,
-    126,
+    128,
     143
    ],
    "cbsa-bnk1ccs-generated": [
@@ -633,7 +633,7 @@
    "cbsa-bnk1dcs": [
     51,
     51,
-    93,
+    95,
     102
    ],
    "cbsa-bnk1dcs-generated": [
@@ -717,7 +717,7 @@
    "cbsa-crecust": [
     37,
     37,
-    46,
+    57,
     70
    ],
    "cbsa-crecust-generated": [
@@ -955,9 +955,9 @@
     6
    ],
    "genapp-lgicdb01": [
-    3,
     4,
-    5,
+    4,
+    11,
     12
    ],
    "genapp-lgicdb01-generated": [
@@ -1026,7 +1026,12 @@
     6,
     6
    ],
-   "genapp-lgsetup": null,
+   "genapp-lgsetup": [
+    1,
+    1,
+    2,
+    2
+   ],
    "genapp-lgstsq": [
     1,
     1,
@@ -1182,6 +1187,12 @@
     119,
     116,
     208
+   ],
+   "zecs-zecs002": [
+    0,
+    0,
+    0,
+    0
    ],
    "zecs-zecs003": [
     21,
@@ -2280,7 +2291,7 @@
    },
    "cbsa-inqacc": {
     "stale": [],
-    "status": "not-shown equal"
+    "status": "shown equal, unapproved"
    },
    "cbsa-updacc": {
     "stale": [],
@@ -2314,10 +2325,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407",
+   "sha": "7fdf2eedb25ec0b1895dc5584f7fad6c9f889e1b",
    "translator": {
-    "files": 150,
-    "sha256": "0140cb6666f05dc5e3c1509b67f1c507cb68ae076151c86030304f27fafedf08"
+    "files": 156,
+    "sha256": "9ffda5cf021bdfa094145d2eb187734ad7da7ea587ebad5e302cbc2783f963b8"
    }
   },
   "sweeps": {}
@@ -3793,7 +3804,7 @@
        "fault_runs": 14,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:f094c8e046ff731badd051064f7e5eed80d65890b9b64b4a2cd8ff51f1f12fbd",
+       "oracle_image": "sha256:6169c78316011fdeb2f6ed8b6d910bc73ff15b9830dbc5fa19a2db936efd5f17",
        "oracle_matches_pin": true,
        "records_compared": 175,
        "records_equal": 175,
@@ -3835,7 +3846,7 @@
       "fault_runs": 14,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:f094c8e046ff731badd051064f7e5eed80d65890b9b64b4a2cd8ff51f1f12fbd",
+      "oracle_image": "sha256:6169c78316011fdeb2f6ed8b6d910bc73ff15b9830dbc5fa19a2db936efd5f17",
       "oracle_matches_pin": true,
       "records_compared": 175,
       "records_equal": 175,
@@ -4357,7 +4368,7 @@
        "fault_runs": 14,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:f094c8e046ff731badd051064f7e5eed80d65890b9b64b4a2cd8ff51f1f12fbd",
+       "oracle_image": "sha256:6169c78316011fdeb2f6ed8b6d910bc73ff15b9830dbc5fa19a2db936efd5f17",
        "oracle_matches_pin": true,
        "records_compared": 175,
        "records_equal": 175,
@@ -22428,7 +22439,7 @@
        "fault_runs": 12,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
+       "oracle_image": "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005",
        "oracle_matches_pin": true,
        "records_compared": 183,
        "records_equal": 183,
@@ -22470,7 +22481,7 @@
       "fault_runs": 12,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
+      "oracle_image": "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005",
       "oracle_matches_pin": true,
       "records_compared": 183,
       "records_equal": 183,
@@ -23607,7 +23618,7 @@
        "fault_runs": 0,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
+       "oracle_image": "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005",
        "oracle_matches_pin": true,
        "records_compared": 34,
        "records_equal": 34,
@@ -23653,7 +23664,7 @@
       "fault_runs": 0,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
+      "oracle_image": "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005",
       "oracle_matches_pin": true,
       "records_compared": 34,
       "records_equal": 34,
@@ -24314,8 +24325,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 616550df8da3cb1a0d4d513d0bb7c3dcf299b407",
-   "python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha 616550df8da3cb1a0d4d513d0bb7c3dcf299b407",
+   "python tests/tools/cics_census.py survey --baseline --sha 7fdf2eedb25ec0b1895dc5584f7fad6c9f889e1b",
+   "python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha 7fdf2eedb25ec0b1895dc5584f7fad6c9f889e1b",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases carddemo-acctupdate,carddemo-acctview,carddemo-acctview-generated,carddemo-adminmenu,carddemo-adminmenu-generated,carddemo-billpay,carddemo-billpay-generated,carddemo-cardlist,carddemo-cardupdate,carddemo-cardview,carddemo-cardview-generated,carddemo-cbpaup0c,carddemo-cbstm03a,carddemo-cbstm03b,carddemo-coacct01,carddemo-cobswait,carddemo-cobtupdt,carddemo-cobtupdt-generated,carddemo-codate01,carddemo-copaua0c,carddemo-copaus0c,carddemo-copaus1c,carddemo-copaus2c,carddemo-copaus2c-generated,carddemo-cotrtlic,carddemo-cotrtlic-generated,carddemo-cotrtupc,carddemo-dailyval,carddemo-dateutil,carddemo-dbunldgs,carddemo-intcalc,carddemo-intcalc-generated,carddemo-menu,carddemo-menu-generated,carddemo-paudblod,carddemo-paudbunl,carddemo-posttran,carddemo-posttran-generated,carddemo-readacct,carddemo-readcard,carddemo-readcard-generated,carddemo-readcust,carddemo-readcust-generated,carddemo-readxref,carddemo-readxref-generated,carddemo-report,carddemo-report-generated,carddemo-signon,carddemo-signon-generated,carddemo-tranadd,carddemo-tranlist,carddemo-tranview,carddemo-tranview-generated,carddemo-trnrpt,carddemo-useradd,carddemo-useradd-generated,carddemo-userdel,carddemo-userdel-generated,carddemo-userlist,carddemo-userupd,carddemo-userupd-generated  # Db2 cases (8) need the Db2 container",
    "python tests/tools/evidence.py prove carddemo-acctview carddemo-acctview-generated carddemo-adminmenu carddemo-adminmenu-generated carddemo-billpay carddemo-billpay-generated carddemo-cardlist carddemo-cardview carddemo-cbpaup0c carddemo-cbstm03a carddemo-copaua0c carddemo-copaus0c carddemo-copaus1c carddemo-dailyval carddemo-dateutil carddemo-intcalc carddemo-menu carddemo-menu-generated carddemo-posttran carddemo-readcard carddemo-readcust carddemo-readxref carddemo-report carddemo-signon carddemo-signon-generated carddemo-tranadd carddemo-tranlist carddemo-tranview carddemo-tranview-generated carddemo-trnrpt carddemo-useradd carddemo-userdel carddemo-userlist carddemo-userupd",
@@ -24327,27 +24338,27 @@
   "crucible_cases_measured_at": "v0.5.0",
   "crucible_pins": {
    "cics": "v0.10.0",
-   "estate": "v0.4.0",
+   "estate": "v0.5.0",
    "language": "v1.7.0"
   },
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
+   "sha256:6169c78316011fdeb2f6ed8b6d910bc73ff15b9830dbc5fa19a2db936efd5f17",
    "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
-   "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005",
-   "sha256:f094c8e046ff731badd051064f7e5eed80d65890b9b64b4a2cd8ff51f1f12fbd"
+   "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005"
   ],
   "pin_manifest": "tests/crucible_pins.toml",
   "record_status_from": "evidence.py status at build time",
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407",
+   "sha": "7fdf2eedb25ec0b1895dc5584f7fad6c9f889e1b",
    "translator": {
-    "files": 150,
-    "sha256": "0140cb6666f05dc5e3c1509b67f1c507cb68ae076151c86030304f27fafedf08"
+    "files": 156,
+    "sha256": "9ffda5cf021bdfa094145d2eb187734ad7da7ea587ebad5e302cbc2783f963b8"
    }
   },
-  "translator_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407",
+  "translator_commit": "7fdf2eedb25ec0b1895dc5584f7fad6c9f889e1b",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -24390,6 +24401,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "0140cb6666f05dc5e3c1509b67f1c507cb68ae076151c86030304f27fafedf08"
+  "fingerprint": "9ffda5cf021bdfa094145d2eb187734ad7da7ea587ebad5e302cbc2783f963b8"
  }
 }

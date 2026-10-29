@@ -531,7 +531,7 @@
    "cbsa-bnk1cac": [
     25,
     25,
-    76,
+    77,
     97
    ],
    "cbsa-bnk1cac-generated": [
@@ -555,7 +555,7 @@
    "cbsa-bnk1ccs": [
     33,
     33,
-    126,
+    128,
     143
    ],
    "cbsa-bnk1ccs-generated": [
@@ -591,7 +591,7 @@
    "cbsa-bnk1dcs": [
     51,
     51,
-    93,
+    95,
     102
    ],
    "cbsa-bnk1dcs-generated": [
@@ -675,7 +675,7 @@
    "cbsa-crecust": [
     37,
     37,
-    46,
+    57,
     70
    ],
    "cbsa-crecust-generated": [
@@ -913,9 +913,9 @@
     6
    ],
    "genapp-lgicdb01": [
-    3,
     4,
-    5,
+    4,
+    11,
     12
    ],
    "genapp-lgicdb01-generated": [
@@ -984,7 +984,12 @@
     6,
     6
    ],
-   "genapp-lgsetup": null,
+   "genapp-lgsetup": [
+    1,
+    1,
+    2,
+    2
+   ],
    "genapp-lgstsq": [
     1,
     1,
@@ -1140,6 +1145,12 @@
     119,
     116,
     208
+   ],
+   "zecs-zecs002": [
+    0,
+    0,
+    0,
+    0
    ],
    "zecs-zecs003": [
     21,
@@ -1751,7 +1762,7 @@
    },
    "cbsa-inqacc": {
     "stale": [],
-    "status": "not-shown equal"
+    "status": "shown equal, unapproved"
    },
    "cbsa-updacc": {
     "stale": [],
@@ -1785,10 +1796,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407",
+   "sha": "7fdf2eedb25ec0b1895dc5584f7fad6c9f889e1b",
    "translator": {
-    "files": 150,
-    "sha256": "0140cb6666f05dc5e3c1509b67f1c507cb68ae076151c86030304f27fafedf08"
+    "files": 156,
+    "sha256": "9ffda5cf021bdfa094145d2eb187734ad7da7ea587ebad5e302cbc2783f963b8"
    }
   },
   "sweeps": {}
@@ -6595,8 +6606,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 616550df8da3cb1a0d4d513d0bb7c3dcf299b407",
-   "python tests/tools/evidence_report.py cics-async-api-credit-card-application-example --baseline --sha 616550df8da3cb1a0d4d513d0bb7c3dcf299b407",
+   "python tests/tools/cics_census.py survey --baseline --sha 7fdf2eedb25ec0b1895dc5584f7fad6c9f889e1b",
+   "python tests/tools/evidence_report.py cics-async-api-credit-card-application-example --baseline --sha 7fdf2eedb25ec0b1895dc5584f7fad6c9f889e1b",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases asynccc-asyncpnt,asynccc-crdtchk,asynccc-csstats2,asynccc-csstatus,asynccc-getaddr,asynccc-getname,asynccc-getpol,asynccc-getspnd,asynccc-seqpnt,asynccc-updcsdb",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -6607,7 +6618,7 @@
   "crucible_cases_measured_at": "v0.5.0",
   "crucible_pins": {
    "cics": "v0.10.0",
-   "estate": "v0.4.0",
+   "estate": "v0.5.0",
    "language": "v1.7.0"
   },
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
@@ -6617,13 +6628,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407",
+   "sha": "7fdf2eedb25ec0b1895dc5584f7fad6c9f889e1b",
    "translator": {
-    "files": 150,
-    "sha256": "0140cb6666f05dc5e3c1509b67f1c507cb68ae076151c86030304f27fafedf08"
+    "files": 156,
+    "sha256": "9ffda5cf021bdfa094145d2eb187734ad7da7ea587ebad5e302cbc2783f963b8"
    }
   },
-  "translator_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407",
+  "translator_commit": "7fdf2eedb25ec0b1895dc5584f7fad6c9f889e1b",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -6666,6 +6677,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "0140cb6666f05dc5e3c1509b67f1c507cb68ae076151c86030304f27fafedf08"
+  "fingerprint": "9ffda5cf021bdfa094145d2eb187734ad7da7ea587ebad5e302cbc2783f963b8"
  }
 }

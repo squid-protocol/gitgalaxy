@@ -633,7 +633,7 @@
    "cbsa-bnk1cac": [
     25,
     25,
-    76,
+    77,
     97
    ],
    "cbsa-bnk1cac-generated": [
@@ -657,7 +657,7 @@
    "cbsa-bnk1ccs": [
     33,
     33,
-    126,
+    128,
     143
    ],
    "cbsa-bnk1ccs-generated": [
@@ -693,7 +693,7 @@
    "cbsa-bnk1dcs": [
     51,
     51,
-    93,
+    95,
     102
    ],
    "cbsa-bnk1dcs-generated": [
@@ -777,7 +777,7 @@
    "cbsa-crecust": [
     37,
     37,
-    46,
+    57,
     70
    ],
    "cbsa-crecust-generated": [
@@ -1015,9 +1015,9 @@
     6
    ],
    "genapp-lgicdb01": [
-    3,
     4,
-    5,
+    4,
+    11,
     12
    ],
    "genapp-lgicdb01-generated": [
@@ -1086,7 +1086,12 @@
     6,
     6
    ],
-   "genapp-lgsetup": null,
+   "genapp-lgsetup": [
+    1,
+    1,
+    2,
+    2
+   ],
    "genapp-lgstsq": [
     1,
     1,
@@ -1242,6 +1247,12 @@
     119,
     116,
     208
+   ],
+   "zecs-zecs002": [
+    0,
+    0,
+    0,
+    0
    ],
    "zecs-zecs003": [
     21,
@@ -1411,12 +1422,10 @@
     },
     "program": "Source/ZECS002.asm",
     "row": {
-     "holes": [
-      "line 430: EXEC EXEC CICS: EXEC CICS VERIFY not modelled"
-     ],
+     "holes": [],
      "kind": "cics",
      "statements": 511,
-     "translated": 510
+     "translated": 511
     },
     "source_read": true
    },
@@ -1620,7 +1629,7 @@
    },
    "cbsa-inqacc": {
     "stale": [],
-    "status": "not-shown equal"
+    "status": "shown equal, unapproved"
    },
    "cbsa-updacc": {
     "stale": [],
@@ -1654,10 +1663,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407",
+   "sha": "7fdf2eedb25ec0b1895dc5584f7fad6c9f889e1b",
    "translator": {
-    "files": 150,
-    "sha256": "0140cb6666f05dc5e3c1509b67f1c507cb68ae076151c86030304f27fafedf08"
+    "files": 156,
+    "sha256": "9ffda5cf021bdfa094145d2eb187734ad7da7ea587ebad5e302cbc2783f963b8"
    }
   },
   "sweeps": {}
@@ -4809,6 +4818,210 @@
    "equivalence": {
     "cases": [
      {
+      "case": "zecs-zecs002",
+      "case_scenarios": 11,
+      "db2": false,
+      "det": {
+       "source": "CI det-sweep ratchet on main",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "program"
+     }
+    ],
+    "chosen": {
+     "case": "zecs-zecs002",
+     "case_scenarios": 11,
+     "db2": false,
+     "det": {
+      "source": "CI det-sweep ratchet on main",
+      "state": "equal"
+     },
+     "record": null,
+     "role": "program"
+    }
+   },
+   "level": "L2",
+   "level_current": true,
+   "mutation": {
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
+   },
+   "next": [
+    "paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)"
+   ],
+   "options": {
+    "assumed": 6,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "4.2"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 0,
+    "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.packages",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "none"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.region.CICS_TS",
+      "provenance": "found",
+      "source": "System Requirements and Considerations.md:13",
+      "value": "4.2"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "CICS"
+     }
+    ],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "STD"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
+   "oracle_backing": [],
+   "program": "Source/ZECS002.asm",
+   "residual": {
+    "assumed_or_differs_named": [],
+    "branch_outcomes_unrun": 0,
+    "commands": 0,
+    "commands_backed": 0,
+    "commands_not_backed": [],
+    "facts_unstated": 0,
+    "holes": 0,
+    "paragraphs_unrun": 0,
+    "refused": null
+   },
+   "stale_inputs": [],
+   "stale_since": null,
+   "survey_stale": false,
+   "translation": {
+    "gap_classes": [],
+    "hole_count": 0,
+    "holes": [],
+    "refused": null,
+    "source_defects": [],
+    "statements": 511,
+    "translated": 511,
+    "whole": true
+   }
+  },
+  {
+   "assumptions": {
+    "facts_stated": [],
+    "facts_unstated": [],
+    "named_by_commands": [],
+    "reach": "not measured",
+    "source_read": true
+   },
+   "coverage": {
+    "branch_net_pct": 100.0,
+    "branch_pct": null,
+    "branches": {
+     "covered": 0,
+     "total": 0
+    },
+    "branches_net": {
+     "covered": 0,
+     "total": 0
+    },
+    "current": true,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
+    "paragraph_pct": null,
+    "paragraphs": {
+     "covered": 0,
+     "live": 0
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
+    "stale_inputs": [],
+    "stale_since": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [
+     {
       "case": "zecs-zecsnc",
       "case_scenarios": 7,
       "db2": false,
@@ -4975,197 +5188,14 @@
     "translated": 54,
     "whole": true
    }
-  },
-  {
-   "assumptions": {
-    "facts_stated": [],
-    "facts_unstated": [],
-    "named_by_commands": [],
-    "reach": "not measured",
-    "source_read": true
-   },
-   "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
-    "current": true,
-    "infeasible_netted": [],
-    "infeasible_refuted": [],
-    "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
-    "stale_inputs": [],
-    "stale_since": null,
-    "uncovered_branches": [],
-    "uncovered_paragraphs": "not recorded"
-   },
-   "equivalence": {
-    "cases": [],
-    "chosen": null
-   },
-   "ladder_exclusion": {
-    "issue": "#5859",
-    "kind": "not_cobol",
-    "kind_label": "refused whole: not COBOL",
-    "reason": "CICS Assembler member; the HLASM front end refuses it at DC 08XL01'40' (slice 3 of #5859 lowers it)"
-   },
-   "level": "L0",
-   "level_current": true,
-   "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
-    "l5": false,
-    "score": null
-   },
-   "next": [
-    "translated whole (1 holes left)"
-   ],
-   "options": {
-    "assumed": 6,
-    "compiler": {
-     "product": "Enterprise COBOL",
-     "version": "4.2"
-    },
-    "deviations": [],
-    "estate_file": true,
-    "found": 0,
-    "record_differences": [],
-    "runtime": [
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.ABTERMENC",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ABEND"
-     },
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.STORAGE",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NONE,NONE,NONE,0K"
-     },
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.TRAP",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ON,SPIE"
-     },
-     {
-      "effect": "no effect",
-      "option": "db2.bind.packages",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "none"
-     },
-     {
-      "effect": "no effect",
-      "option": "cics.region.CICS_TS",
-      "provenance": "found",
-      "source": "System Requirements and Considerations.md:13",
-      "value": "4.2"
-     },
-     {
-      "effect": "honoured",
-      "option": "cics.region.LOCALCCSID",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "037"
-     },
-     {
-      "effect": "no effect",
-      "option": "cics.translator.options",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "CICS"
-     }
-    ],
-    "values": [
-     {
-      "option": "ARITH",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "COMPAT"
-     },
-     {
-      "option": "INTDATE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ANSI"
-     },
-     {
-      "option": "NUMPROC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NOPFD"
-     },
-     {
-      "option": "TRUNC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "STD"
-     },
-     {
-      "option": "CODEPAGE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "1140"
-     },
-     {
-      "option": "NSYMBOL",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NATIONAL"
-     }
-    ]
-   },
-   "oracle_backing": [],
-   "program": "Source/ZECS002.asm",
-   "residual": {
-    "assumed_or_differs_named": [],
-    "branch_outcomes_unrun": null,
-    "commands": 0,
-    "commands_backed": 0,
-    "commands_not_backed": [],
-    "facts_unstated": 0,
-    "holes": 1,
-    "paragraphs_unrun": null,
-    "refused": null
-   },
-   "stale_inputs": [],
-   "stale_since": null,
-   "survey_stale": false,
-   "translation": {
-    "gap_classes": [
-     "EXEC CICS VERIFY"
-    ],
-    "hole_count": 1,
-    "holes": [
-     "EXEC EXEC CICS: EXEC CICS VERIFY not modelled"
-    ],
-    "refused": null,
-    "source_defects": [],
-    "statements": 511,
-    "translated": 510,
-    "whole": false
-   }
   }
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 616550df8da3cb1a0d4d513d0bb7c3dcf299b407",
-   "python tests/tools/evidence_report.py zecs --baseline --sha 616550df8da3cb1a0d4d513d0bb7c3dcf299b407",
+   "python tests/tools/cics_census.py survey --baseline --sha 7fdf2eedb25ec0b1895dc5584f7fad6c9f889e1b",
+   "python tests/tools/evidence_report.py zecs --baseline --sha 7fdf2eedb25ec0b1895dc5584f7fad6c9f889e1b",
    "python tests/tools/evidence_report.py --refresh",
-   "python tests/tools/proof_sweep.py --det-only --work DIR --cases zecs-ecs001,zecs-zecs000,zecs-zecs001,zecs-zecs003,zecs-zecsnc,zecs-zecsplt",
+   "python tests/tools/proof_sweep.py --det-only --work DIR --cases zecs-ecs001,zecs-zecs000,zecs-zecs001,zecs-zecs002,zecs-zecs003,zecs-zecsnc,zecs-zecsplt",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
   ],
   "corpus_ref": "6d6bcbbc89c9be086a58cb7ad2ff4d702e873d02",
@@ -5174,7 +5204,7 @@
   "crucible_cases_measured_at": "v0.5.0",
   "crucible_pins": {
    "cics": "v0.10.0",
-   "estate": "v0.4.0",
+   "estate": "v0.5.0",
    "language": "v1.7.0"
   },
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
@@ -5184,22 +5214,22 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407",
+   "sha": "7fdf2eedb25ec0b1895dc5584f7fad6c9f889e1b",
    "translator": {
-    "files": 150,
-    "sha256": "0140cb6666f05dc5e3c1509b67f1c507cb68ae076151c86030304f27fafedf08"
+    "files": 156,
+    "sha256": "9ffda5cf021bdfa094145d2eb187734ad7da7ea587ebad5e302cbc2783f963b8"
    }
   },
-  "translator_commit": "616550df8da3cb1a0d4d513d0bb7c3dcf299b407",
+  "translator_commit": "7fdf2eedb25ec0b1895dc5584f7fad6c9f889e1b",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
   "cics_programs": 5,
-  "det_equal": 6,
+  "det_equal": 7,
   "histogram": {
-   "L0": 1,
+   "L0": 0,
    "L1": 0,
-   "L2": 2,
+   "L2": 3,
    "L3": 0,
    "L4": 4,
    "L5": 0
@@ -5220,19 +5250,19 @@
    "L4": 0,
    "L5": 0
   },
-  "holes": 1,
+  "holes": 0,
   "levels_stale": 0,
   "levels_stale_survey": 0,
   "programs": 7,
   "records_current": 0,
   "refused_whole": 0,
   "source_unread": 0,
-  "translated_whole": 6,
-  "with_case": 6,
+  "translated_whole": 7,
+  "with_case": 7,
   "with_record": 0
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "0140cb6666f05dc5e3c1509b67f1c507cb68ae076151c86030304f27fafedf08"
+  "fingerprint": "9ffda5cf021bdfa094145d2eb187734ad7da7ea587ebad5e302cbc2783f963b8"
  }
 }

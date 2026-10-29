@@ -4,9 +4,9 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `616550df8da3cb1a0d4d513d0bb7c3dcf299b407` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `7fdf2eedb25ec0b1895dc5584f7fad6c9f889e1b` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
-The translation survey matches the translator in the tree (translator fingerprint `0140cb6666f0`).
+The translation survey matches the translator in the tree (translator fingerprint `9ffda5cf021b`).
 
 ## How to read this report
 
@@ -40,19 +40,19 @@ The translation survey matches the translator in the tree (translator fingerprin
 
 | level | programs | of which stale (awaiting re-check) |
 |---|---|---|
-| L0 | 1 | 0 |
+| L0 | 0 | 0 |
 | L1 | 0 | 0 |
-| L2 | 2 | 0 |
+| L2 | 3 | 0 |
 | L3 | 0 | 0 |
 | L4 | 4 | 0 |
 | L5 | 0 | 0 |
 
 - stale (`*`, last measured): 0 of 7 programs; the rest are current
-- L2+: 6 (0 awaiting re-check); L3+: 4 (0 awaiting re-check); L4+: 4 (0 awaiting re-check)
+- L2+: 7 (0 awaiting re-check); L3+: 4 (0 awaiting re-check); L4+: 4 (0 awaiting re-check)
 
 - programs: 7 (with an EXEC CICS command: 5; source not read: 0)
-- translated whole: 6; refused whole: 0; holes left: 1
-- with an equivalence case: 6; det port equal on its case: 6; with an evidence record: 0; record current at build: 0
+- translated whole: 7; refused whole: 0; holes left: 0
+- with an equivalence case: 7; det port equal on its case: 7; with an evidence record: 0; record current at build: 0
 
 ## Options the estate compiles and runs under
 
@@ -88,8 +88,8 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
 | Source/ZECS003.cbl | L4 | 73/73 | 0 | zecs-zecs003 | equal | 18 | none | 21/21 (100.0%) | 30/30 (100.0%) | 30/30 (100.0%) | — | not measured (no det_mutation/ entry) | 1/12 |
 | Source/ZECSPLT.cbl | L4 | 27/27 | 0 | zecs-zecsplt | equal | 4 | none | 11/11 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | 2/5 |
 | Source/ZECS001.cbl | L2 | 561/561 | 0 | zecs-zecs001 | equal | 38 | none | 82/119 (68.9%) | 116/208 (55.8%) | 116/207 (56.0%) | — | not measured (no det_mutation/ entry) | 3/27 |
+| Source/ZECS002.asm | L2 | 511/511 | 0 | zecs-zecs002 | equal | 11 | none | 0/0 (—%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
 | Source/ZECSNC.asm | L2 | 54/54 | 0 | zecs-zecsnc | equal | 7 | none | 0/0 (—%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| Source/ZECS002.asm | L0 | 510/511 | 1 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
 
 ## Per program
 
@@ -277,6 +277,22 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 37 live paragraphs unrun; 92 branch outcomes unrun; 2 unstated runtime facts; ASSUMED / DIFFERS entries named: X14, X22, X27, X30, X33, X34, X35, X36, X37, X38, X45, X46, X47, X52, X53; commands without oracle backing: ASKTIME, DELETE, DOCUMENT CREATE, DOCUMENT RETRIEVE, FORMATTIME, FREEMAIN, GET COUNTER, GETMAIN, INQUIRE PROGRAM, READ, REWRITE, SYNCPOINT, SYNCPOINT ROLLBACK, WEB CLOSE, WEB CONVERSE, WEB EXTRACT, WEB OPEN, WEB PARSE URL, WEB READ HTTPHEADER, WEB RECEIVE, WEB SEND, WEB WRITE HTTPHEADER, WRITE, WRITEQ TD; assumption reach and the migration dimensions above: not measured
 
+### Source/ZECS002.asm -- L2
+
+- **Executed equivalent** on the 11 scenarios of zecs-zecs002 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)
+- **Translation:** 511/511 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 4.2; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; cics.region.CICS_TS=4.2 [no effect; found at System Requirements and Considerations.md:13]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
+- **Executed equivalence** (zecs-zecs002, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
+  - evidence record: none (11 scenarios in case.json)
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 0/0 (—%), branch outcomes 0/0 (—%) raw, 0/0 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
+- **Oracle backing:** no EXEC CICS command
+- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
+  - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
+- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Residual risk:** none listed beyond the estate-wide items; assumption reach and the migration dimensions above: not measured
+
 ### Source/ZECSNC.asm -- L2
 
 - **Executed equivalent** on the 7 scenarios of zecs-zecsnc against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
@@ -292,22 +308,6 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
   - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach and the migration dimensions above: not measured
-
-### Source/ZECS002.asm -- L0
-
-- **Next level needs:** translated whole (1 holes left)
-- **Translation:** 510/511 statements, 1 holes; whole: no
-  - hole: EXEC EXEC CICS: EXEC CICS VERIFY not modelled
-- **Not a translator gap:** refused whole: not COBOL (#5859): CICS Assembler member; the HLASM front end refuses it at DC 08XL01'40' (slice 3 of #5859 lowers it)
-- **Options in force** (compile options that change results; Enterprise COBOL 4.2; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
-  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; cics.region.CICS_TS=4.2 [no effect; found at System Requirements and Considerations.md:13]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
-- **Executed equivalence:** no equivalence case runs it
-- **Coverage:** not measured
-- **Oracle backing:** no EXEC CICS command
-- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
-  - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
-- **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 1 holes; assumption reach and the migration dimensions above: not measured
 
 ## Assumptions the estate's CICS commands name
 
@@ -343,9 +343,9 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `616550df8da3cb1a0d4d513d0bb7c3dcf299b407`
+- translator commit (the survey's): `7fdf2eedb25ec0b1895dc5584f7fad6c9f889e1b`
 - corpus pin: `zecs` at `6d6bcbbc89c9be086a58cb7ad2ff4d702e873d02`
-- crucible pins: cics `v0.10.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.10.0 (01e11fe6)`; crucible cases per command measured at `v0.5.0`
+- crucible pins: cics `v0.10.0`, estate `v0.5.0`, language `v1.7.0`; cics crucible baseline measured at `v0.10.0 (01e11fe6)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
 - oracle base image: `debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251`
 - oracle images the evidence records ran on: none
@@ -353,9 +353,9 @@ From the spec entries of the commands the programs use, with the register's stat
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 616550df8da3cb1a0d4d513d0bb7c3dcf299b407
-python tests/tools/evidence_report.py zecs --baseline --sha 616550df8da3cb1a0d4d513d0bb7c3dcf299b407
+python tests/tools/cics_census.py survey --baseline --sha 7fdf2eedb25ec0b1895dc5584f7fad6c9f889e1b
+python tests/tools/evidence_report.py zecs --baseline --sha 7fdf2eedb25ec0b1895dc5584f7fad6c9f889e1b
 python tests/tools/evidence_report.py --refresh
-python tests/tools/proof_sweep.py --det-only --work DIR --cases zecs-ecs001,zecs-zecs000,zecs-zecs001,zecs-zecs003,zecs-zecsnc,zecs-zecsplt
+python tests/tools/proof_sweep.py --det-only --work DIR --cases zecs-ecs001,zecs-zecs000,zecs-zecs001,zecs-zecs002,zecs-zecs003,zecs-zecsnc,zecs-zecsplt
 python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin
 ```

@@ -205,7 +205,10 @@ For mainframe estates the structural graph is the start of a migration. `cobol-t
 turns a CICS estate (its online transactions, plus the batch COBOL and JCL around them) into
 a compiling Spring Boot project, and an equivalence harness proves each ported program
 against the original COBOL: same inputs, byte-identical outputs. A port that is not proven
-is not done, and a person approves every port.
+is not done, and a person approves every port. Command-level CICS assembler is lowered to
+COBOL and goes through the same translator and proof, and so are DFSORT sort steps. How far
+this reaches across a whole estate (what is scanned, what is proven, and the runtimes still
+ahead) is mapped in [where the journey stands](gitgalaxy/tools/cobol_to_java/README.md#where-the-journey-stands).
 
 **Iterably solvable.** On the public burned estates, the engine and its proof harness have turned
 CICS-to-Java translation into an *iterably solvable* problem. Every gap surfaces as a named,
@@ -278,7 +281,7 @@ are always shown
 | L2 | executed equivalent | is equal to the COBOL oracle on every scenario of its case |
 | L3 | paragraph coverage | L2, and the scenarios run every live paragraph |
 | L4 | branch coverage | L3, and every branch outcome, net of reviewed infeasible ones |
-| L5 | mutants accounted for | L4, and every surviving mutant of the port accounted for (not yet measured, [#4628](https://github.com/squid-protocol/gitgalaxy/issues/4628)) |
+| L5 | mutants accounted for | L4, and every surviving mutant of the port accounted for (measured per program by the det-mutation ledgers, [#4628](https://github.com/squid-protocol/gitgalaxy/issues/4628)) |
 
 **Where it stands**: the public estates are det-ported with no model, and the current level counts, the CICS
 commands modelled, the mutation kill rate and the crucibles are on the generated
@@ -332,7 +335,7 @@ What these levels do not show:
   services modelled only where IBM documents them. Anything else is refused, never guessed. Every
   known or suspected difference from z/OS, and whether a proven program reaches it, is in the
   [oracle-assumptions register](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/oracle_assumptions.md): for example a POINTER
-  is 8 bytes here and 4 on z/OS (C9, which blocks three CBSA programs), and text compares in
+  is 8 bytes here and 4 on z/OS (C9: each side reads its fields by its own layout, compared by name), and text compares in
   ASCII order, not EBCDIC (D1). Proving against captured z/OS output is
   [#4050](https://github.com/squid-protocol/gitgalaxy/issues/4050).
 - **These are burned estates.** The burned estates and the crucible are public, and the
@@ -340,15 +343,17 @@ What these levels do not show:
   The real test is a blind estate seen for the first time; no such trial has run yet
   ([trial protocol](docs/language_status/fresh_estate_trials.md)).
 - **"Equivalent" covers the paths the runs take**, not every possible input. L3 and L4
-  narrow that gap; they don't close it. Det-port mutation (L5) is not measured yet.
+  narrow that gap; they don't close it. L5's mutation testing shows the scenarios notice the
+  changes its mutants make, not every change a defect could make.
 - **A program is not proven while anything it calls has a hole.** If any program it LINKs or
   CALLs, however indirectly, has an untranslated construct, it stays at L1, even when no
   scenario reaches that construct ([#4803](https://github.com/squid-protocol/gitgalaxy/issues/4803)).
 - **Refused programs are listed, not hidden.** IDMS, national/DBCS text, source defects,
   vendor copybooks and options IBM leaves undefined are refused by name; the families are in
   the [definition of done](docs/language_status/definition_of_done.md).
-- **Translating the code is not migrating the system.** Data migration, JCL job streams,
-  external interfaces, performance, security and cutover are not measured
+- **Translating the code is not migrating the system.** Data migration, JCL job-level flow
+  (only DFSORT sort steps are lowered and proven), external interfaces, performance, security
+  and cutover are not measured
   ([#4514](https://github.com/squid-protocol/gitgalaxy/issues/4514)).
 
 The full pipeline, commands and target config are in the

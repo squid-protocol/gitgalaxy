@@ -27,6 +27,8 @@ ground_truth_plan.py does for `ground-truth`):
            case data stays `full` (every case-enumerating test and helper reads it; see DATA_TREES).
 * `select` also when a changed file is the det Java runtime `DetCics.java` or `Sort.java` (slice 6): the tests naming the class
            as the emitted call, plus the tests that hash / compile the runtime tree, plus TREE_GUARDS. Other runtime files stay `full`.
+* `select` also when a changed file is a baseline / ledger JSON (`tests/*.json`, `tests/cobol_mainframe/*.json`) or a
+           `det_sweep_coverage` record (slice 8): the tests that name it directly, plus TREE_GUARDS; none naming it is `full`.
 * `full`   anything else, any reader that is the engine or a root-level script (it cannot be mapped to a test), an
            unreadable or empty diff, the `shepherd:full` label, and every event that is not a pull_request.
 
@@ -144,6 +146,30 @@ def data_targets(f: str, root: Path = REPO_ROOT, limit: int = HELPER_MAX) -> lis
     return _closure(DOOM_READERS, f, root, limit, direct=True)
 
 
+# Baseline / ledger JSON and the det sweep coverage records (#6278 item 5, slice 8): a test or tool opens one by its file
+# name, so the tests that name it (as a word: the file name, its stem, or the stem without `_baseline` / `_ledger`) read
+# it. Direct only, like DOOM_READERS: a helper that names the file is named by most of the suite (654 test files).
+# No direct reader at all means the file is read some way a name search cannot see (a glob), so it stays `full`.
+SWEEP_COVERAGE_DIR = "tests/equivalence/det_sweep_coverage/"
+NAMED_DATA_DIRS = ("tests", "tests/cobol_mainframe")
+
+
+def is_named_data_file(f: str) -> bool:
+    p = Path(f)
+    return f.endswith(".json") and (f.startswith(SWEEP_COVERAGE_DIR) or p.parent.as_posix() in NAMED_DATA_DIRS)
+
+
+def named_data_targets(f: str, root: Path = REPO_ROOT, limit: int = HELPER_MAX) -> list[str] | None:
+    """The tests that name data file `f`; None when none do or more than `limit` do (the caller runs everything)."""
+    p = Path(f)
+    if f.startswith(SWEEP_COVERAGE_DIR):
+        seeds = {"det_sweep_coverage"}
+    else:
+        seeds = {p.name, p.stem, re.sub(r"_(?:baseline|ledger)$", "", p.stem)}
+    hit = _closure(seeds, f, root, limit, direct=True)
+    return hit or None
+
+
 RUNTIME_DIR = "gitgalaxy/tools/cobol_to_java/det/cobolrt/"
 # The det Java runtime files a test reaches by naming their class (#6278 item 5, slice 6): a translated port or a test
 # asserts on the emitted `DetCics.` / `Sort.Key` call, so the word search is sound for these two. Slice 7 adds the
@@ -231,6 +257,7 @@ def plan(
     helpers = [f for f in files if is_helper_module(f)]
     data = [f for f in files if is_data_file(f)]
     runtime = [f for f in files if is_runtime_file(f)]
+    named = [f for f in files if is_named_data_file(f)]
     engine = [f for f in files if is_engine_module(f)]
     other = sorted(
         f
@@ -241,6 +268,7 @@ def plan(
         and f not in engine
         and f not in data
         and f not in runtime
+        and f not in named
     )
     if other:
         return {**full, "reason": f"{len(other)} changed file(s) are not docs / agent config, first: {other[0]}"}
@@ -262,15 +290,20 @@ def plan(
         if hit is None:
             return {**full, "reason": f"{f} is named by more than {HELPER_MAX} test files"}
         targets.update(hit)
+    for f in named:
+        hit = named_data_targets(f, root)
+        if hit is None:
+            return {**full, "reason": f"{f} has no test that names it, or more than {HELPER_MAX}"}
+        targets.update(hit)
     if engine:
         hit, why = coverage_map.select(engine, cmap, root)
         if hit is None:
             return {**full, "reason": why}
         targets.update(hit)
-    if modules or helpers or engine or data or runtime:
+    if modules or helpers or engine or data or runtime or named:
         targets.update(g for g in TREE_GUARDS if (root / g).exists())
     for f, a in areas.items():
-        if a == "prose" or f in modules or f in helpers or f in engine or f in data or f in runtime:
+        if a == "prose" or f in modules or f in helpers or f in engine or f in data or f in runtime or f in named:
             continue
         for scope in change_classifier.readers_of(f, refs):
             t = test_target(scope, root)

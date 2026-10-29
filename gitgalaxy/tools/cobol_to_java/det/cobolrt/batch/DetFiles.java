@@ -41,6 +41,11 @@ public final class DetFiles {
         String write(int length);
 
         String rewrite(int length);
+
+        /** The length of the record the last READ returned (a variable-length file only). */
+        default int lastLength() {
+            throw new UnsupportedOperationException("lastLength of a file of fixed-length records");
+        }
     }
 
     /** A keyed file with no store the translator could bind: OPEN and CLOSE (their statuses) only; a record
@@ -184,8 +189,9 @@ public final class DetFiles {
      * A sequential file of variable-length records (RECORD IS VARYING ... DEPENDING ON): each WRITE writes as many
      * bytes of the record area as the DEPENDING ON item holds, framed as GnuCOBOL frames a variable-length record
      * (COB_VARSEQ_FORMAT 0: the length as a big-endian halfword, two zero bytes, then the data). A length outside
-     * the FD's FROM / TO range is status 44 (a boundary violation), and nothing is written. Output only: the
-     * translator refuses a READ of such a file.
+     * the FD's FROM / TO range is status 44 (a boundary violation), and nothing is written. Input is read only for
+     * a SORT / MERGE USING: each record is read at its own length, the rest of the record area is spaces (as
+     * GnuCOBOL leaves it) and lastLength() is the length read. The translator refuses a READ statement of such a file.
      */
     public static final class VarSequential implements DetFile {
         private final CobolFiles files;
@@ -195,6 +201,8 @@ public final class DetFiles {
         private final int offset;
         private final int min;
         private final int max;
+        private Iterator<byte[]> cursor;
+        private int last;
         private OutputStream out;
 
         public VarSequential(CobolFiles files, String dd, Supplier<Path> path, Storage rec, int offset, int min,
@@ -210,16 +218,19 @@ public final class DetFiles {
 
         @Override
         public String open(String mode) {
-            if (mode.equals("INPUT") || mode.equals("I-O")) {
+            if (mode.equals("I-O")) {
                 throw new UnsupportedOperationException("OPEN " + mode + " of a variable-length file");
             }
+            boolean input = mode.equals("INPUT");
             Path p = path.get();
-            String st = files.open(dd, p, false);
+            String st = files.open(dd, p, input);
             if (!st.startsWith("0")) {
                 return st;
             }
             try {
-                if (p != null) {
+                if (input) {
+                    cursor = frames(Files.readAllBytes(p)).iterator();
+                } else if (p != null) {
                     if (p.getParent() != null) {
                         Files.createDirectories(p.getParent());
                     }
@@ -243,9 +254,36 @@ public final class DetFiles {
             });
         }
 
+        /** The data of each record of a file framed as write() frames it; a frame that is not is no file of ours. */
+        private List<byte[]> frames(byte[] all) {
+            List<byte[]> recs = new ArrayList<>();
+            int i = 0;
+            while (i < all.length) {
+                int n = i + 4 <= all.length ? ((all[i] & 0xff) << 8) | (all[i + 1] & 0xff) : -1;
+                if (n < min || n > max || all[i + 2] != 0 || all[i + 3] != 0 || i + 4 + n > all.length) {
+                    throw new UnsupportedOperationException("a record of the variable-length file " + dd
+                            + " is not framed as GnuCOBOL frames one, or is outside " + min + ".." + max + " bytes");
+                }
+                recs.add(Arrays.copyOfRange(all, i + 4, i + 4 + n));
+                i += 4 + n;
+            }
+            return recs;
+        }
+
         @Override
         public String readNext() {
-            throw new UnsupportedOperationException("READ of a variable-length file");
+            CobolFiles.Read<byte[]> r = files.readNext(dd, cursor != null ? cursor : List.<byte[]>of().iterator());
+            if (r.record() != null) {
+                last = r.record().length;
+                System.arraycopy(r.record(), 0, rec.bytes, offset, last);
+                Arrays.fill(rec.bytes, offset + last, offset + max, (byte) ' ');
+            }
+            return r.status();
+        }
+
+        @Override
+        public int lastLength() {
+            return last;
         }
 
         @Override

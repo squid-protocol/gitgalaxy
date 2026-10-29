@@ -583,6 +583,30 @@
    ]
   },
   {
+   "name": "fetch-any-third-child-secerror",
+   "commarea": {
+    "SUBPGM-EYECATCHER": "CUST",
+    "SUBPGM-SORTCODE": "987654",
+    "SUBPGM-NUMBER": "0000000000",
+    "SUBPGM-NAME": "Mrs Fiona K Laidlaw",
+    "SUBPGM-ADDRESS": "17 Abbey Road, Winchester, SO23 7AA",
+    "SUBPGM-DATE-OF-BIRTH": "12071985",
+    "SUBPGM-CREDIT-SCORE": "0",
+    "SUBPGM-CS-REVIEW-DATE": "0",
+    "SUBPGM-SUCCESS": " ",
+    "SUBPGM-FAIL-CODE": " "
+   },
+   "why": "the first two children FETCH ANY returns are NORMAL (GET CONTAINER reads their scores), the third has COMPSTATUS SECERROR: its reply to the parent is EMPTY (X18, owner-stated), the program never reads it, 951 runs, COMM-FAIL-CODE 'G' after two scores were summed",
+   "faults": [
+    {
+     "cmd": "FETCH-STATUS",
+     "resp": "SECERROR",
+     "nth": 3,
+     "why": "the third child FETCH ANY returns fails its security check (X18, owner-stated: the reply is empty; IBM says nothing about it)"
+    }
+   ]
+  },
+  {
    "name": "fetch-any-first-child-abends-afcr",
    "commarea": {
     "SUBPGM-EYECATCHER": "CUST",

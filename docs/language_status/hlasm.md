@@ -183,11 +183,20 @@ The cross-language page is [cics_mainframe_facts.md](cics_mainframe_facts.md). W
   `name DFHEIENT` opens a program unit that other programs' LINKs resolve to.
 - **Verification:** zECS's assembler programs are inside zECS's cross-verified counts: 61 CICS
   resource operations, 7 task-control rows and 134 unit-of-work rows, blind-reviewed in full.
+- **Translation** (#5859, added 2026-10-29). Command-level CICS assembler inside the subset in
+  [hlasm_cics_design.md](hlasm_cics_design.md) is lowered to a COBOL program (`det/hlasm.py`), then
+  det-ported and proven like COBOL. ZECSNC and ZECS002 translate whole, and ZECS001 LINKs the
+  lowered ZECS002. A POPS interpreter and a per-instruction differential cross-check the lowering.
+  Outside the subset (for example arithmetic, packed decimal, `MVI`) a program is refused whole, by name.
 - **IMS PSB / DBD macros** (`core/ims_gen.py`, #3477): cross-verified on CardDemo (39 facts,
   together with the JCL region steps).
 - **Not supported:**
   - **macro-level CICS** (`DFHPC`, `DFHFC`, `DFHTC`, … — the pre-command-level API);
   - general macro expansion (a user macro that wraps `EXEC CICS` is not expanded);
-  - any fact beyond CICS, DLI and IMS definitions — for example, the register-level data flow of an
-    assembler program.
-- **Single-sourced:** HLASM CICS rests on one corpus (zECS, a small service).
+  - any fact beyond CICS, DLI and IMS definitions outside the translation subset — for example, the
+    register-level data flow of an assembler program the lowering refuses;
+  - call-graph edges beyond `=V(name)`: the targets of the `CALL` macro, `LINK`/`XCTL EP=` and
+    user-macro uses do not become edges.
+- **Single-sourced:** HLASM CICS rests on one corpus (zECS, a small service). The burned-estate census
+  (#6963) pins every burned assembler member: the two zECS programs lowered, CardDemo's two batch
+  routines modelled by hand-written runtime code.

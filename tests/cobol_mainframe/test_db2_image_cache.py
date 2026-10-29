@@ -172,3 +172,19 @@ def test_every_workflow_that_loads_the_image_in_the_background_marks_its_end():
             starters.append(path.name)
             assert re.search(r"docker pull[^\n]*; date \+%s > '\$RUNNER_TEMP/pull-done'", text), path.name
     assert {"det-sweep.yml", "equivalence-e2e.yml"} <= set(starters)
+
+
+@pytest.mark.parametrize("job", ["shard", "db2"])
+def test_every_equivalence_e2e_job_that_can_start_db2_restores_the_image_and_loads_it_in_the_background(job):
+    """#7002: a shard's cbsa-updacc proof pulled the image cold from icr.io and failed on a registry timeout."""
+    text = (REPO / ".github" / "workflows" / "equivalence-e2e.yml").read_text(encoding="utf-8")
+    body = re.split(rf"^  {job}:\n", text, flags=re.M)[1]
+    body = re.split(r"^  [a-z0-9-]+:\n", body, flags=re.M)[0]
+    assert "db2_image_cache.py key" in body
+    assert re.search(
+        r"actions/cache/restore@\w+.*\n\s+with:\n\s+path: \$\{\{ runner\.temp \}\}/db2-image-cache\n\s+key: \$\{\{ steps\.db2key",
+        body,
+    )
+    start = re.search(r"db2_image_cache\.py load[^\n]*docker pull[^\n]*; date \+%s > '\$RUNNER_TEMP/pull-done'", body)
+    assert start, "the background load ends with the pull-done marker"
+    assert start.start() < body.index("Install dependencies"), "the load overlaps the installs"

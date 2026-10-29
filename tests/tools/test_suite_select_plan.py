@@ -224,3 +224,49 @@ def test_a_deleted_test_module_runs_only_the_guards_and_every_path_exists():
 def test_the_tree_guards_exist():
     root = TOOLS.parents[1]
     assert all((root / g).exists() for g in sp.TREE_GUARDS)
+
+
+def test_a_helper_runs_the_tests_that_name_it_and_the_tree_guards():
+    p = plan(["tests/tools/audit_skip_plan.py"])
+    assert p["mode"] == "select"
+    assert "tests/tools/test_audit_skip_plan.py" in p["paths"]
+    assert set(sp.TREE_GUARDS) <= set(p["paths"])
+    assert len(p["paths"]) <= sp.HELPER_MAX + len(sp.TREE_GUARDS)
+
+
+def test_a_helper_reaches_the_tests_that_name_a_helper_naming_it(tmp_path):
+    for rel, text in {
+        "tests/tools/inner.py": "X = 1\n",
+        "tests/tools/outer.py": "import inner\n",
+        "tests/tools/test_outer_user.py": "import outer\n",
+        "tests/tools/test_unrelated.py": "import os\n",
+    }.items():
+        (tmp_path / rel).parent.mkdir(parents=True, exist_ok=True)
+        (tmp_path / rel).write_text(text, encoding="utf-8")
+    assert sp.helper_targets("tests/tools/inner.py", tmp_path) == ["tests/tools/test_outer_user.py"]
+
+
+def test_a_helper_named_by_too_many_tests_runs_everything(tmp_path):
+    (tmp_path / "tests/tools").mkdir(parents=True)
+    (tmp_path / "tests/tools/spine.py").write_text("", encoding="utf-8")
+    for i in range(4):
+        (tmp_path / f"tests/tools/test_{i}.py").write_text("import spine\n", encoding="utf-8")
+    assert sp.helper_targets("tests/tools/spine.py", tmp_path, limit=3) is None
+    assert len(sp.helper_targets("tests/tools/spine.py", tmp_path, limit=4)) == 4
+
+
+@pytest.mark.parametrize(
+    "f",
+    ["tests/tools/conftest.py", "tests/tools/__init__.py", "tests/tools/data.json", "tests/tools/run.sh", "tests/x.py"],
+)
+def test_only_a_python_helper_module_is_mapped_by_name(f):
+    assert not sp.is_helper_module(f)
+    assert plan([f])["mode"] == "full"
+
+
+def test_a_helper_beside_an_engine_file_runs_everything():
+    assert plan(["tests/tools/audit_skip_plan.py", "gitgalaxy/core/prism.py"])["mode"] == "full"
+
+
+def test_the_spine_helper_equivalence_stays_full():
+    assert plan(["tests/tools/equivalence.py"])["mode"] == "full"

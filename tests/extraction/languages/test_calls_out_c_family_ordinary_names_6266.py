@@ -69,3 +69,50 @@ def test_log_as_statement_before_try_is_not_a_function_try_block_head():
     assert "LOG_AS" not in by_name
     assert {"LOG_AS", "handleReply", "asText"} <= set(by_name["finished"])
     assert {"x", "init"} <= set(by_name["A"])  # a real function-try-block constructor is still one unit
+
+
+_TYPE_OPERATOR_BODY = """
+struct S {
+    void sortSegments(int o)
+    {
+        segments = de::mapA<decltype(segments)>(sorted, [](const P &v) { return v.second; });
+        b = mapB<sizeof(int)>(x);
+        c = plain<int>(z);
+        if (lo < hi || lo > (hi - 1)) { d = 1; }
+    }
+};
+"""
+
+
+def test_a_type_operator_in_a_template_argument_keeps_the_call():
+    # doomsday line.cpp: `de::map<decltype(segments)>(...)` lost its callee to the `(` inside the template arguments
+    calls = _calls("cpp", _TYPE_OPERATOR_BODY.replace("sortSegments", "f"))
+    assert {"mapA", "mapB", "plain"} <= set(calls)
+    assert not {"decltype", "sizeof", "lo", "hi"} & set(calls)
+
+
+_BRACE_DEFAULT_BODY = """
+struct Outer
+{
+    struct Line
+    {
+        Wrapped line;
+        Line(const Wrapped &ln = {CString(), 0}, int indent = 0)
+            : line(ln)
+        {
+            setIndent(indent);
+        }
+    };
+    void f() { g(); }
+};
+"""
+
+
+def test_a_brace_init_default_holding_a_call_keeps_the_constructor_a_unit():
+    # doomsday fontlinewrapping.cpp: the nested constructor was no unit, so its default argument and member
+    # initializer were read as calls of the enclosing macro class
+    functions = StructuralExtractor("cpp", LANGUAGE_DEFINITIONS).splice(_BRACE_DEFAULT_BODY, "")["functions"]
+    by_name = {f["name"]: f["calls_out_to"] for f in functions}
+    assert "setIndent" in by_name["Line"]
+    assert not {"CString", "line"} & set(by_name["Line"])
+    assert by_name["f"] == ["g"]

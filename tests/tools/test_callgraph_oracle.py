@@ -1105,3 +1105,116 @@ int init()
 """
     body = body_of(src, line=2)
     assert {"early", "pre", "check", "late"} <= set(body.calls)
+
+
+UNCLOSED_CLASS_SRC = """class Widget : public GuiWidget {};
+struct Holder
+{
+    class Inner : public Other
+    {
+    public:
+        Inner() : Other() {}
+
+    Impl(Public *i)
+        : Base(i)
+    {}
+
+Widget::Widget(int n)
+    : GuiWidget(n)
+{}
+};
+"""
+
+
+def test_a_qualified_or_differently_named_constructor_is_no_member_of_the_class_around_it():
+    """#6266 doomsday packageswidget.cpp: tree-sitter leaves a class body open, so `Widget::Widget` and the macro class's
+    `Impl(Public *i)` sit inside `Inner`; the written name, not the enclosing class, owns the initializer list."""
+    data = UNCLOSED_CLASS_SRC.encode()
+    nodes = co.function_nodes(co._parser("cpp").parse(data))
+    classes = co.class_names_of_text(UNCLOSED_CLASS_SRC + "typedef Private<Public> Base;\nclass Private {};\n")
+    for line, base in ((9, "Base"), (13, "GuiWidget")):
+        node = co.definition_at(nodes, line)
+        assert node.parent.parent.type == "class_specifier"  # tree-sitter put both inside the unclosed `Inner`
+        assert co.Body(node, classes).calls.get(base) == "ctor-init"
+    assert co.Body(co.definition_at(nodes, 7), classes).calls.get("Other") == "ctor-init"
+
+
+def test_a_constructor_of_a_class_no_source_defines_reads_any_listed_base():
+    """#6266 doomsday `libraryfile.cpp.old`: its header is gone, so `LibraryFile` is defined nowhere; `: File(..)` is a
+    base call as `TextBody` reads it. A class defined with no base list still has none."""
+    src = "class File {};\nclass Folder : public File {};\nclass Plain {};\n"
+    classes = co.class_names_of_text(src)
+    assert "File" in classes.declared and "LibraryFile" not in classes.declared
+    for code, want in (
+        ("LibraryFile::LibraryFile(F *s)\n    : File(s)\n{}\n", "ctor-init"),
+        ("Plain::Plain(F *s)\n    : File(s)\n{}\n", None),
+    ):
+        node = co.definition_at(co.function_nodes(co._parser("cpp").parse(code.encode())), 1)
+        assert co.Body(node, classes).calls.get("File") == want
+
+
+def test_a_wrapped_backup_header_declares_classes_as_the_engine_reads_it(tmp_path):
+    """#6266: the engine scans `x.cpp.old` as C++ (`SAFE_WRAPPERS`), so the class its `x.h.old` declares is the port's."""
+    (tmp_path / "font.h.old").write_text("class SdlFont : public NativeFont\n{\n};\n")
+    (tmp_path / "notes.old").write_text("class Ignored : public Nothing {};\n")
+    classes = co.class_names(tmp_path)
+    assert classes["SdlFont"] == {"NativeFont"} and "Ignored" not in classes
+    assert co._cpp_ext("a.h.old") == ".h" and co._cpp_ext("a.old") == ".old" and co._cpp_ext("a.cpp") == ".cpp"
+
+
+def test_a_label_after_a_body_closed_early_is_the_rest_of_the_function():
+    """#6266 amethyst: tree-sitter closes the body before `abortLine:`; a label is only ever inside a function."""
+    src = "int f(void)\n{\n    int x = 0;\n}\nabortLine:\n    done();\n"
+    node = co.definition_at(co.function_nodes(co._parser("cpp").parse(src.encode())), 1)
+    assert co._runs_into_statements(node)
+
+
+def test_an_error_holding_a_stray_quote_reads_the_body_as_text(tmp_path):
+    """#6266 doomsday inputdevice.cpp: `_E(b) "%s" _E(.)` desyncs tree-sitter's string boundaries, so `name()` and
+    `isActive()` were read as string content; the text view, which blanks literals by their own quotes, calls them."""
+    src = 'String f()\n{\n    s = Stringf(_E(b) "%s" _E(.) _E(l) " (%s)" _E(.), name().c_str(), isActive() ? "on" : "off");\n    return s;\n}\nvoid name() {}\nvoid isActive() {}\n'
+    funcs = [("m.cpp", "f", 1, ["name", "isActive"]), ("m.cpp", "name", 6, []), ("m.cpp", "isActive", 7, [])]
+    repo, scan = make_port(tmp_path, "doomsday", {"m.cpp": src}, funcs)
+    port = co.Port("doomsday", repo, co.load_port(repo, co.find_db(scan)))
+    body = next(f for f in port.functions if f[1] == "f")[4]
+    assert {"name", "isActive"} <= set(body.calls)
+    assert co._unescaped_quotes(b'"a\\"b" \'"\' "') == 3
+
+
+def test_a_comparison_on_a_local_that_parses_as_a_template_call_is_no_call():
+    """#6266 doomsday edgetip.h: `delta < eps || delta > (360 - eps)` on a local `double delta` reads as `delta<..>(..)`."""
+    body = body_of(
+        "int at(double eps)\n{\n    double delta = f();\n    if (delta < eps || delta > (360.0 - g()))\n        return 1;\n    return conv<int>(eps);\n}\n",
+        lang="cpp",
+    )
+    assert "delta" not in body.calls and {"f", "g", "conv"} <= set(body.calls)
+
+
+def test_a_head_run_over_declarations_above_the_function_takes_the_brace_body(tmp_path, monkeypatch):
+    """#6266 doomsday surface.h: a class-scope `DE_AUDIENCE(Name, void changed(T &))` with no `;` became the head of a
+    definition whose initializer list ran down to the next inline method, which was credited with `changed`. The node
+    (a stand-in: the real misparse needs the whole class) starts above the function and its head holds a `;`."""
+    from types import SimpleNamespace
+
+    src = (
+        "class S\n{\n    DE_AUDIENCE(Move, void moved(S &s))\npublic:\n    S(int a);\n"
+        "    DE_AUDIENCE(Change, void changed(S &s))\n    bool has() const;\n    inline bool sky() const {\n"
+        "        return has();\n    }\n};\n"
+    )
+    for top, want_text in ((3, True), (8, False)):  # a head from line 3 runs over `;`; one on its own line does not
+        fake = SimpleNamespace(
+            start_point=(top - 1, 4),
+            end_point=(9, 5),
+            child_by_field_name=lambda _name: SimpleNamespace(start_point=(7, 0)),
+        )
+        stub = SimpleNamespace(
+            broken=False, unbalanced=False, calls={"changed": "nested-argument", "has": "x"}, nested=[]
+        )
+        monkeypatch.setattr(co, "definition_at", lambda nodes, line, fake=fake: fake if line == 8 else None)
+        monkeypatch.setattr(co, "Body", lambda node, classes=None, stub=stub: stub)
+        funcs = [("m.h", "sky", 8, ["has"]), ("m.h", "has", 7, []), ("m.h", "changed", 6, [])]
+        repo, scan = make_port(tmp_path / str(top), "doomsday", {"m.h": src}, funcs)
+        port = co.Port("doomsday", repo, co.load_port(repo, co.find_db(scan)))
+        body = next(f for f in port.functions if f[1] == "sky")[4]
+        assert isinstance(body, co.TextBody) is want_text
+        assert ("changed" in body.calls) is not want_text and "has" in body.calls

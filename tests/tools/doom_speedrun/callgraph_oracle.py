@@ -96,6 +96,7 @@ PREPROC = {"preproc_def", "preproc_function_def", "preproc_call", "preproc_arg"}
 STATEMENT_NODES = {
     "for_statement", "while_statement", "do_statement", "if_statement", "switch_statement", "return_statement",
     "for_range_loop", "try_statement", "expression_statement",
+    "labeled_statement",  # `abortLine:` at file scope: a label is only ever inside a function (#6266, amethyst)
 }  # fmt: skip
 CONDITIONAL_NODES = {"preproc_if", "preproc_ifdef"}
 TEXT_NODES = {"comment", "string_literal", "raw_string_literal", "char_literal", "concatenated_string"}
@@ -290,6 +291,30 @@ def _live_children(n):
     return [c for c in n.children if c.id != cond.id and (alt is not None and c.id == alt.id) != value]
 
 
+def _unescaped_quotes(raw):
+    """The `"` of a byte string that no backslash escapes, and no `'` char literal holds."""
+    text = re.sub(rb"\\.|'(?:[^'\\\n]|\\.)'", b"", raw)
+    return text.count(b'"')
+
+
+def _local_names(node):
+    """The variables a function declares, parameters included (`double delta = ..`, `int n`): a name declared as a
+    variable in the function is that variable there, never a function of the port."""
+    out, stack = set(), [node.child_by_field_name("declarator"), node.child_by_field_name("body")]
+    while stack:
+        n = stack.pop()
+        if n is None or n.type == "function_definition":
+            continue
+        if n.type in ("init_declarator", "parameter_declaration", "optional_parameter_declaration", "declaration"):
+            d = n.child_by_field_name("declarator")
+            while d is not None and d.type in ("pointer_declarator", "reference_declarator", "array_declarator"):
+                d = d.child_by_field_name("declarator") or next(iter(d.named_children), None)
+            if d is not None and d.type == "identifier":
+                out.add(decode_bytes(d.text))
+        stack.extend(n.children)
+    return out
+
+
 class Body:
     """One function body: its calls (name -> shape of the first call), other identifier references, preprocessor and
     comment/literal text."""
@@ -300,6 +325,10 @@ class Body:
         self.broken = False  # an ERROR node inside: tree-sitter may have closed the body early
         self.unbalanced = False  # a conditional not ending at its own `#endif`, or holding a stray `#else`: misread
         self.nested = []  # 1-based last lines of real nested definitions (methods, or functions a misparse ran over)
+        # an ERROR holding an odd number of `"`: tree-sitter lost the string boundaries (doomsday's `_E(b) "%s" _E(.)`),
+        # so the literal nodes after it no longer mark text and calls (`name()`) are read as string content (#6266)
+        self.desynced = False
+        locals_ = _local_names(node)
         callees = set()
         for init in _initializers(node):  # `: Base(x), member(y)`: a base class entry is a constructor call
             name = callee_node(init.children[0]) if init.children else None
@@ -356,7 +385,19 @@ class Body:
                 self._text_calls(n.text)
             elif n.type == "ERROR":
                 self.broken = True
+                self.desynced |= _unescaped_quotes(n.text) % 2 == 1
                 self._text_calls(n.text)
+            elif (
+                n.type == "call_expression"
+                and (fn := n.child_by_field_name("function")) is not None
+                and fn.type == "template_function"
+                and (name := callee_node(fn)) is not None
+                and decode_bytes(name.text) in locals_
+            ):  # `delta < eps || delta > (360 - eps)` on a local `double delta` parses as `delta<..>(..)`: comparisons
+                self.refs.add(decode_bytes(name.text))
+                stack.extend(reversed(n.children[1:]))
+                stack.extend(reversed(fn.children[1:]))
+                continue
             elif n.type == "call_expression":
                 name = callee_node(n.child_by_field_name("function"))
                 if name is not None and decode_bytes(name.text) not in KEYWORDS:  # `SERVER_ONLY(\n if (x) {..})`
@@ -626,35 +667,58 @@ def _initializers(node):
 
 
 def _owner(node):
-    """The class a constructor definition belongs to: the class body it sits in, else the scope of ``Cls::Cls``."""
+    """The class a constructor definition belongs to: the scope of ``Cls::Cls``, else the class body it sits in. A
+    qualified name wins over the enclosing class, and a constructor named for another class is no member of it: a class
+    body tree-sitter fails to close (doomsday's ``DE_GUI_PIMPL`` holding a nested class) swallows the definitions below
+    it, ``PackagesWidget::PackagesWidget`` and ``Impl(Public *i)`` among them (#6266)."""
+    decl = node.child_by_field_name("declarator")
+    while decl is not None and decl.type not in ("qualified_identifier", "identifier", "field_identifier"):
+        decl = decl.child_by_field_name("declarator")
+    if decl is not None and decl.type == "qualified_identifier":
+        scope = decl.child_by_field_name("scope")
+        while (inner := decl.child_by_field_name("name")) is not None and inner.type == "qualified_identifier":
+            decl, scope = inner, inner.child_by_field_name("scope") or scope  # `A::B::B` nests: the innermost scope
+        return bare(decode_bytes(scope.text)) if scope is not None else None
     up = node.parent
     while up is not None:
         if up.type in ("class_specifier", "struct_specifier"):
             name = up.child_by_field_name("name")
-            return decode_bytes(name.text).split("<")[0].strip() if name is not None else None  # `Box<T, true>` -> Box
+            owner = decode_bytes(name.text).split("<")[0].strip() if name is not None else None  # `Box<T, true>` -> Box
+            if decl is not None and _initializers(node) and decode_bytes(decl.text) != owner:
+                return None  # only a constructor has an initializer list, and it is named for its own class
+            return owner
         up = up.parent
-    decl = node.child_by_field_name("declarator")
-    while decl is not None and decl.type != "qualified_identifier":
-        decl = decl.child_by_field_name("declarator")
-    scope = decl.child_by_field_name("scope") if decl is not None else None
-    while (
-        decl is not None
-        and (inner := decl.child_by_field_name("name")) is not None
-        and inner.type == "qualified_identifier"
-    ):
-        decl, scope = (
-            inner,
-            inner.child_by_field_name("scope") or scope,
-        )  # `A::B::B` nests: the class is the innermost scope
-    return bare(decode_bytes(scope.text)) if scope is not None else None
+    return None
+
+
+class Classes(dict):
+    """`class_names`: class -> the bases its head lists, plus ``declared``, every class some head defines."""
+
+    declared = frozenset()
 
 
 def _bases(classes, node):
-    """The base classes its owner lists (every listed base when the owner is not found)."""
+    """The base classes its owner lists (every listed base when the owner is not found, or is a class no C++ source
+    of the repo defines: a class whose header was dropped, read as `TextBody` reads such a constructor, #6266)."""
     owner = _owner(node)
     if owner in classes:
         return classes[owner] | classes.get(ALIASES, set())
-    return set().union(*classes.values()) if owner is None else classes.get(ALIASES, set())
+    if owner is None or (isinstance(classes, Classes) and owner not in classes.declared):
+        return set().union(*classes.values())
+    return classes.get(ALIASES, set())
+
+
+# The wrapper suffixes the engine reads through to the language beneath (`language_lens.SAFE_WRAPPERS`): it scans a
+# `sdlnativefont.cpp.old` as C++, so the class its `sdlnativefont.h.old` declares is a class of the scan (#6266).
+WRAPPER_EXTS = frozenset(".template .tmpl .bak .old .orig .dist .gen .in".split())
+
+
+def _cpp_ext(filename):
+    """The extension a file is read as: `x.h.old` -> `.h`, as the engine maps it."""
+    stem, ext = os.path.splitext(filename)
+    if ext.lower() in WRAPPER_EXTS and os.path.splitext(stem)[1]:
+        return os.path.splitext(stem)[1].lower()
+    return ext.lower()
 
 
 def class_names(repo, vendored=None):
@@ -666,7 +730,7 @@ def class_names(repo, vendored=None):
     for root, dirs, files in os.walk(repo):
         dirs[:] = [d for d in dirs if d != ".git"]
         for f in files:
-            if os.path.splitext(f)[1].lower() in CPP_EXTS:
+            if _cpp_ext(f) in CPP_EXTS:
                 if vendored and vendored(os.path.relpath(Path(root) / f, repo).replace("\\", "/")):
                     continue
                 try:
@@ -710,10 +774,11 @@ def _split_bases(listing):
 def class_names_of_text(*texts):
     """``class_names`` over source texts."""
     bases_of: dict[str, set[str]] = {}
-    declared, aliases = set(), []
+    declared, defined, aliases = set(), set(), []
     for text in texts:
         clean = STRIP.sub(" ", text)
         declared.update(CLASS_DECL.findall(clean))
+        defined.update(m.group(1) for m in CLASS_HEAD.finditer(clean))  # a definition head, not `class X;`
         heads = [(m.start(), m.group(1)) for m in CLASS_DECL.finditer(clean)]
         aliases.extend(
             (m.group(2) or m.group(3), m.group(1) or m.group(4), _alias_owner(clean, heads, m.start()))
@@ -732,7 +797,9 @@ def class_names_of_text(*texts):
     bases_of[ALIASES] = {
         name for name, target, owner in aliases if owner is None and target.rsplit("::", 1)[-1] in declared
     }
-    return bases_of
+    out = Classes(bases_of)
+    out.declared = frozenset(defined)
+    return out
 
 
 # Macro statements that take a body, like `for` (doomsday's `DE_FOR_EACH_CONST(T, i, c) { ... }`, `DE_NOTIFY_PUBLIC(N, i) ...`,
@@ -958,6 +1025,20 @@ class Port:
                 braces = TextBody(src, start, classes)
                 if braces.calls is not None and braces.end_line == node.end_point[0] + 1:
                     body = braces
+            if node is not None and getattr(body, "desynced", False):
+                braces = TextBody(src, start, classes)  # the text view blanks literals by their own quotes
+                if braces.calls is not None and braces.end_line == node.end_point[0] + 1:
+                    body = braces
+            head_row = getattr(node, "start_point", (start - 1,))[0]  # (a test's stand-in node has only the end)
+            if node is not None and head_row + 1 < start and not isinstance(body, TextBody):
+                # the node's head starts lines above the function and runs over declarations (`;` at its top level):
+                # doomsday's class-scope `DE_AUDIENCE(Name, void f(T &))` with no `;` became a head with an initializer
+                # list down to the next inline method, whose own calls are read from its braces (#6266)
+                above = src.split(b"\n")[head_row : start - 1]
+                if _has_toplevel_semicolon(b"\n".join(above)):
+                    braces = TextBody(src, start, classes)
+                    if braces.calls is not None and braces.end_line == node.end_point[0] + 1:
+                        body = braces
             if node is not None and body.broken:
                 braces = TextBody(src, start, classes)
                 # end_point[0], never .row: .row on the temporary Point read freed memory (tree-sitter 0.26, #5630).

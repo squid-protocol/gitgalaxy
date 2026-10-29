@@ -13,7 +13,8 @@ extension that no audit lints, type-checks or loads as config:
 
 * `lint` (ruff, mypy: they read .py / .pyi under the repo and pyproject.toml): `prose`, `test-read-doc`, `agent-config`.
 * `small` (dead-key, ast-accuracy, signal-contract, golden-master guard: they read tests/, docs/signal_contracts.md and the
-  whole engine): `prose` only, since a `test-read-doc` is what a test (these audits are tests/*.py) may open.
+  whole engine): the `lint` areas minus `SMALL_READS`, the one doc they open (the four scripts name no other .md, so a
+  README or a register page is not their input; they are not the tests that read it, the suite plan runs those).
 
 * `gate` (gitgalaxy.yml's pre-gate: Vault Sentinel, X-Ray, Supply Chain Firewall scan code and manifests): the `lint`
   areas. The workflow used to ignore `docs/**` altogether; it now asks this plan instead, so prose outside docs/ skips too.
@@ -38,9 +39,11 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 FULL_LABEL = "shepherd:full"
 PROFILES = {
     "lint": ("prose", "test-read-doc", "agent-config"),
-    "small": ("prose",),
+    "small": ("prose", "test-read-doc", "agent-config"),
     "gate": ("prose", "test-read-doc", "agent-config"),
 }
+# docs a profile's audit opens itself (signal_contract_audit.py --ci re-renders and compares RENDER_PATH)
+PROFILE_READS = {"small": ("docs/signal_contracts.md",)}
 # a file the audits could read as code or config, wherever it sits (docs/x.py, .claude/hooks/y.sh ...)
 CODE_SUFFIXES = (".py", ".pyi", ".toml", ".json", ".jsonl", ".txt", ".yml", ".yaml", ".cfg", ".ini", ".sh", ".ipynb")
 
@@ -55,7 +58,12 @@ def plan(files: list[str], event: str, profile: str, labels: tuple[str, ...] = (
         return {**full, "reason": "no changed files found (the diff is unreadable or empty)"}
     refs = change_classifier.load() if refs is None else refs
     allowed = PROFILES[profile]
-    reach = sorted(f for f in files if f.lower().endswith(CODE_SUFFIXES) or change_classifier.area(f, refs) not in allowed)
+    reads = PROFILE_READS.get(profile, ())
+    reach = sorted(
+        f
+        for f in files
+        if f in reads or f.lower().endswith(CODE_SUFFIXES) or change_classifier.area(f, refs) not in allowed
+    )
     if reach:
         return {**full, "reason": f"{len(reach)} changed file(s) can reach the {profile} audits, first: {reach[0]}"}
     return {"mode": "none", "reason": f"every changed file is {'/'.join(allowed)} no {profile} audit reads"}

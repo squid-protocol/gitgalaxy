@@ -27,15 +27,21 @@ def mode(files, profile="lint", event="pull_request", labels=()):
 def test_replays():
     assert mode(PR_6245) == "none"  # agent config only: the lint audits do not run
     assert mode(["README.md"]) == "none"
-    assert mode(["README.md"], "small") == "full"  # tests open the README: the small audits may
+    assert mode(["README.md"], "small") == "none"  # a test opens the README; the four small audits do not
     assert mode(["tests/tools/test_zos_probes.py"]) == "full"  # a .py is always linted
     assert mode(["docs/language_status/register/x.md"]) == "none"
 
 
-def test_small_audits_run_for_agent_config_and_test_read_docs():
-    # the small audits are tests/*.py scripts: what a test may open is theirs; only unread prose is not
-    assert mode(PR_6245, "small") == "full"
-    assert mode(["docs/signal_contracts.md"], "small") == "full"
+def test_small_audits_skip_docs_they_do_not_open_but_run_for_the_one_they_do():
+    assert mode(PR_6245, "small") == "none"
+    assert mode(["docs/language_status/register/x.md"], "small") == "none"
+    assert (
+        mode(["docs/signal_contracts.md"], "small") == "full"
+    )  # signal_contract_audit.py --ci renders and compares it
+    assert mode(["docs/signal_contracts.md", "README.md"], "small") == "full"
+    assert (
+        mode(["gitgalaxy/standards/how_to_add_a_language.md"], "small") == "full"
+    )  # engine area: its schema comments are read
 
 
 @pytest.mark.parametrize("profile", sorted(ap.PROFILES))
@@ -107,7 +113,7 @@ def test_the_pre_gate_asks_the_plan_instead_of_ignoring_docs():
     steps = job["steps"]
     plan = next(i for i, s in enumerate(steps) if s.get("id") == "plan")
     assert "--profile gate" in steps[plan]["run"] and "audit_skip_plan.py" in steps[plan]["run"]
-    assert "|| echo \"mode=full\"" in steps[plan]["run"]  # a planner failure runs the gates
+    assert '|| echo "mode=full"' in steps[plan]["run"]  # a planner failure runs the gates
     for s in steps[plan + 1 :]:
         assert "steps.plan.outputs.mode != 'none'" in s["if"], s["name"]
 
@@ -126,6 +132,6 @@ def test_the_workflow_gates_every_step_after_the_plan(name, profile):
     plan = next(i for i, s in enumerate(steps) if s.get("id") == "plan")
     assert steps[plan - 1]["name"] == "Check out repository code"
     assert f"--profile {profile}" in steps[plan]["run"] and "audit_skip_plan.py" in steps[plan]["run"]
-    assert "|| echo \"mode=full\"" in steps[plan]["run"]  # a planner failure runs the audit
+    assert '|| echo "mode=full"' in steps[plan]["run"]  # a planner failure runs the audit
     for s in steps[plan + 1 :]:
         assert "steps.plan.outputs.mode != 'none'" in s["if"], s["name"]

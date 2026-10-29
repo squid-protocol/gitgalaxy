@@ -1,53 +1,8 @@
 {
- "format": "porting-loop-provenance/1",
+ "format": "det-port-provenance/1",
  "program": "INQACC",
- "written_by": "model (the #4023 follow-up porting loop), not a person",
- "model": "claude-sonnet-5-5",
- "backend": "claude-code-headless: claude -p, no tools, only the ticket's prompt",
- "proposed": "2026-10-02T19:19:58+00:00",
- "attempt": 2,
- "attempts": [
-  {
-   "n": 1,
-   "verdict": "not proven"
-  },
-  {
-   "n": 2,
-   "verdict": "not proven"
-  },
-  {
-   "n": 3,
-   "verdict": "not proven"
-  },
-  {
-   "n": 4,
-   "verdict": "not proven"
-  }
- ],
- "ticket_sha256": "e42b66036432cef4fa3364da11ed9f1881c5dd9b7041d87b2264d95d0951ff3c",
- "prompt_tokens": 68882,
- "proof": "tests/tools/equivalence.py run cbsa-inqacc",
- "edited_after": "the deployed entry points (facades) were brought to the generator's by tests/tools/port_surface.py (#4343; see history 'resurfaced'); runTask and the logic it runs are the model's answer",
- "licence": "EPL-2.0",
- "proven_after": "#4188: the loop's own verdicts were 'not proven' because a port's proof ran the LINKed program as its stub; with #4188 the stored attempt proves unedited (re-proven with --faults all)",
- "stale": {
-  "against": "the java-facade side (#4449)",
-  "at": "2026-10-25T23:30:00+00:00",
-  "reason": "re-proof through the deployed entry points failed on the #6072 scenarios: four declare sql_faults the facade does not fire; the det sweep proves all of them",
-  "needs": "#6692: the java facade does not fire a scenario's declared sql_faults; then evidence.py prove cbsa-inqacc"
- },
- "history": [
-  {
-   "at": "2026-10-17T19:05:43+00:00",
-   "event": "resurfaced",
-   "by": "tests/tools/port_surface.py",
-   "generator_commit": "b3b16bb72",
-   "generated_from": "service/InqaccService.java",
-   "added": [
-    "lastLinkBytes (field)",
-    "handleLink(InqaccDfhcommarea,byte[])",
-    "lastLinkBytes()"
-   ]
-  }
- ]
+ "translator": "det",
+ "written_by": "the deterministic translator (gitgalaxy/tools/cobol_to_java/det), no model and no person",
+ "command": "python tests/tools/det_port.py run cbsa-inqacc --faults none --work DIR",
+ "files": "service/ only; the cobolrt runtime is laid from this checkout at proof time (equivalence_java.det_runtime)"
 }

@@ -1692,15 +1692,16 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
                 raise CicsError(_requires(key, "SET", "LENGTH"))
             if "SRVCONVERT" in opts and "NOSRVCONVERT" in opts:
                 raise CicsError(_msg(key, "at_most_one", "SRVCONVERT"))
+            conv = 1 if "SRVCONVERT" in opts else 2 if "NOSRVCONVERT" in opts else 0
             if "SET" in opts:  # #4771 (X47): the body in a new block of task storage the pointer addresses
                 ptr = self.pointer(opts["SET"])
                 most = self.int_(req("MAXLENGTH")) if opts.get("MAXLENGTH") else "Integer.MAX_VALUE"
-                out = [f"{ind}CicsTask.WebReceived {r} = task.webReceive({most}, Integer.MAX_VALUE);",
+                out = [f"{ind}CicsTask.WebReceived {r} = task.webReceive({most}, Integer.MAX_VALUE, {conv});",
                        f"{ind}if ({r}.body() != null) {{",
                        f"{ind}    DetCics.receivedBlock(task, {ptr}, {r}.body(), CS);"]  # fmt: skip
             else:
                 into = req("INTO")
-                call = f"task.webReceive({self.int_(req('MAXLENGTH'))}, {self.size(into)})"
+                call = f"task.webReceive({self.int_(req('MAXLENGTH'))}, {self.size(into)}, {conv})"
                 out = [f"{ind}CicsTask.WebReceived {r} = {call};", f"{ind}if ({r}.body() != null) {{",
                        put(into, f"{r}.body().getBytes(CS)", "WEB RECEIVE INTO")]  # fmt: skip
             if "LENGTH" in opts:

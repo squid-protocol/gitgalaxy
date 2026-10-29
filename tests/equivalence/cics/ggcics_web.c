@@ -581,7 +581,7 @@ int GGCWSCT(gg_cics *c, char *media, int mediacap, char *stext, int stextcap) {
 static struct { int loaded, hasbody, nh; char scheme[8], host[WEB_TXT], method[16], path[WEB_TXT], query[WEB_TXT],
                 version[64], media[WEB_TXT], *body; int port, bodylen; char hname[WEB_MAXH][256];
                 char *hval[WEB_MAXH]; } webreq;
-static int web_received = 0;
+static int web_received = 0; /* 0 none, 1 a receive not NOSRVCONVERT, 2 NOSRVCONVERT, 3 the SRVCONVERT pass after it (ASSUMED, X38) */
 
 static void webreq_load(void) {
     const char *env = getenv("GGCICS_WEBREQ");
@@ -782,13 +782,13 @@ int GGCWRCV(gg_cics *c, char *into, int intocap, char *media, int mediacap) {
     trim(c->flags, 40, flags);
     hm = strstr(flags, "MEDIA") != NULL;
     if (!webreq.hasbody) refuse("WEB RECEIVE of a request with no body");
-    if (web_received) refuse("a second WEB RECEIVE");
+    if (web_received && !(web_received == 2 && strstr(flags, "CONV") && !strstr(flags, "RAW"))) refuse("a second WEB RECEIVE");
     if (maxl > intocap) refuse("WEB RECEIVE length beyond its area");
     if (hm && mediacap < 56) refuse("WEB RECEIVE length beyond its area");
     c->resp = NORMAL;
     c->resp2 = 0;
     if (maxl <= 0) { c->resp = LENGERR; c->resp2 = 16; web_receive_event(c, NULL, 0); return 0; }
-    web_received = 1;
+    web_received = web_received == 2 ? 3 : strstr(flags, "RAW") ? 2 : 1;
     n = webreq.bodylen > maxl ? maxl : webreq.bodylen;
     if (webreq.bodylen > maxl) { c->resp = LENGERR; c->resp2 = 57; }
     memcpy(into, webreq.body, (size_t)n);
@@ -871,13 +871,13 @@ int GGCWRCS(gg_cics *c, void **slot, char *media, int mediacap) {
     trim(c->flags, 40, flags);
     hm = strstr(flags, "MEDIA") != NULL;
     if (!webreq.hasbody) refuse("WEB RECEIVE of a request with no body");
-    if (web_received) refuse("a second WEB RECEIVE");
+    if (web_received && !(web_received == 2 && strstr(flags, "CONV") && !strstr(flags, "RAW"))) refuse("a second WEB RECEIVE");
     if (hm && mediacap < 56) refuse("WEB RECEIVE length beyond its area");
     if (webreq.bodylen > 268435456) refuse("WEB RECEIVE SET body beyond the limit");
     c->resp = NORMAL;
     c->resp2 = 0;
     if (maxl <= 0) { c->resp = LENGERR; c->resp2 = 16; web_receive_event(c, NULL, 0); return 0; }
-    web_received = 1;
+    web_received = web_received == 2 ? 3 : strstr(flags, "RAW") ? 2 : 1;
     n = webreq.bodylen > maxl ? maxl : webreq.bodylen;
     if (webreq.bodylen > maxl) { c->resp = LENGERR; c->resp2 = 57; }
     *slot = blk_new((size_t)n, BLK_RECEIVED);

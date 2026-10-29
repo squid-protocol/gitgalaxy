@@ -359,9 +359,10 @@ def _web_receive(opts: dict[str, str | None], labels: list[str] | None) -> list[
             )
     if "LENGTH" in opts and not opts["LENGTH"]:
         raise ec.Unsupported(ec.NEEDS_ARGUMENT, [key])
+    flags = " ".join(f for f, on in (("MEDIA", "MEDIATYPE" in opts), ("CONV", "SRVCONVERT" in opts), ("RAW", "NOSRVCONVERT" in opts)) if on)
     lines = [
         f"MOVE {opts['MAXLENGTH']} TO GG-NUM" if opts.get("MAXLENGTH") else "MOVE 2147483647 TO GG-NUM",
-        "MOVE 'MEDIA' TO GG-FLAGS" if "MEDIATYPE" in opts else "MOVE SPACES TO GG-FLAGS",
+        f"MOVE '{flags}' TO GG-FLAGS" if flags else "MOVE SPACES TO GG-FLAGS",
     ]
     media = opts.get("MEDIATYPE") or "GG-QNAME"
     if "SET" in opts:

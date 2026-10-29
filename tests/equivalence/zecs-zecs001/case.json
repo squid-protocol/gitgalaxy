@@ -1369,6 +1369,47 @@
         "body": null
       },
       "why": "an Authorization value whose first Base64 byte is '=' (X'7E' in cp037): ZECS002 stops at RC 12 before VERIFY, 1500 answers 401; the Authorization value after 'Basic ' and ZC01SD's user ids are stated as the cp037 bytes z/OS holds (CICS hands the header over in EBCDIC; ZECS002's B64XLT is indexed by the EBCDIC code point and it returns CA-USERID in EBCDIC); SD-ACCESS stays in the code page of ZECS001's own SD-SELECT/UPDATE/DELETE literals (hlasm_cics_design.md assumption 3)"
+    },
+    {
+      "name": "post-replicate-aa",
+      "commarea": null,
+      "tod": "7A7A7A7A7A7A0708090A0B0C0D0E0F10",
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "POST",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/repkey",
+        "query": "",
+        "headers": [],
+        "mediatype": "application/octet-stream",
+        "body": "v"
+      },
+      "doctemplates": {
+        "ZC01DC": "type: AA\r%http://zecs-b.example.com:8081\r%"
+      },
+      "http_peers": [
+        {
+          "scheme": "HTTP",
+          "host": "zecs-b.example.com",
+          "port": 8081,
+          "urimap": null,
+          "path": null,
+          "exchanges": [
+            {
+              "method": "POST",
+              "path": "/replicate/ecs/walmart/cache/repkey",
+              "query": "",
+              "status": 200,
+              "statustext": "OK",
+              "mediatype": "text/plain",
+              "body": ""
+            }
+          ]
+        }
+      ],
+      "why": "#6839 row G: type AA on /resources: 4600-REPLICATE opens the peer, WEB CONVERSE POST /replicate/... FROM(CACHE-MESSAGE) (SAVE-ADDRESS copied through the 4-byte CACHE-ADDRESS-X view), closes it"
     }
   ],
   "compiler_options": [

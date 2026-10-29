@@ -4293,6 +4293,15 @@ _X38_CASES = [  # (fixture, steps, what both runtimes answer, the WEB-HEADER eve
     ("full", ["rcv -3 1"], ["rcv 22/16"], []),
     ("full", ["rcv 17 0"], ["WEB RECEIVE length beyond its area"], []),
     ("full", ["rcv 5 0", "rcv 5 0"], ["rcv 22/57 hello...........|5|-", "a second WEB RECEIVE"], []),
+    # ZECS001's text/* pass (ASSUMED, X38): SRVCONVERT (c) may follow a NOSRVCONVERT (r) receive, once; nothing else repeats
+    ("full", ["rcv 16 1 r", "rcv 16 1 c"], ["rcv 0/0 hello world!....|12|text/plain", "rcv 0/0 hello world!....|12|text/plain"], []),
+    ("full", ["rcv 5 0 r", "rcv 16 1 c"], ["rcv 22/57 hello...........|5|-", "rcv 0/0 hello world!....|12|text/plain"], []),
+    ("full", ["rcv 16 0 r", "rcv 5 0 c"], ["rcv 0/0 hello world!....|12|-", "rcv 22/57 hello...........|5|-"], []),
+    ("full", ["rcv 16 0 r", "rcv 16 0 c", "rcv 16 0 c"], ["rcv 0/0 hello world!....|12|-", "rcv 0/0 hello world!....|12|-", "a second WEB RECEIVE"], []),
+    ("full", ["rcv 16 0 r", "rcv 16 0 r"], ["rcv 0/0 hello world!....|12|-", "a second WEB RECEIVE"], []),
+    ("full", ["rcv 16 0 c", "rcv 16 0 c"], ["rcv 0/0 hello world!....|12|-", "a second WEB RECEIVE"], []),
+    ("full", ["rcv 16 0", "rcv 16 0 c"], ["rcv 0/0 hello world!....|12|-", "a second WEB RECEIVE"], []),
+    ("full", ["rcv 16 0 r", "rcv 16 0"], ["rcv 0/0 hello world!....|12|-", "a second WEB RECEIVE"], []),
     ("bare", ["rcv 5 0"], ["WEB RECEIVE of a request with no body"], []),
     ("full", ["rdh Authorization 13 24"], [f"rdh 0/0 Basic QUJD{_D(14)}|10"], []),
     ("full", ["rdh Content-Type 12 24"], [f"rdh 0/0 text/plain{_D(14)}|10"], []),
@@ -4381,7 +4390,12 @@ int main(int argc, char **argv) {
             printf("\n");
         } else if (strcmp(w[0], "rcv") == 0) {
             c.num = atoi(w[1]);
-            flags(strcmp(w[2], "1") == 0 ? "MEDIA" : "");
+            {
+                char fl[40] = "";
+                if (strcmp(w[2], "1") == 0) strcat(fl, "MEDIA ");
+                if (k > 3) strcat(fl, strcmp(w[3], "c") == 0 ? "CONV" : "RAW");  /* (c SRVCONVERT, r NOSRVCONVERT) */
+                flags(fl);
+            }
             GGCWRCV(&c, into, 16, media, 56);
             printf("rcv %d/%d", c.resp, c.resp2);
             if (c.resp == 0 || c.resp2 == 57) {
@@ -4524,7 +4538,7 @@ def test_cics_task_serves_the_stated_request_as_the_stub_does(tmp_path):
                 System.out.println(o + "" + r.port() + "|" + (r.scheme() == 1029 ? "HTTPS" : "HTTP") + "|" + lens);
             }
             case "rcv" -> {
-                CicsTask.WebReceived r = t.webReceive(Integer.parseInt(w[1]), 16);
+                CicsTask.WebReceived r = t.webReceive(Integer.parseInt(w[1]), 16, w.length > 3 ? (w[3].equals("c") ? 1 : 2) : 0);
                 String o = "rcv " + r.resp() + "/" + r.resp2();
                 if (r.body() != null) o += " " + area(r.body(), 16) + "|" + r.body().length() + "|"
                         + (w[2].equals("1") ? r.mediaType() : "-");
@@ -4751,6 +4765,12 @@ _X47_CASES = [  # (fixture, steps, what both runtimes answer; a last answer that
     ("full", ["nul 0", "rs 0 0", "fm 0"], ["rs 22/16", "fm 16/1"]),  # (LENGERR 16 leaves the pointer as it was)
     ("full", ["rs 0 16", "fm 0"], ["rs 0/0 12|text/plain", "FREEMAIN of storage already freed or received"]),
     ("full", ["rs 0 16", "rs 1 16"], ["rs 0/0 12|text/plain", "a second WEB RECEIVE"]),
+    ("full", ["rs 0 16 r", "rs 1 16 c", "rd 0 12", "rd 1 12"],  # (ZECS001's text/* pass: a new block with the same bytes)
+     ["rs 0/0 12|text/plain", "rs 0/0 12|text/plain", "rd 68656C6C6F20776F726C6421", "rd 68656C6C6F20776F726C6421"]),
+    ("full", ["rs 0 5 r", "rs 1 16 c"], ["rs 22/57 5|text/plain", "rs 0/0 12|text/plain"]),
+    ("full", ["rs 0 16 r", "rs 1 16 c", "rs 2 16 c"], ["rs 0/0 12|text/plain", "rs 0/0 12|text/plain", "a second WEB RECEIVE"]),
+    ("full", ["rs 0 16 r", "rs 1 16 r"], ["rs 0/0 12|text/plain", "a second WEB RECEIVE"]),
+    ("full", ["rs 0 16 c", "rs 1 16 c"], ["rs 0/0 12|text/plain", "a second WEB RECEIVE"]),
     ("bare", ["rs 0 16"], ["WEB RECEIVE of a request with no body"]),
 ]
 _X47_STEPS = ("gm", "fm", "rs", "adr", "nul", "rd")
@@ -4787,7 +4807,7 @@ int main(int argc, char **argv) {
             char media[56];
             memset(media, ' ', 56);
             c.num = strcmp(w[2], "-") == 0 ? 2147483647 : atoi(w[2]);
-            flags("MEDIA");
+            flags(k > 3 ? (strcmp(w[3], "c") == 0 ? "MEDIA CONV" : "MEDIA RAW") : "MEDIA");
             GGCWRCS(&c, &p[s], media, 56);
             printf("rs %d/%d", c.resp, c.resp2);
             if (c.resp == 0 || c.resp2 == 57) {
@@ -4800,6 +4820,12 @@ int main(int argc, char **argv) {
             p[s] = record;
         } else if (strcmp(w[0], "nul") == 0) {
             p[s] = NULL;
+        } else if (strcmp(w[0], "lo") == 0) {  /* #6839: the block's address, copied through a 4-byte view as ZECS001 does */
+            unsigned int view;
+            void *back = NULL;
+            memcpy(&view, &p[s], 4);
+            memcpy(&back, &view, 4);
+            printf("lo %d\n", p[s] != NULL && back == p[s] && ((unsigned long long)(size_t)p[s] >> 32) == 0);
         } else {
             printf("rd ");
             for (int j = 0; j < atoi(w[2]); j++) printf("%02X", ((unsigned char *)p[s])[j]);
@@ -4809,6 +4835,28 @@ int main(int argc, char **argv) {
     return 0;
 }
 """
+
+
+@needs_cc
+def test_task_storage_survives_a_four_byte_pointer_copy(tmp_path):
+    """#6839 (X47): ZECS001 copies CACHE-ADDRESS through its PIC S9(8) COMP view (4 of the oracle's 8 pointer bytes) and sets
+    CACHE-MESSAGE to the copy: every block GETMAIN and WEB RECEIVE SET hand out (small, 64 KiB, 1 MiB, several) must lie in
+    the low 4 GiB, or the copy is an unmapped address and WEB CONVERSE FROM(CACHE-MESSAGE) ends in SIGSEGV."""
+    exe = _stub(tmp_path, _X47_MAIN)
+    req = tmp_path / "webreq.cfg"
+    req.write_text(_x38_cfg("full"), encoding="ascii")
+    out = tmp_path / "out"
+    out.mkdir()
+    env = {**_stub_base_env(), "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(out), "GGCICS_WEBREQ": str(req)}
+    for steps, want in (
+        (["gm 0 1 0 0", "lo 0"], ["gm 0/0", "lo 1"]),
+        (["gm 0 65520 1 7", "lo 0"], ["gm 0/0", "lo 1"]),
+        (["gm 0 1048576 0 7", "lo 0"], ["gm 0/0", "lo 1"]),
+        (["gm 0 8 0 1", "gm 1 8 0 2", "lo 0", "lo 1"], ["gm 0/0", "gm 0/0", "lo 1", "lo 1"]),
+        (["rs 0 16", "lo 0"], ["rs 0/0 12|text/plain", "lo 1"]),
+    ):
+        run = subprocess.run([str(exe), *steps], env=env, capture_output=True, text=True, check=False)  # noqa: S603
+        assert run.returncode == 0 and run.stdout.splitlines() == want, (steps, run.stdout)
 
 
 @needs_cc
@@ -4849,7 +4897,8 @@ def test_cics_task_hands_out_task_storage_as_the_stub_does(tmp_path):
                 System.out.println("fm " + r[0] + "/" + r[1]);
             }
             case "rs" -> {
-                CicsTask.WebReceived r = t.webReceive(w[2].equals("-") ? Integer.MAX_VALUE : Integer.parseInt(w[2]), Integer.MAX_VALUE);
+                CicsTask.WebReceived r = t.webReceive(w[2].equals("-") ? Integer.MAX_VALUE : Integer.parseInt(w[2]), Integer.MAX_VALUE,
+                        w.length > 3 ? (w[3].equals("c") ? 1 : 2) : 0);
                 String o = "rs " + r.resp() + "/" + r.resp2();
                 if (r.body() != null) {
                     slot[s] = t.acquireReceived(r.body().getBytes(java.nio.charset.StandardCharsets.ISO_8859_1));

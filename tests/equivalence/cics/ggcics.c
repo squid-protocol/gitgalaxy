@@ -2082,10 +2082,22 @@ enum { BLK_GETMAIN = 0, BLK_RECEIVED = 1, BLK_FREED = 2 };
 static struct { void *p; int kind; size_t n; char key[96]; int sync; } blks[8192];
 static int nblks = 0;
 
+/* #6839 (X47): a block lies in the low 2 GiB where the platform can place it (Linux MAP_32BIT). A POINTER is 8 bytes here, IBM's 4, and
+ * a program that copies one through its 4-byte numeric view (ZECS001: MOVE CACHE-ADDRESS-X TO SAVE-ADDRESS-X) keeps only the low half; a
+ * heap address above 4 GiB then came back as an unmapped one (SIGSEGV at the next WEB CONVERSE FROM). Zero-filled, never unmapped. */
+static void *blk_alloc(size_t n) {
+#if !defined(_WIN32) && defined(MAP_32BIT)
+    void *p = mmap(NULL, n, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_32BIT, -1, 0);
+    return p == MAP_FAILED ? NULL : p;
+#else
+    return calloc(n, 1);
+#endif
+}
+
 static void *blk_new(size_t n, int kind) {
     void *p;
     if (nblks >= 8192) refuse("more than 8192 blocks of task storage");
-    p = calloc(n ? n : 1, 1);
+    p = blk_alloc(n ? n : 1);
     if (!p) refuse("GETMAIN length beyond the limit");
     blks[nblks].p = p;
     blks[nblks].kind = kind;

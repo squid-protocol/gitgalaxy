@@ -66,6 +66,16 @@ def test_and_binds_tighter_than_or_and_parentheses_group():
     assert isinstance(g, D.Logic) and g.op == "AND" and isinstance(g.left, D.Logic) and g.left.op == "OR"
 
 
+def test_outrec_items_are_parsed_in_order():
+    c = D.parse(" SORT FIELDS=(1,2,CH,A)\n OUTREC FIELDS=(1:3,4,5X,2Z,C'a''b',X'f1f2')\n")
+    assert c.outrec == (D.Field(3, 4, "CH"), D.Fill(5, False), D.Fill(2, True), D.Const("C", "a'b"), D.Const("X", "F1F2"))
+
+
+def test_outrec_takes_symbols_and_build_and_continues_lines():
+    c = D.parse(" SORT FIELDS=(1,2,CH,A)\n OUTREC BUILD=(ACCT,K,\n 2X,ACCT,CH)\n", "ACCT,5,3\nK,C'-'\n")
+    assert c.outrec == (D.Field(5, 3, "CH"), D.Const("C", "-"), D.Fill(2, False), D.Field(5, 3, "CH"))
+
+
 def test_option_equals_and_copy_and_comments():
     c = D.parse("* a comment\n OPTION EQUALS\n SORT FIELDS=COPY\n END\n SORT FIELDS=(1,1,CH,A)\n")
     assert (c.verb, c.keys, c.equals) == ("COPY", (), True)
@@ -74,7 +84,14 @@ def test_option_equals_and_copy_and_comments():
 @pytest.mark.parametrize(
     ("sysin", "why"),
     [
-        (" SORT FIELDS=(1,2,CH,A)\n OUTREC FIELDS=(1:3,2)\n", "the OUTREC statement"),
+        (" SORT FIELDS=(1,2,CH,A)\n INREC FIELDS=(1,2)\n", "the INREC statement"),
+        (" SORT FIELDS=(1,2,CH,A)\n OUTREC FIELDS=(2:3,2)\n", "OUTREC position 2: with the next free byte at 1"),
+        (" SORT FIELDS=(1,2,CH,A)\n OUTREC FIELDS=(1,2,5:1,1)\n", "OUTREC position 5: with the next free byte at 3"),
+        (" SORT FIELDS=(1,2,CH,A)\n OUTREC FIELDS=(1,2,ZD)\n", "OUTREC a ZD field"),
+        (" SORT FIELDS=(1,2,CH,A)\n OUTREC FIELDS=(1,2,C'')\n", "only non-empty"),
+        (" SORT FIELDS=(1,2,CH,A)\n OUTREC FIELDS=(1,2,7)\n", "a field of 7"),
+        (" SORT FIELDS=(1,2,CH,A)\n OUTREC FIELDS=(1,2),OVERLAY=(3:C'A')\n", "OUTREC operands OVERLAY"),
+        (" SORT FIELDS=(1,2,CH,A)\n OUTREC FIELDS=(1,2)\n OUTREC FIELDS=(1,2)\n", "a second OUTREC"),
         (" SORT FIELDS=(1,2,CH,A)\n SUM FIELDS=NONE\n", "the SUM statement"),
         (" SORT FIELDS=(1,4,FI,A)\n", "format FI"),
         (" SORT FIELDS=(1,2,CH,A)\n OPTION VLSHRT\n", "OPTION VLSHRT"),
@@ -170,6 +187,18 @@ def _steps() -> dict[str, tuple[str, dict[str, bytes]]]:
                                              "X'35')\n"), RECLEN, ["SORTIN"]), {"SORTIN": tran}),
         "EQUALSPD": (D.cobol_program(D.parse(" OPTION EQUALS\n SORT FIELDS=(20,3,PD,D,23,1,BI,A)\n"), RECLEN,
                                      ["SORTIN"]), {"SORTIN": _packed(rng)}),
+        # OUTREC: the three writers (GIVING-less SORT, COPY with OMIT, MERGE with INCLUDE) and a carried ZD key
+        "OUTRECSORT": (D.cobol_program(D.parse(" SORT FIELDS=(1,16,CH,A)\n OUTREC FIELDS=(1,16,2X,305,10,C'|',X'C1',3Z)\n"),
+                                       RECLEN, ["SORTIN"]), {"SORTIN": tran}),
+        "OUTRECCOPY": (D.cobol_program(D.parse(" SORT FIELDS=COPY\n OMIT COND=(305,10,CH,LT,C'2022-03')\n"
+                                               " OUTREC FIELDS=(305,10,1,16)\n"), RECLEN, ["SORTIN"]),
+                       {"SORTIN": tran}),
+        "OUTRECMERGE": (D.cobol_program(D.parse(" MERGE FIELDS=(1,16,CH,A),EQUALS\n INCLUDE COND=(305,10,CH,GE,"
+                                                "C'2022-03-01')\n OUTREC FIELDS=(305,10,1,16)\n"), RECLEN,
+                                        ["SORTIN01", "SORTIN02"]),
+                        {"SORTIN01": _by_id(comb[0]), "SORTIN02": _by_id(comb[1])}),
+        "OUTRECZD": (D.cobol_program(D.parse(TRANREPT_SYSIN.split("\n", 1)[0] + "\n OUTREC FIELDS=(263,16,1,16)\n",
+                                             TRANREPT_SYM), RECLEN, ["SORTIN"]), {"SORTIN": tran}),
         "MERGEINC": (D.cobol_program(D.parse(" MERGE FIELDS=(1,16,CH,A),EQUALS\n INCLUDE COND=(305,10,CH,GE,"
                                              "C'2022-03-01')\n"), RECLEN, ["SORTIN01", "SORTIN02"]),
                      {"SORTIN01": _by_id(comb[0]), "SORTIN02": _by_id(comb[1])}),
@@ -202,7 +231,8 @@ def _need_java() -> None:
 @pytest.mark.slow(reason="javac of the batch runtime and a GnuCOBOL container per step")
 @pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1" or not shutil.which("docker"),
                     reason="needs EQUIVALENCE_E2E=1 and Docker")  # fmt: skip
-@pytest.mark.parametrize("step", ["TRANREPT", "SORTTEST", "COMBTRAN", "COPYOMIT", "EQUALSPD", "MERGEINC"])
+@pytest.mark.parametrize("step", ["TRANREPT", "SORTTEST", "COMBTRAN", "COPYOMIT", "EQUALSPD", "MERGEINC",
+                                  "OUTRECSORT", "OUTRECCOPY", "OUTRECMERGE", "OUTRECZD"])
 def test_sort_step_output_is_gnucobols_byte_for_byte(step, tmp_path):
     _need_java()
     src, inputs = _steps()[step]
@@ -214,7 +244,8 @@ def test_sort_step_output_is_gnucobols_byte_for_byte(step, tmp_path):
     want = (cob / "SORTOUT").read_bytes()
     (tmp_path / "port").mkdir()
     got = _java_step(src, tmp_path / "port", inputs, "SORTOUT")
-    assert len(want) % RECLEN == 0 and want, "the oracle kept no record"
+    out_len = {"OUTRECSORT": 16 + 2 + 10 + 1 + 1 + 3, "OUTRECCOPY": 26, "OUTRECMERGE": 26, "OUTRECZD": 32}.get(step, RECLEN)
+    assert len(want) % out_len == 0 and want, "the oracle kept no record"
     assert got == want
     if step in ("TRANREPT", "SORTTEST", "COPYOMIT"):  # the INCLUDE / OMIT kept some records and dropped others
         assert len(want) < len(inputs["SORTIN"])

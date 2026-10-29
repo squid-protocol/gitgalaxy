@@ -21,7 +21,12 @@ OMIT control statements", "OPTION control statement", "Using symbols for fields 
 * SYMNAMES: `name,p,m[,f]` fields and `name,constant` constants; anything after a blank is a remark.
 * Several inputs of a SORT are SORTIN's concatenation, in order; a MERGE's are SORTIN01, SORTIN02, ...
 
-Everything else is refused by name (Refused): OUTREC / INREC / OUTFIL / SUM / RECORD / ALTSEQ and the other
+* OUTREC FIELDS=(...) (or BUILD=): the output record rebuilt from, in order, input fields (p,m or a SYMNAMES field; CH or
+  BI), nX blanks, nZ binary zeros and C'...' / X'...' constants, optionally each after its own `o:` output position,
+  which must be the next free byte (a gap or an overlap is refused). Applied after the sort / merge, to the record the
+  INCLUDE / OMIT kept; the output record is as long as the items. Sort keys and conditions name INPUT positions.
+
+Everything else is refused by name (Refused): INREC / OUTFIL / SUM / RECORD / ALTSEQ and the other
 statements, the other formats (FI, AQ, AC, ...), OPTION operands other than EQUALS / NOEQUALS, a ZD key over 18 digits,
 a field outside the record, and comparisons DFSORT pads or converts across formats.
 """
@@ -61,6 +66,12 @@ class Const:
 
 
 @dataclass(frozen=True)
+class Fill:
+    length: int
+    zero: bool  # nZ binary zeros, else nX blanks
+
+
+@dataclass(frozen=True)
 class Cmp:
     left: Field
     op: str
@@ -81,6 +92,7 @@ class Control:
     cond: Cmp | Logic | None  # the records kept
     omit: bool  # cond names the records dropped (OMIT), not those kept (INCLUDE)
     equals: bool
+    outrec: tuple[Field | Const | Fill, ...] = ()  # the output record's items; empty: the record as it is
 
 
 def _split_top(text: str) -> list[str]:
@@ -273,6 +285,56 @@ def _relation(left: Field, op: str, right: Field | Const) -> Cmp:
     return Cmp(left, op, right)
 
 
+def _outrec(operand: str, syms: dict[str, Field | Const]) -> tuple[Field | Const | Fill, ...]:
+    """OUTREC FIELDS=(...): input fields, nX / nZ fills and constants, laid end to end."""
+    if not (operand.startswith("(") and operand.endswith(")")):
+        raise Refused(f"OUTREC FIELDS={operand}")
+    tokens = [t.strip() for t in _split_top(operand[1:-1])]
+    items: list[Field | Const | Fill] = []
+    nxt, i = 1, 0  # the next free output byte
+    while i < len(tokens):
+        t = tokens[i]
+        at = re.match(r"(\d+):(.*)", t)
+        if at:
+            if int(at.group(1)) != nxt:
+                raise Refused(f"OUTREC position {at.group(1)}: with the next free byte at {nxt} (gaps and overlaps)")
+            t = tokens[i] = at.group(2).strip()
+        fill = re.fullmatch(r"(\d+)([XZ])", t.upper())
+        sym = syms.get(t.upper())
+        if fill:
+            item: Field | Const | Fill = Fill(int(fill.group(1)), fill.group(2) == "Z")
+            if item.length < 1:
+                raise Refused(f"OUTREC {t}")
+            i += 1
+        elif isinstance(sym, Const) or (sym is None and not t.isdigit() and _const(t) is not None):
+            item = sym if isinstance(sym, Const) else _const(t)  # type: ignore[assignment]
+            if item.kind == "N" or not item.text:
+                raise Refused(f"OUTREC constant {t} (only non-empty C'...' and X'...')")
+            i += 1
+        else:
+            f, i = _field(tokens, i, syms, "CH", False)
+            if i < len(tokens) and tokens[i].upper() in FORMATS:  # p,m,f: a conversion unless CH / BI
+                if tokens[i].upper() not in ("CH", "BI"):
+                    raise Refused(f"OUTREC a {tokens[i].upper()} field (a format conversion)")
+                i += 1
+            if f.fmt not in ("CH", "BI"):
+                raise Refused(f"OUTREC a {f.fmt} field (a format conversion)")
+            item = Field(f.pos, f.length, "CH")
+        items.append(item)
+        nxt += _out_len(item)
+    if not items:
+        raise Refused("OUTREC without fields")
+    return tuple(items)
+
+
+def _out_len(item: Field | Const | Fill) -> int:
+    if isinstance(item, Field):
+        return item.length
+    if isinstance(item, Fill):
+        return item.length
+    return len(item.text) if item.kind == "C" else len(item.text) // 2
+
+
 def parse(sysin: str, symnames: str = "") -> Control:
     """The step's control statements as a model, or Refused naming what is not modelled."""
     syms = parse_symnames(symnames)
@@ -281,6 +343,7 @@ def parse(sysin: str, symnames: str = "") -> Control:
     cond: Cmp | Logic | None = None
     omit = False
     equals: bool | None = None
+    outrec: tuple[Field | Const | Fill, ...] = ()
     for name, operands in _statements(sysin):
         ops = {}
         for op in _split_top(operands):
@@ -309,6 +372,13 @@ def parse(sysin: str, symnames: str = "") -> Control:
             if unknown or not ops.get("COND", "").startswith("("):
                 raise Refused(f"{name} operands {', '.join(sorted(unknown)) or ops.get('COND')}")
             cond, omit = _cond(ops["COND"], ops.get("FORMAT", "").upper(), syms), name == "OMIT"
+        elif name == "OUTREC":
+            if outrec:
+                raise Refused("a second OUTREC statement")
+            unknown = set(ops) - {"FIELDS", "BUILD"}
+            if unknown or len({"FIELDS", "BUILD"} & set(ops)) != 1:
+                raise Refused(f"OUTREC operands {', '.join(sorted(unknown)) or 'without FIELDS'}")
+            outrec = _outrec(ops.get("FIELDS") or ops["BUILD"], syms)
         elif name == "OPTION":
             unknown = set(ops) - {"EQUALS", "NOEQUALS"}
             if unknown:
@@ -321,7 +391,7 @@ def parse(sysin: str, symnames: str = "") -> Control:
             raise Refused(f"the {name} statement")
     if verb is None:
         raise Refused("no SORT or MERGE statement")
-    return Control(verb, keys, cond, omit, bool(equals))
+    return Control(verb, keys, cond, omit, bool(equals), outrec)
 
 
 # ----- lowering --------------------------------------------------------------------------------------------------
@@ -381,8 +451,9 @@ def cobol_program(ctl: Control, reclen: int, inputs: list[str], output: str = "S
     ins = [f"I{n}" for n in range(1, len(inputs) + 1)]
     selects = [f"SELECT {i}-FILE ASSIGN TO {dd}." for i, dd in zip(ins, inputs, strict=True)]
     selects += [f"SELECT O-FILE ASSIGN TO {output}.", "SELECT S-FILE ASSIGN TO SORTWK01."]
+    outlen = sum(_out_len(x) for x in ctl.outrec) if ctl.outrec else reclen
     files = [x for i in ins for x in (f"FD  {i}-FILE.", f"01  {i}-REC PIC X({reclen}).")]
-    files += ["FD  O-FILE.", f"01  O-REC PIC X({reclen}).", "SD  S-FILE."]
+    files += ["FD  O-FILE.", f"01  O-REC PIC X({outlen}).", "SD  S-FILE."]
     keys, carry = [], []
     if carried:
         files.append("01  S-REC.")
@@ -415,6 +486,10 @@ def cobol_program(ctl: Control, reclen: int, inputs: list[str], output: str = "S
     if ctl.cond is not None:
         keep = text(ctl.cond)
         keep = f"NOT {keep}" if ctl.omit else keep
+    if ctl.outrec:  # after the comparison overlays, which REDEFINES W-REC and must follow it
+        data.append(f"01  W-OUT PIC X({outlen}).")
+    build = ["PERFORM BUILD-OUT"] if ctl.outrec else []
+    shown = "W-OUT" if ctl.outrec else "W-REC"
     proc = ["MAIN-PARA."]
     dup = " WITH DUPLICATES IN ORDER" if ctl.equals else ""
     using = f"        USING {' '.join(f'{i}-FILE' for i in ins)}"
@@ -424,21 +499,28 @@ def cobol_program(ctl: Control, reclen: int, inputs: list[str], output: str = "S
         proc += [f"    SORT S-FILE {keys[0]}", *[f"        {k}" for k in keys[1:]]]
         proc[-1] += dup
         proc.append(using if keep is None and not carried else "        INPUT PROCEDURE READ-ALL")
-        proc += ["        OUTPUT PROCEDURE WRITE-ALL" if carried else "        GIVING O-FILE", "    GOBACK."]
+        write_all = carried or bool(ctl.outrec)
+        proc += ["        OUTPUT PROCEDURE WRITE-ALL" if write_all else "        GIVING O-FILE", "    GOBACK."]
     else:
         proc += [f"    MERGE S-FILE {keys[0]}", *[f"        {k}" for k in keys[1:]], using]
-        proc += ["        GIVING O-FILE" if keep is None else "        OUTPUT PROCEDURE WRITE-ALL", "    GOBACK."]
-    if carried or (ctl.verb == "MERGE" and keep is not None):
-        into, rec = ("", "S-DATA") if carried else (" INTO W-REC", "W-REC")
-        write = f"WRITE O-REC FROM {rec}"
-        step = [f"NOT AT END {write}"] if carried else [f"NOT AT END IF {keep}", f"    {write}", "END-IF"]
+        proc += ["        GIVING O-FILE" if keep is None and not ctl.outrec else "        OUTPUT PROCEDURE WRITE-ALL",
+                 "    GOBACK."]  # fmt: skip
+    if carried or ctl.outrec or (ctl.verb == "MERGE" and keep is not None):
+        into = "" if carried else " INTO W-REC"
+        pre = ["MOVE S-DATA TO W-REC"] if carried and ctl.outrec else []
+        write = f"WRITE O-REC FROM {shown if ctl.outrec else 'S-DATA' if carried else 'W-REC'}"
+        body = [*pre, *build, write]
+        if carried or keep is None:
+            step = ["NOT AT END", *[f"    {x}" for x in body]]
+        else:
+            step = [f"NOT AT END IF {keep}", *[f"    {x}" for x in body], "END-IF"]
         proc += ["WRITE-ALL.", "    OPEN OUTPUT O-FILE", "    MOVE 'N' TO W-EOF", "    PERFORM UNTIL W-EOF = 'Y'",
                  f"        RETURN S-FILE{into}", "            AT END MOVE 'Y' TO W-EOF",
                  *[f"            {x}" for x in step], "        END-RETURN", "    END-PERFORM", "    CLOSE O-FILE."]  # fmt: skip
     if ctl.verb == "COPY" or (ctl.verb == "SORT" and (keep is not None or carried)):
         put: list[str]
         if ctl.verb == "COPY":
-            put = ["WRITE O-REC FROM W-REC"]
+            put = [*build, f"WRITE O-REC FROM {shown}"]
         elif carried:
             put = ["MOVE W-REC TO S-DATA", *carry, "RELEASE S-REC"]
         else:
@@ -456,6 +538,20 @@ def cobol_program(ctl: Control, reclen: int, inputs: list[str], output: str = "S
             else:
                 proc += ["            NOT AT END", *[f"                {x}" for x in put]]
             proc += ["        END-READ", "    END-PERFORM", f"    CLOSE {i}-FILE"]
+        proc[-1] += "."
+    if ctl.outrec:
+        proc += ["BUILD-OUT."]
+        at = 1
+        for item in ctl.outrec:
+            n = _out_len(item)
+            if isinstance(item, Field):
+                proc.append(f"    MOVE W-REC({item.pos}:{item.length}) TO W-OUT({at}:{n})")
+            elif isinstance(item, Fill):
+                proc.append(f"    MOVE {'LOW-VALUES' if item.zero else 'SPACES'} TO W-OUT({at}:{n})")
+            else:
+                lit = "'" + item.text.replace("'", "''") + "'" if item.kind == "C" else "X'" + item.text + "'"
+                proc.append(f"    MOVE {lit} TO W-OUT({at}:{n})")
+            at += n
         proc[-1] += "."
     lines = ["IDENTIFICATION DIVISION.", f"PROGRAM-ID. {program_id}.", "ENVIRONMENT DIVISION.",
              "INPUT-OUTPUT SECTION.", "FILE-CONTROL.", *[f"    {s}" for s in selects], "DATA DIVISION.",

@@ -1872,8 +1872,9 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
         """#5079 (X59): ADDRESS EIB(ptr) / COMMAREA(ptr) (IBM, EXEC CICS ADDRESS: "a pointer reference set to the address of
         the EXEC interface block" / "of the communication area (COMMAREA) available to the currently executing program").
         The pointer holds the handle of the record's own bytes (DetCics.setPointerToRecord), so SET ADDRESS OF rec TO ptr
-        shares them: a later EIB update shows through it. COMMAREA needs the program's 01 DFHCOMMAREA to address, and a
-        task with none (EIBCALEN 0: IBM's X'FF000000', no COBOL NULL) is refused when it runs. The command has no
+        shares them: a later EIB update shows through it. COMMAREA needs the program's 01 DFHCOMMAREA to address: a task with
+        none (EIBCALEN 0) gets IBM's X'FF000000' (no COBOL NULL; the program's `PIC X(4)` byte view tests it,
+        DetCics.isNoCommareaAddress), and a program with no 01 DFHCOMMAREA run with a COMMAREA is refused when it runs. The command has no
         condition: NORMAL. CWA / TWA / TCTUA / ACEE and ADDRESS SET are refused by the spec entry (check_options)."""
         from gitgalaxy.tools.cobol_to_java.det.gen import Untranslatable
 
@@ -1890,9 +1891,10 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
             try:
                 rec = self.g.address_record("DFHCOMMAREA")
             except Untranslatable:
-                raise CicsError(
-                    "ADDRESS COMMAREA in a program with no LINKAGE 01 DFHCOMMAREA: no record to address"
-                ) from None
+                # #6876 (X59): no 01 DFHCOMMAREA, so no storage to address a COMMAREA through: a task with none (EIBCALEN 0)
+                # gets IBM's X'FF000000' (the byte view the program tests), a task with one is refused when it runs
+                out.append(f"{ind}DetCics.addressNoCommarea(task, {ptr}, {self.int_('EIBCALEN')});")
+                continue
             out.append(f"{ind}DetCics.addressCommarea(task, {ptr}, {rec}, {self.int_('EIBCALEN')});")
         return [*out, *self.outcome(opts, "0", "0", ind)]
 

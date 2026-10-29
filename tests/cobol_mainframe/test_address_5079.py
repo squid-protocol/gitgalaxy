@@ -62,6 +62,18 @@ def test_a_program_addressing_the_eib_and_the_commarea_translates_whole(tmp_path
     )  # (the order IBM's options are taken)
 
 
+def test_a_program_with_no_dfhcommarea_addresses_the_no_commarea_pointer(tmp_path):
+    """#6876 (X59): no 01 DFHCOMMAREA is no hole (CAADDR / CAADSB / CAEBCA / CAEBSB name none): the pointer is set through
+    DetCics.addressNoCommarea, with EIBCALEN, and a program that names one still addresses the record."""
+    r = PL._translate(tmp_path, PROGRAM.replace("       01  DFHCOMMAREA            PIC  X(32).\n", ""))
+    assert r.stats["holes"] == [], r.stats["holes"]
+    assert "DetCics.addressNoCommarea(task, " in r.java
+    assert "DetCics.addressCommarea(task, " not in r.java
+    named = PL._translate(tmp_path, PROGRAM)
+    assert "DetCics.addressCommarea(task, " in named.java
+    assert "addressNoCommarea" not in named.java
+
+
 @pytest.mark.parametrize(
     ("edit", "why"),
     [
@@ -80,7 +92,6 @@ def test_a_program_addressing_the_eib_and_the_commarea_translates_whole(tmp_path
         (("EIB(EIB-ADDRESS) COMMAREA(CA-ADDRESS)", "NOHANDLE"), "ADDRESS without EIB or COMMAREA"),
         (("EIB(EIB-ADDRESS) COMMAREA(CA-ADDRESS)", "EIB(WS-RESP)"), "not a plain USAGE POINTER"),
         (("EIB(EIB-ADDRESS) COMMAREA(CA-ADDRESS)", "COMMAREA(CA-MISSING)"), "CA-MISSING"),
-        (("       01  DFHCOMMAREA            PIC  X(32).\n", ""), "no LINKAGE 01 DFHCOMMAREA"),
         (
             (
                 "       01  EIB-VIEW               PIC  X(100).\n",
@@ -262,6 +273,21 @@ public class Main {
         System.out.println((char) ca.storage().bytes[0] + "" + (char) ca.storage().bytes[1] + " " + (view.storage().bytes == ca.storage().bytes));
         DetCics.setPointerToRecord(t, ptr, calen);
         System.out.println(DetCics.pointerValue(ptr) != 0);
+        Field none = rec(8);
+        DetCics.addressNoCommarea(t, none, 0);
+        System.out.println(DetCics.isNoCommareaAddress(none) + " " + DetCics.isNoCommareaAddress(ptr));
+        try {
+            DetCics.setAddress(t, view, none);
+            System.out.println("not refused");
+        } catch (UnsupportedOperationException e) {
+            System.out.println(e.getMessage());
+        }
+        try {
+            DetCics.addressNoCommarea(t, none, 4);
+            System.out.println("not refused");
+        } catch (UnsupportedOperationException e) {
+            System.out.println(e.getMessage());
+        }
         try {
             DetCics.addressCommarea(t, ptr, ca, 0);
             System.out.println("not refused");
@@ -281,4 +307,11 @@ public class Main {
     assert built.returncode == 0, built.stderr
     out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "Main"], capture_output=True,  # noqa: S603
                          text=True, encoding="utf-8", check=True).stdout.splitlines()  # fmt: skip
-    assert out == ["AB true", "true", "ADDRESS COMMAREA with no COMMAREA: not modelled"]
+    assert out == [
+        "AB true",
+        "true",
+        "true false",
+        "SET ADDRESS OF a null or unknown pointer: not modelled",
+        "ADDRESS COMMAREA with a COMMAREA in a program with no 01 DFHCOMMAREA: its bytes are not modelled",
+        "ADDRESS COMMAREA with no COMMAREA: not modelled",
+    ]

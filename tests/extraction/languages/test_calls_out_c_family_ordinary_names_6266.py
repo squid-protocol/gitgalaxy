@@ -84,3 +84,30 @@ int f() {
     calls = _calls("cpp", code)
     assert {"map", "pick", "take"} <= set(calls)
     assert "a" not in calls
+
+
+_BRACE_DEFAULT_BODY = """
+struct Outer
+{
+    struct Line
+    {
+        Wrapped line;
+        Line(const Wrapped &ln = {CString(), 0}, int indent = 0)
+            : line(ln)
+        {
+            setIndent(indent);
+        }
+    };
+    void f() { g(); }
+};
+"""
+
+
+def test_a_brace_init_default_holding_a_call_keeps_the_constructor_a_unit():
+    # doomsday fontlinewrapping.cpp: the nested constructor was no unit, so its default argument and member
+    # initializer were read as calls of the enclosing macro class
+    functions = StructuralExtractor("cpp", LANGUAGE_DEFINITIONS).splice(_BRACE_DEFAULT_BODY, "")["functions"]
+    by_name = {f["name"]: f["calls_out_to"] for f in functions}
+    assert "setIndent" in by_name["Line"]
+    assert not {"CString", "line"} & set(by_name["Line"])
+    assert by_name["f"] == ["g"]

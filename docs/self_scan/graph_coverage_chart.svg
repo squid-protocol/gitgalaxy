@@ -932,7 +932,7 @@
 </g>
 <rect class="stripe" x="16" y="922" width="1212" height="34"/>
 <text class="lang" x="22" y="943.0">swift</text>
-<g><title>swift imports: precision 100.0% of 302, recall 72.9% of 510 (raw 100.0% / 72.9%; 3 shapes without a verdict); corpus apple/swift-argument-parser, swiftlang/swift-package-manager</title>
+<g><title>swift imports: precision 100.0% of 302, recall 72.9% of 510 (raw 100.0% / 72.9%; 1 shapes without a verdict); corpus apple/swift-argument-parser, swiftlang/swift-package-manager</title>
 <text class="pr" x="120" y="936.5">Precision</text>
 <rect class="track" x="166" y="929" width="110" height="8" rx="2"/>
 <rect x="166" y="929" width="110.0" height="8" rx="2" fill="#4a3aa7"/>

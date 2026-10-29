@@ -34,11 +34,11 @@ One record per ported program (#4048): docs/language_status/evidence_records.md 
 | [COUSR03C](carddemo-userdel.md) | carddemo-userdel | cics | proven, unapproved |  | 32 | 11/11 / 31/32 | 67/87 / 67/67 | 0 | - |
 | [COUSR00C](carddemo-userlist.md) | carddemo-userlist | cics | proven, unapproved |  | 72 | 16/16 / 95/100 | 381/507 / 381/381 | 0 | - |
 | [COUSR02C](carddemo-userupd.md) | carddemo-userupd | cics | proven, unapproved |  | 32 | 11/11 / 44/46 | 57/82 / 57/59 | 0 | - |
-| [INQACC](cbsa-inqacc.md) | cbsa-inqacc | cics | proven, unapproved |  | 26 | 24/25 / 24/25 | 63/131 / 63/106 | 0 | - |
+| [INQACC](cbsa-inqacc.md) | cbsa-inqacc | cics | proven, unapproved |  | 26 | 24/25 / 24/25 | 68/146 / 68/140 | 0 | - |
 | [UPDACC](cbsa-updacc.md) | cbsa-updacc | cics | proven, unapproved |  | 27 | 7/7 / 5/6 | 103/139 / 103/110 | 0 | - |
 | [LGAPDB01](genapp-lgapdb01.md) | genapp-lgapdb01 | cics | proven, unapproved |  | 16 | 7/7 / 29/31 | 58/137 / 58/129 | 0 | - |
 | [LGAPVS01](genapp-lgapvs01.md) | genapp-lgapvs01 | cics | proven, unapproved |  | 13 | 3/3 / 10/11 | 72/125 / 72/113 | 0 | - |
-| [LGICDB01](genapp-lgicdb01.md) | genapp-lgicdb01 | cics | proven, unapproved |  | 18 | 4/4 / 11/12 | 94/136 / 94/111 | 0 | - |
+| [LGICDB01](genapp-lgicdb01.md) | genapp-lgicdb01 | cics | proven, unapproved |  | 18 | 4/4 / 11/12 | 40/140 / 40/134 | 0 | - |
 | [LGSTSQ](genapp-lgstsq.md) | genapp-lgstsq | cics | proven, unapproved |  | 8 | 1/1 / 4/6 | 25/78 / 25/69 | 0 | - |
 | [LGUPDB01](genapp-lgupdb01.md) | genapp-lgupdb01 | cics | proven, unapproved |  | 22 | 9/9 / 38/38 | 68/140 / 68/120 | 0 | - |
 | [LGUPVS01](genapp-lgupvs01.md) | genapp-lgupvs01 | cics | proven, unapproved |  | 12 | 3/3 / 12/13 | 66/119 / 66/100 | 0 | - |

@@ -59,6 +59,7 @@ from gitgalaxy.standards.cics.resp import DFHRESP as SPEC_DFHRESP
 from gitgalaxy.tools.cobol_to_java.det.cvda import CVDA  # #4415: DFHVALUE(name), IBM's CVDA numbers
 
 handler_labels = cics_conditions.handler_labels
+check_child_faults = cics_faults.check_child_faults
 fault_lines = cics_faults.fault_lines  # public names the tests and the runners reach through this module
 dli_fault_lines = cics_faults.dli_fault_lines
 enq_fault_key = cics_faults.enq_fault_key
@@ -1260,6 +1261,7 @@ def dli_stage(case: dict[str, Any], corpus: Path, dest: Path, sc: dict[str, Any]
     #6072: a scenario's `ims_seed` adds segments to the seed for its own task."""
     try:
         dbds, pcbs = equivalence_ims.definitions(case, corpus, cics=True)
+        equivalence_ims.check_seed_names(sc, dbds)  # #6967
         dest.mkdir(parents=True, exist_ok=True)
         dbd_cfg, psb_cfg = equivalence_ims.config(dbds, pcbs)
         (dest / "dbd.cfg").write_text(dbd_cfg, encoding="ascii")
@@ -2618,6 +2620,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             (d / "region.cfg").write_text(f"APPLID {case['region']['applid']}\nSYSID {case['region']['sysid']}\n",
                                           encoding="ascii")  # fmt: skip
         if sc.get("faults") or sc.get("sql_abend_plan"):  # #4023 follow-up: the stub's injected conditions
+            check_child_faults(case, sc)  # #6967
             (d / "faults.cfg").write_text(
                 "".join(x + "\n" for x in fault_lines(sc)), encoding="latin-1"
             )  # #5859 userid_hex
@@ -2696,6 +2699,14 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
                 refused[sc["name"]] = why
                 continue
             overruns.append(f"scenario {sc['name']}: {why}")
+            continue
+        if (
+            rc.is_file()
+            and rc.read_text().strip() == "1"
+            and said.is_file()
+            and PERFORM_DEPTH in said.read_text(encoding="latin-1")
+        ):
+            sc["prefix_x6"] = PERFORM_DEPTH  # C20: the recursive PERFORM's stack check: judged up to it, as X6
             continue
         if rc.is_file() and rc.read_text().strip() == "98" and said.is_file():
             x6 = judged_refusal(said.read_text(encoding="latin-1"))
@@ -4139,7 +4150,8 @@ class EquivalenceRunTest {{
                     // statement) is not judged -- recorded, never passed; any other failure stays a failure.
                     // #4607 x X6: a WRITEQ whose LENGTH is over 32767 (DetCics.PastFrom) ends the task there,
                     // as the stub stops it: judged up to it (equivalence_cics.x6_judged)
-                    boolean x6 = "PastFrom".equals(e.getClass().getSimpleName());
+                    boolean x6 = "PastFrom".equals(e.getClass().getSimpleName())
+                            || "PerformDepthExceeded".equals(e.getClass().getSimpleName());
                     if (!x6 && (!sc.path("derived").asBoolean() || !"Hole".equals(e.getClass().getSimpleName()))) {{
                         throw e;
                     }}
@@ -5018,7 +5030,7 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
             for key in ("child", "transid"):
                 if c.get(key) != j.get(key):
                     bad.append({"field": key, "cobol": c.get(key), "java": j.get(key)})
-            sub = compare_events(c.get("events") or [], j.get("events") or [])
+            sub = compare_events(c.get("events") or [], [_link_as_compared(x) for x in j.get("events") or []])  # #6967
             if sub["diffs"]:
                 bad.append({"field": "events", "cobol": sub["diffs"], "java": None})
         if bad:
@@ -5210,6 +5222,9 @@ def _to_link(events: list[dict[str, Any]], program: str) -> list[dict[str, Any]]
     return events
 
 
+PERFORM_DEPTH = "stack overflow, possible PERFORM depth exceeded"
+PERFORM_DEPTH_JUDGED = ("the stack check of a recursive PERFORM (C20: IBM leaves it unpredictable; both sides stop at "
+                        "libcob's 255 nested PERFORMs) -- what the task did before it is compared, its end state is not")  # fmt: skip
 X6_JUDGED = ("the refused WRITEQ (X6: its LENGTH is over 32767, past the pad record; a LENGTH past FROM alone is written padded, #6573; not settled on z/OS, #4050) -- what the task did "
              "before it is compared, its end state (files, tables, the COMMAREA it leaves) is not")  # fmt: skip
 X23_JUDGED = ("the refused reference past EIBCALEN (X23: a COMMAREA of a stated length; z/OS shows whatever storage "
@@ -5219,7 +5234,7 @@ X23_JUDGED = ("the refused reference past EIBCALEN (X23: a COMMAREA of a stated 
 
 def judged_to(x6: dict[str, Any]) -> str:
     """The report's `judged_to` for a task stopped at a refusal (x6_judged): X6's words, or X23's."""
-    return X23_JUDGED if x6.get("assumes") == "X23" else X6_JUDGED
+    return {"X23": X23_JUDGED, "C20": PERFORM_DEPTH_JUDGED}.get(x6.get("assumes"), X6_JUDGED)
 
 
 def x6_judged(sc: dict[str, Any], java_out: Path, cev: list[dict[str, Any]],
@@ -5237,7 +5252,7 @@ def x6_judged(sc: dict[str, Any], java_out: Path, cev: list[dict[str, Any]],
     cobol = sc.get("prefix_x6")
 
     def kind(said: str | None) -> str | None:  # #4270: which refusal -- both sides must have stopped at the same one
-        return None if not said else "X23" if "EIBCALEN" in said else "X6"
+        return None if not said else "C20" if PERFORM_DEPTH in said else "X23" if "EIBCALEN" in said else "X6"
 
     return left[0], left[1], {"cobol": cobol, "java": java, "ok": bool(cobol and java) and kind(cobol) == kind(java),
                               "assumes": kind(cobol) or kind(java)}  # fmt: skip

@@ -1,12 +1,12 @@
 {
  "format": "det-sweep-coverage/2",
- "scenarios": 42,
+ "scenarios": 38,
  "paragraphs": {
-  "covered": 91,
+  "covered": 82,
   "live": 119
  },
  "branches": {
-  "covered": 124,
+  "covered": 116,
   "total": 208
  },
  "uncovered": {
@@ -26,9 +26,18 @@
    "3510-EXIT:1185",
    "3600-SEND-RESPONSE:1192",
    "3600-EXIT:1236",
+   "4110-PRIME-KEY:1299",
+   "4110-EXIT:1309",
    "4130-EXIT:1392",
+   "4500-UPDATE-KEY:1528",
+   "4500-EXIT:1547",
    "4600-REPLICATE:1554",
    "4600-EXIT:1563",
+   "4700-DELETE:1570",
+   "4700-EXIT:1577",
+   "5000-EXIT:1605",
+   "5300-SEND-RESPONSE:1648",
+   "5300-EXIT:1674",
    "5400-REPLICATE:1681",
    "5400-EXIT:1691",
    "5500-EXIT:1722",
@@ -100,14 +109,22 @@
    "1202:false",
    "1212:true",
    "1212:false",
+   "1275:true",
    "1380:false",
    "1413:false",
+   "1425:true",
    "1449:true",
    "1468:true",
+   "1472:true",
    "1490:false",
    "1517:true",
+   "1535:true",
+   "1535:false",
+   "1602:false",
    "1651:true",
+   "1651:false",
    "1670:true",
+   "1670:false",
    "1709:false",
    "1719:false",
    "1737:false",
@@ -140,9 +157,18 @@
    "paragraph:3510-EXIT",
    "paragraph:3600-SEND-RESPONSE",
    "paragraph:3600-EXIT",
+   "paragraph:4110-PRIME-KEY",
+   "paragraph:4110-EXIT",
    "paragraph:4130-EXIT",
+   "paragraph:4500-UPDATE-KEY",
+   "paragraph:4500-EXIT",
    "paragraph:4600-REPLICATE",
    "paragraph:4600-EXIT",
+   "paragraph:4700-DELETE",
+   "paragraph:4700-EXIT",
+   "paragraph:5000-EXIT",
+   "paragraph:5300-SEND-RESPONSE",
+   "paragraph:5300-EXIT",
    "paragraph:5400-REPLICATE",
    "paragraph:5400-EXIT",
    "paragraph:5500-EXIT",
@@ -156,21 +182,21 @@
   ]
  },
  "inputs": {
-  "case": "b22f977d2ed6482a0cdf62b2c72694ef2ef67d1309373f57e837cbf0b0118d96",
+  "case": "a97f2bc921b7433b1ec1b47b738fe802c8320c31de24e9f9a34de842933cbcfb",
   "corpus": "09feecf8028c77a136bbff56380f9babddf0b2e28fbb6a7ad7ba456273989ff6",
-  "harness": "6060d8ad91b94e22008df5d1eefadb10a6c8732a52b0b4cd23f279a02f2bf04c",
-  "oracle": "aa4eb15e4f5b47ad8327f0c6b59ad6449f616a6ec8f3934ddefc152ad532d2f3",
+  "harness": "81d4842720cfbde52e9d2bb2cbc705332747dcb728a1a264e93929b131c9c9c1",
+  "oracle": "db19e0d81d5190306a25cc1e87205884eee91b39fd58d776de1cbe92929d97b8",
   "components": {
    "harness": {
-    "harness:cics": "a16a6072d7d25212d24fde747dc25dc47475d16aee17586bf42328cc67490b96",
+    "harness:cics": "dd42d66ff4665817ce74da73e1e9be0164542997b4ac92903dcb91b548b770cb",
     "harness:core": "d921abf8b3c5676cf34888c5707aa4c2625e4d20b7435f644db351842492d76e"
    },
    "oracle": {
-    "oracle:cics-stub": "8886b8de162b5ad9a82f3775c65d9070a2876e66458ad6fb70e7d80b3a4c38e0",
+    "oracle:cics-stub": "a855972936bc74b6fceecfa1346ab6c277ca6eef28055bc55279baaac87b9ae4",
     "oracle:core": "b4bb775f0a30746a6054f259b4c8613e08cb0d8cf3b40f4a789d953aca4144a0",
     "oracle:le": "40cd6e8dceaf92611cccb37449d02a18a107a9c5921e3edfb09bb5b9263e2ddf"
    }
   }
  },
- "measured_at": "589fbfaccd894ec1a44800ec66d201afc231dd75"
+ "measured_at": "7fdf2eedb25ec0b1895dc5584f7fad6c9f889e1b"
 }

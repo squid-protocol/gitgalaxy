@@ -340,7 +340,13 @@ def test_every_survivor_in_code_no_proof_runs_was_triaged_as_out_of_the_proofs_r
     # survivors (all unreachable) are skipped until those five are re-run. 114 -> 74.
     # #6882 hand-edited the LGICDB01 port (the SQL seam through DetSql): its committed mutation run judges the older code,
     # so its 6 flagged survivors (all unreachable) are skipped until it is re-run. 74 -> 68.
-    assert len(flagged) == 68 and verdicts.count("unreachable") == 65 and verdicts.count("equivalent") == 3
+    # #6882 re-ran it (seed 0, 150 mutants; the three sql_faults scenarios kill 43 more, 94 caught): the same 6 return. 68 -> 74.
+    # #6692 committed INQACC and LGICDB01 as det ports and re-proved them: their committed mutation runs judge the model's
+    # code, so their 14 flagged survivors are skipped until the det ports' runs are recorded. 74 -> 60.
+    # #6692 re-ran both det ports (seed 0, 150 mutants each): 9 flagged survivors, all unreachable: the facade's
+    # lastLinkBytes assignments and accessor, ABNDPROC's abended() level test, its paragraph() throw and runProgram().
+    # 60 -> 69.
+    assert len(flagged) == 69 and verdicts.count("unreachable") == 66 and verdicts.count("equivalent") == 3
     assert not {prog for prog, _ in flagged} & {"CSUTLDTC"}
     assert {prog for prog, _ in flagged} & {"COACTVWC", "COMEN01C"} == {"COACTVWC", "COMEN01C"}
 

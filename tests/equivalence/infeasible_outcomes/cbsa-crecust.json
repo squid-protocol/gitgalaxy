@@ -60,6 +60,14 @@
     },
     {
       "unit": "CC010",
+      "line": 853,
+      "kind": "EVALUATE",
+      "outcome": "OTHER",
+      "family": "R",
+      "reason": "FETCH ANY returns COMPSTATUS (WS-CHILD-FETCH-COMPST, line 642) as one of the CVDA values IBM documents for it: NORMAL, ABEND and SECERROR, and each has its own WHEN (NORMAL and ABEND at 853, SECERROR at 951), so WHEN OTHER (COMM-FAIL-CODE 'H') is never reached. Assumption: IBM's documented COMPSTATUS value set is those three; the SECERROR arm is taken by the scenario fetch-any-first-child-secerror (X18, ASSUMED), so this entry does not state it."
+    },
+    {
+      "unit": "CC010",
       "line": 859,
       "kind": "EVALUATE",
       "outcome": "WHEN@876",

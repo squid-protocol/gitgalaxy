@@ -103,14 +103,35 @@
    "prefix": "CBL",
    "title": "statements and data movement",
    "files": [
-    "Cobol.java"
+    "Cobol.java",
+    "MoveSpec.java",
+    "CompareSpec.java",
+    "ArithSpec.java",
+    "StringSpec.java"
    ],
    "done": true,
    "about": "MOVE, arithmetic stores and intermediates, comparisons, class tests, DISPLAY, STRING / UNSTRING / INSPECT, the LINK COMMAREA.",
    "plumbing": [
     "cat",
     "temp",
-    "literalField"
+    "literalField",
+    "category",
+    "categoryName",
+    "isPermissible",
+    "ruleId",
+    "action",
+    "comparisonMode",
+    "modeName",
+    "isNumericComparison",
+    "requiresDigitConversion",
+    "compareBytes",
+    "roundingMode",
+    "divideIntermediateScale",
+    "divideRemainder",
+    "isOverflow",
+    "inspectModeName",
+    "phraseTypeName",
+    "isPointerValid"
    ]
   },
   {
@@ -175,11 +196,16 @@
    "title": "intrinsic functions",
    "files": [
     "Funcs.java",
-    "Accept.java"
+    "Accept.java",
+    "FuncSpec.java"
    ],
    "done": true,
    "about": "The intrinsic functions the translator calls.",
-   "plumbing": []
+   "plumbing": [
+    "categoryName",
+    "functionCategory",
+    "ruleId"
+   ]
   },
   {
    "id": "CICS",

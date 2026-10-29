@@ -4,6 +4,7 @@
 .claude/*	tests/tools/test_evidence_report_single_source.py
 .claude/agents/gitgalaxy-pr-worker.md	tests/tools/box
 .claude/rules/a.md	tests/tools/test_context_pack.py
+.claude/rules/ci-workflows.md	tests/tools/test_pr_runner_cost.py
 .claude/rules/x.md	tests/tools/test_engine_reach_workflows.py
 .claude/skills/rule-contract-audit/SKILL.md	tests/signal_contract_audit.py
 /*.cbl	tests/cobol_mainframe
@@ -53,6 +54,7 @@
 /PGMC.cbl	tests/cobol_mainframe
 /PLI	tests/cobol_mainframe
 /PRG1.cbl	tests/cobol_mainframe
+/PROCJOB.jcl	tests/core_engine
 /PROG.CBL	tests/cobol_mainframe
 /PROG.cbl	tests/cobol_mainframe
 /PTRTOY.cbl	tests/cobol_mainframe
@@ -60,6 +62,7 @@
 /SEQCOPY.cpy	tests/cobol_mainframe
 /SEQPGM.cbl	tests/cobol_mainframe
 /SEQPGM2.cbl	tests/cobol_mainframe
+/SORTJOB.jcl	tests/core_engine
 /SPEC.md	tests/tools/test_crucible_case.py
 /SYNTOY.cbl	tests/cobol_mainframe
 /SYSTOY.cbl	tests/cobol_mainframe
@@ -106,6 +109,7 @@
 /custom_spec.json	tests/security_auditing
 /database_config.py	tests/security_auditing
 /deploy.sh	tests/security_auditing
+/doxygen.css	tests/core_engine
 /doxygen_header.html	tests/core_engine
 /empty.png	tests/security_auditing
 /encrypted.dat	tests/security_auditing
@@ -180,7 +184,7 @@ NOTES.md	tests/tools/crucible_case.py,tests/tools/crucible_release.py,tests/tool
 POSTIT_port_ticket.md	tests/cobol_mainframe
 PROVENANCE.md	tests/tools/publish_examples.py
 README-TEST.md	tests/core_engine
-README.md	gitgalaxy,tests/cobol_mainframe,tests/core_engine,tests/security_auditing,tests/tools/evidence.py,tests/tools/evidence_report.py,tests/tools/language_addition_audit.py,tests/tools/publish_examples.py,tests/tools/test_ci_critical_path_split.py,tests/tools/test_context_pack.py,tests/tools/test_crucible_release.py,tests/tools/test_doom_fidelity.py,tests/tools/test_doom_subsystem_distribution.py,tests/tools/test_evidence_match_5162.py,tests/tools/test_evidence_report.py,tests/tools/test_evidence_report_single_source.py,tests/tools/test_generated_branch.py,tests/tools/test_generated_readers.py,tests/tools/test_post_merge_dispatch.py,tests/tools/test_progress_report.py,tests/tools/test_progress_slide.py,tests/tools/test_readme_hand_counts.py,tests/tools/test_status_page_snapshots.py,tests/tools/test_workflow_inputs.py,tests/tools/xctl_commarea_capture_kit.py,tests/tools_recorders
+README.md	gitgalaxy,tests/cobol_mainframe,tests/core_engine,tests/security_auditing,tests/tools/evidence.py,tests/tools/evidence_report.py,tests/tools/language_addition_audit.py,tests/tools/publish_examples.py,tests/tools/test_ci_critical_path_split.py,tests/tools/test_context_pack.py,tests/tools/test_crucible_release.py,tests/tools/test_doom_fidelity.py,tests/tools/test_doom_subsystem_distribution.py,tests/tools/test_evidence_match_5162.py,tests/tools/test_evidence_report.py,tests/tools/test_evidence_report_single_source.py,tests/tools/test_generated_branch.py,tests/tools/test_generated_readers.py,tests/tools/test_post_merge_dispatch.py,tests/tools/test_pr_runner_cost.py,tests/tools/test_progress_report.py,tests/tools/test_progress_slide.py,tests/tools/test_readme_hand_counts.py,tests/tools/test_status_page_snapshots.py,tests/tools/test_workflow_inputs.py,tests/tools/xctl_commarea_capture_kit.py,tests/tools_recorders
 RELEASING.md	tests/tools/crucible_pins.py,tests/tools/crucible_release.py
 SOURCE.md	tests/cobol_mainframe,tests/tools/mainframe_corpus.py,tests/tools/port_invariance.py
 SOURCES.md	tests/tools/estate4_draw.py
@@ -227,7 +231,7 @@ cics_mainframe_facts.md	tests/tools/test_progress_report.py
 cics_spec_status.json	tests/cobol_mainframe,tests/tools/cics_spec_status.py,tests/tools/progress_report.py
 cics_spec_status.md	tests/tools/cics_spec_status.py,tests/tools/test_generated_docs.py
 clean_check.md	tests/tools/doom_speedrun
-cobolrt_rules.json	tests/cobol_mainframe,tests/tools/cobolrt_rules.py,tests/tools/progress_report.py,tests/tools/support_matrix.py
+cobolrt_rules.json	gitgalaxy,tests/cobol_mainframe,tests/tools/cobolrt_rules.py,tests/tools/progress_report.py,tests/tools/support_matrix.py
 cobolrt_rules.md	tests/tools/cobolrt_rules.py
 construct_correspondence.md	tests/tools/test_progress_report.py
 core/README.md	gitgalaxy
@@ -285,7 +289,12 @@ docs/language_status/cics_crucible.md.	tests/tools/cics_crucible.py
 docs/language_status/cics_field_testing.md	tests/tools/field_testing.py
 docs/language_status/cics_spec_status.json	tests/cobol_mainframe,tests/tools/cics_spec_status.py,tests/tools/progress_report.py
 docs/language_status/cics_spec_status.md	tests/tools/cics_spec_status.py,tests/tools/generated_docs.py,tests/tools/test_generated_branch.py
-docs/language_status/cobolrt_rules.json	tests/cobol_mainframe,tests/tools/cobolrt_rules.py,tests/tools/progress_report.py,tests/tools/support_matrix.py
+docs/language_status/cobol_arith_matrix.md	gitgalaxy
+docs/language_status/cobol_compare_matrix.md	gitgalaxy
+docs/language_status/cobol_func_matrix.md	gitgalaxy
+docs/language_status/cobol_move_matrix.md	gitgalaxy
+docs/language_status/cobol_string_matrix.md	gitgalaxy
+docs/language_status/cobolrt_rules.json	gitgalaxy,tests/cobol_mainframe,tests/tools/cobolrt_rules.py,tests/tools/progress_report.py,tests/tools/support_matrix.py
 docs/language_status/cobolrt_rules.md	tests/tools/cobolrt_rules.py,tests/tools/generated_docs.py,tests/tools/test_generated_branch.py
 docs/language_status/det_port_design.md	tests/cobol_mainframe,tests/tools/test_progress_report.py
 docs/language_status/det_survey.md	tests/tools/test_progress_report.py

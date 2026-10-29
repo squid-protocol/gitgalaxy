@@ -319,6 +319,20 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
   survivor read (#4047): most are harness gaps (the error-message text is judged only through the refused WRITEQ,
   X6 #4050, or the statement needs a Db2 fault the harness cannot inject); the case gaps are the absent-policy and
   zero-row motor update scenarios and an LGUPVS01 failure.
+- LGICDB01 re-run after #6882 (SELECT through `DetSql`, three `sql_faults` scenarios; seed 0, 150 of 196 mutants):
+  94 caught, 42 survived, 14 stillborn (was 51 / 79 / 20). The 42: 15 harness gaps (the LGSTSQ LINK-failure arms, the
+  error-message text behind X6, the too-short COMMAREA check), 14 equivalent, 11 unreachable (facade entry, no
+  COMMAREA), 2 case gaps (a NULL column read, SQLCODE read as 8 bytes needs a fault with a message token).
+- INQACC and LGICDB01 re-run on their det ports (#6692; seed 0, 150 mutants each). INQACC: 68 caught, 78 survived, 4
+  stillborn of 2413 mutants; LGICDB01: 40 caught, 100 survived, 10 stillborn of 1363 (the model-port record was 94 / 42
+  / 14, a different sample of a different file, so the two are not a before/after).
+  INQACC survivors: 72 case gaps, 5 unreachable, 1 equivalent; LGICDB01: 86 case gaps, 8 harness gaps, 4 unreachable,
+  2 equivalent. The unreachable ones are code no proof runs (the facade's `lastLinkBytes` assignments and accessor,
+  ABNDPROC's `abended()` level test, `paragraph()` throw and `runProgram()`). The 8 harness gaps are LGSTSQ's terminal
+  RECEIVE arm, which this case reaches only as a LINK target. The case gaps are read, not measured: most sit in the
+  translator's initial-state image constants, COMMAREA sizing and write-back, PERFORM bookkeeping and DTO null arms, which
+  no scenario of these two cases drives differently. One INQACC survivor (the SORTCODE field's decimal scale, `daa60daa89`)
+  is unexplained and is listed as a follow-up, not ruled out.
 - UPDACC on generated Db2 rows (cbsa-updacc-generated, #4507, all 139 mutants run, seed 0): 103 killed, 36 survived
   (7 harness gaps, 17 equivalent, 12 unreachable). The seven harness gaps are the `-904` UPDATE-failure arm: a
   `sql_faults` scenario was tried and the proof refuses it ("no SQL fault hook in UPDACC": the model-written port
@@ -367,12 +381,12 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | COUSR03C (carddemo-userdel) | equivalence | 100/340 | 67/87 (77%) | 67/67 (100%) | 0 / 0 / 17 / 3 / 0 |
 | COUSR00C (carddemo-userlist) | equivalence | 512/512 | 381/507 (75%) | 381/381 (100%) | 0 / 0 / 55 / 71 / 0 |
 | COUSR02C (carddemo-userupd) | equivalence | 100/481 | 57/82 (70%) | 57/59 (97%) | 2 / 0 / 14 / 9 / 0 |
-| INQACC (cbsa-inqacc) | equivalence | 150/470 | 63/131 (48%) | 63/106 (59%) | 43 / 0 / 11 / 14 / 0 |
+| INQACC (cbsa-inqacc) | equivalence | 150/2413 | 68/146 (47%) | 68/140 (49%) | 72 / 0 / 1 / 5 / 0 |
 | UPDACC (cbsa-updacc) | equivalence | 139/139 | 103/139 (74%) | 103/110 (94%) | 0 / 7 / 17 / 12 / 0 |
 | UPDACC (cbsa-updacc-generated) | equivalence | 139/139 | 103/139 (74%) | 103/110 (94%) | 0 / 7 / 17 / 12 / 0 |
 | LGAPDB01 (genapp-lgapdb01) | equivalence | 150/444 | 58/137 (42%) | 58/129 (45%) | 71 / 0 / 1 / 7 / 0 |
 | LGAPVS01 (genapp-lgapvs01) | equivalence | 150/184 | 72/125 (58%) | 72/113 (64%) | 0 / 41 / 1 / 11 / 0 |
-| LGICDB01 (genapp-lgicdb01) | equivalence | 150/201 | 51/130 (39%) | 51/107 (48%) | 1 / 55 / 8 / 15 / 0 |
+| LGICDB01 (genapp-lgicdb01) | equivalence | 150/1363 | 40/140 (29%) | 40/134 (30%) | 86 / 8 / 2 / 4 / 0 |
 | LGSTSQ (genapp-lgstsq) | equivalence | 89/89 | 25/78 (32%) | 25/69 (36%) | 43 / 1 / 1 / 8 / 0 |
 | LGUPDB01 (genapp-lgupdb01) | equivalence | 150/403 | 68/140 (49%) | 68/120 (57%) | 6 / 46 / 5 / 15 / 0 |
 | LGUPVS01 (genapp-lgupvs01) | equivalence | 150/160 | 66/119 (55%) | 66/100 (66%) | 0 / 34 / 4 / 15 / 0 |
@@ -398,20 +412,20 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | PCCONF (pc-wizard) | crucible | 24/838 | 15/23 (65%) | 15/15 (100%) | 0 / 0 / 4 / 4 / 0 |
 | PCWIZ (pc-wizard) | crucible | 24/146 | 16/23 (70%) | 16/16 (100%) | 0 / 0 / 4 / 3 / 0 |
 | **all crucible** | | 504 run | **319/476 (67%)** | **319/354 (90%)** | 35 / 0 / 88 / 34 / 0 |
-| **all equivalence** | | 5119 run | **3246/4731 (69%)** | **3246/3685 (88%)** | 239 / 199 / 646 / 400 / 0 + 1 declared |
-| **all estate** | | 5623 run | **3565/5207 (68%)** | **3565/4039 (88%)** | 274 / 199 / 734 / 434 / 0 + 1 declared |
+| **all equivalence** | | 5119 run | **3240/4756 (68%)** | **3240/3746 (86%)** | 353 / 152 / 630 / 380 / 0 + 1 declared |
+| **all estate** | | 5623 run | **3559/5232 (68%)** | **3559/4100 (87%)** | 388 / 152 / 718 / 414 / 0 + 1 declared |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
-| AOR | 231/286 (81%) | 231/255 (91%) |
-| BDM | 27/52 (52%) | 27/28 (96%) |
-| CON | 468/1062 (44%) | 468/577 (81%) |
-| COR | 229/353 (65%) | 229/263 (87%) |
-| DEL | 619/878 (71%) | 619/688 (90%) |
-| LIT | 731/990 (74%) | 731/815 (90%) |
-| NEG | 622/703 (88%) | 622/668 (93%) |
-| RET | 58/105 (55%) | 58/93 (62%) |
-| ROR | 580/778 (75%) | 580/652 (89%) |
+| AOR | 254/318 (80%) | 254/286 (89%) |
+| BDM | 28/54 (52%) | 28/31 (90%) |
+| CON | 471/1061 (44%) | 471/586 (80%) |
+| COR | 230/354 (65%) | 230/264 (87%) |
+| DEL | 613/885 (69%) | 613/706 (87%) |
+| LIT | 724/990 (73%) | 724/825 (88%) |
+| NEG | 616/707 (87%) | 616/673 (92%) |
+| RET | 49/82 (60%) | 49/70 (70%) |
+| ROR | 574/781 (73%) | 574/659 (87%) |
 
 | port | AOR | BDM | CON | COR | DEL | LIT | NEG | RET | ROR |
 |---|---|---|---|---|---|---|---|---|---|
@@ -444,12 +458,12 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | COUSR03C (carddemo-userdel) | 0/1 | - | 6/17 | 2/4 | 14/17 | 14/16 | 16/16 | - | 15/16 |
 | COUSR00C (carddemo-userlist) | 12/12 | - | 51/124 | 28/38 | 113/126 | 76/95 | 49/51 | - | 52/61 |
 | COUSR02C (carddemo-userupd) | 1/1 | - | 3/16 | 3/5 | 11/16 | 14/16 | 13/13 | - | 12/15 |
-| INQACC (cbsa-inqacc) | 3/3 | 1/2 | 4/21 | 2/5 | 10/21 | 6/21 | 14/21 | 8/16 | 15/21 |
+| INQACC (cbsa-inqacc) | 22/23 | - | 7/24 | 3/7 | 5/24 | 9/24 | 11/21 | - | 11/23 |
 | UPDACC (cbsa-updacc) | 4/4 | 0/3 | 17/30 | 10/11 | 17/28 | 28/34 | 8/8 | - | 19/21 |
 | UPDACC (cbsa-updacc-generated) | 4/4 | 0/3 | 17/30 | 10/11 | 17/28 | 28/34 | 8/8 | - | 19/21 |
 | LGAPDB01 (genapp-lgapdb01) | 5/13 | - | 8/23 | 0/2 | 7/21 | 12/23 | 13/23 | 2/10 | 11/22 |
 | LGAPVS01 (genapp-lgapvs01) | 14/16 | - | 25/41 | 0/1 | 6/11 | 12/28 | 6/9 | - | 9/19 |
-| LGICDB01 (genapp-lgicdb01) | 2/5 | - | 9/28 | 1/5 | 6/20 | 14/27 | 9/16 | 1/7 | 9/22 |
+| LGICDB01 (genapp-lgicdb01) | 6/17 | 2/4 | 9/24 | 1/4 | 5/24 | 4/24 | 6/20 | - | 7/23 |
 | LGSTSQ (genapp-lgstsq) | 1/5 | - | 1/21 | 0/1 | 5/11 | 10/21 | 5/6 | - | 3/13 |
 | LGUPDB01 (genapp-lgupdb01) | 11/12 | - | 11/22 | 0/2 | 5/22 | 12/22 | 14/22 | 3/17 | 12/21 |
 | LGUPVS01 (genapp-lgupvs01) | 14/14 | - | 29/44 | 0/1 | 4/10 | 10/31 | 7/10 | - | 2/9 |

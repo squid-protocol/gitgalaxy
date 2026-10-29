@@ -233,7 +233,9 @@ def validate(case: dict[str, Any], p: dict[str, Any], taken: set[str], ca_names:
         if not isinstance(p.get("aid", "DFHENTER"), str) or not str(p.get("aid", "DFHENTER")).startswith("DFH"):
             return "aid must be a DFH AID name"
         try:
-            eq_cics().fault_lines({"name": name, "faults": p.get("faults")})
+            plan = {"name": name, "faults": p.get("faults")}
+            eq_cics().fault_lines(plan)
+            eq_cics().check_child_faults(case, plan)  # #6967: a `child` no child_programs entry runs never fires
         except eq_cics().Unsupported as e:
             return str(e)
     return None

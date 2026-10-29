@@ -18,7 +18,7 @@ from test_cics_runtimes import _run_stub, _stub, needs_cc  # noqa: E402
 # op:file:key:into -- R read, H read update, W rewrite (FROM key + "X"), U unlock, T unlock token 9, P syncpoint
 _OPS = (
     "R:F:K002:8", "R:F:K002:16", "R:F:K009:16", "W:F:K002:0", "U:F:0:0", "H:F:K002:16", "H:F:K001:16", "W:F:K002:0",
-    "R:F:K002:16", "H:F:K001:16", "U:F:0:0", "W:F:K001:0", "T:F:0:0", "R:Z:K001:16",
+    "R:F:K002:16", "H:F:K001:16", "U:F:0:0", "W:F:K001:0", "T:F:0:0", "R:Z:K001:16", "W:Z:K001:0",
 )  # fmt: skip
 
 _MAIN = r"""
@@ -84,7 +84,8 @@ _WANT = [
     _ev("UNLOCK", file="F", resp="NORMAL"),
     _ev("REWRITE", file="F", data=_rec("K001BRAVO   0099"), resp="INVREQ", resp2=30),  # the UNLOCK released it
     _ev("UNLOCK", file="F", resp="INVREQ", resp2=47),  # a token matching none
-    _read("FILENOTFOUND", "K001", file="Z", data=None),  # the stub knows no RESP2 for it: none claimed,
+    _read("FILENOTFOUND", "K001", file="Z", resp2=1, data=None),  # IBM: RESP2 1, the file is not defined to CICS (X75)
+    _ev("REWRITE", file="Z", data=_rec("K001BRAVO   0099"), resp="FILENOTFOUND", resp2=1),
 ]
 
 

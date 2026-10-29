@@ -1195,6 +1195,9 @@ class ApertureFilter:
     _DOC_ASSET_EXTENSIONS = frozenset(
         {".html", ".htm", ".xml", ".css", ".js", ".json", ".md", ".txt", ".map", ".php", ".hhc", ".hhk", ".hhp"}
     )
+    # #6266: a build manifest is a build file whatever its extension (`CMakeLists.txt` reads as a `.txt` doc asset), so
+    # a directory holding one is not a generated-docs dir and its feature-toggle `-DX` definitions reach the scan.
+    _BUILD_MANIFEST_NAMES = frozenset({"cmakelists.txt", "makefile", "gnumakefile", "meson.build", "build.bazel"})
     _DOC_PROBE_BYTES = 8192
     _DOC_PROBE_MAX_FILES = 64
 
@@ -1213,8 +1216,10 @@ class ApertureFilter:
             cached = False
             for name in self._list_dir_files(rel_dir):
                 ext = os.path.splitext(name)[1].lower()
-                if name in self.exact_match_files or (
-                    ext in self.whitelisted_extensions and ext not in self._DOC_ASSET_EXTENSIONS
+                if (
+                    name in self.exact_match_files
+                    or name.lower() in self._BUILD_MANIFEST_NAMES
+                    or (ext in self.whitelisted_extensions and ext not in self._DOC_ASSET_EXTENSIONS)
                 ):
                     cached = True
                     break

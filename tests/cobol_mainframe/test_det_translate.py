@@ -273,6 +273,9 @@ class _RbaCics(C.Cics):
                 G.n += 1
                 return f"{base}{G.n}"
 
+            def record_bytes(self, ref):
+                return None  # (no typed item in the record)
+
         super().__init__(G(), None, "p")
 
     def field(self, text):
@@ -1496,6 +1499,22 @@ def test_send_text_length_past_from_sends_what_follows_it_in_its_record():
     assert past[0] == 'String text1 = new String(DetCics.withinRecord(f_REC, INT(60), "SEND TEXT"), CS);'
     within = _LenCics().command("SEND TEXT FROM(REC) LENGTH(56) ERASE", "")
     assert within[0] == "String text1 = Cobol.text(f_REC, CS);"  # as before: LENGTH within FROM
+
+
+def test_past_from_read_packs_the_typed_items_of_the_record_first():
+    """#6882 (GenApp LGSETUP: SEND TEXT FROM(WRITE-MSG-H) LENGTH(24), WRITE-MSG-HIGH PIC 9(10) after it): the bytes past
+    FROM are its record's, so the record's typed items are packed into them first -- SEND TEXT and CONVERSE alike. A
+    LENGTH within FROM reads nothing past it and packs nothing."""
+    pack = "\x00PACK:rec\x00"
+    c = _LenCics()
+    c.g.record_bytes = lambda ref: pack
+    send = c.command("SEND TEXT FROM(REC) LENGTH(60) ERASE", "")
+    assert send[0].endswith(f" = {pack};") and "withinRecord(f_REC" in send[1]
+    assert not c.command("SEND TEXT FROM(REC) LENGTH(56) ERASE", "")[0].startswith("Field ")
+    conv = _LenCics()
+    conv.g.record_bytes = lambda ref: pack
+    out = conv.command("CONVERSE FROM(REC) FROMLENGTH(60) INTO(KEY)", "")
+    assert out[0].endswith(f" = {pack};") and "withinRecord(f_REC" in out[1]
 
 
 def test_assign_startcode_userid_and_the_terminal_facts():

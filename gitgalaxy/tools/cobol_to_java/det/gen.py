@@ -995,6 +995,19 @@ class Gen:
         self.touched[id(it)] = self.touched.get(id(it), False) or self._reading == 0
         return True
 
+    def record_bytes(self, ref: E.Ref) -> str | None:
+        """The 01 record holding `ref`, for a command that reads bytes past the item (SEND TEXT / CONVERSE LENGTH past
+        FROM): its typed items must be in the bytes first. The record's expression (pack_ token) when groups are
+        synced; None when nothing in it is typed, or when the typed items stay byte storage (a lift violation)."""
+        it = self.resolve(ref)
+        rec = it.record or it
+        base = self.ids.get(id(rec))
+        if base is None:
+            return None
+        with self.reading():
+            packed = self.check_lift(rec)
+        return f"\x00PACK:{base}\x00" if packed else None
+
     @contextlib.contextmanager
     def reading(self):
         """Operands named inside are only read (a group so named needs no unpack after the statement)."""

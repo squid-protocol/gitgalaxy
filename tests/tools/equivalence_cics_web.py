@@ -67,7 +67,7 @@ _HTTP_REQ_KEYS = {"scheme", "host", "port", "method", "version", "path", "query"
 
 def http_request(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, Any] | None:
     """#4767 zECS (X37): the inbound HTTP request the task serves -- the scenario's "http_request", else the case's: {"scheme":
-    "HTTP" | "HTTPS", "host", "port", "method", "version" ("HTTP/1.1"), "path", "query" ("" for none), "headers": [[name,
+    "HTTP" | "HTTPS", "host", "port", "method", "version" ("HTTP/1.1"), "path" ("" for none), "query" ("" for none), "headers": [[name,
     value], ...], "mediatype" and "body" (both null: no body)}. Stated on both sides (the stub's $GGCICS_WEBREQ,
     CicsTask.withHttpRequest); WEB SEND, WEB RECEIVE, WEB EXTRACT and WEB READ / WRITE HTTPHEADER need it (X37, X38).
     Unstated, None: both runtimes refuse them by name."""
@@ -75,13 +75,13 @@ def http_request(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, Any] | N
     if req is None:
         return None
 
-    def text(v: Any) -> bool:
-        return isinstance(v, str) and bool(v) and not any(c.isspace() for c in v)
+    def text(v: Any, blank: bool = False) -> bool:
+        return isinstance(v, str) and (blank or bool(v)) and not any(c.isspace() for c in v)
 
     ok = (isinstance(req, dict) and set(req) == _HTTP_REQ_KEYS and req["scheme"] in ("HTTP", "HTTPS")
           and text(req["host"]) and isinstance(req["port"], int) and 0 < req["port"] <= 65535
           and req["method"] in ("GET", "HEAD", "DELETE", "POST", "PUT", "PATCH") and text(req["version"])
-          and text(req["path"]) and isinstance(req["query"], str) and not any(c.isspace() for c in req["query"])
+          and text(req["path"], True) and isinstance(req["query"], str) and not any(c.isspace() for c in req["query"])
           and isinstance(req["headers"], list)
           and all(isinstance(h, list) and len(h) == 2 and text(h[0]) and isinstance(h[1], str) for h in req["headers"])
           and (req["mediatype"] is None) == (req["body"] is None)

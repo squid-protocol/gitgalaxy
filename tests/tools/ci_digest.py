@@ -96,11 +96,17 @@ EXIT_LINE = re.compile(r"Process completed with exit code")
 RATCHET_SLACK = 1.5  # an overage within this multiple of its limit is runner noise, in the PR diff or not
 
 # A roll-up / dependent check -> the part jobs it only summarises; it takes their non-real triage (#5273). The
-# check-runs API carries no `needs`, so this mirrors smoke-test.yml, mainframe-ground-truth.yml and det-sweep.yml.
+# check-runs API carries no `needs`, so this mirrors smoke-test.yml, mainframe-ground-truth.yml, det-sweep.yml,
+# equivalence-e2e.yml and cics-crucible.yml (a test fails when a roll-up over a matrix job is missing).
+# Since ci-gate holds a merge on every red check (#6919), a roll-up left out here turns a cancelled shard into a real
+# failure: equivalence-e2e on #6951. Part names shared between workflows (`shard N/M`, `plan`) only keep a roll-up
+# `real` when any of them is: the safe side.
 PARTS: dict[str, str] = {
     "full-suite": r"^(full-suite part \d+/\d+|tested-tree|suite-plan)$",
     "ground-truth": r"^(ground-truth part \d+/\d+|tested-tree|plan|ground-truth-warm)$",
     "det": r"^(shard \d+/\d+|db2 \d+/\d+|plan|detmut)$",
+    "equivalence-e2e": r"^(shard \d+/\d+|db2|plan|tested-tree)$",
+    "crucible": r"^(measure \(shard [\d/]+\)|runner-tests|plan)$",
 }
 # A job -> the upstream jobs it `needs` (#5276): when one of those failed as infra, a dependent that shows no failing
 # test or case (the plan / warm-up output it reads is missing) is a knock-on of it, not a code defect.

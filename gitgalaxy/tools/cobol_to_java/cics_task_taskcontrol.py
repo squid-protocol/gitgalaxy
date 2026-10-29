@@ -437,6 +437,7 @@ TASKCONTROL_JAVA = """\
         private boolean freed;
         private long completes;
         private String abcode;
+        private int secerror;
         private Channel reply;
 
         private Child(String token, String transid, Channel channel, int number) {
@@ -494,7 +495,9 @@ TASKCONTROL_JAVA = """\
             if (k.channel != null) {
                 c.withChannel(copyOf(k.channel, k.channel.name));
             }
+            java.nio.file.Path fired = task.childFaults(c, k.transid.strip());
             c.run(program);
+            task.childFired(fired, k.transid.strip());
             Map<String, Object> last = null;
             for (Map<String, Object> e : c.events) {
                 if ("ABEND".equals(e.get("event"))) {
@@ -524,6 +527,47 @@ TASKCONTROL_JAVA = """\
                 did.add(left);
             }
             event("CHILD", "child", k.token, "transid", k.transid, "events", did);
+        }
+    }
+
+    /** #6967 (X18): the lines of this task's fault plan for a RUN child of `transid` (`@TRANSID CMD NAME NTH RESP
+     *  RESP2 [ABCODE]`, as the stub's faults.cfg) become the child's own plan, the prefix off: the child counts its
+     *  commands as a task of its own. What fires in it goes to a log of its own (null: none planned), see childFired. */
+    private java.nio.file.Path childFaults(CicsTask c, String transid) {
+        List<String> plan = new ArrayList<>();
+        for (String[] f : faultPlan) {
+            if (f[0].equals("@" + transid)) {
+                plan.add(String.join(" ", java.util.Arrays.copyOfRange(f, 1, f.length)));
+            }
+        }
+        if (plan.isEmpty()) {
+            return null;
+        }
+        try {
+            java.nio.file.Path log = java.nio.file.Files.createTempFile("ggchild", ".faults");
+            c.withFaults(plan, log);
+            return log;
+        } catch (java.io.IOException e) {
+            throw new java.io.UncheckedIOException(e);
+        }
+    }
+
+    /** #6967 (X18): the faults that fired in a child, appended to this task's log at its end (as the stub appends the
+     *  child directory's faults.txt after the child process exits), each line `@TRANSID ` first. */
+    private void childFired(java.nio.file.Path log, String transid) {
+        if (log == null) {
+            return;
+        }
+        try {
+            for (String line : java.nio.file.Files.readAllLines(log)) {
+                if (faultLog != null) {
+                    java.nio.file.Files.writeString(faultLog, "@" + transid + " " + line + System.lineSeparator(),
+                            java.nio.file.StandardOpenOption.CREATE, java.nio.file.StandardOpenOption.APPEND);
+                }
+            }
+            java.nio.file.Files.deleteIfExists(log);
+        } catch (java.io.IOException e) {
+            throw new java.io.UncheckedIOException(e);
         }
     }
 
@@ -645,6 +689,12 @@ TASKCONTROL_JAVA = """\
             task.waited = Math.max(now, first.completes);
         }
         first.fetched = true;
+        int[] secerror = task.injected("FETCH-STATUS", "-");  // #6967 (X18): the child failed a security check
+        if (secerror != null && first.abcode != null) {
+            throw new UnsupportedOperationException("a planned SECERROR COMPSTATUS for a child that abended (IBM does "
+                    + "not say which status wins): not modelled");
+        }
+        first.secerror = secerror == null ? 0 : secerror[0];
         String reply = null;
         if (wantChannel) {
             if (first.reply == null) {
@@ -669,17 +719,19 @@ TASKCONTROL_JAVA = """\
         e.put("resp2", resp2);
         if (k != null) {
             e.put("child", k.token);
-            e.put("compstatus", k.abcode == null ? "NORMAL" : "ABEND");
+            e.put("compstatus", k.secerror != 0 ? "SECERROR" : k.abcode == null ? "NORMAL" : "ABEND");
             e.put("abcode", k.abcode);
             e.put("channel", reply);
         }
         add(e);
         return k == null ? new FetchResult(resp, resp2)
-                : new FetchResult(resp, resp2, k.token, reply, k.abcode, k.abcode == null ? 1016 : 900);
+                : new FetchResult(resp, resp2, k.token, reply, k.abcode,
+                        k.secerror != 0 ? k.secerror : k.abcode == null ? 1016 : 900);
     }
 
     /** #4884, #4950: a FETCH's condition and RESP2; on NORMAL the child's token, the reply channel's name (null when
-     *  not asked), its abend code (null: it completed normally) and COMPSTATUS's CVDA (NORMAL 1016, ABEND 900). */
+     *  not asked), its abend code (null: it completed normally) and COMPSTATUS's CVDA (NORMAL 1016, ABEND 900; SECERROR 1214 when
+     *  the plan has a FETCH-STATUS, #6967). */
     public record FetchResult(String resp, int resp2, String child, String channel, String abcode, int compstatus) {
         public FetchResult(String resp, int resp2) {
             this(resp, resp2, null, null, null, 0);

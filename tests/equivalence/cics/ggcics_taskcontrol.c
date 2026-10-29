@@ -421,6 +421,46 @@ static int child_program(const char *transid, char *program) {
     return 0;
 }
 
+#ifndef _WIN32
+/* #6967 (X18): the lines of this task's faults.cfg for a RUN child of `transid` (`@TRANSID CMD NAME NTH RESP RESP2
+ * [ABCODE]`) become the child's own faults.cfg, the prefix off: the child counts its commands as a task of its own, as
+ * CicsTask.childFaults. */
+static void child_faults(const char *transid, const char *to) {
+    char path[4200], line[256], tag[16];
+    snprintf(path, sizeof path, "%s/faults.cfg", dir_in());
+    FILE *f = fopen(path, "r");
+    if (!f) return;
+    snprintf(tag, sizeof tag, "@%s ", transid);
+    size_t n = strlen(tag);
+    FILE *g = NULL;
+    while (fgets(line, sizeof line, f)) {
+        if (strncmp(line, tag, n) != 0) continue;
+        if (!g) {
+            snprintf(path, sizeof path, "%s/faults.cfg", to);
+            if (!(g = fopen(path, "w"))) refuse("cannot write a child's configuration");
+        }
+        fputs(line + n, g);
+    }
+    fclose(f);
+    if (g) fclose(g);
+}
+
+/* #6967 (X18): the faults that fired in a child (its directory's out/faults.txt), appended to this task's at the
+ * child's end, each line `@TRANSID ` first, as CicsTask.childFired. */
+static void child_fired(const char *transid, const char *dir) {
+    char path[4300], line[256];
+    snprintf(path, sizeof path, "%s/out/faults.txt", dir);
+    FILE *f = fopen(path, "r");
+    if (!f) return;
+    snprintf(path, sizeof path, "%s/faults.txt", dir_out());
+    FILE *g = fopen(path, "a");
+    if (!g) refuse("cannot write the fault log");
+    while (fgets(line, sizeof line, f)) fprintf(g, "@%s %s", transid, line);
+    fclose(f);
+    fclose(g);
+}
+#endif
+
 /* #4950 (X18, ASSUMED): this task waits (a DELAY, or a FETCH that waits): the RUN children not yet dispatched run now,
  * in RUN order, each to its end before this task resumes (one quasi-reentrant TCB: a task keeps control until it
  * waits; a task takes no processor time, X4). A child is this program re-run as a non-terminal task in a directory of
@@ -447,6 +487,7 @@ static void dispatch_children(void) {
         copy_cfg("programs.cfg", dir);
         copy_cfg("transactions.cfg", dir);
         copy_cfg("childprogs.cfg", dir); /* #5089: the child's own children run the case's programs too */
+        child_faults(k->transid, dir);
         snprintf(path, sizeof path, "%s/eib.in", dir);
         FILE *f = fopen(path, "w");
         FILE *e = NULL;
@@ -493,6 +534,7 @@ static void dispatch_children(void) {
             printf("RUN TRANSID child %s failed (exit %d)\n", k->token, WEXITSTATUS(st));
             exit(1);
         }
+        child_fired(k->transid, dir);
         long long its = 0;
         snprintf(path, sizeof path, "%s/out/end.txt", dir);
         f = fopen(path, "r");
@@ -683,7 +725,8 @@ static int kid_of(const char *qname) {
 /* #4884, #4950: FETCH ANY / FETCH CHILD(token) (IBM, EXEC CICS FETCH), as CicsTask.fetch: GG-FLAGS 'CHILD' with the
  * token in GG-QNAME (else FETCH ANY), NOSUSPEND, TIMEOUT (GG-NUM milliseconds) or neither (it waits), CHANNEL (the reply
  * channel asked for). On NORMAL: the token in GG-QNAME, the reply channel's name in GG-CHAN, the abend code in GG-NAME1
- * (GG-ITEM 1: the child abended) and COMPSTATUS's CVDA in GG-NUM (NORMAL 1016, ABEND 900). */
+ * (GG-ITEM 1: the child abended) and COMPSTATUS's CVDA in GG-NUM (NORMAL 1016, ABEND 900; SECERROR 1214 when the scenario
+ * plans a FETCH-STATUS, #6967). */
 int GGCFETCH(gg_cics *c) {
     char ev[200], msg[96], path[4300], dir[4096], reply[17];
     int one = 0, any = 0, first = -1;
@@ -736,6 +779,13 @@ int GGCFETCH(gg_cics *c) {
     k->fetched = 1;
     memcpy(c->qname, k->token, 16);
     c->num = k->abended ? 900 : 1016;
+    const char *compst = k->abended ? "ABEND" : "NORMAL";
+    int sresp, sresp2;
+    if (injected("FETCH-STATUS", "-", &sresp, &sresp2)) { /* #6967 (X18): the child failed a security check */
+        if (k->abended) refuse("a planned SECERROR COMPSTATUS for a child that abended (IBM does not say which status wins)");
+        c->num = sresp;
+        compst = "SECERROR";
+    }
     if (k->abended) { memset(c->name1, ' ', 8); memcpy(c->name1, k->abcode, 4); c->item = 1; }
     reply[0] = 0;
     if (strstr(c->flags, "CHANNEL")) {
@@ -748,7 +798,7 @@ int GGCFETCH(gg_cics *c) {
         memcpy(c->chan, reply, 16);
     }
     snprintf(ev, sizeof ev, "FETCH resp=%d resp2=%d child=%s compstatus=%s abcode=%s channel=%s", c->resp, c->resp2,
-             k->token, k->abended ? "ABEND" : "NORMAL", k->abended ? k->abcode : "-", reply[0] ? reply : "-");
+             k->token, compst, k->abended ? k->abcode : "-", reply[0] ? reply : "-");
     event(ev, NULL, 0);
     return 0;
 done:

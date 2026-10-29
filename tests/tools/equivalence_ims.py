@@ -25,6 +25,8 @@ A CICS scenario may state its own `"ims_seed": {"<DBD>": {"insert": [{"after": N
 the `like` record (default: the one it follows) with the fields stated encoded by their PIC / USAGE. The sequence key
 must stay unique and ascending among its neighbours; everything else is refused by name. The Java side then stages
 that scenario's database in its own directory (`dli-<scenario>`).
+A batch case's `faults` entry may state the same `ims_seed` (#6967): that run's COBOL side stages its own
+`dli` directory and the Java run reads those very files.
 
 Written for both sides into one directory (`stage`): dbd.cfg, psb.cfg and seed.<DBD> (tests/equivalence/ims/ggdli.c
 documents the format); each side writes <DBD>.out, the database as the step left it, compared segment by segment
@@ -296,6 +298,13 @@ def _insert(
     entries.insert(at + 1, (-1 - len(entries), seg, bytes(data)))
 
 
+def check_seed_names(scenario: dict[str, Any] | None, dbds: dict[str, dict[str, Any]]) -> None:
+    """#6967: an `ims_seed` naming a DBD the case does not have would be ignored: refused by name instead."""
+    for name in (scenario or {}).get("ims_seed") or {}:
+        if name not in dbds:
+            raise Unsupported(f"ims_seed: DBD {name} is not in the case (it has {sorted(dbds)})")
+
+
 def seed(case: dict[str, Any], corpus: Path, name: str, db: dict[str, Any],
          scenario: dict[str, Any] | None = None) -> bytes:  # fmt: skip
     """One database's seed, in the format both sides read (8-byte segment name, then its data). #6072: a scenario's
@@ -393,10 +402,13 @@ def bmp_using(source: str) -> list[str] | None:
     return head
 
 
-def stage(case: dict[str, Any], corpus: Path, source: str, dest: Path) -> list[dict[str, Any]]:
-    """Write dbd.cfg, psb.cfg and the seeds into `dest` (both sides read them); the PSB's DB PCBs."""
+def stage(case: dict[str, Any], corpus: Path, source: str, dest: Path,
+          scenario: dict[str, Any] | None = None) -> list[dict[str, Any]]:  # fmt: skip
+    """Write dbd.cfg, psb.cfg and the seeds into `dest` (both sides read them); the PSB's DB PCBs. #6967: a batch
+    run (a fault entry) may state its own `ims_seed`, as a CICS scenario does."""
     bmp = bmp_using(source)
     dbds, pcbs = definitions(case, corpus, bmp is not None)
+    check_seed_names(scenario, dbds)
     using = entry_using(source) if bmp is None else bmp[1:]
     if using is None or (bmp is not None and len(bmp) < 2):
         raise Unsupported(f"{case['program']}: no ENTRY 'DLITCBL' and not a BMP entered USING its I/O PCB and DB "
@@ -411,7 +423,7 @@ def stage(case: dict[str, Any], corpus: Path, source: str, dest: Path) -> list[d
     for name, db in dbds.items():
         if db.get("gsam"):  # load mode: nothing to seed
             continue
-        (dest / f"seed.{name}").write_bytes(seed(case, corpus, name, db))
+        (dest / f"seed.{name}").write_bytes(seed(case, corpus, name, db, scenario))
     return pcbs
 
 

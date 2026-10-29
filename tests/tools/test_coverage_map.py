@@ -110,3 +110,34 @@ def test_load_rejects_a_missing_or_foreign_map(tmp_path):
     assert cm.load(tmp_path / "old.json") is None
     (tmp_path / "ok.json").write_text(f'{{"version": {cm.VERSION}}}', encoding="utf-8")
     assert cm.load(tmp_path / "ok.json") == {"version": cm.VERSION}
+
+
+# --- the nightly wiring (#6278 item 5): the writer and the reader of the map must agree on key and file name
+ROOT = TOOLS.parents[1]
+MAP_WORKFLOW = (ROOT / ".github" / "workflows" / "engine-coverage-map.yml").read_text(encoding="utf-8")
+SMOKE = (ROOT / ".github" / "workflows" / "smoke-test.yml").read_text(encoding="utf-8")
+
+
+def test_the_map_workflow_is_nightly_only_and_builds_the_default_map():
+    head = MAP_WORKFLOW.split("jobs:", 1)[0]
+    assert "schedule:" in head and "workflow_dispatch:" in head
+    assert "pull_request" not in head  # no PR waits on an instrumented run
+    assert "--cov=gitgalaxy --cov-context=test" in MAP_WORKFLOW
+    assert "coverage_map.py build --data .coverage --out engine-map-cache/engine_test_map.json" in MAP_WORKFLOW
+
+
+def test_smoke_restores_what_the_map_workflow_saves():
+    assert "key: engine-test-map-${{ github.run_id }}" in MAP_WORKFLOW
+    assert "engine-test-map-\n" in SMOKE.split("Restore the newest coverage map", 1)[1].split("Plan the suite", 1)[0]
+    assert "--coverage-map engine-map-cache/engine_test_map.json" in SMOKE
+
+
+def test_the_smoke_nightly_stays_uninstrumented():
+    # coverage overhead would inflate the per-test times the suite budget (+10% fails) and the durations cache are built from
+    assert "--cov=" not in SMOKE and "--cov-context" not in SMOKE
+
+
+def test_ci_pins_pytest_cov_with_hashes():
+    pins = (ROOT / "ci" / "requirements" / "test.txt").read_text(encoding="utf-8")
+    assert "pytest-cov==" in pins and "\ncoverage==" in pins
+    assert "pytest-cov" in (ROOT / "ci" / "requirements" / "pytest.in").read_text(encoding="utf-8")

@@ -437,6 +437,60 @@ PROGRAMS = {
             "DISPLAY 'SORT-RETURN ' RC-OUT",
         ],
     ),
+    # SORT of a table whose count is a DEPENDING ON item: only the first count entries are ordered (the ones past it
+    # keep their sentinels), the count read when the SORT runs; the OCCURS clause's own key when the SORT names none,
+    # explicit keys with duplicates in order, a clause with no key, and counts of one and two
+    "SORTDP": program(
+        "SORTDP",
+        [
+            "01  D-N PIC 9(2) VALUE 0.",
+            "01  I   PIC 9(2) VALUE 0.",
+            "01  DT.",
+            "    05 D-ENT OCCURS 1 TO 8 TIMES DEPENDING ON D-N",
+            "          DESCENDING KEY IS D-K.",
+            "       10 D-K PIC 9(2).",
+            "       10 D-V PIC X(3).",
+            "01  ET.",
+            "    05 E-ENT OCCURS 1 TO 5 TIMES DEPENDING ON D-N.",
+            "       10 E-K PIC 9(2).",
+            "       10 E-V PIC X(3).",
+        ],
+        [
+            "MOVE 8 TO D-N",
+            "PERFORM VARYING I FROM 1 BY 1 UNTIL I > 8",
+            "    MOVE 99 TO D-K(I)",
+            "    MOVE 'ZZZ' TO D-V(I)",
+            "END-PERFORM",
+            "MOVE 5 TO D-N",
+            "MOVE 30 TO D-K(1) MOVE 'bb1' TO D-V(1)",
+            "MOVE 10 TO D-K(2) MOVE 'aa2' TO D-V(2)",
+            "MOVE 25 TO D-K(3) MOVE 'aa3' TO D-V(3)",
+            "MOVE 20 TO D-K(4) MOVE 'cc4' TO D-V(4)",
+            "MOVE 5 TO D-K(5) MOVE 'aa0' TO D-V(5)",
+            "SORT D-ENT",
+            "MOVE 8 TO D-N",
+            "PERFORM VARYING I FROM 1 BY 1 UNTIL I > 8",
+            "    DISPLAY 'D ' D-K(I) ' ' D-V(I)",
+            "END-PERFORM",
+            "MOVE 4 TO D-N",
+            "SORT D-ENT ON ASCENDING KEY D-V WITH DUPLICATES IN ORDER",
+            "MOVE 8 TO D-N",
+            "PERFORM VARYING I FROM 1 BY 1 UNTIL I > 8",
+            "    DISPLAY 'D ' D-K(I) ' ' D-V(I)",
+            "END-PERFORM",
+            "MOVE 5 TO D-N",
+            "MOVE 'q9' TO ET",
+            "MOVE 7 TO E-K(1) MOVE 'xyz' TO E-V(1)",
+            "MOVE 1 TO D-N",
+            "SORT E-ENT ON DESCENDING KEY E-K",
+            "DISPLAY 'E ' E-K(1) ' ' E-V(1)",
+            "MOVE 2 TO D-N",
+            "MOVE 3 TO E-K(1) MOVE 'bbb' TO E-V(1)",
+            "MOVE 4 TO E-K(2) MOVE 'aaa' TO E-V(2)",
+            "SORT E-ENT ON ASCENDING KEY E-V",
+            "DISPLAY 'E ' E-K(1) ' ' E-V(1) ' ' E-K(2) ' ' E-V(2)",
+        ],
+    ),
     # SORT under an alphabet (IBM Enterprise COBOL 6.4 Language Reference, ALPHABET clause, SORT COLLATING
     # SEQUENCE): EBCDIC, and a literal alphabet (a multi-character literal, SPACE, ALSO, a descending THRU, the
     # characters it does not name after it) on an alphanumeric key, a descending group key, a numeric key (by value,
@@ -2077,7 +2131,8 @@ def _holes(tmp_path: Path, src: str) -> list[str]:
         # format 2: a table whose key is outside an entry, or a table that is not one fixed OCCURS level
         (["    SORT ENT ON ASCENDING KEY WS-OUT"], None, "not a data item of one entry of the table"),
         (["    SORT ENT ON ASCENDING KEY E-NAME(1)"], None, "not a data item of one entry of the table"),
-        (["    SORT I ON ASCENDING KEY I"], None, "not a table of one fixed OCCURS level"),
+        (["    SORT I ON ASCENDING KEY I"], None, "not a table of one OCCURS level"),
+        (["    SORT ENT"], None, "no KEY phrase and no KEY in the OCCURS clause"),
         # a key outside the SD's record
         (["    SORT SORT-FILE ASCENDING E-DEPT INPUT PROCEDURE LOAD-RECS", "         OUTPUT PROCEDURE SHOW-RECS"],
          None, "not in a record of SORT-FILE"),
@@ -2087,6 +2142,15 @@ def test_sort_refuses_by_name_what_ibm_leaves_open(proc, special, why, tmp_path)
     pytest.importorskip("tree_sitter_language_pack")
     holes = _holes(tmp_path, _sort_variant(proc, special))
     assert any(why in h for h in holes), holes
+
+
+def test_sort_of_a_table_with_two_occurs_keys_and_no_key_phrase_is_refused_by_name(tmp_path):
+    """IBM orders by every KEY of the OCCURS clause; GnuCOBOL (the oracle) by the first only: refused, not guessed."""
+    pytest.importorskip("tree_sitter_language_pack")
+    src = program("SORTX", ["01  T.", "    05 E OCCURS 3 TIMES ASCENDING KEY IS K1 DESCENDING KEY IS K2.",
+                            "       10 K1 PIC 9.", "       10 K2 PIC 9."], ["SORT E"])  # fmt: skip
+    holes = _holes(tmp_path, src)
+    assert any("2 keys in the OCCURS clause" in h for h in holes), holes
 
 
 def test_sort_translates_every_phrase(tmp_path):

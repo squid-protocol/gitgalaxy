@@ -1195,8 +1195,12 @@ def _sort_placeholders(text: str, sorts: dict[int, str]) -> str:
     out, last, i = [], 0, 0
     while i < len(toks):
         t = toks[i].group(0).upper()
-        if t in ("SORT", "MERGE") and i + 2 < len(toks) and toks[i + 2].group(0).upper() in (
-                "ON", "ASCENDING", "DESCENDING"):  # fmt: skip
+        nxt = toks[i + 2].group(0).upper() if i + 2 < len(toks) else "."
+        # a format 2 SORT with no KEY phrase (the OCCURS clause's own keys) ends at once or goes on to its options
+        keyless = t == "SORT" and i + 1 < len(toks) and (
+            nxt in ("WITH", "DUPLICATES", "COLLATING", "SEQUENCE", ".") or nxt in _STATEMENT_WORDS
+            or nxt.startswith("END-"))  # fmt: skip
+        if t in ("SORT", "MERGE") and (nxt in ("ON", "ASCENDING", "DESCENDING") or keyless):
             j = i + 2
             while j < len(toks):
                 w = toks[j].group(0)
@@ -1456,8 +1460,6 @@ def _sort_merge(text: str, line: int) -> Stmt:
                 d["keys"].append((p.ref(), asc))
             if len(d["keys"]) == n:
                 raise E.ExprError(f"{verb}: a KEY phrase with no key")
-        if not d["keys"]:
-            raise E.ExprError(f"{verb}: no KEY phrase")
         if p.up() in ("WITH", "DUPLICATES"):
             p.accept("WITH")
             p.take()
@@ -1482,6 +1484,8 @@ def _sort_merge(text: str, line: int) -> Stmt:
         if not p.done():
             raise E.ExprError(f"{verb}: left over {' '.join(p.t[p.i :])}")
         d["table"] = verb == "SORT" and not (d["using"] or d["input"] or d["giving"] or d["output"])  # format 2
+        if not d["keys"] and not d["table"]:  # a table's keys may be its OCCURS clause's own (sort_table)
+            raise E.ExprError(f"{verb}: no KEY phrase")
         if not d["table"] and (not (d["using"] or d["input"]) or not (d["giving"] or d["output"])):
             raise E.ExprError(f"{verb}: no input or no output phrase")
         if verb == "MERGE" and (d["duplicates"] or d["input"] or len(d["using"]) < 2):

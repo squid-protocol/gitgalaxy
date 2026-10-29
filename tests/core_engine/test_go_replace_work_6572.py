@@ -70,3 +70,15 @@ def test_replace_outside_the_scan_or_to_a_remote_module_draws_no_edge(tmp_path):
         "gone.go": "package gone\n",
     }
     assert _edges(tmp_path, files) == set()
+
+
+def test_a_vendored_import_draws_no_edge_with_or_without_modules_txt(tmp_path):
+    # `vendor/` is an ignored directory: its packages are never scanned, so `vendor/modules.txt`
+    # has no target to point an import at (stated absence, not a gap)
+    files = {
+        "go.mod": "module example.com/app\n",
+        "main.go": 'package main\n\nimport "github.com/dep/util"\n',
+        "vendor/modules.txt": "# github.com/dep/util v1.0.0\ngithub.com/dep/util\n",
+        "vendor/github.com/dep/util/util.go": "package util\n",
+    }
+    assert _edges(tmp_path, files) == set()

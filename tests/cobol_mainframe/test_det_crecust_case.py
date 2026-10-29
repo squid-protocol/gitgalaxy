@@ -67,6 +67,8 @@ def test_scenarios_cover_the_credit_check_and_the_paths_around_the_ceedays_hole(
         "ceeloct-local-time-unavailable",
         # #6967: a fault planned in a RUN child -- the child abends, FETCH ANY answers COMPSTATUS ABEND (853)
         "fetch-any-first-child-abends",
+        # #6967: FETCH ANY returns a child with COMPSTATUS SECERROR (951)
+        "fetch-any-first-child-secerror",
     ]
 
 
@@ -217,3 +219,62 @@ def test_every_terminal_verb_of_the_burned_cbsa_screens_has_a_fault_command_or_a
     assert verbs <= {"SEND MAP", "SEND TEXT", "RECEIVE MAP", "SEND CONTROL"}, verbs
     for v in ("SEND MAP", "SEND TEXT", "RECEIVE MAP"):
         assert v.replace(" ", "-") in ecf.FAULT_COMMANDS
+
+
+# ---- #6967 (register X18): a FETCH whose child reports COMPSTATUS SECERROR -----------------------------------------
+
+
+def test_the_secerror_scenario_plans_the_compstatus_of_the_first_child_fetched():
+    (sc,) = [s for s in _case()["scenarios"] if s["name"] == "fetch-any-first-child-secerror"]
+    assert ecf.fault_lines(sc) == ["FETCH-STATUS - 1 1214 0"]
+
+
+@pytest.mark.parametrize(
+    "fault",
+    [
+        {"cmd": "FETCH-STATUS", "resp": "ABEND"},
+        {"cmd": "FETCH-STATUS", "resp": "NORMAL"},
+        {"cmd": "FETCH-STATUS", "resp": "NOTFND", "resp2": 1},
+        {"cmd": "FETCH-STATUS", "resp": "SECERROR", "resp2": 3},
+        {"cmd": "FETCH-ANY", "resp": "SECERROR"},
+    ],
+    ids=["abend", "normal", "other-condition", "resp2", "not-a-fetch-any-condition"],
+)
+def test_only_secerror_is_planned_as_a_compstatus_and_it_states_no_resp2(fault):
+    with pytest.raises(ec.Unsupported):
+        ecf.fault_lines(_sc(fault))
+
+
+@needs_javac
+@pytest.mark.slow(reason="first in its CI split part it pays the cold javac of the shared CicsTask build (#6018)")
+def test_the_planned_child_fetched_is_secerror_and_the_next_is_not(tmp_path):
+    log = tmp_path / "fired.txt"
+    out = _cics_task(
+        tmp_path,
+        """
+        CicsTask t = new CicsTask("GTPB", "ENTER", null, null).withTaskNumber(100).withPrograms(new CicsTask.Programs() {
+            public boolean defined(String p) {
+                return true;
+            }
+
+            public String program(String tr) {
+                return "KIDPROG";
+            }
+
+            public boolean transaction(String tr) {
+                return true;
+            }
+
+            public void run(String p, CicsTask s) {
+                s.returnTransid(null, null);
+            }
+        }).withFaults(java.util.List.of("FETCH-STATUS - 1 1214 0"), java.nio.file.Path.of("%LOG%"));
+        t.runTransid("KA");
+        t.runTransid("KB");
+        for (int i = 0; i < 2; i++) {
+            CicsTask.FetchResult f = t.fetch(null, "WAIT", 0, false);
+            System.out.println(f.resp() + " " + f.compstatus() + " " + f.abcode());
+        }""".replace("%LOG%", log.as_posix()),
+    )
+    assert out.splitlines() == ["NORMAL 1214 null", "NORMAL 1016 null"]
+    assert log.read_text(encoding="utf-8").splitlines() == ["FETCH-STATUS - 1 1214 0"]

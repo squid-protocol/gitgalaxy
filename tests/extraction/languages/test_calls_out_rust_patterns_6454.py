@@ -41,6 +41,13 @@ def _callees(body: str) -> list[str]:
         "debug_assert_matches!(x, Foo(_) | Bar(_));",
         "assert!(matches!(x, Foo(_)));",
         "matches!(\n        x,\n        Foo(_)\n            | Bar(_)\n    )",
+        "matches!(get(x), Foo(_))",
+        "matches!(w.get(e).map(|_| {}), Err(X::NotSpawned(e)) if e.entity() == e1)",
+        "assert!(matches!(\n        w.get([e1, e2]).map(|_| {}),\n        Err(X::NotSpawned(e)) if ok(e)));",
+        "assert!(matches!(w.get(&vec![e1, e2][..]).map(|_| {}), Foo(_),));",
+        "assert!(matches!(w.get(&[e1] /* an array, not a slice */).m(), Foo(_)));",
+        "assert_matches!(f(g(x)), Foo(_) | Bar(_));",
+        "debug_assert_matches!(f(x), Foo(_));",
     ],
 )
 def test_pattern_operand_is_no_call(body):
@@ -56,7 +63,9 @@ def test_pattern_operand_is_no_call(body):
         ("let d = foo(Some(3));", ["foo", "Some"]),
         ("matches!(x, Foo(_)); build(Bar(1));", ["matches", "build", "Bar"]),
         ("rematches!(x, Foo(_));", ["rematches", "Foo"]),
-        ("matches!(get(x), Qux(_))", ["matches", "get", "Qux"]),  # a call in the first operand: known gap
+        ("matches!(get(x), Qux(_))", ["matches", "get"]),
+        ("matches!(w.get([a, b]).map(|_| {}), Qux(_) if ok(1))", ["matches", "get", "map", "ok"]),
+        ("assert!(matches!(f(g(x)), Foo(_)));", ["assert", "matches", "f", "g"]),
     ],
 )
 def test_real_calls_stay(body, callees):
@@ -77,6 +86,12 @@ def test_other_masks_keep_whole_match_blanking():
         "matches!(x, " + "(" * 50000 + ")" * 50000,
         "matches!(x, A(" + "B(" * 50000,
         "matches!(x, " + "if " * 50000,
+        "matches!(" + "(" * 50000,
+        "matches!(" + "[" * 50000,
+        "matches!(" + "{" * 50000,
+        "matches!(" + "f(" * 50000,
+        "matches!(" + "f([{" * 20000 + ",",
+        "matches!(" + "(a)" * 50000,
     ],
 )
 def test_mask_redos_immunity(payload):

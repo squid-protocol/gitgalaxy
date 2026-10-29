@@ -396,7 +396,12 @@ def program_facts(
 
         # ---- the PROCEDURE DIVISION ----
         try:
-            proc = ST.parse(lines)
+            # the translator lowers OS/VS COBOL's BLL cells / SERVICE RELOAD before it parses the procedure
+            # (program.py, X56): the layout above stays the source's, the procedure is read as translated
+            from gitgalaxy.tools.cobol_to_java.det import bll
+            from gitgalaxy.tools.cobol_to_java.det.gen import BLL_CALLS as bll_calls
+
+            proc = ST.parse(bll.lower(lines, progfile))
         except Exception as e:  # noqa: BLE001 -- ExprError: the translator refuses the program
             proc = None
             errors.append(f"{where}procedure: {type(e).__name__}: {str(e)[:160]}")
@@ -461,6 +466,8 @@ def program_facts(
                             f["edges"].add(F.edge_value(uname, "GO_TO", t))
                     elif s.kind == "CALL" and s.data.get("dynamic") is not None:  # #4736: CALL identifier
                         f["calls"].add(F.call_value("CALL", "identifier", s.data["dynamic"].name))
+                    elif s.kind == "CALL" and s.data["program"] in bll_calls:
+                        pass  # the lowering's own CALL (SERVICE RELOAD), not the source's
                     elif s.kind == "CALL":
                         f["calls"].add(F.call_value("CALL", "literal", s.data["program"]))
                     elif s.kind == "HOLE" and s.data.get("why") == "dynamic CALL":

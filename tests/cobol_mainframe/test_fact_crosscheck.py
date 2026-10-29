@@ -277,6 +277,42 @@ def test_translator_adapter_on_a_toy_program(tmp_path: Path) -> None:
     assert {"WS-REC (record) +14", "WS-REC/WS-A @0+4", "WS-REC/WS-B @4+2", "WS-T/T-TWO @3+2"} <= f["offsets"]
 
 
+BLL = """\
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. BLLPGM.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-KEY                 PIC X(10).
+       LINKAGE SECTION.
+       01  PARMLIST.
+           02  PARM-BLL               PIC S9(8) COMP.
+       01  BLL-CELLS.
+           02  FILLER                 PIC S9(8) COMP.
+           02  REC-BLL                PIC S9(8) COMP.
+       01  REC-AREA.
+           02  REC-ID                 PIC X(10).
+       PROCEDURE DIVISION.
+       0000-MAINLINE SECTION.
+           SERVICE RELOAD PARMLIST
+           MOVE SPACES TO WS-KEY
+           SERVICE RELOAD REC-AREA
+           GOBACK.
+"""
+
+
+def test_a_bll_program_is_read_as_the_translator_lowers_it(tmp_path: Path) -> None:
+    """#6960: SERVICE RELOAD is no statement of the grammar's; the translator lowers it first, so the referee must too
+    (INVTRLD was refused as `does not parse`), while the layout stays the source's (cells keep their fullword width)."""
+    pytest.importorskip("tree_sitter_language_pack")
+    (tmp_path / "BLLPGM.cbl").write_text(BLL, encoding="latin-1")
+    r = TA.program_facts(tmp_path, tmp_path / "BLLPGM.cbl", [tmp_path])
+    f = r["facts"]
+    assert r["status"] == "ok", r["error"]
+    assert f["units"] == {"0000-MAINLINE"}
+    assert f["moves"] == {"L17 MOVE SPACES -> WS-KEY"}
+    assert "BLL-CELLS/REC-BLL @4+4" in f["offsets"]
+
+
 def test_keyed_copybook_layouts_state_offsets_at_ibm_pointer_width(tmp_path: Path) -> None:
     """#5649: the `layouts` channel is the key's (IBM, POINTER 4 bytes), the `offsets` channel the translator's storage
     (8): a field after a POINTER sits 4 bytes later in `offsets` than in `layouts`, and a field before it does not move."""

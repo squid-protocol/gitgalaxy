@@ -2085,10 +2085,30 @@ static int nblks = 0;
 /* #6839 (X47): a block lies in the low 2 GiB where the platform can place it (Linux MAP_32BIT). A POINTER is 8 bytes here, IBM's 4, and
  * a program that copies one through its 4-byte numeric view (ZECS001: MOVE CACHE-ADDRESS-X TO SAVE-ADDRESS-X) keeps only the low half; a
  * heap address above 4 GiB then came back as an unmapped one (SIGSEGV at the next WEB CONVERSE FROM). Zero-filled, never unmapped. */
+#if defined(_WIN32) && !defined(GGCICS_NO_LOW_BLOCKS)
+/* windows.h is not included (its macros collide with this file's names): the one call declared as MinGW does. */
+__declspec(dllimport) void *__stdcall VirtualAlloc(void *at, size_t n, unsigned long type, unsigned long prot);
+#endif
+
+/* Where the platform cannot place a block low (macOS arm64 reserves the low 4 GiB; its mmap with MAP_32BIT fails) the block comes
+ * from calloc: GETMAIN still answers, only a 4-byte copy of the address is then not the address. GGCICS_NO_LOW_BLOCKS forces that. */
 static void *blk_alloc(size_t n) {
-#if !defined(_WIN32) && defined(MAP_32BIT)
+#if defined(GGCICS_NO_LOW_BLOCKS)
+    return calloc(n, 1);
+#elif defined(_WIN32)
+    static size_t cursor = 0x10000000U; /* zero-filled; the 64 KiB allocation granularity is the step */
+    size_t step = 0x10000U, size = (n + step - 1) / step * step, at;
+    void *p;
+    if (size < 0x60000000U) {
+        for (at = cursor; at + size < 0x7ff00000U; at += step) {
+            p = VirtualAlloc((void *)at, n, 0x3000UL /* MEM_COMMIT | MEM_RESERVE */, 0x04UL /* PAGE_READWRITE */);
+            if (p) { cursor = at + size; return p; }
+        }
+    }
+    return calloc(n, 1);
+#elif defined(MAP_32BIT)
     void *p = mmap(NULL, n, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_32BIT, -1, 0);
-    return p == MAP_FAILED ? NULL : p;
+    return p == MAP_FAILED ? calloc(n, 1) : p;
 #else
     return calloc(n, 1);
 #endif

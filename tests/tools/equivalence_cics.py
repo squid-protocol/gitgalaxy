@@ -59,6 +59,7 @@ from gitgalaxy.standards.cics.resp import DFHRESP as SPEC_DFHRESP
 from gitgalaxy.tools.cobol_to_java.det.cvda import CVDA  # #4415: DFHVALUE(name), IBM's CVDA numbers
 
 handler_labels = cics_conditions.handler_labels
+check_child_faults = cics_faults.check_child_faults
 fault_lines = cics_faults.fault_lines  # public names the tests and the runners reach through this module
 dli_fault_lines = cics_faults.dli_fault_lines
 enq_fault_key = cics_faults.enq_fault_key
@@ -2603,6 +2604,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             (d / "region.cfg").write_text(f"APPLID {case['region']['applid']}\nSYSID {case['region']['sysid']}\n",
                                           encoding="ascii")  # fmt: skip
         if sc.get("faults") or sc.get("sql_abend_plan"):  # #4023 follow-up: the stub's injected conditions
+            check_child_faults(case, sc)  # #6967
             (d / "faults.cfg").write_text(
                 "".join(x + "\n" for x in fault_lines(sc)), encoding="latin-1"
             )  # #5859 userid_hex

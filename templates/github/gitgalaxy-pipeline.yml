@@ -5,18 +5,20 @@ on:
     branches:
       - main
 
-# NOTE (#4918): the three `uses: squid-protocol/gitgalaxy@<sha> # v2.4.0` steps below still run the v2.4.0 action,
-# which installs unpinned. Bump them to the first release that ships templates/requirements/ (the
-# hash-pinned lockfiles the action reads); until that tag exists the bump would point at an action
-# with no lockfiles. An explicit `version:` input of a release older than the `full` extra drops the
-# ML engines (pip warns "does not provide the extra 'full'" and the scan runs in Zero-Dependency Mode).
+# NOTE (#4918): the three `uses: squid-protocol/gitgalaxy@<sha>` steps run the action at the main commit the
+# lockfile markers below name (f674bfffe, #6530). Its action.yml installs GitGalaxy from templates/requirements/
+# with --require-hashes (v2.11.0 from PyPI), so no step installs unpinned. No release tag ships the lockfiles yet
+# (v2.11.0 predates them); move to that tag when one exists. Re-stamp with tests/tools/stamp_template_pins.py
+# run on main after the lockfiles change, never on a PR branch (a squash merge leaves that commit off main).
+# An explicit `version:` input of a release older than the `full` extra drops the ML engines (pip warns "does not
+# provide the extra 'full'" and the scan runs in Zero-Dependency Mode).
 jobs:
   vault-sentinel:
     name: Vault Sentinel
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - uses: squid-protocol/gitgalaxy@8cfa3b24c9b2f199858980084154d88a6a318317 # v2.4.0
+      - uses: squid-protocol/gitgalaxy@f674bfffe73180187bc5a3f18b5fd3f2652b1557 # main 2026-10-24, hash-pinned v2.11.0
         with:
           tool: 'vault-sentinel'
           target: '.'
@@ -26,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - uses: squid-protocol/gitgalaxy@8cfa3b24c9b2f199858980084154d88a6a318317 # v2.4.0
+      - uses: squid-protocol/gitgalaxy@f674bfffe73180187bc5a3f18b5fd3f2652b1557 # main 2026-10-24, hash-pinned v2.11.0
         with:
           tool: 'xray-inspector'
           target: '.'
@@ -36,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - uses: squid-protocol/gitgalaxy@8cfa3b24c9b2f199858980084154d88a6a318317 # v2.4.0
+      - uses: squid-protocol/gitgalaxy@f674bfffe73180187bc5a3f18b5fd3f2652b1557 # main 2026-10-24, hash-pinned v2.11.0
         with:
           tool: 'supply-chain-firewall'
           target: '.'
@@ -57,7 +59,7 @@ jobs:
 
       - name: Install GitGalaxy & Full Precision Engines
         run: |
-          GG_REF=04c85c32f8c9eb9bc5c830de3e8d08b4efde0e5a GG_SHA256=afe6988fe90e47659a963be73e1c30a28128f0beb4d46977ec7185b4a8e80c7d # gg-pin:full
+          GG_REF=f674bfffe73180187bc5a3f18b5fd3f2652b1557 GG_SHA256=afe6988fe90e47659a963be73e1c30a28128f0beb4d46977ec7185b4a8e80c7d # gg-pin:full
           python -c "import sys,urllib.request as u; u.urlretrieve(sys.argv[1], sys.argv[2])" "https://raw.githubusercontent.com/squid-protocol/gitgalaxy/${GG_REF}/templates/requirements/full.txt" /tmp/gg-requirements.txt
           echo "${GG_SHA256}  /tmp/gg-requirements.txt" | sha256sum -c -
           pip install --require-hashes -r /tmp/gg-requirements.txt

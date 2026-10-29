@@ -875,8 +875,8 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     ):  # (#5233: a BMP that only CALLs CBLTDLI has no DIB)
         records += DLI.dib_records()  # #5278: EXEC DLI answers DIBSTAT (det/dli.py)
     # SORT-RETURN: the special register, S9(4) BINARY (IBM: 0 after a successful SORT / MERGE) -- only in a program
-    # that sorts or names it, so no other port's storage changes
-    sorts = any(s.kind in ("SORT", "MERGE") for p in proc.paragraphs for s in S.walk(p.body))
+    # that sorts, releases or returns, or names it, so no other port's storage changes
+    sorts = any(s.kind in ("SORT", "MERGE", "RELEASE", "RETURN") for p in proc.paragraphs for s in S.walk(p.body))
     named = any(re.search(r"\bSORT-RETURN\b", ln.text, re.I) for ln in lines)
     if (sorts or named) and not any(it.name == "SORT-RETURN" for r in records for it in r.walk()):
         srt = L.Item(1, "GG-SORT-RETURN", "WORKING-STORAGE", pic="S9(4)", usage="BINARY")

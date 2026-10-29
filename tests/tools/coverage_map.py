@@ -12,7 +12,9 @@ file, the test files whose own tests executed one of its lines, plus `always`: t
 `select` is conservative; it returns None (the caller runs the full suite) when:
 * the map is missing, or a changed file is not a `gitgalaxy/**.py` module the map holds (a data file, a new module);
 * the module has no per-test line (only import-time lines run, as in a registry of constants: the run's empty context);
-* more than MAX_SHARE of the known tests cover it (a spine module: `core`, `standards`).
+* more than MAX_SHARE of the known tests cover it (a spine module: `core`, `standards`);
+* the map is older than MAX_AGE_DAYS, or carries no `built_at` stamp (a missed run of the nightly must not leave a
+  weeks-old map choosing tests for today's engine: the stamp is read from the file, the cache's own age is not visible).
 Otherwise it returns the covering tests plus `always`. The map is a nightly artifact: a test added since is run only
 when the PR changes it, and the full run stays nightly + post-merge as the net. Stdlib only.
 """
@@ -20,6 +22,7 @@ when the PR changes it, and the full run stays nightly + post-merge as the net. 
 from __future__ import annotations
 
 import argparse
+import datetime as dt
 import json
 import re
 import sqlite3
@@ -32,6 +35,7 @@ import change_classifier  # noqa: E402
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_MAP = REPO_ROOT / ".engine_test_map.json"  # ignored by the repo-wide *.json rule: a nightly artifact
 MAX_SHARE = 0.4
+MAX_AGE_DAYS = 3  # the nightly runs daily: two missed nights still select, a longer gap runs the full suite
 VERSION = 1
 _TREE_READ = re.compile(r"\b(?:rglob|os\.walk|glob|iterdir)\b")
 _ENGINE_NAME = re.compile(r"""["']gitgalaxy["']|["']gitgalaxy/|\bGITGALAXY_DIR\b|\bPACKAGE_ROOT\b|\bENGINE_ROOT\b""")
@@ -84,6 +88,7 @@ def build(data: Path, root: Path = REPO_ROOT) -> dict:
     known = sorted({t for ts in modules.values() for t in ts})
     return {
         "version": VERSION,
+        "built_at": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
         "tests": len(known),
         "always": engine_tree_readers(root),
         "modules": {m: sorted(ts) for m, ts in sorted(modules.items())},
@@ -99,10 +104,30 @@ def load(path: Path | None = None) -> dict | None:
     return m if isinstance(m, dict) and m.get("version") == VERSION else None
 
 
-def select(files: list[str], cmap: dict | None, root: Path = REPO_ROOT) -> tuple[list[str] | None, str]:
+def map_age_problem(cmap: dict, now: dt.datetime | None = None) -> str | None:
+    """Why the map is too old to trust (no readable `built_at`, a future stamp, older than MAX_AGE_DAYS), else None."""
+    try:
+        built = dt.datetime.fromisoformat(str(cmap.get("built_at")))
+    except ValueError:
+        return "the coverage map has no readable built_at stamp"
+    if built.tzinfo is None:
+        built = built.replace(tzinfo=dt.timezone.utc)
+    age = (now or dt.datetime.now(dt.timezone.utc)) - built
+    if age < dt.timedelta(0):
+        return "the coverage map is stamped in the future"
+    if age > dt.timedelta(days=MAX_AGE_DAYS):
+        return f"the coverage map is {age.days} days old (limit {MAX_AGE_DAYS})"
+    return None
+
+
+def select(
+    files: list[str], cmap: dict | None, root: Path = REPO_ROOT, now: dt.datetime | None = None
+) -> tuple[list[str] | None, str]:
     """(tests, reason): the test files that cover every changed engine module, or (None, why) when the suite runs in full."""
     if not cmap:
         return None, "no coverage map"
+    if (why := map_age_problem(cmap, now)) is not None:
+        return None, why
     modules, total = cmap.get("modules", {}), int(cmap.get("tests", 0))
     tests: set[str] = set(cmap.get("always", []))
     for f in files:

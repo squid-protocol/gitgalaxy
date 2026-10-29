@@ -1334,13 +1334,45 @@ _C_MACRO_NOT_CALLS = frozenset(["sizeof", "defined", "alignof", "_Alignof", "typ
 _C_MACRO_EXPANSION_DEPTH = 4
 
 
+_C_MACRO_INIT_ENTRY = re.compile(r"([" + ID_START + "][" + ID_CONTINUE + r"]*)[ \t]*\(.*\)", re.S)
+
+
+def _c_macro_init_entries(body: str) -> frozenset[str]:
+    """#6266: the member names of a macro body that is a constructor init list (doomsday's `prev(*this, ..) , next(*this,
+    ..)`): every comma-separated part of the body at nesting depth 0 is one `name(args)`, and there are two or more, or a
+    leading comma. A single `name(args)` body is a call. Empty when the body is anything else."""
+    parts: list[str] = []
+    depth, start = 0, 0
+    for i, ch in enumerate(body):
+        if ch in "([{":
+            depth += 1
+        elif ch in ")]}":
+            depth -= 1
+        elif ch == "," and depth == 0:
+            parts.append(body[start:i].strip())
+            start = i + 1
+    parts.append(body[start:].strip())
+    leading = parts[0] == "" and len(parts) > 1
+    parts = [p for p in parts if p] if leading else parts
+    if len(parts) < 2 and not leading:
+        return frozenset()
+    names: set[str] = set()
+    for part in parts:
+        m = _C_MACRO_INIT_ENTRY.fullmatch(part)
+        if m is None:
+            return frozenset()
+        names.add(m.group(1))
+    return frozenset(names)
+
+
 def c_macro_body_calls(code: str) -> dict[str, frozenset[str] | None]:
     """#6770: each function-like `#define NAME(params) body` in `code` -> the functions its body calls.
 
     The body is read as the preprocessor leaves it: strings blanked, `\\` continuations joined. A callee is an
     identifier before `(` that is no parameter, statement word, `sizeof`-like operator or `##`-pasted name. A macro
     that expands to a function signature (#5461) calls nothing of its own. Variants that disagree (an `#if` ladder)
-    record None.
+    record None. A macro whose body is a constructor init list also lists its member names under
+    `INIT_LIST_QUALIFIER + name`: the unit that invokes it in an init-list head gets them as init entries, no calls.
     """
     signature = _c_function_like_defines(code)
     out: dict[str, frozenset[str] | None] = {}
@@ -1357,6 +1389,10 @@ def c_macro_body_calls(code: str) -> dict[str, frozenset[str] | None]:
             if c not in params and c not in _C_STATEMENT_WORDS and c not in _C_MACRO_NOT_CALLS and c != name
         )
         out[name] = calls if out.get(name, calls) == calls else None
+        entries = _c_macro_init_entries(body) - params
+        if entries:
+            key = INIT_LIST_QUALIFIER + name
+            out[key] = entries if out.get(key, entries) == entries else None
     return out
 
 
@@ -11243,10 +11279,18 @@ class StructuralExtractor:
             # #6266: a function named like a macro (`M_Malloc` over `#define M_Malloc(s) M_Malloc_Dbg(...)`) names
             # its own header, which the macro never expands at; only a recursive use of the name does.
             seeds = raw_calls if bare_self_hits else [c for c in raw_calls if c != name]
+            # #6266: a macro invoked in the init-list head that expands to member initializers (`: d(..),
+            # STRUCT_MEMBER_ACCESSORS()`) names data members, not calls: the resolver drops one no class owns.
+            entries = {
+                c
+                for macro in seeds
+                if INIT_LIST_QUALIFIER in qualifiers_seen.get(macro, ())
+                for c in _C_REPO_MACRO_CALLS.get(INIT_LIST_QUALIFIER + macro, ())
+            }
             for c in _macro_expansion_callees(seeds, _C_REPO_MACRO_CALLS):
                 raw_calls.append(c)
                 if qualifiers_seen:
-                    qualifiers_seen.setdefault(c, [""])
+                    qualifiers_seen.setdefault(c, [INIT_LIST_QUALIFIER] if c in entries else [""])
 
         # Per-language additions to the global ignore set (Epic #3264 Phase 3).
         # Authored lowercase in the profile. A case-insensitive language

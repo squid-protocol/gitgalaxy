@@ -1061,21 +1061,38 @@ _COMMENT = re.compile(r"/\*.*?\*/|//[^\n]*", re.S)
 
 
 def class_alias_names(texts: Any) -> frozenset[str]:
-    """#6266: the names that alias a class the texts declare (`Base` of `typedef Private<P> Base;`), over C++ sources.
+    """#6266: the names that alias a class the texts declare (`Base` of `typedef Private<P> Base;`), over C++ sources."""
+    return class_alias_tables(("", t) for t in texts)[0]
+
+
+def class_alias_tables(sources: Any) -> tuple[frozenset[str], dict[str, frozenset[str]]]:
+    """#6266: over `(path, text)` C++ sources, the names that alias a class the sources declare (`Base` of
+    `typedef Private<P> Base;`), and per path the names it aliases to a type no source declares (`using Base =
+    std::vector<T>;` of doomsday's `List`).
     A name some class also declares as a data member (gzdoom's `PType *Type;` beside rapidjson's `typedef T1 Type;`) is
-    a member more than an alias: its init-list entry `Type(ty)` must stay no base."""
+    a member more than an alias: its init-list entry `Type(ty)` must stay no base. A name aliased to a foreign type is
+    no base call either, whatever class of that name another header declares: `List : std::vector` calls the standard
+    library's constructor."""
     declared: set[str] = set()
     aliases: set[tuple[str, str]] = set()
+    by_path: dict[str, set[tuple[str, str]]] = {}
     fields: set[str] = set()
-    for text in texts:
+    for path, text in sources:
         clean = _COMMENT.sub(" ", text)
         declared.update(_CLASS_DECL.findall(clean))
         for m in _ALIAS_DECL.finditer(clean):
-            aliases.add((m.group(2) or m.group(3), (m.group(1) or m.group(4)).rsplit("::", 1)[-1]))
+            pair = (m.group(2) or m.group(3), (m.group(1) or m.group(4)).rsplit("::", 1)[-1])
+            aliases.add(pair)
+            by_path.setdefault(path, set()).add(pair)
         fields.update(
             m.group(2) for m in _FIELD_DECL.finditer(_ALIAS_DECL.sub(" ", clean)) if m.group(1) not in _NOT_A_TYPE
         )
-    return frozenset(name for name, target in aliases if target in declared and name not in fields)
+    names = frozenset(name for name, target in aliases if target in declared and name not in fields)
+    foreign = {
+        path: frozenset(name for name, target in pairs if target not in declared and name not in fields)
+        for path, pairs in by_path.items()
+    }
+    return names, {path: names_ for path, names_ in foreign.items() if names_}
 
 
 def _init_entry_not_a_base(
@@ -1633,12 +1650,15 @@ def resolve_calls(
     namespace_aliases: dict[str, dict[str, str]] | None = None,
     star_exports: dict[str, set[str]] | None = None,
     class_aliases: frozenset[str] = frozenset(),
+    foreign_aliases: dict[str, frozenset[str]] | None = None,
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     """Resolve every (caller function, callee name) pair in the repository.
 
     `namespace_aliases` (#3788) maps a JS/TS file to the modules its namespace imports
     name (`{file: {alias: module path}}`), so `ns.f()` reaches the module `ns` is bound to.
     `class_aliases` (#6266) are the repo's class-typedef names (`class_alias_names`): a C++ ctor-init entry naming one is a base call.
+    `foreign_aliases` (#6266) maps a file to the names it aliases to a type outside the repo (`class_alias_tables`): its
+    ctor-init entries naming one call that type, not a repo class.
 
     Returns `(sites, stats)`:
       - `sites`: one row per distinct callee name per caller (calls_out_to is
@@ -1786,6 +1806,9 @@ def resolve_calls(
                     free_step, free_dst = _ladder(bucket.free, caller, False, cache)
                     if free_dst is not None:
                         step, dst = free_step, free_dst
+                if init_only and str(callee) in (foreign_aliases or {}).get(src_path, ()):
+                    recursive.append(callee)  # `: Base(n)` of `using Base = std::vector<T>`: the library's constructor
+                    continue
                 if (
                     init_only
                     and str(callee) not in class_aliases

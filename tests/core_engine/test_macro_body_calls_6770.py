@@ -33,6 +33,14 @@ def _table(code):
         ("#define A(x) B(x)\n#define A(x) C(x)\n", {}),  # variants that disagree record nothing
         ("#define A(x) B(x)\n#define A(y) B(y)\n", {"A": {"B"}}),  # variants that agree record it
         ("#define DEF(n) static int n(void) { return B(); }\n", {}),  # a signature macro is a definition
+        # #6266: a body that is a constructor init list also lists its member names, under the `<init>` key
+        (
+            "#define M() \\\n  prev(*this, 1) \\\n  , next(*this, 2)\n",
+            {"M": {"prev", "next"}, "<init>M": {"prev", "next"}},
+        ),
+        ("#define M(a) , init(a, f(1))\n", {"M": {"init", "f"}, "<init>M": {"init"}}),
+        ("#define M(a) B(a), C(a)\n", {"M": {"B", "C"}, "<init>M": {"B", "C"}}),
+        ("#define M(a) B(a) + C(a)\n", {"M": {"B", "C"}}),  # no comma at depth 0: not an init list
     ],
 )
 def test_macro_body_call_table(code, expected):
@@ -168,3 +176,34 @@ def test_a_function_named_like_a_macro_is_not_expanded_at_its_own_header(tmp_pat
     assert "M_Malloc_Dbg" not in calls["M_Malloc"]
     assert "M_Malloc_Dbg" in calls["M_Calloc"]
     assert "M_Malloc_Dbg" in calls["caller"]
+
+
+# #6266: doomsday's `STRUCT_MEMBER_ACCESSORS()` expands to `prev(*this, ..) , next(*this, ..)`, member initializers that
+# share their names with functions the repo defines. Invoked in an init-list head they are no calls.
+INIT_MACRO_SOURCE = """\
+#include "m.h"
+void prev(int x) { }
+void next(int x) { }
+void real(int x) { }
+struct T { int a; T(int n); };
+T::T(int n) : a(n), ACCESSORS()
+{
+    real(n);
+}
+void body(int n)
+{
+    ACCESSORS();
+}
+"""
+INIT_MACRO_HEADER = """\
+#define ACCESSORS() \\
+    prev(*this, 1) \\
+    , next(*this, 2)
+"""
+
+
+def test_a_macro_of_member_initializers_invoked_in_an_init_list_names_no_call(tmp_path):
+    calls = _scan(tmp_path, {"run.cpp": INIT_MACRO_SOURCE, "m.h": INIT_MACRO_HEADER})
+    ctor = next(v for k, v in calls.items() if k.endswith("T"))
+    assert "real" in ctor and not {"prev", "next"} & ctor
+    assert {"prev", "next"} <= calls["body"]  # the same macro in a statement is the expansion's calls

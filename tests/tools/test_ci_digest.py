@@ -280,14 +280,23 @@ def test_real_failures_still_triage_real():
     assert cd.digest(7, inside, lambda i: ratchet_log((T_IN, 90.0, UNMARKED)))["failed"][0]["triage"] == "real"
 
 
-# #5276: PARTS mirrors the part-job names of three workflows by hand (the check-runs API has no `needs`)
+# #5276: PARTS mirrors the part-job names of five workflows by hand (the check-runs API has no `needs`)
 WORKFLOWS = Path(__file__).resolve().parents[2] / ".github" / "workflows"
 ROLLUP_PARTS = {  # roll-up check -> (workflow, the part jobs whose check-run names its PARTS pattern must match)
     "full-suite": ("smoke-test.yml", {"full-suite-part", "tested-tree", "suite-plan"}),
     "ground-truth": ("mainframe-ground-truth.yml", {"ground-truth-part", "tested-tree", "plan", "ground-truth-warm"}),
     "det": ("det-sweep.yml", {"plan", "shard", "db2", "detmut"}),
+    "equivalence-e2e": ("equivalence-e2e.yml", {"tested-tree", "plan", "shard", "db2"}),
+    "crucible": ("cics-crucible.yml", {"plan", "measure", "runner-tests"}),
 }
-MATRIX_SAMPLE = {"matrix.group": "1", "matrix.shard": "1/4", "needs.shard-plan.outputs.splits": "3"}  # fmt: skip
+MATRIX_SAMPLE = {"matrix.group": "1", "matrix.shard": "1/4", "matrix.total": "2",
+                 "needs.shard-plan.outputs.splits": "3"}  # fmt: skip
+# Jobs that need a matrix job and run after a failure, but are no check a merge waits on (#6919 completeness test)
+NOT_ROLLUPS = {
+    ("mainframe-ground-truth.yml", "publish-history"): "push-only history writer",
+    ("smoke-test.yml", "full-suite-durations"): "writes the durations file, gates nothing",
+    ("smoke-test.yml", "suite-time"): "suite time budget, not a required check",
+}
 
 
 def rendered_job_names(workflow):
@@ -321,6 +330,43 @@ def test_every_parts_pattern_still_matches_the_workflow_jobs_it_mirrors():
         assert matched == expected, (
             f"PARTS[{rollup!r}] matches {sorted(matched)} in {workflow}, expected {sorted(expected)}"
         )
+
+
+def test_every_roll_up_over_a_matrix_job_is_in_parts():
+    """#6919: ci-gate holds a merge on any red check, so a roll-up missing from PARTS fails a PR on a cancelled shard
+    (equivalence-e2e on #6951). Every pull_request job that needs a matrix job and runs after a failure is a roll-up."""
+    import pytest
+
+    yaml = pytest.importorskip("yaml")
+    known = {(wf, rollup) for rollup, (wf, _) in ROLLUP_PARTS.items()}
+    missing = []
+    for f in sorted(WORKFLOWS.glob("*.yml")):
+        doc = yaml.safe_load(f.read_text(encoding="utf-8"))
+        on = doc.get("on", doc.get(True)) or {}
+        if "pull_request" not in on:
+            continue
+        jobs = doc.get("jobs") or {}
+        for job_id, job in jobs.items():
+            needs = job.get("needs") or []
+            needs = [needs] if isinstance(needs, str) else needs
+            after_failure = any(x in str(job.get("if", "")) for x in ("always()", "!cancelled()"))
+            over_matrix = any("matrix" in (jobs.get(n) or {}).get("strategy", {}) for n in needs)
+            if after_failure and over_matrix and "strategy" not in job:
+                key = (f.name, job.get("name", job_id))
+                if key not in known and (f.name, job_id) not in NOT_ROLLUPS:
+                    missing.append(key)
+    assert not missing, f"roll-ups over a matrix job missing from ci_digest.PARTS (or NOT_ROLLUPS): {missing}"
+
+
+def test_a_cancelled_shard_makes_the_e2e_roll_up_a_rerun_not_a_real_failure():  # #6919, #6951
+    runs = [run(1, "db2", "cancelled"), run(2, "shard 3/3", "cancelled"), run(3, "shard 1/3", "success"),
+            run(4, "equivalence-e2e", "failure")]  # fmt: skip
+    d = cd.digest(7, fake_api(runs), lambda i: "##[error]Process completed with exit code 1." if i == 4 else "")
+    assert {f["check"]: f["triage"] for f in d["failed"]} == {"db2": "infra", "shard 3/3": "infra",
+                                                               "equivalence-e2e": "infra"}  # fmt: skip
+    runs[0] = run(1, "db2", "failure")  # a real db2 failure beside the cancelled shard: the roll-up is a real red
+    d = cd.digest(7, fake_api(runs), lambda i: {1: "FAILED tests/x.py::test_y - AssertionError"}.get(i, ""))
+    assert {f["check"]: f["triage"] for f in d["failed"]}["equivalence-e2e"] == "real"
 
 
 def test_every_alternative_of_the_det_pattern_matches_a_job():

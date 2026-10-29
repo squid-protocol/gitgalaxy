@@ -342,9 +342,11 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path, fault: dict[str, A
     if sysin is not None:  # #5106: the step's SYSIN stream (ACCEPT FROM SYSIN), one record per line
         (work / "SYSIN.in").write_bytes((sysin if sysin.endswith("\n") else sysin + "\n").encode(enc))
     ims = case.get("ims")
+    if fault is not None and fault.get("ims_seed") and not ims:
+        raise RuntimeError(f"not runnable faithfully: fault {fault['name']} states an ims_seed, the case has no ims")
     if ims:  # #4893: a DL/I program -- IMS enters it at DLITCBL with its PCBs -- on the stated databases (ggdli.c)
         try:
-            pcbs = equivalence_ims.stage(case, corpus, source, work / "dli")
+            pcbs = equivalence_ims.stage(case, corpus, source, work / "dli", fault)  # #6967: the run's own seed
             bmp = equivalence_ims.bmp_using(source) is not None  # #5857: entered USING its I/O PCB, EXEC DLI
             if bmp:
                 (src / "PROGRAM.cbl").write_text(equivalence_ims.rewrite_bmp(program), encoding=staged)
@@ -631,6 +633,12 @@ def enumerated_batch_sql_faults(cobol_work: Path, table: str) -> list[dict[str, 
                     "sql_plan": [f"{prog} {line} 1 {code} {ec.SQLSTATES[code]}"],
                     "why": f"#4173: the first {stmts[key]['kind']} at {prog} line {line} failing (SQLCODE {code})"})  # fmt: skip
     return out
+
+
+def fault_dli_dir(work: Path, fault: dict[str, Any]) -> str:
+    """#6967: the directory the fault's COBOL run staged its own IMS databases in, for the Java run to read; "" when the
+    fault states no `ims_seed` (it reads the case's)."""
+    return str(work / "faults" / fault["name"] / "cobol" / "dli") if fault.get("ims_seed") else ""
 
 
 def selected_faults(case: dict[str, Any], arg: str | None) -> list[dict[str, Any]]:
@@ -942,7 +950,7 @@ def main() -> int:
         with equivalence_common.phase("java_runs"):  # #5882: the build, then every run (environments, faults, entries)
             runs = ej.run_java_environments(case, corpus, work / "java", work / "cobol", envs,
                                             port=not args.generated_only, port_dir=args.port,
-                                            faults=tuple((f["name"], fault_plan(f), "\n".join(f.get("sql_plan", [])), run_parm(case, f) if f.get("parm") is not None else "", f["sysin"] if f.get("sysin") is not None else "")
+                                            faults=tuple((f["name"], fault_plan(f), "\n".join(f.get("sql_plan", [])), run_parm(case, f) if f.get("parm") is not None else "", f["sysin"] if f.get("sysin") is not None else "", fault_dli_dir(work, f))
                                                          for f in faults),
                                             stop=differs if args.first_difference else None,
                                             entries=tuple(entries), one_jvm=args.one_jvm)  # fmt: skip

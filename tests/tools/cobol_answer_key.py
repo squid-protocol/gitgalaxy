@@ -4587,7 +4587,7 @@ def job_flow_keys(rows: list[dict[str, Any]]) -> set[str]:
                 f"L{r['line']} STEP {r['ord']} {d(r['step'])} PGM={d(r['pgm'])} PROC={d(r['proc'])} "
                 f"COND={d(r['cond'])} IF={d(r['if'])} IN={d(r['in'])}"
             )
-        else:
+        elif r["kind"] == "DD":  # an INSTREAM deck (#4268) is its own fact, not a DD row
             out.add(
                 f"L{r['line']} DD {d(r['step'])}.{d(r['dd'])} DSN={d(r['dsn'])} DISP={d(r['disp'])} GEN={d(r['gen'])} IN={d(r['in'])}"
             )
@@ -4610,7 +4610,7 @@ def engine_job_flow_row(j: Any) -> dict[str, Any]:
             "line": j.line,
         }
     return {
-        "kind": "DD",
+        "kind": j.kind,
         "step": j.step_name,
         "dd": j.dd_name,
         "dsn": j.dsn,

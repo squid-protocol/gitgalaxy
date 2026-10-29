@@ -1785,9 +1785,15 @@ states each (`none (gap)`: no entry does). Only fields a burned corpus's COBOL n
     A table with OCCURS ... DEPENDING ON sorts its first `count` entries (the count read when the SORT runs; the
     entries past it are untouched; a count outside the OCCURS bounds, undefined in IBM, stops the port by name), and a
     SORT with no KEY phrase uses the OCCURS clause's own single KEY (IBM): proved in `SORTDP` (#4268).
+  - An SD with records of different lengths (several 01s): RELEASE of any of them, the keys within the shortest
+    record, RETURN INTO moving the record's own length (IBM: the receiver is space-padded). Where IBM leaves the
+    bytes past a shorter record's end undefined, the port follows cobc (the whole area travels with each record). Proved
+    in `SORTVL` (#4268).
   - Refused by name: a format 2 table that is a nested OCCURS, a subscripted key, no KEY phrase over an OCCURS clause
-    with no KEY, or with two or more (IBM orders by every OCCURS key, GnuCOBOL by the first only), a key under OCCURS in an SD record, an SD whose records differ in length, a USING /
-    GIVING file whose records are not the SD record's length, an
+    with no KEY, or with two or more (IBM orders by every OCCURS key, GnuCOBOL by the first only), a key under OCCURS in an SD record, a key past the end of the SD's shortest
+    record, a GIVING of records of different lengths (IBM writes each at its own length, GnuCOBOL the whole area), a
+    USING / GIVING file whose records are not the SD's longest record's length or that is RECORD VARYING,
+    an
     alphabet ordinal (a numeric literal names a native code: EBCDIC on z/OS), HIGH-VALUE / LOW-VALUE in an
     alphabet, and a group key holding numeric items under an alphabet.
 

@@ -563,3 +563,64 @@ def test_a_case_run_reads_branches_against_the_staged_text_not_the_original(tmp_
     assert got is not None
     unlowered = cov.run_coverage(corpus / "t.cbl", PROGRAM, PROGRAM, [trace], "PROGRAM.cbl", None, "latin-1")
     assert got["branches"]["covered"] > unlowered["branches"]["covered"] == 0
+
+
+# ---- #6839: an HLASM program is inventoried and measured as its lowered COBOL ------------------------------
+_ASM_DATA = ["DFHEISTG DSECT", "W_A      DS    CL4", "W_B      DS    CL4"]
+_ASM_REGS = [f"R{n}       EQU   {n}" for n in (10, 11, 12)]
+
+
+def _asm(*code: str) -> str:
+    entry = "PROG     DFHEIENT CODEREG=(R12),DATAREG=R10,EIBREG=R11"
+    return "\n".join([*_ASM_DATA, entry, *code, *_ASM_REGS, "         END   PROG"]) + "\n"
+
+
+_ASM_BRANCH = _asm(
+    "         CLC   W_A,W_B",
+    "         BC    B'1000',DONE",
+    "         MVC   W_A,W_B",
+    "DONE     DS    0H",
+    "         EXEC CICS RETURN",
+)
+_ASM_STRAIGHT = _asm("         MVC   W_A,W_B", "         EXEC CICS RETURN")
+
+
+def test_a_cobol_program_is_not_lowered() -> None:
+    assert cov.lowered_original(PROGRAM) is None
+
+
+def test_an_hlasm_program_inventories_as_its_lowered_cobol(tmp_path: Path) -> None:
+    low = cov.lowered_original(_ASM_BRANCH)
+    assert low and "PROCEDURE DIVISION" in low
+    assert cov.lowered_original(low) is None  # lowered text is COBOL: lowering is not applied twice
+    inv = cov.inventory(tmp_path / "P.asm", text=_ASM_BRANCH)
+    assert inv.live and inv.branches  # not the 0/0 of an .asm member read as COBOL
+    assert [b.kind for b in inv.branches] == ["IF"]
+
+
+def test_an_hlasm_program_with_no_branch_has_units_and_no_branches(tmp_path: Path) -> None:
+    inv = cov.inventory(tmp_path / "P.asm", text=_ASM_STRAIGHT)
+    assert inv.live
+    assert inv.branches == []
+
+
+def test_a_refused_hlasm_program_inventories_as_before(tmp_path: Path) -> None:
+    bad = _asm("         XYZZY W_A,W_B")
+    assert cov.lowered_original(bad) is None
+    assert cov.inventory(tmp_path / "P.asm", text=bad).branches == []
+
+
+def test_run_coverage_counts_an_hlasm_programs_paragraphs_and_branches(tmp_path: Path) -> None:
+    s = cov.run_coverage(tmp_path / "P.asm", _ASM_BRANCH, None, [], "P.cbl")
+    assert s["paragraphs"]["live"] > 0
+    assert s["branches"]["total"] == 2  # the IF's true and false outcomes
+    assert s["branches"]["covered"] == 0
+
+
+def test_asm_line_names_the_statement_a_lowered_line_stands_for() -> None:
+    low = cov.lowered_original(_ASM_BRANCH)
+    assert low
+    n = next(i for i, ln in enumerate(low.split("\n"), 1) if ln.strip().startswith("IF "))
+    at = cov.asm_line(low, n)
+    assert at is not None and _ASM_BRANCH.split("\n")[at - 1].strip().startswith("BC")
+    assert cov.asm_line(low, 1) is None

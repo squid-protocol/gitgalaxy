@@ -174,7 +174,9 @@ def unavailable(case: str, led: dict[str, dict[str, Any]]) -> str:
 
 # ---- the program: source text, inventory, the GitGalaxy scan -----------------------------------------------
 def raw_lines(src: Path) -> list[str]:
-    return read_source(src).text.split("\n")
+    """The program's lines; an HLASM program's are its lowered COBOL's (#6839: the lines coverage.json names)."""
+    text = read_source(src).text
+    return (cov.lowered_original(text) or text).split("\n")
 
 
 def line_text(lines: list[str], n: int) -> str:
@@ -311,6 +313,11 @@ def build_case_report(case: str, sweep: Path | None, led: dict[str, dict[str, An
         return rep
     src = source_path(meta, corpus)
     lines = raw_lines(src)
+    lowered = "\n".join(lines) if cov.lowered_original(read_source(src).text) else None  # #6839: an HLASM program
+
+    def asm_of(n: int | None) -> dict[str, str]:
+        at = cov.asm_line(lowered, n) if lowered and n else None
+        return {"asm": f"program.asm:{at}"} if at else {}  # (the key only when there is one)
     inv = cov.inventory(src)
     entry = inv.units[0]["name"] if inv.units else None
     kind_unit = {b.line: (b.kind, b.unit) for b in [*inv.branches, *inv.after_transfer]}
@@ -326,7 +333,7 @@ def build_case_report(case: str, sweep: Path | None, led: dict[str, dict[str, An
         return {"complexity": info["complexity"] if info else UNKNOWN, "loc": info["loc"] if info else UNKNOWN,
                 "perform_path": path if path else UNKNOWN}  # fmt: skip
 
-    paragraphs = [{"name": p["name"], "file": meta["program_source"], "line": p["line"], **where(p["name"])}
+    paragraphs = [{"name": p["name"], "file": meta["program_source"], "line": p["line"], **asm_of(p["line"]), **where(p["name"])}
                   for p in gaps["paragraphs"]]  # fmt: skip
     for p in paragraphs:  # a whole paragraph stated infeasible (no `line` needed) marks its gap like a branch does
         if (e := stated_paragraphs.get(str(p["name"]).upper())) is not None:
@@ -338,7 +345,7 @@ def build_case_report(case: str, sweep: Path | None, led: dict[str, dict[str, An
         arm = re.match(r"WHEN@(\d+)", b["outcome"])
         text_line = int(arm.group(1)) if arm else b["line"]
         row = {"file": meta["program_source"], "line": b["line"], "kind": kind, "outcome": b["outcome"], "unit": unit,
-               "condition": condition_text(lines, text_line), **where(unit)}  # fmt: skip
+               "condition": condition_text(lines, text_line), **asm_of(b["line"]), **where(unit)}  # fmt: skip
         if (b["line"], b["outcome"]) in stated:
             e = stated[(b["line"], b["outcome"])]
             row["infeasible"] = {"family": e["family"], "reason": e["reason"]}
@@ -355,7 +362,8 @@ def _cell(v: Any) -> str:
 
 def _where(p: dict[str, Any]) -> str:
     """file:line, or the file alone for a paragraph with no line of its own (a COPY member's)."""
-    return f"{p['file']}:{p['line']}" if p["line"] is not None else f"{p['file']} (COPY member)"
+    at = f" ({p['asm']})" if "asm" in p else ""  # #6839: the assembler statement a lowered line stands for
+    return f"{p['file']}:{p['line']}{at}" if p["line"] is not None else f"{p['file']} (COPY member)"
 
 
 def render_md(reports: list[dict[str, Any]]) -> str:
@@ -381,7 +389,7 @@ def render_md(reports: list[dict[str, Any]]) -> str:
                 ]
                 for b in r["branches"]:
                     inf = f"{b['infeasible']['family']}: {b['infeasible']['reason']}" if "infeasible" in b else ""
-                    out.append(f"| {b['file']}:{b['line']} | {b['kind']} | {b['outcome']} | `{_cell(b['condition'])}` | "
+                    out.append(f"| {_where(b)} | {b['kind']} | {b['outcome']} | `{_cell(b['condition'])}` | "
                                f"{b['unit']} | {b['complexity']} | {_cell(b['perform_path'])} | {_cell(inf)} |")  # fmt: skip
                 out.append("")
         if r["refusals"]:

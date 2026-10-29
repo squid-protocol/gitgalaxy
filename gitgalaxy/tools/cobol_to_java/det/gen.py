@@ -3383,14 +3383,22 @@ class Gen:
     def sort_table(self, d: dict, ind: str) -> list[str]:
         """SORT table ON {ASCENDING | DESCENDING} KEY k ... (format 2): the table's entries, each a record of the
         sort, ordered by the keys inside an entry and put back in place. One OCCURS level with a fixed count; a key
-        is a data item of the entry (or the entry itself, for an elementary table); SORT-RETURN 0."""
+        is a data item of the entry (or the entry itself, for an elementary table); SORT-RETURN 0. A table with
+        OCCURS ... DEPENDING ON sorts its first `count` entries, the count read when the SORT runs (IBM: the
+        DEPENDING ON item's value, within the OCCURS bounds, else undefined: the port stops by name); the entries
+        past the count are not touched. No KEY phrase: the OCCURS clause's own ASCENDING / DESCENDING KEY (IBM)."""
         tbl = self.resolve(E.Ref(d["file"]))
-        if _occurs_chain(tbl) != [tbl] or tbl.depending or tbl.occurs < 2:
-            raise Untranslatable(f"SORT {d['file']}: not a table of one fixed OCCURS level")
+        if _occurs_chain(tbl) != [tbl] or tbl.occurs < 2:
+            raise Untranslatable(f"SORT {d['file']}: not a table of one OCCURS level")
         self.check_record_bytes(tbl, f"SORT {d['file']}")
         coll = self.collating("SORT", d["collating"] or self.program_collating)
         keys = []
-        for ref, asc in d["keys"]:
+        if not d["keys"] and not tbl.keys:
+            raise Untranslatable(f"SORT {d['file']}: no KEY phrase and no KEY in the OCCURS clause")
+        if not d["keys"] and len(tbl.keys) > 1:  # IBM orders by every key; GnuCOBOL (the oracle) by the first only
+            raise Untranslatable(f"SORT {d['file']}: no KEY phrase and {len(tbl.keys)} keys in the OCCURS clause: "
+                                 "IBM and GnuCOBOL differ")  # fmt: skip
+        for ref, asc in d["keys"] or [(E.Ref(name), asc) for asc, name in tbl.keys]:
             it = self.resolve(ref)
             top = it
             while top is not tbl and top.parent is not None:
@@ -3402,11 +3410,20 @@ class Gen:
                                      f"COLLATING SEQUENCE {d['collating'] or self.program_collating}: not modelled")  # fmt: skip
             keys.append(f"new Sort.Key(r -> {self.factory(it, 'r', str(it.offset - tbl.offset))}, {_b(asc)})")
         self.sorts_table = True
-        var, i, n = self.tmpname("tsort"), self.tmpname("i"), tbl.occurs
+        var, i, n = self.tmpname("tsort"), self.tmpname("i"), str(tbl.occurs)
+        pre: list[str] = []
+        if tbl.depending:
+            n = self.tmpname("n")
+            count = self.int_expr(E.Parser(E.tokenize(tbl.depending)).ref())
+            low = tbl.occurs_min if tbl.occurs_min is not None else 0
+            pre = [f"{ind}int {n} = {count};",
+                   f"{ind}if ({n} < {low} || {n} > {tbl.occurs}) throw new Hole("
+                   + jstr(f"SORT {d['file']}: {tbl.depending} outside {low} to {tbl.occurs} (IBM: undefined)") + ");"]  # fmt: skip
         entry = f"{self.field_expr(E.Ref(d['file']))}.at({i}, {tbl.size})"
         out = [
+            *pre,
             f"{ind}Sort {var} = new Sort({jstr(d['file'])}, {tbl.size}, {_b(d['duplicates'])}, CS,"
-            + (f" {coll}," if coll else "")
+            + (f" {coll}," if coll else ""),
         ]
         out += [f"{ind}        {k}{',' if m < len(keys) - 1 else ');'}" for m, k in enumerate(keys)]
         out += [f"{ind}for (int {i} = 1; {i} <= {n}; {i}++) {{", f"{ind}    {var}.add({entry});", f"{ind}}}",

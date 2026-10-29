@@ -98,6 +98,27 @@ FAULTS_JAVA = """\
         return null;
     }
 
+    /** #6072: whether no region can define a file of this name (`name` as the command gave it, trailing blanks
+     *  dropped). IBM, EXEC CICS READ (and every file command): FILE(filename) is "up to 8 characters long, padded
+     *  with trailing blanks if necessary", and a CSD file name has no blank in it (DEFINE FILE: 1-8 characters from
+     *  A-Z 0-9 $ @ # and a few symbols). So a name that is empty or has a blank before its last character -- a
+     *  data-area name whose prefix was never moved in (ZECS000's ZF-FCT, '    FILE', when RETRIEVE answered NOTFND)
+     *  -- is FILENOTFOUND in every region. A definable name the project has no store for is not decided here. */
+    public static boolean undefinableFile(String name) {
+        return name.isEmpty() || name.indexOf(' ') >= 0;
+    }
+
+    /** #6072: a file command's planned condition (injected), else FILENOTFOUND (12) for a name no region can define,
+     *  as the stub answers a name its files.cfg lacks (planned first, then the name, in the stub's order). RESP2 0, the
+     *  stub's: IBM documents RESP2 1 for it (register X75). Null: the command goes on. */
+    private int[] fileFault(String cmd, String file) {
+        int[] planned = injected(cmd, file);
+        if (planned != null || !undefinableFile(file)) {
+            return planned;
+        }
+        return new int[] {12, 0};
+    }
+
     /** #6271 (register X71): the {RESP, RESP2} a scenario's fault plan gives this SEND-MAP / RECEIVE-MAP (`name` the map),
      *  SYNCPOINT or ROLLBACK (`name` "-") -- {0, 0} when none: the command then runs, and a planned one is not performed. */
     public int[] planned(String cmd, String name) {

@@ -480,8 +480,17 @@ def test_every_condition_method_the_forge_emitted_before_the_split_is_still_emit
     assert "ASSIGN ABCODE" in tcn.CONDITIONS_JAVA and "HANDLE ABEND LABEL" in tcn.CONDITIONS_JAVA
 
 
-# ---- faults (#5274, forge half): withFaults, injected, logFault, logAbend, planned, the deferred DUPKEY ---------------
-FAULT_JAVA_METHODS = ("withFaults", "dupkeyOr", "logFault", "logAbend", "injected", "planned")
+# ---- faults (#5274, forge half): withFaults, injected, fileFault and undefinableFile (#6839), logFault, logAbend, planned, the deferred DUPKEY ---------------
+FAULT_JAVA_METHODS = (
+    "withFaults",
+    "dupkeyOr",
+    "logFault",
+    "logAbend",
+    "injected",
+    "fileFault",
+    "undefinableFile",
+    "planned",
+)
 
 
 def test_cicstask_holds_the_faults_java_once_as_one_span():
@@ -531,6 +540,9 @@ class _FaultCics(CFL.FaultCommands):
         self.gp.mapsets = mapsets or {}
 
     def name(self, text):
+        return text
+
+    def file_name(self, text):
         return text
 
 

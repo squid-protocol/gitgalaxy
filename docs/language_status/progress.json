@@ -1,5 +1,5 @@
 {
- "commit": "094869c72",
+ "commit": "e6442a700",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -114,12 +114,12 @@
    }
   },
   "mutation": {
-   "adjusted_kill_pct": 89.2,
-   "adjusted_total": 4043,
-   "killed": 3608,
+   "adjusted_kill_pct": 86.8,
+   "adjusted_total": 4100,
+   "killed": 3559,
    "ports": 59,
-   "raw_kill_pct": 69.2,
-   "raw_total": 5213
+   "raw_kill_pct": 68.0,
+   "raw_total": 5232
   },
   "translator": {
    "of": 129,
@@ -160,21 +160,21 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-29T05:27:45Z",
+  "as_of": "2026-10-29T05:37:53Z",
   "core": {
-   "closed": 191,
-   "open": 18,
+   "closed": 192,
+   "open": 17,
    "total": 209
   },
   "core_last_window": {
-   "closed": 34,
-   "net_closed": 20,
+   "closed": 35,
+   "net_closed": 21,
    "opened": 14
   },
   "core_milestone": {
-   "closed": 99,
+   "closed": 100,
    "number": 28,
-   "open": 10,
+   "open": 9,
    "total": 109
   },
   "epics": {
@@ -380,9 +380,9 @@
     "total": 23
    },
    {
-    "closed": 260,
+    "closed": 261,
     "number": 28,
-    "open": 11,
+    "open": 10,
     "title": "Training Montage \ud83c\udfcb\ufe0f \u2014 Prepping to one-shot our 4th CICS to Java translation attempt",
     "total": 271
    },

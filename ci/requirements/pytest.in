@@ -2,3 +2,4 @@ pytest
 pytest-xdist
 pytest-split==0.11.0
 pytest-timeout==2.4.0
+pytest-cov

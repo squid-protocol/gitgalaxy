@@ -2888,7 +2888,8 @@
    "family": "CICS",
    "title": "ADDRESS COMMAREA(ptr): the handle of the DFHCOMMAREA record's bytes; a task with no COMMAREA is refused (IBM's X'FF000000' is no COBOL NULL)",
    "methods": [
-    "addressCommarea"
+    "addressCommarea",
+    "isNoCommareaAddress"
    ],
    "ibm": {
     "doc": "cics-apr",

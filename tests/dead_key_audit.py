@@ -69,6 +69,10 @@ BASELINE_PATH = Path(__file__).resolve().parent / "dead_key_audit_baseline.json"
 # apart from "the code changed, re-check this."
 # ==============================================================================
 ALLOWLIST = {
+    # DFSORT control-statement operands (det/dfsort.py, #4268): the producer is a JCL step's SYSIN text, parsed
+    # into an operand dict, never a literal in this repo.
+    "FIELDS": "DFSORT SORT / MERGE FIELDS= operand, parsed from a step's SYSIN (#4268)",
+    "FORMAT": "DFSORT FORMAT= operand of SORT / MERGE / INCLUDE / OMIT, parsed from a step's SYSIN (#4268)",
     # --copy-libraries declaration fields (core/copy_libraries.py, #4265): the producer is the user's
     # JSON / YAML file, never a literal in this repo.
     "libraries": "--copy-libraries declaration: library-name -> directories, read from the user's file (#4265)",

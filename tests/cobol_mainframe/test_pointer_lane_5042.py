@@ -274,7 +274,7 @@ def test_a_program_with_the_four_set_forms_translates_whole(tmp_path):
 
 def test_a_set_into_a_pointer_a_redefines_overlays_is_a_hole(tmp_path):
     source = PROGRAM.replace(
-        "       01  RCV-LEN ", "       01  RCV-PTR-X REDEFINES RCV-PTR PIC X(4).\n       01  RCV-LEN ", 1
+        "       01  RCV-LEN ", "       01  RCV-PTR-X REDEFINES RCV-PTR PIC X(8).\n       01  RCV-LEN ", 1
     )
     r = _translate(tmp_path, source)
     assert any("REDEFINES overlays" in h for h in r.stats["holes"]), r.stats["holes"]

@@ -552,7 +552,11 @@ def _freemain(opts: dict[str, str | None], labels: list[str] | None) -> list[str
     key = "FREEMAIN"
     _check_spec(key, opts, ("FREEMAIN",), lambda bad: [f"{key} {o}" for o in bad])
     if not opts.get("DATAPOINTER"):
-        raise Unsupported(_rule(key, "required", "DATAPOINTER"), [key])
+        if opts.get("DATA"):  # the det translator models it (#6876); the oracle's GGCFREM takes a pointer only
+            raise Unsupported(
+                "FREEMAIN DATA: the oracle's GGCFREM takes a pointer, not an ADDRESS OF record", [f"{key} DATA"]
+            )
+        raise Unsupported(_rule(key, "one_of", "DATAPOINTER"), [key])
     return _call("GGCFREM", [f"BY REFERENCE {_pointer(key, opts['DATAPOINTER'])}"]) + _resp(opts, True, labels)
 
 

@@ -381,3 +381,20 @@ and `test_easytrieve_internal_discriminator_strict`.
 **Not done (sibling gaps):** the 4 FreeBSD troff `.mac` files that routed `easytrieve` at probe time are not held on this checkout, so
 the line that matches is unconfirmed (a synthetic troff file already routes `plaintext`); DSP and MASM `.mac` stay `plaintext` on purpose
 (no owning language). No burned-estate program needs any of these.
+
+### Addendum (2026-10-30f, #7064): JCL library directories, `LINKX` / `XCTLX` / `ATTACHX` `EP=`
+
+**PDS siblings for JCL.** `jcl` now lists `jcl`, `cntl`, `proclib` and `proc` in `library_directory_suffixes`, so an extensionless
+member under `PAYR.JCL/`, `PAYR.CNTL/`, `SYS1.PROCLIB/` or `PAYR.PROC/` routes `jcl`. **The plan was wrong on one point:** no
+`_PDS_MEMBER_EVIDENCE` entry was needed (measured: the all-language lexical scan already wins a job or PROC member on its `//` cards,
+and `jcl` has no `internal_discriminator`, contrary to the cobol/pli addendum above). A README or C text in the same directory, and the
+same job outside a library directory, stay unclaimed. Pinned in `test_pds_library_routing.py`. Not routed: IDCAMS / SYSIN control cards
+in a `.CNTL/` member (no `//` cards; no owner).
+
+**Extended forms.** `calls_out`, `ipc_rpc_bridges` and the `LINK`/`XCTL EPLOC=field` pass now take `LINKX`, `XCTLX` (and `ATTACHX` for
+`calls_out`) beside the base macros; `LINKX` / `XCTLX` join the mnemonic list. The `LINKX EP=` near miss pinned by #7063 flips to a
+named callee. Still near misses: `LOADX`, `CALLX`, `DELETEX`, `LINKXX`, `LINKX EPLOC=(reg)` / `DE=`. Pinned in
+`test_hlasm_calls_out_forms`, the `ipc_rpc_bridges` rows and `test_eploc_names_the_constant_eploc_program`.
+
+**Not done (sibling gaps):** `BAL`/`BALR`/`BASR` to an in-file label (internal edge); `fragile_debt`/`planned_debt` false positives
+(moves the golden master); troff / DSP / MASM `.mac`. No burned-estate program needs any of these.

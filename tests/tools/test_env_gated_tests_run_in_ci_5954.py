@@ -172,3 +172,23 @@ def test_the_inventory_page_lists_every_uncovered_file_under_its_needs():
         assert row, f"{f} is not in {DOC.relative_to(REPO)}"
         for need in needs_of(read_source(REPO / f).text):
             assert need in row, f"{f}: the page row does not name {need}"
+
+
+def _deselected():
+    """[(file, test function)] for every `--deselect=path::test` in equivalence-e2e.yml."""
+    text = read_source(WORKFLOWS / "equivalence-e2e.yml").text
+    ids = re.findall(r"--deselect=?\s*['\"]?(tests/[\w./-]+)::(\w+)", text)
+    return sorted(set(ids))
+
+
+def test_every_deselected_e2e_test_exists_and_is_listed_on_the_inventory_page():
+    """A --deselect keeps a failing gated test out of CI: it must name a live test (a renamed one deselects nothing
+    and its replacement runs unseen) and stay on the page until its defect is fixed."""
+    deselected = _deselected()
+    assert len(deselected) >= 6, "the --deselect parse found fewer ids than the workflow carries"
+    page = read_source(DOC).text
+    for rel, name in deselected:
+        assert re.search(rf"^\s*(?:async\s+)?def {name}\(", read_source(REPO / rel).text, re.M), (
+            f"{rel}::{name} is gone"
+        )
+        assert name in page, f"{rel}::{name} is deselected in equivalence-e2e.yml but not on {DOC.relative_to(REPO)}"

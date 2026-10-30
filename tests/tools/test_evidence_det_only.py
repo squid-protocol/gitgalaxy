@@ -94,7 +94,7 @@ def test_prove_reports_a_refusal_as_an_error(det, monkeypatch, tmp_path):
 
 def test_committed_det_records_validate_and_are_listed():
     keys = {t.key for t in ev.det_targets()}
-    assert {"zecs-zecs000", "zecs-zecs003"} <= keys
+    assert {f"zecs-{n}" for n in ("ecs001", "zecs000", "zecs001", "zecs002", "zecs003", "zecsnc", "zecsplt")} <= keys
     for t in ev.det_targets():
         rec = ev.load(t)
         assert ev.validate(rec) == [] and rec["proof"]["source"] == ev.DET_SOURCE

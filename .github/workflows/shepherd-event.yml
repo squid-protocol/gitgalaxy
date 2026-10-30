@@ -46,6 +46,17 @@ jobs:
           restore-keys: |
             flake-history-
 
+      # #6534: the conditional-read store (pr_check.conditional_api): a 304 costs no REST quota. Never an exact hit:
+      # restore-keys takes the newest saved one. Only restored here: short, unserialised, so overlapping saves would collide; the reconcile cron saves.
+      - name: Restore the shepherd API cache
+        continue-on-error: true
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: api-cache
+          key: shepherd-api-${{ github.run_id }}
+          restore-keys: |
+            shepherd-api-
+
       # promoter-bot#64 (2026-10-24): the squid-shepherd App has its own API quota; AUTOMATION_PAT shares the
       # account's 5,000/h with the agent fleet, and the shepherd stopped merging when it ran out. The PAT stays
       # the fallback (a failed mint leaves the output empty).
@@ -61,4 +72,5 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token || secrets.AUTOMATION_PAT }}
           SHEPHERD_TRUSTED_BOTS: "squid-shepherd[bot],squid-protocol"
+          SHEPHERD_API_CACHE: api-cache
         run: python3 tests/tools/shepherd_gh.py event --event-path "$GITHUB_EVENT_PATH" --flake-cache flake-cache/flake_history.json

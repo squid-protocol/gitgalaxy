@@ -107,6 +107,41 @@ def test_close_next_breaks_ties_by_estates_then_name_and_stops_when_nothing_is_g
     assert "close_next" not in gp.rank([("e1", "2", set())], "t")  # added only when non-empty
 
 
+def test_needs_together_groups_programs_the_greedy_order_leaves_out():
+    progs = [
+        ("e1", "2", {"b gap"}),
+        ("e1", "3", {"x", "y"}),
+        ("e2", "3", {"x", "y"}),
+        ("e1", "4", {"refused: z", "q"}),
+        ("e1", "none", {"m", "n", "o"}),
+        ("e1", "1", set()),
+    ]
+    res = gp.rank(progs, "t")
+    tail = res["needs_together"]
+    assert [t["gaps"] for t in tail] == [["x", "y"], ["q", "refused: z"], ["m", "n", "o"]]
+    assert tail[0]["programs"] == 2 and tail[0]["estates"] == 2 and tail[0]["by_era"]["3"] == 2
+    assert [t["upper_bound"] for t in tail] == [False, True, False]
+    # whole today + greedy gains + the tail account for every program
+    assert res["whole_now"] + sum(s["gained"] for s in res["close_next"]) + sum(t["programs"] for t in tail) == 6
+    page = gp.render(res)
+    assert "Needs several gaps together (4 programs the order" in page and "| `x`; `y` | 2 | 2 |" in page
+
+
+def test_needs_together_is_added_only_when_non_empty():
+    assert "needs_together" not in gp.rank([("e1", "2", {"a"}), ("e1", "2", set())], "t")
+    assert "needs_together" not in gp.rank([("e1", "2", set())], "t")
+    assert gp.needs_together([("e1", "2", {"a", "b"})], {"a", "b"}) == []
+
+
+def test_committed_summaries_account_for_every_program():
+    for path in (gp.SUMMARY, gp.CENSUS_SUMMARY):
+        d = json.loads(path.read_text(encoding="utf-8"))
+        tail = sum(t["programs"] for t in d.get("needs_together", []))
+        gained = sum(s["gained"] for s in d.get("close_next", []))
+        if "close_next" in d or "needs_together" in d:
+            assert d["whole_now"] + gained + tail == d["programs"], path.name
+
+
 def test_close_next_is_rendered(rows_and_inv):
     rows, d = rows_and_inv
     page = gp.render(gp.measure(rows, d))

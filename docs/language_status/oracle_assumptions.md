@@ -1964,6 +1964,10 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   `option-zero`, `option-blank` (subscript 0 of `CDEMO-MENU-OPT-USRTYPE`); cbsa-bnk1cac `rate-three-places` and
   cbsa-bnk1uac `rate-four-places` (`INTRTI` reference-modified past its 7 bytes). Not covered: `cics_crucible.py`
   compiles without the flags.
+- **BNK1CAC's four open outcomes (#6967).** 611:true, 637:true and 637:false are reachable only through `INTRTI(1:INTRTL)` past
+  its 7 bytes (`rate-three-places`); 717:true only through a zero-length INSPECT of `OVERDRI` (`overdraft-missing`, "length of
+  OVERDRI out of bounds: 0"). Owner ruling 2026-10-29: undefined by IBM (family U), so BNK1CAC stays at L3 by name. 437:true is
+  not one of them: it is taken since #6940 (DEEDIT with no digit left, X26).
 
 ### X9. Named counters — MATCHED
 - GET COUNTER returns the counter's value and then adds one (IBM CICS TS, GET COUNTER, ibm.com/docs/en/cics-ts/6.x?topic=summary-get-counter-get-dcounter); a counter the region does not

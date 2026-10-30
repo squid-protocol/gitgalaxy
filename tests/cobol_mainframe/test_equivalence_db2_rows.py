@@ -297,11 +297,13 @@ def test_the_delacc_det_port_holds_on_generated_db2_rows(tmp_path):
 @pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
 def test_the_inqacccu_det_port_holds_on_generated_db2_rows(tmp_path):
     """CBSA's INQACCCU (CICS, ACC-CURSOR by customer, LINK INQCUST) on 30 generated ACCOUNT rows: statements answered
-    alike on both sides and ACCOUNT alike after every task."""
+    alike on both sides and ACCOUNT alike after every task. A generated customer INQCUST does not find returns before
+    any ACCOUNT statement runs: both sides record 0 statements, which is equal, not a diff."""
     report = _det_port_generated("cbsa-inqacccu-generated", tmp_path)
     assert report["proven"] is True and report["db2_generated"] == {"IBMUSER.ACCOUNT": 30}
     sql = [o["sql"] for k, o in report["outputs"].items() if k.startswith("generated") and "sql" in o]
-    assert sql and all(q["statements"] and q["equal"] == q["statements"] for q in sql)
+    assert sql and all(q["equal"] == q["statements"] and not q["diffs"] for q in sql)
+    assert any(q["statements"] for q in sql) and any(not q["statements"] for q in sql)
 
 
 @pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")

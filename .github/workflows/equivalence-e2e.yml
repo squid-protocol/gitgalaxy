@@ -477,7 +477,7 @@ jobs:
           path: tests/equivalence/linuxx64_odbc_cli.tar.gz
           key: db2-odbc-cli-${{ hashFiles('tests/equivalence/odbc_cli.pin') }}
 
-      # the two --deselect ids failed on their first run (never run before #5954 slice 3): docs/ci_env_gated_tests.md lists it
+      # the --deselect id failed on its first run (never run before #5954 slice 3): docs/ci_env_gated_tests.md lists it
       # one pytest line: tests/tools/test_env_gated_tests_run_in_ci_5954.py reads the paths off it
       - name: The Db2 e2e tests of tests/cobol_mainframe under EQUIVALENCE_E2E
         env:
@@ -485,7 +485,7 @@ jobs:
           GITGALAXY_ORACLE_STRICT: "1"
           GITGALAXY_TEST_TIMES: ${{ runner.temp }}/times-db2.json
         run: |
-          pytest tests/cobol_mainframe/test_equivalence_db2_rows.py tests/cobol_mainframe/test_regional_options.py tests/cobol_mainframe/test_sql_dynamic.py tests/cobol_mainframe/test_sql_unit_of_work.py tests/cobol_mainframe/test_sql_whenever.py -n 3 -q -ra --durations=25 --timeout=1800 -p no:cacheprovider --deselect=tests/cobol_mainframe/test_sql_unit_of_work.py::test_uowdemo_det_port_proves_on_db2_against_the_hand_trace --deselect=tests/cobol_mainframe/test_equivalence_db2_rows.py::test_the_inqacccu_det_port_holds_on_generated_db2_rows
+          pytest tests/cobol_mainframe/test_equivalence_db2_rows.py tests/cobol_mainframe/test_regional_options.py tests/cobol_mainframe/test_sql_dynamic.py tests/cobol_mainframe/test_sql_unit_of_work.py tests/cobol_mainframe/test_sql_whenever.py -n 3 -q -ra --durations=25 --timeout=1800 -p no:cacheprovider --deselect=tests/cobol_mainframe/test_sql_unit_of_work.py::test_uowdemo_det_port_proves_on_db2_against_the_hand_trace
 
       # #6675: main only (a PR's save is scoped to its ref, which nothing else reads); only on a miss
       - name: Save the tree-sitter language pack to the cache

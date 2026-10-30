@@ -12,11 +12,11 @@ Every cell that does not pass is ledgered in `tests/cics_crucible/baseline.json`
 |---|---|---|---|---|
 | engine-facts | 48 | 0 | 0 | 48 |
 | forge-compile | 48 | 0 | 0 | 48 |
-| cobol-stub | 135 | 5 | 31 | 171 |
+| cobol-stub | 136 | 5 | 30 | 171 |
 | java | 0 | 171 | 0 | 171 |
 | java-ported | 56 | 115 | 0 | 171 |
 | java-facade | 53 | 118 | 0 | 171 |
-| **all** | **340** | **409** | **31** | **780** |
+| **all** | **341** | **409** | **30** | **780** |
 
 ## By trap and case
 
@@ -31,7 +31,7 @@ Pass counts per side (scenario sides: passing / scenarios).
 | commarea-mismatch | `ca-container-byteoffset` | pass | pass | 2 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
 | commarea-mismatch | `ca-container-ccsid` | pass | pass | 1 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
 | commarea-mismatch | `ca-get-container-set` | pass | pass | 1 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
-| commarea-mismatch | `ca-getmain-pointer` | pass | pass | 0 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
+| commarea-mismatch | `ca-getmain-pointer` | pass | pass | 1 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
 | commarea-mismatch | `ca-link-lengths` | pass | pass | 4 / 4 | 0 / 4 | 4 / 4 | 4 / 4 |
 | commarea-mismatch | `ca-load-set` | pass | pass | 0 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
 | commarea-mismatch | `ca-receive-retrieve-set` | pass | pass | 0 / 3 | 0 / 3 | 0 / 3 | 0 / 3 |
@@ -90,6 +90,7 @@ Each cobol-stub scenario runs the COBOL compiled with `-ftraceall` (tests/tools/
 | `ca-get-container-set` | CAGCST | 0 | 0/2 | 0/0 | 0/0 | 0 | -- |
 | `ca-get-container-set` | CAGCSX | 1 | 2/2 | 0/0 | 0/0 | 0 | proven on 0 scenarios, covering 0/2 paragraphs and 0/0 branches |
 | `ca-getmain-pointer` | CAGMPT | 0 | 0/2 | 0/6 | 0/0 | 0 | -- |
+| `ca-getmain-pointer` | CAGMZ | 1 | 3/3 | 4/4 | 0/0 | 0 | proven on 0 scenarios, covering 0/3 paragraphs and 0/4 branches |
 | `ca-link-lengths` | CALINK | 4 | 1/1 | 4/4 | 0/0 | 0 | proven on 4 scenarios, covering 1/1 paragraphs and 4/4 branches |
 | `ca-link-lengths` | CASUB | 3 | 1/1 | 4/4 | 0/0 | 0 | proven on 3 scenarios, covering 1/1 paragraphs and 4/4 branches |
 | `ca-xctl-versions` | CAXA | 3 | 1/1 | 3/3 | 0/0 | 0 | proven on 3 scenarios, covering 1/1 paragraphs and 3/3 branches |
@@ -278,7 +279,7 @@ Each item is a scenario to propose: a crucible PR adds it with a hand-written, d
 
 Each missing feature belongs to a piece of harness work (below: the features themselves). A cell is *unlocked* when every piece its features need is done: it then gets a pass or fail verdict rather than `unsupported`. **needs** counts the cells that do not pass and need the piece, **alone** the unsupported cells it unlocks by itself, and **cumulative** the unsupported cells unlocked by it and every row above it (rows are chosen greedily).
 
-### cobol-stub (31 unsupported)
+### cobol-stub (30 unsupported)
 
 | # | harness work | needs | alone | cumulative |
 |---|---|---|---|---|
@@ -286,20 +287,19 @@ Each missing feature belongs to a piece of harness work (below: the features the
 | 2 | TS queues: READQ / WRITEQ TS, seeding, final state | 7 | 4 | 10 |
 | 3 | terminal RECEIVE (unformatted input) | 3 | 3 | 13 |
 | 4 | DELETEQ-TD event | 2 | 0 | 15 |
-| 5 | GETMAIN | 1 | 1 | 16 |
-| 6 | WEB SEND CHARACTERSET | 6 | 0 | 16 |
-| 7 | WEB SEND HOSTCODEPAGE | 6 | 0 | 16 |
-| 8 | WEB READ HTTPHEADER | 5 | 0 | 16 |
-| 9 | WEB WRITE HTTPHEADER | 1 | 0 | 17 |
-| 10 | WEB RECEIVE CHARACTERSET | 5 | 0 | 17 |
-| 11 | WEB RECEIVE HOSTCODEPAGE | 5 | 0 | 22 |
-| 12 | READ | 4 | 0 | 22 |
-| 13 | READNEXT | 4 | 0 | 22 |
-| 14 | READPREV | 4 | 0 | 26 |
-| 15 | ADDRESS TCTUA | 3 | 0 | 26 |
-| 16 | ADDRESS TWA | 3 | 0 | 29 |
-| 17 | LOAD | 2 | 0 | 29 |
-| 18 | RELEASE | 2 | 0 | 31 |
+| 5 | WEB SEND CHARACTERSET | 6 | 0 | 15 |
+| 6 | WEB SEND HOSTCODEPAGE | 6 | 0 | 15 |
+| 7 | WEB READ HTTPHEADER | 5 | 0 | 15 |
+| 8 | WEB WRITE HTTPHEADER | 1 | 0 | 16 |
+| 9 | WEB RECEIVE CHARACTERSET | 5 | 0 | 16 |
+| 10 | WEB RECEIVE HOSTCODEPAGE | 5 | 0 | 21 |
+| 11 | READ | 4 | 0 | 21 |
+| 12 | READNEXT | 4 | 0 | 21 |
+| 13 | READPREV | 4 | 0 | 25 |
+| 14 | ADDRESS TCTUA | 3 | 0 | 25 |
+| 15 | ADDRESS TWA | 3 | 0 | 28 |
+| 16 | LOAD | 2 | 0 | 28 |
+| 17 | RELEASE | 2 | 0 | 30 |
 
 ### java (0 unsupported)
 
@@ -347,7 +347,6 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | stub: DELETEQ-TD event | 2 | DELETEQ-TD event |
 | translator: LOAD | 2 | LOAD |
 | translator: RELEASE | 2 | RELEASE |
-| translator: GETMAIN | 1 | GETMAIN |
 | translator: WEB WRITE HTTPHEADER | 1 | WEB WRITE HTTPHEADER |
 
 ### java
@@ -455,7 +454,6 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | `ca-getmain-pointer/alloc/java` | fail | task 1 (CA0B) event 1: WRITEQ-TS expected, the side recorded no further event |
 | `ca-getmain-pointer/alloc/java-facade` | fail | no port of any of its programs |
 | `ca-getmain-pointer/alloc/java-ported` | fail | no port of any of its programs |
-| `ca-getmain-pointer/zero-length/cobol-stub` | unsupported | translator: GETMAIN |
 | `ca-getmain-pointer/zero-length/java` | fail | task 1 (CA0C) event 1: WRITEQ-TS expected, the side recorded no further event |
 | `ca-getmain-pointer/zero-length/java-facade` | fail | no port of any of its programs |
 | `ca-getmain-pointer/zero-length/java-ported` | fail | no port of any of its programs |

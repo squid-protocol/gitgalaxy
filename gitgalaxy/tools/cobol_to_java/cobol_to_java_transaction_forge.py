@@ -43,6 +43,7 @@ from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import (
     java_identifier,
     java_path,
     java_type,
+    pic_runs,
     status_text,
 )
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base, java_url_segment
@@ -172,10 +173,10 @@ def commarea_codec(cls: str, layout: dict, records: str, dbcs_page: str | None =
     return methods
 
 
-def _expanded_pic(pic: str | None) -> str:
-    """`X(08)` -> `XXXXXXXX`: a PICTURE as the characters it repeats, so equal pictures compare equal."""
-    p = re.sub(r"\s+", "", (pic or "").upper())
-    return re.sub(r"(.)\((\d+)\)", lambda m: m.group(1) * int(m.group(2)), p)
+def _expanded_pic(pic: str | None) -> tuple:
+    """`X(08)` and `XXXXXXXX` -> ((X, 8),): a PICTURE as the runs of characters it repeats, so equal pictures compare
+    equal. #7169: run lengths, never the expansion (`PIC X(1073741824)` is one run, not a 1 GiB string)."""
+    return tuple(pic_runs(re.sub(r"\s+", "", (pic or "").upper())))
 
 
 def layout_partition(layout: dict) -> tuple:

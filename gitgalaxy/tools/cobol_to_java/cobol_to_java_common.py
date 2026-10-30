@@ -197,6 +197,73 @@ def java_identifier(col_name: str) -> str:
 _EDITED = re.compile(r"[^9SVP]")
 
 
+# ---- #7169: a PICTURE as run lengths ----------------------------------------------------------------------------
+# A repeat count is never expanded into a string of that many characters: `PIC X(1073741824)` (a GnuCOBOL
+# caller-sized LINKAGE buffer) is one run, not a 1 GiB string. The runs read exactly as the old
+# `re.sub(r"(.)\((\d+)\)", lambda m: m.group(1) * int(m.group(2)), pic)` expansion: each `c(n)` is n of c
+# (n = 0: none), any other character one of itself.
+_REPEAT = re.compile(r"\((\d+)\)")
+
+
+def pic_runs(pic: str) -> list[tuple[str, int]]:
+    """A COBOL picture (`S9(7)V99`, the repeat count AFTER its symbol) as (symbol, count) runs, adjacent equal
+    symbols merged and empty runs dropped: [('S', 1), ('9', 7), ('V', 1), ('9', 2)]. Equal expansions, equal runs."""
+    out: list[tuple[str, int]] = []
+    i = 0
+    while i < len(pic):
+        m = _REPEAT.match(pic, i + 1) if pic[i] != "\n" else None
+        if m:
+            _push(out, pic[i], int(m.group(1)))
+            i = m.end()
+        else:
+            _push(out, pic[i], 1)
+            i += 1
+    return out
+
+
+def pli_pic_runs(pic: str) -> list[tuple[str, int]]:
+    """A PL/I picture (`(5)9V99`, the repeat count BEFORE its symbol) as runs, like `pic_runs` (the old expansion:
+    `re.sub(r"\\((\\d+)\\)(.)", lambda m: m.group(2) * int(m.group(1)), pic)`)."""
+    out: list[tuple[str, int]] = []
+    i = 0
+    while i < len(pic):
+        m = _REPEAT.match(pic, i)
+        if m and m.end() < len(pic) and pic[m.end()] != "\n":
+            _push(out, pic[m.end()], int(m.group(1)))
+            i = m.end() + 1
+        else:
+            _push(out, pic[i], 1)
+            i += 1
+    return out
+
+
+def _push(out: list, sym: str, n: int) -> None:
+    if not n:
+        return
+    if out and out[-1][0] == sym:
+        out[-1] = (sym, out[-1][1] + n)
+    else:
+        out.append((sym, n))
+
+
+def runs_count(runs: list, symbols: str) -> int:
+    """How many positions of `runs` are one of `symbols` (the expansion's `count`, summed over them)."""
+    return sum(n for s, n in runs if s in symbols)
+
+
+def runs_partition(runs: list, sep: str) -> tuple[list, list | None, list]:
+    """`expansion.split(sep)`'s first two parts and everything after the first `sep` (`partition`'s tail), as runs:
+    (before, between the first and second `sep`, after the first). `between` is None when `sep` does not occur."""
+    for k, (s, n) in enumerate(runs):
+        if s == sep:
+            after = ([(s, n - 1)] if n > 1 else []) + runs[k + 1 :]
+            between = [] if n > 1 else next(
+                (runs[k + 1 : k + 1 + j] for j, (t, _) in enumerate(runs[k + 1 :]) if t == sep), runs[k + 1 :]
+            )  # fmt: skip
+            return runs[:k], between, after
+    return runs, None, []
+
+
 def parse_pic_precision(pic: str, decimal_comma: bool, currency_symbols: Iterable[str] = ()) -> tuple[int, int]:
     """(total digits, scale) of a numeric or numeric-edited PIC: `S9(7)V99` -> (9, 2), `ZZZ.ZZ9,99` with
     `decimal_comma` -> (8, 2). #3827: under DECIMAL-POINT IS COMMA the `,` is the decimal point and `.` an
@@ -206,27 +273,25 @@ def parse_pic_precision(pic: str, decimal_comma: bool, currency_symbols: Iterabl
     `UUU,UU9.99` is (7, 2) and the lakh-grouped `KK,KK,KK9.99` (8, 2), as the record layout sizes them."""
     symbols = {s.upper() for s in currency_symbols if s and len(s) == 1}
     pic = "".join("$" if unicodedata.category(ch) == "Sc" or ch in symbols else ch for ch in pic.upper())
-    expanded = re.sub(r"(.)\((\d+)\)", lambda m: m.group(1) * int(m.group(2)), pic)
+    runs = pic_runs(pic)  # #7169: counted from run lengths, never expanded
 
     decimal_char = "," if decimal_comma else "."
 
-    parts = expanded.split("V")
-    if len(parts) == 1:
-        parts = expanded.split(decimal_char)
+    left, right, _ = runs_partition(runs, "V")
+    if right is None:
+        left, right, _ = runs_partition(runs, decimal_char)
+    right = right or []
 
-    left = parts[0]
-    right = parts[1] if len(parts) > 1 else ""
-
-    total_digits = sum(expanded.count(c) for c in "9Z*")
+    total_digits = runs_count(runs, "9Z*")
     for ch in "+-$":
-        c = expanded.count(ch)
+        c = runs_count(runs, ch)
         if c > 1:
             total_digits += c - 1
 
-    scale = sum(right.count(c) for c in "9Z*")
+    scale = runs_count(right, "9Z*")
     for ch in "+-$":
-        c_right = right.count(ch)
-        c_left = left.count(ch)
+        c_right = runs_count(right, ch)
+        c_left = runs_count(left, ch)
         if c_left > 0:
             scale += c_right
         elif c_right > 1:
@@ -248,11 +313,11 @@ def _pli_java_type(cls: str | None, pic: str, usage: str) -> str:
         m = re.search(r"\bBIT\s*\(\s*(\d+)", usage)
         return "Boolean" if m and m.group(1) == "1" else "String"
     if cls == "9" and pic:
-        expanded = re.sub(r"\((\d+)\)(.)", lambda m: m.group(2) * int(m.group(1)), pic.strip("'"))
-        if re.search(r"[^9SV]", expanded):
+        runs = pli_pic_runs(pic.strip("'"))  # #7169: run lengths, never expanded
+        if any(s not in "9SV" for s, _ in runs):
             return "String"  # numeric-edited: a display picture
-        whole, _, frac = expanded.partition("V")
-        digits, scale = whole.count("9") + frac.count("9"), frac.count("9")
+        _, _, frac = runs_partition(runs, "V")
+        digits, scale = runs_count(runs, "9"), runs_count(frac, "9")
     elif cls in ("P", "B"):
         m = re.search(r"\b(?:FIXED|DEC(?:IMAL)?|BIN(?:ARY)?)\s*\(\s*(\d+)(?:\s*,\s*([+-]?\d+))?", usage)
         digits = int(m.group(1)) if m else (5 if cls == "P" else 15)

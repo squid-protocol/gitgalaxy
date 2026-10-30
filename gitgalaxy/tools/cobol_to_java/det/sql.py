@@ -118,6 +118,8 @@ _REFUSED_VERBS = {
     "DESCRIBE": "DESCRIBE (an SQLDA of a prepared statement or table) is not modelled",
     "CONNECT": "CONNECT (a Db2 location switch) is not modelled; the port has one connection",
     "CALL": "EXEC SQL CALL (a stored procedure) is not modelled; the oracle has no procedure fixture",
+    "ALLOCATE": "ALLOCATE CURSOR (a result set locator of a stored procedure) is not modelled; there is no CALL",
+    "ASSOCIATE": "ASSOCIATE LOCATORS (result sets of a stored procedure) is not modelled; there is no CALL",
     "SET": "a SET that does not assign a host variable (SET CURRENT ...) is not modelled",
 }
 _WHENEVER_ORDER = ("SQLERROR", "NOT FOUND", "SQLWARNING")

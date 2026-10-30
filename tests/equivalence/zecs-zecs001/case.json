@@ -683,6 +683,7 @@
           "cmd": "READ",
           "file": "ZC01KEY",
           "resp": "IOERR",
+          "rcode": "0000000000A1",
           "why": "key file read fails"
         }
       ],
@@ -709,6 +710,7 @@
           "cmd": "WRITE",
           "file": "ZC01KEY",
           "resp": "NOSPACE",
+          "rcode": "0000000000A2",
           "why": "key file full"
         }
       ],
@@ -735,6 +737,7 @@
           "cmd": "WRITE",
           "file": "ZC01KEY",
           "resp": "IOERR",
+          "rcode": "0000000000A3",
           "why": "key file write fails"
         }
       ],
@@ -815,6 +818,7 @@
           "cmd": "WRITE",
           "file": "ZC01KEY",
           "resp": "DUPREC",
+          "rcode": "0000000000A4",
           "why": "a concurrent POST wrote the key"
         }
       ],
@@ -850,6 +854,7 @@
           "cmd": "READ",
           "file": "ZC01KEY",
           "resp": "IOERR",
+          "rcode": "0000000000A5",
           "why": "key file read fails"
         }
       ]
@@ -1057,6 +1062,7 @@
           "cmd": "WRITE",
           "file": "ZC01KEY",
           "resp": "DUPREC",
+          "rcode": "0000000000A6",
           "why": "a concurrent POST wrote the key"
         },
         {
@@ -1064,6 +1070,7 @@
           "file": "ZC01KEY",
           "nth": 2,
           "resp": "IOERR",
+          "rcode": "0000000000A7",
           "why": "the re-read of the key after the DUPREC fails"
         }
       ],
@@ -1188,6 +1195,7 @@
           "file": "ZC01KEY",
           "nth": 1,
           "resp": "NOTFND",
+          "rcode": "0000000000A8",
           "why": "the first key read misses"
         }
       ]
@@ -1273,6 +1281,7 @@
           "cmd": "REWRITE",
           "file": "ZC01KEY",
           "resp": "IOERR",
+          "rcode": "0000000000A9",
           "why": "the key record's rewrite fails"
         }
       ],

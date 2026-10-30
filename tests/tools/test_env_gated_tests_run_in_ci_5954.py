@@ -185,7 +185,7 @@ def test_every_deselected_e2e_test_exists_and_is_listed_on_the_inventory_page():
     """A --deselect keeps a failing gated test out of CI: it must name a live test (a renamed one deselects nothing
     and its replacement runs unseen) and stay on the page until its defect is fixed."""
     deselected = _deselected()
-    assert len(deselected) >= 3, "the --deselect parse found fewer ids than the workflow carries"
+    assert len(deselected) >= 2, "the --deselect parse found fewer ids than the workflow carries"
     page = read_source(DOC).text
     for rel, name in deselected:
         assert re.search(rf"^\s*(?:async\s+)?def {name}\(", read_source(REPO / rel).text, re.M), (

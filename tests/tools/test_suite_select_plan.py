@@ -169,8 +169,9 @@ def test_replay_acceptance_shapes_of_6278():
     # README.md only: its readers run (tests/core_engine among them), not the suite
     r = plan(["README.md"])
     assert r["mode"] == "select" and r["paths"]
-    # a test-tooling change is code: the suite plan runs it in full (ground-truth / det / db2 skip it in their own plans)
-    assert plan(["tests/tools/test_zos_probes.py", "tests/tools/zos_probes.json"])["mode"] == "full"
+    # a tests/tools data file is read by the tests that name it (slice 11); the probe record selects its own test
+    z = plan(["tests/tools/test_zos_probes.py", "tests/tools/zos_probes.json"])
+    assert z["mode"] == "select" and "tests/tools/test_zos_probes.py" in z["paths"]
 
 
 def _pr(n, *paths):
@@ -278,7 +279,8 @@ def test_a_helper_named_by_too_many_tests_runs_everything(tmp_path):
 )
 def test_only_a_python_helper_module_is_mapped_by_name(f):
     assert not sp.is_helper_module(f)
-    assert plan([f])["mode"] == "full"
+    if f.endswith(".py"):
+        assert plan([f])["mode"] == "full"
 
 
 def test_a_helper_beside_an_engine_file_runs_everything():
@@ -475,3 +477,30 @@ def test_a_workflow_change_selects_and_other_github_files_stay_full(tmp_path):
     for f in (".github/dependabot.yml", ".github/workflows/sub/x.yml", ".github/workflows/run.sh"):
         assert not sp.is_workflow_file(f)
         assert sp.plan([f], "pull_request", (), REFS, tmp_path)["mode"] == "full"
+
+
+def test_a_tools_data_or_script_file_is_read_by_the_tests_that_name_it(tmp_path):
+    (tmp_path / "tests" / "tools" / "box").mkdir(parents=True)
+    (tmp_path / "tests" / "tools" / "test_a.py").write_text("open('wrapper_labels.json')\n")
+    (tmp_path / "tests" / "tools" / "test_b.py").write_text("run('heavy-run.sh')\n")
+    (tmp_path / "tests" / "tools" / "test_c.py").write_text("unrelated\n")
+    got = sp.plan(["tests/tools/wrapper_labels.json"], "pull_request", (), REFS, tmp_path)
+    assert got["mode"] == "select" and got["paths"] == ["tests/tools/test_a.py"]
+    got = sp.plan(["tests/tools/box/heavy-run.sh"], "pull_request", (), REFS, tmp_path)
+    assert got["mode"] == "select" and got["paths"] == ["tests/tools/test_b.py"]
+    # no test names it (a glob or a workflow reads it): full
+    assert sp.plan(["tests/tools/worktree_env.sh"], "pull_request", (), REFS, tmp_path)["mode"] == "full"
+
+
+@pytest.mark.parametrize(
+    "f",
+    [
+        "tests/tools/doom_speedrun/README.md",  # prose stem `README` names every doc
+        "tests/tools/doom_speedrun/callgraph_baseline.json",  # read through a helper, not by a test
+        "tests/tools/go_callgraph/main.go",
+        "tests/tools/ibm_wca4z/shim/com/ibm/jzos/fields/StringField.java",
+        "tests/tools/README.md",
+    ],
+)
+def test_other_tools_files_are_not_named_data(f):
+    assert not sp.is_named_data_file(f)

@@ -85,9 +85,18 @@ blank/EOL — never `\b`, which would fire between `WAIT` and `=` on a keyword o
   defined twice with different names, one defined outside the file (a `COPY` member, a run-time `MVC`), a
   name that is not a valid program name and `EPLOC=(reg)` add no edge. Strict suite: 44 new cases
   (185 -> 229) (#7063).
+- **Macro uses** become call edges to the macro member (#7063, slice 3). A macro prototype (the line after
+  `MACRO`) opens a unit named for the macro, so a `.mac` member or an in-file macro is a definition the call
+  resolver indexes like a `CSECT`. Every operation-field name that is not a machine instruction, assembler directive
+  or IBM system macro (`_NOT_USER_MACRO`) is named as a callee of its unit, with a `&LAB` / `LBL` name field allowed;
+  the resolver keeps the names some unit defines and drops the rest, so an installation macro in another member
+  becomes a file edge and a use of a macro defined in the same file does not. Cost: `calls_out_to` lists the
+  unresolved operation-field names (installation or vendor macros whose member is not in the repository, and a
+  system macro missing from the exclusion list), and a continuation line that begins with a bare name reads as a
+  use. Strict suite: 51 new cases in `test_hlasm_macro_uses.py` (one `LINKX` near miss moved there).
 
 ### Topology (x)
-- **`func_start`** — `name CSECT`, `name RSECT`, `name START`: the named control sections
+- **`func_start`** — `name CSECT`, `name RSECT`, `name START` (and, #7063, a `MACRO` prototype's macro name): the named control sections
   other members reach via `=V(name)`/`CALL`. **Documented deviation from the issue text:**
   #2503 asked for DSECT here too, but a dummy section is a named storage *layout* that
   assembles no executable logic — #2856's type-declaration exclusion — so:
@@ -217,9 +226,10 @@ The cross-language page is [cics_mainframe_facts.md](cics_mainframe_facts.md). W
   - general macro expansion (a user macro that wraps `EXEC CICS` is not expanded);
   - any fact beyond CICS, DLI and IMS definitions outside the translation subset — for example, the
     register-level data flow of an assembler program the lowering refuses;
-  - call-graph edges for user-macro uses (an operation-field name a `.mac` member or in-file `MACRO`
-    prototype defines): they do not become edges; nor does an `EPLOC=` field whose name is not an in-file
-    `DC CL8'...'`. The `CALL` macro, `LINK`/`XCTL EP=` and `EPLOC=` through an in-file constant do (§3, #7063).
+  - the body of a macro: a use is an edge, but a macro that wraps `EXEC CICS` or `CALL` is not expanded, so the
+    callee in its body is attributed to the macro's own unit, not to each user;
+  - an `EPLOC=` field whose name is not an in-file `DC CL8'...'`. The `CALL` macro, `LINK`/`XCTL EP=`, `EPLOC=`
+    through an in-file constant and installation / in-file macro uses do become edges (§3, #7063).
 - **Single-sourced:** HLASM CICS rests on one corpus (zECS, a small service). The burned-estate census
   (#6963) pins every burned assembler member: the two zECS programs lowered, CardDemo's two batch
   routines modelled by hand-written runtime code.

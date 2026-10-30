@@ -36,6 +36,19 @@ _STMT = r"^" + _ID + r"{0,63}[ \t]+"
 # keeps it from reading as a WAIT statement. `\b` cannot do this job -- it
 # fires happily between `WAIT` and `=`.
 _OPEND = r"(?=[ \t]|$)"
+# #7063: a macro definition's prototype statement (the line after `MACRO`, any `*`/`.*` comment lines between skipped):
+# `[&LAB] NAME [&PARMS]`. The macro is a unit another member reaches by writing its name, so it opens a func_start unit
+# named for the prototype's operation field (the `.mac` member, or a macro defined in-file).
+_PROTO_END = r"(?=[ \t]|\r?$)"
+_MACRO_PROTOTYPE = (
+    r"^[ \t]{1,71}MACRO[ \t]*\r?\n(?:\.?\*[^\n]*\n)*"
+    r"(?:[.&]?"
+    + _NAME
+    + r")?[ \t]+(?!(?:MEND|MEXIT|MNOTE|COPY|AIF|AGO|ANOP|ACTR|[GL]CL[ABC]|SET[ABC])"
+    + _PROTO_END
+    + r")"
+    r"(" + _NAME + r")" + _PROTO_END
+)
 
 # #7063: `LINK` / `XCTL EPLOC=field` names its program through a field, so the edge needs the constant behind it.
 # An 8-byte program-name constant: `field DC CL8'NAME'` (padded) or `field DC C'NAME    '` (exactly 8 bytes).
@@ -74,6 +87,69 @@ def _eploc_callees(code: str, sats: list[Any]) -> None:
             if callee and callee.upper() not in {c.upper() for c in callees}:
                 callees.append(callee)
                 qualifiers[callee] = [""]
+
+
+# #7063: an installation macro is invoked by writing its name in the operation field, so a use is a call edge to the member
+# that defines it (a `.mac` member, or a `MACRO` prototype in the same file). The macro index is cross-file and a per-file
+# scan cannot see it, so every operation-field name that is not a machine instruction, assembler directive or IBM system
+# macro is named as a callee and the call resolver keeps only those some file's unit defines (the prototype is a unit, see
+# func_start). The name field may be a symbol, a `&SET` symbol or a sequence symbol (`&LAB`, `.SKIP`).
+_NOT_USER_MACRO = frozenset(
+    """
+    A AH AHI AL ALR AR AG AGR AGHI AFI AP AXR AE AD AW AU AEBR ADBR N NR NC NI NG NGR NIHH NILL O OR OC OI OG OGR
+    X XR XC XI XG XGR S SH SL SLR SR SG SGR SP SLA SLL SRA SRL SLDL SRDL SLDA SRDA M MR MH MHI MS MSR MP MVC MVI MVN MVO
+    MVZ MVCL MVCLE MVCIN D DR DP L LR LG LGR LGF LH LHI LA LAE LARL LM LMG LT LTR LTG LCR LNR LPR LNGR LPGR LCGR LB LGB LLC
+    LLH LLGC LLGH LLGF LGHI LHY LY LRV LRVR IC ICM ICY ST STG STH STC STCM STM STMG STY STHY STCY STRL STCK STCKF STCKE
+    CVB CVD C CR CH CHI CG CGR CGHI CL CLG CLR CLC CLI CLM CLCL CLCLE CP CS CDS CLGR CLFI CHHSI CIJ CRJ CLIJ CLRJ CIB CRB
+    CLIB CLRB CLGIJ CLGRJ CGIJ CGRJ TM TMH TML TMLL TMHH TS TR TRT TRTE TRE TP ED EDMK PACK UNPK UNPKU ZAP SRP SRNM SPM
+    EX EXRL B BR BE BNE BH BNH BL BNL BZ BNZ BP BNP BM BNM BO BNO BER BNER BHR BNHR BLR BNLR BZR BNZR BPR BNPR BMR BNMR
+    BOR BNOR BC BCR BCT BCTR BCTG BXH BXLE BXHG BXLEG BAL BALR BAS BASR BRAS BRASL BASSM BSM BRC BRCL BRCT BRCTG BRXH BRXLE
+    J JE JNE JH JNH JL JNL JZ JNZ JP JNP JM JNM JO JNO JLU NOP NOPR BRU JC JAS
+    SVC SSM STNSM STOSM SPKA IPK PC PT PR TRAP2 LPSW ISK SSK RRB SIGP DIAG STIDP STPT SPT SCK SCKC STCKC TB IAC SAC SAR EAR
+    LAM STAM LCTL STCTL LCTLG STCTG IPM SPM EPAR ESAR PALB IPTE
+    CSECT RSECT DSECT COM START END LOCTR DC DS EQU ORG USING DROP LTORG CNOP CCW CCW0 CCW1 ENTRY EXTRN WXTRN CXD DXD
+    AMODE RMODE ALIAS TITLE EJECT SPACE PRINT PUNCH REPRO ICTL ISEQ OPSYN COPY MACRO MEND MEXIT MNOTE AIF AGO ANOP ACTR
+    AREAD ASPACE AINSERT SETA SETB SETC GBLA GBLB GBLC LCLA LCLB LCLC CATTR XATTR PUSH POP
+    GETMAIN FREEMAIN STORAGE WTO WTOR WAIT POST ENQ DEQ ATTACH ATTACHX DETACH LOAD DELETE LINK XCTL CALL RETURN SAVE
+    OPEN CLOSE GET PUT READ WRITE CHECK POINT NOTE FIND STOW BLDL DCB DCBD DEVTYPE RDJFCB OBTAIN TRKCALC SYNADAF SYNADRLS
+    TIME STIMER STIMERM TTIMER SPIE ESPIE ESTAE ESTAEX SETRP ABEND SDUMP SNAP CHAP TESTAUTH MODESET SYSEVENT RACROUTE
+    RACINIT SAFCOMP IDENTIFY CVT IEFJFCBN IHAPSA IKJTCB TCB ASCB ASSB IHAASCB IHAASSB EOV PGSER PGRLSE PGFIX PGFREE
+    DFHEIENT DFHEIRET DFHEISTG DFHEIEND DFHEIBLK DFHREGS DFHEIPLR DFHAID DFHBMSCA DFHMSD DFHMDI DFHMDF DFHPCT DFHPPT
+    DFHFCT DFHDCT DFHTCT DFHSIT DFHTST DFHJCT DFHRCT DFHPC DFHFC DFHTC DFHKC DFHSC DFHIC DFHTD DFHTS DFHDC DFHSP
+    EXEC END_EXEC YREGS REGEQU REGS ASMMREL IEABRC
+    """.split()
+)
+_MACRO_USE = re.compile(
+    r"^(?:[&.]?" + _ID + r"{0,63})?[ \t]+(" + _NAME + r")(?=[ \t]|\r?$)",
+    re.M,
+)
+
+
+def _macro_use_callees(code: str, sats: list[Any]) -> None:
+    """Add every operation-field name that is not a machine instruction or assembler directive to its unit's
+    `calls_out_to` (#7063). The call resolver keeps the ones a macro member defines and drops the rest."""
+    for sat in sats:
+        start, end = sat.get("start_idx"), sat.get("end_idx")
+        if not isinstance(start, int) or not isinstance(end, int):
+            continue
+        callees = sat.setdefault("calls_out_to", [])
+        qualifiers = sat.setdefault("calls_out_qualifiers", {})
+        seen = {c.upper() for c in callees}
+        seen.add(str(sat.get("name", "")).upper())
+        for m in _MACRO_USE.finditer(code, start, end):
+            name = m.group(1)
+            key = name.upper()
+            if key in seen or key in _NOT_USER_MACRO:
+                continue
+            seen.add(key)
+            callees.append(name)
+            qualifiers[name] = [""]
+
+
+def _file_calls(code: str, sats: list[Any]) -> None:
+    """The whole-segment callee passes of HLASM (#7063): `EPLOC=field` through an in-file constant, then macro uses."""
+    _eploc_callees(code, sats)
+    _macro_use_callees(code, sats)
 
 
 # The CICS command-level vocabulary is cobol's/pli's verbatim (#2990): a CICS
@@ -179,7 +255,7 @@ DEFINITION: dict[str, Any] = {
     # `USING dsectname,reg`. The #2866 census applies.
     "rules": {
         # #7063: `LINK`/`XCTL EPLOC=field` resolved through an in-file `DC CL8'name'` (detector.py runs it per segment).
-        "_calls_out_file_pass": _eploc_callees,
+        "_calls_out_file_pass": _file_calls,
         # Epic #3264: Explicitly declare the structural invocation paradigm
         # #7063: three forms name a callee, one capture group each way (the detector reads
         # group 1): the `=V(name)` address constant; the CALL macro (MVS/LE), whose first
@@ -259,14 +335,15 @@ DEFINITION: dict[str, Any] = {
         # LAYOUT that assembles no executable logic and emits no object code
         # -- which is #2856's type-declaration exclusion and lands in
         # class_start below (the db2_sql documented-deviation shape). A macro
-        # definition is compile-time and is macros' (pli's %name: PROC
+        # definition's body is compile-time and is macros', but its PROTOTYPE opens a
+        # unit (#7063, `_MACRO_PROTOTYPE`): a use elsewhere is a call to it (pli's %name: PROC
         # ruling). The name is required: an unnamed ` CSECT` resumes private
         # code and declares no reachable unit. #3495: `name DFHEIENT` opens a
         # command-level CICS program -- the translator's entry macro generates the
         # program's CSECT under that name (walmartlabs/zECS `ZECS002  DFHEIENT
         # CODEREG=(R12),...`), so a CICS assembler program otherwise had no unit.
         "func_start": re.compile(
-            r"^(" + _NAME + r")[ \t]+(?:CSECT|RSECT|START|DFHEIENT)" + _OPEND,
+            r"^(" + _NAME + r")[ \t]+(?:CSECT|RSECT|START|DFHEIENT)" + _OPEND + r"|" + _MACRO_PROTOTYPE,
             re.M | re.I,
         ),
         # class_start (#2856): `name DSECT` -- the dummy section is HLASM's

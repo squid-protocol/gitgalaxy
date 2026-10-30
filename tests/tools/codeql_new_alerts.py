@@ -10,7 +10,9 @@ CodeQL's line-content hash are not in main's analysis, the same rule and hash ar
 the file has more of that rule than main does (a hash also changes when a neighbouring line does). Only files the PR
 changed count, so debt already on main is never blamed on it.
 
---enforce exits 1 on a new error or warning, leaving out ADVISORY_RULES; every new result is still reported. Stdlib only.
+--enforce exits 1 on a new error or warning, leaving out ADVISORY_RULES; every new result is still reported. It also
+exits 1 on a blind scan, under half of main's results: "no new results" from a scan that saw nothing is how this gate
+went unnoticed for weeks. Stdlib only.
 """
 
 from __future__ import annotations
@@ -77,6 +79,11 @@ def blocking(new: list[dict]) -> list[dict]:
     return [r for r in new if r["level"] in BLOCKING_LEVELS and r["rule"] not in ADVISORY_RULES]
 
 
+def blind(scanned: int, baseline: int) -> bool:
+    """The PR's scan saw too little to mean anything. A PR keeps nearly all of main's code, so its results stay close."""
+    return scanned * 2 < baseline
+
+
 def load(path: Path) -> list[dict]:
     """Results of one SARIF file, or of every .sarif file in a directory (codeql-action writes one per language)."""
     files = sorted(path.glob("*.sarif")) if path.is_dir() else [path]
@@ -85,11 +92,12 @@ def load(path: Path) -> list[dict]:
 
 def report(new: list[dict], scanned: int, baseline: int, enforce: bool) -> str:
     blocked = blocking(new)
-    verdict = "fails this PR" if enforce and blocked else "reported, nothing blocks" if new else "clean"
+    failing = enforce and (blocked or blind(scanned, baseline))
+    verdict = "fails this PR" if failing else "reported, nothing blocks" if new else "clean"
     lines = [f"### CodeQL: {len(new)} new result(s), {len(blocked)} blocking ({verdict})", "",
              f"PR analysis {scanned} results, main's {baseline}. New means not on main, in a file this PR changed.", ""]
-    if not scanned:
-        lines += ["**The PR analysis has no results, so this check saw nothing.**", ""]
+    if blind(scanned, baseline):
+        lines += [f"**This scan looks blind: {scanned} results against main's {baseline}. It can't vouch for this PR.**", ""]
     if new:
         for rule, n in Counter(r["rule"] for r in new).most_common():
             lines.append(f"- `{rule}`: {n}")
@@ -115,7 +123,7 @@ def main(argv: list[str] | None = None) -> int:
     if a.summary:
         with a.summary.open("a", encoding="utf-8") as f:
             f.write(text)
-    return 1 if a.enforce and blocking(new) else 0
+    return 1 if a.enforce and (blocking(new) or blind(len(pr), len(base))) else 0
 
 
 if __name__ == "__main__":

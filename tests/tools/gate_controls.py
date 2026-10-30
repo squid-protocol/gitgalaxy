@@ -101,7 +101,7 @@ GATES = (
 NOT_GATES = {"dependabot-relock.yml": "refreshes dependency locks on Dependabot PRs"}
 
 # The ratchet: this only goes down. Raising it means a gate lost its proof, or one was added without one.
-MAX_UNPROVEN = 20
+MAX_UNPROVEN = 19
 
 
 def unproven() -> list[Gate]:

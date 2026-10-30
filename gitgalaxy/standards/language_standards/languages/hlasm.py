@@ -63,6 +63,9 @@ DEFINITION: dict[str, Any] = {
     # #7064: `.mac` is NASM / MASM / troff / DSP macro files at least as often as HLASM macro members, so hlasm owns it
     # only on the internal_discriminator's proof (an `&` prototype, CSECT/USING ...), or the mainframe-sibling gravity.
     "extensions_needing_discriminator": [".mac"],
+    # #7064: a PDS exported member has no extension; its directory (`PAYR.ASM/`, `SYS1.MACLIB/`) is the dataset qualifier.
+    # Read by language_lens for extensionless files only, and still gated on HLASM content evidence.
+    "library_directory_suffixes": ["asm", "maclib"],
     "exact_matches": [],
     # ECOSYSTEM ANCHORS (#2503's ask): the mainframe sources HLASM lives
     # beside -- the JCL that assembles and runs it, the COBOL/PL/I programs and

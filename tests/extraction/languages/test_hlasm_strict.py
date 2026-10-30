@@ -370,6 +370,27 @@ def test_mac_files_with_no_hlasm_evidence_are_not_hlasm(text):
     assert detector.focus("macros/other.mac", text)[0] != "hlasm"
 
 
+@pytest.mark.parametrize(
+    "path",
+    ["PAYR.ASM/ACCTPGM", "apps/sys1.maclib/GETIT", "export/USER.PROD.ASM/WORK/MEMB1"],
+)
+@pytest.mark.parametrize("text", [_REAL_MEMBER, _HLASM_MACRO_ONLY, _HLASM_EQU_COPYBOOK])
+def test_extensionless_pds_members_under_asm_and_maclib_route_hlasm(path, text):
+    detector = LanguageDetector(LANGUAGE_DEFINITIONS, {})
+    assert detector.focus(path, text)[0] == "hlasm"
+
+
+def test_extensionless_member_outside_a_library_directory_is_not_claimed():
+    detector = LanguageDetector(LANGUAGE_DEFINITIONS, {})
+    assert detector.focus("src/ACCTPGM", _REAL_MEMBER)[0] != "hlasm"
+
+
+@pytest.mark.parametrize("text", ["Notes on the build\nrun it twice.\n", _NASM_MAC])
+def test_extensionless_non_hlasm_text_in_a_library_directory_is_not_claimed(text):
+    detector = LanguageDetector(LANGUAGE_DEFINITIONS, {})
+    assert detector.focus("PAYR.ASM/README", text)[0] != "hlasm"
+
+
 # ==============================================================================
 # TEST 4: LEXICAL-FAMILY SANITY (Step 4 item 8), through the real Prism
 # ==============================================================================

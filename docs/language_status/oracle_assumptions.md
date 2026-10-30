@@ -4458,6 +4458,21 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   ZECS001 is the only burned reader of the seven fields, it translates with holes and has no case, and IBM's verbatim
   function-code and condition tables are still not at hand. The `ASSIGN FACILITY` wording above is current (#5346
   aligned the stub and the det port). Nothing was modelled: EIBFN / EIBRCODE stay `fact:` gaps by name.
+- **ZECS001 is whole now (2026-10-30, #5126, origin/main 5dcf588c1): the trigger above fired.** P057 (`CALL ZUIDSTCK`) was its
+  last hole and `tests/equivalence/zecs-zecs001` runs it; its file IOERR / NOSPACE scenarios reach `9100-FILE-ERROR`, whose
+  `MOVE EIBRCODE TO FE-RCODE` lands in the CSSL message. `test_eib_fn_rcode_5126.py` still passes because it pins the reader,
+  not the program's wholeness. EIBRCODE is modelled in slices; no IBM table is copied: a condition's bytes are a scenario fact.
+  - **Slice 1 (stub, this entry; ASSUMED).** A scenario's file control fault may state `rcode` (12 hex digits = the 6 bytes of
+    EIBRCODE; VSAM / BDAM return codes ride in it for ILLOGIC and IOERR, so they are environment facts). The planner
+    (`equivalence_cics_faults._rcode_hex`) writes it as faults.cfg's sixth column, refuses a malformed value and any command that
+    is not file control, and the stub driver (`equivalence_cics.translate_command`, a program that reads EIBRCODE) calls
+    `GGCRCOD` (`ggcics_faults.c`) right after a file command's RESP fields, before a condition's GO TO. Unstated, the field is
+    left as it was, so every existing case is unchanged. Evidence: translated on the stub and pinned at the translator
+    (`test_eibrcode_stub_5126.py`); NOT executed-equivalent, since the det port does not set EIBRCODE yet and no scenario states
+    `rcode`. Residual risk: IOERR / ILLOGIC byte layouts are the scenario author's, labelled ASSUMED until IBM's table is at hand.
+  - **Remaining.** Slice 2: the det port (`det/cics.py` `outcome`, the forge's `CicsTask.withFaults` sixth column and
+    `rcode()`; a normal response sets 6 X'00' on both sides), then ZECS001's IOERR / NOSPACE scenarios state `rcode` and are
+    re-proved. EIBFN, EIBCPOSN, EIBREQID, EIBRSRCE, EIBERR / EIBERRCD stay refused (no burned reader).
 
 ### X65. The EXEC CICS commands refused whole by name, by class, with the reason for each (#4270)
 - **What this entry is.** #4270's last acceptance line: "every still-refused verb listed in the register with a reason". The spec

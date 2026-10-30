@@ -891,3 +891,24 @@ def test_eploc_scan_is_redos_immune(payload):
     start = time.perf_counter()
     _eploc_units(payload)
     assert time.perf_counter() - start < 5
+
+
+_NASM_DIRECTIVE_LINES = [
+    "%macro  proc 1",
+    "%define BUF 16",
+    "%include 'inc.mac'",
+    "%ifdef DEBUG",
+    "%assign n 1",
+    "%rep 3",
+    "%1:",
+]
+
+
+@pytest.mark.parametrize("path", ["macros/nasm.mac", "dos/NASM.MAC", "std/macros.Mac"])
+@pytest.mark.parametrize("line", _NASM_DIRECTIVE_LINES)
+@pytest.mark.parametrize("case", [str.lower, str.upper])
+def test_nasm_mac_files_route_to_no_mainframe_language(path, line, case):
+    # #7064: NASM `%` directives matched easytrieve's `%name` macro-call branch.
+    detector = LanguageDetector(LANGUAGE_DEFINITIONS, {})
+    text = "; nasm\n" + case(line) + "\n  push ebp\n"
+    assert detector.focus(path, text)[0] not in {"hlasm", "easytrieve"}

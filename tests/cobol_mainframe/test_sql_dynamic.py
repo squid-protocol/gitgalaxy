@@ -671,10 +671,30 @@ _TRACED_SCROLL = [
     ("NEXT", 0, 10), ("LAST", 0, 50), ("PRIOR", 0, 40), ("FIRST", 0, 10), ("ABS 3", 0, 30), ("ABS -2", 0, 40),
     ("REL 1", 0, 50), ("REL 1 PAST", 100, 50), ("PRIOR OFF", 0, 50), ("CURRENT", 0, 50), ("REL VAR -3", 0, 20),
     ("ABS VAR 4", 0, 40), ("FIRST", 0, 10), ("PRIOR BEFORE", 100, 10), ("NEXT AFTER", 0, 10), ("ABS 9", 100, 10),
-    ("PRIOR LAST", 0, 50), ("REL -9", 100, 50), ("NEXT FIRST", 0, 10), ("ABS 0", 100, 10), ("CLOSE", 0, 10),
+    ("PRIOR LAST", 0, 50), ("REL -9", 100, 50), ("NEXT FIRST", 0, 10), ("ABS 0", 100, 10),
+    ("AFTER", 0, 10), ("PRIOR AFTER", 0, 50), ("BEFORE", 0, 50), ("NEXT BEFORE", 0, 10), ("AFTER FROM", 0, 10),
+    ("NEXT PAST", 100, 10), ("BEFORE FROM", 0, 10), ("PRIOR PAST", 100, 10), ("CLOSE", 0, 10),
     ("LAST CLOSED", -501, 10), ("EMPTY FIRST", 100, 10), ("EMPTY LAST", 100, 10),
+    ("EMPTY AFTER", 0, 10), ("EMPTY BEFORE", 0, 10),
 ]  # fmt: skip
 TRACED_SCROLL = "".join(f"{t:<14}{c:>10}{v:>10}\n" for t, c, v in _TRACED_SCROLL)
+
+
+def test_the_oracle_takes_fetch_before_and_after_as_a_position_with_no_row():
+    """#4269: equivalence_sql.py gives BEFORE / AFTER (no INTO) a scroll statement with no host variable; ggsql.c reads
+    the `K:BEFORE` / `K:AFTER` token. A cursor not declared SCROLL, or the INTO form, stays refused by name."""
+    import equivalence_sql as Q
+
+    _, table = Q.precompile((SCR / "cbl" / "SCRDEMO.cbl").read_text(encoding="utf-8"), [], Path("SCRDEMO.cbl"))
+    fetches = [ln.split() for ln in table.splitlines() if ln.startswith("S ") and " FETCH " in ln]
+    positions = [(f[5], f[8]) for f in fetches if f[8] in ("K:BEFORE", "K:AFTER")]
+    assert positions == [("SC1", "K:AFTER"), ("SC1", "K:BEFORE"), ("SC1", "K:AFTER"), ("SC1", "K:BEFORE"),
+                         ("SC2", "K:AFTER"), ("SC2", "K:BEFORE")]  # fmt: skip
+    assert all(f[3:5] == ["0", "0"] for f in fetches if f[8] in ("K:BEFORE", "K:AFTER"))  # no input, no output
+    src = (SCR / "cbl" / "SCRDEMO.cbl").read_text(encoding="utf-8")
+    plain = src.replace("SC1 INSENSITIVE SCROLL CURSOR", "SC1 CURSOR").replace("SC2 SCROLL CURSOR", "SC2 CURSOR")
+    with pytest.raises(Q.Unsupported, match="not declared SCROLL"):
+        Q.precompile(plain, [], Path("SCRDEMO.cbl"))
 
 
 @pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
@@ -700,7 +720,8 @@ def test_scrolldemo_det_port_proves_on_db2_against_the_hand_trace(tmp_path):
     stub = (project / "src/main/java" / det_port.PKG_DIR / "service" / "ScrdemoService.java").read_text("utf-8")
     r = P.translate(estate / "cbl/SCRDEMO.cbl", [estate / "cbl"], stub, det_port.PKG, P.estate_files(project), project)
     assert r.stats["holes"] == []
-    assert r.java.count("DetSql.fetchScroll(") == 20  # every FETCH but the three plain NEXT ones (18 on SC1, 2 on SC2)
+    assert r.java.count("DetSql.fetchScroll(") == 22  # every FETCH but the plain NEXT ones and BEFORE / AFTER
+    assert r.java.count("DetSql.positionScroll(") == 6  # (4 on SC1, 2 on the empty SC2): the oracle runs these as well
     port = tmp_path / "port"
     (port / "service").mkdir(parents=True)
     (port / "service" / f"{r.service}.java").write_text(r.java, encoding="utf-8")

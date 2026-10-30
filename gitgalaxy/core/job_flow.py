@@ -18,7 +18,8 @@
 #   DD    step_name (the step, or for an override `//PROCSTEP.DD` the proc step),
 #         dd_name, dsn (as written, generation stripped), disp (NEW / OLD / SHR /
 #         MOD; NEW when a DSN is coded without DISP), generation (+1 / 0 / -1),
-#         in_proc; a concatenation's unnamed DDs take the name above them
+#         in_proc, lrecl / recfm (the record length and format the DD states, #4268; only when stated);
+#         a concatenation's unnamed DDs take the name above them
 #
 # SCOPE AND NON-SCOPE:
 #   - Extraction only, per file. Expanding an EXEC of a PROC into its steps, and
@@ -183,6 +184,31 @@ def _generation(text: str) -> str:
     return f"+{n}" if n > 0 else str(n)
 
 
+def _dcb(keyed: dict[str, str]) -> dict[str, Any]:
+    """#4268: the record length / format a DD states: `DCB=(LRECL=80,RECFM=FB)`, `DCB=LRECL=80`, or the bare
+    `LRECL=` / `RECFM=` DD keywords (a bare one wins over the DCB subparameter). A referback (`DCB=*.DD`,
+    `DCB=dsn`), a symbolic value (`&LR`) and `LRECL=0` state nothing."""
+    found: dict[str, str] = {}
+    dcb = keyed.get("DCB")
+    if dcb is not None:
+        for k, v in _split(dcb.strip().strip("()")):
+            if k in ("LRECL", "RECFM"):
+                found[k] = v
+        if "=" in dcb and "(" not in dcb and dcb.split("=", 1)[0].upper() in ("LRECL", "RECFM"):
+            found.setdefault(dcb.split("=", 1)[0].upper(), dcb.split("=", 1)[1])
+    for k in ("LRECL", "RECFM"):
+        if k in keyed:
+            found[k] = keyed[k]
+    out: dict[str, Any] = {}
+    lrecl = found.get("LRECL", "").strip()
+    if lrecl.isdigit() and int(lrecl) > 0:
+        out["lrecl"] = int(lrecl)
+    recfm = found.get("RECFM", "").strip().strip("()").replace(",", "").upper()
+    if recfm and re.fullmatch(r"[FVUDS]?[FVUDSBTAM]{0,5}", recfm):
+        out["recfm"] = recfm
+    return out
+
+
 def _parm(value: str | None) -> str | None:
     """#3624: the text a step's PARM= hands its program -- `'2022071800'` -> 2022071800,
     `(A,B)` -> A,B -- quotes and parentheses removed, a doubled quote made one."""
@@ -307,6 +333,7 @@ def jcl_job_flow(code_stream: str) -> list[dict[str, Any]]:
                     line=line,
                     # #3622: presence-keyed -- a DD without a normal-end disposition keeps its pre-#3622 shape
                     **({"disp_normal": normal} if normal else {}),
+                    **_dcb(keyed),  # #4268: presence-keyed lrecl / recfm
                 )
             )
     return rows

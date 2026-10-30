@@ -442,10 +442,11 @@ TRUSTED_BOTS_ENV = "SHEPHERD_TRUSTED_BOTS"
 def trusted_bots(api: Api) -> set[str]:
     """The accounts whose approval markers count. promoter-bot#64 (2026-10-24): the shepherd moves from AUTOMATION_PAT
     to a GitHub App (its own API quota), and an App's installation token cannot read `user`; its comments come from
-    `<app>[bot]`. The workflow names the trusted accounts in SHEPHERD_TRUSTED_BOTS (the App, plus the PAT's account
-    while markers it wrote are still on open PRs); without it, the token's own account, as before."""
+    `<app>[bot]`. #6694: SHEPHERD_TRUSTED_BOTS may still name the PAT's account (the workflows did while markers it
+    wrote were on open PRs; none are now), but only `[bot]` logins are trusted from it, so a marker from a human or
+    PAT account never counts. Without the variable, the token's own account, as before (local runs)."""
     if names := {x.strip() for x in os.environ.get(TRUSTED_BOTS_ENV, "").split(",") if x.strip()}:
-        return names
+        return {x for x in names if x.endswith("[bot]")}
     try:
         login = (api("user") or {}).get("login")
     except SystemExit:

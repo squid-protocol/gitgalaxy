@@ -6,6 +6,8 @@ anything is installed.
     --smoke        emits `matrix` ({"group": [1..N]}), `splits` (N) and `timeout` (minutes of a part job)
     --gate         emits `matrix` (the leg `include` list: os, python-version, part, splits, [even], timeout,
                    step_timeout) for the Full Suite Gate
+    --e2e          emits `matrix` ({"group": [1..N]}), `splits` (N) and `timeout` for the Equivalence E2E shards, from
+                   tests/equivalence_e2e_durations.json (#5919)
 
 The workflow's plan job calls this module, so adding tests moves the plan, not the YAML. The committed durations are
 Linux CI seconds: a Windows or macOS leg multiplies them by its SPEED. The model constants were calibrated so the
@@ -33,6 +35,14 @@ JOBS = 3
 SMOKE_TARGET_S = 13 * 60
 SMOKE_MAX_PARTS = 6  # this workflow's share of the 20-job pool
 SMOKE_TIMEOUT_FLOOR, SMOKE_TIMEOUT_CEILING = 25, 30  # minutes
+
+# Equivalence E2E: a shard installs, loads the GnuCOBOL image and warms Maven (E2E_SETUP_S), then runs pytest -n 2.
+E2E_DURATIONS = REPO_ROOT / "tests" / "equivalence_e2e_durations.json"
+E2E_SETUP_S = 600
+E2E_JOBS = 2
+E2E_TARGET_S = 20 * 60
+E2E_MAX_SHARDS = 4  # this workflow's share of the 20-job pool
+E2E_TIMEOUT_FLOOR, E2E_TIMEOUT_CEILING = 30, 45  # minutes
 
 # Gate: every leg is (os, python, SPEED over the Linux seconds). A leg's parts share GATE_MAX_PARTS of the pool each.
 GATE_SETUP_S = 480  # recalibrated #5919: Windows and macOS installs take ~8 min; 240 s planned one Ubuntu part and caps below the measured legs
@@ -78,6 +88,14 @@ def smoke_plan(durations: dict[str, float], waiting: int | None = None) -> dict:
     return {"matrix": {"group": list(range(1, n + 1))}, "splits": n, "timeout": t}
 
 
+def e2e_plan(durations: dict[str, float], waiting: int | None = None) -> dict:
+    """{"matrix": {"group": [1..N]}, "splits": N, "timeout": minutes} for the Equivalence E2E shards."""
+    cap = sp.pool_cap(E2E_MAX_SHARDS, waiting)
+    n = max(1, sp.shards_for(durations, E2E_SETUP_S, E2E_JOBS, E2E_TARGET_S, cap))
+    t = sp.timeout_minutes(durations, n, E2E_SETUP_S, E2E_JOBS, E2E_TIMEOUT_FLOOR, E2E_TIMEOUT_CEILING)
+    return {"matrix": {"group": list(range(1, n + 1))}, "splits": n, "timeout": t}
+
+
 def gate_plan(durations: dict[str, float], waiting: int | None = None) -> dict:
     """{"matrix": [leg, ...]}: every leg of every part, the shape the Gate's `include` has today. A Windows leg runs
     `even` (the Linux seconds mislead there, #4906), so its tests weigh the same."""
@@ -103,17 +121,18 @@ def main(argv: list[str] | None = None) -> int:
     what = ap.add_mutually_exclusive_group(required=True)
     what.add_argument("--smoke", action="store_true", help="the Smoke full-suite parts")
     what.add_argument("--gate", action="store_true", help="the Full Suite Gate legs")
+    what.add_argument("--e2e", action="store_true", help="the Equivalence E2E shards")
     ap.add_argument("--durations", type=Path, help="the durations file (default: .test_durations)")
     ap.add_argument("--waiting", type=int, help="queued PR jobs (halves the part cap past ci_shard_plan.BUSY_ABOVE)")
     args = ap.parse_args(argv)
     try:
-        d = load_durations(args.durations)
-        p = smoke_plan(d, args.waiting) if args.smoke else gate_plan(d, args.waiting)
+        d = load_durations(args.durations or (E2E_DURATIONS if args.e2e else None))
+        p = (smoke_plan if args.smoke else e2e_plan if args.e2e else gate_plan)(d, args.waiting)
     except sp.PlanError as e:
         print(f"::error::{e}", file=sys.stderr)
         return 1
     print("matrix=" + json.dumps(p["matrix"]))
-    if args.smoke:
+    if args.smoke or args.e2e:
         print(f"splits={p['splits']}")
         print(f"timeout={p['timeout']}")
         print(f"plan: {p['splits']} part(s), {p['timeout']} min", file=sys.stderr)

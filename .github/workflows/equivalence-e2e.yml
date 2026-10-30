@@ -68,10 +68,14 @@ jobs:
       contents: read
       pull-requests: read
       issues: read
+      actions: read  # the queued PR jobs (ci_layout.py --print-waiting)
     outputs:
       mode: ${{ steps.plan.outputs.mode }}
       db2: ${{ steps.plan.outputs.db2 }}
-      scope: ${{ steps.plan.outputs.scope }}  # zos: only test_zos_probes.py can move (one shard); empty or all: the three
+      scope: ${{ steps.plan.outputs.scope }}  # zos: only test_zos_probes.py can move (one shard); empty or all: the planned shards
+      matrix: ${{ steps.shards.outputs.matrix }}  # #5919: shard count and timeout are planned from the durations, not typed
+      splits: ${{ steps.shards.outputs.splits }}
+      timeout: ${{ steps.shards.outputs.timeout }}
     steps:
       - name: Check out the planner
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -112,16 +116,32 @@ jobs:
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
+      # #5919: shards and timeout from tests/equivalence_e2e_durations.json (the very file the shards balance by) and the
+      # queue depth (a pull request only; empty = calm). A plan that cannot be made falls back to the old three shards.
+      - name: Plan the shard count and timeout
+        id: shards
+        if: ${{ steps.plan.outputs.mode == 'run' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          waiting=""
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then waiting=$(python3 tests/tools/ci_layout.py --print-waiting || true); fi
+          if ! out=$(python3 tests/tools/suite_shard_plan.py --e2e ${waiting:+--waiting "$waiting"}); then
+            echo "::warning::the shard plan failed: the three shards and 45 min"
+            out=$(printf 'matrix={"group":[1,2,3]}\nsplits=3\ntimeout=45')
+          fi
+          echo "$out" >> "$GITHUB_OUTPUT"
+
   shard:
-    name: shard ${{ matrix.group }}/3
+    name: shard ${{ matrix.group }}/${{ needs.plan.outputs.splits }}
     needs: [tested-tree, plan]
     if: ${{ needs.plan.outputs.mode == 'run' && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (!cancelled() && needs.tested-tree.outputs.skip != 'true' && needs.plan.result == 'success') }}  # #5104
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: ${{ fromJSON(needs.plan.outputs.timeout || '45') }}  # #5919: planned (tests/tools/suite_shard_plan.py --e2e)
     strategy:
       fail-fast: false  # every shard reports its own failures
-      matrix:
-        group: ${{ fromJSON(needs.plan.outputs.scope == 'zos' && '[1]' || '[1, 2, 3]') }}
+      matrix: ${{ fromJSON(needs.plan.outputs.scope == 'zos' && '{"group":[1]}' || needs.plan.outputs.matrix) }}
     env:
       GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
       PYTHONUTF8: "1"
@@ -265,17 +285,18 @@ jobs:
           path: tests/equivalence/linuxx64_odbc_cli.tar.gz
           key: db2-odbc-cli-${{ hashFiles('tests/equivalence/odbc_cli.pin') }}
 
-      - name: tests/cobol_mainframe under EQUIVALENCE_E2E, shard ${{ matrix.group }}/3
+      - name: tests/cobol_mainframe under EQUIVALENCE_E2E, shard ${{ matrix.group }}/${{ needs.plan.outputs.splits }}
         if: ${{ needs.plan.outputs.scope != 'zos' }}
         env:
           EQUIVALENCE_E2E: "1"
           GITGALAXY_ORACLE_STRICT: "1"
           GROUP: ${{ matrix.group }}
+          SPLITS: ${{ needs.plan.outputs.splits }}
           GITGALAXY_TEST_TIMES: ${{ runner.temp }}/times-shard-${{ matrix.group }}.json
         run: |
           mapfile -t selected < <(python tests/tools/equivalence_e2e_select.py)
           test "${#selected[@]}" -gt 1
-          pytest "${selected[@]}" --splits 3 --splitting-algorithm least_duration --durations-path tests/equivalence_e2e_durations.json --group "$GROUP" -n 2 -q -ra --durations=25 --timeout=1200 -p no:cacheprovider --ignore=tests/cobol_mainframe/test_evidence_components.py --ignore=tests/cobol_mainframe/test_equivalence_db2_rows.py --ignore=tests/cobol_mainframe/test_regional_options.py --ignore=tests/cobol_mainframe/test_sql_dynamic.py --ignore=tests/cobol_mainframe/test_sql_unit_of_work.py --ignore=tests/cobol_mainframe/test_sql_whenever.py --deselect='tests/cobol_mainframe/test_det_layout.py::test_the_initial_image_is_gnucobols[carddemo-cbstm03a]' --deselect=tests/cobol_mainframe/test_equivalence_inputs.py::test_the_intcalc_port_holds_on_generated_inputs --deselect='tests/cobol_mainframe/test_equivalence_inputs.py::test_the_hand_written_ports_hold_on_generated_inputs[carddemo-acctview-generated-None]' --deselect=tests/cobol_mainframe/test_equivalence_cics.py::test_a_facade_that_builds_its_own_task_fails_the_java_facade_side
+          pytest "${selected[@]}" --splits "$SPLITS" --splitting-algorithm least_duration --durations-path tests/equivalence_e2e_durations.json --group "$GROUP" -n 2 -q -ra --durations=25 --timeout=1200 -p no:cacheprovider --ignore=tests/cobol_mainframe/test_evidence_components.py --ignore=tests/cobol_mainframe/test_equivalence_db2_rows.py --ignore=tests/cobol_mainframe/test_regional_options.py --ignore=tests/cobol_mainframe/test_sql_dynamic.py --ignore=tests/cobol_mainframe/test_sql_unit_of_work.py --ignore=tests/cobol_mainframe/test_sql_whenever.py --deselect='tests/cobol_mainframe/test_det_layout.py::test_the_initial_image_is_gnucobols[carddemo-cbstm03a]' --deselect=tests/cobol_mainframe/test_equivalence_inputs.py::test_the_intcalc_port_holds_on_generated_inputs --deselect='tests/cobol_mainframe/test_equivalence_inputs.py::test_the_hand_written_ports_hold_on_generated_inputs[carddemo-acctview-generated-None]' --deselect=tests/cobol_mainframe/test_equivalence_cics.py::test_a_facade_that_builds_its_own_task_fails_the_java_facade_side
 
       - name: Upload this shard's test seconds (to refresh tests/equivalence_e2e_durations.json)
         if: ${{ !cancelled() }}

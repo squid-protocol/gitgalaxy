@@ -112,6 +112,11 @@ def test_a_large_payload_after_the_first_8_kb_fails(tmp_path, monkeypatch):
     assert _scan(tmp_path, monkeypatch, {"src/a.py": b"# padding\n" * 1000 + LARGE}) == 1
 
 
+def test_an_embedded_data_uri_is_not_a_payload(tmp_path, monkeypatch):
+    css = b"a{background:url(data:image/svg+xml;base64," + LARGE[11:-3] + b")}\n"
+    assert _scan(tmp_path, monkeypatch, {"src/theme.css": css}) == 0  # reveal.css and Zig's docs in the golden corpus
+
+
 def test_a_long_low_entropy_run_is_not_a_payload(tmp_path, monkeypatch):
     assert _scan(tmp_path, monkeypatch, {"src/a.py": b"# " + b"abcd" * 200 + b"\n"}) == 0
 

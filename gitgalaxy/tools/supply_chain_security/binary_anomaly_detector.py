@@ -49,7 +49,10 @@ def _dense_run(path: Path, head: bytes) -> bool:
     of each file, so without this a large payload on one line, or past 8 KB, is never measured (#7187)."""
     if b"\0" in head or path.stat().st_size > MAX_DENSE_SCAN_BYTES:
         return False
-    for match in ENCODED_RUN.finditer(path.read_bytes()):
+    raw = path.read_bytes()
+    for match in ENCODED_RUN.finditer(raw):
+        if raw[max(0, match.start() - 7) : match.start()] == b"base64,":
+            continue  # a declared data: URI. An embedded icon is ordinary CSS and HTML, not a hidden payload
         sample = match.group(0)[:4096]
         entropy = -sum(n / len(sample) * math.log2(n / len(sample)) for n in Counter(sample).values())
         if entropy > DENSE_RUN_ENTROPY:

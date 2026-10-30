@@ -1,5 +1,5 @@
 {
- "commit": "31f4412a7",
+ "commit": "0ade4efa1",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -103,9 +103,9 @@
   },
   "crucibles": {
    "cics_crucible": {
-    "programs": 64,
+    "programs": 65,
     "ref": "v0.10.0 (01e11fe6)",
-    "scenarios": 179
+    "scenarios": 180
    },
    "estate_crucible": {
     "horrors": 63,
@@ -160,15 +160,15 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-30T18:18:09Z",
+  "as_of": "2026-10-30T18:33:50Z",
   "core": {
    "closed": 196,
    "open": 13,
    "total": 209
   },
   "core_last_window": {
-   "closed": 30,
-   "net_closed": 21,
+   "closed": 29,
+   "net_closed": 20,
    "opened": 9
   },
   "core_milestone": {
@@ -184,7 +184,7 @@
    "4893": "open",
    "4894": "open"
   },
-  "eta": "4 days",
+  "eta": "5 days",
   "frontier": {
    "closed": 115,
    "found_last_window": 4,

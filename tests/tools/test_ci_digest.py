@@ -290,7 +290,7 @@ ROLLUP_PARTS = {  # roll-up check -> (workflow, the part jobs whose check-run na
     "crucible": ("cics-crucible.yml", {"plan", "measure", "runner-tests"}),
 }
 MATRIX_SAMPLE = {"matrix.group": "1", "matrix.shard": "1/4", "matrix.total": "2",
-                 "needs.shard-plan.outputs.splits": "3"}  # fmt: skip
+                 "needs.shard-plan.outputs.splits": "3", "needs.plan.outputs.splits": "3"}  # fmt: skip
 # Jobs that need a matrix job and run after a failure, but are no check a merge waits on (#6919 completeness test)
 NOT_ROLLUPS = {
     ("mainframe-ground-truth.yml", "publish-history"): "push-only history writer",

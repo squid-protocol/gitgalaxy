@@ -253,7 +253,7 @@ Era evidence (programs by latest era a tell reaches):
 
 era 0: 0, era 1: 0, era 2: 2, era 3: 0, era 4: 1, era none: 3
 
-### Rules to land (8 gap classes; top 8, the `cics_census.py blockers` order)
+### Rules to land (7 gap classes; top 7, the `cics_census.py blockers` order)
 
 | rank | rule (gap class) | makes whole alone | one rule away | touched | era mix of the alone-set |
 |---|---|---|---|---|---|
@@ -262,9 +262,8 @@ era 0: 0, era 1: 0, era 2: 2, era 3: 0, era 4: 1, era none: 3
 | 3 | CEEHDLU: unregistering an LE user condition handler is not modelled | 0 | 0 | 1 | - |
 | 4 | EPSCSMRI: no service of its own, its translation is refused: epscsmrd.cbl:N: the PICTURE N (…) is not modelled | 0 | 0 | 1 | - |
 | 5 | EPSCSMRO: no service of its own, its translation is refused: OS/VS COBOL BLL addressing: SERVICE LABEL (…): no | 0 | 0 | 1 | - |
-| 6 | EXEC CICS GETMAIN without INITIMG: IBM gives acquired storage no default contents | 0 | 0 | 1 | - |
-| 7 | EXEC CICS SOAPFAULT CREATE | 0 | 0 | 1 | - |
-| 8 | SET TO ENTRY: procedure / function pointers are not modelled | 0 | 0 | 1 | - |
+| 6 | EXEC CICS SOAPFAULT CREATE | 0 | 0 | 1 | - |
+| 7 | SET TO ENTRY: procedure / function pointers are not modelled | 0 | 0 | 1 | - |
 
 ### Proof blockers (5 programs translated whole, 5 with no proof gap; top 0 of 0 classes, `proof_blockers.py` statistics)
 

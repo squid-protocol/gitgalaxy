@@ -180,6 +180,7 @@ written.** Corollaries every audited contract has needed so far:
 | `_args_pattern_list_groups` | args strategy: pattern-list parameter groups |
 | `_args_prototype_groups` | args strategy: prototype parameter groups |
 | `_args_tcl_pattern_list_groups` | args strategy: tcl pattern-list parameter groups |
+| `_calls_out_file_pass` | callable (code, units) -> None -- for a callee only the whole segment names (HLASM `LINK EPLOC=field` through an in-file `DC CL8'name'`, #7063): detector.py runs it after the per-unit scans and it appends to each unit's calls_out_to / calls_out_qualifiers |
 | `_calls_out_ignore` | frozenset of callee names UNIONed with the detector's global calls_out ignore set; a language declared `identifier_case: insensitive` authors them lowercase and compares casefolded (keywords filtered in any spelling), every other language compares exactly (#3359) -- Epic #3264 Phase 3 (#3282) |
 | `_calls_out_literal_callee` | verb regex ending at the quote -- a quoted literal right after it names the callee (COBOL `CALL 'SUBPROG'`, #3393); detector.py keeps that literal when calls_out scans the block, blanking every other one |
 | `_calls_out_masked_blocks` | regex of embedded blocks of another language that hold no call of this one (COBOL `EXEC ... END-EXEC`: `EXEC SQL CALL proc` is a DB2 stored procedure, #4304); detector.py blanks every match, line breaks kept, before calls_out scans the block; a named group `mask` blanks only that span (rust `matches!(x, PATTERN)`, #6454) |

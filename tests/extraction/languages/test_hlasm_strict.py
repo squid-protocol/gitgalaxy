@@ -28,10 +28,12 @@ issue text (#2856: a dummy section is a record layout, no executable logic).
 
 import re
 import sys
+import time
 from pathlib import Path
 
 import pytest
 
+from gitgalaxy.core.detector import StructuralExtractor
 from gitgalaxy.core.prism import Prism
 from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
 from gitgalaxy.standards.language_lens import LanguageDetector
@@ -234,7 +236,7 @@ def test_hlasm_schema_completeness():
     baseline = set(_BASELINE_KEYS)
     missing = baseline - set(HLASM_RULES)
     assert not missing, f"hlasm rules dict is missing baseline keys entirely (not even None): {missing}"
-    extra = set(HLASM_RULES) - baseline - {"_visibility_export_list"}
+    extra = set(HLASM_RULES) - baseline - {"_visibility_export_list", "_calls_out_file_pass"}
     assert extra == set(), f"unexpected non-baseline keys: {extra}"
 
 
@@ -372,7 +374,7 @@ def test_hlasm_debt_rules_fire_on_the_comment_stream():
 # TEST 5: REALISTIC-FORM & BOUNDARY AUDIT (Rules 9/10/15/18)
 # ==============================================================================
 def test_hlasm_counts_on_the_real_member_are_exact():
-    counts = {k: len(list(HLASM_RULES[k].finditer(_REAL_MEMBER))) for k, v in HLASM_RULES.items() if v is not None}
+    counts = {k: len(list(HLASM_RULES[k].finditer(_REAL_MEMBER))) for k, v in HLASM_RULES.items() if is_pattern(v)}
     assert counts["func_start"] == 2  # ACCTPGM CSECT + SUBRTN RSECT
     assert counts["class_start"] == 1  # WSAREA DSECT
     assert counts["branch"] == 2  # BE + BCT; BALR/BR are structural
@@ -660,3 +662,140 @@ def test_hlasm_calls_out_is_not_the_assembly_profile():
         LANGUAGE_DEFINITIONS["assembly"]["rules"].get("calls_out")
         != LANGUAGE_DEFINITIONS["hlasm"]["rules"]["calls_out"]
     )
+
+
+# ==============================================================================
+# #7063: LINK / XCTL EPLOC=field through an in-file DC CL8'name' (`_calls_out_file_pass`)
+# The `calls_out` regex cannot see the constant (the literal shield blanks it), so a whole-segment pass resolves it.
+# Driven through `StructuralExtractor.splice()`, the path a scan takes.
+# ==============================================================================
+
+
+def _eploc_units(code: str) -> dict[str, list[str]]:
+    functions = StructuralExtractor("hlasm", LANGUAGE_DEFINITIONS).splice(code, "")["functions"]
+    return {f["name"]: f["calls_out_to"] for f in functions}
+
+
+def _eploc_calls(code: str, unit: str = "MAIN") -> list[str]:
+    return _eploc_units(code)[unit]
+
+
+def _eploc_program(*lines: str, dc: str = "PGMFLD   DC    CL8'PAYCALC'") -> str:
+    return "\n".join(["MAIN     CSECT", *lines, dc, "         END"]) + "\n"
+
+
+@pytest.mark.parametrize("verb", ["LINK", "XCTL", "link", "xctl"])
+def test_eploc_names_the_constant_eploc_program(verb):
+    assert _eploc_calls(_eploc_program(f"         {verb}  EPLOC=PGMFLD")) == ["PAYCALC"]
+
+
+@pytest.mark.parametrize(
+    "operands",
+    [
+        "EPLOC=PGMFLD,PARAM=(PARMS),VL=1",
+        "PARAM=(A,B),EPLOC=PGMFLD",
+        "EPLOC=PGMFLD,SF=(E,LIST)",
+        "(2,12),EPLOC=PGMFLD",
+        "eploc=pgmfld",
+    ],
+)
+def test_eploc_among_other_operands(operands):
+    assert _eploc_calls(_eploc_program(f"         LINK  {operands}")) == ["PAYCALC"]
+
+
+@pytest.mark.parametrize(
+    ("dc", "expected"),
+    [
+        ("PGMFLD   DC    CL8'PAYCALC'", ["PAYCALC"]),
+        ("PGMFLD   DC    CL8'A'", ["A"]),
+        ("PGMFLD   DC    CL8'@SUB#1'", ["@SUB#1"]),
+        ("PGMFLD   DC    C'PAYCALC '", ["PAYCALC"]),
+        ("PGMFLD   DC    CL8'PAYCALC '", ["PAYCALC"]),
+        ("pgmfld   dc    cl8'paycalc'", ["paycalc"]),
+        # not an 8-byte program name
+        ("PGMFLD   DC    CL8' '", []),
+        ("PGMFLD   DC    CL8'PAY CALC'", []),
+        ("PGMFLD   DC    CL8'1ABC'", []),
+        ("PGMFLD   DC    C'PAYCALC'", []),
+        ("PGMFLD   DC    CL5'PAYCALC'", []),
+        ("PGMFLD   DC    CL8'PAY''CAL'", []),
+        ("PGMFLD   DC    A(PAYCALC)", []),
+        ("PGMFLD   DS    CL8", []),
+        ("         DC    CL8'PAYCALC'", []),
+    ],
+)
+def test_the_constant_forms(dc, expected):
+    assert _eploc_calls(_eploc_program("         LINK  EPLOC=PGMFLD", dc=dc)) == expected
+
+
+def test_the_constant_may_come_before_the_use_or_in_another_csect():
+    before = "PGMFLD   DC    CL8'PAYCALC'\nMAIN     CSECT\n         LINK  EPLOC=PGMFLD\n         END\n"
+    assert _eploc_calls(before) == ["PAYCALC"]
+    split = "MAIN     CSECT\n         XCTL  EPLOC=PGMFLD\nDATA     CSECT\nPGMFLD   DC    CL8'NEXTPGM'\n         END\n"
+    units = _eploc_units(split)
+    assert units["MAIN"] == ["NEXTPGM"] and units["DATA"] == []
+
+
+def test_a_field_defined_twice_is_ambiguous_unless_the_names_agree():
+    clash = _eploc_program("         LINK  EPLOC=PGMFLD", dc="PGMFLD   DC    CL8'ONE'\nPGMFLD   DC    CL8'TWO'")
+    assert _eploc_calls(clash) == []
+    same = _eploc_program("         LINK  EPLOC=PGMFLD", dc="PGMFLD   DC    CL8'ONE'\nPGMFLD   DC    CL8'ONE'")
+    assert _eploc_calls(same) == ["ONE"]
+    # character constants are case-sensitive: `one` is another name than `ONE`
+    case = _eploc_program("         LINK  EPLOC=PGMFLD", dc="PGMFLD   DC    CL8'ONE'\nPGMFLD   DC    CL8'one'")
+    assert _eploc_calls(case) == []
+
+
+@pytest.mark.parametrize(
+    "line",
+    [
+        "         LINK  EPLOC=(2)",
+        "         LINK  EPLOC=NOFIELD",
+        "         LINK  EPLOC=PGMFLDX",
+        "         LINK  EP=",
+        "         LINK  XEPLOC=PGMFLD",
+        "         LINKX EPLOC=PGMFLD",
+        "* LINK EPLOC=PGMFLD",
+        "         MVC   WSNAME,=C'LINK EPLOC=PGMFLD'",
+        "         LINK  SF=L",
+        "         DFHPC TYPE=LINK,PROGRAM=PAYCALC",
+    ],
+)
+def test_near_misses_add_no_edge(line):
+    assert _eploc_calls(_eploc_program(line)) == []
+
+
+def test_eploc_keeps_the_other_forms_and_adds_no_duplicate():
+    code = _eploc_program(
+        "         L     15,=V(SUBA)",
+        "         LINK  EP=PAYCALC",
+        "         LINK  EPLOC=PGMFLD",
+        "         XCTL  EPLOC=PGMFLD",
+    )
+    assert _eploc_calls(code) == ["SUBA", "PAYCALC"]
+
+
+def test_the_edge_belongs_to_the_unit_that_links():
+    code = "ONE      CSECT\n         LINK  EPLOC=F\nTWO      CSECT\n         BR    14\nF        DC    CL8'PGMX'\n         END\n"
+    units = _eploc_units(code)
+    assert units["ONE"] == ["PGMX"] and units["TWO"] == []
+
+
+def test_a_language_without_the_pass_is_unchanged():
+    assert "_calls_out_file_pass" not in LANGUAGE_DEFINITIONS["assembly"]["rules"]
+
+
+@pytest.mark.parametrize(
+    "payload",
+    [
+        "MAIN     CSECT\n         LINK  " + "A," * 5000 + "EPLOC=X\n",
+        "MAIN     CSECT\n         LINK  " + "A" * 10000 + "\n",
+        "MAIN     CSECT\n" + "X" * 10000 + "  DC  CL8'" + "A" * 8 + "'\n",
+        "MAIN     CSECT\n" + "F        DC    CL8'ABCDEFGH'\n" * 2000 + "         LINK  EPLOC=F\n",
+        "MAIN     CSECT\n" + "         LINK  EPLOC=" + "N" * 10000 + "\n",
+    ],
+)
+def test_eploc_scan_is_redos_immune(payload):
+    start = time.perf_counter()
+    _eploc_units(payload)
+    assert time.perf_counter() - start < 5

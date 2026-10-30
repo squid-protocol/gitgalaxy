@@ -511,3 +511,35 @@ def test_preview_writes_a_rehearsal_page(started, tmp_path, capsys):
     assert rc == 0
     text = page.read_text(encoding="utf-8")
     assert "(rehearsal)" in text and "not attempted" in text and "never first-try" in text
+
+
+@pytest.mark.slow(reason="starts a whole estate trial (a scan and refract, 16s locally)")
+def test_start_sync_close_regenerate_the_estate_pages(started, tmp_path, monkeypatch):
+    """#4493: the page is part of the protocol -- no separate `report --write` between a step and `check`."""
+    ledger_path = _ledger(tmp_path / "trials.json")
+    pages = tmp_path / "pages"
+    monkeypatch.setattr(trial, "LEDGER", ledger_path)
+    monkeypatch.setattr(trial, "PAGE", tmp_path / ("trials" + ".md"))
+    monkeypatch.setattr(trial, "CHART", tmp_path / "trials.svg")
+    monkeypatch.setattr(trial, "PAGES", pages)
+    common = ["--ledger", str(ledger_path), "--repo", str(started["engine"])]
+    rc = trial.main([*common, "start", "tiny-estate", "--estate-path", str(started["estate"]),
+                     "--work", str(tmp_path / "work"), "--model", "stand-in", "--backend", "command",
+                     "--repo-url", "https://example.com/tiny", "--ref", "abc123"])  # fmt: skip
+    assert rc == 0
+    ledger = trial.load(ledger_path)
+    assert trial.stale_pages(ledger, pages) == [] and (tmp_path / ("trials" + ".md")).is_file()
+    page = (pages / ("tiny-estate" + ".md")).read_text(encoding="utf-8")
+    assert "proven: 0 of 2 eligible" in page and "not attempted: 2" in page
+    assert trial.main([*common, "check"]) == 0
+    causes = [f"--cause={k}=generator" for k in ledger["trials"][0]["eligible"]]
+    assert trial.main([*common, "close", ledger["trials"][0]["id"], *causes]) == 0
+    assert trial.stale_pages(trial.load(ledger_path), pages) == []
+    assert "not attempted" in (pages / ("tiny-estate" + ".md")).read_text(encoding="utf-8")
+    assert trial.main([*common, "check"]) == 0
+
+
+def test_a_step_on_another_ledger_writes_no_repo_pages(started, tmp_path):
+    before = trial.PAGE.read_bytes()
+    assert trial.refresh_outputs(trial.load(started["ledger"]), started["ledger"]) == 0
+    assert trial.PAGE.read_bytes() == before

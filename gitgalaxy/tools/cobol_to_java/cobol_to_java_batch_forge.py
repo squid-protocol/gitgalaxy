@@ -45,7 +45,7 @@ from typing import Any
 
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import TraceLog, java_path, status_text
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base
-from gitgalaxy.tools.cobol_to_java.det import dfsort
+from gitgalaxy.tools.cobol_to_java.det import dfsort, idcams
 from gitgalaxy.tools.cobol_to_java.java_target import JavaTarget, record_charset_java
 
 SUBPACKAGE = "batch"
@@ -60,6 +60,7 @@ BUILD_PROGRAMS = frozenset({
 })  # fmt: skip
 RUNNERS = frozenset({"IKJEFT01", "IKJEFT1B", "DFSRRC00", "DFSRRC0"})
 COPY = frozenset({"IEBGENER", "ICEGENER"})
+IDCAMS = frozenset({"IDCAMS"})  # #4268: a REPRO INFILE/OUTFILE step is a record copy
 SORTS = frozenset({"SORT", "DFSORT", "ICEMAN", "SYNCSORT", "ICETOOL"})
 DFSORT = frozenset({"SORT", "DFSORT", "ICEMAN"})  # #4268: the programs whose SYSIN is DFSORT control statements
 
@@ -82,6 +83,7 @@ class Step:
     commands_only: bool = False  # a TSO runner running commands (DSN FREE / BIND, RACF), no program
     parm: str | None = None  # #3624: the text EXEC PARM= passes the program
     refused: str | None = None  # #4268: why a utility step the model cannot run is not lowered (named)
+    copy_dds: tuple[str, str] | None = None  # #4268: the (input, output) DDs of an IDCAMS REPRO copy
 
 
 @dataclass
@@ -176,6 +178,8 @@ class BatchForge:
                 st.parm = ps.get("parm")
                 if prog in COPY:
                     st.refused = self._iebgener_refusal(j["file"], s["ordinal"], st)
+                elif prog in IDCAMS:
+                    st.refused = self._idcams_refusal(j["file"], s["ordinal"], st)
                 elif prog in SORTS:
                     st.refused = self._sort_refusal(j["file"], s["ordinal"], st)
                 self._through_runner(st, ps.get("runner_programs") or [])
@@ -214,6 +218,26 @@ class BatchForge:
                 dfsort.iebgener(body)
             except dfsort.Refused as e:
                 return str(e)
+        return None
+
+    def _idcams_refusal(self, file: str, ordinal: int, st: Step) -> str | None:
+        """#4268: an IDCAMS step is a record copy only while its SYSIN is one `REPRO INFILE(dd) OUTFILE(dd)`
+        (`idcams.parse`, proven against GnuCOBOL); every other command or parameter, a SYSIN dataset, or a REPRO whose
+        DDs are not datasets of the step is refused by name. The two DDs are kept on the step."""
+        if any(d.get("dd") == "SYSIN" and d.get("dsn") for d in st.dds):
+            return "its SYSIN is a dataset of control statements (not read)"
+        decks = self._deck(file, ordinal, st, "SYSIN")
+        if len(decks) != 1:
+            return "has no single in-stream SYSIN of IDCAMS commands"
+        try:
+            repro = idcams.parse(decks[0])
+        except dfsort.Refused as e:
+            return f"uses {e}, which the IDCAMS model refuses"
+        have = {d.get("dd") for d in st.dds if d.get("dsn")}
+        for dd in (repro.infile, repro.outfile):
+            if dd not in have:
+                return f"names the DD {dd} in its REPRO, which is not a dataset of the step"
+        st.copy_dds = (repro.infile, repro.outfile)
         return None
 
     def _deck(self, file: str, ordinal: int, st: Step, dd: str) -> list[str]:
@@ -369,6 +393,10 @@ class BatchForge:
 
     def _step_todo(self, st: Step) -> str | None:
         p = st.program or "?"
+        if p in IDCAMS and st.refused:
+            return f"TODO: {st.jcl} runs {p}, which {st.refused} -- not run as a record copy: a utility step to port"
+        if p in IDCAMS and st.copy_dds:
+            return None
         if p in COPY and st.refused:
             return f"TODO: {st.jcl} runs {p}, which {st.refused} -- not run as a plain copy: a utility step to port"
         if p in SORTS and st.refused:
@@ -394,6 +422,8 @@ class BatchForge:
             return f"steps.iefbr14({head}, {consts})"
         if st.program in COPY and not st.refused:
             return f"steps.copy({head}, {consts})"
+        if st.program in IDCAMS and st.copy_dds:
+            return f"steps.copy({head}, {consts}, {_jstr(st.copy_dds[0])}, {_jstr(st.copy_dds[1])})"
         todo = self._step_todo(st) or ""
         return f"steps.utility({head}, {_jstr(st.program)}, {_jstr(todo.split(': ', 1)[-1])})"
 
@@ -1105,11 +1135,17 @@ public class JclSteps {
 
     /** IEBGENER / ICEGENER: copies SYSUT1 to SYSUT2. */
     public Tasklet copy(String name, String jcl, String jobCond, String cond, String ifCond, List<Dd> dds) {
+        return copy(name, jcl, jobCond, cond, ifCond, dds, "SYSUT1", "SYSUT2");
+    }
+
+    /** IDCAMS REPRO INFILE(inDd) OUTFILE(outDd): copies the input data set's records to the output. */
+    public Tasklet copy(String name, String jcl, String jobCond, String cond, String ifCond, List<Dd> dds,
+            String inDd, String outDd) {
         return guarded(jcl, jobCond, cond, ifCond, () -> {
-            Path in = dds.stream().filter(d -> d.name().equals("SYSUT1")).map(datasets::path).findFirst().orElse(null);
-            Path out = dds.stream().filter(d -> d.name().equals("SYSUT2")).map(datasets::path).findFirst().orElse(null);
+            Path in = dds.stream().filter(d -> d.name().equals(inDd)).map(datasets::path).findFirst().orElse(null);
+            Path out = dds.stream().filter(d -> d.name().equals(outDd)).map(datasets::path).findFirst().orElse(null);
             if (in == null || out == null) {
-                LOG.warn("{}: SYSUT1 / SYSUT2 is not a dataset (in-stream, SYSOUT or DUMMY): nothing copied", jcl);
+                LOG.warn("{}: {} / {} is not a dataset (in-stream, SYSOUT or DUMMY): nothing copied", jcl, inDd, outDd);
                 return 0;
             }
             try {

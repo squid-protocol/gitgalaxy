@@ -189,7 +189,7 @@ _OVERLAY_HEAD = """\
         "MOVE CACHE-ADDRESS-X TO OUT-NUMBER.",
         "MOVE ZF-LENGTH TO CACHE-ADDRESS-X.",
         "COMPUTE OUT-NUMBER = CACHE-ADDRESS-X + 1.",
-        "IF CACHE-ADDRESS-X EQUAL ZEROES MOVE 1 TO OUT-NUMBER END-IF.",
+        "IF CACHE-ADDRESS-X = 5 MOVE 1 TO OUT-NUMBER END-IF.",
         "MOVE SAVE-LOW TO OUT-NUMBER.",  # a field under the overlay is the pointer's bytes too
         "MOVE ZERO TO SAVE-HIGH.",
     ],
@@ -253,6 +253,44 @@ def test_a_pure_numeric_view_of_a_pointer_moves_the_pointer_not_its_bytes(tmp_pa
     call = "copyPointer" if statement.startswith("MOVE") else "advancePointer"
     assert f"DetCics.{call}(" in r.java
     assert "-(" in r.java or not statement.startswith("SUBTRACT")
+
+
+@pytest.mark.parametrize(
+    "condition",
+    [
+        "CACHE-ADDRESS-X = 0",
+        "CACHE-ADDRESS-X NOT = 0",
+        "0 = CACHE-ADDRESS-X",
+        "CACHE-ADDRESS-X EQUAL ZEROES",
+        "CACHE-ADDRESS-X = ZERO",
+        "CACHE-ADDRESS-X NOT EQUAL ZEROS",
+    ],
+)
+def test_the_zero_test_of_a_pure_numeric_view_is_the_pointers_null_test(tmp_path, condition):
+    """#6876 (X47), CAGMZ's `IF WS-PTR2-N = 0`: a handle's zero is NULL, so `view = 0` / NOT = / ZERO either side lowers to
+    the pointer's own NULL test and the view's bytes are never read as a number. The whole program translates."""
+    source = (
+        _PURE_HEAD
+        + f"           IF {condition}\n               MOVE 'A' TO BINARY-ZEROES\n           END-IF.\n"
+        + "           EXEC CICS RETURN\n           END-EXEC.\n"
+    )
+    r = _translate(tmp_path, source)
+    assert r.stats["holes"] == [], r.stats["holes"]
+    assert "Figurative.LOW_VALUES" in r.java
+
+
+@pytest.mark.parametrize(
+    "condition",
+    ["CACHE-ADDRESS-X > 0", "CACHE-ADDRESS-X = 5", "CACHE-ADDRESS-X = SAVE-ADDRESS-X", "CACHE-ADDRESS-X = SPACES"],
+)
+def test_any_other_comparison_of_a_numeric_view_stays_a_hole(tmp_path, condition):
+    source = (
+        _PURE_HEAD
+        + f"           IF {condition}\n               MOVE 'A' TO BINARY-ZEROES\n           END-IF.\n"
+        + "           EXEC CICS RETURN\n           END-EXEC.\n"
+    )
+    r = _translate(tmp_path, source)
+    assert any("REDEFINES overlays a POINTER" in h or "numeric view" in h for h in r.stats["holes"]), r.stats["holes"]
 
 
 def test_the_whole_group_holding_a_pointer_still_moves_as_bytes(tmp_path):

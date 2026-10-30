@@ -19,6 +19,7 @@ from javac_server import javac as javac_run
 from test_det_programs import PKG, _batch_package, _cobol, _java, _runtime_classes
 
 from gitgalaxy.tools.cobol_to_java.det import dfsort as D
+from gitgalaxy.tools.cobol_to_java.det import idcams
 
 # CardDemo app/proc/TRANREPT.prc STEP05R (the JCL's symbols and cards, verbatim)
 TRANREPT_SYM = """TRAN-CARD-NUM,263,16,ZD
@@ -214,6 +215,9 @@ def _steps() -> dict[str, tuple[str, dict[str, bytes]]]:
                                              TRANREPT_SYM), RECLEN, ["SORTIN"]), {"SORTIN": tran}),
         # IEBGENER: SYSUT1 copied to SYSUT2, every record and byte (the DDs are the utility's own)
         "IEBGENER": (D.cobol_program(D.iebgener(), RECLEN, ["SYSUT1"], "SYSUT2"), {"SYSUT1": tran}),
+        # IDCAMS REPRO: INFILE copied to OUTFILE, every record and byte
+        "IDCAMS": (D.cobol_program(idcams.parse(" REPRO INFILE(REPROIN) -\n   OUTFILE(REPROOUT)\n").control, RECLEN,
+                                   ["REPROIN"], "REPROOUT"), {"REPROIN": tran}),
         "MERGEINC": (D.cobol_program(D.parse(" MERGE FIELDS=(1,16,CH,A),EQUALS\n INCLUDE COND=(305,10,CH,GE,"
                                              "C'2022-03-01')\n"), RECLEN, ["SORTIN01", "SORTIN02"]),
                      {"SORTIN01": _by_id(comb[0]), "SORTIN02": _by_id(comb[1])}),
@@ -260,6 +264,7 @@ def _need_java() -> None:
         "OUTRECMERGE",
         "OUTRECZD",
         "IEBGENER",
+        "IDCAMS",
     ],
 )
 def test_sort_step_output_is_gnucobols_byte_for_byte(step, tmp_path):
@@ -269,7 +274,7 @@ def test_sort_step_output_is_gnucobols_byte_for_byte(step, tmp_path):
     cob.mkdir()
     for dd, body in inputs.items():
         (cob / dd).write_bytes(body)
-    out_dd = "SYSUT2" if step == "IEBGENER" else "SORTOUT"
+    out_dd = {"IEBGENER": "SYSUT2", "IDCAMS": "REPROOUT"}.get(step, "SORTOUT")
     _cobol(src, cob)
     want = (cob / out_dd).read_bytes()
     (tmp_path / "port").mkdir()
@@ -279,8 +284,8 @@ def test_sort_step_output_is_gnucobols_byte_for_byte(step, tmp_path):
     )
     assert len(want) % out_len == 0 and want, "the oracle kept no record"
     assert got == want
-    if step == "IEBGENER":
-        assert want == inputs["SYSUT1"]
+    if step in ("IEBGENER", "IDCAMS"):
+        assert want == next(iter(inputs.values()))
     if step in ("TRANREPT", "SORTTEST", "COPYOMIT"):  # the INCLUDE / OMIT kept some records and dropped others
         assert len(want) < len(inputs["SORTIN"])
 

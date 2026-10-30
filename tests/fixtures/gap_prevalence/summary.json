@@ -7,6 +7,23 @@
   "4": 21,
   "none": 13
  },
+ "close_next": [
+  {
+   "gained": 2,
+   "gained_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 2,
+    "4": 0,
+    "none": 0
+   },
+   "gap": "<name>: <name> is not defined in a record of file <name>",
+   "share": 0.9922,
+   "upper_bound": false,
+   "whole": 128
+  }
+ ],
  "coverage_if_closed": [
   {
    "share": 0.9922,

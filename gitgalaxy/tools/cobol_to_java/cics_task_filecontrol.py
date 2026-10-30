@@ -701,6 +701,29 @@ FILECONTROL_JAVA = """\
         return new BrowsedRba(o[0], o[1], rba, rec);
     }
 
+    /** #6262 STARTBR ... RBA, recorded as a STARTBR event with `rba` true: `ridfld` is the fullword on entry, as the stub's
+     *  `rba=` line; no `mode` (GTEQ is not valid for an RBA browse) and no RESP2. As startbrRba. */
+    public int startbrRbaEvent(String file, long rba) {
+        int resp = startbrRba(file, rba);
+        event("STARTBR", "file", file, "ridfld", rbaBytes(rba), "rba", Boolean.TRUE, "resp", respName(resp));
+        return resp;
+    }
+
+    /** #6262 READNEXT / READPREV ... RBA, recorded with `rba` true: `ridfld` is the RBA of the record read (the RIDFLD on
+     *  entry when none was), `resp` its RESP; no data, length or RESP2, which the stub's `rba=` line does not carry. */
+    public BrowsedRba readnextRbaEvent(String file, long ridfld, int intoLength) {
+        return rbaReadEvent("READNEXT", readnextRba(file, ridfld, intoLength), file);
+    }
+
+    public BrowsedRba readprevRbaEvent(String file, long ridfld, int intoLength) {
+        return rbaReadEvent("READPREV", readprevRba(file, ridfld, intoLength), file);
+    }
+
+    private BrowsedRba rbaReadEvent(String kind, BrowsedRba b, String file) {
+        event(kind, "file", file, "ridfld", rbaBytes(b.rba()), "rba", Boolean.TRUE, "resp", respName(b.resp()));
+        return b;
+    }
+
     /** ENDBR FILE(file): the browse ends; INVREQ (16) when none is active. */
     public int endbr(String file) {
         int[] planned = root().fileFault("ENDBR", file);

@@ -1884,7 +1884,9 @@ def _java_file_event(kind: str, e: dict[str, Any]) -> dict[str, Any]:
             ev["generic"] = True
     if kind in ("STARTBR", "READNEXT", "READPREV"):  # #6262: the key on entry; STARTBR's mode, a browse read's record
         ev["ridfld"] = base64.b64decode(e["ridfld"]) if e.get("ridfld") is not None else None
-        if kind == "STARTBR":
+        if e.get("rba"):  # the RBA browse: as the stub's `rba=` line, the file and RESP; RIDFLD is no key (SPEC 6.2)
+            ev["ridfld"] = cc.Unmodelled("an RBA browse's event")
+        elif kind == "STARTBR":
             ev["mode"] = e.get("mode")
         else:
             if e.get("length") is not None:
@@ -1900,7 +1902,11 @@ def _java_file_event(kind: str, e: dict[str, Any]) -> dict[str, Any]:
     if kind in ("READ", "REWRITE", "WRITE"):
         b64 = e.get("data")
         ev["data"] = cc.RawArea(base64.b64decode(b64), cc.EBCDIC) if b64 is not None else None
-    if e.get("resp2") is not None and not (kind in ("READ", "READNEXT", "READPREV") and e.get("resp") == "LENGERR"):
+    if (
+        e.get("resp2") is not None
+        and not e.get("rba")
+        and not (kind in ("READ", "READNEXT", "READPREV") and e.get("resp") == "LENGERR")
+    ):
         ev["resp2"] = e["resp2"]
     return ev
 

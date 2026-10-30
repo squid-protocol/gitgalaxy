@@ -8,9 +8,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tests" / "tools"))
 
+import cobol_coverage  # noqa: E402
 import det_parity as dp  # noqa: E402
 import det_port  # noqa: E402
-import test_cobol_coverage as tcc  # noqa: E402
 
 
 def _cobol(paragraphs: int, cics: bool = False) -> str:
@@ -69,17 +69,28 @@ def test_a_failing_check_is_a_warning_not_an_error(tmp_path):
     assert out["parity"] == [] and out["parity_warnings"][0].startswith("NOSUCH: parity check failed")
 
 
+def _asm(*code: str) -> str:
+    data = ["DFHEISTG DSECT", "W_A      DS    CL4", "W_B      DS    CL4"]
+    regs = [f"R{n}       EQU   {n}" for n in (10, 11, 12)]
+    entry = "PROG     DFHEIENT CODEREG=(R12),DATAREG=R10,EIBREG=R11"
+    return "\n".join([*data, entry, *code, *regs, "         END   PROG"]) + "\n"
+
+
+_ASM_BRANCH = _asm("         CLC   W_A,W_B", "         BC    B'1000',DONE", "         MVC   W_A,W_B",
+                   "DONE     DS    0H", "         EXEC CICS RETURN")  # fmt: skip
+
+
 def test_an_hlasm_program_is_counted_as_its_lowered_cobol():
     """#7011: the raw .asm has no paragraphs (the 'expected from 0' warning); the lowered COBOL has."""
-    raw = dp.structure(tcc._ASM_BRANCH, "cobol")
-    r = dp.parity("PROG", tcc._ASM_BRANCH, _java(25))
+    raw = dp.structure(_ASM_BRANCH, "cobol")
+    r = dp.parity("PROG", _ASM_BRANCH, _java(25))
     assert raw["functions"] == 0 and r["cobol"]["functions"] > 0 and r["cobol"]["branches"] > 0
     assert r["kind"] == "cics"
     assert not [w for w in r["warnings"] if "from 0 in" in w]
 
 
 def test_a_refused_or_lowered_program_is_counted_as_written():
-    bad = tcc._asm("         XYZZY W_A,W_B")
+    bad = _asm("         XYZZY W_A,W_B")
     assert dp.parity("P", bad, _java(5))["cobol"] == dp.structure(bad, "cobol")
-    low = tcc.cov.lowered_original(tcc._ASM_BRANCH)  # already COBOL: not lowered twice
+    low = cobol_coverage.lowered_original(_ASM_BRANCH)  # already COBOL: not lowered twice
     assert dp.parity("P", low, _java(25))["cobol"] == dp.structure(low, "cobol")

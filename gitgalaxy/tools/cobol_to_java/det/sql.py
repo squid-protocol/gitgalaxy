@@ -139,8 +139,10 @@ _FETCH = re.compile(
     r"(?:FROM\s+)?([A-Z0-9_-]+)\s+INTO\s+(.*)",
     re.I | re.S,
 )
-# the orientations that are positions only (no row, no INTO): refused by name
-_ORIENT_NO_ROW = re.compile(r"FETCH\s+(?:(?:INSENSITIVE|SENSITIVE)\s+)?(BEFORE|AFTER)(?![A-Z0-9_-])", re.I)
+# #4269: the orientations that are positions only (no row, no INTO): FETCH [INSENSITIVE] BEFORE | AFTER [FROM] cursor
+_ORIENT_NO_ROW = re.compile(
+    r"FETCH\s+(?:(INSENSITIVE|SENSITIVE)\s+)?(BEFORE|AFTER)\s+(?:FROM\s+)?([A-Z0-9_-]+)\s*", re.I
+)
 # DECLARE name [INSENSITIVE | SENSITIVE [STATIC | DYNAMIC] | ASENSITIVE] [NO] SCROLL CURSOR: the words between name and CURSOR
 _DECLARE_CURSOR = re.compile(r"\bDECLARE\s+([A-Z0-9_-]+)\s+((?:[A-Z]+\s+){0,4}?)CURSOR\b(\s+WITH\s+HOLD\b)?", re.I)
 # #4269: a multi-row (rowset) FETCH / INSERT: `FETCH ... ROWSET`, `FOR :N ROWS`
@@ -388,6 +390,8 @@ class Sql:
         if verb in ("COMMIT", "ROLLBACK"):
             return self._end_unit_of_work(verb, u, line, ind)
         self._refuse_scroll_and_rowset(verb, sql)
+        if verb == "FETCH" and (bare := _ORIENT_NO_ROW.fullmatch(_QUOTED.sub("''", sql))):
+            return self._fetch_position(bare, line, ind)
         pos = re.search(r"\bWHERE\s+CURRENT\s+OF\s+([A-Z0-9_-]+)", u)
         meth = self.methods.get((self.program, line))
         if meth is None:
@@ -575,6 +579,14 @@ class Sql:
                 n = f"{int(orient[1])}L"
         return f"DetSql.fetchScroll(SQLCA_AREA, {at}, {self.g_str(cursor)}, {self.g_str(orient[0])}, {n}, CS)"
 
+    def _fetch_position(self, m: re.Match[str], line: int, ind: str) -> list[str]:
+        """#4269 (register Q4): FETCH [INSENSITIVE] BEFORE | AFTER [FROM] cursor of a SCROLL cursor
+        (`_refuse_scroll_and_rowset` has vetted it): DetSql.positionScroll parks the cursor before its first row or
+        after its last. SQLCODE 0, no host variable touched, no repository method (no row is read)."""
+        at = self.g_str(f"{self.program}:{line}")
+        return [f"{ind}DetSql.positionScroll(SQLCA_AREA, {at}, {self.g_str(m.group(3).upper())}, "
+                f"{self.g_str(m.group(2).upper())}, CS);"]  # fmt: skip
+
     def _refuse_scroll_and_rowset(self, verb: str, sql: str) -> None:
         """#4269 (register Q4): a multi-row FETCH / INSERT, FETCH BEFORE / AFTER (a position, no row), an orientation on a
         cursor not declared SCROLL, a SENSITIVE or DYNAMIC scroll cursor (the port's rows are a copy made at OPEN) and a
@@ -601,10 +613,22 @@ class Sql:
             raise SqlError(msg + "(register Q4; no burned program uses it)")
         if verb != "FETCH":
             return
-        o = _ORIENT_NO_ROW.match(bare)
-        if o:
-            raise SqlError(f"EXEC SQL FETCH {o.group(1).upper()}: a FETCH that only positions the cursor is not "
-                           "modelled (register Q4; no burned program uses it)")  # fmt: skip
+        o = _ORIENT_NO_ROW.fullmatch(bare)
+        if o:  # FETCH BEFORE | AFTER cursor: a position, no row (the checks below are the scroll cursor's)
+            cursor, orient = o.group(3).upper(), o.group(2).upper()
+            what = f"EXEC SQL FETCH {orient} {cursor}"
+            if cursor not in self.scroll:
+                raise SqlError(f"{what}: a FETCH that only positions the cursor needs a cursor declared SCROLL "
+                               "(register Q4)")  # fmt: skip
+            if self.scroll[cursor][0] or (o.group(1) or "").upper() == "SENSITIVE":
+                raise SqlError(f"{what}: a SENSITIVE or DYNAMIC scroll cursor sees later changes; only an INSENSITIVE or "
+                               "ASENSITIVE one, read once at OPEN, is modelled (register Q4)")  # fmt: skip
+            if self.scroll[cursor][1]:
+                raise SqlError(f"{what}: a scroll cursor WITH HOLD (its position after COMMIT) is not modelled "
+                               "(register Q4)")  # fmt: skip
+            return
+        if re.match(r"FETCH\s+(?:(?:INSENSITIVE|SENSITIVE)\s+)?(?:BEFORE|AFTER)\b", bare, re.I):
+            raise SqlError("EXEC SQL FETCH BEFORE / AFTER: takes a cursor and no INTO, no row is read (register Q4)")
         m = _FETCH.fullmatch(bare)
         if not m:
             return

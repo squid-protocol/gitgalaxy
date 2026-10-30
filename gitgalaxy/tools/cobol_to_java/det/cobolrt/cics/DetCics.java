@@ -840,6 +840,22 @@ public final class DetCics {
         setPointer(ptr, NO_COMMAREA);
     }
 
+    /** #5079 (X59): ADDRESS TWA(ptr) / TCTUA(ptr) (IBM: the address of the transaction work area / terminal control table user
+     *  area; with none defined the pointer holds X'FF000000', as for a task with no COMMAREA). The pointer holds the handle
+     *  of the area's own bytes, so SET ADDRESS OF rec TO ptr shares them across every program of the task (TWA) or task of
+     *  the terminal (TCTUA). */
+    // [rule RT-CICS-ADDRESS]
+    public static void addressTwa(CicsTask task, Field ptr) {
+        long h = task.twaHandle();
+        setPointer(ptr, h == 0 ? NO_COMMAREA : h);
+    }
+
+    // [rule RT-CICS-ADDRESS]
+    public static void addressTctua(CicsTask task, Field ptr) {
+        long h = task.tctuaHandle();
+        setPointer(ptr, h == 0 ? NO_COMMAREA : h);
+    }
+
     /** #5119 (X56): OS/VS COBOL's `MOVE cell TO fullword` (a chained storage area's pointer to the next area): the fullword
      *  takes the token standing for the cell's address (CicsTask.bllToken), 4 bytes big-endian. */
     // [rule RT-CICS-BLL-ADDRESS]

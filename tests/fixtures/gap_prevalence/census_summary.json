@@ -497,7 +497,7 @@
     "none": 0
    },
    "gap": "refused: LayoutDisagrees",
-   "owner": "unowned",
+   "owner": "#6926",
    "programs": 1,
    "refuses_program": true,
    "status": "refused by name"

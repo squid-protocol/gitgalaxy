@@ -1767,7 +1767,7 @@
     },
     "hlasm/che4z_hlasm": {
       "hlasm/che4z_hlasm/A.hlasm": 10.52,
-      "hlasm/che4z_hlasm/AAAAA.hlasm": 13.12,
+      "hlasm/che4z_hlasm/AAAAA.hlasm": 1.32,
       "hlasm/che4z_hlasm/B.hlasm": 10.52,
       "hlasm/che4z_hlasm/BBBBB.hlasm": 11.04,
       "hlasm/che4z_hlasm/CCCCC.hlasm": 10.52,
@@ -1775,14 +1775,14 @@
       "hlasm/che4z_hlasm/code_action_1.hlasm": 10.52,
       "hlasm/che4z_hlasm/code_action_2.hlasm": 15.22,
       "hlasm/che4z_hlasm/comments.hlasm": 13.12,
-      "hlasm/che4z_hlasm/factorial.hlasm": 15.52,
+      "hlasm/che4z_hlasm/factorial.hlasm": 3.52,
       "hlasm/che4z_hlasm/forward_dependency.hlasm": 14.68,
-      "hlasm/che4z_hlasm/infinite.hlasm": 12.6,
+      "hlasm/che4z_hlasm/infinite.hlasm": 1.4,
       "hlasm/che4z_hlasm/output.hlasm": 11.04,
       "hlasm/che4z_hlasm/remote.hlasm": 12.6,
       "hlasm/che4z_hlasm/remote2.hlasm": 12.08,
       "hlasm/che4z_hlasm/tutorial.hlasm": 15.4,
-      "hlasm/che4z_hlasm/virtual_file.hlasm": 15.34
+      "hlasm/che4z_hlasm/virtual_file.hlasm": 3.04
     },
     "hlasm/zecs": {
       "hlasm/zecs/ZECS002.asm": 47.8,

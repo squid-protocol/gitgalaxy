@@ -1766,23 +1766,23 @@
       "hlasm/SOURCES.md": -4971.39
     },
     "hlasm/che4z_hlasm": {
-      "hlasm/che4z_hlasm/A.hlasm": -6138.44,
-      "hlasm/che4z_hlasm/AAAAA.hlasm": -5160.85,
-      "hlasm/che4z_hlasm/B.hlasm": -4944.17,
-      "hlasm/che4z_hlasm/BBBBB.hlasm": -5325.21,
-      "hlasm/che4z_hlasm/CCCCC.hlasm": -5988.23,
-      "hlasm/che4z_hlasm/NOTICE.md": -5050.64,
-      "hlasm/che4z_hlasm/code_action_1.hlasm": -5652.96,
-      "hlasm/che4z_hlasm/code_action_2.hlasm": -5361.03,
-      "hlasm/che4z_hlasm/comments.hlasm": -5661.89,
-      "hlasm/che4z_hlasm/factorial.hlasm": -5563.81,
-      "hlasm/che4z_hlasm/forward_dependency.hlasm": -6003.12,
-      "hlasm/che4z_hlasm/infinite.hlasm": -5797.06,
-      "hlasm/che4z_hlasm/output.hlasm": -5361.46,
-      "hlasm/che4z_hlasm/remote.hlasm": -5082.84,
-      "hlasm/che4z_hlasm/remote2.hlasm": -6076.22,
-      "hlasm/che4z_hlasm/tutorial.hlasm": -5817.62,
-      "hlasm/che4z_hlasm/virtual_file.hlasm": -5569.16
+      "hlasm/che4z_hlasm/A.hlasm": -5052.86,
+      "hlasm/che4z_hlasm/AAAAA.hlasm": -5645.76,
+      "hlasm/che4z_hlasm/B.hlasm": -6150.03,
+      "hlasm/che4z_hlasm/BBBBB.hlasm": -5729.08,
+      "hlasm/che4z_hlasm/CCCCC.hlasm": -5314.64,
+      "hlasm/che4z_hlasm/NOTICE.md": -5050.63,
+      "hlasm/che4z_hlasm/code_action_1.hlasm": -5389.64,
+      "hlasm/che4z_hlasm/code_action_2.hlasm": -5820.91,
+      "hlasm/che4z_hlasm/comments.hlasm": -5284.13,
+      "hlasm/che4z_hlasm/factorial.hlasm": -6117.55,
+      "hlasm/che4z_hlasm/forward_dependency.hlasm": -5533.68,
+      "hlasm/che4z_hlasm/infinite.hlasm": -5956.2,
+      "hlasm/che4z_hlasm/output.hlasm": -5782.29,
+      "hlasm/che4z_hlasm/remote.hlasm": -6040.36,
+      "hlasm/che4z_hlasm/remote2.hlasm": -5126.73,
+      "hlasm/che4z_hlasm/tutorial.hlasm": -5597.83,
+      "hlasm/che4z_hlasm/virtual_file.hlasm": -4953.72
     },
     "hlasm/zecs": {
       "hlasm/zecs/ZECS002.asm": 2659.97,
@@ -1804,11 +1804,11 @@
       "html/SOURCES.md": 5688.44
     },
     "html/angular_adev_templates": {
-      "html/angular_adev_templates/api-reference-list.component.html": -7571.96,
-      "html/angular_adev_templates/app.component.html": -7382.03,
-      "html/angular_adev_templates/navigation.component.html": -7410.71,
-      "html/angular_adev_templates/playground.component.html": -7171.66,
-      "html/angular_adev_templates/update.component.html": -7766.05
+      "html/angular_adev_templates/api-reference-list.component.html": -7571.83,
+      "html/angular_adev_templates/app.component.html": -7381.9,
+      "html/angular_adev_templates/navigation.component.html": -7410.58,
+      "html/angular_adev_templates/playground.component.html": -7171.53,
+      "html/angular_adev_templates/update.component.html": -7765.93
     },
     "html/baseline": {
       "html/baseline/control_polyglot.html": 2061.92,
@@ -2160,16 +2160,16 @@
       "jcl/cobol-programming-course/SRCHSERJ.jcl": 2460.52
     },
     "jcl/zopeneditor-sample": {
-      "jcl/zopeneditor-sample/ALLOCATE.jcl": -6399.47,
-      "jcl/zopeneditor-sample/ASMALLOC.jcl": -6925.5,
-      "jcl/zopeneditor-sample/COMPROC.jcl": -6270.13,
-      "jcl/zopeneditor-sample/COMPSET.jcl": -7059.87,
-      "jcl/zopeneditor-sample/INCLUDE.jcl": -7339.48,
-      "jcl/zopeneditor-sample/PLIALLOC.jcl": -7247.63,
-      "jcl/zopeneditor-sample/REXALLOC.jcl": -7114.13,
-      "jcl/zopeneditor-sample/RUN.jcl": -6793.69,
-      "jcl/zopeneditor-sample/RUNASAM1.jcl": -6829.91,
-      "jcl/zopeneditor-sample/RUNPSAM1.jcl": -6594.6
+      "jcl/zopeneditor-sample/ALLOCATE.jcl": -6399.33,
+      "jcl/zopeneditor-sample/ASMALLOC.jcl": -6925.37,
+      "jcl/zopeneditor-sample/COMPROC.jcl": -6270.0,
+      "jcl/zopeneditor-sample/COMPSET.jcl": -7059.73,
+      "jcl/zopeneditor-sample/INCLUDE.jcl": -7339.34,
+      "jcl/zopeneditor-sample/PLIALLOC.jcl": -7247.49,
+      "jcl/zopeneditor-sample/REXALLOC.jcl": -7113.99,
+      "jcl/zopeneditor-sample/RUN.jcl": -6793.55,
+      "jcl/zopeneditor-sample/RUNASAM1.jcl": -6829.77,
+      "jcl/zopeneditor-sample/RUNPSAM1.jcl": -6594.47
     },
     "json": {
       "json/SOURCES.md": 4308.2
@@ -4003,7 +4003,7 @@
       "yaml/ansible/yaml_parsing/tasks/unsafe.yml": -5009.02
     },
     "yaml/black_action": {
-      "yaml/black_action/action.yml": -8011.88
+      "yaml/black_action/action.yml": -8011.75
     },
     "yaml/grafana_compose": {
       "yaml/grafana_compose/docker_ha-test-unified-alerting_docker-compose.yaml": -4496.6,

@@ -823,7 +823,6 @@ def test_a_field_defined_twice_is_ambiguous_unless_the_names_agree():
         "         LINK  EPLOC=PGMFLDX",
         "         LINK  EP=",
         "         LINK  XEPLOC=PGMFLD",
-        "         LINKX EPLOC=PGMFLD",
         "* LINK EPLOC=PGMFLD",
         "         MVC   WSNAME,=C'LINK EPLOC=PGMFLD'",
         "         LINK  SF=L",

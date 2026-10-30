@@ -371,3 +371,28 @@ def test_committed_census_summary_is_name_free_and_consistent():
     ranks = [(-g["estates"], -g["programs"]) for g in c["gaps"]]
     assert ranks == sorted(ranks)  # highest estate coverage first
     assert all(x["whole"] <= c["programs"] for x in c["coverage_if_closed"])
+
+
+def test_layout_disagrees_owner_and_combined_ranking(rows_and_inv):
+    rows, d = rows_and_inv
+    assert gp.owner_of("refused: LayoutDisagrees") == "#6926"
+    burned = gp.measure(rows, d)
+    census = gp.measure_census({(CENSUS[0], "p.cbl"): row("line 1: EXEC CICS: GETMAIN not modelled")}, {})
+    both = gp.combine(burned, census)
+    getmain = next(g for g in both if g["scope"] == "B+C")
+    assert getmain["estates"] == next(g for g in burned["gaps"] if g["gap"] == getmain["gap"])["estates"] + 1
+    assert all(sum(g["by_era"].values()) == g["programs"] for g in both)
+    ranks = [(-g["estates"], -g["programs"]) for g in both]
+    assert ranks == sorted(ranks)
+    page = gp.render(burned, census)
+    assert page.index("## All estates") < page.index("## Burned estates")
+    assert CENSUS[0] not in page
+    assert "## All estates" not in gp.render(burned)
+
+
+def test_committed_combined_table_adds_the_two_summaries():
+    b = json.loads(gp.SUMMARY.read_text(encoding="utf-8"))
+    c = json.loads(gp.CENSUS_SUMMARY.read_text(encoding="utf-8"))
+    both = gp.combine(b, c)
+    assert sum(g["programs"] for g in both) == sum(g["programs"] for g in b["gaps"] + c["gaps"])
+    assert {g["gap"] for g in both} == {g["gap"] for g in b["gaps"] + c["gaps"]}

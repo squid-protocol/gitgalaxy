@@ -1767,7 +1767,7 @@
     },
     "hlasm/che4z_hlasm": {
       "hlasm/che4z_hlasm/A.hlasm": "Unclassified",
-      "hlasm/che4z_hlasm/AAAAA.hlasm": "file_cluster_17",
+      "hlasm/che4z_hlasm/AAAAA.hlasm": "file_cluster_2",
       "hlasm/che4z_hlasm/B.hlasm": "Unclassified",
       "hlasm/che4z_hlasm/BBBBB.hlasm": "file_cluster_17",
       "hlasm/che4z_hlasm/CCCCC.hlasm": "file_cluster_2",
@@ -1777,7 +1777,7 @@
       "hlasm/che4z_hlasm/comments.hlasm": "file_cluster_2",
       "hlasm/che4z_hlasm/factorial.hlasm": "file_cluster_17",
       "hlasm/che4z_hlasm/forward_dependency.hlasm": "file_cluster_17",
-      "hlasm/che4z_hlasm/infinite.hlasm": "file_cluster_17",
+      "hlasm/che4z_hlasm/infinite.hlasm": "file_cluster_2",
       "hlasm/che4z_hlasm/output.hlasm": "file_cluster_17",
       "hlasm/che4z_hlasm/remote.hlasm": "file_cluster_2",
       "hlasm/che4z_hlasm/remote2.hlasm": "file_cluster_2",

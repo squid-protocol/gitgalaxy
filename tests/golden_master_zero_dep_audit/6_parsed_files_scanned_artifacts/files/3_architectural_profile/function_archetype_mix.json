@@ -1609,35 +1609,38 @@
     },
     "cobol/Z-SMS-Gateway": {
       "cobol/Z-SMS-Gateway/BALANCE.cbl": {
-        "I/O & Config Routines": 2
+        "I/O & Config Routines": 3
       },
       "cobol/Z-SMS-Gateway/HISTORY.cbl": {
-        "I/O & Config Routines": 2
+        "I/O & Config Routines": 3
       },
       "cobol/Z-SMS-Gateway/MESSAGES.cbl": {
-        "I/O & Config Routines": 5
+        "I/O & Config Routines": 6
       },
-      "cobol/Z-SMS-Gateway/SENDSMS.cbl": {}
+      "cobol/Z-SMS-Gateway/SENDSMS.cbl": {
+        "Many-Argument Workhorses": 1
+      }
     },
     "cobol/aws-mainframe-modernization-carddemo": {
       "cobol/aws-mainframe-modernization-carddemo/CBACT01C.cbl": {
-        "I/O & Config Routines": 4,
+        "I/O & Config Routines": 5,
         "Interface Declarations": 2
       },
       "cobol/aws-mainframe-modernization-carddemo/CBACT02C.cbl": {
-        "I/O & Config Routines": 4,
+        "I/O & Config Routines": 5,
         "Interface Declarations": 1
       },
       "cobol/aws-mainframe-modernization-carddemo/CBACT03C.cbl": {
-        "I/O & Config Routines": 4,
+        "I/O & Config Routines": 5,
         "Interface Declarations": 1
       },
       "cobol/aws-mainframe-modernization-carddemo/CBACT04C.cbl": {
+        "Compute Cores": 1,
         "I/O & Config Routines": 19,
         "Interface Declarations": 3
       },
       "cobol/aws-mainframe-modernization-carddemo/CBCUS01C.cbl": {
-        "I/O & Config Routines": 4,
+        "I/O & Config Routines": 5,
         "Interface Declarations": 1
       },
       "cobol/aws-mainframe-modernization-carddemo/CBTRN01C.cbl": {
@@ -1645,11 +1648,11 @@
         "Interface Declarations": 1
       },
       "cobol/aws-mainframe-modernization-carddemo/CBTRN02C.cbl": {
-        "I/O & Config Routines": 24,
+        "I/O & Config Routines": 25,
         "Interface Declarations": 2
       },
       "cobol/aws-mainframe-modernization-carddemo/CBTRN03C.cbl": {
-        "I/O & Config Routines": 19,
+        "I/O & Config Routines": 20,
         "Interface Declarations": 7
       },
       "cobol/aws-mainframe-modernization-carddemo/COACTUP.CPY": {},
@@ -1751,7 +1754,8 @@
       },
       "cobol/aws-mainframe-modernization-carddemo/CSUTLDTC.cbl": {
         "I/O & Config Routines": 1,
-        "Interface Declarations": 1
+        "Interface Declarations": 1,
+        "Many-Argument Workhorses": 1
       },
       "cobol/aws-mainframe-modernization-carddemo/CSUTLDWY.cpy": {},
       "cobol/aws-mainframe-modernization-carddemo/CUSTREC.cpy": {},
@@ -1776,7 +1780,7 @@
     },
     "cobol/cash-account-cobol": {
       "cobol/cash-account-cobol/CASH00.cbl": {
-        "I/O & Config Routines": 6
+        "I/O & Config Routines": 7
       },
       "cobol/cash-account-cobol/DCLCASH.cpy": {},
       "cobol/cash-account-cobol/DCLFRANK.cpy": {}
@@ -1789,21 +1793,39 @@
       "cobol/che-che4z-lsp-for-cobol/SQLDA.cpy": {}
     },
     "cobol/che-che4z_lsp_project_fixtures": {
-      "cobol/che-che4z_lsp_project_fixtures/ABCD.cbl": {},
-      "cobol/che-che4z_lsp_project_fixtures/ADSORT.cbl": {},
+      "cobol/che-che4z_lsp_project_fixtures/ABCD.cbl": {
+        "I/O & Config Routines": 1
+      },
+      "cobol/che-che4z_lsp_project_fixtures/ADSORT.cbl": {
+        "Compute Cores": 1
+      },
       "cobol/che-che4z_lsp_project_fixtures/BASIC.cbl": {
         "Interface Declarations": 2
       },
-      "cobol/che-che4z_lsp_project_fixtures/CALL.cbl": {},
-      "cobol/che-che4z_lsp_project_fixtures/CFAST.cbl": {},
-      "cobol/che-che4z_lsp_project_fixtures/DIAGNOSTIC_TEST_A.CBL": {},
-      "cobol/che-che4z_lsp_project_fixtures/DIAGNOSTIC_TEST_B.CBL": {},
-      "cobol/che-che4z_lsp_project_fixtures/DIAGNOSTIC_TEST_C.CBL": {},
-      "cobol/che-che4z_lsp_project_fixtures/HELLO-WORLD.cbl": {},
-      "cobol/che-che4z_lsp_project_fixtures/HOVER.CBL": {},
+      "cobol/che-che4z_lsp_project_fixtures/CALL.cbl": {
+        "I/O & Config Routines": 1
+      },
+      "cobol/che-che4z_lsp_project_fixtures/CFAST.cbl": {
+        "Interface Declarations": 3
+      },
+      "cobol/che-che4z_lsp_project_fixtures/DIAGNOSTIC_TEST_A.CBL": {
+        "Interface Declarations": 1
+      },
+      "cobol/che-che4z_lsp_project_fixtures/DIAGNOSTIC_TEST_B.CBL": {
+        "Interface Declarations": 1
+      },
+      "cobol/che-che4z_lsp_project_fixtures/DIAGNOSTIC_TEST_C.CBL": {
+        "Interface Declarations": 1
+      },
+      "cobol/che-che4z_lsp_project_fixtures/HELLO-WORLD.cbl": {
+        "Interface Declarations": 1
+      },
+      "cobol/che-che4z_lsp_project_fixtures/HOVER.CBL": {
+        "I/O & Config Routines": 1
+      },
       "cobol/che-che4z_lsp_project_fixtures/HOVER_COPYBOOK_NESTED.CBL": {},
       "cobol/che-che4z_lsp_project_fixtures/HOVER_PARA.CBL": {
-        "Interface Declarations": 3
+        "Interface Declarations": 4
       },
       "cobol/che-che4z_lsp_project_fixtures/LICENSE.md": {},
       "cobol/che-che4z_lsp_project_fixtures/PAYLIB.CBL": {
@@ -1829,9 +1851,15 @@
         "I/O & Config Routines": 1,
         "Interface Declarations": 1
       },
-      "cobol/che-che4z_lsp_project_fixtures/TEST14.CBL": {},
-      "cobol/che-che4z_lsp_project_fixtures/TEST15.CBL": {},
-      "cobol/che-che4z_lsp_project_fixtures/TEST16.CBL": {},
+      "cobol/che-che4z_lsp_project_fixtures/TEST14.CBL": {
+        "I/O & Config Routines": 1
+      },
+      "cobol/che-che4z_lsp_project_fixtures/TEST15.CBL": {
+        "I/O & Config Routines": 1
+      },
+      "cobol/che-che4z_lsp_project_fixtures/TEST16.CBL": {
+        "I/O & Config Routines": 1
+      },
       "cobol/che-che4z_lsp_project_fixtures/TEST2.CBL": {
         "Interface Declarations": 1
       },
@@ -1847,11 +1875,15 @@
       "cobol/che-che4z_lsp_project_fixtures/TEST5.CBL": {
         "Interface Declarations": 1
       },
-      "cobol/che-che4z_lsp_project_fixtures/TEST51.CBL": {},
+      "cobol/che-che4z_lsp_project_fixtures/TEST51.CBL": {
+        "Interface Declarations": 1
+      },
       "cobol/che-che4z_lsp_project_fixtures/TEST6.CBL": {
         "Interface Declarations": 1
       },
-      "cobol/che-che4z_lsp_project_fixtures/TEST61.CBL": {},
+      "cobol/che-che4z_lsp_project_fixtures/TEST61.CBL": {
+        "I/O & Config Routines": 1
+      },
       "cobol/che-che4z_lsp_project_fixtures/TEST7.CBL": {
         "Interface Declarations": 1
       },
@@ -1900,7 +1932,9 @@
         "I/O & Config Routines": 6,
         "Interface Declarations": 7
       },
-      "cobol/che-che4z_lsp_project_fixtures/cobol-dc_ABCD.cbl": {},
+      "cobol/che-che4z_lsp_project_fixtures/cobol-dc_ABCD.cbl": {
+        "I/O & Config Routines": 1
+      },
       "cobol/che-che4z_lsp_project_fixtures/cobol-idms_DACOSMPL.cbl": {
         "I/O & Config Routines": 6,
         "Interface Declarations": 7
@@ -1911,6 +1945,7 @@
         "State Mutators": 1
       },
       "cobol/che-che4z_lsp_project_fixtures/cobol-sample_SAMPLE1.cbl": {
+        "I/O & Config Routines": 1,
         "Interface Declarations": 4,
         "State Mutators": 1
       },
@@ -3080,14 +3115,17 @@
     },
     "cobol/cobol-check": {
       "cobol/cobol-check/TESTPRG.CBL": {
-        "I/O & Config Routines": 17,
+        "I/O & Config Routines": 18,
         "Interface Declarations": 2
       },
       "cobol/cobol-check/copybooks_CCHECKPD.CPY": {},
       "cobol/cobol-check/copybooks_CCHECKWS.CPY": {},
       "cobol/cobol-check/copybooks_DFHEIBLK.CPY": {},
-      "cobol/cobol-check/src_main_cobol_ALPHA.CBL": {},
+      "cobol/cobol-check/src_main_cobol_ALPHA.CBL": {
+        "Interface Declarations": 1
+      },
       "cobol/cobol-check/src_main_cobol_BIPM012.CBL": {
+        "I/O & Config Routines": 1,
         "Interface Declarations": 1
       },
       "cobol/cobol-check/src_main_cobol_DB2PROG.cbl": {
@@ -3100,14 +3138,15 @@
       },
       "cobol/cobol-check/src_main_cobol_FileCopy.cbl": {
         "I/O & Config Routines": 3,
-        "Interface Declarations": 3
+        "Interface Declarations": 4
       },
       "cobol/cobol-check/src_main_cobol_GREETING.CBL": {
-        "I/O & Config Routines": 2
+        "I/O & Config Routines": 2,
+        "Interface Declarations": 1
       },
       "cobol/cobol-check/src_main_cobol_LONGLINESANDNUMBERS.CBL": {
         "I/O & Config Routines": 1,
-        "Interface Declarations": 1
+        "Interface Declarations": 2
       },
       "cobol/cobol-check/src_main_cobol_MOCK.CBL": {
         "I/O & Config Routines": 6,
@@ -3123,10 +3162,12 @@
         "Interface Declarations": 9,
         "State Mutators": 2
       },
-      "cobol/cobol-check/src_main_cobol_NUMBERS.CBL": {},
+      "cobol/cobol-check/src_main_cobol_NUMBERS.CBL": {
+        "Interface Declarations": 1
+      },
       "cobol/cobol-check/src_main_cobol_REPLAC.CBL": {
         "I/O & Config Routines": 2,
-        "Interface Declarations": 1
+        "Interface Declarations": 2
       },
       "cobol/cobol-check/src_main_cobol_RETURNCODE.CBL": {
         "I/O & Config Routines": 1
@@ -3135,7 +3176,7 @@
         "I/O & Config Routines": 1
       },
       "cobol/cobol-check/src_main_cobol_WS88LEVEL.CBL": {
-        "Interface Declarations": 1
+        "Interface Declarations": 2
       },
       "cobol/cobol-check/src_main_cobol_copy_BADCOPY-padded.CBL": {},
       "cobol/cobol-check/src_main_cobol_copy_BADCOPY.CBL": {},
@@ -3190,11 +3231,11 @@
       },
       "cobol/cobol-programming-course/DEPTPAY.CBL": {
         "I/O & Config Routines": 1,
-        "Interface Declarations": 1
+        "Interface Declarations": 2
       },
       "cobol/cobol-programming-course/EMPPAY.CBL": {
         "I/O & Config Routines": 3,
-        "Interface Declarations": 1
+        "Interface Declarations": 2
       }
     },
     "cobol/cobrix": {
@@ -3236,12 +3277,16 @@
         "Interface Declarations": 1
       },
       "cobol/gnucobol/COPYING": {},
-      "cobol/gnucobol/numeric-display.cob": {},
-      "cobol/gnucobol/numeric-dump.cob": {},
+      "cobol/gnucobol/numeric-display.cob": {
+        "I/O & Config Routines": 1
+      },
+      "cobol/gnucobol/numeric-dump.cob": {
+        "I/O & Config Routines": 1
+      },
       "cobol/gnucobol/sqlca.cpy": {},
       "cobol/gnucobol/sqlda.cpy": {},
       "cobol/gnucobol/tutorial.cob": {
-        "I/O & Config Routines": 4,
+        "I/O & Config Routines": 5,
         "Interface Declarations": 2
       },
       "cobol/gnucobol/xfhfcd.cpy": {},
@@ -3293,21 +3338,21 @@
     "cobol/zECS": {
       "cobol/zECS/ECS001.cbl": {
         "I/O & Config Routines": 8,
-        "Interface Declarations": 8
+        "Interface Declarations": 9
       },
       "cobol/zECS/ZECS000.cbl": {
         "Defensive Guards": 1,
-        "I/O & Config Routines": 21,
+        "I/O & Config Routines": 22,
         "Interface Declarations": 24
       },
       "cobol/zECS/ZECS003.cbl": {
         "Defensive Guards": 1,
-        "I/O & Config Routines": 9,
+        "I/O & Config Routines": 10,
         "Interface Declarations": 12
       },
       "cobol/zECS/ZECSPLT.cbl": {
         "Defensive Guards": 1,
-        "I/O & Config Routines": 4,
+        "I/O & Config Routines": 5,
         "Interface Declarations": 7
       },
       "cobol/zECS/ZECSZFC.cpy": {},

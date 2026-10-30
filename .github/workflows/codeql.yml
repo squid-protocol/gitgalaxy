@@ -15,7 +15,7 @@ on:
       - "requirements*.txt"
       - "action.yml"
   schedule:
-    - cron: '0 12 * * 1'
+    - cron: '0 12 * * *'  # daily: a weekly scan let alerts land in batches, days after the PR that added them
 
 permissions:
   contents: read
@@ -55,12 +55,31 @@ jobs:
           persist-credentials: false
 
       - name: Initialize CodeQL
+        env:
+          CODEQL_ACTION_DIFF_INFORMED_QUERIES: "false"  # a PR's analysis held no results at all (#6719: 0, main 405)
         uses: github/codeql-action/init@6f2ac81f5cd81fe351a197ba0b00d91d03cd2aee # v4.39.0
         with:
           languages: ${{ matrix.language }}
           queries: security-extended,security-and-quality
 
       - name: Perform CodeQL Analysis
+        env:
+          CODEQL_ACTION_DIFF_INFORMED_QUERIES: "false"
         uses: github/codeql-action/analyze@6f2ac81f5cd81fe351a197ba0b00d91d03cd2aee # v4.39.0
         with:
           category: "/language:${{matrix.language}}"
+          output: codeql-results
+
+      # Report only for now: it never fails the job. With --enforce a new result fails Analyze, and ci-gate holds the PR.
+      - name: Report the results this PR adds
+        if: ${{ github.event_name == 'pull_request' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          id=$(gh api "repos/$REPO/code-scanning/analyses?ref=refs/heads/main&tool_name=CodeQL&per_page=1" --jq '.[0].id') || exit 0
+          gh api "repos/$REPO/code-scanning/analyses/$id" -H "Accept: application/sarif+json" > main.sarif || exit 0
+          mapfile -t files < <(gh api --paginate "repos/$REPO/pulls/$PR/files" --jq '.[].filename' || true)
+          python3 tests/tools/codeql_new_alerts.py --sarif codeql-results --baseline main.sarif \
+            --summary "$GITHUB_STEP_SUMMARY" --files "${files[@]}" || true

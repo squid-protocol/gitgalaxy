@@ -4494,10 +4494,24 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
     zero waits for a burned reader that can observe it.
     Re-checked 2026-10-30: ZECS001's one EIBRCODE read is in `9100-FILE-ERROR`, performed only after a non-NORMAL response;
     `test_eibrcode_error_paths_5126.py` pins that and fails on a read that could see the normal-response value.
+- **EIBFN / EIBRCODE box closed (2026-10-30, #5126).** Ladder for ZECS001's one EIBRCODE read: translated whole; executed-equivalent
+  on the four ZC01FILE IOERR / NOSPACE faults (`det_port.py run zecs-zecs001`); the nine ZC01KEY rcodes are unobserved scenario facts
+  (`9200-KEY-ERROR` does not read the field). Assumption relied on: each `rcode` is the scenario author's (ASSUMED), no IBM table is
+  copied. Residual risk: a normal response leaves EIBRCODE as it was (no burned read observes it), and EIBFN stays refused by name
+  (ZECS000 / ZECS001 / ZECS003 name it only in literals). Why the read was missing from the old survey list: ZECS001 was not
+  translated whole then, and the survey ranks whole programs only. `test_eibrcode_error_paths_5126.py` now also pins that the case
+  states `rcode` and `proof_blockers` lists no EIBRCODE gap for it.
 - **Checklist members settled (2026-10-30, #5126).** The four burned programs that read ASSIGN STARTCODE (ASYNCPNT, SEQPNT, LGICVS01,
   LGIPVS01) each have an equivalence case that states it, so `proof_blockers` lists no STARTCODE gap for any whole burned program.
   `cics_census.py` and `embedded_verb_coverage.py` hold no EIB-name scan (the latter only lists ASSIGN STARTCODE as a verb), so they
   cannot share the literal / hyphen false positive of #5125. Both are pinned by `tests/cobol_mainframe/test_eib_scans_5126.py`.
+- **EIBCPOSN / EIBREQID / EIBRSRCE / EIBERR / EIBERRCD settled (2026-10-30, #5126): refused by name.** No burned program reads
+  any of them (`test_eib_fn_rcode_5126.py`: ZECS001 / EIBRCODE is the only reader), so none is modelled and no IBM value is copied.
+  Each stays a named `fact:` gap in `proof_blockers`; `tests/cobol_mainframe/test_eib_other_fields_5126.py` pins that, the
+  absence of a burned reader, and that the stub assigns none of them. EIBREQID is the one writer: POST without REQID moves the
+  generated id into it (X63, ASSUMED POSTnnnn), so it is set but not a modelled fact a case can state. Evidence: translated and
+  pinned; NOT executed-equivalent (no program reads them). Residual risk: a future reader sees zero / spaces on both sides,
+  which agree with each other and not necessarily with z/OS; the guard fails first and sends whoever finds it to model the field.
 
 ### X65. The EXEC CICS commands refused whole by name, by class, with the reason for each (#4270)
 - **What this entry is.** #4270's last acceptance line: "every still-refused verb listed in the register with a reason". The spec

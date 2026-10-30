@@ -60,6 +60,9 @@ DEFINITION: dict[str, Any] = {
     # #3477: IMS PSB / DBD generation sources are HLASM macro members (PSBGEN,
     # PCB, SENSEG, DBDGEN, SEGM, FIELD ...); nothing else claims `.psb` / `.dbd`.
     "extensions": [".asm", ".hlasm", ".mac", ".psb", ".dbd"],
+    # #7064: `.mac` is NASM / MASM / troff / DSP macro files at least as often as HLASM macro members, so hlasm owns it
+    # only on the internal_discriminator's proof (an `&` prototype, CSECT/USING ...), or the mainframe-sibling gravity.
+    "extensions_needing_discriminator": [".mac"],
     "exact_matches": [],
     # ECOSYSTEM ANCHORS (#2503's ask): the mainframe sources HLASM lives
     # beside -- the JCL that assembles and runs it, the COBOL/PL/I programs and
@@ -85,7 +88,17 @@ DEFINITION: dict[str, Any] = {
     "internal_discriminator": re.compile(
         r"^"
         + _ID
-        + r"{0,63}[ \t]+(?:CSECT|DSECT|RSECT|AMODE|RMODE|USING|LTORG|MEND|DFHEIENT|DFHEIRET)"
+        + r"{0,63}[ \t]+(?:CSECT|DSECT|RSECT|AMODE|RMODE|USING|DFHEIENT|DFHEIRET)"
+        + _OPEND
+        # #7064: MEND and LTORG are ARM armasm's too (MACRO..MEND, LTORG), so they never lock alone: 92
+        # armasm64 MEND closers sent 7 of 11 CoreCLR .asm files to hlasm. A macro member counts by its
+        # `&` prototype (armasm's is `$`), or by conditional-assembly ops armasm lacks (AIF/AGO/ANOP/MNOTE).
+        + r"|^[ \t]+MACRO[ \t\r]*\n(?:\.?\*[^\n]*\n)*[^\n*][^\n]*&[A-Z"
+        + NATIONAL
+        + r"a-z]"
+        + r"|^[&.]?"
+        + _ID
+        + r"{0,63}[ \t]+(?:AIF|AGO|ANOP|MNOTE)"
         + _OPEND
         + r"|^R[0-9]{1,2}[ \t]+EQU[ \t]+[0-9]{1,2}\b(?:[\s\S]*?^R[0-9]{1,2}[ \t]+EQU[ \t]+[0-9]{1,2}\b){2}",
         re.M | re.I,

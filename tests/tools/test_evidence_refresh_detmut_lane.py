@@ -39,6 +39,15 @@ def test_a_moved_port_warns_and_any_other_failure_fails_the_job(jobs):
     assert any(s.get("if") == "steps.detmut.outcome == 'failure'" for s in job["steps"])
 
 
+def test_the_lane_runs_the_moved_ports_within_a_budget_under_the_job_timeout(jobs):
+    """A ledger whose det port moved stays stale until `run` records it: the lane runs them, oldest first (#5862)."""
+    job = jobs["det-mutation"]
+    step = next(s for s in job["steps"] if s.get("id") == "detmut")
+    assert "--run-moved" in step["run"]
+    budget = int(step["run"].split("--budget-min")[1].split()[0])
+    assert 0 < budget < job["timeout-minutes"]
+
+
 def test_the_ledgers_reach_the_refresh_job_and_the_bot_pr(jobs):
     assert "det-mutation" in jobs["refresh"]["needs"]
     take = next(s for s in jobs["refresh"]["steps"] if s.get("id") == "detmut_in")

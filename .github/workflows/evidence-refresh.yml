@@ -963,10 +963,11 @@ jobs:
         run: |
           cd gitgalaxy
           set +e
-          python tests/tools/det_mutation.py refresh --work "$RUNNER_TEMP/detmut" | tee "$RUNNER_TEMP/detmut.txt"
+          # a moved port is run again (oldest ledger first) until 90 of the job's 120 minutes are spent; the rest wait for the next night
+          python tests/tools/det_mutation.py refresh --run-moved --budget-min 90 --work "$RUNNER_TEMP/detmut" | tee "$RUNNER_TEMP/detmut.txt"
           rc=${PIPESTATUS[0]}
           if [ "$rc" -eq 2 ]; then
-            echo "::warning title=det mutation::a det port moved since its ledger was cut: run det_mutation.py run for it (see the summary)"
+            echo "::warning title=det mutation::a det port moved since its ledger was cut and the run budget ended first: it is run again on the next night (see the summary)"
             rc=0
           fi
           exit "$rc"

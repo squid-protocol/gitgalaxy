@@ -86,6 +86,22 @@ def test_a_program_with_the_four_pointer_statements_translates_whole(tmp_path):
     assert "setPointerToItem" not in java and "setAddressOfItem" not in java  # a LINKAGE 01 record: unchanged output
 
 
+def test_getmain_without_initimg_translates_and_is_refused_only_when_it_would_acquire_storage(tmp_path):
+    """#6876 (X47, CAGMZ): IBM gives GETMAIN storage no default contents, so INITIMG is optional at translation: a length
+    below 1 is LENGERR before any storage exists (the pointer zero), a valid length is refused by name when it runs (the
+    runtime refusal is pinned in test_a_record_set_onto_a_block_is_an_alias_of_it). A literal or wide INITIMG stays refused."""
+    source = PROGRAM.replace(
+        "FLENGTH(GETMAIN-LENGTH)\n                INITIMG(BINARY-ZEROES) NOHANDLE", "FLENGTH(GETMAIN-LENGTH) NOHANDLE"
+    )
+    assert source != PROGRAM
+    r = _translate(tmp_path, source)
+    assert r.stats["holes"] == [], r.stats["holes"]
+    assert ", -1);" in r.java and "task.getmain(" in r.java and "DetCics.setPointer(" in r.java
+    assert "DetCics.getmain(task, " not in r.java
+    literal = PROGRAM.replace("INITIMG(BINARY-ZEROES)", "INITIMG('Q')")
+    assert any("INITIMG as a literal" in h for h in _translate(tmp_path, literal).stats["holes"])
+
+
 def test_address_of_a_subordinate_or_working_storage_item_is_a_windowed_alias(tmp_path):
     """#4771 (X47): SET ADDRESS OF record TO ADDRESS OF item and SET ptr TO ADDRESS OF item, for an item inside a record
     (ZECS001's ZF-DATA) or a WORKING-STORAGE record, translate whole through the window calls."""
@@ -306,6 +322,14 @@ public class Main {
         int[] z = DetCics.getmain(t, p3, 0, false, init);
         System.out.println(z[0] + "/" + z[1] + " " + DetCics.pointerValue(p3));
         refused(() -> DetCics.setAddress(t, rec(4), p3));
+        for (long n : new long[] {0, -1}) {
+            long[] u = t.getmain(n, false, -1);
+            System.out.println("no INITIMG, length " + n + ": " + u[0] + "/" + u[1] + " " + u[2]);
+        }
+        long[] h = t.getmain(0, true, -1);
+        System.out.println("no INITIMG, LENGTH 0: " + h[0] + "/" + h[1] + " " + h[2]);
+        refused(() -> t.getmain(8, false, -1));
+        refused(() -> t.getmain(8, true, -1));
         Field slice = Field.alphanumeric(a1.storage(), 2, 2, false);
         refused(() -> DetCics.setAddress(t, slice, ptr2));
     }
@@ -334,6 +358,11 @@ public class Main {
         "FREEMAIN of storage already freed or received: not modelled",
         "22/1 0",
         "SET ADDRESS OF a null or unknown pointer: not modelled",
+        "no INITIMG, length 0: 22/1 0",
+        "no INITIMG, length -1: 22/1 0",
+        "no INITIMG, LENGTH 0: 22/1 0",
+        "GETMAIN without INITIMG acquired storage: not modelled",
+        "GETMAIN without INITIMG acquired storage: not modelled",
         "SET ADDRESS OF an item that is not a whole 01 record: not modelled",
     ]
 

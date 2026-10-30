@@ -83,6 +83,36 @@ def test_refusal_in_top_makes_coverage_an_upper_bound(tmp_path):
     assert res["coverage_if_closed"][0]["whole"] == 1
 
 
+def test_close_next_is_greedy_by_programs_gained(rows_and_inv):
+    rows, d = rows_and_inv
+    res = gp.measure(rows, d)
+    steps = res["close_next"]
+    assert steps[0]["gap"] == "EXEC CICS GETMAIN"  # a1 and b1 turn whole
+    first = steps[0]
+    assert first["gained"] == 2 and first["whole"] == res["whole_now"] + 2
+    assert first["gained_by_era"] == {"0": 0, "1": 1, "2": 1, "3": 0, "4": 0, "none": 0}
+    assert sum(s["gained"] for s in steps) + res["whole_now"] == steps[-1]["whole"]
+    assert all(a["whole"] < b["whole"] for a, b in zip(steps, steps[1:], strict=False))
+    assert steps[-1]["whole"] <= res["programs"]
+    assert any(s["upper_bound"] for s in steps)  # a refusal gap is among the single-gap programs
+
+
+def test_close_next_breaks_ties_by_estates_then_name_and_stops_when_nothing_is_gained():
+    progs = [("e1", "2", {"b gap"}), ("e1", "2", {"a gap"}), ("e2", "2", {"b gap"}), ("e1", "3", {"x", "y"})]
+    gaps = gp.rank(progs, "t")["gaps"]
+    steps = gp.close_next(progs, gaps)
+    assert [s["gap"] for s in steps] == ["b gap", "a gap"]  # b: 2 programs; then a
+    assert steps[-1]["whole"] == 3  # the x+y program only helps in combination: not listed
+    assert "close_next" in gp.rank(progs, "t")
+    assert "close_next" not in gp.rank([("e1", "2", set())], "t")  # added only when non-empty
+
+
+def test_close_next_is_rendered(rows_and_inv):
+    rows, d = rows_and_inv
+    page = gp.render(gp.measure(rows, d))
+    assert "Close-next order" in page and "| 1 | `EXEC CICS GETMAIN` | 2 |" in page
+
+
 def test_non_burned_corpus_is_refused(tmp_path):
     with pytest.raises(ValueError, match="not burned"):
         gp.measure({("some-census-repo", "p.cbl"): row("line 1: EXEC SQL: X")}, tmp_path)

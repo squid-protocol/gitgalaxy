@@ -54,7 +54,7 @@ WHAT IT MEASURES
     channel) and the per-function slicer run after the regex, so a language with a
     filter reads higher here than in a manifest. That is the right thing for a
     rule audit (it isolates the regex) and the wrong thing for a corpus bless
-    (use tests/tools/rosetta_audit.py for that).
+    (use the rosetta-audit workflow tool for that).
 
 Run it from a worktree with PYTHONPATH pointing at that worktree, so the registry
 you probe is the one you are editing (the sibling .venv is an editable install of

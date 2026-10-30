@@ -62,6 +62,12 @@ One ranking over both scopes, highest estate coverage first; estates and program
 | 3 | 128 / 129 | 99.2% | exact |
 | 5 | 128 / 129 | 99.2% | exact |
 
+Close-next order (greedy: each step closes the gap that makes the most further programs whole, given the steps before it):
+
+| step | gap closed | newly whole | e0 | e1 | e2 | e3 | e4 | none | whole | share | bound |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | `<name>: <name> is not defined in a record of file <name>` | 2 | 0 | 0 | 0 | 2 | 0 | 0 | 128 / 129 | 99.2% | exact |
+
 ## Census estates (9 estates, 40 programs, 8 translate whole today)
 
 Counted by tools only; non-burned estates keep their first-contact numbers. Aggregates under opaque `census-*` labels: no program, table or copybook name is kept, and a gap key that could carry one is collapsed to its class (`scrub_key`).

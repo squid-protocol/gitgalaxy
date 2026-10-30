@@ -44,11 +44,24 @@ def test_a_path_in_the_area_runs(path):
         "tests/tools/test_shepherd_gh.py",
         "tests/tools/box/heavy-run.sh",
         ".github/workflows/rosetta-audit.yml",
-        "tests/tools/rosetta_audit.py",
     ],
 )
 def test_a_path_outside_the_area_does_not(path):
     assert plan([path])["mode"] == "none"
+
+
+def test_a_tool_outside_the_live_ground_truth_closure_does_not_run():
+    # #7103: a pinned example went stale when a mainframe test began naming a tool that chains to it; derive one.
+    reached = cc.ground_truth_scopes(workflow=True)
+    outside = sorted(
+        p.relative_to(REPO).as_posix()
+        for p in TOOLS.glob("*.py")
+        if not p.name.startswith(("test_", "conftest"))
+        and not cc.PATTERN_HOLDERS.search(p.as_posix())
+        and p.relative_to(REPO).as_posix() not in reached
+    )
+    assert outside, "every tests/tools module is now reached by the ground-truth job"
+    assert plan([outside[0]])["mode"] == "none"
 
 
 def test_a_test_tool_the_cobol_tests_reach_runs():

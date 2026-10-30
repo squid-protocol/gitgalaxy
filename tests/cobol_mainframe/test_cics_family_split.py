@@ -490,6 +490,8 @@ FAULT_JAVA_METHODS = (
     "fileFault",
     "undefinableFile",
     "planned",
+    "rcode",
+    "rcodeOf",
 )
 
 

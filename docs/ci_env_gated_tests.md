@@ -49,11 +49,8 @@ The five files the shards `--ignore` and the `db2` job names: `test_equivalence_
 `test_sql_dynamic`, `test_sql_unit_of_work`, `test_sql_whenever` (all under `tests/cobol_mainframe/`; needs: db2, docker,
 jdk_maven). Retiring a test that can no longer run (step 3 of the issue) is still open.
 
-## Deselected in the db2 job (failed on their first CI run)
+## Deselected in the db2 job
 
-None of the shard files carries a `--deselect` any more. Two tests in the five Db2 files were never executed in CI before #5954 and fail on a pristine checkout, locally and on
-the runner; each is a defect to fix in the engine or the test, then drop its `--deselect`.
-
-The `db2` job `--deselect`s `test_sql_unit_of_work.py::test_uowdemo_det_port_proves_on_db2_against_the_hand_trace` (both `[N]` and `[A]`): the det port's `DetMq.java` fails to compile on a pristine checkout (`package com.gitgalaxy.modernized.cics
-does not exist`, `CicsTask` not found: the generated estate carries no `cics` package for a batch program that uses MQ
-stubs). The other tests of the five files pass locally against Db2 (178 of 181 ran: 128 in four files, 50 in the rows file, 34 min serial).
+None: the two tests that failed on their first CI run (#5954) are fixed and no shard carries a `--deselect`. The last,
+`test_sql_unit_of_work.py::test_uowdemo_det_port_proves_on_db2_against_the_hand_trace`, copied `cobolrt/cics/*.java` (`DetMq` imports
+`CicsTask`) into an estate with no `cics` package; the test now leaves the whole `cobolrt/cics/` directory out (`DetCics`, `DetMq`, `DetJustify`).

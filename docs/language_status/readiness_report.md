@@ -12,8 +12,8 @@ the charter in `definition_of_done.md`. Counts only; a level is an evidence leve
 | L0 inventoried | 2 |
 | L1 translated whole | 0 |
 | L2 executed equivalent | 0 |
-| L3 paragraph coverage | 4 |
-| L4 branch coverage | 38 |
+| L3 paragraph coverage | 1 |
+| L4 branch coverage | 41 |
 | L5 mutants accounted for | 0 |
 
 - translated whole: 42 / 44 (95%); with holes: 2; refused: 0
@@ -31,11 +31,11 @@ era 0: 0, era 1: 5, era 2: 22, era 3: 15, era 4: 0, era none: 2
 |---|---|---|---|---|---|
 | 1 | <name>: <name> is not defined in a record of file <name> | 2 | 0 | 2 | era 3: 2 |
 
-### Proof blockers (42 programs translated whole, 38 with no proof gap; top 1 of 1 classes, `proof_blockers.py` statistics)
+### Proof blockers (42 programs translated whole, 41 with no proof gap; top 1 of 1 classes, `proof_blockers.py` statistics)
 
 | rank | what stops the proof | alone | one gap away | touched |
 |---|---|---|---|---|
-| 1 | coverage: branch outcomes below the bar | 4 | 0 | 4 |
+| 1 | coverage: branch outcomes below the bar | 1 | 0 | 1 |
 
 ### Missing inputs
 
@@ -119,8 +119,8 @@ era 0: 0, era 1: 0, era 2: 0, era 3: 0, era 4: 7, era none: 3
 | L0 inventoried | 0 |
 | L1 translated whole | 0 |
 | L2 executed equivalent | 0 |
-| L3 paragraph coverage | 1 |
-| L4 branch coverage | 30 |
+| L3 paragraph coverage | 0 |
+| L4 branch coverage | 31 |
 | L5 mutants accounted for | 0 |
 
 - translated whole: 31 / 31 (100%); with holes: 0; refused: 0
@@ -137,11 +137,10 @@ era 0: 0, era 1: 0, era 2: 22, era 3: 1, era 4: 6, era none: 2
 | rank | rule (gap class) | makes whole alone | one rule away | touched | era mix of the alone-set |
 |---|---|---|---|---|---|
 
-### Proof blockers (31 programs translated whole, 30 with no proof gap; top 1 of 1 classes, `proof_blockers.py` statistics)
+### Proof blockers (31 programs translated whole, 31 with no proof gap; top 0 of 0 classes, `proof_blockers.py` statistics)
 
 | rank | what stops the proof | alone | one gap away | touched |
 |---|---|---|---|---|
-| 1 | coverage: branch outcomes below the bar | 1 | 0 | 1 |
 
 ### Missing inputs
 
@@ -299,9 +298,9 @@ era 0: 0, era 1: 0, era 2: 2, era 3: 0, era 4: 1, era none: 3
 |---|---|
 | L0 inventoried | 0 |
 | L1 translated whole | 0 |
-| L2 executed equivalent | 3 |
+| L2 executed equivalent | 1 |
 | L3 paragraph coverage | 0 |
-| L4 branch coverage | 4 |
+| L4 branch coverage | 6 |
 | L5 mutants accounted for | 0 |
 
 - translated whole: 7 / 7 (100%); with holes: 0; refused: 0
@@ -318,12 +317,11 @@ era 0: 0, era 1: 0, era 2: 0, era 3: 0, era 4: 4, era none: 3
 | rank | rule (gap class) | makes whole alone | one rule away | touched | era mix of the alone-set |
 |---|---|---|---|---|---|
 
-### Proof blockers (7 programs translated whole, 4 with no proof gap; top 2 of 2 classes, `proof_blockers.py` statistics)
+### Proof blockers (7 programs translated whole, 6 with no proof gap; top 1 of 1 classes, `proof_blockers.py` statistics)
 
 | rank | what stops the proof | alone | one gap away | touched |
 |---|---|---|---|---|
-| 1 | coverage: not measured | 2 | 0 | 2 |
-| 2 | coverage: paragraphs below the bar | 1 | 0 | 1 |
+| 1 | coverage: paragraphs below the bar | 1 | 0 | 1 |
 
 ### Missing inputs
 

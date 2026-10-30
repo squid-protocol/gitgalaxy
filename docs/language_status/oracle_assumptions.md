@@ -2246,6 +2246,17 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   as X'C1C2C3F1F2F3', not the X'414243313233' the program meant). That is the hex-literal / TS-page convention of #4528, shared by
   both sides, not a container defect.
 
+- **Burned-estate reach of the still-refused members (#5005, grep of the burned corpora 2026-10-30).** No burned program
+  (CardDemo, CBSA, GenApp, zECS, DBB MortgageApplication, cicsdev async credit-card) uses GET64 / PUT64 CONTAINER, INQUIRE
+  CONTAINER, QUERY CHANNEL, a code-page name (FROMCODEPAGE / INTOCODEPAGE), or a container of a CICS-defined read-only kind.
+  The one CICS-named container, `DFHREQUEST` in DBB `epscsmrd.cbl`, is read by GET CONTAINER and written back by PUT CONTAINER
+  (a pipeline container the program changes), so it gives no read-only case (CHANNELERR 3, INVREQ 30 / 31 stay unreachable, X42 /
+  X44). Under the burned-estates-only rule nothing here is to be modelled or proved until a burned program reads it: GET64 SET,
+  CHAR BYTEOFFSET / PREPEND, other CCSIDs, the IANA names, a PUT naming the other data type (needs an IBM source), the BTS
+  browse forms and INQUIRE CONTAINER (BTS only, X44) stay REFUSED by name. The GET64 / PUT64 hand-traced case is a
+  cics-crucible case PR (companion repo). Pinned by `test_the_64_bit_container_commands_keep_their_refusals_by_name` and
+  `test_inquire_container_is_refused_whole_in_every_form` in `tests/core_engine/test_cics_spec.py`.
+
 ### X18. Interval control and the async API: START / RETRIEVE / CANCEL / RUN TRANSID / FETCH / FREE CHILD — ASSUMED, REFUSED where IBM is silent (#4270 slice 2, #4950)
 - **What IBM documents** (CICS TS, EXEC CICS START, RETRIEVE, CANCEL, RUN TRANSID, "Expiration times"). START: INTERVAL
   "the expiration time as an interval of time that is to elapse from the time at which the START command is issued"

@@ -114,7 +114,7 @@ def _split_top(text: str) -> list[str]:
     return out
 
 
-_INSERT_ROWS = re.compile(r"\s+FOR\s+(?:\d+|:[A-Za-z0-9_-]+)\s+ROWS?(?:\s+ATOMIC)?\s*$", re.I)
+_INSERT_ROWS = re.compile(r"\bFOR\s+(?:\d+|:[A-Za-z0-9_-]+)\s+ROWS?(?:\s+ATOMIC)?$", re.I)
 
 
 def to_jdbc(statement: str, verb: str) -> tuple[str, list[tuple[str, str]], list[str]]:
@@ -134,7 +134,7 @@ def to_jdbc(statement: str, verb: str) -> tuple[str, list[tuple[str, str]], list
     if (
         verb == "INSERT"
     ):  # #4269: FOR n ROWS [ATOMIC] is the port's loop (DetSql.insertRows); the method is one row's INSERT
-        sql = _INSERT_ROWS.sub("", sql, count=1)
+        sql = _INSERT_ROWS.sub("", sql.rstrip(), count=1).rstrip()
     params: dict[str, str] = {}
 
     def named(m: re.Match) -> str:

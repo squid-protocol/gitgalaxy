@@ -428,6 +428,11 @@ static void file_event(const char *verb, const char *file, const char *rid, int 
     if (strcmp(verb, "DELETE") == 0 && strstr(c->flags, "GENERIC")) n += snprintf(ev + n, sizeof ev - (size_t)n, " generic=1");
     n += snprintf(ev + n, sizeof ev - (size_t)n, " resp=%d", c->resp);
     if (c->resp != NORMAL && c->resp2) snprintf(ev + n, sizeof ev - (size_t)n, " resp2=%d", c->resp2);
+#ifndef _WIN32
+    /* X23: recording the event is not a program reference. A WRITE that failed before reading FROM (DUPREC, FILENOTFOUND)
+     * must not fault on a FROM that runs past EIBCALEN, so only the bytes before the guard page are recorded. */
+    if (from && guard_size && from < guard_page && from + fromlen > guard_page) fromlen = (int)(guard_page - from);
+#endif
     event(ev, from, from ? fromlen : 0);
 }
 

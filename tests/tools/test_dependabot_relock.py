@@ -3,7 +3,11 @@
 
 from __future__ import annotations
 
-from tests.tools.dependabot_relock import (
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from dependabot_relock import (
     bumped,
     outside_req_dirs,
     parse_dependabot_metadata,

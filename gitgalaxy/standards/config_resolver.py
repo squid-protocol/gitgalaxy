@@ -179,11 +179,17 @@ class ResolvedConfig:
 
 
 def path_allowlisted(rel_path: str, entries: Iterable[str]) -> bool:
-    """Whether an ALLOWLIST_PATHS entry covers this path. An entry ending in "/" is a folder and matches whole path
-    segments: a plain substring test let "tests/" exempt src/latests/ and contests/ too (#7155). Any other entry stays
-    the partial match gitgalaxy_config.py documents."""
+    """Whether an ALLOWLIST_PATHS entry covers this path. An entry ending in "/" is a folder: it matches at the start of a
+    path segment or after "_" or "-", so "tests/" covers tests/, src/tests/ and unit_tests/, and no longer src/latests/ or
+    contests/ (#7155). Any other entry stays the partial match gitgalaxy_config.py documents."""
     for entry in entries:
-        if rel_path.startswith(entry) or (f"/{entry}" in rel_path if entry.endswith("/") else entry in rel_path):
+        if entry.endswith("/"):
+            at = rel_path.find(entry)
+            while at != -1:
+                if at == 0 or rel_path[at - 1] in "/_-":
+                    return True
+                at = rel_path.find(entry, at + 1)
+        elif entry in rel_path:
             return True
     return False
 

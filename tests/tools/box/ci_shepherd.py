@@ -353,7 +353,8 @@ def step(state: dict[str, Any], api: pr_check.Api = pr_check.gh_api, run: Run = 
          graphql: pr_check.GraphQL | None = None) -> list[str]:  # fmt: skip
     """One pass over the queue. Returns what it did (for the log and the tests). Every queued PR gets at least one
     line: what it did, or its state and why nothing was done (#4790: a pass logged nothing about #4837).
-    `graphql` (#6534): main's failing checks (read once per pass) come from GraphQL, REST when a query fails."""
+    `graphql` (#6534): each PR's state and a failing PR's digest, and main's failing checks (read once per pass), come
+    from GraphQL, REST when a query fails."""
     on_main_cache: list[set[str]] = []
 
     flaky_cache: list[set[str]] = []
@@ -362,14 +363,14 @@ def step(state: dict[str, Any], api: pr_check.Api = pr_check.gh_api, run: Run = 
         if not on_main_cache:
             on_main_cache.append(ci_digest.main_failures(api, graphql=graphql))
             flaky_cache.append(learned_flakes(state))
-        return ci_digest.digest(n, api, on_main=on_main_cache[0], flaky=flaky_cache[0])
+        return ci_digest.digest(n, api, on_main=on_main_cache[0], flaky=flaky_cache[0], graphql=graphql)
 
     digest_fn = digest or _default_digest
     did: list[str] = []
     in_flight = [0]
     fixers: list[tuple[int, str, dict[str, Any]]] = []
     for n in list(state["queue"]):
-        res = pr_check.check(n, api)
+        res = pr_check.check(n, api, graphql)
         if res["state"] != "open":
             state["queue"].remove(n)
             did.append(f"#{n} {res['state']}: left the queue")

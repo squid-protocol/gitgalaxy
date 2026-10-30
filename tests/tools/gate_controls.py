@@ -58,8 +58,8 @@ GATES = (
          open_gap="never reads .tf, .ini, .toml, .conf, .cfg, .env, .bak or .ipynb; misses AWS secret, Google and JWT values; "
                   "tests/ is allowlisted"),
     Gate("X-Ray Inspector", "gitgalaxy.yml", "obfuscated payloads and denylisted files",
-         "tests/security_auditing/test_binary_anomaly_detector.py::test_main_anomaly_detected",
-         open_gap="the proof mocks the detector"),
+         "tests/security_auditing/test_xray_control.py::test_the_real_detector_fails_ci_on_a_dense_payload",
+         open_gap="misses payloads on lines of 250+ characters and XOR loops; reads only the first 8 KB (#7187)"),
     Gate("Supply Chain Firewall", "gitgalaxy.yml", "banned packages and risky behaviour",
          "tests/security_auditing/test_supply_chain_firewall.py::test_behavioral_threat_evaluation",
          open_gap="no directory-mode end-to-end test; unknown packages pass by default"),

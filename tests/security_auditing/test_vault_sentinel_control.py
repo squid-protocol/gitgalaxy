@@ -87,3 +87,8 @@ def test_path_allowlisted():
     assert not path_allowlisted("latests/a.py", ["tests/"]) and not path_allowlisted("x/contests/a.py", ["tests/"])
     assert path_allowlisted("a/key1.pem", ["key1.pem"])  # an entry that isn't a folder stays a partial match
     assert not path_allowlisted("a.py", [])
+
+
+@pytest.mark.xfail(strict=True, reason="#7179: SecurityLens empties lines of 250+ characters before it scans")
+def test_known_miss_a_secret_on_a_long_line(tmp_path, monkeypatch):
+    assert _scan(tmp_path, monkeypatch, {"src/app.js": "var a=1;" * 60 + CAUGHT["aws key id"]}) == 1

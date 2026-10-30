@@ -533,6 +533,9 @@ def _address(opts: dict[str, str | None], labels: list[str] | None) -> list[str]
     then is the pointer itself. The option rules as the det translator's."""
     key = "ADDRESS"
     _check_spec(key, opts, ("ADDRESS",), lambda bad: [f"{key} {o}" for o in bad])
+    for area in ("TWA", "TCTUA"):  # #5079 slice 2: the port models them; the stub (GGCADDR) does not yet (slice 2b)
+        if opts.get(area):
+            raise Unsupported(f"ADDRESS {area}: the stub does not model the area yet (the port does)", [f"{key} {area}"])
     if not (opts.get("EIB") or opts.get("COMMAREA")):
         raise Unsupported("ADDRESS without EIB or COMMAREA: the pointer to set", [key])
     lines: list[str] = []

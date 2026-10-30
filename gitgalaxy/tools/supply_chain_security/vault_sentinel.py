@@ -17,7 +17,7 @@ from pathlib import Path
 from gitgalaxy.core.aperture import ApertureFilter
 from gitgalaxy.core.source_text import read_source
 from gitgalaxy.security.security_lens import SecurityLens
-from gitgalaxy.standards.config_resolver import resolve_config
+from gitgalaxy.standards.config_resolver import path_allowlisted, resolve_config
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
 
@@ -87,7 +87,7 @@ def main():
 
             # Create a normalized string for checking against lists
             rel_path_str = str(file_path.relative_to(target_path)).replace("\\", "/")
-            is_whitelisted = any(approved in rel_path_str for approved in allowlist_paths)
+            is_whitelisted = path_allowlisted(rel_path_str, allowlist_paths)
 
             # 1. DENYLIST ENFORCEMENT (Wildcard Pattern Matching)
             is_forbidden = any(fnmatch.fnmatch(file, pattern) for pattern in denylist_patterns)

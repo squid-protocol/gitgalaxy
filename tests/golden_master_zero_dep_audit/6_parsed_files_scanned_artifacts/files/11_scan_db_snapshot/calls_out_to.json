@@ -94367,18 +94367,10 @@
     },
     "hlasm/zecs": {
       "hlasm/zecs/ZECS002.asm": {
-        "ZECS002@68": [
-          "NOHANDLE"
-        ]
+        "ZECS002@68": []
       },
       "hlasm/zecs/ZECSNC.asm": {
-        "ZECSNC@91": [
-          "VALUE",
-          "NOHANDLE",
-          "FROM",
-          "LENGTH",
-          "ERASE"
-        ]
+        "ZECSNC@91": []
       }
     },
     "hlasm/zopeneditor_sample": {

@@ -92,8 +92,8 @@ blank/EOL — never `\b`, which would fire between `WAIT` and `=` on a keyword o
   the resolver keeps the names some unit defines and drops the rest, so an installation macro in another member
   becomes a file edge and a use of a macro defined in the same file does not. Cost: `calls_out_to` lists the
   unresolved operation-field names (installation or vendor macros whose member is not in the repository, and a
-  system macro missing from the exclusion list), and a continuation line that begins with a bare name reads as a
-  use. Strict suite: 51 new cases in `test_hlasm_macro_uses.py` (one `LINKX` near miss moved there).
+  system macro missing from the exclusion list); a line continued from a column-72 mark above is an operand, never a
+  use (the zecs `EXEC CICS` option lines, found by `fact_crosscheck`). Strict suite: 52 new cases in `test_hlasm_macro_uses.py` (one `LINKX` near miss moved there).
 
 ### Topology (x)
 - **`func_start`** — `name CSECT`, `name RSECT`, `name START` (and, #7063, a `MACRO` prototype's macro name): the named control sections

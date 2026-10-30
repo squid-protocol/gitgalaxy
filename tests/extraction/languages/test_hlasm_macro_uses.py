@@ -218,3 +218,10 @@ def test_macro_use_scans_are_redos_immune(payload):
     start = time.perf_counter()
     _units(payload)
     assert time.perf_counter() - start < 5
+
+
+def test_a_continuation_line_word_is_an_operand_not_a_use():
+    cont = "         EXEC CICS READ DATASET('X')" + " " * 35 + "X\n               NOHANDLE\n"
+    assert len(cont.split("\n")[0]) == 72
+    src = "MAIN     CSECT\n" + cont + "         END\n"
+    assert "NOHANDLE" not in _calls(src)

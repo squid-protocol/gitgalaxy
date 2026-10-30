@@ -125,6 +125,16 @@ _MACRO_USE = re.compile(
 )
 
 
+def _is_continuation(code: str, pos: int) -> bool:
+    """True when the line at `pos` continues the previous statement (a non-blank in column 72 above): its first word is
+    an operand, not an operation-field name."""
+    if pos < 2:
+        return False
+    prev_start = code.rfind("\n", 0, pos - 1) + 1
+    prev = code[prev_start : pos - 1].rstrip("\r")
+    return len(prev) >= 72 and prev[71] not in " \t"
+
+
 def _macro_use_callees(code: str, sats: list[Any]) -> None:
     """Add every operation-field name that is not a machine instruction or assembler directive to its unit's
     `calls_out_to` (#7063). The call resolver keeps the ones a macro member defines and drops the rest."""
@@ -139,7 +149,7 @@ def _macro_use_callees(code: str, sats: list[Any]) -> None:
         for m in _MACRO_USE.finditer(code, start, end):
             name = m.group(1)
             key = name.upper()
-            if key in seen or key in _NOT_USER_MACRO:
+            if key in seen or key in _NOT_USER_MACRO or _is_continuation(code, m.start()):
                 continue
             seen.add(key)
             callees.append(name)

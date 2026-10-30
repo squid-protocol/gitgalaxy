@@ -84,6 +84,12 @@ blank/EOL — never `\b`, which would fire between `WAIT` and `=` on a keyword o
   (`EP=` may follow other keyword operands). `CALL (15)`, `CALL &SYM`, `EPLOC=`, `SF=` and
   `DFHPC TYPE=LINK` name no literal program and add no edge. The x86/ARM `assembly` profile is
   untouched. Strict suite: 33 new cases (152 -> 185) (one per form, plus the near-miss class and ReDoS payloads).
+- **`LINK` / `XCTL EPLOC=field`** becomes an edge when the field is an in-file 8-byte name constant
+  (`field DC CL8'NAME'`, or `DC C'NAME    '`), wherever the file defines it (a whole-segment pass,
+  `_calls_out_file_pass`, since the literal shield blanks the constant for the per-unit scan). A field
+  defined twice with different names, one defined outside the file (a `COPY` member, a run-time `MVC`), a
+  name that is not a valid program name and `EPLOC=(reg)` add no edge. Strict suite: 44 new cases
+  (185 -> 229) (#7063).
 
 ### Topology (x)
 - **`func_start`** — `name CSECT`, `name RSECT`, `name START`: the named control sections
@@ -216,9 +222,9 @@ The cross-language page is [cics_mainframe_facts.md](cics_mainframe_facts.md). W
   - general macro expansion (a user macro that wraps `EXEC CICS` is not expanded);
   - any fact beyond CICS, DLI and IMS definitions outside the translation subset — for example, the
     register-level data flow of an assembler program the lowering refuses;
-  - call-graph edges for `LINK`/`XCTL EPLOC=` (needs the `DC CL8'...'` constant) and user-macro
-    uses (an operation-field name a `.mac` member or in-file `MACRO` prototype defines): they do not
-    become edges. The `CALL` macro and `LINK`/`XCTL EP=` do (§3, #7063).
+  - call-graph edges for user-macro uses (an operation-field name a `.mac` member or in-file `MACRO`
+    prototype defines): they do not become edges; nor does an `EPLOC=` field whose name is not an in-file
+    `DC CL8'...'`. The `CALL` macro, `LINK`/`XCTL EP=` and `EPLOC=` through an in-file constant do (§3, #7063).
 - **Single-sourced:** HLASM CICS rests on one corpus (zECS, a small service). The burned-estate census
   (#6963) pins every burned assembler member: the two zECS programs lowered, CardDemo's two batch
   routines modelled by hand-written runtime code.

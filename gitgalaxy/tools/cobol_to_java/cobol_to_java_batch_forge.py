@@ -82,9 +82,6 @@ class Step:
     commands_only: bool = False  # a TSO runner running commands (DSN FREE / BIND, RACF), no program
     parm: str | None = None  # #3624: the text EXEC PARM= passes the program
     refused: str | None = None  # #4268: why a utility step the model cannot run is not lowered (named)
-    lowered: str | None = None  # #4268: a DFSORT step lowered to COBOL (dfsort.cobol_program), not yet ported
-    lowered_note: str = ""  # where its record length came from
-    lowered_path: str = ""  # its resource, set once the job's class is named
 
 
 @dataclass
@@ -138,9 +135,6 @@ class BatchForge:
         dds: dict[tuple[str, int, str | None], list[dict]] = {}
         for d in (sections.get("job_dds") or {}).get("facts", []):
             dds.setdefault((d["file"], d["ordinal"], d.get("proc_step")), []).append(d)
-        self.file_dds: dict[str, list[dict]] = {}  # #4268: every DD of a JCL file, to find a dataset's stated DCB
-        for d in (sections.get("job_dds") or {}).get("facts", []):
-            self.file_dds.setdefault(d["file"], []).append(d)
         self.sysin: dict[tuple[str, int, str | None, str], list[str]] = {}
         for d in (sections.get("job_sysin") or {}).get("facts", []):
             self.sysin.setdefault((d["file"], d["ordinal"], d.get("proc_step"), d.get("dd") or ""), []).append(
@@ -157,8 +151,6 @@ class BatchForge:
                 name = f"{base[: -len('JobConfig')]}{n}JobConfig"
             taken.add(name)
             j.cls = name
-            for st in j.steps:
-                st.lowered_path = f"batch/sort/{name[: -len('JobConfig')]}-{self._const(st.name)}.cbl"
         # A JCL job name is not unique across files (nor is it a Spring bean name): the Spring Batch
         # job carries it, suffixed with its file's stem when another generated job has it too.
         names = [j.job for j in self.applications]
@@ -228,12 +220,11 @@ class BatchForge:
         """The in-stream bodies of the step's `dd` (job_sysin), the procedure step's else the job step's."""
         return self.sysin.get((file, ordinal, st.proc_step, dd)) or self.sysin.get((file, ordinal, None, dd)) or []
 
-    def _sort_refusal(self, file: str, ordinal: int, st: Step) -> str | None:
-        """#4268: why a SORT step is not lowered (None: it is, `st.lowered` holds the COBOL SORT / MERGE program). The
-        control statements (SYSIN with the SYMNAMES it names) go through `dfsort.parse`: what the model does not cover
-        is named as it names it. A covered step needs its records' length, read from the DCB the job states
-        (`_sort_reclen`), and is lowered by `dfsort.cobol_program` onto the SORTIN / SORTINnn and SORTOUT DDs. The
-        lowered program is not run here (it needs the det port): the step stays a utility step to port."""
+    def _sort_refusal(self, file: str, ordinal: int, st: Step) -> str:
+        """#4268: why a SORT step is not run -- always a reason, as no step is lowered yet. The control statements
+        (SYSIN with the SYMNAMES it names) go through `dfsort.parse`: what the model does not cover is named as it
+        names it. A step the model does cover still cannot be lowered here: its program (`dfsort.cobol_program`) needs
+        the records' length, which the job facts do not carry (no DCB / LRECL), so that is the reason said."""
         if st.program not in DFSORT:
             return f"is {st.program}, not DFSORT control statements the model reads"
         for dd in ("SORTCNTL", "DFSPARM"):
@@ -247,57 +238,7 @@ class BatchForge:
             )
         except dfsort.Refused as e:
             return f"uses {e}, which the DFSORT model refuses"
-        merge = ctl.verb == "MERGE"
-        names = (
-            sorted({d["dd"] for d in st.dds if re.fullmatch(r"SORTIN[0-9]{2}", d.get("dd") or "")})
-            if merge
-            else ["SORTIN"]
-        )
-        if not names or not all(any(d.get("dd") == n and d.get("dsn") for d in st.dds) for n in names):
-            return f"is a DFSORT {ctl.verb} the model lowers, but {'/'.join(names) or 'SORTINnn'} is not a dataset"
-        if not any(d.get("dd") == "SORTOUT" and d.get("dsn") for d in st.dds):
-            return f"is a DFSORT {ctl.verb} the model lowers, but SORTOUT is not a dataset"
-        reclen = self._sort_reclen(file, st, names, bool(ctl.outrec))
-        if isinstance(reclen, str):
-            return f"is a DFSORT {ctl.verb} the model lowers, but {reclen}"
-        try:
-            st.lowered = dfsort.cobol_program(ctl, reclen[0], names, "SORTOUT")
-        except dfsort.Refused as e:
-            return f"is a DFSORT {ctl.verb} the model reads, but lowering refuses {e}"
-        st.lowered_note = f"{reclen[0]}-byte fixed records, LRECL from {reclen[1]}"
-        return None
-
-    def _sort_reclen(self, file: str, st: Step, inputs: list[str], rebuilt: bool) -> tuple[int, str] | str:
-        """#4268: the fixed record length of a SORT / MERGE step from the DCB its job states, as (length, where) or
-        the reason there is none. Looked for on the input DDs, then on the other DDs of the same dataset in the job
-        (the step that wrote it), then on SORTOUT (only without OUTREC: it changes the length). Every length a tier
-        states must agree, and a RECFM it states must be fixed (F, FB, FBA, FBM): variable and undefined records
-        are not a fixed-length COBOL record. A tier with an LRECL and no RECFM is not taken (no guess)."""
-        own = [d for d in st.dds if d.get("dd") in inputs]
-        out = [d for d in st.dds if d.get("dd") == "SORTOUT"]
-        key = {(d.get("dsn"), d.get("generation")) for d in own}
-        elsewhere = [
-            d for d in self.file_dds.get(file, []) if (d.get("dsn"), d.get("generation")) in key and d not in own
-        ]
-        tiers = [("the input DD", own), ("the same dataset elsewhere in the job", elsewhere)]
-        if not rebuilt:
-            tiers.append(("SORTOUT", out))
-        reasons: list[str] = []
-        for where, rows in tiers:
-            lrecls = {d["lrecl"] for d in rows if d.get("lrecl")}
-            if not lrecls:
-                continue
-            if len(lrecls) > 1:
-                return f"{where} states different LRECLs ({', '.join(str(n) for n in sorted(lrecls))})"
-            recfms = {str(d["recfm"]).upper() for d in rows if d.get("recfm")}
-            if not recfms:
-                reasons.append(f"{where} states LRECL={next(iter(lrecls))} but no RECFM")
-                continue
-            bad = sorted(r for r in recfms if not r.startswith("F"))
-            if bad:
-                return f"{where} states RECFM={'/'.join(bad)}, not fixed-length records"
-            return next(iter(lrecls)), where
-        return "; ".join(reasons) or "the job facts carry no record length (LRECL) to lower it"
+        return f"is a DFSORT {ctl.verb} the model lowers, but the job facts carry no record length (LRECL) to lower it"
 
     def _through_runner(self, st: Step, runs: list[dict]) -> None:
         """#3710: a runner step runs the program its SYSTSIN / PARM names -- the estate program
@@ -357,9 +298,7 @@ class BatchForge:
         rows = [{"job": j.job, "file": j.file, "kind": j.kind, "reason": j.reason,
                  "generated": j.cls if j.kind == "application" else None, "spring_job": j.spring or None,
                  "steps": [{"step": s.jcl, "program": s.program} for s in j.steps]} for j in self.jobs]  # fmt: skip
-        out = {"batch/jcl-jobs.json": json.dumps(rows, indent=2) + "\n"}
-        out.update({st.lowered_path: st.lowered for j in self.applications for st in j.steps if st.lowered})  # #4268
-        return out
+        return {"batch/jcl-jobs.json": json.dumps(rows, indent=2) + "\n"}
 
     def _flows_of(self, j: Job) -> list[str]:
         out = []
@@ -434,9 +373,6 @@ class BatchForge:
             return f"TODO: {st.jcl} runs {p}, which {st.refused} -- not run as a plain copy: a utility step to port"
         if p in SORTS and st.refused:
             return f"TODO: {st.jcl} runs {p}, which {st.refused} -- not run: a utility step to port"
-        if p in SORTS and st.lowered:
-            return (f"TODO: {st.jcl} runs {p}, lowered to the COBOL SORT / MERGE program {st.lowered_path} "
-                    f"({st.lowered_note}) -- not run until it is det-ported: a utility step to port")  # fmt: skip
         if st.key or p in ("IEFBR14", *COPY):
             return None
         if p in RUNNERS and st.commands_only:

@@ -1,7 +1,7 @@
 """#4268: a DFSORT step (PGM=SORT / ICEMAN / DFSORT) of a generated JCL job goes through `dfsort.parse` (SYSIN with its
-SYMNAMES): what the model refuses is named as the model names it, and a step it covers but whose job states no record
-length says so (test_batch_sort_lowering_4268.py covers the lowering once it does). Every such step is a
-`steps.utility` that fails the job: never a silent success."""
+SYMNAMES): what the model refuses is named as the model names it, and a step it covers says why it is still not run
+(the job facts carry no record length to lower it). Every such step is a `steps.utility` that fails the job: never a
+silent success."""
 
 import pytest
 
@@ -9,7 +9,6 @@ from gitgalaxy.tools.cobol_to_java.cobol_to_java_batch_forge import BatchForge
 from gitgalaxy.tools.cobol_to_java.java_target import load_target
 
 FILE = "jcl/SRT.jcl"
-DATASETS = [{"dd": "SORTIN", "dsn": "APP.IN"}, {"dd": "SORTOUT", "dsn": "APP.OUT"}]  # no DCB stated
 
 
 def _forge(program: str, decks: dict[str, str], dds: list[dict] | None = None) -> BatchForge:
@@ -19,7 +18,7 @@ def _forge(program: str, decks: dict[str, str], dds: list[dict] | None = None) -
     ]
     sections = {
         "job_steps": {"facts": [{"file": FILE, "job": "SRTJOB", "steps": steps}]},
-        "job_dds": {"facts": [{"file": FILE, "ordinal": 2, "proc_step": None, **d} for d in DATASETS + (dds or [])]},
+        "job_dds": {"facts": [{"file": FILE, "ordinal": 2, "proc_step": None, **d} for d in dds or []]},
         "job_sysin": {
             "facts": [{"file": FILE, "ordinal": 2, "proc_step": None, "dd": dd, "body": b} for dd, b in decks.items()]
         },
@@ -45,8 +44,7 @@ def _line(forge: BatchForge) -> str:
     ],
 )
 def test_a_modelled_step_says_why_it_is_not_run(program, sysin, verb):
-    merge_ins = [{"dd": "SORTIN01", "dsn": "APP.IN1"}, {"dd": "SORTIN02", "dsn": "APP.IN2"}]
-    line = _line(_forge(program, {"SYSIN": sysin}, merge_ins if verb == "MERGE" else None))
+    line = _line(_forge(program, {"SYSIN": sysin}))
     assert f"a DFSORT {verb} the model lowers" in line and "no record length (LRECL)" in line
 
 

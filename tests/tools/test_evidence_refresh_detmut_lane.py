@@ -45,7 +45,7 @@ def test_the_lane_runs_the_moved_ports_within_a_budget_under_the_job_timeout(job
     step = next(s for s in job["steps"] if s.get("id") == "detmut")
     assert "--run-moved" in step["run"]
     budget = int(step["run"].split("--budget-min")[1].split()[0])
-    assert 0 < budget < job["timeout-minutes"]
+    assert 0 < budget <= job["timeout-minutes"] - 20  # setup, the oracle image and one case that runs past its estimate
 
 
 def test_the_ledgers_reach_the_refresh_job_and_the_bot_pr(jobs):

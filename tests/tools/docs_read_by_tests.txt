@@ -2,10 +2,11 @@
 # test or engine code names, with the scopes that name them. tests/tools/test_change_classifier.py fails when stale.
 **/*.md	tests/tools/post_merge_dispatch.py,tests/tools/test_post_merge_dispatch.py,tests/tools/test_workflow_inputs.py
 .claude/*	tests/tools/test_evidence_report_single_source.py
-.claude/agents/gitgalaxy-pr-worker.md	tests/tools/box,tests/tools/test_ci_replay_6278.py
+.claude/agents/gitgalaxy-pr-worker.md	tests/tools/box,tests/tools/test_ci_replay_6278.py,tests/tools/test_shepherd_markers_not_hand_written.py
 .claude/rules/a.md	tests/tools/test_context_pack.py
 .claude/rules/ci-workflows.md	tests/tools/test_pr_runner_cost.py
 .claude/rules/python-test-traps.md	tests/tools/test_ci_replay_6278.py
+.claude/rules/shepherd-markers.md	tests/tools/test_shepherd_markers_not_hand_written.py
 .claude/rules/test-writing.md	tests/tools/test_ci_replay_6278.py
 .claude/rules/x.md	tests/tools/test_engine_reach_workflows.py
 .claude/skills/det-port/SKILL.md	tests/tools/test_ci_replay_6278.py

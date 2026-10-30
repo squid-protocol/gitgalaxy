@@ -816,6 +816,7 @@ class EquivalenceRunTest {
         final List<Map<String, Object>> tasks = new ArrayList<>();
         final List<Map<String, Object>> requests = new ArrayList<>();
         final CicsTask.TempStorage ts = new CicsTask.TempStorage();  // #4002: shared by every task
+        final Map<String, byte[]> tctuas = new LinkedHashMap<>();  // #5079 (X59): a terminal's TCTUA, kept across its tasks
         final List<Map<String, Object>> entries = new ArrayList<>();  // #4343: the entry point each program ran by
         int issued;
         String pending;
@@ -1105,6 +1106,14 @@ class EquivalenceRunTest {
                                 p.get("port").asInt(), null, null, xs));
                     }
                     t.withHttpPeers(peers);
+                }
+                if (plan.hasNonNull("twasize") && plan.get("twasize").hasNonNull(transid)) {
+                    t.withTwaSize(plan.get("twasize").get(transid).asInt());  // #5079 (X59): TRANSACTION TWASIZE
+                }
+                if (plan.hasNonNull("userarealen") && frame.get("termid") instanceof String tid
+                        && plan.get("userarealen").hasNonNull(tid)) {
+                    // #5079 (X59): TYPETERM USERAREALEN -- one area per terminal, the same bytes for each of its tasks
+                    t.withTctua(tctuas.computeIfAbsent(tid, k -> new byte[plan.get("userarealen").get(k).asInt()]));
                 }
                 if (plan.has("urimaps")) {
                     // #4270 zECS (X32): INQUIRE URIMAP -- the URIMAP definitions the case CSD installs, as {name,
@@ -1690,6 +1699,7 @@ def java_plan(case: cc.Case, src: Path) -> dict[str, Any]:
         "terminal_device": terminal_device(case),  # #4413: LUTYPE2 raises EOC on RECEIVE
         "uctranst": terminal_uctranst(case),  # #4415: INQUIRE TERMINAL UCTRANST
         "origin": case.data.get("origin"),  # #4415 slice 2: INQUIRE ASSOCIATION's origin data (terminal-started tasks)
+        **{k: case.csd[k] for k in ("twasize", "userarealen") if case.csd.get(k)},  # #5079 (X59): only when stated
         "urimaps": [list(u) for u in case.csd.get("urimaps") or []],  # #4270 zECS (X32): INQUIRE URIMAP's browse
         "doctemplates": case.data.get("doctemplates"),  # #4769 zECS (X33): DOCUMENT CREATE TEMPLATE's text per name
         "services": services,

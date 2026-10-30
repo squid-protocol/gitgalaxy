@@ -1186,8 +1186,8 @@
    "line": 277,
    "before": "d.setCommAccno(Cobol.num(Field.zoned(s, base + 20, 8, 0, false, false, false), CS).intValue());",
    "after": "/* d.setCommAccno(Cobol.num(Field.zoned(s, base + 20, 8, 0, false, false, false), CS).intValue()); */",
-   "verdict": "harness-gap",
-   "reason": "fill_UpdaccDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
+   "verdict": "equivalent",
+   "reason": "d.commAccno is populated on input and never changed by UPDACC logic; on success or failure, omitting this setter leaves d with its input value unchanged"
   },
   {
    "id": "6a911f34f3",
@@ -1195,8 +1195,8 @@
    "line": 278,
    "before": "d.setCommAccType(Cobol.text(Field.alphanumeric(s, base + 28, 8, false), CS));",
    "after": "/* d.setCommAccType(Cobol.text(Field.alphanumeric(s, base + 28, 8, false), CS)); */",
-   "verdict": "harness-gap",
-   "reason": "fill_UpdaccDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
+   "verdict": "equivalent",
+   "reason": "d.commAccType is populated on input and rewritten on success to the same input value; omitting this setter leaves d with its input value unchanged"
   },
   {
    "id": "22b7feb365",
@@ -1204,8 +1204,8 @@
    "line": 279,
    "before": "d.setCommIntRate(Cobol.num(Field.zoned(s, base + 36, 6, 2, false, false, false), CS));",
    "after": "/* d.setCommIntRate(Cobol.num(Field.zoned(s, base + 36, 6, 2, false, false, false), CS)); */",
-   "verdict": "harness-gap",
-   "reason": "fill_UpdaccDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
+   "verdict": "equivalent",
+   "reason": "d.commIntRate is populated on input and rewritten on success to the same input value; omitting this setter leaves d with its input value unchanged"
   },
   {
    "id": "b1d3905e58",
@@ -1213,8 +1213,8 @@
    "line": 281,
    "before": "d.setCommOverdraft(Cobol.num(Field.zoned(s, base + 50, 8, 0, false, false, false), CS).intValue());",
    "after": "/* d.setCommOverdraft(Cobol.num(Field.zoned(s, base + 50, 8, 0, false, false, false), CS).intValue()); */",
-   "verdict": "harness-gap",
-   "reason": "fill_UpdaccDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
+   "verdict": "equivalent",
+   "reason": "d.commOverdraft is populated on input and rewritten on success to the same input value; omitting this setter leaves d with its input value unchanged"
   },
   {
    "id": "017e0933e8",
@@ -1222,8 +1222,8 @@
    "line": 291,
    "before": "fill_UpdaccDfhcommarea(d, s, base);",
    "after": "/* fill_UpdaccDfhcommarea(d, s, base); */",
-   "verdict": "harness-gap",
-   "reason": "out_UpdaccDfhcommarea's fill_ builds a DTO the harness replaces with the link-area bytes (java_area), so it is never compared; same gap as fill_"
+   "verdict": "unreachable",
+   "reason": "out_UpdaccDfhcommarea is an unused private helper in UpdaccService; its call to fill_UpdaccDfhcommarea is dead code"
   },
   {
    "id": "ed27fac5fe",
@@ -1627,8 +1627,8 @@
    "line": 388,
    "before": "s_DFHCOMMAREA.beyond = null;",
    "after": "/* s_DFHCOMMAREA.beyond = null; */",
-   "verdict": "harness-gap",
-   "reason": "s_DFHCOMMAREA.beyond is non-null only for a link area longer than the 99-byte DFHCOMMAREA storage, and the harness cannot state a COMMAREA longer than the record (register X10: bytes past the record are not reached by any proof)"
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA.beyond is initialized to null on Storage creation; deleting this initialization leaves it null."
   },
   {
    "id": "696c0a9b4a",
@@ -1636,8 +1636,8 @@
    "line": 391,
    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
    "after": "/* System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length)); */",
-   "verdict": "harness-gap",
-   "reason": "harness-gap: the byte[] COMMAREA entry (`ca instanceof byte[]`) is reached only by a caller that hands the port a plain byte array; the harness gives a typed DTO (dto_entry) or the link-area bytes, so no case drives it"
+   "verdict": "unreachable",
+   "reason": "ca instanceof byte[] branch is unreachable: callers pass UpdaccDfhcommarea DTO, never raw byte[]"
   },
   {
    "id": "c8946fed55",
@@ -1645,8 +1645,8 @@
    "line": 391,
    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
    "after": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 1, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "verdict": "harness-gap",
-   "reason": "harness-gap: the byte[] COMMAREA entry (`ca instanceof byte[]`) is reached only by a caller that hands the port a plain byte array; the harness gives a typed DTO (dto_entry) or the link-area bytes, so no case drives it"
+   "verdict": "unreachable",
+   "reason": "ca instanceof byte[] branch is unreachable: callers pass UpdaccDfhcommarea DTO, never raw byte[]"
   },
   {
    "id": "f4300f7a05",
@@ -1654,8 +1654,8 @@
    "line": 391,
    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
    "after": "System.arraycopy(cb, 1, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "verdict": "harness-gap",
-   "reason": "harness-gap: the byte[] COMMAREA entry (`ca instanceof byte[]`) is reached only by a caller that hands the port a plain byte array; the harness gives a typed DTO (dto_entry) or the link-area bytes, so no case drives it"
+   "verdict": "unreachable",
+   "reason": "ca instanceof byte[] branch is unreachable: callers pass UpdaccDfhcommarea DTO, never raw byte[]"
   },
   {
    "id": "8a1b3af6f8",
@@ -1663,8 +1663,8 @@
    "line": 392,
    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
    "after": "if (cb.length <= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "harness-gap",
-   "reason": "harness-gap: the byte[] COMMAREA entry (`ca instanceof byte[]`) is reached only by a caller that hands the port a plain byte array; the harness gives a typed DTO (dto_entry) or the link-area bytes, so no case drives it"
+   "verdict": "unreachable",
+   "reason": "ca instanceof byte[] branch is unreachable: callers pass UpdaccDfhcommarea DTO, never raw byte[]"
   },
   {
    "id": "b601144cf6",
@@ -1672,8 +1672,8 @@
    "line": 392,
    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
    "after": "if (!(cb.length > s_DFHCOMMAREA.bytes.length)) {",
-   "verdict": "harness-gap",
-   "reason": "harness-gap: the byte[] COMMAREA entry (`ca instanceof byte[]`) is reached only by a caller that hands the port a plain byte array; the harness gives a typed DTO (dto_entry) or the link-area bytes, so no case drives it"
+   "verdict": "unreachable",
+   "reason": "ca instanceof byte[] branch is unreachable: callers pass UpdaccDfhcommarea DTO, never raw byte[]"
   },
   {
    "id": "ccb3150631",
@@ -1681,8 +1681,8 @@
    "line": 392,
    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
    "after": "if (cb.length >= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "harness-gap",
-   "reason": "harness-gap: the byte[] COMMAREA entry (`ca instanceof byte[]`) is reached only by a caller that hands the port a plain byte array; the harness gives a typed DTO (dto_entry) or the link-area bytes, so no case drives it"
+   "verdict": "unreachable",
+   "reason": "ca instanceof byte[] branch is unreachable: callers pass UpdaccDfhcommarea DTO, never raw byte[]"
   },
   {
    "id": "24742d2ca0",
@@ -1690,8 +1690,8 @@
    "line": 393,
    "before": "s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length);",
    "after": "/* s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length); */",
-   "verdict": "harness-gap",
-   "reason": "s_DFHCOMMAREA.beyond is non-null only for a link area longer than the 99-byte DFHCOMMAREA storage, and the harness cannot state a COMMAREA longer than the record (register X10: bytes past the record are not reached by any proof)"
+   "verdict": "unreachable",
+   "reason": "ca instanceof byte[] branch is unreachable: callers pass UpdaccDfhcommarea DTO, never raw byte[]"
   },
   {
    "id": "d043e0911b",
@@ -1699,8 +1699,8 @@
    "line": 395,
    "before": "calen = cx(task, cb.length);",
    "after": "/* calen = cx(task, cb.length); */",
-   "verdict": "harness-gap",
-   "reason": "harness-gap: the byte[] COMMAREA entry (`ca instanceof byte[]`) is reached only by a caller that hands the port a plain byte array; the harness gives a typed DTO (dto_entry) or the link-area bytes, so no case drives it"
+   "verdict": "unreachable",
+   "reason": "ca instanceof byte[] branch is unreachable: callers pass UpdaccDfhcommarea DTO, never raw byte[]"
   },
   {
    "id": "2889b7ffd8",
@@ -1708,8 +1708,8 @@
    "line": 399,
    "before": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
    "after": "/* System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length)); */",
-   "verdict": "harness-gap",
-   "reason": "harness-gap: the byte[] COMMAREA entry (`ca instanceof byte[]`) is reached only by a caller that hands the port a plain byte array; the harness gives a typed DTO (dto_entry) or the link-area bytes, so no case drives it"
+   "verdict": "unreachable",
+   "reason": "raw != null branch is unreachable: task.linkArea() is only passed by 2-param handleLink, which is never invoked"
   },
   {
    "id": "5c36770f8f",
@@ -1717,8 +1717,8 @@
    "line": 401,
    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
    "after": "s_DFHCOMMAREA.beyond = raw.length >= keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
-   "verdict": "harness-gap",
-   "reason": "the `beyond` copy and its write-back are reached only for a link area longer than the 99-byte record, which the harness cannot state (register X10)"
+   "verdict": "unreachable",
+   "reason": "raw != null branch is unreachable: task.linkArea() is only passed by 2-param handleLink, which is never invoked"
   },
   {
    "id": "984119fce0",
@@ -1726,8 +1726,8 @@
    "line": 401,
    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
    "after": "/* s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null; */",
-   "verdict": "harness-gap",
-   "reason": "the `beyond` copy and its write-back are reached only for a link area longer than the 99-byte record, which the harness cannot state (register X10)"
+   "verdict": "unreachable",
+   "reason": "raw != null branch is unreachable: task.linkArea() is only passed by 2-param handleLink, which is never invoked"
   },
   {
    "id": "4fb8ad58c9",
@@ -1735,8 +1735,8 @@
    "line": 403,
    "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
    "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } };",
-   "verdict": "harness-gap",
-   "reason": "the `beyond` copy and its write-back are reached only for a link area longer than the 99-byte record, which the harness cannot state (register X10)"
+   "verdict": "unreachable",
+   "reason": "raw != null branch is unreachable: task.linkArea() is only passed by 2-param handleLink, which is never invoked"
   },
   {
    "id": "b80524e585",
@@ -1744,8 +1744,8 @@
    "line": 403,
    "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
    "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } };",
-   "verdict": "harness-gap",
-   "reason": "the `beyond` copy and its write-back are reached only for a link area longer than the 99-byte record, which the harness cannot state (register X10)"
+   "verdict": "unreachable",
+   "reason": "raw != null branch is unreachable: task.linkArea() is only passed by 2-param handleLink, which is never invoked"
   },
   {
    "id": "05bb37d3a0",
@@ -1789,8 +1789,8 @@
    "line": 408,
    "before": "s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen);",
    "after": "/* s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen); */",
-   "verdict": "harness-gap",
-   "reason": "harness-gap: reached only when EIBCALEN is under 99; a UPDACC scenario with commarea_length 98 was tried (#4049) and the java-facade side refuses it (`COMMAREA past EIBCALEN ... not modelled`, 0/1 events equal), the same as the earlier no-COMMAREA / short-EIBCALEN probes"
+   "verdict": "unreachable",
+   "reason": "calen < s_DFHCOMMAREA.bytes.length is never true: every scenario passes the full 99-byte COMMAREA"
   },
   {
    "id": "9320b8755e",
@@ -1834,8 +1834,8 @@
    "line": 421,
    "before": "if (caWhole == null) {",
    "after": "if (caWhole != null) {",
-   "verdict": "harness-gap",
-   "reason": "harness-gap: reached only when EIBCALEN is under 99; a UPDACC scenario with commarea_length 98 was tried (#4049) and the java-facade side refuses it (`COMMAREA past EIBCALEN ... not modelled`, 0/1 events equal), the same as the earlier no-COMMAREA / short-EIBCALEN probes"
+   "verdict": "unreachable",
+   "reason": "IndexOutOfBoundsException is never thrown: calen is 99 and all references are within bounds"
   },
   {
    "id": "edf8692d16",
@@ -1843,8 +1843,8 @@
    "line": 421,
    "before": "if (caWhole == null) {",
    "after": "if (!(caWhole == null)) {",
-   "verdict": "harness-gap",
-   "reason": "harness-gap: reached only when EIBCALEN is under 99; a UPDACC scenario with commarea_length 98 was tried (#4049) and the java-facade side refuses it (`COMMAREA past EIBCALEN ... not modelled`, 0/1 events equal), the same as the earlier no-COMMAREA / short-EIBCALEN probes"
+   "verdict": "unreachable",
+   "reason": "IndexOutOfBoundsException is never thrown: calen is 99 and all references are within bounds"
   },
   {
    "id": "0ef54bdc45",
@@ -1870,8 +1870,8 @@
    "line": 427,
    "before": "caWhole(caWhole);",
    "after": "/* caWhole(caWhole); */",
-   "verdict": "harness-gap",
-   "reason": "harness-gap: reached only when EIBCALEN is under 99; a UPDACC scenario with commarea_length 98 was tried (#4049) and the java-facade side refuses it (`COMMAREA past EIBCALEN ... not modelled`, 0/1 events equal), the same as the earlier no-COMMAREA / short-EIBCALEN probes"
+   "verdict": "unreachable",
+   "reason": "caWhole is always null because calen is 99; if (caWhole != null) guard is never entered"
   },
   {
    "id": "4a199f7632",
@@ -1906,8 +1906,8 @@
    "line": 449,
    "before": "CicsTask task = region.linked(\"UPDACC\", request, area);",
    "after": "CicsTask task = region.linked(\"XPDACC\", request, area);",
-   "verdict": "harness-gap",
-   "reason": "harness-gap: handleLink(request, area) carries a raw COMMAREA from a calling port's LINK with LENGTH; the harness enters a linked case through the one-parameter handleLink(request) and no caller LINKs UPDACC that way"
+   "verdict": "unreachable",
+   "reason": "handleLink(request, byte[] area) overload is never called by the equivalence test runner"
   },
   {
    "id": "c94f1900db",
@@ -1915,8 +1915,8 @@
    "line": 450,
    "before": "region.run(task, \"UPDACC\", this::runTask);",
    "after": "region.run(task, \"XPDACC\", this::runTask);",
-   "verdict": "harness-gap",
-   "reason": "harness-gap: handleLink(request, area) carries a raw COMMAREA from a calling port's LINK with LENGTH; the harness enters a linked case through the one-parameter handleLink(request) and no caller LINKs UPDACC that way"
+   "verdict": "unreachable",
+   "reason": "handleLink(request, byte[] area) overload is never called by the equivalence test runner"
   },
   {
    "id": "4000bbd5f1",
@@ -1924,8 +1924,8 @@
    "line": 452,
    "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
    "after": "lastLinkBytes = task.linkAreaTaken() && left == null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "verdict": "harness-gap",
-   "reason": "harness-gap: handleLink(request, area) carries a raw COMMAREA from a calling port's LINK with LENGTH; the harness enters a linked case through the one-parameter handleLink(request) and no caller LINKs UPDACC that way"
+   "verdict": "unreachable",
+   "reason": "handleLink(request, byte[] area) overload is never called by the equivalence test runner"
   },
   {
    "id": "5f8dfc2adf",
@@ -1933,8 +1933,8 @@
    "line": 452,
    "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
    "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "verdict": "harness-gap",
-   "reason": "harness-gap: handleLink(request, area) carries a raw COMMAREA from a calling port's LINK with LENGTH; the harness enters a linked case through the one-parameter handleLink(request) and no caller LINKs UPDACC that way"
+   "verdict": "unreachable",
+   "reason": "handleLink(request, byte[] area) overload is never called by the equivalence test runner"
   },
   {
    "id": "ba9505f7e8",
@@ -1942,8 +1942,8 @@
    "line": 452,
    "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
    "after": "/* lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null; */",
-   "verdict": "harness-gap",
-   "reason": "harness-gap: handleLink(request, area) carries a raw COMMAREA from a calling port's LINK with LENGTH; the harness enters a linked case through the one-parameter handleLink(request) and no caller LINKs UPDACC that way"
+   "verdict": "unreachable",
+   "reason": "handleLink(request, byte[] area) overload is never called by the equivalence test runner"
   },
   {
    "id": "8c4a586d4a",
@@ -1951,8 +1951,8 @@
    "line": 462,
    "before": "return lastLinkBytes == null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
    "after": "return lastLinkBytes != null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
-   "verdict": "harness-gap",
-   "reason": "harness-gap: handleLink(request, area) carries a raw COMMAREA from a calling port's LINK with LENGTH; the harness enters a linked case through the one-parameter handleLink(request) and no caller LINKs UPDACC that way"
+   "verdict": "unreachable",
+   "reason": "lastLinkBytes() helper is never called in equivalence testing"
   },
   {
    "id": "7babefe6f3",

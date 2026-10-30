@@ -694,7 +694,8 @@
    "case": "c9c76116b6cbd83fb929db7bd58a606bee9479b3baaeec72d146138e5f1af90b",
    "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
    "harness": "bd9b4364d5fdcb68f2512f077586d7f71cb727139ce02c2f9bda98e8cc18372e",
-   "oracle": "78abad3ef2da17f34959fee0e54309421ecc8dce147b4cd13fe6d93f195b358a"
+   "oracle": "78abad3ef2da17f34959fee0e54309421ecc8dce147b4cd13fe6d93f195b358a",
+   "survivors": "44858621af858f520e65693d74e0ff3993034e7c3cb149d60a6b6822438de238"
   },
   "components": {
    "generator": {

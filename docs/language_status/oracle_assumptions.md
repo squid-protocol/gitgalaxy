@@ -1765,8 +1765,13 @@ states each (`none (gap)`: no entry does). Only fields a burned corpus's COBOL n
     `test_dfsort_4268.py`). **IBM.** SC23-6864 "IEBGENER". Refused by name: any control statement (GENERATE, RECORD,
     MEMBER, EXITS, LABELS: they edit or reformat records). Not modelled: a SYSUT2 whose record length differs from
     SYSUT1's (the lowering has one record length, so the step is lowered only for equal lengths).
-  - Not yet run from a generated batch job: `JclSteps.utility` still refuses the SORT step; wiring the model into
-    the batch forge, an IDCAMS REPRO / DEFINE subset and a multi-step job case are the next slices of #4268.
+  - **Batch forge, IEBGENER (#4268).** The generated job's IEBGENER / ICEGENER step reads its in-stream SYSIN (the
+    `job_sysin` estate join) through `dfsort.iebgener()`: an empty or DUMMY SYSIN stays `steps.copy` (the runtime's
+    SYSUT1 -> SYSUT2 byte copy, the model's behaviour); a control statement, or a SYSIN that is a dataset, becomes
+    `steps.utility` with the refusal named, counted as a utility step to port, never a silent plain copy. Not seen: a
+    SYSIN deck written inside a PROC definition (`job_sysin` lists job-level decks only).
+  - Not yet run from a generated batch job: `JclSteps.utility` still refuses the SORT step; an IDCAMS REPRO / DEFINE
+    subset, the SORT step in the forge and a multi-step job case are the next slices of #4268.
 - The COBOL SORT / MERGE / RELEASE / RETURN verbs and the SD entry are translated (#4286), onto `cobolrt/Sort`:
   - Keys compare as a relation condition compares their items: a numeric key (zoned, packed, binary, signed or
     not) by value, any other byte by byte. WITH DUPLICATES IN ORDER is a stable sort; without it, records with

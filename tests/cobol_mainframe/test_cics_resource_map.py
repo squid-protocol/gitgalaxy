@@ -238,6 +238,10 @@ def test_resolved_wrapper_proc_joins_its_assembler_step_sysin(tmp_path):
         "//DEF      EXEC BANKASM\n"
         "//NOTASM   EXEC BANKASM\n"
         "//PRE.SYSIN DD DSN=BANK.SRCLIB(TBL01),DISP=SHR\n"
+        "//         DD DSN=BANK.SRCLIB(TBL01),DISP=SHR\n"  # #5218: PRE's concatenation, not ASMSTEP's override
+        "//CONCAT   EXEC BANKASM\n"
+        "//ASMSTEP.SYSIN DD DSN=BANK.SRCLIB(EMPTY01),DISP=SHR\n"
+        "//         DD DSN=BANK.SRCLIB(TBL01),DISP=SHR\n"
         "//UNKNOWN  EXEC MYASM\n"
         "//ASMSTEP.SYSIN DD DSN=BANK.SRCLIB(TBL01),DISP=SHR\n",
         encoding="utf-8",
@@ -247,7 +251,9 @@ def test_resolved_wrapper_proc_joins_its_assembler_step_sysin(tmp_path):
     assert got == [
         ("OVR", "TBL01", "joined"),  # //ASMSTEP.SYSIN override wins over the proc's own SYSIN
         ("DEF", "EMPTY01", "no_tables"),  # no override: the proc's own ASMSTEP SYSIN
-        ("NOTASM", "EMPTY01", "no_tables"),  # //PRE.SYSIN is for IEFBR14, not ASMSTEP, so not an override of ASMSTEP
+        ("NOTASM", "EMPTY01", "no_tables"),  # //PRE.SYSIN (and its concatenation) is IEFBR14's, not ASMSTEP's
+        ("CONCAT", "EMPTY01", "no_tables"),  # an override concatenation: every DD is joined
+        ("CONCAT", "TBL01", "joined"),
     ]
 
 

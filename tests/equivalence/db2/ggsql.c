@@ -19,7 +19,7 @@
  * this stub raises while assigning the result, carry no tokens.
  *
  * The statements come from $GGSQL_STMTS, written by the precompiler:
- *   S <id> <kind> <nin> <nout> <cursor|-> <program> <line> [H]
+ *   S <id> <kind> <nin> <nout> <cursor|-> <program> <line> [H] [K[:ORIENT[:n]]] | [R[:n]]
  *                                              kind: EXEC SELECT1 OPEN FETCH CLOSE COMMIT ROLLBACK; program and line
  *                                              (#4173): the EXEC SQL's own line in its program's source; H (#4269):
  *                                              an OPEN of a cursor declared WITH HOLD
@@ -66,7 +66,7 @@ typedef struct {
 } hv;
 
 typedef struct {
-    int id, nin, nout, line, runs, hold, scroll, orient_n, has_n;
+    int id, nin, nout, line, runs, hold, scroll, orient_n, has_n, rowset;
     char kind[12], cursor[64], program[16], orient[12];
     hv in[MAXHV], out[MAXHV];
     char *sql;
@@ -104,6 +104,10 @@ static void load(void) {
             sscanf(line + 2, "%d %11s %d %d %63s %15s %d %39s %39s", &cur->id, cur->kind, &cur->nin, &cur->nout,
                    cur->cursor, cur->program, &cur->line, held, scr);
             if (!strcmp(held, "H")) cur->hold = 1;
+            else if (held[0] == 'R') {  /* #4269: R, or R:n -- a FETCH ROWSET, FOR n ROWS with n a constant */
+                cur->rowset = 1;
+                if (held[1] == ':') cur->orient_n = atoi(held + 2), cur->has_n = 1;
+            }
             else if (held[0] == 'K') strcpy(scr, held);  /* no H: the scroll token is the first one */
             if (scr[0] == 'K') {  /* #4269: K, or K:ORIENT[:n] -- a scroll cursor's OPEN / a FETCH's orientation */
                 cur->scroll = 1;
@@ -132,10 +136,16 @@ static stmt *find(int id) {
     return NULL;
 }
 
+/* the statement that has the cursor open now: a cursor a program OPENs at two places (CLOSE, then OPEN again) is open
+ * on the later one (#4269); else the first, which is closed */
 static stmt *find_cursor(const char *name, const char *kind) {
-    for (int i = 0; i < nstmts; i++)
-        if (!strcmp(stmts[i].cursor, name) && !strcmp(stmts[i].kind, kind)) return &stmts[i];
-    return NULL;
+    stmt *first = NULL;
+    for (int i = 0; i < nstmts; i++) {
+        if (strcmp(stmts[i].cursor, name) || strcmp(stmts[i].kind, kind)) continue;
+        if (stmts[i].h) return &stmts[i];
+        if (!first) first = &stmts[i];
+    }
+    return first;
 }
 
 /* ---- the SQLCA (COMP-5 fields: native) --------------------------------------------------------------- */
@@ -356,10 +366,10 @@ static short ind_get(unsigned char **a, int idx) {
     return (short)((a[idx][0] << 8) | a[idx][1]);  /* PIC S9(4) COMP, big-endian */
 }
 
-static void ind_set(unsigned char **a, int idx, short v) {
+static void ind_set(unsigned char **a, int idx, int row, short v) {  /* row: a FETCH ROWSET's table element */
     if (idx < 0) return;
-    a[idx][0] = (unsigned char)(v >> 8);
-    a[idx][1] = (unsigned char)v;
+    a[idx][2 * row] = (unsigned char)(v >> 8);
+    a[idx][2 * row + 1] = (unsigned char)v;
 }
 
 /* ---- binding ---------------------------------------------------------------------------------------- */
@@ -399,7 +409,7 @@ static void bind_inputs(stmt *s, unsigned char **a) {
     }
 }
 
-static int fetch_into(stmt *s, unsigned char **a, sqlca_t *c) {
+static int fetch_into(stmt *s, unsigned char **a, sqlca_t *c, int row) {
     char buf[4096];
     SQLLEN got;
     SQLSMALLINT ncols = 0;
@@ -410,7 +420,7 @@ static int fetch_into(stmt *s, unsigned char **a, sqlca_t *c) {
             c->sqlwarn[0] = 'W', c->sqlwarn[3] = 'W';
             break;
         }
-        unsigned char *p = a[v->arg];
+        unsigned char *p = a[v->arg] + (size_t)row * v->len;  /* (#4269: a table's element; len is its size) */
         SQLRETURN rc = SQLGetData(s->h, (SQLUSMALLINT)(i + 1), SQL_C_CHAR, buf, sizeof buf, &got);
         if (rc != SQL_SUCCESS && rc != SQL_SUCCESS_WITH_INFO) {
             diag(c, SQL_HANDLE_STMT, s->h, rc);
@@ -422,7 +432,7 @@ static int fetch_into(stmt *s, unsigned char **a, sqlca_t *c) {
                 memcpy(c->sqlstate, "22002", 5);
                 return 0;
             }
-            ind_set(a, v->ind, -1);
+            ind_set(a, v->ind, row, -1);
             continue;
         }
         int n = (int)got;
@@ -431,13 +441,13 @@ static int fetch_into(stmt *s, unsigned char **a, sqlca_t *c) {
             memcpy(p, buf, k);
             memset(p + k, ' ', v->len - k);
             if (n > v->len) c->sqlwarn[0] = 'W', c->sqlwarn[1] = 'W';
-            ind_set(a, v->ind, (short)(n > v->len ? n : 0));
+            ind_set(a, v->ind, row, (short)(n > v->len ? n : 0));
         } else if (v->type == 'V') {
             int k = n < v->len ? n : v->len;
             p[0] = (unsigned char)(k >> 8), p[1] = (unsigned char)k;
             memcpy(p + 2, buf, k);
             if (n > v->len) c->sqlwarn[0] = 'W', c->sqlwarn[1] = 'W';
-            ind_set(a, v->ind, (short)(n > v->len ? n : 0));
+            ind_set(a, v->ind, row, (short)(n > v->len ? n : 0));
         } else {
             int r = num_store(v, p, buf);
             if (r) {
@@ -445,7 +455,7 @@ static int fetch_into(stmt *s, unsigned char **a, sqlca_t *c) {
                 memcpy(c->sqlstate, r == -304 ? "22003" : "22018", 5);
                 return 0;
             }
-            ind_set(a, v->ind, 0);
+            ind_set(a, v->ind, row, 0);
         }
     }
     return 1;
@@ -522,6 +532,42 @@ static void run(stmt *s, sqlca_t *c, unsigned char **a) {
             o->h = 0;
             return;
         }
+        if (s->rowset) {
+            /* #4269: FETCH ROWSET FOR n ROWS, one SQLFetch a row into element j of every column's table. A rowset that
+             * reaches the end of the data holds fewer than n rows (or none): +100, SQLERRD(3) the rows read -- Db2
+             * for z/OS answers the same (SQL Reference, FETCH; register Q4). The outcome log gets a FETCH a row (the
+             * last one the caller's), as the Java side's JDBC reads the rows one by one. */
+            long n = s->has_n ? s->orient_n : 0;
+            if (!s->has_n && s->nin > 0) {
+                char nb[64];
+                if (!num_text(&s->in[0], a[s->in[0].arg], nb)) die("a FOR n ROWS that is no number", s->cursor);
+                n = atol(nb);
+            }
+            int got = 0;
+            o->nout = s->nout;
+            memcpy(o->out, s->out, sizeof s->out);
+            while (got < n) {
+                rc = SQLFetch(o->h);
+                if (rc == SQL_NO_DATA) break;
+                if (rc != SQL_SUCCESS && rc != SQL_SUCCESS_WITH_INFO) {
+                    diag(c, SQL_HANDLE_STMT, o->h, rc);
+                    c->sqlerrd[2] = got;
+                    return;
+                }
+                if (!fetch_into(o, a, c, got)) {
+                    c->sqlerrd[2] = got;
+                    return;
+                }
+                got++;
+                if (got < n) {
+                    sqlca_t row = *c;
+                    outcome(s, &row, 0);
+                }
+            }
+            c->sqlerrd[2] = got;
+            if (got < n) c->sqlcode = 100, memcpy(c->sqlstate, "02000", 5);
+            return;
+        }
         if (s->scroll && s->orient[0] && strcmp(s->orient, "NEXT")) {
             /* #4269: the orientation, over the insensitive cursor Db2 opened; ABSOLUTE / RELATIVE take the constant,
              * else the statement's one input host variable */
@@ -550,7 +596,7 @@ static void run(stmt *s, sqlca_t *c, unsigned char **a) {
         }
         o->nout = s->nout;
         memcpy(o->out, s->out, sizeof s->out);
-        fetch_into(o, a, c);
+        fetch_into(o, a, c, 0);
         return;
     }
     if (!strcmp(s->kind, "OPEN")) {
@@ -598,7 +644,7 @@ static void run(stmt *s, sqlca_t *c, unsigned char **a) {
         rc = SQLFetch(s->h);
         if (rc == SQL_NO_DATA) {
             diag(c, SQL_HANDLE_STMT, s->h, rc);
-        } else if (fetch_into(s, a, c)) {
+        } else if (fetch_into(s, a, c, 0)) {
             if (SQLFetch(s->h) != SQL_NO_DATA) {
                 c->sqlcode = -811;
                 memcpy(c->sqlstate, "21000", 5);

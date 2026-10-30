@@ -3193,6 +3193,30 @@
    "calibration": "uncalibrated"
   },
   {
+   "id": "RT-SQL-ROWSET-FETCH",
+   "family": "SQL",
+   "title": "FETCH [NEXT] ROWSET FROM cursor FOR n ROWS INTO host-variable tables: up to n next rows, one table per column, SQLERRD(3) the rows read; a rowset that reaches the end holds fewer than n rows and is +100 (an n above the tables is refused)",
+   "methods": [
+    "fetchRowset",
+    "intoRows"
+   ],
+   "site": "fetchRowset@1",
+   "ibm": {
+    "doc": "db2-codes",
+    "section": "SQLCODE +100, -501"
+   },
+   "options": [],
+   "features": [
+    "sql_forms: FETCH",
+    "sql_forms: STATIC"
+   ],
+   "register": [
+    "Q4"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
    "id": "RT-SQL-POSITIONED-UPDATE",
    "family": "SQL",
    "title": "UPDATE / DELETE WHERE CURRENT OF: the current row (-501 not open, -508 no current row)",

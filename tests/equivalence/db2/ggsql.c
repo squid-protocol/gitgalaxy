@@ -19,7 +19,7 @@
  * this stub raises while assigning the result, carry no tokens.
  *
  * The statements come from $GGSQL_STMTS, written by the precompiler:
- *   S <id> <kind> <nin> <nout> <cursor|-> <program> <line> [H] [K[:ORIENT[:n]]] | [R[:n]]
+ *   S <id> <kind> <nin> <nout> <cursor|-> <program> <line> [H] [K[:ORIENT[:n]]] | [R[:n]] | [M[:n]]
  *                                              kind: EXEC SELECT1 OPEN FETCH CLOSE COMMIT ROLLBACK; program and line
  *                                              (#4173): the EXEC SQL's own line in its program's source; H (#4269):
  *                                              an OPEN of a cursor declared WITH HOLD
@@ -66,7 +66,7 @@ typedef struct {
 } hv;
 
 typedef struct {
-    int id, nin, nout, line, runs, hold, scroll, orient_n, has_n, rowset;
+    int id, nin, nout, line, runs, hold, scroll, orient_n, has_n, rowset, multi;
     char kind[12], cursor[64], program[16], orient[12];
     hv in[MAXHV], out[MAXHV];
     char *sql;
@@ -104,6 +104,10 @@ static void load(void) {
             sscanf(line + 2, "%d %11s %d %d %63s %15s %d %39s %39s", &cur->id, cur->kind, &cur->nin, &cur->nout,
                    cur->cursor, cur->program, &cur->line, held, scr);
             if (!strcmp(held, "H")) cur->hold = 1;
+            else if (held[0] == 'M') {  /* #4269: M, or M:n -- INSERT ... FOR n ROWS; n a constant, or the last input */
+                cur->multi = 1;
+                if (held[1] == ':') cur->orient_n = atoi(held + 2), cur->has_n = 1;
+            }
             else if (held[0] == 'R') {  /* #4269: R, or R:n -- a FETCH ROWSET, FOR n ROWS with n a constant */
                 cur->rowset = 1;
                 if (held[1] == ':') cur->orient_n = atoi(held + 2), cur->has_n = 1;
@@ -361,9 +365,9 @@ static int num_store(const hv *v, unsigned char *p, const char *text) {
     return 0;
 }
 
-static short ind_get(unsigned char **a, int idx) {
+static short ind_get(unsigned char **a, int idx, int row) {  /* row: an INSERT FOR n ROWS' table element */
     if (idx < 0) return 0;
-    return (short)((a[idx][0] << 8) | a[idx][1]);  /* PIC S9(4) COMP, big-endian */
+    return (short)((a[idx][2 * row] << 8) | a[idx][2 * row + 1]);  /* PIC S9(4) COMP, big-endian */
 }
 
 static void ind_set(unsigned char **a, int idx, int row, short v) {  /* row: a FETCH ROWSET's table element */
@@ -376,14 +380,14 @@ static void ind_set(unsigned char **a, int idx, int row, short v) {  /* row: a F
 static char inbuf[MAXHV][512];
 static SQLLEN inlen[MAXHV];
 
-static void bind_inputs(stmt *s, unsigned char **a) {
-    for (int i = 0; i < s->nin; i++) {
+static void bind_inputs(stmt *s, unsigned char **a, int row, int count) {
+    for (int i = 0; i < count; i++) {
         hv *v = &s->in[i];
-        unsigned char *p = a[v->arg];
+        unsigned char *p = a[v->arg] + (size_t)row * v->len;  /* (#4269: a table's element; len is its size) */
         SQLSMALLINT sqltype;
         SQLULEN size;
         SQLSMALLINT dec = 0;
-        if (ind_get(a, v->ind) < 0) {
+        if (ind_get(a, v->ind, row) < 0) {
             inlen[i] = SQL_NULL_DATA;
         }
         if (v->type == 'X') {
@@ -503,6 +507,40 @@ static int injected(stmt *s, sqlca_t *c) {
 static void outcome(const stmt *s, const sqlca_t *c, int fault);
 static int empty_scroll_open;
 
+static long multi_total = -1;  /* an INSERT FOR n ROWS' rows inserted: SQLERRD(3) once the rows are logged */
+
+/* #4269: INSERT ... VALUES (tables) FOR n ROWS [ATOMIC], one execution a row of the prepared INSERT (the Java side's
+ * JDBC runs one statement a row, so the outcome log gets one line a row: the last is the caller's). A row after the
+ * first that fails would need ATOMIC's undo of the rows before it, which the port does not model: refused. */
+static void run_multi(stmt *s, sqlca_t *c, unsigned char **a) {
+    long n = s->has_n ? s->orient_n : 0, done = 0;
+    int bound = s->nin;
+    if (!s->has_n) {
+        char nb[64];
+        hv *nv = &s->in[--bound];
+        if (!num_text(nv, a[nv->arg], nb)) die("a FOR n ROWS that is no number", s->sql);
+        n = atol(nb);
+    }
+    for (long j = 0; j < n; j++) {
+        for (int i = 0; i < bound; i++) inlen[i] = 0;
+        bind_inputs(s, a, (int)j, bound);
+        SQLRETURN rc = SQLExecute(s->h);
+        diag(c, SQL_HANDLE_STMT, s->h, rc);
+        if (c->sqlcode < 0 || (rc != SQL_SUCCESS && rc != SQL_SUCCESS_WITH_INFO)) {
+            if (j > 0) die("INSERT FOR n ROWS with a row after the first failing (ATOMIC's undo)", s->sql);
+            return;
+        }
+        SQLLEN rows = 0;
+        SQLRowCount(s->h, &rows);
+        if (rows >= 0) c->sqlerrd[2] = (int)rows, done += rows;
+        if (j < n - 1) {
+            sqlca_t row = *c;
+            outcome(s, &row, 0);
+        }
+    }
+    multi_total = done;
+}
+
 static void run(stmt *s, sqlca_t *c, unsigned char **a) {
     SQLRETURN rc;
     if (!strcmp(s->kind, "COMMIT") || !strcmp(s->kind, "ROLLBACK")) {
@@ -620,8 +658,14 @@ static void run(stmt *s, sqlca_t *c, unsigned char **a) {
         s->h = 0;
         return;
     }
+    if (s->multi) {
+        run_multi(s, c, a);
+        SQLFreeHandle(SQL_HANDLE_STMT, s->h);
+        s->h = 0;
+        return;
+    }
     for (int i = 0; i < s->nin; i++) inlen[i] = 0;
-    bind_inputs(s, a);
+    bind_inputs(s, a, 0, s->nin);
     rc = SQLExecute(s->h);
     diag(c, SQL_HANDLE_STMT, s->h, rc);
     if (c->sqlcode < 0 || (rc != SQL_SUCCESS && rc != SQL_SUCCESS_WITH_INFO && rc != SQL_NO_DATA)) {
@@ -714,6 +758,7 @@ int GGSQL(unsigned char *id, unsigned char *ca,
     /* #4269: a scroll cursor's FETCH is not logged: the Java side reads the rows once at OPEN, so the two sides' fetch
      * counts differ by design; the rows the program sees are still compared through its output */
     if (!(s->scroll && !strcmp(s->kind, "FETCH"))) outcome(s, c, 0);
+    if (multi_total >= 0) c->sqlerrd[2] = (int)multi_total, multi_total = -1;
     if (empty_scroll_open) {
         stmt probe = *s;
         sqlca_t end;

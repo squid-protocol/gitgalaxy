@@ -829,6 +829,221 @@ def test_rowdemo_det_port_proves_on_db2_against_the_hand_trace(tmp_path):
     assert (keep / "cobol" / "stdout.txt").read_text(encoding="latin-1") == TRACED_ROWSET
 
 
+# #4269 INSERT ... FOR n ROWS: the translator's reading of the host variable tables, with items in place of a COBOL source
+def _insert_rows_sql(items):
+    from types import SimpleNamespace as NS
+
+    from gitgalaxy.tools.cobol_to_java.det.sql import Method, Sql
+
+    def item(name, pic="X(4)", occurs=3, category="ALPHANUMERIC"):
+        return NS(name=name, parent=None, pic=pic, occurs=occurs, category=category, children=[], usage="DISPLAY",
+                  level=5)  # fmt: skip
+
+    class Gen(_Gen):
+        def tmpname(self, base):
+            return base
+
+        def resolve(self, ref):
+            return items(item)[ref.name]
+
+    sql = Sql(Gen(), "P", None)
+    sql.methods = {("P", 7): Method("Repo", "ins", "INSERT", {k: k.lower() for k in ("A", "B", "C", "S", "N", "T", "SHORT")})}
+    return sql
+
+
+def _insert_items(item):
+    return {
+        "A": item("A"),
+        "B": item("B", "S9(5)", 3, "NUMERIC"),
+        "C": item("C", "S9(4)", 3, "NUMERIC"),
+        "S": item("S", "X(4)", 1),
+        "N": item("N", "S9(4)", 1, "NUMERIC"),
+        "T": item("T", "X(4)", 1, "ALPHANUMERIC"),
+        "SHORT": item("SHORT", "X(4)", 2),
+    }
+
+
+def test_insert_for_n_rows_calls_the_single_row_insert_per_element():
+    out = _insert_rows_sql(_insert_items).command(
+        "EXEC SQL INSERT INTO T (A, B) VALUES (:A, :B :C) FOR 2 ROWS ATOMIC END-EXEC", 7, ""
+    )
+    assert out == [
+        'DetSql.insertRows(ca, "P:7", 2L, 3, "XN", new String[] {"a", "b"}, '
+        "new Field[][] {{ca, ca, ca}, {ca, ca, ca}}, new Field[][] {null, {ca, ca, ca}}, p -> repo.ins(p), CS);"
+    ]
+
+
+def test_insert_for_a_host_variable_n_rows_reads_n_at_run_time():
+    out = _insert_rows_sql(_insert_items).command("EXEC SQL INSERT INTO T (A) VALUES (:A) FOR :N ROWS END-EXEC", 7, "")
+    assert 'DetSql.insertRows(ca, "P:7", DetSql.numIn(ca, CS).longValue(), 3, "X"' in out[0]
+
+
+@pytest.mark.parametrize(
+    "stmt, why",
+    [
+        ("INSERT INTO T (A) VALUES (:S) FOR 2 ROWS", "not an elementary table"),
+        ("INSERT INTO T (A, B) VALUES (:A, :S) FOR 2 ROWS", "not an elementary table"),
+        ("INSERT INTO T (A) VALUES (:A) FOR 4 ROWS", "exceeds the host variable tables"),
+        ("INSERT INTO T (A) VALUES (:A) FOR :T ROWS", "not a numeric host variable"),
+        ("INSERT INTO T (A, B) VALUES (:A, :SHORT) FOR 3 ROWS", "exceeds the host variable tables"),
+        ("INSERT INTO T (A) VALUES (:A :SHORT) FOR 2 ROWS", "indicator array"),
+    ],
+)
+def test_insert_for_n_rows_with_host_variables_that_are_not_matching_tables_is_refused(stmt, why):
+    from gitgalaxy.tools.cobol_to_java.det.sql import SqlError
+
+    with pytest.raises(SqlError, match=why):
+        _insert_rows_sql(_insert_items).command(f"EXEC SQL {stmt} END-EXEC", 7, "")
+
+
+def test_the_forge_method_for_insert_for_n_rows_is_the_single_row_insert():
+    from gitgalaxy.tools.cobol_to_java.cobol_to_java_db2_forge import to_jdbc
+
+    for tail in ("FOR 2 ROWS", "FOR :N ROWS ATOMIC", "for 10 rows"):
+        sql, params, _notes = to_jdbc(f"INSERT INTO T (A, B) VALUES (:WS-A, :WS-B) {tail}", "INSERT")
+        assert sql == "INSERT INTO T (A, B) VALUES (:wsA, :wsB)"
+        assert [h for h, _ in params] == ["WS-A", "WS-B"]
+
+
+# #4269 INSERT ... FOR n ROWS, proven on Db2: INSDEMO is built inline; GGINS.ITEM holds one seeded row (id 1)
+_INSDEMO_CBL = """\
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. INSDEMO.
+       ENVIRONMENT DIVISION.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+           EXEC SQL INCLUDE SQLCA END-EXEC.
+           EXEC SQL DECLARE GGINS.ITEM TABLE
+               ( ID                 INTEGER NOT NULL,
+                 NAME               CHAR(4) NOT NULL,
+                 QTY                DECIMAL(5,2)
+               ) END-EXEC.
+       01  WS-TABLES.
+           05  WS-ID                PIC S9(9) COMP OCCURS 3.
+           05  WS-NAME              PIC X(4) OCCURS 3.
+           05  WS-QTY               PIC S9(3)V99 COMP-3 OCCURS 3.
+           05  WS-QI                PIC S9(4) COMP OCCURS 3.
+       01  WS-N                     PIC S9(9) COMP.
+       01  WS-CNT                   PIC S9(9) COMP.
+       01  WS-CODE                  PIC -(9)9.
+       01  WS-ROWS                  PIC -(9)9.
+       01  WS-TAG                   PIC X(8).
+       PROCEDURE DIVISION.
+       MAIN-PARA.
+           MOVE 10 TO WS-ID(1)
+           MOVE 20 TO WS-ID(2)
+           MOVE 30 TO WS-ID(3)
+           MOVE 'AAAA' TO WS-NAME(1)
+           MOVE 'BBBB' TO WS-NAME(2)
+           MOVE 'CCCC' TO WS-NAME(3)
+           MOVE 1.5 TO WS-QTY(1)
+           MOVE 2.5 TO WS-QTY(2)
+           MOVE 3.5 TO WS-QTY(3)
+           MOVE 0 TO WS-QI(1)
+           MOVE -1 TO WS-QI(2)
+           MOVE 0 TO WS-QI(3)
+           EXEC SQL INSERT INTO GGINS.ITEM (ID, NAME, QTY)
+               VALUES (:WS-ID, :WS-NAME, :WS-QTY :WS-QI)
+               FOR 2 ROWS END-EXEC
+           MOVE 'LIT 2' TO WS-TAG
+           PERFORM SHOW-PARA
+           MOVE 3 TO WS-N
+           MOVE 40 TO WS-ID(1)
+           MOVE 50 TO WS-ID(2)
+           MOVE 60 TO WS-ID(3)
+           EXEC SQL INSERT INTO GGINS.ITEM (ID, NAME, QTY)
+               VALUES (:WS-ID, :WS-NAME, :WS-QTY :WS-QI)
+               FOR :WS-N ROWS ATOMIC END-EXEC
+           MOVE 'VAR 3' TO WS-TAG
+           PERFORM SHOW-PARA
+           MOVE 1 TO WS-ID(1)
+           MOVE 70 TO WS-ID(2)
+           EXEC SQL INSERT INTO GGINS.ITEM (ID, NAME, QTY)
+               VALUES (:WS-ID, :WS-NAME, :WS-QTY :WS-QI)
+               FOR 2 ROWS END-EXEC
+           MOVE 'DUP KEY' TO WS-TAG
+           PERFORM SHOW-PARA
+           EXEC SQL SELECT COUNT(*) INTO :WS-CNT FROM GGINS.ITEM
+           END-EXEC
+           MOVE WS-CNT TO SQLERRD(3)
+           MOVE 'COUNT' TO WS-TAG
+           PERFORM SHOW-PARA
+           STOP RUN.
+       SHOW-PARA.
+           MOVE SQLCODE TO WS-CODE
+           MOVE SQLERRD(3) TO WS-ROWS
+           DISPLAY WS-TAG WS-CODE WS-ROWS.
+"""
+_INSDEMO_JCL = _ROWDEMO_JCL.replace("ROWDEMO", "INSDEMO").replace("GGROW", "GGINS")
+_INSDEMO_DDL = (
+    "CREATE TABLE GGINS.ITEM (ID INTEGER NOT NULL, NAME CHAR(4) NOT NULL, QTY DECIMAL(5,2), PRIMARY KEY (ID));\n"
+)
+_INSDEMO_SEED = "INSERT INTO GGINS.ITEM VALUES (1, 'ZZZZ', 9.00);\n"
+# per statement: tag (8), SQLCODE (10), SQLERRD(3) (10); the duplicate key is the first row: -803, nothing inserted
+TRACED_INSERT_ROWS = "".join(
+    f"{tag:<8}{code:>10}{rows:>10}\n"
+    for tag, code, rows in (("LIT 2", 0, 2), ("VAR 3", 0, 3), ("DUP KEY", -803, 0), ("COUNT", 0, 6))
+)
+
+
+def _insdemo_port(tmp_path):
+    pytest.importorskip("tree_sitter_language_pack")
+    import det_port
+
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    estate = tmp_path / "estate"
+    for rel, text in (
+        ("cbl/INSDEMO.cbl", _INSDEMO_CBL),
+        ("jcl/INSDEMO.jcl", _INSDEMO_JCL),
+        ("ddl/ITEM.ddl", _INSDEMO_DDL),
+    ):
+        (estate / rel).parent.mkdir(parents=True, exist_ok=True)
+        (estate / rel).write_text(text, encoding="utf-8")
+    (tmp_path / "seed.sql").write_text(_INSDEMO_SEED, encoding="utf-8")
+    for argv in (["init", "-q"], ["add", "-A"], ["-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qm", "e"]):
+        subprocess.run(["git", "-C", str(estate), *argv], check=True)  # noqa: S603, S607
+    project = det_port.estate(estate, tmp_path / "translate")  # (its own work: never inside the estate)
+    stub = (project / "src/main/java" / det_port.PKG_DIR / "service" / "InsdemoService.java").read_text("utf-8")
+    r = P.translate(estate / "cbl/INSDEMO.cbl", [estate / "cbl"], stub, det_port.PKG, P.estate_files(project), project)
+    port = tmp_path / "port"
+    (port / "service").mkdir(parents=True)
+    (port / "service" / f"{r.service}.java").write_text(r.java, encoding="utf-8")
+    for rel, text in P.runtime_files(det_port.PKG, P.has_batch(project)).items():
+        if "/cics/" not in rel:
+            (port / rel).parent.mkdir(parents=True, exist_ok=True)
+            (port / rel).write_text(text, encoding="utf-8")
+    return estate, r, port
+
+
+@pytest.mark.slow(reason="builds an estate and runs the det-port translator (tree-sitter load, ~40 s)")
+def test_insdemo_translates_every_insert_for_n_rows_with_no_holes(tmp_path):
+    _estate, r, _port = _insdemo_port(tmp_path)
+    assert r.stats["holes"] == []
+    assert r.java.count("DetSql.insertRows(") == 3
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_insdemo_det_port_proves_on_db2_against_the_hand_trace(tmp_path):
+    import json
+
+    estate, _r, port = _insdemo_port(tmp_path)
+    case = {"corpus": "insert-rows-synthetic", "program": "INSDEMO", "program_source": "cbl/INSDEMO.cbl",
+            "copy_dirs": [], "parm": None, "clock": "2026/10/30 10:00:00.00", "datasets": {},
+            "db2": {"ddl": ["ddl/ITEM.ddl"], "seed": str(tmp_path / "seed.sql"), "compare": ["GGINS.ITEM"],
+                    "compare_sql": True}}  # fmt: skip
+    (tmp_path / "case.json").write_text(json.dumps(case), encoding="utf-8")
+    keep = tmp_path / "proof"
+    proc = subprocess.run([sys.executable, str(TOOLS / "equivalence.py"), "run", "insrows", "--case-file",  # noqa: S603
+                           str(tmp_path / "case.json"), "--corpus-dir", str(estate), "--port", str(port), "--keep",
+                           str(keep), "--faults", "none", "--sql-faults", "none"],
+                          capture_output=True, text=True, check=False)  # fmt: skip
+    assert proc.returncode == 0, proc.stdout[-3000:] + proc.stderr[-3000:]
+    report = json.loads((keep / "report.json").read_text(encoding="utf-8"))
+    assert report["proven"] is True
+    assert (keep / "cobol" / "stdout.txt").read_text(encoding="latin-1") == TRACED_INSERT_ROWS
+
+
 @pytest.mark.parametrize(
     "declare, why",
     [

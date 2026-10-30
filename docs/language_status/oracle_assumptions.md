@@ -3620,7 +3620,7 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   cics-crucible CAGMZ's three requests); a valid length is refused by name ("GETMAIN without INITIMG acquired storage", `CicsTask.getmain`
   with INITIMG -1), so no proof can rest on undefined bytes. The cobol-stub side answers the same (#6876 slice 2): `equivalence_cics._getmain` translates it (`GGCGETM` with image length 0),
   `GGCGETM` answers LENGERR RESP2 1 for a length below 1 and refuses a valid one by the same name, and `_X47_CASES` in `test_cics_runtimes.py`
-  pins the stub and `CicsTask` to one table (`-` is no INITIMG). CAGMZ's remaining hole is the REDEFINES numeric view of a pointer. The older census below stands: the one burned program
+  pins the stub and `CicsTask` to one table (`-` is no INITIMG). The zero test of a numeric view of a pointer (#6876, CAGMZ's `IF WS-PTR2-N = 0`; `= | NOT =` with `0`, ZERO, ZEROS or ZEROES, either side) is the pointer's NULL test, a handle's zero being NULL; it holds in the oracle under row G (task storage in the low 2 GiB, so the low four bytes are zero only for NULL). Any other comparison of the view stays refused by name. The older census below stands: the one burned program
   that issues it (epscsmrd) is still blocked by SOAPFAULT and the sibling CALLs, and would now be refused at run time.
 
 - **GETMAIN without INITIMG: the burned-estate census (#4270, 2026-10-17).** Over the burned corpora (baseline `cf0bcb927a5e`: 98 of 106 CICS

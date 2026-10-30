@@ -90,8 +90,9 @@ def test_getmain_without_initimg_translates_and_is_refused_only_when_it_would_ac
     """#6876 (X47, CAGMZ): IBM gives GETMAIN storage no default contents, so INITIMG is optional at translation: a length
     below 1 is LENGERR before any storage exists (the pointer zero), a valid length is refused by name when it runs (the
     runtime refusal is pinned in test_a_record_set_onto_a_block_is_an_alias_of_it). A literal or wide INITIMG stays refused."""
-    source = PROGRAM.replace("FLENGTH(GETMAIN-LENGTH)\n                INITIMG(BINARY-ZEROES) NOHANDLE",
-                             "FLENGTH(GETMAIN-LENGTH) NOHANDLE")
+    source = PROGRAM.replace(
+        "FLENGTH(GETMAIN-LENGTH)\n                INITIMG(BINARY-ZEROES) NOHANDLE", "FLENGTH(GETMAIN-LENGTH) NOHANDLE"
+    )
     assert source != PROGRAM
     r = _translate(tmp_path, source)
     assert r.stats["holes"] == [], r.stats["holes"]

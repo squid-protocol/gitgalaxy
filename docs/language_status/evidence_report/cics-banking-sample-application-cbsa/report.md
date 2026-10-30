@@ -4,9 +4,9 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `40c748839f7aea9eb37d40f46fe473cff827085d` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `0712a98114140473d4b14442f973fa403cd68768` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
-The translation survey matches the translator in the tree (translator fingerprint `fb893856a63e`).
+The translation survey matches the translator in the tree (translator fingerprint `b3cb69320d97`).
 
 ## How to read this report
 
@@ -299,10 +299,6 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
   - stated infeasible branch outcome (reviewed claim, family R): A010:256:false (IF) -- Same test (256): a RETURN that succeeds ends the task, so the arm where RESP is NORMAL is never executed.
   - stated infeasible branch outcome (reviewed claim, family G): ED010:472:false (IF) -- ACCTYPL > 0 is the fall-through of the test at 459, which rejects ACCTYPL < 1 and GO TOs ED999, so the length is always positive here.
   - stated infeasible branch outcome (reviewed claim, family G): ED010:575:true (IF) -- Reached only when INTRTI(1:INTRTL) holds a character outside digits, '.', '-', '+' and space. INTRT is a NUM field on the BNK1CA map, which a 3270 cannot key letters or other characters into (owner decision on #5116, 2026-10-15: rate-letters dropped), so every non-numeric rate that reaches the tally is made of the tallied characters and the tally equals INTRTL.
-  - undefined by IBM outcome (owner ruling): ED010:611:true (IF) -- BNK1CAC reference-modifies INTRTI(1:INTRTL) past its 7 bytes once more than two characters follow the point (lines 611, 637): IBM without SSRANGE reads the bytes after the field (layout luck), libcob refuses. Owner ruling 2026-10-29: undefined by IBM (X8, bounds_refused rate-three-places).
-  - undefined by IBM outcome (owner ruling): ED010:637:false (IF) -- BNK1CAC reference-modifies INTRTI(1:INTRTL) past its 7 bytes once more than two characters follow the point (lines 611, 637): IBM without SSRANGE reads the bytes after the field (layout luck), libcob refuses. Owner ruling 2026-10-29: undefined by IBM (X8, bounds_refused rate-three-places).
-  - undefined by IBM outcome (owner ruling): ED010:637:true (IF) -- BNK1CAC reference-modifies INTRTI(1:INTRTL) past its 7 bytes once more than two characters follow the point (lines 611, 637): IBM without SSRANGE reads the bytes after the field (layout luck), libcob refuses. Owner ruling 2026-10-29: undefined by IBM (X8, bounds_refused rate-three-places).
-  - undefined by IBM outcome (owner ruling): ED010:717:true (IF) -- BNK1CAC INSPECT OVERDRI(1:OVERDRL) runs with OVERDRL zero (line 783): a zero-length reference modification is out of bounds in libcob and undefined on IBM without SSRANGE; the only way to the true arm of the test at 717. Owner ruling 2026-10-29: undefined by IBM (X8).
   - stated infeasible branch outcome (reviewed claim, family G): ED010:724:true (IF) -- OVERDRI NOT NUMERIC after BIF DEEDIT: the digit tally at 701 rejects any overdraft field holding a non-digit (OVERDRL > tally), and DEEDIT of an all-digit field leaves it numeric.
   - stated infeasible branch outcome (reviewed claim, family G): ED010:736:true (IF) -- CUSTNOL < 1 is rejected at 437 and ACCTYPL < 1 at 459 (both GO TO ED999), so neither can be true here.
   - stated infeasible branch outcome (reviewed claim, family G): CAD010:849:OTHER (EVALUATE) -- CREACC sets a fail code on every 'N' return, and every code it sets has its own WHEN, so OTHER is never reached.
@@ -316,6 +312,10 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
   - stated infeasible branch outcome (reviewed claim, family C): SM010:1049:false (IF) -- The RESP test inside the `IF SEND-DATAONLY` block (1039), which is never entered.
   - stated infeasible branch outcome (reviewed claim, family C): SM010:1049:true (IF) -- The RESP test inside the `IF SEND-DATAONLY` block (1039), which is never entered.
   - stated infeasible branch outcome (reviewed claim, family G): SM010:1116:false (IF) -- `IF SEND-DATAONLY-ALARM` is reached only with the flag '3': '1' (SEND-ERASE) leaves SM010 after the first SEND MAP and '2' is never set (see 1039), so the test is always true.
+  - undefined by IBM outcome (owner ruling 2026-10-29; not proven, not infeasible): ED010:611:true (IF) -- BNK1CAC reference-modifies INTRTI(1:INTRTL) past its 7 bytes once more than two characters follow the point (lines 611, 637): IBM without SSRANGE reads the bytes after the field (layout luck), libcob refuses. Owner ruling 2026-10-29: undefined by IBM (X8, bounds_refused rate-three-places).
+  - undefined by IBM outcome (owner ruling 2026-10-29; not proven, not infeasible): ED010:637:false (IF) -- BNK1CAC reference-modifies INTRTI(1:INTRTL) past its 7 bytes once more than two characters follow the point (lines 611, 637): IBM without SSRANGE reads the bytes after the field (layout luck), libcob refuses. Owner ruling 2026-10-29: undefined by IBM (X8, bounds_refused rate-three-places).
+  - undefined by IBM outcome (owner ruling 2026-10-29; not proven, not infeasible): ED010:637:true (IF) -- BNK1CAC reference-modifies INTRTI(1:INTRTL) past its 7 bytes once more than two characters follow the point (lines 611, 637): IBM without SSRANGE reads the bytes after the field (layout luck), libcob refuses. Owner ruling 2026-10-29: undefined by IBM (X8, bounds_refused rate-three-places).
+  - undefined by IBM outcome (owner ruling 2026-10-29; not proven, not infeasible): ED010:717:true (IF) -- BNK1CAC INSPECT OVERDRI(1:OVERDRL) runs with OVERDRL zero (line 783): a zero-length reference modification is out of bounds in libcob and undefined on IBM without SSRANGE; the only way to the true arm of the test at 717. Owner ruling 2026-10-29: undefined by IBM (X8).
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 20 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X15, X19, X26, X27, X31, X46; commands without oracle backing: ASKTIME, BIF DEEDIT, FORMATTIME, SEND CONTROL; assumption reach and the migration dimensions above: not measured
 
@@ -1439,18 +1439,18 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `40c748839f7aea9eb37d40f46fe473cff827085d`
+- translator commit (the survey's): `0712a98114140473d4b14442f973fa403cd68768`
 - corpus pin: `cics-banking-sample-application-cbsa` at `417334533178ab6e753cc64b0e0e5cf0b4952704`
 - crucible pins: cics `v0.10.0`, estate `v0.5.0`, language `v1.7.0`; cics crucible baseline measured at `v0.10.0 (01e11fe6)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
 - oracle base image: `debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251`
-- oracle images the evidence records ran on: `sha256:162cea9fd92526466216e9b4834422eb2048683ab1f4c6a6b35655e9ec80712f`, `sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc`
+- oracle images the evidence records ran on: `sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc`, `sha256:7c808074331333905d2a43887b40fed4749b61a3ef17e190bb9bd42c9912193f`
 
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 40c748839f7aea9eb37d40f46fe473cff827085d
-python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha 40c748839f7aea9eb37d40f46fe473cff827085d
+python tests/tools/cics_census.py survey --baseline --sha 0712a98114140473d4b14442f973fa403cd68768
+python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha 0712a98114140473d4b14442f973fa403cd68768
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases cbsa-abndproc,cbsa-acctctrl,cbsa-acctctrl-generated,cbsa-bankdata,cbsa-bnk1cac,cbsa-bnk1cac-generated,cbsa-bnk1cca,cbsa-bnk1cca-generated,cbsa-bnk1ccs,cbsa-bnk1ccs-generated,cbsa-bnk1cra,cbsa-bnk1cra-generated,cbsa-bnk1dac,cbsa-bnk1dac-generated,cbsa-bnk1dcs,cbsa-bnk1dcs-generated,cbsa-bnk1tfn,cbsa-bnk1tfn-generated,cbsa-bnk1uac,cbsa-bnk1uac-generated,cbsa-bnkmenu,cbsa-crdtagy1,cbsa-crdtagy2,cbsa-crdtagy3,cbsa-crdtagy4,cbsa-crdtagy5,cbsa-creacc,cbsa-creacc-generated,cbsa-crecust,cbsa-crecust-generated,cbsa-custctrl,cbsa-dbcrfun,cbsa-dbcrfun-generated,cbsa-delacc,cbsa-delacc-generated,cbsa-delcus,cbsa-delcus-generated,cbsa-getcompy,cbsa-getscode,cbsa-inqacc,cbsa-inqacc-generated,cbsa-inqacccu,cbsa-inqacccu-generated,cbsa-inqcust,cbsa-updacc,cbsa-updacc-faults,cbsa-updacc-generated,cbsa-updcust,cbsa-xfrfun,cbsa-xfrfun-generated  # Db2 cases (39) need the Db2 container
 python tests/tools/evidence.py prove cbsa-inqacc cbsa-updacc cbsa-updacc-generated

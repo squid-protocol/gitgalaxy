@@ -2900,10 +2900,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "40c748839f7aea9eb37d40f46fe473cff827085d",
+   "sha": "0712a98114140473d4b14442f973fa403cd68768",
    "translator": {
     "files": 156,
-    "sha256": "fb893856a63eeaa01a943e15af1b07a777ac73d82ec585cebc045b06f6a4f79b"
+    "sha256": "b3cb69320d97f2080c5f90a876598cd7af769c7e82ff7763da09813f40277bbd"
    }
   },
   "sweeps": {}
@@ -3536,7 +3536,7 @@
        "fault_runs": 12,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:162cea9fd92526466216e9b4834422eb2048683ab1f4c6a6b35655e9ec80712f",
+       "oracle_image": "sha256:7c808074331333905d2a43887b40fed4749b61a3ef17e190bb9bd42c9912193f",
        "oracle_matches_pin": true,
        "records_compared": 73,
        "records_equal": 73,
@@ -4787,42 +4787,6 @@
       "unit": "ED010"
      },
      {
-      "family": "U",
-      "key": "ED010:611:true",
-      "kind": "IF",
-      "line": 611,
-      "outcome": "true",
-      "reason": "BNK1CAC reference-modifies INTRTI(1:INTRTL) past its 7 bytes once more than two characters follow the point (lines 611, 637): IBM without SSRANGE reads the bytes after the field (layout luck), libcob refuses. Owner ruling 2026-10-29: undefined by IBM (X8, bounds_refused rate-three-places).",
-      "unit": "ED010"
-     },
-     {
-      "family": "U",
-      "key": "ED010:637:false",
-      "kind": "IF",
-      "line": 637,
-      "outcome": "false",
-      "reason": "BNK1CAC reference-modifies INTRTI(1:INTRTL) past its 7 bytes once more than two characters follow the point (lines 611, 637): IBM without SSRANGE reads the bytes after the field (layout luck), libcob refuses. Owner ruling 2026-10-29: undefined by IBM (X8, bounds_refused rate-three-places).",
-      "unit": "ED010"
-     },
-     {
-      "family": "U",
-      "key": "ED010:637:true",
-      "kind": "IF",
-      "line": 637,
-      "outcome": "true",
-      "reason": "BNK1CAC reference-modifies INTRTI(1:INTRTL) past its 7 bytes once more than two characters follow the point (lines 611, 637): IBM without SSRANGE reads the bytes after the field (layout luck), libcob refuses. Owner ruling 2026-10-29: undefined by IBM (X8, bounds_refused rate-three-places).",
-      "unit": "ED010"
-     },
-     {
-      "family": "U",
-      "key": "ED010:717:true",
-      "kind": "IF",
-      "line": 717,
-      "outcome": "true",
-      "reason": "BNK1CAC INSPECT OVERDRI(1:OVERDRL) runs with OVERDRL zero (line 783): a zero-length reference modification is out of bounds in libcob and undefined on IBM without SSRANGE; the only way to the true arm of the test at 717. Owner ruling 2026-10-29: undefined by IBM (X8).",
-      "unit": "ED010"
-     },
-     {
       "family": "G",
       "key": "ED010:724:true",
       "kind": "IF",
@@ -4955,6 +4919,44 @@
      "ED010:637:false",
      "ED010:637:true",
      "ED010:717:true"
+    ],
+    "undefined_by_ibm_stated": [
+     {
+      "family": "U",
+      "key": "ED010:611:true",
+      "kind": "IF",
+      "line": 611,
+      "outcome": "true",
+      "reason": "BNK1CAC reference-modifies INTRTI(1:INTRTL) past its 7 bytes once more than two characters follow the point (lines 611, 637): IBM without SSRANGE reads the bytes after the field (layout luck), libcob refuses. Owner ruling 2026-10-29: undefined by IBM (X8, bounds_refused rate-three-places).",
+      "unit": "ED010"
+     },
+     {
+      "family": "U",
+      "key": "ED010:637:false",
+      "kind": "IF",
+      "line": 637,
+      "outcome": "false",
+      "reason": "BNK1CAC reference-modifies INTRTI(1:INTRTL) past its 7 bytes once more than two characters follow the point (lines 611, 637): IBM without SSRANGE reads the bytes after the field (layout luck), libcob refuses. Owner ruling 2026-10-29: undefined by IBM (X8, bounds_refused rate-three-places).",
+      "unit": "ED010"
+     },
+     {
+      "family": "U",
+      "key": "ED010:637:true",
+      "kind": "IF",
+      "line": 637,
+      "outcome": "true",
+      "reason": "BNK1CAC reference-modifies INTRTI(1:INTRTL) past its 7 bytes once more than two characters follow the point (lines 611, 637): IBM without SSRANGE reads the bytes after the field (layout luck), libcob refuses. Owner ruling 2026-10-29: undefined by IBM (X8, bounds_refused rate-three-places).",
+      "unit": "ED010"
+     },
+     {
+      "family": "U",
+      "key": "ED010:717:true",
+      "kind": "IF",
+      "line": 717,
+      "outcome": "true",
+      "reason": "BNK1CAC INSPECT OVERDRI(1:OVERDRL) runs with OVERDRL zero (line 783): a zero-length reference modification is out of bounds in libcob and undefined on IBM without SSRANGE; the only way to the true arm of the test at 717. Owner ruling 2026-10-29: undefined by IBM (X8).",
+      "unit": "ED010"
+     }
     ]
    },
    "equivalence": {
@@ -19567,7 +19569,7 @@
        "fault_runs": 12,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:162cea9fd92526466216e9b4834422eb2048683ab1f4c6a6b35655e9ec80712f",
+       "oracle_image": "sha256:7c808074331333905d2a43887b40fed4749b61a3ef17e190bb9bd42c9912193f",
        "oracle_matches_pin": true,
        "records_compared": 73,
        "records_equal": 73,
@@ -19622,7 +19624,7 @@
       "fault_runs": 12,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:162cea9fd92526466216e9b4834422eb2048683ab1f4c6a6b35655e9ec80712f",
+      "oracle_image": "sha256:7c808074331333905d2a43887b40fed4749b61a3ef17e190bb9bd42c9912193f",
       "oracle_matches_pin": true,
       "records_compared": 73,
       "records_equal": 73,
@@ -21639,7 +21641,7 @@
        "fault_runs": 0,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:162cea9fd92526466216e9b4834422eb2048683ab1f4c6a6b35655e9ec80712f",
+       "oracle_image": "sha256:7c808074331333905d2a43887b40fed4749b61a3ef17e190bb9bd42c9912193f",
        "oracle_matches_pin": true,
        "records_compared": 54,
        "records_equal": 54,
@@ -21737,7 +21739,7 @@
       "fault_runs": 0,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:162cea9fd92526466216e9b4834422eb2048683ab1f4c6a6b35655e9ec80712f",
+      "oracle_image": "sha256:7c808074331333905d2a43887b40fed4749b61a3ef17e190bb9bd42c9912193f",
       "oracle_matches_pin": true,
       "records_compared": 54,
       "records_equal": 54,
@@ -23215,8 +23217,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 40c748839f7aea9eb37d40f46fe473cff827085d",
-   "python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha 40c748839f7aea9eb37d40f46fe473cff827085d",
+   "python tests/tools/cics_census.py survey --baseline --sha 0712a98114140473d4b14442f973fa403cd68768",
+   "python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha 0712a98114140473d4b14442f973fa403cd68768",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases cbsa-abndproc,cbsa-acctctrl,cbsa-acctctrl-generated,cbsa-bankdata,cbsa-bnk1cac,cbsa-bnk1cac-generated,cbsa-bnk1cca,cbsa-bnk1cca-generated,cbsa-bnk1ccs,cbsa-bnk1ccs-generated,cbsa-bnk1cra,cbsa-bnk1cra-generated,cbsa-bnk1dac,cbsa-bnk1dac-generated,cbsa-bnk1dcs,cbsa-bnk1dcs-generated,cbsa-bnk1tfn,cbsa-bnk1tfn-generated,cbsa-bnk1uac,cbsa-bnk1uac-generated,cbsa-bnkmenu,cbsa-crdtagy1,cbsa-crdtagy2,cbsa-crdtagy3,cbsa-crdtagy4,cbsa-crdtagy5,cbsa-creacc,cbsa-creacc-generated,cbsa-crecust,cbsa-crecust-generated,cbsa-custctrl,cbsa-dbcrfun,cbsa-dbcrfun-generated,cbsa-delacc,cbsa-delacc-generated,cbsa-delcus,cbsa-delcus-generated,cbsa-getcompy,cbsa-getscode,cbsa-inqacc,cbsa-inqacc-generated,cbsa-inqacccu,cbsa-inqacccu-generated,cbsa-inqcust,cbsa-updacc,cbsa-updacc-faults,cbsa-updacc-generated,cbsa-updcust,cbsa-xfrfun,cbsa-xfrfun-generated  # Db2 cases (39) need the Db2 container",
    "python tests/tools/evidence.py prove cbsa-inqacc cbsa-updacc cbsa-updacc-generated",
@@ -23233,21 +23235,21 @@
   },
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
-   "sha256:162cea9fd92526466216e9b4834422eb2048683ab1f4c6a6b35655e9ec80712f",
-   "sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc"
+   "sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc",
+   "sha256:7c808074331333905d2a43887b40fed4749b61a3ef17e190bb9bd42c9912193f"
   ],
   "pin_manifest": "tests/crucible_pins.toml",
   "record_status_from": "evidence.py status at build time",
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "40c748839f7aea9eb37d40f46fe473cff827085d",
+   "sha": "0712a98114140473d4b14442f973fa403cd68768",
    "translator": {
     "files": 156,
-    "sha256": "fb893856a63eeaa01a943e15af1b07a777ac73d82ec585cebc045b06f6a4f79b"
+    "sha256": "b3cb69320d97f2080c5f90a876598cd7af769c7e82ff7763da09813f40277bbd"
    }
   },
-  "translator_commit": "40c748839f7aea9eb37d40f46fe473cff827085d",
+  "translator_commit": "0712a98114140473d4b14442f973fa403cd68768",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -23290,6 +23292,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "fb893856a63eeaa01a943e15af1b07a777ac73d82ec585cebc045b06f6a4f79b"
+  "fingerprint": "b3cb69320d97f2080c5f90a876598cd7af769c7e82ff7763da09813f40277bbd"
  }
 }

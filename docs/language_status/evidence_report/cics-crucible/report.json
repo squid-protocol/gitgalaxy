@@ -1370,14 +1370,11 @@
     "program": "cases/commarea-mismatch/ca-getmain-pointer/src/CAGMZ.cbl",
     "row": {
      "holes": [
-      "line 33: EXEC EXEC CICS: GETMAIN without INITIMG: IBM gives acquired storage no default contents",
-      "line 41: EXEC EXEC CICS: GETMAIN without INITIMG: IBM gives acquired storage no default contents",
-      "line 49: EXEC EXEC CICS: GETMAIN without INITIMG: IBM gives acquired storage no default contents",
       "line 76: IF WS-PTR2-N: a REDEFINES overlays a POINTER with it (pointer arithmetic is not modelled)"
      ],
      "kind": "cics",
      "statements": 41,
-     "translated": 37
+     "translated": 40
     },
     "source_read": false
    },
@@ -2374,10 +2371,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "40c748839f7aea9eb37d40f46fe473cff827085d",
+   "sha": "0712a98114140473d4b14442f973fa403cd68768",
    "translator": {
     "files": 156,
-    "sha256": "fb893856a63eeaa01a943e15af1b07a777ac73d82ec585cebc045b06f6a4f79b"
+    "sha256": "b3cb69320d97f2080c5f90a876598cd7af769c7e82ff7763da09813f40277bbd"
    }
   },
   "sweeps": {}
@@ -10042,7 +10039,7 @@
     "score": null
    },
    "next": [
-    "translated whole (4 holes left)"
+    "translated whole (1 holes left)"
    ],
    "options": {
     "assumed": 4,
@@ -10094,7 +10091,7 @@
     "commands_backed": 0,
     "commands_not_backed": [],
     "facts_unstated": 0,
-    "holes": 4,
+    "holes": 1,
     "paragraphs_unrun": null,
     "refused": null
    },
@@ -10103,18 +10100,16 @@
    "survey_stale": false,
    "translation": {
     "gap_classes": [
-     "<name>: a REDEFINES overlays a POINTER with it",
-     "EXEC CICS GETMAIN without INITIMG: IBM gives acquired storage no default contents"
+     "<name>: a REDEFINES overlays a POINTER with it"
     ],
-    "hole_count": 4,
+    "hole_count": 1,
     "holes": [
-     "EXEC EXEC CICS: GETMAIN without INITIMG: IBM gives acquired storage no default contents",
      "IF WS-PTR2-N: a REDEFINES overlays a POINTER with it (pointer arithmetic is not modelled)"
     ],
     "refused": null,
     "source_defects": [],
     "statements": 41,
-    "translated": 37,
+    "translated": 40,
     "whole": false
    }
   },
@@ -11142,8 +11137,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 40c748839f7aea9eb37d40f46fe473cff827085d",
-   "python tests/tools/evidence_report.py cics-crucible --baseline --sha 40c748839f7aea9eb37d40f46fe473cff827085d",
+   "python tests/tools/cics_census.py survey --baseline --sha 0712a98114140473d4b14442f973fa403cd68768",
+   "python tests/tools/evidence_report.py cics-crucible --baseline --sha 0712a98114140473d4b14442f973fa403cd68768",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
   ],
@@ -11163,13 +11158,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "40c748839f7aea9eb37d40f46fe473cff827085d",
+   "sha": "0712a98114140473d4b14442f973fa403cd68768",
    "translator": {
     "files": 156,
-    "sha256": "fb893856a63eeaa01a943e15af1b07a777ac73d82ec585cebc045b06f6a4f79b"
+    "sha256": "b3cb69320d97f2080c5f90a876598cd7af769c7e82ff7763da09813f40277bbd"
    }
   },
-  "translator_commit": "40c748839f7aea9eb37d40f46fe473cff827085d",
+  "translator_commit": "0712a98114140473d4b14442f973fa403cd68768",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -11199,7 +11194,7 @@
    "L4": 0,
    "L5": 0
   },
-  "holes": 37,
+  "holes": 34,
   "levels_stale": 0,
   "levels_stale_survey": 0,
   "programs": 80,
@@ -11212,6 +11207,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "fb893856a63eeaa01a943e15af1b07a777ac73d82ec585cebc045b06f6a4f79b"
+  "fingerprint": "b3cb69320d97f2080c5f90a876598cd7af769c7e82ff7763da09813f40277bbd"
  }
 }

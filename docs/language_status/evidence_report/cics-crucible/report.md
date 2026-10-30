@@ -4,9 +4,9 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `40c748839f7aea9eb37d40f46fe473cff827085d` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `0712a98114140473d4b14442f973fa403cd68768` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
-The translation survey matches the translator in the tree (translator fingerprint `fb893856a63e`).
+The translation survey matches the translator in the tree (translator fingerprint `b3cb69320d97`).
 
 ## How to read this report
 
@@ -51,7 +51,7 @@ The translation survey matches the translator in the tree (translator fingerprin
 - L2+: 0 (0 awaiting re-check); L3+: 0 (0 awaiting re-check); L4+: 0 (0 awaiting re-check)
 
 - programs: 80 (with an EXEC CICS command: 0; source not read: 80)
-- translated whole: 68; refused whole: 0; holes left: 37
+- translated whole: 68; refused whole: 0; holes left: 34
 - with an equivalence case: 0; det port equal on its case: 0; with an evidence record: 0; record current at build: 0
 
 ## Options the estate compiles and runs under
@@ -132,7 +132,7 @@ No estate options file: every option is IBM's default (assumed). Programs: 0 opt
 | cases/pseudo-conversational/pc-wizard/src/PCWIZ.cbl | L1 | 39/39 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
 | cases/commarea-mismatch/ca-address-twa-tctua/src/CATWAD.cbl | L0 | 39/43 | 4 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
 | cases/commarea-mismatch/ca-address-twa-tctua/src/CATWSB.cbl | L0 | 9/10 | 1 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
-| cases/commarea-mismatch/ca-getmain-pointer/src/CAGMZ.cbl | L0 | 37/41 | 4 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
+| cases/commarea-mismatch/ca-getmain-pointer/src/CAGMZ.cbl | L0 | 40/41 | 1 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
 | cases/commarea-mismatch/ca-load-set/src/CALDST.cbl | L0 | 21/23 | 2 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
 | cases/commarea-mismatch/ca-load-set/src/CALDSX.cbl | L0 | 24/27 | 3 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
 | cases/commarea-mismatch/ca-load-set/src/CALDTG.cbl | L0 | 0/1 | 1 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
@@ -1060,9 +1060,8 @@ No estate options file: every option is IBM's default (assumed). Programs: 0 opt
 
 ### cases/commarea-mismatch/ca-getmain-pointer/src/CAGMZ.cbl -- L0
 
-- **Next level needs:** translated whole (4 holes left)
-- **Translation:** 37/41 statements, 4 holes; whole: no
-  - hole: EXEC EXEC CICS: GETMAIN without INITIMG: IBM gives acquired storage no default contents
+- **Next level needs:** translated whole (1 holes left)
+- **Translation:** 40/41 statements, 1 holes; whole: no
   - hole: IF WS-PTR2-N: a REDEFINES overlays a POINTER with it (pointer arithmetic is not modelled)
 - **Options in force** (compile options that change results; 0 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]
 - **Executed equivalence:** no equivalence case runs it
@@ -1071,7 +1070,7 @@ No estate options file: every option is IBM's default (assumed). Programs: 0 opt
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
   - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
 - **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 4 holes; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 1 holes; assumption reach and the migration dimensions above: not measured
 
 ### cases/commarea-mismatch/ca-load-set/src/CALDST.cbl -- L0
 
@@ -1217,7 +1216,7 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `40c748839f7aea9eb37d40f46fe473cff827085d`
+- translator commit (the survey's): `0712a98114140473d4b14442f973fa403cd68768`
 - corpus pin: `cics-crucible` at `—`
 - crucible pins: cics `v0.10.0`, estate `v0.5.0`, language `v1.7.0`; cics crucible baseline measured at `v0.10.0 (01e11fe6)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
@@ -1227,8 +1226,8 @@ From the spec entries of the commands the programs use, with the register's stat
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 40c748839f7aea9eb37d40f46fe473cff827085d
-python tests/tools/evidence_report.py cics-crucible --baseline --sha 40c748839f7aea9eb37d40f46fe473cff827085d
+python tests/tools/cics_census.py survey --baseline --sha 0712a98114140473d4b14442f973fa403cd68768
+python tests/tools/evidence_report.py cics-crucible --baseline --sha 0712a98114140473d4b14442f973fa403cd68768
 python tests/tools/evidence_report.py --refresh
 python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin
 ```

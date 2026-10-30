@@ -1796,10 +1796,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "40c748839f7aea9eb37d40f46fe473cff827085d",
+   "sha": "0712a98114140473d4b14442f973fa403cd68768",
    "translator": {
     "files": 156,
-    "sha256": "fb893856a63eeaa01a943e15af1b07a777ac73d82ec585cebc045b06f6a4f79b"
+    "sha256": "b3cb69320d97f2080c5f90a876598cd7af769c7e82ff7763da09813f40277bbd"
    }
   },
   "sweeps": {}
@@ -6606,8 +6606,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 40c748839f7aea9eb37d40f46fe473cff827085d",
-   "python tests/tools/evidence_report.py cics-async-api-credit-card-application-example --baseline --sha 40c748839f7aea9eb37d40f46fe473cff827085d",
+   "python tests/tools/cics_census.py survey --baseline --sha 0712a98114140473d4b14442f973fa403cd68768",
+   "python tests/tools/evidence_report.py cics-async-api-credit-card-application-example --baseline --sha 0712a98114140473d4b14442f973fa403cd68768",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases asynccc-asyncpnt,asynccc-crdtchk,asynccc-csstats2,asynccc-csstatus,asynccc-getaddr,asynccc-getname,asynccc-getpol,asynccc-getspnd,asynccc-seqpnt,asynccc-updcsdb",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -6628,13 +6628,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "40c748839f7aea9eb37d40f46fe473cff827085d",
+   "sha": "0712a98114140473d4b14442f973fa403cd68768",
    "translator": {
     "files": 156,
-    "sha256": "fb893856a63eeaa01a943e15af1b07a777ac73d82ec585cebc045b06f6a4f79b"
+    "sha256": "b3cb69320d97f2080c5f90a876598cd7af769c7e82ff7763da09813f40277bbd"
    }
   },
-  "translator_commit": "40c748839f7aea9eb37d40f46fe473cff827085d",
+  "translator_commit": "0712a98114140473d4b14442f973fa403cd68768",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -6677,6 +6677,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "fb893856a63eeaa01a943e15af1b07a777ac73d82ec585cebc045b06f6a4f79b"
+  "fingerprint": "b3cb69320d97f2080c5f90a876598cd7af769c7e82ff7763da09813f40277bbd"
  }
 }

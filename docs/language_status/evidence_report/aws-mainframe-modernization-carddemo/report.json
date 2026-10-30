@@ -2325,10 +2325,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "40c748839f7aea9eb37d40f46fe473cff827085d",
+   "sha": "0712a98114140473d4b14442f973fa403cd68768",
    "translator": {
     "files": 156,
-    "sha256": "fb893856a63eeaa01a943e15af1b07a777ac73d82ec585cebc045b06f6a4f79b"
+    "sha256": "b3cb69320d97f2080c5f90a876598cd7af769c7e82ff7763da09813f40277bbd"
    }
   },
   "sweeps": {}
@@ -4134,7 +4134,7 @@
        "fault_runs": 14,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:162cea9fd92526466216e9b4834422eb2048683ab1f4c6a6b35655e9ec80712f",
+       "oracle_image": "sha256:7c808074331333905d2a43887b40fed4749b61a3ef17e190bb9bd42c9912193f",
        "oracle_matches_pin": true,
        "records_compared": 175,
        "records_equal": 175,
@@ -4176,7 +4176,7 @@
       "fault_runs": 14,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:162cea9fd92526466216e9b4834422eb2048683ab1f4c6a6b35655e9ec80712f",
+      "oracle_image": "sha256:7c808074331333905d2a43887b40fed4749b61a3ef17e190bb9bd42c9912193f",
       "oracle_matches_pin": true,
       "records_compared": 175,
       "records_equal": 175,
@@ -4698,7 +4698,7 @@
        "fault_runs": 14,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:162cea9fd92526466216e9b4834422eb2048683ab1f4c6a6b35655e9ec80712f",
+       "oracle_image": "sha256:7c808074331333905d2a43887b40fed4749b61a3ef17e190bb9bd42c9912193f",
        "oracle_matches_pin": true,
        "records_compared": 175,
        "records_equal": 175,
@@ -21944,25 +21944,26 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 33,
+    "accounted": 52,
     "current": false,
-    "det_port": "stale (port moved), last measured: raw 64% (91/143 caught; 150 of 1229 mutants, seed 0); 19 of 52 survivors unaccounted",
+    "det_port": "stale (survivors, port moved), last measured: raw 64% (91/143 caught; 150 of 1229 mutants, seed 0); every survivor accounted for (52)",
     "drifted": [
      "generator",
      "harness",
      "oracle"
     ],
     "killed": 91,
-    "l5": false,
+    "l5": true,
     "score": 0.6364,
     "stale_inputs": [
+     "survivors",
      "port"
     ],
     "survived": 52,
-    "unaccounted": 19
+    "unaccounted": 0
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (port moved), last measured: raw 64% (91/143 caught; 150 of 1229 mutants, seed 0); 19 of 52 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (survivors, port moved), last measured: raw 64% (91/143 caught; 150 of 1229 mutants, seed 0); every survivor accounted for (52))"
    ],
    "options": {
     "assumed": 6,
@@ -24375,8 +24376,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 40c748839f7aea9eb37d40f46fe473cff827085d",
-   "python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha 40c748839f7aea9eb37d40f46fe473cff827085d",
+   "python tests/tools/cics_census.py survey --baseline --sha 0712a98114140473d4b14442f973fa403cd68768",
+   "python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha 0712a98114140473d4b14442f973fa403cd68768",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases carddemo-acctupdate,carddemo-acctview,carddemo-acctview-generated,carddemo-adminmenu,carddemo-adminmenu-generated,carddemo-billpay,carddemo-billpay-generated,carddemo-cardlist,carddemo-cardupdate,carddemo-cardview,carddemo-cardview-generated,carddemo-cbpaup0c,carddemo-cbstm03a,carddemo-cbstm03b,carddemo-coacct01,carddemo-cobswait,carddemo-cobtupdt,carddemo-cobtupdt-generated,carddemo-codate01,carddemo-copaua0c,carddemo-copaus0c,carddemo-copaus1c,carddemo-copaus2c,carddemo-copaus2c-generated,carddemo-cotrtlic,carddemo-cotrtlic-generated,carddemo-cotrtupc,carddemo-dailyval,carddemo-dateutil,carddemo-dbunldgs,carddemo-intcalc,carddemo-intcalc-generated,carddemo-menu,carddemo-menu-generated,carddemo-paudblod,carddemo-paudbunl,carddemo-posttran,carddemo-posttran-generated,carddemo-readacct,carddemo-readcard,carddemo-readcard-generated,carddemo-readcust,carddemo-readcust-generated,carddemo-readxref,carddemo-readxref-generated,carddemo-report,carddemo-report-generated,carddemo-signon,carddemo-signon-generated,carddemo-tranadd,carddemo-tranlist,carddemo-tranview,carddemo-tranview-generated,carddemo-trnrpt,carddemo-useradd,carddemo-useradd-generated,carddemo-userdel,carddemo-userdel-generated,carddemo-userlist,carddemo-userupd,carddemo-userupd-generated  # Db2 cases (8) need the Db2 container",
    "python tests/tools/evidence.py prove carddemo-acctview carddemo-acctview-generated carddemo-adminmenu carddemo-adminmenu-generated carddemo-billpay carddemo-billpay-generated carddemo-cardlist carddemo-cardview carddemo-cbpaup0c carddemo-cbstm03a carddemo-copaua0c carddemo-copaus0c carddemo-copaus1c carddemo-dailyval carddemo-dateutil carddemo-intcalc carddemo-menu carddemo-menu-generated carddemo-posttran carddemo-readcard carddemo-readcust carddemo-readxref carddemo-report carddemo-signon carddemo-signon-generated carddemo-tranadd carddemo-tranlist carddemo-tranview carddemo-tranview-generated carddemo-trnrpt carddemo-useradd carddemo-userdel carddemo-userlist carddemo-userupd",
@@ -24393,7 +24394,7 @@
   },
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
-   "sha256:162cea9fd92526466216e9b4834422eb2048683ab1f4c6a6b35655e9ec80712f",
+   "sha256:7c808074331333905d2a43887b40fed4749b61a3ef17e190bb9bd42c9912193f",
    "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
    "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005"
   ],
@@ -24402,13 +24403,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "40c748839f7aea9eb37d40f46fe473cff827085d",
+   "sha": "0712a98114140473d4b14442f973fa403cd68768",
    "translator": {
     "files": 156,
-    "sha256": "fb893856a63eeaa01a943e15af1b07a777ac73d82ec585cebc045b06f6a4f79b"
+    "sha256": "b3cb69320d97f2080c5f90a876598cd7af769c7e82ff7763da09813f40277bbd"
    }
   },
-  "translator_commit": "40c748839f7aea9eb37d40f46fe473cff827085d",
+  "translator_commit": "0712a98114140473d4b14442f973fa403cd68768",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -24451,6 +24452,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "fb893856a63eeaa01a943e15af1b07a777ac73d82ec585cebc045b06f6a4f79b"
+  "fingerprint": "b3cb69320d97f2080c5f90a876598cd7af769c7e82ff7763da09813f40277bbd"
  }
 }

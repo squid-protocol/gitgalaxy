@@ -199,7 +199,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | Q1 | Db2 | Db2 for Linux runs the SQL, not Db2 for z/OS | ASSUMED | yes |
 | Q2 | Db2 | EXEC SQL keeps RETURN-CODE | ASSUMED | yes |
 | Q3 | Db2 | The unit of work: one per CICS task; one per batch step, ended by EXEC SQL COMMIT / ROLLBACK (cursors closed as Db2 for z/OS closes them), backed out by an abend, with SAVEPOINT / ROLLBACK TO SAVEPOINT / RELEASE SAVEPOINT run by Db2; a CICS program's ROLLBACK refused (-926) | MATCHED | CICS: yes (CBSA XFRFUN); batch: yes (synthetic UOWDEMO, `tests/equivalence/db2/uow`, #4269) |
-| Q4 | Db2 | dynamic SQL beyond a literal INSERT (and its USING-bound markers), CONNECT, CALL, scroll FETCH, host-variable arrays; a savepoint statement in a CICS program | REFUSED | — |
+| Q4 | Db2 | dynamic SQL beyond a literal INSERT (and its USING-bound markers), CONNECT, CALL, SENSITIVE / DYNAMIC scroll cursors, FETCH BEFORE / AFTER, host-variable arrays; a savepoint statement in a CICS program | REFUSED | — |
 | Q5 | Db2 | DSNTIAC / DSNTIAR message formatting | STAND-IN | no |
 | Q6 | Db2 | Date and time text in ISO form; DDL adapted from z/OS jobs | ASSUMED | yes (CBSA, GenApp) |
 | Q7 | Db2 | `CCSID EBCDIC` tables hold Unicode text: string order differs | DIFFERS | no |
@@ -5097,6 +5097,15 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   where Db2 binds it, which gives the same row for an INSERT ... VALUES; a program that reads SQLERRD(3) shows as a
   differing scenario (as above). Refused by name: a marker in EXECUTE IMMEDIATE, a marker count that is not the host
   variable count (Db2 -313), `USING DESCRIPTOR`, a host structure or array, and a CICS program.
+- **Modelled (#4269).** `FETCH [INSENSITIVE] {NEXT | PRIOR | FIRST | LAST | CURRENT | ABSOLUTE n | RELATIVE n}` of a
+  `DECLARE ... [INSENSITIVE] SCROLL CURSOR`: the rows are read at OPEN and the port keeps a position (0 before the first
+  row, 1..n on a row, n+1 after the last; a move off either end clamps there and answers +100 / 02000 with the host
+  variables untouched; `ABSOLUTE` of a negative n counts from the end, `ABSOLUTE 0` is before the first row). `n` is a
+  literal or an integer host variable. Proven on Db2 (CLI `SQLFetchScroll`) by `tests/equivalence/db2/scrolldemo`
+  (SCRDEMO: 20 fetches, a closed cursor -501, an empty cursor). **Assumption:** the rows are fixed at OPEN, so a
+  program that updates the table while a cursor is open is not modelled by an INSENSITIVE cursor (it is insensitive).
+  The oracle does not log scroll FETCH outcomes (the two sides' fetch counts differ by design); the rows the program sees
+  are compared through its output.
 - **Refused (#4269), by form; burned estates using any of them: none** (pinned live by `test_no_burned_estate_program_issues_a_refused_dynamic_or_connection_sql_verb`
   in `tests/cobol_mainframe/test_sql_dynamic.py`, which fails when a burned program starts to use one; first run 2026-10-23).
   Each stops the det translator with `EXEC SQL <verb>: <form> (register Q4 ...)`:
@@ -5105,9 +5114,10 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   - `EXEC SQL CALL proc (...)`: a stored procedure needs a procedure fixture on the oracle (and result-set rules).
   - `PREPARE` of other text or from a host variable, `EXECUTE ... USING DESCRIPTOR`, `ALLOCATE` / `ASSOCIATE`: as above.
   - A `SET` that does not assign a host variable (`SET CURRENT SQLID`, ...).
-  - Scroll `FETCH` orientations (`PRIOR`, `FIRST`, `LAST`, `CURRENT`, `BEFORE`, `AFTER`, `ABSOLUTE n`, `RELATIVE n`,
-    with or without `INSENSITIVE` / `SENSITIVE`): the port steps a cursor forward one row, and the oracle has no scroll
-    fixture. `FETCH` and `FETCH NEXT` run, as does a scroll cursor's `DECLARE` (GenApp LGIPDB01).
+  - Scroll `FETCH` of a `SENSITIVE` / `DYNAMIC` cursor (even a plain `NEXT`: the rows are read once at OPEN), `FETCH BEFORE` /
+    `AFTER`, an orientation on a cursor not declared `SCROLL`, and `SCROLL` with `WITH HOLD` (the oracle's held-cursor
+    position across COMMIT is unmeasured). `FETCH CURRENT` with no current row is refused at run time (Db2 for z/OS
+    answers +231, Db2 LUW +100).
   - Multi-row (rowset) `FETCH ... ROWSET` / `FOR n ROWS` and `INSERT ... FOR n ROWS`, and host-variable arrays in SQL:
     each stops the det translator by name (`a multi-row FETCH / INSERT ... (register Q4)`).
     Pinned by `test_no_burned_estate_program_uses_a_scroll_fetch_or_multi_row_sql`

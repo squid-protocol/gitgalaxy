@@ -3107,7 +3107,15 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   allowed" is not defined), a blank MEDIATYPE or one that is not `type/subtype` of printable characters (the format check is
   not defined), SRVCONVERT on a media type that is not `text/*` (IBM's IANA list is not stated: INVREQ 46 is not modelled), a
   length past its area (as X6: GnuCOBOL lays out the storage that follows unlike IBM's compiler), two conditions at once (IBM
-  does not order them, as X35).
+  does not order them, as X35). (6) ASSUMED (owner ruling 2026-10-28, #6839): a MEDIATYPE area padded to its end with X'00' is
+  the type before the padding (`CicsTask.webSendBody`, the stub's `web_send_body`; the event records the type without it). IBM's
+  WEB SEND (server) page says only "a 56-byte area ... up to 56 alphanumeric characters, including appropriate punctuation, but not
+  spaces" and INVREQ RESP2 32 "Media type invalid"; it says nothing of padding with X'00'. The ruling is for zECS ZECS001, whose
+  3600-SEND-RESPONSE does `INSPECT WEB-MEDIA-TYPE REPLACING ALL SPACES BY LOW-VALUES` before every GET-hit send and which ships and
+  runs in production, so CICS accepting it is inferred, not documented. Narrow: only a X'00' run that reaches the end of the
+  area is padding (an area that is all X'00' is blank, a X'00' with another byte after it, and any other control character, stay
+  refused as in (5)); the model cannot tell programs apart, so any program with that pattern gets it. Residual risk: if CICS
+  answers INVREQ 32 for the padded area, ZECS001's GET-hit arm answers a different status than the proof records.
 - **WEB SEND ACTION(EVENTUAL) and the omitted ACTION** (#4941; `CicsTask.webSendBody`, the stub's `web_send_body` and `web_flush`). IBM:
   "EVENTUAL sends the response to the Web client at end of task", "For message sends that do not use chunked transfer-coding, EVENTUAL is
   the default" (chunking is refused, so an omitted ACTION is EVENTUAL), "One response only can be sent during a task", a second send after

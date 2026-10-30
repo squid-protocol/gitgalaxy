@@ -12,7 +12,8 @@ USAGE POINTER item; `SET ADDRESS OF record TO pointer` and WEB RECEIVE SET (web.
 
 IBM (CICS TS 6.x, EXEC CICS GETMAIN / FREEMAIN): GETMAIN SET(ptr) FLENGTH(n) INITIMG(byte) sets the pointer to the
 first byte of n acquired bytes, every byte the INITIMG value ("There is no default initialization": without INITIMG
-the contents are undefined, so it is required here); LENGERR (RESP2 1) for FLENGTH below 1 or LENGTH zero, the pointer
+the contents are undefined: a GETMAIN without it is accepted, answers LENGERR when no storage is acquired, and is refused
+by name when it would acquire some); LENGERR (RESP2 1) for FLENGTH below 1 or LENGTH zero, the pointer
 then set to zero; NOSTG (RESP2 2) when the request exceeds the storage available (not modelled: refused above a stated
 limit). FREEMAIN DATAPOINTER(ptr) releases the storage GETMAIN returned; INVREQ RESP2 1 when it was not acquired by
 GETMAIN. Task storage is released at task end."""
@@ -64,7 +65,6 @@ GETMAIN = Command(
     groups=(
         required("SET", msg="GETMAIN without SET: the pointer to the storage"),
         one_of("FLENGTH", "LENGTH", msg="GETMAIN needs one of FLENGTH / LENGTH"),
-        required("INITIMG", msg="GETMAIN without INITIMG: IBM gives acquired storage no default contents"),
         at_most_one("USERDATAKEY", "CICSDATAKEY", msg="GETMAIN with both USERDATAKEY and CICSDATAKEY"),
     ),
     outcomes=(
@@ -77,6 +77,12 @@ GETMAIN = Command(
         ),
     ),
     runtime_refusals=(
+        RuntimeRefusal(
+            "no INITIMG and a valid length (IBM: no default initialization, the acquired contents are undefined; "
+            "a length below 1 is LENGERR before any storage exists)",
+            "X47",
+            java="GETMAIN without INITIMG acquired storage",
+        ),
         RuntimeRefusal(
             "a length above the limit the run states (IBM's NOSTG when the request exceeds the storage available; "
             "DSALIMIT / EDSALIMIT are the region's)",

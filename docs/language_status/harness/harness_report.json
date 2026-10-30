@@ -24,8 +24,8 @@
  "status_counts": {
   "proven": 81,
   "differs": 0,
-  "ran, coverage open": 21,
-  "couldn't run": 1,
+  "ran, coverage open": 22,
+  "couldn't run": 0,
   "not attempted": 0
  },
  "programs": [
@@ -90,7 +90,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 16
+   "tests": 18
   },
   {
    "corpus": "aws-mainframe-modernization-carddemo",
@@ -99,7 +99,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 15
+   "tests": 17
   },
   {
    "corpus": "aws-mainframe-modernization-carddemo",
@@ -966,16 +966,16 @@
    "corpus": "zecs",
    "program": "Source/ZECS001.cbl",
    "case": "zecs-zecs001",
-   "status": "couldn't run",
+   "status": "ran, coverage open",
    "gaps": [
-    "coverage: live paragraphs no scenario runs",
-    "fact: EIBRCODE (no harness states it)"
+    "coverage: LINKed program ZECS002 has live paragraphs no scenario runs",
+    "coverage: live paragraphs no scenario runs"
    ],
    "reasons": {
-    "coverage: live paragraphs no scenario runs": "82/119 paragraphs",
-    "fact: EIBRCODE (no harness states it)": ""
+    "coverage: LINKed program ZECS002 has live paragraphs no scenario runs": "22/24 paragraphs",
+    "coverage: live paragraphs no scenario runs": "107/119 paragraphs"
    },
-   "tests": 38,
+   "tests": 64,
    "blocker": "coverage: live paragraphs no scenario runs"
   },
   {
@@ -1324,7 +1324,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 16,
+   "tests": 18,
    "non_vsam": [
     "mq"
    ]
@@ -1334,7 +1334,7 @@
    "shipped": [],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 15,
+   "tests": 17,
    "non_vsam": [
     "mq"
    ]
@@ -2127,7 +2127,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 38
+   "tests": 64
   },
   "zecs-zecs003": {
    "generated": [],
@@ -2238,7 +2238,7 @@
    "programs_also_blocked": [],
    "then_needs": {
     "Source/ZECS001.cbl": [
-     "fact: EIBRCODE (no harness states it)"
+     "coverage: LINKed program ZECS002 has live paragraphs no scenario runs"
     ]
    }
   },
@@ -2590,7 +2590,7 @@
     "app/app-vsam-mq/cbl/COACCT01.cbl",
     "app/app-vsam-mq/cbl/CODATE01.cbl"
    ],
-   "tests_held": 57
+   "tests_held": 61
   }
  ],
  "untranslated": [

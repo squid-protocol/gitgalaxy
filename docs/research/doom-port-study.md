@@ -334,9 +334,15 @@ Figures come from `sfs subway --reference linuxdoom` (gitgalaxy-population-analy
 tables; `sfs` applies its own function filters, so its function counts run a little below the distribution table's. `wiring similarity` is how closely a port's call wiring matches linuxdoom's; `calls kept` is the
 share of linuxdoom's call edges present in the port.
 
-- **Translations keep the wiring without the names.** doom-scheme (0.95), dartdoom (0.93) and doomf77 (0.91) are wired
-  almost like linuxdoom while keeping few of its edges by name (0.44, 0.41, 0.00); managed-doom keeps 0.72 wiring with
-  under 1% of linuxdoom's function names.
+- **Read `wiring similarity` against its floor.** It is the cosine of a 16-subsystem call-share matrix, and 54% of
+  linuxdoom's calls stay inside one subsystem, so a map whose calls only stay inside subsystems, spread evenly, already
+  scores 0.47. A translation's functions are placed in subsystems by function name or file path (structural twins do
+  not match across languages), so the score also leans on the port keeping linuxdoom's names or file prefixes.
+- **Counting only calls between subsystems still separates translations from reimplementations.** chocolate-doom keeps
+  0.83, doom-scheme 0.75, gore 0.65, dartdoom 0.59 and doomf77 0.41 of linuxdoom's cross-subsystem pattern; the
+  from-scratch reimplementations (rust-doom, room4doom, helion) keep 0.07 to 0.10, and managed-doom 0.10 despite its
+  0.72 overall. That rests on the engine's call graph being accurate in each language, given where each function
+  belongs; it does not show structure alone recovering the placement.
 - **doom3-bfg is the reverse case:** a separate engine (wiring 0.32) that ships DOOM Classic converted to C++, so 83%
   of linuxdoom's calls are still present by name.
 - `nan` (doom-fx) means the tool could not compute a similarity for that port.

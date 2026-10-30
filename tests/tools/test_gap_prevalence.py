@@ -339,3 +339,14 @@ def test_every_refusal_pattern_anchors_on_a_text_the_translator_raises():
                    "left over in condition", "not a relation", "not a data name", "closes no open program", "not a sibling before it",
                    "not a number", "no 01 of that name", "does not know the record's width", "layout differs"):  # fmt: skip
         assert anchor in src, anchor
+
+
+def test_owner_pointers_for_bll_picture_n_and_procedure_pointers_and_reowner():
+    bll = "X: no service of its own, its translation is refused: OS/VS COBOL BLL addressing: SERVICE LABEL (…): not modelled"
+    assert gp.owner_of(bll) == "#5119"
+    assert gp.owner_of("X: refused: f.cbl:N: the PICTURE N (…) is not modelled (…)") == "#4272"
+    assert gp.owner_of("SET TO ENTRY: procedure / function pointers are not modelled") == "#5106"
+    assert gp.owner_of("JSON GENERATE: not modelled") == "unowned"  # no open issue owns it: none invented
+    res = {"gaps": [{"gap": "SET TO ENTRY: procedure / function pointers are not modelled", "owner": "unowned"}]}
+    assert gp.reowner(res)["gaps"][0]["owner"] == "#5106"
+    assert gp.reowner(res) == res

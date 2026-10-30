@@ -206,7 +206,7 @@
     "none": 0
    },
    "gap": "EPSCSMRI: no service of its own, its translation is refused: epscsmrd.cbl:N: the PICTURE N (\u2026) is not modelled (\u2026): the translator reads one byte a character",
-   "owner": "unowned",
+   "owner": "#4272",
    "programs": 1,
    "refuses_program": false,
    "status": "not modelled"
@@ -230,7 +230,7 @@
     "none": 0
    },
    "gap": "EPSCSMRO: no service of its own, its translation is refused: OS/VS COBOL BLL addressing: SERVICE LABEL (\u2026): not modelled",
-   "owner": "unowned",
+   "owner": "#5119",
    "programs": 1,
    "refuses_program": false,
    "status": "not modelled"
@@ -302,7 +302,7 @@
     "none": 0
    },
    "gap": "SET TO ENTRY: procedure / function pointers are not modelled",
-   "owner": "unowned",
+   "owner": "#5106",
    "programs": 1,
    "refuses_program": false,
    "status": "not modelled"

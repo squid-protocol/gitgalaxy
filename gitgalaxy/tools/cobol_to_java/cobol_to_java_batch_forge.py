@@ -45,6 +45,7 @@ from typing import Any
 
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import TraceLog, java_path, status_text
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base
+from gitgalaxy.tools.cobol_to_java.det import dfsort
 from gitgalaxy.tools.cobol_to_java.java_target import JavaTarget, record_charset_java
 
 SUBPACKAGE = "batch"
@@ -79,6 +80,7 @@ class Step:
     unresolved: str | None = None  # what the runner runs, when not a known program
     commands_only: bool = False  # a TSO runner running commands (DSN FREE / BIND, RACF), no program
     parm: str | None = None  # #3624: the text EXEC PARM= passes the program
+    refused: str | None = None  # #4268: why a utility step the model cannot run is not lowered (named)
 
 
 @dataclass
@@ -132,6 +134,10 @@ class BatchForge:
         dds: dict[tuple[str, int, str | None], list[dict]] = {}
         for d in (sections.get("job_dds") or {}).get("facts", []):
             dds.setdefault((d["file"], d["ordinal"], d.get("proc_step")), []).append(d)
+        self.sysin: dict[tuple[str, int, str | None], list[str]] = {}
+        for d in (sections.get("job_sysin") or {}).get("facts", []):
+            if d.get("dd") == "SYSIN":
+                self.sysin.setdefault((d["file"], d["ordinal"], d.get("proc_step")), []).append(d.get("body") or "")
         self.flows = (sections.get("job_dataset_flow") or {}).get("facts", [])
         self.jobs = [self._plan(j, dds) for j in (sections.get("job_steps") or {}).get("facts", [])]
         taken: set[str] = set()
@@ -166,6 +172,8 @@ class BatchForge:
                           dds.get((j["file"], s["ordinal"], ps["step"] if inner is not None else None), []),
                           self.programs.get(prog or ""))  # fmt: skip
                 st.parm = ps.get("parm")
+                if prog in COPY:
+                    st.refused = self._iebgener_refusal(j["file"], s["ordinal"], st)
                 self._through_runner(st, ps.get("runner_programs") or [])
                 steps.append(st)
         names = [st.jcl for st in steps]
@@ -189,6 +197,21 @@ class BatchForge:
         else:
             kind, reason = "build", f"tooling ({', '.join(sorted(progs)) or 'no program'})"
         return Job(j["file"], j.get("job") or "", j.get("cond"), kind, reason, steps)
+
+    def _iebgener_refusal(self, file: str, ordinal: int, st: Step) -> str | None:
+        """#4268: an IEBGENER / ICEGENER step is a SYSUT1 -> SYSUT2 copy only while its SYSIN is DUMMY or empty
+        (`dfsort.iebgener`, proven against GnuCOBOL); a control statement, or a SYSIN dataset the engine cannot read
+        here, edits or reformats records, so the step is refused by name rather than copied. A deck written inside a
+        PROC definition is not carried by `job_sysin` (it is the procedure's): that case is not seen."""
+        decks = self.sysin.get((file, ordinal, st.proc_step)) or self.sysin.get((file, ordinal, None)) or []
+        if any(d.get("dd") == "SYSIN" and d.get("dsn") for d in st.dds):
+            return "its SYSIN is a dataset of control statements (not read)"
+        for body in decks:
+            try:
+                dfsort.iebgener(body)
+            except dfsort.Refused as e:
+                return str(e)
+        return None
 
     def _through_runner(self, st: Step, runs: list[dict]) -> None:
         """#3710: a runner step runs the program its SYSTSIN / PARM names -- the estate program
@@ -319,6 +342,8 @@ class BatchForge:
 
     def _step_todo(self, st: Step) -> str | None:
         p = st.program or "?"
+        if p in COPY and st.refused:
+            return f"TODO: {st.jcl} runs {p}, which {st.refused} -- the copy is refused, not run as a plain copy"
         if st.key or p in ("IEFBR14", *COPY):
             return None
         if p in RUNNERS and st.commands_only:
@@ -338,7 +363,7 @@ class BatchForge:
             return f"steps.program({head}, () -> {self._var(st.key)}.runBatch({consts}, {_jstr(st.parm)}))"
         if st.program == "IEFBR14":
             return f"steps.iefbr14({head}, {consts})"
-        if st.program in COPY:
+        if st.program in COPY and not st.refused:
             return f"steps.copy({head}, {consts})"
         todo = self._step_todo(st) or ""
         return f"steps.utility({head}, {_jstr(st.program)}, {_jstr(todo.split(': ', 1)[-1])})"

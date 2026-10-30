@@ -2271,15 +2271,58 @@ int GGCBLLG(unsigned char *data, void **cell) {
     return 0;
 }
 
-/* GGCADDR: ADDRESS EIB(ptr) | COMMAREA(ptr) (X59). `area` is the EIB or the program's DFHCOMMAREA; the pointer takes its address (NORMAL:
- * the command has no condition). GG-FLAGS COMMAREA with GG-NUM (EIBCALEN) 0: refused -- IBM sets X'FF000000', which is no COBOL NULL, and
- * a LINKAGE item the caller did not pass names no storage. */
+/* #5079 slice 2b (X59): the TWA (TRANSACTION TWASIZE, $GGCICS_TWASIZE) is the task's: one zeroed block every program it LINKs to
+ * addresses; the TCTUA (TYPETERM USERAREALEN, $GGCICS_USERAREALEN) is the terminal's, so its bytes live in the file $GGCICS_TCTUA that
+ * each task reads when it first addresses the area and writes back as it ends. An area of size 0 or unstated is IBM's X'FF000000':
+ * the pointer's first four bytes (little-endian 0xFF), so a program's PIC X(4) view of it compares equal. IBM does not state the
+ * initial content: zeros, as the port. */
+static char *twa_area, *tctua_area;
+static long tctua_len;
+
+static long env_size(const char *name) {
+    const char *v = getenv(name);
+    long n = v ? atol(v) : 0;
+    return n > 0 ? n : 0;
+}
+
+static void tctua_save(void) {
+    const char *path = getenv("GGCICS_TCTUA");
+    FILE *f = path && tctua_area ? fopen(path, "wb") : NULL;
+    if (f) { fwrite(tctua_area, 1, (size_t)tctua_len, f); fclose(f); }
+}
+
+static void *system_area(const char *kind) {
+    if (strcmp(kind, "TWA") == 0) {
+        long n = env_size("GGCICS_TWASIZE");
+        if (n == 0) return (void *)(size_t)0xFF;
+        if (!twa_area) twa_area = calloc((size_t)n, 1);
+        return twa_area;
+    }
+    long n = env_size("GGCICS_USERAREALEN");
+    const char *path = getenv("GGCICS_TCTUA");
+    if (n == 0 || !path) return (void *)(size_t)0xFF;
+    if (!tctua_area) {
+        FILE *f = fopen(path, "rb");
+        tctua_len = n;
+        tctua_area = calloc((size_t)n, 1);
+        if (f) { size_t got = fread(tctua_area, 1, (size_t)n, f); (void)got; fclose(f); }
+        atexit(tctua_save);
+    }
+    return tctua_area;
+}
+
+/* GGCADDR: ADDRESS EIB(ptr) | COMMAREA(ptr) | TWA(ptr) | TCTUA(ptr) (X59). `area` is the EIB or the program's DFHCOMMAREA; the pointer
+ * takes its address (NORMAL: the command has no condition). GG-FLAGS COMMAREA with GG-NUM (EIBCALEN) 0: refused -- IBM sets X'FF000000',
+ * which is no COBOL NULL, and a LINKAGE item the caller did not pass names no storage. GG-FLAGS TWA / TCTUA: the system area (`area`
+ * is unused). */
 int GGCADDR(gg_cics *c, void **slot, void *area) {
     char flags[41];
     trim(c->flags, 40, flags);
     c->resp = NORMAL;
     c->resp2 = 0;
     if (strstr(flags, "COMMAREA") != NULL && c->num == 0) refuse("ADDRESS COMMAREA with no COMMAREA");
+    if (strstr(flags, "TCTUA") != NULL) { *slot = system_area("TCTUA"); return 0; }
+    if (strstr(flags, "TWA") != NULL) { *slot = system_area("TWA"); return 0; }
     *slot = area;
     return 0;
 }

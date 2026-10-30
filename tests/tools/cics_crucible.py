@@ -1711,6 +1711,16 @@ def java_plan(case: cc.Case, src: Path) -> dict[str, Any]:
     }
 
 
+def area_env(case: cc.Case, transid: str, ts: str) -> str:
+    """#5079 slice 2b (X59): the stub's TWA / TCTUA sizes from the CSD, only when stated; the TCTUA's bytes persist in a file
+    beside the scenario's TS dir, which the next task on the terminal reads."""
+    twa = (case.csd.get("twasize") or {}).get(transid)
+    ua = (case.csd.get("userarealen") or {}).get(case.data["terminal"])
+    return (f"GGCICS_TWASIZE={twa} " if twa else "") + (
+        f"GGCICS_USERAREALEN={ua} GGCICS_TCTUA=/work/{ts}.tctua " if ua else ""
+    )
+
+
 def terminal_device(case: cc.Case) -> str:
     """#4413: the DEVICE of the case terminal's TYPETERM in the case CSD; the reference region's 3270 logical unit
     (SPEC section 2) when the CSD does not define the terminal."""
@@ -3020,6 +3030,7 @@ def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, tra
            f"{'GGCICS_RUNCHILD=1 ' if (frame.get('trigger') or {}).get('kind') == 'run' else ''}"  # #4270
            f"{f'GGCICS_STARTCODE={startcode} ' if startcode else ''}GGCICS_USERID={REGION_USERID} "  # #4270 slice 3
            f"GGCICS_FACILITY={frame.get('termid') or ''} GGCICS_SCREEN='{REGION_SCREEN[0]} {REGION_SCREEN[1]}' "
+           f"{area_env(case, transid, ts)}"  # #5079 slice 2b (X59): TWASIZE / USERAREALEN
            f"GGCICS_TS=/work/{ts} GGCICS_NOW={frame['at']} COB_CURRENT_DATE='{when.strftime('%Y/%m/%d %H:%M:%S')}.00' ./bin/task "
            f"> /work/{rel}/stdout.txt 2>&1")  # fmt: skip
     task["events"] = _cobol_events(d / "out", program, screens)

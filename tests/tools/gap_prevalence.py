@@ -156,6 +156,9 @@ def rank(progs: list[tuple[str, str, set[str]]], scope: str, top: tuple[int, ...
     order = close_next(progs, gaps)
     if order:
         res["close_next"] = order
+    together = needs_together(progs, {c["gap"] for c in order})
+    if together:
+        res["needs_together"] = together
     return res
 
 
@@ -192,6 +195,26 @@ def close_next(progs: list[tuple[str, str, set[str]]], gaps: list[dict[str, Any]
         out.append({"gap": pick, "gained": gain[pick], "gained_by_era": by_era, "whole": whole,
                     "share": round(whole / total, 4) if total else 0.0,
                     "upper_bound": bool(closed & refuses)})  # fmt: skip
+    return out
+
+
+def needs_together(progs: list[tuple[str, str, set[str]]], closed: set[str]) -> list[dict[str, Any]]:
+    """The programs the greedy order leaves out: group them by the gaps each still has once `closed` are closed. Each
+    group turns whole only when ALL its gaps close (no one of them gains alone). Smallest gap set first, then more
+    programs, then name. `upper_bound`: a refusing gap stops the whole program."""
+    groups: dict[tuple[str, ...], list[tuple[str, str]]] = defaultdict(list)
+    for corpus, era, c in progs:
+        left = tuple(sorted(c - closed))
+        if left:
+            groups[left].append((corpus, era))
+    out = []
+    for gaps, members in sorted(groups.items(), key=lambda kv: (len(kv[0]), -len(kv[1]), kv[0])):
+        by_era = dict.fromkeys(ERA_KEYS, 0)
+        for _, era in members:
+            by_era[era] += 1
+        out.append({"gaps": list(gaps), "programs": len(members), "by_era": by_era,
+                    "estates": len({c for c, _ in members}),
+                    "upper_bound": any(g.startswith(cc.REFUSES) for g in gaps)})  # fmt: skip
     return out
 
 
@@ -382,6 +405,20 @@ def table(res: dict[str, Any]) -> list[str]:
             eras = " | ".join(str(c["gained_by_era"][e]) for e in ERA_KEYS)
             out.append(f"| {i} | `{c['gap'].replace('|', '/')}` | {c['gained']} | {eras} | {c['whole']} / "
                        f"{res['programs']} | {c['share']:.1%} | {'upper' if c['upper_bound'] else 'exact'} |")  # fmt: skip
+    if res.get("needs_together"):
+        left = sum(t["programs"] for t in res["needs_together"])
+        out += [
+            "",
+            f"Needs several gaps together ({left} program{'' if left == 1 else 's'} the order above leaves out: each turns whole only when "
+            "every gap in its row is closed):",
+            "",
+            "| gaps closed together | programs | estates | e0 | e1 | e2 | e3 | e4 | none | bound |",
+            "|---|---|---|---|---|---|---|---|---|---|",
+        ]
+        for t in res["needs_together"]:
+            eras = " | ".join(str(t["by_era"][e]) for e in ERA_KEYS)
+            gaps = "; ".join(f"`{g.replace('|', '/')}`" for g in t["gaps"])
+            out.append(f"| {gaps} | {t['programs']} | {t['estates']} | {eras} | {'upper' if t['upper_bound'] else 'exact'} |")  # fmt: skip
     return out
 
 

@@ -68,6 +68,12 @@ Close-next order (greedy: each step closes the gap that makes the most further p
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 1 | `<name>: <name> is not defined in a record of file <name>` | 2 | 0 | 0 | 0 | 2 | 0 | 0 | 128 / 129 | 99.2% | exact |
 
+Needs several gaps together (1 program the order above leaves out: each turns whole only when every gap in its row is closed):
+
+| gaps closed together | programs | estates | e0 | e1 | e2 | e3 | e4 | none | bound |
+|---|---|---|---|---|---|---|---|---|---|
+| `<name> ADDRESS OF <name>: not an item of <name> or LINKAGE`; `CEEHDLR: registering an LE user condition handler is not modelled`; `CEEHDLU: unregistering an LE user condition handler is not modelled`; `EPSCSMRI: no service of its own, its translation is refused: epscsmrd.cbl:N: the PICTURE N (…) is not modelled (…): the translator reads one byte a character`; `EPSCSMRO: no service of its own, its translation is refused: OS/VS COBOL BLL addressing: SERVICE LABEL (…): not modelled`; `EXEC CICS GETMAIN without INITIMG: IBM gives acquired storage no default contents`; `EXEC CICS SOAPFAULT CREATE`; `SET TO ENTRY: procedure / function pointers are not modelled` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | exact |
+
 ## Census estates (9 estates, 40 programs, 8 translate whole today)
 
 Counted by tools only; non-burned estates keep their first-contact numbers. Aggregates under opaque `census-*` labels: no program, table or copybook name is kept, and a gap key that could carry one is collapsed to its class (`scrub_key`).

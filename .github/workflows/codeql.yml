@@ -14,6 +14,7 @@ on:
       - "templates/requirements/**"
       - "requirements*.txt"
       - "action.yml"
+      - "tests/tools/codeql_new_alerts.py"  # the report step reads it
   schedule:
     - cron: '0 12 * * *'  # daily: a weekly scan let alerts land in batches, days after the PR that added them
 

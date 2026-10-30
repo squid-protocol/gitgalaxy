@@ -240,6 +240,28 @@ def test_zecsnc_and_zecs002_lower():
         assert all(len(line.rstrip()) <= 72 for line in lowered)
 
 
+@pytest.mark.skipif(not (ZECS / "ZECSNC.asm").is_file(), reason="zecs corpus not fetched (mainframe_corpus.py fetch)")
+def test_no_burned_program_starts_zecsnc():
+    """#7011: ZECSNC is a START target, not a LINK target, so a COBOL case would need a burned program that STARTs it.
+    None does: the only STARTs in the estate are ZECSPLT's (ZX<id>, the expiration task), ZECS000's (EIBTRNID: itself,
+    twice) and ZECSNC's own (ZX<id>). If a starter appears, that program needs a case that states the data it starts
+    ZECSNC with, and this pin changes with it."""
+    start = re.compile(r"(?is)EXEC\s+CICS\s+START\b.*?TRANSID\s*\(\s*([^)\s]+)\s*\)")
+    found = sorted(
+        (p.name, m.group(1).upper())
+        for p in ZECS.iterdir()
+        if p.suffix.lower() in (".cbl", ".asm")
+        for m in start.finditer(p.read_text(encoding="latin-1"))
+    )
+    assert found == [
+        ("ZECS000.cbl", "EIBTRNID"),
+        ("ZECS000.cbl", "EIBTRNID"),
+        ("ZECSNC.asm", "Z_EXP"),
+        ("ZECSPLT.cbl", "ZX-TRANID"),
+    ]
+    assert not any(target in ("ZECSNC", "'ZECSNC'") for _, target in found)
+
+
 # ---- slice 3c: EXEC CICS continuation (ZECS002's VERIFY PASSWORD ... OHANDLE) -------------------------------------------
 def test_exec_cics_continuation_may_start_before_column_16():
     """The EXEC CICS translator takes continuation text wherever it starts, so a line continued in column 15 keeps

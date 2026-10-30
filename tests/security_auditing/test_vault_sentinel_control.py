@@ -79,7 +79,7 @@ def test_a_folder_that_only_ends_in_tests_is_not_allowlisted(rel, tmp_path, monk
     assert _scan(tmp_path, monkeypatch, {rel: CAUGHT["aws key id"]}) == 1
 
 
-@pytest.mark.parametrize("rel", ["tests/app.py", "src/tests/app.py"])
+@pytest.mark.parametrize("rel", ["tests/app.py", "src/tests/app.py", "unit_tests/app.py", "my-tests/app.py"])
 def test_a_real_tests_folder_stays_allowlisted(rel, tmp_path, monkeypatch):
     assert _scan(tmp_path, monkeypatch, {rel: CAUGHT["aws key id"]}) == 0
 
@@ -89,6 +89,10 @@ def test_path_allowlisted():
     assert not path_allowlisted("latests/a.py", ["tests/"]) and not path_allowlisted("x/contests/a.py", ["tests/"])
     assert path_allowlisted("a/key1.pem", ["key1.pem"])  # an entry that isn't a folder stays a partial match
     assert not path_allowlisted("a.py", [])
+    assert path_allowlisted(
+        "airflow_opsgenie_tests/a.py", ["tests/"]
+    )  # the _tests convention, as the golden corpus uses
+    assert not path_allowlisted("latests/tests.py", ["tests/"])
 
 
 @pytest.mark.parametrize("line", ["var a=1;" * 60 + CAUGHT["aws key id"], "x" * 197 + CAUGHT["aws key id"]])

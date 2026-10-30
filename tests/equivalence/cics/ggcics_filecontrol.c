@@ -497,20 +497,20 @@ int GGCDELT(gg_cics *c, char *ridfld, int keylen) {
     if (injected("DELETE", want, &fresp, &fresp2)) {
         c->resp = fresp;
         c->resp2 = fresp2;
-        file_event("DELETE", want, ridfld, by_hold ? 0 : keylen, c->resp);
+        file_event("DELETE", want, ridfld, by_hold ? -1 : keylen, c, NULL, 0);
         return 0;
     }
     int generic = strstr(c->flags, "GENERIC") != NULL;
     if (is_esds(want)) {  /* #5092: IBM INVREQ 21 (ESDS), 22 (generic delete of a non-KSDS); the key is not logged: an ESDS has none */
         c->resp = INVREQ;
         c->resp2 = generic ? 22 : 21;
-        file_event("DELETE", want, ridfld, 0, c->resp);
+        file_event("DELETE", want, ridfld, -1, c, NULL, 0);
         return 0;
     }
     if (!file_cfg(want, path, &reclen, &keyoff, &klen)) {
         c->resp = FILENOTFOUND;
         c->resp2 = 1;  /* IBM: RESP2 1, the file is not defined to CICS (X75) */
-        file_event("DELETE", want, ridfld, by_hold ? 0 : keylen, c->resp);
+        file_event("DELETE", want, ridfld, by_hold ? -1 : keylen, c, NULL, 0);
         return 0;
     }
     int bad = 0;
@@ -519,7 +519,7 @@ int GGCDELT(gg_cics *c, char *ridfld, int keylen) {
     if (bad) {
         c->resp = INVREQ;
         c->resp2 = bad;
-        file_event("DELETE", want, ridfld, 0, c->resp);  /* the key is not logged: KEYLENGTH may exceed RIDFLD */
+        file_event("DELETE", want, ridfld, keylen < 0 ? 0 : keylen < klen ? keylen : klen, c, NULL, 0);  /* KEYLENGTH may exceed RIDFLD: log at most the key's length */
         return 0;
     }
     if (generic && keylen == 0) refuse("DELETE GENERIC KEYLENGTH not above zero (zero is undocumented)");
@@ -531,7 +531,7 @@ int GGCDELT(gg_cics *c, char *ridfld, int keylen) {
         if (ti < 0) {
             c->resp = INVREQ;
             c->resp2 = 47;
-            file_event("DELETE", want, ridfld, 0, c->resp);
+            file_event("DELETE", want, ridfld, -1, c, NULL, 0);
             return 0;
         }
         memcpy(key, tokens[ti].key, (size_t)tokens[ti].klen);
@@ -557,7 +557,7 @@ int GGCDELT(gg_cics *c, char *ridfld, int keylen) {
         c->resp2 = gone ? 0 : 80;
         free(all);
         if (c->resp == NORMAL) file_set_end("READ", want);
-        file_event("DELETE", want, key, keylen, c->resp);
+        file_event("DELETE", want, key, keylen, c, NULL, 0);
         return 0;
     }
     long long at = (by_hold && s < 0) ? -1 : pick(all, n, reclen, keyoff, keylen < klen && !by_hold ? keylen : klen, key, 0);
@@ -578,7 +578,7 @@ int GGCDELT(gg_cics *c, char *ridfld, int keylen) {
     }
     free(all);
     if (c->resp == NORMAL) file_set_end("READ", want);
-    file_event("DELETE", want, key, klen, c->resp);
+    file_event("DELETE", want, key, by_hold ? -1 : keylen < klen ? keylen : klen, c, NULL, 0);
     return 0;
 }
 

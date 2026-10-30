@@ -151,12 +151,28 @@ earlier version", shown as not approved.
 
 Every tool that rewrites a record keeps the approvals on disk byte for byte.
 
+## A case with no committed port: the det port's record (#4767, owner 2026-10-30)
+
+A case whose `port/` is absent (the zECS cases) is not proven against the generated skeleton: that would judge a
+stand-in, not the port the engine produces. `evidence.py prove CASE` instead writes a record for its **det port** from
+the det-sweep coverage ledger (`tests/equivalence/det_sweep_coverage/<case>.json`): the entry exists only while the last
+sweep proved the case, so it is the verdict; its scenarios, paragraph and branch coverage become `proof.runs` and
+`coverage`, and `det_mutation/<case>.json` adds `proof.det_mutation` when the case has one.
+
+* The record names its source: `proof.source` is `det-sweep`, `proof.det_sweep` holds the ledger path, its sha256 and the
+  commit it was measured at (`measured_at`), and `port.paths` is empty. It is never read as a committed-port proof.
+* The staleness rule is unchanged: the case, corpus, options, differences, harness, oracle and generator are fingerprinted
+  as for any record. `prove` refuses (no record written) when there is no ledger entry or the case / corpus moved since it
+  was measured; a harness / oracle the sweep did not re-check is recorded in `proof.det_sweep.stale_inputs` and shown.
+* `det_targets()` lists these cases (a record with that source); `targets()`, which lists committed ports, is unchanged.
+
 ## Who writes what
 
 | writer | sections |
 |---|---|
 | `equivalence.py run CASE --record` (committed port, committed case, no overrides) | inputs, proof, coverage, reach, oracle, provenance, mutation |
 | `evidence.py prove KEY` / `refresh --stale` (crucible ports through `cics_crucible.py --report-dir`) | the same |
+| `evidence.py prove CASE` for a case with no `port/` | inputs, proof (source `det-sweep`), coverage, oracle, provenance (from the det-sweep ledger) |
 | `mutation.py run CASE --record` / `mutation_crucible.py run --record` (the committed port, committed case; triage of the committed file kept, `--triage FILE` for new survivors), `mutation_scores.py build` (into the committed file), `evidence.py mutation` | mutation |
 | `evidence.py approve` / `reject` (a person at a terminal) | approvals |
 

@@ -4076,6 +4076,10 @@ _X37_CASES = [  # (steps, what both runtimes answer, the events they record: sta
     ),
     (["abc 3 text/xml 2 201 Created 3 0"], ["send 0/0"], [(201, "Cre", "text/xml", "abc", "IMMEDIATE")]),
     (["abc 3 TEXT/Plain 2 200 OK - 1"], ["send 0/0"], [(200, "OK" + " " * 18, "TEXT/Plain", "abc", "IMMEDIATE")]),
+    # #6839 (X37, owner ruling 2026-10-28): a MEDIATYPE area padded to its end with X'00' ('#' ends a media word padded with
+    # NULs, as ZECS001's INSPECT ... REPLACING ALL SPACES BY LOW-VALUES leaves it) is the type before the padding
+    (["abc 3 text/plain# 2 - - - 0"], ["send 0/0"], [(200, None, "text/plain", "abc", "IMMEDIATE")]),
+    (["abc 3 text/plain# 2 - - - 1"], ["send 0/0"], [(200, None, "text/plain", "abc", "IMMEDIATE")]),
     (["x 1 - 7 - - - 0"], ["send 16/11"], []),
     (["x 1 - 2 204 - - 0"], ["send 16/72"], []),
     (["x 1 - 0 304 - - 0"], ["send 16/72"], []),
@@ -4095,6 +4099,10 @@ _X37_REFUSED = [  # (steps, what both runtimes stop with)
     (["x 1 - 2 600 - - 0"], "STATUSCODE outside 100-599"),
     (["x 1 _ 2 - - - 0"], "MEDIATYPE blank or not type/subtype"),
     (["x 1 plain 2 - - - 0"], "MEDIATYPE blank or not type/subtype"),
+    (["x 1 # 2 - - - 0"], "MEDIATYPE blank or not type/subtype"),  # #6839: all padding is a blank area
+    (["x 1 plain# 2 - - - 0"], "MEDIATYPE blank or not type/subtype"),
+    (["x 1 text/pl#ain 2 - - - 0"], "MEDIATYPE blank or not type/subtype"),  # a X'00' with other bytes after it
+    (["x 1 application/json# 2 - - - 1"], "SRVCONVERT on a media type that is not text/*"),
     (["x 1 application/json 2 - - - 1"], "SRVCONVERT on a media type that is not text/*"),
     (["x 1 - 2 - - - 1"], "SRVCONVERT on a media type that is not text/*"),
     (["x 99 - 2 - - - 0"], "length beyond its area"),
@@ -4123,6 +4131,8 @@ int main(int argc, char **argv) {
         memset(media, ' ', sizeof media); memset(stext, ' ', sizeof stext);
         c.len = w[1][0] == '=' ? (int)strlen(w[0]) : atoi(w[1]);
         if (given(w[2])) { strcat(flags, "MEDIA "); if (strcmp(w[2], "_") != 0) memcpy(media, w[2], strlen(w[2])); }
+        for (char *h = media; h < media + 56; h++) if (*h == '#') *h = '\0';
+        if (given(w[2]) && w[2][strlen(w[2]) - 1] == '#') memset(media + strlen(w[2]) - 1, 0, 56 - (strlen(w[2]) - 1));
         c.item = atoi(w[3]);
         c.num = given(w[4]) ? atoi(w[4]) : -1;
         if (given(w[5])) { strcat(flags, "STEXT"); memcpy(stext, w[5], strlen(w[5])); }
@@ -4197,7 +4207,11 @@ def _x37_java(steps: list[str]) -> str:
         w = st.split(" ")
 
         def area(v: str, width: int) -> str:
-            return "null" if v == "-" else '"' + ("" if v == "_" else v).ljust(width) + '"'
+            if v == "-":
+                return "null"
+            text = ("" if v == "_" else v).replace("#", "\0")  # #6839 (X37): '#' is a X'00'
+            text = text.ljust(width, "\0" if v.endswith("#") else " ")  # (a word ending in one is padded with it)
+            return '"' + text.replace("\0", "\\u0000") + '"'
 
         n = str(len(w[0])) if w[1] == "=" else w[1]
         lines.append(

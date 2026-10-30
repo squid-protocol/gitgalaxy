@@ -75,6 +75,18 @@ def test_subway_block_filters_to_listed_ports(tmp_path):
     assert "No `--subway` file" in study_report.subway_block(None, [])
 
 
+def test_subway_block_shows_cross_wiring_over_its_null(tmp_path):
+    f = tmp_path / "subway.csv"
+    f.write_text(
+        "repo,functions,wiring_similarity,edges_kept,shape_distance,cross_wiring,wiring_null,cross_wiring_null\n"
+        "linuxdoom,777,1.0,1.0,0.0,1.0,,\ngore,100,0.86,0.77,0.39,0.65,0.40,0.15\n"
+        "doomf77,146,0.91,0.0,0.79,0.41,0.80,0.36\n"
+    )
+    text = study_report.subway_block(f, ["linuxdoom", "gore", "doomf77"])
+    assert "| gore | 100 | 0.86 | 0.65 | 0.15 | +0.50 | 0.77 | 0.39 |" in text
+    assert text.index("| gore |") < text.index("| doomf77 |")  # ordered by the gap, not by raw wiring
+
+
 def test_subsystem_block_is_a_port_by_subsystem_ratio_matrix():
     def sub(name, ratio):
         return dict(subsystem=name, complexity_vs_linuxdoom=ratio)

@@ -452,6 +452,15 @@ static int web_send_body(gg_cics *c, const char *from, int fl, char *media, int 
     if (hasm) {
         mtl = mediacap < 56 ? mediacap : 56;
         memcpy(mt, media, (size_t)mtl);
+        /* #6839 (X37, owner ruling 2026-10-28): an area padded to its end with X'00' (zECS ZECS001 INSPECTs the spaces of its
+         * 56-byte MEDIATYPE area to LOW-VALUES) is the type before the padding; a X'00' followed by any other byte stays
+         * invalid below. */
+        for (i = 0; i < mtl && mt[i] != '\0'; i++) ;
+        if (i < mtl) {
+            int pad = i;
+            while (i < mtl && mt[i] == '\0') i++;
+            if (i == mtl) mtl = pad;
+        }
         while (mtl > 0 && mt[mtl - 1] == ' ') mtl--;
         mt[mtl] = '\0';
         for (i = 0; i < mtl; i++) if ((unsigned char)mt[i] <= ' ' || (unsigned char)mt[i] > '~') mtl = -1;

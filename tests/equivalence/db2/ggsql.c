@@ -510,8 +510,35 @@ static int empty_scroll_open;
 static long multi_total = -1;  /* an INSERT FOR n ROWS' rows inserted: SQLERRD(3) once the rows are logged */
 
 /* #4269: INSERT ... VALUES (tables) FOR n ROWS [ATOMIC], one execution a row of the prepared INSERT (the Java side's
- * JDBC runs one statement a row, so the outcome log gets one line a row: the last is the caller's). A row after the
- * first that fails would need ATOMIC's undo of the rows before it, which the port does not model: refused. */
+ * JDBC runs one statement a row, so the outcome log gets one line a row: the last is the caller's). ATOMIC: a row
+ * that fails undoes the rows before it (a savepoint set before row 1, as DetSql.insertRows does), SQLERRD(3) 0. */
+static const char *tail_log[2];  /* the savepoint statements run after the last row: logged after the caller's line */
+static int ntail;
+
+static void log_direct(const char *sql) {  /* the Java side's JDBC logs the savepoint statements too: `EXEC - VERB 0 00000 0 0` */
+    const char *path = getenv("GGSQL_OUTCOMES");
+    FILE *f = path && *path ? fopen(path, "a") : NULL;
+    if (!f) return;
+    char verb[16];
+    size_t n = strcspn(sql, " ");
+    snprintf(verb, sizeof verb, "%.*s", (int)(n < 15 ? n : 15), sql);
+    fprintf(f, "EXEC - %s 0 00000 0 0\n", verb);
+    fclose(f);
+}
+
+static void direct(const char *sql, int late) {  /* a statement as written on the unit's connection (savepoints) */
+    SQLHSTMT h;
+    SQLAllocHandle(SQL_HANDLE_STMT, dbc, &h);
+    SQLRETURN rc = SQLExecDirect(h, (SQLCHAR *)sql, SQL_NTS);
+    sqlca_t d;
+    memset(&d, 0, sizeof d);
+    diag(&d, SQL_HANDLE_STMT, h, rc);
+    SQLFreeHandle(SQL_HANDLE_STMT, h);
+    if (d.sqlcode < 0) die("INSERT FOR n ROWS' ATOMIC savepoint", sql);
+    if (late) tail_log[ntail++] = sql;
+    else log_direct(sql);
+}
+
 static void run_multi(stmt *s, sqlca_t *c, unsigned char **a) {
     long n = s->has_n ? s->orient_n : 0, done = 0;
     int bound = s->nin;
@@ -521,13 +548,18 @@ static void run_multi(stmt *s, sqlca_t *c, unsigned char **a) {
         if (!num_text(nv, a[nv->arg], nb)) die("a FOR n ROWS that is no number", s->sql);
         n = atol(nb);
     }
+    if (n > 1) direct("SAVEPOINT GGINSROWS_UNDO ON ROLLBACK RETAIN CURSORS", 0);
     for (long j = 0; j < n; j++) {
         for (int i = 0; i < bound; i++) inlen[i] = 0;
         bind_inputs(s, a, (int)j, bound);
         SQLRETURN rc = SQLExecute(s->h);
         diag(c, SQL_HANDLE_STMT, s->h, rc);
         if (c->sqlcode < 0 || (rc != SQL_SUCCESS && rc != SQL_SUCCESS_WITH_INFO)) {
-            if (j > 0) die("INSERT FOR n ROWS with a row after the first failing (ATOMIC's undo)", s->sql);
+            if (n > 1) {
+                direct("ROLLBACK TO SAVEPOINT GGINSROWS_UNDO", 1);
+                direct("RELEASE SAVEPOINT GGINSROWS_UNDO", 1);
+            }
+            c->sqlerrd[2] = 0;
             return;
         }
         SQLLEN rows = 0;
@@ -538,6 +570,7 @@ static void run_multi(stmt *s, sqlca_t *c, unsigned char **a) {
             outcome(s, &row, 0);
         }
     }
+    if (n > 1) direct("RELEASE SAVEPOINT GGINSROWS_UNDO", 1);
     multi_total = done;
 }
 
@@ -766,6 +799,8 @@ int GGSQL(unsigned char *id, unsigned char *ca,
     /* #4269: a scroll cursor's FETCH is not logged: the Java side reads the rows once at OPEN, so the two sides' fetch
      * counts differ by design; the rows the program sees are still compared through its output */
     if (!(s->scroll && !strcmp(s->kind, "FETCH"))) outcome(s, c, 0);
+    for (int i = 0; i < ntail; i++) log_direct(tail_log[i]);
+    ntail = 0;
     if (multi_total >= 0) c->sqlerrd[2] = (int)multi_total, multi_total = -1;
     if (empty_scroll_open) {
         stmt probe = *s;

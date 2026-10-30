@@ -71,6 +71,18 @@ def _binary_threat(threats: dict, dense_is_expected: bool) -> bool:
     return bool(threats.get("sec_extension_mismatch")) if dense_is_expected else bool(threats)
 
 
+def _in_test_folder(rel_path: str) -> bool:
+    """Tests carry high-entropy mock data. Whole path segments: "phpunit" as a substring also exempted phpunit_helper.py."""
+    return path_allowlisted(rel_path.lower(), ("test/", "tests/", "phpunit/"))
+
+
+def _binary_threat(threats: dict, dense_is_expected: bool) -> bool:
+    """Whether scan_binary's result counts. XRAY_BYPASS_EXTENSIONS says dense data is normal in this file type, which
+    excuses its entropy and any short header that random bytes happen to contain. It never excuses a file that doesn't
+    start the way its type must: an executable named logo.png is the mismatch this tool exists to catch (#7155)."""
+    return bool(threats.get("sec_extension_mismatch")) if dense_is_expected else bool(threats)
+
+
 def main():
     import logging
 

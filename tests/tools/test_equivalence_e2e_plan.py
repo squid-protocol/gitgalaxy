@@ -64,6 +64,20 @@ def test_a_tool_outside_the_live_ground_truth_closure_does_not_run():
     assert plan([outside[0]])["mode"] == "none"
 
 
+def test_every_tool_the_ground_truth_job_reaches_plans_a_run():
+    # #7103 class: no pinned example to go stale; the whole input class is checked against the live closure.
+    # (The plan may also run a tool the closure misses, e.g. an equivalence-only one, so only this direction holds.)
+    reached = cc.ground_truth_scopes(workflow=True)
+    wrong = []
+    for p in TOOLS.glob("*.py"):
+        rel = p.relative_to(REPO).as_posix()
+        if p.name.startswith(("test_", "conftest")) or cc.PATTERN_HOLDERS.search(p.as_posix()):
+            continue
+        if rel in reached and not ep.in_area(rel, REFS):
+            wrong.append(rel)
+    assert not wrong, f"the ground-truth job reaches tools the equivalence plan skips: {sorted(wrong)}"
+
+
 def test_a_test_tool_the_cobol_tests_reach_runs():
     assert cc.runs_in_ground_truth("tests/tools/equivalence.py")
     assert plan(["tests/tools/equivalence.py"])["mode"] == "run"

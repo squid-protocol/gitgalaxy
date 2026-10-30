@@ -41,12 +41,18 @@ COPY = Path(__file__).parent / "copy"  # DFHEIBLK, DFHAID, DFHBMSCA
 EIBDS_VERBS = frozenset({"READ", "READNEXT", "READPREV", "RESETBR", "STARTBR", "ENDBR", "WRITE", "REWRITE", "DELETE",
                          "UNLOCK"})  # fmt: skip
 EIBDS_WORD = re.compile(r"(?<![A-Z0-9-])EIBDS(?![A-Z0-9-])")
+EIBRCODE_WORD = re.compile(r"(?<![A-Z0-9-])EIBRCODE(?![A-Z0-9-])")
 
 
-def reads_eibds(statements) -> bool:
+def reads_eibds(statements, word=EIBDS_WORD) -> bool:
     """#5126 (X64): does any statement text name EIBDS -- a whole word, not the front of a hyphenated user name
-    (EIBDS-X) and not a literal's text ('EIBDS: ')?"""
-    return any(EIBDS_WORD.search(re.sub(r"'[^']*'|\"[^\"]*\"", "''", t.upper())) for t in statements)
+    (EIBDS-X) and not a literal's text ('EIBDS: ')? `word` picks the field (EIBRCODE_WORD: reads_eibrcode)."""
+    return any(word.search(re.sub(r"'[^']*'|\"[^\"]*\"", "''", t.upper())) for t in statements)
+
+
+def reads_eibrcode(statements) -> bool:
+    """#5126 (X64): the same whole-word rule for EIBRCODE (the stub's twin is equivalence_cics.reads_eibrcode)."""
+    return reads_eibds(statements, EIBRCODE_WORD)
 
 
 class CicsError(Exception):
@@ -510,6 +516,10 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
         self.push_handle = False
         self.handle_abend = False  # #6271 (X70): the program has HANDLE ABEND, so a file command checks for its exit
         self.eibds_read = False  # #5126 (X64): the program reads EIBDS, so a file control command sets it
+        # #5126 (X64): the program reads EIBRCODE, so a file control command's outcome puts a planned condition's bytes
+        # there (`rcode_cmd`: the command being translated is one)
+        self.eibrcode_read = False
+        self.rcode_cmd = False
         # #4528: the region's code page (region_page), set by program._translate; `region_used`: the port declares
         # REGION (a TS command moves bytes between the program's storage and the region)
         self.region = region_page(None)
@@ -594,10 +604,12 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
 
     # -- RESP
     def outcome(self, opts: dict, resp: str, resp2: str, ind: str) -> list[str]:
-        """After a command: EIBRESP, then RESP / RESP2 when given; else a condition other than NORMAL goes to its
+        """After a command: EIBRESP, (EIBRCODE,) then RESP / RESP2 when given; else a condition other than NORMAL goes to its
         HANDLE CONDITION label, or (NOHANDLE aside) takes CICS's default action, an abend."""
         out = [f"{ind}Cobol.store({self.g.eib('EIBRESP')}, BigDecimal.valueOf({resp}), false, CS);",
                f"{ind}Cobol.store({self.g.eib('EIBRESP2')}, BigDecimal.valueOf({resp2}), false, CS);"]  # fmt: skip
+        if self.rcode_cmd:  # #5126 (X64): as the stub's GGCRCOD, before a condition's jump; unstated, the field is left
+            out.append(f"{ind}if ({resp} != 0 && task.rcode() != null) {self.g.eib('EIBRCODE')}.putRaw(task.rcode());")
         if "RESP" in opts:
             out.append(ind + self.g.store_into(self.ref(_arg(opts["RESP"])), f"BigDecimal.valueOf({resp})", False))
             if "RESP2" in opts:
@@ -842,7 +854,13 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
     def command(self, text: str, ind: str) -> list[str]:
         """One EXEC CICS command's Java; a file control command leads with `Cobol.move(<file>, EIBDS)` (#5126, X64),
         set before the command runs so a failed request leaves its file named, in a program that reads EIBDS."""
+        if self.eibrcode_read:
+            words, opts = parse_exec(text)
+            self.rcode_cmd = bool(
+                words[:1] and " ".join(words) in EIBDS_VERBS and (opts.get("FILE") or opts.get("DATASET"))
+            )
         lines = self._command(text, ind)
+        self.rcode_cmd = False
         if self.eibds_read or self.handle_abend:
             words, opts = parse_exec(text)
             file = opts.get("FILE") or opts.get("DATASET")

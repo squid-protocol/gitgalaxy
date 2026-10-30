@@ -761,6 +761,7 @@
           "cmd": "WRITE",
           "file": "ZC01FILE",
           "resp": "NOSPACE",
+          "rcode": "0000000000F1",
           "why": "data file full"
         }
       ],
@@ -787,6 +788,7 @@
           "cmd": "WRITE",
           "file": "ZC01FILE",
           "resp": "IOERR",
+          "rcode": "80A0000000F2",
           "why": "data file write fails"
         }
       ],
@@ -882,6 +884,7 @@
           "cmd": "READ",
           "file": "ZC01FILE",
           "resp": "IOERR",
+          "rcode": "80A0000000F3",
           "why": "data file read fails"
         }
       ]
@@ -1149,6 +1152,7 @@
           "cmd": "READ",
           "file": "ZC01FILE",
           "resp": "IOERR",
+          "rcode": "80A0000000F4",
           "why": "the data-file read in 5500 fails"
         }
       ]

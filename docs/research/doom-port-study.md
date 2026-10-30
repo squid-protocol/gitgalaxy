@@ -330,70 +330,82 @@ Findings, each checked against the source:
 
 ## Call-graph shape ("subway") from `sfs`
 
-Figures come from `sfs subway --reference linuxdoom` (gitgalaxy-population-analyses) over the same scans as the other
-tables; `sfs` applies its own function filters, so its function counts run a little below the distribution table's. `wiring similarity` is how closely a port's call wiring matches linuxdoom's; `calls kept` is the
-share of linuxdoom's call edges present in the port.
+Figures come from `sfs subway --reference linuxdoom` (gitgalaxy-population-analyses, with the cross-wiring null of
+its PR #21) over the same scans as the other tables; `sfs` applies its own function filters, so its function counts
+run a little below the distribution table's. Each port's functions are placed in linuxdoom's 16 subsystems by
+structural twin, then by function name, then by file path. `wiring similarity` is the cosine of the subsystem
+call-share matrices; `cross wiring` is the same over calls *between* subsystems only; `cross null` is the mean cross
+wiring with the port's own functions shuffled across subsystems (200 draws, sizes kept); `over null` is the gap, the
+part the placement explains. The table is sorted by it.
 
-- **Read `wiring similarity` against its floor.** It is the cosine of a 16-subsystem call-share matrix, and 54% of
-  linuxdoom's calls stay inside one subsystem, so a map whose calls only stay inside subsystems, spread evenly, already
-  scores 0.47. A translation's functions are placed in subsystems by function name or file path (structural twins do
-  not match across languages), so the score also leans on the port keeping linuxdoom's names or file prefixes.
-- **Counting only calls between subsystems still separates translations from reimplementations.** chocolate-doom keeps
-  0.83, doom-scheme 0.75, gore 0.65, dartdoom 0.59 and doomf77 0.41 of linuxdoom's cross-subsystem pattern; the
-  from-scratch reimplementations (rust-doom, room4doom, helion) keep 0.07 to 0.10, and managed-doom 0.10 despite its
-  0.72 overall. That rests on the engine's call graph being accurate in each language, given where each function
-  belongs; it does not show structure alone recovering the placement.
-- **doom3-bfg is the reverse case:** a separate engine (wiring 0.32) that ships DOOM Classic converted to C++, so 83%
-  of linuxdoom's calls are still present by name.
+- **Raw wiring flatters.** 54% of linuxdoom's calls stay inside one subsystem, so a map whose calls only stay home,
+  spread evenly, scores 0.47. doomf77 reads 0.91 but its shuffled self reads 0.80: its cross wiring is +0.05 over
+  null, no evidence of placement.
+- **The Scheme and Go translations keep linuxdoom's cross-subsystem wiring as far above chance as a C fork does:**
+  doom-scheme +0.51, gore +0.50, chocolate-doom +0.51. dartdoom keeps less (+0.19).
+- **The Java, Kotlin, Fortran and C# translations show none** (mochadoom +0.01, kocoa-doom −0.08, doomf77 +0.05,
+  managed-doom −0.15), and the from-scratch reimplementations sit at about zero (rust-doom +0.06, room4doom 0.00,
+  helion −0.08). With name and path placement this does not tell a lost wiring from a placement that failed: these
+  ports renamed or reorganised the most.
+- **Unrelated code sits at the null too.** Three non-DOOM C codebases scanned at the same engine (WinQuake and
+  Quake II, GPL-2; Lua, MIT) read wiring 0.08 to 0.24 and cross wiring 0.00 to 0.11 against linuxdoom, keep at most
+  0.12% of its calls, and share 0 to 0.006 of its structure (structural twins: 0 to 8, against 403 for
+  chocolate-doom). Quake to Quake II shares 0.127, so the twin measure finds lineage outside DOOM as well.
+  Graph-shape distance does not separate them (controls 1.04 to 2.30, DOOM ports 0.30 to 3.25): do not read it as
+  lineage evidence.
+- **doom3-bfg is the reverse case:** a separate engine (cross wiring at its null) that ships DOOM Classic converted to
+  C++, so 83% of linuxdoom's calls are still present by name.
 - `nan` (doom-fx) means the tool could not compute a similarity for that port.
+- What this does not yet show: structure placing a translation's functions without names or paths. That blind test is
+  in progress on `sfs` (branch `sfs-blind-placement`).
 
 <!-- study:subway begin -->
 
-| port | functions | wiring similarity | linuxdoom calls kept | graph-shape distance |
-|---|---|---|---|---|
-| mood | 1859 | 0.9911 | 0.9994 | 0.7163 |
-| doom-ascii | 1019 | 0.9878 | 0.8411 | 0.3049 |
-| sdl-doom | 1079 | 0.9807 | 0.8411 | 0.3364 |
-| doomgeneric | 1192 | 0.9762 | 0.8393 | 0.4258 |
-| puredoom | 1546 | 0.9715 | 0.9202 | 0.6085 |
-| doom-scheme | 798 | 0.9516 | 0.4386 | 0.7360 |
-| crispy-doom | 5870 | 0.9513 | 0.7452 | 0.4897 |
-| chocolate-doom | 5129 | 0.9479 | 0.7153 | 0.4307 |
-| dartdoom | 723 | 0.9324 | 0.4112 | 0.5548 |
-| doomf77 | 146 | 0.9139 | 0.0000 | 0.7950 |
-| dsda-doom | 4930 | 0.9027 | 0.4579 | 0.5168 |
-| inter-doom | 6094 | 0.8781 | 0.6411 | 0.5237 |
-| doom-ios | 1768 | 0.8742 | 0.6062 | 0.6329 |
-| prboom-plus | 2430 | 0.8719 | 0.5950 | 0.6536 |
-| gore | 996 | 0.8564 | 0.7707 | 0.3919 |
-| doomretro | 2233 | 0.8311 | 0.4991 | 0.4499 |
-| doom3do | 511 | 0.7848 | 0.1632 | 0.7266 |
-| mochadoom | 3037 | 0.7766 | 0.3564 | 1.2682 |
-| kocoa-doom | 2902 | 0.7652 | 0.2741 | 1.4847 |
-| nugget-doom | 4173 | 0.7589 | 0.5040 | 0.3917 |
-| managed-doom | 1285 | 0.7246 | 0.2118 | 0.9622 |
-| eternity | 6641 | 0.7150 | 0.4162 | 0.7147 |
-| srb2 | 6805 | 0.7092 | 0.1944 | 0.7267 |
-| odamex | 7759 | 0.7068 | 0.3645 | 0.8408 |
-| woof | 3788 | 0.6711 | 0.4822 | 0.4244 |
-| edge-classic | 5151 | 0.6464 | 0.0255 | 0.7620 |
-| doom-wasm | 2035 | 0.6454 | 0.7514 | 0.5825 |
-| fastdoom | 2114 | 0.5647 | 0.5022 | 0.9382 |
-| helion | 8386 | 0.5450 | 0.0199 | 1.1298 |
-| cssdoom | 217 | 0.5011 | 0.0000 | 0.9380 |
-| agentic-cobol-doom-cc | 45 | 0.4954 | 0.0000 | 1.7705 |
-| gzdoom | 18434 | 0.4834 | 0.0729 | 1.1171 |
-| doomsday | 23304 | 0.3859 | 0.1607 | 0.9859 |
-| doom3-bfg | 13859 | 0.3180 | 0.8274 | 0.8956 |
-| room4doom | 4582 | 0.2842 | 0.1377 | 1.0859 |
-| rust-doom | 582 | 0.1612 | 0.0000 | 1.6348 |
-| doo-cr | 1488 | 0.1439 | 0.0411 | 3.0180 |
-| sqldoom | 475 | 0.1287 | 0.0037 | 1.3367 |
-| freedoom | 106 | 0.1140 | 0.0000 | 2.4304 |
-| agentic-cobol-doom-codex | 152 | 0.1068 | 0.0000 | 0.9097 |
-| fsharp-doom | 47 | 0.0883 | 0.0000 | 2.8326 |
-| fps-cob | 51 | 0.0765 | 0.0000 | 0.9701 |
-| doom-fx | 1865 | nan | 0.0000 | 3.2540 |
+| port | functions | wiring similarity | cross wiring | cross null | over null | linuxdoom calls kept | graph-shape distance |
+|---|---|---|---|---|---|---|---|
+| mood | 1859 | 0.9911 | 0.9871 | 0.3355 | +0.65 | 0.9994 | 0.7163 |
+| doomgeneric | 1192 | 0.9762 | 0.9131 | 0.3453 | +0.57 | 0.8393 | 0.4258 |
+| sdl-doom | 1079 | 0.9807 | 0.9222 | 0.4027 | +0.52 | 0.8411 | 0.3364 |
+| chocolate-doom | 5129 | 0.9479 | 0.8272 | 0.3183 | +0.51 | 0.7153 | 0.4307 |
+| doom-ascii | 1019 | 0.9878 | 0.9303 | 0.4218 | +0.51 | 0.8411 | 0.3049 |
+| doom-scheme | 798 | 0.9516 | 0.7512 | 0.2408 | +0.51 | 0.4386 | 0.7360 |
+| gore | 996 | 0.8564 | 0.6495 | 0.1506 | +0.50 | 0.7707 | 0.3919 |
+| doom-wasm | 2035 | 0.6454 | 0.7343 | 0.2637 | +0.47 | 0.7514 | 0.5825 |
+| crispy-doom | 5870 | 0.9513 | 0.8303 | 0.3757 | +0.45 | 0.7452 | 0.4897 |
+| puredoom | 1546 | 0.9715 | 0.7759 | 0.3901 | +0.39 | 0.9202 | 0.6085 |
+| inter-doom | 6094 | 0.8781 | 0.8138 | 0.4645 | +0.35 | 0.6411 | 0.5237 |
+| srb2 | 6805 | 0.7092 | 0.5481 | 0.2436 | +0.30 | 0.1944 | 0.7267 |
+| fastdoom | 2114 | 0.5647 | 0.3980 | 0.1170 | +0.28 | 0.5022 | 0.9382 |
+| dsda-doom | 4930 | 0.9027 | 0.5360 | 0.2684 | +0.27 | 0.4579 | 0.5168 |
+| doomretro | 2233 | 0.8311 | 0.5518 | 0.3144 | +0.24 | 0.4991 | 0.4499 |
+| woof | 3788 | 0.6711 | 0.5056 | 0.2664 | +0.24 | 0.4822 | 0.4244 |
+| nugget-doom | 4173 | 0.7589 | 0.5809 | 0.3398 | +0.24 | 0.5040 | 0.3917 |
+| prboom-plus | 2430 | 0.8719 | 0.5465 | 0.3609 | +0.19 | 0.5950 | 0.6536 |
+| dartdoom | 723 | 0.9324 | 0.5863 | 0.3974 | +0.19 | 0.4112 | 0.5548 |
+| doom-ios | 1768 | 0.8742 | 0.5610 | 0.3933 | +0.17 | 0.6062 | 0.6329 |
+| edge-classic | 5151 | 0.6464 | 0.3612 | 0.1931 | +0.17 | 0.0255 | 0.7620 |
+| eternity | 6641 | 0.7150 | 0.3682 | 0.2070 | +0.16 | 0.4162 | 0.7147 |
+| doom3do | 511 | 0.7848 | 0.2076 | 0.0713 | +0.14 | 0.1632 | 0.7266 |
+| fsharp-doom | 47 | 0.0883 | 0.1529 | 0.0266 | +0.13 | 0.0000 | 2.8326 |
+| odamex | 7759 | 0.7068 | 0.3457 | 0.2234 | +0.12 | 0.3645 | 0.8408 |
+| doomsday | 23304 | 0.3859 | 0.1641 | 0.0840 | +0.08 | 0.1607 | 0.9859 |
+| cssdoom | 217 | 0.5011 | 0.2650 | 0.1966 | +0.07 | 0.0000 | 0.9380 |
+| rust-doom | 582 | 0.1612 | 0.0979 | 0.0404 | +0.06 | 0.0000 | 1.6348 |
+| sqldoom | 475 | 0.1287 | 0.0802 | 0.0262 | +0.05 | 0.0037 | 1.3367 |
+| doomf77 | 146 | 0.9139 | 0.4113 | 0.3635 | +0.05 | 0.0000 | 0.7950 |
+| gzdoom | 18434 | 0.4834 | 0.1274 | 0.1127 | +0.01 | 0.0729 | 1.1171 |
+| mochadoom | 3037 | 0.7766 | 0.3785 | 0.3728 | +0.01 | 0.3564 | 1.2682 |
+| doom3-bfg | 13859 | 0.3180 | 0.1091 | 0.0962 | +0.01 | 0.8274 | 0.8956 |
+| room4doom | 4582 | 0.2842 | 0.0769 | 0.0804 | -0.00 | 0.1377 | 1.0859 |
+| fps-cob | 51 | 0.0765 | 0.0000 | 0.0001 | -0.00 | 0.0000 | 0.9701 |
+| freedoom | 106 | 0.1140 | 0.0046 | 0.0454 | -0.04 | 0.0000 | 2.4304 |
+| agentic-cobol-doom-codex | 152 | 0.1068 | 0.0092 | 0.0457 | -0.04 | 0.0000 | 0.9097 |
+| helion | 8386 | 0.5450 | 0.0737 | 0.1562 | -0.08 | 0.0199 | 1.1298 |
+| kocoa-doom | 2902 | 0.7652 | 0.2701 | 0.3542 | -0.08 | 0.2741 | 1.4847 |
+| agentic-cobol-doom-cc | 45 | 0.4954 | 0.0197 | 0.1292 | -0.11 | 0.0000 | 1.7705 |
+| managed-doom | 1285 | 0.7246 | 0.0952 | 0.2476 | -0.15 | 0.2118 | 0.9622 |
+| doo-cr | 1488 | 0.1439 | 0.0168 | 0.2432 | -0.23 | 0.0411 | 3.0180 |
+| doom-fx | 1865 | nan |  |  |  | 0.0000 | 3.2540 |
 
 <!-- study:subway end -->
 

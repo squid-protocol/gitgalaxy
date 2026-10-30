@@ -173,10 +173,27 @@ def subway_block(path, names):
         return "_No `--subway` file given: run `sfs compare` (see the header of `study_report.py`) and pass its `subway.csv`._\n"
     with open(path, newline="") as fh:
         got = {r["repo"]: r for r in csv.DictReader(fh)}
-    body = [[n, got[n]["functions"], got[n]["wiring_similarity"], got[n]["edges_kept"], got[n]["shape_distance"]]
+    if not got or "cross_wiring" not in next(iter(got.values())):  # an sfs from before the cross-wiring null
+        body = [[n, got[n]["functions"], got[n]["wiring_similarity"], got[n]["edges_kept"], got[n]["shape_distance"]]
+                for n in names if n in got and n != lineage.BASE]  # fmt: skip
+        body.sort(key=lambda r: -(float(r[2]) if r[2] not in ("", "nan") else -1.0))
+        return _md(["port", "functions", "wiring similarity", "linuxdoom calls kept", "graph-shape distance"], body)
+
+    def gap(r):
+        try:
+            return f"{float(r['cross_wiring']) - float(r['cross_wiring_null']):+.2f}"
+        except ValueError:
+            return ""
+
+    body = [[n, got[n]["functions"], got[n]["wiring_similarity"], got[n]["cross_wiring"], got[n]["cross_wiring_null"],
+             gap(got[n]), got[n]["edges_kept"], got[n]["shape_distance"]]
             for n in names if n in got and n != lineage.BASE]  # fmt: skip
-    body.sort(key=lambda r: -(float(r[2]) if r[2] not in ("", "nan") else -1.0))
-    return _md(["port", "functions", "wiring similarity", "linuxdoom calls kept", "graph-shape distance"], body)
+    body.sort(key=lambda r: -(float(r[5]) if r[5] else -9.0))
+    return _md(
+        ["port", "functions", "wiring similarity", "cross wiring", "cross null", "over null", "linuxdoom calls kept",
+         "graph-shape distance"],
+        body,
+    )  # fmt: skip
 
 
 def build(work, sha, before_ref, manifest, subway):

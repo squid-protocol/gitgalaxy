@@ -3217,6 +3217,29 @@
    "calibration": "uncalibrated"
   },
   {
+   "id": "RT-SQL-INSERT-ROWS",
+   "family": "SQL",
+   "title": "INSERT ... VALUES (host-variable tables) FOR n ROWS [ATOMIC]: the single-row INSERT for elements 1..n, SQLERRD(3) the rows inserted; a first row that fails is Db2's error, a later one is refused (ATOMIC's undo is not modelled)",
+   "methods": [
+    "insertRows"
+   ],
+   "site": "insertRows@1",
+   "ibm": {
+    "doc": "db2-codes",
+    "section": "SQLCODE +100, -501"
+   },
+   "options": [],
+   "features": [
+    "sql_forms: INSERT",
+    "sql_forms: STATIC"
+   ],
+   "register": [
+    "Q4"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
    "id": "RT-SQL-POSITIONED-UPDATE",
    "family": "SQL",
    "title": "UPDATE / DELETE WHERE CURRENT OF: the current row (-501 not open, -508 no current row)",

@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.IntSupplier;
+import java.util.function.ToIntFunction;
 import java.util.function.Supplier;
 
 /**
@@ -268,6 +269,47 @@ public final class DetSql {
         } catch (RuntimeException e) {
             failed(ca, e, cs);
         }
+    }
+
+    /** INSERT ... VALUES (:A1, :A2) FOR n ROWS [ATOMIC] (#4269; IBM Db2 for z/OS SQL Reference, INSERT): the single-row
+     *  statement run for element 1..n of every column's host variable table (`hosts[column][row]`, `indicators` null
+     *  where none), SQLERRD(3) the rows inserted. A first row that fails is Db2's error with nothing inserted; a later
+     *  row that fails would need ATOMIC's undo of the rows before it, which is not modelled, so it is refused. n above
+     *  the host variable tables (`capacity`) or below 1 is refused. */
+    // [rule RT-SQL-INSERT-ROWS]
+    public static void insertRows(Field ca, String at, long n, int capacity, String kinds, String[] names,
+                                  Field[][] hosts, Field[][] indicators, ToIntFunction<Map<String, Object>> statement,
+                                  Charset cs) {
+        reset(ca, cs);
+        if (injected(ca, at, cs)) {
+            return;
+        }
+        if (n < 1 || n > capacity) {
+            throw new UnsupportedOperationException("EXEC SQL INSERT at " + at + ": FOR " + n
+                    + " ROWS with host variable tables of " + capacity);
+        }
+        int done = 0;
+        for (int j = 0; j < n; j++) {
+            Map<String, Object> params = new HashMap<>();
+            for (int c = 0; c < hosts.length; c++) {
+                Object v = kinds.charAt(c) == 'N' ? numIn(hosts[c][j], cs) : charIn(hosts[c][j], cs);
+                if (indicators != null && indicators[c] != null) {
+                    v = orNull(v, indicators[c][j], cs);
+                }
+                params.put(names[c], v);
+            }
+            try {
+                done += statement.applyAsInt(params);
+            } catch (RuntimeException e) {
+                if (done == 0) {
+                    failed(ca, e, cs);
+                    return;
+                }
+                throw new UnsupportedOperationException("EXEC SQL INSERT at " + at + ": row " + (j + 1) + " of " + n
+                        + " failed after " + done + " were inserted; ATOMIC's undo is not modelled", e);
+            }
+        }
+        putInt(ca, SQLERRD + 8, 4, done);
     }
 
     /** SELECT INTO: the one row, or null (+100 no row, -811 more than one, or Db2's error). */

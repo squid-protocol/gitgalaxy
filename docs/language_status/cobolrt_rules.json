@@ -3169,6 +3169,30 @@
    "calibration": "uncalibrated"
   },
   {
+   "id": "RT-SQL-SCROLL-FETCH",
+   "family": "SQL",
+   "title": "FETCH PRIOR / FIRST / LAST / CURRENT / ABSOLUTE n / RELATIVE n of an insensitive SCROLL cursor: a position over the rows read at OPEN (a move off either end is +100 and clamps; FETCH CURRENT with no current row is refused: +231 on z/OS, +100 on LUW)",
+   "methods": [
+    "fetchScroll",
+    "moveTo"
+   ],
+   "site": "fetchScroll@1",
+   "ibm": {
+    "doc": "db2-codes",
+    "section": "SQLCODE +100, -501"
+   },
+   "options": [],
+   "features": [
+    "sql_forms: FETCH",
+    "sql_forms: STATIC"
+   ],
+   "register": [
+    "Q4"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
    "id": "RT-SQL-POSITIONED-UPDATE",
    "family": "SQL",
    "title": "UPDATE / DELETE WHERE CURRENT OF: the current row (-501 not open, -508 no current row)",

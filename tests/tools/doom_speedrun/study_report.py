@@ -77,12 +77,13 @@ def clean_scan_block(rows, before, after):
     head = (
         f"{perfect} of {len(body)} ports pass every scored check now; {gained} of them failed at least one in round 2 "
         f"(`n/a` = the port was added after round 2; `(vacuous)` = the scorer saw no first-party source files, so the "
-        f"pass proves nothing; `not compared` = ctags has no reading of that language). The call-graph check did not "
-        f"exist in round 2.\n\n"
+        f"pass proves nothing; `not compared` = ctags has no reading of that language; `functions in ctags languages` "
+        f"counts only the files the ctags check reads, so a port written in a language ctags lacks shows 0 here: its "
+        f"full count is in the distribution table). The call-graph check did not exist in round 2.\n\n"
     )
     return head + _md(
         ["port", "failed checks, round 2", "failed checks, now", "first-party files, now", "missed files, round 2", "now",
-         "functions vs ctags %, round 2", "now", "functions now"],
+         "functions vs ctags %, round 2", "now", "functions in ctags languages"],
         body,
     )  # fmt: skip
 

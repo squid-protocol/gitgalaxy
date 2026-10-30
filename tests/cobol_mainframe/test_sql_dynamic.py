@@ -749,7 +749,9 @@ _ROWDEMO_JCL = """\
           RUN PROGRAM(ROWDEMO) PLAN(GGROW)
 /*
 """
-_ROWDEMO_DDL = "CREATE TABLE GGROW.ITEM (ID INTEGER NOT NULL, NAME CHAR(4) NOT NULL, QTY DECIMAL(5,2), PRIMARY KEY (ID));\n"
+_ROWDEMO_DDL = (
+    "CREATE TABLE GGROW.ITEM (ID INTEGER NOT NULL, NAME CHAR(4) NOT NULL, QTY DECIMAL(5,2), PRIMARY KEY (ID));\n"
+)
 _ROWDEMO_SEED = (
     "INSERT INTO GGROW.ITEM VALUES (10, 'AAAA', 1.50);\nINSERT INTO GGROW.ITEM VALUES (20, 'BBBB', NULL);\n"
     "INSERT INTO GGROW.ITEM VALUES (30, 'CCCC', 3.00);\nINSERT INTO GGROW.ITEM VALUES (40, 'DDDD', 4.25);\n"
@@ -775,7 +777,11 @@ def _rowdemo_port(tmp_path):
     from gitgalaxy.tools.cobol_to_java.det import program as P
 
     estate = tmp_path / "estate"
-    for rel, text in (("cbl/ROWDEMO.cbl", _ROWDEMO_CBL), ("jcl/ROWDEMO.jcl", _ROWDEMO_JCL), ("ddl/ITEM.ddl", _ROWDEMO_DDL)):
+    for rel, text in (
+        ("cbl/ROWDEMO.cbl", _ROWDEMO_CBL),
+        ("jcl/ROWDEMO.jcl", _ROWDEMO_JCL),
+        ("ddl/ITEM.ddl", _ROWDEMO_DDL),
+    ):
         (estate / rel).parent.mkdir(parents=True, exist_ok=True)
         (estate / rel).write_text(text, encoding="utf-8")
     (tmp_path / "seed.sql").write_text(_ROWDEMO_SEED, encoding="utf-8")
@@ -821,3 +827,108 @@ def test_rowdemo_det_port_proves_on_db2_against_the_hand_trace(tmp_path):
     report = json.loads((keep / "report.json").read_text(encoding="utf-8"))
     assert report["proven"] is True
     assert (keep / "cobol" / "stdout.txt").read_text(encoding="latin-1") == TRACED_ROWSET
+
+
+@pytest.mark.parametrize(
+    "declare, why",
+    [
+        ("R1 CURSOR", "not declared WITH ROWSET POSITIONING"),
+        ("R1 SCROLL CURSOR", "not declared WITH ROWSET POSITIONING"),
+        ("R1 SENSITIVE SCROLL CURSOR WITH ROWSET POSITIONING", "SENSITIVE or DYNAMIC"),
+    ],
+)
+def test_a_rowset_fetch_of_a_cursor_the_port_cannot_model_is_refused_by_name(declare, why):
+    from gitgalaxy.tools.cobol_to_java.det.sql import SqlError
+
+    with pytest.raises(SqlError, match=rf"{why}.*register Q4"):
+        _scroll_sql(declare).command("EXEC SQL FETCH NEXT ROWSET FROM R1 FOR 2 ROWS INTO :A END-EXEC", 7, "")
+
+
+def test_a_rowset_cursor_is_found_by_its_declaration():
+    from gitgalaxy.tools.cobol_to_java.det.sql import Sql
+
+    src = (
+        "EXEC SQL DECLARE R1 CURSOR WITH HOLD WITH ROWSET POSITIONING FOR SELECT A FROM T END-EXEC. "
+        "EXEC SQL DECLARE R2 CURSOR FOR SELECT A FROM T END-EXEC. "
+        "EXEC SQL DECLARE R3 SCROLL CURSOR WITH ROWSET POSITIONING FOR SELECT A FROM T END-EXEC."
+    )
+    assert Sql(_Gen(), "P", None, src).rowset == {"R1", "R3"}
+
+
+_ROWSET_MAIN = """\
+package ggtest;
+
+import ggtest.cobolrt.Field;
+import ggtest.cobolrt.Storage;
+import ggtest.cobolrt.sql.DetSql;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Map;
+
+public class Main {
+    static final Charset CS = StandardCharsets.ISO_8859_1;
+
+    static int num(Field ca, int off) {
+        byte[] b = ca.storage().bytes;
+        return (b[off] & 0xFF) | (b[off + 1] & 0xFF) << 8 | (b[off + 2] & 0xFF) << 16 | b[off + 3] << 24;
+    }
+
+    static void go(Field ca, String c, long n, int cap) {
+        List<Map<String, Object>> rows = DetSql.fetchRowset(ca, "P:9", c, n, cap, CS);
+        System.out.println(c + " " + n + " code=" + num(ca, 12) + " rows=" + rows.size() + " erd3=" + num(ca, 104));
+    }
+
+    public static void main(String[] a) {
+        Field ca = Field.group(new Storage(136), 0, 136);
+        DetSql.open(ca, "P:1", "R1", () -> List.of(Map.of("ID", 1), Map.of("ID", 2), Map.of("ID", 3), Map.of("ID", 4), Map.of("ID", 5)), CS);
+        go(ca, "R1", 2, 3);
+        go(ca, "R1", 3, 3);
+        go(ca, "R1", 3, 3);
+        go(ca, "R1", 1, 3);
+        DetSql.close(ca, "P:2", "R1", CS);
+        go(ca, "R1", 2, 3);
+        DetSql.open(ca, "P:3", "R2", () -> List.of(), CS);
+        go(ca, "R2", 2, 3);
+        DetSql.open(ca, "P:4", "R3", () -> List.of(Map.of("ID", 1)), CS);
+        for (long n : new long[] {0, 4}) {
+            try {
+                go(ca, "R3", n, 3);
+            } catch (UnsupportedOperationException e) {
+                System.out.println("refused " + n);
+            }
+        }
+    }
+}
+"""
+
+
+@pytest.mark.skipif(_jdk() is None, reason="no JDK (JDK_17 / JAVA_HOME)")
+def test_detsql_reads_a_rowset_and_sets_sqlerrd3_as_db2_does(tmp_path):
+    from javac_server import javac as javac_run
+
+    rt = TOOLS.parent.parent / "gitgalaxy" / "tools" / "cobol_to_java" / "det" / "cobolrt"
+    src = tmp_path / "src" / "ggtest"
+    for sub in ("", "sql"):
+        (src / "cobolrt" / sub).mkdir(parents=True, exist_ok=True)
+        for f in (rt / sub).glob("*.java"):
+            text = f.read_text(encoding="utf-8").replace("__PACKAGE__", "ggtest")
+            (src / "cobolrt" / sub / f.name).write_text(text, encoding="utf-8")
+    (src / "Main.java").write_text(_ROWSET_MAIN, encoding="utf-8")
+    jdk = _jdk()
+    files = [str(p) for p in (tmp_path / "src").rglob("*.java")]
+    javac = javac_run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"), *files],  # noqa: S603
+                      capture_output=True, text=True, encoding="utf-8", check=False)  # fmt: skip
+    assert javac.returncode == 0, javac.stderr[:3000]
+    out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "ggtest.Main"],  # noqa: S603
+                         capture_output=True, text=True, encoding="utf-8", check=True).stdout.splitlines()  # fmt: skip
+    assert out == [
+        "R1 2 code=0 rows=2 erd3=2",
+        "R1 3 code=0 rows=3 erd3=3",  # rows 3, 4, 5: full
+        "R1 3 code=100 rows=0 erd3=0",  # past the last row
+        "R1 1 code=100 rows=0 erd3=0",
+        "R1 2 code=-501 rows=0 erd3=0",  # closed
+        "R2 2 code=100 rows=0 erd3=0",  # no rows
+        "refused 0",
+        "refused 4",
+    ]

@@ -427,8 +427,8 @@ class Sql:
                 *self._params(self._cursor_sql(meth), meth, n, ind),
                 f"{ind}DetSql.open(SQLCA_AREA, {at}, {self.g_str(cursor)}{hold}, () -> {call}({n}), CS);",
             ]
-        if verb == "FETCH" and meth.verb == "CURSOR" and _ROWSET_FETCH.fullmatch(sql):
-            return self._fetch_rowset(_ROWSET_FETCH.fullmatch(sql), at, ind)
+        if verb == "FETCH" and meth.verb == "CURSOR" and (rowset := _ROWSET_FETCH.fullmatch(sql)):
+            return self._fetch_rowset(rowset, at, ind)
         if verb == "FETCH" and meth.verb == "CURSOR":
             m = _FETCH.fullmatch(sql)
             if not m:
@@ -450,11 +450,9 @@ class Sql:
         elementary table (OCCURS) holding one column's rows. DetSql.fetchRowset reads up to n rows and sets SQLERRD(3);
         DetSql.intoRows moves row j into element j of every table."""
         cursor = m.group(1).upper()
-        if cursor not in self.rowset:
-            raise SqlError(f"EXEC SQL FETCH ROWSET {cursor}: the cursor is not declared WITH ROWSET POSITIONING")
-        if cursor in self.scroll and self.scroll[cursor][0]:
-            raise SqlError(f"EXEC SQL FETCH ROWSET {cursor}: a SENSITIVE or DYNAMIC cursor is not modelled")
-        tables, kinds, inds = [], "", []
+        tables: list[L.Item] = []
+        kinds = ""
+        inds: list[L.Item | None] = []
         for h in _HOST.finditer(m.group(3)):
             it = self._item(self._ref(h.group(1)))
             if not it.pic or it.occurs < 2 or self._varchar(it) or it.category not in ("ALPHANUMERIC", "NUMERIC"):
@@ -488,14 +486,17 @@ class Sql:
         else:
             n = f"{int(count)}L"
             if int(count) > cap:
-                raise SqlError(f"EXEC SQL FETCH ROWSET {cursor}: FOR {count} ROWS exceeds the host variable tables ({cap})")
+                raise SqlError(
+                    f"EXEC SQL FETCH ROWSET {cursor}: FOR {count} ROWS exceeds the host variable tables ({cap})"
+                )
         row = self.g.tmpname("sqlRows")
         hosts = ", ".join(elems(t) for t in tables)
         ids = "null" if all(i is None for i in inds) else ", ".join(elems(i) if i else "null" for i in inds)
         indicators = "null" if ids == "null" else f"new Field[][] {{{ids}}}"
-        return [f"{ind}java.util.List<java.util.Map<String, Object>> {row} = DetSql.fetchRowset(SQLCA_AREA, {at}, "
-                f"{self.g_str(cursor)}, {n}, {cap}, CS);",
-                f"{ind}DetSql.intoRows(SQLCA_AREA, {row}, {self.g_str(kinds)}, new Field[][] {{{hosts}}}, {indicators}, CS);"]  # fmt: skip
+        read = (f"{ind}java.util.List<java.util.Map<String, Object>> {row} = DetSql.fetchRowset(SQLCA_AREA, {at}, "
+                f"{self.g_str(cursor)}, {n}, {cap}, CS);")  # fmt: skip
+        into = f"{ind}DetSql.intoRows(SQLCA_AREA, {row}, {self.g_str(kinds)}, new Field[][] {{{hosts}}}, {indicators}, CS);"
+        return [read, into]
 
     def _fetch_scroll(self, cursor: str, orient: list[str], at: str) -> str:
         """#4269 (register Q4): FETCH [INSENSITIVE] PRIOR | FIRST | LAST | CURRENT | ABSOLUTE n | RELATIVE n of a cursor
@@ -517,8 +518,17 @@ class Sql:
         cursor not declared SCROLL, a SENSITIVE or DYNAMIC scroll cursor (the port's rows are a copy made at OPEN) and a
         scroll cursor WITH HOLD (its position after a COMMIT) stop by name."""
         bare = _QUOTED.sub("''", sql)
-        if verb == "FETCH" and _ROWSET_FETCH.fullmatch(bare):
-            return  # taken: _fetch_rowset checks the rest
+        rowset = _ROWSET_FETCH.fullmatch(bare) if verb == "FETCH" else None
+        if rowset:  # taken: _fetch_rowset checks the host variables
+            cursor = rowset.group(1).upper()
+            if cursor not in self.rowset:
+                raise SqlError(f"EXEC SQL FETCH ROWSET {cursor}: the cursor is not declared WITH ROWSET POSITIONING"
+                               " (register Q4)")  # fmt: skip
+            if cursor in self.scroll and self.scroll[cursor][0]:
+                raise SqlError(
+                    f"EXEC SQL FETCH ROWSET {cursor}: a SENSITIVE or DYNAMIC cursor is not modelled (register Q4)"
+                )
+            return
         if verb in ("FETCH", "INSERT") and _ROWSET.search(bare):
             what = "FETCH ... ROWSET with STARTING AT, an orientation or no FOR n ROWS" if verb == "FETCH" else "INSERT"
             raise SqlError(f"EXEC SQL {verb}: a multi-row {what} is not modelled; only FETCH [NEXT] ROWSET FROM cursor "

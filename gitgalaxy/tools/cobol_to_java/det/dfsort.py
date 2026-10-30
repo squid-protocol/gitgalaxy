@@ -396,6 +396,15 @@ def parse(sysin: str, symnames: str = "") -> Control:
     return Control(verb, keys, cond, omit, bool(equals), outrec)
 
 
+def iebgener(sysin: str = "") -> Control:
+    """An IEBGENER step (IBM z/OS DFSMSdfp Utilities, SC23-6864, "IEBGENER"; ICEGENER takes the same job) as the model of
+    a plain record copy, SYSUT1 to SYSUT2. Its SYSIN is DUMMY or empty (a blank or comment line is ignored); a control
+    statement (GENERATE, RECORD, MEMBER, EXITS, LABELS) reformats or edits the records and is refused by name."""
+    for name, _ in _statements(sysin):
+        raise Refused(f"the IEBGENER {name} statement")
+    return Control("COPY", (), None, False, False)
+
+
 # ----- lowering --------------------------------------------------------------------------------------------------
 
 

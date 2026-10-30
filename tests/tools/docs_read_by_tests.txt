@@ -46,6 +46,7 @@
 /MYREC.cpy	tests/cobol_mainframe
 /Main.java	tests/cobol_mainframe
 /MinApi.cs	tests/security_auditing
+/NIGHTLY.jcl	tests/core_engine
 /P.cbl	tests/cobol_mainframe
 /P1.cbl	tests/cobol_mainframe
 /P2.cbl	tests/cobol_mainframe

@@ -184,28 +184,25 @@ def _generation(text: str) -> str:
     return f"+{n}" if n > 0 else str(n)
 
 
+_DCB_KEYS = ("LRECL", "RECFM")
+
+
 def _dcb(keyed: dict[str, str]) -> dict[str, Any]:
     """#4268: the record length / format a DD states: `DCB=(LRECL=80,RECFM=FB)`, `DCB=LRECL=80`, or the bare
     `LRECL=` / `RECFM=` DD keywords (a bare one wins over the DCB subparameter). A referback (`DCB=*.DD`,
     `DCB=dsn`), a symbolic value (`&LR`) and `LRECL=0` state nothing."""
-    found: dict[str, str] = {}
-    dcb = keyed.get("DCB")
-    if dcb is not None:
-        for k, v in _split(dcb.strip().strip("()")):
-            if k in ("LRECL", "RECFM"):
-                found[k] = v
-        if "=" in dcb and "(" not in dcb and dcb.split("=", 1)[0].upper() in ("LRECL", "RECFM"):
-            found.setdefault(dcb.split("=", 1)[0].upper(), dcb.split("=", 1)[1])
-    for k in ("LRECL", "RECFM"):
-        if k in keyed:
-            found[k] = keyed[k]
+    sub: dict[str, str] = {}
+    for k, v in keyed.items():
+        if k == "DCB":
+            sub.update({kk: vv for kk, vv in _split(v.strip().strip("()")) if kk})
+    found = {**sub, **{k: v for k, v in keyed.items() if k in _DCB_KEYS}}
     out: dict[str, Any] = {}
-    lrecl = found.get("LRECL", "").strip()
-    if lrecl.isdigit() and int(lrecl) > 0:
-        out["lrecl"] = int(lrecl)
-    recfm = found.get("RECFM", "").strip().strip("()").replace(",", "").upper()
-    if recfm and re.fullmatch(r"[FVUDS]?[FVUDSBTAM]{0,5}", recfm):
-        out["recfm"] = recfm
+    for key, value in found.items():
+        value = value.strip().strip("()").replace(",", "").upper()
+        if key == "LRECL" and value.isdigit() and int(value) > 0:
+            out["lrecl"] = int(value)
+        elif key == "RECFM" and re.fullmatch(r"[FVUDS]?[FVUDSBTAM]{0,5}", value):
+            out["recfm"] = value
     return out
 
 

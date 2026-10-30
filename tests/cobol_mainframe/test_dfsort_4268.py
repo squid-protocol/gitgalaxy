@@ -114,6 +114,13 @@ def test_what_the_model_does_not_cover_is_refused_by_name(sysin, why):
         D.parse(sysin)
 
 
+def test_iebgener_is_a_plain_copy_and_its_control_statements_are_refused():
+    assert D.iebgener() == D.iebgener("\n* nothing\n") == D.parse(" SORT FIELDS=COPY\n")
+    for card in ("  GENERATE MAXFLDS=1\n", "  RECORD FIELD=(80)\n", "  MEMBER NAME=A\n"):
+        with pytest.raises(D.Refused, match=f"the IEBGENER {card.split()[0]} statement"):
+            D.iebgener(card)
+
+
 def test_lowering_refuses_what_cobol_would_answer_differently():
     with pytest.raises(D.Refused, match="MERGE without EQUALS"):
         D.cobol_program(D.parse(" MERGE FIELDS=(1,2,CH,A)\n"), 80, ["SORTIN01", "SORTIN02"])
@@ -205,6 +212,8 @@ def _steps() -> dict[str, tuple[str, dict[str, bytes]]]:
                         {"SORTIN01": _by_id(comb[0]), "SORTIN02": _by_id(comb[1])}),
         "OUTRECZD": (D.cobol_program(D.parse(TRANREPT_SYSIN.split("\n", 1)[0] + "\n OUTREC FIELDS=(263,16,1,16)\n",
                                              TRANREPT_SYM), RECLEN, ["SORTIN"]), {"SORTIN": tran}),
+        # IEBGENER: SYSUT1 copied to SYSUT2, every record and byte (the DDs are the utility's own)
+        "IEBGENER": (D.cobol_program(D.iebgener(), RECLEN, ["SYSUT1"], "SYSUT2"), {"SYSUT1": tran}),
         "MERGEINC": (D.cobol_program(D.parse(" MERGE FIELDS=(1,16,CH,A),EQUALS\n INCLUDE COND=(305,10,CH,GE,"
                                              "C'2022-03-01')\n"), RECLEN, ["SORTIN01", "SORTIN02"]),
                      {"SORTIN01": _by_id(comb[0]), "SORTIN02": _by_id(comb[1])}),
@@ -250,6 +259,7 @@ def _need_java() -> None:
         "OUTRECCOPY",
         "OUTRECMERGE",
         "OUTRECZD",
+        "IEBGENER",
     ],
 )
 def test_sort_step_output_is_gnucobols_byte_for_byte(step, tmp_path):
@@ -259,15 +269,18 @@ def test_sort_step_output_is_gnucobols_byte_for_byte(step, tmp_path):
     cob.mkdir()
     for dd, body in inputs.items():
         (cob / dd).write_bytes(body)
+    out_dd = "SYSUT2" if step == "IEBGENER" else "SORTOUT"
     _cobol(src, cob)
-    want = (cob / "SORTOUT").read_bytes()
+    want = (cob / out_dd).read_bytes()
     (tmp_path / "port").mkdir()
-    got = _java_step(src, tmp_path / "port", inputs, "SORTOUT")
+    got = _java_step(src, tmp_path / "port", inputs, out_dd)
     out_len = {"OUTRECSORT": 16 + 2 + 10 + 1 + 1 + 3, "OUTRECCOPY": 26, "OUTRECMERGE": 26, "OUTRECZD": 32}.get(
         step, RECLEN
     )
     assert len(want) % out_len == 0 and want, "the oracle kept no record"
     assert got == want
+    if step == "IEBGENER":
+        assert want == inputs["SYSUT1"]
     if step in ("TRANREPT", "SORTTEST", "COPYOMIT"):  # the INCLUDE / OMIT kept some records and dropped others
         assert len(want) < len(inputs["SORTIN"])
 

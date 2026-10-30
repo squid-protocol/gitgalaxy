@@ -4536,6 +4536,12 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   generated id into it (X63, ASSUMED POSTnnnn), so it is set but not a modelled fact a case can state. Evidence: translated and
   pinned; NOT executed-equivalent (no program reads them). Residual risk: a future reader sees zero / spaces on both sides,
   which agree with each other and not necessarily with z/OS; the guard fails first and sends whoever finds it to model the field.
+- **Re-checked 2026-10-30 (#5126, origin/main 7bbfb1ec6).** `test_eib_other_fields_5126.py`, `test_eib_fn_rcode_5126.py` and
+  `test_assign_task_facts_5126.py` (28 passed, none skipped) still find no burned program reading EIBCPOSN, EIBREQID, EIBRSRCE,
+  EIBERR or EIBERRCD, so the box stays "refused by name" and nothing is modelled. Ladder: translated and pinned at the translator;
+  NOT executed-equivalent (nothing reads them); assumption relied on: both runtimes leave the fields INITIALIZEd. Residual risk:
+  a future reader fails the guard first. Sibling gaps, none needed by a burned program: IBM's verbatim EIBFN table, the
+  normal-response EIBRCODE zero, the 3270 cursor behind EIBCPOSN, APPC EIBERR / EIBERRCD.
 
 ### X65. The EXEC CICS commands refused whole by name, by class, with the reason for each (#4270)
 - **What this entry is.** #4270's last acceptance line: "every still-refused verb listed in the register with a reason". The spec

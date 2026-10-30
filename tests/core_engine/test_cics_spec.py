@@ -316,6 +316,29 @@ def test_inquire_container_is_refused_whole_in_every_form():
         assert COMMANDS[key].status == "modelled", key
 
 
+def test_the_64_bit_container_commands_keep_their_refusals_by_name():
+    """#5005 / X17: GET64 / PUT64 CONTAINER are modelled as the base commands with an ordinary item as the data area;
+    GET64 SET (a 64-bit pointer above the bar) and the IANA code-page names stay refused by name, with the reason, and
+    no burned program reads any of them."""
+    for base in ("GET", "PUT"):
+        wide = COMMANDS[base + "64 CONTAINER"]
+        assert wide.status == "modelled", base
+        assert set(wide.options) <= set(COMMANDS[base + " CONTAINER"].options), base
+    get64 = COMMANDS["GET64 CONTAINER"]
+    assert "SET" not in get64.options and "SET" in get64.refused
+    msg = get64.refusal_message(["SET"])
+    assert msg.startswith("GET64 CONTAINER SET: option not modelled") and "64-bit pointer" in msg and "use INTO" in msg
+    assert COMMANDS["GET CONTAINER"].options["SET"].kind == "pointer"
+    for key, option in (
+        ("GET CONTAINER", "INTOCODEPAGE"),
+        ("GET64 CONTAINER", "INTOCODEPAGE"),
+        ("PUT CONTAINER", "FROMCODEPAGE"),
+        ("PUT64 CONTAINER", "FROMCODEPAGE"),
+    ):
+        assert option in COMMANDS[key].refused and option not in COMMANDS[key].options, (key, option)
+        assert COMMANDS[key].refusal_message([option]).startswith(f"{key} {option}: option not modelled"), (key, option)
+
+
 def test_group_lookup():
     assert COMMANDS["START"].group("required", "TRANSID").msg == "START without TRANSID"
     with pytest.raises(KeyError):

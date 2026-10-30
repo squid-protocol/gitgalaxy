@@ -1,5 +1,5 @@
 {
- "commit": "f6f73ea2b",
+ "commit": "67040b9a0",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -86,18 +86,18 @@
     },
     "SQL": {
      "ASSUMED": 2,
-     "MATCHED": 11
+     "MATCHED": 12
     },
     "SYS": {
      "MATCHED": 2
     }
    },
    "measured_on_zos": 0,
-   "rules": 190,
+   "rules": 191,
    "status": {
     "ASSUMED": 63,
     "DIFFERS": 23,
-    "MATCHED": 90,
+    "MATCHED": 91,
     "REFUSED": 14
    }
   },
@@ -160,7 +160,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-30T15:06:49Z",
+  "as_of": "2026-10-30T15:25:08Z",
   "core": {
    "closed": 196,
    "open": 13,
@@ -199,8 +199,8 @@
   },
   "infra": {
    "closed": 237,
-   "open": 30,
-   "total": 267
+   "open": 31,
+   "total": 268
   },
   "measured": true,
   "milestones": [

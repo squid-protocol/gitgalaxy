@@ -411,6 +411,12 @@ class Precompiler:
                            scroll=name in self.scroll)  # fmt: skip
         elif verb == "FETCH" and re.search(r"\bROWSET\b", u):
             st = self._rowset_fetch(sid, text, args)
+        elif verb == "FETCH" and (pos := re.fullmatch(r"FETCH\s+(?:INSENSITIVE\s+)?(BEFORE|AFTER)\s+(?:FROM\s+)?([A-Z0-9_-]+)",
+                                                       u)):  # fmt: skip
+            # #4269: a position and no row: BEFORE / AFTER of a SCROLL cursor, no INTO (ggsql.c: SQLCODE 0, no host variable)
+            if pos.group(2) not in self.scroll:
+                raise Unsupported(f"EXEC SQL FETCH {pos.group(1)}: the cursor is not declared SCROLL")
+            st = Statement(sid, "FETCH", "", pos.group(2), [], [], scroll=True, orient=pos.group(1))
         elif verb == "FETCH":
             m = re.fullmatch(r"FETCH\s+(?:INSENSITIVE\s+)?(?:(NEXT|PRIOR|FIRST|LAST|CURRENT|(?:ABSOLUTE|RELATIVE)\s+\S+)\s+)?"
                              r"(?:FROM\s+)?([A-Z0-9_-]+)\s+INTO\s+(.*)", text, re.I | re.S)  # fmt: skip

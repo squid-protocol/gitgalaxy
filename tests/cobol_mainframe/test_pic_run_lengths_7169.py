@@ -124,7 +124,10 @@ CAP = 3 * 1024**3  # the old expansion needs ~8 GiB per field: it fails fast und
 
 
 def _capped():
-    import resource
+    try:
+        import resource
+    except ImportError:  # #4934: POSIX-only; the test that runs this is skipped off Linux
+        return
 
     resource.setrlimit(resource.RLIMIT_AS, (CAP, CAP))
 

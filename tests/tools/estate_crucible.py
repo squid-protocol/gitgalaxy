@@ -261,8 +261,13 @@ class Engine:
                         self.raw_imports[ids[fid]] = []
             # (path, unit) -> {"start", "end", "calls", "transfers", "usage"}
             self.units: dict[str, list[dict[str, Any]]] = defaultdict(list)
-            for fid, name, start, loc, calls, transfers, usage in conn.execute(
-                "SELECT file_id, func_name, start_line, loc, calls_out_to, transfers_to, usage_status FROM function_data"
+            # #7170: a program's main line is a function_data row with def_shape 'main_line'
+            shape_col = (
+                "def_shape" if any(r[1] == "def_shape" for r in conn.execute("PRAGMA table_info(function_data)")) else "NULL"
+            )
+            for fid, name, start, loc, calls, transfers, usage, shape in conn.execute(
+                "SELECT file_id, func_name, start_line, loc, calls_out_to, transfers_to, usage_status, "  # noqa: S608
+                f"{shape_col} FROM function_data"
             ):
                 if fid in ids:
                     self.units[ids[fid]].append(
@@ -275,6 +280,7 @@ class Engine:
                             "synthetic": False,
                             # detector: 0 normal, 1 orphan / unused, 2 duplicate
                             "usage": usage,
+                            "main_line": shape == "main_line",
                         }
                     )
             self.synthetic: dict[str, list[dict[str, Any]]] = defaultdict(list)
@@ -355,15 +361,16 @@ def score_programs(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> 
 def _owner(eng: Engine, path: str, unit: str | None, start: int | None) -> dict[str, Any] | None:
     """The engine unit that holds a key unit: by name (the one nearest `start` when a member
     holds several programs with the same paragraph names), or, for the main line (no name),
-    a synthetic_unit_data row or a function_data unit at its first line."""
+    a function_data main-line unit (#7170) or synthetic_unit_data row, or a unit at its first line."""
     if unit is not None:
-        hits = [u for u in eng.units.get(path, []) if u["name"].upper() == unit.upper()]
+        hits = [u for u in eng.units.get(path, []) if u["name"].upper() == unit.upper() and not u.get("main_line")]
         if start is not None and hits:
             return min(hits, key=lambda u: abs(u["start"] - start))
         return hits[0] if hits else None
     cands = eng.synthetic.get(path, []) + eng.units.get(path, [])
     if start is None:
-        return eng.synthetic[path][0] if eng.synthetic.get(path) else None
+        mains = [u for u in eng.units.get(path, []) if u.get("main_line")] + eng.synthetic.get(path, [])
+        return mains[0] if mains else None
     near = [u for u in cands if start - 2 <= u["start"] <= start]
     return max(near, key=lambda u: u["start"]) if near else None
 
@@ -392,7 +399,8 @@ def score_units(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> Non
         if not any(u["name"].upper() == p["name"].upper() for u in eng.units.get(path, [])):
             sc.add("units", path, f"not {p['name']}", "pass", p.get("horror"))
     for u in eng.units.get(path, []):
-        if id(u) not in keyed:
+        # #7170: a main line the key does not list is not a phantom paragraph (keys list paragraphs/sections)
+        if id(u) not in keyed and not u.get("main_line"):
             p = explicit.get(u["name"].upper())
             sc.add(
                 "units",
@@ -1213,7 +1221,9 @@ def score_dead(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None
     for f in entry.get("dead", []):
         label = f"{f['kind']} {f['name']} @{f['line']}"
         if f["kind"] == "paragraph":
-            u = next((x for x in eng.units.get(path, []) if _u(x["name"]) == _u(f["name"])), None)
+            u = next(
+                (x for x in eng.units.get(path, []) if _u(x["name"]) == _u(f["name"]) and not x.get("main_line")), None
+            )
             if u is None:
                 sc.add("dead", path, label, "missing", f.get("horror"), "no such unit", f.get("depends_on"))
                 continue

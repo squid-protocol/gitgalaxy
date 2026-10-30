@@ -6411,8 +6411,14 @@ def load_galaxy_ir(db_path: Path, repo_name: str | None = None) -> GalaxyIR:
             if file_id in by_id and class_name:
                 by_id[file_id].program_ids.append(class_name)
 
+        # #7170: a COBOL main line is a function_data row (def_shape 'main_line'), not a
+        # paragraph or section, so it stays out of the unit inventory; NULL on a pre-#3757 DB.
+        not_main = (
+            "WHERE COALESCE(def_shape, '') != 'main_line' " if _has_column(cur, "function_data", "def_shape") else ""
+        )
         for file_id, name, start, loc, status in cur.execute(
-            "SELECT file_id, func_name, start_line, loc, usage_status FROM function_data ORDER BY file_id, start_line"
+            "SELECT file_id, func_name, start_line, loc, usage_status FROM function_data "  # noqa: S608 -- literals only
+            f"{not_main}ORDER BY file_id, start_line"
         ):
             if file_id in by_id:
                 by_id[file_id].units.append(EngineUnit(name or "", int(start or 0), int(loc or 0), int(status or 0)))

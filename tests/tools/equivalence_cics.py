@@ -4318,6 +4318,14 @@ def sql_seam_programs(case: dict[str, Any], src: Path) -> set[str]:
     return out
 
 
+def no_service_programs(case: dict[str, Any], src: Path) -> list[str]:
+    """The case's other programs (`"programs"`) whose service class is not in the project under `src`."""
+    import equivalence_java as ej
+
+    return [x["program"].upper() for x in case.get("programs", [])
+            if not any(src.rglob(f"{ej._service_class(x['program'])}.java"))]  # fmt: skip
+
+
 def sql_unjudged(plan: list[str], seams: set[str]) -> str:
     """The reason a scenario's SQL faults cannot be injected on the Java side ("" when they can): every fault
     names its statement's program (`PROGRAM LINE NTH SQLCODE SQLSTATE`), and that program's Java needs the seam."""
@@ -4346,6 +4354,10 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
 
     project = ej.prepare_project(case, corpus, work, "", port, port_dir)
     src = project / "src/main/java"
+    absent = no_service_programs(case, src)
+    if absent:  # #5126: the forge writes no service for these (HLASM), so the test would not compile: refuse by name
+        raise RuntimeError(f"{', '.join(absent)}: a program the case LINKs to has no generated service and no port "
+                           "(run it through its det port, `det_port.py run`)")  # fmt: skip
     svc = ej._service_class(case["program"])
     svc_file = next(src.rglob(f"{svc}.java"))
     ca_cls = commarea_class(case, src, svc_file)

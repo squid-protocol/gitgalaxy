@@ -1770,8 +1770,15 @@ states each (`none (gap)`: no entry does). Only fields a burned corpus's COBOL n
     SYSUT1 -> SYSUT2 byte copy, the model's behaviour); a control statement, or a SYSIN that is a dataset, becomes
     `steps.utility` with the refusal named, counted as a utility step to port, never a silent plain copy. Not seen: a
     SYSIN deck written inside a PROC definition (`job_sysin` lists job-level decks only).
-  - Not yet run from a generated batch job: `JclSteps.utility` still refuses the SORT step; an IDCAMS REPRO / DEFINE
-    subset, the SORT step in the forge and a multi-step job case are the next slices of #4268.
+  - **IDCAMS REPRO (#4268).** `det/idcams.py` parses `REPRO INFILE(dd) OUTFILE(dd)` (IFILE / OFILE, `-` / `+`
+    continuation, `/* */` comments) into the COPY model, lowered onto the proven COPY program (`IDCAMS` case of
+    `test_dfsort_4268.py`; parser and refusals in `test_idcams_4268.py`). **IBM.** SC23-6853 "REPRO". The caller states
+    that both data sets are sequential: SYSIN cannot tell. Refused by name: every other command (DEFINE, DELETE, ALTER,
+    LISTCAT, PRINT, VERIFY ...: a catalog or VSAM effect the oracle has no model of), more than one command, every
+    other REPRO parameter (INDATASET / OUTDATASET, FROMKEY, SKIP, COUNT, REPLACE, REUSE ...) and a DD with a password.
+    Not yet in the forge: the IDCAMS step still reaches `steps.utility`.
+  - Not yet run from a generated batch job: `JclSteps.utility` still refuses the SORT step; the IDCAMS step and the
+    SORT step in the forge and a multi-step job case are the next slices of #4268.
 - The COBOL SORT / MERGE / RELEASE / RETURN verbs and the SD entry are translated (#4286), onto `cobolrt/Sort`:
   - Keys compare as a relation condition compares their items: a numeric key (zoned, packed, binary, signed or
     not) by value, any other byte by byte. WITH DUPLICATES IN ORDER is a stable sort; without it, records with
@@ -5727,6 +5734,10 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
 - **Burned estates (#5278).** The MQI calls the burned programs make are MQOPEN, MQGET, MQPUT1 and MQCLOSE (CardDemo
   CODATE01, COACCT01, COPAUA0C), all modelled; none calls MQINQ or MQSET (`test_det_mq.py`). COPAUA0C is not held
   by MQ.
+- **Batch MQ has no burned consumer (#5259).** No burned estate source (`.cbl`, `.cob`, `.cpy`) names MQCONN, MQCONNX or
+  MQDISC in code, and the three programs that call the MQI (CODATE01, COACCT01, COPAUA0C) are all CICS programs
+  (`test_no_burned_program_is_batch_mq`). The connection model (a handle from MQCONN, MQDISC, MQCONNX options) stays
+  refused by name until a burned program needs it (`mainframe-evidence-policy.md`, section 2: nothing to prove).
 - **COPAUA0C translates with no MQ hole (#5278).** Under CICS its MQOPEN / MQGET / MQPUT1 / MQCLOSE and the CMQ* layouts
   translate; the options it builds (MQGMO NO-SYNCPOINT + WAIT + CONVERT + FAIL-IF-QUIESCING, MQPMO NO-SYNCPOINT +
   DEFAULT-CONTEXT, MQOO INPUT-SHARED, MQCO NONE) are inside the modelled sets. Measured (#5278, det_survey on the

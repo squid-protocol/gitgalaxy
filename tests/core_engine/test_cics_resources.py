@@ -248,6 +248,28 @@ def test_delete_container_is_a_container_and_move_container_is_move():
     assert (move["access"], move["attributes"]) == ("move", "AS('B') TOCHANNEL('D')")
 
 
+def test_sixty_four_bit_container_verbs_are_container_rows():
+    # #5005 (X17): GET64 / PUT64 CONTAINER read and write a container exactly as GET / PUT do.
+    src = (
+        "       01 WS-CONT PIC X(16) VALUE 'CIPA'.\n"
+        "           EXEC CICS PUT64 CONTAINER(WS-CONT) CHANNEL('CH1') FROM(WS-OUT) END-EXEC\n"
+        "           EXEC CICS GET64 CONTAINER('CIPB') CHANNEL('CH1')\n"
+        "                INTO(WS-IN) FLENGTH(WS-LEN) END-EXEC\n"
+        "           EXEC CICS GET64 CONTAINER('CIPC') NODATA FLENGTH(WS-LEN) END-EXEC\n"
+    )
+    put, get, nodata = _ops(src)
+    assert (put["verb"], put["kind"], put["access"], put["name"], put["resolution"]) == (
+        "PUT64", "CONTAINER", "write", "CIPA", "value")  # fmt: skip
+    assert (put["qualifier"], put["record"]) == ("CH1", "WS-OUT")
+    assert (get["verb"], get["kind"], get["access"], get["name"]) == ("GET64", "CONTAINER", "read", "CIPB")
+    assert (get["qualifier"], get["record"]) == ("CH1", "WS-IN")
+    assert (nodata["access"], nodata["name"], nodata["qualifier"]) == ("read", "CIPC", None)
+    # PL/I terminator, and a 64-bit verb without CONTAINER is no row
+    (pli,) = _ops("EXEC CICS PUT64 CONTAINER('X') FROM(BUF);", "pli")
+    assert (pli["access"], pli["name"]) == ("write", "X")
+    assert _ops("           EXEC CICS GET64 INTO(WS-IN) END-EXEC\n") == []
+
+
 def test_a_channel_passed_on_link_and_run_names_its_receiver():
     src = (
         "           EXEC CICS LINK PROGRAM('CRDTAGY1') CHANNEL('CIPCREDCHANN') END-EXEC\n"

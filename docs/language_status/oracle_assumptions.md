@@ -3624,6 +3624,13 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   reads the block before writing it. Reopen when a burned program has this as its only gap. No other burned program issues a GETMAIN, LOAD or
   RELEASE; every other CICS verb a burned program uses has a full spec entry.
 
+- **Burned-estate reach of the pointer-lane siblings still refused (#5042, 2026-10-30).** `ADDRESS OF item = NULL` is read in one burned place,
+  DBB `epscsmrd.cbl` EPSCSMRI / EPSCSMRX on USING items, and is modelled there (`rel_address_null`, #5106: the caller's OMITTED); outside a sibling
+  entry's USING items it stays refused (no burned program). No burned program issues LOAD, GETMAIN64 or FREEMAIN64, or a batch `SET ADDRESS OF
+  x TO ADDRESS OF y` / `SET ptr TO ADDRESS OF x` (CardDemo has none; the other estates' hits are `SET ptr TO ADDRESS OF DFHCOMMAREA` and ZECS001's
+  CICS-side `SET ADDRESS OF CACHE-MESSAGE TO ADDRESS OF ZF-DATA`, both modelled). The census and the pinned refusals: X58,
+  `tests/cobol_mainframe/test_pointer_lane_reach_5042.py`.
+
 ### X48. Injected duplicate-key file faults: DUPKEY delivers the record, each condition only on the commands IBM lists it for — ASSUMED, REFUSED where IBM is silent (#4623)
 - **DUPKEY** (CICS TS 6.x, READ / READNEXT / READPREV "Conditions": DUPKEY, RESP2 140): "a record is retrieved through an
   alternate index that has the NONUNIQUEKEY attribute, and another alternate index record with the same key follows". The
@@ -4165,6 +4172,13 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
 - **Status:** ASSUMED where listed, REFUSED where IBM is silent. Unit-proven only (see `reached`): no cics-crucible case or estate program exercises it
   yet (cics-crucible C2 covers RECEIVE / RETRIEVE SET and C3 / C4 are the container and file cases still to land), so no port moves and no ZECS program
   is made whole by this entry.
+- **Burned-estate reach of the members still refused (#5042, 2026-10-30).** Over the six burned estates (`cics_census.py usage --no-census`;
+  names and counts only) no program issues LOAD, GETMAIN64, FREEMAIN64 or GET64 CONTAINER; none issues SET on SEND MAP (37 programs), RECEIVE MAP
+  (36) or SEND CONTROL (8), which use MAPSET / INTO / ERASE / FREEKB only; none issues READ / READNEXT / READPREV SET with RBA / RRN / XRBA (the one
+  RBA browse, DBB EPSMLIST, reads INTO); none issues GET CONTAINER SET with BYTEOFFSET. The one burned GET CONTAINER SET is DBB `epscsmrd.cbl`
+  (FLENGTH SET, the modelled form). So no refusal here blocks a burned program, nothing moves, and each stays REFUSED until one does.
+  `tests/cobol_mainframe/test_pointer_lane_reach_5042.py` pins both halves: the spec keeps each refusal, and the census finds no burned program
+  issuing one (skipped without the corpora checkout). Evidence level: refused by name, 0 burned programs reach it.
 
 ### X59. ADDRESS EIB / COMMAREA modelled; ADDRESS CWA / TWA / TCTUA / ACEE, SEND PAGE and PURGE MESSAGE refused by name (#5079; CONVERSE, POST, WAIT EVENT: X63)
 - **ADDRESS** (CICS TS 6.x, https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-address). EIB "returns a pointer reference set to the address

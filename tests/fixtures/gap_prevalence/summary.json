@@ -9,27 +9,21 @@
  },
  "coverage_if_closed": [
   {
-   "share": 0.969,
+   "share": 0.9922,
    "top": 1,
    "upper_bound": false,
-   "whole": 125
-  },
-  {
-   "share": 0.9845,
-   "top": 3,
-   "upper_bound": true,
-   "whole": 127
-  },
-  {
-   "share": 0.9845,
-   "top": 5,
-   "upper_bound": true,
-   "whole": 127
+   "whole": 128
   },
   {
    "share": 0.9922,
-   "top": 10,
-   "upper_bound": true,
+   "top": 3,
+   "upper_bound": false,
+   "whole": 128
+  },
+  {
+   "share": 0.9922,
+   "top": 5,
+   "upper_bound": false,
    "whole": 128
   }
  ],
@@ -66,30 +60,6 @@
    "programs": 2,
    "refuses_program": false,
    "status": "not modelled"
-  },
-  {
-   "by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 0,
-    "none": 2
-   },
-   "estates": 1,
-   "estates_by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 0,
-    "none": 1
-   },
-   "gap": "refused: CICS Assembler",
-   "owner": "#5121",
-   "programs": 2,
-   "refuses_program": true,
-   "status": "refused by name"
   },
   {
    "by_era": {
@@ -159,30 +129,6 @@
    },
    "gap": "CEEHDLU: unregistering an LE user condition handler is not modelled",
    "owner": "#5106 (le-condition-handling)",
-   "programs": 1,
-   "refuses_program": false,
-   "status": "not modelled"
-  },
-  {
-   "by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 0,
-    "none": 1
-   },
-   "estates": 1,
-   "estates_by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 0,
-    "none": 1
-   },
-   "gap": "COMPUTE FUNCTION ANNUITY (IBM defines arg-N / (\u2026) but not the bits of the power or of the floating-point result; oracle_assumptions.md <name>)",
-   "owner": "unowned",
    "programs": 1,
    "refuses_program": false,
    "status": "not modelled"
@@ -310,5 +256,5 @@
  ],
  "programs": 129,
  "scope": "burned estates",
- "whole_now": 123
+ "whole_now": 126
 }

@@ -71,3 +71,22 @@ def test_parse_dependabot_metadata_catches_unsafe_package_bumps_dropped_from_txt
         "...\n"
     )
     assert parse_dependabot_metadata(commit_msg) == {"setuptools": {"84.1.0"}}
+
+
+def test_parse_dependabot_metadata_skips_a_blank_version_without_reading_the_next_line():
+    # #7119: a grouped update dropped setuptools and left dependency-version blank; the old pattern's \s* crossed the
+    # newline and read `dependency-type:` as the version, which uv refused, so the relock never ran.
+    commit_msg = (
+        "---\n"
+        "updated-dependencies:\n"
+        "- dependency-name: pip\n"
+        "  dependency-version: 26.2.2\n"
+        "  dependency-type: direct:production\n"
+        "- dependency-name: setuptools\n"
+        "  dependency-version:\n"
+        "  dependency-type: direct:production\n"
+        "- dependency-name: ruff\n"
+        "  dependency-version: 0.17.2\n"
+        "...\n"
+    )
+    assert parse_dependabot_metadata(commit_msg) == {"pip": {"26.2.2"}, "ruff": {"0.17.2"}}

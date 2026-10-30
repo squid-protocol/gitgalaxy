@@ -50,7 +50,7 @@ _HOST = re.compile(
 _SINGLETON_INTO = re.compile(
     r"\bINTO\s+:[^\s,]+(?:\s*(?:INDICATOR\s*)?:[^\s,]+)?(?:\s*,\s*:[^\s,]+(?:\s*(?:INDICATOR\s*)?:[^\s,]+)?)*", re.I
 )
-_CURSOR_FOR = re.compile(r"^DECLARE\s+\S+\s+(?:[A-Z ]+\s+)?CURSOR\s+(?:WITH\s+(?:HOLD|RETURN)\s+)*FOR\s+", re.I)
+_CURSOR_FOR = re.compile(r"^DECLARE\s+\S+\s+(?:[A-Z ]+\s+)?CURSOR\s+(?:WITH\s+(?:HOLD|RETURN|ROWSET\s+POSITIONING)\s+)*FOR\s+", re.I)
 _SQL_TYPES = {
     "CHAR": "String", "CHARACTER": "String", "VARCHAR": "String", "GRAPHIC": "String", "VARGRAPHIC": "String",
     "CLOB": "String", "DBCLOB": "String", "LONG VARCHAR": "String",

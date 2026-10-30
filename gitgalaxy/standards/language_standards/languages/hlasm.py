@@ -276,13 +276,13 @@ DEFINITION: dict[str, Any] = {
         # #7063: three forms name a callee, one capture group each way (the detector reads
         # group 1): the `=V(name)` address constant; the CALL macro (MVS/LE), whose first
         # operand is the target (`CALL name,(parms)`; `CALL (15)` / `CALL &SYM` name none);
-        # and `LINK` / `XCTL EP=name` (z/OS program management; `EP=` may follow other
+        # and `LINK` / `XCTL` / `LOAD` / `ATTACH EP=name` (z/OS program management; `EP=` may follow other
         # keyword operands, so a bounded run of non-blank text ending in a comma may
         # precede it). `EPLOC=` and `SF=` name no literal program and do not match.
         "calls_out": re.compile(
             r"(?:=V\("
             r"|" + _STMT + r"CALL[ \t]+"
-            r"|" + _STMT + r"(?:LINK|XCTL)[ \t]+(?:[^ \t\n]{0,200}?,)?EP="
+            r"|" + _STMT + r"(?:LINK|XCTL|LOAD|ATTACH)[ \t]+(?:[^ \t\n]{0,200}?,)?EP="
             r")([A-Z" + NATIONAL + r"@#$][\w@#$]*)",
             re.M | re.I,
         ),

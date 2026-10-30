@@ -80,7 +80,7 @@ blank/EOL — never `\b`, which would fire between `WAIT` and `=` on a keyword o
 
 ### Call graph (`calls_out`, #7063)
 - **`calls_out`** names the callee of three forms, one capture group: the `=V(name)` address constant;
-  the `CALL name[,(parms)]` macro (the first operand is the target); and `LINK` / `XCTL ... EP=name`
+  the `CALL name[,(parms)]` macro (the first operand is the target); and `LINK` / `XCTL` / `LOAD` / `ATTACH ... EP=name` (`LOAD`/`ATTACH` added 2026-10-30, #7064)
   (`EP=` may follow other keyword operands). `CALL (15)`, `CALL &SYM`, `EPLOC=`, `SF=` and
   `DFHPC TYPE=LINK` name no literal program and add no edge. The x86/ARM `assembly` profile is
   untouched. Strict suite: 33 new cases (152 -> 185) (one per form, plus the near-miss class and ReDoS payloads).
@@ -340,3 +340,15 @@ for uppercase `.MAC` and troff text in `test_uppercase_and_troff_mac_files_are_n
 4. PDS siblings `*.COPYLIB/`, `*.COBOL/`, `*.PLI/`, `*.JCL/`, `*.CNTL/` unrouted (one `library_directory_suffixes` entry plus a pin each).
 
 No burned-estate program needs any of these.
+
+### Addendum (2026-10-30c, #7064): `LOAD EP=` / `ATTACH EP=` named by `calls_out`
+
+The Che4z probe found `LOAD EP=BPX1GLG` unnamed. `calls_out` now names the `EP=` callee of `LOAD` and `ATTACH` as it does for
+`LINK`/`XCTL` (one alternative, same bounded keyword-run). Unchanged on purpose: `LOAD DE=`/`EPLOC=`/`(reg)`, `ATTACH EPLOC=`,
+`DELETE EP=` (unloads, transfers nothing). Names no repo member defines (system modules such as `BPX1GLG`) are dropped by the
+call resolver, so the gain is on installation modules. Pinned in `test_hlasm_calls_out_forms`.
+
+**Sibling gaps (not done):** `LINKX`/`XCTLX`/`ATTACHX EP=` (extended forms; `LINKX` is pinned as a near miss since #7063, so
+changing it is a decision); `BAL`/`BALR`/`BASR` to an in-file label (internal edge, unmodelled).
+**Still open from the consolidated list:** `fragile_debt`/`planned_debt` false positives (moves the golden master); NASM/troff `.mac`
+in `easytrieve` and DSP in `plaintext`; PDS siblings `*.COPYLIB/`, `*.COBOL/`, `*.PLI/`, `*.JCL/`, `*.CNTL/`.

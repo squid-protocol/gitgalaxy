@@ -110,7 +110,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | F1 | files | Natural FILE STATUS values come from GnuCOBOL's BDB files | ASSUMED | yes (00, 10, 23, 22) |
 | F2 | files | Fault FILE STATUS values are injected on both sides | MATCHED | yes |
 | F3 | files | RECFM=VB: records compared by content, framed as GnuCOBOL frames them, not as a z/OS RDW | ASSUMED | yes (CardDemo READACCT VBRCFILE) |
-| F4 | files | JCL utility steps: a DFSORT SORT / MERGE / COPY subset is lowered to a COBOL SORT program and proven; IDCAMS, IEBGENER and the rest are not run; the COBOL SORT / MERGE verbs are translated (#4268) | PARTIAL (DFSORT subset modelled; other utility steps refused) | — |
+| F4 | files | JCL utility steps: a DFSORT SORT / MERGE / COPY subset is lowered to a COBOL SORT program and proven; IEBGENER and an IDCAMS REPRO copy run in a generated job, the rest are not run; the COBOL SORT / MERGE verbs are translated (#4268) | PARTIAL (DFSORT subset modelled; other utility steps refused) | — |
 | F5 | files | a key item that is not in a record of its own FD (WORKING-STORAGE, another file's record) is refused by name; GnuCOBOL does not compile it either (#4804) | REFUSED (key outside the record) | — |
 | X1 | CICS | Commands, RESP/RESP2 and EIB from IBM's API reference | ASSUMED | yes |
 | X2 | CICS | Screens compared as the symbolic map, not the 3270 stream | ASSUMED | yes |
@@ -1776,9 +1776,11 @@ states each (`none (gap)`: no entry does). Only fields a burned corpus's COBOL n
     that both data sets are sequential: SYSIN cannot tell. Refused by name: every other command (DEFINE, DELETE, ALTER,
     LISTCAT, PRINT, VERIFY ...: a catalog or VSAM effect the oracle has no model of), more than one command, every
     other REPRO parameter (INDATASET / OUTDATASET, FROMKEY, SKIP, COUNT, REPLACE, REUSE ...) and a DD with a password.
-    Not yet in the forge: the IDCAMS step still reaches `steps.utility`.
-  - Not yet run from a generated batch job: `JclSteps.utility` still refuses the SORT step; the IDCAMS step and the
-    SORT step in the forge and a multi-step job case are the next slices of #4268.
+    In the forge: a step that parses (one REPRO, both DDs datasets of the step) becomes `steps.copy` over the two DDs
+    (`test_batch_idcams_4268.py`); anything else, or a SYSIN dataset, stays `steps.utility` with the refusal named and
+    counted as a utility step to port.
+  - Not yet run from a generated batch job: `JclSteps.utility` still refuses the SORT step; the SORT step in the
+    forge and a multi-step job case are the next slices of #4268.
 - The COBOL SORT / MERGE / RELEASE / RETURN verbs and the SD entry are translated (#4286), onto `cobolrt/Sort`:
   - Keys compare as a relation condition compares their items: a numeric key (zoned, packed, binary, signed or
     not) by value, any other byte by byte. WITH DUPLICATES IN ORDER is a stable sort; without it, records with
@@ -5259,6 +5261,7 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   - `CONNECT [TO loc | RESET]`: the port has one connection per run; a location switch needs a second oracle database.
   - `EXEC SQL CALL proc (...)`: a stored procedure needs a procedure fixture on the oracle (and result-set rules).
   - `PREPARE` of other text or from a host variable, `EXECUTE ... USING DESCRIPTOR`, `ALLOCATE` / `ASSOCIATE`: as above.
+    The premise pin covers every verb of `_REFUSED_VERBS` (`test_the_burned_estate_pin_covers_every_refused_verb`).
   - A `SET` that does not assign a host variable (`SET CURRENT SQLID`, ...).
   - Scroll `FETCH` of a `SENSITIVE` / `DYNAMIC` cursor (even a plain `NEXT`: the rows are read once at OPEN), `FETCH BEFORE` /
     `AFTER` with an `INTO` or on such a cursor, an orientation on a cursor not declared `SCROLL`, and `SCROLL` with `WITH HOLD` (the oracle's held-cursor

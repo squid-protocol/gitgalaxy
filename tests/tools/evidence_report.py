@@ -814,8 +814,14 @@ def build_program(m: dict[str, Any], estate: str, ctx: dict[str, Any]) -> dict[s
     # hand ports only, so it is deliberately left out here (it says nothing about the det port).
     regs = sorted({x for b in p["oracle_backing"] for x in b["registers"]}, key=lambda x: int(x[1:]))
     region = bool(chosen and ev._case_json(chosen["case"]).get("region", {}).get("applid"))
-    unstated = [f"EIB field {e} (both runtimes read zero; z/OS does not)" for e in facts.get("eib", [])]
-    unstated += [f"ASSIGN {f} (no equivalence case states it)" for f in facts.get("assign_task", [])]
+    # #5126: a fact the chosen case states is not unstated (proof_blockers' rule, shared); with no case all are
+    left = (
+        pb.unstated_facts(facts, pb.Run("equivalence", chosen["case"], **pb.case_states(ev._case_json(chosen["case"]))))
+        if chosen
+        else {"eib": facts.get("eib", []), "assign_task": facts.get("assign_task", [])}
+    )
+    unstated = [f"EIB field {e} (both runtimes read zero; z/OS does not)" for e in left["eib"]]
+    unstated += [f"ASSIGN {f} (no equivalence case states it)" for f in left["assign_task"]]
     if facts.get("assign_region") and not region:
         unstated.append("ASSIGN " + "/".join(facts["assign_region"]) + " (the case states no region)")
     chosen_case = ev._case_json(chosen["case"]) if chosen else None

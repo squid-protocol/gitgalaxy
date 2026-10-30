@@ -1913,16 +1913,21 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
         shares them: a later EIB update shows through it. COMMAREA needs the program's 01 DFHCOMMAREA to address: a task with
         none (EIBCALEN 0) gets IBM's X'FF000000' (no COBOL NULL; the program's `PIC X(4)` byte view tests it,
         DetCics.isNoCommareaAddress), and a program with no 01 DFHCOMMAREA run with a COMMAREA is refused when it runs. The command has no
-        condition: NORMAL. CWA / TWA / TCTUA / ACEE and ADDRESS SET are refused by the spec entry (check_options)."""
+        condition: NORMAL. TWA / TCTUA (#5079 slice 2) set the pointer to the handle of the transaction work area / the
+        terminal's user area the definitions size (TWASIZE / USERAREALEN), or X'FF000000' when none (DetCics.addressTwa /
+        addressTctua). CWA / ACEE and ADDRESS SET are refused by the spec entry (check_options)."""
         from gitgalaxy.tools.cobol_to_java.det.gen import Untranslatable
 
-        if not (opts.get("EIB") or opts.get("COMMAREA")):
-            raise CicsError("ADDRESS without EIB or COMMAREA: the pointer to set")
+        if not any(opts.get(o) for o in ("EIB", "COMMAREA", "TWA", "TCTUA")):
+            raise CicsError("ADDRESS without an area option: the pointer to set")
         out: list[str] = []
-        for option in ("EIB", "COMMAREA"):
+        for option in ("EIB", "COMMAREA", "TWA", "TCTUA"):
             if option not in opts:
                 continue
             ptr = self.pointer(opts[option])
+            if option in ("TWA", "TCTUA"):
+                out.append(f"{ind}DetCics.address{'Twa' if option == 'TWA' else 'Tctua'}(task, {ptr});")
+                continue
             if option == "EIB":
                 out.append(f"{ind}DetCics.setPointerToRecord(task, {ptr}, {self.g.field_expr(E.Ref('DFHEIBLK'))});")
                 continue

@@ -58,7 +58,7 @@ _NAME_CONST = re.compile(
 )
 _PROGRAM_NAME = re.compile(r"[A-Z" + NATIONAL + r"@#$][\w@#$]{0,7}", re.I)
 _EPLOC_USE = re.compile(
-    _STMT + r"(?:LINK|XCTL)[ \t]+(?:[^ \t\n]{0,200}?,)?EPLOC=(" + _NAME + r")(?![\w@#$])",
+    _STMT + r"(?:LINKX?|XCTLX?)[ \t]+(?:[^ \t\n]{0,200}?,)?EPLOC=(" + _NAME + r")(?![\w@#$])",
     re.M | re.I,
 )
 
@@ -110,7 +110,7 @@ _NOT_USER_MACRO = frozenset(
     CSECT RSECT DSECT COM START END LOCTR DC DS EQU ORG USING DROP LTORG CNOP CCW CCW0 CCW1 ENTRY EXTRN WXTRN CXD DXD
     AMODE RMODE ALIAS TITLE EJECT SPACE PRINT PUNCH REPRO ICTL ISEQ OPSYN COPY MACRO MEND MEXIT MNOTE AIF AGO ANOP ACTR
     AREAD ASPACE AINSERT SETA SETB SETC GBLA GBLB GBLC LCLA LCLB LCLC CATTR XATTR PUSH POP
-    GETMAIN FREEMAIN STORAGE WTO WTOR WAIT POST ENQ DEQ ATTACH ATTACHX DETACH LOAD DELETE LINK XCTL CALL RETURN SAVE
+    GETMAIN FREEMAIN STORAGE WTO WTOR WAIT POST ENQ DEQ ATTACH ATTACHX DETACH LOAD DELETE LINK LINKX XCTL XCTLX CALL RETURN SAVE
     OPEN CLOSE GET PUT READ WRITE CHECK POINT NOTE FIND STOW BLDL DCB DCBD DEVTYPE RDJFCB OBTAIN TRKCALC SYNADAF SYNADRLS
     TIME STIMER STIMERM TTIMER SPIE ESPIE ESTAE ESTAEX SETRP ABEND SDUMP SNAP CHAP TESTAUTH MODESET SYSEVENT RACROUTE
     RACINIT SAFCOMP IDENTIFY CVT IEFJFCBN IHAPSA IKJTCB TCB ASCB ASSB IHAASCB IHAASSB EOV PGSER PGRLSE PGFIX PGFREE
@@ -276,13 +276,13 @@ DEFINITION: dict[str, Any] = {
         # #7063: three forms name a callee, one capture group each way (the detector reads
         # group 1): the `=V(name)` address constant; the CALL macro (MVS/LE), whose first
         # operand is the target (`CALL name,(parms)`; `CALL (15)` / `CALL &SYM` name none);
-        # and `LINK` / `XCTL` / `LOAD` / `ATTACH EP=name` (z/OS program management; `EP=` may follow other
+        # and `LINK[X]` / `XCTL[X]` / `LOAD` / `ATTACH[X] EP=name` (z/OS program management; `EP=` may follow other
         # keyword operands, so a bounded run of non-blank text ending in a comma may
         # precede it). `EPLOC=` and `SF=` name no literal program and do not match.
         "calls_out": re.compile(
             r"(?:=V\("
             r"|" + _STMT + r"CALL[ \t]+"
-            r"|" + _STMT + r"(?:LINK|XCTL|LOAD|ATTACH)[ \t]+(?:[^ \t\n]{0,200}?,)?EP="
+            r"|" + _STMT + r"(?:LINKX?|XCTLX?|LOAD|ATTACHX?)[ \t]+(?:[^ \t\n]{0,200}?,)?EP="
             r")([A-Z" + NATIONAL + r"@#$][\w@#$]*)",
             re.M | re.I,
         ),
@@ -776,7 +776,7 @@ DEFINITION: dict[str, Any] = {
             + _OPEND
             + r"|"
             + _STMT
-            + r"(?:LINK|XCTL)[ \t]+(?:EP|EPLOC|DE|SF)="
+            + r"(?:LINKX?|XCTLX?)[ \t]+(?:EP|EPLOC|DE|SF)="
             + r"|\bEXEC\s+CICS\s+(?:LINK|XCTL|START|RETURN|RUN\s+TRANSID|INVOKE\s+(?:APPLICATION|SERVICE|WEBSERVICE))\b"
             r"|\bEXEC\s+CICS\s+(?:PUT|GET|MOVE)\s+CONTAINER\b"
             r"|\bEXEC\s+(?:SQL|DLI)\b"

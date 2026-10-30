@@ -30,6 +30,9 @@ DEFINITION: dict[str, Any] = {
     "extensions": [".jcl", ".prc", ".idcams"],
     "exact_matches": [],
     "discriminators": [".cbl", ".cob", ".cpy"],
+    # #7064: an extensionless PDS member under `PAYR.JCL/`, `PAYR.CNTL/`, `SYS1.PROCLIB/` or `PAYR.PROC/` (see
+    # `LanguageDetector._pds_library_lang`); the member must still win the lexical scan on its `//` cards.
+    "library_directory_suffixes": ["jcl", "cntl", "proclib", "proc"],
     "shebangs": [],
     # #2806: JCL is the one corpus language whose callable units cannot be
     # invoked by name. A job's EXEC steps -- what `func_start` above extracts

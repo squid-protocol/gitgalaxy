@@ -134,3 +134,41 @@ def test_the_harness_emits_each_stated_fact_on_both_sides():
         "task.withScreen(",
     ):
         assert needle in src, needle
+
+
+def test_case_states_is_the_flag_set_the_runs_carry(tmp_path):
+    case = {"termid": "T1", "scenarios": [{"name": "a", "userid": "U", "startcode": "TD"}, {"name": "b"}]}
+    assert pb.case_states(case) == {
+        "startcode": False, "termid": True, "userid": False, "screen": False, "rcode": False,
+    }  # fmt: skip
+    assert not any(pb.case_states({}).values())
+
+
+def test_unstated_facts_drops_each_stated_fact_for_every_option():
+    """The evidence report's list and the gap list are one rule (whole class: each option, each stating flag)."""
+    every = {"eib": {"EIBRCODE", "EIBCPOSN"}, "assign_task": {"STARTCODE", "USERID", "FACILITY", "SCRNHT/SCRNWD"}}
+    every["assign_region"] = set()
+    allflags = pb.Run("equivalence", "c", startcode=True, termid=True, userid=True, screen=True, rcode=True)
+    assert pb.unstated_facts(every, allflags) == {"eib": ["EIBCPOSN"], "assign_task": []}
+    assert pb.unstated_facts(every, pb.Run("equivalence", "c")) == {
+        "eib": ["EIBCPOSN", "EIBRCODE"],
+        "assign_task": ["FACILITY", "SCRNHT/SCRNWD", "STARTCODE", "USERID"],
+    }
+    assert pb.unstated_facts(every, None)["assign_task"] == ["FACILITY", "SCRNHT/SCRNWD", "STARTCODE", "USERID"]
+    for flag, fact in (
+        ("startcode", "STARTCODE"),
+        ("termid", "FACILITY"),
+        ("userid", "USERID"),
+        ("screen", "SCRNHT/SCRNWD"),
+    ):
+        left = pb.unstated_facts(every, pb.Run("equivalence", "c", **{flag: True}))["assign_task"]
+        assert fact not in left and len(left) == 3, flag
+    assert pb.fact_gaps(every, allflags) == {"fact: EIBCPOSN (no harness states it)"}
+
+
+def test_the_evidence_report_drops_what_the_chosen_case_states(monkeypatch):
+    import evidence_report as er
+
+    src = read_source(HERE.parents[0] / "tools" / "evidence_report.py").text
+    assert "pb.unstated_facts(" in src and "pb.case_states(" in src
+    assert er.pb is pb

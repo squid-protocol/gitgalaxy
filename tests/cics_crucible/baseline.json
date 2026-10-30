@@ -69,7 +69,6 @@
   "ca-getmain-pointer/alloc/java": {"status": "fail", "reason": "task 1 (CA0B) event 1: WRITEQ-TS expected, the side recorded no further event"},
   "ca-getmain-pointer/alloc/java-facade": {"status": "fail", "reason": "no port of any of its programs"},
   "ca-getmain-pointer/alloc/java-ported": {"status": "fail", "reason": "no port of any of its programs"},
-  "ca-getmain-pointer/zero-length/cobol-stub": {"status": "unsupported", "reason": "translator: GETMAIN"},
   "ca-getmain-pointer/zero-length/java": {"status": "fail", "reason": "task 1 (CA0C) event 1: WRITEQ-TS expected, the side recorded no further event"},
   "ca-getmain-pointer/zero-length/java-facade": {"status": "fail", "reason": "no port of any of its programs"},
   "ca-getmain-pointer/zero-length/java-ported": {"status": "fail", "reason": "no port of any of its programs"},

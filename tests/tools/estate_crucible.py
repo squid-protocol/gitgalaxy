@@ -20,6 +20,7 @@ GalaxyIR, and diffs every fact channel of the key against it:
   layouts         GalaxyIR.record_layout of every 01 a program writes: bytes and every
                   elementary field's offset / length (REDEFINES overlays: unscored, the
                   layout reader skips them by design)
+  jcl_utility_cards  the control statements of an in-stream DD (job_flow_data INSTREAM rows)
   sql_statements, sql_tables, jcl_steps, jcl_dds, screen_fields, csd_resources, transactions
   cics_resources  cics_resource_data (MAP / FILE / QUEUE commands)
   jcl_datasets    a JCL member's DSN references in file_data.raw_imports (a GDG reference as
@@ -84,6 +85,7 @@ CHANNELS = (
     "sql_tables",
     "jcl_steps",
     "jcl_dds",
+    "jcl_utility_cards",
     "screen_fields",
     "csd_resources",
     "transactions",
@@ -715,44 +717,129 @@ def score_jcl(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
                 ("in_proc", _u(f.get("proc")), _u(s.in_proc)),
             ]
         )
+        opt = [("parm", f["parm"], s.parm)] if "parm" in f else []
+        if "if_cond" in f:
+            cond, branch = _if_branch(s.if_cond)
+            opt += [("if_cond", f["if_cond"], cond), ("branch", f.get("branch"), branch)]
+        d = "; ".join(x for x in (d, _diff(opt)) if x)
         sc.add("jcl_steps", path, label, "fail" if d else "pass", f.get("horror"), d)
+        if f.get("restart"):
+            sc.add(
+                "jcl_steps",
+                path,
+                f"{label} restart={f['restart']}",
+                "unscored",
+                f.get("horror"),
+                "job_flow_data keeps no JOB RESTART= (core/job_flow.py)",
+            )
     for s in steps:
         if id(s) not in used:
             sc.add("jcl_steps", path, f"{s.step_name} @{s.line}", "phantom", None, "not in the key")
+    ins = [r for r in flow if _u(r.kind) == "INSTREAM"]
     for f in entry.get("jcl_dds", []):
-        label = f"{f['step']}.{f['dd']} @{f['line']}"
-        if f.get("sysout"):
+        dd = f.get("dd") or f.get("concat_of")
+        label = f"{f['step']}.{f.get('dd') or '+' + str(f.get('concat_of'))} @{f['line']}"
+        if f.get("sysout") or f.get("dummy"):
+            what = f"SYSOUT={f['sysout']}" if f.get("sysout") else "DD DUMMY"
             sc.add(
                 "jcl_dds",
                 path,
                 label,
                 "unscored",
                 f.get("horror"),
-                f"SYSOUT={f['sysout']}: job_flow_data records only DDs that name a DSN (core/job_flow.py)",
+                f"{what}: job_flow_data records only DDs that name a DSN (core/job_flow.py)",
             )
             continue
-        r = next(
-            (x for x in dds if _u(x.step_name) == f["step"] and _u(x.dd_name) == f["dd"] and id(x) not in used), None
-        )
+        if "inline_lines" in f:
+            r = next((x for x in ins if _u(x.step_name) == f["step"] and _u(x.dd_name) == f["dd"]), None)
+            if r is None:
+                sc.add("jcl_dds", path, label, "missing", f.get("horror"), "no INSTREAM row for this DD")
+                continue
+            body = r.instream or ""
+            n = len(body.split("\n")) if body else 0
+            d = _diff([("line", f["line"], r.line), ("inline_lines", f["inline_lines"], n)])
+            sc.add("jcl_dds", path, label, "fail" if d else "pass", f.get("horror"), d)
+            continue
+        r = next((x for x in dds if _u(x.step_name) == f["step"] and _u(x.dd_name) == dd and id(x) not in used), None)
         if r is None:
-            sc.add(
-                "jcl_dds", path, label, "missing", f.get("horror"), f"SYSOUT={f['sysout']}" if f.get("sysout") else ""
-            )
+            sc.add("jcl_dds", path, label, "missing", f.get("horror"))
             continue
         used.add(id(r))
-        d = _diff(
-            [
-                ("line", f["line"], r.line),
-                ("dsn", _u(f.get("dsn")), _u(r.dsn)),
-                ("generation", f.get("generation"), r.generation),
-                ("disp", f.get("disp"), r.disp),
-                ("disp_normal", f.get("disp_normal"), r.disp_normal),
-            ]
-        )
+        pairs = [
+            ("line", f["line"], r.line),
+            ("dsn", _u(f.get("dsn")), _u(r.dsn)),
+            ("generation", f.get("generation"), r.generation),
+            ("disp", f.get("disp"), r.disp),
+            ("disp_normal", f.get("disp_normal"), r.disp_normal),
+        ]
+        if "temp" in f:
+            pairs.append(("temp", f["temp"], (r.dsn or "").startswith("&&")))
+        d = _diff(pairs)
         sc.add("jcl_dds", path, label, "fail" if d else "pass", f.get("horror"), d)
     for r in dds:
         if id(r) not in used:
             sc.add("jcl_dds", path, f"{r.step_name}.{r.dd_name} @{r.line}", "phantom", None, "not in the key")
+
+
+def _if_branch(text: str | None) -> tuple[str | None, str | None]:
+    """job_flow's `if_cond` ("(A.RC = 0)", "NOT (A.RC = 0)" after ELSE) as the key's (condition, branch)."""
+    if not text:
+        return None, None
+    t = text.strip()
+    branch = "then"
+    if t.upper().startswith("NOT "):
+        t, branch = t[4:].strip(), "else"
+    if t.upper().endswith(" THEN"):
+        t = t[:-5].strip()
+    if t.startswith("(") and t.endswith(")"):
+        t = t[1:-1].strip()
+    return t, branch
+
+
+def _cards(body: str) -> list[tuple[int, str, str]]:
+    """The control statements of an in-stream body as (index of its first line, verb, operands).
+
+    A line ending in `-` (IDCAMS) or `,` (DFSORT / ICETOOL) continues on the next; the hyphen is dropped and
+    the pieces joined with one blank. This is the scorer's own reading of the text the engine kept."""
+    out: list[tuple[int, str, str]] = []
+    pending: list[str] = []
+    start = 0
+    for i, raw in enumerate(body.split("\n")):
+        line = raw.strip()
+        if not pending:
+            if not line or line.startswith("*"):
+                continue
+            start = i
+        cont = line.endswith(("-", ","))
+        pending.append(line[:-1].rstrip() if line.endswith("-") else line)
+        if cont:
+            continue
+        text = " ".join(" ".join(pending).split())
+        verb, _, operands = text.partition(" ")
+        out.append((start, verb.upper(), operands.strip()))
+        pending = []
+    return out
+
+
+def score_jcl_utility_cards(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
+    """Each keyed control statement against the INSTREAM row of its (step, DD): the engine keeps the body, not
+    the statements, so a card passes when it is in the body at its line with the keyed operands."""
+    ef = eng.files.get(path)
+    ins = [r for r in (ef.job_flow if ef else []) if _u(r.kind) == "INSTREAM"]
+    parsed: dict[int, list[tuple[int, str, str]]] = {}
+    for f in entry.get("jcl_utility_cards", []):
+        label = f"{f['step']}.{f['dd']} {f['verb']} @{f['line']}"
+        r = next((x for x in ins if _u(x.step_name) == f["step"] and _u(x.dd_name) == f["dd"]), None)
+        if r is None:
+            sc.add("jcl_utility_cards", path, label, "missing", f.get("horror"), "no INSTREAM row for this DD")
+            continue
+        cards = parsed.setdefault(id(r), _cards(r.instream or ""))
+        c = next((x for x in cards if r.line + 1 + x[0] == f["line"] and x[1] == f["verb"]), None)
+        if c is None:
+            sc.add("jcl_utility_cards", path, label, "missing", f.get("horror"), "no such statement at that line")
+            continue
+        d = _diff([("operands", f["operands"], c[2])])
+        sc.add("jcl_utility_cards", path, label, "fail" if d else "pass", f.get("horror"), d)
 
 
 def score_cics(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
@@ -912,7 +999,14 @@ def score_jcl_datasets(sc: Score, path: str, entry: dict[str, Any], eng: Engine)
             f.get("depends_on"),
         )
     horrors = sorted({f["horror"] for f in entry.get("jcl_datasets", []) if f.get("horror")})
+    explicit = {_u(p["dsn"]): p for p in _phantoms(entry, "jcl_datasets")}
+    for dsn, p in explicit.items():
+        if dsn not in raw:
+            sc.add("jcl_datasets", path, f"not {p['dsn']}", "pass", p.get("horror"))
     for r in sorted(raw - accepted):
+        if r in explicit:
+            sc.add("jcl_datasets", path, f"raw import {r}", "phantom", explicit[r].get("horror"), explicit[r]["why"])
+            continue
         h = next((f.get("horror") for f in entry.get("jcl_datasets", []) if r.startswith(f["dsn"].upper())), None)
         sc.add(
             "jcl_datasets",
@@ -1158,6 +1252,7 @@ SCORERS = (
     score_layouts,
     score_sql,
     score_jcl,
+    score_jcl_utility_cards,
     score_cics,
     score_cics_resources,
     score_jcl_datasets,

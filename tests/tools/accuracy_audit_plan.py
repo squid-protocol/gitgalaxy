@@ -181,6 +181,7 @@ DETECTION_KEYS = frozenset(
         "internal_discriminator",
         "internal_discriminator_extensions",
         "lexical_family",
+        "library_directory_suffixes",
         "shared_extension_evidence",
         "shebangs",
     }

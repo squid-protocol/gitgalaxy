@@ -4198,7 +4198,7 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   `tests/cobol_mainframe/test_pointer_lane_reach_5042.py` pins both halves: the spec keeps each refusal, and the census finds no burned program
   issuing one (skipped without the corpora checkout). Evidence level: refused by name, 0 burned programs reach it.
 
-### X59. ADDRESS EIB / COMMAREA / TWA / TCTUA modelled in the port; ADDRESS CWA / ACEE, SEND PAGE and PURGE MESSAGE refused by name (#5079; CONVERSE, POST, WAIT EVENT: X63)
+### X59. ADDRESS EIB / COMMAREA / TWA / TCTUA modelled in the port and the stub; ADDRESS CWA / ACEE, SEND PAGE and PURGE MESSAGE refused by name (#5079; CONVERSE, POST, WAIT EVENT: X63)
 - **ADDRESS** (CICS TS 6.x, https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-address). EIB "returns a pointer reference set to the address
   of the EXEC interface block (EIB)"; COMMAREA "returns a pointer reference, set to the address of the communication area (COMMAREA) available
   to the currently executing program"; "If the COMMAREA does not exist, the pointer reference is set to the null value, X'FF000000'". CWA, TWA,
@@ -4214,9 +4214,12 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   the handle of the area's own bytes, sized by the definitions (TRANSACTION TWASIZE, the terminal's TYPETERM USERAREALEN; crucible case
   `ca-address-twa-tctua`). The TWA is the root task's, so every LINK level sees the same bytes; the TCTUA belongs to the terminal and outlives the
   task. An area of size 0 or no stated size is IBM's X'FF000000'. IBM does not state the initial content, so a program that reads before it writes
-  is outside the proof. Options are taken in the order EIB, COMMAREA, TWA, TCTUA. **The stub (`GGCADDR`) does not model them yet** (slice 2b):
-  the harness refuses them by name, so the crucible `cobol-stub` cells stay `unsupported` and no `java` cell passes (the crucible `java` side is
-  the forge's stub, not a port). No burned estate program issues either command.
+  is outside the proof. Options are taken in the order EIB, COMMAREA, TWA, TCTUA. **The stub models them too** (slice 2b): `GGCADDR`
+  returns one zero-filled block per area, sized by `GGCICS_TWASIZE` / `GGCICS_USERAREALEN` (the harness passes the definitions' values). The TWA is
+  one block for the process, so a LINKed program sees the same bytes; the TCTUA is kept in a file beside the scenario's temporary-storage
+  directory (`GGCICS_TCTUA`), read back at its first use and written at exit, so it outlives the task. No stated size is the pointer `0xFF`, whose
+  first four bytes read as X'FF000000' through a `PIC X(4)` view. The three `ca-address-twa-tctua` `cobol-stub` cells pass; no `java` cell does
+  (the crucible `java` side is the forge's stub, not a port). No burned estate program issues either command.
 - **Assumed.** (1) The EIB the pointer addresses is the task's own, updated by every later command as the program's DFHEIBLK is. (2) The
   COMMAREA the pointer addresses is the program's DFHCOMMAREA (the area the caller passed, X23), at its start. (3) The command raises no condition
   (the page lists none).

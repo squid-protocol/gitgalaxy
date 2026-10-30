@@ -84,6 +84,8 @@ DEFINITION: dict[str, Any] = {
     # ECOSYSTEM ANCHORS: sibling mainframe sources that live beside PL/I in the same
     # repository (the BMS maps and JCL that compile and run it).
     "discriminators": [".pli", ".pl1", ".jcl", ".bms"],
+    # #7064: an extensionless PDS member under a dataset-qualifier directory (see hlasm.py); content evidence still required.
+    "library_directory_suffixes": ["pli", "pl1"],
     # EXECUTION SIGNATURES: PL/I is compiled; no interpreter shebang exists.
     "shebangs": [],
     # Rationale (how_to_add_a_language.md Step 4 item 8): PL/I's comment is `/* ... */`

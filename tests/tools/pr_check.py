@@ -443,7 +443,9 @@ def main(argv: list[str] | None = None, api: Api = gh_api) -> int:
     if args.digest and res["checks"]["failed"]:
         import ci_digest  # noqa: PLC0415 -- fetches job logs; only when asked
 
-        print("\n" + ci_digest.render(ci_digest.digest(args.number, api)))
+        print(
+            "\n" + ci_digest.render(ci_digest.digest(args.number, api, graphql=gh_graphql if api is gh_api else None))
+        )
     if not args.merge:
         return 0 if res["ready"] else 1
     if not res["ready"]:

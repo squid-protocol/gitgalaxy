@@ -46,6 +46,7 @@
 /MYREC.cpy	tests/cobol_mainframe
 /Main.java	tests/cobol_mainframe
 /MinApi.cs	tests/security_auditing
+/NIGHTLY.jcl	tests/core_engine
 /P.cbl	tests/cobol_mainframe
 /P1.cbl	tests/cobol_mainframe
 /P2.cbl	tests/cobol_mainframe
@@ -354,6 +355,7 @@ docs/language_status/register/C18.md	tests/cobol_mainframe
 docs/language_status/register/C5.md	tests/cobol_mainframe
 docs/language_status/register/L1.md	tests/cobol_mainframe
 docs/language_status/register/L3.md	tests/cobol_mainframe
+docs/language_status/register/Q5.md	tests/cobol_mainframe
 docs/language_status/register/X18.md	tests/cobol_mainframe
 docs/language_status/register/X54.md	tests/cobol_mainframe
 docs/language_status/register/X55.md	tests/core_engine
@@ -494,7 +496,7 @@ space.md	tests/extraction
 stray.md	tests/tools/test_evidence_report.py
 strengthen.md	tests/tools/strengthen.py
 subsystem_distribution.md	tests/tools/doom_speedrun,tests/tools/test_doom_subsystem_distribution.py
-summary.md	tests/tools/test_audit_runners_refuse_empty.py,tests/tools/test_ci_critical_path_split.py,tests/tools/test_ci_job_summary.py,tests/tools/test_time_ratchet.py
+summary.md	tests/tools/test_audit_runners_refuse_empty.py,tests/tools/test_ci_critical_path_split.py,tests/tools/test_ci_job_summary.py,tests/tools/test_codeql_new_alerts.py,tests/tools/test_time_ratchet.py
 survey.md	tests/tools/det_survey.py
 tests/README.md	tests/tools/test_post_merge_dispatch.py,tests/tools/test_progress_report.py
 tests/extraction/how_to_extend_class_start_named_extraction.md	tests/tools/tree_sitter_accuracy_audit.py

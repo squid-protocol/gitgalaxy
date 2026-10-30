@@ -985,10 +985,14 @@ CICS_TASK_JAVA += """\
 
     /** GETMAIN SET(ptr) FLENGTH(n) | LENGTH(n) INITIMG(byte) (IBM CICS TS, EXEC CICS GETMAIN; register X47): {resp, resp2,
      *  handle}. LENGERR 1 for FLENGTH below 1 or a LENGTH of zero (the handle is then 0, "ptr-ref is set to zero"). Refused:
-     *  a length above the limit (IBM's NOSTG), a LENGTH above 65520. `halfword`: the LENGTH form. */
+     *  a length above the limit (IBM's NOSTG), a LENGTH above 65520, no INITIMG (initimg -1) for a valid length: IBM gives the
+     *  storage no default contents. `halfword`: the LENGTH form. */
     public long[] getmain(long length, boolean halfword, int initimg) {
         if (length < 1) {
             return new long[] {22, 1, 0};
+        }
+        if (initimg < 0) {
+            throw refused("GETMAIN without INITIMG acquired storage");
         }
         if (length > 268435456L || (halfword && length > 65520)) {
             throw refused("GETMAIN length beyond the limit");
@@ -1256,6 +1260,38 @@ CICS_TASK_JAVA += """\
     /** EIBTRMID (#3989): the task's terminal, the same at every LINK / XCTL level; null for a non-terminal task. */
     public String termid() {
         return root().termid;
+    }
+
+    // #5079 (X59): ADDRESS TWA / TCTUA (IBM CICS TS, EXEC CICS ADDRESS: "the address of the task's transaction work area" /
+    // "of the terminal control table user area"). Each area's size is a fact of the definition (TRANSACTION TWASIZE,
+    // TYPETERM USERAREALEN) that whoever runs the task states; an area of size 0 or unstated does not exist. The TWA is the
+    // task's (every program it LINKs to sees the same bytes); the TCTUA is the terminal's, so the caller keeps one array per
+    // terminal and hands it to each task that terminal starts.
+    private byte[] twa;                                     // the task's root's
+    private byte[] tctua;                                   // the task's root's (the caller's array: it outlives the task)
+
+    /** TRANSACTION TWASIZE(n): the task's transaction work area is `size` bytes; 0 means none. */
+    public CicsTask withTwaSize(int size) {
+        this.twa = size > 0 ? new byte[size] : null;
+        return this;
+    }
+
+    /** The terminal's TCTUA, USERAREALEN bytes the caller keeps across the terminal's tasks; null means none. */
+    public CicsTask withTctua(byte[] area) {
+        this.tctua = area != null && area.length > 0 ? area : null;
+        return this;
+    }
+
+    /** ADDRESS TWA: the handle of the TWA's bytes, the same one each time and at every LINK level; 0 for a task with none. */
+    public long twaHandle() {
+        byte[] a = root().twa;
+        return a == null ? 0 : addressOf(a);
+    }
+
+    /** ADDRESS TCTUA: the handle of the terminal's user area; 0 for a task with none. */
+    public long tctuaHandle() {
+        byte[] a = root().tctua;
+        return a == null ? 0 : addressOf(a);
     }
 
     /** #4270: EIBTASKN, the task's number -- a fact of the run that whoever runs the task states (as the stub's

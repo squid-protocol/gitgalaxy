@@ -352,3 +352,32 @@ call resolver, so the gain is on installation modules. Pinned in `test_hlasm_cal
 changing it is a decision); `BAL`/`BALR`/`BASR` to an in-file label (internal edge, unmodelled).
 **Still open from the consolidated list:** `fragile_debt`/`planned_debt` false positives (moves the golden master); NASM/troff `.mac`
 in `easytrieve` and DSP in `plaintext`; PDS siblings `*.COPYLIB/`, `*.COBOL/`, `*.PLI/`, `*.JCL/`, `*.CNTL/`.
+
+### Addendum (2026-10-30d, #7064): PDS siblings `*.COBOL/`, `*.COPYLIB/`, `*.PLI/`
+
+The PDS mechanism (section 2, item 3) now also names `cobol`, `copylib`, `cpy` (COBOL) and `pli`, `pl1` (PL/I) in
+`library_directory_suffixes`. **The plan was wrong on one point:** the addendum above said each sibling was "one entry plus a pin".
+That holds for hlasm and JCL, which have an `internal_discriminator`. COBOL and PL/I have none, and the all-language lexical scan labels
+a real COBOL or PL/I member `go` (measured on a division-header program and a copybook), so an entry alone routes nothing. The lens
+now carries a content shape per language (`_PDS_MEMBER_EVIDENCE` in `language_lens.py`): COBOL a division or section header, or a
+level-numbered item with a `PIC`/`USAGE`/`OCCURS` clause (a copybook); PL/I the existing `_PLI_INCLUDE_BODY` (labelled `PROC`,
+`DCL` with a level or attribute, `%INCLUDE name;`). A README or C text in the same directory, and a PL/I member in a `.COBOL/`
+directory, are not claimed. Pinned in `test_pds_library_routing.py` (every suffix, upper and lower case, nested directories).
+
+Measured, not counted over a real tree: the two held PDS-layout repos carry only `*.ASM/` and `*.MACLIB/` directories, so there
+is no real COBOL/PL/I member count here. No burned-estate program needs this.
+
+**Remaining slices:** JCL `jcl`/`cntl`/`proclib` (the JCL discriminator already proves the content; one key in `jcl.py` plus a pin,
+left only for the 5-file limit); NASM/troff `.mac` in `easytrieve` and DSP in `plaintext`; `fragile_debt`/`planned_debt` (moves the golden).
+
+### Addendum (2026-10-30e, #7064): NASM `.mac` no longer routes to easytrieve
+
+Cause: easytrieve's `internal_discriminator` ends in a bare `%name` branch (Easytrieve macro call), which NASM's `%macro`,
+`%endmacro`, `%define`, `%include`, `%if*`, `%rep` and `%1:` all match. The branch now refuses a digit and the NASM /
+preprocessor directive words (word-bounded, so `%MACROX` and `%MSTFILE` still match). A NASM `.mac` now lands in `plaintext`
+(no language owns it); pinned for each directive, upper and lower case, `.mac`/`.MAC` in `test_nasm_mac_files_route_to_no_mainframe_language`
+and `test_easytrieve_internal_discriminator_strict`.
+
+**Not done (sibling gaps):** the 4 FreeBSD troff `.mac` files that routed `easytrieve` at probe time are not held on this checkout, so
+the line that matches is unconfirmed (a synthetic troff file already routes `plaintext`); DSP and MASM `.mac` stay `plaintext` on purpose
+(no owning language). No burned-estate program needs any of these.

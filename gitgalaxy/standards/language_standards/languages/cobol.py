@@ -32,6 +32,8 @@ DEFINITION: dict[str, Any] = {
     "exact_matches": [],
     # ECOSYSTEM ANCHORS & DISAMBIGUATION: Primary sibling extensions and Job Control Language (.jcl) files which orchestrated legacy COBOL execution.
     "discriminators": [".cbl", ".cob", ".cpy", ".jcl"],
+    # #7064: an extensionless PDS member under a dataset-qualifier directory (see hlasm.py); content evidence still required.
+    "library_directory_suffixes": ["cobol", "copylib", "cpy"],
     # EXECUTION SIGNATURES: Interpreters found on Line 1 (primarily for modern GnuCOBOL scripting).
     "shebangs": ["cobc"],
     # UPGRADED: Maps to Family 7 (The Positional Ancients)

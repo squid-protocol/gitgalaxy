@@ -147,6 +147,25 @@ _PLI_STATEMENTS = (
 )
 _PLI_INCLUDE_BODY = re.compile(r"^[ \t]*(?:" + "|".join(_PLI_STATEMENTS) + ")", re.M | re.I)
 
+# #7064: content evidence for an extensionless PDS member under a COBOL / PL/I library directory (`PAYR.COPYLIB/`).
+# The lexical scan labels such a member `go`, so these languages (which have no internal_discriminator) prove it here.
+# COBOL: a division or section header, or a level-numbered data item with a PICTURE / USAGE clause (a copybook).
+# The optional 6-digit sequence area is fixed-format columns 1-6.
+_COBOL_SEQ = "^[ \t]*(?:" + r"\d{6}" + ")?[ \t]*"
+_COBOL_GAP = r"[ \t]+"
+_COBOL_DIVISIONS = (
+    "(?:" + "|".join(("IDENTIFICATION", "ID", "ENVIRONMENT", "DATA", "PROCEDURE")) + ")" + _COBOL_GAP + "DIVISION"
+)
+_COBOL_SECTIONS = (
+    "(?:" + "|".join(("WORKING-STORAGE", "LINKAGE", "FILE", "LOCAL-STORAGE")) + ")" + _COBOL_GAP + "SECTION"
+)
+_COBOL_CLAUSES = "|".join(("PIC", "PICTURE", "USAGE", "COMP", "COMP-3", "BINARY", "OCCURS", "REDEFINES"))
+_COBOL_ITEM = r"\d{1,2}" + _COBOL_GAP + "[A-Za-z0-9-]{1,30}" + _COBOL_GAP + "(?:" + _COBOL_CLAUSES + ")"
+_COBOL_MEMBER_BODY = re.compile(
+    _COBOL_SEQ + "(?:" + "|".join((_COBOL_DIVISIONS, _COBOL_SECTIONS, _COBOL_ITEM)) + r")\b", re.M | re.I
+)
+_PDS_MEMBER_EVIDENCE = {"cobol": _COBOL_MEMBER_BODY, "pli": _PLI_INCLUDE_BODY}
+
 
 def _trampoline_interpreter(content: str) -> str:
     """The interpreter a trampoline re-execs, lowercased, or "" if none."""
@@ -1125,7 +1144,7 @@ class LanguageDetector:
         """#7064: language of an extensionless PDS member from its dataset-qualifier directory.
 
         A directory suffix a language lists in `library_directory_suffixes` (`PAYR.ASM/`) only nominates it: the
-        member must also carry that language's internal_discriminator, or the language must win the all-language
+        member must also carry that language's internal_discriminator, its `_PDS_MEMBER_EVIDENCE` shape, or win the all-language
         lexical scan (with its claimed-language boost), so a README or binary beside the members is not claimed.
         """
         suffixes = {p.name.rsplit(".", 1)[-1].lower() for p in list(Path(file_path).parents)[:6] if "." in p.name}
@@ -1136,6 +1155,9 @@ class LanguageDetector:
                 continue
             disc = data.get("internal_discriminator")
             if disc and disc.search(content):
+                return lid
+            evidence = _PDS_MEMBER_EVIDENCE.get(lid)
+            if evidence and evidence.search(content):
                 return lid
             if content and self._tier_3_lexical_scan(content, "", claimed_lang=lid)[0] == lid:
                 return lid

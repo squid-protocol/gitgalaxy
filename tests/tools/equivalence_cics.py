@@ -498,7 +498,7 @@ def _pointer(key: str, text: str | None) -> str:
 
 
 def _getmain(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
-    """#4771 (register X47): GETMAIN SET(ptr) FLENGTH / LENGTH INITIMG(area) -> GGCGETM (length in GG-NUM, GG-FLAGS SHORT for the
+    """#4771 (register X47): GETMAIN SET(ptr) FLENGTH / LENGTH [INITIMG(area)] -> GGCGETM (length in GG-NUM, GG-FLAGS SHORT for the
     LENGTH form; the stub sets the pointer, to zero under LENGERR). The option rules as the det translator's."""
     key = "GETMAIN"
     _check_spec(key, opts, ("GETMAIN",), lambda bad: [f"{key} {o}" for o in bad])
@@ -506,21 +506,24 @@ def _getmain(opts: dict[str, str | None], labels: list[str] | None) -> list[str]
         raise Unsupported(_rule(key, "required", "SET"), [key])
     if ("FLENGTH" in opts) == ("LENGTH" in opts):
         raise Unsupported(_rule(key, "one_of", "FLENGTH"), [key])
-    if not opts.get("INITIMG"):
-        raise Unsupported(_rule(key, "required", "INITIMG"), [key])
     if "USERDATAKEY" in opts and "CICSDATAKEY" in opts:
         raise Unsupported(_rule(key, "at_most_one", "USERDATAKEY"), [key])
     form = "FLENGTH" if "FLENGTH" in opts else "LENGTH"
     if not opts.get(form):
         raise Unsupported(NEEDS_ARGUMENT, [key])
-    if _literal(opts["INITIMG"]) is not None or re.fullmatch(r"(?is)\s*[A-Z][A-Z0-9-]*\s*", opts["INITIMG"]) is None:
+    img = opts.get("INITIMG")
+    if img is not None and (_literal(img) is not None or re.fullmatch(r"(?is)\s*[A-Z][A-Z0-9-]*\s*", img) is None):
         raise Unsupported("GETMAIN INITIMG as a literal: a data area is the COBOL form", [key])
-    img = opts["INITIMG"].strip()
     lines = [
         f"MOVE {opts[form]} TO GG-NUM",
         "MOVE 'SHORT' TO GG-FLAGS" if form == "LENGTH" else "MOVE SPACES TO GG-FLAGS",
     ]
-    args = [f"BY REFERENCE {_pointer(key, opts['SET'])}", f"BY REFERENCE {img}", f"BY VALUE LENGTH OF {img}"]
+    # #6876: no INITIMG: IBM gives the storage no contents; the stub answers LENGERR or refuses (image length 0)
+    if img is None:
+        args = [f"BY REFERENCE {_pointer(key, opts['SET'])}", "BY REFERENCE GG-FLAGS", "BY VALUE 0"]
+    else:
+        img = img.strip()
+        args = [f"BY REFERENCE {_pointer(key, opts['SET'])}", f"BY REFERENCE {img}", f"BY VALUE LENGTH OF {img}"]
     return lines + _call("GGCGETM", args) + _resp(opts, True, labels)
 
 
@@ -531,6 +534,9 @@ def _address(opts: dict[str, str | None], labels: list[str] | None) -> list[str]
     then is the pointer itself. The option rules as the det translator's."""
     key = "ADDRESS"
     _check_spec(key, opts, ("ADDRESS",), lambda bad: [f"{key} {o}" for o in bad])
+    for area in ("TWA", "TCTUA"):  # #5079 slice 2: the port models them; the stub (GGCADDR) does not yet (slice 2b)
+        if opts.get(area):
+            raise Unsupported(f"ADDRESS {area}: the stub does not model the area yet (the port does)", [f"{key} {area}"])
     if not (opts.get("EIB") or opts.get("COMMAREA")):
         raise Unsupported("ADDRESS without EIB or COMMAREA: the pointer to set", [key])
     lines: list[str] = []

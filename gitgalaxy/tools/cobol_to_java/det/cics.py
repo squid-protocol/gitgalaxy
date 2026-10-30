@@ -1856,9 +1856,10 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
             raise CicsError(str(e)) from None
 
     def storage(self, key: str, opts: dict, ind: str) -> list[str]:
-        """#4771 (X47): GETMAIN SET(ptr) FLENGTH / LENGTH INITIMG(area) and FREEMAIN DATAPOINTER(ptr) / DATA(record) on CicsTask's blocks
+        """#4771 (X47): GETMAIN SET(ptr) FLENGTH / LENGTH [INITIMG(area)] and FREEMAIN DATAPOINTER(ptr) / DATA(record) on CicsTask's blocks
         of task storage (IBM, EXEC CICS GETMAIN / FREEMAIN). The pointer holds the block's handle; a LENGERR (RESP2 1)
-        sets it to zero. INITIMG is a one-byte data area (IBM: "In COBOL, use a data area rather than a data value")."""
+        sets it to zero. INITIMG is a one-byte data area (IBM: "In COBOL, use a data area rather than a data value"). Without INITIMG (#6876) IBM gives the storage no contents: the run answers LENGERR for a length
+        below 1 and refuses a valid one."""
         from gitgalaxy.tools.cobol_to_java.det.gen import Untranslatable
 
         r = self.g.tmpname("storage")
@@ -1884,19 +1885,24 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
             raise CicsError(_msg(key, "required", "SET"))
         if ("FLENGTH" in opts) == ("LENGTH" in opts):
             raise CicsError(_msg(key, "one_of", "FLENGTH"))
-        if not opts.get("INITIMG"):
-            raise CicsError(_msg(key, "required", "INITIMG"))
         if "USERDATAKEY" in opts and "CICSDATAKEY" in opts:
             raise CicsError(_msg(key, "at_most_one", "USERDATAKEY"))
-        if _literal(opts["INITIMG"]) is not None or not re.fullmatch(r"(?is)\s*[A-Z][A-Z0-9-]*\s*", opts["INITIMG"]):
-            raise CicsError("GETMAIN INITIMG as a literal: a data area is the COBOL form")
-        if self.size(opts["INITIMG"]) != 1:
-            raise CicsError("GETMAIN INITIMG is not one byte")
+        img = opts.get("INITIMG")
+        if img is not None:
+            if _literal(img) is not None or not re.fullmatch(r"(?is)\s*[A-Z][A-Z0-9-]*\s*", img):
+                raise CicsError("GETMAIN INITIMG as a literal: a data area is the COBOL form")
+            if self.size(img) != 1:
+                raise CicsError("GETMAIN INITIMG is not one byte")
         ptr = self.pointer(opts["SET"])
         form = "FLENGTH" if "FLENGTH" in opts else "LENGTH"
         if not opts.get(form):
             raise CicsError(f"{form} needs an argument")
         halfword = str(form == "LENGTH").lower()
+        if img is None:  # #6876: IBM gives no default contents: LENGERR answers, a valid length is refused when it runs
+            return [f"{ind}long[] {r}g = task.getmain({self.int_(opts[form])}, {halfword}, -1);",
+                    f"{ind}DetCics.setPointer({ptr}, {r}g[2]);",
+                    f"{ind}int[] {r} = new int[] {{(int) {r}g[0], (int) {r}g[1]}};",
+                    *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]  # fmt: skip
         call = f"DetCics.getmain(task, {ptr}, {self.int_(opts[form])}, {halfword}, {self.read_field(opts['INITIMG'])})"
         return [f"{ind}int[] {r} = {call};", *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
 
@@ -1907,16 +1913,21 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
         shares them: a later EIB update shows through it. COMMAREA needs the program's 01 DFHCOMMAREA to address: a task with
         none (EIBCALEN 0) gets IBM's X'FF000000' (no COBOL NULL; the program's `PIC X(4)` byte view tests it,
         DetCics.isNoCommareaAddress), and a program with no 01 DFHCOMMAREA run with a COMMAREA is refused when it runs. The command has no
-        condition: NORMAL. CWA / TWA / TCTUA / ACEE and ADDRESS SET are refused by the spec entry (check_options)."""
+        condition: NORMAL. TWA / TCTUA (#5079 slice 2) set the pointer to the handle of the transaction work area / the
+        terminal's user area the definitions size (TWASIZE / USERAREALEN), or X'FF000000' when none (DetCics.addressTwa /
+        addressTctua). CWA / ACEE and ADDRESS SET are refused by the spec entry (check_options)."""
         from gitgalaxy.tools.cobol_to_java.det.gen import Untranslatable
 
-        if not (opts.get("EIB") or opts.get("COMMAREA")):
-            raise CicsError("ADDRESS without EIB or COMMAREA: the pointer to set")
+        if not any(opts.get(o) for o in ("EIB", "COMMAREA", "TWA", "TCTUA")):
+            raise CicsError("ADDRESS without an area option: the pointer to set")
         out: list[str] = []
-        for option in ("EIB", "COMMAREA"):
+        for option in ("EIB", "COMMAREA", "TWA", "TCTUA"):
             if option not in opts:
                 continue
             ptr = self.pointer(opts[option])
+            if option in ("TWA", "TCTUA"):
+                out.append(f"{ind}DetCics.address{'Twa' if option == 'TWA' else 'Tctua'}(task, {ptr});")
+                continue
             if option == "EIB":
                 out.append(f"{ind}DetCics.setPointerToRecord(task, {ptr}, {self.g.field_expr(E.Ref('DFHEIBLK'))});")
                 continue

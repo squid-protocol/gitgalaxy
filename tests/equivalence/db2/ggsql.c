@@ -606,6 +606,14 @@ static void run(stmt *s, sqlca_t *c, unsigned char **a) {
             if (got < n) c->sqlcode = 100, memcpy(c->sqlstate, "02000", 5);
             return;
         }
+        if (s->scroll && (!strcmp(s->orient, "BEFORE") || !strcmp(s->orient, "AFTER"))) {
+            /* #4269: FETCH BEFORE | AFTER, a position and no row: before-first is ABSOLUTE 0, after-last is LAST then NEXT.
+             * The CLI's SQL_NO_DATA is the parked position, not a Db2 +100: SQLCODE 0, no host variable touched (an
+             * empty cursor has no row to step over: still 0) */
+            if (!strcmp(s->orient, "BEFORE")) SQLFetchScroll(o->h, SQL_FETCH_ABSOLUTE, 0);
+            else if (SQLFetchScroll(o->h, SQL_FETCH_LAST, 0) != SQL_NO_DATA) SQLFetchScroll(o->h, SQL_FETCH_NEXT, 0);
+            return;
+        }
         if (s->scroll && s->orient[0] && strcmp(s->orient, "NEXT")) {
             /* #4269: the orientation, over the insensitive cursor Db2 opened; ABSOLUTE / RELATIVE take the constant,
              * else the statement's one input host variable */

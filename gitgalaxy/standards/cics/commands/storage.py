@@ -12,7 +12,8 @@ USAGE POINTER item; `SET ADDRESS OF record TO pointer` and WEB RECEIVE SET (web.
 
 IBM (CICS TS 6.x, EXEC CICS GETMAIN / FREEMAIN): GETMAIN SET(ptr) FLENGTH(n) INITIMG(byte) sets the pointer to the
 first byte of n acquired bytes, every byte the INITIMG value ("There is no default initialization": without INITIMG
-the contents are undefined, so it is required here); LENGERR (RESP2 1) for FLENGTH below 1 or LENGTH zero, the pointer
+the contents are undefined: a GETMAIN without it is accepted, answers LENGERR when no storage is acquired, and is refused
+by name when it would acquire some); LENGERR (RESP2 1) for FLENGTH below 1 or LENGTH zero, the pointer
 then set to zero; NOSTG (RESP2 2) when the request exceeds the storage available (not modelled: refused above a stated
 limit). FREEMAIN DATAPOINTER(ptr) releases the storage GETMAIN returned; INVREQ RESP2 1 when it was not acquired by
 GETMAIN. Task storage is released at task end."""
@@ -64,7 +65,6 @@ GETMAIN = Command(
     groups=(
         required("SET", msg="GETMAIN without SET: the pointer to the storage"),
         one_of("FLENGTH", "LENGTH", msg="GETMAIN needs one of FLENGTH / LENGTH"),
-        required("INITIMG", msg="GETMAIN without INITIMG: IBM gives acquired storage no default contents"),
         at_most_one("USERDATAKEY", "CICSDATAKEY", msg="GETMAIN with both USERDATAKEY and CICSDATAKEY"),
     ),
     outcomes=(
@@ -77,6 +77,12 @@ GETMAIN = Command(
         ),
     ),
     runtime_refusals=(
+        RuntimeRefusal(
+            "no INITIMG and a valid length (IBM: no default initialization, the acquired contents are undefined; "
+            "a length below 1 is LENGERR before any storage exists)",
+            "X47",
+            java="GETMAIN without INITIMG acquired storage",
+        ),
         RuntimeRefusal(
             "a length above the limit the run states (IBM's NOSTG when the request exceeds the storage available; "
             "DSALIMIT / EDSALIMIT are the region's)",
@@ -121,7 +127,9 @@ FREEMAIN = Command(
 )
 
 # #5079 (X59), IBM CICS TS, EXEC CICS ADDRESS: EIB(ptr) / COMMAREA(ptr) set a pointer to the EXEC interface block / the
-# communication area. The areas CICS keeps for the system (CWA, TWA, TCTUA, ACEE) are not modelled: the region defines none.
+# communication area. TWA / TCTUA return the transaction work area / terminal control table user area, whose sizes the
+# definitions state (TRANSACTION TWASIZE, TYPETERM USERAREALEN; slice 2 of #5079). CWA and ACEE are system areas the region
+# does not define: not modelled.
 _SYSTEM_AREA = "the {} is a system area the region does not define: not modelled"
 
 ADDRESS = Command(
@@ -132,17 +140,17 @@ ADDRESS = Command(
     options={
         "EIB": Arg("pointer"),
         "COMMAREA": Arg("pointer"),
+        "TWA": Arg("pointer"),
+        "TCTUA": Arg("pointer"),
         **RESP_OPTIONS,
     },
     refused={
         "CWA": Refusal(_SYSTEM_AREA.format("common work area (CWA)"), "X59"),
-        "TWA": Refusal(_SYSTEM_AREA.format("transaction work area (TWA)"), "X59"),
-        "TCTUA": Refusal(_SYSTEM_AREA.format("terminal control table user area (TCTUA)"), "X59"),
         "ACEE": Refusal(_SYSTEM_AREA.format("access control environment element (ACEE)"), "X59"),
         "SET": Refusal("ADDRESS SET (the old form, a pointer to a data area's address) is not modelled", "X59"),
     },
-    default_refusal=Refusal("only EIB and COMMAREA are modelled", "X59"),
-    outcomes=(Outcome("NORMAL", 0, "", writes=("EIB", "COMMAREA")),),
+    default_refusal=Refusal("only EIB, COMMAREA, TWA and TCTUA are modelled", "X59"),
+    outcomes=(Outcome("NORMAL", 0, "", writes=("EIB", "COMMAREA", "TWA", "TCTUA")),),
     runtime_refusals=(
         RuntimeRefusal(
             "ADDRESS COMMAREA when the task has no COMMAREA (IBM sets the pointer to X'FF000000', which is not the COBOL "

@@ -68,7 +68,7 @@ def test_a_condition_jump_comes_after_the_rcode():
     assert out.index(_puts(out)[0]) < next(i for i, x in enumerate(out) if "condition(" in x)
 
 
-@pytest.mark.parametrize("text", ["RETURN", "SYNCPOINT", "GETMAIN SET(P) LENGTH(10)"])
+@pytest.mark.parametrize("text", ["RETURN", "SYNCPOINT"])
 def test_no_other_command_sets_it(text):
     try:
         out = _RcodeCics(True).command(text, "")

@@ -1490,7 +1490,11 @@ def _workflow(name):
 @pytest.mark.parametrize("name", ["shepherd-event.yml", "shepherd-reconcile.yml"])
 def test_the_shepherd_workflows_restore_the_flake_cache_and_pass_it(name):
     doc, steps = _workflow(name)
-    restore = [s for s in steps if s.get("uses", "").startswith("actions/cache/restore@")]
+    restore = [
+        s
+        for s in steps
+        if s.get("uses", "").startswith("actions/cache/restore@") and s["with"]["path"] == "flake-cache"
+    ]
     assert len(restore) == 1
     w = restore[0]["with"]
     assert w["key"] == "flake-history-${{ github.run_id }}" and w["restore-keys"].strip() == "flake-history-"
@@ -1504,7 +1508,8 @@ def test_only_the_flake_history_workflow_refreshes_and_saves_the_cache():
     """2026-10-20: a workflow_run reconcile pass gets a read-only cache token, so a refresh there was never saved and
     every pass refetched for 12 min. The scheduled flake-history.yml (own group) is the one writer."""
     _, steps = _workflow("shepherd-reconcile.yml")
-    assert not [s for s in steps if "cache/save" in s.get("uses", "") or "--refresh-only" in s.get("run", "")]
+    assert not [s for s in steps if "cache/save" in s.get("uses", "") and s["with"]["path"] == "flake-cache"]
+    assert not [s for s in steps if "--refresh-only" in s.get("run", "")]
     doc, steps = _workflow("flake-history.yml")
     assert doc["concurrency"]["group"] == "flake-history" and doc["concurrency"]["cancel-in-progress"] is False
     assert "schedule" in doc[True] and "workflow_dispatch" in doc[True]  # yaml reads `on:` as True
@@ -1527,6 +1532,36 @@ def test_the_event_workflow_only_restores_the_flake_cache():
     # short job, no concurrency group: overlapping saves/refreshes would collide, flake-history.yml owns the cache
     _, steps = _workflow("shepherd-event.yml")
     assert not [s for s in steps if "cache/save" in s.get("uses", "") or "--refresh-only" in s.get("run", "")]
+
+
+# --- #6534: the conditional-read store (SHEPHERD_API_CACHE) in the workflows -------------------------------------------
+
+
+@pytest.mark.parametrize("name", ["shepherd-event.yml", "shepherd-reconcile.yml"])
+def test_the_shepherd_workflows_restore_the_api_cache_before_the_pass(name):
+    _, steps = _workflow(name)
+    restore = [
+        s for s in steps if s.get("uses", "").startswith("actions/cache/restore@") and s["with"]["path"] == "api-cache"
+    ]
+    assert len(restore) == 1
+    assert restore[0]["with"]["key"] == "shepherd-api-${{ github.run_id }}"
+    assert restore[0]["with"]["restore-keys"].strip() == "shepherd-api-"
+    shepherd = [s for s in steps if "shepherd_gh.py" in s.get("run", "") and "ensure-labels" not in s["run"]]
+    assert len(shepherd) == 1 and shepherd[0]["env"]["SHEPHERD_API_CACHE"] == "api-cache"
+    assert steps.index(restore[0]) < steps.index(shepherd[0])
+
+
+def test_only_a_pass_whose_token_can_write_saves_the_api_cache():
+    """A workflow_run token is read-only for the cache: the save is skipped there and the cron / dispatch passes write."""
+    _, steps = _workflow("shepherd-reconcile.yml")
+    save = [s for s in steps if s.get("uses", "").startswith("actions/cache/save@")]
+    assert len(save) == 1 and save[0]["with"]["path"] == "api-cache"
+    assert save[0]["with"]["key"] == "shepherd-api-${{ github.run_id }}"
+    assert "github.event_name != 'workflow_run'" in save[0]["if"] and save[0]["if"].startswith("always()")
+    shepherd = [s for s in steps if "shepherd_gh.py" in s.get("run", "") and "ensure-labels" not in s["run"]]
+    assert steps.index(shepherd[0]) < steps.index(save[0])
+    _, steps = _workflow("shepherd-event.yml")
+    assert not [s for s in steps if s.get("uses", "").startswith("actions/cache/save@")]
 
 
 # --- #5484: main turned green under a PR that was waiting on it ------------------------------------------------------
@@ -1769,7 +1804,7 @@ def test_trusted_bots_come_from_the_workflow_then_the_tokens_own_account(monkeyp
         raise SystemExit("user: Resource not accessible by integration")
 
     monkeypatch.setenv(sg.TRUSTED_BOTS_ENV, "squid-shepherd[bot], squid-protocol")
-    assert sg.trusted_bots(no_user) == {"squid-shepherd[bot]", "squid-protocol"}
+    assert sg.trusted_bots(no_user) == {"squid-shepherd[bot]"}  # #6694: the PAT account no longer counts
     monkeypatch.delenv(sg.TRUSTED_BOTS_ENV)
     assert sg.trusted_bots(lambda path, *a, **kw: {"login": "squid-protocol"}) == {
         "squid-protocol"
@@ -1809,7 +1844,10 @@ def test_the_gate_waits_on_running_checks_missing_required_ones_and_reruns():
     # the shepherd's own queued job is not waited on (it is the job deciding)
     acts = sg.decide(snap(gate_pending=["DOOM-rosetta shard 1 (queued)", "shepherd (label event) (in_progress)"]))
     assert gate_of(acts) == ("pending", "waiting on: DOOM-rosetta shard 1")
-    assert gate_of(sg.decide(snap(required_missing=["det", "full-suite"]))) == ("pending", "waiting on: det, full-suite")
+    assert gate_of(sg.decide(snap(required_missing=["det", "full-suite"]))) == (
+        "pending",
+        "waiting on: det, full-suite",
+    )
     assert gate_of(sg.decide(snap(failed=[failure("flake", updated=NOW - 60)])))[0] == "pending"
     assert gate_of(sg.decide(snap(failed=[{"check": "det", "triage": "main"}])))[0] == "pending"
     assert gate_of(sg.decide(snap(draft=True, labels=[])))[0] == "pending"  # #5104: a draft's skips read as green

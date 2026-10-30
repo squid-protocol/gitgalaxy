@@ -277,6 +277,36 @@ query($owner: String!, $name: String!) {
 }""".replace("@@SUITES@@", pr_check.SUITES_SELECTION)
 
 
+COMMIT_QUERY = """
+query($owner: String!, $name: String!, $sha: GitObjectID!) {
+  rateLimit { cost }
+  repository(owner: $owner, name: $name) {
+    object(oid: $sha) { ... on Commit { oid
+      parents(first: 1) { nodes { oid } }
+      @@SUITES@@
+    } }
+  }
+}""".replace("@@SUITES@@", pr_check.SUITES_SELECTION)
+
+
+def commit_runs(
+    api: pr_check.Api, sha: str, graphql: pr_check.GraphQL | None = None
+) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    """(commit as REST's {sha, parents}, its check runs) for a commit by sha (#6534: one GraphQL query when `graphql`
+    is given, the two REST reads when it fails or comes back incomplete). SystemExit / KeyError / TypeError when REST
+    cannot read it either."""
+    if graphql:
+        owner, name = REPO_SLUG.split("/")
+        try:
+            c = graphql(COMMIT_QUERY, {"owner": owner, "name": name, "sha": sha})["repository"]["object"]
+            runs = pr_check.runs_from_suites(pr_check.whole(c["checkSuites"]))
+            return {"sha": c["oid"], "parents": [{"sha": x["oid"]} for x in c["parents"]["nodes"]]}, runs
+        except (SystemExit, KeyError, TypeError, AttributeError, ValueError):
+            pass
+    commit = api(f"repos/{REPO_SLUG}/commits/{sha}")
+    return commit, pr_check.paged(api, f"repos/{REPO_SLUG}/commits/{sha}/check-runs", "check_runs")
+
+
 def main_tip(
     api: pr_check.Api, graphql: pr_check.GraphQL | None = None
 ) -> tuple[dict[str, Any], list[dict[str, Any]]] | None:
@@ -321,8 +351,7 @@ def main_failures(
         if not parent_sha:
             break
         try:
-            p_commit = api(f"repos/{REPO_SLUG}/commits/{parent_sha}")
-            p_runs = pr_check.paged(api, f"repos/{REPO_SLUG}/commits/{parent_sha}/check-runs", "check_runs")
+            p_commit, p_runs = commit_runs(api, parent_sha, graphql)
         except (SystemExit, KeyError, TypeError):
             break
         p_failed, p_decided = _completed_names(p_runs)
@@ -368,9 +397,17 @@ def digest(
     flaky: set[str] | None = None,
     pr: dict[str, Any] | None = None,
     runs: list[dict[str, Any]] | None = None,
+    graphql: pr_check.GraphQL | None = None,
 ) -> dict[str, Any]:
-    """`pr`, `runs`: the pull request and its head's check runs when the caller already read them (#6534)."""
-    on_main = main_failures(api) if on_main is None else on_main
+    """`pr`, `runs`: the pull request and its head's check runs when the caller already read them (#6534).
+    `graphql`: what is still unread (the PR, its runs, main's tip and parents) comes from GraphQL, REST when a query
+    fails or comes back incomplete."""
+    on_main = main_failures(api, graphql=graphql) if on_main is None else on_main
+    if (pr is None or runs is None) and graphql:
+        got = pr_check._graphql_check(graphql, n)
+        if got and (pr is None or pr["head"]["sha"] == got["pr"]["head"]["sha"]):
+            pr = got["pr"] if pr is None else pr
+            runs = got["runs"] if runs is None else runs
     pr = api(f"repos/{REPO_SLUG}/pulls/{n}") if pr is None else pr
     sha = pr["head"]["sha"]
     if runs is None:
@@ -442,7 +479,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("number", type=int)
     ap.add_argument("--json", action="store_true")
     args = ap.parse_args(argv)
-    d = digest(args.number)
+    d = digest(args.number, graphql=pr_check.gh_graphql)
     print(json.dumps(d, indent=1) if args.json else render(d))
     return 1 if d["failed"] else 0
 

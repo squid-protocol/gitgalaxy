@@ -612,13 +612,18 @@ class StateRehydrator:
                     if _has_table(cursor, "job_flow_data") and _has_column(cursor, "job_flow_data", "instream")
                     else "NULL"
                 )
+                dcb_cols = (  # #4268
+                    "jf.lrecl, jf.recfm"
+                    if _has_table(cursor, "job_flow_data") and _has_column(cursor, "job_flow_data", "lrecl")
+                    else "NULL AS lrecl, NULL AS recfm"
+                )
                 job_flow_by_file = _restore_child_table(
                     cursor,
                     repo_name,
                     baseline_hash,
                     "job_flow_data",
                     'SELECT fd.file_path AS _fp, jf.kind, jf.job_name AS "name", jf.step_ordinal, jf.step_name, jf.program, jf.proc_name AS "proc", jf.cond, jf.if_cond, jf.in_proc, jf.dd_name, jf.dsn, jf.disp, jf.generation, jf.line_number AS "line", '  # noqa: S608 -- normal_col is one of two literals
-                    f"{normal_col} AS disp_normal, {runner_cols}, {parm_col} AS parm, {instream_col} AS instream "
+                    f"{normal_col} AS disp_normal, {runner_cols}, {parm_col} AS parm, {instream_col} AS instream, {dcb_cols} "
                     "FROM job_flow_data jf JOIN file_data fd ON jf.file_id = fd.id "
                     "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY jf.id",
                     lambda r: {
@@ -637,7 +642,11 @@ class StateRehydrator:
                         "generation": r["generation"],
                         "line": int(r["line"] or 0),
                         **({"disp_normal": r["disp_normal"]} if r["disp_normal"] else {}),
-                        **{k: r[k] for k in ("runs", "runs_via", "systsin_member", "parm", "instream") if r[k]},
+                        **{
+                            k: r[k]
+                            for k in ("runs", "runs_via", "systsin_member", "parm", "instream", "lrecl", "recfm")
+                            if r[k]
+                        },
                     },
                 )
 

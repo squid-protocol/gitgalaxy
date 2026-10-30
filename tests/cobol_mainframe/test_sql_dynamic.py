@@ -362,7 +362,7 @@ _SCROLL_AND_ROWSET = [
     ("FETCH FIRST FROM C1 INTO :A", "FETCH FIRST"),
     ("FETCH LAST FROM C1 INTO :A", "FETCH LAST"),
     ("FETCH CURRENT FROM C1 INTO :A", "FETCH CURRENT"),
-    ("FETCH BEFORE FROM C1", "FETCH BEFORE"),
+    ("FETCH BEFORE FROM C1", "FETCH BEFORE"),  # (C1 is not declared SCROLL)
     ("FETCH AFTER FROM C1", "FETCH AFTER"),
     ("FETCH ABSOLUTE 3 FROM C1 INTO :A", "FETCH ABSOLUTE"),
     ("FETCH RELATIVE -2 C1 INTO :A", "FETCH RELATIVE"),
@@ -467,8 +467,13 @@ def _scroll_sql(declare):
         ("S1 SCROLL CURSOR WITH HOLD", "FETCH FIRST S1 INTO :A", "WITH HOLD"),
         ("S1 NO SCROLL CURSOR", "FETCH FIRST S1 INTO :A", "not declared SCROLL"),
         ("S1 CURSOR", "FETCH ABSOLUTE 2 S1 INTO :A", "not declared SCROLL"),
-        ("S1 SCROLL CURSOR", "FETCH BEFORE S1", "only positions"),
-        ("S1 SCROLL CURSOR", "FETCH AFTER S1", "only positions"),
+        ("S1 CURSOR", "FETCH BEFORE S1", "needs a cursor declared SCROLL"),
+        ("S1 NO SCROLL CURSOR", "FETCH AFTER FROM S1", "needs a cursor declared SCROLL"),
+        ("S1 SENSITIVE SCROLL CURSOR", "FETCH BEFORE S1", "SENSITIVE or DYNAMIC"),
+        ("S1 INSENSITIVE SCROLL CURSOR", "FETCH SENSITIVE AFTER S1", "SENSITIVE or DYNAMIC"),
+        ("S1 SCROLL CURSOR WITH HOLD", "FETCH AFTER S1", "WITH HOLD"),
+        ("S1 SCROLL CURSOR", "FETCH BEFORE S1 INTO :A", "BEFORE / AFTER: takes a cursor and no INTO"),
+        ("S1 SCROLL CURSOR", "FETCH INSENSITIVE AFTER FROM S1 INTO :A", "BEFORE / AFTER: takes a cursor and no INTO"),
         ("S1 SCROLL CURSOR", "FETCH ROWSET STARTING AT ABSOLUTE 2 FROM S1 FOR 2 ROWS INTO :A", "multi-row"),
     ],
 )
@@ -489,6 +494,32 @@ def test_a_scroll_fetch_of_a_scroll_cursor_passes_the_checks(declare, fetch):
 
     with pytest.raises(SqlError, match="no generated Db2 repository method"):
         _scroll_sql(declare).command(f"EXEC SQL {fetch} INTO :A END-EXEC", 7, "")
+
+
+@pytest.mark.parametrize("declare", ["S1 SCROLL CURSOR", "S1 INSENSITIVE SCROLL CURSOR", "S1 ASENSITIVE SCROLL CURSOR"])
+@pytest.mark.parametrize(
+    "fetch, where",
+    [
+        ("FETCH BEFORE S1", "BEFORE"),
+        ("FETCH AFTER S1", "AFTER"),
+        ("FETCH BEFORE FROM S1", "BEFORE"),
+        ("FETCH INSENSITIVE AFTER FROM S1", "AFTER"),
+        ("fetch\n  after\n from s1", "AFTER"),
+    ],
+)
+def test_fetch_before_or_after_a_scroll_cursor_parks_it_with_no_row_and_no_repository_method(declare, fetch, where):
+    # (no generated method in this stub, none needed: a position reads no row)
+    out = _scroll_sql(declare).command(f"EXEC SQL {fetch} END-EXEC", 7, "")
+    assert out == [f'DetSql.positionScroll(ca, "P:7", "S1", "{where}", CS);']
+
+
+def test_fetch_before_and_after_are_refused_in_a_cics_program_too():
+    from gitgalaxy.tools.cobol_to_java.det.sql import SqlError
+
+    gen = _Gen()
+    gen.cics = SimpleNamespace()
+    with pytest.raises(SqlError, match="register Q4"):
+        _run("FETCH BEFORE FROM C1", gen=gen)
 
 
 _SCROLL_MAIN = """package ggtest;
@@ -517,7 +548,9 @@ public class Main {
     }
 
     static void go(Field ca, String c, String o, long n) {
-        Map<String, Object> row = o.equals("NEXT") ? DetSql.fetch(ca, "P:9", c, CS) : DetSql.fetchScroll(ca, "P:9", c, o, n, CS);
+        Map<String, Object> row = null;
+        if (o.equals("BEFORE") || o.equals("AFTER")) DetSql.positionScroll(ca, "P:9", c, o, CS);
+        else row = o.equals("NEXT") ? DetSql.fetch(ca, "P:9", c, CS) : DetSql.fetchScroll(ca, "P:9", c, o, n, CS);
         if (row != null) last = row.get("ID");
         System.out.println(o + " " + n + " " + sqlcode(ca) + " " + last);
     }
@@ -529,14 +562,22 @@ public class Main {
             {"NEXT", 0}, {"LAST", 0}, {"PRIOR", 0}, {"FIRST", 0}, {"ABSOLUTE", 3}, {"ABSOLUTE", -2}, {"RELATIVE", 1},
             {"RELATIVE", 1}, {"PRIOR", 0}, {"CURRENT", 0}, {"RELATIVE", -3}, {"ABSOLUTE", 4}, {"FIRST", 0}, {"PRIOR", 0},
             {"NEXT", 0}, {"ABSOLUTE", 9}, {"PRIOR", 0}, {"RELATIVE", -9}, {"NEXT", 0}, {"ABSOLUTE", 0}, {"ABSOLUTE", -5},
-            {"ABSOLUTE", -6}, {"NEXT", 0}, {"RELATIVE", 0}};
+            {"ABSOLUTE", -6}, {"NEXT", 0}, {"RELATIVE", 0},
+            {"AFTER", 0}, {"PRIOR", 0}, {"BEFORE", 0}, {"NEXT", 0}, {"AFTER", 0}, {"NEXT", 0}, {"BEFORE", 0}, {"PRIOR", 0},
+            {"AFTER", 0}, {"BEFORE", 0}, {"LAST", 0}};
         for (Object[] s : steps) go(ca, "S1", (String) s[0], ((Number) s[1]).longValue());
         DetSql.close(ca, "P:2", "S1", CS);
         go(ca, "S1", "LAST", 0);
+        go(ca, "S1", "AFTER", 0);
+        go(ca, "S1", "BEFORE", 0);
         DetSql.open(ca, "P:3", "S2", () -> rows(0), CS);
         go(ca, "S2", "FIRST", 0);
         go(ca, "S2", "LAST", 0);
         go(ca, "S2", "NEXT", 0);
+        go(ca, "S2", "PRIOR", 0);
+        go(ca, "S2", "AFTER", 0);
+        go(ca, "S2", "NEXT", 0);
+        go(ca, "S2", "BEFORE", 0);
         go(ca, "S2", "PRIOR", 0);
         try {
             DetSql.fetchScroll(ca, "P:4", "S2", "SIDEWAYS", 0, CS);
@@ -598,11 +639,28 @@ def test_detsql_moves_a_position_over_the_rows_read_at_open_as_db2_does(tmp_path
         "ABSOLUTE -6 100 10",  # -n counts from the end; one more than there are is before the first
         "NEXT 0 0 10",
         "RELATIVE 0 0 10",
-        "LAST 0 -501 10",  # closed
-        "FIRST 0 100 10",
-        "LAST 0 100 10",
-        "NEXT 0 100 10",
-        "PRIOR 0 100 10",  # no rows: every move is +100
+        "AFTER 0 0 10",  # FETCH AFTER / BEFORE: a position, SQLCODE 0, the host variable untouched
+        "PRIOR 0 0 50",  # from after the last row, PRIOR is the last
+        "BEFORE 0 0 50",
+        "NEXT 0 0 10",  # from before the first, NEXT is the first
+        "AFTER 0 0 10",
+        "NEXT 0 100 10",  # after the last: still +100
+        "BEFORE 0 0 10",
+        "PRIOR 0 100 10",
+        "AFTER 0 0 10",
+        "BEFORE 0 0 10",
+        "LAST 0 0 50",
+        "LAST 0 -501 50",  # closed
+        "AFTER 0 -501 50",
+        "BEFORE 0 -501 50",
+        "FIRST 0 100 50",
+        "LAST 0 100 50",
+        "NEXT 0 100 50",
+        "PRIOR 0 100 50",  # no rows: every move is +100
+        "AFTER 0 0 50",
+        "NEXT 0 100 50",
+        "BEFORE 0 0 50",
+        "PRIOR 0 100 50",
         "refused",
     ]
 
@@ -613,10 +671,30 @@ _TRACED_SCROLL = [
     ("NEXT", 0, 10), ("LAST", 0, 50), ("PRIOR", 0, 40), ("FIRST", 0, 10), ("ABS 3", 0, 30), ("ABS -2", 0, 40),
     ("REL 1", 0, 50), ("REL 1 PAST", 100, 50), ("PRIOR OFF", 0, 50), ("CURRENT", 0, 50), ("REL VAR -3", 0, 20),
     ("ABS VAR 4", 0, 40), ("FIRST", 0, 10), ("PRIOR BEFORE", 100, 10), ("NEXT AFTER", 0, 10), ("ABS 9", 100, 10),
-    ("PRIOR LAST", 0, 50), ("REL -9", 100, 50), ("NEXT FIRST", 0, 10), ("ABS 0", 100, 10), ("CLOSE", 0, 10),
+    ("PRIOR LAST", 0, 50), ("REL -9", 100, 50), ("NEXT FIRST", 0, 10), ("ABS 0", 100, 10),
+    ("AFTER", 0, 10), ("PRIOR AFTER", 0, 50), ("BEFORE", 0, 50), ("NEXT BEFORE", 0, 10), ("AFTER FROM", 0, 10),
+    ("NEXT PAST", 100, 10), ("BEFORE FROM", 0, 10), ("PRIOR PAST", 100, 10), ("CLOSE", 0, 10),
     ("LAST CLOSED", -501, 10), ("EMPTY FIRST", 100, 10), ("EMPTY LAST", 100, 10),
+    ("EMPTY AFTER", 0, 10), ("EMPTY BEFORE", 0, 10),
 ]  # fmt: skip
 TRACED_SCROLL = "".join(f"{t:<14}{c:>10}{v:>10}\n" for t, c, v in _TRACED_SCROLL)
+
+
+def test_the_oracle_takes_fetch_before_and_after_as_a_position_with_no_row():
+    """#4269: equivalence_sql.py gives BEFORE / AFTER (no INTO) a scroll statement with no host variable; ggsql.c reads
+    the `K:BEFORE` / `K:AFTER` token. A cursor not declared SCROLL, or the INTO form, stays refused by name."""
+    import equivalence_sql as Q
+
+    _, table = Q.precompile((SCR / "cbl" / "SCRDEMO.cbl").read_text(encoding="utf-8"), [], Path("SCRDEMO.cbl"))
+    fetches = [ln.split() for ln in table.splitlines() if ln.startswith("S ") and " FETCH " in ln]
+    positions = [(f[5], f[8]) for f in fetches if f[8] in ("K:BEFORE", "K:AFTER")]
+    assert positions == [("SC1", "K:AFTER"), ("SC1", "K:BEFORE"), ("SC1", "K:AFTER"), ("SC1", "K:BEFORE"),
+                         ("SC2", "K:AFTER"), ("SC2", "K:BEFORE")]  # fmt: skip
+    assert all(f[3:5] == ["0", "0"] for f in fetches if f[8] in ("K:BEFORE", "K:AFTER"))  # no input, no output
+    src = (SCR / "cbl" / "SCRDEMO.cbl").read_text(encoding="utf-8")
+    plain = src.replace("SC1 INSENSITIVE SCROLL CURSOR", "SC1 CURSOR").replace("SC2 SCROLL CURSOR", "SC2 CURSOR")
+    with pytest.raises(Q.Unsupported, match="not declared SCROLL"):
+        Q.precompile(plain, [], Path("SCRDEMO.cbl"))
 
 
 @pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
@@ -642,7 +720,8 @@ def test_scrolldemo_det_port_proves_on_db2_against_the_hand_trace(tmp_path):
     stub = (project / "src/main/java" / det_port.PKG_DIR / "service" / "ScrdemoService.java").read_text("utf-8")
     r = P.translate(estate / "cbl/SCRDEMO.cbl", [estate / "cbl"], stub, det_port.PKG, P.estate_files(project), project)
     assert r.stats["holes"] == []
-    assert r.java.count("DetSql.fetchScroll(") == 20  # every FETCH but the three plain NEXT ones (18 on SC1, 2 on SC2)
+    assert r.java.count("DetSql.fetchScroll(") == 22  # every FETCH but the plain NEXT ones and BEFORE / AFTER
+    assert r.java.count("DetSql.positionScroll(") == 6  # (4 on SC1, 2 on the empty SC2): the oracle runs these as well
     port = tmp_path / "port"
     (port / "service").mkdir(parents=True)
     (port / "service" / f"{r.service}.java").write_text(r.java, encoding="utf-8")

@@ -453,16 +453,20 @@ int GGCRDPV(gg_cics *c, char *ridfld, int keylen, char *into, int intolen) {
     return browse_read(c, -1, ridfld, keylen, into, intolen);
 }
 
-/* ENDBR FILE(name1). */
+/* ENDBR FILE(name1). #6262: a file the region does not define is FILENOTFOUND RESP2 1 (X75), as for the other browse
+ * commands, not the INVREQ 35 of a defined file with no browse. */
 int GGCENBR(gg_cics *c) {
-    char want[9], ev[100];
-    int fresp, fresp2, n;
+    char want[9], ev[100], path[3000];
+    int fresp, fresp2, n, reclen, keyoff, klen;
     trim(c->name1, 8, want);
     c->resp2 = 0;
     int s = browse_slot(want, 0);
     if (injected("ENDBR", want, &fresp, &fresp2)) {
         c->resp = fresp;
         c->resp2 = fresp2;
+    } else if (!file_cfg(want, path, &reclen, &keyoff, &klen)) {
+        c->resp = FILENOTFOUND;
+        c->resp2 = 1;
     } else if (s < 0 || !br[s].active) {
         c->resp = INVREQ;
         c->resp2 = 35;

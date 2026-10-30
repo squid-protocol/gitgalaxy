@@ -315,8 +315,8 @@ def test_a_bll_program_translates_whole_on_the_pointer_lane(tmp_path):
     [  # the cell form of a command that is refused for a pointer too stays refused, under that command's reason
         (
             "MOVE FRPTR TO TSPTR SERVICE RELOAD TS-REC.",
-            "EXEC CICS ADDRESS TWA(TSPTR) END-EXEC SERVICE RELOAD TS-REC.",
-            "ADDRESS TWA: option not modelled",
+            "EXEC CICS ADDRESS CWA(TSPTR) END-EXEC SERVICE RELOAD TS-REC.",
+            "ADDRESS CWA: option not modelled",
         ),
         # a list that is not the first LINKAGE record (IBM: only DFHCOMMAREA may precede it) is no BLL list: its
         # fullwords are data, and SET(FRPTR) names no pointer

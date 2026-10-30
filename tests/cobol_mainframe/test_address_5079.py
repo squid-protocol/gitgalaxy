@@ -28,6 +28,7 @@ sys.path.insert(0, str(HERE.parents[1] / "tests" / "tools"))
 sys.path.insert(0, str(HERE.parents[1] / "tests" / "cics_crucible"))
 import test_cics_runtimes as R  # noqa: E402  (bare imports: tests/ has no __init__.py, see CLAUDE.md)
 import test_pointer_lane_4771 as PL  # noqa: E402
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
@@ -75,21 +76,38 @@ def test_a_program_with_no_dfhcommarea_addresses_the_no_commarea_pointer(tmp_pat
 
 
 @pytest.mark.parametrize(
+    ("options", "calls"),
+    [
+        ("TWA(CA-ADDRESS)", ["addressTwa"]),
+        ("TCTUA(CA-ADDRESS)", ["addressTctua"]),
+        ("TWA(EIB-ADDRESS) TCTUA(CA-ADDRESS)", ["addressTwa", "addressTctua"]),
+        (
+            "EIB(EIB-ADDRESS) COMMAREA(CA-ADDRESS)\n           TWA(EIB-ADDRESS) TCTUA(CA-ADDRESS)",
+            ["setPointerToRecord", "addressCommarea", "addressTwa", "addressTctua"],
+        ),
+    ],
+)
+def test_twa_and_tctua_translate_to_the_runtime_handles_in_option_order(tmp_path, options, calls):
+    """#5079 slice 2 (X59): TWA / TCTUA are modelled, alone or beside EIB / COMMAREA; the areas are taken in IBM's order."""
+    r = PL._translate(tmp_path, PROGRAM.replace("EIB(EIB-ADDRESS) COMMAREA(CA-ADDRESS)", options))
+    assert r.stats["holes"] == [], r.stats["holes"]
+    at = [r.java.index(f"{c}(task, ") for c in calls]
+    assert at == sorted(at)
+    assert "DetCics.addressTwa(task, " in r.java or "DetCics.addressTctua(task, " in r.java
+
+
+@pytest.mark.parametrize(
     ("edit", "why"),
     [
         (
             ("EIB(EIB-ADDRESS) COMMAREA(CA-ADDRESS)", "CWA(CA-ADDRESS)"),
             "CWA: the common work area (CWA) is a system area",
         ),
-        (("EIB(EIB-ADDRESS) COMMAREA(CA-ADDRESS)", "TWA(CA-ADDRESS)"), "TWA: the transaction work area (TWA)"),
-        (("EIB(EIB-ADDRESS) COMMAREA(CA-ADDRESS)", "TCTUA(CA-ADDRESS)"), "TCTUA: the terminal control table user area"),
         (("EIB(EIB-ADDRESS) COMMAREA(CA-ADDRESS)", "ACEE(CA-ADDRESS)"), "ACEE: the access control environment element"),
-        (
-            ("EIB(EIB-ADDRESS) COMMAREA(CA-ADDRESS)", "EIB(EIB-ADDRESS) TWA(CA-ADDRESS)"),
-            "TWA: the transaction work area",
-        ),
+        (("EIB(EIB-ADDRESS) COMMAREA(CA-ADDRESS)", "EIB(EIB-ADDRESS) CWA(CA-ADDRESS)"), "CWA: the common work area"),
+        (("EIB(EIB-ADDRESS) COMMAREA(CA-ADDRESS)", "TWA(CA-ADDRESS) ACEE(CA-ADDRESS)"), "ACEE: the access control"),
         (("EIB(EIB-ADDRESS) COMMAREA(CA-ADDRESS)", "SET(CA-ADDRESS)"), "SET: ADDRESS SET"),
-        (("EIB(EIB-ADDRESS) COMMAREA(CA-ADDRESS)", "NOHANDLE"), "ADDRESS without EIB or COMMAREA"),
+        (("EIB(EIB-ADDRESS) COMMAREA(CA-ADDRESS)", "NOHANDLE"), "ADDRESS without an area option"),
         (("EIB(EIB-ADDRESS) COMMAREA(CA-ADDRESS)", "EIB(WS-RESP)"), "not a plain USAGE POINTER"),
         (("EIB(EIB-ADDRESS) COMMAREA(CA-ADDRESS)", "COMMAREA(CA-MISSING)"), "CA-MISSING"),
         (
@@ -170,7 +188,7 @@ def test_the_harness_calls_the_stubs_entry_point_for_the_eib_and_the_commarea():
     "text",
     [
         "ADDRESS CWA(P)",
-        "ADDRESS TWA(P)",
+        "ADDRESS TWA(P)",  # (the port models these; the stub, GGCADDR, not yet: slice 2b)
         "ADDRESS TCTUA(P)",
         "ADDRESS ACEE(P)",
         "ADDRESS SET(P)",

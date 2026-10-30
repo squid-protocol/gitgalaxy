@@ -127,7 +127,9 @@ FREEMAIN = Command(
 )
 
 # #5079 (X59), IBM CICS TS, EXEC CICS ADDRESS: EIB(ptr) / COMMAREA(ptr) set a pointer to the EXEC interface block / the
-# communication area. The areas CICS keeps for the system (CWA, TWA, TCTUA, ACEE) are not modelled: the region defines none.
+# communication area. TWA / TCTUA return the transaction work area / terminal control table user area, whose sizes the
+# definitions state (TRANSACTION TWASIZE, TYPETERM USERAREALEN; slice 2 of #5079). CWA and ACEE are system areas the region
+# does not define: not modelled.
 _SYSTEM_AREA = "the {} is a system area the region does not define: not modelled"
 
 ADDRESS = Command(
@@ -138,17 +140,17 @@ ADDRESS = Command(
     options={
         "EIB": Arg("pointer"),
         "COMMAREA": Arg("pointer"),
+        "TWA": Arg("pointer"),
+        "TCTUA": Arg("pointer"),
         **RESP_OPTIONS,
     },
     refused={
         "CWA": Refusal(_SYSTEM_AREA.format("common work area (CWA)"), "X59"),
-        "TWA": Refusal(_SYSTEM_AREA.format("transaction work area (TWA)"), "X59"),
-        "TCTUA": Refusal(_SYSTEM_AREA.format("terminal control table user area (TCTUA)"), "X59"),
         "ACEE": Refusal(_SYSTEM_AREA.format("access control environment element (ACEE)"), "X59"),
         "SET": Refusal("ADDRESS SET (the old form, a pointer to a data area's address) is not modelled", "X59"),
     },
-    default_refusal=Refusal("only EIB and COMMAREA are modelled", "X59"),
-    outcomes=(Outcome("NORMAL", 0, "", writes=("EIB", "COMMAREA")),),
+    default_refusal=Refusal("only EIB, COMMAREA, TWA and TCTUA are modelled", "X59"),
+    outcomes=(Outcome("NORMAL", 0, "", writes=("EIB", "COMMAREA", "TWA", "TCTUA")),),
     runtime_refusals=(
         RuntimeRefusal(
             "ADDRESS COMMAREA when the task has no COMMAREA (IBM sets the pointer to X'FF000000', which is not the COBOL "

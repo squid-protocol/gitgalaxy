@@ -644,7 +644,10 @@ class Gen:
             if c.abbrev is not None and self.resolve_cond(c.ref) is None:
                 rel = E.Rel(c.abbrev[0], c.abbrev[1], c.ref)
                 if not (
-                    self.null_relation(rel) or self.pointer_relation(rel) or self.byte_view_relation(rel) is not None
+                    self.null_relation(rel)
+                    or self.pointer_relation(rel)
+                    or self.byte_view_relation(rel) is not None
+                    or self.view_zero_relation(rel) is not None
                 ):
                     out.append(self._relation(c.abbrev[1], c.ref, c.abbrev[0] == "="))
         elif isinstance(c, E.ClassCond):
@@ -655,6 +658,7 @@ class Gen:
             and not self.null_relation(c)
             and not self.pointer_relation(c)
             and self.byte_view_relation(c) is None
+            and self.view_zero_relation(c) is None
         ):
             out.append(self._relation(c.left, c.right, c.op == "="))
 
@@ -1527,6 +1531,8 @@ class Gen:
                 return self.rel_null(c)
             if self.byte_view_relation(c) is not None:
                 return self.rel_pointer_bytes(c)
+            if self.view_zero_relation(c) is not None:
+                return self.rel_view_zero(c)
             if self.pointer_operand(c.left) and self.pointer_operand(c.right):
                 return self.rel_pointers(c)
             with self.relation():
@@ -1574,6 +1580,32 @@ class Gen:
             ):  # fmt: skip
                 return self.pointer_byte_view_of.get(view.name.upper())
         return None
+
+    def view_zero_relation(self, c) -> str | None:
+        """#6876 (X47): the pointer whose pure numeric view (program.pointer_view_of) a relation compares with zero (`0`, ZERO,
+        ZEROS, ZEROES), either side; None for anything else (it stays refused by field_expr), and in batch, where a pointer's
+        zero is not stated (the z/OS control blocks of #5856: BUMP-TIOT = 0 stays a hole)."""
+        if self.cics is None:
+            return None
+        for view, zero in ((c.left, c.right), (c.right, c.left)):
+            is_zero = (isinstance(zero, E.Fig) and zero.kind == "ZEROS" and zero.all_literal is None) or (
+                isinstance(zero, E.Lit) and isinstance(zero.value, Decimal) and zero.value == 0
+            )
+            ptr = self.view_pointer(view)
+            if is_zero and ptr is not None:
+                return ptr
+        return None
+
+    def rel_view_zero(self, c: E.Rel) -> str:
+        """#6876 (X47): `view = 0` (and NOT =, which the parser wraps in Not) over a numeric view of a pointer (CAGMZ's
+        `IF WS-PTR2-N = 0`). A handle's zero is NULL, so the test is the pointer's NULL test (rel_null); the view's bytes are
+        never read as a number. Only = is a test of it; an ordering operator is refused by name."""
+        if c.op != "=":
+            raise Untranslatable(f"pointer numeric view {c.op} zero: only = and NOT = test a pointer for NULL (X47)")
+        ptr = self.view_zero_relation(c)
+        if ptr is None:
+            raise Untranslatable("pointer numeric view compared with something other than zero (X47)")
+        return f"Cobol.compareFigurative({self.pointer_item(ptr)}, Figurative.LOW_VALUES, CS) == 0"
 
     def rel_pointer_bytes(self, c: E.Rel) -> str:
         """#6876 (X59): `byte-view = X'FF000000'` (and NOT =, which the parser wraps in Not). A handle is not an address, so

@@ -466,8 +466,8 @@
    "line": 850,
    "before": "Cobol.moveFigurative(Figurative.LOW_VALUES, f107_COUSR3AO, CS);",
    "after": "/* Cobol.moveFigurative(Figurative.LOW_VALUES, f107_COUSR3AO, CS); */",
-   "verdict": "harness-gap",
-   "reason": "without the first entry's MOVE LOW-VALUES TO COUSR3AO the first SEND MAP sends the map's VALUE image (spaces) in its fields instead of low-values: a different 3270 data stream, but equivalence_cics._same and the screen values strip trailing spaces AND low-values, so the proof cannot see it (#4635)"
+   "verdict": "equivalent",
+   "reason": "without the first entry's MOVE LOW-VALUES TO COUSR3AO, SEND MAP sends the map's initial image values, which are blanks (0x20) and nulls (0x00); equivalence_cics._same strips trailing blanks and nulls so screen comparison values are identical, all attribute/color/highlight positions in IMAGE_s_COUSR3AI are already 0x00, and USRIDINL is explicitly set to -1 immediately following, making the low-values clear completely unobservable"
   },
   {
    "id": "1f58000fca",

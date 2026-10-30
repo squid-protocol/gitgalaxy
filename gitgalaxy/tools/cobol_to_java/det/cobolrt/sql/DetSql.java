@@ -661,6 +661,28 @@ public final class DetSql {
         return moveTo(ca, cursor, rows, Math.max(0, Math.min(target, size + 1)), cs);
     }
 
+    /** FETCH BEFORE | AFTER of a scroll cursor (#4269; IBM Db2 for z/OS SQL Reference, FETCH): the cursor is parked before
+     *  its first row (position 0) or after its last (n + 1); SQLCODE 0, no row returned, no host variable touched. The
+     *  cursor then has no current row. -501 when it is not open. */
+    // [rule RT-SQL-SCROLL-POSITION]
+    public static void positionScroll(Field ca, String at, String cursor, String where, Charset cs) {
+        reset(ca, cs);
+        if (injected(ca, at, cs)) {
+            return;
+        }
+        List<Map<String, Object>> rows = OPEN.get(cursor);
+        if (rows == null) {
+            code(ca, -501, "24501", cs);
+            return;
+        }
+        switch (where) {
+            case "BEFORE": POS.put(cursor, 0); break;
+            case "AFTER": POS.put(cursor, rows.size() + 1); break;
+            default: throw new UnsupportedOperationException("EXEC SQL FETCH " + where + " not modelled");
+        }
+        CURRENT.remove(cursor);
+    }
+
     /** The cursor positioned at `target` (0 .. n + 1): its row, or null and +100 when that is off either end. */
     private static Map<String, Object> moveTo(Field ca, String cursor, List<Map<String, Object>> rows, long target,
                                               Charset cs) {

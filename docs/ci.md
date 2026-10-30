@@ -63,9 +63,11 @@ path-filtered check merged anyway (#6881, #6894, #6895 with `shepherd:needs-fix`
   for it: a reconcile pass updates it when a required workflow, DOOM-rosetta or the accuracy audit finishes
   (`GATE_TRIGGERS`), or at the 20-minute cron for any other workflow.
 
-`ci-gate` holds a merge only once the owner adds it to ruleset 24824983, from the squid-shepherd app (which needs
-Commit statuses: write). Until then it reports and the auto-merge rule above is the guard. With it required, a PR with no
-`ci-gate` yet waits for the next reconcile pass.
+`ci-gate` is required by ruleset 24824983, posted by the squid-shepherd app. A PR with no `ci-gate` yet waits for the next
+reconcile pass. It only sees checks that ran, so a path-filtered workflow that never started can't hold anything.
+
+Every check that can hold a PR is listed in `tests/tools/gate_controls.py` with the test that proves it can fail (#7155).
+`python tests/tools/gate_controls.py` prints the ones with no proof yet; that count may only go down.
 
 ## Other rules
 

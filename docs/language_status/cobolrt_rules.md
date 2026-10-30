@@ -14,7 +14,7 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 | EDIT: numeric editing | `Editing.java` | 5 | yes |
 | FUNC: intrinsic functions | `Funcs.java`, `Accept.java`, `FuncSpec.java` | 12 | yes |
 | CICS: EXEC CICS data movement | `cics/DetCics.java`, `cics/DetJustify.java` | 27 | yes |
-| SQL: embedded SQL | `sql/DetSql.java` | 11 | yes |
+| SQL: embedded SQL | `sql/DetSql.java` | 12 | yes |
 | LE: Language Environment callable services | `le/Ceedate.java`, `le/Ceedatm.java`, `le/Ceedays.java`, `le/Ceedywk.java`, `le/Ceegmt.java`, `le/Ceegmto.java`, `le/Ceeisec.java`, `le/Ceeloct.java`, `le/Ceeqcen.java`, `le/Ceeseci.java`, `le/Ceesecs.java`, `le/Ceeutc.java`, `le/Cobdatft.java`, `le/Dsntiac.java`, `le/LeTime.java`, `le/Mvswait.java`, `le/Zuidstck.java` | 19 | yes |
 | DLI: IMS DL/I database calls | `dli/DetDli.java` | 16 | yes |
 | MQ: IBM MQ (MQI from CICS) | `mq/QueueManager.java`, `cics/DetMq.java` | 7 | yes |
@@ -24,7 +24,7 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 | SYS: standalone SYSOUT and abends | `standalone/CobolAbend.java`, `standalone/Sysout.java` | 2 | yes |
 | MVS: z/OS control blocks a batch program reads | `DetMvs.java` | 1 | yes |
 
-188 rules: 88 MATCHED, 23 DIFFERS, 14 REFUSED, 63 ASSUMED; 0 measured on z/OS (#4702).
+189 rules: 89 MATCHED, 23 DIFFERS, 14 REFUSED, 63 ASSUMED; 0 measured on z/OS (#4702).
 
 ## IBM documents
 
@@ -232,6 +232,7 @@ Host variables, the SQLCA, cursors and the unit of work around each EXEC SQL sta
 | RT-SQL-SAVEPOINT | SAVEPOINT / ROLLBACK TO / RELEASE SAVEPOINT as written, on the unit's connection (-880: no such savepoint), set ON ROLLBACK RETAIN CURSORS | `db2-sql` SAVEPOINT | - | - | MATCHED | uncalibrated |
 | RT-SQL-CURSOR | OPEN (-502 when open; WITH HOLD survives COMMIT), FETCH (+100 at the end, -501 when not open), CLOSE (-501 when not open); a task's or step's end closes its cursors | `db2-codes` SQLCODE +100, -501, -502 | - | - | MATCHED | uncalibrated |
 | RT-SQL-SCROLL-FETCH | FETCH PRIOR / FIRST / LAST / CURRENT / ABSOLUTE n / RELATIVE n of an insensitive SCROLL cursor: a position over the rows read at OPEN (a move off either end is +100 and clamps; FETCH CURRENT with no current row is refused: +231 on z/OS, +100 on LUW) | `db2-codes` SQLCODE +100, -501 | - | Q4 (REFUSED) | MATCHED | uncalibrated |
+| RT-SQL-ROWSET-FETCH | FETCH [NEXT] ROWSET FROM cursor FOR n ROWS INTO host-variable tables: up to n next rows, one table per column, SQLERRD(3) the rows read; a rowset that reaches the end holds fewer than n rows and is +100 (an n above the tables is refused) | `db2-codes` SQLCODE +100, -501 | - | Q4 (REFUSED) | MATCHED | uncalibrated |
 | RT-SQL-POSITIONED-UPDATE | UPDATE / DELETE WHERE CURRENT OF: the current row (-501 not open, -508 no current row) | `db2-codes` SQLCODE -508 | - | Q8 (MATCHED) | MATCHED | uncalibrated |
 
 ## LE: Language Environment callable services

@@ -213,6 +213,9 @@ COBOL_CAPS = cc.Capabilities(
         "READNEXT": frozenset({"file", "ridfld", "set", "resp", "resp2", "length", "data"}),
         "READPREV": frozenset({"file", "ridfld", "set", "resp", "resp2", "length", "data"}),
         "ENDBR": frozenset({"file", "resp", "resp2"}),
+        # #6262: what ggcics.c's file_event records for GGCWRIT and ggcics_filecontrol.c's GGCDELT
+        "WRITE": frozenset({"file", "ridfld", "data", "resp", "resp2"}),
+        "DELETE": frozenset({"file", "ridfld", "generic", "resp", "resp2"}),
         "READQ-TS": frozenset({"queue", "item", "resp", "length", "data"}),
         "WRITEQ-TS": frozenset({"queue", "data", "resp", "item"}),
         "WRITE-OPERATOR": frozenset({"data", "resp"}),  # #4270 zECS (X32)
@@ -2396,6 +2399,16 @@ def _cobol_events(out: Path, program: str, screens: dict[str, Screen] | None = N
                     ev["length"] = int(arg("len"))
                 ev["data"] = cc.RawArea(data, "latin-1") if ev["resp"] in ("NORMAL", "DUPKEY") else None
             if arg("resp2") and not (verb != "STARTBR" and verb != "ENDBR" and ev["resp"] == "LENGERR"):
+                ev["resp2"] = int(arg("resp2"))
+        elif verb in ("WRITE", "DELETE"):  # #6262: SPEC 6.2 keys only where the command carries them
+            ev.update(file=arg("file"), resp=names.get(int(arg("resp") or 0), arg("resp")))
+            if re.search(r"\brid=", args):  # a DELETE of the held or the token's record has no RIDFLD
+                ev["ridfld"] = bytes.fromhex(arg("rid")).decode("latin-1").encode(cc.EBCDIC)
+            if verb == "WRITE":
+                ev["data"] = cc.RawArea(data, "latin-1")
+            elif arg("generic"):
+                ev["generic"] = True
+            if arg("resp2"):
                 ev["resp2"] = int(arg("resp2"))
         elif verb in ("RETURN", "END"):
             level = int(arg("level") or 1)

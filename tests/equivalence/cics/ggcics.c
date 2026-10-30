@@ -414,13 +414,21 @@ static long long find_key(const char *path, int reclen, int keyoff, int klen, co
     return at;
 }
 
-static void file_event(const char *verb, const char *file, const char *key, int klen, int resp) {
-    char ev[400], k[201];
-    int shown = klen < 200 ? klen : 200;
-    memcpy(k, key, (size_t)shown);
-    k[shown] = '\0';
-    snprintf(ev, sizeof ev, "%s file=%s key=%s resp=%d", verb, file, k, resp);
-    event(ev, NULL, 0);
+/* #6262, SPEC 6.2 WRITE / DELETE event: `rid=` the RIDFLD on entry as hex (left out: a DELETE of the held or the token's
+ * record has none; `rlen` < 0), `generic=1` for DELETE GENERIC, `resp2=` where the command is not NORMAL, and for WRITE the
+ * FROM bytes as issued. */
+static void file_event(const char *verb, const char *file, const char *rid, int rlen, const gg_cics *c, const char *from,
+                       int fromlen) {
+    char ev[600], hex[2 * 100 + 1];
+    int shown = rlen < 0 ? 0 : rlen < 100 ? rlen : 100;
+    for (int i = 0; i < shown; i++) snprintf(hex + 2 * i, 3, "%02X", (unsigned char)rid[i]);
+    hex[2 * shown] = '\0';
+    int n = snprintf(ev, sizeof ev, "%s file=%s", verb, file);
+    if (rlen >= 0) n += snprintf(ev + n, sizeof ev - (size_t)n, " rid=%s", hex);
+    if (strcmp(verb, "DELETE") == 0 && strstr(c->flags, "GENERIC")) n += snprintf(ev + n, sizeof ev - (size_t)n, " generic=1");
+    n += snprintf(ev + n, sizeof ev - (size_t)n, " resp=%d", c->resp);
+    if (c->resp != NORMAL && c->resp2) snprintf(ev + n, sizeof ev - (size_t)n, " resp2=%d", c->resp2);
+    event(ev, from, from ? fromlen : 0);
 }
 
 /* WRITE FILE(name1) RIDFLD FROM: a new record; DUPREC when its key is there already. */
@@ -432,7 +440,7 @@ int GGCWRIT(gg_cics *c, char *ridfld, int keylen, char *from, int fromlen) {
     if (injected("WRITE", want, &fresp, &fresp2)) {
         c->resp = fresp;
         c->resp2 = fresp2;
-        file_event("WRITE", want, ridfld, keylen, c->resp);
+        file_event("WRITE", want, ridfld, keylen, c, from, fromlen);
         return 0;
     }
     keyed_on_esds("WRITE", want);
@@ -452,7 +460,7 @@ int GGCWRIT(gg_cics *c, char *ridfld, int keylen, char *from, int fromlen) {
         free(rec);
         c->resp = NORMAL;
     }
-    file_event("WRITE", want, ridfld, keylen, c->resp);
+    file_event("WRITE", want, ridfld, keylen, c, from, fromlen);
     return 0;
 }
 

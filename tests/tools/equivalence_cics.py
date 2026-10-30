@@ -548,14 +548,16 @@ def _address(opts: dict[str, str | None], labels: list[str] | None) -> list[str]
 
 
 def _freemain(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
-    """#4771 (register X47): FREEMAIN DATAPOINTER(ptr) -> GGCFREM (INVREQ RESP2 1 for an address GETMAIN did not return)."""
+    """#4771 (register X47): FREEMAIN DATAPOINTER(ptr) -> GGCFREM, DATA(record) -> GGCFRED (#6876); INVREQ RESP2 1 for an address GETMAIN did not return."""
     key = "FREEMAIN"
     _check_spec(key, opts, ("FREEMAIN",), lambda bad: [f"{key} {o}" for o in bad])
+    if opts.get("DATA") and opts.get("DATAPOINTER"):
+        raise Unsupported(_rule(key, "at_most_one", "DATAPOINTER"), [key])
+    if opts.get("DATA"):  # #6876: the 01 LINKAGE record's address is the storage; GnuCOBOL passes it BY REFERENCE
+        if re.fullmatch(r"(?is)\s*[A-Z][A-Z0-9-]*\s*", opts["DATA"]) is None:
+            raise Unsupported("FREEMAIN DATA: a data area is the COBOL form", [key])
+        return _call("GGCFRED", [f"BY REFERENCE {opts['DATA'].strip()}"]) + _resp(opts, True, labels)
     if not opts.get("DATAPOINTER"):
-        if opts.get("DATA"):  # the det translator models it (#6876); the oracle's GGCFREM takes a pointer only
-            raise Unsupported(
-                "FREEMAIN DATA: the oracle's GGCFREM takes a pointer, not an ADDRESS OF record", [f"{key} DATA"]
-            )
         raise Unsupported(_rule(key, "one_of", "DATAPOINTER"), [key])
     return _call("GGCFREM", [f"BY REFERENCE {_pointer(key, opts['DATAPOINTER'])}"]) + _resp(opts, True, labels)
 

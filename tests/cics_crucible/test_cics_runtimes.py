@@ -4747,7 +4747,7 @@ def test_cics_task_records_web_receive(tmp_path):
 # ---- #4771 zECS (register X47): the pointer lane -- GETMAIN, FREEMAIN, WEB RECEIVE SET ----------------------------------------
 # A step a word-line, run alike by the stub (C) and CicsTask (Java): pointer slots 0 and 1; `gm SLOT LENGTH SHORT INIT` GETMAIN
 # (SHORT 1: the LENGTH form; INIT the INITIMG byte), `fm SLOT` FREEMAIN, `rs SLOT MAX` WEB RECEIVE SET (MAX -: no MAXLENGTH),
-# `adr SLOT` the pointer set to a record's address, `nul SLOT` to NULL, `rd SLOT N` the first N bytes of the storage (hex). The
+# `fd SLOT` FREEMAIN DATA of a record at the slot's address (#6876), `in SLOT` the pointer moved one byte into its block, `adr SLOT` the pointer set to a record's address, `nul SLOT` to NULL, `rd SLOT N` the first N bytes of the storage (hex). The
 # request is the "full" fixture of X38 (body "hello world!", text/plain) unless the case says "bare" (no body).
 _X47_CASES = [  # (fixture, steps, what both runtimes answer; a last answer that is no step line is a refusal)
     ("full", ["gm 0 8 0 255", "rd 0 4"], ["gm 0/0", "rd FFFFFFFF"]),
@@ -4773,6 +4773,12 @@ _X47_CASES = [  # (fixture, steps, what both runtimes answer; a last answer that
     ("full", ["nul 0", "rs 0 0", "fm 0"], ["rs 22/16", "fm 16/1"]),  # (LENGERR 16 leaves the pointer as it was)
     ("full", ["rs 0 16", "fm 0"], ["rs 0/0 12|text/plain", "FREEMAIN of storage already freed or received"]),
     ("full", ["rs 0 16", "rs 1 16"], ["rs 0/0 12|text/plain", "a second WEB RECEIVE"]),
+    ("full", ["gm 0 4 0 1", "fd 0"], ["gm 0/0", "fd 0/0"]),  # #6876: FREEMAIN DATA(record) of a GETMAIN block
+    ("full", ["gm 0 4 0 1", "gm 1 4 0 2", "fd 1", "fd 0"], ["gm 0/0", "gm 0/0", "fd 0/0", "fd 0/0"]),
+    ("full", ["adr 1", "fd 1"], ["fd 16/1"]),  # (a record's own storage is no GETMAIN block)
+    ("full", ["nul 0", "fd 0"], ["FREEMAIN DATA of a record no pointer addresses"]),
+    ("full", ["rs 0 16", "fd 0"], ["rs 0/0 12|text/plain", "FREEMAIN of storage already freed or received"]),
+    ("full", ["gm 0 4 0 1", "in 0", "fd 0"], ["gm 0/0", "FREEMAIN DATA of an address inside a GETMAIN block"]),
     (
         "full",
         ["rs 0 16 r", "rs 1 16 c", "rd 0 12", "rd 1 12"],  # (ZECS001's text/* pass: a new block with the same bytes)
@@ -4788,7 +4794,7 @@ _X47_CASES = [  # (fixture, steps, what both runtimes answer; a last answer that
     ("full", ["rs 0 16 c", "rs 1 16 c"], ["rs 0/0 12|text/plain", "a second WEB RECEIVE"]),
     ("bare", ["rs 0 16"], ["WEB RECEIVE of a request with no body"]),
 ]
-_X47_STEPS = ("gm", "fm", "rs", "adr", "nul", "rd")
+_X47_STEPS = ("gm", "fm", "fd", "in", "rs", "adr", "nul", "rd")
 
 _X47_MAIN = r"""
 #include <stdio.h>
@@ -4798,6 +4804,7 @@ typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[4
                  char rtran[4], rterm[4], rqueue[8]; } gg_cics;
 int GGCGETM(gg_cics *c, void **slot, char *img, int imglen);
 int GGCFREM(gg_cics *c, void **slot);
+int GGCFRED(gg_cics *c, void *area);
 int GGCWRCS(gg_cics *c, void **slot, char *media, int mediacap);
 static gg_cics c;
 static void flags(const char *s) { memset(c.flags, ' ', 40); memcpy(c.flags, s, strlen(s)); }
@@ -4818,6 +4825,11 @@ int main(int argc, char **argv) {
         } else if (strcmp(w[0], "fm") == 0) {
             GGCFREM(&c, &p[s]);
             printf("fm %d/%d\n", c.resp, c.resp2);
+        } else if (strcmp(w[0], "fd") == 0) {
+            GGCFRED(&c, p[s]);
+            printf("fd %d/%d\n", c.resp, c.resp2);
+        } else if (strcmp(w[0], "in") == 0) {
+            p[s] = (char *)p[s] + 1;
         } else if (strcmp(w[0], "rs") == 0) {
             char media[56];
             memset(media, ' ', 56);
@@ -4920,7 +4932,7 @@ def test_the_stub_hands_out_task_storage_through_pointers(tmp_path):
         out.mkdir()
         env = {**_stub_base_env(), "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(out), "GGCICS_WEBREQ": str(req)}
         run = subprocess.run([str(exe), *steps], env=env, capture_output=True, text=True, check=False)  # noqa: S603
-        if answers[-1].split()[0] in _X47_STEPS + ("gm", "fm", "rs", "rd"):
+        if answers[-1].split()[0] in _X47_STEPS:
             assert run.returncode == 0 and run.stdout.splitlines() == answers, (steps, run.stdout)
         else:
             assert run.returncode == 98 and answers[-1] + ": not modelled" in run.stdout, (steps, run.stdout)
@@ -4955,6 +4967,12 @@ def test_cics_task_hands_out_task_storage_as_the_stub_does(tmp_path):
                 }
                 System.out.println(o);
             }
+            case "fd" -> {  // the record at the slot's address: its bytes and where they start (a null slot: a record with no address)
+                byte[] rec = slot[s] == 0 ? new byte[8] : t.storageAt(slot[s], 0);
+                int[] r = t.freemainData(rec, slot[s] == 0 ? 0 : t.offsetAt(slot[s]));
+                System.out.println("fd " + r[0] + "/" + r[1]);
+            }
+            case "in" -> slot[s] = t.addressOf(t.storageAt(slot[s], 0), t.offsetAt(slot[s]) + 1);
             case "adr" -> slot[s] = t.addressOf(new byte[8]);
             case "nul" -> slot[s] = 0;
             default -> {

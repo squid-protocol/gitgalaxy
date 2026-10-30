@@ -2194,14 +2194,13 @@ int GGCGETM(gg_cics *c, void **slot, char *img, int imglen) {
     return 0;
 }
 
-/* GGCFREM: FREEMAIN DATAPOINTER(ptr): INVREQ RESP2 1 for an address GETMAIN did not return (a null pointer, a record's address). Refused:
- * storage already freed, a WEB RECEIVE SET body (IBM does not say whether FREEMAIN is allowed). */
-int GGCFREM(gg_cics *c, void **slot) {
+/* The release both FREEMAIN forms share: the block that starts at `addr`, INVREQ RESP2 1 when none does. */
+static int free_block_at(gg_cics *c, void *addr) {
     int i;
     c->resp = NORMAL;
     c->resp2 = 0;
     for (i = 0; i < nblks; i++) {
-        if (blks[i].p == *slot) {
+        if (blks[i].p == addr) {
             if (blks[i].kind != BLK_GETMAIN) refuse("FREEMAIN of storage already freed or received");
             blks[i].kind = BLK_FREED;
             return 0;
@@ -2210,6 +2209,25 @@ int GGCFREM(gg_cics *c, void **slot) {
     c->resp = INVREQ;
     c->resp2 = 1;
     return 0;
+}
+
+/* GGCFREM: FREEMAIN DATAPOINTER(ptr): INVREQ RESP2 1 for an address GETMAIN did not return (a null pointer, a record's address). Refused:
+ * storage already freed, a WEB RECEIVE SET body (IBM does not say whether FREEMAIN is allowed). */
+int GGCFREM(gg_cics *c, void **slot) {
+    return free_block_at(c, *slot);
+}
+
+/* GGCFRED: FREEMAIN DATA(record) (#6876, X47): `area` is the LINKAGE record, whose address is the storage a SET ADDRESS OF gave it.
+ * As GGCFREM for that address; refused besides: a record with no address (IBM: undefined), an address inside a GETMAIN block that is
+ * not its start (IBM does not say what releasing the middle of a block does), as CicsTask.freemainData. */
+int GGCFRED(gg_cics *c, void *area) {
+    int i;
+    if (area == NULL) refuse("FREEMAIN DATA of a record no pointer addresses");
+    for (i = 0; i < nblks; i++) {
+        if (blks[i].kind == BLK_GETMAIN && (char *)area > (char *)blks[i].p && (char *)area < (char *)blks[i].p + blks[i].n)
+            refuse("FREEMAIN DATA of an address inside a GETMAIN block");
+    }
+    return free_block_at(c, area);
 }
 
 /* ---- #5119 (register X56): an OS/VS COBOL address held in data (a chained storage area's fullword). `MOVE cell TO fullword` is

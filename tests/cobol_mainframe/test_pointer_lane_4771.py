@@ -795,3 +795,20 @@ public class Main {
         "own: 16/1",
         "FREEMAIN DATA of an address inside a GETMAIN block: not modelled",
     ]
+
+
+def test_the_oracle_translates_freemain_data_onto_the_stubs_record_entry_and_refuses_the_rest():
+    """#6876 (X47): the harness's FREEMAIN DATA(record) calls GGCFRED with the record by reference, as DATAPOINTER calls GGCFREM."""
+    import equivalence_cics as ec
+
+    out = ec.translate_command("FREEMAIN DATA(CACHE-MESSAGE) RESP(R)")
+    assert out[:2] == ["CALL 'GGCFRED' USING GG-CICS", "    BY REFERENCE CACHE-MESSAGE"] and "MOVE GG-RESP TO R" in out
+    assert "GGCFREM" in "".join(ec.translate_command("FREEMAIN DATAPOINTER(P) NOHANDLE"))
+    for text, why in (
+        ("FREEMAIN DATA(REC(1))", "a data area is the COBOL form"),
+        ("FREEMAIN DATA(REC) DATAPOINTER(P)", "with both DATAPOINTER and DATA"),
+        ("FREEMAIN NOHANDLE", "FREEMAIN"),
+    ):
+        with pytest.raises(ec.Unsupported) as e:
+            ec.translate_command(text)
+        assert why.lower() in str(e.value).lower(), (text, str(e.value))

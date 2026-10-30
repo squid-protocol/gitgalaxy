@@ -4180,7 +4180,7 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   `tests/cobol_mainframe/test_pointer_lane_reach_5042.py` pins both halves: the spec keeps each refusal, and the census finds no burned program
   issuing one (skipped without the corpora checkout). Evidence level: refused by name, 0 burned programs reach it.
 
-### X59. ADDRESS EIB / COMMAREA modelled; ADDRESS CWA / TWA / TCTUA / ACEE, SEND PAGE and PURGE MESSAGE refused by name (#5079; CONVERSE, POST, WAIT EVENT: X63)
+### X59. ADDRESS EIB / COMMAREA / TWA / TCTUA modelled in the port; ADDRESS CWA / ACEE, SEND PAGE and PURGE MESSAGE refused by name (#5079; CONVERSE, POST, WAIT EVENT: X63)
 - **ADDRESS** (CICS TS 6.x, https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-address). EIB "returns a pointer reference set to the address
   of the EXEC interface block (EIB)"; COMMAREA "returns a pointer reference, set to the address of the communication area (COMMAREA) available
   to the currently executing program"; "If the COMMAREA does not exist, the pointer reference is set to the null value, X'FF000000'". CWA, TWA,
@@ -4192,10 +4192,17 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   DFHCOMMAREA in the pointer. The port's pointer holds the handle of the record's own bytes (X47), the stub's a real address, so SET ADDRESS OF
   record TO pointer makes the record and the EIB (or the DFHCOMMAREA) one storage in both. EIBRESP and EIBRESP2 are written NORMAL, and RESP /
   RESP2 as for any command. Several options in one command are taken in the order EIB, COMMAREA.
+- **TWA and TCTUA (#5079 slice 2).** The det port lowers them to `DetCics.addressTwa(task, ptr)` / `DetCics.addressTctua(task, ptr)`: the pointer holds
+  the handle of the area's own bytes, sized by the definitions (TRANSACTION TWASIZE, the terminal's TYPETERM USERAREALEN; crucible case
+  `ca-address-twa-tctua`). The TWA is the root task's, so every LINK level sees the same bytes; the TCTUA belongs to the terminal and outlives the
+  task. An area of size 0 or no stated size is IBM's X'FF000000'. IBM does not state the initial content, so a program that reads before it writes
+  is outside the proof. Options are taken in the order EIB, COMMAREA, TWA, TCTUA. **The stub (`GGCADDR`) does not model them yet** (slice 2b):
+  the harness refuses them by name, so the crucible `cobol-stub` cells stay `unsupported` and no `java` cell passes (the crucible `java` side is
+  the forge's stub, not a port). No burned estate program issues either command.
 - **Assumed.** (1) The EIB the pointer addresses is the task's own, updated by every later command as the program's DFHEIBLK is. (2) The
   COMMAREA the pointer addresses is the program's DFHCOMMAREA (the area the caller passed, X23), at its start. (3) The command raises no condition
   (the page lists none).
-- **Refused by name.** At translation: CWA, TWA, TCTUA and ACEE (the region defines none: no CICS system tables), the old ADDRESS SET form,
+- **Refused by name.** At translation: CWA and ACEE (the region defines none: no CICS system tables), the old ADDRESS SET form,
   ADDRESS COMMAREA in a program with no LINKAGE 01 DFHCOMMAREA (there is no record to address; the pointer could only be handed to SET ADDRESS OF
   another record), ADDRESS with neither EIB nor COMMAREA, a pointer that is not a plain USAGE POINTER item or that a REDEFINES overlays (X47). At
   run time: ADDRESS COMMAREA when EIBCALEN is 0 (IBM's X'FF000000' is not NULL, and a handle is no number the program can compare with it). BLL cells

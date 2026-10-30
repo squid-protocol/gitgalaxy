@@ -33,6 +33,8 @@ ground_truth_plan.py does for `ground-truth`):
            tests that name the directory or the case id, plus TREE_GUARDS.
 * `select` also for a case's `case.json` / `evidence.json` (slice 12): the tests that name the case id or the file as a word
            (direct only), plus TREE_GUARDS. Other files in a case directory stay `full`.
+* `select` also for a golden-master snapshot part under `tests/golden_master_audit` or `golden_master_zero_dep_audit` (slice 13):
+           the tests that name the fixture directory or `golden_store` as a word (direct only), plus TREE_GUARDS.
 * `select` also for a workflow file `.github/workflows/*.yml` (slice 10): the tests that name the workflows directory or the
            file as a word (direct only), plus TREE_GUARDS.
 * `full`   anything else, any reader that is the engine or a root-level script (it cannot be mapped to a test), an
@@ -183,6 +185,17 @@ def is_case_file(f: str) -> bool:
     return bool(CASE_DIR_RX.match(f))
 
 
+# Slice 13: the golden-master snapshots (directories of per-section JSON parts, #3384). `golden_store.py` is the only reader;
+# the tests that name a fixture directory or `golden_store` as a word read them (about a dozen, `test_golden_crucible.py`
+# among them but that one is opt-in). Direct only: `bugfix_kit` and `update_golden_master` name the trees and are named by
+# most of the suite. A bless in a PR that also changes the engine selects here; CI's `crucible-audit` check is the net.
+GOLDEN_TREES = ("tests/golden_master_audit", "tests/golden_master_zero_dep_audit")
+
+
+def golden_tree(f: str) -> str | None:
+    return next((t for t in GOLDEN_TREES if f.startswith(t + "/")), None)
+
+
 def is_named_data_file(f: str) -> bool:
     p = Path(f)
     parent = p.parent.as_posix()
@@ -190,6 +203,7 @@ def is_named_data_file(f: str) -> bool:
         (f.endswith(".json") and (f.startswith(SWEEP_COVERAGE_DIR) or parent in NAMED_DATA_DIRS))
         or (p.suffix in TOOL_FILE_SUFFIXES and parent in TOOL_FILE_DIRS)
         or is_case_file(f)
+        or golden_tree(f) is not None
     )
 
 
@@ -198,6 +212,8 @@ def named_data_targets(f: str, root: Path = REPO_ROOT, limit: int = HELPER_MAX) 
     p = Path(f)
     if m := CASE_DIR_RX.match(f):
         seeds = {m.group(1), p.name}
+    elif tree := golden_tree(f):
+        seeds = {Path(tree).name, "golden_store"}
     elif f.startswith(SWEEP_COVERAGE_DIR):
         seeds = {"det_sweep_coverage"}
     elif p.parent.as_posix() in RECORD_DIRS:

@@ -61,6 +61,7 @@ BUILD_PROGRAMS = frozenset({
 RUNNERS = frozenset({"IKJEFT01", "IKJEFT1B", "DFSRRC00", "DFSRRC0"})
 COPY = frozenset({"IEBGENER", "ICEGENER"})
 SORTS = frozenset({"SORT", "DFSORT", "ICEMAN", "SYNCSORT", "ICETOOL"})
+DFSORT = frozenset({"SORT", "DFSORT", "ICEMAN"})  # #4268: the programs whose SYSIN is DFSORT control statements
 
 
 @dataclass
@@ -134,10 +135,11 @@ class BatchForge:
         dds: dict[tuple[str, int, str | None], list[dict]] = {}
         for d in (sections.get("job_dds") or {}).get("facts", []):
             dds.setdefault((d["file"], d["ordinal"], d.get("proc_step")), []).append(d)
-        self.sysin: dict[tuple[str, int, str | None], list[str]] = {}
+        self.sysin: dict[tuple[str, int, str | None, str], list[str]] = {}
         for d in (sections.get("job_sysin") or {}).get("facts", []):
-            if d.get("dd") == "SYSIN":
-                self.sysin.setdefault((d["file"], d["ordinal"], d.get("proc_step")), []).append(d.get("body") or "")
+            self.sysin.setdefault((d["file"], d["ordinal"], d.get("proc_step"), d.get("dd") or ""), []).append(
+                d.get("body") or ""
+            )
         self.flows = (sections.get("job_dataset_flow") or {}).get("facts", [])
         self.jobs = [self._plan(j, dds) for j in (sections.get("job_steps") or {}).get("facts", [])]
         taken: set[str] = set()
@@ -174,6 +176,8 @@ class BatchForge:
                 st.parm = ps.get("parm")
                 if prog in COPY:
                     st.refused = self._iebgener_refusal(j["file"], s["ordinal"], st)
+                elif prog in SORTS:
+                    st.refused = self._sort_refusal(j["file"], s["ordinal"], st)
                 self._through_runner(st, ps.get("runner_programs") or [])
                 steps.append(st)
         names = [st.jcl for st in steps]
@@ -203,15 +207,38 @@ class BatchForge:
         (`dfsort.iebgener`, proven against GnuCOBOL); a control statement, or a SYSIN dataset the engine cannot read
         here, edits or reformats records, so the step is refused by name rather than copied. A deck written inside a
         PROC definition is not carried by `job_sysin` (it is the procedure's): that case is not seen."""
-        decks = self.sysin.get((file, ordinal, st.proc_step)) or self.sysin.get((file, ordinal, None)) or []
         if any(d.get("dd") == "SYSIN" and d.get("dsn") for d in st.dds):
             return "its SYSIN is a dataset of control statements (not read)"
-        for body in decks:
+        for body in self._deck(file, ordinal, st, "SYSIN"):
             try:
                 dfsort.iebgener(body)
             except dfsort.Refused as e:
                 return str(e)
         return None
+
+    def _deck(self, file: str, ordinal: int, st: Step, dd: str) -> list[str]:
+        """The in-stream bodies of the step's `dd` (job_sysin), the procedure step's else the job step's."""
+        return self.sysin.get((file, ordinal, st.proc_step, dd)) or self.sysin.get((file, ordinal, None, dd)) or []
+
+    def _sort_refusal(self, file: str, ordinal: int, st: Step) -> str:
+        """#4268: why a SORT step is not run -- always a reason, as no step is lowered yet. The control statements
+        (SYSIN with the SYMNAMES it names) go through `dfsort.parse`: what the model does not cover is named as it
+        names it. A step the model does cover still cannot be lowered here: its program (`dfsort.cobol_program`) needs
+        the records' length, which the job facts do not carry (no DCB / LRECL), so that is the reason said."""
+        if st.program not in DFSORT:
+            return f"is {st.program}, not DFSORT control statements the model reads"
+        for dd in ("SORTCNTL", "DFSPARM"):
+            if self._deck(file, ordinal, st, dd) or any(d.get("dd") == dd for d in st.dds):
+                return f"has a {dd} (control statements merged with its SYSIN, not read)"
+        if any(d.get("dd") in ("SYSIN", "SYMNAMES") and d.get("dsn") for d in st.dds):
+            return "has its control statements in a dataset (not read)"
+        try:
+            ctl = dfsort.parse(
+                "\n".join(self._deck(file, ordinal, st, "SYSIN")), "\n".join(self._deck(file, ordinal, st, "SYMNAMES"))
+            )
+        except dfsort.Refused as e:
+            return f"uses {e}, which the DFSORT model refuses"
+        return f"is a DFSORT {ctl.verb} the model lowers, but the job facts carry no record length (LRECL) to lower it"
 
     def _through_runner(self, st: Step, runs: list[dict]) -> None:
         """#3710: a runner step runs the program its SYSTSIN / PARM names -- the estate program
@@ -344,6 +371,8 @@ class BatchForge:
         p = st.program or "?"
         if p in COPY and st.refused:
             return f"TODO: {st.jcl} runs {p}, which {st.refused} -- not run as a plain copy: a utility step to port"
+        if p in SORTS and st.refused:
+            return f"TODO: {st.jcl} runs {p}, which {st.refused} -- not run: a utility step to port"
         if st.key or p in ("IEFBR14", *COPY):
             return None
         if p in RUNNERS and st.commands_only:

@@ -143,7 +143,7 @@ def rank(progs: list[tuple[str, str, set[str]]], scope: str, top: tuple[int, ...
         whole = sum(c <= picked for _, _, c in progs)
         closed.append({"top": n, "whole": whole, "share": round(whole / total, 4) if total else 0.0,
                        "upper_bound": any(g["refuses_program"] for g in gaps[:n])})  # fmt: skip
-    return {
+    res = {
         "format": FORMAT,
         "scope": scope,
         "estates": sorted({c for c, _, _ in progs}),
@@ -153,6 +153,46 @@ def rank(progs: list[tuple[str, str, set[str]]], scope: str, top: tuple[int, ...
         "gaps": gaps,
         "coverage_if_closed": closed,
     }
+    order = close_next(progs, gaps)
+    if order:
+        res["close_next"] = order
+    return res
+
+
+CLOSE_NEXT_STEPS = 10
+
+
+def close_next(progs: list[tuple[str, str, set[str]]], gaps: list[dict[str, Any]],
+               steps: int = CLOSE_NEXT_STEPS) -> list[dict[str, Any]]:  # fmt: skip
+    """Greedy work order: each step closes the gap that makes the most further programs whole (ties: more estates,
+    more programs, then name), given the gaps closed before it. A step gaining nothing alone ends the list (the rest
+    only help in combination). `upper_bound`: a closed gap refuses the whole program, so `whole` is an upper bound."""
+    rank_of = {g["gap"]: (-g["estates"], -g["programs"], g["gap"]) for g in gaps}
+    refuses = {g["gap"] for g in gaps if g["refuses_program"]}
+    left = [(era, set(c)) for _, era, c in progs]
+    total = len(progs)
+    closed: set[str] = set()
+    whole = sum(not c for _, c in left)
+    out: list[dict[str, Any]] = []
+    while len(out) < steps:
+        gain: dict[str, int] = defaultdict(int)
+        for _, c in left:
+            if len(c) == 1:
+                gain[next(iter(c))] += 1  # the only gap this program has left
+        if not gain:
+            break
+        pick = min(gain, key=lambda g: (-gain[g], rank_of[g]))
+        closed.add(pick)
+        by_era = dict.fromkeys(ERA_KEYS, 0)
+        for era, c in left:
+            if c == {pick}:
+                by_era[era] += 1
+        left = [(era, c - {pick}) for era, c in left]
+        whole += gain[pick]
+        out.append({"gap": pick, "gained": gain[pick], "gained_by_era": by_era, "whole": whole,
+                    "share": round(whole / total, 4) if total else 0.0,
+                    "upper_bound": bool(closed & refuses)})  # fmt: skip
+    return out
 
 
 # ---- the census half: aggregates only, nothing that names a census repo or program ---------------------------------
@@ -329,6 +369,19 @@ def table(res: dict[str, Any]) -> list[str]:
     for c in res["coverage_if_closed"]:
         out.append(f"| {c['top']} | {c['whole']} / {res['programs']} | {c['share']:.1%} | "
                    f"{'upper' if c['upper_bound'] else 'exact'} |")  # fmt: skip
+    if res.get("close_next"):
+        out += [
+            "",
+            "Close-next order (greedy: each step closes the gap that makes the most further programs whole, "
+            "given the steps before it):",
+            "",
+            "| step | gap closed | newly whole | e0 | e1 | e2 | e3 | e4 | none | whole | share | bound |",
+            "|---|---|---|---|---|---|---|---|---|---|---|---|",
+        ]
+        for i, c in enumerate(res["close_next"], 1):
+            eras = " | ".join(str(c["gained_by_era"][e]) for e in ERA_KEYS)
+            out.append(f"| {i} | `{c['gap'].replace('|', '/')}` | {c['gained']} | {eras} | {c['whole']} / "
+                       f"{res['programs']} | {c['share']:.1%} | {'upper' if c['upper_bound'] else 'exact'} |")  # fmt: skip
     return out
 
 

@@ -264,6 +264,29 @@ def test_infeasible_outcomes_are_stated_and_netted_never_hidden():
     assert all(e["family"] in "GCR" and e["reason"] for e in got["infeasible_stated"])
 
 
+def test_undefined_by_ibm_nets_out_but_is_never_listed_infeasible():
+    """Owner ruling 2026-10-29 (policy section 7): BNK1CAC's four family-U outcomes leave the branch bar like stated
+    infeasible ones, but are named under `undefined_by_ibm`, never in `infeasible_netted` / `infeasible_stated`.
+    The coverage is the det-sweep ledger's counts (uncovered None: every entry taken as uncovered)."""
+    import infeasible_outcomes as io
+
+    four = ["ED010:611:true", "ED010:637:false", "ED010:637:true", "ED010:717:true"]
+    got = er.coverage_of({"case": "cbsa-bnk1cac", "role": "program"}, {}, {"cbsa-bnk1cac": [25, 25, 77, 97]})
+    assert got["branches"] == {"covered": 77, "total": 97}
+    assert got["branches_net"] == {"covered": 77, "total": 77} and got["branch_net_pct"] == 100.0
+    assert got["undefined_by_ibm"] == four
+    assert len(got["infeasible_netted"]) == 16 and not set(four) & set(got["infeasible_netted"])
+    assert len(got["infeasible_stated"]) == 16 and all(e["family"] in "GCR" for e in got["infeasible_stated"])
+    assert [e["key"] for e in got["undefined_by_ibm_stated"]] == four
+    assert all(e["family"] == io.UNDEFINED and e["reason"] for e in got["undefined_by_ibm_stated"])
+    # a case with no U entry carries no `undefined_by_ibm_stated` key at all
+    case, entries = next((c, es) for c, es in io.load().items() if not any(io.is_undefined(e) for e in es))
+    assert "undefined_by_ibm_stated" not in er.coverage_of({"case": case}, {}, {case: [5, 5, 10, 10 + len(entries)]})
+    # and the level: with the net at 100, BNK1CAC's coverage holds nothing below L4
+    p = program(branch=(77, 97), net=(77, 77))
+    assert er.level_of(p, BARS)[0] == "L4"
+
+
 def test_neutral_rewords_quoted_tool_text():
     assert er.neutral("not proven in CI; 7 cases re-proven; Verified") == (
         "not shown equal in CI; 7 cases re-shown equal; checked"

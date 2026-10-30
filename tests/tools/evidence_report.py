@@ -489,12 +489,17 @@ def coverage_of(case: dict[str, Any] | None, swept: dict[str, Any], ledger: dict
         return out
     import infeasible_outcomes as io
 
-    out["infeasible_stated"] = [
+    stated = [
         {k: e[k] for k in ("key", "unit", "line", "kind", "outcome", "family", "reason") if k in e}
         for e in io.stated(case["case"])
     ]
-    for e in out["infeasible_stated"]:
+    for e in stated:
         e["reason"] = neutral(e["reason"])
+    # owner ruling 2026-10-29 (mainframe-evidence-policy.md section 7): an 'undefined by IBM' entry (family U) is never
+    # listed as infeasible; it has its own list, added only when the case has one (exact-equality tests elsewhere)
+    out["infeasible_stated"] = [e for e in stated if not io.is_undefined(e)]
+    if len(out["infeasible_stated"]) != len(stated):
+        out["undefined_by_ibm_stated"] = [e for e in stated if io.is_undefined(e)]
     row = swept.get(case["case"], {})
     line = pb.coverage_of(row.get("coverage", ""))
     uncovered = row.get("uncovered") if line else None
@@ -1594,9 +1599,14 @@ def program_section(p: dict[str, Any]) -> list[str]:
         out.append("  - runtime facts the harness states for its commands: " + ", ".join(a["facts_stated"]))
     out += [f"  - runtime fact no harness states: {f}" for f in a["facts_unstated"]]
     out += [
-        f"  - {'undefined by IBM outcome (owner ruling)' if e['family'] == 'U' else 'stated infeasible branch outcome (reviewed claim, family ' + e['family'] + ')'}: "
+        f"  - stated infeasible branch outcome (reviewed claim, family {e['family']}): "
         f"{e['key']} ({e['kind']}) -- {e['reason']}"
         for e in cov["infeasible_stated"]
+    ]
+    out += [
+        f"  - undefined by IBM outcome (owner ruling 2026-10-29; not proven, not infeasible): "
+        f"{e['key']} ({e['kind']}) -- {e['reason']}"
+        for e in cov.get("undefined_by_ibm_stated") or []
     ]
     out.append(f"- **Det-port mutation:** {p['mutation']['det_port']}")
     risk = [

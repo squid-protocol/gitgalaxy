@@ -97,3 +97,17 @@ def test_the_nightly_stores_its_durations_though_tested_tree_is_skipped():
 @pytest.mark.parametrize(("event", "part"), [("push", "success"), ("pull_request", "success"), ("schedule", "failure")])
 def test_durations_are_stored_only_by_a_nightly_whose_parts_passed(event, part):
     assert _durations_if(event, part) is False
+
+
+def test_each_part_uploads_its_restored_durations_beside_its_times():
+    """#5162: the weights a part balanced by travel with its measured times, so actual/weight can be compared per part."""
+    steps = _doc()["jobs"]["full-suite-part"]["steps"]
+    copy = [s for s in steps if "restored-durations-part-" in str(s.get("run", ""))]
+    assert len(copy) == 1
+    assert "durations-cache/test_durations.json" in copy[0]["run"]
+    upload = [s for s in steps if s.get("with", {}).get("name") == "test-times-part-${{ matrix.group }}"]
+    assert len(upload) == 1
+    paths = upload[0]["with"]["path"]
+    assert "times-part-${{ matrix.group }}.json" in paths
+    assert "restored-durations-part-${{ matrix.group }}.json" in paths
+    assert upload[0]["if"] == "always()"

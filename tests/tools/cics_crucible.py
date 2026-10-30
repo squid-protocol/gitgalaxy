@@ -255,6 +255,9 @@ JAVA_CAPS = cc.Capabilities(
         "READNEXT": frozenset({"file", "ridfld", "set", "resp", "resp2", "length", "data"}),
         "READPREV": frozenset({"file", "ridfld", "set", "resp", "resp2", "length", "data"}),
         "ENDBR": frozenset({"file", "resp", "resp2"}),
+        # #6262: what CicsTask.writeEvent / deleteEvent (and the generic, held, token forms) record
+        "WRITE": frozenset({"file", "ridfld", "data", "resp", "resp2"}),
+        "DELETE": frozenset({"file", "ridfld", "generic", "resp", "resp2"}),
         "WRITE-OPERATOR": frozenset({"data", "resp"}),  # #4270 zECS (X32)
         "START": _START_KEYS,
         "RETRIEVE": _RETRIEVE_KEYS,
@@ -1871,6 +1874,11 @@ def _java_file_event(kind: str, e: dict[str, Any]) -> dict[str, Any]:
     ev: dict[str, Any] = {"file": e.get("file"), "resp": e.get("resp")}
     if e.get("set"):  # #6262: the SET form
         ev["set"] = True
+    if kind in ("WRITE", "DELETE"):  # #6262: the key on entry (a DELETE of the held / token record has none)
+        if e.get("ridfld") is not None:
+            ev["ridfld"] = base64.b64decode(e["ridfld"])
+        if e.get("generic"):
+            ev["generic"] = True
     if kind in ("STARTBR", "READNEXT", "READPREV"):  # #6262: the key on entry; STARTBR's mode, a browse read's record
         ev["ridfld"] = base64.b64decode(e["ridfld"]) if e.get("ridfld") is not None else None
         if kind == "STARTBR":
@@ -1886,7 +1894,7 @@ def _java_file_event(kind: str, e: dict[str, Any]) -> dict[str, Any]:
             ev["update"] = True
         if e.get("length") is not None:
             ev["length"] = e["length"]
-    if kind in ("READ", "REWRITE"):
+    if kind in ("READ", "REWRITE", "WRITE"):
         b64 = e.get("data")
         ev["data"] = cc.RawArea(base64.b64decode(b64), cc.EBCDIC) if b64 is not None else None
     if e.get("resp2") is not None and not (kind in ("READ", "READNEXT", "READPREV") and e.get("resp") == "LENGERR"):
@@ -1934,6 +1942,8 @@ def java_actual(case: cc.Case, raw: dict[str, Any], src: Path,
             elif kind in (
                 "READ",
                 "REWRITE",
+                "WRITE",
+                "DELETE",
                 "UNLOCK",
                 "STARTBR",
                 "READNEXT",
@@ -2900,7 +2910,9 @@ def run_scenario(case: cc.Case, sc: dict[str, Any], box: "Container", work: Path
     count = iter(range(1000))
     origin = origin_peers(case, sc)
     files_cfg = seed_files(case, work, sc["id"])  # #4443
-    carried: list[Path | None] = [None]  # #5005 (X17): the channel the terminal's last RETURN CHANNEL left for its next task
+    carried: list[Path | None] = [
+        None
+    ]  # #5005 (X17): the channel the terminal's last RETURN CHANNEL left for its next task
 
     def run_one(frame: dict[str, Any], transid: str, commarea: bytes | None, step: dict[str, Any] | None,
                 data: list[Any], requests: list[tuple[str, int]]) -> dict[str, Any]:  # fmt: skip

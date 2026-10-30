@@ -1267,6 +1267,7 @@ class RecordKeeper:
         # #3624: `parm` -- the text a step's EXEC PARM= passes its program.
         _ensure_columns(cursor, "job_flow_data", ["parm TEXT"])
         _ensure_columns(cursor, "job_flow_data", ["instream TEXT"])  # #4268: an INSTREAM row's SYSIN / SYMNAMES body
+        _ensure_columns(cursor, "job_flow_data", ["lrecl INTEGER", "recfm TEXT"])  # #4268: a DD's stated DCB
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_job_flow_file_id ON job_flow_data(file_id);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_job_flow_dsn ON job_flow_data(dsn);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_job_flow_snapshot ON job_flow_data(repo_name, commit_hash);")
@@ -2831,6 +2832,8 @@ class RecordKeeper:
                 "systsin_member",
                 "parm",
                 "instream",
+                "lrecl",
+                "recfm",
             ),
             "job_flow",
             lambda j: (
@@ -2854,6 +2857,8 @@ class RecordKeeper:
                 j.get("systsin_member"),
                 j.get("parm"),  # #3624
                 j.get("instream"),  # #4268
+                j.get("lrecl"),  # #4268
+                j.get("recfm"),
             ),
         )
 

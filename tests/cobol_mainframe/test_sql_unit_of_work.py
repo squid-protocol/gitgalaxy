@@ -19,6 +19,7 @@ import sys
 from pathlib import Path
 
 import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
@@ -413,3 +414,12 @@ def test_uowdemo_det_port_proves_on_db2_against_the_hand_trace(tmp_path, mode):
     table = report["outputs"]["DB2 GGUOW.ACCT"]  # compared after the abend too: Db2 backed the work out
     assert table["equal"] == table["records"] == len(ROWS[mode]) and not table["diffs"]
     assert report["abend"] == ({"cobol": "U0999", "java": "U0999"} if mode == "A" else {"cobol": None, "java": None})
+
+
+def test_register_q4_records_the_unit_of_work_and_the_proof_that_backs_it():
+    """#4269: Q4 states COMMIT / ROLLBACK as modelled and proven, naming the proof test and the CICS refusal."""
+    q4 = (Path(__file__).resolve().parents[2] / "docs" / "language_status" / "register" / "Q4.md").read_text("utf-8")
+    entry = next(e for e in q4.split("\n- **") if e.startswith("Modelled, proven on Db2 (#4269).** `COMMIT"))
+    for needle in ("ROLLBACK", "UOWDEMO", "-926", "test_uowdemo_det_port_proves_on_db2_against_the_hand_trace"):
+        assert needle in entry
+    assert "def test_uowdemo_det_port_proves_on_db2_against_the_hand_trace" in Path(__file__).read_text("utf-8")

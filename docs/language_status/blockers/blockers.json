@@ -6,10 +6,10 @@
  "refused": 0,
  "histogram": {
   "0": 173,
-  "1": 5,
-  "2": 6,
+  "1": 6,
+  "2": 5,
   "3": 1,
-  "8": 1
+  "7": 1
  },
  "gaps": [
   {
@@ -22,6 +22,19 @@
    "one_away_non_burned": 0,
    "touched": 2,
    "touched_burned": 2,
+   "touched_non_burned": 0,
+   "refuses_program": false
+  },
+  {
+   "gap": "<name>: a REDEFINES overlays a POINTER with it",
+   "only": 1,
+   "only_burned": 1,
+   "only_non_burned": 0,
+   "one_away": 0,
+   "one_away_burned": 0,
+   "one_away_non_burned": 0,
+   "touched": 1,
+   "touched_burned": 1,
    "touched_non_burned": 0,
    "refuses_program": false
   },
@@ -117,19 +130,6 @@
    "refuses_program": false
   },
   {
-   "gap": "EXEC CICS GETMAIN without INITIMG: IBM gives acquired storage no default contents",
-   "only": 0,
-   "only_burned": 0,
-   "only_non_burned": 0,
-   "one_away": 1,
-   "one_away_burned": 1,
-   "one_away_non_burned": 0,
-   "touched": 2,
-   "touched_burned": 2,
-   "touched_non_burned": 0,
-   "refuses_program": false
-  },
-  {
    "gap": "EXEC CICS WEB RECEIVE CHARACTERSET HOSTCODEPAGE",
    "only": 0,
    "only_burned": 0,
@@ -152,19 +152,6 @@
    "one_away_non_burned": 0,
    "touched": 2,
    "touched_burned": 2,
-   "touched_non_burned": 0,
-   "refuses_program": false
-  },
-  {
-   "gap": "<name>: a REDEFINES overlays a POINTER with it",
-   "only": 0,
-   "only_burned": 0,
-   "only_non_burned": 0,
-   "one_away": 1,
-   "one_away_burned": 1,
-   "one_away_non_burned": 0,
-   "touched": 1,
-   "touched_burned": 1,
    "touched_non_burned": 0,
    "refuses_program": false
   },

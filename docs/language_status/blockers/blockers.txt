@@ -1,9 +1,10 @@
-# blockers in baseline 40c748839f7a (burned + local corpora (no census) + cics-crucible): programs with an EXEC CICS command
+# blockers in baseline 0712a9811414 (burned + local corpora (no census) + cics-crucible): programs with an EXEC CICS command
 translated whole: 173 / 186 (non-burned: not surveyed); refused whole (no statements translated): 0
-distinct gap classes per program: 0: 173, 1: 5, 2: 6, 3: 1, 8: 1
+distinct gap classes per program: 0: 173, 1: 6, 2: 5, 3: 1, 7: 1
 
  only gap (B/NB)  one away (B/NB)  touched  gap  (* = refuses the whole program: its count is an upper bound; `--unmask GAP` shows what it hides)
      1 ( 1/ 0)      1 ( 1/ 0)        2   EXEC CICS ADDRESS TWA
+     1 ( 1/ 0)      0 ( 0/ 0)        1   <name>: a REDEFINES overlays a POINTER with it
      1 ( 1/ 0)      0 ( 0/ 0)        1   EXEC CICS (no reason given)
      1 ( 1/ 0)      0 ( 0/ 0)        1   EXEC CICS ADDRESS OF <name>: undeclared item
      1 ( 1/ 0)      0 ( 0/ 0)        1   EXEC CICS RECEIVE SET without MAXLENGTH: the most it takes is not documented
@@ -11,10 +12,8 @@ distinct gap classes per program: 0: 173, 1: 5, 2: 6, 3: 1, 8: 1
      0 ( 0/ 0)      2 ( 2/ 0)        3   EXEC CICS WEB SEND CHARACTERSET HOSTCODEPAGE
      0 ( 0/ 0)      2 ( 2/ 0)        2   EXEC CICS LOAD
      0 ( 0/ 0)      2 ( 2/ 0)        2   EXEC CICS RELEASE
-     0 ( 0/ 0)      1 ( 1/ 0)        2   EXEC CICS GETMAIN without INITIMG: IBM gives acquired storage no default contents
      0 ( 0/ 0)      1 ( 1/ 0)        2   EXEC CICS WEB RECEIVE CHARACTERSET HOSTCODEPAGE
      0 ( 0/ 0)      1 ( 1/ 0)        2   EXEC CICS not a data area: '…'
-     0 ( 0/ 0)      1 ( 1/ 0)        1   <name>: a REDEFINES overlays a POINTER with it
      0 ( 0/ 0)      1 ( 1/ 0)        1   EXEC CICS ADDRESS TCTUA
      0 ( 0/ 0)      0 ( 0/ 0)        1   <name> ADDRESS OF <name>: not an item of <name> or LINKAGE
      0 ( 0/ 0)      0 ( 0/ 0)        1   CEEHDLR: registering an LE user condition handler is not modelled

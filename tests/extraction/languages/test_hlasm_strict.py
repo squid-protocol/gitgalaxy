@@ -656,4 +656,7 @@ def test_hlasm_calls_out_forms(source, expected):
 
 def test_hlasm_calls_out_is_not_the_assembly_profile():
     """#7063: the x86/ARM `assembly` profile gains no call edge from the HLASM macro forms."""
-    assert LANGUAGE_DEFINITIONS["assembly"]["rules"].get("calls_out") != LANGUAGE_DEFINITIONS["hlasm"]["rules"]["calls_out"]
+    assert (
+        LANGUAGE_DEFINITIONS["assembly"]["rules"].get("calls_out")
+        != LANGUAGE_DEFINITIONS["hlasm"]["rules"]["calls_out"]
+    )

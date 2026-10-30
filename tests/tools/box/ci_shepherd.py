@@ -52,6 +52,7 @@ import pr_check  # noqa: E402
 
 STATE = Path(os.environ.get("CI_SHEPHERD_STATE", Path.home() / ".cache" / "gitgalaxy" / "ci_shepherd.json"))
 REPO_SLUG = pr_check.REPO_SLUG
+API_CACHE = Path(os.environ.get("SHEPHERD_API_CACHE", Path.home() / ".cache" / "gitgalaxy" / "ci_shepherd_api"))
 Run = Callable[[list[str]], subprocess.CompletedProcess[str]]
 
 
@@ -388,6 +389,12 @@ def step(state: dict[str, Any], api: pr_check.Api = pr_check.gh_api, run: Run = 
     return did
 
 
+def pass_api(store: Path | None = None) -> pr_check.Api:
+    """The REST reads that stay, for one pass (#6534): conditional (ETag; a 304 costs no quota, the store persists
+    across passes) with a finished SHA's reads, a commit and a completed run shared within the pass."""
+    return pr_check.pass_cache(pr_check.conditional_api(API_CACHE if store is None else store))
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -417,9 +424,10 @@ def main(argv: list[str] | None = None) -> int:
                 with open(STATE.with_suffix(".lock"), "w") as lock:  # held per pass; add/drop wait for it
                     fcntl.flock(lock, fcntl.LOCK_EX)
                     state = load()
-                    for line in step(state, graphql=pr_check.gh_graphql):
+                    for line in step(state, pass_api(), graphql=pr_check.gh_graphql):
                         log(line)
                     save(state)
+                    pr_check.prune_api_store(API_CACHE)  # the store a long run keeps stays small
                 if args.once or (args.exit_when_empty and not state["queue"]) or time.time() > end:
                     log(
                         "queue empty"

@@ -199,7 +199,7 @@ def test_run_keeps_watching_an_empty_queue_unless_told(tmp_path, monkeypatch):
     monkeypatch.setattr(cs, "STATE", tmp_path / "s.json")
     sleeps = []
     monkeypatch.setattr(cs.time, "sleep", lambda s: (sleeps.append(s), (_ for _ in ()).throw(KeyboardInterrupt))[1])
-    monkeypatch.setattr(cs, "step", lambda state, **kw: [])
+    monkeypatch.setattr(cs, "step", lambda state, api=None, **kw: [])
     assert cs.main(["run", "--exit-when-empty"]) == 0 and sleeps == []
     try:
         cs.main(["run", "--every", "5"])
@@ -517,3 +517,29 @@ def test_the_default_digest_reads_through_graphql_too(monkeypatch):
     sentinel = _check_graphql(gh, [])
     cs.step({"queue": [1], "after": {}, "seen": {}, "events": []}, gh.api, gh.run, settle=0, graphql=sentinel)
     assert got and all(g is sentinel for g in got)
+
+
+def test_run_reads_through_one_conditional_pass_cache_and_prunes_the_store(tmp_path, monkeypatch):
+    """#6534: each pass gets the ETag + finished-SHA api, and the persistent store is pruned after the pass."""
+    monkeypatch.setattr(cs, "STATE", tmp_path / "s.json")
+    monkeypatch.setattr(cs, "API_CACHE", tmp_path / "store")
+    seen, pruned = [], []
+    monkeypatch.setattr(cs, "step", lambda state, api=None, **kw: seen.append(api) or [])
+    monkeypatch.setattr(cs.pr_check, "prune_api_store", lambda store: pruned.append(store))
+    assert cs.main(["run", "--once"]) == 0
+    assert callable(seen[0]) and seen[0] is not cs.pr_check.gh_api and pruned == [tmp_path / "store"]
+
+
+def test_pass_api_sends_if_none_match_and_shares_finished_commits(tmp_path, monkeypatch):
+    calls = []
+
+    def run(argv, **kw):
+        calls.append(argv)
+        return subprocess.CompletedProcess(argv, 0, 'HTTP/2.0 200 OK\netag: "e1"\n\n{"sha": "x"}', "")
+
+    monkeypatch.setattr(cs.pr_check.subprocess, "run", run)
+    path = "repos/o/r/commits/" + "a" * 40
+    api = cs.pass_api(tmp_path)
+    assert api(path) == api(path) == {"sha": "x"} and len(calls) == 1  # a commit by sha is read once per pass
+    cs.pass_api(tmp_path)(path)  # the next pass: conditional on the stored ETag
+    assert 'If-None-Match: "e1"' in calls[-1]

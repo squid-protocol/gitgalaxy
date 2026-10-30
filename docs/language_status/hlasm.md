@@ -398,3 +398,16 @@ named callee. Still near misses: `LOADX`, `CALLX`, `DELETEX`, `LINKXX`, `LINKX E
 
 **Not done (sibling gaps):** `BAL`/`BALR`/`BASR` to an in-file label (internal edge); `fragile_debt`/`planned_debt` false positives
 (moves the golden master); troff / DSP / MASM `.mac`. No burned-estate program needs any of these.
+
+### Addendum (2026-10-30g, #7064): troff `.mac` no longer routes to easytrieve
+
+The 5 FreeBSD troff `.mac` files are held on the box (`share/doc/{usd,psd}` and `usr.bin/fortune/tools`). Re-routed with the engine: 4 landed
+`easytrieve` ("Collision Resolved") and 1 `plaintext`. **The earlier guess was wrong:** no easytrieve discriminator line matches them. Cause:
+hlasm needs proof for `.mac` (`extensions_needing_discriminator`), easytrieve did not, so it was the only unproven claimant and won the Tier-3
+lexical fallback for any `.mac` nobody proved. Easytrieve now lists `.mac` in `extensions_needing_discriminator` too: all 5 files route off
+easytrieve and hlasm. Real Easytrieve `.mac` (FILE / JOB / PRINT / REPORT / PROC / MACRO / `%name` / `END-*`) still routes easytrieve in every
+neighbourhood; `.ezt` / `.ezp` are unchanged. Pinned in `test_easytrieve_macro_language_collision.py`.
+
+With NASM (section 12 addendum e), ARM64, MS-DOS `.MAC` and troff all out of hlasm and easytrieve, every non-mainframe family from the DB's 112
+`hlasm`-labelled files is re-routed. **Sibling gaps (not done):** DSP and MASM `.mac` stay non-mainframe with no owning language. No burned-estate
+program needs any of these.

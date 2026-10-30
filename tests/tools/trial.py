@@ -35,6 +35,7 @@ Sources: tests/cobol_mainframe/trials.json (the ledger, committed). Writes
 docs/language_status/fresh_estate_trials.md and fresh_estate_trials.svg (a plain SVG, no plotting library), and
 (#4493) docs/language_status/trials/<estate>.md: the equivalence harness's self-report for that trial -- coverage,
 run status per program, out-of-scope reasons and blockers phrased as fixes -- built from the ledger alone.
+`start`, `sync` and `close` regenerate all of these when they save the committed ledger.
 """
 
 from __future__ import annotations
@@ -543,6 +544,7 @@ def cmd_start(opts: argparse.Namespace) -> int:
     if problems:
         raise SystemExit("the trial would leave the ledger invalid:\n  " + "\n  ".join(problems))
     save(ledger, opts.ledger)
+    refresh_outputs(ledger, opts.ledger)
     print(f"{trial_id}: {opts.estate} at engine {system['engine_version']} ({system['engine_commit'][:10]}), "
           f"{len(eligible)} eligible, {len(out)} out of scope; tickets in {project / 'ai_agent_jobs'}")  # fmt: skip
     print(f"  eligible: {', '.join(eligible) or '(none)'}")
@@ -550,6 +552,17 @@ def cmd_start(opts: argparse.Namespace) -> int:
           f"--backend {opts.backend} --model {opts.model} ...; then `port_runner prove` (the equivalence harness); "
           f"then python tests/tools/trial.py sync {trial_id} --project {project}")  # fmt: skip
     return 0
+
+
+def refresh_outputs(ledger: dict[str, Any], ledger_path: Path) -> int:
+    """#4493: regenerate the trials page, its chart and every estate page after the committed ledger changes, so the
+    page is part of start / sync / close and `check` never fails on a forgotten `report --write`. Another ledger
+    (a rehearsal, a test) writes nothing into the repo's docs. Returns the number of estate pages written."""
+    if ledger_path.resolve() != LEDGER.resolve():
+        return 0
+    PAGE.write_text(render(ledger), encoding="utf-8")
+    CHART.write_text(render_svg(ledger), encoding="utf-8")
+    return len(write_pages(ledger))
 
 
 # ---- sync: the porting loop's log -> attempts ----------------------------------------------
@@ -636,6 +649,7 @@ def cmd_sync(opts: argparse.Namespace) -> int:
     if problems:
         raise SystemExit("the ledger would be invalid:\n  " + "\n  ".join(problems))
     save(ledger, opts.ledger)
+    refresh_outputs(ledger, opts.ledger)
     for key in trial["programs"]:
         print(f"  {key}: {trial['programs'][key]['final']}" + ("  (updated)" if key in changed else ""))
     return 0
@@ -660,6 +674,7 @@ def cmd_close(opts: argparse.Namespace) -> int:
     if problems:
         raise SystemExit("the ledger would be invalid:\n  " + "\n  ".join(problems))
     save(ledger, opts.ledger)
+    refresh_outputs(ledger, opts.ledger)
     print(f"{opts.trial}: closed")
     return 0
 

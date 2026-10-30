@@ -347,6 +347,12 @@ def test_owner_pointers_for_bll_picture_n_and_procedure_pointers_and_reowner():
     assert gp.owner_of("X: refused: f.cbl:N: the PICTURE N (…) is not modelled (…)") == "#4272"
     assert gp.owner_of("SET TO ENTRY: procedure / function pointers are not modelled") == "#5106"
     assert gp.owner_of("JSON GENERATE: not modelled") == "unowned"  # no open issue owns it: none invented
+    assert gp.owner_of("<name>: <name> is not defined in a record of file <name>") == "#5866"
+    assert gp.owner_of("<name> ADDRESS OF <name>: not an item of <name> or LINKAGE") == "#5042"
+    assert gp.owner_of("EXEC CICS WEB RECEIVE NOTRUNCATE") == "#4767"  # before the generic CICS row
+    assert gp.owner_of("EXEC CICS GETMAIN without INITIMG").startswith("#4270")
+    for still in ("JSON PARSE: not modelled", "refused: LayoutError", "PERFORM: undeclared paragraph"):
+        assert gp.owner_of(still) == "unowned"
     res = {"gaps": [{"gap": "SET TO ENTRY: procedure / function pointers are not modelled", "owner": "unowned"}]}
     assert gp.reowner(res)["gaps"][0]["owner"] == "#5106"
     assert gp.reowner(res) == res

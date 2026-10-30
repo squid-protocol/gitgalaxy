@@ -56,7 +56,7 @@
     "none": 0
    },
    "gap": "<name>: <name> is not defined in a record of file <name>",
-   "owner": "unowned",
+   "owner": "#5866",
    "programs": 2,
    "refuses_program": false,
    "status": "not modelled"
@@ -80,7 +80,7 @@
     "none": 0
    },
    "gap": "<name> ADDRESS OF <name>: not an item of <name> or LINKAGE",
-   "owner": "unowned",
+   "owner": "#5042",
    "programs": 1,
    "refuses_program": false,
    "status": "not modelled"

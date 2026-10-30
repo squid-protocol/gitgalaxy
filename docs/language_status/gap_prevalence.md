@@ -107,3 +107,27 @@ Counted by tools only; non-burned estates keep their first-contact numbers. Aggr
 | 3 | 20 / 40 | 50.0% | upper |
 | 5 | 29 / 40 | 72.5% | upper |
 | 10 | 32 / 40 | 80.0% | upper |
+
+Close-next order (greedy: each step closes the gap that makes the most further programs whole, given the steps before it):
+
+| step | gap closed | newly whole | e0 | e1 | e2 | e3 | e4 | none | whole | share | bound |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | `missing copybook: estate-owned` | 9 | 0 | 0 | 8 | 0 | 1 | 0 | 17 / 40 | 42.5% | upper |
+| 2 | `refused: LayoutError` | 9 | 0 | 0 | 9 | 0 | 0 | 0 | 26 / 40 | 65.0% | upper |
+| 3 | `refused: generation` | 2 | 0 | 0 | 0 | 0 | 0 | 2 | 28 / 40 | 70.0% | upper |
+| 4 | `<name>: bytes overlap another item` | 2 | 0 | 0 | 0 | 0 | 2 | 0 | 30 / 40 | 75.0% | upper |
+| 5 | `<name>: undeclared item` | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 31 / 40 | 77.5% | upper |
+| 6 | `PERFORM: undeclared paragraph` | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 32 / 40 | 80.0% | upper |
+| 7 | `refused: ExprError` | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 33 / 40 | 82.5% | upper |
+| 8 | `refused: LayoutDisagrees` | 1 | 0 | 0 | 0 | 0 | 1 | 0 | 34 / 40 | 85.0% | upper |
+| 9 | `refused: UnitRefused` | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 35 / 40 | 87.5% | upper |
+
+Needs several gaps together (5 programs the order above leaves out: each turns whole only when every gap in its row is closed):
+
+| gaps closed together | programs | estates | e0 | e1 | e2 | e3 | e4 | none | bound |
+|---|---|---|---|---|---|---|---|---|---|
+| `<name>: no such item`; `EXEC CICS map: no <name> field` | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | exact |
+| `<name>: no such item`; `MOVE: literal beyond the single-byte code page`; `STRING: numeric sender with P or a decimal place` | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | exact |
+| `EXEC CICS WEB RECEIVE NOTRUNCATE`; `JSON GENERATE: not modelled`; `JSON PARSE: not modelled` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | exact |
+| `EXEC CICS WEB CONVERSE URIMAP POST`; `EXEC CICS WEB WRITE HTTPHEADER SESSTOKEN`; `JSON GENERATE: not modelled`; `JSON PARSE: not modelled` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | exact |
+| `<name>: no such item`; `EXEC CICS map: no <name> field`; `EXEC SQL: other`; `MOVE: literal beyond the single-byte code page`; `STRING: literal beyond the single-byte code page`; `STRING: numeric sender with P or a decimal place` | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | exact |

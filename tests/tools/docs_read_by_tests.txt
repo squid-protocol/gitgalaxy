@@ -2,10 +2,13 @@
 # test or engine code names, with the scopes that name them. tests/tools/test_change_classifier.py fails when stale.
 **/*.md	tests/tools/post_merge_dispatch.py,tests/tools/test_post_merge_dispatch.py,tests/tools/test_workflow_inputs.py
 .claude/*	tests/tools/test_evidence_report_single_source.py
-.claude/agents/gitgalaxy-pr-worker.md	tests/tools/box
+.claude/agents/gitgalaxy-pr-worker.md	tests/tools/box,tests/tools/test_ci_replay_6278.py
 .claude/rules/a.md	tests/tools/test_context_pack.py
 .claude/rules/ci-workflows.md	tests/tools/test_pr_runner_cost.py
+.claude/rules/python-test-traps.md	tests/tools/test_ci_replay_6278.py
+.claude/rules/test-writing.md	tests/tools/test_ci_replay_6278.py
 .claude/rules/x.md	tests/tools/test_engine_reach_workflows.py
+.claude/skills/det-port/SKILL.md	tests/tools/test_ci_replay_6278.py
 .claude/skills/rule-contract-audit/SKILL.md	tests/signal_contract_audit.py
 /*.cbl	tests/cobol_mainframe
 /*.json	tests/test_golden_store.py,tests/tools/test_gap_prevalence.py
@@ -186,7 +189,7 @@ NOTES.md	tests/tools/crucible_case.py,tests/tools/crucible_release.py,tests/tool
 POSTIT_port_ticket.md	tests/cobol_mainframe
 PROVENANCE.md	tests/tools/publish_examples.py
 README-TEST.md	tests/core_engine
-README.md	gitgalaxy,tests/cobol_mainframe,tests/core_engine,tests/security_auditing,tests/tools/evidence.py,tests/tools/evidence_report.py,tests/tools/language_addition_audit.py,tests/tools/publish_examples.py,tests/tools/test_ci_critical_path_split.py,tests/tools/test_context_pack.py,tests/tools/test_crucible_release.py,tests/tools/test_doom_fidelity.py,tests/tools/test_doom_subsystem_distribution.py,tests/tools/test_evidence_match_5162.py,tests/tools/test_evidence_report.py,tests/tools/test_evidence_report_single_source.py,tests/tools/test_generated_branch.py,tests/tools/test_generated_readers.py,tests/tools/test_post_merge_dispatch.py,tests/tools/test_pr_runner_cost.py,tests/tools/test_progress_report.py,tests/tools/test_progress_slide.py,tests/tools/test_readme_hand_counts.py,tests/tools/test_status_page_snapshots.py,tests/tools/test_workflow_inputs.py,tests/tools/xctl_commarea_capture_kit.py,tests/tools_recorders
+README.md	gitgalaxy,tests/cobol_mainframe,tests/core_engine,tests/security_auditing,tests/tools/evidence.py,tests/tools/evidence_report.py,tests/tools/language_addition_audit.py,tests/tools/publish_examples.py,tests/tools/test_ci_critical_path_split.py,tests/tools/test_ci_replay_6278.py,tests/tools/test_context_pack.py,tests/tools/test_crucible_release.py,tests/tools/test_doom_fidelity.py,tests/tools/test_doom_subsystem_distribution.py,tests/tools/test_evidence_match_5162.py,tests/tools/test_evidence_report.py,tests/tools/test_evidence_report_single_source.py,tests/tools/test_generated_branch.py,tests/tools/test_generated_readers.py,tests/tools/test_post_merge_dispatch.py,tests/tools/test_pr_runner_cost.py,tests/tools/test_progress_report.py,tests/tools/test_progress_slide.py,tests/tools/test_readme_hand_counts.py,tests/tools/test_status_page_snapshots.py,tests/tools/test_workflow_inputs.py,tests/tools/xctl_commarea_capture_kit.py,tests/tools_recorders
 RELEASING.md	tests/tools/crucible_pins.py,tests/tools/crucible_release.py
 SOURCE.md	tests/cobol_mainframe,tests/tools/mainframe_corpus.py,tests/tools/port_invariance.py
 SOURCES.md	tests/tools/estate4_draw.py
@@ -343,6 +346,7 @@ docs/language_status/refusal_map.json	tests/cobol_mainframe,tests/tools/support_
 docs/language_status/register	tests/cobol_mainframe,tests/tools/test_generated_docs.py
 docs/language_status/register/	tests/tools/cobolrt_rules.py,tests/tools/register.py,tests/tools/test_generated_docs.py
 docs/language_status/register/*.md	tests/cobol_mainframe,tests/tools/register.py
+docs/language_status/register/A1.md	tests/tools/test_ci_replay_6278.py
 docs/language_status/register/C11.md	tests/cobol_mainframe
 docs/language_status/register/C18.md	tests/cobol_mainframe
 docs/language_status/register/C5.md	tests/cobol_mainframe

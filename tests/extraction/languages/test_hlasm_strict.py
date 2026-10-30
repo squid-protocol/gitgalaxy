@@ -623,7 +623,7 @@ def test_hlasm_dsect_is_class_start_not_func_start():
 
 def test_hlasm_calls_out_strict():
     """
-    Epic #3264: Asserts that HLASM extracts targets from =V() constants only.
+    Epic #3264 / #7063: calls_out names the callee of `=V(name)`, the CALL macro and `LINK`/`XCTL EP=`.
     """
     hlasm = LANGUAGE_DEFINITIONS["hlasm"]
     calls_out = hlasm["rules"]["calls_out"]
@@ -641,3 +641,70 @@ def test_hlasm_calls_out_strict():
     # 3. ReDoS Scale Testing
     payload = "=V(" + ("A" * 10000) + ")"
     assert_redos_immune(calls_out, payload)
+    for payload in (
+        "         LINK  " + "A," * 5000 + "EP=",
+        "         LINK  " + "A" * 10000,
+        "         CALL  " + "A" * 10000,
+        " " * 10000 + "CALL X",
+        "N" * 10000 + " CALL",
+    ):
+        assert_redos_immune(calls_out, payload)
+
+
+_CALLS_OUT_FORMS = [
+    # (source, expected callees)
+    ("         CALL  PAYCALC", ["PAYCALC"]),
+    ("         CALL  PAYCALC,(PARMS,RESULT),VL", ["PAYCALC"]),
+    ("MYLAB    CALL  PAYCALC,MF=(E,PLIST)", ["PAYCALC"]),
+    ("         call  paycalc,(parms)", ["paycalc"]),
+    ("         CALL  @SUB#1,(P)", ["@SUB#1"]),
+    ("         LINK  EP=PAYCALC", ["PAYCALC"]),
+    ("         LINK  EP=PAYCALC,PARAM=(PARMS),VL=1", ["PAYCALC"]),
+    ("         LINK  PARAM=(A,B),EP=PAYCALC", ["PAYCALC"]),
+    ("LNK      LINK  EP=PAYCALC,SF=(E,LIST)", ["PAYCALC"]),
+    ("         XCTL  EP=NEXTPGM", ["NEXTPGM"]),
+    ("         xctl  ep=nextpgm,param=(x)", ["nextpgm"]),
+    ("         XCTL  (2,12),EP=NEXTPGM", ["NEXTPGM"]),
+    # all three forms in one member, in source order
+    (
+        "         L     15,=V(SUBA)\n         CALL  SUBB\n         LINK  EP=SUBC\n         XCTL  EP=SUBD\n",
+        ["SUBA", "SUBB", "SUBC", "SUBD"],
+    ),
+    # --- near-misses that name no literal program ---
+    ("         CALL  (15)", []),
+    ("         CALL  (15),(PARMS)", []),
+    ("         CALL  &TARGET", []),
+    ("         CALL  =V(X)", ["X"]),  # the V-constant is still its own form
+    ("         LINK  EPLOC=NAMEFLD", []),
+    ("         LINK  EPLOC=NAMEFLD,PARAM=(P)", []),
+    ("         LINK  SF=L", []),
+    ("         LINK  DE=DIRENT", []),
+    ("         XCTL  (2,12),EPLOC=NAMEFLD", []),
+    ("         LINK  XEP=PAYCALC", []),
+    # not an operation field: a remark, a comment line, a keyword operand, a longer mnemonic
+    ("* CALL  PAYCALC", []),
+    ("         MVC   WSNAME,=C'CALL  PAYCALC'", []),
+    ("               CALL=PAYCALC", []),
+    ("         CALLX PAYCALC", []),
+    ("         LINKX EP=PAYCALC", []),
+    ("         BAL   14,PAYCALC", []),
+    ("         BASR  14,15", []),
+    # macro-level CICS LINK has no EP= operand
+    ("         DFHPC TYPE=LINK,PROGRAM=PAYCALC", []),
+    ("         EXEC CICS LINK PROGRAM('PAYCALC')", []),
+]
+
+
+@pytest.mark.parametrize(("source", "expected"), _CALLS_OUT_FORMS)
+def test_hlasm_calls_out_forms(source, expected):
+    """#7063: one case per call form, the whole near-miss class beside it."""
+    calls_out = LANGUAGE_DEFINITIONS["hlasm"]["rules"]["calls_out"]
+    assert calls_out.findall(source) == expected
+
+
+def test_hlasm_calls_out_is_not_the_assembly_profile():
+    """#7063: the x86/ARM `assembly` profile gains no call edge from the HLASM macro forms."""
+    assert (
+        LANGUAGE_DEFINITIONS["assembly"]["rules"].get("calls_out")
+        != LANGUAGE_DEFINITIONS["hlasm"]["rules"]["calls_out"]
+    )

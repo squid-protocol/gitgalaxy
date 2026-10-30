@@ -15,9 +15,9 @@ jcl/cobol/bms/db2_sql position), and no ground-truth parser diff was run, so the
 The pinned language-crucible corpus carries no z/Architecture sources — its `.asm` files are
 all genuinely x86/ARM (NASM test suite, bare-metal Raspberry Pi kernels) and must STAY
 classified `assembly` through this change; that regression is pinned by the strict suite's
-routing tests and the golden-master run. The rules were validated by the 145-case strict
-suite and the keyword-rosetta `data/hlasm/` control shell (98 gate assertions). A real-file
-probe over the genuine z/OS assembler held locally is in §12 (2026-10-29, #7064).
+routing tests and the golden-master run. The rules were validated by the 185-case strict
+suite and the keyword-rosetta `data/hlasm/` control shell (98 gate assertions), not yet by a
+large real-file probe like pli's 1,560-file pass.
 
 ## 1. At a glance
 
@@ -31,7 +31,7 @@ probe over the genuine z/OS assembler held locally is in §12 (2026-10-29, #7064
 | `invocation_model` | default (`by_name`), deliberately unlike bms/jcl: `L 15,=V(name)` + `BALR`, the `CALL` macro and `USING dsect,reg` reach extracted units by name, so the `unreferenced_by_name` census applies (#2866 corollary 4 answered *yes*). |
 | Structural signature keys wired | 44 / 54 (10 explicit `None`, see §4) |
 | Extraction-gauntlet tests | — (strict suite drives the real extractor directly) |
-| Strict-signature tests (`test_hlasm_strict.py`) | 145 |
+| Strict-signature tests (`test_hlasm_strict.py`) | 185 |
 
 ## 2. Identification surface — the `.asm` collision (#2503's core requirement)
 
@@ -72,6 +72,13 @@ is `[A-Za-z@#$][A-Za-z0-9@#$]{0,62}` (ordinary symbols, 63 chars); every code-st
 anchors the operation field (`^name-or-nothing + blanks + OP`) and terminates it on
 blank/EOL — never `\b`, which would fire between `WAIT` and `=` on a keyword operand
 (`WAIT=YES` on a continuation line is the Rule 9 trap the strict suite pins).
+
+### Call graph (`calls_out`, #7063)
+- **`calls_out`** names the callee of three forms, one capture group: the `=V(name)` address constant;
+  the `CALL name[,(parms)]` macro (the first operand is the target); and `LINK` / `XCTL ... EP=name`
+  (`EP=` may follow other keyword operands). `CALL (15)`, `CALL &SYM`, `EPLOC=`, `SF=` and
+  `DFHPC TYPE=LINK` name no literal program and add no edge. The x86/ARM `assembly` profile is
+  untouched. Strict suite: 33 new cases (152 -> 185) (one per form, plus the near-miss class and ReDoS payloads).
 
 ### Topology (x)
 - **`func_start`** — `name CSECT`, `name RSECT`, `name START`: the named control sections
@@ -153,7 +160,7 @@ security lens's own detector covers hlasm).
   *unanchored* `EXEC CICS` alternations (statement-anchored rules cannot be struck
   mid-literal, so `DC C'EXEC CICS ABEND ...'` is the one shape that pins gitgalaxy#2535
   here).
-- **Strict suite**: 145 cases — per-rule positive/negative coverage, schema completeness,
+- **Strict suite**: 185 cases — per-rule positive/negative coverage, schema completeness,
   collision routing through the real `LanguageDetector` (HLASM-in-`.asm` → hlasm, NASM-in-
   `.asm` → assembly), prism family checks (the #1898 C-name survival, third landing), Mode A
   extraction, and a 35-payload ReDoS detonation sweep including the issue's named "long
@@ -204,8 +211,9 @@ The cross-language page is [cics_mainframe_facts.md](cics_mainframe_facts.md). W
   - general macro expansion (a user macro that wraps `EXEC CICS` is not expanded);
   - any fact beyond CICS, DLI and IMS definitions outside the translation subset — for example, the
     register-level data flow of an assembler program the lowering refuses;
-  - call-graph edges beyond `=V(name)`: the targets of the `CALL` macro, `LINK`/`XCTL EP=` and
-    user-macro uses do not become edges.
+  - call-graph edges for `LINK`/`XCTL EPLOC=` (needs the `DC CL8'...'` constant) and user-macro
+    uses (an operation-field name a `.mac` member or in-file `MACRO` prototype defines): they do not
+    become edges. The `CALL` macro and `LINK`/`XCTL EP=` do (§3, #7063).
 - **Single-sourced:** HLASM CICS rests on one corpus (zECS, a small service). The burned-estate census
   (#6963) pins every burned assembler member: the two zECS programs lowered, CardDemo's two batch
   routines modelled by hand-written runtime code.
@@ -240,14 +248,12 @@ were not probed.
 | `immutability_locks` | 45 / 771 | `R0 EQU 0` register equates: correct per the profile, but dominates the count |
 | `dead_code` | 6 / 11 | commented-out instructions (`*TRY LR 1,1`): correct |
 | `test`, `closures`, `generics`, `comprehensions`, `regex_execution`, `encapsulation`, `inline_asm`, `hardcoded_secrets`, `dependency_injection`, `system_config_mutation` | none | explicit `None`, nothing expected |
-| `calls_out` | 0 | **defect**: see below |
+| `calls_out` | 0 | **defect at probe time**, since fixed by #7063 / #7068 (CALL macro and LINK/XCTL `EP=` callees now named; see §3) |
 
 False positives and misses recorded:
 
-- **`calls_out` reads 0 on every real file.** The rule matches only `=V(name)` literals; real
-  assembler calls through `CALL`, `LINK`, `LOAD`, `XCTL`, `ATTACH` and `BAL`/`BALR`/`BASR`
-  (the `L 15,=V(x)` idiom is the exception, and it appears in few files). The call graph for
-  assembler is therefore empty. Needs a rule for the call macros (single defect class).
+- **`calls_out` read 0 on every real file at probe time** (the rule matched only `=V(name)`); #7063 / #7068
+  merged while this probe was in flight and added the CALL macro and `LINK`/`XCTL` `EP=` forms. Not re-measured here.
 - **`pointers`/`globals` over-count `DC V(name)`** (7 + 6 + 3 identical hits in one hash-table
   file): `DC V()` is an address constant, so it is a legitimate pointer, but it is also counted as
   a global; the same line owns two signals.
@@ -264,7 +270,8 @@ False positives and misses recorded:
   repos (Tier 2 never runs without a candidate extension). The member files are genuine z/OS
   assembler.
 
-Defect classes (one item each, reported to churn): (1) assembler `calls_out` empty;
+Defect classes (one item each, reported to churn): (1) `BAL`/`BALR`/`BASR`/`ATTACH`/`LOAD` callee forms
+still unnamed by `calls_out` after #7068 (unverified against it);
 (2) `fragile_debt`/`planned_debt` false positives on message text and stub names; (3) PDS-style
 extensionless members unrouted; (4) non-hlasm `.mac` families still misroute (NASM and troff
 into easytrieve, DSP into plaintext).

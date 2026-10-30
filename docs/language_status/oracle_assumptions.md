@@ -1760,8 +1760,13 @@ states each (`none (gap)`: no entry does). Only fields a burned corpus's COBOL n
   - Refused by name: INREC / OUTFIL / SUM / RECORD / ALTSEQ and every other statement, the other formats (FI,
     AQ, AC ...), OPTION operands other than EQUALS / NOEQUALS, SORT operands such as SKIPREC, a statement label, a
     field outside the record, a ZD / PD key over 18 digits, and comparisons DFSORT pads or converts across formats.
+  - **IEBGENER / ICEGENER (#4268).** `dfsort.iebgener()` models a step whose SYSIN is DUMMY or empty as a plain record copy,
+    SYSUT1 to SYSUT2, lowered onto the proven COPY program; the bytes equal the input and the port's (`IEBGENER` case of
+    `test_dfsort_4268.py`). **IBM.** SC23-6864 "IEBGENER". Refused by name: any control statement (GENERATE, RECORD,
+    MEMBER, EXITS, LABELS: they edit or reformat records). Not modelled: a SYSUT2 whose record length differs from
+    SYSUT1's (the lowering has one record length, so the step is lowered only for equal lengths).
   - Not yet run from a generated batch job: `JclSteps.utility` still refuses the SORT step; wiring the model into
-    the batch forge, IEBGENER, an IDCAMS REPRO / DEFINE subset and a multi-step job case are the next slices of #4268.
+    the batch forge, an IDCAMS REPRO / DEFINE subset and a multi-step job case are the next slices of #4268.
 - The COBOL SORT / MERGE / RELEASE / RETURN verbs and the SD entry are translated (#4286), onto `cobolrt/Sort`:
   - Keys compare as a relation condition compares their items: a numeric key (zoned, packed, binary, signed or
     not) by value, any other byte by byte. WITH DUPLICATES IN ORDER is a stable sort; without it, records with

@@ -199,7 +199,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | Q1 | Db2 | Db2 for Linux runs the SQL, not Db2 for z/OS | ASSUMED | yes |
 | Q2 | Db2 | EXEC SQL keeps RETURN-CODE | ASSUMED | yes |
 | Q3 | Db2 | The unit of work: one per CICS task; one per batch step, ended by EXEC SQL COMMIT / ROLLBACK (cursors closed as Db2 for z/OS closes them), backed out by an abend, with SAVEPOINT / ROLLBACK TO SAVEPOINT / RELEASE SAVEPOINT run by Db2; a CICS program's ROLLBACK refused (-926) | MATCHED | CICS: yes (CBSA XFRFUN); batch: yes (synthetic UOWDEMO, `tests/equivalence/db2/uow`, #4269) |
-| Q4 | Db2 | dynamic SQL beyond a literal INSERT (and its USING-bound markers), CONNECT, CALL, SENSITIVE / DYNAMIC scroll cursors, FETCH BEFORE / AFTER, INSERT ... FOR n ROWS, rowset positioning (STARTING AT), host-variable arrays outside a ROWSET FETCH; a savepoint statement in a CICS program | REFUSED | — |
+| Q4 | Db2 | dynamic SQL beyond a literal INSERT (and its USING-bound markers), CONNECT, CALL, SENSITIVE / DYNAMIC scroll cursors, FETCH BEFORE / AFTER, rowset positioning (STARTING AT), NOT ATOMIC and a mid-rowset failure of INSERT ... FOR n ROWS, host-variable arrays outside a ROWSET FETCH or an INSERT ... FOR n ROWS; a savepoint statement in a CICS program | REFUSED | — |
 | Q5 | Db2 | DSNTIAC / DSNTIAR message formatting | STAND-IN | no |
 | Q6 | Db2 | Date and time text in ISO form; DDL adapted from z/OS jobs | ASSUMED | yes (CBSA, GenApp) |
 | Q7 | Db2 | `CCSID EBCDIC` tables hold Unicode text: string order differs | DIFFERS | no |
@@ -5168,6 +5168,15 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   and the SQLERRD(3) count are as the Db2 for z/OS SQL Reference states them; the host-variable tables are filled only up to
   SQLERRD(3), the elements past it keep their value; the oracle logs one FETCH a row (the port's JDBC reads row by row), so
   per-query row counts compare unchanged. No burned estate uses it.
+- **Modelled (#4269).** `INSERT INTO t (cols) VALUES (:A1 [:I1], :A2 ...) FOR n ROWS [ATOMIC]`: each host variable is an
+  elementary `PIC` table (`OCCURS`), one per column, optionally with an indicator table of the same size; row j is built
+  from element j of every table. `n` is a literal or a numeric host variable and may not exceed the smallest table. The
+  port runs the single-row INSERT once a row (`DetSql.insertRows`); SQLERRD(3) is the number of rows inserted. A failure on
+  the first row gives that row's SQLCODE and SQLERRD(3) 0 (proven: duplicate key -803). Proven on Db2 by an estate built
+  inline in `test_insdemo_det_port_proves_on_db2_against_the_hand_trace` (literal and host-variable counts, a NULL through
+  an indicator, a first-row duplicate key, the row count read back). **Assumptions:** ATOMIC is the default and undoes the
+  statement on a failure; that undo is not modelled, so a failure after the first row is refused at run time on both sides
+  (the oracle stops, the port throws) rather than answering a state it cannot prove. No burned estate uses it.
 - **Refused (#4269), by form; burned estates using any of them: none** (pinned live by `test_no_burned_estate_program_issues_a_refused_dynamic_or_connection_sql_verb`
   in `tests/cobol_mainframe/test_sql_dynamic.py`, which fails when a burned program starts to use one; first run 2026-10-23).
   Each stops the det translator with `EXEC SQL <verb>: <form> (register Q4 ...)`:
@@ -5181,7 +5190,8 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
     position across COMMIT is unmeasured). `FETCH CURRENT` with no current row is refused at run time (Db2 for z/OS
     answers +231, Db2 LUW +100).
   - Multi-row `FETCH ... ROWSET` with `STARTING AT`, an orientation (`PRIOR` / `FIRST` / ... `ROWSET`) or no `FOR n ROWS`,
-    `INSERT ... FOR n ROWS`, and a host-variable array used anywhere but as a ROWSET FETCH column: each stops the det
+    `INSERT ... FOR n ROWS NOT ATOMIC CONTINUE ON SQLEXCEPTION` (or a `FOR n ROWS` not at the end), and a host-variable
+    array used anywhere but as a ROWSET FETCH or INSERT ... FOR n ROWS column: each stops the det
     translator by name (`a multi-row FETCH / INSERT ... (register Q4)`, `host variable array X`).
     Pinned by `test_no_burned_estate_program_uses_a_scroll_fetch_or_multi_row_sql`
     (`tests/cobol_mainframe/test_sql_dynamic.py`): it fails when a burned program starts to use one.

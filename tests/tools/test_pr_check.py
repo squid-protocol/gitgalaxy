@@ -273,3 +273,16 @@ def test_main_reads_through_graphql_by_default_and_rest_with_an_injected_api(mon
     assert len(gq.calls) == 1 and '"ready": true' in capsys.readouterr().out
     assert pc.main(["7"], api=fake_api(runs=[run("a", "success", 1)])) == 0
     assert len(gq.calls) == 1  # an injected api is REST only
+
+
+def test_main_digest_passes_graphql_with_the_real_api_only(monkeypatch, capsys):
+    import ci_digest
+
+    seen = []
+    monkeypatch.setattr(ci_digest, "digest", lambda n, api, **kw: seen.append(kw) or {"failed": []})
+    monkeypatch.setattr(ci_digest, "render", lambda d: "digest")
+    gq = fake_graphql(gql_pr([("a", "failure", "completed")]))
+    monkeypatch.setattr(pc, "gh_graphql", gq)
+    pc.main(["7", "--digest"])
+    pc.main(["7", "--digest"], api=fake_api(runs=[run("a", "failure", 1)]))
+    assert seen == [{"graphql": gq}, {"graphql": None}]

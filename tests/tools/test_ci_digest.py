@@ -454,15 +454,11 @@ def test_main_green_and_failures_read_one_query_and_match_rest():
     assert len(gql.seen) == 1  # both functions share the one read
 
 
-def test_a_tip_with_pending_checks_walks_back_through_rest_from_the_graphql_parent():
+def test_a_tip_with_pending_checks_walks_back_from_the_graphql_parent():
     parent = "p" * 40
-    gql = _main_graphql([_run(1, "det", "queued", None)], parents=[parent])
-
-    def api(path):
-        assert parent in path
-        return {"parents": []} if path.endswith(parent) else {"check_runs": [_run(9, "det", conclusion="failure")]}
-
-    assert cd.main_failures(api, graphql=gql) == {"det"}
+    gql = _commit_graphql({"main": ([parent], [_run(1, "det", "queued", None)]),
+                           parent: ([], [_run(9, "det", conclusion="failure")])})  # fmt: skip
+    assert cd.main_failures(_no_rest, graphql=gql) == {"det"}
 
 
 def test_an_unreadable_or_cut_main_query_reads_through_rest():
@@ -478,3 +474,74 @@ def test_an_unreadable_or_cut_main_query_reads_through_rest():
 
 def _no_rest_unreadable(path):
     raise SystemExit("gh api failed")
+
+
+# --- #6534 slice 5: the parent walk and digest() read through GraphQL too ----------------------------------------------
+
+
+def _commit_graphql(by_sha, pr=None):
+    """GraphQL answering COMMIT_QUERY from {sha: (parents, runs)}, MAIN_QUERY as the tip, and CHECK_QUERY from `pr`."""
+    seen = []
+
+    def graphql(query, variables):
+        seen.append(query)
+        if query == cd.COMMIT_QUERY:
+            parents, runs = by_sha[variables["sha"]]
+            tip = _main_graphql(runs, parents)(cd.MAIN_QUERY, {})["repository"]["ref"]["target"]
+            return {"repository": {"object": {**tip, "oid": variables["sha"]}}}
+        if query == cd.MAIN_QUERY:
+            parents, runs = by_sha["main"]
+            return _main_graphql(runs, parents)(query, variables)
+        return {"repository": {"pullRequest": pr}}
+
+    graphql.seen = seen
+    return graphql
+
+
+def test_the_parent_walk_reads_each_parent_in_one_graphql_query_and_no_rest():
+    p1, p2 = "1" * 40, "2" * 40
+    gql = _commit_graphql({
+        "main": ([p1], [_run(1, "det", "queued", None)]),
+        p1: ([p2], [_run(2, "ruff", conclusion="failure")]),
+        p2: ([], [_run(3, "det", conclusion="failure")]),
+    })  # fmt: skip
+    assert cd.main_failures(_no_rest, graphql=gql) == {"ruff", "det"}
+    assert gql.seen == [cd.MAIN_QUERY, cd.COMMIT_QUERY, cd.COMMIT_QUERY]
+
+
+def test_commit_runs_falls_back_to_rest_when_the_query_fails_or_is_cut():
+    runs = [_run(9, "det", conclusion="failure")]
+    sha = "p" * 40
+
+    def api(path):
+        return {"parents": []} if path.endswith(sha) else {"check_runs": runs}
+
+    def fail(q, v):
+        raise SystemExit("x")
+
+    cut = _commit_graphql({sha: ([], [_run(1, "det")] * 1)})
+
+    def cut_graphql(q, v):
+        got = cut(q, v)
+        got["repository"]["object"]["checkSuites"]["nodes"][0]["checkRuns"]["totalCount"] = 5000
+        return got
+
+    for gql in (fail, cut_graphql, None):
+        assert cd.commit_runs(api, sha, gql) == ({"parents": []}, runs)
+
+
+def test_digest_reads_the_pr_and_its_runs_through_one_graphql_query_when_given_one():
+    import test_pr_check as tpc
+
+    pr = tpc.gql_pr([("full-suite", "failure", "completed")], mergeStateStatus="CLEAN")
+    pr["headRefOid"] = pr["commits"]["nodes"][0]["commit"]["oid"] = SHA
+    gql = _commit_graphql({"main": ([], [_run(1, "det")])}, pr=pr)
+
+    def rest_not_for_runs(path):  # the PR's file and compare reads are separate, not part of this slice
+        assert "/check-runs" not in path and not path.endswith("/pulls/7"), path
+        return [] if "/files" in path else {"merge_base_commit": {"sha": "b" * 40}, "files": []}
+
+    d = cd.digest(7, rest_not_for_runs, lambda i: PYTEST_LOG, graphql=gql)
+    assert [f["check"] for f in d["failed"]] == ["full-suite"] and d["head_sha"] == SHA
+    assert d["mergeable_state"] == "clean"
+    assert gql.seen.count(cd.MAIN_QUERY) == 1 and len(gql.seen) == 2  # main's tip, then the PR: no REST at all

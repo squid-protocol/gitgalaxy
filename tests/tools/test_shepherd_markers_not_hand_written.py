@@ -8,6 +8,8 @@ import re
 import subprocess
 from pathlib import Path
 
+from gitgalaxy.core.source_text import read_source
+
 REPO = Path(__file__).resolve().parents[2]
 
 MARKER = re.compile(r"<!--\s*shepherd[:-](?:approved|update|main-merge|digest)")
@@ -34,7 +36,7 @@ def test_no_agent_surface_spells_a_shepherd_marker():
         if rel in ALLOWED or Path(rel).name.startswith("shepherd-"):
             continue
         path = REPO / rel
-        if path.is_file() and MARKER.search(path.read_text(encoding="utf-8", errors="ignore")):
+        if path.is_file() and MARKER.search(read_source(path).text):
             offenders.append(rel)
     assert not offenders, (
         "a shepherd marker is the shepherd's to write (.claude/rules/shepherd-markers.md, #6694); "

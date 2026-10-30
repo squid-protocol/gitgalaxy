@@ -51,13 +51,12 @@ jdk_maven). Retiring a test that can no longer run (step 3 of the issue) is stil
 
 ## Deselected in the E2E shards (failed on their first CI run)
 
-Four tests in files the shards run (and, below the table, two in the `db2` job) were never executed in CI before #5954 and fail on a pristine checkout, locally and on
+Three tests in files the shards run (and, below the table, two in the `db2` job) were never executed in CI before #5954 and fail on a pristine checkout, locally and on
 the runner. The shard command `--deselect`s them by node id so the other tests in those files gate; each is a defect to fix
 in the engine or the test, then drop its `--deselect`:
 
 | Test | Failure |
 |---|---|
-| `test_det_layout.py::test_the_initial_image_is_gnucobols[carddemo-cbstm03a]` | det layout of CBSTM03A's `TIOT-INDEX`: initial image `000020202020`, GnuCOBOL `000000000000` |
 | `test_equivalence_inputs.py::test_the_intcalc_port_holds_on_generated_inputs` | CBACT04C `TRANSACT` 26/37 records equal (`TRAN-CARD-NUM` differs) |
 | `test_equivalence_inputs.py::test_the_hand_written_ports_hold_on_generated_inputs[carddemo-acctview-generated-None]` | the report holds 63 outputs, the test expects 24 |
 | `test_equivalence_cics.py::test_a_facade_that_builds_its_own_task_fails_the_java_facade_side` | the mutated COMEN01C port exits 0 (proven) where the test expects 1 |

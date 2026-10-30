@@ -134,3 +134,24 @@ def test_id_division_abbreviation_reads_as_identification_division():
     texts = [ln.text.strip() for ln in logical_lines(["       ID DIVISION.", "       PROGRAM-ID. X."], "t.cbl")]
     assert texts[0] == "IDENTIFICATION DIVISION."
     assert [ln.text.strip() for ln in logical_lines(["       MOVE ID TO X."], "t.cbl")] == ["MOVE ID TO X."]
+
+
+def test_a_level_01_redefines_longer_than_its_target_keeps_zero_bytes_past_the_target(tmp_path):
+    """CardDemo CBSTM03A: `01 TIOT-INDEX REDEFINES BUMP-TIOT POINTER` (8 bytes over a 4-byte item). GnuCOBOL leaves the
+    bytes no item initialises at x'00', not spaces (#5954)."""
+    src = tmp_path / "P.cbl"
+    src.write_text(
+        "       IDENTIFICATION DIVISION.\n"
+        "       PROGRAM-ID. P.\n"
+        "       DATA DIVISION.\n"
+        "       WORKING-STORAGE SECTION.\n"
+        "       01  BUMP-TIOT   PIC S9(08) BINARY VALUE ZERO.\n"
+        "       01  TIOT-INDEX  REDEFINES BUMP-TIOT POINTER.\n"
+        "       01  SHORT-ONE   REDEFINES BUMP-TIOT PIC X.\n"
+        "       PROCEDURE DIVISION.\n"
+        "           GOBACK.\n",
+        encoding="latin-1",
+    )
+    by_name = {r.name: r for r in L.records(src, [tmp_path])}
+    assert L.image(by_name["TIOT-INDEX"]) == b"\x00" * 8
+    assert L.image(by_name["SHORT-ONE"]) == b"\x00"

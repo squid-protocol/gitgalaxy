@@ -67,7 +67,28 @@ FAULTS_JAVA = """\
         }
     }
 
+    /** #5126 (X64): the 6 bytes of EIBRCODE the latest planned condition states (the plan line's sixth column on a
+     *  non-ABEND row, 12 hex digits), else null -- cleared by every `injected`, as the stub's. Unstated, the program's
+     *  field is left as it was; nothing is guessed (register X64). */
+    private byte[] rcode;
+
+    public byte[] rcode() {
+        return root().rcode;
+    }
+
+    private static byte[] rcodeOf(String[] f) {
+        if (f.length < 6 || !f[5].matches("[0-9A-Fa-f]{12}")) {
+            return null;
+        }
+        byte[] b = new byte[6];
+        for (int i = 0; i < 6; i++) {
+            b[i] = (byte) Integer.parseInt(f[5].substring(2 * i, 2 * i + 2), 16);
+        }
+        return b;
+    }
+
     private int[] injected(String cmd, String file) {
+        rcode = null;
         if (faultPlan.isEmpty()) {
             return null;
         }
@@ -86,6 +107,7 @@ FAULTS_JAVA = """\
                     logAbend(cmd + " " + file, n, f[5]);
                     return new int[] {0, 0};
                 }
+                rcode = rcodeOf(f);
                 if (resp == 15) {  // DUPKEY: the read goes on, see dupkeyOr
                     deferredDupkey = new int[] {n, resp, resp2};
                     deferredWhat = cmd + " " + file;
@@ -109,14 +131,15 @@ FAULTS_JAVA = """\
     }
 
     /** #6072: a file command's planned condition (injected), else FILENOTFOUND (12) for a name no region can define,
-     *  as the stub answers a name its files.cfg lacks (planned first, then the name, in the stub's order). RESP2 0, the
-     *  stub's: IBM documents RESP2 1 for it (register X75). Null: the command goes on. */
+     *  as the stub answers a name its files.cfg lacks (planned first, then the name, in the stub's order). RESP2 1, IBM's
+     *  "not defined to CICS"; the
+     *  stub now answers it too (register X75). Null: the command goes on. */
     private int[] fileFault(String cmd, String file) {
         int[] planned = injected(cmd, file);
         if (planned != null || !undefinableFile(file)) {
             return planned;
         }
-        return new int[] {12, 0};
+        return new int[] {12, 1};
     }
 
     /** #6271 (register X71): the {RESP, RESP2} a scenario's fault plan gives this SEND-MAP / RECEIVE-MAP (`name` the map),

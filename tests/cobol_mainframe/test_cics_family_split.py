@@ -490,6 +490,8 @@ FAULT_JAVA_METHODS = (
     "fileFault",
     "undefinableFile",
     "planned",
+    "rcode",
+    "rcodeOf",
 )
 
 
@@ -686,3 +688,9 @@ def test_the_web_parts_are_included_around_the_storage_block():
     assert host.index("#define GGCICS_WEB_PART2") < at[1] < host.index("#undef GGCICS_WEB_PART2")
     assert host.index("#define GGCICS_WEB_PART3") < at[2] < host.index("#undef GGCICS_WEB_PART3")
     assert host.index("int GGCADDR(") < at[1]  # WEB RECEIVE SET needs blk_set_new, defined before it
+
+
+def test_an_undefinable_file_name_answers_filenotfound_with_resp2_1():
+    # #6839 row I, register X75: IBM's "not defined to CICS" is RESP2 1, as the stub answers it
+    assert "return new int[] {12, 1};" in tfl.FAULTS_JAVA
+    assert "{12, 0}" not in tfl.FAULTS_JAVA

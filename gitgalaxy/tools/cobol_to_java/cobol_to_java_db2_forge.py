@@ -114,6 +114,9 @@ def _split_top(text: str) -> list[str]:
     return out
 
 
+_INSERT_ROWS = re.compile(r"\bFOR\s+(?:\d+|:[A-Za-z0-9_-]+)\s+ROWS?(?:\s+ATOMIC)?$", re.I)
+
+
 def to_jdbc(statement: str, verb: str) -> tuple[str, list[tuple[str, str]], list[str]]:
     """(SQL for NamedParameterJdbcTemplate, [(host variable, parameter)], notes) of one statement."""
     sql, notes = statement, []
@@ -128,6 +131,10 @@ def to_jdbc(statement: str, verb: str) -> tuple[str, list[tuple[str, str]], list
         sql, n = _SINGLETON_INTO.subn("", sql, count=1)
         if n:
             notes.append("the INTO host variables are the columns of the returned row")
+    if (
+        verb == "INSERT"
+    ):  # #4269: FOR n ROWS [ATOMIC] is the port's loop (DetSql.insertRows); the method is one row's INSERT
+        sql = _INSERT_ROWS.sub("", sql.rstrip(), count=1).rstrip()
     params: dict[str, str] = {}
 
     def named(m: re.Match) -> str:

@@ -1,7 +1,6 @@
 {
   "gitgalaxy/core/cics_resources.py: I001 @73b55beb67f2#0": "Import block is un-sorted or un-formatted",
   "gitgalaxy/core/cics_tasks.py: I001 @73b55beb67f2#0": "Import block is un-sorted or un-formatted",
-  "gitgalaxy/core/detector.py: ISC001 @fa08a16c21d6#0": "Implicitly concatenated string literals on one line",
   "gitgalaxy/core/detector.py: PERF401 @3682b269e443#0": "Use `list.extend` to create a transformed list",
   "gitgalaxy/core/dli_calls.py: I001 @73b55beb67f2#0": "Import block is un-sorted or un-formatted",
   "gitgalaxy/core/file_control.py: I001 @73b55beb67f2#0": "Import block is un-sorted or un-formatted",
@@ -64,14 +63,13 @@
   "gitgalaxy/tools/cobol_to_java/cobol_to_java_transaction_forge.py: ISC004 @860198c8c6fe#0": "Unparenthesized implicit string concatenation in collection",
   "gitgalaxy/tools/cobol_to_java/cobol_to_java_transaction_forge.py: ISC004 @d568546ac8c0#0": "Unparenthesized implicit string concatenation in collection",
   "gitgalaxy/tools/cobol_to_java/det/cics.py: ISC004 @14fc56a6a8c3#0": "Unparenthesized implicit string concatenation in collection",
-  "gitgalaxy/tools/cobol_to_java/det/cics.py: ISC004 @1ab44d639d01#0": "Unparenthesized implicit string concatenation in collection",
   "gitgalaxy/tools/cobol_to_java/det/cics_filecontrol.py: ISC004 @63b4ef900fb1#0": "Unparenthesized implicit string concatenation in collection",
   "gitgalaxy/tools/cobol_to_java/det/cics_filecontrol.py: ISC004 @f3a44a25b11c#0": "Unparenthesized implicit string concatenation in collection",
   "gitgalaxy/tools/cobol_to_java/det/cics_filecontrol.py: ISC004 @faa281b2982c#0": "Unparenthesized implicit string concatenation in collection",
   "gitgalaxy/tools/cobol_to_java/det/refine.py: I001 @325b81e320af#0": "Import block is un-sorted or un-formatted",
-  "gitgalaxy/tools/cobol_to_java/det/sql.py: ISC004 @4be26a41a842#0": "Unparenthesized implicit string concatenation in collection",
   "gitgalaxy/tools/cobol_to_java/det/sql.py: ISC004 @75f8f9f83945#0": "Unparenthesized implicit string concatenation in collection",
   "gitgalaxy/tools/cobol_to_java/det/sql.py: ISC004 @ac07f1ad755c#0": "Unparenthesized implicit string concatenation in collection",
+  "gitgalaxy/tools/cobol_to_java/det/sql.py: ISC004 @cd921d219caf#0": "Unparenthesized implicit string concatenation in collection",
   "gitgalaxy/tools/cobol_to_java/port_runner.py: ISC004 @5d2dab4c7799#0": "Unparenthesized implicit string concatenation in collection",
   "gitgalaxy/tools/terabyte_log_scanning/pii_leak_hunter.py: I001 @c28f83898b96#0": "Import block is un-sorted or un-formatted"
 }

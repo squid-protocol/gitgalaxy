@@ -61,6 +61,9 @@ class Statement:
     scroll: bool = False  # #4269: an OPEN of a cursor declared SCROLL, or a FETCH with an orientation
     orient: str = ""  # #4269: that FETCH's orientation (PRIOR FIRST LAST CURRENT ABSOLUTE RELATIVE)
     orient_n: int | None = None  # #4269: its integer constant; a host variable's value is the statement's one input
+    multi: bool = (
+        False  # #4269: an INSERT ... FOR n ROWS: the inputs are tables; orient_n is n, else n is the last input
+    )
     rowset: bool = False  # #4269: a FETCH ROWSET: the outputs are tables, one per column; orient_n is FOR n ROWS' n
 
 
@@ -164,7 +167,7 @@ class Program:
     def elementary(self, i: int) -> list[int]:
         """A host variable, or a host structure's elementary members (a VARCHAR pair is one)."""
         it = self.items[i]
-        if (it.get("occurs_max") or 1) > 1:  # (#4269: a table is a column of a FETCH ROWSET only: _rowset_fetch)
+        if (it.get("occurs_max") or 1) > 1:  # (#4269: a table is a column of a FETCH ROWSET / INSERT FOR n ROWS only)
             raise Unsupported(f"host variable array {it['name']}")
         if it.get("pic") or self.is_varchar(i):
             return [i]
@@ -272,6 +275,29 @@ class Precompiler:
         if m.group(2).startswith(":"):
             _, nrefs = self._bind(m.group(2), args)
             st.inputs = self._vars(nrefs, args)
+        else:
+            st.orient_n = int(m.group(2))
+        return st
+
+    def _insert_rows(self, sid: int, text: str, args: list[str]) -> Statement:
+        """#4269: INSERT ... VALUES (:A1 [:I1], :A2 ...) FOR n ROWS [ATOMIC] -- each a PIC item with OCCURS, a column."""
+        m = re.fullmatch(r"(.*?)\s+FOR\s+(\d+|:[A-Z0-9_-]+)\s+ROWS?(?:\s+ATOMIC)?", text, re.I | re.S)
+        if not m:
+            raise Unsupported(f"EXEC SQL {text[:60]}")
+        refs: list[tuple[list[int], int | None]] = []
+
+        def marker(h: re.Match) -> str:
+            i = self.p.find(h.group(1))
+            if not self.p.items[i].get("pic") or (self.p.items[i].get("occurs_max") or 1) < 2 or self.p.is_varchar(i):
+                raise Unsupported(f"INSERT FOR n ROWS: :{h.group(1)} is not a PIC item with OCCURS")
+            refs.append(([i], self.p.find(h.group(2)) if h.group(2) else None))
+            return "?"
+
+        sql = _HOST.sub(marker, m.group(1))
+        st = Statement(sid, "EXEC", _norm(sql), "-", self._vars(refs, args), multi=True)
+        if m.group(2).startswith(":"):
+            _, nrefs = self._bind(m.group(2), args)
+            st.inputs += self._vars(nrefs, args)
         else:
             st.orient_n = int(m.group(2))
         return st
@@ -415,6 +441,8 @@ class Precompiler:
             outputs = self._vars(out_refs, args)
             sql, refs = self._bind(m.group(1) + " FROM " + m.group(3), args)
             st = Statement(sid, "SELECT1", _norm(sql), "-", self._vars(refs, args), outputs)
+        elif verb == "INSERT" and re.search(r"\bFOR\s+(?:\d+|:[A-Z0-9_-]+)\s+ROWS?(?:\s+ATOMIC)?\s*$", text, re.I):
+            st = self._insert_rows(sid, text, args)
         elif verb in ("INSERT", "UPDATE", "DELETE", "MERGE", "LOCK"):
             sql, refs = self._bind(text, args)
             st = Statement(sid, "EXEC", _norm(sql), "-", self._vars(refs, args))
@@ -457,6 +485,8 @@ class Precompiler:
             tail = (" H" if s.hold else "") + (
                 (" K" + (f":{s.orient}" if s.orient else "") + (f":{s.orient_n}" if s.orient_n is not None else ""))
                 if s.scroll else "")  # fmt: skip
+            if s.multi:  # #4269: an INSERT FOR n ROWS ends `M`, or `M:n` for a constant n (else n is the last input)
+                tail = " M" + (f":{s.orient_n}" if s.orient_n is not None else "")
             if s.rowset:  # #4269: a FETCH ROWSET ends `R`, or `R:n` for a constant FOR n ROWS
                 tail = " R" + (f":{s.orient_n}" if s.orient_n is not None else "")
             out.append(f"S {s.sid} {s.kind} {len(s.inputs)} {len(s.outputs)} {s.cursor} {s.program} {s.line}" + tail)

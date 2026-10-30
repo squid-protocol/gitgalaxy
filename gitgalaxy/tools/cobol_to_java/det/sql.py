@@ -156,6 +156,9 @@ _ROWSET_DECL = re.compile(
     r"\bDECLARE\s+([A-Z0-9_-]+)\s+(?:[A-Z]+\s+){0,4}?CURSOR\s+(?:WITH\s+(?:HOLD|RETURN)\s+)*WITH\s+ROWSET\s+POSITIONING\b",
     re.I,
 )
+# #4269: INSERT ... VALUES (:A1, :A2) FOR n ROWS [ATOMIC] -- the host variables tables (n an integer or a host variable);
+# NOT ATOMIC CONTINUE ON SQLEXCEPTION is not matched, so it stays refused
+_INSERT_ROWS = re.compile(r"\bFOR\s+(\d+|:[A-Z0-9_-]+)\s+ROWS?(?:\s+ATOMIC)?\s*$", re.I)
 _HOLD = re.compile(r"\bDECLARE\s+([A-Z0-9_-]+)\s+(?:[A-Z]+\s+){0,2}?CURSOR\s+WITH\s+HOLD\b", re.I)
 
 
@@ -400,6 +403,8 @@ class Sql:
             return [*self._params(sql[: pos.start()], meth, n, ind),
                     f"{ind}DetSql.updateCurrent(SQLCA_AREA, {at}, {self.g_str(pos.group(1))}, rid -> {{ "
                     f"{n}.put({self.g_str(meth.params['GG-RID'])}, rid); return {call}({n}); }}, CS);"]  # fmt: skip
+        if verb == "INSERT" and (rows := _INSERT_ROWS.search(sql)):
+            return self._insert_rows(sql, rows, meth, at, ind)
         if verb in ("INSERT", "UPDATE", "DELETE"):
             searched = verb != "INSERT"
             return [
@@ -445,6 +450,68 @@ class Sql:
             return [f"{ind}DetSql.close(SQLCA_AREA, {at}, {self.g_str(u.split()[1])}, CS);"]
         raise SqlError(f"EXEC SQL {verb}")
 
+    def _elems(self, it: L.Item, cap: int) -> str:
+        """The first `cap` elements of a host-variable table, as a Java Field array."""
+        quals = [it.parent.name] if it.parent else []
+        refs = (E.Ref(it.name, qualifiers=quals, subscripts=[E.Lit(Decimal(k))]) for k in range(1, cap + 1))
+        return "{" + ", ".join(self.g.field_expr(r) for r in refs) + "}"
+
+    def _table(self, it: L.Item, what: str) -> L.Item:
+        """A host variable that is an elementary table (PIC item with OCCURS), the host variable array of a column."""
+        if not it.pic or it.occurs < 2 or self._varchar(it) or it.category not in ("ALPHANUMERIC", "NUMERIC"):
+            raise SqlError(f"{what}: :{it.name} is not an elementary table (PIC item with OCCURS), "
+                           "the host variable array of a column")  # fmt: skip
+        return it
+
+    def _rows_count(self, count: str, cap: int, what: str) -> str:
+        """FOR n ROWS' n as a Java long: an integer within the tables, or a numeric host variable."""
+        if count.startswith(":"):
+            items = self._elementary(self._item(self._ref(count[1:])))
+            if len(items) != 1 or items[0].category != "NUMERIC":
+                raise SqlError(f"{what}: {count} is not a numeric host variable")
+            return f"{self.value_in(items[0])}.longValue()"
+        if int(count) > cap:
+            raise SqlError(f"{what}: FOR {count} ROWS exceeds the host variable tables ({cap})")
+        return f"{int(count)}L"
+
+    def _insert_rows(self, sql: str, m: re.Match, meth: Method, at: str, ind: str) -> list[str]:
+        """#4269 (register Q4): INSERT ... VALUES (:A1 [:I1], :A2 ...) FOR n ROWS [ATOMIC] -- each host variable a table,
+        one per column. The generated method is the single-row INSERT; DetSql.insertRows runs it for elements 1..n and
+        sets SQLERRD(3) to the rows inserted. A row that fails after the first stops the port at run time (the rows
+        before it were committed as they ran: ATOMIC's undo is not modelled)."""
+        what = "EXEC SQL INSERT ... FOR n ROWS"
+        names: list[str] = []
+        kinds = ""
+        tables: list[L.Item] = []
+        inds: list[L.Item | None] = []
+        for h in _HOST.finditer(sql[: m.start()]):
+            name = re.split(r"\s+(?:OF|IN)\s+", h.group(1), flags=re.I)[0].upper()
+            param = meth.params.get(name)
+            if param is None:
+                raise SqlError(f"the generated method {meth.name} has no parameter for :{name}")
+            it = self._table(self._item(self._ref(h.group(1))), what)
+            names.append(self.g_str(param))
+            tables.append(it)
+            kinds += "N" if it.category == "NUMERIC" else "X"
+            if h.group(2):
+                ii = self._item(self._ref(h.group(2)))
+                if ii.occurs != it.occurs:
+                    raise SqlError(f"{what}: the indicator array :{h.group(2)} is not a table of {it.occurs} like "
+                                   f":{it.name}")  # fmt: skip
+                inds.append(ii)
+            else:
+                inds.append(None)
+        if not tables:
+            raise SqlError(f"{what}: no host variable table")
+        cap = min(t.occurs for t in tables)
+        n = self._rows_count(m.group(1), cap, what)
+        hosts = ", ".join(self._elems(t, cap) for t in tables)
+        ids = "null" if all(i is None for i in inds) else ", ".join(self._elems(i, cap) if i else "null" for i in inds)
+        indicators = "null" if ids == "null" else f"new Field[][] {{{ids}}}"
+        repo_field = meth.repo[0].lower() + meth.repo[1:]
+        return [f"{ind}DetSql.insertRows(SQLCA_AREA, {at}, {n}, {cap}, {self.g_str(kinds)}, new String[] {{{', '.join(names)}}}, "
+                f"new Field[][] {{{hosts}}}, {indicators}, p -> {repo_field}.{meth.name}(p), CS);"]  # fmt: skip
+
     def _fetch_rowset(self, m: re.Match, at: str, ind: str) -> list[str]:
         """#4269 (register Q4): FETCH [NEXT] ROWSET FROM cursor FOR n ROWS INTO :A1, :A2 -- each host variable an
         elementary table (OCCURS) holding one column's rows. DetSql.fetchRowset reads up to n rows and sets SQLERRD(3);
@@ -472,11 +539,6 @@ class Sql:
             raise SqlError(f"EXEC SQL FETCH ROWSET {cursor}: no host variable table")
         cap = min(t.occurs for t in tables)
 
-        def elems(it: L.Item) -> str:
-            quals = [it.parent.name] if it.parent else []
-            refs = (E.Ref(it.name, qualifiers=quals, subscripts=[E.Lit(Decimal(k))]) for k in range(1, cap + 1))
-            return "{" + ", ".join(self.g.field_expr(r) for r in refs) + "}"
-
         count = m.group(2)
         if count.startswith(":"):
             items = self._elementary(self._item(self._ref(count[1:])))
@@ -490,8 +552,8 @@ class Sql:
                     f"EXEC SQL FETCH ROWSET {cursor}: FOR {count} ROWS exceeds the host variable tables ({cap})"
                 )
         row = self.g.tmpname("sqlRows")
-        hosts = ", ".join(elems(t) for t in tables)
-        ids = "null" if all(i is None for i in inds) else ", ".join(elems(i) if i else "null" for i in inds)
+        hosts = ", ".join(self._elems(t, cap) for t in tables)
+        ids = "null" if all(i is None for i in inds) else ", ".join(self._elems(i, cap) if i else "null" for i in inds)
         indicators = "null" if ids == "null" else f"new Field[][] {{{ids}}}"
         read = (f"{ind}java.util.List<java.util.Map<String, Object>> {row} = DetSql.fetchRowset(SQLCA_AREA, {at}, "
                 f"{self.g_str(cursor)}, {n}, {cap}, CS);")  # fmt: skip
@@ -529,10 +591,14 @@ class Sql:
                     f"EXEC SQL FETCH ROWSET {cursor}: a SENSITIVE or DYNAMIC cursor is not modelled (register Q4)"
                 )
             return
+        if verb == "INSERT" and _INSERT_ROWS.search(bare):  # taken: _insert_rows checks the host variables
+            return
         if verb in ("FETCH", "INSERT") and _ROWSET.search(bare):
-            what = "FETCH ... ROWSET with STARTING AT, an orientation or no FOR n ROWS" if verb == "FETCH" else "INSERT"
-            raise SqlError(f"EXEC SQL {verb}: a multi-row {what} is not modelled; only FETCH [NEXT] ROWSET FROM cursor "
-                           "FOR n ROWS INTO host-variable tables is (register Q4; no burned program uses it)")  # fmt: skip
+            what = ("FETCH ... ROWSET with STARTING AT, an orientation or no FOR n ROWS" if verb == "FETCH"
+                    else "INSERT ... NOT ATOMIC CONTINUE ON SQLEXCEPTION or a FOR n ROWS not at the end")  # fmt: skip
+            msg = f"EXEC SQL {verb}: a multi-row {what} is not modelled; only FETCH [NEXT] ROWSET FROM cursor "
+            msg += "FOR n ROWS INTO host-variable tables and INSERT ... VALUES (tables) FOR n ROWS [ATOMIC] are "
+            raise SqlError(msg + "(register Q4; no burned program uses it)")
         if verb != "FETCH":
             return
         o = _ORIENT_NO_ROW.match(bare)

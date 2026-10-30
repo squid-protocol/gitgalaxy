@@ -1,4 +1,4 @@
-"""#6967: every open outcome of the burned CBSA BMS screens (the BNK1* programs and BNKMENU) is stated infeasible with a reason.
+"""#6967: every open outcome of the burned CBSA BMS screens (the BNK1* programs and BNKMENU) and of CRECUST is stated infeasible with a reason.
 
 The terminal fault command exists (register X71: SEND MAP, SEND TEXT and RECEIVE MAP conditions). These checks read only
 the committed sweep-coverage and infeasible-outcome files, so a new open SEND / RECEIVE arm fails here instead of
@@ -14,7 +14,7 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
-CASES = ("bnk1cac", "bnk1cca", "bnk1ccs", "bnk1cra", "bnk1dac", "bnk1dcs", "bnk1tfn", "bnk1uac", "bnkmenu")
+CASES = ("bnk1cac", "bnk1cca", "bnk1ccs", "bnk1cra", "bnk1dac", "bnk1dcs", "bnk1tfn", "bnk1uac", "bnkmenu", "crecust")
 UNDEFINED_BY_IBM = {"bnk1cac": {(611, "true"), (637, "true"), (637, "false"), (717, "true")}}
 
 
@@ -43,3 +43,15 @@ def test_every_uncovered_branch_is_stated_infeasible_or_undefined_by_ibm(case):
 def test_every_infeasible_entry_has_a_family_and_a_reason(case):
     for e in _load("infeasible_outcomes", case)["entries"]:
         assert e["family"] and len(e["reason"].strip()) > 20, e
+
+
+def test_bnk1cac_437_is_taken_not_stated():
+    """BIF DEEDIT of a field with no digit left is zeros (X26, assumed; #6940), so 437:true is covered, not refused or stated."""
+    uncovered = _load("det_sweep_coverage", "bnk1cac")["uncovered"]["branches"]
+    assert "437:true" not in uncovered
+    assert 437 not in {e.get("line") for e in _load("infeasible_outcomes", "bnk1cac")["entries"]}
+
+
+def test_crecust_has_no_undefined_by_ibm_outcome():
+    entries = _load("infeasible_outcomes", "crecust")["entries"]
+    assert {e["family"] for e in entries} <= {"G", "R"}

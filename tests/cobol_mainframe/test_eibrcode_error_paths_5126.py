@@ -60,3 +60,17 @@ def test_every_caller_of_the_file_error_paragraph_follows_a_response_test():
 
 def test_the_guard_module_still_names_zecs001_as_the_only_reader():
     assert guard.KNOWN_READERS == {"ZECS001": {"EIBRCODE"}}
+
+
+def test_the_zecs001_case_states_rcode_so_proof_blockers_lists_no_eibrcode_gap():
+    """The close-out of the EIBRCODE box: the case that runs the one burned reader states `rcode` on every non-NORMAL
+    file fault, so `proof_blockers` drops `fact: EIBRCODE` for it (no IBM table is copied: the bytes are scenario facts)."""
+    import json
+
+    sys.path.insert(0, str(HERE.parent / "tools"))
+    import proof_blockers as pb
+
+    case = json.loads((HERE.parent / "equivalence" / "zecs-zecs001" / "case.json").read_text(encoding="utf-8"))
+    assert pb.states_rcode(case["scenarios"])
+    gaps = pb.fact_gaps({"eib": {"EIBRCODE"}}, pb.Run("equivalence", "zecs-zecs001", rcode=True))
+    assert not any("EIBRCODE" in g for g in gaps)

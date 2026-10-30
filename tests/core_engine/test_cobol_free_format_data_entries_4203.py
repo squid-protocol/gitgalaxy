@@ -147,7 +147,8 @@ def test_sibling_programs_main_lines_are_their_programs_not_data_items():
     mains = [(f["name"], f["start_line"], f["end_line"]) for f in _functions(SIBLING_PROGRAMS)
              if f.get("def_shape") == COBOL_MAIN_LINE_SHAPE]  # fmt: skip
     assert mains == [("FACING-GETRELATIVE", 11, 16), ("DECODE-INT", 32, 34)]
-    assert not {f["name"] for f in _functions(SIBLING_PROGRAMS)} & {"LK-FACING", "LK-POSITION", "LK-X", "LK-Y", "LK-VALUE"}
+    data_names = {"LK-FACING", "LK-POSITION", "LK-X", "LK-Y", "LK-VALUE"}
+    assert not {f["name"] for f in _functions(SIBLING_PROGRAMS)} & data_names
 
 
 @pytest.mark.parametrize(

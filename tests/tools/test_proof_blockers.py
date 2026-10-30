@@ -389,6 +389,22 @@ def test_stated_infeasible_outcomes_leave_the_branch_total(tmp_path):
     assert cov["detail"]["infeasible outcome reached (the stated claim is wrong)"] == "P:9:false"
 
 
+def test_a_record_cannot_refute_a_stated_paragraph_claim(tmp_path):
+    """A record lists no uncovered paragraphs: a stated paragraph entry stays open (netted), a covered branch still refutes."""
+    cases, corpora, cru, det_baseline, rows = setup(tmp_path)
+    write(cases / "c-cov" / "evidence.json", {"coverage": {"paragraphs": {"covered": 2, "live": 3},
+                                                           "branches": {"covered": 3, "total": 4},
+                                                           "uncovered_branches": [{"line": 9, "outcome": "true"}]}})  # fmt: skip
+    para = {"unit": "EXIT-P", "kind": "PARAGRAPH", "outcome": "entered", "family": "G", "reason": "nothing enters it"}
+    kw = {"cases_dir": cases, "crucible_dir": cru, "det_baseline": det_baseline, "branches": True}
+    _stated(cases, {"c-cov": [_entry(9, "true"), para]})
+    cov = next(p for p in pb.proof_blockers(rows, [corpora], **kw)["programs"] if p["program"].endswith("COV.cbl"))
+    assert cov["gaps"] == []
+    _stated(cases, {"c-cov": [_entry(9, "true"), _entry(9, "false"), para]})
+    cov = next(p for p in pb.proof_blockers(rows, [corpora], **kw)["programs"] if p["program"].endswith("COV.cbl"))
+    assert cov["detail"]["infeasible outcome reached (the stated claim is wrong)"] == "P:9:false"
+
+
 def test_a_sweep_s_uncovered_outcomes_check_the_claim(tmp_path):
     cases, corpora, cru, det_baseline, rows = setup(tmp_path)
     _stated(cases, {"c-diff": [_entry(9, "true")]})

@@ -1,5 +1,5 @@
 {
- "commit": "1fde64d6c",
+ "commit": "442d8a6a5",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -160,15 +160,15 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-30T02:21:53Z",
+  "as_of": "2026-10-30T03:19:43Z",
   "core": {
    "closed": 193,
    "open": 16,
    "total": 209
   },
   "core_last_window": {
-   "closed": 32,
-   "net_closed": 21,
+   "closed": 31,
+   "net_closed": 20,
    "opened": 11
   },
   "core_milestone": {
@@ -184,7 +184,7 @@
    "4893": "open",
    "4894": "open"
   },
-  "eta": "5 days",
+  "eta": "6 days",
   "frontier": {
    "closed": 115,
    "found_last_window": 4,
@@ -198,9 +198,9 @@
    "total": 50
   },
   "infra": {
-   "closed": 230,
-   "open": 33,
-   "total": 263
+   "closed": 231,
+   "open": 34,
+   "total": 265
   },
   "measured": true,
   "milestones": [
@@ -268,9 +268,9 @@
     "total": 206
    },
    {
-    "closed": 46,
+    "closed": 47,
     "number": 12,
-    "open": 13,
+    "open": 12,
     "title": "Yes, but can it go faster...?",
     "total": 59
    },
@@ -410,8 +410,8 @@
   ],
   "sweep": {
    "closed": 89,
-   "open": 9,
-   "total": 98
+   "open": 10,
+   "total": 99
   },
   "title_counts": {
    "cics": {

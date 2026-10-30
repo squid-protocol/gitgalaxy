@@ -24,6 +24,7 @@ from .._shared_patterns import GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 # 63 characters max (HLASM Language Reference, "Symbols"). Conditional-assembly
 # statements may instead carry a sequence symbol (`.SKIP`) or a SET symbol
 # (`&X`) in the name field -- the macro-directive rules widen to those.
+_COMMENT_LINE = r"^\.?\*[^\n]*?"
 _ID = r"[A-Z" + NATIONAL + r"a-z0-9@#$]"
 _NAME = r"[A-Z" + NATIONAL + r"a-z@#$]" + _ID + r"{0,62}"
 # Statement position: "column 1 name-or-nothing, then blanks" (bms.py's shape).
@@ -591,8 +592,13 @@ DEFINITION: dict[str, Any] = {
             re.I | re.M,
         ),
         # --- PHASE 4: SPECIALIZED SUB-SYSTEMS ---
-        "planned_debt": GLOBAL_PLANNED_DEBT,
-        "fragile_debt": GLOBAL_FRAGILE_DEBT,
+        # #7064: only a full-line comment (`*` or the macro comment `.*`)
+        # carries debt. The detector also runs these over the code stream, where
+        # `xxx` in message text (`DC CL3'xxx'`) and a system service named STUB
+        # (`LOAD EP=...  STUB LOADER`) are operands, not markers. One hit per
+        # comment line.
+        "planned_debt": re.compile(_COMMENT_LINE + "(?:" + GLOBAL_PLANNED_DEBT.pattern + ")", re.I | re.M),
+        "fragile_debt": re.compile(_COMMENT_LINE + "(?:" + GLOBAL_FRAGILE_DEBT.pattern + ")", re.I | re.M),
         # hardcoded_secrets: baseline rule in three languages only; the
         # security lens's own detector covers hlasm.
         "hardcoded_secrets": None,

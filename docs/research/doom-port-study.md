@@ -1,111 +1,148 @@
 # DOOM port study
 
-What the GitGalaxy engine measures across 44 DOOM ports (issue #5620), re-scanned on engine `eadc036c9`. Measurements only:
+What the GitGalaxy engine measures across 44 DOOM ports (issue #5620), re-scanned on engine `6c7c6c1bc`. Measurements only:
 no port code is reproduced, and the ports named here are those the license register marks clearly licensed
 (`tests/tools/doom_speedrun/README.md`, "Licensing rule"). "DOOM" is used descriptively; this project is not affiliated
 with or endorsed by id Software, ZeniMax Media or Microsoft.
 
-## Reproduce
+Forty-four codebases descend from, translate or reimplement id Software's 1997 DOOM source release, in about twenty
+languages. GitGalaxy extracts each one's functions, their measurements and their call graph with one engine. This
+study asks what that structure alone can tell about where each port came from, and checks every answer against an
+independent reading of the source text, against chance, and against unrelated programs.
 
-Every table below sits between `<!-- study:NAME begin/end -->` markers and is generated, not typed:
+## Findings
 
-```bash
-python tests/tools/doom_speedrun/doom_speedrun.py run --oracle --work DIR      # clone at the pinned SHAs, scan, score
-sfs compare ... --subway-reference linuxdoom                                    # gitgalaxy-population-analyses, writes subway.csv
-python tests/tools/doom_speedrun/study_report.py --work DIR --sha eadc036c9 --subway subway.csv --write
-python tests/tools/doom_speedrun/study_report.py --work DIR --sha eadc036c9 --subway subway.csv --check   # rc 1 when stale
-```
+**1. Structure alone finds copied code, without names.** The structural fingerprint scanner (`sfs`) pairs each of
+linuxdoom's functions with a "twin" in a port from measurements only: no names, no source text. Scored against an
+independent source-text comparison (Appendix B's `lineage.py`, which hashes and diffs function bodies), over 27,778
+function-by-port pairs, the twins are **93% precise** (recall 65%), and each port's twin survival ranks the ports the
+way source-text survival does (Spearman ρ = 0.83, n = 43). Unrelated programs get no such twins: WinQuake, Quake II
+and Lua share 0 to 0.006 of linuxdoom's structure (0 to 8 twins), against 0.31 for chocolate-doom (403 twins). The
+measure is not specific to DOOM: Quake and Quake II share 0.127 with each other (Appendix H).
 
-The prose between the tables is hand-written and dated 2026-10-22; the tables are the evidence.
+**2. It finds code shared sideways, not only by descent.** Eternity's nearest neighbour by structure is not
+linuxdoom but doom-wasm, a Chocolate Doom fork, through 200 twins. Eternity carries 216 functions of Chocolate Doom's
+`textscreen` UI library (as does Odamex); linuxdoom has none. The scanner found a library adopted across projects
+without reading a name.
 
-## Clean scan, round 2 to now
+**3. Some translations keep the original's architecture, measured against chance.** Collapsing each call graph to
+linuxdoom's 16 subsystems, the Scheme and Go translations keep linuxdoom's pattern of calls *between* subsystems
+**+0.51 and +0.50 above chance** (their own functions shuffled across subsystems), as far as chocolate-doom, a C fork
+(+0.51). Dart keeps less (+0.19). The Fortran, Java, Kotlin and C# translations show none (−0.15 to +0.05); the
+from-scratch reimplementations and the unrelated programs sit at chance (Appendix A). The raw wiring score had
+flattered every translation (0.72 to 0.95), because most calls stay inside their own subsystem; the methods note
+*Read a similarity score against chance* (gitgalaxy-population-analyses, `sfs` docs) explains the correction.
 
-Round 2 (engine `585c243e9`) scored six checks; the call-graph check is new since. The seven checks are in the harness
-README. Read the table with three cautions:
+Those placements use function names and file paths. A **blind placement**, which withholds every name and path and
+aligns the port's call graph and function measurements to linuxdoom's, puts gore's functions in the same subsystem
+as the name/path placement 60% of the time against 20% by chance (Cohen's κ 0.50), dartdoom's 48% (κ 0.31) and
+doom-scheme's 46% (κ 0.26). Where its vote is most confident (the top quarter of functions), it agrees 99% of the
+time for gore and 97% for dartdoom. Rewiring the port's call graph at random (degrees kept) drops gore to 39%, so
+the call graph carries a real part of it. For the Java, Kotlin, C# and Fortran ports, structure alone places little
+better than chance (κ 0.03 to 0.17), no better than for the from-scratch reimplementation room4doom (κ 0.03)
+(gitgalaxy-population-analyses `examples/doom/blind_placement.md`).
 
-- **Passing is not the same as measured.** A port shown `(vacuous)` has no first-party file the scorer recognises
-  (its source extension is outside the scorer's set), so its coverage check passes on zero files. Those rows prove
-  nothing about the port.
-- **The call-graph check fails 2 ports** (`doom3-bfg`, `doomsday`; both existed in round 2). It failed 17 at the first
-  scan that had it, so engine fixes since then cleared 15. Two newer ports (`sqldoom`, `cssdoom`) fail the functions check.
-- **Coverage and health failures from round 2 are gone** for every port that existed then (missed files now 0
-  everywhere; `doomsday` went from 993 missed files to 0).
+**4. Ports keep the names and rewrite the bodies.** chocolate-doom, which promises "accurate reproduction ... including
+bugs", keeps 87% of linuxdoom's function names but 35% of its exact function bodies; doomretro keeps 69% of the
+names and 0.2% of the bodies (Appendix B). And ports decompose the original: linuxdoom's functions are longer and
+branchier than 91% of the ports' (Appendix C).
 
-<!-- study:clean-scan begin -->
+**5. One extractor reads all twenty languages accurately enough to support this.** 42 of 44 ports pass all seven
+checks of the extraction scorecard against Universal Ctags, tree-sitter, libclang and per-language call-graph
+oracles; the two exceptions are ruled counting conventions (Appendix E). On landmark functions, translations read
+close to C's branch counts: gore finds all twelve with a median complexity ratio of 1.00, and dartdoom's two largest
+read 118 and 92 against C's 121 and 93 (Appendix D).
 
-40 of 44 ports pass every scored check now; 24 of them failed at least one in round 2 (`n/a` = the port was added after round 2; `(vacuous)` = the scorer saw no first-party source files, so the pass proves nothing; `not compared` = ctags has no reading of that language). The call-graph check did not exist in round 2.
+## What this does not show
 
-| port | failed checks, round 2 | failed checks, now | first-party files, now | missed files, round 2 | now | functions vs ctags %, round 2 | now | functions now |
-|---|---|---|---|---|---|---|---|---|
-| linuxdoom | coverage | - | 133 | 1 | 0 | 0.0 | 0.0 | 779 |
-| chocolate-doom | coverage health | - | 576 | 3 | 0 | 0.9 | 0.9 | 5168 |
-| crispy-doom | coverage health | - | 632 | 6 | 0 | 0.8 | 0.8 | 5909 |
-| doomgeneric | coverage | - | 192 | 1 | 0 | 0.1 | 0.1 | 1192 |
-| doomretro | coverage | - | 188 | 3 | 0 | 0.0 | 0.0 | 2236 |
-| prboom-plus | - | - | 286 | 0 | 0 | 2.3 | 2.3 | 2517 |
-| dsda-doom | - | - | 506 | 0 | 0 | 0.4 | 0.4 | 4937 |
-| woof | coverage health | - | 399 | 1 | 0 | 0.8 | 0.8 | 3783 |
-| eternity | coverage health | - | 584 | 2 | 0 | -0.1 | 3.3 | 7305 |
-| odamex | coverage functions | - | 590 | 3 | 0 | -3.3 | -1.9 | 8670 |
-| gzdoom | coverage | - | 1567 | 4 | 0 | 0.0 | 0.5 | 18260 |
-| room4doom | coverage | - | 385 | 10 | 0 | 0.7 | 0.7 | 4684 |
-| gore | coverage | - | 9 | 1 | 0 | 0.0 | 8.4 | 1025 |
-| managed-doom | - | - | 245 | 0 | 0 | 0.0 | -0.1 | 1300 |
-| mochadoom | coverage | - | 452 | 1 | 0 | -0.2 | -0.2 | 3781 |
-| rust-doom | - | - | 50 | 0 | 0 | 2.2 | 2.2 | 616 |
-| doom-wasm | coverage | - | 306 | 2 | 0 | 0.7 | 0.7 | 2055 |
-| fastdoom | coverage | - | 387 | 2 | 0 | 1.7 | 1.5 | 1736 |
-| puredoom | coverage | - | 130 | 2 | 0 | 0.9 | 1.0 | 1560 |
-| doom-ios | language | - | 304 | 0 | 0 | 1.0 | 1.0 | 1958 |
-| doom3-bfg | coverage | callgraph | 888 | 3 | 0 | -2.1 | 0.8 | 16379 |
-| doom-ascii | coverage health | - | 180 | 1 | 0 | 0.0 | 0.0 | 1019 |
-| srb2 | coverage | - | 422 | 1 | 0 | 2.1 | 2.5 | 6759 |
-| freedoom | - | - | 13 | 0 | 0 | -0.7 | 0.0 | 119 |
-| helion | coverage functions | - | 1518 | 1 | 0 | 4.0 | 3.7 | 9780 |
-| doomsday | coverage functions health | callgraph | 2552 | 993 | 0 | 16.2 | 14.0 | 25450 |
-| edge-classic | coverage health | - | 388 | 3 | 0 | 0.9 | 0.8 | 4963 |
-| nugget-doom | coverage health | - | 401 | 1 | 0 | 0.7 | 0.7 | 4168 |
-| inter-doom | coverage | - | 475 | 7 | 0 | 0.2 | 0.2 | 6236 |
-| sdl-doom | coverage | - | 182 | 2 | 0 | 0.1 | 0.1 | 1079 |
-| doom3do | coverage | - | 200 | 1 | 0 | 0.0 | 0.0 | 511 |
-| sqldoom | n/a | functions | 41 | n/a | 0 | n/a | 11.4 | 419 |
-| doomf77 | n/a | - | 14 | n/a | 0 | n/a | not compared | 0 |
-| doom-scheme | n/a | - | 74 | n/a | 0 | n/a | -1.1 | 92 |
-| dartdoom | n/a | - | 92 | n/a | 0 | n/a | not compared | 0 |
-| doo-cr | n/a | - | 43 | n/a | 0 | n/a | not compared | 0 |
-| kocoa-doom | n/a | - | 441 | n/a | 0 | n/a | not compared | 0 |
-| fsharp-doom | n/a | - | 18 | n/a | 0 | n/a | not compared | 0 |
-| cssdoom | n/a | functions | 54 | n/a | 0 | n/a | 4.7 | 225 |
-| doom-fx | n/a | - | 71 | n/a | 0 | n/a | -88.9 | 1 |
-| fps-cob | n/a | - | 1 | n/a | 0 | n/a | not compared | 0 |
-| agentic-cobol-doom-cc | n/a | - | 8 | n/a | 0 | n/a | not compared | 0 |
-| agentic-cobol-doom-codex | n/a | - | 14 | n/a | 0 | n/a | 0.0 | 52 |
-| mood | n/a | - | 307 | n/a | 0 | n/a | -0.4 | 1785 |
+- **Blind wiring as independent evidence.** The wiring computed from the blind placement makes every port look like
+  DOOM, reimplementations and COBOL raycasters included (cross wiring 0.33 to 0.64 for rust-doom, room4doom and
+  helion): the alignment imposes linuxdoom's shape. Only the blind placement's *agreement* with the name/path
+  placement is evidence; finding 3's wiring gaps remain name-and-path results.
+- **Whether the Java, Kotlin and C# ports lost the wiring.** Neither placement recovers it, and structure alone
+  cannot tell those translations from a reimplementation. They renamed and reorganised the most; the engine's
+  measurements of them may also differ more from C's (their functions are far smaller, Appendix C).
+- **A clean answer key for the blind test.** It is scored against the name/path placement, which is noisy where
+  path rules meet a layout unlike DOOM's; and the engine resolves calls by name inside each port, so the call graph
+  may carry some file structure.
+- **Cross-language ancestry from fingerprints.** Twins work within a language; the portable lens still groups
+  programs by language family rather than by ancestry.
+- **Behaviour.** These are measurements of extracted structure. A matching shape is not proof of equivalent play.
+- **Graph-shape distance as lineage evidence.** It does not separate DOOM ports from unrelated programs (controls
+  1.04 to 2.30, DOOM ports 0.30 to 3.25).
+- **Stated fidelity as a measurement.** It is read from READMEs; twelve ports state none, and a claim is not a
+  measurement (sqldoom calls itself faithful while keeping 0.6% of linuxdoom's names, because it is a translation).
+- The subsystem split is by file name and directory, so a port that renamed its files puts those functions under
+  `other %` (Appendix C).
 
-<!-- study:clean-scan end -->
+## Appendix A: Call-graph wiring against linuxdoom (`sfs`)
 
-## What each port says about itself
+Figures come from `sfs subway --reference linuxdoom` (gitgalaxy-population-analyses, with the cross-wiring null of
+its PR #21) over the same scans as the other tables; `sfs` applies its own function filters, so its function counts
+run a little below the distribution table's. Each port's functions are placed in linuxdoom's 16 subsystems by
+structural twin, then by function name, then by file path. `wiring similarity` is the cosine of the subsystem
+call-share matrices; `cross wiring` is the same over calls *between* subsystems only; `cross null` is the mean cross
+wiring with the port's own functions shuffled across subsystems (200 draws, sizes kept); `over null` is the gap, the
+part the placement explains. The table is sorted by it.
 
-Read from each port's own README at the pinned SHA, never inferred from the code. Examples, quoted briefly:
-chocolate-doom, "Accurate reproduction of the original DOS versions of the games, including bugs" (faithful);
-managed-doom, "Chocolate Doom is used as the reference of compatibility tests" (compatible);
-dartdoom, "A second hardware renderer draws the world as GPU geometry" (enhanced). Twelve ports state nothing, each with a recorded
-reason (`fidelity_reason` in the manifest), and are reported as unstated rather than guessed.
+- **Raw wiring flatters.** 54% of linuxdoom's calls stay inside one subsystem, so a map whose calls only stay home,
+  spread evenly, scores 0.47. doomf77 reads 0.91 but its shuffled self reads 0.80: +0.05 over null.
+- **doom3-bfg is the reverse case:** a separate engine (cross wiring at its null) that ships DOOM Classic converted to
+  C++, so 83% of linuxdoom's calls are still present by name.
+- `nan` (doom-fx) means the tool could not compute a similarity for that port.
+- The unrelated programs' rows (WinQuake, Quake II, Lua) are in Appendix H; they are not in the DOOM manifest.
 
-<!-- study:fidelity begin -->
+<!-- study:subway begin -->
 
-| class | original | faithful | compatible | enhanced | divergent | unstated |
-|---|---|---|---|---|---|---|
-| assets | - | - | freedoom | - | - | - |
-| engine-port | linuxdoom | chocolate-doom, doom-scheme, sqldoom | crispy-doom, doomf77, gore, inter-doom, managed-doom, odamex, prboom-plus | dartdoom, doomretro, doomsday, dsda-doom, edge-classic, eternity, fastdoom, nugget-doom, puredoom, woof | doo-cr, doom3do, srb2 | doom-ascii, doom-ios, doom-wasm, doomgeneric, gzdoom, kocoa-doom, mochadoom, mood, sdl-doom |
-| raycaster | - | - | - | - | agentic-cobol-doom-cc, agentic-cobol-doom-codex, fps-cob | - |
-| reimplementation | - | - | room4doom | - | cssdoom, helion, rust-doom | doom-fx, fsharp-doom |
-| separate-engine | - | - | - | - | - | doom3-bfg |
-| **ports** | 1 | 3 | 9 | 10 | 9 | 12 |
+| port | functions | wiring similarity | cross wiring | cross null | over null | linuxdoom calls kept | graph-shape distance |
+|---|---|---|---|---|---|---|---|
+| mood | 1859 | 0.9911 | 0.9871 | 0.3355 | +0.65 | 0.9994 | 0.7163 |
+| doomgeneric | 1192 | 0.9762 | 0.9131 | 0.3453 | +0.57 | 0.8393 | 0.4258 |
+| sdl-doom | 1079 | 0.9807 | 0.9222 | 0.4027 | +0.52 | 0.8411 | 0.3364 |
+| chocolate-doom | 5129 | 0.9479 | 0.8272 | 0.3183 | +0.51 | 0.7153 | 0.4307 |
+| doom-ascii | 1019 | 0.9878 | 0.9303 | 0.4218 | +0.51 | 0.8411 | 0.3049 |
+| doom-scheme | 798 | 0.9516 | 0.7512 | 0.2408 | +0.51 | 0.4386 | 0.7360 |
+| gore | 996 | 0.8564 | 0.6495 | 0.1506 | +0.50 | 0.7707 | 0.3919 |
+| doom-wasm | 2035 | 0.6454 | 0.7343 | 0.2637 | +0.47 | 0.7514 | 0.5825 |
+| crispy-doom | 5870 | 0.9513 | 0.8303 | 0.3757 | +0.45 | 0.7452 | 0.4897 |
+| puredoom | 1546 | 0.9715 | 0.7759 | 0.3901 | +0.39 | 0.9202 | 0.6085 |
+| inter-doom | 6094 | 0.8781 | 0.8138 | 0.4645 | +0.35 | 0.6411 | 0.5237 |
+| srb2 | 6805 | 0.7092 | 0.5481 | 0.2436 | +0.30 | 0.1944 | 0.7267 |
+| fastdoom | 2114 | 0.5647 | 0.3980 | 0.1170 | +0.28 | 0.5022 | 0.9382 |
+| dsda-doom | 4930 | 0.9027 | 0.5360 | 0.2684 | +0.27 | 0.4579 | 0.5168 |
+| doomretro | 2233 | 0.8311 | 0.5518 | 0.3144 | +0.24 | 0.4991 | 0.4499 |
+| woof | 3788 | 0.6711 | 0.5056 | 0.2664 | +0.24 | 0.4822 | 0.4244 |
+| nugget-doom | 4173 | 0.7589 | 0.5809 | 0.3398 | +0.24 | 0.5040 | 0.3917 |
+| prboom-plus | 2430 | 0.8719 | 0.5465 | 0.3609 | +0.19 | 0.5950 | 0.6536 |
+| dartdoom | 723 | 0.9324 | 0.5863 | 0.3974 | +0.19 | 0.4112 | 0.5548 |
+| doom-ios | 1768 | 0.8742 | 0.5610 | 0.3933 | +0.17 | 0.6062 | 0.6329 |
+| edge-classic | 5151 | 0.6464 | 0.3612 | 0.1931 | +0.17 | 0.0255 | 0.7620 |
+| eternity | 6641 | 0.7150 | 0.3682 | 0.2070 | +0.16 | 0.4162 | 0.7147 |
+| doom3do | 511 | 0.7848 | 0.2076 | 0.0713 | +0.14 | 0.1632 | 0.7266 |
+| fsharp-doom | 47 | 0.0883 | 0.1529 | 0.0266 | +0.13 | 0.0000 | 2.8326 |
+| odamex | 7759 | 0.7068 | 0.3457 | 0.2234 | +0.12 | 0.3645 | 0.8408 |
+| doomsday | 23304 | 0.3859 | 0.1641 | 0.0840 | +0.08 | 0.1607 | 0.9859 |
+| cssdoom | 217 | 0.5011 | 0.2650 | 0.1966 | +0.07 | 0.0000 | 0.9380 |
+| rust-doom | 582 | 0.1612 | 0.0979 | 0.0404 | +0.06 | 0.0000 | 1.6348 |
+| sqldoom | 475 | 0.1287 | 0.0802 | 0.0262 | +0.05 | 0.0037 | 1.3367 |
+| doomf77 | 146 | 0.9139 | 0.4113 | 0.3635 | +0.05 | 0.0000 | 0.7950 |
+| gzdoom | 18434 | 0.4834 | 0.1274 | 0.1127 | +0.01 | 0.0729 | 1.1171 |
+| mochadoom | 3037 | 0.7766 | 0.3785 | 0.3728 | +0.01 | 0.3564 | 1.2682 |
+| doom3-bfg | 13859 | 0.3180 | 0.1091 | 0.0962 | +0.01 | 0.8274 | 0.8956 |
+| room4doom | 4582 | 0.2842 | 0.0769 | 0.0804 | -0.00 | 0.1377 | 1.0859 |
+| fps-cob | 51 | 0.0765 | 0.0000 | 0.0001 | -0.00 | 0.0000 | 0.9701 |
+| freedoom | 106 | 0.1140 | 0.0046 | 0.0454 | -0.04 | 0.0000 | 2.4304 |
+| agentic-cobol-doom-codex | 152 | 0.1068 | 0.0092 | 0.0457 | -0.04 | 0.0000 | 0.9097 |
+| helion | 8386 | 0.5450 | 0.0737 | 0.1562 | -0.08 | 0.0199 | 1.1298 |
+| kocoa-doom | 2902 | 0.7652 | 0.2701 | 0.3542 | -0.08 | 0.2741 | 1.4847 |
+| agentic-cobol-doom-cc | 45 | 0.4954 | 0.0197 | 0.1292 | -0.11 | 0.0000 | 1.7705 |
+| managed-doom | 1285 | 0.7246 | 0.0952 | 0.2476 | -0.15 | 0.2118 | 0.9622 |
+| doo-cr | 1488 | 0.1439 | 0.0168 | 0.2432 | -0.23 | 0.0411 | 3.0180 |
+| doom-fx | 1865 | nan |  |  |  | 0.0000 | 3.2540 |
 
-<!-- study:fidelity end -->
+<!-- study:subway end -->
 
-## Survival of linuxdoom's functions
+## Appendix B: Survival of linuxdoom's functions (source text)
 
 A function survives by **name**, **exact** body, **near** (similarity >= 0.9) or **derived** (>= 0.6). Name survival
 is the lineage claim for a rewrite; exact survival says how much was left untouched.
@@ -165,12 +202,18 @@ is the lineage claim for a rewrite; exact survival says how much was left untouc
 
 <!-- study:lineage end -->
 
-## Per-function distributions
+## Appendix C: Per-function distributions
 
 `dist` is the mean normalised Wasserstein distance between a port's per-function distributions (complexity, LOC, fan-out,
-token mass, arguments) and linuxdoom's. It is a shape comparison, not a correctness claim: it runs from 0.08
-(puredoom) to 0.54 (fps-cob). linuxdoom itself sits near the 91st percentile of the ports for complexity and for LOC
-(the 1993 original has longer, branchier functions than the median port).
+token mass, arguments) and linuxdoom's. It is a shape comparison, not a correctness claim: it runs from 0.07
+(puredoom) to 0.61 (gzdoom). linuxdoom itself sits near the 91st percentile of the ports for complexity and for LOC
+(the 1993 original has longer, branchier functions than the median port). Vendored code is excluded (#6749).
+
+Ports in Java, Kotlin, Rust, C#, Crystal and assembly show a median complexity of 0, against 2 for most C ports. The
+baseline is the same (a branchless function is 0 in every language; 26% of linuxdoom's are); the difference is method
+size. 34% of mochadoom's functions, 43% of kocoa-doom's and 38% of rust-doom's are 3 lines or shorter, against under 2%
+in linuxdoom and chocolate-doom. On the landmark functions below the same Java and Kotlin ports read 0.71 and 0.86 of
+linuxdoom's complexity, so the low medians describe how the code is split, not missing branches.
 
 <!-- study:distribution begin -->
 
@@ -189,42 +232,42 @@ token mass, arguments) and linuxdoom's. It is a shape comparison, not a correctn
 | doom-wasm | c | unstated | 2055 | 2 | 10.5 | 19 | 0.15 |
 | doom-ios | c | unstated | 1958 | 2 | 16.9 | 14 | 0.16 |
 | inter-doom | c | compatible | 6236 | 2 | 15.7 | 16 | 0.16 |
-| cssdoom | javascript | divergent | 225 | 2 | 18.2 | 12 | 0.16 |
+| cssdoom | javascript | divergent | 225 | 2 | 18.2 | 12 | 0.17 |
 | dartdoom | dart | enhanced | 865 | 2 | 14.3 | 10 | 0.17 |
 | managed-doom | csharp | compatible | 1300 | 1 | 9.5 | 15 | 0.18 |
-| woof | c | enhanced | 3795 | 2 | 13.6 | 16 | 0.18 |
-| eternity | cpp | enhanced | 7308 | 1 | 13.2 | 12 | 0.20 |
-| nugget-doom | c | enhanced | 4180 | 2 | 14.7 | 16 | 0.21 |
+| woof | c | enhanced | 3795 | 2 | 13.6 | 16 | 0.19 |
+| eternity | cpp | enhanced | 7308 | 1 | 13.2 | 12 | 0.21 |
+| nugget-doom | c | enhanced | 4180 | 2 | 14.7 | 16 | 0.22 |
 | agentic-cobol-doom-codex | cobol | divergent | 162 | 2 | 8.0 | 10 | 0.23 |
 | room4doom | rust | compatible | 4684 | 0 | 6.9 | 11 | 0.24 |
-| doom-scheme | scheme | faithful | 1034 | 1 | 9.1 | 7 | 0.24 |
+| doom-scheme | scheme | faithful | 1034 | 1 | 9.1 | 7 | 0.25 |
 | dsda-doom | c | enhanced | 4937 | 2 | 13.5 | 13 | 0.25 |
 | sqldoom | python | faithful | 419 | 2 | 14.6 | 9 | 0.25 |
 | agentic-cobol-doom-cc | cobol | divergent | 45 | 4 | 17.8 | 25 | 0.26 |
 | doomf77 | fortran | compatible | 146 | 6 | 37.7 | 24 | 0.28 |
 | fastdoom | c | enhanced | 2135 | 1 | 12.9 | 20 | 0.29 |
-| srb2 | c | divergent | 6759 | 2 | 20.4 | 16 | 0.33 |
-| fsharp-doom | fsharp | unstated | 53 | 1 | 9.4 | 12 | 0.34 |
 | edge-classic | cpp | enhanced | 4963 | 2 | 14.0 | 13 | 0.34 |
-| doom3-bfg | cpp | unstated | 16379 | 1 | 9.8 | 8 | 0.34 |
+| fsharp-doom | fsharp | unstated | 53 | 1 | 9.4 | 12 | 0.34 |
+| doom3-bfg | cpp | unstated | 16379 | 1 | 9.8 | 8 | 0.35 |
 | fps-cob | cobol | divergent | 54 | 6 | 33.3 | 32 | 0.35 |
 | kocoa-doom | kotlin | unstated | 3565 | 0 | 5.5 | 5 | 0.36 |
-| mochadoom | java | unstated | 3781 | 0 | 5.3 | 5 | 0.36 |
 | odamex | cpp | compatible | 8670 | 1 | 9.4 | 8 | 0.36 |
+| mochadoom | java | unstated | 3781 | 0 | 5.3 | 5 | 0.36 |
+| srb2 | c | divergent | 6759 | 2 | 20.4 | 16 | 0.36 |
 | doo-cr | crystal | divergent | 1509 | 0 | 7.5 | 3 | 0.37 |
-| rust-doom | rust | divergent | 616 | 0 | 4.4 | 5 | 0.37 |
+| rust-doom | rust | divergent | 616 | 0 | 4.4 | 5 | 0.38 |
 | helion | csharp | divergent | 9780 | 0 | 4.0 | 8 | 0.38 |
 | doom-fx | assembly | unstated | 2004 | 0 | 2.1 | 12 | 0.39 |
 | gore | go | compatible | 1025 | 2 | 13.4 | 13 | 0.39 |
 | doomretro | c | enhanced | 2236 | 3 | 24.6 | 18 | 0.40 |
-| doomsday | cpp | enhanced | 25450 | 0 | 6.6 | 7 | 0.45 |
-| gzdoom | cpp | unstated | 20401 | 1 | 10.2 | 8 | 0.62 |
+| doomsday | cpp | enhanced | 25480 | 0 | 6.6 | 7 | 0.45 |
+| gzdoom | cpp | unstated | 20401 | 1 | 10.2 | 8 | 0.61 |
 
 | metric | linuxdoom median | population median | IQR of port medians | linuxdoom percentile |
 |---|---|---|---|---|
 | complexity | 3.0 | 2.0 | 1.0 - 2.0 | 91 |
 | loc | 21.0 | 14.0 | 9.2 - 19.0 | 91 |
-| func_fan_out | 1.0 | 1.0 | 1.0 - 1.0 | 58 |
+| func_fan_out | 1.0 | 1.0 | 1.0 - 1.0 | 56 |
 | token_mass | 130.0 | 100.0 | 81.2 - 117.0 | 88 |
 | args | 1.0 | 1.0 | 1.0 - 1.0 | 50 |
 
@@ -286,24 +329,24 @@ is a subsystem with under 5 functions on either side. The full per-metric tables
 
 <!-- study:subsystem end -->
 
-## Cross-language calibration: landmark functions
+## Appendix D: Cross-language calibration, landmark functions
 
 Twelve named linuxdoom functions are looked up in each translation; the ratio is the translation's complexity or LOC
-against linuxdoom's. **The matcher is exact on name, so a port that renames (`p_` / `r_` prefixes dropped) finds
-few or none of the twelve** (managed-doom, doomf77, kocoa-doom, mochadoom): "0 / 12" is a matcher limit, not a
-measurement of the port.
+against linuxdoom's. The matcher tries the exact name first and then the name without its `p_` / `r_` prefix (#6703).
+A port that renames further still finds few: doomf77 uses Fortran 77-style abbreviations (`P_USELN` for
+`P_UseSpecialLine`, `G_TICK` for `G_Ticker`), so its "0 / 12" is a naming limit, not a measurement of the port.
 
 Findings, each checked against the source:
 
-1. **Scheme: `case` clauses are not counted (defect).** doom-scheme's `p-cross-special-line` carries 75 `[(N) ...]`
-   clauses and reads complexity 6 against linuxdoom's 93 (ratio 0.33 median over the nine found landmarks). The
-   Scheme branch rule counts the `case` keyword once, not its clauses.
-2. **Dart: `break` / `continue` count as branches (defect).** dartdoom's `pUseSpecialLine` and `pCrossSpecialLine` read
-   169 and 165 against C's 121 and 93. The sources have the same structure (67 `case` labels and 48 `if` against 68
-   and 48); the Dart branch rule adds `break|continue` (51 `break` in that function), the C rule does not. The 48-point
-   gap is the `break` count.
+1. **Scheme `case` clauses now count (fixed in #6700).** doom-scheme's `p-cross-special-line` carries 75 `[(N) ...]`
+   clauses. It read complexity 6 against linuxdoom's 93 when the branch rule counted the `case` keyword once; it now
+   reads 78 (ratio 0.84). Its median ratio over the nine landmarks it has is 0.47.
+2. **Dart `break` / `continue` are no longer branches (fixed in #6700).** dartdoom's `pUseSpecialLine` and
+   `pCrossSpecialLine` read 169 and 165 against C's 121 and 93 when the Dart rule counted `break|continue` and the C
+   rule did not. They now read 118 and 92, matching the shared structure (67 `case` labels and 48 `if` against 68 and
+   48).
 3. **Go: none found.** gore matches linuxdoom on all 12 landmarks (complexity ratio median 1.00).
-4. **Not measurable here:** Java, Kotlin, C# and Fortran, for the matcher reason above.
+4. **Java, Kotlin and C# are now measurable:** mochadoom finds 12, kocoa-doom 11 and managed-doom 7 of the twelve.
 
 <!-- study:landmarks begin -->
 
@@ -319,70 +362,144 @@ Findings, each checked against the source:
 
 <!-- study:landmarks end -->
 
-## Call-graph shape ("subway") from `sfs`
+## Appendix E: Extraction scorecard, round 2 to now
 
-Figures come from `sfs compare --subway-reference linuxdoom` (gitgalaxy-population-analyses), run on an earlier scan
-of the same pinned ports (2026-10-21), so function counts differ slightly from the clean-scan table. `wiring
-similarity` is how closely a port's call wiring matches linuxdoom's; `calls kept` is the share of linuxdoom's call
-edges present in the port. A port in another language can keep the wiring (doom-scheme 0.95, dartdoom 0.93,
-doomf77 0.91) while keeping few edges by name (0.49, 0.41, 0.00); managed-doom keeps 0.73 wiring with no surviving
-names. `nan` rows (doom-fx) mean the tool could not compute a similarity.
+Round 2 (engine `585c243e9`) scored six checks; the call-graph check is new since. The seven checks are in the harness
+README. Read the table with three cautions:
 
-<!-- study:subway begin -->
+- **The call-graph check passes every port.** It failed 17 at the first scan that had it; engine fixes cleared all of
+  them, the last (`doomsday`'s remaining engine-only edges) in #7019.
+- **The two remaining failures are counting conventions, not engine misses.** `sqldoom` and `cssdoom` fail the
+  functions check because the engine and ctags disagree on what counts as a function in those sources; #5876 ruled
+  both as counting conventions, so they stay listed rather than fixed.
+- **Coverage and health failures from round 2 are gone** for every port that existed then (missed files now 0
+  everywhere; `doomsday` went from 993 missed files to 0). No port is `(vacuous)` any more: the scorer now recognises
+  the Fortran, Crystal, F# and COBOL sources (#6705), so check 1 measures every port.
 
-| port | functions | wiring similarity | linuxdoom calls kept | graph-shape distance |
-|---|---|---|---|---|
-| mood | 1859 | 0.9912 | 0.9994 | 0.7090 |
-| doom-ascii | 1019 | 0.9880 | 0.8450 | 0.3015 |
-| sdl-doom | 1079 | 0.9810 | 0.8450 | 0.3327 |
-| doomgeneric | 1192 | 0.9766 | 0.8432 | 0.4213 |
-| puredoom | 1546 | 0.9719 | 0.9253 | 0.5919 |
-| crispy-doom | 5869 | 0.9515 | 0.7535 | 0.5019 |
-| doom-scheme | 798 | 0.9501 | 0.4944 | 0.8180 |
-| chocolate-doom | 5128 | 0.9484 | 0.7183 | 0.4386 |
-| dartdoom | 723 | 0.9326 | 0.4147 | 0.5498 |
-| doomf77 | 146 | 0.9142 | 0.0000 | 0.7713 |
-| dsda-doom | 4930 | 0.9035 | 0.4605 | 0.5550 |
-| inter-doom | 6094 | 0.8838 | 0.6474 | 0.5370 |
-| doom-ios | 1768 | 0.8779 | 0.6085 | 0.7174 |
-| prboom-plus | 2430 | 0.8709 | 0.5985 | 0.6908 |
-| gore | 996 | 0.8586 | 0.7723 | 0.3900 |
-| doomretro | 2233 | 0.8324 | 0.5031 | 0.4565 |
-| mochadoom | 3037 | 0.8107 | 0.3494 | 1.3236 |
-| doom3do | 511 | 0.7910 | 0.1644 | 0.7244 |
-| nugget-doom | 4173 | 0.7654 | 0.5088 | 0.5309 |
-| kocoa-doom | 2902 | 0.7536 | 0.2635 | 1.4951 |
-| srb2 | 6808 | 0.7448 | 0.1939 | 0.6957 |
-| managed-doom | 1285 | 0.7253 | 0.2133 | 0.9603 |
-| odamex | 7765 | 0.7218 | 0.3657 | 0.8709 |
-| eternity | 6662 | 0.7131 | 0.4203 | 0.7148 |
-| woof | 3788 | 0.6769 | 0.4868 | 0.5347 |
-| doom-wasm | 2034 | 0.6475 | 0.7547 | 0.5834 |
-| edge-classic | 5150 | 0.6438 | 0.0257 | 0.8129 |
-| fastdoom | 2114 | 0.5709 | 0.4987 | 0.9319 |
-| helion | 8407 | 0.5254 | 0.0113 | 1.1503 |
-| gzdoom | 18662 | 0.5104 | 0.0734 | 1.1258 |
-| cssdoom | 217 | 0.5030 | 0.0000 | 0.9207 |
-| agentic-cobol-doom-cc | 45 | 0.4959 | 0.0000 | 1.7431 |
-| doomsday | 23397 | 0.3879 | 0.1625 | 1.0363 |
-| doom3-bfg | 13860 | 0.3198 | 0.8338 | 0.8795 |
-| room4doom | 4582 | 0.2499 | 0.1129 | 1.3576 |
-| doo-cr | 1488 | 0.1441 | 0.0414 | 2.9977 |
-| sqldoom | 475 | 0.1281 | 0.0038 | 1.3725 |
-| freedoom | 106 | 0.1139 | 0.0000 | 2.3723 |
-| agentic-cobol-doom-codex | 152 | 0.1104 | 0.0000 | 0.8964 |
-| fsharp-doom | 47 | 0.0881 | 0.0000 | 2.8052 |
-| rust-doom | 582 | 0.0846 | 0.0000 | 1.8223 |
-| fps-cob | 51 | 0.0763 | 0.0000 | 0.9526 |
-| doom-fx | 1865 | nan | 0.0000 | 3.2104 |
+<!-- study:clean-scan begin -->
 
-<!-- study:subway end -->
+42 of 44 ports pass every scored check now; 26 of them failed at least one in round 2 (`n/a` = the port was added after round 2; `(vacuous)` = the scorer saw no first-party source files, so the pass proves nothing; `not compared` = ctags has no reading of that language; `functions in ctags languages` counts only the files the ctags check reads, so a port written in a language ctags lacks shows 0 here: its full count is in the distribution table). The call-graph check did not exist in round 2.
 
-## Limits and remaining slices
+| port | failed checks, round 2 | failed checks, now | first-party files, now | missed files, round 2 | now | functions vs ctags %, round 2 | now | functions in ctags languages |
+|---|---|---|---|---|---|---|---|---|
+| linuxdoom | coverage | - | 133 | 1 | 0 | 0.0 | 0.0 | 779 |
+| chocolate-doom | coverage health | - | 576 | 3 | 0 | 0.9 | 0.9 | 5168 |
+| crispy-doom | coverage health | - | 632 | 6 | 0 | 0.8 | 0.8 | 5909 |
+| doomgeneric | coverage | - | 192 | 1 | 0 | 0.1 | 0.1 | 1192 |
+| doomretro | coverage | - | 188 | 3 | 0 | 0.0 | 0.0 | 2236 |
+| prboom-plus | - | - | 286 | 0 | 0 | 2.3 | 2.3 | 2517 |
+| dsda-doom | - | - | 506 | 0 | 0 | 0.4 | 0.4 | 4937 |
+| woof | coverage health | - | 399 | 1 | 0 | 0.8 | 0.8 | 3783 |
+| eternity | coverage health | - | 584 | 2 | 0 | -0.1 | 3.3 | 7305 |
+| odamex | coverage functions | - | 590 | 3 | 0 | -3.3 | -1.9 | 8670 |
+| gzdoom | coverage | - | 1567 | 4 | 0 | 0.0 | 0.5 | 18260 |
+| room4doom | coverage | - | 385 | 10 | 0 | 0.7 | 0.7 | 4684 |
+| gore | coverage | - | 9 | 1 | 0 | 0.0 | 8.4 | 1025 |
+| managed-doom | - | - | 245 | 0 | 0 | 0.0 | -0.1 | 1300 |
+| mochadoom | coverage | - | 452 | 1 | 0 | -0.2 | -0.2 | 3781 |
+| rust-doom | - | - | 50 | 0 | 0 | 2.2 | 2.2 | 616 |
+| doom-wasm | coverage | - | 306 | 2 | 0 | 0.7 | 0.7 | 2055 |
+| fastdoom | coverage | - | 387 | 2 | 0 | 1.7 | 1.5 | 1736 |
+| puredoom | coverage | - | 130 | 2 | 0 | 0.9 | 1.0 | 1560 |
+| doom-ios | language | - | 304 | 0 | 0 | 1.0 | 1.0 | 1958 |
+| doom3-bfg | coverage | - | 888 | 3 | 0 | -2.1 | 0.8 | 16379 |
+| doom-ascii | coverage health | - | 180 | 1 | 0 | 0.0 | 0.0 | 1019 |
+| srb2 | coverage | - | 422 | 1 | 0 | 2.1 | 2.5 | 6759 |
+| freedoom | - | - | 13 | 0 | 0 | -0.7 | 0.0 | 119 |
+| helion | coverage functions | - | 1518 | 1 | 0 | 4.0 | 3.7 | 9780 |
+| doomsday | coverage functions health | - | 2552 | 993 | 0 | 16.2 | 14.0 | 25480 |
+| edge-classic | coverage health | - | 388 | 3 | 0 | 0.9 | 0.8 | 4963 |
+| nugget-doom | coverage health | - | 401 | 1 | 0 | 0.7 | 0.7 | 4168 |
+| inter-doom | coverage | - | 475 | 7 | 0 | 0.2 | 0.2 | 6236 |
+| sdl-doom | coverage | - | 182 | 2 | 0 | 0.1 | 0.1 | 1079 |
+| doom3do | coverage | - | 200 | 1 | 0 | 0.0 | 0.0 | 511 |
+| sqldoom | n/a | functions | 41 | n/a | 0 | n/a | 11.4 | 419 |
+| doomf77 | n/a | - | 14 | n/a | 0 | n/a | not compared | 0 |
+| doom-scheme | n/a | - | 74 | n/a | 0 | n/a | -1.1 | 92 |
+| dartdoom | n/a | - | 92 | n/a | 0 | n/a | not compared | 0 |
+| doo-cr | n/a | - | 43 | n/a | 0 | n/a | not compared | 0 |
+| kocoa-doom | n/a | - | 441 | n/a | 0 | n/a | not compared | 0 |
+| fsharp-doom | n/a | - | 18 | n/a | 0 | n/a | not compared | 0 |
+| cssdoom | n/a | functions | 54 | n/a | 0 | n/a | 4.7 | 225 |
+| doom-fx | n/a | - | 71 | n/a | 0 | n/a | -88.9 | 1 |
+| fps-cob | n/a | - | 1 | n/a | 0 | n/a | not compared | 0 |
+| agentic-cobol-doom-cc | n/a | - | 8 | n/a | 0 | n/a | not compared | 0 |
+| agentic-cobol-doom-codex | n/a | - | 14 | n/a | 0 | n/a | 0.0 | 52 |
+| mood | n/a | - | 307 | n/a | 0 | n/a | -0.4 | 1785 |
 
-- Tables describe structure the engine extracts, not behaviour. A matching shape is not a proof of equivalent play.
-- Vendored libraries are not excluded from the distributions.
-- Not done here: engine fixes for the two calibration defects, a landmark matcher that drops the `p_` / `r_` prefixes,
-  per-subsystem distributions, the plots, and the scorer's source-extension set (Fortran, Crystal, F#, COBOL), which
-  makes check 1 vacuous for those ports. The subway maps (`callmaps.py`) were dropped by the owner on 2026-10-21; the
-  figures above come from `sfs`.
+<!-- study:clean-scan end -->
+
+## Appendix F: What each port says about itself
+
+Read from each port's own README at the pinned SHA, never inferred from the code. Examples, quoted briefly:
+chocolate-doom, "Accurate reproduction of the original DOS versions of the games, including bugs" (faithful);
+managed-doom, "Chocolate Doom is used as the reference of compatibility tests" (compatible);
+dartdoom, "A second hardware renderer draws the world as GPU geometry" (enhanced). Twelve ports state nothing, each with a recorded
+reason (`fidelity_reason` in the manifest), and are reported as unstated rather than guessed.
+
+<!-- study:fidelity begin -->
+
+| class | original | faithful | compatible | enhanced | divergent | unstated |
+|---|---|---|---|---|---|---|
+| assets | - | - | freedoom | - | - | - |
+| engine-port | linuxdoom | chocolate-doom, doom-scheme, sqldoom | crispy-doom, doomf77, gore, inter-doom, managed-doom, odamex, prboom-plus | dartdoom, doomretro, doomsday, dsda-doom, edge-classic, eternity, fastdoom, nugget-doom, puredoom, woof | doo-cr, doom3do, srb2 | doom-ascii, doom-ios, doom-wasm, doomgeneric, gzdoom, kocoa-doom, mochadoom, mood, sdl-doom |
+| raycaster | - | - | - | - | agentic-cobol-doom-cc, agentic-cobol-doom-codex, fps-cob | - |
+| reimplementation | - | - | room4doom | - | cssdoom, helion, rust-doom | doom-fx, fsharp-doom |
+| separate-engine | - | - | - | - | - | doom3-bfg |
+| **ports** | 1 | 3 | 9 | 10 | 9 | 12 |
+
+<!-- study:fidelity end -->
+
+## Appendix G: Reproduce
+
+The tables of Appendices A to F sit between `<!-- study:NAME begin/end -->` markers and are generated, not typed:
+
+```bash
+python tests/tools/doom_speedrun/doom_speedrun.py run --oracle --work DIR      # clone at the pinned SHAs, scan, score
+sfs subway DIR/scans/SHA -o subway --reference linuxdoom --taxonomy examples/doom/subsystems.json \
+    --declared-lineage examples/doom/declared_lineage.csv                       # gitgalaxy-population-analyses, writes subway.csv
+python tests/tools/doom_speedrun/study_report.py --work DIR --sha 6c7c6c1bc --subway subway.csv --write
+python tests/tools/doom_speedrun/study_report.py --work DIR --sha 6c7c6c1bc --subway subway.csv --check   # rc 1 when stale
+```
+
+Appendix H's figures are quoted from `sfs` outputs over the same scans:
+
+```bash
+python tests/tools/doom_speedrun/lineage.py --work DIR --sha 6c7c6c1bc        # source-text verdicts, survival_functions.csv
+sfs compare DIR/scans/SHA -o compare --declared-lineage examples/doom/declared_lineage.csv \
+    --subway-reference linuxdoom --taxonomy examples/doom/subsystems.json \
+    --crosscheck DIR/results/SHA/lineage/survival_functions.csv                 # crosscheck.json, pairs.csv, report.md
+python -m structural_fingerprint.blind ...                                      # blind placement, see examples/doom/blind_placement.md
+```
+
+Every table reads the same scans, at engine `6c7c6c1bc`. The prose is hand-written and dated 2026-10-30; the tables
+are the evidence.
+
+## Appendix H: Twin cross-check and unrelated programs
+
+**Twins against source text** (`sfs compare --crosscheck`, default `--fdr 0.01`, functions of at least 6 lines).
+Each of linuxdoom's 646 eligible functions in each port is a positive when `lineage.py` calls it an exact or near
+(token similarity ≥ 0.9) survivor; `sfs` predicts it from measurements alone.
+
+| pairs | precision | recall | scanner survival | source-text survival | port-level Spearman ρ |
+|---:|---:|---:|---:|---:|---:|
+| 27,778 | 0.933 | 0.655 | 12.3% | 17.5% | 0.83 (n = 43, p = 4 × 10⁻¹²) |
+
+Recall is lowest where the copy was changed most: doom3-bfg (DOOM Classic converted to C++; 0 of 231 source-text
+survivors found), doom-ios and prboom-plus (under 10%).
+
+**Descent.** In the descent tree built from shared structure, a port's nearest neighbour is a declared ancestor,
+descendant, sibling or cousin for 69.6% of the 23 ports with detectable shared structure.
+
+**Unrelated programs**, none in the DOOM manifest, scanned at the same engine and compared with linuxdoom the same
+way. All three licences were read from the repositories at the pinned commits; measurements only.
+
+| program | licence, commit | functions | shared structure with linuxdoom | twins | wiring | cross wiring | cross null |
+|---|---|---:|---:|---:|---:|---:|---:|
+| WinQuake (id Software Quake) | GPL-2.0, `bf4ac42` | 2,594 | 0.005 | 7 | 0.12 | 0.05 | 0.07 |
+| Quake II | GPL-2.0, `372afde` | 5,289 | 0.006 | 8 | 0.24 | 0.11 | 0.09 |
+| Lua | MIT, `8cb93ba` | 1,666 | 0.000 | 0 | 0.08 | 0.00 | 0.00 |
+| *chocolate-doom, for scale* | | 5,129 | 0.309 | 403 | 0.95 | 0.83 | 0.32 |
+
+WinQuake and Quake II share 0.127 with each other. Scans and outputs: `controls/` beside the study's work directory
+(`RESULTS.md`, `controls.csv`).

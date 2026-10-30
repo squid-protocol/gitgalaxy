@@ -4483,6 +4483,13 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
     zero would be unobservable, and a half-set field would be a wrong claim after any other response. The no-port
     `equivalence.py run zecs-zecs001` has no Java for the HLASM `ZECS002` it LINKs to (the forge writes no service for it) and
     now says so by name instead of failing to compile; its proof is the det port's.
+  - **Slice 3 (proof_blockers; ASSUMED).** `proof_blockers.fact_gaps` drops `fact: EIBRCODE` for an equivalence case that plans at
+    least one file control fault and whose every such non-NORMAL fault states an `rcode` (`Run.rcode`, `states_rcode`); one fault
+    without it, no fault, or a crucible case keeps the gap. ZECS001's case now states one on all nine ZC01KEY faults too:
+    only `9100-FILE-ERROR` reads EIBRCODE (`9200-KEY-ERROR` does not), so those values are never read and exist so the case-level
+    rule is decidable from the case alone, without reading the program's paths. Evidence: executed-equivalent for the ZC01FILE
+    faults (`det_port.py run zecs-zecs001`); the KEY rcodes are unobserved scenario facts. Residual: the rule cannot tell that a
+    fault's path reads the field, and a normal response still leaves EIBRCODE as it was.
   - **Remaining.** EIBFN, EIBCPOSN, EIBREQID, EIBRSRCE, EIBERR / EIBERRCD stay refused (no burned reader). A normal-response
     zero waits for a burned reader that can observe it.
     Re-checked 2026-10-30: ZECS001's one EIBRCODE read is in `9100-FILE-ERROR`, performed only after a non-NORMAL response;

@@ -403,8 +403,8 @@ class Sql:
             return [*self._params(sql[: pos.start()], meth, n, ind),
                     f"{ind}DetSql.updateCurrent(SQLCA_AREA, {at}, {self.g_str(pos.group(1))}, rid -> {{ "
                     f"{n}.put({self.g_str(meth.params['GG-RID'])}, rid); return {call}({n}); }}, CS);"]  # fmt: skip
-        if verb == "INSERT" and _INSERT_ROWS.search(sql):
-            return self._insert_rows(sql, _INSERT_ROWS.search(sql), meth, at, ind)
+        if verb == "INSERT" and (rows := _INSERT_ROWS.search(sql)):
+            return self._insert_rows(sql, rows, meth, at, ind)
         if verb in ("INSERT", "UPDATE", "DELETE"):
             searched = verb != "INSERT"
             return [
@@ -480,7 +480,10 @@ class Sql:
         sets SQLERRD(3) to the rows inserted. A row that fails after the first stops the port at run time (the rows
         before it were committed as they ran: ATOMIC's undo is not modelled)."""
         what = "EXEC SQL INSERT ... FOR n ROWS"
-        names, kinds, tables, inds = [], "", [], []
+        names: list[str] = []
+        kinds = ""
+        tables: list[L.Item] = []
+        inds: list[L.Item | None] = []
         for h in _HOST.finditer(sql[: m.start()]):
             name = re.split(r"\s+(?:OF|IN)\s+", h.group(1), flags=re.I)[0].upper()
             param = meth.params.get(name)
@@ -593,8 +596,9 @@ class Sql:
         if verb in ("FETCH", "INSERT") and _ROWSET.search(bare):
             what = ("FETCH ... ROWSET with STARTING AT, an orientation or no FOR n ROWS" if verb == "FETCH"
                     else "INSERT ... NOT ATOMIC CONTINUE ON SQLEXCEPTION or a FOR n ROWS not at the end")  # fmt: skip
-            raise SqlError(f"EXEC SQL {verb}: a multi-row {what} is not modelled; only FETCH [NEXT] ROWSET FROM cursor "
-                           "FOR n ROWS INTO host-variable tables and INSERT ... VALUES (tables) FOR n ROWS [ATOMIC] are (register Q4; no burned program uses it)")  # fmt: skip
+            msg = f"EXEC SQL {verb}: a multi-row {what} is not modelled; only FETCH [NEXT] ROWSET FROM cursor "
+            msg += "FOR n ROWS INTO host-variable tables and INSERT ... VALUES (tables) FOR n ROWS [ATOMIC] are "
+            raise SqlError(msg + "(register Q4; no burned program uses it)")
         if verb != "FETCH":
             return
         o = _ORIENT_NO_ROW.match(bare)

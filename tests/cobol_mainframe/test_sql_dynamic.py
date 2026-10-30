@@ -847,7 +847,9 @@ def _insert_rows_sql(items):
             return items(item)[ref.name]
 
     sql = Sql(Gen(), "P", None)
-    sql.methods = {("P", 7): Method("Repo", "ins", "INSERT", {k: k.lower() for k in ("A", "B", "C", "S", "N", "T", "SHORT")})}
+    sql.methods = {
+        ("P", 7): Method("Repo", "ins", "INSERT", {k: k.lower() for k in ("A", "B", "C", "S", "N", "T", "SHORT")})
+    }
     return sql
 
 

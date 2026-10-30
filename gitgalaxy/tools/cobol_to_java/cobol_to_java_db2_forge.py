@@ -131,7 +131,9 @@ def to_jdbc(statement: str, verb: str) -> tuple[str, list[tuple[str, str]], list
         sql, n = _SINGLETON_INTO.subn("", sql, count=1)
         if n:
             notes.append("the INTO host variables are the columns of the returned row")
-    if verb == "INSERT":  # #4269: FOR n ROWS [ATOMIC] is the port's loop (DetSql.insertRows); the method is one row's INSERT
+    if (
+        verb == "INSERT"
+    ):  # #4269: FOR n ROWS [ATOMIC] is the port's loop (DetSql.insertRows); the method is one row's INSERT
         sql = _INSERT_ROWS.sub("", sql, count=1)
     params: dict[str, str] = {}
 

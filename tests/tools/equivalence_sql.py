@@ -61,7 +61,9 @@ class Statement:
     scroll: bool = False  # #4269: an OPEN of a cursor declared SCROLL, or a FETCH with an orientation
     orient: str = ""  # #4269: that FETCH's orientation (PRIOR FIRST LAST CURRENT ABSOLUTE RELATIVE)
     orient_n: int | None = None  # #4269: its integer constant; a host variable's value is the statement's one input
-    multi: bool = False  # #4269: an INSERT ... FOR n ROWS: the inputs are tables; orient_n is n, else n is the last input
+    multi: bool = (
+        False  # #4269: an INSERT ... FOR n ROWS: the inputs are tables; orient_n is n, else n is the last input
+    )
     rowset: bool = False  # #4269: a FETCH ROWSET: the outputs are tables, one per column; orient_n is FOR n ROWS' n
 
 

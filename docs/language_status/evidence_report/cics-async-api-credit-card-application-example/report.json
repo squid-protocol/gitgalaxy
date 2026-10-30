@@ -207,7 +207,7 @@
    "carddemo-cbpaup0c": [
     15,
     16,
-    38,
+    39,
     40
    ],
    "carddemo-cbstm03a": [
@@ -225,7 +225,7 @@
    "carddemo-coacct01": [
     13,
     13,
-    31,
+    33,
     33
    ],
    "carddemo-cobswait": [
@@ -249,7 +249,7 @@
    "carddemo-codate01": [
     13,
     13,
-    26,
+    28,
     28
    ],
    "carddemo-copaua0c": [
@@ -1141,16 +1141,16 @@
     48
    ],
    "zecs-zecs001": [
-    82,
+    107,
     119,
-    116,
+    173,
     208
    ],
    "zecs-zecs002": [
-    0,
-    0,
-    0,
-    0
+    24,
+    24,
+    70,
+    242
    ],
    "zecs-zecs003": [
     21,
@@ -1159,10 +1159,10 @@
     30
    ],
    "zecs-zecsnc": [
-    0,
-    0,
-    0,
-    0
+    13,
+    13,
+    10,
+    10
    ],
    "zecs-zecsplt": [
     11,
@@ -1796,10 +1796,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "7fdf2eedb25ec0b1895dc5584f7fad6c9f889e1b",
+   "sha": "40c748839f7aea9eb37d40f46fe473cff827085d",
    "translator": {
     "files": 156,
-    "sha256": "9ffda5cf021bdfa094145d2eb187734ad7da7ea587ebad5e302cbc2783f963b8"
+    "sha256": "fb893856a63eeaa01a943e15af1b07a777ac73d82ec585cebc045b06f6a4f79b"
    }
   },
   "sweeps": {}
@@ -6606,8 +6606,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 7fdf2eedb25ec0b1895dc5584f7fad6c9f889e1b",
-   "python tests/tools/evidence_report.py cics-async-api-credit-card-application-example --baseline --sha 7fdf2eedb25ec0b1895dc5584f7fad6c9f889e1b",
+   "python tests/tools/cics_census.py survey --baseline --sha 40c748839f7aea9eb37d40f46fe473cff827085d",
+   "python tests/tools/evidence_report.py cics-async-api-credit-card-application-example --baseline --sha 40c748839f7aea9eb37d40f46fe473cff827085d",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases asynccc-asyncpnt,asynccc-crdtchk,asynccc-csstats2,asynccc-csstatus,asynccc-getaddr,asynccc-getname,asynccc-getpol,asynccc-getspnd,asynccc-seqpnt,asynccc-updcsdb",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -6628,13 +6628,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "7fdf2eedb25ec0b1895dc5584f7fad6c9f889e1b",
+   "sha": "40c748839f7aea9eb37d40f46fe473cff827085d",
    "translator": {
     "files": 156,
-    "sha256": "9ffda5cf021bdfa094145d2eb187734ad7da7ea587ebad5e302cbc2783f963b8"
+    "sha256": "fb893856a63eeaa01a943e15af1b07a777ac73d82ec585cebc045b06f6a4f79b"
    }
   },
-  "translator_commit": "7fdf2eedb25ec0b1895dc5584f7fad6c9f889e1b",
+  "translator_commit": "40c748839f7aea9eb37d40f46fe473cff827085d",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -6677,6 +6677,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "9ffda5cf021bdfa094145d2eb187734ad7da7ea587ebad5e302cbc2783f963b8"
+  "fingerprint": "fb893856a63eeaa01a943e15af1b07a777ac73d82ec585cebc045b06f6a4f79b"
  }
 }

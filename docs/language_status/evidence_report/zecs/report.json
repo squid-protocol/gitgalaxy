@@ -92,7 +92,7 @@
   },
   {
    "area": "CICS",
-   "entry": "#4972: EXTRACT WEB is IBM's synonym of WEB EXTRACT (one table, one runtime call, the same answers and refusals); EXTRACT TCPIP reads the connection the run STATES (tcpip: client / server IPv4 address, the names the DNS knows, the port, the SSL type): CLIENTADDR / CADDRLENGTH, CLIENTNAME / CNAMELENGTH, SERVERADDR / SADDRLENGTH, SERVERNAME / SNAMELENGTH written as bytes with each length option set to the real length (areas on NORMAL only), CLIENTADDRNU / SERVERADDRNU (the address as a signed fullword), CLNTIPFAMILY / SRVRIPFAMILY (IPV4, 300), PORTNUMNU, SSLTYPE (SSL 1030 / NOSSL 1031 / CLIENTAUTH 1032 / ATTLSAWARE 1205); an area given with its length option missing or not above zero LENGERR RESP2 1; a client name the DNS does not know length 0, the area left alone, NORMAL; refused: no connection stated, an address that is not IPv4 dotted decimal (IPv6, CLNTADDR6NU / SRVRADDR6NU), an address number past a signed fullword, a SERVERNAME the connection does not state, a name or address longer than its length (LENGERR RESP2 3 / 4 / 6 / 7), PORTNUMBER (the character form), AUTHENTICATE, TCPIPSERVICE, PRIVACY, MAXDATALEN, a length past its area, two conditions at once. #4940: WEB READ FORMFIELD / QUERYPARM read the stated body form (application/x-www-form-urlencoded) / query string as name=value pairs joined by '&' (split at the first '=', only %XX unescaped), the name matched without case (IBM), two pairs of the name refused, NAMELENGTH / VALUELENGTH not above zero LENGERR RESP2 1, no data INVREQ RESP2 13, no such name NOTFND RESP2 1, a value longer than VALUELENGTH cut with LENGERR RESP2 5 and VALUELENGTH its real length; WEB STARTBROWSE / READNEXT / ENDBROWSE of HTTPHEADER, FORMFIELD, QUERYPARM keep a browse per kind (ILLOGIC RESP2 10 / 5 for a second start, INVREQ RESP2 43 / 13 for no headers / data, INVREQ RESP2 4 READNEXT / ENDBROWSE before a start, ENDFILE with RESP2 0 at the end, LENGERR RESP2 1 for a length not above zero with the browse left where it was, LENGERR RESP2 4 / 5 for a FORMFIELD / QUERYPARM name / value that does not fit, cut, the same pair returned again, lengths the real ones), a start name matched exactly (case-only or duplicate matches refused), a start that raises a condition starts no browse (ASSUMED); refused: the code-page options, the client form (SESSTOKEN), HTTPHEADER truncation on READNEXT, a body that is not application/x-www-form-urlencoded, data with a pair lacking '=', an empty name or pair, ';', '+', a bad escape, an escaped name or a byte outside printable ASCII, a READNEXT after ENDFILE, a name and value both too long, two conditions at once. #4767: The task serves the one inbound HTTP request that whoever runs it STATES (http_request, as X37; unstated, each command is refused); WEB EXTRACT (server form) returns the stated scheme (CVDA HTTP 1096 / HTTPS 1029), host, HTTP method, HTTP version (the text the run states: ASSUMED), path, query string (none: length 0, area left alone: ASSUMED), the port and REQUESTTYPE HTTPYES, each length option read as the area's size and set to the piece's length, the areas written on NORMAL only; LENGERR RESP2 21 / 5 / 7 for a HOSTLENGTH / PATHLENGTH / VERSIONLEN not above zero; WEB RECEIVE INTO / LENGTH / MAXLENGTH / MEDIATYPE returns the stated body (cut at MAXLENGTH with LENGERR RESP2 57, LENGTH the bytes returned, LENGERR RESP2 16 for a MAXLENGTH not above zero, MEDIATYPE blank-padded to 56) with SRVCONVERT / NOSRVCONVERT changing nothing (program characters); WEB READ HTTPHEADER returns the value of the stated header of that exact name (INVREQ RESP2 43 no headers, NOTFND RESP2 1 no such header, LENGERR RESP2 1 VALUELENGTH not above zero); WEB WRITE HTTPHEADER adds a header to the response, recorded as WEB-HEADER and compared (a name written twice is two headers; LENGERR RESP2 35 / 55); refused: NOTRUNCATE, containers, every code-page option, SERVERCONV, BODYCHARSET, TYPE, the client forms (SESSTOKEN, REALM), HOSTTYPE, URIMAP, a LENGERR on a piece or value longer than its length, a METHODLENGTH / QUERYSTRLEN not above zero, a request with no body, a second RECEIVE, a header found only without case or stated twice, a header written after the response was sent, a name with a blank or colon, a length past its area, two conditions at once",
+   "entry": "#4972: EXTRACT WEB is IBM's synonym of WEB EXTRACT (one table, one runtime call, the same answers and refusals); EXTRACT TCPIP reads the connection the run STATES (tcpip: client / server IPv4 address, the names the DNS knows, the port, the SSL type): CLIENTADDR / CADDRLENGTH, CLIENTNAME / CNAMELENGTH, SERVERADDR / SADDRLENGTH, SERVERNAME / SNAMELENGTH written as bytes with each length option set to the real length (areas on NORMAL only), CLIENTADDRNU / SERVERADDRNU (the address as a signed fullword), CLNTIPFAMILY / SRVRIPFAMILY (IPV4, 300), PORTNUMNU, SSLTYPE (SSL 1030 / NOSSL 1031 / CLIENTAUTH 1032 / ATTLSAWARE 1205); an area given with its length option missing or not above zero LENGERR RESP2 1; a client name the DNS does not know length 0, the area left alone, NORMAL; refused: no connection stated, an address that is not IPv4 dotted decimal (IPv6, CLNTADDR6NU / SRVRADDR6NU), an address number past a signed fullword, a SERVERNAME the connection does not state, a name or address longer than its length (LENGERR RESP2 3 / 4 / 6 / 7), PORTNUMBER (the character form), AUTHENTICATE, TCPIPSERVICE, PRIVACY, MAXDATALEN, a length past its area, two conditions at once. #4940: WEB READ FORMFIELD / QUERYPARM read the stated body form (application/x-www-form-urlencoded) / query string as name=value pairs joined by '&' (split at the first '=', only %XX unescaped), the name matched without case (IBM), two pairs of the name refused, NAMELENGTH / VALUELENGTH not above zero LENGERR RESP2 1, no data INVREQ RESP2 13, no such name NOTFND RESP2 1, a value longer than VALUELENGTH cut with LENGERR RESP2 5 and VALUELENGTH its real length; WEB STARTBROWSE / READNEXT / ENDBROWSE of HTTPHEADER, FORMFIELD, QUERYPARM keep a browse per kind (ILLOGIC RESP2 10 / 5 for a second start, INVREQ RESP2 43 / 13 for no headers / data, INVREQ RESP2 4 READNEXT / ENDBROWSE before a start, ENDFILE with RESP2 0 at the end, LENGERR RESP2 1 for a length not above zero with the browse left where it was, LENGERR RESP2 4 / 5 for a FORMFIELD / QUERYPARM name / value that does not fit, cut, the same pair returned again, lengths the real ones), a start name matched exactly (case-only or duplicate matches refused), a start that raises a condition starts no browse (ASSUMED); refused: the code-page options, the client form (SESSTOKEN), HTTPHEADER truncation on READNEXT, a body that is not application/x-www-form-urlencoded, data with a pair lacking '=', an empty name or pair, ';', '+', a bad escape, an escaped name or a byte outside printable ASCII, a READNEXT after ENDFILE, a name and value both too long, two conditions at once. #4767: The task serves the one inbound HTTP request that whoever runs it STATES (http_request, as X37; unstated, each command is refused); WEB EXTRACT (server form) returns the stated scheme (CVDA HTTP 1096 / HTTPS 1029), host, HTTP method, HTTP version (the text the run states: ASSUMED), path, query string (none: length 0, area left alone: ASSUMED), the port and REQUESTTYPE HTTPYES, each length option read as the area's size and set to the piece's length, the areas written on NORMAL only; LENGERR RESP2 21 / 5 / 7 for a HOSTLENGTH / PATHLENGTH / VERSIONLEN not above zero; WEB RECEIVE INTO / LENGTH / MAXLENGTH / MEDIATYPE returns the stated body (cut at MAXLENGTH with LENGERR RESP2 57, LENGTH the bytes returned, LENGERR RESP2 16 for a MAXLENGTH not above zero, MEDIATYPE blank-padded to 56) with SRVCONVERT / NOSRVCONVERT changing nothing (program characters); WEB READ HTTPHEADER returns the value of the stated header of that exact name (INVREQ RESP2 43 no headers, NOTFND RESP2 1 no such header, LENGERR RESP2 1 VALUELENGTH not above zero); WEB WRITE HTTPHEADER adds a header to the response, recorded as WEB-HEADER and compared (a name written twice is two headers; LENGERR RESP2 35 / 55); refused: NOTRUNCATE, containers, every code-page option, SERVERCONV, BODYCHARSET, TYPE, the client forms (SESSTOKEN, REALM), HOSTTYPE, URIMAP, a LENGERR on a piece or value longer than its length, a METHODLENGTH / QUERYSTRLEN not above zero, a request with no body, a second RECEIVE other than one SRVCONVERT pass after NOSRVCONVERT, a header found only without case or stated twice, a header written after the response was sent, a name with a blank or colon, a length past its area, two conditions at once",
    "id": "X38",
    "status": "ASSUMED (REFUSED where IBM is silent)"
   },
@@ -309,7 +309,7 @@
    "carddemo-cbpaup0c": [
     15,
     16,
-    38,
+    39,
     40
    ],
    "carddemo-cbstm03a": [
@@ -327,7 +327,7 @@
    "carddemo-coacct01": [
     13,
     13,
-    31,
+    33,
     33
    ],
    "carddemo-cobswait": [
@@ -351,7 +351,7 @@
    "carddemo-codate01": [
     13,
     13,
-    26,
+    28,
     28
    ],
    "carddemo-copaua0c": [
@@ -1243,16 +1243,16 @@
     48
    ],
    "zecs-zecs001": [
-    82,
+    107,
     119,
-    116,
+    173,
     208
    ],
    "zecs-zecs002": [
-    0,
-    0,
-    0,
-    0
+    24,
+    24,
+    70,
+    242
    ],
    "zecs-zecs003": [
     21,
@@ -1261,10 +1261,10 @@
     30
    ],
    "zecs-zecsnc": [
-    0,
-    0,
-    0,
-    0
+    13,
+    13,
+    10,
+    10
    ],
    "zecs-zecsplt": [
     11,
@@ -1663,10 +1663,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "7fdf2eedb25ec0b1895dc5584f7fad6c9f889e1b",
+   "sha": "40c748839f7aea9eb37d40f46fe473cff827085d",
    "translator": {
     "files": 156,
-    "sha256": "9ffda5cf021bdfa094145d2eb187734ad7da7ea587ebad5e302cbc2783f963b8"
+    "sha256": "fb893856a63eeaa01a943e15af1b07a777ac73d82ec585cebc045b06f6a4f79b"
    }
   },
   "sweeps": {}
@@ -3111,6 +3111,1943 @@
   },
   {
    "assumptions": {
+    "facts_stated": [],
+    "facts_unstated": [],
+    "named_by_commands": [],
+    "reach": "not measured",
+    "source_read": true
+   },
+   "coverage": {
+    "branch_net_pct": 100.0,
+    "branch_pct": 28.9,
+    "branches": {
+     "covered": 70,
+     "total": 242
+    },
+    "branches_net": {
+     "covered": 70,
+     "total": 70
+    },
+    "current": true,
+    "infeasible_netted": [
+     "SY-0110:202:OTHER",
+     "SY-0110:202:WHEN@209",
+     "SY-0110:202:WHEN@215",
+     "SY-0110:204:true",
+     "SY-0110:210:false",
+     "SY-0110:210:true",
+     "SY-0110:216:false",
+     "SY-0110:216:true",
+     "SY-0110:225:OTHER",
+     "SY-0110:225:WHEN@226",
+     "SY-0110:225:WHEN@240",
+     "SY-0110:227:false",
+     "SY-0110:227:true",
+     "SY-0110:234:true",
+     "SY-0110:241:false",
+     "SY-0110:241:true",
+     "SY-0110:258:OTHER",
+     "SY-0110:258:WHEN@265",
+     "SY-0110:258:WHEN@271",
+     "SY-0110:260:true",
+     "SY-0110:266:false",
+     "SY-0110:266:true",
+     "SY-0110:272:false",
+     "SY-0110:272:true",
+     "SY-0210:302:OTHER",
+     "SY-0210:302:WHEN@309",
+     "SY-0210:302:WHEN@315",
+     "SY-0210:304:true",
+     "SY-0210:310:false",
+     "SY-0210:310:true",
+     "SY-0210:316:false",
+     "SY-0210:316:true",
+     "SY-0210:325:OTHER",
+     "SY-0210:325:WHEN@326",
+     "SY-0210:325:WHEN@333",
+     "SY-0210:327:false",
+     "SY-0210:327:true",
+     "SY-0210:334:false",
+     "SY-0210:334:true",
+     "SY-0210:341:true",
+     "SY-0210:358:OTHER",
+     "SY-0210:358:WHEN@365",
+     "SY-0210:358:WHEN@371",
+     "SY-0210:360:true",
+     "SY-0210:366:false",
+     "SY-0210:366:true",
+     "SY-0210:372:false",
+     "SY-0210:372:true",
+     "SY-0210:386:OTHER",
+     "SY-0210:386:WHEN@393",
+     "SY-0210:386:WHEN@399",
+     "SY-0210:388:true",
+     "SY-0210:394:false",
+     "SY-0210:394:true",
+     "SY-0210:400:false",
+     "SY-0210:400:true",
+     "SY-1010:450:OTHER",
+     "SY-1010:450:WHEN@457",
+     "SY-1010:450:WHEN@463",
+     "SY-1010:452:true",
+     "SY-1010:458:false",
+     "SY-1010:458:true",
+     "SY-1010:464:false",
+     "SY-1010:464:true",
+     "SY-1010:480:OTHER",
+     "SY-1010:480:WHEN@487",
+     "SY-1010:480:WHEN@493",
+     "SY-1010:482:true",
+     "SY-1010:488:false",
+     "SY-1010:488:true",
+     "SY-1010:494:false",
+     "SY-1010:494:true",
+     "SY-1010:509:true",
+     "SY-1020:536:OTHER",
+     "SY-1020:536:WHEN@543",
+     "SY-1020:536:WHEN@549",
+     "SY-1020:538:true",
+     "SY-1020:544:false",
+     "SY-1020:544:true",
+     "SY-1020:550:false",
+     "SY-1020:550:true",
+     "SY-1020:566:OTHER",
+     "SY-1020:566:WHEN@573",
+     "SY-1020:566:WHEN@579",
+     "SY-1020:568:true",
+     "SY-1020:574:false",
+     "SY-1020:574:true",
+     "SY-1020:580:false",
+     "SY-1020:580:true",
+     "SY-1020:595:true",
+     "SY-1030:622:OTHER",
+     "SY-1030:622:WHEN@629",
+     "SY-1030:622:WHEN@635",
+     "SY-1030:624:true",
+     "SY-1030:630:false",
+     "SY-1030:630:true",
+     "SY-1030:636:false",
+     "SY-1030:636:true",
+     "SY-1030:652:OTHER",
+     "SY-1030:652:WHEN@659",
+     "SY-1030:652:WHEN@665",
+     "SY-1030:654:true",
+     "SY-1030:660:false",
+     "SY-1030:660:true",
+     "SY-1030:666:false",
+     "SY-1030:666:true",
+     "SY-1030:681:true",
+     "SY-1040:708:OTHER",
+     "SY-1040:708:WHEN@715",
+     "SY-1040:708:WHEN@721",
+     "SY-1040:710:true",
+     "SY-1040:716:false",
+     "SY-1040:716:true",
+     "SY-1040:722:false",
+     "SY-1040:722:true",
+     "SY-1040:738:OTHER",
+     "SY-1040:738:WHEN@745",
+     "SY-1040:738:WHEN@751",
+     "SY-1040:740:true",
+     "SY-1040:746:false",
+     "SY-1040:746:true",
+     "SY-1040:752:false",
+     "SY-1040:752:true",
+     "SY-1040:767:true",
+     "SY-1050:809:OTHER",
+     "SY-1050:809:WHEN@817",
+     "SY-1050:809:WHEN@824",
+     "SY-1050:811:true",
+     "SY-1050:818:false",
+     "SY-1050:818:true",
+     "SY-1050:825:false",
+     "SY-1050:825:true",
+     "SY-1050:836:OTHER",
+     "SY-1050:836:WHEN@851",
+     "SY-1050:836:WHEN@865",
+     "SY-1050:838:true",
+     "SY-1050:852:false",
+     "SY-1050:852:true",
+     "SY-1050:866:false",
+     "SY-1050:866:true",
+     "SY-1100:913:OTHER",
+     "SY-1100:913:WHEN@921",
+     "SY-1100:913:WHEN@928",
+     "SY-1100:915:true",
+     "SY-1100:922:false",
+     "SY-1100:922:true",
+     "SY-1100:929:false",
+     "SY-1100:929:true",
+     "SY-1100:940:OTHER",
+     "SY-1100:940:WHEN@955",
+     "SY-1100:940:WHEN@969",
+     "SY-1100:942:true",
+     "SY-1100:956:false",
+     "SY-1100:956:true",
+     "SY-1100:970:false",
+     "SY-1100:970:true",
+     "SY-1200:1017:OTHER",
+     "SY-1200:1017:WHEN@1025",
+     "SY-1200:1017:WHEN@1032",
+     "SY-1200:1019:true",
+     "SY-1200:1026:false",
+     "SY-1200:1026:true",
+     "SY-1200:1033:false",
+     "SY-1200:1033:true",
+     "SY-1200:1044:OTHER",
+     "SY-1200:1044:WHEN@1059",
+     "SY-1200:1044:WHEN@1073",
+     "SY-1200:1046:true",
+     "SY-1200:1060:false",
+     "SY-1200:1060:true",
+     "SY-1200:1074:false",
+     "SY-1200:1074:true"
+    ],
+    "infeasible_refuted": [],
+    "infeasible_stated": [
+     {
+      "family": "G",
+      "key": "SY-0110:202:OTHER",
+      "kind": "EVALUATE",
+      "line": 202,
+      "outcome": "OTHER",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-0110), so HL-RG is always 1; WHEN OTHER (an address in no region) cannot be selected",
+      "unit": "SY-0110"
+     },
+     {
+      "family": "G",
+      "key": "SY-0110:202:WHEN@209",
+      "kind": "EVALUATE",
+      "line": 202,
+      "outcome": "WHEN@209",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-0110), so HL-RG is always 1; the other WHEN arms cannot be selected",
+      "unit": "SY-0110"
+     },
+     {
+      "family": "G",
+      "key": "SY-0110:202:WHEN@215",
+      "kind": "EVALUATE",
+      "line": 202,
+      "outcome": "WHEN@215",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-0110), so HL-RG is always 1; the other WHEN arms cannot be selected",
+      "unit": "SY-0110"
+     },
+     {
+      "family": "G",
+      "key": "SY-0110:204:true",
+      "kind": "IF",
+      "line": 204,
+      "outcome": "true",
+      "reason": "R3 starts at CA-DEC (offset 48) and moves one byte per pass of a loop that BCT R2 limits to 8, so it stays at offset 48..56; the check on HL-OF fires only past the end of the DFHCOMMAREA region, which this offset never reaches",
+      "unit": "SY-0110"
+     },
+     {
+      "family": "G",
+      "key": "SY-0110:210:false",
+      "kind": "IF",
+      "line": 210,
+      "outcome": "false",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 202 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-0110"
+     },
+     {
+      "family": "G",
+      "key": "SY-0110:210:true",
+      "kind": "IF",
+      "line": 210,
+      "outcome": "true",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 202 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-0110"
+     },
+     {
+      "family": "G",
+      "key": "SY-0110:216:false",
+      "kind": "IF",
+      "line": 216,
+      "outcome": "false",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 202 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-0110"
+     },
+     {
+      "family": "G",
+      "key": "SY-0110:216:true",
+      "kind": "IF",
+      "line": 216,
+      "outcome": "true",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 202 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-0110"
+     },
+     {
+      "family": "G",
+      "key": "SY-0110:225:OTHER",
+      "kind": "EVALUATE",
+      "line": 225,
+      "outcome": "OTHER",
+      "reason": "R6, the target address, is set to a constant address in USERID (region 2) on every path to this instruction (SY-0110), so HL-RG is always 2; WHEN OTHER (an address in no region) cannot be selected",
+      "unit": "SY-0110"
+     },
+     {
+      "family": "G",
+      "key": "SY-0110:225:WHEN@226",
+      "kind": "EVALUATE",
+      "line": 225,
+      "outcome": "WHEN@226",
+      "reason": "R6, the target address, is set to a constant address in USERID (region 2) on every path to this instruction (SY-0110), so HL-RG is always 2; the other WHEN arms cannot be selected",
+      "unit": "SY-0110"
+     },
+     {
+      "family": "G",
+      "key": "SY-0110:225:WHEN@240",
+      "kind": "EVALUATE",
+      "line": 225,
+      "outcome": "WHEN@240",
+      "reason": "R6, the target address, is set to a constant address in USERID (region 2) on every path to this instruction (SY-0110), so HL-RG is always 2; the other WHEN arms cannot be selected",
+      "unit": "SY-0110"
+     },
+     {
+      "family": "G",
+      "key": "SY-0110:227:false",
+      "kind": "IF",
+      "line": 227,
+      "outcome": "false",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 225 that cannot be selected: R6 always holds region 2 (USERID), so neither outcome of this offset check is reached",
+      "unit": "SY-0110"
+     },
+     {
+      "family": "G",
+      "key": "SY-0110:227:true",
+      "kind": "IF",
+      "line": 227,
+      "outcome": "true",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 225 that cannot be selected: R6 always holds region 2 (USERID), so neither outcome of this offset check is reached",
+      "unit": "SY-0110"
+     },
+     {
+      "family": "G",
+      "key": "SY-0110:234:true",
+      "kind": "IF",
+      "line": 234,
+      "outcome": "true",
+      "reason": "R6 starts at the field and moves one byte per pass of a loop that BCT R2 limits to 8, so it stays at offset 0..7; the check on HL-OF fires only past the end of the USERID region, which this offset never reaches",
+      "unit": "SY-0110"
+     },
+     {
+      "family": "G",
+      "key": "SY-0110:241:false",
+      "kind": "IF",
+      "line": 241,
+      "outcome": "false",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 225 that cannot be selected: R6 always holds region 2 (USERID), so neither outcome of this offset check is reached",
+      "unit": "SY-0110"
+     },
+     {
+      "family": "G",
+      "key": "SY-0110:241:true",
+      "kind": "IF",
+      "line": 241,
+      "outcome": "true",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 225 that cannot be selected: R6 always holds region 2 (USERID), so neither outcome of this offset check is reached",
+      "unit": "SY-0110"
+     },
+     {
+      "family": "G",
+      "key": "SY-0110:258:OTHER",
+      "kind": "EVALUATE",
+      "line": 258,
+      "outcome": "OTHER",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-0110), so HL-RG is always 1; WHEN OTHER (an address in no region) cannot be selected",
+      "unit": "SY-0110"
+     },
+     {
+      "family": "G",
+      "key": "SY-0110:258:WHEN@265",
+      "kind": "EVALUATE",
+      "line": 258,
+      "outcome": "WHEN@265",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-0110), so HL-RG is always 1; the other WHEN arms cannot be selected",
+      "unit": "SY-0110"
+     },
+     {
+      "family": "G",
+      "key": "SY-0110:258:WHEN@271",
+      "kind": "EVALUATE",
+      "line": 258,
+      "outcome": "WHEN@271",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-0110), so HL-RG is always 1; the other WHEN arms cannot be selected",
+      "unit": "SY-0110"
+     },
+     {
+      "family": "G",
+      "key": "SY-0110:260:true",
+      "kind": "IF",
+      "line": 260,
+      "outcome": "true",
+      "reason": "R3 starts at CA-DEC (offset 48) and moves one byte per pass of a loop that BCT R2 limits to 8, so it stays at offset 48..56; the check on HL-OF fires only past the end of the DFHCOMMAREA region, which this offset never reaches",
+      "unit": "SY-0110"
+     },
+     {
+      "family": "G",
+      "key": "SY-0110:266:false",
+      "kind": "IF",
+      "line": 266,
+      "outcome": "false",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 258 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-0110"
+     },
+     {
+      "family": "G",
+      "key": "SY-0110:266:true",
+      "kind": "IF",
+      "line": 266,
+      "outcome": "true",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 258 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-0110"
+     },
+     {
+      "family": "G",
+      "key": "SY-0110:272:false",
+      "kind": "IF",
+      "line": 272,
+      "outcome": "false",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 258 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-0110"
+     },
+     {
+      "family": "G",
+      "key": "SY-0110:272:true",
+      "kind": "IF",
+      "line": 272,
+      "outcome": "true",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 258 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-0110"
+     },
+     {
+      "family": "G",
+      "key": "SY-0210:302:OTHER",
+      "kind": "EVALUATE",
+      "line": 302,
+      "outcome": "OTHER",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-0210), so HL-RG is always 1; WHEN OTHER (an address in no region) cannot be selected",
+      "unit": "SY-0210"
+     },
+     {
+      "family": "G",
+      "key": "SY-0210:302:WHEN@309",
+      "kind": "EVALUATE",
+      "line": 302,
+      "outcome": "WHEN@309",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-0210), so HL-RG is always 1; the other WHEN arms cannot be selected",
+      "unit": "SY-0210"
+     },
+     {
+      "family": "G",
+      "key": "SY-0210:302:WHEN@315",
+      "kind": "EVALUATE",
+      "line": 302,
+      "outcome": "WHEN@315",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-0210), so HL-RG is always 1; the other WHEN arms cannot be selected",
+      "unit": "SY-0210"
+     },
+     {
+      "family": "G",
+      "key": "SY-0210:304:true",
+      "kind": "IF",
+      "line": 304,
+      "outcome": "true",
+      "reason": "R3 starts one past the colon (offset 57 at most) and moves one byte per pass of a loop that BCT R2 limits to 8, so it stays at offset 57..65; the check on HL-OF fires only past the end of the DFHCOMMAREA region, which this offset never reaches",
+      "unit": "SY-0210"
+     },
+     {
+      "family": "G",
+      "key": "SY-0210:310:false",
+      "kind": "IF",
+      "line": 310,
+      "outcome": "false",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 302 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-0210"
+     },
+     {
+      "family": "G",
+      "key": "SY-0210:310:true",
+      "kind": "IF",
+      "line": 310,
+      "outcome": "true",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 302 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-0210"
+     },
+     {
+      "family": "G",
+      "key": "SY-0210:316:false",
+      "kind": "IF",
+      "line": 316,
+      "outcome": "false",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 302 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-0210"
+     },
+     {
+      "family": "G",
+      "key": "SY-0210:316:true",
+      "kind": "IF",
+      "line": 316,
+      "outcome": "true",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 302 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-0210"
+     },
+     {
+      "family": "G",
+      "key": "SY-0210:325:OTHER",
+      "kind": "EVALUATE",
+      "line": 325,
+      "outcome": "OTHER",
+      "reason": "R6, the target address, is set to a constant address in PASSWORD-HL (region 3) on every path to this instruction (SY-0210), so HL-RG is always 3; WHEN OTHER (an address in no region) cannot be selected",
+      "unit": "SY-0210"
+     },
+     {
+      "family": "G",
+      "key": "SY-0210:325:WHEN@326",
+      "kind": "EVALUATE",
+      "line": 325,
+      "outcome": "WHEN@326",
+      "reason": "R6, the target address, is set to a constant address in PASSWORD-HL (region 3) on every path to this instruction (SY-0210), so HL-RG is always 3; the other WHEN arms cannot be selected",
+      "unit": "SY-0210"
+     },
+     {
+      "family": "G",
+      "key": "SY-0210:325:WHEN@333",
+      "kind": "EVALUATE",
+      "line": 325,
+      "outcome": "WHEN@333",
+      "reason": "R6, the target address, is set to a constant address in PASSWORD-HL (region 3) on every path to this instruction (SY-0210), so HL-RG is always 3; the other WHEN arms cannot be selected",
+      "unit": "SY-0210"
+     },
+     {
+      "family": "G",
+      "key": "SY-0210:327:false",
+      "kind": "IF",
+      "line": 327,
+      "outcome": "false",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 325 that cannot be selected: R6 always holds region 3 (PASSWORD-HL), so neither outcome of this offset check is reached",
+      "unit": "SY-0210"
+     },
+     {
+      "family": "G",
+      "key": "SY-0210:327:true",
+      "kind": "IF",
+      "line": 327,
+      "outcome": "true",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 325 that cannot be selected: R6 always holds region 3 (PASSWORD-HL), so neither outcome of this offset check is reached",
+      "unit": "SY-0210"
+     },
+     {
+      "family": "G",
+      "key": "SY-0210:334:false",
+      "kind": "IF",
+      "line": 334,
+      "outcome": "false",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 325 that cannot be selected: R6 always holds region 3 (PASSWORD-HL), so neither outcome of this offset check is reached",
+      "unit": "SY-0210"
+     },
+     {
+      "family": "G",
+      "key": "SY-0210:334:true",
+      "kind": "IF",
+      "line": 334,
+      "outcome": "true",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 325 that cannot be selected: R6 always holds region 3 (PASSWORD-HL), so neither outcome of this offset check is reached",
+      "unit": "SY-0210"
+     },
+     {
+      "family": "G",
+      "key": "SY-0210:341:true",
+      "kind": "IF",
+      "line": 341,
+      "outcome": "true",
+      "reason": "R6 starts at the field and moves one byte per pass of a loop that BCT R2 limits to 8, so it stays at offset 0..7; the check on HL-OF fires only past the end of the PASSWORD-HL region, which this offset never reaches",
+      "unit": "SY-0210"
+     },
+     {
+      "family": "G",
+      "key": "SY-0210:358:OTHER",
+      "kind": "EVALUATE",
+      "line": 358,
+      "outcome": "OTHER",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-0210), so HL-RG is always 1; WHEN OTHER (an address in no region) cannot be selected",
+      "unit": "SY-0210"
+     },
+     {
+      "family": "G",
+      "key": "SY-0210:358:WHEN@365",
+      "kind": "EVALUATE",
+      "line": 358,
+      "outcome": "WHEN@365",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-0210), so HL-RG is always 1; the other WHEN arms cannot be selected",
+      "unit": "SY-0210"
+     },
+     {
+      "family": "G",
+      "key": "SY-0210:358:WHEN@371",
+      "kind": "EVALUATE",
+      "line": 358,
+      "outcome": "WHEN@371",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-0210), so HL-RG is always 1; the other WHEN arms cannot be selected",
+      "unit": "SY-0210"
+     },
+     {
+      "family": "G",
+      "key": "SY-0210:360:true",
+      "kind": "IF",
+      "line": 360,
+      "outcome": "true",
+      "reason": "R3 starts one past the colon (offset 57 at most) and moves one byte per pass of a loop that BCT R2 limits to 8, so it stays at offset 57..65; the check on HL-OF fires only past the end of the DFHCOMMAREA region, which this offset never reaches",
+      "unit": "SY-0210"
+     },
+     {
+      "family": "G",
+      "key": "SY-0210:366:false",
+      "kind": "IF",
+      "line": 366,
+      "outcome": "false",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 358 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-0210"
+     },
+     {
+      "family": "G",
+      "key": "SY-0210:366:true",
+      "kind": "IF",
+      "line": 366,
+      "outcome": "true",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 358 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-0210"
+     },
+     {
+      "family": "G",
+      "key": "SY-0210:372:false",
+      "kind": "IF",
+      "line": 372,
+      "outcome": "false",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 358 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-0210"
+     },
+     {
+      "family": "G",
+      "key": "SY-0210:372:true",
+      "kind": "IF",
+      "line": 372,
+      "outcome": "true",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 358 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-0210"
+     },
+     {
+      "family": "G",
+      "key": "SY-0210:386:OTHER",
+      "kind": "EVALUATE",
+      "line": 386,
+      "outcome": "OTHER",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-0210), so HL-RG is always 1; WHEN OTHER (an address in no region) cannot be selected",
+      "unit": "SY-0210"
+     },
+     {
+      "family": "G",
+      "key": "SY-0210:386:WHEN@393",
+      "kind": "EVALUATE",
+      "line": 386,
+      "outcome": "WHEN@393",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-0210), so HL-RG is always 1; the other WHEN arms cannot be selected",
+      "unit": "SY-0210"
+     },
+     {
+      "family": "G",
+      "key": "SY-0210:386:WHEN@399",
+      "kind": "EVALUATE",
+      "line": 386,
+      "outcome": "WHEN@399",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-0210), so HL-RG is always 1; the other WHEN arms cannot be selected",
+      "unit": "SY-0210"
+     },
+     {
+      "family": "G",
+      "key": "SY-0210:388:true",
+      "kind": "IF",
+      "line": 388,
+      "outcome": "true",
+      "reason": "R3 starts one past the colon (offset 57 at most) and moves one byte per pass of a loop that BCT R2 limits to 8, so it stays at offset 57..65; the check on HL-OF fires only past the end of the DFHCOMMAREA region, which this offset never reaches",
+      "unit": "SY-0210"
+     },
+     {
+      "family": "G",
+      "key": "SY-0210:394:false",
+      "kind": "IF",
+      "line": 394,
+      "outcome": "false",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 386 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-0210"
+     },
+     {
+      "family": "G",
+      "key": "SY-0210:394:true",
+      "kind": "IF",
+      "line": 394,
+      "outcome": "true",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 386 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-0210"
+     },
+     {
+      "family": "G",
+      "key": "SY-0210:400:false",
+      "kind": "IF",
+      "line": 400,
+      "outcome": "false",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 386 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-0210"
+     },
+     {
+      "family": "G",
+      "key": "SY-0210:400:true",
+      "kind": "IF",
+      "line": 400,
+      "outcome": "true",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 386 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-0210"
+     },
+     {
+      "family": "G",
+      "key": "SY-1010:450:OTHER",
+      "kind": "EVALUATE",
+      "line": 450,
+      "outcome": "OTHER",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1010), so HL-RG is always 1; WHEN OTHER (an address in no region) cannot be selected",
+      "unit": "SY-1010"
+     },
+     {
+      "family": "G",
+      "key": "SY-1010:450:WHEN@457",
+      "kind": "EVALUATE",
+      "line": 450,
+      "outcome": "WHEN@457",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1010), so HL-RG is always 1; the other WHEN arms cannot be selected",
+      "unit": "SY-1010"
+     },
+     {
+      "family": "G",
+      "key": "SY-1010:450:WHEN@463",
+      "kind": "EVALUATE",
+      "line": 450,
+      "outcome": "WHEN@463",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1010), so HL-RG is always 1; the other WHEN arms cannot be selected",
+      "unit": "SY-1010"
+     },
+     {
+      "family": "G",
+      "key": "SY-1010:452:true",
+      "kind": "IF",
+      "line": 452,
+      "outcome": "true",
+      "reason": "R3 starts at CA-ENC (offset 20) and the six-pass SY-0030 loop reads four bytes per pass, so it stays at offset 20..43; the check on HL-OF fires only past the end of the DFHCOMMAREA region, which this offset never reaches",
+      "unit": "SY-1010"
+     },
+     {
+      "family": "G",
+      "key": "SY-1010:458:false",
+      "kind": "IF",
+      "line": 458,
+      "outcome": "false",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 450 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1010"
+     },
+     {
+      "family": "G",
+      "key": "SY-1010:458:true",
+      "kind": "IF",
+      "line": 458,
+      "outcome": "true",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 450 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1010"
+     },
+     {
+      "family": "G",
+      "key": "SY-1010:464:false",
+      "kind": "IF",
+      "line": 464,
+      "outcome": "false",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 450 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1010"
+     },
+     {
+      "family": "G",
+      "key": "SY-1010:464:true",
+      "kind": "IF",
+      "line": 464,
+      "outcome": "true",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 450 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1010"
+     },
+     {
+      "family": "G",
+      "key": "SY-1010:480:OTHER",
+      "kind": "EVALUATE",
+      "line": 480,
+      "outcome": "OTHER",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1010), so HL-RG is always 1; WHEN OTHER (an address in no region) cannot be selected",
+      "unit": "SY-1010"
+     },
+     {
+      "family": "G",
+      "key": "SY-1010:480:WHEN@487",
+      "kind": "EVALUATE",
+      "line": 480,
+      "outcome": "WHEN@487",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1010), so HL-RG is always 1; the other WHEN arms cannot be selected",
+      "unit": "SY-1010"
+     },
+     {
+      "family": "G",
+      "key": "SY-1010:480:WHEN@493",
+      "kind": "EVALUATE",
+      "line": 480,
+      "outcome": "WHEN@493",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1010), so HL-RG is always 1; the other WHEN arms cannot be selected",
+      "unit": "SY-1010"
+     },
+     {
+      "family": "G",
+      "key": "SY-1010:482:true",
+      "kind": "IF",
+      "line": 482,
+      "outcome": "true",
+      "reason": "R3 starts at CA-ENC (offset 20) and the six-pass SY-0030 loop reads four bytes per pass, so it stays at offset 20..43; the check on HL-OF fires only past the end of the DFHCOMMAREA region, which this offset never reaches",
+      "unit": "SY-1010"
+     },
+     {
+      "family": "G",
+      "key": "SY-1010:488:false",
+      "kind": "IF",
+      "line": 488,
+      "outcome": "false",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 480 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1010"
+     },
+     {
+      "family": "G",
+      "key": "SY-1010:488:true",
+      "kind": "IF",
+      "line": 488,
+      "outcome": "true",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 480 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1010"
+     },
+     {
+      "family": "G",
+      "key": "SY-1010:494:false",
+      "kind": "IF",
+      "line": 494,
+      "outcome": "false",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 480 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1010"
+     },
+     {
+      "family": "G",
+      "key": "SY-1010:494:true",
+      "kind": "IF",
+      "line": 494,
+      "outcome": "true",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 480 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1010"
+     },
+     {
+      "family": "G",
+      "key": "SY-1010:509:true",
+      "kind": "IF",
+      "line": 509,
+      "outcome": "true",
+      "reason": "R5 is cleared by SR, then loaded one byte by IC, so the B64XLT index is 0..255 and never exceeds 255",
+      "unit": "SY-1010"
+     },
+     {
+      "family": "G",
+      "key": "SY-1020:536:OTHER",
+      "kind": "EVALUATE",
+      "line": 536,
+      "outcome": "OTHER",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1020), so HL-RG is always 1; WHEN OTHER (an address in no region) cannot be selected",
+      "unit": "SY-1020"
+     },
+     {
+      "family": "G",
+      "key": "SY-1020:536:WHEN@543",
+      "kind": "EVALUATE",
+      "line": 536,
+      "outcome": "WHEN@543",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1020), so HL-RG is always 1; the other WHEN arms cannot be selected",
+      "unit": "SY-1020"
+     },
+     {
+      "family": "G",
+      "key": "SY-1020:536:WHEN@549",
+      "kind": "EVALUATE",
+      "line": 536,
+      "outcome": "WHEN@549",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1020), so HL-RG is always 1; the other WHEN arms cannot be selected",
+      "unit": "SY-1020"
+     },
+     {
+      "family": "G",
+      "key": "SY-1020:538:true",
+      "kind": "IF",
+      "line": 538,
+      "outcome": "true",
+      "reason": "R3 starts at CA-ENC (offset 20) and the six-pass SY-0030 loop reads four bytes per pass, so it stays at offset 20..43; the check on HL-OF fires only past the end of the DFHCOMMAREA region, which this offset never reaches",
+      "unit": "SY-1020"
+     },
+     {
+      "family": "G",
+      "key": "SY-1020:544:false",
+      "kind": "IF",
+      "line": 544,
+      "outcome": "false",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 536 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1020"
+     },
+     {
+      "family": "G",
+      "key": "SY-1020:544:true",
+      "kind": "IF",
+      "line": 544,
+      "outcome": "true",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 536 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1020"
+     },
+     {
+      "family": "G",
+      "key": "SY-1020:550:false",
+      "kind": "IF",
+      "line": 550,
+      "outcome": "false",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 536 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1020"
+     },
+     {
+      "family": "G",
+      "key": "SY-1020:550:true",
+      "kind": "IF",
+      "line": 550,
+      "outcome": "true",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 536 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1020"
+     },
+     {
+      "family": "G",
+      "key": "SY-1020:566:OTHER",
+      "kind": "EVALUATE",
+      "line": 566,
+      "outcome": "OTHER",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1020), so HL-RG is always 1; WHEN OTHER (an address in no region) cannot be selected",
+      "unit": "SY-1020"
+     },
+     {
+      "family": "G",
+      "key": "SY-1020:566:WHEN@573",
+      "kind": "EVALUATE",
+      "line": 566,
+      "outcome": "WHEN@573",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1020), so HL-RG is always 1; the other WHEN arms cannot be selected",
+      "unit": "SY-1020"
+     },
+     {
+      "family": "G",
+      "key": "SY-1020:566:WHEN@579",
+      "kind": "EVALUATE",
+      "line": 566,
+      "outcome": "WHEN@579",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1020), so HL-RG is always 1; the other WHEN arms cannot be selected",
+      "unit": "SY-1020"
+     },
+     {
+      "family": "G",
+      "key": "SY-1020:568:true",
+      "kind": "IF",
+      "line": 568,
+      "outcome": "true",
+      "reason": "R3 starts at CA-ENC (offset 20) and the six-pass SY-0030 loop reads four bytes per pass, so it stays at offset 20..43; the check on HL-OF fires only past the end of the DFHCOMMAREA region, which this offset never reaches",
+      "unit": "SY-1020"
+     },
+     {
+      "family": "G",
+      "key": "SY-1020:574:false",
+      "kind": "IF",
+      "line": 574,
+      "outcome": "false",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 566 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1020"
+     },
+     {
+      "family": "G",
+      "key": "SY-1020:574:true",
+      "kind": "IF",
+      "line": 574,
+      "outcome": "true",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 566 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1020"
+     },
+     {
+      "family": "G",
+      "key": "SY-1020:580:false",
+      "kind": "IF",
+      "line": 580,
+      "outcome": "false",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 566 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1020"
+     },
+     {
+      "family": "G",
+      "key": "SY-1020:580:true",
+      "kind": "IF",
+      "line": 580,
+      "outcome": "true",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 566 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1020"
+     },
+     {
+      "family": "G",
+      "key": "SY-1020:595:true",
+      "kind": "IF",
+      "line": 595,
+      "outcome": "true",
+      "reason": "R5 is cleared by SR, then loaded one byte by IC, so the B64XLT index is 0..255 and never exceeds 255",
+      "unit": "SY-1020"
+     },
+     {
+      "family": "G",
+      "key": "SY-1030:622:OTHER",
+      "kind": "EVALUATE",
+      "line": 622,
+      "outcome": "OTHER",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1030), so HL-RG is always 1; WHEN OTHER (an address in no region) cannot be selected",
+      "unit": "SY-1030"
+     },
+     {
+      "family": "G",
+      "key": "SY-1030:622:WHEN@629",
+      "kind": "EVALUATE",
+      "line": 622,
+      "outcome": "WHEN@629",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1030), so HL-RG is always 1; the other WHEN arms cannot be selected",
+      "unit": "SY-1030"
+     },
+     {
+      "family": "G",
+      "key": "SY-1030:622:WHEN@635",
+      "kind": "EVALUATE",
+      "line": 622,
+      "outcome": "WHEN@635",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1030), so HL-RG is always 1; the other WHEN arms cannot be selected",
+      "unit": "SY-1030"
+     },
+     {
+      "family": "G",
+      "key": "SY-1030:624:true",
+      "kind": "IF",
+      "line": 624,
+      "outcome": "true",
+      "reason": "R3 starts at CA-ENC (offset 20) and the six-pass SY-0030 loop reads four bytes per pass, so it stays at offset 20..43; the check on HL-OF fires only past the end of the DFHCOMMAREA region, which this offset never reaches",
+      "unit": "SY-1030"
+     },
+     {
+      "family": "G",
+      "key": "SY-1030:630:false",
+      "kind": "IF",
+      "line": 630,
+      "outcome": "false",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 622 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1030"
+     },
+     {
+      "family": "G",
+      "key": "SY-1030:630:true",
+      "kind": "IF",
+      "line": 630,
+      "outcome": "true",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 622 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1030"
+     },
+     {
+      "family": "G",
+      "key": "SY-1030:636:false",
+      "kind": "IF",
+      "line": 636,
+      "outcome": "false",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 622 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1030"
+     },
+     {
+      "family": "G",
+      "key": "SY-1030:636:true",
+      "kind": "IF",
+      "line": 636,
+      "outcome": "true",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 622 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1030"
+     },
+     {
+      "family": "G",
+      "key": "SY-1030:652:OTHER",
+      "kind": "EVALUATE",
+      "line": 652,
+      "outcome": "OTHER",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1030), so HL-RG is always 1; WHEN OTHER (an address in no region) cannot be selected",
+      "unit": "SY-1030"
+     },
+     {
+      "family": "G",
+      "key": "SY-1030:652:WHEN@659",
+      "kind": "EVALUATE",
+      "line": 652,
+      "outcome": "WHEN@659",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1030), so HL-RG is always 1; the other WHEN arms cannot be selected",
+      "unit": "SY-1030"
+     },
+     {
+      "family": "G",
+      "key": "SY-1030:652:WHEN@665",
+      "kind": "EVALUATE",
+      "line": 652,
+      "outcome": "WHEN@665",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1030), so HL-RG is always 1; the other WHEN arms cannot be selected",
+      "unit": "SY-1030"
+     },
+     {
+      "family": "G",
+      "key": "SY-1030:654:true",
+      "kind": "IF",
+      "line": 654,
+      "outcome": "true",
+      "reason": "R3 starts at CA-ENC (offset 20) and the six-pass SY-0030 loop reads four bytes per pass, so it stays at offset 20..43; the check on HL-OF fires only past the end of the DFHCOMMAREA region, which this offset never reaches",
+      "unit": "SY-1030"
+     },
+     {
+      "family": "G",
+      "key": "SY-1030:660:false",
+      "kind": "IF",
+      "line": 660,
+      "outcome": "false",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 652 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1030"
+     },
+     {
+      "family": "G",
+      "key": "SY-1030:660:true",
+      "kind": "IF",
+      "line": 660,
+      "outcome": "true",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 652 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1030"
+     },
+     {
+      "family": "G",
+      "key": "SY-1030:666:false",
+      "kind": "IF",
+      "line": 666,
+      "outcome": "false",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 652 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1030"
+     },
+     {
+      "family": "G",
+      "key": "SY-1030:666:true",
+      "kind": "IF",
+      "line": 666,
+      "outcome": "true",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 652 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1030"
+     },
+     {
+      "family": "G",
+      "key": "SY-1030:681:true",
+      "kind": "IF",
+      "line": 681,
+      "outcome": "true",
+      "reason": "R5 is cleared by SR, then loaded one byte by IC, so the B64XLT index is 0..255 and never exceeds 255",
+      "unit": "SY-1030"
+     },
+     {
+      "family": "G",
+      "key": "SY-1040:708:OTHER",
+      "kind": "EVALUATE",
+      "line": 708,
+      "outcome": "OTHER",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1040), so HL-RG is always 1; WHEN OTHER (an address in no region) cannot be selected",
+      "unit": "SY-1040"
+     },
+     {
+      "family": "G",
+      "key": "SY-1040:708:WHEN@715",
+      "kind": "EVALUATE",
+      "line": 708,
+      "outcome": "WHEN@715",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1040), so HL-RG is always 1; the other WHEN arms cannot be selected",
+      "unit": "SY-1040"
+     },
+     {
+      "family": "G",
+      "key": "SY-1040:708:WHEN@721",
+      "kind": "EVALUATE",
+      "line": 708,
+      "outcome": "WHEN@721",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1040), so HL-RG is always 1; the other WHEN arms cannot be selected",
+      "unit": "SY-1040"
+     },
+     {
+      "family": "G",
+      "key": "SY-1040:710:true",
+      "kind": "IF",
+      "line": 710,
+      "outcome": "true",
+      "reason": "R3 starts at CA-ENC (offset 20) and the six-pass SY-0030 loop reads four bytes per pass, so it stays at offset 20..43; the check on HL-OF fires only past the end of the DFHCOMMAREA region, which this offset never reaches",
+      "unit": "SY-1040"
+     },
+     {
+      "family": "G",
+      "key": "SY-1040:716:false",
+      "kind": "IF",
+      "line": 716,
+      "outcome": "false",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 708 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1040"
+     },
+     {
+      "family": "G",
+      "key": "SY-1040:716:true",
+      "kind": "IF",
+      "line": 716,
+      "outcome": "true",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 708 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1040"
+     },
+     {
+      "family": "G",
+      "key": "SY-1040:722:false",
+      "kind": "IF",
+      "line": 722,
+      "outcome": "false",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 708 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1040"
+     },
+     {
+      "family": "G",
+      "key": "SY-1040:722:true",
+      "kind": "IF",
+      "line": 722,
+      "outcome": "true",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 708 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1040"
+     },
+     {
+      "family": "G",
+      "key": "SY-1040:738:OTHER",
+      "kind": "EVALUATE",
+      "line": 738,
+      "outcome": "OTHER",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1040), so HL-RG is always 1; WHEN OTHER (an address in no region) cannot be selected",
+      "unit": "SY-1040"
+     },
+     {
+      "family": "G",
+      "key": "SY-1040:738:WHEN@745",
+      "kind": "EVALUATE",
+      "line": 738,
+      "outcome": "WHEN@745",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1040), so HL-RG is always 1; the other WHEN arms cannot be selected",
+      "unit": "SY-1040"
+     },
+     {
+      "family": "G",
+      "key": "SY-1040:738:WHEN@751",
+      "kind": "EVALUATE",
+      "line": 738,
+      "outcome": "WHEN@751",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1040), so HL-RG is always 1; the other WHEN arms cannot be selected",
+      "unit": "SY-1040"
+     },
+     {
+      "family": "G",
+      "key": "SY-1040:740:true",
+      "kind": "IF",
+      "line": 740,
+      "outcome": "true",
+      "reason": "R3 starts at CA-ENC (offset 20) and the six-pass SY-0030 loop reads four bytes per pass, so it stays at offset 20..43; the check on HL-OF fires only past the end of the DFHCOMMAREA region, which this offset never reaches",
+      "unit": "SY-1040"
+     },
+     {
+      "family": "G",
+      "key": "SY-1040:746:false",
+      "kind": "IF",
+      "line": 746,
+      "outcome": "false",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 738 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1040"
+     },
+     {
+      "family": "G",
+      "key": "SY-1040:746:true",
+      "kind": "IF",
+      "line": 746,
+      "outcome": "true",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 738 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1040"
+     },
+     {
+      "family": "G",
+      "key": "SY-1040:752:false",
+      "kind": "IF",
+      "line": 752,
+      "outcome": "false",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 738 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1040"
+     },
+     {
+      "family": "G",
+      "key": "SY-1040:752:true",
+      "kind": "IF",
+      "line": 752,
+      "outcome": "true",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 738 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1040"
+     },
+     {
+      "family": "G",
+      "key": "SY-1040:767:true",
+      "kind": "IF",
+      "line": 767,
+      "outcome": "true",
+      "reason": "R5 is cleared by SR, then loaded one byte by IC, so the B64XLT index is 0..255 and never exceeds 255",
+      "unit": "SY-1040"
+     },
+     {
+      "family": "G",
+      "key": "SY-1050:809:OTHER",
+      "kind": "EVALUATE",
+      "line": 809,
+      "outcome": "OTHER",
+      "reason": "R6, the target address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1050), so HL-RG is always 1; WHEN OTHER (an address in no region) cannot be selected",
+      "unit": "SY-1050"
+     },
+     {
+      "family": "G",
+      "key": "SY-1050:809:WHEN@817",
+      "kind": "EVALUATE",
+      "line": 809,
+      "outcome": "WHEN@817",
+      "reason": "R6, the target address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1050), so HL-RG is always 1; the other WHEN arms cannot be selected",
+      "unit": "SY-1050"
+     },
+     {
+      "family": "G",
+      "key": "SY-1050:809:WHEN@824",
+      "kind": "EVALUATE",
+      "line": 809,
+      "outcome": "WHEN@824",
+      "reason": "R6, the target address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1050), so HL-RG is always 1; the other WHEN arms cannot be selected",
+      "unit": "SY-1050"
+     },
+     {
+      "family": "G",
+      "key": "SY-1050:811:true",
+      "kind": "IF",
+      "line": 811,
+      "outcome": "true",
+      "reason": "R6 starts at CA-DEC (offset 48) and moves three bytes per decoded group over at most six groups, so it stays at offset 48..63; the check on HL-OF fires only past the end of the DFHCOMMAREA region, which this offset never reaches",
+      "unit": "SY-1050"
+     },
+     {
+      "family": "G",
+      "key": "SY-1050:818:false",
+      "kind": "IF",
+      "line": 818,
+      "outcome": "false",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 809 that cannot be selected: R6 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1050"
+     },
+     {
+      "family": "G",
+      "key": "SY-1050:818:true",
+      "kind": "IF",
+      "line": 818,
+      "outcome": "true",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 809 that cannot be selected: R6 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1050"
+     },
+     {
+      "family": "G",
+      "key": "SY-1050:825:false",
+      "kind": "IF",
+      "line": 825,
+      "outcome": "false",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 809 that cannot be selected: R6 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1050"
+     },
+     {
+      "family": "G",
+      "key": "SY-1050:825:true",
+      "kind": "IF",
+      "line": 825,
+      "outcome": "true",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 809 that cannot be selected: R6 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1050"
+     },
+     {
+      "family": "G",
+      "key": "SY-1050:836:OTHER",
+      "kind": "EVALUATE",
+      "line": 836,
+      "outcome": "OTHER",
+      "reason": "R6, the target address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1050), so HL-RG is always 1; WHEN OTHER (an address in no region) cannot be selected",
+      "unit": "SY-1050"
+     },
+     {
+      "family": "G",
+      "key": "SY-1050:836:WHEN@851",
+      "kind": "EVALUATE",
+      "line": 836,
+      "outcome": "WHEN@851",
+      "reason": "R6, the target address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1050), so HL-RG is always 1; the other WHEN arms cannot be selected",
+      "unit": "SY-1050"
+     },
+     {
+      "family": "G",
+      "key": "SY-1050:836:WHEN@865",
+      "kind": "EVALUATE",
+      "line": 836,
+      "outcome": "WHEN@865",
+      "reason": "R6, the target address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1050), so HL-RG is always 1; the other WHEN arms cannot be selected",
+      "unit": "SY-1050"
+     },
+     {
+      "family": "G",
+      "key": "SY-1050:838:true",
+      "kind": "IF",
+      "line": 838,
+      "outcome": "true",
+      "reason": "R6 starts at CA-DEC (offset 48) and moves three bytes per decoded group over at most six groups, so it stays at offset 48..63; the check on HL-OF fires only past the end of the DFHCOMMAREA region, which this offset never reaches",
+      "unit": "SY-1050"
+     },
+     {
+      "family": "G",
+      "key": "SY-1050:852:false",
+      "kind": "IF",
+      "line": 852,
+      "outcome": "false",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 836 that cannot be selected: R6 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1050"
+     },
+     {
+      "family": "G",
+      "key": "SY-1050:852:true",
+      "kind": "IF",
+      "line": 852,
+      "outcome": "true",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 836 that cannot be selected: R6 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1050"
+     },
+     {
+      "family": "G",
+      "key": "SY-1050:866:false",
+      "kind": "IF",
+      "line": 866,
+      "outcome": "false",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 836 that cannot be selected: R6 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1050"
+     },
+     {
+      "family": "G",
+      "key": "SY-1050:866:true",
+      "kind": "IF",
+      "line": 866,
+      "outcome": "true",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 836 that cannot be selected: R6 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1050"
+     },
+     {
+      "family": "G",
+      "key": "SY-1100:913:OTHER",
+      "kind": "EVALUATE",
+      "line": 913,
+      "outcome": "OTHER",
+      "reason": "R6, the target address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1100), so HL-RG is always 1; WHEN OTHER (an address in no region) cannot be selected",
+      "unit": "SY-1100"
+     },
+     {
+      "family": "G",
+      "key": "SY-1100:913:WHEN@921",
+      "kind": "EVALUATE",
+      "line": 913,
+      "outcome": "WHEN@921",
+      "reason": "R6, the target address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1100), so HL-RG is always 1; the other WHEN arms cannot be selected",
+      "unit": "SY-1100"
+     },
+     {
+      "family": "G",
+      "key": "SY-1100:913:WHEN@928",
+      "kind": "EVALUATE",
+      "line": 913,
+      "outcome": "WHEN@928",
+      "reason": "R6, the target address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1100), so HL-RG is always 1; the other WHEN arms cannot be selected",
+      "unit": "SY-1100"
+     },
+     {
+      "family": "G",
+      "key": "SY-1100:915:true",
+      "kind": "IF",
+      "line": 915,
+      "outcome": "true",
+      "reason": "R6 starts at CA-DEC (offset 48) and moves three bytes per decoded group over at most six groups, so it stays at offset 48..63; the check on HL-OF fires only past the end of the DFHCOMMAREA region, which this offset never reaches",
+      "unit": "SY-1100"
+     },
+     {
+      "family": "G",
+      "key": "SY-1100:922:false",
+      "kind": "IF",
+      "line": 922,
+      "outcome": "false",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 913 that cannot be selected: R6 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1100"
+     },
+     {
+      "family": "G",
+      "key": "SY-1100:922:true",
+      "kind": "IF",
+      "line": 922,
+      "outcome": "true",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 913 that cannot be selected: R6 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1100"
+     },
+     {
+      "family": "G",
+      "key": "SY-1100:929:false",
+      "kind": "IF",
+      "line": 929,
+      "outcome": "false",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 913 that cannot be selected: R6 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1100"
+     },
+     {
+      "family": "G",
+      "key": "SY-1100:929:true",
+      "kind": "IF",
+      "line": 929,
+      "outcome": "true",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 913 that cannot be selected: R6 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1100"
+     },
+     {
+      "family": "G",
+      "key": "SY-1100:940:OTHER",
+      "kind": "EVALUATE",
+      "line": 940,
+      "outcome": "OTHER",
+      "reason": "R6, the target address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1100), so HL-RG is always 1; WHEN OTHER (an address in no region) cannot be selected",
+      "unit": "SY-1100"
+     },
+     {
+      "family": "G",
+      "key": "SY-1100:940:WHEN@955",
+      "kind": "EVALUATE",
+      "line": 940,
+      "outcome": "WHEN@955",
+      "reason": "R6, the target address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1100), so HL-RG is always 1; the other WHEN arms cannot be selected",
+      "unit": "SY-1100"
+     },
+     {
+      "family": "G",
+      "key": "SY-1100:940:WHEN@969",
+      "kind": "EVALUATE",
+      "line": 940,
+      "outcome": "WHEN@969",
+      "reason": "R6, the target address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1100), so HL-RG is always 1; the other WHEN arms cannot be selected",
+      "unit": "SY-1100"
+     },
+     {
+      "family": "G",
+      "key": "SY-1100:942:true",
+      "kind": "IF",
+      "line": 942,
+      "outcome": "true",
+      "reason": "R6 starts at CA-DEC (offset 48) and moves three bytes per decoded group over at most six groups, so it stays at offset 48..63; the check on HL-OF fires only past the end of the DFHCOMMAREA region, which this offset never reaches",
+      "unit": "SY-1100"
+     },
+     {
+      "family": "G",
+      "key": "SY-1100:956:false",
+      "kind": "IF",
+      "line": 956,
+      "outcome": "false",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 940 that cannot be selected: R6 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1100"
+     },
+     {
+      "family": "G",
+      "key": "SY-1100:956:true",
+      "kind": "IF",
+      "line": 956,
+      "outcome": "true",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 940 that cannot be selected: R6 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1100"
+     },
+     {
+      "family": "G",
+      "key": "SY-1100:970:false",
+      "kind": "IF",
+      "line": 970,
+      "outcome": "false",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 940 that cannot be selected: R6 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1100"
+     },
+     {
+      "family": "G",
+      "key": "SY-1100:970:true",
+      "kind": "IF",
+      "line": 970,
+      "outcome": "true",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 940 that cannot be selected: R6 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1100"
+     },
+     {
+      "family": "G",
+      "key": "SY-1200:1017:OTHER",
+      "kind": "EVALUATE",
+      "line": 1017,
+      "outcome": "OTHER",
+      "reason": "R6, the target address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1200), so HL-RG is always 1; WHEN OTHER (an address in no region) cannot be selected",
+      "unit": "SY-1200"
+     },
+     {
+      "family": "G",
+      "key": "SY-1200:1017:WHEN@1025",
+      "kind": "EVALUATE",
+      "line": 1017,
+      "outcome": "WHEN@1025",
+      "reason": "R6, the target address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1200), so HL-RG is always 1; the other WHEN arms cannot be selected",
+      "unit": "SY-1200"
+     },
+     {
+      "family": "G",
+      "key": "SY-1200:1017:WHEN@1032",
+      "kind": "EVALUATE",
+      "line": 1017,
+      "outcome": "WHEN@1032",
+      "reason": "R6, the target address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1200), so HL-RG is always 1; the other WHEN arms cannot be selected",
+      "unit": "SY-1200"
+     },
+     {
+      "family": "G",
+      "key": "SY-1200:1019:true",
+      "kind": "IF",
+      "line": 1019,
+      "outcome": "true",
+      "reason": "R6 starts at CA-DEC (offset 48) and moves three bytes per decoded group over at most six groups, so it stays at offset 48..63; the check on HL-OF fires only past the end of the DFHCOMMAREA region, which this offset never reaches",
+      "unit": "SY-1200"
+     },
+     {
+      "family": "G",
+      "key": "SY-1200:1026:false",
+      "kind": "IF",
+      "line": 1026,
+      "outcome": "false",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 1017 that cannot be selected: R6 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1200"
+     },
+     {
+      "family": "G",
+      "key": "SY-1200:1026:true",
+      "kind": "IF",
+      "line": 1026,
+      "outcome": "true",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 1017 that cannot be selected: R6 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1200"
+     },
+     {
+      "family": "G",
+      "key": "SY-1200:1033:false",
+      "kind": "IF",
+      "line": 1033,
+      "outcome": "false",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 1017 that cannot be selected: R6 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1200"
+     },
+     {
+      "family": "G",
+      "key": "SY-1200:1033:true",
+      "kind": "IF",
+      "line": 1033,
+      "outcome": "true",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 1017 that cannot be selected: R6 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1200"
+     },
+     {
+      "family": "G",
+      "key": "SY-1200:1044:OTHER",
+      "kind": "EVALUATE",
+      "line": 1044,
+      "outcome": "OTHER",
+      "reason": "R6, the target address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1200), so HL-RG is always 1; WHEN OTHER (an address in no region) cannot be selected",
+      "unit": "SY-1200"
+     },
+     {
+      "family": "G",
+      "key": "SY-1200:1044:WHEN@1059",
+      "kind": "EVALUATE",
+      "line": 1044,
+      "outcome": "WHEN@1059",
+      "reason": "R6, the target address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1200), so HL-RG is always 1; the other WHEN arms cannot be selected",
+      "unit": "SY-1200"
+     },
+     {
+      "family": "G",
+      "key": "SY-1200:1044:WHEN@1073",
+      "kind": "EVALUATE",
+      "line": 1044,
+      "outcome": "WHEN@1073",
+      "reason": "R6, the target address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1200), so HL-RG is always 1; the other WHEN arms cannot be selected",
+      "unit": "SY-1200"
+     },
+     {
+      "family": "G",
+      "key": "SY-1200:1046:true",
+      "kind": "IF",
+      "line": 1046,
+      "outcome": "true",
+      "reason": "R6 starts at CA-DEC (offset 48) and moves three bytes per decoded group over at most six groups, so it stays at offset 48..63; the check on HL-OF fires only past the end of the DFHCOMMAREA region, which this offset never reaches",
+      "unit": "SY-1200"
+     },
+     {
+      "family": "G",
+      "key": "SY-1200:1060:false",
+      "kind": "IF",
+      "line": 1060,
+      "outcome": "false",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 1044 that cannot be selected: R6 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1200"
+     },
+     {
+      "family": "G",
+      "key": "SY-1200:1060:true",
+      "kind": "IF",
+      "line": 1060,
+      "outcome": "true",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 1044 that cannot be selected: R6 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1200"
+     },
+     {
+      "family": "G",
+      "key": "SY-1200:1074:false",
+      "kind": "IF",
+      "line": 1074,
+      "outcome": "false",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 1044 that cannot be selected: R6 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1200"
+     },
+     {
+      "family": "G",
+      "key": "SY-1200:1074:true",
+      "kind": "IF",
+      "line": 1074,
+      "outcome": "true",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 1044 that cannot be selected: R6 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached",
+      "unit": "SY-1200"
+     }
+    ],
+    "paragraph_pct": 100.0,
+    "paragraphs": {
+     "covered": 24,
+     "live": 24
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
+    "stale_inputs": [],
+    "stale_since": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [
+     {
+      "case": "zecs-zecs001",
+      "case_scenarios": 64,
+      "db2": false,
+      "det": {
+       "source": "CI det-sweep ratchet on main",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "zecs-zecs002",
+      "case_scenarios": 16,
+      "db2": false,
+      "det": {
+       "source": "CI det-sweep ratchet on main",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "program"
+     }
+    ],
+    "chosen": {
+     "case": "zecs-zecs002",
+     "case_scenarios": 16,
+     "db2": false,
+     "det": {
+      "source": "CI det-sweep ratchet on main",
+      "state": "equal"
+     },
+     "record": null,
+     "role": "program"
+    }
+   },
+   "level": "L4",
+   "level_current": true,
+   "mutation": {
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
+   },
+   "next": [
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+   ],
+   "options": {
+    "assumed": 6,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "4.2"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 0,
+    "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.packages",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "none"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.region.CICS_TS",
+      "provenance": "found",
+      "source": "System Requirements and Considerations.md:13",
+      "value": "4.2"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "CICS"
+     }
+    ],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "STD"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
+   "oracle_backing": [],
+   "program": "Source/ZECS002.asm",
+   "residual": {
+    "assumed_or_differs_named": [],
+    "branch_outcomes_unrun": 172,
+    "commands": 0,
+    "commands_backed": 0,
+    "commands_not_backed": [],
+    "facts_unstated": 0,
+    "holes": 0,
+    "paragraphs_unrun": 0,
+    "refused": null
+   },
+   "stale_inputs": [],
+   "stale_since": null,
+   "survey_stale": false,
+   "translation": {
+    "gap_classes": [],
+    "hole_count": 0,
+    "holes": [],
+    "refused": null,
+    "source_defects": [],
+    "statements": 511,
+    "translated": 511,
+    "whole": true
+   }
+  },
+  {
+   "assumptions": {
     "facts_stated": [
      "doctemplates",
      "http_peers",
@@ -3613,6 +5550,210 @@
   },
   {
    "assumptions": {
+    "facts_stated": [],
+    "facts_unstated": [],
+    "named_by_commands": [],
+    "reach": "not measured",
+    "source_read": true
+   },
+   "coverage": {
+    "branch_net_pct": 100.0,
+    "branch_pct": 100.0,
+    "branches": {
+     "covered": 10,
+     "total": 10
+    },
+    "branches_net": {
+     "covered": 10,
+     "total": 10
+    },
+    "current": true,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
+    "paragraph_pct": 100.0,
+    "paragraphs": {
+     "covered": 13,
+     "live": 13
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
+    "stale_inputs": [],
+    "stale_since": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [
+     {
+      "case": "zecs-zecsnc",
+      "case_scenarios": 8,
+      "db2": false,
+      "det": {
+       "source": "CI det-sweep ratchet on main",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "program"
+     }
+    ],
+    "chosen": {
+     "case": "zecs-zecsnc",
+     "case_scenarios": 8,
+     "db2": false,
+     "det": {
+      "source": "CI det-sweep ratchet on main",
+      "state": "equal"
+     },
+     "record": null,
+     "role": "program"
+    }
+   },
+   "level": "L4",
+   "level_current": true,
+   "mutation": {
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
+   },
+   "next": [
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+   ],
+   "options": {
+    "assumed": 6,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "4.2"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 0,
+    "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.packages",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "none"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.region.CICS_TS",
+      "provenance": "found",
+      "source": "System Requirements and Considerations.md:13",
+      "value": "4.2"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "CICS"
+     }
+    ],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "STD"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
+   "oracle_backing": [],
+   "program": "Source/ZECSNC.asm",
+   "residual": {
+    "assumed_or_differs_named": [],
+    "branch_outcomes_unrun": 0,
+    "commands": 0,
+    "commands_backed": 0,
+    "commands_not_backed": [],
+    "facts_unstated": 0,
+    "holes": 0,
+    "paragraphs_unrun": 0,
+    "refused": null
+   },
+   "stale_inputs": [],
+   "stale_since": null,
+   "survey_stale": false,
+   "translation": {
+    "gap_classes": [],
+    "hole_count": 0,
+    "holes": [],
+    "refused": null,
+    "source_defects": [],
+    "statements": 54,
+    "translated": 54,
+    "whole": true
+   }
+  },
+  {
+   "assumptions": {
     "facts_stated": [
      "urimaps"
     ],
@@ -4081,7 +6222,7 @@
      },
      {
       "area": "CICS",
-      "entry": "#4972: EXTRACT WEB is IBM's synonym of WEB EXTRACT (one table, one runtime call, the same answers and refusals); EXTRACT TCPIP reads the connection the run STATES (tcpip: client / server IPv4 address, the names the DNS knows, the port, the SSL type): CLIENTADDR / CADDRLENGTH, CLIENTNAME / CNAMELENGTH, SERVERADDR / SADDRLENGTH, SERVERNAME / SNAMELENGTH written as bytes with each length option set to the real length (areas on NORMAL only), CLIENTADDRNU / SERVERADDRNU (the address as a signed fullword), CLNTIPFAMILY / SRVRIPFAMILY (IPV4, 300), PORTNUMNU, SSLTYPE (SSL 1030 / NOSSL 1031 / CLIENTAUTH 1032 / ATTLSAWARE 1205); an area given with its length option missing or not above zero LENGERR RESP2 1; a client name the DNS does not know length 0, the area left alone, NORMAL; refused: no connection stated, an address that is not IPv4 dotted decimal (IPv6, CLNTADDR6NU / SRVRADDR6NU), an address number past a signed fullword, a SERVERNAME the connection does not state, a name or address longer than its length (LENGERR RESP2 3 / 4 / 6 / 7), PORTNUMBER (the character form), AUTHENTICATE, TCPIPSERVICE, PRIVACY, MAXDATALEN, a length past its area, two conditions at once. #4940: WEB READ FORMFIELD / QUERYPARM read the stated body form (application/x-www-form-urlencoded) / query string as name=value pairs joined by '&' (split at the first '=', only %XX unescaped), the name matched without case (IBM), two pairs of the name refused, NAMELENGTH / VALUELENGTH not above zero LENGERR RESP2 1, no data INVREQ RESP2 13, no such name NOTFND RESP2 1, a value longer than VALUELENGTH cut with LENGERR RESP2 5 and VALUELENGTH its real length; WEB STARTBROWSE / READNEXT / ENDBROWSE of HTTPHEADER, FORMFIELD, QUERYPARM keep a browse per kind (ILLOGIC RESP2 10 / 5 for a second start, INVREQ RESP2 43 / 13 for no headers / data, INVREQ RESP2 4 READNEXT / ENDBROWSE before a start, ENDFILE with RESP2 0 at the end, LENGERR RESP2 1 for a length not above zero with the browse left where it was, LENGERR RESP2 4 / 5 for a FORMFIELD / QUERYPARM name / value that does not fit, cut, the same pair returned again, lengths the real ones), a start name matched exactly (case-only or duplicate matches refused), a start that raises a condition starts no browse (ASSUMED); refused: the code-page options, the client form (SESSTOKEN), HTTPHEADER truncation on READNEXT, a body that is not application/x-www-form-urlencoded, data with a pair lacking '=', an empty name or pair, ';', '+', a bad escape, an escaped name or a byte outside printable ASCII, a READNEXT after ENDFILE, a name and value both too long, two conditions at once. #4767: The task serves the one inbound HTTP request that whoever runs it STATES (http_request, as X37; unstated, each command is refused); WEB EXTRACT (server form) returns the stated scheme (CVDA HTTP 1096 / HTTPS 1029), host, HTTP method, HTTP version (the text the run states: ASSUMED), path, query string (none: length 0, area left alone: ASSUMED), the port and REQUESTTYPE HTTPYES, each length option read as the area's size and set to the piece's length, the areas written on NORMAL only; LENGERR RESP2 21 / 5 / 7 for a HOSTLENGTH / PATHLENGTH / VERSIONLEN not above zero; WEB RECEIVE INTO / LENGTH / MAXLENGTH / MEDIATYPE returns the stated body (cut at MAXLENGTH with LENGERR RESP2 57, LENGTH the bytes returned, LENGERR RESP2 16 for a MAXLENGTH not above zero, MEDIATYPE blank-padded to 56) with SRVCONVERT / NOSRVCONVERT changing nothing (program characters); WEB READ HTTPHEADER returns the value of the stated header of that exact name (INVREQ RESP2 43 no headers, NOTFND RESP2 1 no such header, LENGERR RESP2 1 VALUELENGTH not above zero); WEB WRITE HTTPHEADER adds a header to the response, recorded as WEB-HEADER and compared (a name written twice is two headers; LENGERR RESP2 35 / 55); refused: NOTRUNCATE, containers, every code-page option, SERVERCONV, BODYCHARSET, TYPE, the client forms (SESSTOKEN, REALM), HOSTTYPE, URIMAP, a LENGERR on a piece or value longer than its length, a METHODLENGTH / QUERYSTRLEN not above zero, a request with no body, a second RECEIVE, a header found only without case or stated twice, a header written after the response was sent, a name with a blank or colon, a length past its area, two conditions at once",
+      "entry": "#4972: EXTRACT WEB is IBM's synonym of WEB EXTRACT (one table, one runtime call, the same answers and refusals); EXTRACT TCPIP reads the connection the run STATES (tcpip: client / server IPv4 address, the names the DNS knows, the port, the SSL type): CLIENTADDR / CADDRLENGTH, CLIENTNAME / CNAMELENGTH, SERVERADDR / SADDRLENGTH, SERVERNAME / SNAMELENGTH written as bytes with each length option set to the real length (areas on NORMAL only), CLIENTADDRNU / SERVERADDRNU (the address as a signed fullword), CLNTIPFAMILY / SRVRIPFAMILY (IPV4, 300), PORTNUMNU, SSLTYPE (SSL 1030 / NOSSL 1031 / CLIENTAUTH 1032 / ATTLSAWARE 1205); an area given with its length option missing or not above zero LENGERR RESP2 1; a client name the DNS does not know length 0, the area left alone, NORMAL; refused: no connection stated, an address that is not IPv4 dotted decimal (IPv6, CLNTADDR6NU / SRVRADDR6NU), an address number past a signed fullword, a SERVERNAME the connection does not state, a name or address longer than its length (LENGERR RESP2 3 / 4 / 6 / 7), PORTNUMBER (the character form), AUTHENTICATE, TCPIPSERVICE, PRIVACY, MAXDATALEN, a length past its area, two conditions at once. #4940: WEB READ FORMFIELD / QUERYPARM read the stated body form (application/x-www-form-urlencoded) / query string as name=value pairs joined by '&' (split at the first '=', only %XX unescaped), the name matched without case (IBM), two pairs of the name refused, NAMELENGTH / VALUELENGTH not above zero LENGERR RESP2 1, no data INVREQ RESP2 13, no such name NOTFND RESP2 1, a value longer than VALUELENGTH cut with LENGERR RESP2 5 and VALUELENGTH its real length; WEB STARTBROWSE / READNEXT / ENDBROWSE of HTTPHEADER, FORMFIELD, QUERYPARM keep a browse per kind (ILLOGIC RESP2 10 / 5 for a second start, INVREQ RESP2 43 / 13 for no headers / data, INVREQ RESP2 4 READNEXT / ENDBROWSE before a start, ENDFILE with RESP2 0 at the end, LENGERR RESP2 1 for a length not above zero with the browse left where it was, LENGERR RESP2 4 / 5 for a FORMFIELD / QUERYPARM name / value that does not fit, cut, the same pair returned again, lengths the real ones), a start name matched exactly (case-only or duplicate matches refused), a start that raises a condition starts no browse (ASSUMED); refused: the code-page options, the client form (SESSTOKEN), HTTPHEADER truncation on READNEXT, a body that is not application/x-www-form-urlencoded, data with a pair lacking '=', an empty name or pair, ';', '+', a bad escape, an escaped name or a byte outside printable ASCII, a READNEXT after ENDFILE, a name and value both too long, two conditions at once. #4767: The task serves the one inbound HTTP request that whoever runs it STATES (http_request, as X37; unstated, each command is refused); WEB EXTRACT (server form) returns the stated scheme (CVDA HTTP 1096 / HTTPS 1029), host, HTTP method, HTTP version (the text the run states: ASSUMED), path, query string (none: length 0, area left alone: ASSUMED), the port and REQUESTTYPE HTTPYES, each length option read as the area's size and set to the piece's length, the areas written on NORMAL only; LENGERR RESP2 21 / 5 / 7 for a HOSTLENGTH / PATHLENGTH / VERSIONLEN not above zero; WEB RECEIVE INTO / LENGTH / MAXLENGTH / MEDIATYPE returns the stated body (cut at MAXLENGTH with LENGERR RESP2 57, LENGTH the bytes returned, LENGERR RESP2 16 for a MAXLENGTH not above zero, MEDIATYPE blank-padded to 56) with SRVCONVERT / NOSRVCONVERT changing nothing (program characters); WEB READ HTTPHEADER returns the value of the stated header of that exact name (INVREQ RESP2 43 no headers, NOTFND RESP2 1 no such header, LENGERR RESP2 1 VALUELENGTH not above zero); WEB WRITE HTTPHEADER adds a header to the response, recorded as WEB-HEADER and compared (a name written twice is two headers; LENGERR RESP2 35 / 55); refused: NOTRUNCATE, containers, every code-page option, SERVERCONV, BODYCHARSET, TYPE, the client forms (SESSTOKEN, REALM), HOSTTYPE, URIMAP, a LENGERR on a piece or value longer than its length, a METHODLENGTH / QUERYSTRLEN not above zero, a request with no body, a second RECEIVE other than one SRVCONVERT pass after NOSRVCONVERT, a header found only without case or stated twice, a header written after the response was sent, a name with a blank or colon, a length past its area, two conditions at once",
       "id": "X38",
       "status": "ASSUMED (REFUSED where IBM is silent)"
      },
@@ -4120,14 +6261,14 @@
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": 56.0,
-    "branch_pct": 55.8,
+    "branch_net_pct": 83.6,
+    "branch_pct": 83.2,
     "branches": {
-     "covered": 116,
+     "covered": 173,
      "total": 208
     },
     "branches_net": {
-     "covered": 116,
+     "covered": 173,
      "total": 207
     },
     "current": true,
@@ -4146,9 +6287,9 @@
       "unit": "1310-TTL"
      }
     ],
-    "paragraph_pct": 68.9,
+    "paragraph_pct": 89.9,
     "paragraphs": {
-     "covered": 82,
+     "covered": 107,
      "live": 119
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
@@ -4161,7 +6302,7 @@
     "cases": [
      {
       "case": "zecs-zecs001",
-      "case_scenarios": 38,
+      "case_scenarios": 64,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -4173,7 +6314,7 @@
     ],
     "chosen": {
      "case": "zecs-zecs001",
-     "case_scenarios": 38,
+     "case_scenarios": 64,
      "db2": false,
      "det": {
       "source": "CI det-sweep ratchet on main",
@@ -4192,7 +6333,7 @@
     "score": null
    },
    "next": [
-    "paragraph coverage >= 100.0 (now 68.9)"
+    "paragraph coverage >= 100.0 (now 89.9)"
    ],
    "options": {
     "assumed": 6,
@@ -4733,7 +6874,7 @@
      "X52",
      "X53"
     ],
-    "branch_outcomes_unrun": 92,
+    "branch_outcomes_unrun": 35,
     "commands": 27,
     "commands_backed": 3,
     "commands_not_backed": [
@@ -4764,7 +6905,7 @@
     ],
     "facts_unstated": 2,
     "holes": 0,
-    "paragraphs_unrun": 37,
+    "paragraphs_unrun": 12,
     "refused": null
    },
    "stale_inputs": [],
@@ -4780,420 +6921,12 @@
     "translated": 561,
     "whole": true
    }
-  },
-  {
-   "assumptions": {
-    "facts_stated": [],
-    "facts_unstated": [],
-    "named_by_commands": [],
-    "reach": "not measured",
-    "source_read": true
-   },
-   "coverage": {
-    "branch_net_pct": 100.0,
-    "branch_pct": null,
-    "branches": {
-     "covered": 0,
-     "total": 0
-    },
-    "branches_net": {
-     "covered": 0,
-     "total": 0
-    },
-    "current": true,
-    "infeasible_netted": [],
-    "infeasible_refuted": [],
-    "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": {
-     "covered": 0,
-     "live": 0
-    },
-    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
-    "uncovered_branches": [],
-    "uncovered_paragraphs": "not recorded"
-   },
-   "equivalence": {
-    "cases": [
-     {
-      "case": "zecs-zecs002",
-      "case_scenarios": 11,
-      "db2": false,
-      "det": {
-       "source": "CI det-sweep ratchet on main",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "program"
-     }
-    ],
-    "chosen": {
-     "case": "zecs-zecs002",
-     "case_scenarios": 11,
-     "db2": false,
-     "det": {
-      "source": "CI det-sweep ratchet on main",
-      "state": "equal"
-     },
-     "record": null,
-     "role": "program"
-    }
-   },
-   "level": "L2",
-   "level_current": true,
-   "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
-    "l5": false,
-    "score": null
-   },
-   "next": [
-    "paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)"
-   ],
-   "options": {
-    "assumed": 6,
-    "compiler": {
-     "product": "Enterprise COBOL",
-     "version": "4.2"
-    },
-    "deviations": [],
-    "estate_file": true,
-    "found": 0,
-    "record_differences": [],
-    "runtime": [
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.ABTERMENC",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ABEND"
-     },
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.STORAGE",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NONE,NONE,NONE,0K"
-     },
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.TRAP",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ON,SPIE"
-     },
-     {
-      "effect": "no effect",
-      "option": "db2.bind.packages",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "none"
-     },
-     {
-      "effect": "no effect",
-      "option": "cics.region.CICS_TS",
-      "provenance": "found",
-      "source": "System Requirements and Considerations.md:13",
-      "value": "4.2"
-     },
-     {
-      "effect": "honoured",
-      "option": "cics.region.LOCALCCSID",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "037"
-     },
-     {
-      "effect": "no effect",
-      "option": "cics.translator.options",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "CICS"
-     }
-    ],
-    "values": [
-     {
-      "option": "ARITH",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "COMPAT"
-     },
-     {
-      "option": "INTDATE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ANSI"
-     },
-     {
-      "option": "NUMPROC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NOPFD"
-     },
-     {
-      "option": "TRUNC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "STD"
-     },
-     {
-      "option": "CODEPAGE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "1140"
-     },
-     {
-      "option": "NSYMBOL",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NATIONAL"
-     }
-    ]
-   },
-   "oracle_backing": [],
-   "program": "Source/ZECS002.asm",
-   "residual": {
-    "assumed_or_differs_named": [],
-    "branch_outcomes_unrun": 0,
-    "commands": 0,
-    "commands_backed": 0,
-    "commands_not_backed": [],
-    "facts_unstated": 0,
-    "holes": 0,
-    "paragraphs_unrun": 0,
-    "refused": null
-   },
-   "stale_inputs": [],
-   "stale_since": null,
-   "survey_stale": false,
-   "translation": {
-    "gap_classes": [],
-    "hole_count": 0,
-    "holes": [],
-    "refused": null,
-    "source_defects": [],
-    "statements": 511,
-    "translated": 511,
-    "whole": true
-   }
-  },
-  {
-   "assumptions": {
-    "facts_stated": [],
-    "facts_unstated": [],
-    "named_by_commands": [],
-    "reach": "not measured",
-    "source_read": true
-   },
-   "coverage": {
-    "branch_net_pct": 100.0,
-    "branch_pct": null,
-    "branches": {
-     "covered": 0,
-     "total": 0
-    },
-    "branches_net": {
-     "covered": 0,
-     "total": 0
-    },
-    "current": true,
-    "infeasible_netted": [],
-    "infeasible_refuted": [],
-    "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": {
-     "covered": 0,
-     "live": 0
-    },
-    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
-    "uncovered_branches": [],
-    "uncovered_paragraphs": "not recorded"
-   },
-   "equivalence": {
-    "cases": [
-     {
-      "case": "zecs-zecsnc",
-      "case_scenarios": 7,
-      "db2": false,
-      "det": {
-       "source": "CI det-sweep ratchet on main",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "program"
-     }
-    ],
-    "chosen": {
-     "case": "zecs-zecsnc",
-     "case_scenarios": 7,
-     "db2": false,
-     "det": {
-      "source": "CI det-sweep ratchet on main",
-      "state": "equal"
-     },
-     "record": null,
-     "role": "program"
-    }
-   },
-   "level": "L2",
-   "level_current": true,
-   "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
-    "l5": false,
-    "score": null
-   },
-   "next": [
-    "paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)"
-   ],
-   "options": {
-    "assumed": 6,
-    "compiler": {
-     "product": "Enterprise COBOL",
-     "version": "4.2"
-    },
-    "deviations": [],
-    "estate_file": true,
-    "found": 0,
-    "record_differences": [],
-    "runtime": [
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.ABTERMENC",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ABEND"
-     },
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.STORAGE",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NONE,NONE,NONE,0K"
-     },
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.TRAP",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ON,SPIE"
-     },
-     {
-      "effect": "no effect",
-      "option": "db2.bind.packages",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "none"
-     },
-     {
-      "effect": "no effect",
-      "option": "cics.region.CICS_TS",
-      "provenance": "found",
-      "source": "System Requirements and Considerations.md:13",
-      "value": "4.2"
-     },
-     {
-      "effect": "honoured",
-      "option": "cics.region.LOCALCCSID",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "037"
-     },
-     {
-      "effect": "no effect",
-      "option": "cics.translator.options",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "CICS"
-     }
-    ],
-    "values": [
-     {
-      "option": "ARITH",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "COMPAT"
-     },
-     {
-      "option": "INTDATE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ANSI"
-     },
-     {
-      "option": "NUMPROC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NOPFD"
-     },
-     {
-      "option": "TRUNC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "STD"
-     },
-     {
-      "option": "CODEPAGE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "1140"
-     },
-     {
-      "option": "NSYMBOL",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NATIONAL"
-     }
-    ]
-   },
-   "oracle_backing": [],
-   "program": "Source/ZECSNC.asm",
-   "residual": {
-    "assumed_or_differs_named": [],
-    "branch_outcomes_unrun": 0,
-    "commands": 0,
-    "commands_backed": 0,
-    "commands_not_backed": [],
-    "facts_unstated": 0,
-    "holes": 0,
-    "paragraphs_unrun": 0,
-    "refused": null
-   },
-   "stale_inputs": [],
-   "stale_since": null,
-   "survey_stale": false,
-   "translation": {
-    "gap_classes": [],
-    "hole_count": 0,
-    "holes": [],
-    "refused": null,
-    "source_defects": [],
-    "statements": 54,
-    "translated": 54,
-    "whole": true
-   }
   }
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 7fdf2eedb25ec0b1895dc5584f7fad6c9f889e1b",
-   "python tests/tools/evidence_report.py zecs --baseline --sha 7fdf2eedb25ec0b1895dc5584f7fad6c9f889e1b",
+   "python tests/tools/cics_census.py survey --baseline --sha 40c748839f7aea9eb37d40f46fe473cff827085d",
+   "python tests/tools/evidence_report.py zecs --baseline --sha 40c748839f7aea9eb37d40f46fe473cff827085d",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases zecs-ecs001,zecs-zecs000,zecs-zecs001,zecs-zecs002,zecs-zecs003,zecs-zecsnc,zecs-zecsplt",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -5214,13 +6947,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "7fdf2eedb25ec0b1895dc5584f7fad6c9f889e1b",
+   "sha": "40c748839f7aea9eb37d40f46fe473cff827085d",
    "translator": {
     "files": 156,
-    "sha256": "9ffda5cf021bdfa094145d2eb187734ad7da7ea587ebad5e302cbc2783f963b8"
+    "sha256": "fb893856a63eeaa01a943e15af1b07a777ac73d82ec585cebc045b06f6a4f79b"
    }
   },
-  "translator_commit": "7fdf2eedb25ec0b1895dc5584f7fad6c9f889e1b",
+  "translator_commit": "40c748839f7aea9eb37d40f46fe473cff827085d",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -5229,9 +6962,9 @@
   "histogram": {
    "L0": 0,
    "L1": 0,
-   "L2": 3,
+   "L2": 1,
    "L3": 0,
-   "L4": 4,
+   "L4": 6,
    "L5": 0
   },
   "histogram_stale": {
@@ -5263,6 +6996,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "9ffda5cf021bdfa094145d2eb187734ad7da7ea587ebad5e302cbc2783f963b8"
+  "fingerprint": "fb893856a63eeaa01a943e15af1b07a777ac73d82ec585cebc045b06f6a4f79b"
  }
 }

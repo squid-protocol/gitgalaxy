@@ -301,13 +301,66 @@ def test_doom_rosetta_data_selects_the_tests_that_name_the_tree(f):
 
 
 def test_doom_rosetta_data_beside_an_unmapped_file_runs_everything():
-    assert plan(["tests/doom_rosetta/manifest.csv", "tests/golden_master_audit/x.json"])["mode"] == "full"
+    assert plan(["tests/doom_rosetta/manifest.csv", "tests/equivalence/cbsa-x/seed.sql"])["mode"] == "full"
 
 
-@pytest.mark.parametrize("f", ["tests/equivalence/asynccc-crdtchk/case.json", "tests/equivalence/db2/dynsql/seed.sql"])
-def test_equivalence_case_data_stays_full(f):
-    # every case-enumerating test and helper (equivalence.py, evidence.py, det_port.py) reads a case: no name search is sound
+@pytest.mark.parametrize(
+    "f",
+    [
+        "tests/equivalence/db2/dynsql/seed.sql",
+        "tests/equivalence/asynccc-crdtchk/abndfile.bin",
+        "tests/equivalence/asynccc-crdtchk/LICENSE",
+        "tests/equivalence/cics/ggcics_taskcontrol.c",
+    ],
+)
+def test_other_equivalence_case_data_stays_full(f):
+    # a fixture or source is read by helpers (equivalence.py, det_port.py) no name search reaches
     assert plan([f])["mode"] == "full"
+
+
+@pytest.mark.parametrize(
+    "f",
+    [
+        "tests/equivalence/asynccc-crdtchk/case.json",
+        "tests/equivalence/zecs-zecs001/case.json",
+        "tests/equivalence/carddemo-acctview/evidence.json",
+    ],
+)
+def test_a_case_json_or_evidence_selects_the_tests_that_name_the_case_or_the_file(f):
+    p = plan([f])
+    assert p["mode"] == "select"
+    assert "tests/test_source_reads.py" in p["paths"]
+    assert 1 < len(p["paths"]) <= sp.HELPER_MAX and all((sp.REPO_ROOT / x).exists() for x in p["paths"])
+
+
+def test_case_files_map_by_case_id_and_file_name(tmp_path):
+    (tmp_path / "tests" / "tools").mkdir(parents=True)
+    (tmp_path / "tests" / "cobol_mainframe").mkdir()
+    (tmp_path / "tests" / "tools" / "test_a.py").write_text("glob('*/case.json')\n")
+    (tmp_path / "tests" / "tools" / "test_b.py").write_text("case = 'cbsa-x'\n")
+    (tmp_path / "tests" / "tools" / "test_c.py").write_text("open('evidence.json')\n")
+    (tmp_path / "tests" / "cobol_mainframe" / "test_evidence.py").write_text("x = 1\n")
+    assert sp.named_data_targets("tests/equivalence/cbsa-x/case.json", tmp_path) == [
+        "tests/tools/test_a.py",
+        "tests/tools/test_b.py",
+    ]
+    # an evidence record also runs test_evidence.py (stale-port check), whether or not it names the file
+    assert sp.named_data_targets("tests/equivalence/cbsa-x/evidence.json", tmp_path) == [
+        "tests/cobol_mainframe/test_evidence.py",
+        "tests/tools/test_b.py",
+        "tests/tools/test_c.py",
+    ]
+    assert sp.named_data_targets("tests/equivalence/cbsa-x/case.json", tmp_path, limit=1) is None
+    # a case nobody names and no test globs: full
+    (tmp_path / "tests" / "tools" / "test_a.py").write_text("x\n")
+    assert sp.named_data_targets("tests/equivalence/cbsa-y/case.json", tmp_path) is None
+
+
+@pytest.mark.parametrize(
+    "f", ["tests/equivalence/case.json", "tests/equivalence/a/b/case.json", "tests/equivalence/a/seed.json"]
+)
+def test_only_a_cases_case_and_evidence_json_are_case_files(f):
+    assert not sp.is_case_file(f)
 
 
 def test_a_data_tree_reader_set_is_direct_only(tmp_path):
@@ -344,7 +397,7 @@ def test_named_data_with_no_direct_reader_or_beside_an_unmapped_file_runs_everyt
     (tmp_path / "tests" / "tools" / "test_a.py").write_text("run('ruff_audit --ci')  # x\n")
     assert sp.named_data_targets("tests/ruff_audit_baseline.json", tmp_path) == ["tests/tools/test_a.py"]
     assert sp.named_data_targets("tests/ruff_audit_baseline.json", tmp_path, limit=0) is None
-    assert plan(["tests/cobol_mainframe/field_testing.json", "tests/golden_master_audit/x.json"])["mode"] == "full"
+    assert plan(["tests/cobol_mainframe/field_testing.json", "tests/equivalence/cbsa-x/seed.sql"])["mode"] == "full"
 
 
 @pytest.mark.parametrize("f", ["tests/cobol_mainframe/x.py", "tests/equivalence/db2/seed.json", "tests/a/b.json"])
@@ -385,7 +438,7 @@ def test_other_det_runtime_files_stay_full(name):
 
 
 def test_det_runtime_beside_an_unmapped_file_runs_everything():
-    assert plan([sp.RUNTIME_DIR + "Sort.java", "tests/golden_master_audit/x.json"])["mode"] == "full"
+    assert plan([sp.RUNTIME_DIR + "Sort.java", "tests/equivalence/cbsa-x/seed.sql"])["mode"] == "full"
 
 
 def test_runtime_reader_set_is_direct_and_capped(tmp_path):
@@ -504,3 +557,24 @@ def test_a_tools_data_or_script_file_is_read_by_the_tests_that_name_it(tmp_path)
 )
 def test_other_tools_files_are_not_named_data(f):
     assert not sp.is_named_data_file(f)
+
+
+def test_golden_snapshot_parts_select_the_tests_that_name_the_fixture_or_golden_store(tmp_path):
+    (tmp_path / "tests" / "tools").mkdir(parents=True)
+    (tmp_path / "tests" / "tools" / "test_a.py").write_text("p = 'golden_master_audit'\n")
+    (tmp_path / "tests" / "tools" / "test_b.py").write_text("import golden_store\n")
+    (tmp_path / "tests" / "tools" / "test_c.py").write_text("p = 'golden_master_zero_dep_audit'\n")
+    for f, want in [
+        ("tests/golden_master_audit/12_scan_output_snapshots/sarif.json", ["test_a.py", "test_b.py"]),
+        ("tests/golden_master_zero_dep_audit/_layout.json", ["test_b.py", "test_c.py"]),
+    ]:
+        assert sp.is_named_data_file(f)
+        assert sp.named_data_targets(f, tmp_path) == [f"tests/tools/{n}" for n in want]
+    assert sp.named_data_targets("tests/golden_master_audit/x.json", tmp_path, limit=1) is None
+    assert not sp.is_named_data_file("tests/golden_master_audit_notes/x.json")
+
+
+def test_a_golden_bless_beside_an_unmapped_file_runs_everything():
+    f = "tests/golden_master_audit/_layout.json"
+    assert plan([f])["mode"] == "select"
+    assert plan([f, "tests/equivalence/cbsa-x/seed.sql"])["mode"] == "full"

@@ -405,7 +405,9 @@ def _pass_with_default_digest(monkeypatch, graphql, rest_calls):
     """One pass over three failing PRs through the shepherd's own digest; returns main_failures' answers."""
     ci_digest = cs.ci_digest
     asked = []
-    monkeypatch.setattr(ci_digest, "digest", lambda n, api, on_main, flaky: asked.append(on_main) or {"failed": []})
+    monkeypatch.setattr(
+        ci_digest, "digest", lambda n, api, on_main, flaky, graphql=None: asked.append(on_main) or {"failed": []}
+    )
     gh = Gh()
     state = {"queue": [1, 2, 3], "after": {}, "seen": {}, "events": []}
     for n in (1, 2, 3):
@@ -422,7 +424,8 @@ def _pass_with_default_digest(monkeypatch, graphql, rest_calls):
 def test_main_failures_is_read_once_per_pass_through_graphql_and_never_by_rest(monkeypatch):
     seen, rest = [], []
     asked = _pass_with_default_digest(monkeypatch, _main_tip_graphql(["ruff"], seen), rest)
-    assert asked == [{"ruff"}] * 3 and len(seen) == 1  # one query for the pass, shared by all three PRs
+    main_reads = [q for q in seen if q is not cs.pr_check.CHECK_QUERY]
+    assert asked == [{"ruff"}] * 3 and len(main_reads) == 1  # one main query for the pass, shared by all three PRs
     assert not [p for p in rest if "/commits/main" in p or p.endswith("/check-runs") and "m" * 40 in p]
 
 
@@ -437,3 +440,80 @@ def test_a_failing_graphql_read_falls_back_to_rest_with_the_same_answer(monkeypa
     asked = _pass_with_default_digest(monkeypatch, broken, rest)
     assert len(asked) == 3 and all(isinstance(a, set) for a in asked)
     assert sum(p.endswith("/commits/main") for p in rest) == 1  # REST read once for the pass, not once per PR
+
+
+def _check_graphql(gh, seen):
+    """A fake GraphQL for pr_check.CHECK_QUERY built from the same Gh fixture the REST fake serves."""
+
+    def graphql(query, variables):
+        seen.append(query)
+        p, n = None, variables.get("n")
+        if query is cs.pr_check.CHECK_QUERY:
+            p = gh.prs[n]
+            nodes = [{"databaseId": r["id"], "name": r["name"], "status": r["status"].upper(),
+                      "conclusion": (r["conclusion"] or "").upper() or None, "detailsUrl": "u", "url": "u"}
+                     for r in gh.runs[p["head"]["sha"]]]  # fmt: skip
+            suite = {"createdAt": None, "app": {"slug": "github-actions"},
+                     "checkRuns": {"totalCount": len(nodes), "nodes": nodes}}  # fmt: skip
+            commit = {"oid": p["head"]["sha"], "status": None,
+                      "checkSuites": {"totalCount": 1, "nodes": [suite]}}  # fmt: skip
+            return {"repository": {"pullRequest": {
+                "id": p["node_id"], "number": n, "title": p["title"], "state": p["state"].upper(),
+                "merged": p["merged"], "isDraft": p["draft"], "mergeable": "MERGEABLE" if p["mergeable"] else "CONFLICTING",
+                "mergeStateStatus": p["mergeable_state"].upper(), "headRefOid": p["head"]["sha"],
+                "files": {"totalCount": 0, "nodes": []}, "commits": {"nodes": [{"commit": commit}]}}}}  # fmt: skip
+        raise SystemExit("gh api failed")
+
+    return graphql
+
+
+def _queue_pass(graphql):
+    """One pass over three PRs (one open and failing, one pending, one merged); returns (REST paths, did)."""
+    gh, rest = Gh(), []
+    gh.pr(1, sha="1" * 40, mstate="dirty", mergeable=False, runs=[("det", "success")])
+    gh.pr(2, sha="2" * 40, mstate="blocked", runs=[("det", None)])
+    gh.pr(3, sha="3" * 40, state="closed", mstate="clean")
+    state = {"queue": [1, 2, 3], "after": {}, "seen": {}, "events": []}
+
+    def counting(path):
+        rest.append(path)
+        return gh.api(path)
+
+    did = cs.step(state, counting, gh.run, lambda n: {"failed": []}, settle=0,
+                  graphql=graphql(gh) if graphql else None)  # fmt: skip
+    return rest, did
+
+
+def test_the_per_pr_state_read_is_one_graphql_query_not_four_rest_calls():
+    before, did_before = _queue_pass(None)
+    seen = []
+    after, did_after = _queue_pass(lambda gh: _check_graphql(gh, seen))
+    check_reads = [
+        p for p in after if "/pulls/" in p or "/commits/" in p and "/check-runs" in p or p.endswith("/status")
+    ]
+    assert not check_reads and len(seen) == 3  # one query per queued PR
+    assert len(before) - len(after) >= 3 * 3  # REST: pull + runs + status + files per PR, none left
+    assert did_after == did_before  # decide() and its rules see the same reads
+
+
+def test_a_failing_graphql_check_read_falls_back_to_rest_with_the_same_decisions():
+    def broken(gh):
+        def graphql(query, variables):
+            raise SystemExit("gh api failed")
+
+        return graphql
+
+    rest_plain, did_plain = _queue_pass(None)
+    rest_broken, did_broken = _queue_pass(broken)
+    assert did_broken == did_plain and sorted(rest_broken) == sorted(rest_plain)
+
+
+def test_the_default_digest_reads_through_graphql_too(monkeypatch):
+    got = []
+    monkeypatch.setattr(cs.ci_digest, "main_failures", lambda api, graphql=None: set())
+    monkeypatch.setattr(cs.ci_digest, "digest", lambda n, api, **kw: got.append(kw["graphql"]) or {"failed": []})
+    gh = Gh()
+    gh.pr(1, mstate="blocked", runs=[("det", "failure")])
+    sentinel = _check_graphql(gh, [])
+    cs.step({"queue": [1], "after": {}, "seen": {}, "events": []}, gh.api, gh.run, settle=0, graphql=sentinel)
+    assert got and all(g is sentinel for g in got)

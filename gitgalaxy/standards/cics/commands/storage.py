@@ -98,14 +98,13 @@ FREEMAIN = Command(
     ibm=ibm("EXEC CICS FREEMAIN", "summary-freemain"),
     status="modelled",
     register="X47",
-    options={"DATAPOINTER": Arg("pointer"), **RESP_OPTIONS},
-    refused={
-        "DATA": Refusal(
-            "FREEMAIN DATA(area): the storage is named by its data area, not a pointer: not modelled", "X47"
-        ),
-    },
-    default_refusal=Refusal("DATAPOINTER is the only form modelled", "X47"),
-    groups=(required("DATAPOINTER", msg="FREEMAIN without DATAPOINTER"),),
+    # #6876 (X47): DATA(area) names the storage by the data area a SET ADDRESS OF gave it: a 01 LINKAGE record
+    options={"DATAPOINTER": Arg("pointer"), "DATA": Arg("area_in"), **RESP_OPTIONS},
+    default_refusal=Refusal("DATAPOINTER and DATA are the only forms modelled", "X47"),
+    groups=(
+        one_of("DATAPOINTER", "DATA", msg="FREEMAIN without DATAPOINTER or DATA: the storage to release"),
+        at_most_one("DATAPOINTER", "DATA", msg="FREEMAIN with both DATAPOINTER and DATA"),
+    ),
     outcomes=(
         Outcome("NORMAL", 0, ""),
         Outcome("INVREQ", 1, "The storage was not acquired by GETMAIN"),

@@ -584,8 +584,9 @@ class Sql:
         (`_refuse_scroll_and_rowset` has vetted it): DetSql.positionScroll parks the cursor before its first row or
         after its last. SQLCODE 0, no host variable touched, no repository method (no row is read)."""
         at = self.g_str(f"{self.program}:{line}")
-        return [f"{ind}DetSql.positionScroll(SQLCA_AREA, {at}, {self.g_str(m.group(3).upper())}, "
-                f"{self.g_str(m.group(2).upper())}, CS);"]  # fmt: skip
+        cursor = self.g_str(m.group(3).upper())
+        where = self.g_str(m.group(2).upper())
+        return [f"{ind}DetSql.positionScroll(SQLCA_AREA, {at}, {cursor}, {where}, CS);"]
 
     def _refuse_scroll_and_rowset(self, verb: str, sql: str) -> None:
         """#4269 (register Q4): a multi-row FETCH / INSERT, FETCH BEFORE / AFTER (a position, no row), an orientation on a

@@ -59,7 +59,6 @@ in the engine or the test, then drop its `--deselect`:
 |---|---|
 | `test_equivalence_cics.py::test_a_facade_that_builds_its_own_task_fails_the_java_facade_side` | the mutated COMEN01C port exits 0 (proven) where the test expects 1 |
 
-The `db2` job `--deselect`s `test_equivalence_db2_rows.py::test_the_inqacccu_det_port_holds_on_generated_db2_rows` (the generated-row comparison reports a diff on a pristine checkout) and `test_sql_unit_of_work.py::test_uowdemo_det_port_proves_on_db2_against_the_hand_trace` (both
-`[N]` and `[A]`): the det port's `DetMq.java` fails to compile on a pristine checkout (`package com.gitgalaxy.modernized.cics
+The `db2` job `--deselect`s `test_sql_unit_of_work.py::test_uowdemo_det_port_proves_on_db2_against_the_hand_trace` (both `[N]` and `[A]`): the det port's `DetMq.java` fails to compile on a pristine checkout (`package com.gitgalaxy.modernized.cics
 does not exist`, `CicsTask` not found: the generated estate carries no `cics` package for a batch program that uses MQ
 stubs). The other tests of the five files pass locally against Db2 (178 of 181 ran: 128 in four files, 50 in the rows file, 34 min serial).

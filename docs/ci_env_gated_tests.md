@@ -57,7 +57,6 @@ in the engine or the test, then drop its `--deselect`:
 
 | Test | Failure |
 |---|---|
-| `test_equivalence_inputs.py::test_the_hand_written_ports_hold_on_generated_inputs[carddemo-acctview-generated-None]` | the report holds 63 outputs, the test expects 24 |
 | `test_equivalence_cics.py::test_a_facade_that_builds_its_own_task_fails_the_java_facade_side` | the mutated COMEN01C port exits 0 (proven) where the test expects 1 |
 
 The `db2` job `--deselect`s `test_equivalence_db2_rows.py::test_the_inqacccu_det_port_holds_on_generated_db2_rows` (the generated-row comparison reports a diff on a pristine checkout) and `test_sql_unit_of_work.py::test_uowdemo_det_port_proves_on_db2_against_the_hand_trace` (both

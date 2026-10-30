@@ -316,3 +316,27 @@ forms are covered by the strict suite (`test_hlasm_calls_out_forms`) but have no
 **PDS routing.** Fixed (section 2, item 3). Members of the two PDS-layout repos are no longer split across `go`, `plaintext` and
 `undeterminable` when they carry HLASM evidence. Sibling gaps (same mechanism, not done): `*.COPYLIB/`/`*.COBOL/` (cobol),
 `*.PLI/` (pli), `*.JCL/`/`*.CNTL/` (jcl): each is one `library_directory_suffixes` entry plus a pin.
+
+### Addendum (2026-10-30b, #7064): Che4z / IBM-Z-zOS `calls_out` re-measure, `.mac` misroute re-check
+
+**Held on this box:** the Che4z LSP repo (35 `.asm`/`.mac`/`.hlasm` files), IBM-Z-zOS (1 file) and freebsd-src (5 `.mac`). Hyperion,
+the MS-DOS tree and the NASM tree are **not held**: no number is given for them; their rows in section 12 stay as measured on the DB.
+
+**Real-file `calls_out` (36 files scanned as a copy, 35 routed `hlasm`, 15 functions, 10 with a non-empty `calls_out_to`).**
+Statement counts in the source: `CALL` 4, `LOAD` 3, `BAL` 3, `LINK`/`XCTL`/`ATTACH`/`BALR`/`BASR` 0. All 4 `CALL`s and 3 `LOAD`s are in
+one file (`oeconsol.asm`). Reading:
+- `CALL (15),...` takes the callee from a register, so there is no name to extract: correct to emit none.
+- `LOAD EP=BPX1GLG` (and the read/write stubs) is **not** named: `calls_out` for that file is `BAKR`, `MODID`, `MGCRE` (system macros). `LOAD EP=` is the open form.
+- The other 9 functions with callees name macro invocations (`MAC` -> `MAC_VIRTUAL`, `TEST` -> `TEST_1_BYTE`, ...), i.e. macro uses, not external programs.
+- `BAL R14,GENMDB` (3) names in-file labels: an internal edge, not an import.
+
+**Routing re-check.** The 5 freebsd-src `.mac` files (troff macro packages) route `easytrieve` (4) and `plaintext` (1); none is `hlasm`. Pinned
+for uppercase `.MAC` and troff text in `test_uppercase_and_troff_mac_files_are_not_hlasm`.
+
+**Defect classes for the consolidated issue (not filed here):**
+1. `LOAD EP=name` is not named by `calls_out`; `BAL`/`BALR`/`BASR` to an in-file label is an internal edge, not modelled.
+2. `fragile_debt`/`planned_debt` false positives on message text (`xxx`) and stub names; needs an hlasm override of the global debt rules and moves the golden master.
+3. Non-hlasm `.mac` families land in `easytrieve` (NASM, troff) and `plaintext` (DSP).
+4. PDS siblings `*.COPYLIB/`, `*.COBOL/`, `*.PLI/`, `*.JCL/`, `*.CNTL/` unrouted (one `library_directory_suffixes` entry plus a pin each).
+
+No burned-estate program needs any of these.

@@ -529,6 +529,57 @@ public final class DetSql {
         return moveTo(ca, cursor, rows, POS.get(cursor) + 1, cs);
     }
 
+    /** FETCH [NEXT] ROWSET FROM cursor FOR n ROWS (#4269; IBM Db2 for z/OS SQL Reference, FETCH): up to n next rows of
+     *  the cursor, SQLERRD(3) the number read. A rowset that reaches the end of the data holds fewer than n rows (or
+     *  none) and is SQLCODE +100 with SQLERRD(3) set (register Q4); n above the host variable tables (`capacity`) or
+     *  below 1 is refused. */
+    // [rule RT-SQL-ROWSET-FETCH]
+    public static List<Map<String, Object>> fetchRowset(Field ca, String at, String cursor, long n, int capacity,
+                                                        Charset cs) {
+        reset(ca, cs);
+        if (injected(ca, at, cs)) {
+            return List.of();
+        }
+        List<Map<String, Object>> rows = OPEN.get(cursor);
+        if (rows == null) {
+            code(ca, -501, "24501", cs);
+            return List.of();
+        }
+        if (n < 1 || n > capacity) {
+            throw new UnsupportedOperationException("EXEC SQL FETCH ROWSET at " + at + ": FOR " + n
+                    + " ROWS with host variable tables of " + capacity);
+        }
+        List<Map<String, Object>> got = new ArrayList<>();
+        while (got.size() < n) {
+            Map<String, Object> row = moveTo(ca, cursor, rows, POS.get(cursor) + 1, cs);
+            if (row == null) {
+                break;
+            }
+            got.add(row);
+        }
+        putInt(ca, SQLERRD + 8, 4, got.size());
+        return got;
+    }
+
+    /** The rowset's rows into the host variable tables: row j into element j of every column's table
+     *  (`hosts[column][row]`, `indicators` null where none): the first row that fails to assign (-304 / -305) stops. */
+    public static void intoRows(Field ca, List<Map<String, Object>> rows, String kinds, Field[][] hosts,
+                                Field[][] indicators, Charset cs) {
+        for (int j = 0; j < rows.size(); j++) {
+            Field[] h = new Field[hosts.length];
+            Field[] ind = indicators == null ? null : new Field[hosts.length];
+            for (int c = 0; c < hosts.length; c++) {
+                h[c] = hosts[c][j];
+                if (ind != null) {
+                    ind[c] = indicators[c] == null ? null : indicators[c][j];
+                }
+            }
+            if (!into(ca, rows.get(j), kinds, h, new Field[hosts.length], ind, cs)) {
+                return;
+            }
+        }
+    }
+
     /** FETCH of a scroll cursor with an orientation (#4269; IBM Db2 for z/OS SQL Reference, FETCH): `orientation` is
      *  PRIOR, FIRST, LAST, CURRENT, ABSOLUTE (n a row number, a negative one counted from the last row) or RELATIVE
      *  (n rows from the current position). The cursor is insensitive: its rows are those OPEN read. A move off either

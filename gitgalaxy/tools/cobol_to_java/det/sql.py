@@ -34,6 +34,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
+from decimal import Decimal
 from pathlib import Path
 
 from gitgalaxy.tools.cobol_to_java.det import expr as E
@@ -144,6 +145,17 @@ _ORIENT_NO_ROW = re.compile(r"FETCH\s+(?:(?:INSENSITIVE|SENSITIVE)\s+)?(BEFORE|A
 _DECLARE_CURSOR = re.compile(r"\bDECLARE\s+([A-Z0-9_-]+)\s+((?:[A-Z]+\s+){0,4}?)CURSOR\b(\s+WITH\s+HOLD\b)?", re.I)
 # #4269: a multi-row (rowset) FETCH / INSERT: `FETCH ... ROWSET`, `FOR :N ROWS`
 _ROWSET = re.compile(r"\bROWSET\b|\bFOR\s+(?::?[A-Z0-9_-]+)\s+ROWS?\b", re.I)
+# #4269: FETCH [NEXT] ROWSET [FROM] cursor FOR n ROWS INTO :a1, :a2 (n an integer or a host variable; each host variable a
+# table, one per column). The cursor was declared WITH ROWSET POSITIONING.
+_ROWSET_FETCH = re.compile(
+    r"FETCH\s+(?:(?:INSENSITIVE|SENSITIVE)\s+)?(?:NEXT\s+)?ROWSET\s+(?:FROM\s+)?([A-Z0-9_-]+)\s+"
+    r"FOR\s+(\d+|:[A-Z0-9_-]+)\s+ROWS?\s+INTO\s+(.*)",
+    re.I | re.S,
+)
+_ROWSET_DECL = re.compile(
+    r"\bDECLARE\s+([A-Z0-9_-]+)\s+(?:[A-Z]+\s+){0,4}?CURSOR\s+(?:WITH\s+(?:HOLD|RETURN)\s+)*WITH\s+ROWSET\s+POSITIONING\b",
+    re.I,
+)
 _HOLD = re.compile(r"\bDECLARE\s+([A-Z0-9_-]+)\s+(?:[A-Z]+\s+){0,2}?CURSOR\s+WITH\s+HOLD\b", re.I)
 
 
@@ -171,6 +183,7 @@ class Sql:
         # #4269: the cursors declared WITH HOLD (the program's text, its copybooks included): a COMMIT keeps them open
         self.hold = {m.group(1).upper() for m in _HOLD.finditer(source)}
         # #4269: the cursors declared SCROLL -> (sensitive, WITH HOLD); a FETCH orientation is for these only
+        self.rowset = {m.group(1).upper() for m in _ROWSET_DECL.finditer(source)}
         self.scroll: dict[str, tuple[bool, bool]] = {}
         for m in _DECLARE_CURSOR.finditer(source):
             words = m.group(2).upper().split()
@@ -229,10 +242,11 @@ class Sql:
 
     def _elementary(self, it: L.Item) -> list[L.Item]:
         """A host variable, or a host structure's members (a VARCHAR pair is one)."""
+        if it.occurs > 1:  # (a table is a column of a FETCH ROWSET only: _fetch_rowset)
+            raise SqlError(f"host variable array {it.name}: a host-variable array is modelled only as a column of "
+                           "FETCH ROWSET (register Q4)")  # fmt: skip
         if it.pic or self._varchar(it):
             return [it]
-        if it.occurs > 1:
-            raise SqlError(f"host variable array {it.name}: a host-variable array in SQL is not modelled (register Q4)")
         out: list[L.Item] = []
         for k in it.children:
             if k.name != "FILLER":
@@ -413,6 +427,8 @@ class Sql:
                 *self._params(self._cursor_sql(meth), meth, n, ind),
                 f"{ind}DetSql.open(SQLCA_AREA, {at}, {self.g_str(cursor)}{hold}, () -> {call}({n}), CS);",
             ]
+        if verb == "FETCH" and meth.verb == "CURSOR" and (rowset := _ROWSET_FETCH.fullmatch(sql)):
+            return self._fetch_rowset(rowset, at, ind)
         if verb == "FETCH" and meth.verb == "CURSOR":
             m = _FETCH.fullmatch(sql)
             if not m:
@@ -428,6 +444,59 @@ class Sql:
         if verb == "CLOSE" and meth.verb == "CURSOR":
             return [f"{ind}DetSql.close(SQLCA_AREA, {at}, {self.g_str(u.split()[1])}, CS);"]
         raise SqlError(f"EXEC SQL {verb}")
+
+    def _fetch_rowset(self, m: re.Match, at: str, ind: str) -> list[str]:
+        """#4269 (register Q4): FETCH [NEXT] ROWSET FROM cursor FOR n ROWS INTO :A1, :A2 -- each host variable an
+        elementary table (OCCURS) holding one column's rows. DetSql.fetchRowset reads up to n rows and sets SQLERRD(3);
+        DetSql.intoRows moves row j into element j of every table."""
+        cursor = m.group(1).upper()
+        tables: list[L.Item] = []
+        kinds = ""
+        inds: list[L.Item | None] = []
+        for h in _HOST.finditer(m.group(3)):
+            it = self._item(self._ref(h.group(1)))
+            if not it.pic or it.occurs < 2 or self._varchar(it) or it.category not in ("ALPHANUMERIC", "NUMERIC"):
+                raise SqlError(f"EXEC SQL FETCH ROWSET {cursor}: :{h.group(1)} is not an elementary table "
+                               "(PIC item with OCCURS), the host variable array of a column")  # fmt: skip
+            tables.append(it)
+            kinds += "N" if it.category == "NUMERIC" else "X"
+            if h.group(2):
+                ii = self._item(self._ref(h.group(2)))
+                if ii.occurs != it.occurs:
+                    raise SqlError(f"EXEC SQL FETCH ROWSET {cursor}: the indicator array :{h.group(2)} is not a table "
+                                   f"of {it.occurs} like :{h.group(1)}")  # fmt: skip
+                inds.append(ii)
+            else:
+                inds.append(None)
+        if not tables:
+            raise SqlError(f"EXEC SQL FETCH ROWSET {cursor}: no host variable table")
+        cap = min(t.occurs for t in tables)
+
+        def elems(it: L.Item) -> str:
+            quals = [it.parent.name] if it.parent else []
+            refs = (E.Ref(it.name, qualifiers=quals, subscripts=[E.Lit(Decimal(k))]) for k in range(1, cap + 1))
+            return "{" + ", ".join(self.g.field_expr(r) for r in refs) + "}"
+
+        count = m.group(2)
+        if count.startswith(":"):
+            items = self._elementary(self._item(self._ref(count[1:])))
+            if len(items) != 1 or items[0].category != "NUMERIC":
+                raise SqlError(f"EXEC SQL FETCH ROWSET {cursor}: {count} is not a numeric host variable")
+            n = f"{self.value_in(items[0])}.longValue()"
+        else:
+            n = f"{int(count)}L"
+            if int(count) > cap:
+                raise SqlError(
+                    f"EXEC SQL FETCH ROWSET {cursor}: FOR {count} ROWS exceeds the host variable tables ({cap})"
+                )
+        row = self.g.tmpname("sqlRows")
+        hosts = ", ".join(elems(t) for t in tables)
+        ids = "null" if all(i is None for i in inds) else ", ".join(elems(i) if i else "null" for i in inds)
+        indicators = "null" if ids == "null" else f"new Field[][] {{{ids}}}"
+        read = (f"{ind}java.util.List<java.util.Map<String, Object>> {row} = DetSql.fetchRowset(SQLCA_AREA, {at}, "
+                f"{self.g_str(cursor)}, {n}, {cap}, CS);")  # fmt: skip
+        into = f"{ind}DetSql.intoRows(SQLCA_AREA, {row}, {self.g_str(kinds)}, new Field[][] {{{hosts}}}, {indicators}, CS);"
+        return [read, into]
 
     def _fetch_scroll(self, cursor: str, orient: list[str], at: str) -> str:
         """#4269 (register Q4): FETCH [INSENSITIVE] PRIOR | FIRST | LAST | CURRENT | ABSOLUTE n | RELATIVE n of a cursor
@@ -449,9 +518,21 @@ class Sql:
         cursor not declared SCROLL, a SENSITIVE or DYNAMIC scroll cursor (the port's rows are a copy made at OPEN) and a
         scroll cursor WITH HOLD (its position after a COMMIT) stop by name."""
         bare = _QUOTED.sub("''", sql)
+        rowset = _ROWSET_FETCH.fullmatch(bare) if verb == "FETCH" else None
+        if rowset:  # taken: _fetch_rowset checks the host variables
+            cursor = rowset.group(1).upper()
+            if cursor not in self.rowset:
+                raise SqlError(f"EXEC SQL FETCH ROWSET {cursor}: the cursor is not declared WITH ROWSET POSITIONING"
+                               " (register Q4)")  # fmt: skip
+            if cursor in self.scroll and self.scroll[cursor][0]:
+                raise SqlError(
+                    f"EXEC SQL FETCH ROWSET {cursor}: a SENSITIVE or DYNAMIC cursor is not modelled (register Q4)"
+                )
+            return
         if verb in ("FETCH", "INSERT") and _ROWSET.search(bare):
-            raise SqlError(f"EXEC SQL {verb}: a multi-row {verb} (ROWSET / FOR n ROWS, host-variable arrays) is not "
-                           "modelled (register Q4; no burned program uses it)")  # fmt: skip
+            what = "FETCH ... ROWSET with STARTING AT, an orientation or no FOR n ROWS" if verb == "FETCH" else "INSERT"
+            raise SqlError(f"EXEC SQL {verb}: a multi-row {what} is not modelled; only FETCH [NEXT] ROWSET FROM cursor "
+                           "FOR n ROWS INTO host-variable tables is (register Q4; no burned program uses it)")  # fmt: skip
         if verb != "FETCH":
             return
         o = _ORIENT_NO_ROW.match(bare)

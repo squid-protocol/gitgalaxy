@@ -514,15 +514,27 @@ def rerun_moved(cases: list[str], work: Path, budget_min: float | None = None,
     the next night, or one whose run failed, keeps its flag (#5862)."""
     ledger = load()
     order = sorted(cases, key=lambda c: (str(ledger[c].get("date") or ""), c))
-    start, rc = clock(), 0
+    start, rc, slowest, took, failed = clock(), 0, 0.0, [], []
     for i, case in enumerate(order):
-        if budget_min is not None and clock() - start >= budget_min * 60:
+        used = clock() - start
+        if budget_min is not None and used + slowest >= budget_min * 60:  # (the slowest case so far must still fit)
             print(f"det mutation: budget of {budget_min:g} min spent: {', '.join(order[i:])} left for the next run")
             break
         e = ledger[case]
-        rc |= run([case], work, e.get("chosen") or None, e.get("seed") or 0, 3, e.get("mode") == "full")
+        t0 = clock()
+        rc_case = run([case], work, e.get("chosen") or None, e.get("seed") or 0, 3, e.get("mode") == "full")
+        secs = clock() - t0
+        slowest = max(slowest, secs)
+        took.append(secs)
+        if rc_case:
+            failed.append(case)
+        rc |= rc_case
+        print(f"det mutation: {case} ran in {secs / 60:.1f} min ({'failed' if rc_case else 'ok'})")
     now = load()
-    return [c for c in order if (now.get(c) or {}).get("port_moved")], rc
+    left = [c for c in order if (now.get(c) or {}).get("port_moved")]
+    print(f"det mutation: {len(order)} moved, {len(took)} run in {sum(took) / 60:.1f} min "
+          f"(slowest {slowest / 60:.1f}), {len(failed)} failed, {len(left)} still flagged")  # fmt: skip
+    return left, rc
 
 
 def refresh(cases: list[str], work: Path, run_moved: bool = False, budget_min: float | None = None) -> int:
@@ -544,6 +556,7 @@ def refresh(cases: list[str], work: Path, run_moved: bool = False, budget_min: f
     if not todo:
         print("det mutation: nothing stale")
         return 0
+    print(f"det mutation: {len(todo)} of {len(ledger)} ledger(s) stale")
     det = translate(todo, work)
     rc, port_moved, moved_ports = 0, False, []
     for case in todo:

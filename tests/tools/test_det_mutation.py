@@ -279,14 +279,40 @@ def test_rerun_moved_runs_oldest_first_with_the_entrys_own_sample(monkeypatch, t
     assert not any(e.get("port_moved") for e in ledger.values())
 
 
+def ticking(step_s):
+    """A clock that advances `step_s` seconds per reading."""
+    t = [-step_s]
+
+    def clock():
+        t[0] += step_s
+        return t[0]
+
+    return clock
+
+
 def test_rerun_moved_stops_starting_cases_when_the_budget_is_spent(monkeypatch, tmp_path, capsys):
     _, calls = moved_ledger(monkeypatch, {"a": "2026-10-01", "b": "2026-10-02", "c": "2026-10-03"})
-    ticks = iter([0, 0, 61 * 60, 61 * 60])  # start, before a, before b (over budget)
-    left, rc = dm.rerun_moved(["a", "b", "c"], tmp_path, 60, clock=lambda: next(ticks))
+    # readings: start 0, check a 1, t0 2, end 3 (a took 1 s); check b at 4 s, slowest 1: 4 + 1 >= 5 s budget
+    left, rc = dm.rerun_moved(["a", "b", "c"], tmp_path, 5 / 60, clock=ticking(1))
     assert (left, rc) == (["b", "c"], 0) and [c[0] for c in calls] == [["a"]]
-    assert "left for the next run" in capsys.readouterr().out
+    assert "b, c left for the next run" in capsys.readouterr().out
     _, calls = moved_ledger(monkeypatch, {"a": "2026-10-01"})
     assert dm.rerun_moved(["a"], tmp_path, 0, clock=lambda: 0) == (["a"], 0) and calls == []  # a zero budget runs none
+
+
+def test_rerun_moved_does_not_start_a_case_the_slowest_so_far_would_overrun(monkeypatch, tmp_path):
+    _, calls = moved_ledger(monkeypatch, {"a": "2026-10-01", "b": "2026-10-02"})
+    ticks = iter([0, 0, 0, 50 * 60, 50 * 60])  # start, check a, t0, end (a took 50 min), check b at 50 min
+    dm.rerun_moved(["a", "b"], tmp_path, 90, clock=lambda: next(ticks))
+    assert [c[0] for c in calls] == [["a"]]  # 50 + 50 >= 90: b would pass the budget
+
+
+def test_rerun_moved_reports_each_case_and_the_total(monkeypatch, tmp_path, capsys):
+    moved_ledger(monkeypatch, {"a": "2026-10-01", "b": "2026-10-02"}, fail=("b",))
+    dm.rerun_moved(["a", "b"], tmp_path, clock=ticking(30))
+    out = capsys.readouterr().out
+    assert "a ran in 0.5 min (ok)" in out and "b ran in 0.5 min (failed)" in out
+    assert "2 moved, 2 run in 1.0 min (slowest 0.5), 1 failed" in out
 
 
 def test_rerun_moved_keeps_the_flag_of_a_failed_run(monkeypatch, tmp_path):

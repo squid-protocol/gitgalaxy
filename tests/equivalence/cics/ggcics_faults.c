@@ -9,6 +9,10 @@ static char fault_keys[32][40];
  * index and answers DUPKEY (RESP2 140) because another record with the same key follows. So injected() holds it
  * back (the read runs) and dupkey_apply() turns the NORMAL of a read that found its record into it. */
 static struct { int on, n, resp, resp2; char cmd[16], file[32]; } dupkey;
+/* #5126 (X64): the EIBRCODE a planned condition states (a faults.cfg row's sixth column, 12 hex digits, on a non-ABEND row).
+ * Set by the latest injected_at, cleared at its start; GGCRCOD copies it into the program's EIBRCODE. */
+static int fault_rcode_set;
+static unsigned char fault_rcode[6];
 /* #6271 (X70): a planned ABEND line (`CMD FILE NTH ABEND 0 ABCODE`, RESP field -1) is not a condition: the command
  * abends the task with ABCODE (cause "system", an abend CICS itself raises), so the HANDLE ABEND exit gets control (c->go_to)
  * or the task ends, and the command does nothing else (RESP / RESP2 NORMAL). Every call site has the task's `c`. */
@@ -27,6 +31,7 @@ static int injected_at(gg_cics *c, const char *cmd, const char *file, int *resp,
     if (fault_keys[slot][0] == 0) snprintf(fault_keys[slot], sizeof fault_keys[slot], "%s", key);
     n = ++fault_counts[slot];
     dupkey.on = 0;
+    fault_rcode_set = 0;
     snprintf(path, sizeof path, "%s/faults.cfg", dir_in());
     FILE *f = fopen(path, "r");
     while (f && !hit && fgets(line, sizeof line, f)) {
@@ -38,6 +43,13 @@ static int injected_at(gg_cics *c, const char *cmd, const char *file, int *resp,
         *resp = presp;
         *resp2 = presp2;
         hit = 1;
+        if (presp != -1 && strlen(pcode) == 12) {
+            unsigned int b[6];
+            if (sscanf(pcode, "%2x%2x%2x%2x%2x%2x", &b[0], &b[1], &b[2], &b[3], &b[4], &b[5]) == 6) {
+                for (int i = 0; i < 6; i++) fault_rcode[i] = (unsigned char)b[i];
+                fault_rcode_set = 1;
+            }
+        }
         if (presp == -1 && pcode[0]) {
             char code[5] = "    ";
             memcpy(code, pcode, strlen(pcode) < 4 ? strlen(pcode) : 4);
@@ -119,5 +131,13 @@ int GGCSQLAB(gg_cics *c) {
     c->resp2 = 0;
     trim(c->flags, 40, key);
     injected("SQL", key, &fresp, &fresp2);
+    return 0;
+}
+
+/* #5126 (X64): after a file control command, in a program that reads EIBRCODE: a planned condition that states `rcode` puts those
+ * 6 bytes in EIBRCODE (IBM: "the CICS response code returned after the function ... has been completed"). Any other command
+ * leaves the field as it was: no IBM table is copied, so a value nobody stated is not guessed (register X64). */
+int GGCRCOD(gg_cics *c, unsigned char *eibrcode) {
+    if (fault_rcode_set && c->resp != NORMAL) memcpy(eibrcode, fault_rcode, 6);
     return 0;
 }

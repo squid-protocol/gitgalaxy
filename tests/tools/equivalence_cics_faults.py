@@ -348,6 +348,19 @@ def check_child_faults(case: dict[str, Any], sc: dict[str, Any]) -> None:
             )
 
 
+def _rcode_hex(sc: dict[str, Any], f: dict[str, Any], cmd: str) -> str:
+    """#5126 (X64): a fault's `rcode`, the 6 bytes of EIBRCODE (IBM: PIC X(6); VSAM / BDAM return codes ride in it for
+    ILLOGIC and IOERR) as 12 hex digits. The scenario states them: no IBM table is copied. Only a file control
+    condition may state one, and a normal response keeps IBM's 6 X'00' (not a plan)."""
+    where = f"scenario {sc.get('name')}: fault {f}"
+    code = f["rcode"]
+    if cmd not in FILE_FAULT_COMMANDS:
+        raise ec.Unsupported(f"{where}: rcode is modelled for the file control commands only (register X64, refused)")
+    if not (isinstance(code, str) and re.fullmatch(r"[0-9A-Fa-f]{12}", code)):
+        raise ec.Unsupported(f"{where}: rcode is the 6 bytes of EIBRCODE as 12 hex digits")
+    return code.upper()
+
+
 def fault_lines(sc: dict[str, Any]) -> list[str]:
     """A scenario's `faults` as both sides read them: `CMD NAME NTH RESP RESP2` (faults.cfg, CicsTask.withFaults) --
     NAME the file a READ names, or the program an INQUIRE PROGRAM names. A fault with `child` is the RUN TRANSID
@@ -412,9 +425,12 @@ def fault_lines(sc: dict[str, Any]) -> list[str]:
             name = _verify_userid_bytes(sc, f)
         if not name:
             raise ec.Unsupported(f"scenario {sc['name']}: fault {f} names no {'/'.join(_FAULT_NAME)}")
-        out.append(
-            f"{tag}{cmd} {name} {nth} {LE_FEEDBACK.get(f['resp']) or ec.CICS_RESP.get(f['resp']) or ec.DFHRESP[f['resp']]} {resp2}"
-        )
+        line = f"{tag}{cmd} {name} {nth} {LE_FEEDBACK.get(f['resp']) or ec.CICS_RESP.get(f['resp']) or ec.DFHRESP[f['resp']]} {resp2}"
+        if (
+            "rcode" in f
+        ):  # #5126 (X64): the EIBRCODE the program reads after this planned condition, as the sixth column
+            line += " " + _rcode_hex(sc, f, cmd)
+        out.append(line)
     return [*out, *sc.get("sql_abend_plan", [])]  # #6271 (X73): the Db2 statements planned to abend AD2Z
 
 

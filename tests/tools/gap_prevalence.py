@@ -159,7 +159,20 @@ def rank(progs: list[tuple[str, str, set[str]]], scope: str, top: tuple[int, ...
     together = needs_together(progs, {c["gap"] for c in order})
     if together:
         res["needs_together"] = together
+    res_shapes = shapes(progs)
+    if res_shapes:
+        res["shapes"] = res_shapes
     return res
+
+
+def shapes(progs: list[tuple[str, str, set[str]]]) -> list[dict[str, Any]]:
+    """Programs that still have a gap, grouped by the exact gap set they carry. Name-free (gap keys only), and enough
+    to answer "whole after closing S" for any S over several scopes without the per-program rows."""
+    groups: dict[tuple[str, ...], dict[str, int]] = {}
+    for _, era, c in progs:
+        if c:
+            groups.setdefault(tuple(sorted(c)), dict.fromkeys(ERA_KEYS, 0))[era] += 1
+    return [{"gaps": list(k), "programs": sum(v.values()), "by_era": v} for k, v in sorted(groups.items())]
 
 
 CLOSE_NEXT_STEPS = 10
@@ -399,8 +412,11 @@ def table(res: dict[str, Any]) -> list[str]:
             f"| `{g['gap'].replace('|', '/')}` | {g['estates']} | {g['programs']} | {eras} | {g['status']} "
             f"| {g['owner']} |"
         )
-    out += [
-        "",
+    return out + ["", *coverage_tables(res)]
+
+
+def coverage_tables(res: dict[str, Any]) -> list[str]:
+    out = [
         "| top N gaps closed | programs whole | share | bound |",
         "|---|---|---|---|",
     ]
@@ -437,6 +453,32 @@ def table(res: dict[str, Any]) -> list[str]:
     return out
 
 
+def combined_coverage(burned: dict[str, Any], census: dict[str, Any], top: tuple[int, ...] = TOP_N) -> dict[str, Any]:
+    """Coverage if closed over both scopes at once, from the committed `shapes` (the programs' gap sets, no names):
+    the top N of the all-estates ranking, then the greedy close-next order. Programs add across scopes."""
+    gaps = combine(burned, census)
+    for g in gaps:
+        g["refuses_program"] = g["gap"].startswith(cc.REFUSES)
+    progs: list[tuple[str, str, set[str]]] = []
+    for scope in (burned, census):
+        for sh in scope.get("shapes", []):
+            for era in ERA_KEYS:
+                progs += [("", era, set(sh["gaps"]))] * sh["by_era"][era]
+        progs += [("", "none", set())] * scope["whole_now"]
+    total = len(progs)
+    whole_now = sum(not c for _, _, c in progs)
+    closed = []
+    for n in top:
+        if n > len(gaps):
+            break
+        picked = {g["gap"] for g in gaps[:n]}
+        whole = sum(c <= picked for _, _, c in progs)
+        closed.append({"top": n, "whole": whole, "share": round(whole / total, 4) if total else 0.0,
+                       "upper_bound": any(g["refuses_program"] for g in gaps[:n])})  # fmt: skip
+    return {"programs": total, "whole_now": whole_now, "coverage_if_closed": closed,
+            "close_next": close_next(progs, gaps)}  # fmt: skip
+
+
 def combine(burned: dict[str, Any], census: dict[str, Any]) -> list[dict[str, Any]]:
     """One ranking over both scopes: estate labels never overlap, so estates, programs and eras add per gap key."""
     merged: dict[str, dict[str, Any]] = {}
@@ -470,6 +512,13 @@ def combined_table(gaps: list[dict[str, Any]]) -> list[str]:
     return out
 
 
+def combined_section(burned: dict[str, Any], census: dict[str, Any]) -> list[str]:
+    if any("shapes" not in r and r["whole_now"] != r["programs"] for r in (burned, census)):
+        return []  # a summary written before `shapes` cannot be combined
+    both = combined_coverage(burned, census)
+    return [*headline(both), *coverage_tables(both), ""]
+
+
 def render(res: dict[str, Any], census: dict[str, Any] | None = None) -> str:
     out = [
         "---",
@@ -489,10 +538,11 @@ def render(res: dict[str, Any], census: dict[str, Any] | None = None) -> str:
                 f"## All estates ({len(res['estates']) + len(census['estates'])} estates: burned B, census C)",
                 "",
                 "One ranking over both scopes, highest estate coverage first; estates and programs add across scopes. "
-                "Coverage if closed is per scope below.",
+                "Coverage if closed over both scopes together follows the table; each scope's own is below.",
                 "",
                 *combined_table(combine(res, census)),
                 "",
+                *combined_section(res, census),
             ]
             if census
             else []

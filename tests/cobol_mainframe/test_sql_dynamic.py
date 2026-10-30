@@ -611,7 +611,7 @@ def test_detsql_moves_a_position_over_the_rows_read_at_open_as_db2_does(tmp_path
     javac = javac_run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"), *files],  # noqa: S603
                       capture_output=True, text=True, encoding="utf-8", check=False)  # fmt: skip
     assert javac.returncode == 0, javac.stderr[:3000]
-    out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "ggtest.Main"],  # noqa: S603
+    return subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "ggtest.Main"],  # noqa: S603
                          capture_output=True, text=True, encoding="utf-8", check=True).stdout.splitlines()  # fmt: skip
     # rows 10..50; "<orientation> <n> <SQLCODE> <the last row fetched>" -- +100 leaves the host variable as it was
     assert out == [
@@ -1044,6 +1044,23 @@ _INSDEMO_CBL = """\
                FOR 2 ROWS END-EXEC
            MOVE 'DUP KEY' TO WS-TAG
            PERFORM SHOW-PARA
+           MOVE 80 TO WS-ID(1)
+           MOVE 1 TO WS-ID(2)
+           MOVE 90 TO WS-ID(3)
+           EXEC SQL INSERT INTO GGINS.ITEM (ID, NAME, QTY)
+               VALUES (:WS-ID, :WS-NAME, :WS-QTY :WS-QI)
+               FOR 3 ROWS ATOMIC END-EXEC
+           MOVE 'DUP ROW2' TO WS-TAG
+           PERFORM SHOW-PARA
+           MOVE 81 TO WS-ID(1)
+           MOVE 82 TO WS-ID(2)
+           MOVE 1 TO WS-ID(3)
+           MOVE 3 TO WS-N
+           EXEC SQL INSERT INTO GGINS.ITEM (ID, NAME, QTY)
+               VALUES (:WS-ID, :WS-NAME, :WS-QTY :WS-QI)
+               FOR :WS-N ROWS END-EXEC
+           MOVE 'DUP LAST' TO WS-TAG
+           PERFORM SHOW-PARA
            EXEC SQL SELECT COUNT(*) INTO :WS-CNT FROM GGINS.ITEM
            END-EXEC
            MOVE WS-CNT TO SQLERRD(3)
@@ -1060,10 +1077,18 @@ _INSDEMO_DDL = (
     "CREATE TABLE GGINS.ITEM (ID INTEGER NOT NULL, NAME CHAR(4) NOT NULL, QTY DECIMAL(5,2), PRIMARY KEY (ID));\n"
 )
 _INSDEMO_SEED = "INSERT INTO GGINS.ITEM VALUES (1, 'ZZZZ', 9.00);\n"
-# per statement: tag (8), SQLCODE (10), SQLERRD(3) (10); the duplicate key is the first row: -803, nothing inserted
+# per statement: tag (8), SQLCODE (10), SQLERRD(3) (10); the duplicate key is the first row: -803, nothing inserted; a
+# duplicate on row 2 or the last row is -803 with the rows before it undone (ATOMIC), the count still 6
 TRACED_INSERT_ROWS = "".join(
     f"{tag:<8}{code:>10}{rows:>10}\n"
-    for tag, code, rows in (("LIT 2", 0, 2), ("VAR 3", 0, 3), ("DUP KEY", -803, 0), ("COUNT", 0, 6))
+    for tag, code, rows in (
+        ("LIT 2", 0, 2),
+        ("VAR 3", 0, 3),
+        ("DUP KEY", -803, 0),
+        ("DUP ROW2", -803, 0),
+        ("DUP LAST", -803, 0),
+        ("COUNT", 0, 6),
+    )
 )
 
 
@@ -1101,7 +1126,7 @@ def _insdemo_port(tmp_path):
 def test_insdemo_translates_every_insert_for_n_rows_with_no_holes(tmp_path):
     _estate, r, _port = _insdemo_port(tmp_path)
     assert r.stats["holes"] == []
-    assert r.java.count("DetSql.insertRows(") == 3
+    assert r.java.count("DetSql.insertRows(") == 5
 
 
 @pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
@@ -1199,8 +1224,8 @@ public class Main {
 """
 
 
-@pytest.mark.skipif(_jdk() is None, reason="no JDK (JDK_17 / JAVA_HOME)")
-def test_detsql_reads_a_rowset_and_sets_sqlerrd3_as_db2_does(tmp_path):
+def _run_detsql_main(tmp_path, main_java):
+    """Compile the det runtime beside `main_java` (ggtest.Main) with the JDK and return its stdout lines."""
     from javac_server import javac as javac_run
 
     rt = TOOLS.parent.parent / "gitgalaxy" / "tools" / "cobol_to_java" / "det" / "cobolrt"
@@ -1210,14 +1235,19 @@ def test_detsql_reads_a_rowset_and_sets_sqlerrd3_as_db2_does(tmp_path):
         for f in (rt / sub).glob("*.java"):
             text = f.read_text(encoding="utf-8").replace("__PACKAGE__", "ggtest")
             (src / "cobolrt" / sub / f.name).write_text(text, encoding="utf-8")
-    (src / "Main.java").write_text(_ROWSET_MAIN, encoding="utf-8")
+    (src / "Main.java").write_text(main_java, encoding="utf-8")
     jdk = _jdk()
     files = [str(p) for p in (tmp_path / "src").rglob("*.java")]
     javac = javac_run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"), *files],  # noqa: S603
                       capture_output=True, text=True, encoding="utf-8", check=False)  # fmt: skip
     assert javac.returncode == 0, javac.stderr[:3000]
-    out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "ggtest.Main"],  # noqa: S603
+    return subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "ggtest.Main"],  # noqa: S603
                          capture_output=True, text=True, encoding="utf-8", check=True).stdout.splitlines()  # fmt: skip
+
+
+@pytest.mark.skipif(_jdk() is None, reason="no JDK (JDK_17 / JAVA_HOME)")
+def test_detsql_reads_a_rowset_and_sets_sqlerrd3_as_db2_does(tmp_path):
+    out = _run_detsql_main(tmp_path, _ROWSET_MAIN)
     assert out == [
         "R1 2 code=0 rows=2 erd3=2",
         "R1 3 code=0 rows=3 erd3=3",  # rows 3, 4, 5: full
@@ -1227,4 +1257,85 @@ def test_detsql_reads_a_rowset_and_sets_sqlerrd3_as_db2_does(tmp_path):
         "R2 2 code=100 rows=0 erd3=0",  # no rows
         "refused 0",
         "refused 4",
+    ]
+
+
+_INSERT_ROWS_MAIN = """\
+package ggtest;
+
+import ggtest.cobolrt.Field;
+import ggtest.cobolrt.Storage;
+import ggtest.cobolrt.sql.DetSql;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+
+public class Main {
+    static final Charset CS = StandardCharsets.ISO_8859_1;
+    static final List<String> LOG = new ArrayList<>();
+
+    static int num(Field ca, int off) {
+        byte[] b = ca.storage().bytes;
+        return (b[off] & 0xFF) | (b[off + 1] & 0xFF) << 8 | (b[off + 2] & 0xFF) << 16 | b[off + 3] << 24;
+    }
+
+    static void go(String tag, long n, int failAt, boolean unit) {
+        Field ca = Field.group(new Storage(136), 0, 136);
+        Field cell = Field.group(new Storage(4), 0, 4);
+        Field[][] hosts = {{cell, cell, cell}};
+        int[] row = {0};
+        LOG.clear();
+        DetSql.unitOfWork(unit ? new DetSql.UnitOfWork() {
+            public void commit() {}
+            public void rollback() {}
+            public void execute(String sql) { LOG.add(sql); }
+        } : null);
+        try {
+            DetSql.insertRows(ca, "P:1", n, 3, "X", new String[] {"a"}, hosts, new Field[][] {null},
+                    p -> { if (++row[0] == failAt) throw new IllegalStateException(new java.sql.SQLException("duplicate", "23505", -803)); return 1; }, CS);
+            System.out.println(tag + " erd3=" + num(ca, 104) + " rows=" + row[0] + " " + LOG);
+        } catch (UnsupportedOperationException e) {
+            System.out.println(tag + " refused rows=" + row[0] + " " + LOG);
+        }
+        System.out.println(tag + " code=" + num(ca, 12));
+    }
+
+    public static void main(String[] a) {
+        go("ok3", 3, 0, true);
+        go("ok1", 1, 0, true);
+        go("fail1", 3, 1, true);
+        go("fail2", 3, 2, true);
+        go("fail3", 3, 3, true);
+        go("single", 1, 1, true);
+        go("nounit_fail1", 2, 1, false);
+        go("nounit_fail2", 2, 2, false);
+    }
+}
+"""
+
+
+@pytest.mark.skipif(_jdk() is None, reason="no JDK (JDK_17 / JAVA_HOME)")
+def test_detsql_insert_rows_undoes_the_rows_before_a_failing_one_with_a_savepoint(tmp_path):
+    sp = "SAVEPOINT GGINSROWS_UNDO ON ROLLBACK RETAIN CURSORS"
+    undo = "ROLLBACK TO SAVEPOINT GGINSROWS_UNDO"
+    rel = "RELEASE SAVEPOINT GGINSROWS_UNDO"
+    out = _run_detsql_main(tmp_path, _INSERT_ROWS_MAIN)
+    assert out == [
+        f"ok3 erd3=3 rows=3 [{sp}, {rel}]",  # a whole rowset: the savepoint released
+        "ok3 code=0",
+        "ok1 erd3=1 rows=1 []",  # one row needs no undo
+        "ok1 code=0",
+        f"fail1 erd3=0 rows=1 [{sp}, {undo}, {rel}]",  # the first row: nothing inserted
+        "fail1 code=-803",
+        f"fail2 erd3=0 rows=2 [{sp}, {undo}, {rel}]",  # row 2 of 3: row 1 undone, row 3 never run
+        "fail2 code=-803",
+        f"fail3 erd3=0 rows=3 [{sp}, {undo}, {rel}]",  # the last row: rows 1 and 2 undone
+        "fail3 code=-803",
+        "single erd3=0 rows=1 []",
+        "single code=-803",
+        "nounit_fail1 erd3=0 rows=1 []",  # no unit of work: the first row is Db2's error as before
+        "nounit_fail1 code=-803",
+        "nounit_fail2 refused rows=2 []",  # ... a later row is refused, never answered
+        "nounit_fail2 code=0",
     ]

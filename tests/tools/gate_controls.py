@@ -40,8 +40,9 @@ GATES = (
          f"{HERE}::test_ruff_audit_fails_on_format_alone", required=True),
     Gate("mypy-audit", "mypy-audit.yml", "new type errors beyond the baseline",
          f"{HERE}::test_mypy_audit_fails_on_a_new_error", required=True, open_gap="only reads gitgalaxy/"),
-    Gate("full-suite", "smoke-test.yml", "the pytest suite", required=True,
-         open_gap="aggregator shell untested; a plan can narrow or skip the suite"),
+    Gate("full-suite", "smoke-test.yml", "the pytest suite",
+         "tests/tools/test_full_suite_control.py::test_a_part_that_did_not_pass_fails_the_check_whatever_the_skip_proofs_say",
+         required=True, open_gap="a plan can narrow or skip the suite on a PR, and it still reads green"),
     Gate("det", "det-sweep.yml", "a det port stops proving, or a baselined case now proves",
          "tests/cobol_mainframe/test_proof_sweep.py::test_unexpected_failures_and_stale_entries_are_named", required=True,
          open_gap="the job's shell exits 0 when the plan finds nothing to prove"),
@@ -99,7 +100,7 @@ GATES = (
 NOT_GATES = {"dependabot-relock.yml": "refreshes dependency locks on Dependabot PRs"}
 
 # The ratchet: this only goes down. Raising it means a gate lost its proof, or one was added without one.
-MAX_UNPROVEN = 21
+MAX_UNPROVEN = 20
 
 
 def unproven() -> list[Gate]:

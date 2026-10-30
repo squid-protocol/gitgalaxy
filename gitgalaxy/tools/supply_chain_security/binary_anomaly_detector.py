@@ -35,6 +35,8 @@ from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
 MAX_DENSE_SCAN_BYTES = 5_000_000
 ENCODED_RUN = re.compile(rb"[A-Za-z0-9+/_-]{256,}={0,2}")  # a long unbroken encoded run: no backtracking in one class
+# A declared data: URI, percent-escapes included: an embedded icon is ordinary CSS and HTML, not a hidden payload.
+DATA_URI = re.compile(rb"data:[\w/+.-]{1,80};base64,[A-Za-z0-9+/=_%-]*")
 DENSE_RUN_ENTROPY = 5.0  # base64 of random data reads about 5.9; identifiers and hex stay under 4.5
 
 
@@ -49,10 +51,7 @@ def _dense_run(path: Path, head: bytes) -> bool:
     of each file, so without this a large payload on one line, or past 8 KB, is never measured (#7187)."""
     if b"\0" in head or path.stat().st_size > MAX_DENSE_SCAN_BYTES:
         return False
-    raw = path.read_bytes()
-    for match in ENCODED_RUN.finditer(raw):
-        if raw[max(0, match.start() - 7) : match.start()] == b"base64,":
-            continue  # a declared data: URI. An embedded icon is ordinary CSS and HTML, not a hidden payload
+    for match in ENCODED_RUN.finditer(DATA_URI.sub(b"", path.read_bytes())):
         sample = match.group(0)[:4096]
         entropy = -sum(n / len(sample) * math.log2(n / len(sample)) for n in Counter(sample).values())
         if entropy > DENSE_RUN_ENTROPY:

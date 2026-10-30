@@ -115,6 +115,8 @@ def test_a_large_payload_after_the_first_8_kb_fails(tmp_path, monkeypatch):
 def test_an_embedded_data_uri_is_not_a_payload(tmp_path, monkeypatch):
     css = b"a{background:url(data:image/svg+xml;base64," + LARGE[11:-3] + b")}\n"
     assert _scan(tmp_path, monkeypatch, {"src/theme.css": css}) == 0  # reveal.css and Zig's docs in the golden corpus
+    escaped = css.replace(LARGE[400:403], b"%2B")  # a percent-escape splits the run, as reveal.css does
+    assert _scan(tmp_path, monkeypatch, {"src/escaped.css": escaped}) == 0
 
 
 def test_a_long_low_entropy_run_is_not_a_payload(tmp_path, monkeypatch):

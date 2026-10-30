@@ -350,3 +350,18 @@ def test_owner_pointers_for_bll_picture_n_and_procedure_pointers_and_reowner():
     res = {"gaps": [{"gap": "SET TO ENTRY: procedure / function pointers are not modelled", "owner": "unowned"}]}
     assert gp.reowner(res)["gaps"][0]["owner"] == "#5106"
     assert gp.reowner(res) == res
+
+
+# ---- the committed census aggregate (#5865): readable by name-free invariants, whatever the census run counted ----
+def test_committed_census_summary_is_name_free_and_consistent():
+    c = json.loads(gp.CENSUS_SUMMARY.read_text(encoding="utf-8"))
+    assert c["format"] == gp.FORMAT
+    assert c["estates"] and all(re.fullmatch(r"census-[0-9a-f]{6}", e) for e in c["estates"])
+    assert sum(c["by_era_programs"].values()) == c["programs"]
+    for g in c["gaps"]:
+        assert re.fullmatch(r"[A-Za-z0-9 :<>/(),.+-]{1,90}", g["gap"]), g["gap"]  # no path, quote or long literal
+        assert sum(g["by_era"].values()) == g["programs"] and g["estates"] <= len(c["estates"])
+        assert g["owner"] and g["status"]
+    ranks = [(-g["estates"], -g["programs"]) for g in c["gaps"]]
+    assert ranks == sorted(ranks)  # highest estate coverage first
+    assert all(x["whole"] <= c["programs"] for x in c["coverage_if_closed"])

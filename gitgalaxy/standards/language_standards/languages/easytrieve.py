@@ -21,6 +21,14 @@ _HLASM_OPS = (
 )
 _HLASM_PRINT_OPS = r"NOGEN|GEN|ON|OFF|DATA|NODATA|MCALL|NOMCALL|MSUMMARY|NOMSUMMARY|UHEAD|NOUHEAD|" + _HLASM_OPS
 
+# #7064: NASM / C-preprocessor `%` directives share the Easytrieve `%name` macro-call shape; a `.mac` holding them is NASM.
+_NASM_COND = r"n?(?:def|ctx|idni?|macro|num|str|id|token|env|using)"
+_NASM_DIRECTIVES = (
+    rf"macro|imacro|unmacro|endmacro|exitmacro|define|xdefine|idefine|undef|assign|iassign|defstr|deftok|include|"
+    rf"if(?:{_NASM_COND})?|elif(?:{_NASM_COND})?|else|endif|rep|endrep|exitrep|push|pop|rotate|line|error|"
+    r"warning|pragma|strlen|substr|local|arg|stacksize|use|depend|pathsearch|clear"
+)
+
 DEFINITION: dict[str, Any] = {
     "_meta": {
         "target_version": "Easytrieve Plus / FOCUS",
@@ -43,7 +51,7 @@ DEFINITION: dict[str, Any] = {
         rf"(?:REPORT|PROC|SORT)[ \t]+(?!(?:{_HLASM_OPS})\b)[A-Za-z0-9_-]+|"
         r"MACRO[ \t]+(?:&|[0-9]+\b|[A-Za-z0-9_-]+)|"
         r"(?:END-PROC|END-MACRO|END-JOB|END-REPORT|END-IF|END-DO|END-CASE)\b|"
-        r"%[A-Za-z0-9_-]+"
+        rf"%(?![0-9]|(?:{_NASM_DIRECTIVES})\b)[A-Za-z0-9_-]+"
         r")",
         re.M | re.I,
     ),

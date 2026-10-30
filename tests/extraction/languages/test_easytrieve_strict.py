@@ -179,6 +179,28 @@ def test_easytrieve_internal_discriminator_strict():
     assert not disc.search("         PRINT NOGEN")
     assert not disc.search("         PRINT GEN")
 
+    # #7064: NASM / preprocessor `%` directives are not Easytrieve macro calls
+    for directive in (
+        "%macro proc 1",
+        "%MACRO proc 1",
+        "%endmacro",
+        "%define X 1",
+        "%xdefine X 1",
+        "%include 'a.inc'",
+        "%ifdef X",
+        "%ifndef X",
+        "%ifnidni a, b",
+        "%elifdef X",
+        "%else",
+        "%endif",
+        "%rep 4",
+        "%endrep",
+        "%assign i 1",
+        "%1:",
+    ):
+        assert not disc.search(directive), directive
+    assert disc.search("%MACROX 1")  # a name that merely starts with a directive word
+
     # ReDoS immunity
     assert_redos_immune(disc, "   " * 10000)
     assert_redos_immune(disc, "FILE " + "A" * 100000)

@@ -369,3 +369,15 @@ is no real COBOL/PL/I member count here. No burned-estate program needs this.
 
 **Remaining slices:** JCL `jcl`/`cntl`/`proclib` (the JCL discriminator already proves the content; one key in `jcl.py` plus a pin,
 left only for the 5-file limit); NASM/troff `.mac` in `easytrieve` and DSP in `plaintext`; `fragile_debt`/`planned_debt` (moves the golden).
+
+### Addendum (2026-10-30e, #7064): NASM `.mac` no longer routes to easytrieve
+
+Cause: easytrieve's `internal_discriminator` ends in a bare `%name` branch (Easytrieve macro call), which NASM's `%macro`,
+`%endmacro`, `%define`, `%include`, `%if*`, `%rep` and `%1:` all match. The branch now refuses a digit and the NASM /
+preprocessor directive words (word-bounded, so `%MACROX` and `%MSTFILE` still match). A NASM `.mac` now lands in `plaintext`
+(no language owns it); pinned for each directive, upper and lower case, `.mac`/`.MAC` in `test_nasm_mac_files_route_to_no_mainframe_language`
+and `test_easytrieve_internal_discriminator_strict`.
+
+**Not done (sibling gaps):** the 4 FreeBSD troff `.mac` files that routed `easytrieve` at probe time are not held on this checkout, so
+the line that matches is unconfirmed (a synthetic troff file already routes `plaintext`); DSP and MASM `.mac` stay `plaintext` on purpose
+(no owning language). No burned-estate program needs any of these.

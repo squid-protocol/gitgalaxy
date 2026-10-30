@@ -44,11 +44,16 @@ def test_a_path_in_the_area_runs(path):
         "tests/tools/test_shepherd_gh.py",
         "tests/tools/box/heavy-run.sh",
         ".github/workflows/rosetta-audit.yml",
-        "tests/tools/rosetta_audit.py",
     ],
 )
 def test_a_path_outside_the_area_does_not(path):
     assert plan([path])["mode"] == "none"
+
+
+def test_a_tools_module_a_ground_truth_test_reaches_by_name_is_in_the_area():
+    # rosetta_audit.py is named by rule_probe, which embedded_verb_coverage names, which test_eib_scans_5126 names:
+    # an over-run is the safe answer, so it is not a "path outside the area" (it was one before that test landed)
+    assert plan(["tests/tools/rosetta_audit.py"])["mode"] == "run"
 
 
 def test_a_test_tool_the_cobol_tests_reach_runs():

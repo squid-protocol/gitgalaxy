@@ -298,5 +298,42 @@
  ],
  "programs": 129,
  "scope": "burned estates",
+ "shapes": [
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "gaps": [
+    "<name> ADDRESS OF <name>: not an item of <name> or LINKAGE",
+    "CEEHDLR: registering an LE user condition handler is not modelled",
+    "CEEHDLU: unregistering an LE user condition handler is not modelled",
+    "EPSCSMRI: no service of its own, its translation is refused: epscsmrd.cbl:N: the PICTURE N (\u2026) is not modelled (\u2026): the translator reads one byte a character",
+    "EPSCSMRO: no service of its own, its translation is refused: OS/VS COBOL BLL addressing: SERVICE LABEL (\u2026): not modelled",
+    "EXEC CICS GETMAIN without INITIMG: IBM gives acquired storage no default contents",
+    "EXEC CICS SOAPFAULT CREATE",
+    "SET TO ENTRY: procedure / function pointers are not modelled"
+   ],
+   "programs": 1
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 2,
+    "4": 0,
+    "none": 0
+   },
+   "gaps": [
+    "<name>: <name> is not defined in a record of file <name>"
+   ],
+   "programs": 2
+  }
+ ],
  "whole_now": 126
 }

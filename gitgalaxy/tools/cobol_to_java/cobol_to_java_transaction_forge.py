@@ -985,10 +985,14 @@ CICS_TASK_JAVA += """\
 
     /** GETMAIN SET(ptr) FLENGTH(n) | LENGTH(n) INITIMG(byte) (IBM CICS TS, EXEC CICS GETMAIN; register X47): {resp, resp2,
      *  handle}. LENGERR 1 for FLENGTH below 1 or a LENGTH of zero (the handle is then 0, "ptr-ref is set to zero"). Refused:
-     *  a length above the limit (IBM's NOSTG), a LENGTH above 65520. `halfword`: the LENGTH form. */
+     *  a length above the limit (IBM's NOSTG), a LENGTH above 65520, no INITIMG (initimg -1) for a valid length: IBM gives the
+     *  storage no default contents. `halfword`: the LENGTH form. */
     public long[] getmain(long length, boolean halfword, int initimg) {
         if (length < 1) {
             return new long[] {22, 1, 0};
+        }
+        if (initimg < 0) {
+            throw refused("GETMAIN without INITIMG acquired storage");
         }
         if (length > 268435456L || (halfword && length > 65520)) {
             throw refused("GETMAIN length beyond the limit");

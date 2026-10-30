@@ -506,8 +506,10 @@ def _getmain(opts: dict[str, str | None], labels: list[str] | None) -> list[str]
         raise Unsupported(_rule(key, "required", "SET"), [key])
     if ("FLENGTH" in opts) == ("LENGTH" in opts):
         raise Unsupported(_rule(key, "one_of", "FLENGTH"), [key])
-    if not opts.get("INITIMG"):
-        raise Unsupported(_rule(key, "required", "INITIMG"), [key])
+    if not opts.get(
+        "INITIMG"
+    ):  # #6876: the det port answers LENGERR / refuses at run time; the stub's GGCGETM does not yet
+        raise Unsupported("GETMAIN without INITIMG: IBM gives acquired storage no default contents", [key])
     if "USERDATAKEY" in opts and "CICSDATAKEY" in opts:
         raise Unsupported(_rule(key, "at_most_one", "USERDATAKEY"), [key])
     form = "FLENGTH" if "FLENGTH" in opts else "LENGTH"

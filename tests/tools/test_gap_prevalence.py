@@ -491,5 +491,52 @@ def test_render_opens_each_scope_with_the_headline(rows_and_inv):
     burned = gp.measure(rows, d)
     census = gp.measure_census({(CENSUS[0], "p.cbl"): row("line 1: EXEC CICS: GETMAIN not modelled")}, {})
     page = gp.render(burned, census)
-    assert page.count("Coverage if closed, programs that translate whole") == 2
+    assert page.count("Coverage if closed, programs that translate whole") == 3  # all estates, burned, census
     assert page.index("Coverage if closed, programs") < page.index("| top N gaps closed |")
+
+
+def test_shapes_account_for_every_program_with_a_gap(rows_and_inv):
+    rows, d = rows_and_inv
+    res = gp.measure(rows, d)
+    assert sum(s["programs"] for s in res["shapes"]) == res["programs"] - res["whole_now"]
+    assert all(sum(s["by_era"].values()) == s["programs"] and s["gaps"] == sorted(s["gaps"]) for s in res["shapes"])
+    clean = gp.rank([(A, "1", set())], "burned estates")
+    assert "shapes" not in clean  # added only when non-empty
+
+
+def test_combined_coverage_is_the_per_scope_wholes_added_for_one_closed_set():
+    b = gp.rank([(A, "1", {"x"}), (A, "2", {"x", "y"}), (A, "1", set())], "b")
+    c = gp.rank(
+        [("census-1", "2", {"x"}), ("census-2", "none", {"refused: LayoutError"}), ("census-2", "3", set())], "c"
+    )
+    both = gp.combined_coverage(b, c, top=(1, 2))
+    assert (both["programs"], both["whole_now"]) == (6, 2)
+    ranked = [g["gap"] for g in gp.combine(b, c)]
+    for step in both["coverage_if_closed"]:
+        picked = set(ranked[: step["top"]])
+        expect = sum(
+            r["whole_now"] + sum(s["programs"] for s in r.get("shapes", []) if set(s["gaps"]) <= picked) for r in (b, c)
+        )
+        assert step["whole"] == expect
+    assert both["coverage_if_closed"][0]["top"] == 1
+    assert both["close_next"][0]["gap"] == "x" and both["close_next"][0]["gained"] == 1 + 1
+
+
+def test_committed_combined_coverage_adds_the_two_scopes_and_is_rendered():
+    b = json.loads(gp.SUMMARY.read_text(encoding="utf-8"))
+    c = json.loads(gp.CENSUS_SUMMARY.read_text(encoding="utf-8"))
+    both = gp.combined_coverage(b, c)
+    assert both["programs"] == b["programs"] + c["programs"]
+    assert both["whole_now"] == b["whole_now"] + c["whole_now"]
+    for scope in (b, c):  # one gap closed for everyone can only make as many whole as the scopes' own sums allow
+        assert sum(s["programs"] for s in scope["shapes"]) == scope["programs"] - scope["whole_now"]
+    shares = [s["whole"] for s in both["coverage_if_closed"]]
+    assert shares == sorted(shares)
+    page = gp.render(b, c)
+    assert page.count("Coverage if closed, programs that translate whole") == 3
+    assert (
+        gp.render(b, {k: v for k, v in c.items() if k != "shapes"}).count(
+            "Coverage if closed, programs that translate whole"
+        )
+        == 2
+    )

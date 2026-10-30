@@ -1841,13 +1841,16 @@ def test_getmain_and_freemain_work_on_task_storage_through_a_pointer():
     assert out[1] == "OUTCOME(storage1[0], storage1[1]);"
     out = _PtrCics().command("GETMAIN SET(PTR) LENGTH(100) INITIMG(INIT) USERDATAKEY BELOW", "")
     assert out[0] == "int[] storage1 = DetCics.getmain(task, f_PTR, INT(100), true, f_INIT);"
+    out = _PtrCics().command("GETMAIN SET(PTR) FLENGTH(N) RESP(R)", "")  # #6876: no INITIMG, no default contents
+    assert out[0] == "long[] storage1g = task.getmain(INT(N), false, -1);"
+    assert out[1] == "DetCics.setPointer(f_PTR, storage1g[2]);"
+    assert out[2] == "int[] storage1 = new int[] {(int) storage1g[0], (int) storage1g[1]};"
     out = _PtrCics().command("FREEMAIN DATAPOINTER(PTR) RESP(R)", "")
     assert out == ["int[] storage1 = task.freemain(DetCics.pointerValue(f_PTR));", "OUTCOME(storage1[0], storage1[1]);"]
     for bad, why in (
         ("GETMAIN FLENGTH(N) INITIMG(INIT)", "without SET"),
         ("GETMAIN SET(PTR) INITIMG(INIT)", "one of FLENGTH / LENGTH"),
         ("GETMAIN SET(PTR) FLENGTH(N) LENGTH(N) INITIMG(INIT)", "one of FLENGTH / LENGTH"),
-        ("GETMAIN SET(PTR) FLENGTH(N)", "without INITIMG"),
         ("GETMAIN SET(PTR) FLENGTH(N) INITIMG(X'00')", "INITIMG as a literal"),
         ("GETMAIN SET(PTR) FLENGTH(N) INITIMG(TWO)", "INITIMG is not one byte"),
         ("GETMAIN SET(PTR) FLENGTH(N) INITIMG(INIT) USERDATAKEY CICSDATAKEY", "both USERDATAKEY and CICSDATAKEY"),

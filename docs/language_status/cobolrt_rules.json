@@ -3193,6 +3193,28 @@
    "calibration": "uncalibrated"
   },
   {
+   "id": "RT-SQL-SCROLL-POSITION",
+   "family": "SQL",
+   "title": "FETCH BEFORE / AFTER of an insensitive SCROLL cursor: parks it before the first row or after the last, SQLCODE 0, no row and no host variable touched",
+   "methods": [
+    "positionScroll"
+   ],
+   "ibm": {
+    "doc": "db2-codes",
+    "section": "SQLCODE -501"
+   },
+   "options": [],
+   "features": [
+    "sql_forms: FETCH",
+    "sql_forms: STATIC"
+   ],
+   "register": [
+    "Q4"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
    "id": "RT-SQL-ROWSET-FETCH",
    "family": "SQL",
    "title": "FETCH [NEXT] ROWSET FROM cursor FOR n ROWS INTO host-variable tables: up to n next rows, one table per column, SQLERRD(3) the rows read; a rowset that reaches the end holds fewer than n rows and is +100 (an n above the tables is refused)",

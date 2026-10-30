@@ -779,6 +779,7 @@ def test_a_facade_that_builds_its_own_task_fails_the_java_facade_side(tmp_path):
     """#4449: COMEN01C's port with a handleTransaction that runs runTask on a task of its own (not the region's):
     every runTask scenario still passes, every java-facade scenario is refused, and the case is not proven."""
     import json
+    import re
     import shutil
     import subprocess
 
@@ -787,10 +788,14 @@ def test_a_facade_that_builds_its_own_task_fails_the_java_facade_side(tmp_path):
     (port / "provenance.json").unlink()
     svc = port / "service" / "Comen01cService.java"
     text = svc.read_text(encoding="utf-8")
-    joined = '        CicsTask task = region.transaction(transid, request);\n        region.run(task, "COMEN01C", this::runTask);'
-    assert joined in text
-    svc.write_text(text.replace(joined, '        CicsTask task = new CicsTask(transid, "ENTER", request, null, '
-                                        "java.util.Map.of());\n        runTask(task);"), encoding="utf-8")  # fmt: skip
+    # both handleTransaction overloads (the DTO one and, since #4870, the byte-carrying one the harness prefers, #4965)
+    joined = re.compile(r'        CicsTask task = region\.transaction\(transid, request(?:, area)?\);\n'
+                        r'        region\.run\(task, "COMEN01C", this::runTask\);')  # fmt: skip
+    own_task = ('        CicsTask task = new CicsTask(transid, "ENTER", request, null, java.util.Map.of());\n'
+                "        runTask(task);")  # fmt: skip
+    mutated, n = joined.subn(lambda _: own_task, text)
+    assert n == 2
+    svc.write_text(mutated, encoding="utf-8")
     proc = subprocess.run([sys.executable, str(Path(eq.__file__)), "run", "carddemo-menu", "--port", str(port),  # noqa: S603
                            "--keep", str(tmp_path / "w")], capture_output=True, text=True, check=False)  # fmt: skip
     report = json.loads((tmp_path / "w" / "report.json").read_text())

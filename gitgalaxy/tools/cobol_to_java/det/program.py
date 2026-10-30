@@ -975,7 +975,9 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         gen.cics.push_handle = any(re.match(r"(?is)\s*EXEC\s+CICS\s+(PUSH|POP)\s+HANDLE\b", t) for t in execs)
         # #5126 (X64): EIBDS is set by a file control command only in a program that reads it (a port that never does
         # keeps its text)
-        gen.cics.eibds_read = C.reads_eibds(s.text for p in proc.paragraphs for s in S.walk(p.body) if s.kind != "EXEC")
+        plain = [s.text for p in proc.paragraphs for s in S.walk(p.body) if s.kind != "EXEC"]
+        gen.cics.eibds_read = C.reads_eibds(plain)
+        gen.cics.eibrcode_read = C.reads_eibrcode(plain)  # (#5126, X64: a file command then states a planned rcode)
     if gen.cics is not None:
         gen.dto_codecs = gen.cics
     elif project is not None:

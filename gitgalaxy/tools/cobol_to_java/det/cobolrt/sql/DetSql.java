@@ -420,6 +420,7 @@ public final class DetSql {
             }
         }
         OPEN.keySet().removeIf(c -> !HOLD.contains(c));
+        POS.keySet().retainAll(OPEN.keySet());
         CURRENT.clear();
     }
 
@@ -441,6 +442,7 @@ public final class DetSql {
             return;
         }
         OPEN.clear();
+        POS.clear();
         CURRENT.clear();
     }
 
@@ -465,7 +467,10 @@ public final class DetSql {
     }
 
     // ---- cursors --------------------------------------------------------------------------------------------
-    private static final Map<String, Iterator<Map<String, Object>>> OPEN = new HashMap<>();
+    // #4269: an open cursor is its result rows (read at OPEN) and a position: 0 before the first row, 1..n on a row,
+    // n + 1 after the last. FETCH [NEXT] steps it forward; a scroll cursor's orientations (fetchScroll) move it.
+    private static final Map<String, List<Map<String, Object>>> OPEN = new HashMap<>();
+    private static final Map<String, Integer> POS = new HashMap<>();
     private static final Map<String, Map<String, Object>> CURRENT = new HashMap<>();  // the row FETCH last returned
     private static final java.util.Set<String> HOLD = new java.util.HashSet<>();  // #4269: open cursors WITH HOLD
 
@@ -493,7 +498,8 @@ public final class DetSql {
             return;
         }
         try {
-            OPEN.put(cursor, query.get().iterator());
+            OPEN.put(cursor, query.get());
+            POS.put(cursor, 0);
             if (hold) {
                 HOLD.add(cursor);
             } else {
@@ -515,17 +521,65 @@ public final class DetSql {
         if (injected(ca, at, cs)) {
             return null;
         }
-        Iterator<Map<String, Object>> rows = OPEN.get(cursor);
+        List<Map<String, Object>> rows = OPEN.get(cursor);
         if (rows == null) {
             code(ca, -501, "24501", cs);
             return null;
         }
-        if (!rows.hasNext()) {
-            CURRENT.remove(cursor);  // after the last row: no current row
+        return moveTo(ca, cursor, rows, POS.get(cursor) + 1, cs);
+    }
+
+    /** FETCH of a scroll cursor with an orientation (#4269; IBM Db2 for z/OS SQL Reference, FETCH): `orientation` is
+     *  PRIOR, FIRST, LAST, CURRENT, ABSOLUTE (n a row number, a negative one counted from the last row) or RELATIVE
+     *  (n rows from the current position). The cursor is insensitive: its rows are those OPEN read. A move off either
+     *  end is +100 and leaves the cursor before the first row or after the last; FETCH CURRENT with no current row
+     *  is refused (Db2 for z/OS answers +231, Db2 for LUW +100: not the same answer on both). */
+    // [rule RT-SQL-SCROLL-FETCH]
+    public static Map<String, Object> fetchScroll(Field ca, String at, String cursor, String orientation, long n,
+                                                  Charset cs) {
+        reset(ca, cs);
+        if (injected(ca, at, cs)) {
+            return null;
+        }
+        List<Map<String, Object>> rows = OPEN.get(cursor);
+        if (rows == null) {
+            code(ca, -501, "24501", cs);
+            return null;
+        }
+        long size = rows.size();
+        long pos = POS.get(cursor);
+        long target;
+        switch (orientation) {
+            case "NEXT": target = pos + 1; break;
+            case "PRIOR": target = pos - 1; break;
+            case "FIRST": target = 1; break;
+            case "LAST": target = size; break;
+            case "CURRENT":
+                if (pos < 1 || pos > size) {
+                    throw new UnsupportedOperationException("EXEC SQL FETCH CURRENT at " + at + ": the cursor has no "
+                            + "current row (Db2 for z/OS +231, Db2 for LUW +100: not modelled)");
+                }
+                target = pos;
+                break;
+            case "ABSOLUTE": target = n > 0 ? n : n < 0 ? size + n + 1 : 0; break;
+            case "RELATIVE": target = pos + n; break;
+            default: throw new UnsupportedOperationException("EXEC SQL FETCH " + orientation + " not modelled");
+        }
+        return moveTo(ca, cursor, rows, Math.max(0, Math.min(target, size + 1)), cs);
+    }
+
+    /** The cursor positioned at `target` (0 .. n + 1): its row, or null and +100 when that is off either end. */
+    private static Map<String, Object> moveTo(Field ca, String cursor, List<Map<String, Object>> rows, long target,
+                                              Charset cs) {
+        int size = rows.size();
+        int pos = (int) Math.max(0, Math.min(target, size + 1));
+        POS.put(cursor, pos);
+        if (pos < 1 || pos > size) {
+            CURRENT.remove(cursor);  // before the first row or after the last: no current row
             code(ca, 100, "02000", cs);
             return null;
         }
-        Map<String, Object> row = rows.next();
+        Map<String, Object> row = rows.get(pos - 1);
         CURRENT.put(cursor, row);
         return row;
     }
@@ -570,6 +624,7 @@ public final class DetSql {
             return;
         }
         CURRENT.remove(cursor);
+        POS.remove(cursor);
         if (OPEN.remove(cursor) == null) {
             code(ca, -501, "24501", cs);
         }
@@ -578,6 +633,7 @@ public final class DetSql {
     /** A task's or a step's end: its cursors closed. */
     public static void closeAll() {
         OPEN.clear();
+        POS.clear();
         CURRENT.clear();
         HOLD.clear();
     }

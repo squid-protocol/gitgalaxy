@@ -90,21 +90,7 @@ jobs:
           path: gitgalaxy
           persist-credentials: false
 
-      # A PR runs the job only when it changes what the call graph is built or scored with; any other PR ends here.
-      - name: Scope
-        id: scope
-        env:
-          GH_TOKEN: ${{ github.token }}
-          PR: ${{ github.event.pull_request.number }}
-        run: |
-          if [ -z "$PR" ]; then echo "run=true" >> "$GITHUB_OUTPUT"; exit 0; fi
-          files=$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PR/files" --paginate -q '.[].filename')
-          hits=$(printf '%s\n' "$files" | grep -E '^(gitgalaxy/core/(detector|call_resolver)\.py|gitgalaxy/galaxyscope\.py|gitgalaxy/standards/language_standards/(_shared_patterns\.py|languages/(c|cpp)\.py)|tests/tools/doom_speedrun/(callgraph_oracle|doom_speedrun)\.py|tests/tools/doom_speedrun/callgraph_baseline\.json|tests/tools/clang_callgraph\.py|\.github/workflows/doom-rosetta\.yml)$' || true)
-          if [ -n "$hits" ]; then echo "run=true" >> "$GITHUB_OUTPUT"; echo "call-graph inputs changed:"; echo "$hits"
-          else echo "run=false" >> "$GITHUB_OUTPUT"; echo "no call-graph input changed: skipped"; fi
-
       - name: Setup Python
-        if: steps.scope.outputs.run == 'true'
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.12"
@@ -114,7 +100,6 @@ jobs:
             gitgalaxy/ci/requirements/*.txt
 
       - name: Install GitGalaxy
-        if: steps.scope.outputs.run == 'true'
         run: |
           cd gitgalaxy
           python -m pip install --require-hashes -r ci/requirements/bootstrap.txt

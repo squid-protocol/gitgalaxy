@@ -111,7 +111,14 @@ _FILE_VERBS = {
     "UNLOCK": "unlock",
 }
 _QUEUE_VERBS = {"WRITEQ": "write", "READQ": "read", "DELETEQ": "delete"}
-_CONTAINER_VERBS = {"PUT": "write", "GET": "read", "MOVE": "move", "DELETE": "delete"}
+_CONTAINER_VERBS = {
+    "PUT": "write",
+    "GET": "read",
+    "PUT64": "write",
+    "GET64": "read",
+    "MOVE": "move",
+    "DELETE": "delete",
+}
 _MAP_VERBS = {"SEND": "write", "RECEIVE": "read"}
 # The transfer verbs that can hand a channel on, and the operand naming who
 # receives it.

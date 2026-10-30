@@ -338,7 +338,7 @@
     "- **Known Shadow Routes:** `DELETE /items/{var}`, `DELETE /{var}`, `GET /`, `GET /Connection`, `GET /Content-Disposition`",
     "",
     "### ☢️ X-Ray & 🧱 Supply Chain Firewall",
-    "- **Binary Anomalies (X-Ray):** `69` (High entropy, packed payloads, or magic byte mismatches).",
+    "- **Binary Anomalies (X-Ray):** `63` (High entropy, packed payloads, or magic byte mismatches).",
     "- **Blacklisted Dependencies:** `0` explicitly banned packages imported.",
     "- **Unknown Dependencies:** `10645` packages imported that bypass the Zero-Trust whitelist.",
     "",

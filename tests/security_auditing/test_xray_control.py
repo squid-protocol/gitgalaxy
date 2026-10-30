@@ -104,9 +104,26 @@ def test_known_miss_xor_loop(tmp_path, monkeypatch):
     assert _scan(tmp_path, monkeypatch, {"src/a.py": XOR_LOOP}) == 1
 
 
-@pytest.mark.xfail(strict=True, reason="#7187: only the first 8 KB is read")
-def test_known_miss_a_payload_after_the_first_8_kb(tmp_path, monkeypatch):
-    assert _scan(tmp_path, monkeypatch, {"src/a.py": b"# padding\n" * 1000 + DENSE}) == 1
+def test_a_large_payload_on_one_line_fails(tmp_path, monkeypatch):
+    assert _scan(tmp_path, monkeypatch, {"src/a.py": LARGE}) == 1
+
+
+def test_a_large_payload_after_the_first_8_kb_fails(tmp_path, monkeypatch):
+    assert _scan(tmp_path, monkeypatch, {"src/a.py": b"# padding\n" * 1000 + LARGE}) == 1
+
+
+def test_a_long_low_entropy_run_is_not_a_payload(tmp_path, monkeypatch):
+    assert _scan(tmp_path, monkeypatch, {"src/a.py": b"# " + b"abcd" * 200 + b"\n"}) == 0
+
+
+@pytest.mark.parametrize("text", [b"# AMZN and MZ are just letters here\n", b"tickers = ['MZ', 'AMZN']\n"])
+def test_the_letters_mz_in_text_are_not_an_executable(text, tmp_path, monkeypatch):
+    assert _scan(tmp_path, monkeypatch, {"src/a.py": text}) == 0
+
+
+def test_a_real_windows_header_still_fails(tmp_path, monkeypatch):
+    plain = b"MZ\x90\x00" + b"\0" * 512  # no entropy to trip: only the header can fail this
+    assert _scan(tmp_path, monkeypatch, {"src/tool.txt": plain}) == 1
 
 
 @pytest.mark.xfail(strict=True, reason="#7187: .json and .yml skip the entropy check by design")
@@ -119,10 +136,3 @@ def test_known_miss_dense_data_in_a_bypassed_text_type(name, tmp_path, monkeypat
 @pytest.mark.parametrize("name", ["icon.ico", "bundle.tar"])
 def test_known_miss_an_executable_behind_a_type_with_no_known_header(name, tmp_path, monkeypatch):
     assert _scan(tmp_path, monkeypatch, {f"src/{name}": ELF}) == 1
-
-
-@pytest.mark.xfail(
-    strict=True, reason="#7187: SecurityLens empties lines of 250+ characters, so a long payload is never measured"
-)
-def test_known_miss_a_large_encoded_payload(tmp_path, monkeypatch):
-    assert _scan(tmp_path, monkeypatch, {"src/a.py": LARGE}) == 1

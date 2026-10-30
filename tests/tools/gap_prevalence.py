@@ -53,6 +53,7 @@ OWNERS: tuple[tuple[str, str], ...] = (
     (r"^missing copybook: Db2 system", "#4098 (Db2 det-port)"),
     (r"^missing copybook: IMS system", "#4893"),
     (r"^refused: (macro-level CICS|CICS Assembler)", "#5121"),
+    (r"^refused: LayoutDisagrees", "#6926"),
     (r"^EXEC DLI|CBLTDLI|\bDLI\b", "#4893"),
     (r"\bMQ[A-Z]*\b", "#4892"),
     (r"^EXEC SQL", "#4098 (Db2 det-port)"),
@@ -331,6 +332,39 @@ def table(res: dict[str, Any]) -> list[str]:
     return out
 
 
+def combine(burned: dict[str, Any], census: dict[str, Any]) -> list[dict[str, Any]]:
+    """One ranking over both scopes: estate labels never overlap, so estates, programs and eras add per gap key."""
+    merged: dict[str, dict[str, Any]] = {}
+    for scope, res in (("B", burned), ("C", census)):
+        for g in res["gaps"]:
+            m = merged.setdefault(
+                g["gap"],
+                {"gap": g["gap"], "scope": "", "estates": 0, "programs": 0, "by_era": dict.fromkeys(ERA_KEYS, 0)},
+            )
+            m["scope"] += ("+" if m["scope"] else "") + scope
+            m["estates"] += g["estates"]
+            m["programs"] += g["programs"]
+            for e in ERA_KEYS:
+                m["by_era"][e] += g["by_era"][e]
+    for m in merged.values():
+        m["status"], m["owner"] = status_of(m["gap"]), owner_of(m["gap"])
+    return sorted(merged.values(), key=lambda d: (-d["estates"], -d["programs"], d["gap"]))
+
+
+def combined_table(gaps: list[dict[str, Any]]) -> list[str]:
+    out = [
+        "| gap | scope | estates | programs | e0 | e1 | e2 | e3 | e4 | none | status | owner |",
+        "|---|---|---|---|---|---|---|---|---|---|---|---|",
+    ]
+    for g in gaps:
+        eras = " | ".join(str(g["by_era"][e]) for e in ERA_KEYS)
+        out.append(
+            f"| `{g['gap'].replace('|', '/')}` | {g['scope']} | {g['estates']} | {g['programs']} | {eras} "
+            f"| {g['status']} | {g['owner']} |"
+        )
+    return out
+
+
 def render(res: dict[str, Any], census: dict[str, Any] | None = None) -> str:
     out = [
         "---",
@@ -345,6 +379,19 @@ def render(res: dict[str, Any], census: dict[str, Any] | None = None) -> str:
         "the inventory's era tag (#5117); `none` = no tell. A status of *refused by name* stops the whole program, so "
         "its coverage is an upper bound; the owner is a pointer to the issue or epic, not a status.",
         "",
+        *(
+            [
+                f"## All estates ({len(res['estates']) + len(census['estates'])} estates: burned B, census C)",
+                "",
+                "One ranking over both scopes, highest estate coverage first; estates and programs add across scopes. "
+                "Coverage if closed is per scope below.",
+                "",
+                *combined_table(combine(res, census)),
+                "",
+            ]
+            if census
+            else []
+        ),
         f"## Burned estates ({len(res['estates'])} estates, {res['programs']} programs, {res['whole_now']} "
         "translate whole today)",
         "",

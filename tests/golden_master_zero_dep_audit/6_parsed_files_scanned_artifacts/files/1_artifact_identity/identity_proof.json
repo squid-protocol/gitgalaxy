@@ -1769,7 +1769,7 @@
       "hlasm/che4z_hlasm/A.hlasm": "Single Indicator (Ext: .hlasm)",
       "hlasm/che4z_hlasm/AAAAA.hlasm": "Absolute Consensus (Ext + Internal Signature)",
       "hlasm/che4z_hlasm/B.hlasm": "Single Indicator (Ext: .hlasm)",
-      "hlasm/che4z_hlasm/BBBBB.hlasm": "Single Indicator (Ext: .hlasm)",
+      "hlasm/che4z_hlasm/BBBBB.hlasm": "Absolute Consensus (Ext + Internal Signature)",
       "hlasm/che4z_hlasm/CCCCC.hlasm": "Single Indicator (Ext: .hlasm)",
       "hlasm/che4z_hlasm/NOTICE.md": "Prose Extension (.md)",
       "hlasm/che4z_hlasm/code_action_1.hlasm": "Single Indicator (Ext: .hlasm)",
@@ -1777,12 +1777,12 @@
       "hlasm/che4z_hlasm/comments.hlasm": "Single Indicator (Ext: .hlasm)",
       "hlasm/che4z_hlasm/factorial.hlasm": "Absolute Consensus (Ext + Internal Signature)",
       "hlasm/che4z_hlasm/forward_dependency.hlasm": "Single Indicator (Ext: .hlasm)",
-      "hlasm/che4z_hlasm/infinite.hlasm": "Absolute Consensus (Ext + Internal Signature)",
-      "hlasm/che4z_hlasm/output.hlasm": "Single Indicator (Ext: .hlasm)",
+      "hlasm/che4z_hlasm/infinite.hlasm": "Single Indicator (Ext: .hlasm)",
+      "hlasm/che4z_hlasm/output.hlasm": "Absolute Consensus (Ext + Internal Signature)",
       "hlasm/che4z_hlasm/remote.hlasm": "Single Indicator (Ext: .hlasm)",
       "hlasm/che4z_hlasm/remote2.hlasm": "Single Indicator (Ext: .hlasm)",
-      "hlasm/che4z_hlasm/tutorial.hlasm": "Single Indicator (Ext: .hlasm)",
-      "hlasm/che4z_hlasm/virtual_file.hlasm": "Absolute Consensus (Ext + Internal Signature)"
+      "hlasm/che4z_hlasm/tutorial.hlasm": "Absolute Consensus (Ext + Internal Signature)",
+      "hlasm/che4z_hlasm/virtual_file.hlasm": "Single Indicator (Ext: .hlasm)"
     },
     "hlasm/zecs": {
       "hlasm/zecs/ZECS002.asm": "Single Indicator (Internal Signature)",

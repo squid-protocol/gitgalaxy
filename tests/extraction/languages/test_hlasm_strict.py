@@ -322,6 +322,54 @@ def test_asm_extension_with_masm_equ_stays_assembly():
     assert lang == "assembly", f"MASM file with EQU must keep resolving to assembly (got {lang!r})"  # noqa: S101
 
 
+# #7064: ARM armasm shares MACRO..MEND and LTORG with HLASM; `.mac` is NASM / MASM / troff macro files as often as HLASM.
+_ARMASM64 = (
+    "        TTL  arm64 helpers\n"
+    "        MACRO\n"
+    "        LEAF_ENTRY $name\n"
+    "        AREA |.text|,ALIGN=2,CODE,READONLY\n"
+    "$name\n"
+    "        MEND\n"
+    "        LEAF_ENTRY GcProbe\n"
+    "        stp fp, lr, [sp, #-16]!\n"
+    "        ldr x0, =GcProbeData\n"
+    "        add x1, x0, #8\n"
+    "        cbz x1, done\n"
+    "        bl  RhpGcPoll\n"
+    "        ldp fp, lr, [sp], #16\n"
+    "        ret\n"
+    "        LTORG\n"
+    "        END\n"
+)
+_HLASM_MACRO_ONLY = "         MACRO\n&NAME    ASMWAIT &B\n         STIMER WAIT,BINTVL=&B\n         MEND\n"
+_HLASM_MACRO_CRLF = "    MACRO\r\n    MAC &VAR,&VAR2\r\n    LR &VAR,R2\r\n    MEND\r\n"
+_HLASM_CONDASM = "&N       SETA  3\n.LOOP    AIF   (&N EQ 0).DONE\n.DONE    ANOP\n"
+_NASM_MAC = "; nasm macros\n%macro  proc 1\n%1:\n  push ebp\n%endmacro\n"
+_MASM_MAC = "PUSHALL MACRO\n   push ax\n   push bx\nENDM\n\nPOPALL macro\n  pop bx\nendm\n"
+_DSP_MAC = '; DSP\nname "emu"\nGPR a,b,c\nmacs a, b, c, d\nEND\n'
+
+
+def test_armasm_mend_and_ltorg_do_not_lock_hlasm():
+    assert not HLASM["internal_discriminator"].search(_ARMASM64)
+    detector = LanguageDetector(LANGUAGE_DEFINITIONS, {})
+    assert detector.focus("src/arm64/GcProbe.asm", _ARMASM64)[0] == "assembly"
+
+
+@pytest.mark.parametrize("text", [_HLASM_MACRO_ONLY, _HLASM_MACRO_CRLF, _HLASM_CONDASM])
+def test_hlasm_macro_members_still_prove_hlasm_without_csect(text):
+    assert HLASM["internal_discriminator"].search(text)
+    detector = LanguageDetector(LANGUAGE_DEFINITIONS, {})
+    assert detector.focus("lib/MEMBER.asm", text)[0] == "hlasm"
+    assert detector.focus("maclib/MEMBER.mac", text)[0] == "hlasm"
+
+
+@pytest.mark.parametrize("text", [_NASM_MAC, _MASM_MAC, _DSP_MAC])
+def test_mac_files_with_no_hlasm_evidence_are_not_hlasm(text):
+    assert ".mac" in HLASM["extensions_needing_discriminator"]
+    detector = LanguageDetector(LANGUAGE_DEFINITIONS, {})
+    assert detector.focus("macros/other.mac", text)[0] != "hlasm"
+
+
 # ==============================================================================
 # TEST 4: LEXICAL-FAMILY SANITY (Step 4 item 8), through the real Prism
 # ==============================================================================

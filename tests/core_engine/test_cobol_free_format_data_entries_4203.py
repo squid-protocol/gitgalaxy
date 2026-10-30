@@ -26,12 +26,18 @@ from __future__ import annotations
 
 import pytest
 
-from gitgalaxy.core.detector import StructuralExtractor
+from gitgalaxy.core.detector import COBOL_MAIN_LINE_SHAPE, StructuralExtractor
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
 
+def _functions(code: str) -> list[dict]:
+    return StructuralExtractor("cobol", LANGUAGE_DEFINITIONS).splice(code, "")["functions"]
+
+
 def _units(code: str) -> list[str]:
-    return [f["name"] for f in StructuralExtractor("cobol", LANGUAGE_DEFINITIONS).splice(code, "")["functions"]]
+    """Paragraph and section units: #7170's main lines (def_shape 'main_line', named after the PROGRAM-ID) are
+    pinned separately below."""
+    return [f["name"] for f in _functions(code) if f.get("def_shape") != COBOL_MAIN_LINE_SHAPE]
 
 
 def _func_start_count(code: str) -> int:
@@ -133,6 +139,15 @@ FIXED_FORMAT = (
 )
 def test_free_format_data_entries_are_not_units(code: str, expected: list[str], why: str):
     assert _units(code) == expected, why
+
+
+def test_sibling_programs_main_lines_are_their_programs_not_data_items():
+    # #7170: each sibling program's PROCEDURE DIVISION code is its main line, named after its PROGRAM-ID and spanning
+    # the division header to GOBACK; none of the LINKAGE / WORKING-STORAGE data names becomes a unit.
+    mains = [(f["name"], f["start_line"], f["end_line"]) for f in _functions(SIBLING_PROGRAMS)
+             if f.get("def_shape") == COBOL_MAIN_LINE_SHAPE]  # fmt: skip
+    assert mains == [("FACING-GETRELATIVE", 11, 16), ("DECODE-INT", 32, 34)]
+    assert not {f["name"] for f in _functions(SIBLING_PROGRAMS)} & {"LK-FACING", "LK-POSITION", "LK-X", "LK-Y", "LK-VALUE"}
 
 
 @pytest.mark.parametrize(

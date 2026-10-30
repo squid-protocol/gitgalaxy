@@ -2573,7 +2573,8 @@
    "case": "fde2c9df8553efcc72013c202c8f17af7b3b33b2ef0fd6f88756364d60a20157",
    "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
    "harness": "49c125fbe072e3d67aa0c601c9e2779350da3afb0dc5dc2889957000e1c3dd81",
-   "oracle": "a72339d492e955b0b5211d2f06f3af3a5d3abcb9bd7a9de93596fe16c46d34a7"
+   "oracle": "a72339d492e955b0b5211d2f06f3af3a5d3abcb9bd7a9de93596fe16c46d34a7",
+   "survivors": "2c7c76b97da8921c74f7c4bbd73903ba0443c9a43d2f23f39d0135a660350ed8"
   },
   "components": {
    "generator": {

@@ -259,8 +259,8 @@
    "line": 199,
    "before": "if (d == null) {",
    "after": "if (d != null) {",
-   "verdict": "harness-gap",
-   "reason": "runTask loads DFHCOMMAREA twice: from the DTO (in_AbndprocDfhcommarea) and from the LINK area's bytes (task.linkArea()); the harness hands ABNDPROC both, with the same bytes (probe: 16 runs, d != null and raw != null in all), so either load alone fills the 681 bytes and the mutant of one is covered by the other. A task given only a DTO (or only bytes) is not expressible in the case"
+   "verdict": "unreachable",
+   "reason": "in_AbndprocDfhcommarea is called only under ca instanceof AbndprocDfhcommarea, so d is never null; the guard body return is unreachable"
   },
   {
    "id": "526286d7be",
@@ -268,8 +268,8 @@
    "line": 199,
    "before": "if (d == null) {",
    "after": "if (!(d == null)) {",
-   "verdict": "harness-gap",
-   "reason": "runTask loads DFHCOMMAREA twice: from the DTO (in_AbndprocDfhcommarea) and from the LINK area's bytes (task.linkArea()); the harness hands ABNDPROC both, with the same bytes (probe: 16 runs, d != null and raw != null in all), so either load alone fills the 681 bytes and the mutant of one is covered by the other. A task given only a DTO (or only bytes) is not expressible in the case"
+   "verdict": "unreachable",
+   "reason": "in_AbndprocDfhcommarea is called only under ca instanceof AbndprocDfhcommarea, so d is never null; the guard body return is unreachable"
   },
   {
    "id": "3a7b1233ca",
@@ -286,8 +286,8 @@
    "line": 202,
    "before": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS);",
    "after": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 1, 15, 0, true), CS);",
-   "verdict": "harness-gap",
-   "reason": "runTask loads DFHCOMMAREA twice: from the DTO (in_AbndprocDfhcommarea) and from the LINK area's bytes (task.linkArea()); the harness hands ABNDPROC both, with the same bytes (probe: 16 runs, d != null and raw != null in all), so either load alone fills the 681 bytes and the mutant of one is covered by the other. A task given only a DTO (or only bytes) is not expressible in the case"
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
   },
   {
    "id": "75b8892b91",
@@ -295,8 +295,8 @@
    "line": 202,
    "before": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS);",
    "after": "/* Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS); */",
-   "verdict": "harness-gap",
-   "reason": "runTask loads DFHCOMMAREA twice: from the DTO (in_AbndprocDfhcommarea) and from the LINK area's bytes (task.linkArea()); the harness hands ABNDPROC both, with the same bytes (probe: 16 runs, d != null and raw != null in all), so either load alone fills the 681 bytes and the mutant of one is covered by the other. A task given only a DTO (or only bytes) is not expressible in the case"
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
   },
   {
    "id": "cdea3df381",
@@ -304,8 +304,8 @@
    "line": 202,
    "before": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS);",
    "after": "Cobol.move(d.getAbndUtimeKey() != null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS);",
-   "verdict": "harness-gap",
-   "reason": "runTask loads DFHCOMMAREA twice: from the DTO (in_AbndprocDfhcommarea) and from the LINK area's bytes (task.linkArea()); the harness hands ABNDPROC both, with the same bytes (probe: 16 runs, d != null and raw != null in all), so either load alone fills the 681 bytes and the mutant of one is covered by the other. A task given only a DTO (or only bytes) is not expressible in the case"
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
   },
   {
    "id": "c15c6af55c",
@@ -313,8 +313,8 @@
    "line": 203,
    "before": "Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 0, false, false, false), CS);",
    "after": "/* Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 0, false, false, false), CS); */",
-   "verdict": "harness-gap",
-   "reason": "runTask loads DFHCOMMAREA twice: from the DTO (in_AbndprocDfhcommarea) and from the LINK area's bytes (task.linkArea()); the harness hands ABNDPROC both, with the same bytes (probe: 16 runs, d != null and raw != null in all), so either load alone fills the 681 bytes and the mutant of one is covered by the other. A task given only a DTO (or only bytes) is not expressible in the case"
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
   },
   {
    "id": "d5d2e509d5",
@@ -322,8 +322,8 @@
    "line": 203,
    "before": "Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 0, false, false, false), CS);",
    "after": "Cobol.move(d.getAbndTasknoKey() != null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 0, false, false, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "runTask loads DFHCOMMAREA twice: from the DTO (in_AbndprocDfhcommarea) and from the LINK area's bytes (task.linkArea()); the harness hands ABNDPROC both, with the same bytes (probe: 16 runs, d != null and raw != null in all), so either load alone fills the 681 bytes and the mutant of one is covered by the other. A task given only a DTO (or only bytes) is not expressible in the case"
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
   },
   {
    "id": "763a818e43",
@@ -331,8 +331,8 @@
    "line": 204,
    "before": "Cobol.move(d.getAbndApplid() == null ? \"\" : d.getAbndApplid(), Field.alphanumeric(s, base + 12, 8, false), CS);",
    "after": "Cobol.move(d.getAbndApplid() != null ? \"\" : d.getAbndApplid(), Field.alphanumeric(s, base + 12, 8, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "runTask loads DFHCOMMAREA twice: from the DTO (in_AbndprocDfhcommarea) and from the LINK area's bytes (task.linkArea()); the harness hands ABNDPROC both, with the same bytes (probe: 16 runs, d != null and raw != null in all), so either load alone fills the 681 bytes and the mutant of one is covered by the other. A task given only a DTO (or only bytes) is not expressible in the case"
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
   },
   {
    "id": "09ff323296",
@@ -340,8 +340,8 @@
    "line": 205,
    "before": "Cobol.move(d.getAbndTranid() == null ? \"\" : d.getAbndTranid(), Field.alphanumeric(s, base + 20, 4, false), CS);",
    "after": "Cobol.move(d.getAbndTranid() != null ? \"\" : d.getAbndTranid(), Field.alphanumeric(s, base + 20, 4, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "runTask loads DFHCOMMAREA twice: from the DTO (in_AbndprocDfhcommarea) and from the LINK area's bytes (task.linkArea()); the harness hands ABNDPROC both, with the same bytes (probe: 16 runs, d != null and raw != null in all), so either load alone fills the 681 bytes and the mutant of one is covered by the other. A task given only a DTO (or only bytes) is not expressible in the case"
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
   },
   {
    "id": "45ccd8b5f7",
@@ -367,8 +367,8 @@
    "line": 207,
    "before": "Cobol.move(d.getAbndTime() == null ? \"\" : d.getAbndTime(), Field.alphanumeric(s, base + 34, 8, false), CS);",
    "after": "Cobol.move(d.getAbndTime() != null ? \"\" : d.getAbndTime(), Field.alphanumeric(s, base + 34, 8, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "runTask loads DFHCOMMAREA twice: from the DTO (in_AbndprocDfhcommarea) and from the LINK area's bytes (task.linkArea()); the harness hands ABNDPROC both, with the same bytes (probe: 16 runs, d != null and raw != null in all), so either load alone fills the 681 bytes and the mutant of one is covered by the other. A task given only a DTO (or only bytes) is not expressible in the case"
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
   },
   {
    "id": "3907d5c333",
@@ -376,8 +376,8 @@
    "line": 209,
    "before": "Cobol.move(d.getAbndProgram() == null ? \"\" : d.getAbndProgram(), Field.alphanumeric(s, base + 46, 8, false), CS);",
    "after": "Cobol.move(d.getAbndProgram() != null ? \"\" : d.getAbndProgram(), Field.alphanumeric(s, base + 46, 8, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "runTask loads DFHCOMMAREA twice: from the DTO (in_AbndprocDfhcommarea) and from the LINK area's bytes (task.linkArea()); the harness hands ABNDPROC both, with the same bytes (probe: 16 runs, d != null and raw != null in all), so either load alone fills the 681 bytes and the mutant of one is covered by the other. A task given only a DTO (or only bytes) is not expressible in the case"
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
   },
   {
    "id": "f4f08aa986",
@@ -394,8 +394,8 @@
    "line": 211,
    "before": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 0, true, true, true), CS);",
    "after": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 9, 0, true, true, true), CS);",
-   "verdict": "harness-gap",
-   "reason": "runTask loads DFHCOMMAREA twice: from the DTO (in_AbndprocDfhcommarea) and from the LINK area's bytes (task.linkArea()); the harness hands ABNDPROC both, with the same bytes (probe: 16 runs, d != null and raw != null in all), so either load alone fills the 681 bytes and the mutant of one is covered by the other. A task given only a DTO (or only bytes) is not expressible in the case"
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
   },
   {
    "id": "9d27dd8661",
@@ -403,8 +403,8 @@
    "line": 211,
    "before": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 0, true, true, true), CS);",
    "after": "Cobol.move(d.getAbndResp2Code() != null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 0, true, true, true), CS);",
-   "verdict": "harness-gap",
-   "reason": "runTask loads DFHCOMMAREA twice: from the DTO (in_AbndprocDfhcommarea) and from the LINK area's bytes (task.linkArea()); the harness hands ABNDPROC both, with the same bytes (probe: 16 runs, d != null and raw != null in all), so either load alone fills the 681 bytes and the mutant of one is covered by the other. A task given only a DTO (or only bytes) is not expressible in the case"
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
   },
   {
    "id": "231d1a8349",
@@ -412,8 +412,8 @@
    "line": 212,
    "before": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 0, true, true, true), CS);",
    "after": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 73, 8, 0, true, true, true), CS);",
-   "verdict": "harness-gap",
-   "reason": "runTask loads DFHCOMMAREA twice: from the DTO (in_AbndprocDfhcommarea) and from the LINK area's bytes (task.linkArea()); the harness hands ABNDPROC both, with the same bytes (probe: 16 runs, d != null and raw != null in all), so either load alone fills the 681 bytes and the mutant of one is covered by the other. A task given only a DTO (or only bytes) is not expressible in the case"
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
   },
   {
    "id": "a6e401d722",
@@ -421,8 +421,8 @@
    "line": 212,
    "before": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 0, true, true, true), CS);",
    "after": "Cobol.move(d.getAbndSqlcode() != null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 0, true, true, true), CS);",
-   "verdict": "harness-gap",
-   "reason": "runTask loads DFHCOMMAREA twice: from the DTO (in_AbndprocDfhcommarea) and from the LINK area's bytes (task.linkArea()); the harness hands ABNDPROC both, with the same bytes (probe: 16 runs, d != null and raw != null in all), so either load alone fills the 681 bytes and the mutant of one is covered by the other. A task given only a DTO (or only bytes) is not expressible in the case"
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
   },
   {
    "id": "e37f22976c",
@@ -430,8 +430,8 @@
    "line": 212,
    "before": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 0, true, true, true), CS);",
    "after": "/* Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 0, true, true, true), CS); */",
-   "verdict": "harness-gap",
-   "reason": "runTask loads DFHCOMMAREA twice: from the DTO (in_AbndprocDfhcommarea) and from the LINK area's bytes (task.linkArea()); the harness hands ABNDPROC both, with the same bytes (probe: 16 runs, d != null and raw != null in all), so either load alone fills the 681 bytes and the mutant of one is covered by the other. A task given only a DTO (or only bytes) is not expressible in the case"
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
   },
   {
    "id": "821ade5944",
@@ -439,8 +439,8 @@
    "line": 213,
    "before": "Cobol.move(d.getAbndFreeform() == null ? \"\" : d.getAbndFreeform(), Field.alphanumeric(s, base + 81, 600, false), CS);",
    "after": "Cobol.move(d.getAbndFreeform() != null ? \"\" : d.getAbndFreeform(), Field.alphanumeric(s, base + 81, 600, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "runTask loads DFHCOMMAREA twice: from the DTO (in_AbndprocDfhcommarea) and from the LINK area's bytes (task.linkArea()); the harness hands ABNDPROC both, with the same bytes (probe: 16 runs, d != null and raw != null in all), so either load alone fills the 681 bytes and the mutant of one is covered by the other. A task given only a DTO (or only bytes) is not expressible in the case"
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
   },
   {
    "id": "b20023c5e0",
@@ -448,8 +448,8 @@
    "line": 219,
    "before": "d.setAbndApplid(Cobol.text(Field.alphanumeric(s, base + 12, 8, false), CS));",
    "after": "d.setAbndApplid(Cobol.text(Field.alphanumeric(s, base + 12, 9, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "the DTO that fill_ stores back is not what the proof compares for a LINKed ABNDPROC: a 9-byte read of ABND-APPLID gives 'CBSAAPPLO' in the Java COMMAREA event and the proof still reports 2/2 events equal (probe of mutant b20023c5e0); ABNDPROC never writes DFHCOMMAREA, so the correct value is the one it was given"
+   "verdict": "equivalent",
+   "reason": "ABNDPROC never alters COMMAREA; fill_ setter writes back unchanged value already held in caller DTO"
   },
   {
    "id": "0bae7c34ee",
@@ -457,8 +457,8 @@
    "line": 223,
    "before": "d.setAbndCode(Cobol.text(Field.alphanumeric(s, base + 42, 4, false), CS));",
    "after": "d.setAbndCode(Cobol.text(Field.alphanumeric(s, base + 43, 4, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "the DTO that fill_ stores back is not what the proof compares for a LINKed ABNDPROC: a 9-byte read of ABND-APPLID gives 'CBSAAPPLO' in the Java COMMAREA event and the proof still reports 2/2 events equal (probe of mutant b20023c5e0); ABNDPROC never writes DFHCOMMAREA, so the correct value is the one it was given"
+   "verdict": "equivalent",
+   "reason": "ABNDPROC never alters COMMAREA; fill_ setter writes back unchanged value already held in caller DTO"
   },
   {
    "id": "e69b8d3266",
@@ -466,8 +466,8 @@
    "line": 225,
    "before": "d.setAbndRespcode(Cobol.num(Field.zoned(s, base + 54, 8, 0, true, true, true), CS).intValue());",
    "after": "d.setAbndRespcode(Cobol.num(Field.zoned(s, base + 54, 9, 0, true, true, true), CS).intValue());",
-   "verdict": "harness-gap",
-   "reason": "the DTO that fill_ stores back is not what the proof compares for a LINKed ABNDPROC: a 9-byte read of ABND-APPLID gives 'CBSAAPPLO' in the Java COMMAREA event and the proof still reports 2/2 events equal (probe of mutant b20023c5e0); ABNDPROC never writes DFHCOMMAREA, so the correct value is the one it was given"
+   "verdict": "equivalent",
+   "reason": "ABNDPROC never alters COMMAREA; fill_ setter writes back unchanged value already held in caller DTO"
   },
   {
    "id": "d65cd6d9db",
@@ -475,8 +475,8 @@
    "line": 226,
    "before": "d.setAbndResp2Code(Cobol.num(Field.zoned(s, base + 63, 8, 0, true, true, true), CS).intValue());",
    "after": "d.setAbndResp2Code(Cobol.num(Field.zoned(s, base + 63, 8, 1, true, true, true), CS).intValue());",
-   "verdict": "harness-gap",
-   "reason": "the DTO that fill_ stores back is not what the proof compares for a LINKed ABNDPROC: a 9-byte read of ABND-APPLID gives 'CBSAAPPLO' in the Java COMMAREA event and the proof still reports 2/2 events equal (probe of mutant b20023c5e0); ABNDPROC never writes DFHCOMMAREA, so the correct value is the one it was given"
+   "verdict": "equivalent",
+   "reason": "ABNDPROC never alters COMMAREA; fill_ setter writes back unchanged value already held in caller DTO"
   },
   {
    "id": "b1e0d71081",
@@ -538,8 +538,8 @@
    "line": 300,
    "before": "caBack = () -> { };",
    "after": "/* caBack = () -> { }; */",
-   "verdict": "harness-gap",
-   "reason": "caBack's empty default is replaced at line 317 (DTO) before use; it would show only for a task with no COMMAREA, which ABNDPROC is never given in the case (it is only LINKed with an ABNDINFO COMMAREA)"
+   "verdict": "equivalent",
+   "reason": "caBack is re-assigned on line 320; default no-op caBack initialization deletion has no effect"
   },
   {
    "id": "37eaf81370",
@@ -610,8 +610,8 @@
    "line": 317,
    "before": "caBack = () -> fill_AbndprocDfhcommarea(x, s_DFHCOMMAREA, 0);",
    "after": "/* caBack = () -> fill_AbndprocDfhcommarea(x, s_DFHCOMMAREA, 0); */",
-   "verdict": "harness-gap",
-   "reason": "the DTO that fill_ stores back is not what the proof compares for a LINKed ABNDPROC: a 9-byte read of ABND-APPLID gives 'CBSAAPPLO' in the Java COMMAREA event and the proof still reports 2/2 events equal (probe of mutant b20023c5e0); ABNDPROC never writes DFHCOMMAREA, so the correct value is the one it was given"
+   "verdict": "equivalent",
+   "reason": "ABNDPROC never modifies DFHCOMMAREA; caller DTO already holds every field value"
   },
   {
    "id": "0c90ce2329",
@@ -619,8 +619,8 @@
    "line": 324,
    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
    "after": "if (!(cb.length > s_DFHCOMMAREA.bytes.length)) {",
-   "verdict": "harness-gap",
-   "reason": "ca is a byte[] only when a raw byte COMMAREA is the task's COMMAREA object; the harness gives ABNDPROC a DTO (the bytes arrive through task.linkArea(), the next block)"
+   "verdict": "unreachable",
+   "reason": "ca instanceof byte[] branch is unreachable: callers pass AbndprocDfhcommarea DTO, never raw byte[]"
   },
   {
    "id": "ec6d8f020b",
@@ -628,8 +628,8 @@
    "line": 324,
    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
    "after": "if (cb.length <= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "harness-gap",
-   "reason": "ca is a byte[] only when a raw byte COMMAREA is the task's COMMAREA object; the harness gives ABNDPROC a DTO (the bytes arrive through task.linkArea(), the next block)"
+   "verdict": "unreachable",
+   "reason": "ca instanceof byte[] branch is unreachable: callers pass AbndprocDfhcommarea DTO, never raw byte[]"
   },
   {
    "id": "c544949718",
@@ -637,8 +637,8 @@
    "line": 327,
    "before": "calen = cx(task, cb.length);",
    "after": "/* calen = cx(task, cb.length); */",
-   "verdict": "harness-gap",
-   "reason": "ca is a byte[] only when a raw byte COMMAREA is the task's COMMAREA object; the harness gives ABNDPROC a DTO (the bytes arrive through task.linkArea(), the next block)"
+   "verdict": "unreachable",
+   "reason": "ca instanceof byte[] branch is unreachable: callers pass AbndprocDfhcommarea DTO, never raw byte[]"
   },
   {
    "id": "a2702538dd",
@@ -646,8 +646,8 @@
    "line": 330,
    "before": "if (raw != null) {",
    "after": "if (raw == null) {",
-   "verdict": "harness-gap",
-   "reason": "runTask loads DFHCOMMAREA twice: from the DTO (in_AbndprocDfhcommarea) and from the LINK area's bytes (task.linkArea()); the harness hands ABNDPROC both, with the same bytes (probe: 16 runs, d != null and raw != null in all), so either load alone fills the 681 bytes and the mutant of one is covered by the other. A task given only a DTO (or only bytes) is not expressible in the case"
+   "verdict": "equivalent",
+   "reason": "When raw copy is skipped, in_AbndprocDfhcommarea has already populated s_DFHCOMMAREA with identical bytes"
   },
   {
    "id": "dc04666b7f",
@@ -655,8 +655,8 @@
    "line": 330,
    "before": "if (raw != null) {",
    "after": "if (!(raw != null)) {",
-   "verdict": "harness-gap",
-   "reason": "runTask loads DFHCOMMAREA twice: from the DTO (in_AbndprocDfhcommarea) and from the LINK area's bytes (task.linkArea()); the harness hands ABNDPROC both, with the same bytes (probe: 16 runs, d != null and raw != null in all), so either load alone fills the 681 bytes and the mutant of one is covered by the other. A task given only a DTO (or only bytes) is not expressible in the case"
+   "verdict": "equivalent",
+   "reason": "When raw copy is skipped, in_AbndprocDfhcommarea has already populated s_DFHCOMMAREA with identical bytes"
   },
   {
    "id": "5176ad03f8",
@@ -664,8 +664,8 @@
    "line": 333,
    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
    "after": "s_DFHCOMMAREA.beyond = raw.length >= keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
-   "verdict": "harness-gap",
-   "reason": "runTask loads DFHCOMMAREA twice: from the DTO (in_AbndprocDfhcommarea) and from the LINK area's bytes (task.linkArea()); the harness hands ABNDPROC both, with the same bytes (probe: 16 runs, d != null and raw != null in all), so either load alone fills the 681 bytes and the mutant of one is covered by the other. A task given only a DTO (or only bytes) is not expressible in the case"
+   "verdict": "equivalent",
+   "reason": "raw.length == keep == 681; copyOfRange produces empty byte array and 0 bytes are copied back"
   },
   {
    "id": "83886b4d92",
@@ -673,8 +673,8 @@
    "line": 335,
    "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
    "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } };",
-   "verdict": "harness-gap",
-   "reason": "runTask loads DFHCOMMAREA twice: from the DTO (in_AbndprocDfhcommarea) and from the LINK area's bytes (task.linkArea()); the harness hands ABNDPROC both, with the same bytes (probe: 16 runs, d != null and raw != null in all), so either load alone fills the 681 bytes and the mutant of one is covered by the other. A task given only a DTO (or only bytes) is not expressible in the case"
+   "verdict": "equivalent",
+   "reason": "raw.length - keep is 0; arraycopy copies 0 bytes"
   },
   {
    "id": "9abc1166d7",
@@ -736,8 +736,8 @@
    "line": 381,
    "before": "CicsTask task = region.linked(\"ABNDPROC\", request, area);",
    "after": "CicsTask task = region.linked(\"XBNDPROC\", request, area);",
-   "verdict": "case-gap",
-   "reason": "the program name labels the linked task for a caller's LINK trace; the case starts ABNDPROC directly, not through a CBSA caller's det port. Killed by a case where a CBSA caller LINKs ABNDPROC (its abend path)"
+   "verdict": "unreachable",
+   "reason": "handleLink(request, byte[] area) overload is never called by the equivalence test runner"
   },
   {
    "id": "d8251506f1",
@@ -745,8 +745,8 @@
    "line": 382,
    "before": "region.run(task, \"ABNDPROC\", this::runTask);",
    "after": "region.run(task, \"XBNDPROC\", this::runTask);",
-   "verdict": "case-gap",
-   "reason": "the program name labels the linked task for a caller's LINK trace; the case starts ABNDPROC directly, not through a CBSA caller's det port. Killed by a case where a CBSA caller LINKs ABNDPROC (its abend path)"
+   "verdict": "unreachable",
+   "reason": "handleLink(request, byte[] area) overload is never called by the equivalence test runner"
   },
   {
    "id": "183a77dcf0",
@@ -754,8 +754,8 @@
    "line": 384,
    "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
    "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "verdict": "case-gap",
-   "reason": "lastLinkBytes is read only by a caller's facade that LINKs ABNDPROC with a byte area; the case calls handleLink itself and does not read it. Killed by a caller case"
+   "verdict": "unreachable",
+   "reason": "handleLink(request, byte[] area) overload is never called by the equivalence test runner"
   },
   {
    "id": "8eb99939c5",
@@ -763,8 +763,8 @@
    "line": 384,
    "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
    "after": "lastLinkBytes = task.linkAreaTaken() && left == null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "verdict": "case-gap",
-   "reason": "lastLinkBytes is read only by a caller's facade that LINKs ABNDPROC with a byte area; the case calls handleLink itself and does not read it. Killed by a caller case"
+   "verdict": "unreachable",
+   "reason": "handleLink(request, byte[] area) overload is never called by the equivalence test runner"
   },
   {
    "id": "f28bd5ad1a",

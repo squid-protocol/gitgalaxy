@@ -100,8 +100,8 @@ static void load(void) {
             cur = &stmts[nstmts++];
             memset(cur, 0, sizeof *cur);
             strcpy(cur->program, "-");
-            char held[4] = "", scr[40] = "";
-            sscanf(line + 2, "%d %11s %d %d %63s %15s %d %3s %39s", &cur->id, cur->kind, &cur->nin, &cur->nout,
+            char held[40] = "", scr[40] = "";
+            sscanf(line + 2, "%d %11s %d %d %63s %15s %d %39s %39s", &cur->id, cur->kind, &cur->nin, &cur->nout,
                    cur->cursor, cur->program, &cur->line, held, scr);
             if (!strcmp(held, "H")) cur->hold = 1;
             else if (held[0] == 'K') strcpy(scr, held);  /* no H: the scroll token is the first one */
@@ -490,6 +490,9 @@ static int injected(stmt *s, sqlca_t *c) {
 }
 
 /* One statement on Db2: the SQLCA and the host variables as the precompiled program sees them. */
+static void outcome(const stmt *s, const sqlca_t *c, int fault);
+static int empty_scroll_open;
+
 static void run(stmt *s, sqlca_t *c, unsigned char **a) {
     SQLRETURN rc;
     if (!strcmp(s->kind, "COMMIT") || !strcmp(s->kind, "ROLLBACK")) {
@@ -580,6 +583,16 @@ static void run(stmt *s, sqlca_t *c, unsigned char **a) {
         s->h = 0;
         return;
     }
+    if (!strcmp(s->kind, "OPEN") && s->scroll) {
+        /* #4269: the FETCHes are not logged, so probe once for an empty result and log its end of data (the Java side's
+         * JDBC read it); then back to before-first for the program's first FETCH */
+        if (SQLFetchScroll(s->h, SQL_FETCH_FIRST, 0) == SQL_NO_DATA) {
+            empty_scroll_open = 1;  /* GGSQL logs the end of data once the OPEN itself is logged */
+        } else {
+            SQLFetchScroll(s->h, SQL_FETCH_ABSOLUTE, 0);
+        }
+        return;
+    }
     if (!strcmp(s->kind, "OPEN")) return;  /* the cursor stays open on s->h */
     if (!strcmp(s->kind, "SELECT1")) {  /* SELECT INTO: exactly one row (-811 for more) */
         rc = SQLFetch(s->h);
@@ -655,5 +668,15 @@ int GGSQL(unsigned char *id, unsigned char *ca,
     /* #4269: a scroll cursor's FETCH is not logged: the Java side reads the rows once at OPEN, so the two sides' fetch
      * counts differ by design; the rows the program sees are still compared through its output */
     if (!(s->scroll && !strcmp(s->kind, "FETCH"))) outcome(s, c, 0);
+    if (empty_scroll_open) {
+        stmt probe = *s;
+        sqlca_t end;
+        memset(&end, 0, sizeof end);
+        strcpy(probe.kind, "FETCH");
+        end.sqlcode = 100;
+        memcpy(end.sqlstate, "02000", 5);
+        outcome(&probe, &end, 0);
+        empty_scroll_open = 0;
+    }
     return 0;
 }

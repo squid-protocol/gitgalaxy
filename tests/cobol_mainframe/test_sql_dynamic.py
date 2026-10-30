@@ -605,3 +605,59 @@ def test_detsql_moves_a_position_over_the_rows_read_at_open_as_db2_does(tmp_path
         "PRIOR 0 100 10",  # no rows: every move is +100
         "refused",
     ]
+
+
+SCR = Path(__file__).resolve().parents[1] / "equivalence" / "db2" / "scrolldemo"
+# SCRDEMO's DISPLAYs, traced by hand over the rows 10..50: tag (14), SQLCODE (10), the host variable (10)
+_TRACED_SCROLL = [
+    ("NEXT", 0, 10), ("LAST", 0, 50), ("PRIOR", 0, 40), ("FIRST", 0, 10), ("ABS 3", 0, 30), ("ABS -2", 0, 40),
+    ("REL 1", 0, 50), ("REL 1 PAST", 100, 50), ("PRIOR OFF", 0, 50), ("CURRENT", 0, 50), ("REL VAR -3", 0, 20),
+    ("ABS VAR 4", 0, 40), ("FIRST", 0, 10), ("PRIOR BEFORE", 100, 10), ("NEXT AFTER", 0, 10), ("ABS 9", 100, 10),
+    ("PRIOR LAST", 0, 50), ("REL -9", 100, 50), ("NEXT FIRST", 0, 10), ("ABS 0", 100, 10), ("CLOSE", 0, 10),
+    ("LAST CLOSED", -501, 10), ("EMPTY FIRST", 100, 10), ("EMPTY LAST", 100, 10),
+]  # fmt: skip
+TRACED_SCROLL = "".join(f"{t:<14}{c:>10}{v:>10}\n" for t, c, v in _TRACED_SCROLL)
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_scrolldemo_det_port_proves_on_db2_against_the_hand_trace(tmp_path):
+    import json
+    import shutil
+
+    pytest.importorskip("tree_sitter_language_pack")
+    import det_port
+
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    estate = tmp_path / "estate"
+    shutil.copytree(SCR, estate, ignore=shutil.ignore_patterns("seed.sql"))
+    for argv in (["init", "-q"], ["add", "-A"], ["-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qm", "e"]):
+        subprocess.run(["git", "-C", str(estate), *argv], check=True)  # noqa: S603, S607
+    case = {"corpus": "scroll-synthetic", "program": "SCRDEMO", "program_source": "cbl/SCRDEMO.cbl", "copy_dirs": [],
+            "parm": None, "clock": "2026/10/08 10:00:00.00", "datasets": {},
+            "db2": {"ddl": ["ddl/ITEM.ddl"], "seed": str(SCR / "seed.sql"), "compare": ["GGSCR.ITEM"],
+                    "compare_sql": True}}  # fmt: skip
+    (tmp_path / "case.json").write_text(json.dumps(case), encoding="utf-8")
+    project = det_port.estate(estate, tmp_path / "translate")  # (its own work: never inside the estate)
+    stub = (project / "src/main/java" / det_port.PKG_DIR / "service" / "ScrdemoService.java").read_text("utf-8")
+    r = P.translate(estate / "cbl/SCRDEMO.cbl", [estate / "cbl"], stub, det_port.PKG, P.estate_files(project), project)
+    assert r.stats["holes"] == []
+    assert r.java.count("DetSql.fetchScroll(") == 20  # every FETCH but the three plain NEXT ones (18 on SC1, 2 on SC2)
+    port = tmp_path / "port"
+    (port / "service").mkdir(parents=True)
+    (port / "service" / f"{r.service}.java").write_text(r.java, encoding="utf-8")
+    for rel, text in P.runtime_files(det_port.PKG, P.has_batch(project)).items():
+        if "/cics/" not in rel:  # (an estate with no CICS has no cics package)
+            (port / rel).parent.mkdir(parents=True, exist_ok=True)
+            (port / rel).write_text(text, encoding="utf-8")
+    keep = tmp_path / "proof"
+    proc = subprocess.run([sys.executable, str(TOOLS / "equivalence.py"), "run", "scroll", "--case-file",  # noqa: S603
+                           str(tmp_path / "case.json"), "--corpus-dir", str(estate), "--port", str(port), "--keep",
+                           str(keep), "--faults", "none", "--sql-faults", "none"],
+                          capture_output=True, text=True, check=False)  # fmt: skip
+    assert proc.returncode == 0, proc.stdout[-3000:] + proc.stderr[-3000:]
+    import json as _json
+
+    report = _json.loads((keep / "report.json").read_text(encoding="utf-8"))
+    assert report["proven"] is True
+    assert (keep / "cobol" / "stdout.txt").read_text(encoding="latin-1") == TRACED_SCROLL

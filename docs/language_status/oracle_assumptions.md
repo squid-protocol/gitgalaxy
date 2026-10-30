@@ -4480,6 +4480,10 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
     now says so by name instead of failing to compile; its proof is the det port's.
   - **Remaining.** EIBFN, EIBCPOSN, EIBREQID, EIBRSRCE, EIBERR / EIBERRCD stay refused (no burned reader). A normal-response
     zero waits for a burned reader that can observe it.
+- **Checklist members settled (2026-10-30, #5126).** The four burned programs that read ASSIGN STARTCODE (ASYNCPNT, SEQPNT, LGICVS01,
+  LGIPVS01) each have an equivalence case that states it, so `proof_blockers` lists no STARTCODE gap for any whole burned program.
+  `cics_census.py` and `embedded_verb_coverage.py` hold no EIB-name scan (the latter only lists ASSIGN STARTCODE as a verb), so they
+  cannot share the literal / hyphen false positive of #5125. Both are pinned by `tests/cobol_mainframe/test_eib_scans_5126.py`.
 
 ### X65. The EXEC CICS commands refused whole by name, by class, with the reason for each (#4270)
 - **What this entry is.** #4270's last acceptance line: "every still-refused verb listed in the register with a reason". The spec

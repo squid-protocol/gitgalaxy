@@ -1804,7 +1804,7 @@ def test_trusted_bots_come_from_the_workflow_then_the_tokens_own_account(monkeyp
         raise SystemExit("user: Resource not accessible by integration")
 
     monkeypatch.setenv(sg.TRUSTED_BOTS_ENV, "squid-shepherd[bot], squid-protocol")
-    assert sg.trusted_bots(no_user) == {"squid-shepherd[bot]", "squid-protocol"}
+    assert sg.trusted_bots(no_user) == {"squid-shepherd[bot]"}  # #6694: the PAT account no longer counts
     monkeypatch.delenv(sg.TRUSTED_BOTS_ENV)
     assert sg.trusted_bots(lambda path, *a, **kw: {"login": "squid-protocol"}) == {
         "squid-protocol"

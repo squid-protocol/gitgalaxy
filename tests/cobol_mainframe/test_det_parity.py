@@ -94,3 +94,16 @@ def test_a_refused_or_lowered_program_is_counted_as_written():
     assert dp.parity("P", bad, _java(5))["cobol"] == dp.structure(bad, "cobol")
     low = cobol_coverage.lowered_original(_ASM_BRANCH)  # already COBOL: not lowered twice
     assert dp.parity("P", low, _java(25))["cobol"] == dp.structure(low, "cobol")
+
+
+def test_a_linked_hlasm_program_is_checked_as_its_lowered_cobol(tmp_path):
+    """#7011: det_port._parity reads a LINK target's .asm member too; it is counted as lowered, never 'from 0'."""
+    import equivalence_java as ej
+
+    (tmp_path / "service").mkdir()
+    (tmp_path / "Source").mkdir()
+    (tmp_path / "Source" / "PROG.asm").write_text(_ASM_BRANCH, encoding="utf-8")
+    (tmp_path / "service" / f"{ej._service_class('PROG')}.java").write_text(_java(25), encoding="utf-8")
+    out = det_port._parity(tmp_path, tmp_path, [("PROG", "Source/PROG.asm")])
+    assert out["parity"][0]["cobol"]["functions"] > 0 and out["parity"][0]["kind"] == "cics"
+    assert not [w for w in out["parity_warnings"] if "from 0 in" in w or "parity check failed" in w]

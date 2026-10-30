@@ -48,6 +48,20 @@ from gitgalaxy.standards.cobol.compare import (
     COMPARE_RULES,
     COMPARE_VECTORS,
 )
+from gitgalaxy.standards.cobol.editing import (
+    EDIT_CATEGORY_DIGIT,
+    EDIT_CATEGORY_FIXED_INSERTION,
+    EDIT_CATEGORY_FLOATING_INSERTION,
+    EDIT_CATEGORY_IMPLICIT,
+    EDIT_CATEGORY_NAMES,
+    EDIT_CATEGORY_SIMPLE_INSERTION,
+    EDIT_CATEGORY_SPECIAL_INSERTION,
+    EDIT_CATEGORY_ZERO_SUPPRESSION,
+    EDITING_RULES,
+    EDITING_SYMBOLS,
+    EDITING_SYMBOLS_STRING,
+    EDITING_VECTORS,
+)
 from gitgalaxy.standards.cobol.func import (
     CATEGORY_DATE_TIME,
     CATEGORY_IO,
@@ -59,6 +73,24 @@ from gitgalaxy.standards.cobol.func import (
     FUNC_SPECS,
     FUNC_VECTORS,
 )
+from gitgalaxy.standards.cobol.hfp import (
+    BIAS_CHARACTERISTIC,
+    BYTES_LONG,
+    BYTES_SHORT,
+    DISPLAY_DIGITS_LONG,
+    DISPLAY_DIGITS_SHORT,
+    HFP_RULES,
+    HFP_VECTORS,
+    MAX_CHARACTERISTIC,
+    MAX_EXPONENT,
+    MIN_EXPONENT,
+    PRECISION_LONG,
+    PRECISION_SHORT,
+    SIGNIFICANT_DIGITS_LONG,
+    SIGNIFICANT_DIGITS_SHORT,
+    TYPE_NAME_COMP1,
+    TYPE_NAME_COMP2,
+)
 from gitgalaxy.standards.cobol.move import (
     ACTIONS,
     CATEGORIES,
@@ -68,6 +100,24 @@ from gitgalaxy.standards.cobol.move import (
     MOVE_MATRIX,
     MOVE_RULES,
     MOVE_VECTORS,
+)
+from gitgalaxy.standards.cobol.sort_ops import (
+    COLLATING_EBCDIC,
+    COLLATING_LITERAL,
+    COLLATING_NAMES,
+    COLLATING_NATIVE,
+    DIRECTION_ASCENDING,
+    DIRECTION_DESCENDING,
+    DIRECTION_NAMES,
+    PHRASE_GIVING,
+    PHRASE_INPUT_PROCEDURE,
+    PHRASE_NAMES,
+    PHRASE_OUTPUT_PROCEDURE,
+    PHRASE_USING,
+    SORT_RETURN_ABORT,
+    SORT_RETURN_SUCCESS,
+    SORT_RULES,
+    SORT_VECTORS,
 )
 from gitgalaxy.standards.cobol.string_ops import (
     INSPECT_ALL,
@@ -94,16 +144,25 @@ COMPARE_JAVA_FILE = Path("gitgalaxy/tools/cobol_to_java/det/cobolrt/CompareSpec.
 ARITH_JAVA_FILE = Path("gitgalaxy/tools/cobol_to_java/det/cobolrt/ArithSpec.java")
 STRING_JAVA_FILE = Path("gitgalaxy/tools/cobol_to_java/det/cobolrt/StringSpec.java")
 FUNC_JAVA_FILE = Path("gitgalaxy/tools/cobol_to_java/det/cobolrt/FuncSpec.java")
+EDITING_JAVA_FILE = Path("gitgalaxy/tools/cobol_to_java/det/cobolrt/EditingSpec.java")
+SORT_JAVA_FILE = Path("gitgalaxy/tools/cobol_to_java/det/cobolrt/SortSpec.java")
+HFP_JAVA_FILE = Path("gitgalaxy/tools/cobol_to_java/det/cobolrt/HfpSpec.java")
 MOVE_DOCS_FILE = Path("docs/language_status/cobol_move_matrix.md")
 COMPARE_DOCS_FILE = Path("docs/language_status/cobol_compare_matrix.md")
 ARITH_DOCS_FILE = Path("docs/language_status/cobol_arith_matrix.md")
 STRING_DOCS_FILE = Path("docs/language_status/cobol_string_matrix.md")
 FUNC_DOCS_FILE = Path("docs/language_status/cobol_func_matrix.md")
+EDITING_DOCS_FILE = Path("docs/language_status/cobol_editing_matrix.md")
+SORT_DOCS_FILE = Path("docs/language_status/cobol_sort_matrix.md")
+HFP_DOCS_FILE = Path("docs/language_status/cobol_hfp_matrix.md")
 MOVE_TEST_FILE = Path("tests/cobol_mainframe/test_cobol_move_vectors.py")
 COMPARE_TEST_FILE = Path("tests/cobol_mainframe/test_cobol_compare_vectors.py")
 ARITH_TEST_FILE = Path("tests/cobol_mainframe/test_cobol_arith_vectors.py")
 STRING_TEST_FILE = Path("tests/cobol_mainframe/test_cobol_string_vectors.py")
 FUNC_TEST_FILE = Path("tests/cobol_mainframe/test_cobol_func_vectors.py")
+EDITING_TEST_FILE = Path("tests/cobol_mainframe/test_cobol_editing_vectors.py")
+SORT_TEST_FILE = Path("tests/cobol_mainframe/test_cobol_sort_vectors.py")
+HFP_TEST_FILE = Path("tests/cobol_mainframe/test_cobol_hfp_vectors.py")
 JAVA_PACKAGE = "__PACKAGE__.cobolrt"
 
 
@@ -242,6 +301,72 @@ def as_json() -> dict[str, Any]:
                 for v in FUNC_VECTORS
             ],
         },
+        "editing": {
+            "categories": dict(EDIT_CATEGORY_NAMES),
+            "symbols": {k: dataclasses.asdict(v) for k, v in EDITING_SYMBOLS.items()},
+            "rules": {k: dataclasses.asdict(r) for k, r in EDITING_RULES.items()},
+            "vectors": [
+                {
+                    "id": v.id,
+                    "title": v.title,
+                    "rule_id": v.rule_id,
+                    "picture": v.picture,
+                    "value": str(v.value) if v.value is not None else None,
+                    "decimal_comma": v.decimal_comma,
+                    "currency": v.currency,
+                    "raw_digits": v.raw_digits,
+                    "negative": v.negative,
+                    "expected": v.expected,
+                    "note": v.note,
+                }
+                for v in EDITING_VECTORS
+            ],
+        },
+        "sort": {
+            "directions": dict(DIRECTION_NAMES),
+            "collating_modes": dict(COLLATING_NAMES),
+            "phrases": dict(PHRASE_NAMES),
+            "rules": {k: dataclasses.asdict(r) for k, r in SORT_RULES.items()},
+            "vectors": [
+                {
+                    "id": v.id,
+                    "title": v.title,
+                    "rule_id": v.rule_id,
+                    "records": v.records,
+                    "keys": [dataclasses.asdict(k) for k in v.keys],
+                    "collating": v.collating,
+                    "alphabet_entries": v.alphabet_entries,
+                    "expected": v.expected,
+                    "note": v.note,
+                }
+                for v in SORT_VECTORS
+            ],
+        },
+        "hfp": {
+            "precision_short": PRECISION_SHORT,
+            "precision_long": PRECISION_LONG,
+            "bytes_short": BYTES_SHORT,
+            "bytes_long": BYTES_LONG,
+            "bias_characteristic": BIAS_CHARACTERISTIC,
+            "significant_digits_short": SIGNIFICANT_DIGITS_SHORT,
+            "significant_digits_long": SIGNIFICANT_DIGITS_LONG,
+            "rules": {k: dataclasses.asdict(r) for k, r in HFP_RULES.items()},
+            "vectors": [
+                {
+                    "id": v.id,
+                    "title": v.title,
+                    "rule_id": v.rule_id,
+                    "short": v.short,
+                    "input_value": v.input_value,
+                    "expected_hex": v.expected_hex,
+                    "expected_display": v.expected_display,
+                    "expected_fixed": v.expected_fixed,
+                    "scale": v.scale,
+                    "note": v.note,
+                }
+                for v in HFP_VECTORS
+            ],
+        },
     }
 
 
@@ -291,6 +416,11 @@ def problems() -> list[str]:
                 f"STRING rule {rid} not found in cobolrt_rules.json" for rid in STRING_RULES if rid not in known_ids
             )
             out.extend(f"FUNC rule {rid} not found in cobolrt_rules.json" for rid in FUNC_RULES if rid not in known_ids)
+            out.extend(
+                f"EDIT rule {rid} not found in cobolrt_rules.json" for rid in EDITING_RULES if rid not in known_ids
+            )
+            out.extend(f"SORT rule {rid} not found in cobolrt_rules.json" for rid in SORT_RULES if rid not in known_ids)
+            out.extend(f"HFP rule {rid} not found in cobolrt_rules.json" for rid in HFP_RULES if rid not in known_ids)
         except Exception as e:
             out.append(f"unable to verify against cobolrt_rules.json: {e}")
 
@@ -319,6 +449,21 @@ def problems() -> list[str]:
         f"FUNC test vector {vec.id} cites unknown rule {vec.rule_id}"
         for vec in FUNC_VECTORS
         if vec.rule_id not in FUNC_RULES
+    )
+    out.extend(
+        f"EDIT test vector {vec.id} cites unknown rule {vec.rule_id}"
+        for vec in EDITING_VECTORS
+        if vec.rule_id not in EDITING_RULES
+    )
+    out.extend(
+        f"SORT test vector {vec.id} cites unknown rule {vec.rule_id}"
+        for vec in SORT_VECTORS
+        if vec.rule_id not in SORT_RULES
+    )
+    out.extend(
+        f"HFP test vector {vec.id} cites unknown rule {vec.rule_id}"
+        for vec in HFP_VECTORS
+        if vec.rule_id not in HFP_RULES
     )
 
     return out
@@ -1497,6 +1642,815 @@ def test_func_simulation_date_integer_ansi():
 '''
 
 
+def render_editing_java(package: str = JAVA_PACKAGE) -> str:
+    """Generate EditingSpec.java."""
+    rule_cases = "\n".join(f'            case "{r}" -> "{r}";' for r in sorted(EDITING_RULES))
+
+    return f"""// {BANNER}
+package {package};
+
+/**
+ * Declarative COBOL Numeric Editing specification (PICTURE clause editing, symbols, and shapes).
+ *
+ * <p>Reference: IBM Enterprise COBOL for z/OS 6.4 Language Reference (SC26-4940-06),
+ * Chapter "PICTURE clause" (Editing rules, Simple insertion, Special insertion,
+ * Fixed insertion, Floating insertion, Zero suppression and replacement).
+ * Follows the table-driven code generation pattern established by CicsSpec.java (#4586, #4608).
+ */
+public final class EditingSpec {{
+    private EditingSpec() {{
+    }}
+
+    // Editing categories
+    public static final int CATEGORY_SIMPLE_INSERTION = {EDIT_CATEGORY_SIMPLE_INSERTION};
+    public static final int CATEGORY_SPECIAL_INSERTION = {EDIT_CATEGORY_SPECIAL_INSERTION};
+    public static final int CATEGORY_FIXED_INSERTION = {EDIT_CATEGORY_FIXED_INSERTION};
+    public static final int CATEGORY_FLOATING_INSERTION = {EDIT_CATEGORY_FLOATING_INSERTION};
+    public static final int CATEGORY_ZERO_SUPPRESSION = {EDIT_CATEGORY_ZERO_SUPPRESSION};
+    public static final int CATEGORY_DIGIT = {EDIT_CATEGORY_DIGIT};
+    public static final int CATEGORY_IMPLICIT = {EDIT_CATEGORY_IMPLICIT};
+
+    /** Standard COBOL editing symbols recognized in PICTURE clauses. */
+    public static final String EDITING_SYMBOLS = "{EDITING_SYMBOLS_STRING}";
+
+    /** Category name for diagnostics and evidence logging. */
+    public static String categoryName(int cat) {{
+        return switch (cat) {{
+            case CATEGORY_SIMPLE_INSERTION -> "SIMPLE_INSERTION";
+            case CATEGORY_SPECIAL_INSERTION -> "SPECIAL_INSERTION";
+            case CATEGORY_FIXED_INSERTION -> "FIXED_INSERTION";
+            case CATEGORY_FLOATING_INSERTION -> "FLOATING_INSERTION";
+            case CATEGORY_ZERO_SUPPRESSION -> "ZERO_SUPPRESSION";
+            case CATEGORY_DIGIT -> "DIGIT";
+            case CATEGORY_IMPLICIT -> "IMPLICIT";
+            default -> "UNKNOWN";
+        }};
+    }}
+
+    /** Classification of an editing symbol into its functional category. */
+    public static int symbolCategory(char symbol) {{
+        return switch (symbol) {{
+            case ',', 'B', '0', '/' -> CATEGORY_SIMPLE_INSERTION;
+            case '.' -> CATEGORY_SPECIAL_INSERTION;
+            case '+', '-', '$' -> CATEGORY_FIXED_INSERTION;
+            case 'Z', '*' -> CATEGORY_ZERO_SUPPRESSION;
+            case '9' -> CATEGORY_DIGIT;
+            case 'V' -> CATEGORY_IMPLICIT;
+            default -> -1;
+        }};
+    }}
+
+    /** Returns true if character is a standard COBOL PICTURE editing symbol. */
+    public static boolean isEditingSymbol(char ch) {{
+        return EDITING_SYMBOLS.indexOf(ch) != -1;
+    }}
+
+    /** Returns true if character is a candidate for floating insertion. */
+    public static boolean isFloatingCandidate(char ch) {{
+        return ch == '$' || ch == '+' || ch == '-';
+    }}
+
+    /** Returns true if character is a zero-suppression symbol. */
+    public static boolean isSuppressionSymbol(char ch) {{
+        return ch == 'Z' || ch == '*';
+    }}
+
+    /** Get registered rule ID from key. */
+    public static String ruleId(String key) {{
+        return switch (key) {{
+{rule_cases}
+            default -> "UNKNOWN";
+        }};
+    }}
+}}
+"""
+
+
+def render_editing_markdown() -> str:
+    """Generate docs/language_status/cobol_editing_matrix.md."""
+    sym_rows = [
+        f"| `{spec.symbol}` | `{EDIT_CATEGORY_NAMES[spec.category]}` | {'YES' if spec.occupies_position else 'NO'} | {spec.ibm_clause} | {spec.description} |"
+        for _, spec in sorted(EDITING_SYMBOLS.items())
+    ]
+    sym_table = "\n".join(sym_rows)
+
+    r_rows = []
+    for rid, meta in sorted(EDITING_RULES.items()):
+        doc_sec = f"{meta.ibm['doc']}: {meta.ibm['section']}" if meta.ibm else (meta.ibm_note or "-")
+        reg = ", ".join(f"`{x}`" for x in meta.register) if meta.register else "-"
+        opts = ", ".join(f"`{x}`" for x in meta.options) if meta.options else "-"
+        r_rows.append(f"| `{rid}` | `{meta.status}` | {meta.title} | {doc_sec} | {opts} | {reg} |")
+    r_table = "\n".join(r_rows)
+
+    v_rows = [
+        f"| `{vec.id}` | {vec.title} | `{vec.rule_id}` | `{vec.picture}` | `{vec.value if vec.value is not None else (vec.raw_digits or 'null')}` | `{vec.expected}` | {vec.note or '-'} |"
+        for vec in EDITING_VECTORS
+    ]
+    v_table = "\n".join(v_rows)
+
+    return f"""<!-- {BANNER} -->
+# COBOL Numeric Editing Rules & PICTURE Specification (#4712)
+
+Part of the **cobolrt-as-a-product** epic ([#4710](https://github.com/squid-protocol/gitgalaxy/issues/4710)).
+Single source of truth: [`gitgalaxy/standards/cobol/editing.py`](../../gitgalaxy/standards/cobol/editing.py).
+Generated by `python -m gitgalaxy.standards.cobol regen`.
+
+Reference: **IBM Enterprise COBOL for z/OS 6.4 Language Reference (SC26-4940-06)**
+Chapters: *PICTURE clause* (Editing rules, Simple insertion, Special insertion, Fixed insertion, Floating insertion, Zero suppression and replacement), *SPECIAL-NAMES paragraph* (CURRENCY SIGN, DECIMAL-POINT IS COMMA).
+
+## 1. Rule Catalogue (EDIT Family)
+
+| Rule ID | Status | Title | IBM Manual Reference | Options | Register |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+{r_table}
+
+## 2. PICTURE Editing Symbols & Categories
+
+| Symbol | Category | Character Position? | IBM Clause | Behavior |
+| :--- | :--- | :--- | :--- | :--- |
+{sym_table}
+
+## 3. Editing Invariants & Rules
+
+- **Simple Insertion Editing**:
+  - Insertion characters `,`, `B`, `0`, `/` occupy a character position and are inserted at their specified location.
+  - If zero suppression is in effect and precedes the insertion position, the insertion character is suppressed (to space or asterisk) unless preceded by a non-suppressed digit.
+- **Special Insertion Editing**:
+  - The decimal point `.` (or `,` when `DECIMAL-POINT IS COMMA` is specified) occupies a character position.
+  - In `Editing.java`, encountering the decimal point ends zero suppression for succeeding positions.
+- **Fixed Insertion Editing**:
+  - The currency symbol (`$` or program-declared symbol) and signs (`+`, `-`, `CR`, `DB`) occupy fixed positions at the beginning or end of the PICTURE.
+  - `CR` and `DB` occupy two character positions and are displayed only if the value is negative; otherwise they are replaced by two spaces.
+- **Floating Insertion Editing**:
+  - A floating insertion string is formed by two or more consecutive `$`, `+`, or `-` characters (possibly separated by `,`, `.`, `B`, `0`, `/`).
+  - The first symbol indicates the floating sign/currency position; each subsequent symbol represents a digit position.
+  - The sign or currency string floats immediately to the left of the first significant digit or decimal point.
+  - When every digit position belongs to the floating string and the numeric value is zero, the entire edited result is replaced by spaces.
+- **Assumed Decimal Point (V)**:
+  - `V` indicates the position of an assumed decimal point and occupies no character position in the receiver.
+- **Non-digit Sender (Zoned item)**:
+  - When an alphanumeric or zoned item containing non-digit bytes is moved to an edited receiver, raw bytes are placed directly into digit slots (GnuCOBOL compatibility / Register C11).
+
+## 4. Deterministic Test Vectors
+
+| Vector ID | Title | Rule Verified | PICTURE | Input Value | Expected Output | Note |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+{v_table}
+"""
+
+
+def render_editing_tests() -> str:
+    """Generate tests/cobol_mainframe/test_cobol_editing_vectors.py."""
+    return '''# ==============================================================================
+# GitGalaxy
+# Copyright (c) 2026 Joe Esquibel
+#
+# This source code is licensed under the PolyForm Noncommercial License 1.0.0.
+# You may not use this file except in compliance with the License.
+# A copy of the license can be found in the LICENSE file in the root directory
+# of this project, or at https://polyformproject.org/licenses/noncommercial/1.0.0/
+# ==============================================================================
+"""Test vectors for COBOL Numeric Editing rules (#4712, epic #4710).
+
+Generated from gitgalaxy/standards/cobol by `python -m gitgalaxy.standards.cobol regen`.
+Verifies that the declarative editing rules, symbol categories, and deterministic test vectors
+execute directly in CI without requiring Docker or external compilers.
+"""
+
+from __future__ import annotations
+
+import sys
+from decimal import Decimal
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parents[2]
+if str(REPO) not in sys.path:
+    sys.path.insert(0, str(REPO))
+
+import pytest
+
+from gitgalaxy.standards.cobol.cli import problems, stale
+from gitgalaxy.standards.cobol.editing import (
+    EDIT_CATEGORY_NAMES,
+    EDITING_RULES,
+    EDITING_SYMBOLS,
+    EDITING_VECTORS,
+    execute_editing,
+    execute_shape,
+    expand_picture,
+)
+
+
+def test_cobol_editing_spec_has_no_problems():
+    """Verify internal consistency of standards/cobol numeric editing rules."""
+    errs = problems()
+    assert errs == [], f"cobol spec has consistency problems: {errs}"
+
+
+def test_cobol_editing_generated_files_are_not_stale():
+    """Verify committed EditingSpec.java, docs, and tests match the standards tables."""
+    diff = stale()
+    assert diff == [], f"standards generated files are stale: {diff}; run `python -m gitgalaxy.standards.cobol regen`"
+
+
+def test_all_editing_symbols_and_rules_defined():
+    """Verify editing symbols, categories, and rules are defined."""
+    assert len(EDIT_CATEGORY_NAMES) == 7
+    assert len(EDITING_SYMBOLS) == 14
+    assert len(EDITING_RULES) == 5
+    assert len(EDITING_VECTORS) >= 30
+
+
+@pytest.mark.parametrize("vec", EDITING_VECTORS, ids=lambda v: v.id)
+def test_editing_vector_rule_alignment(vec):
+    """Verify each test vector correctly aligns with a registered rule."""
+    assert vec.rule_id in EDITING_RULES
+    meta = EDITING_RULES[vec.rule_id]
+    assert meta.id == vec.rule_id
+
+
+@pytest.mark.parametrize("vec", EDITING_VECTORS, ids=lambda v: v.id)
+def test_editing_simulation_all_vectors(vec):
+    """Verify pure-Python simulation produces expected output for each vector."""
+    got = execute_editing(
+        vec.picture,
+        vec.value,
+        decimal_comma=vec.decimal_comma,
+        currency=vec.currency,
+        raw_digits=vec.raw_digits,
+        negative=vec.negative,
+    )
+    assert got == vec.expected, f"{vec.id}: expected {vec.expected!r}, got {got!r}"
+
+
+def test_editing_picture_shape_simulation():
+    """Verify shape calculation for integer and decimal digit positions."""
+    assert execute_shape("ZZ,ZZ9.99") == (5, 2)
+    assert execute_shape("Z(4)9(2).9(3)") == (6, 3)
+    assert execute_shape("ZZ.ZZ9,99", decimal_comma=True) == (5, 2)
+    assert execute_shape("$$$,$$9.99") == (5, 2)
+    assert execute_shape("999B999") == (6, 0)
+
+
+def test_editing_picture_expansion():
+    """Verify repetition expansion in PICTURE strings."""
+    assert expand_picture("Z(4)9(2)") == "ZZZZ99"
+    assert expand_picture("9(3)V9(2)") == "999V99"
+    assert expand_picture("S9(4)") == "9999"
+'''
+
+
+def render_sort_java(package: str = JAVA_PACKAGE) -> str:
+    """Generate SortSpec.java."""
+    rule_cases = "\n".join(f'            case "{r}" -> "{r}";' for r in sorted(SORT_RULES))
+
+    return f"""// {BANNER}
+package {package};
+
+/**
+ * Declarative COBOL SORT and MERGE specification (collating sequences, keys, and procedures).
+ *
+ * <p>Reference: IBM Enterprise COBOL for z/OS 6.4 Language Reference (SC26-4940-06),
+ * Chapters: "SORT statement", "MERGE statement", "RELEASE statement", "RETURN statement",
+ * "ALPHABET clause", "PROGRAM COLLATING SEQUENCE clause".
+ * Follows the table-driven code generation pattern established by CicsSpec.java (#4586, #4608).
+ */
+public final class SortSpec {{
+    private SortSpec() {{
+    }}
+
+    // Sort directions
+    public static final int DIRECTION_ASCENDING = {DIRECTION_ASCENDING};
+    public static final int DIRECTION_DESCENDING = {DIRECTION_DESCENDING};
+
+    // Collating sequence modes
+    public static final int COLLATING_NATIVE = {COLLATING_NATIVE};
+    public static final int COLLATING_EBCDIC = {COLLATING_EBCDIC};
+    public static final int COLLATING_LITERAL = {COLLATING_LITERAL};
+
+    // Procedure phrases
+    public static final int PHRASE_USING = {PHRASE_USING};
+    public static final int PHRASE_GIVING = {PHRASE_GIVING};
+    public static final int PHRASE_INPUT_PROCEDURE = {PHRASE_INPUT_PROCEDURE};
+    public static final int PHRASE_OUTPUT_PROCEDURE = {PHRASE_OUTPUT_PROCEDURE};
+
+    // SORT-RETURN special register values
+    public static final int SORT_RETURN_SUCCESS = {SORT_RETURN_SUCCESS};
+    public static final int SORT_RETURN_ABORT = {SORT_RETURN_ABORT};
+
+    /** Name of direction. */
+    public static String directionName(int direction) {{
+        return switch (direction) {{
+            case DIRECTION_ASCENDING -> "ASCENDING";
+            case DIRECTION_DESCENDING -> "DESCENDING";
+            default -> "UNKNOWN";
+        }};
+    }}
+
+    /** Name of collating sequence mode. */
+    public static String collatingModeName(int mode) {{
+        return switch (mode) {{
+            case COLLATING_NATIVE -> "NATIVE";
+            case COLLATING_EBCDIC -> "EBCDIC";
+            case COLLATING_LITERAL -> "LITERAL";
+            default -> "UNKNOWN";
+        }};
+    }}
+
+    /** Name of phrase type. */
+    public static String phraseName(int phrase) {{
+        return switch (phrase) {{
+            case PHRASE_USING -> "USING";
+            case PHRASE_GIVING -> "GIVING";
+            case PHRASE_INPUT_PROCEDURE -> "INPUT_PROCEDURE";
+            case PHRASE_OUTPUT_PROCEDURE -> "OUTPUT_PROCEDURE";
+            default -> "UNKNOWN";
+        }};
+    }}
+
+    /** Returns true if SORT-RETURN value requests terminating the sort (16). */
+    public static boolean isAbortReturn(int sortReturn) {{
+        return sortReturn == SORT_RETURN_ABORT;
+    }}
+
+    /** Get registered rule ID from key. */
+    public static String ruleId(String key) {{
+        return switch (key) {{
+{rule_cases}
+            default -> "UNKNOWN";
+        }};
+    }}
+}}
+"""
+
+
+def render_sort_markdown() -> str:
+    """Generate docs/language_status/cobol_sort_matrix.md."""
+    r_rows = []
+    for rid, meta in sorted(SORT_RULES.items()):
+        doc_sec = f"{meta.ibm['doc']}: {meta.ibm['section']}" if meta.ibm else (meta.ibm_note or "-")
+        reg = ", ".join(f"`{x}`" for x in meta.register) if meta.register else "-"
+        opts = ", ".join(f"`{x}`" for x in meta.options) if meta.options else "-"
+        r_rows.append(f"| `{rid}` | `{meta.status}` | {meta.title} | {doc_sec} | {opts} | {reg} |")
+    r_table = "\n".join(r_rows)
+
+    v_rows = [
+        f"| `{vec.id}` | {vec.title} | `{vec.rule_id}` | `{len(vec.records)}` | `{COLLATING_NAMES[vec.collating]}` | `{vec.expected}` | {vec.note or '-'} |"
+        for vec in SORT_VECTORS
+    ]
+    v_table = "\n".join(v_rows)
+
+    return f"""<!-- {BANNER} -->
+# COBOL SORT and MERGE Specification (#4712)
+
+Part of the **cobolrt-as-a-product** epic ([#4710](https://github.com/squid-protocol/gitgalaxy/issues/4710)).
+Single source of truth: [`gitgalaxy/standards/cobol/sort_ops.py`](../../gitgalaxy/standards/cobol/sort_ops.py).
+Generated by `python -m gitgalaxy.standards.cobol regen`.
+
+Reference: **IBM Enterprise COBOL for z/OS 6.4 Language Reference (SC26-4940-06)**
+Chapters: *SORT statement*, *MERGE statement*, *RELEASE statement*, *RETURN statement*, *ALPHABET clause*, *PROGRAM COLLATING SEQUENCE clause*.
+
+## 1. Rule Catalogue (SORT Family)
+
+| Rule ID | Status | Title | IBM Manual Reference | Options | Register |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+{r_table}
+
+## 2. Statement Invariants & Sorting Semantics
+
+- **Key Comparison Rules**:
+  - Keys are compared major-to-minor in the order specified in `ASCENDING/DESCENDING KEY` phrases.
+  - Numeric keys (zoned, packed, binary) compare algebraically according to numeric value.
+  - Nonnumeric keys compare position-by-position in the data code page or designated collating sequence.
+  - Shorter alphanumeric keys are space-padded on the right.
+- **Collating Sequence & ALPHABET**:
+  - `NATIVE`: data byte order (ASCII or EBCDIC depending on host platform).
+  - `EBCDIC`: ordered by IBM037 EBCDIC character codes (letters precede digits; lowercase precedes uppercase).
+  - `LITERAL`: ordered by user-specified literal sequence with optional `ALSO` (equal ordinal weight) and `THRU` (contiguous range).
+  - If IBM EBCDIC sequence and oracle ASCII order diverge, or on unmapped characters, execution halts by name (Register D1).
+- **Stability & Duplicates**:
+  - `WITH DUPLICATES IN ORDER`: records with identical keys preserve their input arrival order.
+  - In `Sort.java`, sorting is implemented via a stable merge-sort ensuring deterministic ordering.
+- **Procedures & Special Registers**:
+  - `RELEASE` passes records into the sort work area from an `INPUT PROCEDURE`.
+  - `RETURN` retrieves records from the sort work area in an `OUTPUT PROCEDURE`.
+  - Setting `SORT-RETURN` to 16 terminates the sort operation; a successful sort leaves `SORT-RETURN` 0 (Register F4).
+
+## 3. Deterministic Test Vectors
+
+| Vector ID | Title | Rule Verified | Records | Collating | Expected Output | Note |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+{v_table}
+"""
+
+
+def render_sort_tests() -> str:
+    """Generate tests/cobol_mainframe/test_cobol_sort_vectors.py."""
+    return '''# ==============================================================================
+# GitGalaxy
+# Copyright (c) 2026 Joe Esquibel
+#
+# This source code is licensed under the PolyForm Noncommercial License 1.0.0.
+# You may not use this file except in compliance with the License.
+# A copy of the license can be found in the LICENSE file in the root directory
+# of this project, or at https://polyformproject.org/licenses/noncommercial/1.0.0/
+# ==============================================================================
+"""Test vectors for COBOL SORT and MERGE rules (#4712, epic #4710).
+
+Generated from gitgalaxy/standards/cobol by `python -m gitgalaxy.standards.cobol regen`.
+Verifies that the declarative sort rules, key comparisons, and deterministic test vectors
+execute directly in CI without requiring Docker or external compilers.
+"""
+
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parents[2]
+if str(REPO) not in sys.path:
+    sys.path.insert(0, str(REPO))
+
+import pytest
+
+from gitgalaxy.standards.cobol.cli import problems, stale
+from gitgalaxy.standards.cobol.sort_ops import (
+    COLLATING_EBCDIC,
+    COLLATING_LITERAL,
+    COLLATING_NAMES,
+    COLLATING_NATIVE,
+    DIRECTION_NAMES,
+    PHRASE_NAMES,
+    SORT_RULES,
+    SORT_VECTORS,
+    execute_collating_compare,
+    execute_merge,
+    execute_sort,
+)
+
+
+def test_cobol_sort_spec_has_no_problems():
+    """Verify internal consistency of standards/cobol sort rules."""
+    errs = problems()
+    assert errs == [], f"cobol spec has consistency problems: {errs}"
+
+
+def test_cobol_sort_generated_files_are_not_stale():
+    """Verify committed SortSpec.java, docs, and tests match the standards tables."""
+    diff = stale()
+    assert diff == [], f"standards generated files are stale: {diff}; run `python -m gitgalaxy.standards.cobol regen`"
+
+
+def test_all_sort_rules_and_constants_defined():
+    """Verify sort rules, direction names, and collating modes are defined."""
+    assert len(SORT_RULES) == 7
+    assert len(DIRECTION_NAMES) == 2
+    assert len(COLLATING_NAMES) == 3
+    assert len(PHRASE_NAMES) == 4
+    assert len(SORT_VECTORS) >= 15
+
+
+@pytest.mark.parametrize("vec", SORT_VECTORS, ids=lambda v: v.id)
+def test_sort_vector_rule_alignment(vec):
+    """Verify each test vector correctly aligns with a registered rule."""
+    assert vec.rule_id in SORT_RULES
+    meta = SORT_RULES[vec.rule_id]
+    assert meta.id == vec.rule_id
+
+
+@pytest.mark.parametrize("vec", SORT_VECTORS, ids=lambda v: v.id)
+def test_sort_simulation_all_vectors(vec):
+    """Verify pure-Python simulation produces expected output for each vector."""
+    got = execute_sort(
+        vec.records,
+        vec.keys,
+        collating=vec.collating,
+        alphabet_entries=vec.alphabet_entries,
+    )
+    assert got == vec.expected, f"{vec.id}: expected {vec.expected!r}, got {got!r}"
+
+
+def test_merge_simulation_two_files():
+    """Verify merge of two pre-sorted files preserves file order on equal keys."""
+    from gitgalaxy.standards.cobol.sort_ops import SortKeySpec
+
+    file1 = ["010 FILE1-A", "030 FILE1-B"]
+    file2 = ["010 FILE2-A", "020 FILE2-B"]
+    keys = [SortKeySpec(offset=0, length=3, is_numeric=True, ascending=True)]
+    merged = execute_merge([file1, file2], keys)
+    assert merged == ["010 FILE1-A", "010 FILE2-A", "020 FILE2-B", "030 FILE1-B"]
+
+
+def test_collating_compare_ebcdic():
+    """Verify PROGRAM COLLATING SEQUENCE character ordering."""
+    # Under EBCDIC: 'A' precedes '1'
+    assert execute_collating_compare("A", "1", collating=COLLATING_EBCDIC) < 0
+    # Under Native (ASCII): '1' precedes 'A'
+    assert execute_collating_compare("A", "1", collating=COLLATING_NATIVE) > 0
+'''
+
+
+def render_hfp_java(package: str = JAVA_PACKAGE) -> str:
+    """Generate HfpSpec.java."""
+    rule_cases = "\n".join(f'            case "{rid}" -> "{rid}";' for rid in sorted(HFP_RULES))
+
+    return f"""// {BANNER}
+package {package};
+
+/**
+ * Declarative COBOL Hexadecimal Floating Point specification (COMP-1 and COMP-2 data items).
+ *
+ * <p>Reference: IBM z/Architecture Principles of Operation (SA22-7832),
+ * Chapter "Hexadecimal-Floating-Point Number Representation" and "Hexadecimal-Floating-Point Instructions";
+ * IBM Enterprise COBOL for z/OS 6.4 Programming Guide (SC27-8714-03), Chapter "Conversions and precision";
+ * IBM Enterprise COBOL for z/OS 6.4 Language Reference (SC26-4940-06), Chapter "DISPLAY statement".
+ * Follows the table-driven code generation pattern established by CicsSpec.java (#4586, #4608).
+ */
+public final class HfpSpec {{
+    private HfpSpec() {{
+    }}
+
+    public static final int PRECISION_SHORT = {PRECISION_SHORT};
+    public static final int PRECISION_LONG = {PRECISION_LONG};
+    public static final int BYTES_SHORT = {BYTES_SHORT};
+    public static final int BYTES_LONG = {BYTES_LONG};
+    public static final int BIAS_CHARACTERISTIC = {BIAS_CHARACTERISTIC};
+    public static final int MAX_CHARACTERISTIC = {MAX_CHARACTERISTIC};
+    public static final int MAX_EXPONENT = {MAX_EXPONENT};
+    public static final int MIN_EXPONENT = {MIN_EXPONENT};
+    public static final int SIGNIFICANT_DIGITS_SHORT = {SIGNIFICANT_DIGITS_SHORT};
+    public static final int SIGNIFICANT_DIGITS_LONG = {SIGNIFICANT_DIGITS_LONG};
+    public static final int DISPLAY_DIGITS_SHORT = {DISPLAY_DIGITS_SHORT};
+    public static final int DISPLAY_DIGITS_LONG = {DISPLAY_DIGITS_LONG};
+
+    /** Number of fraction hex digits for short (COMP-1) or long (COMP-2). */
+    public static int precisionDigits(boolean isShort) {{
+        return isShort ? PRECISION_SHORT : PRECISION_LONG;
+    }}
+
+    /** Number of storage bytes for short (COMP-1) or long (COMP-2). */
+    public static int precisionBytes(boolean isShort) {{
+        return isShort ? BYTES_SHORT : BYTES_LONG;
+    }}
+
+    /** Maximum significant digits when converting to fixed point. */
+    public static int maxSignificantDigits(boolean isShort) {{
+        return isShort ? SIGNIFICANT_DIGITS_SHORT : SIGNIFICANT_DIGITS_LONG;
+    }}
+
+    /** Number of fractional digits in DISPLAY format (-.9(N)E-99). */
+    public static int displayMantissaDigits(boolean isShort) {{
+        return isShort ? DISPLAY_DIGITS_SHORT : DISPLAY_DIGITS_LONG;
+    }}
+
+    /** COBOL usage type name. */
+    public static String typeName(boolean isShort) {{
+        return isShort ? "{TYPE_NAME_COMP1}" : "{TYPE_NAME_COMP2}";
+    }}
+
+    /** True if the exponent (unbiased) is within valid HFP range [-64, 63]. */
+    public static boolean isExponentInRange(int exp) {{
+        return exp >= MIN_EXPONENT && exp <= MAX_EXPONENT;
+    }}
+
+    /** Get registered rule ID from key. */
+    public static String ruleId(String key) {{
+        return switch (key) {{
+{rule_cases}
+            default -> "UNKNOWN";
+        }};
+    }}
+}}
+"""
+
+
+def render_hfp_markdown() -> str:
+    """Generate docs/language_status/cobol_hfp_matrix.md."""
+    r_rows = []
+    for rid, meta in sorted(HFP_RULES.items()):
+        doc_sec = f"{meta.ibm['doc']}: {meta.ibm['section']}" if meta.ibm else (meta.ibm_note or "-")
+        reg = ", ".join(f"`{x}`" for x in meta.register) if meta.register else "-"
+        opts = ", ".join(f"`{x}`" for x in meta.options) if meta.options else "-"
+        r_rows.append(f"| `{rid}` | `{meta.status}` | {meta.title} | {doc_sec} | {opts} | {reg} |")
+    r_table = "\n".join(r_rows)
+
+    v_rows = [
+        f"| `{vec.id}` | {vec.title} | `{vec.rule_id}` | `{'COMP-1' if vec.short else 'COMP-2'}` | `{vec.input_value}` | `{vec.expected_hex}` | `{vec.expected_fixed or '-'}` | `{vec.expected_display or '-'}` | {vec.note or '-'} |"
+        for vec in HFP_VECTORS
+    ]
+    v_table = "\n".join(v_rows)
+
+    return f"""<!-- {BANNER} -->
+# COBOL Hexadecimal Floating Point (HFP) Specification (#4712)
+
+Part of the **cobolrt-as-a-product** epic ([#4710](https://github.com/squid-protocol/gitgalaxy/issues/4710)).
+Single source of truth: [`gitgalaxy/standards/cobol/hfp.py`](../../gitgalaxy/standards/cobol/hfp.py).
+Generated by `python -m gitgalaxy.standards.cobol regen`.
+
+Reference:
+- **IBM z/Architecture Principles of Operation (SA22-7832)**: Chapters *Hexadecimal-Floating-Point Number Representation*, *Hexadecimal-Floating-Point Instructions*.
+- **IBM Enterprise COBOL for z/OS 6.4 Programming Guide (SC27-8714-03)**: Chapters *Conversions and precision*, *Converting to numbers*.
+- **IBM Enterprise COBOL for z/OS 6.4 Language Reference (SC26-4940-06)**: Chapter *DISPLAY statement*.
+
+## 1. Rule Catalogue (HFP Family)
+
+| Rule ID | Status | Title | IBM Manual Reference | Options | Register |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+{r_table}
+
+## 2. HFP Format & Invariants
+
+- **Storage Layout & Biased Characteristic**:
+  - `COMP-1` (single precision / short): 4 bytes (32 bits): bit 0 sign, bits 1-7 characteristic (exponent base 16, excess 64, range 0..127 corresponding to exponents -64..+63), bits 8-31 fraction (6 hexadecimal digits).
+  - `COMP-2` (double precision / long): 8 bytes (64 bits): bit 0 sign, bits 1-7 characteristic (excess 64), bits 8-63 fraction (14 hexadecimal digits).
+  - True zero is represented by all zero bytes (`0x00000000` or `0x0000000000000000`).
+- **Normalized Arithmetic & Guard Digit**:
+  - `ADD` and `SUBTRACT` align operands with exactly **one hexadecimal guard digit**; digits shifted beyond the guard digit are lost. The sum is normalized and truncated.
+  - `MULTIPLY` and `DIVIDE` truncate the exact product or quotient to the target precision (6 or 14 hex digits).
+  - Division by zero raises `SIZE ERROR` with the target receiver unchanged in statement context, and is refused by name in nested expressions (Register C14).
+- **Rounding & Precision Bounds**:
+  - `LOAD ROUNDED` (COMP-2 to COMP-1 conversion) adds a `1` at the first discarded bit (half away from zero).
+  - Fixed-point to floating-point: truncated to 14 hex digits, then rounded to 6 hex digits for COMP-1.
+  - Floating-point to fixed-point: rounded half away from zero in the receiver's low-order position, retaining at most 9 significant digits (COMP-1) or 18 significant digits (COMP-2).
+- **External DISPLAY Format**:
+  - `COMP-1`: formatted as `-.9(8)E-99` (14 characters total: sign, decimal point, 8 fraction digits rounded, exponent indicator `E`, exponent sign, 2 exponent digits).
+  - `COMP-2`: formatted as `-.9(17)E-99` (23 characters total: sign, decimal point, 17 fraction digits rounded, exponent indicator `E`, exponent sign, 2 exponent digits).
+- **IEEE-754 Conversion**:
+  - Exact bidirectional mapping between IEEE binary32/binary64 and IBM HFP short/long formats (Register C6).
+
+## 3. Deterministic Test Vectors
+
+| Vector ID | Title | Rule Verified | Precision | Input | Expected Hex | Expected Fixed | Expected Display | Note |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+{v_table}
+"""
+
+
+def render_hfp_tests() -> str:
+    """Generate tests/cobol_mainframe/test_cobol_hfp_vectors.py."""
+    return '''# ==============================================================================
+# GitGalaxy
+# Copyright (c) 2026 Joe Esquibel
+#
+# This source code is licensed under the PolyForm Noncommercial License 1.0.0.
+# You may not use this file except in compliance with the License.
+# A copy of the license can be found in the LICENSE file in the root directory
+# of this project, or at https://polyformproject.org/licenses/noncommercial/1.0.0/
+# ==============================================================================
+"""Test vectors for COBOL Hexadecimal Floating Point (HFP) rules (#4712, epic #4710).
+
+Generated from gitgalaxy/standards/cobol by `python -m gitgalaxy.standards.cobol regen`.
+Verifies that the declarative HFP rules, conversions, and deterministic test vectors
+execute directly in CI without requiring Docker or external compilers.
+"""
+
+from __future__ import annotations
+
+import sys
+from fractions import Fraction
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parents[2]
+if str(REPO) not in sys.path:
+    sys.path.insert(0, str(REPO))
+
+import pytest
+
+from gitgalaxy.standards.cobol.cli import problems, stale
+from gitgalaxy.standards.cobol.hfp import (
+    BYTES_LONG,
+    BYTES_SHORT,
+    HFP_RULES,
+    HFP_VECTORS,
+    PRECISION_LONG,
+    PRECISION_SHORT,
+    SIGNIFICANT_DIGITS_LONG,
+    SIGNIFICANT_DIGITS_SHORT,
+    execute_decode,
+    execute_display,
+    execute_encode,
+    execute_power,
+    execute_to_fixed,
+    execute_to_short,
+)
+from gitgalaxy.tools.cobol_to_java.det import hfp as _hfp
+
+
+def test_cobol_hfp_spec_has_no_problems():
+    """Verify internal consistency of standards/cobol HFP rules."""
+    errs = problems()
+    assert errs == [], f"cobol spec has consistency problems: {errs}"
+
+
+def test_cobol_hfp_generated_files_are_not_stale():
+    """Verify committed HfpSpec.java, docs, and tests match the standards tables."""
+    diff = stale()
+    assert diff == [], f"standards generated files are stale: {diff}; run `python -m gitgalaxy.standards.cobol regen`"
+
+
+def test_all_hfp_rules_and_constants_defined():
+    """Verify HFP rules and precision constants are properly defined."""
+    assert len(HFP_RULES) == 14
+    assert PRECISION_SHORT == 6
+    assert PRECISION_LONG == 14
+    assert BYTES_SHORT == 4
+    assert BYTES_LONG == 8
+    assert SIGNIFICANT_DIGITS_SHORT == 9
+    assert SIGNIFICANT_DIGITS_LONG == 18
+    assert len(HFP_VECTORS) >= 25
+
+
+@pytest.mark.parametrize("vec", HFP_VECTORS, ids=lambda v: v.id)
+def test_hfp_vector_rule_alignment(vec):
+    """Verify each test vector correctly aligns with a registered rule."""
+    assert vec.rule_id in HFP_RULES
+    meta = HFP_RULES[vec.rule_id]
+    assert meta.id == vec.rule_id
+
+
+@pytest.mark.parametrize("vec", HFP_VECTORS, ids=lambda v: v.id)
+def test_hfp_vector_encoding(vec):
+    """Verify HFP encoding matches expected hexadecimal representation."""
+    if vec.expected_hex.startswith("ERROR_"):
+        return
+    if vec.input_value.startswith("ieee_"):
+        if vec.short:
+            b = _hfp.from_ieee(0x3F800000, 4)  # 1.0f
+        else:
+            b = _hfp.from_ieee(0xC05DA80000000000, 8)  # -118.625d
+        assert b.hex().upper() == vec.expected_hex
+        return
+    if vec.input_value.startswith("numval"):
+        b = _hfp.encode(_hfp.of("123.45"), False)
+        assert b.hex().upper() == vec.expected_hex
+        return
+    if vec.input_value.startswith("fixed_store"):
+        b = _hfp.encode(_hfp.for_item(Fraction("-1.005"), True), True)
+        assert b.hex().upper() == vec.expected_hex
+        return
+    if vec.input_value == "to_short(2/3)":
+        res = _hfp.to_short(_hfp.div(Fraction(2), Fraction(3), long=True))
+        assert _hfp.encode(res, True).hex().upper() == vec.expected_hex
+        return
+    if vec.input_value == "to_short(-2/3)":
+        res = _hfp.to_short(-_hfp.div(Fraction(2), Fraction(3), long=True))
+        assert _hfp.encode(res, True).hex().upper() == vec.expected_hex
+        return
+    if vec.input_value == "2 ** 10":
+        res = execute_power(2, 10)
+        assert _hfp.encode(res, False).hex().upper() == vec.expected_hex
+        return
+    if vec.input_value == "of(0.1)":
+        res = _hfp.of("0.1")
+        assert _hfp.encode(res, False).hex().upper() == vec.expected_hex
+        return
+    if vec.input_value == "(1 / 3) * 3":
+        third = _hfp.div(Fraction(1), Fraction(3), long=True)
+        res = _hfp.mul(third, Fraction(3), long=True)
+        assert _hfp.encode(res, False).hex().upper() == vec.expected_hex
+        return
+
+    encoded = execute_encode(vec.input_value, vec.short)
+    assert encoded.hex().upper() == vec.expected_hex, f"{vec.id}: expected {vec.expected_hex}, got {encoded.hex().upper()}"
+
+
+@pytest.mark.parametrize("vec", [v for v in HFP_VECTORS if v.expected_display is not None], ids=lambda v: v.id)
+def test_hfp_vector_display(vec):
+    """Verify DISPLAY formatting for vectors specifying expected_display."""
+    disp = execute_display(vec.input_value, not vec.short)
+    assert disp == vec.expected_display, f"{vec.id}: expected {vec.expected_display!r}, got {disp!r}"
+
+
+@pytest.mark.parametrize("vec", [v for v in HFP_VECTORS if v.expected_fixed is not None], ids=lambda v: v.id)
+def test_hfp_vector_fixed(vec):
+    """Verify float-to-fixed conversion for vectors specifying expected_fixed."""
+    if vec.input_value.startswith("fixed_store"):
+        b = _hfp.encode(_hfp.for_item(Fraction("-1.005"), True), True)
+    else:
+        b = execute_encode(vec.input_value, vec.short)
+    sig = 9 if vec.short else 18
+    fix = str(execute_to_fixed(execute_decode(b), vec.scale, sig))
+    assert fix == vec.expected_fixed, f"{vec.id}: expected {vec.expected_fixed!r}, got {fix!r}"
+
+
+def test_hfp_guard_digit_truncation():
+    """Verify that arithmetic retains one guard digit and discards beyond."""
+    one = Fraction(1)
+    # 16**-6 sits in guard digit and is subtracted
+    assert _hfp.sub(one, Fraction(16) ** -6, long=False) == 1 - Fraction(16) ** -6
+    # 16**-8 is shifted past guard digit and lost
+    assert _hfp.sub(one, Fraction(16) ** -8, long=False) == 1
+
+
+def test_hfp_load_rounded():
+    """Verify long-to-short LOAD ROUNDED rounds half away from zero."""
+    res_pos = _hfp.to_short(_hfp.div(Fraction(2), Fraction(3), long=True))
+    assert _hfp.encode(res_pos, True).hex().upper() == "40AAAAAB"
+    res_neg = _hfp.to_short(-_hfp.div(Fraction(2), Fraction(3), long=True))
+    assert _hfp.encode(res_neg, True).hex().upper() == "C0AAAAAB"
+'''
+
+
 def generated() -> dict[Path, str]:
     """The committed generated files and the text the spec renders for each."""
     return {
@@ -1505,16 +2459,25 @@ def generated() -> dict[Path, str]:
         ARITH_JAVA_FILE: render_arith_java(),
         STRING_JAVA_FILE: render_string_java(),
         FUNC_JAVA_FILE: render_func_java(),
+        EDITING_JAVA_FILE: render_editing_java(),
+        SORT_JAVA_FILE: render_sort_java(),
+        HFP_JAVA_FILE: render_hfp_java(),
         MOVE_DOCS_FILE: render_move_markdown(),
         COMPARE_DOCS_FILE: render_compare_markdown(),
         ARITH_DOCS_FILE: render_arith_markdown(),
         STRING_DOCS_FILE: render_string_markdown(),
         FUNC_DOCS_FILE: render_func_markdown(),
+        EDITING_DOCS_FILE: render_editing_markdown(),
+        SORT_DOCS_FILE: render_sort_markdown(),
+        HFP_DOCS_FILE: render_hfp_markdown(),
         MOVE_TEST_FILE: render_move_tests(),
         COMPARE_TEST_FILE: render_compare_tests(),
         ARITH_TEST_FILE: render_arith_tests(),
         STRING_TEST_FILE: render_string_tests(),
         FUNC_TEST_FILE: render_func_tests(),
+        EDITING_TEST_FILE: render_editing_tests(),
+        SORT_TEST_FILE: render_sort_tests(),
+        HFP_TEST_FILE: render_hfp_tests(),
     }
 
 
@@ -1575,13 +2538,35 @@ def main(argv: Sequence[str] | None = None) -> int:
             )
             for rid, fr in sorted(FUNC_RULES.items()):
                 print(f"  {rid:<38} {fr.status:<9} {fr.title[:45]}")
+            print(
+                f"COBOL EDIT Standards: {len(EDITING_RULES)} rules, {len(EDITING_SYMBOLS)} symbols, {len(EDITING_VECTORS)} vectors"
+            )
+            for rid, er in sorted(EDITING_RULES.items()):
+                print(f"  {rid:<38} {er.status:<9} {er.title[:45]}")
+            print(
+                f"COBOL SORT Standards: {len(SORT_RULES)} rules, {len(DIRECTION_NAMES)} directions, {len(SORT_VECTORS)} vectors"
+            )
+            for rid, sort_r in sorted(SORT_RULES.items()):
+                print(f"  {rid:<38} {sort_r.status:<9} {sort_r.title[:45]}")
+            print(f"COBOL HFP Standards: {len(HFP_RULES)} rules, {len(HFP_VECTORS)} vectors")
+            for rid, hfp_r in sorted(HFP_RULES.items()):
+                print(f"  {rid:<38} {hfp_r.status:<9} {hfp_r.title[:45]}")
         return 0
 
     if args.cmd == "check":
         found = problems()
         for p in found:
             print(p)
-        total_rules = len(MOVE_RULES) + len(COMPARE_RULES) + len(ARITH_RULES) + len(STRING_RULES) + len(FUNC_RULES)
+        total_rules = (
+            len(MOVE_RULES)
+            + len(COMPARE_RULES)
+            + len(ARITH_RULES)
+            + len(STRING_RULES)
+            + len(FUNC_RULES)
+            + len(EDITING_RULES)
+            + len(SORT_RULES)
+            + len(HFP_RULES)
+        )
         print(
             f"cobol spec: {total_rules} rules, {len(MOVE_MATRIX) + len(COMPARE_MATRIX)} matrix cells, {'ok' if not found else f'{len(found)} problem(s)'}"
         )

@@ -59,6 +59,9 @@ OWNERS: tuple[tuple[str, str], ...] = (
     (r"^EXEC CICS", "#4270 (cics-command-slice)"),
     (r"^grammar:", "#4462"),
     (r"^CEE(?:HDL[RU]|MGET|SGL|NCOD|MRCE|3SRP):", "#5106 (le-condition-handling)"),
+    (r"OS/VS COBOL BLL addressing", "#5119"),
+    (r"the PICTURE N \(", "#4272"),
+    (r"^SET TO ENTRY:", "#5106"),
     (r"^missing copybook: estate-owned", "none (the estate's own copybook is not in the clone)"),
     (r"^missing copybook", "unowned (copybook family)"),
 )
@@ -66,6 +69,13 @@ OWNERS: tuple[tuple[str, str], ...] = (
 
 def owner_of(gap: str) -> str:
     return next((o for pat, o in OWNERS if re.search(pat, gap)), "unowned")
+
+
+def reowner(res: dict[str, Any]) -> dict[str, Any]:
+    """Re-apply `owner_of` to a committed summary: owners are pointers, so a re-render refreshes them with no survey."""
+    for g in res.get("gaps", []):
+        g["owner"] = owner_of(g["gap"])
+    return res
 
 
 def status_of(gap: str) -> str:
@@ -373,14 +383,16 @@ def main(argv: list[str] | None = None) -> int:
             raise SystemExit(f"no {args.label}-*/survey.json under {args.survey}")
         res = measure({k: r for k, r in rows.items() if cc.is_burned(k[0])}, top=tuple(args.top))
     elif SUMMARY.is_file():
-        res = json.loads(SUMMARY.read_text(encoding="utf-8"))
+        res = reowner(json.loads(SUMMARY.read_text(encoding="utf-8")))
     else:
         raise SystemExit("--survey DIR is needed (no committed burned summary yet)")
     if census is None and CENSUS_SUMMARY.is_file():
-        census = json.loads(CENSUS_SUMMARY.read_text(encoding="utf-8"))
+        census = reowner(json.loads(CENSUS_SUMMARY.read_text(encoding="utf-8")))
+        if args.write:
+            CENSUS_SUMMARY.write_text(json.dumps(census, indent=1, sort_keys=True) + "\n", encoding="utf-8")
     if args.write:
         SUMMARY.parent.mkdir(parents=True, exist_ok=True)
-        if args.survey:
+        if args.survey or SUMMARY.is_file():
             SUMMARY.write_text(json.dumps(res, indent=1, sort_keys=True) + "\n", encoding="utf-8")
         if args.census_survey and census:
             CENSUS_SUMMARY.write_text(json.dumps(census, indent=1, sort_keys=True) + "\n", encoding="utf-8")

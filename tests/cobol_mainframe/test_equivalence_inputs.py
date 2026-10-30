@@ -206,7 +206,11 @@ def test_the_hand_written_ports_hold_on_generated_inputs(tmp_path, case, expect)
         assert {dd: o["records"] for dd, o in report["outputs"].items()} == expect
         assert all(o["equal"] == o["records"] for o in report["outputs"].values())
     else:
-        assert len(report["outputs"]) == 24
+        case_json = json.loads(
+            (Path(__file__).resolve().parents[1] / "equivalence" / case / "case.json").read_text(encoding="utf-8")
+        )
+        # the hand-written scenarios, then the generated ones appended after them
+        assert len(report["outputs"]) == len(case_json["scenarios"]) + case_json["scenario_generate"]["count"]
 
 
 # ---- #3806: inputs of the programs whose FD declares its record inline --------------------------------------

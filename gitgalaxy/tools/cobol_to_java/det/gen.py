@@ -1827,7 +1827,7 @@ class Gen:
             if it.sign_separate and it.signed:
                 raise Untranslatable(f"{num.name} (SIGN SEPARATE) compared with the nonnumeric {other.name}: GnuCOBOL "
                                      f"compares its sign character, IBM no sign (C13)")  # fmt: skip
-            if "P" in it.picture():
+            if "P" in it.symbols():
                 raise Untranslatable(f"{num.name} (P-scaled) compared with the nonnumeric {other.name}: not modelled "
                                      f"(C13)")  # fmt: skip
 
@@ -3801,13 +3801,13 @@ def _text_item(it: L.Item) -> bool:
     USAGE DISPLAY, not national / DBCS."""
     if it.children:
         return all(_text_item(c) for c in it.children)
-    return (it.usage == "DISPLAY" and not set(it.picture()) & set("NG")
+    return (it.usage == "DISPLAY" and not it.symbols() & set("NG")
             and it.category in ("ALPHANUMERIC", "ALPHABETIC", "NUMERIC-EDITED", "ALPHANUMERIC-EDITED"))  # fmt: skip
 
 
 def _unsigned_zoned(it: L.Item) -> bool:
     """An unsigned zoned decimal item (USAGE DISPLAY): its bytes are digit characters, as an alphanumeric item's."""
-    return not it.children and it.category == "NUMERIC" and it.usage == "DISPLAY" and "S" not in it.picture()
+    return not it.children and it.category == "NUMERIC" and it.usage == "DISPLAY" and "S" not in it.symbols()
 
 
 def _may_nan(e) -> bool:

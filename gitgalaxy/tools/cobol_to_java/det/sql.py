@@ -130,11 +130,18 @@ _PREPARE = re.compile(r"PREPARE\s+([A-Z0-9_-]+)\s+FROM\s+'((?:[^']|'')*)'", re.I
 _EXECUTE = re.compile(r"EXECUTE\s+([A-Z0-9_-]+)(?:\s+USING\s+(.+))?", re.I)
 _IMMEDIATE_INSERT = re.compile(r"INSERT\s+INTO\s.*\bVALUES\b.*", re.I | re.S)
 _QUOTED = re.compile(r"'(?:[^']|'')*'")
-# #4269: a scroll cursor's FETCH orientation (IBM Db2 for z/OS SQL Reference, FETCH): NEXT is what a plain FETCH means
-_ORIENT = re.compile(
-    r"FETCH\s+(?:(?:INSENSITIVE|SENSITIVE)\s+)?(PRIOR|FIRST|LAST|CURRENT|BEFORE|AFTER|ABSOLUTE|RELATIVE)(?![A-Z0-9_-])",
-    re.I,
+# #4269: a scroll cursor's FETCH (IBM Db2 for z/OS SQL Reference, FETCH): [INSENSITIVE | SENSITIVE] [orientation] [FROM]
+# cursor INTO ...; NEXT is what a plain FETCH means. ABSOLUTE / RELATIVE take an integer constant or a host variable.
+_FETCH = re.compile(
+    r"FETCH\s+(?:(INSENSITIVE|SENSITIVE)\s+)?"
+    r"(?:(NEXT|PRIOR|FIRST|LAST|CURRENT|(?:ABSOLUTE|RELATIVE)\s+(?:[+-]?\d+|:[A-Z0-9_-]+))\s+)?"
+    r"(?:FROM\s+)?([A-Z0-9_-]+)\s+INTO\s+(.*)",
+    re.I | re.S,
 )
+# the orientations that are positions only (no row, no INTO): refused by name
+_ORIENT_NO_ROW = re.compile(r"FETCH\s+(?:(?:INSENSITIVE|SENSITIVE)\s+)?(BEFORE|AFTER)(?![A-Z0-9_-])", re.I)
+# DECLARE name [INSENSITIVE | SENSITIVE [STATIC | DYNAMIC] | ASENSITIVE] [NO] SCROLL CURSOR: the words between name and CURSOR
+_DECLARE_CURSOR = re.compile(r"\bDECLARE\s+([A-Z0-9_-]+)\s+((?:[A-Z]+\s+){0,4}?)CURSOR\b(\s+WITH\s+HOLD\b)?", re.I)
 # #4269: a multi-row (rowset) FETCH / INSERT: `FETCH ... ROWSET`, `FOR :N ROWS`
 _ROWSET = re.compile(r"\bROWSET\b|\bFOR\s+(?::?[A-Z0-9_-]+)\s+ROWS?\b", re.I)
 _HOLD = re.compile(r"\bDECLARE\s+([A-Z0-9_-]+)\s+(?:[A-Z]+\s+){0,2}?CURSOR\s+WITH\s+HOLD\b", re.I)
@@ -163,6 +170,12 @@ class Sql:
         self.repos: dict[str, str] = {}  # repository class -> its field
         # #4269: the cursors declared WITH HOLD (the program's text, its copybooks included): a COMMIT keeps them open
         self.hold = {m.group(1).upper() for m in _HOLD.finditer(source)}
+        # #4269: the cursors declared SCROLL -> (sensitive, WITH HOLD); a FETCH orientation is for these only
+        self.scroll: dict[str, tuple[bool, bool]] = {}
+        for m in _DECLARE_CURSOR.finditer(source):
+            words = m.group(2).upper().split()
+            if "SCROLL" in words and "NO" not in words:
+                self.scroll[m.group(1).upper()] = (any(w in ("SENSITIVE", "DYNAMIC") for w in words), bool(m.group(3)))
         # #4269: (line, normalised text) of an executable statement -> its WHENEVER actions {condition: label}; None
         # when two statements share the key with different actions (a copybook line number that collides)
         self.whenever: dict[tuple[int, str], dict[str, str] | None] = {}
@@ -401,30 +414,67 @@ class Sql:
                 f"{ind}DetSql.open(SQLCA_AREA, {at}, {self.g_str(cursor)}{hold}, () -> {call}({n}), CS);",
             ]
         if verb == "FETCH" and meth.verb == "CURSOR":
-            m = re.fullmatch(r"FETCH\s+(?:NEXT\s+)?(?:FROM\s+)?([A-Z0-9_-]+)\s+INTO\s+(.*)", sql, re.I | re.S)
+            m = _FETCH.fullmatch(sql)
             if not m:
                 raise SqlError(f"EXEC SQL {u[:50]}")
+            cursor = m.group(3).upper()
+            orient = re.sub(r"\s+", " ", (m.group(2) or "NEXT").upper()).split(" ")
             row = self.g.tmpname("sqlRow")
-            return [f"{ind}java.util.Map<String, Object> {row} = DetSql.fetch(SQLCA_AREA, {at}, "
-                    f"{self.g_str(m.group(1).upper())}, CS);", *self._into(m.group(2), row, ind)]  # fmt: skip
+            if orient[0] == "NEXT" and not m.group(1):
+                call = f"DetSql.fetch(SQLCA_AREA, {at}, {self.g_str(cursor)}, CS)"
+            else:
+                call = self._fetch_scroll(cursor, orient, at)
+            return [f"{ind}java.util.Map<String, Object> {row} = {call};", *self._into(m.group(4), row, ind)]
         if verb == "CLOSE" and meth.verb == "CURSOR":
             return [f"{ind}DetSql.close(SQLCA_AREA, {at}, {self.g_str(u.split()[1])}, CS);"]
         raise SqlError(f"EXEC SQL {verb}")
 
-    @staticmethod
-    def _refuse_scroll_and_rowset(verb: str, sql: str) -> None:
-        """#4269 (register Q4): a scroll FETCH orientation and a multi-row FETCH / INSERT stop by name; the port steps
-        a cursor forward one row (FETCH, FETCH NEXT) and the oracle has no rowset or scroll fixture."""
+    def _fetch_scroll(self, cursor: str, orient: list[str], at: str) -> str:
+        """#4269 (register Q4): FETCH [INSENSITIVE] PRIOR | FIRST | LAST | CURRENT | ABSOLUTE n | RELATIVE n of a cursor
+        declared SCROLL (`_refuse_scroll_and_rowset` has vetted it): DetSql.fetchScroll moves the position over the rows
+        OPEN read. n is an integer constant or a numeric host variable."""
+        n = "0"
+        if len(orient) > 1:
+            if orient[1].startswith(":"):
+                items = self._elementary(self._item(self._ref(orient[1][1:])))
+                if len(items) != 1 or items[0].category != "NUMERIC":
+                    raise SqlError(f"EXEC SQL FETCH {orient[0]} {cursor}: {orient[1]} is not a numeric host variable")
+                n = f"{self.value_in(items[0])}.longValue()"
+            else:
+                n = f"{int(orient[1])}L"
+        return f"DetSql.fetchScroll(SQLCA_AREA, {at}, {self.g_str(cursor)}, {self.g_str(orient[0])}, {n}, CS)"
+
+    def _refuse_scroll_and_rowset(self, verb: str, sql: str) -> None:
+        """#4269 (register Q4): a multi-row FETCH / INSERT, FETCH BEFORE / AFTER (a position, no row), an orientation on a
+        cursor not declared SCROLL, a SENSITIVE or DYNAMIC scroll cursor (the port's rows are a copy made at OPEN) and a
+        scroll cursor WITH HOLD (its position after a COMMIT) stop by name."""
         bare = _QUOTED.sub("''", sql)
-        if verb == "FETCH":
-            o = _ORIENT.match(bare)
-            if o:
-                raise SqlError(f"EXEC SQL FETCH {o.group(1).upper()}: a scroll-cursor FETCH orientation (PRIOR, FIRST, "
-                               "LAST, CURRENT, BEFORE, AFTER, ABSOLUTE, RELATIVE) is not modelled; only FETCH [NEXT] "
-                               "is (register Q4; no burned program uses it)")  # fmt: skip
         if verb in ("FETCH", "INSERT") and _ROWSET.search(bare):
             raise SqlError(f"EXEC SQL {verb}: a multi-row {verb} (ROWSET / FOR n ROWS, host-variable arrays) is not "
                            "modelled (register Q4; no burned program uses it)")  # fmt: skip
+        if verb != "FETCH":
+            return
+        o = _ORIENT_NO_ROW.match(bare)
+        if o:
+            raise SqlError(f"EXEC SQL FETCH {o.group(1).upper()}: a FETCH that only positions the cursor is not "
+                           "modelled (register Q4; no burned program uses it)")  # fmt: skip
+        m = _FETCH.fullmatch(bare)
+        if not m:
+            return
+        cursor = m.group(3).upper()
+        orient = (m.group(2) or "NEXT").upper()
+        what = f"EXEC SQL FETCH {orient} {cursor}"
+        if cursor in self.scroll and (self.scroll[cursor][0] or (m.group(1) or "").upper() == "SENSITIVE"):
+            raise SqlError(f"{what}: a SENSITIVE or DYNAMIC scroll cursor sees later changes; only an INSENSITIVE or "
+                           "ASENSITIVE one, read once at OPEN, is modelled (register Q4)")  # fmt: skip
+        if orient == "NEXT" and not m.group(1):
+            return
+        if cursor not in self.scroll:
+            raise SqlError(f"{what}: the cursor is not declared SCROLL (register Q4)")
+        if self.scroll[cursor][1]:
+            raise SqlError(
+                f"{what}: a scroll cursor WITH HOLD (its position after COMMIT) is not modelled (register Q4)"
+            )
 
     def _end_unit_of_work(self, verb: str, u: str, line: int, ind: str) -> list[str]:
         """#4269: COMMIT / ROLLBACK [WORK] (IBM Db2 for z/OS SQL Reference, COMMIT and ROLLBACK statements)."""

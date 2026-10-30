@@ -58,6 +58,9 @@ class Statement:
     line: int = 0  # the key a SQL fault names, the same one the det port's DetSql calls carry (PROGRAM:LINE)
     verb: str = ""  # the SQL's first word (INSERT, UPDATE, DELETE, SELECT, VALUES, ...): a fault's default SQLCODE
     hold: bool = False  # #4269: an OPEN of a cursor declared WITH HOLD (a COMMIT leaves it open)
+    scroll: bool = False  # #4269: an OPEN of a cursor declared SCROLL, or a FETCH with an orientation
+    orient: str = ""  # #4269: that FETCH's orientation (PRIOR FIRST LAST CURRENT ABSOLUTE RELATIVE)
+    orient_n: int | None = None  # #4269: its integer constant; a host variable's value is the statement's one input
 
 
 def _area(line: str) -> str:
@@ -210,6 +213,7 @@ class Precompiler:
         self.statements: list[Statement] = []
         self.cursors: dict[str, str] = {}  # name -> its SELECT (host variables still named)
         self.hold: set[str] = set()  # #4269: the cursors declared WITH HOLD
+        self.scroll: set[str] = set()  # #4269: the cursors declared INSENSITIVE / ASENSITIVE SCROLL
         self.whenever: dict[str, str] = {}  # #4269: WHENEVER condition -> its GO TO label, in force from here
         self.prepared: dict[str, str] = {}  # #4269: PREPARE name FROM 'literal' -> the text, from here on
 
@@ -257,8 +261,11 @@ class Precompiler:
         cur = re.match(r"DECLARE\s+([A-Z0-9_-]+)\s+(?:(?:SENSITIVE|INSENSITIVE|ASENSITIVE)\s+)?(?:SCROLL\s+)?CURSOR\s+"
                        r"(?:WITH\s+HOLD\s+)?(?:WITH\s+RETURN\s+)?FOR\s+(.*)", text, re.I | re.S)  # fmt: skip
         if cur:
-            if re.search(r"\bSCROLL\b", u.split("CURSOR")[0]):
-                raise Unsupported("EXEC SQL DECLARE ... SCROLL CURSOR")
+            words = u.split("CURSOR")[0].split()
+            if "SCROLL" in words:
+                if "SENSITIVE" in words or "DYNAMIC" in words:
+                    raise Unsupported("EXEC SQL DECLARE ... SENSITIVE SCROLL CURSOR")
+                self.scroll.add(cur.group(1).upper())
             self.cursors[cur.group(1).upper()] = cur.group(2)
             if re.search(r"\bCURSOR\s+WITH\s+HOLD\b", u):
                 self.hold.add(cur.group(1).upper())
@@ -345,13 +352,28 @@ class Precompiler:
             if name not in self.cursors or len(u.split()) > 2:
                 raise Unsupported(f"EXEC SQL {u}: an undeclared cursor, or OPEN ... USING")
             sql, refs = self._bind(self.cursors[name], args)
-            st = Statement(sid, "OPEN", _norm(sql), name, self._vars(refs, args), hold=name in self.hold)
+            st = Statement(sid, "OPEN", _norm(sql), name, self._vars(refs, args), hold=name in self.hold,
+                           scroll=name in self.scroll)  # fmt: skip
         elif verb == "FETCH":
-            m = re.fullmatch(r"FETCH\s+(?:NEXT\s+)?(?:FROM\s+)?([A-Z0-9_-]+)\s+INTO\s+(.*)", text, re.I | re.S)
+            m = re.fullmatch(r"FETCH\s+(?:INSENSITIVE\s+)?(?:(NEXT|PRIOR|FIRST|LAST|CURRENT|(?:ABSOLUTE|RELATIVE)\s+\S+)\s+)?"
+                             r"(?:FROM\s+)?([A-Z0-9_-]+)\s+INTO\s+(.*)", text, re.I | re.S)  # fmt: skip
             if not m:
                 raise Unsupported(f"EXEC SQL {u[:60]}")
-            _, refs = self._bind(m.group(2), args)
-            st = Statement(sid, "FETCH", "", m.group(1).upper(), [], self._vars(refs, args))
+            _, refs = self._bind(m.group(3), args)
+            st = Statement(sid, "FETCH", "", m.group(2).upper(), [], self._vars(refs, args))
+            words = (m.group(1) or "NEXT").upper().split()
+            if words[0] != "NEXT":
+                if st.cursor not in self.scroll:
+                    raise Unsupported(f"EXEC SQL FETCH {words[0]}: the cursor is not declared SCROLL")
+                st.scroll, st.orient = True, words[0]
+                if len(words) > 1:
+                    if words[1].startswith(":"):
+                        _, nrefs = self._bind(words[1], args)
+                        st.inputs = self._vars(nrefs, args)
+                    else:
+                        st.orient_n = int(words[1])
+            elif st.cursor in self.scroll:
+                st.scroll, st.orient = True, "NEXT"
         elif verb == "CLOSE":
             st = Statement(sid, "CLOSE", "", u.split()[1])
         elif verb == "SELECT" or verb == "WITH":
@@ -400,8 +422,11 @@ class Precompiler:
         for s in self.statements:
             # #4173: then the statement's program and source line, the key a SQL fault names
             # #4269: an OPEN of a cursor declared WITH HOLD ends `H` (ggsql.c keeps it open at a COMMIT)
-            out.append(f"S {s.sid} {s.kind} {len(s.inputs)} {len(s.outputs)} {s.cursor} {s.program} {s.line}"
-                       + (" H" if s.hold else ""))  # fmt: skip
+            # #4269: a scroll OPEN / FETCH then ends `K`, the FETCH's orientation and constant as `K:ORIENT[:n]`
+            tail = (" H" if s.hold else "") + (
+                (" K" + (f":{s.orient}" if s.orient else "") + (f":{s.orient_n}" if s.orient_n is not None else ""))
+                if s.scroll else "")  # fmt: skip
+            out.append(f"S {s.sid} {s.kind} {len(s.inputs)} {len(s.outputs)} {s.cursor} {s.program} {s.line}" + tail)
             for tag, vs in (("I", s.inputs), ("O", s.outputs)):
                 for v in vs:
                     out.append(f"{tag} {v.arg} {v.type} {v.length} {v.digits} {v.scale} {v.signed} {v.indicator}")

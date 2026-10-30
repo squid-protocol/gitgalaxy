@@ -2179,15 +2179,17 @@ static void *blk_set_new(const char *key, const void *data, size_t n, int sync) 
 
 /* GETMAIN SET(ptr) FLENGTH / LENGTH INITIMG(byte) (IBM CICS TS, EXEC CICS GETMAIN): GG-NUM the length, GG-FLAGS "SHORT" for the
  * LENGTH form; LENGERR RESP2 1 for FLENGTH below 1 / LENGTH zero (ptr set to zero). Refused: a length above the limit, a LENGTH
- * above 65520, an INITIMG that is not one byte. */
+ * above 65520, an INITIMG that is not one byte. No INITIMG (#6876, imglen 0; IBM: "There is no default initialization", the contents
+ * are undefined): LENGERR as above, any valid length refused by name, as CicsTask.getmain. */
 int GGCGETM(gg_cics *c, void **slot, char *img, int imglen) {
     char flags[41];
     long long n = c->num;
     trim(c->flags, 40, flags);
-    if (imglen != 1) refuse("GETMAIN INITIMG is not one byte");
+    if (imglen > 1) refuse("GETMAIN INITIMG is not one byte");
     c->resp = NORMAL;
     c->resp2 = 0;
     if (n < 1) { c->resp = LENGERR; c->resp2 = 1; *slot = NULL; return 0; }
+    if (imglen == 0) refuse("GETMAIN without INITIMG acquired storage");
     if (n > 268435456LL || (strcmp(flags, "SHORT") == 0 && n > 65520)) refuse("GETMAIN length beyond the limit");
     *slot = blk_new((size_t)n, BLK_GETMAIN);
     memset(*slot, (unsigned char)img[0], (size_t)n);

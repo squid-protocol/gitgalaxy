@@ -343,7 +343,7 @@ class BatchForge:
     def _step_todo(self, st: Step) -> str | None:
         p = st.program or "?"
         if p in COPY and st.refused:
-            return f"TODO: {st.jcl} runs {p}, which {st.refused} -- the copy is refused, not run as a plain copy"
+            return f"TODO: {st.jcl} runs {p}, which {st.refused} -- not run as a plain copy: a utility step to port"
         if st.key or p in ("IEFBR14", *COPY):
             return None
         if p in RUNNERS and st.commands_only:

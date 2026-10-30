@@ -195,6 +195,22 @@ def test_engine_scan_cache_is_restored_by_java_compile_and_seeded_by_its_own_wor
     assert compile_text.count('--scan-cache "$RUNNER_TEMP/java_scan_cache"') == 2, "the check and the scan build"
 
 
+def test_the_seeding_push_filter_covers_every_input_of_the_two_cache_keys():
+    """#5142: a main push that changes either key's inputs must run the seeding, or the next PR misses and regenerates."""
+    text = (WORKFLOWS / "java-base-generation.yml").read_text(encoding="utf-8")
+    block = text.split("paths:")[1].split("workflow_dispatch:")[0]
+    paths = re.findall(r'^\s+- "([^"]+)"', block, re.M)
+    jobs = text.split("jobs:")[1]
+    for expr in re.findall(r"hashFiles\(([^)]*)\)", jobs):
+        for pat in _scan_inputs(expr):
+            if pat.startswith("!"):
+                continue
+            covered = any(
+                pat == p or (p.endswith("/**") and pat.startswith(p[:-2])) for p in paths if not p.startswith(".github")
+            )
+            assert covered, f"{pat} decides a seeded key but a push changing it does not run the seeding"
+
+
 def test_the_seeding_workflow_is_never_cancelled_or_gated_and_never_runs_on_a_pull_request():
     text = (WORKFLOWS / "java-base-generation.yml").read_text(encoding="utf-8")
     assert "cancel-in-progress: false" in text and "github.sha" in text.split("concurrency:")[1].split("jobs:")[0]

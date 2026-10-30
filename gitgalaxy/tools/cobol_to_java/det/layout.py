@@ -501,7 +501,7 @@ def layout(rec: Item) -> None:
 # ---- the initial image -----------------------------------------------------------------------------------------
 def image(rec: Item) -> bytes:
     if rec.level == 1 and rec.redefines and rec.record is not None and rec.record is not rec:
-        return image(rec.record)[: rec.size * rec.occurs].ljust(rec.size * rec.occurs, b" ")
+        return image(rec.record)[: rec.size * rec.occurs].ljust(rec.size * rec.occurs, b"\x00")
     return _image(rec)
 
 

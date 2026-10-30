@@ -23,14 +23,16 @@ ground_truth_plan.py does for `ground-truth`):
            read the engine tree, plus TREE_GUARDS. A module the map lacks, one only import-time lines cover, or one most of
            the suite covers (`core`, `standards`) is `full`, and so is a missing map.
 * `select` also when a changed file is data under tests/doom_rosetta or tests/golden_doom_rosetta (#6278 item 5): the
-           tests that name the doom tree as a word, transitively through helpers, plus TREE_GUARDS. tests/equivalence
-           case data stays `full` (every case-enumerating test and helper reads it; see DATA_TREES).
+           tests that name the doom tree as a word, transitively through helpers, plus TREE_GUARDS. other
+           tests/equivalence case data stays `full` (see DATA_TREES).
 * `select` also when a changed file is the det Java runtime `DetCics.java` or `Sort.java` (slice 6): the tests naming the class
            as the emitted call, plus the tests that hash / compile the runtime tree, plus TREE_GUARDS. Other runtime files stay `full`.
 * `select` also when a changed file is a baseline / ledger JSON (`tests/*.json`, `tests/cobol_mainframe/*.json`) or a
            `det_sweep_coverage` record (slice 8): the tests that name it directly, plus TREE_GUARDS; none naming it is `full`.
 * `select` also for a per-case record `tests/equivalence/infeasible_outcomes/*.json` or `det_mutation/*.json` (slice 9): the
            tests that name the directory or the case id, plus TREE_GUARDS.
+* `select` also for a case's `case.json` / `evidence.json` (slice 12): the tests that name the case id or the file as a word
+           (direct only), plus TREE_GUARDS. Other files in a case directory stay `full`.
 * `select` also for a workflow file `.github/workflows/*.yml` (slice 10): the tests that name the workflows directory or the
            file as a word (direct only), plus TREE_GUARDS.
 * `full`   anything else, any reader that is the engine or a root-level script (it cannot be mapped to a test), an
@@ -132,7 +134,7 @@ def helper_targets(f: str, root: Path = REPO_ROOT, limit: int = HELPER_MAX) -> l
 
 # The data trees whose files tests open by directory name. tests/equivalence is NOT here: its cases are read by every test
 # that globs them or names a helper that does (equivalence.py, evidence.py, det_port.py ...), 170+ test files by direct
-# naming and 650+ transitively, so a case file stays `full` (a per-case coverage map would be needed, #6278 item 5).
+# naming and 650+ transitively, so only a case's case.json / evidence.json map (CASE_FILES, by direct naming); the rest stays `full`.
 DATA_TREES = ("tests/doom_rosetta/", "tests/golden_doom_rosetta/")
 
 
@@ -169,24 +171,42 @@ TOOL_FILE_DIRS = ("tests/tools", "tests/tools/box")
 TOOL_FILE_SUFFIXES = (".json", ".txt", ".sh", ".js")
 
 
+# Slice 12: a case's `case.json` / `evidence.json` (tests/equivalence/<case>/). The tests that name the case id as a word
+# read that case; the 109 / 17 tests that name the file read every case through a glob. Direct only (a closure through
+# equivalence.py is 654 files); a test that reaches a case only through such a helper is the nightly full run's.
+CASE_FILES = ("case.json", "evidence.json")
+CASE_DIR_RX = re.compile(r"^tests/equivalence/([^/]+)/(?:" + "|".join(re.escape(n) for n in CASE_FILES) + r")$")
+CASE_EVIDENCE_READERS = ("tests/cobol_mainframe/test_evidence.py",)
+
+
+def is_case_file(f: str) -> bool:
+    return bool(CASE_DIR_RX.match(f))
+
+
 def is_named_data_file(f: str) -> bool:
     p = Path(f)
     parent = p.parent.as_posix()
-    return (f.endswith(".json") and (f.startswith(SWEEP_COVERAGE_DIR) or parent in NAMED_DATA_DIRS)) or (
-        p.suffix in TOOL_FILE_SUFFIXES and parent in TOOL_FILE_DIRS
+    return (
+        (f.endswith(".json") and (f.startswith(SWEEP_COVERAGE_DIR) or parent in NAMED_DATA_DIRS))
+        or (p.suffix in TOOL_FILE_SUFFIXES and parent in TOOL_FILE_DIRS)
+        or is_case_file(f)
     )
 
 
 def named_data_targets(f: str, root: Path = REPO_ROOT, limit: int = HELPER_MAX) -> list[str] | None:
     """The tests that name data file `f`; None when none do or more than `limit` do (the caller runs everything)."""
     p = Path(f)
-    if f.startswith(SWEEP_COVERAGE_DIR):
+    if m := CASE_DIR_RX.match(f):
+        seeds = {m.group(1), p.name}
+    elif f.startswith(SWEEP_COVERAGE_DIR):
         seeds = {"det_sweep_coverage"}
     elif p.parent.as_posix() in RECORD_DIRS:
         seeds = {p.parent.name, p.stem}
     else:
         seeds = {p.name, p.stem, re.sub(r"_(?:baseline|ledger)$", "", p.stem)}
     hit = _closure(seeds, f, root, limit, direct=True)
+    if hit and p.name == "evidence.json" and is_case_file(f):
+        hit = sorted({*hit, *(g for g in CASE_EVIDENCE_READERS if (root / g).exists())})
     return hit or None
 
 

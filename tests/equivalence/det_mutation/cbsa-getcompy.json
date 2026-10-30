@@ -1275,7 +1275,8 @@
    "case": "56cf5ddf9ed807c8b573f0dea75404aa6a051e4d3366d11a84c26a4a457cf7f3",
    "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
    "harness": "73c619c40386df4ba2bb71d78ef6898be8f113d7c9478a7d05a7639bedf8a684",
-   "oracle": "c16b52604cd8fd17fb175d78decab45df98fa472134a0d92759e6bdfe631c71a"
+   "oracle": "c16b52604cd8fd17fb175d78decab45df98fa472134a0d92759e6bdfe631c71a",
+   "survivors": "685d65f510aab193f018dfa665561c933c1c1e85c6d664d4a053ea197ae139ef"
   },
   "components": {
    "generator": {

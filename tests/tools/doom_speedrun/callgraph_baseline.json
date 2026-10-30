@@ -1,139 +1,139 @@
 {
  "clang": {
   "chocolate-doom": {
-   "agree": 11162,
-   "clang_edges": 11166,
+   "agree": 12017,
+   "clang_edges": 12021,
    "disagreements_in_clean_files": 0,
    "engine_edges": 12117,
-   "files_fatal": 324,
-   "precision": 0.9212,
-   "recall": 0.9996
+   "files_fatal": 318,
+   "precision": 0.9917,
+   "recall": 0.9997
   },
   "crispy-doom": {
-   "agree": 12759,
-   "clang_edges": 12779,
+   "agree": 13819,
+   "clang_edges": 13839,
    "disagreements_in_clean_files": 0,
    "engine_edges": 13962,
-   "files_fatal": 356,
-   "precision": 0.9138,
-   "recall": 0.9984
+   "files_fatal": 350,
+   "precision": 0.9898,
+   "recall": 0.9986
   },
   "doom-ascii": {
-   "agree": 1844,
-   "clang_edges": 1846,
-   "disagreements_in_clean_files": 0,
+   "agree": 1942,
+   "clang_edges": 1944,
+   "disagreements_in_clean_files": 14,
    "engine_edges": 1962,
-   "files_fatal": 81,
-   "precision": 0.9399,
-   "recall": 0.9989
+   "files_fatal": 4,
+   "precision": 0.9898,
+   "recall": 0.999
   },
   "doom-wasm": {
-   "agree": 3671,
-   "clang_edges": 3673,
+   "agree": 3954,
+   "clang_edges": 3956,
    "disagreements_in_clean_files": 0,
    "engine_edges": 4011,
-   "files_fatal": 161,
-   "precision": 0.9152,
+   "files_fatal": 155,
+   "precision": 0.9858,
    "recall": 0.9995
   },
   "doomgeneric": {
-   "agree": 1967,
-   "clang_edges": 1969,
-   "disagreements_in_clean_files": 0,
+   "agree": 2096,
+   "clang_edges": 2098,
+   "disagreements_in_clean_files": 15,
    "engine_edges": 2127,
-   "files_fatal": 92,
-   "precision": 0.9248,
+   "files_fatal": 12,
+   "precision": 0.9854,
    "recall": 0.999
   },
   "doomretro": {
-   "agree": 5296,
-   "clang_edges": 5321,
-   "disagreements_in_clean_files": 2,
+   "agree": 6971,
+   "clang_edges": 6998,
+   "disagreements_in_clean_files": 19,
    "engine_edges": 7066,
-   "files_fatal": 95,
-   "precision": 0.7495,
-   "recall": 0.9953
+   "files_fatal": 20,
+   "precision": 0.9866,
+   "recall": 0.9961
   },
   "dsda-doom": {
-   "agree": 9294,
-   "clang_edges": 9310,
-   "disagreements_in_clean_files": 0,
+   "agree": 10658,
+   "clang_edges": 10674,
+   "disagreements_in_clean_files": 22,
    "engine_edges": 10785,
-   "files_fatal": 246,
-   "precision": 0.8618,
-   "recall": 0.9983
+   "files_fatal": 200,
+   "precision": 0.9882,
+   "recall": 0.9985
   },
   "fastdoom": {
-   "agree": 2416,
-   "clang_edges": 2416,
-   "disagreements_in_clean_files": 0,
+   "agree": 2456,
+   "clang_edges": 2456,
+   "disagreements_in_clean_files": 27,
    "engine_edges": 2527,
-   "files_fatal": 120,
-   "precision": 0.9561,
+   "files_fatal": 82,
+   "precision": 0.9719,
    "recall": 1.0
   },
   "inter-doom": {
-   "agree": 12988,
-   "clang_edges": 12988,
+   "agree": 13606,
+   "clang_edges": 13606,
    "disagreements_in_clean_files": 0,
    "engine_edges": 13682,
-   "files_fatal": 282,
-   "precision": 0.9493,
+   "files_fatal": 258,
+   "precision": 0.9944,
    "recall": 1.0
   },
   "linuxdoom": {
-   "agree": 1512,
-   "clang_edges": 1512,
-   "disagreements_in_clean_files": 0,
+   "agree": 1541,
+   "clang_edges": 1541,
+   "disagreements_in_clean_files": 2,
    "engine_edges": 1546,
-   "files_fatal": 59,
-   "precision": 0.978,
+   "files_fatal": 2,
+   "precision": 0.9968,
    "recall": 1.0
   },
   "nugget-doom": {
-   "agree": 8685,
-   "clang_edges": 8829,
-   "disagreements_in_clean_files": 6,
+   "agree": 9623,
+   "clang_edges": 9772,
+   "disagreements_in_clean_files": 3,
    "engine_edges": 9800,
-   "files_fatal": 213,
-   "precision": 0.8862,
-   "recall": 0.9837
+   "files_fatal": 199,
+   "precision": 0.9819,
+   "recall": 0.9848
   },
   "prboom-plus": {
-   "agree": 3986,
-   "clang_edges": 3997,
-   "disagreements_in_clean_files": 0,
+   "agree": 4451,
+   "clang_edges": 4462,
+   "disagreements_in_clean_files": 18,
    "engine_edges": 4796,
-   "files_fatal": 133,
-   "precision": 0.8311,
-   "recall": 0.9972
+   "files_fatal": 106,
+   "precision": 0.9281,
+   "recall": 0.9975
   },
   "puredoom": {
    "agree": 1864,
    "clang_edges": 1864,
    "disagreements_in_clean_files": 0,
    "engine_edges": 1872,
-   "files_fatal": 3,
+   "files_fatal": 2,
    "precision": 0.9957,
    "recall": 1.0
   },
   "sdl-doom": {
-   "agree": 1908,
-   "clang_edges": 1910,
-   "disagreements_in_clean_files": 0,
+   "agree": 2029,
+   "clang_edges": 2031,
+   "disagreements_in_clean_files": 13,
    "engine_edges": 2054,
-   "files_fatal": 82,
-   "precision": 0.9289,
+   "files_fatal": 22,
+   "precision": 0.9878,
    "recall": 0.999
   },
   "woof": {
-   "agree": 7842,
-   "clang_edges": 7998,
-   "disagreements_in_clean_files": 6,
+   "agree": 8669,
+   "clang_edges": 8830,
+   "disagreements_in_clean_files": 3,
    "engine_edges": 8858,
-   "files_fatal": 212,
-   "precision": 0.8853,
-   "recall": 0.9805
+   "files_fatal": 198,
+   "precision": 0.9787,
+   "recall": 0.9818
   }
  },
  "consensus": {

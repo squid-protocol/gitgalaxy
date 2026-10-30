@@ -21,7 +21,7 @@ The status above judges the record alone (policy: ported_unproven = block). Whet
 | oracle | 51 files `90b9ccefc04328b0` |
 | generator | 120 files `ab0d4d56f74d39a4` |
 | oracle run | gnucobol-models: cobc (GnuCOBOL) 3.1.2.0, image `sha256:7c8080743313` (matches pin: True) |
-| written by | person (unknown) |
+| written by | the det translator (no committed port) |
 
 ## Proof outputs
 

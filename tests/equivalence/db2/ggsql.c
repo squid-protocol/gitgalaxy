@@ -66,8 +66,8 @@ typedef struct {
 } hv;
 
 typedef struct {
-    int id, nin, nout, line, runs, hold;
-    char kind[12], cursor[64], program[16];
+    int id, nin, nout, line, runs, hold, scroll, orient_n, has_n;
+    char kind[12], cursor[64], program[16], orient[12];
     hv in[MAXHV], out[MAXHV];
     char *sql;
     SQLHSTMT h;
@@ -100,10 +100,20 @@ static void load(void) {
             cur = &stmts[nstmts++];
             memset(cur, 0, sizeof *cur);
             strcpy(cur->program, "-");
-            char held[4] = "";
-            sscanf(line + 2, "%d %11s %d %d %63s %15s %d %3s", &cur->id, cur->kind, &cur->nin, &cur->nout,
-                   cur->cursor, cur->program, &cur->line, held);
-            cur->hold = !strcmp(held, "H");
+            char held[40] = "", scr[40] = "";
+            sscanf(line + 2, "%d %11s %d %d %63s %15s %d %39s %39s", &cur->id, cur->kind, &cur->nin, &cur->nout,
+                   cur->cursor, cur->program, &cur->line, held, scr);
+            if (!strcmp(held, "H")) cur->hold = 1;
+            else if (held[0] == 'K') strcpy(scr, held);  /* no H: the scroll token is the first one */
+            if (scr[0] == 'K') {  /* #4269: K, or K:ORIENT[:n] -- a scroll cursor's OPEN / a FETCH's orientation */
+                cur->scroll = 1;
+                char *o = strchr(scr, ':');
+                if (o) {
+                    char *n = strchr(o + 1, ':');
+                    if (n) *n = 0, cur->orient_n = atoi(n + 1), cur->has_n = 1;
+                    snprintf(cur->orient, sizeof cur->orient, "%s", o + 1);
+                }
+            }
             cur->nin = 0, cur->nout = 0;
         } else if ((line[0] == 'I' || line[0] == 'O') && cur) {
             hv *v = line[0] == 'I' ? &cur->in[cur->nin++] : &cur->out[cur->nout++];
@@ -480,6 +490,9 @@ static int injected(stmt *s, sqlca_t *c) {
 }
 
 /* One statement on Db2: the SQLCA and the host variables as the precompiled program sees them. */
+static void outcome(const stmt *s, const sqlca_t *c, int fault);
+static int empty_scroll_open;
+
 static void run(stmt *s, sqlca_t *c, unsigned char **a) {
     SQLRETURN rc;
     if (!strcmp(s->kind, "COMMIT") || !strcmp(s->kind, "ROLLBACK")) {
@@ -509,7 +522,24 @@ static void run(stmt *s, sqlca_t *c, unsigned char **a) {
             o->h = 0;
             return;
         }
-        rc = SQLFetch(o->h);
+        if (s->scroll && s->orient[0] && strcmp(s->orient, "NEXT")) {
+            /* #4269: the orientation, over the insensitive cursor Db2 opened; ABSOLUTE / RELATIVE take the constant,
+             * else the statement's one input host variable */
+            SQLSMALLINT dir = !strcmp(s->orient, "PRIOR") ? SQL_FETCH_PRIOR
+                : !strcmp(s->orient, "FIRST") ? SQL_FETCH_FIRST
+                : !strcmp(s->orient, "LAST") ? SQL_FETCH_LAST
+                : !strcmp(s->orient, "ABSOLUTE") ? SQL_FETCH_ABSOLUTE : SQL_FETCH_RELATIVE;  /* CURRENT: RELATIVE 0 */
+            SQLLEN n = 0;
+            if (s->has_n) n = s->orient_n;
+            else if (s->nin > 0) {
+                char nb[64];
+                if (!num_text(&s->in[0], a[s->in[0].arg], nb)) die("a FETCH offset that is no number", s->cursor);
+                n = atol(nb);
+            }
+            rc = SQLFetchScroll(o->h, dir, n);
+        } else {
+            rc = SQLFetch(o->h);
+        }
         if (rc == SQL_NO_DATA) {
             diag(c, SQL_HANDLE_STMT, o->h, rc);
             return;
@@ -533,6 +563,10 @@ static void run(stmt *s, sqlca_t *c, unsigned char **a) {
     SQLAllocHandle(SQL_HANDLE_STMT, dbc, &s->h);
     /* a cursor has the program's name, so its positioned UPDATE / DELETE (WHERE CURRENT OF name) finds it */
     if (!strcmp(s->kind, "OPEN")) SQLSetCursorName(s->h, (SQLCHAR *)s->cursor, SQL_NTS);
+    if (!strcmp(s->kind, "OPEN") && s->scroll) {  /* #4269: DECLARE ... SCROLL CURSOR, insensitive: rows fixed at OPEN */
+        SQLSetStmtAttr(s->h, SQL_ATTR_CURSOR_SCROLLABLE, (SQLPOINTER)SQL_SCROLLABLE, 0);
+        SQLSetStmtAttr(s->h, SQL_ATTR_CURSOR_SENSITIVITY, (SQLPOINTER)SQL_INSENSITIVE, 0);
+    }
     rc = SQLPrepare(s->h, (SQLCHAR *)s->sql, SQL_NTS);
     if (rc != SQL_SUCCESS && rc != SQL_SUCCESS_WITH_INFO) {
         diag(c, SQL_HANDLE_STMT, s->h, rc);
@@ -547,6 +581,16 @@ static void run(stmt *s, sqlca_t *c, unsigned char **a) {
     if (c->sqlcode < 0 || (rc != SQL_SUCCESS && rc != SQL_SUCCESS_WITH_INFO && rc != SQL_NO_DATA)) {
         SQLFreeHandle(SQL_HANDLE_STMT, s->h);
         s->h = 0;
+        return;
+    }
+    if (!strcmp(s->kind, "OPEN") && s->scroll) {
+        /* #4269: the FETCHes are not logged, so probe once for an empty result and log its end of data (the Java side's
+         * JDBC read it); then back to before-first for the program's first FETCH */
+        if (SQLFetchScroll(s->h, SQL_FETCH_FIRST, 0) == SQL_NO_DATA) {
+            empty_scroll_open = 1;  /* GGSQL logs the end of data once the OPEN itself is logged */
+        } else {
+            SQLFetchScroll(s->h, SQL_FETCH_ABSOLUTE, 0);
+        }
         return;
     }
     if (!strcmp(s->kind, "OPEN")) return;  /* the cursor stays open on s->h */
@@ -621,6 +665,18 @@ int GGSQL(unsigned char *id, unsigned char *ca,
         return 0;
     }
     run(s, c, a);
-    outcome(s, c, 0);
+    /* #4269: a scroll cursor's FETCH is not logged: the Java side reads the rows once at OPEN, so the two sides' fetch
+     * counts differ by design; the rows the program sees are still compared through its output */
+    if (!(s->scroll && !strcmp(s->kind, "FETCH"))) outcome(s, c, 0);
+    if (empty_scroll_open) {
+        stmt probe = *s;
+        sqlca_t end;
+        memset(&end, 0, sizeof end);
+        strcpy(probe.kind, "FETCH");
+        end.sqlcode = 100;
+        memcpy(end.sqlstate, "02000", 5);
+        outcome(&probe, &end, 0);
+        empty_scroll_open = 0;
+    }
     return 0;
 }

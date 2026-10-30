@@ -378,7 +378,7 @@ _SCROLL_AND_ROWSET = [
 
 
 @pytest.mark.parametrize("sql, why", _SCROLL_AND_ROWSET)
-def test_scroll_orientations_and_multi_row_forms_are_refused_by_name(sql, why):
+def test_orientations_without_a_scroll_cursor_and_multi_row_forms_are_refused_by_name(sql, why):
     from gitgalaxy.tools.cobol_to_java.det.sql import SqlError
 
     with pytest.raises(SqlError, match=rf"(?s)({why}).*register Q4"):
@@ -417,13 +417,13 @@ def test_plain_fetch_and_insert_are_not_taken_for_scroll_or_multi_row(sql):
 
 
 _SCROLL_OR_ROWSET_SQL = re.compile(
-    r"EXEC\s+SQL\s+(?:(?!END-EXEC).)*?\b(?:FETCH\s+(?:(?:INSENSITIVE|SENSITIVE)\s+)?(?:PRIOR|LAST|CURRENT|BEFORE|AFTER|"
-    r"ABSOLUTE|RELATIVE|NEXT\s+ROWSET|ROWSET)\b|FOR\s+:?[A-Z0-9-]+\s+ROWS\b|WITH\s+ROWSET\s+POSITIONING)",
+    r"EXEC\s+SQL\s+(?:(?!END-EXEC).)*?\b(?:FETCH\s+(?:(?:INSENSITIVE|SENSITIVE)\s+)?(?:BEFORE|AFTER|NEXT\s+ROWSET|"
+    r"ROWSET)\b|FOR\s+:?[A-Z0-9-]+\s+ROWS\b|WITH\s+ROWSET\s+POSITIONING)",
     re.I | re.S,
 )
 
 
-def test_no_burned_estate_program_uses_a_scroll_fetch_or_multi_row_sql():
+def test_no_burned_estate_program_uses_a_positioning_fetch_or_multi_row_sql():  # (PRIOR, FIRST ... are modelled, #4269)
     root = Path(os.environ.get("GITGALAXY_MAINFRAME_CORPORA", TOOLS.parents[1] / ".mainframe_corpora"))
     present = [root / n for n in _BURNED_CORPORA if (root / n).is_dir()]
     if not present:
@@ -437,10 +437,171 @@ def test_no_burned_estate_program_uses_a_scroll_fetch_or_multi_row_sql():
                 ln for ln in path.read_text(encoding="latin-1").splitlines() if len(ln) < 7 or ln[6] not in "*/"
             )
             hits += [f"{path.relative_to(root)}: {_norm_hit(m.group(0))}" for m in _SCROLL_OR_ROWSET_SQL.finditer(code)]
-    assert not hits, "a burned program now uses a scroll FETCH or multi-row SQL: model it (register Q4):\n" + "\n".join(
-        hits[:10]
+    assert not hits, (
+        "a burned program now uses FETCH BEFORE / AFTER or multi-row SQL: model it (register Q4):\n"
+        + "\n".join(hits[:10])
     )
 
 
 def _norm_hit(text):
     return re.sub(r"\s+", " ", text)[:80]
+
+
+# ---- #4269: FETCH PRIOR / FIRST / LAST / CURRENT / ABSOLUTE n / RELATIVE n of an (INSENSITIVE) SCROLL cursor ---------
+# IBM Db2 for z/OS SQL Reference, FETCH: the cursor sits before the first row, on a row, or after the last; a move that
+# leaves the rows is SQLCODE +100 and parks it there. The port reads the rows at OPEN, so it models the insensitive cursor.
+
+
+def _scroll_sql(declare):
+    from gitgalaxy.tools.cobol_to_java.det.sql import Sql
+
+    return Sql(_Gen(), "P", None, f"EXEC SQL DECLARE {declare} FOR SELECT A FROM T END-EXEC.")
+
+
+@pytest.mark.parametrize(
+    "declare, fetch, why",
+    [
+        ("S1 SENSITIVE SCROLL CURSOR", "FETCH PRIOR S1 INTO :A", "SENSITIVE or DYNAMIC"),
+        ("S1 SENSITIVE DYNAMIC SCROLL CURSOR", "FETCH LAST S1 INTO :A", "SENSITIVE or DYNAMIC"),
+        ("S1 INSENSITIVE SCROLL CURSOR", "FETCH SENSITIVE LAST S1 INTO :A", "SENSITIVE or DYNAMIC"),
+        ("S1 SCROLL CURSOR WITH HOLD", "FETCH FIRST S1 INTO :A", "WITH HOLD"),
+        ("S1 NO SCROLL CURSOR", "FETCH FIRST S1 INTO :A", "not declared SCROLL"),
+        ("S1 CURSOR", "FETCH ABSOLUTE 2 S1 INTO :A", "not declared SCROLL"),
+        ("S1 SCROLL CURSOR", "FETCH BEFORE S1", "only positions"),
+        ("S1 SCROLL CURSOR", "FETCH AFTER S1", "only positions"),
+        ("S1 SCROLL CURSOR", "FETCH NEXT ROWSET FROM S1 FOR 2 ROWS INTO :A", "multi-row"),
+    ],
+)
+def test_a_scroll_fetch_the_port_cannot_model_is_refused_by_name(declare, fetch, why):
+    from gitgalaxy.tools.cobol_to_java.det.sql import SqlError
+
+    with pytest.raises(SqlError, match=rf"(?s){why}.*register Q4"):
+        _scroll_sql(declare).command(f"EXEC SQL {fetch} END-EXEC", 7, "")
+
+
+@pytest.mark.parametrize("declare", ["S1 SCROLL CURSOR", "S1 INSENSITIVE SCROLL CURSOR", "S1 ASENSITIVE SCROLL CURSOR"])
+@pytest.mark.parametrize(
+    "fetch", ["FETCH PRIOR S1", "FETCH FIRST FROM S1", "FETCH ABSOLUTE -2 S1", "FETCH RELATIVE :N S1"]
+)
+def test_a_scroll_fetch_of_a_scroll_cursor_passes_the_checks(declare, fetch):
+    # (the stub has no generated repository method: reaching that error means every Q4 check passed)
+    from gitgalaxy.tools.cobol_to_java.det.sql import SqlError
+
+    with pytest.raises(SqlError, match="no generated Db2 repository method"):
+        _scroll_sql(declare).command(f"EXEC SQL {fetch} INTO :A END-EXEC", 7, "")
+
+
+_SCROLL_MAIN = """package ggtest;
+
+import ggtest.cobolrt.Field;
+import ggtest.cobolrt.Storage;
+import ggtest.cobolrt.sql.DetSql;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Map;
+
+public class Main {
+    static final Charset CS = StandardCharsets.ISO_8859_1;
+    static Object last = 0;
+
+    static int sqlcode(Field ca) {
+        byte[] b = ca.storage().bytes;
+        return (b[12] & 0xFF) | (b[13] & 0xFF) << 8 | (b[14] & 0xFF) << 16 | b[15] << 24;
+    }
+
+    static List<Map<String, Object>> rows(int n) {
+        List<Map<String, Object>> out = new java.util.ArrayList<>();
+        for (int i = 1; i <= n; i++) out.add(Map.of("ID", i * 10));
+        return out;
+    }
+
+    static void go(Field ca, String c, String o, long n) {
+        Map<String, Object> row = o.equals("NEXT") ? DetSql.fetch(ca, "P:9", c, CS) : DetSql.fetchScroll(ca, "P:9", c, o, n, CS);
+        if (row != null) last = row.get("ID");
+        System.out.println(o + " " + n + " " + sqlcode(ca) + " " + last);
+    }
+
+    public static void main(String[] a) {
+        Field ca = Field.group(new Storage(136), 0, 136);
+        DetSql.open(ca, "P:1", "S1", () -> rows(5), CS);
+        Object[][] steps = {
+            {"NEXT", 0}, {"LAST", 0}, {"PRIOR", 0}, {"FIRST", 0}, {"ABSOLUTE", 3}, {"ABSOLUTE", -2}, {"RELATIVE", 1},
+            {"RELATIVE", 1}, {"PRIOR", 0}, {"CURRENT", 0}, {"RELATIVE", -3}, {"ABSOLUTE", 4}, {"FIRST", 0}, {"PRIOR", 0},
+            {"NEXT", 0}, {"ABSOLUTE", 9}, {"PRIOR", 0}, {"RELATIVE", -9}, {"NEXT", 0}, {"ABSOLUTE", 0}, {"ABSOLUTE", -5},
+            {"ABSOLUTE", -6}, {"NEXT", 0}, {"RELATIVE", 0}};
+        for (Object[] s : steps) go(ca, "S1", (String) s[0], ((Number) s[1]).longValue());
+        DetSql.close(ca, "P:2", "S1", CS);
+        go(ca, "S1", "LAST", 0);
+        DetSql.open(ca, "P:3", "S2", () -> rows(0), CS);
+        go(ca, "S2", "FIRST", 0);
+        go(ca, "S2", "LAST", 0);
+        go(ca, "S2", "NEXT", 0);
+        go(ca, "S2", "PRIOR", 0);
+        try {
+            DetSql.fetchScroll(ca, "P:4", "S2", "SIDEWAYS", 0, CS);
+        } catch (UnsupportedOperationException e) {
+            System.out.println("refused");
+        }
+    }
+}
+"""
+
+
+def _jdk():
+    home = os.environ.get("JDK_17") or os.environ.get("JAVA_HOME")
+    return Path(home) / "bin" if home and (Path(home) / "bin" / "javac").is_file() else None
+
+
+@pytest.mark.skipif(_jdk() is None, reason="no JDK (JDK_17 / JAVA_HOME)")
+def test_detsql_moves_a_position_over_the_rows_read_at_open_as_db2_does(tmp_path):
+    from javac_server import javac as javac_run
+
+    rt = TOOLS.parent.parent / "gitgalaxy" / "tools" / "cobol_to_java" / "det" / "cobolrt"
+    src = tmp_path / "src" / "ggtest"
+    for sub in ("", "sql"):
+        (src / "cobolrt" / sub).mkdir(parents=True, exist_ok=True)
+        for f in (rt / sub).glob("*.java"):
+            text = f.read_text(encoding="utf-8").replace("__PACKAGE__", "ggtest")
+            (src / "cobolrt" / sub / f.name).write_text(text, encoding="utf-8")
+    (src / "Main.java").write_text(_SCROLL_MAIN, encoding="utf-8")
+    jdk = _jdk()
+    files = [str(p) for p in (tmp_path / "src").rglob("*.java")]
+    javac = javac_run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"), *files],  # noqa: S603
+                      capture_output=True, text=True, encoding="utf-8", check=False)  # fmt: skip
+    assert javac.returncode == 0, javac.stderr[:3000]
+    out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "ggtest.Main"],  # noqa: S603
+                         capture_output=True, text=True, encoding="utf-8", check=True).stdout.splitlines()  # fmt: skip
+    # rows 10..50; "<orientation> <n> <SQLCODE> <the last row fetched>" -- +100 leaves the host variable as it was
+    assert out == [
+        "NEXT 0 0 10",
+        "LAST 0 0 50",
+        "PRIOR 0 0 40",
+        "FIRST 0 0 10",
+        "ABSOLUTE 3 0 30",
+        "ABSOLUTE -2 0 40",
+        "RELATIVE 1 0 50",
+        "RELATIVE 1 100 50",  # past the last row: after it
+        "PRIOR 0 0 50",  # from after the last row, PRIOR is the last
+        "CURRENT 0 0 50",
+        "RELATIVE -3 0 20",
+        "ABSOLUTE 4 0 40",
+        "FIRST 0 0 10",
+        "PRIOR 0 100 10",  # before the first row
+        "NEXT 0 0 10",  # from before the first, NEXT is the first
+        "ABSOLUTE 9 100 10",
+        "PRIOR 0 0 50",  # beyond the end, then back one from after-last
+        "RELATIVE -9 100 50",
+        "NEXT 0 0 10",
+        "ABSOLUTE 0 100 10",  # ABSOLUTE 0: before the first row
+        "ABSOLUTE -5 0 10",
+        "ABSOLUTE -6 100 10",  # -n counts from the end; one more than there are is before the first
+        "NEXT 0 0 10",
+        "RELATIVE 0 0 10",
+        "LAST 0 -501 10",  # closed
+        "FIRST 0 100 10",
+        "LAST 0 100 10",
+        "NEXT 0 100 10",
+        "PRIOR 0 100 10",  # no rows: every move is +100
+        "refused",
+    ]

@@ -1,5 +1,5 @@
 {
- "commit": "cd77e276d",
+ "commit": "294b74abb",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -160,7 +160,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-30T20:58:17Z",
+  "as_of": "2026-10-30T21:19:23Z",
   "core": {
    "closed": 196,
    "open": 15,
@@ -198,8 +198,8 @@
    "total": 50
   },
   "infra": {
-   "closed": 237,
-   "open": 31,
+   "closed": 238,
+   "open": 30,
    "total": 268
   },
   "measured": true,
@@ -233,9 +233,9 @@
     "total": 12
    },
    {
-    "closed": 57,
+    "closed": 58,
     "number": 6,
-    "open": 7,
+    "open": 6,
     "title": "Side Quests \ud83d\uddfa\ufe0f",
     "total": 64
    },
@@ -268,9 +268,9 @@
     "total": 206
    },
    {
-    "closed": 52,
+    "closed": 53,
     "number": 12,
-    "open": 7,
+    "open": 6,
     "title": "Yes, but can it go faster...?",
     "total": 59
    },
@@ -409,8 +409,8 @@
    }
   ],
   "sweep": {
-   "closed": 93,
-   "open": 7,
+   "closed": 94,
+   "open": 6,
    "total": 100
   },
   "title_counts": {
@@ -419,7 +419,7 @@
     "total": 110
    },
    "cobol": {
-    "closed": 132,
+    "closed": 133,
     "total": 148
    }
   },

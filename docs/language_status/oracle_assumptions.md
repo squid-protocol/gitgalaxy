@@ -199,7 +199,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | Q1 | Db2 | Db2 for Linux runs the SQL, not Db2 for z/OS | ASSUMED | yes |
 | Q2 | Db2 | EXEC SQL keeps RETURN-CODE | ASSUMED | yes |
 | Q3 | Db2 | The unit of work: one per CICS task; one per batch step, ended by EXEC SQL COMMIT / ROLLBACK (cursors closed as Db2 for z/OS closes them), backed out by an abend, with SAVEPOINT / ROLLBACK TO SAVEPOINT / RELEASE SAVEPOINT run by Db2; a CICS program's ROLLBACK refused (-926) | MATCHED | CICS: yes (CBSA XFRFUN); batch: yes (synthetic UOWDEMO, `tests/equivalence/db2/uow`, #4269) |
-| Q4 | Db2 | dynamic SQL beyond a literal INSERT (and its USING-bound markers), CONNECT, CALL, SENSITIVE / DYNAMIC scroll cursors, rowset positioning (STARTING AT), NOT ATOMIC and a mid-rowset failure of INSERT ... FOR n ROWS, host-variable arrays outside a ROWSET FETCH or an INSERT ... FOR n ROWS; a savepoint statement in a CICS program | REFUSED | — |
+| Q4 | Db2 | dynamic SQL beyond a literal INSERT (and its USING-bound markers), CONNECT, CALL, SENSITIVE / DYNAMIC scroll cursors, rowset positioning (STARTING AT), NOT ATOMIC INSERT ... FOR n ROWS, host-variable arrays outside a ROWSET FETCH or an INSERT ... FOR n ROWS; a savepoint statement in a CICS program | REFUSED | — |
 | Q5 | Db2 | DSNTIAC / DSNTIAR message formatting | STAND-IN | no |
 | Q6 | Db2 | Date and time text in ISO form; DDL adapted from z/OS jobs | ASSUMED | yes (CBSA, GenApp) |
 | Q7 | Db2 | `CCSID EBCDIC` tables hold Unicode text: string order differs | DIFFERS | no |
@@ -5239,8 +5239,9 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   the first row gives that row's SQLCODE and SQLERRD(3) 0 (proven: duplicate key -803). Proven on Db2 by an estate built
   inline in `test_insdemo_det_port_proves_on_db2_against_the_hand_trace` (literal and host-variable counts, a NULL through
   an indicator, a first-row duplicate key, the row count read back). **Assumptions:** ATOMIC is the default and undoes the
-  statement on a failure; that undo is not modelled, so a failure after the first row is refused at run time on both sides
-  (the oracle stops, the port throws) rather than answering a state it cannot prove. No burned estate uses it.
+  statement on a failure; the port models it with an internal savepoint (`GGINSROWS_UNDO`) on the unit of work, so a
+  mid-rowset failure leaves no rows and SQLERRD(3) 0 (proven on Db2: duplicate on row 2 and on the last row). Without a
+  unit of work a failure after the first row is still refused. NOT ATOMIC CONTINUE ON SQLEXCEPTION stays refused. No burned estate uses it.
 - **Modelled, proven on Db2 (#4269).** `COMMIT [WORK]` and `ROLLBACK [WORK]` end the unit of work a batch (DSN / CAF) step
   runs in (`DetSql.commit` / `rollback`). COMMIT makes the work since the last COMMIT durable and closes the cursors not
   declared `WITH HOLD`; ROLLBACK undoes the work since the last COMMIT and closes every cursor, so a FETCH after it is -501.

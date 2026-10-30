@@ -26683,6 +26683,20 @@
         "uniqueIdent@599": 0
       }
     },
+    "hlasm/che4z_hlasm": {
+      "hlasm/che4z_hlasm/AAAAA.hlasm": {
+        "TEST@3": 0
+      },
+      "hlasm/che4z_hlasm/factorial.hlasm": {
+        "FACT@4": 0
+      },
+      "hlasm/che4z_hlasm/infinite.hlasm": {
+        "MAC@4": 0
+      },
+      "hlasm/che4z_hlasm/virtual_file.hlasm": {
+        "MAC@9": 0
+      }
+    },
     "hlasm/zecs": {
       "hlasm/zecs/ZECS002.asm": {
         "ZECS002@68": 0

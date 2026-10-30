@@ -322306,7 +322306,21 @@
     },
     "hlasm/che4z_hlasm": {
       "hlasm/che4z_hlasm/A.hlasm": [],
-      "hlasm/che4z_hlasm/AAAAA.hlasm": [],
+      "hlasm/che4z_hlasm/AAAAA.hlasm": [
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 7,
+          "Function Name": "TEST",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 5,
+          "Reflection Hits": 0,
+          "Start Line": 3,
+          "Structural Impact": 1.2
+        }
+      ],
       "hlasm/che4z_hlasm/B.hlasm": [],
       "hlasm/che4z_hlasm/BBBBB.hlasm": [],
       "hlasm/che4z_hlasm/CCCCC.hlasm": [],
@@ -322314,14 +322328,56 @@
       "hlasm/che4z_hlasm/code_action_1.hlasm": [],
       "hlasm/che4z_hlasm/code_action_2.hlasm": [],
       "hlasm/che4z_hlasm/comments.hlasm": [],
-      "hlasm/che4z_hlasm/factorial.hlasm": [],
+      "hlasm/che4z_hlasm/factorial.hlasm": [
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 55,
+          "Function Name": "FACT",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 52,
+          "Reflection Hits": 0,
+          "Start Line": 4,
+          "Structural Impact": 3.0
+        }
+      ],
       "hlasm/che4z_hlasm/forward_dependency.hlasm": [],
-      "hlasm/che4z_hlasm/infinite.hlasm": [],
+      "hlasm/che4z_hlasm/infinite.hlasm": [
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 9,
+          "Function Name": "MAC",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 6,
+          "Reflection Hits": 0,
+          "Start Line": 4,
+          "Structural Impact": 1.3
+        }
+      ],
       "hlasm/che4z_hlasm/output.hlasm": [],
       "hlasm/che4z_hlasm/remote.hlasm": [],
       "hlasm/che4z_hlasm/remote2.hlasm": [],
       "hlasm/che4z_hlasm/tutorial.hlasm": [],
-      "hlasm/che4z_hlasm/virtual_file.hlasm": []
+      "hlasm/che4z_hlasm/virtual_file.hlasm": [
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 42,
+          "Function Name": "MAC",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 34,
+          "Reflection Hits": 0,
+          "Start Line": 9,
+          "Structural Impact": 2.7
+        }
+      ]
     },
     "hlasm/zecs": {
       "hlasm/zecs/ZECS002.asm": [

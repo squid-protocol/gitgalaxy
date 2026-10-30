@@ -94349,12 +94349,36 @@
         ]
       }
     },
+    "hlasm/che4z_hlasm": {
+      "hlasm/che4z_hlasm/AAAAA.hlasm": {
+        "TEST@3": []
+      },
+      "hlasm/che4z_hlasm/factorial.hlasm": {
+        "FACT@4": []
+      },
+      "hlasm/che4z_hlasm/infinite.hlasm": {
+        "MAC@4": []
+      },
+      "hlasm/che4z_hlasm/virtual_file.hlasm": {
+        "MAC@9": [
+          "MAC_VIRTUAL"
+        ]
+      }
+    },
     "hlasm/zecs": {
       "hlasm/zecs/ZECS002.asm": {
-        "ZECS002@68": []
+        "ZECS002@68": [
+          "NOHANDLE"
+        ]
       },
       "hlasm/zecs/ZECSNC.asm": {
-        "ZECSNC@91": []
+        "ZECSNC@91": [
+          "VALUE",
+          "NOHANDLE",
+          "FROM",
+          "LENGTH",
+          "ERASE"
+        ]
       }
     },
     "hlasm/zopeneditor_sample": {

@@ -1775,14 +1775,14 @@
       "hlasm/che4z_hlasm/code_action_1.hlasm": "Data / Markup / Trivial",
       "hlasm/che4z_hlasm/code_action_2.hlasm": "Declarative / Non-Code",
       "hlasm/che4z_hlasm/comments.hlasm": "Data / Markup / Trivial",
-      "hlasm/che4z_hlasm/factorial.hlasm": "Declarative / Non-Code",
+      "hlasm/che4z_hlasm/factorial.hlasm": "Large Core Modules",
       "hlasm/che4z_hlasm/forward_dependency.hlasm": "Declarative / Non-Code",
       "hlasm/che4z_hlasm/infinite.hlasm": "Data / Markup / Trivial",
       "hlasm/che4z_hlasm/output.hlasm": "Data / Markup / Trivial",
       "hlasm/che4z_hlasm/remote.hlasm": "Data / Markup / Trivial",
       "hlasm/che4z_hlasm/remote2.hlasm": "Data / Markup / Trivial",
       "hlasm/che4z_hlasm/tutorial.hlasm": "Declarative / Non-Code",
-      "hlasm/che4z_hlasm/virtual_file.hlasm": "Declarative / Non-Code"
+      "hlasm/che4z_hlasm/virtual_file.hlasm": "Large Core Modules"
     },
     "hlasm/zecs": {
       "hlasm/zecs/ZECS002.asm": "Large Core Modules",

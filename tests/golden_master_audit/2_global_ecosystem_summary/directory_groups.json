@@ -2310,17 +2310,17 @@
         "cognitive_load": 0.0,
         "concurrency": 0.0,
         "dead_code": 5.87,
-        "documentation": 0.0,
+        "documentation": 21.47,
         "safety_score": 0.0,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 47.06,
         "state_flux": 0.0,
-        "tech_debt": 0.0,
-        "verification": 2.16
+        "tech_debt": 8.88,
+        "verification": 2.17
       },
       "file_count": 17,
-      "total_mass": 204.84
+      "total_mass": 157.54
     },
     "hlasm/zecs": {
       "avg_exposures": {

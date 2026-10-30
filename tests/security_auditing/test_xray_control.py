@@ -94,7 +94,9 @@ def test_a_name_that_only_looks_like_a_test_folder_is_not_exempt(rel, tmp_path, 
     assert _scan(tmp_path, monkeypatch, {rel: DENSE}) == 1
 
 
-@pytest.mark.parametrize("rel", ["tests/a.py", "src/tests/a.py", "src/test/a.py", "vendor/phpunit/a.py"])
+@pytest.mark.parametrize(
+    "rel", ["tests/a.py", "src/tests/a.py", "src/test/a.py", "vendor/phpunit/a.py", "unit_tests/a.py"]
+)
 def test_a_real_test_folder_stays_exempt(rel, tmp_path, monkeypatch):
     assert _scan(tmp_path, monkeypatch, {rel: DENSE}) == 0
 

@@ -142,6 +142,19 @@ def test_committed_summaries_account_for_every_program():
             assert d["whole_now"] + gained + tail == d["programs"], path.name
 
 
+def test_committed_census_summary_orders_the_closing_and_names_the_tail():
+    """#5865: the census half carries the same close-next order and tail as the burned half, name-free."""
+    c = json.loads(gp.CENSUS_SUMMARY.read_text(encoding="utf-8"))
+    assert c["close_next"] and c["whole_now"] + sum(s["gained"] for s in c["close_next"]) <= c["programs"]
+    shares = [s["share"] for s in c["close_next"]]
+    assert shares == sorted(shares) and all(s["whole"] <= c["programs"] for s in c["close_next"])
+    known = {g["gap"] for g in c["gaps"]}
+    for s in c["close_next"]:
+        assert s["gap"] in known
+    for t in c.get("needs_together", []):
+        assert len(t["gaps"]) >= 2 and set(t["gaps"]) <= known  # a single gap would have gained alone
+
+
 def test_close_next_is_rendered(rows_and_inv):
     rows, d = rows_and_inv
     page = gp.render(gp.measure(rows, d))

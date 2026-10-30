@@ -20,7 +20,10 @@ import pytest
 
 from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import EngineDataItem, _elementary_bytes, _pic_runs
 
-GIB = 1073741824
+GIB = 1073741824  # the buffer's size: scanned only in a capped subprocess below
+# In-process tests use 2**24 positions: still 2000 times their 64 KiB bound if a regression expands it (128 MiB
+# as a list), but a size any CI runner survives -- expanding GIB in-process would be ~8 GiB.
+BIG = 2**24
 ROOT = Path(__file__).resolve().parents[2]
 
 
@@ -32,17 +35,17 @@ def _item(pic, usage=None, sign_separate=False, currency=None):
     )  # fmt: skip
 
 
-def test_a_gib_picture_is_one_run_in_bounded_time_and_memory():
+def test_a_huge_picture_is_one_run_in_bounded_time_and_memory():
     tracemalloc.start()
     started = time.perf_counter()
-    runs = _pic_runs(f"X({GIB})")
-    width = _elementary_bytes(_item(f"X({GIB})"))
+    runs = _pic_runs(f"X({BIG})")
+    width = _elementary_bytes(_item(f"X({BIG})"))
     elapsed = time.perf_counter() - started
     _, peak = tracemalloc.get_traced_memory()
     tracemalloc.stop()
-    assert runs == [("X", GIB)]
-    assert width == GIB
-    # the old expansion allocated ~8 GiB here; a run list is a few hundred bytes
+    assert runs == [("X", BIG)]
+    assert width == BIG
+    # the old expansion allocated ~8 bytes a position here; a run list is a few hundred bytes
     assert peak < 64 * 1024, peak
     assert elapsed < 0.5, elapsed
 
@@ -61,8 +64,8 @@ def test_runs_keep_the_old_position_counts():
     ("pic", "usage", "kw", "width"),
     [
         ("X(10)", None, {}, 10),
-        (f"X({GIB})", "DISPLAY", {}, GIB),
-        (f"9({GIB})", None, {}, GIB),
+        (f"X({BIG})", "DISPLAY", {}, BIG),
+        (f"9({BIG})", None, {}, BIG),
         ("S9(7)V99", None, {}, 9),  # S and V take no storage
         ("S9(7)V99", None, {"sign_separate": True}, 10),
         ("PPP999", None, {}, 3),

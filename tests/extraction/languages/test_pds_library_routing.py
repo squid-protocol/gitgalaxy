@@ -38,7 +38,11 @@ _COBOL_COPYBOOK = (
 _PLI_PROGRAM = "PAYROLL: PROCEDURE OPTIONS(MAIN);\n  DECLARE X FIXED BIN(31);\n  X = 1;\nEND PAYROLL;\n"
 _PLI_INCLUDE = "DCL 1 CUSTREC,\n      2 ID CHAR(8),\n      2 NAME CHAR(30);\n"
 
+_JCL_JOB = "//PAYJOB  JOB (ACCT),'PAY',CLASS=A\n//STEP1   EXEC PGM=PAYROLL\n//SYSOUT  DD SYSOUT=*\n//INPUT   DD DSN=PAY.IN,DISP=SHR\n"
+_JCL_PROC = "//PAYPROC PROC\n//S1      EXEC PGM=IEFBR14\n//        PEND\n"
+
 _MEMBERS = {
+    "jcl": [_JCL_JOB, _JCL_PROC],
     "cobol": [_COBOL_PROGRAM, _COBOL_COPYBOOK],
     "pli": [_PLI_PROGRAM, _PLI_INCLUDE],
 }
@@ -67,17 +71,29 @@ def test_no_directory_suffix_is_listed_by_two_languages():
             seen[suffix] = lid
 
 
-@pytest.mark.parametrize("text", [_COBOL_PROGRAM, _COBOL_COPYBOOK, _PLI_PROGRAM, _PLI_INCLUDE])
+@pytest.mark.parametrize("text", [_COBOL_PROGRAM, _COBOL_COPYBOOK, _PLI_PROGRAM, _PLI_INCLUDE, _JCL_JOB, _JCL_PROC])
 def test_extensionless_member_outside_a_library_directory_is_not_claimed(text):
     detector = LanguageDetector(LANGUAGE_DEFINITIONS, {})
-    assert detector.focus("src/MEMB1", text)[0] not in ("cobol", "pli")
+    assert detector.focus("src/MEMB1", text)[0] not in ("cobol", "pli", "jcl")
 
 
-@pytest.mark.parametrize("path", ["PAYR.COBOL/README", "PAYR.COPYLIB/NOTES", "PAYR.PLI/README", "PAYR.PL1/NOTES"])
+@pytest.mark.parametrize(
+    "path",
+    [
+        "PAYR.COBOL/README",
+        "PAYR.COPYLIB/NOTES",
+        "PAYR.PLI/README",
+        "PAYR.PL1/NOTES",
+        "PAYR.JCL/README",
+        "PAYR.CNTL/NOTES",
+        "SYS1.PROCLIB/README",
+        "PAYR.PROC/NOTES",
+    ],
+)
 @pytest.mark.parametrize("text", ["Build notes\nrun it twice.\n", "int main(void) { return 0; }\n"])
 def test_non_member_text_in_a_library_directory_is_not_claimed(path, text):
     detector = LanguageDetector(LANGUAGE_DEFINITIONS, {})
-    assert detector.focus(path, text)[0] not in ("cobol", "pli")
+    assert detector.focus(path, text)[0] not in ("cobol", "pli", "jcl")
 
 
 def test_a_pli_member_in_a_cobol_library_is_not_claimed_as_cobol():

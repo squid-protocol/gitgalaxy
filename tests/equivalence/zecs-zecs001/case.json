@@ -1748,6 +1748,76 @@
         }
       ],
       "why": "#6072: a peer URL with scheme https: 8100-WEB-OPEN takes the HTTPS arm"
+    },
+    {
+      "name": "auth-scan-bound-21st-entry",
+      "commarea": null,
+      "tod": "9191919191910708090A0B0C0D0E0F10",
+      "doctemplates": {
+        "ZC01DC": "type: A1\r%",
+        "ZC01SD": "User=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,SELECT\r\n"
+      },
+      "http_request": {
+        "scheme": "HTTPS",
+        "host": "zecs.example.com",
+        "port": 8443,
+        "method": "GET",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/authkey",
+        "query": "",
+        "headers": [
+          [
+            "Authorization",
+            "Basic \u00e5\u00e5\u00d5\u00c6\u00e4\u0092\u0093\u00c5\u00d4\u00e3\u0097\u00d8\u00d8\u00e5\u00d5\u00e3\u00e5\u00f0\u00f9\u00e2\u00d9\u00c3\u00c1\u0087"
+          ]
+        ],
+        "mediatype": null,
+        "body": null
+      },
+      "why": "#7011: an https GET by USERID1 with a ZC01SD of 21 entries, the first 20 granting USERID2 only and the 21st granting USERID1 SELECT: 1610's scan ends on SD-INDEX 20 before reaching entry 21, USER-ACCESS stays N and 1600 answers 401 (credential and table bytes as auth-get-select; every entry is the 22-byte cp037 form)",
+      "faults": [
+        {
+          "cmd": "VERIFY",
+          "resp": "NORMAL",
+          "userid_hex": "E4E2C5D9C9C4F140",
+          "why": "the verdict the scenario states for USERID1: the region has no security manager (register X32)"
+        }
+      ]
+    },
+    {
+      "name": "auth-scan-bound-20th-entry",
+      "commarea": null,
+      "tod": "9292929292920708090A0B0C0D0E0F10",
+      "doctemplates": {
+        "ZC01DC": "type: A1\r%",
+        "ZC01SD": "User=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\n"
+      },
+      "http_request": {
+        "scheme": "HTTPS",
+        "host": "zecs.example.com",
+        "port": 8443,
+        "method": "GET",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/authkey",
+        "query": "",
+        "headers": [
+          [
+            "Authorization",
+            "Basic \u00e5\u00e5\u00d5\u00c6\u00e4\u0092\u0093\u00c5\u00d4\u00e3\u0097\u00d8\u00d8\u00e5\u00d5\u00e3\u00e5\u00f0\u00f9\u00e2\u00d9\u00c3\u00c1\u0087"
+          ]
+        ],
+        "mediatype": null,
+        "body": null
+      },
+      "why": "#7011: an https GET by USERID1 with a ZC01SD of 21 entries whose 20th, the last one scanned, grants USERID1 SELECT: 1610 grants access on SD-INDEX 20 and the GET answers (credential and table bytes as auth-get-select; every entry is the 22-byte cp037 form)",
+      "faults": [
+        {
+          "cmd": "VERIFY",
+          "resp": "NORMAL",
+          "userid_hex": "E4E2C5D9C9C4F140",
+          "why": "the verdict the scenario states for USERID1: the region has no security manager (register X32)"
+        }
+      ]
     }
   ],
   "compiler_options": [

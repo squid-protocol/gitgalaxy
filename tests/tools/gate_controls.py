@@ -54,8 +54,9 @@ GATES = (
          open_gap="sees only checks that ran: a path-filtered workflow that never starts is invisible"),
     # Pre-gate
     Gate("Vault Sentinel", "gitgalaxy.yml", "hardcoded secrets and denylisted files",
-         "tests/security_auditing/test_vault_sentinel.py::test_sentinel_content_breach",
-         open_gap="the proof mocks the detector; tests/ is allowlisted"),
+         "tests/security_auditing/test_vault_sentinel_control.py::test_the_real_detector_fails_ci_on_a_planted_secret",
+         open_gap="never reads .tf, .ini, .toml, .conf, .cfg, .env, .bak or .ipynb; misses AWS secret, Google and JWT values; "
+                  "tests/ is allowlisted"),
     Gate("X-Ray Inspector", "gitgalaxy.yml", "obfuscated payloads and denylisted files",
          "tests/security_auditing/test_binary_anomaly_detector.py::test_main_anomaly_detected",
          open_gap="the proof mocks the detector"),

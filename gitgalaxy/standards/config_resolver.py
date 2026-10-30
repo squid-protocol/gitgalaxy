@@ -38,6 +38,7 @@ from __future__ import annotations
 
 import copy
 import logging
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -175,6 +176,16 @@ class ResolvedConfig:
 
     def to_dict(self) -> dict[str, Any]:
         return copy.deepcopy(self._values)
+
+
+def path_allowlisted(rel_path: str, entries: Iterable[str]) -> bool:
+    """Whether an ALLOWLIST_PATHS entry covers this path. An entry ending in "/" is a folder and matches whole path
+    segments: a plain substring test let "tests/" exempt src/latests/ and contests/ too (#7155). Any other entry stays
+    the partial match gitgalaxy_config.py documents."""
+    for entry in entries:
+        if rel_path.startswith(entry) or (f"/{entry}" in rel_path if entry.endswith("/") else entry in rel_path):
+            return True
+    return False
 
 
 def _get_default(key: str) -> Any:

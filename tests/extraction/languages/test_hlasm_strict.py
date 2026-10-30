@@ -933,3 +933,42 @@ def test_nasm_mac_files_route_to_no_mainframe_language(path, line, case):
     detector = LanguageDetector(LANGUAGE_DEFINITIONS, {})
     text = "; nasm\n" + case(line) + "\n  push ebp\n"
     assert detector.focus(path, text)[0] not in {"hlasm", "easytrieve"}
+
+
+# #7064: debt markers count on a full-line comment only; operand text is not debt.
+_DEBT_COMMENTS = [
+    ("planned_debt", "* TODO: widen the field\n"),
+    ("planned_debt", "*  todo widen\n"),
+    ("planned_debt", ".* TODO macro comment\n"),
+    ("fragile_debt", "* HACK: self-modifying length byte\n"),
+    ("fragile_debt", "* fixme later\n"),
+    ("fragile_debt", ".* XXX revisit\n"),
+    ("fragile_debt", "*XXX\n"),
+]
+_DEBT_OPERANDS = [
+    "MSG      DC    CL20'RETURN CODE xxx'\n",
+    "T1       DS    CL3'xxx'\n",
+    "         LR    1,1          MESSAGE xxx\n",
+    "         LOAD  EP=BPX1GLG   STUB LOADER\n",
+    "         LR    1,1          TODO later\n",
+    "LABEL    DS    0H\n",
+]
+
+
+@pytest.mark.parametrize(("key", "text"), _DEBT_COMMENTS)
+def test_hlasm_debt_fires_on_a_full_line_comment(key, text):
+    other = "fragile_debt" if key == "planned_debt" else "planned_debt"
+    assert len(HLASM_RULES[key].findall(text + text)) == 2
+    assert not HLASM_RULES[other].search(text)
+
+
+@pytest.mark.parametrize("text", _DEBT_OPERANDS)
+def test_hlasm_debt_ignores_operand_text(text):
+    assert not HLASM_RULES["planned_debt"].search(text)
+    assert not HLASM_RULES["fragile_debt"].search(text)
+
+
+def test_hlasm_debt_marker_must_be_on_the_comment_line():
+    # the marker on the next statement, or a `*` that is not in column 1
+    assert not HLASM_RULES["fragile_debt"].search("* note\nX DC CL3'xxx'\n")
+    assert not HLASM_RULES["fragile_debt"].search("   * HACK\n")

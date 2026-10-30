@@ -173,6 +173,27 @@ def _ec():
     return ec
 
 
+@pytest.mark.parametrize(
+    ("options", "areas"),
+    [
+        ("TWA(P)", ["TWA"]),
+        ("TCTUA(P)", ["TCTUA"]),
+        ("TWA(P) TCTUA(Q)", ["TWA", "TCTUA"]),
+        ("EIB(E) COMMAREA(C) TWA(P) TCTUA(Q)", ["TWA", "TCTUA"]),
+    ],
+)
+def test_the_harness_names_the_system_area_to_the_stub_in_option_order(options, areas):
+    """#5079 slice 2b (X59): TWA / TCTUA reach GGCADDR as a GG-FLAGS name, after EIB and COMMAREA, one call each."""
+    out = _ec().translate_command(f"ADDRESS {options} NOHANDLE")
+    names = [
+        ln.split("'")[1]
+        for ln in out
+        if ln.startswith("MOVE '") and "TO GG-FLAGS" in ln and ln.split("'")[1] in ("TWA", "TCTUA")
+    ]
+    assert names == areas
+    assert sum(ln.strip() == "CALL 'GGCADDR' USING GG-CICS" for ln in out) >= len(areas)
+
+
 def test_the_harness_calls_the_stubs_entry_point_for_the_eib_and_the_commarea():
     out = _ec().translate_command("ADDRESS EIB(P) RESP(R)")
     assert out[:3] == ["MOVE SPACES TO GG-FLAGS", "CALL 'GGCADDR' USING GG-CICS", "    BY REFERENCE P"]
@@ -188,8 +209,6 @@ def test_the_harness_calls_the_stubs_entry_point_for_the_eib_and_the_commarea():
     "text",
     [
         "ADDRESS CWA(P)",
-        "ADDRESS TWA(P)",  # (the port models these; the stub, GGCADDR, not yet: slice 2b)
-        "ADDRESS TCTUA(P)",
         "ADDRESS ACEE(P)",
         "ADDRESS SET(P)",
         "ADDRESS NOHANDLE",

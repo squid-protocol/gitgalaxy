@@ -528,17 +528,14 @@ def _getmain(opts: dict[str, str | None], labels: list[str] | None) -> list[str]
 
 
 def _address(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
-    """#5079 (register X59): ADDRESS EIB(ptr) / COMMAREA(ptr) -> GGCADDR, which sets the pointer to the address of the EIB /
+    """#5079 (register X59): ADDRESS EIB(ptr) / COMMAREA(ptr) / TWA(ptr) / TCTUA(ptr) -> GGCADDR, which sets the pointer to the address of the EIB /
     the program's DFHCOMMAREA (NORMAL: the command has no condition). A task with no COMMAREA (EIBCALEN 0) is refused by the
     stub: IBM's X'FF000000' is no COBOL NULL, and a LINKAGE item that was not passed is no area to name, so the area given
     then is the pointer itself. The option rules as the det translator's."""
     key = "ADDRESS"
     _check_spec(key, opts, ("ADDRESS",), lambda bad: [f"{key} {o}" for o in bad])
-    for area in ("TWA", "TCTUA"):  # #5079 slice 2: the port models them; the stub (GGCADDR) does not yet (slice 2b)
-        if opts.get(area):
-            raise Unsupported(f"ADDRESS {area}: the stub does not model the area yet (the port does)", [f"{key} {area}"])
-    if not (opts.get("EIB") or opts.get("COMMAREA")):
-        raise Unsupported("ADDRESS without EIB or COMMAREA: the pointer to set", [key])
+    if not any(opts.get(o) for o in ("EIB", "COMMAREA", "TWA", "TCTUA")):
+        raise Unsupported("ADDRESS without EIB, COMMAREA, TWA or TCTUA: the pointer to set", [key])
     lines: list[str] = []
     if opts.get("EIB"):
         lines += ["MOVE SPACES TO GG-FLAGS"]
@@ -550,6 +547,13 @@ def _address(opts: dict[str, str | None], labels: list[str] | None) -> list[str]
         lines += ["ELSE"]
         lines += [f"    {ln}" for ln in _call("GGCADDR", [f"BY REFERENCE {ptr}", "BY REFERENCE DFHCOMMAREA"])]
         lines += ["END-IF"]
+    # #5079 slice 2b: GGCADDR names the system area in GG-FLAGS (the port's addressTwa / addressTctua)
+    for area in ("TWA", "TCTUA"):
+        if opts.get(area):
+            lines += [f"MOVE '{area}' TO GG-FLAGS"]
+            lines += _call(
+                "GGCADDR", [f"BY REFERENCE {_pointer(key, opts[area])}", f"BY REFERENCE {_pointer(key, opts[area])}"]
+            )
     return lines + _resp(opts, False, labels)
 
 

@@ -3,6 +3,56 @@
  "crucible_ref": "v0.10.0 (01e11fe6)",
  "note": "#4023: the COBOL each passing cobol-stub scenario executes (live paragraphs and sections entered; branch outcomes as LINE:OUTCOME of the crucible's source) -- a ratchet (tests/tools/cics_crucible.py --ci). Regenerate with --update-baseline.",
  "programs": {
+  "ca-address-twa-tctua/CATWAD": {
+   "live": 5,
+   "outcomes": 7,
+   "scenarios": {
+    "twa-sized": {
+     "units": [
+      "MAIN-PARA",
+      "TWA-LINK-PARA"
+     ],
+     "outcomes": [
+      "44:WHEN@45"
+     ]
+    },
+    "twasize-zero": {
+     "units": [
+      "MAIN-PARA",
+      "TWA-NONE-PARA"
+     ],
+     "outcomes": [
+      "44:WHEN@47",
+      "77:true"
+     ]
+    },
+    "tctua-two-tasks": {
+     "units": [
+      "MAIN-PARA",
+      "UA-READ-PARA",
+      "UA-STORE-PARA"
+     ],
+     "outcomes": [
+      "44:WHEN@49",
+      "44:WHEN@51"
+     ]
+    }
+   }
+  },
+  "ca-address-twa-tctua/CATWSB": {
+   "live": 1,
+   "outcomes": 2,
+   "scenarios": {
+    "twa-sized": {
+     "units": [
+      "SUB-MAIN"
+     ],
+     "outcomes": [
+      "32:false"
+     ]
+    }
+   }
+  },
   "ca-channel-containers/CACHAN": {
    "live": 3,
    "outcomes": 0,

@@ -784,6 +784,8 @@ class EngineJobFlow:
     systsin_member: str | None = None
     parm: str | None = None  # #3624: the text EXEC PARM= passes the program
     instream: str | None = None  # #4268: an INSTREAM row's SYSIN / SYMNAMES / SORTCNTL / DFSPARM body, as written
+    lrecl: int | None = None  # #4268: the record length a DD row states (DCB / LRECL=), None when not stated
+    recfm: str | None = None  # #4268: the record format a DD row states (FB / VB / ...), None when not stated
 
 
 @dataclass
@@ -4613,7 +4615,8 @@ class GalaxyIR:
         DD of each step -- a PROC call's DDs are its procedure's, per procedure step -- with
         `file`, `job`, `step` (the job step), `proc_step` (the procedure step, else None),
         `ordinal`, `dd`, `dsn` (resolved where the engine resolved it, GDG generation apart),
-        `disp`, `generation`, `line` and `source` (the file the DD is written in). The rows
+        `disp`, `generation`, `line`, `source` (the file the DD is written in) and, only when the DD
+        states them, `lrecl` / `recfm` (#4268). The rows
         are job_flow's DD rows; override DDs (`//STEP.DD`) are out of scope, as there."""
         resolved: dict[tuple[str, int], str] = {}
         for f in self.files.values():
@@ -4631,7 +4634,10 @@ class GalaxyIR:
             return {"file": job_file, "job": job, "step": step, "proc_step": proc_step, "ordinal": ordinal,
                     "dd": r.dd_name, "dsn": dsn, "disp": r.disp, "disp_normal": r.disp_normal, "generation": gen,
                     "line": r.line,
-                    "source": f.file_path}  # fmt: skip
+                    "source": f.file_path,
+                    # #4268: presence-keyed -- a DD that states no record length / format keeps its shape
+                    **({"lrecl": r.lrecl} if r.lrecl else {}),
+                    **({"recfm": r.recfm} if r.recfm else {})}  # fmt: skip
 
         def by_step(rows: list, in_proc: str | None) -> dict:
             """A DD belongs to the STEP row it follows (DD rows carry no ordinal)."""
@@ -6952,9 +6958,10 @@ def load_galaxy_ir(db_path: Path, repo_name: str | None = None) -> GalaxyIR:
             )
             parm_col = "parm" if _has_column(cur, "job_flow_data", "parm") else "NULL"  # #3624
             instream_col = "instream" if _has_column(cur, "job_flow_data", "instream") else "NULL"  # #4268
+            dcb_cols = "lrecl, recfm" if _has_column(cur, "job_flow_data", "lrecl") else "NULL, NULL"  # #4268
             for row in cur.execute(
                 "SELECT file_id, kind, job_name, step_ordinal, step_name, program, proc_name, cond, if_cond, in_proc, "  # noqa: S608 -- normal_col / runner_cols are literals
-                f"dd_name, dsn, disp, generation, line_number, {normal_col}, {runner_cols}, {parm_col}, {instream_col} FROM job_flow_data "
+                f"dd_name, dsn, disp, generation, line_number, {normal_col}, {runner_cols}, {parm_col}, {instream_col}, {dcb_cols} FROM job_flow_data "
                 "WHERE repo_name = ? AND commit_hash = ? ORDER BY file_id, line_number, id",
                 (repo_name, commit_hash),
             ):
@@ -6981,6 +6988,8 @@ def load_galaxy_ir(db_path: Path, repo_name: str | None = None) -> GalaxyIR:
                             systsin_member=row[18],
                             parm=row[19],
                             instream=row[20],
+                            lrecl=int(row[21]) if row[21] else None,
+                            recfm=row[22],
                         )
                     )
         # #3455: file definitions. A pre-#3455 database has neither table.

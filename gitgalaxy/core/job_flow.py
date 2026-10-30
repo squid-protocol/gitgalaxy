@@ -18,7 +18,8 @@
 #   DD    step_name (the step, or for an override `//PROCSTEP.DD` the proc step),
 #         dd_name, dsn (as written, generation stripped), disp (NEW / OLD / SHR /
 #         MOD; NEW when a DSN is coded without DISP), generation (+1 / 0 / -1),
-#         in_proc; a concatenation's unnamed DDs take the name above them
+#         in_proc, lrecl / recfm (the record length and format the DD states, #4268; only when stated);
+#         a concatenation's unnamed DDs take the name above them
 #
 # SCOPE AND NON-SCOPE:
 #   - Extraction only, per file. Expanding an EXEC of a PROC into its steps, and
@@ -183,6 +184,28 @@ def _generation(text: str) -> str:
     return f"+{n}" if n > 0 else str(n)
 
 
+_DCB_KEYS = ("LRECL", "RECFM")
+
+
+def _dcb(keyed: dict[str, str]) -> dict[str, Any]:
+    """#4268: the record length / format a DD states: `DCB=(LRECL=80,RECFM=FB)`, `DCB=LRECL=80`, or the bare
+    `LRECL=` / `RECFM=` DD keywords (a bare one wins over the DCB subparameter). A referback (`DCB=*.DD`,
+    `DCB=dsn`), a symbolic value (`&LR`) and `LRECL=0` state nothing."""
+    sub: dict[str, str] = {}
+    for k, v in keyed.items():
+        if k == "DCB":
+            sub.update({kk: vv for kk, vv in _split(v.strip().strip("()")) if kk})
+    found = {**sub, **{k: v for k, v in keyed.items() if k in _DCB_KEYS}}
+    out: dict[str, Any] = {}
+    for key, value in found.items():
+        value = value.strip().strip("()").replace(",", "").upper()
+        if key == "LRECL" and value.isdigit() and int(value) > 0:
+            out["lrecl"] = int(value)
+        elif key == "RECFM" and re.fullmatch(r"[FVUDS]?[FVUDSBTAM]{0,5}", value):
+            out["recfm"] = value
+    return out
+
+
 def _parm(value: str | None) -> str | None:
     """#3624: the text a step's PARM= hands its program -- `'2022071800'` -> 2022071800,
     `(A,B)` -> A,B -- quotes and parentheses removed, a doubled quote made one."""
@@ -307,6 +330,7 @@ def jcl_job_flow(code_stream: str) -> list[dict[str, Any]]:
                     line=line,
                     # #3622: presence-keyed -- a DD without a normal-end disposition keeps its pre-#3622 shape
                     **({"disp_normal": normal} if normal else {}),
+                    **_dcb(keyed),  # #4268: presence-keyed lrecl / recfm
                 )
             )
     return rows

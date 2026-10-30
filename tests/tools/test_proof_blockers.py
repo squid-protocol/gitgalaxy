@@ -194,7 +194,7 @@ def test_eibtaskn_is_stated_by_an_equivalence_case_not_yet_by_the_crucible():
     assert pb.fact_gaps(facts, pb.Run("equivalence", "c")) == set()
     assert pb.fact_gaps(facts, None) == set()
     assert pb.fact_gaps(facts, pb.Run("crucible", "k")) == {"fact: EIBTASKN (no harness states it)"}
-    assert pb.fact_gaps({"eib": {"EIBRCODE"}}, pb.Run("equivalence", "c")) == {"fact: EIBRCODE (no harness states it)"}
+    assert pb.fact_gaps({"eib": {"EIBRCODE"}}, pb.Run("equivalence", "c")) == {"fact: EIBRCODE (no harness states it)"}  # no fault states one
 
 
 def test_eib_names_match_whole_words_outside_literals_and_comments():
@@ -681,3 +681,55 @@ def test_free_format_literals_comments_and_debug_lines_are_no_read():
     real = free("IDENTIFICATION DIVISION.", "MOVE 'A *> B' TO X EIBFN.", "'") + "MOVE EIBERR TO Y.\n"
     assert pb.facts_needed(real)["eib"] == {"EIBFN", "EIBERR"}
     assert [len(x) for x in pb.code_only(real).splitlines()] == [len(x) for x in real.splitlines()]
+
+
+def test_a_case_that_states_rcode_on_every_file_fault_drops_the_eibrcode_gap(tmp_path):
+    """#5126 (X64): EIBRCODE is stated when the case plans a file control fault and every such non-NORMAL fault states
+    an "rcode"; one fault without it, a non-file fault, a NORMAL one or no fault at all decides as below. The other EIB
+    resource fields stay gaps."""
+    cases = tmp_path / "cases"
+    rc = {"cmd": "WRITE", "file": "F", "resp": "IOERR", "rcode": "80A0000000F2"}
+    bare = {"cmd": "READ", "file": "F", "resp": "NOTFND"}
+    other = {"cmd": "INQUIRE", "program": "P", "resp": "PGMIDERR"}
+    normal = {"cmd": "READ", "file": "F", "resp": "NORMAL"}
+    shapes = {
+        "all": [{"name": "a", "faults": [rc]}, {"name": "b", "faults": [{**rc, "cmd": "read"}]}],
+        "one-bare": [{"name": "a", "faults": [rc, bare]}],
+        "bare-in-other-scenario": [{"name": "a", "faults": [rc]}, {"name": "b", "faults": [bare]}],
+        "non-file-ignored": [{"name": "a", "faults": [rc, other]}],
+        "normal-ignored": [{"name": "a", "faults": [rc, normal]}],
+        "only-non-file": [{"name": "a", "faults": [other]}],
+        "empty-rcode": [{"name": "a", "faults": [{**rc, "rcode": ""}]}],
+        "no-faults": [{"name": "a"}],
+        "no-scenarios": [],
+    }
+    for name, scens in shapes.items():
+        case(cases, name, "k", f"src/{name}.cbl", scenarios=scens)
+    runs = pb.equivalence_runs(cases)
+    stated = {n: runs[("k", f"src/{n}.cbl")][0].rcode for n in shapes}
+    assert stated == {
+        "all": True, "one-bare": False, "bare-in-other-scenario": False, "non-file-ignored": True,
+        "normal-ignored": True, "only-non-file": False, "empty-rcode": False, "no-faults": False,
+        "no-scenarios": False,
+    }  # fmt: skip
+    gap = {"fact: EIBRCODE (no harness states it)"}
+    facts = {"eib": {"EIBRCODE", "EIBFN"}, "assign_task": set(), "assign_region": set()}
+    assert pb.fact_gaps(facts, pb.Run("equivalence", "c", rcode=True)) == {"fact: EIBFN (no harness states it)"}
+    assert pb.fact_gaps(facts, pb.Run("equivalence", "c")) == gap | {"fact: EIBFN (no harness states it)"}
+    # the crucible runner does not state it, and a program with no case yet has no case to state it
+    assert pb.fact_gaps({"eib": {"EIBRCODE"}}, pb.Run("crucible", "k", rcode=True)) == gap
+    assert pb.fact_gaps({"eib": {"EIBRCODE"}}, None) == gap
+
+
+def test_a_linked_program_inherits_the_cases_rcode(tmp_path):
+    cases = tmp_path / "cases"
+    scens = [{"name": "a", "faults": [{"cmd": "READ", "file": "F", "resp": "IOERR", "rcode": "0000000000A1"}]}]
+    case(cases, "c", "k", "src/m.cbl", scenarios=scens, programs=[{"program": "SUB", "program_source": "src/sub.cbl"}])
+    runs = pb.equivalence_runs(cases)
+    assert runs[("k", "src/m.cbl")][0].rcode and runs[("k", "src/sub.cbl")][0].rcode
+
+
+def test_the_rcode_file_commands_match_the_fault_planner():
+    import equivalence_cics_faults as ecf
+
+    assert pb.FILE_RCODE_COMMANDS == frozenset(ecf.FILE_FAULT_COMMANDS)

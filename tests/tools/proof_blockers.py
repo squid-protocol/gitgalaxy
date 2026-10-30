@@ -25,7 +25,7 @@ one or more gap classes:
                            (tests/equivalence/infeasible_outcomes/<case>.json, #4602) are taken out of its branch total and
                            printed; one the proof reached is the gap `infeasible outcome reached`
   fact: NAME               a runtime fact the case would need and no harness states: an EIB field neither runtime
-                           sets (EIBCPOSN, EIBRCODE, ...: both sides read zero, z/OS does not; EIBTASKN and EIBDS only under a
+                           sets (EIBCPOSN, EIBFN, ...: both sides read zero; EIBRCODE unless every file control fault the case plans states an "rcode", X64, z/OS does not; EIBTASKN and EIBDS only under a
                            crucible case: the equivalence harness states them, oracle_assumptions X21, X64), an ASSIGN option
                            whose fact an equivalence case cannot state yet (STARTCODE unless every scenario states it, #5077;
                            FACILITY / TERMCHK unless every scenario states a "termid", #5126;
@@ -121,11 +121,29 @@ class Run:
     )
     userid: bool = False  # #5126: every scenario states a "userid" (ASSIGN USERID)
     screen: bool = False  # #5126: every scenario states a "screen" and a termid (ASSIGN SCRNHT / SCRNWD)
+    rcode: bool = False  # #5126 (X64): every file control fault of the case states an "rcode" (EIBRCODE)
     gaps: set[str] = field(default_factory=set)
     detail: dict[str, str] = field(default_factory=dict)  # gap -> a longer note (the baseline's why, the diff)
     infeasible: list[str] = field(default_factory=list)  # #4602: stated infeasible outcomes taken out of the total
     verdict: str = ""  # #5075: "ledger" when the det verdict is the det-sweep ledger's (a Db2 case, no sweep row)
     stale_coverage: list[str] = field(default_factory=list)  # #5075: the ledger inputs changed since its coverage
+
+
+# the commands whose planned fault may state an "rcode" (equivalence_cics_faults.FILE_FAULT_COMMANDS; a test pins the twin)
+FILE_RCODE_COMMANDS = frozenset({"READ", "READNEXT", "READPREV", "STARTBR", "ENDBR", "WRITE", "REWRITE", "DELETE"})
+
+
+def states_rcode(scens: list[dict[str, Any]]) -> bool:
+    """#5126 (X64): does the case state EIBRCODE? True when it plans at least one file control fault and every such
+    fault with a response other than NORMAL states an `rcode` (the 6 bytes, a scenario fact: no IBM table is copied).
+    One fault without it leaves the field as the program last saw it on that path, so the gap stays."""
+    faults = [
+        f
+        for sc in scens
+        for f in sc.get("faults") or []
+        if str(f.get("cmd", "")).upper() in FILE_RCODE_COMMANDS and str(f.get("resp", "")).upper() != "NORMAL"
+    ]
+    return bool(faults) and all(f.get("rcode") for f in faults)
 
 
 def _norm(path: str) -> str:
@@ -145,6 +163,7 @@ def equivalence_runs(cases_dir: Path = CASES) -> dict[tuple[str, str], list[Run]
         termid = bool(scens) and all(sc.get("termid", case.get("termid")) for sc in scens)
         userid = bool(scens) and all(sc.get("userid", case.get("userid")) for sc in scens)
         screen = termid and all(sc.get("screen", case.get("screen")) for sc in scens)
+        rcode = states_rcode(scens)
         out[(case["corpus"], _norm(case["program_source"]))].append(
             Run(
                 "equivalence",
@@ -155,6 +174,7 @@ def equivalence_runs(cases_dir: Path = CASES) -> dict[tuple[str, str], list[Run]
                 termid=termid,
                 userid=userid,
                 screen=screen,
+                rcode=rcode,
             )  # fmt: skip
         )
         for extra in case.get("programs", []):  # LINKed programs: det_port.py translates them the same way
@@ -169,6 +189,7 @@ def equivalence_runs(cases_dir: Path = CASES) -> dict[tuple[str, str], list[Run]
                     termid=termid,
                     userid=userid,
                     screen=screen,
+                    rcode=rcode,
                     program=str(extra.get("program", "")).upper(),
                 )
             )
@@ -560,7 +581,10 @@ def fact_gaps(facts: dict[str, set[str]], run: Run | None) -> set[str]:
     case can state)."""
     case_states = run is None or run.kind == "equivalence"  # a new equivalence case would state them too
     out = {
-        f"fact: {e} (no harness states it)" for e in facts.get("eib", ()) if not (case_states and e in CASE_STATED_EIB)
+        f"fact: {e} (no harness states it)"
+        for e in facts.get("eib", ())
+        if not (case_states and e in CASE_STATED_EIB)
+        and not (e == "EIBRCODE" and run is not None and run.kind == "equivalence" and run.rcode)  # #5126: it states it
     }
     if case_states:
         out |= {

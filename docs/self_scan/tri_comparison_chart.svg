@@ -553,12 +553,10 @@
 <text class="lang-label" x="20" y="1067.5">hlasm</text>
 <rect class="bar-track" x="154" y="1047" width="88" height="34" rx="2"/>
 <rect x="154" y="1047" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="198.0" y="1055">3</text>
+<text class="bar-value-label" x="198.0" y="1055">7</text>
 <rect class="bar-track" x="286" y="1047" width="88" height="34" rx="2"/>
-<rect x="286" y="1047" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="330.0" y="1055">3/3**</text>
-<circle cx="390.0" cy="1064.0" r="8" fill="#2a78d6"/>
-<text class="badge-label" x="390.0" y="1067.0">G</text>
+<rect x="286" y="1047" width="2.0" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="330.0" y="1055">0/7</text>
 <rect class="bar-track" x="418" y="1047" width="88" height="34" rx="2"/>
 <rect x="418" y="1047" width="88.0" height="10" rx="2" fill="#2a78d6"/>
 <text class="bar-value-label" x="462.0" y="1055">4</text>
@@ -1362,13 +1360,13 @@
 <rect x="682" y="2379" width="88.0" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="726.0" y="2387">3538</text>
 <line x1="16" y1="2416" x2="796" y2="2416" stroke="#dedcd6" stroke-width="1"/>
-<text class="summary-title" x="16" y="2430">Summary -- best tool per (language, metric), ranked panels only (Func/Class Precision), 80 real comparisons (1-bar groups and empty panels don't count)</text>
+<text class="summary-title" x="16" y="2430">Summary -- best tool per (language, metric), ranked panels only (Func/Class Precision), 79 real comparisons (1-bar groups and empty panels don't count)</text>
 <circle cx="23" cy="2448" r="7" fill="#2a78d6"/>
 <text class="badge-label" x="23" y="2451">G</text>
-<text class="legend-label" x="36" y="2452">GitGalaxy best: 40 (50%)</text>
+<text class="legend-label" x="36" y="2452">GitGalaxy best: 39 (49%)</text>
 <circle cx="215.8" cy="2448" r="7" fill="#eb6834"/>
 <text class="badge-label" x="215.8" y="2451">T</text>
-<text class="legend-label" x="228.8" y="2452">tree-sitter best: 2 (2%)</text>
+<text class="legend-label" x="228.8" y="2452">tree-sitter best: 2 (3%)</text>
 <circle cx="408.6" cy="2448" r="7" fill="#1baf7a"/>
 <text class="badge-label" x="408.6" y="2451">C</text>
 <text class="legend-label" x="421.6" y="2452">ctags best: 0 (0%)</text>

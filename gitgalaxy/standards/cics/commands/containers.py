@@ -488,7 +488,7 @@ def _sixty_four(base: Command, verb: str, topic: str) -> Command:
         ),
         outcomes=tuple(replace(o, writes=tuple(w for w in o.writes if w != "SET")) for o in base.outcomes),
         runtime_refusals=tuple(r for r in base.runtime_refusals if not r.situation.startswith("SET ")),
-        engine=None,  # the scan's resource walker (cics_resources._CONTAINER_VERBS) does not read the 64-bit verbs yet
+        engine=base.engine,  # the scan's resource walker reads the 64-bit verbs as the base verb (cics_resources._CONTAINER_VERBS)
     )
 
 

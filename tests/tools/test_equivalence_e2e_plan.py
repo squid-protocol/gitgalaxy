@@ -44,7 +44,6 @@ def test_a_path_in_the_area_runs(path):
         "tests/tools/test_shepherd_gh.py",
         "tests/tools/box/heavy-run.sh",
         ".github/workflows/rosetta-audit.yml",
-        "tests/tools/coverage_map.py",
     ],
 )
 def test_a_path_outside_the_area_does_not(path):

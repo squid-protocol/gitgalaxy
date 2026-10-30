@@ -122,6 +122,8 @@ def parse_csd(text: str) -> dict[str, Any]:
     uctrans: dict[str, str] = {}  # #4415: a TYPETERM's UCTRAN (YES / NO / TRANID), when the CSD says
     urimaps: list[tuple[str, str, str]] = []  # #4270 zECS (X32): (name, TRANSACTION or "", PATH), in the CSD's order
     disabled: set[str] = set()  # #4768 (X34): programs defined STATUS(DISABLED)
+    twasizes: dict[str, int] = {}  # #5079 (X59): TRANSACTION TWASIZE(n)
+    userarealens: dict[str, int] = {}  # #5079 (X59): TYPETERM USERAREALEN(n)
     files: set[str] = set()  # #4443: the DEFINE FILE names (the cobol-stub's files.cfg is built from them)
     server_urimaps: list[
         dict[str, str]
@@ -153,9 +155,15 @@ def parse_csd(text: str) -> dict[str, Any]:
             prog = re.search(r"\bPROGRAM\s*\(\s*([^)\s]+)\s*\)", rest, re.I)
             if prog:
                 transactions[name] = prog.group(1).upper()
+            tw = re.search(r"\bTWASIZE\s*\(\s*(\d+)\s*\)", rest, re.I)
+            if tw:
+                twasizes[name] = int(tw.group(1))
         elif kind == "TYPETERM":
             dev = re.search(r"\bDEVICE\s*\(\s*([^)\s]+)\s*\)", rest, re.I)
             devices[name] = dev.group(1).upper() if dev else "3270"
+            ua = re.search(r"\bUSERAREALEN\s*\(\s*(\d+)\s*\)", rest, re.I)
+            if ua:
+                userarealens[name] = int(ua.group(1))
             uc = re.search(r"\bUCTRAN\s*\(\s*([^)\s]+)\s*\)", rest, re.I)
             if uc:
                 uctrans[name] = uc.group(1).upper()
@@ -171,6 +179,12 @@ def parse_csd(text: str) -> dict[str, Any]:
         out["files"] = files
     if server_urimaps:  # added only when non-empty: an always-present empty key breaks exact-equality tests
         out["server_urimaps"] = server_urimaps
+    if twasizes:  # #5079 (X59), added only when non-empty
+        out["twasize"] = twasizes
+    if userarealens:  # keyed by termid through the TERMINAL's TYPETERM; added only when non-empty
+        user_areas = {t: userarealens[tt] for t, tt in terminal_types.items() if tt in userarealens}
+        if user_areas:
+            out["userarealen"] = user_areas
     return out
 
 

@@ -373,6 +373,21 @@ def census_eras(corpora: Path, names: set[str]) -> dict[str, dict[str, str]]:
     return out
 
 
+def headline(res: dict[str, Any]) -> list[str]:
+    """One sentence per scope: the share of its programs that turn whole when the top N ranked gaps are closed."""
+    steps = res["coverage_if_closed"]
+    if not steps:
+        return []
+    parts = ", ".join(
+        f"top {c['top']}: {c['whole']} / {res['programs']} ({c['share']:.1%}{', upper bound' if c['upper_bound'] else ''})"
+        for c in steps
+    )
+    return [
+        f"Coverage if closed, programs that translate whole after the highest-ranked gaps (from {res['whole_now']} today): {parts}.",
+        "",
+    ]
+
+
 def table(res: dict[str, Any]) -> list[str]:
     out = [
         "| gap | estates | programs | e0 | e1 | e2 | e3 | e4 | none | status | owner |",
@@ -485,6 +500,7 @@ def render(res: dict[str, Any], census: dict[str, Any] | None = None) -> str:
         f"## Burned estates ({len(res['estates'])} estates, {res['programs']} programs, {res['whole_now']} "
         "translate whole today)",
         "",
+        *headline(res),
         *table(res),
     ]
     if census:
@@ -497,6 +513,7 @@ def render(res: dict[str, Any], census: dict[str, Any] | None = None) -> str:
             "`census-*` labels: no program, table or copybook name is kept, and a gap key that could carry one is "
             "collapsed to its class (`scrub_key`).",
             "",
+            *headline(census),
             *table(census),
         ]
     return "\n".join(out) + "\n"

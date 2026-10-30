@@ -70,6 +70,8 @@ def test_the_statement_text_may_span_lines_and_keep_its_case():
         ("CONNECT RESET", "EXEC SQL CONNECT: .*one connection"),
         ("CALL PROC1 (:A)", "EXEC SQL CALL: .*stored procedure"),
         ("SET CURRENT SQLID = 'X'", "EXEC SQL SET: .*SET CURRENT"),
+        ("ALLOCATE C1 CURSOR FOR RESULT SET :LOC", "EXEC SQL ALLOCATE: .*result set locator"),
+        ("ASSOCIATE LOCATORS (:LOC) WITH PROCEDURE PROC1", "EXEC SQL ASSOCIATE: .*result sets"),
         ("EXECUTE STMT1 USING :A", "EXEC SQL EXECUTE"),
         ("EXECUTE STMT1 USING DESCRIPTOR :SQLDA", "EXEC SQL EXECUTE"),
         ("EXECUTE STMT1", "EXEC SQL EXECUTE"),
@@ -337,7 +339,19 @@ _BURNED_CORPORA = (
     "dbb-mortgage-application",
     "zecs",
 )
-_REFUSED_SQL_VERB = re.compile(r"EXEC\s+SQL\s+(CALL|CONNECT|DESCRIBE|PREPARE|EXECUTE|WHENEVER)\b", re.I)
+# the whole refused class of det/sql.py's _REFUSED_VERBS (a SET that assigns a host variable, SET :H = ..., is modelled)
+_REFUSED_SQL_VERB = re.compile(
+    r"EXEC\s+SQL\s+(CALL|CONNECT|DESCRIBE|PREPARE|EXECUTE|WHENEVER|ALLOCATE|ASSOCIATE|SET\s+(?!\(?\s*:))\b", re.I
+)
+
+
+def test_the_burned_estate_pin_covers_every_refused_verb():
+    from gitgalaxy.tools.cobol_to_java.det.sql import _REFUSED_VERBS
+
+    for verb in _REFUSED_VERBS:
+        probe = "SET CURRENT SQLID" if verb == "SET" else verb
+        assert _REFUSED_SQL_VERB.search(f"EXEC SQL {probe} X"), verb
+    assert not _REFUSED_SQL_VERB.search("EXEC SQL SET :H = CURRENT TIMESTAMP")
 
 
 def test_no_burned_estate_program_issues_a_refused_dynamic_or_connection_sql_verb():

@@ -349,16 +349,18 @@ def _pass_one(
 
 
 def step(state: dict[str, Any], api: pr_check.Api = pr_check.gh_api, run: Run = _run,
-         digest: Callable[[int], dict[str, Any]] | None = None, settle: float = 30) -> list[str]:  # fmt: skip
+         digest: Callable[[int], dict[str, Any]] | None = None, settle: float = 30,
+         graphql: pr_check.GraphQL | None = None) -> list[str]:  # fmt: skip
     """One pass over the queue. Returns what it did (for the log and the tests). Every queued PR gets at least one
-    line: what it did, or its state and why nothing was done (#4790: a pass logged nothing about #4837)."""
+    line: what it did, or its state and why nothing was done (#4790: a pass logged nothing about #4837).
+    `graphql` (#6534): main's failing checks (read once per pass) come from GraphQL, REST when a query fails."""
     on_main_cache: list[set[str]] = []
 
     flaky_cache: list[set[str]] = []
 
     def _default_digest(n: int) -> dict[str, Any]:
         if not on_main_cache:
-            on_main_cache.append(ci_digest.main_failures(api))
+            on_main_cache.append(ci_digest.main_failures(api, graphql=graphql))
             flaky_cache.append(learned_flakes(state))
         return ci_digest.digest(n, api, on_main=on_main_cache[0], flaky=flaky_cache[0])
 
@@ -414,7 +416,7 @@ def main(argv: list[str] | None = None) -> int:
                 with open(STATE.with_suffix(".lock"), "w") as lock:  # held per pass; add/drop wait for it
                     fcntl.flock(lock, fcntl.LOCK_EX)
                     state = load()
-                    for line in step(state):
+                    for line in step(state, graphql=pr_check.gh_graphql):
                         log(line)
                     save(state)
                 if args.once or (args.exit_when_empty and not state["queue"]) or time.time() > end:

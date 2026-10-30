@@ -97,7 +97,17 @@ def test_a_directory_reads_every_sarif_and_the_summary_is_appended(tmp_path, cap
     assert "`r1`: 1" in summary.read_text(encoding="utf-8") and "`r2`: 1" in summary.read_text(encoding="utf-8")
 
 
-def test_an_empty_pr_analysis_says_it_saw_nothing(tmp_path, capsys):
-    pr, base = _write(tmp_path, "pr.sarif"), _write(tmp_path, "main.sarif", _result("r1", "a.py"))
-    assert cna.main(["--sarif", str(pr), "--baseline", str(base)]) == 0
-    assert "this check saw nothing" in capsys.readouterr().out  # 0 is not "clean" when the scan returned nothing
+def test_a_blind_scan_fails_an_enforced_run_even_with_nothing_new(tmp_path, capsys):
+    pr = _write(tmp_path, "pr.sarif")
+    base = _write(tmp_path, "main.sarif", *[_result("r1", "a.py", digest=f"h{i}") for i in range(4)])
+    args = ["--sarif", str(pr), "--baseline", str(base)]
+    assert cna.main(args) == 0  # report only: it says so, and passes
+    assert "This scan looks blind: 0 results against main's 4" in capsys.readouterr().out
+    assert cna.main([*args, "--enforce"]) == 1  # the #7153 failure: "no new results" from a scan that saw nothing
+    assert "(fails this PR)" in capsys.readouterr().out
+
+
+def test_a_partly_blind_scan_fails_but_a_normal_one_does_not():
+    assert cna.blind(0, 405) and cna.blind(202, 405)
+    assert not cna.blind(203, 405) and not cna.blind(425, 405)
+    assert not cna.blind(0, 0), "a repo with no results on main has nothing to compare with"

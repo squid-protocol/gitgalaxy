@@ -131,6 +131,25 @@
    "outcomes": 6,
    "scenarios": {}
   },
+  "ca-getmain-pointer/CAGMZ": {
+   "live": 3,
+   "outcomes": 4,
+   "scenarios": {
+    "zero-length": {
+     "units": [
+      "LOG-RESP",
+      "LOG-ZERO",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "76:false",
+      "76:true",
+      "83:false",
+      "83:true"
+     ]
+    }
+   }
+  },
   "ca-link-lengths/CALINK": {
    "live": 1,
    "outcomes": 4,

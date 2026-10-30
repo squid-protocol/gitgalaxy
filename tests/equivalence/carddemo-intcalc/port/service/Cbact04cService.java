@@ -180,7 +180,7 @@ public class Cbact04cService {
                 account = acct.record();
                 CobolFiles.Read<CardXrefRecord> x = files.read("XREFFILE",     // 1110-GET-XREF-DATA
                         () -> cardXrefRecordRepository.findByXrefAcctId(acctId).stream()
-                                .min(Comparator.comparing(CardXrefRecord::getXrefCardNum)));
+                                .min(Comparator.comparing((CardXrefRecord c) -> CobolRecords.sortKey(c.getXrefCardNum(), "cp037"))));
                 if ("23".equals(x.status())) {           // INVALID KEY
                     Sysout.display("ACCOUNT NOT FOUND: ", String.format(Locale.ROOT, "%011d", acctId));
                 }

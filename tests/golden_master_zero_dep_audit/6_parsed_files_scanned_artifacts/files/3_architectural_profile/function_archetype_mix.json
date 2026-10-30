@@ -5446,7 +5446,9 @@
     },
     "hlasm/che4z_hlasm": {
       "hlasm/che4z_hlasm/A.hlasm": {},
-      "hlasm/che4z_hlasm/AAAAA.hlasm": {},
+      "hlasm/che4z_hlasm/AAAAA.hlasm": {
+        "I/O & Config Routines": 1
+      },
       "hlasm/che4z_hlasm/B.hlasm": {},
       "hlasm/che4z_hlasm/BBBBB.hlasm": {},
       "hlasm/che4z_hlasm/CCCCC.hlasm": {},
@@ -5454,14 +5456,20 @@
       "hlasm/che4z_hlasm/code_action_1.hlasm": {},
       "hlasm/che4z_hlasm/code_action_2.hlasm": {},
       "hlasm/che4z_hlasm/comments.hlasm": {},
-      "hlasm/che4z_hlasm/factorial.hlasm": {},
+      "hlasm/che4z_hlasm/factorial.hlasm": {
+        "I/O & Config Routines": 1
+      },
       "hlasm/che4z_hlasm/forward_dependency.hlasm": {},
-      "hlasm/che4z_hlasm/infinite.hlasm": {},
+      "hlasm/che4z_hlasm/infinite.hlasm": {
+        "I/O & Config Routines": 1
+      },
       "hlasm/che4z_hlasm/output.hlasm": {},
       "hlasm/che4z_hlasm/remote.hlasm": {},
       "hlasm/che4z_hlasm/remote2.hlasm": {},
       "hlasm/che4z_hlasm/tutorial.hlasm": {},
-      "hlasm/che4z_hlasm/virtual_file.hlasm": {}
+      "hlasm/che4z_hlasm/virtual_file.hlasm": {
+        "I/O & Config Routines": 1
+      }
     },
     "hlasm/zecs": {
       "hlasm/zecs/ZECS002.asm": {

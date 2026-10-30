@@ -4696,22 +4696,22 @@
         "Cognitive Load Exposure": "0.0%",
         "Commented Logic Exposure": "5.87%",
         "Concurrency Exposure": "0.0%",
-        "Documentation Exposure": "0.0%",
+        "Documentation Exposure": "21.47%",
         "Error & Exception Exposure": "0.0%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "47.06%",
         "Specification Exposure": "0.0%",
         "State Flux Exposure": "0.0%",
-        "Tech Debt Exposure": "0.0%",
-        "Testing Exposure": "2.16%",
+        "Tech Debt Exposure": "8.88%",
+        "Testing Exposure": "2.17%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 204.84,
+      "Directory Group Magnitude": 157.54,
       "Ecosystem Fingerprint (Archetypes)": {
         "Static: Literature & Documentation": "5.9%",
         "Unclassified": "11.8%",
-        "file_cluster_17": "47.1%",
-        "file_cluster_2": "35.3%"
+        "file_cluster_17": "35.3%",
+        "file_cluster_2": "47.1%"
       },
       "File Count": 17,
       "Files": [

@@ -349,6 +349,7 @@ _HLASM_CONDASM = "&N       SETA  3\n.LOOP    AIF   (&N EQ 0).DONE\n.DONE    ANOP
 _NASM_MAC = "; nasm macros\n%macro  proc 1\n%1:\n  push ebp\n%endmacro\n"
 _MASM_MAC = "PUSHALL MACRO\n   push ax\n   push bx\nENDM\n\nPOPALL macro\n  pop bx\nendm\n"
 _DSP_MAC = '; DSP\nname "emu"\nGPR a,b,c\nmacs a, b, c, d\nEND\n'
+_TROFF_MAC = '.\\" troff macros\n.de PP\n.sp .5v\n.ne 2\n..\n.de SH\n.sp 1\n.ft B\n..\n'
 
 
 def test_armasm_mend_and_ltorg_do_not_lock_hlasm():
@@ -370,6 +371,14 @@ def test_mac_files_with_no_hlasm_evidence_are_not_hlasm(text):
     assert ".mac" in HLASM["extensions_needing_discriminator"]
     detector = LanguageDetector(LANGUAGE_DEFINITIONS, {})
     assert detector.focus("macros/other.mac", text)[0] != "hlasm"
+
+
+@pytest.mark.parametrize("path", ["dos/INCLUDE/MACROS.MAC", "share/doc/usd/21.troff/m.mac", "src/Troff.mac"])
+@pytest.mark.parametrize("text", [_NASM_MAC, _MASM_MAC, _TROFF_MAC])
+def test_uppercase_and_troff_mac_files_are_not_hlasm(path, text):
+    # #7064: MS-DOS `.MAC` (uppercase) and troff `.mac` were labelled hlasm in the corpus DB.
+    detector = LanguageDetector(LANGUAGE_DEFINITIONS, {})
+    assert detector.focus(path, text)[0] != "hlasm"
 
 
 @pytest.mark.parametrize(
@@ -823,7 +832,6 @@ def test_a_field_defined_twice_is_ambiguous_unless_the_names_agree():
         "         LINK  EPLOC=PGMFLDX",
         "         LINK  EP=",
         "         LINK  XEPLOC=PGMFLD",
-        "         LINKX EPLOC=PGMFLD",
         "* LINK EPLOC=PGMFLD",
         "         MVC   WSNAME,=C'LINK EPLOC=PGMFLD'",
         "         LINK  SF=L",

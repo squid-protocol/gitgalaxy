@@ -61,6 +61,7 @@ class Statement:
     scroll: bool = False  # #4269: an OPEN of a cursor declared SCROLL, or a FETCH with an orientation
     orient: str = ""  # #4269: that FETCH's orientation (PRIOR FIRST LAST CURRENT ABSOLUTE RELATIVE)
     orient_n: int | None = None  # #4269: its integer constant; a host variable's value is the statement's one input
+    rowset: bool = False  # #4269: a FETCH ROWSET: the outputs are tables, one per column; orient_n is FOR n ROWS' n
 
 
 def _area(line: str) -> str:
@@ -163,10 +164,10 @@ class Program:
     def elementary(self, i: int) -> list[int]:
         """A host variable, or a host structure's elementary members (a VARCHAR pair is one)."""
         it = self.items[i]
+        if (it.get("occurs_max") or 1) > 1:  # (#4269: a table is a column of a FETCH ROWSET only: _rowset_fetch)
+            raise Unsupported(f"host variable array {it['name']}")
         if it.get("pic") or self.is_varchar(i):
             return [i]
-        if it.get("occurs"):
-            raise Unsupported(f"host variable array {it['name']}")
         out: list[int] = []
         for k in self.kids.get(i, []):
             out += self.elementary(k)
@@ -214,6 +215,7 @@ class Precompiler:
         self.cursors: dict[str, str] = {}  # name -> its SELECT (host variables still named)
         self.hold: set[str] = set()  # #4269: the cursors declared WITH HOLD
         self.scroll: set[str] = set()  # #4269: the cursors declared INSENSITIVE / ASENSITIVE SCROLL
+        self.rowset: set[str] = set()  # #4269: the cursors declared WITH ROWSET POSITIONING
         self.whenever: dict[str, str] = {}  # #4269: WHENEVER condition -> its GO TO label, in force from here
         self.prepared: dict[str, str] = {}  # #4269: PREPARE name FROM 'literal' -> the text, from here on
 
@@ -244,10 +246,35 @@ class Precompiler:
     def _arg(self, args: list[str], i: int) -> int:
         name = self.p.items[i]["name"].upper()
         quals = self.p.ancestors(i)
+        # (#4269: a host-variable table is passed by its first element: cobc wants the subscript)
         ref = name + (f" OF {quals[0]}" if quals else "")
+        ref += " (1)" if (self.p.items[i].get("occurs_max") or 1) > 1 else ""
         if ref not in args:
             args.append(ref)
         return args.index(ref)
+
+    def _rowset_fetch(self, sid: int, text: str, args: list[str]) -> Statement:
+        """#4269: FETCH [NEXT] ROWSET FROM cursor FOR n ROWS INTO :A1, :A2 -- each a PIC item with OCCURS, a column."""
+        m = re.fullmatch(r"FETCH\s+(?:NEXT\s+)?ROWSET\s+(?:FROM\s+)?([A-Z0-9_-]+)\s+FOR\s+(\d+|:[A-Z0-9_-]+)\s+ROWS?"
+                         r"\s+INTO\s+(.*)", text, re.I | re.S)  # fmt: skip
+        if not m:
+            raise Unsupported(f"EXEC SQL {text[:60]}")
+        cursor = m.group(1).upper()
+        if cursor not in self.rowset:
+            raise Unsupported(f"EXEC SQL FETCH ROWSET {cursor}: the cursor is not declared WITH ROWSET POSITIONING")
+        refs: list[tuple[list[int], int | None]] = []
+        for h in _HOST.finditer(m.group(3)):
+            i = self.p.find(h.group(1))
+            if not self.p.items[i].get("pic") or (self.p.items[i].get("occurs_max") or 1) < 2 or self.p.is_varchar(i):
+                raise Unsupported(f"FETCH ROWSET {cursor}: :{h.group(1)} is not a PIC item with OCCURS")
+            refs.append(([i], self.p.find(h.group(2)) if h.group(2) else None))
+        st = Statement(sid, "FETCH", "", cursor, [], self._vars(refs, args), rowset=True)
+        if m.group(2).startswith(":"):
+            _, nrefs = self._bind(m.group(2), args)
+            st.inputs = self._vars(nrefs, args)
+        else:
+            st.orient_n = int(m.group(2))
+        return st
 
     def statement(self, body: str) -> tuple[Statement, list[str]] | None:
         """One EXEC SQL block's statement and the CALL's arguments, or None (no code: DECLARE)."""
@@ -259,7 +286,7 @@ class Precompiler:
         if re.match(r"DECLARE\s+\S+\s+TABLE\b", u):
             return None
         cur = re.match(r"DECLARE\s+([A-Z0-9_-]+)\s+(?:(?:SENSITIVE|INSENSITIVE|ASENSITIVE)\s+)?(?:SCROLL\s+)?CURSOR\s+"
-                       r"(?:WITH\s+HOLD\s+)?(?:WITH\s+RETURN\s+)?FOR\s+(.*)", text, re.I | re.S)  # fmt: skip
+                       r"(?:WITH\s+(?:HOLD|RETURN|ROWSET\s+POSITIONING)\s+)*FOR\s+(.*)", text, re.I | re.S)  # fmt: skip
         if cur:
             words = u.split("CURSOR")[0].split()
             if "SCROLL" in words:
@@ -269,6 +296,8 @@ class Precompiler:
             self.cursors[cur.group(1).upper()] = cur.group(2)
             if re.search(r"\bCURSOR\s+WITH\s+HOLD\b", u):
                 self.hold.add(cur.group(1).upper())
+            if re.search(r"\bWITH\s+ROWSET\s+POSITIONING\b", u):
+                self.rowset.add(cur.group(1).upper())
             return None
         if verb == "SET" and re.match(r"SET\s*\(?\s*:", text, re.I):  # SET :H = expr: one row of VALUES into :H
             targets, exprs = _assignments(text)
@@ -354,6 +383,8 @@ class Precompiler:
             sql, refs = self._bind(self.cursors[name], args)
             st = Statement(sid, "OPEN", _norm(sql), name, self._vars(refs, args), hold=name in self.hold,
                            scroll=name in self.scroll)  # fmt: skip
+        elif verb == "FETCH" and re.search(r"\bROWSET\b", u):
+            st = self._rowset_fetch(sid, text, args)
         elif verb == "FETCH":
             m = re.fullmatch(r"FETCH\s+(?:INSENSITIVE\s+)?(?:(NEXT|PRIOR|FIRST|LAST|CURRENT|(?:ABSOLUTE|RELATIVE)\s+\S+)\s+)?"
                              r"(?:FROM\s+)?([A-Z0-9_-]+)\s+INTO\s+(.*)", text, re.I | re.S)  # fmt: skip
@@ -426,6 +457,8 @@ class Precompiler:
             tail = (" H" if s.hold else "") + (
                 (" K" + (f":{s.orient}" if s.orient else "") + (f":{s.orient_n}" if s.orient_n is not None else ""))
                 if s.scroll else "")  # fmt: skip
+            if s.rowset:  # #4269: a FETCH ROWSET ends `R`, or `R:n` for a constant FOR n ROWS
+                tail = " R" + (f":{s.orient_n}" if s.orient_n is not None else "")
             out.append(f"S {s.sid} {s.kind} {len(s.inputs)} {len(s.outputs)} {s.cursor} {s.program} {s.line}" + tail)
             for tag, vs in (("I", s.inputs), ("O", s.outputs)):
                 for v in vs:

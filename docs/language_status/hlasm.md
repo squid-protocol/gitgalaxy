@@ -90,9 +90,18 @@ blank/EOL — never `\b`, which would fire between `WAIT` and `=` on a keyword o
   defined twice with different names, one defined outside the file (a `COPY` member, a run-time `MVC`), a
   name that is not a valid program name and `EPLOC=(reg)` add no edge. Strict suite: 44 new cases
   (185 -> 229) (#7063).
+- **Macro uses** become call edges to the macro member (#7063, slice 3). A macro prototype (the line after
+  `MACRO`) opens a unit named for the macro, so a `.mac` member or an in-file macro is a definition the call
+  resolver indexes like a `CSECT`. Every operation-field name that is not a machine instruction, assembler directive
+  or IBM system macro (`_NOT_USER_MACRO`) is named as a callee of its unit, with a `&LAB` / `LBL` name field allowed;
+  the resolver keeps the names some unit defines and drops the rest, so an installation macro in another member
+  becomes a file edge and a use of a macro defined in the same file does not. Cost: `calls_out_to` lists the
+  unresolved operation-field names (installation or vendor macros whose member is not in the repository, and a
+  system macro missing from the exclusion list); a line continued from a column-72 mark above is an operand, never a
+  use (the zecs `EXEC CICS` option lines, found by `fact_crosscheck`). Strict suite: 52 new cases in `test_hlasm_macro_uses.py` (one `LINKX` near miss moved there).
 
 ### Topology (x)
-- **`func_start`** — `name CSECT`, `name RSECT`, `name START`: the named control sections
+- **`func_start`** — `name CSECT`, `name RSECT`, `name START` (and, #7063, a `MACRO` prototype's macro name): the named control sections
   other members reach via `=V(name)`/`CALL`. **Documented deviation from the issue text:**
   #2503 asked for DSECT here too, but a dummy section is a named storage *layout* that
   assembles no executable logic — #2856's type-declaration exclusion — so:
@@ -222,9 +231,10 @@ The cross-language page is [cics_mainframe_facts.md](cics_mainframe_facts.md). W
   - general macro expansion (a user macro that wraps `EXEC CICS` is not expanded);
   - any fact beyond CICS, DLI and IMS definitions outside the translation subset — for example, the
     register-level data flow of an assembler program the lowering refuses;
-  - call-graph edges for user-macro uses (an operation-field name a `.mac` member or in-file `MACRO`
-    prototype defines): they do not become edges; nor does an `EPLOC=` field whose name is not an in-file
-    `DC CL8'...'`. The `CALL` macro, `LINK`/`XCTL EP=` and `EPLOC=` through an in-file constant do (§3, #7063).
+  - the body of a macro: a use is an edge, but a macro that wraps `EXEC CICS` or `CALL` is not expanded, so the
+    callee in its body is attributed to the macro's own unit, not to each user;
+  - an `EPLOC=` field whose name is not an in-file `DC CL8'...'`. The `CALL` macro, `LINK`/`XCTL EP=`, `EPLOC=`
+    through an in-file constant and installation / in-file macro uses do become edges (§3, #7063).
 - **Single-sourced:** HLASM CICS rests on one corpus (zECS, a small service). The burned-estate census
   (#6963) pins every burned assembler member: the two zECS programs lowered, CardDemo's two batch
   routines modelled by hand-written runtime code.
@@ -306,3 +316,27 @@ forms are covered by the strict suite (`test_hlasm_calls_out_forms`) but have no
 **PDS routing.** Fixed (section 2, item 3). Members of the two PDS-layout repos are no longer split across `go`, `plaintext` and
 `undeterminable` when they carry HLASM evidence. Sibling gaps (same mechanism, not done): `*.COPYLIB/`/`*.COBOL/` (cobol),
 `*.PLI/` (pli), `*.JCL/`/`*.CNTL/` (jcl): each is one `library_directory_suffixes` entry plus a pin.
+
+### Addendum (2026-10-30b, #7064): Che4z / IBM-Z-zOS `calls_out` re-measure, `.mac` misroute re-check
+
+**Held on this box:** the Che4z LSP repo (35 `.asm`/`.mac`/`.hlasm` files), IBM-Z-zOS (1 file) and freebsd-src (5 `.mac`). Hyperion,
+the MS-DOS tree and the NASM tree are **not held**: no number is given for them; their rows in section 12 stay as measured on the DB.
+
+**Real-file `calls_out` (36 files scanned as a copy, 35 routed `hlasm`, 15 functions, 10 with a non-empty `calls_out_to`).**
+Statement counts in the source: `CALL` 4, `LOAD` 3, `BAL` 3, `LINK`/`XCTL`/`ATTACH`/`BALR`/`BASR` 0. All 4 `CALL`s and 3 `LOAD`s are in
+one file (`oeconsol.asm`). Reading:
+- `CALL (15),...` takes the callee from a register, so there is no name to extract: correct to emit none.
+- `LOAD EP=BPX1GLG` (and the read/write stubs) is **not** named: `calls_out` for that file is `BAKR`, `MODID`, `MGCRE` (system macros). `LOAD EP=` is the open form.
+- The other 9 functions with callees name macro invocations (`MAC` -> `MAC_VIRTUAL`, `TEST` -> `TEST_1_BYTE`, ...), i.e. macro uses, not external programs.
+- `BAL R14,GENMDB` (3) names in-file labels: an internal edge, not an import.
+
+**Routing re-check.** The 5 freebsd-src `.mac` files (troff macro packages) route `easytrieve` (4) and `plaintext` (1); none is `hlasm`. Pinned
+for uppercase `.MAC` and troff text in `test_uppercase_and_troff_mac_files_are_not_hlasm`.
+
+**Defect classes for the consolidated issue (not filed here):**
+1. `LOAD EP=name` is not named by `calls_out`; `BAL`/`BALR`/`BASR` to an in-file label is an internal edge, not modelled.
+2. `fragile_debt`/`planned_debt` false positives on message text (`xxx`) and stub names; needs an hlasm override of the global debt rules and moves the golden master.
+3. Non-hlasm `.mac` families land in `easytrieve` (NASM, troff) and `plaintext` (DSP).
+4. PDS siblings `*.COPYLIB/`, `*.COBOL/`, `*.PLI/`, `*.JCL/`, `*.CNTL/` unrouted (one `library_directory_suffixes` entry plus a pin each).
+
+No burned-estate program needs any of these.

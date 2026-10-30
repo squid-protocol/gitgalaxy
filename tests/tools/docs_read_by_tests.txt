@@ -251,6 +251,7 @@ distribution.md	tests/tools/doom_speedrun,tests/tools/test_doom_distribution.py
 doc.md	tests/cobol_mainframe,tests/core_engine
 docs/**	tests/tools/post_merge_dispatch.py,tests/tools/test_post_merge_dispatch.py
 docs/GATING.md	tests/tools/rosetta_audit.py
+docs/PAYCALC.py	tests/extraction
 docs/README.sh	tests/core_engine
 docs/a.md	tests/extraction,tests/tools/test_ci_digest.py,tests/tools/test_muninn_scope.py
 docs/a.py	tests/tools/test_context_pack.py,tests/tools/test_doom_speedrun.py

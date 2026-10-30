@@ -369,7 +369,7 @@ _SCROLL_AND_ROWSET = [
     ("FETCH INSENSITIVE PRIOR FROM C1 INTO :A", "FETCH PRIOR"),
     ("FETCH SENSITIVE ABSOLUTE :N FROM C1 INTO :A", "FETCH ABSOLUTE"),
     ("fetch\n  prior\n from c1 into :a", "FETCH PRIOR"),
-    ("FETCH NEXT ROWSET FROM C1 FOR 5 ROWS INTO :A", "multi-row FETCH"),
+    ("FETCH NEXT ROWSET FROM C1 INTO :A", "multi-row FETCH"),
     ("FETCH ROWSET STARTING AT ABSOLUTE 4 FROM C1 FOR :N ROWS INTO :A", "FETCH ABSOLUTE|multi-row FETCH"),
     ("FETCH FROM C1 FOR 3 ROWS INTO :A", "multi-row FETCH"),
     ("INSERT INTO T (A) VALUES (:A) FOR :N ROWS", "multi-row INSERT"),
@@ -469,7 +469,7 @@ def _scroll_sql(declare):
         ("S1 CURSOR", "FETCH ABSOLUTE 2 S1 INTO :A", "not declared SCROLL"),
         ("S1 SCROLL CURSOR", "FETCH BEFORE S1", "only positions"),
         ("S1 SCROLL CURSOR", "FETCH AFTER S1", "only positions"),
-        ("S1 SCROLL CURSOR", "FETCH NEXT ROWSET FROM S1 FOR 2 ROWS INTO :A", "multi-row"),
+        ("S1 SCROLL CURSOR", "FETCH ROWSET STARTING AT ABSOLUTE 2 FROM S1 FOR 2 ROWS INTO :A", "multi-row"),
     ],
 )
 def test_a_scroll_fetch_the_port_cannot_model_is_refused_by_name(declare, fetch, why):
@@ -661,3 +661,274 @@ def test_scrolldemo_det_port_proves_on_db2_against_the_hand_trace(tmp_path):
     report = _json.loads((keep / "report.json").read_text(encoding="utf-8"))
     assert report["proven"] is True
     assert (keep / "cobol" / "stdout.txt").read_text(encoding="latin-1") == TRACED_SCROLL
+
+
+# #4269 rowset FETCH: ROWDEMO is built inline (no committed estate); rows 10..50, QTY NULL on id 20
+_ROWDEMO_CBL = """\
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. ROWDEMO.
+       ENVIRONMENT DIVISION.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+           EXEC SQL INCLUDE SQLCA END-EXEC.
+           EXEC SQL DECLARE GGROW.ITEM TABLE
+               ( ID                 INTEGER NOT NULL,
+                 NAME               CHAR(4) NOT NULL,
+                 QTY                DECIMAL(5,2)
+               ) END-EXEC.
+       01  WS-TABLES.
+           05  WS-ID                PIC S9(9) COMP OCCURS 3.
+           05  WS-NAME              PIC X(4) OCCURS 3.
+           05  WS-QTY               PIC S9(3)V99 COMP-3 OCCURS 3.
+           05  WS-QI                PIC S9(4) COMP OCCURS 3.
+       01  WS-N                     PIC S9(9) COMP.
+       01  WS-I                     PIC S9(9) COMP.
+       01  WS-CODE                  PIC -(9)9.
+       01  WS-ROWS                  PIC -(9)9.
+       01  WS-SHOW                  PIC -(9)9.
+       01  WS-Q                     PIC -(3)9.99.
+       01  WS-IND                   PIC -(9)9.
+       01  WS-TAG                   PIC X(8).
+           EXEC SQL DECLARE RC1 CURSOR WITH ROWSET POSITIONING FOR
+               SELECT ID, NAME, QTY FROM GGROW.ITEM ORDER BY ID
+           END-EXEC.
+       PROCEDURE DIVISION.
+       MAIN-PARA.
+           EXEC SQL OPEN RC1 END-EXEC
+           EXEC SQL FETCH NEXT ROWSET FROM RC1 FOR 2 ROWS
+               INTO :WS-ID, :WS-NAME, :WS-QTY :WS-QI END-EXEC
+           MOVE 'LIT 2' TO WS-TAG
+           PERFORM SHOW-PARA
+           MOVE 3 TO WS-N
+           EXEC SQL FETCH ROWSET FROM RC1 FOR :WS-N ROWS
+               INTO :WS-ID, :WS-NAME, :WS-QTY :WS-QI END-EXEC
+           MOVE 'VAR 3' TO WS-TAG
+           PERFORM SHOW-PARA
+           EXEC SQL FETCH NEXT ROWSET FROM RC1 FOR 3 ROWS
+               INTO :WS-ID, :WS-NAME, :WS-QTY :WS-QI END-EXEC
+           MOVE 'END' TO WS-TAG
+           PERFORM SHOW-PARA
+           EXEC SQL CLOSE RC1 END-EXEC
+           EXEC SQL OPEN RC1 END-EXEC
+           EXEC SQL FETCH NEXT ROWSET FROM RC1 FOR :WS-N ROWS
+               INTO :WS-ID, :WS-NAME, :WS-QTY :WS-QI END-EXEC
+           MOVE 'FULL' TO WS-TAG
+           PERFORM SHOW-PARA
+           EXEC SQL FETCH NEXT ROWSET FROM RC1 FOR :WS-N ROWS
+               INTO :WS-ID, :WS-NAME, :WS-QTY :WS-QI END-EXEC
+           MOVE 'SHORT' TO WS-TAG
+           PERFORM SHOW-PARA
+           EXEC SQL CLOSE RC1 END-EXEC
+           EXEC SQL FETCH NEXT ROWSET FROM RC1 FOR 3 ROWS
+               INTO :WS-ID, :WS-NAME, :WS-QTY :WS-QI END-EXEC
+           MOVE 'CLOSED' TO WS-TAG
+           PERFORM SHOW-PARA
+           STOP RUN.
+       SHOW-PARA.
+           MOVE SQLCODE TO WS-CODE
+           MOVE SQLERRD(3) TO WS-ROWS
+           DISPLAY WS-TAG WS-CODE WS-ROWS
+           PERFORM SHOW-ROW VARYING WS-I FROM 1 BY 1
+               UNTIL WS-I > SQLERRD(3).
+       SHOW-ROW.
+           MOVE WS-ID(WS-I) TO WS-SHOW
+           IF WS-QI(WS-I) < 0
+               MOVE 0 TO WS-Q
+           ELSE
+               MOVE WS-QTY(WS-I) TO WS-Q
+           END-IF
+           MOVE WS-QI(WS-I) TO WS-IND
+           DISPLAY WS-NAME(WS-I) WS-SHOW WS-Q WS-IND.
+"""
+_ROWDEMO_JCL = """\
+//ROWDEMO  JOB (COBOL),'ROWDEMO',CLASS=A,MSGCLASS=H
+//STEP1    EXEC PGM=IKJEFT01
+//SYSTSPRT DD SYSOUT=*
+//SYSTSIN  DD *
+     DSN SYSTEM(DB2P)
+          RUN PROGRAM(ROWDEMO) PLAN(GGROW)
+/*
+"""
+_ROWDEMO_DDL = (
+    "CREATE TABLE GGROW.ITEM (ID INTEGER NOT NULL, NAME CHAR(4) NOT NULL, QTY DECIMAL(5,2), PRIMARY KEY (ID));\n"
+)
+_ROWDEMO_SEED = (
+    "INSERT INTO GGROW.ITEM VALUES (10, 'AAAA', 1.50);\nINSERT INTO GGROW.ITEM VALUES (20, 'BBBB', NULL);\n"
+    "INSERT INTO GGROW.ITEM VALUES (30, 'CCCC', 3.00);\nINSERT INTO GGROW.ITEM VALUES (40, 'DDDD', 4.25);\n"
+    "INSERT INTO GGROW.ITEM VALUES (50, 'EEEE', 5.00);\n"
+)
+_ROW = {10: ("AAAA", "1.50", 0), 20: ("BBBB", "0.00", -1), 30: ("CCCC", "3.00", 0), 40: ("DDDD", "4.25", 0),
+        50: ("EEEE", "5.00", 0)}  # fmt: skip
+# per FETCH: tag (8), SQLCODE (10), SQLERRD(3) (10), then one line per row read: name (4), id (10), qty (7), indicator (10)
+_TRACED_ROWSET = [
+    ("LIT 2", 0, [10, 20]), ("VAR 3", 0, [30, 40, 50]), ("END", 100, []), ("FULL", 0, [10, 20, 30]),
+    ("SHORT", 100, [40, 50]), ("CLOSED", -501, []),
+]  # fmt: skip
+TRACED_ROWSET = "".join(
+    f"{t:<8}{c:>10}{len(ids):>10}\n" + "".join(f"{_ROW[i][0]}{i:>10}{_ROW[i][1]:>7}{_ROW[i][2]:>10}\n" for i in ids)
+    for t, c, ids in _TRACED_ROWSET
+)
+
+
+def _rowdemo_port(tmp_path):
+    pytest.importorskip("tree_sitter_language_pack")
+    import det_port
+
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    estate = tmp_path / "estate"
+    for rel, text in (
+        ("cbl/ROWDEMO.cbl", _ROWDEMO_CBL),
+        ("jcl/ROWDEMO.jcl", _ROWDEMO_JCL),
+        ("ddl/ITEM.ddl", _ROWDEMO_DDL),
+    ):
+        (estate / rel).parent.mkdir(parents=True, exist_ok=True)
+        (estate / rel).write_text(text, encoding="utf-8")
+    (tmp_path / "seed.sql").write_text(_ROWDEMO_SEED, encoding="utf-8")
+    for argv in (["init", "-q"], ["add", "-A"], ["-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qm", "e"]):
+        subprocess.run(["git", "-C", str(estate), *argv], check=True)  # noqa: S603, S607
+    project = det_port.estate(estate, tmp_path / "translate")  # (its own work: never inside the estate)
+    stub = (project / "src/main/java" / det_port.PKG_DIR / "service" / "RowdemoService.java").read_text("utf-8")
+    r = P.translate(estate / "cbl/ROWDEMO.cbl", [estate / "cbl"], stub, det_port.PKG, P.estate_files(project), project)
+    port = tmp_path / "port"
+    (port / "service").mkdir(parents=True)
+    (port / "service" / f"{r.service}.java").write_text(r.java, encoding="utf-8")
+    for rel, text in P.runtime_files(det_port.PKG, P.has_batch(project)).items():
+        if "/cics/" not in rel:
+            (port / rel).parent.mkdir(parents=True, exist_ok=True)
+            (port / rel).write_text(text, encoding="utf-8")
+    return estate, r, port
+
+
+@pytest.mark.slow(reason="builds an estate and runs the det-port translator (tree-sitter load, ~40 s)")
+def test_rowdemo_translates_every_rowset_fetch_with_no_holes(tmp_path):
+    _estate, r, _port = _rowdemo_port(tmp_path)
+    assert r.stats["holes"] == []
+    assert r.java.count("DetSql.fetchRowset(") == 6
+    assert r.java.count("DetSql.intoRows(") == 6
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_rowdemo_det_port_proves_on_db2_against_the_hand_trace(tmp_path):
+    import json
+
+    estate, _r, port = _rowdemo_port(tmp_path)
+    case = {"corpus": "rowset-synthetic", "program": "ROWDEMO", "program_source": "cbl/ROWDEMO.cbl", "copy_dirs": [],
+            "parm": None, "clock": "2026/10/30 10:00:00.00", "datasets": {},
+            "db2": {"ddl": ["ddl/ITEM.ddl"], "seed": str(tmp_path / "seed.sql"), "compare": ["GGROW.ITEM"],
+                    "compare_sql": True}}  # fmt: skip
+    (tmp_path / "case.json").write_text(json.dumps(case), encoding="utf-8")
+    keep = tmp_path / "proof"
+    proc = subprocess.run([sys.executable, str(TOOLS / "equivalence.py"), "run", "rowset", "--case-file",  # noqa: S603
+                           str(tmp_path / "case.json"), "--corpus-dir", str(estate), "--port", str(port), "--keep",
+                           str(keep), "--faults", "none", "--sql-faults", "none"],
+                          capture_output=True, text=True, check=False)  # fmt: skip
+    assert proc.returncode == 0, proc.stdout[-3000:] + proc.stderr[-3000:]
+    report = json.loads((keep / "report.json").read_text(encoding="utf-8"))
+    assert report["proven"] is True
+    assert (keep / "cobol" / "stdout.txt").read_text(encoding="latin-1") == TRACED_ROWSET
+
+
+@pytest.mark.parametrize(
+    "declare, why",
+    [
+        ("R1 CURSOR", "not declared WITH ROWSET POSITIONING"),
+        ("R1 SCROLL CURSOR", "not declared WITH ROWSET POSITIONING"),
+        ("R1 SENSITIVE SCROLL CURSOR WITH ROWSET POSITIONING", "SENSITIVE or DYNAMIC"),
+    ],
+)
+def test_a_rowset_fetch_of_a_cursor_the_port_cannot_model_is_refused_by_name(declare, why):
+    from gitgalaxy.tools.cobol_to_java.det.sql import SqlError
+
+    with pytest.raises(SqlError, match=rf"{why}.*register Q4"):
+        _scroll_sql(declare).command("EXEC SQL FETCH NEXT ROWSET FROM R1 FOR 2 ROWS INTO :A END-EXEC", 7, "")
+
+
+def test_a_rowset_cursor_is_found_by_its_declaration():
+    from gitgalaxy.tools.cobol_to_java.det.sql import Sql
+
+    src = (
+        "EXEC SQL DECLARE R1 CURSOR WITH HOLD WITH ROWSET POSITIONING FOR SELECT A FROM T END-EXEC. "
+        "EXEC SQL DECLARE R2 CURSOR FOR SELECT A FROM T END-EXEC. "
+        "EXEC SQL DECLARE R3 SCROLL CURSOR WITH ROWSET POSITIONING FOR SELECT A FROM T END-EXEC."
+    )
+    assert Sql(_Gen(), "P", None, src).rowset == {"R1", "R3"}
+
+
+_ROWSET_MAIN = """\
+package ggtest;
+
+import ggtest.cobolrt.Field;
+import ggtest.cobolrt.Storage;
+import ggtest.cobolrt.sql.DetSql;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Map;
+
+public class Main {
+    static final Charset CS = StandardCharsets.ISO_8859_1;
+
+    static int num(Field ca, int off) {
+        byte[] b = ca.storage().bytes;
+        return (b[off] & 0xFF) | (b[off + 1] & 0xFF) << 8 | (b[off + 2] & 0xFF) << 16 | b[off + 3] << 24;
+    }
+
+    static void go(Field ca, String c, long n, int cap) {
+        List<Map<String, Object>> rows = DetSql.fetchRowset(ca, "P:9", c, n, cap, CS);
+        System.out.println(c + " " + n + " code=" + num(ca, 12) + " rows=" + rows.size() + " erd3=" + num(ca, 104));
+    }
+
+    public static void main(String[] a) {
+        Field ca = Field.group(new Storage(136), 0, 136);
+        DetSql.open(ca, "P:1", "R1", () -> List.of(Map.of("ID", 1), Map.of("ID", 2), Map.of("ID", 3), Map.of("ID", 4), Map.of("ID", 5)), CS);
+        go(ca, "R1", 2, 3);
+        go(ca, "R1", 3, 3);
+        go(ca, "R1", 3, 3);
+        go(ca, "R1", 1, 3);
+        DetSql.close(ca, "P:2", "R1", CS);
+        go(ca, "R1", 2, 3);
+        DetSql.open(ca, "P:3", "R2", () -> List.of(), CS);
+        go(ca, "R2", 2, 3);
+        DetSql.open(ca, "P:4", "R3", () -> List.of(Map.of("ID", 1)), CS);
+        for (long n : new long[] {0, 4}) {
+            try {
+                go(ca, "R3", n, 3);
+            } catch (UnsupportedOperationException e) {
+                System.out.println("refused " + n);
+            }
+        }
+    }
+}
+"""
+
+
+@pytest.mark.skipif(_jdk() is None, reason="no JDK (JDK_17 / JAVA_HOME)")
+def test_detsql_reads_a_rowset_and_sets_sqlerrd3_as_db2_does(tmp_path):
+    from javac_server import javac as javac_run
+
+    rt = TOOLS.parent.parent / "gitgalaxy" / "tools" / "cobol_to_java" / "det" / "cobolrt"
+    src = tmp_path / "src" / "ggtest"
+    for sub in ("", "sql"):
+        (src / "cobolrt" / sub).mkdir(parents=True, exist_ok=True)
+        for f in (rt / sub).glob("*.java"):
+            text = f.read_text(encoding="utf-8").replace("__PACKAGE__", "ggtest")
+            (src / "cobolrt" / sub / f.name).write_text(text, encoding="utf-8")
+    (src / "Main.java").write_text(_ROWSET_MAIN, encoding="utf-8")
+    jdk = _jdk()
+    files = [str(p) for p in (tmp_path / "src").rglob("*.java")]
+    javac = javac_run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"), *files],  # noqa: S603
+                      capture_output=True, text=True, encoding="utf-8", check=False)  # fmt: skip
+    assert javac.returncode == 0, javac.stderr[:3000]
+    out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "ggtest.Main"],  # noqa: S603
+                         capture_output=True, text=True, encoding="utf-8", check=True).stdout.splitlines()  # fmt: skip
+    assert out == [
+        "R1 2 code=0 rows=2 erd3=2",
+        "R1 3 code=0 rows=3 erd3=3",  # rows 3, 4, 5: full
+        "R1 3 code=100 rows=0 erd3=0",  # past the last row
+        "R1 1 code=100 rows=0 erd3=0",
+        "R1 2 code=-501 rows=0 erd3=0",  # closed
+        "R2 2 code=100 rows=0 erd3=0",  # no rows
+        "refused 0",
+        "refused 4",
+    ]

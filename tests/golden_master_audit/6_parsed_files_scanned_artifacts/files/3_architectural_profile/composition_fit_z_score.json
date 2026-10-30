@@ -1775,14 +1775,14 @@
       "hlasm/che4z_hlasm/code_action_1.hlasm": 0.0,
       "hlasm/che4z_hlasm/code_action_2.hlasm": -0.055,
       "hlasm/che4z_hlasm/comments.hlasm": 0.0,
-      "hlasm/che4z_hlasm/factorial.hlasm": -0.206,
+      "hlasm/che4z_hlasm/factorial.hlasm": 3.589,
       "hlasm/che4z_hlasm/forward_dependency.hlasm": -0.196,
       "hlasm/che4z_hlasm/infinite.hlasm": 0.0,
       "hlasm/che4z_hlasm/output.hlasm": 0.0,
       "hlasm/che4z_hlasm/remote.hlasm": 0.0,
       "hlasm/che4z_hlasm/remote2.hlasm": 0.0,
       "hlasm/che4z_hlasm/tutorial.hlasm": 1.309,
-      "hlasm/che4z_hlasm/virtual_file.hlasm": -0.056
+      "hlasm/che4z_hlasm/virtual_file.hlasm": 3.714
     },
     "hlasm/zecs": {
       "hlasm/zecs/ZECS002.asm": 2.841,

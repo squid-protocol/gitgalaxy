@@ -115,8 +115,8 @@
    "line": 466,
    "before": "private final Field f535_FNAME03O = Field.alphanumeric(s_COUSR0AI, 392, 20, false);",
    "after": "private final Field f535_FNAME03O = Field.alphanumeric(s_COUSR0AI, 392, 21, false);",
-   "verdict": "harness-gap",
-   "reason": "an O-field one byte longer than its PIC X(20): the extra byte is a NUL, and the screen comparison strips trailing blanks and NULs (decode_record, rstrip) so it cannot see it"
+   "verdict": "equivalent",
+   "reason": "an O-field one byte longer than its PIC X(20): the 21st byte at offset 412 is LNAME03L (0x00), so the decoded string has a trailing NUL which equivalence_cics._same rstrip(\" \\x00\") strips; the screen values are identical"
   },
   {
    "id": "b1cfbccbb1",
@@ -133,8 +133,8 @@
    "line": 544,
    "before": "private final Field f691_LNAME08O = Field.alphanumeric(s_COUSR0AI, 844, 20, false);",
    "after": "private final Field f691_LNAME08O = Field.alphanumeric(s_COUSR0AI, 844, 21, false);",
-   "verdict": "harness-gap",
-   "reason": "an O-field one byte longer than its PIC X(20): the extra byte is a NUL, and the screen comparison strips trailing blanks and NULs (decode_record, rstrip) so it cannot see it"
+   "verdict": "equivalent",
+   "reason": "an O-field one byte longer than its PIC X(20): the 21st byte at offset 864 is SEL0009L (0x00), so the decoded string has a trailing NUL which equivalence_cics._same rstrip(\" \\x00\") strips; the screen values are identical"
   },
   {
    "id": "c709e61b6a",
@@ -232,8 +232,8 @@
    "line": 950,
    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
    "after": "/* System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length)); */",
-   "verdict": "harness-gap",
-   "reason": "#4635: The byte[] COMMAREA entry (ca instanceof byte[]) is never used: the harness passes a DTO. Needs a task whose COMMAREA is a byte[] (the mutants throw ArrayIndexOutOfBounds / take EIBCALEN 0, i.e. the first-entry screen); the harness cannot yet express it."
+   "verdict": "unreachable",
+   "reason": "the byte[] COMMAREA entry (ca instanceof byte[]) runs only for a LINK from a caller handing raw bytes; COUSR00C is a terminal transaction reached by XCTL, so the area is always the typed DTO"
   },
   {
    "id": "73392963ef",
@@ -277,8 +277,8 @@
    "line": 1170,
    "before": "Cobol.move(DM1, f96_USRIDINL, CS);",
    "after": "/* Cobol.move(DM1, f96_USRIDINL, CS); */",
-   "verdict": "case-gap",
-   "reason": "MOVE -1 TO USRIDINL (the cursor): the SEND MAP comparison reads the cursor only when the scenario states it. Needs the SEND MAP events to state the cursor"
+   "verdict": "equivalent",
+   "reason": "in MAIN-PARA (paragraph 0), MOVE -1 TO USRIDINL is completely overwritten in every execution branch before any read: if EIBCALEN = 0 the program exits via RETURN-TO-PREV-SCREEN without reading it, if not re-entering it is overwritten with LOW-VALUES on line 1188 by MOVE LOW-VALUES TO COUSR0AO, and if re-entering it is cleared with 0x00 by Arrays.fill on line 2054 in RECEIVE-USRLST-SCREEN"
   },
   {
    "id": "ad68cf86da",
@@ -322,8 +322,8 @@
    "line": 1333,
    "before": "if ((Cobol.compareFigurative(f101_USRIDINI, Figurative.SPACES, CS) == 0 || Cobol.compareFigurative(f101_USRIDINI, Figurative.LOW_VALUES, CS) == 0)) {",
    "after": "if ((Cobol.compareFigurative(f101_USRIDINI, Figurative.SPACES, CS) == 0 && Cobol.compareFigurative(f101_USRIDINI, Figurative.LOW_VALUES, CS) == 0)) {",
-   "verdict": "case-gap",
-   "reason": "a blank key takes `MOVE LOW-VALUES TO SEC-USR-ID`; the mutant leaves SPACES, and STARTBR GTEQ gives the same start only while no USRSEC key sorts below a blank. Needs a USRSEC record whose key starts below X'20'"
+   "verdict": "equivalent",
+   "reason": "in PROCESS-ENTER-KEY, changing OR to AND causes a blank USRIDINI to move SPACES instead of LOW-VALUES into SEC-USR-ID before STARTBR GTEQ; every USRSEC key is uppercase alphanumeric (>= 'A' / 0x41), which sorts strictly above both 0x00 and 0x20, so GTEQ positions at the identical first record in both cases and subsequent READNEXT overwrites SEC-USR-ID"
   },
   {
    "id": "709e10b0a6",
@@ -331,8 +331,8 @@
    "line": 1357,
    "before": "if ((Cobol.compareFigurative(f46_CDEMO_CU00_USRID_FIRST, Figurative.SPACES, CS) == 0 || Cobol.compareFigurative(f46_CDEMO_CU00_USRID_FIRST, Figurative.LOW_VALUES, CS) == 0)) {",
    "after": "if ((Cobol.compareFigurative(f46_CDEMO_CU00_USRID_FIRST, Figurative.SPACES, CS) == 0 && Cobol.compareFigurative(f46_CDEMO_CU00_USRID_FIRST, Figurative.LOW_VALUES, CS) == 0)) {",
-   "verdict": "case-gap",
-   "reason": "a blank key takes `MOVE LOW-VALUES TO SEC-USR-ID`; the mutant leaves SPACES, and STARTBR GTEQ gives the same start only while no USRSEC key sorts below a blank. Needs a USRSEC record whose key starts below X'20'"
+   "verdict": "equivalent",
+   "reason": "in PROCESS-PF7-KEY, changing OR to AND causes a blank CDEMO-CU00-USRID-FIRST to move SPACES instead of LOW-VALUES into SEC-USR-ID before STARTBR GTEQ; every USRSEC key is uppercase alphanumeric (>= 'A' / 0x41), which sorts strictly above both 0x00 and 0x20, so GTEQ positions at the identical first record in both cases and subsequent READNEXT overwrites SEC-USR-ID"
   },
   {
    "id": "557f2a41e8",

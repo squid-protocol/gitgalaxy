@@ -8,8 +8,8 @@ The status above judges the record alone (policy: ported_unproven = block). Whet
 
 | | |
 |---|---|
-| proof | proven at 2026-10-29T10:38:02Z, harness `7fdf2eedb25ec0b1895dc5584f7fad6c9f889e1b+uncommitted` |
-| inputs digest | `39127817156185bcc3f68e199d9c42d493a169d890e18015759a148a45c29f62` |
+| proof | proven at 2026-10-30T14:54:48Z, harness `0712a98114140473d4b14442f973fa403cd68768+uncommitted` |
+| inputs digest | `9540f083ca544a93bcf3567bfa13f62af11b734b5163e103f5bb3720ea07f17b` |
 | port | 2 files `79755803d19000ce` |
 | case | 3 files `efd54996573f9c4f` |
 | corpus | cics-banking-sample-application-cbsa @ `417334533178ab6e753cc64b0e0e5cf0b4952704` `7a4c86e6d6688f15` |
@@ -17,10 +17,10 @@ The status above judges the record alone (policy: ported_unproven = block). Whet
 | options |  `8ca112619bacfa8a` |
 | runtime options | `150386a124b56e8e` (cics 5, db2 8, le 3): cics.program_definition.CONCURRENCY=THREADSAFE, cics.program_definition.EXECKEY=USER, cics.region.DB2CONN=YES, cics.region.LOCALCCSID=037, cics.translator.options=CICS('SP,EDF') via the program's CBL card, db2.bind.ACTION=REPLACE, db2.bind.ISOLATION=UR, db2.ccsid.SQLCCSID=NO, db2.format.DATE=ISO, db2.format.DEC=15, db2.format.DECPT=., db2.format.TIME=ISO, db2.precompile.coprocessor=integrated (CICS + SQL on the compile PARM / CBL cards), le.runtime_options.ABTERMENC=ABEND, le.runtime_options.STORAGE=NONE,NONE,NONE,0K, le.runtime_options.TRAP=ON,SPIE |
 | compiler options | `3fb9a52d3da63e71` (4): ARITH=COMPAT, INTDATE=ANSI, NUMPROC=NOPFD, TRUNC=OPT |
-| harness | 18 files `81d4842720cfbde5` |
-| oracle | 47 files `db19e0d81d519030` |
-| generator | 120 files `ee54026d57a9c6a9` |
-| oracle run | gnucobol-models: cobc (GnuCOBOL) 3.1.2.0, image `sha256:6169c7831601` (matches pin: True) |
+| harness | 18 files `77e3c32f56e4bcd5` |
+| oracle | 51 files `90b9ccefc04328b0` |
+| generator | 120 files `ab0d4d56f74d39a4` |
+| oracle run | gnucobol-models: cobc (GnuCOBOL) 3.1.2.0, image `sha256:7c8080743313` (matches pin: True) |
 | written by | person (unknown) |
 
 ## Proof outputs

@@ -112,7 +112,8 @@
 #
 #   DFHSRT TYPE=SYSTEM|USER,ABCODE=(..),RECOVER=YES   SRT  one row per code, named as MVS names it
 #          (Sxxx three hex digits / Unnnn decimal) [TS]. RECOVER=NO or no RECOVER REMOVES the codes
-#          [TS]: that is not a definition, so no row. (The operand is ABCODE, not CODE.)
+#          [TS]: that is not a definition, so no row, and in the same table it takes out a row an
+#          earlier RECOVER=YES made. A code repeated in one table is one row. (The operand is ABCODE.)
 #   DFHJCT TYPE=ENTRY,JFILEID=SYSTEM|nn   JOURNAL  [VSE ch.29 Table 41, p.270-272]: `JFILEID=SYSTEM`
 #          (system log) or decimal `nn` (1-99 user journal; 01-99 accepted); `JTYPE=`, `BUFSIZE=`,
 #          `JOUROPT=` stay in `attributes`.
@@ -407,18 +408,14 @@ def _emp_id(value: str | None) -> str | None:
     return f"{entry or 'USER'}.{int(number)}"
 
 
-def _srt_rows(line: int, text: str, keyed: dict[str, str], kind: str, table: str) -> list[dict[str, Any]]:
-    """DFHSRT TYPE=SYSTEM|USER: one SRT row per intercepted abend code, only for RECOVER=YES.
+def _srt_codes(keyed: dict[str, str], kind: str) -> list[str]:
+    """DFHSRT TYPE=SYSTEM|USER ABCODE= -> the abend codes as MVS names them (Sxxx / Unnnn), in order, once each.
 
-    RECOVER=NO, or no RECOVER, "removes" the codes from the SRT: that is not a definition,
-    so it yields nothing. A code that is not three hex digits (SYSTEM) or a decimal number
-    (USER) is dropped. The row is named as the MVS code is: Sxxx / Unnnn.
+    A code that is not three hex digits (SYSTEM) or a decimal number (USER) is dropped.
     """
-    if (_first(keyed.get("RECOVER")) or "") != "YES":
-        return []
     shape, prefix = (_SRT_SYSTEM_CODE, "S") if kind == "SYSTEM" else (_SRT_USER_CODE, "U")
     codes = [c.strip("() '\"").upper() for c in (keyed.get("ABCODE") or "").split(",")]
-    return [_row("SRT", prefix + code, table, line, text, ["RECOVER(YES)"]) for code in codes if shape.match(code)]
+    return list(dict.fromkeys(prefix + code for code in codes if shape.match(code)))
 
 
 def _plt_rows(line: int, text: str, keyed: dict[str, str], table: str, stage: int) -> tuple[list[dict[str, Any]], int]:
@@ -607,7 +604,22 @@ def cics_macro_table_resources(code_stream: str) -> list[dict[str, Any]]:
             prefixes = [p.strip("() '\"").upper() for p in (keyed.get("DATAID") or "").strip().split(",")]
             rows.extend(_row("TSMODEL", prefix, table, line, text, rdo) for prefix in prefixes if prefix)
         elif op == "DFHSRT" and kind in ("SYSTEM", "USER"):
-            rows.extend(_srt_rows(line, text, keyed, kind, table))
+            # RECOVER=YES defines the codes; RECOVER=NO (or none) "removes" them [TS], so a later NO
+            # takes a code an earlier YES defined in the same table out, and a repeat adds no second row.
+            recover = (_first(keyed.get("RECOVER")) or "") == "YES"
+            for code in _srt_codes(keyed, kind):
+                held = next(
+                    (
+                        r
+                        for r in rows
+                        if r["resource_type"] == "SRT" and r["name"] == code and r["macro_table"] == table
+                    ),
+                    None,
+                )
+                if not recover and held is not None:
+                    rows.remove(held)
+                elif recover and held is None:
+                    rows.append(_row("SRT", code, table, line, text, ["RECOVER(YES)"]))
         elif op == "DFHJCT" and kind == "ENTRY":
             name = _jfileid(keyed.get("JFILEID"))
             if name:

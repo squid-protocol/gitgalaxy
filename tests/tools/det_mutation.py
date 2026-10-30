@@ -9,6 +9,7 @@ mode and seeded sample -- and each mutant the proof does not kill either killed 
     python tests/tools/det_mutation.py run CASE [CASE ...] --work DIR [--sample 150] [--seed 0] [--jobs 3]
     python tests/tools/det_mutation.py record CASE RUN_DIR PORT_DIR      # a mutation.py run dir -> the ledger
     python tests/tools/det_mutation.py refresh [CASE ...] --work DIR     # an input moved: same port? carry the verdicts
+        [--run-moved [--budget-min N]]                                   # ... and `run` the ports that moved (#5862)
     python tests/tools/det_mutation.py check                             # the ledgers' form and the claims
     python tests/tools/det_mutation.py stale-check [--vs REF]            # exit 1: a ledger an input moved (the PR's cases)
     python tests/tools/det_mutation.py table [CASE ...]                  # per program, as the PR table
@@ -51,6 +52,7 @@ import json
 import re
 import subprocess
 import sys
+import time
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
@@ -504,7 +506,38 @@ def _outdated(entry: dict[str, Any], now: dict[str, Any]) -> bool:
     return bool(stale(entry, now) or drifted(entry, now))
 
 
-def refresh(cases: list[str], work: Path) -> int:
+def rerun_moved(cases: list[str], work: Path, budget_min: float | None = None,
+                clock: Callable[[], float] = time.monotonic) -> tuple[list[str], int]:  # fmt: skip
+    """`run` each case whose det port moved, with the sample, seed and mode its ledger entry was cut with (so the new
+    score is comparable), oldest entry first; no new case starts once `budget_min` minutes are spent (None: no limit).
+    A fresh `record` drops `port_moved`. Returns (the cases still flagged, the worst `run` status): a case left for
+    the next night, or one whose run failed, keeps its flag (#5862)."""
+    ledger = load()
+    order = sorted(cases, key=lambda c: (str(ledger[c].get("date") or ""), c))
+    start, rc, slowest, took, failed = clock(), 0, 0.0, [], []
+    for i, case in enumerate(order):
+        used = clock() - start
+        if budget_min is not None and used + slowest >= budget_min * 60:  # (the slowest case so far must still fit)
+            print(f"det mutation: budget of {budget_min:g} min spent: {', '.join(order[i:])} left for the next run")
+            break
+        e = ledger[case]
+        t0 = clock()
+        rc_case = run([case], work, e.get("chosen") or None, e.get("seed") or 0, 3, e.get("mode") == "full")
+        secs = clock() - t0
+        slowest = max(slowest, secs)
+        took.append(secs)
+        if rc_case:
+            failed.append(case)
+        rc |= rc_case
+        print(f"det mutation: {case} ran in {secs / 60:.1f} min ({'failed' if rc_case else 'ok'})")
+    now = load()
+    left = [c for c in order if (now.get(c) or {}).get("port_moved")]
+    print(f"det mutation: {len(order)} moved, {len(took)} run in {sum(took) / 60:.1f} min "
+          f"(slowest {slowest / 60:.1f}), {len(failed)} failed, {len(left)} still flagged")  # fmt: skip
+    return left, rc
+
+
+def refresh(cases: list[str], work: Path, run_moved: bool = False, budget_min: float | None = None) -> int:
     """Renew each stale or drifted entry whose det port bytes did not move (#5862). Only generator / harness / oracle
     drifted: translate again, compare the port's bytes, renew the fingerprints. Case / corpus / survivors list moved:
     re-run only the recorded survivors (same seed, operators, scope and mode) and carry the other verdicts; a survivor that now dies drops out of the survivors (a stated
@@ -512,7 +545,8 @@ def refresh(cases: list[str], work: Path) -> int:
     after keeps its stated verdict. Mutants killed before are not re-proven (a case weakened since would not show).
     A port whose bytes moved marks the entry stale (`port_moved`: `run` records it afresh). Exit 1: a wrong claim, an
     error, a survivor not re-run. Exit 2: only that a port moved (a person runs `run`); the
-    scheduled lane (evidence-refresh.yml) warns on 2 and fails on 1."""
+    scheduled lane (evidence-refresh.yml) warns on 2 and fails on 1. With `run_moved` the moved ports are run again
+    here (`rerun_moved`, within `budget_min`), so exit 2 is left only for the cases the budget did not reach."""
     import evidence as ev
     import mutation as mu
 
@@ -522,13 +556,16 @@ def refresh(cases: list[str], work: Path) -> int:
     if not todo:
         print("det mutation: nothing stale")
         return 0
+    print(f"det mutation: {len(todo)} of {len(ledger)} ledger(s) stale")
     det = translate(todo, work)
-    rc, port_moved = 0, False
+    rc, port_moved, moved_ports = 0, False, []
     for case in todo:
         entry, port = ledger[case], det / case / "port"
         if not port.is_dir() or port_sha(port) != entry["inputs"]["port"]:
             print(f"{case}: the det port changed: re-run (det_mutation.py run {case} --work DIR)")
             port_moved = True
+            if port.is_dir():
+                moved_ports.append(case)
             if port.is_dir() and not entry.get("port_moved"):  # stale until `run` records the new port
                 write(case, {**entry, "port_moved": True})
             continue
@@ -570,6 +607,10 @@ def refresh(cases: list[str], work: Path) -> int:
         for i in s["refuted"]:
             print(f"{case}: {i} is stated {stated(case)[i]['verdict']} but the re-run killed it: the claim is wrong")
             rc = 1
+    if run_moved and moved_ports:
+        left, rc_run = rerun_moved(moved_ports, work, budget_min)
+        rc |= rc_run
+        port_moved = bool(left)
     return rc or (2 if port_moved else 0)
 
 
@@ -710,6 +751,8 @@ def main(argv: list[str] | None = None) -> int:
     rf = sub.add_parser("refresh")
     rf.add_argument("cases", nargs="*")
     rf.add_argument("--work", type=Path, required=True)
+    rf.add_argument("--run-moved", action="store_true", help="run the cases whose det port moved (oldest first)")
+    rf.add_argument("--budget-min", type=float, help="with --run-moved: start no new case after this many minutes")
     sub.add_parser("check")
     sc = sub.add_parser("stale-check")
     sc.add_argument("--vs", metavar="REF", help="only the cases this branch changes against REF (merge base)")
@@ -726,7 +769,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "record":
         return record(args.case, args.run_dir, args.port)
     if args.cmd == "refresh":
-        return refresh(args.cases, args.work)
+        return refresh(args.cases, args.work, args.run_moved, args.budget_min)
     if args.cmd == "stale-check":
         return stale_check(args.vs)
     if args.cmd == "table":

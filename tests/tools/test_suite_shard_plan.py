@@ -185,3 +185,54 @@ def test_a_leg_cap_never_drops_below_its_slowest_seen_time(durations):
         seen = plan.SLOWEST_SEEN_MIN.get((leg["os"], leg["python-version"]), 0)
         assert leg["timeout"] >= seen * plan.SEEN_HEADROOM, leg
         assert leg["step_timeout"] == leg["timeout"] - plan.STEP_MARGIN_MIN
+
+
+def _e2e_fits(weight, n):
+    return sp.shard_seconds(weight, n, plan.E2E_SETUP_S, plan.E2E_JOBS) <= plan.E2E_TARGET_S
+
+
+def _e2e_durations(cases):
+    return {f"tests/cobol_mainframe/t_{i}.py::t": 10.0 for i in range(cases)}
+
+
+def test_the_committed_e2e_durations_plan_the_fewest_shards_that_fit():
+    d = plan.load_durations(plan.E2E_DURATIONS)
+    p = plan.e2e_plan(d)
+    n = p["splits"]
+    assert p["matrix"] == {"group": list(range(1, n + 1))} and 1 <= n <= plan.E2E_MAX_SHARDS
+    assert _e2e_fits(d, n) or n == plan.E2E_MAX_SHARDS
+    assert n == 1 or not _e2e_fits(d, n - 1)
+    assert plan.E2E_TIMEOUT_FLOOR <= p["timeout"] <= plan.E2E_TIMEOUT_CEILING
+
+
+def test_e2e_growth_adds_shards_without_a_yaml_edit_and_a_busy_pool_halves_the_cap():
+    # 100 tests of 10 s are 500 s over E2E_JOBS workers: one shard fits; 3000 do not
+    counts = [plan.e2e_plan(_e2e_durations(c))["splits"] for c in (100, 400, 3000)]
+    assert counts == sorted(counts) and counts[0] == 1 and counts[-1] > counts[0]
+    assert plan.e2e_plan(_e2e_durations(3000))["splits"] <= plan.E2E_MAX_SHARDS
+    assert plan.e2e_plan(_e2e_durations(3000), waiting=99)["splits"] <= plan.E2E_MAX_SHARDS // 2
+
+
+def test_e2e_shards_are_planned_not_typed():
+    """#5919: no literal split count, group list, shard total or timeout is left in equivalence-e2e.yml."""
+    text = (WORKFLOWS / "equivalence-e2e.yml").read_text(encoding="utf-8")
+    assert not re.search(r"--splits\s+\d", text)
+    assert "[1, 2, 3]" not in text and "group:" not in text.split("matrix:")[1].split("\n")[1]
+    assert not re.search(r"shard \$\{\{ matrix\.group \}\}/\d", text)
+    jobs = pytest.importorskip("yaml").safe_load(text)["jobs"]
+    shard, plan_job = jobs["shard"], jobs["plan"]
+    assert "needs.plan.outputs.matrix" in shard["strategy"]["matrix"]
+    assert shard["timeout-minutes"].startswith("${{ fromJSON(needs.plan.outputs.timeout")
+    assert plan_job["permissions"]["actions"] == "read"
+    assert {"matrix", "splits", "timeout"} <= set(plan_job["outputs"])
+    run = "\n".join(s.get("run", "") for s in plan_job["steps"])
+    assert "ci_layout.py --print-waiting" in run
+    assert 'GITHUB_EVENT_NAME" = "pull_request"' in run  # a queue read on a pull request only (empty = calm)
+    assert "suite_shard_plan.py --e2e" in run and "${waiting:+--waiting" in run
+    assert '--splits "$SPLITS"' in text
+
+
+def test_cli_e2e_prints_the_outputs(capsys):
+    assert plan.main(["--e2e"]) == 0
+    out = capsys.readouterr().out.splitlines()
+    assert out[0].startswith('matrix={"group": [1') and out[1].startswith("splits=") and out[2].startswith("timeout=")

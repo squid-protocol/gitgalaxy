@@ -9,27 +9,21 @@
  },
  "coverage_if_closed": [
   {
-   "share": 0.969,
+   "share": 0.9922,
    "top": 1,
    "upper_bound": false,
-   "whole": 125
-  },
-  {
-   "share": 0.9845,
-   "top": 3,
-   "upper_bound": true,
-   "whole": 127
-  },
-  {
-   "share": 0.9845,
-   "top": 5,
-   "upper_bound": true,
-   "whole": 127
+   "whole": 128
   },
   {
    "share": 0.9922,
-   "top": 10,
-   "upper_bound": true,
+   "top": 3,
+   "upper_bound": false,
+   "whole": 128
+  },
+  {
+   "share": 0.9922,
+   "top": 5,
+   "upper_bound": false,
    "whole": 128
   }
  ],
@@ -66,30 +60,6 @@
    "programs": 2,
    "refuses_program": false,
    "status": "not modelled"
-  },
-  {
-   "by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 0,
-    "none": 2
-   },
-   "estates": 1,
-   "estates_by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 0,
-    "none": 1
-   },
-   "gap": "refused: CICS Assembler",
-   "owner": "#5121",
-   "programs": 2,
-   "refuses_program": true,
-   "status": "refused by name"
   },
   {
    "by_era": {
@@ -169,30 +139,6 @@
     "1": 0,
     "2": 0,
     "3": 0,
-    "4": 0,
-    "none": 1
-   },
-   "estates": 1,
-   "estates_by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 0,
-    "none": 1
-   },
-   "gap": "COMPUTE FUNCTION ANNUITY (IBM defines arg-N / (\u2026) but not the bits of the power or of the floating-point result; oracle_assumptions.md <name>)",
-   "owner": "unowned",
-   "programs": 1,
-   "refuses_program": false,
-   "status": "not modelled"
-  },
-  {
-   "by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
     "4": 1,
     "none": 0
    },
@@ -206,7 +152,7 @@
     "none": 0
    },
    "gap": "EPSCSMRI: no service of its own, its translation is refused: epscsmrd.cbl:N: the PICTURE N (\u2026) is not modelled (\u2026): the translator reads one byte a character",
-   "owner": "unowned",
+   "owner": "#4272",
    "programs": 1,
    "refuses_program": false,
    "status": "not modelled"
@@ -230,7 +176,7 @@
     "none": 0
    },
    "gap": "EPSCSMRO: no service of its own, its translation is refused: OS/VS COBOL BLL addressing: SERVICE LABEL (\u2026): not modelled",
-   "owner": "unowned",
+   "owner": "#5119",
    "programs": 1,
    "refuses_program": false,
    "status": "not modelled"
@@ -302,7 +248,7 @@
     "none": 0
    },
    "gap": "SET TO ENTRY: procedure / function pointers are not modelled",
-   "owner": "unowned",
+   "owner": "#5106",
    "programs": 1,
    "refuses_program": false,
    "status": "not modelled"
@@ -310,5 +256,5 @@
  ],
  "programs": 129,
  "scope": "burned estates",
- "whole_now": 123
+ "whole_now": 126
 }

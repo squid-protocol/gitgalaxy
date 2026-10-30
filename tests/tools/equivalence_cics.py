@@ -569,30 +569,48 @@ EIBDS_VERBS = frozenset({"READ", "READNEXT", "READPREV", "RESETBR", "STARTBR", "
 
 
 def translate_command(
-    body: str, labels: list[str] | None = None, handle_aid: bool = False, eibds: bool = False
+    body: str,
+    labels: list[str] | None = None,
+    handle_aid: bool = False,
+    eibds: bool = False,
+    eibrcode: bool = False,
 ) -> list[str]:
     """One EXEC CICS body -> the COBOL statements that replace it. `eibds`: the program reads EIBDS, so a file control
     command leads with `MOVE <file> TO EIBDS` (#5126, X64) -- set before the command runs, so a failed request leaves
-    its file named, as the request "referred to" it. See _translate_command for the rest."""
+    its file named, as the request "referred to" it. `eibrcode`: the program reads EIBRCODE, so a file control command
+    calls GGCRCOD right after the EIB's RESP fields are set (before a condition's GO TO), which puts the `rcode` a
+    scenario's planned condition states into EIBRCODE (#5126, X64). See _translate_command for the rest."""
     lines = _translate_command(body, labels, handle_aid)
-    if not eibds:
+    if not (eibds or eibrcode):
         return lines
     pairs = _options(body)
     opts = dict(pairs)
     file = opts.get("FILE") or opts.get("DATASET")
-    if pairs and pairs[0][0] in EIBDS_VERBS and file:
-        return [f"MOVE {file} TO EIBDS", *lines]
-    return lines
+    if not (pairs and pairs[0][0] in EIBDS_VERBS and file):
+        return lines
+    if eibrcode and "MOVE GG-RESP2 TO EIBRESP2" in lines:
+        at = lines.index("MOVE GG-RESP2 TO EIBRESP2") + 1
+        lines = [*lines[:at], "CALL 'GGCRCOD' USING GG-CICS EIBRCODE", *lines[at:]]
+    return [f"MOVE {file} TO EIBDS", *lines] if eibds else lines
 
 
-_EIBDS_WORD = re.compile(r"(?<![A-Z0-9-])EIBDS(?![A-Z0-9-])")
+def _reads_eib_word(word: str, lines: list[str]) -> bool:
+    """Does the source name an EIB field outside a comment line and a literal -- a whole word, not the front of a
+    hyphenated user name (EIBDS-X)?"""
+    pat = re.compile(rf"(?<![A-Z0-9-]){word}(?![A-Z0-9-])")
+    code = (ln[7:72].upper() for ln in lines if len(ln) > 6 and ln[6] not in "*/")
+    return any(pat.search(re.sub(r"'[^']*'|\"[^\"]*\"", "''", ln)) for ln in code)
 
 
 def reads_eibds(lines: list[str]) -> bool:
-    """#5126 (X64): does the source name EIBDS outside a comment line and a literal -- a whole word, not the front of
-    a hyphenated user name (EIBDS-X)? (The det port's scan is `det.cics.reads_eibds`: the same words, over statements.)"""
-    code = (ln[7:72].upper() for ln in lines if len(ln) > 6 and ln[6] not in "*/")
-    return any(_EIBDS_WORD.search(re.sub(r"'[^']*'|\"[^\"]*\"", "''", ln)) for ln in code)
+    """#5126 (X64): does the source name EIBDS? (The det port's scan is `det.cics.reads_eibds`: the same words, over
+    statements.)"""
+    return _reads_eib_word("EIBDS", lines)
+
+
+def reads_eibrcode(lines: list[str]) -> bool:
+    """#5126 (X64): does the source name EIBRCODE (the same whole-word rule as EIBDS)?"""
+    return _reads_eib_word("EIBRCODE", lines)
 
 
 def _translate_command(body: str, labels: list[str] | None = None, handle_aid: bool = False) -> list[str]:
@@ -1384,6 +1402,7 @@ def translate(source: str, copy_dirs: list[Path] | None = None) -> tuple[str, bo
     labels = cics_conditions.handler_labels(cics_bodies)  # #4003: what GG-GOTO indexes, program-wide
     handle_aid = any(re.match(r"\s*HANDLE\s+AID\b", b_, re.I) for b_ in cics_bodies)  # #4007
     eibds = reads_eibds(lines)  # #5126 (X64)
+    eibrcode = reads_eibrcode(lines)  # #5126 (X64)
     out: list[str] = []
     problems: list[str] = []
     features: list[str] = []
@@ -1398,7 +1417,7 @@ def translate(source: str, copy_dirs: list[Path] | None = None) -> tuple[str, bo
             if body.startswith(_DLI_TAG):
                 stmts = translate_dli(body[len(_DLI_TAG) :])
             else:
-                stmts = translate_command(body, labels, handle_aid, eibds)
+                stmts = translate_command(body, labels, handle_aid, eibds, eibrcode)
         except Unsupported as e:
             msg = str(e)  # (a whole command's refusal names it already: "EXEC CICS GETMAIN not modelled (...)")
             problems.append(f"line {i + 1}: {msg if msg.startswith('EXEC ') else f'EXEC CICS {msg}'}")

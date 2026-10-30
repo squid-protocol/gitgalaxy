@@ -5715,6 +5715,11 @@ class StructuralExtractor:
             if self._call_scans:
                 self._drop_nested_unit_calls(sats, code, self._call_scans)
             self._call_scans = None
+            # #7063: a callee only the whole segment names (HLASM `LINK EPLOC=field` + an in-file `DC CL8'name'`),
+            # which no per-unit regex or `_calls_out_rewrite` can see: the shield has blanked the literal.
+            file_pass = rules.get("_calls_out_file_pass")
+            if callable(file_pass):
+                file_pass(code, sats)
             if self._nested_decl_candidates:
                 _drop_nested_declaration_calls(sats, self._nested_decl_candidates)
             self._nested_decl_candidates = None

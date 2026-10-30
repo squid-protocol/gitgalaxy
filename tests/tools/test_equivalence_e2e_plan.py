@@ -205,5 +205,5 @@ def test_label_and_nightly_never_narrow():
 def test_the_workflow_narrows_the_shards_on_scope_zos():
     text = (REPO / ".github" / "workflows" / "equivalence-e2e.yml").read_text(encoding="utf-8")
     assert "scope: ${{ steps.plan.outputs.scope }}" in text
-    assert "needs.plan.outputs.scope == 'zos' && '[1]' || '[1, 2, 3]'" in text
+    assert "needs.plan.outputs.scope == 'zos' && '{\"group\":[1]}' || needs.plan.outputs.matrix" in text
     assert text.count("needs.plan.outputs.scope == 'zos'") >= 2 and "scope != 'zos'" in text

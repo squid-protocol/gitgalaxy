@@ -57,6 +57,9 @@ def structure(text: str, lang: str) -> dict[str, int]:
 
 def parity(program: str, cobol: str, java: str) -> dict[str, Any]:
     """One program's counts, predictions, ratios and warnings (cobol / java: the source texts)."""
+    from cobol_coverage import lowered_original
+
+    cobol = lowered_original(cobol) or cobol  # #7011: an HLASM CICS program is counted as its lowered COBOL
     kind = "cics" if _CICS.search(cobol) else "batch"
     c, j = structure(cobol, "cobol"), structure(java, "java")
     # a condition-name method (isApplAok() for 88 APPL-AOK) is not a paragraph: the model counts paragraph methods

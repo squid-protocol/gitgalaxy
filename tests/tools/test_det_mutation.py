@@ -5,6 +5,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import det_mutation as dm
 
@@ -248,6 +250,93 @@ def test_refresh_finds_a_port_move_behind_info_drift(monkeypatch, tmp_path):
     written, calls = refresh_env(monkeypatch, tmp_path, False, {**FP, "generator": "g2"}, ("survived", "survived"))
     assert dm.refresh([CASE], tmp_path) == 2
     assert calls == [] and written[CASE]["port_moved"] is True
+
+
+def moved_ledger(monkeypatch, cases, fail=()):
+    """A ledger of port-moved entries (case -> date) and a fake `run` that records its arguments and, like `record`,
+    drops the flag unless the case is in `fail`."""
+    ledger = {c: entry(port_moved=True, date=d, chosen=40 + i, seed=i, mode="full" if i else None)
+              for i, (c, d) in enumerate(cases.items())}  # fmt: skip
+    calls = []
+
+    def fake_run(cs, work, sample, seed, jobs, full):
+        calls.append((cs, sample, seed, full))
+        if cs[0] in fail:
+            return 1
+        ledger[cs[0]] = {k: v for k, v in ledger[cs[0]].items() if k != "port_moved"}
+        return 0
+
+    monkeypatch.setattr(dm, "load", lambda path=dm.LEDGER: ledger)
+    monkeypatch.setattr(dm, "run", fake_run)
+    return ledger, calls
+
+
+def test_rerun_moved_runs_oldest_first_with_the_entrys_own_sample(monkeypatch, tmp_path):
+    ledger, calls = moved_ledger(monkeypatch, {"new": "2026-10-20", "old": "2026-10-01", "mid": "2026-10-10"})
+    assert dm.rerun_moved(["new", "old", "mid"], tmp_path) == ([], 0)
+    assert [c[0] for c in calls] == [["old"], ["mid"], ["new"]]
+    assert calls[0] == (["old"], 41, 1, True) and calls[2] == (["new"], 40, 0, False)  # sample, seed, mode carried
+    assert not any(e.get("port_moved") for e in ledger.values())
+
+
+def ticking(step_s):
+    """A clock that advances `step_s` seconds per reading."""
+    t = [-step_s]
+
+    def clock():
+        t[0] += step_s
+        return t[0]
+
+    return clock
+
+
+def test_rerun_moved_stops_starting_cases_when_the_budget_is_spent(monkeypatch, tmp_path, capsys):
+    _, calls = moved_ledger(monkeypatch, {"a": "2026-10-01", "b": "2026-10-02", "c": "2026-10-03"})
+    # readings: start 0, check a 1, t0 2, end 3 (a took 1 s); check b at 4 s, slowest 1: 4 + 1 >= 5 s budget
+    left, rc = dm.rerun_moved(["a", "b", "c"], tmp_path, 5 / 60, clock=ticking(1))
+    assert (left, rc) == (["b", "c"], 0) and [c[0] for c in calls] == [["a"]]
+    assert "b, c left for the next run" in capsys.readouterr().out
+    _, calls = moved_ledger(monkeypatch, {"a": "2026-10-01"})
+    assert dm.rerun_moved(["a"], tmp_path, 0, clock=lambda: 0) == (["a"], 0) and calls == []  # a zero budget runs none
+
+
+def test_rerun_moved_does_not_start_a_case_the_slowest_so_far_would_overrun(monkeypatch, tmp_path):
+    _, calls = moved_ledger(monkeypatch, {"a": "2026-10-01", "b": "2026-10-02"})
+    ticks = iter([0, 0, 0, 50 * 60, 50 * 60])  # start, check a, t0, end (a took 50 min), check b at 50 min
+    dm.rerun_moved(["a", "b"], tmp_path, 90, clock=lambda: next(ticks))
+    assert [c[0] for c in calls] == [["a"]]  # 50 + 50 >= 90: b would pass the budget
+
+
+def test_rerun_moved_reports_each_case_and_the_total(monkeypatch, tmp_path, capsys):
+    moved_ledger(monkeypatch, {"a": "2026-10-01", "b": "2026-10-02"}, fail=("b",))
+    dm.rerun_moved(["a", "b"], tmp_path, clock=ticking(30))
+    out = capsys.readouterr().out
+    assert "a ran in 0.5 min (ok)" in out and "b ran in 0.5 min (failed)" in out
+    assert "2 moved, 2 run in 1.0 min (slowest 0.5), 1 failed" in out
+
+
+def test_rerun_moved_keeps_the_flag_of_a_failed_run(monkeypatch, tmp_path):
+    _, calls = moved_ledger(monkeypatch, {"a": "2026-10-01", "b": "2026-10-02"}, fail=("a",))
+    assert dm.rerun_moved(["a", "b"], tmp_path) == (["a"], 1)
+    assert len(calls) == 2  # the batch goes on after a failure
+
+
+def test_refresh_run_moved_clears_a_moved_port(monkeypatch, tmp_path):
+    written, calls = refresh_env(monkeypatch, tmp_path, False, {**FP, "case": "a2"}, ("survived", "survived"))
+    seen = []
+    monkeypatch.setattr(dm, "rerun_moved", lambda cs, work, budget: (seen.append((cs, budget)) or [], 0))
+    assert dm.refresh([CASE], tmp_path, run_moved=True, budget_min=30) == 0
+    assert seen == [([CASE], 30)] and calls == []
+    monkeypatch.setattr(dm, "rerun_moved", lambda cs, work, budget: (cs, 0))  # the budget did not reach it
+    assert dm.refresh([CASE], tmp_path, run_moved=True) == 2
+    monkeypatch.setattr(dm, "rerun_moved", lambda cs, work, budget: ([], 1))  # a run failed or a claim was refuted
+    assert dm.refresh([CASE], tmp_path, run_moved=True) == 1
+
+
+def test_refresh_without_run_moved_never_runs(monkeypatch, tmp_path):
+    refresh_env(monkeypatch, tmp_path, False, {**FP, "case": "a2"}, ("survived", "survived"))
+    monkeypatch.setattr(dm, "rerun_moved", lambda *a, **k: pytest.fail("ran without --run-moved"))
+    assert dm.refresh([CASE], tmp_path) == 2
 
 
 def test_stale_check_reports_info_drift_without_failing(monkeypatch, capsys):

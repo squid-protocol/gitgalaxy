@@ -37,6 +37,45 @@ _STMT = r"^" + _ID + r"{0,63}[ \t]+"
 # fires happily between `WAIT` and `=`.
 _OPEND = r"(?=[ \t]|$)"
 
+# #7063: `LINK` / `XCTL EPLOC=field` names its program through a field, so the edge needs the constant behind it.
+# An 8-byte program-name constant: `field DC CL8'NAME'` (padded) or `field DC C'NAME    '` (exactly 8 bytes).
+_NAME_CONST = re.compile(
+    r"^(" + _NAME + r")[ \t]+DC[ \t]+(?:CL8'([^'\n]{1,8})'(?!')|C'([^'\n]{8})'(?!'))",
+    re.M | re.I,
+)
+_PROGRAM_NAME = re.compile(r"[A-Z" + NATIONAL + r"@#$][\w@#$]{0,7}", re.I)
+_EPLOC_USE = re.compile(
+    _STMT + r"(?:LINK|XCTL)[ \t]+(?:[^ \t\n]{0,200}?,)?EPLOC=(" + _NAME + r")(?![\w@#$])",
+    re.M | re.I,
+)
+
+
+def _eploc_callees(code: str, sats: list[Any]) -> None:
+    """Add the program named by each `LINK`/`XCTL EPLOC=field` to its unit's `calls_out_to` (#7063).
+
+    The field resolves through an in-file `DC` of an 8-byte name, wherever the file defines it. A field defined more than
+    once with different names, one not defined here (a COPY member, a run-time `MVC`) and `EPLOC=(reg)` add no edge."""
+    if "EPLOC=" not in code.upper():
+        return
+    values: dict[str, str | None] = {}
+    for m in _NAME_CONST.finditer(code):
+        value = (m.group(2) or m.group(3)).strip()
+        key = m.group(1).upper()
+        ok = value if _PROGRAM_NAME.fullmatch(value) else None
+        values[key] = ok if values.get(key, ok) == ok else None
+    for sat in sats:
+        start, end = sat.get("start_idx"), sat.get("end_idx")
+        if not isinstance(start, int) or not isinstance(end, int):
+            continue
+        callees = sat.setdefault("calls_out_to", [])
+        qualifiers = sat.setdefault("calls_out_qualifiers", {})
+        for m in _EPLOC_USE.finditer(code, start, end):
+            callee = values.get(m.group(1).upper())
+            if callee and callee.upper() not in {c.upper() for c in callees}:
+                callees.append(callee)
+                qualifiers[callee] = [""]
+
+
 # The CICS command-level vocabulary is cobol's/pli's verbatim (#2990): a CICS
 # assembler program writes the same `EXEC CICS <verb>` the translator expands
 # (into DFHECALL) that the COBOL and PL/I hosts write, so the three mainframe
@@ -60,6 +99,9 @@ DEFINITION: dict[str, Any] = {
     # #3477: IMS PSB / DBD generation sources are HLASM macro members (PSBGEN,
     # PCB, SENSEG, DBDGEN, SEGM, FIELD ...); nothing else claims `.psb` / `.dbd`.
     "extensions": [".asm", ".hlasm", ".mac", ".psb", ".dbd"],
+    # #7064: `.mac` is NASM / MASM / troff / DSP macro files at least as often as HLASM macro members, so hlasm owns it
+    # only on the internal_discriminator's proof (an `&` prototype, CSECT/USING ...), or the mainframe-sibling gravity.
+    "extensions_needing_discriminator": [".mac"],
     "exact_matches": [],
     # ECOSYSTEM ANCHORS (#2503's ask): the mainframe sources HLASM lives
     # beside -- the JCL that assembles and runs it, the COBOL/PL/I programs and
@@ -85,7 +127,17 @@ DEFINITION: dict[str, Any] = {
     "internal_discriminator": re.compile(
         r"^"
         + _ID
-        + r"{0,63}[ \t]+(?:CSECT|DSECT|RSECT|AMODE|RMODE|USING|LTORG|MEND|DFHEIENT|DFHEIRET)"
+        + r"{0,63}[ \t]+(?:CSECT|DSECT|RSECT|AMODE|RMODE|USING|DFHEIENT|DFHEIRET)"
+        + _OPEND
+        # #7064: MEND and LTORG are ARM armasm's too (MACRO..MEND, LTORG), so they never lock alone: 92
+        # armasm64 MEND closers sent 7 of 11 CoreCLR .asm files to hlasm. A macro member counts by its
+        # `&` prototype (armasm's is `$`), or by conditional-assembly ops armasm lacks (AIF/AGO/ANOP/MNOTE).
+        + r"|^[ \t]+MACRO[ \t\r]*\n(?:\.?\*[^\n]*\n)*[^\n*][^\n]*&[A-Z"
+        + NATIONAL
+        + r"a-z]"
+        + r"|^[&.]?"
+        + _ID
+        + r"{0,63}[ \t]+(?:AIF|AGO|ANOP|MNOTE)"
         + _OPEND
         + r"|^R[0-9]{1,2}[ \t]+EQU[ \t]+[0-9]{1,2}\b(?:[\s\S]*?^R[0-9]{1,2}[ \t]+EQU[ \t]+[0-9]{1,2}\b){2}",
         re.M | re.I,
@@ -126,8 +178,22 @@ DEFINITION: dict[str, Any] = {
     # R15,=V(SUBRTN)` + `BALR 14,15`, the CALL macro, and a DSECT is reached by
     # `USING dsectname,reg`. The #2866 census applies.
     "rules": {
+        # #7063: `LINK`/`XCTL EPLOC=field` resolved through an in-file `DC CL8'name'` (detector.py runs it per segment).
+        "_calls_out_file_pass": _eploc_callees,
         # Epic #3264: Explicitly declare the structural invocation paradigm
-        "calls_out": re.compile(r"(?i)=V\(([A-Z" + NATIONAL + r"@#$][\w@#$]*)\)"),
+        # #7063: three forms name a callee, one capture group each way (the detector reads
+        # group 1): the `=V(name)` address constant; the CALL macro (MVS/LE), whose first
+        # operand is the target (`CALL name,(parms)`; `CALL (15)` / `CALL &SYM` name none);
+        # and `LINK` / `XCTL EP=name` (z/OS program management; `EP=` may follow other
+        # keyword operands, so a bounded run of non-blank text ending in a comma may
+        # precede it). `EPLOC=` and `SF=` name no literal program and do not match.
+        "calls_out": re.compile(
+            r"(?:=V\("
+            r"|" + _STMT + r"CALL[ \t]+"
+            r"|" + _STMT + r"(?:LINK|XCTL)[ \t]+(?:[^ \t\n]{0,200}?,)?EP="
+            r")([A-Z" + NATIONAL + r"@#$][\w@#$]*)",
+            re.M | re.I,
+        ),
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # branch (#2822): the CONDITIONAL branch mnemonics -- branch-on-
         # condition and its extended mnemonics (BE/BNE/BH/BNL/... and register

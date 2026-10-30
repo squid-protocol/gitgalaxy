@@ -15,7 +15,7 @@ jcl/cobol/bms/db2_sql position), and no ground-truth parser diff was run, so the
 The pinned language-crucible corpus carries no z/Architecture sources — its `.asm` files are
 all genuinely x86/ARM (NASM test suite, bare-metal Raspberry Pi kernels) and must STAY
 classified `assembly` through this change; that regression is pinned by the strict suite's
-routing tests and the golden-master run. The rules were validated by the 145-case strict
+routing tests and the golden-master run. The rules were validated by the 185-case strict
 suite and the keyword-rosetta `data/hlasm/` control shell (98 gate assertions), not yet by a
 large real-file probe like pli's 1,560-file pass.
 
@@ -31,7 +31,7 @@ large real-file probe like pli's 1,560-file pass.
 | `invocation_model` | default (`by_name`), deliberately unlike bms/jcl: `L 15,=V(name)` + `BALR`, the `CALL` macro and `USING dsect,reg` reach extracted units by name, so the `unreferenced_by_name` census applies (#2866 corollary 4 answered *yes*). |
 | Structural signature keys wired | 44 / 54 (10 explicit `None`, see §4) |
 | Extraction-gauntlet tests | — (strict suite drives the real extractor directly) |
-| Strict-signature tests (`test_hlasm_strict.py`) | 145 |
+| Strict-signature tests (`test_hlasm_strict.py`) | 185 |
 
 ## 2. Identification surface — the `.asm` collision (#2503's core requirement)
 
@@ -44,13 +44,20 @@ Routing then resolves in order:
 
 1. **Tier 2 — `internal_discriminator`** (raw content, pre-comment-strip): tokens no x86/ARM
    assembler file can carry in operation-field position — `CSECT`, `DSECT`, `RSECT`,
-   `AMODE`, `RMODE`, `USING`, `LTORG`, `MEND` (MASM's closer is `ENDM`), and the CICS bridge
-   pair `DFHEIENT`/`DFHEIRET`. The name-field anchor (`^[A-Za-z0-9@#$]{0,63}[ \t]+`) refuses
+   `AMODE`, `RMODE`, `USING`, and the CICS bridge pair `DFHEIENT`/`DFHEIRET`. `MEND` and `LTORG`
+   no longer lock on their own (#7064): ARM `armasm` closes its `MACRO` with `MEND` too and has
+   `LTORG`, so ten ARM64 `.asm` files in a .NET runtime checkout routed to hlasm. They count only
+   with HLASM-only evidence: a `MACRO` whose prototype line carries an `&` symbolic parameter
+   (armasm's are `$`), or an `AIF`/`AGO`/`ANOP`/`MNOTE` statement (`MEXIT`, `GBLA`, `SETA` exist
+   in armasm and are not used). The name-field anchor (`^[A-Za-z0-9@#$]{0,63}[ \t]+`) refuses
    a `*` comment line, so a banner *mentioning* CSECT cannot lock a file. `assembly`
    deliberately has no internal_discriminator, so a z/OS fingerprint wins outright and a
    NASM/GAS file falls through.
 2. **Tier 1.5 — ecosystem gravity**: discriminators `.mac`, `.jcl`, `.cbl`, `.cob`, `.cpy`,
-   `.pli`, `.pl1`, `.bms` (the mainframe repo an HLASM member lives in). Disqualifiers
+   `.pli`, `.pl1`, `.bms` (the mainframe repo an HLASM member lives in). `.mac` is also in
+   `extensions_needing_discriminator` (#7064): it is proof-only for hlasm, because NASM, MASM,
+   troff and DSP macro files share it. A `.mac` locks hlasm only through the Tier 2 patterns
+   above (an `&` macro prototype is enough, so maclib members route correctly). Disqualifiers
    `.nasm`, `.masm`, `.s`, `.S`, `.ld`, `CMakeLists.txt` collapse the hlasm claim in an
    x86/ARM neighborhood (the #377 toxic-neighbor mechanism, bms's `.map` shape).
 3. **Tier 3 — lexical scan** as the last resort, over both candidates' rules.
@@ -65,6 +72,19 @@ is `[A-Za-z@#$][A-Za-z0-9@#$]{0,62}` (ordinary symbols, 63 chars); every code-st
 anchors the operation field (`^name-or-nothing + blanks + OP`) and terminates it on
 blank/EOL — never `\b`, which would fire between `WAIT` and `=` on a keyword operand
 (`WAIT=YES` on a continuation line is the Rule 9 trap the strict suite pins).
+
+### Call graph (`calls_out`, #7063)
+- **`calls_out`** names the callee of three forms, one capture group: the `=V(name)` address constant;
+  the `CALL name[,(parms)]` macro (the first operand is the target); and `LINK` / `XCTL ... EP=name`
+  (`EP=` may follow other keyword operands). `CALL (15)`, `CALL &SYM`, `EPLOC=`, `SF=` and
+  `DFHPC TYPE=LINK` name no literal program and add no edge. The x86/ARM `assembly` profile is
+  untouched. Strict suite: 33 new cases (152 -> 185) (one per form, plus the near-miss class and ReDoS payloads).
+- **`LINK` / `XCTL EPLOC=field`** becomes an edge when the field is an in-file 8-byte name constant
+  (`field DC CL8'NAME'`, or `DC C'NAME    '`), wherever the file defines it (a whole-segment pass,
+  `_calls_out_file_pass`, since the literal shield blanks the constant for the per-unit scan). A field
+  defined twice with different names, one defined outside the file (a `COPY` member, a run-time `MVC`), a
+  name that is not a valid program name and `EPLOC=(reg)` add no edge. Strict suite: 44 new cases
+  (185 -> 229) (#7063).
 
 ### Topology (x)
 - **`func_start`** — `name CSECT`, `name RSECT`, `name START`: the named control sections
@@ -146,7 +166,7 @@ security lens's own detector covers hlasm).
   *unanchored* `EXEC CICS` alternations (statement-anchored rules cannot be struck
   mid-literal, so `DC C'EXEC CICS ABEND ...'` is the one shape that pins gitgalaxy#2535
   here).
-- **Strict suite**: 145 cases — per-rule positive/negative coverage, schema completeness,
+- **Strict suite**: 185 cases — per-rule positive/negative coverage, schema completeness,
   collision routing through the real `LanguageDetector` (HLASM-in-`.asm` → hlasm, NASM-in-
   `.asm` → assembly), prism family checks (the #1898 C-name survival, third landing), Mode A
   extraction, and a 35-payload ReDoS detonation sweep including the issue's named "long
@@ -165,6 +185,8 @@ security lens's own detector covers hlasm).
   **signal** rules: a multi-line macro counts once per statement because the rules anchor on its
   first physical line. **`EXEC CICS` statements are the exception**: `core/hlasm_cics.py` (#3495)
   joins their continuations and parses the operands (§11).
+- Extensionless PDS-style members (`HASH.ASM/MEMBER`, `*.MACLIB/MEMBER`) are not routed to hlasm
+  (§12 sibling gap).
 - `.mlc`/`.asmpgm` (other IBM DBB conventions) are unclaimed; add on demand.
 
 ## 11. CICS / mainframe system facts (added 2026-09-25)
@@ -195,8 +217,67 @@ The cross-language page is [cics_mainframe_facts.md](cics_mainframe_facts.md). W
   - general macro expansion (a user macro that wraps `EXEC CICS` is not expanded);
   - any fact beyond CICS, DLI and IMS definitions outside the translation subset — for example, the
     register-level data flow of an assembler program the lowering refuses;
-  - call-graph edges beyond `=V(name)`: the targets of the `CALL` macro, `LINK`/`XCTL EP=` and
-    user-macro uses do not become edges.
+  - call-graph edges for user-macro uses (an operation-field name a `.mac` member or in-file `MACRO`
+    prototype defines): they do not become edges; nor does an `EPLOC=` field whose name is not an in-file
+    `DC CL8'...'`. The `CALL` macro, `LINK`/`XCTL EP=` and `EPLOC=` through an in-file constant do (§3, #7063).
 - **Single-sourced:** HLASM CICS rests on one corpus (zECS, a small service). The burned-estate census
   (#6963) pins every burned assembler member: the two zECS programs lowered, CardDemo's two batch
   routines modelled by hand-written runtime code.
+
+## 12. Real-file probe and `.asm`/`.mac` misrouting (2026-10-29, #7064)
+
+**Misrouting.** The corpus DB (`master_db_v2.9.0`) labels 112 files `hlasm`; the ones from
+non-mainframe repos were re-routed with the current engine:
+
+| Source | DB files | Cause | Now |
+|---|---|---|---|
+| .NET runtime ARM64 `.asm` | 10 | `MEND` (armasm's macro closer) locked Tier 2 | `assembly` (fixed) |
+| NASM `.mac`, MS-DOS `.MAC` | 18 + 5 | DB predates #4975 / `.mac` was uncontested | fixed for hlasm (proof-only `.mac`); NASM goes to easytrieve through its `%macro` discriminator (sibling gap) |
+| illumos DSP `.mac`, FreeBSD troff `.mac` | 2 + 2 | same | no longer hlasm; DSP lands in plaintext, troff in easytrieve (sibling gaps) |
+
+The 24 `.asm`/`.mac`/`.hlasm` files that matched the old discriminator were re-checked: the
+real HLASM ones that lost only the `MEND` lock (`mac.asm`, `ASMWAIT.mac`) are recovered by the
+`&`-prototype rule; the rest are `.hlasm` (Tier 1). Pinned in `test_hlasm_strict.py`.
+
+**Probe.** Genuine z/OS assembler (about 18k lines of code stream, 94 files) was run through every rule:
+che4z samples 35, IBM-Z-zOS 1, CardDemo 12, zopeneditor-sample 3, zECS 2 (all route hlasm), plus
+42 members of two PDS-layout repos probed with the hlasm rules forced (they do not route, below). Hyperion is not held locally, so its 32 DB-labelled files
+were not probed.
+
+| Signal | Files / hits | Reading |
+|---|---|---|
+| `func_start`, `class_start`, `api` | 40 / 53, 22 / 46, 38 / 62 | CSECT/RSECT/DSECT fire as intended |
+| `macros` | 30 / 427 | MACRO/MEND/MEXIT/AGO/MNOTE; correct |
+| `args` | 6 / 11 | macro prototype line only |
+| `branch` | 32 / 415 | `J`/`JZ`/`JE`/`BE` fire; includes IBM extended mnemonics. A trailing remark such as `@L1A` stays in the line (positional comment, expected) |
+| `safety_bypasses`, `io`, `memory_alloc`, `concurrency`, `auth_middleware`, `cleanup` | fire | system macros (NOHANDLE, STORAGE OBTAIN/RELEASE, ENQ/DEQ, RACROUTE) match |
+| `immutability_locks` | 45 / 771 | `R0 EQU 0` register equates: correct per the profile, but dominates the count |
+| `dead_code` | 6 / 11 | commented-out instructions (`*TRY LR 1,1`): correct |
+| `test`, `closures`, `generics`, `comprehensions`, `regex_execution`, `encapsulation`, `inline_asm`, `hardcoded_secrets`, `dependency_injection`, `system_config_mutation` | none | explicit `None`, nothing expected |
+| `calls_out` | 0 | **defect at probe time**, since fixed by #7063 / #7068 (CALL macro and LINK/XCTL `EP=` callees now named; see §3) |
+
+False positives and misses recorded:
+
+- **`calls_out` read 0 on every real file at probe time** (the rule matched only `=V(name)`); #7063 / #7068
+  merged while this probe was in flight and added the CALL macro and `LINK`/`XCTL` `EP=` forms. Not re-measured here.
+- **`pointers`/`globals` over-count `DC V(name)`** (7 + 6 + 3 identical hits in one hash-table
+  file): `DC V()` is an address constant, so it is a legitimate pointer, but it is also counted as
+  a global; the same line owns two signals.
+- **`api`/`func_start` double-count a CSECT line** (`DSNX@XAC CSECT` fires both): the documented
+  dual ruling, not a defect.
+- **`fragile_debt` matches `xxx` placeholders in message text** (`RETURN CODE xxx`, `DS CL3'xxx'`):
+  15 hits in one file, none are debt.
+- **`planned_debt` matches `LOAD EP=BPX1GLG` stub lines** (9 hits in one file) where "stub" is the
+  system service name, not a TODO.
+- **`reflection_metaprogramming` counts every `EX R5,TBL`** (execute-target); it is the
+  instruction-level analogue, kept by design.
+- **PDS members are not routed to hlasm.** Extensionless members under `*.ASM/` and `*.MACLIB/`
+  directories go to `go` (19), `undeterminable` (19) and `plaintext` (4) in the two PDS-layout
+  repos (Tier 2 never runs without a candidate extension). The member files are genuine z/OS
+  assembler.
+
+Defect classes (one item each, reported to churn): (1) `BAL`/`BALR`/`BASR`/`ATTACH`/`LOAD` callee forms
+still unnamed by `calls_out` after #7068 (unverified against it);
+(2) `fragile_debt`/`planned_debt` false positives on message text and stub names; (3) PDS-style
+extensionless members unrouted; (4) non-hlasm `.mac` families still misroute (NASM and troff
+into easytrieve, DSP into plaintext).

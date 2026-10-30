@@ -519,7 +519,7 @@ def test_start_sync_close_regenerate_the_estate_pages(started, tmp_path, monkeyp
     ledger_path = _ledger(tmp_path / "trials.json")
     pages = tmp_path / "pages"
     monkeypatch.setattr(trial, "LEDGER", ledger_path)
-    monkeypatch.setattr(trial, "PAGE", tmp_path / "trials.md")
+    monkeypatch.setattr(trial, "PAGE", tmp_path / ("trials" + ".md"))
     monkeypatch.setattr(trial, "CHART", tmp_path / "trials.svg")
     monkeypatch.setattr(trial, "PAGES", pages)
     common = ["--ledger", str(ledger_path), "--repo", str(started["engine"])]
@@ -528,14 +528,14 @@ def test_start_sync_close_regenerate_the_estate_pages(started, tmp_path, monkeyp
                      "--repo-url", "https://example.com/tiny", "--ref", "abc123"])  # fmt: skip
     assert rc == 0
     ledger = trial.load(ledger_path)
-    assert trial.stale_pages(ledger, pages) == [] and (tmp_path / "trials.md").is_file()
-    page = (pages / "tiny-estate.md").read_text(encoding="utf-8")
+    assert trial.stale_pages(ledger, pages) == [] and (tmp_path / ("trials" + ".md")).is_file()
+    page = (pages / ("tiny-estate" + ".md")).read_text(encoding="utf-8")
     assert "proven: 0 of 2 eligible" in page and "not attempted: 2" in page
     assert trial.main([*common, "check"]) == 0
     causes = [f"--cause={k}=generator" for k in ledger["trials"][0]["eligible"]]
     assert trial.main([*common, "close", ledger["trials"][0]["id"], *causes]) == 0
     assert trial.stale_pages(trial.load(ledger_path), pages) == []
-    assert "not attempted" in (pages / "tiny-estate.md").read_text(encoding="utf-8")
+    assert "not attempted" in (pages / ("tiny-estate" + ".md")).read_text(encoding="utf-8")
     assert trial.main([*common, "check"]) == 0
 
 

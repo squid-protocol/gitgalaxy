@@ -565,6 +565,24 @@ def test_dfhsit_column_72_continuation():
     assert "FCT=01,SRT=02" in row["attributes"]
 
 
+def test_dfhsit_label_line_lower_case_and_missing_type():
+    """A `DFHSIT CSECT` label line is no macro; lower case reads; TYPE= missing or unknown names no table (#5154)."""
+    src = "DFHSIT   CSECT\n         dfhsit type=csect,suffix=a,fct=01\n         END\n"
+    assert [(r["resource_type"], r["name"]) for r in _rows(src)] == [("SIT", "DFHSITA")]
+    assert _rows("         DFHSIT FCT=01\n") == []
+    assert _rows("DFHSIT   CSECT\n") == []
+
+
+@pytest.mark.parametrize(
+    ("operands", "expected"),
+    [("TYPE=CSECT,FCT=01", "DFHSIT"), ("TYPE=CSECT,SUFFIX=AB,FCT=01", "DFHSITAB"), ("TYPE=DSECT", "DFHSIT")],
+)
+def test_dfhsit_assembled_in_jcl_sysin_is_a_sit_row_on_the_job_line(operands, expected):
+    job = f"//J JOB\n//ASM EXEC PGM=ASMA90\n//SYSIN DD *\n         DFHSIT {operands}\n/*\n"
+    rows = extract_boundary("jcl", job)["csd_resources"]
+    assert [(r["resource_type"], r["name"], r["source"], r["line"]) for r in rows] == [("SIT", expected, "MACRO", 4)]
+
+
 @pytest.mark.parametrize(
     "step",
     [
@@ -691,7 +709,10 @@ def test_dsncrct_db2conn_db2entry_plan_inheritance_and_group():
       or defaulting to the single TXID when neither PLAN= nor PLANI= is coded."""
     src = "\n".join(
         [
-            _cont("         DSNCRCT TYPE=INIT,SUFFIX=01,SUBID=DB2A,SIGNID=CICSAUTH,", "PLANI=DEFPLAN,PLNPGMI=DEFEXIT,THRDMAX=16"),
+            _cont(
+                "         DSNCRCT TYPE=INIT,SUFFIX=01,SUBID=DB2A,SIGNID=CICSAUTH,",
+                "PLANI=DEFPLAN,PLNPGMI=DEFEXIT,THRDMAX=16",
+            ),
             "         DSNCRCT TYPE=COMD,AUTH=USERID,THRDM=1,THRDA=1",
             "         DSNCRCT TYPE=POOL,PLAN=POOLPLN,THRDM=3,THRDA=3",
             "         DSNCRCT TYPE=GROUP,GROUP=DB2GRP1",

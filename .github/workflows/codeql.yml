@@ -71,7 +71,7 @@ jobs:
           category: "/language:${{matrix.language}}"
           output: codeql-results
 
-      # Report only for now: it never fails the job. With --enforce a new result fails Analyze, and ci-gate holds the PR.
+      # A new error or warning fails Analyze, and ci-gate holds the PR. Notes and proven-false rules are only reported.
       - name: Report the results this PR adds
         if: ${{ github.event_name == 'pull_request' }}
         env:
@@ -83,4 +83,4 @@ jobs:
           gh api "repos/$REPO/code-scanning/analyses/$id" -H "Accept: application/sarif+json" > main.sarif || exit 0
           mapfile -t files < <(gh api --paginate "repos/$REPO/pulls/$PR/files" --jq '.[].filename' || true)
           python3 tests/tools/codeql_new_alerts.py --sarif codeql-results --baseline main.sarif \
-            --summary "$GITHUB_STEP_SUMMARY" --files "${files[@]}" || true
+            --summary "$GITHUB_STEP_SUMMARY" --enforce --files "${files[@]}"

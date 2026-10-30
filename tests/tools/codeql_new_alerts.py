@@ -6,8 +6,11 @@
 
 Open alerts went 34 -> 459 in five weeks while every PR's CodeQL check read "No new alerts": a PR's analysis held no
 results at all (#6719 added alerts and its SARIF has 0, main's has 405). A result counts as new when its rule, file and
-CodeQL's line-content hash are not in main's analysis. Only files the PR changed count, so debt already on main is
-never blamed on it. --enforce exits 1 on a new result; without it the step only reports. Stdlib only.
+CodeQL's line-content hash are not in main's analysis, the same rule and hash aren't elsewhere on main (moved code), and
+the file has more of that rule than main does (a hash also changes when a neighbouring line does). Only files the PR
+changed count, so debt already on main is never blamed on it.
+
+--enforce exits 1 on a new error or warning, leaving out ADVISORY_RULES; every new result is still reported. Stdlib only.
 """
 
 from __future__ import annotations
@@ -19,6 +22,10 @@ from collections import Counter
 from pathlib import Path
 
 HASH = "primaryLocationLineHash"
+BLOCKING_LEVELS = ("error", "warning")  # owner 2026-10-30: notes are reported, never block
+# Proven false on this code (#7153): language regexes compile with re.M through _lazy_re, which CodeQL can't see, and
+# `...` stubs under TYPE_CHECKING declare a mixin's members.
+ADVISORY_RULES = frozenset({"py/regex/unmatchable-caret", "py/regex/unmatchable-dollar", "py/ineffectual-statement"})
 
 
 def rule_levels(run: dict) -> dict[str, str]:
@@ -51,8 +58,23 @@ def results(sarif: dict) -> list[dict]:
 def new_results(pr: list[dict], main: list[dict], files: list[str] | None) -> list[dict]:
     """The PR's results that main doesn't have, in the files it changed (all of them when `files` is None)."""
     known = {(r["rule"], r["path"], r["hash"]) for r in main}
+    moved = {(r["rule"], r["hash"]) for r in main}
+    room = Counter((r["rule"], r["path"]) for r in pr)  # how many more of this rule the file has than main
+    room.subtract(Counter((r["rule"], r["path"]) for r in main))
     wanted = None if files is None else set(files)
-    return [r for r in pr if (wanted is None or r["path"] in wanted) and (r["rule"], r["path"], r["hash"]) not in known]
+    out = []
+    for r in pr:
+        key = (r["rule"], r["path"])
+        if (wanted is None or r["path"] in wanted) and (*key, r["hash"]) not in known and (r["rule"], r["hash"]) not in moved \
+                and room[key] > 0:
+            room[key] -= 1
+            out.append(r)
+    return out
+
+
+def blocking(new: list[dict]) -> list[dict]:
+    """The new results that fail an enforced run."""
+    return [r for r in new if r["level"] in BLOCKING_LEVELS and r["rule"] not in ADVISORY_RULES]
 
 
 def load(path: Path) -> list[dict]:
@@ -62,8 +84,9 @@ def load(path: Path) -> list[dict]:
 
 
 def report(new: list[dict], scanned: int, baseline: int, enforce: bool) -> str:
-    verdict = "fails this PR" if enforce and new else "report only" if new else "clean"
-    lines = [f"### CodeQL: {len(new)} new result(s) ({verdict})", "",
+    blocked = blocking(new)
+    verdict = "fails this PR" if enforce and blocked else "reported, nothing blocks" if new else "clean"
+    lines = [f"### CodeQL: {len(new)} new result(s), {len(blocked)} blocking ({verdict})", "",
              f"PR analysis {scanned} results, main's {baseline}. New means not on main, in a file this PR changed.", ""]
     if not scanned:
         lines += ["**The PR analysis has no results, so this check saw nothing.**", ""]
@@ -83,7 +106,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--baseline", type=Path, required=True)
     p.add_argument("--files", nargs="*", help="files the PR changed; left out, every result counts")
     p.add_argument("--summary", type=Path, help="append the report here (the job summary)")
-    p.add_argument("--enforce", action="store_true", help="exit 1 on a new result")
+    p.add_argument("--enforce", action="store_true", help="exit 1 on a new error or warning")
     a = p.parse_args(argv)
     pr, base = load(a.sarif), load(a.baseline)
     new = new_results(pr, base, a.files)
@@ -92,7 +115,7 @@ def main(argv: list[str] | None = None) -> int:
     if a.summary:
         with a.summary.open("a", encoding="utf-8") as f:
             f.write(text)
-    return 1 if a.enforce and new else 0
+    return 1 if a.enforce and blocking(new) else 0
 
 
 if __name__ == "__main__":

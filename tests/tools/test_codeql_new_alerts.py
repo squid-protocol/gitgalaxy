@@ -30,11 +30,11 @@ def test_a_result_on_main_is_not_new_even_when_its_line_moved():
     assert cna.new_results(pr, main, ["a.py"]) == []
 
 
-def test_a_new_rule_hash_or_file_is_new_but_only_in_changed_files():
+def test_a_new_rule_or_file_is_new_but_only_in_changed_files():
     main = cna.results(_sarif(_result("r1", "a.py")))
-    pr = cna.results(_sarif(_result("r2", "a.py"), _result("r1", "a.py", digest="h2"), _result("r1", "b.py")))
-    assert [r["path"] for r in cna.new_results(pr, main, None)] == ["a.py", "a.py", "b.py"]
-    assert [r["rule"] for r in cna.new_results(pr, main, ["a.py"])] == ["r2", "r1"]  # b.py isn't this PR's
+    pr = cna.results(_sarif(_result("r2", "a.py", digest="h2"), _result("r1", "b.py", digest="h3")))
+    assert [r["path"] for r in cna.new_results(pr, main, None)] == ["a.py", "b.py"]
+    assert [r["rule"] for r in cna.new_results(pr, main, ["a.py"])] == ["r2"]  # b.py isn't this PR's
     assert cna.new_results(pr, main, []) == []
 
 
@@ -48,11 +48,39 @@ def test_the_level_comes_from_the_rule_in_the_extensions_when_the_result_has_non
     assert cna.results(_sarif(_result("r1", "a.py", level="error"), rules=rules))[0]["level"] == "error"
 
 
+def test_code_moved_to_another_file_is_not_new():
+    main = cna.results(_sarif(_result("r1", "old.py", digest="same")))
+    pr = cna.results(_sarif(_result("r1", "new.py", digest="same")))
+    assert cna.new_results(pr, main, None) == []
+
+
+def test_a_changed_hash_is_new_only_when_the_file_has_more_of_that_rule():
+    main = cna.results(_sarif(_result("r1", "a.py", digest="old")))
+    churned = cna.results(_sarif(_result("r1", "a.py", digest="shifted")))
+    assert cna.new_results(churned, main, ["a.py"]) == []  # a neighbouring line moved the hash: still one
+    more = cna.results(_sarif(_result("r1", "a.py", digest="shifted"), _result("r1", "a.py", digest="h3")))
+    assert len(cna.new_results(more, main, ["a.py"])) == 1
+
+
+def test_only_errors_and_warnings_outside_the_advisory_rules_block():
+    new = [{"rule": "r", "level": level} for level in ("error", "warning", "note")]
+    new.append({"rule": "py/ineffectual-statement", "level": "warning"})
+    new.append({"rule": "py/regex/unmatchable-dollar", "level": "error"})
+    assert [r["level"] for r in cna.blocking(new)] == ["error", "warning"]
+
+
+def test_a_new_note_is_reported_but_never_fails_an_enforced_run(tmp_path, capsys):
+    pr, base = _write(tmp_path, "pr.sarif", _result("r1", "a.py", level="note")), _write(tmp_path, "main.sarif")
+    assert cna.main(["--sarif", str(pr), "--baseline", str(base), "--enforce"]) == 0
+    assert "1 new result(s), 0 blocking (reported, nothing blocks)" in capsys.readouterr().out
+
+
 def test_report_only_never_fails_and_enforce_does(tmp_path, capsys):
-    pr, base = _write(tmp_path, "pr.sarif", _result("r1", "a.py")), _write(tmp_path, "main.sarif")
+    pr = _write(tmp_path, "pr.sarif", _result("r1", "a.py", level="warning"))
+    base = _write(tmp_path, "main.sarif")
     args = ["--sarif", str(pr), "--baseline", str(base), "--files", "a.py"]
     assert cna.main(args) == 0
-    assert "1 new result(s) (report only)" in capsys.readouterr().out
+    assert "1 new result(s), 1 blocking" in capsys.readouterr().out
     assert cna.main([*args, "--enforce"]) == 1
     assert "(fails this PR)" in capsys.readouterr().out
 

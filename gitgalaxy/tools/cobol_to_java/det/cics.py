@@ -1838,13 +1838,27 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
             raise CicsError(str(e)) from None
 
     def storage(self, key: str, opts: dict, ind: str) -> list[str]:
-        """#4771 (X47): GETMAIN SET(ptr) FLENGTH / LENGTH INITIMG(area) and FREEMAIN DATAPOINTER(ptr) on CicsTask's blocks
+        """#4771 (X47): GETMAIN SET(ptr) FLENGTH / LENGTH INITIMG(area) and FREEMAIN DATAPOINTER(ptr) / DATA(record) on CicsTask's blocks
         of task storage (IBM, EXEC CICS GETMAIN / FREEMAIN). The pointer holds the block's handle; a LENGERR (RESP2 1)
         sets it to zero. INITIMG is a one-byte data area (IBM: "In COBOL, use a data area rather than a data value")."""
+        from gitgalaxy.tools.cobol_to_java.det.gen import Untranslatable
+
         r = self.g.tmpname("storage")
         if key == "FREEMAIN":
+            if opts.get("DATA") and opts.get("DATAPOINTER"):
+                raise CicsError(_msg(key, "at_most_one", "DATAPOINTER"))
+            if opts.get("DATA"):  # #6876 (X47): the storage a 01 LINKAGE record addresses (SET ADDRESS OF rec TO ptr)
+                m = re.fullmatch(r"(?is)\s*([A-Z][A-Z0-9-]*)\s*", opts["DATA"])
+                if m is None:
+                    raise CicsError("FREEMAIN DATA: a data area is the COBOL form")
+                try:
+                    rec = self.g.address_record(m.group(1))
+                except Untranslatable as e:
+                    raise CicsError(str(e).replace("ADDRESS OF", "FREEMAIN DATA", 1)) from None
+                return [f"{ind}int[] {r} = DetCics.freemainData(task, {rec});",
+                        *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]  # fmt: skip
             if not opts.get("DATAPOINTER"):
-                raise CicsError(_msg(key, "required", "DATAPOINTER"))
+                raise CicsError(_msg(key, "one_of", "DATAPOINTER"))
             ptr = self.pointer(opts["DATAPOINTER"])
             return [f"{ind}int[] {r} = task.freemain(DetCics.pointerValue({ptr}));",
                     *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]  # fmt: skip

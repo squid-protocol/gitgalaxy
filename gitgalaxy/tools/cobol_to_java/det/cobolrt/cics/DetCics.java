@@ -712,6 +712,14 @@ public final class DetCics {
         return new int[] {(int) r[0], (int) r[1]};
     }
 
+    /** FREEMAIN DATA(record) (IBM, EXEC CICS FREEMAIN; #6876, X47): releases the storage a LINKAGE 01 record addresses
+     *  (SET ADDRESS OF record TO ptr). Returns {RESP, RESP2} as freemain does; a record no pointer addresses is refused. */
+    // [rule RT-CICS-POINTER-LANE]
+    public static int[] freemainData(CicsTask task, Field record) {
+        wholeRecord(record, "FREEMAIN DATA");
+        return task.freemainData(record.storage().bytes, record.storage().base);
+    }
+
     /** WEB RECEIVE SET(ptr) (X47): the body becomes a block of task storage the pointer addresses. */
     public static void receivedBlock(CicsTask task, Field ptr, String body, Charset cs) {
         setPointer(ptr, task.acquireReceived(body.getBytes(cs)));

@@ -694,3 +694,104 @@ def test_a_byte_view_of_the_wrong_width_or_shared_with_another_overlay_stays_ref
         )
         r = _translate(tmp_path, source)
         assert r.stats["holes"], (new, "must stay a hole")
+
+
+_FREEMAIN_DATA_PROGRAM = (
+    PROGRAM.split("       PROCEDURE DIVISION.")[0]
+    + """\
+       PROCEDURE DIVISION.
+           EXEC CICS GETMAIN SET(CACHE-ADDRESS) FLENGTH(GETMAIN-LENGTH)
+                INITIMG(BINARY-ZEROES) NOHANDLE
+           END-EXEC.
+           SET ADDRESS OF CACHE-MESSAGE TO CACHE-ADDRESS.
+           EXEC CICS FREEMAIN DATA(CACHE-MESSAGE)
+                RESP(WEBRESP) NOHANDLE
+           END-EXEC.
+           EXEC CICS RETURN
+           END-EXEC.
+"""
+)
+
+
+def test_freemain_data_of_a_linkage_record_translates_whole(tmp_path):
+    """#6876 (X47): FREEMAIN DATA(record), the storage the record addresses (cics-crucible CAGMPT, CAGMZ), is no hole."""
+    r = _translate(tmp_path, _FREEMAIN_DATA_PROGRAM)
+    assert r.stats["holes"] == [], r.stats["holes"]
+    assert "DetCics.freemainData(task, " in r.java
+
+
+@pytest.mark.parametrize(
+    ("clause", "reason"),
+    [
+        ("DATA(CACHE-MESSAGE)\n                DATAPOINTER(CACHE-ADDRESS)", "with both"),
+        ("DATA(WEB-MEDIA-TYPE)", "not a linkage 01 record"),
+        ("DATA(CACHE-SUB)", "subordinate item"),
+        ("DATA('LITERAL')", "data area is the cobol form"),
+    ],
+)
+def test_freemain_data_of_anything_but_a_linkage_01_record_is_refused_by_name(tmp_path, clause, reason):
+    source = _FREEMAIN_DATA_PROGRAM.replace("DATA(CACHE-MESSAGE)", clause)
+    holes = _translate(tmp_path, source).stats["holes"]
+    assert len(holes) == 1 and reason in holes[0].lower(), holes
+
+
+@pytest.mark.skipif(_javac() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+def test_freemain_data_releases_the_block_the_record_addresses(tmp_path):
+    """DetCics.freemainData over a real CicsTask: the block a record was set onto (by a pointer, or through ADDRESS OF
+    another record) is freed (0/0), a second free and a record no pointer addresses are refused, a record of the task's own
+    storage a pointer was taken of is INVREQ 1 as DATAPOINTER of it is, and an address inside a block is refused."""
+    from gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge import CICS_SPEC_JAVA, CICS_TASK_JAVA
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    src = tmp_path / "src"
+    files = {"t/cics/CicsTask.java": CICS_TASK_JAVA.replace("__PACKAGE__", "t").replace("__ZONE__", "UTC"),
+             "t/cics/CicsSpec.java": CICS_SPEC_JAVA.replace("__PACKAGE__", "t"),
+             **{f"t/{k}": v for k, v in P.runtime_files("t", batch=False).items()}}  # fmt: skip
+    files["Main.java"] = """
+import t.cics.CicsTask;
+import t.cobolrt.Field;
+import t.cobolrt.Storage;
+import t.cobolrt.cics.DetCics;
+public class Main {
+    static Field rec(int n) { return Field.alphanumeric(new Storage(n), 0, n, false); }
+    static void refused(Runnable r) {
+        try { r.run(); System.out.println("not refused"); } catch (UnsupportedOperationException e) { System.out.println(e.getMessage()); }
+    }
+    public static void main(String[] a) {
+        CicsTask t = new CicsTask("ZC01", "ENTER", null, null);
+        Field ptr = rec(8), init = rec(1), a1 = rec(4), a2 = rec(4), own = rec(4), inside = rec(2);
+        DetCics.getmain(t, ptr, 6, false, init);
+        DetCics.setAddress(t, a1, ptr);
+        DetCics.setAddressOfRecord(t, a2, a1);
+        DetCics.setPointerToRecord(t, rec(8), a1);
+        int[] f = DetCics.freemainData(t, a2);
+        System.out.println("free: " + f[0] + "/" + f[1]);
+        refused(() -> DetCics.freemainData(t, a1));
+        refused(() -> DetCics.freemainData(t, rec(4)));
+        DetCics.setPointerToRecord(t, rec(8), own);
+        f = DetCics.freemainData(t, own);
+        System.out.println("own: " + f[0] + "/" + f[1]);
+        Field p2 = rec(8);
+        DetCics.getmain(t, p2, 6, false, init);
+        DetCics.setAddress(t, inside, p2);
+        inside.storage().base = 2;
+        refused(() -> DetCics.freemainData(t, inside));
+    }
+}
+"""
+    for rel, text in files.items():
+        (src / rel).parent.mkdir(parents=True, exist_ok=True)
+        (src / rel).write_text(text, encoding="utf-8")
+    jdk = _javac()
+    built = javac_run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
+                       *map(str, src.rglob("*.java"))], capture_output=True, text=True, encoding="utf-8", check=False)  # fmt: skip
+    assert built.returncode == 0, built.stderr
+    out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "Main"], capture_output=True,  # noqa: S603
+                         text=True, encoding="utf-8", check=True).stdout.splitlines()  # fmt: skip
+    assert out == [
+        "free: 0/0",
+        "FREEMAIN of storage already freed or received: not modelled",
+        "FREEMAIN DATA of a record no pointer addresses: not modelled",
+        "own: 16/1",
+        "FREEMAIN DATA of an address inside a GETMAIN block: not modelled",
+    ]

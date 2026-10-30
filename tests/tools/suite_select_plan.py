@@ -162,9 +162,19 @@ RECORD_DIRS = ("tests/equivalence/infeasible_outcomes", "tests/equivalence/det_m
 NAMED_DATA_DIRS = ("tests", "tests/cobol_mainframe") + RECORD_DIRS
 
 
+# Slice 11: the non-Python files directly under tests/tools (and tests/tools/box): a data file, a shell helper or a script a
+# test opens or runs by its file name. README / .md stay out (a stem like `README` is every doc), as do the language
+# adapters in subdirectories (their readers name the directory, not the file).
+TOOL_FILE_DIRS = ("tests/tools", "tests/tools/box")
+TOOL_FILE_SUFFIXES = (".json", ".txt", ".sh", ".js")
+
+
 def is_named_data_file(f: str) -> bool:
     p = Path(f)
-    return f.endswith(".json") and (f.startswith(SWEEP_COVERAGE_DIR) or p.parent.as_posix() in NAMED_DATA_DIRS)
+    parent = p.parent.as_posix()
+    return (f.endswith(".json") and (f.startswith(SWEEP_COVERAGE_DIR) or parent in NAMED_DATA_DIRS)) or (
+        p.suffix in TOOL_FILE_SUFFIXES and parent in TOOL_FILE_DIRS
+    )
 
 
 def named_data_targets(f: str, root: Path = REPO_ROOT, limit: int = HELPER_MAX) -> list[str] | None:

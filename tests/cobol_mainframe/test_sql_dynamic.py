@@ -611,7 +611,7 @@ def test_detsql_moves_a_position_over_the_rows_read_at_open_as_db2_does(tmp_path
     javac = javac_run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"), *files],  # noqa: S603
                       capture_output=True, text=True, encoding="utf-8", check=False)  # fmt: skip
     assert javac.returncode == 0, javac.stderr[:3000]
-    return subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "ggtest.Main"],  # noqa: S603
+    out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "ggtest.Main"],  # noqa: S603
                          capture_output=True, text=True, encoding="utf-8", check=True).stdout.splitlines()  # fmt: skip
     # rows 10..50; "<orientation> <n> <SQLCODE> <the last row fetched>" -- +100 leaves the host variable as it was
     assert out == [

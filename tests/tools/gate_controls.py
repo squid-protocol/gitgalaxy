@@ -71,8 +71,9 @@ GATES = (
     Gate("ast-accuracy-audit", "small-audits.yml", "function extraction regressing against Python ast"),
     Gate("golden-master-guard", "small-audits.yml", "flags golden fixture changes", notice=True),
     # Scanners
-    Gate("CodeQL", "codeql.yml", "new CodeQL results on a PR",
-         open_gap="report-only: --enforce is not wired, so a finding can't fail the job"),
+    Gate("CodeQL", "codeql.yml", "new CodeQL errors and warnings on a PR",
+         "tests/tools/test_codeql_new_alerts.py::test_report_only_never_fails_and_enforce_does",
+         open_gap="path-filtered: a PR changing Python only under tests/ never runs it"),
     Gate("Muninn", "muninn.yml", "static security findings", open_gap="an external action; a sparse checkout on PRs"),
     # Notices
     Gate("answer-key-guard", "answer-key-guard.yml", "answer key changes without a re-census", notice=True),

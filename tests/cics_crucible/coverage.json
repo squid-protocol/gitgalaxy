@@ -126,6 +126,11 @@
     }
    }
   },
+  "ca-getmain-pointer/CAGMPT": {
+   "live": 2,
+   "outcomes": 6,
+   "scenarios": {}
+  },
   "ca-link-lengths/CALINK": {
    "live": 1,
    "outcomes": 4,

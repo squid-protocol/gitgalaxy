@@ -12,11 +12,11 @@ Every cell that does not pass is ledgered in `tests/cics_crucible/baseline.json`
 |---|---|---|---|---|
 | engine-facts | 48 | 0 | 0 | 48 |
 | forge-compile | 48 | 0 | 0 | 48 |
-| cobol-stub | 135 | 4 | 32 | 171 |
+| cobol-stub | 135 | 5 | 31 | 171 |
 | java | 0 | 171 | 0 | 171 |
 | java-ported | 56 | 115 | 0 | 171 |
 | java-facade | 53 | 118 | 0 | 171 |
-| **all** | **340** | **408** | **32** | **780** |
+| **all** | **340** | **409** | **31** | **780** |
 
 ## By trap and case
 
@@ -89,6 +89,7 @@ Each cobol-stub scenario runs the COBOL compiled with `-ftraceall` (tests/tools/
 | `ca-container-ccsid` | CACCSID | 0 | 0/3 | 0/0 | 0/0 | 0 | -- |
 | `ca-get-container-set` | CAGCST | 0 | 0/2 | 0/0 | 0/0 | 0 | -- |
 | `ca-get-container-set` | CAGCSX | 1 | 2/2 | 0/0 | 0/0 | 0 | proven on 0 scenarios, covering 0/2 paragraphs and 0/0 branches |
+| `ca-getmain-pointer` | CAGMPT | 0 | 0/2 | 0/6 | 0/0 | 0 | -- |
 | `ca-link-lengths` | CALINK | 4 | 1/1 | 4/4 | 0/0 | 0 | proven on 4 scenarios, covering 1/1 paragraphs and 4/4 branches |
 | `ca-link-lengths` | CASUB | 3 | 1/1 | 4/4 | 0/0 | 0 | proven on 3 scenarios, covering 1/1 paragraphs and 4/4 branches |
 | `ca-xctl-versions` | CAXA | 3 | 1/1 | 3/3 | 0/0 | 0 | proven on 3 scenarios, covering 1/1 paragraphs and 3/3 branches |
@@ -157,6 +158,17 @@ Each item is a scenario to propose: a crucible PR adds it with a hand-written, d
 
 - paragraph `MAIN-PARA` (line 28)
 - paragraph `LOG-RESP` (line 81)
+
+#### `ca-getmain-pointer` CAGMPT
+
+- paragraph `MAIN-PARA` (line 30)
+- paragraph `LOG-RESP` (line 85)
+- IF at line 65 in `MAIN-PARA`: never true
+- IF at line 65 in `MAIN-PARA`: never false
+- IF at line 68 in `MAIN-PARA`: never true
+- IF at line 68 in `MAIN-PARA`: never false
+- IF at line 86 in `LOG-RESP`: never true
+- IF at line 86 in `LOG-RESP`: never false
 
 #### `gt-assign-startcode` GTASGN
 
@@ -266,7 +278,7 @@ Each item is a scenario to propose: a crucible PR adds it with a hand-written, d
 
 Each missing feature belongs to a piece of harness work (below: the features themselves). A cell is *unlocked* when every piece its features need is done: it then gets a pass or fail verdict rather than `unsupported`. **needs** counts the cells that do not pass and need the piece, **alone** the unsupported cells it unlocks by itself, and **cumulative** the unsupported cells unlocked by it and every row above it (rows are chosen greedily).
 
-### cobol-stub (32 unsupported)
+### cobol-stub (31 unsupported)
 
 | # | harness work | needs | alone | cumulative |
 |---|---|---|---|---|
@@ -274,21 +286,20 @@ Each missing feature belongs to a piece of harness work (below: the features the
 | 2 | TS queues: READQ / WRITEQ TS, seeding, final state | 7 | 4 | 10 |
 | 3 | terminal RECEIVE (unformatted input) | 3 | 3 | 13 |
 | 4 | DELETEQ-TD event | 2 | 0 | 15 |
-| 5 | FREEMAIN DATA | 2 | 1 | 16 |
-| 6 | GETMAIN | 1 | 0 | 17 |
-| 7 | WEB SEND CHARACTERSET | 6 | 0 | 17 |
-| 8 | WEB SEND HOSTCODEPAGE | 6 | 0 | 17 |
-| 9 | WEB READ HTTPHEADER | 5 | 0 | 17 |
-| 10 | WEB WRITE HTTPHEADER | 1 | 0 | 18 |
-| 11 | WEB RECEIVE CHARACTERSET | 5 | 0 | 18 |
-| 12 | WEB RECEIVE HOSTCODEPAGE | 5 | 0 | 23 |
-| 13 | READ | 4 | 0 | 23 |
-| 14 | READNEXT | 4 | 0 | 23 |
-| 15 | READPREV | 4 | 0 | 27 |
-| 16 | ADDRESS TCTUA | 3 | 0 | 27 |
-| 17 | ADDRESS TWA | 3 | 0 | 30 |
-| 18 | LOAD | 2 | 0 | 30 |
-| 19 | RELEASE | 2 | 0 | 32 |
+| 5 | GETMAIN | 1 | 1 | 16 |
+| 6 | WEB SEND CHARACTERSET | 6 | 0 | 16 |
+| 7 | WEB SEND HOSTCODEPAGE | 6 | 0 | 16 |
+| 8 | WEB READ HTTPHEADER | 5 | 0 | 16 |
+| 9 | WEB WRITE HTTPHEADER | 1 | 0 | 17 |
+| 10 | WEB RECEIVE CHARACTERSET | 5 | 0 | 17 |
+| 11 | WEB RECEIVE HOSTCODEPAGE | 5 | 0 | 22 |
+| 12 | READ | 4 | 0 | 22 |
+| 13 | READNEXT | 4 | 0 | 22 |
+| 14 | READPREV | 4 | 0 | 26 |
+| 15 | ADDRESS TCTUA | 3 | 0 | 26 |
+| 16 | ADDRESS TWA | 3 | 0 | 29 |
+| 17 | LOAD | 2 | 0 | 29 |
+| 18 | RELEASE | 2 | 0 | 31 |
 
 ### java (0 unsupported)
 
@@ -334,7 +345,6 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | translator: ADDRESS TWA | 3 | ADDRESS TWA |
 | translator: RECEIVE SET | 3 | terminal RECEIVE (unformatted input) |
 | stub: DELETEQ-TD event | 2 | DELETEQ-TD event |
-| translator: FREEMAIN DATA | 2 | FREEMAIN DATA |
 | translator: LOAD | 2 | LOAD |
 | translator: RELEASE | 2 | RELEASE |
 | translator: GETMAIN | 1 | GETMAIN |
@@ -368,7 +378,7 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 
 | side | reason | cells |
 |---|---|---|
-| cobol-stub | WRITEQ-TS missing | 3 |
+| cobol-stub | WRITEQ-TS missing | 4 |
 | cobol-stub | data bytes differ | 1 |
 | java | runTask records no events (the generated stub: PROCEDURE DIVISION not ported) | 171 |
 | java-ported | not ported | 115 |
@@ -441,11 +451,11 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | `ca-get-container-set/set/java` | fail | task 1 (CA0F) event 1: WRITEQ-TS expected, the side recorded no further event |
 | `ca-get-container-set/set/java-facade` | fail | no port of any of its programs |
 | `ca-get-container-set/set/java-ported` | fail | no port of any of its programs |
-| `ca-getmain-pointer/alloc/cobol-stub` | unsupported | translator: FREEMAIN DATA |
+| `ca-getmain-pointer/alloc/cobol-stub` | fail | task 1 (CA0B) event 4: WRITEQ-TS expected, the side recorded no further event |
 | `ca-getmain-pointer/alloc/java` | fail | task 1 (CA0B) event 1: WRITEQ-TS expected, the side recorded no further event |
 | `ca-getmain-pointer/alloc/java-facade` | fail | no port of any of its programs |
 | `ca-getmain-pointer/alloc/java-ported` | fail | no port of any of its programs |
-| `ca-getmain-pointer/zero-length/cobol-stub` | unsupported | translator: GETMAIN; translator: FREEMAIN DATA |
+| `ca-getmain-pointer/zero-length/cobol-stub` | unsupported | translator: GETMAIN |
 | `ca-getmain-pointer/zero-length/java` | fail | task 1 (CA0C) event 1: WRITEQ-TS expected, the side recorded no further event |
 | `ca-getmain-pointer/zero-length/java-facade` | fail | no port of any of its programs |
 | `ca-getmain-pointer/zero-length/java-ported` | fail | no port of any of its programs |

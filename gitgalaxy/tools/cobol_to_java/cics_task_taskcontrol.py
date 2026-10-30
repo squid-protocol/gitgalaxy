@@ -697,12 +697,13 @@ TASKCONTROL_JAVA = """\
         first.secerror = secerror == null ? 0 : secerror[0];
         String reply = null;
         if (wantChannel) {
-            if (first.reply == null) {
+            if (first.secerror == 0 && first.reply == null) {
                 throw new UnsupportedOperationException("FETCH CHANNEL of a child that left no current channel: not "
                         + "modelled");
             }
             reply = String.format(java.util.Locale.ROOT, "GGREPLY%09d", ++task.replies);
-            channels.put(reply, copyOf(first.reply, reply));
+            // #6967 (X18, owner): a child that failed its security check replies with an EMPTY channel
+            channels.put(reply, first.secerror != 0 ? new Channel(reply) : copyOf(first.reply, reply));
         }
         return fetched("NORMAL", 0, first, reply);
     }

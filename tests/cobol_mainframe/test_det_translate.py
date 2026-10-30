@@ -1857,7 +1857,6 @@ def test_getmain_and_freemain_work_on_task_storage_through_a_pointer():
         ("GETMAIN SET(TBL-PTR) FLENGTH(N) INITIMG(INIT)", "not a plain USAGE POINTER"),
         ("GETMAIN SET(OVER-PTR) FLENGTH(N) INITIMG(INIT)", "REDEFINES overlays"),
         ("FREEMAIN", "without DATAPOINTER"),
-        ("FREEMAIN DATA(REC)", "DATA: "),
         ("FREEMAIN DATAPOINTER(OVER-PTR)", "REDEFINES overlays"),
     ):
         with pytest.raises(C.CicsError, match=why):

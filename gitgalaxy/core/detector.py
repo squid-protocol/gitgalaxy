@@ -1330,6 +1330,11 @@ def set_c_repo_macro_args(table: dict[str, tuple[int, tuple[int, ...]] | None]) 
 _C_REPO_MACRO_CALLS: dict[str, frozenset[str]] = {}
 _C_MACRO_BODY_CALL = re.compile(r"(?<![#\w.])(?<!->)([" + ID_START + "][" + ID_CONTINUE + r"]*)[ \t]*\(")
 _C_MACRO_STRING = re.compile(r'"(?:[^"\\\n]|\\.)*"|\'(?:[^\'\\\n]|\\.)*\'')
+# #6266: a comment in a macro body is no part of its expansion (the preprocessor drops comments before it expands):
+# fluidsynth's `#define fluid_sample_refcount(_s) ((_s)->refcount) /**< ... synthesis context (noteon ...) */` calls
+# nothing. A `//` comment runs to the end of the joined body; a block comment the line ends inside runs to it too.
+# One left-to-right pass with the literals, so a quote inside a comment (`/* don't */`) opens no literal, nor the reverse.
+_C_MACRO_COMMENT = re.compile(r"(" + _C_MACRO_STRING.pattern + r")|/\*.*?(?:\*/|\Z)|//.*", re.S)
 _C_MACRO_NOT_CALLS = frozenset(["sizeof", "defined", "alignof", "_Alignof", "typeof", "__typeof__", "offsetof"])
 _C_MACRO_EXPANSION_DEPTH = 4
 
@@ -1382,7 +1387,8 @@ def c_macro_body_calls(code: str) -> dict[str, frozenset[str] | None]:
             out[name] = None
             continue
         params = {p.strip() for p in m.group(2).split(",")}
-        body = re.sub(r"[ \t]*##[ \t]*", "##", _C_MACRO_STRING.sub('""', re.sub(r"\\\r?\n", " ", m.group(3))))
+        body = _C_MACRO_COMMENT.sub(lambda c: '""' if c.group(1) else " ", re.sub(r"\\\r?\n", " ", m.group(3)))
+        body = re.sub(r"[ \t]*##[ \t]*", "##", body)
         calls = frozenset(
             c
             for c in _C_MACRO_BODY_CALL.findall(body)
@@ -1396,17 +1402,65 @@ def c_macro_body_calls(code: str) -> dict[str, frozenset[str] | None]:
     return out
 
 
+# #6266: a line declaring or defining a C function: type words, then `name(` or `(name)(` (prboom-plus
+# `void (Z_Free)(void *p, ...)`, which a same-named macro cannot expand). The first word is no statement word.
+_C_FUNCTION_DECLARATOR = re.compile(
+    r"^[ \t]*((?:[" + ID_START + "][" + ID_CONTINUE + r"]*[ \t*&]+){1,8})\(?[ \t]*([" + ID_START + "][" + ID_CONTINUE
+    + r"]*)[ \t]*\)?[ \t]*\(",
+    re.M,
+)  # fmt: skip
+
+
+# what may follow a declarator's parameter list on its line: nothing (the body opens below), `;`, `{`, a comment, an
+# attribute macro (`PRINTF_ARG_ATTR(1);`), a qualifier or a trailing return type; never a second `(` (`HWRAPI(f)(..)`)
+_C_DECLARATOR_TAIL = re.compile(r"[ \t]*(?:$|;|\{|//|/\*|[A-Z_][A-Z0-9_]*\b|const\b|noexcept\b|override\b|->)", re.M)
+_C_DECLARATOR_NOT_FIRST = frozenset(["new", "delete", "throw", "typedef", "using"])
+
+
+def _c_declared_function_names(text: str) -> set[str]:
+    """#6266: the names `text` declares or defines as functions: a `_C_FUNCTION_DECLARATOR` line that opens with no
+    statement word, whose parameter list holds no string and closes before `_C_DECLARATOR_TAIL`. A name spelled
+    `__x` (`__attribute__`, `__P`) is the compiler's or a portability macro's, never listed."""
+    out: set[str] = set()
+    if "(" not in text:
+        return out
+    for m in _C_FUNCTION_DECLARATOR.finditer(text):
+        name = m.group(2)
+        first = m.group(1).split(None, 1)[0].strip("*&")
+        if name.startswith("__") or first in _C_STATEMENT_WORDS or first in _C_DECLARATOR_NOT_FIRST:
+            continue
+        depth, i, end = 1, m.end(), min(len(text), m.end() + 4000)
+        while i < end and depth:
+            depth += {"(": 1, ")": -1}.get(text[i], 0)
+            i += 1
+        if depth or '"' in text[m.end() : i] or not _C_DECLARATOR_TAIL.match(text, i):
+            continue
+        out.add(name)
+    return out
+
+
 def c_repo_macro_body_calls(texts: Any) -> dict[str, frozenset[str]]:
     """#6770: `c_macro_body_calls` over many C/C++ texts. Every function-like macro is listed, so an expansion can tell
     a macro its body invokes from a function: one that calls nothing, or that two files define differently, maps to
-    the empty set. Empty when no macro calls anything."""
+    the empty set. Empty when no macro calls anything.
+
+    #6266: a macro named like a function the scan declares (prboom-plus `#define free(p) Z_Free(p)` over
+    `#define Z_Free(a) (Z_Free)(a, __FILE__, __LINE__)` and `void (Z_Free)(...)`; fastdoom `LL_AddNode`, a macro in
+    `ns_ll.h` and a function in `ns_llm.h`; chocolate-doom `DEH_String`, a function or `(x)` by configuration) lists
+    its own name among its calls: a macro body that invokes it reaches the function, as a direct call of the name does.
+    """
     table: dict[str, frozenset[str] | None] = {}
+    declared: set[str] = set()
     for text in texts:
+        declared |= _c_declared_function_names(text)
         if "#" not in text or "define" not in text:
             continue
         for name, calls in c_macro_body_calls(text).items():
             table[name] = calls if table.get(name, calls) == calls else None
-    out = {name: calls or frozenset() for name, calls in table.items()}
+    out = {
+        name: (calls or frozenset()) | ({name} if name in declared and not name.startswith(INIT_LIST_QUALIFIER) else set())
+        for name, calls in table.items()
+    }  # fmt: skip
     return out if any(out.values()) else {}
 
 
@@ -1418,7 +1472,8 @@ def set_c_repo_macro_calls(table: dict[str, frozenset[str]]) -> None:
 
 def _macro_expansion_callees(callees: Any, table: dict[str, frozenset[str]]) -> list[str]:
     """#6770: the functions the macros among `callees` call, through macros that call macros (bounded, cycle-safe).
-    A macro a body invokes is expanded in turn, never listed: the compiler calls no macro."""
+    A macro a body invokes is expanded in turn, never listed: the compiler calls no macro. #6266: a macro listing its
+    own name (`c_repo_macro_body_calls`: the scan declares a function of that name) lists it, as a direct call does."""
     out: dict[str, None] = {}
     seen: set[str] = set()
     level = [c for c in callees if c in table]
@@ -1429,7 +1484,7 @@ def _macro_expansion_callees(callees: Any, table: dict[str, frozenset[str]]) -> 
                 continue
             seen.add(macro)
             for callee in sorted(table[macro]):
-                if callee in table:
+                if callee in table and callee != macro:
                     nxt.append(callee)
                 else:
                     out[callee] = None

@@ -69,6 +69,11 @@ def test_scenarios_cover_the_credit_check_and_the_paths_around_the_ceedays_hole(
         "fetch-any-first-child-abends",
         # #6967: FETCH ANY returns a child with COMPSTATUS SECERROR (951)
         "fetch-any-first-child-secerror",
+        # #6967: ... after two NORMAL children; the SECERROR child's reply is empty (owner, X18)
+        "fetch-any-third-child-secerror",
+        # #6967 (X70): an abend injected in a child -- FETCH ANY answers COMPSTATUS ABEND with that code
+        "fetch-any-first-child-abends-afcr",
+        "fetch-any-third-child-abends-afcs",
     ]
 
 
@@ -227,6 +232,8 @@ def test_every_terminal_verb_of_the_burned_cbsa_screens_has_a_fault_command_or_a
 def test_the_secerror_scenario_plans_the_compstatus_of_the_first_child_fetched():
     (sc,) = [s for s in _case()["scenarios"] if s["name"] == "fetch-any-first-child-secerror"]
     assert ecf.fault_lines(sc) == ["FETCH-STATUS - 1 1214 0"]
+    (third,) = [s for s in _case()["scenarios"] if s["name"] == "fetch-any-third-child-secerror"]
+    assert ecf.fault_lines(third) == ["FETCH-STATUS - 3 1214 0"]
 
 
 @pytest.mark.parametrize(
@@ -278,3 +285,124 @@ def test_the_planned_child_fetched_is_secerror_and_the_next_is_not(tmp_path):
     )
     assert out.splitlines() == ["NORMAL 1214 null", "NORMAL 1016 null"]
     assert log.read_text(encoding="utf-8").splitlines() == ["FETCH-STATUS - 1 1214 0"]
+
+
+@needs_javac
+@pytest.mark.slow(reason="first in its CI split part it pays the cold javac of the shared CicsTask build (#6018)")
+def test_a_secerror_child_replies_with_an_empty_channel_and_the_next_child_with_its_own(tmp_path):
+    """#6967 (X18, owner 2026-10-29): IBM says nothing about the reply of a child that failed its security check; the
+    reply is assumed EMPTY (a channel of the harness's name with no container). Both children left container R."""
+    log = tmp_path / "fired.txt"
+    out = _cics_task(
+        tmp_path,
+        """
+        CicsTask t = new CicsTask("GTPB", "ENTER", null, null).withTaskNumber(100).withPrograms(new CicsTask.Programs() {
+            public boolean defined(String p) {
+                return true;
+            }
+
+            public String program(String tr) {
+                return "KIDPROG";
+            }
+
+            public boolean transaction(String tr) {
+                return true;
+            }
+
+            public void run(String p, CicsTask s) {
+                s.putContainer(null, "R", "kid".getBytes(), 3, null, false);
+                s.returnTransid(null, null);
+            }
+        }).withFaults(java.util.List.of("FETCH-STATUS - 1 1214 0"), java.nio.file.Path.of("%LOG%"));
+        t.putContainer("CH", "X", "p".getBytes(), 1, null, false);
+        t.runTransid("KA", "CH");
+        t.runTransid("KB", "CH");
+        for (int i = 0; i < 2; i++) {
+            CicsTask.FetchResult f = t.fetch(null, "WAIT", 0, true);
+            CicsTask.ContainerResult g = t.getContainer(f.channel(), "R", 60);
+            System.out.println(f.resp() + " " + f.compstatus() + " " + f.abcode() + " " + g.resp() + " "
+                    + (g.data() == null ? "-" : new String(g.data())));
+        }
+        CicsTask.FetchResult n = t.fetch(null, "NOSUSPEND", 0, false);
+        System.out.println(n.resp() + " " + n.channel());""".replace("%LOG%", log.as_posix()),
+    )
+    first, second, none = out.splitlines()
+    assert first.startswith("NORMAL 1214 null ") and not first.endswith(" kid")
+    assert first.split()[3] != "NORMAL"  # GET CONTAINER on the empty reply fails
+    assert second == "NORMAL 1016 null NORMAL kid"
+    assert none.startswith("NOTFND")
+
+
+# ---- #6967 (register X70): an abend injected in a RUN TRANSID child ------------------------------------------------
+
+
+@pytest.mark.parametrize("code", ecf.FILE_ABEND_CODES)
+def test_an_injected_abend_in_a_child_is_planned_in_that_child_with_its_code(code):
+    f = {"cmd": "LINK", "child": "OCR3", "program": "ABNDPROC", "resp": "ABEND", "abcode": code, "nth": 1}
+    assert ecf.fault_lines(_sc(f)) == [f"@OCR3 LINK ABNDPROC 1 -1 0 {code}"]
+    ecf.check_child_faults(_case(), _sc(f))
+
+
+def test_the_injected_abend_scenarios_plan_a_sourced_code_in_a_child_of_the_case():
+    by_name = {s["name"]: s for s in _case()["scenarios"]}
+    assert ecf.fault_lines(by_name["fetch-any-first-child-abends-afcr"]) == [
+        "@OCR1 DELAY - 1 16 6",
+        "@OCR1 LINK ABNDPROC 1 -1 0 AFCR",
+    ]
+    assert ecf.fault_lines(by_name["fetch-any-third-child-abends-afcs"]) == [
+        "@OCR3 DELAY - 1 16 6",
+        "@OCR3 LINK ABNDPROC 1 -1 0 AFCS",
+    ]
+    for name in ("fetch-any-first-child-abends-afcr", "fetch-any-third-child-abends-afcs"):
+        ecf.check_child_faults(_case(), by_name[name])
+
+
+@pytest.mark.parametrize("code", ["PLOP", "ASRA", ""])
+def test_an_injected_abend_code_x70_does_not_source_is_still_refused_in_a_child(code):
+    f = {"cmd": "LINK", "child": "OCR1", "program": "ABNDPROC", "resp": "ABEND", "abcode": code, "nth": 1}
+    with pytest.raises(ec.Unsupported, match="X70"):
+        ecf.fault_lines(_sc(f))
+
+
+@needs_javac
+@pytest.mark.slow(reason="first in its CI split part it pays the cold javac of the shared CicsTask build (#6018)")
+def test_an_abend_injected_in_a_child_is_the_code_fetch_reports_for_every_x70_code(tmp_path):
+    codes = list(ecf.FILE_ABEND_CODES)
+    plan = ", ".join(f'"@K{i} LINK ABNDPROC 1 -1 0 {c}"' for i, c in enumerate(codes))
+    runs = "\n".join(f'        t.runTransid("K{i}");' for i in range(len(codes)))
+    fetches = "\n".join(
+        '        f = t.fetch(null, "WAIT", 0, false);\n        System.out.println(f.resp() + " " + f.compstatus() + " " + f.abcode());'
+        for _ in codes
+    )
+    out = _cics_task(
+        tmp_path,
+        """
+        CicsTask t = new CicsTask("GTPA", "ENTER", null, null).withTaskNumber(100).withPrograms(new CicsTask.Programs() {
+            public boolean defined(String p) {
+                return true;
+            }
+
+            public String program(String tr) {
+                return "KIDPROG";
+            }
+
+            public boolean transaction(String tr) {
+                return true;
+            }
+
+            public void run(String p, CicsTask s) {
+                s.planned("LINK", "ABNDPROC");
+                if (s.ended()) {
+                    return;
+                }
+                s.returnTransid(null, null);
+            }
+        }).withFaults(java.util.List.of(%PLAN%), java.nio.file.Path.of("%LOG%"));
+%RUNS%
+        CicsTask.FetchResult f;
+%FETCHES%""".replace("%PLAN%", plan)
+        .replace("%LOG%", (tmp_path / "fired.txt").as_posix())
+        .replace("%RUNS%", runs)
+        .replace("%FETCHES%", fetches),
+    )
+    assert out.splitlines() == [f"NORMAL 900 {c}" for c in codes]

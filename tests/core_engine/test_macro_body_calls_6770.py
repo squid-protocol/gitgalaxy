@@ -41,6 +41,11 @@ def _table(code):
         ("#define M(a) , init(a, f(1))\n", {"M": {"init", "f"}, "<init>M": {"init"}}),
         ("#define M(a) B(a), C(a)\n", {"M": {"B", "C"}, "<init>M": {"B", "C"}}),
         ("#define M(a) B(a) + C(a)\n", {"M": {"B", "C"}}),  # no comma at depth 0: not an init list
+        # #6266: a comment is gone before the expansion (fluidsynth `fluid_sample_refcount`'s trailing doc comment)
+        ("#define A(s) ((s)->n) /**< only in a synthesis context (noteon) */\n", {}),
+        ("#define A(x) B(x) // C(x)\n", {"A": {"B"}}),
+        ('#define A(x) B(x) /* don\'t */ + C("/*")\n', {"A": {"B", "C"}}),  # a quote in a comment opens no literal
+        ("#define A(x) \\\n  B(x) /* D(\\\n E() */ + C(x)\n", {"A": {"B", "C"}}),  # a comment over a continuation
     ],
 )
 def test_macro_body_call_table(code, expected):
@@ -65,6 +70,49 @@ def test_a_macro_a_body_invokes_is_expanded_never_listed():
     table = det.c_repo_macro_body_calls(
         ["#define SHIFT(b) (2 * (b))\n#define KIND(b) (load(b) >> SHIFT(b))\n#define CHECK(o) assert(KIND(o))\n"]
     )
+    assert det._macro_expansion_callees(["CHECK"], table) == ["assert", "load"]
+
+
+@pytest.mark.parametrize(
+    "texts, seed, expected",
+    [
+        # prboom-plus: `free(p)` -> `Z_Free(p)`, itself a macro over the function `(Z_Free)` (#6266)
+        (
+            ["#define Z_Free(a) (Z_Free)(a, __FILE__, __LINE__)\n#define free(p) Z_Free(p)\n",
+             "void (Z_Free)(void *p, const char *f, int l)\n{\n}\n"],
+            "free",
+            ["Z_Free"],
+        ),
+        # fastdoom: `LL_AddNode` is a macro in one header and a function another header declares
+        (
+            ["#define LL_AddNode(r, n) do { (n)->next = (r); } while (0)\n",
+             "void LL_AddNode(char *node, char **head);\n#define LL_AddToTail(h, n) LL_AddNode((char *)(n), (h))\n"],
+            "LL_AddToTail",
+            ["LL_AddNode"],
+        ),
+        # chocolate-doom: `DEH_String` is a function or `(x)` by configuration
+        (
+            [("const char *DEH_String(const char *s) PRINTF_ARG_ATTR(1);\n#define DEH_String(x) (x)\n"
+              "#define DEH_Say(x) say(DEH_String(x))\n")],
+            "DEH_Say",
+            ["DEH_String", "say"],
+        ),
+    ],
+)  # fmt: skip
+def test_a_macro_named_like_a_declared_function_reaches_the_function(texts, seed, expected):
+    """#6266: a nested macro the scan also declares as a function is listed, as a direct call of its name is."""
+    assert set(det._macro_expansion_callees([seed], det.c_repo_macro_body_calls(texts))) == set(expected)
+
+
+@pytest.mark.parametrize(
+    "line",
+    ["    return KIND(x);\n", "    if (KIND(x)) {}\n", "    else KIND(x);\n", "#define KIND(b) (load(b))\n",
+     "    KIND(x);\n", "    int y = KIND(x);\n", "    delete KIND(x);\n", "    obj KIND(\"s\");\n",
+     "EXPORT void KIND(Draw)(int a);\n"],
+)  # fmt: skip
+def test_a_call_or_define_line_declares_no_function(line):
+    """Only a declarator line (type words, then the name) lists a macro's own name; a call of it never does."""
+    table = det.c_repo_macro_body_calls(["#define KIND(b) (load(b))\n#define CHECK(o) assert(KIND(o))\n", line])
     assert det._macro_expansion_callees(["CHECK"], table) == ["assert", "load"]
 
 
@@ -207,3 +255,28 @@ def test_a_macro_of_member_initializers_invoked_in_an_init_list_names_no_call(tm
     ctor = next(v for k, v in calls.items() if k.endswith("T"))
     assert "real" in ctor and not {"prev", "next"} & ctor
     assert {"prev", "next"} <= calls["body"]  # the same macro in a statement is the expansion's calls
+
+
+# #6266: prboom-plus `z_zone.h` routes the C allocator through macros over same-named functions; a scan keeps the edge
+# `FreeEvent -> Z_Free` that `free(p)` makes (the clang reference has it; #6922 dropped it as a nested macro name).
+ZONE_HEADER = """\
+void (Z_Free)(void *p, const char *f, int l);
+#define Z_Free(a) (Z_Free)(a, __FILE__, __LINE__)
+#define free(p) Z_Free(p)
+"""
+ZONE_SOURCE = """\
+#include "z_zone.h"
+void (Z_Free)(void *p, const char *f, int l)
+{
+}
+void FreeEvent(void *e)
+{
+    free(e);
+}
+"""
+
+
+@pytest.mark.parametrize("ext", ["c", "cpp"])
+def test_a_scan_reaches_a_function_through_a_same_named_macro(tmp_path, ext):
+    calls = _scan(tmp_path, {f"z_zone.{ext}": ZONE_SOURCE, "z_zone.h": ZONE_HEADER})
+    assert "Z_Free" in calls["FreeEvent"]

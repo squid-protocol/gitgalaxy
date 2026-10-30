@@ -399,7 +399,15 @@ def evidence_uncovered(case: str, cases_dir: Path = CASES) -> list[dict[str, Any
     f = cases_dir / case / "evidence.json"
     if not f.is_file():
         return None
-    return (json.loads(f.read_text(encoding="utf-8")).get("coverage") or {}).get("uncovered_branches")
+    import infeasible_outcomes as io
+
+    uncovered = (json.loads(f.read_text(encoding="utf-8")).get("coverage") or {}).get("uncovered_branches")
+    if uncovered is None:
+        return None
+    # A record names no uncovered paragraphs, so it cannot show a stated paragraph claim reached: leave those entries
+    # open, as the ledger-count path does (CI's det-sweep `check` holds them on a real sweep).
+    stated = io.load(cases_dir / io.LEDGER.name).get(case, [])
+    return [*uncovered, *(io.PARAGRAPH_MARK + e["unit"] for e in stated if io.is_paragraph(e))]
 
 
 def stated_infeasible(run: Run, cov: tuple[int, int, int, int] | None, uncovered: list[Any] | None,

@@ -526,6 +526,10 @@ def coverage_of(case: dict[str, Any] | None, swept: dict[str, Any], ledger: dict
             out["paragraphs_net"] = {"covered": net[0], "live": net[1]}
             out["paragraph_net_pct"] = pct(net[0], net[1]) if net[1] else 100.0
     out["infeasible_netted"], out["infeasible_refuted"] = netted, refuted
+    # owner ruling 2026-10-29: 'undefined by IBM' (family U) is reported by name with counts, never as infeasible
+    infeasible, undefined = io.split_undefined(netted, io.load().get(case["case"], []))
+    if undefined:
+        out["infeasible_netted"], out["undefined_by_ibm"] = infeasible, undefined
     return out
 
 
@@ -1545,9 +1549,15 @@ def program_section(p: dict[str, Any]) -> list[str]:
             f"{_frac(cov['paragraphs'], 'covered', 'live', cov['paragraph_pct'])}, branch outcomes "
             f"{_frac(cov['branches'], 'covered', 'total', cov['branch_pct'])} raw, "
             f"{_frac(cov['branches_net'], 'covered', 'total', cov['branch_net_pct'])} net of "
-            f"{len(cov['infeasible_netted'])} stated infeasible; unrun paragraphs by name: "
-            f"{cov['uncovered_paragraphs']}"
+            f"{len(cov['infeasible_netted'])} stated infeasible"
+            + (f" and {len(cov['undefined_by_ibm'])} undefined by IBM" if cov.get("undefined_by_ibm") else "")
+            + f"; unrun paragraphs by name: {cov['uncovered_paragraphs']}"
         )
+        if cov.get("undefined_by_ibm"):
+            out.append(
+                f"  - undefined by IBM (owner ruling 2026-10-29; not proven, not infeasible): "
+                f"{', '.join(cov['undefined_by_ibm'])}"
+            )
         if cov["infeasible_refuted"]:
             out.append("  - stated infeasible but reached (a refuted claim): " + ", ".join(cov["infeasible_refuted"]))
         out += [f"  - branch outcome no scenario runs: {b}" for b in cov["uncovered_branches"]]
@@ -1584,8 +1594,8 @@ def program_section(p: dict[str, Any]) -> list[str]:
         out.append("  - runtime facts the harness states for its commands: " + ", ".join(a["facts_stated"]))
     out += [f"  - runtime fact no harness states: {f}" for f in a["facts_unstated"]]
     out += [
-        f"  - stated infeasible branch outcome (reviewed claim, family {e['family']}): {e['key']} ({e['kind']}) -- "
-        f"{e['reason']}"
+        f"  - {'undefined by IBM outcome (owner ruling)' if e['family'] == 'U' else 'stated infeasible branch outcome (reviewed claim, family ' + e['family'] + ')'}: "
+        f"{e['key']} ({e['kind']}) -- {e['reason']}"
         for e in cov["infeasible_stated"]
     ]
     out.append(f"- **Det-port mutation:** {p['mutation']['det_port']}")

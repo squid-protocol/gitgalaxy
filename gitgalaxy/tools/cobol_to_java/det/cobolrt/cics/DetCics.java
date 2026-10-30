@@ -712,6 +712,14 @@ public final class DetCics {
         return new int[] {(int) r[0], (int) r[1]};
     }
 
+    /** FREEMAIN DATA(record) (IBM, EXEC CICS FREEMAIN; #6876, X47): releases the storage a LINKAGE 01 record addresses
+     *  (SET ADDRESS OF record TO ptr). Returns {RESP, RESP2} as freemain does; a record no pointer addresses is refused. */
+    // [rule RT-CICS-POINTER-LANE]
+    public static int[] freemainData(CicsTask task, Field record) {
+        wholeRecord(record, "FREEMAIN DATA");
+        return task.freemainData(record.storage().bytes, record.storage().base);
+    }
+
     /** WEB RECEIVE SET(ptr) (X47): the body becomes a block of task storage the pointer addresses. */
     public static void receivedBlock(CicsTask task, Field ptr, String body, Charset cs) {
         setPointer(ptr, task.acquireReceived(body.getBytes(cs)));
@@ -796,6 +804,16 @@ public final class DetCics {
         setPointer(ptr, task.addressOf(bytes, (int) at));
     }
 
+    /** The handle ADDRESS COMMAREA leaves in a pointer for a task with no COMMAREA (#6876, X59): IBM's X'FF000000'. It names
+     *  no block (CicsTask hands out small counters), so SET ADDRESS OF a record TO it is refused as an unknown pointer. */
+    public static final long NO_COMMAREA = 0xFF000000L;
+
+    /** `IF byte-view = X'FF000000'` over a PIC X(4) REDEFINES of a pointer (#6876, X59): true when the pointer is the address
+     *  ADDRESS COMMAREA gave a task with no COMMAREA (addressNoCommarea); any handle of a block is false. */
+    public static boolean isNoCommareaAddress(Field ptr) {
+        return pointerValue(ptr) == NO_COMMAREA;
+    }
+
     /** `IF ptr-a = ptr-b` (#5042, X56): the two pointers address the same storage (CicsTask.samePointer). */
     public static boolean samePointer(CicsTask task, Field a, Field b) {
         return task.samePointer(pointerValue(a), pointerValue(b));
@@ -809,6 +827,17 @@ public final class DetCics {
             throw new PastFrom("ADDRESS COMMAREA with no COMMAREA: not modelled");
         }
         setPointerToRecord(task, ptr, record);
+    }
+
+    /** ADDRESS COMMAREA(ptr) in a program with no 01 DFHCOMMAREA (#6876, X59): a task with no COMMAREA (EIBCALEN 0) gets IBM's
+     *  X'FF000000' (NO_COMMAREA); one with a COMMAREA has no record here to address it through (its bytes are the caller's,
+     *  not stored by a program that names no DFHCOMMAREA): refused. */
+    // [rule RT-CICS-ADDRESS]
+    public static void addressNoCommarea(CicsTask task, Field ptr, int eibcalen) {
+        if (eibcalen != 0) {
+            throw new PastFrom("ADDRESS COMMAREA with a COMMAREA in a program with no 01 DFHCOMMAREA: its bytes are not modelled");
+        }
+        setPointer(ptr, NO_COMMAREA);
     }
 
     /** #5119 (X56): OS/VS COBOL's `MOVE cell TO fullword` (a chained storage area's pointer to the next area): the fullword

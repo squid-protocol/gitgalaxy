@@ -477,6 +477,42 @@
       "why": "TTL query ttl=60: under FIVE-MINUTES, raised to 300"
     },
     {
+      "name": "post-text-plain",
+      "commarea": null,
+      "tod": "8B8B8B8B8B8B0708090A0B0C0D0E0F10",
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "POST",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/textkey",
+        "query": "",
+        "headers": [],
+        "mediatype": "text/plain",
+        "body": "hello text"
+      },
+      "why": "#6839 row F: a text/plain POST takes the second WEB RECEIVE (SRVCONVERT after NOSRVCONVERT, ZECS001.cbl:540 true); the model returns the same body and media type, conversion changes nothing (register X38, ASSUMED)"
+    },
+    {
+      "name": "put-application-xml",
+      "commarea": null,
+      "tod": "8A8A8A8A8A8A0708090A0B0C0D0E0F10",
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "PUT",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/xmlkey",
+        "query": "",
+        "headers": [],
+        "mediatype": "application/xml",
+        "body": "<a>b</a>"
+      },
+      "why": "#6839 row F: the other arm of the 540 test (WEB-MEDIA-TYPE(1:15) = application/xml) on PUT: the SRVCONVERT pass runs, same body and media type back (register X38, ASSUMED)"
+    },
+    {
       "name": "post-ttl-100000",
       "commarea": null,
       "tod": "4444444444440708090A0B0C0D0E0F10",
@@ -1057,6 +1093,102 @@
       "why": "#6839 row A: DELETE of DELKEY, a stored key: 5000 READ answers NORMAL, 5100 deletes the key record, 5200 deletes its file segments until NOTFND, 5300 sends 200 (P117's 'stored-key DELETE diverges' was the harness handing the Java side the COBOL task's updated file)"
     },
     {
+      "name": "deplicate-expired-late",
+      "commarea": null,
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-ops.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey-ops.bin"
+        }
+      },
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "DELETE",
+        "version": "HTTP/1.1",
+        "path": "/deplicate/ecs/walmart/cache/depexp",
+        "query": "",
+        "headers": [],
+        "mediatype": null,
+        "body": null
+      },
+      "why": "#6072: the /deplicate DELETE of DEPEXP one second past its one-hour TTL (deplicate-expired runs at exactly the TTL, which is not expired): 5600 finds RELATIVE-TIME above TTL-MILLISECONDS, falls through, and 5100/5200 delete the key and its file records",
+      "tod": "9C9C9C9C9C9C0708090A0B0C0D0E0F10",
+      "clock": "2026/10/01 10:30:16.00"
+    },
+    {
+      "name": "deplicate-file-read-ioerr",
+      "commarea": null,
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-ops.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey-ops.bin"
+        }
+      },
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "DELETE",
+        "version": "HTTP/1.1",
+        "path": "/deplicate/ecs/walmart/cache/depfresh",
+        "query": "",
+        "headers": [],
+        "mediatype": null,
+        "body": null
+      },
+      "why": "#6072: a /deplicate DELETE with the 5500 data-file READ answering IOERR: not NORMAL, so 5600 is skipped and 5500-EXIT runs",
+      "tod": "9D9D9D9D9D9D0708090A0B0C0D0E0F10",
+      "faults": [
+        {
+          "cmd": "READ",
+          "file": "ZC01FILE",
+          "resp": "IOERR",
+          "why": "the data-file read in 5500 fails"
+        }
+      ]
+    },
+    {
+      "name": "post-dup-reread-normal",
+      "commarea": null,
+      "tod": "9E9E9E9E9E9E0708090A0B0C0D0E0F10",
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-ops.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey-ops.bin"
+        }
+      },
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "PUT",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/delkey",
+        "query": "",
+        "headers": [],
+        "mediatype": "application/octet-stream",
+        "body": "put value"
+      },
+      "why": "#6072: PUT of a stored key whose first key READ misses: the WRITE meets the stored key (DUPREC), 4130-READ-KEY re-reads it NORMAL, 4110-PRIME-KEY runs and the PUT proceeds",
+      "faults": [
+        {
+          "cmd": "READ",
+          "file": "ZC01KEY",
+          "nth": 1,
+          "resp": "NOTFND",
+          "why": "the first key read misses"
+        }
+      ]
+    },
+    {
       "name": "post-existing",
       "commarea": null,
       "tod": "7171717171710708090A0B0C0D0E0F10",
@@ -1318,9 +1450,44 @@
       ]
     },
     {
-      "name": "auth-user-not-listed",
+      "name": "auth-delete-only-post",
       "commarea": null,
       "tod": "8686868686860708090A0B0C0D0E0F10",
+      "doctemplates": {
+        "ZC01DC": "type: A1\r%",
+        "ZC01SD": "User=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,DELETE\r\n"
+      },
+      "http_request": {
+        "scheme": "HTTPS",
+        "host": "zecs.example.com",
+        "port": 8443,
+        "method": "POST",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/authkey",
+        "query": "",
+        "headers": [
+          [
+            "Authorization",
+            "Basic \u00e5\u00e5\u00d5\u00c6\u00e4\u0092\u0093\u00c5\u00d4\u0091\u0097\u00d8\u00d8\u00e5\u00d5\u00e3\u00e5\u00f0\u00f9\u00e2\u00d9\u00c3\u00c1\u0087"
+          ]
+        ],
+        "mediatype": "application/octet-stream",
+        "body": "value two"
+      },
+      "why": "#6072: an https POST by USERID2, granted DELETE only: 1610's DELETE entry matches user and access but WEB-HTTPMETHOD is POST, so 854:false; no arm grants, the scan ends on SD-LENGTH zero and 1600 answers 401 (credential and table bytes as auth-no-access)",
+      "faults": [
+        {
+          "cmd": "VERIFY",
+          "resp": "NORMAL",
+          "userid_hex": "E4E2C5D9C9C4F240",
+          "why": "the verdict the scenario states for USERID2: the region has no security manager (register X32)"
+        }
+      ]
+    },
+    {
+      "name": "auth-user-not-listed",
+      "commarea": null,
+      "tod": "8989898989890708090A0B0C0D0E0F10",
       "doctemplates": {
         "ZC01DC": "type: A1\r%",
         "ZC01SD": "User=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,SELECT\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,UPDATE\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f1@,DELETE\r\nUser=\u00e4\u00e2\u00c5\u00d9\u00c9\u00c4\u00f2@,SELECT\r\n"

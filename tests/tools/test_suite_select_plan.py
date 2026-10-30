@@ -68,7 +68,7 @@ def test_selected_paths_exist_and_have_no_nested_duplicates():
         ["tests/conftest.py"],
         ["tests/fixtures/evidence_report/x.json"],
         ["tests/tools/test_zos_probes.py", "gitgalaxy/core/prism.py"],  # a test module beside an engine file
-        [".github/workflows/smoke-test.yml"],
+        [".github/dependabot.yml"],  # only .github/workflows/*.yml is mapped (slice 10)
         ["pyproject.toml"],
         ["README.md", "gitgalaxy/core/prism.py"],  # one engine file beside a doc
         ["docs/language_status/register/x.md", "tests/tools/change_classifier.py"],
@@ -169,8 +169,9 @@ def test_replay_acceptance_shapes_of_6278():
     # README.md only: its readers run (tests/core_engine among them), not the suite
     r = plan(["README.md"])
     assert r["mode"] == "select" and r["paths"]
-    # a test-tooling change is code: the suite plan runs it in full (ground-truth / det / db2 skip it in their own plans)
-    assert plan(["tests/tools/test_zos_probes.py", "tests/tools/zos_probes.json"])["mode"] == "full"
+    # a tests/tools data file is read by the tests that name it (slice 11); the probe record selects its own test
+    z = plan(["tests/tools/test_zos_probes.py", "tests/tools/zos_probes.json"])
+    assert z["mode"] == "select" and "tests/tools/test_zos_probes.py" in z["paths"]
 
 
 def _pr(n, *paths):
@@ -278,7 +279,8 @@ def test_a_helper_named_by_too_many_tests_runs_everything(tmp_path):
 )
 def test_only_a_python_helper_module_is_mapped_by_name(f):
     assert not sp.is_helper_module(f)
-    assert plan([f])["mode"] == "full"
+    if f.endswith(".py"):
+        assert plan([f])["mode"] == "full"
 
 
 def test_a_helper_beside_an_engine_file_runs_everything():
@@ -287,6 +289,165 @@ def test_a_helper_beside_an_engine_file_runs_everything():
 
 def test_the_spine_helper_equivalence_stays_full():
     assert plan(["tests/tools/equivalence.py"])["mode"] == "full"
+
+
+@pytest.mark.parametrize("f", ["tests/doom_rosetta/manifest.csv", "tests/golden_doom_rosetta/doomsday.json.gz"])
+def test_doom_rosetta_data_selects_the_tests_that_name_the_tree(f):
+    p = plan([f])
+    assert p["mode"] == "select"
+    assert "tests/doom_rosetta/test_doom_rosetta.py" in p["paths"]
+    assert "tests/test_source_reads.py" in p["paths"]  # the tree guards ride along
+    assert len(p["paths"]) < 40
+
+
+def test_doom_rosetta_data_beside_an_unmapped_file_runs_everything():
+    assert plan(["tests/doom_rosetta/manifest.csv", "tests/equivalence/cbsa-x/seed.sql"])["mode"] == "full"
+
+
+@pytest.mark.parametrize(
+    "f",
+    [
+        "tests/equivalence/db2/dynsql/seed.sql",
+        "tests/equivalence/asynccc-crdtchk/abndfile.bin",
+        "tests/equivalence/asynccc-crdtchk/LICENSE",
+        "tests/equivalence/cics/ggcics_taskcontrol.c",
+    ],
+)
+def test_other_equivalence_case_data_stays_full(f):
+    # a fixture or source is read by helpers (equivalence.py, det_port.py) no name search reaches
+    assert plan([f])["mode"] == "full"
+
+
+@pytest.mark.parametrize(
+    "f",
+    [
+        "tests/equivalence/asynccc-crdtchk/case.json",
+        "tests/equivalence/zecs-zecs001/case.json",
+        "tests/equivalence/carddemo-acctview/evidence.json",
+    ],
+)
+def test_a_case_json_or_evidence_selects_the_tests_that_name_the_case_or_the_file(f):
+    p = plan([f])
+    assert p["mode"] == "select"
+    assert "tests/test_source_reads.py" in p["paths"]
+    assert 1 < len(p["paths"]) <= sp.HELPER_MAX and all((sp.REPO_ROOT / x).exists() for x in p["paths"])
+
+
+def test_case_files_map_by_case_id_and_file_name(tmp_path):
+    (tmp_path / "tests" / "tools").mkdir(parents=True)
+    (tmp_path / "tests" / "cobol_mainframe").mkdir()
+    (tmp_path / "tests" / "tools" / "test_a.py").write_text("glob('*/case.json')\n")
+    (tmp_path / "tests" / "tools" / "test_b.py").write_text("case = 'cbsa-x'\n")
+    (tmp_path / "tests" / "tools" / "test_c.py").write_text("open('evidence.json')\n")
+    (tmp_path / "tests" / "cobol_mainframe" / "test_evidence.py").write_text("x = 1\n")
+    assert sp.named_data_targets("tests/equivalence/cbsa-x/case.json", tmp_path) == [
+        "tests/tools/test_a.py",
+        "tests/tools/test_b.py",
+    ]
+    # an evidence record also runs test_evidence.py (stale-port check), whether or not it names the file
+    assert sp.named_data_targets("tests/equivalence/cbsa-x/evidence.json", tmp_path) == [
+        "tests/cobol_mainframe/test_evidence.py",
+        "tests/tools/test_b.py",
+        "tests/tools/test_c.py",
+    ]
+    assert sp.named_data_targets("tests/equivalence/cbsa-x/case.json", tmp_path, limit=1) is None
+    # a case nobody names and no test globs: full
+    (tmp_path / "tests" / "tools" / "test_a.py").write_text("x\n")
+    assert sp.named_data_targets("tests/equivalence/cbsa-y/case.json", tmp_path) is None
+
+
+@pytest.mark.parametrize(
+    "f", ["tests/equivalence/case.json", "tests/equivalence/a/b/case.json", "tests/equivalence/a/seed.json"]
+)
+def test_only_a_cases_case_and_evidence_json_are_case_files(f):
+    assert not sp.is_case_file(f)
+
+
+def test_a_data_tree_reader_set_is_direct_only(tmp_path):
+    (tmp_path / "tests" / "doom_rosetta").mkdir(parents=True)
+    (tmp_path / "tests" / "tools").mkdir()
+    (tmp_path / "tests" / "tools" / "test_a.py").write_text("import doom_speedrun\n")
+    (tmp_path / "tests" / "tools" / "test_b.py").write_text("import bugfix_kit\n")  # names a helper that names the tree
+    (tmp_path / "tests" / "tools" / "bugfix_kit.py").write_text("import doom_speedrun\n")
+    assert sp.data_targets("tests/doom_rosetta/manifest.csv", tmp_path) == ["tests/tools/test_a.py"]
+
+
+@pytest.mark.parametrize(
+    "f",
+    [
+        "tests/cobol_mainframe/ground_truth_ledger.json",
+        "tests/cobol_mainframe/field_testing.json",
+        "tests/ruff_audit_baseline.json",
+        "tests/equivalence/det_sweep_coverage/asynccc-getname.json",
+        "tests/equivalence/infeasible_outcomes/zecs-zecs002.json",
+        "tests/equivalence/det_mutation/carddemo-userdel.json",
+    ],
+)
+def test_a_named_data_file_selects_the_tests_that_name_it(f):
+    p = plan([f])
+    assert p["mode"] == "select"
+    assert "tests/test_source_reads.py" in p["paths"]  # the tree guards ride along
+    assert 1 < len(p["paths"]) < 60 and all((sp.REPO_ROOT / x).exists() for x in p["paths"])
+
+
+def test_named_data_with_no_direct_reader_or_beside_an_unmapped_file_runs_everything(tmp_path):
+    (tmp_path / "tests" / "tools").mkdir(parents=True)
+    (tmp_path / "tests" / "tools" / "test_a.py").write_text("import other\n")
+    assert sp.named_data_targets("tests/x_baseline.json", tmp_path) is None
+    (tmp_path / "tests" / "tools" / "test_a.py").write_text("run('ruff_audit --ci')  # x\n")
+    assert sp.named_data_targets("tests/ruff_audit_baseline.json", tmp_path) == ["tests/tools/test_a.py"]
+    assert sp.named_data_targets("tests/ruff_audit_baseline.json", tmp_path, limit=0) is None
+    assert plan(["tests/cobol_mainframe/field_testing.json", "tests/equivalence/cbsa-x/seed.sql"])["mode"] == "full"
+
+
+@pytest.mark.parametrize("f", ["tests/cobol_mainframe/x.py", "tests/equivalence/db2/seed.json", "tests/a/b.json"])
+def test_only_top_level_baselines_and_sweep_records_are_named_data(f):
+    assert not sp.is_named_data_file(f)
+
+
+SLICE7 = ["cics/DetJustify.java", "cics/DetMq.java", "mq/QueueManager.java", "dli/DetDli.java", "sql/DetSql.java"]
+SLICE7 += ["batch/DetFiles.java", "DetMvs.java"]
+
+
+@pytest.mark.parametrize("name", ["cics/DetCics.java", "Sort.java", *SLICE7])
+def test_det_runtime_file_selects_the_tests_that_name_its_class(name):
+    p = plan([sp.RUNTIME_DIR + name])
+    assert p["mode"] == "select"
+    assert set(sp.RUNTIME_TREE_READERS) <= set(p["paths"])
+    assert "tests/test_source_reads.py" in p["paths"]  # the tree guards ride along
+    assert len(p["paths"]) < 60
+
+
+def test_det_runtime_class_readers_differ_per_file():
+    cics = set(plan([sp.RUNTIME_DIR + "cics/DetCics.java"])["paths"])
+    sort = set(plan([sp.RUNTIME_DIR + "Sort.java"])["paths"])
+    assert "tests/cobol_mainframe/test_dfsort_4268.py" in sort - cics
+    assert "tests/cobol_mainframe/test_det_translate.py" in cics - sort
+
+
+def test_every_mapped_runtime_file_exists_and_names_its_own_class():
+    for rel, rx in sp.RUNTIME_READERS.items():
+        assert (sp.REPO_ROOT / sp.RUNTIME_DIR / rel).is_file(), rel
+        if rel != "Sort.java":
+            assert rx == rf"\b{rel.rsplit('/', 1)[-1][:-5]}\b"
+
+
+@pytest.mark.parametrize("name", ["Cobol.java", "Field.java", "sql/Sql.java", "le/Ceedate.java", "Hole.java"])
+def test_other_det_runtime_files_stay_full(name):
+    assert plan([sp.RUNTIME_DIR + name])["mode"] == "full"
+
+
+def test_det_runtime_beside_an_unmapped_file_runs_everything():
+    assert plan([sp.RUNTIME_DIR + "Sort.java", "tests/equivalence/cbsa-x/seed.sql"])["mode"] == "full"
+
+
+def test_runtime_reader_set_is_direct_and_capped(tmp_path):
+    (tmp_path / "tests").mkdir()
+    (tmp_path / "tests" / "test_a.py").write_text("x = 'new Sort.Key(r -> 1)'\n")
+    (tmp_path / "tests" / "test_b.py").write_text("x = 'Sort of'\n")  # the bare word is not a reader
+    f = sp.RUNTIME_DIR + "Sort.java"
+    assert sp.runtime_targets(f, tmp_path) == ["tests/test_a.py"]
+    assert sp.runtime_targets(f, tmp_path, limit=0) is None
 
 
 def test_engine_module_selects_the_tests_the_coverage_map_names():
@@ -328,3 +489,92 @@ def test_engine_changes_the_map_cannot_prove_stay_full(files):
 
 def test_an_engine_change_is_full_without_a_map():
     assert sp.plan(["gitgalaxy/core/prism.py"], "pull_request", (), REFS, TOOLS.parents[1], None)["mode"] == "full"
+
+
+def test_a_case_record_is_read_by_its_directory_name_or_its_case_id(tmp_path):
+    for d in ("infeasible_outcomes", "det_mutation"):
+        (tmp_path / "tests" / "equivalence" / d).mkdir(parents=True)
+    (tmp_path / "tests" / "tools").mkdir()
+    (tmp_path / "tests" / "tools" / "test_a.py").write_text("root / 'infeasible_outcomes'\n")
+    (tmp_path / "tests" / "tools" / "test_b.py").write_text("case = 'cbsa-bnk1cac'\n")
+    (tmp_path / "tests" / "tools" / "test_c.py").write_text("det_mutation\n")
+    assert sp.named_data_targets("tests/equivalence/infeasible_outcomes/cbsa-bnk1cac.json", tmp_path) == [
+        "tests/tools/test_a.py",
+        "tests/tools/test_b.py",
+    ]
+    assert sp.named_data_targets("tests/equivalence/det_mutation/x.json", tmp_path) == ["tests/tools/test_c.py"]
+
+
+@pytest.mark.parametrize("f", ["tests/equivalence/infeasible_outcomes/x.py", "tests/equivalence/carddemo-a.json"])
+def test_other_equivalence_files_are_not_case_records(f):
+    assert not sp.is_named_data_file(f)
+
+
+def test_a_workflow_is_read_by_the_tests_that_name_the_directory_or_the_file(tmp_path):
+    (tmp_path / "tests" / "tools").mkdir(parents=True)
+    (tmp_path / "tests" / "tools" / "test_a.py").write_text("root / '.github' / 'workflows'\n")
+    (tmp_path / "tests" / "tools" / "test_b.py").write_text("name = 'det-sweep.yml'\n")
+    (tmp_path / "tests" / "tools" / "test_c.py").write_text("unrelated\n")
+    assert sp.workflow_targets(".github/workflows/det-sweep.yml", tmp_path) == [
+        "tests/tools/test_a.py",
+        "tests/tools/test_b.py",
+    ]
+    assert sp.workflow_targets(".github/workflows/x.yml", tmp_path, limit=0) is None
+
+
+def test_a_workflow_change_selects_and_other_github_files_stay_full(tmp_path):
+    (tmp_path / "tests" / "tools").mkdir(parents=True)
+    (tmp_path / "tests" / "tools" / "test_a.py").write_text("'workflows'\n")
+    got = sp.plan([".github/workflows/ci.yml"], "pull_request", (), REFS, tmp_path)
+    assert got["mode"] == "select" and got["paths"] == ["tests/tools/test_a.py"]
+    for f in (".github/dependabot.yml", ".github/workflows/sub/x.yml", ".github/workflows/run.sh"):
+        assert not sp.is_workflow_file(f)
+        assert sp.plan([f], "pull_request", (), REFS, tmp_path)["mode"] == "full"
+
+
+def test_a_tools_data_or_script_file_is_read_by_the_tests_that_name_it(tmp_path):
+    (tmp_path / "tests" / "tools" / "box").mkdir(parents=True)
+    (tmp_path / "tests" / "tools" / "test_a.py").write_text("open('wrapper_labels.json')\n")
+    (tmp_path / "tests" / "tools" / "test_b.py").write_text("run('heavy-run.sh')\n")
+    (tmp_path / "tests" / "tools" / "test_c.py").write_text("unrelated\n")
+    got = sp.plan(["tests/tools/wrapper_labels.json"], "pull_request", (), REFS, tmp_path)
+    assert got["mode"] == "select" and got["paths"] == ["tests/tools/test_a.py"]
+    got = sp.plan(["tests/tools/box/heavy-run.sh"], "pull_request", (), REFS, tmp_path)
+    assert got["mode"] == "select" and got["paths"] == ["tests/tools/test_b.py"]
+    # no test names it (a glob or a workflow reads it): full
+    assert sp.plan(["tests/tools/worktree_env.sh"], "pull_request", (), REFS, tmp_path)["mode"] == "full"
+
+
+@pytest.mark.parametrize(
+    "f",
+    [
+        "tests/tools/doom_speedrun/README.md",  # prose stem `README` names every doc
+        "tests/tools/doom_speedrun/callgraph_baseline.json",  # read through a helper, not by a test
+        "tests/tools/go_callgraph/main.go",
+        "tests/tools/ibm_wca4z/shim/com/ibm/jzos/fields/StringField.java",
+        "tests/tools/README.md",
+    ],
+)
+def test_other_tools_files_are_not_named_data(f):
+    assert not sp.is_named_data_file(f)
+
+
+def test_golden_snapshot_parts_select_the_tests_that_name_the_fixture_or_golden_store(tmp_path):
+    (tmp_path / "tests" / "tools").mkdir(parents=True)
+    (tmp_path / "tests" / "tools" / "test_a.py").write_text("p = 'golden_master_audit'\n")
+    (tmp_path / "tests" / "tools" / "test_b.py").write_text("import golden_store\n")
+    (tmp_path / "tests" / "tools" / "test_c.py").write_text("p = 'golden_master_zero_dep_audit'\n")
+    for f, want in [
+        ("tests/golden_master_audit/12_scan_output_snapshots/sarif.json", ["test_a.py", "test_b.py"]),
+        ("tests/golden_master_zero_dep_audit/_layout.json", ["test_b.py", "test_c.py"]),
+    ]:
+        assert sp.is_named_data_file(f)
+        assert sp.named_data_targets(f, tmp_path) == [f"tests/tools/{n}" for n in want]
+    assert sp.named_data_targets("tests/golden_master_audit/x.json", tmp_path, limit=1) is None
+    assert not sp.is_named_data_file("tests/golden_master_audit_notes/x.json")
+
+
+def test_a_golden_bless_beside_an_unmapped_file_runs_everything():
+    f = "tests/golden_master_audit/_layout.json"
+    assert plan([f])["mode"] == "select"
+    assert plan([f, "tests/equivalence/cbsa-x/seed.sql"])["mode"] == "full"

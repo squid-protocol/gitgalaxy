@@ -2,7 +2,7 @@
 
 # COBOL & Mainframe Modernization Test Suite (`tests/cobol_mainframe`)
 
-### 5,070 tests pinning fact extraction, the 257-command CICS spec, deterministic translation, equivalence proofs, mutation scores, and zero-leakage readiness reports.
+### Over 8,500 tests (collected 2026-10-29) pinning fact extraction, the CICS command spec, deterministic translation, equivalence proofs, mutation scores, and zero-leakage readiness reports.
 
 This directory tests GitGalaxy's mainframe modernization and CICS-to-Java stack:
 [`gitgalaxy/tools/cobol_to_java/`](../../gitgalaxy/tools/cobol_to_java/README.md),
@@ -15,16 +15,16 @@ live IBM Db2 Community Edition container.
 
 <table>
 <tr>
-<td align="center" width="190"><h2>5,070</h2></td>
-<td align="center" width="190"><h2>175</h2></td>
+<td align="center" width="190"><h2>8,573</h2></td>
+<td align="center" width="190"><h2>369</h2></td>
 <td align="center" width="190"><h2>6 + 1</h2></td>
-<td align="center" width="190"><h2>8</h2></td>
+<td align="center" width="190"><h2>9</h2></td>
 </tr>
 <tr>
-<td align="center" valign="top"><sub><strong>tests collected</strong><br /><code>pytest tests/cobol_mainframe/</code><br /><em><a href="#quickstart">run the suite</a> · unit, differential &amp; E2E</em></sub></td>
+<td align="center" valign="top"><sub><strong>tests collected (2026-10-29)</strong><br /><code>pytest --collect-only tests/cobol_mainframe/</code><br /><em><a href="#quickstart">run the suite</a> · unit, differential &amp; E2E</em></sub></td>
 <td align="center" valign="top"><sub><strong>test modules in this directory</strong><br />covering extraction, <code>det</code>, CICS &amp; proofs<br /><em><a href="#test-index-by-subsystem">test index</a> · plus <code>tests/equivalence/</code></em></sub></td>
-<td align="center" valign="top"><sub><strong>burned estates + CICS crucible</strong><br />129 estate programs + 21 trap programs<br /><em><a href="#real-corpora-answer-keys-and-differential-gates">pinned corpora</a> · <code>crucible_pins.toml</code></em></sub></td>
-<td align="center" valign="top"><sub><strong>CI ratchets in <code>pr_gates.py</code></strong><br />spec, evidence, det-sweep, ReDoS &amp; diffs<br /><em><a href="#ci-gates-and-ratchets">ratchets</a> · zero regressions</em></sub></td>
+<td align="center" valign="top"><sub><strong>burned estates + CICS crucible</strong><br />estate programs on the <a href="https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md">progress page</a> + 63 crucible trap programs<br /><em><a href="#real-corpora-answer-keys-and-differential-gates">pinned corpora</a> · <code>crucible_pins.toml</code></em></sub></td>
+<td align="center" valign="top"><sub><strong>CI ratchets in <code>pr_gates.py</code></strong><br />cics-spec, ports, port-surface, estate, fact-crosscheck, completeness, ground-truth, det-mutation, time<br /><em><a href="#ci-gates-and-ratchets">ratchets</a> · zero regressions</em></sub></td>
 </tr>
 </table>
 
@@ -68,6 +68,9 @@ Tests pinning [`gitgalaxy/tools/cobol_to_java/det/`](../../gitgalaxy/tools/cobol
 - **OS/VS COBOL, `BLL` cells & pointers:** `test_det_osvs.py`, `test_bll_cells_5119.py`, `test_pointer_lane_4771.py`, `test_pointer_lane_5042.py`, `test_pointer_null_cond_5197.py`, `test_pointer_commarea_4270.py`, `test_address_5079.py`, `test_address_e2e_5079.py`.
 - **Dynamic calls, intrinsic functions & LE services:** `test_det_dynamic_call_4736.py`, `test_det_ceedays.py`, `test_det_ceeigzct.py`, `test_det_le_time.py`, `test_det_length_of_element_5076.py`.
 - **Source format, copybooks & compiler options:** `test_det_source_4462.py`, `test_det_source_defects_4735.py`, `test_det_inline_comment.py`, `test_section_copy_replacing_4457.py`, `test_record_layout_copy_placement_4278.py`, `test_record_layout_redefines_4280.py`, `test_values_and_copybook_comma.py`, `test_estate_options.py`, `test_option_table.py`, `test_numproc.py`, `test_trunc_opt.py`, `test_decimal_comma.py`, `test_data_moves_decimal_comma_4355.py`, `test_data_moves_national_4353.py`, `test_dbcs_items.py`, `test_dbcs_widths.py`, `test_declared_code_page_reads.py`, `test_record_charset.py`.
+- **HLASM lowering (command-level CICS assembler, #5859):** `test_hlasm_lowering_5859.py`, `test_hlasm_interp_5859.py` (POPS interpreter), `test_hlasm_diff_5859.py` (per-instruction differential), `test_hlasm_estate_census_5859.py` (every burned assembler member placed).
+- **SORT and DFSORT steps (#4268):** `test_dfsort_4268.py`.
+- **IMS DL/I and IBM MQ:** `test_det_dli.py`, `test_cblt_dli_cics_5233.py`, `test_dli_uow_burned_5233.py`, `test_equivalence_bmp_dli.py`, `test_equivalence_cics_dli.py`, `test_det_mq.py`.
 - **Survey & fast sweeps:** `test_det_survey.py`, `test_det_sweep_fast.py`, `test_det_whole_programs_4270.py`, `test_statement_inventory.py`.
 
 ### 2. CICS command spec, CICS translation & BMS screens
@@ -135,4 +138,4 @@ Every PR touching the mainframe or translator stack must pass the gates in [`tes
 
 The proof cases themselves (inputs, scenarios, fault plans, `evidence.json` certificates, and committed ports) live in:
 - [`tests/equivalence/`](../equivalence): 6 burned estates (`carddemo`, `cics-async-api`, `cbsa`, `cics-genapp`, `dbb-mortgage`, `zecs`), plus the CICS C stub (`tests/equivalence/cics/ggcics.c`) and LE models (`tests/equivalence/le/`).
-- [`tests/cics_crucible/`](../cics_crucible): 21 hand-crafted CICS trap programs testing `COMMAREA` lengths, `XCTL` chains, `HANDLE ABEND` unwinding, `START`/`RETRIEVE`, terminal coalescing, BMS attributes, and immediate `RETURN`.
+- [`tests/cics_crucible/`](../cics_crucible): 63 hand-crafted CICS trap programs testing `COMMAREA` lengths, `XCTL` chains, `HANDLE ABEND` unwinding, `START`/`RETRIEVE`, terminal coalescing, BMS attributes, and immediate `RETURN`.

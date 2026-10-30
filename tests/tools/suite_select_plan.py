@@ -22,6 +22,21 @@ ground_truth_plan.py does for `ground-truth`):
            coverage map (coverage_map.py, `--coverage-map`) holds it: the test files that executed it, plus the tests that
            read the engine tree, plus TREE_GUARDS. A module the map lacks, one only import-time lines cover, or one most of
            the suite covers (`core`, `standards`) is `full`, and so is a missing map.
+* `select` also when a changed file is data under tests/doom_rosetta or tests/golden_doom_rosetta (#6278 item 5): the
+           tests that name the doom tree as a word, transitively through helpers, plus TREE_GUARDS. other
+           tests/equivalence case data stays `full` (see DATA_TREES).
+* `select` also when a changed file is the det Java runtime `DetCics.java` or `Sort.java` (slice 6): the tests naming the class
+           as the emitted call, plus the tests that hash / compile the runtime tree, plus TREE_GUARDS. Other runtime files stay `full`.
+* `select` also when a changed file is a baseline / ledger JSON (`tests/*.json`, `tests/cobol_mainframe/*.json`) or a
+           `det_sweep_coverage` record (slice 8): the tests that name it directly, plus TREE_GUARDS; none naming it is `full`.
+* `select` also for a per-case record `tests/equivalence/infeasible_outcomes/*.json` or `det_mutation/*.json` (slice 9): the
+           tests that name the directory or the case id, plus TREE_GUARDS.
+* `select` also for a case's `case.json` / `evidence.json` (slice 12): the tests that name the case id or the file as a word
+           (direct only), plus TREE_GUARDS. Other files in a case directory stay `full`.
+* `select` also for a golden-master snapshot part under `tests/golden_master_audit` or `golden_master_zero_dep_audit` (slice 13):
+           the tests that name the fixture directory or `golden_store` as a word (direct only), plus TREE_GUARDS.
+* `select` also for a workflow file `.github/workflows/*.yml` (slice 10): the tests that name the workflows directory or the
+           file as a word (direct only), plus TREE_GUARDS.
 * `full`   anything else, any reader that is the engine or a root-level script (it cannot be mapped to a test), an
            unreadable or empty diff, the `shepherd:full` label, and every event that is not a pull_request.
 
@@ -88,29 +103,186 @@ def is_helper_module(f: str) -> bool:
     )
 
 
-def helper_targets(f: str, root: Path = REPO_ROOT, limit: int = HELPER_MAX) -> list[str] | None:
-    """Every test file that names the helper `f` or a non-test helper that (transitively) names it, as a word; None when
-    that is more than `limit` files (the caller runs everything). A deleted helper maps by its old name the same way."""
+def _closure(seeds: set[str], skip: str, root: Path, limit: int, direct: bool = False) -> list[str] | None:
+    """Every test file that names a seed as a word, or a non-test file that (transitively) names one; None when that is
+    more than `limit` test files. `direct`: only the tests that name a seed, no helper expansion."""
     files = [
         (t.relative_to(root).as_posix(), change_classifier._text(t)) for t in sorted((root / "tests").rglob("*.py"))
     ]
-    names, seen, tests = {Path(f).stem}, set(), set()
+    names, seen, tests = set(seeds), set(), set()
     while names:
         name = names.pop()
         seen.add(name)
         rx = re.compile(rf"\b{re.escape(name)}\b")
         for rel, text in files:
-            if rel == f or name not in text or not rx.search(text):  # the substring test is far cheaper than the regex
+            if (
+                rel == skip or name not in text or not rx.search(text)
+            ):  # the substring test is far cheaper than the regex
                 continue
             if is_test_module(rel):
                 tests.add(rel)
-                if len(tests) > limit:  # a spine helper: stop at the cap instead of scanning every name
-                    return None
-            elif (stem := Path(rel).stem) not in seen and stem not in NOT_HELPERS:
+            elif not direct and (stem := Path(rel).stem) not in seen and stem not in NOT_HELPERS:
                 names.add(stem)
-        if len(tests) > limit:
+        if len(tests) > limit:  # a spine name: stop at the cap instead of scanning every name
             return None
     return sorted(tests)
+
+
+def helper_targets(f: str, root: Path = REPO_ROOT, limit: int = HELPER_MAX) -> list[str] | None:
+    """Every test file that names the helper `f` or a non-test helper that (transitively) names it, as a word; None when
+    that is more than `limit` files (the caller runs everything). A deleted helper maps by its old name the same way."""
+    return _closure({Path(f).stem}, f, root, limit)
+
+
+# The data trees whose files tests open by directory name. tests/equivalence is NOT here: its cases are read by every test
+# that globs them or names a helper that does (equivalence.py, evidence.py, det_port.py ...), 170+ test files by direct
+# naming and 650+ transitively, so only a case's case.json / evidence.json map (CASE_FILES, by direct naming); the rest stays `full`.
+DATA_TREES = ("tests/doom_rosetta/", "tests/golden_doom_rosetta/")
+
+
+def is_data_file(f: str) -> bool:
+    """A non-Python file inside a mapped data tree (the doom manifest or a golden)."""
+    return f.startswith(DATA_TREES) and not f.endswith(".py") and f.count("/") >= 2
+
+
+DOOM_READERS = {"doom_rosetta", "golden_doom_rosetta", "doom_rosetta_check", "doom_speedrun", "crucible_shard_plan"}
+
+
+def data_targets(f: str, root: Path = REPO_ROOT, limit: int = HELPER_MAX) -> list[str] | None:
+    """The tests that read data file `f`: those naming the doom_rosetta tree or a tool that reads it (DOOM_READERS) as a
+    word. Direct only: doom_speedrun / bugfix_kit are named by most of the suite, so expanding through helpers is full."""
+    return _closure(DOOM_READERS, f, root, limit, direct=True)
+
+
+# Baseline / ledger JSON and the det sweep coverage records (#6278 item 5, slice 8): a test or tool opens one by its file
+# name, so the tests that name it (as a word: the file name, its stem, or the stem without `_baseline` / `_ledger`) read
+# it. Direct only, like DOOM_READERS: a helper that names the file is named by most of the suite (654 test files).
+# No direct reader at all means the file is read some way a name search cannot see (a glob), so it stays `full`.
+SWEEP_COVERAGE_DIR = "tests/equivalence/det_sweep_coverage/"
+# Slice 9: the per-case records beside the sweep coverage. A test opens one through its directory name (`infeasible_outcomes`,
+# `det_mutation`: 16 and 5 test files name each) or its case id; the readers that glob all of tests/equivalence are
+# case-agnostic helpers (a closure through them is 654 files), so direct naming is the map, as for the sweep records.
+RECORD_DIRS = ("tests/equivalence/infeasible_outcomes", "tests/equivalence/det_mutation")
+NAMED_DATA_DIRS = ("tests", "tests/cobol_mainframe") + RECORD_DIRS
+
+
+# Slice 11: the non-Python files directly under tests/tools (and tests/tools/box): a data file, a shell helper or a script a
+# test opens or runs by its file name. README / .md stay out (a stem like `README` is every doc), as do the language
+# adapters in subdirectories (their readers name the directory, not the file).
+TOOL_FILE_DIRS = ("tests/tools", "tests/tools/box")
+TOOL_FILE_SUFFIXES = (".json", ".txt", ".sh", ".js")
+
+
+# Slice 12: a case's `case.json` / `evidence.json` (tests/equivalence/<case>/). The tests that name the case id as a word
+# read that case; the 109 / 17 tests that name the file read every case through a glob. Direct only (a closure through
+# equivalence.py is 654 files); a test that reaches a case only through such a helper is the nightly full run's.
+CASE_FILES = ("case.json", "evidence.json")
+CASE_DIR_RX = re.compile(r"^tests/equivalence/([^/]+)/(?:" + "|".join(re.escape(n) for n in CASE_FILES) + r")$")
+CASE_EVIDENCE_READERS = ("tests/cobol_mainframe/test_evidence.py",)
+
+
+def is_case_file(f: str) -> bool:
+    return bool(CASE_DIR_RX.match(f))
+
+
+# Slice 13: the golden-master snapshots (directories of per-section JSON parts, #3384). `golden_store.py` is the only reader;
+# the tests that name a fixture directory or `golden_store` as a word read them (about a dozen, `test_golden_crucible.py`
+# among them but that one is opt-in). Direct only: `bugfix_kit` and `update_golden_master` name the trees and are named by
+# most of the suite. A bless in a PR that also changes the engine selects here; CI's `crucible-audit` check is the net.
+GOLDEN_TREES = ("tests/golden_master_audit", "tests/golden_master_zero_dep_audit")
+
+
+def golden_tree(f: str) -> str | None:
+    return next((t for t in GOLDEN_TREES if f.startswith(t + "/")), None)
+
+
+def is_named_data_file(f: str) -> bool:
+    p = Path(f)
+    parent = p.parent.as_posix()
+    return (
+        (f.endswith(".json") and (f.startswith(SWEEP_COVERAGE_DIR) or parent in NAMED_DATA_DIRS))
+        or (p.suffix in TOOL_FILE_SUFFIXES and parent in TOOL_FILE_DIRS)
+        or is_case_file(f)
+        or golden_tree(f) is not None
+    )
+
+
+def named_data_targets(f: str, root: Path = REPO_ROOT, limit: int = HELPER_MAX) -> list[str] | None:
+    """The tests that name data file `f`; None when none do or more than `limit` do (the caller runs everything)."""
+    p = Path(f)
+    if m := CASE_DIR_RX.match(f):
+        seeds = {m.group(1), p.name}
+    elif tree := golden_tree(f):
+        seeds = {Path(tree).name, "golden_store"}
+    elif f.startswith(SWEEP_COVERAGE_DIR):
+        seeds = {"det_sweep_coverage"}
+    elif p.parent.as_posix() in RECORD_DIRS:
+        seeds = {p.parent.name, p.stem}
+    else:
+        seeds = {p.name, p.stem, re.sub(r"_(?:baseline|ledger)$", "", p.stem)}
+    hit = _closure(seeds, f, root, limit, direct=True)
+    if hit and p.name == "evidence.json" and is_case_file(f):
+        hit = sorted({*hit, *(g for g in CASE_EVIDENCE_READERS if (root / g).exists())})
+    return hit or None
+
+
+# Slice 10: a workflow file is read by the tests that name the workflows directory (`"workflows"`, `.github`: 88 test files,
+# the pin tests that glob every workflow) or the file itself by name. Direct only: a closure through the helpers that name
+# `workflows` is 677 files. A test that reads a workflow only through such a helper is not selected; the nightly full run
+# is the net for it.
+WORKFLOW_DIR = ".github/workflows/"
+
+
+def is_workflow_file(f: str) -> bool:
+    return f.startswith(WORKFLOW_DIR) and f.endswith((".yml", ".yaml")) and f.count("/") == 2
+
+
+def workflow_targets(f: str, root: Path = REPO_ROOT, limit: int = HELPER_MAX) -> list[str] | None:
+    """The tests that name the workflows directory or workflow `f` (its file name or stem) as a word; None when more than
+    `limit` (the caller runs everything). A deleted workflow maps the same way."""
+    p = Path(f)
+    return _closure({"workflows", "github", p.name, p.stem}, f, root, limit, direct=True)
+
+
+RUNTIME_DIR = "gitgalaxy/tools/cobol_to_java/det/cobolrt/"
+# The det Java runtime files a test reaches by naming their class (#6278 item 5, slice 6): a translated port or a test
+# asserts on the emitted `DetCics.` / `Sort.Key` call, so the word search is sound for these two. Slice 7 adds the
+# `Det*` / `QueueManager` classes, whose names occur in at most 10 test files each. Every other file under the runtime
+# stays `full` (a bare class name like `Field` or `Cobol` is a word in half the suite).
+RUNTIME_READERS = {
+    "cics/DetCics.java": r"\bDetCics\b",
+    "cics/DetJustify.java": r"\bDetJustify\b",
+    "cics/DetMq.java": r"\bDetMq\b",
+    "mq/QueueManager.java": r"\bQueueManager\b",
+    "dli/DetDli.java": r"\bDetDli\b",
+    "sql/DetSql.java": r"\bDetSql\b",
+    "batch/DetFiles.java": r"\bDetFiles\b",
+    "DetMvs.java": r"\bDetMvs\b",
+    "Sort.java": r"\bSort\.(?:Key|Collating|NotModelled|active|expect|finished)\b|\bcobolrt[./]Sort\b|\bdfsort\b",
+}
+# These read the whole runtime tree (they hash it, compile it or drive its self-test), so any mapped file runs them too.
+RUNTIME_TREE_READERS = (
+    "tests/cobol_mainframe/test_cobolrt.py",
+    "tests/cics_crucible/test_port_provenance.py",
+    "tests/cics_crucible/test_ports_compile_check.py",
+)
+
+
+def is_runtime_file(f: str) -> bool:
+    return f.startswith(RUNTIME_DIR) and f[len(RUNTIME_DIR) :] in RUNTIME_READERS
+
+
+def runtime_targets(f: str, root: Path = REPO_ROOT, limit: int = HELPER_MAX) -> list[str] | None:
+    """The test files that name runtime file `f`'s class as RUNTIME_READERS says, plus RUNTIME_TREE_READERS; None when
+    more than `limit` (the caller runs everything). Direct only: a port test names the class, not a helper that does."""
+    rx = re.compile(RUNTIME_READERS[f[len(RUNTIME_DIR) :]])
+    tests = {
+        rel
+        for t in sorted((root / "tests").rglob("test_*.py"))
+        if rx.search(change_classifier._text(t)) and (rel := t.relative_to(root).as_posix())
+    }
+    tests.update(g for g in RUNTIME_TREE_READERS if (root / g).exists())
+    return sorted(tests) if len(tests) <= limit else None
 
 
 def test_target(scope: str, root: Path = REPO_ROOT) -> list[str] | None:
@@ -157,9 +329,22 @@ def plan(
     areas = {f: change_classifier.area(f, refs) for f in files}
     modules = [f for f in files if is_test_module(f)]
     helpers = [f for f in files if is_helper_module(f)]
+    data = [f for f in files if is_data_file(f)]
+    runtime = [f for f in files if is_runtime_file(f)]
+    named = [f for f in files if is_named_data_file(f)]
+    workflows = [f for f in files if is_workflow_file(f)]
     engine = [f for f in files if is_engine_module(f)]
     other = sorted(
-        f for f, a in areas.items() if a not in SELECTABLE and f not in modules and f not in helpers and f not in engine
+        f
+        for f, a in areas.items()
+        if a not in SELECTABLE
+        and f not in modules
+        and f not in helpers
+        and f not in engine
+        and f not in data
+        and f not in runtime
+        and f not in named
+        and f not in workflows
     )
     if other:
         return {**full, "reason": f"{len(other)} changed file(s) are not docs / agent config, first: {other[0]}"}
@@ -171,15 +356,44 @@ def plan(
         if hit is None:
             return {**full, "reason": f"{f} is named by more than {HELPER_MAX} test files"}
         targets.update(hit)
+    for f in data:
+        hit = data_targets(f, root)
+        if hit is None:
+            return {**full, "reason": f"{f} is read by more than {HELPER_MAX} test files"}
+        targets.update(hit)
+    for f in runtime:
+        hit = runtime_targets(f, root)
+        if hit is None:
+            return {**full, "reason": f"{f} is named by more than {HELPER_MAX} test files"}
+        targets.update(hit)
+    for f in named:
+        hit = named_data_targets(f, root)
+        if hit is None:
+            return {**full, "reason": f"{f} has no test that names it, or more than {HELPER_MAX}"}
+        targets.update(hit)
+    for f in workflows:
+        hit = workflow_targets(f, root)
+        if hit is None:
+            return {**full, "reason": f"{f} is named by more than {HELPER_MAX} test files"}
+        targets.update(hit)
     if engine:
         hit, why = coverage_map.select(engine, cmap, root)
         if hit is None:
             return {**full, "reason": why}
         targets.update(hit)
-    if modules or helpers or engine:
+    if modules or helpers or engine or data or runtime or named or workflows:
         targets.update(g for g in TREE_GUARDS if (root / g).exists())
     for f, a in areas.items():
-        if a == "prose" or f in modules or f in helpers or f in engine:
+        if (
+            a == "prose"
+            or f in modules
+            or f in helpers
+            or f in engine
+            or f in data
+            or f in runtime
+            or f in named
+            or f in workflows
+        ):
             continue
         for scope in change_classifier.readers_of(f, refs):
             t = test_target(scope, root)

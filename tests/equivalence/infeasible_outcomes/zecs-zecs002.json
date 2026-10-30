@@ -1,0 +1,1382 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "zecs-zecs002",
+  "entries": [
+    {
+      "unit": "SY-0110",
+      "line": 202,
+      "kind": "EVALUATE",
+      "outcome": "OTHER",
+      "family": "G",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-0110), so HL-RG is always 1; WHEN OTHER (an address in no region) cannot be selected"
+    },
+    {
+      "unit": "SY-0110",
+      "line": 202,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@209",
+      "family": "G",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-0110), so HL-RG is always 1; the other WHEN arms cannot be selected"
+    },
+    {
+      "unit": "SY-0110",
+      "line": 202,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@215",
+      "family": "G",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-0110), so HL-RG is always 1; the other WHEN arms cannot be selected"
+    },
+    {
+      "unit": "SY-0110",
+      "line": 204,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "R3 starts at CA-DEC (offset 48) and moves one byte per pass of a loop that BCT R2 limits to 8, so it stays at offset 48..56; the check on HL-OF fires only past the end of the DFHCOMMAREA region, which this offset never reaches"
+    },
+    {
+      "unit": "SY-0110",
+      "line": 210,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 202 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-0110",
+      "line": 210,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 202 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-0110",
+      "line": 216,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 202 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-0110",
+      "line": 216,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 202 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-0110",
+      "line": 225,
+      "kind": "EVALUATE",
+      "outcome": "OTHER",
+      "family": "G",
+      "reason": "R6, the target address, is set to a constant address in USERID (region 2) on every path to this instruction (SY-0110), so HL-RG is always 2; WHEN OTHER (an address in no region) cannot be selected"
+    },
+    {
+      "unit": "SY-0110",
+      "line": 225,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@226",
+      "family": "G",
+      "reason": "R6, the target address, is set to a constant address in USERID (region 2) on every path to this instruction (SY-0110), so HL-RG is always 2; the other WHEN arms cannot be selected"
+    },
+    {
+      "unit": "SY-0110",
+      "line": 225,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@240",
+      "family": "G",
+      "reason": "R6, the target address, is set to a constant address in USERID (region 2) on every path to this instruction (SY-0110), so HL-RG is always 2; the other WHEN arms cannot be selected"
+    },
+    {
+      "unit": "SY-0110",
+      "line": 227,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 225 that cannot be selected: R6 always holds region 2 (USERID), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-0110",
+      "line": 227,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 225 that cannot be selected: R6 always holds region 2 (USERID), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-0110",
+      "line": 234,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "R6 starts at the field and moves one byte per pass of a loop that BCT R2 limits to 8, so it stays at offset 0..7; the check on HL-OF fires only past the end of the USERID region, which this offset never reaches"
+    },
+    {
+      "unit": "SY-0110",
+      "line": 241,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 225 that cannot be selected: R6 always holds region 2 (USERID), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-0110",
+      "line": 241,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 225 that cannot be selected: R6 always holds region 2 (USERID), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-0110",
+      "line": 258,
+      "kind": "EVALUATE",
+      "outcome": "OTHER",
+      "family": "G",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-0110), so HL-RG is always 1; WHEN OTHER (an address in no region) cannot be selected"
+    },
+    {
+      "unit": "SY-0110",
+      "line": 258,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@265",
+      "family": "G",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-0110), so HL-RG is always 1; the other WHEN arms cannot be selected"
+    },
+    {
+      "unit": "SY-0110",
+      "line": 258,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@271",
+      "family": "G",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-0110), so HL-RG is always 1; the other WHEN arms cannot be selected"
+    },
+    {
+      "unit": "SY-0110",
+      "line": 260,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "R3 starts at CA-DEC (offset 48) and moves one byte per pass of a loop that BCT R2 limits to 8, so it stays at offset 48..56; the check on HL-OF fires only past the end of the DFHCOMMAREA region, which this offset never reaches"
+    },
+    {
+      "unit": "SY-0110",
+      "line": 266,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 258 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-0110",
+      "line": 266,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 258 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-0110",
+      "line": 272,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 258 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-0110",
+      "line": 272,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 258 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-0210",
+      "line": 302,
+      "kind": "EVALUATE",
+      "outcome": "OTHER",
+      "family": "G",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-0210), so HL-RG is always 1; WHEN OTHER (an address in no region) cannot be selected"
+    },
+    {
+      "unit": "SY-0210",
+      "line": 302,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@309",
+      "family": "G",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-0210), so HL-RG is always 1; the other WHEN arms cannot be selected"
+    },
+    {
+      "unit": "SY-0210",
+      "line": 302,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@315",
+      "family": "G",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-0210), so HL-RG is always 1; the other WHEN arms cannot be selected"
+    },
+    {
+      "unit": "SY-0210",
+      "line": 304,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "R3 starts one past the colon (offset 57 at most) and moves one byte per pass of a loop that BCT R2 limits to 8, so it stays at offset 57..65; the check on HL-OF fires only past the end of the DFHCOMMAREA region, which this offset never reaches"
+    },
+    {
+      "unit": "SY-0210",
+      "line": 310,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 302 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-0210",
+      "line": 310,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 302 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-0210",
+      "line": 316,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 302 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-0210",
+      "line": 316,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 302 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-0210",
+      "line": 325,
+      "kind": "EVALUATE",
+      "outcome": "OTHER",
+      "family": "G",
+      "reason": "R6, the target address, is set to a constant address in PASSWORD-HL (region 3) on every path to this instruction (SY-0210), so HL-RG is always 3; WHEN OTHER (an address in no region) cannot be selected"
+    },
+    {
+      "unit": "SY-0210",
+      "line": 325,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@326",
+      "family": "G",
+      "reason": "R6, the target address, is set to a constant address in PASSWORD-HL (region 3) on every path to this instruction (SY-0210), so HL-RG is always 3; the other WHEN arms cannot be selected"
+    },
+    {
+      "unit": "SY-0210",
+      "line": 325,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@333",
+      "family": "G",
+      "reason": "R6, the target address, is set to a constant address in PASSWORD-HL (region 3) on every path to this instruction (SY-0210), so HL-RG is always 3; the other WHEN arms cannot be selected"
+    },
+    {
+      "unit": "SY-0210",
+      "line": 327,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 325 that cannot be selected: R6 always holds region 3 (PASSWORD-HL), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-0210",
+      "line": 327,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 325 that cannot be selected: R6 always holds region 3 (PASSWORD-HL), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-0210",
+      "line": 334,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 325 that cannot be selected: R6 always holds region 3 (PASSWORD-HL), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-0210",
+      "line": 334,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 325 that cannot be selected: R6 always holds region 3 (PASSWORD-HL), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-0210",
+      "line": 341,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "R6 starts at the field and moves one byte per pass of a loop that BCT R2 limits to 8, so it stays at offset 0..7; the check on HL-OF fires only past the end of the PASSWORD-HL region, which this offset never reaches"
+    },
+    {
+      "unit": "SY-0210",
+      "line": 358,
+      "kind": "EVALUATE",
+      "outcome": "OTHER",
+      "family": "G",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-0210), so HL-RG is always 1; WHEN OTHER (an address in no region) cannot be selected"
+    },
+    {
+      "unit": "SY-0210",
+      "line": 358,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@365",
+      "family": "G",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-0210), so HL-RG is always 1; the other WHEN arms cannot be selected"
+    },
+    {
+      "unit": "SY-0210",
+      "line": 358,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@371",
+      "family": "G",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-0210), so HL-RG is always 1; the other WHEN arms cannot be selected"
+    },
+    {
+      "unit": "SY-0210",
+      "line": 360,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "R3 starts one past the colon (offset 57 at most) and moves one byte per pass of a loop that BCT R2 limits to 8, so it stays at offset 57..65; the check on HL-OF fires only past the end of the DFHCOMMAREA region, which this offset never reaches"
+    },
+    {
+      "unit": "SY-0210",
+      "line": 366,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 358 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-0210",
+      "line": 366,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 358 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-0210",
+      "line": 372,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 358 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-0210",
+      "line": 372,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 358 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-0210",
+      "line": 386,
+      "kind": "EVALUATE",
+      "outcome": "OTHER",
+      "family": "G",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-0210), so HL-RG is always 1; WHEN OTHER (an address in no region) cannot be selected"
+    },
+    {
+      "unit": "SY-0210",
+      "line": 386,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@393",
+      "family": "G",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-0210), so HL-RG is always 1; the other WHEN arms cannot be selected"
+    },
+    {
+      "unit": "SY-0210",
+      "line": 386,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@399",
+      "family": "G",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-0210), so HL-RG is always 1; the other WHEN arms cannot be selected"
+    },
+    {
+      "unit": "SY-0210",
+      "line": 388,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "R3 starts one past the colon (offset 57 at most) and moves one byte per pass of a loop that BCT R2 limits to 8, so it stays at offset 57..65; the check on HL-OF fires only past the end of the DFHCOMMAREA region, which this offset never reaches"
+    },
+    {
+      "unit": "SY-0210",
+      "line": 394,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 386 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-0210",
+      "line": 394,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 386 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-0210",
+      "line": 400,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 386 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-0210",
+      "line": 400,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 386 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1010",
+      "line": 450,
+      "kind": "EVALUATE",
+      "outcome": "OTHER",
+      "family": "G",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1010), so HL-RG is always 1; WHEN OTHER (an address in no region) cannot be selected"
+    },
+    {
+      "unit": "SY-1010",
+      "line": 450,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@457",
+      "family": "G",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1010), so HL-RG is always 1; the other WHEN arms cannot be selected"
+    },
+    {
+      "unit": "SY-1010",
+      "line": 450,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@463",
+      "family": "G",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1010), so HL-RG is always 1; the other WHEN arms cannot be selected"
+    },
+    {
+      "unit": "SY-1010",
+      "line": 452,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "R3 starts at CA-ENC (offset 20) and the six-pass SY-0030 loop reads four bytes per pass, so it stays at offset 20..43; the check on HL-OF fires only past the end of the DFHCOMMAREA region, which this offset never reaches"
+    },
+    {
+      "unit": "SY-1010",
+      "line": 458,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 450 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1010",
+      "line": 458,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 450 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1010",
+      "line": 464,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 450 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1010",
+      "line": 464,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 450 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1010",
+      "line": 480,
+      "kind": "EVALUATE",
+      "outcome": "OTHER",
+      "family": "G",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1010), so HL-RG is always 1; WHEN OTHER (an address in no region) cannot be selected"
+    },
+    {
+      "unit": "SY-1010",
+      "line": 480,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@487",
+      "family": "G",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1010), so HL-RG is always 1; the other WHEN arms cannot be selected"
+    },
+    {
+      "unit": "SY-1010",
+      "line": 480,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@493",
+      "family": "G",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1010), so HL-RG is always 1; the other WHEN arms cannot be selected"
+    },
+    {
+      "unit": "SY-1010",
+      "line": 482,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "R3 starts at CA-ENC (offset 20) and the six-pass SY-0030 loop reads four bytes per pass, so it stays at offset 20..43; the check on HL-OF fires only past the end of the DFHCOMMAREA region, which this offset never reaches"
+    },
+    {
+      "unit": "SY-1010",
+      "line": 488,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 480 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1010",
+      "line": 488,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 480 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1010",
+      "line": 494,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 480 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1010",
+      "line": 494,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 480 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1010",
+      "line": 509,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "R5 is cleared by SR, then loaded one byte by IC, so the B64XLT index is 0..255 and never exceeds 255"
+    },
+    {
+      "unit": "SY-1020",
+      "line": 536,
+      "kind": "EVALUATE",
+      "outcome": "OTHER",
+      "family": "G",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1020), so HL-RG is always 1; WHEN OTHER (an address in no region) cannot be selected"
+    },
+    {
+      "unit": "SY-1020",
+      "line": 536,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@543",
+      "family": "G",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1020), so HL-RG is always 1; the other WHEN arms cannot be selected"
+    },
+    {
+      "unit": "SY-1020",
+      "line": 536,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@549",
+      "family": "G",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1020), so HL-RG is always 1; the other WHEN arms cannot be selected"
+    },
+    {
+      "unit": "SY-1020",
+      "line": 538,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "R3 starts at CA-ENC (offset 20) and the six-pass SY-0030 loop reads four bytes per pass, so it stays at offset 20..43; the check on HL-OF fires only past the end of the DFHCOMMAREA region, which this offset never reaches"
+    },
+    {
+      "unit": "SY-1020",
+      "line": 544,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 536 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1020",
+      "line": 544,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 536 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1020",
+      "line": 550,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 536 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1020",
+      "line": 550,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 536 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1020",
+      "line": 566,
+      "kind": "EVALUATE",
+      "outcome": "OTHER",
+      "family": "G",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1020), so HL-RG is always 1; WHEN OTHER (an address in no region) cannot be selected"
+    },
+    {
+      "unit": "SY-1020",
+      "line": 566,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@573",
+      "family": "G",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1020), so HL-RG is always 1; the other WHEN arms cannot be selected"
+    },
+    {
+      "unit": "SY-1020",
+      "line": 566,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@579",
+      "family": "G",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1020), so HL-RG is always 1; the other WHEN arms cannot be selected"
+    },
+    {
+      "unit": "SY-1020",
+      "line": 568,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "R3 starts at CA-ENC (offset 20) and the six-pass SY-0030 loop reads four bytes per pass, so it stays at offset 20..43; the check on HL-OF fires only past the end of the DFHCOMMAREA region, which this offset never reaches"
+    },
+    {
+      "unit": "SY-1020",
+      "line": 574,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 566 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1020",
+      "line": 574,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 566 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1020",
+      "line": 580,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 566 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1020",
+      "line": 580,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 566 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1020",
+      "line": 595,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "R5 is cleared by SR, then loaded one byte by IC, so the B64XLT index is 0..255 and never exceeds 255"
+    },
+    {
+      "unit": "SY-1030",
+      "line": 622,
+      "kind": "EVALUATE",
+      "outcome": "OTHER",
+      "family": "G",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1030), so HL-RG is always 1; WHEN OTHER (an address in no region) cannot be selected"
+    },
+    {
+      "unit": "SY-1030",
+      "line": 622,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@629",
+      "family": "G",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1030), so HL-RG is always 1; the other WHEN arms cannot be selected"
+    },
+    {
+      "unit": "SY-1030",
+      "line": 622,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@635",
+      "family": "G",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1030), so HL-RG is always 1; the other WHEN arms cannot be selected"
+    },
+    {
+      "unit": "SY-1030",
+      "line": 624,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "R3 starts at CA-ENC (offset 20) and the six-pass SY-0030 loop reads four bytes per pass, so it stays at offset 20..43; the check on HL-OF fires only past the end of the DFHCOMMAREA region, which this offset never reaches"
+    },
+    {
+      "unit": "SY-1030",
+      "line": 630,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 622 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1030",
+      "line": 630,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 622 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1030",
+      "line": 636,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 622 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1030",
+      "line": 636,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 622 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1030",
+      "line": 652,
+      "kind": "EVALUATE",
+      "outcome": "OTHER",
+      "family": "G",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1030), so HL-RG is always 1; WHEN OTHER (an address in no region) cannot be selected"
+    },
+    {
+      "unit": "SY-1030",
+      "line": 652,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@659",
+      "family": "G",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1030), so HL-RG is always 1; the other WHEN arms cannot be selected"
+    },
+    {
+      "unit": "SY-1030",
+      "line": 652,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@665",
+      "family": "G",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1030), so HL-RG is always 1; the other WHEN arms cannot be selected"
+    },
+    {
+      "unit": "SY-1030",
+      "line": 654,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "R3 starts at CA-ENC (offset 20) and the six-pass SY-0030 loop reads four bytes per pass, so it stays at offset 20..43; the check on HL-OF fires only past the end of the DFHCOMMAREA region, which this offset never reaches"
+    },
+    {
+      "unit": "SY-1030",
+      "line": 660,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 652 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1030",
+      "line": 660,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 652 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1030",
+      "line": 666,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 652 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1030",
+      "line": 666,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 652 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1030",
+      "line": 681,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "R5 is cleared by SR, then loaded one byte by IC, so the B64XLT index is 0..255 and never exceeds 255"
+    },
+    {
+      "unit": "SY-1040",
+      "line": 708,
+      "kind": "EVALUATE",
+      "outcome": "OTHER",
+      "family": "G",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1040), so HL-RG is always 1; WHEN OTHER (an address in no region) cannot be selected"
+    },
+    {
+      "unit": "SY-1040",
+      "line": 708,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@715",
+      "family": "G",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1040), so HL-RG is always 1; the other WHEN arms cannot be selected"
+    },
+    {
+      "unit": "SY-1040",
+      "line": 708,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@721",
+      "family": "G",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1040), so HL-RG is always 1; the other WHEN arms cannot be selected"
+    },
+    {
+      "unit": "SY-1040",
+      "line": 710,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "R3 starts at CA-ENC (offset 20) and the six-pass SY-0030 loop reads four bytes per pass, so it stays at offset 20..43; the check on HL-OF fires only past the end of the DFHCOMMAREA region, which this offset never reaches"
+    },
+    {
+      "unit": "SY-1040",
+      "line": 716,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 708 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1040",
+      "line": 716,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 708 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1040",
+      "line": 722,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 708 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1040",
+      "line": 722,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 708 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1040",
+      "line": 738,
+      "kind": "EVALUATE",
+      "outcome": "OTHER",
+      "family": "G",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1040), so HL-RG is always 1; WHEN OTHER (an address in no region) cannot be selected"
+    },
+    {
+      "unit": "SY-1040",
+      "line": 738,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@745",
+      "family": "G",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1040), so HL-RG is always 1; the other WHEN arms cannot be selected"
+    },
+    {
+      "unit": "SY-1040",
+      "line": 738,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@751",
+      "family": "G",
+      "reason": "R3, the source address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1040), so HL-RG is always 1; the other WHEN arms cannot be selected"
+    },
+    {
+      "unit": "SY-1040",
+      "line": 740,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "R3 starts at CA-ENC (offset 20) and the six-pass SY-0030 loop reads four bytes per pass, so it stays at offset 20..43; the check on HL-OF fires only past the end of the DFHCOMMAREA region, which this offset never reaches"
+    },
+    {
+      "unit": "SY-1040",
+      "line": 746,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 738 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1040",
+      "line": 746,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 738 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1040",
+      "line": 752,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 738 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1040",
+      "line": 752,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 738 that cannot be selected: R3 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1040",
+      "line": 767,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "R5 is cleared by SR, then loaded one byte by IC, so the B64XLT index is 0..255 and never exceeds 255"
+    },
+    {
+      "unit": "SY-1050",
+      "line": 809,
+      "kind": "EVALUATE",
+      "outcome": "OTHER",
+      "family": "G",
+      "reason": "R6, the target address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1050), so HL-RG is always 1; WHEN OTHER (an address in no region) cannot be selected"
+    },
+    {
+      "unit": "SY-1050",
+      "line": 809,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@817",
+      "family": "G",
+      "reason": "R6, the target address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1050), so HL-RG is always 1; the other WHEN arms cannot be selected"
+    },
+    {
+      "unit": "SY-1050",
+      "line": 809,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@824",
+      "family": "G",
+      "reason": "R6, the target address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1050), so HL-RG is always 1; the other WHEN arms cannot be selected"
+    },
+    {
+      "unit": "SY-1050",
+      "line": 811,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "R6 starts at CA-DEC (offset 48) and moves three bytes per decoded group over at most six groups, so it stays at offset 48..63; the check on HL-OF fires only past the end of the DFHCOMMAREA region, which this offset never reaches"
+    },
+    {
+      "unit": "SY-1050",
+      "line": 818,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 809 that cannot be selected: R6 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1050",
+      "line": 818,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 809 that cannot be selected: R6 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1050",
+      "line": 825,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 809 that cannot be selected: R6 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1050",
+      "line": 825,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 809 that cannot be selected: R6 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1050",
+      "line": 836,
+      "kind": "EVALUATE",
+      "outcome": "OTHER",
+      "family": "G",
+      "reason": "R6, the target address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1050), so HL-RG is always 1; WHEN OTHER (an address in no region) cannot be selected"
+    },
+    {
+      "unit": "SY-1050",
+      "line": 836,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@851",
+      "family": "G",
+      "reason": "R6, the target address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1050), so HL-RG is always 1; the other WHEN arms cannot be selected"
+    },
+    {
+      "unit": "SY-1050",
+      "line": 836,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@865",
+      "family": "G",
+      "reason": "R6, the target address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1050), so HL-RG is always 1; the other WHEN arms cannot be selected"
+    },
+    {
+      "unit": "SY-1050",
+      "line": 838,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "R6 starts at CA-DEC (offset 48) and moves three bytes per decoded group over at most six groups, so it stays at offset 48..63; the check on HL-OF fires only past the end of the DFHCOMMAREA region, which this offset never reaches"
+    },
+    {
+      "unit": "SY-1050",
+      "line": 852,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 836 that cannot be selected: R6 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1050",
+      "line": 852,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 836 that cannot be selected: R6 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1050",
+      "line": 866,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 836 that cannot be selected: R6 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1050",
+      "line": 866,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 836 that cannot be selected: R6 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1100",
+      "line": 913,
+      "kind": "EVALUATE",
+      "outcome": "OTHER",
+      "family": "G",
+      "reason": "R6, the target address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1100), so HL-RG is always 1; WHEN OTHER (an address in no region) cannot be selected"
+    },
+    {
+      "unit": "SY-1100",
+      "line": 913,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@921",
+      "family": "G",
+      "reason": "R6, the target address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1100), so HL-RG is always 1; the other WHEN arms cannot be selected"
+    },
+    {
+      "unit": "SY-1100",
+      "line": 913,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@928",
+      "family": "G",
+      "reason": "R6, the target address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1100), so HL-RG is always 1; the other WHEN arms cannot be selected"
+    },
+    {
+      "unit": "SY-1100",
+      "line": 915,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "R6 starts at CA-DEC (offset 48) and moves three bytes per decoded group over at most six groups, so it stays at offset 48..63; the check on HL-OF fires only past the end of the DFHCOMMAREA region, which this offset never reaches"
+    },
+    {
+      "unit": "SY-1100",
+      "line": 922,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 913 that cannot be selected: R6 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1100",
+      "line": 922,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 913 that cannot be selected: R6 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1100",
+      "line": 929,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 913 that cannot be selected: R6 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1100",
+      "line": 929,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 913 that cannot be selected: R6 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1100",
+      "line": 940,
+      "kind": "EVALUATE",
+      "outcome": "OTHER",
+      "family": "G",
+      "reason": "R6, the target address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1100), so HL-RG is always 1; WHEN OTHER (an address in no region) cannot be selected"
+    },
+    {
+      "unit": "SY-1100",
+      "line": 940,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@955",
+      "family": "G",
+      "reason": "R6, the target address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1100), so HL-RG is always 1; the other WHEN arms cannot be selected"
+    },
+    {
+      "unit": "SY-1100",
+      "line": 940,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@969",
+      "family": "G",
+      "reason": "R6, the target address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1100), so HL-RG is always 1; the other WHEN arms cannot be selected"
+    },
+    {
+      "unit": "SY-1100",
+      "line": 942,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "R6 starts at CA-DEC (offset 48) and moves three bytes per decoded group over at most six groups, so it stays at offset 48..63; the check on HL-OF fires only past the end of the DFHCOMMAREA region, which this offset never reaches"
+    },
+    {
+      "unit": "SY-1100",
+      "line": 956,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 940 that cannot be selected: R6 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1100",
+      "line": 956,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 940 that cannot be selected: R6 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1100",
+      "line": 970,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 940 that cannot be selected: R6 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1100",
+      "line": 970,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 940 that cannot be selected: R6 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1200",
+      "line": 1017,
+      "kind": "EVALUATE",
+      "outcome": "OTHER",
+      "family": "G",
+      "reason": "R6, the target address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1200), so HL-RG is always 1; WHEN OTHER (an address in no region) cannot be selected"
+    },
+    {
+      "unit": "SY-1200",
+      "line": 1017,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@1025",
+      "family": "G",
+      "reason": "R6, the target address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1200), so HL-RG is always 1; the other WHEN arms cannot be selected"
+    },
+    {
+      "unit": "SY-1200",
+      "line": 1017,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@1032",
+      "family": "G",
+      "reason": "R6, the target address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1200), so HL-RG is always 1; the other WHEN arms cannot be selected"
+    },
+    {
+      "unit": "SY-1200",
+      "line": 1019,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "R6 starts at CA-DEC (offset 48) and moves three bytes per decoded group over at most six groups, so it stays at offset 48..63; the check on HL-OF fires only past the end of the DFHCOMMAREA region, which this offset never reaches"
+    },
+    {
+      "unit": "SY-1200",
+      "line": 1026,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 1017 that cannot be selected: R6 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1200",
+      "line": 1026,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 1017 that cannot be selected: R6 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1200",
+      "line": 1033,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 1017 that cannot be selected: R6 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1200",
+      "line": 1033,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 1017 that cannot be selected: R6 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1200",
+      "line": 1044,
+      "kind": "EVALUATE",
+      "outcome": "OTHER",
+      "family": "G",
+      "reason": "R6, the target address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1200), so HL-RG is always 1; WHEN OTHER (an address in no region) cannot be selected"
+    },
+    {
+      "unit": "SY-1200",
+      "line": 1044,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@1059",
+      "family": "G",
+      "reason": "R6, the target address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1200), so HL-RG is always 1; the other WHEN arms cannot be selected"
+    },
+    {
+      "unit": "SY-1200",
+      "line": 1044,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@1073",
+      "family": "G",
+      "reason": "R6, the target address, is set to a constant address in DFHCOMMAREA (region 1) on every path to this instruction (SY-1200), so HL-RG is always 1; the other WHEN arms cannot be selected"
+    },
+    {
+      "unit": "SY-1200",
+      "line": 1046,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "R6 starts at CA-DEC (offset 48) and moves three bytes per decoded group over at most six groups, so it stays at offset 48..63; the check on HL-OF fires only past the end of the DFHCOMMAREA region, which this offset never reaches"
+    },
+    {
+      "unit": "SY-1200",
+      "line": 1060,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 1044 that cannot be selected: R6 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1200",
+      "line": 1060,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 1044 that cannot be selected: R6 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1200",
+      "line": 1074,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 1044 that cannot be selected: R6 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    },
+    {
+      "unit": "SY-1200",
+      "line": 1074,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "inside a WHEN arm of the HL-RG EVALUATE at line 1044 that cannot be selected: R6 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached"
+    }
+  ]
+}

@@ -384,7 +384,10 @@
    ],
    "done": true,
    "about": "Each SELECT over its FD record, through CobolFiles.",
-   "plumbing": []
+   "plumbing": [
+    "frames",
+    "lastLength"
+   ]
   },
   {
    "id": "SYS",
@@ -2850,6 +2853,7 @@
     "pointerValue",
     "setPointer",
     "getmain",
+    "freemainData",
     "receivedBlock",
     "setAddress",
     "setAddressOfRecord",
@@ -2887,9 +2891,11 @@
   {
    "id": "RT-CICS-ADDRESS",
    "family": "CICS",
-   "title": "ADDRESS COMMAREA(ptr): the handle of the DFHCOMMAREA record's bytes; a task with no COMMAREA is refused (IBM's X'FF000000' is no COBOL NULL)",
+   "title": "ADDRESS COMMAREA(ptr): the handle of the DFHCOMMAREA record's bytes; a task with no COMMAREA is refused (IBM's X'FF000000' is no COBOL NULL), except in a program with no 01 DFHCOMMAREA, where it is the X'FF000000' handle the byte-view test reads (addressNoCommarea); a COMMAREA there is refused",
    "methods": [
-    "addressCommarea"
+    "addressCommarea",
+    "addressNoCommarea",
+    "isNoCommareaAddress"
    ],
    "ibm": {
     "doc": "cics-apr",

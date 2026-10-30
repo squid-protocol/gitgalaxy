@@ -1012,6 +1012,29 @@ CICS_TASK_JAVA += """\
         return new int[] {0, 0};
     }
 
+    /** FREEMAIN DATA(record) (IBM, EXEC CICS FREEMAIN; #6876, X47): the block whose bytes the record views, at `base`, as
+     *  freemain(handle). A record no block names (its own storage, no pointer ever addressed it) and an address inside a
+     *  GETMAIN block are refused: IBM leaves what such an address holds undefined. */
+    public int[] freemainData(byte[] bytes, int base) {
+        long found = 0;
+        for (java.util.Map.Entry<Long, Block> e : root().blocks.entrySet()) {
+            Block b = e.getValue();
+            if (b.bytes != bytes) {
+                continue;
+            }
+            boolean own = b.kind == 0 || b.kind == 3;  // (an address taken of GETMAIN storage is a kind 2 block on its bytes)
+            if (b.off == base && (own || found == 0)) {
+                found = e.getKey();
+            } else if (own) {
+                throw refused("FREEMAIN DATA of an address inside a GETMAIN block");
+            }
+        }
+        if (found == 0) {
+            throw refused("FREEMAIN DATA of a record no pointer addresses");
+        }
+        return freemain(found);
+    }
+
     /** The body WEB RECEIVE SET hands the program (X47): a new block, whose handle goes into the pointer. */
     public long acquireReceived(byte[] body) {
         if (body.length > 268435456L) {

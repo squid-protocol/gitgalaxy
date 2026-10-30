@@ -52,8 +52,8 @@
    "line": 245,
    "before": "private final Field f93_PAGENUMA = Field.alphanumeric(s_COUSR0AI, 164, 1, false);",
    "after": "private final Field f93_PAGENUMA = Field.alphanumeric(s_COUSR0AI, 165, 1, false);",
-   "verdict": "case-gap",
-   "reason": "position or length of an attribute (A) or colour (C) byte of a map field COUSR00C never writes: the SEND MAP comparison reads those bytes only when the scenario states a subfield. Needs SEND MAP events that state them"
+   "verdict": "equivalent",
+   "reason": "every SEND MAP follows MOVE LOW-VALUES TO COUSR0AO or RECEIVE MAP's clear of COUSR0AI (same storage), and COUSR00C never writes to PAGENUMA; reading offset 165 reads the adjacent FILLER byte, which is also LOW-VALUES (0x00), so DetCics.subfields emits no attribute either way."
   },
   {
    "id": "8df4dee96a",
@@ -61,8 +61,8 @@
    "line": 293,
    "before": "private final Field f189_UTYPE03A = Field.alphanumeric(s_COUSR0AI, 441, 1, false);",
    "after": "private final Field f189_UTYPE03A = Field.alphanumeric(s_COUSR0AI, 442, 1, false);",
-   "verdict": "case-gap",
-   "reason": "position or length of an attribute (A) or colour (C) byte of a map field COUSR00C never writes: the SEND MAP comparison reads those bytes only when the scenario states a subfield. Needs SEND MAP events that state them"
+   "verdict": "equivalent",
+   "reason": "every SEND MAP follows MOVE LOW-VALUES TO COUSR0AO or RECEIVE MAP's clear of COUSR0AI (same storage), and COUSR00C never writes to UTYPE03A; reading offset 442 reads the adjacent FILLER byte, which is also LOW-VALUES (0x00), so DetCics.subfields emits no attribute either way."
   },
   {
    "id": "64bce0b373",
@@ -70,8 +70,8 @@
    "line": 332,
    "before": "private final Field f267_FNAME06A = Field.alphanumeric(s_COUSR0AI, 642, 1, false);",
    "after": "private final Field f267_FNAME06A = Field.alphanumeric(s_COUSR0AI, 643, 1, false);",
-   "verdict": "case-gap",
-   "reason": "position or length of an attribute (A) or colour (C) byte of a map field COUSR00C never writes: the SEND MAP comparison reads those bytes only when the scenario states a subfield. Needs SEND MAP events that state them"
+   "verdict": "equivalent",
+   "reason": "every SEND MAP follows MOVE LOW-VALUES TO COUSR0AO or RECEIVE MAP's clear of COUSR0AI (same storage), and COUSR00C never writes to FNAME06A; reading offset 643 reads the adjacent FILLER byte, which is also LOW-VALUES (0x00), so DetCics.subfields emits no attribute either way."
   },
   {
    "id": "d67b4d7463",
@@ -79,8 +79,8 @@
    "line": 332,
    "before": "private final Field f267_FNAME06A = Field.alphanumeric(s_COUSR0AI, 642, 1, false);",
    "after": "private final Field f267_FNAME06A = Field.alphanumeric(s_COUSR0AI, 642, 2, false);",
-   "verdict": "case-gap",
-   "reason": "position or length of an attribute (A) or colour (C) byte of a map field COUSR00C never writes: the SEND MAP comparison reads those bytes only when the scenario states a subfield. Needs SEND MAP events that state them"
+   "verdict": "equivalent",
+   "reason": "COUSR00C never writes to FNAME06A (it remains LOW-VALUES in s_COUSR0AI), and DetCics.subfields inspects only the single byte at attr.offset() (b != 0 && b != space), never reading beyond the first byte or using the field's length."
   },
   {
    "id": "063c5e0be6",
@@ -88,8 +88,8 @@
    "line": 401,
    "before": "private final Field f405_ERRMSGA = Field.alphanumeric(s_COUSR0AI, 1044, 1, false);",
    "after": "private final Field f405_ERRMSGA = Field.alphanumeric(s_COUSR0AI, 1044, 2, false);",
-   "verdict": "case-gap",
-   "reason": "position or length of an attribute (A) or colour (C) byte of a map field COUSR00C never writes: the SEND MAP comparison reads those bytes only when the scenario states a subfield. Needs SEND MAP events that state them"
+   "verdict": "equivalent",
+   "reason": "COUSR00C never writes to ERRMSGA (it remains LOW-VALUES in s_COUSR0AI), and DetCics.subfields inspects only the single byte at attr.offset() (b != 0 && b != space), never reading beyond the first byte or using the field's length."
   },
   {
    "id": "cf87264fb7",
@@ -97,8 +97,8 @@
    "line": 434,
    "before": "private final Field f471_FNAME01C = Field.alphanumeric(s_COUSR0AI, 218, 1, false);",
    "after": "private final Field f471_FNAME01C = Field.alphanumeric(s_COUSR0AI, 218, 2, false);",
-   "verdict": "case-gap",
-   "reason": "position or length of an attribute (A) or colour (C) byte of a map field COUSR00C never writes: the SEND MAP comparison reads those bytes only when the scenario states a subfield. Needs SEND MAP events that state them"
+   "verdict": "equivalent",
+   "reason": "COUSR00C never writes to FNAME01C (it remains LOW-VALUES in s_COUSR0AI), and DetCics.subfields inspects only the single byte at color.offset() (b != 0 && b != space), never reading beyond the first byte or using the field's length."
   },
   {
    "id": "f4322ccc77",
@@ -106,8 +106,8 @@
    "line": 443,
    "before": "private final Field f489_SEL0002C = Field.alphanumeric(s_COUSR0AI, 280, 1, false);",
    "after": "private final Field f489_SEL0002C = Field.alphanumeric(s_COUSR0AI, 281, 1, false);",
-   "verdict": "case-gap",
-   "reason": "position or length of an attribute (A) or colour (C) byte of a map field COUSR00C never writes: the SEND MAP comparison reads those bytes only when the scenario states a subfield. Needs SEND MAP events that state them"
+   "verdict": "equivalent",
+   "reason": "every SEND MAP follows MOVE LOW-VALUES TO COUSR0AO or RECEIVE MAP's clear of COUSR0AI (same storage), and COUSR00C never writes to SEL0002C; reading offset 281 reads the adjacent SEL0002P byte, which is also LOW-VALUES (0x00), so DetCics.subfields emits no color either way."
   },
   {
    "id": "84ef57af73",
@@ -124,8 +124,8 @@
    "line": 488,
    "before": "private final Field f579_SEL0005C = Field.alphanumeric(s_COUSR0AI, 535, 1, false);",
    "after": "private final Field f579_SEL0005C = Field.alphanumeric(s_COUSR0AI, 535, 2, false);",
-   "verdict": "case-gap",
-   "reason": "position or length of an attribute (A) or colour (C) byte of a map field COUSR00C never writes: the SEND MAP comparison reads those bytes only when the scenario states a subfield. Needs SEND MAP events that state them"
+   "verdict": "equivalent",
+   "reason": "COUSR00C never writes to SEL0005C (it remains LOW-VALUES in s_COUSR0AI), and DetCics.subfields inspects only the single byte at color.offset() (b != 0 && b != space), never reading beyond the first byte or using the field's length."
   },
   {
    "id": "e5a2ff0185",
@@ -142,8 +142,8 @@
    "line": 572,
    "before": "private final Field f747_LNAME10C = Field.alphanumeric(s_COUSR0AI, 1010, 1, false);",
    "after": "private final Field f747_LNAME10C = Field.alphanumeric(s_COUSR0AI, 1011, 1, false);",
-   "verdict": "case-gap",
-   "reason": "position or length of an attribute (A) or colour (C) byte of a map field COUSR00C never writes: the SEND MAP comparison reads those bytes only when the scenario states a subfield. Needs SEND MAP events that state them"
+   "verdict": "equivalent",
+   "reason": "every SEND MAP follows MOVE LOW-VALUES TO COUSR0AO or RECEIVE MAP's clear of COUSR0AI (same storage), and COUSR00C never writes to LNAME10C; reading offset 1011 reads the adjacent LNAME10P byte, which is also LOW-VALUES (0x00), so DetCics.subfields emits no color either way."
   },
   {
    "id": "f8f619ceea",
@@ -164,6 +164,24 @@
    "reason": "the USRSEC store's write lambda: COUSR00C only browses USRSEC (STARTBR, READNEXT, READPREV, ENDBR) and has no WRITE or REWRITE, so the lambda is never called"
   },
   {
+   "id": "c7c6029152",
+   "op": "CON",
+   "line": 711,
+   "before": "java.util.Map.entry(\"PROCESS-PF8-KEY\", 3),",
+   "after": "java.util.Map.entry(\"PROCESS-PF8-KEY\", 4),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS is read only by paragraph(), for a HANDLE ABEND label (task.abendOnCondition); COUSR00C issues no HANDLE"
+  },
+  {
+   "id": "0094267b55",
+   "op": "LIT",
+   "line": 712,
+   "before": "java.util.Map.entry(\"PROCESS-PF7-KEY\", 2),",
+   "after": "java.util.Map.entry(\"XROCESS-PF7-KEY\", 2),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS is read only by paragraph(), for a HANDLE ABEND label (task.abendOnCondition); COUSR00C issues no HANDLE"
+  },
+  {
    "id": "dc1b341b03",
    "op": "AOR",
    "line": 782,
@@ -171,6 +189,15 @@
    "after": "d.setCdemoFromTranid(Cobol.text(Field.alphanumeric(s, base - 0, 4, false), CS));",
    "verdict": "equivalent",
    "reason": "`base + 0` and `base - 0` are the same offset"
+  },
+  {
+   "id": "255d341836",
+   "op": "DEL",
+   "line": 841,
+   "before": "System.arraycopy(IMAGE_s_CCDA_COMMON_MESSAGES, 0, s_CCDA_COMMON_MESSAGES.bytes, 0, IMAGE_s_CCDA_COMMON_MESSAGES.length);",
+   "after": "/* System.arraycopy(IMAGE_s_CCDA_COMMON_MESSAGES, 0, s_CCDA_COMMON_MESSAGES.bytes, 0, IMAGE_s_CCDA_COMMON_MESSAGES.length); */",
+   "verdict": "equivalent",
+   "reason": "CCDA-COMMON-MESSAGES fields (CCDA-MSG-INVALID-KEY) are lifted to Java String fields (f809_CCDA_MSG_INVALID_KEY) initialized directly in initialState; the underlying storage s_CCDA_COMMON_MESSAGES is never read"
   },
   {
    "id": "112c95692a",
@@ -191,13 +218,22 @@
    "reason": "EIBDATE / EIBTIME are never read by COUSR00C (its date and time come from FUNCTION CURRENT-DATE), and the proof compares neither"
   },
   {
+   "id": "f591441e02",
+   "op": "LIT",
+   "line": 909,
+   "before": "case \"STRF\" -> Cobol.move(f825_DFHSTRF, f933_EIBAID, CS);",
+   "after": "case \"XTRF\" -> Cobol.move(f825_DFHSTRF, f933_EIBAID, CS);",
+   "verdict": "equivalent",
+   "reason": "no scenario sends AID 'STRF'; if sent, EIBAID would retain its initial byte (a space), which matches none of DFHENTER / DFHPF3 / DFHPF7 / DFHPF8, taking WHEN OTHER exactly as DFHSTRF does"
+  },
+  {
    "id": "33d6b2d71c",
    "op": "DEL",
    "line": 950,
    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
    "after": "/* System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length)); */",
-   "verdict": "case-gap",
-   "reason": "The byte[] COMMAREA entry (ca instanceof byte[]) is never used: the harness passes a DTO. Needs a task whose COMMAREA is a byte[] (the harness cannot yet express it)"
+   "verdict": "harness-gap",
+   "reason": "#4635: The byte[] COMMAREA entry (ca instanceof byte[]) is never used: the harness passes a DTO. Needs a task whose COMMAREA is a byte[] (the mutants throw ArrayIndexOutOfBounds / take EIBCALEN 0, i.e. the first-entry screen); the harness cannot yet express it."
   },
   {
    "id": "73392963ef",
@@ -340,8 +376,8 @@
    "line": 1966,
    "before": "DetCics.subfields(sub15, \"LNAME04\", f210_LNAME04L, f213_LNAME04A, f567_LNAME04C, f569_LNAME04H, CS);",
    "after": "DetCics.subfields(sub15, \"XNAME04\", f210_LNAME04L, f213_LNAME04A, f567_LNAME04C, f569_LNAME04H, CS);",
-   "verdict": "case-gap",
-   "reason": "the field name subfields() looks the L / A / C / H bytes up by: COUSR00C reads only USRIDINL, but the SEND MAP comparison reads those bytes when the scenario states a subfield. Needs SEND MAP events that state them"
+   "verdict": "equivalent",
+   "reason": "COUSR00C never writes to LNAME04A, LNAME04C, or LNAME04H (all remain LOW-VALUES 0x00 in s_COUSR0AI), and LNAME04L is never -1; DetCics.subfields never calls sub.cursor, sub.attr, sub.color, or sub.hilight, so the field name is never passed and the mutant has no effect."
   },
   {
    "id": "29fa4e2bd9",
@@ -349,8 +385,17 @@
    "line": 1984,
    "before": "DetCics.subfields(sub15, \"FNAME06\", f264_FNAME06L, f267_FNAME06A, f621_FNAME06C, f623_FNAME06H, CS);",
    "after": "DetCics.subfields(sub15, \"XNAME06\", f264_FNAME06L, f267_FNAME06A, f621_FNAME06C, f623_FNAME06H, CS);",
-   "verdict": "case-gap",
-   "reason": "the field name subfields() looks the L / A / C / H bytes up by: COUSR00C reads only USRIDINL, but the SEND MAP comparison reads those bytes when the scenario states a subfield. Needs SEND MAP events that state them"
+   "verdict": "equivalent",
+   "reason": "COUSR00C never writes to FNAME06A, FNAME06C, or FNAME06H (all remain LOW-VALUES 0x00 in s_COUSR0AI), and FNAME06L is never -1; DetCics.subfields never calls sub.cursor, sub.attr, sub.color, or sub.hilight, so the field name is never passed and the mutant has no effect."
+  },
+  {
+   "id": "c16b4812c3",
+   "op": "ROR",
+   "line": 2049,
+   "before": "int resp20 = planned21[0] != 0 ? planned21[0] : received18.isPresent() ? 0 : 36;",
+   "after": "int resp20 = planned21[0] == 0 ? planned21[0] : received18.isPresent() ? 0 : 36;",
+   "verdict": "equivalent",
+   "reason": "no planned faults exist on RECEIVE-MAP (planned21[0] == 0), and all scenarios entering RECEIVE-MAP have a screen present (received18.isPresent() == true), so resp20 evaluates to 0 in both original and mutated code"
   }
  ]
 }

@@ -115,9 +115,18 @@ VECTORS = [
     ("15821015", 8, "YYYYMMDD", 8, _ok(1582, 10, 15)),
     ("99991231", 8, "YYYYMMDD", 8, _ok(9999, 12, 31)),
     ("00010101", 8, "YYYYMMDD", 8, "2513|"),
+    # a numeric month outside 1-12: 2508 (owner ruling 2026-10-29, register L1 ASSUMED; IBM does not say 2508 or 2517)
+    ("19881316", 8, "YYYYMMDD", 8, "2508|"),
+    ("19880016", 8, "YYYYMMDD", 8, "2508|"),
+    ("19889916", 8, "YYYYMMDD", 8, "2508|"),
+    ("2022-13-01", 10, "YYYY-MM-DD", 10, "2508|"),
+    ("2022/13/01", 10, "YYYY/MM/DD", 10, "2508|"),
+    ("2022-00-01", 10, "YYYY-MM-DD", 10, "2508|"),
+    ("2022-13-45", 10, "YYYY-MM-DD", 10, "2508|"),  # a bad day beside a bad month: still 2508
+    ("0001-13-01", 10, "YYYY-MM-DD", 10, "2508|"),  # the month is judged before the range (not 2513)
+    ("13-01-2022", 10, "MM-DD-YYYY", 10, "2508|"),
+    ("2022-1x-01", 10, "YYYY-MM-DD", 10, "2520|"),  # a non-numeric month is not a month value
     # refused by name: what IBM leaves open
-    ("19881316", 8, "YYYYMMDD", 8, REFUSED),  # a month outside 1-12: 2508 or 2517
-    ("19880016", 8, "YYYYMMDD", 8, REFUSED),
     ("1988051 ", 8, "YYYYMMDD", 8, REFUSED),  # a trailing blank on the covered part (#4049)
     ("2022-07- 8", 10, "YYYY-MM-DD", 10, "2520|"),  # a blank inside it is a non-numeric position (CardDemo dateutil)
     ("1988 516", 8, "YYYYMMDD", 8, "2520|"),

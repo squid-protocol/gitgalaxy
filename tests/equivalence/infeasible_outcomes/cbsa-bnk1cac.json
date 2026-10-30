@@ -28,6 +28,38 @@
     },
     {
       "unit": "ED010",
+      "line": 611,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "U",
+      "reason": "BNK1CAC reference-modifies INTRTI(1:INTRTL) past its 7 bytes once more than two characters follow the point (lines 611, 637): IBM without SSRANGE reads the bytes after the field (layout luck), libcob refuses. Owner ruling 2026-10-29: undefined by IBM (X8, bounds_refused rate-three-places)."
+    },
+    {
+      "unit": "ED010",
+      "line": 637,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "U",
+      "reason": "BNK1CAC reference-modifies INTRTI(1:INTRTL) past its 7 bytes once more than two characters follow the point (lines 611, 637): IBM without SSRANGE reads the bytes after the field (layout luck), libcob refuses. Owner ruling 2026-10-29: undefined by IBM (X8, bounds_refused rate-three-places)."
+    },
+    {
+      "unit": "ED010",
+      "line": 637,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "U",
+      "reason": "BNK1CAC reference-modifies INTRTI(1:INTRTL) past its 7 bytes once more than two characters follow the point (lines 611, 637): IBM without SSRANGE reads the bytes after the field (layout luck), libcob refuses. Owner ruling 2026-10-29: undefined by IBM (X8, bounds_refused rate-three-places)."
+    },
+    {
+      "unit": "ED010",
+      "line": 717,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "U",
+      "reason": "BNK1CAC INSPECT OVERDRI(1:OVERDRL) runs with OVERDRL zero (line 783): a zero-length reference modification is out of bounds in libcob and undefined on IBM without SSRANGE; the only way to the true arm of the test at 717. Owner ruling 2026-10-29: undefined by IBM (X8)."
+    },
+    {
+      "unit": "ED010",
       "line": 724,
       "kind": "IF",
       "outcome": "true",

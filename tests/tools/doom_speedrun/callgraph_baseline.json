@@ -37,12 +37,12 @@
    "recall": 0.9995
   },
   "doomgeneric": {
-   "agree": 2096,
-   "clang_edges": 2098,
+   "agree": 2095,
+   "clang_edges": 2097,
    "disagreements_in_clean_files": 15,
    "engine_edges": 2127,
-   "files_fatal": 12,
-   "precision": 0.9854,
+   "files_fatal": 13,
+   "precision": 0.985,
    "recall": 0.999
   },
   "doomretro": {
@@ -82,12 +82,12 @@
    "recall": 1.0
   },
   "linuxdoom": {
-   "agree": 1541,
-   "clang_edges": 1541,
+   "agree": 1539,
+   "clang_edges": 1539,
    "disagreements_in_clean_files": 2,
    "engine_edges": 1546,
    "files_fatal": 2,
-   "precision": 0.9968,
+   "precision": 0.9955,
    "recall": 1.0
   },
   "nugget-doom": {

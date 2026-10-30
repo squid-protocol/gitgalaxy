@@ -1093,6 +1093,102 @@
       "why": "#6839 row A: DELETE of DELKEY, a stored key: 5000 READ answers NORMAL, 5100 deletes the key record, 5200 deletes its file segments until NOTFND, 5300 sends 200 (P117's 'stored-key DELETE diverges' was the harness handing the Java side the COBOL task's updated file)"
     },
     {
+      "name": "deplicate-expired-late",
+      "commarea": null,
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-ops.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey-ops.bin"
+        }
+      },
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "DELETE",
+        "version": "HTTP/1.1",
+        "path": "/deplicate/ecs/walmart/cache/depexp",
+        "query": "",
+        "headers": [],
+        "mediatype": null,
+        "body": null
+      },
+      "why": "#6072: the /deplicate DELETE of DEPEXP one second past its one-hour TTL (deplicate-expired runs at exactly the TTL, which is not expired): 5600 finds RELATIVE-TIME above TTL-MILLISECONDS, falls through, and 5100/5200 delete the key and its file records",
+      "tod": "9C9C9C9C9C9C0708090A0B0C0D0E0F10",
+      "clock": "2026/10/01 10:30:16.00"
+    },
+    {
+      "name": "deplicate-file-read-ioerr",
+      "commarea": null,
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-ops.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey-ops.bin"
+        }
+      },
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "DELETE",
+        "version": "HTTP/1.1",
+        "path": "/deplicate/ecs/walmart/cache/depfresh",
+        "query": "",
+        "headers": [],
+        "mediatype": null,
+        "body": null
+      },
+      "why": "#6072: a /deplicate DELETE with the 5500 data-file READ answering IOERR: not NORMAL, so 5600 is skipped and 5500-EXIT runs",
+      "tod": "9D9D9D9D9D9D0708090A0B0C0D0E0F10",
+      "faults": [
+        {
+          "cmd": "READ",
+          "file": "ZC01FILE",
+          "resp": "IOERR",
+          "why": "the data-file read in 5500 fails"
+        }
+      ]
+    },
+    {
+      "name": "post-dup-reread-normal",
+      "commarea": null,
+      "tod": "9E9E9E9E9E9E0708090A0B0C0D0E0F10",
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-ops.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey-ops.bin"
+        }
+      },
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "PUT",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/delkey",
+        "query": "",
+        "headers": [],
+        "mediatype": "application/octet-stream",
+        "body": "put value"
+      },
+      "why": "#6072: PUT of a stored key whose first key READ misses: the WRITE meets the stored key (DUPREC), 4130-READ-KEY re-reads it NORMAL, 4110-PRIME-KEY runs and the PUT proceeds",
+      "faults": [
+        {
+          "cmd": "READ",
+          "file": "ZC01KEY",
+          "nth": 1,
+          "resp": "NOTFND",
+          "why": "the first key read misses"
+        }
+      ]
+    },
+    {
       "name": "post-existing",
       "commarea": null,
       "tod": "7171717171710708090A0B0C0D0E0F10",

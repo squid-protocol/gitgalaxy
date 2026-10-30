@@ -44,6 +44,8 @@ One ranking over both scopes, highest estate coverage first; estates and program
 
 ## Burned estates (6 estates, 129 programs, 126 translate whole today)
 
+Coverage if closed, programs that translate whole after the highest-ranked gaps (from 126 today): top 1: 128 / 129 (99.2%), top 3: 128 / 129 (99.2%), top 5: 128 / 129 (99.2%).
+
 | gap | estates | programs | e0 | e1 | e2 | e3 | e4 | none | status | owner |
 |---|---|---|---|---|---|---|---|---|---|---|
 | `<name>: <name> is not defined in a record of file <name>` | 1 | 2 | 0 | 0 | 0 | 2 | 0 | 0 | not modelled | #5866 |
@@ -77,6 +79,8 @@ Needs several gaps together (1 program the order above leaves out: each turns wh
 ## Census estates (9 estates, 40 programs, 8 translate whole today)
 
 Counted by tools only; non-burned estates keep their first-contact numbers. Aggregates under opaque `census-*` labels: no program, table or copybook name is kept, and a gap key that could carry one is collapsed to its class (`scrub_key`).
+
+Coverage if closed, programs that translate whole after the highest-ranked gaps (from 8 today): top 1: 17 / 40 (42.5%, upper bound), top 3: 20 / 40 (50.0%, upper bound), top 5: 29 / 40 (72.5%, upper bound), top 10: 32 / 40 (80.0%, upper bound).
 
 | gap | estates | programs | e0 | e1 | e2 | e3 | e4 | none | status | owner |
 |---|---|---|---|---|---|---|---|---|---|---|

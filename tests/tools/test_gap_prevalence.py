@@ -474,3 +474,22 @@ def test_committed_combined_table_adds_the_two_summaries():
     both = gp.combine(b, c)
     assert sum(g["programs"] for g in both) == sum(g["programs"] for g in b["gaps"] + c["gaps"])
     assert {g["gap"] for g in both} == {g["gap"] for g in b["gaps"] + c["gaps"]}
+
+
+def test_headline_states_the_coverage_if_closed_per_scope_and_its_bound():
+    """#5865: each scope opens with the top-N whole-program share; a refusing gap in the top N says upper bound."""
+    lines = gp.headline({"programs": 4, "whole_now": 1, "coverage_if_closed": [
+        {"top": 1, "whole": 2, "share": 0.5, "upper_bound": False},
+        {"top": 3, "whole": 3, "share": 0.75, "upper_bound": True}]})  # fmt: skip
+    assert "top 1: 2 / 4 (50.0%)" in lines[0] and "top 3: 3 / 4 (75.0%, upper bound)" in lines[0]
+    assert "from 1 today" in lines[0]
+    assert gp.headline({"programs": 0, "whole_now": 0, "coverage_if_closed": []}) == []
+
+
+def test_render_opens_each_scope_with_the_headline(rows_and_inv):
+    rows, d = rows_and_inv
+    burned = gp.measure(rows, d)
+    census = gp.measure_census({(CENSUS[0], "p.cbl"): row("line 1: EXEC CICS: GETMAIN not modelled")}, {})
+    page = gp.render(burned, census)
+    assert page.count("Coverage if closed, programs that translate whole") == 2
+    assert page.index("Coverage if closed, programs") < page.index("| top N gaps closed |")

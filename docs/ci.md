@@ -291,7 +291,7 @@ filter matched on main: a missing run is never a proof. The PR must also have ta
 reviewed decision, and fails when a workflow on both a PR and a main push has no gate (or a gate has no push to skip).
 `java-compile`'s PR run may skip its build when the generated Java equals the base's (`--same-as`); the skipped push is
 then the same tree as a base whose own push built it. The base's generation comes from the `java-same-base-<corpus>-<content hash>`
-cache, which `java-base-generation.yml` seeds on every main push that touches the generation inputs (#5142): not in
+cache, which `java-base-generation.yml` seeds on every main push that touches the generation inputs or any engine file under `gitgalaxy/` (the engine-scan key hashes it all; #5142): not in
 java-compile's push run, which is cancelled by the next push (#4825) or skipped by tested-tree and so saved nothing, leaving
 most PRs to regenerate the base's two paths (dsf: 420-520 s). Its per-sha concurrency group never cancels, and a lookup-only
 restore makes a push whose content key exists cost seconds.

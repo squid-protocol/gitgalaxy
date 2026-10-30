@@ -396,7 +396,7 @@ def test_uowdemo_det_port_proves_on_db2_against_the_hand_trace(tmp_path, mode):
     (port / "service").mkdir(parents=True)
     (port / "service" / f"{r.service}.java").write_text(r.java, encoding="utf-8")
     for rel, text in P.runtime_files(det_port.PKG, P.has_batch(project)).items():
-        if "DetCics" not in rel:  # (an estate with no CICS has no cics package)
+        if not rel.startswith("cobolrt/cics/"):  # (no CICS in this estate: no cics package)
             (port / rel).parent.mkdir(parents=True, exist_ok=True)
             (port / rel).write_text(text, encoding="utf-8")
     keep = tmp_path / "proof"

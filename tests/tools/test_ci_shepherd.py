@@ -199,7 +199,7 @@ def test_run_keeps_watching_an_empty_queue_unless_told(tmp_path, monkeypatch):
     monkeypatch.setattr(cs, "STATE", tmp_path / "s.json")
     sleeps = []
     monkeypatch.setattr(cs.time, "sleep", lambda s: (sleeps.append(s), (_ for _ in ()).throw(KeyboardInterrupt))[1])
-    monkeypatch.setattr(cs, "step", lambda state: [])
+    monkeypatch.setattr(cs, "step", lambda state, **kw: [])
     assert cs.main(["run", "--exit-when-empty"]) == 0 and sleeps == []
     try:
         cs.main(["run", "--every", "5"])
@@ -382,3 +382,58 @@ def test_box_verdict_reads_gitgalaxy_box_status(monkeypatch):
         pytest.skip("no /proc/meminfo")
     monkeypatch.setattr(box_status, "snapshot", lambda sample=0.1: {"verdict": "RED"})
     assert cs.box_verdict() == "RED"
+
+
+def _main_tip_graphql(failed_names, seen):
+    nodes = [{"databaseId": i, "name": n, "status": "COMPLETED", "conclusion": "FAILURE", "detailsUrl": "u", "url": "u"}
+             for i, n in enumerate(failed_names, 1)]  # fmt: skip
+    suite = {
+        "createdAt": None,
+        "app": {"slug": "github-actions"},
+        "checkRuns": {"totalCount": len(nodes), "nodes": nodes},
+    }
+    tip = {"oid": "m" * 40, "parents": {"nodes": []}, "checkSuites": {"totalCount": 1, "nodes": [suite]}}
+
+    def graphql(query, variables):
+        seen.append(query)
+        return {"repository": {"ref": {"target": tip}}}
+
+    return graphql
+
+
+def _pass_with_default_digest(monkeypatch, graphql, rest_calls):
+    """One pass over three failing PRs through the shepherd's own digest; returns main_failures' answers."""
+    ci_digest = cs.ci_digest
+    asked = []
+    monkeypatch.setattr(ci_digest, "digest", lambda n, api, on_main, flaky: asked.append(on_main) or {"failed": []})
+    gh = Gh()
+    state = {"queue": [1, 2, 3], "after": {}, "seen": {}, "events": []}
+    for n in (1, 2, 3):
+        gh.pr(n, sha=str(n) * 40, mstate="dirty", mergeable=False)
+
+    def counting(path):
+        rest_calls.append(path)
+        return gh.api(path)
+
+    cs.step(state, counting, gh.run, settle=0, graphql=graphql)
+    return asked
+
+
+def test_main_failures_is_read_once_per_pass_through_graphql_and_never_by_rest(monkeypatch):
+    seen, rest = [], []
+    asked = _pass_with_default_digest(monkeypatch, _main_tip_graphql(["ruff"], seen), rest)
+    assert asked == [{"ruff"}] * 3 and len(seen) == 1  # one query for the pass, shared by all three PRs
+    assert not [p for p in rest if "/commits/main" in p or p.endswith("/check-runs") and "m" * 40 in p]
+
+
+def test_a_failing_graphql_read_falls_back_to_rest_with_the_same_answer(monkeypatch):
+    def broken(query, variables):
+        raise SystemExit("gh api failed")
+
+    gh = Gh()
+    gh.runs["m" * 40] = [{"id": 1, "name": "ruff", "status": "completed", "conclusion": "failure"}]
+    assert cs.ci_digest.main_failures(gh.api, graphql=broken) == {"ruff"} == cs.ci_digest.main_failures(gh.api)
+    rest = []
+    asked = _pass_with_default_digest(monkeypatch, broken, rest)
+    assert len(asked) == 3 and all(isinstance(a, set) for a in asked)
+    assert sum(p.endswith("/commits/main") for p in rest) == 1  # REST read once for the pass, not once per PR

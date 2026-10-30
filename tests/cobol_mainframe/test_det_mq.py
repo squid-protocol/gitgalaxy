@@ -929,6 +929,33 @@ def test_no_burned_program_calls_an_mq_routine_the_models_lack():
     assert calls["COPAUA0C"] == {"MQOPEN", "MQGET", "MQPUT1", "MQCLOSE"}
 
 
+BATCH_MQ_NAME = re.compile(r"\bMQ(?:CONNX?|DISC)\b", re.IGNORECASE)
+
+
+def test_no_burned_program_is_batch_mq():
+    """#5259 (W6): every burned MQ program is a CICS program, and no burned source names MQCONN / MQCONNX / MQDISC
+    in code (a literal or a data item a dynamic CALL could hold), so batch MQ has no burned consumer to prove."""
+    corpora = Path(os.environ.get("GITGALAXY_MAINFRAME_CORPORA", ROOT / ".mainframe_corpora"))
+    calls = _burned_mq_calls()
+    if not calls:
+        pytest.skip("needs the burned mainframe corpora (GITGALAXY_MAINFRAME_CORPORA)")
+    named: list[str] = []
+    cics: dict[str, bool] = {}
+    for name in BURNED_CORPORA:
+        for p in (corpora / name).rglob("*") if (corpora / name).is_dir() else ():
+            if p.suffix.lower() not in (".cbl", ".cob", ".cobol", ".cpy") or not p.is_file():
+                continue
+            code = [
+                ln[6:72] for ln in p.read_text(encoding="latin-1").splitlines() if len(ln) > 6 and ln[6] not in "*/"
+            ]
+            if any(BATCH_MQ_NAME.search(ln) for ln in code):
+                named.append(p.name)
+            if p.stem.upper() in calls:
+                cics[p.stem.upper()] = any(re.search(r"\bEXEC\s+CICS\b", ln, re.IGNORECASE) for ln in code)
+    assert not named, named
+    assert cics and all(cics.values()), cics
+
+
 def _c_masks(*names: str) -> dict[str, int]:
     """The `#define NAME expr` integer masks of ggmq.c (an expression of numbers and earlier defines)."""
     defs: dict[str, int] = {}

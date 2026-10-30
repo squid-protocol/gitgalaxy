@@ -131,14 +131,15 @@ FAULTS_JAVA = """\
     }
 
     /** #6072: a file command's planned condition (injected), else FILENOTFOUND (12) for a name no region can define,
-     *  as the stub answers a name its files.cfg lacks (planned first, then the name, in the stub's order). RESP2 0, the
-     *  stub's: IBM documents RESP2 1 for it (register X75). Null: the command goes on. */
+     *  as the stub answers a name its files.cfg lacks (planned first, then the name, in the stub's order). RESP2 1, IBM's
+     *  "not defined to CICS"; the
+     *  stub now answers it too (register X75). Null: the command goes on. */
     private int[] fileFault(String cmd, String file) {
         int[] planned = injected(cmd, file);
         if (planned != null || !undefinableFile(file)) {
             return planned;
         }
-        return new int[] {12, 0};
+        return new int[] {12, 1};
     }
 
     /** #6271 (register X71): the {RESP, RESP2} a scenario's fault plan gives this SEND-MAP / RECEIVE-MAP (`name` the map),

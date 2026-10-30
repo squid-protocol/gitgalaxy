@@ -570,6 +570,16 @@ class LanguageDetector:
         # =========================================================================
         # If both a known extension AND a known shebang exist, but they contradict
         # each other, the file is lying about its structural identity.
+        if not ext and not shebang_lang and (pds_lang := self._pds_library_lang(file_path, content_sample)):
+            return self._forge_result(
+                pds_lang,
+                0.95,
+                1.5,
+                "PDS Library Anchor (dataset-qualifier directory + content)",
+                result,
+                content_sample,
+            )
+
         is_conflict = (
             (ext_lang and ext_lang != "undeterminable")
             and (shebang_lang and shebang_lang != "undeterminable")
@@ -1110,6 +1120,26 @@ class LanguageDetector:
                 cached = False
             self._pli_sibling_cache[key] = cached
         return cached
+
+    def _pds_library_lang(self, file_path: str | Path, content: str) -> str | None:
+        """#7064: language of an extensionless PDS member from its dataset-qualifier directory.
+
+        A directory suffix a language lists in `library_directory_suffixes` (`PAYR.ASM/`) only nominates it: the
+        member must also carry that language's internal_discriminator, or the language must win the all-language
+        lexical scan (with its claimed-language boost), so a README or binary beside the members is not claimed.
+        """
+        suffixes = {p.name.rsplit(".", 1)[-1].lower() for p in list(Path(file_path).parents)[:6] if "." in p.name}
+        if not suffixes:
+            return None
+        for lid, data in self.languages.items():
+            if not suffixes.intersection(data.get("library_directory_suffixes", ())):
+                continue
+            disc = data.get("internal_discriminator")
+            if disc and disc.search(content):
+                return lid
+            if content and self._tier_3_lexical_scan(content, "", claimed_lang=lid)[0] == lid:
+                return lid
+        return None
 
     def _tier_1_metadata_lock(self, ext: str, file_name: str) -> str | None:
         if file_name in self.anchor_map:

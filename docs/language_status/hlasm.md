@@ -60,7 +60,12 @@ Routing then resolves in order:
    above (an `&` macro prototype is enough, so maclib members route correctly). Disqualifiers
    `.nasm`, `.masm`, `.s`, `.S`, `.ld`, `CMakeLists.txt` collapse the hlasm claim in an
    x86/ARM neighborhood (the #377 toxic-neighbor mechanism, bms's `.map` shape).
-3. **Tier 3 — lexical scan** as the last resort, over both candidates' rules.
+3. **Extensionless PDS members (#7064)**: a file with no extension under a directory whose last dot-suffix is `asm`
+   or `maclib` (`PAYR.ASM/ACCTPGM`, `SYS1.MACLIB/GETIT`; the dataset qualifier of an exported PDS) routes hlasm at
+   Tier 1.5, but only with content evidence: the `internal_discriminator`, or hlasm winning the lexical scan.
+   `library_directory_suffixes` on the definition holds the suffixes; `LanguageDetector._pds_library_lang` reads it.
+   Pinned in `test_hlasm_strict.py`.
+4. **Tier 3 — lexical scan** as the last resort, over both candidates' rules.
 
 No shebangs (assembled by ASMA90), no exact filenames. `case_insensitive_imports: True`
 (COPY members are PDS members).
@@ -241,8 +246,7 @@ real HLASM ones that lost only the `MEND` lock (`mac.asm`, `ASMWAIT.mac`) are re
 
 **Probe.** Genuine z/OS assembler (about 18k lines of code stream, 94 files) was run through every rule:
 che4z samples 35, IBM-Z-zOS 1, CardDemo 12, zopeneditor-sample 3, zECS 2 (all route hlasm), plus
-42 members of two PDS-layout repos probed with the hlasm rules forced (they do not route, below). Hyperion is not held locally, so its 32 DB-labelled files
-were not probed.
+42 members of two PDS-layout repos probed with the hlasm rules forced (they do not route, below). The emulator repo's 32 DB-labelled files were not probed here (see the addendum).
 
 | Signal | Files / hits | Reading |
 |---|---|---|
@@ -281,3 +285,24 @@ still unnamed by `calls_out` after #7068 (unverified against it);
 (2) `fragile_debt`/`planned_debt` false positives on message text and stub names; (3) PDS-style
 extensionless members unrouted; (4) non-hlasm `.mac` families still misroute (NASM and troff
 into easytrieve, DSP into plaintext).
+
+### Addendum (2026-10-30, #7064): emulator-repo probe, `calls_out` re-measure, PDS routing
+
+**Emulator-repo probe.** A shallow, read-only clone of the S/370-family emulator repo (scratch copy, nothing committed) holds
+128 `.asm`/`.mac`/`.hlasm` files (test programs for the instruction set). All 123 the scan kept route `hlasm` (160,865 lines,
+122,610 of code); none went to `assembly`. Per signal: `func_start` 182 and `class_start` 70 (CSECT/DSECT/RSECT), `branch` 2,090,
+`macros` 1,225, `api` 182, `pointers` 5,176, `planned_debt` 1, `fragile_debt` 121. `pointers` dominates because the tests are
+`DC A()`/`V()` address tables (the same line also counts as a global, as in the earlier probe); `fragile_debt` is the `xxx`
+placeholder class again (message text in expected-result tables), not debt. Nothing else new: no non-HLASM file was labelled
+`hlasm`, so the DB's 32 emulator files are not a routing bug.
+
+**`calls_out` after #7068: 0 of 182 functions, and that is correct for these files.** The tests contain no `CALL`, `LINK`,
+`XCTL`, `ATTACH` or `LOAD` statement at all (0 each); control transfer is `BAL` 515, `BASR` 245, `BALR` 149, whose targets are
+registers or in-file labels, so no external callee can be named. The same holds for the 8 `.asm` files in the held mainframe
+corpora (0 CALL/LINK/XCTL/LOAD, 24 `BAL`, 1 `BALR`). The Che4z samples are not held in this checkout, so the CALL-macro and `EP=`
+forms are covered by the strict suite (`test_hlasm_calls_out_forms`) but have no real-file count here. Defect class (1) narrows to
+"`BAL`/`BALR`/`BASR` to an in-file label is an internal edge, not an import": unmeasured, kept open.
+
+**PDS routing.** Fixed (section 2, item 3). Members of the two PDS-layout repos are no longer split across `go`, `plaintext` and
+`undeterminable` when they carry HLASM evidence. Sibling gaps (same mechanism, not done): `*.COPYLIB/`/`*.COBOL/` (cobol),
+`*.PLI/` (pli), `*.JCL/`/`*.CNTL/` (jcl): each is one `library_directory_suffixes` entry plus a pin.

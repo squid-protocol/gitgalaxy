@@ -251,9 +251,7 @@ DEFINITION: dict[str, Any] = {
                 r"(?:[ \t]+(?:extends|implements)[ \t]+[\w\\, ]+)?[ \t]*(?:\*/[ \t]*)?(?m:$)",
             )
             + "|"
-            + commented_keyword_statement(
-                "echo|print|return|var_dump", block=False, extra=r"[ \t]+[\"'$]"
-            )
+            + commented_keyword_statement("echo|print|return|var_dump", block=False, extra=r"[ \t]+[\"'$]")
         ),
         # 13. doc (Structured Documentation)
         # BUG FIX #2672: pair `/**` with its closing `*/` into one bounded

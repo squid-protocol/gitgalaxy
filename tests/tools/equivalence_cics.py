@@ -4162,6 +4162,8 @@ class EquivalenceRunTest {{
     @Test
     void run() throws IOException {{
         for (JsonNode sc : json.readTree(in.resolve("scenarios.json").toFile())) {{
+            // the fired-fault log is appended to: a --reuse copy of the baseline's out dir would log every fault twice
+            Files.deleteIfExists(out.resolve(sc.get("name").asText() + ".faults"));
             // each task starts from the files as loaded, and what it leaves is compared (file updates)
 {chr(10).join(loads)}
 {db2_reset}

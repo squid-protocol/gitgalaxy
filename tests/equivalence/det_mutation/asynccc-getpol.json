@@ -5,7 +5,7 @@
  "case": "asynccc-getpol",
  "entry": {
   "program": "GETPOL",
-  "commit": "28802e2e92a24078c5a4431b1535f1a8c65b6cc4+uncommitted",
+  "commit": "c0dc21608e79c2c1cd306bd79476f8fc8093f29b+uncommitted",
   "date": "2026-10-31",
   "mode": "fast",
   "seed": 0,
@@ -14,9 +14,9 @@
   "chosen": 175,
   "coverage": "proven on 1 scenario, covering 1/1 paragraphs and 0/0 branches",
   "counts": {
-   "killed": 155,
+   "killed": 158,
    "timeout": 0,
-   "survived": 14,
+   "survived": 11,
    "stillborn": 6,
    "error": 0,
    "pending": 0
@@ -91,6 +91,7 @@
    "6f9887c3b9",
    "706ca6dd33",
    "7126043a6e",
+   "71583c81cb",
    "71c0214085",
    "72afb031d3",
    "733292bcd0",
@@ -106,6 +107,8 @@
    "8bb0dce7e8",
    "8dbb15eb86",
    "922fa0d7c0",
+   "9430858797",
+   "97ffc4d20d",
    "9a06e43c43",
    "9ad214eac3",
    "9ba1d616b6",
@@ -212,30 +215,6 @@
     "after": "if (!(CicsTask.undefinableFile(name))) {"
    },
    {
-    "id": "71583c81cb",
-    "op": "LIT",
-    "file": "service/GetpolService.java",
-    "line": 270,
-    "before": "int[] planned1 = task.planned(\"DELAY\", \"-\");",
-    "after": "int[] planned1 = task.planned(\"XELAY\", \"-\");"
-   },
-   {
-    "id": "9430858797",
-    "op": "CON",
-    "file": "service/GetpolService.java",
-    "line": 275,
-    "before": "int to = condition(DetCics.condition(planned1[0]));",
-    "after": "int to = condition(DetCics.condition(planned1[1]));"
-   },
-   {
-    "id": "97ffc4d20d",
-    "op": "LIT",
-    "file": "service/GetpolService.java",
-    "line": 270,
-    "before": "int[] planned1 = task.planned(\"DELAY\", \"-\");",
-    "after": "int[] planned1 = task.planned(\"DELAY\", \"X\");"
-   },
-   {
     "id": "9a45da41e1",
     "op": "DEL",
     "file": "service/GetpolService.java",
@@ -302,17 +281,17 @@
   ],
   "inputs": {
    "port": "cc8dbb21d94d919c340161b01c6a563559e0a2f055068a48d70c218ca3d47491",
-   "generator": "05aaa9d05c9834b0523ad4957ff182eb8b1035e02e7aa94a0ccdaa5f1c6ca731",
-   "case": "8715eb31cb1fe3d43aec7c2ce9de9d3b6e643b65113edc51fb979c8d39d43e21",
+   "generator": "5ec7b4515e9f012eec5ef9f5db15cac400ac38510ca57d9c19750ff00c34d194",
+   "case": "aa75f5e4d61bb89b69222ea3a4fa9c66fe449a028f9a12594a74bcb326bebd34",
    "corpus": "a98b9cfe46b5f45db9305f0a997047218e09c7c36422ec0849f6af7af5dd5353",
-   "harness": "f3bee1912a8b8cae8342f86d148233ef4b64848376208d5b0a3afe364df509b1",
-   "oracle": "d91ee6d2345e19e828ebba78a5e01464916f5df6ba248e9098ad90e9f6622711",
-   "runtime": "6e5a40c01db2672df82ea70c48c19a9919916f13a81545e5d8f5d6288c435738",
+   "harness": "9918afbde1c3de013899fa7f1482d55fed1e902a3ab58a9ca5f6201531107d79",
+   "oracle": "8c4242129b06f4f9bb8b00e8c5a4f9391dd951936617a8e5733afd3fbd30a65a",
+   "runtime": "31d7f57496fbf58edb03e592505dafb04ec938cb8911cdbbef34a5b9c95d1c6e",
    "survivors": "a5bb3a332310ca5412960cbc3b4cdb7b7da19cf2beaf8e2f7346f3f4d6bac99d"
   },
   "components": {
    "generator": {
-    "generator:core": "fca0af57a09e7b3f2879857241af0494f2749a6bd7f3ca80b597166d33d0f2c5",
+    "generator:core": "b09ca839a456716e31db0a46df1a8088cf63da04ce8a94797ad1942035d3af54",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
     "generator:det/cics": "6619edb3d7a730bdb33d065a40ea3d0fc98ce8317f010a6bf2a87b5bb0d51c43",
     "generator:det/cics_common": "16991c151d196fe6187dca2b11dc7b6b2ed4f65b42be8091a3b72411af515577",
@@ -329,21 +308,23 @@
     "generator:det/source": "fd7d20e0f7824a4d3b74201b0690914daf79834567b3fa5f064c98beb4d50e0b"
    },
    "harness": {
-    "harness:cics": "adcfdb44ff6e9ea52bcd313e07acb2b53af37b2c0efd8cdd40c0178534403d72",
+    "harness:cics": "be39ef79e04e669d60a6d2bf2ba2b391e0df81887376fcc8f8c177c3921cfbfc",
     "harness:core": "4a2b247571c6616bf9738ae3806284d8f1f08104d66695f25072801479bd3800"
    },
    "oracle": {
-    "oracle:cics-stub": "41cd1969af089b03f55805cac03ee6558b24473c981e26f1e94c66ee81cfb722",
+    "oracle:cics-stub": "3ec69b12bad6b607c107753efacd00dc56b1d5729862438cd2339b3be7488b35",
     "oracle:core": "b4bb775f0a30746a6054f259b4c8613e08cb0d8cf3b40f4a789d953aca4144a0",
     "oracle:le": "670c92cc59b722e108b688267be1fd89ecda9b7be62bb485da2ad4839b4f7011"
    }
   },
   "every": "022f736994 05e4b573bd 0756ccbc59 0cb4049e59 0d5b98816c 0d6ab93514 0e344173d2 0ef9be3b3b 1046f71866 10fa5cac01 110e1452b2 11b6d29999 122a0461a7 143bd21cd5 14c13c5bff 14d08b5805 17122a137b 1796836e7b 181253a1a0 186840b9d3 1a0411747d 1aabb5571d 1baf7cf52f 1bedb64235 1cc0b6fdbc 1ecf87fe93 2028a4c129 24e4602fac 258c7f6d72 269755ccf0 271e3d87a2 2739a34612 279bc502da 28c5ba4800 2a55f5a2c1 2aaa2422d2 2c055369c4 2c10f25d2f 2c88c0ea58 2c97437c95 2da67d4043 3120da66e4 3302175c70 340e35244e 343e0f4a83 3518be5278 363588c47a 37ea6ed111 390ae4e538 3a44c3ecf5 3c66be3368 3cc31fe856 3d76682605 3dbb44dc1b 43f081666f 493d0eb458 4c50af6ced 508d44a40b 52376786d4 5654d23a10 56d6669699 584faee118 5a02e9ee8f 5adb626552 5b607cfc4b 6043f26cf9 60cda2f211 61786d4a90 65b19144fe 6879f37cc3 688a01fb9b 693246816f 6b07eb78b6 6b601920cd 6f9887c3b9 706ca6dd33 7126043a6e 71583c81cb 71c0214085 72afb031d3 733292bcd0 7bb2ab6d06 7d430cf988 7e547bd985 7ebe0d2acd 808889056c 840c7da7a1 84e554dd87 883a380812 8871e15762 897ef1c311 8bb0dce7e8 8dbb15eb86 922fa0d7c0 9430858797 97ffc4d20d 9a06e43c43 9a45da41e1 9ad214eac3 9ba1d616b6 9e45999526 9efba36927 9f930979be a035851921 a165956226 a2aca0cf4b a39d9f1582 a6dc11369a a6ec7a4c3b a7f4879b33 a843549541 a949ba555a acd0c066d9 af3eea09b0 afd26a8a1d b2a3ff7a96 b70303fb00 b830061a89 bbe447d435 bc24359b0e bd16599019 bdddff64da c27a805ac5 c2c6a43400 c3cce72c02 c510cea2d4 c833387f74 c9f2a72a22 cada35d44b cb36779206 cc2049ba3e cce1904871 ce636e7608 cf3aa52995 cf6eb872e0 d00405d128 d1cde5261b d4ef5e0ca2 d766a62086 d767e4d123 d844012453 d844f0cedc d981120866 dc114d7e48 dd233847fc e0e0becb35 e1aeaff2f0 e47453d8fc e4f06ad1fa e53c9a4448 e60c7dda6d e9f57fcfb5 eaaa1a87eb ebb08202a2 ec1198e9ef edf6ad3841 ee7feb22b0 f2a21015c3 f2c53c0668 f4d7ca3e38 f5fb398497 f604f78370 f60cf75101 f630c419aa f703eca69e f717d113b0 f79ff2ef39 f7cbcc612d f816579b39 f8fef3f5eb f927dfeaf5 fb621a913c fbe468afd6 fc5c6cac71 fd56413523",
   "refreshed": {
-   "from": "2026-10-22",
-   "survivors_rerun": 0,
-   "fresh": 18,
-   "stale": []
+   "from": "2026-10-31",
+   "survivors_rerun": 14,
+   "fresh": 0,
+   "stale": [
+    "case"
+   ]
   }
  }
 }

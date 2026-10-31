@@ -115,20 +115,6 @@
           "nth": 1,
           "resp": "INVREQ",
           "resp2": 4,
-          "child": "GETP"
-        },
-        {
-          "cmd": "DELAY",
-          "nth": 1,
-          "resp": "INVREQ",
-          "resp2": 4,
-          "child": "SPND"
-        },
-        {
-          "cmd": "DELAY",
-          "nth": 1,
-          "resp": "INVREQ",
-          "resp2": 4,
           "child": "ICCK"
         },
         {

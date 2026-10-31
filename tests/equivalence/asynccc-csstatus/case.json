@@ -73,6 +73,27 @@
      "resp2": 4
     }
    ]
+  },
+  {
+   "name": "delay-invreq-2",
+   "commarea": null,
+   "channel": {
+    "name": "MYCHANNEL",
+    "containers": {
+     "INPUTCONTAINER": {
+      "text": "0001"
+     }
+    }
+   },
+   "why": "as delay-invreq, but the second DELAY of the task (GETSPND, after GETPOL's) fails INVREQ, unhandled: AEIP abend (#5862)",
+   "faults": [
+    {
+     "cmd": "DELAY",
+     "nth": 2,
+     "resp": "INVREQ",
+     "resp2": 4
+    }
+   ]
   }
  ]
 }

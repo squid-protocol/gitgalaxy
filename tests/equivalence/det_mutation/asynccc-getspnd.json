@@ -5,7 +5,7 @@
  "case": "asynccc-getspnd",
  "entry": {
   "program": "GETSPND",
-  "commit": "28802e2e92a24078c5a4431b1535f1a8c65b6cc4+uncommitted",
+  "commit": "c0dc21608e79c2c1cd306bd79476f8fc8093f29b+uncommitted",
   "date": "2026-10-31",
   "mode": "fast",
   "seed": 0,
@@ -14,9 +14,9 @@
   "chosen": 175,
   "coverage": "proven on 1 scenario, covering 1/1 paragraphs and 0/0 branches",
   "counts": {
-   "killed": 155,
+   "killed": 158,
    "timeout": 0,
-   "survived": 14,
+   "survived": 11,
    "stillborn": 6,
    "error": 0,
    "pending": 0
@@ -118,6 +118,7 @@
    "969f2ab2ab",
    "9923503829",
    "9a56ab9f90",
+   "9bc4cf6d5e",
    "9cbb48bf84",
    "9dce89b92d",
    "9f43801822",
@@ -125,6 +126,7 @@
    "9fd623525a",
    "a09d436df9",
    "a11573825c",
+   "a1987a91b7",
    "a40609eee2",
    "a50b3d2772",
    "a6726bfa70",
@@ -141,6 +143,7 @@
    "b8a7150d9c",
    "ba0ae5b84c",
    "bb429e9812",
+   "bc2752e7e4",
    "bdf03d6bd5",
    "be122800f8",
    "be9ceb4e1b",
@@ -252,14 +255,6 @@
     "after": "if (planned1[1] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");"
    },
    {
-    "id": "9bc4cf6d5e",
-    "op": "CON",
-    "file": "service/GetspndService.java",
-    "line": 275,
-    "before": "int to = condition(DetCics.condition(planned1[0]));",
-    "after": "int to = condition(DetCics.condition(planned1[1]));"
-   },
-   {
     "id": "9be37fe326",
     "op": "DEL",
     "file": "service/GetspndService.java",
@@ -268,28 +263,12 @@
     "after": "/* Cobol.store(f30_EIBRESP, BigDecimal.valueOf(planned1[0]), false, CS); */"
    },
    {
-    "id": "a1987a91b7",
-    "op": "LIT",
-    "file": "service/GetspndService.java",
-    "line": 270,
-    "before": "int[] planned1 = task.planned(\"DELAY\", \"-\");",
-    "after": "int[] planned1 = task.planned(\"XELAY\", \"-\");"
-   },
-   {
     "id": "b878f46d5b",
     "op": "LIT",
     "file": "service/GetspndService.java",
     "line": 271,
     "before": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
     "after": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"XELAY out of range\");"
-   },
-   {
-    "id": "bc2752e7e4",
-    "op": "LIT",
-    "file": "service/GetspndService.java",
-    "line": 270,
-    "before": "int[] planned1 = task.planned(\"DELAY\", \"-\");",
-    "after": "int[] planned1 = task.planned(\"DELAY\", \"X\");"
    },
    {
     "id": "f65de2f28b",
@@ -302,17 +281,17 @@
   ],
   "inputs": {
    "port": "e225acd09edd57ab0d8bc49ea05597fcc29e050c07700ebbd96117da25b3ab2f",
-   "generator": "05aaa9d05c9834b0523ad4957ff182eb8b1035e02e7aa94a0ccdaa5f1c6ca731",
-   "case": "3f15c0e7364770e323f6e9c65487c146dbfba37ff81f38d42b9aebc930125c49",
+   "generator": "5ec7b4515e9f012eec5ef9f5db15cac400ac38510ca57d9c19750ff00c34d194",
+   "case": "7a84c91f77b215a26b86f322582794543ff9b3fb8f9ee1bc19b9618ad04a6eaf",
    "corpus": "a98b9cfe46b5f45db9305f0a997047218e09c7c36422ec0849f6af7af5dd5353",
-   "harness": "f3bee1912a8b8cae8342f86d148233ef4b64848376208d5b0a3afe364df509b1",
-   "oracle": "d91ee6d2345e19e828ebba78a5e01464916f5df6ba248e9098ad90e9f6622711",
-   "runtime": "6e5a40c01db2672df82ea70c48c19a9919916f13a81545e5d8f5d6288c435738",
+   "harness": "9918afbde1c3de013899fa7f1482d55fed1e902a3ab58a9ca5f6201531107d79",
+   "oracle": "8c4242129b06f4f9bb8b00e8c5a4f9391dd951936617a8e5733afd3fbd30a65a",
+   "runtime": "31d7f57496fbf58edb03e592505dafb04ec938cb8911cdbbef34a5b9c95d1c6e",
    "survivors": "02752ec395b20062e55bf6c24b5be01cee193da6b4272f966682bec18a3b200d"
   },
   "components": {
    "generator": {
-    "generator:core": "fca0af57a09e7b3f2879857241af0494f2749a6bd7f3ca80b597166d33d0f2c5",
+    "generator:core": "b09ca839a456716e31db0a46df1a8088cf63da04ce8a94797ad1942035d3af54",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
     "generator:det/cics": "6619edb3d7a730bdb33d065a40ea3d0fc98ce8317f010a6bf2a87b5bb0d51c43",
     "generator:det/cics_common": "16991c151d196fe6187dca2b11dc7b6b2ed4f65b42be8091a3b72411af515577",
@@ -329,21 +308,23 @@
     "generator:det/source": "fd7d20e0f7824a4d3b74201b0690914daf79834567b3fa5f064c98beb4d50e0b"
    },
    "harness": {
-    "harness:cics": "adcfdb44ff6e9ea52bcd313e07acb2b53af37b2c0efd8cdd40c0178534403d72",
+    "harness:cics": "be39ef79e04e669d60a6d2bf2ba2b391e0df81887376fcc8f8c177c3921cfbfc",
     "harness:core": "4a2b247571c6616bf9738ae3806284d8f1f08104d66695f25072801479bd3800"
    },
    "oracle": {
-    "oracle:cics-stub": "41cd1969af089b03f55805cac03ee6558b24473c981e26f1e94c66ee81cfb722",
+    "oracle:cics-stub": "3ec69b12bad6b607c107753efacd00dc56b1d5729862438cd2339b3be7488b35",
     "oracle:core": "b4bb775f0a30746a6054f259b4c8613e08cb0d8cf3b40f4a789d953aca4144a0",
     "oracle:le": "670c92cc59b722e108b688267be1fd89ecda9b7be62bb485da2ad4839b4f7011"
    }
   },
   "every": "00d530c4b6 0167ea34bd 021c6f366d 0288038924 03c7ea9cea 058c9d3a22 07dc3c1668 0826182498 0832702cad 08774361e1 09bfe74555 0a901ad21d 0d8a30cf46 0f67bdafa5 0fd388c03c 1089e946db 146529573a 16606405cb 1662463a77 16b53dcde2 176c4d418f 18a21a7ce7 18e826091e 19ef24b5e9 1af6862cee 1c47385a02 1c735120e9 1dfc0b5cd6 1e016884fd 21ed3f6a17 22e018cf24 22e2a8a101 23c633a3f5 26145d0f6f 2a0df3f0bf 2a8c4a6754 2bd21ee58a 2f69e22a52 30428ca163 3047646083 308cfd294d 31260da7f5 31ad70d9f2 37f7046aca 3971bdd88d 3c74b5c9a6 3d000128a6 3ea84c7ec2 3fb5fe3f2b 3fbb627628 41f85a9d49 44ec98e731 454902c3bd 4642e4da1b 47c0cc2c8e 47df96f68f 47fae23bb1 4b63a48a7d 4dbe11d878 50dcc98a86 50e1dbbac7 52c8a1b509 53836a03e5 562dfac43a 5b05d16fd7 5bc0f4de40 5d7f6fd5c2 6249807c90 6542320f4e 6e15129a60 6ecc4191d4 7189a4c8d3 71decc34d5 72f9f73e70 73c600a704 7760b4b1fd 77d00125a7 78b11b2ac3 792ea10ee2 795c693d8f 7acc871e52 7b12a5b19f 7e768b0c6a 7f5196ba32 801b7388de 8030451158 80fdb009f3 82ef4411c3 83450cbe04 8445f51fba 858377d742 8598e20ece 85bfad2702 86246ec7f6 8736e80e5e 89626a94bb 8aaef49615 8bba95e1bd 8d9430c01c 9101f148c6 9137480a80 92791bfb58 929c040a5f 9675580924 968fadc8ee 969f2ab2ab 9923503829 9a56ab9f90 9bc4cf6d5e 9be37fe326 9cbb48bf84 9dce89b92d 9f43801822 9fa449d6a9 9fd623525a a09d436df9 a11573825c a1987a91b7 a40609eee2 a50b3d2772 a6726bfa70 a683e93a3c aa10eed9af ac1c535d61 adcb8f106e b080250e03 b0ac93c35f b4074c3a91 b6236419c9 b7465c4863 b82da2fda1 b878f46d5b b8a7150d9c ba0ae5b84c bb429e9812 bc2752e7e4 bdf03d6bd5 be122800f8 be9ceb4e1b beeb9734e8 bf11f1ce31 c281f20038 c2aab587ce c2cf111a99 c4eb3dc3bf c5ea8a1529 c91ec6c744 c98e774388 ca09f463c1 cba8112c2e cd609544c1 cdeec441e0 ce7241639f d08af40fbc d10db5b88c d15ac097ab d5dd970421 da0655e898 ddb40bfa38 de08247e8f dfa90973ab e32703e2de e8fc0ae518 e96b7f974b e9956ec727 eda6ba30c8 edbaa79596 f0845f3c8e f0fefe92bd f65de2f28b f6cf78681a faa19e805b facab7a92e fb809d273b ff52392c52",
   "refreshed": {
-   "from": "2026-10-22",
-   "survivors_rerun": 0,
-   "fresh": 18,
-   "stale": []
+   "from": "2026-10-31",
+   "survivors_rerun": 14,
+   "fresh": 0,
+   "stale": [
+    "case"
+   ]
   }
  }
 }

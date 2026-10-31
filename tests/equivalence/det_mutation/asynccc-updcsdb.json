@@ -5,7 +5,7 @@
  "case": "asynccc-updcsdb",
  "entry": {
   "program": "UPDCSDB",
-  "commit": "28802e2e92a24078c5a4431b1535f1a8c65b6cc4+uncommitted",
+  "commit": "c0dc21608e79c2c1cd306bd79476f8fc8093f29b+uncommitted",
   "date": "2026-10-31",
   "mode": "fast",
   "seed": 0,
@@ -14,9 +14,9 @@
   "chosen": 196,
   "coverage": "proven on 1 scenario, covering 1/1 paragraphs and 0/0 branches",
   "counts": {
-   "killed": 176,
+   "killed": 179,
    "timeout": 0,
-   "survived": 14,
+   "survived": 11,
    "stillborn": 6,
    "error": 0,
    "pending": 0
@@ -40,10 +40,12 @@
    "177dd7ea9f",
    "197238d2e5",
    "1e34cad6ca",
+   "1ee3cf1def",
    "250518b532",
    "2b76398efa",
    "2c70b76661",
    "2dd43a7638",
+   "308a148fdd",
    "3296b30c0b",
    "3363bbcb46",
    "33d7b8ec25",
@@ -168,6 +170,7 @@
    "d7ab176786",
    "d7b7d4d7ae",
    "d96e8b3dd7",
+   "d9cb42163d",
    "dadddbde9a",
    "dd9f1abeed",
    "e0e8d3ec7f",
@@ -209,28 +212,12 @@
   ],
   "survived": [
    {
-    "id": "1ee3cf1def",
-    "op": "LIT",
-    "file": "service/UpdcsdbService.java",
-    "line": 292,
-    "before": "int[] planned1 = task.planned(\"DELAY\", \"-\");",
-    "after": "int[] planned1 = task.planned(\"XELAY\", \"-\");"
-   },
-   {
     "id": "215598863a",
     "op": "NEG",
     "file": "service/UpdcsdbService.java",
     "line": 84,
     "before": "if (CicsTask.undefinableFile(name)) {",
     "after": "if (!(CicsTask.undefinableFile(name))) {"
-   },
-   {
-    "id": "308a148fdd",
-    "op": "LIT",
-    "file": "service/UpdcsdbService.java",
-    "line": 292,
-    "before": "int[] planned1 = task.planned(\"DELAY\", \"-\");",
-    "after": "int[] planned1 = task.planned(\"DELAY\", \"X\");"
    },
    {
     "id": "37d4b20ace",
@@ -297,14 +284,6 @@
     "after": "if (!(planned1[0] == 0)) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");"
    },
    {
-    "id": "d9cb42163d",
-    "op": "CON",
-    "file": "service/UpdcsdbService.java",
-    "line": 297,
-    "before": "int to = condition(DetCics.condition(planned1[0]));",
-    "after": "int to = condition(DetCics.condition(planned1[1]));"
-   },
-   {
     "id": "e68b6d7889",
     "op": "LIT",
     "file": "service/UpdcsdbService.java",
@@ -323,17 +302,17 @@
   ],
   "inputs": {
    "port": "4c6fe93a8ac402a33416a1c94b8557ebaff8795b881da07773e1b40006e63180",
-   "generator": "05aaa9d05c9834b0523ad4957ff182eb8b1035e02e7aa94a0ccdaa5f1c6ca731",
-   "case": "6f6238b16a7d8e202086190913f64017584104833d6a343623c615faa618d8ac",
+   "generator": "5ec7b4515e9f012eec5ef9f5db15cac400ac38510ca57d9c19750ff00c34d194",
+   "case": "ed66ac005009cb63bed12666d902baeb280c4d3b5ccd4fcf8a5f0576126c889c",
    "corpus": "a98b9cfe46b5f45db9305f0a997047218e09c7c36422ec0849f6af7af5dd5353",
-   "harness": "f3bee1912a8b8cae8342f86d148233ef4b64848376208d5b0a3afe364df509b1",
-   "oracle": "d91ee6d2345e19e828ebba78a5e01464916f5df6ba248e9098ad90e9f6622711",
-   "runtime": "6e5a40c01db2672df82ea70c48c19a9919916f13a81545e5d8f5d6288c435738",
+   "harness": "9918afbde1c3de013899fa7f1482d55fed1e902a3ab58a9ca5f6201531107d79",
+   "oracle": "8c4242129b06f4f9bb8b00e8c5a4f9391dd951936617a8e5733afd3fbd30a65a",
+   "runtime": "31d7f57496fbf58edb03e592505dafb04ec938cb8911cdbbef34a5b9c95d1c6e",
    "survivors": "720d00e9979ea80416f5d2ca3efe8948238dc21308ad6cad2d9814179fdcc5d0"
   },
   "components": {
    "generator": {
-    "generator:core": "fca0af57a09e7b3f2879857241af0494f2749a6bd7f3ca80b597166d33d0f2c5",
+    "generator:core": "b09ca839a456716e31db0a46df1a8088cf63da04ce8a94797ad1942035d3af54",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
     "generator:det/cics": "6619edb3d7a730bdb33d065a40ea3d0fc98ce8317f010a6bf2a87b5bb0d51c43",
     "generator:det/cics_common": "16991c151d196fe6187dca2b11dc7b6b2ed4f65b42be8091a3b72411af515577",
@@ -350,21 +329,23 @@
     "generator:det/source": "fd7d20e0f7824a4d3b74201b0690914daf79834567b3fa5f064c98beb4d50e0b"
    },
    "harness": {
-    "harness:cics": "adcfdb44ff6e9ea52bcd313e07acb2b53af37b2c0efd8cdd40c0178534403d72",
+    "harness:cics": "be39ef79e04e669d60a6d2bf2ba2b391e0df81887376fcc8f8c177c3921cfbfc",
     "harness:core": "4a2b247571c6616bf9738ae3806284d8f1f08104d66695f25072801479bd3800"
    },
    "oracle": {
-    "oracle:cics-stub": "41cd1969af089b03f55805cac03ee6558b24473c981e26f1e94c66ee81cfb722",
+    "oracle:cics-stub": "3ec69b12bad6b607c107753efacd00dc56b1d5729862438cd2339b3be7488b35",
     "oracle:core": "b4bb775f0a30746a6054f259b4c8613e08cb0d8cf3b40f4a789d953aca4144a0",
     "oracle:le": "670c92cc59b722e108b688267be1fd89ecda9b7be62bb485da2ad4839b4f7011"
    }
   },
   "every": "009f6892b9 0370ed5197 03cc8072c1 040c1a8d92 0420792c9d 046172a832 04e17788fa 070fffa9ef 08170ba08f 0d44922dc6 0d854a9a7c 0df3777904 0ff473178f 1145474bc1 1414f4df86 160e24de91 177dd7ea9f 197238d2e5 1e34cad6ca 1ee3cf1def 215598863a 250518b532 2b76398efa 2c70b76661 2dd43a7638 308a148fdd 3296b30c0b 3363bbcb46 33d7b8ec25 3757642528 37af3e2f0b 37d4b20ace 38c29405ab 395ed0bad4 3b31b681c9 3cf14d9d26 3e86fe78ae 3f29f10f75 40bcec486e 42e3c1f155 44d09302b3 45e520e657 460c3f69c1 475f12b61a 47e3cd381c 4956c3dfa7 49afbe335b 4da427bdda 4df0e80c80 4e31e426a1 57312c0a72 59f65f64e8 5aa308f11a 5ae5aaafbc 5cb7ae4b81 5cd242a84e 5cff651429 5e279a28d8 5f3d425301 5fd5ba1da0 621716c066 640055e528 699ca5e96b 6ab0640983 6b5197f6a3 6cdc44b4a8 6daae04845 6dbdf67791 6f48ec6aca 7069746056 70aa4bd31e 7254fa5110 727e929c73 73a627fdeb 74cbef6151 7575b1a9a0 77a1da6ca6 78b140973f 790d2cd1b8 7adab60f06 7b43aadddb 7babce6644 7cac6b6cb0 7e5095fc57 7fd2739e23 807c94d610 82d8da54c7 87c163b251 8850459d29 887a323124 8a2e760a25 8b29d76432 9102380672 9583613a84 958d08bec4 974df7ac77 977928812f 9932dc5527 9947406a9b 9b53c50278 9d9598dcfe 9fc7611033 a037e8f6d6 a08ca8030e a1df64e291 a1e116ad04 a300f78ba2 a414b5d118 a55688a7be a57f30e5e3 a7aaf93c8d a870de5e11 a8b0c5901e a8be429a31 a972de764d a97ae3976e a9a278acdd aab5f00ebd ab714123b9 af2f8c467c b02c456fd4 b034422619 b061e12d54 b154b64562 b26c65436e b286d193ad b366e6832a b548ff64ac b6488e8ec6 b938eaf87a ba0132a0cb ba0e6f4469 ba9f82d11d bac1d7233e bacf7eb523 beac24576d bfc1394b35 bff529c25f c1c7079406 c1ec775d1e c2b6d46dfa c2fe450398 c3167e8aa5 c4d747d370 c6a318ec47 c6f264a9f8 c886f8a804 c8c0bd83c7 c957007ace c98e3bb05c ca79a8c99e cbc5c418fe cde16c12be cf7b98fb17 d3673ecd53 d50d8166eb d58b6d198d d72da8c6ce d792e40285 d7ab176786 d7b7d4d7ae d96e8b3dd7 d9cb42163d dadddbde9a dd9f1abeed de48bbc9d0 e0e8d3ec7f e185f4f216 e5b84ea3e4 e6412bb37d e68b6d7889 e867cfc902 eaf388f0b3 eb157e6ea0 ebdd8b4de1 ebf87610ab edfb124ea0 efa6ddbfd9 f0294b84c1 f02a02b350 f10f843367 f134a62b6d f261aab95a f2982f3526 f2e8e12a73 f2ee32fd55 f40a1e09af f63b7db037 f9c1867b73 fc9434d2c9 fc99d5beda fce87806b5 fe2abb8530 ff07b8f89b ffce0475f7 ffd5294f5c",
   "refreshed": {
-   "from": "2026-10-22",
-   "survivors_rerun": 0,
-   "fresh": 18,
-   "stale": []
+   "from": "2026-10-31",
+   "survivors_rerun": 14,
+   "fresh": 0,
+   "stale": [
+    "case"
+   ]
   }
  }
 }

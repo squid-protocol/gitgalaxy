@@ -1,2 +1,2 @@
 # .github/workflows/dependabot-relock.yml: the compiler tests/tools/pin_requirements.py drives (#4918).
-uv==0.13.4
+uv==0.13.5

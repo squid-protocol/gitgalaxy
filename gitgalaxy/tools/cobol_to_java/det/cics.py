@@ -1906,17 +1906,18 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
         DetCics.isNoCommareaAddress), and a program with no 01 DFHCOMMAREA run with a COMMAREA is refused when it runs. The command has no
         condition: NORMAL. TWA / TCTUA (#5079 slice 2) set the pointer to the handle of the transaction work area / the
         terminal's user area the definitions size (TWASIZE / USERAREALEN), or X'FF000000' when none (DetCics.addressTwa /
-        addressTctua). CWA / ACEE and ADDRESS SET are refused by the spec entry (check_options)."""
+        addressTctua). CWA (slice 2a) is the region's common work area, SIT WRKAREA bytes shared by every task, or X'FF000000' when the
+        case states none (DetCics.addressCwa). ACEE and ADDRESS SET are refused by the spec entry (check_options)."""
 
-        if not any(opts.get(o) for o in ("EIB", "COMMAREA", "TWA", "TCTUA")):
+        if not any(opts.get(o) for o in ("EIB", "COMMAREA", "CWA", "TWA", "TCTUA")):
             raise CicsError("ADDRESS without an area option: the pointer to set")
         out: list[str] = []
-        for option in ("EIB", "COMMAREA", "TWA", "TCTUA"):
+        for option in ("EIB", "COMMAREA", "CWA", "TWA", "TCTUA"):
             if option not in opts:
                 continue
             ptr = self.pointer(opts[option])
-            if option in ("TWA", "TCTUA"):
-                out.append(f"{ind}DetCics.address{'Twa' if option == 'TWA' else 'Tctua'}(task, {ptr});")
+            if option in ("CWA", "TWA", "TCTUA"):
+                out.append(f"{ind}DetCics.address{option.capitalize()}(task, {ptr});")
                 continue
             if option == "EIB":
                 out.append(f"{ind}DetCics.setPointerToRecord(task, {ptr}, {self.g.field_expr(E.Ref('DFHEIBLK'))});")

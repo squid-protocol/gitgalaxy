@@ -455,7 +455,9 @@ DEFINITION: dict[str, Any] = {
         # `standard_block` language where both styles are equally
         # idiomatic (`/* if (x) foo(); */`).
         "dead_code": re.compile(
-            commented_keyword_statement("public|private|protected|internal|class|void|if|for|foreach|while|return|using")
+            commented_keyword_statement(
+                "public|private|protected|internal|class|void|if|for|foreach|while|return|using"
+            )
             + r"|"
             + COMMENTED_STATEMENT_C_FAMILY
         ),

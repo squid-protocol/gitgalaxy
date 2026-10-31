@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="**Executive Summary:** We performed a deep **static code analysis** on the original DOOM (linuxdoom-1.10) source code. By mapping its structural...">
+        <meta name="description" content="DOOM's DNA: 43 programs descend from the 1997 DOOM source. Measured by shape alone, without reading the code, they show who copied whom and which translations kept the blueprint.">
       
       
         <meta name="author" content="Joseph Michael Esquibel">
@@ -25,7 +25,7 @@
     
     
       
-        <title>The Architecture of DOOM: A Structural Physics Teardown of a Gaming Legend - GitGalaxy</title>
+        <title>DOOM's DNA: How Code Keeps Its Family Resemblance - GitGalaxy</title>
       
     
     
@@ -74,7 +74,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#the-architecture-of-doom-a-structural-physics-teardown-of-a-gaming-legend" class="md-skip">
+        <a href="#dooms-dna-how-code-keeps-its-family-resemblance" class="md-skip">
           Skip to content
         </a>
       
@@ -108,7 +108,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              The Architecture of DOOM: A Structural Physics Teardown of a Gaming Legend
+              DOOM's DNA: How Code Keeps Its Family Resemblance
             
           </span>
         </div>
@@ -12046,104 +12046,418 @@
   
 
 
-<h1 id="the-architecture-of-doom-a-structural-physics-teardown-of-a-gaming-legend">The Architecture of DOOM: A Structural Physics Teardown of a Gaming Legend</h1>
-<p><strong>Executive Summary:</strong> We performed a deep <strong>static code analysis</strong> on the original DOOM (linuxdoom-1.10) source code. By mapping its structural physics, we uncover the low-level <strong>software architecture</strong>, tight C coupling, and foundational "God Nodes" that revolutionized real-time 3D rendering. This teardown exposes the <strong>technical debt</strong>, memory mechanics, and raw procedural efficiency of a 29,000-line masterpiece that defined an entire industry long before modern <strong>microservices</strong> or object-oriented frameworks.</p>
-<h3 id="welcome-to-the-museum-of-code">Welcome to the Museum of Code</h3>
-<p>Released by id Software in 1993 and later open-sourced, DOOM is a seminal artifact in software engineering history. John Carmack and John Romero’s engine didn’t just pioneer the first-person shooter genre; it demonstrated how to extract maximum performance from constrained 486 processors. By utilizing binary space partitioning (BSP trees), fixed-point arithmetic, and a custom zone memory allocator, the engine achieved unprecedented speed and fluidity.</p>
-<p>But how does the code that gave us Deathmatch hold up to modern architectural scrutiny? We ran the DOOM repository through the <strong>GitGalaxy blAST engine</strong>—an AST-free structural physics scanner—to strip away the nostalgia and visualize its raw code complexity, coupling, and fragility. Here is the physical reality of a 29,000-line C monolith.</p>
+<h1 id="dooms-dna-how-code-keeps-its-family-resemblance">DOOM's DNA: How Code Keeps Its Family Resemblance</h1>
+<p><em>By Joe Esquibel · 31 October 2026 · made with the <a href="https://github.com/squid-protocol/gitgalaxy">GitGalaxy</a> code-scanning engine</em></p>
 <blockquote>
-<p>[!NOTE]
-<em>Insert WebGL/Video rotation of the galaxy here</em></p>
+<p><strong>This is the text edition.</strong> The full article is interactive: follow any of the original's 662 functions through
+every descendant, explore the family tree, and compare wiring maps side by side.
+<strong><a href="../doom-dna/">Open the interactive article →</a></strong></p>
 </blockquote>
-<h3 id="the-3d-cartography-macro-state">The 3D Cartography: Macro State</h3>
-<p>Mapping DOOM reveals an incredibly compact and laser-focused procedural C ecosystem. It is a masterclass in strict, bare-metal execution.</p>
+<p><a href="../doom-dna/"><img alt="The names of the 43 DOOM descendants in the study around the original, linuxdoom, each sized by how many functions the program has" src="../doom-dna/collage.png" /></a></p>
+<p>Forty-three programs are descended from the 1997 release of DOOM's source code. Measure only their shape and you can
+still tell who copied whom, and which translations kept the original blueprint.</p>
+<p>Strip a program of every name, every comment, every line of readable text. What's left is its shape: how long each
+function is, how often it branches, which parts of the program call which. That shape, it turns out, works like a
+fingerprint.</p>
+<p>DOOM is the perfect place to test it. When id Software released the game's source code in 1997 (the version known as
+<strong>linuxdoom</strong>), programmers started copying it, porting it and rebuilding it, and they have not stopped. We gathered 43
+of those descendants: faithful copies, souped-up source ports, and translations into about twenty languages, from Go and
+Scheme to Fortran, COBOL and even SQL. Then we fed them to a code-measuring engine that never reads the code, and asked
+it where each one came from.</p>
 <table>
 <thead>
 <tr>
-<th style="text-align: left;">Macro State Metric</th>
-<th style="text-align: left;">Value</th>
-<th style="text-align: left;">Architectural Interpretation</th>
+<th style="text-align: left;">The headline facts</th>
+<th style="text-align: left;"></th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;"><strong>Total LOC</strong></td>
-<td style="text-align: left;"><strong>29,164</strong></td>
-<td style="text-align: left;">Highly compact. A complete game engine, renderer, and networking stack in under 30k lines.</td>
+<td style="text-align: left;"><strong>87% / 35%</strong></td>
+<td style="text-align: left;">Chocolate Doom keeps 87% of the original's function names, but only 35% of the code inside them is unchanged</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>Language Profile</strong></td>
-<td style="text-align: left;"><strong>93.2% C</strong></td>
-<td style="text-align: left;">Pure native C execution, prioritizing raw performance over higher-level abstractions.</td>
+<td style="text-align: left;"><strong>0 to 0.6%</strong></td>
+<td style="text-align: left;">of DOOM's shape shows up in Quake, Quake II and Lua. A faithful DOOM copy: 31%</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>Network Modularity</strong></td>
-<td style="text-align: left;"><strong>0.3155</strong></td>
-<td style="text-align: left;">Moderate modularity. Platform-specific layers are somewhat separated from core logic, but domain boundaries still overlap significantly.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>Cyclic Density</strong></td>
-<td style="text-align: left;"><strong>1.4%</strong></td>
-<td style="text-align: left;">Low static friction. There are a few dependency loops (typical in game state handling), but the compile path remains highly stable.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>Articulation Pts</strong></td>
-<td style="text-align: left;"><strong>13</strong></td>
-<td style="text-align: left;">High resilience. Only 13 files act as single points of failure that would shatter the network topology if removed.</td>
+<td style="text-align: left;"><strong>60% vs 20%</strong></td>
+<td style="text-align: left;">with every name hidden, a Go translation's functions still land in the right part of the game; guessing manages 20%</td>
 </tr>
 </tbody>
 </table>
-<h3 id="the-house-of-cards-architectural-choke-points">The "House of Cards": Architectural Choke Points</h3>
-<p>In software architecture, we identify structural health by separating <strong>Structural Pillars</strong> (the foundational files everything relies on) from <strong>Fragile Orchestrators</strong> (the complex controllers pulling everything together).</p>
-<p>Here is how DOOM distributes its architectural weight:</p>
-<p><strong>Top 5 Structural Pillars (Highest Inbound Blast Radius):</strong>
-These files act as core load-bearing infrastructure. Because DOOM is heavily procedural, global state and definition headers anchor the entire repository.
-* <strong><code>linuxdoom-1.10/doomdef.h</code></strong> — <strong>48 inbound connections</strong>
-* <strong><code>linuxdoom-1.10/doomstat.h</code></strong> — <strong>35 inbound connections</strong>
-* <strong><code>linuxdoom-1.10/i_system.h</code></strong> — <strong>33 inbound connections</strong>
-* <strong><code>linuxdoom-1.10/z_zone.h</code></strong> — <strong>27 inbound connections</strong>
-* <strong><code>sndserv/sounds.h</code></strong> — <strong>23 inbound connections</strong></p>
-<p><strong>Top 5 Orchestrators (Highest Outbound Coupling):</strong>
-These files pull in massive amounts of external dependencies. They are highly coupled to drive the game loop and interface with the operating system.
-* <strong><code>linuxdoom-1.10/d_main.c</code></strong> — <strong>30 outbound dependencies</strong>
-* <strong><code>linuxdoom-1.10/g_game.c</code></strong> — <strong>28 outbound dependencies</strong>
-* <strong><code>linuxdoom-1.10/m_menu.c</code></strong> — <strong>23 outbound dependencies</strong>
-* <strong><code>linuxdoom-1.10/i_video.c</code></strong> — <strong>21 outbound dependencies</strong>
-* <strong><code>linuxdoom-1.10/i_sound.c</code></strong> — <strong>20 outbound dependencies</strong></p>
-<p><em>Architectural Insight:</em> The architecture is a classic C monolith reliant on global state. Headers like <code>doomdef.h</code> and <code>doomstat.h</code> act as universal data dictionaries. Orchestration is deeply centralized in <code>d_main.c</code> (the main entry point and setup loop) and <code>g_game.c</code> (the tick-by-tick game state manager), which must import nearly the entire system to function.</p>
-<h3 id="technical-debt-the-god-nodes">Technical Debt &amp; The "God Nodes"</h3>
-<p>Game engines require intense state management and rapid decision-making, which leads to massive, centralized functions with significant cognitive load.</p>
-<p><strong>The Heaviest Functions (Impact Score):</strong>
-* <strong><code>P_UseSpecialLine</code></strong> (in <code>p_switch.c</code>): Impact Score <strong>194.9</strong> (379 LOC). A massive logic gate handling map triggers, switches, and environmental interactions.
-* <strong><code>D_DoomMain</code></strong> (in <code>d_main.c</code>): Impact Score <strong>172.2</strong> (361 LOC). The God Node that initializes the entire engine, memory, and subsystems.
-* <strong><code>G_Ticker</code></strong> (in <code>g_game.c</code>): Impact Score <strong>163.1</strong> (144 LOC). The beating heart of the game loop, orchestrating player commands and world updates.</p>
-<p><strong>Cumulative Risk Outliers:</strong>
-The highest multi-dimensional technical debt is found in the AI and engine initialization modules:
-* <strong><code>p_enemy.c</code></strong>: Cumulative Risk <strong>506.69</strong>. Responsible for monster AI (<code>A_Chase</code>, <code>P_NewChaseDir</code>). It carries 76.5% Tech Debt Exposure due to the complex, hardcoded nature of its state machines.
-* <strong><code>p_saveg.c</code></strong>: Cumulative Risk <strong>488.81</strong>. The save-game state serializer, carrying high cognitive load to safely archive dynamic world data.
-* <strong><code>z_zone.c</code></strong>: Cumulative Risk <strong>483.22</strong>. The custom memory allocator (<code>Z_Malloc</code>, <code>Z_Free</code>).</p>
-<p><strong>The Key Person Risk (Silos):</strong>
-Unlike massive modern enterprise repositories plagued by "Bus Factor" risks, GitGalaxy detected <strong>0.0% Silo Risk</strong> across DOOM's heaviest files. This is a hallmark of id Software's tight-knit, collaborative engineering environment in the 1990s—there are no modern "Key Person" bottlenecks where only one developer understands a critical module.</p>
-<h3 id="the-security-perimeter-zero-trust-x-ray">The Security Perimeter (Zero-Trust &amp; X-Ray)</h3>
-<p>Applying modern zero-trust security lenses to a 1993 game engine highlights the raw, unrestricted nature of early PC development.</p>
+<h2 id="names-lie">Names lie</h2>
+<p><strong>First, the old-fashioned way.</strong> Before trusting a machine that never reads code, we read it: we compared every
+descendant's source text with the original's, function by function. That gives the ground truth for everything that
+follows. Then, in the next part, we throw the text away.</p>
+<p>Start with the obvious way to trace a program's ancestry: look at what its functions are called. It does not work as
+well as you'd think. Chocolate Doom, whose whole mission is an accurate reproduction of the original "including bugs",
+keeps 87% of the original's function names, but only 35% of those functions still contain the same code. Doom Retro
+keeps 69% of the names and just 0.2% of the code. GZDoom, a heavily modernised engine, keeps 32% of the names and 0.2%
+of the code.</p>
+<p><strong>Forks keep the original's function names long after the code inside has been rewritten.</strong> Share of the original's
+functions (at least 20 words of code) present in each C descendant, by name and by unchanged code, from a direct
+source-text comparison:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Descendant</th>
+<th style="text-align: right;">Same function name</th>
+<th style="text-align: right;">Same code, unchanged</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">doomgeneric</td>
+<td style="text-align: right;">85.5%</td>
+<td style="text-align: right;">39.4%</td>
+</tr>
+<tr>
+<td style="text-align: left;">chocolate-doom</td>
+<td style="text-align: right;">86.7%</td>
+<td style="text-align: right;">34.9%</td>
+</tr>
+<tr>
+<td style="text-align: left;">crispy-doom</td>
+<td style="text-align: right;">86.7%</td>
+<td style="text-align: right;">21.0%</td>
+</tr>
+<tr>
+<td style="text-align: left;">prboom-plus</td>
+<td style="text-align: right;">80.5%</td>
+<td style="text-align: right;">8.8%</td>
+</tr>
+<tr>
+<td style="text-align: left;">fastdoom</td>
+<td style="text-align: right;">72.4%</td>
+<td style="text-align: right;">6.8%</td>
+</tr>
+<tr>
+<td style="text-align: left;">eternity</td>
+<td style="text-align: right;">66.3%</td>
+<td style="text-align: right;">0.8%</td>
+</tr>
+<tr>
+<td style="text-align: left;">doomretro</td>
+<td style="text-align: right;">69.0%</td>
+<td style="text-align: right;">0.2%</td>
+</tr>
+<tr>
+<td style="text-align: left;">gzdoom</td>
+<td style="text-align: right;">32.0%</td>
+<td style="text-align: right;">0.2%</td>
+</tr>
+</tbody>
+</table>
+<p>The interactive article lets you follow any one of the original's 662 scored functions through all 43 descendants. Two
+things stand out. The best survivors in the C and C++ copies are game logic (<code>M_AddToBox</code>, <code>A_Tracer</code>, <code>T_Glow</code> and the
+monster attacks). The first functions to vanish are almost all the original's 1997 Linux plumbing (X11 graphics, the
+sound server), which every port had to replace.</p>
+<h2 id="a-fingerprint-you-cant-read">A fingerprint you can't read</h2>
+<p>So skip the names. The engine records, for every function, dozens of measurements: its length, its branches, its
+inputs, what it touches, and which other functions it calls. A companion tool then hunts for "look-alikes": functions
+in a descendant whose measurements match one of the original's too closely to be a coincidence. It never sees the code
+or the names.</p>
+<p>Then we checked its work against the actual source text. <strong>93% of the look-alikes it found really are copies</strong>, and it
+caught about two-thirds of all the copies the text comparison found.</p>
+<p>The real test is what happens with programs that have nothing to do with DOOM. Quake and Quake II, id Software's own
+later games, and the Lua programming language are all written in C, like DOOM. They share between 0 and 0.6% of DOOM's
+shape. Chocolate Doom shares 31%. And the fingerprint is not tuned to DOOM: Quake and Quake II, which really are related,
+share 12.7% with each other.</p>
+<blockquote>
+<p><strong>Borrowed sideways.</strong> Family trees assume code flows from parent to child. Biology knows better: bacteria swap genes
+with neighbours. Code does too. The engine's closest match for Eternity, a long-lived DOOM engine, isn't the original
+at all but a Chocolate Doom relative, through 200 look-alike functions. Only afterwards did the names explain it:
+Eternity carries 216 functions of Chocolate Doom's on-screen text library, and so does Odamex. The original has none.</p>
+</blockquote>
+<h2 id="the-family-tree">The family tree</h2>
+<p>Put those fingerprints together with each project's own account of where it came from and you can draw the whole
+family, the way biologists draw an evolutionary tree. One honest difference: a biologist infers who descends from whom.
+Here the family links are what each project says about itself; only the branch lengths are measured. A short branch
+means a close copy, a long one little code in common. Translations rewrite every line, so their branches all reach the
+far edge, even the ones that kept DOOM's design.</p>
+<p>The main lines: linuxdoom → Chocolate Doom → Crispy Doom, Doom WASM, doomgeneric, Doom Retro and doom-ascii; linuxdoom
+→ Boom → PrBoom → PrBoom+ → dsda-doom, with MBF → WinMBF → Woof → Nugget Doom and SMMU → Eternity beside it; linuxdoom →
+ZDoom → GZDoom and Odamex; linuxdoom → Doom Legacy → SRB2. Twelve programs state no parent at all: they were written
+from scratch. <strong><a href="../doom-dna/#tree-band">See the full interactive tree →</a></strong></p>
+<h2 id="the-blind-test">The blind test</h2>
+<p>Translations are the hard case. Rewrite DOOM in Go and every line changes, every function gets a new name, and the
+look-alike hunt finds nothing. So what, if anything, survives?</p>
+<p>We tried a blind test. DOOM's code is organised into 16 parts: the renderer, the monsters and physics, the sound, the
+status bar and so on. We hid every name and file path in a translation and asked the engine to sort each function into
+one of those parts using only its shape and who it calls. Then we checked where the names say it belongs.</p>
+<p><strong>Some translations still sort themselves into DOOM's parts far better than guessing:</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Descendant</th>
+<th style="text-align: left;">Language</th>
+<th style="text-align: right;">Sorted correctly, names hidden</th>
+<th style="text-align: right;">Guessing (labels shuffled)</th>
+<th style="text-align: right;">Beats guessing by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">chocolate-doom (sanity check)</td>
+<td style="text-align: left;">C</td>
+<td style="text-align: right;">50%</td>
+<td style="text-align: right;">21%</td>
+<td style="text-align: right;">+29 pts</td>
+</tr>
+<tr>
+<td style="text-align: left;">gore</td>
+<td style="text-align: left;">Go</td>
+<td style="text-align: right;">60%</td>
+<td style="text-align: right;">20%</td>
+<td style="text-align: right;">+40 pts</td>
+</tr>
+<tr>
+<td style="text-align: left;">dartdoom</td>
+<td style="text-align: left;">Dart</td>
+<td style="text-align: right;">48%</td>
+<td style="text-align: right;">24%</td>
+<td style="text-align: right;">+24 pts</td>
+</tr>
+<tr>
+<td style="text-align: left;">doom-scheme</td>
+<td style="text-align: left;">Scheme</td>
+<td style="text-align: right;">46%</td>
+<td style="text-align: right;">26%</td>
+<td style="text-align: right;">+20 pts</td>
+</tr>
+<tr>
+<td style="text-align: left;">managed-doom</td>
+<td style="text-align: left;">C#</td>
+<td style="text-align: right;">47%</td>
+<td style="text-align: right;">37%</td>
+<td style="text-align: right;">+10 pts</td>
+</tr>
+<tr>
+<td style="text-align: left;">doomf77</td>
+<td style="text-align: left;">Fortran</td>
+<td style="text-align: right;">42%</td>
+<td style="text-align: right;">39%</td>
+<td style="text-align: right;">+3 pts</td>
+</tr>
+<tr>
+<td style="text-align: left;">mochadoom</td>
+<td style="text-align: left;">Java</td>
+<td style="text-align: right;">20%</td>
+<td style="text-align: right;">17%</td>
+<td style="text-align: right;">+3 pts</td>
+</tr>
+<tr>
+<td style="text-align: left;">kocoa-doom</td>
+<td style="text-align: left;">Kotlin</td>
+<td style="text-align: right;">19%</td>
+<td style="text-align: right;">16%</td>
+<td style="text-align: right;">+3 pts</td>
+</tr>
+<tr>
+<td style="text-align: left;">room4doom (written from scratch)</td>
+<td style="text-align: left;">Rust</td>
+<td style="text-align: right;">27%</td>
+<td style="text-align: right;">24%</td>
+<td style="text-align: right;">+3 pts</td>
+</tr>
+</tbody>
+</table>
+<p>For the Go translation, the engine sorts 60% of the functions correctly; shuffled labels manage 20%. Among the quarter
+of functions it was most sure about, it was right 99% of the time. Scramble the Go program's wiring, keeping how many
+calls each function makes, and it drops to 39%: the wiring itself carries much of the signal.</p>
+<h2 id="translations-that-kept-the-blueprint">Translations that kept the blueprint</h2>
+<p>If the wiring carries the signal, look at the wiring directly. For every descendant we drew a map of which parts of the
+game call which, and compared it with the original's map. To know how much of the match is real, we also scored each
+program against itself with its functions shuffled at random between the parts. The gap between the two is the design
+that survived.</p>
+<p><strong>The Scheme and Go translations kept DOOM's wiring as well as a straight C copy; Java, Kotlin and C# kept none.</strong>
+Wiring match from 0 (nothing in common) to 1 (identical):</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Program</th>
+<th style="text-align: left;">Language</th>
+<th style="text-align: right;">Wiring match</th>
+<th style="text-align: right;">Same program, shuffled</th>
+<th style="text-align: right;">Gap (design, not chance)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">chocolate-doom</td>
+<td style="text-align: left;">C</td>
+<td style="text-align: right;">0.83</td>
+<td style="text-align: right;">0.32</td>
+<td style="text-align: right;">+0.51</td>
+</tr>
+<tr>
+<td style="text-align: left;">crispy-doom</td>
+<td style="text-align: left;">C</td>
+<td style="text-align: right;">0.83</td>
+<td style="text-align: right;">0.38</td>
+<td style="text-align: right;">+0.45</td>
+</tr>
+<tr>
+<td style="text-align: left;">doom-wasm</td>
+<td style="text-align: left;">C</td>
+<td style="text-align: right;">0.73</td>
+<td style="text-align: right;">0.26</td>
+<td style="text-align: right;">+0.47</td>
+</tr>
+<tr>
+<td style="text-align: left;">doom-scheme</td>
+<td style="text-align: left;">Scheme</td>
+<td style="text-align: right;">0.75</td>
+<td style="text-align: right;">0.24</td>
+<td style="text-align: right;">+0.51</td>
+</tr>
+<tr>
+<td style="text-align: left;">gore</td>
+<td style="text-align: left;">Go</td>
+<td style="text-align: right;">0.65</td>
+<td style="text-align: right;">0.15</td>
+<td style="text-align: right;">+0.50</td>
+</tr>
+<tr>
+<td style="text-align: left;">dartdoom</td>
+<td style="text-align: left;">Dart</td>
+<td style="text-align: right;">0.59</td>
+<td style="text-align: right;">0.40</td>
+<td style="text-align: right;">+0.19</td>
+</tr>
+<tr>
+<td style="text-align: left;">doomf77</td>
+<td style="text-align: left;">Fortran</td>
+<td style="text-align: right;">0.41</td>
+<td style="text-align: right;">0.36</td>
+<td style="text-align: right;">+0.05</td>
+</tr>
+<tr>
+<td style="text-align: left;">mochadoom</td>
+<td style="text-align: left;">Java</td>
+<td style="text-align: right;">0.38</td>
+<td style="text-align: right;">0.37</td>
+<td style="text-align: right;">+0.01</td>
+</tr>
+<tr>
+<td style="text-align: left;">kocoa-doom</td>
+<td style="text-align: left;">Kotlin</td>
+<td style="text-align: right;">0.27</td>
+<td style="text-align: right;">0.35</td>
+<td style="text-align: right;">−0.08</td>
+</tr>
+<tr>
+<td style="text-align: left;">managed-doom</td>
+<td style="text-align: left;">C#</td>
+<td style="text-align: right;">0.10</td>
+<td style="text-align: right;">0.25</td>
+<td style="text-align: right;">−0.15</td>
+</tr>
+<tr>
+<td style="text-align: left;">rust-doom (from scratch)</td>
+<td style="text-align: left;">Rust</td>
+<td style="text-align: right;">0.10</td>
+<td style="text-align: right;">0.04</td>
+<td style="text-align: right;">+0.06</td>
+</tr>
+<tr>
+<td style="text-align: left;">room4doom (from scratch)</td>
+<td style="text-align: left;">Rust</td>
+<td style="text-align: right;">0.08</td>
+<td style="text-align: right;">0.08</td>
+<td style="text-align: right;">0.00</td>
+</tr>
+<tr>
+<td style="text-align: left;">helion (from scratch)</td>
+<td style="text-align: left;">C#</td>
+<td style="text-align: right;">0.07</td>
+<td style="text-align: right;">0.16</td>
+<td style="text-align: right;">−0.08</td>
+</tr>
+<tr>
+<td style="text-align: left;">Quake II (not DOOM)</td>
+<td style="text-align: left;">C</td>
+<td style="text-align: right;">0.11</td>
+<td style="text-align: right;">0.09</td>
+<td style="text-align: right;">+0.02</td>
+</tr>
+<tr>
+<td style="text-align: left;">WinQuake (not DOOM)</td>
+<td style="text-align: left;">C</td>
+<td style="text-align: right;">0.05</td>
+<td style="text-align: right;">0.07</td>
+<td style="text-align: right;">−0.03</td>
+</tr>
+<tr>
+<td style="text-align: left;">Lua (not DOOM)</td>
+<td style="text-align: left;">C</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.00</td>
+</tr>
+</tbody>
+</table>
+<p>The Scheme and Go translations keep the original's wiring as far above chance as Chocolate Doom does. The Dart
+translation keeps some. The Fortran, Java, Kotlin and C# translations keep none, and programs written from scratch, or
+not related to DOOM at all, sit at chance, as they should.
+<strong><a href="../doom-dna/#wiring-band">Draw the wiring maps yourself →</a></strong></p>
+<h2 id="what-it-cant-tell-you">What it can't tell you</h2>
 <ul>
-<li><strong>Autonomous AI Threats &amp; Malware:</strong> <strong>0 detected</strong>. The codebase is perfectly clean of malicious structural DNA.</li>
-<li><strong>Supply Chain Firewall:</strong> <strong>0 Blacklisted / 0 Unknown Dependencies</strong>. An immaculate perimeter. DOOM relies entirely on native C and POSIX APIs, avoiding the vulnerability of third-party package ecosystems.</li>
-<li><strong>Binary Anomalies (X-Ray):</strong> <strong>0 hits</strong>.</li>
-<li><strong>Weaponizable Surface Exposures:</strong> The engine flagged <code>d_net.c</code> (multiplayer networking) with <strong>3.5% Raw Memory Manipulation</strong>. DOOM relies entirely on a custom memory allocator (<code>z_zone.c</code>) rather than safe abstractions. This low-level pointer arithmetic and manual buffering was essential for 1993 performance but represents a classic memory corruption surface if exposed to modern, untrusted network inputs.</li>
+<li><strong>Family across languages from look-alikes.</strong> Look-alike functions only work within one language. Across languages
+  only the wiring carries a signal, and only for the closer translations.</li>
+<li><strong>Why Java, Kotlin and C# show nothing.</strong> Those translations reorganised the most and chopped the code into tiny
+  pieces: 34% of the Java port's functions and 43% of the Kotlin port's are three lines or shorter, against under 2% in
+  the C copies. A lost design and a test that can't see it look the same here.</li>
+<li><strong>Whether two programs play the same.</strong> This measures the shape of code, not what it does.</li>
 </ul>
-<h3 id="conclusion">Conclusion</h3>
-<p>DOOM remains a masterclass in pragmatic, performance-driven software engineering. Despite its age, it boasts a remarkably clean dependency chain and moderate modularity (0.3155) that successfully separates platform-specific I/O (<code>i_video.c</code>, <code>i_sound.c</code>) from the core game simulation (<code>g_game.c</code>). While its reliance on global state headers and manual memory allocation carries inherent technical debt by today's standards, these were the exact, deliberate architectural decisions that allowed it to run at 35 frames per second on a 386 processor. </p>
+<h2 id="how-we-know-its-not-luck">How we know it's not luck</h2>
+<ul>
+<li><strong>Against the text.</strong> Every claim about copying is scored against a direct comparison of the source code (27,778
+  function-and-descendant pairs). Ranked by how much of the original each descendant kept, the two methods agree closely
+  (rank correlation 0.83 across 43 descendants).</li>
+<li><strong>Against chance.</strong> Every similarity is shown next to the same program with the thing being measured shuffled. That
+  matters: the raw wiring score made every translation look faithful (0.72 to 0.95), because most calls stay inside
+  their own part of the program. The Fortran translation scored 0.91; shuffled at random, it still scored 0.80.</li>
+<li><strong>Against outsiders.</strong> Three unrelated C programs (Quake, Quake II, Lua) set the baseline.</li>
+<li><strong>Against other tools.</strong> On 42 of the 44 programs (the original and its 43 descendants) the engine's reading passes all
+  seven checks against independent code tools (Universal Ctags, tree-sitter, libclang); the other two count functions
+  differently.</li>
+<li><strong>One engine, one scan.</strong> Every number comes from the same scans at one engine version (6c7c6c1bc) and regenerates
+  from a command.</li>
+</ul>
+<h2 id="check-my-work">Check my work</h2>
+<p>Written by <strong>Joe Esquibel</strong>, using the <a href="https://github.com/squid-protocol/gitgalaxy">GitGalaxy</a> code-scanning engine.
+Every number here comes from public code and can be rebuilt from it.</p>
+<ul>
+<li><strong><a href="https://github.com/squid-protocol/gitgalaxy/blob/main/docs/research/doom-port-study.md">The full study</a></strong>: every
+  table behind this article, the checks, and the commands that regenerate them.</li>
+<li><strong><a href="https://github.com/squid-protocol/gitgalaxy/blob/main/tests/doom_rosetta/manifest.csv">The 44 programs</a></strong>: each
+  one's source repository, the exact commit measured, its language, licence and stated lineage.</li>
+<li><strong><a href="https://github.com/squid-protocol/gitgalaxy/tree/6c7c6c1bca80dbaf4c3ac31410dc6cc960a65198">The engine, as measured</a></strong>:
+  GitGalaxy at commit 6c7c6c1bc, the one version every number here comes from.</li>
+<li><strong><a href="https://github.com/squid-protocol/gitgalaxy-population-analyses/tree/main/structural-fingerprint-scanner">The fingerprint scanner</a></strong>:
+  look-alike functions, wiring maps, the blind test and the drift timelines.</li>
+<li><strong><a href="https://github.com/squid-protocol/gitgalaxy-population-analyses/tree/main/structural-fingerprint-scanner/examples/doom">The DOOM runs</a></strong>:
+  the scanner's DOOM inputs and results.</li>
+<li><strong><a href="https://github.com/squid-protocol/gitgalaxy-population-analyses/blob/main/structural-fingerprint-scanner/docs/wiring-against-chance.md">Method: reading a score against chance</a></strong>
+  and <strong><a href="https://github.com/squid-protocol/gitgalaxy-population-analyses/blob/main/structural-fingerprint-scanner/examples/doom/blind_placement.md">the blind test</a></strong>.</li>
+<li><strong><a href="../doom-dna/data.json">The data behind the interactive article</a></strong>: one JSON file with every measurement its charts and
+  tools draw from (no source code).</li>
+</ul>
+<p>Found something that doesn't add up? <a href="https://github.com/squid-protocol/gitgalaxy/issues">Open an issue on the GitGalaxy repository</a>.</p>
+<p><em>Measurements only: no program's source code is reproduced, and only programs with a clear licence are included.
+"DOOM" is used descriptively; this project is not affiliated with or endorsed by id Software, ZeniMax Media or
+Microsoft. Quake and Quake II (GPL-2.0) and Lua (MIT) were scanned as unrelated controls.</em></p>
 <hr />
 <h3 id="see-your-own-code-in-3d">See Your Own Code in 3D</h3>
-<p>This architectural teardown was generated using <strong>GitGalaxy</strong>, an AST-free structural physics engine that treats codebases like gravitational networks.</p>
+<p>This article was made with <strong>GitGalaxy</strong>, an AST-free structural physics engine that treats codebases like gravitational networks.</p>
 <ul>
 <li>🌌 <strong>Explore the 3D WebGPU Galaxy:</strong> Upload your own repo's JSON payload securely in your browser at <a href="https://gitgalaxy.io/">gitgalaxy.io</a>.</li>
 <li>⚙️ <strong>View the Source:</strong> GitGalaxy is open-source. Check out the blAST engine at <a href="https://github.com/squid-protocol/gitgalaxy">github.com/squid-protocol/gitgalaxy</a>.</li>
-<li>🚀 <strong>Automate your Security:</strong> Deploy the GitGalaxy Supply Chain Firewall and X-Ray Inspector directly into your CI/CD pipeline using our <a href="#">GitHub Actions</a>.</li>
 </ul>
 <hr />
-<p><strong><a href="../../">⬅️ Back to Master Index</a></strong></p>
+<p><strong><a href="../">⬅️ Back to the Museum of Code</a></strong> · <strong><a href="../../">Master Index</a></strong></p>
 
 
 

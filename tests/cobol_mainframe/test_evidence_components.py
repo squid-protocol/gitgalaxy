@@ -211,14 +211,14 @@ def test_a_port_that_names_a_runtime_class_uses_it():
 
 def test_a_det_module_change_stales_the_cases_that_import_it_or_translate_with_it():
     """program.py / sql.py / refine.py: the det translator's drivers -- run only for a case that LINKs programs (the
-    harness imports no more of det than cics / cvda / source and what those import). gen.py: imported by det.cics, so
-    by every case that uses the CICS harness -- not by a plain batch run."""
+    harness imports no more of det than cics / cvda / source and what those import). gen.py: since #7153 no det.cics
+    module imports it back, so it is the drivers' own, the same cases as program.py."""
     base = "gitgalaxy/tools/cobol_to_java/det/"
     for mod in ("program", "sql", "refine"):
         stale = stale_set(f"{base}{mod}.py")
         assert stale == keys(lambda t: t.programs or t.kind == "crucible"), (mod, sorted(stale))
     gen = stale_set(f"{base}gen.py")
-    assert gen == keys(lambda t: t.programs or t.kind == "crucible" or t.kind in ("cics", "call") or t.db2)
+    assert gen == keys(lambda t: t.programs or t.kind == "crucible")
     assert BATCH.key not in gen
     assert BATCH.key in stale_set(f"{base}source.py")  # det.source: equivalence_common, any case
 

@@ -27,6 +27,10 @@ files skip in ground-truth for "no JDK 17" without reading the variable). That k
 shards (3177 s) and 188 s of the duplicates. A new file that needs the shards' tools must say so in a skip reason, or
 read the variable, to be selected.
 
+On a pull request the shards set `EQUIVALENCE_E2E_ONE_JVM=1`: the end-to-end proofs of `test_porting_loop_tooling.py` and
+`test_equivalence.py` pass `--one-jvm`, so a proof's runs share a JVM instead of starting one each (the validated mode of
+`docs/language_status/mutation_testing.md`). A push to main and the nightly leave it unset and keep a JVM per run.
+
 The split weighs tests by `tests/equivalence_e2e_durations.json`, not `.test_durations` (ground-truth records the latter,
 where these tests skip, so it weighs them about 0 s). Each shard uploads `test-times-equivalence-e2e-shard-N`; refresh the
 file from a nightly run with `gh run download RUN --pattern 'test-times-equivalence-e2e-shard-*'` and

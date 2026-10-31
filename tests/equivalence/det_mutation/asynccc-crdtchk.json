@@ -5,32 +5,35 @@
  "case": "asynccc-crdtchk",
  "entry": {
   "program": "CRDTCHK",
-  "commit": "0db32bd5d669c5dfc7b39b17000e1e6be0156f87",
-  "date": "2026-10-22",
+  "commit": "28802e2e92a24078c5a4431b1535f1a8c65b6cc4+uncommitted",
+  "date": "2026-10-31",
   "mode": "fast",
   "seed": 0,
-  "mutants": 223,
+  "mutants": 230,
   "out_of_scope": 6,
-  "chosen": 223,
+  "chosen": 230,
   "coverage": "proven on 3 scenarios, covering 1/1 paragraphs and 2/2 branches",
   "counts": {
-   "killed": 217,
+   "killed": 206,
    "timeout": 0,
-   "survived": 0,
+   "survived": 18,
    "stillborn": 6,
    "error": 0,
    "pending": 0
   },
   "killed": [
    "003b12912c",
+   "02ef9160e0",
    "0337262ef5",
    "0367401e7f",
+   "046437376b",
    "048751419a",
    "05dab9301d",
    "083965fe13",
    "09fa808fb1",
    "0a8dde2469",
    "0ab5db610e",
+   "0d0279c6cd",
    "1020067bdb",
    "10e4d6d69f",
    "1524aa4960",
@@ -42,7 +45,6 @@
    "1d637b911b",
    "1e2c13049c",
    "21c49dad36",
-   "25bda2792a",
    "25ce83f5df",
    "25e2a01bd1",
    "260445673f",
@@ -50,7 +52,6 @@
    "27dfc48b49",
    "281c3bf041",
    "29f7b3de42",
-   "2a9b804923",
    "2ca4c30a14",
    "2eb0e2b465",
    "2ec3b302a2",
@@ -61,8 +62,6 @@
    "39ca64c6f2",
    "39cbe9e06d",
    "39f94f2226",
-   "3a78fd0771",
-   "3a8c55a8c7",
    "3caef86881",
    "3ef44e3a65",
    "4000bfedb1",
@@ -103,15 +102,13 @@
    "694f7fd80d",
    "69ef7b476f",
    "6a8d1542e3",
+   "6aa2d32658",
    "6b6081c211",
    "6e12a77be0",
-   "6e415532d6",
    "6f2f5b4ddf",
-   "6fd524ea92",
    "7184848634",
    "718ef610c4",
    "71c01fe7b0",
-   "71e13f0429",
    "74100925e5",
    "754ab8fd54",
    "786dedb483",
@@ -119,7 +116,6 @@
    "7a53f47f4e",
    "7c1ddd4083",
    "7c73c6ae62",
-   "7e3f707b38",
    "7e87b0387b",
    "7ecbc7f8cb",
    "7f4fc89d6b",
@@ -140,13 +136,13 @@
    "8a1652e59f",
    "8b5004af39",
    "8db29e75a6",
-   "8df6452d21",
    "8e1c3aa267",
    "8ffa447dc3",
    "91c523cbe4",
    "928b2942f0",
    "93d7c571ca",
    "94aa556bdf",
+   "96b41211b0",
    "9800bee6b8",
    "9811169dec",
    "9812546add",
@@ -157,11 +153,9 @@
    "9d6872adc9",
    "9d8585d50e",
    "9ddeeb5289",
-   "9e644b9710",
    "9efb160f49",
    "9f9abab40b",
    "9fef9fd50f",
-   "a0410d3774",
    "a10fd90fa8",
    "a27aace154",
    "a2f1e8ea80",
@@ -169,10 +163,8 @@
    "a4a51fb92e",
    "a619d666c5",
    "a781b39407",
-   "a79dde5a4c",
    "a7e0edef7c",
    "a8880e3f46",
-   "a899fbe0b0",
    "a946b4c8cf",
    "aa76b6dc40",
    "acff1690a0",
@@ -200,7 +192,6 @@
    "c353ab3a2c",
    "c595b4524b",
    "c769392f2a",
-   "cb95fbf99e",
    "cc8b306b48",
    "cd0cf7894e",
    "cde8d052ac",
@@ -229,9 +220,7 @@
    "f2b18f9f08",
    "f499897c22",
    "f4c414438a",
-   "f66802bd5c",
    "f72470c125",
-   "fa8a8b2a9c",
    "facc898f16",
    "fb22537b1e",
    "fbd7893df1",
@@ -248,48 +237,196 @@
    "71d5e7c29a",
    "ae334d10ac"
   ],
-  "survived": [],
+  "survived": [
+   {
+    "id": "05de1089bd",
+    "op": "LIT",
+    "file": "service/CrdtchkService.java",
+    "line": 313,
+    "before": "int[] planned2 = task.planned(\"DELAY\", \"-\");",
+    "after": "int[] planned2 = task.planned(\"DELAY\", \"X\");"
+   },
+   {
+    "id": "087cc83267",
+    "op": "LIT",
+    "file": "service/CrdtchkService.java",
+    "line": 314,
+    "before": "if (planned2[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
+    "after": "if (planned2[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"XELAY out of range\");"
+   },
+   {
+    "id": "14747ec0a6",
+    "op": "DEL",
+    "file": "service/CrdtchkService.java",
+    "line": 325,
+    "before": "Cobol.store(f42_EIBRESP2, BigDecimal.valueOf(cont3.resp2()), false, CS);",
+    "after": "/* Cobol.store(f42_EIBRESP2, BigDecimal.valueOf(cont3.resp2()), false, CS); */"
+   },
+   {
+    "id": "1befa8bfa4",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 317,
+    "before": "if (planned2[0] != 0) {",
+    "after": "if (planned2[1] != 0) {"
+   },
+   {
+    "id": "3d42ef7305",
+    "op": "DEL",
+    "file": "service/CrdtchkService.java",
+    "line": 315,
+    "before": "Cobol.store(f41_EIBRESP, BigDecimal.valueOf(planned2[0]), false, CS);",
+    "after": "/* Cobol.store(f41_EIBRESP, BigDecimal.valueOf(planned2[0]), false, CS); */"
+   },
+   {
+    "id": "4bb8661ec1",
+    "op": "ROR",
+    "file": "service/CrdtchkService.java",
+    "line": 314,
+    "before": "if (planned2[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
+    "after": "if (planned2[0] != 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");"
+   },
+   {
+    "id": "50ac6fc762",
+    "op": "DEL",
+    "file": "service/CrdtchkService.java",
+    "line": 324,
+    "before": "Cobol.store(f41_EIBRESP, BigDecimal.valueOf(DetCics.resp(cont3.resp())), false, CS);",
+    "after": "/* Cobol.store(f41_EIBRESP, BigDecimal.valueOf(DetCics.resp(cont3.resp())), false, CS); */"
+   },
+   {
+    "id": "5cebc1bcb0",
+    "op": "DEL",
+    "file": "service/CrdtchkService.java",
+    "line": 326,
+    "before": "Cobol.store(f10_COMMAND_RESP, BigDecimal.valueOf(DetCics.resp(cont3.resp())), false, CS);",
+    "after": "/* Cobol.store(f10_COMMAND_RESP, BigDecimal.valueOf(DetCics.resp(cont3.resp())), false, CS); */"
+   },
+   {
+    "id": "5fa707643a",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 315,
+    "before": "Cobol.store(f41_EIBRESP, BigDecimal.valueOf(planned2[0]), false, CS);",
+    "after": "Cobol.store(f41_EIBRESP, BigDecimal.valueOf(planned2[1]), false, CS);"
+   },
+   {
+    "id": "63eeef6274",
+    "op": "NEG",
+    "file": "service/CrdtchkService.java",
+    "line": 314,
+    "before": "if (planned2[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
+    "after": "if (!(planned2[0] == 0)) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");"
+   },
+   {
+    "id": "781dbcc16e",
+    "op": "NEG",
+    "file": "service/CrdtchkService.java",
+    "line": 92,
+    "before": "if (CicsTask.undefinableFile(name)) {",
+    "after": "if (!(CicsTask.undefinableFile(name))) {"
+   },
+   {
+    "id": "8fd20ba8c4",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 314,
+    "before": "if (planned2[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
+    "after": "if (planned2[0] == 1) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");"
+   },
+   {
+    "id": "ab0adba5b5",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 318,
+    "before": "int to = condition(DetCics.condition(planned2[0]));",
+    "after": "int to = condition(DetCics.condition(planned2[1]));"
+   },
+   {
+    "id": "ab7034e588",
+    "op": "DEL",
+    "file": "service/CrdtchkService.java",
+    "line": 327,
+    "before": "Cobol.store(f11_COMMAND_RESP2, BigDecimal.valueOf(cont3.resp2()), false, CS);",
+    "after": "/* Cobol.store(f11_COMMAND_RESP2, BigDecimal.valueOf(cont3.resp2()), false, CS); */"
+   },
+   {
+    "id": "bf9f1efd29",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 314,
+    "before": "if (planned2[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
+    "after": "if (planned2[1] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");"
+   },
+   {
+    "id": "d5e202914a",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 314,
+    "before": "if (planned2[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
+    "after": "if (planned2[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(6), null), \"DELAY out of range\");"
+   },
+   {
+    "id": "d8cd8547e4",
+    "op": "LIT",
+    "file": "service/CrdtchkService.java",
+    "line": 313,
+    "before": "int[] planned2 = task.planned(\"DELAY\", \"-\");",
+    "after": "int[] planned2 = task.planned(\"XELAY\", \"-\");"
+   },
+   {
+    "id": "f9310f210d",
+    "op": "DEL",
+    "file": "service/CrdtchkService.java",
+    "line": 316,
+    "before": "Cobol.store(f42_EIBRESP2, BigDecimal.valueOf(planned2[1]), false, CS);",
+    "after": "/* Cobol.store(f42_EIBRESP2, BigDecimal.valueOf(planned2[1]), false, CS); */"
+   }
+  ],
   "inputs": {
-   "port": "cc62c284d513f7091ceca8b5d7c830b1bd18f717f279d13901fe0ab3e568c57d",
-   "generator": "6681c242d15376704d68ac11d16926ab6d83a1c27b09ae334fdd4cf9300735c2",
+   "port": "b144d055fd4477fc9c43abe94d5f7fb77bdd3ac064f01bc50ea1b16233ebf001",
+   "generator": "05aaa9d05c9834b0523ad4957ff182eb8b1035e02e7aa94a0ccdaa5f1c6ca731",
    "case": "91757418376cfc30e9db683b2ada855ac31d6afa3c9943afa40231330d981904",
    "corpus": "a98b9cfe46b5f45db9305f0a997047218e09c7c36422ec0849f6af7af5dd5353",
-   "harness": "4e4ed6b5ddf328b47f42651b6f45570d43c3e89b316c72a1b887a8f78156a31e",
-   "oracle": "27cd5d5127a7ff5cf004d7ea63517333edb599feefc1643485560c707d475c0b",
-   "runtime": "4d336a332cceb5ab347e293f3cbc29e7585ecec9adb73ea937a176baf56bae97"
+   "harness": "f3bee1912a8b8cae8342f86d148233ef4b64848376208d5b0a3afe364df509b1",
+   "oracle": "d91ee6d2345e19e828ebba78a5e01464916f5df6ba248e9098ad90e9f6622711",
+   "runtime": "6e5a40c01db2672df82ea70c48c19a9919916f13a81545e5d8f5d6288c435738",
+   "survivors": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
   "components": {
    "generator": {
-    "generator:core": "a7b1e205ba94cbbb82ef0cd84b755c343c2f7e8afa912e487823daaf34e29af3",
+    "generator:core": "fca0af57a09e7b3f2879857241af0494f2749a6bd7f3ca80b597166d33d0f2c5",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
-    "generator:det/cics": "2a4fbbd7a9e55ee9dc6b9fa0e2ff2802c57cab2ff0d36459b676c1143707b507",
-    "generator:det/cics_containers": "5fc989229d444423f5b14d2c65a2c7c541efbe6cd0e5dc5a833beaf90c578b6b",
-    "generator:det/cics_filecontrol": "3d10979d783b0f39b3184d3111b9e543cd87941cbe7814f0edc65454e6f1f2b7",
-    "generator:det/cics_taskcontrol": "7d3892cd106fe0ab3a165551af8497cb67ee0337d2cb97f7a72ef8805710bdbf",
+    "generator:det/cics": "6619edb3d7a730bdb33d065a40ea3d0fc98ce8317f010a6bf2a87b5bb0d51c43",
+    "generator:det/cics_common": "16991c151d196fe6187dca2b11dc7b6b2ed4f65b42be8091a3b72411af515577",
+    "generator:det/cics_conditions": "81f7cac048ac8609a92f78bf0e0379dc9b59454a7f3754a50eb6d2538a74adc6",
+    "generator:det/cics_containers": "e96f548646b8060bd71e5c448e52ba193d6fd88aad3e78b4f1b1bd3731e518ff",
+    "generator:det/cics_faults": "863ce608ce8e183fe37350ba17f59b2176ce20452e1ebe86cb6b7ae6109fdb4e",
+    "generator:det/cics_filecontrol": "b03c1052fedac6c5e744625ded2d147a9d6bfcf143c2db441cd01be9bf709e25",
+    "generator:det/cics_taskcontrol": "a63efa9bd5d9ad8d64ebaa96cc3f2aaed0603480130bca405bc94989c48594a2",
     "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
-    "generator:det/dli": "59300231ec82938ae8606969155f9d0fef4962ad739e8d6da188a7b6202e9ebd",
-    "generator:det/dyncall": "88c49b4c2e152b1e81d9afb16790c0faac7e6ce25a5f797a5b7c3528f7de92ae",
-    "generator:det/entity": "b6aa37067dc0413f6700ac83e7dd35610d8e2474aa607bdf54b5b8419ee4c7d6",
     "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
-    "generator:det/gen": "6df3c4e25730ed5f5d06c4b9891a4a45958c6fa9808761f5f8078be3ef0d99b4",
-    "generator:det/hfp": "cec77a165f9657e15473ce0c2913b1256451731abc473571ed56951d0faba36c",
-    "generator:det/layout": "e3c70e4dcbb512324b5b16a57dac4010e60d18b7926c06fff5edbd6cf1a79e3e",
-    "generator:det/mq": "25055224f7c943069e828db7a79887ca1f4e6f4a06ec3b9781c97b31226491a0",
-    "generator:det/osvs": "4ca3599a4d9a49bd17def291a921278d6f4f45858f65acaf75ae817c17644dd5",
-    "generator:det/source": "1a59078834bfd89f31c04759c85727e659c8172b12323d97e3711324d1d8f0bf",
-    "generator:det/stmt": "014835ecefbec5b761734642ac25fc8270092f80945e8f79bcaaa9d3aee2c9ff"
+    "generator:det/hfp": "d7d641dafd602da31535a68f7f219c201a8d867cb7a1fec1c879be38e9ff86b7",
+    "generator:det/hlasm": "c7117c636ab25d2ccb7b4e2d7f23766ddacb9c9f7600c2fd6d894a49a60f4748",
+    "generator:det/layout": "d18ee78c6619817c817adda13a9e2cdd53737f372fadee306c4fd4d122cae2b7",
+    "generator:det/source": "fd7d20e0f7824a4d3b74201b0690914daf79834567b3fa5f064c98beb4d50e0b"
    },
    "harness": {
-    "harness:cics": "213c9450546bf312b75d1e132d67f07d558860d6645035e28f54d04046f36195",
-    "harness:core": "b1e0cf6689a29fa82863925972598abbec78a3c74b3eebdde86031140713e0df"
+    "harness:cics": "adcfdb44ff6e9ea52bcd313e07acb2b53af37b2c0efd8cdd40c0178534403d72",
+    "harness:core": "4a2b247571c6616bf9738ae3806284d8f1f08104d66695f25072801479bd3800"
    },
    "oracle": {
-    "oracle:cics-stub": "8d4b95cb03310f91b20292ebc95871479fe57bab9fc6ff33a625667a5860e785",
-    "oracle:core": "9bd2aed0628d99af4c37bbef46e4ec07d7634e6d251de4ef7766364180b63623",
-    "oracle:le": "200b234c8ffa2bf4cb1a9c143f22a5a3b696279e000cbf67ff9330fdfb7a9183"
+    "oracle:cics-stub": "41cd1969af089b03f55805cac03ee6558b24473c981e26f1e94c66ee81cfb722",
+    "oracle:core": "b4bb775f0a30746a6054f259b4c8613e08cb0d8cf3b40f4a789d953aca4144a0",
+    "oracle:le": "670c92cc59b722e108b688267be1fd89ecda9b7be62bb485da2ad4839b4f7011"
    }
   },
-  "port_moved": true,
-  "every": "003b12912c 0337262ef5 0367401e7f 048751419a 05dab9301d 083965fe13 09fa808fb1 0a8dde2469 0ab5db610e 1020067bdb 10e4d6d69f 1524aa4960 16cc85076d 1782c8d460 17b96546cb 1aa3c13db2 1b8a0b6b10 1d637b911b 1d9aee4d3d 1e2c13049c 2044888223 21c49dad36 25bda2792a 25ce83f5df 25e2a01bd1 260445673f 26dd4d9d01 27dfc48b49 281c3bf041 29f7b3de42 2a9b804923 2ca4c30a14 2eb0e2b465 2ec3b302a2 30f158d20d 311cf346d7 381df69703 382d92f8b9 39ca64c6f2 39cbe9e06d 39f94f2226 3a78fd0771 3a8c55a8c7 3caef86881 3ef44e3a65 4000bfedb1 402c3203fa 40ec0e066a 4122288f3a 417b2bf77b 42be71a3e6 44ea252d89 44f87df72f 4508124c24 467e99c9c2 49b6c3845c 4a332288c5 4a7dec1ba3 4c01278dd4 4c379408ed 4dd0406964 5008ce5ce5 5214bcc2df 52311a13fb 5243556f8f 54e0e6b54a 55407bfe42 563036f99a 575cf83b88 5780029473 5a8bfb49bd 5bef0cefc0 5c692bc62f 5cdbc52ac5 5e25b6e0a9 5e9e634a30 5eb995428b 61edf7095e 626fa44ff8 63f0b86042 656b486fda 694f7fd80d 69ef7b476f 6a8d1542e3 6b6081c211 6c37bf3bbb 6e12a77be0 6e415532d6 6f2f5b4ddf 6fd524ea92 7184848634 718ef610c4 71c01fe7b0 71d5e7c29a 71e13f0429 74100925e5 754ab8fd54 786dedb483 7a1e0dccd5 7a53f47f4e 7c1ddd4083 7c73c6ae62 7e3f707b38 7e87b0387b 7ecbc7f8cb 7f4fc89d6b 7f6f7871de 8057a9a7f9 80ba181f38 82cb539ee2 83947badfb 83bb01b863 83cc3fa4df 83fe18b39d 86a9a6f1db 8701c5f809 87219904ce 87484dd3ca 89763e3550 89b584ee72 8a1652e59f 8b5004af39 8db29e75a6 8df6452d21 8e1c3aa267 8ffa447dc3 91c523cbe4 928b2942f0 93d7c571ca 94aa556bdf 9800bee6b8 9811169dec 9812546add 9aaddf4154 9acb7b8153 9b31b5d151 9b753950e1 9d6872adc9 9d8585d50e 9ddeeb5289 9e644b9710 9efb160f49 9f9abab40b 9fef9fd50f a0410d3774 a10fd90fa8 a27aace154 a2f1e8ea80 a398266b34 a4a51fb92e a619d666c5 a781b39407 a79dde5a4c a7e0edef7c a8880e3f46 a899fbe0b0 a946b4c8cf aa76b6dc40 acff1690a0 ad096c2a81 ae334d10ac aeabf11b32 af404238e5 b52981da60 b62215a7c0 b6e812c56f b7ed62a2e2 b8c5a1f3be b8ee40893a b9fb10cc71 ba01597087 bc5afc605f bcc5539e32 bf21092399 bfba6fb8d4 c00b7d0309 c0e563ee8b c2e3b513dd c303af90d7 c32bee984f c334c63537 c353ab3a2c c595b4524b c769392f2a cb95fbf99e cc8b306b48 cd0cf7894e cde8d052ac ce6399a0c4 d2e5bfc902 d3bdcafe30 d4265546d6 d6ab114337 d756c19387 d8ad4c37b3 da1d44a735 dcfb755a01 de3a280f14 e201cfa28a e512a4e784 e5dc9fc598 e6707fd2ab e7fb749bd4 ea9f1b856d ebc0f2ef87 ed6b880d9a ee83a0356f f1aecaaed3 f1dc276df1 f25a05b8e8 f2b18f9f08 f499897c22 f4c414438a f66802bd5c f72470c125 fa8a8b2a9c facc898f16 fb22537b1e fbd7893df1 fbf40f7594 ff001b0cfe ff805cdaa8 ffb6fef677"
+  "every": "003b12912c 02ef9160e0 0337262ef5 0367401e7f 046437376b 048751419a 05dab9301d 05de1089bd 083965fe13 087cc83267 09fa808fb1 0a8dde2469 0ab5db610e 0d0279c6cd 1020067bdb 10e4d6d69f 14747ec0a6 1524aa4960 16cc85076d 1782c8d460 17b96546cb 1aa3c13db2 1b8a0b6b10 1befa8bfa4 1d637b911b 1d9aee4d3d 1e2c13049c 2044888223 21c49dad36 25ce83f5df 25e2a01bd1 260445673f 26dd4d9d01 27dfc48b49 281c3bf041 29f7b3de42 2ca4c30a14 2eb0e2b465 2ec3b302a2 30f158d20d 311cf346d7 381df69703 382d92f8b9 39ca64c6f2 39cbe9e06d 39f94f2226 3caef86881 3d42ef7305 3ef44e3a65 4000bfedb1 402c3203fa 40ec0e066a 4122288f3a 417b2bf77b 42be71a3e6 44ea252d89 44f87df72f 4508124c24 467e99c9c2 49b6c3845c 4a332288c5 4a7dec1ba3 4bb8661ec1 4c01278dd4 4c379408ed 4dd0406964 5008ce5ce5 50ac6fc762 5214bcc2df 52311a13fb 5243556f8f 54e0e6b54a 55407bfe42 563036f99a 575cf83b88 5780029473 5a8bfb49bd 5bef0cefc0 5c692bc62f 5cdbc52ac5 5cebc1bcb0 5e25b6e0a9 5e9e634a30 5eb995428b 5fa707643a 61edf7095e 626fa44ff8 63eeef6274 63f0b86042 656b486fda 694f7fd80d 69ef7b476f 6a8d1542e3 6aa2d32658 6b6081c211 6c37bf3bbb 6e12a77be0 6f2f5b4ddf 7184848634 718ef610c4 71c01fe7b0 71d5e7c29a 74100925e5 754ab8fd54 781dbcc16e 786dedb483 7a1e0dccd5 7a53f47f4e 7c1ddd4083 7c73c6ae62 7e87b0387b 7ecbc7f8cb 7f4fc89d6b 7f6f7871de 8057a9a7f9 80ba181f38 82cb539ee2 83947badfb 83bb01b863 83cc3fa4df 83fe18b39d 86a9a6f1db 8701c5f809 87219904ce 87484dd3ca 89763e3550 89b584ee72 8a1652e59f 8b5004af39 8db29e75a6 8e1c3aa267 8fd20ba8c4 8ffa447dc3 91c523cbe4 928b2942f0 93d7c571ca 94aa556bdf 96b41211b0 9800bee6b8 9811169dec 9812546add 9aaddf4154 9acb7b8153 9b31b5d151 9b753950e1 9d6872adc9 9d8585d50e 9ddeeb5289 9efb160f49 9f9abab40b 9fef9fd50f a10fd90fa8 a27aace154 a2f1e8ea80 a398266b34 a4a51fb92e a619d666c5 a781b39407 a7e0edef7c a8880e3f46 a946b4c8cf aa76b6dc40 ab0adba5b5 ab7034e588 acff1690a0 ad096c2a81 ae334d10ac aeabf11b32 af404238e5 b52981da60 b62215a7c0 b6e812c56f b7ed62a2e2 b8c5a1f3be b8ee40893a b9fb10cc71 ba01597087 bc5afc605f bcc5539e32 bf21092399 bf9f1efd29 bfba6fb8d4 c00b7d0309 c0e563ee8b c2e3b513dd c303af90d7 c32bee984f c334c63537 c353ab3a2c c595b4524b c769392f2a cc8b306b48 cd0cf7894e cde8d052ac ce6399a0c4 d2e5bfc902 d3bdcafe30 d4265546d6 d5e202914a d6ab114337 d756c19387 d8ad4c37b3 d8cd8547e4 da1d44a735 dcfb755a01 de3a280f14 e201cfa28a e512a4e784 e5dc9fc598 e6707fd2ab e7fb749bd4 ea9f1b856d ebc0f2ef87 ed6b880d9a ee83a0356f f1aecaaed3 f1dc276df1 f25a05b8e8 f2b18f9f08 f499897c22 f4c414438a f72470c125 f9310f210d facc898f16 fb22537b1e fbd7893df1 fbf40f7594 ff001b0cfe ff805cdaa8 ffb6fef677",
+  "refreshed": {
+   "from": "2026-10-22",
+   "survivors_rerun": 0,
+   "fresh": 23,
+   "stale": []
+  }
  }
 }

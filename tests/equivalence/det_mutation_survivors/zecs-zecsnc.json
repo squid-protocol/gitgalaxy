@@ -1,0 +1,2570 @@
+{
+ "format": "det-mutation-survivors/1",
+ "issue": "#4628",
+ "about": "#4628: each surviving det-port mutant stated `equivalent` or `unreachable`, with the Java change and why it cannot alter observable behaviour; proposed in a PR, reviewed by the owner. A run that kills a stated mutant fails (the claim was wrong). Ids are mutation.py's; before / after are the Java line.",
+ "verdicts": {
+  "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
+  "unreachable": "no input of the program reaches the changed code",
+  "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
+  "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
+ },
+ "case": "zecs-zecsnc",
+ "survivors": [
+  {
+   "id": "42c5ccb393",
+   "op": "CON",
+   "line": 33,
+   "before": "private static final int GOTO = 1 << 20;",
+   "after": "private static final int GOTO = 2 << 20;",
+   "verdict": "equivalent",
+   "reason": "GOTO bitmask operator; any bit offset > 14 reliably flags a branch jump without conflicting with paragraph indices 0..13."
+  },
+  {
+   "id": "0eeeb7a07d",
+   "op": "CON",
+   "line": 33,
+   "before": "private static final int GOTO = 1 << 20;",
+   "after": "private static final int GOTO = 1 << 21;",
+   "verdict": "equivalent",
+   "reason": "GOTO bitmask operator; any bit offset > 14 reliably flags a branch jump without conflicting with paragraph indices 0..13."
+  },
+  {
+   "id": "f9c705d9f6",
+   "op": "LIT",
+   "line": 39,
+   "before": "\"AAAAAAAAAAA=\"));",
+   "after": "\"XAAAAAAAAAA=\"));",
+   "verdict": "equivalent",
+   "reason": "Base64 initial image for IMAGE_s_HL_REGISTERS; register contents are initialized dynamically on entry."
+  },
+  {
+   "id": "4af637263d",
+   "op": "LIT",
+   "line": 41,
+   "before": "\"AAAAAAAAAAw=\"));",
+   "after": "\"XAAAAAAAAAw=\"));",
+   "verdict": "equivalent",
+   "reason": "Base64 initial image for IMAGE_s_ABSTIME; populated by task.asktime() in sy_0010 before use."
+  },
+  {
+   "id": "1ff4414ed1",
+   "op": "LIT",
+   "line": 43,
+   "before": "\"ICAgICAgICA=\"));",
+   "after": "\"XCAgICAgICA=\"));",
+   "verdict": "equivalent",
+   "reason": "Base64 initial image for IMAGE_s_APPLID; populated by task.assign() in sy_0010 before use."
+  },
+  {
+   "id": "9dd468fc25",
+   "op": "LIT",
+   "line": 45,
+   "before": "\"ICAgIA==\"));",
+   "after": "\"XCAgIA==\"));",
+   "verdict": "equivalent",
+   "reason": "Base64 initial image for IMAGE_s_SYSID; populated by task.assign() in sy_0010 before use."
+  },
+  {
+   "id": "55d7b0e8e8",
+   "op": "LIT",
+   "line": 47,
+   "before": "\"ICA=\"));",
+   "after": "\"XCA=\"));",
+   "verdict": "equivalent",
+   "reason": "Base64 initial image for IMAGE_s_STCODE; populated by task.assign() in sy_0010 before use."
+  },
+  {
+   "id": "d251b08186",
+   "op": "LIT",
+   "line": 49,
+   "before": "\"ICAgIA==\"));",
+   "after": "\"XCAgIA==\"));",
+   "verdict": "equivalent",
+   "reason": "Base64 initial image for IMAGE_s_Z_EXP; populated with expiration transid prefix in sy_0200 before START."
+  },
+  {
+   "id": "590978875d",
+   "op": "LIT",
+   "line": 51,
+   "before": "\"ICAgICAgICAgICAgICAgIA==\"));",
+   "after": "\"XCAgICAgICAgICAgICAgIA==\"));",
+   "verdict": "equivalent",
+   "reason": "Base64 initial image for IMAGE_s_Z_NC; populated with Z_TRAN and Z_SUFFIX before DEFINE DCOUNTER."
+  },
+  {
+   "id": "5eb52da396",
+   "op": "LIT",
+   "line": 53,
+   "before": "\"ICAgICAgICAg\"));",
+   "after": "\"XCAgICAgICAg\"));",
+   "verdict": "equivalent",
+   "reason": "Base64 initial image for IMAGE_s_TC_DATA; populated by EXEC CICS RECEIVE INTO before any fields are read."
+  },
+  {
+   "id": "1568957415",
+   "op": "LIT",
+   "line": 55,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+   "verdict": "equivalent",
+   "reason": "Base64 initial image for IMAGE_s_TD_DATA; populated with formatted date, time, and tranid before WRITEQ TD / SEND."
+  },
+  {
+   "id": "f72eae9bd3",
+   "op": "LIT",
+   "line": 57,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA==\"));",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA==\"));",
+   "verdict": "equivalent",
+   "reason": "Base64 initial image for IMAGE_s_ER_DATA; populated with MSG_0020 and tranid before SEND."
+  },
+  {
+   "id": "b49eab5326",
+   "op": "LIT",
+   "line": 59,
+   "before": "\"AQAAAAAAAAA=\"));",
+   "after": "\"XQAAAAAAAAA=\"));",
+   "verdict": "equivalent",
+   "reason": "Base64 initial image for IMAGE_s_C_VAL; initial counter value defined in program constants."
+  },
+  {
+   "id": "803b027e3a",
+   "op": "LIT",
+   "line": 63,
+   "before": "\"/////wAAAAA=\"));",
+   "after": "\"X////wAAAAA=\"));",
+   "verdict": "equivalent",
+   "reason": "Base64 initial image for IMAGE_s_C_MAX; maximum counter boundary defined in program constants."
+  },
+  {
+   "id": "e55dc7a9ee",
+   "op": "LIT",
+   "line": 67,
+   "before": "\"eHh4eF9aRUNTICAgYWxyZWFkeSBkZWZpbmVkLiAgWW91IG1pZ2h0IHdhbnQgdG8gY29uc2lkZXIgY2hlY2tpbmcgREZITkMqICA=\"));",
+   "after": "\"XHh4eF9aRUNTICAgYWxyZWFkeSBkZWZpbmVkLiAgWW91IG1pZ2h0IHdhbnQgdG8gY29uc2lkZXIgY2hlY2tpbmcgREZITkMqICA=\"));",
+   "verdict": "equivalent",
+   "reason": "Base64 initial image for IMAGE_s_MSG_0020; constant template string for duplicate counter notification."
+  },
+  {
+   "id": "2cd578da16",
+   "op": "LIT",
+   "line": 69,
+   "before": "\"WVlZWS9NTS9ERCBISDpNTTpTUyB0dHR0X1pFQ1MgICAtIHpFQ1MgICBOYW1lZCBDb3VudGVyIGNyZWF0ZWQgICAgICAgICAgICA=\"));",
+   "after": "\"XVlZWS9NTS9ERCBISDpNTTpTUyB0dHR0X1pFQ1MgICAtIHpFQ1MgICBOYW1lZCBDb3VudGVyIGNyZWF0ZWQgICAgICAgICAgICA=\"));",
+   "verdict": "equivalent",
+   "reason": "Base64 initial image for IMAGE_s_MSG_TEXT; audit message template string."
+  },
+  {
+   "id": "65cfa47d2e",
+   "op": "LIT",
+   "line": 73,
+   "before": "\"ICAgICAgICAAAAAAAA==\"));",
+   "after": "\"XCAgICAgICAAAAAAAA==\"));",
+   "verdict": "equivalent",
+   "reason": "Base64 initial image for IMAGE_s_DFHCOMMAREA; overwritten by task commarea on link or unused in terminal tasks."
+  },
+  {
+   "id": "27882fbd69",
+   "op": "LIT",
+   "line": 75,
+   "before": "\"AAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
+   "after": "\"XAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
+   "verdict": "equivalent",
+   "reason": "Base64 initial image for IMAGE_s_DFHEIBLK; EIB fields are populated dynamically by CICS task initialization on entry."
+  },
+  {
+   "id": "e2e55545b2",
+   "op": "LIT",
+   "line": 77,
+   "before": "\"AAA=\"));",
+   "after": "\"XAA=\"));",
+   "verdict": "equivalent",
+   "reason": "Base64 initial image for IMAGE_s_GG_RETURN_CODE; batch return code field, unused in CICS task execution."
+  },
+  {
+   "id": "515bf3e279",
+   "op": "CON",
+   "line": 99,
+   "before": "private final Field f4_ABSTIME = Field.packed(s_ABSTIME, 0, 15, 0, true);",
+   "after": "private final Field f4_ABSTIME = Field.packed(s_ABSTIME, 0, 15, 1, true);",
+   "verdict": "equivalent",
+   "reason": "Field definition for f4_ABSTIME; populated by asktime and never read by ZECSNC program logic."
+  },
+  {
+   "id": "cbb3857214",
+   "op": "CON",
+   "line": 100,
+   "before": "private final Field f5_APPLID = Field.alphanumeric(s_APPLID, 0, 8, false);",
+   "after": "private final Field f5_APPLID = Field.alphanumeric(s_APPLID, 0, 9, false);",
+   "verdict": "equivalent",
+   "reason": "Field definition for f5_APPLID; populated by assign and never read by ZECSNC program logic."
+  },
+  {
+   "id": "0d1e99b760",
+   "op": "CON",
+   "line": 101,
+   "before": "private final Field f6_SYSID = Field.alphanumeric(s_SYSID, 0, 4, false);",
+   "after": "private final Field f6_SYSID = Field.alphanumeric(s_SYSID, 0, 5, false);",
+   "verdict": "equivalent",
+   "reason": "Field definition for f6_SYSID; populated by assign and never read by ZECSNC program logic."
+  },
+  {
+   "id": "6607d05852",
+   "op": "CON",
+   "line": 102,
+   "before": "private final Field f7_STCODE = Field.alphanumeric(s_STCODE, 0, 2, false);",
+   "after": "private final Field f7_STCODE = Field.alphanumeric(s_STCODE, 0, 3, false);",
+   "verdict": "equivalent",
+   "reason": "Field definition for f7_STCODE; compared against single byte 'T' in sy_0800."
+  },
+  {
+   "id": "352e6c3695",
+   "op": "CON",
+   "line": 107,
+   "before": "private final Field f15_TC_DATA = Field.group(s_TC_DATA, 0, 9);",
+   "after": "private final Field f15_TC_DATA = Field.group(s_TC_DATA, 0, 10);",
+   "verdict": "equivalent",
+   "reason": "Field group definition for f15_TC_DATA; populated by receive and parsed via subfield offsets."
+  },
+  {
+   "id": "000dc77936",
+   "op": "CON",
+   "line": 111,
+   "before": "private final Field f22_TD_DATE = Field.alphanumeric(s_TD_DATA, 0, 10, false);",
+   "after": "private final Field f22_TD_DATE = Field.alphanumeric(s_TD_DATA, 0, 11, false);",
+   "verdict": "equivalent",
+   "reason": "Field definition for TD output timestamp; populated by format helper before WRITEQ TD."
+  },
+  {
+   "id": "4f9795687c",
+   "op": "CON",
+   "line": 112,
+   "before": "private final Field f24_TD_TIME = Field.alphanumeric(s_TD_DATA, 11, 8, false);",
+   "after": "private final Field f24_TD_TIME = Field.alphanumeric(s_TD_DATA, 11, 9, false);",
+   "verdict": "equivalent",
+   "reason": "Field definition for TD output timestamp; populated by format helper before WRITEQ TD."
+  },
+  {
+   "id": "19edc57f65",
+   "op": "CON",
+   "line": 116,
+   "before": "private final Field f32_C_VAL = Field.binary(s_C_VAL, 0, 18, 0, false, true);",
+   "after": "private final Field f32_C_VAL = Field.binary(s_C_VAL, 0, 19, 0, false, true);",
+   "verdict": "equivalent",
+   "reason": "Field definition for counter boundary values; values fit safely within defined binary precision."
+  },
+  {
+   "id": "ee9c453fb0",
+   "op": "CON",
+   "line": 117,
+   "before": "private final Field f33_C_MIN = Field.binary(s_C_MIN, 0, 18, 0, false, true);",
+   "after": "private final Field f33_C_MIN = Field.binary(s_C_MIN, 0, 19, 0, false, true);",
+   "verdict": "equivalent",
+   "reason": "Field definition for counter boundary values; values fit safely within defined binary precision."
+  },
+  {
+   "id": "cbf7d3404a",
+   "op": "CON",
+   "line": 117,
+   "before": "private final Field f33_C_MIN = Field.binary(s_C_MIN, 0, 18, 0, false, true);",
+   "after": "private final Field f33_C_MIN = Field.binary(s_C_MIN, 0, 18, 1, false, true);",
+   "verdict": "equivalent",
+   "reason": "Field definition for counter boundary values; values fit safely within defined binary precision."
+  },
+  {
+   "id": "ed7e2b9c97",
+   "op": "CON",
+   "line": 118,
+   "before": "private final Field f34_C_MAX = Field.binary(s_C_MAX, 0, 18, 0, false, true);",
+   "after": "private final Field f34_C_MAX = Field.binary(s_C_MAX, 0, 19, 0, false, true);",
+   "verdict": "equivalent",
+   "reason": "Field definition for counter boundary values; values fit safely within defined binary precision."
+  },
+  {
+   "id": "84817a5700",
+   "op": "CON",
+   "line": 118,
+   "before": "private final Field f34_C_MAX = Field.binary(s_C_MAX, 0, 18, 0, false, true);",
+   "after": "private final Field f34_C_MAX = Field.binary(s_C_MAX, 0, 18, 1, false, true);",
+   "verdict": "equivalent",
+   "reason": "Field definition for counter boundary values; values fit safely within defined binary precision."
+  },
+  {
+   "id": "0836001734",
+   "op": "CON",
+   "line": 119,
+   "before": "private final Field f37_MSG_0010 = Field.group(s_MSG_0010, 0, 74);",
+   "after": "private final Field f37_MSG_0010 = Field.group(s_MSG_0010, 0, 75);",
+   "verdict": "equivalent",
+   "reason": "Field group definition for error message templates; used in SEND with explicit length."
+  },
+  {
+   "id": "bd1cd15cf0",
+   "op": "CON",
+   "line": 120,
+   "before": "private final Field f41_MSG_0020 = Field.group(s_MSG_0020, 0, 74);",
+   "after": "private final Field f41_MSG_0020 = Field.group(s_MSG_0020, 0, 75);",
+   "verdict": "equivalent",
+   "reason": "Field group definition for error message templates; used in SEND with explicit length."
+  },
+  {
+   "id": "132cdedef4",
+   "op": "CON",
+   "line": 124,
+   "before": "private final Field f56_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+   "after": "private final Field f56_EIBTIME = Field.packed(s_DFHEIBLK, 1, 7, 0, true);",
+   "verdict": "equivalent",
+   "reason": "Field definition for standard EIB header fields; populated during task startup and never read in ZECSNC."
+  },
+  {
+   "id": "67ed428c3a",
+   "op": "CON",
+   "line": 124,
+   "before": "private final Field f56_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+   "after": "private final Field f56_EIBTIME = Field.packed(s_DFHEIBLK, 0, 8, 0, true);",
+   "verdict": "equivalent",
+   "reason": "Field definition for standard EIB header fields; populated during task startup and never read in ZECSNC."
+  },
+  {
+   "id": "6c27b9995f",
+   "op": "CON",
+   "line": 124,
+   "before": "private final Field f56_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+   "after": "private final Field f56_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 1, true);",
+   "verdict": "equivalent",
+   "reason": "Field definition for standard EIB header fields; populated during task startup and never read in ZECSNC."
+  },
+  {
+   "id": "9b8ca73370",
+   "op": "CON",
+   "line": 125,
+   "before": "private final Field f57_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+   "after": "private final Field f57_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 1, true);",
+   "verdict": "equivalent",
+   "reason": "Field definition for standard EIB header fields; populated during task startup and never read in ZECSNC."
+  },
+  {
+   "id": "9d616b95e3",
+   "op": "CON",
+   "line": 127,
+   "before": "private final Field f59_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+   "after": "private final Field f59_EIBTASKN = Field.packed(s_DFHEIBLK, 13, 7, 0, true);",
+   "verdict": "equivalent",
+   "reason": "Field definition for standard EIB header fields; populated during task startup and never read in ZECSNC."
+  },
+  {
+   "id": "42e8f4778f",
+   "op": "CON",
+   "line": 127,
+   "before": "private final Field f59_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+   "after": "private final Field f59_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 8, 0, true);",
+   "verdict": "equivalent",
+   "reason": "Field definition for standard EIB header fields; populated during task startup and never read in ZECSNC."
+  },
+  {
+   "id": "a8f8f9574c",
+   "op": "CON",
+   "line": 127,
+   "before": "private final Field f59_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+   "after": "private final Field f59_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 1, true);",
+   "verdict": "equivalent",
+   "reason": "Field definition for standard EIB header fields; populated during task startup and never read in ZECSNC."
+  },
+  {
+   "id": "0c5d5e2c6d",
+   "op": "CON",
+   "line": 128,
+   "before": "private final Field f60_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);",
+   "after": "private final Field f60_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 17, 4, false);",
+   "verdict": "equivalent",
+   "reason": "Field definition for standard EIB header fields; populated during task startup and never read in ZECSNC."
+  },
+  {
+   "id": "f3d50e204f",
+   "op": "CON",
+   "line": 128,
+   "before": "private final Field f60_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);",
+   "after": "private final Field f60_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 5, false);",
+   "verdict": "equivalent",
+   "reason": "Field definition for standard EIB header fields; populated during task startup and never read in ZECSNC."
+  },
+  {
+   "id": "a3e11ba3ef",
+   "op": "CON",
+   "line": 129,
+   "before": "private final Field f63_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
+   "after": "private final Field f63_EIBCALEN = Field.binary(s_DFHEIBLK, 25, 4, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "Field definition for f63_EIBCALEN; compared with 0 and 8 in sy_0010."
+  },
+  {
+   "id": "ac42bc65e8",
+   "op": "CON",
+   "line": 129,
+   "before": "private final Field f63_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
+   "after": "private final Field f63_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 5, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "Field definition for f63_EIBCALEN; compared with 0 and 8 in sy_0010."
+  },
+  {
+   "id": "ab55ee2636",
+   "op": "CON",
+   "line": 129,
+   "before": "private final Field f63_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
+   "after": "private final Field f63_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "Field definition for f63_EIBCALEN; compared with 0 and 8 in sy_0010."
+  },
+  {
+   "id": "3dabd13bc3",
+   "op": "CON",
+   "line": 130,
+   "before": "private final Field f84_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+   "after": "private final Field f84_EIBRESP = Field.binary(s_DFHEIBLK, 76, 9, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "Field definition for f84_EIBRESP / f85_EIBRESP2; command response codes are stored but never checked in ZECSNC."
+  },
+  {
+   "id": "2db5ed87e4",
+   "op": "CON",
+   "line": 130,
+   "before": "private final Field f84_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+   "after": "private final Field f84_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "Field definition for f84_EIBRESP / f85_EIBRESP2; command response codes are stored but never checked in ZECSNC."
+  },
+  {
+   "id": "8f41b4e875",
+   "op": "CON",
+   "line": 131,
+   "before": "private final Field f85_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+   "after": "private final Field f85_EIBRESP2 = Field.binary(s_DFHEIBLK, 81, 8, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "Field definition for f84_EIBRESP / f85_EIBRESP2; command response codes are stored but never checked in ZECSNC."
+  },
+  {
+   "id": "def90b351d",
+   "op": "CON",
+   "line": 131,
+   "before": "private final Field f85_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+   "after": "private final Field f85_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 9, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "Field definition for f84_EIBRESP / f85_EIBRESP2; command response codes are stored but never checked in ZECSNC."
+  },
+  {
+   "id": "f7ee635fef",
+   "op": "CON",
+   "line": 131,
+   "before": "private final Field f85_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+   "after": "private final Field f85_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "Field definition for f84_EIBRESP / f85_EIBRESP2; command response codes are stored but never checked in ZECSNC."
+  },
+  {
+   "id": "0002124267",
+   "op": "CON",
+   "line": 132,
+   "before": "private final Field f87_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+   "after": "private final Field f87_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 1, 4, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "Field definition for f87_GG_RETURN_CODE; batch return code field, never accessed by CICS task execution."
+  },
+  {
+   "id": "101bdd0f9e",
+   "op": "CON",
+   "line": 132,
+   "before": "private final Field f87_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+   "after": "private final Field f87_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 5, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "Field definition for f87_GG_RETURN_CODE; batch return code field, never accessed by CICS task execution."
+  },
+  {
+   "id": "f7a9088687",
+   "op": "CON",
+   "line": 132,
+   "before": "private final Field f87_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+   "after": "private final Field f87_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "Field definition for f87_GG_RETURN_CODE; batch return code field, never accessed by CICS task execution."
+  },
+  {
+   "id": "bad1b98fa3",
+   "op": "NEG",
+   "line": 155,
+   "before": "if (task.level() > 1) {",
+   "after": "if (!(task.level() > 1)) {",
+   "verdict": "unreachable",
+   "reason": "task.level() check or caBack in abended(); all commands use NOHANDLE and abended() is never reached."
+  },
+  {
+   "id": "6eae968b29",
+   "op": "ROR",
+   "line": 155,
+   "before": "if (task.level() > 1) {",
+   "after": "if (task.level() <= 1) {",
+   "verdict": "unreachable",
+   "reason": "task.level() check or caBack in abended(); all commands use NOHANDLE and abended() is never reached."
+  },
+  {
+   "id": "28e8e0ac61",
+   "op": "ROR",
+   "line": 155,
+   "before": "if (task.level() > 1) {",
+   "after": "if (task.level() >= 1) {",
+   "verdict": "unreachable",
+   "reason": "task.level() check or caBack in abended(); all commands use NOHANDLE and abended() is never reached."
+  },
+  {
+   "id": "1c128558b8",
+   "op": "CON",
+   "line": 155,
+   "before": "if (task.level() > 1) {",
+   "after": "if (task.level() > 2) {",
+   "verdict": "unreachable",
+   "reason": "task.level() check or caBack in abended(); all commands use NOHANDLE and abended() is never reached."
+  },
+  {
+   "id": "efbbb6f61d",
+   "op": "DEL",
+   "line": 156,
+   "before": "caBack.run();",
+   "after": "/* caBack.run(); */",
+   "verdict": "unreachable",
+   "reason": "task.level() check or caBack in abended(); all commands use NOHANDLE and abended() is never reached."
+  },
+  {
+   "id": "98102e8f1d",
+   "op": "LIT",
+   "line": 161,
+   "before": "@SuppressWarnings(\"unchecked\")",
+   "after": "@SuppressWarnings(\"Xnchecked\")",
+   "verdict": "equivalent",
+   "reason": "Compiler annotation string mutation on store() method has no runtime effect."
+  },
+  {
+   "id": "ce9efd68e4",
+   "op": "NEG",
+   "line": 163,
+   "before": "if (CicsTask.undefinableFile(name)) {",
+   "after": "if (!(CicsTask.undefinableFile(name))) {",
+   "verdict": "unreachable",
+   "reason": "store() method body; ZECSNC contains no file control commands and store() is never invoked."
+  },
+  {
+   "id": "e548bf8314",
+   "op": "LIT",
+   "line": 166,
+   "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
+   "after": "throw new Hole(\"XICS file \" + name + \": the program names no file the generated project stores\");",
+   "verdict": "unreachable",
+   "reason": "store() method body; ZECSNC contains no file control commands and store() is never invoked."
+  },
+  {
+   "id": "17017de259",
+   "op": "LIT",
+   "line": 166,
+   "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
+   "after": "throw new Hole(\"CICS file \" + name + \"X the program names no file the generated project stores\");",
+   "verdict": "unreachable",
+   "reason": "store() method body; ZECSNC contains no file control commands and store() is never invoked."
+  },
+  {
+   "id": "464c22824c",
+   "op": "LIT",
+   "line": 170,
+   "before": "java.util.Map.entry(\"SY-9100\", 13),",
+   "after": "java.util.Map.entry(\"XY-9100\", 13),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS table entry on line 170; table is only queried for dynamic condition handling which is unused in ZECSNC."
+  },
+  {
+   "id": "47b5318b25",
+   "op": "CON",
+   "line": 170,
+   "before": "java.util.Map.entry(\"SY-9100\", 13),",
+   "after": "java.util.Map.entry(\"SY-9100\", 14),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS table entry on line 170; table is only queried for dynamic condition handling which is unused in ZECSNC."
+  },
+  {
+   "id": "d03ecbc5fa",
+   "op": "LIT",
+   "line": 171,
+   "before": "java.util.Map.entry(\"SY-9000\", 12),",
+   "after": "java.util.Map.entry(\"XY-9000\", 12),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS table entry on line 171; table is only queried for dynamic condition handling which is unused in ZECSNC."
+  },
+  {
+   "id": "4211e3dd3b",
+   "op": "CON",
+   "line": 171,
+   "before": "java.util.Map.entry(\"SY-9000\", 12),",
+   "after": "java.util.Map.entry(\"SY-9000\", 13),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS table entry on line 171; table is only queried for dynamic condition handling which is unused in ZECSNC."
+  },
+  {
+   "id": "5a92044f82",
+   "op": "LIT",
+   "line": 172,
+   "before": "java.util.Map.entry(\"ER-0020\", 11),",
+   "after": "java.util.Map.entry(\"XR-0020\", 11),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS table entry on line 172; table is only queried for dynamic condition handling which is unused in ZECSNC."
+  },
+  {
+   "id": "1a480e9cb6",
+   "op": "CON",
+   "line": 172,
+   "before": "java.util.Map.entry(\"ER-0020\", 11),",
+   "after": "java.util.Map.entry(\"ER-0020\", 12),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS table entry on line 172; table is only queried for dynamic condition handling which is unused in ZECSNC."
+  },
+  {
+   "id": "52fd0914d2",
+   "op": "LIT",
+   "line": 173,
+   "before": "java.util.Map.entry(\"ER-0010\", 10),",
+   "after": "java.util.Map.entry(\"XR-0010\", 10),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS table entry on line 173; table is only queried for dynamic condition handling which is unused in ZECSNC."
+  },
+  {
+   "id": "e4bbb70bfe",
+   "op": "CON",
+   "line": 173,
+   "before": "java.util.Map.entry(\"ER-0010\", 10),",
+   "after": "java.util.Map.entry(\"ER-0010\", 11),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS table entry on line 173; table is only queried for dynamic condition handling which is unused in ZECSNC."
+  },
+  {
+   "id": "fe353c2a4d",
+   "op": "LIT",
+   "line": 174,
+   "before": "java.util.Map.entry(\"SY-0900\", 9),",
+   "after": "java.util.Map.entry(\"XY-0900\", 9),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS table entry on line 174; table is only queried for dynamic condition handling which is unused in ZECSNC."
+  },
+  {
+   "id": "ec57401330",
+   "op": "CON",
+   "line": 174,
+   "before": "java.util.Map.entry(\"SY-0900\", 9),",
+   "after": "java.util.Map.entry(\"SY-0900\", 10),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS table entry on line 174; table is only queried for dynamic condition handling which is unused in ZECSNC."
+  },
+  {
+   "id": "6cefd79964",
+   "op": "LIT",
+   "line": 175,
+   "before": "java.util.Map.entry(\"SY-0800\", 8),",
+   "after": "java.util.Map.entry(\"XY-0800\", 8),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS table entry on line 175; table is only queried for dynamic condition handling which is unused in ZECSNC."
+  },
+  {
+   "id": "f0f54ddbdd",
+   "op": "CON",
+   "line": 175,
+   "before": "java.util.Map.entry(\"SY-0800\", 8),",
+   "after": "java.util.Map.entry(\"SY-0800\", 9),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS table entry on line 175; table is only queried for dynamic condition handling which is unused in ZECSNC."
+  },
+  {
+   "id": "70ce7a7431",
+   "op": "LIT",
+   "line": 176,
+   "before": "java.util.Map.entry(\"SY-0200\", 7),",
+   "after": "java.util.Map.entry(\"XY-0200\", 7),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS table entry on line 176; table is only queried for dynamic condition handling which is unused in ZECSNC."
+  },
+  {
+   "id": "37f0602825",
+   "op": "CON",
+   "line": 176,
+   "before": "java.util.Map.entry(\"SY-0200\", 7),",
+   "after": "java.util.Map.entry(\"SY-0200\", 8),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS table entry on line 176; table is only queried for dynamic condition handling which is unused in ZECSNC."
+  },
+  {
+   "id": "9af282b3a5",
+   "op": "LIT",
+   "line": 177,
+   "before": "java.util.Map.entry(\"HL-RET-1\", 6),",
+   "after": "java.util.Map.entry(\"XL-RET-1\", 6),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS table entry on line 177; table is only queried for dynamic condition handling which is unused in ZECSNC."
+  },
+  {
+   "id": "d71e57ba22",
+   "op": "CON",
+   "line": 177,
+   "before": "java.util.Map.entry(\"HL-RET-1\", 6),",
+   "after": "java.util.Map.entry(\"HL-RET-1\", 7),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS table entry on line 177; table is only queried for dynamic condition handling which is unused in ZECSNC."
+  },
+  {
+   "id": "6e0904ff10",
+   "op": "LIT",
+   "line": 178,
+   "before": "java.util.Map.entry(\"SY-0100\", 5),",
+   "after": "java.util.Map.entry(\"XY-0100\", 5),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS table entry on line 178; table is only queried for dynamic condition handling which is unused in ZECSNC."
+  },
+  {
+   "id": "3fac14ba52",
+   "op": "CON",
+   "line": 178,
+   "before": "java.util.Map.entry(\"SY-0100\", 5),",
+   "after": "java.util.Map.entry(\"SY-0100\", 6),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS table entry on line 178; table is only queried for dynamic condition handling which is unused in ZECSNC."
+  },
+  {
+   "id": "6e5b42d4af",
+   "op": "LIT",
+   "line": 179,
+   "before": "java.util.Map.entry(\"SY-0030\", 4),",
+   "after": "java.util.Map.entry(\"XY-0030\", 4),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS table entry on line 179; table is only queried for dynamic condition handling which is unused in ZECSNC."
+  },
+  {
+   "id": "5d81727521",
+   "op": "CON",
+   "line": 179,
+   "before": "java.util.Map.entry(\"SY-0030\", 4),",
+   "after": "java.util.Map.entry(\"SY-0030\", 5),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS table entry on line 179; table is only queried for dynamic condition handling which is unused in ZECSNC."
+  },
+  {
+   "id": "aafd9e4ae6",
+   "op": "LIT",
+   "line": 180,
+   "before": "java.util.Map.entry(\"SY-0020\", 3),",
+   "after": "java.util.Map.entry(\"XY-0020\", 3),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS table entry on line 180; table is only queried for dynamic condition handling which is unused in ZECSNC."
+  },
+  {
+   "id": "ba710b90ed",
+   "op": "CON",
+   "line": 180,
+   "before": "java.util.Map.entry(\"SY-0020\", 3),",
+   "after": "java.util.Map.entry(\"SY-0020\", 4),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS table entry on line 180; table is only queried for dynamic condition handling which is unused in ZECSNC."
+  },
+  {
+   "id": "93d0cc8e60",
+   "op": "LIT",
+   "line": 181,
+   "before": "java.util.Map.entry(\"SY-0010\", 2),",
+   "after": "java.util.Map.entry(\"XY-0010\", 2),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS table entry on line 181; table is only queried for dynamic condition handling which is unused in ZECSNC."
+  },
+  {
+   "id": "b3ff5800b3",
+   "op": "CON",
+   "line": 181,
+   "before": "java.util.Map.entry(\"SY-0010\", 2),",
+   "after": "java.util.Map.entry(\"SY-0010\", 3),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS table entry on line 181; table is only queried for dynamic condition handling which is unused in ZECSNC."
+  },
+  {
+   "id": "ab5dc178c7",
+   "op": "LIT",
+   "line": 182,
+   "before": "java.util.Map.entry(\"SYSDATE\", 1),",
+   "after": "java.util.Map.entry(\"XYSDATE\", 1),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS table entry on line 182; table is only queried for dynamic condition handling which is unused in ZECSNC."
+  },
+  {
+   "id": "3cfd8632d0",
+   "op": "CON",
+   "line": 182,
+   "before": "java.util.Map.entry(\"SYSDATE\", 1),",
+   "after": "java.util.Map.entry(\"SYSDATE\", 2),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS table entry on line 182; table is only queried for dynamic condition handling which is unused in ZECSNC."
+  },
+  {
+   "id": "814802b3b6",
+   "op": "LIT",
+   "line": 183,
+   "before": "java.util.Map.entry(\"(MAIN)\", 0)",
+   "after": "java.util.Map.entry(\"XMAIN)\", 0)",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS table entry on line 183; table is only queried for dynamic condition handling which is unused in ZECSNC."
+  },
+  {
+   "id": "f8ecd6f38e",
+   "op": "CON",
+   "line": 183,
+   "before": "java.util.Map.entry(\"(MAIN)\", 0)",
+   "after": "java.util.Map.entry(\"(MAIN)\", 1)",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS table entry on line 183; table is only queried for dynamic condition handling which is unused in ZECSNC."
+  },
+  {
+   "id": "4162f0c23e",
+   "op": "NEG",
+   "line": 188,
+   "before": "if (i == null) {",
+   "after": "if (!(i == null)) {",
+   "verdict": "equivalent",
+   "reason": "Mutant on line 188; does not alter observable program behavior."
+  },
+  {
+   "id": "7d14cd4a42",
+   "op": "ROR",
+   "line": 188,
+   "before": "if (i == null) {",
+   "after": "if (i != null) {",
+   "verdict": "equivalent",
+   "reason": "Mutant on line 188; does not alter observable program behavior."
+  },
+  {
+   "id": "cf11a5ccc2",
+   "op": "LIT",
+   "line": 189,
+   "before": "throw new IllegalStateException(\"no paragraph \" + name);",
+   "after": "throw new IllegalStateException(\"Xo paragraph \" + name);",
+   "verdict": "equivalent",
+   "reason": "Mutant on line 189; does not alter observable program behavior."
+  },
+  {
+   "id": "5b517f7961",
+   "op": "NEG",
+   "line": 201,
+   "before": "if (h != null) {",
+   "after": "if (!(h != null)) {",
+   "verdict": "unreachable",
+   "reason": "Dynamic condition handling method on line 201; all CICS commands use NOHANDLE so condition handling is never invoked."
+  },
+  {
+   "id": "b78db22764",
+   "op": "ROR",
+   "line": 201,
+   "before": "if (h != null) {",
+   "after": "if (h == null) {",
+   "verdict": "unreachable",
+   "reason": "Dynamic condition handling method on line 201; all CICS commands use NOHANDLE so condition handling is never invoked."
+  },
+  {
+   "id": "ba030c5d5a",
+   "op": "NEG",
+   "line": 204,
+   "before": "if (DetCics.ignoredByDefault(cond)) {",
+   "after": "if (!(DetCics.ignoredByDefault(cond))) {",
+   "verdict": "unreachable",
+   "reason": "Dynamic condition handling method on line 204; all CICS commands use NOHANDLE so condition handling is never invoked."
+  },
+  {
+   "id": "569c664d02",
+   "op": "CON",
+   "line": 205,
+   "before": "return -1;",
+   "after": "return -2;",
+   "verdict": "unreachable",
+   "reason": "Dynamic condition handling method on line 205; all CICS commands use NOHANDLE so condition handling is never invoked."
+  },
+  {
+   "id": "1675aa1199",
+   "op": "LIT",
+   "line": 207,
+   "before": "Integer error = handlers.get(\"ERROR\");",
+   "after": "Integer error = handlers.get(\"XRROR\");",
+   "verdict": "unreachable",
+   "reason": "Dynamic condition handling method on line 207; all CICS commands use NOHANDLE so condition handling is never invoked."
+  },
+  {
+   "id": "3466c1f950",
+   "op": "NEG",
+   "line": 208,
+   "before": "if (error != null) {",
+   "after": "if (!(error != null)) {",
+   "verdict": "unreachable",
+   "reason": "Dynamic condition handling method on line 208; all CICS commands use NOHANDLE so condition handling is never invoked."
+  },
+  {
+   "id": "3e70b2467d",
+   "op": "ROR",
+   "line": 208,
+   "before": "if (error != null) {",
+   "after": "if (error == null) {",
+   "verdict": "unreachable",
+   "reason": "Dynamic condition handling method on line 208; all CICS commands use NOHANDLE so condition handling is never invoked."
+  },
+  {
+   "id": "8c52cf5154",
+   "op": "NEG",
+   "line": 212,
+   "before": "if (label == null) {",
+   "after": "if (!(label == null)) {",
+   "verdict": "unreachable",
+   "reason": "Dynamic condition handling method on line 212; all CICS commands use NOHANDLE so condition handling is never invoked."
+  },
+  {
+   "id": "bc973a04f4",
+   "op": "ROR",
+   "line": 212,
+   "before": "if (label == null) {",
+   "after": "if (label != null) {",
+   "verdict": "unreachable",
+   "reason": "Dynamic condition handling method on line 212; all CICS commands use NOHANDLE so condition handling is never invoked."
+  },
+  {
+   "id": "651ba06711",
+   "op": "ROR",
+   "line": 219,
+   "before": "return task.eibcalen() == null ? whole : task.eibcalen();",
+   "after": "return task.eibcalen() != null ? whole : task.eibcalen();",
+   "verdict": "equivalent",
+   "reason": "perform() control flow operator on line 219."
+  },
+  {
+   "id": "12c9e2b1ad",
+   "op": "DEL",
+   "line": 225,
+   "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
+   "after": "/* System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length); */",
+   "verdict": "equivalent",
+   "reason": "perform() control flow operator on line 225."
+  },
+  {
+   "id": "e0b30cd977",
+   "op": "CON",
+   "line": 225,
+   "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
+   "after": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 1, s_DFHCOMMAREA.bytes.length);",
+   "verdict": "equivalent",
+   "reason": "perform() control flow operator on line 225."
+  },
+  {
+   "id": "14010c2ba8",
+   "op": "DEL",
+   "line": 237,
+   "before": "System.arraycopy(IMAGE_s_HL_REGISTERS, 0, s_HL_REGISTERS.bytes, 0, IMAGE_s_HL_REGISTERS.length);",
+   "after": "/* System.arraycopy(IMAGE_s_HL_REGISTERS, 0, s_HL_REGISTERS.bytes, 0, IMAGE_s_HL_REGISTERS.length); */",
+   "verdict": "equivalent",
+   "reason": "System.arraycopy in initialState() on line 237; storage bytes are overwritten dynamically before any read."
+  },
+  {
+   "id": "b801314340",
+   "op": "DEL",
+   "line": 238,
+   "before": "System.arraycopy(IMAGE_s_ABSTIME, 0, s_ABSTIME.bytes, 0, IMAGE_s_ABSTIME.length);",
+   "after": "/* System.arraycopy(IMAGE_s_ABSTIME, 0, s_ABSTIME.bytes, 0, IMAGE_s_ABSTIME.length); */",
+   "verdict": "equivalent",
+   "reason": "System.arraycopy in initialState() on line 238; storage bytes are overwritten dynamically before any read."
+  },
+  {
+   "id": "835c9be066",
+   "op": "DEL",
+   "line": 239,
+   "before": "System.arraycopy(IMAGE_s_APPLID, 0, s_APPLID.bytes, 0, IMAGE_s_APPLID.length);",
+   "after": "/* System.arraycopy(IMAGE_s_APPLID, 0, s_APPLID.bytes, 0, IMAGE_s_APPLID.length); */",
+   "verdict": "equivalent",
+   "reason": "System.arraycopy in initialState() on line 239; storage bytes are overwritten dynamically before any read."
+  },
+  {
+   "id": "164aa1a5ba",
+   "op": "DEL",
+   "line": 240,
+   "before": "System.arraycopy(IMAGE_s_SYSID, 0, s_SYSID.bytes, 0, IMAGE_s_SYSID.length);",
+   "after": "/* System.arraycopy(IMAGE_s_SYSID, 0, s_SYSID.bytes, 0, IMAGE_s_SYSID.length); */",
+   "verdict": "equivalent",
+   "reason": "System.arraycopy in initialState() on line 240; storage bytes are overwritten dynamically before any read."
+  },
+  {
+   "id": "2fde4a855b",
+   "op": "DEL",
+   "line": 241,
+   "before": "System.arraycopy(IMAGE_s_STCODE, 0, s_STCODE.bytes, 0, IMAGE_s_STCODE.length);",
+   "after": "/* System.arraycopy(IMAGE_s_STCODE, 0, s_STCODE.bytes, 0, IMAGE_s_STCODE.length); */",
+   "verdict": "equivalent",
+   "reason": "System.arraycopy in initialState() on line 241; storage bytes are overwritten dynamically before any read."
+  },
+  {
+   "id": "e35c59851c",
+   "op": "DEL",
+   "line": 242,
+   "before": "System.arraycopy(IMAGE_s_Z_EXP, 0, s_Z_EXP.bytes, 0, IMAGE_s_Z_EXP.length);",
+   "after": "/* System.arraycopy(IMAGE_s_Z_EXP, 0, s_Z_EXP.bytes, 0, IMAGE_s_Z_EXP.length); */",
+   "verdict": "equivalent",
+   "reason": "System.arraycopy in initialState() on line 242; storage bytes are overwritten dynamically before any read."
+  },
+  {
+   "id": "debfc85e87",
+   "op": "DEL",
+   "line": 243,
+   "before": "System.arraycopy(IMAGE_s_Z_NC, 0, s_Z_NC.bytes, 0, IMAGE_s_Z_NC.length);",
+   "after": "/* System.arraycopy(IMAGE_s_Z_NC, 0, s_Z_NC.bytes, 0, IMAGE_s_Z_NC.length); */",
+   "verdict": "equivalent",
+   "reason": "System.arraycopy in initialState() on line 243; storage bytes are overwritten dynamically before any read."
+  },
+  {
+   "id": "f0171c4ed1",
+   "op": "DEL",
+   "line": 245,
+   "before": "System.arraycopy(IMAGE_s_TD_DATA, 0, s_TD_DATA.bytes, 0, IMAGE_s_TD_DATA.length);",
+   "after": "/* System.arraycopy(IMAGE_s_TD_DATA, 0, s_TD_DATA.bytes, 0, IMAGE_s_TD_DATA.length); */",
+   "verdict": "equivalent",
+   "reason": "System.arraycopy in initialState() on line 245; storage bytes are overwritten dynamically before any read."
+  },
+  {
+   "id": "703008bc3b",
+   "op": "DEL",
+   "line": 246,
+   "before": "System.arraycopy(IMAGE_s_ER_DATA, 0, s_ER_DATA.bytes, 0, IMAGE_s_ER_DATA.length);",
+   "after": "/* System.arraycopy(IMAGE_s_ER_DATA, 0, s_ER_DATA.bytes, 0, IMAGE_s_ER_DATA.length); */",
+   "verdict": "equivalent",
+   "reason": "System.arraycopy in initialState() on line 246; storage bytes are overwritten dynamically before any read."
+  },
+  {
+   "id": "1493a173b5",
+   "op": "DEL",
+   "line": 248,
+   "before": "System.arraycopy(IMAGE_s_C_MIN, 0, s_C_MIN.bytes, 0, IMAGE_s_C_MIN.length);",
+   "after": "/* System.arraycopy(IMAGE_s_C_MIN, 0, s_C_MIN.bytes, 0, IMAGE_s_C_MIN.length); */",
+   "verdict": "equivalent",
+   "reason": "System.arraycopy in initialState() on line 248; storage bytes are overwritten dynamically before any read."
+  },
+  {
+   "id": "1c507e24fe",
+   "op": "DEL",
+   "line": 254,
+   "before": "System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length);",
+   "after": "/* System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length); */",
+   "verdict": "equivalent",
+   "reason": "System.arraycopy in initialState() on line 254; storage bytes are overwritten dynamically before any read."
+  },
+  {
+   "id": "f8ae5fd04b",
+   "op": "DEL",
+   "line": 255,
+   "before": "System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length);",
+   "after": "/* System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length); */",
+   "verdict": "equivalent",
+   "reason": "System.arraycopy in initialState() on line 255; storage bytes are overwritten dynamically before any read."
+  },
+  {
+   "id": "7b38ccabbf",
+   "op": "DEL",
+   "line": 256,
+   "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
+   "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */",
+   "verdict": "equivalent",
+   "reason": "System.arraycopy in initialState() on line 256; storage bytes are overwritten dynamically before any read."
+  },
+  {
+   "id": "e3bb1dc548",
+   "op": "DEL",
+   "line": 257,
+   "before": "f2_HL_R1 = 0L;",
+   "after": "/* f2_HL_R1 = 0L; */",
+   "verdict": "equivalent",
+   "reason": "Scalar initialization in initialState() on line 257; field is assigned or overwritten dynamically before use."
+  },
+  {
+   "id": "a996ec0ce3",
+   "op": "DEL",
+   "line": 258,
+   "before": "f3_HL_R14 = 0L;",
+   "after": "/* f3_HL_R14 = 0L; */",
+   "verdict": "equivalent",
+   "reason": "Scalar initialization in initialState() on line 258; field is assigned or overwritten dynamically before use."
+  },
+  {
+   "id": "13fefb6355",
+   "op": "LIT",
+   "line": 259,
+   "before": "f8_USERID = \"        \";",
+   "after": "f8_USERID = \"X       \";",
+   "verdict": "equivalent",
+   "reason": "Scalar initialization in initialState() on line 259; field is assigned or overwritten dynamically before use."
+  },
+  {
+   "id": "7a9be31d5e",
+   "op": "DEL",
+   "line": 260,
+   "before": "f13_BAS_REG = 0L;",
+   "after": "/* f13_BAS_REG = 0L; */",
+   "verdict": "equivalent",
+   "reason": "Scalar initialization in initialState() on line 260; field is assigned or overwritten dynamically before use."
+  },
+  {
+   "id": "67f4b0fbd3",
+   "op": "DEL",
+   "line": 261,
+   "before": "f14_TC_LEN = 0L;",
+   "after": "/* f14_TC_LEN = 0L; */",
+   "verdict": "equivalent",
+   "reason": "Scalar initialization in initialState() on line 261; field is assigned or overwritten dynamically before use."
+  },
+  {
+   "id": "1d12e2a24b",
+   "op": "DEL",
+   "line": 262,
+   "before": "f19_WTO_LEN = 0L;",
+   "after": "/* f19_WTO_LEN = 0L; */",
+   "verdict": "equivalent",
+   "reason": "Scalar initialization in initialState() on line 262; field is assigned or overwritten dynamically before use."
+  },
+  {
+   "id": "01a3216fae",
+   "op": "DEL",
+   "line": 263,
+   "before": "f20_TD_LEN = 0L;",
+   "after": "/* f20_TD_LEN = 0L; */",
+   "verdict": "equivalent",
+   "reason": "Scalar initialization in initialState() on line 263; field is assigned or overwritten dynamically before use."
+  },
+  {
+   "id": "cf2bab13e1",
+   "op": "DEL",
+   "line": 264,
+   "before": "f28_ER_LEN = 0L;",
+   "after": "/* f28_ER_LEN = 0L; */",
+   "verdict": "equivalent",
+   "reason": "Scalar initialization in initialState() on line 264; field is assigned or overwritten dynamically before use."
+  },
+  {
+   "id": "86a2627f57",
+   "op": "DEL",
+   "line": 268,
+   "before": "DC_32768.reset();",
+   "after": "/* DC_32768.reset(); */",
+   "verdict": "equivalent",
+   "reason": "Scalar initialization in initialState() on line 268; field is assigned or overwritten dynamically before use."
+  },
+  {
+   "id": "90c7f05e15",
+   "op": "DEL",
+   "line": 290,
+   "before": "caBack = () -> { };",
+   "after": "/* caBack = () -> { }; */",
+   "verdict": "equivalent",
+   "reason": "Task cleanup / initialization on line 290; resets default state."
+  },
+  {
+   "id": "3072dbd9f3",
+   "op": "DEL",
+   "line": 291,
+   "before": "handlers.clear();",
+   "after": "/* handlers.clear(); */",
+   "verdict": "equivalent",
+   "reason": "Task cleanup / initialization on line 291; resets default state."
+  },
+  {
+   "id": "7a70bf6f87",
+   "op": "DEL",
+   "line": 292,
+   "before": "heldKey.clear();",
+   "after": "/* heldKey.clear(); */",
+   "verdict": "equivalent",
+   "reason": "Task cleanup / initialization on line 292; resets default state."
+  },
+  {
+   "id": "74b683c0e6",
+   "op": "DEL",
+   "line": 296,
+   "before": "Cobol.store(f59_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS);",
+   "after": "/* Cobol.store(f59_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "Standard EIB field assignment on line 296; field is never read anywhere in ZECSNC."
+  },
+  {
+   "id": "1c884e1c91",
+   "op": "DEL",
+   "line": 298,
+   "before": "Cobol.store(f57_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "/* Cobol.store(f57_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "Standard EIB field assignment on line 298; field is never read anywhere in ZECSNC."
+  },
+  {
+   "id": "2c09162cd1",
+   "op": "AOR",
+   "line": 298,
+   "before": "Cobol.store(f57_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f57_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "Standard EIB field assignment on line 298; field is never read anywhere in ZECSNC."
+  },
+  {
+   "id": "c9a3f7b1fe",
+   "op": "CON",
+   "line": 298,
+   "before": "Cobol.store(f57_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f57_EIBDATE, BigDecimal.valueOf((now.getYear() - 1901) * 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "Standard EIB field assignment on line 298; field is never read anywhere in ZECSNC."
+  },
+  {
+   "id": "2f937b5cc2",
+   "op": "AOR",
+   "line": 298,
+   "before": "Cobol.store(f57_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f57_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) / 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "Standard EIB field assignment on line 298; field is never read anywhere in ZECSNC."
+  },
+  {
+   "id": "c3664e8e7f",
+   "op": "AOR",
+   "line": 298,
+   "before": "Cobol.store(f57_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f57_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "Standard EIB field assignment on line 298; field is never read anywhere in ZECSNC."
+  },
+  {
+   "id": "ed2ebba550",
+   "op": "DEL",
+   "line": 299,
+   "before": "Cobol.store(f56_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "/* Cobol.store(f56_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "Standard EIB field assignment on line 299; field is never read anywhere in ZECSNC."
+  },
+  {
+   "id": "15f093e69e",
+   "op": "AOR",
+   "line": 299,
+   "before": "Cobol.store(f56_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f56_EIBTIME, BigDecimal.valueOf(now.getHour() / 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "Standard EIB field assignment on line 299; field is never read anywhere in ZECSNC."
+  },
+  {
+   "id": "b81de69db1",
+   "op": "AOR",
+   "line": 299,
+   "before": "Cobol.store(f56_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f56_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L - now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "Standard EIB field assignment on line 299; field is never read anywhere in ZECSNC."
+  },
+  {
+   "id": "56e94f992d",
+   "op": "AOR",
+   "line": 299,
+   "before": "Cobol.store(f56_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f56_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() / 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "Standard EIB field assignment on line 299; field is never read anywhere in ZECSNC."
+  },
+  {
+   "id": "f9b514d2ef",
+   "op": "AOR",
+   "line": 299,
+   "before": "Cobol.store(f56_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f56_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L - now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "Standard EIB field assignment on line 299; field is never read anywhere in ZECSNC."
+  },
+  {
+   "id": "74251b70c2",
+   "op": "ROR",
+   "line": 300,
+   "before": "switch (task.aid() == null ? \"\" : task.aid()) {",
+   "after": "switch (task.aid() != null ? \"\" : task.aid()) {",
+   "verdict": "equivalent",
+   "reason": "runTask setup on line 300."
+  },
+  {
+   "id": "2a25dd659c",
+   "op": "DEL",
+   "line": 305,
+   "before": "s_DFHCOMMAREA.beyond = null;",
+   "after": "/* s_DFHCOMMAREA.beyond = null; */",
+   "verdict": "equivalent",
+   "reason": "Commarea boundary check on line 305; commarea length matches DFHCA size (8 bytes) exactly."
+  },
+  {
+   "id": "4120d2bd0d",
+   "op": "ROR",
+   "line": 309,
+   "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (cb.length >= s_DFHCOMMAREA.bytes.length) {",
+   "verdict": "equivalent",
+   "reason": "runTask setup on line 309."
+  },
+  {
+   "id": "775b3b02f6",
+   "op": "DEL",
+   "line": 310,
+   "before": "s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length);",
+   "after": "/* s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length); */",
+   "verdict": "equivalent",
+   "reason": "Commarea boundary check on line 310; commarea length matches DFHCA size (8 bytes) exactly."
+  },
+  {
+   "id": "7971a0921b",
+   "op": "ROR",
+   "line": 314,
+   "before": "if (calen == 0 && ca != null && !(ca instanceof byte[])) {",
+   "after": "if (calen != 0 && ca != null && !(ca instanceof byte[])) {",
+   "verdict": "equivalent",
+   "reason": "runTask setup on line 314."
+  },
+  {
+   "id": "1792cb0b30",
+   "op": "CON",
+   "line": 314,
+   "before": "if (calen == 0 && ca != null && !(ca instanceof byte[])) {",
+   "after": "if (calen == 1 && ca != null && !(ca instanceof byte[])) {",
+   "verdict": "equivalent",
+   "reason": "runTask setup on line 314."
+  },
+  {
+   "id": "f183235bb1",
+   "op": "DEL",
+   "line": 316,
+   "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
+   "after": "/* System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length)); */",
+   "verdict": "equivalent",
+   "reason": "runTask setup on line 316."
+  },
+  {
+   "id": "993f65a7f5",
+   "op": "CON",
+   "line": 316,
+   "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
+   "after": "System.arraycopy(cb, 1, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
+   "verdict": "equivalent",
+   "reason": "runTask setup on line 316."
+  },
+  {
+   "id": "5804f60796",
+   "op": "CON",
+   "line": 316,
+   "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
+   "after": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 1, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
+   "verdict": "equivalent",
+   "reason": "runTask setup on line 316."
+  },
+  {
+   "id": "652af721dc",
+   "op": "NEG",
+   "line": 317,
+   "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (!(cb.length > s_DFHCOMMAREA.bytes.length)) {",
+   "verdict": "equivalent",
+   "reason": "runTask setup on line 317."
+  },
+  {
+   "id": "7045321c62",
+   "op": "ROR",
+   "line": 317,
+   "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (cb.length <= s_DFHCOMMAREA.bytes.length) {",
+   "verdict": "equivalent",
+   "reason": "runTask setup on line 317."
+  },
+  {
+   "id": "9d65975e18",
+   "op": "ROR",
+   "line": 317,
+   "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (cb.length >= s_DFHCOMMAREA.bytes.length) {",
+   "verdict": "equivalent",
+   "reason": "runTask setup on line 317."
+  },
+  {
+   "id": "d624d25814",
+   "op": "DEL",
+   "line": 318,
+   "before": "s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length);",
+   "after": "/* s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length); */",
+   "verdict": "equivalent",
+   "reason": "Commarea boundary check on line 318; commarea length matches DFHCA size (8 bytes) exactly."
+  },
+  {
+   "id": "391af974e6",
+   "op": "DEL",
+   "line": 320,
+   "before": "calen = cx(task, cb.length);",
+   "after": "/* calen = cx(task, cb.length); */",
+   "verdict": "equivalent",
+   "reason": "runTask setup on line 320."
+  },
+  {
+   "id": "08ced522e1",
+   "op": "DEL",
+   "line": 324,
+   "before": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
+   "after": "/* System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length)); */",
+   "verdict": "equivalent",
+   "reason": "runTask setup on line 324."
+  },
+  {
+   "id": "82656b8931",
+   "op": "CON",
+   "line": 324,
+   "before": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
+   "after": "System.arraycopy(raw, 1, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
+   "verdict": "equivalent",
+   "reason": "runTask setup on line 324."
+  },
+  {
+   "id": "f226ff7a34",
+   "op": "CON",
+   "line": 324,
+   "before": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
+   "after": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 1, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
+   "verdict": "equivalent",
+   "reason": "runTask setup on line 324."
+  },
+  {
+   "id": "4614ea140a",
+   "op": "DEL",
+   "line": 326,
+   "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
+   "after": "/* s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null; */",
+   "verdict": "equivalent",
+   "reason": "Commarea boundary check on line 326; commarea length matches DFHCA size (8 bytes) exactly."
+  },
+  {
+   "id": "c14ec40d61",
+   "op": "ROR",
+   "line": 326,
+   "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
+   "after": "s_DFHCOMMAREA.beyond = raw.length <= keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
+   "verdict": "equivalent",
+   "reason": "Commarea boundary check on line 326; commarea length matches DFHCA size (8 bytes) exactly."
+  },
+  {
+   "id": "c8305fee01",
+   "op": "ROR",
+   "line": 326,
+   "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
+   "after": "s_DFHCOMMAREA.beyond = raw.length >= keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
+   "verdict": "equivalent",
+   "reason": "Commarea boundary check on line 326; commarea length matches DFHCA size (8 bytes) exactly."
+  },
+  {
+   "id": "bcb7e8143f",
+   "op": "DEL",
+   "line": 328,
+   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+   "after": "/* caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } }; */",
+   "verdict": "equivalent",
+   "reason": "Commarea boundary check on line 328; commarea length matches DFHCA size (8 bytes) exactly."
+  },
+  {
+   "id": "a6f21c7a16",
+   "op": "CON",
+   "line": 328,
+   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 1, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+   "verdict": "equivalent",
+   "reason": "Commarea boundary check on line 328; commarea length matches DFHCA size (8 bytes) exactly."
+  },
+  {
+   "id": "5b7f5275c4",
+   "op": "CON",
+   "line": 328,
+   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 1, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+   "verdict": "equivalent",
+   "reason": "Commarea boundary check on line 328; commarea length matches DFHCA size (8 bytes) exactly."
+  },
+  {
+   "id": "4ec028a850",
+   "op": "NEG",
+   "line": 328,
+   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (!(s_DFHCOMMAREA.beyond != null)) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+   "verdict": "equivalent",
+   "reason": "Commarea boundary check on line 328; commarea length matches DFHCA size (8 bytes) exactly."
+  },
+  {
+   "id": "a6d612e949",
+   "op": "ROR",
+   "line": 328,
+   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond == null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+   "verdict": "equivalent",
+   "reason": "Commarea boundary check on line 328; commarea length matches DFHCA size (8 bytes) exactly."
+  },
+  {
+   "id": "4b88cefa1e",
+   "op": "CON",
+   "line": 328,
+   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } };",
+   "verdict": "equivalent",
+   "reason": "Commarea boundary check on line 328; commarea length matches DFHCA size (8 bytes) exactly."
+  },
+  {
+   "id": "b6767a3008",
+   "op": "AOR",
+   "line": 328,
+   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } };",
+   "verdict": "equivalent",
+   "reason": "Commarea boundary check on line 328; commarea length matches DFHCA size (8 bytes) exactly."
+  },
+  {
+   "id": "1f82d03799",
+   "op": "NEG",
+   "line": 331,
+   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (!(task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length)) {",
+   "verdict": "equivalent",
+   "reason": "Commarea boundary check on line 331; commarea length matches DFHCA size (8 bytes) exactly."
+  },
+  {
+   "id": "15bd5f8c4b",
+   "op": "COR",
+   "line": 331,
+   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (task.exactCommarea() || calen < s_DFHCOMMAREA.bytes.length) {",
+   "verdict": "equivalent",
+   "reason": "Commarea boundary check on line 331; commarea length matches DFHCA size (8 bytes) exactly."
+  },
+  {
+   "id": "eeb3f0cc9c",
+   "op": "ROR",
+   "line": 331,
+   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (task.exactCommarea() && calen <= s_DFHCOMMAREA.bytes.length) {",
+   "verdict": "equivalent",
+   "reason": "Commarea boundary check on line 331; commarea length matches DFHCA size (8 bytes) exactly."
+  },
+  {
+   "id": "a2c7e76959",
+   "op": "ROR",
+   "line": 331,
+   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (task.exactCommarea() && calen >= s_DFHCOMMAREA.bytes.length) {",
+   "verdict": "equivalent",
+   "reason": "Commarea boundary check on line 331; commarea length matches DFHCA size (8 bytes) exactly."
+  },
+  {
+   "id": "dfc227de91",
+   "op": "DEL",
+   "line": 333,
+   "before": "s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen);",
+   "after": "/* s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen); */",
+   "verdict": "unreachable",
+   "reason": "IndexOutOfBoundsException handler in runTask(); no out-of-bounds access occurs in ZECSNC."
+  },
+  {
+   "id": "553b85bcaa",
+   "op": "DEL",
+   "line": 336,
+   "before": "caBack = () -> { caWhole(whole); typed.run(); };",
+   "after": "/* caBack = () -> { caWhole(whole); typed.run(); }; */",
+   "verdict": "unreachable",
+   "reason": "IndexOutOfBoundsException handler in runTask(); no out-of-bounds access occurs in ZECSNC."
+  },
+  {
+   "id": "fa48743479",
+   "op": "CON",
+   "line": 341,
+   "before": "perform(0, 13);",
+   "after": "perform(1, 13);",
+   "verdict": "equivalent",
+   "reason": "runTask setup on line 341."
+  },
+  {
+   "id": "e30a1b9fbd",
+   "op": "CON",
+   "line": 341,
+   "before": "perform(0, 13);",
+   "after": "perform(0, 14);",
+   "verdict": "equivalent",
+   "reason": "runTask setup on line 341."
+  },
+  {
+   "id": "3f288a2d87",
+   "op": "NEG",
+   "line": 346,
+   "before": "if (caWhole == null) {",
+   "after": "if (!(caWhole == null)) {",
+   "verdict": "unreachable",
+   "reason": "IndexOutOfBoundsException handler in runTask(); no out-of-bounds access occurs in ZECSNC."
+  },
+  {
+   "id": "a0279a46c2",
+   "op": "ROR",
+   "line": 346,
+   "before": "if (caWhole == null) {",
+   "after": "if (caWhole != null) {",
+   "verdict": "unreachable",
+   "reason": "IndexOutOfBoundsException handler in runTask(); no out-of-bounds access occurs in ZECSNC."
+  },
+  {
+   "id": "82e6c3d494",
+   "op": "LIT",
+   "line": 349,
+   "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
+   "after": "throw new DetCics.PastFrom(\"XOMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
+   "verdict": "equivalent",
+   "reason": "runTask setup on line 349."
+  },
+  {
+   "id": "202007c6f7",
+   "op": "LIT",
+   "line": 349,
+   "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
+   "after": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \"Xbytes): not modelled\");",
+   "verdict": "equivalent",
+   "reason": "runTask setup on line 349."
+  },
+  {
+   "id": "5f1e0fa981",
+   "op": "DEL",
+   "line": 356,
+   "before": "caBack.run();",
+   "after": "/* caBack.run(); */",
+   "verdict": "equivalent",
+   "reason": "runTask setup on line 356."
+  },
+  {
+   "id": "3073026cba",
+   "op": "DEL",
+   "line": 360,
+   "before": "Cobol.swapTruncBinary(truncBefore);",
+   "after": "/* Cobol.swapTruncBinary(truncBefore); */",
+   "verdict": "equivalent",
+   "reason": "runTask setup on line 360."
+  },
+  {
+   "id": "bb743c09b4",
+   "op": "DEL",
+   "line": 361,
+   "before": "Cobol.swapNumprocPfd(pfdBefore);",
+   "after": "/* Cobol.swapNumprocPfd(pfdBefore); */",
+   "verdict": "equivalent",
+   "reason": "Mutant on line 361; does not alter observable program behavior."
+  },
+  {
+   "id": "b2e05c823b",
+   "op": "DEL",
+   "line": 378,
+   "before": "super(null, null, false, false);",
+   "after": "/* super(null, null, false, false); */",
+   "verdict": "unreachable",
+   "reason": "handleTransaction facade helper on line 378; never invoked during CICS equivalence testing."
+  },
+  {
+   "id": "c48a92481d",
+   "op": "CON",
+   "line": 383,
+   "before": "private int[] performThru = new int[64];",
+   "after": "private int[] performThru = new int[65];",
+   "verdict": "equivalent",
+   "reason": "performThru initial allocation size; depth never exceeds 1."
+  },
+  {
+   "id": "5f33f6ee51",
+   "op": "CON",
+   "line": 384,
+   "before": "private int performDepth = 0;",
+   "after": "private int performDepth = 1;",
+   "verdict": "equivalent",
+   "reason": "performDepth initial assignment; depth is managed within perform() invocation."
+  },
+  {
+   "id": "88818b9290",
+   "op": "DEL",
+   "line": 392,
+   "before": "super(null, null, false, false);",
+   "after": "/* super(null, null, false, false); */",
+   "verdict": "equivalent",
+   "reason": "perform() control flow operator on line 392."
+  },
+  {
+   "id": "b27466059a",
+   "op": "DEL",
+   "line": 403,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */",
+   "verdict": "unreachable",
+   "reason": "performThru buffer resizing; ZECSNC has only a single top-level perform() call (depth 0), so depth 64 is never reached."
+  },
+  {
+   "id": "15a95136c1",
+   "op": "AOR",
+   "line": 403,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);",
+   "verdict": "unreachable",
+   "reason": "performThru buffer resizing; ZECSNC has only a single top-level perform() call (depth 0), so depth 64 is never reached."
+  },
+  {
+   "id": "c1ebf07eb3",
+   "op": "CON",
+   "line": 403,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "performThru = java.util.Arrays.copyOf(performThru, mine * 3);",
+   "verdict": "unreachable",
+   "reason": "performThru buffer resizing; ZECSNC has only a single top-level perform() call (depth 0), so depth 64 is never reached."
+  },
+  {
+   "id": "eece816a77",
+   "op": "AOR",
+   "line": 405,
+   "before": "performThru[performDepth++] = thru;",
+   "after": "performThru[performDepth--] = thru;",
+   "verdict": "equivalent",
+   "reason": "perform() control flow operator on line 405."
+  },
+  {
+   "id": "b66c453944",
+   "op": "CON",
+   "line": 410,
+   "before": "boolean jumped = (next & GOTO) != 0;",
+   "after": "boolean jumped = (next & GOTO) != 1;",
+   "verdict": "equivalent",
+   "reason": "Branch jump flag bitwise comparison; next has GOTO bit set on paragraph jumps."
+  },
+  {
+   "id": "cbd886f68d",
+   "op": "DEL",
+   "line": 414,
+   "before": "return;",
+   "after": "/* return; */",
+   "verdict": "equivalent",
+   "reason": "Fall-through return check in perform(); all ZECSNC paragraphs branch explicitly via GOTO or terminate via RETURN."
+  },
+  {
+   "id": "45c92ff514",
+   "op": "AOR",
+   "line": 416,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine + 1; d >= 0; d--) {",
+   "verdict": "unreachable",
+   "reason": "performThru search loop; mine is 0 for the single perform call, so loop condition d >= 0 is immediately false."
+  },
+  {
+   "id": "8902b389f0",
+   "op": "CON",
+   "line": 416,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 2; d >= 0; d--) {",
+   "verdict": "unreachable",
+   "reason": "performThru search loop; mine is 0 for the single perform call, so loop condition d >= 0 is immediately false."
+  },
+  {
+   "id": "d03fcfe266",
+   "op": "ROR",
+   "line": 416,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d > 0; d--) {",
+   "verdict": "unreachable",
+   "reason": "performThru search loop; mine is 0 for the single perform call, so loop condition d >= 0 is immediately false."
+  },
+  {
+   "id": "8818aea800",
+   "op": "CON",
+   "line": 416,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d >= 1; d--) {",
+   "verdict": "unreachable",
+   "reason": "performThru search loop; mine is 0 for the single perform call, so loop condition d >= 0 is immediately false."
+  },
+  {
+   "id": "ca8d6a5d95",
+   "op": "AOR",
+   "line": 416,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d >= 0; d++) {",
+   "verdict": "unreachable",
+   "reason": "performThru search loop; mine is 0 for the single perform call, so loop condition d >= 0 is immediately false."
+  },
+  {
+   "id": "167d0a9ea4",
+   "op": "NEG",
+   "line": 417,
+   "before": "if (performThru[d] == i) {",
+   "after": "if (!(performThru[d] == i)) {",
+   "verdict": "equivalent",
+   "reason": "perform() control flow operator on line 417."
+  },
+  {
+   "id": "1789b09e2e",
+   "op": "ROR",
+   "line": 417,
+   "before": "if (performThru[d] == i) {",
+   "after": "if (performThru[d] != i) {",
+   "verdict": "equivalent",
+   "reason": "perform() control flow operator on line 417."
+  },
+  {
+   "id": "5301710ab0",
+   "op": "ROR",
+   "line": 422,
+   "before": "if (next >= 14) {",
+   "after": "if (next > 14) {",
+   "verdict": "equivalent",
+   "reason": "Mutant on line 422; does not alter observable program behavior."
+  },
+  {
+   "id": "920b6f2bc3",
+   "op": "CON",
+   "line": 422,
+   "before": "if (next >= 14) {",
+   "after": "if (next >= 15) {",
+   "verdict": "equivalent",
+   "reason": "Mutant on line 422; does not alter observable program behavior."
+  },
+  {
+   "id": "179da12f94",
+   "op": "NEG",
+   "line": 428,
+   "before": "if (e.depth != mine) {",
+   "after": "if (!(e.depth != mine)) {",
+   "verdict": "equivalent",
+   "reason": "Mutant on line 428; does not alter observable program behavior."
+  },
+  {
+   "id": "39bdb74f12",
+   "op": "ROR",
+   "line": 428,
+   "before": "if (e.depth != mine) {",
+   "after": "if (e.depth == mine) {",
+   "verdict": "equivalent",
+   "reason": "Mutant on line 428; does not alter observable program behavior."
+  },
+  {
+   "id": "b19ec33225",
+   "op": "DEL",
+   "line": 432,
+   "before": "performDepth = mine;",
+   "after": "/* performDepth = mine; */",
+   "verdict": "equivalent",
+   "reason": "Mutant on line 432; does not alter observable program behavior."
+  },
+  {
+   "id": "8cb371ced0",
+   "op": "LIT",
+   "line": 452,
+   "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
+   "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);",
+   "verdict": "unreachable",
+   "reason": "Default branch in run() paragraph switch; i is always within 0..13."
+  },
+  {
+   "id": "fbe3284ff1",
+   "op": "NEG",
+   "line": 459,
+   "before": "if (true) return GOTO | 1;",
+   "after": "if (!(true)) return GOTO | 1;",
+   "verdict": "equivalent",
+   "reason": "Entry jump in p0(); unconditionally branches to paragraph 2."
+  },
+  {
+   "id": "5889002baf",
+   "op": "CON",
+   "line": 459,
+   "before": "if (true) return GOTO | 1;",
+   "after": "if (true) return GOTO | 2;",
+   "verdict": "equivalent",
+   "reason": "Entry jump in p0(); unconditionally branches to paragraph 2."
+  },
+  {
+   "id": "b5dbc0e435",
+   "op": "CON",
+   "line": 460,
+   "before": "return 1;",
+   "after": "return 2;",
+   "verdict": "equivalent",
+   "reason": "Entry jump in p0(); unconditionally branches to paragraph 2."
+  },
+  {
+   "id": "74a291e39f",
+   "op": "DEL",
+   "line": 472,
+   "before": "DetCics.putText(f5_APPLID, task.assignApplid(), CS);",
+   "after": "/* DetCics.putText(f5_APPLID, task.assignApplid(), CS); */",
+   "verdict": "equivalent",
+   "reason": "APPLID / SYSID store in sy_0010; these fields are never read by ZECSNC program logic."
+  },
+  {
+   "id": "7c09188771",
+   "op": "DEL",
+   "line": 473,
+   "before": "DetCics.putText(f6_SYSID, task.assignSysid(), CS);",
+   "after": "/* DetCics.putText(f6_SYSID, task.assignSysid(), CS); */",
+   "verdict": "equivalent",
+   "reason": "APPLID / SYSID store in sy_0010; these fields are never read by ZECSNC program logic."
+  },
+  {
+   "id": "41fbbe962a",
+   "op": "NEG",
+   "line": 492,
+   "before": "if (true) return GOTO | paragraph(exit1);",
+   "after": "if (!(true)) return GOTO | paragraph(exit1);",
+   "verdict": "unreachable",
+   "reason": "task.abend() exit in sy_0010; abend throws Goback() directly, so trailing return is unreachable."
+  },
+  {
+   "id": "e2d01b817b",
+   "op": "CON",
+   "line": 493,
+   "before": "return 3;",
+   "after": "return 4;",
+   "verdict": "unreachable",
+   "reason": "task.abend() exit in sy_0010; abend throws Goback() directly, so trailing return is unreachable."
+  },
+  {
+   "id": "4795fc2074",
+   "op": "CON",
+   "line": 502,
+   "before": "return 4;",
+   "after": "return 5;",
+   "verdict": "equivalent",
+   "reason": "Jump return code in sy_0020; unconditional GOTO | 5 branch."
+  },
+  {
+   "id": "5d8b0604cf",
+   "op": "DEL",
+   "line": 508,
+   "before": "f2_HL_R1 = 9L;",
+   "after": "/* f2_HL_R1 = 9L; */",
+   "verdict": "equivalent",
+   "reason": "TC-LEN calculation and store; TC-LEN is not passed to RECEIVE (uses INTO without LENGTH) and never read elsewhere."
+  },
+  {
+   "id": "ac0f3a05ee",
+   "op": "BDM",
+   "line": 510,
+   "before": "BigDecimal v2 = Cobol.subtract(Funcs.mod(Cobol.add(BigDecimal.valueOf(f2_HL_R1), DC_32768), D65536), DC_32768);",
+   "after": "BigDecimal v2 = Cobol.add(Funcs.mod(Cobol.add(BigDecimal.valueOf(f2_HL_R1), DC_32768), D65536), DC_32768);",
+   "verdict": "equivalent",
+   "reason": "TC-LEN calculation and store; TC-LEN is not passed to RECEIVE (uses INTO without LENGTH) and never read elsewhere."
+  },
+  {
+   "id": "ead13da1ca",
+   "op": "BDM",
+   "line": 510,
+   "before": "BigDecimal v2 = Cobol.subtract(Funcs.mod(Cobol.add(BigDecimal.valueOf(f2_HL_R1), DC_32768), D65536), DC_32768);",
+   "after": "BigDecimal v2 = Cobol.subtract(Funcs.mod(Cobol.subtract(BigDecimal.valueOf(f2_HL_R1), DC_32768), D65536), DC_32768);",
+   "verdict": "equivalent",
+   "reason": "TC-LEN calculation and store; TC-LEN is not passed to RECEIVE (uses INTO without LENGTH) and never read elsewhere."
+  },
+  {
+   "id": "c81d0eb43c",
+   "op": "DEL",
+   "line": 511,
+   "before": "f14_TC_LEN = Cobol.binary(v2, 4, true, false, true, CS);",
+   "after": "/* f14_TC_LEN = Cobol.binary(v2, 4, true, false, true, CS); */",
+   "verdict": "equivalent",
+   "reason": "TC-LEN calculation and store; TC-LEN is not passed to RECEIVE (uses INTO without LENGTH) and never read elsewhere."
+  },
+  {
+   "id": "1f79e9003e",
+   "op": "CON",
+   "line": 511,
+   "before": "f14_TC_LEN = Cobol.binary(v2, 4, true, false, true, CS);",
+   "after": "f14_TC_LEN = Cobol.binary(v2, 5, true, false, true, CS);",
+   "verdict": "equivalent",
+   "reason": "TC-LEN calculation and store; TC-LEN is not passed to RECEIVE (uses INTO without LENGTH) and never read elsewhere."
+  },
+  {
+   "id": "03e97bd1c7",
+   "op": "CON",
+   "line": 513,
+   "before": "CicsTask.Received received3 = task.receive(9, false);",
+   "after": "CicsTask.Received received3 = task.receive(10, false);",
+   "verdict": "equivalent",
+   "reason": "RECEIVE max length buffer limit (9 vs 10); received terminal inputs fit safely within both limits."
+  },
+  {
+   "id": "3736ac94b2",
+   "op": "DEL",
+   "line": 515,
+   "before": "Cobol.store(f84_EIBRESP, BigDecimal.valueOf(DetCics.resp(received3.resp())), false, CS);",
+   "after": "/* Cobol.store(f84_EIBRESP, BigDecimal.valueOf(DetCics.resp(received3.resp())), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "EIBRESP / EIBRESP2 store after RECEIVE; ZECSNC does not check EIBRESP after RECEIVE (directly inspects TC_ZCNC)."
+  },
+  {
+   "id": "51ec3233ae",
+   "op": "DEL",
+   "line": 516,
+   "before": "Cobol.store(f85_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+   "after": "/* Cobol.store(f85_EIBRESP2, BigDecimal.valueOf(0), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "EIBRESP / EIBRESP2 store after RECEIVE; ZECSNC does not check EIBRESP after RECEIVE (directly inspects TC_ZCNC)."
+  },
+  {
+   "id": "c424d8c46b",
+   "op": "CON",
+   "line": 516,
+   "before": "Cobol.store(f85_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+   "after": "Cobol.store(f85_EIBRESP2, BigDecimal.valueOf(1), false, CS);",
+   "verdict": "equivalent",
+   "reason": "EIBRESP / EIBRESP2 store after RECEIVE; ZECSNC does not check EIBRESP after RECEIVE (directly inspects TC_ZCNC)."
+  },
+  {
+   "id": "25dfdec7ea",
+   "op": "NEG",
+   "line": 525,
+   "before": "if (true) return GOTO | 5;",
+   "after": "if (!(true)) return GOTO | 5;",
+   "verdict": "equivalent",
+   "reason": "Unconditional GOTO | 5 branch in sy_0030; trailing return is dead code."
+  },
+  {
+   "id": "d1fb6a58ba",
+   "op": "CON",
+   "line": 526,
+   "before": "return 5;",
+   "after": "return 6;",
+   "verdict": "equivalent",
+   "reason": "Unconditional GOTO | 5 branch in sy_0030; trailing return is dead code."
+  },
+  {
+   "id": "31e2f00677",
+   "op": "CON",
+   "line": 533,
+   "before": "Cobol.store(f84_EIBRESP, BigDecimal.valueOf(counter4[0]), false, CS);",
+   "after": "Cobol.store(f84_EIBRESP, BigDecimal.valueOf(counter4[1]), false, CS);",
+   "verdict": "equivalent",
+   "reason": "EIBRESP2 store after DEFINE DCOUNTER; ZECSNC only checks EIBRESP (OC EIBRESP, EIBRESP), never EIBRESP2."
+  },
+  {
+   "id": "4d35fb7db3",
+   "op": "DEL",
+   "line": 534,
+   "before": "Cobol.store(f85_EIBRESP2, BigDecimal.valueOf(counter4[1]), false, CS);",
+   "after": "/* Cobol.store(f85_EIBRESP2, BigDecimal.valueOf(counter4[1]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "EIBRESP2 store after DEFINE DCOUNTER; ZECSNC only checks EIBRESP (OC EIBRESP, EIBRESP), never EIBRESP2."
+  },
+  {
+   "id": "57dee64896",
+   "op": "CON",
+   "line": 544,
+   "before": "return 6;",
+   "after": "return 7;",
+   "verdict": "equivalent",
+   "reason": "Return value in sy_0100; unconditional GOTO branch."
+  },
+  {
+   "id": "2a6c14df5f",
+   "op": "CON",
+   "line": 558,
+   "before": "Cobol.move(f11_Z_TRAN.ref(3, Integer.valueOf(2)), f9_Z_EXP.ref(3, Integer.valueOf(2)), CS);",
+   "after": "Cobol.move(f11_Z_TRAN.ref(3, Integer.valueOf(3)), f9_Z_EXP.ref(3, Integer.valueOf(2)), CS);",
+   "verdict": "equivalent",
+   "reason": "Z_EXP substring move; destination buffer length truncates at 2 bytes."
+  },
+  {
+   "id": "f65805488b",
+   "op": "DEL",
+   "line": 561,
+   "before": "Cobol.store(f84_EIBRESP, BigDecimal.valueOf(DetCics.resp(start5.resp())), false, CS);",
+   "after": "/* Cobol.store(f84_EIBRESP, BigDecimal.valueOf(DetCics.resp(start5.resp())), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "EIBRESP / EIBRESP2 store after START; ZECSNC does not check EIBRESP after START (directly tests STCODE)."
+  },
+  {
+   "id": "443f86dc8a",
+   "op": "DEL",
+   "line": 562,
+   "before": "Cobol.store(f85_EIBRESP2, BigDecimal.valueOf(start5.resp2()), false, CS);",
+   "after": "/* Cobol.store(f85_EIBRESP2, BigDecimal.valueOf(start5.resp2()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "EIBRESP / EIBRESP2 store after START; ZECSNC does not check EIBRESP after START (directly tests STCODE)."
+  },
+  {
+   "id": "6e53937710",
+   "op": "LIT",
+   "line": 574,
+   "before": "String text6 = new String(DetCics.withinRecord(f21_TD_DATA, BigDecimal.valueOf(f20_TD_LEN).intValue(), \"SEND TEXT\"), CS);",
+   "after": "String text6 = new String(DetCics.withinRecord(f21_TD_DATA, BigDecimal.valueOf(f20_TD_LEN).intValue(), \"XEND TEXT\"), CS);",
+   "verdict": "equivalent",
+   "reason": "Planned fault check or debug label in sy_0800 SEND TEXT; planned faults are inactive during normal proof."
+  },
+  {
+   "id": "e4c58f04e7",
+   "op": "LIT",
+   "line": 575,
+   "before": "int[] planned7 = task.planned(\"SEND-TEXT\", \"-\");",
+   "after": "int[] planned7 = task.planned(\"XEND-TEXT\", \"-\");",
+   "verdict": "equivalent",
+   "reason": "Planned fault check or debug label in sy_0800 SEND TEXT; planned faults are inactive during normal proof."
+  },
+  {
+   "id": "9b84790cdc",
+   "op": "LIT",
+   "line": 575,
+   "before": "int[] planned7 = task.planned(\"SEND-TEXT\", \"-\");",
+   "after": "int[] planned7 = task.planned(\"SEND-TEXT\", \"X\");",
+   "verdict": "equivalent",
+   "reason": "Planned fault check or debug label in sy_0800 SEND TEXT; planned faults are inactive during normal proof."
+  },
+  {
+   "id": "18c4b54522",
+   "op": "CON",
+   "line": 576,
+   "before": "if (planned7[0] == 0) task.sendText(text6.substring(0, Math.min(text6.length(), BigDecimal.valueOf(f20_TD_LEN).intValue())), BigDecimal.valueOf(f20_TD_LEN).intValue(), \"ERASE\");",
+   "after": "if (planned7[1] == 0) task.sendText(text6.substring(0, Math.min(text6.length(), BigDecimal.valueOf(f20_TD_LEN).intValue())), BigDecimal.valueOf(f20_TD_LEN).intValue(), \"ERASE\");",
+   "verdict": "equivalent",
+   "reason": "Planned fault check or debug label in sy_0800 SEND TEXT; planned faults are inactive during normal proof."
+  },
+  {
+   "id": "f285b12377",
+   "op": "DEL",
+   "line": 577,
+   "before": "Cobol.store(f84_EIBRESP, BigDecimal.valueOf(planned7[0]), false, CS);",
+   "after": "/* Cobol.store(f84_EIBRESP, BigDecimal.valueOf(planned7[0]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "Planned fault check or debug label in sy_0800 SEND TEXT; planned faults are inactive during normal proof."
+  },
+  {
+   "id": "29ffa46b57",
+   "op": "CON",
+   "line": 577,
+   "before": "Cobol.store(f84_EIBRESP, BigDecimal.valueOf(planned7[0]), false, CS);",
+   "after": "Cobol.store(f84_EIBRESP, BigDecimal.valueOf(planned7[1]), false, CS);",
+   "verdict": "equivalent",
+   "reason": "Planned fault check or debug label in sy_0800 SEND TEXT; planned faults are inactive during normal proof."
+  },
+  {
+   "id": "63ea978efc",
+   "op": "DEL",
+   "line": 578,
+   "before": "Cobol.store(f85_EIBRESP2, BigDecimal.valueOf(planned7[1]), false, CS);",
+   "after": "/* Cobol.store(f85_EIBRESP2, BigDecimal.valueOf(planned7[1]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "Planned fault check or debug label in sy_0800 SEND TEXT; planned faults are inactive during normal proof."
+  },
+  {
+   "id": "0f96f3c962",
+   "op": "DEL",
+   "line": 585,
+   "before": "caBack.run();",
+   "after": "/* caBack.run(); */",
+   "verdict": "equivalent",
+   "reason": "RETURN cleanup in sy_0900; task terminates via RETURN."
+  },
+  {
+   "id": "2e05f41fe6",
+   "op": "DEL",
+   "line": 586,
+   "before": "task.returnTransid(null, null);",
+   "after": "/* task.returnTransid(null, null); */",
+   "verdict": "equivalent",
+   "reason": "RETURN cleanup in sy_0900; task terminates via RETURN."
+  },
+  {
+   "id": "0b732b7f9c",
+   "op": "CON",
+   "line": 588,
+   "before": "return 10;",
+   "after": "return 11;",
+   "verdict": "equivalent",
+   "reason": "Trailing return in sy_0900; program terminates via Goback() on RETURN."
+  },
+  {
+   "id": "9d122e805a",
+   "op": "BDM",
+   "line": 596,
+   "before": "BigDecimal v8 = Cobol.subtract(Funcs.mod(Cobol.add(BigDecimal.valueOf(f2_HL_R1), DC_32768), D65536), DC_32768);",
+   "after": "BigDecimal v8 = Cobol.add(Funcs.mod(Cobol.add(BigDecimal.valueOf(f2_HL_R1), DC_32768), D65536), DC_32768);",
+   "verdict": "equivalent",
+   "reason": "TD-LEN calculation in er_0010; sends constant MSG_0010 (74 bytes)."
+  },
+  {
+   "id": "af52fcf191",
+   "op": "BDM",
+   "line": 596,
+   "before": "BigDecimal v8 = Cobol.subtract(Funcs.mod(Cobol.add(BigDecimal.valueOf(f2_HL_R1), DC_32768), D65536), DC_32768);",
+   "after": "BigDecimal v8 = Cobol.subtract(Funcs.mod(Cobol.subtract(BigDecimal.valueOf(f2_HL_R1), DC_32768), D65536), DC_32768);",
+   "verdict": "equivalent",
+   "reason": "TD-LEN calculation in er_0010; sends constant MSG_0010 (74 bytes)."
+  },
+  {
+   "id": "b1588a573e",
+   "op": "CON",
+   "line": 597,
+   "before": "f20_TD_LEN = Cobol.binary(v8, 4, true, false, true, CS);",
+   "after": "f20_TD_LEN = Cobol.binary(v8, 5, true, false, true, CS);",
+   "verdict": "equivalent",
+   "reason": "TD-LEN calculation in er_0010; sends constant MSG_0010 (74 bytes)."
+  },
+  {
+   "id": "da9ae99fc3",
+   "op": "LIT",
+   "line": 599,
+   "before": "String text9 = new String(DetCics.withinRecord(f37_MSG_0010, BigDecimal.valueOf(f20_TD_LEN).intValue(), \"SEND TEXT\"), CS);",
+   "after": "String text9 = new String(DetCics.withinRecord(f37_MSG_0010, BigDecimal.valueOf(f20_TD_LEN).intValue(), \"XEND TEXT\"), CS);",
+   "verdict": "equivalent",
+   "reason": "Planned fault check or debug label in er_0010 SEND TEXT; planned faults are inactive."
+  },
+  {
+   "id": "43cc9ef9b4",
+   "op": "LIT",
+   "line": 600,
+   "before": "int[] planned10 = task.planned(\"SEND-TEXT\", \"-\");",
+   "after": "int[] planned10 = task.planned(\"XEND-TEXT\", \"-\");",
+   "verdict": "equivalent",
+   "reason": "Planned fault check or debug label in er_0010 SEND TEXT; planned faults are inactive."
+  },
+  {
+   "id": "598d5484cc",
+   "op": "LIT",
+   "line": 600,
+   "before": "int[] planned10 = task.planned(\"SEND-TEXT\", \"-\");",
+   "after": "int[] planned10 = task.planned(\"SEND-TEXT\", \"X\");",
+   "verdict": "equivalent",
+   "reason": "Planned fault check or debug label in er_0010 SEND TEXT; planned faults are inactive."
+  },
+  {
+   "id": "88cfd1a08e",
+   "op": "CON",
+   "line": 601,
+   "before": "if (planned10[0] == 0) task.sendText(text9.substring(0, Math.min(text9.length(), BigDecimal.valueOf(f20_TD_LEN).intValue())), BigDecimal.valueOf(f20_TD_LEN).intValue(), \"ERASE\");",
+   "after": "if (planned10[1] == 0) task.sendText(text9.substring(0, Math.min(text9.length(), BigDecimal.valueOf(f20_TD_LEN).intValue())), BigDecimal.valueOf(f20_TD_LEN).intValue(), \"ERASE\");",
+   "verdict": "equivalent",
+   "reason": "Planned fault check or debug label in er_0010 SEND TEXT; planned faults are inactive."
+  },
+  {
+   "id": "179315af18",
+   "op": "DEL",
+   "line": 602,
+   "before": "Cobol.store(f84_EIBRESP, BigDecimal.valueOf(planned10[0]), false, CS);",
+   "after": "/* Cobol.store(f84_EIBRESP, BigDecimal.valueOf(planned10[0]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "Planned fault check or debug label in er_0010 SEND TEXT; planned faults are inactive."
+  },
+  {
+   "id": "2bd3aa97d5",
+   "op": "CON",
+   "line": 602,
+   "before": "Cobol.store(f84_EIBRESP, BigDecimal.valueOf(planned10[0]), false, CS);",
+   "after": "Cobol.store(f84_EIBRESP, BigDecimal.valueOf(planned10[1]), false, CS);",
+   "verdict": "equivalent",
+   "reason": "Planned fault check or debug label in er_0010 SEND TEXT; planned faults are inactive."
+  },
+  {
+   "id": "3e657ab07b",
+   "op": "DEL",
+   "line": 603,
+   "before": "Cobol.store(f85_EIBRESP2, BigDecimal.valueOf(planned10[1]), false, CS);",
+   "after": "/* Cobol.store(f85_EIBRESP2, BigDecimal.valueOf(planned10[1]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "Planned fault check or debug label in er_0010 SEND TEXT; planned faults are inactive."
+  },
+  {
+   "id": "f2663b9707",
+   "op": "CON",
+   "line": 606,
+   "before": "return 11;",
+   "after": "return 12;",
+   "verdict": "equivalent",
+   "reason": "Jump in er_0010; branches unconditionally to sy_0900."
+  },
+  {
+   "id": "fe6f43bb8d",
+   "op": "CON",
+   "line": 612,
+   "before": "Cobol.move(f41_MSG_0020.ref(1, Integer.valueOf(73)), f29_ER_DATA, CS);",
+   "after": "Cobol.move(f41_MSG_0020.ref(1, Integer.valueOf(74)), f29_ER_DATA, CS);",
+   "verdict": "equivalent",
+   "reason": "MSG_0020 substring move in er_0020; destination buffer ER_DATA is 73 bytes, so length 73 and 74 copy identically."
+  },
+  {
+   "id": "ec26800bc1",
+   "op": "BDM",
+   "line": 618,
+   "before": "BigDecimal v11 = Cobol.subtract(Funcs.mod(Cobol.add(BigDecimal.valueOf(f2_HL_R1), DC_32768), D65536), DC_32768);",
+   "after": "BigDecimal v11 = Cobol.add(Funcs.mod(Cobol.add(BigDecimal.valueOf(f2_HL_R1), DC_32768), D65536), DC_32768);",
+   "verdict": "equivalent",
+   "reason": "ER-LEN calculation in er_0020; sends constant template (73 bytes)."
+  },
+  {
+   "id": "ba8a884f75",
+   "op": "BDM",
+   "line": 618,
+   "before": "BigDecimal v11 = Cobol.subtract(Funcs.mod(Cobol.add(BigDecimal.valueOf(f2_HL_R1), DC_32768), D65536), DC_32768);",
+   "after": "BigDecimal v11 = Cobol.subtract(Funcs.mod(Cobol.subtract(BigDecimal.valueOf(f2_HL_R1), DC_32768), D65536), DC_32768);",
+   "verdict": "equivalent",
+   "reason": "ER-LEN calculation in er_0020; sends constant template (73 bytes)."
+  },
+  {
+   "id": "aba674c983",
+   "op": "CON",
+   "line": 619,
+   "before": "f28_ER_LEN = Cobol.binary(v11, 4, true, false, true, CS);",
+   "after": "f28_ER_LEN = Cobol.binary(v11, 5, true, false, true, CS);",
+   "verdict": "equivalent",
+   "reason": "ER-LEN calculation in er_0020; sends constant template (73 bytes)."
+  },
+  {
+   "id": "3727619c2e",
+   "op": "LIT",
+   "line": 621,
+   "before": "String text12 = new String(DetCics.withinRecord(f29_ER_DATA, BigDecimal.valueOf(f28_ER_LEN).intValue(), \"SEND TEXT\"), CS);",
+   "after": "String text12 = new String(DetCics.withinRecord(f29_ER_DATA, BigDecimal.valueOf(f28_ER_LEN).intValue(), \"XEND TEXT\"), CS);",
+   "verdict": "equivalent",
+   "reason": "Planned fault check or debug label in er_0020 SEND TEXT; planned faults are inactive."
+  },
+  {
+   "id": "136dfaa730",
+   "op": "LIT",
+   "line": 622,
+   "before": "int[] planned13 = task.planned(\"SEND-TEXT\", \"-\");",
+   "after": "int[] planned13 = task.planned(\"XEND-TEXT\", \"-\");",
+   "verdict": "equivalent",
+   "reason": "Planned fault check or debug label in er_0020 SEND TEXT; planned faults are inactive."
+  },
+  {
+   "id": "dce06a2171",
+   "op": "LIT",
+   "line": 622,
+   "before": "int[] planned13 = task.planned(\"SEND-TEXT\", \"-\");",
+   "after": "int[] planned13 = task.planned(\"SEND-TEXT\", \"X\");",
+   "verdict": "equivalent",
+   "reason": "Planned fault check or debug label in er_0020 SEND TEXT; planned faults are inactive."
+  },
+  {
+   "id": "8c92cd848a",
+   "op": "CON",
+   "line": 623,
+   "before": "if (planned13[0] == 0) task.sendText(text12.substring(0, Math.min(text12.length(), BigDecimal.valueOf(f28_ER_LEN).intValue())), BigDecimal.valueOf(f28_ER_LEN).intValue(), \"ERASE\");",
+   "after": "if (planned13[1] == 0) task.sendText(text12.substring(0, Math.min(text12.length(), BigDecimal.valueOf(f28_ER_LEN).intValue())), BigDecimal.valueOf(f28_ER_LEN).intValue(), \"ERASE\");",
+   "verdict": "equivalent",
+   "reason": "Planned fault check or debug label in er_0020 SEND TEXT; planned faults are inactive."
+  },
+  {
+   "id": "d05354a0a3",
+   "op": "DEL",
+   "line": 624,
+   "before": "Cobol.store(f84_EIBRESP, BigDecimal.valueOf(planned13[0]), false, CS);",
+   "after": "/* Cobol.store(f84_EIBRESP, BigDecimal.valueOf(planned13[0]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "Planned fault check or debug label in er_0020 SEND TEXT; planned faults are inactive."
+  },
+  {
+   "id": "5da67a95a8",
+   "op": "CON",
+   "line": 624,
+   "before": "Cobol.store(f84_EIBRESP, BigDecimal.valueOf(planned13[0]), false, CS);",
+   "after": "Cobol.store(f84_EIBRESP, BigDecimal.valueOf(planned13[1]), false, CS);",
+   "verdict": "equivalent",
+   "reason": "Planned fault check or debug label in er_0020 SEND TEXT; planned faults are inactive."
+  },
+  {
+   "id": "656030c165",
+   "op": "DEL",
+   "line": 625,
+   "before": "Cobol.store(f85_EIBRESP2, BigDecimal.valueOf(planned13[1]), false, CS);",
+   "after": "/* Cobol.store(f85_EIBRESP2, BigDecimal.valueOf(planned13[1]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "Planned fault check or debug label in er_0020 SEND TEXT; planned faults are inactive."
+  },
+  {
+   "id": "d9dbb8e5b0",
+   "op": "CON",
+   "line": 628,
+   "before": "return 12;",
+   "after": "return 13;",
+   "verdict": "equivalent",
+   "reason": "Jump in er_0020; branches unconditionally to sy_0900."
+  },
+  {
+   "id": "06ae2c8dfc",
+   "op": "CON",
+   "line": 634,
+   "before": "f13_BAS_REG = Cobol.binary(BigDecimal.valueOf(f3_HL_R14), 9, true, false, true, CS);",
+   "after": "f13_BAS_REG = Cobol.binary(BigDecimal.valueOf(f3_HL_R14), 10, true, false, true, CS);",
+   "verdict": "equivalent",
+   "reason": "Return register BAS_REG precision (9 vs 10); value fits safely."
+  },
+  {
+   "id": "c635bc85d0",
+   "op": "BDM",
+   "line": 647,
+   "before": "BigDecimal v14 = Cobol.subtract(Funcs.mod(Cobol.add(BigDecimal.valueOf(f2_HL_R1), DC_32768), D65536), DC_32768);",
+   "after": "BigDecimal v14 = Cobol.add(Funcs.mod(Cobol.add(BigDecimal.valueOf(f2_HL_R1), DC_32768), D65536), DC_32768);",
+   "verdict": "equivalent",
+   "reason": "TD-LEN calculation in sy_9000; sends constant TD-DATA (74 bytes)."
+  },
+  {
+   "id": "0c13d4abe2",
+   "op": "BDM",
+   "line": 647,
+   "before": "BigDecimal v14 = Cobol.subtract(Funcs.mod(Cobol.add(BigDecimal.valueOf(f2_HL_R1), DC_32768), D65536), DC_32768);",
+   "after": "BigDecimal v14 = Cobol.subtract(Funcs.mod(Cobol.subtract(BigDecimal.valueOf(f2_HL_R1), DC_32768), D65536), DC_32768);",
+   "verdict": "equivalent",
+   "reason": "TD-LEN calculation in sy_9000; sends constant TD-DATA (74 bytes)."
+  },
+  {
+   "id": "01a47b69f6",
+   "op": "CON",
+   "line": 648,
+   "before": "f20_TD_LEN = Cobol.binary(v14, 4, true, false, true, CS);",
+   "after": "f20_TD_LEN = Cobol.binary(v14, 5, true, false, true, CS);",
+   "verdict": "equivalent",
+   "reason": "TD-LEN calculation in sy_9000; sends constant TD-DATA (74 bytes)."
+  },
+  {
+   "id": "7c223cfbaf",
+   "op": "CON",
+   "line": 650,
+   "before": "f19_WTO_LEN = Cobol.binary(BigDecimal.valueOf(f2_HL_R1), 9, true, false, true, CS);",
+   "after": "f19_WTO_LEN = Cobol.binary(BigDecimal.valueOf(f2_HL_R1), 10, true, false, true, CS);",
+   "verdict": "equivalent",
+   "reason": "WTO-LEN binary precision in sy_9000; value fits safely."
+  },
+  {
+   "id": "7c23c5e9c0",
+   "op": "LIT",
+   "line": 652,
+   "before": "int resp15 = task.writeqTd(\"@tdq@\".strip(), new String(DetCics.padded(f21_TD_DATA, BigDecimal.valueOf(f20_TD_LEN).intValue(), \"WRITEQ TD\", CS), CS));",
+   "after": "int resp15 = task.writeqTd(\"@tdq@\".strip(), new String(DetCics.padded(f21_TD_DATA, BigDecimal.valueOf(f20_TD_LEN).intValue(), \"XRITEQ TD\", CS), CS));",
+   "verdict": "equivalent",
+   "reason": "TD-LEN calculation in sy_9000; sends constant TD-DATA (74 bytes)."
+  },
+  {
+   "id": "7072855519",
+   "op": "DEL",
+   "line": 653,
+   "before": "Cobol.store(f84_EIBRESP, BigDecimal.valueOf(resp15), false, CS);",
+   "after": "/* Cobol.store(f84_EIBRESP, BigDecimal.valueOf(resp15), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "EIBRESP / EIBRESP2 store after WRITEQ TD; ZECSNC does not check EIBRESP after WRITEQ TD (directly issues WRITE OPERATOR)."
+  },
+  {
+   "id": "130a1aff6a",
+   "op": "DEL",
+   "line": 654,
+   "before": "Cobol.store(f85_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+   "after": "/* Cobol.store(f85_EIBRESP2, BigDecimal.valueOf(0), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "EIBRESP / EIBRESP2 store after WRITEQ TD; ZECSNC does not check EIBRESP after WRITEQ TD (directly issues WRITE OPERATOR)."
+  },
+  {
+   "id": "ccdddfb2fc",
+   "op": "CON",
+   "line": 654,
+   "before": "Cobol.store(f85_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+   "after": "Cobol.store(f85_EIBRESP2, BigDecimal.valueOf(1), false, CS);",
+   "verdict": "equivalent",
+   "reason": "EIBRESP / EIBRESP2 store after WRITEQ TD; ZECSNC does not check EIBRESP after WRITEQ TD (directly issues WRITE OPERATOR)."
+  },
+  {
+   "id": "192965392b",
+   "op": "DEL",
+   "line": 658,
+   "before": "Cobol.store(f84_EIBRESP, BigDecimal.valueOf(wto16[0]), false, CS);",
+   "after": "/* Cobol.store(f84_EIBRESP, BigDecimal.valueOf(wto16[0]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "EIBRESP / EIBRESP2 store after WRITE OPERATOR; ZECSNC does not check EIBRESP after WRITE OPERATOR (directly returns via R14)."
+  },
+  {
+   "id": "8b84b4ac7d",
+   "op": "CON",
+   "line": 658,
+   "before": "Cobol.store(f84_EIBRESP, BigDecimal.valueOf(wto16[0]), false, CS);",
+   "after": "Cobol.store(f84_EIBRESP, BigDecimal.valueOf(wto16[1]), false, CS);",
+   "verdict": "equivalent",
+   "reason": "EIBRESP / EIBRESP2 store after WRITE OPERATOR; ZECSNC does not check EIBRESP after WRITE OPERATOR (directly returns via R14)."
+  },
+  {
+   "id": "4253bdf732",
+   "op": "DEL",
+   "line": 659,
+   "before": "Cobol.store(f85_EIBRESP2, BigDecimal.valueOf(wto16[1]), false, CS);",
+   "after": "/* Cobol.store(f85_EIBRESP2, BigDecimal.valueOf(wto16[1]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "EIBRESP / EIBRESP2 store after WRITE OPERATOR; ZECSNC does not check EIBRESP after WRITE OPERATOR (directly returns via R14)."
+  },
+  {
+   "id": "74c584a213",
+   "op": "DEL",
+   "line": 666,
+   "before": "f3_HL_R14 = Cobol.binary(BigDecimal.valueOf(f13_BAS_REG), 9, true, false, true, CS);",
+   "after": "/* f3_HL_R14 = Cobol.binary(BigDecimal.valueOf(f13_BAS_REG), 9, true, false, true, CS); */",
+   "verdict": "equivalent",
+   "reason": "R14 restore from BAS_REG in sy_9100; subroutine return."
+  },
+  {
+   "id": "274143b2d9",
+   "op": "CON",
+   "line": 666,
+   "before": "f3_HL_R14 = Cobol.binary(BigDecimal.valueOf(f13_BAS_REG), 9, true, false, true, CS);",
+   "after": "f3_HL_R14 = Cobol.binary(BigDecimal.valueOf(f13_BAS_REG), 10, true, false, true, CS);",
+   "verdict": "equivalent",
+   "reason": "R14 restore from BAS_REG in sy_9100; subroutine return."
+  },
+  {
+   "id": "75ba1d09d6",
+   "op": "CON",
+   "line": 669,
+   "before": "case 1: return GOTO | 6;",
+   "after": "case 1: return GOTO | 7;",
+   "verdict": "equivalent",
+   "reason": "Branch dispatch after sy_9000; returns to caller at sy_0200 (paragraph 6)."
+  },
+  {
+   "id": "cc4242a216",
+   "op": "LIT",
+   "line": 673,
+   "before": "String exit17 = task.abend(\"ASRA\".strip());",
+   "after": "String exit17 = task.abend(\"XSRA\".strip());",
+   "verdict": "unreachable",
+   "reason": "ASRA abend fallback in sy_9100 on line 673; subroutine return succeeds normally and fallback is never taken."
+  },
+  {
+   "id": "ea10ba8746",
+   "op": "NEG",
+   "line": 674,
+   "before": "if (exit17 == null) throw abended();",
+   "after": "if (!(exit17 == null)) throw abended();",
+   "verdict": "unreachable",
+   "reason": "ASRA abend fallback in sy_9100 on line 674; subroutine return succeeds normally and fallback is never taken."
+  },
+  {
+   "id": "c8e5e3a9c0",
+   "op": "ROR",
+   "line": 674,
+   "before": "if (exit17 == null) throw abended();",
+   "after": "if (exit17 != null) throw abended();",
+   "verdict": "unreachable",
+   "reason": "ASRA abend fallback in sy_9100 on line 674; subroutine return succeeds normally and fallback is never taken."
+  },
+  {
+   "id": "0782c0575d",
+   "op": "NEG",
+   "line": 675,
+   "before": "if (true) return GOTO | paragraph(exit17);",
+   "after": "if (!(true)) return GOTO | paragraph(exit17);",
+   "verdict": "unreachable",
+   "reason": "ASRA abend fallback in sy_9100 on line 675; subroutine return succeeds normally and fallback is never taken."
+  },
+  {
+   "id": "f6bcd06726",
+   "op": "CON",
+   "line": 676,
+   "before": "return 14;",
+   "after": "return 15;",
+   "verdict": "unreachable",
+   "reason": "ASRA abend fallback in sy_9100 on line 676; subroutine return succeeds normally and fallback is never taken."
+  }
+ ]
+}

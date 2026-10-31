@@ -551,6 +551,99 @@ def test_the_job_submit_mq_call_uow_handler_and_file_control_channels_round_trip
     assert node["file_control"] == selects
 
 
+def test_the_vsam_define_and_job_flow_channels_round_trip_every_payload_key(tmp_path):
+    vsam = [
+        {
+            "kind": "CLUSTER",
+            "name": "A.B.KSDS",
+            "organization": "INDEXED",
+            "key_length": 8,
+            "key_offset": 0,
+            "record_avg": 80,
+            "record_max": 200,
+            "related": None,
+            "unique_key": None,
+            "upgrade": None,
+            "step": "DEF1",
+            "line": 4,
+        },
+        {
+            "kind": "AIX",
+            "name": "A.B.AIX",
+            "organization": None,
+            "key_length": None,
+            "key_offset": None,
+            "record_avg": None,
+            "record_max": None,
+            "related": "A.B.KSDS",
+            "unique_key": "UNIQUEKEY",
+            "upgrade": "UPGRADE",
+            "step": None,
+            "line": 0,
+        },
+    ]
+    base = {
+        "kind": "STEP",
+        "name": None,
+        "step_ordinal": 1,
+        "step_name": "S1",
+        "program": "PGMA",
+        "proc": None,
+        "cond": "(4,LT)",
+        "if_cond": None,
+        "in_proc": None,
+        "dd_name": None,
+        "dsn": None,
+        "disp": None,
+        "generation": None,
+        "line": 3,
+    }
+    flow = [
+        {
+            **base,
+            "disp_normal": "CATLG",
+            "runs": "PGMB",
+            "runs_via": "PARM",
+            "systsin_member": "MEM",
+            "parm": "X",
+            "instream": "BODY",
+            "lrecl": 80,
+            "recfm": "FB",
+        },
+        {**base, "kind": "JOB", "name": "JOBA", "step_ordinal": None, "step_name": None, "program": None, "line": 0},
+    ]
+    files = [{"path": "j.jcl", "lang_id": "jcl", "raw_imports": [], "vsam_defines": vsam, "job_flow": flow}]
+    db = _record(tmp_path, files)
+    node = StateRehydrator(str(db)).load_state("RegistryRepo")["ram_cache"]["j.jcl"]
+    assert node["vsam_defines"] == vsam
+    assert node["job_flow"] == flow
+
+
+def test_a_baseline_without_the_healed_job_flow_columns_restores_them_as_absent():
+    conn = sqlite3.connect(":memory:")
+    conn.row_factory = sqlite3.Row
+    try:
+        cursor = conn.cursor()
+        cursor.execute(
+            "CREATE TABLE file_data (id INTEGER PRIMARY KEY, repo_name TEXT, commit_hash TEXT, file_path TEXT)"
+        )
+        old = CHANNELS_BY_NAME["job_flow"].ddl
+        old = "\n".join(ln for ln in old.split("\n") if not ln.strip().startswith("disp_normal "))
+        cursor.execute(old)
+        cursor.execute("INSERT INTO file_data VALUES (1, 'r', 'h', 'j.jcl')")
+        cursor.execute(
+            "INSERT INTO job_flow_data (repo_name, commit_hash, file_id, kind, step_name, line_number) "
+            "VALUES ('r', 'h', 1, 'STEP', 'S1', 2)"
+        )
+        channel = CHANNELS_BY_NAME["job_flow"]
+        row = cursor.execute(channel.select_sql(cursor, _has_table, _has_column), ("r", "h")).fetchone()
+        payload = channel.to_payload(row)
+        assert payload["step_name"] == "S1" and payload["line"] == 2
+        assert not {"disp_normal", "runs", "parm", "instream", "lrecl", "recfm"} & payload.keys()
+    finally:
+        conn.close()
+
+
 def test_a_baseline_without_the_refmod_texts_restores_them_as_null():
     conn = sqlite3.connect(":memory:")
     conn.row_factory = sqlite3.Row
@@ -575,7 +668,10 @@ def test_a_baseline_without_the_refmod_texts_restores_them_as_null():
         conn.close()
 
 
-_HEALED_ONLY = {"sql_statement": ("routine_name",)}
+_HEALED_ONLY = {
+    "sql_statement": ("routine_name",),
+    "job_flow": ("runs", "runs_via", "systsin_member", "parm", "instream", "lrecl", "recfm"),
+}
 
 
 def test_every_channel_declares_a_schema_that_names_its_own_table():
@@ -622,12 +718,7 @@ _GALAXY_IR = Path(__file__).resolve().parents[2] / "gitgalaxy" / "tools" / "cobo
 
 # Tables galaxy_ir loads that have no registry entry yet (custom insert or restore, #3383 remaining
 # slices). A table leaves this set when its channel is migrated; a new channel is never added here.
-_UNMIGRATED_IR_TABLES = frozenset(
-    {
-        "job_flow_data",
-        "vsam_define_data",
-    }
-)
+_UNMIGRATED_IR_TABLES: frozenset = frozenset()
 
 
 def _galaxy_ir_source():

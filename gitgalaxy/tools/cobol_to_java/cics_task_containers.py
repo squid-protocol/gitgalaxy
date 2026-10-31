@@ -484,8 +484,11 @@ CONTAINERS_JAVA = """\
     }
 
     /** DELETE CONTAINER(container) [CHANNEL(channel)] (IBM, EXEC CICS DELETE CONTAINER (CHANNEL)): CHANNELERR
-     *  RESP2 2, INVREQ RESP2 4 ("issued outside the scope of a currently-active channel"), CONTAINERERR RESP2 10. */
+     *  RESP2 2, INVREQ RESP2 4 ("issued outside the scope of a currently-active channel"), CONTAINERERR RESP2 10. IBM's
+     *  INVREQ RESP2 30 (a CICS-defined read-only container) and CHANNELERR RESP2 3 (a read-only channel) list no set: a
+     *  container or channel named DFH... is refused by name (X42). */
     public ContainerResult deleteContainer(String channel, String container) {
+        refuseCicsDefined("DELETE CONTAINER", container, channel);
         Channel ch = channel == null ? currentChannel : scopeChannel(channel, false);
         String name = channelName(container, "container");
         if (ch == null) {

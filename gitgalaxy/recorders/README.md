@@ -131,6 +131,14 @@ One row per SYNCPOINT / COMMIT / ROLLBACK, HANDLE CONDITION / ABEND / AID, expli
 
 One row per SELECT: `select_name`, `assign_name` (the `assign` payload key), `organization`, `access_mode`, `record_key`, `alternate_keys`, `relative_key`, `file_status`, `fd_copies` and `line_number`. Per-file, cascade-deleted with `file_data`, restored on delta scans.
 
+### `vsam_define_data` — IDCAMS DEFINE CLUSTER / AIX / PATH (#3455)
+
+One row per DEFINE in JCL in-stream data: `kind` (`CLUSTER` / `AIX` / `PATH`), `cluster_name` (the `name` payload key), `organization`, `key_length` / `key_offset` (KEYS), `record_avg` / `record_max` (RECORDSIZE), `related`, `unique_key`, `upgrade`, `step_name` (the `step` key) and `line_number`. Per-file, cascade-deleted with `file_data`, restored on delta scans.
+
+### `job_flow_data` — JCL job flow (#3451)
+
+One row per JOB, EXEC step or DSN DD: `kind` (`JOB` / `STEP` / `DD`), `job_name`, `step_ordinal`, `step_name`, `program`, `proc_name`, `cond`, `if_cond`, `in_proc`, `dd_name`, `dsn`, `disp`, `generation`, `line_number`, and the columns healed onto older tables: `disp_normal`, `runs` / `runs_via` / `systsin_member`, `parm`, `instream`, `lrecl` / `recfm`. A healed column restores as an absent key when NULL or empty (and a baseline without it restores the same way). Per-file, cascade-deleted with `file_data`, restored on delta scans.
+
 ### `entry_point_data` — program entry points (#3454)
 
 One row per PROCEDURE DIVISION [USING ...] or ENTRY 'X' [USING ...]: `kind` (`PROCEDURE` / `ENTRY`), `entry_name` (the ENTRY literal), `params` (comma-joined by position, BY VALUE / CONTENT prefixed) and `line_number`. Per-file, cascade-deleted with `file_data`, restored on delta scans.

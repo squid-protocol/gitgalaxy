@@ -33,7 +33,7 @@ CASES = sorted((ROOT / "tests" / "equivalence").glob("*/case.json"))
 FILES = sorted(eo.ESTATE_OPTIONS_DIR.glob("*.json"))
 BURNED = {
     "aws-mainframe-modernization-carddemo", "cics-banking-sample-application-cbsa", "cics-genapp",
-    "dbb-mortgage-application", "cics-async-api-credit-card-application-example", "zecs",
+    "dbb-mortgage-application", "cics-async-api-credit-card-application-example", "zecs", "cics-crucible",
 }  # fmt: skip
 
 

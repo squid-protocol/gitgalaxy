@@ -101,6 +101,7 @@ ABSENT_OK = {
         "db2.bind.ISOLATION": _NO_DB2,
     },
     "cics-banking-sample-application-cbsa": {"db2.ccsid.EBCDIC_CCSID": "DB2BIND.jcl names no EBCDIC CCSID"},
+    "cics-crucible": {"db2.ccsid.EBCDIC_CCSID": _NO_DB2, "db2.bind.ISOLATION": _NO_DB2},
     "cics-genapp": {"db2.ccsid.SQLCCSID": "no precompile PARM names SQLCCSID"},
     "dbb-mortgage-application": {
         "db2.ccsid.EBCDIC_CCSID": "no bind card or precompile PARM names one",

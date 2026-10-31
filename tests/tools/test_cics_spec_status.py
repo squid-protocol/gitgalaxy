@@ -56,7 +56,7 @@ def test_the_stub_probe_tells_taken_from_refused_whole():
     cmds = st.spec()
     assert st.stub_takes("READ", cmds["READ"])  # needs FILE: found by the per-option probe
     assert st.stub_takes("RETURN", cmds["RETURN"])
-    assert not st.stub_takes("LOAD", cmds["LOAD"])  # engine-only
+    assert not st.stub_takes("ACQUIRE", cmds["ACQUIRE"])  # engine-only
 
 
 def test_spec_prs_reads_section_7():

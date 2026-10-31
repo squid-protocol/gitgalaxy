@@ -81,7 +81,7 @@ def test_the_headless_audit_agrees_on_a_disguised_executable(tmp_path):
     [
         ("src/a.py", b"def add(a, b):\n    return a + b\n"),
         ("src/logo.png", _png()),
-        ("src/data.gz", gzip.compress(NOISE)),
+        ("src/data.gz", gzip.compress(NOISE, mtime=0)),
         ("src/a.json", b'{"a": 1}\n'),
     ],
 )
@@ -141,7 +141,61 @@ def test_known_miss_dense_data_in_a_bypassed_text_type(name, tmp_path, monkeypat
     assert _scan(tmp_path, monkeypatch, {f"src/{name}": DENSE}) == 1
 
 
-@pytest.mark.xfail(strict=True, reason="#7187: SecurityLens has no required header for these bypassed types")
+def _tar(fmt: int, payload: bytes = b"hello") -> bytes:
+    import io
+    import tarfile
+
+    buf = io.BytesIO()
+    with tarfile.open(fileobj=buf, mode="w", format=fmt) as tf:
+        info = tarfile.TarInfo("a.txt")
+        info.size = len(payload)
+        tf.addfile(info, io.BytesIO(payload))
+    return buf.getvalue()
+
+
+def _empty_tar() -> bytes:
+    import io
+    import tarfile
+
+    buf = io.BytesIO()
+    tarfile.open(fileobj=buf, mode="w").close()
+    return buf.getvalue()
+
+
+ICO = b"\x00\x00\x01\x00\x01\x00" + bytes(2000)
+
+
+def _v7_tar() -> bytes:
+    """A header with no `ustar` magic: only the checksum identifies it."""
+    data = bytearray(_tar(0))
+    data[257:265] = bytes(8)
+    data[148:156] = b"        "
+    data[148:156] = b"%06o\0 " % sum(data[:512])
+    return bytes(data)
+
+
 @pytest.mark.parametrize("name", ["icon.ico", "bundle.tar"])
-def test_known_miss_an_executable_behind_a_type_with_no_known_header(name, tmp_path, monkeypatch):
+def test_an_executable_behind_a_type_with_a_required_header_fails(name, tmp_path, monkeypatch):
     assert _scan(tmp_path, monkeypatch, {f"src/{name}": ELF}) == 1
+
+
+@pytest.mark.parametrize("name", ["icon.ico", "bundle.tar"])
+def test_another_inert_format_under_the_name_fails(name, tmp_path, monkeypatch):
+    assert _scan(tmp_path, monkeypatch, {f"src/{name}": _png()}) == 1
+    assert _scan(tmp_path, monkeypatch, {f"src/{name}": b"short"}) == 1
+
+
+@pytest.mark.parametrize(
+    "name,data",
+    [
+        ("icon.ico", ICO),
+        ("a.tar", _tar(1)),
+        ("a.tar", _tar(2)),
+        ("a.tar", _tar(0)),
+        ("a.tar", _v7_tar()),
+        ("a.tar", _empty_tar()),
+        ("a.tar", _tar(2, NOISE)),
+    ],
+)
+def test_real_ico_and_tar_files_pass(name, data, tmp_path, monkeypatch):
+    assert _scan(tmp_path, monkeypatch, {f"src/{name}": data}) == 0

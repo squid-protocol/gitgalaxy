@@ -58,30 +58,44 @@ from gitgalaxy.standards.cics.model import GroupKind
 from gitgalaxy.standards.cics.resp import DFHRESP as SPEC_DFHRESP
 from gitgalaxy.tools.cobol_to_java.det.cvda import CVDA  # #4415: DFHVALUE(name), IBM's CVDA numbers
 
-handler_labels = cics_conditions.handler_labels
-check_child_faults = cics_faults.check_child_faults
-fault_lines = cics_faults.fault_lines  # public names the tests and the runners reach through this module
-dli_fault_lines = cics_faults.dli_fault_lines
-enq_fault_key = cics_faults.enq_fault_key
-FAULT_COMMANDS = cics_faults.FAULT_COMMANDS
-UI_FAULT_CONDITIONS = cics_faults.UI_FAULT_CONDITIONS
-FILE_FAULT_CONDITIONS = cics_faults.FILE_FAULT_CONDITIONS
-LINK_REFUSED_CONDITIONS = cics_faults.LINK_REFUSED_CONDITIONS
-ts_seed = cics_tempstorage.ts_seed  # public names the tests and the compare step reach through this module
-java_ts_as_compared = cics_tempstorage.java_ts_as_compared
-java_start_as_compared = cics_taskcontrol.java_start_as_compared
-java_retrieve_as_compared = cics_taskcontrol.java_retrieve_as_compared
-_cobol_retrieve = cics_taskcontrol._cobol_retrieve  # (the unit test reads it through this module)
-http_peers = cics_web.http_peers  # public names the tests and the runners reach through this module
-http_peers_cfg = cics_web.http_peers_cfg
-http_request = cics_web.http_request
-http_request_cfg = cics_web.http_request_cfg
-tcpip = cics_web.tcpip
-tcpip_cfg = cics_web.tcpip_cfg
-_cobol_web = cics_web._cobol_web  # (the unit tests read the event readers through this module)
-_cobol_web_open = cics_web._cobol_web_open
-_cobol_web_send = cics_web._cobol_web_send
-_cobol_web_header = cics_web._cobol_web_header
+# Public names the tests and the runners reach through this module live in the family modules (#5274). They are
+# resolved on first use (PEP 562), not copied at import: a family module imports this one, so a copy made while it is
+# half-initialised is the py/unsafe-cyclic-import (#7153). Inside this file call `cics_<family>.<name>` directly.
+_FAMILY_NAMES: dict[str, Any] = {
+    "handler_labels": cics_conditions,
+    "check_child_faults": cics_faults,
+    "fault_lines": cics_faults,
+    "dli_fault_lines": cics_faults,
+    "enq_fault_key": cics_faults,
+    "FAULT_COMMANDS": cics_faults,
+    "UI_FAULT_CONDITIONS": cics_faults,
+    "FILE_FAULT_CONDITIONS": cics_faults,
+    "LINK_REFUSED_CONDITIONS": cics_faults,
+    "ts_seed": cics_tempstorage,
+    "java_ts_as_compared": cics_tempstorage,
+    "java_start_as_compared": cics_taskcontrol,
+    "java_retrieve_as_compared": cics_taskcontrol,
+    "_cobol_retrieve": cics_taskcontrol,
+    "http_peers": cics_web,
+    "http_peers_cfg": cics_web,
+    "http_request": cics_web,
+    "http_request_cfg": cics_web,
+    "tcpip": cics_web,
+    "tcpip_cfg": cics_web,
+    "_cobol_web": cics_web,
+    "_cobol_web_open": cics_web,
+    "_cobol_web_send": cics_web,
+    "_cobol_web_header": cics_web,
+}
+
+
+def __getattr__(name: str) -> Any:
+    family = _FAMILY_NAMES.get(name)
+    if family is None:
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    return getattr(family, name)
+
+
 STUB = common.CASES / "cics"
 LE_MODELS = common.CASES / "le"  # Language Environment service models (CEEDAYS) a CALLed subprogram may use
 
@@ -527,6 +541,27 @@ def _getmain(opts: dict[str, str | None], labels: list[str] | None) -> list[str]
     return lines + _call("GGCGETM", args) + _resp(opts, True, labels)
 
 
+def _load(opts: dict[str, str | None], program: list[str]) -> list[str]:
+    """#6876 (register X65): LOAD PROGRAM(name) [SET(ptr)] [LENGTH(halfword)] -> GGCLDPG (GG-FLAGS names the options given; the stub
+    sets the pointer to a non-null image and LENGTH to its length, PGMIDERR for a program the CSD does not define). HOLD, ENTRY and
+    FLENGTH are not modelled by the stub."""
+    key = "LOAD"
+    _check_spec(key, opts, ("LOAD",), lambda bad: [f"{key} {o}" for o in bad])
+    for o in ("HOLD", "ENTRY", "FLENGTH"):
+        if o in opts:
+            raise _stub_only(f"LOAD {o}")
+    if not opts.get("PROGRAM"):
+        raise Unsupported(NEEDS_ARGUMENT, [key])
+    flags = [o for o in ("SET", "LENGTH") if o in opts]
+    for o in flags:
+        if not opts[o]:
+            raise Unsupported(NEEDS_ARGUMENT, [key])
+    ptr = f"BY REFERENCE {_pointer(key, opts['SET'])}" if "SET" in opts else "BY REFERENCE GG-FLAGS"
+    length = f"BY REFERENCE {opts['LENGTH']}" if "LENGTH" in opts else "BY REFERENCE GG-FLAGS"
+    mark = f"MOVE '{' '.join(flags)}' TO GG-FLAGS" if flags else "MOVE SPACES TO GG-FLAGS"
+    return [*program, mark, *_call("GGCLDPG", [ptr, length])]
+
+
 def _address(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
     """#5079 (register X59): ADDRESS EIB(ptr) / COMMAREA(ptr) / TWA(ptr) / TCTUA(ptr) -> GGCADDR, which sets the pointer to the address of the EIB /
     the program's DFHCOMMAREA (NORMAL: the command has no condition). A task with no COMMAREA (EIBCALEN 0) is refused by the
@@ -661,7 +696,7 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
         # (EIBTIME / ASKTIME stay as dispatched; oracle_assumptions.md X4)
         _check_spec(verb, opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
         if verb == "ENQ":  # #5089: GGCENQ -- NORMAL, or the ENQBUSY a scenario plans (faults, name = the RESOURCE text)
-            key = enq_fault_key(opts.get("RESOURCE"))
+            key = cics_faults.enq_fault_key(opts.get("RESOURCE"))
             flag = "MOVE 'NOSUSPEND' TO GG-NAME1" if "NOSUSPEND" in opts else "MOVE SPACES TO GG-NAME1"
             given = ("L" if opts.get("LENGTH") else "") + ("M" if opts.get("MAXLIFETIME") else "")  # X60: GG-NAME2
             ops = [f"MOVE {opts['LENGTH']} TO GG-LEN"] if opts.get("LENGTH") else []
@@ -822,6 +857,13 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
         return _getmain(opts, labels)
     if verb == "FREEMAIN":
         return _freemain(opts, labels)
+    if verb == "LOAD":  # #6876 (X65): a program loaded by this task, addressed by a pointer
+        return _load(opts, [name(opts.get("PROGRAM"), "GG-NAME1")]) + _resp(opts, True, labels)
+    if verb == "RELEASE":
+        _check_spec("RELEASE", opts, (verb,), lambda bad: [f"RELEASE {o}" for o in bad])
+        if not opts.get("PROGRAM"):
+            raise Unsupported(NEEDS_ARGUMENT, ["RELEASE"])
+        return [name(opts["PROGRAM"], "GG-NAME1")] + _call("GGCRLPG", []) + _resp(opts, True, labels)
     if verb == "ADDRESS":  # #5079 (X59): a pointer to the EIB / the COMMAREA
         return _address(opts, labels)
     if verb == "WEB" and "RETRIEVE" in opts:  # #4941 (X41): the document of the last WEB SEND
@@ -2605,12 +2647,14 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         if urimaps(case, sc) is not None:  # #4270 zECS (X32): INQUIRE URIMAP's installed definitions
             (d / "urimaps.cfg").write_text("".join(f"{n} {tr or '-'} {pa}\n" for n, tr, pa in urimaps(case, sc)),
                                            encoding="ascii")  # fmt: skip
-        if http_peers(case, sc) is not None:  # #4767 zECS (X35): the HTTP servers the task can reach
-            (d / "http.cfg").write_text(http_peers_cfg(http_peers(case, sc), enc), encoding="ascii")
-        if http_request(case, sc) is not None:  # #4767 zECS (X37): the request the task serves
-            (d / "webreq.cfg").write_text(http_request_cfg(http_request(case, sc), enc), encoding="ascii")
-        if tcpip(case, sc) is not None:  # #4972 (X38): the connection the task was started on
-            (d / "tcpip.cfg").write_text(tcpip_cfg(tcpip(case, sc), enc), encoding="ascii")
+        if cics_web.http_peers(case, sc) is not None:  # #4767 zECS (X35): the HTTP servers the task can reach
+            (d / "http.cfg").write_text(cics_web.http_peers_cfg(cics_web.http_peers(case, sc), enc), encoding="ascii")
+        if cics_web.http_request(case, sc) is not None:  # #4767 zECS (X37): the request the task serves
+            (d / "webreq.cfg").write_text(
+                cics_web.http_request_cfg(cics_web.http_request(case, sc), enc), encoding="ascii"
+            )
+        if cics_web.tcpip(case, sc) is not None:  # #4972 (X38): the connection the task was started on
+            (d / "tcpip.cfg").write_text(cics_web.tcpip_cfg(cics_web.tcpip(case, sc), enc), encoding="ascii")
         if doctemplates(case, sc) is not None:  # #4769 zECS (X33): DOCUMENT CREATE TEMPLATE's installed definitions
             (d / "doctemplates.cfg").write_text("".join(f"{n} {t.encode(enc).hex().upper() or '-'}\n"
                                                         for n, t in doctemplates(case, sc).items()), encoding="ascii")  # fmt: skip
@@ -2655,12 +2699,14 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             (d / "region.cfg").write_text(f"APPLID {case['region']['applid']}\nSYSID {case['region']['sysid']}\n",
                                           encoding="ascii")  # fmt: skip
         if sc.get("faults") or sc.get("sql_abend_plan"):  # #4023 follow-up: the stub's injected conditions
-            check_child_faults(case, sc)  # #6967
+            cics_faults.check_child_faults(case, sc)  # #6967
             (d / "faults.cfg").write_text(
-                "".join(x + "\n" for x in fault_lines(sc)), encoding="latin-1"
+                "".join(x + "\n" for x in cics_faults.fault_lines(sc)), encoding="latin-1"
             )  # #5859 userid_hex
         if sc.get("dli_faults"):  # #5233: the DL/I stub's planned statuses
-            (d / "dlifaults.cfg").write_text("".join(x + "\n" for x in dli_fault_lines(case, sc)), encoding="ascii")
+            (d / "dlifaults.cfg").write_text(
+                "".join(x + "\n" for x in cics_faults.dli_fault_lines(case, sc)), encoding="ascii"
+            )
         if sc.get("sql_plan"):  # #4173: the SQL stub's planned faults (resolved by sql_fault_plan)
             (d / "sqlfaults.cfg").write_text("".join(x + "\n" for x in sc["sql_plan"]), encoding="ascii")
         date, _, time = scenario_clock(case, sc).partition(" ")  # #4622: the scenario's clock, else the case's
@@ -2696,9 +2742,9 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
                       + (f"GGCICS_URIMAPS={rel}/urimaps.cfg " if urimaps(case, sc) is not None else "")
                       + (f"GGCICS_MAPSETS='{mapsets_env(case)}' " if case.get("maps") else "")
                       + (f"GGCICS_DOCTEMPLATES={rel}/doctemplates.cfg " if doctemplates(case, sc) is not None else "")
-                      + (f"GGCICS_HTTP={rel}/http.cfg " if http_peers(case, sc) is not None else "")
-                      + (f"GGCICS_WEBREQ={rel}/webreq.cfg " if http_request(case, sc) is not None else "")
-                      + (f"GGCICS_TCPIP={rel}/tcpip.cfg " if tcpip(case, sc) is not None else "")
+                      + (f"GGCICS_HTTP={rel}/http.cfg " if cics_web.http_peers(case, sc) is not None else "")
+                      + (f"GGCICS_WEBREQ={rel}/webreq.cfg " if cics_web.http_request(case, sc) is not None else "")
+                      + (f"GGCICS_TCPIP={rel}/tcpip.cfg " if cics_web.tcpip(case, sc) is not None else "")
                       + (f"GGC_ZUIDSTCK_TOD={scenario_tod(case, sc)} " if scenario_tod(case, sc) else "")
                       + f"{sqlenv}COB_CURRENT_DATE='{scenario_clock(case, sc)}' GGCICS_NOW={clock_iso(case, sc)} ./task > {rel}/stdout.txt 2>&1; "
                       f"echo $? > {rel}/rc; set -e")  # fmt: skip
@@ -3082,7 +3128,7 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
         elif verb == "WEB-SEND":  # #4767 (X37): the response the program sent, as CicsTask records it
             res.setdefault("websend", []).append(cics_web._cobol_web_send(kv, data, enc))
         elif verb == "WEB-HEADER":  # #4767 (X38): a response header the program wrote
-            res.setdefault("webheader", []).append(_cobol_web_header(kv, enc))
+            res.setdefault("webheader", []).append(cics_web._cobol_web_header(kv, enc))
         elif verb == "WEB-RECEIVE":  # #4767 (X38): the request body the program read, as CicsTask records it
             res.setdefault("webreceive", []).append(cics_web._cobol_web_receive(kv, data, enc))
         elif verb == "WRITEQ-TS":  # #4607: as CicsTask records it (queue, data, resp, item)
@@ -4428,8 +4474,8 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
             m: {f.removesuffix("I"): v for f, v in typed.items()} for m, typed in (sc.get("receive") or {}).items()
         }
         scenarios.append({"name": sc["name"], "aid": sc.get("aid", "DFHENTER").removeprefix("DFH"),
-                          "commarea": ca, "area": area, **({"raw_commarea": True} if raw_names_of(sc) else {}), "receive": receive, "faults": fault_lines(sc), "sql_faults": sc.get("sql_plan", []),
-                          "dli_faults": dli_fault_lines(case, sc),
+                          "commarea": ca, "area": area, **({"raw_commarea": True} if raw_names_of(sc) else {}), "receive": receive, "faults": cics_faults.fault_lines(sc), "sql_faults": sc.get("sql_plan", []),
+                          "dli_faults": cics_faults.dli_fault_lines(case, sc),
                           "sql_unjudged": sql_unjudged(sc.get("sql_plan", []), seams),
                           "derived": bool(sc.get("derived")), "commarea_length": commarea_length(sc, ca_read),
                           **_java_untyped_commarea(case, sc, ca_read),
@@ -4441,8 +4487,8 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
                           **({"tod": scenario_tod(case, sc)} if scenario_tod(case, sc) else {}),
                           "ts": cics_tempstorage.ts_seed(case, sc), "urimaps": urimaps(case, sc),
                           **({"td": td_seed(case, sc)} if td_seed(case, sc) else {}),
-                          "doctemplates": doctemplates(case, sc), "http_peers": http_peers(case, sc),
-                          "http_request": http_request(case, sc), "tcpip": tcpip(case, sc),
+                          "doctemplates": doctemplates(case, sc), "http_peers": cics_web.http_peers(case, sc),
+                          "http_request": cics_web.http_request(case, sc), "tcpip": cics_web.tcpip(case, sc),
                           **_java_mq(case, sc, inputs, len(scenarios)), **_java_dli(case, corpus, inputs, sc)})  # fmt: skip
     (inputs / "scenarios.json").write_text(json.dumps(scenarios, indent=1), encoding="utf-8")
     props = ej.data_charset_arg(case)

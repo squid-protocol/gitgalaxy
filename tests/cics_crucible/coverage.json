@@ -270,6 +270,39 @@
     }
    }
   },
+  "ca-load-set/CALDST": {
+   "live": 3,
+   "outcomes": 4,
+   "scenarios": {
+    "load": {
+     "units": [
+      "LOG-LOAD",
+      "LOG-RESP",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "40:false",
+      "45:true"
+     ]
+    }
+   }
+  },
+  "ca-load-set/CALDSX": {
+   "live": 2,
+   "outcomes": 4,
+   "scenarios": {
+    "pgmiderr": {
+     "units": [
+      "LOG-RESP",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "37:false",
+      "42:true"
+     ]
+    }
+   }
+  },
   "ca-xctl-versions/CAXA": {
    "live": 1,
    "outcomes": 3,

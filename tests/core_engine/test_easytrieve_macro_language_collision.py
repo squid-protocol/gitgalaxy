@@ -90,3 +90,18 @@ def test_issue_4975_repro_resolves_to_easytrieve_in_all_neighbourhoods(tmp_path,
 def test_dot_ezt_files_unaffected(tmp_path):
     text = "JOB INPUT PERSNL\n  PRINT REPORT-1\n"
     assert _classify(tmp_path, "prog.ezt", text, ()) == "easytrieve"
+
+
+TROFF_MAC = '.\\" troff macros\n.de PP\n.sp .5v\n.ne 2\n..\n.de SH\n.sp 1\n.ft B\n..\n'
+MASM_MAC = "PUSHALL MACRO\n   push ax\nENDM\n"
+
+
+@pytest.mark.parametrize("hood", NEIGHBOURHOODS)
+@pytest.mark.parametrize("text", [TROFF_MAC, MASM_MAC], ids=["troff", "masm"])
+def test_mac_without_easytrieve_evidence_is_not_easytrieve(tmp_path, text, hood):
+    # #7064: troff `.mac` macro packages won the lexical fallback by default (easytrieve was the only unproven claimant).
+    assert _classify(tmp_path, "probe.mac", text, NEIGHBOURHOODS[hood]) not in {"easytrieve", "hlasm"}
+
+
+def test_dot_ezp_without_discriminator_still_easytrieve(tmp_path):
+    assert _classify(tmp_path, "prog.ezp", "JOB INPUT PERSNL\n  PRINT REPORT-1\n", ()) == "easytrieve"

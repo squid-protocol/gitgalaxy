@@ -21,6 +21,9 @@ GalaxyIR, and diffs every fact channel of the key against it:
                   elementary field's offset / length (REDEFINES overlays: unscored, the
                   layout reader skips them by design)
   jcl_utility_cards  the control statements of an in-stream DD (job_flow_data INSTREAM rows)
+  jcl_steps       STEP rows; JOB RESTART= (+ checkid), RD=, PARM.procstep=, COND.procstep= are unscored (no engine field)
+  jcl_dds         DD rows (an override DD `//PROCSTEP.DD` matches the row named after its proc step);
+                  SYSOUT / DUMMY DDs are unscored (job_flow_data keeps only DDs that name a DSN)
   sql_statements, sql_tables, jcl_steps, jcl_dds, screen_fields, csd_resources, transactions
   cics_resources  cics_resource_data (MAP / FILE / QUEUE commands)
   jcl_datasets    a JCL member's DSN references in file_data.raw_imports (a GDG reference as
@@ -702,6 +705,23 @@ def score_sql(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
         sc.add("sql_tables", path, f["table"], "fail" if d else "pass", f.get("horror"), d)
 
 
+# Optional key fields on a jcl_steps entry that job_flow_data has no field for (the key states them, the DB cannot
+# answer): each is reported `unscored` with its reason, never silently dropped (gitgalaxy#7065, H-0073, H-0075).
+_STEP_FIELDS_WITHOUT_ENGINE_ROW = (
+    ("restart_checkid", "job_flow_data keeps no checkid of JOB RESTART=(step,checkid) (core/job_flow.py)"),
+    ("rd", "job_flow_data keeps no RD= restart-definition parameter (core/job_flow.py)"),
+    ("parm_overrides", "job_flow_data keeps no PARM.procstep= override on an EXEC of a procedure (core/job_flow.py)"),
+    ("cond_overrides", "job_flow_data keeps no COND.procstep= override on an EXEC of a procedure (core/job_flow.py)"),
+)
+
+
+def _compact(v: Any) -> str:
+    """A key value as one short token for a check label (a list of override dicts becomes `RPT020:QUARTERLY`)."""
+    if isinstance(v, list):
+        return ",".join(f"{o.get('step')}:{o.get('parm', o.get('cond'))}" for o in v)
+    return str(v)
+
+
 def score_jcl(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
     ef = eng.files.get(path)
     flow = list(ef.job_flow) if ef else []
@@ -740,6 +760,9 @@ def score_jcl(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
                 f.get("horror"),
                 "job_flow_data keeps no JOB RESTART= (core/job_flow.py)",
             )
+        for key, why in _STEP_FIELDS_WITHOUT_ENGINE_ROW:
+            if f.get(key):
+                sc.add("jcl_steps", path, f"{label} {key}={_compact(f[key])}", "unscored", f.get("horror"), why)
     for s in steps:
         if id(s) not in used:
             sc.add("jcl_steps", path, f"{s.step_name} @{s.line}", "phantom", None, "not in the key")
@@ -768,7 +791,9 @@ def score_jcl(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
             d = _diff([("line", f["line"], r.line), ("inline_lines", f["inline_lines"], n)])
             sc.add("jcl_dds", path, label, "fail" if d else "pass", f.get("horror"), d)
             continue
-        r = next((x for x in dds if _u(x.step_name) == f["step"] and _u(x.dd_name) == dd and id(x) not in used), None)
+        # `//PROCSTEP.DD` on an EXEC of a procedure: job_flow names the row after the proc step (header of job_flow.py)
+        owner = f.get("override_of") or f["step"]
+        r = next((x for x in dds if _u(x.step_name) == _u(owner) and _u(x.dd_name) == dd and id(x) not in used), None)
         if r is None:
             sc.add("jcl_dds", path, label, "missing", f.get("horror"))
             continue

@@ -10,7 +10,7 @@
 """The COBOL standards and rules-as-data package (#4712).
 
 Declarative tables for the COBOL language standards and deterministic runtime rules
-(cobolrt), covering MOVE, COMPARE, ARITH, STRING, and FUNC families (#4712, epic #4710).
+(cobolrt), covering MOVE, COMPARE, ARITH, STRING, FUNC, EDIT, SORT, and HFP families (#4712, epic #4710).
 
 Follows the table-driven code generation pattern established by CicsSpec.java (#4586, #4608).
 """
@@ -42,6 +42,24 @@ _LAZY = {
     "FUNC_VECTORS": "gitgalaxy.standards.cobol.func",
     "FUNC_SPECS": "gitgalaxy.standards.cobol.func",
     "FUNC_CATEGORIES": "gitgalaxy.standards.cobol.func",
+    "EDITING_RULES": "gitgalaxy.standards.cobol.editing",
+    "EDITING_SYMBOLS": "gitgalaxy.standards.cobol.editing",
+    "EDITING_VECTORS": "gitgalaxy.standards.cobol.editing",
+    "EDIT_CATEGORY_NAMES": "gitgalaxy.standards.cobol.editing",
+    "SORT_RULES": "gitgalaxy.standards.cobol.sort_ops",
+    "SORT_VECTORS": "gitgalaxy.standards.cobol.sort_ops",
+    "DIRECTION_NAMES": "gitgalaxy.standards.cobol.sort_ops",
+    "COLLATING_NAMES": "gitgalaxy.standards.cobol.sort_ops",
+    "PHRASE_NAMES": "gitgalaxy.standards.cobol.sort_ops",
+    "HFP_RULES": "gitgalaxy.standards.cobol.hfp",
+    "HFP_VECTORS": "gitgalaxy.standards.cobol.hfp",
+    "PRECISION_SHORT": "gitgalaxy.standards.cobol.hfp",
+    "PRECISION_LONG": "gitgalaxy.standards.cobol.hfp",
+    "BYTES_SHORT": "gitgalaxy.standards.cobol.hfp",
+    "BYTES_LONG": "gitgalaxy.standards.cobol.hfp",
+    "BIAS_CHARACTERISTIC": "gitgalaxy.standards.cobol.hfp",
+    "SIGNIFICANT_DIGITS_SHORT": "gitgalaxy.standards.cobol.hfp",
+    "SIGNIFICANT_DIGITS_LONG": "gitgalaxy.standards.cobol.hfp",
 }
 
 __all__ = sorted(_LAZY)

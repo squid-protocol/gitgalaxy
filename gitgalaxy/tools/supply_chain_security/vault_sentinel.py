@@ -9,6 +9,7 @@
 import argparse
 import fnmatch
 import os
+import re
 import sys
 import time
 from pathlib import Path
@@ -16,9 +17,31 @@ from pathlib import Path
 # Import exclusively from the GitGalaxy Hub
 from gitgalaxy.core.aperture import ApertureFilter
 from gitgalaxy.core.source_text import read_source
+from gitgalaxy.security.long_lines import chunk_long_lines
 from gitgalaxy.security.security_lens import SecurityLens
-from gitgalaxy.standards.config_resolver import resolve_config
+from gitgalaxy.standards.config_resolver import path_allowlisted, resolve_config
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+MAX_TEXT_BYTES = 5_000_000
+# Secret kinds SecurityLens has no signature for (#7179). Kept here, not in its signatures, because those feed the
+# engine's scoring and golden masters. Each opens with a literal and has bounded runs, so none can backtrack.
+EXTRA_SECRETS = (
+    re.compile(r"aws_secret_access_key['\"]?\s{0,4}[:=]\s{0,4}['\"]?[A-Za-z0-9/+]{40}\b", re.I),
+    re.compile(r"\bAIza[0-9A-Za-z_-]{35}\b"),
+    re.compile(r"\beyJ[A-Za-z0-9_-]{8,2000}\.eyJ[A-Za-z0-9_-]{8,4000}\.[A-Za-z0-9_-]{8,2000}"),
+)
+
+
+def is_readable_text(path: Path) -> bool:
+    """Whether a secret could be read out of this file. The engine's filter keeps source-like files, which is right for
+    the engine and left .tf, .env, .ini, .toml and .conf files unread here (#7179): this tool wants any text."""
+    try:
+        if path.is_symlink() or not 0 < path.stat().st_size <= MAX_TEXT_BYTES:
+            return False
+        with open(path, "rb") as f:
+            return b"\0" not in f.read(8192)
+    except OSError:
+        return False
 
 
 def main():
@@ -65,6 +88,7 @@ def main():
     leaks_allowed = 0
     forbidden_blocked = 0
     files_evaluated = 0
+    scan_errors = 0  # a file that couldn't be scanned isn't a clean file: the summary says so
 
     files_to_deep_scan = []
 
@@ -87,7 +111,7 @@ def main():
 
             # Create a normalized string for checking against lists
             rel_path_str = str(file_path.relative_to(target_path)).replace("\\", "/")
-            is_whitelisted = any(approved in rel_path_str for approved in allowlist_paths)
+            is_whitelisted = path_allowlisted(rel_path_str, allowlist_paths)
 
             # 1. DENYLIST ENFORCEMENT (Wildcard Pattern Matching)
             is_forbidden = any(fnmatch.fnmatch(file, pattern) for pattern in denylist_patterns)
@@ -109,7 +133,7 @@ def main():
                     leaks_found += 1
                 continue
 
-            if is_valid:
+            if is_valid or is_readable_text(file_path):
                 files_to_deep_scan.append((file_path, rel_path_str, is_whitelisted))
 
     # ==============================================================================
@@ -126,20 +150,22 @@ def main():
         try:
             content = read_source(file_path).text  # #3813: no byte dropped
 
-            sec_results = security.scan_content(content)
+            sec_results = security.scan_content(chunk_long_lines(content))
+            extra_hits = sum(1 for pattern in EXTRA_SECRETS if pattern.search(content))
 
-            if sec_results["counts"].get("hardcoded_secrets", 0) > 0:
+            if sec_results["counts"].get("hardcoded_secrets", 0) > 0 or extra_hits:
                 if is_whitelisted:
                     print(f"[ALLOWLIST BYPASS] Known safe secret ignored in: {rel_path_str}")
                     leaks_allowed += 1
                 else:
                     print(f"[CONTENT BREACH] Hardcoded Credential: {rel_path_str}")
-                    secret_hits = len(sec_results["snippets"].get("hardcoded_secrets", []))
+                    secret_hits = len(sec_results["snippets"].get("hardcoded_secrets", [])) + extra_hits
                     for _ in range(secret_hits):
                         # Never log any portion of a detected secret snippet.
                         print("   -> ********[REDACTED]********")
                     leaks_found += 1
         except Exception as e:
+            scan_errors += 1
             logging.getLogger("vault_sentinel").debug(f"Failed to scan '{rel_path_str}': {e}")
 
     end_time = time.time()
@@ -160,6 +186,7 @@ def main():
     print(f" SECRETS DETECTED     : {leaks_found:,}")
     print(f" Denylist Blocks      : {forbidden_blocked:,}")
     print(f" Allowlist Bypasses   : {leaks_allowed:,}")
+    print(f" Files Not Scanned    : {scan_errors:,}{'  (errors: these were NOT checked)' if scan_errors else ''}")
     print("-" * 75)
 
     if leaks_found > 0:

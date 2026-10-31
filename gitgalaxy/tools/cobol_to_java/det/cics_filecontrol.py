@@ -1,13 +1,23 @@
 """#5274: the file-control family of the det CICS translator, split out of det/cics.py -- READ / READNEXT / READPREV /
 STARTBR / RESETBR / ENDBR / WRITE / REWRITE / DELETE / UNLOCK onto CicsTask's files, including the RBA browse (#4213),
 KEYLENGTH / GENERIC (#4411, #4270), the update TOKEN (#5078) and the generic delete (#4771). `Cics` inherits these
-methods; its command dispatch and `command_key` stay the registry. The translator's shared helpers are imported inside
-each method, as det/cics_containers.py does: a module-level import would close a cycle."""
+methods; its command dispatch and `command_key` stay the registry. The translator's shared helpers come from
+det/cics_common.py (#7153): importing them back from det/cics.py closed an import cycle."""
 
 from __future__ import annotations
 
 from collections.abc import Iterator
 from typing import TYPE_CHECKING, Any
+
+from gitgalaxy.tools.cobol_to_java.det.cics_common import (
+    CicsError,
+    KeylengthInvreq,
+    Untranslatable,
+    _arg,
+    _msg,
+    _requires,
+    jstr,
+)
 
 if TYPE_CHECKING:
     from gitgalaxy.tools.cobol_to_java.det import expr as E
@@ -33,8 +43,6 @@ def file_key_method(names: Any) -> list[str]:
     stands behind every instance (register X22 assumption)."""
     import re
 
-    from gitgalaxy.tools.cobol_to_java.det.cics import G_jstr
-
     tpl = sorted(n for n in names if "@" in n or "#" in n)
     if not tpl:
         return []
@@ -45,7 +53,7 @@ def file_key_method(names: Any) -> list[str]:
     ]
     for n in tpl:
         rx = "".join(".+" if m else re.escape(c) for c, m in _split(n))
-        out.append(f"        if (t.matches({G_jstr(rx)})) return {G_jstr(n)};")
+        out.append(f"        if (t.matches({jstr(rx)})) return {jstr(n)};")
     out += ["        return n;", "    }", ""]
     return out
 
@@ -90,7 +98,6 @@ class FileControlCommands:
         READNEXT / READPREV ... RBA (CicsTask's RBA browse, oracle_assumptions.md X13). XRBA, RRN, READ / WRITE / DELETE
         by RBA, and GTEQ / KEYLENGTH / GENERIC / REQID in an RBA browse are not (IBM: GTEQ "is not valid for directly
         browsing an ESDS")."""
-        from gitgalaxy.tools.cobol_to_java.det.cics import CicsError
 
         for o in ("XRBA", "RRN"):
             if o in opts:
@@ -107,7 +114,6 @@ class FileControlCommands:
         return True
 
     def rba_browse(self, verb: str, opts: dict, ind: str) -> list[str]:
-        from gitgalaxy.tools.cobol_to_java.det.cics import _arg
 
         file = self.file_name(_arg(opts.get("DATASET") or opts.get("FILE")))
         rid = self.field(opts["RIDFLD"])
@@ -134,8 +140,6 @@ class FileControlCommands:
         full key", 42 below zero; zero undocumented), refused by name otherwise. Returns the length searched: the
         generic key's, else the full key's (None without KEYLENGTH)."""
         import re
-
-        from gitgalaxy.tools.cobol_to_java.det.cics import CicsError, KeylengthInvreq, _arg
 
         generic = verb == "READ" and "GENERIC" in opts
         if "KEYLENGTH" not in opts:
@@ -167,7 +171,6 @@ class FileControlCommands:
         specified in the KEYLENGTH option"; GTEQ -- "if the search for a record that has the same key (complete or
         generic) ... is unsuccessful, the first record that has a greater key is retrieved"; NOTFND RESP2 80
         (CicsTask.readSearch). A READ UPDATE holds the record found (its key, not RIDFLD's)."""
-        from gitgalaxy.tools.cobol_to_java.det.cics import CicsError, _arg, _msg
 
         gteq, generic = "GTEQ" in opts, "GENERIC" in opts
         if not (gteq or generic):
@@ -215,8 +218,6 @@ class FileControlCommands:
         READPREV and the RBA browse still honour only INTO's own length (#4411); any other is refused by name."""
         import re
 
-        from gitgalaxy.tools.cobol_to_java.det.cics import CicsError, _arg
-
         if "LENGTH" not in opts:
             return None
         arg = _arg(opts["LENGTH"])
@@ -236,7 +237,6 @@ class FileControlCommands:
         READNEXT / READPREV: "until the next READNEXT or READPREV command specifies SET for the same browse (REQID) for the
         same file ... no longer valid after an ENDBR or SYNCPOINT" (CicsTask.acquireSet / invalidateSet). RBA, a LENGTH on
         a browse and a SET with INTO are refused by name; READ's LENGTH(data-area) is set to the record's length."""
-        from gitgalaxy.tools.cobol_to_java.det.cics import CicsError, KeylengthInvreq, _arg, _msg
 
         if bool(opts.get("INTO")) == ("SET" in opts):
             raise CicsError(_msg(verb, "one_of", "INTO", verb))
@@ -298,6 +298,20 @@ class FileControlCommands:
                f"{ind}}}"]  # fmt: skip
         return out + self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)
 
+    def set_target(self, text: str) -> tuple[str, str]:
+        """#6876 (X47): what a file read's SET names: (the Field, the DetCics method that gives it the record's block). A
+        POINTER item takes the block's handle (setBlock); `ADDRESS OF rec`, a LINKAGE 01 record, is addressed to the block
+        as SET ADDRESS OF rec TO ptr would (setBlockAt). Any other record is refused by name."""
+        import re
+
+        m = re.fullmatch(r"(?is)\s*ADDRESS\s+OF\s+([A-Z][A-Z0-9-]*)\s*", text)
+        if m is None:
+            return self.pointer(text), "setBlock"
+        try:
+            return self.g.address_record(m.group(1)), "setBlockAt"
+        except Untranslatable as e:
+            raise CicsError(str(e)) from None
+
     def read_set(self, verb: str, opts: dict, ind: str) -> list[str]:
         """#5042 (X58): READ / READNEXT / READPREV SET(pointer): as the INTO form (the same store lookups, holds and
         tokens), but the record goes into a new block the pointer addresses. READ's LENGTH(data-area) is set to the
@@ -305,10 +319,8 @@ class FileControlCommands:
         literal, on a browse, or with a READ UPDATE LENGERR has nothing to say here and is refused."""
         import re
 
-        from gitgalaxy.tools.cobol_to_java.det.cics import CicsError, _arg
-
         g = self.g
-        ptr = self.pointer(opts["SET"])
+        ptr, put = self.set_target(opts["SET"])
         st = self.store(opts)
         file = self.file_name(_arg(opts.get("DATASET") or opts.get("FILE")))
         rid = self.field(opts["RIDFLD"])
@@ -330,7 +342,7 @@ class FileControlCommands:
             out = [f"{ind}byte[] {rec} = DetCics.bytes({rid});",
                    f"{ind}CicsTask.FileRead<byte[]> {r} = {call};",
                    f"{ind}if ({r}.record() != null) {{",
-                   f'{ind}    DetCics.setBlock(task, {ptr}, "READ " + {file}, {r}.record(), {str(update).lower()});',
+                   f'{ind}    DetCics.{put}(task, {ptr}, "READ " + {file}, {r}.record(), {str(update).lower()});',
                    *([f"{ind}    heldKey.put({file}, {held});"] if "UPDATE" in opts and "TOKEN" not in opts else []),
                    *self.token_out(opts, file, st, r, f"{ind}    ")]  # fmt: skip
             if length is not None:
@@ -345,7 +357,7 @@ class FileControlCommands:
                f"{ind}if ({r}.normal()) {{",
                f"{ind}    DetCics.put({rid}, {r}.key().getBytes(CS));",
                f"{ind}    byte[] {got} = {st}.find({r}.key().getBytes(CS)).orElse(null);",
-               f'{ind}    if ({got} != null) DetCics.setBlock(task, {ptr}, "BROWSE " + {file}, {got}, true);',
+               f'{ind}    if ({got} != null) DetCics.{put}(task, {ptr}, "BROWSE " + {file}, {got}, true);',
                f"{ind}}}"]  # fmt: skip
         return out + self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)
 
@@ -353,7 +365,6 @@ class FileControlCommands:
         """#5078 (X52): READ ... UPDATE TOKEN(d) -- the record read is held under a token (CicsTask.holdToken) that is
         stored into d, a fullword (IBM, EXEC CICS READ: "a unique identifier for this READ UPDATE request"; "If you
         specify TOKEN it implies update"). The key held is the record's own, as the stub holds it."""
-        from gitgalaxy.tools.cobol_to_java.det.cics import CicsError, _arg
 
         if "TOKEN" not in opts:
             return []
@@ -399,7 +410,6 @@ class FileControlCommands:
 
     def record_from(self, opts: dict) -> str:
         """A WRITE / REWRITE's record: FROM's bytes, or LENGTH bytes from FROM's first (as CICS reads them)."""
-        from gitgalaxy.tools.cobol_to_java.det.cics import _arg
 
         frm = self.read_field(opts["FROM"])
         if opts.get("LENGTH"):
@@ -409,9 +419,8 @@ class FileControlCommands:
     def _runtime_keylength(self, file: str) -> str:
         """#4771: the key length of the store a file name picks at run time (the project's stores, by name); a name it
         stores no file for is a Hole then, as store() makes it."""
-        from gitgalaxy.tools.cobol_to_java.det.cics import G_jstr
 
-        lengths = "; ".join(f"case {G_jstr(f)} -> {self.gp.entity_key(e, p)[1]}"
+        lengths = "; ".join(f"case {jstr(f)} -> {self.gp.entity_key(e, p)[1]}"
                             for f, (_repo, e, p) in self.gp.files.items())  # fmt: skip
         return (f'switch ({file_key_call(self.gp.files, file)}) {{ {lengths}; default -> throw new Hole("CICS file " + {file} + ": no store in the '
                 f'generated project"); }}')  # fmt: skip
@@ -423,8 +432,6 @@ class FileControlCommands:
         known, at run time when it is named then), 22 on a file that is not a KSDS (CicsTask, at run time); zero is
         undocumented and refused by name."""
         import re
-
-        from gitgalaxy.tools.cobol_to_java.det.cics import CicsError, _arg, _requires
 
         for o in ("KEYLENGTH", "RIDFLD"):
             if not opts.get(o):
@@ -474,7 +481,6 @@ class FileControlCommands:
     def token_update(self, verb: str, opts: dict, ind: str) -> list[str]:
         """#5078 (X52): REWRITE / DELETE / UNLOCK TOKEN(t) act on the record the READ UPDATE TOKEN that returned `t` holds
         (IBM). A token matching none in use is INVREQ RESP2 47 (CicsTask.rewriteToken / deleteToken / unlockToken)."""
-        from gitgalaxy.tools.cobol_to_java.det.cics import CicsError, _arg, _msg
 
         if not opts["TOKEN"]:
             raise CicsError(f"{verb} TOKEN needs a value")
@@ -495,7 +501,6 @@ class FileControlCommands:
         return out + self.outcome(opts, r, "task.resp2()", ind)
 
     def file_update(self, verb: str, opts: dict, ind: str) -> list[str]:
-        from gitgalaxy.tools.cobol_to_java.det.cics import CicsError, KeylengthInvreq, _arg, _msg
 
         if self._rba(verb, opts):
             return self.rba_browse(verb, opts, ind)

@@ -43,6 +43,7 @@ from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import (
     java_identifier,
     java_path,
     java_type,
+    pic_runs,
     status_text,
 )
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base, java_url_segment
@@ -172,10 +173,10 @@ def commarea_codec(cls: str, layout: dict, records: str, dbcs_page: str | None =
     return methods
 
 
-def _expanded_pic(pic: str | None) -> str:
-    """`X(08)` -> `XXXXXXXX`: a PICTURE as the characters it repeats, so equal pictures compare equal."""
-    p = re.sub(r"\s+", "", (pic or "").upper())
-    return re.sub(r"(.)\((\d+)\)", lambda m: m.group(1) * int(m.group(2)), p)
+def _expanded_pic(pic: str | None) -> tuple:
+    """`X(08)` and `XXXXXXXX` -> ((X, 8),): a PICTURE as the runs of characters it repeats, so equal pictures compare
+    equal. #7169: run lengths, never the expansion (`PIC X(1073741824)` is one run, not a 1 GiB string)."""
+    return tuple(pic_runs(re.sub(r"\s+", "", (pic or "").upper())))
 
 
 def layout_partition(layout: dict) -> tuple:
@@ -1039,6 +1040,30 @@ CICS_TASK_JAVA += """\
         return freemain(found);
     }
 
+    // ---- #6876 (register X65): programs LOADed into storage, addressed by a pointer ---------------------------------
+    private final java.util.Set<String> loaded = new java.util.HashSet<>();
+    private static final int PROGRAM_IMAGE = 256;  // IBM states no image length: the stub's (ASSUMED, X65)
+
+    /** LOAD PROGRAM (IBM, EXEC CICS LOAD; X65): {resp, resp2, handle, length}. PGMIDERR 1 for a program the CSD does not
+     *  define (nothing is set). Else a block of PROGRAM_IMAGE bytes (kind 4: no program may read it) and its length. */
+    public long[] loadProgram(String program) {
+        String name = program.stripTrailing();
+        if (root().programs == null || !root().programs.defined(name)) {
+            return new long[] {27, 1, 0, 0};
+        }
+        root().loaded.add(name);
+        return new long[] {0, 0, newBlock(new byte[PROGRAM_IMAGE], 4), PROGRAM_IMAGE};
+    }
+
+    /** RELEASE PROGRAM (X65): {resp, resp2}: PGMIDERR 1 undefined; NORMAL for a program this task loaded; INVREQ else. */
+    public int[] releaseProgram(String program) {
+        String name = program.stripTrailing();
+        if (root().programs == null || !root().programs.defined(name)) {
+            return new int[] {27, 1};
+        }
+        return root().loaded.remove(name) ? new int[] {0, 0} : new int[] {16, 0};
+    }
+
     /** The body WEB RECEIVE SET hands the program (X47): a new block, whose handle goes into the pointer. */
     public long acquireReceived(byte[] body) {
         if (body.length > 268435456L) {
@@ -1159,6 +1184,9 @@ CICS_TASK_JAVA += """\
         if (b.kind == 3) {
             throw refused("SET ADDRESS OF storage already freed");
         }
+        if (b.kind == 4) {
+            throw refused("SET ADDRESS OF a LOADed program's image: IBM's bytes are not modelled (X65)");
+        }
         if (b.bytes.length - b.off < need) {
             if (b.kind == 2 && ownedByTaskBlock(b.bytes)) {
                 growShared(b.bytes, b.off + need);  // #6839: a window advanced over GETMAIN / received storage
@@ -1269,6 +1297,7 @@ CICS_TASK_JAVA += """\
     // terminal and hands it to each task that terminal starts.
     private byte[] twa;                                     // the task's root's
     private byte[] tctua;                                   // the task's root's (the caller's array: it outlives the task)
+    private byte[] cwa;                                     // the task's root's (the caller's array: one for the whole region)
 
     /** TRANSACTION TWASIZE(n): the task's transaction work area is `size` bytes; 0 means none. */
     public CicsTask withTwaSize(int size) {
@@ -1282,6 +1311,13 @@ CICS_TASK_JAVA += """\
         return this;
     }
 
+    /** The region's CWA (IBM, SIT WRKAREA: "the number of bytes ... for the common work area"), one array the caller keeps for
+     *  every task of the region; null or empty means none. */
+    public CicsTask withCwa(byte[] area) {
+        this.cwa = area != null && area.length > 0 ? area : null;
+        return this;
+    }
+
     /** ADDRESS TWA: the handle of the TWA's bytes, the same one each time and at every LINK level; 0 for a task with none. */
     public long twaHandle() {
         byte[] a = root().twa;
@@ -1291,6 +1327,12 @@ CICS_TASK_JAVA += """\
     /** ADDRESS TCTUA: the handle of the terminal's user area; 0 for a task with none. */
     public long tctuaHandle() {
         byte[] a = root().tctua;
+        return a == null ? 0 : addressOf(a);
+    }
+
+    /** ADDRESS CWA: the handle of the region's common work area; 0 for a task with none. */
+    public long cwaHandle() {
+        byte[] a = root().cwa;
         return a == null ? 0 : addressOf(a);
     }
 
@@ -2010,6 +2052,17 @@ CICS_TASK_JAVA += """\
         public boolean normal() {
             return resp == 0 || resp == 15;  // #4623: DUPKEY (15) delivers the record too
         }
+    }
+
+    /** #6839 (row D): a variable-length file's record lengths, by the file's entity, each record's key (hex) to the
+     *  length it was written with (IBM, EXEC CICS WRITE / REWRITE LENGTH; READ returns it). Filled by whoever loads
+     *  the file (the equivalence harness from the stub's <file>.len) and backed out with the file's records; a file
+     *  with no entry here is a fixed-length one. */
+    public static final java.util.Map<String, java.util.Map<String, Integer>> RECORD_LENGTHS = new java.util.HashMap<>();
+
+    /** #6839: the record lengths of the file over `entity`, or null for a fixed-length file. */
+    public static java.util.Map<String, Integer> recordLengths(String entity) {
+        return RECORD_LENGTHS.get(entity);
     }
 
 """

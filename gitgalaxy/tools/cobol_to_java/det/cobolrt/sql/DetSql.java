@@ -273,9 +273,11 @@ public final class DetSql {
 
     /** INSERT ... VALUES (:A1, :A2) FOR n ROWS [ATOMIC] (#4269; IBM Db2 for z/OS SQL Reference, INSERT): the single-row
      *  statement run for element 1..n of every column's host variable table (`hosts[column][row]`, `indicators` null
-     *  where none), SQLERRD(3) the rows inserted. A first row that fails is Db2's error with nothing inserted; a later
-     *  row that fails would need ATOMIC's undo of the rows before it, which is not modelled, so it is refused. n above
-     *  the host variable tables (`capacity`) or below 1 is refused. */
+     *  where none), SQLERRD(3) the rows inserted. ATOMIC (the default): a row that fails is Db2's error with the whole
+     *  statement undone -- nothing inserted, SQLERRD(3) 0. The undo of the rows before the failing one is a savepoint
+     *  (INSERT_ROWS_SAVEPOINT) set on the unit of work's connection before row 1 and rolled back to; with no unit of
+     *  work a failure after row 1 is refused (the rows were committed as they ran). n above the host variable
+     *  tables (`capacity`) or below 1 is refused. */
     // [rule RT-SQL-INSERT-ROWS]
     public static void insertRows(Field ca, String at, long n, int capacity, String kinds, String[] names,
                                   Field[][] hosts, Field[][] indicators, ToIntFunction<Map<String, Object>> statement,
@@ -289,6 +291,15 @@ public final class DetSql {
                     + " ROWS with host variable tables of " + capacity);
         }
         int done = 0;
+        boolean undoable = n > 1 && unitOfWork != null;
+        if (undoable) {
+            try {
+                unitOfWork.execute("SAVEPOINT " + INSERT_ROWS_SAVEPOINT + " ON ROLLBACK RETAIN CURSORS");
+            } catch (RuntimeException e) {
+                failed(ca, e, cs);
+                return;
+            }
+        }
         for (int j = 0; j < n; j++) {
             Map<String, Object> params = new HashMap<>();
             for (int c = 0; c < hosts.length; c++) {
@@ -301,7 +312,18 @@ public final class DetSql {
             try {
                 done += statement.applyAsInt(params);
             } catch (RuntimeException e) {
-                if (done == 0) {
+                if (done == 0 && !undoable) {
+                    failed(ca, e, cs);
+                    return;
+                }
+                if (undoable) {
+                    try {
+                        unitOfWork.execute("ROLLBACK TO SAVEPOINT " + INSERT_ROWS_SAVEPOINT);
+                        unitOfWork.execute("RELEASE SAVEPOINT " + INSERT_ROWS_SAVEPOINT);
+                    } catch (RuntimeException undo) {
+                        throw new UnsupportedOperationException("EXEC SQL INSERT at " + at + ": row " + (j + 1)
+                                + " of " + n + " failed and ATOMIC's undo failed too", undo);
+                    }
                     failed(ca, e, cs);
                     return;
                 }
@@ -309,8 +331,19 @@ public final class DetSql {
                         + " failed after " + done + " were inserted; ATOMIC's undo is not modelled", e);
             }
         }
+        if (undoable) {
+            try {
+                unitOfWork.execute("RELEASE SAVEPOINT " + INSERT_ROWS_SAVEPOINT);
+            } catch (RuntimeException e) {
+                failed(ca, e, cs);
+                return;
+            }
+        }
         putInt(ca, SQLERRD + 8, 4, done);
     }
+
+    /** The savepoint ATOMIC's undo of INSERT ... FOR n ROWS rolls back to (a name a program's own savepoint won't use). */
+    private static final String INSERT_ROWS_SAVEPOINT = "GGINSROWS_UNDO";
 
     /** SELECT INTO: the one row, or null (+100 no row, -811 more than one, or Db2's error). */
     // [rule RT-SQL-SELECT-INTO]

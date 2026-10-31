@@ -323,8 +323,15 @@ def pointer_view_of(records: list) -> dict[str, str]:
                 continue  # (a second REDEFINES of the view could read the handle's bytes)
         else:
             continue
-        pic = view.picture()
-        if view.usage == "BINARY" and view.occurs <= 1 and not view.children and re.fullmatch(r"S?9+", pic):
+        runs = view.runs()  # S?9+, read from run lengths (#7169)
+        digits = runs[1:] if runs[:1] == [("S", 1)] else runs
+        if (
+            view.usage == "BINARY"
+            and view.occurs <= 1
+            and not view.children
+            and len(digits) == 1
+            and digits[0][0] == "9"
+        ):
             out[view.name.upper()] = ptr
     return out
 
@@ -343,7 +350,7 @@ def pointer_byte_view_of(records: list) -> dict[str, str]:
         if ptr is None or ptr.usage != "POINTER" or ptr.occurs > 1 or ptr.children or ptr.redefines:
             continue
         over = [y for y in items if (y.redefines or "").upper() in (x.name.upper(), ptr.name.upper())]
-        if len(over) == 1 and x.picture() == "XXXX":
+        if len(over) == 1 and x.runs() == [("X", 4)]:
             out[x.name.upper()] = ptr.name.upper()
     return out
 
@@ -799,7 +806,7 @@ def _sibling_service(sib: str, source_lines: list, program: Path, copy_dirs: lis
             return None
     ret = linkage.get(proc.returning) if proc.returning else None
     if proc.returning and (ret is None or ret.children or ret.category != "NUMERIC" or ret.occurs != 1
-                           or set(ret.picture()) - set("9S") or ret.picture().count("9") > 9):  # fmt: skip
+                           or ret.symbols() - set("9S") or ret.digits > 9):  # fmt: skip
         return None
     body = text[header.end() :]
     named = [_names_item(body, i.name.upper()) for i in items if i]
@@ -1580,6 +1587,9 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     out += [
         "    /** WORKING-STORAGE (and every storage) as its VALUE clauses set it: each entry point starts from here. */",
         "    private void initialState() {",
+        # #4767: a task's SET ADDRESS OF aliased a storage onto another's bytes; the service outlives the task, so the
+        # next task starts from the storage's own bytes, not through the stale alias onto what it addressed
+        *([f"        {n}.unalias();" for n, _ in storages] if gen.uses_set_address else []),
         *[f"        System.arraycopy(IMAGE_{n}, 0, {n}.bytes, 0, IMAGE_{n}.length);" for n, _ in storages],
         *inits,
         # an entry point starts a run unit: a first FUNCTION RANDOM with no seed seeds zero (IBM; C12)

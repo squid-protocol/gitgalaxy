@@ -176,6 +176,8 @@ _HLASM_SIMPLE_CASES = [
     ("auth_middleware", "         RACROUTE REQUEST=AUTH,CLASS='FACILITY'", "         MVC   RACROUTED,=C'X'"),
     ("auth_middleware", "         EXEC CICS SIGNON USERID(USER1)", "SIGNONFL DS    C"),
     ("ipc_rpc_bridges", "         LINK  EP=NEXTPGM", "         LR    2,3"),
+    ("ipc_rpc_bridges", "         LINKX EP=NEXTPGM", "         LINKXX EP=NEXTPGM"),
+    ("ipc_rpc_bridges", "         XCTLX EP=NEXTPGM", "         XCTLXX EP=NEXTPGM"),
     ("ipc_rpc_bridges", "         EXEC CICS XCTL PROGRAM('NEXTPGM')", None),
 ]
 
@@ -675,6 +677,8 @@ def test_hlasm_calls_out_strict():
     assert_redos_immune(calls_out, payload)
     for payload in (
         "         LINK  " + "A," * 5000 + "EP=",
+        "         LINKX " + "A," * 5000 + "EP=",
+        "         ATTACHX " + "A" * 10000,
         "         LINK  " + "A" * 10000,
         "         CALL  " + "A" * 10000,
         " " * 10000 + "CALL X",
@@ -714,7 +718,25 @@ _CALLS_OUT_FORMS = [
     ("         ATTACH EPLOC=NAMEFLD,ECB=ECB1", []),
     ("         DELETE EP=PAYCALC", []),
     ("         LOADX EP=PAYCALC", []),
-    ("         ATTACHX EP=SUBTASK", []),
+    # #7064: the extended (31-bit / AR-mode) forms name their callee like the base forms
+    ("         ATTACHX EP=SUBTASK", ["SUBTASK"]),
+    ("         ATTACHX ECB=ECB1,EP=SUBTASK", ["SUBTASK"]),
+    ("         attachx ep=subtask,ecb=ecb1", ["subtask"]),
+    ("         ATTACHX EPLOC=NAMEFLD,ECB=ECB1", []),
+    ("         LINKX EP=PAYCALC", ["PAYCALC"]),
+    ("         LINKX EP=PAYCALC,PARAM=(PARMS),VL=1", ["PAYCALC"]),
+    ("         LINKX PARAM=(A,B),EP=PAYCALC", ["PAYCALC"]),
+    ("LNK      linkx ep=paycalc,sf=(e,list)", ["paycalc"]),
+    ("         XCTLX EP=NEXTPGM", ["NEXTPGM"]),
+    ("         XCTLX (2,12),EP=NEXTPGM", ["NEXTPGM"]),
+    ("         xctlx ep=nextpgm,param=(x)", ["nextpgm"]),
+    ("         LINKX EPLOC=NAMEFLD", []),
+    ("         LINKX DE=DIRENT", []),
+    ("         XCTLX (2,12),EPLOC=NAMEFLD", []),
+    ("         LINKXX EP=PAYCALC", []),
+    ("         XCTLXX EP=NEXTPGM", []),
+    ("         LINKY EP=PAYCALC", []),
+    ("         DELETEX EP=PAYCALC", []),
     ("* LOAD  EP=PAYCALC", []),
     ("         MVC   WSNAME,=C'LOAD  EP=PAYCALC'", []),
     # --- near-misses that name no literal program ---
@@ -733,7 +755,6 @@ _CALLS_OUT_FORMS = [
     ("         MVC   WSNAME,=C'CALL  PAYCALC'", []),
     ("               CALL=PAYCALC", []),
     ("         CALLX PAYCALC", []),
-    ("         LINKX EP=PAYCALC", []),
     ("         BAL   14,PAYCALC", []),
     ("         BASR  14,15", []),
     # macro-level CICS LINK has no EP= operand
@@ -777,7 +798,7 @@ def _eploc_program(*lines: str, dc: str = "PGMFLD   DC    CL8'PAYCALC'") -> str:
     return "\n".join(["MAIN     CSECT", *lines, dc, "         END"]) + "\n"
 
 
-@pytest.mark.parametrize("verb", ["LINK", "XCTL", "link", "xctl"])
+@pytest.mark.parametrize("verb", ["LINK", "XCTL", "link", "xctl", "LINKX", "XCTLX", "linkx"])
 def test_eploc_names_the_constant_eploc_program(verb):
     assert _eploc_calls(_eploc_program(f"         {verb}  EPLOC=PGMFLD")) == ["PAYCALC"]
 
@@ -912,3 +933,42 @@ def test_nasm_mac_files_route_to_no_mainframe_language(path, line, case):
     detector = LanguageDetector(LANGUAGE_DEFINITIONS, {})
     text = "; nasm\n" + case(line) + "\n  push ebp\n"
     assert detector.focus(path, text)[0] not in {"hlasm", "easytrieve"}
+
+
+# #7064: debt markers count on a full-line comment only; operand text is not debt.
+_DEBT_COMMENTS = [
+    ("planned_debt", "* TODO: widen the field\n"),
+    ("planned_debt", "*  todo widen\n"),
+    ("planned_debt", ".* TODO macro comment\n"),
+    ("fragile_debt", "* HACK: self-modifying length byte\n"),
+    ("fragile_debt", "* fixme later\n"),
+    ("fragile_debt", ".* XXX revisit\n"),
+    ("fragile_debt", "*XXX\n"),
+]
+_DEBT_OPERANDS = [
+    "MSG      DC    CL20'RETURN CODE xxx'\n",
+    "T1       DS    CL3'xxx'\n",
+    "         LR    1,1          MESSAGE xxx\n",
+    "         LOAD  EP=BPX1GLG   STUB LOADER\n",
+    "         LR    1,1          TODO later\n",
+    "LABEL    DS    0H\n",
+]
+
+
+@pytest.mark.parametrize(("key", "text"), _DEBT_COMMENTS)
+def test_hlasm_debt_fires_on_a_full_line_comment(key, text):
+    other = "fragile_debt" if key == "planned_debt" else "planned_debt"
+    assert len(HLASM_RULES[key].findall(text + text)) == 2
+    assert not HLASM_RULES[other].search(text)
+
+
+@pytest.mark.parametrize("text", _DEBT_OPERANDS)
+def test_hlasm_debt_ignores_operand_text(text):
+    assert not HLASM_RULES["planned_debt"].search(text)
+    assert not HLASM_RULES["fragile_debt"].search(text)
+
+
+def test_hlasm_debt_marker_must_be_on_the_comment_line():
+    # the marker on the next statement, or a `*` that is not in column 1
+    assert not HLASM_RULES["fragile_debt"].search("* note\nX DC CL3'xxx'\n")
+    assert not HLASM_RULES["fragile_debt"].search("   * HACK\n")

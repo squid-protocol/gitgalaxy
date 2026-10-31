@@ -315,8 +315,8 @@ def test_a_bll_program_translates_whole_on_the_pointer_lane(tmp_path):
     [  # the cell form of a command that is refused for a pointer too stays refused, under that command's reason
         (
             "MOVE FRPTR TO TSPTR SERVICE RELOAD TS-REC.",
-            "EXEC CICS ADDRESS TWA(TSPTR) END-EXEC SERVICE RELOAD TS-REC.",
-            "ADDRESS TWA: option not modelled",
+            "EXEC CICS ADDRESS ACEE(TSPTR) END-EXEC SERVICE RELOAD TS-REC.",
+            "ADDRESS ACEE: option not modelled",
         ),
         # a list that is not the first LINKAGE record (IBM: only DFHCOMMAREA may precede it) is no BLL list: its
         # fullwords are data, and SET(FRPTR) names no pointer
@@ -378,7 +378,6 @@ def test_each_set_command_into_a_cell_is_its_pointer_form(tmp_path, command, jav
         ("READQ TS QUEUE('Q') SET(FRPTR) LENGTH(80)", "READQ TS SET with a literal LENGTH"),
         ("READ FILE('F') RIDFLD(WS-OUT) SET(FRPTR) RBA", "READ SET with RBA / RRN / XRBA"),
         ("READNEXT FILE('F') RIDFLD(WS-OUT) SET(FRPTR)\n                LENGTH(WS-LEN)", "READNEXT SET with LENGTH"),
-        ("LOAD PROGRAM('P') SET(FRPTR)", "EXEC CICS LOAD not modelled"),  # (#5042: the loaded bytes)
     ],
 )
 def test_each_set_command_into_a_cell_keeps_its_own_refusal(tmp_path, command, hole):

@@ -43,6 +43,8 @@ DEFINITION: dict[str, Any] = {
     # #4975: Collision resolution for `.mac` (claimed by both hlasm and easytrieve).
     # Easytrieve claims `.mac` on Easytrieve evidence -- FILE, JOB, PRINT, REPORT,
     # PROC, SORT, macro definitions/calls, and hyphenated control boundaries.
+    # #7064: `.mac` is Easytrieve only on proof; otherwise it wins the Tier-3 lexical fallback for troff / MASM macro files.
+    "extensions_needing_discriminator": [".mac"],
     "internal_discriminator": re.compile(
         r"^[ \t]*(?:"
         rf"FILE[ \t]+(?!(?:{_HLASM_OPS})\b)[A-Za-z0-9&_-]+|"

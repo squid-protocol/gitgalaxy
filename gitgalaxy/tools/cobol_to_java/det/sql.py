@@ -118,6 +118,8 @@ _REFUSED_VERBS = {
     "DESCRIBE": "DESCRIBE (an SQLDA of a prepared statement or table) is not modelled",
     "CONNECT": "CONNECT (a Db2 location switch) is not modelled; the port has one connection",
     "CALL": "EXEC SQL CALL (a stored procedure) is not modelled; the oracle has no procedure fixture",
+    "ALLOCATE": "ALLOCATE CURSOR (a result set locator of a stored procedure) is not modelled; there is no CALL",
+    "ASSOCIATE": "ASSOCIATE LOCATORS (result sets of a stored procedure) is not modelled; there is no CALL",
     "SET": "a SET that does not assign a host variable (SET CURRENT ...) is not modelled",
 }
 _WHENEVER_ORDER = ("SQLERROR", "NOT FOUND", "SQLWARNING")
@@ -481,8 +483,8 @@ class Sql:
     def _insert_rows(self, sql: str, m: re.Match, meth: Method, at: str, ind: str) -> list[str]:
         """#4269 (register Q4): INSERT ... VALUES (:A1 [:I1], :A2 ...) FOR n ROWS [ATOMIC] -- each host variable a table,
         one per column. The generated method is the single-row INSERT; DetSql.insertRows runs it for elements 1..n and
-        sets SQLERRD(3) to the rows inserted. A row that fails after the first stops the port at run time (the rows
-        before it were committed as they ran: ATOMIC's undo is not modelled)."""
+        sets SQLERRD(3) to the rows inserted. ATOMIC (the default) is modelled with an internal savepoint: a failing row
+        undoes the whole statement, so SQLERRD(3) is 0 and the SQLCODE is that row's."""
         what = "EXEC SQL INSERT ... FOR n ROWS"
         names: list[str] = []
         kinds = ""

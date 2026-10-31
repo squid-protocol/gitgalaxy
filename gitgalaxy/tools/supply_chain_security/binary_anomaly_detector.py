@@ -18,17 +18,57 @@
 
 import argparse
 import fnmatch
+import math
 import os
+import re
 import sys
 import time
+from collections import Counter
 from pathlib import Path
 from typing import Any
 
 # Import exclusively from the GitGalaxy Hub
 from gitgalaxy.core.aperture import ApertureFilter
 from gitgalaxy.security.security_lens import SecurityLens
-from gitgalaxy.standards.config_resolver import ResolvedConfig, resolve_config
+from gitgalaxy.standards.config_resolver import ResolvedConfig, path_allowlisted, resolve_config
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+MAX_DENSE_SCAN_BYTES = 5_000_000
+ENCODED_RUN = re.compile(rb"[A-Za-z0-9+/_-]{256,}={0,2}")  # a long unbroken encoded run: no backtracking in one class
+# A declared data: URI, percent-escapes included: an embedded icon is ordinary CSS and HTML, not a hidden payload.
+DATA_URI = re.compile(rb"data:[\w/+.-]{1,80};base64,[A-Za-z0-9+/=_%-]*")
+DENSE_RUN_ENTROPY = 5.0  # base64 of random data reads about 5.9; identifiers and hex stay under 4.5
+
+
+def _scan_head(security: SecurityLens, head: bytes, ext: str) -> dict:
+    """scan_binary, with `MZ` counted only where a Windows executable has it: the first two bytes. Anywhere in 8 KB, those
+    two letters flag ordinary text, and a dense payload could be caught by chance rather than by a real check (#7187)."""
+    return security.scan_binary(head if head.startswith(b"MZ") else head.replace(b"MZ", b"Mz"), ext)
+
+
+def _dense_run(path: Path, head: bytes) -> bool:
+    """A long encoded run anywhere in a text file. SecurityLens empties lines of 250+ characters and this tool reads 8 KB
+    of each file, so without this a large payload on one line, or past 8 KB, is never measured (#7187)."""
+    if b"\0" in head or path.stat().st_size > MAX_DENSE_SCAN_BYTES:
+        return False
+    for match in ENCODED_RUN.finditer(DATA_URI.sub(b"", path.read_bytes())):
+        sample = match.group(0)[:4096]
+        entropy = -sum(n / len(sample) * math.log2(n / len(sample)) for n in Counter(sample).values())
+        if entropy > DENSE_RUN_ENTROPY:
+            return True
+    return False
+
+
+def _in_test_folder(rel_path: str) -> bool:
+    """Tests carry high-entropy mock data. Whole path segments: "phpunit" as a substring also exempted phpunit_helper.py."""
+    return path_allowlisted(rel_path.lower(), ("test/", "tests/", "phpunit/"))
+
+
+def _binary_threat(threats: dict, dense_is_expected: bool) -> bool:
+    """Whether scan_binary's result counts. XRAY_BYPASS_EXTENSIONS says dense data is normal in this file type, which
+    excuses its entropy and any short header that random bytes happen to contain. It never excuses a file that doesn't
+    start the way its type must: an executable named logo.png is the mismatch this tool exists to catch (#7155)."""
+    return bool(threats.get("sec_extension_mismatch")) if dense_is_expected else bool(threats)
 
 
 def main():
@@ -111,8 +151,8 @@ def main():
             rel_path_str = str(file_path.relative_to(target_path)).replace("\\", "/")
 
             # Evaluate Global vs. Tool-Specific Bypasses
-            is_global_allow = any(approved in rel_path_str for approved in allowlist_paths)
-            is_xray_bypass = ext in xray_bypass_extensions or any(b in rel_path_str for b in xray_bypass_paths)
+            is_global_allow = path_allowlisted(rel_path_str, allowlist_paths)
+            is_xray_bypass = path_allowlisted(rel_path_str, xray_bypass_paths)
 
             is_whitelisted = is_global_allow or is_xray_bypass
 
@@ -120,11 +160,7 @@ def main():
             # Unit tests frequently generate high-entropy mock data (e.g., mock
             # cryptographic keys, dummy hashes). We whitelist these paths to prevent
             # pipeline friction, assuming test directories are not deployed to production.
-            if (
-                "/test/" in rel_path_str.lower()
-                or "/tests/" in rel_path_str.lower()
-                or "phpunit" in rel_path_str.lower()
-            ):
+            if _in_test_folder(rel_path_str):
                 is_whitelisted = True
 
             # 1. DENYLIST ENFORCEMENT
@@ -138,7 +174,7 @@ def main():
             # NOTE: We intentionally bypass `evaluate_path_integrity` here.
             # This specific detector must scan actual binaries (.png, .zip, .dll),
             # which standard Aperture filtering drops.
-            files_to_deep_scan.append((file_path, rel_path_str, ext, is_whitelisted))
+            files_to_deep_scan.append((file_path, rel_path_str, ext, is_whitelisted, ext in xray_bypass_extensions))
 
     # ==============================================================================
     # PHASE 2: Deep Content and Binary Header Inspection
@@ -146,11 +182,11 @@ def main():
     print(f"\n🔎 Scanning {len(files_to_deep_scan):,} files for structural anomalies:")
     print("   - Magic Byte Mismatches (e.g., hidden executables disguised as images)")
     print("   - Embedded Execution Headers (e.g., executable signatures within static data)")
-    print("   - High-Entropy Payloads (e.g., packed executables or obfuscated bitwise loops)")
+    print("   - High-Entropy Payloads (e.g., packed executables or encoded blobs)")
 
     start_time = time.time()
 
-    for file_path, rel_path_str, ext, is_whitelisted in files_to_deep_scan:
+    for file_path, rel_path_str, ext, is_whitelisted, dense_is_expected in files_to_deep_scan:
         try:
             # DEFENSIVE DESIGN (MEMORY SHIELD):
             # Read only the first 8KB of the file. This is sufficient to capture
@@ -163,7 +199,7 @@ def main():
             anomaly_msgs = []
 
             # 1. Binary Analysis (Magic Bytes & Execution Headers)
-            binary_threats = security.scan_binary(head_bytes, ext)
+            binary_threats = _scan_head(security, head_bytes, ext)
 
             # EXPECTED HEADER EXCEPTION:
             # Shell scripts naturally contain the '#!/bin/' header. We clear this
@@ -173,7 +209,7 @@ def main():
                 if ext in [".sh", ".bash", ".zsh", ".command"] and "#!/bin/" in threat_msg:
                     binary_threats = {}
 
-            if binary_threats:
+            if _binary_threat(binary_threats, dense_is_expected):
                 has_anomaly = True
                 anomaly_msgs.append(binary_threats.get("threat_snippet", "Unknown Binary Threat"))
 
@@ -181,13 +217,17 @@ def main():
             content = head_bytes.decode("utf-8", errors="ignore")
             sec_results = security.scan_content(content)
 
-            if sec_results["counts"].get("entropy", 0) > 0:
+            if not dense_is_expected and (
+                sec_results["counts"].get("entropy", 0) > 0 or _dense_run(file_path, head_bytes)
+            ):
                 has_anomaly = True
                 anomaly_msgs.append("Mathematically dense/encrypted strings detected (Shannon Entropy > 4.8)")
 
-            if sec_results["counts"].get("bitwise_ops", 0) > 0:
+            if not dense_is_expected and sec_results["counts"].get("bitwise_ops", 0) > 0:
                 has_anomaly = True
-                anomaly_msgs.append("Obfuscated bitwise operations (XOR loops) detected")
+                anomaly_msgs.append(
+                    "Repeated in-place XOR on indexed bytes detected (buf[i] ^= k; three or more times)"
+                )
 
             # 3. Report the Anomaly
             if has_anomaly:
@@ -284,13 +324,11 @@ def run_xray_audit(target_path: Path, config: ResolvedConfig | dict[str, Any] | 
             rel_path_str = str(file_path.relative_to(target_path)).replace("\\", "/")
 
             is_whitelisted = (
-                any(a in rel_path_str for a in allowlist_paths)
-                or file_path.suffix.lower() in xray_bypass_extensions
-                or any(b in rel_path_str for b in xray_bypass_paths)
+                path_allowlisted(rel_path_str, allowlist_paths)
+                or path_allowlisted(rel_path_str, xray_bypass_paths)
+                or _in_test_folder(rel_path_str)
             )
-
-            if "/test/" in rel_path_str.lower() or "/tests/" in rel_path_str.lower():
-                is_whitelisted = True
+            dense_is_expected = file_path.suffix.lower() in xray_bypass_extensions
 
             if any(fnmatch.fnmatch(file, p) for p in denylist_patterns) and not is_whitelisted:
                 anomalies_found += 1
@@ -302,9 +340,9 @@ def run_xray_audit(target_path: Path, config: ResolvedConfig | dict[str, Any] | 
                 ext = file_path.suffix.lower()
 
                 # Check Binary Headers
-                bt = security.scan_binary(head_bytes, ext)
+                bt = _scan_head(security, head_bytes, ext)
                 if (
-                    bt
+                    _binary_threat(bt, dense_is_expected)
                     and not (ext in [".sh", ".bash", ".zsh"] and "#!/bin/" in bt.get("threat_snippet", ""))
                     and not is_whitelisted
                 ):
@@ -314,8 +352,14 @@ def run_xray_audit(target_path: Path, config: ResolvedConfig | dict[str, Any] | 
                 content = head_bytes.decode("utf-8", errors="ignore")
                 sr = security.scan_content(content)
                 if (
-                    sr["counts"].get("entropy", 0) > 0 or sr["counts"].get("bitwise_ops", 0) > 0
-                ) and not is_whitelisted:
+                    (
+                        sr["counts"].get("entropy", 0) > 0
+                        or sr["counts"].get("bitwise_ops", 0) > 0
+                        or _dense_run(file_path, head_bytes)
+                    )
+                    and not is_whitelisted
+                    and not dense_is_expected
+                ):
                     anomalies_found += 1
             except Exception as e:
                 # Deliberately NOT quiet_logger (WARNING-only, muted above for

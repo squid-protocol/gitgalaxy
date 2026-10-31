@@ -84,6 +84,8 @@ def test_the_spec_imports_only_the_stdlib():
 # (gitgalaxy.standards.cics.resp, not via det/cics.py: that import closed a cycle CodeQL flagged).
 IMPORTERS: set[str] = {
     "gitgalaxy/tools/cobol_to_java/det/cics.py",
+    "gitgalaxy/tools/cobol_to_java/det/cics_common.py",  # #7153: the helpers cics.py and its mixins share
+    "gitgalaxy/tools/cobol_to_java/det/cics_conditions.py",  # #7153: TERMINAL_OPTIONS / AID_KEYS / DFHRESP, not via det/cics.py
     "gitgalaxy/tools/cobol_to_java/det/expr.py",
     "tests/tools/equivalence_cics.py",
     "tests/tools/equivalence_cics_conditions.py",  # #5274: the conditions family split out of equivalence_cics.py
@@ -254,7 +256,7 @@ def test_coverage_45_full_entries_and_the_name_only_api_commands():
     by_status: dict[str, list[str]] = {}
     for c in COMMANDS.values():
         by_status.setdefault(c.status, []).append(c.key)
-    assert len(by_status["modelled"]) == 103 and sorted(by_status["engine-only"]) == ["LOAD", "RELEASE"]
+    assert len(by_status["modelled"]) == 105 and not by_status.get("engine-only")  # #6876: LOAD / RELEASE are modelled
     # IBM's CICS TS 6.x command summary: 259 API command names, 57 with full entries (+ INQUIRE PROGRAM, SPI; #4767: WEB
     # OPEN / CONVERSE / CLOSE / PARSE URL / SEND / EXTRACT / RECEIVE / READ + WRITE HTTPHEADER; #4940: READ FORMFIELD / QUERYPARM and the nine WEB browse forms; #4941: RETRIEVE; #4951: MOVE CONTAINER, STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER; #4950: FREE CHILD; #4972: EXTRACT WEB, EXTRACT TCPIP; #5005: DELETE CHANNEL, QUERY CHANNEL, GET64 / PUT64 CONTAINER; #4771: GETMAIN / FREEMAIN; #5078: UNLOCK; #5079: READQ TD, DELETEQ TD, ADDRESS, POST, WAIT EVENT, CONVERSE; #5039: REWIND COUNTER, UPDATE COUNTER; #5859: VERIFY PASSWORD, no longer name-only), 9 forms of a modelled command (api.py's docstring), the other 152 name-only
     assert len(by_status["refused"]) == 152
@@ -276,7 +278,7 @@ def test_a_whole_command_refusal_names_its_reason():
     assert whole_refusal("WAIT", "WAIT", "JOURNALNAME").key == "WAIT JOURNALNAME"  # type: ignore[union-attr]
     assert whole_refusal("ADDRESS", "ADDRESS", "SET").key == "ADDRESS SET"  # type: ignore[union-attr]
     assert whole_refusal("ADDRESS", "ADDRESS", "EIB") is None  # #5079 (X59): ADDRESS EIB / COMMAREA are modelled
-    assert whole_refusal("LOAD", "LOAD", "PROGRAM").status == "engine-only"  # type: ignore[union-attr]
+    assert whole_refusal("LOAD", "LOAD", "PROGRAM") is None  # #6876: LOAD / RELEASE are modelled
     # a modelled command, or a name that is no API command (an SPI one): no whole-command entry
     assert whole_refusal("READ", "READ", "FILE") is None
     assert whole_refusal("INQUIRE", "INQUIRE FILE", None) is None
@@ -337,12 +339,24 @@ def test_the_64_bit_container_commands_keep_their_refusals_by_name():
     ):
         assert option in COMMANDS[key].refused and option not in COMMANDS[key].options, (key, option)
         assert COMMANDS[key].refusal_message([option]).startswith(f"{key} {option}: option not modelled"), (key, option)
+    # X65 lists only what is still refused whole: the 64-bit storage commands, not the modelled container twins.
+    for key in ("GETMAIN64", "FREEMAIN64"):
+        assert COMMANDS[key].status != "modelled", key
+    x65 = (Path(__file__).resolve().parents[2] / "docs/language_status/register/X65.md").read_text(encoding="utf-8")
+    assert "64-bit GETMAIN64 / FREEMAIN64 (2;" in x65 and "64-bit GET64 / PUT64 CONTAINER and" not in x65
 
 
 def test_group_lookup():
     assert COMMANDS["START"].group("required", "TRANSID").msg == "START without TRANSID"
     with pytest.raises(KeyError):
         COMMANDS["START"].group("one_of", "TRANSID")
+
+
+def test_return_channel_is_alone_among_commarea_length_immediate():
+    """#5005 (X17): IBM names COMMAREA as CHANNEL's alternative and says nothing of LENGTH / IMMEDIATE with it."""
+    g = COMMANDS["RETURN"].group("at_most_one", "CHANNEL")
+    assert {"CHANNEL", "COMMAREA", "LENGTH", "IMMEDIATE"} <= set(g.options)
+    assert g.msg.startswith("RETURN CHANNEL with COMMAREA / LENGTH / IMMEDIATE")
 
 
 def test_each_command_keeps_its_own_refusal_reasons():
@@ -356,3 +370,60 @@ def test_each_command_keeps_its_own_refusal_reasons():
         COMMANDS["LINK"].refusal_message(["SYSID"])
         == "LINK SYSID: option not modelled (SYSID: a remote system is not modelled)"
     )
+
+
+@pytest.mark.parametrize(
+    "name",
+    [
+        "cics_common",
+        "cics_taskcontrol",
+        "cics_filecontrol",
+        "cics_conditions",
+        "cics_containers",
+        "cics_faults",
+        "dli",
+        "dyncall",
+        "mq",
+    ],
+)
+def test_a_leaf_det_module_imports_nothing_back_from_cics_or_gen(name):
+    """#7153: CodeQL py/cyclic-import counts an import inside a function too, so no import statement anywhere in these
+    modules may name det.cics or det.gen (a mixin takes the shared helpers from det.cics_common)."""
+    import ast
+
+    path = ROOT / "gitgalaxy" / "tools" / "cobol_to_java" / "det" / f"{name}.py"
+    banned = {"cics", "gen"}
+    pkg = "gitgalaxy.tools.cobol_to_java.det"
+    for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
+        if isinstance(node, ast.ImportFrom) and node.module:
+            names = {f"{node.module}.{a.name}" for a in node.names}
+            hit = {node.module, *names} & {f"{pkg}.{b}" for b in banned}
+            assert not hit, f"{name}.py:{node.lineno} imports {sorted(hit)}"
+        elif isinstance(node, ast.Import):
+            assert not {a.name for a in node.names} & {f"{pkg}.{b}" for b in banned}, f"{name}.py:{node.lineno}"
+
+
+def test_untranslatable_is_one_class_whichever_module_it_is_imported_from():
+    """#7153: the exception lives in the leaf; gen.py re-exports it, so a `except gen.Untranslatable` still catches
+    what dli.py and dyncall.py raise."""
+    from gitgalaxy.tools.cobol_to_java.det import cics_common, gen
+
+    assert gen.Untranslatable is cics_common.Untranslatable
+
+
+def test_the_helpers_moved_to_the_leaf_are_the_names_gen_exports():
+    """#7153: LIBRARY*, _extents and _occurs_chain live in the leaf; gen.py re-exports them, so gen.LIBRARY and
+    G._extents (program.py, det_port.py) are the same objects dyncall.py uses."""
+    from gitgalaxy.tools.cobol_to_java.det import cics_common, dyncall, gen
+
+    for n in (
+        "LIBRARY",
+        "LIBRARY_RC",
+        "LIBRARY_CLOCK",
+        "LIBRARY_FLOATS",
+        "LIBRARY_CHARSET",
+        "_extents",
+        "_occurs_chain",
+    ):
+        assert getattr(gen, n) is getattr(cics_common, n), n
+    assert dyncall._extents is cics_common._extents

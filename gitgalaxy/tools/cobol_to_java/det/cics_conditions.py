@@ -1,11 +1,16 @@
 """#5274: the conditions family of the det CICS translator, split out of det/cics.py -- ASSIGN, the conditions a HANDLE /
 IGNORE CONDITION names, HANDLE AID, PUSH / POP HANDLE and the AID transfer after an input command (#4414, #4270). `Cics`
-inherits these methods; its command dispatch and `command_key` stay the registry. The translator's shared helpers are
-imported inside each method, as det/cics_containers.py does: a module-level import would close a cycle."""
+inherits these methods; its command dispatch and `command_key` stay the registry. The translator's shared helpers come from
+det/cics_common.py (#7153): importing them back from det/cics.py closed an import cycle."""
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
+
+from gitgalaxy.standards.cics.commands.assign import TERMINAL_OPTIONS
+from gitgalaxy.standards.cics.commands.handles import AID_KEYS
+from gitgalaxy.standards.cics.resp import DFHRESP
+from gitgalaxy.tools.cobol_to_java.det.cics_common import CicsError, _arg, jstr
 
 if TYPE_CHECKING:
     from gitgalaxy.tools.cobol_to_java.det import expr as E
@@ -28,7 +33,6 @@ class ConditionCommands:
         task's terminal -- for a task with none, INVREQ RESP2 5 ("The task is not associated with a terminal; or the
         task has no principal facility"), and then no data area is written (IBM does not say what the others hold:
         register X19). Without a FACILITY / SCRNHT / SCRNWD, ASSIGN raises no condition: RESP is NORMAL."""
-        from gitgalaxy.tools.cobol_to_java.det.cics import TERMINAL_OPTIONS, CicsError, G_jstr, _arg
 
         stores = []
         for k, v in opts.items():
@@ -40,7 +44,7 @@ class ConditionCommands:
                 continue
             src = {"APPLID": "task.assignApplid()", "SYSID": "task.assignSysid()", "ABCODE": "task.abcode()",
                    # the running program's own name, 8 characters
-                   "PROGRAM": G_jstr(f"{self.g.p.name[:8]:<8}"),
+                   "PROGRAM": jstr(f"{self.g.p.name[:8]:<8}"),
                    "INVOKINGPROG": "task.invokingProgram()",
                    "CHANNEL": "task.assignChannel()",  # #4270: 16 characters, blanks without one
                    "STARTCODE": "task.assignStartcode()", "USERID": "task.assignUserid()",
@@ -63,7 +67,6 @@ class ConditionCommands:
         ignored"). IGNORE CONDITION ERROR is refused: IBM's HANDLE CONDITION takes "the action for ERROR" for a
         condition with no action of its own whose default is an abend, but does not say whether an IGNORE of ERROR is
         such an action (docs/language_status/oracle_assumptions.md X16)."""
-        from gitgalaxy.tools.cobol_to_java.det.cics import DFHRESP, CicsError
 
         for cond, label in opts.items():
             if cond not in DFHRESP or cond == "NORMAL":
@@ -79,18 +82,17 @@ class ConditionCommands:
         (input_outcome); a key with no label is deactivated ("To ignore an AID, issue a HANDLE AID command that
         specifies the associated option without a label"). Only the attention keys: RESP / NOHANDLE are refused too
         (no key; HANDLE AID raises no condition here)."""
-        from gitgalaxy.tools.cobol_to_java.det.cics import AID_KEYS, CicsError, G_jstr
 
         out = []
         for key, label in opts.items():
             if key not in AID_KEYS:
                 raise CicsError(f"HANDLE AID {key}: not an attention key")
             if label is None:  # (-1: deactivated, which DetCics.aidLabel tells from never handled)
-                out.append(f"{ind}aids.put({G_jstr(key)}, -1);")
+                out.append(f"{ind}aids.put({jstr(key)}, -1);")
                 continue
             if label.upper() not in self.g.para_index:
                 raise CicsError(f"HANDLE AID {key}({label}): no such paragraph")
-            out.append(f"{ind}aids.put({G_jstr(key)}, {self.g.para_index[label.upper()]});")
+            out.append(f"{ind}aids.put({jstr(key)}, {self.g.para_index[label.upper()]});")
         return out
 
     def push_pop(self, verb: str, opts: dict, ind: str) -> list[str]:

@@ -112,10 +112,14 @@
 #
 #   DFHSRT TYPE=SYSTEM|USER,ABCODE=(..),RECOVER=YES   SRT  one row per code, named as MVS names it
 #          (Sxxx three hex digits / Unnnn decimal) [TS]. RECOVER=NO or no RECOVER REMOVES the codes
-#          [TS]: that is not a definition, so no row. (The operand is ABCODE, not CODE.)
+#          [TS]: that is not a definition, so no row, and in the same table it takes out a row an
+#          earlier RECOVER=YES made. A code repeated in one table is one row. (The operand is ABCODE.)
 #   DFHJCT TYPE=ENTRY,JFILEID=SYSTEM|nn   JOURNAL  [VSE ch.29 Table 41, p.270-272]: `JFILEID=SYSTEM`
 #          (system log) or decimal `nn` (1-99 user journal; 01-99 accepted); `JTYPE=`, `BUFSIZE=`,
-#          `JOUROPT=` stay in `attributes`.
+#          `JOUROPT=` stay in `attributes`. DSNAME= is not listed among the JCT operands in [VSE Table 41], but the estate-crucible
+#          key (H-0063) expects it lifted into `dsname`: ASSUMED, left open (see #5154 sibling gaps).
+#          `JTYPE=` never decides a row: a word outside {TAPE1|TAPE2|DISK1|DISK2|SMF} still yields it (ASSUMED, IBM silent); a repeated
+#          JFILEID is not folded (`01` and `1` are two rows; IBM silent on a repeated entry), both pinned in the tests.
 #   DFHTCT TYPE=TERMINAL|REMOTE|GPENTRY,TRMIDNT=  TERMINAL [TS, RDG p.473-475, VSE p.297];
 #          `TYPE=REGION,SYSIDNT={ssss|LOCAL}` sets the region for subsequent `TYPE=TERMINAL`
 #          entries ("Remote terminals, method 1", [RDG Table 74 p.473-474, p.551]); `SYSIDNT=`
@@ -123,6 +127,11 @@
 #          restated as `REMOTESYSTEM` / `REMOTENAME` [RDG p.532-533, p.551].
 #          TYPE=SYSTEM,SYSIDNT=  CONNECTION [TS, RDG p.529, p.553]; `ACCMETH=` restated as
 #          `ACCESSMETHOD(IRC|VTAM|INDIRECT|XM)`.
+#          ASSUMED, manual page not read (pinned in the tests): a TRMIDNT longer than 4 characters is still a row; a repeated
+#          TRMIDNT / SYSIDNT is not folded; `TYPE=REGION` applies to `TYPE=TERMINAL` only, not to REMOTE / GPENTRY; an
+#          ACCMETH outside the listed four is a row with no ACCESSMETHOD restatement. No burned estate uses DFHTCT.
+#   DFHTCT / DFHMCT `TYPE=INITIAL,SUFFIX=xx` (1-2 characters) names the table (`DFHTCTxx`, `DFHMCTxx`), in source and in a JCL SYSIN.
+#          `SUFFIX=NO` / `DY` is excluded only for DFHSIT and DSNCRCT; for TCT / MCT it is ASSUMED to name a table (not settled from the manual).
 #   DFHMCT TYPE=EMP,CLASS=PERFORM,ID=  MONITORPOINT (a user event monitoring point; it has no CSD
 #          counterpart; ID is `number`, `(PP,number)` or `entryname.number`, kept as written) [TS].
 #   DFHPLT TYPE=ENTRY,PROGRAM=(p1,p2,...)  PLT  [RDG p.415-418, Table 50-51]: one PLT row per named
@@ -407,18 +416,14 @@ def _emp_id(value: str | None) -> str | None:
     return f"{entry or 'USER'}.{int(number)}"
 
 
-def _srt_rows(line: int, text: str, keyed: dict[str, str], kind: str, table: str) -> list[dict[str, Any]]:
-    """DFHSRT TYPE=SYSTEM|USER: one SRT row per intercepted abend code, only for RECOVER=YES.
+def _srt_codes(keyed: dict[str, str], kind: str) -> list[str]:
+    """DFHSRT TYPE=SYSTEM|USER ABCODE= -> the abend codes as MVS names them (Sxxx / Unnnn), in order, once each.
 
-    RECOVER=NO, or no RECOVER, "removes" the codes from the SRT: that is not a definition,
-    so it yields nothing. A code that is not three hex digits (SYSTEM) or a decimal number
-    (USER) is dropped. The row is named as the MVS code is: Sxxx / Unnnn.
+    A code that is not three hex digits (SYSTEM) or a decimal number (USER) is dropped.
     """
-    if (_first(keyed.get("RECOVER")) or "") != "YES":
-        return []
     shape, prefix = (_SRT_SYSTEM_CODE, "S") if kind == "SYSTEM" else (_SRT_USER_CODE, "U")
     codes = [c.strip("() '\"").upper() for c in (keyed.get("ABCODE") or "").split(",")]
-    return [_row("SRT", prefix + code, table, line, text, ["RECOVER(YES)"]) for code in codes if shape.match(code)]
+    return list(dict.fromkeys(prefix + code for code in codes if shape.match(code)))
 
 
 def _plt_rows(line: int, text: str, keyed: dict[str, str], table: str, stage: int) -> tuple[list[dict[str, Any]], int]:
@@ -607,7 +612,22 @@ def cics_macro_table_resources(code_stream: str) -> list[dict[str, Any]]:
             prefixes = [p.strip("() '\"").upper() for p in (keyed.get("DATAID") or "").strip().split(",")]
             rows.extend(_row("TSMODEL", prefix, table, line, text, rdo) for prefix in prefixes if prefix)
         elif op == "DFHSRT" and kind in ("SYSTEM", "USER"):
-            rows.extend(_srt_rows(line, text, keyed, kind, table))
+            # RECOVER=YES defines the codes; RECOVER=NO (or none) "removes" them [TS], so a later NO
+            # takes a code an earlier YES defined in the same table out, and a repeat adds no second row.
+            recover = (_first(keyed.get("RECOVER")) or "") == "YES"
+            for code in _srt_codes(keyed, kind):
+                held = next(
+                    (
+                        r
+                        for r in rows
+                        if r["resource_type"] == "SRT" and r["name"] == code and r["macro_table"] == table
+                    ),
+                    None,
+                )
+                if not recover and held is not None:
+                    rows.remove(held)
+                elif recover and held is None:
+                    rows.append(_row("SRT", code, table, line, text, ["RECOVER(YES)"]))
         elif op == "DFHJCT" and kind == "ENTRY":
             name = _jfileid(keyed.get("JFILEID"))
             if name:

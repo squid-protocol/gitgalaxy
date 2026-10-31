@@ -13,12 +13,10 @@ on:
   push:
     branches: [main]
     paths:
-      - "gitgalaxy/cobol_to_java_controller.py"
-      - "gitgalaxy/cobol_refractor_controller.py"
-      - "gitgalaxy/tools/cobol_to_java/**"
-      - "gitgalaxy/tools/cobol_to_cobol/**"
-      - "gitgalaxy/standards/yaml_reader.py"
-      - "gitgalaxy/standards/fact_channel_confidence.json"
+      # the engine scan's key (java-scan-*) hashes all of gitgalaxy/**, so an engine-only push (26 of the last 99 main
+      # pushes touched gitgalaxy/; 18 the older list) must reseed it or the next PR rescans (dsf: ~90 s a side). The
+      # same-base key below still holds, so such a push costs a lookup plus the scan build for the corpora's scan miss.
+      - "gitgalaxy/**"
       - "tests/tools/java_target_matrix.py"
       - "tests/cobol_mainframe/corpora.json"
       - "tests/tools/mainframe_corpus.py"

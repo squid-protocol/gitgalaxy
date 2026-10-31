@@ -209,16 +209,27 @@ def test_a_port_that_names_a_runtime_class_uses_it():
     assert sql not in specs(BATCH, Tree(replace={port: comment}))["generator"]["components"]
 
 
+def test_no_always_used_det_module_imports_a_driver_back():
+    """#7274: a lazy import of det.gen / program / sql / refine inside a module every case uses (cics*, source, cvda
+    and what they import) pulls the driver into every case's fingerprint. Name the importer, not just the stale set."""
+    base = REPO / "gitgalaxy/tools/cobol_to_java/det"
+    edges = {p.stem: ev.det_imports(p.read_text(encoding="utf-8")) for p in base.glob("*.py")}
+    used = ev._closure({*ev._ALWAYS_DET, *ev._CICS_DET}, edges)
+    drivers = {"gen", "program", "sql", "refine"}
+    offenders = {m: sorted(edges[m] & drivers) for m in used if edges.get(m, set()) & drivers}
+    assert not offenders, offenders
+
+
 def test_a_det_module_change_stales_the_cases_that_import_it_or_translate_with_it():
     """program.py / sql.py / refine.py: the det translator's drivers -- run only for a case that LINKs programs (the
-    harness imports no more of det than cics / cvda / source and what those import). gen.py: imported by det.cics, so
-    by every case that uses the CICS harness -- not by a plain batch run."""
+    harness imports no more of det than cics / cvda / source and what those import). gen.py: since #7153 no det.cics
+    module imports it back, so it is the drivers' own, the same cases as program.py."""
     base = "gitgalaxy/tools/cobol_to_java/det/"
     for mod in ("program", "sql", "refine"):
         stale = stale_set(f"{base}{mod}.py")
         assert stale == keys(lambda t: t.programs or t.kind == "crucible"), (mod, sorted(stale))
     gen = stale_set(f"{base}gen.py")
-    assert gen == keys(lambda t: t.programs or t.kind == "crucible" or t.kind in ("cics", "call") or t.db2)
+    assert gen == keys(lambda t: t.programs or t.kind == "crucible")
     assert BATCH.key not in gen
     assert BATCH.key in stale_set(f"{base}source.py")  # det.source: equivalence_common, any case
 

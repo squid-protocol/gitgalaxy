@@ -219,6 +219,12 @@ def _input_path(case: dict[str, Any], corpus: Path, rel: str) -> Path:
     return Path(rel) if Path(rel).is_absolute() else corpus / rel
 
 
+def program_file(case: dict[str, Any], corpus: Path, rel: str | None = None) -> Path:
+    """The case's COBOL source (#4268): `program_source` is the corpus's file, or `@case/<file>` -- a program the case
+    itself carries, as a JCL SORT step lowered to COBOL (det/dfsort.py) is: no corpus holds it."""
+    return _input_path(case, corpus, case["program_source"] if rel is None else rel)
+
+
 # #3828: the compiler options that change results, as GnuCOBOL 3.1 flags under `-std=ibm` ("" = its own
 # behaviour already). #4102: `-std=ibm` alone keeps a binary item's bytes (TRUNC(BIN)); -fbinary-truncate gives IBM's
 # default TRUNC(STD) -- MOVE 99999 to S9(4) COMP stores 9999, ADD past 9999 is a size error (measured 2026-10-02). GnuCOBOL has no INTDATE (INTEGER-OF-DATE is always ANSI), no ARITH(EXTEND)

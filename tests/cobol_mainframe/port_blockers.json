@@ -1779,6 +1779,21 @@
       "refused_by_name": false,
       "new_class": false,
       "summary": "A LINKed program's Java port did not take its own HANDLE ABEND exit for an injected abend (AFCR on INQCUST's READ, LINKed by DELCUS): CicsTask searched for the exit from the root task, not from the level of the program that issued the command, so the task ABENDed (BNK1DCS 1055:true, 4/13 events equal). The root now records the executing task (running) and injected() abends from there; scenario delete-customer-read-abends-afcr proves it (re-proved at 8180945ce, det_port run --faults all: BNK1DCS 1347/1347 translated, the scenario 9/9 events equal, the Java ABEND event leaves by INQCUST's ABEND-HANDLING exit)."
+    },
+    {
+      "id": "P120",
+      "estate": "zecs",
+      "after_round": 5,
+      "side": "runtime",
+      "class": "cobol-dialect",
+      "programs": [
+        "zecs001"
+      ],
+      "issue": null,
+    "fixed_by": "#7267",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "ZECS001's DELETE data-center replication (5300 -> 5400-REPLICATE -> 8200, `SET ADDRESS OF CACHE-MESSAGE TO SAVE-ADDRESS` with SAVE-ADDRESS never set on a DELETE) cannot be proven: the Java runtime refuses SET ADDRESS OF a null pointer by name (CicsTask.storageAt, 'a null or unknown pointer', pinned by test_pointer_lane_4771), while GnuCOBOL runs it and nothing reads CACHE-MESSAGE afterwards (the DELETE WEB CONVERSE has no FROM). Three scenarios (type AA, type AS, AA with a text/plain request) all stop java-side; they would close 5400-REPLICATE/5400-EXIT and 1651:true, 1670:true, 1858:false, 1879:false, 1902:true, 1852:true. Modelled (#4767, X47): SET ADDRESS OF record TO a NULL pointer leaves the det port's record as it was (ASSUMED), so a program that then uses the record differs from the oracle's null record and fails the proof; scenarios delete-replicate-aa, -as and -tx are executed-equivalent and close 5400-REPLICATE and 5400-EXIT. Freed and unknown non-zero pointers stay refused by name."
     }
   ]
 }

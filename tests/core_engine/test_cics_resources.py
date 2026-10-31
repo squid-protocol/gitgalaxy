@@ -270,6 +270,35 @@ def test_sixty_four_bit_container_verbs_are_container_rows():
     assert _ops("           EXEC CICS GET64 INTO(WS-IN) END-EXEC\n") == []
 
 
+def test_delete_and_query_channel_are_channel_rows():
+    # #5005 (X44): a channel deleted or counted with no container named is still a CHANNEL row.
+    src = (
+        "           EXEC CICS DELETE CHANNEL('CH1') RESP(WS-R) END-EXEC\n"
+        "           EXEC CICS QUERY CHANNEL(WS-CH) CONTAINERCNT(WS-N) END-EXEC\n"
+        "           EXEC CICS DELETE CONTAINER('C') CHANNEL('CH1') END-EXEC\n"
+        "           EXEC CICS DELETE FILE('F') END-EXEC\n"
+        "           EXEC CICS DELETE END-EXEC\n"
+        "           EXEC CICS QUERY SECURITY END-EXEC\n"
+    )
+    delete, query, cont, file_ = _ops(src)
+    assert (delete["verb"], delete["kind"], delete["access"], delete["name"]) == ("DELETE", "CHANNEL", "delete", "CH1")
+    assert (query["verb"], query["kind"], query["access"], query["operand"]) == ("QUERY", "CHANNEL", "query", "WS-CH")
+    assert (cont["kind"], cont["access"]) == ("CONTAINER", "delete")
+    assert file_["kind"] == "FILE"
+    (pli,) = _ops("EXEC CICS DELETE CHANNEL('X');", "pli")
+    assert (pli["kind"], pli["name"]) == ("CHANNEL", "X")
+
+
+def test_query_channel_draws_one_row_whatever_else_it_names():
+    # #5005 (X44): CONTAINERCNT is an output data area, not a resource; PL/I ends the command at the semicolon.
+    row = _one("           EXEC CICS QUERY CHANNEL('CH1') CONTAINERCNT(WS-N) RESP(WS-R) RESP2(WS-R2) END-EXEC\n")
+    assert (row["verb"], row["kind"], row["access"], row["name"]) == ("QUERY", "CHANNEL", "query", "CH1")
+    pli = _one("EXEC CICS QUERY CHANNEL(CHN) CONTAINERCNT(N) NOHANDLE;", "pli")
+    assert (pli["kind"], pli["access"], pli["operand"]) == ("CHANNEL", "query", "CHN")
+    assert "CHANNEL" not in [o["kind"] for o in _ops("           EXEC CICS QUERY COUNTER(WS-C) END-EXEC\n")]
+    assert _ops("           EXEC CICS QUERY SECURITY RESCLASS('FILE') END-EXEC\n") == []
+
+
 def test_a_channel_passed_on_link_and_run_names_its_receiver():
     src = (
         "           EXEC CICS LINK PROGRAM('CRDTAGY1') CHANNEL('CIPCREDCHANN') END-EXEC\n"

@@ -4076,6 +4076,10 @@ _X37_CASES = [  # (steps, what both runtimes answer, the events they record: sta
     ),
     (["abc 3 text/xml 2 201 Created 3 0"], ["send 0/0"], [(201, "Cre", "text/xml", "abc", "IMMEDIATE")]),
     (["abc 3 TEXT/Plain 2 200 OK - 1"], ["send 0/0"], [(200, "OK" + " " * 18, "TEXT/Plain", "abc", "IMMEDIATE")]),
+    # #6839 (X37, owner ruling 2026-10-28): a MEDIATYPE area padded to its end with X'00' ('#' ends a media word padded with
+    # NULs, as ZECS001's INSPECT ... REPLACING ALL SPACES BY LOW-VALUES leaves it) is the type before the padding
+    (["abc 3 text/plain# 2 - - - 0"], ["send 0/0"], [(200, None, "text/plain", "abc", "IMMEDIATE")]),
+    (["abc 3 text/plain# 2 - - - 1"], ["send 0/0"], [(200, None, "text/plain", "abc", "IMMEDIATE")]),
     (["x 1 - 7 - - - 0"], ["send 16/11"], []),
     (["x 1 - 2 204 - - 0"], ["send 16/72"], []),
     (["x 1 - 0 304 - - 0"], ["send 16/72"], []),
@@ -4095,6 +4099,10 @@ _X37_REFUSED = [  # (steps, what both runtimes stop with)
     (["x 1 - 2 600 - - 0"], "STATUSCODE outside 100-599"),
     (["x 1 _ 2 - - - 0"], "MEDIATYPE blank or not type/subtype"),
     (["x 1 plain 2 - - - 0"], "MEDIATYPE blank or not type/subtype"),
+    (["x 1 # 2 - - - 0"], "MEDIATYPE blank or not type/subtype"),  # #6839: all padding is a blank area
+    (["x 1 plain# 2 - - - 0"], "MEDIATYPE blank or not type/subtype"),
+    (["x 1 text/pl#ain 2 - - - 0"], "MEDIATYPE blank or not type/subtype"),  # a X'00' with other bytes after it
+    (["x 1 application/json# 2 - - - 1"], "SRVCONVERT on a media type that is not text/*"),
     (["x 1 application/json 2 - - - 1"], "SRVCONVERT on a media type that is not text/*"),
     (["x 1 - 2 - - - 1"], "SRVCONVERT on a media type that is not text/*"),
     (["x 99 - 2 - - - 0"], "length beyond its area"),
@@ -4123,6 +4131,8 @@ int main(int argc, char **argv) {
         memset(media, ' ', sizeof media); memset(stext, ' ', sizeof stext);
         c.len = w[1][0] == '=' ? (int)strlen(w[0]) : atoi(w[1]);
         if (given(w[2])) { strcat(flags, "MEDIA "); if (strcmp(w[2], "_") != 0) memcpy(media, w[2], strlen(w[2])); }
+        for (char *h = media; h < media + 56; h++) if (*h == '#') *h = '\0';
+        if (given(w[2]) && w[2][strlen(w[2]) - 1] == '#') memset(media + strlen(w[2]) - 1, 0, 56 - (strlen(w[2]) - 1));
         c.item = atoi(w[3]);
         c.num = given(w[4]) ? atoi(w[4]) : -1;
         if (given(w[5])) { strcat(flags, "STEXT"); memcpy(stext, w[5], strlen(w[5])); }
@@ -4197,7 +4207,11 @@ def _x37_java(steps: list[str]) -> str:
         w = st.split(" ")
 
         def area(v: str, width: int) -> str:
-            return "null" if v == "-" else '"' + ("" if v == "_" else v).ljust(width) + '"'
+            if v == "-":
+                return "null"
+            text = ("" if v == "_" else v).replace("#", "\0")  # #6839 (X37): '#' is a X'00'
+            text = text.ljust(width, "\0" if v.endswith("#") else " ")  # (a word ending in one is padded with it)
+            return '"' + text.replace("\0", "\\u0000") + '"'
 
         n = str(len(w[0])) if w[1] == "=" else w[1]
         lines.append(
@@ -4759,6 +4773,14 @@ _X47_CASES = [  # (fixture, steps, what both runtimes answer; a last answer that
     ("full", ["gm 0 65520 1 7", "rd 0 2"], ["gm 0/0", "rd 0707"]),
     ("full", ["gm 0 65521 1 7"], ["GETMAIN length beyond the limit"]),
     ("full", ["gm 0 268435457 0 7"], ["GETMAIN length beyond the limit"]),
+    # #6876: no INITIMG (IBM: no default contents): LENGERR before any storage exists, a valid length refused by name
+    ("full", ["gm 0 0 0 -"], ["gm 22/1"]),
+    ("full", ["gm 0 -5 0 -"], ["gm 22/1"]),
+    ("full", ["gm 0 0 1 -"], ["gm 22/1"]),
+    ("full", ["gm 0 8 0 -"], ["GETMAIN without INITIMG acquired storage"]),
+    ("full", ["gm 0 65520 1 -"], ["GETMAIN without INITIMG acquired storage"]),
+    ("full", ["gm 0 65521 1 -"], ["GETMAIN without INITIMG acquired storage"]),
+    ("full", ["gm 0 268435457 0 -"], ["GETMAIN without INITIMG acquired storage"]),
     ("full", ["gm 0 4 0 1", "fm 0"], ["gm 0/0", "fm 0/0"]),
     ("full", ["gm 0 4 0 1", "gm 1 4 0 2", "fm 0", "fm 1"], ["gm 0/0", "gm 0/0", "fm 0/0", "fm 0/0"]),
     ("full", ["gm 0 4 0 1", "fm 0", "fm 0"], ["gm 0/0", "fm 0/0", "FREEMAIN of storage already freed or received"]),
@@ -4817,10 +4839,11 @@ int main(int argc, char **argv) {
         for (char *t = strtok(argv[i], " "); t && k < 5; t = strtok(NULL, " ")) w[k++] = t;
         int s = atoi(w[1]);
         if (strcmp(w[0], "gm") == 0) {
-            char img = (char)atoi(w[4]);
+            int noimg = strcmp(w[4], "-") == 0;  /* #6876: no INITIMG: the image length is 0 */
+            char img = noimg ? 0 : (char)atoi(w[4]);
             c.num = atoi(w[2]);
             flags(strcmp(w[3], "1") == 0 ? "SHORT" : "");
-            GGCGETM(&c, &p[s], &img, 1);
+            GGCGETM(&c, &p[s], &img, noimg ? 0 : 1);
             printf("gm %d/%d\n", c.resp, c.resp2);
         } else if (strcmp(w[0], "fm") == 0) {
             GGCFREM(&c, &p[s]);
@@ -4939,6 +4962,27 @@ def test_the_stub_hands_out_task_storage_through_pointers(tmp_path):
             assert run.stdout.splitlines()[:-1] == answers[:-1], steps
 
 
+def test_getmain_translates_with_or_without_initimg_and_refuses_what_it_cannot_model():
+    """#6876 (X47): the stub translation of GETMAIN. No INITIMG calls GGCGETM with image length 0 (the stub answers LENGERR or
+    refuses at run time); a literal INITIMG, both key options, a missing length and a missing SET are refused at translation."""
+    import equivalence_cics as ec
+
+    for form in ("FLENGTH", "LENGTH"):
+        bare = "\n".join(ec._getmain({"SET": "P", form: "WS-N"}, None))
+        assert "BY REFERENCE GG-FLAGS" in bare and "BY VALUE 0" in bare and "LENGTH OF" not in bare, bare
+        withimg = "\n".join(ec._getmain({"SET": "P", form: "WS-N", "INITIMG": "WS-IMG"}, None))
+        assert "BY VALUE LENGTH OF WS-IMG" in withimg and "BY VALUE 0" not in withimg, withimg
+    for opts in (
+        {"SET": "P", "FLENGTH": "4", "INITIMG": "'*'"},
+        {"SET": "P", "FLENGTH": "4", "USERDATAKEY": None, "CICSDATAKEY": None},
+        {"SET": "P", "FLENGTH": None},
+        {"FLENGTH": "4"},
+        {"SET": "P", "FLENGTH": "4", "LENGTH": "4"},
+    ):
+        with pytest.raises(ec.Unsupported):
+            ec._getmain(opts, None)
+
+
 @needs_javac
 def test_cics_task_hands_out_task_storage_as_the_stub_does(tmp_path):
     """#4771 (X47): CicsTask.getmain / freemain / acquireReceived / storageAt answer the steps above as the stub does."""
@@ -4949,7 +4993,7 @@ def test_cics_task_hands_out_task_storage_as_the_stub_does(tmp_path):
         int s = Integer.parseInt(w[1]);
         switch (w[0]) {
             case "gm" -> {
-                long[] r = t.getmain(Long.parseLong(w[2]), w[3].equals("1"), Integer.parseInt(w[4]));
+                long[] r = t.getmain(Long.parseLong(w[2]), w[3].equals("1"), w[4].equals("-") ? -1 : Integer.parseInt(w[4]));
                 slot[s] = r[2];
                 System.out.println("gm " + r[0] + "/" + r[1]);
             }

@@ -1,0 +1,212 @@
+"""#7155: X-Ray's real detector over planted inert content, nothing mocked.
+
+test_binary_anomaly_detector.py mocks SecurityLens and ApertureFilter, so it proves the exit code, not that anything is
+ever found. Nothing here runs: the payloads are random bytes, and the "executable" is a header on noise.
+"""
+
+import base64
+import gzip
+import random
+import struct
+import sys
+import zlib
+
+import pytest
+
+import gitgalaxy.tools.supply_chain_security.binary_anomaly_detector as xray
+from gitgalaxy.standards.config_resolver import resolve_config
+
+NOISE = random.Random(7).randbytes(6000)
+_ENCODED = base64.b64encode(NOISE).decode().replace("MZ", "Mz")  # "MZ" anywhere reads as an executable header
+DENSE = f'PAYLOAD = "{_ENCODED[:200]}"\n'.encode()  # SecurityLens empties lines of 250+ characters before it scans
+LARGE = f'PAYLOAD = "{_ENCODED}"\n'.encode()
+ELF = b"\x7fELF\x02\x01\x01\x00" + NOISE
+XOR_LOOP = b"def d(b, k):\n    out = bytearray()\n    for i, c in enumerate(b):\n        out.append(c ^ k[i % len(k)])\n    return bytes(out)\n"
+
+
+def _png() -> bytes:
+    def chunk(tag: bytes, data: bytes) -> bytes:
+        return struct.pack(">I", len(data)) + tag + data + struct.pack(">I", zlib.crc32(tag + data))
+
+    return (
+        b"\x89PNG\r\n\x1a\n"
+        + chunk(b"IHDR", struct.pack(">IIBBBBB", 1, 1, 8, 0, 0, 0, 0))
+        + chunk(b"IDAT", zlib.compress(b"\0\0"))
+        + chunk(b"IEND", b"")
+    )
+
+
+def _scan(tmp_path, monkeypatch, files: dict[str, bytes]) -> int:
+    """The real scanner over a planted tree, with the default config. The exit code it would give CI."""
+    root = tmp_path / "planted"
+    for rel, data in files.items():
+        path = root / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(data)
+    monkeypatch.setattr(sys, "argv", ["binary_anomaly_detector.py", str(root)])
+    try:
+        xray.main()
+    except SystemExit as e:
+        return int(e.code or 0)
+    return 0
+
+
+@pytest.mark.parametrize("name", ["a.py", "a.js", "a.txt", "a.toml", "a.sh", "run"])
+def test_the_real_detector_fails_ci_on_a_dense_payload(name, tmp_path, monkeypatch, capsys):
+    assert _scan(tmp_path, monkeypatch, {f"src/{name}": DENSE}) == 1
+    assert "ANOMALY DETECTED" in capsys.readouterr().out
+
+
+@pytest.mark.parametrize("name", ["a.txt", "a.bin", "tool", "lib.so", "a.exe"])
+def test_a_bare_executable_fails(name, tmp_path, monkeypatch):
+    assert _scan(tmp_path, monkeypatch, {f"src/{name}": ELF}) == 1
+
+
+@pytest.mark.parametrize("name", ["logo.png", "photo.jpg", "bundle.zip", "data.gz"])
+def test_an_executable_behind_a_bypassed_extension_fails(name, tmp_path, monkeypatch, capsys):
+    """The banner's own example: the extension bypass is for dense data, and a header mismatch is never that."""
+    assert _scan(tmp_path, monkeypatch, {f"src/{name}": ELF}) == 1
+    assert "ANOMALY DETECTED" in capsys.readouterr().out
+
+
+def test_the_headless_audit_agrees_on_a_disguised_executable(tmp_path):
+    root = tmp_path / "planted"
+    root.mkdir()
+    (root / "logo.png").write_bytes(ELF)
+    assert xray.run_xray_audit(root, resolve_config())["anomalies_found"] == 1
+
+
+@pytest.mark.parametrize(
+    "name, data",
+    [
+        ("src/a.py", b"def add(a, b):\n    return a + b\n"),
+        ("src/logo.png", _png()),
+        ("src/data.gz", gzip.compress(NOISE, mtime=0)),
+        ("src/a.json", b'{"a": 1}\n'),
+    ],
+)
+def test_real_clean_files_pass(name, data, tmp_path, monkeypatch):
+    assert _scan(tmp_path, monkeypatch, {name: data}) == 0
+
+
+@pytest.mark.parametrize("rel", ["src/latests/a.py", "contests/a.py", "src/phpunit_helper.py"])
+def test_a_name_that_only_looks_like_a_test_folder_is_not_exempt(rel, tmp_path, monkeypatch):
+    assert _scan(tmp_path, monkeypatch, {rel: DENSE}) == 1
+
+
+@pytest.mark.parametrize(
+    "rel", ["tests/a.py", "src/tests/a.py", "src/test/a.py", "vendor/phpunit/a.py", "unit_tests/a.py"]
+)
+def test_a_real_test_folder_stays_exempt(rel, tmp_path, monkeypatch):
+    assert _scan(tmp_path, monkeypatch, {rel: DENSE}) == 0
+
+
+INDEXED_XOR = b"buf[0] ^= 0x41; buf[1] ^= 0x42; buf[2] ^= 0x43; buf[3] ^= 0x44;\n"
+
+
+def test_a_plain_xor_loop_is_not_claimed(tmp_path, monkeypatch, capsys):
+    """X-Ray detects repeated indexed XORs only, so it must not print an 'XOR loops' detection (#7187)."""
+    assert _scan(tmp_path, monkeypatch, {"src/a.py": XOR_LOOP}) == 0
+    assert "loop" not in capsys.readouterr().out.lower()
+
+
+def test_repeated_indexed_xor_is_flagged_and_named_as_such(tmp_path, monkeypatch, capsys):
+    assert _scan(tmp_path, monkeypatch, {"src/a.py": INDEXED_XOR}) == 1
+    out = capsys.readouterr().out
+    assert "Repeated in-place XOR on indexed bytes detected" in out
+    assert "loop" not in out.lower()
+
+
+def test_a_large_payload_on_one_line_fails(tmp_path, monkeypatch):
+    assert _scan(tmp_path, monkeypatch, {"src/a.py": LARGE}) == 1
+
+
+def test_a_large_payload_after_the_first_8_kb_fails(tmp_path, monkeypatch):
+    assert _scan(tmp_path, monkeypatch, {"src/a.py": b"# padding\n" * 1000 + LARGE}) == 1
+
+
+def test_an_embedded_data_uri_is_not_a_payload(tmp_path, monkeypatch):
+    css = b"a{background:url(data:image/svg+xml;base64," + LARGE[11:-3] + b")}\n"
+    assert _scan(tmp_path, monkeypatch, {"src/theme.css": css}) == 0  # reveal.css and Zig's docs in the golden corpus
+    escaped = css.replace(LARGE[400:403], b"%2B")  # a percent-escape splits the run, as reveal.css does
+    assert _scan(tmp_path, monkeypatch, {"src/escaped.css": escaped}) == 0
+
+
+def test_a_long_low_entropy_run_is_not_a_payload(tmp_path, monkeypatch):
+    assert _scan(tmp_path, monkeypatch, {"src/a.py": b"# " + b"abcd" * 200 + b"\n"}) == 0
+
+
+@pytest.mark.parametrize("text", [b"# AMZN and MZ are just letters here\n", b"tickers = ['MZ', 'AMZN']\n"])
+def test_the_letters_mz_in_text_are_not_an_executable(text, tmp_path, monkeypatch):
+    assert _scan(tmp_path, monkeypatch, {"src/a.py": text}) == 0
+
+
+def test_a_real_windows_header_still_fails(tmp_path, monkeypatch):
+    plain = b"MZ\x90\x00" + b"\0" * 512  # no entropy to trip: only the header can fail this
+    assert _scan(tmp_path, monkeypatch, {"src/tool.txt": plain}) == 1
+
+
+@pytest.mark.xfail(strict=True, reason="#7187: .json and .yml skip the entropy check by design")
+@pytest.mark.parametrize("name", ["a.json", "a.yml"])
+def test_known_miss_dense_data_in_a_bypassed_text_type(name, tmp_path, monkeypatch):
+    assert _scan(tmp_path, monkeypatch, {f"src/{name}": DENSE}) == 1
+
+
+def _tar(fmt: int, payload: bytes = b"hello") -> bytes:
+    import io
+    import tarfile
+
+    buf = io.BytesIO()
+    with tarfile.open(fileobj=buf, mode="w", format=fmt) as tf:
+        info = tarfile.TarInfo("a.txt")
+        info.size = len(payload)
+        tf.addfile(info, io.BytesIO(payload))
+    return buf.getvalue()
+
+
+def _empty_tar() -> bytes:
+    import io
+    import tarfile
+
+    buf = io.BytesIO()
+    tarfile.open(fileobj=buf, mode="w").close()
+    return buf.getvalue()
+
+
+ICO = b"\x00\x00\x01\x00\x01\x00" + bytes(2000)
+
+
+def _v7_tar() -> bytes:
+    """A header with no `ustar` magic: only the checksum identifies it."""
+    data = bytearray(_tar(0))
+    data[257:265] = bytes(8)
+    data[148:156] = b"        "
+    data[148:156] = b"%06o\0 " % sum(data[:512])
+    return bytes(data)
+
+
+@pytest.mark.parametrize("name", ["icon.ico", "bundle.tar"])
+def test_an_executable_behind_a_type_with_a_required_header_fails(name, tmp_path, monkeypatch):
+    assert _scan(tmp_path, monkeypatch, {f"src/{name}": ELF}) == 1
+
+
+@pytest.mark.parametrize("name", ["icon.ico", "bundle.tar"])
+def test_another_inert_format_under_the_name_fails(name, tmp_path, monkeypatch):
+    assert _scan(tmp_path, monkeypatch, {f"src/{name}": _png()}) == 1
+    assert _scan(tmp_path, monkeypatch, {f"src/{name}": b"short"}) == 1
+
+
+@pytest.mark.parametrize(
+    "name,data",
+    [
+        ("icon.ico", ICO),
+        ("a.tar", _tar(1)),
+        ("a.tar", _tar(2)),
+        ("a.tar", _tar(0)),
+        ("a.tar", _v7_tar()),
+        ("a.tar", _empty_tar()),
+        ("a.tar", _tar(2, NOISE)),
+    ],
+)
+def test_real_ico_and_tar_files_pass(name, data, tmp_path, monkeypatch):
+    assert _scan(tmp_path, monkeypatch, {f"src/{name}": data}) == 0

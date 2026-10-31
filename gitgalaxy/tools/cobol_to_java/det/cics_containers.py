@@ -1,13 +1,15 @@
 """#5274: the channels / containers family of the det CICS translator, split out of det/cics.py -- PUT / GET / DELETE
 CONTAINER (#4270), MOVE CONTAINER and the container browse (#4951), DELETE / QUERY CHANNEL (#5005), onto CicsTask's
 channels (cics_task_containers.py). `Cics` inherits these methods; its command dispatch and `command_key` stay the
-registry. The translator's shared helpers are imported inside each method, as det/cics.py's own G_jstr imports
-det/gen: a module-level import would close a cycle."""
+registry. The translator's shared helpers come from det/cics_common.py (#7153): importing them back from det/cics.py
+closed an import cycle."""
 
 from __future__ import annotations
 
 import re
 from typing import TYPE_CHECKING, Any
+
+from gitgalaxy.tools.cobol_to_java.det.cics_common import CicsError, _arg, _msg, _option, _requires, jstr, region_page
 
 if TYPE_CHECKING:
     from gitgalaxy.tools.cobol_to_java.det import expr as E
@@ -41,7 +43,6 @@ class ContainerCommands:
         data into INTO's first bytes, longer data truncated with LENGERR RESP2 11 -- or NODATA; FLENGTH, a data
         area, is set to the container's length on NORMAL and LENGERR (IBM: "As an output field, FLENGTH returns
         the length of the data in the container"; on another condition IBM does not say, so it is left alone)."""
-        from gitgalaxy.tools.cobol_to_java.det.cics import CicsError, G_jstr, _arg, _msg, _option, _requires
 
         g = self.g
         name = self.name(_arg(opts.get("CONTAINER")))
@@ -65,7 +66,7 @@ class ContainerCommands:
                 tail = f", {from_ccsid}"
             out += [f"{ind}int {ln} = {n};",
                     (f"{ind}CicsTask.ContainerResult {r} = task.putContainer({chan}, {name}, "
-                     f"DetCics.containerData({f}, {ln}), {ln}, {G_jstr(dtype) if dtype else 'null'}, "
+                     f"DetCics.containerData({f}, {ln}), {ln}, {jstr(dtype) if dtype else 'null'}, "
                      f"{str('APPEND' in opts).lower()}{tail});")]  # fmt: skip
         elif key == "GET CONTAINER":
             into, nodata = opts.get("INTO") or "", "NODATA" in opts
@@ -123,7 +124,6 @@ class ContainerCommands:
         """#4270 (X17): PUT's FROMCCSID or GET's INTOCCSID as a Java int expression (a data value; the runtime refuses one outside
         37 / 500 / 1140 / 1208), None when not given. The port's storage is read as the region's page (#4528), which the
         conversion assumes is CCSID 037: another declared page refuses the option."""
-        from gitgalaxy.tools.cobol_to_java.det.cics import CicsError, _arg, region_page
 
         if option not in opts:
             return None
@@ -138,7 +138,6 @@ class ContainerCommands:
         channels. DELETE: the channel and its containers go. QUERY: CONTAINERCNT, a fullword, is set to the number of
         containers on NORMAL (not on a condition: IBM does not say). CHANNELERR RESP2 2 comes back through RESP / HANDLE
         CONDITION (AEZV by default); what IBM leaves open is refused at run time (register X44)."""
-        from gitgalaxy.tools.cobol_to_java.det.cics import _arg
 
         r = self.g.tmpname("chan")
         chan = self.name(_arg(opts.get("CHANNEL")))
@@ -159,7 +158,6 @@ class ContainerCommands:
         container's 16-character name into CONTAINER (not on END / TOKENERR). ENDBROWSE: the token. CHANNELERR,
         CONTAINERERR, INVREQ, END, ILLOGIC and TOKENERR come back with their RESP2 through RESP / HANDLE CONDITION;
         what IBM leaves open is refused or assumed at run time (register X42)."""
-        from gitgalaxy.tools.cobol_to_java.det.cics import _arg
 
         g = self.g
         r = g.tmpname("cont")
@@ -194,7 +192,6 @@ class ContainerCommands:
 def _convertst(opts: dict) -> bool | None:
     """#4270 (X17): GET CONTAINER CONVERTST -- True for DFHVALUE(NOCONVERT) (734), the only value IBM documents; None when
     not given."""
-    from gitgalaxy.tools.cobol_to_java.det.cics import CicsError, _option
 
     named = _option(opts, "CONVERTST")
     if named is None:
@@ -206,7 +203,6 @@ def _convertst(opts: dict) -> bool | None:
 
 def _datatype(opts: dict) -> str | None:
     """#4270: PUT CONTAINER's data type -- BIT, CHAR, DATATYPE(DFHVALUE(BIT | CHAR)) -- or None when none is named."""
-    from gitgalaxy.tools.cobol_to_java.det.cics import CicsError, _msg, _option
 
     given = [t for t in ("BIT", "CHAR") if t in opts]
     named = _option(opts, "DATATYPE")

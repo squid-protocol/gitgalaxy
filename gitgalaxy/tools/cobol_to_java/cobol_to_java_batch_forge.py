@@ -40,12 +40,13 @@ from __future__ import annotations
 
 import json
 import re
+import zlib
 from dataclasses import dataclass, field
 from typing import Any
 
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import TraceLog, java_path, status_text
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base
-from gitgalaxy.tools.cobol_to_java.det import dfsort
+from gitgalaxy.tools.cobol_to_java.det import dfsort, idcams
 from gitgalaxy.tools.cobol_to_java.java_target import JavaTarget, record_charset_java
 
 SUBPACKAGE = "batch"
@@ -60,6 +61,7 @@ BUILD_PROGRAMS = frozenset({
 })  # fmt: skip
 RUNNERS = frozenset({"IKJEFT01", "IKJEFT1B", "DFSRRC00", "DFSRRC0"})
 COPY = frozenset({"IEBGENER", "ICEGENER"})
+IDCAMS = frozenset({"IDCAMS"})  # #4268: a REPRO INFILE/OUTFILE step is a record copy
 SORTS = frozenset({"SORT", "DFSORT", "ICEMAN", "SYNCSORT", "ICETOOL"})
 DFSORT = frozenset({"SORT", "DFSORT", "ICEMAN"})  # #4268: the programs whose SYSIN is DFSORT control statements
 
@@ -82,6 +84,13 @@ class Step:
     commands_only: bool = False  # a TSO runner running commands (DSN FREE / BIND, RACF), no program
     parm: str | None = None  # #3624: the text EXEC PARM= passes the program
     refused: str | None = None  # #4268: why a utility step the model cannot run is not lowered (named)
+    lowered: str | None = None  # #4268: a DFSORT step lowered to COBOL (dfsort.cobol_program)
+    sort_service: str = ""  # #4268: the class of its det translation (a service the step runs), "" until ported
+    sort_java: str = ""  # that service's source
+    not_ported: str = ""  # why the lowered program is not run (the det translation failed or holds holes)
+    lowered_note: str = ""  # where its record length came from
+    lowered_path: str = ""  # its resource, set once the job's class is named
+    copy_dds: tuple[str, str] | None = None  # #4268: the (input, output) DDs of an IDCAMS REPRO copy
 
 
 @dataclass
@@ -135,6 +144,9 @@ class BatchForge:
         dds: dict[tuple[str, int, str | None], list[dict]] = {}
         for d in (sections.get("job_dds") or {}).get("facts", []):
             dds.setdefault((d["file"], d["ordinal"], d.get("proc_step")), []).append(d)
+        self.file_dds: dict[str, list[dict]] = {}  # #4268: every DD of a JCL file, to find a dataset's stated DCB
+        for d in (sections.get("job_dds") or {}).get("facts", []):
+            self.file_dds.setdefault(d["file"], []).append(d)
         self.sysin: dict[tuple[str, int, str | None, str], list[str]] = {}
         for d in (sections.get("job_sysin") or {}).get("facts", []):
             self.sysin.setdefault((d["file"], d["ordinal"], d.get("proc_step"), d.get("dd") or ""), []).append(
@@ -151,6 +163,10 @@ class BatchForge:
                 name = f"{base[: -len('JobConfig')]}{n}JobConfig"
             taken.add(name)
             j.cls = name
+            for st in j.steps:
+                st.lowered_path = f"batch/sort/{name[: -len('JobConfig')]}-{self._const(st.name)}.cbl"
+                if st.lowered and j.kind == "application" and self.enabled:
+                    self._port_sort(name[: -len("JobConfig")], st)
         # A JCL job name is not unique across files (nor is it a Spring bean name): the Spring Batch
         # job carries it, suffixed with its file's stem when another generated job has it too.
         names = [j.job for j in self.applications]
@@ -176,6 +192,8 @@ class BatchForge:
                 st.parm = ps.get("parm")
                 if prog in COPY:
                     st.refused = self._iebgener_refusal(j["file"], s["ordinal"], st)
+                elif prog in IDCAMS:
+                    st.refused = self._idcams_refusal(j["file"], s["ordinal"], st)
                 elif prog in SORTS:
                     st.refused = self._sort_refusal(j["file"], s["ordinal"], st)
                 self._through_runner(st, ps.get("runner_programs") or [])
@@ -216,15 +234,36 @@ class BatchForge:
                 return str(e)
         return None
 
+    def _idcams_refusal(self, file: str, ordinal: int, st: Step) -> str | None:
+        """#4268: an IDCAMS step is a record copy only while its SYSIN is one `REPRO INFILE(dd) OUTFILE(dd)`
+        (`idcams.parse`, proven against GnuCOBOL); every other command or parameter, a SYSIN dataset, or a REPRO whose
+        DDs are not datasets of the step is refused by name. The two DDs are kept on the step."""
+        if any(d.get("dd") == "SYSIN" and d.get("dsn") for d in st.dds):
+            return "its SYSIN is a dataset of control statements (not read)"
+        decks = self._deck(file, ordinal, st, "SYSIN")
+        if len(decks) != 1:
+            return "has no single in-stream SYSIN of IDCAMS commands"
+        try:
+            repro = idcams.parse(decks[0])
+        except dfsort.Refused as e:
+            return f"uses {e}, which the IDCAMS model refuses"
+        have = {d.get("dd") for d in st.dds if d.get("dsn")}
+        for dd in (repro.infile, repro.outfile):
+            if dd not in have:
+                return f"names the DD {dd} in its REPRO, which is not a dataset of the step"
+        st.copy_dds = (repro.infile, repro.outfile)
+        return None
+
     def _deck(self, file: str, ordinal: int, st: Step, dd: str) -> list[str]:
         """The in-stream bodies of the step's `dd` (job_sysin), the procedure step's else the job step's."""
         return self.sysin.get((file, ordinal, st.proc_step, dd)) or self.sysin.get((file, ordinal, None, dd)) or []
 
-    def _sort_refusal(self, file: str, ordinal: int, st: Step) -> str:
-        """#4268: why a SORT step is not run -- always a reason, as no step is lowered yet. The control statements
-        (SYSIN with the SYMNAMES it names) go through `dfsort.parse`: what the model does not cover is named as it
-        names it. A step the model does cover still cannot be lowered here: its program (`dfsort.cobol_program`) needs
-        the records' length, which the job facts do not carry (no DCB / LRECL), so that is the reason said."""
+    def _sort_refusal(self, file: str, ordinal: int, st: Step) -> str | None:
+        """#4268: why a SORT step is not lowered (None: it is, `st.lowered` holds the COBOL SORT / MERGE program). The
+        control statements (SYSIN with the SYMNAMES it names) go through `dfsort.parse`: what the model does not cover
+        is named as it names it. A covered step needs its records' length, read from the DCB the job states
+        (`_sort_reclen`), and is lowered by `dfsort.cobol_program` onto the SORTIN / SORTINnn and SORTOUT DDs. The
+        lowered program is run through its det translation (`_port_sort`) once the job's class is named."""
         if st.program not in DFSORT:
             return f"is {st.program}, not DFSORT control statements the model reads"
         for dd in ("SORTCNTL", "DFSPARM"):
@@ -238,7 +277,92 @@ class BatchForge:
             )
         except dfsort.Refused as e:
             return f"uses {e}, which the DFSORT model refuses"
-        return f"is a DFSORT {ctl.verb} the model lowers, but the job facts carry no record length (LRECL) to lower it"
+        merge = ctl.verb == "MERGE"
+        names = (
+            sorted({d["dd"] for d in st.dds if re.fullmatch(r"SORTIN[0-9]{2}", d.get("dd") or "")})
+            if merge
+            else ["SORTIN"]
+        )
+        if not names or not all(any(d.get("dd") == n and d.get("dsn") for d in st.dds) for n in names):
+            return f"is a DFSORT {ctl.verb} the model lowers, but {'/'.join(names) or 'SORTINnn'} is not a dataset"
+        if not any(d.get("dd") == "SORTOUT" and d.get("dsn") for d in st.dds):
+            return f"is a DFSORT {ctl.verb} the model lowers, but SORTOUT is not a dataset"
+        reclen = self._sort_reclen(file, st, names, bool(ctl.outrec))
+        if isinstance(reclen, str):
+            return f"is a DFSORT {ctl.verb} the model lowers, but {reclen}"
+        try:
+            st.lowered = dfsort.cobol_program(ctl, reclen[0], names, "SORTOUT")
+        except dfsort.Refused as e:
+            return f"is a DFSORT {ctl.verb} the model reads, but lowering refuses {e}"
+        st.lowered_note = f"{reclen[0]}-byte fixed records, LRECL from {reclen[1]}"
+        return None
+
+    def _port_sort(self, base: str, st: Step) -> None:
+        """#4268: the det translation of a lowered SORT step (the port `test_dfsort_4268.py` proves against GnuCOBOL),
+        kept as a service the step runs on its DDs. A translation that fails or holds a hole is not run: the step
+        stays a named utility step and says why (`st.not_ported`)."""
+        import tempfile
+        from pathlib import Path
+
+        from gitgalaxy.tools.cobol_to_java.det import program as P
+
+        cls = f"DfsortStep{java_class_base(base)}{java_class_base(self._const(st.name))}Service"
+        pid = "GGSRT" + format(zlib.crc32(f"{base}/{st.name}".encode()) & 0xFFFFFF, "06X")
+        if st.lowered is None:
+            return
+        src = st.lowered.replace("PROGRAM-ID. DFSORTST.", f"PROGRAM-ID. {pid}.")
+        try:
+            with tempfile.TemporaryDirectory(prefix="gitgalaxy-sortstep-") as tmp:
+                path = Path(tmp) / f"{pid}.cbl"
+                path.write_text(src, encoding="utf-8")
+                r = P.translate(path, [], f"public class {cls} {{\n}}\n", self.package, None, None)
+        except Exception as e:  # any translator failure keeps the step a named utility step
+            st.not_ported = f"the det translation failed ({type(e).__name__}: {e})"
+            return
+        holes = r.stats["holes"]
+        if holes or r.extra:
+            st.not_ported = (
+                f"the det translation has {len(holes)} hole(s) ({holes[0] if holes else 'sibling programs'})"
+            )
+            return
+        st.sort_service, st.sort_java = r.service, r.java
+
+    def _sort_reclen(self, file: str, st: Step, inputs: list[str], rebuilt: bool) -> tuple[int, str] | str:
+        """#4268: the fixed record length of a SORT / MERGE step from the DCB its job states, as (length, where) or
+        the reason there is none. Looked for on the input DDs, then on the other DDs of the same dataset in the job
+        (the step that wrote it), then on SORTOUT (only without OUTREC: it changes the length). Every length a tier
+        states must agree, and a RECFM it states must be fixed (F, FB, FBA, FBM): variable and undefined records
+        are not a fixed-length COBOL record. A tier with an LRECL and no RECFM is not taken (no guess), and a later
+        tier may not overrule the length it stated."""
+        own = [d for d in st.dds if d.get("dd") in inputs]
+        out = [d for d in st.dds if d.get("dd") == "SORTOUT"]
+        key = {(d.get("dsn"), d.get("generation")) for d in own}
+        elsewhere = [
+            d for d in self.file_dds.get(file, []) if (d.get("dsn"), d.get("generation")) in key and d not in own
+        ]
+        tiers = [("the input DD", own), ("the same dataset elsewhere in the job", elsewhere)]
+        if not rebuilt:
+            tiers.append(("SORTOUT", out))
+        reasons: list[str] = []
+        passed_over: set[int] = set()  # lengths of the tiers not taken for want of a RECFM
+        for where, rows in tiers:
+            lrecls = {d["lrecl"] for d in rows if d.get("lrecl")}
+            if not lrecls:
+                continue
+            if len(lrecls) > 1:
+                return f"{where} states different LRECLs ({', '.join(str(n) for n in sorted(lrecls))})"
+            recfms = {str(d["recfm"]).upper() for d in rows if d.get("recfm")}
+            if not recfms:
+                reasons.append(f"{where} states LRECL={next(iter(lrecls))} but no RECFM")
+                passed_over |= lrecls
+                continue
+            bad = sorted(r for r in recfms if not r.startswith("F"))
+            if bad:
+                return f"{where} states RECFM={'/'.join(bad)}, not fixed-length records"
+            if passed_over - lrecls:
+                return f"{where} states LRECL={next(iter(lrecls))}, but {'; '.join(reasons)}"
+            return next(iter(lrecls)), where
+        return "; ".join(reasons) or "the job facts carry no record length (LRECL) to lower it"
 
     def _through_runner(self, st: Step, runs: list[dict]) -> None:
         """#3710: a runner step runs the program its SYSTSIN / PARM names -- the estate program
@@ -290,7 +414,25 @@ class BatchForge:
             out["BatchJobController"] = _CONTROLLER.replace("{pkg}", pkg)
         for j in self.applications:
             out[j.cls] = self._job_source(j)
-        return {("base_pkg", SUBPACKAGE): out}
+        return {("base_pkg", SUBPACKAGE): out, **self._sort_sources()}
+
+    def _sort_sources(self) -> dict[tuple[str, ...], dict[str, str]]:
+        """#4268: the det services of the lowered SORT steps and the det runtime they run on (cobolrt, without its CICS
+        and SQL parts, as `test_dfsort_4268.py` proves it), only when a step has one."""
+        ported = [st for j in self.applications for st in j.steps if st.sort_service]
+        if not ported:
+            return {}
+        from gitgalaxy.tools.cobol_to_java.det import program as P
+
+        out: dict[tuple[str, ...], dict[str, str]] = {
+            ("base_pkg", "service"): {st.sort_service: st.sort_java for st in ported}
+        }
+        for rel, text in P.runtime_files(self.package, batch=True).items():
+            if rel.startswith(("cobolrt/cics/", "cobolrt/sql/")):
+                continue
+            where, _, name = rel.rpartition("/")
+            out.setdefault(("base_pkg", where), {})[name.removesuffix(".java")] = text
+        return out
 
     def resources(self) -> dict[str, str]:
         if not self.enabled or not self.jobs:
@@ -298,7 +440,9 @@ class BatchForge:
         rows = [{"job": j.job, "file": j.file, "kind": j.kind, "reason": j.reason,
                  "generated": j.cls if j.kind == "application" else None, "spring_job": j.spring or None,
                  "steps": [{"step": s.jcl, "program": s.program} for s in j.steps]} for j in self.jobs]  # fmt: skip
-        return {"batch/jcl-jobs.json": json.dumps(rows, indent=2) + "\n"}
+        out = {"batch/jcl-jobs.json": json.dumps(rows, indent=2) + "\n"}
+        out.update({st.lowered_path: st.lowered for j in self.applications for st in j.steps if st.lowered})  # #4268
+        return out
 
     def _flows_of(self, j: Job) -> list[str]:
         out = []
@@ -319,8 +463,11 @@ class BatchForge:
                    "org.springframework.context.annotation.Bean", "org.springframework.context.annotation.Configuration",
                    "org.springframework.transaction.PlatformTransactionManager", "java.util.List"}  # fmt: skip
         imports |= {f"{self.package}.service.{java_class_base(k)}Service" for k in services}
+        sorts = sorted({st.sort_service for st in j.steps if st.sort_service})
+        imports |= {f"{self.package}.service.{c}" for c in sorts}
         params = ["JobRepository jobRepository", "PlatformTransactionManager tx", "JclSteps steps"]
         params += [f"{java_class_base(k)}Service {self._var(k)}" for k in services]
+        params += [f"{c} {c[0].lower() + c[1:]}" for c in sorts]
         flows = self._flows_of(j)
         doc = [f"/** JCL job {j.job} ({j.file}) as a Spring Batch job (#3622): its steps in JCL order,",
                " *  each bypassed when its COND= (or the job's) is satisfied, as JCL does."]  # fmt: skip
@@ -357,6 +504,10 @@ class BatchForge:
         return re.sub(r"[^A-Z0-9]", "_", name.upper())
 
     @staticmethod
+    def _sort_var(st: Step) -> str:
+        return st.sort_service[0].lower() + st.sort_service[1:]
+
+    @staticmethod
     def _var(key: str) -> str:
         base = java_class_base(key) + "Service"
         return base[0].lower() + base[1:]
@@ -369,10 +520,20 @@ class BatchForge:
 
     def _step_todo(self, st: Step) -> str | None:
         p = st.program or "?"
+        if p in IDCAMS and st.refused:
+            return f"TODO: {st.jcl} runs {p}, which {st.refused} -- not run as a record copy: a utility step to port"
+        if p in IDCAMS and st.copy_dds:
+            return None
         if p in COPY and st.refused:
             return f"TODO: {st.jcl} runs {p}, which {st.refused} -- not run as a plain copy: a utility step to port"
         if p in SORTS and st.refused:
             return f"TODO: {st.jcl} runs {p}, which {st.refused} -- not run: a utility step to port"
+        if p in SORTS and st.sort_service:
+            return None
+        if p in SORTS and st.lowered:
+            why = st.not_ported or "it is not det-ported yet"
+            return (f"TODO: {st.jcl} runs {p}, lowered to the COBOL SORT / MERGE program {st.lowered_path} "
+                    f"({st.lowered_note}) -- not run: {why}; a utility step to port")  # fmt: skip
         if st.key or p in ("IEFBR14", *COPY):
             return None
         if p in RUNNERS and st.commands_only:
@@ -390,10 +551,14 @@ class BatchForge:
         head = f"{_jstr(st.name)}, {_jstr(st.jcl)}, {_jstr(j.cond)}, {_jstr(st.cond)}, {_jstr(st.if_cond)}"
         if st.key:
             return f"steps.program({head}, () -> {self._var(st.key)}.runBatch({consts}, {_jstr(st.parm)}))"
+        if st.sort_service:  # #4268: the lowered SORT / MERGE, det-translated, on the step's DDs
+            return f"steps.program({head}, () -> {self._sort_var(st)}.runBatch({consts}, null))"
         if st.program == "IEFBR14":
             return f"steps.iefbr14({head}, {consts})"
         if st.program in COPY and not st.refused:
             return f"steps.copy({head}, {consts})"
+        if st.program in IDCAMS and st.copy_dds:
+            return f"steps.copy({head}, {consts}, {_jstr(st.copy_dds[0])}, {_jstr(st.copy_dds[1])})"
         todo = self._step_todo(st) or ""
         return f"steps.utility({head}, {_jstr(st.program)}, {_jstr(todo.split(': ', 1)[-1])})"
 
@@ -1105,11 +1270,17 @@ public class JclSteps {
 
     /** IEBGENER / ICEGENER: copies SYSUT1 to SYSUT2. */
     public Tasklet copy(String name, String jcl, String jobCond, String cond, String ifCond, List<Dd> dds) {
+        return copy(name, jcl, jobCond, cond, ifCond, dds, "SYSUT1", "SYSUT2");
+    }
+
+    /** IDCAMS REPRO INFILE(inDd) OUTFILE(outDd): copies the input data set's records to the output. */
+    public Tasklet copy(String name, String jcl, String jobCond, String cond, String ifCond, List<Dd> dds,
+            String inDd, String outDd) {
         return guarded(jcl, jobCond, cond, ifCond, () -> {
-            Path in = dds.stream().filter(d -> d.name().equals("SYSUT1")).map(datasets::path).findFirst().orElse(null);
-            Path out = dds.stream().filter(d -> d.name().equals("SYSUT2")).map(datasets::path).findFirst().orElse(null);
+            Path in = dds.stream().filter(d -> d.name().equals(inDd)).map(datasets::path).findFirst().orElse(null);
+            Path out = dds.stream().filter(d -> d.name().equals(outDd)).map(datasets::path).findFirst().orElse(null);
             if (in == null || out == null) {
-                LOG.warn("{}: SYSUT1 / SYSUT2 is not a dataset (in-stream, SYSOUT or DUMMY): nothing copied", jcl);
+                LOG.warn("{}: {} / {} is not a dataset (in-stream, SYSOUT or DUMMY): nothing copied", jcl, inDd, outDd);
                 return 0;
             }
             try {

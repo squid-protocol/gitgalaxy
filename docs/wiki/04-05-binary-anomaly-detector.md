@@ -23,10 +23,10 @@ To maintain throughput and avoid out-of-memory risks, the detector reads only th
 
 ### Mathematical Entropy & Header Checks
 The 8KB chunk undergoes several evaluations:
-1. **Magic Byte Mismatch:** Compares the file's magic bytes against its declared file extension (e.g., flagging an executable disguised as a `.png`).
+1. **Magic Byte Mismatch:** Compares the file's magic bytes against its declared file extension (e.g., flagging an executable disguised as a `.png`). Required headers cover `.png`, `.jpg`/`.jpeg`, `.gz`, `.xz`, `.zip`, `.pdf`, `.ico` and `.tar` (a tar has no magic at offset 0: `ustar` at byte 257, or a valid header checksum, or an all-zero empty archive). A bypassed type with no header here (`.json`, `.yml`) is not checked for a mismatch.
 2. **Expected Shebang Exemption:** Suppresses anomaly alerts for shell scripts (`.sh`, `.bash`) that legitimately contain executable header signatures.
 3. **Shannon Entropy Validation:** Calculates string entropy. If $\text{Entropy} > 4.8$, it flags the file as potentially containing packed executables or encrypted payloads.
-4. **Bitwise Operation Traps:** Inspects byte buffers for dense clusters of XOR operations, indicating potential unpacking routines.
+4. **Bitwise Operation Traps:** Flags three or more repeated in-place XORs on indexed bytes (`buf[i] ^= k;`). A plain XOR decode loop, and a `a ^ b ^ c` chain, are not detected.
 
 ## Pipeline Integration
 Inputs received include raw binary file paths and configuration settings. Outputs produced are anomaly alerts and execution blocks (exit code `1`). It runs alongside or immediately after standard source code static analysis.

@@ -381,3 +381,116 @@ and `test_easytrieve_internal_discriminator_strict`.
 **Not done (sibling gaps):** the 4 FreeBSD troff `.mac` files that routed `easytrieve` at probe time are not held on this checkout, so
 the line that matches is unconfirmed (a synthetic troff file already routes `plaintext`); DSP and MASM `.mac` stay `plaintext` on purpose
 (no owning language). No burned-estate program needs any of these.
+
+### Addendum (2026-10-30f, #7064): JCL library directories, `LINKX` / `XCTLX` / `ATTACHX` `EP=`
+
+**PDS siblings for JCL.** `jcl` now lists `jcl`, `cntl`, `proclib` and `proc` in `library_directory_suffixes`, so an extensionless
+member under `PAYR.JCL/`, `PAYR.CNTL/`, `SYS1.PROCLIB/` or `PAYR.PROC/` routes `jcl`. **The plan was wrong on one point:** no
+`_PDS_MEMBER_EVIDENCE` entry was needed (measured: the all-language lexical scan already wins a job or PROC member on its `//` cards,
+and `jcl` has no `internal_discriminator`, contrary to the cobol/pli addendum above). A README or C text in the same directory, and the
+same job outside a library directory, stay unclaimed. Pinned in `test_pds_library_routing.py`. Not routed: IDCAMS / SYSIN control cards
+in a `.CNTL/` member (no `//` cards; no owner).
+
+**Extended forms.** `calls_out`, `ipc_rpc_bridges` and the `LINK`/`XCTL EPLOC=field` pass now take `LINKX`, `XCTLX` (and `ATTACHX` for
+`calls_out`) beside the base macros; `LINKX` / `XCTLX` join the mnemonic list. The `LINKX EP=` near miss pinned by #7063 flips to a
+named callee. Still near misses: `LOADX`, `CALLX`, `DELETEX`, `LINKXX`, `LINKX EPLOC=(reg)` / `DE=`. Pinned in
+`test_hlasm_calls_out_forms`, the `ipc_rpc_bridges` rows and `test_eploc_names_the_constant_eploc_program`.
+
+**Not done (sibling gaps):** `BAL`/`BALR`/`BASR` to an in-file label (internal edge); `fragile_debt`/`planned_debt` false positives
+(moves the golden master); troff / DSP / MASM `.mac`. No burned-estate program needs any of these.
+
+### Addendum (2026-10-30g, #7064): troff `.mac` no longer routes to easytrieve
+
+The 5 FreeBSD troff `.mac` files are held on the box (`share/doc/{usd,psd}` and `usr.bin/fortune/tools`). Re-routed with the engine: 4 landed
+`easytrieve` ("Collision Resolved") and 1 `plaintext`. **The earlier guess was wrong:** no easytrieve discriminator line matches them. Cause:
+hlasm needs proof for `.mac` (`extensions_needing_discriminator`), easytrieve did not, so it was the only unproven claimant and won the Tier-3
+lexical fallback for any `.mac` nobody proved. Easytrieve now lists `.mac` in `extensions_needing_discriminator` too: all 5 files route off
+easytrieve and hlasm. Real Easytrieve `.mac` (FILE / JOB / PRINT / REPORT / PROC / MACRO / `%name` / `END-*`) still routes easytrieve in every
+neighbourhood; `.ezt` / `.ezp` are unchanged. Pinned in `test_easytrieve_macro_language_collision.py`.
+
+With NASM (section 12 addendum e), ARM64, MS-DOS `.MAC` and troff all out of hlasm and easytrieve, every non-mainframe family from the DB's 112
+`hlasm`-labelled files is re-routed. **Sibling gaps (not done):** DSP and MASM `.mac` stay non-mainframe with no owning language. No burned-estate
+program needs any of these.
+
+### Addendum (2026-10-30h, #7064): `fragile_debt` / `planned_debt` count full-line comments only
+
+**Cause.** The detector runs the two debt rules over the code stream as well as the comment stream, and `hlasm` bound the shared
+global patterns. Operand text therefore counted: `DC CL3'xxx'`, a trailing remark `MESSAGE xxx`, and `LOAD EP=BPX1GLG  STUB LOADER`
+(a system service called STUB). Measured on a 5-line file before the change: `planned_debt` 1, `fragile_debt` 4; only the one `* HACK`
+line is debt.
+
+**Fix.** `hlasm` now wraps the same shared patterns (so the multilingual marker lists are unchanged) behind a line anchor: a marker
+counts only on a line that starts `*` or `.*` (a full-line comment or macro comment). Trailing remarks and operands no longer count, and
+the count is one per comment line rather than one per marker. Pinned in `test_hlasm_strict.py` (`test_hlasm_debt_*`: comment forms in
+upper/lower case, operand/remark/stub text, marker on the next statement, indented `*`).
+
+**Re-measure on the held emulator tree** (123 `.asm` files, the repo that gave 121 `fragile_debt` hits of the `xxx` class): the `xxx`
+hits are gone; what remains is prose in `*` comments that really says "bug" (`CLCL.asm` and the `CLCLE-0n` files, 4 each, all on comment
+lines) and 1 `planned_debt` in `CDSG.asm`. A real `TODO` in a trailing remark after an instruction no longer counts (accepted: the
+remark is positional text, not a comment line).
+
+**Probe status.** Every signal row of section 12 now has a measured reading on genuine z/OS assembler, and the defect classes are:
+misrouting (fixed, addenda b-g), `calls_out` forms (fixed, c/f), PDS routing (fixed, d/f), debt false positives (fixed, here). Left:
+`BAL`/`BALR`/`BASR` to an in-file label is an internal edge, not modelled (a design decision, unmeasured); DSP / MASM `.mac` have no
+owning language; the Hyperion-class, MS-DOS and NASM trees are not held, so those rows stay as measured on the corpus DB. Other assembler
+profiles (`assembly`, `agc_assembly`) bind the same global debt rules and may overcount operand text the same way (not measured).
+No burned-estate program needs any of these.
+
+### Addendum (2026-10-30i, #7064): `assembly` / `agc_assembly` debt sibling measured; probe item closed
+
+**Measured** on the language-crucible assembly corpus (227 `assembly` files, 10 `agc_assembly`; a scratch scan, nothing committed).
+`agc_assembly` reads 0 / 0 (`planned_debt` / `fragile_debt`): nothing to fix. `assembly` read 102 / 7. The comment-line hits are
+legitimate (`; TODO`, `/* XXX ... */`, prose "stub" in a `//` block). The false positive is a directive: one file (`ape.S`) defines a `.stub`
+macro and uses it about 47 times, each counted as planned debt. Unlike hlasm, a line anchor is wrong here: a trailing `; TODO` after an
+instruction is a real comment in this dialect family, so the fix is narrower, a marker preceded by `.` (a directive name) does not count.
+
+**After:** `assembly` 55 / 7, `ape.S` 52 -> 5. Pinned in `test_assembly_strict.py` (comment forms in `;`, `#`, `//`, `/* */`, `@`; directive
+names `.stub`, `.todo`, `.hack`, `.xxx`, `.fixme`, `.wip`). Left as accepted: the label `stub:` and operand symbol `stub,globl` (2 lines in
+`ape.S`) still count; there is no line-position-free way to tell them from `STUB:` in a comment.
+
+**Probe status (closing).** All signal rows of section 12 have measured readings on genuine z/OS assembler; each defect class found is fixed
+(addenda b-i) or recorded: `BAL`/`BALR`/`BASR` to an in-file label is an internal edge, not modelled (a design decision); DSP / MASM `.mac`
+have no owning language. The Hyperion, MS-DOS and NASM trees are not held, so those rows stay as measured on the corpus DB. No burned-estate
+program needs any of these.
+
+### Addendum (2026-10-31, #7064): consolidated post-fix probe, per signal
+
+Read-only measurement with the engine at HEAD after the fixes above. **Held and probed (copied to scratch, 44 files, 2,638 lines):** Che4z
+LSP samples (35 `.hlasm`/`.asm`), IBM-Z-zOS `oeconsol.asm` (939 lines, the only large file), zECS (2), zopeneditor-sample (2), CardDemo (2 `.asm`
+and 1 `.mac`). The scan routed 43 files `hlasm`; the one kept out is a 58-line Che4z `basics.hlasm` under the zero-density threshold
+(`Signals: 0`). **Not held, so not re-measured here:** Hyperion (scan outputs only, no source), the emulator tree, the two PDS-layout repos, MS-DOS
+and NASM; their rows in section 12 and its addenda stand as measured then. The corpus is small and mostly Che4z test fixtures, so counts are
+shape checks, not rates.
+
+Per signal, from the profile's rules run over the raw files (files / hits), with the reading on what fires:
+
+| Signal | Files / hits | Reading |
+|---|---|---|
+| `func_start` / `class_start` | 21 / 21, 4 / 6 | 15 `MACRO` (a macro is a unit), 3 `DFHEIENT`, 1 `CSECT`, 2 more; `DSECT` as class. Correct |
+| `args` | 4 / 4 | Only macros with an operand prototype; 11 of the 15 macros take none. Correct |
+| `macros` | 20 / 68 | `MACRO`/`MEND`/`AIF`/`MNOTE`. Correct |
+| `calls_out` | engine: 11 of 21 functions non-empty | `LOAD EP=` x3 in `oeconsol` named (`BPX1GLG`, `BPX1RED`, `BPX1WRT`); macro uses named (`MVSWAIT` -> `ASMWAIT`, `TEST` -> `TEST_1_BYTE`...). `CALL (15),...` x4 names nothing: correct (register target). `BAL` (10 lines, in-file labels) not an import |
+| `branch` | 5 / 89 | `BC`, `BZ`, `BE`, `BNE`: correct |
+| `high_risk_execution` | 3 / 22 | `MODESET` 11, `LOAD EP=` 3, `DELETE EP=` 3, `EXEC CICS ABEND` 2. `DELETE EP=` unloads rather than executes; it is kept on purpose (rule comment, #2878) |
+| `safety_bypasses`, `io`, `memory_alloc`, `concurrency`, `ui_framework`, `cleanup`, `telemetry`, `time_date_logic`, `ipc_rpc_bridges`, `listeners` | fire | `NOHANDLE` 19, `STORAGE OBTAIN/RELEASE`, `WAIT`/`POST`, CICS `SEND`/`RECEIVE`/`WRITEQ TD`/`ASKTIME`: correct |
+| `pointers` | 1 / 12 | `=A(`/`=AL4(` literals in `oeconsol`; correct |
+| `globals` | 5 / 53 | `DC` data definitions; a `DC A()` or `DC V()` line can also match `pointers`, the dual ownership recorded in section 12 |
+| `immutability_locks` | 9 / 109 | `EQU`: 80 of 110 `EQU` lines are plain numeric (register) equates, so the signal is dominated by register names, not constants |
+| `reflection_metaprogramming` | 1 / 3 | `EX R,...` execute target (instruction-level analogue), by design |
+| `dead_code` | 4 / 8 | `*TRY LR 1,1` instruction-shaped comments in `comments.hlasm`; correct |
+| `planned_debt`, `fragile_debt` | 0 / 0 | no marker on a comment line in these files; the `xxx` / `STUB` operand false positives of section 12 are gone |
+| `bitwise_ops`, `debug_prints`, `explicit_casts`, `thread_sleeps`, `panics_and_aborts`, `decorators`, `import`, `ownership`, `doc` | fire | `SLL`/`NR`, `WTO`, `UNPK`, `STIMER WAIT`, `ABEND`, `AMODE`/`RMODE`, `COPY`, `AUTHOR:`, `Function:` |
+| `safety`, `scientific`, `spec_exposure`, `ssr_boundaries`, `events`, `sync_locks`, `auth_middleware`, `serialization_parsing` | 0 | nothing in these files uses the construct (the CICS ones need `EXEC CICS WEB`/`SIGNAL`/`TRANSFORM`, absent here) |
+| `test`, `closures`, `generics`, `comprehensions`, `regex_execution`, `encapsulation`, `inline_asm`, `hardcoded_secrets`, `dependency_injection`, `system_config_mutation` | `None` | explicit, nothing expected |
+
+**No new false positive and no new miss found** on this set. The recorded false-positive classes of section 12 are each either fixed (routing,
+`calls_out` forms, debt) or a documented design choice (`api`/`func_start` on a `CSECT`, `pointers`/`globals` on `DC V()`, `EX`).
+
+**Sibling gaps (not filed, for churn):**
+1. `immutability_locks` is dominated by register `EQU` (73% of `EQU` lines here); a rule that counts only non-register equates would change the golden master.
+2. `BAL`/`BALR`/`BASR` to an in-file label is an internal edge that nothing models (unmeasured beyond 10 lines).
+3. `DELETE EP=` counts as `high_risk_execution` (unload, not a transfer): intended by #2878, but unreviewed against real use.
+4. A coverage gap, not a defect: Hyperion-class source, the emulator tree and the PDS repos need to be held again for a rate-level re-measure.
+5. DSP and MASM `.mac` still have no owning language; `assembly`/`agc_assembly` debt rules (fixed for `assembly` in #7218).
+
+No burned-estate proof claim is made; the CardDemo files are measured as scanner input only.

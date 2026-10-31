@@ -115,6 +115,10 @@ One row per RUN/START/FETCH/RETRIEVE/CANCEL/DELAY/POST/WAIT/ENQ/DEQ command (`ve
 
 One row per DFHLS2WS / DFHLS2JS (provider) or DFHWS2LS / DFHJS2LS (requester) step of a web-services assistant JCL: `assistant`, `direction`, `program`, `uri`, the `request` / `response` copybook members, `interface` (PGMINT), `container`, `binding` (WSBIND), `document` (WSDL or JSON schema), `transaction_id` (the `transaction` payload key; TRANSACTION is an SQL keyword) and `line_number`. Per-file, cascade-deleted with `file_data`, restored on delta scans.
 
+### `copy_statement_data` — section-level COPY ... REPLACING (#4457)
+
+One row per COPY statement that no `record_data` entry carries (after a section header or FD, or before a section's first entry): `member`, `library`, `replacing` (JSON `[[from, to(, LEADING|TRAILING)], ...]`, as in `record_data.copy_replacing`), `section`, `fd_name`, `after_ordinal` (the `record_data` ordinal of the entry above it, NULL when none) and `line_number`. Per-file, cascade-deleted with `file_data`, restored on delta scans.
+
 ### `data_move_data` — field-level data movement (#3452)
 
 One row per source -> target pair of a MOVE/COMPUTE/ADD/SUBTRACT/MULTIPLY/DIVIDE/STRING/UNSTRING/INITIALIZE: `verb`, `source` and `target` as written (qualifiers kept, subscripts dropped), `source_kind` (`item`/`literal`/`figurative`/`function`/`length`/`address`, NULL on INITIALIZE), `corresponding`, `source_refmod`/`target_refmod` and, since #3655, their texts `source_refmod_text`/`target_refmod_text`, and `line_number`. Per-file, cascade-deleted with `file_data`, restored on delta scans.

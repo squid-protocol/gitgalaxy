@@ -357,6 +357,27 @@ _WEB_SERVICE_DDL = """
         """
 
 
+# #4457: the COPY ... REPLACING statements no record_data entry carries (a COPY after a section header / FD,
+# or before a section's first entry): one row per statement, `replacing` the JSON [[from, to(, LEADING|TRAILING)], ...]
+# as in record_data.copy_replacing, `after_ordinal` the record_data ordinal of the entry above it (NULL when none).
+_COPY_STATEMENT_DDL = """
+            CREATE TABLE IF NOT EXISTS copy_statement_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                member TEXT,
+                library TEXT,
+                replacing TEXT,
+                section TEXT,
+                fd_name TEXT,
+                after_ordinal INTEGER,
+                line_number INTEGER,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """
+
+
 # #3452: field-level data movement, per-file.
 _DATA_MOVE_DDL = """
             CREATE TABLE IF NOT EXISTS data_move_data (
@@ -1032,6 +1053,44 @@ CHANNELS = (
         ),
         to_payload=lambda r: {
             **{k: r[k] for k in _WEB_SERVICE_FIELDS},
+            "line": int(r["line"] or 0),
+        },
+    ),
+    # #4457: section-level COPY ... REPLACING statements -- per-file. A pre-#4457 baseline has no table and
+    # restores nothing.
+    FactChannel(
+        name="copy_statement",
+        ir_field="copy_statements",
+        table="copy_statement_data",
+        ddl=_COPY_STATEMENT_DDL,
+        indexes=(
+            "CREATE INDEX IF NOT EXISTS idx_copy_statement_file_id ON copy_statement_data(file_id);",
+            "CREATE INDEX IF NOT EXISTS idx_copy_statement_snapshot ON copy_statement_data(repo_name, commit_hash);",
+        ),
+        payload_key="section_copies",
+        columns=("member", "library", "replacing", "section", "fd_name", "after_ordinal", "line_number"),
+        to_row=lambda c: (
+            c.get("member"),
+            c.get("library"),
+            c.get("replacing"),
+            c.get("section"),
+            c.get("fd_name"),
+            c.get("after_ordinal"),
+            int(c.get("line", 0) or 0),
+        ),
+        restore_select=(
+            "SELECT fd.file_path AS _fp, cs.member, cs.library, cs.replacing, cs.section, cs.fd_name, "
+            'cs.after_ordinal, cs.line_number AS "line" '
+            "FROM copy_statement_data cs JOIN file_data fd ON cs.file_id = fd.id "
+            "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY cs.id"
+        ),
+        to_payload=lambda r: {
+            "member": r["member"],
+            "library": r["library"],
+            "replacing": r["replacing"],
+            "section": r["section"],
+            "fd_name": r["fd_name"],
+            "after_ordinal": r["after_ordinal"],
             "line": int(r["line"] or 0),
         },
     ),

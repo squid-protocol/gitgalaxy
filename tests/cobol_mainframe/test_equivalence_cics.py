@@ -7,6 +7,7 @@ pieces the comparison stands on are pinned: field encoding round-trips, a DTO's 
 from its comments, and events compared field by field.
 """
 
+import inspect
 import sys
 from decimal import Decimal
 from pathlib import Path
@@ -2867,6 +2868,23 @@ def test_the_td_queue_types_a_csd_defines_are_read_with_their_names(tmp_path):
     assert ec.csd_tdqueue_types(tmp_path, case) == {"JOBS": "EXTRA", "AUDQ": "INTRA", "NONE": ""}
     assert ec.csd_tdqueues(tmp_path, case) == ["AUDQ", "JOBS", "NONE"]
     assert ec.csd_tdqueue_types(tmp_path, {}) is None and ec.csd_tdqueues(tmp_path, {}) is None
+
+
+def test_a_scenario_states_its_own_transid_else_the_cases():
+    """#6072: `scenario_transid` is the scenario's "transid", else the case's; a value that is not one to four
+    characters is refused by name, and the case is left untouched."""
+    case = _facade_case()
+    before = repr(case)
+    assert ec.scenario_transid(case, {"name": "a"}) == "T001"
+    assert ec.scenario_transid(case, {"name": "b", "transid": "HCA1"}) == "HCA1"
+    assert ec.scenario_transid(case, {"name": "c", "transid": "X"}) == "X"
+    assert repr(case) == before
+    for bad in ("", "TOOLG", 5, None):
+        with pytest.raises(ec.Unsupported, match="transid"):
+            ec.scenario_transid(case, {"name": "d", "transid": bad})
+    src = inspect.getsource(ec)
+    assert "scenario_transid(case, sc):<4}" in src  # eib.in, the COBOL side
+    assert 'new CicsTask(sc.path("transid").asText(' in src  # the Java side
 
 
 def test_a_scenario_states_its_own_clock_else_the_cases():

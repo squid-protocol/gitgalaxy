@@ -322,6 +322,16 @@ def doctemplates(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, str] | N
 _SCENARIO_CLOCK = re.compile(r"\d{4}/\d\d/\d\d \d\d:\d\d:\d\d\.\d\d")
 
 
+def scenario_transid(case: dict[str, Any], sc: dict[str, Any]) -> str:
+    """#6072: the task's transaction id (EIBTRNID) -- the scenario's "transid", else the case's: a sibling scenario that
+    enters the program under another transaction (a program that branches on EIBTRNID) needs one the case's never is.
+    Stated on both sides: the COBOL task's eib.in, the Java task's CicsTask."""
+    transid = sc.get("transid", case["transid"])
+    if not isinstance(transid, str) or not 1 <= len(transid) <= 4:
+        raise Unsupported(f'scenario {sc.get("name")}: "transid" is one to four characters (got {transid!r})')
+    return transid
+
+
 def scenario_clock(case: dict[str, Any], sc: dict[str, Any]) -> str:
     """#4622: the task's clock ("2026/10/01 10:30:15.00", COB_CURRENT_DATE's form) -- the scenario's "clock", else the
     case's: a program that reads FUNCTION CURRENT-DATE (CORPT00C's month wrap in December) needs a date the case's
@@ -2780,7 +2790,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         eib_date = f"{int(y) - 1900:03d}{_day_of_year(int(y), int(mo), int(dd)):03d}"[-7:].rjust(7, "0")
         eib_time = "0" + time.replace(":", "")[:6]
         term = terminal_facts(case, sc)  # #4270: the task's terminal, when the case states one
-        (d / "eib.in").write_text(f"{case['transid']:<4} {sc.get('aid', 'DFHENTER'):<8} {eib_date} {eib_time} "
+        (d / "eib.in").write_text(f"{scenario_transid(case, sc):<4} {sc.get('aid', 'DFHENTER'):<8} {eib_date} {eib_time} "
                                   f"{term['termid'] or '':<4}\n", encoding="ascii")  # fmt: skip
         if term["termid"]:  # the region's terminals: the task's own (START / INQUIRE / SET TERMINAL's TERMIDERR)
             (d / "terminals.cfg").write_text(f"{term['termid']}\n", encoding="ascii")
@@ -4180,7 +4190,7 @@ class EquivalenceRunTest {{
             Path sysout = out.resolve(sc.get("name").asText() + ".sysout");
             Files.deleteIfExists(sysout);
             System.setProperty("gitgalaxy.sysout", sysout.toString());
-{tod_stmt}            CicsTask task = new CicsTask("{case["transid"]}", sc.get("aid").asText(), commarea, calen, received)
+{tod_stmt}            CicsTask task = new CicsTask(sc.path("transid").asText("{case["transid"]}"), sc.get("aid").asText(), commarea, calen, received)
                     .withClock(java.time.LocalDateTime.parse(sc.path("clock").asText("{ej._clock(case)}")))  // EIBTIME / ASKTIME: the scenario's clock, else the case's
                     .withRegion({region_java})  // ASSIGN APPLID / SYSID
                     .withProgram("{case["program"]}")  // the task's first program (a LINK's INVOKINGPROG)
@@ -4604,6 +4614,7 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
                           "counters": _counters(case, sc), "taskn": task_number(case, sc),
                           "startcode": task_facts(case, sc)[0], "terminal": task_facts(case, sc)[1],
                           **terminal_facts(case, sc),
+                          **({"transid": scenario_transid(case, sc)} if "transid" in sc else {}),
                           **({"clock": ej._clock({**case, "clock": scenario_clock(case, sc)})} if "clock" in sc else {}),
                           **({"tod": scenario_tod(case, sc)} if scenario_tod(case, sc) else {}),
                           "ts": cics_tempstorage.ts_seed(case, sc), "urimaps": urimaps(case, sc),

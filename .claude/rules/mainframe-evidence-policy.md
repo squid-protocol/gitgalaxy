@@ -44,9 +44,12 @@ model exists (#4514). The same holds for other vendors' copybooks.
 An outcome reachable only through an out-of-range subscript or reference modification, where IBM (no SSRANGE) leaves the
 result undefined and GnuCOBOL refuses (register X8, `bounds_refused`), is its own class: **undefined by IBM**, family `U`
 in `tests/equivalence/infeasible_outcomes/<case>.json`.
+* **Extended (owner, 2026-10-31, #6839 row J):** the same class holds for an outcome reachable only through non-digit data
+  in a numeric USAGE DISPLAY item (IBM documents no result; GnuCOBOL reads `ttl=abc` as zeros, so NUMERIC passes where
+  z/OS would fail it). Register C11 records the wider ruling.
 * Report it by name with counts (the evidence report's "undefined by IBM" line). Never as proven, never as infeasible: an
   input does reach it, and IBM does not say what happens.
 * The branch bar is taken net of it, as of stated infeasible outcomes; a proof that reaches one still refutes the entry.
-* First members: BNK1CAC `ED010` 611:true, 637:true, 637:false, 717:true. The harness slice that would judge them is queued
+* First members: BNK1CAC `ED010` 611:true, 637:true, 637:false, 717:true; ZECS001 `1310-TTL` 704:false (non-digit). The harness slice that would judge them is queued
   in #6072 (Remaining slices).
 

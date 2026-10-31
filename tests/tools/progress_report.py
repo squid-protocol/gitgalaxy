@@ -15,7 +15,12 @@ Every denominator is fixed:
                      line, frontier context
   cobolrt rules      cobolrt_rules.json status counts; "measured on z/OS" = a rule with a calibration other than
                      `uncalibrated`
-  mutation           mutation_scores.json (mutation_scores.scores), adjusted and raw
+  det mutation       the estate reports' det-port results, what L5 reads, with the ledgers' sample and the reviewed
+                     survivor claims (tests/equivalence/det_mutation*/)
+  hand ports         mutation_scores.json (mutation_scores.scores), adjusted and raw: model / hand ports, not the
+                     translator's, so it never feeds a level
+  capabilities       capability_ledger.py: what exists, counted from the code, with the zeros left in
+  test estates       cics-crucible's report, shown next to the ladder and never in its fixed denominator
   crucibles          tests/cics_crucible/coverage.json and tests/estate_crucible/baseline.json
   eras               feature_inventory `eras` (era_tags.py) against each program's level
   core burn-down     GitHub issues by `scope:*` label, from a cached JSON (offline, hermetic) or the API when a token is
@@ -44,6 +49,7 @@ REPO = TOOLS.parents[1]
 sys.path.insert(0, str(TOOLS))
 sys.path.insert(0, str(REPO))
 
+import capability_ledger  # noqa: E402
 import ladder_exclusions  # noqa: E402
 
 FORMAT = "gitgalaxy-progress/1"
@@ -56,6 +62,7 @@ ESTATE_CRUCIBLE = REPO / "tests" / "estate_crucible" / "baseline.json"
 ISSUES_CACHE = STATUS_DOCS / "progress_issues_cache.json"  # git-ignored (*.json); `fetch` writes it
 CACHE_ENV = "PROGRESS_ISSUES_CACHE"
 REPO_SLUG = "squid-protocol/gitgalaxy"
+TEST_ESTATES = ("cics-crucible",)  # written to break the translator: shown, never in the burned denominator
 CORE_MILESTONE = 28
 FRONTIER_MILESTONE = 30
 WINDOW_DAYS = 7
@@ -70,6 +77,8 @@ SOURCES = {
     "cics": "docs/language_status/cics_spec_status.json (cics_spec_status.py)",
     "rules": "docs/language_status/cobolrt_rules.json",
     "mutation": "docs/language_status/mutation_scores.json",
+    "det_mutation": "the estate reports, tests/equivalence/det_mutation/, tests/equivalence/det_mutation_survivors/",
+    "capabilities": "tests/tools/capability_ledger.py, from the code",
     "crucibles": "tests/cics_crucible/coverage.json, tests/estate_crucible/baseline.json",
     "eras": "tests/fixtures/feature_inventory/<estate>.json (era_tags.py)",
     "issues": "GitHub issues by scope:* label (progress_issues_cache.json)",
@@ -200,6 +209,63 @@ def mutation_component(doc: dict[str, Any]) -> dict[str, Any]:
         "raw_total": raw,
         "raw_kill_pct": pct(caught, raw),
     }
+
+
+def det_mutation_component(
+    reports: dict[str, dict[str, Any]], ledger: dict[str, dict[str, Any]], claims: dict[str, list[dict[str, Any]]]
+) -> dict[str, Any]:
+    """Per estate, what L5 rests on. `ready` passes on its last measurement but is not current, so it is not L5. The
+    raw score and the sample stay next to each other: L5 has no score bar, it needs every survivor accounted for."""
+    by_program: dict[str, str] = {}
+    for case, entry in sorted(ledger.items()):
+        by_program.setdefault(str(entry.get("program")).upper(), case)
+    estates = {}
+    for name, rep in sorted(reports.items()):
+        r = Counter()
+        for p in rep["programs"]:
+            m = p.get("mutation") or {}
+            if m.get("score") is None:
+                continue
+            r["measured"] += 1
+            r["ready"] += bool(m.get("l5")) and not m.get("current")
+            r["caught"] += m.get("killed") or 0
+            r["survived"] += m.get("survived") or 0
+            case = by_program.get(Path(p["program"]).stem.upper())
+            if case:
+                r["sampled"] += ledger[case].get("chosen") or 0
+                r["mutants"] += ledger[case].get("mutants") or 0
+                for c in claims.get(case, []):
+                    r[c["verdict"]] += 1
+        estates[name] = {
+            "programs": len(rep["programs"]),
+            "measured": r["measured"],
+            "l5": sum(1 for p in rep["programs"] if p["level"] == "L5"),
+            "ready": r["ready"],
+            "caught": r["caught"],
+            "survived": r["survived"],
+            "raw_pct": pct(r["caught"], r["caught"] + r["survived"]),
+            "sampled": r["sampled"],
+            "mutants": r["mutants"],
+            "sampled_pct": pct(r["sampled"], r["mutants"]),
+            "equivalent": r["equivalent"],
+            "unreachable": r["unreachable"],
+        }
+    keys = (
+        "programs",
+        "measured",
+        "l5",
+        "ready",
+        "caught",
+        "survived",
+        "sampled",
+        "mutants",
+        "equivalent",
+        "unreachable",
+    )
+    total: dict[str, Any] = {k: sum(e[k] for e in estates.values()) for k in keys}
+    total["raw_pct"] = pct(total["caught"], total["caught"] + total["survived"])
+    total["sampled_pct"] = pct(total["sampled"], total["mutants"])
+    return {"estates": estates, "total": total}
 
 
 def crucibles_component(cics: dict[str, Any], estate: dict[str, Any]) -> dict[str, Any]:
@@ -404,6 +470,9 @@ def build(
     estate_crucible: dict[str, Any],
     issues: dict[str, Any] | None,
     commit: str,
+    test_estates: dict[str, dict[str, Any]] | None = None,
+    ledger: dict[str, dict[str, Any]] | None = None,
+    claims: dict[str, list[dict[str, Any]]] | None = None,
 ) -> dict[str, Any]:
     per, pairs = {}, {}
     for name in sorted(reports):
@@ -422,17 +491,24 @@ def build(
     if unreachable:  # added only when non-empty; every program stays in the fixed denominator
         total["unreachable"] = unreachable
         total["reachable"] = total["programs"] - unreachable["count"]
+    cics = cics_component(spec_data.get("census") or {}, spec_rows)
     return {
         "format": FORMAT,
         "commit": commit,
         "sources": SOURCES,
         "oracle": "GnuCOBOL plus IBM documentation, not z/OS",
-        "ladder": {"estates": per, "total": total},
+        "ladder": {
+            "estates": per,
+            "total": total,
+            "test_estates": {n: ladder(r["programs"]) for n, r in sorted((test_estates or {}).items())},
+        },
         "components": {
             "translator": {"whole": total["translated_whole"], "of": total["programs"]},
-            "cics": cics_component(spec_data.get("census") or {}, spec_rows),
+            "cics": cics,
             "cobolrt_rules": rules_component(rules),
             "mutation": mutation_component(mutation),
+            "det_mutation": det_mutation_component(reports, ledger or {}, claims or {}),
+            "capabilities": capability_ledger.build(rules, cics),
             "crucibles": crucibles_component(cics_crucible, estate_crucible),
         },
         "eras": era_table(pairs),
@@ -448,6 +524,7 @@ def _issues_once() -> dict[str, Any] | None:
 def gather() -> dict[str, Any]:
     """The report from the committed artifacts (the estate reports are materialized from `generated` on demand)."""
     import cics_spec_status
+    import det_mutation
     import readiness_report
 
     names = readiness_report.estates()
@@ -457,6 +534,11 @@ def gather() -> dict[str, Any]:
     reports = {n: readiness_report._load(readiness_report._reports() / n / "report.json") for n in names}
     inv = {n: readiness_report._load(readiness_report.INVENTORY / f"{n}.json") for n in names}
     data = cics_spec_status.load_data()
+    tests = {
+        n: readiness_report._load(f)
+        for n in TEST_ESTATES
+        if (f := readiness_report._reports() / n / "report.json").is_file()
+    }
     return build(
         reports,
         inv,
@@ -468,10 +550,46 @@ def gather() -> dict[str, Any]:
         _load(ESTATE_CRUCIBLE),
         _issues_once(),
         head_commit(),
+        tests,
+        det_mutation.load(),
+        det_mutation.load_survivors(),
     )
 
 
 # ---- render ---------------------------------------------------------------------------------------------------------
+
+
+def _test_estate_lines(estates: dict[str, dict[str, Any]]) -> list[str]:
+    """The test estates' levels, apart from the ladder: built to be hard, so never in its fixed denominator."""
+    if not estates:
+        return []
+    out = ["Test estates, written to break the translator and so never in the denominator above:", ""]
+    out += ["| Test estate | Programs | L0 | L1 | L2 | L3 | L4 | L5 |", "|---|---|---|---|---|---|---|---|"]
+    for name, r in estates.items():
+        out.append(f"| `{name}` | {r['programs']} | " + " | ".join(str(r["levels"][x]) for x in LEVELS) + " |")
+    return [*out, ""]
+
+
+def _det_mutation_lines(dm: dict[str, Any]) -> list[str]:
+    def line(name: str, r: dict[str, Any]) -> str:
+        raw = f"{r['raw_pct']}% ({r['caught']} of {r['caught'] + r['survived']})" if r["measured"] else "not measured"
+        sample = f"{r['sampled_pct']}% ({r['sampled']} of {r['mutants']})" if r["mutants"] else "not measured"
+        return (
+            f"| {name} | {r['programs']} | {r['measured']} | {r['l5']} | {r['ready']} | {raw} | {sample} "
+            f"| {r['equivalent']} | {r['unreachable']} |"
+        )
+
+    return [*(line(f"`{n}`", r) for n, r in dm["estates"].items()), line("**Total**", dm["total"])]
+
+
+def _capability_lines(cap: dict[str, Any]) -> list[str]:
+    out = []
+    for r in cap["rows"]:
+        count = f"{r['done']} of {r['of']} {r['unit']}" if r["of"] else "no denominator"
+        note = f" ({r['note']})" if r["note"] else ""
+        label = capability_ledger.STATE_LABEL[r["state"]]
+        out.append(f"| {r['group']} | {r['name']} | {label} | {count} | {r['have']}{note} |")
+    return out
 
 
 def render(rep: dict[str, Any]) -> str:
@@ -530,8 +648,32 @@ def render(rep: dict[str, Any]) -> str:
     st = ru["status"]
     out += [
         "",
-        "L0 inventoried, L1 translated whole, L2 executed equal, L3 every paragraph, L4 every net branch, L5 translator",
-        "mutants caught (`definition_of_done.md`).",
+        "L0 inventoried, L1 translated whole, L2 executed equal, L3 every paragraph, L4 every net branch, L5 every",
+        "surviving translator mutant accounted for (`definition_of_done.md`).",
+        "",
+        *_test_estate_lines(lad["test_estates"]),
+        "## L5: what it rests on",
+        "",
+        "L5 has no score bar: it needs every surviving mutant of the det port's sample accounted for, on current inputs.",
+        "*Ready* passes on its last measurement and waits for a refresh, so it is not L5. *Raw* is mutants caught of those",
+        "judged; *sample* is mutants judged of those the program has. Claims are the reviewed survivor statements.",
+        "",
+        "| Estate | Programs | Measured | L5 | Ready | Raw caught | Sample | Equivalent | Unreachable |",
+        "|---|---|---|---|---|---|---|---|---|",
+        *_det_mutation_lines(comp["det_mutation"]),
+        "",
+        "## Capability ledger",
+        "",
+        "Counted from the code by `capability_ledger.py`. A blank denominator means no honest list exists to count against.",
+        "*Match* means IBM's documentation.",
+        "",
+        "| Group | Capability | State | Count | What exists |",
+        "|---|---|---|---|---|",
+        *_capability_lines(comp["capabilities"]),
+        "",
+        f"z/OS: {comp['capabilities']['zos']['measured']} of {comp['capabilities']['zos']['of']} rules measured; "
+        f"{comp['capabilities']['zos']['probes']} probes written, none run. Register of named limits: "
+        f"{comp['capabilities']['register']['entries']} entries, {comp['capabilities']['register']['refused']} refuse by name.",
         "",
         "## 2. Components",
         "",
@@ -540,7 +682,7 @@ def render(rep: dict[str, Any]) -> str:
         f"| Translator | {comp['translator']['whole']} programs translated whole | {comp['translator']['of']} burned programs | {rep['sources']['ladder']} |",
         f"| CICS commands | {c['modelled_both_runtimes']} modelled on both runtimes | {c['burned_commands']} commands a burned program uses ({c['unlisted_or_unparsed']} unlisted or unparsed forms, counted as not modelled) | {rep['sources']['cics']} |",
         f"| COBOL runtime rules | {st['MATCHED']} MATCHED, {st['DIFFERS']} DIFFERS, {st['ASSUMED']} ASSUMED, {st['REFUSED']} REFUSED; {ru['measured_on_zos']} measured on z/OS | {ru['rules']} rules | {rep['sources']['rules']} |",
-        f"| Mutation | {mu['killed']} killed = {pct_text(mu['killed'], mu['adjusted_total'])} adjusted ({pct_text(mu['killed'], mu['raw_total'])} raw) | {mu['adjusted_total']} adjusted, {mu['raw_total']} raw mutants over {mu['ports']} ports | {rep['sources']['mutation']} |",
+        f"| Mutation, hand ports (not the translator) | {mu['killed']} killed = {pct_text(mu['killed'], mu['adjusted_total'])} adjusted ({pct_text(mu['killed'], mu['raw_total'])} raw) | {mu['adjusted_total']} adjusted, {mu['raw_total']} raw mutants over {mu['ports']} ports | {rep['sources']['mutation']} |",
         f"| CICS crucible | {cc['cics_crucible']['programs']} programs, {cc['cics_crucible']['scenarios']} scenarios | pinned at `{cc['cics_crucible']['ref']}` | tests/cics_crucible/coverage.json |",
         f"| Estate crucible | {cc['estate_crucible']['pass']} of {cc['estate_crucible']['horrors']} horrors pass | pinned at `{cc['estate_crucible']['ref']}` | tests/estate_crucible/baseline.json |",
         "",

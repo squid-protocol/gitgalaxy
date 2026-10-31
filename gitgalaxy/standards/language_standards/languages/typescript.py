@@ -24,6 +24,7 @@ from .._shared_patterns import (
     JS_LLM_API,
     JS_LLM_ORCHESTRATOR,
     JS_LLM_VECTOR_STORE,
+    commented_keyword_statement,
 )
 
 DEFINITION: dict[str, Any] = {
@@ -714,7 +715,7 @@ DEFINITION: dict[str, Any] = {
         # styles), but this only ever checked `//` -- a block-commented-out
         # function/class (`/* function foo() {} */`) was invisible.
         "dead_code": re.compile(
-            r"(?://|/\*)[ \t]*(?:if|for|while|function|class|return|export|import)\b"
+            commented_keyword_statement("if|for|while|function|class|return|export|import")
             + r"|"
             + COMMENTED_STATEMENT_C_FAMILY
         ),

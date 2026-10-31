@@ -160,7 +160,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-31T10:30:35Z",
+  "as_of": "2026-10-31T11:03:08Z",
   "core": {
    "closed": 199,
    "open": 12,
@@ -199,8 +199,8 @@
   },
   "infra": {
    "closed": 242,
-   "open": 26,
-   "total": 268
+   "open": 27,
+   "total": 269
   },
   "measured": true,
   "milestones": [
@@ -416,7 +416,7 @@
   "title_counts": {
    "cics": {
     "closed": 100,
-    "total": 110
+    "total": 111
    },
    "cobol": {
     "closed": 133,

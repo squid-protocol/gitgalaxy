@@ -1164,13 +1164,13 @@
       "csharp/SOURCES.md": 0
     },
     "csharp/roslyn": {
-      "csharp/roslyn/CSharpCompilation.cs": 9,
-      "csharp/roslyn/CSharpSyntaxTree.cs": 3,
+      "csharp/roslyn/CSharpCompilation.cs": 2,
+      "csharp/roslyn/CSharpSyntaxTree.cs": 0,
       "csharp/roslyn/DiagnosticAnalyzer.cs": 0,
-      "csharp/roslyn/LanguageParser.cs": 61,
+      "csharp/roslyn/LanguageParser.cs": 17,
       "csharp/roslyn/License.txt": 0,
-      "csharp/roslyn/MethodCompiler.cs": 5,
-      "csharp/roslyn/Workspace.cs": 3
+      "csharp/roslyn/MethodCompiler.cs": 0,
+      "csharp/roslyn/Workspace.cs": 0
     },
     "css": {
       "css/SOURCES.md": 0
@@ -1933,13 +1933,13 @@
     },
     "javascript/jquery": {
       "javascript/jquery/LICENSE.txt": 0,
-      "javascript/jquery/ajax.js": 2,
+      "javascript/jquery/ajax.js": 0,
       "javascript/jquery/buildFragment.js": 0,
-      "javascript/jquery/core.js": 1,
+      "javascript/jquery/core.js": 0,
       "javascript/jquery/css.js": 0,
       "javascript/jquery/deferred.js": 0,
       "javascript/jquery/event.js": 0,
-      "javascript/jquery/tokenize.js": 1
+      "javascript/jquery/tokenize.js": 0
     },
     "javascript/node_tls_security_tests": {
       "javascript/node_tls_security_tests/regexp-unicode-sets.js": 0,
@@ -1952,9 +1952,9 @@
     },
     "javascript/react": {
       "javascript/react/BabelPlugin.ts": 0,
-      "javascript/react/ReactFiberBeginWork.js": 2,
-      "javascript/react/ReactFiberWorkLoop.js": 8,
-      "javascript/react/ReactFlightServer.js": 5,
+      "javascript/react/ReactFiberBeginWork.js": 0,
+      "javascript/react/ReactFiberWorkLoop.js": 0,
+      "javascript/react/ReactFlightServer.js": 0,
       "javascript/react/ReactSymbols.js": 0,
       "javascript/react/build.js": 0
     },
@@ -1962,13 +1962,13 @@
       "javascript/react_error_codes/extract-errors.js": 0
     },
     "javascript/threejs": {
-      "javascript/threejs/BufferGeometry.js": 1,
+      "javascript/threejs/BufferGeometry.js": 0,
       "javascript/threejs/Editor.js": 0,
-      "javascript/threejs/GLTFLoader.js": 2,
-      "javascript/threejs/Matrix4.js": 1,
+      "javascript/threejs/GLTFLoader.js": 0,
+      "javascript/threejs/Matrix4.js": 0,
       "javascript/threejs/Nodes.js": 0,
       "javascript/threejs/WebGLProgram.js": 7,
-      "javascript/threejs/WebGLRenderer.js": 3
+      "javascript/threejs/WebGLRenderer.js": 1
     },
     "jcl": {
       "jcl/SOURCES.md": 0
@@ -3212,10 +3212,10 @@
     "rust/bevy": {
       "rust/bevy/LICENSE-APACHE": 0,
       "rust/bevy/LICENSE-MIT": 0,
-      "rust/bevy/bevy_ecs_macros.rs": 6,
+      "rust/bevy/bevy_ecs_macros.rs": 0,
       "rust/bevy/bevy_ecs_query.rs": 0,
       "rust/bevy/bevy_ecs_table.rs": 0,
-      "rust/bevy/bevy_ecs_world.rs": 230,
+      "rust/bevy/bevy_ecs_world.rs": 0,
       "rust/bevy/bevy_reflect_path.rs": 0,
       "rust/bevy/bevy_render_phase.rs": 0,
       "rust/bevy/bevy_schedule_graph.rs": 0
@@ -3224,26 +3224,26 @@
       "rust/bevy_asset_examples/LICENSE-APACHE": 0,
       "rust/bevy_asset_examples/LICENSE-MIT": 0,
       "rust/bevy_asset_examples/image_node.rs": 0,
-      "rust/bevy_asset_examples/rotation.rs": 1
+      "rust/bevy_asset_examples/rotation.rs": 0
     },
     "rust/holylang": {
       "rust/holylang/ast.rs": 0,
       "rust/holylang/compile.rs": 0,
       "rust/holylang/error.rs": 0,
       "rust/holylang/main.rs": 0,
-      "rust/holylang/parser.rs": 2,
-      "rust/holylang/semantic.rs": 4,
+      "rust/holylang/parser.rs": 0,
+      "rust/holylang/semantic.rs": 0,
       "rust/holylang/transpiler.rs": 0
     },
     "rust/serde": {
       "rust/serde/LICENSE-APACHE": 0,
       "rust/serde/LICENSE-MIT": 0,
       "rust/serde/serde_core_de_impls.rs": 4,
-      "rust/serde/serde_core_de_mod.rs": 60,
-      "rust/serde/serde_core_macros.rs": 4,
-      "rust/serde/serde_derive_de.rs": 1,
+      "rust/serde/serde_core_de_mod.rs": 0,
+      "rust/serde/serde_core_macros.rs": 0,
+      "rust/serde/serde_derive_de.rs": 0,
       "rust/serde/serde_internals_ast.rs": 0,
-      "rust/serde/serde_internals_attr.rs": 9,
+      "rust/serde/serde_internals_attr.rs": 5,
       "rust/serde/test_annotations.rs": 0
     },
     "rust/syn": {
@@ -3251,35 +3251,35 @@
       "rust/syn/bigint.rs": 0,
       "rust/syn/buffer.rs": 0,
       "rust/syn/classify.rs": 0,
-      "rust/syn/custom_keyword.rs": 8,
-      "rust/syn/custom_punctuation.rs": 19,
-      "rust/syn/data.rs": 7,
+      "rust/syn/custom_keyword.rs": 0,
+      "rust/syn/custom_punctuation.rs": 0,
+      "rust/syn/data.rs": 0,
       "rust/syn/derive.rs": 0
     },
     "rust/tokio": {
       "rust/tokio/addr_of.rs": 0,
       "rust/tokio/block_on.rs": 0,
       "rust/tokio/blocking.rs": 0,
-      "rust/tokio/builder.rs": 99,
+      "rust/tokio/builder.rs": 0,
       "rust/tokio/config.rs": 0,
       "rust/tokio/fuzz.rs": 0,
-      "rust/tokio/interval.rs": 36,
-      "rust/tokio/lib.rs": 4,
+      "rust/tokio/interval.rs": 0,
+      "rust/tokio/lib.rs": 0,
       "rust/tokio/maybe_done.rs": 0,
       "rust/tokio/tests.rs": 0,
-      "rust/tokio/tokio_mpsc_bounded.rs": 155,
-      "rust/tokio/tokio_named_pipe.rs": 276,
-      "rust/tokio/tokio_udp.rs": 173
+      "rust/tokio/tokio_mpsc_bounded.rs": 0,
+      "rust/tokio/tokio_named_pipe.rs": 0,
+      "rust/tokio/tokio_udp.rs": 0
     },
     "rust/tokio_util_rand": {
       "rust/tokio_util_rand/rand.rs": 0
     },
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_component_macro.rs": 0,
-      "rust/wasmtime/wasmtime_instance.rs": 22,
-      "rust/wasmtime/wasmtime_ir_instructions.rs": 1,
+      "rust/wasmtime/wasmtime_instance.rs": 0,
+      "rust/wasmtime/wasmtime_ir_instructions.rs": 0,
       "rust/wasmtime/wasmtime_isle_parser.rs": 0,
-      "rust/wasmtime/wasmtime_pulley_interp.rs": 2
+      "rust/wasmtime/wasmtime_pulley_interp.rs": 0
     },
     "scala": {
       "scala/SOURCES.md": 0
@@ -3857,26 +3857,26 @@
       "typescript/SOURCES.md": 0
     },
     "typescript/angular_zonejs_mocha": {
-      "typescript/angular_zonejs_mocha/mocha.ts": 1
+      "typescript/angular_zonejs_mocha/mocha.ts": 0
     },
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": 0,
       "typescript/assemblyscript/ast.ts": 0,
-      "typescript/assemblyscript/builtins.ts": 1,
-      "typescript/assemblyscript/compiler.ts": 30,
+      "typescript/assemblyscript/builtins.ts": 0,
+      "typescript/assemblyscript/compiler.ts": 12,
       "typescript/assemblyscript/package.json": 0,
-      "typescript/assemblyscript/parser.ts": 8
+      "typescript/assemblyscript/parser.ts": 0
     },
     "typescript/effect_ai_anthropic": {
       "typescript/effect_ai_anthropic/AnthropicTokenizer.ts": 0
     },
     "typescript/excalibur_math": {
       "typescript/excalibur_math/LICENSE.md": 0,
-      "typescript/excalibur_math/collision_colliders_separating-axis.ts": 1,
+      "typescript/excalibur_math/collision_colliders_separating-axis.ts": 0,
       "typescript/excalibur_math/math_ray.ts": 0
     },
     "typescript/excalidraw_text_wrapping": {
-      "typescript/excalidraw_text_wrapping/textWrapping.ts": 1
+      "typescript/excalidraw_text_wrapping/textWrapping.ts": 0
     },
     "typescript/fp-ts": {
       "typescript/fp-ts/Either.ts": 0,
@@ -3907,12 +3907,12 @@
     },
     "typescript/typescript_compiler": {
       "typescript/typescript_compiler/LICENSE.txt": 0,
-      "typescript/typescript_compiler/binder.ts": 13,
-      "typescript/typescript_compiler/checker.ts": 214,
-      "typescript/typescript_compiler/emitter.ts": 6,
+      "typescript/typescript_compiler/binder.ts": 7,
+      "typescript/typescript_compiler/checker.ts": 91,
+      "typescript/typescript_compiler/emitter.ts": 1,
       "typescript/typescript_compiler/package.json": 0,
-      "typescript/typescript_compiler/parser.ts": 33,
-      "typescript/typescript_compiler/types.ts": 22
+      "typescript/typescript_compiler/parser.ts": 9,
+      "typescript/typescript_compiler/types.ts": 13
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": 0,
@@ -3920,9 +3920,9 @@
       "typescript/vscode/codeEditorWidget.ts": 0,
       "typescript/vscode/eslint.config.js": 0,
       "typescript/vscode/extHost.api.impl.ts": 0,
-      "typescript/vscode/gulpfile.vscode.ts": 2,
-      "typescript/vscode/instantiationService.ts": 2,
-      "typescript/vscode/ipc.ts": 1,
+      "typescript/vscode/gulpfile.vscode.ts": 1,
+      "typescript/vscode/instantiationService.ts": 0,
+      "typescript/vscode/ipc.ts": 0,
       "typescript/vscode/lifecycle.ts": 0,
       "typescript/vscode/package.json": 0,
       "typescript/vscode/vscode.d.ts": 0

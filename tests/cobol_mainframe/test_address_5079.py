@@ -97,14 +97,33 @@ def test_twa_and_tctua_translate_to_the_runtime_handles_in_option_order(tmp_path
 
 
 @pytest.mark.parametrize(
+    ("options", "calls"),
+    [
+        ("CWA(CA-ADDRESS)", ["addressCwa"]),
+        ("CWA(EIB-ADDRESS) TWA(CA-ADDRESS)", ["addressCwa", "addressTwa"]),
+        (
+            "TCTUA(EIB-ADDRESS) CWA(CA-ADDRESS)\n           TWA(EIB-ADDRESS)",
+            ["addressCwa", "addressTwa", "addressTctua"],
+        ),
+        (
+            "EIB(EIB-ADDRESS) COMMAREA(CA-ADDRESS)\n           CWA(EIB-ADDRESS) TWA(EIB-ADDRESS) TCTUA(CA-ADDRESS)",
+            ["setPointerToRecord", "addressCommarea", "addressCwa", "addressTwa", "addressTctua"],
+        ),
+    ],
+)
+def test_cwa_translates_to_the_region_wide_handle_in_option_order(tmp_path, options, calls):
+    """#5079 slice 2a (X59): CWA is modelled, alone or beside the other areas, taken in the fixed order."""
+    r = PL._translate(tmp_path, PROGRAM.replace("EIB(EIB-ADDRESS) COMMAREA(CA-ADDRESS)", options))
+    assert r.stats["holes"] == [], r.stats["holes"]
+    at = [r.java.index(f"{c}(task, ") for c in calls]
+    assert at == sorted(at)
+
+
+@pytest.mark.parametrize(
     ("edit", "why"),
     [
-        (
-            ("EIB(EIB-ADDRESS) COMMAREA(CA-ADDRESS)", "CWA(CA-ADDRESS)"),
-            "CWA: the common work area (CWA) is a system area",
-        ),
         (("EIB(EIB-ADDRESS) COMMAREA(CA-ADDRESS)", "ACEE(CA-ADDRESS)"), "ACEE: the access control environment element"),
-        (("EIB(EIB-ADDRESS) COMMAREA(CA-ADDRESS)", "EIB(EIB-ADDRESS) CWA(CA-ADDRESS)"), "CWA: the common work area"),
+        (("EIB(EIB-ADDRESS) COMMAREA(CA-ADDRESS)", "CWA(WS-RESP)"), "not a plain USAGE POINTER"),
         (("EIB(EIB-ADDRESS) COMMAREA(CA-ADDRESS)", "TWA(CA-ADDRESS) ACEE(CA-ADDRESS)"), "ACEE: the access control"),
         (("EIB(EIB-ADDRESS) COMMAREA(CA-ADDRESS)", "SET(CA-ADDRESS)"), "SET: ADDRESS SET"),
         (("EIB(EIB-ADDRESS) COMMAREA(CA-ADDRESS)", "NOHANDLE"), "ADDRESS without an area option"),

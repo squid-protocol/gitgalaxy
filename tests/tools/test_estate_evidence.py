@@ -75,6 +75,7 @@ MUTATION_UNREVIEWED = {
     "carddemo-copaus0c",
     "carddemo-copaus1c",
     "carddemo-sort-tranrept",  # #4268: no mutation run yet
+    "carddemo-sort-combtran",  # #4268: no mutation run yet
 }
 
 

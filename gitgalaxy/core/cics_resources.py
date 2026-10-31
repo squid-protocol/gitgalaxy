@@ -14,6 +14,7 @@
 #   CONTAINER  PUT / GET / MOVE / DELETE CONTAINER       (#3354)  CONTAINER (+ CHANNEL)
 #   CHANNEL    LINK / XCTL / START / RETURN / RUN ... CHANNEL(...)  CHANNEL
 #              -- the channel a program hands to another program or transaction
+#              DELETE / QUERY CHANNEL(...)                    (#5005)  CHANNEL
 #   WEB        WEB OPEN / CONVERSE / SEND / RECEIVE / CLOSE,  URIMAP, else HOST
 #              WEB READ / WRITE HTTPHEADER           (#3512)  (OPEN) or PATH;
 #                                                             READ / WRITE: HTTPHEADER
@@ -122,6 +123,8 @@ _CONTAINER_VERBS = {
 _MAP_VERBS = {"SEND": "write", "RECEIVE": "read"}
 # The transfer verbs that can hand a channel on, and the operand naming who
 # receives it.
+# DELETE / QUERY CHANNEL(name) act on a channel with no container named (#5005, X44).
+_CHANNEL_OWN_VERBS = {"DELETE": "delete", "QUERY": "query"}
 _CHANNEL_VERBS = {"LINK": "PROGRAM", "XCTL": "PROGRAM", "START": "TRANSID", "RETURN": "TRANSID", "RUN": "TRANSID"}
 # #3512: WEB subcommand -> access; the name options, in precedence order.
 _WEB_VERBS = {"OPEN": "open", "CONVERSE": "converse", "SEND": "write", "RECEIVE": "read", "CLOSE": "close",
@@ -408,6 +411,8 @@ def extract_cics_resources(
             spec = ("QUEUE", _QUEUE_VERBS[verb], "QUEUE" if "QUEUE" in present else "QNAME", None, {"TS", "TD"}, qtype)
         elif verb in _CHANNEL_VERBS and "CHANNEL" in present:
             spec = ("CHANNEL", "pass", "CHANNEL", _CHANNEL_VERBS[verb], set(), None)
+        elif verb in _CHANNEL_OWN_VERBS and "CHANNEL" in present:
+            spec = ("CHANNEL", _CHANNEL_OWN_VERBS[verb], "CHANNEL", None, set(), None)
         elif len(ordered) > 1:
             verb, spec = _two_word_spec(verb, ordered[1][0], present)
         if spec is None:

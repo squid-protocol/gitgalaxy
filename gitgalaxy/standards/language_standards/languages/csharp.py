@@ -18,6 +18,7 @@ from .._shared_patterns import (
     COMMENTED_STATEMENT_C_FAMILY,
     GLOBAL_FRAGILE_DEBT,
     GLOBAL_PLANNED_DEBT,
+    commented_keyword_statement,
 )
 
 DEFINITION: dict[str, Any] = {
@@ -454,7 +455,7 @@ DEFINITION: dict[str, Any] = {
         # `standard_block` language where both styles are equally
         # idiomatic (`/* if (x) foo(); */`).
         "dead_code": re.compile(
-            r"(?://|/\*)[ \t]*(?:public|private|protected|internal|class|void|if|for|foreach|while|return|using)\b"
+            commented_keyword_statement("public|private|protected|internal|class|void|if|for|foreach|while|return|using")
             + r"|"
             + COMMENTED_STATEMENT_C_FAMILY
         ),

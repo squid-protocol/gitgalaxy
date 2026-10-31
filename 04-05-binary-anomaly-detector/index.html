@@ -12298,7 +12298,7 @@
 <p>To maintain throughput and avoid out-of-memory risks, the detector reads only the first <span class="arithmatex">\(8\text{ KB}\)</span> (8,192 bytes) of a file.</p>
 <h3 id="mathematical-entropy-header-checks">Mathematical Entropy &amp; Header Checks</h3>
 <p>The 8KB chunk undergoes several evaluations:
-1. <strong>Magic Byte Mismatch:</strong> Compares the file's magic bytes against its declared file extension (e.g., flagging an executable disguised as a <code>.png</code>).
+1. <strong>Magic Byte Mismatch:</strong> Compares the file's magic bytes against its declared file extension (e.g., flagging an executable disguised as a <code>.png</code>). Required headers cover <code>.png</code>, <code>.jpg</code>/<code>.jpeg</code>, <code>.gz</code>, <code>.xz</code>, <code>.zip</code>, <code>.pdf</code>, <code>.ico</code> and <code>.tar</code> (a tar has no magic at offset 0: <code>ustar</code> at byte 257, or a valid header checksum, or an all-zero empty archive). A bypassed type with no header here (<code>.json</code>, <code>.yml</code>) is not checked for a mismatch.
 2. <strong>Expected Shebang Exemption:</strong> Suppresses anomaly alerts for shell scripts (<code>.sh</code>, <code>.bash</code>) that legitimately contain executable header signatures.
 3. <strong>Shannon Entropy Validation:</strong> Calculates string entropy. If <span class="arithmatex">\(\text{Entropy} &gt; 4.8\)</span>, it flags the file as potentially containing packed executables or encrypted payloads.
 4. <strong>Bitwise Operation Traps:</strong> Inspects byte buffers for dense clusters of XOR operations, indicating potential unpacking routines.</p>

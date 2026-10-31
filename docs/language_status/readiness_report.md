@@ -25,6 +25,14 @@ Era evidence (programs by latest era a tell reaches):
 
 era 0: 0, era 1: 5, era 2: 22, era 3: 15, era 4: 0, era none: 2
 
+### Fix the source first
+
+Held at L0 by the source, not by a translator gap: IBM's compiler rejects it, so no port is honest until the
+source is corrected. Not counted among the rules to land below.
+
+- app/cbl/CBEXPORT.cbl: RECORD KEY names an item defined in WORKING-STORAGE, not in a record of the file; IBM requires it in a record description of that file (Enterprise COBOL Language Reference, RECORD KEY clause) (#5866)
+- app/cbl/CBIMPORT.cbl: RECORD KEY names an item defined in WORKING-STORAGE, not in a record of the file; IBM requires it in a record description of that file (Enterprise COBOL Language Reference, RECORD KEY clause) (#5866)
+
 ### Rules to land (1 gap classes; top 1, the `cics_census.py blockers` order)
 
 | rank | rule (gap class) | makes whole alone | one rule away | touched | era mix of the alone-set |

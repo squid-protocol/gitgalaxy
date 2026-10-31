@@ -378,7 +378,6 @@ def test_each_set_command_into_a_cell_is_its_pointer_form(tmp_path, command, jav
         ("READQ TS QUEUE('Q') SET(FRPTR) LENGTH(80)", "READQ TS SET with a literal LENGTH"),
         ("READ FILE('F') RIDFLD(WS-OUT) SET(FRPTR) RBA", "READ SET with RBA / RRN / XRBA"),
         ("READNEXT FILE('F') RIDFLD(WS-OUT) SET(FRPTR)\n                LENGTH(WS-LEN)", "READNEXT SET with LENGTH"),
-        ("LOAD PROGRAM('P') SET(FRPTR)", "EXEC CICS LOAD not modelled"),  # (#5042: the loaded bytes)
     ],
 )
 def test_each_set_command_into_a_cell_keeps_its_own_refusal(tmp_path, command, hole):

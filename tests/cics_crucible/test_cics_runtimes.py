@@ -1946,6 +1946,14 @@ def test_cics_task_moves_containers_and_browses_a_channel_as_the_stub_does(tmp_p
             "DELETE CHANNEL naming a CICS-defined",
         ),
         (
+            'put("CH1", "A", "a", "CHANNEL"); blank(c.qname, 16, "dfhreq"); GGCDELC(&c);',
+            "DELETE CONTAINER naming a CICS-defined",
+        ),
+        (
+            'put("CH1", "A", "a", "CHANNEL"); blank(c.qname, 16, "A"); blank(c.chan, 16, "DFHCH"); GGCDELC(&c);',
+            "DELETE CONTAINER naming a CICS-defined",
+        ),
+        (
             'put("CH1", "A", "a", "CHANNEL CHAR"); put("CH1", "B", "b", "CHANNEL"); move("m", "A", "B", "CH1", "CH1");',
             "onto a container of the other data type",
         ),
@@ -2008,6 +2016,14 @@ def test_the_stub_refuses_what_ibm_leaves_open_on_move_and_browse(tmp_path, step
         (
             't.putContainer("CH1", "A", "a".getBytes(), 1, null, false); t.deleteChannel("DFHTRANSACTION");',
             "DELETE CHANNEL naming a CICS-defined",
+        ),
+        (
+            't.putContainer("CH1", "A", "a".getBytes(), 1, null, false); t.deleteContainer("CH1", "dfhreq");',
+            "DELETE CONTAINER naming a CICS-defined",
+        ),
+        (
+            't.putContainer("CH1", "A", "a".getBytes(), 1, null, false); t.deleteContainer("DFHCH", "A");',
+            "DELETE CONTAINER naming a CICS-defined",
         ),
         (
             't.putContainer("CH1", "A", "a".getBytes(), 1, "CHAR", false); t.putContainer("CH1", "B", "b".getBytes(), 1, null, false);'
@@ -7380,8 +7396,8 @@ def test_cics_task_sends_a_container_as_the_stub_does(tmp_path):
 
 @needs_javac
 def test_cics_task_still_runs_get_put_and_ordinary_moves_beside_dfh_names(tmp_path):
-    """#5005 (X42): only MOVE CONTAINER and DELETE CHANNEL refuse a DFH name; PUT / GET / DELETE CONTAINER of one (the
-    pipeline's DFHREQUEST) and a move of ordinary names are unchanged."""
+    """#5005 (X42): MOVE CONTAINER, DELETE CONTAINER and DELETE CHANNEL refuse a DFH name; PUT / GET of one (the
+    pipeline's DFHREQUEST) and a move or delete of ordinary names are unchanged."""
     out = _cics_task(
         tmp_path,
         'CicsTask t = new CicsTask("CA05", "ENTER", null, null).withProgram("MAIN");\n'
@@ -7389,6 +7405,6 @@ def test_cics_task_still_runs_get_put_and_ordinary_moves_beside_dfh_names(tmp_pa
         't.putContainer("CH1", "A", "b".getBytes(), 1, null, false);\n'
         'System.out.println("move=" + t.moveContainer("CH1", "A", "B", "CH1").resp());\n'
         'System.out.println("get=" + t.getContainer("CH1", "DFHREQUEST", 1).resp());\n'
-        'System.out.println("del=" + t.deleteContainer("CH1", "DFHREQUEST").resp());',
+        'System.out.println("del=" + t.deleteContainer("CH1", "B").resp());',
     )
     assert "move=NORMAL" in out and "del=NORMAL" in out, out

@@ -1,6 +1,225 @@
 {
- "commit": "3002a22fa",
+ "commit": "5fbeb4170",
  "components": {
+  "capabilities": {
+   "groups": [
+    "COBOL language",
+    "CICS",
+    "Data and messaging",
+    "Batch",
+    "Other languages"
+   ],
+   "register": {
+    "entries": 144,
+    "refused": 74
+   },
+   "rows": [
+    {
+     "done": 60,
+     "group": "COBOL language",
+     "have": "statements, numerics, editing, functions, files",
+     "name": "Statements and data",
+     "note": "",
+     "of": 107,
+     "state": "partial",
+     "unit": "rules match IBM"
+    },
+    {
+     "done": null,
+     "group": "COBOL language",
+     "have": "8 tables, 71 rules, 153 test vectors, 162 matrix cells",
+     "name": "Runtime spec tables",
+     "note": "part of the rules above: depth, not extra rules",
+     "of": null,
+     "state": "works",
+     "unit": ""
+    },
+    {
+     "done": 60,
+     "group": "CICS",
+     "have": "programs in the burned estates",
+     "name": "Commands the estates use",
+     "note": "",
+     "of": 68,
+     "state": "partial",
+     "unit": "modelled on both runtimes"
+    },
+    {
+     "done": 105,
+     "group": "CICS",
+     "have": "every command IBM's reference lists",
+     "name": "All CICS commands",
+     "note": "",
+     "of": 257,
+     "state": "partial",
+     "unit": "modelled; the rest refused by name"
+    },
+    {
+     "done": 936,
+     "group": "CICS",
+     "have": "188 refused by name",
+     "name": "Command options",
+     "note": "",
+     "of": 1124,
+     "state": "partial",
+     "unit": "accepted"
+    },
+    {
+     "done": null,
+     "group": "CICS",
+     "have": "FCT, PCT, PPT, DCT, TST, SIT, SRT, JCT, TCT, MCT, PLT, DSNCRCT",
+     "name": "Macro resource tables",
+     "note": "12 tables read into the resource map; not run",
+     "of": null,
+     "state": "extract",
+     "unit": ""
+    },
+    {
+     "done": 12,
+     "group": "Data and messaging",
+     "have": "8 verbs refused by name",
+     "name": "Db2 embedded SQL",
+     "note": "",
+     "of": 14,
+     "state": "partial",
+     "unit": "rules match IBM"
+    },
+    {
+     "done": 12,
+     "group": "Data and messaging",
+     "have": "date, time and condition services",
+     "name": "LE callable services",
+     "note": "",
+     "of": 19,
+     "state": "partial",
+     "unit": "rules match IBM"
+    },
+    {
+     "done": null,
+     "group": "Data and messaging",
+     "have": "keyed read, write and browse, in 16 equivalence cases",
+     "name": "VSAM KSDS",
+     "note": "",
+     "of": null,
+     "state": "works",
+     "unit": ""
+    },
+    {
+     "done": null,
+     "group": "Data and messaging",
+     "have": "keyed access through a path",
+     "name": "VSAM alternate index",
+     "note": "",
+     "of": null,
+     "state": "partial",
+     "unit": ""
+    },
+    {
+     "done": null,
+     "group": "Data and messaging",
+     "have": "browse by relative byte address under CICS",
+     "name": "VSAM ESDS",
+     "note": "",
+     "of": null,
+     "state": "partial",
+     "unit": ""
+    },
+    {
+     "done": null,
+     "group": "Data and messaging",
+     "have": "relative record access",
+     "name": "VSAM RRDS",
+     "note": "refused by name, not missing",
+     "of": null,
+     "state": "refused",
+     "unit": ""
+    },
+    {
+     "done": 5,
+     "group": "Data and messaging",
+     "have": "0 of 7 rules match IBM; CICS calls only",
+     "name": "IBM MQ",
+     "note": "",
+     "of": 25,
+     "state": "partial",
+     "unit": "calls modelled"
+    },
+    {
+     "done": 0,
+     "group": "Data and messaging",
+     "have": "calls run on our own model, so no rule matches yet",
+     "name": "IMS DL/I",
+     "note": "",
+     "of": 16,
+     "state": "partial",
+     "unit": "rules match IBM"
+    },
+    {
+     "done": null,
+     "group": "Batch",
+     "have": "SORT, MERGE, COPY, INCLUDE, OMIT, OUTREC; 4 key formats",
+     "name": "DFSORT",
+     "note": "2 proved sort cases",
+     "of": null,
+     "state": "partial",
+     "unit": ""
+    },
+    {
+     "done": null,
+     "group": "Batch",
+     "have": "REPRO and plain copies; other commands refused",
+     "name": "IDCAMS, IEBGENER",
+     "note": "",
+     "of": null,
+     "state": "partial",
+     "unit": ""
+    },
+    {
+     "done": null,
+     "group": "Batch",
+     "have": "1 multi-step job case",
+     "name": "JCL jobs",
+     "note": "steps are wired by the case, not read from JCL",
+     "of": null,
+     "state": "partial",
+     "unit": ""
+    },
+    {
+     "done": null,
+     "group": "Other languages",
+     "have": "21 opcodes, the zECS subset",
+     "name": "HLASM assembler",
+     "note": "",
+     "of": null,
+     "state": "partial",
+     "unit": ""
+    },
+    {
+     "done": null,
+     "group": "Other languages",
+     "have": "SEND MAP, RECEIVE MAP",
+     "name": "BMS maps",
+     "note": "",
+     "of": null,
+     "state": "works",
+     "unit": ""
+    },
+    {
+     "done": null,
+     "group": "Other languages",
+     "have": "scanned, never translated",
+     "name": "PL/I",
+     "note": "no translator code",
+     "of": null,
+     "state": "none",
+     "unit": ""
+    }
+   ],
+   "zos": {
+    "measured": 0,
+    "of": 191
+   }
+  },
   "cics": {
    "burned_commands": 68,
    "modelled_both_runtimes": 60,
@@ -113,6 +332,108 @@
     "ref": "v0.5.0"
    }
   },
+  "det_mutation": {
+   "estates": {
+    "aws-mainframe-modernization-carddemo": {
+     "caught": 1148,
+     "equivalent": 431,
+     "l5": 0,
+     "measured": 12,
+     "mutants": 23103,
+     "programs": 44,
+     "raw_pct": 65.6,
+     "ready": 12,
+     "sampled": 1800,
+     "sampled_pct": 7.8,
+     "survived": 602,
+     "unreachable": 171
+    },
+    "cics-async-api-credit-card-application-example": {
+     "caught": 5783,
+     "equivalent": 0,
+     "l5": 0,
+     "measured": 10,
+     "mutants": 5943,
+     "programs": 10,
+     "raw_pct": 100.0,
+     "ready": 10,
+     "sampled": 5943,
+     "sampled_pct": 100.0,
+     "survived": 0,
+     "unreachable": 0
+    },
+    "cics-banking-sample-application-cbsa": {
+     "caught": 837,
+     "equivalent": 679,
+     "l5": 0,
+     "measured": 6,
+     "mutants": 2846,
+     "programs": 31,
+     "raw_pct": 44.5,
+     "ready": 6,
+     "sampled": 1977,
+     "sampled_pct": 69.5,
+     "survived": 1044,
+     "unreachable": 365
+    },
+    "cics-genapp": {
+     "caught": 0,
+     "equivalent": 0,
+     "l5": 0,
+     "measured": 0,
+     "mutants": 0,
+     "programs": 31,
+     "raw_pct": null,
+     "ready": 0,
+     "sampled": 0,
+     "sampled_pct": null,
+     "survived": 0,
+     "unreachable": 0
+    },
+    "dbb-mortgage-application": {
+     "caught": 0,
+     "equivalent": 0,
+     "l5": 0,
+     "measured": 0,
+     "mutants": 0,
+     "programs": 6,
+     "raw_pct": null,
+     "ready": 0,
+     "sampled": 0,
+     "sampled_pct": null,
+     "survived": 0,
+     "unreachable": 0
+    },
+    "zecs": {
+     "caught": 134,
+     "equivalent": 65,
+     "l5": 2,
+     "measured": 2,
+     "mutants": 1067,
+     "programs": 7,
+     "raw_pct": 47.3,
+     "ready": 0,
+     "sampled": 300,
+     "sampled_pct": 28.1,
+     "survived": 149,
+     "unreachable": 84
+    }
+   },
+   "total": {
+    "caught": 7902,
+    "equivalent": 1175,
+    "l5": 2,
+    "measured": 30,
+    "mutants": 32959,
+    "programs": 129,
+    "raw_pct": 81.5,
+    "ready": 28,
+    "sampled": 10020,
+    "sampled_pct": 30.4,
+    "survived": 1795,
+    "unreachable": 620
+   }
+  },
   "mutation": {
    "adjusted_kill_pct": 86.8,
    "adjusted_total": 4100,
@@ -160,7 +481,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-31T18:28:30Z",
+  "as_of": "2026-10-31T18:33:56Z",
   "core": {
    "closed": 200,
    "open": 11,
@@ -530,6 +851,25 @@
     "translated_whole": 7
    }
   },
+  "test_estates": {
+   "cics-crucible": {
+    "l2_plus": 0,
+    "l2_plus_pct": 0.0,
+    "l4_plus": 0,
+    "l4_plus_pct": 0.0,
+    "l5": 0,
+    "levels": {
+     "L0": 6,
+     "L1": 74,
+     "L2": 0,
+     "L3": 0,
+     "L4": 0,
+     "L5": 0
+    },
+    "programs": 80,
+    "translated_whole": 74
+   }
+  },
   "total": {
    "l2_plus": 126,
    "l2_plus_pct": 97.7,
@@ -585,8 +925,10 @@
  },
  "oracle": "GnuCOBOL plus IBM documentation, not z/OS",
  "sources": {
+  "capabilities": "tests/tools/capability_ledger.py, from the code",
   "cics": "docs/language_status/cics_spec_status.json (cics_spec_status.py)",
   "crucibles": "tests/cics_crucible/coverage.json, tests/estate_crucible/baseline.json",
+  "det_mutation": "the estate reports, tests/equivalence/det_mutation/, tests/equivalence/det_mutation_survivors/",
   "eras": "tests/fixtures/feature_inventory/<estate>.json (era_tags.py)",
   "issues": "GitHub issues by scope:* label (progress_issues_cache.json)",
   "ladder": "docs/language_status/evidence_report/<estate>/report.json (evidence_report.py, generated branch)",

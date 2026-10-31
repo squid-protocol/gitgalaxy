@@ -3516,8 +3516,11 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   Neither says which containers or channels are CICS-defined or read-only (DFHTRANSACTION is the only DFH name either mentions, and
   DELETE CHANNEL bars it for another reason), and neither reserves a DFH prefix. So MOVE CONTAINER with a container, AS, CHANNEL or
   TOCHANNEL name beginning DFH, and DELETE CHANNEL of a DFH channel, are **refused by name** on both sides, never run as on an
-  ordinary one; GET / PUT / DELETE CONTAINER and the browse are unchanged (a program's own DFH-prefixed variable, or the pipeline's
-  DFHREQUEST, is read and written as before). Census 2026-10-31 (`cics_census.py usage "MOVE CONTAINER" --no-census`): 0 programs
+  ordinary one; DELETE CONTAINER with a DFH container or CHANNEL name is refused the same way (its page, read 2026-10-31, gives INVREQ RESP2 30
+  "You cannot delete a CICS-defined read-only container" and CHANNELERR 3, and lists no names either; 0 programs in the burned and
+  local corpora use DELETE CONTAINER, `cics_census.py usage "DELETE CONTAINER" --no-census`). GET / PUT CONTAINER and the browse are
+  unchanged (PUT's page gives INVREQ 30 / CHANNELERR 3 too, but DBB `epscsmrd.cbl` writes the pipeline's DFHREQUEST back, so a
+  DFH refusal would break a burned program: PUT stays modelled until IBM lists the read-only names). Census 2026-10-31 (`cics_census.py usage "MOVE CONTAINER" --no-census`): 0 programs
   in the burned and local corpora use MOVE CONTAINER, and no burned program deletes a DFH channel, so no estate needs the real
   outcomes; they need an IBM list of the read-only names. Proved in `tests/cics_crucible/test_cics_runtimes.py`.
 - **Reached.** Unit proofs: `tests/cics_crucible/test_cics_runtimes.py` runs one 31-step scenario (MOVE across, within and to a new

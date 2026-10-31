@@ -116,7 +116,8 @@
 #          earlier RECOVER=YES made. A code repeated in one table is one row. (The operand is ABCODE.)
 #   DFHJCT TYPE=ENTRY,JFILEID=SYSTEM|nn   JOURNAL  [VSE ch.29 Table 41, p.270-272]: `JFILEID=SYSTEM`
 #          (system log) or decimal `nn` (1-99 user journal; 01-99 accepted); `JTYPE=`, `BUFSIZE=`,
-#          `JOUROPT=` stay in `attributes`.
+#          `JOUROPT=` stay in `attributes`. DSNAME= is not listed among the JCT operands in [VSE Table 41], but the estate-crucible
+#          key (H-0063) expects it lifted into `dsname`: ASSUMED, left open (see #5154 sibling gaps).
 #   DFHTCT TYPE=TERMINAL|REMOTE|GPENTRY,TRMIDNT=  TERMINAL [TS, RDG p.473-475, VSE p.297];
 #          `TYPE=REGION,SYSIDNT={ssss|LOCAL}` sets the region for subsequent `TYPE=TERMINAL`
 #          entries ("Remote terminals, method 1", [RDG Table 74 p.473-474, p.551]); `SYSIDNT=`

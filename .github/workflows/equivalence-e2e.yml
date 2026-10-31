@@ -290,13 +290,15 @@ jobs:
         env:
           EQUIVALENCE_E2E: "1"
           GITGALAXY_ORACLE_STRICT: "1"
+          # a PR's heaviest proofs run their faults in one JVM (`equivalence.py --one-jvm`); a push and the nightly keep a JVM per run
+          EQUIVALENCE_E2E_ONE_JVM: ${{ github.event_name == 'pull_request' && '1' || '' }}
           GROUP: ${{ matrix.group }}
           SPLITS: ${{ needs.plan.outputs.splits }}
           GITGALAXY_TEST_TIMES: ${{ runner.temp }}/times-shard-${{ matrix.group }}.json
         run: |
           mapfile -t selected < <(python tests/tools/equivalence_e2e_select.py)
           test "${#selected[@]}" -gt 1
-          pytest "${selected[@]}" --splits "$SPLITS" --splitting-algorithm least_duration --durations-path tests/equivalence_e2e_durations.json --group "$GROUP" -n 2 -q -ra --durations=25 --timeout=1200 -p no:cacheprovider --ignore=tests/cobol_mainframe/test_evidence_components.py --ignore=tests/cobol_mainframe/test_equivalence_db2_rows.py --ignore=tests/cobol_mainframe/test_regional_options.py --ignore=tests/cobol_mainframe/test_sql_dynamic.py --ignore=tests/cobol_mainframe/test_sql_unit_of_work.py --ignore=tests/cobol_mainframe/test_sql_whenever.py
+          pytest "${selected[@]}" --splits "$SPLITS" --splitting-algorithm least_duration --durations-path tests/equivalence_e2e_durations.json --group "$GROUP" -n 4 -q -ra --durations=25 --timeout=1200 -p no:cacheprovider --ignore=tests/cobol_mainframe/test_evidence_components.py --ignore=tests/cobol_mainframe/test_equivalence_db2_rows.py --ignore=tests/cobol_mainframe/test_regional_options.py --ignore=tests/cobol_mainframe/test_sql_dynamic.py --ignore=tests/cobol_mainframe/test_sql_unit_of_work.py --ignore=tests/cobol_mainframe/test_sql_whenever.py
 
       - name: Upload this shard's test seconds (to refresh tests/equivalence_e2e_durations.json)
         if: ${{ !cancelled() }}
@@ -346,6 +348,7 @@ jobs:
   # #5954 slice 3: the five test files that also need a Db2 container, in one job (the shards `--ignore` them). One runner
   # and a pool of three databases, one per xdist worker: the rows file alone is ~34 min serial (50 proofs of ~45 s), so the
   # three run in parallel and Db2's start is paid once, not per shard. The pinned image is restored from det-sweep.yml's cache entry (main saves it).
+  # -n 3 stays: -n 4 with a pool of four was slower on a 4-vCPU runner (test step 1402 s against 1290 s, Db2 itself needs CPU).
   db2:
     needs: [tested-tree, plan]
     # #6664: on a PR only when a changed file is an input of the five Db2 files (equivalence_e2e_plan.db2_input); push,

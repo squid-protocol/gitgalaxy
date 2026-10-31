@@ -5,6 +5,7 @@ a parametrize id differs between them. The windows 3.11 part died that way when 
 """
 
 import ast
+import gzip
 import sys
 import time
 from pathlib import Path
@@ -34,6 +35,10 @@ _NON_DETERMINISTIC = {
 }
 
 
+# Calls that stamp the clock into their bytes unless told otherwise (gzip's header mtime).
+_NEEDS_MTIME = {"gzip.compress", "gzip.GzipFile"}
+
+
 def _dotted(node: ast.AST) -> str:
     parts = []
     while isinstance(node, ast.Attribute):
@@ -58,14 +63,34 @@ def test_zip_probe_bytes_do_not_depend_on_the_clock(monkeypatch):
     assert slice4._zip("archive/data.pkl") == first
 
 
+def _offenders(tree: ast.AST, label: str) -> list[str]:
+    found = []
+    for call in _parametrize_calls(tree):
+        for sub in ast.walk(call):
+            if not isinstance(sub, ast.Call):
+                continue
+            name = _dotted(sub.func)
+            stamped = name in _NEEDS_MTIME and not any(k.arg == "mtime" for k in sub.keywords)
+            if name in _NON_DETERMINISTIC or stamped:
+                found.append(f"{label}:{sub.lineno} {name}")
+    return found
+
+
+def test_gzip_bytes_do_not_depend_on_the_clock(monkeypatch):
+    first = gzip.compress(b"payload", mtime=0)
+    monkeypatch.setattr(time, "time", lambda: 1_900_000_000.0)
+    assert gzip.compress(b"payload", mtime=0) == first
+
+
+def test_the_guard_flags_a_stamped_gzip_and_accepts_a_fixed_one():
+    src = "@pytest.mark.parametrize('d', [gzip.compress(b'x')])\ndef test_a(d): pass\n"
+    assert _offenders(ast.parse(src), "t")
+    assert not _offenders(ast.parse(src.replace("b'x')", "b'x', mtime=0)")), "t")
+
+
 def test_no_parametrize_argument_calls_a_non_deterministic_api():
     offenders = []
     for path in sorted(TESTS.rglob("test_*.py")):
         tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
-        for call in _parametrize_calls(tree):
-            offenders.extend(
-                f"{path.relative_to(TESTS)}:{sub.lineno} {_dotted(sub.func)}"
-                for sub in ast.walk(call)
-                if isinstance(sub, ast.Call) and _dotted(sub.func) in _NON_DETERMINISTIC
-            )
+        offenders.extend(_offenders(tree, str(path.relative_to(TESTS))))
     assert not offenders, "parametrize ids must be identical on every xdist worker: " + ", ".join(offenders)

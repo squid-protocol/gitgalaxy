@@ -81,7 +81,7 @@ def test_the_headless_audit_agrees_on_a_disguised_executable(tmp_path):
     [
         ("src/a.py", b"def add(a, b):\n    return a + b\n"),
         ("src/logo.png", _png()),
-        ("src/data.gz", gzip.compress(NOISE)),
+        ("src/data.gz", gzip.compress(NOISE, mtime=0)),
         ("src/a.json", b'{"a": 1}\n'),
     ],
 )

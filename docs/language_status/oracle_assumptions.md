@@ -3495,6 +3495,9 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   and recreated, an emptied channel, a LINKed program's scope, every condition) on the stub and on CicsTask, which print the same
   lines, and the refusals above on both; the translators' tests are in `tests/cobol_mainframe/test_det_translate.py` and
   `test_equivalence_cics.py`.
+- **Resource facts (#5005).** `gitgalaxy/core/cics_resources.py` draws a `CHANNEL` row (access `delete` / `query`) for
+  `DELETE CHANNEL` and `QUERY CHANNEL`, which name no container; `DELETE CONTAINER ... CHANNEL` stays a `CONTAINER` row.
+  The browse commands (X42) still draw no row.
 
 ### X45. DEFINE / QUERY / DELETE DCOUNTER with MINIMUM and MAXIMUM; GET DCOUNTER INCREMENT [WRAP] at the limits — ASSUMED, REFUSED where IBM is silent (#4770)
 - **What IBM says** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-define-counter-define-dcounter, ...summary-get-counter-get-dcounter,

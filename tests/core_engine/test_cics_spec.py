@@ -352,6 +352,13 @@ def test_group_lookup():
         COMMANDS["START"].group("one_of", "TRANSID")
 
 
+def test_return_channel_is_alone_among_commarea_length_immediate():
+    """#5005 (X17): IBM names COMMAREA as CHANNEL's alternative and says nothing of LENGTH / IMMEDIATE with it."""
+    g = COMMANDS["RETURN"].group("at_most_one", "CHANNEL")
+    assert {"CHANNEL", "COMMAREA", "LENGTH", "IMMEDIATE"} <= set(g.options)
+    assert g.msg.startswith("RETURN CHANNEL with COMMAREA / LENGTH / IMMEDIATE")
+
+
 def test_each_command_keeps_its_own_refusal_reasons():
     """Owner decision (spec PR 2, disagreement 2): no global table -- GET CONTAINER WAIT shows no RETRIEVE reason;
     a SEND MAP's SET and a file command's SYSID keep the reason that is true for them (#5042: a read's SET is modelled)."""
@@ -367,7 +374,17 @@ def test_each_command_keeps_its_own_refusal_reasons():
 
 @pytest.mark.parametrize(
     "name",
-    ["cics_common", "cics_taskcontrol", "cics_filecontrol", "cics_conditions", "cics_containers", "cics_faults", "dli"],
+    [
+        "cics_common",
+        "cics_taskcontrol",
+        "cics_filecontrol",
+        "cics_conditions",
+        "cics_containers",
+        "cics_faults",
+        "dli",
+        "dyncall",
+        "mq",
+    ],
 )
 def test_a_leaf_det_module_imports_nothing_back_from_cics_or_gen(name):
     """#7153: CodeQL py/cyclic-import counts an import inside a function too, so no import statement anywhere in these
@@ -392,3 +409,21 @@ def test_untranslatable_is_one_class_whichever_module_it_is_imported_from():
     from gitgalaxy.tools.cobol_to_java.det import cics_common, gen
 
     assert gen.Untranslatable is cics_common.Untranslatable
+
+
+def test_the_helpers_moved_to_the_leaf_are_the_names_gen_exports():
+    """#7153: LIBRARY*, _extents and _occurs_chain live in the leaf; gen.py re-exports them, so gen.LIBRARY and
+    G._extents (program.py, det_port.py) are the same objects dyncall.py uses."""
+    from gitgalaxy.tools.cobol_to_java.det import cics_common, dyncall, gen
+
+    for n in (
+        "LIBRARY",
+        "LIBRARY_RC",
+        "LIBRARY_CLOCK",
+        "LIBRARY_FLOATS",
+        "LIBRARY_CHARSET",
+        "_extents",
+        "_occurs_chain",
+    ):
+        assert getattr(gen, n) is getattr(cics_common, n), n
+    assert dyncall._extents is cics_common._extents

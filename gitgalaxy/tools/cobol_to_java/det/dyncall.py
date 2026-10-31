@@ -23,6 +23,7 @@ from decimal import Decimal
 import gitgalaxy.tools.cobol_to_java.det.expr as E
 import gitgalaxy.tools.cobol_to_java.det.layout as L
 import gitgalaxy.tools.cobol_to_java.det.stmt as S
+from gitgalaxy.tools.cobol_to_java.det.cics_common import LIBRARY, _extents, _occurs_chain
 
 _WORD = re.compile(r"[A-Z0-9][A-Z0-9-]*")
 # a program name the port matches: IBM's PGMNAME(COMPAT) names are at most 8 characters, uppercase (PGMNAME(MIXED) /
@@ -112,12 +113,6 @@ def _overlap_names(gen, it: L.Item) -> set[str]:
     return names
 
 
-def _extents(it: L.Item):
-    from gitgalaxy.tools.cobol_to_java.det.gen import _extents as ext
-
-    return ext(it)
-
-
 def _may_write(st: S.Stmt, names: set[str]) -> bool:
     k = st.kind
     if k in _READ_ONLY:
@@ -194,7 +189,6 @@ def _plain_text_item(gen, ref: E.Ref, role: str) -> L.Item:
 
 def _element(ref: E.Ref, it: L.Item) -> tuple[int, int]:
     """The byte range of the element a literal-subscripted reference names, within the item's record."""
-    from gitgalaxy.tools.cobol_to_java.det.gen import _occurs_chain
 
     chain = _occurs_chain(it)
     if len(chain) != len(ref.subscripts):
@@ -333,7 +327,6 @@ def targets(gen, s: S.Stmt) -> list[str]:
     library routine answers to, or one the port does not match (blank, mixed case, over 8 characters) is refused by name."""
     from gitgalaxy.standards.mq import CALLS as MQ_CALLS
     from gitgalaxy.tools.cobol_to_java.det.cics_common import Untranslatable
-    from gitgalaxy.tools.cobol_to_java.det.gen import LIBRARY
 
     ref = s.data["dynamic"]
     try:

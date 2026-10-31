@@ -251,6 +251,7 @@ def _literal(value: str) -> str | None:
 def _cfg_flags(case: dict[str, Any], f: dict[str, Any]) -> str:
     """files.cfg's sixth column: the file's flags, comma-separated -- NONE (RECOVERY(NONE)) and ESDS (#4213)."""
     flags = (["NONE"] if _recovery(case, f) else []) + (["ESDS"] if f.get("organization") == "ESDS" else [])
+    flags += ["VAR"] if variable_file(case, f["base"]) else []  # #6839: records keep their own lengths
     return " " + ",".join(flags) if flags else ""
 
 
@@ -2389,6 +2390,47 @@ def case_file_records(case: dict[str, Any], corpus: Path, spec: dict[str, Any], 
     return data
 
 
+def variable_file(case: dict[str, Any], base: str) -> bool:
+    """#6839 (row D): a RECORDFORMAT(V) KSDS the case states `"variable": true` -- each record keeps the length it was
+    written with (IBM, EXEC CICS WRITE / REWRITE LENGTH), and READ returns it."""
+    spec = (case.get("datasets") or {}).get(base) or {}
+    return (spec.get("vsam") or {}).get("variable") is True
+
+
+def record_lengths(case: dict[str, Any], corpus: Path, spec: dict[str, Any], f: dict[str, Any]) -> bytes:
+    """#6839: a variable-length file's `.len` (the stub's, and the Java side's input): "HEXKEY LENGTH" per record the
+    dataset states a length for; a record without one is its slot's reclen. `"lengths"` is {"<key bytes, hex>": n},
+    or "lines": each record of the dataset's input (and `append`), a line of the file, is as long as its line (the
+    records the case writes as lines are the records as written, which the fixed slots pad)."""
+    lengths = spec.get("lengths") or {}
+    if lengths == "lines":
+        enc = common.data_encoding(case)
+        if not common.ascii_compatible(enc):
+            raise Unsupported(f'"lengths": "lines" for {f["base"]}: a seed in {enc} (not ASCII-compatible)')
+        lengths = {}
+        ko, kl, reclen = f["key_offset"], f["key_length"], f["reclen"]
+        for part in ("input", "append"):
+            if not spec.get(part):
+                continue
+            for ln in common._input_path(case, corpus, spec[part]).read_bytes().split(b"\n"):
+                ln = ln[:-1] if ln.endswith(b"\r") else ln
+                if ln:
+                    rec = ln[:reclen].ljust(reclen, " ".encode(enc))
+                    lengths[rec[ko : ko + kl].hex().upper()] = min(len(ln), reclen)
+    elif not isinstance(lengths, dict):
+        raise Unsupported(f'"lengths" for {f["base"]}: a map of key (hex) to length, or "lines"')
+    return "".join(f"{k.upper()} {int(v)}\n" for k, v in sorted(lengths.items())).encode("ascii")
+
+
+def parse_lengths(data: bytes) -> dict[str, int]:
+    out: dict[str, int] = {}
+    for ln in data.decode("ascii").splitlines():
+        w = ln.split()
+        if len(w) == 2:
+            out[w[0].upper()] = int(w[1])
+    return out
+
+
 def scenario_datasets(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, dict[str, Any]]:
     """#4622: the datasets this scenario's task starts with that differ from the case's -- the scenario's "datasets",
     {DD: {"input": path, "append": path}} (a path as in the case's own dataset, `@case/...` included), each DD's spec
@@ -2397,7 +2439,7 @@ def scenario_datasets(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, dic
     out: dict[str, dict[str, Any]] = {}
     for dd, over in (sc.get("datasets") or {}).items():
         base = (case.get("datasets") or {}).get(dd)
-        if base is None or not isinstance(over, dict) or not set(over) <= {"input", "append"}:
+        if base is None or not isinstance(over, dict) or not set(over) <= {"input", "append", "lengths"}:
             raise Unsupported(f'scenario {sc.get("name")}: "datasets" overrides a dataset of the case ({dd!r}) with '
                               '{"input": path, "append": path}')  # fmt: skip
         if base.get("input") == "@generate":
@@ -2416,11 +2458,13 @@ def stage_scenario_inputs(case: dict[str, Any], corpus: Path, files: list[dict[s
     from another file (ZECS001's DELETE of a stored key answered 204; ZECS000's expiry scenarios ran on files the
     COBOL task had already pruned)."""
     enc = common.data_encoding(case)
-    reclens = {f["base"]: f["reclen"] for f in files}
+    by_base = {f["base"]: f for f in files}
     for sc in case["scenarios"]:
         for base, over in scenario_datasets(case, sc).items():
-            data = case_file_records(case, corpus, over, reclens[base], enc)
+            data = case_file_records(case, corpus, over, by_base[base]["reclen"], enc)
             (inputs / f"{base}.{sc['name']}.in").write_bytes(data)
+            if variable_file(case, base):  # #6839: its records' own lengths, as stated
+                (inputs / f"{base}.{sc['name']}.len").write_bytes(record_lengths(case, corpus, over, by_base[base]))
 
 
 def sql_first_id(table: str) -> int:
@@ -2489,6 +2533,8 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             generated[f["base"]] if f["base"] in generated else case_file_records(case, corpus, spec, f["reclen"], enc)
         )
         (work / "files" / f["base"]).write_bytes(data)
+        if variable_file(case, f["base"]):  # #6839: each record's own length (none stated: the slot's)
+            (work / "files" / f"{f['base']}.len").write_bytes(record_lengths(case, corpus, spec, f))
     ca_fields = commarea_fields(corpus, case, occurrences=True)  # #4765: the whole record, every occurrence
     # The COBOL programs the program CALLs (COTRN02C -> CSUTLDTC), as they are, and the LE service models
     # (tests/equivalence/le: CEEDAYS) they may call in turn.
@@ -2616,6 +2662,8 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             over = scenario_datasets(case, sc).get(f["base"])
             if over is not None:
                 (d / "files" / f["base"]).write_bytes(case_file_records(case, corpus, over, f["reclen"], enc))
+                if variable_file(case, f["base"]):  # #6839
+                    (d / "files" / f"{f['base']}.len").write_bytes(record_lengths(case, corpus, over, f))
         (d / "files.cfg").write_text("".join(
             f"{_cfg_file_name(case, f)} /work/scenarios/{sc['name']}/files/{f['base']} {f['reclen']} {f['key_offset']} "
             f"{f['key_length']}{_cfg_flags(case, f)}\n" for f in files
@@ -3864,6 +3912,9 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
         )
         dumps.append(f'            dump(sc.get("name").asText() + ".{dsn}.out", {repo}.findAll().stream()'
                      f'.map(row -> row.toRecord(TEXT)).toList());')  # fmt: skip
+        if variable_file(case, dsn):  # #6839: its record lengths, in and out
+            loads.append(f'            lengthsIn(sc, "{dsn}", "{ent}");')
+            dumps.append(f'            lengthsOut(sc.get("name").asText() + ".{dsn}.len.out", "{ent}");')
     # a Db2 case: the tables reset to the seed before each task (in/db2reset.sql), each compared table dumped after
     # it (in/db2dumps.txt: table TAB query), on the database the COBOL side ran on (equivalence_db2)
     db2 = bool(case.get("db2"))
@@ -3944,9 +3995,28 @@ class EquivalenceRunTest {{
         private final org.springframework.transaction.PlatformTransactionManager tm;
         private org.springframework.transaction.TransactionStatus st;
 
+        // #6839: the variable-length files' record lengths, backed out with the records (the stub's <file>.len.uow)
+        private Map<String, Map<String, Integer>> lengths = lengthsNow();
+
         Uow(org.springframework.transaction.PlatformTransactionManager tm) {{
             this.tm = tm;
             this.st = tm.getTransaction(new org.springframework.transaction.support.DefaultTransactionDefinition());
+        }}
+
+        private static Map<String, Map<String, Integer>> lengthsNow() {{
+            Map<String, Map<String, Integer>> m = new java.util.HashMap<>();
+            CicsTask.RECORD_LENGTHS.forEach((k, v) -> m.put(k, new java.util.HashMap<>(v)));
+            return m;
+        }}
+
+        private void lengthsBack() {{
+            lengths.forEach((k, v) -> {{
+                Map<String, Integer> now = CicsTask.RECORD_LENGTHS.get(k);
+                if (now != null) {{
+                    now.clear();
+                    now.putAll(v);
+                }}
+            }});
         }}
 
         void setRollbackOnly() {{
@@ -3955,12 +4025,14 @@ class EquivalenceRunTest {{
 
         void restart() {{
             tm.rollback(st);
+            lengthsBack();
             st = tm.getTransaction(new org.springframework.transaction.support.DefaultTransactionDefinition());
         }}
 
         void end() {{
             if (st.isRollbackOnly()) {{
                 tm.rollback(st);
+                lengthsBack();
             }} else {{
                 tm.commit(st);
             }}
@@ -3969,6 +4041,7 @@ class EquivalenceRunTest {{
         void abort() {{
             if (!st.isCompleted()) {{
                 tm.rollback(st);
+                lengthsBack();
             }}
         }}
     }}
@@ -4356,6 +4429,34 @@ class EquivalenceRunTest {{
         }}
         repo.saveAll(rows);
     }}
+
+    /** #6839 (row D): a variable-length file's record lengths as the task starts (in/<DD>[.<scenario>].len, the
+     *  stub's own <file>.len), into the registry the det port's Store reads (CicsTask.RECORD_LENGTHS). */
+    void lengthsIn(JsonNode sc, String dd, String entity) throws IOException {{
+        Path own = in.resolve(dd + "." + sc.get("name").asText() + ".len");
+        Path p = Files.exists(own) ? own : in.resolve(dd + ".len");
+        Map<String, Integer> m = new java.util.HashMap<>();
+        if (Files.exists(p)) {{
+            for (String ln : Files.readAllLines(p)) {{
+                String[] w = ln.trim().split(" ");
+                if (w.length == 2) {{
+                    m.put(w[0], Integer.parseInt(w[1]));
+                }}
+            }}
+        }}
+        // the same map object every scenario: a Store built for an earlier scenario holds it (CicsTask.recordLengths)
+        Map<String, Integer> reg = CicsTask.RECORD_LENGTHS.computeIfAbsent(entity, k -> new java.util.HashMap<>());
+        reg.clear();
+        reg.putAll(m);
+    }}
+
+    /** #6839: the record lengths the task left, "HEXKEY LENGTH" lines in key order. */
+    void lengthsOut(String name, String entity) throws IOException {{
+        Map<String, Integer> m = CicsTask.RECORD_LENGTHS.getOrDefault(entity, Map.of());
+        List<String> lines = new ArrayList<>();
+        new java.util.TreeMap<>(m).forEach((k, v) -> lines.add(k + " " + v));
+        Files.write(out.resolve(name), lines);
+    }}
 }}
 """
 
@@ -4439,6 +4540,8 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
     inputs.mkdir(parents=True, exist_ok=True)
     for f in files:
         shutil.copy(cobol_work / "files" / f["base"], inputs / f"{f['base']}.in")
+        if variable_file(case, f["base"]):  # #6839: the lengths the task starts with (the case's, as stated)
+            (inputs / f"{f['base']}.len").write_bytes(record_lengths(case, corpus, case["datasets"][f["base"]], f))
     stage_scenario_inputs(case, corpus, files, inputs)
     ca_fields = commarea_fields(corpus, case)  # as the DTO lists them: an OCCURS group's fields once
     ca_read = commarea_fields(corpus, case, occurrences=True)  # #4765: the whole record, every occurrence
@@ -4671,6 +4774,25 @@ def _java_events(case: dict[str, Any], out: Path, shape: dict[str, Any],
 
 
 # ---- the comparison -------------------------------------------------------------------
+def _compare_lengths(f: dict[str, Any], left: bytes, right: bytes, cobol_len: bytes, java_len: Path) -> dict[str, Any]:
+    """#6839: a variable-length file's record lengths on each side, for the keys of the records that side left, a
+    length equal to the slot's reclen dropped (the same record); {} when they agree."""
+    reclen, ko, kl = f["reclen"], f["key_offset"], f["key_length"]
+
+    def norm(data: bytes, lens: dict[str, int]) -> dict[str, int]:
+        keys = {data[i + ko : i + ko + kl].hex().upper() for i in range(0, len(data) - reclen + 1, reclen)}
+        return {k: n for k, n in lens.items() if k in keys and n != reclen}
+
+    a = norm(left, parse_lengths(cobol_len))
+    b = norm(right, parse_lengths(java_len.read_bytes() if java_len.is_file() else b""))
+    if a == b:
+        return {}
+    keys = sorted(set(a) | set(b))
+    return {"records": len(keys), "equal": sum(a.get(k) == b.get(k) for k in keys),
+            "lengths": [{"key": k, "cobol": a.get(k, reclen), "java": b.get(k, reclen)} for k in keys
+                        if a.get(k) != b.get(k)]}  # fmt: skip
+
+
 def compare_files(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]], cobol: dict[str, bytes],
                   java_out: Path, scenario: str) -> dict[str, dict[str, Any]]:  # fmt: skip
     """File updates: per file, what the task left on each side, both in key order; only the files that differ.
@@ -4690,6 +4812,11 @@ def compare_files(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]
             return b"".join(sorted(recs, key=lambda r: r[f["key_offset"] : f["key_offset"] + f["key_length"]]))
 
         left, right = by_key(left), by_key(right)
+        if variable_file(case, base):  # #6839: each record's own length, for the records each side left
+            lens = _compare_lengths(f, left, right, cobol.get(f"{base}.len", b""),
+                                    java_out / f"{scenario}.{base}.len.out")  # fmt: skip
+            if lens:
+                out[f"{base} lengths"] = lens
         if left == right:
             continue
         spec = case.get("datasets", {}).get(base, {})

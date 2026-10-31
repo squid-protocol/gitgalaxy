@@ -181,6 +181,8 @@ docs/language_status/evidence_report/*
 !tests/equivalence/*/port/provenance.json
 # ...and the estates' compile / runtime options (#4704): one file per corpus, source not output
 !tests/equivalence/estate_options/*.json
+# #4268: a multi-step job case (kind job) lives beside the step cases, outside the */case.json glob
+!tests/equivalence/jobs/*.json
 !tests/cics_crucible/ports/*/*/provenance.json
 # #4048: the evidence record of each ported program (tests/tools/evidence.py) is source, not output
 !tests/equivalence/*/evidence.json

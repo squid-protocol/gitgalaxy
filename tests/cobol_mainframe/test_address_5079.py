@@ -16,6 +16,7 @@ program"; with no COMMAREA the pointer is X'FF000000' (no COBOL NULL, so refused
 from __future__ import annotations
 
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -26,6 +27,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(HERE.parents[1] / "tests" / "tools"))
 sys.path.insert(0, str(HERE.parents[1] / "tests" / "cics_crucible"))
+import cics_crucible as CCR  # noqa: E402
 import test_cics_runtimes as R  # noqa: E402  (bare imports: tests/ has no __init__.py, see CLAUDE.md)
 import test_pointer_lane_4771 as PL  # noqa: E402
 
@@ -423,3 +425,46 @@ public class Main {
         "ADDRESS COMMAREA with a COMMAREA in a program with no 01 DFHCOMMAREA: its bytes are not modelled",
         "ADDRESS COMMAREA with no COMMAREA: not modelled",
     ]
+
+
+def _case(data, twasize=None):
+    from types import SimpleNamespace
+
+    return SimpleNamespace(csd={"twasize": twasize or {}, "userarealen": {}}, data={"terminal": "T001", **data})
+
+
+@pytest.mark.parametrize(
+    ("data", "twasize", "wanted", "absent"),
+    [
+        ({"wrkarea": 32}, None, ["GGCICS_WRKAREA=32 ", "GGCICS_CWA=/work/s1.cwa"], ["GGCICS_TWASIZE"]),
+        ({"wrkarea": 8}, {"CA0K": 16}, ["GGCICS_WRKAREA=8 ", "GGCICS_TWASIZE=16"], []),
+        ({}, None, [], ["GGCICS_WRKAREA", "GGCICS_CWA"]),  # none stated: the stub's own default (X'FF000000')
+        ({"wrkarea": 0}, None, [], ["GGCICS_WRKAREA", "GGCICS_CWA"]),
+    ],
+)
+def test_the_runner_hands_the_stub_a_wrkarea_only_when_the_case_states_one(data, twasize, wanted, absent):
+    """#5079 slice 2b (X59): case.json `wrkarea` (the SIT WRKAREA) becomes GGCICS_WRKAREA and the file that keeps the CWA."""
+    env = CCR.area_env(_case(data, twasize), "CA0K", "s1")
+    for w in wanted:
+        assert w in env
+    for a in absent:
+        assert a not in env
+
+
+def test_every_crucible_case_that_addresses_the_cwa_states_its_wrkarea():
+    """#5079: the crucible's `ca-address-cwa` (cics-crucible#47) is the cobol-stub proof of the CWA. Any checkout case whose
+    COBOL issues ADDRESS CWA states a positive wrkarea (the pinned ref that predates it has no such case: skipped)."""
+    from gitgalaxy.core.source_text import read_source
+
+    root = CCR.crucible_path(None) / "cases"
+    if not root.is_dir():
+        pytest.skip("no cics-crucible checkout")
+    seen = []
+    for case_json in sorted(root.glob("*/*/case.json")):
+        case = CCR.cc.load_case(case_json.parent)
+        text = " ".join(read_source(case.dir / rel).text for rel in case.data["sources"]["cobol"])
+        if re.search(r"ADDRESS\s+CWA\b", text):
+            seen.append(case.id)
+            assert int(case.data.get("wrkarea") or 0) >= 1, case.id
+    if not seen:
+        pytest.skip("the pinned cics-crucible ref has no ADDRESS CWA case yet (cics-crucible#47)")

@@ -12,11 +12,11 @@ Every cell that does not pass is ledgered in `tests/cics_crucible/baseline.json`
 |---|---|---|---|---|
 | engine-facts | 48 | 0 | 0 | 48 |
 | forge-compile | 48 | 0 | 0 | 48 |
-| cobol-stub | 136 | 5 | 30 | 171 |
+| cobol-stub | 139 | 5 | 27 | 171 |
 | java | 0 | 171 | 0 | 171 |
 | java-ported | 56 | 115 | 0 | 171 |
 | java-facade | 53 | 118 | 0 | 171 |
-| **all** | **341** | **409** | **30** | **780** |
+| **all** | **344** | **409** | **27** | **780** |
 
 ## By trap and case
 
@@ -26,7 +26,7 @@ Pass counts per side (scenario sides: passing / scenarios).
 |---|---|---|---|---|---|---|---|
 | commarea-mismatch | `ca-address-commarea` | pass | pass | 0 / 3 | 0 / 3 | 0 / 3 | 0 / 3 |
 | commarea-mismatch | `ca-address-eib-commarea` | pass | pass | 0 / 3 | 0 / 3 | 0 / 3 | 0 / 3 |
-| commarea-mismatch | `ca-address-twa-tctua` | pass | pass | 0 / 3 | 0 / 3 | 0 / 3 | 0 / 3 |
+| commarea-mismatch | `ca-address-twa-tctua` | pass | pass | 3 / 3 | 0 / 3 | 0 / 3 | 0 / 3 |
 | commarea-mismatch | `ca-channel-containers` | pass | pass | 2 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
 | commarea-mismatch | `ca-container-byteoffset` | pass | pass | 2 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
 | commarea-mismatch | `ca-container-ccsid` | pass | pass | 1 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
@@ -79,6 +79,8 @@ Each cobol-stub scenario runs the COBOL compiled with `-ftraceall` (tests/tools/
 
 | case | program | scenarios | paragraphs | branches | HANDLE labels | dead | port |
 |---|---|---|---|---|---|---|---|
+| `ca-address-twa-tctua` | CATWAD | 3 | 5/5 | 5/7 | 0/0 | 0 | -- |
+| `ca-address-twa-tctua` | CATWSB | 1 | 1/1 | 1/2 | 0/0 | 0 | -- |
 | `ca-channel-containers` | CACHAN | 1 | 3/3 | 0/0 | 0/0 | 0 | proven on 0 scenarios, covering 0/3 paragraphs and 0/0 branches |
 | `ca-channel-containers` | CACHERR | 1 | 2/2 | 0/0 | 0/0 | 0 | proven on 0 scenarios, covering 0/2 paragraphs and 0/0 branches |
 | `ca-channel-containers` | CACHSUB | 1 | 4/4 | 0/0 | 1/1 | 0 | proven on 0 scenarios, covering 0/4 paragraphs and 0/0 branches |
@@ -148,6 +150,15 @@ Each cobol-stub scenario runs the COBOL compiled with `-ftraceall` (tests/tools/
 ### Live code no scenario reaches
 
 Each item is a scenario to propose: a crucible PR adds it with a hand-written, doc-cited expected log, like every other. Dead code is not a gap: nothing can reach it.
+
+#### `ca-address-twa-tctua` CATWAD
+
+- EVALUATE at line 44 in `MAIN-PARA`: no WHEN arm matched: never
+- IF at line 77 in `TWA-NONE-PARA`: never false
+
+#### `ca-address-twa-tctua` CATWSB
+
+- IF at line 32 in `SUB-MAIN`: never true
 
 #### `ca-container-ccsid` CACCSID
 
@@ -279,7 +290,7 @@ Each item is a scenario to propose: a crucible PR adds it with a hand-written, d
 
 Each missing feature belongs to a piece of harness work (below: the features themselves). A cell is *unlocked* when every piece its features need is done: it then gets a pass or fail verdict rather than `unsupported`. **needs** counts the cells that do not pass and need the piece, **alone** the unsupported cells it unlocks by itself, and **cumulative** the unsupported cells unlocked by it and every row above it (rows are chosen greedily).
 
-### cobol-stub (30 unsupported)
+### cobol-stub (27 unsupported)
 
 | # | harness work | needs | alone | cumulative |
 |---|---|---|---|---|
@@ -296,10 +307,8 @@ Each missing feature belongs to a piece of harness work (below: the features the
 | 11 | READ | 4 | 0 | 21 |
 | 12 | READNEXT | 4 | 0 | 21 |
 | 13 | READPREV | 4 | 0 | 25 |
-| 14 | ADDRESS TCTUA | 3 | 0 | 25 |
-| 15 | ADDRESS TWA | 3 | 0 | 28 |
-| 16 | LOAD | 2 | 0 | 28 |
-| 17 | RELEASE | 2 | 0 | 30 |
+| 14 | LOAD | 2 | 0 | 25 |
+| 15 | RELEASE | 2 | 0 | 27 |
 
 ### java (0 unsupported)
 
@@ -341,8 +350,6 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | translator: READ | 4 | READ |
 | translator: READNEXT | 4 | READNEXT |
 | translator: READPREV | 4 | READPREV |
-| translator: ADDRESS TCTUA | 3 | ADDRESS TCTUA |
-| translator: ADDRESS TWA | 3 | ADDRESS TWA |
 | translator: RECEIVE SET | 3 | terminal RECEIVE (unformatted input) |
 | stub: DELETEQ-TD event | 2 | DELETEQ-TD event |
 | translator: LOAD | 2 | LOAD |
@@ -412,15 +419,12 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | `ca-address-eib-commarea/no-commarea/java` | fail | task 1 (CA0K) event 1: RECEIVE expected, the side recorded no further event |
 | `ca-address-eib-commarea/no-commarea/java-facade` | fail | no port of any of its programs |
 | `ca-address-eib-commarea/no-commarea/java-ported` | fail | no port of any of its programs |
-| `ca-address-twa-tctua/tctua-two-tasks/cobol-stub` | unsupported | translator: ADDRESS TWA; translator: ADDRESS TCTUA |
 | `ca-address-twa-tctua/tctua-two-tasks/java` | fail | task 1 (CA0J) event 1: RECEIVE expected, the side recorded no further event |
 | `ca-address-twa-tctua/tctua-two-tasks/java-facade` | fail | no port of any of its programs |
 | `ca-address-twa-tctua/tctua-two-tasks/java-ported` | fail | no port of any of its programs |
-| `ca-address-twa-tctua/twa-sized/cobol-stub` | unsupported | translator: ADDRESS TWA; translator: ADDRESS TCTUA |
 | `ca-address-twa-tctua/twa-sized/java` | fail | task 1 (CA0H) event 1: RECEIVE expected, the side recorded no further event |
 | `ca-address-twa-tctua/twa-sized/java-facade` | fail | no port of any of its programs |
 | `ca-address-twa-tctua/twa-sized/java-ported` | fail | no port of any of its programs |
-| `ca-address-twa-tctua/twasize-zero/cobol-stub` | unsupported | translator: ADDRESS TWA; translator: ADDRESS TCTUA |
 | `ca-address-twa-tctua/twasize-zero/java` | fail | task 1 (CA0I) event 1: RECEIVE expected, the side recorded no further event |
 | `ca-address-twa-tctua/twasize-zero/java-facade` | fail | no port of any of its programs |
 | `ca-address-twa-tctua/twasize-zero/java-ported` | fail | no port of any of its programs |

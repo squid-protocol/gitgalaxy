@@ -55,8 +55,7 @@ GATES = (
     # Pre-gate
     Gate("Vault Sentinel", "gitgalaxy.yml", "hardcoded secrets and denylisted files",
          "tests/security_auditing/test_vault_sentinel_control.py::test_the_real_detector_fails_ci_on_a_planted_secret",
-         open_gap="never reads .tf, .ini, .toml, .conf, .cfg, .env, .bak or .ipynb; misses AWS secret, Google and JWT values; "
-                  "tests/ is allowlisted"),
+         open_gap="tests/ is allowlisted; a scan error is printed, not failed"),
     Gate("X-Ray Inspector", "gitgalaxy.yml", "obfuscated payloads and denylisted files",
          "tests/security_auditing/test_xray_control.py::test_the_real_detector_fails_ci_on_a_dense_payload",
          open_gap="misses payloads on lines of 250+ characters and XOR loops; reads only the first 8 KB (#7187)"),

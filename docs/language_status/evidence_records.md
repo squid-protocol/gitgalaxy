@@ -165,6 +165,8 @@ sweep proved the case, so it is the verdict; its scenarios, paragraph and branch
   as for any record. `prove` refuses (no record written) when there is no ledger entry or the case / corpus moved since it
   was measured; a harness / oracle the sweep did not re-check is recorded in `proof.det_sweep.stale_inputs` and shown.
 * `det_targets()` lists these cases (a record with that source); `targets()`, which lists committed ports, is unchanged.
+* All seven zECS cases carry one (ECS001, ZECS000-003, ZECSNC, ZECSPLT). ZECS001's record shows its real, lower coverage
+  (its server-side WEB refusals, X37, are unchanged); a record states a level, it does not lift one.
 
 ## Who writes what
 

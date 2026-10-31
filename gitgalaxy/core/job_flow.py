@@ -244,6 +244,7 @@ def jcl_job_flow(code_stream: str) -> list[dict[str, Any]]:
     ordinal = 0
     step: str | None = None
     last_dd: str | None = None
+    last_dd_step: str | None = None
     ifs: list[str] = []
     bodies = _instream_bodies(code_stream)
     for line, name, op, field in _statements(code_stream):
@@ -271,6 +272,7 @@ def jcl_job_flow(code_stream: str) -> list[dict[str, Any]]:
             ordinal += 1
             step = name or None
             last_dd = None
+            last_dd_step = None
             rows.append(
                 dict(
                     blank,
@@ -291,9 +293,12 @@ def jcl_job_flow(code_stream: str) -> list[dict[str, Any]]:
             if "." in name:
                 dd_step, dd_name = name.split(".", 1)
             if dd_name:
-                last_dd = dd_name
+                last_dd, last_dd_step = dd_name, dd_step
             else:
+                # An unnamed DD concatenates onto the DD above it: same ddname AND the same (possibly
+                # qualified) step, so a continuation of `//PRE.SYSIN` is PRE's, not the EXEC step's.
                 dd_name = last_dd or ""
+                dd_step = last_dd_step or dd_step
             if line in bodies:  # #4268: presence-keyed kind; no existing reader looks at it
                 rows.append(
                     dict(

@@ -411,3 +411,27 @@ neighbourhood; `.ezt` / `.ezp` are unchanged. Pinned in `test_easytrieve_macro_l
 With NASM (section 12 addendum e), ARM64, MS-DOS `.MAC` and troff all out of hlasm and easytrieve, every non-mainframe family from the DB's 112
 `hlasm`-labelled files is re-routed. **Sibling gaps (not done):** DSP and MASM `.mac` stay non-mainframe with no owning language. No burned-estate
 program needs any of these.
+
+### Addendum (2026-10-30h, #7064): `fragile_debt` / `planned_debt` count full-line comments only
+
+**Cause.** The detector runs the two debt rules over the code stream as well as the comment stream, and `hlasm` bound the shared
+global patterns. Operand text therefore counted: `DC CL3'xxx'`, a trailing remark `MESSAGE xxx`, and `LOAD EP=BPX1GLG  STUB LOADER`
+(a system service called STUB). Measured on a 5-line file before the change: `planned_debt` 1, `fragile_debt` 4; only the one `* HACK`
+line is debt.
+
+**Fix.** `hlasm` now wraps the same shared patterns (so the multilingual marker lists are unchanged) behind a line anchor: a marker
+counts only on a line that starts `*` or `.*` (a full-line comment or macro comment). Trailing remarks and operands no longer count, and
+the count is one per comment line rather than one per marker. Pinned in `test_hlasm_strict.py` (`test_hlasm_debt_*`: comment forms in
+upper/lower case, operand/remark/stub text, marker on the next statement, indented `*`).
+
+**Re-measure on the held emulator tree** (123 `.asm` files, the repo that gave 121 `fragile_debt` hits of the `xxx` class): the `xxx`
+hits are gone; what remains is prose in `*` comments that really says "bug" (`CLCL.asm` and the `CLCLE-0n` files, 4 each, all on comment
+lines) and 1 `planned_debt` in `CDSG.asm`. A real `TODO` in a trailing remark after an instruction no longer counts (accepted: the
+remark is positional text, not a comment line).
+
+**Probe status.** Every signal row of section 12 now has a measured reading on genuine z/OS assembler, and the defect classes are:
+misrouting (fixed, addenda b-g), `calls_out` forms (fixed, c/f), PDS routing (fixed, d/f), debt false positives (fixed, here). Left:
+`BAL`/`BALR`/`BASR` to an in-file label is an internal edge, not modelled (a design decision, unmeasured); DSP / MASM `.mac` have no
+owning language; the Hyperion-class, MS-DOS and NASM trees are not held, so those rows stay as measured on the corpus DB. Other assembler
+profiles (`assembly`, `agc_assembly`) bind the same global debt rules and may overcount operand text the same way (not measured).
+No burned-estate program needs any of these.

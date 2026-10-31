@@ -1,0 +1,229 @@
+{
+ "format": "gitgalaxy-evidence/1",
+ "case": "zecs-zecs002",
+ "program": "ZECS002",
+ "kind": "cics",
+ "port": {
+  "paths": [],
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "entry_points": [],
+  "det_port": true
+ },
+ "inputs": {
+  "port": {
+   "paths": [
+    "tests/equivalence/zecs-zecs002/port/**"
+   ],
+   "files": 0,
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "case": {
+   "paths": [
+    "tests/equivalence/zecs-zecs002/**"
+   ],
+   "files": 1,
+   "sha256": "8ba182ecca1c5855b98e2e35e229b6ede7705255b29d5b0f5ab2a6781f12c5c5"
+  },
+  "harness": {
+   "paths": [
+    "tests/tools/equivalence.py",
+    "tests/tools/equivalence_common.py",
+    "tests/tools/equivalence_java.py",
+    "tests/tools/equivalence_inputs.py",
+    "tests/tools/equivalence_cics.py",
+    "tests/tools/equivalence_cics_containers.py",
+    "tests/tools/equivalence_cics_filecontrol.py",
+    "tests/tools/equivalence_cics_conditions.py",
+    "tests/tools/equivalence_cics_faults.py",
+    "tests/tools/equivalence_cics_tempstorage.py",
+    "tests/tools/equivalence_cics_taskcontrol.py",
+    "tests/tools/equivalence_call.py",
+    "tests/tools/equivalence_cache.py",
+    "tests/tools/equivalence_db2.py",
+    "tests/tools/equivalence_oracle.py",
+    "tests/tools/cobol_coverage.py",
+    "tests/tools/java_target_matrix.py",
+    "tests/tools/equivalence_ims.py"
+   ],
+   "files": 18,
+   "sha256": "4ea52759c421c9e211bcf5a5f27b487b0a2e2123de69345082464c4ec65e5509",
+   "components": {
+    "harness:cics": "2c30e3c0238c3e54f77128a737b5160cbf9b2310b6ff7b710b6a05a4e57058b5",
+    "harness:core": "4285e62b9cbc17d702addd9dd1edec3ee029d95e6bbed79f569ad0054e75d364"
+   }
+  },
+  "oracle": {
+   "paths": [
+    "tests/equivalence/gnucobol.Dockerfile",
+    "tests/equivalence/gnucobol-db2.Dockerfile",
+    "tests/equivalence/odbc_cli.pin",
+    "tests/equivalence/cics/**",
+    "tests/equivalence/le/**",
+    "tests/equivalence/faults/**",
+    "tests/equivalence/db2/**",
+    "tests/tools/equivalence_sql.py",
+    "tests/equivalence/ims/ggdli.c"
+   ],
+   "files": 51,
+   "sha256": "ce845af2a0298e05f01113278228f554a0c44f79d20ceb4d7048df83ef1760a6",
+   "components": {
+    "oracle:cics-stub": "058faa9a8e89af52af28d2288affda2d43ceee1836e4a637ef4faa326ce75dff",
+    "oracle:core": "b4bb775f0a30746a6054f259b4c8613e08cb0d8cf3b40f4a789d953aca4144a0",
+    "oracle:le": "670c92cc59b722e108b688267be1fd89ecda9b7be62bb485da2ad4839b4f7011"
+   }
+  },
+  "generator": {
+   "paths": [
+    "gitgalaxy/tools/cobol_to_java/**"
+   ],
+   "files": 121,
+   "sha256": "42df8e1c67208c99a8e822bd4f5819c5142e01fa0e2067c9fb86c127d650dd3a",
+   "components": {
+    "generator:core": "f12d72feae0fa4a5c33da5f842d7f8a8dccaab0544949a5599c82fae44a8305d",
+    "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
+    "generator:det/cics": "fef009b158ce420c1a445dd098d8ab8df6753e8099e3912f6474160a2f7c5eac",
+    "generator:det/cics_conditions": "c5bfb6ed32df1a582cf010bf59f1f16dd7440e4caa075a0458f62ca9b85f6219",
+    "generator:det/cics_containers": "5fc989229d444423f5b14d2c65a2c7c541efbe6cd0e5dc5a833beaf90c578b6b",
+    "generator:det/cics_faults": "022b25e0d5807e27992c2e0598d06fff3258412b4333821efc748dd7be728b4c",
+    "generator:det/cics_filecontrol": "2a1b7b0a0414ed5e263b6f70e757a88685b2696a4b964953ae306fbb753d528b",
+    "generator:det/cics_taskcontrol": "63df9b365888889a2ecf2d791d2c789879ad7d4bd7161ab8099702948187e7b8",
+    "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
+    "generator:det/dli": "6c94b183b7f40bbce09c623fe2001c3c594534daada2a363417a61a0a3c9f41d",
+    "generator:det/dyncall": "641f9f29f4f40864b80a79230c7fd961e0d76851e2c6495b150cd723ead56a68",
+    "generator:det/entity": "b6aa37067dc0413f6700ac83e7dd35610d8e2474aa607bdf54b5b8419ee4c7d6",
+    "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
+    "generator:det/gen": "6ea804c467655b3d168078564bbb34a8e44f0dca8704f1bcdc36ad794a610080",
+    "generator:det/hfp": "d7d641dafd602da31535a68f7f219c201a8d867cb7a1fec1c879be38e9ff86b7",
+    "generator:det/hlasm": "c7117c636ab25d2ccb7b4e2d7f23766ddacb9c9f7600c2fd6d894a49a60f4748",
+    "generator:det/layout": "5a824944e681f0b90cc6cce630309cfde072861d6d6db0afef32c86d5cdb77d0",
+    "generator:det/mq": "25055224f7c943069e828db7a79887ca1f4e6f4a06ec3b9781c97b31226491a0",
+    "generator:det/osvs": "4ca3599a4d9a49bd17def291a921278d6f4f45858f65acaf75ae817c17644dd5",
+    "generator:det/source": "fd7d20e0f7824a4d3b74201b0690914daf79834567b3fa5f064c98beb4d50e0b",
+    "generator:det/stmt": "2554ac35340ca1a2e1d35caa0d8850c48e834d363a36ceeedcd072d84bb8d022"
+   }
+  },
+  "corpus": {
+   "name": "zecs",
+   "ref": "6d6bcbbc89c9be086a58cb7ad2ff4d702e873d02",
+   "sha256": "09feecf8028c77a136bbff56380f9babddf0b2e28fbb6a7ad7ba456273989ff6"
+  },
+  "differences": {
+   "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "options": {
+   "sha256": "241dd745faedb5b6f3b98c2d4f6f1cebf1653a5b87cabaa8409132c1c313aa6a",
+   "semantic_sha256": "be1b93eb5a2f1d6cb3ab87223de8050850df4068c3674fe5e9d6377d01de0426",
+   "legacy_semantic_sha256": "be1b93eb5a2f1d6cb3ab87223de8050850df4068c3674fe5e9d6377d01de0426",
+   "estate": "zecs",
+   "effective": {
+    "estate": "zecs",
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "4.2"
+    },
+    "parm": [
+     "ARITH(COMPAT)",
+     "INTDATE(ANSI)",
+     "NUMPROC(NOPFD)",
+     "TRUNC(STD)",
+     "OPTIMIZE(0)",
+     "NSYMBOL(NATIONAL)",
+     "DISPSIGN(COMPAT)",
+     "CODEPAGE(1140)",
+     "NOSSRANGE",
+     "CICS"
+    ],
+    "declared_parm": [
+     "ARITH(COMPAT)",
+     "INTDATE(ANSI)",
+     "NUMPROC(NOPFD)",
+     "TRUNC(STD)",
+     "OPTIMIZE(0)",
+     "NSYMBOL(NATIONAL)",
+     "DISPSIGN(COMPAT)",
+     "CODEPAGE(1140)",
+     "NOSSRANGE",
+     "CICS"
+    ],
+    "semantic": {
+     "ARITH": "COMPAT",
+     "INTDATE": "ANSI",
+     "NUMPROC": "NOPFD",
+     "TRUNC": "STD"
+    },
+    "runtime": {
+     "le": {
+      "runtime_options.ABTERMENC": "ABEND",
+      "runtime_options.STORAGE": "NONE,NONE,NONE,0K",
+      "runtime_options.TRAP": "ON,SPIE"
+     },
+     "db2": {
+      "bind.packages": "none"
+     },
+     "cics": {
+      "region.CICS_TS": "4.2",
+      "region.LOCALCCSID": "037",
+      "translator.options": "CICS"
+     }
+    }
+   },
+   "runtime_sha256": "2e95aa6a2e154fc7484ae5d8606234b3805b29adfb9904a541b19799806537c3"
+  },
+  "digest": "a6174d15b222ba93466b281dbd8a34f46068ab33b09458296f5574f59a1802c0"
+ },
+ "proof": {
+  "at": "2026-10-30T22:13:53Z",
+  "verdict": "proven",
+  "source": "det-sweep",
+  "runs": 16,
+  "fault_runs": null,
+  "environments": null,
+  "outputs": {},
+  "java_failed": false,
+  "det_sweep": {
+   "ledger": "tests/equivalence/det_sweep_coverage/zecs-zecs002.json",
+   "ledger_sha256": "34328f6ad761056f843075e74148dd338dc40b753af7c7cc3f3bd81545841f0e",
+   "measured_at": "0712a98114140473d4b14442f973fa403cd68768",
+   "stale_inputs": [
+    "harness",
+    "oracle"
+   ],
+   "scenarios": 16
+  },
+  "harness_commit": "d9ab70fd522cc59953c89c71b77183608cd17815",
+  "inputs_digest": "a6174d15b222ba93466b281dbd8a34f46068ab33b09458296f5574f59a1802c0"
+ },
+ "coverage": {
+  "paragraphs": {
+   "covered": 24,
+   "live": 24
+  },
+  "branches": {
+   "covered": 70,
+   "total": 242
+  },
+  "uncovered_branches": [],
+  "handler_labels": {
+   "covered": null,
+   "total": null
+  },
+  "source": "det sweep at 0712a98114140473d4b14442f973fa403cd68768 (det_coverage_ledger.py)",
+  "inputs_digest": "a6174d15b222ba93466b281dbd8a34f46068ab33b09458296f5574f59a1802c0"
+ },
+ "reach": null,
+ "mutation": null,
+ "differences": [],
+ "oracle": {
+  "kind": "gnucobol-models",
+  "compiler": null,
+  "source": "the det sweep's GnuCOBOL runs",
+  "image": null
+ },
+ "provenance": {
+  "written_by": "det",
+  "model": null,
+  "author": null,
+  "note": "the det port: generated by the translator on every run, no committed port"
+ },
+ "approvals": []
+}

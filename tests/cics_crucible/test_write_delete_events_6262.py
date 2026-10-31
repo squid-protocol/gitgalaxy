@@ -1,4 +1,4 @@
-"""#6262 (slice D): the Java leg's WRITE / DELETE events (SPEC 6.2 shape proposed here; the stub half is a later slice).
+"""#6262 (slice D): the Java leg's WRITE / DELETE events (SPEC 6.2 shape proposed here; the stub half is test_write_delete_stub_events_6262.py).
 
 CicsTask.writeEvent / deleteEvent / deleteGenericEvent / deleteInvalidEvent / deleteHeldEvent / deleteTokenEvent record the
 events; write / delete* , which every existing port calls, record none. IBM (CICS TS 6.x, EXEC CICS WRITE / DELETE): WRITE of
@@ -176,7 +176,7 @@ def test_every_write_and_delete_key_is_compared():
     assert _verdict(with_key).status == "fail"
 
 
-def test_the_java_leg_supports_write_and_delete_and_the_stub_does_not_yet():
+def test_both_legs_support_the_write_and_delete_events():
     log = java_leg._log(_EXPECTED)
     assert cc.blockers(log, runner.JAVA_CAPS) == []
-    assert cc.blockers(log, runner.COBOL_CAPS)  # the stub half is a later slice (#6262)
+    assert cc.blockers(log, runner.COBOL_CAPS) == []

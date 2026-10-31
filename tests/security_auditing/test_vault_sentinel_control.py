@@ -9,6 +9,7 @@ import sys
 import pytest
 
 import gitgalaxy.tools.supply_chain_security.vault_sentinel as sentinel
+from gitgalaxy.security.long_lines import chunk_long_lines
 from gitgalaxy.standards.config_resolver import path_allowlisted
 
 CAUGHT = {
@@ -19,22 +20,20 @@ CAUGHT = {
     "private key": "-----BEGIN RSA "
     + "PRIVATE KEY-----\nMIIBOgIBAAJBAKj34GkxFhD90vcNLYLInFEX6Ppy1tPf9Cnzj4p4\n-----END RSA PRIVATE KEY-----\n",
     "assigned password": 'password = "' + 'hunter2hunter2hunter2"\n',
-}
-MISSED = {  # #7179: found by this control. strict: fixing one fails the test until it moves to CAUGHT
     "aws secret key": 'aws_secret_access_key = "wJalrXUtnFEMI/K7MDENG/bPxRfiCY' + 'EXAMPLEKEY"\n',
-    "google api key": 'K = "AIza' + 'SyA1B2c3D4e5F6g7H8i9J0k1L2m3N4o5P6q7"\n',
+    "google api key": 'K = "AIza' + 'SyA1B2c3D4e5F6g7H8i9J0k1L2m3N4o5P6q"\n',
     "json web token": 'T = "eyJhbGciOiJIUzI1NiJ9.' + 'eyJzdWIiOiIxMjM0NTY3ODkwIn0.abcdefghijklmnopqrstuvwxyz012345"\n',
 }
-UNREAD_TYPES = ["main.tf", "app.ini", "app.toml", "app.conf", "app.cfg", "prod.env", "old.bak", "notes.ipynb"]
+CONFIG_TYPES = ["main.tf", "app.ini", "app.toml", "app.conf", "app.cfg", "prod.env", "old.bak", "notes.ipynb"]
 
 
-def _scan(tmp_path, monkeypatch, files: dict[str, str]) -> int:
+def _scan(tmp_path, monkeypatch, files: dict) -> int:
     """The real scanner over a planted tree, with the default config. The exit code it would give CI."""
     root = tmp_path / "planted"
     for rel, text in files.items():
         path = root / rel
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(text, encoding="utf-8")
+        path.write_bytes(text if isinstance(text, bytes) else text.encode())
     monkeypatch.setattr(sys, "argv", ["vault_sentinel.py", str(root)])
     try:
         sentinel.main()
@@ -60,16 +59,19 @@ def test_a_secret_file_fails_by_its_name_alone(name, tmp_path, monkeypatch):
     assert _scan(tmp_path, monkeypatch, {name: "anything\n"}) == 1
 
 
-@pytest.mark.xfail(strict=True, reason="#7179: the detector has no signature for this")
-@pytest.mark.parametrize("kind", MISSED)
-def test_known_miss_secret_kinds(kind, tmp_path, monkeypatch):
-    assert _scan(tmp_path, monkeypatch, {"src/app.py": MISSED[kind]}) == 1
-
-
-@pytest.mark.xfail(strict=True, reason="#7179: ApertureFilter drops these file types, so they are never read")
-@pytest.mark.parametrize("name", UNREAD_TYPES)
-def test_known_miss_file_types(name, tmp_path, monkeypatch):
+@pytest.mark.parametrize("name", CONFIG_TYPES)
+def test_a_secret_in_a_config_file_fails(name, tmp_path, monkeypatch):
     assert _scan(tmp_path, monkeypatch, {f"src/{name}": CAUGHT["aws key id"]}) == 1
+
+
+def test_a_binary_file_is_not_read_as_text(tmp_path, monkeypatch):
+    assert _scan(tmp_path, monkeypatch, {"src/blob.dat": b"\0\1" * 50 + CAUGHT["aws key id"].encode()}) == 0
+
+
+def test_a_file_that_cannot_be_scanned_is_reported_not_clean(tmp_path, monkeypatch, capsys):
+    monkeypatch.setattr(sentinel, "read_source", lambda path: 1 / 0)
+    assert _scan(tmp_path, monkeypatch, {"src/app.py": "x = 1\n"}) == 0
+    assert "Files Not Scanned    : 1  (errors: these were NOT checked)" in capsys.readouterr().out
 
 
 @pytest.mark.parametrize("rel", ["src/latests/app.py", "contests/app.py", "mytests/app.py"])
@@ -93,6 +95,11 @@ def test_path_allowlisted():
     assert not path_allowlisted("latests/tests.py", ["tests/"])
 
 
-@pytest.mark.xfail(strict=True, reason="#7179: SecurityLens empties lines of 250+ characters before it scans")
-def test_known_miss_a_secret_on_a_long_line(tmp_path, monkeypatch):
-    assert _scan(tmp_path, monkeypatch, {"src/app.js": "var a=1;" * 60 + CAUGHT["aws key id"]}) == 1
+@pytest.mark.parametrize("line", ["var a=1;" * 60 + CAUGHT["aws key id"], "x" * 197 + CAUGHT["aws key id"]])
+def test_a_secret_on_a_long_line_fails(line, tmp_path, monkeypatch):
+    assert _scan(tmp_path, monkeypatch, {"src/app.js": line}) == 1  # the second straddles a chunk boundary
+
+
+def test_chunking_leaves_short_lines_alone_and_stays_under_the_armor():
+    assert chunk_long_lines("a\nb\n") == "a\nb\n"
+    assert all(len(ln) < 250 for ln in chunk_long_lines("x" * 5000).splitlines())

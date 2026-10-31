@@ -213,6 +213,9 @@ COBOL_CAPS = cc.Capabilities(
         "READNEXT": frozenset({"file", "ridfld", "set", "resp", "resp2", "length", "data"}),
         "READPREV": frozenset({"file", "ridfld", "set", "resp", "resp2", "length", "data"}),
         "ENDBR": frozenset({"file", "resp", "resp2"}),
+        # #6262: what ggcics.c's file_event records for GGCWRIT and ggcics_filecontrol.c's GGCDELT
+        "WRITE": frozenset({"file", "ridfld", "data", "resp", "resp2"}),
+        "DELETE": frozenset({"file", "ridfld", "generic", "resp", "resp2"}),
         "READQ-TS": frozenset({"queue", "item", "resp", "length", "data"}),
         "WRITEQ-TS": frozenset({"queue", "data", "resp", "item"}),
         "WRITE-OPERATOR": frozenset({"data", "resp"}),  # #4270 zECS (X32)
@@ -1711,6 +1714,16 @@ def java_plan(case: cc.Case, src: Path) -> dict[str, Any]:
     }
 
 
+def area_env(case: cc.Case, transid: str, ts: str) -> str:
+    """#5079 slice 2b (X59): the stub's TWA / TCTUA sizes from the CSD, only when stated; the TCTUA's bytes persist in a file
+    beside the scenario's TS dir, which the next task on the terminal reads."""
+    twa = (case.csd.get("twasize") or {}).get(transid)
+    ua = (case.csd.get("userarealen") or {}).get(case.data["terminal"])
+    return (f"GGCICS_TWASIZE={twa} " if twa else "") + (
+        f"GGCICS_USERAREALEN={ua} GGCICS_TCTUA=/work/{ts}.tctua " if ua else ""
+    )
+
+
 def terminal_device(case: cc.Case) -> str:
     """#4413: the DEVICE of the case terminal's TYPETERM in the case CSD; the reference region's 3270 logical unit
     (SPEC section 2) when the CSD does not define the terminal."""
@@ -1881,7 +1894,9 @@ def _java_file_event(kind: str, e: dict[str, Any]) -> dict[str, Any]:
             ev["generic"] = True
     if kind in ("STARTBR", "READNEXT", "READPREV"):  # #6262: the key on entry; STARTBR's mode, a browse read's record
         ev["ridfld"] = base64.b64decode(e["ridfld"]) if e.get("ridfld") is not None else None
-        if kind == "STARTBR":
+        if e.get("rba"):  # the RBA browse: as the stub's `rba=` line, the file and RESP; RIDFLD is no key (SPEC 6.2)
+            ev["ridfld"] = cc.Unmodelled("an RBA browse's event")
+        elif kind == "STARTBR":
             ev["mode"] = e.get("mode")
         else:
             if e.get("length") is not None:
@@ -1897,7 +1912,11 @@ def _java_file_event(kind: str, e: dict[str, Any]) -> dict[str, Any]:
     if kind in ("READ", "REWRITE", "WRITE"):
         b64 = e.get("data")
         ev["data"] = cc.RawArea(base64.b64decode(b64), cc.EBCDIC) if b64 is not None else None
-    if e.get("resp2") is not None and not (kind in ("READ", "READNEXT", "READPREV") and e.get("resp") == "LENGERR"):
+    if (
+        e.get("resp2") is not None
+        and not e.get("rba")
+        and not (kind in ("READ", "READNEXT", "READPREV") and e.get("resp") == "LENGERR")
+    ):
         ev["resp2"] = e["resp2"]
     return ev
 
@@ -2396,6 +2415,16 @@ def _cobol_events(out: Path, program: str, screens: dict[str, Screen] | None = N
                     ev["length"] = int(arg("len"))
                 ev["data"] = cc.RawArea(data, "latin-1") if ev["resp"] in ("NORMAL", "DUPKEY") else None
             if arg("resp2") and not (verb != "STARTBR" and verb != "ENDBR" and ev["resp"] == "LENGERR"):
+                ev["resp2"] = int(arg("resp2"))
+        elif verb in ("WRITE", "DELETE"):  # #6262: SPEC 6.2 keys only where the command carries them
+            ev.update(file=arg("file"), resp=names.get(int(arg("resp") or 0), arg("resp")))
+            if re.search(r"\brid=", args):  # a DELETE of the held or the token's record has no RIDFLD
+                ev["ridfld"] = bytes.fromhex(arg("rid")).decode("latin-1").encode(cc.EBCDIC)
+            if verb == "WRITE":
+                ev["data"] = cc.RawArea(data, "latin-1")
+            elif arg("generic"):
+                ev["generic"] = True
+            if arg("resp2"):
                 ev["resp2"] = int(arg("resp2"))
         elif verb in ("RETURN", "END"):
             level = int(arg("level") or 1)
@@ -3020,6 +3049,7 @@ def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, tra
            f"{'GGCICS_RUNCHILD=1 ' if (frame.get('trigger') or {}).get('kind') == 'run' else ''}"  # #4270
            f"{f'GGCICS_STARTCODE={startcode} ' if startcode else ''}GGCICS_USERID={REGION_USERID} "  # #4270 slice 3
            f"GGCICS_FACILITY={frame.get('termid') or ''} GGCICS_SCREEN='{REGION_SCREEN[0]} {REGION_SCREEN[1]}' "
+           f"{area_env(case, transid, ts)}"  # #5079 slice 2b (X59): TWASIZE / USERAREALEN
            f"GGCICS_TS=/work/{ts} GGCICS_NOW={frame['at']} COB_CURRENT_DATE='{when.strftime('%Y/%m/%d %H:%M:%S')}.00' ./bin/task "
            f"> /work/{rel}/stdout.txt 2>&1")  # fmt: skip
     task["events"] = _cobol_events(d / "out", program, screens)

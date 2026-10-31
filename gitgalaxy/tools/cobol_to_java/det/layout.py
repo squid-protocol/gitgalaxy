@@ -13,6 +13,7 @@ from decimal import Decimal
 from fractions import Fraction
 from pathlib import Path
 
+from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import pic_runs, runs_count, runs_partition
 from gitgalaxy.tools.cobol_to_java.det import hfp
 from gitgalaxy.tools.cobol_to_java.det.expr import NumLit
 from gitgalaxy.tools.cobol_to_java.det.source import (
@@ -70,8 +71,18 @@ class Item:
 
     # ---- the PICTURE ------------------------------------------------------------------------------------------
     def picture(self) -> str:
-        """The PICTURE with repetitions expanded: S9(3)V99 -> S999V99."""
-        return re.sub(r"(.)\((\d+)\)", lambda m: m.group(1) * int(m.group(2)), (self.pic or "").upper())
+        """The PICTURE with repetitions expanded: S9(3)V99 -> S999V99. Only an edited item's mask (the runtime's
+        `Field.numericEdited` / `alphanumericEdited` input, as long as the item) needs it; everything else reads
+        `runs()` (#7169: `PIC X(1073741824)` is one run, not a 1 GiB string)."""
+        return "".join(sym * n for sym, n in self.runs())
+
+    def runs(self) -> list[tuple[str, int]]:
+        """The PICTURE as (symbol, count) runs: S9(3)V99 -> [(S, 1), (9, 3), (V, 1), (9, 2)] (#7169)."""
+        return pic_runs((self.pic or "").upper())
+
+    def symbols(self) -> set[str]:
+        """The symbols the PICTURE uses: `set(picture())` without the expansion (#7169)."""
+        return {sym for sym, _ in self.runs()}
 
     @property
     def category(self) -> str:
@@ -81,15 +92,15 @@ class Item:
             return self.usage
         if self.pic is None:
             return "GROUP"
-        p = self.picture()
-        if set(p) <= set("9SVP"):
+        p = self.symbols()
+        if p <= set("9SVP"):
             return "NUMERIC"
-        if set(p) <= set("A"):
+        if p <= set("A"):
             return "ALPHABETIC"
-        if set(p) <= set("XA9"):
+        if p <= set("XA9"):
             return "ALPHANUMERIC"
-        if set(p) & set("Z*+-CRDB.,$") or ("9" in p and set(p) & set("B0/")):
-            return "NUMERIC-EDITED" if not set(p) & set("XA") else "ALPHANUMERIC-EDITED"
+        if p & set("Z*+-CRDB.,$") or ("9" in p and p & set("B0/")):
+            return "NUMERIC-EDITED" if not p & set("XA") else "ALPHANUMERIC-EDITED"
         return "ALPHANUMERIC-EDITED"
 
     @property
@@ -97,36 +108,37 @@ class Item:
         """The digits the item stores: a numeric item's 9s (a P is a scaling position, never stored -- #4669 /
         #4670: PIC SVPP99 COMP-3 is two digits in two bytes), a numeric-edited item's 9s and Ps."""
         if self.category == "NUMERIC":
-            return self.picture().count("9")
-        return sum(1 for c in self.picture() if c in "9P") if self.category == "NUMERIC-EDITED" else 0
+            return runs_count(self.runs(), "9")
+        return runs_count(self.runs(), "9P") if self.category == "NUMERIC-EDITED" else 0
 
     @property
     def p_scaled(self) -> bool:
         """A numeric PICTURE with P scaling positions (PIC 99PP, VPP99, PP99)."""
-        return self.category == "NUMERIC" and "P" in self.picture()
+        return self.category == "NUMERIC" and "P" in self.symbols()
 
     @property
     def scale(self) -> int:
-        p = self.picture()
+        runs = self.runs()  # #7169: positions counted from run lengths
         if self.category == "NUMERIC":
-            body = p.replace("S", "")
-            if body.lstrip("V").startswith("P"):  # left P (VPP99, PP99): every position is a decimal one
-                return len(body.replace("V", ""))
+            body = [sym for sym, _ in runs if sym not in "SV"]
+            if body[:1] == ["P"]:  # left P (VPP99, PP99): every position is a decimal one
+                return runs_count(runs, "9P")
             if "P" in body:  # right P (99PP, 99PPV): the value is the stored digits times 10 ** (number of Ps)
-                return -body.count("P")
-            return len(p.split("V", 1)[1]) if "V" in p else 0
+                return -runs_count(runs, "P")
+            return sum(n for _, n in runs_partition(runs, "V")[2])
         if self.category == "NUMERIC-EDITED":
             point = "," if self.decimal_comma else "."
-            dp = p.find(point) if point in p else p.find("V")
-            return sum(1 for c in p[dp + 1 :] if c in "9Z*") if dp >= 0 else 0
+            sep = point if point in self.symbols() else "V"
+            _, between, after = runs_partition(runs, sep)
+            return runs_count(after, "9Z*") if between is not None else 0
         return 0
 
     @property
     def signed(self) -> bool:
-        return self.category == "NUMERIC" and "S" in self.picture()
+        return self.category == "NUMERIC" and "S" in self.symbols()
 
     def elementary_size(self) -> int:
-        cat, p = self.category, self.picture()
+        cat = self.category
         if cat == "FLOAT":
             return 4 if self.usage == "COMP-1" else 8
         if cat == "POINTER":
@@ -141,7 +153,7 @@ class Item:
                 return 2 if d <= 4 else 4 if d <= 9 else 8
             return d + (1 if self.sign_separate and self.signed else 0)
         # edited / alphanumeric: every position except V counts; CR / DB are two
-        return len(p.replace("V", ""))
+        return sum(n for sym, n in self.runs() if sym != "V")
 
     @property
     def stride(self) -> int:

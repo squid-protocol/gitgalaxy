@@ -238,6 +238,10 @@ def test_resolved_wrapper_proc_joins_its_assembler_step_sysin(tmp_path):
         "//DEF      EXEC BANKASM\n"
         "//NOTASM   EXEC BANKASM\n"
         "//PRE.SYSIN DD DSN=BANK.SRCLIB(TBL01),DISP=SHR\n"
+        "//         DD DSN=BANK.SRCLIB(TBL01),DISP=SHR\n"  # #5218: PRE's concatenation, not ASMSTEP's override
+        "//CONCAT   EXEC BANKASM\n"
+        "//ASMSTEP.SYSIN DD DSN=BANK.SRCLIB(EMPTY01),DISP=SHR\n"
+        "//         DD DSN=BANK.SRCLIB(TBL01),DISP=SHR\n"
         "//UNKNOWN  EXEC MYASM\n"
         "//ASMSTEP.SYSIN DD DSN=BANK.SRCLIB(TBL01),DISP=SHR\n",
         encoding="utf-8",
@@ -247,5 +251,34 @@ def test_resolved_wrapper_proc_joins_its_assembler_step_sysin(tmp_path):
     assert got == [
         ("OVR", "TBL01", "joined"),  # //ASMSTEP.SYSIN override wins over the proc's own SYSIN
         ("DEF", "EMPTY01", "no_tables"),  # no override: the proc's own ASMSTEP SYSIN
-        ("NOTASM", "EMPTY01", "no_tables"),  # //PRE.SYSIN is for IEFBR14, not ASMSTEP, so not an override of ASMSTEP
+        ("NOTASM", "EMPTY01", "no_tables"),  # //PRE.SYSIN (and its concatenation) is IEFBR14's, not ASMSTEP's
+        ("CONCAT", "EMPTY01", "no_tables"),  # an override concatenation: every DD is joined
+        ("CONCAT", "TBL01", "joined"),
+    ]
+
+
+def test_assembler_proc_call_forms_join_only_the_override_sysin_they_state(tmp_path):
+    """#5218: DFHAUPLE keyword form, no override, symbolic assembler program, temp SYSIN, nested and doubly qualified
+    override DDs, and step-name case: each either joins its member or is not read (refused by name, never guessed)."""
+    base = tmp_path / "forms"
+    repo = base / "region"
+    shutil.copytree(FIXTURES / "jcl_sysin_shapes", repo)
+    (repo / "FORMS.jcl").write_text(
+        "//FORMS    JOB (ACCT),'FORMS',CLASS=A\n"
+        "//KEYWORD  EXEC PROC=DFHAUPLE,TABLE=X\n"
+        "//ASSEM.SYSIN DD DSN=BANK.SRCLIB(TBL01),DISP=SHR\n"
+        "//BARE     EXEC DFHAUPLE\n"
+        "//SYMBOLIC EXEC PGM=&ASMBLR\n"
+        "//SYSIN    DD DSN=&&TEMPM,DISP=(OLD,PASS)\n"
+        "//lower    EXEC pgm=asma90\n"
+        "//sysin    DD DSN=BANK.SRCLIB(TBL01),DISP=SHR\n"
+        "//QUAL     EXEC DFHAUPLE\n"
+        "//QUAL.ASSEM.SYSIN DD DSN=BANK.SRCLIB(TBL01),DISP=SHR\n",
+        encoding="utf-8",
+    )
+    ir = load_galaxy_ir(scan_to_db(repo, base / "scan"))
+    got = [(r["step"], r["member"], r["status"]) for r in ir.job_macro_tables() if r["file"] == "FORMS.jcl"]
+    assert got == [
+        ("KEYWORD", "TBL01", "joined"),
+        ("LOWER", "TBL01", "joined"),  # the parser upper-cases step names
     ]

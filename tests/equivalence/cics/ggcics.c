@@ -414,13 +414,26 @@ static long long find_key(const char *path, int reclen, int keyoff, int klen, co
     return at;
 }
 
-static void file_event(const char *verb, const char *file, const char *key, int klen, int resp) {
-    char ev[400], k[201];
-    int shown = klen < 200 ? klen : 200;
-    memcpy(k, key, (size_t)shown);
-    k[shown] = '\0';
-    snprintf(ev, sizeof ev, "%s file=%s key=%s resp=%d", verb, file, k, resp);
-    event(ev, NULL, 0);
+/* #6262, SPEC 6.2 WRITE / DELETE event: `rid=` the RIDFLD on entry as hex (left out: a DELETE of the held or the token's
+ * record has none; `rlen` < 0), `generic=1` for DELETE GENERIC, `resp2=` where the command is not NORMAL, and for WRITE the
+ * FROM bytes as issued. */
+static void file_event(const char *verb, const char *file, const char *rid, int rlen, const gg_cics *c, const char *from,
+                       int fromlen) {
+    char ev[600], hex[2 * 100 + 1];
+    int shown = rlen < 0 ? 0 : rlen < 100 ? rlen : 100;
+    for (int i = 0; i < shown; i++) snprintf(hex + 2 * i, 3, "%02X", (unsigned char)rid[i]);
+    hex[2 * shown] = '\0';
+    int n = snprintf(ev, sizeof ev, "%s file=%s", verb, file);
+    if (rlen >= 0) n += snprintf(ev + n, sizeof ev - (size_t)n, " rid=%s", hex);
+    if (strcmp(verb, "DELETE") == 0 && strstr(c->flags, "GENERIC")) n += snprintf(ev + n, sizeof ev - (size_t)n, " generic=1");
+    n += snprintf(ev + n, sizeof ev - (size_t)n, " resp=%d", c->resp);
+    if (c->resp != NORMAL && c->resp2) snprintf(ev + n, sizeof ev - (size_t)n, " resp2=%d", c->resp2);
+#ifndef _WIN32
+    /* X23: recording the event is not a program reference. A WRITE that failed before reading FROM (DUPREC, FILENOTFOUND)
+     * must not fault on a FROM that runs past EIBCALEN, so only the bytes before the guard page are recorded. */
+    if (from && guard_size && from < guard_page && from + fromlen > guard_page) fromlen = (int)(guard_page - from);
+#endif
+    event(ev, from, from ? fromlen : 0);
 }
 
 /* WRITE FILE(name1) RIDFLD FROM: a new record; DUPREC when its key is there already. */
@@ -432,7 +445,7 @@ int GGCWRIT(gg_cics *c, char *ridfld, int keylen, char *from, int fromlen) {
     if (injected("WRITE", want, &fresp, &fresp2)) {
         c->resp = fresp;
         c->resp2 = fresp2;
-        file_event("WRITE", want, ridfld, keylen, c->resp);
+        file_event("WRITE", want, ridfld, keylen, c, from, fromlen);
         return 0;
     }
     keyed_on_esds("WRITE", want);
@@ -452,7 +465,7 @@ int GGCWRIT(gg_cics *c, char *ridfld, int keylen, char *from, int fromlen) {
         free(rec);
         c->resp = NORMAL;
     }
-    file_event("WRITE", want, ridfld, keylen, c->resp);
+    file_event("WRITE", want, ridfld, keylen, c, from, fromlen);
     return 0;
 }
 
@@ -2271,15 +2284,58 @@ int GGCBLLG(unsigned char *data, void **cell) {
     return 0;
 }
 
-/* GGCADDR: ADDRESS EIB(ptr) | COMMAREA(ptr) (X59). `area` is the EIB or the program's DFHCOMMAREA; the pointer takes its address (NORMAL:
- * the command has no condition). GG-FLAGS COMMAREA with GG-NUM (EIBCALEN) 0: refused -- IBM sets X'FF000000', which is no COBOL NULL, and
- * a LINKAGE item the caller did not pass names no storage. */
+/* #5079 slice 2b (X59): the TWA (TRANSACTION TWASIZE, $GGCICS_TWASIZE) is the task's: one zeroed block every program it LINKs to
+ * addresses; the TCTUA (TYPETERM USERAREALEN, $GGCICS_USERAREALEN) is the terminal's, so its bytes live in the file $GGCICS_TCTUA that
+ * each task reads when it first addresses the area and writes back as it ends. An area of size 0 or unstated is IBM's X'FF000000':
+ * the pointer's first four bytes (little-endian 0xFF), so a program's PIC X(4) view of it compares equal. IBM does not state the
+ * initial content: zeros, as the port. */
+static char *twa_area, *tctua_area;
+static long tctua_len;
+
+static long env_size(const char *name) {
+    const char *v = getenv(name);
+    long n = v ? atol(v) : 0;
+    return n > 0 ? n : 0;
+}
+
+static void tctua_save(void) {
+    const char *path = getenv("GGCICS_TCTUA");
+    FILE *f = path && tctua_area ? fopen(path, "wb") : NULL;
+    if (f) { fwrite(tctua_area, 1, (size_t)tctua_len, f); fclose(f); }
+}
+
+static void *system_area(const char *kind) {
+    if (strcmp(kind, "TWA") == 0) {
+        long n = env_size("GGCICS_TWASIZE");
+        if (n == 0) return (void *)(size_t)0xFF;
+        if (!twa_area) twa_area = calloc((size_t)n, 1);
+        return twa_area;
+    }
+    long n = env_size("GGCICS_USERAREALEN");
+    const char *path = getenv("GGCICS_TCTUA");
+    if (n == 0 || !path) return (void *)(size_t)0xFF;
+    if (!tctua_area) {
+        FILE *f = fopen(path, "rb");
+        tctua_len = n;
+        tctua_area = calloc((size_t)n, 1);
+        if (f) { size_t got = fread(tctua_area, 1, (size_t)n, f); (void)got; fclose(f); }
+        atexit(tctua_save);
+    }
+    return tctua_area;
+}
+
+/* GGCADDR: ADDRESS EIB(ptr) | COMMAREA(ptr) | TWA(ptr) | TCTUA(ptr) (X59). `area` is the EIB or the program's DFHCOMMAREA; the pointer
+ * takes its address (NORMAL: the command has no condition). GG-FLAGS COMMAREA with GG-NUM (EIBCALEN) 0: refused -- IBM sets X'FF000000',
+ * which is no COBOL NULL, and a LINKAGE item the caller did not pass names no storage. GG-FLAGS TWA / TCTUA: the system area (`area`
+ * is unused). */
 int GGCADDR(gg_cics *c, void **slot, void *area) {
     char flags[41];
     trim(c->flags, 40, flags);
     c->resp = NORMAL;
     c->resp2 = 0;
     if (strstr(flags, "COMMAREA") != NULL && c->num == 0) refuse("ADDRESS COMMAREA with no COMMAREA");
+    if (strstr(flags, "TCTUA") != NULL) { *slot = system_area("TCTUA"); return 0; }
+    if (strstr(flags, "TWA") != NULL) { *slot = system_area("TWA"); return 0; }
     *slot = area;
     return 0;
 }

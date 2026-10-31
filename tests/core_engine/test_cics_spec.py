@@ -85,6 +85,7 @@ def test_the_spec_imports_only_the_stdlib():
 IMPORTERS: set[str] = {
     "gitgalaxy/tools/cobol_to_java/det/cics.py",
     "gitgalaxy/tools/cobol_to_java/det/cics_common.py",  # #7153: the helpers cics.py and its mixins share
+    "gitgalaxy/tools/cobol_to_java/det/cics_conditions.py",  # #7153: TERMINAL_OPTIONS / AID_KEYS / DFHRESP, not via det/cics.py
     "gitgalaxy/tools/cobol_to_java/det/expr.py",
     "tests/tools/equivalence_cics.py",
     "tests/tools/equivalence_cics_conditions.py",  # #5274: the conditions family split out of equivalence_cics.py
@@ -364,7 +365,9 @@ def test_each_command_keeps_its_own_refusal_reasons():
     )
 
 
-@pytest.mark.parametrize("name", ["cics_common", "cics_taskcontrol"])
+@pytest.mark.parametrize(
+    "name", ["cics_common", "cics_taskcontrol", "cics_filecontrol", "cics_conditions", "cics_containers", "cics_faults"]
+)
 def test_a_leaf_det_module_imports_nothing_back_from_cics_or_gen(name):
     """#7153: CodeQL py/cyclic-import counts an import inside a function too, so no import statement anywhere in these
     modules may name det.cics or det.gen (a mixin takes the shared helpers from det.cics_common)."""

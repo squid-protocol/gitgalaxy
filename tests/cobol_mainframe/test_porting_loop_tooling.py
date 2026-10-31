@@ -23,6 +23,8 @@ import porting_loop as pl  # noqa: E402
 
 from gitgalaxy.tools.cobol_to_java import port_runner  # noqa: E402
 
+# a PR's run (equivalence-e2e.yml): `--one-jvm` drops the per-run JVM start; a push and the nightly keep a JVM per run
+ONE_JVM = ["--one-jvm"] if os.environ.get("EQUIVALENCE_E2E_ONE_JVM") == "1" else []
 MAVEN_LOG = """[INFO] Running com.gitgalaxy.modernized.EquivalenceRunTest
 [ERROR] Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 2.4 s <<< FAILURE! -- in EquivalenceRunTest
 [ERROR] com.gitgalaxy.modernized.EquivalenceRunTest.run -- Time elapsed: 0.2 s <<< ERROR!
@@ -221,7 +223,7 @@ def test_the_loops_committed_ports_are_proven(case, tmp_path):
     assert provenance["edited_after"].startswith(
         ("none", "the deployed entry points (facades) were brought", "ceedays() hand-edited for #4049")
     )
-    proc = subprocess.run([sys.executable, str(Path(eq.__file__)), "run", case, "--keep", str(tmp_path)],  # noqa: S603
+    proc = subprocess.run([sys.executable, str(Path(eq.__file__)), "run", case, *ONE_JVM, "--keep", str(tmp_path)],  # noqa: S603
                           capture_output=True, text=True, check=False)  # fmt: skip
     assert proc.returncode == 0, proc.stdout[-3000:] + proc.stderr[-3000:]
     assert json.loads((tmp_path / "report.json").read_text())["proven"]

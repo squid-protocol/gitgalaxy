@@ -1885,7 +1885,7 @@
     {
       "name": "get-hit",
       "commarea": null,
-      "tod": "7474747474740708090A0B0C0D0E0F10",
+      "tod": "4E4E4E4E4E4E0708090A0B0C0D0E0F10",
       "datasets": {
         "ZECS.ZC01FILE.TEST": {
           "input": "@case/zcfile-ops.bin"
@@ -2015,7 +2015,7 @@
     {
       "name": "get-lat-hit",
       "commarea": null,
-      "tod": "7A7A7A7A7A7A0708090A0B0C0D0E0F10",
+      "tod": "4C4C4C4C4C4C0708090A0B0C0D0E0F10",
       "datasets": {
         "ZECS.ZC01FILE.TEST": {
           "input": "@case/zcfile-ops.bin"

@@ -282,3 +282,55 @@ def test_assembler_proc_call_forms_join_only_the_override_sysin_they_state(tmp_p
         ("KEYWORD", "TBL01", "joined"),
         ("LOWER", "TBL01", "joined"),  # the parser upper-cases step names
     ]
+
+
+def test_concatenated_sysin_is_joined_in_every_placement(tmp_path):
+    """#5218: a SYSIN concatenation (unnamed DDs) in a procedure's own SYSIN, a PROCSTEP override, behind a DUMMY first
+    DD, with a non-member DSN, a continued DSN and an in-stream tail: every member DD is joined, the rest is not read,
+    and the concatenation never leaks into the next EXEC step."""
+    base = tmp_path / "cat"
+    repo = base / "region"
+    shutil.copytree(FIXTURES / "jcl_sysin_shapes", repo)
+    (repo / "procs").mkdir()
+    (repo / "procs" / "CATASM.prc").write_text(
+        "//CATASM   PROC\n"
+        "//ASMSTEP  EXEC PGM=ASMA90\n"
+        "//SYSIN    DD DSN=BANK.SRCLIB(TBL01),DISP=SHR\n"
+        "//         DD DSN=BANK.SRCLIB(EMPTY01),DISP=SHR\n",
+        encoding="utf-8",
+    )
+    (repo / "CATJOB.jcl").write_text(
+        "//CATJOB   JOB (ACCT),'CAT',CLASS=A\n"
+        "//OWN      EXEC CATASM\n"
+        "//OVR      EXEC CATASM\n"
+        "//ASMSTEP.SYSIN DD DSN=BANK.SRCLIB(NOSUCH),DISP=SHR\n"
+        "//         DD DSN=BANK.SRCLIB(TBL01),DISP=SHR\n"
+        "//DUMMY    EXEC PGM=ASMA90\n"
+        "//SYSIN    DD DUMMY\n"
+        "//         DD DSN=BANK.SRCLIB(TBL01),DISP=SHR\n"
+        "//MIXED    EXEC PGM=ASMA90\n"
+        "//SYSIN    DD DSN=BANK.SRCLIB(EMPTY01),DISP=SHR\n"
+        "//         DD DSN=BANK.MACLIB,DISP=SHR\n"
+        "//         DD DSN=BANK.SRCLIB(TBL01),\n"
+        "//            DISP=SHR\n"
+        "//TAIL     EXEC PGM=ASMA90\n"
+        "//SYSIN    DD DSN=BANK.SRCLIB(TBL01),DISP=SHR\n"
+        "//         DD *\n"
+        "         DFHFCT TYPE=FILE,FILE=INLINE,DSNAME=BANK.IN.LINE\n"
+        "/*\n"
+        "//AFTER    EXEC PGM=IEFBR14\n"
+        "//         DD DSN=BANK.SRCLIB(TBL01),DISP=SHR\n",
+        encoding="utf-8",
+    )
+    ir = load_galaxy_ir(scan_to_db(repo, base / "scan"))
+    got = [(r["step"], r["member"], r["status"]) for r in ir.job_macro_tables() if r["file"] == "CATJOB.jcl"]
+    assert got == [
+        ("OWN", "TBL01", "joined"),  # the procedure's own SYSIN and its concatenation
+        ("OWN", "EMPTY01", "no_tables"),
+        ("OVR", "NOSUCH", "not_found"),  # the override replaces the proc's DDs, concatenation included
+        ("OVR", "TBL01", "joined"),
+        ("DUMMY", "TBL01", "joined"),  # DD DUMMY first: the concatenated member is still read
+        ("MIXED", "EMPTY01", "no_tables"),
+        ("MIXED", "TBL01", "joined"),  # BANK.MACLIB has no member: no entry; the continued DSN is read
+        ("TAIL", "TBL01", "joined"),  # the in-stream tail is the job's own csd_resources, not a member
+    ]

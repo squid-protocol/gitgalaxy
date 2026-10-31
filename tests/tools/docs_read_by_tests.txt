@@ -28,6 +28,7 @@
 /A.cbl	tests/tools/test_java_target_matrix_scan_cache.py
 /Api.cs	tests/security_auditing
 /B.cbl	tests/cobol_mainframe
+/CATJOB.jcl	tests/cobol_mainframe
 /CMakeLists.txt	tests/core_engine
 /COPYBOOK.CPY	tests/cobol_mainframe
 /CURSOR.cbl	tests/cobol_mainframe

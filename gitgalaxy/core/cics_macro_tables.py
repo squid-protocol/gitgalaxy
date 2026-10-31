@@ -125,6 +125,8 @@
 #          restated as `REMOTESYSTEM` / `REMOTENAME` [RDG p.532-533, p.551].
 #          TYPE=SYSTEM,SYSIDNT=  CONNECTION [TS, RDG p.529, p.553]; `ACCMETH=` restated as
 #          `ACCESSMETHOD(IRC|VTAM|INDIRECT|XM)`.
+#   DFHTCT / DFHMCT `TYPE=INITIAL,SUFFIX=xx` (1-2 characters) names the table (`DFHTCTxx`, `DFHMCTxx`), in source and in a JCL SYSIN.
+#          `SUFFIX=NO` / `DY` is excluded only for DFHSIT and DSNCRCT; for TCT / MCT it is ASSUMED to name a table (not settled from the manual).
 #   DFHMCT TYPE=EMP,CLASS=PERFORM,ID=  MONITORPOINT (a user event monitoring point; it has no CSD
 #          counterpart; ID is `number`, `(PP,number)` or `entryname.number`, kept as written) [TS].
 #   DFHPLT TYPE=ENTRY,PROGRAM=(p1,p2,...)  PLT  [RDG p.415-418, Table 50-51]: one PLT row per named

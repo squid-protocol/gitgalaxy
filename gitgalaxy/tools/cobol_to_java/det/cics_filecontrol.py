@@ -296,8 +296,7 @@ class FileControlCommands:
         as SET ADDRESS OF rec TO ptr would (setBlockAt). Any other record is refused by name."""
         import re
 
-        from gitgalaxy.tools.cobol_to_java.det.cics import CicsError
-        from gitgalaxy.tools.cobol_to_java.det.gen import Untranslatable
+        from gitgalaxy.tools.cobol_to_java.det.cics_common import Untranslatable
 
         m = re.fullmatch(r"(?is)\s*ADDRESS\s+OF\s+([A-Z][A-Z0-9-]*)\s*", text)
         if m is None:

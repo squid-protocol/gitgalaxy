@@ -447,7 +447,7 @@ def record(case: str, run_dir: Path, port: Path) -> int:
     run = json.loads((run_dir / "mutation.json").read_text(encoding="utf-8"))
     every = mu.all_mutants(port, set(mu.OPERATORS), FILES)
     in_scope = scope_filter(case_kind(case), port)(every)
-    entry = {**entry_from_run(case, run, port, len(every) - len(in_scope)), "every": sorted(m.id for m in in_scope)}
+    entry = {**entry_from_run(case, run, port, len(every) - len(in_scope)), "every": " ".join(sorted(m.id for m in in_scope))}
     import tempfile
 
     try:
@@ -534,7 +534,7 @@ FRESH_FLOOR, FRESH_SHARE = 40, 0.25  # more new mutants than this, and more than
 def fresh_mutants(entry: dict[str, Any], every: set[str]) -> list[str] | None:
     """The mutants of a moved port the entry's port did not have; None when the move is too large to carry, or the
     entry predates `every`."""
-    known = set(entry.get("every") or [])
+    known = set((entry.get("every") or "").split())  # (one string: a ledger is not a list of thousands of lines)
     fresh = sorted(every - known)
     if not known or len(fresh) > max(FRESH_FLOOR, FRESH_SHARE * len(every)):
         return None
@@ -692,7 +692,7 @@ def refresh(cases: list[str], work: Path, run_moved: bool = False, budget_min: f
                 merged["coverage"] = res["coverage"]
             entry = merged
         entry.pop("port_moved", None)  # (the entry speaks for this port again)
-        entry["every"], entry["inputs"]["port"] = sorted(every), port_sha(port)
+        entry["every"], entry["inputs"]["port"] = " ".join(sorted(every)), port_sha(port)
         entry["inputs"]["runtime"] = runtime_sha(port)
         for n, v in now.items():
             entry["inputs"][n] = v["sha256"]

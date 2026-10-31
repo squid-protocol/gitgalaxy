@@ -1,6 +1,7 @@
 """det_mutation (#4628): the det-port mutation ledger, the reviewed survivors, and the L5 hook. Fingerprints are
 stubbed; no proof, translator or corpus needed (the committed ledgers' own check needs git only)."""
 
+import hashlib
 import json
 import subprocess
 import sys
@@ -479,7 +480,7 @@ def carry_env(monkeypatch, tmp_path, every, results):
 
     written, calls = refresh_env(monkeypatch, tmp_path, False, DRIFT, ("survived", "survived"))
     known = dm.load()[CASE]
-    known["every"] = ["k1", "k2", "k3", "s1", S1["id"], S2["id"]]
+    known["every"] = " ".join(["k1", "k2", "k3", "s1", S1["id"], S2["id"]])
     known["chosen"] = known["mutants"]  # (not sampled)
     monkeypatch.setattr(dm, "mutant_ids", lambda case, port: set(every))
 
@@ -499,7 +500,7 @@ def test_refresh_carries_a_moved_program_and_runs_only_the_new_mutants(monkeypat
     assert [r["id"] for r in calls[0]] == [new["id"]]  # nothing carried is run again
     e = written[CASE]
     assert e["killed"] == ["k1", "k2", new["id"]] and e["counts"]["killed"] == 3 and "port_moved" not in e
-    assert e["mutants"] == 6 and sorted(e["every"]) == sorted(every) and e["refreshed"]["fresh"] == 1
+    assert e["mutants"] == 6 and sorted(e["every"].split()) == sorted(every) and e["refreshed"]["fresh"] == 1
     assert dm.summary(CASE, e)["l5"] is True
 
 
@@ -529,7 +530,7 @@ def test_a_move_too_large_to_carry_is_a_full_run(monkeypatch, tmp_path):
 
 def test_an_entry_from_before_every_is_a_full_run():
     assert dm.fresh_mutants({}, {"a"}) is None
-    assert dm.fresh_mutants({"every": ["a"], "chosen": 1, "mutants": 1}, {"a"}) == []
+    assert dm.fresh_mutants({"every": "a", "chosen": 1, "mutants": 1}, {"a"}) == []
 
 
 def test_a_spent_budget_leaves_a_moved_program_flagged_for_the_next_run(monkeypatch, tmp_path, capsys):
@@ -553,8 +554,8 @@ def test_a_case_move_still_reruns_the_survivors_of_a_moved_program(monkeypatch, 
 
 
 def test_a_sampled_entry_samples_its_new_mutants_at_its_own_rate():
-    ids = [format((i * 2654435761) % 16**10, "010x") for i in range(800)]
-    e = {"every": ids[:640], "chosen": 150, "mutants": 3000}
+    ids = [hashlib.sha1(str(i).encode(), usedforsecurity=False).hexdigest()[:10] for i in range(800)]
+    e = {"every": " ".join(ids[:640]), "chosen": 150, "mutants": 3000}
     kept = dm.fresh_mutants(e, set(ids))
     assert kept == dm.fresh_mutants(e, set(ids))  # repeatable
     assert 0 < len(kept) < 30 and set(kept) <= set(ids[640:])  # about 5% of the 160 new ones

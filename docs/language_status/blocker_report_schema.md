@@ -105,3 +105,5 @@ left; `then_needs` lists what a program still needs after it. Non-burned program
 generated output and is not committed.
 
 A fresh-estate trial's page (`trial.py report --write`, `docs/language_status/trials/<estate>.md`) uses the same vocabulary (proven / differs / couldn't run / not attempted) but is built from `trials.json` alone: its blockers are the failure causes (ticket, generator, engine, harness, model), and it has no paragraph or branch coverage (#4493).
+
+When a trial page is given the estate's cases (`trial.py preview --page ... --case PROGRAM=CASE`, with the corpora on the box), it also carries the harness report's input-generation limits ("Input-generation limits" section: RENAMES / SYNC / REDEFINES chosen by another field, unresolved COPY, and non-VSAM inputs such as Db2, MQ, IMS, RECFM V, GDG), grouped by cause as the fix, with the tests held back. The section appears only when a limit exists, and the layout causes are read only when the corpus roots are available.

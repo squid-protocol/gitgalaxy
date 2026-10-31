@@ -785,6 +785,24 @@ def test_a_jcl_job_keeps_its_csd_resources_beside_assembled_tables():
     }
 
 
+def test_a_jct_journal_and_a_csd_journalmodel_are_two_resource_types():
+    """RDO JOURNALMODEL (SC33-1684-30 ch.16) is a different resource from a JCT `JFILEID` journal (SC33-1653-05 Table 41).
+
+    Pinned: both are read, each under its own type, so the resource map never merges or conflicts them. A same-named
+    JOURNALMODEL does not stand in for the JCT journal (IBM gives no mapping between them; left open, #5154).
+    """
+    job = (
+        "//J JOB\n//CSD EXEC PGM=DFHCSDUP\n//SYSIN DD *\n"
+        " DEFINE JOURNALMODEL(SYSTEM) GROUP(G) JOURNALNAME(DFHLOG) TYPE(MVS)\n/*\n"
+        "//ASM EXEC PGM=ASMA90\n//SYSIN DD *\n         DFHJCT TYPE=ENTRY,JFILEID=SYSTEM\n/*\n"
+    )
+    rows = extract_boundary("jcl", job)["csd_resources"]
+    assert sorted((r["resource_type"], r["name"], r.get("source")) for r in rows) == [
+        ("JOURNAL", "SYSTEM", "MACRO"),
+        ("JOURNALMODEL", "SYSTEM", None),
+    ]
+
+
 def test_the_new_tables_are_cpu_bounded():
     src = ("         DFHSRT TYPE=SYSTEM,ABCODE=(" + ",".join("0C1" for _ in range(2000)) + "),RECOVER=YES\n") * 50 + (
         "         DFHMCT TYPE=EMP,ID=" + "(" * 3000 + "\n"

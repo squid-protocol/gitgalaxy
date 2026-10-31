@@ -133,6 +133,8 @@ museum_2/
 !docs/language_status/cics_spec_status.json
 # #4711: the cobolrt rule catalogue (tests/tools/cobolrt_rules.py renders docs/language_status/cobolrt_rules.md from it)
 !docs/language_status/cobolrt_rules.json
+# #4718: the cobolrt public API (tests/tools/cobolrt_api.py writes and checks it)
+!docs/language_status/cobolrt_api.json
 # #5206: the rendered evidence report lives on the `generated` branch only; main keeps a stub README and a frozen
 # test snapshot (tests/fixtures/evidence_report). `evidence_report.py` fetches the published copy into the ignored dir.
 docs/language_status/evidence_report/*

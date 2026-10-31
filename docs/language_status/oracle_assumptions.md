@@ -1735,7 +1735,15 @@ states each (`none (gap)`: no entry does). Only fields a burned corpus's COBOL n
   chain. Refused by name: a Db2 / IMS / CICS / call step, an indexed (VSAM) feed, a feed from a step that is not earlier
   or a DD it does not compare, differing record lengths across a feed, a fault run, `--record`; a step that abends stops
   the job (its datasets are undefined). The wiring is the case's `feeds`, not a read JCL job. Pinned with the runs
-  stubbed in `test_equivalence_job_4268.py`; no committed job case yet (the TRANREPT STEP05R -> STEP10R job waits on #7251).
+  stubbed in `test_equivalence_job_4268.py`. A step's `inputs` ({DD: file beside the job case}) replaces a dataset's input
+  (the parameter card the job's JCL shares between steps). **Committed job case (#4268):** `tests/equivalence/jobs/carddemo-job-tranrept.json`
+  (a job case sits outside the `*/case.json` glob, so the per-program enumerators never see it), CardDemo TRANREPT STEP05R
+  (the lowered DFSORT step, `carddemo-sort-tranrept`) then STEP10R (`carddemo-trnrpt`, CBTRN03C), TRANFILE fed from SORTOUT, one
+  date card (2022-01-01 .. 2022-07-06) for both steps. Run 2026-10-31 (GnuCOBOL against the det ports, `equivalence.py run
+  carddemo-job-tranrept`): executed-equivalent over 2 steps, SORTOUT 25/25 records equal, TRANREPT 86/86 records equal, both
+  RETURN-CODEs 0. Residual risk: the wiring is the case's `feeds`/`inputs`, not a read JCL job; the oracle is GnuCOBOL plus our
+  stub, not z/OS. Without the shared card the step case's own 2022-07-01 .. 07-31 window leaves the fed file with an empty
+  report (0/0), which would compare equal and prove nothing.
 - A SORT, IDCAMS, IEBGENER or DFSORT step the forge does not lower or translate is not run. The generated batch job refuses a utility step by name
   (`JclSteps.utility`: the job fails on its TODO, or with `gitgalaxy.batch.skip-unimplemented` the step is logged as
   skipped; never a silent success).

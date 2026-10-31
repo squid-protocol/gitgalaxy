@@ -38,6 +38,7 @@ public class DfsortstService {
 
     private static final Charset CS = Cobol.recordCharset(CobolRecords.charset());
     private static final int GOTO = 1 << 20;
+    private static final Sort.Collating COLLATING = Sort.Collating.ebcdic("EB", CS);
 
     private static final byte[] IMAGE_s_I1_REC = Base64.getDecoder().decode(String.join("",
             "ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg",
@@ -339,7 +340,7 @@ public class DfsortstService {
     /** MAIN-PARA. */
     private int p0() {
         // SORT S-FILE ON ASCENDING KEY K1 INPUT PROCEDURE READ-ALL OUTPUT PROCEDURE WRITE-ALL
-        sort_S_FILE = new Sort("S-FILE", 366, false, CS,
+        sort_S_FILE = new Sort("S-FILE", 366, false, CS, Sort.Collating.ebcdic("EB", CS),
                 new Sort.Key(r -> Field.zoned(r, 0, 16, 0, true, false, false), true));
         perform(2, 2);
         sort_S_FILE.sort();
@@ -395,7 +396,7 @@ public class DfsortstService {
             }
             if (st6.startsWith("0")) {
                 // IF ((C1 >= '2022-01-01') AND (C1 <= '2022-07-06'))
-                if ((Cobol.compare(f11_C1, "2022-01-01", CS) >= 0 && Cobol.compare(f11_C1, "2022-07-06", CS) <= 0)) {
+                if ((Cobol.compare(f11_C1, "2022-01-01", CS, COLLATING) >= 0 && Cobol.compare(f11_C1, "2022-07-06", CS, COLLATING) <= 0)) {
                     // MOVE W-REC TO S-DATA
                     Cobol.move(f8_W_REC, f6_S_DATA, CS);
                     // MOVE W-REC(263:16) TO K1-X

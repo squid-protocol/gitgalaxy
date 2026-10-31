@@ -7,7 +7,7 @@
   "paths": [
    "tests/equivalence/carddemo-sort-tranrept/port/service/DfsortstService.java"
   ],
-  "sha256": "af994f384438eaae671a2e46f32b21db0c92fc3c976a1bebaee3073831388baa",
+  "sha256": "f4f7093a78bfa21903dd9a777ca882b2d1621827a46b73ab8c406ed4fb22bae5",
   "entry_points": [
    "runBatch",
    "runTask"
@@ -19,7 +19,7 @@
     "tests/equivalence/carddemo-sort-tranrept/port/**"
    ],
    "files": 1,
-   "sha256": "af994f384438eaae671a2e46f32b21db0c92fc3c976a1bebaee3073831388baa"
+   "sha256": "f4f7093a78bfa21903dd9a777ca882b2d1621827a46b73ab8c406ed4fb22bae5"
   },
   "case": {
    "paths": [
@@ -185,10 +185,10 @@
    },
    "runtime_sha256": "486d6880280039b47962e4e97342fe0740f30e991fc7aff36d0fd384b1810abc"
   },
-  "digest": "dcabdc1825a1f2f3d729c40df0ab4f730de7360bca9dfa1d283c2c89d941e55e"
+  "digest": "70379b1c784b2335763e1c4cb162d6ea6ad324e3955066a5b4b3e3af32cf5b7f"
  },
  "proof": {
-  "at": "2026-10-31T04:54:39Z",
+  "at": "2026-10-31T05:01:29Z",
   "verdict": "proven",
   "runs": 1,
   "fault_runs": 0,
@@ -203,8 +203,8 @@
   "sysout_compared": true,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "9c5f408d054ace7d0ba759c82b9a68b83be3b68a+uncommitted",
-  "inputs_digest": "dcabdc1825a1f2f3d729c40df0ab4f730de7360bca9dfa1d283c2c89d941e55e"
+  "harness_commit": "d68ec115a98a825a7377cb534954efff89d5228b+uncommitted",
+  "inputs_digest": "70379b1c784b2335763e1c4cb162d6ea6ad324e3955066a5b4b3e3af32cf5b7f"
  },
  "coverage": {
   "paragraphs": {
@@ -221,7 +221,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "dcabdc1825a1f2f3d729c40df0ab4f730de7360bca9dfa1d283c2c89d941e55e"
+  "inputs_digest": "70379b1c784b2335763e1c4cb162d6ea6ad324e3955066a5b4b3e3af32cf5b7f"
  },
  "reach": {
   "entry_points": [
@@ -232,31 +232,31 @@
    {
     "class": "DfsortstService",
     "method": "abended",
-    "line": 93,
+    "line": 94,
     "kind": "det_helper"
    },
    {
     "class": "DfsortstService",
     "method": "paragraph",
-    "line": 114,
+    "line": 115,
     "kind": "det_helper"
    },
    {
     "class": "DfsortstService",
     "method": "condition",
-    "line": 127,
+    "line": 128,
     "kind": "det_helper"
    },
    {
     "class": "DfsortstService",
     "method": "runProgram",
-    "line": 178,
+    "line": 179,
     "kind": "det_helper"
    },
    {
     "class": "DfsortstService",
     "method": "handleTransaction",
-    "line": 235,
+    "line": 236,
     "kind": "det_helper"
    }
   ],
@@ -267,7 +267,7 @@
    "ported_unproven": 0
   },
   "generated_compared": false,
-  "port_sha256": "af994f384438eaae671a2e46f32b21db0c92fc3c976a1bebaee3073831388baa"
+  "port_sha256": "f4f7093a78bfa21903dd9a777ca882b2d1621827a46b73ab8c406ed4fb22bae5"
  },
  "mutation": null,
  "differences": [],

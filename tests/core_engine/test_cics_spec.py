@@ -352,6 +352,13 @@ def test_group_lookup():
         COMMANDS["START"].group("one_of", "TRANSID")
 
 
+def test_return_channel_is_alone_among_commarea_length_immediate():
+    """#5005 (X17): IBM names COMMAREA as CHANNEL's alternative and says nothing of LENGTH / IMMEDIATE with it."""
+    g = COMMANDS["RETURN"].group("at_most_one", "CHANNEL")
+    assert {"CHANNEL", "COMMAREA", "LENGTH", "IMMEDIATE"} <= set(g.options)
+    assert g.msg.startswith("RETURN CHANNEL with COMMAREA / LENGTH / IMMEDIATE")
+
+
 def test_each_command_keeps_its_own_refusal_reasons():
     """Owner decision (spec PR 2, disagreement 2): no global table -- GET CONTAINER WAIT shows no RETRIEVE reason;
     a SEND MAP's SET and a file command's SYSID keep the reason that is true for them (#5042: a read's SET is modelled)."""

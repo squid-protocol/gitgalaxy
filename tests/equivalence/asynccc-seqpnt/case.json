@@ -82,6 +82,96 @@
     }
    },
    "why": "account 9999 through the web service: the services' ELSE branches, RETURN-DATA put back"
+  },
+  {
+   "name": "delay-invreq-1",
+   "commarea": null,
+   "startcode": "TD",
+   "terminal": "SCCA 0001",
+   "why": "as terminal-0001, but the 1th DELAY of the task fails INVREQ (X72), unhandled: AEIP abend (#5862)",
+   "faults": [
+    {
+     "cmd": "DELAY",
+     "nth": 1,
+     "resp": "INVREQ",
+     "resp2": 4
+    }
+   ]
+  },
+  {
+   "name": "delay-invreq-2",
+   "commarea": null,
+   "startcode": "TD",
+   "terminal": "SCCA 0001",
+   "why": "as terminal-0001, but the 2th DELAY of the task fails INVREQ (X72), unhandled: AEIP abend (#5862)",
+   "faults": [
+    {
+     "cmd": "DELAY",
+     "nth": 2,
+     "resp": "INVREQ",
+     "resp2": 4
+    }
+   ]
+  },
+  {
+   "name": "delay-invreq-3",
+   "commarea": null,
+   "startcode": "TD",
+   "terminal": "SCCA 0001",
+   "why": "as terminal-0001, but the 3th DELAY of the task fails INVREQ (X72), unhandled: AEIP abend (#5862)",
+   "faults": [
+    {
+     "cmd": "DELAY",
+     "nth": 3,
+     "resp": "INVREQ",
+     "resp2": 4
+    }
+   ]
+  },
+  {
+   "name": "delay-invreq-4",
+   "commarea": null,
+   "startcode": "TD",
+   "terminal": "SCCA 0001",
+   "why": "as terminal-0001, but the 4th DELAY of the task fails INVREQ (X72), unhandled: AEIP abend (#5862)",
+   "faults": [
+    {
+     "cmd": "DELAY",
+     "nth": 4,
+     "resp": "INVREQ",
+     "resp2": 4
+    }
+   ]
+  },
+  {
+   "name": "delay-invreq-5",
+   "commarea": null,
+   "startcode": "TD",
+   "terminal": "SCCA 0001",
+   "why": "as terminal-0001, but the 5th DELAY of the task fails INVREQ (X72), unhandled: AEIP abend (#5862)",
+   "faults": [
+    {
+     "cmd": "DELAY",
+     "nth": 5,
+     "resp": "INVREQ",
+     "resp2": 4
+    }
+   ]
+  },
+  {
+   "name": "send-text-invreq",
+   "commarea": null,
+   "startcode": "TD",
+   "terminal": "SCCA 0001",
+   "why": "as terminal-0001, but the first SEND TEXT fails INVREQ (X72), unhandled: AEIP abend (#5862)",
+   "faults": [
+    {
+     "cmd": "SEND-TEXT",
+     "nth": 1,
+     "resp": "INVREQ",
+     "resp2": 200
+    }
+   ]
   }
  ],
  "notes": "IBM's CICS asynchronous API credit-card example: SEQPNT (transaction SCCA in the README's CSD, also a web service: src/SEQPNT.wsbind) runs the five credit-card services one after another -- the sequential counterpart of ASYNCPNT. ASSIGN STARTCODE: from a terminal ('TD', X19) it RECEIVEs 'tran acct' (NOTRUNCATE, 9 bytes) and SENDs a progress line (TEXT ... ERASE FREEKB) as each service starts and ends; otherwise it takes the account from container SEQPNT of its own channel (the web service's) and puts RETURN-DATA back there. It PUTs the account into INPUTCONTAINER of a channel it creates (MYCHANNEL) and LINKs CRDTCHK, GETNAME, GETADDR, CSSTATUS (which LINKs GETPOL and GETSPND) and UPDCSDB with it, GETting each one's answer; the case runs all seven in the task (\"programs\"; each is proven on its own by its asynccc- case). The channel a web-service task starts with is stated by the scenario (its name, SEQPNTWS, is not one the program reads: X24). RETURN-DATA's CUSTOMER-* fields are compared through the SEQPNT container. Not exercised: a terminal line shorter than 9 bytes (READ-INPUT has no VALUE clause: what RECEIVE leaves unwritten is initial storage, oracle_assumptions.md L3) and a web-service task without its container (ACCOUNT-NUMBER-IN likewise). Derived from github.com/cicsdev/cics-async-api-credit-card-application-example (Apache-2.0; Copyright IBM Corp. 2016): LICENSE here is the corpus's own, NOTICE names the source and what was derived."

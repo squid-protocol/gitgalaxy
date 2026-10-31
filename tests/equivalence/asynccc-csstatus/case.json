@@ -52,6 +52,27 @@
    "name": "no-channel",
    "commarea": null,
    "why": "no channel: GET CONTAINER without CHANNEL has no current channel -- INVREQ RESP2 4 (caught by RESP), ACCOUNT-NUMBER-IN keeps its initial value (no VALUE clause: oracle_assumptions.md L3) so the ELSE branch runs; PUT CONTAINER is INVREQ RESP2 4 too, then RETURN; there is no channel, so nothing more to compare"
+  },
+  {
+   "name": "delay-invreq",
+   "commarea": null,
+   "channel": {
+    "name": "MYCHANNEL",
+    "containers": {
+     "INPUTCONTAINER": {
+      "text": "0001"
+     }
+    }
+   },
+   "why": "first scenario's input, but the DELAY fails INVREQ (X72) with no RESP / HANDLE: the default action, an AEIP abend (#5862)",
+   "faults": [
+    {
+     "cmd": "DELAY",
+     "nth": 1,
+     "resp": "INVREQ",
+     "resp2": 4
+    }
+   ]
   }
  ]
 }

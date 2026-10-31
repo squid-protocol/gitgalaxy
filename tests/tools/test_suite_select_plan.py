@@ -330,7 +330,19 @@ def test_a_case_json_or_evidence_selects_the_tests_that_name_the_case_or_the_fil
     p = plan([f])
     assert p["mode"] == "select"
     assert "tests/test_source_reads.py" in p["paths"]
-    assert 1 < len(p["paths"]) <= sp.HELPER_MAX and all((sp.REPO_ROOT / x).exists() for x in p["paths"])
+    # the name hits are capped at HELPER_MAX; the tree guards and the evidence readers are added after the cap (#7277)
+    cap = sp.HELPER_MAX + len(sp.TREE_GUARDS) + len(sp.CASE_EVIDENCE_READERS)
+    assert 1 < len(p["paths"]) <= cap and all((sp.REPO_ROOT / x).exists() for x in p["paths"])
+
+
+def test_a_case_named_by_exactly_the_cap_selects_and_one_more_runs_everything(tmp_path):
+    (tmp_path / "tests" / "tools").mkdir(parents=True)
+    for i in range(sp.HELPER_MAX):
+        (tmp_path / "tests" / "tools" / f"test_n{i}.py").write_text("case = 'cbsa-x'\n")
+    hit = sp.named_data_targets("tests/equivalence/cbsa-x/case.json", tmp_path)
+    assert hit is not None and len(hit) == sp.HELPER_MAX
+    (tmp_path / "tests" / "tools" / "test_over.py").write_text("case = 'cbsa-x'\n")
+    assert sp.named_data_targets("tests/equivalence/cbsa-x/case.json", tmp_path) is None
 
 
 def test_case_files_map_by_case_id_and_file_name(tmp_path):

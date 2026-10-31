@@ -12,11 +12,11 @@ Every cell that does not pass is ledgered in `tests/cics_crucible/baseline.json`
 |---|---|---|---|---|
 | engine-facts | 48 | 0 | 0 | 48 |
 | forge-compile | 48 | 0 | 0 | 48 |
-| cobol-stub | 150 | 8 | 13 | 171 |
+| cobol-stub | 154 | 8 | 9 | 171 |
 | java | 0 | 171 | 0 | 171 |
 | java-ported | 60 | 111 | 0 | 171 |
 | java-facade | 57 | 114 | 0 | 171 |
-| **all** | **363** | **404** | **13** | **780** |
+| **all** | **367** | **404** | **9** | **780** |
 
 ## By trap and case
 
@@ -42,7 +42,7 @@ Pass counts per side (scenario sides: passing / scenarios).
 | condition-handling | `hc-dcounters` | pass | pass | 2 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
 | condition-handling | `hc-deedit-uctranst` | pass | pass | 3 / 3 | 0 / 3 | 0 / 3 | 0 / 3 |
 | condition-handling | `hc-eoc-error` | pass | pass | 2 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
-| condition-handling | `hc-file-read-set` | pass | pass | 0 / 4 | 0 / 4 | 0 / 4 | 0 / 4 |
+| condition-handling | `hc-file-read-set` | pass | pass | 4 / 4 | 0 / 4 | 0 / 4 | 0 / 4 |
 | condition-handling | `hc-file-unlock` | pass | pass | 4 / 4 | 0 / 4 | 0 / 4 | 0 / 4 |
 | condition-handling | `hc-handle-aid` | pass | pass | 9 / 9 | 0 / 9 | 0 / 9 | 0 / 9 |
 | condition-handling | `hc-ignore-error` | pass | pass | 9 / 9 | 0 / 9 | 0 / 9 | 0 / 9 |
@@ -128,6 +128,7 @@ Each cobol-stub scenario runs the COBOL compiled with `-ftraceall` (tests/tools/
 | `hc-dcounters` | HCDCNT | 2 | 7/7 | 6/7 | 0/0 | 0 | proven on 0 scenarios, covering 0/7 paragraphs and 0/7 branches |
 | `hc-deedit-uctranst` | HCDEED | 3 | 7/7 | 3/4 | 0/0 | 0 | proven on 0 scenarios, covering 0/7 paragraphs and 0/4 branches |
 | `hc-eoc-error` | HCEOE | 2 | 3/4 | 2/2 | 1/2 | 0 | proven on 0 scenarios, covering 0/4 paragraphs and 0/2 branches |
+| `hc-file-read-set` | HCRDST | 4 | 8/8 | 8/9 | 0/0 | 0 | proven on 0 scenarios, covering 0/8 paragraphs and 0/9 branches |
 | `hc-file-unlock` | HCUNLK | 4 | 9/9 | 7/9 | 0/0 | 0 | proven on 0 scenarios, covering 0/9 paragraphs and 0/9 branches |
 | `hc-handle-aid` | HCAID | 9 | 6/6 | 7/7 | 3/3 | 0 | proven on 0 scenarios, covering 0/6 paragraphs and 0/7 branches |
 | `hc-ignore-error` | HCIGN | 9 | 5/5 | 9/9 | 2/2 | 0 | proven on 0 scenarios, covering 0/5 paragraphs and 0/9 branches |
@@ -285,6 +286,10 @@ Each item is a scenario to propose: a crucible PR adds it with a hand-written, d
 - paragraph `GOT-ERROR` (line 37)
 - HANDLE label `GOT-ERROR` never entered
 
+#### `hc-file-read-set` HCRDST
+
+- EVALUATE at line 42 in `MAIN-PARA`: no WHEN arm matched: never
+
 #### `hc-file-unlock` HCUNLK
 
 - EVALUATE at line 41 in `MAIN-PARA`: no WHEN arm matched: never
@@ -323,7 +328,7 @@ Each item is a scenario to propose: a crucible PR adds it with a hand-written, d
 
 Each missing feature belongs to a piece of harness work (below: the features themselves). A cell is *unlocked* when every piece its features need is done: it then gets a pass or fail verdict rather than `unsupported`. **needs** counts the cells that do not pass and need the piece, **alone** the unsupported cells it unlocks by itself, and **cumulative** the unsupported cells unlocked by it and every row above it (rows are chosen greedily).
 
-### cobol-stub (13 unsupported)
+### cobol-stub (9 unsupported)
 
 | # | harness work | needs | alone | cumulative |
 |---|---|---|---|---|
@@ -334,9 +339,6 @@ Each missing feature belongs to a piece of harness work (below: the features the
 | 5 | WEB WRITE HTTPHEADER | 1 | 0 | 4 |
 | 6 | WEB RECEIVE CHARACTERSET | 5 | 0 | 4 |
 | 7 | WEB RECEIVE HOSTCODEPAGE | 5 | 0 | 9 |
-| 8 | READ | 4 | 0 | 9 |
-| 9 | READNEXT | 4 | 0 | 9 |
-| 10 | READPREV | 4 | 0 | 13 |
 
 ### java (0 unsupported)
 
@@ -378,9 +380,6 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | translator: WEB READ HTTPHEADER | 5 | WEB READ HTTPHEADER |
 | translator: WEB RECEIVE CHARACTERSET | 5 | WEB RECEIVE CHARACTERSET |
 | translator: WEB RECEIVE HOSTCODEPAGE | 5 | WEB RECEIVE HOSTCODEPAGE |
-| translator: READ | 4 | READ |
-| translator: READNEXT | 4 | READNEXT |
-| translator: READPREV | 4 | READPREV |
 | translator: RECEIVE SET | 3 | terminal RECEIVE (unformatted input) |
 | translator: WEB WRITE HTTPHEADER | 1 | WEB WRITE HTTPHEADER |
 
@@ -650,19 +649,15 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | `hc-eoc-error/eoc-own-label/java` | fail | task 1 (EE02) event 1: RECEIVE expected, the side recorded no further event |
 | `hc-eoc-error/eoc-own-label/java-facade` | fail | no port of any of its programs |
 | `hc-eoc-error/eoc-own-label/java-ported` | fail | no port of any of its programs |
-| `hc-file-read-set/browse-back/cobol-stub` | unsupported | translator: READ; translator: READNEXT; translator: READPREV |
 | `hc-file-read-set/browse-back/java` | fail | task 1 (HC83) event 1: RECEIVE expected, the side recorded no further event |
 | `hc-file-read-set/browse-back/java-facade` | fail | no port of any of its programs |
 | `hc-file-read-set/browse-back/java-ported` | fail | no port of any of its programs |
-| `hc-file-read-set/browse-fwd/cobol-stub` | unsupported | translator: READ; translator: READNEXT; translator: READPREV |
 | `hc-file-read-set/browse-fwd/java` | fail | task 1 (HC83) event 1: RECEIVE expected, the side recorded no further event |
 | `hc-file-read-set/browse-fwd/java-facade` | fail | no port of any of its programs |
 | `hc-file-read-set/browse-fwd/java-ported` | fail | no port of any of its programs |
-| `hc-file-read-set/browse-notfnd/cobol-stub` | unsupported | translator: READ; translator: READNEXT; translator: READPREV |
 | `hc-file-read-set/browse-notfnd/java` | fail | task 1 (HC83) event 1: RECEIVE expected, the side recorded no further event |
 | `hc-file-read-set/browse-notfnd/java-facade` | fail | no port of any of its programs |
 | `hc-file-read-set/browse-notfnd/java-ported` | fail | no port of any of its programs |
-| `hc-file-read-set/read-set/cobol-stub` | unsupported | translator: READ; translator: READNEXT; translator: READPREV |
 | `hc-file-read-set/read-set/java` | fail | task 1 (HC83) event 1: RECEIVE expected, the side recorded no further event |
 | `hc-file-read-set/read-set/java-facade` | fail | no port of any of its programs |
 | `hc-file-read-set/read-set/java-ported` | fail | no port of any of its programs |

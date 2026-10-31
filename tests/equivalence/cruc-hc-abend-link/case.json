@@ -23,30 +23,35 @@
       "name": "sub-resp",
       "commarea": null,
       "terminal": "HC02",
+      "ts": {"HCMODE": ["N"]},
       "why": "HCSUB tests QIDERR with RESP; back in HCMAIN the QIDERR handler is in force again"
     },
     {
       "name": "sub-unhandled",
       "commarea": null,
       "terminal": "HC02",
+      "ts": {"HCMODE": ["Q"]},
       "why": "HCSUB raises QIDERR without RESP: HCMAIN's handler is not inherited, the task abends AEYH in HCSUB, and HCMAIN's HANDLE ABEND LABEL exit (one level up) gets control"
     },
     {
       "name": "sub-own-exit",
       "commarea": null,
       "terminal": "HC02",
+      "ts": {"HCMODE": ["A"]},
       "why": "HCSUB sets its own abend exit, ABENDs with HCX1, recovers in the exit and RETURNs normally to HCMAIN"
     },
     {
       "name": "push-pop",
       "commarea": null,
       "terminal": "HC02",
+      "ts": {"HCMODE": ["O"]},
       "why": "PUSH HANDLE then POP HANDLE: the QIDERR handler is back after the POP"
     },
     {
       "name": "pushed-abend",
       "commarea": null,
       "terminal": "HC02",
+      "ts": {"HCMODE": ["P"]},
       "why": "QIDERR while handlers are PUSHed: neither the QIDERR handler nor the HANDLE ABEND exit is in effect, so the task terminates with AEYH"
     }
   ]

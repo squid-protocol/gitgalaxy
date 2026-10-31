@@ -92,15 +92,6 @@
    "reason": "IMAGE of WS_M03B_AREA: space padding in WS-M03B-FLDT deep in the initial 1040-byte linkage area; before every call to CBSTM03B and before any read, relevant fields are explicitly overwritten, rendering initial buffer space modifications completely unobservable"
   },
   {
-   "id": "ebff207ec8",
-   "op": "AOR",
-   "line": 265,
-   "before": "System.arraycopy(parmText, 0, s_LK_M03B_AREA.bytes, 2, Math.min(parmText.length, s_LK_M03B_AREA.bytes.length - 2));",
-   "after": "System.arraycopy(parmText, 0, s_LK_M03B_AREA.bytes, 2, Math.min(parmText.length, s_LK_M03B_AREA.bytes.length + 2));",
-   "verdict": "unreachable",
-   "reason": "bytes.length - 2 -> + 2 in runBatch; CBSTM03B is a subprogram, not the batch job entry point, so runBatch is never called"
-  },
-  {
    "id": "225b51370d",
    "op": "DEL",
    "line": 265,
@@ -108,6 +99,15 @@
    "after": "/* System.arraycopy(parmText, 0, s_LK_M03B_AREA.bytes, 2, Math.min(parmText.length, s_LK_M03B_AREA.bytes.length - 2)); */",
    "verdict": "unreachable",
    "reason": "System.arraycopy(parmText, ...) in runBatch; CBSTM03B is a subprogram, not the batch job entry point (CBSTM03A is), so runBatch is never called"
+  },
+  {
+   "id": "ebff207ec8",
+   "op": "AOR",
+   "line": 265,
+   "before": "System.arraycopy(parmText, 0, s_LK_M03B_AREA.bytes, 2, Math.min(parmText.length, s_LK_M03B_AREA.bytes.length - 2));",
+   "after": "System.arraycopy(parmText, 0, s_LK_M03B_AREA.bytes, 2, Math.min(parmText.length, s_LK_M03B_AREA.bytes.length + 2));",
+   "verdict": "unreachable",
+   "reason": "bytes.length - 2 -> + 2 in runBatch; CBSTM03B is a subprogram, not the batch job entry point, so runBatch is never called"
   },
   {
    "id": "fa21dd36d2",
@@ -380,6 +380,24 @@
    "reason": "in 0000-START, EVALUATE WS-FL-DD default WHEN OTHER branch; WS-FL-DD is only ever assigned TRNXFILE, XREFFILE, CUSTFILE, ACCTFILE, or READTRNX in the entire program, so WHEN OTHER is never reached"
   },
   {
+   "id": "042ba71721",
+   "op": "LIT",
+   "line": 1509,
+   "before": "if (!st21.startsWith(\"0\")) throw new Hole(\"WRITE HTML-FILE: FILE STATUS \" + st21 + \" with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)\");",
+   "after": "if (!st21.startsWith(\"0\")) throw new Hole(\"XRITE HTML-FILE: FILE STATUS \" + st21 + \" with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)\");",
+   "verdict": "unreachable",
+   "reason": "the text of a Hole message for a failed READ/WRITE on a file with no FILE STATUS (#4268): the case reaches no non-zero status there, so the message is never built (a by-name stop whose wording nothing compares)."
+  },
+  {
+   "id": "09bb0e454d",
+   "op": "LIT",
+   "line": 1509,
+   "before": "if (!st21.startsWith(\"0\")) throw new Hole(\"WRITE HTML-FILE: FILE STATUS \" + st21 + \" with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)\");",
+   "after": "if (!st21.startsWith(\"0\")) throw new Hole(\"WRITE HTML-FILE: FILE STATUS \" + st21 + \"Xwith no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)\");",
+   "verdict": "unreachable",
+   "reason": "the text of a Hole message for a failed READ/WRITE on a file with no FILE STATUS (#4268): the case reaches no non-zero status there, so the message is never built (a by-name stop whose wording nothing compares)."
+  },
+  {
    "id": "0549d6bde9",
    "op": "CON",
    "line": 1537,
@@ -387,6 +405,51 @@
    "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f78_STATEMENT_LINES.storage(), f78_STATEMENT_LINES.offset() + 1121, 16, false), CS);",
    "verdict": "equivalent",
    "reason": "offset 1120 -> 1121 when moving SPACES into f78_STATEMENT_LINES; offsets 1115..1145 in IMAGE_s_STATEMENT_LINES are already filled with spaces (0x20), and ST-TRANID (offset 1120, len 16) is overwritten with transaction data before output"
+  },
+  {
+   "id": "08e10117bc",
+   "op": "LIT",
+   "line": 1613,
+   "before": "if (!st36.startsWith(\"0\")) throw new Hole(\"WRITE STMT-FILE: FILE STATUS \" + st36 + \" with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)\");",
+   "after": "if (!st36.startsWith(\"0\")) throw new Hole(\"XRITE STMT-FILE: FILE STATUS \" + st36 + \" with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)\");",
+   "verdict": "unreachable",
+   "reason": "the text of a Hole message for a failed READ/WRITE on a file with no FILE STATUS (#4268): the case reaches no non-zero status there, so the message is never built (a by-name stop whose wording nothing compares)."
+  },
+  {
+   "id": "056f94d7b6",
+   "op": "LIT",
+   "line": 1651,
+   "before": "if (!st43.startsWith(\"0\")) throw new Hole(\"WRITE HTML-FILE: FILE STATUS \" + st43 + \" with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)\");",
+   "after": "if (!st43.startsWith(\"0\")) throw new Hole(\"WRITE HTML-FILE: FILE STATUS \" + st43 + \"Xwith no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)\");",
+   "verdict": "unreachable",
+   "reason": "the text of a Hole message for a failed READ/WRITE on a file with no FILE STATUS (#4268): the case reaches no non-zero status there, so the message is never built (a by-name stop whose wording nothing compares)."
+  },
+  {
+   "id": "0539f5313e",
+   "op": "LIT",
+   "line": 1869,
+   "before": "if (!st76.startsWith(\"0\")) throw new Hole(\"WRITE HTML-FILE: FILE STATUS \" + st76 + \" with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)\");",
+   "after": "if (!st76.startsWith(\"0\")) throw new Hole(\"XRITE HTML-FILE: FILE STATUS \" + st76 + \" with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)\");",
+   "verdict": "unreachable",
+   "reason": "the text of a Hole message for a failed READ/WRITE on a file with no FILE STATUS (#4268): the case reaches no non-zero status there, so the message is never built (a by-name stop whose wording nothing compares)."
+  },
+  {
+   "id": "0ae1d51d07",
+   "op": "LIT",
+   "line": 1885,
+   "before": "if (!st78.startsWith(\"0\")) throw new Hole(\"WRITE HTML-FILE: FILE STATUS \" + st78 + \" with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)\");",
+   "after": "if (!st78.startsWith(\"0\")) throw new Hole(\"XRITE HTML-FILE: FILE STATUS \" + st78 + \" with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)\");",
+   "verdict": "unreachable",
+   "reason": "the text of a Hole message for a failed READ/WRITE on a file with no FILE STATUS (#4268): the case reaches no non-zero status there, so the message is never built (a by-name stop whose wording nothing compares)."
+  },
+  {
+   "id": "0bc5decc9a",
+   "op": "LIT",
+   "line": 1899,
+   "before": "if (!st80.startsWith(\"0\")) throw new Hole(\"WRITE HTML-FILE: FILE STATUS \" + st80 + \" with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)\");",
+   "after": "if (!st80.startsWith(\"0\")) throw new Hole(\"WRITE HTML-FILE: FILE STATUS \" + st80 + \"Xwith no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)\");",
+   "verdict": "unreachable",
+   "reason": "the text of a Hole message for a failed READ/WRITE on a file with no FILE STATUS (#4268): the case reaches no non-zero status there, so the message is never built (a by-name stop whose wording nothing compares)."
   },
   {
    "id": "5576c130fd",

@@ -475,96 +475,6 @@ class StateRehydrator:
                     for channel in CHANNELS
                 }
 
-                # #3448: job-submission evidence, aliased back to the payload keys.
-                job_submits_by_file = _restore_child_table(
-                    cursor,
-                    repo_name,
-                    baseline_hash,
-                    "job_submit_data",
-                    "SELECT fd.file_path AS _fp, js.kind, js.step_name AS step, js.submit_name AS name, "
-                    "js.target_kind, js.target, js.line_number AS line "
-                    "FROM job_submit_data js JOIN file_data fd ON js.file_id = fd.id "
-                    "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY js.id",
-                    lambda r: {
-                        "kind": r["kind"],
-                        "step": r["step"],
-                        "name": r["name"],
-                        "target_kind": r["target_kind"],
-                        "target": r["target"],
-                        "line": int(r["line"] or 0),
-                    },
-                )
-
-                # #3447: IBM MQ calls, aliased back to the payload keys.
-                mq_calls_by_file = _restore_child_table(
-                    cursor,
-                    repo_name,
-                    baseline_hash,
-                    "mq_call_data",
-                    "SELECT fd.file_path AS _fp, mq.verb, mq.direction, mq.queue_operand AS operand, "
-                    "mq.queue_name AS queue, mq.queue_resolution AS resolution, mq.queue_candidates AS candidates, "
-                    "mq.handle, mq.open_line, mq.options, mq.line_number AS line "
-                    "FROM mq_call_data mq JOIN file_data fd ON mq.file_id = fd.id "
-                    "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY mq.id",
-                    lambda r: {
-                        "verb": r["verb"],
-                        "direction": r["direction"],
-                        "operand": r["operand"],
-                        "queue": r["queue"],
-                        "resolution": r["resolution"],
-                        "candidates": r["candidates"],
-                        "handle": r["handle"],
-                        "open_line": int(r["open_line"]) if r["open_line"] is not None else None,
-                        "options": r["options"],
-                        "line": int(r["line"] or 0),
-                    },
-                )
-
-                # #3453: units of work and error handling, aliased to the payload keys.
-                uow_by_file = _restore_child_table(
-                    cursor,
-                    repo_name,
-                    baseline_hash,
-                    "uow_handler_data",
-                    "SELECT fd.file_path AS _fp, u.kind, u.source, u.verb, u.condition_name AS condition, "
-                    "u.target, u.target_kind, u.resp_var, u.attributes, u.line_number AS line "
-                    "FROM uow_handler_data u JOIN file_data fd ON u.file_id = fd.id "
-                    "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY u.id",
-                    lambda r: {
-                        "kind": r["kind"],
-                        "source": r["source"],
-                        "verb": r["verb"],
-                        "condition": r["condition"],
-                        "target": r["target"],
-                        "target_kind": r["target_kind"],
-                        "resp_var": r["resp_var"],
-                        "attributes": r["attributes"],
-                        "line": int(r["line"] or 0),
-                    },
-                )
-
-                # #3455: file definitions, aliased back to the payload keys.
-                file_control_by_file = _restore_child_table(
-                    cursor,
-                    repo_name,
-                    baseline_hash,
-                    "file_control_data",
-                    'SELECT fd.file_path AS _fp, fc.select_name, fc.assign_name AS "assign", fc.organization, fc.access_mode, fc.record_key, fc.alternate_keys, fc.relative_key, fc.file_status, fc.fd_copies, fc.line_number AS "line" '
-                    "FROM file_control_data fc JOIN file_data fd ON fc.file_id = fd.id "
-                    "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY fc.id",
-                    lambda r: {
-                        "select_name": r["select_name"],
-                        "assign": r["assign"],
-                        "organization": r["organization"],
-                        "access_mode": r["access_mode"],
-                        "record_key": r["record_key"],
-                        "alternate_keys": r["alternate_keys"],
-                        "relative_key": r["relative_key"],
-                        "file_status": r["file_status"],
-                        "fd_copies": r["fd_copies"],
-                        "line": int(r["line"] or 0),
-                    },
-                )
                 vsam_defines_by_file = _restore_child_table(
                     cursor,
                     repo_name,
@@ -681,10 +591,6 @@ class StateRehydrator:
                     node["classes"] = classes_by_file.get(rel_path, [])
                     for channel in CHANNELS:
                         node[channel.payload_key] = channel_rows[channel.name].get(rel_path, [])
-                    node["job_submits"] = job_submits_by_file.get(rel_path, [])
-                    node["mq_calls"] = mq_calls_by_file.get(rel_path, [])
-                    node["uow_handlers"] = uow_by_file.get(rel_path, [])
-                    node["file_control"] = file_control_by_file.get(rel_path, [])
                     node["vsam_defines"] = vsam_defines_by_file.get(rel_path, [])
                     node["job_flow"] = job_flow_by_file.get(rel_path, [])
             except sqlite3.Error as fc_err:

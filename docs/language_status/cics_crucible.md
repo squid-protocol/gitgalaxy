@@ -14,9 +14,9 @@ Every cell that does not pass is ledgered in `tests/cics_crucible/baseline.json`
 | forge-compile | 48 | 0 | 0 | 48 |
 | cobol-stub | 141 | 5 | 25 | 171 |
 | java | 0 | 171 | 0 | 171 |
-| java-ported | 58 | 113 | 0 | 171 |
-| java-facade | 55 | 116 | 0 | 171 |
-| **all** | **350** | **405** | **25** | **780** |
+| java-ported | 60 | 111 | 0 | 171 |
+| java-facade | 57 | 114 | 0 | 171 |
+| **all** | **354** | **401** | **25** | **780** |
 
 ## By trap and case
 
@@ -33,7 +33,7 @@ Pass counts per side (scenario sides: passing / scenarios).
 | commarea-mismatch | `ca-get-container-set` | pass | pass | 1 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
 | commarea-mismatch | `ca-getmain-pointer` | pass | pass | 1 / 2 | 0 / 2 | 2 / 2 | 2 / 2 |
 | commarea-mismatch | `ca-link-lengths` | pass | pass | 4 / 4 | 0 / 4 | 4 / 4 | 4 / 4 |
-| commarea-mismatch | `ca-load-set` | pass | pass | 2 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
+| commarea-mismatch | `ca-load-set` | pass | pass | 2 / 2 | 0 / 2 | 2 / 2 | 2 / 2 |
 | commarea-mismatch | `ca-receive-retrieve-set` | pass | pass | 0 / 3 | 0 / 3 | 0 / 3 | 0 / 3 |
 | commarea-mismatch | `ca-xctl-versions` | pass | pass | 4 / 4 | 0 / 4 | 4 / 4 | 4 / 4 |
 | condition-handling | `hc-abend-link` | pass | pass | 5 / 5 | 0 / 5 | 5 / 5 | 5 / 5 |
@@ -95,6 +95,8 @@ Each cobol-stub scenario runs the COBOL compiled with `-ftraceall` (tests/tools/
 | `ca-getmain-pointer` | CAGMZ | 1 | 3/3 | 4/4 | 0/0 | 0 | proven on 1 scenario, covering 3/3 paragraphs and 4/4 branches |
 | `ca-link-lengths` | CALINK | 4 | 1/1 | 4/4 | 0/0 | 0 | proven on 4 scenarios, covering 1/1 paragraphs and 4/4 branches |
 | `ca-link-lengths` | CASUB | 3 | 1/1 | 4/4 | 0/0 | 0 | proven on 3 scenarios, covering 1/1 paragraphs and 4/4 branches |
+| `ca-load-set` | CALDST | 1 | 3/3 | 2/4 | 0/0 | 0 | proven on 1 scenario, covering 3/3 paragraphs and 2/4 branches |
+| `ca-load-set` | CALDSX | 1 | 2/2 | 2/4 | 0/0 | 0 | proven on 1 scenario, covering 2/2 paragraphs and 2/4 branches |
 | `ca-xctl-versions` | CAXA | 3 | 1/1 | 3/3 | 0/0 | 0 | proven on 3 scenarios, covering 1/1 paragraphs and 3/3 branches |
 | `ca-xctl-versions` | CAXB | 3 | 1/1 | 6/6 | 0/0 | 0 | proven on 3 scenarios, covering 1/1 paragraphs and 6/6 branches |
 | `gt-assign-startcode` | GTASAB | 1 | 1/1 | 0/0 | 0/0 | 0 | proven on 0 scenarios, covering 0/1 paragraphs and 0/0 branches |
@@ -181,6 +183,16 @@ Each item is a scenario to propose: a crucible PR adds it with a hand-written, d
 - IF at line 68 in `MAIN-PARA`: never false
 - IF at line 86 in `LOG-RESP`: never true
 - IF at line 86 in `LOG-RESP`: never false
+
+#### `ca-load-set` CALDST
+
+- IF at line 40 in `LOG-LOAD`: never true
+- IF at line 45 in `LOG-LOAD`: never false
+
+#### `ca-load-set` CALDSX
+
+- IF at line 37 in `MAIN-PARA`: never true
+- IF at line 42 in `MAIN-PARA`: never false
 
 #### `gt-assign-startcode` GTASGN
 
@@ -383,8 +395,8 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | cobol-stub | WRITEQ-TS missing | 4 |
 | cobol-stub | data bytes differ | 1 |
 | java | runTask records no events (the generated stub: PROCEDURE DIVISION not ported) | 171 |
-| java-ported | not ported | 113 |
-| java-facade | not ported | 113 |
+| java-ported | not ported | 111 |
+| java-facade | not ported | 111 |
 | java-facade | RECEIVE expected, other event | 3 |
 
 ## Every cell that does not pass
@@ -458,11 +470,7 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | `ca-link-lengths/short-100/java` | fail | task 1 (CA01) event 1: RECEIVE expected, the side recorded no further event |
 | `ca-link-lengths/undefined-program/java` | fail | task 1 (CA01) event 1: RECEIVE expected, the side recorded no further event |
 | `ca-load-set/load/java` | fail | task 1 (CA0L) event 1: WRITEQ-TS expected, the side recorded no further event |
-| `ca-load-set/load/java-facade` | fail | no port of any of its programs |
-| `ca-load-set/load/java-ported` | fail | no port of any of its programs |
 | `ca-load-set/pgmiderr/java` | fail | task 1 (CA0M) event 1: WRITEQ-TS expected, the side recorded no further event |
-| `ca-load-set/pgmiderr/java-facade` | fail | no port of any of its programs |
-| `ca-load-set/pgmiderr/java-ported` | fail | no port of any of its programs |
 | `ca-receive-retrieve-set/enddata/cobol-stub` | unsupported | translator: RECEIVE SET |
 | `ca-receive-retrieve-set/enddata/java` | fail | task 1 (CA0D) event 1: RECEIVE expected, the side recorded no further event |
 | `ca-receive-retrieve-set/enddata/java-facade` | fail | no port of any of its programs |

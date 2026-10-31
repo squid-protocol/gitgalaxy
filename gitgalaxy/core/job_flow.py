@@ -209,8 +209,11 @@ def _dcb(keyed: dict[str, str]) -> dict[str, Any]:
 def _dcb_referback(keyed: dict[str, str]) -> list[str] | None:
     """#4268: the qualified name of the DD a `DCB=*.ddname` / `DCB=*.stepname.ddname` /
     `DCB=(*.stepname.ddname,LRECL=..)` names, as its parts, else None."""
-    first = _split(keyed.get("DCB", "").strip().strip("()"))
-    ref = first[0][1].strip().upper() if first and first[0][0] is None else ""
+    ref = ""
+    for k, v in keyed.items():  # as _dcb reads it: the DCB operand is found by iterating, not by a constant subscript
+        if k == "DCB":
+            first = _split(v.strip().strip("()"))
+            ref = first[0][1].strip().upper() if first and first[0][0] is None else ""
     return ref[2:].split(".") if ref.startswith("*.") and len(ref) > 2 else None
 
 

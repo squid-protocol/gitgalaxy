@@ -1172,10 +1172,12 @@ def test_receive_set_addresses_a_linkage_record_and_the_rest_is_refused():
     assert out[:3] == ["CicsTask.Received received1 = task.receive(INT(80), false);",
                        "DetCics.receivedSet(f_LS-REC, received1.data(), CS);",
                        "STORE(RLEN, BigDecimal.valueOf(received1.length()));"]  # fmt: skip
+    # X15 (#5079): LENGTH is output-only with SET, so no MAXLENGTH takes all the input (no limit, never LENGERR)
+    out = _TermCics().command("RECEIVE SET(ADDRESS OF LS-REC) LENGTH(RLEN)", "")
+    assert out[0] == "CicsTask.Received received1 = task.receive(Integer.MAX_VALUE, false);"
     for bad, why in (
         ("RECEIVE SET(ADDRESS OF WS-REC) LENGTH(RLEN) MAXLENGTH(80)", "not a LINKAGE 01"),
         ("RECEIVE SET(ADDRESS OF LS-PART) LENGTH(RLEN) MAXLENGTH(80)", "not a LINKAGE 01"),
-        ("RECEIVE SET(ADDRESS OF LS-REC) LENGTH(RLEN)", "without MAXLENGTH"),
         ("RECEIVE SET(ADDRESS OF LS-REC) MAXLENGTH(80)", "without LENGTH"),
         ("RECEIVE LENGTH(RLEN)", "one of INTO / SET"),
         ("RECEIVE INTO(REC) SET(ADDRESS OF LS-REC) LENGTH(RLEN)", "one of INTO / SET"),

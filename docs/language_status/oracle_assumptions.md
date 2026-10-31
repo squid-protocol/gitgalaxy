@@ -1013,15 +1013,19 @@ instrument). The rows below are rendered by one table in code (`compiler_options
     bytes, and the port does not translate either; an integer numeric `INTO` item and a reference-modified operand
     (alphanumeric) are translated as before. Not yet checked against the IBM text, listed as a gap: a numeric-edited
     UNSTRING sending item (the list above omits numeric-edited too).
-  - **UNSTRING of non-digit text INTO an integer numeric item -- DIFFERS, kept as a named gap (#6839 row J).** zECS's
-    `ZECS001` 1310-TTL unstrings the query string `ttl=abc` INTO `TTL-SECONDS` (PIC 9(06)) and tests it NUMERIC
-    (line 704). The piece is an alphanumeric sender of a numeric MOVE, so this is the first bullet's shape: GnuCOBOL
-    stores `000000`, NUMERIC is true and `ZF-TTL` 0 is raised to 300 (the true arm); on z/OS the non-digit bytes stay,
-    NUMERIC is false and the 30-minute default stays (the `704:false` arm). IBM documents no result for the non-digit
-    data. Scenario `post-ttl-nonnumeric` therefore proves cobc's bytes, not z/OS's, and `704:false` stays uncovered
-    in `det_sweep_coverage/zecs-zecs001.json` for this reason; it is not an infeasible outcome (z/OS reaches it) and
-    the proof is not loosened to count it. A digits-only `ttl=` value (`post-ttl-600`, `-60`, `-100000`, `-700000`)
-    is the same on both.
+  - **UNSTRING of non-digit text INTO an integer numeric item -- DIFFERS, the `704:false` arm stated as undefined by IBM
+    (family U; owner ruling 2026-10-31, #6839 row J).** zECS's `ZECS001` 1310-TTL unstrings the query string `ttl=abc`
+    INTO `TTL-SECONDS` (PIC 9(06)) and tests it NUMERIC (line 704). The piece is an alphanumeric sender of a numeric
+    MOVE, so this is the first bullet's shape: GnuCOBOL stores `000000`, NUMERIC is true and `ZF-TTL` 0 is raised to 300
+    (the true arm); on z/OS the non-digit bytes stay, NUMERIC is false and the 30-minute default stays (the `704:false`
+    arm). IBM documents no result for the non-digit data. Scenario `post-ttl-nonnumeric` therefore proves cobc's bytes,
+    not z/OS's, and `704:false` stays uncovered in `det_sweep_coverage/zecs-zecs001.json`. **The ruling:** family U in
+    `tests/equivalence/infeasible_outcomes/` covers, besides an out-of-range subscript or reference modification
+    (2026-10-29), any outcome reachable only through non-digit data in a numeric DISPLAY item. It is reported by name
+    with counts ("undefined by IBM"), netted from the branch bar as stated infeasible outcomes are, and never counted as
+    proven or as infeasible (z/OS reaches it); a proof that reaches it still refutes the entry. The entry is
+    `zecs-zecs001` `1310-TTL:704:false`. A digits-only `ttl=` value (`post-ttl-600`, `-60`, `-100000`, `-700000`) is the
+    same on both.
   - **A signed zoned sender whose sign byte is no sign (`!` X'21', X'FF'), MOVEd to an alphanumeric or
     alphanumeric-edited item -- REFUSED at run time.** IBM treats the sender as an unsigned integer and documents no
     result for an invalid sign (undefined data, as above); cobc turns the byte into a digit (`GET_SIGN` /

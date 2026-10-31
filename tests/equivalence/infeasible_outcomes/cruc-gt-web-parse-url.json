@@ -1,0 +1,22 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "cruc-gt-web-parse-url",
+  "entries": [
+    {
+      "unit": "DO-PARSE",
+      "line": 139,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "C",
+      "reason": "Every URL the program parses is a constant in PARSE-PARA / LENGTH-PARA (each has a path) and the only scenario input is the mode letter; the parsed PATH keeps its leading '/' (register X36, ASSUMED: IBM does not say; a URL with no path is REFUSED by the model), so 'IF WS-PATH(1:1) = '/'' is false only for a URL the program never holds."
+    },
+    {
+      "unit": "DO-PARSE",
+      "line": 144,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "C",
+      "reason": "QUERYSTRING is returned without its question mark (register X36, ASSUMED, as IBM's WEB CONVERSE takes it), and the URLs are the program's constants, so the first byte of WS-QRY is never '?' on a successful parse: the true arm ('MOVE WS-QRY(2:10)') runs for no input."
+    }
+  ]
+}

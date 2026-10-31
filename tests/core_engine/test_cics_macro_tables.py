@@ -958,3 +958,106 @@ def test_dsncrct_db2conn_db2entry_plan_inheritance_and_group():
         ("DB2CONN", "MYDB2C", "DFHRCT", None),
         ("DB2ENTRY", "TX99", "DFHRCT", "TX99"),
     ]
+
+
+# --- DFHTCT shapes the IBM manuals leave open: pinned, ASSUMED by name (#5154) ----------------------
+
+
+def _tct(*statements: str) -> str:
+    return "".join(f"         DFHTCT {s}\n" for s in statements)
+
+
+def _tct_rows(src: str) -> list[tuple[str, str, str]]:
+    return [(r["resource_type"], r["name"], _rdo(r) if " => " in r["attributes"] else "") for r in _rows(src)]
+
+
+@pytest.mark.parametrize(
+    ("trmidnt", "expected"),
+    [
+        ("T1", "T1"),
+        ("(T1)", "T1"),
+        ("t1", "T1"),  # read as MVS reads a name: upper case
+        (
+            "ABCDEFG",
+            "ABCDEFG",
+        ),  # longer than the 4 characters of a TERMINAL id: kept, ASSUMED (no manual page read states a refusal)
+    ],
+)
+def test_dfhtct_trmidnt_forms_name_the_terminal(trmidnt, expected):
+    assert _named(_tct(f"TYPE=TERMINAL,TRMIDNT={trmidnt}"), "TERMINAL") == [expected]
+
+
+def test_dfhtct_empty_trmidnt_names_no_terminal():
+    assert _rows(_tct("TYPE=TERMINAL,TRMIDNT=", "TYPE=TERMINAL,ACCMETH=VTAM")) == []
+
+
+@pytest.mark.parametrize(
+    ("a", "b"),
+    [
+        ("TYPE=TERMINAL,TRMIDNT=T1", "TYPE=TERMINAL,TRMIDNT=T1"),
+        ("TYPE=TERMINAL,TRMIDNT=T1", "TYPE=TERMINAL,TRMIDNT=t1"),
+        ("TYPE=TERMINAL,TRMIDNT=T1", "TYPE=GPENTRY,TRMIDNT=T1"),
+        ("TYPE=SYSTEM,SYSIDNT=SYSB", "TYPE=SYSTEM,SYSIDNT=SYSB"),
+    ],
+)
+def test_dfhtct_a_repeated_name_is_not_folded(a, b):
+    """IBM is silent on a repeated TRMIDNT / SYSIDNT: each statement is a row (ASSUMED), nothing is merged away."""
+    assert len(_rows(_tct(a, b))) == 2
+
+
+def test_dfhtct_type_remote_ignores_the_region_set_by_type_region():
+    """A TYPE=REMOTE names its own SYSIDNT; the TYPE=REGION context applies to TYPE=TERMINAL only [RDG p.473-474]."""
+    src = _tct(
+        "TYPE=REGION,SYSIDNT=SYSC", "TYPE=REMOTE,TRMIDNT=R1", "TYPE=GPENTRY,TRMIDNT=G1", "TYPE=TERMINAL,TRMIDNT=T1"
+    )
+    assert _tct_rows(src) == [
+        ("TERMINAL", "R1", ""),
+        ("TERMINAL", "G1", ""),
+        ("TERMINAL", "T1", "REMOTESYSTEM(SYSC)"),
+    ]
+
+
+def test_dfhtct_explicit_sysidnt_local_beats_the_region():
+    src = _tct("TYPE=REGION,SYSIDNT=SYSC", "TYPE=TERMINAL,TRMIDNT=T1,SYSIDNT=LOCAL")
+    assert _tct_rows(src) == [("TERMINAL", "T1", "")]
+
+
+@pytest.mark.parametrize(
+    ("accmeth", "expected"),
+    [
+        ("IRC", "ACCESSMETHOD(IRC)"),
+        ("VTAM", "ACCESSMETHOD(VTAM)"),
+        ("INDIRECT", "ACCESSMETHOD(INDIRECT)"),
+        ("(IRC,XM)", "ACCESSMETHOD(XM)"),
+        ("irc", "ACCESSMETHOD(IRC)"),
+        ("BSAM", ""),  # not a connection access method [RDG p.529]: row kept, no restatement
+        ("(IRC,VTAM)", ""),  # a pair the manual does not list
+        (None, ""),
+    ],
+)
+def test_dfhtct_system_accmeth_forms(accmeth, expected):
+    ops = "TYPE=SYSTEM,SYSIDNT=SYSB" + (f",ACCMETH={accmeth}" if accmeth else "")
+    assert _tct_rows(_tct(ops)) == [("CONNECTION", "SYSB", expected)]
+
+
+@pytest.mark.parametrize("ops", ["TYPE=SYSTEM,ACCMETH=IRC", "TYPE=SYSTEM", "SYSIDNT=SYSB", "TYPE=BOGUS,TRMIDNT=T1"])
+def test_dfhtct_unnamed_or_unlisted_shapes_are_refused(ops):
+    assert _rows(_tct(ops)) == []
+
+
+def test_dfhtct_whole_class_reads_the_same_in_a_jcl_sysin():
+    src = _tct(
+        "TYPE=INITIAL,SUFFIX=01,SYSIDNT=HOME",
+        "TYPE=REGION,SYSIDNT=SYSC",
+        "TYPE=TERMINAL,TRMIDNT=T1",
+        "TYPE=GPENTRY,TRMIDNT=G1",
+        "TYPE=SYSTEM,SYSIDNT=SYSB,ACCMETH=IRC",
+        "TYPE=TERMINAL,TRMIDNT=T1",
+    )
+    job = "//J JOB\n//ASM EXEC PGM=ASMA90\n//SYSIN DD *\n" + src + "/*\n"
+    in_jcl = extract_boundary("jcl", job)["csd_resources"]
+    assert [(r["resource_type"], r["name"], r["macro_table"], _rdo(r)) for r in in_jcl] == [
+        (r["resource_type"], r["name"], r["macro_table"], _rdo(r) if " => " in r["attributes"] else "")
+        for r in _rows(src)
+    ]
+    assert len(in_jcl) == 4 and {r["macro_table"] for r in in_jcl} == {"DFHTCT01"}

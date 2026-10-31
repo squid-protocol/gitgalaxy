@@ -32,6 +32,14 @@ _NON_DETERMINISTIC = {
     "tempfile.mkdtemp",
     "tempfile.gettempdir",
     "os.getpid",
+    "os.urandom",
+    "secrets.token_bytes",
+    "secrets.token_hex",
+    "random.randbytes",
+    "random.getrandbits",
+    "random.uniform",
+    "time.perf_counter",
+    "time.time_ns",
 }
 
 
@@ -63,17 +71,40 @@ def test_zip_probe_bytes_do_not_depend_on_the_clock(monkeypatch):
     assert slice4._zip("archive/data.pkl") == first
 
 
+def _is_unsafe(call: ast.Call) -> str:
+    name = _dotted(call.func)
+    stamped = name in _NEEDS_MTIME and not any(k.arg == "mtime" for k in call.keywords)
+    unseeded = name in {"random.Random", "Random"} and not call.args and not call.keywords
+    return name if name in _NON_DETERMINISTIC or stamped or unseeded else ""
+
+
+def _module_defs(tree: ast.AST) -> dict[str, ast.AST]:
+    """Module-level functions and constants by name, so a parametrize argument can be followed into them."""
+    defs: dict[str, ast.AST] = {}
+    for node in getattr(tree, "body", []):
+        if isinstance(node, ast.FunctionDef):
+            defs[node.name] = node
+        elif isinstance(node, ast.Assign):
+            for target in node.targets:
+                if isinstance(target, ast.Name):
+                    defs[target.id] = node
+    return defs
+
+
 def _offenders(tree: ast.AST, label: str) -> list[str]:
+    defs = _module_defs(tree)
     found = []
     for call in _parametrize_calls(tree):
-        for sub in ast.walk(call):
-            if not isinstance(sub, ast.Call):
-                continue
-            name = _dotted(sub.func)
-            stamped = name in _NEEDS_MTIME and not any(k.arg == "mtime" for k in sub.keywords)
-            if name in _NON_DETERMINISTIC or stamped:
-                found.append(f"{label}:{sub.lineno} {name}")
-    return found
+        seen: set[str] = set()
+        todo: list[ast.AST] = [call]
+        while todo:
+            for sub in ast.walk(todo.pop()):
+                if isinstance(sub, ast.Call) and (name := _is_unsafe(sub)):
+                    found.append(f"{label}:{sub.lineno} {name}")
+                elif isinstance(sub, ast.Name) and sub.id in defs and sub.id not in seen:
+                    seen.add(sub.id)
+                    todo.append(defs[sub.id])
+    return sorted(set(found))
 
 
 def test_gzip_bytes_do_not_depend_on_the_clock(monkeypatch):
@@ -86,6 +117,19 @@ def test_the_guard_flags_a_stamped_gzip_and_accepts_a_fixed_one():
     src = "@pytest.mark.parametrize('d', [gzip.compress(b'x')])\ndef test_a(d): pass\n"
     assert _offenders(ast.parse(src), "t")
     assert not _offenders(ast.parse(src.replace("b'x')", "b'x', mtime=0)")), "t")
+
+
+def test_the_guard_follows_helpers_and_constants_and_flags_entropy():
+    helper = (
+        "def _blob():\n    return gzip.compress(b'x')\n@pytest.mark.parametrize('d', [_blob()])\ndef test_a(d): pass\n"
+    )
+    assert _offenders(ast.parse(helper), "t")
+    assert not _offenders(ast.parse(helper.replace("b'x')", "b'x', mtime=0)")), "t")
+    const = "DATA = os.urandom(8)\n@pytest.mark.parametrize('d', [DATA])\ndef test_a(d): pass\n"
+    assert _offenders(ast.parse(const), "t")
+    seeded = const.replace("os.urandom(8)", "random.Random(7).randbytes(8)")
+    assert not _offenders(ast.parse(seeded), "t")
+    assert _offenders(ast.parse(seeded.replace("Random(7)", "Random()")), "t")
 
 
 def test_no_parametrize_argument_calls_a_non_deterministic_api():

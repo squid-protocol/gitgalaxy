@@ -20,13 +20,25 @@ from gitgalaxy.standards.cics.commands.assign import (
 )
 from gitgalaxy.standards.cics.commands.handles import AID_KEYS  # noqa: F401 -- the conditions mixin reads it here
 from gitgalaxy.standards.cics.commands.send_text import TEXT_OPTIONS
-from gitgalaxy.standards.cics.commands.shared import BOTH_FORMS, NEEDS_ARGUMENT
 from gitgalaxy.standards.cics.commands.task import DATE_FORMS, NUMBER_FORMS
-from gitgalaxy.standards.cics.commands.terminal import MAP_OPTIONS, SEND_CONTROL_OPTIONS
-from gitgalaxy.standards.cics.model import GroupKind
+from gitgalaxy.standards.cics.commands.terminal import MAP_OPTIONS
 from gitgalaxy.standards.cics.resp import DFHRESP  # noqa: F401 -- tests and the conditions mixin read it here
 from gitgalaxy.tools.cobol_to_java.det import expr as E
 from gitgalaxy.tools.cobol_to_java.det import layout as L
+from gitgalaxy.tools.cobol_to_java.det.cics_common import (  # noqa: F401 -- re-exported for the mixins' old importers
+    _SEND_CONTROL,
+    REGION_PAGE,
+    CicsError,
+    KeylengthInvreq,
+    Untranslatable,
+    _arg,
+    _msg,
+    _one_of,
+    _option,
+    _requires,
+    jstr,
+    region_page,
+)
 from gitgalaxy.tools.cobol_to_java.det.cics_conditions import ConditionCommands  # #5274
 from gitgalaxy.tools.cobol_to_java.det.cics_containers import ContainerCommands  # #5274
 from gitgalaxy.tools.cobol_to_java.det.cics_faults import FaultCommands  # #5274
@@ -55,41 +67,6 @@ def reads_eibrcode(statements) -> bool:
     return reads_eibds(statements, EIBRCODE_WORD)
 
 
-class CicsError(Exception):
-    pass
-
-
-class KeylengthInvreq(CicsError):
-    """#5092 (X52): a KEYLENGTH IBM answers INVREQ (RESP2 25 / 26 / 42); READ emits the result, any other verb refuses."""
-
-    def __init__(self, msg: str, resp2: int):
-        super().__init__(msg)
-        self.resp2 = resp2
-
-
-# #4528: CICS's default CCSID, the region's page when the estate declares no EBCDIC one (cics-crucible SPEC 2: "every
-# byte in every area is CCSID 037")
-REGION_PAGE = "cp037"
-
-
-def region_page(declared: str | None) -> str:
-    """#4528: the JDK name of the region's code page -- the page a TS item's bytes are in on the COBOL side: the
-    estate's declared code page for the program when it is an EBCDIC one (cp273, cp277 ...: EngineCopies.page, the
-    page the engine decoded it with), else CCSID 037. An ASCII-family declaration says how the source was
-    transferred, not which page the region runs."""
-    from gitgalaxy.core.ebcdic_codecs import java_charset_name, register
-
-    register()
-    page = REGION_PAGE
-    if declared:
-        try:
-            if " ".encode(declared) == b"\x40":
-                page = declared
-        except (LookupError, UnicodeError):
-            pass
-    return java_charset_name(page)
-
-
 # #4411: every option each modelled command accepts -- the CICS command spec's (gitgalaxy/standards/cics, #4270 spec
 # PR 2): an option outside its command's set is refused by name (the statement becomes a hole), with the reason the
 # command's own spec entry gives, never accepted and ignored: a silently divergent port is worse than a visible hole.
@@ -98,20 +75,6 @@ OPTIONS: dict[str, frozenset | None] = {
     k: None if c.open_options else frozenset(c.options) for k, c in SPEC.items() if c.status == "modelled"
 }
 _FORMS = (*DATE_FORMS, *NUMBER_FORMS)
-_SEND_CONTROL = frozenset(SEND_CONTROL_OPTIONS)  # #4413: its device controls
-
-
-def _msg(key: str, kind: GroupKind, option: str, *parts: str) -> str:
-    """The message of the command's option rule (its spec Group), with the parts it names filled in."""
-    return SPEC[key].group(kind, option).msg.format(*parts)
-
-
-def _requires(key: str, option: str, needed: str) -> str:
-    """#4767: the message of the command's `requires` rule from `option` to `needed` (its spec Group)."""
-    for g in SPEC[key].groups:
-        if g.kind == "requires" and g.options[0] == option and needed in g.any_of:
-            return g.msg
-    raise KeyError(f"{key}: no requires group of {option} -> {needed}")
 
 
 def command_key(words: list[str], opts: dict) -> str:
@@ -176,13 +139,6 @@ def check_options(words: list[str], opts: dict) -> None:
 
 
 # ---- the EXEC text ----------------------------------------------------------------------------------------------
-def _arg(v: str | None) -> str:
-    """An EXEC CICS option's argument text; a bare option where one is needed is an error."""
-    if v is None:
-        raise CicsError(NEEDS_ARGUMENT)
-    return v
-
-
 # an option with no argument that can come first, so is never a verb word (#4413: RECEIVE NOTRUNCATE INTO(...))
 _BARE_OPTIONS = ("NOTRUNCATE", "NOHANDLE")  # (#4737: ASKTIME NOHANDLE)
 # a second word that is an option of the verb before it, never a verb word (#5119: IBM's own `READ UPDATE DATASET(...)`)
@@ -852,6 +808,7 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
                 f"e -> task.write({G_jstr(name)}, () -> {repo}.delete(e)), {off}, {length}, CS)"
                 # the base cluster's key: findById; an alternate index keeps the ordered scan
                 + (self.g.find_by_id(entity, repo) if prop is None else "")
+                + f".withLengths(CicsTask.recordLengths({G_jstr(entity)}))"  # #6839: a variable-length file's
             )
             self.g.entities.add(entity)
         return f"store({self.file_name(arg)})"
@@ -1407,6 +1364,8 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
             return self.receive(opts, ind)
         if key in ("GETMAIN", "FREEMAIN"):  # #4771 (X47): task storage addressed by a pointer
             return self.storage(key, opts, ind)
+        if key in ("LOAD", "RELEASE"):  # #6876 (X65): a program image addressed by a pointer
+            return self.load_release(key, opts, ind)
         if key == "ADDRESS":  # #5079 (X59): a pointer to the EIB / the COMMAREA
             return self.address(opts, ind)
         if key in ("DOCUMENT CREATE", "DOCUMENT RETRIEVE"):  # #4769 (X33): the document handler
@@ -1854,7 +1813,6 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
 
     def pointer(self, text: str | None) -> str:
         """#4771 (X47): the Field of the plain USAGE POINTER item an option names (SET / DATAPOINTER)."""
-        from gitgalaxy.tools.cobol_to_java.det.gen import Untranslatable
 
         try:
             return self.g.pointer_item(_arg(text).strip())
@@ -1866,7 +1824,6 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
         of task storage (IBM, EXEC CICS GETMAIN / FREEMAIN). The pointer holds the block's handle; a LENGERR (RESP2 1)
         sets it to zero. INITIMG is a one-byte data area (IBM: "In COBOL, use a data area rather than a data value"). Without INITIMG (#6876) IBM gives the storage no contents: the run answers LENGERR for a length
         below 1 and refuses a valid one."""
-        from gitgalaxy.tools.cobol_to_java.det.gen import Untranslatable
 
         r = self.g.tmpname("storage")
         if key == "FREEMAIN":
@@ -1912,6 +1869,34 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
         call = f"DetCics.getmain(task, {ptr}, {self.int_(opts[form])}, {halfword}, {self.read_field(opts['INITIMG'])})"
         return [f"{ind}int[] {r} = {call};", *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
 
+    def load_release(self, key: str, opts: dict, ind: str) -> list[str]:
+        """#6876 (X65): LOAD PROGRAM [SET(ptr)] [LENGTH(halfword)] and RELEASE PROGRAM on CicsTask's loaded programs (IBM, EXEC
+        CICS LOAD / RELEASE). LOAD: PGMIDERR RESP2 1 for a program the CSD does not define (the pointer and LENGTH are then
+        left alone); else the pointer holds the handle of a 256-byte image block and LENGTH its length (IBM states neither:
+        the stub's values, ASSUMED). RELEASE: NORMAL once for a program this task loaded, INVREQ for one it did not (or
+        released already), PGMIDERR RESP2 1 for an undefined one. A program that reads the image is refused when it runs."""
+        if not opts.get("PROGRAM"):
+            raise CicsError(_msg(key, "required", "PROGRAM"))
+        prog = self.name(_arg(opts["PROGRAM"]))
+        r = self.g.tmpname("load")
+        if key == "RELEASE":
+            return [f"{ind}int[] {r} = task.releaseProgram({prog});", *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
+        ptr = self.pointer(opts["SET"]) if opts.get("SET") else None
+        out = [
+            f"{ind}long[] {r}g = task.loadProgram({prog});",
+            f"{ind}int[] {r} = new int[] {{(int) {r}g[0], (int) {r}g[1]}};",
+        ]
+        body: list[str] = []
+        if ptr is not None:
+            body.append(f"{ind}    DetCics.setPointer({ptr}, {r}g[2]);")
+        if opts.get("LENGTH"):
+            body.append(
+                f"{ind}    " + self.g.store_into(self.ref(_arg(opts["LENGTH"])), f"BigDecimal.valueOf({r}g[3])", False)
+            )
+        if body:
+            out += [f"{ind}if ({r}[0] == 0) {{", *body, f"{ind}}}"]
+        return [*out, *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
+
     def address(self, opts: dict, ind: str) -> list[str]:
         """#5079 (X59): ADDRESS EIB(ptr) / COMMAREA(ptr) (IBM, EXEC CICS ADDRESS: "a pointer reference set to the address of
         the EXEC interface block" / "of the communication area (COMMAREA) available to the currently executing program").
@@ -1921,18 +1906,18 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
         DetCics.isNoCommareaAddress), and a program with no 01 DFHCOMMAREA run with a COMMAREA is refused when it runs. The command has no
         condition: NORMAL. TWA / TCTUA (#5079 slice 2) set the pointer to the handle of the transaction work area / the
         terminal's user area the definitions size (TWASIZE / USERAREALEN), or X'FF000000' when none (DetCics.addressTwa /
-        addressTctua). CWA / ACEE and ADDRESS SET are refused by the spec entry (check_options)."""
-        from gitgalaxy.tools.cobol_to_java.det.gen import Untranslatable
+        addressTctua). CWA (slice 2a) is the region's common work area, SIT WRKAREA bytes shared by every task, or X'FF000000' when the
+        case states none (DetCics.addressCwa). ACEE and ADDRESS SET are refused by the spec entry (check_options)."""
 
-        if not any(opts.get(o) for o in ("EIB", "COMMAREA", "TWA", "TCTUA")):
+        if not any(opts.get(o) for o in ("EIB", "COMMAREA", "CWA", "TWA", "TCTUA")):
             raise CicsError("ADDRESS without an area option: the pointer to set")
         out: list[str] = []
-        for option in ("EIB", "COMMAREA", "TWA", "TCTUA"):
+        for option in ("EIB", "COMMAREA", "CWA", "TWA", "TCTUA"):
             if option not in opts:
                 continue
             ptr = self.pointer(opts[option])
-            if option in ("TWA", "TCTUA"):
-                out.append(f"{ind}DetCics.address{'Twa' if option == 'TWA' else 'Tctua'}(task, {ptr});")
+            if option in ("CWA", "TWA", "TCTUA"):
+                out.append(f"{ind}DetCics.address{option.capitalize()}(task, {ptr});")
                 continue
             if option == "EIB":
                 out.append(f"{ind}DetCics.setPointerToRecord(task, {ptr}, {self.g.field_expr(E.Ref('DFHEIBLK'))});")
@@ -2309,7 +2294,6 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
     def constant_int(self, text: str) -> int | None:
         """An option's value when the translator knows it: an integer literal, LENGTH OF an item, or a data item
         with a numeric VALUE the program never changes; else None."""
-        from gitgalaxy.tools.cobol_to_java.det.gen import Untranslatable
 
         unknown = (CicsError, E.ExprError, KeyError, Untranslatable)  # (None: the caller refuses)
         t = text.strip()
@@ -2331,31 +2315,10 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
         return None
 
 
-def _option(opts: dict, name: str) -> str | None:
-    """#4270: an option's argument, None when the option is not given; given without one, refused."""
-    if name not in opts:
-        return None
-    return _arg(opts[name])
-
-
-def _one_of(opts: dict, name: str, alt: str) -> str | None:
-    """#4413: the argument of option `name` or its alternative form `alt` (LENGTH / FLENGTH), None when neither is
-    given; both, or one without an argument, refused."""
-    given = [o for o in (name, alt) if o in opts]
-    if len(given) > 1:
-        raise CicsError(BOTH_FORMS.format(name, alt))
-    if given and not opts[given[0]]:
-        raise CicsError(f"{given[0]} needs an argument")
-    return opts[given[0]] if given else None
-
-
 def _literal(text: str | None) -> str | None:
     if text and text.strip()[:1] in "'\"":
         return text.strip()[1:-1].upper()
     return None
 
 
-def G_jstr(s: str) -> str:
-    from gitgalaxy.tools.cobol_to_java.det.gen import jstr
-
-    return jstr(s)
+G_jstr = jstr

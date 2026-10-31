@@ -118,6 +118,8 @@
 #          (system log) or decimal `nn` (1-99 user journal; 01-99 accepted); `JTYPE=`, `BUFSIZE=`,
 #          `JOUROPT=` stay in `attributes`. DSNAME= is not listed among the JCT operands in [VSE Table 41], but the estate-crucible
 #          key (H-0063) expects it lifted into `dsname`: ASSUMED, left open (see #5154 sibling gaps).
+#          `JTYPE=` never decides a row: a word outside {TAPE1|TAPE2|DISK1|DISK2|SMF} still yields it (ASSUMED, IBM silent); a repeated
+#          JFILEID is not folded (`01` and `1` are two rows; IBM silent on a repeated entry), both pinned in the tests.
 #   DFHTCT TYPE=TERMINAL|REMOTE|GPENTRY,TRMIDNT=  TERMINAL [TS, RDG p.473-475, VSE p.297];
 #          `TYPE=REGION,SYSIDNT={ssss|LOCAL}` sets the region for subsequent `TYPE=TERMINAL`
 #          entries ("Remote terminals, method 1", [RDG Table 74 p.473-474, p.551]); `SYSIDNT=`
@@ -125,6 +127,9 @@
 #          restated as `REMOTESYSTEM` / `REMOTENAME` [RDG p.532-533, p.551].
 #          TYPE=SYSTEM,SYSIDNT=  CONNECTION [TS, RDG p.529, p.553]; `ACCMETH=` restated as
 #          `ACCESSMETHOD(IRC|VTAM|INDIRECT|XM)`.
+#          ASSUMED, manual page not read (pinned in the tests): a TRMIDNT longer than 4 characters is still a row; a repeated
+#          TRMIDNT / SYSIDNT is not folded; `TYPE=REGION` applies to `TYPE=TERMINAL` only, not to REMOTE / GPENTRY; an
+#          ACCMETH outside the listed four is a row with no ACCESSMETHOD restatement. No burned estate uses DFHTCT.
 #   DFHTCT / DFHMCT `TYPE=INITIAL,SUFFIX=xx` (1-2 characters) names the table (`DFHTCTxx`, `DFHMCTxx`), in source and in a JCL SYSIN.
 #          `SUFFIX=NO` / `DY` is excluded only for DFHSIT and DSNCRCT; for TCT / MCT it is ASSUMED to name a table (not settled from the manual).
 #   DFHMCT TYPE=EMP,CLASS=PERFORM,ID=  MONITORPOINT (a user event monitoring point; it has no CSD

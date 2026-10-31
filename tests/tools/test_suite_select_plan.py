@@ -20,6 +20,12 @@ def plan(files, event="pull_request", labels=()):
     return sp.plan(files, event, tuple(labels), REFS)
 
 
+def max_selected(case_data=False):
+    """The most paths a select plan may hold: the name hits are capped at HELPER_MAX, the planner adds the tree guards
+    (and, for case.json / evidence.json, the evidence readers) after the cap (#7277, #7286)."""
+    return sp.HELPER_MAX + len(sp.TREE_GUARDS) + (len(sp.CASE_EVIDENCE_READERS) if case_data else 0)
+
+
 def test_prose_nothing_reads_skips():
     # today the whole-tree readers (`**/*.md`, `docs/**`: post_merge_dispatch, test_workflow_inputs) name every doc, so
     # no real file is prose yet; lift them out to pin the skip for the day those tests stop enumerating
@@ -249,7 +255,7 @@ def test_a_helper_runs_the_tests_that_name_it_and_the_tree_guards():
     assert p["mode"] == "select"
     assert "tests/tools/test_audit_skip_plan.py" in p["paths"]
     assert set(sp.TREE_GUARDS) <= set(p["paths"])
-    assert len(p["paths"]) <= sp.HELPER_MAX + len(sp.TREE_GUARDS)
+    assert len(p["paths"]) <= max_selected()
 
 
 def test_a_helper_reaches_the_tests_that_name_a_helper_naming_it(tmp_path):
@@ -330,7 +336,33 @@ def test_a_case_json_or_evidence_selects_the_tests_that_name_the_case_or_the_fil
     p = plan([f])
     assert p["mode"] == "select"
     assert "tests/test_source_reads.py" in p["paths"]
-    assert 1 < len(p["paths"]) <= sp.HELPER_MAX and all((sp.REPO_ROOT / x).exists() for x in p["paths"])
+    assert 1 < len(p["paths"]) <= max_selected(True) and all((sp.REPO_ROOT / x).exists() for x in p["paths"])
+
+
+def test_sampled_case_json_and_evidence_plans_stay_within_the_cap():
+    # every 8th file keeps this under a second (all 236 took 19 s); the parametrized test above pins named examples
+    root = sp.REPO_ROOT / "tests" / "equivalence"
+    files = sorted(
+        f.relative_to(sp.REPO_ROOT).as_posix()
+        for name in ("case.json", "evidence.json")
+        for f in root.glob(f"*/{name}")
+    )
+    assert files
+    for f in files[::8]:
+        p = plan([f])
+        if p["mode"] == "select":
+            assert len(p["paths"]) <= max_selected(True), f
+            assert all((sp.REPO_ROOT / x).exists() for x in p["paths"]), f
+
+
+def test_a_case_named_by_exactly_the_cap_selects_and_one_more_runs_everything(tmp_path):
+    (tmp_path / "tests" / "tools").mkdir(parents=True)
+    for i in range(sp.HELPER_MAX):
+        (tmp_path / "tests" / "tools" / f"test_n{i}.py").write_text("case = 'cbsa-x'\n")
+    hit = sp.named_data_targets("tests/equivalence/cbsa-x/case.json", tmp_path)
+    assert hit is not None and len(hit) == sp.HELPER_MAX
+    (tmp_path / "tests" / "tools" / "test_over.py").write_text("case = 'cbsa-x'\n")
+    assert sp.named_data_targets("tests/equivalence/cbsa-x/case.json", tmp_path) is None
 
 
 def test_case_files_map_by_case_id_and_file_name(tmp_path):

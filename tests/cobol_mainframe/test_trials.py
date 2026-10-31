@@ -601,3 +601,79 @@ def test_unlocked_test_count_matches_the_prediction_after_a_fix(tmp_path):
         )
     runnable = sum(f["tests"] for k, f in facts.items() if trial.program_state(t["programs"][k])[0] == "proven")
     assert runnable - 0 == top["tests_unlocked"] == proven_tests
+
+
+def _limit_cases(root, corpora):
+    """caseR: a generated record with a RENAMES; caseM: an MQ and a RECFM V input; the corpus holds the copybook."""
+    cpy = corpora / "estate" / "ren.cpy"
+    cpy.parent.mkdir(parents=True)
+    cpy.write_text("       01 REC.\n          05 A PIC X.\n          66 R RENAMES A.\n", encoding="utf-8")
+    ren = {"corpus": "estate", "scenarios": [{}],
+           "datasets": {"REN": {"input": "@generate", "generate": {"copybook": "ren.cpy", "record": "REC"}}}}  # fmt: skip
+    mq = {"scenarios": [{}] * 2, "mq": {}, "datasets": {"V": {"input": "v.dat", "record_format": "VB"}}}
+    for name, case in (("caseR", ren), ("caseM", mq)):
+        (root / name).mkdir(parents=True)
+        (root / name / "case.json").write_text(json.dumps(case), encoding="utf-8")
+
+
+def test_the_page_names_the_input_generation_limits_by_cause(tmp_path):
+    cases, corpora = tmp_path / "cases", tmp_path / "corpora"
+    _limit_cases(cases, corpora)
+    ledger = _synthetic_ledger()
+    t = ledger["trials"][0]
+    facts = trial.case_facts({"B": "caseR", "C": "caseM"}, cases, [corpora])
+    page = trial.trial_page(ledger, t, facts=facts)
+    assert "## Input-generation limits" in page
+    assert "RENAMES (#4266)" in page and "caseR: REN (REC)" in page
+    assert "RECFM V" in page and "MQ queue model" in page
+    # the layout is read only when the corpus is: without roots the RENAMES is not claimed
+    bare = trial.trial_page(ledger, t, facts=trial.case_facts({"B": "caseR"}, cases))
+    assert "RENAMES" not in bare and "## Input-generation limits" not in bare
+
+
+def test_a_page_without_limits_has_no_limits_section(tmp_path):
+    _cases(tmp_path)
+    ledger = _synthetic_ledger()
+    page = trial.trial_page(ledger, ledger["trials"][0], facts=trial.case_facts({"B": "caseB", "C": "caseC"}, tmp_path))
+    assert "## Input-generation limits" not in page
+
+
+def _untranslated_res():
+    def row(corpus, prog, classes, burned=True, error=None):
+        return {"corpus": corpus, "program": prog, "burned": burned, "classes": classes} | (
+            {"error": error} if error else {}
+        )
+
+    return {"untranslated": [
+        row("estate", "a/NOCPY.cbl", ["refused: CopyUnresolved"], error="CopyUnresolved COPY MYBOOK: not found"),
+        row("estate", "a/NOSTUB.cbl", ["EXEC SQL SELECT"]),
+        row("estate", "a/OTHER.cbl", ["EXEC SQL SELECT"], burned=False),
+    ]}  # fmt: skip
+
+
+def test_the_page_names_untranslated_programs_by_cause():
+    import harness_report as hr
+
+    ledger = _synthetic_ledger()
+    t = ledger["trials"][0]
+    page = trial.trial_page(ledger, t, untranslated=hr.untranslated_blockers(_untranslated_res()))
+    assert "## Programs with no translation yet" in page
+    assert "COPY MYBOOK" in page and "a/NOSTUB.cbl" in page
+    assert "a/OTHER.cbl" not in page  # a non-burned program is never named
+    assert page.count("a/NOCPY.cbl") == 2  # once in the fix line, once in its item: one blocker only
+
+
+def test_a_page_without_untranslated_programs_is_unchanged():
+    ledger = _synthetic_ledger()
+    t = ledger["trials"][0]
+    assert trial.trial_page(ledger, t, untranslated=[]) == trial.trial_page(ledger, t)
+    assert "no translation yet" not in trial.trial_page(ledger, t)
+
+
+def test_preview_reads_proof_blockers(started, tmp_path):
+    pb = tmp_path / "pb.json"
+    pb.write_text(json.dumps(_untranslated_res()), encoding="utf-8")
+    page = tmp_path / "page.md"
+    rc = trial.main([*started["common"], "preview", "tiny-estate", "--estate-path", str(started["estate"]),
+                     "--work", str(tmp_path / "w"), "--page", str(page), "--proof-blockers", str(pb)])  # fmt: skip
+    assert rc == 0 and "COPY MYBOOK" in page.read_text(encoding="utf-8")

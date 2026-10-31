@@ -20,6 +20,26 @@ public final class Storage {
      *  byte reader indexes with Field.at() / offset(), never the item's own offset alone. */
     public int base;
 
+    /** #4767: the area's own bytes while `bytes` is aliased onto another storage's (SET ADDRESS OF); null when never aliased. */
+    private byte[] home;
+
+    /** SET ADDRESS OF: this area's record is `to` from `at` on. The first alias remembers the area's own bytes. */
+    public void alias(byte[] to, int at) {
+        if (home == null) {
+            home = bytes;
+        }
+        bytes = to;
+        base = at;
+    }
+
+    /** Back to the area's own bytes (a new task: the service keeps its storages, the addresses a task set are gone). */
+    public void unalias() {
+        if (home != null) {
+            bytes = home;
+            base = 0;
+        }
+    }
+
     /** All zero bytes; the translator's initial image sets every byte. */
     public Storage(int size) {
         this.bytes = new byte[size];

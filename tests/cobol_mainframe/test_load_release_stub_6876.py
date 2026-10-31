@@ -55,7 +55,7 @@ def test_release_lowers_onto_the_stub():
 def test_the_options_the_stub_does_not_model_are_refused_by_name(text):
     with pytest.raises(_ec().Unsupported) as e:
         _ec().translate_command(text)
-    assert "not modelled by the stub runtime" in str(e.value)
+    assert "option not modelled" in str(e.value)  # #6876: the spec Refusal names it
 
 
 @pytest.mark.parametrize("text", ["LOAD SET(P)", "RELEASE", "LOAD PROGRAM('P') SET", "LOAD PROGRAM('P') SET(P(1))"])

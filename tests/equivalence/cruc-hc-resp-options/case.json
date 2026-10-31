@@ -10,7 +10,13 @@
   "clock": "2026/10/01 10:30:15.00",
   "datasets": {},
   "commarea": null,
-  "screens": {},
+  "screens": {
+    "HCM1": {
+      "copybook": "cases/condition-handling/hc-resp-options/copy/HCSET1.cpy",
+      "input": "HCM1I",
+      "output": "HCM1O"
+    }
+  },
   "notes": "cics-crucible condition-handling / hc-resp-options (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): RESP on FORMATTIME (INVREQ RESP2 1 for ABSTIME below zero), ASKTIME NOHANDLE with no ABSTIME, READQ TS LENGTH(LENGTH OF area) (LENGERR truncation), RECEIVE MAP ... ASIS keeps lower case. Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
   "scenarios": [
     {
@@ -30,6 +36,12 @@
       "commarea": null,
       "terminal": "HC51 Z",
       "why": "takes the EVALUATE/IF arm no crucible scenario reaches: a mode no WHEN names (falls through)"
+    },
+    {
+      "name": "show-map",
+      "commarea": null,
+      "terminal": "HC51 A",
+      "why": "mode A: SEND MAP HCM1 (the crucible's asis scenario step 0) then RETURN TRANSID('HC52'); the second leg (RECEIVE MAP ASIS under HC52) is a separate task the harness cannot start under its own transid"
     }
   ]
 }

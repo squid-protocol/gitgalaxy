@@ -250,6 +250,7 @@ core/README.md	gitgalaxy
 correspondence.md	tests/tools/construct_map.py
 coverage.md	tests/tools/cobol_coverage.py
 d.md	tests/cobol_mainframe
+data.json	tests/core_engine,tests/security_auditing
 definition_of_done.md	tests/cobol_mainframe,tests/tools/progress_report.py,tests/tools/progress_slide.py,tests/tools/readiness_report.py,tests/tools/support_matrix.py
 det_port_design.md	tests/tools/test_progress_report.py,tests/tools/test_status_page_snapshots.py
 det_survey.md	tests/tools/test_progress_report.py,tests/tools/test_status_page_snapshots.py
@@ -468,6 +469,7 @@ ground_truth_history.jsonl	tests/tools/ground_truth_ledger.py
 harness_report.md	tests/tools/harness_report.py,tests/tools/test_harness_report.py
 how_to_add_a_fact_channel.md	tests/core_engine
 how_to_add_a_language.md	tests/signal_contract_audit.py,tests/tools/language_addition_audit.py
+index.html	gitgalaxy,tests/core_engine
 issue.md	tests/tools/test_context_pack.py
 ledger.md	tests/tools/bugfix_kit.py
 libraries/ZVulkan/LICENSE.md	tests/core_engine

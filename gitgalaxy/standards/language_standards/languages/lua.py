@@ -12,7 +12,12 @@ from typing import Any
 
 from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: compiled on first use
 
-from .._shared_patterns import CALLS_OUT_C_STYLE, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import (
+    CALLS_OUT_C_STYLE,
+    GLOBAL_FRAGILE_DEBT,
+    GLOBAL_PLANNED_DEBT,
+    commented_keyword_statement,
+)
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -150,8 +155,16 @@ DEFINITION: dict[str, Any] = {
             re.M,
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails) Commented out structural code trails.
+        # #7207: a statement's shape (`;{}`, `(...)`, an assignment, a trailing `then` / `do`, a quote / `{` argument, or a
+        # bare `function name` / `return value`), not just the keyword. `---` doc lines are not commented-out code.
         "dead_code": re.compile(
-            r"(?:--|--\[=*\[)[ \t]*(?:if|local|function|for|while|print|return)\b",
+            commented_keyword_statement(
+                "if|local|function|for|while|print|return",
+                marker=r"(?<!-)--(?:\[=*\[)?",
+                extra=r"[^\n]{0,400}[ \t](?:then|do)[ \t]*(?m:$)"
+                r"|[ \t]+[\"'{]"
+                r"|(?:(?<=function)|(?<=return))[ \t]+[\w.:]+[ \t]*(?m:$)",
+            ),
             re.M,
         ),
         # 13. doc: Structured Documentation. LDoc/EmmyLua style documentation.

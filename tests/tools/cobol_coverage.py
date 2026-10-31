@@ -222,6 +222,7 @@ def branch_points(text: str) -> tuple[list[Branch], Counter[tuple[int, str]]]:
                 return
 
     in_exec = False
+    depth = 0  # open parentheses: a word inside them (`DFHVALUE(DELETE)`, a subscript) starts no statement
     i = 0
     while i < len(tokens):
         line, tok = tokens[i]
@@ -230,7 +231,16 @@ def branch_points(text: str) -> tuple[list[Branch], Counter[tuple[int, str]]]:
         if in_exec:
             in_exec = tok != "END-EXEC"
             continue
+        if tok == "(":
+            depth += 1
+            continue
+        if tok == ")":
+            depth = max(depth - 1, 0)
+            continue
+        if depth and tok != ".":
+            continue
         if tok == ".":
+            depth = 0
             while stack:
                 close(stack.pop())
         elif tok == "ELSE":
@@ -288,6 +298,7 @@ def _flow_tokens(text: str) -> list[tuple[int, str, list[str], bool, bool]]:
     out: list[tuple[int, str, list[str], bool, bool]] = []
     exec_words: list[str] | None = None
     free = bool(_FREE.search(text))
+    depth = 0
     for ln, code in _code_lines(text):
         first = True
         for m in _TOKEN.finditer(code):
@@ -298,6 +309,14 @@ def _flow_tokens(text: str) -> list[tuple[int, str, list[str], bool, bool]]:
                 else:
                     exec_words.append(tok)
                 continue
+            if tok == "(":
+                depth += 1
+            elif tok == ")":
+                depth = max(depth - 1, 0)
+            elif tok == ".":
+                depth = 0
+            elif depth and tok in VERBS:
+                continue  # `DFHVALUE(DELETE)`: a verb's name inside parentheses is no statement
             out.append((ln, tok, [], first, first and not free and m.start() < 4))
             first = False
             if tok == "EXEC":

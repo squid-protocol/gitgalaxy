@@ -127,7 +127,7 @@
     "assembly/cosmopolitan": {
       "assembly/cosmopolitan/BUILD.mk": 6.14,
       "assembly/cosmopolitan/ape.S": 5.616,
-      "assembly/cosmopolitan/loader.c": 5.803,
+      "assembly/cosmopolitan/loader.c": 5.804,
       "assembly/cosmopolitan/notice.inc": 0.0,
       "assembly/cosmopolitan/start.S": 5.522
     },
@@ -418,44 +418,44 @@
     "c/cpython": {
       "c/cpython/Makefile.pre.in": 8.515,
       "c/cpython/ceval.c": 5.708,
-      "c/cpython/compile.c": 4.199,
-      "c/cpython/dictobject.c": 10.034,
-      "c/cpython/frameobject.c": 6.138,
+      "c/cpython/compile.c": 4.2,
+      "c/cpython/dictobject.c": 10.035,
+      "c/cpython/frameobject.c": 6.139,
       "c/cpython/gc.c": 6.486,
-      "c/cpython/object.c": 6.432,
-      "c/cpython/typeobject.c": 8.227
+      "c/cpython/object.c": 6.433,
+      "c/cpython/typeobject.c": 8.228
     },
     "c/doom": {
       "c/doom/LICENSE.TXT": 0.0,
       "c/doom/README.TXT": 0.0,
-      "c/doom/d_main.c": 10.059,
-      "c/doom/doomdef.h": 3.244,
-      "c/doom/i_system.c": 6.469,
-      "c/doom/m_fixed.c": 5.533,
-      "c/doom/m_fixed.h": 3.913,
-      "c/doom/p_mobj.c": 6.935,
-      "c/doom/p_mobj.h": 3.072,
-      "c/doom/r_bsp.c": 7.627,
-      "c/doom/r_defs.h": 3.58,
-      "c/doom/w_wad.c": 6.278,
-      "c/doom/z_zone.c": 9.164
+      "c/doom/d_main.c": 10.052,
+      "c/doom/doomdef.h": 3.171,
+      "c/doom/i_system.c": 6.422,
+      "c/doom/m_fixed.c": 5.412,
+      "c/doom/m_fixed.h": 3.263,
+      "c/doom/p_mobj.c": 6.931,
+      "c/doom/p_mobj.h": 2.98,
+      "c/doom/r_bsp.c": 7.621,
+      "c/doom/r_defs.h": 3.243,
+      "c/doom/w_wad.c": 6.252,
+      "c/doom/z_zone.c": 9.15
     },
     "c/freebsd_openpam": {
       "c/freebsd_openpam/pam_acct_mgmt.c": 6.237
     },
     "c/micropython": {
-      "c/micropython/compile.c": 7.6,
+      "c/micropython/compile.c": 7.583,
       "c/micropython/compile.h": 3.839,
-      "c/micropython/emitnative.c": 6.855,
-      "c/micropython/gc.c": 7.369,
+      "c/micropython/emitnative.c": 6.843,
+      "c/micropython/gc.c": 7.362,
       "c/micropython/gc.h": 4.953,
       "c/micropython/modmachine.c": 6.197,
-      "c/micropython/modmachine.h": 4.96,
-      "c/micropython/objtype.c": 5.945,
+      "c/micropython/modmachine.h": 4.947,
+      "c/micropython/objtype.c": 5.947,
       "c/micropython/objtype.h": 4.731,
-      "c/micropython/vfs.c": 6.345,
-      "c/micropython/vfs.h": 4.341,
-      "c/micropython/vm.c": 6.424
+      "c/micropython/vfs.c": 6.331,
+      "c/micropython/vfs.h": 4.29,
+      "c/micropython/vm.c": 6.415
     },
     "c/sqlite": {
       "c/sqlite/LICENSE.md": 0.0,
@@ -1108,19 +1108,19 @@
       "cpp/godot/editor_node.cpp": 8.219,
       "cpp/godot/editor_node.h": 5.975,
       "cpp/godot/gdscript_vm.cpp": 9.305,
-      "cpp/godot/main.cpp": 6.753,
+      "cpp/godot/main.cpp": 6.754,
       "cpp/godot/main.h": 4.455,
       "cpp/godot/node.cpp": 8.239,
       "cpp/godot/node.h": 7.882,
       "cpp/godot/object.cpp": 6.245,
       "cpp/godot/object.h": 7.374,
       "cpp/godot/rendering_server_default.cpp": 6.859,
-      "cpp/godot/rendering_server_default.h": 7.582,
+      "cpp/godot/rendering_server_default.h": 7.581,
       "cpp/godot/variant.cpp": 7.3,
       "cpp/godot/variant.h": 8.476
     },
     "cpp/mlir": {
-      "cpp/mlir/flatbuffer_export.cc": 6.859,
+      "cpp/mlir/flatbuffer_export.cc": 6.86,
       "cpp/mlir/glob_lit_test.bzl": 7.254,
       "cpp/mlir/mlir_bridge_rollout_policy.cc": 7.1,
       "cpp/mlir/mlir_graph_optimization_pass.cc": 6.049,
@@ -1134,7 +1134,7 @@
       "cpp/powertoys/ImageResizerExt.cpp": 4.762,
       "cpp/powertoys/centralized_kb_hook.cpp": 6.299,
       "cpp/powertoys/logger.cpp": 6.114,
-      "cpp/powertoys/main.cpp": 6.947,
+      "cpp/powertoys/main.cpp": 6.945,
       "cpp/powertoys/powertoy_module.h": 5.472
     },
     "cpp/serenity_ak_siphash_cpu": {
@@ -1445,7 +1445,7 @@
       "groovy/godot_android_gradle/java_settings.gradle": 2.944
     },
     "groovy/gradle": {
-      "groovy/gradle/DefaultPluginManager.java": 6.137,
+      "groovy/gradle/DefaultPluginManager.java": 6.133,
       "groovy/gradle/DefaultProject.java": 7.059,
       "groovy/gradle/DefaultTask.java": 6.554
     },
@@ -1633,10 +1633,10 @@
       "groovy/retrofit_gradle/retrofit-converters_jaxb_build.gradle": 3.549
     },
     "groovy/spock": {
-      "groovy/spock/DeepBlockRewriter.java": 6.493,
-      "groovy/spock/SpecParser.java": 7.22,
-      "groovy/spock/SpecRewriter.java": 6.906,
-      "groovy/spock/SpockTransform.java": 6.945
+      "groovy/spock/DeepBlockRewriter.java": 6.49,
+      "groovy/spock/SpecParser.java": 7.213,
+      "groovy/spock/SpecRewriter.java": 6.899,
+      "groovy/spock/SpockTransform.java": 6.865
     },
     "groovy/spock_core_groovy": {
       "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_AsciiDocLinkVerifier.groovy": 5.711,
@@ -2502,7 +2502,7 @@
     },
     "objective-c/worldwideweb": {
       "objective-c/worldwideweb/Anchor.m": 6.882,
-      "objective-c/worldwideweb/HText.c": 7.586,
+      "objective-c/worldwideweb/HText.c": 7.587,
       "objective-c/worldwideweb/HyperManager.m": 6.723,
       "objective-c/worldwideweb/HyperText.h": 8.12,
       "objective-c/worldwideweb/HyperText.m": 8.217,
@@ -3300,7 +3300,7 @@
       "scheme/racket/LICENSE.txt": 0.0,
       "scheme/racket/cpnanopass.ss": 9.979,
       "scheme/racket/eval.c": 8.811,
-      "scheme/racket/fun.c": 8.046,
+      "scheme/racket/fun.c": 8.047,
       "scheme/racket/io.ss": 9.007,
       "scheme/racket/schemify.rkt": 6.851,
       "scheme/racket/thread.rkt": 7.771

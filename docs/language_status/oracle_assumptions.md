@@ -1770,6 +1770,20 @@ states each (`none (gap)`: no entry does). Only fields a burned corpus's COBOL n
     SYSUT1 -> SYSUT2 byte copy, the model's behaviour); a control statement, or a SYSIN that is a dataset, becomes
     `steps.utility` with the refusal named, counted as a utility step to port, never a silent plain copy. Not seen: a
     SYSIN deck written inside a PROC definition (`job_sysin` lists job-level decks only).
+  - **Batch forge, SORT / ICEMAN / DFSORT (#4268).** The forge reads the step's SYSIN and SYMNAMES (`job_sysin`) through
+    `dfsort.parse` and takes the record length from the job's DCB facts (`job_dds` `lrecl` / `recfm`): the step's input
+    DDs (SORTIN, or SORTINnn for a MERGE; concatenated DDs must agree), else the same dataset (dsn and generation)
+    stated elsewhere in the job, else SORTOUT when there is no OUTREC. When the length is stated and RECFM is fixed (F,
+    FB, FBA, FBM, FBS) the step is lowered by `dfsort.cobol_program` and the COBOL is written under `batch/sort/` as a
+    resource. The step stays a `steps.utility` (counted as a utility step to port): the lowered program is not run
+    until the det port translates it. Refused by name: VB / V / U RECFM, an LRECL with no RECFM (no guess, and no other
+    DD may overrule it), disagreeing LRECLs, no stated length, a SORTIN / SORTOUT that is not a dataset, a SORTCNTL / DFSPARM / control dataset, and
+    anything `dfsort` refuses. A `DCB=*.ddname` / `DCB=*.stepname.ddname` /
+    `DCB=(*.stepname.ddname,LRECL=..)` back-reference borrows the LRECL / RECFM the nearest earlier DD of that name codes
+    (job flow, `_dcb_from_referback`; IBM z/OS MVS JCL Reference, DCB parameter): what the DD codes itself wins, a chain
+    resolves, and a target that is not an earlier DD with a DSN of the same scope (no such step or DD, a later one, a
+    procedure step `*.step.procstep.dd`) states nothing. Not done: the record length from a program's FD, and
+    `DCB=dsn` (a catalogued model).
   - **IDCAMS REPRO (#4268).** `det/idcams.py` parses `REPRO INFILE(dd) OUTFILE(dd)` (IFILE / OFILE, `-` / `+`
     continuation, `/* */` comments) into the COPY model, lowered onto the proven COPY program (`IDCAMS` case of
     `test_dfsort_4268.py`; parser and refusals in `test_idcams_4268.py`). **IBM.** SC23-6853 "REPRO". The caller states
@@ -1779,8 +1793,8 @@ states each (`none (gap)`: no entry does). Only fields a burned corpus's COBOL n
     In the forge: a step that parses (one REPRO, both DDs datasets of the step) becomes `steps.copy` over the two DDs
     (`test_batch_idcams_4268.py`); anything else, or a SYSIN dataset, stays `steps.utility` with the refusal named and
     counted as a utility step to port.
-  - Not yet run from a generated batch job: `JclSteps.utility` still refuses the SORT step; the SORT step in the
-    forge and a multi-step job case are the next slices of #4268.
+  - Not yet run from a generated batch job: the SORT step, lowered or not, stays `JclSteps.utility`; det-porting the
+    lowered program into the job and a multi-step job case are the next slices of #4268.
 - The COBOL SORT / MERGE / RELEASE / RETURN verbs and the SD entry are translated (#4286), onto `cobolrt/Sort`:
   - Keys compare as a relation condition compares their items: a numeric key (zoned, packed, binary, signed or
     not) by value, any other byte by byte. WITH DUPLICATES IN ORDER is a stable sort; without it, records with
@@ -3498,6 +3512,9 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
 - **Resource facts (#5005).** `gitgalaxy/core/cics_resources.py` draws a `CHANNEL` row (access `delete` / `query`) for
   `DELETE CHANNEL` and `QUERY CHANNEL`, which name no container; `DELETE CONTAINER ... CHANNEL` stays a `CONTAINER` row.
   The browse commands (X42) still draw no row.
+  A `QUERY CHANNEL` row is one row whatever else the command names (CONTAINERCNT is an output area), in COBOL and PL/I
+  (`test_query_channel_draws_one_row_whatever_else_it_names`). No burned program issues the command (X17, grep 2026-10-30);
+  the only open QUERY CHANNEL work is the cics-crucible case, a companion PR.
 
 ### X45. DEFINE / QUERY / DELETE DCOUNTER with MINIMUM and MAXIMUM; GET DCOUNTER INCREMENT [WRAP] at the limits — ASSUMED, REFUSED where IBM is silent (#4770)
 - **What IBM says** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-define-counter-define-dcounter, ...summary-get-counter-get-dcounter,

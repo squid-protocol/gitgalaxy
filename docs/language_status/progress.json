@@ -1,5 +1,5 @@
 {
- "commit": "0b452e047",
+ "commit": "12c8862d5",
  "components": {
   "capabilities": {
    "groups": [
@@ -339,14 +339,14 @@
      "equivalent": 431,
      "l5": 0,
      "measured": 12,
-     "mutants": 23254,
+     "mutants": 23824,
      "programs": 44,
      "raw_pct": 65.6,
      "ready": 12,
-     "sampled": 1822,
+     "sampled": 1847,
      "sampled_pct": 7.8,
      "survived": 602,
-     "unreachable": 171
+     "unreachable": 178
     },
     "cics-async-api-credit-card-application-example": {
      "caught": 5783,
@@ -424,14 +424,14 @@
     "equivalent": 1337,
     "l5": 2,
     "measured": 30,
-    "mutants": 33250,
+    "mutants": 33820,
     "programs": 129,
     "raw_pct": 81.5,
     "ready": 28,
-    "sampled": 10182,
-    "sampled_pct": 30.6,
+    "sampled": 10207,
+    "sampled_pct": 30.2,
     "survived": 1795,
-    "unreachable": 646
+    "unreachable": 653
    }
   },
   "mutation": {
@@ -481,7 +481,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-31T20:38:58Z",
+  "as_of": "2026-10-31T20:43:45Z",
   "core": {
    "closed": 200,
    "open": 11,

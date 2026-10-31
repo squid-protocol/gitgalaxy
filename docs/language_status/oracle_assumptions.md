@@ -1782,9 +1782,16 @@ states each (`none (gap)`: no entry does). Only fields a burned corpus's COBOL n
     (`Sort$NotModelled`, "SORT GIVING O-FILE: WRITE gave FILE STATUS 30: not modelled"), the same refusal as an implicit
     USING open failure; IBM leaves implicit GIVING I/O status to FASTSRT. `carddemo-sort-tranrept` (explicit WRITE in the
     OUTPUT PROCEDURE, no FILE STATUS): the oracle ends RETURN-CODE 1 and IBM abends, but the port ignores the WRITE status
-    and ends RETURN-CODE 0 (SORTOUT 1/24 records equal). That is a det-port gap for any WRITE with no FILE STATUS and no
-    declarative, not a sort one; a fault run waits for it, so the SORTOUT DD label is compared only by the 25/25 and 50/50
-    record equality.
+    and ended RETURN-CODE 0 (SORTOUT 1/24 records equal). That was a det-port gap for any READ / WRITE / REWRITE with no
+    FILE STATUS, no phrase for the condition and no declarative (the det parser has none), not a sort one. **Closed by
+    refusal (#4268, 2026-10-31):** the port now stops by name (`Hole`, "WRITE O-FILE: FILE STATUS 30 with no FILE STATUS,
+    handling phrase or declarative: IBM abends (not modelled)"); AT END (10) and INVALID KEY (21-24) stay handled only where the
+    statement carries the phrase, and a READ's end-of-file 10 with no AT END is unchanged (not covered). Re-run on
+    `carddemo-sort-tranrept`: COBOL RETURN-CODE 1, Java a by-name stop (an uncoded abend), so the run still DIFFERS and the
+    case carries no `sortout-write-30` fault run: the comparator proves "the same abend, or neither abends and the same
+    RETURN-CODE", and IBM's abend is GnuCOBOL's RETURN-CODE 1 with a runtime-error SYSOUT, which no run of this harness can
+    equate. The SORTOUT DD label is compared by the 25/25 and 50/50 record equality. Pinned by
+    `test_det_unhandled_io_4268.py`. Residual risk: the oracle is GnuCOBOL plus our stub, not z/OS.
   - **Declared difference.** The oracle's SORT rewrites a signed DISPLAY key's sign zone in the records it sorts
     (`cobc -std=ibm -fsign=EBCDIC`, cobc 3.1.2, measured 2026-10-28: an unsigned key `0001` comes out `000A`); DFSORT
     and Enterprise COBOL never change a record's bytes. The lowering therefore sorts a ZD / PD key as a copy carried

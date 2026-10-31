@@ -4,6 +4,7 @@ JSON-only checks over the case, the coverage ledger and register C11.
 """
 
 import json
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -40,6 +41,7 @@ def test_every_ttl_scenario_sets_a_query_and_the_non_digit_one_cites_c11():
 def test_register_c11_names_the_zecs001_ttl_gap():
     text = (ROOT / "docs/language_status/register/C11.md").read_text(encoding="utf-8")
     assert "704:false" in text
+    assert "family U" in text and "2026-10-31" in text
     assert "post-ttl-nonnumeric" in text
 
 
@@ -51,3 +53,30 @@ def test_row_f_text_and_xml_bodies_take_the_srvconvert_pass_and_540_true_is_cove
     assert sc["put-application-xml"]["http_request"]["method"] == "PUT"
     ledger = json.loads((ROOT / "tests/equivalence/det_sweep_coverage/zecs-zecs001.json").read_text(encoding="utf-8"))
     assert "540:true" not in ledger["uncovered"]["branches"]
+
+
+def test_704_false_is_stated_undefined_by_ibm_and_netted_but_named():
+    sys.path.insert(0, str(ROOT / "tests" / "tools"))
+    import infeasible_outcomes as io  # noqa: E402
+
+    ledger = io.load()
+    entries = ledger["zecs-zecs001"]
+    u = [e for e in entries if io.is_undefined(e)]
+    assert [(e["unit"], e["line"], e["kind"], e["outcome"]) for e in u] == [("1310-TTL", 704, "IF", "false")]
+    assert all(t in u[0]["reason"] for t in ("ttl=abc", "C11", "2026-10-31", "not infeasible"))
+    assert io.problems_in({"zecs-zecs001": entries}) == []
+    # the class: a family-U entry exists only where a ruling names it (2026-10-29 bounds, 2026-10-31 non-digit data)
+    members = {(c, e["line"], e["outcome"]) for c, es in ledger.items() for e in es if io.is_undefined(e)}
+    assert members == {
+        ("cbsa-bnk1cac", 611, "true"),
+        ("cbsa-bnk1cac", 637, "true"),
+        ("cbsa-bnk1cac", 637, "false"),
+        ("cbsa-bnk1cac", 717, "true"),
+        ("zecs-zecs001", 704, "false"),
+    }
+    # taken out of the bar while uncovered; a proof that reaches it refutes it
+    cov = (10, 10, 20, 30)
+    got, taken, reached = io.adjust("zecs-zecs001", cov, ["704:false", "718:false"], ledger)
+    assert any(k.endswith(":704:false") for k in taken) and reached == []
+    assert io.split_undefined(taken, entries)[1] == [k for k in taken if k.endswith(":704:false")]
+    assert any(k.endswith(":704:false") for k in io.adjust("zecs-zecs001", cov, ["718:false"], ledger)[2])

@@ -776,6 +776,9 @@ public final class DetCics {
     public static void setAddress(CicsTask task, Field record, Field ptr) {
         wholeRecord(record, "SET ADDRESS OF");
         long handle = pointerValue(ptr);
+        if (handle == 0) {
+            return;  // NULL (ASSUMED, X47): the record keeps its storage; a program that then uses it differs from the oracle's null record
+        }
         record.storage().alias(task.storageAt(handle, record.length()), task.offsetAt(handle));
     }
 

@@ -581,6 +581,69 @@ def test_dfhmct_emp_id_forms(operand, expected):
     assert _named(f"         DFHMCT TYPE=EMP,CLASS=PERFORM,ID={operand}\n", "MONITORPOINT") == expected
 
 
+@pytest.mark.parametrize(
+    ("src", "expected"),
+    [
+        ("DFHTCT   CSECT\n", []),  # a label line is no macro
+        ("         dfhtct type=terminal,trmidnt=t1\n", ["T1"]),
+        ("MYTCT    DFHTCT TYPE=TERMINAL,TRMIDNT=(T1)\n", ["T1"]),  # label, parenthesised value
+        ("         DFHTCT TRMIDNT=T1\n", []),  # no TYPE names no entry
+        ("* DFHTCT TYPE=TERMINAL,TRMIDNT=T1\n", []),  # a comment line
+        (_cont("         DFHTCT TYPE=TERMINAL,TRMIDNT=T1,", "TRMTYPE=3270"), ["T1"]),
+        ("         DFHTCT TYPE=TERMINAL,TRMIDNT=T1\n         DFHTCT TYPE=GPENTRY,TRMIDNT=T2\n", ["T1", "T2"]),
+    ],
+)
+def test_dfhtct_statement_shapes(src, expected):
+    assert _named(src, "TERMINAL") == expected
+
+
+@pytest.mark.parametrize(
+    ("src", "expected"),
+    [
+        ("DFHMCT   CSECT\n", []),
+        ("         dfhmct type=emp,class=perform,id=180\n", ["USER.180"]),
+        ("MYMCT    DFHMCT TYPE=EMP,CLASS=PERFORM,ID=(PP,3)\n", ["USER.202"]),
+        ("         DFHMCT CLASS=PERFORM,ID=180\n", []),
+        ("* DFHMCT TYPE=EMP,CLASS=PERFORM,ID=180\n", []),
+        (_cont("         DFHMCT TYPE=EMP,CLASS=PERFORM,", "ID=BANK.7"), ["BANK.7"]),
+        ("         DFHMCT TYPE=EMP,ID=1\n         DFHMCT TYPE=EMP,ID=2\n", ["USER.1", "USER.2"]),
+    ],
+)
+def test_dfhmct_statement_shapes(src, expected):
+    assert _named(src, "MONITORPOINT") == expected
+
+
+@pytest.mark.parametrize(
+    ("op", "entry", "rtype", "name", "table"),
+    [
+        ("DFHTCT", "TYPE=TERMINAL,TRMIDNT=T1", "TERMINAL", "T1", "DFHTCTA1"),
+        ("DFHTCT", "TYPE=SYSTEM,SYSIDNT=SYSB,ACCMETH=IRC", "CONNECTION", "SYSB", "DFHTCTA1"),
+        ("DFHMCT", "TYPE=EMP,CLASS=PERFORM,ID=180", "MONITORPOINT", "USER.180", "DFHMCTA1"),
+    ],
+)
+def test_tct_and_mct_suffix_names_the_table_and_assembled_in_jcl(op, entry, rtype, name, table):
+    src = f"         {op} TYPE=INITIAL,SUFFIX=A1\n         {op} {entry}\n"
+    (row,) = _rows(src)
+    assert (row["resource_type"], row["name"], row["macro_table"], row["line"]) == (rtype, name, table, 2)
+    job = "//J JOB\n//ASM EXEC PGM=ASMA90\n//SYSIN DD *\n" + src + "/*\n"
+    rows = extract_boundary("jcl", job)["csd_resources"]
+    assert [(r["name"], r["macro_table"], r["line"]) for r in rows] == [(name, table, 5)]
+    # a suffix longer than two characters names no table: the rows keep the bare table name
+    (row,) = _rows(src.replace("A1", "ABC"))
+    assert row["macro_table"] == op
+
+
+def test_dfhtct_region_state_holds_inside_jcl_sysin():
+    src = (
+        "         DFHTCT TYPE=INITIAL,SUFFIX=01,SYSIDNT=HOME\n"
+        "         DFHTCT TYPE=REGION,SYSIDNT=SYSB\n"
+        "         DFHTCT TYPE=TERMINAL,TRMIDNT=T2,ACCMETH=VTAM\n"
+    )
+    job = "//J JOB\n//ASM EXEC PGM=ASMA90\n//SYSIN DD *\n" + src + "/*\n"
+    (row,) = extract_boundary("jcl", job)["csd_resources"]
+    assert (row["name"], row["macro_table"], _rdo(row)) == ("T2", "DFHTCT01", "REMOTESYSTEM(SYSB)")
+
+
 def test_dfhmct_other_types_are_refused():
     src = "         DFHMCT TYPE=RECORD,CLASS=PERFORM\n         DFHMCT TYPE=INITIAL,SUFFIX=01\n"
     assert _rows(src) == []

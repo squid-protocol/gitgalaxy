@@ -2167,9 +2167,14 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   first bytes and leaves the rest as it was. RECEIVE SET(ADDRESS OF record): the port's LINKAGE record keeps its own
   storage, so the data is copied into it and the bytes past the data are X'00' (on CICS they are storage IBM does not
   describe; a program reading past LENGTH reads undefined bytes).
+- **SET without MAXLENGTH (#5079, ruling).** With SET, IBM makes LENGTH an output ("the data area is set to the length of
+  the data"), so the "value indicated in the LENGTH option is assumed" default has no input to read and nothing bounds the
+  data: the whole retained input is delivered, LENGTH is its length, never LENGERR, and NOTRUNCATE has nothing to retain.
+  The det port passes `Integer.MAX_VALUE` to `CicsTask.receive`; the stub passes its 32768-byte buffer size. Both SET forms
+  (ADDRESS OF record, pointer: X58) follow it, which supersedes X58's "MAXLENGTH required" clause. Reached by cics-crucible
+  `ca-receive-retrieve-set` (3 scenarios, terminal input shorter than the stub buffer).
 - **Refused by name** (`Unsupported` / CicsError, "... not modelled"): SET of anything but ADDRESS OF a LINKAGE 01
-  record; SET without MAXLENGTH (IBM's "the value indicated in the LENGTH option is assumed" would read the LENGTH
-  that SET only sets) or without LENGTH(data-area); ASIS, BUFFER and the APPC / partition options; SEND CONTROL CURSOR
+  record; SET without LENGTH(data-area); ASIS, BUFFER and the APPC / partition options; SEND CONTROL CURSOR
   without a value, PRINT, FORMFEED, ALTERNATE / DEFAULT, MSR, partitions, LDC, ACCUM / PAGING / SET / REQID. At run
   time: a RECEIVE with nothing retained (it would wait for the operator), and on an LUTYPE2 terminal a NOTRUNCATE
   RECEIVE that leaves data retained (IBM does not say whether it raises EOC).

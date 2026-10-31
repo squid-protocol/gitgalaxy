@@ -330,7 +330,8 @@ def test_a_case_json_or_evidence_selects_the_tests_that_name_the_case_or_the_fil
     p = plan([f])
     assert p["mode"] == "select"
     assert "tests/test_source_reads.py" in p["paths"]
-    assert 1 < len(p["paths"]) <= sp.HELPER_MAX and all((sp.REPO_ROOT / x).exists() for x in p["paths"])
+    cap = sp.HELPER_MAX + len(sp.TREE_GUARDS) + len(sp.CASE_EVIDENCE_READERS)  # the cap bounds the named readers only
+    assert 1 < len(p["paths"]) <= cap and all((sp.REPO_ROOT / x).exists() for x in p["paths"])
 
 
 def test_case_files_map_by_case_id_and_file_name(tmp_path):

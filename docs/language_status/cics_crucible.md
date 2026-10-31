@@ -12,11 +12,11 @@ Every cell that does not pass is ledgered in `tests/cics_crucible/baseline.json`
 |---|---|---|---|---|
 | engine-facts | 48 | 0 | 0 | 48 |
 | forge-compile | 48 | 0 | 0 | 48 |
-| cobol-stub | 139 | 5 | 27 | 171 |
+| cobol-stub | 141 | 5 | 25 | 171 |
 | java | 0 | 171 | 0 | 171 |
 | java-ported | 58 | 113 | 0 | 171 |
 | java-facade | 55 | 116 | 0 | 171 |
-| **all** | **348** | **405** | **27** | **780** |
+| **all** | **350** | **405** | **25** | **780** |
 
 ## By trap and case
 
@@ -33,7 +33,7 @@ Pass counts per side (scenario sides: passing / scenarios).
 | commarea-mismatch | `ca-get-container-set` | pass | pass | 1 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
 | commarea-mismatch | `ca-getmain-pointer` | pass | pass | 1 / 2 | 0 / 2 | 2 / 2 | 2 / 2 |
 | commarea-mismatch | `ca-link-lengths` | pass | pass | 4 / 4 | 0 / 4 | 4 / 4 | 4 / 4 |
-| commarea-mismatch | `ca-load-set` | pass | pass | 0 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
+| commarea-mismatch | `ca-load-set` | pass | pass | 2 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
 | commarea-mismatch | `ca-receive-retrieve-set` | pass | pass | 0 / 3 | 0 / 3 | 0 / 3 | 0 / 3 |
 | commarea-mismatch | `ca-xctl-versions` | pass | pass | 4 / 4 | 0 / 4 | 4 / 4 | 4 / 4 |
 | condition-handling | `hc-abend-link` | pass | pass | 5 / 5 | 0 / 5 | 5 / 5 | 5 / 5 |
@@ -290,7 +290,7 @@ Each item is a scenario to propose: a crucible PR adds it with a hand-written, d
 
 Each missing feature belongs to a piece of harness work (below: the features themselves). A cell is *unlocked* when every piece its features need is done: it then gets a pass or fail verdict rather than `unsupported`. **needs** counts the cells that do not pass and need the piece, **alone** the unsupported cells it unlocks by itself, and **cumulative** the unsupported cells unlocked by it and every row above it (rows are chosen greedily).
 
-### cobol-stub (27 unsupported)
+### cobol-stub (25 unsupported)
 
 | # | harness work | needs | alone | cumulative |
 |---|---|---|---|---|
@@ -307,8 +307,6 @@ Each missing feature belongs to a piece of harness work (below: the features the
 | 11 | READ | 4 | 0 | 21 |
 | 12 | READNEXT | 4 | 0 | 21 |
 | 13 | READPREV | 4 | 0 | 25 |
-| 14 | LOAD | 2 | 0 | 25 |
-| 15 | RELEASE | 2 | 0 | 27 |
 
 ### java (0 unsupported)
 
@@ -352,8 +350,6 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | translator: READPREV | 4 | READPREV |
 | translator: RECEIVE SET | 3 | terminal RECEIVE (unformatted input) |
 | stub: DELETEQ-TD event | 2 | DELETEQ-TD event |
-| translator: LOAD | 2 | LOAD |
-| translator: RELEASE | 2 | RELEASE |
 | translator: WEB WRITE HTTPHEADER | 1 | WEB WRITE HTTPHEADER |
 
 ### java
@@ -461,11 +457,9 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | `ca-link-lengths/no-commarea/java` | fail | task 1 (CA01) event 1: RECEIVE expected, the side recorded no further event |
 | `ca-link-lengths/short-100/java` | fail | task 1 (CA01) event 1: RECEIVE expected, the side recorded no further event |
 | `ca-link-lengths/undefined-program/java` | fail | task 1 (CA01) event 1: RECEIVE expected, the side recorded no further event |
-| `ca-load-set/load/cobol-stub` | unsupported | translator: LOAD; translator: RELEASE |
 | `ca-load-set/load/java` | fail | task 1 (CA0L) event 1: WRITEQ-TS expected, the side recorded no further event |
 | `ca-load-set/load/java-facade` | fail | no port of any of its programs |
 | `ca-load-set/load/java-ported` | fail | no port of any of its programs |
-| `ca-load-set/pgmiderr/cobol-stub` | unsupported | translator: LOAD; translator: RELEASE |
 | `ca-load-set/pgmiderr/java` | fail | task 1 (CA0M) event 1: WRITEQ-TS expected, the side recorded no further event |
 | `ca-load-set/pgmiderr/java-facade` | fail | no port of any of its programs |
 | `ca-load-set/pgmiderr/java-ported` | fail | no port of any of its programs |

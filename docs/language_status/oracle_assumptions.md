@@ -4645,7 +4645,12 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   - OpenTelemetry (OTEL), user trace and monitoring (ENTER TRACENUM, MONITOR): no trace or monitoring facility is modelled.
   - 64-bit storage (GET64 / PUT64 CONTAINER, GETMAIN64, FREEMAIN64): the pointer lane (X47) holds 31-bit-style blocks only.
   - LOAD and RELEASE: a program or table loaded into storage and addressed by a pointer; the engine derives the load edge, the translator
-    refuses both. No burned estate issues either (0 programs in the census of the burned and local corpora); LOAD is heavy only in PL/I.
+    refuses both. The cics-crucible **stub** (not the det port) models both since #6876: `GGCLDPG` answers PGMIDERR RESP2 1 for a program the CSD does not
+    define, else sets SET(ptr) to a non-null image and LENGTH (a halfword) to its length; `GGCRLPG` answers NORMAL for a program this task
+    loaded, INVREQ for one it did not (or released already), PGMIDERR for an undefined one. ASSUMED: IBM states no image bytes or length
+    (the stub's are a 256-byte block, a program that reads them is outside the proof) and RELEASE's NORMAL is read from the absence of a
+    listed condition. HOLD, ENTRY and FLENGTH are refused by name by the harness. The `ca-load-set` cobol-stub cells pass; its java cells do
+    not (the det translator and `DetCics` still refuse LOAD and RELEASE). No burned estate issues either (0 programs in the census of the burned and local corpora); LOAD is heavy only in PL/I.
   - Singles: SUSPEND and CHANGE TASK (one task runs at a time), RESETBR (browse repositioning), ADDRESS SET (X59), BIF DIGEST,
     CONVERTTIME (a date-time string to ABSTIME).
 - **Status:** REFUSED. Reached by no burned-estate program except DBB MortgageApplication's SOAPFAULT CREATE; non-burned census programs are counted by tools

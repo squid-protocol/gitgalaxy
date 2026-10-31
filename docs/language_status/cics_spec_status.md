@@ -129,8 +129,8 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | WEB STARTBROWSE QUERYPARM | full | yes (5 options, 3 refused by name) | yes | X38 | http_request | 0 | — |
 | WEB READNEXT QUERYPARM | full | yes (7 options) | yes | X38 | http_request | 0 | — |
 | WEB ENDBROWSE QUERYPARM | full | yes (4 options) | yes | X38 | http_request | 0 | — |
-| LOAD | engine-only | refused whole | refused whole | X65 | — | 0 | — |
-| RELEASE | engine-only | refused whole | refused whole | X65 | — | 0 | — |
+| LOAD | engine-only | refused whole | yes | X65 | — | 0 | — |
+| RELEASE | engine-only | refused whole | yes | X65 | — | 0 | — |
 
 ## Name-only entries a census program uses
 

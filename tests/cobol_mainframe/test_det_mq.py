@@ -806,6 +806,8 @@ def test_a_cics_mqopen_is_a_runtime_call_with_every_item_by_reference():
     ("MQCONNX", ("OD", "HC", "CC", "RC"), "batch MQ"),
     ("MQDISC", ("HC", "CC", "RC"), "batch MQ"),
     ("MQCMIT", ("HC", "CC", "RC"), "a unit of work of MQ's own"),
+    ("MQBACK", ("HC", "CC", "RC"), "a unit of work of MQ's own"),
+    ("MQBEGIN", ("HC", "OD", "CC", "RC"), "a unit of work of MQ's own"),
 ])  # fmt: skip
 def test_what_the_runtime_does_not_model_is_a_named_hole(prog, args, why):
     from gitgalaxy.tools.cobol_to_java.det import mq
@@ -956,6 +958,29 @@ def test_no_burned_program_is_batch_mq():
                 cics[p.stem.upper()] = any(re.search(r"\bEXEC\s+CICS\b", ln, re.IGNORECASE) for ln in code)
     assert not named, named
     assert cics and all(cics.values()), cics
+
+
+UOW_MQ_NAME = re.compile(r"\bMQ(?:BEGIN|CMIT|BACK)\b", re.IGNORECASE)
+
+
+def test_no_burned_program_names_an_mq_unit_of_work_call():
+    """#5259 (W5): no burned source names MQBEGIN / MQCMIT / MQBACK in code (a literal or a data item a dynamic CALL could
+    hold): every burned MQ unit of work is the CICS task's (SYNCPOINT / ROLLBACK), which is modelled, so MQ's own has no
+    burned consumer to prove."""
+    corpora = Path(os.environ.get("GITGALAXY_MAINFRAME_CORPORA", ROOT / ".mainframe_corpora"))
+    if not _burned_mq_calls():
+        pytest.skip("needs the burned mainframe corpora (GITGALAXY_MAINFRAME_CORPORA)")
+    named: list[str] = []
+    for name in BURNED_CORPORA:
+        for p in (corpora / name).rglob("*") if (corpora / name).is_dir() else ():
+            if p.suffix.lower() not in (".cbl", ".cob", ".cobol", ".cpy") or not p.is_file():
+                continue
+            code = [
+                ln[6:72] for ln in p.read_text(encoding="latin-1").splitlines() if len(ln) > 6 and ln[6] not in "*/"
+            ]
+            if any(UOW_MQ_NAME.search(ln) for ln in code):
+                named.append(p.name)
+    assert not named, named
 
 
 def _c_masks(*names: str) -> dict[str, int]:

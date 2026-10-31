@@ -1,10 +1,24 @@
-"""#7207 slice 4: python / shell dead_code counts a keyword-led `#` comment only when it has a statement's shape."""
+"""#7207 slices 4-5: python / shell / ruby / perl / php / lua dead_code counts a keyword-led comment only when it has a statement's shape."""
 
 import pytest
 
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
 POSITIVES = {
+    "ruby": ["# def foo(a)", "# class Foo < Bar", "# module Util", "# puts \"x\"", "# unless ready?(a)", "# if foo(1)", "# p @x"],
+    "perl": ["# my $x = 1;", "# sub foo {", "# package Foo::Bar", "# print \"hi\"", "# our @list", "# if ($x) {", "# say $y"],
+    "php": [
+        "// function foo() {",
+        "// class Foo extends Bar",
+        "// use Foo\\Bar;",
+        "/* foreach ($a as $b) { */",
+        "// echo \"x\";",
+        "// $x = 1;",
+        "# $x = foo();",
+        "// }",
+        "// return $x;",
+    ],
+    "lua": ["-- local x = 1", "-- function foo(a)", "-- function M.foo", "-- return x", "-- if x > 3 then", "-- print(\"x\")", "--[[ for i = 1, 3 do"],
     "python": [
         "# def foo(a, b):",
         "# class Foo:",
@@ -32,6 +46,26 @@ POSITIVES = {
 }
 
 NEGATIVES = {
+    "ruby": ["# if the user cancels, we retry", "# class names are capitalised", "# def is a keyword", "# puts the result", "# p is short"],
+    "perl": ["# if the user cancels, we retry", "# my notes are below", "# sub is called twice", "# print the result", "# package names matter"],
+    "php": [
+        "// if the user cancels, we retry",
+        "// return value is ignored",
+        "// use the cache",
+        "// class names are capitalised",
+        "// echo is slow",
+        "/* foreach item in the list */",
+        "// $x is the total",
+        "//\n}",
+    ],
+    "lua": [
+        "-- if the user cancels, we retry",
+        "-- return value is ignored",
+        "-- local variables are fast",
+        "-- print the result",
+        "--- if the user cancels, we retry",
+        "-- function names are lowercase", "-- return value is ignored here",
+    ],
     "python": [
         "# if the user cancels, we retry",
         "# for each item in the list",

@@ -360,6 +360,13 @@ int GGCDELC(gg_cics *c) {
 /* ---- #5005: DELETE CHANNEL and QUERY CHANNEL (IBM CICS TS, EXEC CICS DELETE CHANNEL, QUERY CHANNEL); the same semantics as
  * CicsTask (register X44). The channel's name is GG-CHAN. */
 
+/* IBM's MOVE CONTAINER (INVREQ RESP2 30 / 31, CHANNELERR 3) and DELETE CHANNEL (CHANNELERR 3) pages name CICS-defined
+ * read-only containers and channels and list none: a name beginning DFH may be one, so the command is refused by name (X42 / X44). */
+static int cics_defined_name(const char *n) {
+    while (*n == ' ') n++;
+    return toupper((unsigned char)n[0]) == 'D' && toupper((unsigned char)n[1]) == 'F' && toupper((unsigned char)n[2]) == 'H';
+}
+
 /* DELETE CHANNEL: the channel and its containers go from the program's scope; CHANNELERR RESP2 2 for one not in scope. The
  * current channel is refused: IBM's RESP2 4 / 5 / 6 all fit a channel the program was passed, and it ranks none. */
 int GGCDELH(gg_cics *c) {
@@ -367,6 +374,7 @@ int GGCDELH(gg_cics *c) {
     c->resp = NORMAL;
     c->resp2 = 0;
     cics_name(c->chan, name, "channel");
+    if (cics_defined_name(name)) refuse("DELETE CHANNEL naming a CICS-defined (DFH...) container or channel: it may be read-only, and IBM lists none (INVREQ RESP2 30 / 31, CHANNELERR RESP2 3)");
     int ch = channel_named(name, 0);
     if (!ch) { c->resp = CHANNELERR; c->resp2 = 2; return 0; }
     if (ch == levels[lvl].cur) refuse("DELETE CHANNEL of the current channel");
@@ -424,6 +432,8 @@ int GGCMOVC(gg_cics *c) {
     else from = levels[lvl].cur;
     if (has_to) { cics_name(c->tochan, tn, "channel"); to = channel_named(tn, 0); }
     else to = levels[lvl].cur;
+    if (cics_defined_name(name) || cics_defined_name(target) || cics_defined_name(cn) || cics_defined_name(tn))
+        refuse("MOVE CONTAINER naming a CICS-defined (DFH...) container or channel: it may be read-only, and IBM lists none (INVREQ RESP2 30 / 31, CHANNELERR RESP2 3)");
     if ((!has_from || !has_to) && !levels[lvl].cur) { c->resp = INVREQ; c->resp2 = 4; return 0; }
     if (!from) { c->resp = CHANNELERR; c->resp2 = 2; return 0; }
     gg_container *src = container_named(&chans[from - 1], name, 0);

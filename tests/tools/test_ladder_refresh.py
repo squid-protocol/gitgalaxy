@@ -20,6 +20,14 @@ def test_unknown_and_non_burned_cases_are_refused(tmp_path, monkeypatch):
     assert "no such case" in out[0] and "not a burned estate" in out[1]
 
 
+def test_cics_crucible_case_is_accepted_for_the_ladder(tmp_path, monkeypatch):
+    fake = tmp_path / "eq"
+    (fake / "gt-x").mkdir(parents=True)
+    (fake / "gt-x" / "case.json").write_text(json.dumps({"corpus": "cics-crucible", "program": "X"}))
+    monkeypatch.setattr(lr, "EQUIVALENCE", fake)
+    assert lr.case_problems(["gt-x"]) == []
+
+
 def test_real_burned_case_is_accepted():
     assert lr.case_problems(["cbsa-crdtagy1", "carddemo-cbpaup0c"]) == []
 

@@ -1204,7 +1204,7 @@ def test_eoc_is_ignored_by_default_and_handled_like_any_condition():
     # DetCics.condition / resp delegate to the generated CicsSpec (#4270 spec PR 4)
     rt = (Path(C.__file__).parent / "cobolrt/cics/DetCics.java").read_text(encoding="utf-8") + CICS_SPEC_JAVA
     assert 'case 6 -> "EOC";' in rt and 'case "EOC" -> 6;' in rt
-    assert re.search(r'ignoredByDefault\(String condition\) \{\s*return "EOC"\.equals\(condition\);', rt)
+    assert re.search(r'ignoredByDefault\(String condition\) \{\s*return "EOC"\.equals\(condition\) \|\| "EXPIRED"\.equals\(condition\);', rt)
 
 
 def test_a_terminal_only_cics_program_translates_whole_and_imports_only_packages_that_exist(tmp_path):

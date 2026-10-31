@@ -335,37 +335,91 @@ def test_a_tripped_gate_exits_1_with_every_report_written(secret_repo, gate):
     assert (out / "repo_galaxy_gpu.json").exists() and (out / "repo_galaxy_sarif.json").exists()
 
 
-def test_an_unreadable_config_does_not_fail_the_scan_and_its_gates_do_not_run(secret_repo):
-    """Documented as a trap, and pinned: this fails open. Change the page in the PR that fixes it."""
+@pytest.mark.parametrize(
+    ("name", "text"),
+    [
+        ("no_such.yaml", None),
+        ("broken.yaml", "galaxyscope: [unclosed"),
+        ("a_list.yaml", "- fail-on-secrets\n"),
+        ("bad_section.yaml", "galaxyscope: true\n"),
+    ],
+)
+def test_a_config_that_cannot_be_applied_stops_the_run(secret_repo, name, text):
+    """It may hold the gates: a scan that drops them must not pass."""
+    if text is not None:
+        (secret_repo.parent / name).write_text(text, encoding="utf-8")
     out = secret_repo.parent / "out"
-    result = _galaxyscope(str(secret_repo), "--config", "no_such.yaml", "--output", str(out), cwd=secret_repo.parent)
-    assert result.returncode == 0
+    result = _galaxyscope(str(secret_repo), "--config", name, "--output", str(out), cwd=secret_repo.parent)
+    assert result.returncode == 1
     assert "Failed to load config file" in result.stderr
+    assert not out.exists()
 
 
-def test_gates_do_not_run_on_an_incremental_scan(secret_repo):
-    """Documented as a trap, and pinned: `execute_incremental_scan` has no gate phase. Change the page in the PR that
-    fixes it."""
+def test_config_without_pyyaml_stops_the_run(secret_repo, monkeypatch, caplog):
+    monkeypatch.setattr("gitgalaxy.galaxyscope.HAS_PYYAML", False)
+    monkeypatch.setattr(sys, "argv", ["galaxyscope", str(secret_repo), "--config", "any.yaml"])
+    with pytest.raises(SystemExit) as stopped:
+        main()
+    assert stopped.value.code == 1
+    assert "PyYAML is not installed" in caplog.text
+
+
+def _delta(repo, change, *flags):
+    """A baseline of `repo`, `change` applied and staged, then an --incremental scan with `flags`."""
     git = ["git", "-c", "user.email=t@example.com", "-c", "user.name=t", "-c", "commit.gpgsign=false"]
     for args in (["init", "-q"], ["add", "."], ["commit", "-qm", "baseline"]):
-        subprocess.run([*git, *args], cwd=secret_repo, check=True)  # noqa: S603 -- fixed args
-    out = secret_repo.parent / "out"
-    assert _galaxyscope(str(secret_repo), "--db-only", "--output", str(out), cwd=secret_repo.parent).returncode == 0
-    (secret_repo / "added.py").write_text(SECRET_FILE, encoding="utf-8")
-    subprocess.run([*git, "add", "."], cwd=secret_repo, check=True)  # noqa: S603 -- fixed args
+        subprocess.run([*git, *args], cwd=repo, check=True)  # noqa: S603 -- fixed args
+    out = repo.parent / "out"
+    assert _galaxyscope(str(repo), "--db-only", "--output", str(out), cwd=repo.parent).returncode == 0
+    change()
+    subprocess.run([*git, "add", "."], cwd=repo, check=True)  # noqa: S603 -- fixed args
+    baseline = str(out / "repo_galaxy_master.db")
+    result = _galaxyscope(str(repo), "--incremental", baseline, *flags, "--output", str(out), cwd=repo.parent)
+    assert "DELTA_SUCCESS" in result.stderr
+    return result
 
-    delta = _galaxyscope(
-        str(secret_repo),
-        "--incremental",
-        str(out / "repo_galaxy_master.db"),
-        "--fail-on-secrets",
-        "--output",
-        str(out),
-        cwd=secret_repo.parent,
+
+def test_gates_run_on_an_incremental_scan_and_catch_an_added_secret(clean_repo):
+    delta = _delta(
+        clean_repo, lambda: (clean_repo / "added.py").write_text(SECRET_FILE, encoding="utf-8"), "--fail-on-secrets"
     )
-    assert "DELTA_SUCCESS" in delta.stderr
+    assert delta.returncode == 1
+    assert "BUILD FAILED:" in delta.stderr and "added.py" in delta.stderr
+
+
+def test_an_incremental_scan_judges_the_unchanged_files_too(secret_repo):
+    """It fails on what a full scan fails on: a secret already in the baseline is still in the repository."""
+    delta = _delta(
+        secret_repo, lambda: (secret_repo / "other.py").write_text("x = 1\n", encoding="utf-8"), "--fail-on-secrets"
+    )
+    assert delta.returncode == 1
+    assert "BUILD FAILED:" in delta.stderr and "settings.py" in delta.stderr
+
+
+def test_an_incremental_scan_with_no_finding_passes(clean_repo):
+    delta = _delta(
+        clean_repo, lambda: (clean_repo / "other.py").write_text("x = 1\n", encoding="utf-8"), "--fail-on-secrets"
+    )
     assert delta.returncode == 0
     assert "BUILD FAILED:" not in delta.stderr
+
+
+def test_an_incremental_scan_with_no_gate_set_passes_on_a_secret(clean_repo):
+    delta = _delta(clean_repo, lambda: (clean_repo / "added.py").write_text(SECRET_FILE, encoding="utf-8"))
+    assert delta.returncode == 0
+
+
+@pytest.mark.parametrize("rule", ["secrets_risk", "sec_hardcoded_secrets"])
+def test_a_suppressed_secret_passes_a_full_and_an_incremental_scan_alike(clean_repo, rule):
+    """Both spellings of the suppression survive the baseline, where the file is rehydrated, not rescanned."""
+    (clean_repo / "kept.py").write_text(f"# galaxyscope:ignore {rule}\n{SECRET_FILE}", encoding="utf-8")
+    out = clean_repo.parent / "full"
+    full = _galaxyscope(str(clean_repo), "--fail-on-secrets", "--output", str(out), cwd=clean_repo.parent)
+    assert full.returncode == 0, full.stderr[-1500:]
+    delta = _delta(
+        clean_repo, lambda: (clean_repo / "other.py").write_text("x = 1\n", encoding="utf-8"), "--fail-on-secrets"
+    )
+    assert delta.returncode == 0, delta.stderr[-1500:]
 
 
 def test_the_pages_github_actions_example_runs(secret_repo):

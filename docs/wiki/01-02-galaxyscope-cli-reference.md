@@ -72,7 +72,7 @@ Gates are off by default. A gate that trips makes the scan exit `1` after every 
 | `--max-risk-exposure N` | Fails if any file's highest risk vector is at or above `N` percent. `0.0` disables it. |
 | `--max-systemic-threat N` | Fails if any file's structural magnitude times normalized blast radius is at or above `N`. `0.0` disables it. Limits set before #3112 must be re-tuned. |
 
-**Gates do not run on an `--incremental` scan.** A delta scan with a gate set exits `0` whatever it finds. Use a full scan for any run that must block a merge.
+**Gates run on an `--incremental` scan too.** A delta scan judges every file, unchanged ones included, with the same suppressions, so it fails on what a full scan fails on.
 
 ### Security and analysis
 
@@ -114,7 +114,7 @@ The SBOM audit keeps a hash cache at `<target>/.gitgalaxy/dependency_cache.db` b
 
 | Flag | Promise |
 | :--- | :--- |
-| `--config FILE` | Loads a YAML project config. Its `galaxyscope:` section can set any flag by name, such as `ai-guardrails: true`, and a value on the command line wins. The config is read only when this flag is passed: `.galaxyscope.yaml` is not discovered automatically. It needs the `yaml` extra. An unrecognized key exits `1`. An unreadable file, or a missing PyYAML, is logged and the scan carries on without the config, so any gates it set do not run. |
+| `--config FILE` | Loads a YAML project config. Its `galaxyscope:` section can set any flag by name, such as `ai-guardrails: true`, and a value on the command line wins. The config is read only when this flag is passed: `.galaxyscope.yaml` is not discovered automatically. It needs the `yaml` extra. An unrecognized key exits `1`. A file that is missing, unreadable or not a YAML mapping, or a missing PyYAML, exits `1` before the scan: the file may hold your gates. |
 | `--splicing-speed` | Profiles regex and file processing speeds, capped at 5000 files. |
 | `--file-speed` | Profiles the phases of file processing. |
 
@@ -141,7 +141,7 @@ The scan has no network client, so it needs no API key or offline switch: `--llm
 | Code | Meaning | When |
 | :--- | :--- | :--- |
 | `0` | The scan finished and no gate tripped. | Also returned for `--help`, and for a scan with findings but no gate set. |
-| `1` | Fatal error, or a gate tripped. | A missing or unreadable target, a bad `--source-encoding` or `--copy-libraries`, an unrecognized `--config` key, or any engine failure. Also any gate under [CI gates](#ci-gates). |
+| `1` | Fatal error, or a gate tripped. | A missing or unreadable target, a bad `--source-encoding` or `--copy-libraries`, a `--config` file that cannot be applied or holds an unrecognized key, or any engine failure. Also any gate under [CI gates](#ci-gates). |
 | `2` | Bad command line. | An unknown flag, a missing `target`, or a bad flag value, reported by the argument parser before the scan starts. |
 
 These are all the codes GalaxyScope sets. A few things to plan for:

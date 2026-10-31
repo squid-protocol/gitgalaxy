@@ -65,7 +65,9 @@ pipelines:
                 echo "${GG_SHA256}  /tmp/gg-requirements.txt" | sha256sum -c -
                 pip install --require-hashes -r /tmp/gg-requirements.txt
               - |
-                galaxyscope . --config .galaxyscope.yaml --fail-on-malware --sarif-only --output gitgalaxy-results.json
+                # --config is fatal on a missing file: pass it only when the repository has one
+                CONFIG_ARG=""; if [ -f .galaxyscope.yaml ]; then CONFIG_ARG="--config .galaxyscope.yaml"; fi
+                galaxyscope . $CONFIG_ARG --fail-on-malware --sarif-only --output gitgalaxy-results.json
               # Publishes SARIF results as native Bitbucket Code Insights PR
               # annotations. Requires bitbucket_insights.py (see header note).
               - python bitbucket_insights.py gitgalaxy-results_sarif.json

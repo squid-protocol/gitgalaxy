@@ -68,6 +68,12 @@ CPP_LITERAL_MASK_PATTERN = (
 _DEBUGGING_MODE = re.compile(r"(?<![\w-])DEBUGGING[ \t\n]+MODE(?![\w-])", re.I)
 
 
+def extract_mitigations(content: str) -> list[str]:
+    """The rule names of a file's inline `galaxyscope:ignore` directives. A delta scan calls this for unchanged files
+    too: the directives are not stored in a baseline, and their risk is recomputed."""
+    return [m.group(1).lower() for m in re.finditer(r"galaxyscope:ignore\s+([a-zA-Z0-9_-]+)", content, re.IGNORECASE)]
+
+
 class PrismResult(TypedDict):
     """
     The dual-output of the Prism.
@@ -278,10 +284,8 @@ class Prism:
             }
 
         # ---> INLINE SUPPRESSION EXTRACTION <---
-        mitigations = []
-        for match in re.finditer(r"galaxyscope:ignore\s+([a-zA-Z0-9_-]+)", content, re.IGNORECASE):
-            mitigations.append(match.group(1).lower())
-            self.logger.debug(f"Extracted inline suppression for: {match.group(1)}")
+        mitigations = extract_mitigations(content)
+        self.logger.debug(f"Extracted inline suppressions: {mitigations}")
 
         # --- THE UNPARSABLE BYPASS (Spec 2.3.4.A.1) ---
         if primary_lang in ("undeterminable", "unknown"):

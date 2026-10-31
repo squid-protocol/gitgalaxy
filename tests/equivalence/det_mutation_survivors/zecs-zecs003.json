@@ -1,0 +1,617 @@
+{
+ "format": "det-mutation-survivors/1",
+ "issue": "#4628",
+ "about": "#4628: each surviving det-port mutant stated `equivalent` or `unreachable`, with the Java change and why it cannot alter observable behaviour; proposed in a PR, reviewed by the owner. A run that kills a stated mutant fails (the claim was wrong). Ids are mutation.py's; before / after are the Java line.",
+ "verdicts": {
+  "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
+  "unreachable": "no input of the program reaches the changed code",
+  "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
+  "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
+ },
+ "case": "zecs-zecs003",
+ "survivors": [
+  {
+   "id": "27c7305189",
+   "op": "LIT",
+   "line": 66,
+   "before": "\"S0VZICAgSS9PIC0gRUlCRk46ICAgICAgICBFSUJSRVNQOiAwMDAwIEVJQlJFU1AyOiAwMDAwIFBhcmFncmFwaDogICAgICAgICAgICAgICAgICAgICAgICAg\"));",
+   "after": "\"X0VZICAgSS9PIC0gRUlCRk46ICAgICAgICBFSUJSRVNQOiAwMDAwIEVJQlJFU1AyOiAwMDAwIFBhcmFncmFwaDogICAgICAgICAgICAgICAgICAgICAgICAg\"));",
+   "verdict": "equivalent",
+   "reason": "Base64 initial image chunk for IMAGE_s_KEY_ERROR; KEY-ERROR is an unused error structure defined in Working-Storage that is never referenced anywhere in ZECS003."
+  },
+  {
+   "id": "0540fbcfd8",
+   "op": "LIT",
+   "line": 68,
+   "before": "\"ICAgICAgICA=\"));",
+   "after": "\"XCAgICAgICA=\"));",
+   "verdict": "equivalent",
+   "reason": "Base64 initial image for IMAGE_s_URI_MAP; completely overwritten by MOVE EIBTRNID TO URI-MAP before any read in INQUIRE URIMAP."
+  },
+  {
+   "id": "02de7c73a1",
+   "op": "LIT",
+   "line": 78,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA==\"));",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA==\"));",
+   "verdict": "equivalent",
+   "reason": "Base64 initial image chunk for IMAGE_s_DC_CONTROL; populated by DOCUMENT RETRIEVE before read, or overwritten with ACTIVE-SINGLE."
+  },
+  {
+   "id": "4cf03daf12",
+   "op": "LIT",
+   "line": 80,
+   "before": "\"ICAgICAgICAgICAgICAgIA==\"));",
+   "after": "\"XCAgICAgICAgICAgICAgIA==\"));",
+   "verdict": "equivalent",
+   "reason": "Base64 initial image for IMAGE_s_DC_TOKEN; populated by DOCUMENT CREATE before being read by DOCUMENT RETRIEVE."
+  },
+  {
+   "id": "151132025b",
+   "op": "LIT",
+   "line": 86,
+   "before": "\"ICAgICAgICAgICAgICAgIA==\"));",
+   "after": "\"XCAgICAgICAgICAgICAgIA==\"));",
+   "verdict": "equivalent",
+   "reason": "Base64 initial image for IMAGE_s_URL_SCHEME_NAME; populated by WEB PARSE before being read in 7100-WEB-OPEN."
+  },
+  {
+   "id": "cece2cc7ca",
+   "op": "LIT",
+   "line": 109,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "Base64 initial image chunk for IMAGE_s_ZF_RECORD; populated by EXEC CICS READ FILE into ZF-RECORD before any read, or loop exits immediately on non-normal response without reading."
+  },
+  {
+   "id": "f4e01c93d6",
+   "op": "LIT",
+   "line": 117,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "Base64 initial image chunk for IMAGE_s_ZF_RECORD; populated by EXEC CICS READ FILE into ZF-RECORD before any read, or loop exits immediately on non-normal response without reading."
+  },
+  {
+   "id": "6c9ba1d9b4",
+   "op": "LIT",
+   "line": 123,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "Base64 initial image chunk for IMAGE_s_ZF_RECORD; populated by EXEC CICS READ FILE into ZF-RECORD before any read, or loop exits immediately on non-normal response without reading."
+  },
+  {
+   "id": "80934c76b8",
+   "op": "LIT",
+   "line": 141,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "Base64 initial image chunk for IMAGE_s_ZF_RECORD; populated by EXEC CICS READ FILE into ZF-RECORD before any read, or loop exits immediately on non-normal response without reading."
+  },
+  {
+   "id": "0d85d103a0",
+   "op": "LIT",
+   "line": 163,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "Base64 initial image chunk for IMAGE_s_ZF_RECORD; populated by EXEC CICS READ FILE into ZF-RECORD before any read, or loop exits immediately on non-normal response without reading."
+  },
+  {
+   "id": "801e852d73",
+   "op": "LIT",
+   "line": 165,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "Base64 initial image chunk for IMAGE_s_ZF_RECORD; populated by EXEC CICS READ FILE into ZF-RECORD before any read, or loop exits immediately on non-normal response without reading."
+  },
+  {
+   "id": "45aed38a79",
+   "op": "LIT",
+   "line": 167,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "Base64 initial image chunk for IMAGE_s_ZF_RECORD; populated by EXEC CICS READ FILE into ZF-RECORD before any read, or loop exits immediately on non-normal response without reading."
+  },
+  {
+   "id": "33f1a4db43",
+   "op": "LIT",
+   "line": 181,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "Base64 initial image chunk for IMAGE_s_ZF_RECORD; populated by EXEC CICS READ FILE into ZF-RECORD before any read, or loop exits immediately on non-normal response without reading."
+  },
+  {
+   "id": "328ef38d20",
+   "op": "LIT",
+   "line": 199,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "Base64 initial image chunk for IMAGE_s_ZF_RECORD; populated by EXEC CICS READ FILE into ZF-RECORD before any read, or loop exits immediately on non-normal response without reading."
+  },
+  {
+   "id": "5cc6f6d26a",
+   "op": "LIT",
+   "line": 211,
+   "before": "\"AAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
+   "after": "\"XAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
+   "verdict": "equivalent",
+   "reason": "Base64 initial image chunk for IMAGE_s_DFHEIBLK; EIB fields are populated dynamically by runTask on task invocation before execution."
+  },
+  {
+   "id": "aef41d4eb4",
+   "op": "CON",
+   "line": 294,
+   "before": "private final Field f158_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+   "after": "private final Field f158_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "Field scale for f158_GG_RETURN_CODE; GG_RETURN_CODE is only accessed by batch runProgram, never by CICS task execution."
+  },
+  {
+   "id": "dec7c518be",
+   "op": "NEG",
+   "line": 368,
+   "before": "if (task.level() > 1) {",
+   "after": "if (!(task.level() > 1)) {",
+   "verdict": "unreachable",
+   "reason": "task.level() check in abended(); all CICS commands in ZECS003 use NOHANDLE, condition handling is never invoked, and abended() is never reached."
+  },
+  {
+   "id": "76f1d5a51e",
+   "op": "LIT",
+   "line": 374,
+   "before": "@SuppressWarnings(\"unchecked\")",
+   "after": "@SuppressWarnings(\"Xnchecked\")",
+   "verdict": "equivalent",
+   "reason": "Compiler annotation string mutation on store() method has no runtime effect."
+  },
+  {
+   "id": "04db942051",
+   "op": "CON",
+   "line": 395,
+   "before": "java.util.Map.entry(\"9000-EXIT\", 22),",
+   "after": "java.util.Map.entry(\"9000-EXIT\", 23),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS table entry 9000-EXIT; table is only queried for dynamic HANDLE CONDITION dispatching which is unused in ZECS003."
+  },
+  {
+   "id": "846c2bfd3e",
+   "op": "LIT",
+   "line": 396,
+   "before": "java.util.Map.entry(\"9000-RETURN\", 21),",
+   "after": "java.util.Map.entry(\"X000-RETURN\", 21),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS table entry 9000-RETURN; table is only queried for dynamic HANDLE CONDITION dispatching which is unused in ZECS003."
+  },
+  {
+   "id": "1e94116ef9",
+   "op": "LIT",
+   "line": 399,
+   "before": "java.util.Map.entry(\"7300-EXIT\", 18),",
+   "after": "java.util.Map.entry(\"X300-EXIT\", 18),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS table entry 7300-EXIT; table is only queried for dynamic HANDLE CONDITION dispatching which is unused in ZECS003."
+  },
+  {
+   "id": "b9d823857a",
+   "op": "CON",
+   "line": 407,
+   "before": "java.util.Map.entry(\"4000-EXIT\", 10),",
+   "after": "java.util.Map.entry(\"4000-EXIT\", 11),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS table entry 4000-EXIT; table is only queried for dynamic HANDLE CONDITION dispatching which is unused in ZECS003."
+  },
+  {
+   "id": "02faec289c",
+   "op": "NEG",
+   "line": 422,
+   "before": "if (i == null) {",
+   "after": "if (!(i == null)) {",
+   "verdict": "unreachable",
+   "reason": "paragraph(name) lookup null check; paragraph() is only called by condition() which is never reached."
+  },
+  {
+   "id": "124626af8f",
+   "op": "ROR",
+   "line": 422,
+   "before": "if (i == null) {",
+   "after": "if (i != null) {",
+   "verdict": "unreachable",
+   "reason": "paragraph(name) lookup null check relational operator; paragraph() is only called by condition() which is never reached."
+  },
+  {
+   "id": "9074b32f1e",
+   "op": "NEG",
+   "line": 435,
+   "before": "if (h != null) {",
+   "after": "if (!(h != null)) {",
+   "verdict": "unreachable",
+   "reason": "condition() handler lookup check; condition() is never called because all CICS commands use NOHANDLE."
+  },
+  {
+   "id": "bdba4ee68b",
+   "op": "NEG",
+   "line": 438,
+   "before": "if (DetCics.ignoredByDefault(cond)) {",
+   "after": "if (!(DetCics.ignoredByDefault(cond))) {",
+   "verdict": "unreachable",
+   "reason": "condition() default-ignored check; condition() is never called because all CICS commands use NOHANDLE."
+  },
+  {
+   "id": "c3922b25f0",
+   "op": "CON",
+   "line": 439,
+   "before": "return -1;",
+   "after": "return -2;",
+   "verdict": "unreachable",
+   "reason": "condition() return value for default-ignored conditions; condition() is never called because all CICS commands use NOHANDLE."
+  },
+  {
+   "id": "fae1f1fac5",
+   "op": "ROR",
+   "line": 460,
+   "before": "Cobol.move(d.getCaType() == null ? \"\" : d.getCaType(), Field.alphanumeric(s, base + 0, 3, false), CS);",
+   "after": "Cobol.move(d.getCaType() != null ? \"\" : d.getCaType(), Field.alphanumeric(s, base + 0, 3, false), CS);",
+   "verdict": "unreachable",
+   "reason": "in_Zecs003Dfhcommarea DTO field check; ZECS003 equivalence scenarios pass raw bytes for commarea, so typed DTO mapper is never reached."
+  },
+  {
+   "id": "07c7169d05",
+   "op": "AOR",
+   "line": 460,
+   "before": "Cobol.move(d.getCaType() == null ? \"\" : d.getCaType(), Field.alphanumeric(s, base + 0, 3, false), CS);",
+   "after": "Cobol.move(d.getCaType() == null ? \"\" : d.getCaType(), Field.alphanumeric(s, base - 0, 3, false), CS);",
+   "verdict": "equivalent",
+   "reason": "Alphanumeric field base offset (base - 0 vs base + 0) is mathematically identical; furthermore typed DTO mapper is never reached in byte commarea scenarios."
+  },
+  {
+   "id": "a3d0ffea59",
+   "op": "DEL",
+   "line": 465,
+   "before": "d.setCaType(Cobol.text(Field.alphanumeric(s, base + 0, 3, false), CS));",
+   "after": "/* d.setCaType(Cobol.text(Field.alphanumeric(s, base + 0, 3, false), CS)); */",
+   "verdict": "unreachable",
+   "reason": "fill_Zecs003Dfhcommarea DTO setter; typed DTO mapper is never called in raw byte commarea scenarios."
+  },
+  {
+   "id": "a96333105d",
+   "op": "AOR",
+   "line": 465,
+   "before": "d.setCaType(Cobol.text(Field.alphanumeric(s, base + 0, 3, false), CS));",
+   "after": "d.setCaType(Cobol.text(Field.alphanumeric(s, base - 0, 3, false), CS));",
+   "verdict": "equivalent",
+   "reason": "Alphanumeric field base offset (base - 0 vs base + 0) is mathematically identical; furthermore typed DTO mapper is never reached in byte commarea scenarios."
+  },
+  {
+   "id": "c437d38b96",
+   "op": "DEL",
+   "line": 505,
+   "before": "System.arraycopy(IMAGE_s_TD_RECORD, 0, s_TD_RECORD.bytes, 0, IMAGE_s_TD_RECORD.length);",
+   "after": "/* System.arraycopy(IMAGE_s_TD_RECORD, 0, s_TD_RECORD.bytes, 0, IMAGE_s_TD_RECORD.length); */",
+   "verdict": "equivalent",
+   "reason": "System.arraycopy of IMAGE_s_TD_RECORD in initialState(); TD-RECORD is defined in Working-Storage but never referenced anywhere in ZECS003."
+  },
+  {
+   "id": "ad9e67e51d",
+   "op": "DEL",
+   "line": 506,
+   "before": "System.arraycopy(IMAGE_s_FILE_ERROR, 0, s_FILE_ERROR.bytes, 0, IMAGE_s_FILE_ERROR.length);",
+   "after": "/* System.arraycopy(IMAGE_s_FILE_ERROR, 0, s_FILE_ERROR.bytes, 0, IMAGE_s_FILE_ERROR.length); */",
+   "verdict": "equivalent",
+   "reason": "System.arraycopy of IMAGE_s_FILE_ERROR in initialState(); FILE-ERROR is defined in Working-Storage but never referenced anywhere in ZECS003."
+  },
+  {
+   "id": "74492ec240",
+   "op": "DEL",
+   "line": 509,
+   "before": "System.arraycopy(IMAGE_s_URI_PATH, 0, s_URI_PATH.bytes, 0, IMAGE_s_URI_PATH.length);",
+   "after": "/* System.arraycopy(IMAGE_s_URI_PATH, 0, s_URI_PATH.bytes, 0, IMAGE_s_URI_PATH.length); */",
+   "verdict": "equivalent",
+   "reason": "System.arraycopy of IMAGE_s_URI_PATH in initialState(); URI-PATH is overwritten by EXEC CICS INQUIRE URIMAP before being read in STRING URI-PATH."
+  },
+  {
+   "id": "c79751e497",
+   "op": "DEL",
+   "line": 517,
+   "before": "System.arraycopy(IMAGE_s_URL_SCHEME_NAME, 0, s_URL_SCHEME_NAME.bytes, 0, IMAGE_s_URL_SCHEME_NAME.length);",
+   "after": "/* System.arraycopy(IMAGE_s_URL_SCHEME_NAME, 0, s_URL_SCHEME_NAME.bytes, 0, IMAGE_s_URL_SCHEME_NAME.length); */",
+   "verdict": "equivalent",
+   "reason": "System.arraycopy of IMAGE_s_URL_SCHEME_NAME in initialState(); URL-SCHEME-NAME is overwritten by EXEC CICS WEB PARSE before being read in 7100-WEB-OPEN."
+  },
+  {
+   "id": "44ea84b5fe",
+   "op": "DEL",
+   "line": 519,
+   "before": "System.arraycopy(IMAGE_s_WEB_STATUS_ABSTIME, 0, s_WEB_STATUS_ABSTIME.bytes, 0, IMAGE_s_WEB_STATUS_ABSTIME.length);",
+   "after": "/* System.arraycopy(IMAGE_s_WEB_STATUS_ABSTIME, 0, s_WEB_STATUS_ABSTIME.bytes, 0, IMAGE_s_WEB_STATUS_ABSTIME.length); */",
+   "verdict": "equivalent",
+   "reason": "System.arraycopy of IMAGE_s_WEB_STATUS_ABSTIME in initialState(); WEB-STATUS-ABSTIME is an output of WEB CONVERSE that is never read anywhere in ZECS003."
+  },
+  {
+   "id": "557b19a1f8",
+   "op": "LIT",
+   "line": 542,
+   "before": "f37_FC_DELETE = \"DELETE\";",
+   "after": "f37_FC_DELETE = \"XELETE\";",
+   "verdict": "equivalent",
+   "reason": "Initialization of f37_FC_DELETE in initialState(); FC-DELETE is defined in Working-Storage but never referenced anywhere in ZECS003."
+  },
+  {
+   "id": "3722e6974d",
+   "op": "DEL",
+   "line": 570,
+   "before": "f99_WEB_STATUS_CODE = 0L;",
+   "after": "/* f99_WEB_STATUS_CODE = 0L; */",
+   "verdict": "equivalent",
+   "reason": "Zero-initialization of f99_WEB_STATUS_CODE in initialState(); WEB-STATUS-CODE is written by WEB CONVERSE and never read anywhere in ZECS003."
+  },
+  {
+   "id": "8143689167",
+   "op": "AOR",
+   "line": 603,
+   "before": "Cobol.store(f128_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f128_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "EIBDATE calculation mutation; EIBDATE is populated during task initialization but never read anywhere in ZECS003."
+  },
+  {
+   "id": "052b28c551",
+   "op": "AOR",
+   "line": 603,
+   "before": "Cobol.store(f128_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f128_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) / 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "EIBDATE calculation mutation; EIBDATE is populated during task initialization but never read anywhere in ZECS003."
+  },
+  {
+   "id": "a3239a6415",
+   "op": "AOR",
+   "line": 603,
+   "before": "Cobol.store(f128_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f128_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "EIBDATE calculation mutation; EIBDATE is populated during task initialization but never read anywhere in ZECS003."
+  },
+  {
+   "id": "a3adb4a78f",
+   "op": "AOR",
+   "line": 604,
+   "before": "Cobol.store(f127_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f127_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L - now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "EIBTIME calculation mutation; EIBTIME is populated during task initialization but never read anywhere in ZECS003."
+  },
+  {
+   "id": "3649e4b8ba",
+   "op": "AOR",
+   "line": 604,
+   "before": "Cobol.store(f127_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f127_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() / 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "EIBTIME calculation mutation; EIBTIME is populated during task initialization but never read anywhere in ZECS003."
+  },
+  {
+   "id": "07f80bfb8b",
+   "op": "AOR",
+   "line": 604,
+   "before": "Cobol.store(f127_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f127_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L - now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "EIBTIME calculation mutation; EIBTIME is populated during task initialization but never read anywhere in ZECS003."
+  },
+  {
+   "id": "24f65c79dc",
+   "op": "DEL",
+   "line": 622,
+   "before": "calen = cx(task, cb.length);",
+   "after": "/* calen = cx(task, cb.length); */",
+   "verdict": "equivalent",
+   "reason": "calen assignment in byte[] commarea branch; calen is only stored into EIBCALEN, which is never read anywhere in ZECS003."
+  },
+  {
+   "id": "37a98aa2b9",
+   "op": "ROR",
+   "line": 628,
+   "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
+   "after": "s_DFHCOMMAREA.beyond = raw.length <= keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA.beyond check in linkArea(); commarea in all scenarios is exactly 13 bytes (raw.length == keep == 13), so beyond is null and 0 trailing bytes are copied."
+  },
+  {
+   "id": "a5a4d181f7",
+   "op": "AOR",
+   "line": 630,
+   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } };",
+   "verdict": "unreachable",
+   "reason": "s_DFHCOMMAREA.beyond arraycopy length; beyond is always null because commarea length matches DFHCOMMAREA size exactly."
+  },
+  {
+   "id": "1751a72169",
+   "op": "NEG",
+   "line": 633,
+   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (!(task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length)) {",
+   "verdict": "equivalent",
+   "reason": "Inversion of task.exactCommarea() guard; exactCommarea() is false in standard runs and calen equals DFHCOMMAREA size, so copying calen bytes into an array of size calen and restoring it in finally produces byte-identical state."
+  },
+  {
+   "id": "2fff3be01e",
+   "op": "COR",
+   "line": 633,
+   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (task.exactCommarea() || calen < s_DFHCOMMAREA.bytes.length) {",
+   "verdict": "equivalent",
+   "reason": "Logical OR on exactCommarea() guard; both operands are false (exactCommarea is false and calen == DFHCOMMAREA size == 13), so condition evaluates to false either way."
+  },
+  {
+   "id": "567d999bd8",
+   "op": "DEL",
+   "line": 640,
+   "before": "Cobol.store(f134_EIBCALEN, BigDecimal.valueOf(calen), false, CS);",
+   "after": "/* Cobol.store(f134_EIBCALEN, BigDecimal.valueOf(calen), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "Cobol.store into f134_EIBCALEN; EIBCALEN is populated on task invocation but never read anywhere in ZECS003."
+  },
+  {
+   "id": "d336c23d36",
+   "op": "NEG",
+   "line": 648,
+   "before": "if (caWhole == null) {",
+   "after": "if (!(caWhole == null)) {",
+   "verdict": "unreachable",
+   "reason": "caWhole check in IndexOutOfBoundsException handler; no IndexOutOfBoundsException is thrown in any scenario."
+  },
+  {
+   "id": "2906df48a7",
+   "op": "COR",
+   "line": 679,
+   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "verdict": "unreachable",
+   "reason": "lastLinkBytes assignment in handleLink(request, area); handleLink is a remote region facade helper never called during CICS equivalence testing."
+  },
+  {
+   "id": "436d70e54f",
+   "op": "CON",
+   "line": 723,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "performThru = java.util.Arrays.copyOf(performThru, mine * 3);",
+   "verdict": "equivalent",
+   "reason": "performThru capacity expansion multiplier (mine * 3 vs mine * 2); allocates larger backing array without changing any execution semantics or state."
+  },
+  {
+   "id": "9e0be42d0e",
+   "op": "ROR",
+   "line": 733,
+   "before": "if (i == thru) {",
+   "after": "if (i != thru) {",
+   "verdict": "equivalent",
+   "reason": "Inverted thru check in perform(); in ZECS003 every paragraph is performed THRU its corresponding -EXIT paragraph which contains only a no-op EXIT, so returning early upon completing the active paragraph body leaves observable behavior unchanged."
+  },
+  {
+   "id": "53fe75e21a",
+   "op": "DEL",
+   "line": 805,
+   "before": "Cobol.move(f129_EIBTRNID.ref(3, Integer.valueOf(2)), f20_ZK_TRANID.ref(3, Integer.valueOf(2)), CS);",
+   "after": "/* Cobol.move(f129_EIBTRNID.ref(3, Integer.valueOf(2)), f20_ZK_TRANID.ref(3, Integer.valueOf(2)), CS); */",
+   "verdict": "equivalent",
+   "reason": "Cobol.move of EIBTRNID(3:2) to ZK-TRANID(3:2); fileKey() matches both ZC##KEY and ZC01KEY to ZC@ID@KEY via regex ZC.+KEY, resolving to the exact same store."
+  },
+  {
+   "id": "6408622cff",
+   "op": "DEL",
+   "line": 806,
+   "before": "Cobol.move(f129_EIBTRNID.ref(3, Integer.valueOf(2)), f23_ZF_TRANID.ref(3, Integer.valueOf(2)), CS);",
+   "after": "/* Cobol.move(f129_EIBTRNID.ref(3, Integer.valueOf(2)), f23_ZF_TRANID.ref(3, Integer.valueOf(2)), CS); */",
+   "verdict": "equivalent",
+   "reason": "Cobol.move of EIBTRNID(3:2) to ZF-TRANID(3:2); fileKey() matches both ZC##FILE and ZC01FILE to ZC@ID@FILE via regex ZC.+FILE, resolving to the exact same store."
+  },
+  {
+   "id": "60fdaabff0",
+   "op": "BDM",
+   "line": 897,
+   "before": "Cobol.storeNative(f114_ZF_ZEROES, Cobol.num(f114_ZF_ZEROES, CS).add(t6), CS);",
+   "after": "Cobol.storeNative(f114_ZF_ZEROES, Cobol.num(f114_ZF_ZEROES, CS).subtract(t6), CS);",
+   "verdict": "equivalent",
+   "reason": "BDM operator on ZF-ZEROES arithmetic; ZF-ZEROES is incremented in 3000-READ-ZF but never read anywhere in ZECS003, and the record is subsequently deleted or discarded."
+  },
+  {
+   "id": "38f7af8f5c",
+   "op": "ROR",
+   "line": 962,
+   "before": "if (doc13.length() >= 0) Cobol.store(f91_DC_LENGTH, BigDecimal.valueOf(doc13.length()), false, CS);",
+   "after": "if (doc13.length() > 0) Cobol.store(f91_DC_LENGTH, BigDecimal.valueOf(doc13.length()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "Relational operator on doc13.length(); in all test scenarios documentRetrieve returns a positive length (> 10) on success, so >= 0 and > 0 evaluate identically."
+  },
+  {
+   "id": "e8ccaef3d6",
+   "op": "CON",
+   "line": 972,
+   "before": "CicsTask.WebParsed web15 = task.webParse(Cobol.text(f88_THE_OTHER_DC, CS), BigDecimal.valueOf(f92_THE_OTHER_DC_LENGTH).intValue(), 16, Integer.valueOf(BigDecimal.valueOf(f98_URL_HOST_NAME_LENGTH).intValue()), 80, null, 0, null, 0);",
+   "after": "CicsTask.WebParsed web15 = task.webParse(Cobol.text(f88_THE_OTHER_DC, CS), BigDecimal.valueOf(f92_THE_OTHER_DC_LENGTH).intValue(), 16, Integer.valueOf(BigDecimal.valueOf(f98_URL_HOST_NAME_LENGTH).intValue()), 80, null, 0, null, 1);",
+   "verdict": "equivalent",
+   "reason": "Constant mutation for unused path length in webParse(); ZECS003 passes null for path buffer, so changing the length argument has no effect."
+  },
+  {
+   "id": "639502dac3",
+   "op": "DEL",
+   "line": 980,
+   "before": "Cobol.store(f156_EIBRESP2, BigDecimal.valueOf(web15.resp2()), false, CS);",
+   "after": "/* Cobol.store(f156_EIBRESP2, BigDecimal.valueOf(web15.resp2()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "Cobol.store into f156_EIBRESP2 after webParse; EIBRESP2 is never read anywhere in ZECS003 (only EIBRESP is checked)."
+  },
+  {
+   "id": "256d0dd380",
+   "op": "COR",
+   "line": 983,
+   "before": "if (((!(Cobol.num(f155_EIBRESP, CS).compareTo(D0) == 0) || BigDecimal.valueOf(f3_TEN).compareTo(Cobol.num(f91_DC_LENGTH, CS)) > 0) || BigDecimal.valueOf(f3_TEN).compareTo(Cobol.num(f91_DC_LENGTH, CS)) == 0)) {",
+   "after": "if (((!(Cobol.num(f155_EIBRESP, CS).compareTo(D0) == 0) && BigDecimal.valueOf(f3_TEN).compareTo(Cobol.num(f91_DC_LENGTH, CS)) > 0) || BigDecimal.valueOf(f3_TEN).compareTo(Cobol.num(f91_DC_LENGTH, CS)) == 0)) {",
+   "verdict": "equivalent",
+   "reason": "Logical operator in 7000-GET-URL error check; in all scenarios EIBRESP == NORMAL with valid DC-LENGTH > 10, or DC-LENGTH <= 10 (which satisfies the trailing || term), evaluating identically."
+  },
+  {
+   "id": "3165119624",
+   "op": "LIT",
+   "line": 1038,
+   "before": "Cobol.string(f102_WEB_PATH, null, CS, Cobol.StringPart.delimited(f71_URI_PATH, \"*\", CS), Cobol.StringPart.delimited(f12_DOT, \"*\", CS), Cobol.StringPart.delimited(f10_ADR, \"*\", CS), Cobol.StringPart.delimited(f9_SLASH, \"*\", CS));",
+   "after": "Cobol.string(f102_WEB_PATH, null, CS, Cobol.StringPart.delimited(f71_URI_PATH, \"*\", CS), Cobol.StringPart.delimited(f12_DOT, \"*\", CS), Cobol.StringPart.delimited(f10_ADR, \"X\", CS), Cobol.StringPart.delimited(f9_SLASH, \"*\", CS));",
+   "verdict": "equivalent",
+   "reason": "Delimiter character for ADR in STRING statement ('X' vs '*'); ADR contains 'ADR' which contains neither 'X' nor '*', copying the full 3 characters in both cases."
+  },
+  {
+   "id": "316dd6ea25",
+   "op": "BDM",
+   "line": 1043,
+   "before": "f80_WEB_PATH_LENGTH = Cobol.binary(BigDecimal.valueOf(f80_WEB_PATH_LENGTH).subtract(t18), 8, true, false, CS);",
+   "after": "f80_WEB_PATH_LENGTH = Cobol.binary(BigDecimal.valueOf(f80_WEB_PATH_LENGTH).add(t18), 8, true, false, CS);",
+   "verdict": "equivalent",
+   "reason": "Arithmetic operator on NUMBER-OF-NULLS subtraction; WEB-PATH contains only text characters and spaces with 0 low-values, so t18 is 0, making subtract(0) and add(0) identical."
+  },
+  {
+   "id": "3e44d889ba",
+   "op": "DEL",
+   "line": 1050,
+   "before": "Cobol.move(f73_REPLICATE, f102_WEB_PATH.ref(1, Integer.valueOf(10)), CS);",
+   "after": "/* Cobol.move(f73_REPLICATE, f102_WEB_PATH.ref(1, Integer.valueOf(10)), CS); */",
+   "verdict": "equivalent",
+   "reason": "Cobol.move of REPLICATE ('/replicate') to WEB-PATH(1:10); the URIMAP path string already starts with '/replicate', so overwriting the first 10 characters with themselves is a no-op."
+  },
+  {
+   "id": "62e8e53f5f",
+   "op": "DEL",
+   "line": 1056,
+   "before": "f99_WEB_STATUS_CODE = Cobol.binary(BigDecimal.valueOf(web22.status()), 4, true, false, CS);",
+   "after": "/* f99_WEB_STATUS_CODE = Cobol.binary(BigDecimal.valueOf(web22.status()), 4, true, false, CS); */",
+   "verdict": "equivalent",
+   "reason": "Cobol.binary store into f99_WEB_STATUS_CODE after webConverse; WEB-STATUS-CODE is never read anywhere in ZECS003."
+  },
+  {
+   "id": "7ad77eaded",
+   "op": "CON",
+   "line": 1056,
+   "before": "f99_WEB_STATUS_CODE = Cobol.binary(BigDecimal.valueOf(web22.status()), 4, true, false, CS);",
+   "after": "f99_WEB_STATUS_CODE = Cobol.binary(BigDecimal.valueOf(web22.status()), 5, true, false, CS);",
+   "verdict": "equivalent",
+   "reason": "Field width for f99_WEB_STATUS_CODE; WEB-STATUS-CODE is never read anywhere in ZECS003."
+  },
+  {
+   "id": "b5d45ee459",
+   "op": "DEL",
+   "line": 1061,
+   "before": "Cobol.store(f156_EIBRESP2, BigDecimal.valueOf(web22.resp2()), false, CS);",
+   "after": "/* Cobol.store(f156_EIBRESP2, BigDecimal.valueOf(web22.resp2()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "Cobol.store into f156_EIBRESP2 after webConverse; EIBRESP2 is never read anywhere in ZECS003."
+  }
+ ]
+}

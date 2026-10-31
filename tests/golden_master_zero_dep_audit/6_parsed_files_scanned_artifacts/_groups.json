@@ -2528,7 +2528,7 @@
       "Average Risk Exposures": {
         "API Exposure": "15.68%",
         "Cognitive Load Exposure": "36.59%",
-        "Commented Logic Exposure": "0.81%",
+        "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "5.31%",
         "Documentation Exposure": "29.19%",
         "Error & Exception Exposure": "40.88%",
@@ -3623,7 +3623,7 @@
       "Average Risk Exposures": {
         "API Exposure": "13.62%",
         "Cognitive Load Exposure": "44.34%",
-        "Commented Logic Exposure": "9.26%",
+        "Commented Logic Exposure": "8.85%",
         "Concurrency Exposure": "3.06%",
         "Documentation Exposure": "76.91%",
         "Error & Exception Exposure": "72.79%",
@@ -8270,7 +8270,7 @@
       "Average Risk Exposures": {
         "API Exposure": "4.3%",
         "Cognitive Load Exposure": "40.63%",
-        "Commented Logic Exposure": "2.61%",
+        "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "29.38%",
         "Documentation Exposure": "48.43%",
         "Error & Exception Exposure": "52.13%",
@@ -8358,7 +8358,7 @@
       "Average Risk Exposures": {
         "API Exposure": "31.41%",
         "Cognitive Load Exposure": "26.5%",
-        "Commented Logic Exposure": "2.13%",
+        "Commented Logic Exposure": "0.88%",
         "Concurrency Exposure": "2.21%",
         "Documentation Exposure": "64.95%",
         "Error & Exception Exposure": "42.88%",
@@ -8444,7 +8444,7 @@
       "Average Risk Exposures": {
         "API Exposure": "24.94%",
         "Cognitive Load Exposure": "15.38%",
-        "Commented Logic Exposure": "0.21%",
+        "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "18.74%",
         "Documentation Exposure": "58.56%",
         "Error & Exception Exposure": "44.1%",
@@ -8497,7 +8497,7 @@
       "Average Risk Exposures": {
         "API Exposure": "10.13%",
         "Cognitive Load Exposure": "4.9%",
-        "Commented Logic Exposure": "0.31%",
+        "Commented Logic Exposure": "0.03%",
         "Concurrency Exposure": "22.49%",
         "Documentation Exposure": "96.74%",
         "Error & Exception Exposure": "46.31%",
@@ -8848,7 +8848,7 @@
       "Average Risk Exposures": {
         "API Exposure": "14.06%",
         "Cognitive Load Exposure": "34.7%",
-        "Commented Logic Exposure": "5.43%",
+        "Commented Logic Exposure": "3.58%",
         "Concurrency Exposure": "0.0%",
         "Documentation Exposure": "31.55%",
         "Error & Exception Exposure": "60.68%",
@@ -8953,7 +8953,7 @@
       "Average Risk Exposures": {
         "API Exposure": "1.12%",
         "Cognitive Load Exposure": "0.0%",
-        "Commented Logic Exposure": "5.96%",
+        "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "0.0%",
         "Documentation Exposure": "0.0%",
         "Error & Exception Exposure": "37.68%",
@@ -9064,7 +9064,7 @@
       "Average Risk Exposures": {
         "API Exposure": "15.77%",
         "Cognitive Load Exposure": "42.72%",
-        "Commented Logic Exposure": "4.05%",
+        "Commented Logic Exposure": "1.23%",
         "Concurrency Exposure": "3.16%",
         "Documentation Exposure": "29.9%",
         "Error & Exception Exposure": "72.36%",
@@ -9878,7 +9878,7 @@
       "Average Risk Exposures": {
         "API Exposure": "1.32%",
         "Cognitive Load Exposure": "38.96%",
-        "Commented Logic Exposure": "1.16%",
+        "Commented Logic Exposure": "0.24%",
         "Concurrency Exposure": "2.44%",
         "Documentation Exposure": "26.09%",
         "Error & Exception Exposure": "49.54%",
@@ -9930,7 +9930,7 @@
       "Average Risk Exposures": {
         "API Exposure": "0.14%",
         "Cognitive Load Exposure": "41.21%",
-        "Commented Logic Exposure": "3.88%",
+        "Commented Logic Exposure": "2.66%",
         "Concurrency Exposure": "0.69%",
         "Documentation Exposure": "36.84%",
         "Error & Exception Exposure": "74.94%",
@@ -9975,7 +9975,7 @@
       "Average Risk Exposures": {
         "API Exposure": "1.02%",
         "Cognitive Load Exposure": "22.8%",
-        "Commented Logic Exposure": "0.54%",
+        "Commented Logic Exposure": "0.18%",
         "Concurrency Exposure": "13.72%",
         "Documentation Exposure": "82.76%",
         "Error & Exception Exposure": "56.3%",
@@ -10033,7 +10033,7 @@
       "Average Risk Exposures": {
         "API Exposure": "1.06%",
         "Cognitive Load Exposure": "32.89%",
-        "Commented Logic Exposure": "4.98%",
+        "Commented Logic Exposure": "3.46%",
         "Concurrency Exposure": "0.0%",
         "Documentation Exposure": "50.0%",
         "Error & Exception Exposure": "44.12%",
@@ -10060,7 +10060,7 @@
       "Average Risk Exposures": {
         "API Exposure": "0.0%",
         "Cognitive Load Exposure": "29.15%",
-        "Commented Logic Exposure": "2.61%",
+        "Commented Logic Exposure": "1.61%",
         "Concurrency Exposure": "7.62%",
         "Documentation Exposure": "15.79%",
         "Error & Exception Exposure": "67.79%",
@@ -10112,7 +10112,7 @@
       "Average Risk Exposures": {
         "API Exposure": "0.4%",
         "Cognitive Load Exposure": "29.92%",
-        "Commented Logic Exposure": "7.18%",
+        "Commented Logic Exposure": "0.92%",
         "Concurrency Exposure": "0.69%",
         "Documentation Exposure": "24.0%",
         "Error & Exception Exposure": "68.75%",
@@ -10163,7 +10163,7 @@
       "Average Risk Exposures": {
         "API Exposure": "1.55%",
         "Cognitive Load Exposure": "29.59%",
-        "Commented Logic Exposure": "2.15%",
+        "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "16.44%",
         "Documentation Exposure": "47.75%",
         "Error & Exception Exposure": "53.41%",
@@ -10221,7 +10221,7 @@
       "Average Risk Exposures": {
         "API Exposure": "0.14%",
         "Cognitive Load Exposure": "18.48%",
-        "Commented Logic Exposure": "4.16%",
+        "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "0.99%",
         "Documentation Exposure": "13.04%",
         "Error & Exception Exposure": "64.1%",
@@ -10271,7 +10271,7 @@
       "Average Risk Exposures": {
         "API Exposure": "0.9%",
         "Cognitive Load Exposure": "48.09%",
-        "Commented Logic Exposure": "0.76%",
+        "Commented Logic Exposure": "0.34%",
         "Concurrency Exposure": "10.77%",
         "Documentation Exposure": "50.0%",
         "Error & Exception Exposure": "62.47%",

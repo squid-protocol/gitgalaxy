@@ -596,10 +596,18 @@ _KEYWORD_STATEMENT_SHAPE = (
 )
 
 
-def commented_keyword_statement(keywords: str, block: bool = True) -> str:
-    """Pattern source: a comment marker, one of `keywords`, then a statement-shaped rest of the line."""
+def commented_keyword_statement(keywords: str, block: bool = True, marker: str | None = None, extra: str = "") -> str:
+    """Pattern source: a comment marker, one of `keywords`, then a statement-shaped rest of the line.
+
+    `marker` replaces the default `//` / `/*` (a regex, e.g. `#` or `--`); `extra` is one more shape alternative
+    (a lookahead branch, anchored at the text after the keyword) for a language whose statements end in neither
+    `;{}` nor `(...)` nor an assignment (Python's trailing `:`, a shell command's quoted argument).
+    """
+    shape = _KEYWORD_STATEMENT_SHAPE[:-1] + "|" + extra + ")" if extra else _KEYWORD_STATEMENT_SHAPE
+    if marker is not None:
+        return marker + r"[ \t]*(?:" + keywords + r")\b" + shape
     marker = r"(?://|/\*)" if block else "//"
-    return r"(?<![/*])" + marker + r"[ \t]*(?:" + keywords + r")\b" + _KEYWORD_STATEMENT_SHAPE
+    return r"(?<![/*])" + marker + r"[ \t]*(?:" + keywords + r")\b" + shape
 
 
 # ------------------------------------------------------------------------------

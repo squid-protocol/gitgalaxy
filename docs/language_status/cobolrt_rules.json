@@ -2913,9 +2913,10 @@
   {
    "id": "RT-CICS-ADDRESS",
    "family": "CICS",
-   "title": "ADDRESS COMMAREA(ptr): the handle of the DFHCOMMAREA record's bytes; a task with no COMMAREA is refused (IBM's X'FF000000' is no COBOL NULL), except in a program with no 01 DFHCOMMAREA, where it is the X'FF000000' handle the byte-view test reads (addressNoCommarea); a COMMAREA there is refused; ADDRESS TWA / TCTUA(ptr): the handle of the task's work area / the terminal's user area, X'FF000000' when its size is 0 or unstated (addressTwa, addressTctua; not yet reachable from a program, the spec still refuses them)",
+   "title": "ADDRESS COMMAREA(ptr): the handle of the DFHCOMMAREA record's bytes; a task with no COMMAREA is refused (IBM's X'FF000000' is no COBOL NULL), except in a program with no 01 DFHCOMMAREA, where it is the X'FF000000' handle the byte-view test reads (addressNoCommarea); a COMMAREA there is refused; ADDRESS TWA / TCTUA / CWA(ptr): the handle of the task's work area / the terminal's user area / the region's common work area, X'FF000000' when its size is 0 or unstated (addressTwa, addressTctua, addressCwa; not yet reachable from a program, the spec still refuses them)",
    "methods": [
     "addressCommarea",
+    "addressCwa",
     "addressNoCommarea",
     "addressTctua",
     "addressTwa",

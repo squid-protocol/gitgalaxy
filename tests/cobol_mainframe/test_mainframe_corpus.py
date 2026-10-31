@@ -132,3 +132,57 @@ def test_unsafe_path_parts_flags_ignored_directory_names(tmp_path):
 def test_select_rejects_unknown_names():
     with pytest.raises(SystemExit, match="unknown corpus"):
         mc.select(["no-such-corpus"])
+
+
+# ---- #6072: cics-crucible resolves as a ladder corpus without joining the manifest -------------------------------
+def _crucible_repo(tmp_path, monkeypatch, tag_at_head=True):
+    repo = tmp_path / "cics-crucible"
+    repo.mkdir()
+    _git("init", "-q", cwd=repo)
+    _git("-c", "user.email=a@b", "-c", "user.name=n", "commit", "-q", "--allow-empty", "-m", "x", cwd=repo)
+    entry = mc.select(["cics-crucible"])[0]
+    if tag_at_head:
+        _git("tag", entry["ref"], cwd=repo)
+    else:
+        _git("-c", "user.email=a@b", "-c", "user.name=n", "commit", "-q", "--allow-empty", "-m", "y", cwd=repo)
+        _git("tag", entry["ref"], "HEAD~1", cwd=repo)
+    monkeypatch.setenv(mc.CRUCIBLE_PATH_ENV, str(repo))
+    monkeypatch.delenv(mc.CRUCIBLE_UNPINNED_ENV, raising=False)
+    return repo, entry
+
+
+def test_crucible_is_selectable_but_not_in_the_manifest():
+    (entry,) = mc.select(["cics-crucible"])
+    from _cics_crucible_pin import PINNED_REF
+
+    assert entry["ref"] == PINNED_REF and entry["crucible"] == "cics"
+    assert "cics-crucible" not in {c["name"] for c in mc.select([])}
+    assert mc.select([]) == CORPORA
+
+
+def test_crucible_require_clone_at_the_pin(tmp_path, monkeypatch):
+    repo, entry = _crucible_repo(tmp_path, monkeypatch)
+    assert mc.require_clone(entry) == repo
+    assert mc.clone_path(entry) == repo
+
+
+def test_crucible_off_the_pin_is_refused_unless_unpinned(tmp_path, monkeypatch):
+    repo, entry = _crucible_repo(tmp_path, monkeypatch, tag_at_head=False)
+    with pytest.raises(SystemExit, match="sync-pins"):
+        mc.require_clone(entry)
+    monkeypatch.setenv(mc.CRUCIBLE_UNPINNED_ENV, "1")
+    assert mc.require_clone(entry) == repo
+
+
+def test_crucible_missing_checkout_and_fetch_are_refused(tmp_path, monkeypatch):
+    (entry,) = mc.select(["cics-crucible"])
+    monkeypatch.setenv(mc.CRUCIBLE_PATH_ENV, str(tmp_path / "absent"))
+    with pytest.raises(SystemExit, match="no checkout"):
+        mc.require_clone(entry)
+    with pytest.raises(SystemExit, match="sync-pins"):
+        mc.fetch(entry)
+
+
+def test_unknown_corpus_still_lists_the_manifest():
+    with pytest.raises(SystemExit, match="zecs"):
+        mc.select(["cics-crucible", "nope"])

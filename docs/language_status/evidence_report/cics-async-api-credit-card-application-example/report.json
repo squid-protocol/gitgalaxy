@@ -432,6 +432,12 @@
     17,
     17
    ],
+   "carddemo-sort-tranrept": [
+    1,
+    1,
+    0,
+    0
+   ],
    "carddemo-tranadd": [
     18,
     18,
@@ -1141,9 +1147,9 @@
     48
    ],
    "zecs-zecs001": [
-    107,
+    117,
     119,
-    173,
+    194,
     208
    ],
    "zecs-zecs002": [
@@ -1728,6 +1734,10 @@
     "stale": [],
     "status": "shown equal, unapproved"
    },
+   "carddemo-sort-tranrept": {
+    "stale": [],
+    "status": "shown equal, unapproved"
+   },
    "carddemo-tranadd": {
     "stale": [],
     "status": "shown equal, unapproved"
@@ -1796,10 +1806,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "0712a98114140473d4b14442f973fa403cd68768",
+   "sha": "0095c320d884c1a6e8a4870ab8746c47997e8cea",
    "translator": {
-    "files": 156,
-    "sha256": "b3cb69320d97f2080c5f90a876598cd7af769c7e82ff7763da09813f40277bbd"
+    "files": 161,
+    "sha256": "ca8afa03b44523070ed37b60b01715eb1e97d13fcf8360635400312e6651d2d4"
    }
   },
   "sweeps": {}
@@ -1967,9 +1977,7 @@
      "startcode",
      "userid"
     ],
-    "facts_unstated": [
-     "ASSIGN STARTCODE (no equivalence case states it)"
-    ],
+    "facts_unstated": [],
     "named_by_commands": [
      {
       "area": "CICS",
@@ -2582,7 +2590,7 @@
      "PUT CONTAINER",
      "RUN"
     ],
-    "facts_unstated": 1,
+    "facts_unstated": 0,
     "holes": 0,
     "paragraphs_unrun": 0,
     "refused": null
@@ -5582,9 +5590,7 @@
      "startcode",
      "userid"
     ],
-    "facts_unstated": [
-     "ASSIGN STARTCODE (no equivalence case states it)"
-    ],
+    "facts_unstated": [],
     "named_by_commands": [
      {
       "area": "CICS",
@@ -6188,7 +6194,7 @@
      "GET CONTAINER",
      "PUT CONTAINER"
     ],
-    "facts_unstated": 1,
+    "facts_unstated": 0,
     "holes": 0,
     "paragraphs_unrun": 0,
     "refused": null
@@ -6606,8 +6612,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 0712a98114140473d4b14442f973fa403cd68768",
-   "python tests/tools/evidence_report.py cics-async-api-credit-card-application-example --baseline --sha 0712a98114140473d4b14442f973fa403cd68768",
+   "python tests/tools/cics_census.py survey --baseline --sha 0095c320d884c1a6e8a4870ab8746c47997e8cea",
+   "python tests/tools/evidence_report.py cics-async-api-credit-card-application-example --baseline --sha 0095c320d884c1a6e8a4870ab8746c47997e8cea",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases asynccc-asyncpnt,asynccc-crdtchk,asynccc-csstats2,asynccc-csstatus,asynccc-getaddr,asynccc-getname,asynccc-getpol,asynccc-getspnd,asynccc-seqpnt,asynccc-updcsdb",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -6628,13 +6634,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "0712a98114140473d4b14442f973fa403cd68768",
+   "sha": "0095c320d884c1a6e8a4870ab8746c47997e8cea",
    "translator": {
-    "files": 156,
-    "sha256": "b3cb69320d97f2080c5f90a876598cd7af769c7e82ff7763da09813f40277bbd"
+    "files": 161,
+    "sha256": "ca8afa03b44523070ed37b60b01715eb1e97d13fcf8360635400312e6651d2d4"
    }
   },
-  "translator_commit": "0712a98114140473d4b14442f973fa403cd68768",
+  "translator_commit": "0095c320d884c1a6e8a4870ab8746c47997e8cea",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -6677,6 +6683,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "b3cb69320d97f2080c5f90a876598cd7af769c7e82ff7763da09813f40277bbd"
+  "fingerprint": "ca8afa03b44523070ed37b60b01715eb1e97d13fcf8360635400312e6651d2d4"
  }
 }

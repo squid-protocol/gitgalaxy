@@ -510,6 +510,12 @@
     17,
     17
    ],
+   "carddemo-sort-tranrept": [
+    1,
+    1,
+    0,
+    0
+   ],
    "carddemo-tranadd": [
     18,
     18,
@@ -1219,9 +1225,9 @@
     48
    ],
    "zecs-zecs001": [
-    107,
+    117,
     119,
-    173,
+    194,
     208
    ],
    "zecs-zecs002": [
@@ -2188,6 +2194,10 @@
     "stale": [],
     "status": "shown equal, unapproved"
    },
+   "carddemo-sort-tranrept": {
+    "stale": [],
+    "status": "shown equal, unapproved"
+   },
    "carddemo-tranadd": {
     "stale": [],
     "status": "shown equal, unapproved"
@@ -2256,10 +2266,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "0712a98114140473d4b14442f973fa403cd68768",
+   "sha": "0095c320d884c1a6e8a4870ab8746c47997e8cea",
    "translator": {
-    "files": 156,
-    "sha256": "b3cb69320d97f2080c5f90a876598cd7af769c7e82ff7763da09813f40277bbd"
+    "files": 161,
+    "sha256": "ca8afa03b44523070ed37b60b01715eb1e97d13fcf8360635400312e6651d2d4"
    }
   },
   "sweeps": {}
@@ -2457,9 +2467,7 @@
   {
    "assumptions": {
     "facts_stated": [],
-    "facts_unstated": [
-     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
-    ],
+    "facts_unstated": [],
     "named_by_commands": [
      {
       "area": "CICS",
@@ -2978,7 +2986,7 @@
      "FORMATTIME",
      "GET COUNTER"
     ],
-    "facts_unstated": 1,
+    "facts_unstated": 0,
     "holes": 0,
     "paragraphs_unrun": 0,
     "refused": null
@@ -3000,9 +3008,7 @@
   {
    "assumptions": {
     "facts_stated": [],
-    "facts_unstated": [
-     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
-    ],
+    "facts_unstated": [],
     "named_by_commands": [
      {
       "area": "CICS",
@@ -3497,7 +3503,7 @@
      "ASKTIME",
      "FORMATTIME"
     ],
-    "facts_unstated": 1,
+    "facts_unstated": 0,
     "holes": 0,
     "paragraphs_unrun": 0,
     "refused": null
@@ -3519,9 +3525,7 @@
   {
    "assumptions": {
     "facts_stated": [],
-    "facts_unstated": [
-     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
-    ],
+    "facts_unstated": [],
     "named_by_commands": [
      {
       "area": "CICS",
@@ -4014,7 +4018,7 @@
      "ASKTIME",
      "FORMATTIME"
     ],
-    "facts_unstated": 1,
+    "facts_unstated": 0,
     "holes": 0,
     "paragraphs_unrun": 0,
     "refused": null
@@ -4563,9 +4567,7 @@
   {
    "assumptions": {
     "facts_stated": [],
-    "facts_unstated": [
-     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
-    ],
+    "facts_unstated": [],
     "named_by_commands": [
      {
       "area": "CICS",
@@ -4679,7 +4681,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:7c808074331333905d2a43887b40fed4749b61a3ef17e190bb9bd42c9912193f",
+       "oracle_image": "sha256:11bc9a8f999f10f1f06a82cefda724e6c3c0b9fb9cc396358807c3f5d959ade1",
        "oracle_matches_pin": true,
        "records_compared": 98,
        "records_equal": 98,
@@ -4816,7 +4818,7 @@
         "option": "db2.ccsid.EBCDIC_CCSID"
        }
       ],
-      "oracle_image": "sha256:7c808074331333905d2a43887b40fed4749b61a3ef17e190bb9bd42c9912193f",
+      "oracle_image": "sha256:11bc9a8f999f10f1f06a82cefda724e6c3c0b9fb9cc396358807c3f5d959ade1",
       "oracle_matches_pin": true,
       "records_compared": 98,
       "records_equal": 98,
@@ -5202,7 +5204,7 @@
      "ASKTIME",
      "FORMATTIME"
     ],
-    "facts_unstated": 1,
+    "facts_unstated": 0,
     "holes": 0,
     "paragraphs_unrun": 0,
     "refused": null
@@ -5224,9 +5226,7 @@
   {
    "assumptions": {
     "facts_stated": [],
-    "facts_unstated": [
-     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
-    ],
+    "facts_unstated": [],
     "named_by_commands": [
      {
       "area": "CICS",
@@ -5742,7 +5742,7 @@
      "ASKTIME",
      "FORMATTIME"
     ],
-    "facts_unstated": 1,
+    "facts_unstated": 0,
     "holes": 0,
     "paragraphs_unrun": 0,
     "refused": null
@@ -5868,7 +5868,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:7c808074331333905d2a43887b40fed4749b61a3ef17e190bb9bd42c9912193f",
+       "oracle_image": "sha256:11bc9a8f999f10f1f06a82cefda724e6c3c0b9fb9cc396358807c3f5d959ade1",
        "oracle_matches_pin": true,
        "records_compared": 98,
        "records_equal": 98,
@@ -6460,9 +6460,7 @@
   {
    "assumptions": {
     "facts_stated": [],
-    "facts_unstated": [
-     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
-    ],
+    "facts_unstated": [],
     "named_by_commands": [
      {
       "area": "CICS",
@@ -6967,7 +6965,7 @@
      "GET CONTAINER",
      "GET COUNTER"
     ],
-    "facts_unstated": 1,
+    "facts_unstated": 0,
     "holes": 0,
     "paragraphs_unrun": 0,
     "refused": null
@@ -6989,9 +6987,7 @@
   {
    "assumptions": {
     "facts_stated": [],
-    "facts_unstated": [
-     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
-    ],
+    "facts_unstated": [],
     "named_by_commands": [
      {
       "area": "CICS",
@@ -7497,7 +7493,7 @@
      "ASKTIME",
      "FORMATTIME"
     ],
-    "facts_unstated": 1,
+    "facts_unstated": 0,
     "holes": 0,
     "paragraphs_unrun": 0,
     "refused": null
@@ -7519,9 +7515,7 @@
   {
    "assumptions": {
     "facts_stated": [],
-    "facts_unstated": [
-     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
-    ],
+    "facts_unstated": [],
     "named_by_commands": [
      {
       "area": "CICS",
@@ -8037,7 +8031,7 @@
      "ASKTIME",
      "FORMATTIME"
     ],
-    "facts_unstated": 1,
+    "facts_unstated": 0,
     "holes": 0,
     "paragraphs_unrun": 0,
     "refused": null
@@ -8609,9 +8603,7 @@
   {
    "assumptions": {
     "facts_stated": [],
-    "facts_unstated": [
-     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
-    ],
+    "facts_unstated": [],
     "named_by_commands": [
      {
       "area": "CICS",
@@ -8714,7 +8706,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:7c808074331333905d2a43887b40fed4749b61a3ef17e190bb9bd42c9912193f",
+       "oracle_image": "sha256:11bc9a8f999f10f1f06a82cefda724e6c3c0b9fb9cc396358807c3f5d959ade1",
        "oracle_matches_pin": true,
        "records_compared": 55,
        "records_equal": 55,
@@ -8817,7 +8809,7 @@
         "option": "db2.ccsid.EBCDIC_CCSID"
        }
       ],
-      "oracle_image": "sha256:7c808074331333905d2a43887b40fed4749b61a3ef17e190bb9bd42c9912193f",
+      "oracle_image": "sha256:11bc9a8f999f10f1f06a82cefda724e6c3c0b9fb9cc396358807c3f5d959ade1",
       "oracle_matches_pin": true,
       "records_compared": 55,
       "records_equal": 55,
@@ -9203,7 +9195,7 @@
      "ASKTIME",
      "FORMATTIME"
     ],
-    "facts_unstated": 1,
+    "facts_unstated": 0,
     "holes": 0,
     "paragraphs_unrun": 0,
     "refused": null
@@ -9225,9 +9217,7 @@
   {
    "assumptions": {
     "facts_stated": [],
-    "facts_unstated": [
-     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
-    ],
+    "facts_unstated": [],
     "named_by_commands": [
      {
       "area": "CICS",
@@ -9720,7 +9710,7 @@
      "ASKTIME",
      "FORMATTIME"
     ],
-    "facts_unstated": 1,
+    "facts_unstated": 0,
     "holes": 0,
     "paragraphs_unrun": 0,
     "refused": null
@@ -9747,10 +9737,7 @@
      "startcode",
      "userid"
     ],
-    "facts_unstated": [
-     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)",
-     "ASSIGN STARTCODE (no equivalence case states it)"
-    ],
+    "facts_unstated": [],
     "named_by_commands": [
      {
       "area": "CICS",
@@ -10437,7 +10424,7 @@
      "ENQ",
      "READ"
     ],
-    "facts_unstated": 2,
+    "facts_unstated": 0,
     "holes": 0,
     "paragraphs_unrun": 0,
     "refused": null
@@ -10459,9 +10446,7 @@
   {
    "assumptions": {
     "facts_stated": [],
-    "facts_unstated": [
-     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
-    ],
+    "facts_unstated": [],
     "named_by_commands": [
      {
       "area": "CICS",
@@ -10967,7 +10952,7 @@
      "ASKTIME",
      "FORMATTIME"
     ],
-    "facts_unstated": 1,
+    "facts_unstated": 0,
     "holes": 0,
     "paragraphs_unrun": 0,
     "refused": null
@@ -10989,9 +10974,7 @@
   {
    "assumptions": {
     "facts_stated": [],
-    "facts_unstated": [
-     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
-    ],
+    "facts_unstated": [],
     "named_by_commands": [
      {
       "area": "CICS",
@@ -11507,7 +11490,7 @@
      "ASKTIME",
      "FORMATTIME"
     ],
-    "facts_unstated": 1,
+    "facts_unstated": 0,
     "holes": 0,
     "paragraphs_unrun": 0,
     "refused": null
@@ -11534,9 +11517,7 @@
      "startcode",
      "userid"
     ],
-    "facts_unstated": [
-     "ASSIGN STARTCODE (no equivalence case states it)"
-    ],
+    "facts_unstated": [],
     "named_by_commands": [
      {
       "area": "CICS",
@@ -12133,7 +12114,7 @@
     "commands_not_backed": [
      "READ"
     ],
-    "facts_unstated": 1,
+    "facts_unstated": 0,
     "holes": 0,
     "paragraphs_unrun": 0,
     "refused": null
@@ -12998,7 +12979,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:7c808074331333905d2a43887b40fed4749b61a3ef17e190bb9bd42c9912193f",
+       "oracle_image": "sha256:11bc9a8f999f10f1f06a82cefda724e6c3c0b9fb9cc396358807c3f5d959ade1",
        "oracle_matches_pin": true,
        "records_compared": 98,
        "records_equal": 98,
@@ -13202,7 +13183,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:7c808074331333905d2a43887b40fed4749b61a3ef17e190bb9bd42c9912193f",
+       "oracle_image": "sha256:11bc9a8f999f10f1f06a82cefda724e6c3c0b9fb9cc396358807c3f5d959ade1",
        "oracle_matches_pin": true,
        "records_compared": 55,
        "records_equal": 55,
@@ -13504,7 +13485,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:7c808074331333905d2a43887b40fed4749b61a3ef17e190bb9bd42c9912193f",
+       "oracle_image": "sha256:11bc9a8f999f10f1f06a82cefda724e6c3c0b9fb9cc396358807c3f5d959ade1",
        "oracle_matches_pin": true,
        "records_compared": 158,
        "records_equal": 158,
@@ -17605,9 +17586,7 @@
   {
    "assumptions": {
     "facts_stated": [],
-    "facts_unstated": [
-     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
-    ],
+    "facts_unstated": [],
     "named_by_commands": [
      {
       "area": "CICS",
@@ -18092,7 +18071,7 @@
      "ASKTIME",
      "FORMATTIME"
     ],
-    "facts_unstated": 1,
+    "facts_unstated": 0,
     "holes": 0,
     "paragraphs_unrun": 0,
     "refused": null
@@ -18114,9 +18093,7 @@
   {
    "assumptions": {
     "facts_stated": [],
-    "facts_unstated": [
-     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
-    ],
+    "facts_unstated": [],
     "named_by_commands": [
      {
       "area": "CICS",
@@ -18599,7 +18576,7 @@
      "ASKTIME",
      "FORMATTIME"
     ],
-    "facts_unstated": 1,
+    "facts_unstated": 0,
     "holes": 0,
     "paragraphs_unrun": 0,
     "refused": null
@@ -19183,9 +19160,7 @@
   {
    "assumptions": {
     "facts_stated": [],
-    "facts_unstated": [
-     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
-    ],
+    "facts_unstated": [],
     "named_by_commands": [
      {
       "area": "CICS",
@@ -19324,7 +19299,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:7c808074331333905d2a43887b40fed4749b61a3ef17e190bb9bd42c9912193f",
+       "oracle_image": "sha256:11bc9a8f999f10f1f06a82cefda724e6c3c0b9fb9cc396358807c3f5d959ade1",
        "oracle_matches_pin": true,
        "records_compared": 158,
        "records_equal": 158,
@@ -19414,7 +19389,7 @@
         "option": "db2.ccsid.EBCDIC_CCSID"
        }
       ],
-      "oracle_image": "sha256:7c808074331333905d2a43887b40fed4749b61a3ef17e190bb9bd42c9912193f",
+      "oracle_image": "sha256:11bc9a8f999f10f1f06a82cefda724e6c3c0b9fb9cc396358807c3f5d959ade1",
       "oracle_matches_pin": true,
       "records_compared": 158,
       "records_equal": 158,
@@ -19811,7 +19786,7 @@
      "FORMATTIME",
      "SYNCPOINT ROLLBACK"
     ],
-    "facts_unstated": 1,
+    "facts_unstated": 0,
     "holes": 0,
     "paragraphs_unrun": 0,
     "refused": null
@@ -19833,9 +19808,7 @@
   {
    "assumptions": {
     "facts_stated": [],
-    "facts_unstated": [
-     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
-    ],
+    "facts_unstated": [],
     "named_by_commands": [
      {
       "area": "CICS",
@@ -20351,7 +20324,7 @@
      "ASKTIME",
      "FORMATTIME"
     ],
-    "facts_unstated": 1,
+    "facts_unstated": 0,
     "holes": 0,
     "paragraphs_unrun": 0,
     "refused": null
@@ -20536,7 +20509,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:7c808074331333905d2a43887b40fed4749b61a3ef17e190bb9bd42c9912193f",
+       "oracle_image": "sha256:11bc9a8f999f10f1f06a82cefda724e6c3c0b9fb9cc396358807c3f5d959ade1",
        "oracle_matches_pin": true,
        "records_compared": 158,
        "records_equal": 158,
@@ -21125,9 +21098,7 @@
      "startcode",
      "userid"
     ],
-    "facts_unstated": [
-     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
-    ],
+    "facts_unstated": [],
     "named_by_commands": [
      {
       "area": "CICS",
@@ -21703,7 +21674,7 @@
      "FORMATTIME",
      "QUERY COUNTER"
     ],
-    "facts_unstated": 1,
+    "facts_unstated": 0,
     "holes": 0,
     "paragraphs_unrun": 0,
     "refused": null
@@ -21725,8 +21696,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 0712a98114140473d4b14442f973fa403cd68768",
-   "python tests/tools/evidence_report.py cics-genapp --baseline --sha 0712a98114140473d4b14442f973fa403cd68768",
+   "python tests/tools/cics_census.py survey --baseline --sha 0095c320d884c1a6e8a4870ab8746c47997e8cea",
+   "python tests/tools/evidence_report.py cics-genapp --baseline --sha 0095c320d884c1a6e8a4870ab8746c47997e8cea",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases genapp-lgacdb01,genapp-lgacdb01-generated,genapp-lgacdb02,genapp-lgacdb02-generated,genapp-lgacus01,genapp-lgacus01-generated,genapp-lgacvs01,genapp-lgapdb01,genapp-lgapdb01-generated,genapp-lgapol01,genapp-lgapol01-generated,genapp-lgapvs01,genapp-lgastat1,genapp-lgdpdb01,genapp-lgdpdb01-generated,genapp-lgdpol01,genapp-lgdpol01-generated,genapp-lgdpvs01,genapp-lgicdb01,genapp-lgicdb01-generated,genapp-lgicus01,genapp-lgicus01-generated,genapp-lgicvs01,genapp-lgicvs01-linked,genapp-lgipdb01,genapp-lgipdb01-generated,genapp-lgipol01,genapp-lgipol01-generated,genapp-lgipvs01,genapp-lgipvs01-linked,genapp-lgsetup,genapp-lgstsq,genapp-lgtestc1,genapp-lgtestp1,genapp-lgtestp2,genapp-lgtestp3,genapp-lgtestp4,genapp-lgucdb01,genapp-lgucdb01-generated,genapp-lgucus01,genapp-lgucus01-generated,genapp-lgucvs01,genapp-lgupdb01,genapp-lgupdb01-generated,genapp-lgupol01,genapp-lgupol01-generated,genapp-lgupvs01,genapp-lgwebst5  # Db2 cases (35) need the Db2 container",
    "python tests/tools/evidence.py prove genapp-lgapdb01 genapp-lgapvs01 genapp-lgicdb01 genapp-lgstsq genapp-lgupdb01 genapp-lgupvs01",
@@ -21743,7 +21714,7 @@
   },
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
-   "sha256:7c808074331333905d2a43887b40fed4749b61a3ef17e190bb9bd42c9912193f",
+   "sha256:11bc9a8f999f10f1f06a82cefda724e6c3c0b9fb9cc396358807c3f5d959ade1",
    "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f"
   ],
   "pin_manifest": "tests/crucible_pins.toml",
@@ -21751,13 +21722,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "0712a98114140473d4b14442f973fa403cd68768",
+   "sha": "0095c320d884c1a6e8a4870ab8746c47997e8cea",
    "translator": {
-    "files": 156,
-    "sha256": "b3cb69320d97f2080c5f90a876598cd7af769c7e82ff7763da09813f40277bbd"
+    "files": 161,
+    "sha256": "ca8afa03b44523070ed37b60b01715eb1e97d13fcf8360635400312e6651d2d4"
    }
   },
-  "translator_commit": "0712a98114140473d4b14442f973fa403cd68768",
+  "translator_commit": "0095c320d884c1a6e8a4870ab8746c47997e8cea",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -21800,6 +21771,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "b3cb69320d97f2080c5f90a876598cd7af769c7e82ff7763da09813f40277bbd"
+  "fingerprint": "ca8afa03b44523070ed37b60b01715eb1e97d13fcf8360635400312e6651d2d4"
  }
 }

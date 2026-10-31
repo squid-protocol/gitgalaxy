@@ -4,9 +4,9 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `0712a98114140473d4b14442f973fa403cd68768` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `0095c320d884c1a6e8a4870ab8746c47997e8cea` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
-The translation survey matches the translator in the tree (translator fingerprint `b3cb69320d97`).
+The translation survey matches the translator in the tree (translator fingerprint `ca8afa03b445`).
 
 ## How to read this report
 
@@ -40,8 +40,8 @@ The translation survey matches the translator in the tree (translator fingerprin
 
 | level | programs | of which stale (awaiting re-check) |
 |---|---|---|
-| L0 | 12 | 0 |
-| L1 | 68 | 0 |
+| L0 | 6 | 0 |
+| L1 | 74 | 0 |
 | L2 | 0 | 0 |
 | L3 | 0 | 0 |
 | L4 | 0 | 0 |
@@ -51,7 +51,7 @@ The translation survey matches the translator in the tree (translator fingerprin
 - L2+: 0 (0 awaiting re-check); L3+: 0 (0 awaiting re-check); L4+: 0 (0 awaiting re-check)
 
 - programs: 80 (with an EXEC CICS command: 0; source not read: 80)
-- translated whole: 68; refused whole: 0; holes left: 34
+- translated whole: 74; refused whole: 0; holes left: 17
 - with an equivalence case: 0; det port equal on its case: 0; with an evidence record: 0; record current at build: 0
 
 ## Options the estate compiles and runs under
@@ -66,6 +66,8 @@ No estate options file: every option is IBM's default (assumed). Programs: 0 opt
 | cases/commarea-mismatch/ca-address-commarea/src/CAADSB.cbl | L1 | 12/12 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
 | cases/commarea-mismatch/ca-address-eib-commarea/src/CAEBCA.cbl | L1 | 40/40 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
 | cases/commarea-mismatch/ca-address-eib-commarea/src/CAEBSB.cbl | L1 | 16/16 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
+| cases/commarea-mismatch/ca-address-twa-tctua/src/CATWAD.cbl | L1 | 43/43 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
+| cases/commarea-mismatch/ca-address-twa-tctua/src/CATWSB.cbl | L1 | 10/10 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
 | cases/commarea-mismatch/ca-channel-containers/src/CACHAN.cbl | L1 | 40/40 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
 | cases/commarea-mismatch/ca-channel-containers/src/CACHERR.cbl | L1 | 10/10 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
 | cases/commarea-mismatch/ca-channel-containers/src/CACHSUB.cbl | L1 | 54/54 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
@@ -77,8 +79,11 @@ No estate options file: every option is IBM's default (assumed). Programs: 0 opt
 | cases/commarea-mismatch/ca-get-container-set/src/CAGCST.cbl | L1 | 37/37 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
 | cases/commarea-mismatch/ca-get-container-set/src/CAGCSX.cbl | L1 | 22/22 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
 | cases/commarea-mismatch/ca-getmain-pointer/src/CAGMPT.cbl | L1 | 46/46 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
+| cases/commarea-mismatch/ca-getmain-pointer/src/CAGMZ.cbl | L1 | 43/43 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
 | cases/commarea-mismatch/ca-link-lengths/src/CALINK.cbl | L1 | 17/17 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
 | cases/commarea-mismatch/ca-link-lengths/src/CASUB.cbl | L1 | 11/11 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
+| cases/commarea-mismatch/ca-load-set/src/CALDST.cbl | L1 | 23/23 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
+| cases/commarea-mismatch/ca-load-set/src/CALDSX.cbl | L1 | 27/27 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
 | cases/commarea-mismatch/ca-receive-retrieve-set/src/CARTWK.cbl | L1 | 14/14 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
 | cases/commarea-mismatch/ca-xctl-versions/src/CAXA.cbl | L1 | 11/11 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
 | cases/commarea-mismatch/ca-xctl-versions/src/CAXB.cbl | L1 | 17/17 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
@@ -89,6 +94,7 @@ No estate options file: every option is IBM's default (assumed). Programs: 0 opt
 | cases/condition-handling/hc-dcounters/src/HCDCNT.cbl | L1 | 98/98 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
 | cases/condition-handling/hc-deedit-uctranst/src/HCDEED.cbl | L1 | 75/75 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
 | cases/condition-handling/hc-eoc-error/src/HCEOE.cbl | L1 | 15/15 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
+| cases/condition-handling/hc-file-read-set/src/HCRDST.cbl | L1 | 77/77 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
 | cases/condition-handling/hc-handle-aid/src/HCAID.cbl | L1 | 46/46 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
 | cases/condition-handling/hc-ignore-error/src/HCIGN.cbl | L1 | 33/33 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
 | cases/condition-handling/hc-inquire-deleteq/src/HCINQD.cbl | L1 | 55/55 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
@@ -130,14 +136,8 @@ No estate options file: every option is IBM's default (assumed). Programs: 0 opt
 | cases/pseudo-conversational/pc-return-immediate/src/PCIMMS.cbl | L1 | 5/5 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
 | cases/pseudo-conversational/pc-wizard/src/PCCONF.cbl | L1 | 47/47 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
 | cases/pseudo-conversational/pc-wizard/src/PCWIZ.cbl | L1 | 39/39 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
-| cases/commarea-mismatch/ca-address-twa-tctua/src/CATWAD.cbl | L0 | 39/43 | 4 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
-| cases/commarea-mismatch/ca-address-twa-tctua/src/CATWSB.cbl | L0 | 9/10 | 1 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
-| cases/commarea-mismatch/ca-getmain-pointer/src/CAGMZ.cbl | L0 | 40/41 | 1 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
-| cases/commarea-mismatch/ca-load-set/src/CALDST.cbl | L0 | 21/23 | 2 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
-| cases/commarea-mismatch/ca-load-set/src/CALDSX.cbl | L0 | 24/27 | 3 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
 | cases/commarea-mismatch/ca-load-set/src/CALDTG.cbl | L0 | 0/1 | 1 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
 | cases/commarea-mismatch/ca-receive-retrieve-set/src/CARCST.cbl | L0 | 13/14 | 1 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
-| cases/condition-handling/hc-file-read-set/src/HCRDST.cbl | L0 | 71/77 | 6 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
 | cases/condition-handling/hc-file-unlock/src/HCUNLK.cbl | L0 | 63/70 | 7 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
 | cases/ghost-tasks/gt-http-inbound/src/GTHECHO.cbl | L0 | 3/5 | 2 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
 | cases/ghost-tasks/gt-web-server-receive/src/GTWRECV.cbl | L0 | 18/21 | 3 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
@@ -188,6 +188,32 @@ No estate options file: every option is IBM's default (assumed). Programs: 0 opt
 
 - **Next level needs:** an equivalence case that runs it
 - **Translation:** 16/16 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; 0 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]
+- **Executed equivalence:** no equivalence case runs it
+- **Coverage:** not measured
+- **Oracle backing:** no EXEC CICS command found (source not read)
+- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
+  - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
+- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Residual risk:** coverage not measured; assumption reach and the migration dimensions above: not measured
+
+### cases/commarea-mismatch/ca-address-twa-tctua/src/CATWAD.cbl -- L1
+
+- **Next level needs:** an equivalence case that runs it
+- **Translation:** 43/43 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; 0 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]
+- **Executed equivalence:** no equivalence case runs it
+- **Coverage:** not measured
+- **Oracle backing:** no EXEC CICS command found (source not read)
+- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
+  - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
+- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Residual risk:** coverage not measured; assumption reach and the migration dimensions above: not measured
+
+### cases/commarea-mismatch/ca-address-twa-tctua/src/CATWSB.cbl -- L1
+
+- **Next level needs:** an equivalence case that runs it
+- **Translation:** 10/10 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; 0 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
@@ -340,6 +366,19 @@ No estate options file: every option is IBM's default (assumed). Programs: 0 opt
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** coverage not measured; assumption reach and the migration dimensions above: not measured
 
+### cases/commarea-mismatch/ca-getmain-pointer/src/CAGMZ.cbl -- L1
+
+- **Next level needs:** an equivalence case that runs it
+- **Translation:** 43/43 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; 0 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]
+- **Executed equivalence:** no equivalence case runs it
+- **Coverage:** not measured
+- **Oracle backing:** no EXEC CICS command found (source not read)
+- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
+  - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
+- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Residual risk:** coverage not measured; assumption reach and the migration dimensions above: not measured
+
 ### cases/commarea-mismatch/ca-link-lengths/src/CALINK.cbl -- L1
 
 - **Next level needs:** an equivalence case that runs it
@@ -357,6 +396,32 @@ No estate options file: every option is IBM's default (assumed). Programs: 0 opt
 
 - **Next level needs:** an equivalence case that runs it
 - **Translation:** 11/11 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; 0 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]
+- **Executed equivalence:** no equivalence case runs it
+- **Coverage:** not measured
+- **Oracle backing:** no EXEC CICS command found (source not read)
+- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
+  - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
+- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Residual risk:** coverage not measured; assumption reach and the migration dimensions above: not measured
+
+### cases/commarea-mismatch/ca-load-set/src/CALDST.cbl -- L1
+
+- **Next level needs:** an equivalence case that runs it
+- **Translation:** 23/23 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; 0 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]
+- **Executed equivalence:** no equivalence case runs it
+- **Coverage:** not measured
+- **Oracle backing:** no EXEC CICS command found (source not read)
+- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
+  - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
+- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Residual risk:** coverage not measured; assumption reach and the migration dimensions above: not measured
+
+### cases/commarea-mismatch/ca-load-set/src/CALDSX.cbl -- L1
+
+- **Next level needs:** an equivalence case that runs it
+- **Translation:** 27/27 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; 0 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
@@ -487,6 +552,19 @@ No estate options file: every option is IBM's default (assumed). Programs: 0 opt
 
 - **Next level needs:** an equivalence case that runs it
 - **Translation:** 15/15 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; 0 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]
+- **Executed equivalence:** no equivalence case runs it
+- **Coverage:** not measured
+- **Oracle backing:** no EXEC CICS command found (source not read)
+- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
+  - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
+- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Residual risk:** coverage not measured; assumption reach and the migration dimensions above: not measured
+
+### cases/condition-handling/hc-file-read-set/src/HCRDST.cbl -- L1
+
+- **Next level needs:** an equivalence case that runs it
+- **Translation:** 77/77 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; 0 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
@@ -1029,79 +1107,6 @@ No estate options file: every option is IBM's default (assumed). Programs: 0 opt
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** coverage not measured; assumption reach and the migration dimensions above: not measured
 
-### cases/commarea-mismatch/ca-address-twa-tctua/src/CATWAD.cbl -- L0
-
-- **Next level needs:** translated whole (4 holes left)
-- **Translation:** 39/43 statements, 4 holes; whole: no
-  - hole: EXEC EXEC CICS: ADDRESS TCTUA: option not modelled (TCTUA: the terminal control table user area (TCTUA) is a system area the region does not define: not modelled)
-  - hole: EXEC EXEC CICS: ADDRESS TWA: option not modelled (TWA: the transaction work area (TWA) is a system area the region does not define: not modelled)
-- **Options in force** (compile options that change results; 0 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]
-- **Executed equivalence:** no equivalence case runs it
-- **Coverage:** not measured
-- **Oracle backing:** no EXEC CICS command found (source not read)
-- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
-  - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
-- **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 4 holes; assumption reach and the migration dimensions above: not measured
-
-### cases/commarea-mismatch/ca-address-twa-tctua/src/CATWSB.cbl -- L0
-
-- **Next level needs:** translated whole (1 holes left)
-- **Translation:** 9/10 statements, 1 holes; whole: no
-  - hole: EXEC EXEC CICS: ADDRESS TWA: option not modelled (TWA: the transaction work area (TWA) is a system area the region does not define: not modelled)
-- **Options in force** (compile options that change results; 0 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]
-- **Executed equivalence:** no equivalence case runs it
-- **Coverage:** not measured
-- **Oracle backing:** no EXEC CICS command found (source not read)
-- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
-  - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
-- **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 1 holes; assumption reach and the migration dimensions above: not measured
-
-### cases/commarea-mismatch/ca-getmain-pointer/src/CAGMZ.cbl -- L0
-
-- **Next level needs:** translated whole (1 holes left)
-- **Translation:** 40/41 statements, 1 holes; whole: no
-  - hole: IF WS-PTR2-N: a REDEFINES overlays a POINTER with it (pointer arithmetic is not modelled)
-- **Options in force** (compile options that change results; 0 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]
-- **Executed equivalence:** no equivalence case runs it
-- **Coverage:** not measured
-- **Oracle backing:** no EXEC CICS command found (source not read)
-- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
-  - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
-- **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 1 holes; assumption reach and the migration dimensions above: not measured
-
-### cases/commarea-mismatch/ca-load-set/src/CALDST.cbl -- L0
-
-- **Next level needs:** translated whole (2 holes left)
-- **Translation:** 21/23 statements, 2 holes; whole: no
-  - hole: EXEC EXEC CICS: EXEC CICS LOAD not modelled (a program or table loaded into storage and addressed by a pointer is not modelled)
-  - hole: EXEC EXEC CICS: EXEC CICS RELEASE not modelled (releasing a LOADed program or table: a program or table loaded into storage and addressed by a pointer is not modelled)
-- **Options in force** (compile options that change results; 0 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]
-- **Executed equivalence:** no equivalence case runs it
-- **Coverage:** not measured
-- **Oracle backing:** no EXEC CICS command found (source not read)
-- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
-  - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
-- **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 2 holes; assumption reach and the migration dimensions above: not measured
-
-### cases/commarea-mismatch/ca-load-set/src/CALDSX.cbl -- L0
-
-- **Next level needs:** translated whole (3 holes left)
-- **Translation:** 24/27 statements, 3 holes; whole: no
-  - hole: EXEC EXEC CICS: EXEC CICS LOAD not modelled (a program or table loaded into storage and addressed by a pointer is not modelled)
-  - hole: EXEC EXEC CICS: EXEC CICS RELEASE not modelled (releasing a LOADed program or table: a program or table loaded into storage and addressed by a pointer is not modelled)
-- **Options in force** (compile options that change results; 0 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]
-- **Executed equivalence:** no equivalence case runs it
-- **Coverage:** not measured
-- **Oracle backing:** no EXEC CICS command found (source not read)
-- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
-  - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
-- **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 3 holes; assumption reach and the migration dimensions above: not measured
-
 ### cases/commarea-mismatch/ca-load-set/src/CALDTG.cbl -- L0
 
 - **Next level needs:** translated whole (1 holes left)
@@ -1130,25 +1135,11 @@ No estate options file: every option is IBM's default (assumed). Programs: 0 opt
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 1 holes; assumption reach and the migration dimensions above: not measured
 
-### cases/condition-handling/hc-file-read-set/src/HCRDST.cbl -- L0
-
-- **Next level needs:** translated whole (6 holes left)
-- **Translation:** 71/77 statements, 6 holes; whole: no
-  - hole: EXEC EXEC CICS: ADDRESS OF LS-REC: undeclared item
-- **Options in force** (compile options that change results; 0 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]
-- **Executed equivalence:** no equivalence case runs it
-- **Coverage:** not measured
-- **Oracle backing:** no EXEC CICS command found (source not read)
-- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
-  - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
-- **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 6 holes; assumption reach and the migration dimensions above: not measured
-
 ### cases/condition-handling/hc-file-unlock/src/HCUNLK.cbl -- L0
 
 - **Next level needs:** translated whole (7 holes left)
 - **Translation:** 63/70 statements, 7 holes; whole: no
-  - hole: EXEC EXEC CICS: WsRec: no key
+  - hole: EXEC EXEC CICS: WsRec: no key (the generated entity states none: no IDCAMS DEFINE, RECORD KEY or RIDFLD field inside the record names it, and a KSDS key's offset is not guessed)
 - **Options in force** (compile options that change results; 0 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
@@ -1216,7 +1207,7 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `0712a98114140473d4b14442f973fa403cd68768`
+- translator commit (the survey's): `0095c320d884c1a6e8a4870ab8746c47997e8cea`
 - corpus pin: `cics-crucible` at `—`
 - crucible pins: cics `v0.10.0`, estate `v0.5.0`, language `v1.7.0`; cics crucible baseline measured at `v0.10.0 (01e11fe6)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
@@ -1226,8 +1217,8 @@ From the spec entries of the commands the programs use, with the register's stat
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 0712a98114140473d4b14442f973fa403cd68768
-python tests/tools/evidence_report.py cics-crucible --baseline --sha 0712a98114140473d4b14442f973fa403cd68768
+python tests/tools/cics_census.py survey --baseline --sha 0095c320d884c1a6e8a4870ab8746c47997e8cea
+python tests/tools/evidence_report.py cics-crucible --baseline --sha 0095c320d884c1a6e8a4870ab8746c47997e8cea
 python tests/tools/evidence_report.py --refresh
 python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin
 ```

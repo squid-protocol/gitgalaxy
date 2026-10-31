@@ -4,9 +4,9 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `0712a98114140473d4b14442f973fa403cd68768` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `0095c320d884c1a6e8a4870ab8746c47997e8cea` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
-The translation survey matches the translator in the tree (translator fingerprint `b3cb69320d97`).
+The translation survey matches the translator in the tree (translator fingerprint `ca8afa03b445`).
 
 ## How to read this report
 
@@ -153,10 +153,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 
 - **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X30 (ASSUMED (REFUSED where IBM is silent)), X45 (ASSUMED (REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)), X53 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - z/OS-calibrated: 0 of 5 named assumptions (none measured on z/OS)
-  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
   - stated infeasible branch outcome (reviewed claim, family G): WRITE-ERROR-MESSAGE:314:true (IF) -- `IF EIBCALEN < 91` (the inner test of WRITE-ERROR-MESSAGE's COMMAREA copy) is true only for a call whose COMMAREA is 1 to 90 bytes. Reaching it takes a failing INSERT (line 222 or 251) with EIBCALEN between 1 and 90, but the statement's host variables (CA-PHONE-MOBILE, CA-PHONE-HOME, CA-EMAIL-ADDRESS of LGCMAREA) lie past byte 90 (header 18 + the 72 bytes of first name to postcode), so the task would reference storage past EIBCALEN, which IBM leaves undefined and X23 refuses on both sides (the task is judged up to the reference; the det port binds the host variables before the statement runs, the injected SQL fault reads none). `IF EIBCALEN IS LESS THAN WS-REQUIRED-CA-LEN` (line 165, 18 + 72 = 90) already returns '98' for EIBCALEN under 90, leaving exactly 90. The only caller, LGACUS01 (line 134), LINKs with LENGTH(32500), so EIBCALEN is 32500 on every call.
 - **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 1 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27, X30, X45, X46, X53; commands without oracle backing: ASKTIME, FORMATTIME, GET COUNTER; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 1 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X30, X45, X46, X53; commands without oracle backing: ASKTIME, FORMATTIME, GET COUNTER; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgacdb02.cbl -- L4
 
@@ -192,9 +191,8 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 
 - **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - z/OS-calibrated: 0 of 2 named assumptions (none measured on z/OS)
-  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
 - **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgacus01.cbl -- L4
 
@@ -222,13 +220,12 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 
 - **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - z/OS-calibrated: 0 of 2 named assumptions (none measured on z/OS)
-  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
   - stated infeasible branch outcome (reviewed claim, family G): MAINLINE:112:true (IF) -- `IF EIBCALEN IS LESS THAN WS-REQUIRED-CA-LEN` is true only for a call with EIBCALEN of 1 to 89 (WS-REQUIRED-CA-LEN is 90: WS-CUSTOMER-LEN 72 plus 18). Before this test the program has already run `MOVE '00' TO CA-NUM-POLICIES` (line 103), and CA-NUM-POLICIES lies at bytes 91-93 of DFHCOMMAREA (header 18 plus first name 10, last name 20, date of birth 10, house name 20, house number 4 and postcode 8 is 90 bytes), so every task with EIBCALEN under 93 writes storage past EIBCALEN, which IBM leaves undefined and the oracle refuses by name (X23: 'COMMAREA past EIBCALEN: not modelled', the task is judged up to that MOVE and never reaches this test). The short-commarea scenario (EIBCALEN 60) shows it: it stops at the MOVE with 0 events. EIBCALEN 90 to 92 is not under 90, and 93 or more also passes the test, so no input the oracle can state takes the arm.
   - stated infeasible branch outcome (reviewed claim, family G): WRITE-ERROR-MESSAGE:164:true (IF) -- `IF EIBCALEN > 0` is true never: WRITE-ERROR-MESSAGE has one PERFORM (line 97), inside `IF EIBCALEN IS EQUAL TO ZERO`, so EIBCALEN is 0 on every entry and the COMMAREA copy (lines 164-178) is skipped (the paragraph is followed by an ABEND).
   - stated infeasible branch outcome (reviewed claim, family G): WRITE-ERROR-MESSAGE:165:false (IF) -- Nested in `IF EIBCALEN > 0` (line 164), which no entry to WRITE-ERROR-MESSAGE satisfies: its only PERFORM (line 97) runs under `IF EIBCALEN IS EQUAL TO ZERO`, so neither outcome of the inner `IF EIBCALEN < 91` can run.
   - stated infeasible branch outcome (reviewed claim, family G): WRITE-ERROR-MESSAGE:165:true (IF) -- Nested in `IF EIBCALEN > 0` (line 164), which no entry to WRITE-ERROR-MESSAGE satisfies: its only PERFORM (line 97) runs under `IF EIBCALEN IS EQUAL TO ZERO`, so neither outcome of the inner `IF EIBCALEN < 91` can run.
 - **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 4 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 4 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgacvs01.cbl -- L4
 
@@ -305,11 +302,10 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 
 - **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - z/OS-calibrated: 0 of 2 named assumptions (none measured on z/OS)
-  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
   - stated infeasible branch outcome (reviewed claim, family G): MAINLINE:223:OTHER (EVALUATE) -- The second `EVALUATE CA-REQUEST-ID` (the INSERT dispatch) is reached only after the first one (line 184), which has the same four WHEN values ('01AEND', '01AHOU', '01AMOT', '01ACOM') and answers every other request id with '99' and EXEC CICS RETURN. Between the two, nothing assigns CA-REQUEST-ID: the length check only reads EIBCALEN, and INSERT-POLICY moves only DB2-* host fields, EM-SQLREQ and CA-RETURN-CODE. So a task that reaches line 223 holds one of the four ids and its WHEN OTHER cannot run.
   - stated infeasible branch outcome (reviewed claim, family G): WRITE-ERROR-MESSAGE:581:true (IF) -- `IF EIBCALEN < 91` (the inner test of WRITE-ERROR-MESSAGE's COMMAREA copy) is true only for a call whose COMMAREA is 1 to 90 bytes. WRITE-ERROR-MESSAGE has two kinds of caller: the no-COMMAREA arm (line 165, EIBCALEN 0, so the outer `IF EIBCALEN > 0` is false) and the failing-SQL arms, which run after `IF EIBCALEN IS LESS THAN WS-REQUIRED-CA-LEN` (line 210) has passed. WS-REQUIRED-CA-LEN is 28 plus the request's full length (lgpolicy.cpy: endowment 124, house 130, motor 137, commercial 1174), so at least 152, and a call with EIBCALEN of 1 to 151 returns '98' before any SQL runs (the add-endowment-short scenario). EIBCALEN is therefore 0 or at least 152 on every path that PERFORMs WRITE-ERROR-MESSAGE.
 - **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 2 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 2 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgapol01.cbl -- L4
 
@@ -343,12 +339,11 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 
 - **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - z/OS-calibrated: 0 of 2 named assumptions (none measured on z/OS)
-  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
   - stated infeasible branch outcome (reviewed claim, family G): WRITE-ERROR-MESSAGE:154:true (IF) -- `IF EIBCALEN > 0` is true never: WRITE-ERROR-MESSAGE has one PERFORM (line 100), inside `IF EIBCALEN IS EQUAL TO ZERO`, so EIBCALEN is 0 on every entry and the COMMAREA copy (lines 154-168) is skipped (the paragraph is followed by an ABEND).
   - stated infeasible branch outcome (reviewed claim, family G): WRITE-ERROR-MESSAGE:155:false (IF) -- Nested in `IF EIBCALEN > 0` (line 154), which no entry to WRITE-ERROR-MESSAGE satisfies: its only PERFORM (line 100) runs under `IF EIBCALEN IS EQUAL TO ZERO`, so neither outcome of the inner `IF EIBCALEN < 91` can run.
   - stated infeasible branch outcome (reviewed claim, family G): WRITE-ERROR-MESSAGE:155:true (IF) -- Nested in `IF EIBCALEN > 0` (line 154), which no entry to WRITE-ERROR-MESSAGE satisfies: its only PERFORM (line 100) runs under `IF EIBCALEN IS EQUAL TO ZERO`, so neither outcome of the inner `IF EIBCALEN < 91` can run.
 - **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 3 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 3 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgapvs01.cbl -- L4
 
@@ -418,9 +413,8 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 
 - **Assumptions relied on:** named by its commands' spec entries: X17 (ASSUMED (REFUSED where IBM is silent)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X30 (ASSUMED (REFUSED where IBM is silent)), X45 (ASSUMED (REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)), X53 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - z/OS-calibrated: 0 of 6 named assumptions (none measured on z/OS)
-  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
 - **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X17, X27, X30, X45, X46, X53; commands without oracle backing: ASKTIME, FORMATTIME, GET CONTAINER, GET COUNTER; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** ASSUMED / DIFFERS entries named: X17, X27, X30, X45, X46, X53; commands without oracle backing: ASKTIME, FORMATTIME, GET CONTAINER, GET COUNTER; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgdpdb01.cbl -- L4
 
@@ -458,9 +452,8 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 
 - **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - z/OS-calibrated: 0 of 2 named assumptions (none measured on z/OS)
-  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
 - **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgdpol01.cbl -- L4
 
@@ -494,12 +487,11 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 
 - **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - z/OS-calibrated: 0 of 2 named assumptions (none measured on z/OS)
-  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
   - stated infeasible branch outcome (reviewed claim, family G): WRITE-ERROR-MESSAGE:171:true (IF) -- `IF EIBCALEN > 0` is true never: WRITE-ERROR-MESSAGE has one PERFORM (line 97), inside `IF EIBCALEN IS EQUAL TO ZERO`, so EIBCALEN is 0 on every entry and the COMMAREA copy (lines 171-185) is skipped (the paragraph is followed by an ABEND).
   - stated infeasible branch outcome (reviewed claim, family G): WRITE-ERROR-MESSAGE:172:false (IF) -- Nested in `IF EIBCALEN > 0` (line 171), which no entry to WRITE-ERROR-MESSAGE satisfies: its only PERFORM (line 97) runs under `IF EIBCALEN IS EQUAL TO ZERO`, so neither outcome of the inner `IF EIBCALEN < 91` can run.
   - stated infeasible branch outcome (reviewed claim, family G): WRITE-ERROR-MESSAGE:172:true (IF) -- Nested in `IF EIBCALEN > 0` (line 171), which no entry to WRITE-ERROR-MESSAGE satisfies: its only PERFORM (line 97) runs under `IF EIBCALEN IS EQUAL TO ZERO`, so neither outcome of the inner `IF EIBCALEN < 91` can run.
 - **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 3 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 3 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgdpvs01.cbl -- L4
 
@@ -575,10 +567,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 
 - **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - z/OS-calibrated: 0 of 2 named assumptions (none measured on z/OS)
-  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
   - stated infeasible branch outcome (reviewed claim, family G): WRITE-ERROR-MESSAGE:231:true (IF) -- `IF EIBCALEN < 91` (the inner test of WRITE-ERROR-MESSAGE's COMMAREA copy) is true only for EIBCALEN 90 here: LGICDB01 returns '98' for EIBCALEN < 90 (line 140: WS-CUSTOMER-LEN 72 + header and trailer 18), and WRITE-ERROR-MESSAGE runs only after the SELECT (line 169, the -913 arm continues, any other SQLCODE reaches it) or for EIBCALEN 0. Reaching it takes a failing SELECT with EIBCALEN exactly 90, but the SELECT's INTO host variables (CA-PHONE-MOBILE, CA-PHONE-HOME, CA-EMAIL-ADDRESS of LGCMAREA) lie past byte 90, so the task would reference storage past EIBCALEN, which IBM leaves undefined and X23 refuses on both sides (measured: a scenario with commarea_length 90 and an injected -811 fires the fault on the COBOL side only, 'faults fired differ'). The only caller, LGICUS01 (line 122), LINKs with LENGTH(32500), so EIBCALEN is 32500 on every call.
 - **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 1 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 1 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgicus01.cbl -- L4
 
@@ -606,13 +597,12 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 
 - **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - z/OS-calibrated: 0 of 2 named assumptions (none measured on z/OS)
-  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
   - stated infeasible branch outcome (reviewed claim, family G): MAINLINE:104:true (IF) -- `IF EIBCALEN IS LESS THAN WS-REQUIRED-CA-LEN` is true only for a call with EIBCALEN of 1 to 89 (WS-REQUIRED-CA-LEN is 90: WS-CUSTOMER-LEN 72 plus 18). Before this test the program has already run `MOVE '00' TO CA-NUM-POLICIES` (line 94), and CA-NUM-POLICIES lies at bytes 91-93 of DFHCOMMAREA (header 18 plus first name 10, last name 20, date of birth 10, house name 20, house number 4 and postcode 8 is 90 bytes), so every task with EIBCALEN under 93 writes storage past EIBCALEN, which IBM leaves undefined and the oracle refuses by name (X23: 'COMMAREA past EIBCALEN: not modelled', the task is judged up to that MOVE and never reaches this test). The short-commarea scenario (EIBCALEN 60) shows it: it stops at the MOVE with 0 events. EIBCALEN 90 to 92 is not under 90, and 93 or more also passes the test, so no input the oracle can state takes the arm.
   - stated infeasible branch outcome (reviewed claim, family G): WRITE-ERROR-MESSAGE:151:true (IF) -- `IF EIBCALEN > 0` is true never: WRITE-ERROR-MESSAGE has one PERFORM (line 89), inside `IF EIBCALEN IS EQUAL TO ZERO`, so EIBCALEN is 0 on every entry and the COMMAREA copy (lines 151-165) is skipped (the paragraph is followed by an ABEND).
   - stated infeasible branch outcome (reviewed claim, family G): WRITE-ERROR-MESSAGE:152:false (IF) -- Nested in `IF EIBCALEN > 0` (line 151), which no entry to WRITE-ERROR-MESSAGE satisfies: its only PERFORM (line 89) runs under `IF EIBCALEN IS EQUAL TO ZERO`, so neither outcome of the inner `IF EIBCALEN < 91` can run.
   - stated infeasible branch outcome (reviewed claim, family G): WRITE-ERROR-MESSAGE:152:true (IF) -- Nested in `IF EIBCALEN > 0` (line 151), which no entry to WRITE-ERROR-MESSAGE satisfies: its only PERFORM (line 89) runs under `IF EIBCALEN IS EQUAL TO ZERO`, so neither outcome of the inner `IF EIBCALEN < 91` can run.
 - **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 4 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 4 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgicvs01.cbl -- L4
 
@@ -643,10 +633,8 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Assumptions relied on:** named by its commands' spec entries: X14 (ASSUMED (REFUSED where IBM is silent)), X15 (ASSUMED (REFUSED where IBM is silent)), X19 (ASSUMED (REFUSED where the harness cannot decide)), X20 (MATCHED (REFUSED where the region cannot decide)), X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X60 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - z/OS-calibrated: 0 of 7 named assumptions (none measured on z/OS)
   - runtime facts the harness states for its commands: facility, screen, startcode, userid
-  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
-  - runtime fact no harness states: ASSIGN STARTCODE (no equivalence case states it)
 - **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 2 unstated runtime facts; ASSUMED / DIFFERS entries named: X14, X15, X19, X22, X27, X60; commands without oracle backing: DEQ, ENQ, READ; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** ASSUMED / DIFFERS entries named: X14, X15, X19, X22, X27, X60; commands without oracle backing: DEQ, ENQ, READ; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgipdb01.cbl -- L4
 
@@ -684,9 +672,8 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 
 - **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - z/OS-calibrated: 0 of 2 named assumptions (none measured on z/OS)
-  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
 - **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgipol01.cbl -- L4
 
@@ -720,12 +707,11 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 
 - **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - z/OS-calibrated: 0 of 2 named assumptions (none measured on z/OS)
-  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
   - stated infeasible branch outcome (reviewed claim, family G): WRITE-ERROR-MESSAGE:124:true (IF) -- `IF EIBCALEN > 0` is true never: WRITE-ERROR-MESSAGE has one PERFORM (line 81), inside `IF EIBCALEN IS EQUAL TO ZERO`, so EIBCALEN is 0 on every entry and the COMMAREA copy (lines 124-138) is skipped (the paragraph is followed by an ABEND).
   - stated infeasible branch outcome (reviewed claim, family G): WRITE-ERROR-MESSAGE:125:false (IF) -- Nested in `IF EIBCALEN > 0` (line 124), which no entry to WRITE-ERROR-MESSAGE satisfies: its only PERFORM (line 81) runs under `IF EIBCALEN IS EQUAL TO ZERO`, so neither outcome of the inner `IF EIBCALEN < 91` can run.
   - stated infeasible branch outcome (reviewed claim, family G): WRITE-ERROR-MESSAGE:125:true (IF) -- Nested in `IF EIBCALEN > 0` (line 124), which no entry to WRITE-ERROR-MESSAGE satisfies: its only PERFORM (line 81) runs under `IF EIBCALEN IS EQUAL TO ZERO`, so neither outcome of the inner `IF EIBCALEN < 91` can run.
 - **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 3 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 3 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgipvs01.cbl -- L4
 
@@ -752,9 +738,8 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Assumptions relied on:** named by its commands' spec entries: X14 (ASSUMED (REFUSED where IBM is silent)), X15 (ASSUMED (REFUSED where IBM is silent)), X19 (ASSUMED (REFUSED where the harness cannot decide)), X20 (MATCHED (REFUSED where the region cannot decide)), X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
   - z/OS-calibrated: 0 of 6 named assumptions (none measured on z/OS)
   - runtime facts the harness states for its commands: facility, screen, startcode, userid
-  - runtime fact no harness states: ASSIGN STARTCODE (no equivalence case states it)
 - **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X14, X15, X19, X22, X27; commands without oracle backing: READ; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** ASSUMED / DIFFERS entries named: X14, X15, X19, X22, X27; commands without oracle backing: READ; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgsetup.cbl -- L4
 
@@ -1068,10 +1053,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 
 - **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - z/OS-calibrated: 0 of 2 named assumptions (none measured on z/OS)
-  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
   - stated infeasible branch outcome (reviewed claim, family G): WRITE-ERROR-MESSAGE:208:true (IF) -- `IF EIBCALEN < 91` (the inner test of WRITE-ERROR-MESSAGE's COMMAREA copy) is true only for a call whose COMMAREA is 1 to 90 bytes. Reaching it takes a failing UPDATE (line 155) with EIBCALEN between 1 and 90, but the statement's host variables (CA-PHONE-MOBILE, CA-PHONE-HOME, CA-EMAIL-ADDRESS of LGCMAREA) lie past byte 90 (header 18 + the 72 bytes of first name to postcode), so the task would reference storage past EIBCALEN, which IBM leaves undefined and X23 refuses on both sides (the task is judged up to the reference; the det port binds the host variables before the statement runs, the injected SQL fault reads none). LGUCDB01 has no length guard of its own. The only caller, LGUCUS01 (line 128), LINKs with LENGTH(32500), so EIBCALEN is 32500 on every call.
 - **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 1 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 1 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgucus01.cbl -- L4
 
@@ -1099,12 +1083,11 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 
 - **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - z/OS-calibrated: 0 of 2 named assumptions (none measured on z/OS)
-  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
   - stated infeasible branch outcome (reviewed claim, family G): WRITE-ERROR-MESSAGE:157:true (IF) -- `IF EIBCALEN > 0` is true never: WRITE-ERROR-MESSAGE has one PERFORM (line 101), inside `IF EIBCALEN IS EQUAL TO ZERO`, so EIBCALEN is 0 on every entry and the COMMAREA copy (lines 157-171) is skipped (the paragraph is followed by an ABEND).
   - stated infeasible branch outcome (reviewed claim, family G): WRITE-ERROR-MESSAGE:158:false (IF) -- Nested in `IF EIBCALEN > 0` (line 157), which no entry to WRITE-ERROR-MESSAGE satisfies: its only PERFORM (line 101) runs under `IF EIBCALEN IS EQUAL TO ZERO`, so neither outcome of the inner `IF EIBCALEN < 91` can run.
   - stated infeasible branch outcome (reviewed claim, family G): WRITE-ERROR-MESSAGE:158:true (IF) -- Nested in `IF EIBCALEN > 0` (line 157), which no entry to WRITE-ERROR-MESSAGE satisfies: its only PERFORM (line 101) runs under `IF EIBCALEN IS EQUAL TO ZERO`, so neither outcome of the inner `IF EIBCALEN < 91` can run.
 - **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 3 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 3 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgucvs01.cbl -- L4
 
@@ -1183,9 +1166,8 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 
 - **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - z/OS-calibrated: 0 of 3 named assumptions (none measured on z/OS)
-  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
 - **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME, SYNCPOINT ROLLBACK; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME, SYNCPOINT ROLLBACK; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgupol01.cbl -- L4
 
@@ -1219,12 +1201,11 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 
 - **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - z/OS-calibrated: 0 of 2 named assumptions (none measured on z/OS)
-  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
   - stated infeasible branch outcome (reviewed claim, family G): WRITE-ERROR-MESSAGE:186:true (IF) -- `IF EIBCALEN > 0` is true never: WRITE-ERROR-MESSAGE has one PERFORM (line 101), inside `IF EIBCALEN IS EQUAL TO ZERO` (line 99), so EIBCALEN is 0 on every entry and the COMMAREA copy (lines 186-200) is skipped..
   - stated infeasible branch outcome (reviewed claim, family G): WRITE-ERROR-MESSAGE:187:false (IF) -- Nested in `IF EIBCALEN > 0` (line 186), which no entry to WRITE-ERROR-MESSAGE satisfies: its only PERFORM (line 101) runs under `IF EIBCALEN IS EQUAL TO ZERO`, so neither outcome of the inner `IF EIBCALEN < 91` can run.
   - stated infeasible branch outcome (reviewed claim, family G): WRITE-ERROR-MESSAGE:187:true (IF) -- Nested in `IF EIBCALEN > 0` (line 186), which no entry to WRITE-ERROR-MESSAGE satisfies: its only PERFORM (line 101) runs under `IF EIBCALEN IS EQUAL TO ZERO`, so neither outcome of the inner `IF EIBCALEN < 91` can run.
 - **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 3 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 3 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgupvs01.cbl -- L4
 
@@ -1299,9 +1280,8 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Assumptions relied on:** named by its commands' spec entries: X18 (ASSUMED (REFUSED where IBM is silent)), X19 (ASSUMED (REFUSED where the harness cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X29 (ASSUMED (REFUSED where IBM is silent)), X30 (ASSUMED (REFUSED where IBM is silent)), X45 (ASSUMED (REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)), X50 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - z/OS-calibrated: 0 of 8 named assumptions (none measured on z/OS)
   - runtime facts the harness states for its commands: facility, screen, startcode, userid
-  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
 - **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X18, X19, X27, X29, X30, X45, X46, X50; commands without oracle backing: ASKTIME, DELETEQ TS, FORMATTIME, QUERY COUNTER; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** ASSUMED / DIFFERS entries named: X18, X19, X27, X29, X30, X45, X46, X50; commands without oracle backing: ASKTIME, DELETEQ TS, FORMATTIME, QUERY COUNTER; assumption reach and the migration dimensions above: not measured
 
 ## Assumptions the estate's CICS commands name
 
@@ -1333,18 +1313,18 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `0712a98114140473d4b14442f973fa403cd68768`
+- translator commit (the survey's): `0095c320d884c1a6e8a4870ab8746c47997e8cea`
 - corpus pin: `cics-genapp` at `f6f3f4b2580d31b7d8dcc31ce3e3676f4cceaaaa`
 - crucible pins: cics `v0.10.0`, estate `v0.5.0`, language `v1.7.0`; cics crucible baseline measured at `v0.10.0 (01e11fe6)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
 - oracle base image: `debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251`
-- oracle images the evidence records ran on: `sha256:7c808074331333905d2a43887b40fed4749b61a3ef17e190bb9bd42c9912193f`, `sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f`
+- oracle images the evidence records ran on: `sha256:11bc9a8f999f10f1f06a82cefda724e6c3c0b9fb9cc396358807c3f5d959ade1`, `sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f`
 
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 0712a98114140473d4b14442f973fa403cd68768
-python tests/tools/evidence_report.py cics-genapp --baseline --sha 0712a98114140473d4b14442f973fa403cd68768
+python tests/tools/cics_census.py survey --baseline --sha 0095c320d884c1a6e8a4870ab8746c47997e8cea
+python tests/tools/evidence_report.py cics-genapp --baseline --sha 0095c320d884c1a6e8a4870ab8746c47997e8cea
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases genapp-lgacdb01,genapp-lgacdb01-generated,genapp-lgacdb02,genapp-lgacdb02-generated,genapp-lgacus01,genapp-lgacus01-generated,genapp-lgacvs01,genapp-lgapdb01,genapp-lgapdb01-generated,genapp-lgapol01,genapp-lgapol01-generated,genapp-lgapvs01,genapp-lgastat1,genapp-lgdpdb01,genapp-lgdpdb01-generated,genapp-lgdpol01,genapp-lgdpol01-generated,genapp-lgdpvs01,genapp-lgicdb01,genapp-lgicdb01-generated,genapp-lgicus01,genapp-lgicus01-generated,genapp-lgicvs01,genapp-lgicvs01-linked,genapp-lgipdb01,genapp-lgipdb01-generated,genapp-lgipol01,genapp-lgipol01-generated,genapp-lgipvs01,genapp-lgipvs01-linked,genapp-lgsetup,genapp-lgstsq,genapp-lgtestc1,genapp-lgtestp1,genapp-lgtestp2,genapp-lgtestp3,genapp-lgtestp4,genapp-lgucdb01,genapp-lgucdb01-generated,genapp-lgucus01,genapp-lgucus01-generated,genapp-lgucvs01,genapp-lgupdb01,genapp-lgupdb01-generated,genapp-lgupol01,genapp-lgupol01-generated,genapp-lgupvs01,genapp-lgwebst5  # Db2 cases (35) need the Db2 container
 python tests/tools/evidence.py prove genapp-lgapdb01 genapp-lgapvs01 genapp-lgicdb01 genapp-lgstsq genapp-lgupdb01 genapp-lgupvs01

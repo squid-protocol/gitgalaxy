@@ -492,6 +492,12 @@
     17,
     17
    ],
+   "carddemo-sort-tranrept": [
+    1,
+    1,
+    0,
+    0
+   ],
    "carddemo-tranadd": [
     18,
     18,
@@ -1201,9 +1207,9 @@
     48
    ],
    "zecs-zecs001": [
-    107,
+    117,
     119,
-    173,
+    194,
     208
    ],
    "zecs-zecs002": [
@@ -2832,6 +2838,10 @@
     "stale": [],
     "status": "shown equal, unapproved"
    },
+   "carddemo-sort-tranrept": {
+    "stale": [],
+    "status": "shown equal, unapproved"
+   },
    "carddemo-tranadd": {
     "stale": [],
     "status": "shown equal, unapproved"
@@ -2900,10 +2910,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "0712a98114140473d4b14442f973fa403cd68768",
+   "sha": "0095c320d884c1a6e8a4870ab8746c47997e8cea",
    "translator": {
-    "files": 156,
-    "sha256": "b3cb69320d97f2080c5f90a876598cd7af769c7e82ff7763da09813f40277bbd"
+    "files": 161,
+    "sha256": "ca8afa03b44523070ed37b60b01715eb1e97d13fcf8360635400312e6651d2d4"
    }
   },
   "sweeps": {}
@@ -3536,7 +3546,7 @@
        "fault_runs": 12,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:7c808074331333905d2a43887b40fed4749b61a3ef17e190bb9bd42c9912193f",
+       "oracle_image": "sha256:11bc9a8f999f10f1f06a82cefda724e6c3c0b9fb9cc396358807c3f5d959ade1",
        "oracle_matches_pin": true,
        "records_compared": 73,
        "records_equal": 73,
@@ -3631,25 +3641,25 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 62,
+    "accounted": 96,
     "current": false,
-    "det_port": "stale (port moved), last measured: raw 32% (45/141 caught; 150 of 453 mutants, seed 0); 34 of 96 survivors unaccounted",
+    "det_port": "stale (port moved), last measured: raw 32% (45/141 caught; 150 of 453 mutants, seed 0); every survivor accounted for (96)",
     "drifted": [
      "generator",
      "harness",
      "oracle"
     ],
     "killed": 45,
-    "l5": false,
+    "l5": true,
     "score": 0.3191,
     "stale_inputs": [
      "port"
     ],
     "survived": 96,
-    "unaccounted": 34
+    "unaccounted": 0
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (port moved), last measured: raw 32% (45/141 caught; 150 of 453 mutants, seed 0); 34 of 96 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (port moved), last measured: raw 32% (45/141 caught; 150 of 453 mutants, seed 0); every survivor accounted for (96))"
    ],
    "options": {
     "assumed": 4,
@@ -4048,25 +4058,25 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 268,
+    "accounted": 289,
     "current": false,
-    "det_port": "stale (port moved), last measured: raw 41% (203/492 caught; 517 of 517 mutants, seed 0); 21 of 289 survivors unaccounted",
+    "det_port": "stale (port moved), last measured: raw 41% (203/492 caught; 517 of 517 mutants, seed 0); every survivor accounted for (289)",
     "drifted": [
      "generator",
      "harness",
      "oracle"
     ],
     "killed": 203,
-    "l5": false,
+    "l5": true,
     "score": 0.4126,
     "stale_inputs": [
      "port"
     ],
     "survived": 289,
-    "unaccounted": 21
+    "unaccounted": 0
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (port moved), last measured: raw 41% (203/492 caught; 517 of 517 mutants, seed 0); 21 of 289 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (port moved), last measured: raw 41% (203/492 caught; 517 of 517 mutants, seed 0); every survivor accounted for (289))"
    ],
    "options": {
     "assumed": 5,
@@ -4677,9 +4687,7 @@
      "startcode",
      "userid"
     ],
-    "facts_unstated": [
-     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
-    ],
+    "facts_unstated": [],
     "named_by_commands": [
      {
       "area": "CICS",
@@ -5566,7 +5574,7 @@
      "FORMATTIME",
      "SEND CONTROL"
     ],
-    "facts_unstated": 1,
+    "facts_unstated": 0,
     "holes": 0,
     "paragraphs_unrun": 0,
     "refused": null
@@ -5593,9 +5601,7 @@
      "startcode",
      "userid"
     ],
-    "facts_unstated": [
-     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
-    ],
+    "facts_unstated": [],
     "named_by_commands": [
      {
       "area": "CICS",
@@ -6320,7 +6326,7 @@
      "FORMATTIME",
      "SEND CONTROL"
     ],
-    "facts_unstated": 1,
+    "facts_unstated": 0,
     "holes": 0,
     "paragraphs_unrun": 0,
     "refused": null
@@ -6348,9 +6354,7 @@
      "uctranst",
      "userid"
     ],
-    "facts_unstated": [
-     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
-    ],
+    "facts_unstated": [],
     "named_by_commands": [
      {
       "area": "CICS",
@@ -7194,7 +7198,7 @@
      "INQUIRE TERMINAL",
      "SET TERMINAL"
     ],
-    "facts_unstated": 1,
+    "facts_unstated": 0,
     "holes": 0,
     "paragraphs_unrun": 0,
     "refused": null
@@ -7222,9 +7226,7 @@
      "startcode",
      "userid"
     ],
-    "facts_unstated": [
-     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
-    ],
+    "facts_unstated": [],
     "named_by_commands": [
      {
       "area": "CICS",
@@ -7987,7 +7989,7 @@
      "INQUIRE ASSOCIATION",
      "SEND CONTROL"
     ],
-    "facts_unstated": 1,
+    "facts_unstated": 0,
     "holes": 0,
     "paragraphs_unrun": 0,
     "refused": null
@@ -8014,9 +8016,7 @@
      "startcode",
      "userid"
     ],
-    "facts_unstated": [
-     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
-    ],
+    "facts_unstated": [],
     "named_by_commands": [
      {
       "area": "CICS",
@@ -8789,7 +8789,7 @@
      "FORMATTIME",
      "SEND CONTROL"
     ],
-    "facts_unstated": 1,
+    "facts_unstated": 0,
     "holes": 0,
     "paragraphs_unrun": 0,
     "refused": null
@@ -8817,9 +8817,7 @@
      "uctranst",
      "userid"
     ],
-    "facts_unstated": [
-     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
-    ],
+    "facts_unstated": [],
     "named_by_commands": [
      {
       "area": "CICS",
@@ -9618,7 +9616,7 @@
      "SEND CONTROL",
      "SET TERMINAL"
     ],
-    "facts_unstated": 1,
+    "facts_unstated": 0,
     "holes": 0,
     "paragraphs_unrun": 0,
     "refused": null
@@ -9645,9 +9643,7 @@
      "startcode",
      "userid"
     ],
-    "facts_unstated": [
-     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
-    ],
+    "facts_unstated": [],
     "named_by_commands": [
      {
       "area": "CICS",
@@ -10430,7 +10426,7 @@
      "FORMATTIME",
      "SEND CONTROL"
     ],
-    "facts_unstated": 1,
+    "facts_unstated": 0,
     "holes": 0,
     "paragraphs_unrun": 0,
     "refused": null
@@ -10457,9 +10453,7 @@
      "startcode",
      "userid"
     ],
-    "facts_unstated": [
-     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
-    ],
+    "facts_unstated": [],
     "named_by_commands": [
      {
       "area": "CICS",
@@ -11184,7 +11178,7 @@
      "FORMATTIME",
      "SEND CONTROL"
     ],
-    "facts_unstated": 1,
+    "facts_unstated": 0,
     "holes": 0,
     "paragraphs_unrun": 0,
     "refused": null
@@ -11211,9 +11205,7 @@
      "startcode",
      "userid"
     ],
-    "facts_unstated": [
-     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
-    ],
+    "facts_unstated": [],
     "named_by_commands": [
      {
       "area": "CICS",
@@ -12021,7 +12013,7 @@
      "FORMATTIME",
      "SEND CONTROL"
     ],
-    "facts_unstated": 1,
+    "facts_unstated": 0,
     "holes": 0,
     "paragraphs_unrun": 1,
     "refused": null
@@ -12048,9 +12040,7 @@
      "startcode",
      "userid"
     ],
-    "facts_unstated": [
-     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
-    ],
+    "facts_unstated": [],
     "named_by_commands": [
      {
       "area": "CICS",
@@ -12632,7 +12622,7 @@
      "GET CONTAINER",
      "PUT CONTAINER"
     ],
-    "facts_unstated": 1,
+    "facts_unstated": 0,
     "holes": 0,
     "paragraphs_unrun": 0,
     "refused": null
@@ -12659,9 +12649,7 @@
      "startcode",
      "userid"
     ],
-    "facts_unstated": [
-     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
-    ],
+    "facts_unstated": [],
     "named_by_commands": [
      {
       "area": "CICS",
@@ -13243,7 +13231,7 @@
      "GET CONTAINER",
      "PUT CONTAINER"
     ],
-    "facts_unstated": 1,
+    "facts_unstated": 0,
     "holes": 0,
     "paragraphs_unrun": 0,
     "refused": null
@@ -13270,9 +13258,7 @@
      "startcode",
      "userid"
     ],
-    "facts_unstated": [
-     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
-    ],
+    "facts_unstated": [],
     "named_by_commands": [
      {
       "area": "CICS",
@@ -13854,7 +13840,7 @@
      "GET CONTAINER",
      "PUT CONTAINER"
     ],
-    "facts_unstated": 1,
+    "facts_unstated": 0,
     "holes": 0,
     "paragraphs_unrun": 0,
     "refused": null
@@ -13881,9 +13867,7 @@
      "startcode",
      "userid"
     ],
-    "facts_unstated": [
-     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
-    ],
+    "facts_unstated": [],
     "named_by_commands": [
      {
       "area": "CICS",
@@ -14465,7 +14449,7 @@
      "GET CONTAINER",
      "PUT CONTAINER"
     ],
-    "facts_unstated": 1,
+    "facts_unstated": 0,
     "holes": 0,
     "paragraphs_unrun": 0,
     "refused": null
@@ -14492,9 +14476,7 @@
      "startcode",
      "userid"
     ],
-    "facts_unstated": [
-     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
-    ],
+    "facts_unstated": [],
     "named_by_commands": [
      {
       "area": "CICS",
@@ -15076,7 +15058,7 @@
      "GET CONTAINER",
      "PUT CONTAINER"
     ],
-    "facts_unstated": 1,
+    "facts_unstated": 0,
     "holes": 0,
     "paragraphs_unrun": 0,
     "refused": null
@@ -15103,9 +15085,7 @@
      "startcode",
      "userid"
     ],
-    "facts_unstated": [
-     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
-    ],
+    "facts_unstated": [],
     "named_by_commands": [
      {
       "area": "CICS",
@@ -15664,7 +15644,7 @@
      "ENQ",
      "FORMATTIME"
     ],
-    "facts_unstated": 1,
+    "facts_unstated": 0,
     "holes": 0,
     "paragraphs_unrun": 0,
     "refused": null
@@ -15691,9 +15671,7 @@
      "startcode",
      "userid"
     ],
-    "facts_unstated": [
-     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
-    ],
+    "facts_unstated": [],
     "named_by_commands": [
      {
       "area": "CICS",
@@ -16484,7 +16462,7 @@
      "RUN",
      "WRITE"
     ],
-    "facts_unstated": 1,
+    "facts_unstated": 0,
     "holes": 0,
     "paragraphs_unrun": 0,
     "refused": null
@@ -16961,9 +16939,7 @@
      "startcode",
      "userid"
     ],
-    "facts_unstated": [
-     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
-    ],
+    "facts_unstated": [],
     "named_by_commands": [
      {
       "area": "CICS",
@@ -17528,7 +17504,7 @@
      "FORMATTIME",
      "SYNCPOINT ROLLBACK"
     ],
-    "facts_unstated": 1,
+    "facts_unstated": 0,
     "holes": 0,
     "paragraphs_unrun": 1,
     "refused": null
@@ -17555,9 +17531,7 @@
      "startcode",
      "userid"
     ],
-    "facts_unstated": [
-     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
-    ],
+    "facts_unstated": [],
     "named_by_commands": [
      {
       "area": "CICS",
@@ -18012,7 +17986,7 @@
      "ASKTIME",
      "FORMATTIME"
     ],
-    "facts_unstated": 1,
+    "facts_unstated": 0,
     "holes": 0,
     "paragraphs_unrun": 0,
     "refused": null
@@ -18039,9 +18013,7 @@
      "startcode",
      "userid"
     ],
-    "facts_unstated": [
-     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
-    ],
+    "facts_unstated": [],
     "named_by_commands": [
      {
       "area": "CICS",
@@ -18596,7 +18568,7 @@
      "FORMATTIME",
      "READ"
     ],
-    "facts_unstated": 1,
+    "facts_unstated": 0,
     "holes": 0,
     "paragraphs_unrun": 0,
     "refused": null
@@ -18685,25 +18657,25 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 127,
+    "accounted": 146,
     "current": false,
-    "det_port": "stale (port moved), last measured: raw 29% (60/206 caught; 220 of 220 mutants, seed 0); 19 of 146 survivors unaccounted",
+    "det_port": "stale (port moved), last measured: raw 29% (60/206 caught; 220 of 220 mutants, seed 0); every survivor accounted for (146)",
     "drifted": [
      "generator",
      "harness",
      "oracle"
     ],
     "killed": 60,
-    "l5": false,
+    "l5": true,
     "score": 0.2913,
     "stale_inputs": [
      "port"
     ],
     "survived": 146,
-    "unaccounted": 19
+    "unaccounted": 0
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (port moved), last measured: raw 29% (60/206 caught; 220 of 220 mutants, seed 0); 19 of 146 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (port moved), last measured: raw 29% (60/206 caught; 220 of 220 mutants, seed 0); every survivor accounted for (146))"
    ],
    "options": {
     "assumed": 5,
@@ -19075,25 +19047,25 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 127,
+    "accounted": 146,
     "current": false,
-    "det_port": "stale (port moved), last measured: raw 31% (67/213 caught; 227 of 227 mutants, seed 0); 19 of 146 survivors unaccounted",
+    "det_port": "stale (port moved), last measured: raw 31% (67/213 caught; 227 of 227 mutants, seed 0); every survivor accounted for (146)",
     "drifted": [
      "generator",
      "harness",
      "oracle"
     ],
     "killed": 67,
-    "l5": false,
+    "l5": true,
     "score": 0.3146,
     "stale_inputs": [
      "port"
     ],
     "survived": 146,
-    "unaccounted": 19
+    "unaccounted": 0
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (port moved), last measured: raw 31% (67/213 caught; 227 of 227 mutants, seed 0); 19 of 146 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (port moved), last measured: raw 31% (67/213 caught; 227 of 227 mutants, seed 0); every survivor accounted for (146))"
    ],
    "options": {
     "assumed": 5,
@@ -19403,9 +19375,7 @@
      "startcode",
      "userid"
     ],
-    "facts_unstated": [
-     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
-    ],
+    "facts_unstated": [],
     "named_by_commands": [
      {
       "area": "CICS",
@@ -19569,7 +19539,7 @@
        "fault_runs": 12,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:7c808074331333905d2a43887b40fed4749b61a3ef17e190bb9bd42c9912193f",
+       "oracle_image": "sha256:11bc9a8f999f10f1f06a82cefda724e6c3c0b9fb9cc396358807c3f5d959ade1",
        "oracle_matches_pin": true,
        "records_compared": 73,
        "records_equal": 73,
@@ -19624,7 +19594,7 @@
       "fault_runs": 12,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:7c808074331333905d2a43887b40fed4749b61a3ef17e190bb9bd42c9912193f",
+      "oracle_image": "sha256:11bc9a8f999f10f1f06a82cefda724e6c3c0b9fb9cc396358807c3f5d959ade1",
       "oracle_matches_pin": true,
       "records_compared": 73,
       "records_equal": 73,
@@ -20056,7 +20026,7 @@
      "FORMATTIME",
      "SYNCPOINT ROLLBACK"
     ],
-    "facts_unstated": 1,
+    "facts_unstated": 0,
     "holes": 0,
     "paragraphs_unrun": 1,
     "refused": null
@@ -20083,9 +20053,7 @@
      "startcode",
      "userid"
     ],
-    "facts_unstated": [
-     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
-    ],
+    "facts_unstated": [],
     "named_by_commands": [
      {
       "area": "CICS",
@@ -20738,7 +20706,7 @@
      "FORMATTIME",
      "SYNCPOINT ROLLBACK"
     ],
-    "facts_unstated": 1,
+    "facts_unstated": 0,
     "holes": 0,
     "paragraphs_unrun": 1,
     "refused": null
@@ -20765,9 +20733,7 @@
      "startcode",
      "userid"
     ],
-    "facts_unstated": [
-     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
-    ],
+    "facts_unstated": [],
     "named_by_commands": [
      {
       "area": "CICS",
@@ -21521,7 +21487,7 @@
      "STARTBR",
      "SYNCPOINT ROLLBACK"
     ],
-    "facts_unstated": 1,
+    "facts_unstated": 0,
     "holes": 0,
     "paragraphs_unrun": 1,
     "refused": null
@@ -21641,7 +21607,7 @@
        "fault_runs": 0,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:7c808074331333905d2a43887b40fed4749b61a3ef17e190bb9bd42c9912193f",
+       "oracle_image": "sha256:11bc9a8f999f10f1f06a82cefda724e6c3c0b9fb9cc396358807c3f5d959ade1",
        "oracle_matches_pin": true,
        "records_compared": 54,
        "records_equal": 54,
@@ -21739,7 +21705,7 @@
       "fault_runs": 0,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:7c808074331333905d2a43887b40fed4749b61a3ef17e190bb9bd42c9912193f",
+      "oracle_image": "sha256:11bc9a8f999f10f1f06a82cefda724e6c3c0b9fb9cc396358807c3f5d959ade1",
       "oracle_matches_pin": true,
       "records_compared": 54,
       "records_equal": 54,
@@ -21756,25 +21722,25 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 265,
+    "accounted": 294,
     "current": false,
-    "det_port": "stale (port moved), last measured: raw 57% (394/688 caught; 713 of 713 mutants, seed 0); 29 of 294 survivors unaccounted",
+    "det_port": "stale (port moved), last measured: raw 57% (394/688 caught; 713 of 713 mutants, seed 0); every survivor accounted for (294)",
     "drifted": [
      "generator",
      "harness",
      "oracle"
     ],
     "killed": 394,
-    "l5": false,
+    "l5": true,
     "score": 0.5727,
     "stale_inputs": [
      "port"
     ],
     "survived": 294,
-    "unaccounted": 29
+    "unaccounted": 0
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (port moved), last measured: raw 57% (394/688 caught; 713 of 713 mutants, seed 0); 29 of 294 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (port moved), last measured: raw 57% (394/688 caught; 713 of 713 mutants, seed 0); every survivor accounted for (294))"
    ],
    "options": {
     "assumed": 4,
@@ -22214,25 +22180,25 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 41,
+    "accounted": 73,
     "current": false,
-    "det_port": "stale (port moved), last measured: raw 48% (68/141 caught; 150 of 716 mutants, seed 0); 32 of 73 survivors unaccounted",
+    "det_port": "stale (port moved), last measured: raw 48% (68/141 caught; 150 of 716 mutants, seed 0); every survivor accounted for (73)",
     "drifted": [
      "generator",
      "harness",
      "oracle"
     ],
     "killed": 68,
-    "l5": false,
+    "l5": true,
     "score": 0.4823,
     "stale_inputs": [
      "port"
     ],
     "survived": 73,
-    "unaccounted": 32
+    "unaccounted": 0
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (port moved), last measured: raw 48% (68/141 caught; 150 of 716 mutants, seed 0); 32 of 73 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (port moved), last measured: raw 48% (68/141 caught; 150 of 716 mutants, seed 0); every survivor accounted for (73))"
    ],
    "options": {
     "assumed": 4,
@@ -22590,9 +22556,7 @@
      "startcode",
      "userid"
     ],
-    "facts_unstated": [
-     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
-    ],
+    "facts_unstated": [],
     "named_by_commands": [
      {
       "area": "CICS",
@@ -23195,7 +23159,7 @@
      "FORMATTIME",
      "SYNCPOINT ROLLBACK"
     ],
-    "facts_unstated": 1,
+    "facts_unstated": 0,
     "holes": 0,
     "paragraphs_unrun": 1,
     "refused": null
@@ -23217,8 +23181,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 0712a98114140473d4b14442f973fa403cd68768",
-   "python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha 0712a98114140473d4b14442f973fa403cd68768",
+   "python tests/tools/cics_census.py survey --baseline --sha 0095c320d884c1a6e8a4870ab8746c47997e8cea",
+   "python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha 0095c320d884c1a6e8a4870ab8746c47997e8cea",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases cbsa-abndproc,cbsa-acctctrl,cbsa-acctctrl-generated,cbsa-bankdata,cbsa-bnk1cac,cbsa-bnk1cac-generated,cbsa-bnk1cca,cbsa-bnk1cca-generated,cbsa-bnk1ccs,cbsa-bnk1ccs-generated,cbsa-bnk1cra,cbsa-bnk1cra-generated,cbsa-bnk1dac,cbsa-bnk1dac-generated,cbsa-bnk1dcs,cbsa-bnk1dcs-generated,cbsa-bnk1tfn,cbsa-bnk1tfn-generated,cbsa-bnk1uac,cbsa-bnk1uac-generated,cbsa-bnkmenu,cbsa-crdtagy1,cbsa-crdtagy2,cbsa-crdtagy3,cbsa-crdtagy4,cbsa-crdtagy5,cbsa-creacc,cbsa-creacc-generated,cbsa-crecust,cbsa-crecust-generated,cbsa-custctrl,cbsa-dbcrfun,cbsa-dbcrfun-generated,cbsa-delacc,cbsa-delacc-generated,cbsa-delcus,cbsa-delcus-generated,cbsa-getcompy,cbsa-getscode,cbsa-inqacc,cbsa-inqacc-generated,cbsa-inqacccu,cbsa-inqacccu-generated,cbsa-inqcust,cbsa-updacc,cbsa-updacc-faults,cbsa-updacc-generated,cbsa-updcust,cbsa-xfrfun,cbsa-xfrfun-generated  # Db2 cases (39) need the Db2 container",
    "python tests/tools/evidence.py prove cbsa-inqacc cbsa-updacc cbsa-updacc-generated",
@@ -23235,21 +23199,21 @@
   },
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
-   "sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc",
-   "sha256:7c808074331333905d2a43887b40fed4749b61a3ef17e190bb9bd42c9912193f"
+   "sha256:11bc9a8f999f10f1f06a82cefda724e6c3c0b9fb9cc396358807c3f5d959ade1",
+   "sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc"
   ],
   "pin_manifest": "tests/crucible_pins.toml",
   "record_status_from": "evidence.py status at build time",
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "0712a98114140473d4b14442f973fa403cd68768",
+   "sha": "0095c320d884c1a6e8a4870ab8746c47997e8cea",
    "translator": {
-    "files": 156,
-    "sha256": "b3cb69320d97f2080c5f90a876598cd7af769c7e82ff7763da09813f40277bbd"
+    "files": 161,
+    "sha256": "ca8afa03b44523070ed37b60b01715eb1e97d13fcf8360635400312e6651d2d4"
    }
   },
-  "translator_commit": "0712a98114140473d4b14442f973fa403cd68768",
+  "translator_commit": "0095c320d884c1a6e8a4870ab8746c47997e8cea",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -23292,6 +23256,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "b3cb69320d97f2080c5f90a876598cd7af769c7e82ff7763da09813f40277bbd"
+  "fingerprint": "ca8afa03b44523070ed37b60b01715eb1e97d13fcf8360635400312e6651d2d4"
  }
 }

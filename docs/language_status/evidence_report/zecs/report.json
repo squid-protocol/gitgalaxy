@@ -110,7 +110,7 @@
   },
   {
    "area": "CICS",
-   "entry": "A USAGE POINTER item holds the handle of a block of task storage; GETMAIN SET(ptr) FLENGTH / LENGTH INITIMG(byte) acquires one (every byte the INITIMG value; LENGERR RESP2 1 for FLENGTH below 1 or LENGTH zero, the pointer then zero), FREEMAIN DATAPOINTER(ptr) releases it (INVREQ RESP2 1 for an address GETMAIN did not return: a null pointer, a record's address), WEB RECEIVE SET(ptr) LENGTH(area) [MAXLENGTH] puts the request body in a new block (MAXLENGTH optional: all of it; LENGERR RESP2 16 leaves the pointer as it was, RESP2 57 cuts the body and sets it), SET ADDRESS OF record TO pointer / TO ADDRESS OF record makes a LINKAGE 01 record's bytes the block's (a real alias), SET ADDRESS OF record TO ADDRESS OF item (a subordinate item or a WORKING-STORAGE record) makes the record a window onto that item's bytes (Storage.base), SET pointer TO ADDRESS OF record / item gives its handle (block plus offset); refused: a literal INITIMG, a GETMAIN without INITIMG that acquires storage (at run time), SHARED, NOSUSPEND, FREEMAIN DATA, a length above 256 MiB (LENGTH above 65520), a second FREEMAIN of the same block, FREEMAIN of a WEB RECEIVE SET body, SET ADDRESS OF a null / freed pointer, ADDRESS OF a table element, SET ADDRESS OF ... TO NULL, a pointer a REDEFINES overlays (pointer arithmetic)",
+   "entry": "A USAGE POINTER item holds the handle of a block of task storage; GETMAIN SET(ptr) FLENGTH / LENGTH INITIMG(byte) acquires one (every byte the INITIMG value; LENGERR RESP2 1 for FLENGTH below 1 or LENGTH zero, the pointer then zero), FREEMAIN DATAPOINTER(ptr) releases it (INVREQ RESP2 1 for an address GETMAIN did not return: a null pointer, a record's address), WEB RECEIVE SET(ptr) LENGTH(area) [MAXLENGTH] puts the request body in a new block (MAXLENGTH optional: all of it; LENGERR RESP2 16 leaves the pointer as it was, RESP2 57 cuts the body and sets it), SET ADDRESS OF record TO pointer / TO ADDRESS OF record makes a LINKAGE 01 record's bytes the block's (a real alias), SET ADDRESS OF record TO ADDRESS OF item (a subordinate item or a WORKING-STORAGE record) makes the record a window onto that item's bytes (Storage.base), SET pointer TO ADDRESS OF record / item gives its handle (block plus offset); refused: a literal INITIMG, a GETMAIN without INITIMG that acquires storage (at run time, on the det port and the stub), SHARED, NOSUSPEND, FREEMAIN DATA, a length above 256 MiB (LENGTH above 65520), a second FREEMAIN of the same block, FREEMAIN of a WEB RECEIVE SET body, SET ADDRESS OF a null / freed pointer, ADDRESS OF a table element, SET ADDRESS OF ... TO NULL, a pointer a REDEFINES overlays (pointer arithmetic)",
    "id": "X47",
    "status": "ASSUMED (REFUSED where IBM is silent)"
   },
@@ -533,6 +533,12 @@
     6,
     17,
     17
+   ],
+   "carddemo-sort-tranrept": [
+    1,
+    1,
+    0,
+    0
    ],
    "carddemo-tranadd": [
     18,
@@ -1243,9 +1249,9 @@
     48
    ],
    "zecs-zecs001": [
-    107,
+    117,
     119,
-    173,
+    194,
     208
    ],
    "zecs-zecs002": [
@@ -1595,6 +1601,10 @@
     "stale": [],
     "status": "shown equal, unapproved"
    },
+   "carddemo-sort-tranrept": {
+    "stale": [],
+    "status": "shown equal, unapproved"
+   },
    "carddemo-tranadd": {
     "stale": [],
     "status": "shown equal, unapproved"
@@ -1663,10 +1673,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "0712a98114140473d4b14442f973fa403cd68768",
+   "sha": "0095c320d884c1a6e8a4870ab8746c47997e8cea",
    "translator": {
-    "files": 156,
-    "sha256": "b3cb69320d97f2080c5f90a876598cd7af769c7e82ff7763da09813f40277bbd"
+    "files": 161,
+    "sha256": "ca8afa03b44523070ed37b60b01715eb1e97d13fcf8360635400312e6651d2d4"
    }
   },
   "sweeps": {}
@@ -1926,7 +1936,34 @@
        "source": "CI det-sweep ratchet on main",
        "state": "equal"
       },
-      "record": null,
+      "record": {
+       "coverage": {
+        "branches": {
+         "covered": 18,
+         "total": 20
+        },
+        "paragraphs": {
+         "covered": 15,
+         "live": 15
+        },
+        "uncovered_branches": []
+       },
+       "db2": false,
+       "facade": null,
+       "fault_runs": null,
+       "java_failed": false,
+       "option_differences": [],
+       "oracle_image": null,
+       "oracle_matches_pin": null,
+       "records_compared": 0,
+       "records_equal": 0,
+       "runs": 23,
+       "scenarios": 0,
+       "scenarios_equal": 0,
+       "stale_inputs": [],
+       "status_at_build": "not measured",
+       "verdict": "all equal"
+      },
       "role": "program"
      }
     ],
@@ -1938,21 +1975,56 @@
       "source": "CI det-sweep ratchet on main",
       "state": "equal"
      },
-     "record": null,
+     "record": {
+      "coverage": {
+       "branches": {
+        "covered": 18,
+        "total": 20
+       },
+       "paragraphs": {
+        "covered": 15,
+        "live": 15
+       },
+       "uncovered_branches": []
+      },
+      "db2": false,
+      "facade": null,
+      "fault_runs": null,
+      "java_failed": false,
+      "option_differences": [],
+      "oracle_image": null,
+      "oracle_matches_pin": null,
+      "records_compared": 0,
+      "records_equal": 0,
+      "runs": 23,
+      "scenarios": 0,
+      "scenarios_equal": 0,
+      "stale_inputs": [],
+      "status_at_build": "not measured",
+      "verdict": "all equal"
+     },
      "role": "program"
     }
    },
-   "level": "L4",
+   "level": "L5",
    "level_current": true,
    "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
-    "l5": false,
-    "score": null
+    "accounted": 59,
+    "current": true,
+    "det_port": "raw 59% (84/143 caught; 150 of 684 mutants, seed 0); every survivor accounted for (59) (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh)",
+    "drifted": [
+     "generator",
+     "harness",
+     "oracle"
+    ],
+    "killed": 84,
+    "l5": true,
+    "score": 0.5874,
+    "stale_inputs": [],
+    "survived": 59,
+    "unaccounted": 0
    },
-   "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
-   ],
+   "next": [],
    "options": {
     "assumed": 6,
     "compiler": {
@@ -2401,6 +2473,464 @@
   {
    "assumptions": {
     "facts_stated": [
+     "urimaps"
+    ],
+    "facts_unstated": [],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "Interval control on the det port: START (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM, RTRANSID / RTERMID / QUEUE, CHANNEL), RETRIEVE (INTO / LENGTH, the data options, ENVDEFERR), CANCEL REQID, RUN TRANSID CHILD [CHANNEL], FETCH ANY / CHILD (NOSUSPEND, TIMEOUT or waiting), FREE CHILD, and DELAY as the wait that dispatches RUN children (#4950); the child schedule, TIME RESP2 and the order of out-of-range checks assumed; ties, a child's region-resource commands, RETRIEVE SET / WAIT refused",
+      "id": "X18",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "INQUIRE URIMAP's browse (START / NEXT / END with URIMAP, PATH, TRANSACTION: END RESP2 2 past the last definition, ILLOGIC RESP2 1 for a START while one is open; the installed definitions and their order are stated by whoever runs the task; a short value is padded with blanks; the areas are left alone on any condition other than NORMAL) and WRITE OPERATOR (TEXT, plus TEXTLENGTH, ROUTECODES / NUMROUTES and EVENTUAL since #5859, the routes unobserved; recorded as a WRITE-OPERATOR event); the direct form INQUIRE URIMAP(name) (modelled since #4768, X34), every other URIMAP attribute, a NEXT / END with no browse, and a console text IBM reformats (DFHnnnn / DFHaannnn, or over 113 characters) refused",
+      "id": "X32",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     }
+    ],
+    "reach": "not measured",
+    "source_read": true
+   },
+   "coverage": {
+    "branch_net_pct": 100.0,
+    "branch_pct": 100.0,
+    "branches": {
+     "covered": 6,
+     "total": 6
+    },
+    "branches_net": {
+     "covered": 6,
+     "total": 6
+    },
+    "current": true,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
+    "paragraph_pct": 100.0,
+    "paragraphs": {
+     "covered": 11,
+     "live": 11
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
+    "stale_inputs": [],
+    "stale_since": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [
+     {
+      "case": "zecs-zecsplt",
+      "case_scenarios": 4,
+      "db2": false,
+      "det": {
+       "source": "CI det-sweep ratchet on main",
+       "state": "equal"
+      },
+      "record": {
+       "coverage": {
+        "branches": {
+         "covered": 6,
+         "total": 6
+        },
+        "paragraphs": {
+         "covered": 11,
+         "live": 11
+        },
+        "uncovered_branches": []
+       },
+       "db2": false,
+       "facade": null,
+       "fault_runs": null,
+       "java_failed": false,
+       "option_differences": [],
+       "oracle_image": null,
+       "oracle_matches_pin": null,
+       "records_compared": 0,
+       "records_equal": 0,
+       "runs": 4,
+       "scenarios": 0,
+       "scenarios_equal": 0,
+       "stale_inputs": [],
+       "status_at_build": "not measured",
+       "verdict": "all equal"
+      },
+      "role": "program"
+     }
+    ],
+    "chosen": {
+     "case": "zecs-zecsplt",
+     "case_scenarios": 4,
+     "db2": false,
+     "det": {
+      "source": "CI det-sweep ratchet on main",
+      "state": "equal"
+     },
+     "record": {
+      "coverage": {
+       "branches": {
+        "covered": 6,
+        "total": 6
+       },
+       "paragraphs": {
+        "covered": 11,
+        "live": 11
+       },
+       "uncovered_branches": []
+      },
+      "db2": false,
+      "facade": null,
+      "fault_runs": null,
+      "java_failed": false,
+      "option_differences": [],
+      "oracle_image": null,
+      "oracle_matches_pin": null,
+      "records_compared": 0,
+      "records_equal": 0,
+      "runs": 4,
+      "scenarios": 0,
+      "scenarios_equal": 0,
+      "stale_inputs": [],
+      "status_at_build": "not measured",
+      "verdict": "all equal"
+     },
+     "role": "program"
+    }
+   },
+   "level": "L5",
+   "level_current": true,
+   "mutation": {
+    "accounted": 90,
+    "current": true,
+    "det_port": "raw 36% (50/140 caught; 150 of 383 mutants, seed 0); every survivor accounted for (90) (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh)",
+    "drifted": [
+     "generator",
+     "harness",
+     "oracle"
+    ],
+    "killed": 50,
+    "l5": true,
+    "score": 0.3571,
+    "stale_inputs": [],
+    "survived": 90,
+    "unaccounted": 0
+   },
+   "next": [],
+   "options": {
+    "assumed": 6,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "4.2"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 0,
+    "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.packages",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "none"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.region.CICS_TS",
+      "provenance": "found",
+      "source": "System Requirements and Considerations.md:13",
+      "value": "4.2"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "CICS"
+     }
+    ],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "STD"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
+   "oracle_backing": [
+    {
+     "backed": false,
+     "command": "INQUIRE URIMAP",
+     "crucible_cases": [],
+     "facts_stated": [
+      "urimaps"
+     ],
+     "registers": [
+      "X32"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "RETURN",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-eoc-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-handle-aid",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-ignore-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-perform-range",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-eoc",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-receive",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X27"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "START",
+     "crucible_cases": [
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X18"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "WRITE OPERATOR",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [
+      "X32"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "WRITEQ TD",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    }
+   ],
+   "program": "Source/ZECSPLT.cbl",
+   "residual": {
+    "assumed_or_differs_named": [
+     "X18",
+     "X27",
+     "X32"
+    ],
+    "branch_outcomes_unrun": 0,
+    "commands": 5,
+    "commands_backed": 2,
+    "commands_not_backed": [
+     "INQUIRE URIMAP",
+     "WRITE OPERATOR",
+     "WRITEQ TD"
+    ],
+    "facts_unstated": 0,
+    "holes": 0,
+    "paragraphs_unrun": 0,
+    "refused": null
+   },
+   "stale_inputs": [],
+   "stale_since": null,
+   "survey_stale": false,
+   "translation": {
+    "gap_classes": [],
+    "hole_count": 0,
+    "holes": [],
+    "refused": null,
+    "source_defects": [],
+    "statements": 27,
+    "translated": 27,
+    "whole": true
+   }
+  },
+  {
+   "assumptions": {
+    "facts_stated": [
      "doctemplates",
      "facility",
      "http_peers",
@@ -2409,9 +2939,7 @@
      "urimaps",
      "userid"
     ],
-    "facts_unstated": [
-     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
-    ],
+    "facts_unstated": [],
     "named_by_commands": [
      {
       "area": "CICS",
@@ -2537,7 +3065,34 @@
        "source": "CI det-sweep ratchet on main",
        "state": "equal"
       },
-      "record": null,
+      "record": {
+       "coverage": {
+        "branches": {
+         "covered": 48,
+         "total": 48
+        },
+        "paragraphs": {
+         "covered": 38,
+         "live": 38
+        },
+        "uncovered_branches": []
+       },
+       "db2": false,
+       "facade": null,
+       "fault_runs": null,
+       "java_failed": false,
+       "option_differences": [],
+       "oracle_image": null,
+       "oracle_matches_pin": null,
+       "records_compared": 0,
+       "records_equal": 0,
+       "runs": 19,
+       "scenarios": 0,
+       "scenarios_equal": 0,
+       "stale_inputs": [],
+       "status_at_build": "not measured",
+       "verdict": "all equal"
+      },
       "role": "program"
      }
     ],
@@ -2549,7 +3104,34 @@
       "source": "CI det-sweep ratchet on main",
       "state": "equal"
      },
-     "record": null,
+     "record": {
+      "coverage": {
+       "branches": {
+        "covered": 48,
+        "total": 48
+       },
+       "paragraphs": {
+        "covered": 38,
+        "live": 38
+       },
+       "uncovered_branches": []
+      },
+      "db2": false,
+      "facade": null,
+      "fault_runs": null,
+      "java_failed": false,
+      "option_differences": [],
+      "oracle_image": null,
+      "oracle_matches_pin": null,
+      "records_compared": 0,
+      "records_equal": 0,
+      "runs": 19,
+      "scenarios": 0,
+      "scenarios_equal": 0,
+      "stale_inputs": [],
+      "status_at_build": "not measured",
+      "verdict": "all equal"
+     },
      "role": "program"
     }
    },
@@ -3090,7 +3672,7 @@
      "WRITE",
      "WRITEQ TD"
     ],
-    "facts_unstated": 1,
+    "facts_unstated": 0,
     "holes": 0,
     "paragraphs_unrun": 0,
     "refused": null
@@ -4869,13 +5451,40 @@
     "cases": [
      {
       "case": "zecs-zecs001",
-      "case_scenarios": 64,
+      "case_scenarios": 72,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
        "state": "equal"
       },
-      "record": null,
+      "record": {
+       "coverage": {
+        "branches": {
+         "covered": 194,
+         "total": 208
+        },
+        "paragraphs": {
+         "covered": 117,
+         "live": 119
+        },
+        "uncovered_branches": []
+       },
+       "db2": false,
+       "facade": null,
+       "fault_runs": null,
+       "java_failed": false,
+       "option_differences": [],
+       "oracle_image": null,
+       "oracle_matches_pin": null,
+       "records_compared": 0,
+       "records_equal": 0,
+       "runs": 72,
+       "scenarios": 0,
+       "scenarios_equal": 0,
+       "stale_inputs": [],
+       "status_at_build": "not measured",
+       "verdict": "all equal"
+      },
       "role": "linked"
      },
      {
@@ -4886,7 +5495,34 @@
        "source": "CI det-sweep ratchet on main",
        "state": "equal"
       },
-      "record": null,
+      "record": {
+       "coverage": {
+        "branches": {
+         "covered": 70,
+         "total": 242
+        },
+        "paragraphs": {
+         "covered": 24,
+         "live": 24
+        },
+        "uncovered_branches": []
+       },
+       "db2": false,
+       "facade": null,
+       "fault_runs": null,
+       "java_failed": false,
+       "option_differences": [],
+       "oracle_image": null,
+       "oracle_matches_pin": null,
+       "records_compared": 0,
+       "records_equal": 0,
+       "runs": 16,
+       "scenarios": 0,
+       "scenarios_equal": 0,
+       "stale_inputs": [],
+       "status_at_build": "not measured",
+       "verdict": "all equal"
+      },
       "role": "program"
      }
     ],
@@ -4898,7 +5534,34 @@
       "source": "CI det-sweep ratchet on main",
       "state": "equal"
      },
-     "record": null,
+     "record": {
+      "coverage": {
+       "branches": {
+        "covered": 70,
+        "total": 242
+       },
+       "paragraphs": {
+        "covered": 24,
+        "live": 24
+       },
+       "uncovered_branches": []
+      },
+      "db2": false,
+      "facade": null,
+      "fault_runs": null,
+      "java_failed": false,
+      "option_differences": [],
+      "oracle_image": null,
+      "oracle_matches_pin": null,
+      "records_compared": 0,
+      "records_equal": 0,
+      "runs": 16,
+      "scenarios": 0,
+      "scenarios_equal": 0,
+      "stale_inputs": [],
+      "status_at_build": "not measured",
+      "verdict": "all equal"
+     },
      "role": "program"
     }
    },
@@ -5144,7 +5807,34 @@
        "source": "CI det-sweep ratchet on main",
        "state": "equal"
       },
-      "record": null,
+      "record": {
+       "coverage": {
+        "branches": {
+         "covered": 30,
+         "total": 30
+        },
+        "paragraphs": {
+         "covered": 21,
+         "live": 21
+        },
+        "uncovered_branches": []
+       },
+       "db2": false,
+       "facade": null,
+       "fault_runs": null,
+       "java_failed": false,
+       "option_differences": [],
+       "oracle_image": null,
+       "oracle_matches_pin": null,
+       "records_compared": 0,
+       "records_equal": 0,
+       "runs": 18,
+       "scenarios": 0,
+       "scenarios_equal": 0,
+       "stale_inputs": [],
+       "status_at_build": "not measured",
+       "verdict": "all equal"
+      },
       "role": "program"
      }
     ],
@@ -5156,7 +5846,34 @@
       "source": "CI det-sweep ratchet on main",
       "state": "equal"
      },
-     "record": null,
+     "record": {
+      "coverage": {
+       "branches": {
+        "covered": 30,
+        "total": 30
+       },
+       "paragraphs": {
+        "covered": 21,
+        "live": 21
+       },
+       "uncovered_branches": []
+      },
+      "db2": false,
+      "facade": null,
+      "fault_runs": null,
+      "java_failed": false,
+      "option_differences": [],
+      "oracle_image": null,
+      "oracle_matches_pin": null,
+      "records_compared": 0,
+      "records_equal": 0,
+      "runs": 18,
+      "scenarios": 0,
+      "scenarios_equal": 0,
+      "stale_inputs": [],
+      "status_at_build": "not measured",
+      "verdict": "all equal"
+     },
      "role": "program"
     }
    },
@@ -5592,7 +6309,34 @@
        "source": "CI det-sweep ratchet on main",
        "state": "equal"
       },
-      "record": null,
+      "record": {
+       "coverage": {
+        "branches": {
+         "covered": 10,
+         "total": 10
+        },
+        "paragraphs": {
+         "covered": 13,
+         "live": 13
+        },
+        "uncovered_branches": []
+       },
+       "db2": false,
+       "facade": null,
+       "fault_runs": null,
+       "java_failed": false,
+       "option_differences": [],
+       "oracle_image": null,
+       "oracle_matches_pin": null,
+       "records_compared": 0,
+       "records_equal": 0,
+       "runs": 8,
+       "scenarios": 0,
+       "scenarios_equal": 0,
+       "stale_inputs": [],
+       "status_at_build": "not measured",
+       "verdict": "all equal"
+      },
       "role": "program"
      }
     ],
@@ -5604,7 +6348,34 @@
       "source": "CI det-sweep ratchet on main",
       "state": "equal"
      },
-     "record": null,
+     "record": {
+      "coverage": {
+       "branches": {
+        "covered": 10,
+        "total": 10
+       },
+       "paragraphs": {
+        "covered": 13,
+        "live": 13
+       },
+       "uncovered_branches": []
+      },
+      "db2": false,
+      "facade": null,
+      "fault_runs": null,
+      "java_failed": false,
+      "option_differences": [],
+      "oracle_image": null,
+      "oracle_matches_pin": null,
+      "records_compared": 0,
+      "records_equal": 0,
+      "runs": 8,
+      "scenarios": 0,
+      "scenarios_equal": 0,
+      "stale_inputs": [],
+      "status_at_build": "not measured",
+      "verdict": "all equal"
+     },
      "role": "program"
     }
    },
@@ -5755,410 +6526,11 @@
   {
    "assumptions": {
     "facts_stated": [
-     "urimaps"
-    ],
-    "facts_unstated": [],
-    "named_by_commands": [
-     {
-      "area": "CICS",
-      "entry": "Interval control on the det port: START (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM, RTRANSID / RTERMID / QUEUE, CHANNEL), RETRIEVE (INTO / LENGTH, the data options, ENVDEFERR), CANCEL REQID, RUN TRANSID CHILD [CHANNEL], FETCH ANY / CHILD (NOSUSPEND, TIMEOUT or waiting), FREE CHILD, and DELAY as the wait that dispatches RUN children (#4950); the child schedule, TIME RESP2 and the order of out-of-range checks assumed; ties, a child's region-resource commands, RETRIEVE SET / WAIT refused",
-      "id": "X18",
-      "status": "ASSUMED (REFUSED where IBM is silent)"
-     },
-     {
-      "area": "CICS",
-      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
-      "id": "X27",
-      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
-     },
-     {
-      "area": "CICS",
-      "entry": "INQUIRE URIMAP's browse (START / NEXT / END with URIMAP, PATH, TRANSACTION: END RESP2 2 past the last definition, ILLOGIC RESP2 1 for a START while one is open; the installed definitions and their order are stated by whoever runs the task; a short value is padded with blanks; the areas are left alone on any condition other than NORMAL) and WRITE OPERATOR (TEXT, plus TEXTLENGTH, ROUTECODES / NUMROUTES and EVENTUAL since #5859, the routes unobserved; recorded as a WRITE-OPERATOR event); the direct form INQUIRE URIMAP(name) (modelled since #4768, X34), every other URIMAP attribute, a NEXT / END with no browse, and a console text IBM reformats (DFHnnnn / DFHaannnn, or over 113 characters) refused",
-      "id": "X32",
-      "status": "ASSUMED (REFUSED where IBM is silent)"
-     }
-    ],
-    "reach": "not measured",
-    "source_read": true
-   },
-   "coverage": {
-    "branch_net_pct": 100.0,
-    "branch_pct": 100.0,
-    "branches": {
-     "covered": 6,
-     "total": 6
-    },
-    "branches_net": {
-     "covered": 6,
-     "total": 6
-    },
-    "current": true,
-    "infeasible_netted": [],
-    "infeasible_refuted": [],
-    "infeasible_stated": [],
-    "paragraph_pct": 100.0,
-    "paragraphs": {
-     "covered": 11,
-     "live": 11
-    },
-    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
-    "uncovered_branches": [],
-    "uncovered_paragraphs": "not recorded"
-   },
-   "equivalence": {
-    "cases": [
-     {
-      "case": "zecs-zecsplt",
-      "case_scenarios": 4,
-      "db2": false,
-      "det": {
-       "source": "CI det-sweep ratchet on main",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "program"
-     }
-    ],
-    "chosen": {
-     "case": "zecs-zecsplt",
-     "case_scenarios": 4,
-     "db2": false,
-     "det": {
-      "source": "CI det-sweep ratchet on main",
-      "state": "equal"
-     },
-     "record": null,
-     "role": "program"
-    }
-   },
-   "level": "L4",
-   "level_current": true,
-   "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
-    "l5": false,
-    "score": null
-   },
-   "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
-   ],
-   "options": {
-    "assumed": 6,
-    "compiler": {
-     "product": "Enterprise COBOL",
-     "version": "4.2"
-    },
-    "deviations": [],
-    "estate_file": true,
-    "found": 0,
-    "record_differences": [],
-    "runtime": [
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.ABTERMENC",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ABEND"
-     },
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.STORAGE",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NONE,NONE,NONE,0K"
-     },
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.TRAP",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ON,SPIE"
-     },
-     {
-      "effect": "no effect",
-      "option": "db2.bind.packages",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "none"
-     },
-     {
-      "effect": "no effect",
-      "option": "cics.region.CICS_TS",
-      "provenance": "found",
-      "source": "System Requirements and Considerations.md:13",
-      "value": "4.2"
-     },
-     {
-      "effect": "honoured",
-      "option": "cics.region.LOCALCCSID",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "037"
-     },
-     {
-      "effect": "no effect",
-      "option": "cics.translator.options",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "CICS"
-     }
-    ],
-    "values": [
-     {
-      "option": "ARITH",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "COMPAT"
-     },
-     {
-      "option": "INTDATE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ANSI"
-     },
-     {
-      "option": "NUMPROC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NOPFD"
-     },
-     {
-      "option": "TRUNC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "STD"
-     },
-     {
-      "option": "CODEPAGE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "1140"
-     },
-     {
-      "option": "NSYMBOL",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NATIONAL"
-     }
-    ]
-   },
-   "oracle_backing": [
-    {
-     "backed": false,
-     "command": "INQUIRE URIMAP",
-     "crucible_cases": [],
-     "facts_stated": [
-      "urimaps"
-     ],
-     "registers": [
-      "X32"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "RETURN",
-     "crucible_cases": [
-      {
-       "case": "ca-channel-containers",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-link-lengths",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-xctl-versions",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-assign-startcode",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-options",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-retrieve",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-terminal-coalesce",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-eoc-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-handle-aid",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-ignore-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-perform-range",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-eoc",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-receive",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-attr-bytes",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-extended-cursor",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X27"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "START",
-     "crucible_cases": [
-      {
-       "case": "gt-assign-startcode",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-options",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-retrieve",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-terminal-coalesce",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X18"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": false,
-     "command": "WRITE OPERATOR",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [
-      "X32"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": false,
-     "command": "WRITEQ TD",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    }
-   ],
-   "program": "Source/ZECSPLT.cbl",
-   "residual": {
-    "assumed_or_differs_named": [
-     "X18",
-     "X27",
-     "X32"
-    ],
-    "branch_outcomes_unrun": 0,
-    "commands": 5,
-    "commands_backed": 2,
-    "commands_not_backed": [
-     "INQUIRE URIMAP",
-     "WRITE OPERATOR",
-     "WRITEQ TD"
-    ],
-    "facts_unstated": 0,
-    "holes": 0,
-    "paragraphs_unrun": 0,
-    "refused": null
-   },
-   "stale_inputs": [],
-   "stale_since": null,
-   "survey_stale": false,
-   "translation": {
-    "gap_classes": [],
-    "hole_count": 0,
-    "holes": [],
-    "refused": null,
-    "source_defects": [],
-    "statements": 27,
-    "translated": 27,
-    "whole": true
-   }
-  },
-  {
-   "assumptions": {
-    "facts_stated": [
      "doctemplates",
      "http_peers",
      "http_request"
     ],
-    "facts_unstated": [
-     "EIB field EIBDS (both runtimes read zero; z/OS does not)",
-     "EIB field EIBRCODE (both runtimes read zero; z/OS does not)"
-    ],
+    "facts_unstated": [],
     "named_by_commands": [
      {
       "area": "CICS",
@@ -6240,7 +6612,7 @@
      },
      {
       "area": "CICS",
-      "entry": "A USAGE POINTER item holds the handle of a block of task storage; GETMAIN SET(ptr) FLENGTH / LENGTH INITIMG(byte) acquires one (every byte the INITIMG value; LENGERR RESP2 1 for FLENGTH below 1 or LENGTH zero, the pointer then zero), FREEMAIN DATAPOINTER(ptr) releases it (INVREQ RESP2 1 for an address GETMAIN did not return: a null pointer, a record's address), WEB RECEIVE SET(ptr) LENGTH(area) [MAXLENGTH] puts the request body in a new block (MAXLENGTH optional: all of it; LENGERR RESP2 16 leaves the pointer as it was, RESP2 57 cuts the body and sets it), SET ADDRESS OF record TO pointer / TO ADDRESS OF record makes a LINKAGE 01 record's bytes the block's (a real alias), SET ADDRESS OF record TO ADDRESS OF item (a subordinate item or a WORKING-STORAGE record) makes the record a window onto that item's bytes (Storage.base), SET pointer TO ADDRESS OF record / item gives its handle (block plus offset); refused: a literal INITIMG, a GETMAIN without INITIMG that acquires storage (at run time), SHARED, NOSUSPEND, FREEMAIN DATA, a length above 256 MiB (LENGTH above 65520), a second FREEMAIN of the same block, FREEMAIN of a WEB RECEIVE SET body, SET ADDRESS OF a null / freed pointer, ADDRESS OF a table element, SET ADDRESS OF ... TO NULL, a pointer a REDEFINES overlays (pointer arithmetic)",
+      "entry": "A USAGE POINTER item holds the handle of a block of task storage; GETMAIN SET(ptr) FLENGTH / LENGTH INITIMG(byte) acquires one (every byte the INITIMG value; LENGERR RESP2 1 for FLENGTH below 1 or LENGTH zero, the pointer then zero), FREEMAIN DATAPOINTER(ptr) releases it (INVREQ RESP2 1 for an address GETMAIN did not return: a null pointer, a record's address), WEB RECEIVE SET(ptr) LENGTH(area) [MAXLENGTH] puts the request body in a new block (MAXLENGTH optional: all of it; LENGERR RESP2 16 leaves the pointer as it was, RESP2 57 cuts the body and sets it), SET ADDRESS OF record TO pointer / TO ADDRESS OF record makes a LINKAGE 01 record's bytes the block's (a real alias), SET ADDRESS OF record TO ADDRESS OF item (a subordinate item or a WORKING-STORAGE record) makes the record a window onto that item's bytes (Storage.base), SET pointer TO ADDRESS OF record / item gives its handle (block plus offset); refused: a literal INITIMG, a GETMAIN without INITIMG that acquires storage (at run time, on the det port and the stub), SHARED, NOSUSPEND, FREEMAIN DATA, a length above 256 MiB (LENGTH above 65520), a second FREEMAIN of the same block, FREEMAIN of a WEB RECEIVE SET body, SET ADDRESS OF a null / freed pointer, ADDRESS OF a table element, SET ADDRESS OF ... TO NULL, a pointer a REDEFINES overlays (pointer arithmetic)",
       "id": "X47",
       "status": "ASSUMED (REFUSED where IBM is silent)"
      },
@@ -6261,14 +6633,14 @@
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": 83.6,
-    "branch_pct": 83.2,
+    "branch_net_pct": 93.7,
+    "branch_pct": 93.3,
     "branches": {
-     "covered": 173,
+     "covered": 194,
      "total": 208
     },
     "branches_net": {
-     "covered": 173,
+     "covered": 194,
      "total": 207
     },
     "current": true,
@@ -6287,9 +6659,9 @@
       "unit": "1310-TTL"
      }
     ],
-    "paragraph_pct": 89.9,
+    "paragraph_pct": 98.3,
     "paragraphs": {
-     "covered": 107,
+     "covered": 117,
      "live": 119
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
@@ -6302,25 +6674,79 @@
     "cases": [
      {
       "case": "zecs-zecs001",
-      "case_scenarios": 64,
+      "case_scenarios": 72,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
        "state": "equal"
       },
-      "record": null,
+      "record": {
+       "coverage": {
+        "branches": {
+         "covered": 194,
+         "total": 208
+        },
+        "paragraphs": {
+         "covered": 117,
+         "live": 119
+        },
+        "uncovered_branches": []
+       },
+       "db2": false,
+       "facade": null,
+       "fault_runs": null,
+       "java_failed": false,
+       "option_differences": [],
+       "oracle_image": null,
+       "oracle_matches_pin": null,
+       "records_compared": 0,
+       "records_equal": 0,
+       "runs": 72,
+       "scenarios": 0,
+       "scenarios_equal": 0,
+       "stale_inputs": [],
+       "status_at_build": "not measured",
+       "verdict": "all equal"
+      },
       "role": "program"
      }
     ],
     "chosen": {
      "case": "zecs-zecs001",
-     "case_scenarios": 64,
+     "case_scenarios": 72,
      "db2": false,
      "det": {
       "source": "CI det-sweep ratchet on main",
       "state": "equal"
      },
-     "record": null,
+     "record": {
+      "coverage": {
+       "branches": {
+        "covered": 194,
+        "total": 208
+       },
+       "paragraphs": {
+        "covered": 117,
+        "live": 119
+       },
+       "uncovered_branches": []
+      },
+      "db2": false,
+      "facade": null,
+      "fault_runs": null,
+      "java_failed": false,
+      "option_differences": [],
+      "oracle_image": null,
+      "oracle_matches_pin": null,
+      "records_compared": 0,
+      "records_equal": 0,
+      "runs": 72,
+      "scenarios": 0,
+      "scenarios_equal": 0,
+      "stale_inputs": [],
+      "status_at_build": "not measured",
+      "verdict": "all equal"
+     },
      "role": "program"
     }
    },
@@ -6333,7 +6759,7 @@
     "score": null
    },
    "next": [
-    "paragraph coverage >= 100.0 (now 89.9)"
+    "paragraph coverage >= 100.0 (now 98.3)"
    ],
    "options": {
     "assumed": 6,
@@ -6874,7 +7300,7 @@
      "X52",
      "X53"
     ],
-    "branch_outcomes_unrun": 35,
+    "branch_outcomes_unrun": 14,
     "commands": 27,
     "commands_backed": 3,
     "commands_not_backed": [
@@ -6903,9 +7329,9 @@
      "WRITE",
      "WRITEQ TD"
     ],
-    "facts_unstated": 2,
+    "facts_unstated": 0,
     "holes": 0,
-    "paragraphs_unrun": 12,
+    "paragraphs_unrun": 2,
     "refused": null
    },
    "stale_inputs": [],
@@ -6925,10 +7351,11 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 0712a98114140473d4b14442f973fa403cd68768",
-   "python tests/tools/evidence_report.py zecs --baseline --sha 0712a98114140473d4b14442f973fa403cd68768",
+   "python tests/tools/cics_census.py survey --baseline --sha 0095c320d884c1a6e8a4870ab8746c47997e8cea",
+   "python tests/tools/evidence_report.py zecs --baseline --sha 0095c320d884c1a6e8a4870ab8746c47997e8cea",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases zecs-ecs001,zecs-zecs000,zecs-zecs001,zecs-zecs002,zecs-zecs003,zecs-zecsnc,zecs-zecsplt",
+   "python tests/tools/evidence.py prove zecs-ecs001 zecs-zecs000 zecs-zecs001 zecs-zecs002 zecs-zecs003 zecs-zecsnc zecs-zecsplt",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
   ],
   "corpus_ref": "6d6bcbbc89c9be086a58cb7ad2ff4d702e873d02",
@@ -6947,13 +7374,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "0712a98114140473d4b14442f973fa403cd68768",
+   "sha": "0095c320d884c1a6e8a4870ab8746c47997e8cea",
    "translator": {
-    "files": 156,
-    "sha256": "b3cb69320d97f2080c5f90a876598cd7af769c7e82ff7763da09813f40277bbd"
+    "files": 161,
+    "sha256": "ca8afa03b44523070ed37b60b01715eb1e97d13fcf8360635400312e6651d2d4"
    }
   },
-  "translator_commit": "0712a98114140473d4b14442f973fa403cd68768",
+  "translator_commit": "0095c320d884c1a6e8a4870ab8746c47997e8cea",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -6964,8 +7391,8 @@
    "L1": 0,
    "L2": 1,
    "L3": 0,
-   "L4": 6,
-   "L5": 0
+   "L4": 4,
+   "L5": 2
   },
   "histogram_stale": {
    "L0": 0,
@@ -6987,15 +7414,15 @@
   "levels_stale": 0,
   "levels_stale_survey": 0,
   "programs": 7,
-  "records_current": 0,
+  "records_current": 7,
   "refused_whole": 0,
   "source_unread": 0,
   "translated_whole": 7,
   "with_case": 7,
-  "with_record": 0
+  "with_record": 7
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "b3cb69320d97f2080c5f90a876598cd7af769c7e82ff7763da09813f40277bbd"
+  "fingerprint": "ca8afa03b44523070ed37b60b01715eb1e97d13fcf8360635400312e6651d2d4"
  }
 }

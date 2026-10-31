@@ -395,6 +395,12 @@
     17,
     17
    ],
+   "carddemo-sort-tranrept": [
+    1,
+    1,
+    0,
+    0
+   ],
    "carddemo-tranadd": [
     18,
     18,
@@ -1104,9 +1110,9 @@
     48
    ],
    "zecs-zecs001": [
-    107,
+    117,
     119,
-    173,
+    194,
     208
    ],
    "zecs-zecs002": [
@@ -1193,15 +1199,10 @@
     "facts": {},
     "program": "cases/commarea-mismatch/ca-address-twa-tctua/src/CATWAD.cbl",
     "row": {
-     "holes": [
-      "line 58: EXEC EXEC CICS: ADDRESS TWA: option not modelled (TWA: the transaction work area (TWA) is a system area the region does not define: not modelled)",
-      "line 75: EXEC EXEC CICS: ADDRESS TWA: option not modelled (TWA: the transaction work area (TWA) is a system area the region does not define: not modelled)",
-      "line 90: EXEC EXEC CICS: ADDRESS TCTUA: option not modelled (TCTUA: the terminal control table user area (TCTUA) is a system area the region does not define: not modelled)",
-      "line 103: EXEC EXEC CICS: ADDRESS TCTUA: option not modelled (TCTUA: the terminal control table user area (TCTUA) is a system area the region does not define: not modelled)"
-     ],
+     "holes": [],
      "kind": "cics",
      "statements": 43,
-     "translated": 39
+     "translated": 43
     },
     "source_read": false
    },
@@ -1211,12 +1212,10 @@
     "facts": {},
     "program": "cases/commarea-mismatch/ca-address-twa-tctua/src/CATWSB.cbl",
     "row": {
-     "holes": [
-      "line 29: EXEC EXEC CICS: ADDRESS TWA: option not modelled (TWA: the transaction work area (TWA) is a system area the region does not define: not modelled)"
-     ],
+     "holes": [],
      "kind": "cics",
      "statements": 10,
-     "translated": 9
+     "translated": 10
     },
     "source_read": false
    },
@@ -1369,12 +1368,10 @@
     "facts": {},
     "program": "cases/commarea-mismatch/ca-getmain-pointer/src/CAGMZ.cbl",
     "row": {
-     "holes": [
-      "line 76: IF WS-PTR2-N: a REDEFINES overlays a POINTER with it (pointer arithmetic is not modelled)"
-     ],
+     "holes": [],
      "kind": "cics",
-     "statements": 41,
-     "translated": 40
+     "statements": 43,
+     "translated": 43
     },
     "source_read": false
    },
@@ -1410,13 +1407,10 @@
     "facts": {},
     "program": "cases/commarea-mismatch/ca-load-set/src/CALDST.cbl",
     "row": {
-     "holes": [
-      "line 25: EXEC EXEC CICS: EXEC CICS LOAD not modelled (a program or table loaded into storage and addressed by a pointer is not modelled)",
-      "line 31: EXEC EXEC CICS: EXEC CICS RELEASE not modelled (releasing a LOADed program or table: a program or table loaded into storage and addressed by a pointer is not modelled)"
-     ],
+     "holes": [],
      "kind": "cics",
      "statements": 23,
-     "translated": 21
+     "translated": 23
     },
     "source_read": false
    },
@@ -1426,14 +1420,10 @@
     "facts": {},
     "program": "cases/commarea-mismatch/ca-load-set/src/CALDSX.cbl",
     "row": {
-     "holes": [
-      "line 24: EXEC EXEC CICS: EXEC CICS LOAD not modelled (a program or table loaded into storage and addressed by a pointer is not modelled)",
-      "line 32: EXEC EXEC CICS: EXEC CICS LOAD not modelled (a program or table loaded into storage and addressed by a pointer is not modelled)",
-      "line 48: EXEC EXEC CICS: EXEC CICS RELEASE not modelled (releasing a LOADed program or table: a program or table loaded into storage and addressed by a pointer is not modelled)"
-     ],
+     "holes": [],
      "kind": "cics",
      "statements": 27,
-     "translated": 24
+     "translated": 27
     },
     "source_read": false
    },
@@ -1603,17 +1593,10 @@
     "facts": {},
     "program": "cases/condition-handling/hc-file-read-set/src/HCRDST.cbl",
     "row": {
-     "holes": [
-      "line 57: EXEC EXEC CICS: ADDRESS OF LS-REC: undeclared item",
-      "line 64: EXEC EXEC CICS: ADDRESS OF LS-REC: undeclared item",
-      "line 71: EXEC EXEC CICS: ADDRESS OF LS-REC: undeclared item",
-      "line 85: EXEC EXEC CICS: ADDRESS OF LS-REC: undeclared item",
-      "line 106: EXEC EXEC CICS: ADDRESS OF LS-REC: undeclared item",
-      "line 138: EXEC EXEC CICS: ADDRESS OF LS-REC: undeclared item"
-     ],
+     "holes": [],
      "kind": "cics",
      "statements": 77,
-     "translated": 71
+     "translated": 77
     },
     "source_read": false
    },
@@ -1624,13 +1607,13 @@
     "program": "cases/condition-handling/hc-file-unlock/src/HCUNLK.cbl",
     "row": {
      "holes": [
-      "line 56: EXEC EXEC CICS: WsRec: no key",
-      "line 63: EXEC EXEC CICS: WsRec: no key",
-      "line 73: EXEC EXEC CICS: WsRec: no key",
-      "line 85: EXEC EXEC CICS: WsRec: no key",
-      "line 100: EXEC EXEC CICS: WsRec: no key",
-      "line 114: EXEC EXEC CICS: WsRec: no key",
-      "line 131: EXEC EXEC CICS: WsRec: no key"
+      "line 56: EXEC EXEC CICS: WsRec: no key (the generated entity states none: no IDCAMS DEFINE, RECORD KEY or RIDFLD field inside the record names it, and a KSDS key's offset is not guessed)",
+      "line 63: EXEC EXEC CICS: WsRec: no key (the generated entity states none: no IDCAMS DEFINE, RECORD KEY or RIDFLD field inside the record names it, and a KSDS key's offset is not guessed)",
+      "line 73: EXEC EXEC CICS: WsRec: no key (the generated entity states none: no IDCAMS DEFINE, RECORD KEY or RIDFLD field inside the record names it, and a KSDS key's offset is not guessed)",
+      "line 85: EXEC EXEC CICS: WsRec: no key (the generated entity states none: no IDCAMS DEFINE, RECORD KEY or RIDFLD field inside the record names it, and a KSDS key's offset is not guessed)",
+      "line 100: EXEC EXEC CICS: WsRec: no key (the generated entity states none: no IDCAMS DEFINE, RECORD KEY or RIDFLD field inside the record names it, and a KSDS key's offset is not guessed)",
+      "line 114: EXEC EXEC CICS: WsRec: no key (the generated entity states none: no IDCAMS DEFINE, RECORD KEY or RIDFLD field inside the record names it, and a KSDS key's offset is not guessed)",
+      "line 131: EXEC EXEC CICS: WsRec: no key (the generated entity states none: no IDCAMS DEFINE, RECORD KEY or RIDFLD field inside the record names it, and a KSDS key's offset is not guessed)"
      ],
      "kind": "cics",
      "statements": 70,
@@ -2303,6 +2286,10 @@
     "stale": [],
     "status": "shown equal, unapproved"
    },
+   "carddemo-sort-tranrept": {
+    "stale": [],
+    "status": "shown equal, unapproved"
+   },
    "carddemo-tranadd": {
     "stale": [],
     "status": "shown equal, unapproved"
@@ -2371,10 +2358,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "0712a98114140473d4b14442f973fa403cd68768",
+   "sha": "0095c320d884c1a6e8a4870ab8746c47997e8cea",
    "translator": {
-    "files": 156,
-    "sha256": "b3cb69320d97f2080c5f90a876598cd7af769c7e82ff7763da09813f40277bbd"
+    "files": 161,
+    "sha256": "ca8afa03b44523070ed37b60b01715eb1e97d13fcf8360635400312e6651d2d4"
    }
   },
   "sweeps": {}
@@ -2860,6 +2847,222 @@
     "source_defects": [],
     "statements": 16,
     "translated": 16,
+    "whole": true
+   }
+  },
+  {
+   "assumptions": {
+    "facts_stated": [],
+    "facts_unstated": [],
+    "named_by_commands": [],
+    "reach": "not measured",
+    "source_read": false
+   },
+   "coverage": {
+    "branch_net_pct": null,
+    "branch_pct": null,
+    "branches": null,
+    "branches_net": null,
+    "current": true,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
+    "paragraph_pct": null,
+    "paragraphs": null,
+    "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [],
+    "chosen": null
+   },
+   "level": "L1",
+   "level_current": true,
+   "mutation": {
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
+   },
+   "next": [
+    "an equivalence case that runs it"
+   ],
+   "options": {
+    "assumed": 4,
+    "compiler": {
+     "product": null,
+     "version": null
+    },
+    "deviations": [],
+    "estate_file": false,
+    "found": 0,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "IBM default",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "IBM default",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "IBM default",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "IBM default",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "STD"
+     }
+    ]
+   },
+   "oracle_backing": [],
+   "program": "cases/commarea-mismatch/ca-address-twa-tctua/src/CATWAD.cbl",
+   "residual": {
+    "assumed_or_differs_named": [],
+    "branch_outcomes_unrun": null,
+    "commands": 0,
+    "commands_backed": 0,
+    "commands_not_backed": [],
+    "facts_unstated": 0,
+    "holes": 0,
+    "paragraphs_unrun": null,
+    "refused": null
+   },
+   "stale_inputs": [],
+   "stale_since": null,
+   "survey_stale": false,
+   "translation": {
+    "gap_classes": [],
+    "hole_count": 0,
+    "holes": [],
+    "refused": null,
+    "source_defects": [],
+    "statements": 43,
+    "translated": 43,
+    "whole": true
+   }
+  },
+  {
+   "assumptions": {
+    "facts_stated": [],
+    "facts_unstated": [],
+    "named_by_commands": [],
+    "reach": "not measured",
+    "source_read": false
+   },
+   "coverage": {
+    "branch_net_pct": null,
+    "branch_pct": null,
+    "branches": null,
+    "branches_net": null,
+    "current": true,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
+    "paragraph_pct": null,
+    "paragraphs": null,
+    "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [],
+    "chosen": null
+   },
+   "level": "L1",
+   "level_current": true,
+   "mutation": {
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
+   },
+   "next": [
+    "an equivalence case that runs it"
+   ],
+   "options": {
+    "assumed": 4,
+    "compiler": {
+     "product": null,
+     "version": null
+    },
+    "deviations": [],
+    "estate_file": false,
+    "found": 0,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "IBM default",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "IBM default",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "IBM default",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "IBM default",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "STD"
+     }
+    ]
+   },
+   "oracle_backing": [],
+   "program": "cases/commarea-mismatch/ca-address-twa-tctua/src/CATWSB.cbl",
+   "residual": {
+    "assumed_or_differs_named": [],
+    "branch_outcomes_unrun": null,
+    "commands": 0,
+    "commands_backed": 0,
+    "commands_not_backed": [],
+    "facts_unstated": 0,
+    "holes": 0,
+    "paragraphs_unrun": null,
+    "refused": null
+   },
+   "stale_inputs": [],
+   "stale_since": null,
+   "survey_stale": false,
+   "translation": {
+    "gap_classes": [],
+    "hole_count": 0,
+    "holes": [],
+    "refused": null,
+    "source_defects": [],
+    "statements": 10,
+    "translated": 10,
     "whole": true
    }
   },
@@ -4133,6 +4336,114 @@
     ]
    },
    "oracle_backing": [],
+   "program": "cases/commarea-mismatch/ca-getmain-pointer/src/CAGMZ.cbl",
+   "residual": {
+    "assumed_or_differs_named": [],
+    "branch_outcomes_unrun": null,
+    "commands": 0,
+    "commands_backed": 0,
+    "commands_not_backed": [],
+    "facts_unstated": 0,
+    "holes": 0,
+    "paragraphs_unrun": null,
+    "refused": null
+   },
+   "stale_inputs": [],
+   "stale_since": null,
+   "survey_stale": false,
+   "translation": {
+    "gap_classes": [],
+    "hole_count": 0,
+    "holes": [],
+    "refused": null,
+    "source_defects": [],
+    "statements": 43,
+    "translated": 43,
+    "whole": true
+   }
+  },
+  {
+   "assumptions": {
+    "facts_stated": [],
+    "facts_unstated": [],
+    "named_by_commands": [],
+    "reach": "not measured",
+    "source_read": false
+   },
+   "coverage": {
+    "branch_net_pct": null,
+    "branch_pct": null,
+    "branches": null,
+    "branches_net": null,
+    "current": true,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
+    "paragraph_pct": null,
+    "paragraphs": null,
+    "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [],
+    "chosen": null
+   },
+   "level": "L1",
+   "level_current": true,
+   "mutation": {
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
+   },
+   "next": [
+    "an equivalence case that runs it"
+   ],
+   "options": {
+    "assumed": 4,
+    "compiler": {
+     "product": null,
+     "version": null
+    },
+    "deviations": [],
+    "estate_file": false,
+    "found": 0,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "IBM default",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "IBM default",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "IBM default",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "IBM default",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "STD"
+     }
+    ]
+   },
+   "oracle_backing": [],
    "program": "cases/commarea-mismatch/ca-link-lengths/src/CALINK.cbl",
    "residual": {
     "assumed_or_differs_named": [],
@@ -4264,6 +4575,222 @@
     "source_defects": [],
     "statements": 11,
     "translated": 11,
+    "whole": true
+   }
+  },
+  {
+   "assumptions": {
+    "facts_stated": [],
+    "facts_unstated": [],
+    "named_by_commands": [],
+    "reach": "not measured",
+    "source_read": false
+   },
+   "coverage": {
+    "branch_net_pct": null,
+    "branch_pct": null,
+    "branches": null,
+    "branches_net": null,
+    "current": true,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
+    "paragraph_pct": null,
+    "paragraphs": null,
+    "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [],
+    "chosen": null
+   },
+   "level": "L1",
+   "level_current": true,
+   "mutation": {
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
+   },
+   "next": [
+    "an equivalence case that runs it"
+   ],
+   "options": {
+    "assumed": 4,
+    "compiler": {
+     "product": null,
+     "version": null
+    },
+    "deviations": [],
+    "estate_file": false,
+    "found": 0,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "IBM default",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "IBM default",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "IBM default",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "IBM default",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "STD"
+     }
+    ]
+   },
+   "oracle_backing": [],
+   "program": "cases/commarea-mismatch/ca-load-set/src/CALDST.cbl",
+   "residual": {
+    "assumed_or_differs_named": [],
+    "branch_outcomes_unrun": null,
+    "commands": 0,
+    "commands_backed": 0,
+    "commands_not_backed": [],
+    "facts_unstated": 0,
+    "holes": 0,
+    "paragraphs_unrun": null,
+    "refused": null
+   },
+   "stale_inputs": [],
+   "stale_since": null,
+   "survey_stale": false,
+   "translation": {
+    "gap_classes": [],
+    "hole_count": 0,
+    "holes": [],
+    "refused": null,
+    "source_defects": [],
+    "statements": 23,
+    "translated": 23,
+    "whole": true
+   }
+  },
+  {
+   "assumptions": {
+    "facts_stated": [],
+    "facts_unstated": [],
+    "named_by_commands": [],
+    "reach": "not measured",
+    "source_read": false
+   },
+   "coverage": {
+    "branch_net_pct": null,
+    "branch_pct": null,
+    "branches": null,
+    "branches_net": null,
+    "current": true,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
+    "paragraph_pct": null,
+    "paragraphs": null,
+    "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [],
+    "chosen": null
+   },
+   "level": "L1",
+   "level_current": true,
+   "mutation": {
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
+   },
+   "next": [
+    "an equivalence case that runs it"
+   ],
+   "options": {
+    "assumed": 4,
+    "compiler": {
+     "product": null,
+     "version": null
+    },
+    "deviations": [],
+    "estate_file": false,
+    "found": 0,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "IBM default",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "IBM default",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "IBM default",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "IBM default",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "STD"
+     }
+    ]
+   },
+   "oracle_backing": [],
+   "program": "cases/commarea-mismatch/ca-load-set/src/CALDSX.cbl",
+   "residual": {
+    "assumed_or_differs_named": [],
+    "branch_outcomes_unrun": null,
+    "commands": 0,
+    "commands_backed": 0,
+    "commands_not_backed": [],
+    "facts_unstated": 0,
+    "holes": 0,
+    "paragraphs_unrun": null,
+    "refused": null
+   },
+   "stale_inputs": [],
+   "stale_since": null,
+   "survey_stale": false,
+   "translation": {
+    "gap_classes": [],
+    "hole_count": 0,
+    "holes": [],
+    "refused": null,
+    "source_defects": [],
+    "statements": 27,
+    "translated": 27,
     "whole": true
    }
   },
@@ -5344,6 +5871,114 @@
     "source_defects": [],
     "statements": 15,
     "translated": 15,
+    "whole": true
+   }
+  },
+  {
+   "assumptions": {
+    "facts_stated": [],
+    "facts_unstated": [],
+    "named_by_commands": [],
+    "reach": "not measured",
+    "source_read": false
+   },
+   "coverage": {
+    "branch_net_pct": null,
+    "branch_pct": null,
+    "branches": null,
+    "branches_net": null,
+    "current": true,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
+    "paragraph_pct": null,
+    "paragraphs": null,
+    "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [],
+    "chosen": null
+   },
+   "level": "L1",
+   "level_current": true,
+   "mutation": {
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
+   },
+   "next": [
+    "an equivalence case that runs it"
+   ],
+   "options": {
+    "assumed": 4,
+    "compiler": {
+     "product": null,
+     "version": null
+    },
+    "deviations": [],
+    "estate_file": false,
+    "found": 0,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "IBM default",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "IBM default",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "IBM default",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "IBM default",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "STD"
+     }
+    ]
+   },
+   "oracle_backing": [],
+   "program": "cases/condition-handling/hc-file-read-set/src/HCRDST.cbl",
+   "residual": {
+    "assumed_or_differs_named": [],
+    "branch_outcomes_unrun": null,
+    "commands": 0,
+    "commands_backed": 0,
+    "commands_not_backed": [],
+    "facts_unstated": 0,
+    "holes": 0,
+    "paragraphs_unrun": null,
+    "refused": null
+   },
+   "stale_inputs": [],
+   "stale_since": null,
+   "survey_stale": false,
+   "translation": {
+    "gap_classes": [],
+    "hole_count": 0,
+    "holes": [],
+    "refused": null,
+    "source_defects": [],
+    "statements": 77,
+    "translated": 77,
     "whole": true
    }
   },
@@ -9813,572 +10448,6 @@
     "score": null
    },
    "next": [
-    "translated whole (4 holes left)"
-   ],
-   "options": {
-    "assumed": 4,
-    "compiler": {
-     "product": null,
-     "version": null
-    },
-    "deviations": [],
-    "estate_file": false,
-    "found": 0,
-    "record_differences": [],
-    "values": [
-     {
-      "option": "ARITH",
-      "origin": "IBM default",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "COMPAT"
-     },
-     {
-      "option": "INTDATE",
-      "origin": "IBM default",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ANSI"
-     },
-     {
-      "option": "NUMPROC",
-      "origin": "IBM default",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NOPFD"
-     },
-     {
-      "option": "TRUNC",
-      "origin": "IBM default",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "STD"
-     }
-    ]
-   },
-   "oracle_backing": [],
-   "program": "cases/commarea-mismatch/ca-address-twa-tctua/src/CATWAD.cbl",
-   "residual": {
-    "assumed_or_differs_named": [],
-    "branch_outcomes_unrun": null,
-    "commands": 0,
-    "commands_backed": 0,
-    "commands_not_backed": [],
-    "facts_unstated": 0,
-    "holes": 4,
-    "paragraphs_unrun": null,
-    "refused": null
-   },
-   "stale_inputs": [],
-   "stale_since": null,
-   "survey_stale": false,
-   "translation": {
-    "gap_classes": [
-     "EXEC CICS ADDRESS TCTUA",
-     "EXEC CICS ADDRESS TWA"
-    ],
-    "hole_count": 4,
-    "holes": [
-     "EXEC EXEC CICS: ADDRESS TCTUA: option not modelled (TCTUA: the terminal control table user area (TCTUA) is a system area the region does not define: not modelled)",
-     "EXEC EXEC CICS: ADDRESS TWA: option not modelled (TWA: the transaction work area (TWA) is a system area the region does not define: not modelled)"
-    ],
-    "refused": null,
-    "source_defects": [],
-    "statements": 43,
-    "translated": 39,
-    "whole": false
-   }
-  },
-  {
-   "assumptions": {
-    "facts_stated": [],
-    "facts_unstated": [],
-    "named_by_commands": [],
-    "reach": "not measured",
-    "source_read": false
-   },
-   "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
-    "current": true,
-    "infeasible_netted": [],
-    "infeasible_refuted": [],
-    "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
-    "stale_inputs": [],
-    "stale_since": null,
-    "uncovered_branches": [],
-    "uncovered_paragraphs": "not recorded"
-   },
-   "equivalence": {
-    "cases": [],
-    "chosen": null
-   },
-   "level": "L0",
-   "level_current": true,
-   "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
-    "l5": false,
-    "score": null
-   },
-   "next": [
-    "translated whole (1 holes left)"
-   ],
-   "options": {
-    "assumed": 4,
-    "compiler": {
-     "product": null,
-     "version": null
-    },
-    "deviations": [],
-    "estate_file": false,
-    "found": 0,
-    "record_differences": [],
-    "values": [
-     {
-      "option": "ARITH",
-      "origin": "IBM default",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "COMPAT"
-     },
-     {
-      "option": "INTDATE",
-      "origin": "IBM default",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ANSI"
-     },
-     {
-      "option": "NUMPROC",
-      "origin": "IBM default",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NOPFD"
-     },
-     {
-      "option": "TRUNC",
-      "origin": "IBM default",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "STD"
-     }
-    ]
-   },
-   "oracle_backing": [],
-   "program": "cases/commarea-mismatch/ca-address-twa-tctua/src/CATWSB.cbl",
-   "residual": {
-    "assumed_or_differs_named": [],
-    "branch_outcomes_unrun": null,
-    "commands": 0,
-    "commands_backed": 0,
-    "commands_not_backed": [],
-    "facts_unstated": 0,
-    "holes": 1,
-    "paragraphs_unrun": null,
-    "refused": null
-   },
-   "stale_inputs": [],
-   "stale_since": null,
-   "survey_stale": false,
-   "translation": {
-    "gap_classes": [
-     "EXEC CICS ADDRESS TWA"
-    ],
-    "hole_count": 1,
-    "holes": [
-     "EXEC EXEC CICS: ADDRESS TWA: option not modelled (TWA: the transaction work area (TWA) is a system area the region does not define: not modelled)"
-    ],
-    "refused": null,
-    "source_defects": [],
-    "statements": 10,
-    "translated": 9,
-    "whole": false
-   }
-  },
-  {
-   "assumptions": {
-    "facts_stated": [],
-    "facts_unstated": [],
-    "named_by_commands": [],
-    "reach": "not measured",
-    "source_read": false
-   },
-   "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
-    "current": true,
-    "infeasible_netted": [],
-    "infeasible_refuted": [],
-    "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
-    "stale_inputs": [],
-    "stale_since": null,
-    "uncovered_branches": [],
-    "uncovered_paragraphs": "not recorded"
-   },
-   "equivalence": {
-    "cases": [],
-    "chosen": null
-   },
-   "level": "L0",
-   "level_current": true,
-   "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
-    "l5": false,
-    "score": null
-   },
-   "next": [
-    "translated whole (1 holes left)"
-   ],
-   "options": {
-    "assumed": 4,
-    "compiler": {
-     "product": null,
-     "version": null
-    },
-    "deviations": [],
-    "estate_file": false,
-    "found": 0,
-    "record_differences": [],
-    "values": [
-     {
-      "option": "ARITH",
-      "origin": "IBM default",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "COMPAT"
-     },
-     {
-      "option": "INTDATE",
-      "origin": "IBM default",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ANSI"
-     },
-     {
-      "option": "NUMPROC",
-      "origin": "IBM default",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NOPFD"
-     },
-     {
-      "option": "TRUNC",
-      "origin": "IBM default",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "STD"
-     }
-    ]
-   },
-   "oracle_backing": [],
-   "program": "cases/commarea-mismatch/ca-getmain-pointer/src/CAGMZ.cbl",
-   "residual": {
-    "assumed_or_differs_named": [],
-    "branch_outcomes_unrun": null,
-    "commands": 0,
-    "commands_backed": 0,
-    "commands_not_backed": [],
-    "facts_unstated": 0,
-    "holes": 1,
-    "paragraphs_unrun": null,
-    "refused": null
-   },
-   "stale_inputs": [],
-   "stale_since": null,
-   "survey_stale": false,
-   "translation": {
-    "gap_classes": [
-     "<name>: a REDEFINES overlays a POINTER with it"
-    ],
-    "hole_count": 1,
-    "holes": [
-     "IF WS-PTR2-N: a REDEFINES overlays a POINTER with it (pointer arithmetic is not modelled)"
-    ],
-    "refused": null,
-    "source_defects": [],
-    "statements": 41,
-    "translated": 40,
-    "whole": false
-   }
-  },
-  {
-   "assumptions": {
-    "facts_stated": [],
-    "facts_unstated": [],
-    "named_by_commands": [],
-    "reach": "not measured",
-    "source_read": false
-   },
-   "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
-    "current": true,
-    "infeasible_netted": [],
-    "infeasible_refuted": [],
-    "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
-    "stale_inputs": [],
-    "stale_since": null,
-    "uncovered_branches": [],
-    "uncovered_paragraphs": "not recorded"
-   },
-   "equivalence": {
-    "cases": [],
-    "chosen": null
-   },
-   "level": "L0",
-   "level_current": true,
-   "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
-    "l5": false,
-    "score": null
-   },
-   "next": [
-    "translated whole (2 holes left)"
-   ],
-   "options": {
-    "assumed": 4,
-    "compiler": {
-     "product": null,
-     "version": null
-    },
-    "deviations": [],
-    "estate_file": false,
-    "found": 0,
-    "record_differences": [],
-    "values": [
-     {
-      "option": "ARITH",
-      "origin": "IBM default",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "COMPAT"
-     },
-     {
-      "option": "INTDATE",
-      "origin": "IBM default",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ANSI"
-     },
-     {
-      "option": "NUMPROC",
-      "origin": "IBM default",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NOPFD"
-     },
-     {
-      "option": "TRUNC",
-      "origin": "IBM default",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "STD"
-     }
-    ]
-   },
-   "oracle_backing": [],
-   "program": "cases/commarea-mismatch/ca-load-set/src/CALDST.cbl",
-   "residual": {
-    "assumed_or_differs_named": [],
-    "branch_outcomes_unrun": null,
-    "commands": 0,
-    "commands_backed": 0,
-    "commands_not_backed": [],
-    "facts_unstated": 0,
-    "holes": 2,
-    "paragraphs_unrun": null,
-    "refused": null
-   },
-   "stale_inputs": [],
-   "stale_since": null,
-   "survey_stale": false,
-   "translation": {
-    "gap_classes": [
-     "EXEC CICS LOAD",
-     "EXEC CICS RELEASE"
-    ],
-    "hole_count": 2,
-    "holes": [
-     "EXEC EXEC CICS: EXEC CICS LOAD not modelled (a program or table loaded into storage and addressed by a pointer is not modelled)",
-     "EXEC EXEC CICS: EXEC CICS RELEASE not modelled (releasing a LOADed program or table: a program or table loaded into storage and addressed by a pointer is not modelled)"
-    ],
-    "refused": null,
-    "source_defects": [],
-    "statements": 23,
-    "translated": 21,
-    "whole": false
-   }
-  },
-  {
-   "assumptions": {
-    "facts_stated": [],
-    "facts_unstated": [],
-    "named_by_commands": [],
-    "reach": "not measured",
-    "source_read": false
-   },
-   "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
-    "current": true,
-    "infeasible_netted": [],
-    "infeasible_refuted": [],
-    "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
-    "stale_inputs": [],
-    "stale_since": null,
-    "uncovered_branches": [],
-    "uncovered_paragraphs": "not recorded"
-   },
-   "equivalence": {
-    "cases": [],
-    "chosen": null
-   },
-   "level": "L0",
-   "level_current": true,
-   "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
-    "l5": false,
-    "score": null
-   },
-   "next": [
-    "translated whole (3 holes left)"
-   ],
-   "options": {
-    "assumed": 4,
-    "compiler": {
-     "product": null,
-     "version": null
-    },
-    "deviations": [],
-    "estate_file": false,
-    "found": 0,
-    "record_differences": [],
-    "values": [
-     {
-      "option": "ARITH",
-      "origin": "IBM default",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "COMPAT"
-     },
-     {
-      "option": "INTDATE",
-      "origin": "IBM default",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ANSI"
-     },
-     {
-      "option": "NUMPROC",
-      "origin": "IBM default",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NOPFD"
-     },
-     {
-      "option": "TRUNC",
-      "origin": "IBM default",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "STD"
-     }
-    ]
-   },
-   "oracle_backing": [],
-   "program": "cases/commarea-mismatch/ca-load-set/src/CALDSX.cbl",
-   "residual": {
-    "assumed_or_differs_named": [],
-    "branch_outcomes_unrun": null,
-    "commands": 0,
-    "commands_backed": 0,
-    "commands_not_backed": [],
-    "facts_unstated": 0,
-    "holes": 3,
-    "paragraphs_unrun": null,
-    "refused": null
-   },
-   "stale_inputs": [],
-   "stale_since": null,
-   "survey_stale": false,
-   "translation": {
-    "gap_classes": [
-     "EXEC CICS LOAD",
-     "EXEC CICS RELEASE"
-    ],
-    "hole_count": 3,
-    "holes": [
-     "EXEC EXEC CICS: EXEC CICS LOAD not modelled (a program or table loaded into storage and addressed by a pointer is not modelled)",
-     "EXEC EXEC CICS: EXEC CICS RELEASE not modelled (releasing a LOADed program or table: a program or table loaded into storage and addressed by a pointer is not modelled)"
-    ],
-    "refused": null,
-    "source_defects": [],
-    "statements": 27,
-    "translated": 24,
-    "whole": false
-   }
-  },
-  {
-   "assumptions": {
-    "facts_stated": [],
-    "facts_unstated": [],
-    "named_by_commands": [],
-    "reach": "not measured",
-    "source_read": false
-   },
-   "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
-    "current": true,
-    "infeasible_netted": [],
-    "infeasible_refuted": [],
-    "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
-    "stale_inputs": [],
-    "stale_since": null,
-    "uncovered_branches": [],
-    "uncovered_paragraphs": "not recorded"
-   },
-   "equivalence": {
-    "cases": [],
-    "chosen": null
-   },
-   "level": "L0",
-   "level_current": true,
-   "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
-    "l5": false,
-    "score": null
-   },
-   "next": [
     "translated whole (1 holes left)"
    ],
    "options": {
@@ -10603,118 +10672,6 @@
     "score": null
    },
    "next": [
-    "translated whole (6 holes left)"
-   ],
-   "options": {
-    "assumed": 4,
-    "compiler": {
-     "product": null,
-     "version": null
-    },
-    "deviations": [],
-    "estate_file": false,
-    "found": 0,
-    "record_differences": [],
-    "values": [
-     {
-      "option": "ARITH",
-      "origin": "IBM default",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "COMPAT"
-     },
-     {
-      "option": "INTDATE",
-      "origin": "IBM default",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ANSI"
-     },
-     {
-      "option": "NUMPROC",
-      "origin": "IBM default",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NOPFD"
-     },
-     {
-      "option": "TRUNC",
-      "origin": "IBM default",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "STD"
-     }
-    ]
-   },
-   "oracle_backing": [],
-   "program": "cases/condition-handling/hc-file-read-set/src/HCRDST.cbl",
-   "residual": {
-    "assumed_or_differs_named": [],
-    "branch_outcomes_unrun": null,
-    "commands": 0,
-    "commands_backed": 0,
-    "commands_not_backed": [],
-    "facts_unstated": 0,
-    "holes": 6,
-    "paragraphs_unrun": null,
-    "refused": null
-   },
-   "stale_inputs": [],
-   "stale_since": null,
-   "survey_stale": false,
-   "translation": {
-    "gap_classes": [
-     "EXEC CICS ADDRESS OF <name>: undeclared item"
-    ],
-    "hole_count": 6,
-    "holes": [
-     "EXEC EXEC CICS: ADDRESS OF LS-REC: undeclared item"
-    ],
-    "refused": null,
-    "source_defects": [],
-    "statements": 77,
-    "translated": 71,
-    "whole": false
-   }
-  },
-  {
-   "assumptions": {
-    "facts_stated": [],
-    "facts_unstated": [],
-    "named_by_commands": [],
-    "reach": "not measured",
-    "source_read": false
-   },
-   "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
-    "current": true,
-    "infeasible_netted": [],
-    "infeasible_refuted": [],
-    "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
-    "stale_inputs": [],
-    "stale_since": null,
-    "uncovered_branches": [],
-    "uncovered_paragraphs": "not recorded"
-   },
-   "equivalence": {
-    "cases": [],
-    "chosen": null
-   },
-   "level": "L0",
-   "level_current": true,
-   "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
-    "l5": false,
-    "score": null
-   },
-   "next": [
     "translated whole (7 holes left)"
    ],
    "options": {
@@ -10780,7 +10737,7 @@
     ],
     "hole_count": 7,
     "holes": [
-     "EXEC EXEC CICS: WsRec: no key"
+     "EXEC EXEC CICS: WsRec: no key (the generated entity states none: no IDCAMS DEFINE, RECORD KEY or RIDFLD field inside the record names it, and a KSDS key's offset is not guessed)"
     ],
     "refused": null,
     "source_defects": [],
@@ -11137,8 +11094,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 0712a98114140473d4b14442f973fa403cd68768",
-   "python tests/tools/evidence_report.py cics-crucible --baseline --sha 0712a98114140473d4b14442f973fa403cd68768",
+   "python tests/tools/cics_census.py survey --baseline --sha 0095c320d884c1a6e8a4870ab8746c47997e8cea",
+   "python tests/tools/evidence_report.py cics-crucible --baseline --sha 0095c320d884c1a6e8a4870ab8746c47997e8cea",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
   ],
@@ -11158,21 +11115,21 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "0712a98114140473d4b14442f973fa403cd68768",
+   "sha": "0095c320d884c1a6e8a4870ab8746c47997e8cea",
    "translator": {
-    "files": 156,
-    "sha256": "b3cb69320d97f2080c5f90a876598cd7af769c7e82ff7763da09813f40277bbd"
+    "files": 161,
+    "sha256": "ca8afa03b44523070ed37b60b01715eb1e97d13fcf8360635400312e6651d2d4"
    }
   },
-  "translator_commit": "0712a98114140473d4b14442f973fa403cd68768",
+  "translator_commit": "0095c320d884c1a6e8a4870ab8746c47997e8cea",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
   "cics_programs": 0,
   "det_equal": 0,
   "histogram": {
-   "L0": 12,
-   "L1": 68,
+   "L0": 6,
+   "L1": 74,
    "L2": 0,
    "L3": 0,
    "L4": 0,
@@ -11194,19 +11151,19 @@
    "L4": 0,
    "L5": 0
   },
-  "holes": 34,
+  "holes": 17,
   "levels_stale": 0,
   "levels_stale_survey": 0,
   "programs": 80,
   "records_current": 0,
   "refused_whole": 0,
   "source_unread": 80,
-  "translated_whole": 68,
+  "translated_whole": 74,
   "with_case": 0,
   "with_record": 0
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "b3cb69320d97f2080c5f90a876598cd7af769c7e82ff7763da09813f40277bbd"
+  "fingerprint": "ca8afa03b44523070ed37b60b01715eb1e97d13fcf8360635400312e6651d2d4"
  }
 }

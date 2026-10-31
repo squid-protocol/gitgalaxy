@@ -4,9 +4,9 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `0712a98114140473d4b14442f973fa403cd68768` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `0095c320d884c1a6e8a4870ab8746c47997e8cea` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
-The translation survey matches the translator in the tree (translator fingerprint `b3cb69320d97`).
+The translation survey matches the translator in the tree (translator fingerprint `ca8afa03b445`).
 
 ## How to read this report
 
@@ -122,9 +122,8 @@ From `tests/equivalence/estate_options/cics-async-api-credit-card-application-ex
 - **Assumptions relied on:** named by its commands' spec entries: X15 (ASSUMED (REFUSED where IBM is silent)), X17 (ASSUMED (REFUSED where IBM is silent)), X18 (ASSUMED (REFUSED where IBM is silent)), X19 (ASSUMED (REFUSED where the harness cannot decide)), X20 (MATCHED (REFUSED where the region cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
   - z/OS-calibrated: 0 of 6 named assumptions (none measured on z/OS)
   - runtime facts the harness states for its commands: facility, screen, startcode, userid
-  - runtime fact no harness states: ASSIGN STARTCODE (no equivalence case states it)
 - **Det-port mutation:** stale (port moved), last measured: raw 100% (1992/1992 caught; 2042 of 2042 mutants, seed 0); every survivor accounted for (0)
-- **Residual risk:** 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X15, X17, X18, X19, X27; commands without oracle backing: FETCH CHILD, GET CONTAINER, PUT CONTAINER, RUN; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** ASSUMED / DIFFERS entries named: X15, X17, X18, X19, X27; commands without oracle backing: FETCH CHILD, GET CONTAINER, PUT CONTAINER, RUN; assumption reach and the migration dimensions above: not measured
 
 ### src/CRDTCHK.cbl -- L4
 
@@ -342,9 +341,8 @@ From `tests/equivalence/estate_options/cics-async-api-credit-card-application-ex
 - **Assumptions relied on:** named by its commands' spec entries: X15 (ASSUMED (REFUSED where IBM is silent)), X17 (ASSUMED (REFUSED where IBM is silent)), X19 (ASSUMED (REFUSED where the harness cannot decide)), X20 (MATCHED (REFUSED where the region cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
   - z/OS-calibrated: 0 of 5 named assumptions (none measured on z/OS)
   - runtime facts the harness states for its commands: facility, screen, startcode, userid
-  - runtime fact no harness states: ASSIGN STARTCODE (no equivalence case states it)
 - **Det-port mutation:** stale (port moved), last measured: raw 100% (1839/1839 caught; 1889 of 1889 mutants, seed 0); every survivor accounted for (0)
-- **Residual risk:** 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X15, X17, X19, X27; commands without oracle backing: GET CONTAINER, PUT CONTAINER; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** ASSUMED / DIFFERS entries named: X15, X17, X19, X27; commands without oracle backing: GET CONTAINER, PUT CONTAINER; assumption reach and the migration dimensions above: not measured
 
 ### src/UPDCSDB.cbl -- L4
 
@@ -389,7 +387,7 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `0712a98114140473d4b14442f973fa403cd68768`
+- translator commit (the survey's): `0095c320d884c1a6e8a4870ab8746c47997e8cea`
 - corpus pin: `cics-async-api-credit-card-application-example` at `c32c52fcfd8d587b352f67959a5dfb0d11dbd8bb`
 - crucible pins: cics `v0.10.0`, estate `v0.5.0`, language `v1.7.0`; cics crucible baseline measured at `v0.10.0 (01e11fe6)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
@@ -399,8 +397,8 @@ From the spec entries of the commands the programs use, with the register's stat
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 0712a98114140473d4b14442f973fa403cd68768
-python tests/tools/evidence_report.py cics-async-api-credit-card-application-example --baseline --sha 0712a98114140473d4b14442f973fa403cd68768
+python tests/tools/cics_census.py survey --baseline --sha 0095c320d884c1a6e8a4870ab8746c47997e8cea
+python tests/tools/evidence_report.py cics-async-api-credit-card-application-example --baseline --sha 0095c320d884c1a6e8a4870ab8746c47997e8cea
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases asynccc-asyncpnt,asynccc-crdtchk,asynccc-csstats2,asynccc-csstatus,asynccc-getaddr,asynccc-getname,asynccc-getpol,asynccc-getspnd,asynccc-seqpnt,asynccc-updcsdb
 python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin

@@ -4295,8 +4295,9 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   before it writes is outside the proof. Options are taken in the order EIB, COMMAREA, CWA, TWA, TCTUA. **The stub models it too** (slice 2b):
   `GGCADDR` returns one zero-filled block of `GGCICS_WRKAREA` bytes (the harness passes the case's `wrkarea`); the CWA is the region's, so its
   bytes are kept in a file beside the scenario's temporary-storage directory (`GGCICS_CWA`), read back at the first use and written at exit, and
-  every task sees what the last wrote. No stated size is the pointer `0xFF` (X'FF000000' through a `PIC X(4)` view). No crucible case issues it
-  yet, so no `cobol-stub` cell proves it (a cics-crucible case is the companion). No burned estate program issues it.
+  every task sees what the last wrote. No stated size is the pointer `0xFF` (X'FF000000' through a `PIC X(4)` view). The crucible case `commarea-mismatch/ca-address-cwa` (cics-crucible#47, `wrkarea` 32; scenarios
+  `cwa-shared`, `cwa-two-tasks`) issues it and its `cobol-stub` cells pass; it is not in the pinned ref until the next tag, and its `java`
+  cells fail as the TWA case's do (the forge's stub, not a port). A stated size is crucible-proven; no size, or 0, is this entry's decision only. No burned estate program issues it.
 - **Assumed.** (1) The EIB the pointer addresses is the task's own, updated by every later command as the program's DFHEIBLK is. (2) The
   COMMAREA the pointer addresses is the program's DFHCOMMAREA (the area the caller passed, X23), at its start. (3) The command raises no condition
   (the page lists none).

@@ -2200,6 +2200,9 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   logs INVREQ RESP2 2 and returns, the runner copies the file to the next terminal task's `channel.cfg`, and the
   task driver's `GGCCHIN` makes it that task's current channel. The cobol-stub cells of pc-return-channel
   (carry / modify / link-level2) pass.
+  Census 2026-10-31 (`cics_census.py usage "RETURN CHANNEL" --no-census`): 0 COBOL and 0 PL/I programs in the burned and local
+  corpora use it, so no estate needs the refused forms (CHANNEL beside COMMAREA / LENGTH / IMMEDIATE, or without TRANSID);
+  they stay refused by name, a settled refusal (`tests/core_engine/test_cics_spec.py`, `test_det_translate.py`).
 - **Assumed.** A container holds the program's bytes. A BIT container is never converted; a CHAR one put and got
   with no CCSID option is in the region's CCSID both ways, so it is not converted either -- the port keeps the bytes
   in its storage's page and the stub in its own, as each side keeps every other area.

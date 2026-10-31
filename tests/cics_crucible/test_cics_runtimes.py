@@ -4229,6 +4229,89 @@ def test_the_stub_web_send(tmp_path):
     assert unstated.returncode == 98 and "HTTP request is not stated" in unstated.stdout
 
 
+_X37_BLOCK_MAIN = r"""
+#include <stdio.h>
+#include <string.h>
+typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
+                 char qname[16]; int item; int num; int go_to; char chan[16]; int hours, mins, secs;
+                 char rtran[4], rterm[4], rqueue[8]; } gg_cics;
+int GGCGETM(gg_cics *c, void **slot, char *img, int imglen);
+int GGCFREM(gg_cics *c, void **slot);
+int GGCWSND(gg_cics *c, char *from, int fromcap, char *media, int mediacap, char *stext, int stextcap);
+int GGCWCNV(gg_cics *c, char *token, char *path, int pathcap, char *query, int querycap, char *from, int fromcap,
+            char *media, int mediacap, char *into, int intocap, char *stext, int stextcap);
+static gg_cics c;
+static char flat[64000];
+static void put(char *dst, int n, const char *what) { memset(dst, ' ', n); memcpy(dst, what, strlen(what)); }
+/* argv: verb (send | conv) where (block | mid | none | freed) offset fromlength [declared area, default 32000] */
+int main(int argc, char **argv) {
+    void *blk = NULL;
+    char media[56], stext[20], into[40], tok[8], img = ' ';
+    char *from;
+    int off = atoi(argv[3]), fl = atoi(argv[4]), cap = argc > 5 ? atoi(argv[5]) : 32000;
+    c.num = 64000;
+    GGCGETM(&c, &blk, &img, 1);
+    if (strcmp(argv[2], "freed") == 0) GGCFREM(&c, &blk);
+    from = strcmp(argv[2], "none") == 0 ? flat : (char *)blk + off;
+    put(media, 56, "text/plain");
+    memset(stext, ' ', sizeof stext);
+    memset(tok, 'Z', 8);
+    if (strcmp(argv[1], "send") == 0) {
+        c.len = fl; c.hours = -1; c.num = -1; c.item = 0; c.mins = 0; put(c.flags, 40, "MEDIA");
+        GGCWSND(&c, from, cap, media, 56, stext, 20);
+    } else { /* the session is not open: NOTOPEN, once every length is checked against its area */
+        c.num = 636; c.len = 100; c.item = -1; c.hours = 0; c.mins = 0; c.secs = fl;
+        put(c.flags, 40, "FROM MEDIA");
+        GGCWCNV(&c, tok, from, 64, from, 64, from, cap, media, 56, into, 40, stext, 20);
+    }
+    printf("%d/%d\n", c.resp, c.resp2);
+    return 0;
+}
+"""
+# (verb, where, offset, FROMLENGTH, declared area): None = the stub answers, else what it refuses with
+_X37_BLOCK_CASES = [
+    ("send", "block", 0, 32004, 32000, None),  # #6839: the record is SET onto a 64000 block: sent from the block
+    ("send", "block", 0, 64000, 32000, None),  # to the block's end
+    ("send", "block", 0, 64001, 32000, "WEB SEND length beyond its area"),  # not past it
+    ("send", "mid", 60000, 4000, 100, None),  # a pointer into the middle has the rest of the block
+    ("send", "mid", 60000, 4001, 100, "WEB SEND length beyond its area"),
+    ("send", "none", 0, 32004, 32000, "WEB SEND length beyond its area"),  # no block: the declared area
+    ("send", "freed", 0, 32004, 32000, "WEB SEND length beyond its area"),  # a block FREEMAINed is no area
+    ("conv", "block", 0, 32004, 32000, None),
+    ("conv", "block", 0, 64001, 32000, "WEB CONVERSE length beyond its area"),
+    ("conv", "none", 0, 32004, 32000, "WEB CONVERSE length beyond its area"),
+    ("conv", "freed", 0, 32004, 32000, "WEB CONVERSE length beyond its area"),
+]
+
+
+@pytest.mark.parametrize(("verb", "where", "off", "fl", "cap", "why"), _X37_BLOCK_CASES)
+def test_the_stub_web_length_may_reach_the_pointed_block(tmp_path, verb, where, off, fl, cap, why):
+    """#6839 (X37), IBM WEB SEND / WEB CONVERSE: FROM is read from the address for FROMLENGTH bytes, so a record SET onto a larger
+    GETMAIN block may carry a length past its declared area, up to the block's end; with no live block under it the declared
+    area bounds the length, and a length past the block is refused."""
+    exe = _stub(tmp_path, _X37_BLOCK_MAIN)
+    req = tmp_path / "webreq.cfg"
+    req.write_text("R HTTP 7A656373 80 PUT 2F6B -\n", encoding="ascii")
+    http = tmp_path / "http.cfg"
+    http.write_text("", encoding="ascii")
+    out = tmp_path / "out"
+    out.mkdir()
+    env = {
+        **_stub_base_env(),
+        "GGCICS_DIR": str(tmp_path),
+        "GGCICS_OUT": str(out),
+        "GGCICS_WEBREQ": str(req),
+        "GGCICS_HTTP": str(http),
+    }
+    run = subprocess.run(  # noqa: S603
+        [str(exe), verb, where, str(off), str(fl), str(cap)], env=env, capture_output=True, text=True, check=False
+    )
+    if why is None:
+        assert run.returncode == 0 and run.stdout.splitlines() == ["0/0" if verb == "send" else "19/27"], run.stdout
+    else:
+        assert run.returncode == 98 and why in run.stdout, (run.returncode, run.stdout)
+
+
 def _x37_java(steps: list[str]) -> str:
     lines = []
     for st in steps:

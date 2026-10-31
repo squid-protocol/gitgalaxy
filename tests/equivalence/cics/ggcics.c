@@ -255,6 +255,7 @@ static void blk_invalidate_prefix(const char *prefix);
 static int blk_held(const char *key);
 static void *blk_set_new(const char *key, const void *data, size_t n, int sync);
 static void blk_invalidate_sync(void);
+static size_t blk_room(const void *p); /* #6839: bytes from p to the end of the live task-storage block holding it, else 0 */
 static void file_set_end(const char *kind, const char *file) {
     char key[96];
     snprintf(key, sizeof key, "%s %s", kind, file);
@@ -2206,6 +2207,17 @@ static void *blk_new(size_t n, int kind) {
     blks[nblks].key[0] = '\0';
     nblks++;
     return p;
+}
+
+/* #6839: the bytes from `p` to the end of the live GETMAIN / received block that holds it (0: no block does). A WEB command reads
+ * its FROM / PATH / QUERY from the address, so a record SET onto a larger block may carry a length past its declared area (IBM). */
+static size_t blk_room(const void *p) {
+    for (int i = 0; i < nblks; i++) {
+        if (blks[i].kind != BLK_FREED && (const char *)p >= (const char *)blks[i].p
+            && (const char *)p < (const char *)blks[i].p + blks[i].n)
+            return (size_t)((const char *)blks[i].p + blks[i].n - (const char *)p);
+    }
+    return 0;
 }
 
 /* #5042 (register X58): ends the validity of the SET(ptr) blocks of `key`. IBM says only that the pointer is then "no longer

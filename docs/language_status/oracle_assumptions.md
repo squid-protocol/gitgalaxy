@@ -5732,7 +5732,8 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   models commit at the task's normal end before the queues it leaves are compared (the `MQ-QUEUES` event).
 - **Assumed.** That the task's normal end is a commit for every program, as CICS documents for a task ending with
   RETURN; a SYNCPOINT ROLLBACK after a SYNCPOINT stays refused by CicsTask as before.
-- **Not modelled (refused).** MQCMIT, MQBACK, MQBEGIN (an MQ unit of work of its own), MQGMO_SYNCPOINT_IF_PERSISTENT,
+- **Not modelled (refused).** MQCMIT, MQBACK, MQBEGIN (an MQ unit of work of its own; no burned source names one, pinned by
+  `test_no_burned_program_names_an_mq_unit_of_work_call`, #5259, so there is nothing burned to prove), MQGMO_SYNCPOINT_IF_PERSISTENT,
   MQGMO_MARK_SKIP_BACKOUT, backout thresholds and requeueing.
 
 - **IBM (document).** IBM MQ Application Programming Guide, using MQ in a CICS program (the MQ unit of work is the

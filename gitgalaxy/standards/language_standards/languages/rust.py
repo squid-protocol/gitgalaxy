@@ -13,7 +13,13 @@ from typing import Any
 from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: compiled on first use
 from gitgalaxy.standards.language_standards.identifiers import CAPITAL, ID_CONTINUE, ID_START
 
-from .._shared_patterns import CALLS_OUT_RUST, COMMENTED_STATEMENT_C_FAMILY, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import (
+    CALLS_OUT_RUST,
+    COMMENTED_STATEMENT_C_FAMILY,
+    GLOBAL_FRAGILE_DEBT,
+    GLOBAL_PLANNED_DEBT,
+    commented_keyword_statement,
+)
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -243,7 +249,7 @@ DEFINITION: dict[str, Any] = {
         # commented-out function/struct (`/* fn foo() {} */`) was
         # invisible.
         "dead_code": re.compile(
-            r"(?://|/\*)[ \t]*(?:fn|let|struct|impl|mod|use|match|for|while|loop|if|return)\b"
+            commented_keyword_statement("fn|let|struct|impl|mod|use|match|for|while|loop|if|return")
             + r"|"
             + COMMENTED_STATEMENT_C_FAMILY
         ),

@@ -357,6 +357,79 @@ _WEB_SERVICE_DDL = """
         """
 
 
+# #3454: program entry points -- PROCEDURE DIVISION [USING ...] and ENTRY 'X' [USING ...] (call_using.py): the
+# parameters a CALL's USING list pairs with. kind PROCEDURE | ENTRY; entry_name the ENTRY literal; params comma-joined
+# by position (BY VALUE / CONTENT prefixed).
+_ENTRY_POINT_DDL = """
+            CREATE TABLE IF NOT EXISTS entry_point_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                kind TEXT,
+                entry_name TEXT,
+                params TEXT,
+                line_number INTEGER,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """
+
+
+# #3450: IMS DL/I calls (core/dli_calls.py), operands as written. interface EXEC (EXEC DLI) | CALL (CALL 'CBLTDLI' /
+# 'AIBTDLI'); function the EXEC command (GU / GN / ISRT / SCHD ...), NULL on a CALL, whose code lives in
+# function_operand's VALUE; pcb / io_area PCB(...) / INTO|FROM, or a CALL's 2nd / 3rd argument; segments / where_text
+# EXEC SEGMENT(...)s (comma) / WHERE(...)s (`;`); ssas a CALL's SSA arguments (comma); psb SCHD PSB(...).
+_DLI_CALL_DDL = """
+            CREATE TABLE IF NOT EXISTS dli_call_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                interface TEXT,
+                function TEXT,
+                function_operand TEXT,
+                pcb TEXT,
+                io_area TEXT,
+                segments TEXT,
+                ssas TEXT,
+                where_text TEXT,
+                psb TEXT,
+                line_number INTEGER,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """
+
+
+# #3477: IMS PSB / DBD generation macros and JCL IMS region steps (core/ims_gen.py). kind PSBGEN | PCB | SENSEG | DBD |
+# DATASET | SEGM | FIELD | LCHILD | REGION; name / parent / owner the statement's object, its parent segment, and the
+# PCB (SENSEG) or DBD (SEGM / FIELD / LCHILD) it belongs to; dbd_name / procopt / pcb_type a PCB's DBDNAME / PROCOPT /
+# TYPE; access a DBD's ACCESS, a FIELD's SEQ, a REGION's type (DLI / BMP ...); psb_name / program a REGION's PSB and
+# program (DFSRRC00 PARM).
+_IMS_GEN_DDL = """
+            CREATE TABLE IF NOT EXISTS ims_gen_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                kind TEXT,
+                name TEXT,
+                parent TEXT,
+                owner TEXT,
+                dbd_name TEXT,
+                procopt TEXT,
+                pcb_type TEXT,
+                access TEXT,
+                bytes INTEGER,
+                start_pos INTEGER,
+                psb_name TEXT,
+                program TEXT,
+                attributes TEXT,
+                line_number INTEGER,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """
+
+
 # #4457: the COPY ... REPLACING statements no record_data entry carries (a COPY after a section header / FD,
 # or before a section's first entry): one row per statement, `replacing` the JSON [[from, to(, LEADING|TRAILING)], ...]
 # as in record_data.copy_replacing, `after_ordinal` the record_data ordinal of the entry above it (NULL when none).
@@ -1088,6 +1161,152 @@ CHANNELS = (
         ),
         to_payload=lambda r: {
             **{k: r[k] for k in _WEB_SERVICE_FIELDS},
+            "line": int(r["line"] or 0),
+        },
+    ),
+    # #3454: program entry points -- per-file.
+    FactChannel(
+        name="entry_point",
+        ir_field="entry_points",
+        table="entry_point_data",
+        ddl=_ENTRY_POINT_DDL,
+        indexes=(
+            "CREATE INDEX IF NOT EXISTS idx_entry_point_file_id ON entry_point_data(file_id);",
+            "CREATE INDEX IF NOT EXISTS idx_entry_point_snapshot ON entry_point_data(repo_name, commit_hash);",
+        ),
+        payload_key="entry_points",
+        columns=("kind", "entry_name", "params", "line_number"),
+        to_row=lambda e: (e.get("kind"), e.get("entry_name"), e.get("params"), int(e.get("line", 0) or 0)),
+        restore_select=(
+            'SELECT fd.file_path AS _fp, ep.kind, ep.entry_name, ep.params, ep.line_number AS "line" '
+            "FROM entry_point_data ep JOIN file_data fd ON ep.file_id = fd.id "
+            "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY ep.id"
+        ),
+        to_payload=lambda r: {
+            "kind": r["kind"],
+            "entry_name": r["entry_name"],
+            "params": r["params"],
+            "line": int(r["line"] or 0),
+        },
+    ),
+    # #3450: IMS DL/I calls -- per-file; where_text is aliased back to the payload key "where".
+    FactChannel(
+        name="dli_call",
+        ir_field="dli_calls",
+        table="dli_call_data",
+        ddl=_DLI_CALL_DDL,
+        indexes=(
+            "CREATE INDEX IF NOT EXISTS idx_dli_call_file_id ON dli_call_data(file_id);",
+            "CREATE INDEX IF NOT EXISTS idx_dli_call_snapshot ON dli_call_data(repo_name, commit_hash);",
+        ),
+        payload_key="dli_calls",
+        columns=(
+            "interface",
+            "function",
+            "function_operand",
+            "pcb",
+            "io_area",
+            "segments",
+            "ssas",
+            "where_text",
+            "psb",
+            "line_number",
+        ),
+        to_row=lambda d: (
+            d.get("interface"),
+            d.get("function"),
+            d.get("function_operand"),
+            d.get("pcb"),
+            d.get("io_area"),
+            d.get("segments"),
+            d.get("ssas"),
+            d.get("where"),
+            d.get("psb"),
+            int(d.get("line", 0) or 0),
+        ),
+        restore_select=(
+            "SELECT fd.file_path AS _fp, dc.interface, dc.function, dc.function_operand, dc.pcb, dc.io_area, "
+            'dc.segments, dc.ssas, dc.where_text AS "where", dc.psb, dc.line_number AS "line" '
+            "FROM dli_call_data dc JOIN file_data fd ON dc.file_id = fd.id "
+            "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY dc.id"
+        ),
+        to_payload=lambda r: {
+            "interface": r["interface"],
+            "function": r["function"],
+            "function_operand": r["function_operand"],
+            "pcb": r["pcb"],
+            "io_area": r["io_area"],
+            "segments": r["segments"],
+            "ssas": r["ssas"],
+            "where": r["where"],
+            "psb": r["psb"],
+            "line": int(r["line"] or 0),
+        },
+    ),
+    # #3477: IMS PSB / DBD macros and region steps -- per-file; start_pos is aliased back to the payload key "start".
+    FactChannel(
+        name="ims_gen",
+        ir_field="ims_gen",
+        table="ims_gen_data",
+        ddl=_IMS_GEN_DDL,
+        indexes=(
+            "CREATE INDEX IF NOT EXISTS idx_ims_gen_file_id ON ims_gen_data(file_id);",
+            "CREATE INDEX IF NOT EXISTS idx_ims_gen_snapshot ON ims_gen_data(repo_name, commit_hash);",
+        ),
+        payload_key="ims_gen",
+        columns=(
+            "kind",
+            "name",
+            "parent",
+            "owner",
+            "dbd_name",
+            "procopt",
+            "pcb_type",
+            "access",
+            "bytes",
+            "start_pos",
+            "psb_name",
+            "program",
+            "attributes",
+            "line_number",
+        ),
+        to_row=lambda g: (
+            g.get("kind"),
+            g.get("name"),
+            g.get("parent"),
+            g.get("owner"),
+            g.get("dbd_name"),
+            g.get("procopt"),
+            g.get("pcb_type"),
+            g.get("access"),
+            int(g["bytes"]) if g.get("bytes") is not None else None,
+            int(g["start"]) if g.get("start") is not None else None,
+            g.get("psb_name"),
+            g.get("program"),
+            g.get("attributes"),
+            int(g.get("line", 0) or 0),
+        ),
+        restore_select=(
+            "SELECT fd.file_path AS _fp, ig.kind, ig.name, ig.parent, ig.owner, ig.dbd_name, ig.procopt, ig.pcb_type, "
+            'ig.access, ig.bytes, ig.start_pos AS "start", ig.psb_name, ig.program, ig.attributes, '
+            'ig.line_number AS "line" '
+            "FROM ims_gen_data ig JOIN file_data fd ON ig.file_id = fd.id "
+            "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY ig.id"
+        ),
+        to_payload=lambda r: {
+            "kind": r["kind"],
+            "name": r["name"],
+            "parent": r["parent"],
+            "owner": r["owner"],
+            "dbd_name": r["dbd_name"],
+            "procopt": r["procopt"],
+            "pcb_type": r["pcb_type"],
+            "access": r["access"],
+            "bytes": int(r["bytes"]) if r["bytes"] is not None else None,
+            "start": int(r["start"]) if r["start"] is not None else None,
+            "psb_name": r["psb_name"],
+            "program": r["program"],
+            "attributes": r["attributes"],
             "line": int(r["line"] or 0),
         },
     ),

@@ -208,3 +208,16 @@ def test_the_stub_moves_a_pointer_inside_its_block(tmp_path, steps, want):
 def test_the_stub_refuses_pointer_arithmetic_outside_a_live_block(tmp_path, steps, why):
     run = run_stub(tmp_path, *steps)
     assert run.returncode == 98 and why in run.stdout and "not modelled" in run.stdout, (run.returncode, run.stdout)
+
+
+def test_a_view_name_is_not_found_inside_a_longer_hyphenated_name():
+    """INQACC declares WS-POINTER-NUMBER (never used) beside WS-POINTER-NUMBER-DISPLAY: the sibling is no use of the view."""
+    text = prog(
+        "           02  WS-POINTER USAGE POINTER.",
+        "           02  WS-POINTER-NUMBER REDEFINES WS-POINTER PIC 9(8) BINARY.",
+        "           02  WS-POINTER-NUMBER-DISPLAY PIC 9(8) DISPLAY.",
+        body=("MOVE 1 TO WS-POINTER-NUMBER-DISPLAY.",),
+    )
+    out = P.lower(text)
+    assert "WS-POINTER-NUMBER-DISPLAY" in out and "lowered (register X47)" in out
+    assert not re.search(r"REDEFINES WS-POINTER ", code(out))

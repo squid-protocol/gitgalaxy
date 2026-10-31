@@ -369,6 +369,88 @@ def test_the_special_names_and_compiler_options_channels_round_trip_every_payloa
     assert node["compiler_options"] == options
 
 
+def test_the_entry_point_dli_call_and_ims_gen_channels_round_trip_every_payload_key(tmp_path):
+    entries = [
+        {"kind": "PROCEDURE", "entry_name": None, "params": "A,B", "line": 4},
+        {"kind": "ENTRY", "entry_name": "ALT", "params": None, "line": 90},
+    ]
+    dli = [
+        {
+            "interface": "EXEC",
+            "function": "GU",
+            "function_operand": None,
+            "pcb": "PCB1",
+            "io_area": "IO",
+            "segments": "S1,S2",
+            "ssas": None,
+            "where": "K = 1;K = 2",
+            "psb": "PSB1",
+            "line": 12,
+        },
+        {
+            "interface": "CALL",
+            "function": None,
+            "function_operand": "FUNC",
+            "pcb": "P",
+            "io_area": "IO",
+            "segments": None,
+            "ssas": "SSA1",
+            "where": None,
+            "psb": None,
+            "line": 0,
+        },
+    ]
+    gen = [
+        {
+            "kind": "FIELD",
+            "name": "F",
+            "parent": "SEG",
+            "owner": "DBD1",
+            "dbd_name": None,
+            "procopt": None,
+            "pcb_type": None,
+            "access": "SEQ",
+            "bytes": 8,
+            "start": 1,
+            "psb_name": None,
+            "program": None,
+            "attributes": None,
+            "line": 3,
+        },
+        {
+            "kind": "REGION",
+            "name": None,
+            "parent": None,
+            "owner": None,
+            "dbd_name": None,
+            "procopt": None,
+            "pcb_type": None,
+            "access": "BMP",
+            "bytes": None,
+            "start": None,
+            "psb_name": "PSB1",
+            "program": "PGM",
+            "attributes": "x",
+            "line": 0,
+        },
+    ]
+    files = [
+        {
+            "path": "p.cbl",
+            "lang_id": "cobol",
+            "raw_imports": [],
+            "entry_points": entries,
+            "dli_calls": dli,
+            "ims_gen": gen,
+        }
+    ]
+    db = _record(tmp_path, files)
+    node = StateRehydrator(str(db)).load_state("RegistryRepo")["ram_cache"]["p.cbl"]
+    assert node["entry_points"] == entries
+    assert node["dli_calls"] == dli
+    assert node["ims_gen"] == gen
+
+
 def test_a_baseline_without_the_refmod_texts_restores_them_as_null():
     conn = sqlite3.connect(":memory:")
     conn.row_factory = sqlite3.Row
@@ -442,9 +524,6 @@ _GALAXY_IR = Path(__file__).resolve().parents[2] / "gitgalaxy" / "tools" / "cobo
 # slices). A table leaves this set when its channel is migrated; a new channel is never added here.
 _UNMIGRATED_IR_TABLES = frozenset(
     {
-        "ims_gen_data",
-        "dli_call_data",
-        "entry_point_data",
         "job_flow_data",
         "file_control_data",
         "vsam_define_data",

@@ -39,6 +39,7 @@ import equivalence_cics_conditions as cics_conditions  # #5274: the conditions /
 import equivalence_cics_containers as cics_containers  # #5274: the channels / containers family
 import equivalence_cics_faults as cics_faults  # #5274: the fault-injection planner
 import equivalence_cics_filecontrol as cics_filecontrol  # #5274: the file control family
+import equivalence_cics_pointer  # #6839 (X47): the oracle lowering of a POINTER numeric view
 import equivalence_cics_taskcontrol as cics_taskcontrol  # #5274: the task / interval control family
 import equivalence_cics_tempstorage as cics_tempstorage  # #5274: the temporary storage family
 import equivalence_cics_web as cics_web  # #5274: the web / HTTP / TCP/IP family
@@ -2516,6 +2517,10 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         for t in db2.get("compare", []):
             names = equivalence_db2.columns(t)
             dumps.append((t, equivalence_db2.dump_query(t, names), names))
+    try:  # #6839 (X47): a POINTER's numeric view is address arithmetic on the pointer, not a number in half of it
+        source = equivalence_cics_pointer.lower(source)
+    except equivalence_cics_pointer.Unsupported as e:
+        raise Unsupported(str(e), ["POINTER numeric view"]) from e
     text, has_commarea = translate(source, [src])
     (src / "PROGRAM.cbl").write_text(text, encoding=staged)
     (src / "EQCICSDR.cbl").write_text(cics_driver(case["program"], has_commarea), encoding="ascii")

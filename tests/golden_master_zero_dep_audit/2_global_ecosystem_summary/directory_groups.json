@@ -815,7 +815,7 @@
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 49.73,
-        "tech_debt": 39.72,
+        "tech_debt": 2.7,
         "verification": 2.34
       },
       "file_count": 50,
@@ -853,7 +853,7 @@
         "spec_match": 0.0,
         "stability": 48.0,
         "state_flux": 38.98,
-        "tech_debt": 3.15,
+        "tech_debt": 1.24,
         "verification": 19.84
       },
       "file_count": 75,
@@ -899,7 +899,7 @@
     },
     "cobol/che-che4z_lsp_project_fixtures": {
       "avg_exposures": {
-        "api_exposure": 0.56,
+        "api_exposure": 0.24,
         "churn": 0.0,
         "cognitive_load": 5.34,
         "concurrency": 0.0,
@@ -910,11 +910,11 @@
         "spec_match": 0.0,
         "stability": 49.29,
         "state_flux": 31.89,
-        "tech_debt": 27.64,
+        "tech_debt": 11.34,
         "verification": 1.7
       },
       "file_count": 70,
-      "total_mass": 802.33
+      "total_mass": 801.33
     },
     "cobol/che-che4z_nist_ccvs85": {
       "avg_exposures": {
@@ -929,7 +929,7 @@
         "spec_match": 0.0,
         "stability": 49.67,
         "state_flux": 83.01,
-        "tech_debt": 95.41,
+        "tech_debt": 88.93,
         "verification": 57.37
       },
       "file_count": 151,
@@ -937,7 +937,7 @@
     },
     "cobol/cics-banking-sample-application-cbsa": {
       "avg_exposures": {
-        "api_exposure": 9.56,
+        "api_exposure": 8.6,
         "churn": 0.0,
         "cognitive_load": 37.85,
         "concurrency": 7.15,
@@ -948,11 +948,11 @@
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 41.4,
-        "tech_debt": 15.33,
+        "tech_debt": 12.17,
         "verification": 22.32
       },
       "file_count": 66,
-      "total_mass": 9728.37
+      "total_mass": 9704.37
     },
     "cobol/cics-genapp": {
       "avg_exposures": {
@@ -967,7 +967,7 @@
         "spec_match": 0.0,
         "stability": 48.89,
         "state_flux": 66.98,
-        "tech_debt": 20.01,
+        "tech_debt": 10.51,
         "verification": 5.47
       },
       "file_count": 45,
@@ -986,7 +986,7 @@
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 87.77,
-        "tech_debt": 40.3,
+        "tech_debt": 13.37,
         "verification": 2.35
       },
       "file_count": 2,
@@ -1005,7 +1005,7 @@
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 25.82,
-        "tech_debt": 26.41,
+        "tech_debt": 23.14,
         "verification": 2.21
       },
       "file_count": 45,
@@ -1024,7 +1024,7 @@
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 99.14,
-        "tech_debt": 25.32,
+        "tech_debt": 15.99,
         "verification": 2.36
       },
       "file_count": 7,
@@ -1062,7 +1062,7 @@
         "spec_match": 0.0,
         "stability": 44.44,
         "state_flux": 33.16,
-        "tech_debt": 2.04,
+        "tech_debt": 0.0,
         "verification": 2.06
       },
       "file_count": 9,
@@ -1119,7 +1119,7 @@
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 25.0,
-        "tech_debt": 3.54,
+        "tech_debt": 1.06,
         "verification": 12.03
       },
       "file_count": 8,

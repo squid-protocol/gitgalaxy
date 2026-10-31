@@ -499,6 +499,27 @@ def test_dfhjct_dsname_is_lifted_as_an_assumed_operand():
     assert row["dsname"] is None
 
 
+@pytest.mark.parametrize("jtype", ["TAPE1", "TAPE2", "DISK1", "DISK2", "SMF", "TAPE"])
+def test_dfhjct_jtype_never_decides_the_row(jtype):
+    """JTYPE= is listed as {TAPE1|TAPE2|DISK1|DISK2|SMF} [VSE Table 41 p.270-272]; the journal is named by JFILEID alone.
+
+    A word outside that list (`TAPE`) still yields the row (ASSUMED: the manual is silent on what it means); JTYPE,
+    BUFSIZE and JOUROPT are kept verbatim in `attributes`.
+    """
+    (row,) = _rows(f"         DFHJCT TYPE=ENTRY,JFILEID=4,JTYPE={jtype},BUFSIZE=40,JOUROPT=P\n")
+    assert (row["resource_type"], row["name"]) == ("JOURNAL", "4")
+    assert all(f in row["attributes"] for f in (f"JTYPE={jtype}", "BUFSIZE=40", "JOUROPT=P"))
+
+
+def test_dfhjct_repeated_journal_is_not_folded():
+    """Unlike DFHSRT (#7211) no JCT rule folds a repeated JFILEID: `01` and `1` stay two rows, in source order.
+
+    Pinned as current behavior; IBM's Table 41 does not say what a repeated entry means (left open, #5154).
+    """
+    src = "".join(f"         DFHJCT TYPE=ENTRY,JFILEID={j}\n" for j in ("01", "1", "SYSTEM", "SYSTEM"))
+    assert _named(src, "JOURNAL") == ["01", "1", "SYSTEM", "SYSTEM"]
+
+
 def test_dfhjct_suffix_names_the_table_and_assembled_in_jcl():
     src = "         DFHJCT TYPE=INITIAL,SUFFIX=A1\n         DFHJCT TYPE=ENTRY,JFILEID=SYSTEM\n"
     (row,) = _rows(src)
@@ -764,6 +785,24 @@ def test_a_jcl_job_keeps_its_csd_resources_beside_assembled_tables():
     }
 
 
+def test_a_jct_journal_and_a_csd_journalmodel_are_two_resource_types():
+    """RDO JOURNALMODEL (SC33-1684-30 ch.16) is a different resource from a JCT `JFILEID` journal (SC33-1653-05 Table 41).
+
+    Pinned: both are read, each under its own type, so the resource map never merges or conflicts them. A same-named
+    JOURNALMODEL does not stand in for the JCT journal (IBM gives no mapping between them; left open, #5154).
+    """
+    job = (
+        "//J JOB\n//CSD EXEC PGM=DFHCSDUP\n//SYSIN DD *\n"
+        " DEFINE JOURNALMODEL(SYSTEM) GROUP(G) JOURNALNAME(DFHLOG) TYPE(MVS)\n/*\n"
+        "//ASM EXEC PGM=ASMA90\n//SYSIN DD *\n         DFHJCT TYPE=ENTRY,JFILEID=SYSTEM\n/*\n"
+    )
+    rows = extract_boundary("jcl", job)["csd_resources"]
+    assert sorted((r["resource_type"], r["name"], r.get("source")) for r in rows) == [
+        ("JOURNAL", "SYSTEM", "MACRO"),
+        ("JOURNALMODEL", "SYSTEM", None),
+    ]
+
+
 def test_the_new_tables_are_cpu_bounded():
     src = ("         DFHSRT TYPE=SYSTEM,ABCODE=(" + ",".join("0C1" for _ in range(2000)) + "),RECOVER=YES\n") * 50 + (
         "         DFHMCT TYPE=EMP,ID=" + "(" * 3000 + "\n"
@@ -919,3 +958,106 @@ def test_dsncrct_db2conn_db2entry_plan_inheritance_and_group():
         ("DB2CONN", "MYDB2C", "DFHRCT", None),
         ("DB2ENTRY", "TX99", "DFHRCT", "TX99"),
     ]
+
+
+# --- DFHTCT shapes the IBM manuals leave open: pinned, ASSUMED by name (#5154) ----------------------
+
+
+def _tct(*statements: str) -> str:
+    return "".join(f"         DFHTCT {s}\n" for s in statements)
+
+
+def _tct_rows(src: str) -> list[tuple[str, str, str]]:
+    return [(r["resource_type"], r["name"], _rdo(r) if " => " in r["attributes"] else "") for r in _rows(src)]
+
+
+@pytest.mark.parametrize(
+    ("trmidnt", "expected"),
+    [
+        ("T1", "T1"),
+        ("(T1)", "T1"),
+        ("t1", "T1"),  # read as MVS reads a name: upper case
+        (
+            "ABCDEFG",
+            "ABCDEFG",
+        ),  # longer than the 4 characters of a TERMINAL id: kept, ASSUMED (no manual page read states a refusal)
+    ],
+)
+def test_dfhtct_trmidnt_forms_name_the_terminal(trmidnt, expected):
+    assert _named(_tct(f"TYPE=TERMINAL,TRMIDNT={trmidnt}"), "TERMINAL") == [expected]
+
+
+def test_dfhtct_empty_trmidnt_names_no_terminal():
+    assert _rows(_tct("TYPE=TERMINAL,TRMIDNT=", "TYPE=TERMINAL,ACCMETH=VTAM")) == []
+
+
+@pytest.mark.parametrize(
+    ("a", "b"),
+    [
+        ("TYPE=TERMINAL,TRMIDNT=T1", "TYPE=TERMINAL,TRMIDNT=T1"),
+        ("TYPE=TERMINAL,TRMIDNT=T1", "TYPE=TERMINAL,TRMIDNT=t1"),
+        ("TYPE=TERMINAL,TRMIDNT=T1", "TYPE=GPENTRY,TRMIDNT=T1"),
+        ("TYPE=SYSTEM,SYSIDNT=SYSB", "TYPE=SYSTEM,SYSIDNT=SYSB"),
+    ],
+)
+def test_dfhtct_a_repeated_name_is_not_folded(a, b):
+    """IBM is silent on a repeated TRMIDNT / SYSIDNT: each statement is a row (ASSUMED), nothing is merged away."""
+    assert len(_rows(_tct(a, b))) == 2
+
+
+def test_dfhtct_type_remote_ignores_the_region_set_by_type_region():
+    """A TYPE=REMOTE names its own SYSIDNT; the TYPE=REGION context applies to TYPE=TERMINAL only [RDG p.473-474]."""
+    src = _tct(
+        "TYPE=REGION,SYSIDNT=SYSC", "TYPE=REMOTE,TRMIDNT=R1", "TYPE=GPENTRY,TRMIDNT=G1", "TYPE=TERMINAL,TRMIDNT=T1"
+    )
+    assert _tct_rows(src) == [
+        ("TERMINAL", "R1", ""),
+        ("TERMINAL", "G1", ""),
+        ("TERMINAL", "T1", "REMOTESYSTEM(SYSC)"),
+    ]
+
+
+def test_dfhtct_explicit_sysidnt_local_beats_the_region():
+    src = _tct("TYPE=REGION,SYSIDNT=SYSC", "TYPE=TERMINAL,TRMIDNT=T1,SYSIDNT=LOCAL")
+    assert _tct_rows(src) == [("TERMINAL", "T1", "")]
+
+
+@pytest.mark.parametrize(
+    ("accmeth", "expected"),
+    [
+        ("IRC", "ACCESSMETHOD(IRC)"),
+        ("VTAM", "ACCESSMETHOD(VTAM)"),
+        ("INDIRECT", "ACCESSMETHOD(INDIRECT)"),
+        ("(IRC,XM)", "ACCESSMETHOD(XM)"),
+        ("irc", "ACCESSMETHOD(IRC)"),
+        ("BSAM", ""),  # not a connection access method [RDG p.529]: row kept, no restatement
+        ("(IRC,VTAM)", ""),  # a pair the manual does not list
+        (None, ""),
+    ],
+)
+def test_dfhtct_system_accmeth_forms(accmeth, expected):
+    ops = "TYPE=SYSTEM,SYSIDNT=SYSB" + (f",ACCMETH={accmeth}" if accmeth else "")
+    assert _tct_rows(_tct(ops)) == [("CONNECTION", "SYSB", expected)]
+
+
+@pytest.mark.parametrize("ops", ["TYPE=SYSTEM,ACCMETH=IRC", "TYPE=SYSTEM", "SYSIDNT=SYSB", "TYPE=BOGUS,TRMIDNT=T1"])
+def test_dfhtct_unnamed_or_unlisted_shapes_are_refused(ops):
+    assert _rows(_tct(ops)) == []
+
+
+def test_dfhtct_whole_class_reads_the_same_in_a_jcl_sysin():
+    src = _tct(
+        "TYPE=INITIAL,SUFFIX=01,SYSIDNT=HOME",
+        "TYPE=REGION,SYSIDNT=SYSC",
+        "TYPE=TERMINAL,TRMIDNT=T1",
+        "TYPE=GPENTRY,TRMIDNT=G1",
+        "TYPE=SYSTEM,SYSIDNT=SYSB,ACCMETH=IRC",
+        "TYPE=TERMINAL,TRMIDNT=T1",
+    )
+    job = "//J JOB\n//ASM EXEC PGM=ASMA90\n//SYSIN DD *\n" + src + "/*\n"
+    in_jcl = extract_boundary("jcl", job)["csd_resources"]
+    assert [(r["resource_type"], r["name"], r["macro_table"], _rdo(r)) for r in in_jcl] == [
+        (r["resource_type"], r["name"], r["macro_table"], _rdo(r) if " => " in r["attributes"] else "")
+        for r in _rows(src)
+    ]
+    assert len(in_jcl) == 4 and {r["macro_table"] for r in in_jcl} == {"DFHTCT01"}

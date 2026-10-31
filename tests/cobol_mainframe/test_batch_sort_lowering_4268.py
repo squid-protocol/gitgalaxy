@@ -1,7 +1,7 @@
 """#4268: a DFSORT step (PGM=SORT / ICEMAN / DFSORT) whose job states the record length (`DCB=(LRECL=..,RECFM=FB)`,
 the `lrecl` / `recfm` of a job_dds row) is lowered to the COBOL SORT / MERGE program `dfsort.cobol_program` writes
-(proven against GnuCOBOL in test_dfsort_4268.py) and kept as a resource; it is not run until the det port translates
-it, so the step stays a named utility step. What the job does not state, or states unusably, is refused by name."""
+(proven against GnuCOBOL in test_dfsort_4268.py) and kept as a resource; the forge runs its det translation
+(test_batch_sort_run_4268.py). What the job does not state, or states unusably, is refused by name: a named utility step."""
 
 import json
 
@@ -43,9 +43,9 @@ def _step(forge: BatchForge):
 
 
 def _line(forge: BatchForge) -> str:
-    (src,) = forge.sources().values()
+    src = forge.sources()[("base_pkg", "batch")]
     (cfg,) = (t for k, t in src.items() if k.endswith("JobConfig"))
-    (line,) = (ln for ln in cfg.splitlines() if 'steps.utility("SRT"' in ln)
+    (line,) = (ln for ln in cfg.splitlines() if "steps." in ln and '("SRT"' in ln)
     return line.strip()
 
 
@@ -58,14 +58,15 @@ def test_a_step_with_a_stated_lrecl_is_lowered(program, sysin, verb):
     f = _forge(_sort_in(**FB80), sysin, program)
     st = _step(f)
     assert st.refused is None and st.lowered == dfsort.cobol_program(dfsort.parse(sysin), 80, ["SORTIN"], "SORTOUT")
-    assert "lowered to the COBOL SORT / MERGE program" in _line(f) and "80-byte fixed records" in _line(f)
+    assert "80-byte fixed records" in st.lowered_note
+    assert st.sort_service and "steps.program(" in _line(f) and "steps.utility" not in _line(f)
 
 
-def test_the_lowered_program_is_a_resource_and_still_a_utility_step_to_port():
+def test_the_lowered_program_is_a_resource_and_no_longer_a_utility_step_to_port():
     f = _forge(_sort_in(**FB80))
     (path,) = (k for k in f.resources() if k.startswith("batch/sort/"))
     assert f.resources()[path] == _step(f).lowered and path.endswith("-SRT.cbl")
-    assert "1 utility steps to port" in f.audit_line()
+    assert "0 utility steps to port" in f.audit_line()
     assert json.loads(f.resources()["batch/jcl-jobs.json"])  # the job index is still written
 
 

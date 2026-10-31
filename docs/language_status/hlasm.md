@@ -436,6 +436,23 @@ owning language; the Hyperion-class, MS-DOS and NASM trees are not held, so thos
 profiles (`assembly`, `agc_assembly`) bind the same global debt rules and may overcount operand text the same way (not measured).
 No burned-estate program needs any of these.
 
+### Addendum (2026-10-30i, #7064): `assembly` / `agc_assembly` debt sibling measured; probe item closed
+
+**Measured** on the language-crucible assembly corpus (227 `assembly` files, 10 `agc_assembly`; a scratch scan, nothing committed).
+`agc_assembly` reads 0 / 0 (`planned_debt` / `fragile_debt`): nothing to fix. `assembly` read 102 / 7. The comment-line hits are
+legitimate (`; TODO`, `/* XXX ... */`, prose "stub" in a `//` block). The false positive is a directive: one file (`ape.S`) defines a `.stub`
+macro and uses it about 47 times, each counted as planned debt. Unlike hlasm, a line anchor is wrong here: a trailing `; TODO` after an
+instruction is a real comment in this dialect family, so the fix is narrower, a marker preceded by `.` (a directive name) does not count.
+
+**After:** `assembly` 55 / 7, `ape.S` 52 -> 5. Pinned in `test_assembly_strict.py` (comment forms in `;`, `#`, `//`, `/* */`, `@`; directive
+names `.stub`, `.todo`, `.hack`, `.xxx`, `.fixme`, `.wip`). Left as accepted: the label `stub:` and operand symbol `stub,globl` (2 lines in
+`ape.S`) still count; there is no line-position-free way to tell them from `STUB:` in a comment.
+
+**Probe status (closing).** All signal rows of section 12 have measured readings on genuine z/OS assembler; each defect class found is fixed
+(addenda b-i) or recorded: `BAL`/`BALR`/`BASR` to an in-file label is an internal edge, not modelled (a design decision); DSP / MASM `.mac`
+have no owning language. The Hyperion, MS-DOS and NASM trees are not held, so those rows stay as measured on the corpus DB. No burned-estate
+program needs any of these.
+
 ### Addendum (2026-10-31, #7064): consolidated post-fix probe, per signal
 
 Read-only measurement with the engine at HEAD after the fixes above. **Held and probed (copied to scratch, 44 files, 2,638 lines):** Che4z
@@ -474,6 +491,6 @@ Per signal, from the profile's rules run over the raw files (files / hits), with
 2. `BAL`/`BALR`/`BASR` to an in-file label is an internal edge that nothing models (unmeasured beyond 10 lines).
 3. `DELETE EP=` counts as `high_risk_execution` (unload, not a transfer): intended by #2878, but unreviewed against real use.
 4. A coverage gap, not a defect: Hyperion-class source, the emulator tree and the PDS repos need to be held again for a rate-level re-measure.
-5. DSP and MASM `.mac` still have no owning language; `assembly`/`agc_assembly` debt rules (#7218 in flight).
+5. DSP and MASM `.mac` still have no owning language; `assembly`/`agc_assembly` debt rules (fixed for `assembly` in #7218).
 
 No burned-estate proof claim is made; the CardDemo files are measured as scanner input only.

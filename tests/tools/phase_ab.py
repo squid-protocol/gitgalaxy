@@ -246,6 +246,7 @@ def main(argv: list[str] | None = None) -> int:
         engines.append((name, Path(path).resolve()))
     if args.control:
         engines.insert(1, (f"{engines[0][0]}#ctl", engines[0][1]))
+    leg_env: dict = {}
     try:
         leg_env = parse_env_specs(args.env, [n for n, _ in engines if "#ctl" not in n])
     except ValueError as exc:

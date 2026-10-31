@@ -38,7 +38,7 @@ REPO_ROOT = TOOLS.parent.parent
 sys.path.insert(0, str(TOOLS))
 sys.path.insert(0, str(REPO_ROOT))
 
-from equivalence_common import engine_layouts  # noqa: E402 -- #5649: the engine's layouts, shared with equivalence_java
+from equivalence_common import engine_layouts, program_file  # noqa: E402 -- #5649: the engine's layouts, shared with equivalence_java
 from gitgalaxy.core.estate_options import effective_options  # noqa: E402 -- #4704: the one options resolver
 
 PKG = "com.gitgalaxy.modernized"
@@ -96,7 +96,7 @@ def port_case(name: str, work: Path, project: Path, corpus: Path, style: str = "
     port = work / name / "port"
     try:
         # case.json `strict_copy` (#4486): refuse a SYSLIB collision instead of taking the first library's member
-        r = P.translate(corpus / case["program_source"], dirs, stub, PKG, P.estate_files(project), project, style, typed,
+        r = P.translate(program_file(case, corpus), dirs, stub, PKG, P.estate_files(project), project, style, typed,
                         groups, effective_options(case).layers, strict_copy=bool(case.get("strict_copy")),
                         layouts=engine_layouts(project, corpus, case["program_source"]))  # fmt: skip
     except Exception as e:
@@ -140,7 +140,7 @@ def port_case(name: str, work: Path, project: Path, corpus: Path, style: str = "
         out["called_holes"] = called_holes
     if r.stats.get("warnings"):  # #4486: the SYSLIB collisions taken through the first library's member
         out["warnings"] = r.stats["warnings"]
-    out.update(_parity(port, corpus, [(case["program"], case["program_source"])]
+    out.update(_parity(port, corpus, [(case["program"], str(program_file(case, corpus)))]
                        + [(x["program"], x["program_source"]) for x in _extra_programs(case)]))  # fmt: skip
     return out
 

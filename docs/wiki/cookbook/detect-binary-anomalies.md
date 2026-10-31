@@ -15,7 +15,7 @@ The Inspector rips through the first 8KB of every file, treating it as raw bytes
 
 1. **Magic Byte Mismatches:** Every valid binary (like a `.png` or `.zip`) starts with a specific sequence of "Magic Bytes." If an attacker renames a malicious `.sh` script to `logo.png`, the Magic Bytes will not match, and the Inspector will instantly flag the anomaly.
 2. **Parasitic Execution Headers:** The engine scans data blobs for execution headers (e.g., `#!/bin/bash` or `\x7fELF`) hidden deep inside normally inert files.
-3. **High-Entropy Encrypted Payloads:** Normal, human-written strings have a predictable level of mathematical randomness. The Inspector runs a C-backed Shannon Entropy calculation on dense strings. If the entropy exceeds `4.8`, it indicates the string is a packed or encrypted payload. It simultaneously looks for sub-atomic `XOR` bitwise loops typically used to decrypt these payloads at runtime.
+3. **High-Entropy Encrypted Payloads:** Normal, human-written strings have a predictable level of mathematical randomness. The Inspector runs a C-backed Shannon Entropy calculation on dense strings. If the entropy exceeds `4.8`, it indicates the string is a packed or encrypted payload. It also flags three or more repeated in-place XORs on indexed bytes (`buf[i] ^= k;`); a plain XOR decode loop is not detected.
 
 ### 1. Execute the Scan
 You can run the X-Ray Inspector manually or deploy it as a specialized pre-commit hook or CI/CD gatekeeper.
@@ -47,7 +47,7 @@ If the Inspector detects a structural anomaly, it halts the pipeline and provide
 
 ☢️  [ANOMALY DETECTED] src/utils/legacy_loader.js
    -> Mathematically dense/encrypted strings detected (Shannon Entropy > 4.8)
-   -> Sub-atomic decryption routines (XOR loops) detected
+   -> Repeated in-place XOR on indexed bytes detected (buf[i] ^= k; three or more times)
 
 ❌ TRIAGE ALERT: 2 structural anomalies detected. Blocking commit/PR.
 ==========================================================

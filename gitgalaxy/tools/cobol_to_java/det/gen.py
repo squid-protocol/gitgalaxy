@@ -19,15 +19,22 @@ from gitgalaxy.tools.cobol_to_java.det import expr as E
 from gitgalaxy.tools.cobol_to_java.det import layout as L
 from gitgalaxy.tools.cobol_to_java.det import osvs as O
 from gitgalaxy.tools.cobol_to_java.det import stmt as S
+from gitgalaxy.tools.cobol_to_java.det.cics_common import (
+    LIBRARY,
+    LIBRARY_CHARSET,
+    LIBRARY_CLOCK,
+    LIBRARY_FLOATS,
+    LIBRARY_RC,
+    Untranslatable,
+    _extents,
+    _occurs_chain,
+    jstr,
+)
 from gitgalaxy.tools.cobol_to_java.det.source import WIDE
 
 if TYPE_CHECKING:
     from gitgalaxy.tools.cobol_to_java.det.cics import Cics
     from gitgalaxy.tools.cobol_to_java.det.source import EngineCopies
-
-
-class Untranslatable(Exception):
-    pass
 
 
 def p_unmodelled(it: L.Item) -> str | None:
@@ -66,77 +73,9 @@ class LiftViolation(Exception):
         self.names = set(names)
 
 
-# Library routines the runtime models (each the twin of the harness's COBOL-side model): program -> (Java, args)
-LIBRARY = {
-    "CEEDAYS": ("__PACKAGE__.cobolrt.le.Ceedays.call", 4),
-    "COBDATFT": ("__PACKAGE__.cobolrt.le.Cobdatft.call", 1),
-    "MVSWAIT": ("__PACKAGE__.cobolrt.le.Mvswait.call", 1),  # #5106: CardDemo's assembler wait (COBSWAIT)
-    "CEELOCT": ("__PACKAGE__.cobolrt.le.Ceeloct.call", 4),  # #4884: also takes the clock first and the charset last
-    # #4949: the LE date/time services (register L6); each is the twin of tests/equivalence/le/le_time.c
-    "CEEGMT": ("__PACKAGE__.cobolrt.le.Ceegmt.call", 3),
-    "CEEUTC": ("__PACKAGE__.cobolrt.le.Ceeutc.call", 3),
-    "CEEDATM": ("__PACKAGE__.cobolrt.le.Ceedatm.call", 4),
-    "CEESECS": ("__PACKAGE__.cobolrt.le.Ceesecs.call", 4),
-    "CEEDATE": ("__PACKAGE__.cobolrt.le.Ceedate.call", 4),
-    "CEEISEC": ("__PACKAGE__.cobolrt.le.Ceeisec.call", 9),
-    "CEEQCEN": ("__PACKAGE__.cobolrt.le.Ceeqcen.call", 2),
-    # #5003: sets the window CEEQCEN reads (one class, one setting)
-    "CEESCEN": ("__PACKAGE__.cobolrt.le.Ceeqcen.set", 2),
-    # #5003: Lilian seconds to integer fields (the inverse of CEEISEC) and the day of the week of a Lilian date
-    "CEESECI": ("__PACKAGE__.cobolrt.le.Ceeseci.call", 9),
-    "CEEDYWK": ("__PACKAGE__.cobolrt.le.Ceedywk.call", 3),
-    # #5003: the offset from GMT (zero: the run's clock is GMT); CEEUTCO is the same service as CEEGMTO
-    "CEEGMTO": ("__PACKAGE__.cobolrt.le.Ceegmto.call", 4),
-    "CEEUTCO": ("__PACKAGE__.cobolrt.le.Ceegmto.call", 4),
-    # #5858 (register Q5): Db2's SQLCA message formatter as a stand-in, the twin of tests/equivalence/le/dsntiac.c
-    "DSNTIAC": ("__PACKAGE__.cobolrt.le.Dsntiac.call", 5),
-    # #5945 (register X47): zECS's store-clock wrapper; its 16 bytes are a stated input of the run ($GGC_ZUIDSTCK_TOD)
-    "ZUIDSTCK": ("__PACKAGE__.cobolrt.le.Zuidstck.call", 1),
-}
-LIBRARY_RC = {"DSNTIAC"}  # the routines whose int result is the CALL's RETURN-CODE
-LIBRARY_CLOCK = {
-    "CEELOCT",
-    "CEEGMT",
-    "CEEUTC",
-    "CEESECS",  # #5003: the system year the century window (a YY) is anchored on
-}  # the routines that read the run's clock (the harness pins it, like CURRENT-DATE)
-# The COMP-2 arguments (by position) a routine reads or stores by value (Cobol.num / Cobol.store), never by bytes: HFP on
-# z/OS, IEEE on the oracle (register C6). Every routine with one, and every clock routine, also takes the charset last.
 # #5119 (X56): the CALLs det/bll.py lowers OS/VS COBOL's chained storage areas to (`MOVE cell TO fullword`, `MOVE fullword TO
 # cell`, a record re-addressed at a paragraph name); the oracle's stub (ggcics.c) has the first two, and sees SET ADDRESS OF
 BLL_CALLS = ("GGCBLLP", "GGCBLLG", "GGCBLLR")
-LIBRARY_FLOATS = {
-    "CEELOCT": {1},
-    "CEEGMT": {1},
-    "CEEUTC": {1},
-    "CEEDATM": {0},
-    "CEESECS": {2},
-    "CEEISEC": {7},
-    "CEESECI": {0},
-    "CEEGMTO": {2},
-    "CEEUTCO": {2},
-}
-LIBRARY_CHARSET = {*LIBRARY_CLOCK, *LIBRARY_FLOATS, *LIBRARY_RC, "CEEDATE", "CEEQCEN", "CEESCEN"}
-
-
-def jstr(s: str) -> str:
-    """A Java string literal; every non-ASCII or control character escaped."""
-    out = []
-    for ch in s:
-        o = ord(ch)
-        if ch == '"':
-            out.append('\\"')
-        elif ch == "\\":
-            out.append("\\\\")
-        elif 32 <= o < 127:
-            out.append(ch)
-        elif o < 256:
-            # #4690: never the u-escapes 000a / 000d / 0022 (Java translates them before lexing, cutting the literal open);
-            # a three-digit octal escape is exact and cannot swallow a following digit
-            out.append(f"\\{o:03o}")
-        else:
-            out.append(f"\\u{o:04x}")
-    return '"' + "".join(out) + '"'
 
 
 def jname(cobol: str) -> str:
@@ -289,6 +228,7 @@ class Gen:
         self.sql: Any = None  # det.sql.Sql for a program with EXEC SQL
         self.dli_pcbs: list[str] | None = None  # #4893: the PCBs IMS passes at ENTRY 'DLITCBL' (det/dli.py)
         self.clock = "clock.currentDate()"  # FUNCTION CURRENT-DATE outside CICS
+        self.uses_set_address = False  # #4767: a CICS SET ADDRESS OF aliases a storage; initialState() undoes it
         self.uses_mvs = False  # #5856: a batch pointer addresses a z/OS control block (DetMvs, register A2)
         self.uses_random = False  # FUNCTION RANDOM: the program keeps a run unit's sequence (Funcs.Random)
         self.callees: dict[str, str] = {}  # CALLed program -> the ObjectProvider field of its service
@@ -2395,6 +2335,7 @@ class Gen:
             if self.cics is None:  # #5856 (A2): the z/OS control block the pointer addresses (PSA / TCB / TIOT)
                 self.uses_mvs = True
                 return [c, f"{ind}DetMvs.setAddress({rec}, {self.pointer_item(s.data['pointer'])}, CS);"]
+            self.uses_set_address = True
             if s.data["pointer"]:
                 return [c, f"{ind}DetCics.setAddress(task, {rec}, {self.pointer_item(s.data['pointer'])});"]
             of, windowed = self.address_item(s.data["of"])
@@ -3744,20 +3685,6 @@ FLOAT_BYTES = "IBM hexadecimal floating point on z/OS, IEEE on the oracle: oracl
 IEEE_BINARY64_PROGRAMS = frozenset({"EPSMPMT"})
 
 
-def _extents(it: L.Item) -> tuple[tuple[int, int], tuple[int, int], list[int]]:
-    """An item's bytes within its record: its first occurrence, the whole of its outermost table, and the ids of
-    the OCCURS items it lies in."""
-    first = (it.offset, it.offset + it.size * it.occurs)
-    full, tables = first, []
-    a: L.Item | None = it
-    while a is not None:
-        if a.occurs > 1:
-            tables.append(id(a))
-            full = (a.offset, a.offset + a.size * a.occurs)
-        a = a.parent
-    return first, full, tables
-
-
 def camel(cobol: str) -> str:
     """ACCT-CURR-BAL -> acctCurrBal; 1000-CARDFILE-GET-NEXT -> 1000CardfileGetNext (callers prefix a digit)."""
     parts = [p for p in re.split(r"[^A-Za-z0-9]+", cobol) if p]
@@ -3783,17 +3710,6 @@ def _ancestors(it: L.Item) -> list[str]:
         out.append(a.name)
         a = a.parent
     return out
-
-
-def _occurs_chain(it: L.Item) -> list[L.Item]:
-    """The OCCURS items from the outermost to `it` (itself included when it OCCURS)."""
-    chain = []
-    a: L.Item | None = it
-    while a is not None:
-        if a.occurs > 1 or a.depending:
-            chain.append(a)
-        a = a.parent
-    return list(reversed(chain))
 
 
 def _text_item(it: L.Item) -> bool:

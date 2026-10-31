@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import gitgalaxy.tools.cobol_to_java.det.expr as E
 from gitgalaxy.standards.mq import CALLS, MQLONG, UNMODELLED
+from gitgalaxy.tools.cobol_to_java.det.cics_common import Untranslatable
 
 RUNTIME = "__PACKAGE__.cobolrt.cics.DetMq"  # the port's MQI calls (cobolrt/cics/DetMq.java)
 
@@ -19,8 +20,6 @@ def handles(prog: str) -> bool:
 
 def call(gen, prog: str, args: list, ind: str) -> list[str]:
     """The Java of `CALL prog USING args` (gen: the det Gen; raises its Untranslatable)."""
-    from gitgalaxy.tools.cobol_to_java.det.gen import Untranslatable
-
     if prog in UNMODELLED:
         raise Untranslatable(f"CALL {prog}: {UNMODELLED[prog]} is not modelled (register W6)")
     if gen.cics is None:

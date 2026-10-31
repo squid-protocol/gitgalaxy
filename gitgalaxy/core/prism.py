@@ -1892,6 +1892,7 @@ class Prism:
         code, comments = [], []
         carry_quote: str | None = None
 
+        mask_perl = None
         if lang_id == "perl":
             perl_bare_regex_preceding = re.compile(
                 r"(?:(?:=~|!~|\(|,|;|\{|&&|\|\|)[ \t]*$)|(?:\b(?:if|unless|while|split|grep|map|return)[ \t]+$)"
@@ -1987,6 +1988,8 @@ class Prism:
                         pos = end_idx
                 return "".join(parts)
 
+            mask_perl = _mask_perl_line
+
         # #1954: split on real newlines only. str.splitlines() also breaks
         # on vertical tab, form feed, the file/group/record separators, NEL
         # and the Unicode line/paragraph separators -- so a form feed inside
@@ -2009,8 +2012,8 @@ class Prism:
 
             masked_line, masked_literals = self._mask_line_literals(line)
 
-            if lang_id == "perl":
-                masked_line = _mask_perl_line(masked_line, masked_literals)
+            if mask_perl is not None:
+                masked_line = mask_perl(masked_line, masked_literals)
 
             if pattern.search(masked_line):
                 parts = pattern.split(masked_line, 1)

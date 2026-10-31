@@ -36,3 +36,13 @@ def test_no_burned_put_names_a_data_type():
 def test_the_only_fromccsid_put_is_epscsmrd_writing_back_a_char_container():
     users = {(n, p) for n, p, w in _puts() if "FROMCCSID" in w}
     assert users == {("dbb-mortgage-application", "epscsmrd.cbl")}
+
+
+def test_the_x17_note_quotes_the_ibm_wording():
+    note = " ".join((ROOT / "docs/language_status/register/X17.md").read_text(encoding="utf-8").split())
+    for quote in (
+        "This option applies only to new containers.",
+        "its data type was established when it was created and cannot be changed.",
+        "An attempt was made to change the data-type of an existing container.",
+    ):
+        assert quote in note, quote

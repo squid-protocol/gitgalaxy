@@ -363,6 +363,7 @@ docs/language_status/register/L1.md	tests/cobol_mainframe
 docs/language_status/register/L3.md	tests/cobol_mainframe
 docs/language_status/register/Q4.md	tests/cobol_mainframe
 docs/language_status/register/Q5.md	tests/cobol_mainframe
+docs/language_status/register/X17.md	tests/cobol_mainframe
 docs/language_status/register/X18.md	tests/cobol_mainframe
 docs/language_status/register/X54.md	tests/cobol_mainframe
 docs/language_status/register/X55.md	tests/core_engine

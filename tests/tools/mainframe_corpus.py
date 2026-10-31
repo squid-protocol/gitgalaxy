@@ -74,7 +74,8 @@ def cache_root() -> Path:
 
 # #6072: corpora that are not in the manifest but that a ladder slice can name as a case's `corpus`. cics-crucible is
 # a sibling checkout pinned in tests/crucible_pins.toml ([cics]), not a clone under the cache; `select([])` stays the
-# manifest alone, so no manifest-wide loop (answer keys, completeness, refraction) sees it.
+# manifest alone, so no manifest-wide loop (answer keys, completeness, refraction) sees it. A bare `fetch` does take
+# it (fetch_targets): that one call is how every CI job with a case reading it gets the checkout.
 CRUCIBLE_CORPORA = {"cics-crucible": "cics"}
 CRUCIBLE_PATH_ENV = "CICS_CRUCIBLE_PATH"
 CRUCIBLE_UNPINNED_ENV = "CICS_CRUCIBLE_ALLOW_UNPINNED"
@@ -83,10 +84,11 @@ CRUCIBLE_UNPINNED_ENV = "CICS_CRUCIBLE_ALLOW_UNPINNED"
 def _crucible_entry(name: str) -> dict[str, Any]:
     sys.path.insert(0, str(REPO_ROOT / "tests"))
     try:
-        from _cics_crucible_pin import PINNED_REF  # noqa: PLC0415 -- the pin, read only when a crucible is named
+        from _crucible_manifest import entry  # noqa: PLC0415 -- the pin, read only when a crucible is named
     finally:
         sys.path.remove(str(REPO_ROOT / "tests"))
-    return {"name": name, "ref": str(PINNED_REF), "crucible": CRUCIBLE_CORPORA[name]}
+    pin = entry(CRUCIBLE_CORPORA[name])
+    return {"name": name, "ref": str(pin["ref"]), "url": pin["repo"], "crucible": CRUCIBLE_CORPORA[name]}
 
 
 def select(names: list[str], corpora: list[dict[str, Any]] | None = None) -> list[dict[str, Any]]:
@@ -98,6 +100,11 @@ def select(names: list[str], corpora: list[dict[str, Any]] | None = None) -> lis
     if unknown:
         sys.exit(f"unknown corpus {', '.join(unknown)}; the manifest has {', '.join(by_name)}")
     return [by_name[n] if n in by_name else _crucible_entry(n) for n in names]
+
+
+def fetch_targets(names: list[str]) -> list[dict[str, Any]]:
+    """What `fetch` takes: the named corpora, or with no names the manifest and the crucibles."""
+    return select(names) if names else [*select([]), *select(list(CRUCIBLE_CORPORA))]
 
 
 def _git(*args: str, cwd: Path, check: bool = True) -> str:
@@ -123,6 +130,22 @@ def _crucible_checkout() -> Path:
     return main.parent / "cics-crucible"
 
 
+def _fetch_crucible(corpus: dict[str, Any]) -> Path:
+    """A checkout that exists is sync-pins.sh's, and `require_clone` judges its pin; only an absent one is cloned here."""
+    dest = clone_path(corpus)
+    if (dest / ".git").exists() and _git("rev-parse", "--verify", "--quiet", "HEAD", cwd=dest, check=False):
+        return dest
+    dest.mkdir(parents=True, exist_ok=True)
+    _git("init", "-q", cwd=dest)
+    ref = corpus["ref"]
+    is_sha = len(ref) == 40 and set(ref) <= set("0123456789abcdef")
+    # The tag is kept under its own name: _require_crucible resolves `ref^{commit}`.
+    spec = ref if is_sha else f"+refs/tags/{ref}:refs/tags/{ref}"
+    _git("fetch", "-q", "--depth", "1", corpus["url"], spec, cwd=dest)
+    _git("checkout", "-q", "--detach", "FETCH_HEAD", cwd=dest)
+    return dest
+
+
 def clone_path(corpus: dict[str, Any]) -> Path:
     if corpus.get("crucible"):
         return _crucible_checkout()
@@ -143,9 +166,7 @@ def fetch(corpus: dict[str, Any], force: bool = False) -> Path:
     """Shallow-clones `corpus` at its pinned ref (a no-op when already there) and
     returns the clone. Refuses to discard local edits unless `force`."""
     if corpus.get("crucible"):
-        sys.exit(
-            f"{corpus['name']} is a sibling checkout pinned in tests/crucible_pins.toml: run tests/tools/box/sync-pins.sh"
-        )
+        return _fetch_crucible(corpus)
     dest = clone_path(corpus)
     dest.mkdir(parents=True, exist_ok=True)
     if not (dest / ".git").exists():
@@ -328,7 +349,7 @@ def main() -> int:
         print(f"⚠️  {cache_root()} has ignored-directory component(s) {bad}; set {CACHE_ENV} elsewhere.")
 
     if args.cmd == "fetch":
-        for c in select(args.names):
+        for c in fetch_targets(args.names):
             print(f"{c['name']}: {fetch(c, force=args.force)} @ {c['ref'][:12]}")
         return 0
 

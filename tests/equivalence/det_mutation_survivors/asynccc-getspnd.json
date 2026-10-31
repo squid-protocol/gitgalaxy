@@ -1,0 +1,140 @@
+{
+ "format": "det-mutation-survivors/1",
+ "issue": "#4628",
+ "about": "#4628: each surviving det-port mutant stated `equivalent` or `unreachable`, with the Java change and why it cannot alter observable behaviour; proposed in a PR, reviewed by the owner. A run that kills a stated mutant fails (the claim was wrong). Ids are mutation.py's; before / after are the Java line.",
+ "verdicts": {
+  "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
+  "unreachable": "no input of the program reaches the changed code",
+  "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
+  "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
+ },
+ "case": "asynccc-getspnd",
+ "survivors": [
+  {
+   "id": "30428ca163",
+   "op": "NEG",
+   "line": 68,
+   "before": "if (CicsTask.undefinableFile(name)) {",
+   "after": "if (!(CicsTask.undefinableFile(name))) {",
+   "verdict": "unreachable",
+   "reason": "GetspndService.java line 68: the guard of the private store(String) helper, which has no caller in GetspndService.java: the program issues no file control command and the case has datasets {}, so no input runs it"
+  },
+  {
+   "id": "a1987a91b7",
+   "op": "LIT",
+   "line": 270,
+   "before": "int[] planned1 = task.planned(\"DELAY\", \"-\");",
+   "after": "int[] planned1 = task.planned(\"XELAY\", \"-\");",
+   "verdict": "harness-gap",
+   "reason": "GetspndService.java line 270: acts only when a DELAY fault is planned (register X72); the program codes no RESP and no HANDLE CONDITION on it, so IBM abends the task and the det port does (CicsSpec.abcodeFor), while the stub answers the plan and the COBOL goes on to RETURN: the proof cannot judge the scenario that would kill it (stub gap)"
+  },
+  {
+   "id": "bc2752e7e4",
+   "op": "LIT",
+   "line": 270,
+   "before": "int[] planned1 = task.planned(\"DELAY\", \"-\");",
+   "after": "int[] planned1 = task.planned(\"DELAY\", \"X\");",
+   "verdict": "harness-gap",
+   "reason": "GetspndService.java line 270: acts only when a DELAY fault is planned (register X72); the program codes no RESP and no HANDLE CONDITION on it, so IBM abends the task and the det port does (CicsSpec.abcodeFor), while the stub answers the plan and the COBOL goes on to RETURN: the proof cannot judge the scenario that would kill it (stub gap)"
+  },
+  {
+   "id": "0d8a30cf46",
+   "op": "NEG",
+   "line": 271,
+   "before": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
+   "after": "if (!(planned1[0] == 0)) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
+   "verdict": "equivalent",
+   "reason": "GetspndService.java line 271: whether task.delay runs, or for how long; in this case's root task (no RUN TRANSID children) delay() only moves the scheduler clock (X4), which nothing reads, so it is unseen"
+  },
+  {
+   "id": "1dfc0b5cd6",
+   "op": "CON",
+   "line": 271,
+   "before": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
+   "after": "if (planned1[0] == 1) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
+   "verdict": "equivalent",
+   "reason": "GetspndService.java line 271: whether task.delay runs, or for how long; in this case's root task (no RUN TRANSID children) delay() only moves the scheduler clock (X4), which nothing reads, so it is unseen"
+  },
+  {
+   "id": "5bc0f4de40",
+   "op": "CON",
+   "line": 271,
+   "before": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
+   "after": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");",
+   "verdict": "equivalent",
+   "reason": "GetspndService.java line 271: whether task.delay runs, or for how long; in this case's root task (no RUN TRANSID children) delay() only moves the scheduler clock (X4), which nothing reads, so it is unseen"
+  },
+  {
+   "id": "858377d742",
+   "op": "ROR",
+   "line": 271,
+   "before": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
+   "after": "if (planned1[0] != 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
+   "verdict": "equivalent",
+   "reason": "GetspndService.java line 271: whether task.delay runs, or for how long; in this case's root task (no RUN TRANSID children) delay() only moves the scheduler clock (X4), which nothing reads, so it is unseen"
+  },
+  {
+   "id": "8d9430c01c",
+   "op": "CON",
+   "line": 271,
+   "before": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
+   "after": "if (planned1[1] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
+   "verdict": "harness-gap",
+   "reason": "GetspndService.java line 271: acts only when a DELAY fault is planned (register X72); the program codes no RESP and no HANDLE CONDITION on it, so IBM abends the task AEIP and the det port does (CicsSpec.abcodeFor), while the stub answers the plan and the COBOL goes on to RETURN: the proof cannot judge the scenario that would kill it (stub gap)"
+  },
+  {
+   "id": "b878f46d5b",
+   "op": "LIT",
+   "line": 271,
+   "before": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
+   "after": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"XELAY out of range\");",
+   "verdict": "equivalent",
+   "reason": "GetspndService.java line 271: the `what` text of delay() is read only to build the refusal for a DELAY that is not a length of time; this DELAY is FOR SECONDS with a literal in range, so the text is never used"
+  },
+  {
+   "id": "89626a94bb",
+   "op": "CON",
+   "line": 272,
+   "before": "Cobol.store(f30_EIBRESP, BigDecimal.valueOf(planned1[0]), false, CS);",
+   "after": "Cobol.store(f30_EIBRESP, BigDecimal.valueOf(planned1[1]), false, CS);",
+   "verdict": "equivalent",
+   "reason": "GetspndService.java line 272: the value stored into f30_EIBRESP is changed (valueOf(planned1[1])); f30_EIBRESP is only ever written in GetspndService.java, nothing reads it, so any value is unseen"
+  },
+  {
+   "id": "9be37fe326",
+   "op": "DEL",
+   "line": 272,
+   "before": "Cobol.store(f30_EIBRESP, BigDecimal.valueOf(planned1[0]), false, CS);",
+   "after": "/* Cobol.store(f30_EIBRESP, BigDecimal.valueOf(planned1[0]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "GetspndService.java line 272: the store of the DELAY's answer into f30_EIBRESP is dead: f30_EIBRESP is written in GetspndService.java and read nowhere, and the branch after it tests planned[0] itself, not the field"
+  },
+  {
+   "id": "f65de2f28b",
+   "op": "DEL",
+   "line": 273,
+   "before": "Cobol.store(f31_EIBRESP2, BigDecimal.valueOf(planned1[1]), false, CS);",
+   "after": "/* Cobol.store(f31_EIBRESP2, BigDecimal.valueOf(planned1[1]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "GetspndService.java line 273: the store of the DELAY's answer into f31_EIBRESP2 is dead: f31_EIBRESP2 is written in GetspndService.java and read nowhere, and the branch after it tests planned[0] itself, not the field"
+  },
+  {
+   "id": "47fae23bb1",
+   "op": "CON",
+   "line": 274,
+   "before": "if (planned1[0] != 0) {",
+   "after": "if (planned1[1] != 0) {",
+   "verdict": "harness-gap",
+   "reason": "GetspndService.java line 274: acts only when a DELAY fault is planned (register X72); the program codes no RESP and no HANDLE CONDITION on it, so IBM abends the task and the det port does (CicsSpec.abcodeFor), while the stub answers the plan and the COBOL goes on to RETURN: the proof cannot judge the scenario that would kill it (stub gap)"
+  },
+  {
+   "id": "9bc4cf6d5e",
+   "op": "CON",
+   "line": 275,
+   "before": "int to = condition(DetCics.condition(planned1[0]));",
+   "after": "int to = condition(DetCics.condition(planned1[1]));",
+   "verdict": "harness-gap",
+   "reason": "GetspndService.java line 275: acts only when a DELAY fault is planned (register X72); the program codes no RESP and no HANDLE CONDITION on it, so IBM abends the task and the det port does (CicsSpec.abcodeFor), while the stub answers the plan and the COBOL goes on to RETURN: the proof cannot judge the scenario that would kill it (stub gap)"
+  }
+ ]
+}

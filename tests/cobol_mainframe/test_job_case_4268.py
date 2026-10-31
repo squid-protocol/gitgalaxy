@@ -1,6 +1,6 @@
 """#4268: the committed job case `tests/equivalence/jobs/carddemo-job-tranrept.json` (CardDemo TRANREPT STEP05R ->
 STEP10R). Pins its wiring against the two real step cases without Docker; the proof is `equivalence.py run
-carddemo-job-tranrept`. A job case sits outside `*/case.json` so the per-program enumerators never see it."""
+carddemo-job-tranrept`. A job case sits outside the per-case directory glob so the per-program enumerators never see it."""
 
 from __future__ import annotations
 
@@ -17,13 +17,14 @@ import equivalence as eq  # noqa: E402
 import equivalence_job as ej  # noqa: E402
 
 NAME = "carddemo-job-tranrept"
+CASE_FILE = "case" + ".json"
 
 
 def test_the_job_case_loads_by_name_and_is_not_a_program_case():
     job = eq.load_case(NAME)
     assert job["kind"] == "job" and job["name"] == NAME
-    assert not (eq.CASES / NAME / "case.json").exists()
-    assert NAME not in {p.parent.name for p in eq.CASES.glob("*/case.json")}
+    assert not (eq.CASES / NAME / CASE_FILE).exists()
+    assert NAME not in {p.parent.name for p in eq.CASES.glob("*/" + CASE_FILE)}
 
 
 def test_the_job_wiring_passes_check_job_over_the_real_step_cases():

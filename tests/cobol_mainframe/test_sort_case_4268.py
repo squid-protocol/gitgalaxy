@@ -114,3 +114,19 @@ def test_every_case_program_source_is_a_case_local_file_or_a_corpus_path(case_js
     src = json.loads(case_json.read_text(encoding="utf-8")).get("program_source")
     if src and src.startswith("@case/"):
         assert (case_json.parent / src[len("@case/") :]).is_file()
+
+
+def test_the_sort_cases_l5_ledgers_state_every_survivor_but_the_dd_labels():
+    """#4268: det_mutation's L5 for both lowered-DFSORT cases. Every survivor is stated; the only open ones are the
+    DD labels, which a fault run could kill but the port refuses by name (Sort$NotModelled)."""
+    want_open = {"carddemo-sort-tranrept": 1, "carddemo-sort-combtran": 2}
+    for case, n_open in want_open.items():
+        run = json.loads((ROOT / f"tests/equivalence/det_mutation/{case}.json").read_text(encoding="utf-8"))["entry"]
+        stated = json.loads(
+            (ROOT / f"tests/equivalence/det_mutation_survivors/{case}.json").read_text(encoding="utf-8")
+        )
+        by_id = {e["id"]: e for e in stated["survivors"]}
+        assert {s["id"] for s in run["survived"]} == set(by_id), "every survivor has a verdict"
+        opened = [e for e in by_id.values() if e["verdict"] not in ("equivalent", "unreachable")]
+        assert len(opened) == n_open
+        assert all(e["verdict"] == "harness-gap" and "DetFiles.Sequential" in e["before"] for e in opened)

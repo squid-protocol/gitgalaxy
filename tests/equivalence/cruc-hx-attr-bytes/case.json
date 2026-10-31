@@ -1,0 +1,68 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "HXATTR",
+  "program_source": "cases/hex-attributes/hx-attr-bytes/src/HXATTR.cbl",
+  "copy_dirs": [
+    "cases/hex-attributes/hx-attr-bytes/copy"
+  ],
+  "transid": "HX01",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": {
+    "segments": [
+      {
+        "copybook": "cases/hex-attributes/hx-attr-bytes/src/HXATTR.cbl",
+        "record": "WS-CA"
+      }
+    ]
+  },
+  "screens": {
+    "HXM1": {
+      "copybook": "cases/hex-attributes/hx-attr-bytes/copy/HXSET1.cpy",
+      "input": "HXM1I",
+      "output": "HXM1O"
+    }
+  },
+  "notes": "cics-crucible hex-attributes / hx-attr-bytes (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): raw 3270 attribute bytes in a BMS symbolic map (names, hex literals, bit arithmetic), DATAONLY / MAPONLY, RECEIVE MAP RESP. Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "first-display",
+      "commarea": null,
+      "terminal": "HX01 A",
+      "why": "EIBCALEN 0: FIRST-SCREEN fills every attribute byte (name, hex literals, bit arithmetic, DFHBMEOF), SEND MAP ERASE, RETURN TRANSID"
+    },
+    {
+      "name": "echo-dataonly",
+      "commarea": {
+        "WS-CA": "S"
+      },
+      "terminal": "HX01 A",
+      "aid": "DFHENTER",
+      "receive": {
+        "HXM1": {
+          "NAMEI": "JONES"
+        }
+      },
+      "why": "second task (EIBCALEN 1), ENTER: ECHO-SCREEN, RECEIVE MAP normal (RESP NORMAL arm), STAT 'RECEIVED', SEND MAP DATAONLY"
+    },
+    {
+      "name": "clear-maponly",
+      "commarea": {
+        "WS-CA": "S"
+      },
+      "terminal": "HX01 A",
+      "aid": "DFHCLEAR",
+      "why": "second task, CLEAR: RESET-SCREEN, SEND MAP MAPONLY ERASE, RETURN TRANSID"
+    },
+    {
+      "name": "pa-key-mapfail",
+      "commarea": {
+        "WS-CA": "S"
+      },
+      "terminal": "HX01 A",
+      "aid": "DFHPA1",
+      "why": "second task, PA1 (not CLEAR): ECHO-SCREEN, a PA key transmits no data so RECEIVE MAP gives MAPFAIL: the 'NO INPUT' arm"
+    }
+  ]
+}

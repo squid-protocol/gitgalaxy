@@ -13,7 +13,12 @@ from typing import Any
 from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: compiled on first use
 from gitgalaxy.standards.language_standards.identifiers import ID_CONTINUE, ID_START
 
-from .._shared_patterns import CALLS_OUT_PERL, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import (
+    CALLS_OUT_PERL,
+    GLOBAL_FRAGILE_DEBT,
+    GLOBAL_PLANNED_DEBT,
+    commented_keyword_statement,
+)
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -293,8 +298,15 @@ DEFINITION: dict[str, Any] = {
             r"|(?:[" + ID_CONTINUE + r"]|[)\]}])[ \t]*(?:\+\+|--)|(?:\+\+|--)[ \t]*[\$@]|\bs/"
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails) Commented out structural logic.
+        # #7207: a statement's shape (`;{}`, `(...)`, an assignment, a sigil / quote argument, or a bare
+        # `sub|method|class|package Name`), not just the keyword.
         "dead_code": re.compile(
-            r"^[ \t]*#\s*(?:my|our|state|sub|method|class|package|if|unless|while|print|say)\b",
+            commented_keyword_statement(
+                "my|our|state|sub|method|class|package|if|unless|while|print|say",
+                marker=r"^[ \t]*#",
+                extra=r"[ \t]+[$@%&\"'\\]"
+                r"|(?:(?<=sub)|(?<=method)|(?<=class)|(?<=package))[ \t]+[\w:]+[ \t]*(?m:$)",
+            ),
             re.M,
         ),
         # 13. doc: Structured Documentation. Structured POD documentation.

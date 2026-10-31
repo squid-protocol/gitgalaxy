@@ -33,7 +33,7 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | STARTBROWSE CONTAINER | full | yes (5 options) | yes | X17, X42 | — | 2 (1 / 1) | — |
 | GETNEXT CONTAINER | full | yes (5 options) | yes | X42 | — | 1 (1 / 0) | — |
 | ENDBROWSE CONTAINER | full | yes (4 options) | yes | X42 | — | 0 | — |
-| DELETE CHANNEL | full | yes (4 options) | yes | X17, X44 | — | 0 | — |
+| DELETE CHANNEL | full | yes (4 options) | yes | X17, X42, X44 | — | 0 | — |
 | QUERY CHANNEL | full | yes (5 options) | yes | X17, X44 | — | 0 | — |
 | PUT64 CONTAINER | full | yes (13 options, 1 refused by name) | yes | X17 | — | 0 | — |
 | GET64 CONTAINER | full | yes (12 options, 2 refused by name) | yes | X17 | — | 0 | — |

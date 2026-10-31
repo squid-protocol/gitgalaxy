@@ -1769,7 +1769,12 @@ states each (`none (gap)`: no entry does). Only fields a burned corpus's COBOL n
     carries TRAN-IDs of letters A-F and digits, so IBM's EBCDIC order (a letter before a digit) differs from the oracle's byte order
     (a digit first): executed-equivalent, SORTOUT 50/50 records equal, RETURN-CODE 0, 1/1 paragraphs. The letters are synthetic
     input (CardDemo's IDs are digits) on characters where the two EBCDIC tables agree. Residual risk: the oracle is GnuCOBOL's
-    EBCDIC alphabet, not z/OS; L5 mutation not run.
+    EBCDIC alphabet, not z/OS. L5 (det_mutation, seed 0, 150 sampled mutants of the lowered DFSORTST port; #4628):
+    `carddemo-sort-combtran` 44 killed, 91 survived (89 stated equivalent / unreachable, 2 open), 15 stillborn;
+    `carddemo-sort-tranrept` 60 killed, 80 survived (79 stated, 1 open), 10 stillborn. The stated survivors are the generated
+    service's CICS/EIB boilerplate, the PERFORM stack, record-area initial images and refusal-message text. **Not L5:** the
+    3 open ones are the DD labels (`SORTIN`, `SORTIN1`, `SORTIN2`), a harness-gap: a fault run on a SORT USING file is
+    refused by name by the port (`Sort$NotModelled`) while the oracle carries on, so no run can compare the label.
   - **Declared difference.** The oracle's SORT rewrites a signed DISPLAY key's sign zone in the records it sorts
     (`cobc -std=ibm -fsign=EBCDIC`, cobc 3.1.2, measured 2026-10-28: an unsigned key `0001` comes out `000A`); DFSORT
     and Enterprise COBOL never change a record's bytes. The lowering therefore sorts a ZD / PD key as a copy carried

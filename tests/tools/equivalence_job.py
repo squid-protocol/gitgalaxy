@@ -1,5 +1,6 @@
 """A multi-step job as an equivalence case (#4268): `"kind": "job"`, `"steps"` = batch cases run in order, a step's
-`"feeds"` naming the datasets it reads from an earlier step's output.
+`"feeds"` naming the datasets it reads from an earlier step's output, `"inputs"` {DD: file beside the job case} replacing a
+dataset's input (the parameter card the job's JCL shares between steps).
 
     {"kind": "job", "job": "TRANREPT",
      "steps": [{"case": "sort-step"},
@@ -23,6 +24,8 @@ import json
 import tempfile
 from pathlib import Path
 from typing import Any
+
+JOBS = Path(__file__).resolve().parents[1] / "equivalence" / "jobs"
 
 
 class Unsupported(Exception):
@@ -52,7 +55,13 @@ def check_job(job: dict[str, Any], cases: dict[str, dict[str, Any]]) -> None:
             raise Unsupported(f"step {name}: a {what} step is not modelled in a job case (batch steps only)")
         for dd, feed in step.get("feeds", {}).items():
             _check_feed(name, dd, feed, case, names[:i], cases)
-    unknown = {k for s in steps for k in s} - {"case", "feeds"}
+    for step in steps:  # a dataset the JCL gives the step its own input for (the job's shared parameter card)
+        for dd, rel in step.get("inputs", {}).items():
+            if dd not in cases[step["case"]]["datasets"] or dd in step.get("feeds", {}):
+                raise Unsupported(f"step {step['case']}: input {dd} is not one of its datasets, or is also fed")
+            if not (JOBS / rel).is_file():
+                raise Unsupported(f"step {step['case']}: input {dd}: no file {rel} beside the job case")
+    unknown = {k for s in steps for k in s} - {"case", "feeds", "inputs"}
     if unknown:
         raise Unsupported(f"unknown step key(s) {sorted(unknown)}")
 
@@ -105,6 +114,8 @@ def run_case(api: Any, job: dict[str, Any], work: Path, port: bool = True, cobol
         case = cases[name]
         enc = api.data_encoding(case)
         fed = {}
+        for dd, rel in step.get("inputs", {}).items():
+            case["datasets"][dd] = {**case["datasets"][dd], "input": str((JOBS / rel).resolve())}
         for dd, feed in step.get("feeds", {}).items():
             src = outputs.get(feed["step"], {}).get(feed["dd"])
             if src is None:

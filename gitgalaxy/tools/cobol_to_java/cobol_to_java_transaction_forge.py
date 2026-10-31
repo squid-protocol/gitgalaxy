@@ -1297,6 +1297,7 @@ CICS_TASK_JAVA += """\
     // terminal and hands it to each task that terminal starts.
     private byte[] twa;                                     // the task's root's
     private byte[] tctua;                                   // the task's root's (the caller's array: it outlives the task)
+    private byte[] cwa;                                     // the task's root's (the caller's array: one for the whole region)
 
     /** TRANSACTION TWASIZE(n): the task's transaction work area is `size` bytes; 0 means none. */
     public CicsTask withTwaSize(int size) {
@@ -1310,6 +1311,13 @@ CICS_TASK_JAVA += """\
         return this;
     }
 
+    /** The region's CWA (IBM, SIT WRKAREA: "the number of bytes ... for the common work area"), one array the caller keeps for
+     *  every task of the region; null or empty means none. */
+    public CicsTask withCwa(byte[] area) {
+        this.cwa = area != null && area.length > 0 ? area : null;
+        return this;
+    }
+
     /** ADDRESS TWA: the handle of the TWA's bytes, the same one each time and at every LINK level; 0 for a task with none. */
     public long twaHandle() {
         byte[] a = root().twa;
@@ -1319,6 +1327,12 @@ CICS_TASK_JAVA += """\
     /** ADDRESS TCTUA: the handle of the terminal's user area; 0 for a task with none. */
     public long tctuaHandle() {
         byte[] a = root().tctua;
+        return a == null ? 0 : addressOf(a);
+    }
+
+    /** ADDRESS CWA: the handle of the region's common work area; 0 for a task with none. */
+    public long cwaHandle() {
+        byte[] a = root().cwa;
         return a == null ? 0 : addressOf(a);
     }
 
@@ -2038,6 +2052,17 @@ CICS_TASK_JAVA += """\
         public boolean normal() {
             return resp == 0 || resp == 15;  // #4623: DUPKEY (15) delivers the record too
         }
+    }
+
+    /** #6839 (row D): a variable-length file's record lengths, by the file's entity, each record's key (hex) to the
+     *  length it was written with (IBM, EXEC CICS WRITE / REWRITE LENGTH; READ returns it). Filled by whoever loads
+     *  the file (the equivalence harness from the stub's <file>.len) and backed out with the file's records; a file
+     *  with no entry here is a fixed-length one. */
+    public static final java.util.Map<String, java.util.Map<String, Integer>> RECORD_LENGTHS = new java.util.HashMap<>();
+
+    /** #6839: the record lengths of the file over `entity`, or null for a fixed-length file. */
+    public static java.util.Map<String, Integer> recordLengths(String entity) {
+        return RECORD_LENGTHS.get(entity);
     }
 
 """

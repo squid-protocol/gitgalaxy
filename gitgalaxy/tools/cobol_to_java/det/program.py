@@ -1587,6 +1587,9 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     out += [
         "    /** WORKING-STORAGE (and every storage) as its VALUE clauses set it: each entry point starts from here. */",
         "    private void initialState() {",
+        # #4767: a task's SET ADDRESS OF aliased a storage onto another's bytes; the service outlives the task, so the
+        # next task starts from the storage's own bytes, not through the stale alias onto what it addressed
+        *([f"        {n}.unalias();" for n, _ in storages] if gen.uses_set_address else []),
         *[f"        System.arraycopy(IMAGE_{n}, 0, {n}.bytes, 0, IMAGE_{n}.length);" for n, _ in storages],
         *inits,
         # an entry point starts a run unit: a first FUNCTION RANDOM with no seed seeds zero (IBM; C12)

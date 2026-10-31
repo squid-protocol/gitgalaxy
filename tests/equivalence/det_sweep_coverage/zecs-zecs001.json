@@ -1,12 +1,12 @@
 {
  "format": "det-sweep-coverage/2",
- "scenarios": 69,
+ "scenarios": 75,
  "paragraphs": {
-  "covered": 109,
+  "covered": 119,
   "live": 119
  },
  "branches": {
-  "covered": 179,
+  "covered": 198,
   "total": 208
  },
  "linked": {
@@ -22,76 +22,35 @@
   }
  },
  "uncovered": {
-  "paragraphs": [
-   "3000-EXIT:897",
-   "3310-EXIT:1083",
-   "3400-STAGE:1092",
-   "3400-EXIT:1126",
-   "3500-READ-SEGMENTS:1133",
-   "3500-EXIT:1171",
-   "3510-FREEMAIN:1179",
-   "3510-EXIT:1185",
-   "3600-SEND-RESPONSE:1192",
-   "3600-EXIT:1236"
-  ],
   "branches": [
    "704:false",
    "718:false",
-   "913:true",
-   "1072:false",
-   "1093:true",
-   "1093:false",
-   "1096:true",
-   "1096:false",
-   "1100:true",
-   "1100:false",
-   "1120:true",
-   "1120:false",
    "1144:true",
-   "1144:false",
-   "1151:true",
    "1151:false",
-   "1158:true",
    "1158:false",
-   "1194:true",
    "1194:false",
    "1197:true",
-   "1197:false",
-   "1202:true",
-   "1202:false",
-   "1212:true",
-   "1212:false",
    "1490:false",
    "1852:true",
-   "1902:true",
-   "paragraph:3000-EXIT",
-   "paragraph:3310-EXIT",
-   "paragraph:3400-STAGE",
-   "paragraph:3400-EXIT",
-   "paragraph:3500-READ-SEGMENTS",
-   "paragraph:3500-EXIT",
-   "paragraph:3510-FREEMAIN",
-   "paragraph:3510-EXIT",
-   "paragraph:3600-SEND-RESPONSE",
-   "paragraph:3600-EXIT"
+   "1902:true"
   ]
  },
  "inputs": {
-  "case": "30731008faaab5681ee59989c7d52c29faea0187987c2183a3a963eb5b9188e1",
+  "case": "cd8fdaac7b972cb7d1a2f96085f5856e2e00cbe00088d08eaec8b3bc310da98a",
   "corpus": "09feecf8028c77a136bbff56380f9babddf0b2e28fbb6a7ad7ba456273989ff6",
-  "harness": "d52148f39dc64370700e9ab334ea3d832d67ddb027cdf5ab371daf507f72a05d",
-  "oracle": "26c13006dd6bdff1f94b4b4d2c38d88de84cf6ff09eb59371dfe535e0b8f1537",
+  "harness": "1013fd904e40fff8d4d98963fec445ba9907ab95889a7fc10045a228ce0d136a",
+  "oracle": "a6636d62adc84251425f71b9128afe00f9c2a043b7af1b9957000faeb7bd51bc",
   "components": {
    "harness": {
-    "harness:cics": "d42c79ea63c14f08a98cd2733e4e43d91db2228916da898185fb65aebbea13f1",
-    "harness:core": "c2eb9b306930c90dc2f661a15ce4e1eb654ff8b672dfd920cb30299f0c30e4b4"
+    "harness:cics": "82ac74dec748c651f30c0607cab5724df1aecf2e94580d220835a9924db0e9a1",
+    "harness:core": "4a2b247571c6616bf9738ae3806284d8f1f08104d66695f25072801479bd3800"
    },
    "oracle": {
-    "oracle:cics-stub": "d0c683b42d6ffd0d4d19e3fd1b1e6618a37746c208a9beb9d5d4c9408dd513e5",
+    "oracle:cics-stub": "80aa05daf1956de66fd5a32165108cd6262fb9fbd36dc88364750943b85b23b9",
     "oracle:core": "b4bb775f0a30746a6054f259b4c8613e08cb0d8cf3b40f4a789d953aca4144a0",
     "oracle:le": "670c92cc59b722e108b688267be1fd89ecda9b7be62bb485da2ad4839b4f7011"
    }
   }
  },
- "measured_at": "f74f7d12de470c70b471c9987447d9cc686a628d"
+ "measured_at": "77f9057c195f2aa70c10e7e10fb73614afca654f"
 }

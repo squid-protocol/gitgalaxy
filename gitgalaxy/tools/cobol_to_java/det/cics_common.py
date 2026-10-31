@@ -4,10 +4,15 @@ imports nothing from det/cics.py or det/gen.py: a mixin that imported them back 
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from gitgalaxy.standards.cics.commands import COMMANDS as SPEC
 from gitgalaxy.standards.cics.commands.shared import BOTH_FORMS, NEEDS_ARGUMENT
 from gitgalaxy.standards.cics.commands.terminal import SEND_CONTROL_OPTIONS
 from gitgalaxy.standards.cics.model import GroupKind
+
+if TYPE_CHECKING:
+    from gitgalaxy.tools.cobol_to_java.det import layout as L
 
 _SEND_CONTROL = frozenset(SEND_CONTROL_OPTIONS)  # #4413: its device controls
 
@@ -108,3 +113,78 @@ def jstr(s: str) -> str:
         else:
             out.append(f"\\u{o:04x}")
     return '"' + "".join(out) + '"'
+
+
+# Library routines the runtime models (each the twin of the harness's COBOL-side model): program -> (Java, args)
+LIBRARY = {
+    "CEEDAYS": ("__PACKAGE__.cobolrt.le.Ceedays.call", 4),
+    "COBDATFT": ("__PACKAGE__.cobolrt.le.Cobdatft.call", 1),
+    "MVSWAIT": ("__PACKAGE__.cobolrt.le.Mvswait.call", 1),  # #5106: CardDemo's assembler wait (COBSWAIT)
+    "CEELOCT": ("__PACKAGE__.cobolrt.le.Ceeloct.call", 4),  # #4884: also takes the clock first and the charset last
+    # #4949: the LE date/time services (register L6); each is the twin of tests/equivalence/le/le_time.c
+    "CEEGMT": ("__PACKAGE__.cobolrt.le.Ceegmt.call", 3),
+    "CEEUTC": ("__PACKAGE__.cobolrt.le.Ceeutc.call", 3),
+    "CEEDATM": ("__PACKAGE__.cobolrt.le.Ceedatm.call", 4),
+    "CEESECS": ("__PACKAGE__.cobolrt.le.Ceesecs.call", 4),
+    "CEEDATE": ("__PACKAGE__.cobolrt.le.Ceedate.call", 4),
+    "CEEISEC": ("__PACKAGE__.cobolrt.le.Ceeisec.call", 9),
+    "CEEQCEN": ("__PACKAGE__.cobolrt.le.Ceeqcen.call", 2),
+    # #5003: sets the window CEEQCEN reads (one class, one setting)
+    "CEESCEN": ("__PACKAGE__.cobolrt.le.Ceeqcen.set", 2),
+    # #5003: Lilian seconds to integer fields (the inverse of CEEISEC) and the day of the week of a Lilian date
+    "CEESECI": ("__PACKAGE__.cobolrt.le.Ceeseci.call", 9),
+    "CEEDYWK": ("__PACKAGE__.cobolrt.le.Ceedywk.call", 3),
+    # #5003: the offset from GMT (zero: the run's clock is GMT); CEEUTCO is the same service as CEEGMTO
+    "CEEGMTO": ("__PACKAGE__.cobolrt.le.Ceegmto.call", 4),
+    "CEEUTCO": ("__PACKAGE__.cobolrt.le.Ceegmto.call", 4),
+    # #5858 (register Q5): Db2's SQLCA message formatter as a stand-in, the twin of tests/equivalence/le/dsntiac.c
+    "DSNTIAC": ("__PACKAGE__.cobolrt.le.Dsntiac.call", 5),
+    # #5945 (register X47): zECS's store-clock wrapper; its 16 bytes are a stated input of the run ($GGC_ZUIDSTCK_TOD)
+    "ZUIDSTCK": ("__PACKAGE__.cobolrt.le.Zuidstck.call", 1),
+}
+LIBRARY_RC = {"DSNTIAC"}  # the routines whose int result is the CALL's RETURN-CODE
+LIBRARY_CLOCK = {
+    "CEELOCT",
+    "CEEGMT",
+    "CEEUTC",
+    "CEESECS",  # #5003: the system year the century window (a YY) is anchored on
+}  # the routines that read the run's clock (the harness pins it, like CURRENT-DATE)
+# The COMP-2 arguments (by position) a routine reads or stores by value (Cobol.num / Cobol.store), never by bytes: HFP on
+# z/OS, IEEE on the oracle (register C6). Every routine with one, and every clock routine, also takes the charset last.
+LIBRARY_FLOATS = {
+    "CEELOCT": {1},
+    "CEEGMT": {1},
+    "CEEUTC": {1},
+    "CEEDATM": {0},
+    "CEESECS": {2},
+    "CEEISEC": {7},
+    "CEESECI": {0},
+    "CEEGMTO": {2},
+    "CEEUTCO": {2},
+}
+LIBRARY_CHARSET = {*LIBRARY_CLOCK, *LIBRARY_FLOATS, *LIBRARY_RC, "CEEDATE", "CEEQCEN", "CEESCEN"}
+
+
+def _extents(it: L.Item) -> tuple[tuple[int, int], tuple[int, int], list[int]]:
+    """An item's bytes within its record: its first occurrence, the whole of its outermost table, and the ids of
+    the OCCURS items it lies in."""
+    first = (it.offset, it.offset + it.size * it.occurs)
+    full, tables = first, []
+    a: L.Item | None = it
+    while a is not None:
+        if a.occurs > 1:
+            tables.append(id(a))
+            full = (a.offset, a.offset + a.size * a.occurs)
+        a = a.parent
+    return first, full, tables
+
+
+def _occurs_chain(it: L.Item) -> list[L.Item]:
+    """The OCCURS items from the outermost to `it` (itself included when it OCCURS)."""
+    chain = []
+    a: L.Item | None = it
+    while a is not None:
+        if a.occurs > 1 or a.depending:
+            chain.append(a)
+        a = a.parent
+    return list(reversed(chain))

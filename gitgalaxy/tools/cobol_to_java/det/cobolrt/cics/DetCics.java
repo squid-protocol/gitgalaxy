@@ -856,6 +856,13 @@ public final class DetCics {
         setPointer(ptr, h == 0 ? NO_COMMAREA : h);
     }
 
+    /** #5079 (X59): ADDRESS CWA(ptr), the region's common work area (SIT WRKAREA bytes); the same bytes for every task. */
+    // [rule RT-CICS-ADDRESS]
+    public static void addressCwa(CicsTask task, Field ptr) {
+        long h = task.cwaHandle();
+        setPointer(ptr, h == 0 ? NO_COMMAREA : h);
+    }
+
     /** #5119 (X56): OS/VS COBOL's `MOVE cell TO fullword` (a chained storage area's pointer to the next area): the fullword
      *  takes the token standing for the cell's address (CicsTask.bllToken), 4 bytes big-endian. */
     // [rule RT-CICS-BLL-ADDRESS]

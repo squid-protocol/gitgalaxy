@@ -460,7 +460,13 @@ class Generated:
         if prop is None:
             m = re.search(r"Key: .*?\(offset (\d+), (\d+) bytes", text)
             if not m:
-                raise CicsError(f"{entity}: no key")
+                # #6876: the forge writes "Key: TODO: no key is known" when no IDCAMS DEFINE / RECORD KEY / RIDFLD
+                # field of the record names one (a RIDFLD item outside the record, as HCUNLK's WS-KEY, names none);
+                # a KSDS key offset is the cluster's definition, so the port does not guess offset 0
+                raise CicsError(
+                    f"{entity}: no key (the generated entity states none: no IDCAMS DEFINE, RECORD KEY or RIDFLD "
+                    "field inside the record names it, and a KSDS key's offset is not guessed)"
+                )
             return int(m.group(1)), int(m.group(2))
         for m in re.finditer(r"//[^\n]*offset (\d+), (\d+) bytes[^\n]*\n(?:\s*@[^\n]*\n)*\s*private\s+[\w.<>]+\s+(\w+);",
                              text):  # fmt: skip

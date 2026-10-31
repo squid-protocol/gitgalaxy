@@ -2301,24 +2301,24 @@
       "lua/SOURCES.md": 0.0
     },
     "lua/cosmopolitan": {
-      "lua/cosmopolitan/all.lua": 8.815,
-      "lua/cosmopolitan/api.lua": 7.133,
-      "lua/cosmopolitan/attrib.lua": 7.39,
+      "lua/cosmopolitan/all.lua": 8.81,
+      "lua/cosmopolitan/api.lua": 7.132,
+      "lua/cosmopolitan/attrib.lua": 7.389,
       "lua/cosmopolitan/big.lua": 7.948,
       "lua/cosmopolitan/binarytrees.lua": 6.306,
       "lua/cosmopolitan/bitwise.lua": 7.529,
-      "lua/cosmopolitan/bwcoercion.lua": 8.86,
+      "lua/cosmopolitan/bwcoercion.lua": 8.808,
       "lua/cosmopolitan/call-lua-module.lua": 2.246,
       "lua/cosmopolitan/calls.lua": 7.855,
       "lua/cosmopolitan/closedsource.lua": 4.235,
       "lua/cosmopolitan/closure.lua": 8.618,
-      "lua/cosmopolitan/code.lua": 7.222,
+      "lua/cosmopolitan/code.lua": 7.18,
       "lua/cosmopolitan/constructs.lua": 8.197,
       "lua/cosmopolitan/coroutine.lua": 8.28,
       "lua/cosmopolitan/crashreport.lua": 4.957,
       "lua/cosmopolitan/cstack.lua": 7.371,
       "lua/cosmopolitan/db.lua": 8.753,
-      "lua/cosmopolitan/errors.lua": 8.06,
+      "lua/cosmopolitan/errors.lua": 8.057,
       "lua/cosmopolitan/events.lua": 12.94,
       "lua/cosmopolitan/fetch.lua": 6.459,
       "lua/cosmopolitan/files.lua": 8.708,
@@ -2326,13 +2326,13 @@
       "lua/cosmopolitan/gc.lua": 8.121,
       "lua/cosmopolitan/gengc.lua": 8.826,
       "lua/cosmopolitan/gensvg.lua": 5.614,
-      "lua/cosmopolitan/goto.lua": 9.078,
+      "lua/cosmopolitan/goto.lua": 9.072,
       "lua/cosmopolitan/heavy.lua": 7.984,
       "lua/cosmopolitan/hitcounter.lua": 2.88,
       "lua/cosmopolitan/literals.lua": 7.203,
-      "lua/cosmopolitan/locals.lua": 7.776,
-      "lua/cosmopolitan/main.lua": 7.504,
-      "lua/cosmopolitan/math.lua": 7.93,
+      "lua/cosmopolitan/locals.lua": 7.775,
+      "lua/cosmopolitan/main.lua": 7.498,
+      "lua/cosmopolitan/math.lua": 7.931,
       "lua/cosmopolitan/maxmind.lua": 7.322,
       "lua/cosmopolitan/mymodule.lua": 4.702,
       "lua/cosmopolitan/nextvar.lua": 7.707,
@@ -2340,9 +2340,9 @@
       "lua/cosmopolitan/pm.lua": 7.931,
       "lua/cosmopolitan/printpayload.lua": 5.274,
       "lua/cosmopolitan/redbean-form.lua": 6.045,
-      "lua/cosmopolitan/sort.lua": 7.444,
+      "lua/cosmopolitan/sort.lua": 7.44,
       "lua/cosmopolitan/strings.lua": 7.101,
-      "lua/cosmopolitan/tpack.lua": 7.34,
+      "lua/cosmopolitan/tpack.lua": 7.326,
       "lua/cosmopolitan/tracegc.lua": 6.029
     },
     "lua/darwin-xnu": {
@@ -2359,8 +2359,8 @@
       "lua/freebsd-src/cli.lua": 7.132,
       "lua/freebsd-src/color.lua": 4.778,
       "lua/freebsd-src/config.lua": 7.579,
-      "lua/freebsd-src/core.lua": 6.57,
-      "lua/freebsd-src/drawer.lua": 6.806,
+      "lua/freebsd-src/core.lua": 6.563,
+      "lua/freebsd-src/drawer.lua": 6.807,
       "lua/freebsd-src/gfx-beastie.lua": 1.443,
       "lua/freebsd-src/gfx-beastiebw.lua": 1.429,
       "lua/freebsd-src/gfx-fbsdbw.lua": 1.539,
@@ -2369,7 +2369,7 @@
       "lua/freebsd-src/gfx-orbbw.lua": 1.54,
       "lua/freebsd-src/hook.lua": 5.442,
       "lua/freebsd-src/loader.lua": 5.617,
-      "lua/freebsd-src/menu.lua": 6.898,
+      "lua/freebsd-src/menu.lua": 6.866,
       "lua/freebsd-src/password.lua": 6.446,
       "lua/freebsd-src/screen.lua": 4.383
     },
@@ -2378,7 +2378,7 @@
       "lua/pandoc/COPYRIGHT": 0.0,
       "lua/pandoc/attr-test.lua": 5.031,
       "lua/pandoc/block-count.lua": 5.619,
-      "lua/pandoc/blocks-filter.lua": 9.23,
+      "lua/pandoc/blocks-filter.lua": 8.809,
       "lua/pandoc/bytestring-reader.lua": 4.786,
       "lua/pandoc/bytestring.lua": 4.746,
       "lua/pandoc/count_words.lua": 5.041,
@@ -2399,7 +2399,7 @@
       "lua/pandoc/pandoc-list.lua": 4.648,
       "lua/pandoc/pandoc-log.lua": 5.484,
       "lua/pandoc/pandoc-mediabag.lua": 4.158,
-      "lua/pandoc/sample.lua": 5.132,
+      "lua/pandoc/sample.lua": 5.127,
       "lua/pandoc/writer-template.lua": 4.72
     },
     "lua/redis": {
@@ -2409,8 +2409,8 @@
       "lua/redis/cf.lua": 4.875,
       "lua/redis/echo.lua": 6.563,
       "lua/redis/env.lua": 8.323,
-      "lua/redis/factorial.lua": 6.584,
-      "lua/redis/fib.lua": 7.03,
+      "lua/redis/factorial.lua": 6.371,
+      "lua/redis/fib.lua": 6.902,
       "lua/redis/fibfor.lua": 6.107,
       "lua/redis/globals.lua": 6.274,
       "lua/redis/hello.lua": 6.875,
@@ -2517,18 +2517,18 @@
     },
     "perl/bugzilla": {
       "perl/bugzilla/Auth.pm": 6.58,
-      "perl/bugzilla/Bug.pm": 7.004,
-      "perl/bugzilla/CGI.pm": 6.618,
+      "perl/bugzilla/Bug.pm": 7.005,
+      "perl/bugzilla/CGI.pm": 6.619,
       "perl/bugzilla/DB.pm": 5.488,
       "perl/bugzilla/Requirements.pm": 6.772
     },
     "perl/exiftool": {
-      "perl/exiftool/ExifTool.pm": 7.436,
+      "perl/exiftool/ExifTool.pm": 7.437,
       "perl/exiftool/META.json": 1.997,
       "perl/exiftool/Makefile.PL": 3.412,
       "perl/exiftool/README": 0.0,
       "perl/exiftool/RandomAccess.pm": 6.869,
-      "perl/exiftool/exiftool": 10.022
+      "perl/exiftool/exiftool": 10.021
     },
     "perl/mojo": {
       "perl/mojo/IOLoop.pm": 7.724,
@@ -2542,22 +2542,22 @@
       "perl/spamassassin/Bayes.pm": 4.638,
       "perl/spamassassin/HTML.pm": 8.003,
       "perl/spamassassin/Makefile.PL": 6.929,
-      "perl/spamassassin/Message.pm": 6.647,
-      "perl/spamassassin/Parser.pm": 6.673,
-      "perl/spamassassin/PerMsgStatus.pm": 9.381,
-      "perl/spamassassin/SpamAssassin.pm": 6.43
+      "perl/spamassassin/Message.pm": 6.614,
+      "perl/spamassassin/Parser.pm": 6.668,
+      "perl/spamassassin/PerMsgStatus.pm": 9.378,
+      "perl/spamassassin/SpamAssassin.pm": 6.425
     },
     "php": {
       "php/SOURCES.md": 0.0
     },
     "php/guzzle": {
       "php/guzzle/Client.php": 6.386,
-      "php/guzzle/CurlFactory.php": 5.889,
-      "php/guzzle/CurlMultiHandler.php": 6.754,
+      "php/guzzle/CurlFactory.php": 5.89,
+      "php/guzzle/CurlMultiHandler.php": 6.741,
       "php/guzzle/Middleware.php": 6.451,
       "php/guzzle/Pool.php": 7.1,
       "php/guzzle/RequestException.php": 5.979,
-      "php/guzzle/StreamHandler.php": 6.808
+      "php/guzzle/StreamHandler.php": 6.809
     },
     "php/laravel_core": {
       "php/laravel_core/Application.php": 6.546,
@@ -2580,16 +2580,16 @@
       "php/magento2/Http.php": 7.093,
       "php/magento2/Interceptor.php": 5.479,
       "php/magento2/LICENSE.txt": 0.0,
-      "php/magento2/Mysql.php": 7.089,
+      "php/magento2/Mysql.php": 7.09,
       "php/magento2/ObjectManager.php": 5.391
     },
     "php/symfony": {
-      "php/symfony/Application.php": 6.967,
+      "php/symfony/Application.php": 6.966,
       "php/symfony/ContainerBuilder.php": 6.114,
       "php/symfony/EventDispatcher.php": 7.619,
       "php/symfony/HttpKernel.php": 7.738,
       "php/symfony/Parser.php": 6.175,
-      "php/symfony/Request.php": 5.971,
+      "php/symfony/Request.php": 5.972,
       "php/symfony/Router.php": 6.137
     },
     "php/symfony_emoji_data": {
@@ -2597,11 +2597,11 @@
     },
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": 2.769,
-      "php/wordpress/class-wp-query.php": 6.751,
-      "php/wordpress/formatting.php": 6.517,
-      "php/wordpress/functions.php": 5.229,
+      "php/wordpress/class-wp-query.php": 6.752,
+      "php/wordpress/formatting.php": 6.518,
+      "php/wordpress/functions.php": 5.23,
       "php/wordpress/license.txt": 0.0,
-      "php/wordpress/plugin.php": 5.621,
+      "php/wordpress/plugin.php": 5.618,
       "php/wordpress/wp-login.php": 8.001,
       "php/wordpress/wp-settings.php": 4.538
     },

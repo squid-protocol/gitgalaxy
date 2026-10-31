@@ -13,7 +13,12 @@ from typing import Any
 from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: compiled on first use
 from gitgalaxy.standards.language_standards.identifiers import CAPITAL, ID_CONTINUE, ID_START
 
-from .._shared_patterns import CALLS_OUT_RUBY, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import (
+    CALLS_OUT_RUBY,
+    GLOBAL_FRAGILE_DEBT,
+    GLOBAL_PLANNED_DEBT,
+    commented_keyword_statement,
+)
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -235,7 +240,16 @@ DEFINITION: dict[str, Any] = {
             re.M,
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails)
-        "dead_code": re.compile(r"#[ \t]*(?:def|class|module|if|unless|while|puts|p)\b"),
+        # #7207: a statement's shape (`(...)`, `;{}`, an assignment, a quote / `@` / `$` / `:` / `[` argument, or a bare
+        # `def|class|module Name [< Super]`), not just the keyword.
+        "dead_code": re.compile(
+            commented_keyword_statement(
+                "def|class|module|if|unless|while|puts|p",
+                marker="#",
+                extra=r"[ \t]+[\"'@$:\[]"
+                r"|(?:(?<=def)|(?<=class)|(?<=module))[ \t]+[\w:]+[?!=]?(?:[ \t]*<[ \t]*[\w:]+)?[ \t]*(?m:$)",
+            )
+        ),
         # 13. doc (Structured Documentation)
         # Captures YARD tags, Sorbet signatures, RDoc blocks/modifiers, and standard documentation headers.
         "doc": re.compile(

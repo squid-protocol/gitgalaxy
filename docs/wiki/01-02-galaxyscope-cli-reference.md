@@ -12,7 +12,7 @@ description: "> **Architecture: Hyper-Scale Static Analysis Wrapper**"
 This page is the contract for the `galaxyscope` command. `blast` is the same program under a second name.
 
 * Every flag, environment variable and exit code listed here does what its row says.
-* The parser and this page must agree in both directions. `tests/test_cli_contract.py` fails on a listed flag the parser lacks, a parser flag this page omits, an exit code the code cannot produce, and a `galaxyscope` command in the docs that uses a flag the parser lacks. It also runs the example at the bottom of this page.
+* The parser and this page must agree in both directions. `tests/tools/test_cli_contract.py` fails on a listed flag the parser lacks, a parser flag this page omits, an exit code the code cannot produce, and a `galaxyscope` command in the docs that uses a flag the parser lacks. It also runs the example at the bottom of this page.
 * Anything not listed is not promised. That includes log text, except the `BUILD FAILED:` prefix described under Exit Codes.
 * Only the full flag spellings below are promised. The parser also accepts unambiguous abbreviations, such as `--out` for `--output`, but any new flag could make an abbreviation ambiguous, so scripts should not rely on them.
 
@@ -132,7 +132,7 @@ The SBOM audit keeps a hash cache at `<target>/.gitgalaxy/dependency_cache.db` b
 | `GITGALAXY_PREFETCH` | **No** | Read-ahead over the source files: `on`, `off`, or `auto` (the default). |
 | `GITGALAXY_ASSESS_OFFLINE` | **No** | Internal. Set by `gitgalaxy assess` for its scan workers; not for direct use. |
 
-The scan has no network client, so it needs no API key or offline switch: `--llm-only` and the guardrails run locally. `tests/test_cli_contract.py` fails if the engine imports one.
+The scan has no network client, so it needs no API key or offline switch: `--llm-only` and the guardrails run locally. `tests/tools/test_cli_contract.py` fails if the engine imports one.
 
 ---
 

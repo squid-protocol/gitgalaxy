@@ -52,3 +52,14 @@ def test_commented_out_statement_counts(line):
 @pytest.mark.parametrize("line", NEGATIVES)
 def test_prose_heading_pseudocode_does_not_count(line):
     assert not RULE.search(line + "\n")
+
+
+@pytest.mark.parametrize(
+    "line",
+    [
+        "      *             MOVE 'NO RECORDS TO SHOW'  TO WS-ERROR-MSG",
+        "      *             MOVE WS-CA-FIRST-CARD-ACCT-ID",
+    ],
+)
+def test_literal_operand_and_continued_move_count(line):
+    assert RULE.search(line + "\n")

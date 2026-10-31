@@ -546,7 +546,9 @@ DEFINITION: dict[str, Any] = {
         # EXEC SQL|CICS), not just its first word: prose, headings and pseudocode no longer match.
         "dead_code": re.compile(
             r"^(?:.{6}\*|[ \t]*\*>)[ \t]*(?:"
-            r"MOVE[ \t]+(?:CORR(?:ESPONDING)?[ \t]+)?[^\s.]+[ \t]+TO[ \t]+[^\s.]"
+            r"MOVE[ \t]+(?:CORR(?:ESPONDING)?[ \t]+)?(?:'[^'\n]*'|\"[^\"\n]*\"|[^\s.'\"]+)[ \t]+TO[ \t]+[^\s.]"
+            # `TO` on the next line: only a hyphenated data name or a literal ends the line (not `MOVE LIST`)
+            r"|MOVE[ \t]+(?:[A-Za-z0-9]+(?:-[A-Za-z0-9]+)+|'[^'\n]*'|\"[^\"\n]*\")[ \t]*$"
             r"|COMPUTE[ \t]+[\w-]+(?:\([^)\n]{0,40}\))?(?:[ \t]+ROUNDED)?[ \t]*="
             r"|IF[ \t]+\(*(?:NOT[ \t]+)?[\w-]+(?:\([^)\n]{0,40}\))?[ \t]*"
             r"(?:NOT[ \t]*)?(?:=|<>|<=|>=|<|>|(?:IS[ \t]+)?(?:NOT[ \t]+)?(?:EQUAL|GREATER|LESS|NUMERIC|ALPHABETIC)\b)"

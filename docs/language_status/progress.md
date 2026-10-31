@@ -1,6 +1,6 @@
 # Progress
 
-Generated from main at `1d2343785` by `tests/tools/progress_report.py` (#5280); do not edit. Every
+Generated from main at `4a1f22fc7` by `tests/tools/progress_report.py` (#5280); do not edit. Every
 denominator is fixed and every number names its source below. A level is an evidence level, never a bare
 claim of correctness: the oracle is GnuCOBOL plus IBM documentation, not z/OS.
 
@@ -24,8 +24,8 @@ Entries that no longer hold (the program is above L0): dbb-mortgage-application/
 | `cics-banking-sample-application-cbsa` | 31 | 0 | 0 | 0 | 0 | 31 | 0 | 31 (100.0%) | 31 (100.0%) | 0 |
 | `cics-genapp` | 31 | 0 | 0 | 0 | 0 | 31 | 0 | 31 (100.0%) | 31 (100.0%) | 0 |
 | `dbb-mortgage-application` | 6 | 1 | 0 | 0 | 0 | 5 | 0 | 5 (83.3%) | 5 (83.3%) | 0 |
-| `zecs` | 7 | 0 | 0 | 1 | 0 | 6 | 0 | 7 (100.0%) | 6 (85.7%) | 0 |
-| **Total** | 129 | 3 | 0 | 1 | 1 | 124 | 0 | 126 (97.7%) | 124 (96.1%) | 0 |
+| `zecs` | 7 | 0 | 0 | 1 | 0 | 4 | 2 | 7 (100.0%) | 6 (85.7%) | 2 |
+| **Total** | 129 | 3 | 0 | 1 | 1 | 122 | 2 | 126 (97.7%) | 124 (96.1%) | 2 |
 
 L0 inventoried, L1 translated whole, L2 executed equal, L3 every paragraph, L4 every net branch, L5 translator
 mutants caught (`definition_of_done.md`).
@@ -60,7 +60,7 @@ Source: tests/fixtures/feature_inventory/<estate>.json (era_tags.py). Programs p
 
 ## 4. Core burn-down
 
-Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-10-31T12:44:10Z.
+Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-10-31T13:05:27Z.
 
 - `scope:core`: 11 open, 200 closed.
 - Milestone 28: 7 open, 102 closed.

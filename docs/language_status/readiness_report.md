@@ -307,8 +307,8 @@ era 0: 0, era 1: 0, era 2: 2, era 3: 0, era 4: 1, era none: 3
 | L1 translated whole | 0 |
 | L2 executed equivalent | 1 |
 | L3 paragraph coverage | 0 |
-| L4 branch coverage | 6 |
-| L5 mutants accounted for | 0 |
+| L4 branch coverage | 4 |
+| L5 mutants accounted for | 2 |
 
 - translated whole: 7 / 7 (100%); with holes: 0; refused: 0
 - whole-translated but a CALL / LINK target has holes (below L2 until it is closed): 0

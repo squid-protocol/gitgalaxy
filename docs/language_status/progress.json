@@ -1,5 +1,5 @@
 {
- "commit": "1d2343785",
+ "commit": "4a1f22fc7",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -160,7 +160,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-31T12:44:10Z",
+  "as_of": "2026-10-31T13:05:27Z",
   "core": {
    "closed": 200,
    "open": 11,
@@ -517,14 +517,14 @@
     "l2_plus_pct": 100.0,
     "l4_plus": 6,
     "l4_plus_pct": 85.7,
-    "l5": 0,
+    "l5": 2,
     "levels": {
      "L0": 0,
      "L1": 0,
      "L2": 1,
      "L3": 0,
-     "L4": 6,
-     "L5": 0
+     "L4": 4,
+     "L5": 2
     },
     "programs": 7,
     "translated_whole": 7
@@ -535,14 +535,14 @@
    "l2_plus_pct": 97.7,
    "l4_plus": 124,
    "l4_plus_pct": 96.1,
-   "l5": 0,
+   "l5": 2,
    "levels": {
     "L0": 3,
     "L1": 0,
     "L2": 1,
     "L3": 1,
-    "L4": 124,
-    "L5": 0
+    "L4": 122,
+    "L5": 2
    },
    "programs": 129,
    "reachable": 126,

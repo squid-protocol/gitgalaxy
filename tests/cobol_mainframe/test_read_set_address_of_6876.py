@@ -15,7 +15,7 @@ import pytest
 
 pytest.importorskip("tree_sitter_language_pack")
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-import test_det_translate as T  # noqa: E402  (bare imports: tests/ has no __init__.py, see CLAUDE.md)
+import test_det_translate as T  # (bare imports: tests/ has no __init__.py, see CLAUDE.md)
 
 
 class _LinkCics(T._PtrCics):

@@ -2937,7 +2937,8 @@
    "family": "CICS",
    "title": "SET(ptr) of RECEIVE, RETRIEVE, READQ TS, GET CONTAINER, READ, READNEXT and READPREV: a new block of task storage holding the data, its handle in the pointer, valid until the command IBM names ends it",
    "methods": [
-    "setBlock"
+    "setBlock",
+    "setBlockAt"
    ],
    "ibm": {
     "doc": "cics-apr",

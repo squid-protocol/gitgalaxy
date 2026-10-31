@@ -76,8 +76,9 @@ def test_the_concatenated_sortin_case_is_the_dfsort_lowering():
 def test_the_concatenated_inputs_are_the_class_the_case_claims():
     ins = []
     for n in ("1", "2"):
-        lines = (COMB / f"sortin{n}.txt").read_bytes().split(b"\n")
-        assert lines.pop() == b""
+        data = (COMB / f"sortin{n}.txt").read_bytes()
+        assert data.endswith(b"\n")
+        lines = data[:-1].split(b"\n")
         assert lines and all(len(r) == RECLEN for r in lines)
         ins.append([r[:16] for r in lines])
     a, b = ins

@@ -1033,6 +1033,7 @@ def test_syncpoint_resp2_alone_is_written_too():
 # A sample of each modelled command that accepts RESP; the commands this double cannot translate say why their RESP
 # is written (or need not be).
 _RESP_SAMPLES = {
+    "LOAD": "LOAD PROGRAM('P')", "RELEASE": "RELEASE PROGRAM('P')",  # (#6876)
     "FETCH ANY": "FETCH ANY(REC) NOSUSPEND", "FETCH CHILD": "FETCH CHILD(REC) NOSUSPEND",
     "FORMATTIME": "FORMATTIME ABSTIME(REC) DDMMYYYY(KEY)", "ENQ": "ENQ RESOURCE(REC) LENGTH(10)", "DEQ": "DEQ RESOURCE(REC) LENGTH(10)", "DELAY": "DELAY FOR SECONDS(1)",
     "SEND TEXT": "SEND TEXT FROM(REC)", "XCTL": "XCTL PROGRAM('P')", "ASSIGN": "ASSIGN APPLID(REC)",

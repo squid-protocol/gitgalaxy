@@ -254,7 +254,7 @@ def test_coverage_45_full_entries_and_the_name_only_api_commands():
     by_status: dict[str, list[str]] = {}
     for c in COMMANDS.values():
         by_status.setdefault(c.status, []).append(c.key)
-    assert len(by_status["modelled"]) == 103 and sorted(by_status["engine-only"]) == ["LOAD", "RELEASE"]
+    assert len(by_status["modelled"]) == 105 and not by_status.get("engine-only")  # #6876: LOAD / RELEASE are modelled
     # IBM's CICS TS 6.x command summary: 259 API command names, 57 with full entries (+ INQUIRE PROGRAM, SPI; #4767: WEB
     # OPEN / CONVERSE / CLOSE / PARSE URL / SEND / EXTRACT / RECEIVE / READ + WRITE HTTPHEADER; #4940: READ FORMFIELD / QUERYPARM and the nine WEB browse forms; #4941: RETRIEVE; #4951: MOVE CONTAINER, STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER; #4950: FREE CHILD; #4972: EXTRACT WEB, EXTRACT TCPIP; #5005: DELETE CHANNEL, QUERY CHANNEL, GET64 / PUT64 CONTAINER; #4771: GETMAIN / FREEMAIN; #5078: UNLOCK; #5079: READQ TD, DELETEQ TD, ADDRESS, POST, WAIT EVENT, CONVERSE; #5039: REWIND COUNTER, UPDATE COUNTER; #5859: VERIFY PASSWORD, no longer name-only), 9 forms of a modelled command (api.py's docstring), the other 152 name-only
     assert len(by_status["refused"]) == 152
@@ -276,7 +276,7 @@ def test_a_whole_command_refusal_names_its_reason():
     assert whole_refusal("WAIT", "WAIT", "JOURNALNAME").key == "WAIT JOURNALNAME"  # type: ignore[union-attr]
     assert whole_refusal("ADDRESS", "ADDRESS", "SET").key == "ADDRESS SET"  # type: ignore[union-attr]
     assert whole_refusal("ADDRESS", "ADDRESS", "EIB") is None  # #5079 (X59): ADDRESS EIB / COMMAREA are modelled
-    assert whole_refusal("LOAD", "LOAD", "PROGRAM").status == "engine-only"  # type: ignore[union-attr]
+    assert whole_refusal("LOAD", "LOAD", "PROGRAM") is None  # #6876: LOAD / RELEASE are modelled
     # a modelled command, or a name that is no API command (an SPI one): no whole-command entry
     assert whole_refusal("READ", "READ", "FILE") is None
     assert whole_refusal("INQUIRE", "INQUIRE FILE", None) is None

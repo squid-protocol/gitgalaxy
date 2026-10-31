@@ -12,11 +12,11 @@ Every cell that does not pass is ledgered in `tests/cics_crucible/baseline.json`
 |---|---|---|---|---|
 | engine-facts | 48 | 0 | 0 | 48 |
 | forge-compile | 48 | 0 | 0 | 48 |
-| cobol-stub | 147 | 5 | 19 | 171 |
+| cobol-stub | 150 | 8 | 13 | 171 |
 | java | 0 | 171 | 0 | 171 |
 | java-ported | 60 | 111 | 0 | 171 |
 | java-facade | 57 | 114 | 0 | 171 |
-| **all** | **360** | **401** | **19** | **780** |
+| **all** | **363** | **404** | **13** | **780** |
 
 ## By trap and case
 
@@ -24,8 +24,8 @@ Pass counts per side (scenario sides: passing / scenarios).
 
 | trap | case | engine-facts | forge-compile | cobol-stub | java | java-ported | java-facade |
 |---|---|---|---|---|---|---|---|
-| commarea-mismatch | `ca-address-commarea` | pass | pass | 0 / 3 | 0 / 3 | 0 / 3 | 0 / 3 |
-| commarea-mismatch | `ca-address-eib-commarea` | pass | pass | 0 / 3 | 0 / 3 | 0 / 3 | 0 / 3 |
+| commarea-mismatch | `ca-address-commarea` | pass | pass | 2 / 3 | 0 / 3 | 0 / 3 | 0 / 3 |
+| commarea-mismatch | `ca-address-eib-commarea` | pass | pass | 1 / 3 | 0 / 3 | 0 / 3 | 0 / 3 |
 | commarea-mismatch | `ca-address-twa-tctua` | pass | pass | 3 / 3 | 0 / 3 | 0 / 3 | 0 / 3 |
 | commarea-mismatch | `ca-channel-containers` | pass | pass | 2 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
 | commarea-mismatch | `ca-container-byteoffset` | pass | pass | 2 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
@@ -79,6 +79,10 @@ Each cobol-stub scenario runs the COBOL compiled with `-ftraceall` (tests/tools/
 
 | case | program | scenarios | paragraphs | branches | HANDLE labels | dead | port |
 |---|---|---|---|---|---|---|---|
+| `ca-address-commarea` | CAADDR | 2 | 3/4 | 3/8 | 0/0 | 0 | proven on 0 scenarios, covering 0/4 paragraphs and 0/8 branches |
+| `ca-address-commarea` | CAADSB | 1 | 1/1 | 1/2 | 0/0 | 0 | proven on 0 scenarios, covering 0/1 paragraphs and 0/2 branches |
+| `ca-address-eib-commarea` | CAEBCA | 1 | 2/4 | 1/10 | 0/0 | 0 | proven on 0 scenarios, covering 0/4 paragraphs and 0/10 branches |
+| `ca-address-eib-commarea` | CAEBSB | 1 | 1/1 | 2/4 | 0/0 | 0 | proven on 0 scenarios, covering 0/1 paragraphs and 0/4 branches |
 | `ca-address-twa-tctua` | CATWAD | 3 | 5/5 | 5/7 | 0/0 | 0 | proven on 0 scenarios, covering 0/5 paragraphs and 0/7 branches |
 | `ca-address-twa-tctua` | CATWSB | 1 | 1/1 | 1/2 | 0/0 | 0 | proven on 0 scenarios, covering 0/1 paragraphs and 0/2 branches |
 | `ca-channel-containers` | CACHAN | 1 | 3/3 | 0/0 | 0/0 | 0 | proven on 0 scenarios, covering 0/3 paragraphs and 0/0 branches |
@@ -152,6 +156,38 @@ Each cobol-stub scenario runs the COBOL compiled with `-ftraceall` (tests/tools/
 ### Live code no scenario reaches
 
 Each item is a scenario to propose: a crucible PR adds it with a hand-written, doc-cited expected log, like every other. Dead code is not a gap: nothing can reach it.
+
+#### `ca-address-commarea` CAADDR
+
+- paragraph `NONE-PARA` (line 82)
+- EVALUATE at line 62 in `MAIN-PARA`: `WHEN at line 65` never taken
+- EVALUATE at line 62 in `MAIN-PARA`: no WHEN arm matched: never
+- IF at line 88 in `NONE-PARA`: never true
+- IF at line 88 in `NONE-PARA`: never false
+- IF at line 106 in `EIB-PARA`: never false
+
+#### `ca-address-commarea` CAADSB
+
+- IF at line 39 in `SUB-MAIN`: never true
+
+#### `ca-address-eib-commarea` CAEBCA
+
+- paragraph `QIDERR-PARA` (line 96)
+- paragraph `NONE-PARA` (line 124)
+- EVALUATE at line 85 in `MAIN-PARA`: `WHEN at line 86` never taken
+- EVALUATE at line 85 in `MAIN-PARA`: `WHEN at line 90` never taken
+- EVALUATE at line 85 in `MAIN-PARA`: no WHEN arm matched: never
+- IF at line 104 in `QIDERR-PARA`: never true
+- IF at line 104 in `QIDERR-PARA`: never false
+- IF at line 130 in `NONE-PARA`: never true
+- IF at line 130 in `NONE-PARA`: never false
+- IF at line 136 in `NONE-PARA`: never true
+- IF at line 136 in `NONE-PARA`: never false
+
+#### `ca-address-eib-commarea` CAEBSB
+
+- IF at line 53 in `SUB-MAIN`: never false
+- IF at line 56 in `SUB-MAIN`: never true
 
 #### `ca-address-twa-tctua` CATWAD
 
@@ -287,21 +323,20 @@ Each item is a scenario to propose: a crucible PR adds it with a hand-written, d
 
 Each missing feature belongs to a piece of harness work (below: the features themselves). A cell is *unlocked* when every piece its features need is done: it then gets a pass or fail verdict rather than `unsupported`. **needs** counts the cells that do not pass and need the piece, **alone** the unsupported cells it unlocks by itself, and **cumulative** the unsupported cells unlocked by it and every row above it (rows are chosen greedily).
 
-### cobol-stub (19 unsupported)
+### cobol-stub (13 unsupported)
 
 | # | harness work | needs | alone | cumulative |
 |---|---|---|---|---|
-| 1 | ADDRESS COMMAREA | 6 | 6 | 6 |
-| 2 | terminal RECEIVE (unformatted input) | 3 | 3 | 9 |
-| 3 | WEB SEND CHARACTERSET | 6 | 0 | 9 |
-| 4 | WEB SEND HOSTCODEPAGE | 6 | 0 | 9 |
-| 5 | WEB READ HTTPHEADER | 5 | 0 | 9 |
-| 6 | WEB WRITE HTTPHEADER | 1 | 0 | 10 |
-| 7 | WEB RECEIVE CHARACTERSET | 5 | 0 | 10 |
-| 8 | WEB RECEIVE HOSTCODEPAGE | 5 | 0 | 15 |
-| 9 | READ | 4 | 0 | 15 |
-| 10 | READNEXT | 4 | 0 | 15 |
-| 11 | READPREV | 4 | 0 | 19 |
+| 1 | terminal RECEIVE (unformatted input) | 3 | 3 | 3 |
+| 2 | WEB SEND CHARACTERSET | 6 | 0 | 3 |
+| 3 | WEB SEND HOSTCODEPAGE | 6 | 0 | 3 |
+| 4 | WEB READ HTTPHEADER | 5 | 0 | 3 |
+| 5 | WEB WRITE HTTPHEADER | 1 | 0 | 4 |
+| 6 | WEB RECEIVE CHARACTERSET | 5 | 0 | 4 |
+| 7 | WEB RECEIVE HOSTCODEPAGE | 5 | 0 | 9 |
+| 8 | READ | 4 | 0 | 9 |
+| 9 | READNEXT | 4 | 0 | 9 |
+| 10 | READPREV | 4 | 0 | 13 |
 
 ### java (0 unsupported)
 
@@ -338,7 +373,6 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 
 | feature | cells | harness work |
 |---|---|---|
-| translator: ADDRESS COMMAREA | 6 | ADDRESS COMMAREA |
 | translator: WEB SEND CHARACTERSET | 6 | WEB SEND CHARACTERSET |
 | translator: WEB SEND HOSTCODEPAGE | 6 | WEB SEND HOSTCODEPAGE |
 | translator: WEB READ HTTPHEADER | 5 | WEB READ HTTPHEADER |
@@ -384,8 +418,9 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 
 | side | reason | cells |
 |---|---|---|
-| cobol-stub | WRITEQ-TS missing | 4 |
+| cobol-stub | WRITEQ-TS missing | 6 |
 | cobol-stub | data bytes differ | 1 |
+| cobol-stub | text differs | 1 |
 | java | runTask records no events (the generated stub: PROCEDURE DIVISION not ported) | 171 |
 | java-ported | not ported | 111 |
 | java-facade | not ported | 111 |
@@ -395,27 +430,24 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 
 | cell | status | first divergence / reason |
 |---|---|---|
-| `ca-address-commarea/eib-view/cobol-stub` | unsupported | translator: ADDRESS COMMAREA |
 | `ca-address-commarea/eib-view/java` | fail | task 1 (CA02) event 1: RECEIVE expected, the side recorded no further event |
 | `ca-address-commarea/eib-view/java-facade` | fail | no port of any of its programs |
 | `ca-address-commarea/eib-view/java-ported` | fail | no port of any of its programs |
-| `ca-address-commarea/link-view/cobol-stub` | unsupported | translator: ADDRESS COMMAREA |
 | `ca-address-commarea/link-view/java` | fail | task 1 (CA02) event 1: RECEIVE expected, the side recorded no further event |
 | `ca-address-commarea/link-view/java-facade` | fail | no port of any of its programs |
 | `ca-address-commarea/link-view/java-ported` | fail | no port of any of its programs |
-| `ca-address-commarea/no-commarea/cobol-stub` | unsupported | translator: ADDRESS COMMAREA |
+| `ca-address-commarea/no-commarea/cobol-stub` | fail | task 1 (CA02) event 2: WRITEQ-TS expected, the side recorded no further event |
 | `ca-address-commarea/no-commarea/java` | fail | task 1 (CA02) event 1: RECEIVE expected, the side recorded no further event |
 | `ca-address-commarea/no-commarea/java-facade` | fail | no port of any of its programs |
 | `ca-address-commarea/no-commarea/java-ported` | fail | no port of any of its programs |
-| `ca-address-eib-commarea/commarea-writethru/cobol-stub` | unsupported | translator: ADDRESS COMMAREA |
 | `ca-address-eib-commarea/commarea-writethru/java` | fail | task 1 (CA0K) event 1: RECEIVE expected, the side recorded no further event |
 | `ca-address-eib-commarea/commarea-writethru/java-facade` | fail | no port of any of its programs |
 | `ca-address-eib-commarea/commarea-writethru/java-ported` | fail | no port of any of its programs |
-| `ca-address-eib-commarea/eib-qiderr/cobol-stub` | unsupported | translator: ADDRESS COMMAREA |
+| `ca-address-eib-commarea/eib-qiderr/cobol-stub` | fail | task 1 (CA0K) event 4: text 'MODE=Q RESP=0044 SAME=Y ' expected, got 'MODE=Q RESP=0000 SAME=Y ' |
 | `ca-address-eib-commarea/eib-qiderr/java` | fail | task 1 (CA0K) event 1: RECEIVE expected, the side recorded no further event |
 | `ca-address-eib-commarea/eib-qiderr/java-facade` | fail | no port of any of its programs |
 | `ca-address-eib-commarea/eib-qiderr/java-ported` | fail | no port of any of its programs |
-| `ca-address-eib-commarea/no-commarea/cobol-stub` | unsupported | translator: ADDRESS COMMAREA |
+| `ca-address-eib-commarea/no-commarea/cobol-stub` | fail | task 1 (CA0K) event 2: WRITEQ-TS expected, the side recorded no further event |
 | `ca-address-eib-commarea/no-commarea/java` | fail | task 1 (CA0K) event 1: RECEIVE expected, the side recorded no further event |
 | `ca-address-eib-commarea/no-commarea/java-facade` | fail | no port of any of its programs |
 | `ca-address-eib-commarea/no-commarea/java-ported` | fail | no port of any of its programs |

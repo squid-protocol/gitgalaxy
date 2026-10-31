@@ -2992,6 +2992,17 @@ def drive_scenario(case: cc.Case, sc: dict[str, Any], run_one: Any) -> tuple[lis
         return tasks, None
 
 
+def _expects_undefined_td_queue(case: cc.Case) -> bool:
+    """#5079 (X57): a case whose oracle log has a TD command answered QIDERR (queue not in the CSD) while its CSD defines no
+    TDQUEUE at all: the stub then needs an empty tdqueues.cfg (absent, it takes every queue as defined)."""
+    return any(
+        str(e.get("event", "")).endswith("-TD") and e.get("resp") == "QIDERR"
+        for log in case.expected.values()
+        for t in log["tasks"]
+        for e in t["events"]
+    )
+
+
 def run_scenario(case: cc.Case, sc: dict[str, Any], box: "Container", work: Path) -> dict[str, Any]:
     """One scenario on the stub, scheduled as SPEC section 4 says (drive_scenario)."""
     ts = f"runs/{sc['id']}/ts"  # #4002: the region's TS queues, shared by every task of the scenario
@@ -3050,8 +3061,10 @@ def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, tra
     (d / "programs.cfg").write_text("".join(f"{p}\n" for p in sorted(case.csd["programs"])), encoding="ascii")
     (d / "transactions.cfg").write_text("".join(f"{t}\n" for t in sorted(case.csd["transactions"])), encoding="ascii")
     (d / "terminals.cfg").write_text(f"{case.data['terminal']}\n", encoding="ascii")
-    if case.csd.get("tdqueues"):  # #5079 (X57): the CSD's TDQUEUEs; a queue it does not define is QIDERR
-        (d / "tdqueues.cfg").write_text("".join(f"{q} {w}\n" for q, w in sorted(case.csd["tdqueues"].items())),
+    if case.csd.get("tdqueues") or _expects_undefined_td_queue(
+        case
+    ):  # #5079 (X57): the CSD's TDQUEUEs; one it lacks is QIDERR
+        (d / "tdqueues.cfg").write_text("".join(f"{q} {w}\n" for q, w in sorted((case.csd.get("tdqueues") or {}).items())),
                                         encoding="ascii")  # fmt: skip
     # #4270 zECS (X32): the URIMAP definitions the case CSD installs, `NAME TRANSACTION PATH` ('-': no transaction)
     (d / "urimaps.cfg").write_text("".join(f"{n} {t or '-'} {p}\n" for n, t, p in case.csd.get("urimaps") or []),

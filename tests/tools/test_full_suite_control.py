@@ -2,6 +2,7 @@
 
 import os
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -9,6 +10,10 @@ import yaml
 
 WORKFLOW = Path(__file__).resolve().parents[2] / ".github" / "workflows" / "smoke-test.yml"
 JOBS = yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))["jobs"]
+
+# The summary step is bash for the ubuntu runners. On a Windows runner `bash` is the WSL launcher, which drops the env the
+# step reads (PARTS/SKIP/PLAN), so the shell tests fail or pass vacuously there (#7312); same skip as test_ci_retry.py.
+needs_linux_bash = pytest.mark.skipif(sys.platform != "linux", reason="the summary step is bash for the Linux runners")
 
 
 def _summary_step() -> dict:
@@ -25,17 +30,20 @@ def _passes(parts: str, skip: str = "", plan: str = "full") -> bool:
     return subprocess.run(["bash", "-e", "-c", _summary_step()["run"]], env=env, capture_output=True).returncode == 0
 
 
+@needs_linux_bash
 @pytest.mark.parametrize("parts", ["failure", "cancelled", ""])
 @pytest.mark.parametrize("skip, plan", [("", "full"), ("true", "full"), ("", "skip"), ("true", "skip")])
 def test_a_part_that_did_not_pass_fails_the_check_whatever_the_skip_proofs_say(parts, skip, plan):
     assert not _passes(parts, skip, plan)
 
 
+@needs_linux_bash
 @pytest.mark.parametrize("plan", ["full", "select", ""])
 def test_skipped_parts_fail_without_a_proof_the_tree_is_green(plan):
     assert not _passes("skipped", "", plan)  # a suite that never ran can't read as a pass
 
 
+@needs_linux_bash
 def test_the_three_ways_to_pass():
     assert _passes("success")
     assert _passes("skipped", skip="true")  # the gate proved this tree green on the PR (#4935)

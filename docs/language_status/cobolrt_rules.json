@@ -381,7 +381,8 @@
     "raw",
     "putRaw",
     "alias",
-    "unalias"
+    "unalias",
+    "aliased"
    ]
   },
   {
@@ -2890,7 +2891,8 @@
     "copyPointer",
     "advancePointer",
     "samePointer",
-    "wholeRecord"
+    "wholeRecord",
+    "fromText"
    ],
    "site": "getmain",
    "ibm": {

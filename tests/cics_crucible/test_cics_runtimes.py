@@ -1937,6 +1937,14 @@ def test_cics_task_moves_containers_and_browses_a_channel_as_the_stub_does(tmp_p
     ("steps", "why"),
     [
         ('put("CH1", "A", "a", "CHANNEL"); move("m", "A", "A", "CH1", "CH1");', "MOVE CONTAINER onto itself"),
+        ('put("CH1", "A", "a", "CHANNEL"); move("m", "DFHX", "B", "CH1", "CH1");', "CICS-defined (DFH...)"),
+        ('put("CH1", "A", "a", "CHANNEL"); move("m", "A", "dfhB", "CH1", "CH1");', "CICS-defined (DFH...)"),
+        ('put("CH1", "A", "a", "CHANNEL"); move("m", "A", "B", "DFHTRANSACTION", "CH1");', "CICS-defined (DFH...)"),
+        ('put("CH1", "A", "a", "CHANNEL"); move("m", "A", "B", "CH1", "DFHCH");', "CICS-defined (DFH...)"),
+        (
+            'put("CH1", "A", "a", "CHANNEL"); blank(c.chan, 16, "DFHTRANSACTION"); GGCDELH(&c);',
+            "DELETE CHANNEL naming a CICS-defined",
+        ),
         (
             'put("CH1", "A", "a", "CHANNEL CHAR"); put("CH1", "B", "b", "CHANNEL"); move("m", "A", "B", "CH1", "CH1");',
             "onto a container of the other data type",
@@ -1958,9 +1966,9 @@ def test_the_stub_refuses_what_ibm_leaves_open_on_move_and_browse(tmp_path, step
     """#4951 (X42): a move onto itself or onto the other data type, a browse of a channel that changed, a browse with no
     channel (IBM: the BTS form) and a name with an embedded blank are refused, never guessed."""
     main = (
-        _MOVE_STUB_MAIN.replace("int GGCSYNC(gg_cics *c);", "int GGCSYNC(gg_cics *c); int GGCDELC(gg_cics *c);").split(
-            "int main(void) {"
-        )[0]
+        _MOVE_STUB_MAIN.replace(
+            "int GGCSYNC(gg_cics *c);", "int GGCSYNC(gg_cics *c); int GGCDELC(gg_cics *c); int GGCDELH(gg_cics *c);"
+        ).split("int main(void) {")[0]
         + "int main(void) {\n    char *area = NULL;\n"
         + '    blank(c.name1, 8, "MAIN"); c.len = 0; GGCTASK(&c); GGCNEXT(&c, &area);\n'
         + steps
@@ -1980,6 +1988,26 @@ def test_the_stub_refuses_what_ibm_leaves_open_on_move_and_browse(tmp_path, step
         (
             't.putContainer("CH1", "A", "a".getBytes(), 1, null, false); t.moveContainer("CH1", "A", "A", "CH1");',
             "MOVE CONTAINER onto itself",
+        ),
+        (
+            't.putContainer("CH1", "A", "a".getBytes(), 1, null, false); t.moveContainer("CH1", "DFHX", "B", "CH1");',
+            "CICS-defined (DFH...)",
+        ),
+        (
+            't.putContainer("CH1", "A", "a".getBytes(), 1, null, false); t.moveContainer("CH1", "A", "dfhB", "CH1");',
+            "CICS-defined (DFH...)",
+        ),
+        (
+            't.putContainer("CH1", "A", "a".getBytes(), 1, null, false); t.moveContainer("DFHTRANSACTION", "A", "B", "CH1");',
+            "CICS-defined (DFH...)",
+        ),
+        (
+            't.putContainer("CH1", "A", "a".getBytes(), 1, null, false); t.moveContainer("CH1", "A", "B", "DFHCH");',
+            "CICS-defined (DFH...)",
+        ),
+        (
+            't.putContainer("CH1", "A", "a".getBytes(), 1, null, false); t.deleteChannel("DFHTRANSACTION");',
+            "DELETE CHANNEL naming a CICS-defined",
         ),
         (
             't.putContainer("CH1", "A", "a".getBytes(), 1, "CHAR", false); t.putContainer("CH1", "B", "b".getBytes(), 1, null, false);'
@@ -7265,3 +7293,19 @@ def test_cics_task_sends_a_container_as_the_stub_does(tmp_path):
     assert len(refusals) == len(_X37_CT_REFUSED)
     for got, (_steps, why) in zip(refusals, _X37_CT_REFUSED):
         assert why in got and got.endswith(": not modelled"), (got, why)
+
+
+@needs_javac
+def test_cics_task_still_runs_get_put_and_ordinary_moves_beside_dfh_names(tmp_path):
+    """#5005 (X42): only MOVE CONTAINER and DELETE CHANNEL refuse a DFH name; PUT / GET / DELETE CONTAINER of one (the
+    pipeline's DFHREQUEST) and a move of ordinary names are unchanged."""
+    out = _cics_task(
+        tmp_path,
+        'CicsTask t = new CicsTask("CA05", "ENTER", null, null).withProgram("MAIN");\n'
+        't.putContainer("CH1", "DFHREQUEST", "a".getBytes(), 1, null, false);\n'
+        't.putContainer("CH1", "A", "b".getBytes(), 1, null, false);\n'
+        'System.out.println("move=" + t.moveContainer("CH1", "A", "B", "CH1").resp());\n'
+        'System.out.println("get=" + t.getContainer("CH1", "DFHREQUEST", 1).resp());\n'
+        'System.out.println("del=" + t.deleteContainer("CH1", "DFHREQUEST").resp());',
+    )
+    assert "move=NORMAL" in out and "del=NORMAL" in out, out

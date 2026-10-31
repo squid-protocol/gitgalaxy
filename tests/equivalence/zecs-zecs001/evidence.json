@@ -21,8 +21,8 @@
    "paths": [
     "tests/equivalence/zecs-zecs001/**"
    ],
-   "files": 4,
-   "sha256": "ec2d701cb1965ccdc6c4b0e49eac4897cc762d89ea491ced85566ba02097490d"
+   "files": 5,
+   "sha256": "47bd1f152d289cac7203130805160c2d69af66a710e101396d3dcccc49151c5f"
   },
   "harness": {
    "paths": [
@@ -46,9 +46,9 @@
     "tests/tools/equivalence_ims.py"
    ],
    "files": 18,
-   "sha256": "4ea52759c421c9e211bcf5a5f27b487b0a2e2123de69345082464c4ec65e5509",
+   "sha256": "aec48ee0ccf9392de7215e19befa79beae81e5343d44d31946b6c722c99e4177",
    "components": {
-    "harness:cics": "2c30e3c0238c3e54f77128a737b5160cbf9b2310b6ff7b710b6a05a4e57058b5",
+    "harness:cics": "bd4ea76b8af5c2cb290aec96dd2b7b6dcd8142d65e4384a7d8fb2a85d774e0f7",
     "harness:core": "4285e62b9cbc17d702addd9dd1edec3ee029d95e6bbed79f569ad0054e75d364"
    }
   },
@@ -65,9 +65,9 @@
     "tests/equivalence/ims/ggdli.c"
    ],
    "files": 51,
-   "sha256": "ce845af2a0298e05f01113278228f554a0c44f79d20ceb4d7048df83ef1760a6",
+   "sha256": "d116abf094df9113357b494b8b37fc5f183ba4f94eae2c062f04272dea865e7b",
    "components": {
-    "oracle:cics-stub": "058faa9a8e89af52af28d2288affda2d43ceee1836e4a637ef4faa326ce75dff",
+    "oracle:cics-stub": "99bb9a24f6003439e65c7e69d06634579e2954e58257823274a2b4b7b7f8ff96",
     "oracle:core": "b4bb775f0a30746a6054f259b4c8613e08cb0d8cf3b40f4a789d953aca4144a0",
     "oracle:le": "670c92cc59b722e108b688267be1fd89ecda9b7be62bb485da2ad4839b4f7011"
    }
@@ -76,8 +76,8 @@
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
-   "files": 121,
-   "sha256": "42df8e1c67208c99a8e822bd4f5819c5142e01fa0e2067c9fb86c127d650dd3a",
+   "files": 124,
+   "sha256": "e4d07caa025c0910093f49c74e813f06ba6f951f2a5ad7ecf0a45c5034a641ec",
    "components": {
     "generator:cobolrt/Accept.java": "4bc260fc6386c11e4654cc76eb67a87ca1fad76647373d1e75484ed61b6a0cf3",
     "generator:cobolrt/ArithSpec.java": "d4b515111d390800aa5fae88ea6505dc5aa91640a2a5c8cee3c8807fdf2aca89",
@@ -86,15 +86,18 @@
     "generator:cobolrt/CompareSpec.java": "d0d21666d912658ddcbd00146d3e079e8d57d77e1110f051c8abc61bd8cccaf2",
     "generator:cobolrt/DetMvs.java": "3c70adb42450f7cb1f82b8a06f90d688d57b90eabfbd289458436f7a64d266f0",
     "generator:cobolrt/Editing.java": "2ea7c7da4d7aa9a4c07b3358d929740fdc65dd0e44a982cdf5ef6c5f80c15b25",
+    "generator:cobolrt/EditingSpec.java": "65833ba7abef39702ef6d535a4e2af4032392b9b97db72abda145bc68a54ca15",
     "generator:cobolrt/Field.java": "a4b12b313ae25789fa34988528c85c91a2d0c80f85555e154070ee9f2725809b",
     "generator:cobolrt/Figurative.java": "be9444226c7a0e96840cee639b855212ab715c4cc37222519b2f3a14cbbad867",
     "generator:cobolrt/FuncSpec.java": "128b02f38cc68d3d5561f7d2dd6ce6a90276218c17c056857b9c4d16a82beda7",
     "generator:cobolrt/Funcs.java": "b2d30b4ef89f86c951e98d0f17b2fb2ddd45b1c261911b332220d11cf5158f2a",
     "generator:cobolrt/Hfp.java": "196c5981aad77f0ce4172f27931e116be97f1d8c2967990153efc2394bba8696",
+    "generator:cobolrt/HfpSpec.java": "e2475b7719ef0891921574a9876364709fc19ac6565bcada0dfb8a3d975ba9a2",
     "generator:cobolrt/Hole.java": "ef69982f0dadcfd31c7396b6dc5ad16712b01cdbde71b007fe90ce14bd116c0f",
     "generator:cobolrt/Lossless.java": "84832e9ef01ce29da55addd55ea0ee76dda239cb4d23bfdb67cad83600308097",
     "generator:cobolrt/MoveSpec.java": "cc3f346221e86900ccbdfab312c2ccea492fd1c2bcd6edeb26e33fb49826a0ea",
     "generator:cobolrt/Sort.java": "fb513d7be182ca87009b642480fdde49fd2218d181c83cec05d8aac5729173be",
+    "generator:cobolrt/SortSpec.java": "8871dcc1e84459211f3190984a83af863e93ec41b3a0222f4f9038e474b6586f",
     "generator:cobolrt/Storage.java": "597fe5b2cd4190c4b87dfafd7facc73de3079efebe6188bac5862b78d3b3edf3",
     "generator:cobolrt/StringSpec.java": "f832b696ce0b1860fb53a536efb2ee282d3355202ea42fab03e12df0ad24fec7",
     "generator:cobolrt/Zoned.java": "089f829155664fdd82f2f99a0699cfb58e40910621b1136eabd2b16c51415349",
@@ -124,7 +127,7 @@
     "generator:cobolrt/sql/DetSql.java": "628b9c0c44b32c007fcaa874d68435fb93a42f3b3495d2ca4ac4001195e27f82",
     "generator:cobolrt/standalone/CobolAbend.java": "f8b72030ecb8862738c562b0c826ff9b1a085d92050664082f96e6107d5dfdb7",
     "generator:cobolrt/standalone/Sysout.java": "290bd3e17b89bb6883cee226df6137927b753f3858fe5cfb1e3021ff7f8d5c44",
-    "generator:core": "f12d72feae0fa4a5c33da5f842d7f8a8dccaab0544949a5599c82fae44a8305d",
+    "generator:core": "c90edd854ae349eba9c6d594619c99b0df13b5821bb9f639c4cc67e39e0d62ae",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
     "generator:det/bll": "51a3de21e2afa9301080d7613bf7ba13c0a053a90c9b4c1b92acfd676b923163",
     "generator:det/cics": "fef009b158ce420c1a445dd098d8ab8df6753e8099e3912f6474160a2f7c5eac",
@@ -140,14 +143,14 @@
     "generator:det/engine_layout": "a0019c6bd31e188fbba788e04b5271ce8a342e3b986a2ed1b6c5e8333c40f928",
     "generator:det/entity": "b6aa37067dc0413f6700ac83e7dd35610d8e2474aa607bdf54b5b8419ee4c7d6",
     "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
-    "generator:det/gen": "6ea804c467655b3d168078564bbb34a8e44f0dca8704f1bcdc36ad794a610080",
+    "generator:det/gen": "7e449f56144708e946a629a556a78d4e2d0c35ee4026b5c7846f5b712f98ea64",
     "generator:det/hfp": "d7d641dafd602da31535a68f7f219c201a8d867cb7a1fec1c879be38e9ff86b7",
     "generator:det/hlasm": "c7117c636ab25d2ccb7b4e2d7f23766ddacb9c9f7600c2fd6d894a49a60f4748",
     "generator:det/idcams": "b1ceb4971514b7e8e92553148735cc1ac1aebce5938768b756838d1bae4cf6a2",
-    "generator:det/layout": "5a824944e681f0b90cc6cce630309cfde072861d6d6db0afef32c86d5cdb77d0",
+    "generator:det/layout": "d18ee78c6619817c817adda13a9e2cdd53737f372fadee306c4fd4d122cae2b7",
     "generator:det/mq": "25055224f7c943069e828db7a79887ca1f4e6f4a06ec3b9781c97b31226491a0",
     "generator:det/osvs": "4ca3599a4d9a49bd17def291a921278d6f4f45858f65acaf75ae817c17644dd5",
-    "generator:det/program": "56472e7b3bf66055dee5c1028d614edf13a8dfb44e8cee58574f1cc4d8b851b4",
+    "generator:det/program": "64e6221f924f4513d5149b4efe2494329a5a3f6e8e4f19ff919527922cc1d6a9",
     "generator:det/refine": "4daa99d7534a589b4b46b8517f4109b95f64c956cd101a890e57b6a59eac4e44",
     "generator:det/source": "fd7d20e0f7824a4d3b74201b0690914daf79834567b3fa5f064c98beb4d50e0b",
     "generator:det/sql": "eb65b96d980b05fff759bc1a07bd7af276636822ce681d3bb06382ec519a219c",
@@ -223,29 +226,26 @@
    },
    "runtime_sha256": "2e95aa6a2e154fc7484ae5d8606234b3805b29adfb9904a541b19799806537c3"
   },
-  "digest": "d7f394fb245055dfdeb023766341b8fa3bd73a02a98e3663c8b9919767211a2a"
+  "digest": "01596c808945d0ffc18837fe635e00e15dc3f96a60fb31eeb4d4cc9e1d44bf2a"
  },
  "proof": {
-  "at": "2026-10-30T22:13:52Z",
+  "at": "2026-10-31T00:25:12Z",
   "verdict": "proven",
   "source": "det-sweep",
-  "runs": 64,
+  "runs": 66,
   "fault_runs": null,
   "environments": null,
   "outputs": {},
   "java_failed": false,
   "det_sweep": {
    "ledger": "tests/equivalence/det_sweep_coverage/zecs-zecs001.json",
-   "ledger_sha256": "f08fe9014dd7e8feb4c9e97b7c58931f5c96911fd1a1c2dca65597ac552ed386",
-   "measured_at": "0712a98114140473d4b14442f973fa403cd68768",
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "scenarios": 64
+   "ledger_sha256": "0dac11dac2633b5d2b9f7917c35ad07955fd9f10ee13761e52890c6f4f9aaa37",
+   "measured_at": "61109e29cfb9a895a1b29b2ae31c2f2592a72c98",
+   "stale_inputs": [],
+   "scenarios": 66
   },
-  "harness_commit": "d9ab70fd522cc59953c89c71b77183608cd17815",
-  "inputs_digest": "d7f394fb245055dfdeb023766341b8fa3bd73a02a98e3663c8b9919767211a2a"
+  "harness_commit": "61109e29cfb9a895a1b29b2ae31c2f2592a72c98+uncommitted",
+  "inputs_digest": "01596c808945d0ffc18837fe635e00e15dc3f96a60fb31eeb4d4cc9e1d44bf2a"
  },
  "coverage": {
   "paragraphs": {
@@ -253,7 +253,7 @@
    "live": 119
   },
   "branches": {
-   "covered": 173,
+   "covered": 175,
    "total": 208
   },
   "uncovered_branches": [],
@@ -261,8 +261,8 @@
    "covered": null,
    "total": null
   },
-  "source": "det sweep at 0712a98114140473d4b14442f973fa403cd68768 (det_coverage_ledger.py)",
-  "inputs_digest": "d7f394fb245055dfdeb023766341b8fa3bd73a02a98e3663c8b9919767211a2a"
+  "source": "det sweep at 61109e29cfb9a895a1b29b2ae31c2f2592a72c98 (det_coverage_ledger.py)",
+  "inputs_digest": "01596c808945d0ffc18837fe635e00e15dc3f96a60fb31eeb4d4cc9e1d44bf2a"
  },
  "reach": null,
  "mutation": null,

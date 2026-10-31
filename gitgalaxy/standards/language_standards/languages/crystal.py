@@ -13,7 +13,7 @@ from typing import Any
 from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: compiled on first use
 from gitgalaxy.standards.language_standards.identifiers import ID_CONTINUE, ID_START
 
-from .._shared_patterns import CALLS_OUT_RUBY, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import CALLS_OUT_RUBY, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT, commented_keyword_statement
 
 _NAME = r"[^\W\d][" + ID_CONTINUE + r"]*"
 _PATH = _NAME + r"(?:::" + _NAME + r")*"
@@ -147,7 +147,18 @@ DEFINITION: dict[str, Any] = {
             r"|\b(?:map!|select!|reject!|sort!|sort_by!|uniq!|compact!|flatten!|reverse!|shuffle!|rotate!|reject!)",
             re.M,
         ),
-        "dead_code": re.compile(r"#[ \t]*(?:def|class|struct|module|if|unless|while|puts|p)\b"),
+        # #7207: a statement's shape (`(...)`, an assignment, a bare `def name` / `class Name [< Base]`, a comparison or
+        # method call after `if|unless|while`, a quoted or dotted `puts` argument), not just the keyword.
+        "dead_code": re.compile(
+            commented_keyword_statement(
+                "def|class|struct|module|if|unless|while|puts|p",
+                marker=r"#",
+                extra=r"(?<=def)[ \t]+[\w.?!]+[ \t]*(?m:$)"
+                r"|(?:(?<=class)|(?<=struct)|(?<=module))[ \t]+[A-Z]\w*(?:::\w+)*(?:[ \t]*<[ \t]*[A-Z][\w:(),]*)?[ \t]*(?m:$)"
+                r"|(?:(?<=if)|(?<=unless)|(?<=while))[ \t]+[^\n]{0,300}?(?:[<>]|==|!=|&&|\|\||\w\.\w+\?)"
+                r"|(?:(?<=puts)|(?<=p))[ \t]+(?:[\"'@:]|\w+\.\w)",
+            )
+        ),
         # doc: Crystal's `crystal doc` markdown comment conventions (a fenced `crystal` example, a section label).
         "doc": re.compile(
             r"^[ \t]*#[ \t]*(?:```crystal|(?:Returns|Raises|Yields|Params|Example|Examples)[ \t]*:)", re.M

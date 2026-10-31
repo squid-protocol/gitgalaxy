@@ -12,6 +12,8 @@ from typing import Any
 
 from gitgalaxy.standards.language_standards import _lazy_re as re
 
+from .._shared_patterns import commented_keyword_statement
+
 # #4975: Common HLASM opcodes that could follow an HLASM label named FILE, JOB,
 # PRINT, REPORT, PROC, or SORT in column 1. Guarding these ensures an HLASM
 # statement like `FILE DC CL80' '` or `JOB CSECT` is never mistaken for Easytrieve.
@@ -75,7 +77,20 @@ DEFINITION: dict[str, Any] = {
         "state_mutation": re.compile(
             r"^[ \t]*([A-Za-z0-9_-]+)[ \t]*=|\bMOVE\b[ \t]+[A-Za-z0-9_'-]+[ \t]+\bTO\b", re.I | re.M
         ),
-        "dead_code": re.compile(r"^[ \t]*\*[ \t]*(?:IF|PERFORM|GET|PUT|JOB|MACRO)\b", re.I | re.M),
+        # #7207: a statement's shape (an assignment, `(...)`, an uppercase relation word, a bare `PERFORM PARA` /
+        # `GET|PUT FILE` / `JOB INPUT`, `MACRO [NAME]`), not just the keyword. `* if the user cancels` is prose.
+        "dead_code": re.compile(
+            commented_keyword_statement(
+                "IF|PERFORM|GET|PUT|JOB|MACRO",
+                marker=r"^[ \t]*\*",
+                extra=r"(?<=if)[ \t]+[^\n]{0,300}?(?:[ \t](?-i:EQ|NE|GT|LT|GE|LE|NUMERIC|SPACES|ZERO|ZEROS|EOF)\b|[<>])"
+                r"|(?<=perform)[ \t]+(?-i:[A-Z][A-Z0-9-]*)[ \t]*(?m:$)"
+                r"|(?:(?<=get)|(?<=put))[ \t]+(?-i:[A-Z][A-Z0-9-]*)(?:[ \t]+(?-i:[A-Z]+))?[ \t]*(?m:$)"
+                r"|(?<=job)[ \t]+(?-i:INPUT|NULL)\b"
+                r"|(?<=macro)(?:[ \t]+(?-i:[A-Z][A-Z0-9-]*))?[ \t]*(?m:$)",
+            ),
+            re.I | re.M,
+        ),
         "doc": None,
         "test": None,
         "concurrency": None,

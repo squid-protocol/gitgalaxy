@@ -12,7 +12,7 @@ from typing import Any
 
 from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: compiled on first use
 
-from .._shared_patterns import GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT, commented_keyword_statement
 
 # Db2 ordinary identifiers allow the national characters `#`, `$` and `@` alongside
 # letters, digits and `_` (IBM Db2 13 for z/OS SQL Reference, "Identifiers") -- the
@@ -299,8 +299,20 @@ DEFINITION: dict[str, Any] = {
         ),
         # dead_code: a comment whose text is a SQL statement, wired to BOTH comment
         # styles the family supports (Rule 12).
+        # #7207: a statement's shape (`;`, `(...)`, an assignment, or an uppercase clause word such as `FROM`, `INTO`,
+        # `TABLE`), not just the keyword; `--- ` is a doc line. `-- select the first row` is prose.
         "dead_code": re.compile(
-            r"(?:--|/\*)[ \t]*(?:SELECT|INSERT|UPDATE|DELETE|CREATE|DROP|ALTER|CALL|DECLARE|GRANT|COMMIT)\b",
+            commented_keyword_statement(
+                "SELECT|INSERT|UPDATE|DELETE|CREATE|DROP|ALTER|CALL|DECLARE|GRANT|COMMIT",
+                marker=r"(?:(?<!-)--|/\*)",
+                extra=r"(?<=select)[ \t]+[^\n]{0,300}?[ \t](?-i:FROM)\b"
+                r"|(?<=insert)[ \t]+(?-i:INTO)\b|(?<=delete)[ \t]+(?-i:FROM)\b"
+                r"|(?:(?<=create)|(?<=drop)|(?<=alter))[ \t]+(?-i:TABLE|INDEX|VIEW|TRIGGER|PROCEDURE|FUNCTION|SEQUENCE|DATABASE|SCHEMA)\b"
+                r"|(?<=grant)[ \t]+(?-i:SELECT|INSERT|UPDATE|DELETE|ALL|EXECUTE)\b"
+                r"|(?<=call)[ \t]+(?-i:[A-Z][A-Z0-9_.$#@]+)[ \t]*(?:\*/[ \t]*)?(?m:$)"
+                r"|(?<=commit)[ \t]*(?:\*/[ \t]*)?(?m:$)"
+                r"|(?<=declare)[ \t]+[\w@#$-]+[ \t]+(?-i:CURSOR|CONDITION|HANDLER|CONTINUE|EXIT|INT|INTEGER|SMALLINT|BIGINT|VARCHAR|CHAR|DECIMAL|DATE|TIMESTAMP)\b",
+            ),
             re.I,
         ),
         # doc: structured header conventions -- `--@param`-style tags, `/**` doc

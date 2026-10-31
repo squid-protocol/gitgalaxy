@@ -17,6 +17,16 @@ def _name(operand: str | None, into: str) -> str:
     return f"MOVE {operand} TO {into}" if operand else f"MOVE SPACES TO {into}"
 
 
+def _set_target(key: str, setp: str) -> tuple[str, list[str]]:
+    """#5079 (X58): the pointer a locate-mode file command hands to the stub, and what follows a delivered record.
+    SET(ptr): the pointer itself, nothing after. SET(ADDRESS OF rec): GG-PTR, then `SET ADDRESS OF rec TO GG-PTR` --
+    the caller runs it only when a record came (NORMAL, or DUPKEY for READ), so the address stays as it was otherwise."""
+    m = re.fullmatch(r"(?is)\s*ADDRESS\s+OF\s+([A-Z][A-Z0-9-]*)\s*", setp or "")
+    if m is None:
+        return ec._pointer(key, setp), []
+    return "GG-PTR", [f"SET ADDRESS OF {m.group(1)} TO GG-PTR"]
+
+
 def file_command(verb: str, opts: dict[str, str | None], labels: list[str] | None) -> list[str] | None:
     """One file control command -> the COBOL statements that replace it; None when `verb` with these options is not a
     file control command (a DELETE with no FILE, say), for the caller to go on."""
@@ -57,11 +67,21 @@ def file_command(verb: str, opts: dict[str, str | None], labels: list[str] | Non
         if setp:  # (LENGTH(data-area) is set to the record's length, on NORMAL and DUPKEY, as the translator's)
             if length and not settable:
                 raise ec.Unsupported("READ SET with a literal LENGTH: only a data area is modelled", ["READ SET"])
-            after = ["IF GG-RESP = 0 OR GG-RESP = 15", f"    MOVE GG-LEN TO {length}", "END-IF"] if length else []
+            target, locate = _set_target("READ", setp)
+            after = (
+                [
+                    "IF GG-RESP = 0 OR GG-RESP = 15",
+                    *(f"    {x}" for x in locate),
+                    *([f"    MOVE GG-LEN TO {length}"] if length else []),
+                    "END-IF",
+                ]
+                if (length or locate)
+                else []
+            )
             if "TOKEN" in opts:
                 after += ["IF GG-RESP = 0", f"    MOVE GG-NUM TO {opts['TOKEN']}", "END-IF"]
             return ([_name(file, "GG-NAME1"), update, "MOVE 0 TO GG-LEN"]
-                    + ec._call("GGCRDST", [f"BY REFERENCE {ridfld}", f"BY VALUE {keylen}", f"BY REFERENCE {ec._pointer('READ', setp)}"])
+                    + ec._call("GGCRDST", [f"BY REFERENCE {ridfld}", f"BY VALUE {keylen}", f"BY REFERENCE {target}"])
                     + after + ec._resp(opts, True, labels))  # fmt: skip
         return ([_name(file, "GG-NAME1"), update, f"MOVE {length or f'LENGTH OF {into}'} TO GG-LEN"]
                 + ec._call("GGCREAD", [f"BY REFERENCE {ridfld}", f"BY VALUE {keylen}", f"BY REFERENCE {into}",
@@ -124,9 +144,11 @@ def file_command(verb: str, opts: dict[str, str | None], labels: list[str] | Non
         keylen = opts.get("KEYLENGTH") or f"LENGTH OF {ridfld}"
         if setp:
             stub = "GGCRDNS" if verb == "READNEXT" else "GGCRDPS"
+            target, locate = _set_target(verb, setp)
+            after = ["IF GG-RESP = 0", *(f"    {x}" for x in locate), "END-IF"] if locate else []
             return ([_name(file, "GG-NAME1"), "MOVE SPACES TO GG-FLAGS"]
-                    + ec._call(stub, [f"BY REFERENCE {ridfld}", f"BY VALUE {keylen}", f"BY REFERENCE {ec._pointer(verb, setp)}"])
-                    + ec._resp(opts, True, labels))  # fmt: skip
+                    + ec._call(stub, [f"BY REFERENCE {ridfld}", f"BY VALUE {keylen}", f"BY REFERENCE {target}"])
+                    + after + ec._resp(opts, True, labels))  # fmt: skip
         stub = "GGCRDNX" if verb == "READNEXT" else "GGCRDPV"
         return ([_name(file, "GG-NAME1"), "MOVE 'RBA' TO GG-FLAGS" if rba else "MOVE SPACES TO GG-FLAGS"]
                 + ec._call(stub, [f"BY REFERENCE {ridfld}", f"BY VALUE {keylen}", f"BY REFERENCE {into}",

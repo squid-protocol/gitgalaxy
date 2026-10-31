@@ -104,6 +104,8 @@ museum_2/
 # and mypy_audit_baseline.json -- these are source, not generated output.
 !tests/*_baseline.json
 !tests/*_baseline_*.json
+# The DOOM's DNA article's data file, served by the docs site (docs/wiki/museum-of-code/doom-dna/)
+!docs/wiki/museum-of-code/doom-dna/data.json
 # ...and the shared Claude Code project config (team-wide permissions/hooks/model
 # settings). settings.local.json stays ignored -- that one's per-machine/personal.
 !.claude/settings.json

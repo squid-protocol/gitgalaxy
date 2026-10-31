@@ -1298,6 +1298,74 @@
     }
    }
   },
+  "hc-file-read-set/HCRDST": {
+   "live": 8,
+   "outcomes": 9,
+   "scenarios": {
+    "read-set": {
+     "units": [
+      "LOG-D",
+      "LOG-W",
+      "MAIN-PARA",
+      "READ-PARA"
+     ],
+     "outcomes": [
+      "42:WHEN@43",
+      "152:false",
+      "152:true",
+      "164:false",
+      "164:true"
+     ]
+    },
+    "browse-fwd": {
+     "units": [
+      "FWD-PARA",
+      "LOG-D",
+      "LOG-R",
+      "LOG-W",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "42:WHEN@45",
+      "152:false",
+      "152:true",
+      "164:false",
+      "164:true"
+     ]
+    },
+    "browse-back": {
+     "units": [
+      "BACK-PARA",
+      "LOG-D",
+      "LOG-R",
+      "LOG-W",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "42:WHEN@47",
+      "152:false",
+      "152:true",
+      "164:false",
+      "164:true"
+     ]
+    },
+    "browse-notfnd": {
+     "units": [
+      "LOG-D",
+      "LOG-R",
+      "LOG-W",
+      "MAIN-PARA",
+      "NOTFND-PARA"
+     ],
+     "outcomes": [
+      "42:WHEN@49",
+      "152:true",
+      "164:false",
+      "164:true"
+     ]
+    }
+   }
+  },
   "hc-file-unlock/HCUNLK": {
    "live": 9,
    "outcomes": 9,

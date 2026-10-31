@@ -385,7 +385,7 @@ _SYSTEM_KEYS = ("engine_commit", "engine_version", "porting_rules_hash", "ticket
 
 
 def _validate_trial(ledger: dict[str, Any], t: dict[str, Any]) -> list[str]:
-    errors = []
+    errors = _validate_harness(t)
     estate = _estate(ledger, t.get("estate", ""))
     if estate is None:
         errors.append(f"unknown estate {t.get('estate')}")
@@ -658,11 +658,59 @@ def sync(trial: dict[str, Any], events: list[dict[str, Any]], fixes: list[dict[s
     return changed
 
 
+def attach_harness(trial: dict[str, Any], cases: dict[str, str], proof_blockers: Path | None) -> None:
+    """#4493: record the cases and the untranslated-program blockers the trial's page reports, so the committed page
+    carries what a rehearsal page does. Names and case references only (no estate code). The `harness` key is added
+    only when non-empty; a later call replaces what it names."""
+    if not cases and not proof_blockers:
+        return
+    block = dict(trial.get("harness", {}))
+    if cases:
+        block["cases"] = {**block.get("cases", {}), **cases}
+    if proof_blockers:
+        import harness_report as hr
+
+        res = json.loads(proof_blockers.read_text(encoding="utf-8"))
+        if untranslated := hr.untranslated_blockers(res):
+            block["untranslated"] = untranslated
+        else:
+            block.pop("untranslated", None)
+    if block:
+        trial["harness"] = block
+    else:
+        trial.pop("harness", None)
+
+
+def _validate_harness(t: dict[str, Any]) -> list[str]:
+    block = t.get("harness")
+    if block is None:
+        return []
+    if not isinstance(block, dict) or not block or set(block) - {"cases", "untranslated"}:
+        return ["harness holds `cases` and/or `untranslated`, and is absent when empty"]
+    errors = []
+    cases = block.get("cases", {})
+    if not isinstance(cases, dict) or ("cases" in block and not cases):
+        errors.append("harness.cases is a non-empty {program: case}")
+    else:
+        stray = sorted(set(cases) - set(t.get("eligible", [])))
+        if stray:
+            errors.append(f"harness.cases names programs that are not eligible: {stray}")
+        if any(not isinstance(v, str) or not v for v in cases.values()):
+            errors.append("harness.cases values are case names")
+    untr = block.get("untranslated", [])
+    if not isinstance(untr, list) or ("untranslated" in block and not untr):
+        errors.append("harness.untranslated is a non-empty list")
+    elif any(not isinstance(b, dict) or not {"fix", "programs", "items"} <= set(b) for b in untr):
+        errors.append("harness.untranslated entries carry fix, programs and items")
+    return errors
+
+
 def cmd_sync(opts: argparse.Namespace) -> int:
     from gitgalaxy.tools.cobol_to_java import port_runner
 
     ledger = load(opts.ledger)
     trial = _trial(ledger, opts.trial)
+    attach_harness(trial, _parse_pairs(opts.case, "--case"), opts.proof_blockers)
     changed = sync(
         trial, port_runner.events(opts.project.resolve()), fix_commits(opts.repo, trial["system"]["engine_commit"])
     )
@@ -690,6 +738,7 @@ def close(trial: dict[str, Any], causes: dict[str, str]) -> None:
 
 def cmd_close(opts: argparse.Namespace) -> int:
     ledger = load(opts.ledger)
+    attach_harness(_trial(ledger, opts.trial), _parse_pairs(opts.case, "--case"), opts.proof_blockers)
     close(_trial(ledger, opts.trial), _parse_pairs(opts.cause, "--cause"))
     problems = validate(ledger)
     if problems:
@@ -935,10 +984,15 @@ def page_path(name: str) -> Path:
     return PAGES / f"{re.sub(r'[^A-Za-z0-9_.-]', '_', name)}.md"
 
 
-def trial_pages(ledger: dict[str, Any]) -> dict[str, str]:
-    """{file name: text} for the latest trial of each estate."""
+def trial_pages(ledger: dict[str, Any], cases_dir: Path | None = None) -> dict[str, str]:
+    """{file name: text} for the latest trial of each estate; a trial's `harness` block adds its cases' facts."""
     latest = {t["estate"]: t for t in ledger["trials"]}
-    return {page_path(_name(ledger, e)).name: trial_page(ledger, t) for e, t in latest.items()}
+    out = {}
+    for e, t in latest.items():
+        h = t.get("harness", {})
+        facts = case_facts(h.get("cases"), cases_dir) if h.get("cases") else None
+        out[page_path(_name(ledger, e)).name] = trial_page(ledger, t, facts=facts, untranslated=h.get("untranslated"))
+    return out
 
 
 def stale_pages(ledger: dict[str, Any], pages_dir: Path | None = None) -> list[str]:
@@ -1175,9 +1229,15 @@ def main(argv: list[str] | None = None) -> int:
     sy = sub.add_parser("sync", aliases=["attempt"], help="import the porting loop's log as attempts")
     sy.add_argument("trial")
     sy.add_argument("--project", type=Path, required=True, help="the trial's generated project (port_log.jsonl)")
+    cl_help = "PROGRAM=CASE: its equivalence case, for the page's inputs/tests/coverage (kept in the ledger)"
+    pb_help = "proof_blockers.py --json: the programs with no translation yet, for the page"
+    sy.add_argument("--case", action="append", help=cl_help)
+    sy.add_argument("--proof-blockers", type=Path, help=pb_help)
     cl = sub.add_parser("close", help="end a trial: a program not proven gets its cause")
     cl.add_argument("trial")
     cl.add_argument("--cause", action="append", help=f"PROGRAM=cause ({'|'.join(CAUSES)})")
+    cl.add_argument("--case", action="append", help=cl_help)
+    cl.add_argument("--proof-blockers", type=Path, help=pb_help)
     rp = sub.add_parser("report")
     rp.add_argument("--write", action="store_true")
     sub.add_parser("check")

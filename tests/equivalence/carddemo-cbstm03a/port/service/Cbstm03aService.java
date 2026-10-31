@@ -1474,52 +1474,63 @@ public class Cbstm03aService {
         // WRITE FD-STMTFILE-REC FROM ST-LINE12
         Cobol.move(f119_ST_LINE12, f1_FD_STMTFILE_REC, CS);
         String st15 = STMT_FILE.write(80);
+        if (!st15.startsWith("0")) throw new Hole("WRITE STMT-FILE: FILE STATUS " + st15 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // WRITE FD-STMTFILE-REC FROM ST-LINE14A
         Cobol.move(f131_ST_LINE14A, f1_FD_STMTFILE_REC, CS);
         String st16 = STMT_FILE.write(80);
+        if (!st16.startsWith("0")) throw new Hole("WRITE STMT-FILE: FILE STATUS " + st16 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // WRITE FD-STMTFILE-REC FROM ST-LINE15
         Cobol.move(f136_ST_LINE15, f1_FD_STMTFILE_REC, CS);
         String st17 = STMT_FILE.write(80);
+        if (!st17.startsWith("0")) throw new Hole("WRITE STMT-FILE: FILE STATUS " + st17 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-LTRS TO TRUE
         f141_HTML_FIXED_LN = "<tr>                                                                                                ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st18 = HTML_FILE.write(100);
+        if (!st18.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st18 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-L10 TO TRUE
         f141_HTML_FIXED_LN = "<td colspan=\"3\" style=\"padding:0px 5px;background-color:#1d1d96b3;\">                                ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st19 = HTML_FILE.write(100);
+        if (!st19.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st19 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-L75 TO TRUE
         f141_HTML_FIXED_LN = "<h3>End of Statement</h3>                                                                           ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st20 = HTML_FILE.write(100);
+        if (!st20.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st20 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-LTDE TO TRUE
         f141_HTML_FIXED_LN = "</td>                                                                                               ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st21 = HTML_FILE.write(100);
+        if (!st21.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st21 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-LTRE TO TRUE
         f141_HTML_FIXED_LN = "</tr>                                                                                               ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st22 = HTML_FILE.write(100);
+        if (!st22.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st22 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-L78 TO TRUE
         f141_HTML_FIXED_LN = "</table>                                                                                            ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st23 = HTML_FILE.write(100);
+        if (!st23.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st23 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-L79 TO TRUE
         f141_HTML_FIXED_LN = "</body>                                                                                             ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st24 = HTML_FILE.write(100);
+        if (!st24.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st24 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-L80 TO TRUE
         f141_HTML_FIXED_LN = "</html>                                                                                             ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st25 = HTML_FILE.write(100);
+        if (!st25.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st25 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // EXIT
         return 8;
     }
@@ -1541,6 +1552,7 @@ public class Cbstm03aService {
         // WRITE FD-STMTFILE-REC FROM ST-LINE0
         Cobol.move(f79_ST_LINE0, f1_FD_STMTFILE_REC, CS);
         String st26 = STMT_FILE.write(80);
+        if (!st26.startsWith("0")) throw new Hole("WRITE STMT-FILE: FILE STATUS " + st26 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // PERFORM 5100-WRITE-HTML-HEADER THRU 5100-EXIT
         perform(9, 10);
         // STRING CUST-FIRST-NAME DELIMITED BY ' ' ' ' DELIMITED BY SIZE CUST-MIDDLE-NAME DELIMITED BY ' ' ' ' DELIMITED BY SIZE CUST-LAST-NAME DELIMITED BY ' ' 
@@ -1562,48 +1574,63 @@ public class Cbstm03aService {
         // WRITE FD-STMTFILE-REC FROM ST-LINE1
         Cobol.move(f83_ST_LINE1, f1_FD_STMTFILE_REC, CS);
         String st27 = STMT_FILE.write(80);
+        if (!st27.startsWith("0")) throw new Hole("WRITE STMT-FILE: FILE STATUS " + st27 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // WRITE FD-STMTFILE-REC FROM ST-LINE2
         Cobol.move(f86_ST_LINE2, f1_FD_STMTFILE_REC, CS);
         String st28 = STMT_FILE.write(80);
+        if (!st28.startsWith("0")) throw new Hole("WRITE STMT-FILE: FILE STATUS " + st28 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // WRITE FD-STMTFILE-REC FROM ST-LINE3
         Cobol.move(f89_ST_LINE3, f1_FD_STMTFILE_REC, CS);
         String st29 = STMT_FILE.write(80);
+        if (!st29.startsWith("0")) throw new Hole("WRITE STMT-FILE: FILE STATUS " + st29 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // WRITE FD-STMTFILE-REC FROM ST-LINE4
         Cobol.move(f92_ST_LINE4, f1_FD_STMTFILE_REC, CS);
         String st30 = STMT_FILE.write(80);
+        if (!st30.startsWith("0")) throw new Hole("WRITE STMT-FILE: FILE STATUS " + st30 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // WRITE FD-STMTFILE-REC FROM ST-LINE5
         Cobol.move(f94_ST_LINE5, f1_FD_STMTFILE_REC, CS);
         String st31 = STMT_FILE.write(80);
+        if (!st31.startsWith("0")) throw new Hole("WRITE STMT-FILE: FILE STATUS " + st31 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // WRITE FD-STMTFILE-REC FROM ST-LINE6
         Cobol.move(f96_ST_LINE6, f1_FD_STMTFILE_REC, CS);
         String st32 = STMT_FILE.write(80);
+        if (!st32.startsWith("0")) throw new Hole("WRITE STMT-FILE: FILE STATUS " + st32 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // WRITE FD-STMTFILE-REC FROM ST-LINE5
         Cobol.move(f94_ST_LINE5, f1_FD_STMTFILE_REC, CS);
         String st33 = STMT_FILE.write(80);
+        if (!st33.startsWith("0")) throw new Hole("WRITE STMT-FILE: FILE STATUS " + st33 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // WRITE FD-STMTFILE-REC FROM ST-LINE7
         Cobol.move(f100_ST_LINE7, f1_FD_STMTFILE_REC, CS);
         String st34 = STMT_FILE.write(80);
+        if (!st34.startsWith("0")) throw new Hole("WRITE STMT-FILE: FILE STATUS " + st34 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // WRITE FD-STMTFILE-REC FROM ST-LINE8
         Cobol.move(f104_ST_LINE8, f1_FD_STMTFILE_REC, CS);
         String st35 = STMT_FILE.write(80);
+        if (!st35.startsWith("0")) throw new Hole("WRITE STMT-FILE: FILE STATUS " + st35 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // WRITE FD-STMTFILE-REC FROM ST-LINE9
         Cobol.move(f109_ST_LINE9, f1_FD_STMTFILE_REC, CS);
         String st36 = STMT_FILE.write(80);
+        if (!st36.startsWith("0")) throw new Hole("WRITE STMT-FILE: FILE STATUS " + st36 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // WRITE FD-STMTFILE-REC FROM ST-LINE10
         Cobol.move(f113_ST_LINE10, f1_FD_STMTFILE_REC, CS);
         String st37 = STMT_FILE.write(80);
+        if (!st37.startsWith("0")) throw new Hole("WRITE STMT-FILE: FILE STATUS " + st37 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // WRITE FD-STMTFILE-REC FROM ST-LINE11
         Cobol.move(f115_ST_LINE11, f1_FD_STMTFILE_REC, CS);
         String st38 = STMT_FILE.write(80);
+        if (!st38.startsWith("0")) throw new Hole("WRITE STMT-FILE: FILE STATUS " + st38 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // WRITE FD-STMTFILE-REC FROM ST-LINE12
         Cobol.move(f119_ST_LINE12, f1_FD_STMTFILE_REC, CS);
         String st39 = STMT_FILE.write(80);
+        if (!st39.startsWith("0")) throw new Hole("WRITE STMT-FILE: FILE STATUS " + st39 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // WRITE FD-STMTFILE-REC FROM ST-LINE13
         Cobol.move(f121_ST_LINE13, f1_FD_STMTFILE_REC, CS);
         String st40 = STMT_FILE.write(80);
+        if (!st40.startsWith("0")) throw new Hole("WRITE STMT-FILE: FILE STATUS " + st40 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // WRITE FD-STMTFILE-REC FROM ST-LINE12
         Cobol.move(f119_ST_LINE12, f1_FD_STMTFILE_REC, CS);
         String st41 = STMT_FILE.write(80);
+        if (!st41.startsWith("0")) throw new Hole("WRITE STMT-FILE: FILE STATUS " + st41 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // EXIT
         return 9;
     }
@@ -1615,111 +1642,133 @@ public class Cbstm03aService {
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st42 = HTML_FILE.write(100);
+        if (!st42.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st42 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-L02 TO TRUE
         f141_HTML_FIXED_LN = "<html lang=\"en\">                                                                                    ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st43 = HTML_FILE.write(100);
+        if (!st43.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st43 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-L03 TO TRUE
         f141_HTML_FIXED_LN = "<head>                                                                                              ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st44 = HTML_FILE.write(100);
+        if (!st44.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st44 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-L04 TO TRUE
         f141_HTML_FIXED_LN = "<meta charset=\"utf-8\">                                                                              ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st45 = HTML_FILE.write(100);
+        if (!st45.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st45 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-L05 TO TRUE
         f141_HTML_FIXED_LN = "<title>HTML Table Layout</title>                                                                    ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st46 = HTML_FILE.write(100);
+        if (!st46.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st46 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-L06 TO TRUE
         f141_HTML_FIXED_LN = "</head>                                                                                             ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st47 = HTML_FILE.write(100);
+        if (!st47.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st47 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-L07 TO TRUE
         f141_HTML_FIXED_LN = "<body style=\"margin:0px;\">                                                                          ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st48 = HTML_FILE.write(100);
+        if (!st48.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st48 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-L08 TO TRUE
         f141_HTML_FIXED_LN = "<table  align=\"center\" frame=\"box\" style=\"width:70%; font:12px Segoe UI,sans-serif;\">               ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st49 = HTML_FILE.write(100);
+        if (!st49.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st49 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-LTRS TO TRUE
         f141_HTML_FIXED_LN = "<tr>                                                                                                ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st50 = HTML_FILE.write(100);
+        if (!st50.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st50 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-L10 TO TRUE
         f141_HTML_FIXED_LN = "<td colspan=\"3\" style=\"padding:0px 5px;background-color:#1d1d96b3;\">                                ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st51 = HTML_FILE.write(100);
+        if (!st51.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st51 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // MOVE ACCT-ID TO L11-ACCT
         Cobol.move(f46_ACCT_ID, f144_L11_ACCT, CS);
         // WRITE FD-HTMLFILE-REC FROM HTML-L11
         Cobol.move(f142_HTML_L11, f2_FD_HTMLFILE_REC, CS);
         String st52 = HTML_FILE.write(100);
+        if (!st52.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st52 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-LTDE TO TRUE
         f141_HTML_FIXED_LN = "</td>                                                                                               ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st53 = HTML_FILE.write(100);
+        if (!st53.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st53 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-LTRE TO TRUE
         f141_HTML_FIXED_LN = "</tr>                                                                                               ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st54 = HTML_FILE.write(100);
+        if (!st54.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st54 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-LTRS TO TRUE
         f141_HTML_FIXED_LN = "<tr>                                                                                                ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st55 = HTML_FILE.write(100);
+        if (!st55.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st55 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-L15 TO TRUE
         f141_HTML_FIXED_LN = "<td colspan=\"3\" style=\"padding:0px 5px;background-color:#FFAF33;\">                                  ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st56 = HTML_FILE.write(100);
+        if (!st56.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st56 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-L16 TO TRUE
         f141_HTML_FIXED_LN = "<p style=\"font-size:16px\">Bank of XYZ</p>                                                           ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st57 = HTML_FILE.write(100);
+        if (!st57.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st57 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-L17 TO TRUE
         f141_HTML_FIXED_LN = "<p>410 Terry Ave N</p>                                                                              ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st58 = HTML_FILE.write(100);
+        if (!st58.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st58 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-L18 TO TRUE
         f141_HTML_FIXED_LN = "<p>Seattle WA 99999</p>                                                                             ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st59 = HTML_FILE.write(100);
+        if (!st59.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st59 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-LTDE TO TRUE
         f141_HTML_FIXED_LN = "</td>                                                                                               ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st60 = HTML_FILE.write(100);
+        if (!st60.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st60 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-LTRE TO TRUE
         f141_HTML_FIXED_LN = "</tr>                                                                                               ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st61 = HTML_FILE.write(100);
+        if (!st61.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st61 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-LTRS TO TRUE
         f141_HTML_FIXED_LN = "<tr>                                                                                                ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st62 = HTML_FILE.write(100);
+        if (!st62.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st62 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-L22-35 TO TRUE
         f141_HTML_FIXED_LN = "<td colspan=\"3\" style=\"padding:0px 5px;background-color:#f2f2f2;\">                                  ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st63 = HTML_FILE.write(100);
+        if (!st63.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st63 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         return 10;
     }
 
@@ -1739,6 +1788,7 @@ public class Cbstm03aService {
         Cobol.string(f2_FD_HTMLFILE_REC, null, CS, Cobol.StringPart.delimited("<p style=\"font-size:16px\">", "*", CS), Cobol.StringPart.delimited(f148_L23_NAME, "  ", CS), Cobol.StringPart.size("  ", CS), Cobol.StringPart.delimited("</p>", "*", CS));
         // WRITE FD-HTMLFILE-REC
         String st64 = HTML_FILE.write(100);
+        if (!st64.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st64 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // MOVE SPACES TO HTML-ADDR-LN
         Cobol.moveFigurative(Figurative.SPACES, f149_HTML_ADDR_LN, CS);
         // STRING '<p>' DELIMITED BY '*' ST-ADD1 DELIMITED BY ' ' ' ' DELIMITED BY SIZE '</p>' DELIMITED BY '*' INTO HTML-ADDR-LN
@@ -1746,6 +1796,7 @@ public class Cbstm03aService {
         // WRITE FD-HTMLFILE-REC FROM HTML-ADDR-LN
         Cobol.move(f149_HTML_ADDR_LN, f2_FD_HTMLFILE_REC, CS);
         String st65 = HTML_FILE.write(100);
+        if (!st65.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st65 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // MOVE SPACES TO HTML-ADDR-LN
         Cobol.moveFigurative(Figurative.SPACES, f149_HTML_ADDR_LN, CS);
         // STRING '<p>' DELIMITED BY '*' ST-ADD2 DELIMITED BY ' ' ' ' DELIMITED BY SIZE '</p>' DELIMITED BY '*' INTO HTML-ADDR-LN
@@ -1753,6 +1804,7 @@ public class Cbstm03aService {
         // WRITE FD-HTMLFILE-REC FROM HTML-ADDR-LN
         Cobol.move(f149_HTML_ADDR_LN, f2_FD_HTMLFILE_REC, CS);
         String st66 = HTML_FILE.write(100);
+        if (!st66.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st66 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // MOVE SPACES TO HTML-ADDR-LN
         Cobol.moveFigurative(Figurative.SPACES, f149_HTML_ADDR_LN, CS);
         // STRING '<p>' DELIMITED BY '*' ST-ADD3 DELIMITED BY ' ' ' ' DELIMITED BY SIZE '</p>' DELIMITED BY '*' INTO HTML-ADDR-LN
@@ -1760,51 +1812,61 @@ public class Cbstm03aService {
         // WRITE FD-HTMLFILE-REC FROM HTML-ADDR-LN
         Cobol.move(f149_HTML_ADDR_LN, f2_FD_HTMLFILE_REC, CS);
         String st67 = HTML_FILE.write(100);
+        if (!st67.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st67 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-LTDE TO TRUE
         f141_HTML_FIXED_LN = "</td>                                                                                               ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st68 = HTML_FILE.write(100);
+        if (!st68.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st68 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-LTRE TO TRUE
         f141_HTML_FIXED_LN = "</tr>                                                                                               ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st69 = HTML_FILE.write(100);
+        if (!st69.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st69 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-LTRS TO TRUE
         f141_HTML_FIXED_LN = "<tr>                                                                                                ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st70 = HTML_FILE.write(100);
+        if (!st70.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st70 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-L30-42 TO TRUE
         f141_HTML_FIXED_LN = "<td colspan=\"3\" style=\"padding:0px 5px;background-color:#33FFD1; text-align:center;\">               ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st71 = HTML_FILE.write(100);
+        if (!st71.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st71 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-L31 TO TRUE
         f141_HTML_FIXED_LN = "<p style=\"font-size:16px\">Basic Details</p>                                                         ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st72 = HTML_FILE.write(100);
+        if (!st72.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st72 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-LTDE TO TRUE
         f141_HTML_FIXED_LN = "</td>                                                                                               ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st73 = HTML_FILE.write(100);
+        if (!st73.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st73 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-LTRE TO TRUE
         f141_HTML_FIXED_LN = "</tr>                                                                                               ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st74 = HTML_FILE.write(100);
+        if (!st74.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st74 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-LTRS TO TRUE
         f141_HTML_FIXED_LN = "<tr>                                                                                                ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st75 = HTML_FILE.write(100);
+        if (!st75.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st75 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-L22-35 TO TRUE
         f141_HTML_FIXED_LN = "<td colspan=\"3\" style=\"padding:0px 5px;background-color:#f2f2f2;\">                                  ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st76 = HTML_FILE.write(100);
+        if (!st76.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st76 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // MOVE SPACES TO HTML-BSIC-LN
         Cobol.moveFigurative(Figurative.SPACES, f150_HTML_BSIC_LN, CS);
         // STRING '<p>Account ID : ' DELIMITED BY '*' ST-ACCT-ID DELIMITED BY '*' '</p>' DELIMITED BY '*' INTO HTML-BSIC-LN
@@ -1812,6 +1874,7 @@ public class Cbstm03aService {
         // WRITE FD-HTMLFILE-REC FROM HTML-BSIC-LN
         Cobol.move(f150_HTML_BSIC_LN, f2_FD_HTMLFILE_REC, CS);
         String st77 = HTML_FILE.write(100);
+        if (!st77.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st77 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // MOVE SPACES TO HTML-BSIC-LN
         Cobol.moveFigurative(Figurative.SPACES, f150_HTML_BSIC_LN, CS);
         // STRING '<p>Current Balance : ' DELIMITED BY '*' ST-CURR-BAL DELIMITED BY '*' '</p>' DELIMITED BY '*' INTO HTML-BSIC-LN
@@ -1819,6 +1882,7 @@ public class Cbstm03aService {
         // WRITE FD-HTMLFILE-REC FROM HTML-BSIC-LN
         Cobol.move(f150_HTML_BSIC_LN, f2_FD_HTMLFILE_REC, CS);
         String st78 = HTML_FILE.write(100);
+        if (!st78.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st78 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // MOVE SPACES TO HTML-BSIC-LN
         Cobol.moveFigurative(Figurative.SPACES, f150_HTML_BSIC_LN, CS);
         // STRING '<p>FICO Score : ' DELIMITED BY '*' ST-FICO-SCORE DELIMITED BY '*' '</p>' DELIMITED BY '*' INTO HTML-BSIC-LN
@@ -1826,96 +1890,115 @@ public class Cbstm03aService {
         // WRITE FD-HTMLFILE-REC FROM HTML-BSIC-LN
         Cobol.move(f150_HTML_BSIC_LN, f2_FD_HTMLFILE_REC, CS);
         String st79 = HTML_FILE.write(100);
+        if (!st79.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st79 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-LTDE TO TRUE
         f141_HTML_FIXED_LN = "</td>                                                                                               ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st80 = HTML_FILE.write(100);
+        if (!st80.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st80 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-LTRE TO TRUE
         f141_HTML_FIXED_LN = "</tr>                                                                                               ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st81 = HTML_FILE.write(100);
+        if (!st81.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st81 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-LTRS TO TRUE
         f141_HTML_FIXED_LN = "<tr>                                                                                                ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st82 = HTML_FILE.write(100);
+        if (!st82.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st82 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-L30-42 TO TRUE
         f141_HTML_FIXED_LN = "<td colspan=\"3\" style=\"padding:0px 5px;background-color:#33FFD1; text-align:center;\">               ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st83 = HTML_FILE.write(100);
+        if (!st83.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st83 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-L43 TO TRUE
         f141_HTML_FIXED_LN = "<p style=\"font-size:16px\">Transaction Summary</p>                                                   ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st84 = HTML_FILE.write(100);
+        if (!st84.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st84 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-LTDE TO TRUE
         f141_HTML_FIXED_LN = "</td>                                                                                               ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st85 = HTML_FILE.write(100);
+        if (!st85.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st85 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-LTRE TO TRUE
         f141_HTML_FIXED_LN = "</tr>                                                                                               ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st86 = HTML_FILE.write(100);
+        if (!st86.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st86 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-LTRS TO TRUE
         f141_HTML_FIXED_LN = "<tr>                                                                                                ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st87 = HTML_FILE.write(100);
+        if (!st87.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st87 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-L47 TO TRUE
         f141_HTML_FIXED_LN = "<td style=\"width:25%; padding:0px 5px; background-color:#33FF5E; text-align:left;\">                 ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st88 = HTML_FILE.write(100);
+        if (!st88.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st88 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-L48 TO TRUE
         f141_HTML_FIXED_LN = "<p style=\"font-size:16px\">Tran ID</p>                                                               ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st89 = HTML_FILE.write(100);
+        if (!st89.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st89 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-LTDE TO TRUE
         f141_HTML_FIXED_LN = "</td>                                                                                               ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st90 = HTML_FILE.write(100);
+        if (!st90.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st90 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-L50 TO TRUE
         f141_HTML_FIXED_LN = "<td style=\"width:55%; padding:0px 5px; background-color:#33FF5E; text-align:left;\">                 ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st91 = HTML_FILE.write(100);
+        if (!st91.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st91 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-L51 TO TRUE
         f141_HTML_FIXED_LN = "<p style=\"font-size:16px\">Tran Details</p>                                                          ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st92 = HTML_FILE.write(100);
+        if (!st92.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st92 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-LTDE TO TRUE
         f141_HTML_FIXED_LN = "</td>                                                                                               ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st93 = HTML_FILE.write(100);
+        if (!st93.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st93 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-L53 TO TRUE
         f141_HTML_FIXED_LN = "<td style=\"width:20%; padding:0px 5px; background-color:#33FF5E; text-align:right;\">                ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st94 = HTML_FILE.write(100);
+        if (!st94.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st94 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-L54 TO TRUE
         f141_HTML_FIXED_LN = "<p style=\"font-size:16px\">Amount</p>                                                                ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st95 = HTML_FILE.write(100);
+        if (!st95.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st95 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-LTDE TO TRUE
         f141_HTML_FIXED_LN = "</td>                                                                                               ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st96 = HTML_FILE.write(100);
+        if (!st96.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st96 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-LTRE TO TRUE
         f141_HTML_FIXED_LN = "</tr>                                                                                               ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st97 = HTML_FILE.write(100);
+        if (!st97.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st97 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         return 12;
     }
 
@@ -1936,16 +2019,19 @@ public class Cbstm03aService {
         // WRITE FD-STMTFILE-REC FROM ST-LINE14
         Cobol.move(f125_ST_LINE14, f1_FD_STMTFILE_REC, CS);
         String st98 = STMT_FILE.write(80);
+        if (!st98.startsWith("0")) throw new Hole("WRITE STMT-FILE: FILE STATUS " + st98 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-LTRS TO TRUE
         f141_HTML_FIXED_LN = "<tr>                                                                                                ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st99 = HTML_FILE.write(100);
+        if (!st99.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st99 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-L58 TO TRUE
         f141_HTML_FIXED_LN = "<td style=\"width:25%; padding:0px 5px; background-color:#f2f2f2; text-align:left;\">                 ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st100 = HTML_FILE.write(100);
+        if (!st100.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st100 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // MOVE SPACES TO HTML-TRAN-LN
         Cobol.moveFigurative(Figurative.SPACES, f151_HTML_TRAN_LN, CS);
         // STRING '<p>' DELIMITED BY '*' ST-TRANID DELIMITED BY '*' '</p>' DELIMITED BY '*' INTO HTML-TRAN-LN
@@ -1953,16 +2039,19 @@ public class Cbstm03aService {
         // WRITE FD-HTMLFILE-REC FROM HTML-TRAN-LN
         Cobol.move(f151_HTML_TRAN_LN, f2_FD_HTMLFILE_REC, CS);
         String st101 = HTML_FILE.write(100);
+        if (!st101.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st101 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-LTDE TO TRUE
         f141_HTML_FIXED_LN = "</td>                                                                                               ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st102 = HTML_FILE.write(100);
+        if (!st102.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st102 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-L61 TO TRUE
         f141_HTML_FIXED_LN = "<td style=\"width:55%; padding:0px 5px; background-color:#f2f2f2; text-align:left;\">                 ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st103 = HTML_FILE.write(100);
+        if (!st103.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st103 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // MOVE SPACES TO HTML-TRAN-LN
         Cobol.moveFigurative(Figurative.SPACES, f151_HTML_TRAN_LN, CS);
         // STRING '<p>' DELIMITED BY '*' ST-TRANDT DELIMITED BY '*' '</p>' DELIMITED BY '*' INTO HTML-TRAN-LN
@@ -1970,16 +2059,19 @@ public class Cbstm03aService {
         // WRITE FD-HTMLFILE-REC FROM HTML-TRAN-LN
         Cobol.move(f151_HTML_TRAN_LN, f2_FD_HTMLFILE_REC, CS);
         String st104 = HTML_FILE.write(100);
+        if (!st104.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st104 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-LTDE TO TRUE
         f141_HTML_FIXED_LN = "</td>                                                                                               ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st105 = HTML_FILE.write(100);
+        if (!st105.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st105 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-L64 TO TRUE
         f141_HTML_FIXED_LN = "<td style=\"width:20%; padding:0px 5px; background-color:#f2f2f2; text-align:right;\">                ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st106 = HTML_FILE.write(100);
+        if (!st106.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st106 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // MOVE SPACES TO HTML-TRAN-LN
         Cobol.moveFigurative(Figurative.SPACES, f151_HTML_TRAN_LN, CS);
         // STRING '<p>' DELIMITED BY '*' ST-TRANAMT DELIMITED BY '*' '</p>' DELIMITED BY '*' INTO HTML-TRAN-LN
@@ -1987,16 +2079,19 @@ public class Cbstm03aService {
         // WRITE FD-HTMLFILE-REC FROM HTML-TRAN-LN
         Cobol.move(f151_HTML_TRAN_LN, f2_FD_HTMLFILE_REC, CS);
         String st107 = HTML_FILE.write(100);
+        if (!st107.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st107 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-LTDE TO TRUE
         f141_HTML_FIXED_LN = "</td>                                                                                               ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st108 = HTML_FILE.write(100);
+        if (!st108.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st108 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // SET HTML-LTRE TO TRUE
         f141_HTML_FIXED_LN = "</tr>                                                                                               ";
         // WRITE FD-HTMLFILE-REC FROM HTML-FIXED-LN
         Cobol.move(f141_HTML_FIXED_LN, f2_FD_HTMLFILE_REC, CS);
         String st109 = HTML_FILE.write(100);
+        if (!st109.startsWith("0")) throw new Hole("WRITE HTML-FILE: FILE STATUS " + st109 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
         // EXIT
         return 14;
     }

@@ -35,7 +35,8 @@ Sources: tests/cobol_mainframe/trials.json (the ledger, committed). Writes
 docs/language_status/fresh_estate_trials.md and fresh_estate_trials.svg (a plain SVG, no plotting library), and
 (#4493) docs/language_status/trials/<estate>.md: the equivalence harness's self-report for that trial -- coverage,
 run status per program, out-of-scope reasons and blockers phrased as fixes -- built from the ledger alone. A
-rehearsal (`preview --page --case PROG=CASE`) adds input generation, tests and measured coverage from the cases.
+rehearsal (`preview --page --case PROG=CASE`) adds input generation, tests and measured coverage from the cases, and
+(`--proof-blockers FILE`) the programs the translator refused or left holes in (unresolved links, missing stubs).
 `start`, `sync` and `close` regenerate all of these when they save the committed ledger.
 """
 
@@ -498,8 +499,17 @@ def cmd_preview(opts: argparse.Namespace) -> int:
         except (SystemExit, OSError):
             roots = []
         facts = case_facts(_parse_pairs(opts.case, "--case"), opts.cases_dir, roots)
+        untranslated: list[dict[str, Any]] = []
+        if opts.proof_blockers:
+            import harness_report as hr
+
+            res = json.loads(opts.proof_blockers.read_text(encoding="utf-8"))
+            untranslated = hr.untranslated_blockers(res)
         opts.page.write_text(
-            trial_page({"estates": [], "trials": []}, rehearsal, rehearsal=True, facts=facts), encoding="utf-8"
+            trial_page(
+                {"estates": [], "trials": []}, rehearsal, rehearsal=True, facts=facts, untranslated=untranslated
+            ),
+            encoding="utf-8",
         )
     if opts.json:
         opts.json.write_text(
@@ -836,6 +846,7 @@ def trial_page(
     trial: dict[str, Any],
     rehearsal: bool = False,
     facts: dict[str, dict[str, Any]] | None = None,
+    untranslated: list[dict[str, Any]] | None = None,
 ) -> str:
     """The harness's self-report for one trial, from the ledger alone (no estate code is read).
 
@@ -895,6 +906,11 @@ def trial_page(
             for n, b in enumerate(limits, 1):
                 out.append(f"{n}. {b['fix']} Holds back {b['tests_held']} tests across {len(b['programs'])} programs.")
                 out += [f"   - {it}" for it in b["items"]]
+    if untranslated:  # #4493 classes 4 / 5: unresolved links, missing stubs, refused or holey programs
+        out += ["", "## Programs with no translation yet (no case can run them)", ""]
+        for n, b in enumerate(untranslated, 1):
+            out.append(f"{n}. {b['fix']} Frees {len(b['programs'])} programs to get a case.")
+            out += [f"   - {it}" for it in b["items"]]
     out += ["", "## Out of scope (declared at start)", ""]
     by_reason: dict[str, list[str]] = {}
     for key, why in sorted(oos.items()):
@@ -1152,6 +1168,9 @@ def main(argv: list[str] | None = None) -> int:
     pv.add_argument("--json", type=Path, help="also write the declaration here")
     pv.add_argument("--page", type=Path, help="also write the estate's harness page (a rehearsal) here")
     pv.add_argument("--case", action="append", help="PROGRAM=CASE: its equivalence case, for the page's inputs/tests")
+    pv.add_argument(
+        "--proof-blockers", type=Path, help="proof_blockers.py --json output: adds the untranslated programs"
+    )
     pv.add_argument("--cases-dir", type=Path, help="where the cases live (default tests/equivalence)")
     sy = sub.add_parser("sync", aliases=["attempt"], help="import the porting loop's log as attempts")
     sy.add_argument("trial")

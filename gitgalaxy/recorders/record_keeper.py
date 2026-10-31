@@ -1362,30 +1362,8 @@ class RecordKeeper:
         # response copybook members, PGMINT, the WSBIND and WSDL / JSON schema.
         create_channel_table(cursor, "web_service", _ensure_columns)
 
-        # #4457: the COPY ... REPLACING statements no record_data entry carries (a COPY after a section
-        # header / FD, or before a section's first entry): one row per statement, `replacing` the JSON
-        # [[from, to(, LEADING|TRAILING)], ...] as in record_data.copy_replacing, `after_ordinal` the
-        # record_data ordinal of the entry above it (NULL when none in its window). The reader applies it.
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS copy_statement_data (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                repo_name TEXT,
-                commit_hash TEXT,
-                file_id INTEGER,
-                member TEXT,
-                library TEXT,
-                replacing TEXT,
-                section TEXT,
-                fd_name TEXT,
-                after_ordinal INTEGER,
-                line_number INTEGER,
-                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
-            )
-        """)
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_copy_statement_file_id ON copy_statement_data(file_id);")
-        cursor.execute(
-            "CREATE INDEX IF NOT EXISTS idx_copy_statement_snapshot ON copy_statement_data(repo_name, commit_hash);"
-        )
+        # #4457: section-level COPY ... REPLACING statements (registry channel).
+        create_channel_table(cursor, "copy_statement", _ensure_columns)
 
         # #3820: the SPECIAL-NAMES clauses that change what a PIC's symbols are
         # worth (core/special_names.py): one row per CURRENCY [SIGN] clause (value
@@ -2950,27 +2928,6 @@ class RecordKeeper:
                 g.get("program"),
                 g.get("attributes"),
                 int(g.get("line", 0) or 0),
-            ),
-        )
-
-        # #4457: section-level COPY ... REPLACING statements -- per-file.
-        _insert_per_file_child(
-            cursor,
-            parsed_files,
-            path_to_file_id,
-            repo_name,
-            commit_hash,
-            "copy_statement_data",
-            ("member", "library", "replacing", "section", "fd_name", "after_ordinal", "line_number"),
-            "section_copies",
-            lambda c: (
-                c.get("member"),
-                c.get("library"),
-                c.get("replacing"),
-                c.get("section"),
-                c.get("fd_name"),
-                c.get("after_ordinal"),
-                int(c.get("line", 0) or 0),
             ),
         )
 

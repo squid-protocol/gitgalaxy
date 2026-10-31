@@ -196,7 +196,7 @@ def test_shell_dead_code_single_comment_style_confirmed_no_second_style():
     """
     pattern = SHELL_RULES["dead_code"]
     assert pattern.search("# rm -rf /tmp/cache")
-    assert pattern.search("    # echo debug")
+    assert pattern.search('    # echo "debug"')
 
 
 def test_shell_lexical_family_no_block_terminator_state_to_confuse():

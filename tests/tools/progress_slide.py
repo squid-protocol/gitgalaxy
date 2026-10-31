@@ -405,8 +405,7 @@ def render(prog: dict[str, Any]) -> str:
     s.text(
         PAD,
         y + 4,
-        f"Every match above means IBM's documentation. Measured on z/OS: {z['measured']} of {z['of']} rules; "
-        f"{z['probes']} probes written, none run yet (#4702). "
+        f"Every match above means IBM's documentation. Measured on z/OS: {z['measured']} of {z['of']} rules (#4702). "
         f"{caps['register']['entries']} named limits in the register, {caps['register']['refused']} refuse by name.",
         cls="t2",
         size=13,

@@ -73,9 +73,9 @@ def spec_tables() -> dict[str, int]:
 
 
 def cics_commands() -> dict[str, int]:
-    from gitgalaxy.standards.cics.commands import COMMANDS
+    import cics_spec_status  # (the listed consumer of the CICS spec: test_cics_spec.py)
 
-    cmds = list(COMMANDS.values())
+    cmds = list(cics_spec_status.spec().values())
     return {
         "all": len(cmds),
         "modelled": sum(1 for c in cmds if c.status == "modelled"),
@@ -106,7 +106,7 @@ def build(rules: dict[str, Any], cics: dict[str, Any]) -> dict[str, Any]:
     """The rows. `rules` is cobolrt_rules.json; `cics` is progress_report's CICS component (the burned denominator)."""
     from gitgalaxy.core.cics_macro_tables import _TABLES
     from gitgalaxy.standards import mq
-    from gitgalaxy.standards.cics.commands import COMMANDS
+    import cics_spec_status
     from gitgalaxy.tools.cobol_to_java.det import dfsort, hlasm, sql
 
     rs = rules["rules"]
@@ -121,7 +121,8 @@ def build(rules: dict[str, Any], cics: dict[str, Any]) -> dict[str, Any]:
     sorts = len(list(CASES.glob("*-sort-*")))
     fc, cics_py = DET / "cics_filecontrol.py", DET / "cics.py"
     keyed = proved_organizations().get("indexed", 0)
-    maps = [k for k in ("SEND MAP", "RECEIVE MAP") if k in COMMANDS and COMMANDS[k].status == "modelled"]
+    spec = cics_spec_status.spec()
+    maps = [k for k in ("SEND MAP", "RECEIVE MAP") if k in spec and spec[k].status == "modelled"]
     rows = [
         row(
             "COBOL language",
@@ -264,10 +265,9 @@ def build(rules: dict[str, Any], cics: dict[str, Any]) -> dict[str, Any]:
         row("Other languages", "BMS maps", ", ".join(maps) or "no map command", "works" if len(maps) == 2 else "none"),
         row("Other languages", "PL/I", "scanned, never translated", "none", note="no translator code"),
     ]
-    probes = json.loads((STATUS / "zos_probes.json").read_text(encoding="utf-8"))
     measured = sum(1 for r in rs if r.get("calibration") not in (None, "uncalibrated"))
     return {"groups": list(GROUPS), "rows": rows, "register": register(),
-            "zos": {"measured": measured, "of": len(rs), "probes": len(probes["probes"])}}  # fmt: skip
+            "zos": {"measured": measured, "of": len(rs)}}  # fmt: skip
 
 
 def main() -> int:

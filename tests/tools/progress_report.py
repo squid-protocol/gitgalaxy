@@ -671,8 +671,8 @@ def render(rep: dict[str, Any]) -> str:
         "|---|---|---|---|---|",
         *_capability_lines(comp["capabilities"]),
         "",
-        f"z/OS: {comp['capabilities']['zos']['measured']} of {comp['capabilities']['zos']['of']} rules measured; "
-        f"{comp['capabilities']['zos']['probes']} probes written, none run. Register of named limits: "
+        f"z/OS: {comp['capabilities']['zos']['measured']} of {comp['capabilities']['zos']['of']} rules measured. "
+        "Register of named limits: "
         f"{comp['capabilities']['register']['entries']} entries, {comp['capabilities']['register']['refused']} refuse by name.",
         "",
         "## 2. Components",

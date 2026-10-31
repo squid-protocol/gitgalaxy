@@ -1,0 +1,45 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "GTPOST",
+  "program_source": "cases/ghost-tasks/gt-post-wait-event/src/GTPOST.cbl",
+  "copy_dirs": [],
+  "transid": "GT61",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "notes": "cics-crucible ghost-tasks / gt-post-wait-event (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): POST and WAIT EVENT: a timer-event control area zero until a WAIT EVENT posts it (X'40' first byte, X'80' third), CANCEL of the expired POST NOTFND, WAIT EVENT on a null pointer INVREQ RESP2 2, POST TIME already past EXPIRED; terminal CONVERSE with a reply that fits and one that is cut (LENGERR). Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "post-wait-cancel",
+      "commarea": null,
+      "terminal": "GT61 W",
+      "why": "POST AFTER SECONDS(5) REQID SET: the area is binary zeros; WAIT EVENT ECADDR returns NORMAL and the area is posted; CANCEL of the POST's REQID is NOTFND (the request expired)"
+    },
+    {
+      "name": "wait-null",
+      "commarea": null,
+      "terminal": "GT61 N",
+      "why": "WAIT EVENT ECADDR on a null pointer: INVREQ, RESP2 2"
+    },
+    {
+      "name": "post-expired",
+      "commarea": null,
+      "terminal": "GT61 P",
+      "why": "POST TIME(090000) at 10:00:00: EXPIRED"
+    },
+    {
+      "name": "converse-fits",
+      "commarea": null,
+      "terminal": "GT61 FREPLY",
+      "why": "CONVERSE FROM 8 bytes, TOLENGTH 10, a 5-byte reply: NORMAL, TOLENGTH 5"
+    },
+    {
+      "name": "converse-cut",
+      "commarea": null,
+      "terminal": "GT61 CABCDEFGH",
+      "why": "CONVERSE with TOLENGTH 4 and an 8-byte reply: LENGERR, INTO the first 4 bytes, TOLENGTH the original 8"
+    }
+  ]
+}

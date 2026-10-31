@@ -1,0 +1,35 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "HCOPT",
+  "program_source": "cases/condition-handling/hc-resp-options/src/HCOPT.cbl",
+  "copy_dirs": [
+    "cases/condition-handling/hc-resp-options/copy"
+  ],
+  "transid": "HC51",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "notes": "cics-crucible condition-handling / hc-resp-options (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): RESP on FORMATTIME (INVREQ RESP2 1 for ABSTIME below zero), ASKTIME NOHANDLE with no ABSTIME, READQ TS LENGTH(LENGTH OF area) (LENGERR truncation), RECEIVE MAP ... ASIS keeps lower case. Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "formattime",
+      "commarea": null,
+      "terminal": "HC51 F",
+      "why": "ASKTIME NOHANDLE (no ABSTIME) and ASKTIME ABSTIME; FORMATTIME with RESP / RESP2 on the clock's ABSTIME (NORMAL) and on an ABSTIME of -1 (INVREQ RESP2 1)"
+    },
+    {
+      "name": "readq-length",
+      "commarea": null,
+      "terminal": "HC51 Q",
+      "why": "READQ TS INTO(12 bytes) LENGTH(LENGTH OF it) of a 20-byte item (LENGERR, truncated) and of a 12-byte item (NORMAL)"
+    },
+    {
+      "name": "unmatched-mode",
+      "commarea": null,
+      "terminal": "HC51 Z",
+      "why": "takes the EVALUATE/IF arm no crucible scenario reaches: a mode no WHEN names (falls through)"
+    }
+  ]
+}

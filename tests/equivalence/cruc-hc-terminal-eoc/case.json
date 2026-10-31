@@ -1,0 +1,33 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "HCEOC",
+  "program_source": "cases/condition-handling/hc-terminal-eoc/src/HCEOC.cbl",
+  "copy_dirs": [],
+  "transid": "HC04",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "notes": "cics-crucible condition-handling / hc-terminal-eoc (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): EOC on an LUTYPE2 terminal's RECEIVE: by RESP, by HANDLE CONDITION, and ignored by default. Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "eoc-resp",
+      "commarea": null,
+      "terminal": "HC04 X",
+      "why": "RESP(WS-RESP): the RECEIVE returns EOC (6), no transfer"
+    },
+    {
+      "name": "eoc-handled",
+      "commarea": null,
+      "terminal": "HC05 Y",
+      "why": "HANDLE CONDITION EOC(GOT-EOC): control goes to the label after the data and LENGTH are set"
+    },
+    {
+      "name": "eoc-default",
+      "commarea": null,
+      "terminal": "HC06 Z",
+      "why": "neither RESP nor a handler: EOC's default action is to ignore it; the program goes on, EIBRESP 6"
+    }
+  ]
+}

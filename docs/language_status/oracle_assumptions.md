@@ -4526,7 +4526,7 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   row per transaction, inheriting `PLANI=` or defaulting a single `TXID` to its own plan name when `PLNEXIT` is not
   `YES`: SC33-1684-30 ch.13 p.419-432 & ch.16 p.529-541).
 - **Refused, with the IBM reason.** SIT parameters (table suffixes, GRPLIST=) as rows: they select what a start-up
-  loads, and `SIT=` / SYSIN can override them. DFHMCT `TYPE=RECORD` (selects performance fields, no named resource).
+  loads, and `SIT=` / SYSIN can override them. DFHMCT `TYPE=RECORD` (selects performance fields, no named resource). DFHMCT `TYPE=EMP` shapes pinned ASSUMED (tests `test_dfhmct_emp_shapes_pinned`): a repeated ID is not folded, CLASS is not decided on, entryname length is unbounded. No burned estate holds a DFHMCT source.
   DFHPLT `PROGRAM=DFHDELIM` ("not a program — it serves as a delimiter only" between PLTPI/PLTSD passes: SC33-1684-30
   p.417). DSNCRCT `TYPE=COMD` and `TYPE=POOL` (DB2CONN command and pool thread defaults, no standalone resource name:
   SC33-1684-30 p.424-425). DFHTCT `TYPE=SDSCI` / `TYPE=LINE` (a DD of a simulated sequential device, and the join of two

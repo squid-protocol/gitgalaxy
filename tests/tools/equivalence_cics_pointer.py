@@ -40,6 +40,11 @@ _BINARY = re.compile(r"\b(COMP|COMPUTATIONAL|BINARY)\b", FLAGS)
 _DIGITS = re.compile(r"\bS?9(?:\((\d+)\)|(9*))", FLAGS)
 
 
+def _word(name: str) -> str:
+    """`name` as a whole COBOL word: a hyphen continues a name, so `\\b` would find `A-B` inside `A-B-C`."""
+    return rf"(?<![\w-]){re.escape(name)}(?![\w-])"
+
+
 def _binary_operand(text: str, name: str) -> bool:
     """`name` is declared as an integer BINARY item of at most 9 digits (an int, which a BY VALUE argument is)."""
     m = re.search(rf"\b\d\d\s+{re.escape(name)}\b([^.]*)\.", text, FLAGS)
@@ -74,11 +79,11 @@ def _views(lines: list[str]) -> tuple[dict[str, str], set[int]]:
 def _statement(code: str, views: dict[str, str], text: str) -> str:
     """`code` with each modelled use of a view turned into its CALL / SET."""
     for view, ptr in views.items():
-        v = re.escape(view)
+        v = _word(view)
         operand = r"([+-]?\s*\d+|" + ID + r")"
         for pat, sub in (
-            (rf"\bADD\s+{operand}\s+TO\s+{v}\b", False),
-            (rf"\bSUBTRACT\s+{operand}\s+FROM\s+{v}\b", True),
+            (rf"\bADD\s+{operand}\s+TO\s+{v}", False),
+            (rf"\bSUBTRACT\s+{operand}\s+FROM\s+{v}", True),
         ):
             while m := re.search(pat, code, FLAGS):
                 n = re.sub(r"\s+", "", m.group(1))
@@ -101,7 +106,7 @@ def _statement(code: str, views: dict[str, str], text: str) -> str:
                 code = code[: m.start()] + f'CALL "GGCPTRADV" USING {ptr} BY VALUE {n}' + code[m.end() :]
     for view, ptr in views.items():
         for other, optr in views.items():
-            pat = rf"\bMOVE\s+{re.escape(view)}\s+TO\s+{re.escape(other)}\b"
+            pat = rf"\bMOVE\s+{_word(view)}\s+TO\s+{_word(other)}"
             while m := re.search(pat, code, FLAGS):
                 if not _TAIL.match(code[m.end() :]):
                     raise Unsupported(f"{other}: `MOVE {view} TO {other}` with other targets")
@@ -126,7 +131,7 @@ def lower(program: str) -> str:
         out.extend([ln] if new == c else _wrap((ln[:6] + new).rstrip()))
     body = "\n".join(_code(x) for x in out)
     for view in views:
-        if re.search(rf"\b{re.escape(view)}\b", body, FLAGS):
+        if re.search(_word(view), body, FLAGS):
             raise Unsupported(
                 f"{view} (a numeric view of the POINTER {views[view]}) is used other than as "
                 f"`ADD|SUBTRACT n TO|FROM view` or `MOVE view TO view`: an address is no number"

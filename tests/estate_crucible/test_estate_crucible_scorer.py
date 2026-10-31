@@ -719,3 +719,66 @@ def test_an_explicit_temp_dataset_phantom_is_attributed_and_its_absence_passes()
     sc = ec.Score()
     ec.score_jcl_datasets(sc, "j.jcl", dict(language="jcl", jcl_datasets=[], phantoms=[ph]), eng)
     assert [(c.fact, c.status) for c in sc.checks if c.status == "pass"] == [("not &&T", "pass")]
+
+
+def _fc_key(**kw):
+    base = {
+        "select": "ORD-FILE",
+        "assign": "ORDKSD",
+        "organization": "INDEXED",
+        "access_mode": "DYNAMIC",
+        "record_key": "ORD-ID",
+        "file_status": "WS-ST",
+        "fd_copies": [],
+        "line": 11,
+    }
+    return dict(base, **kw)
+
+
+def _fc_row(**kw):
+    base = {
+        "select_name": "ORD-FILE",
+        "assign": "ORDKSD",
+        "organization": "INDEXED",
+        "access_mode": "DYNAMIC",
+        "record_key": "ORD-ID",
+        "alternate_keys": [],
+        "relative_key": None,
+        "file_status": "WS-ST",
+        "fd_copies": [],
+        "line": 11,
+    }
+    return SimpleNamespace(**dict(base, **kw))
+
+
+def _fc(key, row):
+    eng = FakeEngine(files={"p.cbl": SimpleNamespace(file_control=[row])})
+    sc = ec.Score()
+    ec.score_file_control(sc, "p.cbl", {"file_control": [key]}, eng)
+    return sc
+
+
+def test_alternate_keys_are_scored_on_name_and_duplicates_flag():
+    key = _fc_key(alternate_keys=[{"name": "ORD-CUST", "duplicates": True}, {"name": "ORD-DT", "duplicates": False}])
+    ok = _fc_row(alternate_keys=[("ORD-DT", False), ("ORD-CUST", True)])
+    assert [c.status for c in _fc(key, ok).checks] == ["pass"]
+    wrong_flag = _fc_row(alternate_keys=[("ORD-CUST", False), ("ORD-DT", False)])
+    sc = _fc(key, wrong_flag)
+    assert sc.checks[0].status == "fail" and "alternate_keys" in sc.checks[0].detail
+    missing = _fc_row(alternate_keys=[("ORD-CUST", True)])
+    assert _fc(key, missing).checks[0].status == "fail"
+
+
+def test_relative_key_is_scored_when_the_key_states_it():
+    key = _fc_key(organization="RELATIVE", record_key=None, relative_key="WS-SLOT-NO")
+    row = _fc_row(organization="RELATIVE", record_key=None, relative_key="ws-slot-no")
+    assert [c.status for c in _fc(key, row).checks] == ["pass"]
+    sc = _fc(key, _fc_row(organization="RELATIVE", record_key=None, relative_key=None))
+    assert sc.checks[0].status == "fail" and "relative_key" in sc.checks[0].detail
+
+
+def test_a_file_without_key_fields_adds_no_check_even_if_the_engine_has_some():
+    key = _fc_key(organization="SEQUENTIAL", record_key=None, access_mode="SEQUENTIAL")
+    row = _fc_row(organization="SEQUENTIAL", record_key=None, access_mode="SEQUENTIAL")
+    assert [c.status for c in _fc(key, row).checks] == ["pass"]
+    assert [c.status for c in _fc(_fc_key(), _fc_row(alternate_keys=[("X", True)])).checks] == ["pass"]

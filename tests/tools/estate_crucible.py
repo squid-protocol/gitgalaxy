@@ -28,7 +28,7 @@ GalaxyIR, and diffs every fact channel of the key against it:
   cics_resources  cics_resource_data (MAP / FILE / QUEUE commands)
   jcl_datasets    a JCL member's DSN references in file_data.raw_imports (a GDG reference as
                   its base or with its relative generation)
-  file_control    file_control_data SELECTs;  entry_points  entry_point_data
+  file_control    file_control_data SELECTs (+ relative_key, alternate_keys with the DUPLICATES flag, when the key states them);  entry_points  entry_point_data
   file_edges      edge_data kinds 'call' (CALL / LINK / XCTL) and 'exec' (EXEC PGM)
   copy_collisions the scan's `copy_member_collisions` report (#4265), read from the master DB
                   (repo_data, #4421)
@@ -1054,8 +1054,16 @@ def score_file_control(sc: Score, path: str, entry: dict[str, Any], eng: Engine)
             sc.add("file_control", path, label, "missing", f.get("horror"))
             continue
         used.add(id(r))
+        extra = []
+        if "relative_key" in f:
+            extra.append(("relative_key", _u(f["relative_key"]), _u(r.relative_key)))
+        if "alternate_keys" in f:
+            want = sorted((_u(a["name"]), bool(a["duplicates"])) for a in f["alternate_keys"])
+            got = sorted((_u(n), bool(dup)) for n, dup in (r.alternate_keys or []))
+            extra.append(("alternate_keys", want, got))
         d = _diff(
-            [
+            extra
+            + [
                 ("assign", _u(f["assign"]), _u(r.assign)),
                 ("organization", _u(f["organization"]), _u(r.organization)),
                 ("access_mode", _u(f.get("access_mode")), _u(r.access_mode)),

@@ -126,6 +126,8 @@
   "cruc-hc-resp-options": 12,
   "cruc-hc-terminal-eoc": 12,
   "cruc-hc-terminal-receive": 12,
+  "cruc-hx-attr-bytes": 12,
+  "cruc-hx-extended-cursor": 12,
   "genapp-lgacdb01": 58,
   "genapp-lgacdb01-generated": 61,
   "genapp-lgacdb02": 68,

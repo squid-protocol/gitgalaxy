@@ -11,7 +11,7 @@
  "case": "carddemo-sort-tranrept",
  "survivors": [
   {
-   "id": "31c641f3ee",
+   "id": "cebcc3fab1",
    "op": "LIT",
    "line": 45,
    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
@@ -20,7 +20,7 @@
    "reason": "IMAGE of a record area's initial bytes: every byte of the program's records is written (READ INTO / RELEASE / RETURN / WRITE FROM move whole areas) before any read, and the EIB block is never read in a batch step; the initial value cannot show."
   },
   {
-   "id": "5d117a2e93",
+   "id": "5eaac76e4e",
    "op": "LIT",
    "line": 47,
    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
@@ -29,7 +29,7 @@
    "reason": "IMAGE of a record area's initial bytes: every byte of the program's records is written (READ INTO / RELEASE / RETURN / WRITE FROM move whole areas) before any read, and the EIB block is never read in a batch step; the initial value cannot show."
   },
   {
-   "id": "499e20d029",
+   "id": "e65dbb81ea",
    "op": "LIT",
    "line": 48,
    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
@@ -38,7 +38,7 @@
    "reason": "IMAGE of a record area's initial bytes: every byte of the program's records is written (READ INTO / RELEASE / RETURN / WRITE FROM move whole areas) before any read, and the EIB block is never read in a batch step; the initial value cannot show."
   },
   {
-   "id": "bb5bf83619",
+   "id": "2a7f17b9de",
    "op": "LIT",
    "line": 50,
    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
@@ -47,7 +47,7 @@
    "reason": "IMAGE of a record area's initial bytes: every byte of the program's records is written (READ INTO / RELEASE / RETURN / WRITE FROM move whole areas) before any read, and the EIB block is never read in a batch step; the initial value cannot show."
   },
   {
-   "id": "0543f136bd",
+   "id": "44c9c104ac",
    "op": "LIT",
    "line": 51,
    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));",
@@ -56,7 +56,7 @@
    "reason": "IMAGE of a record area's initial bytes: every byte of the program's records is written (READ INTO / RELEASE / RETURN / WRITE FROM move whole areas) before any read, and the EIB block is never read in a batch step; the initial value cannot show."
   },
   {
-   "id": "16353ae547",
+   "id": "8cbe366ee4",
    "op": "LIT",
    "line": 53,
    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
@@ -65,7 +65,7 @@
    "reason": "IMAGE of a record area's initial bytes: every byte of the program's records is written (READ INTO / RELEASE / RETURN / WRITE FROM move whole areas) before any read, and the EIB block is never read in a batch step; the initial value cannot show."
   },
   {
-   "id": "d380d995f9",
+   "id": "adf7ef6748",
    "op": "LIT",
    "line": 54,
    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
@@ -74,7 +74,7 @@
    "reason": "IMAGE of a record area's initial bytes: every byte of the program's records is written (READ INTO / RELEASE / RETURN / WRITE FROM move whole areas) before any read, and the EIB block is never read in a batch step; the initial value cannot show."
   },
   {
-   "id": "f33510875b",
+   "id": "611a6a64c5",
    "op": "LIT",
    "line": 56,
    "before": "\"AAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
@@ -83,16 +83,7 @@
    "reason": "IMAGE of a record area's initial bytes: every byte of the program's records is written (READ INTO / RELEASE / RETURN / WRITE FROM move whole areas) before any read, and the EIB block is never read in a batch step; the initial value cannot show."
   },
   {
-   "id": "21c3217a16",
-   "op": "CON",
-   "line": 76,
-   "before": "private final Field f13_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
-   "after": "private final Field f13_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 1, true);",
-   "verdict": "unreachable",
-   "reason": "an EIB field accessor: a batch step has no EIB and the program names none of them."
-  },
-  {
-   "id": "33e00a8dfd",
+   "id": "88bce82ecd",
    "op": "CON",
    "line": 76,
    "before": "private final Field f13_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
@@ -101,7 +92,16 @@
    "reason": "an EIB field accessor: a batch step has no EIB and the program names none of them."
   },
   {
-   "id": "dcaf403594",
+   "id": "3dad14f93e",
+   "op": "CON",
+   "line": 76,
+   "before": "private final Field f13_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+   "after": "private final Field f13_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 1, true);",
+   "verdict": "unreachable",
+   "reason": "an EIB field accessor: a batch step has no EIB and the program names none of them."
+  },
+  {
+   "id": "f1a9b71495",
    "op": "CON",
    "line": 80,
    "before": "private final Field f17_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);",
@@ -110,16 +110,7 @@
    "reason": "an EIB field accessor: a batch step has no EIB and the program names none of them."
   },
   {
-   "id": "75c4db7148",
-   "op": "CON",
-   "line": 95,
-   "before": "if (task.level() > 1) {",
-   "after": "if (task.level() > 2) {",
-   "verdict": "unreachable",
-   "reason": "abended() ends a CICS task by ABEND; a batch step issues no EXEC CICS, so nothing abends it."
-  },
-  {
-   "id": "af5d47bbcf",
+   "id": "646c2c9151",
    "op": "NEG",
    "line": 95,
    "before": "if (task.level() > 1) {",
@@ -128,7 +119,7 @@
    "reason": "abended() ends a CICS task by ABEND; a batch step issues no EXEC CICS, so nothing abends it."
   },
   {
-   "id": "afc7c58c41",
+   "id": "88868d9a87",
    "op": "ROR",
    "line": 95,
    "before": "if (task.level() > 1) {",
@@ -137,7 +128,7 @@
    "reason": "abended() ends a CICS task by ABEND; a batch step issues no EXEC CICS, so nothing abends it."
   },
   {
-   "id": "fed81996c9",
+   "id": "efd501e488",
    "op": "ROR",
    "line": 95,
    "before": "if (task.level() > 1) {",
@@ -146,7 +137,16 @@
    "reason": "abended() ends a CICS task by ABEND; a batch step issues no EXEC CICS, so nothing abends it."
   },
   {
-   "id": "52241c9d33",
+   "id": "7bfb8fab83",
+   "op": "CON",
+   "line": 95,
+   "before": "if (task.level() > 1) {",
+   "after": "if (task.level() > 2) {",
+   "verdict": "unreachable",
+   "reason": "abended() ends a CICS task by ABEND; a batch step issues no EXEC CICS, so nothing abends it."
+  },
+  {
+   "id": "9c9980589f",
    "op": "DEL",
    "line": 96,
    "before": "caBack.run();",
@@ -155,7 +155,7 @@
    "reason": "abended() ends a CICS task by ABEND; a batch step issues no EXEC CICS, so nothing abends it."
   },
   {
-   "id": "aa53a2e818",
+   "id": "b30704d885",
    "op": "NEG",
    "line": 103,
    "before": "if (CicsTask.undefinableFile(name)) {",
@@ -164,16 +164,7 @@
    "reason": "the CICS file-store lookup (EXEC CICS file commands) and its paragraph-name table for HANDLE labels; the program has no EXEC CICS, so neither is called."
   },
   {
-   "id": "2e92c73f2f",
-   "op": "LIT",
-   "line": 106,
-   "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
-   "after": "throw new Hole(\"CICS file \" + name + \"X the program names no file the generated project stores\");",
-   "verdict": "unreachable",
-   "reason": "the CICS file-store lookup (EXEC CICS file commands) and its paragraph-name table for HANDLE labels; the program has no EXEC CICS, so neither is called."
-  },
-  {
-   "id": "d36345ab33",
+   "id": "ff03be29c0",
    "op": "LIT",
    "line": 106,
    "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
@@ -182,16 +173,16 @@
    "reason": "the CICS file-store lookup (EXEC CICS file commands) and its paragraph-name table for HANDLE labels; the program has no EXEC CICS, so neither is called."
   },
   {
-   "id": "838faec5fd",
-   "op": "CON",
-   "line": 110,
-   "before": "java.util.Map.entry(\"READ-ALL\", 2),",
-   "after": "java.util.Map.entry(\"READ-ALL\", 3),",
+   "id": "24e0c2159b",
+   "op": "LIT",
+   "line": 106,
+   "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
+   "after": "throw new Hole(\"CICS file \" + name + \"X the program names no file the generated project stores\");",
    "verdict": "unreachable",
    "reason": "the CICS file-store lookup (EXEC CICS file commands) and its paragraph-name table for HANDLE labels; the program has no EXEC CICS, so neither is called."
   },
   {
-   "id": "eb38846c7a",
+   "id": "002c64666f",
    "op": "LIT",
    "line": 110,
    "before": "java.util.Map.entry(\"READ-ALL\", 2),",
@@ -200,7 +191,16 @@
    "reason": "the CICS file-store lookup (EXEC CICS file commands) and its paragraph-name table for HANDLE labels; the program has no EXEC CICS, so neither is called."
   },
   {
-   "id": "3f24affe68",
+   "id": "faffd4ea2b",
+   "op": "CON",
+   "line": 110,
+   "before": "java.util.Map.entry(\"READ-ALL\", 2),",
+   "after": "java.util.Map.entry(\"READ-ALL\", 3),",
+   "verdict": "unreachable",
+   "reason": "the CICS file-store lookup (EXEC CICS file commands) and its paragraph-name table for HANDLE labels; the program has no EXEC CICS, so neither is called."
+  },
+  {
+   "id": "99c6533219",
    "op": "CON",
    "line": 111,
    "before": "java.util.Map.entry(\"WRITE-ALL\", 1),",
@@ -209,7 +209,7 @@
    "reason": "the CICS file-store lookup (EXEC CICS file commands) and its paragraph-name table for HANDLE labels; the program has no EXEC CICS, so neither is called."
   },
   {
-   "id": "02558e7ab9",
+   "id": "b4e92c75e7",
    "op": "LIT",
    "line": 112,
    "before": "java.util.Map.entry(\"MAIN-PARA\", 0)",
@@ -218,7 +218,7 @@
    "reason": "the CICS file-store lookup (EXEC CICS file commands) and its paragraph-name table for HANDLE labels; the program has no EXEC CICS, so neither is called."
   },
   {
-   "id": "c8bd217d3d",
+   "id": "a67c6b2d29",
    "op": "NEG",
    "line": 117,
    "before": "if (i == null) {",
@@ -227,7 +227,7 @@
    "reason": "HANDLE CONDITION / label dispatch for EXEC CICS; the program has none, so condition() and paragraph() are never called."
   },
   {
-   "id": "ec3e9f0335",
+   "id": "df36356185",
    "op": "ROR",
    "line": 117,
    "before": "if (i == null) {",
@@ -236,7 +236,7 @@
    "reason": "HANDLE CONDITION / label dispatch for EXEC CICS; the program has none, so condition() and paragraph() are never called."
   },
   {
-   "id": "8c6bea7b34",
+   "id": "b6fb49bb1e",
    "op": "LIT",
    "line": 118,
    "before": "throw new IllegalStateException(\"no paragraph \" + name);",
@@ -245,16 +245,7 @@
    "reason": "HANDLE CONDITION / label dispatch for EXEC CICS; the program has none, so condition() and paragraph() are never called."
   },
   {
-   "id": "8a934fd95b",
-   "op": "ROR",
-   "line": 130,
-   "before": "if (h != null) {",
-   "after": "if (h == null) {",
-   "verdict": "unreachable",
-   "reason": "HANDLE CONDITION / label dispatch for EXEC CICS; the program has none, so condition() and paragraph() are never called."
-  },
-  {
-   "id": "978d2b3e6a",
+   "id": "6246a0d457",
    "op": "NEG",
    "line": 130,
    "before": "if (h != null) {",
@@ -263,7 +254,16 @@
    "reason": "HANDLE CONDITION / label dispatch for EXEC CICS; the program has none, so condition() and paragraph() are never called."
   },
   {
-   "id": "cba082f226",
+   "id": "321de0a848",
+   "op": "ROR",
+   "line": 130,
+   "before": "if (h != null) {",
+   "after": "if (h == null) {",
+   "verdict": "unreachable",
+   "reason": "HANDLE CONDITION / label dispatch for EXEC CICS; the program has none, so condition() and paragraph() are never called."
+  },
+  {
+   "id": "bfdc2cb926",
    "op": "NEG",
    "line": 133,
    "before": "if (DetCics.ignoredByDefault(cond)) {",
@@ -272,7 +272,7 @@
    "reason": "HANDLE CONDITION / label dispatch for EXEC CICS; the program has none, so condition() and paragraph() are never called."
   },
   {
-   "id": "5000b72b91",
+   "id": "0cbc37d9ac",
    "op": "CON",
    "line": 134,
    "before": "return -1;",
@@ -281,7 +281,7 @@
    "reason": "HANDLE CONDITION / label dispatch for EXEC CICS; the program has none, so condition() and paragraph() are never called."
   },
   {
-   "id": "81c3025536",
+   "id": "2c92b9df11",
    "op": "LIT",
    "line": 136,
    "before": "Integer error = handlers.get(\"ERROR\");",
@@ -290,7 +290,7 @@
    "reason": "HANDLE CONDITION / label dispatch for EXEC CICS; the program has none, so condition() and paragraph() are never called."
   },
   {
-   "id": "da15bd5dd3",
+   "id": "6fc5fdf6d1",
    "op": "NEG",
    "line": 137,
    "before": "if (error != null) {",
@@ -299,7 +299,7 @@
    "reason": "HANDLE CONDITION / label dispatch for EXEC CICS; the program has none, so condition() and paragraph() are never called."
   },
   {
-   "id": "f15d22f336",
+   "id": "f328870612",
    "op": "ROR",
    "line": 137,
    "before": "if (error != null) {",
@@ -308,7 +308,7 @@
    "reason": "HANDLE CONDITION / label dispatch for EXEC CICS; the program has none, so condition() and paragraph() are never called."
   },
   {
-   "id": "2ab1441d29",
+   "id": "6566823eae",
    "op": "NEG",
    "line": 141,
    "before": "if (label == null) {",
@@ -317,7 +317,7 @@
    "reason": "HANDLE CONDITION / label dispatch for EXEC CICS; the program has none, so condition() and paragraph() are never called."
   },
   {
-   "id": "9e7c3e62cf",
+   "id": "1fc494b438",
    "op": "ROR",
    "line": 141,
    "before": "if (label == null) {",
@@ -326,7 +326,7 @@
    "reason": "HANDLE CONDITION / label dispatch for EXEC CICS; the program has none, so condition() and paragraph() are never called."
   },
   {
-   "id": "d3b2e47aa4",
+   "id": "aaee0aba29",
    "op": "ROR",
    "line": 148,
    "before": "return task.eibcalen() == null ? whole : task.eibcalen();",
@@ -335,7 +335,7 @@
    "reason": "the CICS COMMAREA length (EIBCALEN) accessor; the program has no LINKAGE COMMAREA and a batch step has no EIB."
   },
   {
-   "id": "6c938a002d",
+   "id": "31e9cce0a6",
    "op": "DEL",
    "line": 167,
    "before": "System.arraycopy(IMAGE_s_I1_REC, 0, s_I1_REC.bytes, 0, IMAGE_s_I1_REC.length);",
@@ -344,7 +344,7 @@
    "reason": "initial image of a record area or the EIB block: every byte of the record is written (READ INTO / RELEASE / RETURN / WRITE FROM move whole areas) before it is read, and the EIB is never read in a batch step."
   },
   {
-   "id": "82b6d1611f",
+   "id": "7da4d1086c",
    "op": "DEL",
    "line": 168,
    "before": "System.arraycopy(IMAGE_s_O_REC, 0, s_O_REC.bytes, 0, IMAGE_s_O_REC.length);",
@@ -353,7 +353,7 @@
    "reason": "initial image of a record area or the EIB block: every byte of the record is written (READ INTO / RELEASE / RETURN / WRITE FROM move whole areas) before it is read, and the EIB is never read in a batch step."
   },
   {
-   "id": "d2de9aff5c",
+   "id": "84d722e771",
    "op": "DEL",
    "line": 169,
    "before": "System.arraycopy(IMAGE_s_S_REC, 0, s_S_REC.bytes, 0, IMAGE_s_S_REC.length);",
@@ -362,7 +362,7 @@
    "reason": "initial image of a record area or the EIB block: every byte of the record is written (READ INTO / RELEASE / RETURN / WRITE FROM move whole areas) before it is read, and the EIB is never read in a batch step."
   },
   {
-   "id": "b36c1ac10f",
+   "id": "fd7733a44c",
    "op": "DEL",
    "line": 170,
    "before": "System.arraycopy(IMAGE_s_W_REC, 0, s_W_REC.bytes, 0, IMAGE_s_W_REC.length);",
@@ -371,7 +371,7 @@
    "reason": "initial image of a record area or the EIB block: every byte of the record is written (READ INTO / RELEASE / RETURN / WRITE FROM move whole areas) before it is read, and the EIB is never read in a batch step."
   },
   {
-   "id": "701b64d3c5",
+   "id": "bf83287ded",
    "op": "DEL",
    "line": 171,
    "before": "System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length);",
@@ -380,7 +380,7 @@
    "reason": "initial image of a record area or the EIB block: every byte of the record is written (READ INTO / RELEASE / RETURN / WRITE FROM move whole areas) before it is read, and the EIB is never read in a batch step."
   },
   {
-   "id": "90483be188",
+   "id": "dc81352e35",
    "op": "DEL",
    "line": 172,
    "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
@@ -389,7 +389,7 @@
    "reason": "the compiler's special register (SORT-RETURN / RETURN-CODE) starts as zoned zeros; the all-zero-byte storage decodes as 0 as well, and the case's only read (Sort.finished) sees 0 either way."
   },
   {
-   "id": "3328630895",
+   "id": "b0e23caf79",
    "op": "DEL",
    "line": 173,
    "before": "System.arraycopy(IMAGE_s_GG_SORT_RETURN, 0, s_GG_SORT_RETURN.bytes, 0, IMAGE_s_GG_SORT_RETURN.length);",
@@ -398,7 +398,7 @@
    "reason": "the compiler's special register (SORT-RETURN / RETURN-CODE) starts as zoned zeros; the all-zero-byte storage decodes as 0 as well, and the case's only read (Sort.finished) sees 0 either way."
   },
   {
-   "id": "5bf9cdf0f3",
+   "id": "fdba398b72",
    "op": "LIT",
    "line": 174,
    "before": "f7_W_EOF = \" \";",
@@ -407,7 +407,7 @@
    "reason": "initial image of a record area or the EIB block: every byte of the record is written (READ INTO / RELEASE / RETURN / WRITE FROM move whole areas) before it is read, and the EIB is never read in a batch step."
   },
   {
-   "id": "6d4ccd2eca",
+   "id": "8e9b21423c",
    "op": "DEL",
    "line": 180,
    "before": "initialState();",
@@ -416,7 +416,7 @@
    "reason": "runProgram is the standalone entry; a batch case calls runBatch only (det_mutation SCOPE leaves runTask/handlers out; runProgram is the same kind of entry nobody calls here)."
   },
   {
-   "id": "f1ebdf7d78",
+   "id": "c0bb7dc405",
    "op": "DEL",
    "line": 181,
    "before": "performDepth = 0;",
@@ -425,7 +425,7 @@
    "reason": "runProgram is the standalone entry; a batch case calls runBatch only (det_mutation SCOPE leaves runTask/handlers out; runProgram is the same kind of entry nobody calls here)."
   },
   {
-   "id": "0cea345b4b",
+   "id": "256bb1d66b",
    "op": "CON",
    "line": 183,
    "before": "perform(0, 2);",
@@ -434,7 +434,7 @@
    "reason": "runProgram is the standalone entry; a batch case calls runBatch only (det_mutation SCOPE leaves runTask/handlers out; runProgram is the same kind of entry nobody calls here)."
   },
   {
-   "id": "8d3eaceda9",
+   "id": "3210be69c8",
    "op": "DEL",
    "line": 249,
    "before": "super(null, null, false, false);",
@@ -443,7 +443,7 @@
    "reason": "suppresses the stack trace of an exception used as control flow; nothing shows it."
   },
   {
-   "id": "658b49bbad",
+   "id": "ad7594d7a3",
    "op": "DEL",
    "line": 262,
    "before": "initialState();",
@@ -452,16 +452,7 @@
    "reason": "runBatch runs once on a freshly built service whose fields start at the images' bytes or are written before they are read (record areas, W-EOF); the re-initialisation changes nothing a run shows."
   },
   {
-   "id": "33d49fcd30",
-   "op": "LIT",
-   "line": 263,
-   "before": "I1_FILE = new DetFiles.Sequential(files, \"SORTIN\", () -> datasets.path(dd(dds, \"SORTIN\")), s_I1_REC, 0, 350);",
-   "after": "I1_FILE = new DetFiles.Sequential(files, \"XORTIN\", () -> datasets.path(dd(dds, \"SORTIN\")), s_I1_REC, 0, 350);",
-   "verdict": "harness-gap",
-   "reason": "the DD label keys a planned file status (CobolFiles.planned), so a fault run on this DD would tell it; tried (an OPEN 35 on the DD): the oracle carries on and the port stops by name (Sort$NotModelled, `SORT USING ...: OPEN gave FILE STATUS 35: not modelled`), so the run differs and cannot be committed. Closing it needs the Sort USING/GIVING file-status model."
-  },
-  {
-   "id": "fda1dd6cb1",
+   "id": "9c3c4f2c15",
    "op": "CON",
    "line": 266,
    "before": "perform(0, 2);",
@@ -470,7 +461,7 @@
    "reason": "the THRU bound past the end: MAIN-PARA ends in GOBACK, so control never falls through to the bound."
   },
   {
-   "id": "ef5f6d48d4",
+   "id": "08aaa03187",
    "op": "DEL",
    "line": 272,
    "before": "Cobol.swapTruncBinary(truncBefore);",
@@ -479,7 +470,7 @@
    "reason": "restores a process-wide compile option for the next run; the program has no binary item it computes in, and each proof run is its own JVM leg."
   },
   {
-   "id": "8d4c19923f",
+   "id": "584b78c2de",
    "op": "DEL",
    "line": 273,
    "before": "Cobol.swapNumprocPfd(pfdBefore);",
@@ -488,7 +479,7 @@
    "reason": "restores a process-wide compile option for the next run; the program has no binary item it computes in, and each proof run is its own JVM leg."
   },
   {
-   "id": "e044eb5e62",
+   "id": "82a8bb35a8",
    "op": "DEL",
    "line": 287,
    "before": "super(null, null, false, false);",
@@ -497,7 +488,7 @@
    "reason": "suppresses the stack trace of an exception used as control flow; nothing shows it."
   },
   {
-   "id": "611a9e208c",
+   "id": "fc0bd1a39b",
    "op": "DEL",
    "line": 298,
    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
@@ -506,7 +497,7 @@
    "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (or a depth of 64): each paragraph here is PERFORMed alone (from == thru) or ends in GOBACK, and the program has no GO TO."
   },
   {
-   "id": "dbd946e6fc",
+   "id": "27ed76ca5b",
    "op": "AOR",
    "line": 298,
    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
@@ -515,7 +506,7 @@
    "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (or a depth of 64): each paragraph here is PERFORMed alone (from == thru) or ends in GOBACK, and the program has no GO TO."
   },
   {
-   "id": "e5941cc333",
+   "id": "a81e2c6386",
    "op": "CON",
    "line": 298,
    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
@@ -524,25 +515,7 @@
    "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (or a depth of 64): each paragraph here is PERFORMed alone (from == thru) or ends in GOBACK, and the program has no GO TO."
   },
   {
-   "id": "39adfc56c5",
-   "op": "CON",
-   "line": 311,
-   "before": "for (int d = mine - 1; d >= 0; d--) {",
-   "after": "for (int d = mine - 1; d >= 1; d--) {",
-   "verdict": "unreachable",
-   "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (or a depth of 64): each paragraph here is PERFORMed alone (from == thru) or ends in GOBACK, and the program has no GO TO."
-  },
-  {
-   "id": "983e607cb5",
-   "op": "ROR",
-   "line": 311,
-   "before": "for (int d = mine - 1; d >= 0; d--) {",
-   "after": "for (int d = mine - 1; d > 0; d--) {",
-   "verdict": "unreachable",
-   "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (or a depth of 64): each paragraph here is PERFORMed alone (from == thru) or ends in GOBACK, and the program has no GO TO."
-  },
-  {
-   "id": "b28d8bfdde",
+   "id": "7f5cbaa3ac",
    "op": "AOR",
    "line": 311,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
@@ -551,25 +524,7 @@
    "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (or a depth of 64): each paragraph here is PERFORMed alone (from == thru) or ends in GOBACK, and the program has no GO TO."
   },
   {
-   "id": "bbdcf7a2d7",
-   "op": "ROR",
-   "line": 311,
-   "before": "for (int d = mine - 1; d >= 0; d--) {",
-   "after": "for (int d = mine - 1; d < 0; d--) {",
-   "verdict": "unreachable",
-   "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (or a depth of 64): each paragraph here is PERFORMed alone (from == thru) or ends in GOBACK, and the program has no GO TO."
-  },
-  {
-   "id": "c3839ea3cf",
-   "op": "AOR",
-   "line": 311,
-   "before": "for (int d = mine - 1; d >= 0; d--) {",
-   "after": "for (int d = mine - 1; d >= 0; d++) {",
-   "verdict": "unreachable",
-   "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (or a depth of 64): each paragraph here is PERFORMed alone (from == thru) or ends in GOBACK, and the program has no GO TO."
-  },
-  {
-   "id": "db0a2b7695",
+   "id": "674344ca89",
    "op": "CON",
    "line": 311,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
@@ -578,16 +533,43 @@
    "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (or a depth of 64): each paragraph here is PERFORMed alone (from == thru) or ends in GOBACK, and the program has no GO TO."
   },
   {
-   "id": "121349dfc2",
+   "id": "5f621546d5",
    "op": "ROR",
-   "line": 312,
-   "before": "if (performThru[d] == i) {",
-   "after": "if (performThru[d] != i) {",
+   "line": 311,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d > 0; d--) {",
    "verdict": "unreachable",
    "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (or a depth of 64): each paragraph here is PERFORMed alone (from == thru) or ends in GOBACK, and the program has no GO TO."
   },
   {
-   "id": "db771c545c",
+   "id": "27f5b81778",
+   "op": "ROR",
+   "line": 311,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d < 0; d--) {",
+   "verdict": "unreachable",
+   "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (or a depth of 64): each paragraph here is PERFORMed alone (from == thru) or ends in GOBACK, and the program has no GO TO."
+  },
+  {
+   "id": "f8dc8f4b2d",
+   "op": "CON",
+   "line": 311,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d >= 1; d--) {",
+   "verdict": "unreachable",
+   "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (or a depth of 64): each paragraph here is PERFORMed alone (from == thru) or ends in GOBACK, and the program has no GO TO."
+  },
+  {
+   "id": "495f801f09",
+   "op": "AOR",
+   "line": 311,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d >= 0; d++) {",
+   "verdict": "unreachable",
+   "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (or a depth of 64): each paragraph here is PERFORMed alone (from == thru) or ends in GOBACK, and the program has no GO TO."
+  },
+  {
+   "id": "c2d393ac4b",
    "op": "NEG",
    "line": 312,
    "before": "if (performThru[d] == i) {",
@@ -596,7 +578,16 @@
    "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (or a depth of 64): each paragraph here is PERFORMed alone (from == thru) or ends in GOBACK, and the program has no GO TO."
   },
   {
-   "id": "69115cab78",
+   "id": "5ca81b31aa",
+   "op": "ROR",
+   "line": 312,
+   "before": "if (performThru[d] == i) {",
+   "after": "if (performThru[d] != i) {",
+   "verdict": "unreachable",
+   "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (or a depth of 64): each paragraph here is PERFORMed alone (from == thru) or ends in GOBACK, and the program has no GO TO."
+  },
+  {
+   "id": "2c995bc660",
    "op": "NEG",
    "line": 317,
    "before": "if (next >= 3) {",
@@ -605,16 +596,7 @@
    "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (or a depth of 64): each paragraph here is PERFORMed alone (from == thru) or ends in GOBACK, and the program has no GO TO."
   },
   {
-   "id": "758cacd6b0",
-   "op": "ROR",
-   "line": 317,
-   "before": "if (next >= 3) {",
-   "after": "if (next > 3) {",
-   "verdict": "unreachable",
-   "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (or a depth of 64): each paragraph here is PERFORMed alone (from == thru) or ends in GOBACK, and the program has no GO TO."
-  },
-  {
-   "id": "d9c58553ae",
+   "id": "dcd68fa69d",
    "op": "ROR",
    "line": 317,
    "before": "if (next >= 3) {",
@@ -623,7 +605,16 @@
    "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (or a depth of 64): each paragraph here is PERFORMed alone (from == thru) or ends in GOBACK, and the program has no GO TO."
   },
   {
-   "id": "db4f26bdd6",
+   "id": "b0d650ecea",
+   "op": "ROR",
+   "line": 317,
+   "before": "if (next >= 3) {",
+   "after": "if (next > 3) {",
+   "verdict": "unreachable",
+   "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (or a depth of 64): each paragraph here is PERFORMed alone (from == thru) or ends in GOBACK, and the program has no GO TO."
+  },
+  {
+   "id": "26c6ad1d1d",
    "op": "DEL",
    "line": 320,
    "before": "i = next;",
@@ -632,16 +623,7 @@
    "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (or a depth of 64): each paragraph here is PERFORMed alone (from == thru) or ends in GOBACK, and the program has no GO TO."
   },
   {
-   "id": "f09a17549d",
-   "op": "ROR",
-   "line": 323,
-   "before": "if (e.depth != mine) {",
-   "after": "if (e.depth == mine) {",
-   "verdict": "unreachable",
-   "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (or a depth of 64): each paragraph here is PERFORMed alone (from == thru) or ends in GOBACK, and the program has no GO TO."
-  },
-  {
-   "id": "f4c04e03fa",
+   "id": "5134a07015",
    "op": "NEG",
    "line": 323,
    "before": "if (e.depth != mine) {",
@@ -650,7 +632,16 @@
    "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (or a depth of 64): each paragraph here is PERFORMed alone (from == thru) or ends in GOBACK, and the program has no GO TO."
   },
   {
-   "id": "a752ac08de",
+   "id": "66d146adff",
+   "op": "ROR",
+   "line": 323,
+   "before": "if (e.depth != mine) {",
+   "after": "if (e.depth == mine) {",
+   "verdict": "unreachable",
+   "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (or a depth of 64): each paragraph here is PERFORMed alone (from == thru) or ends in GOBACK, and the program has no GO TO."
+  },
+  {
+   "id": "df5be19c40",
    "op": "DEL",
    "line": 327,
    "before": "performDepth = mine;",
@@ -659,7 +650,7 @@
    "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (or a depth of 64): each paragraph here is PERFORMed alone (from == thru) or ends in GOBACK, and the program has no GO TO."
   },
   {
-   "id": "6752dfc79d",
+   "id": "a812494cd9",
    "op": "LIT",
    "line": 336,
    "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
@@ -668,16 +659,7 @@
    "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (or a depth of 64): each paragraph here is PERFORMed alone (from == thru) or ends in GOBACK, and the program has no GO TO."
   },
   {
-   "id": "22748a959c",
-   "op": "LIT",
-   "line": 343,
-   "before": "sort_S_FILE = new Sort(\"S-FILE\", 366, false, CS, Sort.Collating.ebcdic(\"EB\", CS),",
-   "after": "sort_S_FILE = new Sort(\"S-FILE\", 366, false, CS, Sort.Collating.ebcdic(\"XB\", CS),",
-   "verdict": "unreachable",
-   "reason": "the alphabet's name appears only in a refusal message (a comparison the two collations decide differently); every key of the case compares the same on both."
-  },
-  {
-   "id": "620cbccd92",
+   "id": "97597ba36d",
    "op": "LIT",
    "line": 343,
    "before": "sort_S_FILE = new Sort(\"S-FILE\", 366, false, CS, Sort.Collating.ebcdic(\"EB\", CS),",
@@ -686,7 +668,16 @@
    "reason": "the SD file's name appears only in a refusal message (equal keys, mixed lengths, a collation disagreement), none of which the case reaches."
   },
   {
-   "id": "f94da2d4b3",
+   "id": "b1e4c5e1ca",
+   "op": "LIT",
+   "line": 343,
+   "before": "sort_S_FILE = new Sort(\"S-FILE\", 366, false, CS, Sort.Collating.ebcdic(\"EB\", CS),",
+   "after": "sort_S_FILE = new Sort(\"S-FILE\", 366, false, CS, Sort.Collating.ebcdic(\"XB\", CS),",
+   "verdict": "unreachable",
+   "reason": "the alphabet's name appears only in a refusal message (a comparison the two collations decide differently); every key of the case compares the same on both."
+  },
+  {
+   "id": "98b7600aa7",
    "op": "CON",
    "line": 344,
    "before": "new Sort.Key(r -> Field.zoned(r, 0, 16, 0, true, false, false), true));",
@@ -695,7 +686,7 @@
    "reason": "a key one byte wider takes the first byte of S-DATA as a further digit; keys are distinct (the case's inputs are pinned to distinct keys), so the order is already decided by the 16 key bytes."
   },
   {
-   "id": "cfe54462d4",
+   "id": "1faf5b2da6",
    "op": "DEL",
    "line": 348,
    "before": "sort_S_FILE = null;",
@@ -704,7 +695,7 @@
    "reason": "clears the SD's sort after the output phase; a later RELEASE/RETURN would stop by name, and the program has none after the SORT."
   },
   {
-   "id": "749a1b9f39",
+   "id": "b0aa5b45b8",
    "op": "DEL",
    "line": 349,
    "before": "Sort.finished(f45_GG_SORT_RETURN, CS);",
@@ -713,7 +704,7 @@
    "reason": "Sort.finished stops by name when the program left a value in SORT-RETURN; no statement of the program writes it, so it is 0 already."
   },
   {
-   "id": "e59a720c18",
+   "id": "03b2df4f1f",
    "op": "LIT",
    "line": 364,
    "before": "String st2 = Sort.active(sort_S_FILE, \"RETURN S-FILE outside an output procedure\").returnInto(f3_S_REC, f45_GG_SORT_RETURN, CS) ? \"00\" : \"10\";",
@@ -722,7 +713,7 @@
    "reason": "the message of a RETURN outside an output procedure (sort_S_FILE is set); the program RETURNs only inside WRITE-ALL."
   },
   {
-   "id": "2afb9304a6",
+   "id": "5b9fb50f56",
    "op": "LIT",
    "line": 385,
    "before": "f7_W_EOF = \"N\";",

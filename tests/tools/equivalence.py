@@ -781,7 +781,12 @@ def _compare_tables(case: dict[str, Any], cobol: dict[str, bytes], java: dict[st
 def load_case(name: str, case_file: Path | None = None) -> dict[str, Any]:
     """The case `name`, from its case.json -- or from `case_file` (#4049: a candidate the test-strengthening loop
     wrote), with the case's own directory still the home of its inputs and its port."""
-    case = json.loads((case_file or CASES / name / "case.json").read_text(encoding="utf-8"))
+    path = case_file or CASES / name / "case.json"
+    if (
+        case_file is None and not path.is_file()
+    ):  # #4268: a job case is CASES/jobs/NAME.json (no */case.json glob sees it)
+        path = CASES / "jobs" / f"{name}.json"
+    case = json.loads(path.read_text(encoding="utf-8"))
     case["name"] = name
     return case
 

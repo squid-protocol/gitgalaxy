@@ -245,13 +245,50 @@ def test_the_harness_refuses_what_the_translator_refuses(text):
         _ec().translate_command(text)
 
 
-def test_the_harness_refuses_addressing_a_commarea_the_program_does_not_declare():
+_NO_RECORD = PROGRAM.replace("       01  DFHCOMMAREA            PIC  X(32).\n", "")
+
+
+def test_the_harness_gives_a_program_with_no_commarea_record_a_stand_in_to_address():
+    """#5079 (X59): CAADSB-style callee: ADDRESS COMMAREA with no 01 DFHCOMMAREA. LINKAGE with other records, no LINKAGE
+    section at all, and a record already there (no duplicate) are the whole input class."""
     ec = _ec()
-    source = PROGRAM.replace("       01  DFHCOMMAREA            PIC  X(32).\n", "")
-    with pytest.raises(ec.Unsupported, match="no LINKAGE 01 DFHCOMMAREA"):
-        ec.translate(source.replace("       PROCEDURE DIVISION.", "       PROCEDURE DIVISION."))
-    text, has_commarea = ec.translate(PROGRAM)
-    assert has_commarea and "GGCADDR" in text
+    text, has_commarea = ec.translate(_NO_RECORD)  # LINKAGE SECTION holding other records
+    assert has_commarea and len(re.findall(r"01\s+DFHCOMMAREA", text)) == 1
+    assert (
+        text.index("LINKAGE SECTION")
+        < text.index("DFHCOMMAREA PIC X(1)")
+        < text.index("PROCEDURE DIVISION USING DFHCOMMAREA")
+    )
+    bare = re.sub(r"       LINKAGE SECTION\.\n(       01  EIB-VIEW[^\n]*\n)", "", _NO_RECORD)
+    assert "LINKAGE SECTION" not in bare
+    text, has_commarea = ec.translate(bare)  # no LINKAGE SECTION: one is made before the PROCEDURE DIVISION
+    assert has_commarea and text.index("LINKAGE SECTION") < text.index("DFHCOMMAREA PIC X(1)") < text.index(
+        "PROCEDURE DIVISION USING"
+    )
+    text, has_commarea = ec.translate(PROGRAM)  # declared: untouched
+    assert has_commarea and "PIC X(1)" not in text
+
+
+def test_a_program_that_addresses_only_the_eib_gets_no_stand_in():
+    ec = _ec()
+    source = _NO_RECORD.replace(" COMMAREA(CA-ADDRESS)", "")
+    text, has_commarea = ec.translate(source)
+    assert not has_commarea and "DFHCOMMAREA" not in text
+
+
+def _case_with(*events):
+    class _C:
+        expected = {"s": {"tasks": [{"events": list(events)}]}}
+
+    return _C()
+
+
+def test_the_runner_writes_an_empty_td_config_only_for_a_case_that_expects_qiderr():
+    """#5079 (X57): READQ TD / WRITEQ TD / DELETEQ TD answered QIDERR by the oracle, with no TDQUEUE in the CSD."""
+    for verb in ("READQ-TD", "WRITEQ-TD", "DELETEQ-TD"):
+        assert CCR._expects_undefined_td_queue(_case_with({"event": verb, "resp": "QIDERR"}))
+        assert not CCR._expects_undefined_td_queue(_case_with({"event": verb, "resp": "NORMAL"}))
+    assert not CCR._expects_undefined_td_queue(_case_with({"event": "READQ-TS", "resp": "QIDERR"}))
 
 
 # ---- both runtimes -------------------------------------------------------------------------------------------------------------

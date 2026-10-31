@@ -1770,11 +1770,13 @@ states each (`none (gap)`: no entry does). Only fields a burned corpus's COBOL n
     (a digit first): executed-equivalent, SORTOUT 50/50 records equal, RETURN-CODE 0, 1/1 paragraphs. The letters are synthetic
     input (CardDemo's IDs are digits) on characters where the two EBCDIC tables agree. Residual risk: the oracle is GnuCOBOL's
     EBCDIC alphabet, not z/OS. L5 (det_mutation, seed 0, 150 sampled mutants of the lowered DFSORTST port; #4628):
-    `carddemo-sort-combtran` 44 killed, 91 survived (89 stated equivalent / unreachable, 2 open), 15 stillborn;
-    `carddemo-sort-tranrept` 60 killed, 80 survived (79 stated, 1 open), 10 stillborn. The stated survivors are the generated
-    service's CICS/EIB boilerplate, the PERFORM stack, record-area initial images and refusal-message text. **Not L5:** the
-    3 open ones are the DD labels (`SORTIN`, `SORTIN1`, `SORTIN2`), a harness-gap: a fault run on a SORT USING file is
-    refused by name by the port (`Sort$NotModelled`) while the oracle carries on, so no run can compare the label.
+    `carddemo-sort-combtran` 46 killed, 89 survived (all stated equivalent / unreachable), 15 stillborn;
+    `carddemo-sort-tranrept` 61 killed, 79 survived (all stated), 10 stillborn. The stated survivors are the generated
+    service's CICS/EIB boilerplate, the PERFORM stack, record-area initial images and refusal-message text. The DD labels
+    (`SORTIN`, `SORTIN1`, `SORTIN2`) are killed by one READ status-10 fault run per sort-input DD (`sortin-eof`,
+    `sortin1-eof`, `sortin2-eof`; #4268). IBM defines status 10, so the run needs no Sort status model. An OPEN failure
+    (35) on a USING file is not used: IBM leaves the implicit-I/O status undefined under FASTSRT, the oracle carries on
+    (RC 0) and the port still refuses by name (`Sort$NotModelled`); that, and GIVING-side faults, stay open (#4268).
   - **Declared difference.** The oracle's SORT rewrites a signed DISPLAY key's sign zone in the records it sorts
     (`cobc -std=ibm -fsign=EBCDIC`, cobc 3.1.2, measured 2026-10-28: an unsigned key `0001` comes out `000A`); DFSORT
     and Enterprise COBOL never change a record's bytes. The lowering therefore sorts a ZD / PD key as a copy carried

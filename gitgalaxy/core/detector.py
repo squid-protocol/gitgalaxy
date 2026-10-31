@@ -3094,6 +3094,10 @@ _BRACKET_CONTINUATION_LANGS = frozenset({"python", "micropython", "embedded_pyth
 _NATIVE_INLINE_ASM_HOSTS = frozenset({"c", "cpp", "objective-c"})
 
 
+# #7206: a unit header that is a SECTION (`NAME SECTION [segment].`), not a paragraph.
+_COBOL_SECTION_HEADER_RE = re.compile(r"(?:[^\n]{6})?[ \t]*[\w-]+[ \t]+SECTION(?![\w-])", re.I)
+
+
 class StructuralExtractor:
     """
     GitGalaxy Structural Extractor (Primary Heuristic Logic & Function Mapper).
@@ -3955,6 +3959,14 @@ class StructuralExtractor:
             # on files with many functions AND many api hits.
             _api_line_set = set(threat_locations.get("api") or ())
 
+            # #7206: the unit(s) a COBOL PROCEDURE DIVISION falls into are reached
+            # with no PERFORM naming them: never an orphan or a duplicate.
+            cobol_entry_starts: frozenset[int] = (
+                self._cobol_entry_unit_starts(code_stream, functions)
+                if self.primary_lang_id == "cobol" and functions
+                else frozenset()
+            )
+
             for func in functions:
                 func_name = func.get("name", "")
                 usage_status = 0  # 0 = Normal
@@ -3986,6 +3998,7 @@ class StructuralExtractor:
                     func_name
                     and not _is_synthetic_satellite_name(func_name)
                     and func_name not in self._keyword_bucket_names
+                    and func.get("start_idx") not in cobol_entry_starts
                 ):
                     # Check for Duplicates: same name AND materially the same body,
                     # defined multiple times in the same file.
@@ -8651,6 +8664,39 @@ class StructuralExtractor:
             sat["references_qualifiers"] = {}
             units.append(sat)
         return units
+
+    @staticmethod
+    def _cobol_entry_unit_starts(code: str, functions: list[FunctionNode]) -> frozenset[int]:
+        """#7206: `start_idx` of every unit a PROCEDURE DIVISION falls into.
+
+        Control enters a program at the first unit after the header when no
+        statement sits between the header's separator period and it (else the
+        main line is the entry, #4302): that paragraph or section is reached
+        with no PERFORM naming it. A first SECTION is entered together with its
+        first paragraph, when the section header's own sentence is followed
+        straight by it. Per program: a nested or sibling program ends at its
+        `END PROGRAM` / next header (`_COBOL_UNIT_END_RE`) and has its own entry.
+        Fall-through from a predecessor stays out of scope.
+        """
+        unit_starts = sorted({int(f["start_idx"]) for f in functions if isinstance(f.get("start_idx"), int)})
+        entries: set[int] = set()
+        for header in _COBOL_PROCEDURE_DIVISION_RE.finditer(code):
+            first = next((u for u in unit_starts if u >= header.end()), None)
+            if first is None:
+                continue
+            if _COBOL_UNIT_END_RE.search(code, header.end(), first):
+                continue
+            period = _COBOL_SEPARATOR_PERIOD_RE.search(code, header.end(), first)
+            if period is None or code[period.end() : first].strip():
+                continue
+            entries.add(first)
+            header_end = _COBOL_SEPARATOR_PERIOD_RE.search(code, first)
+            if header_end is None or not _COBOL_SECTION_HEADER_RE.match(code, first, header_end.start()):
+                continue
+            after = next((u for u in unit_starts if u > first), None)
+            if after is not None and not code[header_end.end() : after].strip():
+                entries.add(after)
+        return frozenset(entries)
 
     @staticmethod
     def _module_text(code: str, satellites: list[FunctionNode]) -> str:

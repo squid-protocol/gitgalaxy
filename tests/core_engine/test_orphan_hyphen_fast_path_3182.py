@@ -98,11 +98,11 @@ def test_hyphen_boundary_census_is_the_3198_reading():
     assert status["CALC-TOTAL"] == 0
     assert status["WS-EXIT-DONE"] == 0
     assert status["CALC"] == 0  # `PERFORM CALC.` inside CALC-TOTAL
-    # Named nowhere: `WS-EXIT-DONE` is a different name, and MAIN-PARA is the
-    # entry, which nothing has to name. The census reports that; it does not
-    # claim either one is dead (contract corollary 3).
+    # Named nowhere: `WS-EXIT-DONE` is a different name. The census reports that;
+    # it does not claim it is dead (contract corollary 3).
     assert status["WS-EXIT"] == 1
-    assert status["MAIN-PARA"] == 1
+    # MAIN-PARA is the entry the PROCEDURE DIVISION falls into: never an orphan (#7206).
+    assert status["MAIN-PARA"] == 0
 
 
 def test_hyphen_fixture_actually_exercises_orphans_3182():

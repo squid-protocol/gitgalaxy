@@ -1473,7 +1473,7 @@
         "Instability Exposure": "50.0%",
         "Specification Exposure": "0.0%",
         "State Flux Exposure": "49.73%",
-        "Tech Debt Exposure": "39.72%",
+        "Tech Debt Exposure": "2.7%",
         "Testing Exposure": "2.34%",
         "Volatility Exposure": "0.0%"
       },
@@ -1578,7 +1578,7 @@
         "Instability Exposure": "48.0%",
         "Specification Exposure": "0.0%",
         "State Flux Exposure": "38.98%",
-        "Tech Debt Exposure": "3.15%",
+        "Tech Debt Exposure": "1.24%",
         "Testing Exposure": "19.84%",
         "Volatility Exposure": "0.0%"
       },
@@ -1732,7 +1732,7 @@
     },
     "cobol/che-che4z_lsp_project_fixtures": {
       "Average Risk Exposures": {
-        "API Exposure": "0.56%",
+        "API Exposure": "0.24%",
         "Cognitive Load Exposure": "5.34%",
         "Commented Logic Exposure": "3.54%",
         "Concurrency Exposure": "0.0%",
@@ -1742,11 +1742,11 @@
         "Instability Exposure": "49.29%",
         "Specification Exposure": "0.0%",
         "State Flux Exposure": "31.89%",
-        "Tech Debt Exposure": "27.64%",
+        "Tech Debt Exposure": "11.34%",
         "Testing Exposure": "1.7%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 802.33,
+      "Directory Group Magnitude": 801.33,
       "Ecosystem Fingerprint (Archetypes)": {
         "Static: Literature & Documentation": "1.4%",
         "Unclassified": "4.3%",
@@ -1841,7 +1841,7 @@
         "Instability Exposure": "49.67%",
         "Specification Exposure": "0.0%",
         "State Flux Exposure": "83.01%",
-        "Tech Debt Exposure": "95.41%",
+        "Tech Debt Exposure": "88.93%",
         "Testing Exposure": "57.37%",
         "Volatility Exposure": "0.0%"
       },
@@ -2010,7 +2010,7 @@
     },
     "cobol/cics-banking-sample-application-cbsa": {
       "Average Risk Exposures": {
-        "API Exposure": "9.56%",
+        "API Exposure": "8.6%",
         "Cognitive Load Exposure": "37.85%",
         "Commented Logic Exposure": "4.2%",
         "Concurrency Exposure": "7.15%",
@@ -2020,11 +2020,11 @@
         "Instability Exposure": "50.0%",
         "Specification Exposure": "0.0%",
         "State Flux Exposure": "41.4%",
-        "Tech Debt Exposure": "15.33%",
+        "Tech Debt Exposure": "12.17%",
         "Testing Exposure": "22.32%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 9728.37,
+      "Directory Group Magnitude": 9704.37,
       "Ecosystem Fingerprint (Archetypes)": {
         "Unclassified": "1.5%",
         "file_cluster_11": "28.8%",
@@ -2115,7 +2115,7 @@
         "Instability Exposure": "48.89%",
         "Specification Exposure": "0.0%",
         "State Flux Exposure": "66.98%",
-        "Tech Debt Exposure": "20.01%",
+        "Tech Debt Exposure": "10.51%",
         "Testing Exposure": "5.47%",
         "Volatility Exposure": "0.0%"
       },
@@ -2189,7 +2189,7 @@
         "Instability Exposure": "50.0%",
         "Specification Exposure": "0.0%",
         "State Flux Exposure": "87.77%",
-        "Tech Debt Exposure": "40.3%",
+        "Tech Debt Exposure": "13.37%",
         "Testing Exposure": "2.35%",
         "Volatility Exposure": "0.0%"
       },
@@ -2215,7 +2215,7 @@
         "Instability Exposure": "50.0%",
         "Specification Exposure": "0.0%",
         "State Flux Exposure": "25.82%",
-        "Tech Debt Exposure": "26.41%",
+        "Tech Debt Exposure": "23.14%",
         "Testing Exposure": "2.21%",
         "Volatility Exposure": "0.0%"
       },
@@ -2286,7 +2286,7 @@
         "Instability Exposure": "50.0%",
         "Specification Exposure": "0.0%",
         "State Flux Exposure": "99.14%",
-        "Tech Debt Exposure": "25.32%",
+        "Tech Debt Exposure": "15.99%",
         "Testing Exposure": "2.36%",
         "Volatility Exposure": "0.0%"
       },
@@ -2373,7 +2373,7 @@
         "Instability Exposure": "44.44%",
         "Specification Exposure": "0.0%",
         "State Flux Exposure": "33.16%",
-        "Tech Debt Exposure": "2.04%",
+        "Tech Debt Exposure": "0.0%",
         "Testing Exposure": "2.06%",
         "Volatility Exposure": "0.0%"
       },
@@ -2478,7 +2478,7 @@
         "Instability Exposure": "50.0%",
         "Specification Exposure": "0.0%",
         "State Flux Exposure": "25.0%",
-        "Tech Debt Exposure": "3.54%",
+        "Tech Debt Exposure": "1.06%",
         "Testing Exposure": "12.03%",
         "Volatility Exposure": "0.0%"
       },

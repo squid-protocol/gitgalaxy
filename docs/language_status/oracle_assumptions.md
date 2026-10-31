@@ -2062,6 +2062,9 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   file that is not an ESDS (a KSDS by RBA); a keyed command on an ESDS; a browse that mixes RBA and keys; an RBA RIDFLD
   shorter than a fullword. By the translators: XRBA, RRN, READ / WRITE / DELETE by RBA, GTEQ or KEYLENGTH with RBA.
 - **Reached.** Yes: mortgage-mlist (IBM DBB EPSMLIST) browses its ESDS from RBA 0 to ENDFILE.
+- **Events (#6262).** The Java leg records an RBA browse as STARTBR / READNEXT / READPREV events (`CicsTask.startbrRbaEvent`,
+  `readnextRbaEvent`, `readprevRbaEvent`) carrying the file, the fullword and RESP, as the stub's `rba=` lines do. SPEC 6.2
+  has no RBA form of RIDFLD, so both legs mark it Unmodelled; the stub records no RESP2, length or data for it yet.
 
 ### X14. READ ... INTO LENGTH — ASSUMED, REFUSED where IBM is silent (#4436)
 - **What IBM documents** (CICS TS 6.x, EXEC CICS READ, ibm.com/docs/en/cics-ts/6.x?topic=summary-read; wording paraphrased): LENGTH "specifies the length, as a halfword binary value, of

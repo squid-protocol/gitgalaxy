@@ -10,8 +10,8 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 |---|---|---|---|
 | CBL: statements and data movement | `Cobol.java`, `MoveSpec.java`, `CompareSpec.java`, `ArithSpec.java`, `StringSpec.java` | 46 | yes |
 | NUM: numeric storage codecs | `Codec.java`, `Zoned.java` | 13 | yes |
-| HFP: COMP-1 / COMP-2 as hexadecimal floating point | `Hfp.java` | 14 | yes |
-| EDIT: numeric editing | `Editing.java` | 5 | yes |
+| HFP: COMP-1 / COMP-2 as hexadecimal floating point | `Hfp.java`, `HfpSpec.java` | 14 | yes |
+| EDIT: numeric editing | `Editing.java`, `EditingSpec.java` | 5 | yes |
 | FUNC: intrinsic functions | `Funcs.java`, `Accept.java`, `FuncSpec.java` | 12 | yes |
 | CICS: EXEC CICS data movement | `cics/DetCics.java`, `cics/DetJustify.java` | 27 | yes |
 | SQL: embedded SQL | `sql/DetSql.java` | 14 | yes |
@@ -19,7 +19,7 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 | DLI: IMS DL/I database calls | `dli/DetDli.java` | 16 | yes |
 | MQ: IBM MQ (MQI from CICS) | `mq/QueueManager.java`, `cics/DetMq.java` | 7 | yes |
 | DATA: items and storage | `Field.java`, `Storage.java`, `Lossless.java`, `Figurative.java`, `Hole.java` | 5 | yes |
-| SORT: SORT / MERGE and collating sequences | `Sort.java` | 7 | yes |
+| SORT: SORT / MERGE and collating sequences | `Sort.java`, `SortSpec.java` | 7 | yes |
 | FILE: batch files | `batch/DetFiles.java` | 3 | yes |
 | SYS: standalone SYSOUT and abends | `standalone/CobolAbend.java`, `standalone/Sysout.java` | 2 | yes |
 | MVS: z/OS control blocks a batch program reads | `DetMvs.java` | 1 | yes |

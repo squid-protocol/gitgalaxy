@@ -530,3 +530,29 @@ def test_assembly_calls_out_strict():
     # 3. ReDoS Scale Testing
     payload = "CALL " + ("A" * 10000)
     assert_redos_immune(calls_out, payload)
+
+
+# #7064: a marker word that is a directive name is code, not a comment marker (`.stub` macro: 52 hits in one real file).
+@pytest.mark.parametrize(
+    "key,text",
+    [
+        ("planned_debt", "; TODO: x"),
+        ("planned_debt", "# STUB handler"),
+        ("planned_debt", "\tnop ; todo: later"),
+        ("planned_debt", "@ WIP"),
+        ("fragile_debt", "// FIXME later"),
+        ("fragile_debt", "/* XXX odd */"),
+        ("fragile_debt", " * HACK around"),
+    ],
+)
+def test_assembly_debt_fires_on_comment_text(key, text):
+    assert ASM_RULES[key].search(text)
+
+
+@pytest.mark.parametrize("key", ["planned_debt", "fragile_debt"])
+@pytest.mark.parametrize(
+    "text",
+    ["\t.stub\tape.diskid,quad", "\t.todo foo", "\t.hack x", "\t.xxx 1", "\t.fixme", "\t.wip"],
+)
+def test_assembly_debt_ignores_directive_names(key, text):
+    assert not ASM_RULES[key].search(text)

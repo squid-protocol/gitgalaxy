@@ -126,7 +126,7 @@
     },
     "assembly/cosmopolitan": {
       "assembly/cosmopolitan/BUILD.mk": 0,
-      "assembly/cosmopolitan/ape.S": 52,
+      "assembly/cosmopolitan/ape.S": 5,
       "assembly/cosmopolitan/loader.c": 1,
       "assembly/cosmopolitan/notice.inc": 0,
       "assembly/cosmopolitan/start.S": 0

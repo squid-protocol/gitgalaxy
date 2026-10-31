@@ -57,6 +57,7 @@ def test_the_initial_image_is_gnucobols(name, tmp_path):
     case = json.loads((CASES / name / "case.json").read_text())
     corpus = _corpus()
     program = corpus / case["program_source"]
+    records = []
     try:
         records = [r for r in L.records(program, _dirs(case, corpus)) if r.section == "WORKING-STORAGE"]
     except (

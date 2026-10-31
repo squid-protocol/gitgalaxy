@@ -182,7 +182,7 @@ def main():
     print(f"\n🔎 Scanning {len(files_to_deep_scan):,} files for structural anomalies:")
     print("   - Magic Byte Mismatches (e.g., hidden executables disguised as images)")
     print("   - Embedded Execution Headers (e.g., executable signatures within static data)")
-    print("   - High-Entropy Payloads (e.g., packed executables or obfuscated bitwise loops)")
+    print("   - High-Entropy Payloads (e.g., packed executables or encoded blobs)")
 
     start_time = time.time()
 
@@ -225,7 +225,9 @@ def main():
 
             if not dense_is_expected and sec_results["counts"].get("bitwise_ops", 0) > 0:
                 has_anomaly = True
-                anomaly_msgs.append("Obfuscated bitwise operations (XOR loops) detected")
+                anomaly_msgs.append(
+                    "Repeated in-place XOR on indexed bytes detected (buf[i] ^= k; three or more times)"
+                )
 
             # 3. Report the Anomaly
             if has_anomaly:

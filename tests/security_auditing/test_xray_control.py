@@ -101,9 +101,20 @@ def test_a_real_test_folder_stays_exempt(rel, tmp_path, monkeypatch):
     assert _scan(tmp_path, monkeypatch, {rel: DENSE}) == 0
 
 
-@pytest.mark.xfail(strict=True, reason="#7187: printed as a detection, but this loop isn't flagged")
-def test_known_miss_xor_loop(tmp_path, monkeypatch):
-    assert _scan(tmp_path, monkeypatch, {"src/a.py": XOR_LOOP}) == 1
+INDEXED_XOR = b"buf[0] ^= 0x41; buf[1] ^= 0x42; buf[2] ^= 0x43; buf[3] ^= 0x44;\n"
+
+
+def test_a_plain_xor_loop_is_not_claimed(tmp_path, monkeypatch, capsys):
+    """X-Ray detects repeated indexed XORs only, so it must not print an 'XOR loops' detection (#7187)."""
+    assert _scan(tmp_path, monkeypatch, {"src/a.py": XOR_LOOP}) == 0
+    assert "loop" not in capsys.readouterr().out.lower()
+
+
+def test_repeated_indexed_xor_is_flagged_and_named_as_such(tmp_path, monkeypatch, capsys):
+    assert _scan(tmp_path, monkeypatch, {"src/a.py": INDEXED_XOR}) == 1
+    out = capsys.readouterr().out
+    assert "Repeated in-place XOR on indexed bytes detected" in out
+    assert "loop" not in out.lower()
 
 
 def test_a_large_payload_on_one_line_fails(tmp_path, monkeypatch):

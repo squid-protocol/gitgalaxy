@@ -134,6 +134,8 @@
 #          `SUFFIX=NO` / `DY` is excluded only for DFHSIT and DSNCRCT; for TCT / MCT it is ASSUMED to name a table (not settled from the manual).
 #   DFHMCT TYPE=EMP,CLASS=PERFORM,ID=  MONITORPOINT (a user event monitoring point; it has no CSD
 #          counterpart; ID is `number`, `(PP,number)` or `entryname.number`, kept as written) [TS].
+#          ASSUMED, manual page not read (pinned in the tests): a repeated ID is not folded; CLASS (omitted or not PERFORM) does not
+#          decide a row; the entryname length is not bounded; TYPE=INITIAL / FINAL name nothing. No burned estate uses DFHMCT.
 #   DFHPLT TYPE=ENTRY,PROGRAM=(p1,p2,...)  PLT  [RDG p.415-418, Table 50-51]: one PLT row per named
 #          program (`name=prog`, `program=prog`, `macro_table=DFHPLTxx`), except `PROGRAM=DFHDELIM`
 #          which "is not a program -- it serves as a delimiter only" [RDG p.417] and is refused as a

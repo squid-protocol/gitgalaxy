@@ -665,6 +665,37 @@ def test_dfhtct_region_state_holds_inside_jcl_sysin():
     assert (row["name"], row["macro_table"], _rdo(row)) == ("T2", "DFHTCT01", "REMOTESYSTEM(SYSB)")
 
 
+_MCT = "         DFHMCT "
+
+
+@pytest.mark.parametrize(
+    ("src", "expected"),
+    [
+        # ASSUMED (IBM's TYPE=EMP page not read for these; pinned as-is, #5154):
+        (
+            _MCT + "TYPE=EMP,CLASS=PERFORM,ID=5\n" + _MCT + "TYPE=EMP,CLASS=PERFORM,ID=5\n",
+            ["USER.5", "USER.5"],
+        ),  # repeat not folded
+        (_MCT + "TYPE=EMP,CLASS=PERFORM,ID=(PP,3)\n" + _MCT + "TYPE=EMP,ID=USER.202\n", ["USER.202", "USER.202"]),
+        (_MCT + "TYPE=EMP,ID=5\n", ["USER.5"]),  # CLASS omitted still names the point
+        (_MCT + "TYPE=EMP,CLASS=ACCOUNT,ID=5\n", ["USER.5"]),  # CLASS is not decided on
+        (_MCT + "TYPE=EMP,CLASS=PERFORM,ID='BANK.7'\n", ["BANK.7"]),  # quotes stripped
+        (_MCT + "TYPE=EMP,CLASS=PERFORM,ID=TOOLONGNAME.7\n", ["TOOLONGNAME.7"]),  # entryname length not bounded
+        # statements that name no monitoring point
+        (_MCT + "TYPE=INITIAL,SUFFIX=01\n" + _MCT + "TYPE=FINAL\n", []),
+        (_MCT + "TYPE=EMP,CLASS=PERFORM\n", []),  # no ID
+    ],
+)
+def test_dfhmct_emp_shapes_pinned(src, expected):
+    assert _named(src, "MONITORPOINT") == expected
+
+
+def test_dfhmct_suffix_no_names_the_table_assumed():
+    """`SUFFIX=NO` is excluded only for SIT / DSNCRCT; for MCT it is ASSUMED to name `DFHMCTNO` (#5154)."""
+    (row,) = _rows(_MCT + "TYPE=INITIAL,SUFFIX=NO\n" + _MCT + "TYPE=EMP,ID=1\n")
+    assert (row["name"], row["macro_table"]) == ("USER.1", "DFHMCTNO")
+
+
 def test_dfhmct_other_types_are_refused():
     src = "         DFHMCT TYPE=RECORD,CLASS=PERFORM\n         DFHMCT TYPE=INITIAL,SUFFIX=01\n"
     assert _rows(src) == []

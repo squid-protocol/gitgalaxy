@@ -964,7 +964,7 @@ jobs:
           cd gitgalaxy
           set +e
           # a moved port is run again (oldest ledger first) until 90 of the job's 120 minutes are spent; the rest wait for the next night
-          python tests/tools/det_mutation.py refresh --run-moved --budget-min 90 --work "$RUNNER_TEMP/detmut" | tee "$RUNNER_TEMP/detmut.txt"
+          python -u tests/tools/det_mutation.py refresh --run-moved --budget-min 90 --work "$RUNNER_TEMP/detmut" | tee "$RUNNER_TEMP/detmut.txt"
           rc=${PIPESTATUS[0]}
           if [ "$rc" -eq 2 ]; then
             echo "::warning title=det mutation::a det port moved since its ledger was cut and the run budget ended first: it is run again on the next night (see the summary)"
@@ -1220,7 +1220,9 @@ jobs:
 
       - name: Take the det mutation ledgers (#5862)
         id: detmut_in
-        if: needs.det-mutation.result == 'success' || needs.det-mutation.result == 'failure'
+        # cancelled too: a job that hit its time limit still uploaded the ledgers it finished, and dropping them made
+        # every night re-run the same first cases and stop at the same long one (#5862)
+        if: needs.det-mutation.result == 'success' || needs.det-mutation.result == 'failure' || needs.det-mutation.result == 'cancelled'
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: refresh-detmut

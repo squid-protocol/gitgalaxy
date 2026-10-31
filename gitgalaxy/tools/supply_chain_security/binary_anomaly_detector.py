@@ -18,9 +18,12 @@
 
 import argparse
 import fnmatch
+import math
 import os
+import re
 import sys
 import time
+from collections import Counter
 from pathlib import Path
 from typing import Any
 
@@ -29,6 +32,31 @@ from gitgalaxy.core.aperture import ApertureFilter
 from gitgalaxy.security.security_lens import SecurityLens
 from gitgalaxy.standards.config_resolver import ResolvedConfig, path_allowlisted, resolve_config
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+MAX_DENSE_SCAN_BYTES = 5_000_000
+ENCODED_RUN = re.compile(rb"[A-Za-z0-9+/_-]{256,}={0,2}")  # a long unbroken encoded run: no backtracking in one class
+# A declared data: URI, percent-escapes included: an embedded icon is ordinary CSS and HTML, not a hidden payload.
+DATA_URI = re.compile(rb"data:[\w/+.-]{1,80};base64,[A-Za-z0-9+/=_%-]*")
+DENSE_RUN_ENTROPY = 5.0  # base64 of random data reads about 5.9; identifiers and hex stay under 4.5
+
+
+def _scan_head(security: SecurityLens, head: bytes, ext: str) -> dict:
+    """scan_binary, with `MZ` counted only where a Windows executable has it: the first two bytes. Anywhere in 8 KB, those
+    two letters flag ordinary text, and a dense payload could be caught by chance rather than by a real check (#7187)."""
+    return security.scan_binary(head if head.startswith(b"MZ") else head.replace(b"MZ", b"Mz"), ext)
+
+
+def _dense_run(path: Path, head: bytes) -> bool:
+    """A long encoded run anywhere in a text file. SecurityLens empties lines of 250+ characters and this tool reads 8 KB
+    of each file, so without this a large payload on one line, or past 8 KB, is never measured (#7187)."""
+    if b"\0" in head or path.stat().st_size > MAX_DENSE_SCAN_BYTES:
+        return False
+    for match in ENCODED_RUN.finditer(DATA_URI.sub(b"", path.read_bytes())):
+        sample = match.group(0)[:4096]
+        entropy = -sum(n / len(sample) * math.log2(n / len(sample)) for n in Counter(sample).values())
+        if entropy > DENSE_RUN_ENTROPY:
+            return True
+    return False
 
 
 def _in_test_folder(rel_path: str) -> bool:
@@ -171,7 +199,7 @@ def main():
             anomaly_msgs = []
 
             # 1. Binary Analysis (Magic Bytes & Execution Headers)
-            binary_threats = security.scan_binary(head_bytes, ext)
+            binary_threats = _scan_head(security, head_bytes, ext)
 
             # EXPECTED HEADER EXCEPTION:
             # Shell scripts naturally contain the '#!/bin/' header. We clear this
@@ -189,7 +217,9 @@ def main():
             content = head_bytes.decode("utf-8", errors="ignore")
             sec_results = security.scan_content(content)
 
-            if not dense_is_expected and sec_results["counts"].get("entropy", 0) > 0:
+            if not dense_is_expected and (
+                sec_results["counts"].get("entropy", 0) > 0 or _dense_run(file_path, head_bytes)
+            ):
                 has_anomaly = True
                 anomaly_msgs.append("Mathematically dense/encrypted strings detected (Shannon Entropy > 4.8)")
 
@@ -308,7 +338,7 @@ def run_xray_audit(target_path: Path, config: ResolvedConfig | dict[str, Any] | 
                 ext = file_path.suffix.lower()
 
                 # Check Binary Headers
-                bt = security.scan_binary(head_bytes, ext)
+                bt = _scan_head(security, head_bytes, ext)
                 if (
                     _binary_threat(bt, dense_is_expected)
                     and not (ext in [".sh", ".bash", ".zsh"] and "#!/bin/" in bt.get("threat_snippet", ""))
@@ -320,7 +350,11 @@ def run_xray_audit(target_path: Path, config: ResolvedConfig | dict[str, Any] | 
                 content = head_bytes.decode("utf-8", errors="ignore")
                 sr = security.scan_content(content)
                 if (
-                    (sr["counts"].get("entropy", 0) > 0 or sr["counts"].get("bitwise_ops", 0) > 0)
+                    (
+                        sr["counts"].get("entropy", 0) > 0
+                        or sr["counts"].get("bitwise_ops", 0) > 0
+                        or _dense_run(file_path, head_bytes)
+                    )
                     and not is_whitelisted
                     and not dense_is_expected
                 ):

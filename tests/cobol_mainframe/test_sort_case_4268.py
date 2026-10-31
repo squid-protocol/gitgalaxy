@@ -73,6 +73,10 @@ def test_the_concatenated_sortin_case_is_the_dfsort_lowering():
     assert [dd for dd, s in case["datasets"].items() if "input" in s] == ["SORTIN1", "SORTIN2"]
 
 
+def _ebcdic(k: bytes) -> bytes:
+    return k.decode("ascii").encode("cp037")
+
+
 def test_the_concatenated_inputs_are_the_class_the_case_claims():
     ins = []
     for n in ("1", "2"):
@@ -85,7 +89,12 @@ def test_the_concatenated_inputs_are_the_class_the_case_claims():
     assert len(set(a + b)) == len(a + b), "equal keys: DFSORT's order is undefined (no EQUALS)"
     assert a != sorted(a) and b != sorted(b), "each input must be unsorted"
     assert min(b) < max(a) and min(a) < max(b), "the files interleave: the output is not their concatenation"
-    assert all(k.isdigit() for k in a + b), "digits: IBM's EBCDIC order and the oracle's byte order agree (#4035)"
+    # CH over letters AND digits: IBM orders a letter before a digit (EBCDIC), the oracle's byte order the reverse, so
+    # the case only passes when the lowering's EBCDIC collating sequence is in force (#4035)
+    allk = a + b
+    assert any(k[:1].isalpha() for k in allk) and any(k[:1].isdigit() for k in allk)
+    assert all(k.isalnum() and k.isascii() and k == k.upper() for k in allk)
+    assert sorted(allk) != sorted(allk, key=_ebcdic), "the EBCDIC order must differ from the byte order"
     assert (COMB / "LICENSE").is_file() and (COMB / "NOTICE").is_file()
 
 

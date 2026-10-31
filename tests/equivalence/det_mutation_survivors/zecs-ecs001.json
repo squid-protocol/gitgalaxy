@@ -11,7 +11,7 @@
  "case": "zecs-ecs001",
  "survivors": [
   {
-   "id": "80bee57e44",
+   "id": "40782914e2",
    "op": "LIT",
    "line": 49,
    "before": "\"AAA=\"));",
@@ -20,7 +20,7 @@
    "reason": "Base64 initial image for IMAGE_s_TERM_DATA_LEN; overwritten by Cobol.move(1920) and CICS RECEIVE length before any read"
   },
   {
-   "id": "6f0cff3ee1",
+   "id": "155f18a371",
    "op": "LIT",
    "line": 52,
    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
@@ -29,7 +29,7 @@
    "reason": "Base64 initial image chunk for IMAGE_s_BODY_DATA; in GET requests BODY-DATA is not sent and never read"
   },
   {
-   "id": "035dc41b50",
+   "id": "acb9445ebc",
    "op": "LIT",
    "line": 54,
    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
@@ -38,7 +38,7 @@
    "reason": "Base64 initial image chunk for IMAGE_s_BODY_DATA; unreferenced in GET scenario"
   },
   {
-   "id": "e0b1737632",
+   "id": "102906dc90",
    "op": "LIT",
    "line": 57,
    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
@@ -47,7 +47,7 @@
    "reason": "Base64 initial image chunk for IMAGE_s_BODY_DATA; unreferenced in GET scenario"
   },
   {
-   "id": "0af9beaa78",
+   "id": "df4b845b50",
    "op": "LIT",
    "line": 59,
    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
@@ -56,7 +56,7 @@
    "reason": "Base64 initial image chunk for IMAGE_s_BODY_DATA; unreferenced in GET scenario"
   },
   {
-   "id": "01eac2b07e",
+   "id": "68263d142b",
    "op": "LIT",
    "line": 68,
    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
@@ -65,7 +65,7 @@
    "reason": "Base64 initial image chunk for IMAGE_s_ECS_DATA; cleared to SPACES and overwritten by WEB CONVERSE before any read"
   },
   {
-   "id": "69e641be12",
+   "id": "23d608e59d",
    "op": "LIT",
    "line": 75,
    "before": "\"AAAAAA==\"));",
@@ -74,7 +74,7 @@
    "reason": "Base64 initial image for IMAGE_s_ECS_DATA_LEN; overwritten with 3000 before WEB CONVERSE"
   },
   {
-   "id": "a47b5f7764",
+   "id": "6f43ee8596",
    "op": "LIT",
    "line": 77,
    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
@@ -83,7 +83,7 @@
    "reason": "Base64 initial image chunk for IMAGE_s_PATH_NAME; cleared to SPACES before INQUIRE URIMAP"
   },
   {
-   "id": "639d50881c",
+   "id": "2033afa798",
    "op": "LIT",
    "line": 80,
    "before": "\"AAAAAA==\"));",
@@ -92,7 +92,7 @@
    "reason": "Base64 initial image for IMAGE_s_PATH_NAME_LEN; overwritten with 400 before INQUIRE URIMAP"
   },
   {
-   "id": "241f06dd86",
+   "id": "f439dfad94",
    "op": "LIT",
    "line": 104,
    "before": "\"AAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
@@ -101,7 +101,7 @@
    "reason": "Base64 initial image for IMAGE_s_DFHEIBLK; EIB fields are initialized dynamically by runTask on task invocation"
   },
   {
-   "id": "59246c9bad",
+   "id": "4f0ede1b98",
    "op": "CON",
    "line": 151,
    "before": "private final Field f24_CICS_MSG_TEXT = Field.alphanumeric(s_CICS_MSG, 0, 34, false);",
@@ -110,7 +110,7 @@
    "reason": "Field definition length for f24_CICS_MSG_TEXT; only referenced in error reporting paragraphs skipped on successful execution"
   },
   {
-   "id": "659d618bb8",
+   "id": "c95b0f95fb",
    "op": "CON",
    "line": 159,
    "before": "private final Field f37_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
@@ -119,7 +119,7 @@
    "reason": "Field definition scale for f37_EIBDATE; EIBDATE is never read by ECS001"
   },
   {
-   "id": "939c6b14ac",
+   "id": "1441e75af1",
    "op": "CON",
    "line": 161,
    "before": "private final Field f39_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
@@ -128,7 +128,7 @@
    "reason": "Field definition length for f39_EIBTASKN; EIBTASKN is never read by ECS001"
   },
   {
-   "id": "85974499e5",
+   "id": "d4f40cdc2c",
    "op": "NEG",
    "line": 181,
    "before": "if (task.level() > 1) {",
@@ -137,7 +137,7 @@
    "reason": "Inverted level guard in abended(); ECS001 is a top-level task and error abend handler is never invoked"
   },
   {
-   "id": "8ad3ac9c6d",
+   "id": "b1107ca67e",
    "op": "ROR",
    "line": 181,
    "before": "if (task.level() > 1) {",
@@ -146,7 +146,7 @@
    "reason": "Relational operator on task level in abended(); abend handler is never invoked"
   },
   {
-   "id": "fd7e6b54f5",
+   "id": "d1cbe13026",
    "op": "DEL",
    "line": 182,
    "before": "caBack.run();",
@@ -155,7 +155,7 @@
    "reason": "caBack callback in abended(); abend handler is never reached"
   },
   {
-   "id": "99cf68937c",
+   "id": "10b3cbf58f",
    "op": "LIT",
    "line": 197,
    "before": "java.util.Map.entry(\"Z1000-EXIT-PROGRAM\", 15),",
@@ -164,7 +164,7 @@
    "reason": "PARAGRAPHS table entry Z1000-EXIT-PROGRAM; table is only queried for dynamic HANDLE CONDITION dispatching which is unused"
   },
   {
-   "id": "2eeb22476d",
+   "id": "4f24c22d64",
    "op": "LIT",
    "line": 200,
    "before": "java.util.Map.entry(\"A5000-EXIT\", 12),",
@@ -173,7 +173,7 @@
    "reason": "PARAGRAPHS table entry A5000-EXIT; dynamic condition dispatching is unused"
   },
   {
-   "id": "b29363960e",
+   "id": "5c41956630",
    "op": "LIT",
    "line": 206,
    "before": "java.util.Map.entry(\"A3000-EXIT\", 6),",
@@ -182,7 +182,7 @@
    "reason": "PARAGRAPHS table entry A3000-EXIT; dynamic condition dispatching is unused"
   },
   {
-   "id": "3e96e8db8b",
+   "id": "fafe5bcfe0",
    "op": "CON",
    "line": 212,
    "before": "java.util.Map.entry(\"(MAIN)\", 0)",
@@ -191,7 +191,7 @@
    "reason": "PARAGRAPHS table entry (MAIN); dynamic condition dispatching is unused"
   },
   {
-   "id": "400e389d86",
+   "id": "b50e697d2e",
    "op": "NEG",
    "line": 230,
    "before": "if (h != null) {",
@@ -200,7 +200,7 @@
    "reason": "condition() handler map lookup; CICS commands use NOHANDLE or explicit RESP checks so condition() is never called"
   },
   {
-   "id": "a4b0b3d408",
+   "id": "6bf7f7b80a",
    "op": "NEG",
    "line": 237,
    "before": "if (error != null) {",
@@ -209,7 +209,7 @@
    "reason": "condition() ERROR fallback handler lookup; condition() is never called"
   },
   {
-   "id": "296d7e01d5",
+   "id": "87adc15989",
    "op": "NEG",
    "line": 241,
    "before": "if (label == null) {",
@@ -218,7 +218,7 @@
    "reason": "condition() abendOnCondition check; condition() is never called"
   },
   {
-   "id": "f5187d341b",
+   "id": "c993f7232c",
    "op": "ROR",
    "line": 248,
    "before": "return task.eibcalen() == null ? whole : task.eibcalen();",
@@ -227,7 +227,7 @@
    "reason": "cx() COMMAREA length helper; ECS001 has commarea: null so cx() is never called"
   },
   {
-   "id": "381753987c",
+   "id": "c5d9db516c",
    "op": "DEL",
    "line": 259,
    "before": "System.arraycopy(IMAGE_s_ECS_KEY, 0, s_ECS_KEY.bytes, 0, IMAGE_s_ECS_KEY.length);",
@@ -236,7 +236,7 @@
    "reason": "System.arraycopy of IMAGE_s_ECS_KEY in initialState(); overwritten directly from terminal input via UNSTRING in A2000"
   },
   {
-   "id": "92f7e5cb0d",
+   "id": "4405f07905",
    "op": "DEL",
    "line": 265,
    "before": "System.arraycopy(IMAGE_s_ECS_DATA_LEN, 0, s_ECS_DATA_LEN.bytes, 0, IMAGE_s_ECS_DATA_LEN.length);",
@@ -245,7 +245,7 @@
    "reason": "System.arraycopy of IMAGE_s_ECS_DATA_LEN in initialState(); overwritten with 3000 in A4000 before WEB CONVERSE"
   },
   {
-   "id": "c0f3efaaf6",
+   "id": "81b320c7e2",
    "op": "DEL",
    "line": 276,
    "before": "System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length);",
@@ -254,7 +254,7 @@
    "reason": "System.arraycopy of IMAGE_s_DFHEIBLK in initialState(); EIB fields are populated by runTask on task invocation"
   },
   {
-   "id": "7bfd198e2f",
+   "id": "9abefe844e",
    "op": "DEL",
    "line": 281,
    "before": "f15_METHOD_CDVA = 0L;",
@@ -263,7 +263,7 @@
    "reason": "Initialization of f15_METHOD_CDVA to 0 in initialState(); explicitly assigned DFHVALUE(GET) in A2000 before use"
   },
   {
-   "id": "1f01c55fb1",
+   "id": "fda1e13bbb",
    "op": "AOR",
    "line": 312,
    "before": "Cobol.store(f37_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
@@ -272,7 +272,7 @@
    "reason": "EIBDATE calculation mutation; EIBDATE is never read by ECS001"
   },
   {
-   "id": "32e2213697",
+   "id": "2516798fec",
    "op": "CON",
    "line": 312,
    "before": "Cobol.store(f37_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
@@ -281,7 +281,7 @@
    "reason": "EIBDATE constant mutation; EIBDATE is never read by ECS001"
   },
   {
-   "id": "c3a5684228",
+   "id": "1b1b61145d",
    "op": "AOR",
    "line": 312,
    "before": "Cobol.store(f37_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
@@ -290,7 +290,7 @@
    "reason": "EIBDATE calculation mutation; EIBDATE is never read by ECS001"
   },
   {
-   "id": "ffc7ebd0c5",
+   "id": "db51576bc9",
    "op": "AOR",
    "line": 312,
    "before": "Cobol.store(f37_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
@@ -299,7 +299,7 @@
    "reason": "EIBDATE calculation mutation; EIBDATE is never read by ECS001"
   },
   {
-   "id": "68ca868a95",
+   "id": "8135da0e93",
    "op": "AOR",
    "line": 313,
    "before": "Cobol.store(f36_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
@@ -308,7 +308,7 @@
    "reason": "EIBTIME calculation mutation; EIBTIME is never read by ECS001"
   },
   {
-   "id": "98422a0c05",
+   "id": "dfbcf0a4ae",
    "op": "AOR",
    "line": 313,
    "before": "Cobol.store(f36_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
@@ -317,7 +317,7 @@
    "reason": "EIBTIME calculation mutation; EIBTIME is never read by ECS001"
   },
   {
-   "id": "bd9da54fd3",
+   "id": "3f58c22ff9",
    "op": "AOR",
    "line": 313,
    "before": "Cobol.store(f36_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
@@ -326,7 +326,7 @@
    "reason": "EIBTIME calculation mutation; EIBTIME is never read by ECS001"
   },
   {
-   "id": "facecf2fe8",
+   "id": "3b47d7169c",
    "op": "AOR",
    "line": 313,
    "before": "Cobol.store(f36_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
@@ -335,7 +335,7 @@
    "reason": "EIBTIME calculation mutation; EIBTIME is never read by ECS001"
   },
   {
-   "id": "1c7d112b3a",
+   "id": "972f34fdc3",
    "op": "NEG",
    "line": 321,
    "before": "} else if (ca instanceof Zecs003Dfhcommarea) {",
@@ -344,7 +344,7 @@
    "reason": "Commarea instance check in runTask(); ECS001 has commarea: null so ca is always null"
   },
   {
-   "id": "58e6b4249a",
+   "id": "184f5ba81b",
    "op": "CON",
    "line": 322,
    "before": "calen = cx(task, 13);",
@@ -353,7 +353,7 @@
    "reason": "Commarea calen assignment in runTask(); unreachable because ca is null"
   },
   {
-   "id": "9e937bc254",
+   "id": "d02c5a8469",
    "op": "DEL",
    "line": 331,
    "before": "caBack.run();",
@@ -362,7 +362,7 @@
    "reason": "caBack.run() callback at task end; caBack is a no-op because there is no caller commarea"
   },
   {
-   "id": "5f75e45a7f",
+   "id": "6364a1535d",
    "op": "AOR",
    "line": 377,
    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
@@ -371,7 +371,7 @@
    "reason": "performThru array expansion beyond 64; perform call stack depth never exceeds 64"
   },
   {
-   "id": "b882dd9a84",
+   "id": "4450726e58",
    "op": "ROR",
    "line": 390,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
@@ -380,7 +380,7 @@
    "reason": "Outer perform abandon loop termination condition; outer perform table is never searched by GO TO"
   },
   {
-   "id": "bd83459ac2",
+   "id": "5c559c8fab",
    "op": "AOR",
    "line": 390,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
@@ -389,7 +389,7 @@
    "reason": "Outer perform abandon loop index; ECS001 does not use GO TO out of PERFORM ranges so loop never triggers"
   },
   {
-   "id": "4c52a8e1a2",
+   "id": "234dc40099",
    "op": "DEL",
    "line": 461,
    "before": "Cobol.store(f65_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
@@ -398,7 +398,7 @@
    "reason": "Clearing EIBRESP2 after CICS RECEIVE; EIBRESP2 is only read in error reporting path skipped on NORMAL"
   },
   {
-   "id": "097c448826",
+   "id": "5bd51f84ed",
    "op": "ROR",
    "line": 525,
    "before": "while (!((Cobol.num(f16_I, CS).compareTo(D1) < 0 || Cobol.compareFigurative(f22_TERM_LINES.at(Cobol.num(f68_TERM_IDX, CS).intValue(), 80).ref(Cobol.num(f16_I, CS).intValue(), Integer.valueOf(1)), Figurative.SPACES, CS) > 0))) {",
@@ -407,7 +407,7 @@
    "reason": "Loop condition I <= 0 in trailing whitespace scan; guard TERM-LINES > SPACES guarantees non-space character exists at I >= 1"
   },
   {
-   "id": "03251a7a75",
+   "id": "eed8efb433",
    "op": "DEL",
    "line": 566,
    "before": "Cobol.move(f23_CICS_MSG, f22_TERM_LINES.at(1, 80), CS);",
@@ -416,7 +416,7 @@
    "reason": "Moving error message to screen in A3000-OPEN-CONNECTION; WEB OPEN succeeds normally in test scenarios"
   },
   {
-   "id": "8397ab9912",
+   "id": "be93c983dd",
    "op": "CON",
    "line": 581,
    "before": "Cobol.move(BigDecimal.valueOf(100), f13_HTTP_STATUS_LEN, CS);",
@@ -425,7 +425,7 @@
    "reason": "Moving 101 vs 100 to HTTP_STATUS_LEN; status text buffer is 100 bytes and HTTP status text (OK) fits well within bounds"
   },
   {
-   "id": "02f93c3859",
+   "id": "6e3ad4f345",
    "op": "ROR",
    "line": 597,
    "before": "if (web5.body().length > f8_ECS_DATA.length()) throw new DetCics.PastFrom(\"WEB CONVERSE INTO beyond its area: not modelled\"); DetCics.put(f8_ECS_DATA, web5.body());",
@@ -434,7 +434,7 @@
    "reason": "Response body buffer overflow check in PUT branch of A4000; scenario uses GET method"
   },
   {
-   "id": "7618b5068d",
+   "id": "39f8bb4032",
    "op": "CON",
    "line": 599,
    "before": "f12_HTTP_STATUS_CODE = Cobol.binary(BigDecimal.valueOf(web5.status()), 4, false, false, CS);",
@@ -443,7 +443,7 @@
    "reason": "HTTP status code field conversion in PUT branch of A4000; scenario uses GET method"
   },
   {
-   "id": "1014ece52d",
+   "id": "f22ec872db",
    "op": "LIT",
    "line": 600,
    "before": "if (web5.statusText().getBytes(CS).length > f14_HTTP_STATUS_TEXT.length()) throw new DetCics.PastFrom(\"WEB CONVERSE STATUSTEXT beyond its area: not modelled\"); DetCics.put(f14_HTTP_STATUS_TEXT, web5.statusText().getBytes(CS));",
@@ -452,7 +452,7 @@
    "reason": "Status text buffer overflow exception message in PUT branch of A4000; scenario uses GET method"
   },
   {
-   "id": "4d3fbbd56c",
+   "id": "fa2eed4d73",
    "op": "ROR",
    "line": 600,
    "before": "if (web5.statusText().getBytes(CS).length > f14_HTTP_STATUS_TEXT.length()) throw new DetCics.PastFrom(\"WEB CONVERSE STATUSTEXT beyond its area: not modelled\"); DetCics.put(f14_HTTP_STATUS_TEXT, web5.statusText().getBytes(CS));",
@@ -461,7 +461,7 @@
    "reason": "Status text buffer overflow check in PUT branch of A4000; scenario uses GET method"
   },
   {
-   "id": "600fe158dc",
+   "id": "c094157adc",
    "op": "ROR",
    "line": 612,
    "before": "if (web6.statusText().getBytes(CS).length > f14_HTTP_STATUS_TEXT.length()) throw new DetCics.PastFrom(\"WEB CONVERSE STATUSTEXT beyond its area: not modelled\"); DetCics.put(f14_HTTP_STATUS_TEXT, web6.statusText().getBytes(CS));",
@@ -470,7 +470,7 @@
    "reason": "Status text buffer overflow check in GET branch of A4000; response text OK length 2 is strictly less than buffer 31 so neither > nor >= triggers"
   },
   {
-   "id": "0636abb9ea",
+   "id": "009c658c3e",
    "op": "CON",
    "line": 644,
    "before": "perform(15, 16);",
@@ -479,7 +479,7 @@
    "reason": "Error exit perform in A4000-EXECUTE-SERVICE; WEB CONVERSE succeeds with HTTP 200 NORMAL in test scenario"
   },
   {
-   "id": "7c560f1d49",
+   "id": "413b2dbed1",
    "op": "DEL",
    "line": 672,
    "before": "Cobol.moveFigurative(Figurative.SPACES, f21_TERM_DATA, CS);",
@@ -488,7 +488,7 @@
    "reason": "Screen buffer clearing in INQUIRE URIMAP error path; INQUIRE URIMAP succeeds normally in test scenario"
   },
   {
-   "id": "8f92fcac7e",
+   "id": "b334e9625b",
    "op": "CON",
    "line": 682,
    "before": "perform(15, 16);",
@@ -497,7 +497,7 @@
    "reason": "Error exit perform in INQUIRE URIMAP error path; INQUIRE URIMAP succeeds normally in test scenario"
   },
   {
-   "id": "b35a032c6e",
+   "id": "6b33c1e53c",
    "op": "DEL",
    "line": 715,
    "before": "Cobol.store(f65_EIBRESP2, BigDecimal.valueOf(web10[1]), false, CS);",
@@ -506,7 +506,7 @@
    "reason": "Storing EIBRESP2 after WEB CLOSE in error path; WEB CLOSE succeeds normally in test scenario"
   },
   {
-   "id": "3159be69f9",
+   "id": "5cfe37c090",
    "op": "LIT",
    "line": 728,
    "before": "Cobol.move(\"A5000: WEB_CLOSE ERROR:\", f24_CICS_MSG_TEXT, CS);",
@@ -515,7 +515,7 @@
    "reason": "Error message text in WEB CLOSE error path; WEB CLOSE succeeds normally in test scenario"
   },
   {
-   "id": "0d1bd1dc7d",
+   "id": "1ffc4b7eaf",
    "op": "DEL",
    "line": 732,
    "before": "perform(15, 16);",
@@ -524,7 +524,7 @@
    "reason": "Error exit perform in WEB CLOSE error path; WEB CLOSE succeeds normally in test scenario"
   },
   {
-   "id": "da04b5d4f7",
+   "id": "095f6dd420",
    "op": "DEL",
    "line": 755,
    "before": "Cobol.moveFigurative(Figurative.ZEROS, f7_BODY_DATA_LEN, CS);",
@@ -533,7 +533,7 @@
    "reason": "Zeroing BODY-DATA-LEN before UNSTRING; UNSTRING countIn immediately overwrites BODY-DATA-LEN on each iteration"
   },
   {
-   "id": "7362214910",
+   "id": "f51ff65fdd",
    "op": "DEL",
    "line": 781,
    "before": "Cobol.store(f64_EIBRESP, BigDecimal.valueOf(planned14[0]), false, CS);",

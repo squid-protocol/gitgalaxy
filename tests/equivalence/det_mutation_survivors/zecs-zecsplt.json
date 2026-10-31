@@ -11,7 +11,7 @@
  "case": "zecs-zecsplt",
  "survivors": [
   {
-   "id": "94831ffd74",
+   "id": "b6e5c11b80",
    "op": "LIT",
    "line": 51,
    "before": "\"AAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
@@ -20,7 +20,7 @@
    "reason": "DFHEIBLK initial bytes are overwritten by CICS task initialization fields (EIBTRNID, EIBTIME, EIBDATE, EIBRESP) on every entry point before any code reads them."
   },
   {
-   "id": "0c496bc594",
+   "id": "1427642e3f",
    "op": "LIT",
    "line": 53,
    "before": "\"AAA=\"));",
@@ -29,7 +29,7 @@
    "reason": "GG_RETURN_CODE is only read by batch runProgram; CICS task execution never accesses it."
   },
   {
-   "id": "8b5bafc8c2",
+   "id": "e3ecbbc820",
    "op": "CON",
    "line": 79,
    "before": "private final Field f28_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
@@ -38,7 +38,7 @@
    "reason": "f28_EIBTASKN is written on task startup but never read anywhere in ZECSPLT; changing its field offset or scale cannot alter program behavior."
   },
   {
-   "id": "8d853233bd",
+   "id": "03a7fc6eac",
    "op": "CON",
    "line": 79,
    "before": "private final Field f28_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
@@ -47,7 +47,7 @@
    "reason": "f28_EIBTASKN is written on task startup but never read anywhere in ZECSPLT; changing its field offset or scale cannot alter program behavior."
   },
   {
-   "id": "12896ff33f",
+   "id": "fececc61a9",
    "op": "NEG",
    "line": 101,
    "before": "if (task.level() > 1) {",
@@ -56,7 +56,7 @@
    "reason": "abended() is only invoked on unhandled CICS abends; ZECSPLT runs with NOHANDLE on all commands and never abends."
   },
   {
-   "id": "1b841c6ed7",
+   "id": "954f7059a7",
    "op": "ROR",
    "line": 101,
    "before": "if (task.level() > 1) {",
@@ -65,7 +65,7 @@
    "reason": "abended() is only invoked on unhandled CICS abends; ZECSPLT runs with NOHANDLE on all commands and never abends."
   },
   {
-   "id": "91d6e3de13",
+   "id": "59c647b496",
    "op": "ROR",
    "line": 101,
    "before": "if (task.level() > 1) {",
@@ -74,7 +74,7 @@
    "reason": "abended() is only invoked on unhandled CICS abends; ZECSPLT runs with NOHANDLE on all commands and never abends."
   },
   {
-   "id": "83cd1e3fe4",
+   "id": "61c5dbd6c5",
    "op": "LIT",
    "line": 107,
    "before": "@SuppressWarnings(\"unchecked\")",
@@ -83,7 +83,7 @@
    "reason": "Compiler annotation string mutation has no runtime effect."
   },
   {
-   "id": "1c87950cda",
+   "id": "b6b6c5f58b",
    "op": "LIT",
    "line": 112,
    "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
@@ -92,7 +92,7 @@
    "reason": "store() is only invoked for CICS file control operations; ZECSPLT has no file operations."
   },
   {
-   "id": "7a632bb519",
+   "id": "0c640d355d",
    "op": "LIT",
    "line": 112,
    "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
@@ -101,7 +101,7 @@
    "reason": "store() is only invoked for CICS file control operations; ZECSPLT has no file operations."
   },
   {
-   "id": "bde50d9b71",
+   "id": "f5a5e02dc8",
    "op": "LIT",
    "line": 116,
    "before": "java.util.Map.entry(\"9000-EXIT\", 12),",
@@ -110,7 +110,7 @@
    "reason": "PARAGRAPHS map is only looked up by paragraph(name) for dynamic condition handling; ZECSPLT uses NOHANDLE exclusively and uses constant integer indices for all PERFORMs."
   },
   {
-   "id": "5a93059a00",
+   "id": "8bcc235605",
    "op": "LIT",
    "line": 117,
    "before": "java.util.Map.entry(\"9000-RETURN\", 11),",
@@ -119,7 +119,7 @@
    "reason": "PARAGRAPHS map is only looked up by paragraph(name) for dynamic condition handling; ZECSPLT uses NOHANDLE exclusively and uses constant integer indices for all PERFORMs."
   },
   {
-   "id": "8ec2130701",
+   "id": "ea0028a840",
    "op": "LIT",
    "line": 118,
    "before": "java.util.Map.entry(\"3000-EXIT\", 10),",
@@ -128,7 +128,7 @@
    "reason": "PARAGRAPHS map is only looked up by paragraph(name) for dynamic condition handling; ZECSPLT uses NOHANDLE exclusively and uses constant integer indices for all PERFORMs."
   },
   {
-   "id": "d50ffe70c4",
+   "id": "e4ef84a840",
    "op": "CON",
    "line": 118,
    "before": "java.util.Map.entry(\"3000-EXIT\", 10),",
@@ -137,7 +137,7 @@
    "reason": "PARAGRAPHS map is only looked up by paragraph(name) for dynamic condition handling; ZECSPLT uses NOHANDLE exclusively and uses constant integer indices for all PERFORMs."
   },
   {
-   "id": "ddff289350",
+   "id": "fa26eb6844",
    "op": "LIT",
    "line": 120,
    "before": "java.util.Map.entry(\"2200-EXIT\", 8),",
@@ -146,7 +146,7 @@
    "reason": "PARAGRAPHS map is only looked up by paragraph(name) for dynamic condition handling; ZECSPLT uses NOHANDLE exclusively and uses constant integer indices for all PERFORMs."
   },
   {
-   "id": "4d23852368",
+   "id": "6131793a21",
    "op": "LIT",
    "line": 121,
    "before": "java.util.Map.entry(\"2200-START\", 7),",
@@ -155,7 +155,7 @@
    "reason": "PARAGRAPHS map is only looked up by paragraph(name) for dynamic condition handling; ZECSPLT uses NOHANDLE exclusively and uses constant integer indices for all PERFORMs."
   },
   {
-   "id": "b155ca5b8c",
+   "id": "06a0a07f84",
    "op": "LIT",
    "line": 123,
    "before": "java.util.Map.entry(\"2100-CHECK-URIMAP\", 5),",
@@ -164,7 +164,7 @@
    "reason": "PARAGRAPHS map is only looked up by paragraph(name) for dynamic condition handling; ZECSPLT uses NOHANDLE exclusively and uses constant integer indices for all PERFORMs."
   },
   {
-   "id": "fdf4585592",
+   "id": "17c90f8559",
    "op": "LIT",
    "line": 124,
    "before": "java.util.Map.entry(\"2000-EXIT\", 4),",
@@ -173,7 +173,7 @@
    "reason": "PARAGRAPHS map is only looked up by paragraph(name) for dynamic condition handling; ZECSPLT uses NOHANDLE exclusively and uses constant integer indices for all PERFORMs."
   },
   {
-   "id": "b885efab04",
+   "id": "ad22478aef",
    "op": "CON",
    "line": 127,
    "before": "java.util.Map.entry(\"1000-INQUIRE-START\", 1),",
@@ -182,7 +182,7 @@
    "reason": "PARAGRAPHS map is only looked up by paragraph(name) for dynamic condition handling; ZECSPLT uses NOHANDLE exclusively and uses constant integer indices for all PERFORMs."
   },
   {
-   "id": "f9002d6769",
+   "id": "c331e6dd06",
    "op": "LIT",
    "line": 127,
    "before": "java.util.Map.entry(\"1000-INQUIRE-START\", 1),",
@@ -191,7 +191,7 @@
    "reason": "PARAGRAPHS map is only looked up by paragraph(name) for dynamic condition handling; ZECSPLT uses NOHANDLE exclusively and uses constant integer indices for all PERFORMs."
   },
   {
-   "id": "5ee7d2d9be",
+   "id": "34bd0a242c",
    "op": "NEG",
    "line": 133,
    "before": "if (i == null) {",
@@ -200,7 +200,7 @@
    "reason": "paragraph(name) is only called by condition() for dynamic HANDLE CONDITION targets; ZECSPLT specifies NOHANDLE on every command."
   },
   {
-   "id": "82552a2db9",
+   "id": "130a1df5d0",
    "op": "ROR",
    "line": 133,
    "before": "if (i == null) {",
@@ -209,7 +209,7 @@
    "reason": "paragraph(name) is only called by condition() for dynamic HANDLE CONDITION targets; ZECSPLT specifies NOHANDLE on every command."
   },
   {
-   "id": "253e957572",
+   "id": "8605bcf05e",
    "op": "NEG",
    "line": 146,
    "before": "if (h != null) {",
@@ -218,7 +218,7 @@
    "reason": "condition() is only invoked during CICS condition handling; ZECSPLT issues every command with NOHANDLE so condition handling is never executed."
   },
   {
-   "id": "46e9bfa16a",
+   "id": "b3ad71e8d5",
    "op": "ROR",
    "line": 146,
    "before": "if (h != null) {",
@@ -227,7 +227,7 @@
    "reason": "condition() is only invoked during CICS condition handling; ZECSPLT issues every command with NOHANDLE so condition handling is never executed."
   },
   {
-   "id": "b57b5477a9",
+   "id": "88f259b12c",
    "op": "NEG",
    "line": 149,
    "before": "if (DetCics.ignoredByDefault(cond)) {",
@@ -236,7 +236,7 @@
    "reason": "condition() is only invoked during CICS condition handling; ZECSPLT issues every command with NOHANDLE so condition handling is never executed."
   },
   {
-   "id": "523df77a4a",
+   "id": "22604ffdb2",
    "op": "CON",
    "line": 150,
    "before": "return -1;",
@@ -245,7 +245,7 @@
    "reason": "condition() is only invoked during CICS condition handling; ZECSPLT issues every command with NOHANDLE so condition handling is never executed."
   },
   {
-   "id": "0c248d8c71",
+   "id": "42335c4154",
    "op": "ROR",
    "line": 153,
    "before": "if (error != null) {",
@@ -254,7 +254,7 @@
    "reason": "condition() is only invoked during CICS condition handling; ZECSPLT issues every command with NOHANDLE so condition handling is never executed."
   },
   {
-   "id": "58266d1e5d",
+   "id": "0108bc3b5c",
    "op": "NEG",
    "line": 153,
    "before": "if (error != null) {",
@@ -263,7 +263,7 @@
    "reason": "condition() is only invoked during CICS condition handling; ZECSPLT issues every command with NOHANDLE so condition handling is never executed."
   },
   {
-   "id": "f625a85cf8",
+   "id": "6bd6e29420",
    "op": "ROR",
    "line": 157,
    "before": "if (label == null) {",
@@ -272,7 +272,7 @@
    "reason": "condition() is only invoked during CICS condition handling; ZECSPLT issues every command with NOHANDLE so condition handling is never executed."
   },
   {
-   "id": "d4af772034",
+   "id": "a5ee7c7430",
    "op": "NEG",
    "line": 168,
    "before": "if (d == null) {",
@@ -281,7 +281,7 @@
    "reason": "ZECSPLT is a PLTPI program executed without a COMMAREA in all scenarios; DTO commarea in_ and fill_ methods are never reached."
   },
   {
-   "id": "069d6dfe61",
+   "id": "122dfdecd4",
    "op": "AOR",
    "line": 171,
    "before": "Cobol.move(d.getDfhcommarea() == null ? \"\" : d.getDfhcommarea(), Field.alphanumeric(s, base + 0, 1, false), CS);",
@@ -290,7 +290,7 @@
    "reason": "ZECSPLT is a PLTPI program executed without a COMMAREA in all scenarios; DTO commarea in_ and fill_ methods are never reached."
   },
   {
-   "id": "34c39f2bd7",
+   "id": "236ddde894",
    "op": "ROR",
    "line": 171,
    "before": "Cobol.move(d.getDfhcommarea() == null ? \"\" : d.getDfhcommarea(), Field.alphanumeric(s, base + 0, 1, false), CS);",
@@ -299,7 +299,7 @@
    "reason": "ZECSPLT is a PLTPI program executed without a COMMAREA in all scenarios; DTO commarea in_ and fill_ methods are never reached."
   },
   {
-   "id": "bbc9a1126a",
+   "id": "eb9863ecd8",
    "op": "AOR",
    "line": 175,
    "before": "d.setDfhcommarea(Cobol.text(Field.alphanumeric(s, base + 0, 1, false), CS));",
@@ -308,7 +308,7 @@
    "reason": "ZECSPLT is a PLTPI program executed without a COMMAREA in all scenarios; DTO commarea in_ and fill_ methods are never reached."
   },
   {
-   "id": "d42aeebc08",
+   "id": "f1a94c1c3e",
    "op": "DEL",
    "line": 175,
    "before": "d.setDfhcommarea(Cobol.text(Field.alphanumeric(s, base + 0, 1, false), CS));",
@@ -317,7 +317,7 @@
    "reason": "ZECSPLT is a PLTPI program executed without a COMMAREA in all scenarios; DTO commarea in_ and fill_ methods are never reached."
   },
   {
-   "id": "748a2a73b6",
+   "id": "dcbdfbcada",
    "op": "NEG",
    "line": 186,
    "before": "if (s_DFHCOMMAREA.bytes != whole) {",
@@ -326,7 +326,7 @@
    "reason": "caWhole is only called when exactCommarea is active on a shortened COMMAREA; ZECSPLT has no COMMAREA."
   },
   {
-   "id": "774ab2df15",
+   "id": "e663cde456",
    "op": "ROR",
    "line": 186,
    "before": "if (s_DFHCOMMAREA.bytes != whole) {",
@@ -335,7 +335,7 @@
    "reason": "caWhole is only called when exactCommarea is active on a shortened COMMAREA; ZECSPLT has no COMMAREA."
   },
   {
-   "id": "cd5eaa163a",
+   "id": "10efa1c579",
    "op": "CON",
    "line": 187,
    "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
@@ -344,7 +344,7 @@
    "reason": "caWhole is only called when exactCommarea is active on a shortened COMMAREA; ZECSPLT has no COMMAREA."
   },
   {
-   "id": "4a9a143c51",
+   "id": "f93e52b4c9",
    "op": "DEL",
    "line": 205,
    "before": "System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length);",
@@ -353,7 +353,7 @@
    "reason": "s_DFHCOMMAREA is never read by ZECSPLT; omitting initialization of its unreferenced storage has no observable effect."
   },
   {
-   "id": "3e61a4f8d5",
+   "id": "da994708f5",
    "op": "DEL",
    "line": 207,
    "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
@@ -362,7 +362,7 @@
    "reason": "s_GG_RETURN_CODE is only accessed by batch runProgram; CICS task execution never reads it."
   },
   {
-   "id": "bb8d48c9f6",
+   "id": "c96a6991ab",
    "op": "LIT",
    "line": 208,
    "before": "f1_ST_CODE = \"  \";",
@@ -371,7 +371,7 @@
    "reason": "ST-CODE (f1_ST_CODE) is defined in WORKING-STORAGE but never referenced in PROCEDURE DIVISION."
   },
   {
-   "id": "5005401e1a",
+   "id": "31446e97fd",
    "op": "LIT",
    "line": 209,
    "before": "f2_EOF = \" \";",
@@ -380,7 +380,7 @@
    "reason": "f2_EOF is tested only for equality to 'Y' in the do-while loop; initializing it to 'X' instead of ' ' keeps the loop condition true until EOF sets it to 'Y'."
   },
   {
-   "id": "b286a1a925",
+   "id": "64d04663f1",
    "op": "DEL",
    "line": 211,
    "before": "f8_ZC_LENGTH = 4L;",
@@ -389,7 +389,7 @@
    "reason": "ZC-LENGTH (f8_ZC_LENGTH) is defined in WORKING-STORAGE but never referenced in PROCEDURE DIVISION."
   },
   {
-   "id": "f7763e2c22",
+   "id": "20c1f2e888",
    "op": "DEL",
    "line": 240,
    "before": "Cobol.store(f28_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS);",
@@ -398,7 +398,7 @@
    "reason": "EIBTASKN is written on task startup but never read anywhere in ZECSPLT."
   },
   {
-   "id": "881ccb29ce",
+   "id": "056e39b495",
    "op": "AOR",
    "line": 242,
    "before": "Cobol.store(f26_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
@@ -407,7 +407,7 @@
    "reason": "EIBDATE is stored on task entry but never referenced anywhere in ZECSPLT."
   },
   {
-   "id": "937ca0c36c",
+   "id": "ad102dadb3",
    "op": "CON",
    "line": 242,
    "before": "Cobol.store(f26_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
@@ -416,7 +416,7 @@
    "reason": "EIBDATE is stored on task entry but never referenced anywhere in ZECSPLT."
   },
   {
-   "id": "9e28766bc6",
+   "id": "1b4c3882d6",
    "op": "AOR",
    "line": 242,
    "before": "Cobol.store(f26_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
@@ -425,7 +425,7 @@
    "reason": "EIBDATE is stored on task entry but never referenced anywhere in ZECSPLT."
   },
   {
-   "id": "bae250039b",
+   "id": "d7b9a4abbb",
    "op": "DEL",
    "line": 242,
    "before": "Cobol.store(f26_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
@@ -434,7 +434,7 @@
    "reason": "EIBDATE is stored on task entry but never referenced anywhere in ZECSPLT."
   },
   {
-   "id": "bc239c52dc",
+   "id": "b1d1cd435c",
    "op": "AOR",
    "line": 242,
    "before": "Cobol.store(f26_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
@@ -443,7 +443,7 @@
    "reason": "EIBDATE is stored on task entry but never referenced anywhere in ZECSPLT."
   },
   {
-   "id": "0f3314d3fb",
+   "id": "0ad6a1066c",
    "op": "AOR",
    "line": 243,
    "before": "Cobol.store(f25_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
@@ -452,7 +452,7 @@
    "reason": "EIBTIME is stored on task entry but never referenced anywhere in ZECSPLT."
   },
   {
-   "id": "679c226821",
+   "id": "a738400a08",
    "op": "AOR",
    "line": 243,
    "before": "Cobol.store(f25_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
@@ -461,7 +461,7 @@
    "reason": "EIBTIME is stored on task entry but never referenced anywhere in ZECSPLT."
   },
   {
-   "id": "6d16f36bcd",
+   "id": "bad1bd4ede",
    "op": "AOR",
    "line": 243,
    "before": "Cobol.store(f25_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
@@ -470,7 +470,7 @@
    "reason": "EIBTIME is stored on task entry but never referenced anywhere in ZECSPLT."
   },
   {
-   "id": "9c59592774",
+   "id": "f24b421700",
    "op": "AOR",
    "line": 243,
    "before": "Cobol.store(f25_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
@@ -479,7 +479,7 @@
    "reason": "EIBTIME is stored on task entry but never referenced anywhere in ZECSPLT."
   },
   {
-   "id": "c555056c45",
+   "id": "f3b27431f0",
    "op": "DEL",
    "line": 243,
    "before": "Cobol.store(f25_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
@@ -488,7 +488,7 @@
    "reason": "EIBTIME is stored on task entry but never referenced anywhere in ZECSPLT."
   },
   {
-   "id": "80dad69fc8",
+   "id": "ad73f85092",
    "op": "DEL",
    "line": 250,
    "before": "in_ZecspltDfhcommarea(x, s_DFHCOMMAREA, 0);",
@@ -497,7 +497,7 @@
    "reason": "ZECSPLT is a PLTPI program executed without COMMAREA; in_ZecspltDfhcommarea is never reached."
   },
   {
-   "id": "92cd71ff5f",
+   "id": "0f0fada4be",
    "op": "NEG",
    "line": 258,
    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
@@ -506,7 +506,7 @@
    "reason": "ZECSPLT has no COMMAREA; byte array commarea branches are never reached."
   },
   {
-   "id": "f671f5a289",
+   "id": "704a27461d",
    "op": "ROR",
    "line": 258,
    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
@@ -515,7 +515,7 @@
    "reason": "ZECSPLT has no COMMAREA; byte array commarea branches are never reached."
   },
   {
-   "id": "17fe385b04",
+   "id": "f316506fe2",
    "op": "CON",
    "line": 265,
    "before": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
@@ -524,7 +524,7 @@
    "reason": "ZECSPLT has linked: false and passes no link area; raw link area copying is never reached."
   },
   {
-   "id": "13cb4eb7e5",
+   "id": "4b63a92acc",
    "op": "ROR",
    "line": 267,
    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
@@ -533,7 +533,7 @@
    "reason": "ZECSPLT passes no link area beyond the commarea length; s_DFHCOMMAREA.beyond is never set."
   },
   {
-   "id": "839656d150",
+   "id": "4047b47a57",
    "op": "ROR",
    "line": 267,
    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
@@ -542,7 +542,7 @@
    "reason": "ZECSPLT passes no link area beyond the commarea length; s_DFHCOMMAREA.beyond is never set."
   },
   {
-   "id": "864301f050",
+   "id": "3de84f9edd",
    "op": "DEL",
    "line": 267,
    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
@@ -551,7 +551,7 @@
    "reason": "ZECSPLT passes no link area beyond the commarea length; s_DFHCOMMAREA.beyond is never set."
   },
   {
-   "id": "48f06b0b8e",
+   "id": "ad9b398f8d",
    "op": "AOR",
    "line": 269,
    "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
@@ -560,7 +560,7 @@
    "reason": "ZECSPLT passes no link area; caBack callback body for raw link areas is never reached."
   },
   {
-   "id": "5fd237de9c",
+   "id": "b9f180cc2f",
    "op": "NEG",
    "line": 269,
    "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
@@ -569,7 +569,7 @@
    "reason": "ZECSPLT passes no link area; caBack callback body for raw link areas is never reached."
   },
   {
-   "id": "8e9e49ed8d",
+   "id": "c26482a41e",
    "op": "ROR",
    "line": 269,
    "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
@@ -578,7 +578,7 @@
    "reason": "ZECSPLT passes no link area; caBack callback body for raw link areas is never reached."
   },
   {
-   "id": "35f15fc045",
+   "id": "f99a41ea3f",
    "op": "ROR",
    "line": 272,
    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
@@ -587,7 +587,7 @@
    "reason": "task.exactCommarea() is only active when COMMAREA is passed; ZECSPLT has no COMMAREA."
   },
   {
-   "id": "4557478e3f",
+   "id": "bfeefe6735",
    "op": "NEG",
    "line": 272,
    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
@@ -596,7 +596,7 @@
    "reason": "task.exactCommarea() is only active when COMMAREA is passed; ZECSPLT has no COMMAREA."
   },
   {
-   "id": "bb7a8446f1",
+   "id": "df2d448f39",
    "op": "COR",
    "line": 272,
    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
@@ -605,7 +605,7 @@
    "reason": "task.exactCommarea() is only active when COMMAREA is passed; ZECSPLT has no COMMAREA."
   },
   {
-   "id": "157fbb59a2",
+   "id": "004da0db5c",
    "op": "DEL",
    "line": 273,
    "before": "caWhole = s_DFHCOMMAREA.bytes;",
@@ -614,7 +614,7 @@
    "reason": "exactCommarea branch is never entered because ZECSPLT has no COMMAREA; caWhole assignment is unreachable."
   },
   {
-   "id": "8789e95d44",
+   "id": "91e339eea0",
    "op": "DEL",
    "line": 279,
    "before": "Cobol.store(f32_EIBCALEN, BigDecimal.valueOf(calen), false, CS);",
@@ -623,7 +623,7 @@
    "reason": "EIBCALEN is stored as 0 on task startup and never read anywhere in ZECSPLT."
   },
   {
-   "id": "5de0a19b69",
+   "id": "b3208406de",
    "op": "NEG",
    "line": 287,
    "before": "if (caWhole == null) {",
@@ -632,7 +632,7 @@
    "reason": "IndexOutOfBoundsException is never thrown by ZECSPLT logic; catch block for unmodelled COMMAREA is unreachable."
   },
   {
-   "id": "4ca72091f5",
+   "id": "ba23362577",
    "op": "LIT",
    "line": 290,
    "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
@@ -641,7 +641,7 @@
    "reason": "IndexOutOfBoundsException is never thrown by ZECSPLT logic; PastFrom exception is unreachable."
   },
   {
-   "id": "d2f8df8196",
+   "id": "8f9232582a",
    "op": "LIT",
    "line": 290,
    "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
@@ -650,7 +650,7 @@
    "reason": "IndexOutOfBoundsException is never thrown by ZECSPLT logic; PastFrom exception is unreachable."
   },
   {
-   "id": "deb60c880e",
+   "id": "fdd4c2ca43",
    "op": "DEL",
    "line": 297,
    "before": "caBack.run();",
@@ -659,7 +659,7 @@
    "reason": "caBack is a no-op runnable for ZECSPLT because it has no COMMAREA; omitting caBack.run() has no effect."
   },
   {
-   "id": "7137647a25",
+   "id": "cf03e4d79f",
    "op": "LIT",
    "line": 309,
    "before": "region.run(task, \"ZECSPLT\", this::runTask);",
@@ -668,7 +668,7 @@
    "reason": "The program name passed to region.run is used only for abend context logging; ZECSPLT never abends."
   },
   {
-   "id": "0f934b032c",
+   "id": "fb04defbc8",
    "op": "CON",
    "line": 361,
    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
@@ -677,7 +677,7 @@
    "reason": "performThru has capacity 64 and perform depth in ZECSPLT never exceeds 4; array reallocation is never reached."
   },
   {
-   "id": "385d0d103b",
+   "id": "e1075351a8",
    "op": "AOR",
    "line": 361,
    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
@@ -686,7 +686,7 @@
    "reason": "performThru has capacity 64 and perform depth in ZECSPLT never exceeds 4; array reallocation is never reached."
   },
   {
-   "id": "31882ebf38",
+   "id": "3d0cb8ed1f",
    "op": "ROR",
    "line": 371,
    "before": "if (i == thru) {",
@@ -695,7 +695,7 @@
    "reason": "In every PERFORM range in ZECSPLT, the thru paragraph is an EXIT paragraph containing only an EXIT statement; returning at the preceding paragraph executes identical statements."
   },
   {
-   "id": "753469699a",
+   "id": "8cdee92025",
    "op": "NEG",
    "line": 371,
    "before": "if (i == thru) {",
@@ -704,7 +704,7 @@
    "reason": "In every PERFORM range in ZECSPLT, the thru paragraph is an EXIT paragraph containing only an EXIT statement; returning at the preceding paragraph executes identical statements."
   },
   {
-   "id": "77006862d7",
+   "id": "dc10084f71",
    "op": "ROR",
    "line": 374,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
@@ -713,7 +713,7 @@
    "reason": "The loop checks whether control flowed into an enclosing PERFORM range's exit (GO TO out of PERFORM); ZECSPLT has no GO TO statements, so this check is never triggered."
   },
   {
-   "id": "d716d39828",
+   "id": "e9bf1e3a3f",
    "op": "AOR",
    "line": 374,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
@@ -722,7 +722,7 @@
    "reason": "The loop checks whether control flowed into an enclosing PERFORM range's exit (GO TO out of PERFORM); ZECSPLT has no GO TO statements, so this check is never triggered."
   },
   {
-   "id": "f54ac29e17",
+   "id": "a42e4574c3",
    "op": "ROR",
    "line": 374,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
@@ -731,7 +731,7 @@
    "reason": "The loop checks whether control flowed into an enclosing PERFORM range's exit (GO TO out of PERFORM); ZECSPLT has no GO TO statements, so this check is never triggered."
   },
   {
-   "id": "b7d631fc59",
+   "id": "c560631928",
    "op": "ROR",
    "line": 380,
    "before": "if (next >= 13) {",
@@ -740,7 +740,7 @@
    "reason": "9000-RETURN throws Goback directly upon EXEC CICS RETURN, so next >= 13 is never reached."
   },
   {
-   "id": "06e387ea7d",
+   "id": "0dc9a8eebf",
    "op": "NEG",
    "line": 386,
    "before": "if (e.depth != mine) {",
@@ -749,7 +749,7 @@
    "reason": "PerformExit is never thrown in ZECSPLT because there are no GO TO statements."
   },
   {
-   "id": "56d327ac2e",
+   "id": "37e4c4d4a3",
    "op": "CON",
    "line": 408,
    "before": "case 12: return p12();",
@@ -758,7 +758,7 @@
    "reason": "9000-RETURN throws Goback directly upon EXEC CICS RETURN, so paragraph 12 (9000-EXIT) is never executed."
   },
   {
-   "id": "216dd3111a",
+   "id": "92a6d50e8a",
    "op": "CON",
    "line": 422,
    "before": "perform(9, 10);",
@@ -767,7 +767,7 @@
    "reason": "Inquire URIMAP END has no observable external output; executing RETURN immediately after or including it in the perform range produces identical outputs."
   },
   {
-   "id": "9323e49208",
+   "id": "5dede89f0c",
    "op": "CON",
    "line": 422,
    "before": "perform(9, 10);",
@@ -776,7 +776,7 @@
    "reason": "Inquire URIMAP END has no observable external output; executing RETURN immediately after or including it in the perform range produces identical outputs."
   },
   {
-   "id": "16d93d7b05",
+   "id": "f354317b6b",
    "op": "DEL",
    "line": 432,
    "before": "Cobol.store(f53_EIBRESP, BigDecimal.valueOf(urimap1[0]), false, CS);",
@@ -785,7 +785,7 @@
    "reason": "EIBRESP from INQUIRE URIMAP START is never checked and is overwritten by the first INQUIRE URIMAP NEXT."
   },
   {
-   "id": "cc4ab8e0bc",
+   "id": "74d4a45504",
    "op": "DEL",
    "line": 433,
    "before": "Cobol.store(f54_EIBRESP2, BigDecimal.valueOf(urimap1[1]), false, CS);",
@@ -794,7 +794,7 @@
    "reason": "EIBRESP2 is never read anywhere in ZECSPLT."
   },
   {
-   "id": "7906f7f4ba",
+   "id": "03d237683c",
    "op": "DEL",
    "line": 506,
    "before": "Cobol.store(f53_EIBRESP, BigDecimal.valueOf(resp4), false, CS);",
@@ -803,7 +803,7 @@
    "reason": "EIBRESP from WRITEQ TD is not checked and is immediately overwritten by WRITE OPERATOR."
   },
   {
-   "id": "4928565e4a",
+   "id": "dddd64975b",
    "op": "DEL",
    "line": 526,
    "before": "Cobol.store(f54_EIBRESP2, BigDecimal.valueOf(urimap6[1]), false, CS);",
@@ -812,7 +812,7 @@
    "reason": "EIBRESP2 is never read anywhere in ZECSPLT."
   },
   {
-   "id": "b5094be96c",
+   "id": "f09e2fc63f",
    "op": "DEL",
    "line": 539,
    "before": "caBack.run();",

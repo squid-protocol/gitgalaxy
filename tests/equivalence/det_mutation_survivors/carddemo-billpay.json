@@ -11,7 +11,7 @@
  "case": "carddemo-billpay",
  "survivors": [
   {
-   "id": "1f026bc925",
+   "id": "89feb16c80",
    "op": "LIT",
    "line": 100,
    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
@@ -20,7 +20,7 @@
    "reason": "DFHCOMMAREA's initial image past byte 218: COBIL00C reads the area only as DFHCOMMAREA(1:EIBCALEN), EIBCALEN is 218 (the typed CARDDEMO-COMMAREA fills the first 218 bytes) or 0 (XCTL to COSGN00C before any read), so these bytes are never addressed"
   },
   {
-   "id": "79be984bf9",
+   "id": "951292f882",
    "op": "LIT",
    "line": 103,
    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
@@ -29,7 +29,7 @@
    "reason": "DFHCOMMAREA's initial image past byte 218: COBIL00C reads the area only as DFHCOMMAREA(1:EIBCALEN), EIBCALEN is 218 (the typed CARDDEMO-COMMAREA fills the first 218 bytes) or 0 (XCTL to COSGN00C before any read), so these bytes are never addressed"
   },
   {
-   "id": "2787cd9bb5",
+   "id": "fbf09a6c38",
    "op": "LIT",
    "line": 114,
    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
@@ -38,7 +38,7 @@
    "reason": "DFHCOMMAREA's initial image past byte 218: COBIL00C reads the area only as DFHCOMMAREA(1:EIBCALEN), EIBCALEN is 218 (the typed CARDDEMO-COMMAREA fills the first 218 bytes) or 0 (XCTL to COSGN00C before any read), so these bytes are never addressed"
   },
   {
-   "id": "6dc297c221",
+   "id": "fa93f56646",
    "op": "LIT",
    "line": 135,
    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
@@ -47,7 +47,7 @@
    "reason": "DFHCOMMAREA's initial image past byte 218: COBIL00C reads the area only as DFHCOMMAREA(1:EIBCALEN), EIBCALEN is 218 (the typed CARDDEMO-COMMAREA fills the first 218 bytes) or 0 (XCTL to COSGN00C before any read), so these bytes are never addressed"
   },
   {
-   "id": "c8c6d7d294",
+   "id": "c4f54dec99",
    "op": "LIT",
    "line": 160,
    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
@@ -56,7 +56,7 @@
    "reason": "DFHCOMMAREA's initial image past byte 218: COBIL00C reads the area only as DFHCOMMAREA(1:EIBCALEN), EIBCALEN is 218 (the typed CARDDEMO-COMMAREA fills the first 218 bytes) or 0 (XCTL to COSGN00C before any read), so these bytes are never addressed"
   },
   {
-   "id": "a73ba4883f",
+   "id": "3c42d8ebf9",
    "op": "LIT",
    "line": 167,
    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
@@ -65,7 +65,7 @@
    "reason": "DFHCOMMAREA's initial image past byte 218: COBIL00C reads the area only as DFHCOMMAREA(1:EIBCALEN), EIBCALEN is 218 (the typed CARDDEMO-COMMAREA fills the first 218 bytes) or 0 (XCTL to COSGN00C before any read), so these bytes are never addressed"
   },
   {
-   "id": "5a657efee1",
+   "id": "bdd4b5b7c2",
    "op": "CON",
    "line": 222,
    "before": "private final Field f51_TRNNAMEL = Field.binary(s_COBIL0AI, 12, 4, 0, true, false);",
@@ -74,7 +74,7 @@
    "reason": "TRNNAMEL is read only by DetCics.subfields, which compares it to -1 with BigDecimal.compareTo (scale-blind); the typed length written by RECEIVE is never -1 either way, and COBIL00C never references it"
   },
   {
-   "id": "e23b79d014",
+   "id": "20b9fbda1d",
    "op": "CON",
    "line": 246,
    "before": "private final Field f99_CONFIRML = Field.binary(s_COBIL0AI, 201, 4, 0, true, false);",
@@ -83,7 +83,7 @@
    "reason": "CONFIRML is only MOVEd -1 by the program and read back only by DetCics.subfields' compareTo(-1), which ignores scale: -1 stored at scale 1 still compares equal, so the cursor lands on CONFIRM as before"
   },
   {
-   "id": "cb3e769bda",
+   "id": "fb493897a7",
    "op": "CON",
    "line": 268,
    "before": "private final Field f144_CURTIMEC = Field.alphanumeric(s_COBIL0AI, 150, 1, false);",
@@ -92,7 +92,7 @@
    "reason": "CicsTask's DetCics.subfields reads only the first byte of an attribute / colour / highlight field, so a wider read of the same offset gives the same sub-field"
   },
   {
-   "id": "a6fa81d9b4",
+   "id": "9c8f4fc7ce",
    "op": "CON",
    "line": 269,
    "before": "private final Field f146_CURTIMEH = Field.alphanumeric(s_COBIL0AI, 152, 1, false);",
@@ -101,7 +101,7 @@
    "reason": "CURTIMEH is shifted one byte to CURTIMEV, the validation byte that follows it; COBIL00C never sets either, both stay at the image's NUL / blank, which DetCics.subfields reports as no attribute"
   },
   {
-   "id": "1ac329c01a",
+   "id": "78f47a80b2",
    "op": "CON",
    "line": 272,
    "before": "private final Field f152_ACTIDINH = Field.alphanumeric(s_COBIL0AI, 167, 1, false);",
@@ -110,7 +110,7 @@
    "reason": "CicsTask's DetCics.subfields reads only the first byte of an attribute / colour / highlight field, so a wider read of the same offset gives the same sub-field"
   },
   {
-   "id": "c719239134",
+   "id": "57998a2b21",
    "op": "CON",
    "line": 320,
    "before": "private final Field f254_DFHNULL = Field.alphanumeric(s_DFHAID, 0, 1, false);",
@@ -119,7 +119,7 @@
    "reason": "DFHNULL is moved into the one-byte EIBAID for a terminal event with no AID key; a MOVE of a longer alphanumeric truncates to the leftmost byte, the same value, and COBIL00C branches only on DFHENTER / DFHPF3 / DFHPF4"
   },
   {
-   "id": "95f4271d24",
+   "id": "23786ebdfc",
    "op": "CON",
    "line": 332,
    "before": "private final Field f266_DFHPF1 = Field.alphanumeric(s_DFHAID, 12, 1, false);",
@@ -128,7 +128,7 @@
    "reason": "DFHPF1 would read DFHPF2's byte; COBIL00C's EVALUATE EIBAID tells only DFHENTER, DFHPF3 and DFHPF4 apart (PF1 and PF2 are both WHEN OTHER), and EIBAID is not otherwise shown"
   },
   {
-   "id": "94e10b5eb0",
+   "id": "589f00af11",
    "op": "CON",
    "line": 343,
    "before": "private final Field f277_DFHPF12 = Field.alphanumeric(s_DFHAID, 23, 1, false);",
@@ -137,7 +137,7 @@
    "reason": "DFHPF12 would read DFHPF13's byte; COBIL00C's EVALUATE EIBAID tells only DFHENTER, DFHPF3 and DFHPF4 apart (PF12 and PF13 are both WHEN OTHER), and EIBAID is not otherwise shown"
   },
   {
-   "id": "1308b518b0",
+   "id": "80fbbb7fd0",
    "op": "CON",
    "line": 367,
    "before": "private final Field f392_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
@@ -146,7 +146,7 @@
    "reason": "GG_RETURN_CODE is the RETURN-CODE special register, which COBIL00C never references; its scale is never read"
   },
   {
-   "id": "bb428f11a0",
+   "id": "cb78971382",
    "op": "ROR",
    "line": 402,
    "before": "if (task.level() > 1) {",
@@ -155,7 +155,7 @@
    "reason": "abended() runs caBack only for a LINKed task (level > 1); COBIL00C runs as a terminal task (level 1), whose COMMAREA object is not observable (CICS discards it; linked_result drops it)"
   },
   {
-   "id": "21e65f132c",
+   "id": "711305ddb4",
    "op": "LIT",
    "line": 422,
    "before": "java.util.Map.entry(\"ENDBR-TRANSACT-FILE\", 12),",
@@ -164,7 +164,7 @@
    "reason": "the paragraph table is read only to resolve a HANDLE CONDITION label or a GO TO by name; COBIL00C has no HANDLE, IGNORE or GO TO, so no lookup of this entry (or of a missing name) ever runs"
   },
   {
-   "id": "da9764eca5",
+   "id": "f3f65d206f",
    "op": "LIT",
    "line": 424,
    "before": "java.util.Map.entry(\"STARTBR-TRANSACT-FILE\", 10),",
@@ -173,7 +173,7 @@
    "reason": "the paragraph table is read only to resolve a HANDLE CONDITION label or a GO TO by name; COBIL00C has no HANDLE, IGNORE or GO TO, so no lookup of this entry (or of a missing name) ever runs"
   },
   {
-   "id": "3ef5b0e9c4",
+   "id": "4ca898b481",
    "op": "LIT",
    "line": 426,
    "before": "java.util.Map.entry(\"UPDATE-ACCTDAT-FILE\", 8),",
@@ -182,7 +182,7 @@
    "reason": "the paragraph table is read only to resolve a HANDLE CONDITION label or a GO TO by name; COBIL00C has no HANDLE, IGNORE or GO TO, so no lookup of this entry (or of a missing name) ever runs"
   },
   {
-   "id": "1239c0a158",
+   "id": "c719791a88",
    "op": "CON",
    "line": 434,
    "before": "java.util.Map.entry(\"MAIN-PARA\", 0)",
@@ -191,7 +191,7 @@
    "reason": "the paragraph table is read only to resolve a HANDLE CONDITION label or a GO TO by name; COBIL00C has no HANDLE, IGNORE or GO TO, so no lookup of this entry (or of a missing name) ever runs"
   },
   {
-   "id": "612d55e100",
+   "id": "d8150d4c30",
    "op": "ROR",
    "line": 439,
    "before": "if (i == null) {",
@@ -200,7 +200,7 @@
    "reason": "the paragraph table is read only to resolve a HANDLE CONDITION label or a GO TO by name; COBIL00C has no HANDLE, IGNORE or GO TO, so no lookup of this entry (or of a missing name) ever runs"
   },
   {
-   "id": "e8955b99f9",
+   "id": "4e1f5d2352",
    "op": "NEG",
    "line": 439,
    "before": "if (i == null) {",
@@ -209,7 +209,7 @@
    "reason": "the paragraph table is read only to resolve a HANDLE CONDITION label or a GO TO by name; COBIL00C has no HANDLE, IGNORE or GO TO, so no lookup of this entry (or of a missing name) ever runs"
   },
   {
-   "id": "599ad45d04",
+   "id": "6ff09f44d9",
    "op": "DEL",
    "line": 588,
    "before": "Cobol.moveFigurative(Figurative.ZEROS, f14_WS_CURR_BAL, CS);",
@@ -218,7 +218,7 @@
    "reason": "WS-CURR-BAL is read only after PROCESS-ENTER-KEY's MOVE ACCT-CURR-BAL TO WS-CURR-BAL (to CURBALI), so its initial value is overwritten before any read"
   },
   {
-   "id": "c69b761f9c",
+   "id": "22e2ddbb80",
    "op": "DEL",
    "line": 673,
    "before": "calen = cx(task, cb.length);",
@@ -227,7 +227,7 @@
    "reason": "the raw / exact COMMAREA path runs only for a det-port program that LINKed COBIL00C with its COMMAREA's bytes; no CardDemo program LINKs COBIL00C (a terminal transaction entered by XCTL), the case passes the typed COMMAREA"
   },
   {
-   "id": "44061bde1d",
+   "id": "15f54c8f75",
    "op": "COR",
    "line": 684,
    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
@@ -236,7 +236,7 @@
    "reason": "task.exactCommarea() is set only for a LINK that names the COMMAREA length; no CardDemo program LINKs COBIL00C, and the typed 218-byte COMMAREA makes calen < 218 false in any case"
   },
   {
-   "id": "ea24f7b9e3",
+   "id": "bf621215f7",
    "op": "DEL",
    "line": 686,
    "before": "s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen);",
@@ -245,7 +245,7 @@
    "reason": "inside `if (task.exactCommarea() && calen < 218)`: exactCommarea() is true only for a LINK naming a COMMAREA length, which never reaches COBIL00C (a terminal transaction entered by XCTL)"
   },
   {
-   "id": "39924b60e2",
+   "id": "9832b6ea10",
    "op": "ROR",
    "line": 699,
    "before": "if (caWhole == null) {",
@@ -254,7 +254,7 @@
    "reason": "the catch of IndexOutOfBoundsException runs only if the program indexes DFHCOMMAREA past its storage; COBIL00C reads only DFHCOMMAREA(1:EIBCALEN) and EIBCALEN is the 218 bytes the storage holds, so none is thrown"
   },
   {
-   "id": "24dae49f6b",
+   "id": "d157f0d39b",
    "op": "LIT",
    "line": 721,
    "before": "region.run(task, \"COBIL00C\", this::runTask);",
@@ -263,7 +263,7 @@
    "reason": "the region name is used when a program LINKs to COBIL00C; no CardDemo program LINKs COBIL00C"
   },
   {
-   "id": "13fe60d4a9",
+   "id": "001496f25c",
    "op": "COR",
    "line": 745,
    "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
@@ -272,7 +272,7 @@
    "reason": "the raw / exact COMMAREA path runs only for a det-port program that LINKed COBIL00C with its COMMAREA's bytes; no CardDemo program LINKs COBIL00C (a terminal transaction entered by XCTL), the case passes the typed COMMAREA"
   },
   {
-   "id": "b031f303a9",
+   "id": "2ddbb21017",
    "op": "ROR",
    "line": 764,
    "before": "return lastLinkBytes == null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
@@ -281,7 +281,7 @@
    "reason": "the raw / exact COMMAREA path runs only for a det-port program that LINKed COBIL00C with its COMMAREA's bytes; no CardDemo program LINKs COBIL00C (a terminal transaction entered by XCTL), the case passes the typed COMMAREA"
   },
   {
-   "id": "ade9e1417e",
+   "id": "306336791f",
    "op": "DEL",
    "line": 820,
    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
@@ -290,7 +290,7 @@
    "reason": "performThru grows only at a PERFORM nesting depth of 64; COBIL00C nests a handful of paragraphs deep"
   },
   {
-   "id": "4aa7ddf858",
+   "id": "540290df6d",
    "op": "AOR",
    "line": 833,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
@@ -299,7 +299,7 @@
    "reason": "perform() reaches this only after a paragraph that is not its range's last returns; COBIL00C's PERFORMs each name one paragraph (from == thru) and MAIN-PARA (runTask's 0-15) always ends in RETURN / XCTL / an abend, so the scan over outer PERFORMs never iterates"
   },
   {
-   "id": "1c382e2d39",
+   "id": "ac48b5951a",
    "op": "NEG",
    "line": 834,
    "before": "if (performThru[d] == i) {",
@@ -308,7 +308,7 @@
    "reason": "perform() reaches this only after a paragraph that is not its range's last returns; COBIL00C's PERFORMs each name one paragraph (from == thru) and MAIN-PARA (runTask's 0-15) always ends in RETURN / XCTL / an abend, so the scan over outer PERFORMs never iterates"
   },
   {
-   "id": "aa2304b713",
+   "id": "9971e450a1",
    "op": "NEG",
    "line": 839,
    "before": "if (next >= 16) {",
@@ -317,7 +317,7 @@
    "reason": "`next >= 16` is true only when control runs past the last paragraph; MAIN-PARA (runTask's 0-15) always ends in RETURN / XCTL / an abend, so control never falls off the end"
   },
   {
-   "id": "30dade9823",
+   "id": "a94de8c9f8",
    "op": "ROR",
    "line": 845,
    "before": "if (e.depth != mine) {",
@@ -326,7 +326,7 @@
    "reason": "perform() reaches this only after a paragraph that is not its range's last returns; COBIL00C's PERFORMs each name one paragraph (from == thru) and MAIN-PARA (runTask's 0-15) always ends in RETURN / XCTL / an abend, so the scan over outer PERFORMs never iterates"
   },
   {
-   "id": "7d68ef528e",
+   "id": "d0c90e0f05",
    "op": "LIT",
    "line": 951,
    "before": "f12_WS_CONF_PAY_FLG = \"N\";",
@@ -335,7 +335,7 @@
    "reason": "the program tests only CONF-PAY-YES ('Y'), never CONF-PAY-NO, and SET CONF-PAY-NO moves 'N' where the mutant moves 'X': both are not 'Y', and the flag is not shown anywhere"
   },
   {
-   "id": "c756609e5a",
+   "id": "0e3854fb59",
    "op": "DEL",
    "line": 1035,
    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f238_TRAN_RECORD.storage(), f238_TRAN_RECORD.offset() + 18, 4, 0, false, false, false), CS);",
@@ -344,7 +344,7 @@
    "reason": "INITIALIZE TRAN-RECORD's zero of TRAN-CAT-CD is overwritten by MOVE 2 TO TRAN-CAT-CD before the record is written"
   },
   {
-   "id": "15b21cb3c2",
+   "id": "bac8404fe0",
    "op": "DEL",
    "line": 1038,
    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f238_TRAN_RECORD.storage(), f238_TRAN_RECORD.offset() + 132, 11, 2, true, false, false), CS);",
@@ -353,7 +353,7 @@
    "reason": "INITIALIZE TRAN-RECORD's zero of TRAN-AMT is overwritten by MOVE ACCT-CURR-BAL TO TRAN-AMT before the record is written"
   },
   {
-   "id": "97159ff3d1",
+   "id": "38a507c094",
    "op": "CON",
    "line": 1039,
    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f238_TRAN_RECORD.storage(), f238_TRAN_RECORD.offset() + 143, 9, 0, false, false, false), CS);",
@@ -362,7 +362,7 @@
    "reason": "INITIALIZE TRAN-RECORD's zero of TRAN-MERCHANT-ID is shifted one byte; MOVE 999999999 TO TRAN-MERCHANT-ID and MOVE 'BILL PAYMENT' TO TRAN-MERCHANT-NAME then overwrite every byte it touched (TRAN-MERCHANT-ID and the first byte of the name) before the record is written"
   },
   {
-   "id": "69a74b7f52",
+   "id": "5e4565974e",
    "op": "AOR",
    "line": 1101,
    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f202_WS_TIMESTAMP.storage(), f202_WS_TIMESTAMP.offset() + 5, 2, 0, false, false, false), CS);",
@@ -371,7 +371,7 @@
    "reason": "INITIALIZE WS-TIMESTAMP's zero of the month moves five bytes back to WS-CURTIME-MM (offset 27 of WS-DATE-TIME); POPULATE-HEADER-INFO MOVEs WS-CURTIME-MINUTE TO it before WS-CURTIME-HH-MM-SS is read, and the month bytes are overwritten by MOVE WS-CUR-DATE-X10 TO WS-TIMESTAMP(1:10)"
   },
   {
-   "id": "b865e7bf73",
+   "id": "3ebb387cba",
    "op": "COR",
    "line": 1119,
    "before": "if ((Cobol.compareFigurative(f25_CDEMO_TO_PROGRAM, Figurative.LOW_VALUES, CS) == 0 || Cobol.compareFigurative(f25_CDEMO_TO_PROGRAM, Figurative.SPACES, CS) == 0)) {",
@@ -380,7 +380,7 @@
    "reason": "RETURN-TO-PREV-SCREEN is entered with CDEMO-TO-PROGRAM just set to 'COSGN00C', 'COMEN01C' or a CDEMO-FROM-PROGRAM that is neither SPACES nor LOW-VALUES, so both operands are false and `||` and `&&` agree"
   },
   {
-   "id": "9ed2ea38b5",
+   "id": "f4152f4d8e",
    "op": "DEL",
    "line": 1172,
    "before": "Cobol.store(f389_EIBRESP, BigDecimal.valueOf(0), false, CS);",
@@ -389,7 +389,7 @@
    "reason": "COBIL00C never references EIBRESP or EIBRESP2 (its commands use RESP(WS-RESP-CD) / RESP2(WS-REAS-CD)), so the store's value or absence cannot show"
   },
   {
-   "id": "8036bbf372",
+   "id": "010617fd02",
    "op": "DEL",
    "line": 1173,
    "before": "Cobol.store(f390_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
@@ -398,7 +398,7 @@
    "reason": "COBIL00C never references EIBRESP or EIBRESP2 (its commands use RESP(WS-RESP-CD) / RESP2(WS-REAS-CD)), so the store's value or absence cannot show"
   },
   {
-   "id": "7d64efbfdb",
+   "id": "77785e8f59",
    "op": "DEL",
    "line": 1220,
    "before": "Cobol.store(f389_EIBRESP, BigDecimal.valueOf(resp10), false, CS);",
@@ -407,7 +407,7 @@
    "reason": "COBIL00C never references EIBRESP or EIBRESP2 (its commands use RESP(WS-RESP-CD) / RESP2(WS-REAS-CD)), so the store's value or absence cannot show"
   },
   {
-   "id": "e3fe56b6fb",
+   "id": "128e51af31",
    "op": "DEL",
    "line": 1222,
    "before": "Cobol.store(f9_WS_RESP_CD, BigDecimal.valueOf(resp10), false, CS);",
@@ -416,7 +416,7 @@
    "reason": "the RECEIVE MAP RESP is stored in WS-RESP-CD, which COBIL00C reads only after READ / REWRITE / WRITE / STARTBR / READPREV / READ-CXACAIX, each of which stores it afresh first"
   },
   {
-   "id": "98b61b79e0",
+   "id": "cb13443e1c",
    "op": "DEL",
    "line": 1265,
    "before": "heldKey.put(f6_WS_ACCTDAT_FILE.strip(), rec12);",
@@ -425,7 +425,7 @@
    "reason": "heldKey is only ever written (here, for the READ UPDATE's key) and never read anywhere in the generated port, so skipping the write shows nothing"
   },
   {
-   "id": "e41675085d",
+   "id": "cd6d6d95f5",
    "op": "LIT",
    "line": 1361,
    "before": "f8_WS_ERR_FLG = \"Y\";",
@@ -434,7 +434,7 @@
    "reason": "WS-ERR-FLG 'X' instead of 'Y' differs only where ERR-FLG-ON is tested, which is PROCESS-ENTER-KEY's IF NOT ERR-FLG-ON at the three points before the CONF-PAY-YES block; this paragraph runs inside that block, which tests the flag nowhere afterwards, and MAIN-PARA resets it on the next entry"
   },
   {
-   "id": "7230a9c28b",
+   "id": "1bea9ac6a1",
    "op": "LIT",
    "line": 1396,
    "before": "f8_WS_ERR_FLG = \"Y\";",
@@ -443,7 +443,7 @@
    "reason": "WS-ERR-FLG 'X' instead of 'Y' differs only where ERR-FLG-ON is tested, which is PROCESS-ENTER-KEY's IF NOT ERR-FLG-ON at the three points before the CONF-PAY-YES block; this paragraph runs inside that block, which tests the flag nowhere afterwards, and MAIN-PARA resets it on the next entry"
   },
   {
-   "id": "3eff4ac0d9",
+   "id": "bf4760162c",
    "op": "LIT",
    "line": 1429,
    "before": "f8_WS_ERR_FLG = \"Y\";",
@@ -452,7 +452,7 @@
    "reason": "WS-ERR-FLG 'X' instead of 'Y' differs only where ERR-FLG-ON is tested, which is PROCESS-ENTER-KEY's IF NOT ERR-FLG-ON at the three points before the CONF-PAY-YES block; this paragraph runs inside that block, which tests the flag nowhere afterwards, and MAIN-PARA resets it on the next entry"
   },
   {
-   "id": "85542ae080",
+   "id": "0d21a80d0a",
    "op": "NEG",
    "line": 1448,
    "before": "if (to >= 0) return GOTO | to;",
@@ -461,7 +461,7 @@
    "reason": "condition() returns a value only for a handled, ignored or ERROR-handled condition; COBIL00C sets no handler, so condition() throws (the abend) and `to` is never tested"
   },
   {
-   "id": "83754794b1",
+   "id": "0c6cf420d1",
    "op": "DEL",
    "line": 1458,
    "before": "Cobol.store(f390_EIBRESP2, BigDecimal.valueOf(task.resp2()), false, CS);",

@@ -109,6 +109,22 @@ def executable_magic(head: bytes) -> str:
     return ""
 
 
+def _is_tar_header(head: bytes) -> bool:
+    """A tar has no magic at offset 0: `ustar` sits at 257, and a v7 archive has none, so its first 512-byte block is
+    accepted when the octal checksum at 148 matches the block summed with that field read as spaces. An empty archive
+    is all zeros. Needs the first 512 bytes."""
+    block = head[:512]
+    if len(block) < 512:
+        return False
+    if block[257:262] == b"ustar" or not any(block):
+        return True
+    try:
+        stored = int(block[148:156].split(b"\0")[0].strip() or b"x", 8)
+    except ValueError:
+        return False
+    return stored == sum(block[:148]) + 8 * 32 + sum(block[156:])
+
+
 def detect_disguised_executable(head: bytes, ext: str) -> dict[str, Any]:
     """#4126: {"sec_extension_mismatch": 1, "threat_snippet": ...} when a file whose
     extension claims an inert format starts with executable magic, else {}."""
@@ -276,6 +292,7 @@ class SecurityLens:
             ".gz": b"\x1f\x8b",
             ".pdf": b"%PDF-",
             ".zip": b"PK\x03\x04",
+            ".ico": b"\x00\x00\x01\x00",
         }
 
         self.THREAT_HEADERS = [
@@ -923,6 +940,9 @@ class SecurityLens:
         if expected_magic and not raw_bytes.startswith(expected_magic):
             threats["sec_extension_mismatch"] = 1
             threats["threat_snippet"] = f"Expected {expected_magic}, found mismatch"
+        elif ext.lower() == ".tar" and not _is_tar_header(raw_bytes):
+            threats["sec_extension_mismatch"] = 1
+            threats["threat_snippet"] = "Expected a tar header (ustar magic or valid checksum), found mismatch"
 
         for header in self.THREAT_HEADERS:
             if header in raw_bytes:

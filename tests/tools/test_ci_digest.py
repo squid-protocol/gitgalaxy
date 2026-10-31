@@ -380,17 +380,17 @@ def test_every_alternative_of_the_det_pattern_matches_a_job():
 
 
 def test_a_job_whose_upstream_failed_as_infra_is_an_infra_knock_on():  # #5276
-    runs = [run(1, "plan", "cancelled"), run(2, "shard 1/6", "failure"), run(3, "durations key", "failure")]
+    runs = [run(1, "plan", "cancelled"), run(2, "shard 1/6", "failure"), run(3, "plan the suite parts", "failure")]
     logs = {1: "", 2: "det A: no plan output", 3: "no key"}
     d = cd.digest(7, fake_api(runs), lambda i: logs[i])
     assert {f["check"]: f["triage"] for f in d["failed"]} == {
         "plan": "infra",
         "shard 1/6": "infra",
-        "durations key": "real",
+        "plan the suite parts": "real",
     }
     runs.append(run(4, "tested-tree", "startup_failure"))
     d = cd.digest(7, fake_api(runs), lambda i: logs.get(i, ""))
-    assert {f["check"]: f["triage"] for f in d["failed"]}["durations key"] == "infra"
+    assert {f["check"]: f["triage"] for f in d["failed"]}["plan the suite parts"] == "infra"
     logs[2] = "FAILED tests/x.py::test_y - AssertionError"  # a failing test beside an infra upstream stays real
     d = cd.digest(7, fake_api(runs), lambda i: logs.get(i, ""))
     assert {f["check"]: f["triage"] for f in d["failed"]}["shard 1/6"] == "real"

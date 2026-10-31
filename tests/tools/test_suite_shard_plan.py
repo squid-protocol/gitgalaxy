@@ -139,7 +139,7 @@ def test_smoke_shard_plan_reads_the_queue_and_balances_by_the_parts_durations():
     assert "ci_layout.py --print-waiting" in run
     assert 'GITHUB_EVENT_NAME" = "pull_request"' in run  # a queue read on a pull request only (empty = calm)
     assert "suite_shard_plan.py --smoke" in run and "${waiting:+--waiting" in run
-    assert any(s.get("with", {}).get("key") == "${{ needs.durations.outputs.key }}" for s in plan_job["steps"])
+    assert any("test-durations-" in str(s.get("with", {}).get("restore-keys")) for s in plan_job["steps"])  # picks the newest, once
     checkout = next(s for s in plan_job["steps"] if "checkout" in s.get("uses", ""))
     # ci_layout reads the queue through post_merge_dispatch: without it the plan is always calm
     for needed in (

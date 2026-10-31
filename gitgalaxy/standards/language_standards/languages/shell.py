@@ -12,7 +12,7 @@ from typing import Any
 
 from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: compiled on first use
 
-from .._shared_patterns import GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT, commented_keyword_statement
 
 # #5640: a prefix word that runs the command after it (`time foo`, `exec foo`, `nohup foo`), with up to
 # four option words (`time -p foo`). Consumed, so the capture is the command it runs; a bare `exec >log`
@@ -294,7 +294,14 @@ DEFINITION: dict[str, Any] = {
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails)
         # Commented-out execution logic indicating dead features.
-        "dead_code": re.compile(r"#[ \t]*(?:if|for|while|function|export|echo|printf|cd|rm|sudo|ls)\b"),
+        # #7207: a statement's shape (`;`, `{}`, `(...)`, an assignment, or a quote / `$` / pipe / redirect), not just the command word.
+        "dead_code": re.compile(
+            commented_keyword_statement(
+                "if|for|while|function|export|echo|printf|cd|rm|sudo|ls",
+                marker="#",
+                extra=r"[^\n]{0,400}[\"$|<>&]|[^\n]{0,400}[ \t]-{1,2}\w|[^\n]{0,400}[ \t](?:\.{0,2}|~)/\w|[^\n]{0,400};[ \t]*(?:then|do)\b",
+            )
+        ),
         # 13. doc (Structured Documentation)
         "doc": re.compile(
             r"^[ \t]*#\s*(?:@param|@return|Usage:|Description:|Examples:|Options:)|#\s*shellcheck\s+disable",

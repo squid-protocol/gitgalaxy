@@ -646,7 +646,7 @@ def mutation_of(case: dict[str, Any] | None, program: str, cache: dict[str, Any]
             "score": s["score"] if s else None,
             "current": bool(s and s["current"]),
             "l5": bool(s and s["l5"]),
-            **({k: s[k] for k in ("killed", "survived", "accounted", "unaccounted", "stale_inputs")} if s else {}),
+            **({k: s[k] for k in ("killed", "survived", "accounted", "unaccounted", "chosen", "mutants", "stale_inputs")} if s else {}),
             **({"drifted": s["drifted"]} if s and s.get("drifted") else {}),
         }
     return cache[key]

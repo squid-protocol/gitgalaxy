@@ -1,0 +1,39 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "GTWPARS",
+  "program_source": "cases/ghost-tasks/gt-web-parse-url/src/GTWPARS.cbl",
+  "copy_dirs": [],
+  "transid": "GT71",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "notes": "cics-crucible ghost-tasks / gt-web-parse-url (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): EXEC CICS WEB PARSE URL: scheme, host, port, path and query string of a URL (default ports, IPv4 / IPv6 hosts), INVREQ for an incorrect URL or bad escape, LENGERR for a short output buffer. Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "parse",
+      "commarea": null,
+      "terminal": "GT71 P",
+      "why": "Five well-formed URLs: scheme returned upper case, explicit and default ports (80 / 443), a dotted IPv4 host, an IPv6 host without its brackets"
+    },
+    {
+      "name": "errors",
+      "commarea": null,
+      "terminal": "GT71 E",
+      "why": "A URL with no scheme is INVREQ RESP2 28; a bad percent escape is INVREQ RESP2 65"
+    },
+    {
+      "name": "lengerr",
+      "commarea": null,
+      "terminal": "GT71 L",
+      "why": "One output buffer too short per command: HOSTLENGTH 4 is LENGERR RESP2 29, PATHLENGTH 1 is 30, QUERYSTRLEN 1 is 8"
+    },
+    {
+      "name": "unmatched-mode",
+      "commarea": null,
+      "terminal": "GT71 Z",
+      "why": "takes the EVALUATE/IF arm no crucible scenario reaches: a mode no WHEN names (falls through)"
+    }
+  ]
+}

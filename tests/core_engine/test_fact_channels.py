@@ -15,6 +15,7 @@ these pin what a registry entry must satisfy for both to work, for every entry:
 import dataclasses
 import re
 import sqlite3
+import sys
 from pathlib import Path
 
 from gitgalaxy.core.fact_channels import _WEB_SERVICE_FIELDS, CHANNELS, CHANNELS_BY_NAME, create_channel_table
@@ -551,6 +552,99 @@ def test_the_job_submit_mq_call_uow_handler_and_file_control_channels_round_trip
     assert node["file_control"] == selects
 
 
+def test_the_vsam_define_and_job_flow_channels_round_trip_every_payload_key(tmp_path):
+    vsam = [
+        {
+            "kind": "CLUSTER",
+            "name": "A.B.KSDS",
+            "organization": "INDEXED",
+            "key_length": 8,
+            "key_offset": 0,
+            "record_avg": 80,
+            "record_max": 200,
+            "related": None,
+            "unique_key": None,
+            "upgrade": None,
+            "step": "DEF1",
+            "line": 4,
+        },
+        {
+            "kind": "AIX",
+            "name": "A.B.AIX",
+            "organization": None,
+            "key_length": None,
+            "key_offset": None,
+            "record_avg": None,
+            "record_max": None,
+            "related": "A.B.KSDS",
+            "unique_key": "UNIQUEKEY",
+            "upgrade": "UPGRADE",
+            "step": None,
+            "line": 0,
+        },
+    ]
+    base = {
+        "kind": "STEP",
+        "name": None,
+        "step_ordinal": 1,
+        "step_name": "S1",
+        "program": "PGMA",
+        "proc": None,
+        "cond": "(4,LT)",
+        "if_cond": None,
+        "in_proc": None,
+        "dd_name": None,
+        "dsn": None,
+        "disp": None,
+        "generation": None,
+        "line": 3,
+    }
+    flow = [
+        {
+            **base,
+            "disp_normal": "CATLG",
+            "runs": "PGMB",
+            "runs_via": "PARM",
+            "systsin_member": "MEM",
+            "parm": "X",
+            "instream": "BODY",
+            "lrecl": 80,
+            "recfm": "FB",
+        },
+        {**base, "kind": "JOB", "name": "JOBA", "step_ordinal": None, "step_name": None, "program": None, "line": 0},
+    ]
+    files = [{"path": "j.jcl", "lang_id": "jcl", "raw_imports": [], "vsam_defines": vsam, "job_flow": flow}]
+    db = _record(tmp_path, files)
+    node = StateRehydrator(str(db)).load_state("RegistryRepo")["ram_cache"]["j.jcl"]
+    assert node["vsam_defines"] == vsam
+    assert node["job_flow"] == flow
+
+
+def test_a_baseline_without_the_healed_job_flow_columns_restores_them_as_absent():
+    conn = sqlite3.connect(":memory:")
+    conn.row_factory = sqlite3.Row
+    try:
+        cursor = conn.cursor()
+        cursor.execute(
+            "CREATE TABLE file_data (id INTEGER PRIMARY KEY, repo_name TEXT, commit_hash TEXT, file_path TEXT)"
+        )
+        old = CHANNELS_BY_NAME["job_flow"].ddl
+        old = "\n".join(ln for ln in old.split("\n") if not ln.strip().startswith("disp_normal "))
+        cursor.execute(old)
+        cursor.execute("INSERT INTO file_data VALUES (1, 'r', 'h', 'j.jcl')")
+        cursor.execute(
+            "INSERT INTO job_flow_data (repo_name, commit_hash, file_id, kind, step_name, line_number) "
+            "VALUES ('r', 'h', 1, 'STEP', 'S1', 2)"
+        )
+        channel = CHANNELS_BY_NAME["job_flow"]
+        row = cursor.execute(channel.select_sql(cursor, _has_table, _has_column), ("r", "h")).fetchone()
+        payload = channel.to_payload(row)
+        assert payload["step_name"] == "S1" and payload["line"] == 2
+        assert not {"disp_normal", "runs", "parm", "instream", "lrecl", "recfm"} & payload.keys()
+    finally:
+        conn.close()
+
+
 def test_a_baseline_without_the_refmod_texts_restores_them_as_null():
     conn = sqlite3.connect(":memory:")
     conn.row_factory = sqlite3.Row
@@ -575,7 +669,10 @@ def test_a_baseline_without_the_refmod_texts_restores_them_as_null():
         conn.close()
 
 
-_HEALED_ONLY = {"sql_statement": ("routine_name",)}
+_HEALED_ONLY = {
+    "sql_statement": ("routine_name",),
+    "job_flow": ("runs", "runs_via", "systsin_member", "parm", "instream", "lrecl", "recfm"),
+}
 
 
 def test_every_channel_declares_a_schema_that_names_its_own_table():
@@ -622,12 +719,7 @@ _GALAXY_IR = Path(__file__).resolve().parents[2] / "gitgalaxy" / "tools" / "cobo
 
 # Tables galaxy_ir loads that have no registry entry yet (custom insert or restore, #3383 remaining
 # slices). A table leaves this set when its channel is migrated; a new channel is never added here.
-_UNMIGRATED_IR_TABLES = frozenset(
-    {
-        "job_flow_data",
-        "vsam_define_data",
-    }
-)
+_UNMIGRATED_IR_TABLES: frozenset = frozenset()
 
 
 def _galaxy_ir_source():
@@ -700,3 +792,46 @@ def test_every_channel_table_is_in_the_recorders_readme():
 def test_the_core_readme_points_at_the_registry():
     text = _CORE_README.read_text(encoding="utf-8")
     assert "core/fact_channels.py" in text and "how_to_add_a_fact_channel.md" in text
+
+
+# The recorders and the differential (#3383): their section tables are checked against the registry.
+# A per-file payload key that is deliberately not reported is listed here with its reason.
+_NO_AUDIT_SECTION = {"section_copies"}  # reader-applied COPY ... REPLACING, no standalone report rows yet
+_NO_LLM_LINE = {"section_copies", "entry_points"}  # the brief carries no bullet for these two
+
+
+def _per_file_payload_keys():
+    return {c.payload_key for c in CHANNELS if not c.resolved}
+
+
+def test_every_per_file_channel_has_an_audit_section_or_a_listed_reason():
+    from gitgalaxy.recorders.audit_recorder import AUDIT_SECTIONS
+
+    reported = {s.key for s in AUDIT_SECTIONS}
+    assert _per_file_payload_keys() - reported == _NO_AUDIT_SECTION, "add an AuditSection (or list the reason)"
+
+
+def test_every_per_file_channel_has_an_llm_line_or_a_listed_reason():
+    from gitgalaxy.recorders.llm_recorder import FACT_LINES, FACT_SUMMARIES
+
+    lined = {s.key for s in FACT_LINES}
+    assert _per_file_payload_keys() - lined == _NO_LLM_LINE, "add a FactLine (or list the reason)"
+    assert {s.key for s in FACT_SUMMARIES} <= _per_file_payload_keys()
+
+
+def test_every_recorder_section_names_a_registered_payload_key_or_the_call_graph():
+    from gitgalaxy.recorders.audit_recorder import AUDIT_SECTIONS
+    from gitgalaxy.recorders.llm_recorder import FACT_LINES
+
+    known = {c.payload_key for c in CHANNELS}
+    assert {s.key for s in AUDIT_SECTIONS} - known == set()
+    assert {s.key for s in FACT_LINES} - known == set()
+
+
+def test_the_differential_set_channels_and_the_registry_name_each_other():
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+    import refraction_differential as rd
+
+    compared = [c.differential for c in CHANNELS if c.differential]
+    assert len(compared) == len(set(compared)), "two channels claim one SetChannel"
+    assert set(compared) == {s.language for s in rd.SET_CHANNELS}, "declare `differential=` on the channel"

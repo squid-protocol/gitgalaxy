@@ -30,6 +30,9 @@ from gitgalaxy.tools.cobol_to_java.cobol_to_java_repository_forge import (  # no
     _codec_put,
 )
 
+# a PR's run (equivalence-e2e.yml): `--one-jvm` drops the per-run JVM start; a push and the nightly keep a JVM per run
+ONE_JVM = ["--one-jvm"] if os.environ.get("EQUIVALENCE_E2E_ONE_JVM") == "1" else []
+
 
 def _cobol(*lines: str) -> str:
     return "".join(f"       {line}\n" for line in lines)
@@ -188,7 +191,7 @@ def test_a_step_hands_runbatch_its_parm():
 def test_carddemo_intcalc_is_equivalent_end_to_end(tmp_path):
     import subprocess
 
-    proc = subprocess.run([sys.executable, str(Path(eq.__file__)), "run", "carddemo-intcalc", "--keep",  # noqa: S603
+    proc = subprocess.run([sys.executable, str(Path(eq.__file__)), "run", "carddemo-intcalc", *ONE_JVM, "--keep",  # noqa: S603
                            str(tmp_path)], capture_output=True, text=True, check=False)  # fmt: skip
     assert proc.returncode == 0, proc.stdout[-3000:] + proc.stderr[-3000:]
     report = json.loads((tmp_path / "report.json").read_text())
@@ -206,7 +209,7 @@ def test_carddemo_posttran_is_equivalent_end_to_end(tmp_path):
     error posts against the previous record; an ACCOUNT REWRITE's status is never tested)."""
     import subprocess
 
-    proc = subprocess.run([sys.executable, str(Path(eq.__file__)), "run", "carddemo-posttran", "--keep",  # noqa: S603
+    proc = subprocess.run([sys.executable, str(Path(eq.__file__)), "run", "carddemo-posttran", *ONE_JVM, "--keep",  # noqa: S603
                            str(tmp_path)], capture_output=True, text=True, check=False)  # fmt: skip
     assert proc.returncode == 0, proc.stdout[-3000:] + proc.stderr[-3000:]
     report = json.loads((tmp_path / "report.json").read_text())

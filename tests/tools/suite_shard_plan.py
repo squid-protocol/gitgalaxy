@@ -36,11 +36,11 @@ SMOKE_TARGET_S = 13 * 60
 SMOKE_MAX_PARTS = 6  # this workflow's share of the 20-job pool
 SMOKE_TIMEOUT_FLOOR, SMOKE_TIMEOUT_CEILING = 25, 30  # minutes
 
-# Equivalence E2E: a shard installs, loads the GnuCOBOL image and warms Maven (E2E_SETUP_S), then runs pytest -n 2.
+# Equivalence E2E: a shard installs, loads the GnuCOBOL image and warms Maven (E2E_SETUP_S), then runs pytest -n 4 (one proof per vCPU).
 E2E_DURATIONS = REPO_ROOT / "tests" / "equivalence_e2e_durations.json"
-E2E_SETUP_S = 600
-E2E_JOBS = 2
-E2E_TARGET_S = 20 * 60
+E2E_SETUP_S = 180
+E2E_JOBS = 4
+E2E_TARGET_S = 12 * 60
 E2E_MAX_SHARDS = 4  # this workflow's share of the 20-job pool
 E2E_TIMEOUT_FLOOR, E2E_TIMEOUT_CEILING = 30, 45  # minutes
 

@@ -335,6 +335,13 @@ int GGCGETC(gg_cics *c, char *into) {
     return 0;
 }
 
+/* IBM's MOVE CONTAINER (INVREQ RESP2 30 / 31, CHANNELERR 3), DELETE CHANNEL (CHANNELERR 3) and DELETE CONTAINER (INVREQ 30, CHANNELERR 3) pages name CICS-defined
+ * read-only containers and channels and list none: a name beginning DFH may be one, so the command is refused by name (X42 / X44). */
+static int cics_defined_name(const char *n) {
+    while (*n == ' ') n++;
+    return toupper((unsigned char)n[0]) == 'D' && toupper((unsigned char)n[1]) == 'F' && toupper((unsigned char)n[2]) == 'H';
+}
+
 /* DELETE CONTAINER(GG-QNAME) [CHANNEL]: CHANNELERR RESP2 2, INVREQ RESP2 4, CONTAINERERR RESP2 10. */
 int GGCDELC(gg_cics *c) {
     char name[17];
@@ -342,6 +349,13 @@ int GGCDELC(gg_cics *c) {
     c->resp = NORMAL;
     c->resp2 = 0;
     cics_name(c->qname, name, "container");
+    {
+        char flags[41], cn[17] = "";
+        trim(c->flags, 40, flags);
+        if (strstr(flags, "CHANNEL")) cics_name(c->chan, cn, "channel");
+        if (cics_defined_name(name) || cics_defined_name(cn))
+            refuse("DELETE CONTAINER naming a CICS-defined (DFH...) container or channel: it may be read-only, and IBM lists none (INVREQ RESP2 30, CHANNELERR RESP2 3)");
+    }
     ch = command_channel(c, 0, 4);
     if (!ch) return 0;
     gg_container *k = container_named(&chans[ch - 1], name, 0);
@@ -359,13 +373,6 @@ int GGCDELC(gg_cics *c) {
 
 /* ---- #5005: DELETE CHANNEL and QUERY CHANNEL (IBM CICS TS, EXEC CICS DELETE CHANNEL, QUERY CHANNEL); the same semantics as
  * CicsTask (register X44). The channel's name is GG-CHAN. */
-
-/* IBM's MOVE CONTAINER (INVREQ RESP2 30 / 31, CHANNELERR 3) and DELETE CHANNEL (CHANNELERR 3) pages name CICS-defined
- * read-only containers and channels and list none: a name beginning DFH may be one, so the command is refused by name (X42 / X44). */
-static int cics_defined_name(const char *n) {
-    while (*n == ' ') n++;
-    return toupper((unsigned char)n[0]) == 'D' && toupper((unsigned char)n[1]) == 'F' && toupper((unsigned char)n[2]) == 'H';
-}
 
 /* DELETE CHANNEL: the channel and its containers go from the program's scope; CHANNELERR RESP2 2 for one not in scope. The
  * current channel is refused: IBM's RESP2 4 / 5 / 6 all fit a channel the program was passed, and it ranks none. */

@@ -14,6 +14,9 @@
 #     galaxy_ir `ir_field` that test_fact_channels.py checks against galaxy_ir's SCOPE
 #     comment and loader (checked, not generated). The recipe channel table and
 #     custom-insert channels are not registry-driven yet (#3383 remaining slices).
+#   - The recorders' AUDIT_SECTIONS / FACT_LINES, the differential's SET_CHANNELS and the answer key's
+#     DRAFT_SECTIONS are their own tables; test_fact_channels.py checks each against CHANNELS (payload_key,
+#     `differential`) so a channel without its report sections or comparison fails there.
 #   - A resolved channel (call_site_data, `resolved=True`) is inserted from the engine's repo-wide
 #     list by record_keeper's _insert_resolved_channel; its schema and restore live here too
 #     (transaction_data is the other one).
@@ -64,6 +67,10 @@ class FactChannel:
     # The column holding the owning file's id: `file_id` for a per-file channel, but a resolved
     # channel names its own (`src_file_id` on call_site_data, `file_id` on transaction_data).
     src_column: str = "file_id"
+    # The refraction differential's `SetChannel.language` that compares this channel (#3383), or ""
+    # when none does. test_fact_channels.py checks each names a real SetChannel and that every
+    # SetChannel is claimed by a channel, so a compared channel is declared here, not in a test.
+    differential: str = ""
 
     def select_sql(self, cursor: sqlite3.Cursor, has_table: Callable, has_column: Callable) -> str:
         if callable(self.restore_select):
@@ -529,6 +536,69 @@ _FILE_CONTROL_DDL = """
         """
 
 
+# #3455: IDCAMS DEFINE CLUSTER / ALTERNATEINDEX / PATH in JCL in-stream data (core/file_control.py).
+#   kind          -- CLUSTER | AIX | PATH;  cluster_name as written
+#   organization  -- INDEXED | NUMBERED | NONINDEXED | LINEAR
+#   key_length / key_offset -- KEYS(l o);  record_avg / record_max -- RECORDSIZE
+#   related       -- an AIX's RELATE base, a PATH's PATHENTRY
+#   unique_key / upgrade -- AIX UNIQUEKEY|NONUNIQUEKEY, UPGRADE|NOUPGRADE
+_VSAM_DEFINE_DDL = """
+            CREATE TABLE IF NOT EXISTS vsam_define_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                kind TEXT,
+                cluster_name TEXT,
+                organization TEXT,
+                key_length INTEGER,
+                key_offset INTEGER,
+                record_avg INTEGER,
+                record_max INTEGER,
+                related TEXT,
+                unique_key TEXT,
+                upgrade TEXT,
+                step_name TEXT,
+                line_number INTEGER,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """
+
+
+# #3451: JCL job flow (core/job_flow.py): one row per JOB / EXEC step / DSN DD.
+#   kind          -- JOB | STEP | DD;  job_name on a JOB row
+#   step_ordinal / step_name -- a STEP's 1-based position in its job or PROC
+#   program / proc_name -- EXEC PGM= / EXEC PROC= (or positional)
+#   cond / if_cond -- COND= as written; the enclosing IF conditions (` AND `)
+#   in_proc       -- the PROC a STEP / DD belongs to
+#   dd_name / dsn / disp / generation -- a DD's name (an override's own), DSN
+#                    as written without generation, NEW|OLD|SHR|MOD, +1|0|-1
+_JOB_FLOW_DDL = """
+            CREATE TABLE IF NOT EXISTS job_flow_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                kind TEXT,
+                job_name TEXT,
+                step_ordinal INTEGER,
+                step_name TEXT,
+                program TEXT,
+                proc_name TEXT,
+                cond TEXT,
+                if_cond TEXT,
+                in_proc TEXT,
+                dd_name TEXT,
+                dsn TEXT,
+                disp TEXT,
+                generation TEXT,
+                line_number INTEGER,
+                disp_normal TEXT,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """
+
+
 # #4457: the COPY ... REPLACING statements no record_data entry carries (a COPY after a section header / FD,
 # or before a section's first entry): one row per statement, `replacing` the JSON [[from, to(, LEADING|TRAILING)], ...]
 # as in record_data.copy_replacing, `after_ordinal` the record_data ordinal of the entry above it (NULL when none).
@@ -719,6 +789,35 @@ def _dataset_select(cursor, has_table, has_column):
     )
 
 
+def _job_flow_select(cursor, has_table, has_column):
+    # Each healed column is NULL on a baseline written before it existed (#3622 disp_normal, #3710
+    # runs / runs_via / systsin_member, #3624 parm, #4268 instream and lrecl / recfm).
+    present = has_table(cursor, "job_flow_data")
+
+    def col(probe, *names):
+        if present and has_column(cursor, "job_flow_data", probe):
+            return ", ".join(f"jf.{n}" for n in names)
+        return ", ".join(f"NULL AS {n}" for n in names)
+
+    healed = ", ".join(
+        (
+            col("disp_normal", "disp_normal"),
+            col("runs", "runs", "runs_via", "systsin_member"),
+            col("parm", "parm"),
+            col("instream", "instream"),
+            col("lrecl", "lrecl", "recfm"),
+        )
+    )
+    return (
+        'SELECT fd.file_path AS _fp, jf.kind, jf.job_name AS "name", jf.step_ordinal, jf.step_name, jf.program, '  # noqa: S608 -- healed is built from literals; values are bound
+        'jf.proc_name AS "proc", jf.cond, jf.if_cond, jf.in_proc, jf.dd_name, jf.dsn, jf.disp, jf.generation, '
+        'jf.line_number AS "line", '
+        f"{healed} "
+        "FROM job_flow_data jf JOIN file_data fd ON jf.file_id = fd.id "
+        "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY jf.id"
+    )
+
+
 def _record_select(cursor, has_table, has_column):
     # Aliased to the extractor's own payload key names (level_number ->
     # level, item_name -> name, value_literal -> value). `attributes`
@@ -861,6 +960,7 @@ CHANNELS = (
     # resolution, unlike call_site_data above).
     FactChannel(
         name="dataset",
+        differential="jcl",
         ir_field="datasets",
         table="dataset_data",
         ddl=_DATASET_DDL,
@@ -916,6 +1016,7 @@ CHANNELS = (
     # per-file fact-channel shape as the dataset bindings above.
     FactChannel(
         name="record",
+        differential="pli",
         ir_field="records",
         table="record_data",
         ddl=_RECORD_DDL,
@@ -1015,6 +1116,7 @@ CHANNELS = (
     # name). A pre-#3344 baseline has no table and restores nothing.
     FactChannel(
         name="sql_table",
+        differential="sql_table",
         ir_field="sql_tables",
         table="sql_table_data",
         ddl=_SQL_TABLE_DDL,
@@ -1701,6 +1803,7 @@ CHANNELS = (
     # pre-#3356 baseline has no table and restores nothing.
     FactChannel(
         name="csd_resource",
+        differential="csd_deck",
         ir_field="csd_resources",
         table="csd_resource_data",
         ddl=_CSD_RESOURCE_DDL,
@@ -1774,6 +1877,7 @@ CHANNELS = (
     # keys (field_name -> name, initial_value -> initial).
     FactChannel(
         name="screen_field",
+        differential="bms",
         ir_field="screen_fields",
         table="screen_field_data",
         ddl=_SCREEN_FIELD_DDL,
@@ -1844,6 +1948,7 @@ CHANNELS = (
     # extractor's payload keys. A pre-channel baseline restores nothing.
     FactChannel(
         name="cics_resource",
+        differential="cics",
         ir_field="cics_resources",
         table="cics_resource_data",
         ddl=_CICS_RESOURCE_DDL,
@@ -1911,6 +2016,7 @@ CHANNELS = (
     # #3200: every mainframe call site, resolved or not -- inserted from the engine's resolved list.
     FactChannel(
         name="call_site",
+        differential="commarea",
         ir_field="calls",
         table="call_site_data",
         resolved=True,
@@ -1995,6 +2101,155 @@ CHANNELS = (
             "group": r["_group"],
             "profile": r["profile"],
             "line": int(r["line"] or 0),
+        },
+    ),
+    # #3455: IDCAMS DEFINE CLUSTER / AIX / PATH -- per-file; `name` / `step` are aliased back to the payload keys.
+    FactChannel(
+        name="vsam_define",
+        ir_field="vsam_defines",
+        table="vsam_define_data",
+        ddl=_VSAM_DEFINE_DDL,
+        indexes=(
+            "CREATE INDEX IF NOT EXISTS idx_vsam_define_file_id ON vsam_define_data(file_id);",
+            "CREATE INDEX IF NOT EXISTS idx_vsam_define_name ON vsam_define_data(cluster_name);",
+            "CREATE INDEX IF NOT EXISTS idx_vsam_define_snapshot ON vsam_define_data(repo_name, commit_hash);",
+        ),
+        payload_key="vsam_defines",
+        columns=(
+            "kind",
+            "cluster_name",
+            "organization",
+            "key_length",
+            "key_offset",
+            "record_avg",
+            "record_max",
+            "related",
+            "unique_key",
+            "upgrade",
+            "step_name",
+            "line_number",
+        ),
+        to_row=lambda v: (
+            v.get("kind"),
+            v.get("name"),
+            v.get("organization"),
+            int(v["key_length"]) if v.get("key_length") is not None else None,
+            int(v["key_offset"]) if v.get("key_offset") is not None else None,
+            int(v["record_avg"]) if v.get("record_avg") is not None else None,
+            int(v["record_max"]) if v.get("record_max") is not None else None,
+            v.get("related"),
+            v.get("unique_key"),
+            v.get("upgrade"),
+            v.get("step"),
+            int(v.get("line", 0) or 0),
+        ),
+        restore_select=(
+            'SELECT fd.file_path AS _fp, vd.kind, vd.cluster_name AS "name", vd.organization, vd.key_length, '
+            "vd.key_offset, vd.record_avg, vd.record_max, vd.related, vd.unique_key, vd.upgrade, "
+            'vd.step_name AS "step", vd.line_number AS "line" '
+            "FROM vsam_define_data vd JOIN file_data fd ON vd.file_id = fd.id "
+            "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY vd.id"
+        ),
+        to_payload=lambda r: {
+            "kind": r["kind"],
+            "name": r["name"],
+            "organization": r["organization"],
+            "key_length": int(r["key_length"]) if r["key_length"] is not None else None,
+            "key_offset": int(r["key_offset"]) if r["key_offset"] is not None else None,
+            "record_avg": int(r["record_avg"]) if r["record_avg"] is not None else None,
+            "record_max": int(r["record_max"]) if r["record_max"] is not None else None,
+            "related": r["related"],
+            "unique_key": r["unique_key"],
+            "upgrade": r["upgrade"],
+            "step": r["step"],
+            "line": int(r["line"] or 0),
+        },
+    ),
+    # #3451: JCL job flow -- per-file; the healed columns (#3622 / #3710 / #3624 / #4268) restore only when set.
+    FactChannel(
+        name="job_flow",
+        ir_field="job_flow",
+        table="job_flow_data",
+        ddl=_JOB_FLOW_DDL,
+        extra_columns=(
+            ("disp_normal TEXT",),
+            ("runs TEXT", "runs_via TEXT", "systsin_member TEXT"),
+            ("parm TEXT",),
+            ("instream TEXT",),
+            ("lrecl INTEGER", "recfm TEXT"),
+        ),
+        indexes=(
+            "CREATE INDEX IF NOT EXISTS idx_job_flow_file_id ON job_flow_data(file_id);",
+            "CREATE INDEX IF NOT EXISTS idx_job_flow_dsn ON job_flow_data(dsn);",
+            "CREATE INDEX IF NOT EXISTS idx_job_flow_snapshot ON job_flow_data(repo_name, commit_hash);",
+        ),
+        payload_key="job_flow",
+        columns=(
+            "kind",
+            "job_name",
+            "step_ordinal",
+            "step_name",
+            "program",
+            "proc_name",
+            "cond",
+            "if_cond",
+            "in_proc",
+            "dd_name",
+            "dsn",
+            "disp",
+            "generation",
+            "line_number",
+            "disp_normal",
+            "runs",
+            "runs_via",
+            "systsin_member",
+            "parm",
+            "instream",
+            "lrecl",
+            "recfm",
+        ),
+        to_row=lambda j: (
+            j.get("kind"),
+            j.get("name"),
+            int(j["step_ordinal"]) if j.get("step_ordinal") is not None else None,
+            j.get("step_name"),
+            j.get("program"),
+            j.get("proc"),
+            j.get("cond"),
+            j.get("if_cond"),
+            j.get("in_proc"),
+            j.get("dd_name"),
+            j.get("dsn"),
+            j.get("disp"),
+            j.get("generation"),
+            int(j.get("line", 0) or 0),
+            j.get("disp_normal"),  # #3622
+            j.get("runs"),  # #3710
+            j.get("runs_via"),
+            j.get("systsin_member"),
+            j.get("parm"),  # #3624
+            j.get("instream"),  # #4268
+            j.get("lrecl"),  # #4268
+            j.get("recfm"),
+        ),
+        restore_select=_job_flow_select,
+        to_payload=lambda r: {
+            "kind": r["kind"],
+            "name": r["name"],
+            "step_ordinal": int(r["step_ordinal"]) if r["step_ordinal"] is not None else None,
+            "step_name": r["step_name"],
+            "program": r["program"],
+            "proc": r["proc"],
+            "cond": r["cond"],
+            "if_cond": r["if_cond"],
+            "in_proc": r["in_proc"],
+            "dd_name": r["dd_name"],
+            "dsn": r["dsn"],
+            "disp": r["disp"],
+            "generation": r["generation"],
+            "line": int(r["line"] or 0),
+            **({"disp_normal": r["disp_normal"]} if r["disp_normal"] else {}),
+            **{k: r[k] for k in ("runs", "runs_via", "systsin_member", "parm", "instream", "lrecl", "recfm") if r[k]},
         },
     ),
 )

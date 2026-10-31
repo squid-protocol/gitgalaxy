@@ -803,6 +803,8 @@ def test_a_cics_mqopen_is_a_runtime_call_with_every_item_by_reference():
     ("MQCLOSE", ("HC", "HO", "HALF", "CC", "RC"), "not a fullword BINARY item"),
     ("MQINQ", ("HC", "HO"), "object attributes"),
     ("MQCONN", ("OD", "HC", "CC", "RC"), "batch MQ"),
+    ("MQCONNX", ("OD", "HC", "CC", "RC"), "batch MQ"),
+    ("MQDISC", ("HC", "CC", "RC"), "batch MQ"),
     ("MQCMIT", ("HC", "CC", "RC"), "a unit of work of MQ's own"),
 ])  # fmt: skip
 def test_what_the_runtime_does_not_model_is_a_named_hole(prog, args, why):

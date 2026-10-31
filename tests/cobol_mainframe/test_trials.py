@@ -543,3 +543,61 @@ def test_a_step_on_another_ledger_writes_no_repo_pages(started, tmp_path):
     before = trial.PAGE.read_bytes()
     assert trial.refresh_outputs(trial.load(started["ledger"]), started["ledger"]) == 0
     assert trial.PAGE.read_bytes() == before
+
+
+def _cases(root):
+    def write(name, case, cov=None):
+        (root / name).mkdir(parents=True)
+        (root / name / "case.json").write_text(json.dumps(case), encoding="utf-8")
+        if cov:
+            (root / name / "evidence.json").write_text(json.dumps({"coverage": cov}), encoding="utf-8")
+
+    # generated + shipped + no-input datasets in one case; a big case for C, a small one for B
+    write("caseB", {"scenarios": [{}], "datasets": {"IN": {"input": "@generate", "generate": {"record": "REC-B"}}}},
+          {"paragraphs": {"covered": 3, "live": 4}, "branches": {"covered": 1, "total": 2}})  # fmt: skip
+    write("caseC", {"scenarios": [{}] * 2, "scenario_generate": {"count": 8},
+                    "datasets": {"A": {"input": "a.dat"}, "B": {}}})  # fmt: skip
+
+
+def test_the_page_reports_inputs_coverage_and_sorts_blockers_by_tests_unlocked(tmp_path):
+    _cases(tmp_path)
+    ledger = _synthetic_ledger()
+    t = ledger["trials"][0]
+    t["programs"]["D"]["attempts"] = [
+        {"n": 1, "outcome": "failed", "cause": "engine", "fix_commit": None, "at": "2026-10-25", "model": "m"}
+    ]
+    facts = trial.case_facts({"B": "caseB", "C": "caseC", "ZZ": "missing"}, tmp_path)
+    assert sorted(facts) == ["B", "C"] and facts["B"]["tests"] == 1 and facts["C"]["tests"] == 10
+    blockers = trial.trial_blockers(t, facts)
+    assert [(b["cause"], b["tests_unlocked"]) for b in blockers] == [("generator", 11), ("engine", 0)]
+    page = trial.trial_page(ledger, t, facts=facts)
+    assert "paragraphs 3 of 4 (75%), branches 1 of 2 (50%) exercised, over 1 program" in page
+    assert "| B | caseB | 1 | IN (REC-B) | - | - |" in page
+    assert "| C | caseC | 10 | - | A | B |" in page
+    assert "No equivalence case yet (inputs not measured): A, D." in page
+    assert "unlocks 2 programs, 11 tests" in page
+
+
+def test_a_page_without_cases_is_unchanged(tmp_path):
+    ledger = _synthetic_ledger()
+    t = ledger["trials"][0]
+    assert trial.case_facts(None, tmp_path) == {}
+    page = trial.trial_page(ledger, t, facts={})
+    assert page == trial.trial_page(ledger, t)
+    assert "## Input generation" not in page and "tests)" not in page and "not measured here" in page
+    assert all("tests_unlocked" not in b for b in trial.trial_blockers(t))
+
+
+def test_unlocked_test_count_matches_the_prediction_after_a_fix(tmp_path):
+    _cases(tmp_path)
+    t = _synthetic_ledger()["trials"][0]
+    facts = trial.case_facts({"B": "caseB", "C": "caseC"}, tmp_path)
+    top = trial.trial_blockers(t, facts)[0]
+    proven_tests = sum(facts[k]["tests"] for k in top["programs"] if k in facts)
+    for key in top["programs"]:
+        t["programs"][key]["final"] = "proven@2(generator)"
+        t["programs"][key]["attempts"].append(
+            {"n": 2, "outcome": "proven", "cause": None, "fix_commit": None, "at": "2026-10-26", "model": "m"}
+        )
+    runnable = sum(f["tests"] for k, f in facts.items() if trial.program_state(t["programs"][k])[0] == "proven")
+    assert runnable - 0 == top["tests_unlocked"] == proven_tests

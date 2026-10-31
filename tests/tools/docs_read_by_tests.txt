@@ -28,6 +28,7 @@
 /A.cbl	tests/tools/test_java_target_matrix_scan_cache.py
 /Api.cs	tests/security_auditing
 /B.cbl	tests/cobol_mainframe
+/CATJOB.jcl	tests/cobol_mainframe
 /CMakeLists.txt	tests/core_engine
 /COPYBOOK.CPY	tests/cobol_mainframe
 /CURSOR.cbl	tests/cobol_mainframe
@@ -301,8 +302,11 @@ docs/language_status/cics_spec_status.json	tests/cobol_mainframe,tests/tools/cic
 docs/language_status/cics_spec_status.md	tests/tools/cics_spec_status.py,tests/tools/generated_docs.py,tests/tools/test_generated_branch.py
 docs/language_status/cobol_arith_matrix.md	gitgalaxy
 docs/language_status/cobol_compare_matrix.md	gitgalaxy
+docs/language_status/cobol_editing_matrix.md	gitgalaxy
 docs/language_status/cobol_func_matrix.md	gitgalaxy
+docs/language_status/cobol_hfp_matrix.md	gitgalaxy
 docs/language_status/cobol_move_matrix.md	gitgalaxy
+docs/language_status/cobol_sort_matrix.md	gitgalaxy
 docs/language_status/cobol_string_matrix.md	gitgalaxy
 docs/language_status/cobolrt_rules.json	gitgalaxy,tests/cobol_mainframe,tests/tools/cobolrt_rules.py,tests/tools/progress_report.py,tests/tools/support_matrix.py
 docs/language_status/cobolrt_rules.md	tests/tools/cobolrt_rules.py,tests/tools/generated_docs.py,tests/tools/test_generated_branch.py

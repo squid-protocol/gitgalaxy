@@ -14,9 +14,9 @@ Every cell that does not pass is ledgered in `tests/cics_crucible/baseline.json`
 | forge-compile | 48 | 0 | 0 | 48 |
 | cobol-stub | 139 | 5 | 27 | 171 |
 | java | 0 | 171 | 0 | 171 |
-| java-ported | 56 | 115 | 0 | 171 |
-| java-facade | 53 | 118 | 0 | 171 |
-| **all** | **344** | **409** | **27** | **780** |
+| java-ported | 58 | 113 | 0 | 171 |
+| java-facade | 55 | 116 | 0 | 171 |
+| **all** | **348** | **405** | **27** | **780** |
 
 ## By trap and case
 
@@ -31,7 +31,7 @@ Pass counts per side (scenario sides: passing / scenarios).
 | commarea-mismatch | `ca-container-byteoffset` | pass | pass | 2 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
 | commarea-mismatch | `ca-container-ccsid` | pass | pass | 1 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
 | commarea-mismatch | `ca-get-container-set` | pass | pass | 1 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
-| commarea-mismatch | `ca-getmain-pointer` | pass | pass | 1 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
+| commarea-mismatch | `ca-getmain-pointer` | pass | pass | 1 / 2 | 0 / 2 | 2 / 2 | 2 / 2 |
 | commarea-mismatch | `ca-link-lengths` | pass | pass | 4 / 4 | 0 / 4 | 4 / 4 | 4 / 4 |
 | commarea-mismatch | `ca-load-set` | pass | pass | 0 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
 | commarea-mismatch | `ca-receive-retrieve-set` | pass | pass | 0 / 3 | 0 / 3 | 0 / 3 | 0 / 3 |
@@ -79,8 +79,8 @@ Each cobol-stub scenario runs the COBOL compiled with `-ftraceall` (tests/tools/
 
 | case | program | scenarios | paragraphs | branches | HANDLE labels | dead | port |
 |---|---|---|---|---|---|---|---|
-| `ca-address-twa-tctua` | CATWAD | 3 | 5/5 | 5/7 | 0/0 | 0 | -- |
-| `ca-address-twa-tctua` | CATWSB | 1 | 1/1 | 1/2 | 0/0 | 0 | -- |
+| `ca-address-twa-tctua` | CATWAD | 3 | 5/5 | 5/7 | 0/0 | 0 | proven on 0 scenarios, covering 0/5 paragraphs and 0/7 branches |
+| `ca-address-twa-tctua` | CATWSB | 1 | 1/1 | 1/2 | 0/0 | 0 | proven on 0 scenarios, covering 0/1 paragraphs and 0/2 branches |
 | `ca-channel-containers` | CACHAN | 1 | 3/3 | 0/0 | 0/0 | 0 | proven on 0 scenarios, covering 0/3 paragraphs and 0/0 branches |
 | `ca-channel-containers` | CACHERR | 1 | 2/2 | 0/0 | 0/0 | 0 | proven on 0 scenarios, covering 0/2 paragraphs and 0/0 branches |
 | `ca-channel-containers` | CACHSUB | 1 | 4/4 | 0/0 | 1/1 | 0 | proven on 0 scenarios, covering 0/4 paragraphs and 0/0 branches |
@@ -92,7 +92,7 @@ Each cobol-stub scenario runs the COBOL compiled with `-ftraceall` (tests/tools/
 | `ca-get-container-set` | CAGCST | 0 | 0/2 | 0/0 | 0/0 | 0 | -- |
 | `ca-get-container-set` | CAGCSX | 1 | 2/2 | 0/0 | 0/0 | 0 | proven on 0 scenarios, covering 0/2 paragraphs and 0/0 branches |
 | `ca-getmain-pointer` | CAGMPT | 0 | 0/2 | 0/6 | 0/0 | 0 | -- |
-| `ca-getmain-pointer` | CAGMZ | 1 | 3/3 | 4/4 | 0/0 | 0 | proven on 0 scenarios, covering 0/3 paragraphs and 0/4 branches |
+| `ca-getmain-pointer` | CAGMZ | 1 | 3/3 | 4/4 | 0/0 | 0 | proven on 1 scenario, covering 3/3 paragraphs and 4/4 branches |
 | `ca-link-lengths` | CALINK | 4 | 1/1 | 4/4 | 0/0 | 0 | proven on 4 scenarios, covering 1/1 paragraphs and 4/4 branches |
 | `ca-link-lengths` | CASUB | 3 | 1/1 | 4/4 | 0/0 | 0 | proven on 3 scenarios, covering 1/1 paragraphs and 4/4 branches |
 | `ca-xctl-versions` | CAXA | 3 | 1/1 | 3/3 | 0/0 | 0 | proven on 3 scenarios, covering 1/1 paragraphs and 3/3 branches |
@@ -387,8 +387,8 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | cobol-stub | WRITEQ-TS missing | 4 |
 | cobol-stub | data bytes differ | 1 |
 | java | runTask records no events (the generated stub: PROCEDURE DIVISION not ported) | 171 |
-| java-ported | not ported | 115 |
-| java-facade | not ported | 115 |
+| java-ported | not ported | 113 |
+| java-facade | not ported | 113 |
 | java-facade | RECEIVE expected, other event | 3 |
 
 ## Every cell that does not pass
@@ -456,11 +456,7 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | `ca-get-container-set/set/java-ported` | fail | no port of any of its programs |
 | `ca-getmain-pointer/alloc/cobol-stub` | fail | task 1 (CA0B) event 4: WRITEQ-TS expected, the side recorded no further event |
 | `ca-getmain-pointer/alloc/java` | fail | task 1 (CA0B) event 1: WRITEQ-TS expected, the side recorded no further event |
-| `ca-getmain-pointer/alloc/java-facade` | fail | no port of any of its programs |
-| `ca-getmain-pointer/alloc/java-ported` | fail | no port of any of its programs |
 | `ca-getmain-pointer/zero-length/java` | fail | task 1 (CA0C) event 1: WRITEQ-TS expected, the side recorded no further event |
-| `ca-getmain-pointer/zero-length/java-facade` | fail | no port of any of its programs |
-| `ca-getmain-pointer/zero-length/java-ported` | fail | no port of any of its programs |
 | `ca-link-lengths/long-500/java` | fail | task 1 (CA01) event 1: RECEIVE expected, the side recorded no further event |
 | `ca-link-lengths/no-commarea/java` | fail | task 1 (CA01) event 1: RECEIVE expected, the side recorded no further event |
 | `ca-link-lengths/short-100/java` | fail | task 1 (CA01) event 1: RECEIVE expected, the side recorded no further event |

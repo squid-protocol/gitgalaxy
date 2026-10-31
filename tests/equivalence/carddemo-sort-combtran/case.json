@@ -1,0 +1,32 @@
+{
+  "corpus": "aws-mainframe-modernization-carddemo",
+  "program": "DFSORTST",
+  "program_source": "@case/DFSORTST.cbl",
+  "copy_dirs": [
+    "app/cpy"
+  ],
+  "job": "COMBTRAN",
+  "step": "STEP05R",
+  "parm": null,
+  "clock": "2022/07/18 10:30:15.00",
+  "datasets": {
+    "SORTIN1": {
+      "input": "@case/sortin1.txt",
+      "organization": "sequential",
+      "reclen": 350
+    },
+    "SORTIN2": {
+      "input": "@case/sortin2.txt",
+      "organization": "sequential",
+      "reclen": 350
+    },
+    "SORTOUT": {
+      "organization": "sequential",
+      "reclen": 350,
+      "compare": true,
+      "copybook": "app/cpy/CVTRA05Y.cpy",
+      "record": "TRAN-RECORD"
+    }
+  },
+  "notes": "Job COMBTRAN (app/jcl/COMBTRAN.jcl) step STEP05R, a DFSORT step, not a COBOL program: SORT FIELDS=(TRAN-ID,A) over SYMNAMES TRAN-ID,1,16,CH, with SORTIN two datasets concatenated (TRANSACT.BKUP(0) then SYSTRAN(0)). DFSORTST.cbl is that step lowered by gitgalaxy/tools/cobol_to_java/det/dfsort.py (cobol_program(parse(SYSIN, SYMNAMES), 350, ['SORTIN1', 'SORTIN2']); test_sort_case_4268.py pins the file to that output): the concatenation is the two inputs read in order into the SORT, GnuCOBOL runs it (the oracle), the port is its det translation, and SORTOUT is compared record by record under CVTRA05Y. The lowering is the assumption (register F4, IBM z/OS DFSORT Application Programming Guide SC23-6878): the step has no EQUALS, so equal keys come out in an order DFSORT does not promise and the port stops by name on two equal keys of differing records; the 50 records (the distinct TRAN-CARD-NUM records of carddemo-sort-tranrept's sortin.txt, shuffled with seed 4268) therefore have 50 distinct TRAN-IDs, split 28 and 22 between the two files, each unsorted and interleaved with the other so the output is not the concatenation. The key is CH over digits, where IBM's EBCDIC order and the oracle's byte order agree (collation, #4035). Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."
+}

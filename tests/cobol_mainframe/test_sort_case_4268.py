@@ -62,6 +62,33 @@ def test_the_input_is_the_class_the_case_claims():
     assert {"2022-01-01", "2022-07-06"} <= set(dates), "both boundaries of the INCLUDE are taken"
 
 
+COMB = ROOT / "tests/equivalence/carddemo-sort-combtran"
+
+
+def test_the_concatenated_sortin_case_is_the_dfsort_lowering():
+    """CardDemo COMBTRAN.jcl STEP05R: SORTIN is TRANSACT.BKUP(0) then SYSTRAN(0), sorted on TRAN-ID (1,16,CH)."""
+    want = D.cobol_program(D.parse(" SORT FIELDS=(TRAN-ID,A)\n", "TRAN-ID,1,16,CH\n"), RECLEN, ["SORTIN1", "SORTIN2"])
+    assert (COMB / "DFSORTST.cbl").read_text(encoding="utf-8") == want
+    case = json.loads((COMB / "case.json").read_text(encoding="utf-8"))
+    assert [dd for dd, s in case["datasets"].items() if "input" in s] == ["SORTIN1", "SORTIN2"]
+
+
+def test_the_concatenated_inputs_are_the_class_the_case_claims():
+    ins = []
+    for n in ("1", "2"):
+        data = (COMB / f"sortin{n}.txt").read_bytes()
+        assert data.endswith(b"\n")
+        lines = data[:-1].split(b"\n")
+        assert lines and all(len(r) == RECLEN for r in lines)
+        ins.append([r[:16] for r in lines])
+    a, b = ins
+    assert len(set(a + b)) == len(a + b), "equal keys: DFSORT's order is undefined (no EQUALS)"
+    assert a != sorted(a) and b != sorted(b), "each input must be unsorted"
+    assert min(b) < max(a) and min(a) < max(b), "the files interleave: the output is not their concatenation"
+    assert all(k.isdigit() for k in a + b), "digits: IBM's EBCDIC order and the oracle's byte order agree (#4035)"
+    assert (COMB / "LICENSE").is_file() and (COMB / "NOTICE").is_file()
+
+
 def test_the_case_names_its_files():
     case = json.loads((CASE / "case.json").read_text(encoding="utf-8"))
     for ds in case["datasets"].values():

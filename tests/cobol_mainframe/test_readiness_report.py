@@ -301,3 +301,38 @@ def test_reports_materializes_the_published_report_when_none_is_on_disk(monkeypa
     assert calls == [1]
     assert rr._reports() == tmp_path  # a report is on disk now: nothing more is fetched
     assert calls == [1]
+
+
+CARDDEMO = "aws-mainframe-modernization-carddemo"
+
+
+def test_source_defect_programs_are_named_fix_the_source_first_with_the_ibm_citation():
+    """#5866: CBEXPORT / CBIMPORT, from the registry (the fixture's own source_defects is empty)."""
+    rep = rr.build()
+    held = rep["estates"][CARDDEMO]["fix_source_first"]
+    assert [h["program"].rsplit("/", 1)[-1] for h in held] == ["CBEXPORT.cbl", "CBIMPORT.cbl"]
+    assert all(h["issue"] == "#5866" and "Enterprise COBOL Language Reference" in h["reason"] for h in held)
+    assert all("fix_source_first" not in m for n, m in rep["estates"].items() if n != CARDDEMO)
+    text = rr.render(rep)
+    assert "### Fix the source first" in text and "CBEXPORT.cbl: RECORD KEY names an item" in text
+    assert text.count("### Fix the source first") == 1
+
+
+def test_fix_the_source_first_skips_whole_risen_and_other_kinds():
+    rows = [
+        prog("app/cbl/CBEXPORT.cbl", gaps=("g",)),
+        prog("app/cbl/CBIMPORT.cbl", level="L1", gaps=("g",)),
+        prog("app/cbl/OTHER.cbl", gaps=("g",)),
+    ]
+    assert [h["program"] for h in rr.source_first(CARDDEMO, rows)] == ["app/cbl/CBEXPORT.cbl"]
+    assert rr.source_first(CARDDEMO, [prog("app/cbl/CBEXPORT.cbl")]) == []  # whole: nothing to fix
+    assert rr.source_first("zecs", [prog("ZECS002.asm", gaps=("g",))]) == []  # not_cobol is not a source defect
+    assert rr.source_first("other-estate", rows) == []
+
+
+def test_delta_reports_a_change_in_the_programs_to_fix_at_the_source():
+    new = rr.build([CARDDEMO])
+    old = copy.deepcopy(new)
+    del old["estates"][CARDDEMO]["fix_source_first"]
+    assert rr.delta(old, new)[CARDDEMO]["fix_source_first"] == [0, 2]
+    assert "programs to fix at the source: 0 -> 2" in rr.render(new, old)

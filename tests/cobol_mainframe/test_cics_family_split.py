@@ -694,3 +694,42 @@ def test_an_undefinable_file_name_answers_filenotfound_with_resp2_1():
     # #6839 row I, register X75: IBM's "not defined to CICS" is RESP2 1, as the stub answers it
     assert "return new int[] {12, 1};" in tfl.FAULTS_JAVA
     assert "{12, 0}" not in tfl.FAULTS_JAVA
+
+
+# ---- #7153: equivalence_cics re-exports its families' names lazily, so import order does not matter ------------------
+_TOOLS = Path(__file__).resolve().parents[1] / "tools"
+_FAMILY_MODULES = ("conditions", "containers", "faults", "filecontrol", "taskcontrol", "tempstorage", "web")
+
+
+def test_equivalence_cics_holds_no_import_time_copy_of_a_family_name():
+    import ast
+
+    tree = ast.parse((_TOOLS / "equivalence_cics.py").read_text(encoding="utf-8"))
+    copies = [
+        n.targets[0].id
+        for n in tree.body
+        if isinstance(n, ast.Assign)
+        and isinstance(n.targets[0], ast.Name)
+        and isinstance(n.value, ast.Attribute)
+        and isinstance(n.value.value, ast.Name)
+        and n.value.value.id.startswith("cics_")
+    ]
+    assert copies == []
+
+
+@pytest.mark.parametrize("first", ("cics", *("cics_" + f for f in _FAMILY_MODULES)))
+def test_every_reexported_name_resolves_whichever_module_is_imported_first(first):
+    import subprocess
+
+    code = (
+        f"import sys; sys.path[:0] = [{str(_TOOLS)!r}, {str(ROOT)!r}]\n"
+        f"import equivalence_{first}\n"
+        "import equivalence_cics as ec\n"
+        "for name, fam in ec._FAMILY_NAMES.items():\n"
+        "    assert getattr(ec, name) is getattr(fam, name), name\n"
+        "assert len(ec._FAMILY_NAMES) == 24\n"
+        "try:\n    ec.no_such_name\nexcept AttributeError:\n    pass\n"
+        "else:\n    raise SystemExit('no AttributeError')\n"
+    )
+    r = subprocess.run([sys.executable, "-I", "-c", code], capture_output=True, text=True, timeout=120)
+    assert r.returncode == 0, r.stderr[-800:]

@@ -407,6 +407,49 @@ def test_dfhsrt_rows_are_the_recoverable_abend_codes(operands, expected):
     assert _named(f"         DFHSRT {operands}\n", "SRT") == expected
 
 
+@pytest.mark.parametrize(
+    ("src", "expected"),
+    [
+        # label, lower case, a quoted code and a parenthesised one
+        ("MYSRT    dfhsrt type=system,abcode=('0c1',(0c4)),recover=(yes)\n", ["S0C1", "S0C4"]),
+        # a repeated code is one row, in one statement or across two
+        ("         DFHSRT TYPE=SYSTEM,ABCODE=(0C1,0C1,0C4),RECOVER=YES\n", ["S0C1", "S0C4"]),
+        (
+            "         DFHSRT TYPE=SYSTEM,ABCODE=0C1,RECOVER=YES\n         DFHSRT TYPE=SYSTEM,ABCODE=0C1,RECOVER=YES\n",
+            ["S0C1"],
+        ),
+        # RECOVER=NO takes out what an earlier YES defined in the same table, and a later YES puts it back
+        (
+            "         DFHSRT TYPE=SYSTEM,ABCODE=(0C1,0C4),RECOVER=YES\n         DFHSRT TYPE=SYSTEM,ABCODE=0C1,RECOVER=NO\n",
+            ["S0C4"],
+        ),
+        (
+            "         DFHSRT TYPE=SYSTEM,ABCODE=0C1,RECOVER=NO\n         DFHSRT TYPE=SYSTEM,ABCODE=0C1,RECOVER=YES\n",
+            ["S0C1"],
+        ),
+        # SYSTEM and USER codes are different names: a USER removal leaves the SYSTEM code
+        (
+            "         DFHSRT TYPE=SYSTEM,ABCODE=123,RECOVER=YES\n         DFHSRT TYPE=USER,ABCODE=123,RECOVER=NO\n",
+            ["S123"],
+        ),
+        ("         DFHSRT ABCODE=(0C1),RECOVER=YES\n", []),  # no TYPE names no kind of code
+        ("* DFHSRT TYPE=SYSTEM,ABCODE=(0C1),RECOVER=YES\n", []),  # a comment line
+        (_cont("         DFHSRT TYPE=SYSTEM,ABCODE=(0C1,0C4),", "RECOVER=YES"), ["S0C1", "S0C4"]),
+        ("         DFHSRT TYPE=USER,ABCODE=(0012),RECOVER=YES\n", ["U0012"]),
+    ],
+)
+def test_dfhsrt_effective_table(src, expected):
+    assert _named(src, "SRT") == expected
+
+
+def test_dfhsrt_removal_keeps_the_defining_line():
+    src = (
+        "         DFHSRT TYPE=SYSTEM,ABCODE=(0C1,0C4),RECOVER=YES\n         DFHSRT TYPE=SYSTEM,ABCODE=0C1,RECOVER=NO\n"
+    )
+    ((name, line),) = [(r["name"], r["line"]) for r in _rows(src) if r["resource_type"] == "SRT"]
+    assert (name, line) == ("S0C4", 1)
+
+
 def test_dfhsrt_row_provenance():
     (row,) = _rows("         DFHSRT TYPE=INITIAL,SUFFIX=01\n         DFHSRT TYPE=USER,ABCODE=(9),RECOVER=YES\n")
     assert (row["source"], row["macro_table"], row["line"], row["queue_type"]) == ("MACRO", "DFHSRT01", 2, None)

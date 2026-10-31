@@ -22,7 +22,7 @@
     "tests/equivalence/zecs-zecs001/**"
    ],
    "files": 5,
-   "sha256": "79061f963d9a74afd6e9955b170c156866ab4c8d19d1d9ac8d6a035dd099b891"
+   "sha256": "30731008faaab5681ee59989c7d52c29faea0187987c2183a3a963eb5b9188e1"
   },
   "harness": {
    "paths": [
@@ -227,10 +227,10 @@
    },
    "runtime_sha256": "2e95aa6a2e154fc7484ae5d8606234b3805b29adfb9904a541b19799806537c3"
   },
-  "digest": "4f94e1adf99347eff4a33f3554f72d3e550437cb7585e56ef498984a75d6355b"
+  "digest": "3a6dd2c45808c4292ab9e315bdb1b353a0764fbdc875d396c3e23c3b306316c5"
  },
  "proof": {
-  "at": "2026-10-31T06:57:51Z",
+  "at": "2026-10-31T07:02:49Z",
   "verdict": "proven",
   "source": "det-sweep",
   "runs": 69,
@@ -240,13 +240,13 @@
   "java_failed": false,
   "det_sweep": {
    "ledger": "tests/equivalence/det_sweep_coverage/zecs-zecs001.json",
-   "ledger_sha256": "29cac0a89b4994fb0cae4a432322ed4e4aaa0404bb6666953f284f84a43ce809",
-   "measured_at": "cd6a57a29a642caf1b0d47941a0574e6db401ec8",
+   "ledger_sha256": "025e7ebfba57ca25a771eed3d8cfdcc88b43f011cca29a718c1d505e8027ccc1",
+   "measured_at": "f74f7d12de470c70b471c9987447d9cc686a628d",
    "stale_inputs": [],
    "scenarios": 69
   },
-  "harness_commit": "cd6a57a29a642caf1b0d47941a0574e6db401ec8+uncommitted",
-  "inputs_digest": "4f94e1adf99347eff4a33f3554f72d3e550437cb7585e56ef498984a75d6355b"
+  "harness_commit": "f74f7d12de470c70b471c9987447d9cc686a628d+uncommitted",
+  "inputs_digest": "3a6dd2c45808c4292ab9e315bdb1b353a0764fbdc875d396c3e23c3b306316c5"
  },
  "coverage": {
   "paragraphs": {
@@ -262,8 +262,8 @@
    "covered": null,
    "total": null
   },
-  "source": "det sweep at cd6a57a29a642caf1b0d47941a0574e6db401ec8 (det_coverage_ledger.py)",
-  "inputs_digest": "4f94e1adf99347eff4a33f3554f72d3e550437cb7585e56ef498984a75d6355b"
+  "source": "det sweep at f74f7d12de470c70b471c9987447d9cc686a628d (det_coverage_ledger.py)",
+  "inputs_digest": "3a6dd2c45808c4292ab9e315bdb1b353a0764fbdc875d396c3e23c3b306316c5"
  },
  "reach": null,
  "mutation": null,

@@ -1883,7 +1883,7 @@
     {
       "name": "delete-replicate-aa",
       "commarea": null,
-      "tod": "7B7B7B7B7B7B0708090A0B0C0D0E0F10",
+      "tod": "EDEDEDEDEDED0708090A0B0C0D0E0F10",
       "datasets": {
         "ZECS.ZC01FILE.TEST": {
           "input": "@case/zcfile-ops.bin"
@@ -1932,7 +1932,7 @@
     {
       "name": "delete-replicate-as",
       "commarea": null,
-      "tod": "7C7C7C7C7C7C0708090A0B0C0D0E0F10",
+      "tod": "EEEEEEEEEEEE0708090A0B0C0D0E0F10",
       "datasets": {
         "ZECS.ZC01FILE.TEST": {
           "input": "@case/zcfile-ops.bin"
@@ -1981,7 +1981,7 @@
     {
       "name": "delete-replicate-tx",
       "commarea": null,
-      "tod": "7F7F7F7F7F7F0708090A0B0C0D0E0F10",
+      "tod": "EFEFEFEFEFEF0708090A0B0C0D0E0F10",
       "datasets": {
         "ZECS.ZC01FILE.TEST": {
           "input": "@case/zcfile-ops.bin"

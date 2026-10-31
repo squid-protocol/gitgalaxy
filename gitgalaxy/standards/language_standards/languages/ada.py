@@ -13,7 +13,7 @@ from typing import Any
 from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: compiled on first use
 from gitgalaxy.standards.language_standards.identifiers import ID_CONTINUE, ID_START
 
-from .._shared_patterns import CALLS_OUT_C_STYLE, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import CALLS_OUT_C_STYLE, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT, commented_keyword_statement
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -221,7 +221,18 @@ DEFINITION: dict[str, Any] = {
         # dead_code: commented-out structural code (line_exclusive_dash
         # has exactly one comment style, so no completeness gap per
         # Rule 12).
-        "dead_code": re.compile(r"--[ \t]*(?:procedure|function|if|for|while|begin|end|type|package)\b", re.I),
+        # #7207: a statement's shape (`;`, `(...)`, `:=`, a trailing `then`/`loop`, a bare `begin`, or
+        # `procedure|function|package|type Name is`), not just the keyword; `---` is a doc line.
+        "dead_code": re.compile(
+            commented_keyword_statement(
+                "procedure|function|if|for|while|begin|end|type|package",
+                marker=r"(?<!-)--",
+                extra=r"(?:(?<=if)[^\n]{0,300}?[ \t]then|(?:(?<=for)|(?<=while))[^\n]{0,300}?[ \t]loop)[ \t]*(?m:$)"
+                r"|(?<=begin)[ \t]*(?m:$)"
+                r"|(?:(?<=procedure)|(?<=function)|(?<=package)|(?<=type))[ \t]+[\w.]+[ \t]+is\b",
+            ),
+            re.I | re.M,
+        ),
         # doc: structured doc-comment conventions (GNATdoc-style tags;
         # Ada has no single standardized docstring format).
         "doc": re.compile(

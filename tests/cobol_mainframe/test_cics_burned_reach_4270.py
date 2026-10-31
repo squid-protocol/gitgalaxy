@@ -18,8 +18,8 @@ from gitgalaxy.standards.cics.commands import COMMANDS  # noqa: E402
 REGISTER = ROOT / "docs" / "language_status" / "register"
 # The item's verbs: modelled, or refused by name (the register entry says why and what reopens it).
 MODELLED = ["GET CONTAINER", "PUT CONTAINER", "DELETE CONTAINER", "START", "RETRIEVE", "GETMAIN", "FREEMAIN", "CONVERSE",
-            "ASSIGN", "INQUIRE PROGRAM", "HANDLE ABEND"]  # fmt: skip
-REFUSED = {"LOAD": "X65", "RELEASE": "X65"}
+            "ASSIGN", "INQUIRE PROGRAM", "HANDLE ABEND", "LOAD", "RELEASE"]  # (#6876)  # fmt: skip
+REFUSED: dict[str, str] = {}
 
 
 # Burned-estate commands the spec refuses on purpose: web services are out of scope of #4270 (X65).

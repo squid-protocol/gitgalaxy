@@ -16,7 +16,7 @@ sys.path.insert(0, str(ROOT / "tests" / "tools"))
 from gitgalaxy.standards.cics.commands import COMMANDS  # noqa: E402
 
 # command key -> the words that make a burned issue of it a member of the refused class (None: any use of the command)
-WHOLE_COMMANDS = ("GETMAIN64", "FREEMAIN64", "LOAD")
+WHOLE_COMMANDS = ("GETMAIN64", "FREEMAIN64")
 SET_REFUSED = ("GET64 CONTAINER", "SEND MAP", "RECEIVE MAP", "SEND CONTROL")
 RELATIVE_BYTE = {"RBA", "RRN", "XRBA"}
 
@@ -24,7 +24,6 @@ RELATIVE_BYTE = {"RBA", "RRN", "XRBA"}
 def test_the_refused_members_are_not_modelled_commands_or_options():
     for key in ("GETMAIN64", "FREEMAIN64"):
         assert COMMANDS[key].status == "refused", key
-    assert COMMANDS["LOAD"].status == "engine-only"
     for key in SET_REFUSED:
         assert "SET" in COMMANDS[key].refused and "SET" not in COMMANDS[key].options, key
     for key in ("READ", "READNEXT", "READPREV", "GET CONTAINER"):

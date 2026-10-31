@@ -8,14 +8,14 @@
 # of this project, or at https://polyformproject.org/licenses/noncommercial/1.0.0/
 # ==============================================================================
 """#4270 spec PR 2: program control -- LINK / XCTL / RETURN (#4270 channels: LINK / XCTL CHANNEL), ABEND and HANDLE
-ABEND, and LOAD / RELEASE (engine-only: the translator refuses them whole; cics_command_spec.md section 5).
+ABEND, and LOAD / RELEASE (modelled in #6876: a program image the pointer addresses, never read).
 
 A refused option shows no reason but LINK's SYSID (the reason the old global table gave it)."""
 
 from __future__ import annotations
 
 from gitgalaxy.standards.cics.commands.shared import RESP_OPTIONS, SYSID_REMOTE, ibm
-from gitgalaxy.standards.cics.model import Arg, Command, EngineFacts, Outcome, Refusal, at_most_one
+from gitgalaxy.standards.cics.model import Arg, Command, EngineFacts, Outcome, Refusal, at_most_one, required
 
 _PROGRAM = Arg("name", width=8)
 # "LINK CHANNEL with COMMAREA / LENGTH: one or the other" (det/cics.py Cics.command)
@@ -125,27 +125,30 @@ HANDLE_ABEND = Command(
     outcomes=(Outcome("NORMAL", 0, ""),),
 )
 
-# engine-only (cics_command_spec.md section 5): the engine's LOAD edge waits for PR 8b, after the blind trial
-_LOAD_WHY = "a program or table loaded into storage and addressed by a pointer is not modelled"
+# the engine's LOAD edge waits for PR 8b, after the blind trial; the translator models the program image (#6876, X65)
+_LOAD_WHY = "a loaded program's bytes are not modelled: the pointer addresses a block no program may read"
+_LOAD_HOLD = Refusal("HOLD keeps the program loaded past the task's end: no task outlives this run's", "X65")
 
 LOAD = Command(
     key="LOAD",
     ibm=ibm("EXEC CICS LOAD", "summary-load"),
-    status="engine-only",
+    status="modelled",
     register="X65",
-    why=_LOAD_WHY,
     options={
         "PROGRAM": _PROGRAM,
         "SET": Arg("pointer"),
         "LENGTH": Arg("area_out", width=2, binary=True),
-        "FLENGTH": Arg("area_out", width=4, binary=True),
-        "ENTRY": Arg("pointer"),
-        "HOLD": Arg("flag"),
         **RESP_OPTIONS,
     },
+    refused={
+        "HOLD": _LOAD_HOLD,
+        "ENTRY": Refusal("the entry point address of a loaded program is not modelled: " + _LOAD_WHY, "X65"),
+        "FLENGTH": Refusal("the fullword length form is not modelled: the image is a 256-byte block (X65)", "X65"),
+    },
+    groups=(required("PROGRAM", msg="LOAD without PROGRAM: the program to load"),),
     outcomes=(
         Outcome("NORMAL", 0, ""),
-        Outcome("PGMIDERR", None, "the program is not defined, or cannot be loaded"),
+        Outcome("PGMIDERR", 1, "the program is not defined"),
     ),
     engine=EngineFacts(edge="load", target_option="PROGRAM"),
 )
@@ -153,14 +156,14 @@ LOAD = Command(
 RELEASE = Command(
     key="RELEASE",
     ibm=ibm("EXEC CICS RELEASE", "summary-release"),
-    status="engine-only",
+    status="modelled",
     register="X65",
-    why="releasing a LOADed program or table: " + _LOAD_WHY,
     options={"PROGRAM": _PROGRAM, **RESP_OPTIONS},
+    groups=(required("PROGRAM", msg="RELEASE without PROGRAM: the program to release"),),
     outcomes=(
         Outcome("NORMAL", 0, ""),
-        Outcome("PGMIDERR", None, "the program is not defined"),
-        Outcome("INVREQ", None, "the program was not LOADed by this task (HOLD aside)"),
+        Outcome("PGMIDERR", 1, "the program is not defined"),
+        Outcome("INVREQ", None, "the program was not LOADed by this task (or was released already)"),
     ),
     engine=EngineFacts(edge="load", target_option="PROGRAM"),
 )

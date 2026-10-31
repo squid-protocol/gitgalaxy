@@ -545,6 +545,7 @@ def main(argv: list[str] | None = None) -> int:
         res = json.loads(args.input.read_text(encoding="utf-8"))
     else:
         ap.error("give PROOF_BLOCKERS.json or --survey DIR")
+        raise SystemExit(2)  # ap.error exits; CodeQL cannot see it
     if not roots:  # a PROOF_BLOCKERS.json run still reads the layouts when the corpora are here
         import cics_census as cc
 

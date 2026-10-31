@@ -2258,6 +2258,13 @@ def _read_screens(case: cc.Case) -> dict[str, Screen]:
     return out
 
 
+def _key_ebcdic(rid_hex: str) -> bytes:
+    """A key the stub logged as hex, in the log's CCSID 037. The program's text is ASCII; an X'FF' (HIGH-VALUES) is no
+    text and stays X'FF' on both legs (#6262: a READPREV from the end), where latin-1 would make it X'DF'."""
+    raw = bytes.fromhex(rid_hex)
+    return b"".join(b"\xff" if b == 0xFF else bytes([b]).decode("latin-1").encode(cc.EBCDIC) for b in raw)
+
+
 def _cobol_events(out: Path, program: str, screens: dict[str, Screen] | None = None) -> list[dict[str, Any]]:
     """The stub's events.txt -> events as SPEC 6.2 spells them (runtime bytes kept as RawArea). Each line
     names its issuing program (`pgm=`, #4004); `program` stands in where one does not."""
@@ -2405,7 +2412,7 @@ def _cobol_events(out: Path, program: str, screens: dict[str, Screen] | None = N
             if arg("rba"):  # the RBA browse (#4213) has no Java-leg event: its RIDFLD is a fullword, not a key
                 ev["ridfld"] = cc.Unmodelled("an RBA browse's event")
             elif verb != "ENDBR":
-                ev["ridfld"] = bytes.fromhex(arg("rid")).decode("latin-1").encode(cc.EBCDIC)
+                ev["ridfld"] = _key_ebcdic(arg("rid"))
             if verb == "STARTBR" and not arg("rba"):
                 ev["mode"] = arg("mode")
             if verb in ("READNEXT", "READPREV") and not arg("rba"):
@@ -2419,7 +2426,7 @@ def _cobol_events(out: Path, program: str, screens: dict[str, Screen] | None = N
         elif verb in ("WRITE", "DELETE"):  # #6262: SPEC 6.2 keys only where the command carries them
             ev.update(file=arg("file"), resp=names.get(int(arg("resp") or 0), arg("resp")))
             if re.search(r"\brid=", args):  # a DELETE of the held or the token's record has no RIDFLD
-                ev["ridfld"] = bytes.fromhex(arg("rid")).decode("latin-1").encode(cc.EBCDIC)
+                ev["ridfld"] = _key_ebcdic(arg("rid"))
             if verb == "WRITE":
                 ev["data"] = cc.RawArea(data, "latin-1")
             elif arg("generic"):

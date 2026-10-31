@@ -83,20 +83,20 @@
    "reason": "IMAGE of a record area's initial bytes: every byte of the program's records is written (READ INTO / RELEASE / RETURN / WRITE FROM move whole areas) before any read, and the EIB block is never read in a batch step; the initial value cannot show."
   },
   {
-   "id": "88bce82ecd",
-   "op": "CON",
-   "line": 76,
-   "before": "private final Field f13_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
-   "after": "private final Field f13_EIBTIME = Field.packed(s_DFHEIBLK, 0, 8, 0, true);",
-   "verdict": "unreachable",
-   "reason": "an EIB field accessor: a batch step has no EIB and the program names none of them."
-  },
-  {
    "id": "3dad14f93e",
    "op": "CON",
    "line": 76,
    "before": "private final Field f13_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
    "after": "private final Field f13_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 1, true);",
+   "verdict": "unreachable",
+   "reason": "an EIB field accessor: a batch step has no EIB and the program names none of them."
+  },
+  {
+   "id": "88bce82ecd",
+   "op": "CON",
+   "line": 76,
+   "before": "private final Field f13_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+   "after": "private final Field f13_EIBTIME = Field.packed(s_DFHEIBLK, 0, 8, 0, true);",
    "verdict": "unreachable",
    "reason": "an EIB field accessor: a batch step has no EIB and the program names none of them."
   },
@@ -119,6 +119,15 @@
    "reason": "abended() ends a CICS task by ABEND; a batch step issues no EXEC CICS, so nothing abends it."
   },
   {
+   "id": "7bfb8fab83",
+   "op": "CON",
+   "line": 95,
+   "before": "if (task.level() > 1) {",
+   "after": "if (task.level() > 2) {",
+   "verdict": "unreachable",
+   "reason": "abended() ends a CICS task by ABEND; a batch step issues no EXEC CICS, so nothing abends it."
+  },
+  {
    "id": "88868d9a87",
    "op": "ROR",
    "line": 95,
@@ -133,15 +142,6 @@
    "line": 95,
    "before": "if (task.level() > 1) {",
    "after": "if (task.level() <= 1) {",
-   "verdict": "unreachable",
-   "reason": "abended() ends a CICS task by ABEND; a batch step issues no EXEC CICS, so nothing abends it."
-  },
-  {
-   "id": "7bfb8fab83",
-   "op": "CON",
-   "line": 95,
-   "before": "if (task.level() > 1) {",
-   "after": "if (task.level() > 2) {",
    "verdict": "unreachable",
    "reason": "abended() ends a CICS task by ABEND; a batch step issues no EXEC CICS, so nothing abends it."
   },
@@ -164,20 +164,20 @@
    "reason": "the CICS file-store lookup (EXEC CICS file commands) and its paragraph-name table for HANDLE labels; the program has no EXEC CICS, so neither is called."
   },
   {
-   "id": "ff03be29c0",
-   "op": "LIT",
-   "line": 106,
-   "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
-   "after": "throw new Hole(\"XICS file \" + name + \": the program names no file the generated project stores\");",
-   "verdict": "unreachable",
-   "reason": "the CICS file-store lookup (EXEC CICS file commands) and its paragraph-name table for HANDLE labels; the program has no EXEC CICS, so neither is called."
-  },
-  {
    "id": "24e0c2159b",
    "op": "LIT",
    "line": 106,
    "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
    "after": "throw new Hole(\"CICS file \" + name + \"X the program names no file the generated project stores\");",
+   "verdict": "unreachable",
+   "reason": "the CICS file-store lookup (EXEC CICS file commands) and its paragraph-name table for HANDLE labels; the program has no EXEC CICS, so neither is called."
+  },
+  {
+   "id": "ff03be29c0",
+   "op": "LIT",
+   "line": 106,
+   "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
+   "after": "throw new Hole(\"XICS file \" + name + \": the program names no file the generated project stores\");",
    "verdict": "unreachable",
    "reason": "the CICS file-store lookup (EXEC CICS file commands) and its paragraph-name table for HANDLE labels; the program has no EXEC CICS, so neither is called."
   },
@@ -245,20 +245,20 @@
    "reason": "HANDLE CONDITION / label dispatch for EXEC CICS; the program has none, so condition() and paragraph() are never called."
   },
   {
-   "id": "6246a0d457",
-   "op": "NEG",
-   "line": 130,
-   "before": "if (h != null) {",
-   "after": "if (!(h != null)) {",
-   "verdict": "unreachable",
-   "reason": "HANDLE CONDITION / label dispatch for EXEC CICS; the program has none, so condition() and paragraph() are never called."
-  },
-  {
    "id": "321de0a848",
    "op": "ROR",
    "line": 130,
    "before": "if (h != null) {",
    "after": "if (h == null) {",
+   "verdict": "unreachable",
+   "reason": "HANDLE CONDITION / label dispatch for EXEC CICS; the program has none, so condition() and paragraph() are never called."
+  },
+  {
+   "id": "6246a0d457",
+   "op": "NEG",
+   "line": 130,
+   "before": "if (h != null) {",
+   "after": "if (!(h != null)) {",
    "verdict": "unreachable",
    "reason": "HANDLE CONDITION / label dispatch for EXEC CICS; the program has none, so condition() and paragraph() are never called."
   },
@@ -308,20 +308,20 @@
    "reason": "HANDLE CONDITION / label dispatch for EXEC CICS; the program has none, so condition() and paragraph() are never called."
   },
   {
-   "id": "6566823eae",
-   "op": "NEG",
-   "line": 141,
-   "before": "if (label == null) {",
-   "after": "if (!(label == null)) {",
-   "verdict": "unreachable",
-   "reason": "HANDLE CONDITION / label dispatch for EXEC CICS; the program has none, so condition() and paragraph() are never called."
-  },
-  {
    "id": "1fc494b438",
    "op": "ROR",
    "line": 141,
    "before": "if (label == null) {",
    "after": "if (label != null) {",
+   "verdict": "unreachable",
+   "reason": "HANDLE CONDITION / label dispatch for EXEC CICS; the program has none, so condition() and paragraph() are never called."
+  },
+  {
+   "id": "6566823eae",
+   "op": "NEG",
+   "line": 141,
+   "before": "if (label == null) {",
+   "after": "if (!(label == null)) {",
    "verdict": "unreachable",
    "reason": "HANDLE CONDITION / label dispatch for EXEC CICS; the program has none, so condition() and paragraph() are never called."
   },
@@ -488,15 +488,6 @@
    "reason": "suppresses the stack trace of an exception used as control flow; nothing shows it."
   },
   {
-   "id": "fc0bd1a39b",
-   "op": "DEL",
-   "line": 298,
-   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
-   "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */",
-   "verdict": "unreachable",
-   "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (or a depth of 64): each paragraph here is PERFORMed alone (from == thru) or ends in GOBACK, and the program has no GO TO."
-  },
-  {
    "id": "27ed76ca5b",
    "op": "AOR",
    "line": 298,
@@ -515,29 +506,11 @@
    "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (or a depth of 64): each paragraph here is PERFORMed alone (from == thru) or ends in GOBACK, and the program has no GO TO."
   },
   {
-   "id": "7f5cbaa3ac",
-   "op": "AOR",
-   "line": 311,
-   "before": "for (int d = mine - 1; d >= 0; d--) {",
-   "after": "for (int d = mine + 1; d >= 0; d--) {",
-   "verdict": "unreachable",
-   "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (or a depth of 64): each paragraph here is PERFORMed alone (from == thru) or ends in GOBACK, and the program has no GO TO."
-  },
-  {
-   "id": "674344ca89",
-   "op": "CON",
-   "line": 311,
-   "before": "for (int d = mine - 1; d >= 0; d--) {",
-   "after": "for (int d = mine - 2; d >= 0; d--) {",
-   "verdict": "unreachable",
-   "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (or a depth of 64): each paragraph here is PERFORMed alone (from == thru) or ends in GOBACK, and the program has no GO TO."
-  },
-  {
-   "id": "5f621546d5",
-   "op": "ROR",
-   "line": 311,
-   "before": "for (int d = mine - 1; d >= 0; d--) {",
-   "after": "for (int d = mine - 1; d > 0; d--) {",
+   "id": "fc0bd1a39b",
+   "op": "DEL",
+   "line": 298,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */",
    "verdict": "unreachable",
    "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (or a depth of 64): each paragraph here is PERFORMed alone (from == thru) or ends in GOBACK, and the program has no GO TO."
   },
@@ -551,15 +524,6 @@
    "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (or a depth of 64): each paragraph here is PERFORMed alone (from == thru) or ends in GOBACK, and the program has no GO TO."
   },
   {
-   "id": "f8dc8f4b2d",
-   "op": "CON",
-   "line": 311,
-   "before": "for (int d = mine - 1; d >= 0; d--) {",
-   "after": "for (int d = mine - 1; d >= 1; d--) {",
-   "verdict": "unreachable",
-   "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (or a depth of 64): each paragraph here is PERFORMed alone (from == thru) or ends in GOBACK, and the program has no GO TO."
-  },
-  {
    "id": "495f801f09",
    "op": "AOR",
    "line": 311,
@@ -569,11 +533,38 @@
    "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (or a depth of 64): each paragraph here is PERFORMed alone (from == thru) or ends in GOBACK, and the program has no GO TO."
   },
   {
-   "id": "c2d393ac4b",
-   "op": "NEG",
-   "line": 312,
-   "before": "if (performThru[d] == i) {",
-   "after": "if (!(performThru[d] == i)) {",
+   "id": "5f621546d5",
+   "op": "ROR",
+   "line": 311,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d > 0; d--) {",
+   "verdict": "unreachable",
+   "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (or a depth of 64): each paragraph here is PERFORMed alone (from == thru) or ends in GOBACK, and the program has no GO TO."
+  },
+  {
+   "id": "674344ca89",
+   "op": "CON",
+   "line": 311,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 2; d >= 0; d--) {",
+   "verdict": "unreachable",
+   "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (or a depth of 64): each paragraph here is PERFORMed alone (from == thru) or ends in GOBACK, and the program has no GO TO."
+  },
+  {
+   "id": "7f5cbaa3ac",
+   "op": "AOR",
+   "line": 311,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine + 1; d >= 0; d--) {",
+   "verdict": "unreachable",
+   "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (or a depth of 64): each paragraph here is PERFORMed alone (from == thru) or ends in GOBACK, and the program has no GO TO."
+  },
+  {
+   "id": "f8dc8f4b2d",
+   "op": "CON",
+   "line": 311,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d >= 1; d--) {",
    "verdict": "unreachable",
    "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (or a depth of 64): each paragraph here is PERFORMed alone (from == thru) or ends in GOBACK, and the program has no GO TO."
   },
@@ -587,6 +578,15 @@
    "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (or a depth of 64): each paragraph here is PERFORMed alone (from == thru) or ends in GOBACK, and the program has no GO TO."
   },
   {
+   "id": "c2d393ac4b",
+   "op": "NEG",
+   "line": 312,
+   "before": "if (performThru[d] == i) {",
+   "after": "if (!(performThru[d] == i)) {",
+   "verdict": "unreachable",
+   "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (or a depth of 64): each paragraph here is PERFORMed alone (from == thru) or ends in GOBACK, and the program has no GO TO."
+  },
+  {
    "id": "2c995bc660",
    "op": "NEG",
    "line": 317,
@@ -596,20 +596,20 @@
    "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (or a depth of 64): each paragraph here is PERFORMed alone (from == thru) or ends in GOBACK, and the program has no GO TO."
   },
   {
-   "id": "dcd68fa69d",
-   "op": "ROR",
-   "line": 317,
-   "before": "if (next >= 3) {",
-   "after": "if (next < 3) {",
-   "verdict": "unreachable",
-   "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (or a depth of 64): each paragraph here is PERFORMed alone (from == thru) or ends in GOBACK, and the program has no GO TO."
-  },
-  {
    "id": "b0d650ecea",
    "op": "ROR",
    "line": 317,
    "before": "if (next >= 3) {",
    "after": "if (next > 3) {",
+   "verdict": "unreachable",
+   "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (or a depth of 64): each paragraph here is PERFORMed alone (from == thru) or ends in GOBACK, and the program has no GO TO."
+  },
+  {
+   "id": "dcd68fa69d",
+   "op": "ROR",
+   "line": 317,
+   "before": "if (next >= 3) {",
+   "after": "if (next < 3) {",
    "verdict": "unreachable",
    "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (or a depth of 64): each paragraph here is PERFORMed alone (from == thru) or ends in GOBACK, and the program has no GO TO."
   },
@@ -713,6 +713,15 @@
    "reason": "the message of a RETURN outside an output procedure (sort_S_FILE is set); the program RETURNs only inside WRITE-ALL."
   },
   {
+   "id": "9eeae207f2",
+   "op": "LIT",
+   "line": 373,
+   "before": "if (!st3.startsWith(\"0\")) throw new Hole(\"WRITE O-FILE: FILE STATUS \" + st3 + \" with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)\");",
+   "after": "if (!st3.startsWith(\"0\")) throw new Hole(\"WRITE O-FILE: FILE STATUS \" + st3 + \"Xwith no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)\");",
+   "verdict": "unreachable",
+   "reason": "the text of a Hole message for a failed READ/WRITE on a file with no FILE STATUS (#4268): the case reaches no non-zero status there, so the message is never built (a by-name stop whose wording nothing compares)."
+  },
+  {
    "id": "5b9fb50f56",
    "op": "LIT",
    "line": 385,
@@ -720,6 +729,15 @@
    "after": "f7_W_EOF = \"X\";",
    "verdict": "equivalent",
    "reason": "W-EOF is only ever compared with 'Y' ('N' and 'X' both mean not at end)."
+  },
+  {
+   "id": "0d00541629",
+   "op": "LIT",
+   "line": 391,
+   "before": "if (!st6.startsWith(\"0\") && !st6.equals(\"10\")) throw new Hole(\"READ I1-FILE: FILE STATUS \" + st6 + \" with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)\");",
+   "after": "if (!st6.startsWith(\"0\") && !st6.equals(\"10\")) throw new Hole(\"READ I1-FILE: FILE STATUS \" + st6 + \"Xwith no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)\");",
+   "verdict": "unreachable",
+   "reason": "the text of a Hole message for a failed READ/WRITE on a file with no FILE STATUS (#4268): the case reaches no non-zero status there, so the message is never built (a by-name stop whose wording nothing compares)."
   }
  ]
 }

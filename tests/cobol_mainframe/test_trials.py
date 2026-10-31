@@ -677,3 +677,54 @@ def test_preview_reads_proof_blockers(started, tmp_path):
     rc = trial.main([*started["common"], "preview", "tiny-estate", "--estate-path", str(started["estate"]),
                      "--work", str(tmp_path / "w"), "--page", str(page), "--proof-blockers", str(pb)])  # fmt: skip
     assert rc == 0 and "COPY MYBOOK" in page.read_text(encoding="utf-8")
+
+
+# ---- #4493 Done-when 4: a committed trial's page carries what a rehearsal page does ---------
+def _harness_error(e):  # the frozen-system error also names `harness_commit`
+    return "harness." in e or "harness holds" in e
+
+
+def _harnessed(tmp_path):
+    _cases(tmp_path)
+    ledger = _synthetic_ledger()
+    pb = tmp_path / "pb.json"
+    pb.write_text(json.dumps(_untranslated_res()), encoding="utf-8")
+    trial.attach_harness(ledger["trials"][0], {"B": "caseB", "C": "caseC"}, pb)
+    return ledger
+
+
+def test_a_committed_trial_page_carries_inputs_coverage_and_untranslated_programs(tmp_path):
+    ledger = _harnessed(tmp_path)
+    assert not any(_harness_error(e) for e in trial.validate(ledger))
+    page = trial.trial_pages(ledger, tmp_path)["fresh-1.md"]
+    assert "paragraphs 3 of 4 (75%), branches 1 of 2 (50%) exercised" in page
+    assert "| B | caseB | 1 | IN (REC-B) | - | - |" in page
+    assert "## Programs with no translation yet" in page and "a/NOSTUB.cbl" in page
+    assert "a/OTHER.cbl" not in page  # a non-burned program is never named
+    assert "unlocks 2 programs, 11 tests" in page  # blockers sorted by tests unlocked
+
+
+def test_a_trial_without_a_harness_block_renders_the_ledger_only_page(tmp_path):
+    ledger = _synthetic_ledger()
+    assert "harness" not in ledger["trials"][0]
+    assert trial.trial_pages(ledger, tmp_path)["fresh-1.md"] == trial.trial_page(ledger, ledger["trials"][0])
+    trial.attach_harness(ledger["trials"][0], {}, None)
+    assert "harness" not in ledger["trials"][0]  # added only when non-empty
+
+
+def test_the_harness_block_is_validated():
+    ledger = _synthetic_ledger()
+    t = ledger["trials"][0]
+    for bad in ({}, {"cases": {"ZZ": "c"}}, {"cases": {"B": ""}}, {"untranslated": [{"fix": "x"}]}, {"other": 1}):
+        t["harness"] = bad
+        assert any(_harness_error(e) for e in trial.validate(ledger)), bad
+    t["harness"] = {"cases": {"B": "caseB"}}
+    assert not any(_harness_error(e) for e in trial.validate(ledger))
+
+
+def test_a_case_edit_makes_the_committed_page_stale(tmp_path):
+    ledger = _harnessed(tmp_path)
+    case = tmp_path / "caseB" / "case.json"
+    before = trial.trial_pages(ledger, tmp_path)["fresh-1.md"]
+    case.write_text(json.dumps({"scenarios": [{}] * 3}), encoding="utf-8")
+    assert trial.trial_pages(ledger, tmp_path)["fresh-1.md"] != before

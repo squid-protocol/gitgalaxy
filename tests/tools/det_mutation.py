@@ -541,9 +541,8 @@ def fresh_mutants(entry: dict[str, Any], every: set[str]) -> list[str] | None:
     fresh = sorted(every - known)
     if not known or len(fresh) > max(FRESH_FLOOR, FRESH_SHARE * len(every)):
         return None
-    rate = (
-        entry["chosen"] / entry["mutants"]
-    )  # a sampled entry samples its new mutants too (ids are hashes: repeatable)
+    # a sampled entry samples its new mutants too (ids are hashes: repeatable)
+    rate = entry["chosen"] / entry["mutants"]
     return fresh if rate >= 1 else [i for i in fresh if int(i, 16) < rate * 16 ** len(i)]
 
 

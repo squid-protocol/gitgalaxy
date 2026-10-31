@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[2]
 EQ = ROOT / "tests" / "equivalence"
 
 # Net uncovered branches per evidence-backed case: (line, outcome) left after the stated infeasible entries.
-OPEN_ARMS = {"carddemo-cbpaup0c": set(), "carddemo-dateutil": {(128, "OTHER")}}
+OPEN_ARMS = {"carddemo-cbpaup0c": set(), "carddemo-dateutil": set()}
 # The det sweep's ledger: fully covered, nothing to diagnose.
 FULL = {"carddemo-coacct01": (13, 33), "carddemo-codate01": (13, 28)}
 

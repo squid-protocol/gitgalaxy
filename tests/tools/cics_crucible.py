@@ -1723,12 +1723,15 @@ def java_plan(case: cc.Case, src: Path) -> dict[str, Any]:
 
 
 def area_env(case: cc.Case, transid: str, ts: str) -> str:
-    """#5079 slice 2b (X59): the stub's TWA / TCTUA sizes from the CSD, only when stated; the TCTUA's bytes persist in a file
-    beside the scenario's TS dir, which the next task on the terminal reads."""
+    """#5079 slice 2b (X59): the stub's TWA / TCTUA sizes from the CSD and the CWA's (SIT WRKAREA, case data), only when stated;
+    the TCTUA's and the CWA's bytes persist in a file beside the scenario's TS dir, which the next task reads."""
     twa = (case.csd.get("twasize") or {}).get(transid)
     ua = (case.csd.get("userarealen") or {}).get(case.data["terminal"])
-    return (f"GGCICS_TWASIZE={twa} " if twa else "") + (
-        f"GGCICS_USERAREALEN={ua} GGCICS_TCTUA=/work/{ts}.tctua " if ua else ""
+    wrk = case.data.get("wrkarea")
+    return (
+        (f"GGCICS_TWASIZE={twa} " if twa else "")
+        + (f"GGCICS_WRKAREA={wrk} GGCICS_CWA=/work/{ts}.cwa " if wrk else "")
+        + (f"GGCICS_USERAREALEN={ua} GGCICS_TCTUA=/work/{ts}.tctua " if ua else "")
     )
 
 

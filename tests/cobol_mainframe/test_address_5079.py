@@ -195,19 +195,21 @@ def _ec():
 @pytest.mark.parametrize(
     ("options", "areas"),
     [
+        ("CWA(P)", ["CWA"]),
         ("TWA(P)", ["TWA"]),
         ("TCTUA(P)", ["TCTUA"]),
         ("TWA(P) TCTUA(Q)", ["TWA", "TCTUA"]),
-        ("EIB(E) COMMAREA(C) TWA(P) TCTUA(Q)", ["TWA", "TCTUA"]),
+        ("TCTUA(Q) TWA(P) CWA(R)", ["CWA", "TWA", "TCTUA"]),
+        ("EIB(E) COMMAREA(C) CWA(R) TWA(P) TCTUA(Q)", ["CWA", "TWA", "TCTUA"]),
     ],
 )
 def test_the_harness_names_the_system_area_to_the_stub_in_option_order(options, areas):
-    """#5079 slice 2b (X59): TWA / TCTUA reach GGCADDR as a GG-FLAGS name, after EIB and COMMAREA, one call each."""
+    """#5079 slice 2b (X59): CWA / TWA / TCTUA reach GGCADDR as a GG-FLAGS name, after EIB and COMMAREA, one call each."""
     out = _ec().translate_command(f"ADDRESS {options} NOHANDLE")
     names = [
         ln.split("'")[1]
         for ln in out
-        if ln.startswith("MOVE '") and "TO GG-FLAGS" in ln and ln.split("'")[1] in ("TWA", "TCTUA")
+        if ln.startswith("MOVE '") and "TO GG-FLAGS" in ln and ln.split("'")[1] in ("CWA", "TWA", "TCTUA")
     ]
     assert names == areas
     assert sum(ln.strip() == "CALL 'GGCADDR' USING GG-CICS" for ln in out) >= len(areas)
@@ -227,7 +229,6 @@ def test_the_harness_calls_the_stubs_entry_point_for_the_eib_and_the_commarea():
 @pytest.mark.parametrize(
     "text",
     [
-        "ADDRESS CWA(P)",
         "ADDRESS ACEE(P)",
         "ADDRESS SET(P)",
         "ADDRESS NOHANDLE",
@@ -277,6 +278,57 @@ int main(int argc, char **argv) {
     return 0;
 }
 """
+
+
+_CWA_MAIN = r"""
+#include <stdio.h>
+#include <string.h>
+typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
+                 char qname[16]; int item; int num; int go_to; char chan[16]; int hours, mins, secs;
+                 char rtran[4], rterm[4], rqueue[8]; char as[16], tochan[16]; } gg_cics;
+int GGCADDR(gg_cics *c, void **slot, void *area);
+static gg_cics c;
+int main(int argc, char **argv) {
+    void *p = NULL, *q = NULL;
+    unsigned char *b;
+    memset(&c, 0, sizeof c);
+    memset(c.flags, ' ', 40);
+    memcpy(c.flags, "CWA", 3);
+    GGCADDR(&c, &p, NULL);
+    GGCADDR(&c, &q, NULL);
+    printf("%d/%d same %d\n", c.resp, c.resp2, p == q);
+    if ((size_t)p == 0xFF) { printf("null\n"); return 0; }
+    b = (unsigned char *)p;
+    printf("first %d size-ok %d\n", b[0], b[7]);
+    if (argc > 1) { b[0] = (unsigned char)atoi(argv[1]); b[7] = 9; }
+    return 0;
+}
+"""
+
+
+@R.needs_cc
+def test_the_stub_gives_the_cwa_its_wrkarea_bytes_for_the_region_and_null_when_unstated(tmp_path):
+    """#5079 slice 2b (X59): GGCADDR CWA is a zeroed block of $GGCICS_WRKAREA bytes, the same one on every ADDRESS, kept in
+    $GGCICS_CWA so the next task of the region sees what the last wrote; no stated size (unset, 0) is IBM's X'FF000000'."""
+    exe = R._stub(tmp_path, "#include <stdlib.h>\n" + _CWA_MAIN)
+    work = tmp_path / "w"
+    out = work / "out"
+    out.mkdir(parents=True)
+    base = {**R._stub_base_env(), "GGCICS_DIR": str(work), "GGCICS_OUT": str(out)}
+    keep = tmp_path / "region.cwa"
+
+    def run(extra, *argv):
+        r = subprocess.run([str(exe), *argv], env={**base, **extra}, capture_output=True, text=True, check=False)  # noqa: S603
+        assert r.returncode == 0, (r.stdout, r.stderr)
+        return r.stdout.splitlines()
+
+    assert run({}) == ["0/0 same 1", "null"]
+    assert run({"GGCICS_WRKAREA": "0", "GGCICS_CWA": str(keep)}) == ["0/0 same 1", "null"]
+    assert run({"GGCICS_WRKAREA": "8"}) == ["0/0 same 1", "null"]  # no file to keep it in: no region area
+    stated = {"GGCICS_WRKAREA": "8", "GGCICS_CWA": str(keep)}
+    assert run(stated, "5") == ["0/0 same 1", "first 0 size-ok 0"]
+    assert keep.read_bytes() == bytes([5, 0, 0, 0, 0, 0, 0, 9])
+    assert run(stated) == ["0/0 same 1", "first 5 size-ok 9"]
 
 
 @R.needs_cc

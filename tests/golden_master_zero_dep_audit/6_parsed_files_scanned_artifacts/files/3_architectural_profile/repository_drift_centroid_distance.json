@@ -1164,13 +1164,13 @@
       "csharp/SOURCES.md": 0.0
     },
     "csharp/roslyn": {
-      "csharp/roslyn/CSharpCompilation.cs": 8.204,
-      "csharp/roslyn/CSharpSyntaxTree.cs": 7.837,
+      "csharp/roslyn/CSharpCompilation.cs": 8.202,
+      "csharp/roslyn/CSharpSyntaxTree.cs": 7.831,
       "csharp/roslyn/DiagnosticAnalyzer.cs": 7.607,
-      "csharp/roslyn/LanguageParser.cs": 7.303,
+      "csharp/roslyn/LanguageParser.cs": 7.296,
       "csharp/roslyn/License.txt": 0.0,
-      "csharp/roslyn/MethodCompiler.cs": 7.126,
-      "csharp/roslyn/Workspace.cs": 7.584
+      "csharp/roslyn/MethodCompiler.cs": 7.127,
+      "csharp/roslyn/Workspace.cs": 7.583
     },
     "css": {
       "css/SOURCES.md": 0.0
@@ -1933,13 +1933,13 @@
     },
     "javascript/jquery": {
       "javascript/jquery/LICENSE.txt": 0.0,
-      "javascript/jquery/ajax.js": 7.252,
+      "javascript/jquery/ajax.js": 7.251,
       "javascript/jquery/buildFragment.js": 3.965,
-      "javascript/jquery/core.js": 8.228,
+      "javascript/jquery/core.js": 8.225,
       "javascript/jquery/css.js": 7.635,
       "javascript/jquery/deferred.js": 8.626,
       "javascript/jquery/event.js": 7.928,
-      "javascript/jquery/tokenize.js": 4.094
+      "javascript/jquery/tokenize.js": 4.02
     },
     "javascript/node_tls_security_tests": {
       "javascript/node_tls_security_tests/regexp-unicode-sets.js": 6.628,
@@ -1952,8 +1952,8 @@
     },
     "javascript/react": {
       "javascript/react/BabelPlugin.ts": 7.259,
-      "javascript/react/ReactFiberBeginWork.js": 5.631,
-      "javascript/react/ReactFiberWorkLoop.js": 7.146,
+      "javascript/react/ReactFiberBeginWork.js": 5.632,
+      "javascript/react/ReactFiberWorkLoop.js": 7.147,
       "javascript/react/ReactFlightServer.js": 8.813,
       "javascript/react/ReactSymbols.js": 6.813,
       "javascript/react/build.js": 5.827
@@ -1964,8 +1964,8 @@
     "javascript/threejs": {
       "javascript/threejs/BufferGeometry.js": 5.477,
       "javascript/threejs/Editor.js": 7.212,
-      "javascript/threejs/GLTFLoader.js": 6.365,
-      "javascript/threejs/Matrix4.js": 5.183,
+      "javascript/threejs/GLTFLoader.js": 6.366,
+      "javascript/threejs/Matrix4.js": 5.184,
       "javascript/threejs/Nodes.js": 6.469,
       "javascript/threejs/WebGLProgram.js": 7.639,
       "javascript/threejs/WebGLRenderer.js": 8.918
@@ -3212,10 +3212,10 @@
     "rust/bevy": {
       "rust/bevy/LICENSE-APACHE": 0.0,
       "rust/bevy/LICENSE-MIT": 0.0,
-      "rust/bevy/bevy_ecs_macros.rs": 8.622,
+      "rust/bevy/bevy_ecs_macros.rs": 8.598,
       "rust/bevy/bevy_ecs_query.rs": 7.52,
       "rust/bevy/bevy_ecs_table.rs": 6.604,
-      "rust/bevy/bevy_ecs_world.rs": 8.274,
+      "rust/bevy/bevy_ecs_world.rs": 7.923,
       "rust/bevy/bevy_reflect_path.rs": 6.054,
       "rust/bevy/bevy_render_phase.rs": 6.346,
       "rust/bevy/bevy_schedule_graph.rs": 6.556
@@ -3224,26 +3224,26 @@
       "rust/bevy_asset_examples/LICENSE-APACHE": 0.0,
       "rust/bevy_asset_examples/LICENSE-MIT": 0.0,
       "rust/bevy_asset_examples/image_node.rs": 6.124,
-      "rust/bevy_asset_examples/rotation.rs": 6.198
+      "rust/bevy_asset_examples/rotation.rs": 6.18
     },
     "rust/holylang": {
       "rust/holylang/ast.rs": 5.99,
       "rust/holylang/compile.rs": 6.576,
       "rust/holylang/error.rs": 4.465,
       "rust/holylang/main.rs": 6.498,
-      "rust/holylang/parser.rs": 5.408,
-      "rust/holylang/semantic.rs": 8.225,
+      "rust/holylang/parser.rs": 5.407,
+      "rust/holylang/semantic.rs": 8.22,
       "rust/holylang/transpiler.rs": 9.526
     },
     "rust/serde": {
       "rust/serde/LICENSE-APACHE": 0.0,
       "rust/serde/LICENSE-MIT": 0.0,
       "rust/serde/serde_core_de_impls.rs": 6.67,
-      "rust/serde/serde_core_de_mod.rs": 7.169,
-      "rust/serde/serde_core_macros.rs": 5.774,
+      "rust/serde/serde_core_de_mod.rs": 6.879,
+      "rust/serde/serde_core_macros.rs": 5.606,
       "rust/serde/serde_derive_de.rs": 6.649,
       "rust/serde/serde_internals_ast.rs": 5.754,
-      "rust/serde/serde_internals_attr.rs": 7.961,
+      "rust/serde/serde_internals_attr.rs": 7.955,
       "rust/serde/test_annotations.rs": 7.164
     },
     "rust/syn": {
@@ -3251,35 +3251,35 @@
       "rust/syn/bigint.rs": 7.445,
       "rust/syn/buffer.rs": 6.015,
       "rust/syn/classify.rs": 6.761,
-      "rust/syn/custom_keyword.rs": 7.427,
-      "rust/syn/custom_punctuation.rs": 7.392,
-      "rust/syn/data.rs": 9.832,
+      "rust/syn/custom_keyword.rs": 7.201,
+      "rust/syn/custom_punctuation.rs": 7.016,
+      "rust/syn/data.rs": 9.777,
       "rust/syn/derive.rs": 12.506
     },
     "rust/tokio": {
       "rust/tokio/addr_of.rs": 6.1,
       "rust/tokio/block_on.rs": 8.673,
       "rust/tokio/blocking.rs": 7.236,
-      "rust/tokio/builder.rs": 7.048,
+      "rust/tokio/builder.rs": 6.417,
       "rust/tokio/config.rs": 6.603,
       "rust/tokio/fuzz.rs": 4.474,
-      "rust/tokio/interval.rs": 8.332,
-      "rust/tokio/lib.rs": 5.47,
+      "rust/tokio/interval.rs": 7.685,
+      "rust/tokio/lib.rs": 5.339,
       "rust/tokio/maybe_done.rs": 6.218,
       "rust/tokio/tests.rs": 5.94,
-      "rust/tokio/tokio_mpsc_bounded.rs": 7.54,
-      "rust/tokio/tokio_named_pipe.rs": 7.478,
-      "rust/tokio/tokio_udp.rs": 6.673
+      "rust/tokio/tokio_mpsc_bounded.rs": 6.63,
+      "rust/tokio/tokio_named_pipe.rs": 6.435,
+      "rust/tokio/tokio_udp.rs": 5.805
     },
     "rust/tokio_util_rand": {
       "rust/tokio_util_rand/rand.rs": 7.622
     },
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_component_macro.rs": 6.636,
-      "rust/wasmtime/wasmtime_instance.rs": 7.617,
+      "rust/wasmtime/wasmtime_instance.rs": 7.509,
       "rust/wasmtime/wasmtime_ir_instructions.rs": 7.782,
       "rust/wasmtime/wasmtime_isle_parser.rs": 7.886,
-      "rust/wasmtime/wasmtime_pulley_interp.rs": 6.548
+      "rust/wasmtime/wasmtime_pulley_interp.rs": 6.549
     },
     "scala": {
       "scala/SOURCES.md": 0.0
@@ -3857,26 +3857,26 @@
       "typescript/SOURCES.md": 0.0
     },
     "typescript/angular_zonejs_mocha": {
-      "typescript/angular_zonejs_mocha/mocha.ts": 8.607
+      "typescript/angular_zonejs_mocha/mocha.ts": 8.594
     },
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": 1.993,
       "typescript/assemblyscript/ast.ts": 8.859,
-      "typescript/assemblyscript/builtins.ts": 7.942,
-      "typescript/assemblyscript/compiler.ts": 6.331,
+      "typescript/assemblyscript/builtins.ts": 7.943,
+      "typescript/assemblyscript/compiler.ts": 6.329,
       "typescript/assemblyscript/package.json": 0.0,
-      "typescript/assemblyscript/parser.ts": 5.641
+      "typescript/assemblyscript/parser.ts": 5.642
     },
     "typescript/effect_ai_anthropic": {
       "typescript/effect_ai_anthropic/AnthropicTokenizer.ts": 7.593
     },
     "typescript/excalibur_math": {
       "typescript/excalibur_math/LICENSE.md": 0.0,
-      "typescript/excalibur_math/collision_colliders_separating-axis.ts": 5.283,
+      "typescript/excalibur_math/collision_colliders_separating-axis.ts": 5.267,
       "typescript/excalibur_math/math_ray.ts": 4.869
     },
     "typescript/excalidraw_text_wrapping": {
-      "typescript/excalidraw_text_wrapping/textWrapping.ts": 6.896
+      "typescript/excalidraw_text_wrapping/textWrapping.ts": 6.894
     },
     "typescript/fp-ts": {
       "typescript/fp-ts/Either.ts": 8.475,
@@ -3907,12 +3907,12 @@
     },
     "typescript/typescript_compiler": {
       "typescript/typescript_compiler/LICENSE.txt": 0.0,
-      "typescript/typescript_compiler/binder.ts": 7.372,
-      "typescript/typescript_compiler/checker.ts": 21.089,
+      "typescript/typescript_compiler/binder.ts": 7.369,
+      "typescript/typescript_compiler/checker.ts": 21.087,
       "typescript/typescript_compiler/emitter.ts": 11.403,
       "typescript/typescript_compiler/package.json": 0.0,
-      "typescript/typescript_compiler/parser.ts": 13.266,
-      "typescript/typescript_compiler/types.ts": 8.624
+      "typescript/typescript_compiler/parser.ts": 13.264,
+      "typescript/typescript_compiler/types.ts": 8.623
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": 0.0,
@@ -3920,8 +3920,8 @@
       "typescript/vscode/codeEditorWidget.ts": 8.02,
       "typescript/vscode/eslint.config.js": 6.106,
       "typescript/vscode/extHost.api.impl.ts": 11.678,
-      "typescript/vscode/gulpfile.vscode.ts": 7.758,
-      "typescript/vscode/instantiationService.ts": 7.483,
+      "typescript/vscode/gulpfile.vscode.ts": 7.756,
+      "typescript/vscode/instantiationService.ts": 7.474,
       "typescript/vscode/ipc.ts": 6.469,
       "typescript/vscode/lifecycle.ts": 7.831,
       "typescript/vscode/package.json": 0.0,

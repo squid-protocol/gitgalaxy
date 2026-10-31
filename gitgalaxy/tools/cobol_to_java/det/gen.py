@@ -3331,6 +3331,7 @@ class Gen:
                     raise Untranslatable(f"READ {fd.select}: its key is not in its record")
                 out.append(f"{ind}String {st} = {v}.readKey({key.offset}, {key.size});")
             out += self.status(fd, st, ind)
+            out += self.unhandled_io(fd, s, st, ind, ("10",), ("21", "22", "23", "24"))
             if s.data["into"] is not None:
                 rec = self.ids[id(fd.record)]
                 out.append(f'{ind}if ({st}.startsWith("0")) {{')
@@ -3358,6 +3359,7 @@ class Gen:
             else:
                 out.append(f"{ind}String {st} = {v}.{k.lower()}({rec_item.size});")
             out += self.status(fd, st, ind)
+            out += self.unhandled_io(fd, s, st, ind, (), ("21", "22", "23", "24"))
             out += self.io_phrases(s, st, ind, at_end=None, invalid=("21", "22", "23", "24"))
             return out
         if k == "START":
@@ -3628,6 +3630,22 @@ class Gen:
         if fd.status is None:
             return []
         return [ind + self.move_text(st, E.Ref(fd.status[0], fd.status[1:]))]
+
+    def unhandled_io(self, fd: FileDef, s: S.Stmt, st: str, ind: str, at_end: tuple, invalid: tuple) -> list[str]:
+        """A READ / WRITE / REWRITE that fails on a file with no FILE STATUS, no phrase for that condition and no
+        USE declarative (the det parser has none) is a run-time error on IBM (Enterprise COBOL for z/OS Language
+        Reference, "Error handling for input-output": the program abends); ignoring the status would carry on and end
+        RETURN-CODE 0. The port stops by name instead (#4268). INVALID KEY is the 21-24 group, handled only when the
+        statement carries the phrase; a READ's end-of-file 10 is left as it was (a sibling gap)."""
+        if fd.status is not None:
+            return []
+        ok = list(at_end)
+        if "INVALID-KEY" in s.phrases:
+            ok += invalid
+        test = "".join(f" && !{st}.equals({jstr(c)})" for c in ok)
+        what = f"{s.kind} {fd.select}: FILE STATUS "
+        return [f'{ind}if (!{st}.startsWith("0"){test}) throw new Hole(' + jstr(what) + f' + {st} + " with no FILE STATUS, '
+                'handling phrase or declarative: IBM abends (not modelled)");']  # fmt: skip
 
     def move_text(self, java: str, target: E.Ref) -> str:
         return f"Cobol.move({java}, {self.field_expr(target)}, CS);"

@@ -370,6 +370,7 @@ public class DfsortstService {
                 // WRITE O-REC FROM S-DATA
                 Cobol.move(f6_S_DATA, f2_O_REC, CS);
                 String st3 = O_FILE.write(350);
+                if (!st3.startsWith("0")) throw new Hole("WRITE O-FILE: FILE STATUS " + st3 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
             }
         }
         // CLOSE O-FILE
@@ -387,6 +388,7 @@ public class DfsortstService {
         while (!(f7_W_EOF.equals("Y"))) {
             // READ I1-FILE INTO W-REC
             String st6 = I1_FILE.readNext();
+            if (!st6.startsWith("0") && !st6.equals("10")) throw new Hole("READ I1-FILE: FILE STATUS " + st6 + " with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)");
             if (st6.startsWith("0")) {
                 Cobol.move(f1_I1_REC, f8_W_REC, CS);
             }

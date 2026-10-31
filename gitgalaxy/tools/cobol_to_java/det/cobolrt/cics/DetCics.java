@@ -58,6 +58,7 @@ public final class DetCics {
         private final int keyLength;
         private final Charset cs;
         private Function<byte[], Optional<E>> byId;  // the repository's findById on the key's id, when it has one
+        private java.util.Map<String, Integer> lengths;  // #6839: a variable-length file's record lengths, by key
 
         public Store(Supplier<List<E>> all, Function<E, byte[]> toRecord, Function<byte[], E> fromRecord,
                      Consumer<E> save, Consumer<E> delete, int keyOffset, int keyLength, Charset cs) {
@@ -76,6 +77,23 @@ public final class DetCics {
          *  only lets a command's eagerly evaluated arguments (a WRITE's `exists`) run first. */
         public static <E> Store<E> undefined(Charset cs) {
             return new Store<>(List::of, e -> new byte[0], b -> null, e -> { }, e -> { }, 0, 0, cs);
+        }
+
+        /** #6839 (row D): a variable-length file (CicsTask.recordLengths; null: fixed-length). A record read is cut
+         *  to the length it was written with (IBM, EXEC CICS READ: LENGTH returns the record's length); a record
+         *  stored keeps its own length (WRITE / REWRITE LENGTH). */
+        public Store<E> withLengths(java.util.Map<String, Integer> lengths) {
+            this.lengths = lengths;
+            return this;
+        }
+
+        private String hexKey(byte[] rec) {
+            return java.util.HexFormat.of().withUpperCase().formatHex(key(rec));  // the key's bytes, as the stub's .len
+        }
+
+        private byte[] cut(byte[] rec) {
+            Integer n = lengths == null ? null : lengths.get(hexKey(rec));
+            return n == null || n >= rec.length ? rec : Arrays.copyOf(rec, n);
         }
 
         /** A keyed read through the repository's findById: `byId` gets a buffer with the key in its record place. */
@@ -121,12 +139,12 @@ public final class DetCics {
         // [rule RT-CICS-FILE-KEY-ORDER]
         public Optional<byte[]> find(byte[] key) {
             if (byId != null) {
-                return findById(key).map(r -> (byte[]) r[1]);
+                return findById(key).map(r -> cut((byte[]) r[1]));
             }
             byte[] k = Arrays.copyOf(key, keyLength);
             for (Object[] r : rows()) {
                 if (Arrays.equals(key((byte[]) r[1]), k)) {
-                    return Optional.of((byte[]) r[1]);
+                    return Optional.of(cut((byte[]) r[1]));
                 }
             }
             return Optional.empty();
@@ -142,7 +160,7 @@ public final class DetCics {
             for (Object[] r : rows()) {
                 int c = o.compare(Arrays.copyOf(key((byte[]) r[1]), length), k);
                 if (c == 0 || gteq && c > 0) {
-                    return Optional.of((byte[]) r[1]);
+                    return Optional.of(cut((byte[]) r[1]));
                 }
             }
             return Optional.empty();
@@ -168,6 +186,9 @@ public final class DetCics {
         }
 
         public void store(byte[] rec) {
+            if (lengths != null) {
+                lengths.put(hexKey(rec), rec.length);
+            }
             save.accept(fromRecord.apply(rec));
         }
 
@@ -755,8 +776,7 @@ public final class DetCics {
     public static void setAddress(CicsTask task, Field record, Field ptr) {
         wholeRecord(record, "SET ADDRESS OF");
         long handle = pointerValue(ptr);
-        record.storage().bytes = task.storageAt(handle, record.length());
-        record.storage().base = task.offsetAt(handle);
+        record.storage().alias(task.storageAt(handle, record.length()), task.offsetAt(handle));
     }
 
     /** SET ADDRESS OF record TO ADDRESS OF other: both are one storage from here on. */
@@ -766,8 +786,7 @@ public final class DetCics {
         if (other.storage().bytes.length < record.length()) {
             throw new UnsupportedOperationException("SET ADDRESS OF a record longer than its storage: not modelled");
         }
-        record.storage().bytes = other.storage().bytes;
-        record.storage().base = other.storage().base;
+        record.storage().alias(other.storage().bytes, other.storage().base);
     }
 
     /** SET ADDRESS OF record TO ADDRESS OF item, an item inside a larger storage (ZECS001's ZF-DATA in ZF-RECORD; #4771,
@@ -778,8 +797,7 @@ public final class DetCics {
         if (item.storage().bytes.length - item.offset() < record.length()) {
             throw new UnsupportedOperationException("SET ADDRESS OF a record longer than the storage after the item: not modelled");
         }
-        record.storage().bytes = item.storage().bytes;
-        record.storage().base = item.offset();
+        record.storage().alias(item.storage().bytes, item.offset());
     }
 
     /** SET ptr TO ADDRESS OF record: the handle of the record's bytes. */

@@ -228,6 +228,7 @@ class Gen:
         self.sql: Any = None  # det.sql.Sql for a program with EXEC SQL
         self.dli_pcbs: list[str] | None = None  # #4893: the PCBs IMS passes at ENTRY 'DLITCBL' (det/dli.py)
         self.clock = "clock.currentDate()"  # FUNCTION CURRENT-DATE outside CICS
+        self.uses_set_address = False  # #4767: a CICS SET ADDRESS OF aliases a storage; initialState() undoes it
         self.uses_mvs = False  # #5856: a batch pointer addresses a z/OS control block (DetMvs, register A2)
         self.uses_random = False  # FUNCTION RANDOM: the program keeps a run unit's sequence (Funcs.Random)
         self.callees: dict[str, str] = {}  # CALLed program -> the ObjectProvider field of its service
@@ -2334,6 +2335,7 @@ class Gen:
             if self.cics is None:  # #5856 (A2): the z/OS control block the pointer addresses (PSA / TCB / TIOT)
                 self.uses_mvs = True
                 return [c, f"{ind}DetMvs.setAddress({rec}, {self.pointer_item(s.data['pointer'])}, CS);"]
+            self.uses_set_address = True
             if s.data["pointer"]:
                 return [c, f"{ind}DetCics.setAddress(task, {rec}, {self.pointer_item(s.data['pointer'])});"]
             of, windowed = self.address_item(s.data["of"])

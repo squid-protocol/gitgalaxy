@@ -240,7 +240,10 @@
     "rows",
     "store",
     "remove",
-    "keyLength"
+    "keyLength",
+    "withLengths",
+    "hexKey",
+    "cut"
    ]
   },
   {
@@ -376,7 +379,9 @@
     "isSigned",
     "isNumeric",
     "raw",
-    "putRaw"
+    "putRaw",
+    "alias",
+    "unalias"
    ]
   },
   {

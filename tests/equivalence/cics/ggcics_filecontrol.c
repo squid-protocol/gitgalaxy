@@ -94,15 +94,17 @@ int GGCREAD(gg_cics *c, char *ridfld, int keylen, char *into, int intolen) {
             int cmp = keylen < klen ? keylen : klen;
             while (rec && ((search && at >= 0) || (data && fread(rec, 1, (size_t)reclen, data) == (size_t)reclen))) {
                 if (search || memcmp(rec + keyoff, ridfld, (size_t)cmp) == 0) {
-                    int max = c->len, moved = reclen < max ? reclen : max;
+                    /* #6839: a variable-length file's record has its own length (<path>.len), else the slot's */
+                    int rl = is_var(want) ? len_get(path, rec + keyoff, klen, reclen) : reclen;
+                    int max = c->len, moved = rl < max ? rl : max;
                     if (max < 0) refuse("READ LENGTH (negative)");
                     if (moved > intolen) refuse("READ INTO LENGTH: a record moved past INTO");
-                    if (reclen > max && strstr(c->flags, "UPDATE"))
+                    if (rl > max && strstr(c->flags, "UPDATE"))
                         refuse("READ UPDATE LENGERR (whether the record is held)");
                     memcpy(into, rec, (size_t)moved);
-                    c->resp = reclen > max ? LENGERR : NORMAL;
-                    c->resp2 = reclen > max ? 11 : 0;
-                    c->len = reclen;
+                    c->resp = rl > max ? LENGERR : NORMAL;
+                    c->resp2 = rl > max ? 11 : 0;
+                    c->len = rl;
                     if (c->resp == NORMAL && strstr(c->flags, "TOKEN")) c->num = token_hold(want, rec + keyoff, klen);
                     else if (c->resp == NORMAL && strstr(c->flags, "UPDATE")) hold(want, rec + keyoff, klen);
                     break;
@@ -429,14 +431,15 @@ static int browse_read(gg_cics *c, int dir, char *ridfld, int keylen, char *into
         }
         if (at >= 0) {
             const char *rec = all + at * reclen;
-            memcpy(into, rec, (size_t)(reclen < intolen ? reclen : intolen));
+            int rl = is_var(want) ? len_get(path, rec + keyoff, klen, reclen) : reclen;  /* #6839 */
+            memcpy(into, rec, (size_t)(rl < intolen ? rl : intolen));
             memcpy(ridfld, rec + keyoff, (size_t)len);
             memset(br[s].lastkey, 0, sizeof br[s].lastkey);
             memcpy(br[s].lastkey, rec + keyoff, (size_t)klen);
             br[s].have_last = 1;
             br[s].dir = dir;
-            got = reclen;
-            if (reclen > intolen) { c->resp = LENGERR; c->resp2 = 11; }
+            got = rl;
+            if (rl > intolen) { c->resp = LENGERR; c->resp2 = 11; }
         }
         free(all);
     }

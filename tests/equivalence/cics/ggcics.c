@@ -384,6 +384,72 @@ static int is_esds(const char *want) {
     return esds;
 }
 
+/* #6839 row D: a variable-length file (files.cfg flag VAR: a RECORDFORMAT(V) KSDS the case states "variable"). IBM,
+ * EXEC CICS WRITE / REWRITE: LENGTH is "the length of the data area where the record is written from" -- the
+ * record's length for a variable-length file; READ INTO returns that length in LENGTH, LENGERR (RESP2 11) when it
+ * is longer than LENGTH. The records stay in their reclen slots (padded as before); each one's own length is kept
+ * in <path>.len, one "HEXKEY LENGTH" line per record written or seeded with a length of its own (none: reclen). */
+static int is_var(const char *want) {
+    char line[4096], name[64], p[3000], flags[64];
+    int a, b, c, var = 0;
+    snprintf(line, sizeof line, "%s/files.cfg", dir_in());
+    FILE *cfg = fopen(line, "r");
+    while (cfg && fgets(line, sizeof line, cfg)) {
+        if (sscanf(line, "%63s %2999s %d %d %d %63s", name, p, &a, &b, &c, flags) == 6 && strcmp(name, want) == 0) {
+            var = flag_in(flags, "VAR");
+            break;
+        }
+    }
+    if (cfg) fclose(cfg);
+    return var;
+}
+
+static void len_hex(const char *key, int klen, char *out) {
+    static const char digits[] = "0123456789ABCDEF";
+    for (int i = 0; i < klen; i++) {
+        out[2 * i] = digits[(unsigned char)key[i] >> 4];
+        out[2 * i + 1] = digits[(unsigned char)key[i] & 15];
+    }
+    out[2 * klen] = '\0';
+}
+
+/* The record's own length (its key's line in <path>.len), else `reclen`. */
+static int len_get(const char *path, const char *key, int klen, int reclen) {
+    char lp[3100], want[520], line[600], hex[520];
+    int n, got = reclen;
+    snprintf(lp, sizeof lp, "%s.len", path);
+    len_hex(key, klen, want);
+    FILE *f = fopen(lp, "r");
+    while (f && fgets(line, sizeof line, f)) {
+        if (sscanf(line, "%519s %d", hex, &n) == 2 && strcmp(hex, want) == 0) got = n;
+    }
+    if (f) fclose(f);
+    return got;
+}
+
+static void uow_save(const char *path);
+static int non_recoverable(const char *path);
+
+/* Record `len` as the record's own length (a WRITE / REWRITE). The .len file is backed out with its data file. */
+static void len_set(const char *path, const char *key, int klen, int len) {
+    char lp[3100], tmp[3200], want[520], line[600], hex[520];
+    int n;
+    snprintf(lp, sizeof lp, "%s.len", path);
+    snprintf(tmp, sizeof tmp, "%s.len.new", path);
+    FILE *touch = fopen(lp, "a");  /* exists before the unit of work saves it, so a backout empties what it adds */
+    if (touch) fclose(touch);
+    if (!non_recoverable(path)) uow_save(lp);
+    len_hex(key, klen, want);
+    FILE *in = fopen(lp, "r"), *out = fopen(tmp, "w");
+    while (in && out && fgets(line, sizeof line, in)) {
+        if (sscanf(line, "%519s %d", hex, &n) == 2 && strcmp(hex, want) != 0) fprintf(out, "%s %d\n", hex, n);
+    }
+    if (out) fprintf(out, "%s %d\n", want, len);
+    if (in) fclose(in);
+    if (out) fclose(out);
+    rename(tmp, lp);
+}
+
 /* What IBM does not document, or this model does not cover, stops the run: 98 and "<what>: not modelled"
  * (oracle_assumptions.md X5, X13), which the harness reports as a refusal by name -- never a guess. */
 static void refuse(const char *what) {
@@ -462,6 +528,7 @@ int GGCWRIT(gg_cics *c, char *ridfld, int keylen, char *from, int fromlen) {
         FILE *data = fopen(path, "ab");
         if (data && rec) fwrite(rec, 1, (size_t)reclen, data);
         if (data) fclose(data);
+        if (rec && is_var(want)) len_set(path, rec + keyoff, klen, fromlen < reclen ? fromlen : reclen);  /* #6839 */
         free(rec);
         c->resp = NORMAL;
     }
@@ -513,6 +580,7 @@ int GGCREWR(gg_cics *c, char *from, int fromlen) {
             FILE *data = fopen(path, "r+b");
             if (data && rec && fseek(data, (long)(at * reclen), SEEK_SET) == 0) fwrite(rec, 1, (size_t)reclen, data);
             if (data) fclose(data);
+            if (is_var(want)) len_set(path, key, klen, fromlen < reclen ? fromlen : reclen);  /* #6839 */
             free(rec);
             if (strstr(c->flags, "TOKEN")) tokens[token_find(c->num, want)].id = 0;
             else release(want);

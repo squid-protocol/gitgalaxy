@@ -2054,6 +2054,17 @@ CICS_TASK_JAVA += """\
         }
     }
 
+    /** #6839 (row D): a variable-length file's record lengths, by the file's entity, each record's key (hex) to the
+     *  length it was written with (IBM, EXEC CICS WRITE / REWRITE LENGTH; READ returns it). Filled by whoever loads
+     *  the file (the equivalence harness from the stub's <file>.len) and backed out with the file's records; a file
+     *  with no entry here is a fixed-length one. */
+    public static final java.util.Map<String, java.util.Map<String, Integer>> RECORD_LENGTHS = new java.util.HashMap<>();
+
+    /** #6839: the record lengths of the file over `entity`, or null for a fixed-length file. */
+    public static java.util.Map<String, Integer> recordLengths(String entity) {
+        return RECORD_LENGTHS.get(entity);
+    }
+
 """
 # #5274: the faults family's methods (withFaults, injected, logFault, logAbend, planned, the deferred DUPKEY) live in
 # their own module (cics_task_faults.py).

@@ -19,16 +19,12 @@ from gitgalaxy.tools.cobol_to_java.det import expr as E
 from gitgalaxy.tools.cobol_to_java.det import layout as L
 from gitgalaxy.tools.cobol_to_java.det import osvs as O
 from gitgalaxy.tools.cobol_to_java.det import stmt as S
-from gitgalaxy.tools.cobol_to_java.det.cics_common import jstr
+from gitgalaxy.tools.cobol_to_java.det.cics_common import Untranslatable, jstr
 from gitgalaxy.tools.cobol_to_java.det.source import WIDE
 
 if TYPE_CHECKING:
     from gitgalaxy.tools.cobol_to_java.det.cics import Cics
     from gitgalaxy.tools.cobol_to_java.det.source import EngineCopies
-
-
-class Untranslatable(Exception):
-    pass
 
 
 def p_unmodelled(it: L.Item) -> str | None:

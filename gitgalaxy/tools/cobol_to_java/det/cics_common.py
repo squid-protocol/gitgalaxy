@@ -16,6 +16,11 @@ class CicsError(Exception):
     pass
 
 
+class Untranslatable(Exception):
+    """#7153: the translator refuses a construct by name. Defined here, in the leaf, so dli.py and dyncall.py raise it
+    without importing det.gen back (gen.py re-exports it: `gen.Untranslatable` is this class)."""
+
+
 class KeylengthInvreq(CicsError):
     """#5092 (X52): a KEYLENGTH IBM answers INVREQ (RESP2 25 / 26 / 42); READ emits the result, any other verb refuses."""
 

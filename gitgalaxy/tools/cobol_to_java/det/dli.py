@@ -80,7 +80,7 @@ def _is_cbltdli(s: S.Stmt) -> bool:
 
 def call(gen: Any, s: S.Stmt, ind: str) -> list[str]:
     """CALL 'CBLTDLI' | 'CEETDLI' USING function pcb io-area [ssa-1 ... ssa-15]: DetDli.call, then RETURN-CODE 0."""
-    from gitgalaxy.tools.cobol_to_java.det.gen import Untranslatable
+    from gitgalaxy.tools.cobol_to_java.det.cics_common import Untranslatable
 
     pcbs = gen.dli_pcbs
     name = str(s.data.get("program") or CALL).upper()
@@ -135,7 +135,7 @@ _WHERE = re.compile(
 
 def _clauses(body: str) -> list[tuple[str, str]]:
     """`KEYWORD(text)` clauses of an EXEC DLI command's options, parentheses balanced (a LENGTH OF inside one is text)."""
-    from gitgalaxy.tools.cobol_to_java.det.gen import Untranslatable
+    from gitgalaxy.tools.cobol_to_java.det.cics_common import Untranslatable
 
     out: list[tuple[str, str]] = []
     i, n = 0, len(body)
@@ -167,8 +167,7 @@ def _clauses(body: str) -> list[tuple[str, str]]:
 
 def _get(gen: Any, verb: str, rest: str, ind: str) -> list[str]:
     """GU / GN / GNP USING PCB(n) [SEGMENT(s) [WHERE(f op v)] ...] INTO(area): DetDli.get, DIBSTAT answered."""
-    from gitgalaxy.tools.cobol_to_java.det.cics import CicsError
-    from gitgalaxy.tools.cobol_to_java.det.gen import Untranslatable, jstr
+    from gitgalaxy.tools.cobol_to_java.det.cics_common import CicsError, Untranslatable, jstr
 
     cl = _clauses(re.sub(r"(?is)^\s*USING\b", "", rest))
     names = [k for k, _ in cl]
@@ -210,7 +209,7 @@ def dib_records() -> list:
 
 def command(gen: Any, text: str, ind: str) -> list[str]:
     """One EXEC DLI command of a CICS program: SCHD PSB(...) [NODHABEND] and TERM, DIBSTAT answered."""
-    from gitgalaxy.tools.cobol_to_java.det.gen import Untranslatable, jstr
+    from gitgalaxy.tools.cobol_to_java.det.cics_common import Untranslatable, jstr
 
     batch = isinstance(gen.dli_pcbs, BmpPcbs)
     if gen.cics is None and not batch:
@@ -259,7 +258,7 @@ class _Ops:
         self.g = gen
 
     def ref(self, text: str) -> E.Ref:
-        from gitgalaxy.tools.cobol_to_java.det.cics import CicsError
+        from gitgalaxy.tools.cobol_to_java.det.cics_common import CicsError
 
         p = E.Parser(E.tokenize(text))
         e = p.operand()
@@ -268,7 +267,7 @@ class _Ops:
         return e
 
     def int_(self, text: str) -> str:
-        from gitgalaxy.tools.cobol_to_java.det.cics import CicsError
+        from gitgalaxy.tools.cobol_to_java.det.cics_common import CicsError
 
         p = E.Parser(E.tokenize(text))
         e = p.operand()
@@ -289,8 +288,7 @@ def _ops(gen: Any) -> Any:
 def _chkp(gen: Any, rest: str, ind: str) -> list[str]:
     """CHKP ID(area) in a BMP: DetDli.checkpoint(area), DIBSTAT answered. The ID is a data name (8 bytes, IBM: the
     checkpoint id); the symbolic options (SAVE, AREA, ...) are not modelled."""
-    from gitgalaxy.tools.cobol_to_java.det.cics import CicsError
-    from gitgalaxy.tools.cobol_to_java.det.gen import Untranslatable
+    from gitgalaxy.tools.cobol_to_java.det.cics_common import CicsError, Untranslatable
 
     cl = _clauses(rest)
     if [k for k, _ in cl] != ["ID"]:
@@ -310,7 +308,7 @@ def _clause(cl: list[tuple[str, str]], name: str) -> str:
 
 def _ssas(gen: Any, verb: str, cl: list[tuple[str, str]]) -> list[str]:
     """The DetDli.ssa(...) expressions of a command's SEGMENT / WHERE clauses, in order (a WHERE follows its SEGMENT)."""
-    from gitgalaxy.tools.cobol_to_java.det.gen import Untranslatable, jstr
+    from gitgalaxy.tools.cobol_to_java.det.cics_common import Untranslatable, jstr
 
     cics = _ops(gen)
     ssas: list[str] = []
@@ -334,8 +332,7 @@ def _ssas(gen: Any, verb: str, cl: list[tuple[str, str]]) -> list[str]:
 def _put(gen: Any, verb: str, rest: str, ind: str) -> list[str]:
     """ISRT / REPL / DLET USING PCB(n) SEGMENT(s) [WHERE ...] ... FROM(area) [SEGLENGTH(n), ISRT only]: DetDli.execIsrt /
     DetDli.execChange, DIBSTAT answered. REPL and DLET name the one segment they act on (the one the last get held)."""
-    from gitgalaxy.tools.cobol_to_java.det.cics import CicsError
-    from gitgalaxy.tools.cobol_to_java.det.gen import Untranslatable, jstr
+    from gitgalaxy.tools.cobol_to_java.det.cics_common import CicsError, Untranslatable, jstr
 
     cl = _clauses(re.sub(r"(?is)^\s*USING\b", "", rest))
     names = [k for k, _ in cl]

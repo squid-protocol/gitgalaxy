@@ -45,7 +45,7 @@ Needs: `docker` = the GnuCOBOL oracle image; `jdk_maven` = JDK 17 and Maven; `db
 |---|---|---|
 | `crucible_checkout` | `CICS_CRUCIBLE_PATH` = the pinned checkout `runner-tests` clones, and a pytest line that names the files | `cics-crucible.yml` `runner-tests` |
 | `docker`, `jdk_maven` | `EQUIVALENCE_E2E=1`, the oracle image (cache + `equivalence_oracle.py --strict`), JDK 17, Maven cache | `equivalence-e2e.yml` `shard` (classifier-gated, owner decision: CI cost) |
-| `db2` | the above plus the pinned Db2 image (the `db2-image-<digest>` cache entry det-sweep.yml's main runs save), the ODBC driver cache, `GITGALAXY_DB2_POOL=4` and `-n 4` | `equivalence-e2e.yml` `db2` (one runner; on a PR only when an input of the five files changed, #6664) |
+| `db2` | the above plus the pinned Db2 image (the `db2-image-<digest>` cache entry det-sweep.yml's main runs save), the ODBC driver cache, `GITGALAXY_DB2_POOL=3` and `-n 3` | `equivalence-e2e.yml` `db2` (one runner; on a PR only when an input of the five files changed, #6664) |
 
 ## Db2 files (run by the `db2` job, not the shards)
 

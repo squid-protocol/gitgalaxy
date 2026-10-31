@@ -12,7 +12,7 @@ name: Equivalence E2E
 # no shard and the check reports success. The nightly and a manual run always run the shards. The `report` job sums the
 # run's job seconds into runner-minutes (the step summary), the number to quote per PR.
 # The five Db2-needing files (docs/ci_env_gated_tests.md) are `--ignore`d by the shards and run by the `db2` job: one runner,
-# the pinned Db2 image from the cache det-sweep.yml's Db2 jobs fill (same key), a pool of four databases, one per xdist worker, #5954 slice 3.
+# the pinned Db2 image from the cache det-sweep.yml's Db2 jobs fill (same key), a pool of three databases, one per xdist worker, #5954 slice 3.
 
 on:
   pull_request:
@@ -346,8 +346,9 @@ jobs:
           key: db2-odbc-cli-${{ hashFiles('tests/equivalence/odbc_cli.pin') }}
 
   # #5954 slice 3: the five test files that also need a Db2 container, in one job (the shards `--ignore` them). One runner
-  # and a pool of four databases, one per xdist worker and one per vCPU: the rows file alone is ~34 min serial (50 proofs of ~45 s), so the
-  # four run in parallel and Db2's start is paid once, not per shard. The pinned image is restored from det-sweep.yml's cache entry (main saves it).
+  # and a pool of three databases, one per xdist worker: the rows file alone is ~34 min serial (50 proofs of ~45 s), so the
+  # three run in parallel and Db2's start is paid once, not per shard. The pinned image is restored from det-sweep.yml's cache entry (main saves it).
+  # -n 3 stays: -n 4 with a pool of four was slower on a 4-vCPU runner (test step 1402 s against 1290 s, Db2 itself needs CPU).
   db2:
     needs: [tested-tree, plan]
     # #6664: on a PR only when a changed file is an input of the five Db2 files (equivalence_e2e_plan.db2_input); push,
@@ -359,7 +360,7 @@ jobs:
       GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
       PYTHONUTF8: "1"
       OMP_NUM_THREADS: "1"
-      GITGALAXY_DB2_POOL: "4"
+      GITGALAXY_DB2_POOL: "3"
       GITGALAXY_MAINFRAME_CORPORA: ${{ github.workspace }}/.mainframe_corpora  # #6563: the rows cases read carddemo / CBSA / genapp sources
     steps:
       - name: Check out repository code
@@ -487,7 +488,7 @@ jobs:
           GITGALAXY_ORACLE_STRICT: "1"
           GITGALAXY_TEST_TIMES: ${{ runner.temp }}/times-db2.json
         run: |
-          pytest tests/cobol_mainframe/test_equivalence_db2_rows.py tests/cobol_mainframe/test_regional_options.py tests/cobol_mainframe/test_sql_dynamic.py tests/cobol_mainframe/test_sql_unit_of_work.py tests/cobol_mainframe/test_sql_whenever.py -n 4 -q -ra --durations=25 --timeout=1800 -p no:cacheprovider
+          pytest tests/cobol_mainframe/test_equivalence_db2_rows.py tests/cobol_mainframe/test_regional_options.py tests/cobol_mainframe/test_sql_dynamic.py tests/cobol_mainframe/test_sql_unit_of_work.py tests/cobol_mainframe/test_sql_whenever.py -n 3 -q -ra --durations=25 --timeout=1800 -p no:cacheprovider
 
       # #6675: main only (a PR's save is scoped to its ref, which nothing else reads); only on a miss
       - name: Save the tree-sitter language pack to the cache

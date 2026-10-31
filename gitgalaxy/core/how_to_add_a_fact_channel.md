@@ -175,6 +175,15 @@ The same test file also checks the docs against the registry: the channel table 
 SCOPE comment and loader, and `gitgalaxy/recorders/README.md` (the DB schema doc, which must mention every
 registered table) -- a new `FactChannel` without its row and its README paragraph fails there.
 
+It also checks the report and comparison tables against the registry: every per-file `payload_key` needs an
+`AuditSection` in `AUDIT_SECTIONS` and a `FactLine` in `FACT_LINES` (or a listed reason in the test's
+`_NO_AUDIT_SECTION` / `_NO_LLM_LINE`), and a channel the differential compares sets `differential="<SetChannel
+language>"` on its own registry entry (every `SET_CHANNELS` language must be claimed by exactly one channel).
+So the full list of a new channel's edits is: its extractor and tests, its registry entry (which carries the
+schema, insert, restore, `ir_field` and `differential`), one `create_channel_table` line, one row each in
+`AUDIT_SECTIONS` / `FACT_LINES`, one `SetChannel` / `DraftSection` when compared, and the recipe-table and README
+rows. Those last rows are separate tables the tests check, not generated from the registry (#3383 remaining).
+
 ### 6. Expose it in the IR reader (`tools/cobol_to_cobol/galaxy_ir.py`)
 
 Add an `@dataclass Engine<Fact>`, a `<facts>: list` field on `EngineFile`, and a read block in

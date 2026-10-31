@@ -14,6 +14,9 @@
 #     galaxy_ir `ir_field` that test_fact_channels.py checks against galaxy_ir's SCOPE
 #     comment and loader (checked, not generated). The recipe channel table and
 #     custom-insert channels are not registry-driven yet (#3383 remaining slices).
+#   - The recorders' AUDIT_SECTIONS / FACT_LINES, the differential's SET_CHANNELS and the answer key's
+#     DRAFT_SECTIONS are their own tables; test_fact_channels.py checks each against CHANNELS (payload_key,
+#     `differential`) so a channel without its report sections or comparison fails there.
 #   - A resolved channel (call_site_data, `resolved=True`) is inserted from the engine's repo-wide
 #     list by record_keeper's _insert_resolved_channel; its schema and restore live here too
 #     (transaction_data is the other one).
@@ -64,6 +67,10 @@ class FactChannel:
     # The column holding the owning file's id: `file_id` for a per-file channel, but a resolved
     # channel names its own (`src_file_id` on call_site_data, `file_id` on transaction_data).
     src_column: str = "file_id"
+    # The refraction differential's `SetChannel.language` that compares this channel (#3383), or ""
+    # when none does. test_fact_channels.py checks each names a real SetChannel and that every
+    # SetChannel is claimed by a channel, so a compared channel is declared here, not in a test.
+    differential: str = ""
 
     def select_sql(self, cursor: sqlite3.Cursor, has_table: Callable, has_column: Callable) -> str:
         if callable(self.restore_select):
@@ -953,6 +960,7 @@ CHANNELS = (
     # resolution, unlike call_site_data above).
     FactChannel(
         name="dataset",
+        differential="jcl",
         ir_field="datasets",
         table="dataset_data",
         ddl=_DATASET_DDL,
@@ -1008,6 +1016,7 @@ CHANNELS = (
     # per-file fact-channel shape as the dataset bindings above.
     FactChannel(
         name="record",
+        differential="pli",
         ir_field="records",
         table="record_data",
         ddl=_RECORD_DDL,
@@ -1107,6 +1116,7 @@ CHANNELS = (
     # name). A pre-#3344 baseline has no table and restores nothing.
     FactChannel(
         name="sql_table",
+        differential="sql_table",
         ir_field="sql_tables",
         table="sql_table_data",
         ddl=_SQL_TABLE_DDL,
@@ -1793,6 +1803,7 @@ CHANNELS = (
     # pre-#3356 baseline has no table and restores nothing.
     FactChannel(
         name="csd_resource",
+        differential="csd_deck",
         ir_field="csd_resources",
         table="csd_resource_data",
         ddl=_CSD_RESOURCE_DDL,
@@ -1866,6 +1877,7 @@ CHANNELS = (
     # keys (field_name -> name, initial_value -> initial).
     FactChannel(
         name="screen_field",
+        differential="bms",
         ir_field="screen_fields",
         table="screen_field_data",
         ddl=_SCREEN_FIELD_DDL,
@@ -1936,6 +1948,7 @@ CHANNELS = (
     # extractor's payload keys. A pre-channel baseline restores nothing.
     FactChannel(
         name="cics_resource",
+        differential="cics",
         ir_field="cics_resources",
         table="cics_resource_data",
         ddl=_CICS_RESOURCE_DDL,
@@ -2003,6 +2016,7 @@ CHANNELS = (
     # #3200: every mainframe call site, resolved or not -- inserted from the engine's resolved list.
     FactChannel(
         name="call_site",
+        differential="commarea",
         ir_field="calls",
         table="call_site_data",
         resolved=True,

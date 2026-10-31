@@ -11,7 +11,7 @@
  "case": "cbsa-getcompy",
  "survivors": [
   {
-   "id": "8c44486e6c",
+   "id": "13e9a333ba",
    "op": "CON",
    "line": 39,
    "before": "private static final int GOTO = 1 << 20;",
@@ -20,7 +20,7 @@
    "reason": "GOTO is OR-ed into a paragraph's return only by a GO TO; GETCOMPY has none (p0 returns 1, p1 always throws Goback), so no GOTO bit is ever set or tested differently"
   },
   {
-   "id": "d0925831e1",
+   "id": "4ffea77962",
    "op": "CON",
    "line": 39,
    "before": "private static final int GOTO = 1 << 20;",
@@ -29,7 +29,7 @@
    "reason": "GOTO is OR-ed into a paragraph's return only by a GO TO; GETCOMPY has none (p0 returns 1, p1 always throws Goback), so no GOTO bit is ever set or tested differently"
   },
   {
-   "id": "601920937b",
+   "id": "54cd8d7fa9",
    "op": "LIT",
    "line": 42,
    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
@@ -38,7 +38,7 @@
    "reason": "the image's first byte(s) are COMPANY-NAME's; GETCOMPY's MOVE replaces the whole 40-byte COMPANY-NAME before anything reads it, so the image byte cannot show"
   },
   {
-   "id": "4271b395db",
+   "id": "252131d358",
    "op": "LIT",
    "line": 43,
    "before": "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
@@ -47,7 +47,7 @@
    "reason": "IMAGE of DFHCOMMAREA past the 40-byte record: GETCOMPY never addresses these bytes, the incoming COMMAREA copy overwrites every byte the task returns, and a task without a COMMAREA returns none, so this byte cannot show"
   },
   {
-   "id": "5c1c4fd416",
+   "id": "83f2fbb73f",
    "op": "LIT",
    "line": 44,
    "before": "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
@@ -56,7 +56,7 @@
    "reason": "IMAGE of DFHCOMMAREA past the 40-byte record: GETCOMPY never addresses these bytes, the incoming COMMAREA copy overwrites every byte the task returns, and a task without a COMMAREA returns none, so this byte cannot show"
   },
   {
-   "id": "1b2e55b448",
+   "id": "cad59ff849",
    "op": "LIT",
    "line": 45,
    "before": "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
@@ -65,7 +65,7 @@
    "reason": "IMAGE of DFHCOMMAREA past the 40-byte record: GETCOMPY never addresses these bytes, the incoming COMMAREA copy overwrites every byte the task returns, and a task without a COMMAREA returns none, so this byte cannot show"
   },
   {
-   "id": "7153711f3a",
+   "id": "6b982c8952",
    "op": "LIT",
    "line": 46,
    "before": "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
@@ -74,7 +74,7 @@
    "reason": "IMAGE of DFHCOMMAREA past the 40-byte record: GETCOMPY never addresses these bytes, the incoming COMMAREA copy overwrites every byte the task returns, and a task without a COMMAREA returns none, so this byte cannot show"
   },
   {
-   "id": "74a42cedee",
+   "id": "5667a8c928",
    "op": "LIT",
    "line": 47,
    "before": "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
@@ -83,7 +83,7 @@
    "reason": "IMAGE of DFHCOMMAREA past the 40-byte record: GETCOMPY never addresses these bytes, the incoming COMMAREA copy overwrites every byte the task returns, and a task without a COMMAREA returns none, so this byte cannot show"
   },
   {
-   "id": "c54b87db30",
+   "id": "3e40043fb8",
    "op": "LIT",
    "line": 48,
    "before": "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\"));",
@@ -92,7 +92,7 @@
    "reason": "IMAGE of DFHCOMMAREA past the 40-byte record: GETCOMPY never addresses these bytes, the incoming COMMAREA copy overwrites every byte the task returns, and a task without a COMMAREA returns none, so this byte cannot show"
   },
   {
-   "id": "2918cc1afd",
+   "id": "0a9b5a874b",
    "op": "LIT",
    "line": 50,
    "before": "\"AAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
@@ -101,7 +101,7 @@
    "reason": "GETCOMPY's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), and never references RETURN-CODE; neither image can show (DFHEIBLK and GG-RETURN-CODE are not compared)"
   },
   {
-   "id": "9eb661a38a",
+   "id": "cc8f158b82",
    "op": "LIT",
    "line": 52,
    "before": "\"AAA=\"));",
@@ -110,7 +110,7 @@
    "reason": "GETCOMPY's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), and never references RETURN-CODE; neither image can show (DFHEIBLK and GG-RETURN-CODE are not compared)"
   },
   {
-   "id": "373ceb664a",
+   "id": "17da04ebc8",
    "op": "CON",
    "line": 58,
    "before": "private final Field f5_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
@@ -119,7 +119,7 @@
    "reason": "GETCOMPY's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the field's layout cannot show; GG-RETURN-CODE is never referenced and the task path never returns it"
   },
   {
-   "id": "a53fce0c89",
+   "id": "9f28db117b",
    "op": "CON",
    "line": 58,
    "before": "private final Field f5_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
@@ -128,7 +128,7 @@
    "reason": "GETCOMPY's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the field's layout cannot show; GG-RETURN-CODE is never referenced and the task path never returns it"
   },
   {
-   "id": "c8bb72f916",
+   "id": "47e35920f4",
    "op": "CON",
    "line": 58,
    "before": "private final Field f5_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
@@ -137,7 +137,7 @@
    "reason": "GETCOMPY's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the field's layout cannot show; GG-RETURN-CODE is never referenced and the task path never returns it"
   },
   {
-   "id": "1a87cb222c",
+   "id": "a55a3b07cf",
    "op": "CON",
    "line": 59,
    "before": "private final Field f6_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
@@ -146,7 +146,7 @@
    "reason": "GETCOMPY's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the field's layout cannot show; GG-RETURN-CODE is never referenced and the task path never returns it"
   },
   {
-   "id": "e4ba581747",
+   "id": "64e002e97f",
    "op": "CON",
    "line": 59,
    "before": "private final Field f6_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
@@ -155,7 +155,7 @@
    "reason": "GETCOMPY's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the field's layout cannot show; GG-RETURN-CODE is never referenced and the task path never returns it"
   },
   {
-   "id": "ed724926ab",
+   "id": "b00238a4c6",
    "op": "CON",
    "line": 59,
    "before": "private final Field f6_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
@@ -164,7 +164,7 @@
    "reason": "GETCOMPY's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the field's layout cannot show; GG-RETURN-CODE is never referenced and the task path never returns it"
   },
   {
-   "id": "07a6263928",
+   "id": "50a22ce2c0",
    "op": "CON",
    "line": 60,
    "before": "private final Field f7_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 4, false);",
@@ -173,7 +173,7 @@
    "reason": "GETCOMPY's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the field's layout cannot show; GG-RETURN-CODE is never referenced and the task path never returns it"
   },
   {
-   "id": "d1090729b8",
+   "id": "32e6c6cc5a",
    "op": "CON",
    "line": 60,
    "before": "private final Field f7_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 4, false);",
@@ -182,7 +182,7 @@
    "reason": "GETCOMPY's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the field's layout cannot show; GG-RETURN-CODE is never referenced and the task path never returns it"
   },
   {
-   "id": "18d7325619",
+   "id": "7fccbde657",
    "op": "CON",
    "line": 61,
    "before": "private final Field f8_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
@@ -191,7 +191,7 @@
    "reason": "GETCOMPY's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the field's layout cannot show; GG-RETURN-CODE is never referenced and the task path never returns it"
   },
   {
-   "id": "8e279feb9f",
+   "id": "65c28c07df",
    "op": "CON",
    "line": 61,
    "before": "private final Field f8_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
@@ -200,7 +200,7 @@
    "reason": "GETCOMPY's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the field's layout cannot show; GG-RETURN-CODE is never referenced and the task path never returns it"
   },
   {
-   "id": "ae9cbe7a1a",
+   "id": "fcf5b476ee",
    "op": "CON",
    "line": 61,
    "before": "private final Field f8_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
@@ -209,7 +209,7 @@
    "reason": "GETCOMPY's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the field's layout cannot show; GG-RETURN-CODE is never referenced and the task path never returns it"
   },
   {
-   "id": "30c345ce50",
+   "id": "58e7b0d8d4",
    "op": "CON",
    "line": 62,
    "before": "private final Field f9_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);",
@@ -218,7 +218,7 @@
    "reason": "GETCOMPY's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the field's layout cannot show; GG-RETURN-CODE is never referenced and the task path never returns it"
   },
   {
-   "id": "d21de58984",
+   "id": "c7e3488889",
    "op": "CON",
    "line": 62,
    "before": "private final Field f9_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);",
@@ -227,7 +227,7 @@
    "reason": "GETCOMPY's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the field's layout cannot show; GG-RETURN-CODE is never referenced and the task path never returns it"
   },
   {
-   "id": "4c1172e101",
+   "id": "d066bcec31",
    "op": "CON",
    "line": 63,
    "before": "private final Field f12_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
@@ -236,7 +236,7 @@
    "reason": "GETCOMPY's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the field's layout cannot show; GG-RETURN-CODE is never referenced and the task path never returns it"
   },
   {
-   "id": "674db40688",
+   "id": "0ff4c2052d",
    "op": "CON",
    "line": 63,
    "before": "private final Field f12_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
@@ -245,7 +245,7 @@
    "reason": "GETCOMPY's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the field's layout cannot show; GG-RETURN-CODE is never referenced and the task path never returns it"
   },
   {
-   "id": "b67aeb1f71",
+   "id": "dd8a3aa5d7",
    "op": "CON",
    "line": 63,
    "before": "private final Field f12_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
@@ -254,7 +254,7 @@
    "reason": "GETCOMPY's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the field's layout cannot show; GG-RETURN-CODE is never referenced and the task path never returns it"
   },
   {
-   "id": "0b05aea57e",
+   "id": "3c198bb0de",
    "op": "CON",
    "line": 64,
    "before": "private final Field f36_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
@@ -263,7 +263,7 @@
    "reason": "GETCOMPY's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the field's layout cannot show; GG-RETURN-CODE is never referenced and the task path never returns it"
   },
   {
-   "id": "3ae051afb5",
+   "id": "18c42021fb",
    "op": "CON",
    "line": 64,
    "before": "private final Field f36_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
@@ -272,7 +272,7 @@
    "reason": "GETCOMPY's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the field's layout cannot show; GG-RETURN-CODE is never referenced and the task path never returns it"
   },
   {
-   "id": "7e8c06216e",
+   "id": "e0bc066dff",
    "op": "CON",
    "line": 64,
    "before": "private final Field f36_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
@@ -281,7 +281,7 @@
    "reason": "GETCOMPY's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the field's layout cannot show; GG-RETURN-CODE is never referenced and the task path never returns it"
   },
   {
-   "id": "337ffcebd5",
+   "id": "010eab2a1a",
    "op": "CON",
    "line": 75,
    "before": "if (task.level() > 1) {",
@@ -290,7 +290,7 @@
    "reason": "abended() is called only from condition(); GETCOMPY issues only EXEC CICS RETURN, which raises no condition, so it never runs"
   },
   {
-   "id": "8c1abb7b3d",
+   "id": "c887bc0136",
    "op": "NEG",
    "line": 75,
    "before": "if (task.level() > 1) {",
@@ -299,7 +299,7 @@
    "reason": "abended() is called only from condition(); GETCOMPY issues only EXEC CICS RETURN, which raises no condition, so it never runs"
   },
   {
-   "id": "9a4e879895",
+   "id": "e6efab2d07",
    "op": "ROR",
    "line": 75,
    "before": "if (task.level() > 1) {",
@@ -308,7 +308,7 @@
    "reason": "abended() is called only from condition(); GETCOMPY issues only EXEC CICS RETURN, which raises no condition, so it never runs"
   },
   {
-   "id": "c719dc2d0f",
+   "id": "9d1a162e45",
    "op": "ROR",
    "line": 75,
    "before": "if (task.level() > 1) {",
@@ -317,7 +317,7 @@
    "reason": "abended() is called only from condition(); GETCOMPY issues only EXEC CICS RETURN, which raises no condition, so it never runs"
   },
   {
-   "id": "8f4ca1e115",
+   "id": "72c1dad6a2",
    "op": "DEL",
    "line": 76,
    "before": "caBack.run();",
@@ -326,7 +326,7 @@
    "reason": "abended() is called only from condition(); GETCOMPY issues only EXEC CICS RETURN, which raises no condition, so it never runs"
   },
   {
-   "id": "6c39f057c9",
+   "id": "05dafc9b61",
    "op": "LIT",
    "line": 81,
    "before": "@SuppressWarnings(\"unchecked\")",
@@ -335,7 +335,7 @@
    "reason": "An @SuppressWarnings annotation string has no run-time effect."
   },
   {
-   "id": "9c3784a005",
+   "id": "6b87962fca",
    "op": "LIT",
    "line": 83,
    "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
@@ -344,7 +344,7 @@
    "reason": "The Hole is thrown by the file-store lookup, reached only by a file command; GETCOMPY issues none."
   },
   {
-   "id": "f18785bd34",
+   "id": "3bcf9775b7",
    "op": "LIT",
    "line": 83,
    "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
@@ -353,7 +353,7 @@
    "reason": "The Hole is thrown by the file-store lookup, reached only by a file command; GETCOMPY issues none."
   },
   {
-   "id": "63e0fe4eb1",
+   "id": "9dfdc65066",
    "op": "CON",
    "line": 87,
    "before": "java.util.Map.entry(\"A010\", 1),",
@@ -362,7 +362,7 @@
    "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; GETCOMPY has no HANDLE and GETCOMPY issues only EXEC CICS RETURN, which raises none"
   },
   {
-   "id": "c2c92ee70c",
+   "id": "9d69a94eeb",
    "op": "LIT",
    "line": 87,
    "before": "java.util.Map.entry(\"A010\", 1),",
@@ -371,7 +371,7 @@
    "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; GETCOMPY has no HANDLE and GETCOMPY issues only EXEC CICS RETURN, which raises none"
   },
   {
-   "id": "0e80a1d956",
+   "id": "eeac0d6281",
    "op": "CON",
    "line": 88,
    "before": "java.util.Map.entry(\"PREMIERE\", 0)",
@@ -380,7 +380,7 @@
    "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; GETCOMPY has no HANDLE and GETCOMPY issues only EXEC CICS RETURN, which raises none"
   },
   {
-   "id": "58069bdab6",
+   "id": "6c2986651c",
    "op": "LIT",
    "line": 88,
    "before": "java.util.Map.entry(\"PREMIERE\", 0)",
@@ -389,7 +389,7 @@
    "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; GETCOMPY has no HANDLE and GETCOMPY issues only EXEC CICS RETURN, which raises none"
   },
   {
-   "id": "3a6283e0af",
+   "id": "5e5bda52ec",
    "op": "NEG",
    "line": 93,
    "before": "if (i == null) {",
@@ -398,7 +398,7 @@
    "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; GETCOMPY has no HANDLE and GETCOMPY issues only EXEC CICS RETURN, which raises none"
   },
   {
-   "id": "f81b82a9e4",
+   "id": "3fcc5e74c2",
    "op": "ROR",
    "line": 93,
    "before": "if (i == null) {",
@@ -407,7 +407,7 @@
    "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; GETCOMPY has no HANDLE and GETCOMPY issues only EXEC CICS RETURN, which raises none"
   },
   {
-   "id": "afbc455710",
+   "id": "29c83e6c0c",
    "op": "LIT",
    "line": 94,
    "before": "throw new IllegalStateException(\"no paragraph \" + name);",
@@ -416,7 +416,7 @@
    "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; GETCOMPY has no HANDLE and GETCOMPY issues only EXEC CICS RETURN, which raises none"
   },
   {
-   "id": "75f1876853",
+   "id": "f0086146cd",
    "op": "ROR",
    "line": 106,
    "before": "if (h != null) {",
@@ -425,7 +425,7 @@
    "reason": "condition() runs only for a CICS condition a command raises without RESP; GETCOMPY issues only EXEC CICS RETURN, which raises none"
   },
   {
-   "id": "93b0e5b562",
+   "id": "8f1ac1d197",
    "op": "NEG",
    "line": 106,
    "before": "if (h != null) {",
@@ -434,7 +434,7 @@
    "reason": "condition() runs only for a CICS condition a command raises without RESP; GETCOMPY issues only EXEC CICS RETURN, which raises none"
   },
   {
-   "id": "81137f2edb",
+   "id": "b96b16456e",
    "op": "NEG",
    "line": 109,
    "before": "if (DetCics.ignoredByDefault(cond)) {",
@@ -443,7 +443,7 @@
    "reason": "condition() runs only for a CICS condition a command raises without RESP; GETCOMPY issues only EXEC CICS RETURN, which raises none"
   },
   {
-   "id": "5b4eaab066",
+   "id": "00e30c78df",
    "op": "CON",
    "line": 110,
    "before": "return -1;",
@@ -452,7 +452,7 @@
    "reason": "condition() runs only for a CICS condition a command raises without RESP; GETCOMPY issues only EXEC CICS RETURN, which raises none"
   },
   {
-   "id": "76790b7e76",
+   "id": "ab09b65e4d",
    "op": "LIT",
    "line": 112,
    "before": "Integer error = handlers.get(\"ERROR\");",
@@ -461,7 +461,7 @@
    "reason": "condition() runs only for a CICS condition a command raises without RESP; GETCOMPY issues only EXEC CICS RETURN, which raises none"
   },
   {
-   "id": "234d59fd00",
+   "id": "9b5aad990e",
    "op": "ROR",
    "line": 113,
    "before": "if (error != null) {",
@@ -470,7 +470,7 @@
    "reason": "condition() runs only for a CICS condition a command raises without RESP; GETCOMPY issues only EXEC CICS RETURN, which raises none"
   },
   {
-   "id": "72c8d04d68",
+   "id": "bc4e5f4c98",
    "op": "NEG",
    "line": 113,
    "before": "if (error != null) {",
@@ -479,7 +479,7 @@
    "reason": "condition() runs only for a CICS condition a command raises without RESP; GETCOMPY issues only EXEC CICS RETURN, which raises none"
   },
   {
-   "id": "b18b7c98ef",
+   "id": "9cff5a6444",
    "op": "ROR",
    "line": 117,
    "before": "if (label == null) {",
@@ -488,7 +488,7 @@
    "reason": "condition() runs only for a CICS condition a command raises without RESP; GETCOMPY issues only EXEC CICS RETURN, which raises none"
   },
   {
-   "id": "b93e75665c",
+   "id": "8e45d740b7",
    "op": "NEG",
    "line": 117,
    "before": "if (label == null) {",
@@ -497,7 +497,7 @@
    "reason": "condition() runs only for a CICS condition a command raises without RESP; GETCOMPY issues only EXEC CICS RETURN, which raises none"
   },
   {
-   "id": "3786ee28e2",
+   "id": "c191530e1f",
    "op": "ROR",
    "line": 128,
    "before": "if (d == null) {",
@@ -506,7 +506,7 @@
    "reason": "in_ is called only under `ca instanceof GetcompyDfhcommarea x`, which is never null, so the null guard never fires"
   },
   {
-   "id": "79b3f4238c",
+   "id": "3bbe5ee3fb",
    "op": "NEG",
    "line": 128,
    "before": "if (d == null) {",
@@ -515,7 +515,7 @@
    "reason": "in_ is called only under `ca instanceof GetcompyDfhcommarea x`, which is never null, so the null guard never fires"
   },
   {
-   "id": "eb842938fd",
+   "id": "882a403383",
    "op": "DEL",
    "line": 129,
    "before": "return;",
@@ -524,7 +524,7 @@
    "reason": "in_ is called only under `ca instanceof GetcompyDfhcommarea x`, which is never null, so the null guard never fires"
   },
   {
-   "id": "881046fce4",
+   "id": "abd41bece0",
    "op": "CON",
    "line": 131,
    "before": "Cobol.move(d.getCompanyName() == null ? \"\" : d.getCompanyName(), Field.alphanumeric(s, base + 0, 40, false), CS);",
@@ -533,7 +533,7 @@
    "reason": "in_GetcompyDfhcommarea copies the DTO's COMPANY-NAME into the 40-byte COMMAREA storage, and the program's one statement then MOVEs its literal over those same 40 bytes before anything reads or writes back the field (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back): whatever in_ stores, or not, is overwritten"
   },
   {
-   "id": "8980635dad",
+   "id": "5eae72f192",
    "op": "ROR",
    "line": 131,
    "before": "Cobol.move(d.getCompanyName() == null ? \"\" : d.getCompanyName(), Field.alphanumeric(s, base + 0, 40, false), CS);",
@@ -542,7 +542,7 @@
    "reason": "in_GetcompyDfhcommarea copies the DTO's COMPANY-NAME into the 40-byte COMMAREA storage, and the program's one statement then MOVEs its literal over those same 40 bytes before anything reads or writes back the field (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back): whatever in_ stores, or not, is overwritten"
   },
   {
-   "id": "8b2dec046f",
+   "id": "0a6cba09ad",
    "op": "CON",
    "line": 131,
    "before": "Cobol.move(d.getCompanyName() == null ? \"\" : d.getCompanyName(), Field.alphanumeric(s, base + 0, 40, false), CS);",
@@ -551,7 +551,7 @@
    "reason": "in_GetcompyDfhcommarea copies the DTO's COMPANY-NAME into the 40-byte COMMAREA storage, and the program's one statement then MOVEs its literal over those same 40 bytes before anything reads or writes back the field (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back): whatever in_ stores, or not, is overwritten"
   },
   {
-   "id": "a76b4cbf99",
+   "id": "ecbb931188",
    "op": "AOR",
    "line": 131,
    "before": "Cobol.move(d.getCompanyName() == null ? \"\" : d.getCompanyName(), Field.alphanumeric(s, base + 0, 40, false), CS);",
@@ -560,7 +560,7 @@
    "reason": "in_GetcompyDfhcommarea copies the DTO's COMPANY-NAME into the 40-byte COMMAREA storage, and the program's one statement then MOVEs its literal over those same 40 bytes before anything reads or writes back the field (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back): whatever in_ stores, or not, is overwritten"
   },
   {
-   "id": "93d71faec2",
+   "id": "88fa9b8809",
    "op": "AOR",
    "line": 135,
    "before": "d.setCompanyName(Cobol.text(Field.alphanumeric(s, base + 0, 40, false), CS));",
@@ -569,7 +569,7 @@
    "reason": "base is always 0 for the DFHCOMMAREA record, so `base + 0` and `base - 0` are the same offset"
   },
   {
-   "id": "813601ddfd",
+   "id": "ed77cb365a",
    "op": "DEL",
    "line": 140,
    "before": "fill_GetcompyDfhcommarea(d, s, base);",
@@ -578,7 +578,7 @@
    "reason": "fill_ is called by out_GetcompyDfhcommarea, which nothing calls: GETCOMPY returns no COMMAREA through a RETURN (the typed entry's write-back calls fill_ itself, line 207, which the dto_entry scenarios compare)"
   },
   {
-   "id": "e38a6ba31b",
+   "id": "3150b383ee",
    "op": "DEL",
    "line": 165,
    "before": "System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length);",
@@ -587,7 +587,7 @@
    "reason": "GETCOMPY's MOVE writes its whole record before anything reads DFHCOMMAREA and the program reads no working storage that the image sets, so which bytes the area starts from cannot show"
   },
   {
-   "id": "5344f47448",
+   "id": "fa037e5ba8",
    "op": "DEL",
    "line": 166,
    "before": "System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length);",
@@ -596,7 +596,7 @@
    "reason": "GETCOMPY's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), and never references RETURN-CODE; neither image can show (DFHEIBLK and GG-RETURN-CODE are not compared)"
   },
   {
-   "id": "b3dcdde4cb",
+   "id": "6ac3f8872b",
    "op": "DEL",
    "line": 167,
    "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
@@ -605,7 +605,7 @@
    "reason": "GETCOMPY's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), and never references RETURN-CODE; neither image can show (DFHEIBLK and GG-RETURN-CODE are not compared)"
   },
   {
-   "id": "6e97bf9e38",
+   "id": "835783ffc2",
    "op": "DEL",
    "line": 190,
    "before": "caBack = () -> { };",
@@ -614,7 +614,7 @@
    "reason": "caBack is declared as a no-op and reset per task; without the reset a task with no COMMAREA after one with refills that earlier task's DTO from the area, which nothing reads"
   },
   {
-   "id": "2cb2791b4c",
+   "id": "90c5adcddd",
    "op": "DEL",
    "line": 191,
    "before": "handlers.clear();",
@@ -623,7 +623,7 @@
    "reason": "GETCOMPY has no HANDLE CONDITION/ABEND or READ UPDATE, so handlers and heldKey are never filled and never read"
   },
   {
-   "id": "ff7667a882",
+   "id": "ad76994837",
    "op": "DEL",
    "line": 192,
    "before": "heldKey.clear();",
@@ -632,7 +632,7 @@
    "reason": "GETCOMPY has no HANDLE CONDITION/ABEND or READ UPDATE, so handlers and heldKey are never filled and never read"
   },
   {
-   "id": "6ff3add2a6",
+   "id": "0aded7d725",
    "op": "DEL",
    "line": 193,
    "before": "initialState();",
@@ -641,7 +641,7 @@
    "reason": "GETCOMPY writes its whole record before anything reads DFHCOMMAREA and reads no working storage, so storage that starts zeroed or holds an earlier task's bytes cannot show"
   },
   {
-   "id": "730913e7d1",
+   "id": "ce1c46a32a",
    "op": "DEL",
    "line": 194,
    "before": "Cobol.move(task.transid(), f7_EIBTRNID, CS);",
@@ -650,7 +650,7 @@
    "reason": "GETCOMPY's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTRMID/EIBTASKN/EIBDATE/EIBTIME cannot show"
   },
   {
-   "id": "921bf8c8e3",
+   "id": "a7e2f3fa2b",
    "op": "DEL",
    "line": 196,
    "before": "Cobol.store(f8_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS);",
@@ -659,7 +659,7 @@
    "reason": "GETCOMPY's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTRMID/EIBTASKN/EIBDATE/EIBTIME cannot show"
   },
   {
-   "id": "0380d862d3",
+   "id": "47a485c884",
    "op": "AOR",
    "line": 198,
    "before": "Cobol.store(f6_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
@@ -668,7 +668,7 @@
    "reason": "GETCOMPY's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTRMID/EIBTASKN/EIBDATE/EIBTIME cannot show"
   },
   {
-   "id": "20e0bffb7b",
+   "id": "763dccf3e6",
    "op": "AOR",
    "line": 198,
    "before": "Cobol.store(f6_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
@@ -677,7 +677,7 @@
    "reason": "GETCOMPY's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTRMID/EIBTASKN/EIBDATE/EIBTIME cannot show"
   },
   {
-   "id": "674f255086",
+   "id": "157b0e9c2f",
    "op": "DEL",
    "line": 198,
    "before": "Cobol.store(f6_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
@@ -686,7 +686,7 @@
    "reason": "GETCOMPY's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTRMID/EIBTASKN/EIBDATE/EIBTIME cannot show"
   },
   {
-   "id": "bde54b7089",
+   "id": "4e35b0c2a3",
    "op": "CON",
    "line": 198,
    "before": "Cobol.store(f6_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
@@ -695,7 +695,7 @@
    "reason": "GETCOMPY's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTRMID/EIBTASKN/EIBDATE/EIBTIME cannot show"
   },
   {
-   "id": "f812075b93",
+   "id": "97612862f9",
    "op": "AOR",
    "line": 198,
    "before": "Cobol.store(f6_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
@@ -704,7 +704,7 @@
    "reason": "GETCOMPY's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTRMID/EIBTASKN/EIBDATE/EIBTIME cannot show"
   },
   {
-   "id": "453d52ab94",
+   "id": "5c5fa336ef",
    "op": "AOR",
    "line": 199,
    "before": "Cobol.store(f5_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
@@ -713,7 +713,7 @@
    "reason": "GETCOMPY's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTRMID/EIBTASKN/EIBDATE/EIBTIME cannot show"
   },
   {
-   "id": "50bba3f1f5",
+   "id": "833c380048",
    "op": "DEL",
    "line": 199,
    "before": "Cobol.store(f5_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
@@ -722,7 +722,7 @@
    "reason": "GETCOMPY's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTRMID/EIBTASKN/EIBDATE/EIBTIME cannot show"
   },
   {
-   "id": "5adf2444d7",
+   "id": "a4d6c7038b",
    "op": "AOR",
    "line": 199,
    "before": "Cobol.store(f5_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
@@ -731,7 +731,7 @@
    "reason": "GETCOMPY's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTRMID/EIBTASKN/EIBDATE/EIBTIME cannot show"
   },
   {
-   "id": "8b498d0f24",
+   "id": "da512eb91c",
    "op": "AOR",
    "line": 199,
    "before": "Cobol.store(f5_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
@@ -740,7 +740,7 @@
    "reason": "GETCOMPY's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTRMID/EIBTASKN/EIBDATE/EIBTIME cannot show"
   },
   {
-   "id": "f9015ae258",
+   "id": "f0ac7c975b",
    "op": "AOR",
    "line": 199,
    "before": "Cobol.store(f5_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
@@ -749,7 +749,7 @@
    "reason": "GETCOMPY's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTRMID/EIBTASKN/EIBDATE/EIBTIME cannot show"
   },
   {
-   "id": "e5d8c18864",
+   "id": "93986439d0",
    "op": "ROR",
    "line": 200,
    "before": "switch (task.aid() == null ? \"\" : task.aid()) {",
@@ -758,7 +758,7 @@
    "reason": "the generated AID switch has only a default arm (no HANDLE AID, no DFHAID test), so either operand reaches the same arm"
   },
   {
-   "id": "9ada7d9f59",
+   "id": "8e58367260",
    "op": "CON",
    "line": 204,
    "before": "int calen = 0;",
@@ -767,7 +767,7 @@
    "reason": "calen starts 0 only for a task with no DTO; it then reaches EIBCALEN (never read by the program) and, if exactCommarea, a cut to 0 or 1 byte that the MOVE fails either way (PastFrom, refused on both sides)"
   },
   {
-   "id": "15162642eb",
+   "id": "465e4da64a",
    "op": "CON",
    "line": 206,
    "before": "in_GetcompyDfhcommarea(x, s_DFHCOMMAREA, 0);",
@@ -776,7 +776,7 @@
    "reason": "in_GetcompyDfhcommarea copies the DTO's COMPANY-NAME into the 40-byte COMMAREA storage, and the program's one statement then MOVEs its literal over those same 40 bytes before anything reads or writes back the field (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back): whatever in_ stores, or not, is overwritten"
   },
   {
-   "id": "41eb3f84aa",
+   "id": "dfc22cba77",
    "op": "DEL",
    "line": 206,
    "before": "in_GetcompyDfhcommarea(x, s_DFHCOMMAREA, 0);",
@@ -785,7 +785,7 @@
    "reason": "in_GetcompyDfhcommarea copies the DTO's COMPANY-NAME into the 40-byte COMMAREA storage, and the program's one statement then MOVEs its literal over those same 40 bytes before anything reads or writes back the field (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back): whatever in_ stores, or not, is overwritten"
   },
   {
-   "id": "47a3540962",
+   "id": "aee12fa9a9",
    "op": "CON",
    "line": 208,
    "before": "calen = cx(task, 40);",
@@ -794,7 +794,7 @@
    "reason": "cx() answers the scenario's stated EIBCALEN when it has one; the default only reaches EIBCALEN (never read by the program) or a cut at the record's width plus one that the program's MOVE still fits"
   },
   {
-   "id": "2723133859",
+   "id": "02134c5f29",
    "op": "DEL",
    "line": 210,
    "before": "s_DFHCOMMAREA.beyond = null;",
@@ -803,7 +803,7 @@
    "reason": "s_DFHCOMMAREA.beyond is initialized to null on Storage creation; deleting this initialization leaves it null."
   },
   {
-   "id": "4b1c795271",
+   "id": "11a91be274",
    "op": "CON",
    "line": 213,
    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
@@ -812,7 +812,7 @@
    "reason": "ca instanceof byte[] branch is unreachable: callers pass GetcompyDfhcommarea DTO, never raw byte[]"
   },
   {
-   "id": "65924fc8e2",
+   "id": "5dcafb9ac4",
    "op": "CON",
    "line": 213,
    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
@@ -821,7 +821,7 @@
    "reason": "ca instanceof byte[] branch is unreachable: callers pass GetcompyDfhcommarea DTO, never raw byte[]"
   },
   {
-   "id": "fc3fed9620",
+   "id": "e184754aa0",
    "op": "DEL",
    "line": 213,
    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
@@ -830,7 +830,7 @@
    "reason": "ca instanceof byte[] branch is unreachable: callers pass GetcompyDfhcommarea DTO, never raw byte[]"
   },
   {
-   "id": "05396dfd07",
+   "id": "1ea2a80262",
    "op": "NEG",
    "line": 214,
    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
@@ -839,7 +839,7 @@
    "reason": "ca instanceof byte[] branch is unreachable: callers pass GetcompyDfhcommarea DTO, never raw byte[]"
   },
   {
-   "id": "39ea9d7ac5",
+   "id": "9babeb9442",
    "op": "ROR",
    "line": 214,
    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
@@ -848,7 +848,7 @@
    "reason": "ca instanceof byte[] branch is unreachable: callers pass GetcompyDfhcommarea DTO, never raw byte[]"
   },
   {
-   "id": "fd9a72ea9a",
+   "id": "2a57e6fad7",
    "op": "ROR",
    "line": 214,
    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
@@ -857,7 +857,7 @@
    "reason": "ca instanceof byte[] branch is unreachable: callers pass GetcompyDfhcommarea DTO, never raw byte[]"
   },
   {
-   "id": "6592ef74b6",
+   "id": "83971ceb02",
    "op": "DEL",
    "line": 215,
    "before": "s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length);",
@@ -866,7 +866,7 @@
    "reason": "ca instanceof byte[] branch is unreachable: callers pass GetcompyDfhcommarea DTO, never raw byte[]"
   },
   {
-   "id": "a0e9958270",
+   "id": "a09175d61d",
    "op": "DEL",
    "line": 217,
    "before": "calen = cx(task, cb.length);",
@@ -875,7 +875,7 @@
    "reason": "ca instanceof byte[] branch is unreachable: callers pass GetcompyDfhcommarea DTO, never raw byte[]"
   },
   {
-   "id": "0de186eca7",
+   "id": "e9733f48f4",
    "op": "CON",
    "line": 221,
    "before": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
@@ -884,7 +884,7 @@
    "reason": "the link area is the DTO's own bytes (the harness builds it from the scenario's COMMAREA) and GETCOMPY's MOVE replaces the whole 40-byte record before anything reads it, so where the copy puts them cannot show"
   },
   {
-   "id": "6c2b323733",
+   "id": "4a419587c4",
    "op": "DEL",
    "line": 221,
    "before": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
@@ -893,7 +893,7 @@
    "reason": "the link area is the DTO's own bytes (the harness builds it from the scenario's COMMAREA) and GETCOMPY's MOVE replaces the whole 40-byte record before anything reads it, so where the copy puts them cannot show"
   },
   {
-   "id": "c5ab861284",
+   "id": "75522eff66",
    "op": "DEL",
    "line": 223,
    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
@@ -902,7 +902,7 @@
    "reason": "raw != null branch is unreachable: task.linkArea() is only passed by 2-param handleLink, which is never invoked"
   },
   {
-   "id": "cd2f855ee9",
+   "id": "d39b41882d",
    "op": "ROR",
    "line": 223,
    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
@@ -911,7 +911,7 @@
    "reason": "raw != null branch is unreachable: task.linkArea() is only passed by 2-param handleLink, which is never invoked"
   },
   {
-   "id": "bc8549353b",
+   "id": "509f0ce25b",
    "op": "CON",
    "line": 225,
    "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
@@ -920,7 +920,7 @@
    "reason": "raw != null branch is unreachable: task.linkArea() is only passed by 2-param handleLink, which is never invoked"
   },
   {
-   "id": "c49c0b0ce7",
+   "id": "c176518b0e",
    "op": "AOR",
    "line": 225,
    "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
@@ -929,7 +929,7 @@
    "reason": "raw != null branch is unreachable: task.linkArea() is only passed by 2-param handleLink, which is never invoked"
   },
   {
-   "id": "95b5dbb27a",
+   "id": "870ffa5cac",
    "op": "ROR",
    "line": 228,
    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
@@ -938,7 +938,7 @@
    "reason": "calen == the 1985-byte storage would only copy the full area to an array of its own length and restore it; no stated EIBCALEN reaches 1985 (the harness caps it at the record), and the result is the same bytes either way"
   },
   {
-   "id": "68e17e89cf",
+   "id": "33c6051541",
    "op": "DEL",
    "line": 233,
    "before": "caBack = () -> { caWhole(whole); typed.run(); };",
@@ -947,7 +947,7 @@
    "reason": "the finally block's caWhole(caWhole) restores the full area before caBack runs on every path that reaches it, so the lambda's own caWhole(whole) finds bytes == whole and does nothing"
   },
   {
-   "id": "b8cce13afd",
+   "id": "e3ef23836f",
    "op": "DEL",
    "line": 235,
    "before": "Cobol.store(f12_EIBCALEN, BigDecimal.valueOf(calen), false, CS);",
@@ -956,7 +956,7 @@
    "reason": "GETCOMPY's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTRMID/EIBTASKN/EIBDATE/EIBTIME cannot show"
   },
   {
-   "id": "16c0da4c7d",
+   "id": "b115c15ac7",
    "op": "CON",
    "line": 238,
    "before": "perform(0, 1);",
@@ -965,7 +965,7 @@
    "reason": "p0 (PREMIERE) is empty and returns 1, so starting at paragraph 1 (A010) or stopping at thru 2 runs the same A010 and its RETURN"
   },
   {
-   "id": "2be88263bb",
+   "id": "7ba751f7e3",
    "op": "CON",
    "line": 238,
    "before": "perform(0, 1);",
@@ -974,7 +974,7 @@
    "reason": "p0 (PREMIERE) is empty and returns 1, so starting at paragraph 1 (A010) or stopping at thru 2 runs the same A010 and its RETURN"
   },
   {
-   "id": "c6e555f233",
+   "id": "c0b8cfa9e8",
    "op": "LIT",
    "line": 246,
    "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
@@ -983,7 +983,7 @@
    "reason": "the PastFrom text is diagnostic: a scenario whose run raises it is refused on both sides and no event is compared"
   },
   {
-   "id": "f52d244079",
+   "id": "6869099693",
    "op": "LIT",
    "line": 246,
    "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
@@ -992,7 +992,7 @@
    "reason": "the PastFrom text is diagnostic: a scenario whose run raises it is refused on both sides and no event is compared"
   },
   {
-   "id": "c5d2653c41",
+   "id": "42c712bfa0",
    "op": "DEL",
    "line": 253,
    "before": "caBack.run();",
@@ -1001,7 +1001,7 @@
    "reason": "The fallback runs only when !task.ended(); A010's RETURN has already ended the task (and run caBack), so it never runs"
   },
   {
-   "id": "60cdcff8ca",
+   "id": "c6bf7e8c78",
    "op": "DEL",
    "line": 257,
    "before": "Cobol.swapTruncOpt(optBefore);",
@@ -1010,7 +1010,7 @@
    "reason": "the restore of the compile mode in runTask's finally matters only to code that runs after the task in the same JVM; every entry point sets the mode itself before it runs a program, and the program does no arithmetic"
   },
   {
-   "id": "d5e6408406",
+   "id": "3d3d3a4e02",
    "op": "DEL",
    "line": 258,
    "before": "Cobol.swapTruncBinary(truncBefore);",
@@ -1019,7 +1019,7 @@
    "reason": "the restore of the compile mode in runTask's finally matters only to code that runs after the task in the same JVM; every entry point sets the mode itself before it runs a program, and the program does no arithmetic"
   },
   {
-   "id": "634d1f44cb",
+   "id": "d3627798cb",
    "op": "DEL",
    "line": 259,
    "before": "Cobol.swapNumprocPfd(pfdBefore);",
@@ -1028,7 +1028,7 @@
    "reason": "the restore of the compile mode in runTask's finally matters only to code that runs after the task in the same JVM; every entry point sets the mode itself before it runs a program, and the program does no arithmetic"
   },
   {
-   "id": "069a90e847",
+   "id": "b40ff31708",
    "op": "LIT",
    "line": 272,
    "before": "CicsTask task = region.linked(\"GETCOMPY\", request, area);",
@@ -1037,7 +1037,7 @@
    "reason": "handleLink(request, byte[] area) overload is never called by the equivalence test runner"
   },
   {
-   "id": "0f582fda06",
+   "id": "592dd8a9f7",
    "op": "LIT",
    "line": 273,
    "before": "region.run(task, \"GETCOMPY\", this::runTask);",
@@ -1046,7 +1046,7 @@
    "reason": "handleLink(request, byte[] area) overload is never called by the equivalence test runner"
   },
   {
-   "id": "232d34630d",
+   "id": "2bcd761161",
    "op": "COR",
    "line": 275,
    "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
@@ -1055,7 +1055,7 @@
    "reason": "handleLink(request, byte[] area) overload is never called by the equivalence test runner"
   },
   {
-   "id": "ab8de52cba",
+   "id": "e001f004db",
    "op": "DEL",
    "line": 275,
    "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
@@ -1064,7 +1064,7 @@
    "reason": "handleLink(request, byte[] area) overload is never called by the equivalence test runner"
   },
   {
-   "id": "dbfbe0cd74",
+   "id": "9aef4e1764",
    "op": "ROR",
    "line": 275,
    "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
@@ -1073,7 +1073,7 @@
    "reason": "handleLink(request, byte[] area) overload is never called by the equivalence test runner"
   },
   {
-   "id": "7d49999541",
+   "id": "2b98fa16cb",
    "op": "ROR",
    "line": 285,
    "before": "return lastLinkBytes == null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
@@ -1082,7 +1082,7 @@
    "reason": "lastLinkBytes() helper is never called in equivalence testing"
   },
   {
-   "id": "af674985a7",
+   "id": "f060bce2ba",
    "op": "DEL",
    "line": 294,
    "before": "super(null, null, false, false);",
@@ -1091,7 +1091,7 @@
    "reason": "Only the exception's message and stack-trace suppression: nothing reads either (Goback / PerformExit are control flow)."
   },
   {
-   "id": "44a5e4f4cf",
+   "id": "5202ffeb7b",
    "op": "CON",
    "line": 327,
    "before": "private int[] performThru = new int[64];",
@@ -1100,7 +1100,7 @@
    "reason": "The stack grows only when 64 PERFORMs are active at once; this program makes one (perform(0, 1) from runTask)."
   },
   {
-   "id": "92ba347489",
+   "id": "82d5448aaa",
    "op": "DEL",
    "line": 336,
    "before": "super(null, null, false, false);",
@@ -1109,7 +1109,7 @@
    "reason": "Only the exception's message and stack-trace suppression: nothing reads either (Goback / PerformExit are control flow)."
   },
   {
-   "id": "10e6837d4e",
+   "id": "0aeee98934",
    "op": "CON",
    "line": 347,
    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
@@ -1118,7 +1118,7 @@
    "reason": "The stack grows only when 64 PERFORMs are active at once; this program makes one (perform(0, 1) from runTask)."
   },
   {
-   "id": "45f8a8018b",
+   "id": "f6691bf696",
    "op": "AOR",
    "line": 347,
    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
@@ -1127,7 +1127,7 @@
    "reason": "The stack grows only when 64 PERFORMs are active at once; this program makes one (perform(0, 1) from runTask)."
   },
   {
-   "id": "712ecce7fe",
+   "id": "804be6d595",
    "op": "DEL",
    "line": 347,
    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
@@ -1136,7 +1136,7 @@
    "reason": "The stack grows only when 64 PERFORMs are active at once; this program makes one (perform(0, 1) from runTask)."
   },
   {
-   "id": "af0eca565b",
+   "id": "43a3bef6df",
    "op": "AOR",
    "line": 349,
    "before": "performThru[performDepth++] = thru;",
@@ -1145,7 +1145,7 @@
    "reason": "performDepth is restored to `mine` by the finally; with the single PERFORM of this program the outer-range scan (a loop over indices below `mine` = 0) never iterates, so the stack contents cannot show"
   },
   {
-   "id": "76950058fe",
+   "id": "b0476d1c1d",
    "op": "ROR",
    "line": 354,
    "before": "boolean jumped = (next & GOTO) != 0;",
@@ -1154,7 +1154,7 @@
    "reason": "GETCOMPY has no GO TO: run(0) returns 1 and run(1) throws Goback. With `jumped` flipped next is still 1, `next &= ~GOTO` leaves it 1, and the range-end scan (a loop over indices below mine = 0) never iterates, so control moves to paragraph 1 either way"
   },
   {
-   "id": "79a755fec7",
+   "id": "07b4d0bee1",
    "op": "CON",
    "line": 354,
    "before": "boolean jumped = (next & GOTO) != 0;",
@@ -1163,7 +1163,7 @@
    "reason": "GETCOMPY has no GO TO: run(0) returns 1 and run(1) throws Goback. With `jumped` flipped next is still 1, `next &= ~GOTO` leaves it 1, and the range-end scan (a loop over indices below mine = 0) never iterates, so control moves to paragraph 1 either way"
   },
   {
-   "id": "ca69c8a37f",
+   "id": "dab27b7ab6",
    "op": "NEG",
    "line": 356,
    "before": "if (!jumped) {",
@@ -1172,7 +1172,7 @@
    "reason": "GETCOMPY has no GO TO and only p0 returns (to p1): the branch's body only returns when i == thru (1, never reached since p1 throws Goback) and scans an empty range, so skipping or forcing it changes nothing"
   },
   {
-   "id": "7c845bcdde",
+   "id": "a3aac2e5fd",
    "op": "DEL",
    "line": 358,
    "before": "return;",
@@ -1181,7 +1181,7 @@
    "reason": "in_ is called only under `ca instanceof GetcompyDfhcommarea x`, which is never null, so the null guard never fires"
   },
   {
-   "id": "24d813a32a",
+   "id": "26fc64ae3e",
    "op": "CON",
    "line": 360,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
@@ -1190,7 +1190,7 @@
    "reason": "The scan runs over the PERFORMs outside this one: perform() is entered once, at depth mine = 0, so `d = mine - 1` is -1 and the body never runs"
   },
   {
-   "id": "3ffbe96660",
+   "id": "863c0176bd",
    "op": "AOR",
    "line": 360,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
@@ -1199,7 +1199,7 @@
    "reason": "The scan runs over the PERFORMs outside this one: perform() is entered once, at depth mine = 0, so `d = mine - 1` is -1 and the body never runs"
   },
   {
-   "id": "75fd99d00b",
+   "id": "2e4a272855",
    "op": "ROR",
    "line": 360,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
@@ -1208,7 +1208,7 @@
    "reason": "The scan runs over the PERFORMs outside this one: perform() is entered once, at depth mine = 0, so `d = mine - 1` is -1 and the body never runs"
   },
   {
-   "id": "eba2e418ce",
+   "id": "cdd3b1b476",
    "op": "CON",
    "line": 360,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
@@ -1217,7 +1217,7 @@
    "reason": "The scan runs over the PERFORMs outside this one: perform() is entered once, at depth mine = 0, so `d = mine - 1` is -1 and the body never runs"
   },
   {
-   "id": "3939edb62e",
+   "id": "16fe5fc623",
    "op": "NEG",
    "line": 361,
    "before": "if (performThru[d] == i) {",
@@ -1226,7 +1226,7 @@
    "reason": "The scan runs over the PERFORMs outside this one: perform() is entered once, at depth mine = 0, so `d = mine - 1` is -1 and the body never runs"
   },
   {
-   "id": "812d35a532",
+   "id": "f6114ebbf2",
    "op": "ROR",
    "line": 361,
    "before": "if (performThru[d] == i) {",
@@ -1235,7 +1235,7 @@
    "reason": "The scan runs over the PERFORMs outside this one: perform() is entered once, at depth mine = 0, so `d = mine - 1` is -1 and the body never runs"
   },
   {
-   "id": "6eae938be6",
+   "id": "360c37e753",
    "op": "CON",
    "line": 366,
    "before": "if (next >= 2) {",
@@ -1244,7 +1244,7 @@
    "reason": "next is 1 (p0) when tested; p1 throws Goback before returning, so no other value is ever tested"
   },
   {
-   "id": "70a8b215ab",
+   "id": "8b1517f2fd",
    "op": "ROR",
    "line": 366,
    "before": "if (next >= 2) {",
@@ -1253,7 +1253,7 @@
    "reason": "next is 1 (p0) when tested; p1 throws Goback before returning, so no other value is ever tested"
   },
   {
-   "id": "1a0d8644be",
+   "id": "ed567f84e1",
    "op": "ROR",
    "line": 372,
    "before": "if (e.depth != mine) {",
@@ -1262,7 +1262,7 @@
    "reason": "PerformExit is thrown only when control reaches the end of an outer active PERFORM range; there is no outer PERFORM, so the catch never runs. (performDepth = mine: the finally only restores the depth; a stale depth leaves entries equal to thru = 1, which the scan, run only for i = 0, never matches)"
   },
   {
-   "id": "af6aedef79",
+   "id": "5f685fe716",
    "op": "NEG",
    "line": 372,
    "before": "if (e.depth != mine) {",
@@ -1271,7 +1271,7 @@
    "reason": "PerformExit is thrown only when control reaches the end of an outer active PERFORM range; there is no outer PERFORM, so the catch never runs. (performDepth = mine: the finally only restores the depth; a stale depth leaves entries equal to thru = 1, which the scan, run only for i = 0, never matches)"
   },
   {
-   "id": "e02599d27a",
+   "id": "62be9c82fa",
    "op": "DEL",
    "line": 376,
    "before": "performDepth = mine;",
@@ -1280,7 +1280,7 @@
    "reason": "PerformExit is thrown only when control reaches the end of an outer active PERFORM range; there is no outer PERFORM, so the catch never runs. (performDepth = mine: the finally only restores the depth; a stale depth leaves entries equal to thru = 1, which the scan, run only for i = 0, never matches)"
   },
   {
-   "id": "eef6d1c3be",
+   "id": "8c44451129",
    "op": "LIT",
    "line": 384,
    "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
@@ -1289,7 +1289,7 @@
    "reason": "run(i) is only called with i = 0 or 1 (p0 returns 1, p1 throws Goback), so the default arm never runs"
   },
   {
-   "id": "793d1dd69f",
+   "id": "435394f08c",
    "op": "DEL",
    "line": 400,
    "before": "task.returnTransid(null, null);",
@@ -1298,7 +1298,7 @@
    "reason": "The original emits RETURN here; without it, A010's `if (true) throw new Goback()` ends the paragraph and runTask's `!task.ended()` fallback emits the same RETURN after the same caBack.run() (the event's COMMAREA is read after the write-back in both)"
   },
   {
-   "id": "02b29b128c",
+   "id": "014934db7d",
    "op": "NEG",
    "line": 401,
    "before": "if (true) throw new Goback();",
@@ -1307,7 +1307,7 @@
    "reason": "The first `if (true) throw new Goback()` is the one that runs, after RETURN; with it negated control falls to the next, identical `throw new Goback()` (the paragraph's GOBACK), which ends the program the same way"
   },
   {
-   "id": "031ee8863c",
+   "id": "f46d6ab7ce",
    "op": "NEG",
    "line": 403,
    "before": "if (true) throw new Goback();",
@@ -1316,7 +1316,7 @@
    "reason": "The second throw (GOBACK) follows an unconditional throw from the RETURN, so it never runs"
   },
   {
-   "id": "6c2f0a5efd",
+   "id": "1c5090ec96",
    "op": "CON",
    "line": 404,
    "before": "return 2;",

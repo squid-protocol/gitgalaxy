@@ -1,6 +1,7 @@
 """det_mutation (#4628): the det-port mutation ledger, the reviewed survivors, and the L5 hook. Fingerprints are
 stubbed; no proof, translator or corpus needed (the committed ledgers' own check needs git only)."""
 
+import json
 import subprocess
 import sys
 from pathlib import Path
@@ -190,7 +191,7 @@ def refresh_env(monkeypatch, tmp_path, ported, fresh, verdicts):
     port = tmp_path / "det" / CASE / "port"
     port.mkdir(parents=True)
     (port / "A.java").write_text("class A {}", encoding="utf-8")
-    e = entry(inputs={"port": dm.port_sha(port) if ported else "other", **FP})
+    e = entry(inputs={"port": dm.port_sha(port) if ported else "other", "runtime": dm.runtime_sha(port), **FP})
     written, calls = {}, []
     monkeypatch.setattr(dm, "load", lambda path=dm.LEDGER: {CASE: e})
     monkeypatch.setattr(dm, "load_survivors", lambda path=dm.SURVIVORS: {CASE: [claim(S1), claim(S2)]})
@@ -341,7 +342,7 @@ def test_refresh_run_moved_clears_a_moved_port(monkeypatch, tmp_path):
     seen = []
     monkeypatch.setattr(dm, "rerun_moved", lambda cs, work, budget: (seen.append((cs, budget)) or [], 0))
     assert dm.refresh([CASE], tmp_path, run_moved=True, budget_min=30) == 0
-    assert seen == [([CASE], 30)] and calls == []
+    assert seen == [([CASE], pytest.approx(30, abs=1))] and calls == []
     monkeypatch.setattr(dm, "rerun_moved", lambda cs, work, budget: (cs, 0))  # the budget did not reach it
     assert dm.refresh([CASE], tmp_path, run_moved=True) == 2
     monkeypatch.setattr(dm, "rerun_moved", lambda cs, work, budget: ([], 1))  # a run failed or a claim was refuted
@@ -467,3 +468,128 @@ def test_tranadd_survivors_are_all_stated_and_none_is_a_gap():
     assert len(survivors) >= 37
     assert {s["verdict"] for s in survivors} <= set(dm.ACCOUNTED)
     assert all(s["reason"].strip() for s in survivors)
+
+
+DRIFT = {**FP, "generator": "g2"}  # a translated port or runtime only moves with the generator
+
+
+def carry_env(monkeypatch, tmp_path, every, results):
+    """refresh() of an entry whose translated program moved: `every` = the ids in the new port."""
+    import mutation as mu
+
+    written, calls = refresh_env(monkeypatch, tmp_path, False, DRIFT, ("survived", "survived"))
+    known = dm.load()[CASE]
+    known["every"] = ["k1", "k2", "k3", "s1", S1["id"], S2["id"]]
+    known["chosen"] = known["mutants"]  # (not sampled)
+    monkeypatch.setattr(dm, "mutant_ids", lambda case, port: set(every))
+
+    def fake_run(case, work, jobs, n, seed, ops, timeout, keep, full, only=None, **kw):
+        calls.append(json.loads((only / "mutation.json").read_text(encoding="utf-8"))["results"])
+        return {"results": results, "coverage": "cov"}
+
+    monkeypatch.setattr(mu, "run", fake_run)
+    return written, calls
+
+
+def test_refresh_carries_a_moved_program_and_runs_only_the_new_mutants(monkeypatch, tmp_path):
+    new = {"id": "new0000001", "op": "CON", "file": "service/X.java", "line": 90, "before": "y = 1;", "after": "y = 2;"}
+    every = ["k1", "k2", "s1", S1["id"], S2["id"], new["id"]]  # k3 went with its line, one mutant is new
+    written, calls = carry_env(monkeypatch, tmp_path, every, [rr(S1, "survived"), rr(S2, "survived"), {**new, "verdict": "killed"}])
+    assert dm.refresh([CASE], tmp_path) == 0
+    assert [r["id"] for r in calls[0]] == [new["id"]]  # nothing carried is run again
+    e = written[CASE]
+    assert e["killed"] == ["k1", "k2", new["id"]] and e["counts"]["killed"] == 3 and "port_moved" not in e
+    assert e["mutants"] == 6 and sorted(e["every"]) == sorted(every) and e["refreshed"]["fresh"] == 1
+    assert dm.summary(CASE, e)["l5"] is True
+
+
+def test_a_new_survivor_withholds_l5_until_it_is_accounted_for(monkeypatch, tmp_path):
+    new = {"id": "new0000001", "op": "CON", "file": "service/X.java", "line": 90, "before": "y = 1;", "after": "y = 2;"}
+    every = ["k1", "k2", "k3", "s1", S1["id"], S2["id"], new["id"]]
+    written, _ = carry_env(monkeypatch, tmp_path, every, [rr(S1, "survived"), rr(S2, "survived"), {**new, "verdict": "survived"}])
+    assert dm.refresh([CASE], tmp_path) == 0
+    s = dm.summary(CASE, written[CASE])
+    assert (s["unaccounted"], s["l5"]) == (1, False)
+
+
+def test_a_new_mutant_with_no_verdict_leaves_the_entry_stale(monkeypatch, tmp_path):
+    new = {"id": "new0000001", "op": "CON", "file": "service/X.java", "line": 90, "before": "y = 1;", "after": "y = 2;"}
+    every = ["k1", "k2", "k3", "s1", S1["id"], S2["id"], new["id"]]
+    written, _ = carry_env(monkeypatch, tmp_path, every, [rr(S1, "survived"), rr(S2, "survived"), {**new, "verdict": "error"}])
+    assert dm.refresh([CASE], tmp_path) == 1
+    assert written == {}
+
+
+def test_a_move_too_large_to_carry_is_a_full_run(monkeypatch, tmp_path):
+    every = [f"n{i}" for i in range(100)]
+    written, calls = carry_env(monkeypatch, tmp_path, every, [])
+    assert dm.refresh([CASE], tmp_path) == 2
+    assert calls == [] and written[CASE]["port_moved"] is True
+
+
+def test_an_entry_from_before_every_is_a_full_run():
+    assert dm.fresh_mutants({}, {"a"}) is None
+    assert dm.fresh_mutants({"every": ["a"], "chosen": 1, "mutants": 1}, {"a"}) == []
+
+
+def test_a_spent_budget_leaves_a_moved_program_flagged_for_the_next_run(monkeypatch, tmp_path, capsys):
+    written, calls = carry_env(monkeypatch, tmp_path, ["k1"], [])
+    assert dm.refresh([CASE], tmp_path, budget_min=0) == 2
+    assert calls == [] and written == {} and "left for the next run" in capsys.readouterr().out
+
+
+def test_a_runtime_move_is_recorded_and_runs_nothing(monkeypatch, tmp_path):
+    written, calls = refresh_env(monkeypatch, tmp_path, True, DRIFT, ("survived", "survived"))
+    dm.load()[CASE]["inputs"]["runtime"] = "another"
+    assert dm.refresh([CASE], tmp_path) == 0
+    assert calls == [] and written[CASE]["inputs"]["runtime"] != "another"
+
+
+def test_a_case_move_still_reruns_the_survivors_of_a_moved_program(monkeypatch, tmp_path):
+    written, calls = carry_env(monkeypatch, tmp_path, ["k1", S1["id"], S2["id"]], [rr(S1, "survived"), rr(S2, "killed")])
+    dm.load()[CASE]["inputs"]["case"] = "an older case"
+    assert dm.refresh([CASE], tmp_path) == 1  # S2 is stated equivalent and the re-run killed it: a wrong claim
+    assert sorted(r["id"] for r in calls[0]) == sorted([S1["id"], S2["id"]])
+
+
+def test_a_sampled_entry_samples_its_new_mutants_at_its_own_rate():
+    ids = [format((i * 2654435761) % 16**10, "010x") for i in range(800)]
+    e = {"every": ids[:640], "chosen": 150, "mutants": 3000}
+    kept = dm.fresh_mutants(e, set(ids))
+    assert kept == dm.fresh_mutants(e, set(ids))  # repeatable
+    assert 0 < len(kept) < 30 and set(kept) <= set(ids[640:])  # about 5% of the 160 new ones
+
+
+def test_the_port_fingerprint_leaves_out_the_runtime(tmp_path):
+    (tmp_path / "service").mkdir()
+    (tmp_path / "cobolrt").mkdir()
+    (tmp_path / "service" / "X.java").write_text("class X {}", encoding="utf-8")
+    (tmp_path / "cobolrt" / "Cobol.java").write_text("class Cobol {}", encoding="utf-8")
+    port, runtime = dm.port_sha(tmp_path), dm.runtime_sha(tmp_path)
+    (tmp_path / "cobolrt" / "Cobol.java").write_text("/* reworded */ class Cobol {}", encoding="utf-8")
+    assert dm.port_sha(tmp_path) == port and dm.runtime_sha(tmp_path) != runtime
+    (tmp_path / "service" / "X.java").write_text("class X { int y; }", encoding="utf-8")
+    assert dm.port_sha(tmp_path) != port
+
+
+def test_a_mutant_keeps_its_id_when_a_line_is_added_above_it():
+    import mutation as mu
+
+    ops = set(mu.OPERATORS)
+    code = "class X {\n  int f(int a) {\n    if (a > 1) {\n      return 2;\n    }\n    return a + 1;\n  }\n}\n"
+    before = {m.id: m.before for m in mu.mutants_of("service/X.java", code, ops)}
+    assert before
+    moved = code.replace("  int f(int a) {\n", "  int f(int a) {\n    g();\n")
+    after = {m.id: m.before for m in mu.mutants_of("service/X.java", moved, ops)}
+    assert set(before) <= set(after) and {v for k, v in after.items() if k not in before} == {"g();"}
+    edited = code.replace("return a + 1;", "return a + 7;")
+    now = mu.mutants_of("service/X.java", edited, ops)
+    assert {m.id for m in now} != set(before)  # an edited line's mutants are new
+
+
+def test_identical_lines_keep_apart_ids():
+    import mutation as mu
+
+    code = "class X {\n  void f(int a) {\n    a = a + 1;\n    a = a + 1;\n  }\n}\n"
+    ms = mu.mutants_of("service/X.java", code, set(mu.OPERATORS))
+    assert len({m.id for m in ms}) == len(ms)

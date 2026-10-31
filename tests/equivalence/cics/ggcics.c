@@ -2335,6 +2335,28 @@ static int free_block_at(gg_cics *c, void *addr) {
     return 0;
 }
 
+/* GGCPTRADV: `ADD|SUBTRACT n TO|FROM view` over the PIC S9(8) COMP view of a POINTER (#6839 slice 3, X47), lowered by
+ * equivalence_cics_pointer.py. GnuCOBOL's POINTER is 8 bytes little-endian and the view 4 bytes big-endian, so the ADD on the
+ * view itself corrupts the address. The pointer moves n bytes inside the block it addresses, as DetCics.advancePointer: a
+ * null pointer, one no block holds, a freed block, or a result below the block's first byte or past its end (one past the
+ * last byte is allowed) is refused. */
+int GGCPTRADV(void **slot, int n) {
+    unsigned char *at = (unsigned char *)*slot;
+    int i, hit = -1;
+    if (!at) refuse("pointer arithmetic on a null pointer");
+    for (i = 0; i < nblks; i++)
+        if (at >= (unsigned char *)blks[i].p && at < (unsigned char *)blks[i].p + blks[i].n) { hit = i; break; }
+    for (i = 0; hit < 0 && i < nblks; i++)
+        if (at == (unsigned char *)blks[i].p + blks[i].n) hit = i; /* one past the last byte */
+    if (hit < 0) refuse("pointer arithmetic on an address no block of task storage holds");
+    if (blks[hit].kind == BLK_FREED) refuse("pointer arithmetic on freed storage");
+    at += n;
+    if (at < (unsigned char *)blks[hit].p || at > (unsigned char *)blks[hit].p + blks[hit].n)
+        refuse("pointer arithmetic leaves the storage the pointer addresses");
+    *slot = at;
+    return 0;
+}
+
 /* GGCFREM: FREEMAIN DATAPOINTER(ptr): INVREQ RESP2 1 for an address GETMAIN did not return (a null pointer, a record's address). Refused:
  * storage already freed, a WEB RECEIVE SET body (IBM does not say whether FREEMAIN is allowed). */
 int GGCFREM(gg_cics *c, void **slot) {

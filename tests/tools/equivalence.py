@@ -124,6 +124,7 @@ from equivalence_common import (
     layout_fields,
     numproc_guard,
     option_differences,
+    program_file,
     read_program,
     stage_copybooks,
     stage_zero_length_conf,
@@ -294,14 +295,14 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path, fault: dict[str, A
     require_ascii_runtime(case)  # #3815: an EBCDIC data page cannot run under GnuCOBOL
     enc = data_encoding(case)
     # #3815: read by the engine's ladder (or the declared page), staged in the encoding it was read in
-    source, staged = read_program(case, corpus / case["program_source"])
+    source, staged = read_program(case, program_file(case, corpus))
     program, option_flags = compile_options(case, source)
     db2 = case.get("db2")
     if db2:  # a Db2 program: its EXEC SQL precompiled into calls of the SQL stub (equivalence_sql.py)
         dirs = [corpus / d for d in [*case.get("copy_dirs", []), *db2.get("include_dirs", [])]]
         try:
             program, table = equivalence_sql.precompile(
-                program, dirs, corpus / case["program_source"], program=case["program"]
+                program, dirs, program_file(case, corpus), program=case["program"]
             )
         except equivalence_sql.Unsupported as e:
             raise RuntimeError(f"not runnable faithfully: {e}") from e
@@ -464,14 +465,14 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path, fault: dict[str, A
 
 def cobol_coverage(case: dict[str, Any], corpus: Path, traces: list[Path], out: Path) -> dict[str, Any] | None:
     """#4023: how much of the program the runs execute together (the normal run and every fault run)."""
-    source, staged = read_program(case, corpus / case["program_source"])
+    source, staged = read_program(case, program_file(case, corpus))
     program, _flags = compile_options(case, source)
     staged_file = traces[0].parent / "src" / "PROGRAM.cbl" if traces else None
     # what ran is the staged text: the Db2 precompile, the BMP rewrite and the PSA -> TCB -> TIOT lowering (#5856, A2)
     # each move or replace lines, and the trace names the staged text's lines (#6072)
     if staged_file is not None and staged_file.is_file():
         program = staged_file.read_text(encoding=staged)
-    return cov.write_run_coverage(out, source=corpus / case["program_source"], original=source, compiled=program,
+    return cov.write_run_coverage(out, source=program_file(case, corpus), original=source, compiled=program,
                                   traces=[t for t in traces if t.is_file()], compiled_name="PROGRAM.cbl",
                                   copybooks=corpus, encoding=staged)  # fmt: skip
 
@@ -851,6 +852,15 @@ def main() -> int:
     for key in ("source_encoding", "data_encoding"):  # #3815: the CLI overrides the case
         if getattr(args, key):
             case[key] = getattr(args, key)
+    if case.get("kind") == "job":  # #4268: batch steps chained through datasets, each with its own corpus
+        if args.record or args.port or args.reuse or args.case_file:
+            raise SystemExit("a job case: no --record / --port / --reuse / --case-file (they name one step's port)")
+        import equivalence_job
+
+        work = equivalence_job.work_dir(args.keep, args.case)
+        return equivalence_job.run_case(
+            sys.modules[__name__], case, work, port=not args.generated_only, cobol_only=args.cobol_only
+        )
     data_encoding(case)  # a bad declaration fails here, not after the COBOL build
     if args.corpus_dir:  # #4269: a synthetic estate (a test's), not a manifest corpus
         corpus = args.corpus_dir.resolve()
@@ -859,7 +869,7 @@ def main() -> int:
         corpus = mc.require_clone(corpus_entry)
     if not args.cobol_only:  # #4271: NUMPROC(PFD) only through a det port's guard (register C5)
         port_dir = None if args.generated_only else args.port or CASES / case.get("port_from", case["name"]) / "port"
-        program_text = read_program(case, corpus / case["program_source"])[0]
+        program_text = read_program(case, program_file(case, corpus))[0]
         numproc_guard(case, program_text, port_dir)
         # #4706: an option this port's proof cannot claim (TRUNC(OPT) without the det runtime's stop): declared
         args.option_differences = option_differences(case, program_text, port_dir)

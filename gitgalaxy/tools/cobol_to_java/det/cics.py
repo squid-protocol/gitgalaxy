@@ -1947,9 +1947,9 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
         """A terminal RECEIVE (IBM, EXEC CICS RECEIVE (3270 logical), (LUTYPE2/LUTYPE3)) on CicsTask.receive.
 
         INTO: the most taken is MAXLENGTH, else LENGTH's value, else INTO's length; the data goes into INTO's first
-        bytes. SET(ADDRESS OF record): the LINKAGE record addresses the data (DetCics.receivedSet); it needs MAXLENGTH
-        -- without it IBM's "the value indicated in the LENGTH option is assumed" reads LENGTH, which SET only sets
-        -- and LENGTH(data-area). LENGTH / FLENGTH is set to the length the runtime returns (the data's, or under
+        bytes. SET(ADDRESS OF record): the LINKAGE record addresses the data (DetCics.receivedSet); it needs
+        LENGTH(data-area). With SET, LENGTH is only an output (IBM: the data area "is set to the length of the data"), so
+        without MAXLENGTH nothing bounds the data: the whole input comes back (an unbounded limit; X15). LENGTH / FLENGTH is set to the length the runtime returns (the data's, or under
         LENGERR the original length). LENGERR (22) and EOC (6, an LUTYPE2 terminal; ignored by default) go through
         RESP / HANDLE CONDITION like any condition."""
         length = _one_of(opts, "LENGTH", "FLENGTH")  # (FLENGTH / MAXFLENGTH: the fullword forms)
@@ -1962,11 +1962,9 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
             put = "received"
         elif opts.get("SET") and "INTO" not in opts:
             m = re.fullmatch(r"(?is)ADDRESS\s+OF\s+([A-Z0-9-]+)", opts["SET"].strip())
-            if not most:
-                raise CicsError("RECEIVE SET without MAXLENGTH: the most it takes is not documented")
             if not settable:
                 raise CicsError("RECEIVE SET without LENGTH(data-area)")
-            limit = self.int_(most)
+            limit = self.int_(most) if most else "Integer.MAX_VALUE"  # LENGTH is output-only with SET (X15)
             if m is None:  # #5042 (X58): SET(pointer): the data in a new block of task storage the pointer addresses
                 target = self.pointer(opts["SET"])
                 put = "setBlock"

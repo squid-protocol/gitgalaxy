@@ -101,7 +101,7 @@ from gitgalaxy.core.hlasm_cics import cics_stream, dc_values
 from gitgalaxy.core.ims_gen import ims_gen_macros, jcl_ims_regions
 from gitgalaxy.core.jcics import jcics
 from gitgalaxy.core.jcl_runners import runner_targets
-from gitgalaxy.core.job_flow import jcl_job_flow
+from gitgalaxy.core.job_flow import jcl_assembler_instream, jcl_job_flow
 from gitgalaxy.core.job_submits import cobol_job_cards, jcl_intrdr_dds
 from gitgalaxy.core.mq_calls import extract_mq_calls
 from gitgalaxy.core.pli_calls import blank_sequence_fields, pli_cics_stream, pli_external_calls
@@ -580,12 +580,6 @@ _CONDITION_LEVELS = (66, 88)
 # A DFHCSDUP/CEDA deck runs DFHCSDUP; a JCL that does not is not a CSD deck and
 # the inline pass is skipped entirely.
 _DFHCSDUP = re.compile(r"\bPGM=DFHCSDUP\b", re.I)
-# #5154: a job that assembles CICS macro tables -- an assembler step (HLASM ASMA90, its
-# IEV90 alias, the older assemblers) or CICS's DFHAUPLE assemble-and-link procedure.
-_JCL_ASSEMBLER = re.compile(
-    r"^//(?!\*)[^\n]*?(?:\bPGM=(?:ASMA90|IEV90|IEUASM|ASMAHL|ASMBLR)\b|\bEXEC\s+(?:PROC=)?DFHAUPLE\b|\bPROC\s+DFHAUPLE\b)",
-    re.I | re.M,
-)
 # A CSD command opens a line (tolerating a leading blank column or JCL-inline
 # indentation): DEFINE a resource, or a structural command (DELETE/ADD/LIST/...).
 # Only DEFINE carries a resource we capture; the rest merely terminate the record
@@ -2352,18 +2346,15 @@ def _jcl_csd_resources(code_stream: str) -> list[dict[str, Any]]:
 def _jcl_macro_table_resources(code_stream: str) -> list[dict[str, Any]]:
     """The CICS macro tables (DFHFCT ... DFHMCT) in the inline SYSIN of a JCL assembler step (#5154), or [].
 
-    Gated on an assembler step so a DFHxxx word elsewhere in a job reads nothing; a step
-    whose SYSIN is a separate member yields nothing here (that member is read as assembler)."""
-    if not _JCL_ASSEMBLER.search(code_stream):
-        return []
-    return cics_macro_table_resources(code_stream)
+    Reads only the in-stream source an assembler step takes (`jcl_assembler_instream`), so a table in any other
+    step's deck reads nothing; a step whose SYSIN is a separate member yields nothing here (that member is
+    read as assembler). Row lines stay the lines of the job."""
+    return cics_macro_table_resources(jcl_assembler_instream(code_stream))
 
 
 def _jcl_macro_table_transactions(code_stream: str) -> list[dict[str, Any]]:
     """The DFHPCT transaction routes in the inline SYSIN of a JCL assembler step (#5154), or []."""
-    if not _JCL_ASSEMBLER.search(code_stream):
-        return []
-    return cics_macro_table_transactions(code_stream)
+    return cics_macro_table_transactions(jcl_assembler_instream(code_stream))
 
 
 def _pli_value_map(records: list[dict[str, Any]]) -> dict[str, str]:

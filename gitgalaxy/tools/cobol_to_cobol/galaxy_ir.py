@@ -172,6 +172,7 @@ from gitgalaxy.core.cobol_preprocessor import replace_text as _replace_text  # #
 from gitgalaxy.core.compiler_options import effective as effective_options
 from gitgalaxy.core.invocation_resolver import SQL_ROUTINE_LANGUAGES
 from gitgalaxy.core.jcl_runners import systsin_programs
+from gitgalaxy.core.job_flow import ASSEMBLER_PROCS, ASSEMBLER_PROGRAMS
 from gitgalaxy.core.source_text import read_source
 from gitgalaxy.core.unicode_paths import nfc
 from gitgalaxy.tools.cobol_to_cobol import pli_mapping
@@ -4675,10 +4676,10 @@ class GalaxyIR:
                 out += [row(f, job.name, st.step_name, None, st.step_ordinal, r) for r in mine.get(id(st), [])]
         return out
 
-    # #5154: the programs a JCL assembler step runs (core/mainframe_boundary._JCL_ASSEMBLER's PGM= set).
-    _ASSEMBLER_PROGRAMS = frozenset({"ASMA90", "IEV90", "IEUASM", "ASMAHL", "ASMBLR"})
-    # #5154: a proc that wraps the assembler; its SYSIN is a job-level `//STEP.SYSIN` override DD.
-    _ASSEMBLER_PROCS = frozenset({"DFHAUPLE"})
+    # #5154: the programs a JCL assembler step runs, and the procs that wrap it (their SYSIN is a job-level
+    # `//STEP.SYSIN` override DD): one set, shared with the inline-SYSIN reader.
+    _ASSEMBLER_PROGRAMS = ASSEMBLER_PROGRAMS
+    _ASSEMBLER_PROCS = ASSEMBLER_PROCS
 
     def job_macro_tables(self) -> list:
         """The CICS macro tables an assembler step reads from a separate SYSIN member (#5154).

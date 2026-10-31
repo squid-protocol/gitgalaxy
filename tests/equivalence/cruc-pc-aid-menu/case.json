@@ -1,0 +1,142 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "PCMENU",
+  "program_source": "cases/pseudo-conversational/pc-aid-menu/src/PCMENU.cbl",
+  "copy_dirs": [
+    "cases/pseudo-conversational/pc-aid-menu/copy"
+  ],
+  "transid": "PC11",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": {
+    "segments": [
+      {
+        "copybook": "cases/pseudo-conversational/pc-aid-menu/src/PCMENU.cbl",
+        "record": "WS-CA"
+      }
+    ]
+  },
+  "screens": {
+    "PCMN": {
+      "copybook": "cases/pseudo-conversational/pc-aid-menu/copy/PCSET2.cpy",
+      "input": "PCMNI",
+      "output": "PCMNO"
+    }
+  },
+  "programs": [
+    {
+      "program": "PCDETL",
+      "program_source": "cases/pseudo-conversational/pc-aid-menu/src/PCDETL.cbl"
+    }
+  ],
+  "notes": "cics-crucible pseudo-conversational / pc-aid-menu (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): HANDLE AID menu with PF-key labels that fall through, an unhandled key, CLEAR, XCTL versus RETURN TRANSID. Each scenario is one task; the crucible's multi-turn flows are restated as one scenario per leg, each carrying the COMMAREA the previous leg returned. The oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "first-entry",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "why": "EIBCALEN 0: a new session, the welcome menu"
+    },
+    {
+      "name": "clear",
+      "aid": "DFHCLEAR",
+      "commarea": {
+        "MN-VISITS": 1,
+        "MN-LAST": "",
+        "MN-FLAG": ""
+      },
+      "why": "CLEAR is tested before the RECEIVE: the menu is redrawn with CLEARED"
+    },
+    {
+      "name": "pf3-exit",
+      "aid": "DFHPF3",
+      "commarea": {
+        "MN-VISITS": 1,
+        "MN-LAST": "",
+        "MN-FLAG": ""
+      },
+      "why": "PF3: HANDLE AID label MENU-EXIT, the menu ends",
+      "receive": {
+        "PCMN": {
+          "OPTI": ""
+        }
+      }
+    },
+    {
+      "name": "pf5-refresh",
+      "aid": "DFHPF5",
+      "commarea": {
+        "MN-VISITS": 1,
+        "MN-LAST": "",
+        "MN-FLAG": ""
+      },
+      "why": "PF5: the label MENU-REFRESH falls through into SHOW-MENU",
+      "receive": {
+        "PCMN": {
+          "OPTI": ""
+        }
+      }
+    },
+    {
+      "name": "pf9-not-active",
+      "aid": "DFHPF9",
+      "commarea": {
+        "MN-VISITS": 1,
+        "MN-LAST": "",
+        "MN-FLAG": ""
+      },
+      "why": "PF9 has no label: the RECEIVE succeeds and KEY NOT ACTIVE is shown",
+      "receive": {
+        "PCMN": {
+          "OPTI": ""
+        }
+      }
+    },
+    {
+      "name": "option-1-xctl",
+      "aid": "DFHENTER",
+      "commarea": {
+        "MN-VISITS": 1,
+        "MN-LAST": "",
+        "MN-FLAG": ""
+      },
+      "why": "option 1: XCTL to PCDETL with the COMMAREA",
+      "receive": {
+        "PCMN": {
+          "OPTI": "1"
+        }
+      }
+    },
+    {
+      "name": "option-2-next-transid",
+      "aid": "DFHENTER",
+      "commarea": {
+        "MN-VISITS": 1,
+        "MN-LAST": "",
+        "MN-FLAG": ""
+      },
+      "why": "option 2: SEND TEXT then RETURN TRANSID(PC12) with the COMMAREA",
+      "receive": {
+        "PCMN": {
+          "OPTI": "2"
+        }
+      }
+    },
+    {
+      "name": "invalid-option",
+      "aid": "DFHENTER",
+      "commarea": {
+        "MN-VISITS": 1,
+        "MN-LAST": "",
+        "MN-FLAG": ""
+      },
+      "why": "option 9: WHEN OTHER redisplays the menu with INVALID OPTION",
+      "receive": {
+        "PCMN": {
+          "OPTI": "9"
+        }
+      }
+    }
+  ]
+}

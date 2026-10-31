@@ -351,6 +351,7 @@ _WS_LEN = ("       01  WS-NUM ", "       01  WS-LEN                 PIC S9(4) CO
         ("READNEXT FILE('F') RIDFLD(WS-OUT) SET(FRPTR)", '"BROWSE " + "F".stripTrailing()', "GGCRDNS"),
         ("READPREV FILE('F') RIDFLD(WS-OUT) SET(FRPTR)", '"BROWSE " + "F".stripTrailing()', "GGCRDPS"),
         ("RECEIVE SET(FRPTR) LENGTH(WS-LEN)\n                MAXLENGTH(80)", '"RECEIVE"', "GGCRECP"),
+        ("RECEIVE SET(FRPTR) LENGTH(WS-LEN)", '"RECEIVE"', "GGCRECP"),  # X15: no MAXLENGTH, all the input
         ("RETRIEVE SET(FRPTR) LENGTH(WS-LEN)", "null", "GGCRTRS"),
         ("READQ TS QUEUE('Q') SET(FRPTR)\n                LENGTH(WS-LEN) ITEM(1)", '"READQ"', "GGCRDQS"),
     ],
@@ -373,7 +374,7 @@ def test_each_set_command_into_a_cell_is_its_pointer_form(tmp_path, command, jav
 @pytest.mark.parametrize(
     "command, hole",
     [  # the cell form keeps each command's own refusal (X58)
-        ("RECEIVE SET(FRPTR) LENGTH(WS-LEN)", "RECEIVE SET without MAXLENGTH"),
+        ("RECEIVE SET(FRPTR) MAXLENGTH(80)", "RECEIVE SET without LENGTH"),
         ("RETRIEVE SET(FRPTR)", "RETRIEVE SET without LENGTH"),
         ("READQ TS QUEUE('Q') SET(FRPTR) LENGTH(80)", "READQ TS SET with a literal LENGTH"),
         ("READ FILE('F') RIDFLD(WS-OUT) SET(FRPTR) RBA", "READ SET with RBA / RRN / XRBA"),

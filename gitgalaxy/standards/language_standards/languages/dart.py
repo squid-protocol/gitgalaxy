@@ -18,6 +18,7 @@ from .._shared_patterns import (
     COMMENTED_STATEMENT_C_FAMILY,
     GLOBAL_FRAGILE_DEBT,
     GLOBAL_PLANNED_DEBT,
+    commented_keyword_statement,
 )
 
 DEFINITION: dict[str, Any] = {
@@ -476,7 +477,12 @@ DEFINITION: dict[str, Any] = {
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails) Commented out structural code or dead widgets.
         "dead_code": re.compile(
-            r"//[ \t]*(?:class|mixin|void|if|for|while|print|Widget|return)\b|/\*[ \t]*(?:class|mixin|void|Widget|if|for)"
+            # #7207: a statement's shape (`;{}`, `(...)`, an assignment, a bare `class|mixin Name [extends ...]`), not just
+            # the keyword.
+            commented_keyword_statement(
+                "class|mixin|void|if|for|while|print|Widget|return",
+                extra=r"(?:(?<=class)|(?<=mixin))[ \t]+(?-i:[A-Z])\w*(?:[ \t]+(?:extends|with|implements|on)\b[^\n]{0,200})?[ \t]*(?m:$)",
+            )
             + r"|"
             + COMMENTED_STATEMENT_C_FAMILY
         ),

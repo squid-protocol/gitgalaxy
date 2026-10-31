@@ -1045,10 +1045,11 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
         length = _one_of("RECEIVE", opts, "LENGTH", "FLENGTH")
         most = _one_of("RECEIVE", opts, "MAXLENGTH", "MAXFLENGTH")
         flags = "MOVE 'NOTRUNCATE' TO GG-FLAGS" if "NOTRUNCATE" in opts else "MOVE SPACES TO GG-FLAGS"  # #4413
-        if setp:  # #4413: SET(ADDRESS OF record), MAXLENGTH and LENGTH(data-area) required (det/cics.py says why)
+        if setp:  # #4413: SET(ADDRESS OF record), LENGTH(data-area) required; no MAXLENGTH: all the input (det/cics.py says why)
             m = re.fullmatch(r"ADDRESS\s+OF\s+([A-Z0-9-]+)", setp, re.I)
-            if into or not most or not length:
-                raise Unsupported("RECEIVE SET without MAXLENGTH and LENGTH", ["RECEIVE SET"])
+            if into or not length:
+                raise Unsupported("RECEIVE SET without LENGTH", ["RECEIVE SET"])
+            most = most or "32768"  # LENGTH is output-only with SET (X15): the whole input, the stub's buffer size
             if not m:  # #5042 (X58): SET(pointer) -> GGCRECP, the data in a new block the pointer addresses
                 return ([flags, f"MOVE {most} TO GG-LEN"] + _call("GGCRECP", [f"BY REFERENCE {_pointer('RECEIVE', setp)}"])
                         + [f"MOVE GG-LEN TO {length}"] + cics_conditions.input_resp(opts, labels, handle_aid))  # fmt: skip

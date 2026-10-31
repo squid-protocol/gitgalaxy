@@ -4414,7 +4414,7 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   p.108-109; SC33-1653-05 Appendix C p.348-350 & Appendix F p.372). DFHDCT `TYPE=SDSCI` `RECFORM=UNDEFINED`: outside the
   manual's `FIXUNB` / `FIXBLK` / `VARUNB` / `VARBLK` set in both SH20-1043-6 p.95-96 and SC33-1684-30 p.376, so
   `record_format` is `None`. DFHJCT `TYPE=ENTRY` (`JFILEID={SYSTEM|nn}` for the system log or user journal 1-99,
-  `JTYPE={TAPE1|TAPE2|DISK1|DISK2|SMF}`, `BUFSIZE=`, `JOUROPT=`: SC33-1653-05 ch.29 Table 41 p.270-272; `DSNAME=` is not listed there, yet is lifted into `dsname` as an ASSUMED operand). DFHTCT
+  `JTYPE={TAPE1|TAPE2|DISK1|DISK2|SMF}`, `BUFSIZE=`, `JOUROPT=`: SC33-1653-05 ch.29 Table 41 p.270-272; `DSNAME=` is not listed there, yet is lifted into `dsname` as an ASSUMED operand; a `JTYPE=` word outside that list still yields the row and a repeated `JFILEID` is not folded, both ASSUMED because IBM is silent; no burned estate uses DFHJCT). DFHTCT
   `TYPE=GPENTRY` (`TRMIDNT=xxxx` sequential terminal definition, `GPBLKSZ=`, `GPTYPE=`, `LININL=`: SC33-1653-05 ch.33
   p.297), `TYPE=REGION` (`SYSIDNT={ssss|LOCAL}` sets `REMOTESYSTEM(ssss)` on following `TYPE=TERMINAL` definitions until
   `SYSIDNT=LOCAL` or a `SYSIDNT` matching `TYPE=INITIAL,SYSIDNT=`: SC33-1684-30 p.473-475 & ch.17 p.552-553), and RDO

@@ -23,6 +23,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(HERE.parents[1] / "tests" / "tools"))
 import test_det_translate as T  # noqa: E402  (bare imports: tests/ has no __init__.py, see CLAUDE.md)
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
@@ -128,7 +129,11 @@ _REFUSED = [
     ("READNEXT FILE('KSDS') SET(PTR) RIDFLD(KEY) UPDATE", "browse for update"),
     ("GETMAIN64 SET(PTR) FLENGTH(L)", "GETMAIN64 not modelled"),
     ("FREEMAIN64 DATAPOINTER(PTR)", "FREEMAIN64 not modelled"),
-    ("LOAD PROGRAM('P') SET(PTR)", "LOAD not modelled"),
+    ("LOAD PROGRAM('P') SET(PTR) HOLD", "HOLD"),  # (LOAD itself is modelled, #6876: test_load_release_*)
+    ("LOAD PROGRAM('P') SET(PTR) ENTRY(PTR)", "ENTRY"),
+    ("LOAD PROGRAM('P') SET(PTR) FLENGTH(N)", "FLENGTH"),
+    ("LOAD SET(PTR)", "PROGRAM"),
+    ("RELEASE", "PROGRAM"),
 ]
 
 
@@ -360,3 +365,128 @@ public class Main {
             "FREEMAIN of storage already freed or received: not modelled",
         ]
     )
+
+
+# ---- #6876 (X65): LOAD / RELEASE, the program image a pointer addresses -----------------------------------------------------
+_LOAD_SHAPES = [
+    ("LOAD PROGRAM('CALDTG') SET(PTR) LENGTH(RLEN)", ["task.loadProgram('CALDTG'.strip())", "DetCics.setPointer(f_PTR, load1g[2]);", "STORE(RLEN, BigDecimal.valueOf(load1g[3]));"]),
+    ("LOAD PROGRAM('CALDTG') SET(PTR)", ["DetCics.setPointer(f_PTR, load1g[2]);"]),
+    ("LOAD PROGRAM('CALDTG') LENGTH(RLEN)", ["STORE(RLEN, BigDecimal.valueOf(load1g[3]));"]),
+    ("LOAD PROGRAM('CALDTG') NOHANDLE", ["task.loadProgram('CALDTG'.strip())", "OUTCOME(load1[0], load1[1]);"]),
+    ("RELEASE PROGRAM('CALDTG') NOHANDLE", ["task.releaseProgram('CALDTG'.strip())", "OUTCOME(load1[0], load1[1]);"]),
+]  # fmt: skip
+
+
+@pytest.mark.parametrize(("text", "holds"), _LOAD_SHAPES)
+def test_load_release_translate_to_the_task_program_image(text, holds):
+    out = "\n".join(T._PtrCics().command(text, ""))
+    for h in holds:
+        assert h in out, (text, h, out)
+    if "SET" not in text.replace("NOHANDLE", ""):
+        assert "setPointer" not in out
+    if "LENGTH" not in text:
+        assert "STORE(RLEN" not in out
+    if text.startswith("LOAD"):  # (SET and LENGTH are written only when the program loaded: PGMIDERR leaves them alone)
+        assert "if (load1[0] == 0) {" in out or ("SET" not in text and "LENGTH" not in text)
+
+
+def test_load_release_are_modelled_commands_of_the_spec():
+    from gitgalaxy.standards.cics.commands import COMMANDS
+
+    for key in ("LOAD", "RELEASE"):
+        assert COMMANDS[key].status == "modelled", key
+    assert set(COMMANDS["LOAD"].refused) == {"HOLD", "ENTRY", "FLENGTH"}
+
+
+@pytest.mark.parametrize(
+    ("text", "call"),
+    [
+        ("LOAD PROGRAM('P') SET(P) LENGTH(L)", "GGCLDPG"),
+        ("LOAD PROGRAM('P') SET(P)", "GGCLDPG"),
+        ("LOAD PROGRAM('P') LENGTH(L)", "GGCLDPG"),
+        ("RELEASE PROGRAM('P')", "GGCRLPG"),
+    ],
+)
+def test_the_harness_lowers_load_release_as_the_translator_does(text, call):
+    assert f"CALL '{call}' USING GG-CICS" in _ec().translate_command(text)
+
+
+_LOAD_PROGRAM = (
+    PROGRAM.replace("PTRSET", "LDSET")
+    .split("       PROCEDURE DIVISION.")[0]
+    .replace(
+        "       LINKAGE SECTION.",
+        "       01  LD-PTR                USAGE POINTER.\n       01  LD-LEN                PIC S9(04) COMP VALUE 0.\n       LINKAGE SECTION.",
+    )
+    + """       PROCEDURE DIVISION.
+           EXEC CICS LOAD PROGRAM('CALDTG') SET(LD-PTR) LENGTH(LD-LEN)
+                RESP(RESPCODE) NOHANDLE
+           END-EXEC.
+           EXEC CICS RELEASE PROGRAM('CALDTG') RESP(RESPCODE) NOHANDLE
+           END-EXEC.
+           EXEC CICS RETURN END-EXEC.
+"""
+)
+
+
+def test_a_program_that_loads_and_releases_translates_whole(tmp_path):
+    r = _translate(tmp_path, _LOAD_PROGRAM.replace("LDSET", "PTRSET"))
+    assert r.stats["holes"] == [], r.stats["holes"]
+    assert "task.loadProgram(" in r.java and "task.releaseProgram(" in r.java
+
+
+@pytest.mark.skipif(_javac() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+def test_load_release_runtime_outcomes_are_the_stubs(tmp_path):
+    """CicsTask over a real Programs: LOAD of a defined program is NORMAL with a non-null handle and LENGTH 256 (ASSUMED,
+    X65), of an undefined one PGMIDERR RESP2 1 with nothing set; RELEASE is NORMAL once, INVREQ again or for a program
+    never loaded, PGMIDERR RESP2 1 undefined; LOAD again after RELEASE works; the image is never addressable."""
+    from gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge import CICS_SPEC_JAVA, CICS_TASK_JAVA
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    src = tmp_path / "src"
+    files = {"t/cics/CicsTask.java": CICS_TASK_JAVA.replace("__PACKAGE__", "t").replace("__ZONE__", "UTC"),
+             "t/cics/CicsSpec.java": CICS_SPEC_JAVA.replace("__PACKAGE__", "t"),
+             **{f"t/{k}": v for k, v in P.runtime_files("t", batch=False).items()}}  # fmt: skip
+    files["Main.java"] = """
+import t.cics.CicsTask;
+public class Main {
+    static String r(int[] x) { return x[0] + "/" + x[1]; }
+    static String l(long[] x) { return x[0] + "/" + x[1] + " ptr=" + (x[2] != 0) + " len=" + x[3]; }
+    public static void main(String[] a) {
+        CicsTask t = new CicsTask("ZC01", "ENTER", null, null).withPrograms(new CicsTask.Programs() {
+            public boolean defined(String p) { return p.equals("CALDTG"); }
+            public void run(String p, CicsTask k) {}
+        });
+        System.out.println("undefined " + l(t.loadProgram("GONE")));
+        System.out.println("release-unloaded " + r(t.releaseProgram("CALDTG")));
+        long[] ld = t.loadProgram("CALDTG  ");
+        System.out.println("defined " + l(ld));
+        System.out.println("release " + r(t.releaseProgram("CALDTG")));
+        System.out.println("release-again " + r(t.releaseProgram("CALDTG")));
+        System.out.println("release-undefined " + r(t.releaseProgram("GONE")));
+        try {
+            t.storageAt(t.loadProgram("CALDTG")[2], 4);
+        } catch (UnsupportedOperationException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+}
+"""
+    for rel, text in files.items():
+        (src / rel).parent.mkdir(parents=True, exist_ok=True)
+        (src / rel).write_text(text, encoding="utf-8")
+    jdk = _javac()
+    built = javac_run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
+                            *map(str, src.rglob("*.java"))], capture_output=True, text=True, encoding="utf-8", check=False)  # fmt: skip
+    assert built.returncode == 0, built.stderr
+    out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "Main"],  # noqa: S603
+                         capture_output=True, text=True, encoding="utf-8", check=True).stdout.splitlines()  # fmt: skip
+    assert out == [
+        "undefined 27/1 ptr=false len=0",
+        "release-unloaded 16/0",
+        "defined 0/0 ptr=true len=256",
+        "release 0/0",
+        "release-again 16/0",
+        "release-undefined 27/1",
+        "SET ADDRESS OF a LOADed program's image: IBM's bytes are not modelled (X65): not modelled",
+    ]

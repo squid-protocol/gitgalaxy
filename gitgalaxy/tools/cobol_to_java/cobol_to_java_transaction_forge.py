@@ -1040,6 +1040,30 @@ CICS_TASK_JAVA += """\
         return freemain(found);
     }
 
+    // ---- #6876 (register X65): programs LOADed into storage, addressed by a pointer ---------------------------------
+    private final java.util.Set<String> loaded = new java.util.HashSet<>();
+    private static final int PROGRAM_IMAGE = 256;  // IBM states no image length: the stub's (ASSUMED, X65)
+
+    /** LOAD PROGRAM (IBM, EXEC CICS LOAD; X65): {resp, resp2, handle, length}. PGMIDERR 1 for a program the CSD does not
+     *  define (nothing is set). Else a block of PROGRAM_IMAGE bytes (kind 4: no program may read it) and its length. */
+    public long[] loadProgram(String program) {
+        String name = program.stripTrailing();
+        if (root().programs == null || !root().programs.defined(name)) {
+            return new long[] {27, 1, 0, 0};
+        }
+        root().loaded.add(name);
+        return new long[] {0, 0, newBlock(new byte[PROGRAM_IMAGE], 4), PROGRAM_IMAGE};
+    }
+
+    /** RELEASE PROGRAM (X65): {resp, resp2}: PGMIDERR 1 undefined; NORMAL for a program this task loaded; INVREQ else. */
+    public int[] releaseProgram(String program) {
+        String name = program.stripTrailing();
+        if (root().programs == null || !root().programs.defined(name)) {
+            return new int[] {27, 1};
+        }
+        return root().loaded.remove(name) ? new int[] {0, 0} : new int[] {16, 0};
+    }
+
     /** The body WEB RECEIVE SET hands the program (X47): a new block, whose handle goes into the pointer. */
     public long acquireReceived(byte[] body) {
         if (body.length > 268435456L) {
@@ -1159,6 +1183,9 @@ CICS_TASK_JAVA += """\
         }
         if (b.kind == 3) {
             throw refused("SET ADDRESS OF storage already freed");
+        }
+        if (b.kind == 4) {
+            throw refused("SET ADDRESS OF a LOADed program's image: IBM's bytes are not modelled (X65)");
         }
         if (b.bytes.length - b.off < need) {
             if (b.kind == 2 && ownedByTaskBlock(b.bytes)) {

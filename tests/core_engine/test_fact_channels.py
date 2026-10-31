@@ -15,6 +15,7 @@ these pin what a registry entry must satisfy for both to work, for every entry:
 import dataclasses
 import re
 import sqlite3
+import sys
 from pathlib import Path
 
 from gitgalaxy.core.fact_channels import _WEB_SERVICE_FIELDS, CHANNELS, CHANNELS_BY_NAME, create_channel_table
@@ -791,3 +792,46 @@ def test_every_channel_table_is_in_the_recorders_readme():
 def test_the_core_readme_points_at_the_registry():
     text = _CORE_README.read_text(encoding="utf-8")
     assert "core/fact_channels.py" in text and "how_to_add_a_fact_channel.md" in text
+
+
+# The recorders and the differential (#3383): their section tables are checked against the registry.
+# A per-file payload key that is deliberately not reported is listed here with its reason.
+_NO_AUDIT_SECTION = {"section_copies"}  # reader-applied COPY ... REPLACING, no standalone report rows yet
+_NO_LLM_LINE = {"section_copies", "entry_points"}  # the brief carries no bullet for these two
+
+
+def _per_file_payload_keys():
+    return {c.payload_key for c in CHANNELS if not c.resolved}
+
+
+def test_every_per_file_channel_has_an_audit_section_or_a_listed_reason():
+    from gitgalaxy.recorders.audit_recorder import AUDIT_SECTIONS
+
+    reported = {s.key for s in AUDIT_SECTIONS}
+    assert _per_file_payload_keys() - reported == _NO_AUDIT_SECTION, "add an AuditSection (or list the reason)"
+
+
+def test_every_per_file_channel_has_an_llm_line_or_a_listed_reason():
+    from gitgalaxy.recorders.llm_recorder import FACT_LINES, FACT_SUMMARIES
+
+    lined = {s.key for s in FACT_LINES}
+    assert _per_file_payload_keys() - lined == _NO_LLM_LINE, "add a FactLine (or list the reason)"
+    assert {s.key for s in FACT_SUMMARIES} <= _per_file_payload_keys()
+
+
+def test_every_recorder_section_names_a_registered_payload_key_or_the_call_graph():
+    from gitgalaxy.recorders.audit_recorder import AUDIT_SECTIONS
+    from gitgalaxy.recorders.llm_recorder import FACT_LINES
+
+    known = {c.payload_key for c in CHANNELS}
+    assert {s.key for s in AUDIT_SECTIONS} - known == set()
+    assert {s.key for s in FACT_LINES} - known == set()
+
+
+def test_the_differential_set_channels_and_the_registry_name_each_other():
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+    import refraction_differential as rd
+
+    compared = [c.differential for c in CHANNELS if c.differential]
+    assert len(compared) == len(set(compared)), "two channels claim one SetChannel"
+    assert set(compared) == {s.language for s in rd.SET_CHANNELS}, "declare `differential=` on the channel"

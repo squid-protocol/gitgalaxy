@@ -573,6 +573,57 @@ def test_a_job_restart_is_unscored_because_the_engine_keeps_none():
     assert [c.status for c in sc.checks] == ["pass", "unscored"]
 
 
+_SLICE3_STEP_FIELDS = {
+    "restart_checkid": "C0000012",
+    "rd": "R",
+    "parm_overrides": [{"step": "RPT020", "parm": "QUARTERLY"}],
+    "cond_overrides": [{"step": "RPT020", "cond": "(4,LT,SRT010)"}],
+}
+
+
+@pytest.mark.parametrize("field", sorted(_SLICE3_STEP_FIELDS))
+def test_each_slice3_step_field_is_reported_unscored_with_a_reason_never_dropped(field):
+    sc = _jcl([_step_row()], jcl_steps=[_step_key(**{field: _SLICE3_STEP_FIELDS[field]})])
+    assert [c.status for c in sc.checks] == ["pass", "unscored"]
+    assert field in sc.checks[1].fact and "job_flow_data keeps no" in sc.checks[1].detail
+
+
+def test_a_step_with_every_slice3_field_adds_one_unscored_check_per_field():
+    sc = _jcl([_step_row()], jcl_steps=[_step_key(restart="CHK020", **_SLICE3_STEP_FIELDS)])
+    assert sorted(c.status for c in sc.checks) == ["pass"] + ["unscored"] * 5
+    assert "RPT020:QUARTERLY" in " ".join(c.fact for c in sc.checks)
+
+
+def test_a_step_without_the_slice3_fields_adds_no_check():
+    assert [c.status for c in _jcl([_step_row()], jcl_steps=[_step_key()]).checks] == ["pass"]
+
+
+def test_a_job_level_dd_before_the_first_exec_has_a_null_step_and_scores_against_a_null_step_row():
+    key = [dict(_dd_key(), step=None, dd="SYSCHK", dsn="P.CHK", disp="OLD")]
+    row = _dd_row(step_name=None, dd_name="SYSCHK", dsn="P.CHK", disp="OLD")
+    sc = _jcl([row], jcl_dds=key)
+    assert [c.status for c in sc.checks] == ["pass"]
+    assert [c.status for c in _jcl([], jcl_dds=key).checks] == ["missing"]
+    # the same DD under a step is not the job-level one
+    sc = _jcl([_dd_row(dsn="P.CHK", dd_name="SYSCHK")], jcl_dds=key)
+    assert sorted(c.status for c in sc.checks) == ["missing", "phantom"]
+
+
+def test_an_override_dd_naming_a_dsn_matches_the_row_named_after_the_proc_step():
+    key = [dict(_dd_key(override_of="RPT020"), step="QTR", dd="RPTOUT", dsn="P.OUT", disp="NEW")]
+    row = _dd_row(step_name="RPT020", dd_name="RPTOUT", dsn="P.OUT", disp="NEW")
+    assert _jcl([row], jcl_dds=key).checks[0].status == "pass"
+    assert _jcl([dict_row(row, dsn="P.OTHER")], jcl_dds=key).checks[0].status == "fail"
+    # a row under the calling step's own name is not the override
+    sc = _jcl([dict_row(row, step_name="QTR")], jcl_dds=key)
+    assert sorted(c.status for c in sc.checks) == ["missing", "phantom"]
+
+
+def test_an_override_dd_that_is_sysout_stays_unscored():
+    key = [dict(_dd_key(override_of="RPT020"), step="QTR", dd="RPTOUT", dsn=None, disp=None, sysout="B")]
+    assert [c.status for c in _jcl([], jcl_dds=key).checks] == ["unscored"]
+
+
 def _dd_key(**kw):
     return dict(step="S1", dd="D", dsn="A.B", generation=None, disp="SHR", disp_normal=None, sysout=None, line=6, **kw)
 

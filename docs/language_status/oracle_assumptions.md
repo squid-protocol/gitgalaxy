@@ -3530,9 +3530,11 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   TOCHANNEL name beginning DFH, and DELETE CHANNEL of a DFH channel, are **refused by name** on both sides, never run as on an
   ordinary one; DELETE CONTAINER with a DFH container or CHANNEL name is refused the same way (its page, read 2026-10-31, gives INVREQ RESP2 30
   "You cannot delete a CICS-defined read-only container" and CHANNELERR 3, and lists no names either; 0 programs in the burned and
-  local corpora use DELETE CONTAINER, `cics_census.py usage "DELETE CONTAINER" --no-census`). GET / PUT CONTAINER and the browse are
-  unchanged (PUT's page gives INVREQ 30 / CHANNELERR 3 too, but DBB `epscsmrd.cbl` writes the pipeline's DFHREQUEST back, so a
-  DFH refusal would break a burned program: PUT stays modelled until IBM lists the read-only names). Census 2026-10-31 (`cics_census.py usage "MOVE CONTAINER" --no-census`): 0 programs
+  local corpora use DELETE CONTAINER, `cics_census.py usage "DELETE CONTAINER" --no-census`). GET CONTAINER and the browse are
+  unchanged (reading a read-only item is legal). PUT CONTAINER's page gives INVREQ 30 / CHANNELERR 3 too: a PUT naming a DFH channel, or a DFH
+  container other than `DFHREQUEST`, `DFH-BODY` and `DFH-DATA`, is refused by name; those three are the pipeline containers DBB
+  `epscsmrd.cbl` reads and writes back (the only DFH names a burned program PUTs, grepped 2026-10-31), so they run as ordinary ones.
+  Still not modelled: the real outcomes, which need an IBM list of the read-only names. Census 2026-10-31 (`cics_census.py usage "MOVE CONTAINER" --no-census`): 0 programs
   in the burned and local corpora use MOVE CONTAINER, and no burned program deletes a DFH channel, so no estate needs the real
   outcomes; they need an IBM list of the read-only names. Proved in `tests/cics_crucible/test_cics_runtimes.py`.
 - **Reached.** Unit proofs: `tests/cics_crucible/test_cics_runtimes.py` runs one 31-step scenario (MOVE across, within and to a new
@@ -4543,6 +4545,13 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   p.417). DSNCRCT `TYPE=COMD` and `TYPE=POOL` (DB2CONN command and pool thread defaults, no standalone resource name:
   SC33-1684-30 p.424-425). DFHTCT `TYPE=SDSCI` / `TYPE=LINE` (a DD of a simulated sequential device, and the join of two
   of them; the terminal is the `TYPE=TERMINAL` row).
+- **Inline SYSIN scope (#5154).** A macro table in a JCL job is read only from the in-stream deck an assembler step
+  takes: the `SYSIN` of `PGM=ASMA90|IEV90|IEUASM|IFOX00|ASMAHL|ASMBLR` (and the unnamed DDs concatenated after it), or
+  any in-stream override DD of a call to DFHAUPLE (its `COPY.SYSUT1`) or the HLASM / assembler F cataloged procedures
+  `ASMAC` / `ASMACG` / `ASMACL` / `ASMACLG` / `ASMFC` / `ASMFCG` / `ASMFCL` / `ASMFCLG` (procedure names ASSUMED, manual
+  page not read). A deck of any other step (an IEBGENER copy writes a member, it does not assemble it) is not read, so
+  a table in it is not a resource. A user-written wrapper procedure is not resolved for inline decks (REFUSED by name).
+  No burned estate assembles an inline table.
 - **Joined.** An assembler step, a DFHAUPLE call, or an in-stream / repository procedure whose inner step runs an
   assembler, when its `SYSIN DD` is `DSN=lib(MEMBER)`: `GalaxyIR.job_macro_tables`
   names the member's macro-table rows beside the job step, one entry per DD (an unnamed DD concatenated after the SYSIN

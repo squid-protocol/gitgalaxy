@@ -324,6 +324,33 @@ def test_the_web_service_channel_round_trips_every_payload_key(tmp_path):
     assert "transaction_id" in columns and "transaction" not in columns
 
 
+def test_the_copy_statement_channel_round_trips_every_payload_key(tmp_path):
+    copies = [
+        {
+            "member": "CPYA",
+            "library": "LIB1",
+            "replacing": '[["==:X:==", "==Y==", "LEADING"]]',
+            "section": "WORKING-STORAGE",
+            "fd_name": "FD1",
+            "after_ordinal": 4,
+            "line": 21,
+        },
+        {
+            "member": "CPYB",
+            "library": None,
+            "replacing": None,
+            "section": None,
+            "fd_name": None,
+            "after_ordinal": None,
+            "line": 0,
+        },
+    ]
+    files = [{"path": "p.cbl", "lang_id": "cobol", "raw_imports": [], "section_copies": copies}]
+    db = _record(tmp_path, files)
+    node = StateRehydrator(str(db)).load_state("RegistryRepo")["ram_cache"]["p.cbl"]
+    assert node["section_copies"] == copies
+
+
 def test_a_baseline_without_the_refmod_texts_restores_them_as_null():
     conn = sqlite3.connect(":memory:")
     conn.row_factory = sqlite3.Row
@@ -397,7 +424,6 @@ _GALAXY_IR = Path(__file__).resolve().parents[2] / "gitgalaxy" / "tools" / "cobo
 # slices). A table leaves this set when its channel is migrated; a new channel is never added here.
 _UNMIGRATED_IR_TABLES = frozenset(
     {
-        "copy_statement_data",
         "special_names_data",
         "compiler_options_data",
         "ims_gen_data",
@@ -441,7 +467,7 @@ _RECIPE = Path(__file__).resolve().parents[2] / "gitgalaxy" / "core" / "how_to_a
 # Tables the recipe table names that are not registry channels yet: the unmigrated galaxy_ir tables
 # the recipe has a row for, plus wrapper_data (global/resolved, no galaxy_ir loader) and file_data
 # (the host of the wrapper_facts column, not a channel). A table leaves this set when migrated.
-_UNMIGRATED_RECIPE_TABLES = (_UNMIGRATED_IR_TABLES - {"copy_statement_data"}) | {
+_UNMIGRATED_RECIPE_TABLES = _UNMIGRATED_IR_TABLES | {
     "wrapper_data",
     "file_data",
 }

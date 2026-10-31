@@ -12,11 +12,11 @@ Every cell that does not pass is ledgered in `tests/cics_crucible/baseline.json`
 |---|---|---|---|---|
 | engine-facts | 48 | 0 | 0 | 48 |
 | forge-compile | 48 | 0 | 0 | 48 |
-| cobol-stub | 141 | 5 | 25 | 171 |
+| cobol-stub | 147 | 5 | 19 | 171 |
 | java | 0 | 171 | 0 | 171 |
 | java-ported | 60 | 111 | 0 | 171 |
 | java-facade | 57 | 114 | 0 | 171 |
-| **all** | **354** | **401** | **25** | **780** |
+| **all** | **360** | **401** | **19** | **780** |
 
 ## By trap and case
 
@@ -50,7 +50,7 @@ Pass counts per side (scenario sides: passing / scenarios).
 | condition-handling | `hc-map-not-in-mapset` | pass | pass | 4 / 4 | 0 / 4 | 0 / 4 | 0 / 4 |
 | condition-handling | `hc-named-counters` | pass | pass | 2 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
 | condition-handling | `hc-perform-range` | pass | pass | 4 / 4 | 0 / 4 | 4 / 4 | 4 / 4 |
-| condition-handling | `hc-readq-td` | pass | pass | 0 / 6 | 0 / 6 | 0 / 6 | 0 / 6 |
+| condition-handling | `hc-readq-td` | pass | pass | 6 / 6 | 0 / 6 | 0 / 6 | 0 / 6 |
 | condition-handling | `hc-resp-options` | pass | pass | 3 / 3 | 0 / 3 | 0 / 3 | 0 / 3 |
 | condition-handling | `hc-terminal-eoc` | pass | pass | 3 / 3 | 0 / 3 | 0 / 3 | 0 / 3 |
 | condition-handling | `hc-terminal-receive` | pass | pass | 7 / 7 | 0 / 7 | 0 / 7 | 0 / 7 |
@@ -131,7 +131,7 @@ Each cobol-stub scenario runs the COBOL compiled with `-ftraceall` (tests/tools/
 | `hc-map-not-in-mapset` | HCMAB | 4 | 2/2 | 4/5 | 1/1 | 0 | proven on 0 scenarios, covering 0/2 paragraphs and 0/5 branches |
 | `hc-named-counters` | HCCNTR | 2 | 6/6 | 6/7 | 0/0 | 0 | proven on 0 scenarios, covering 0/6 paragraphs and 0/7 branches |
 | `hc-perform-range` | HCQREAD | 4 | 8/8 | 0/0 | 4/4 | 0 | proven on 4 scenarios, covering 8/8 paragraphs and 0/0 branches |
-| `hc-readq-td` | HCRQTD | 0 | 0/9 | 0/7 | 0/0 | 0 | -- |
+| `hc-readq-td` | HCRQTD | 6 | 9/9 | 6/7 | 0/0 | 0 | proven on 0 scenarios, covering 0/9 paragraphs and 0/7 branches |
 | `hc-resp-options` | HCOPT | 3 | 7/7 | 5/6 | 0/0 | 0 | proven on 0 scenarios, covering 0/7 paragraphs and 0/6 branches |
 | `hc-terminal-eoc` | HCEOC | 3 | 4/4 | 3/3 | 1/1 | 0 | proven on 0 scenarios, covering 0/4 paragraphs and 0/3 branches |
 | `hc-terminal-receive` | HCTERM | 7 | 10/10 | 6/6 | 1/1 | 0 | proven on 0 scenarios, covering 0/10 paragraphs and 0/6 branches |
@@ -268,21 +268,6 @@ Each item is a scenario to propose: a crucible PR adds it with a hand-written, d
 
 #### `hc-readq-td` HCRQTD
 
-- paragraph `MAIN-PARA` (line 37)
-- paragraph `FIFO-PARA` (line 58)
-- paragraph `SEED-PARA` (line 64)
-- paragraph `EMPTY-PARA` (line 71)
-- paragraph `UNDEF-PARA` (line 73)
-- paragraph `DELETE-PARA` (line 83)
-- paragraph `LENGERR-PARA` (line 88)
-- paragraph `WRITE-THREE` (line 95)
-- paragraph `READ-ONE` (line 105)
-- EVALUATE at line 41 in `MAIN-PARA`: `WHEN at line 42` never taken
-- EVALUATE at line 41 in `MAIN-PARA`: `WHEN at line 44` never taken
-- EVALUATE at line 41 in `MAIN-PARA`: `WHEN at line 46` never taken
-- EVALUATE at line 41 in `MAIN-PARA`: `WHEN at line 48` never taken
-- EVALUATE at line 41 in `MAIN-PARA`: `WHEN at line 50` never taken
-- EVALUATE at line 41 in `MAIN-PARA`: `WHEN at line 52` never taken
 - EVALUATE at line 41 in `MAIN-PARA`: no WHEN arm matched: never
 
 #### `hc-resp-options` HCOPT
@@ -302,44 +287,48 @@ Each item is a scenario to propose: a crucible PR adds it with a hand-written, d
 
 Each missing feature belongs to a piece of harness work (below: the features themselves). A cell is *unlocked* when every piece its features need is done: it then gets a pass or fail verdict rather than `unsupported`. **needs** counts the cells that do not pass and need the piece, **alone** the unsupported cells it unlocks by itself, and **cumulative** the unsupported cells unlocked by it and every row above it (rows are chosen greedily).
 
-### cobol-stub (25 unsupported)
+### cobol-stub (19 unsupported)
 
 | # | harness work | needs | alone | cumulative |
 |---|---|---|---|---|
-| 1 | ADDRESS COMMAREA | 6 | 5 | 5 |
-| 2 | TS queues: READQ / WRITEQ TS, seeding, final state | 7 | 4 | 10 |
-| 3 | terminal RECEIVE (unformatted input) | 3 | 3 | 13 |
-| 4 | DELETEQ-TD event | 2 | 0 | 15 |
-| 5 | WEB SEND CHARACTERSET | 6 | 0 | 15 |
-| 6 | WEB SEND HOSTCODEPAGE | 6 | 0 | 15 |
-| 7 | WEB READ HTTPHEADER | 5 | 0 | 15 |
-| 8 | WEB WRITE HTTPHEADER | 1 | 0 | 16 |
-| 9 | WEB RECEIVE CHARACTERSET | 5 | 0 | 16 |
-| 10 | WEB RECEIVE HOSTCODEPAGE | 5 | 0 | 21 |
-| 11 | READ | 4 | 0 | 21 |
-| 12 | READNEXT | 4 | 0 | 21 |
-| 13 | READPREV | 4 | 0 | 25 |
+| 1 | ADDRESS COMMAREA | 6 | 6 | 6 |
+| 2 | terminal RECEIVE (unformatted input) | 3 | 3 | 9 |
+| 3 | WEB SEND CHARACTERSET | 6 | 0 | 9 |
+| 4 | WEB SEND HOSTCODEPAGE | 6 | 0 | 9 |
+| 5 | WEB READ HTTPHEADER | 5 | 0 | 9 |
+| 6 | WEB WRITE HTTPHEADER | 1 | 0 | 10 |
+| 7 | WEB RECEIVE CHARACTERSET | 5 | 0 | 10 |
+| 8 | WEB RECEIVE HOSTCODEPAGE | 5 | 0 | 15 |
+| 9 | READ | 4 | 0 | 15 |
+| 10 | READNEXT | 4 | 0 | 15 |
+| 11 | READPREV | 4 | 0 | 19 |
 
 ### java (0 unsupported)
 
 | # | harness work | needs | alone | cumulative |
 |---|---|---|---|---|
 | 1 | DELETEQ-TD event | 2 | 0 | 0 |
-| 2 | TS queues: READQ / WRITEQ TS, seeding, final state | 7 | 0 | 0 |
+| 2 | TD queue final state | 4 | 0 | 0 |
+| 3 | TD queue seeding | 1 | 0 | 0 |
+| 4 | TS queues: READQ / WRITEQ TS, seeding, final state | 7 | 0 | 0 |
 
 ### java-ported (0 unsupported)
 
 | # | harness work | needs | alone | cumulative |
 |---|---|---|---|---|
 | 1 | DELETEQ-TD event | 2 | 0 | 0 |
-| 2 | TS queues: READQ / WRITEQ TS, seeding, final state | 7 | 0 | 0 |
+| 2 | TD queue final state | 4 | 0 | 0 |
+| 3 | TD queue seeding | 1 | 0 | 0 |
+| 4 | TS queues: READQ / WRITEQ TS, seeding, final state | 7 | 0 | 0 |
 
 ### java-facade (0 unsupported)
 
 | # | harness work | needs | alone | cumulative |
 |---|---|---|---|---|
 | 1 | DELETEQ-TD event | 2 | 0 | 0 |
-| 2 | TS queues: READQ / WRITEQ TS, seeding, final state | 7 | 0 | 0 |
+| 2 | TD queue final state | 4 | 0 | 0 |
+| 3 | TD queue seeding | 1 | 0 | 0 |
+| 4 | TS queues: READQ / WRITEQ TS, seeding, final state | 7 | 0 | 0 |
 
 ## Unsupported features, by how many cells need them
 
@@ -349,11 +338,9 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 
 | feature | cells | harness work |
 |---|---|---|
-| stub: READQ-TD event | 7 | TS queues: READQ / WRITEQ TS, seeding, final state |
 | translator: ADDRESS COMMAREA | 6 | ADDRESS COMMAREA |
 | translator: WEB SEND CHARACTERSET | 6 | WEB SEND CHARACTERSET |
 | translator: WEB SEND HOSTCODEPAGE | 6 | WEB SEND HOSTCODEPAGE |
-| stub: WRITEQ-TD event | 5 | TS queues: READQ / WRITEQ TS, seeding, final state |
 | translator: WEB READ HTTPHEADER | 5 | WEB READ HTTPHEADER |
 | translator: WEB RECEIVE CHARACTERSET | 5 | WEB RECEIVE CHARACTERSET |
 | translator: WEB RECEIVE HOSTCODEPAGE | 5 | WEB RECEIVE HOSTCODEPAGE |
@@ -361,7 +348,6 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | translator: READNEXT | 4 | READNEXT |
 | translator: READPREV | 4 | READPREV |
 | translator: RECEIVE SET | 3 | terminal RECEIVE (unformatted input) |
-| stub: DELETEQ-TD event | 2 | DELETEQ-TD event |
 | translator: WEB WRITE HTTPHEADER | 1 | WEB WRITE HTTPHEADER |
 
 ### java
@@ -370,7 +356,9 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 |---|---|---|
 | CicsTask: READQ-TD event | 7 | TS queues: READQ / WRITEQ TS, seeding, final state |
 | CicsTask: WRITEQ-TD event | 5 | TS queues: READQ / WRITEQ TS, seeding, final state |
+| CicsTask: TD queue final state | 4 | TD queue final state |
 | CicsTask: DELETEQ-TD event | 2 | DELETEQ-TD event |
+| CicsTask: TD queue seeding | 1 | TD queue seeding |
 
 ### java-ported
 
@@ -378,7 +366,9 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 |---|---|---|
 | CicsTask: READQ-TD event | 7 | TS queues: READQ / WRITEQ TS, seeding, final state |
 | CicsTask: WRITEQ-TD event | 5 | TS queues: READQ / WRITEQ TS, seeding, final state |
+| CicsTask: TD queue final state | 4 | TD queue final state |
 | CicsTask: DELETEQ-TD event | 2 | DELETEQ-TD event |
+| CicsTask: TD queue seeding | 1 | TD queue seeding |
 
 ### java-facade
 
@@ -386,7 +376,9 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 |---|---|---|
 | CicsTask: READQ-TD event | 7 | TS queues: READQ / WRITEQ TS, seeding, final state |
 | CicsTask: WRITEQ-TD event | 5 | TS queues: READQ / WRITEQ TS, seeding, final state |
+| CicsTask: TD queue final state | 4 | TD queue final state |
 | CicsTask: DELETEQ-TD event | 2 | DELETEQ-TD event |
+| CicsTask: TD queue seeding | 1 | TD queue seeding |
 
 ## Failure reasons, grouped
 
@@ -739,27 +731,21 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | `hc-perform-range/length-trap/java` | fail | task 1 (HC01) event 1: READQ-TS expected, the side recorded no further event |
 | `hc-perform-range/no-queue/java` | fail | task 1 (HC01) event 1: READQ-TS expected, the side recorded no further event |
 | `hc-perform-range/three-items/java` | fail | task 1 (HC01) event 1: READQ-TS expected, the side recorded no further event |
-| `hc-readq-td/deleteq/cobol-stub` | unsupported | stub: WRITEQ-TD event |
 | `hc-readq-td/deleteq/java` | fail | task 1 (HC82) event 1: RECEIVE expected, the side recorded no further event |
 | `hc-readq-td/deleteq/java-facade` | fail | no port of any of its programs |
 | `hc-readq-td/deleteq/java-ported` | fail | no port of any of its programs |
-| `hc-readq-td/empty/cobol-stub` | unsupported | stub: READQ-TD event |
 | `hc-readq-td/empty/java` | fail | task 1 (HC82) event 1: RECEIVE expected, the side recorded no further event |
 | `hc-readq-td/empty/java-facade` | fail | no port of any of its programs |
 | `hc-readq-td/empty/java-ported` | fail | no port of any of its programs |
-| `hc-readq-td/fifo/cobol-stub` | unsupported | stub: WRITEQ-TD event |
 | `hc-readq-td/fifo/java` | fail | task 1 (HC82) event 1: RECEIVE expected, the side recorded no further event |
 | `hc-readq-td/fifo/java-facade` | fail | no port of any of its programs |
 | `hc-readq-td/fifo/java-ported` | fail | no port of any of its programs |
-| `hc-readq-td/lengerr/cobol-stub` | unsupported | stub: WRITEQ-TD event |
 | `hc-readq-td/lengerr/java` | fail | task 1 (HC82) event 1: RECEIVE expected, the side recorded no further event |
 | `hc-readq-td/lengerr/java-facade` | fail | no port of any of its programs |
 | `hc-readq-td/lengerr/java-ported` | fail | no port of any of its programs |
-| `hc-readq-td/seeded/cobol-stub` | unsupported | stub: WRITEQ-TD event |
 | `hc-readq-td/seeded/java` | fail | task 1 (HC82) event 1: RECEIVE expected, the side recorded no further event |
 | `hc-readq-td/seeded/java-facade` | fail | no port of any of its programs |
 | `hc-readq-td/seeded/java-ported` | fail | no port of any of its programs |
-| `hc-readq-td/undefined/cobol-stub` | unsupported | stub: READQ-TD event |
 | `hc-readq-td/undefined/java` | fail | task 1 (HC82) event 1: RECEIVE expected, the side recorded no further event |
 | `hc-readq-td/undefined/java-facade` | fail | no port of any of its programs |
 | `hc-readq-td/undefined/java-ported` | fail | no port of any of its programs |

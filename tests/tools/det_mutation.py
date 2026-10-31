@@ -447,7 +447,10 @@ def record(case: str, run_dir: Path, port: Path) -> int:
     run = json.loads((run_dir / "mutation.json").read_text(encoding="utf-8"))
     every = mu.all_mutants(port, set(mu.OPERATORS), FILES)
     in_scope = scope_filter(case_kind(case), port)(every)
-    entry = {**entry_from_run(case, run, port, len(every) - len(in_scope)), "every": " ".join(sorted(m.id for m in in_scope))}
+    entry = {
+        **entry_from_run(case, run, port, len(every) - len(in_scope)),
+        "every": " ".join(sorted(m.id for m in in_scope)),
+    }
     import tempfile
 
     try:
@@ -538,7 +541,9 @@ def fresh_mutants(entry: dict[str, Any], every: set[str]) -> list[str] | None:
     fresh = sorted(every - known)
     if not known or len(fresh) > max(FRESH_FLOOR, FRESH_SHARE * len(every)):
         return None
-    rate = entry["chosen"] / entry["mutants"]  # a sampled entry samples its new mutants too (ids are hashes: repeatable)
+    rate = (
+        entry["chosen"] / entry["mutants"]
+    )  # a sampled entry samples its new mutants too (ids are hashes: repeatable)
     return fresh if rate >= 1 else [i for i in fresh if int(i, 16) < rate * 16 ** len(i)]
 
 

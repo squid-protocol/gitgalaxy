@@ -981,8 +981,6 @@ _STRUCTURAL_UNIT_END_LANGS = frozenset({"cobol", "pli"})
 # `RETURNING ...` may run over several lines).
 _COBOL_PROCEDURE_DIVISION_RE = re.compile(r"^(?:[^\n]{6})?[ \t]*PROCEDURE[ \t]+DIVISION(?![\w-])", re.I | re.M)
 _COBOL_SEPARATOR_PERIOD_RE = re.compile(r"\.(?=\s|$)")
-# #7206: a unit header that is a SECTION (`NAME SECTION [segment].`), not a paragraph.
-_COBOL_SECTION_HEADER_RE = re.compile(r"(?:[^\n]{6})?[ \t]*[\w-]+[ \t]+SECTION(?![\w-])", re.I)
 
 # #1949 follow-up: a Mode A "function" can be a bare data/constant definition
 # rather than real code -- confirmed against real corpus source. NASM's `equ`
@@ -3094,6 +3092,10 @@ _BRACKET_CONTINUATION_LANGS = frozenset({"python", "micropython", "embedded_pyth
 # GCC `__asm__(...)` is a statement of the C family's own grammar, not a foreign block (#6266): handing it to the
 # assembly segment cut the enclosing function there (srb2 win_dbg.c RecordExceptionInfo lost 380 lines of calls).
 _NATIVE_INLINE_ASM_HOSTS = frozenset({"c", "cpp", "objective-c"})
+
+
+# #7206: a unit header that is a SECTION (`NAME SECTION [segment].`), not a paragraph.
+_COBOL_SECTION_HEADER_RE = re.compile(r"(?:[^\n]{6})?[ \t]*[\w-]+[ \t]+SECTION(?![\w-])", re.I)
 
 
 class StructuralExtractor:

@@ -19,6 +19,7 @@ from .._shared_patterns import (
     COMMENTED_STATEMENT_C_FAMILY,
     GLOBAL_FRAGILE_DEBT,
     GLOBAL_PLANNED_DEBT,
+    commented_keyword_statement,
 )
 
 DEFINITION: dict[str, Any] = {
@@ -331,7 +332,7 @@ DEFINITION: dict[str, Any] = {
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails)
         "dead_code": re.compile(
-            r"(?://|/\*)[ \t]*(?:if|for|while|struct|union|enum|void|int|return)\b"
+            commented_keyword_statement("if|for|while|struct|union|enum|void|int|return")
             + r"|"
             + COMMENTED_STATEMENT_C_FAMILY
         ),

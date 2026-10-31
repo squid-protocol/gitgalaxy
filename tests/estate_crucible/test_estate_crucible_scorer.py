@@ -624,6 +624,41 @@ def test_an_override_dd_that_is_sysout_stays_unscored():
     assert [c.status for c in _jcl([], jcl_dds=key).checks] == ["unscored"]
 
 
+_SLICE4_STEP_FIELDS = {"set_symbols": [{"name": "HLQ", "value": "PROD"}], "includes": ["BDLDDDS"]}
+
+
+@pytest.mark.parametrize("field", sorted(_SLICE4_STEP_FIELDS))
+def test_each_slice4_step_field_is_reported_unscored_with_a_reason(field):
+    sc = _jcl([_step_row()], jcl_steps=[_step_key(**{field: _SLICE4_STEP_FIELDS[field]})])
+    assert [c.status for c in sc.checks] == ["pass", "unscored"]
+    assert field in sc.checks[1].fact and "job_flow_data keeps no" in sc.checks[1].detail
+
+
+def test_a_set_symbol_is_labelled_name_equals_value():
+    sc = _jcl([_step_row()], jcl_steps=[_step_key(set_symbols=[{"name": "HLQ", "value": "PROD"}])])
+    assert "HLQ=PROD" in sc.checks[1].fact
+
+
+def test_a_dd_of_an_include_group_is_unscored_not_matched_against_a_null_step_row():
+    key = [dict(_dd_key(), job=None, proc=None, step=None, include="BDLDDDS", sysout="*", dsn=None, disp=None)]
+    sc = _jcl([], jcl_dds=key)
+    assert [c.status for c in sc.checks] == ["unscored"]
+    assert "INCLUDE BDLDDDS" in sc.checks[0].fact and "INCLUDE" in sc.checks[0].detail
+    # a non-SYSOUT member is not matched against the job-level row either
+    key = [dict(key[0], sysout=None, dsn="A.B", disp="SHR")]
+    assert [c.status for c in _jcl([_dd_row(step_name=None)], jcl_dds=key).checks] != ["pass"]
+
+
+def test_an_added_sysout_dd_on_a_proc_step_is_unscored():
+    key = [dict(_dd_key(override_of="RPT020", added=True), step="ADDQ", dd="AUDIT", dsn=None, disp=None, sysout="B")]
+    assert [c.status for c in _jcl([], jcl_dds=key).checks] == ["unscored"]
+
+
+def test_a_nullfile_dd_is_a_dummy_and_unscored():
+    key = [dict(_dd_key(), dd="SORTWK01", dsn=None, disp=None, dummy=True)]
+    assert [c.status for c in _jcl([], jcl_dds=key).checks] == ["unscored"]
+
+
 def _dd_key(**kw):
     return dict(step="S1", dd="D", dsn="A.B", generation=None, disp="SHR", disp_normal=None, sysout=None, line=6, **kw)
 

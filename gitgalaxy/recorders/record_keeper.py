@@ -1365,49 +1365,9 @@ class RecordKeeper:
         # #4457: section-level COPY ... REPLACING statements (registry channel).
         create_channel_table(cursor, "copy_statement", _ensure_columns)
 
-        # #3820: the SPECIAL-NAMES clauses that change what a PIC's symbols are
-        # worth (core/special_names.py): one row per CURRENCY [SIGN] clause (value
-        # = the currency string, symbol = the PICTURE SYMBOL standing for it) and
-        # per DECIMAL-POINT IS COMMA (value COMMA). Widths are the reader's.
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS special_names_data (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                repo_name TEXT,
-                commit_hash TEXT,
-                file_id INTEGER,
-                clause TEXT,
-                value TEXT,
-                symbol TEXT,
-                line_number INTEGER,
-                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
-            )
-        """)
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_special_names_file_id ON special_names_data(file_id);")
-        cursor.execute(
-            "CREATE INDEX IF NOT EXISTS idx_special_names_snapshot ON special_names_data(repo_name, commit_hash);"
-        )
-
-        # #3828: the CBL / PROCESS card options (core/compiler_options.py): one row
-        # per option in source order -- option (full name, abbreviations spelled
-        # out), value (between its parentheses, as written), written (as on the
-        # card). INTDATE / TRUNC / ARITH / NUMPROC change what a program computes.
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS compiler_options_data (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                repo_name TEXT,
-                commit_hash TEXT,
-                file_id INTEGER,
-                option TEXT,
-                value TEXT,
-                written TEXT,
-                line_number INTEGER,
-                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
-            )
-        """)
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_compiler_options_file_id ON compiler_options_data(file_id);")
-        cursor.execute(
-            "CREATE INDEX IF NOT EXISTS idx_compiler_options_snapshot ON compiler_options_data(repo_name, commit_hash);"
-        )
+        # #3820 / #3828: SPECIAL-NAMES clauses and CBL / PROCESS options (registry channels).
+        create_channel_table(cursor, "special_names", _ensure_columns)
+        create_channel_table(cursor, "compiler_options", _ensure_columns)
 
         # #3452: field-level data movement (core/data_moves.py), one row per source ->
         # target pair of a MOVE / COMPUTE / ADD / SUBTRACT / MULTIPLY / DIVIDE /
@@ -2929,32 +2889,6 @@ class RecordKeeper:
                 g.get("attributes"),
                 int(g.get("line", 0) or 0),
             ),
-        )
-
-        # #3820: SPECIAL-NAMES currency / decimal point -- per-file.
-        _insert_per_file_child(
-            cursor,
-            parsed_files,
-            path_to_file_id,
-            repo_name,
-            commit_hash,
-            "special_names_data",
-            ("clause", "value", "symbol", "line_number"),
-            "special_names",
-            lambda n: (n.get("clause"), n.get("value"), n.get("symbol"), int(n.get("line", 0) or 0)),
-        )
-
-        # #3828: CBL / PROCESS compiler options -- per-file.
-        _insert_per_file_child(
-            cursor,
-            parsed_files,
-            path_to_file_id,
-            repo_name,
-            commit_hash,
-            "compiler_options_data",
-            ("option", "value", "written", "line_number"),
-            "compiler_options",
-            lambda o: (o.get("option"), o.get("value"), o.get("written"), int(o.get("line", 0) or 0)),
         )
 
         # Synthetic top-level buckets' calls (no function_data row) -- per-file.

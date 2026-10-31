@@ -533,6 +533,14 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
         with self.g.reading():
             return self.field(text)
 
+    def linkage_record(self, text: str) -> bool:
+        """Whether the operand is a LINKAGE 01 record (a SET ADDRESS OF can window it onto a larger block)."""
+        try:
+            it = self.g.resolve(self.ref(text))
+        except Untranslatable:  # an ambiguous name: the plain path says so
+            return False
+        return getattr(it, "section", None) == "LINKAGE" and getattr(it, "level", None) == 1
+
     def size(self, text: str) -> int:
         r = self.ref(text)
         it = self.g.resolve(r)
@@ -1571,7 +1579,10 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
                     f"{num('STATUSCODE', '-1')}, {text('STATUSTEXT')}, {num('STATUSLEN', '-1')}, {conv}, "
                     f"{num('DOCSTATUS', '0')}, CS)")  # fmt: skip
             return [f"{ind}int[] {r} = {call};", *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
-        call = (f"task.webSend({text('FROM')}, {num('FROMLENGTH', '0')}, {text('MEDIATYPE')}, {num('ACTION', '0')}, "
+        frm = text("FROM")
+        if "FROM" in opts and self.linkage_record(_arg(opts["FROM"])):  # #6839: an area set onto a larger block
+            frm = f"DetCics.fromText({self.read_field(_arg(opts['FROM']))}, {num('FROMLENGTH', '0')}, CS)"
+        call = (f"task.webSend({frm}, {num('FROMLENGTH', '0')}, {text('MEDIATYPE')}, {num('ACTION', '0')}, "
                 f"{num('STATUSCODE', '-1')}, {text('STATUSTEXT')}, {num('STATUSLEN', '-1')}, {conv})")  # fmt: skip
         return [f"{ind}int[] {r} = {call};", *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
 

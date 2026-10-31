@@ -1703,6 +1703,13 @@ def test_web_send_is_the_response_to_the_stated_request():
     the conversion flag (0 / 1 SRVCONVERT / 2 NOSRVCONVERT); every condition through RESP / HANDLE CONDITION. What IBM leaves
     open, or zECS does not use, is refused by name."""
     c = _ChanCics()
+    base_resolve = c.g.resolve
+    c.g.resolve = lambda ref: base_resolve(ref) if ref.name in ("LS-REC", "WS-REC") else base_resolve(E.Ref("WS-REC"))
+    # #6839: FROM a LINKAGE 01 record (a SET ADDRESS OF can window it onto a larger block) reads FROMLENGTH bytes of the
+    # block (DetCics.fromText); a WORKING-STORAGE area keeps the declared area's text
+    ls = c.command("WEB SEND FROM(LS-REC) FROMLENGTH(R) NOHANDLE", "")
+    assert ".webSend(DetCics.fromText(" in ls[0] and ", INT(R), CS), INT(R)," in ls[0]
+    assert ".webSend(Cobol.text(" in c.command("WEB SEND FROM(WS-REC) FROMLENGTH(R) NOHANDLE", "")[0]
     w = c.command(
         "WEB SEND FROM(REC) FROMLENGTH(R) MEDIATYPE(REC) ACTION(R2) STATUSCODE(R) STATUSTEXT(REC) SRVCONVERT NOHANDLE",
         "",

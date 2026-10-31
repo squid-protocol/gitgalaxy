@@ -32,6 +32,11 @@ public final class Storage {
         base = at;
     }
 
+    /** Whether `bytes` is aliased onto another storage's (SET ADDRESS OF): the record is a window on a larger block. */
+    public boolean aliased() {
+        return home != null && bytes != home;
+    }
+
     /** Back to the area's own bytes (a new task: the service keeps its storages, the addresses a task set are gone). */
     public void unalias() {
         if (home != null) {

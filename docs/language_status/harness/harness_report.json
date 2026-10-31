@@ -9,14 +9,14 @@
   "proven": 81,
   "proven_pct": 78.6,
   "paragraphs": {
-   "covered": 561,
+   "covered": 573,
    "live": 574,
-   "pct": 97.7
+   "pct": 99.8
   },
   "branches": {
-   "covered": 1438,
+   "covered": 1464,
    "total": 1543,
-   "pct": 93.2
+   "pct": 94.9
   },
   "cases_measured": 31,
   "cases": 98
@@ -899,6 +899,20 @@
    "blocker": "coverage: LINKed program EPSMPMT has live paragraphs no scenario runs"
   },
   {
+   "corpus": "zecs",
+   "program": "Source/ZECS001.cbl",
+   "case": "zecs-zecs001",
+   "status": "ran, coverage open",
+   "gaps": [
+    "coverage: LINKed program ZECS002 has live paragraphs no scenario runs"
+   ],
+   "reasons": {
+    "coverage: LINKed program ZECS002 has live paragraphs no scenario runs": "22/24 paragraphs"
+   },
+   "tests": 77,
+   "blocker": "coverage: LINKed program ZECS002 has live paragraphs no scenario runs"
+  },
+  {
    "corpus": "cics-banking-sample-application-cbsa",
    "program": "src/base/cobol_src/BNK1CAC.cbl",
    "case": "cbsa-bnk1cac",
@@ -961,22 +975,6 @@
    },
    "tests": 16,
    "blocker": "coverage: LINKed program EPSMPMT has live paragraphs no scenario runs"
-  },
-  {
-   "corpus": "zecs",
-   "program": "Source/ZECS001.cbl",
-   "case": "zecs-zecs001",
-   "status": "ran, coverage open",
-   "gaps": [
-    "coverage: LINKed program ZECS002 has live paragraphs no scenario runs",
-    "coverage: live paragraphs no scenario runs"
-   ],
-   "reasons": {
-    "coverage: LINKed program ZECS002 has live paragraphs no scenario runs": "22/24 paragraphs",
-    "coverage: live paragraphs no scenario runs": "117/119 paragraphs"
-   },
-   "tests": 72,
-   "blocker": "coverage: live paragraphs no scenario runs"
   },
   {
    "corpus": "cics-banking-sample-application-cbsa",
@@ -2127,7 +2125,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 72
+   "tests": 77
   },
   "zecs-zecs003": {
    "generated": [],
@@ -2161,6 +2159,20 @@
    ],
    "programs_unlocked": 2,
    "tests_unlocked": 102,
+   "programs_also_blocked": [],
+   "then_needs": {}
+  },
+  {
+   "gap": "coverage: LINKed program ZECS002 has live paragraphs no scenario runs",
+   "fix": "Add scenarios that reach the paragraphs / branches nothing runs in 1 program: Source/ZECS001.cbl (cases: zecs-zecs001).",
+   "programs": [
+    "Source/ZECS001.cbl"
+   ],
+   "cases": [
+    "zecs-zecs001"
+   ],
+   "programs_unlocked": 1,
+   "tests_unlocked": 77,
    "programs_also_blocked": [],
    "then_needs": {}
   },
@@ -2224,23 +2236,17 @@
   },
   {
    "gap": "coverage: live paragraphs no scenario runs",
-   "fix": "Add scenarios that reach the paragraphs / branches nothing runs in 2 programs: Source/ZECS001.cbl, base/src/lgapol01.cbl (cases: genapp-lgtestp1, zecs-zecs001).",
+   "fix": "Add scenarios that reach the paragraphs / branches nothing runs in 1 program: base/src/lgapol01.cbl (cases: genapp-lgtestp1).",
    "programs": [
-    "Source/ZECS001.cbl",
     "base/src/lgapol01.cbl"
    ],
    "cases": [
-    "genapp-lgtestp1",
-    "zecs-zecs001"
+    "genapp-lgtestp1"
    ],
    "programs_unlocked": 1,
    "tests_unlocked": 15,
    "programs_also_blocked": [],
-   "then_needs": {
-    "Source/ZECS001.cbl": [
-     "coverage: LINKed program ZECS002 has live paragraphs no scenario runs"
-    ]
-   }
+   "then_needs": {}
   },
   {
    "gap": "coverage: LINKed program EPSMPMT has live paragraphs no scenario runs",

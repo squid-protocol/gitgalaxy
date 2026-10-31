@@ -499,6 +499,27 @@ def test_dfhjct_dsname_is_lifted_as_an_assumed_operand():
     assert row["dsname"] is None
 
 
+@pytest.mark.parametrize("jtype", ["TAPE1", "TAPE2", "DISK1", "DISK2", "SMF", "TAPE"])
+def test_dfhjct_jtype_never_decides_the_row(jtype):
+    """JTYPE= is listed as {TAPE1|TAPE2|DISK1|DISK2|SMF} [VSE Table 41 p.270-272]; the journal is named by JFILEID alone.
+
+    A word outside that list (`TAPE`) still yields the row (ASSUMED: the manual is silent on what it means); JTYPE,
+    BUFSIZE and JOUROPT are kept verbatim in `attributes`.
+    """
+    (row,) = _rows(f"         DFHJCT TYPE=ENTRY,JFILEID=4,JTYPE={jtype},BUFSIZE=40,JOUROPT=P\n")
+    assert (row["resource_type"], row["name"]) == ("JOURNAL", "4")
+    assert all(f in row["attributes"] for f in (f"JTYPE={jtype}", "BUFSIZE=40", "JOUROPT=P"))
+
+
+def test_dfhjct_repeated_journal_is_not_folded():
+    """Unlike DFHSRT (#7211) no JCT rule folds a repeated JFILEID: `01` and `1` stay two rows, in source order.
+
+    Pinned as current behavior; IBM's Table 41 does not say what a repeated entry means (left open, #5154).
+    """
+    src = "".join(f"         DFHJCT TYPE=ENTRY,JFILEID={j}\n" for j in ("01", "1", "SYSTEM", "SYSTEM"))
+    assert _named(src, "JOURNAL") == ["01", "1", "SYSTEM", "SYSTEM"]
+
+
 def test_dfhjct_suffix_names_the_table_and_assembled_in_jcl():
     src = "         DFHJCT TYPE=INITIAL,SUFFIX=A1\n         DFHJCT TYPE=ENTRY,JFILEID=SYSTEM\n"
     (row,) = _rows(src)

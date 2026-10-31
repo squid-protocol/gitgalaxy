@@ -222,7 +222,7 @@
     "| events | 3777 | 534 | 1 | `m4/curl/configure.ac` |",
     "| tests | 5848 | 488 | 2 | `cobol/gnucobol_internals/syn_misc.at` |",
     "| docs | 50894 | 679 | 5 | `dart/flutter/framework.dart` |",
-    "| debt | 12555 | 1077 | 7 | `shell/curl/ech_tests.sh` |",
+    "| debt | 12508 | 1077 | 7 | `shell/curl/ech_tests.sh` |",
     "| mutation | 237886 | 2353 | 141 | `typescript/typescript_compiler/checker.ts` |",
     "| dead_code | 18670 | 1603 | 13 | `rust/wasmtime/wasmtime_pulley_interp.rs` |",
     "| credential | 123 | 65 | 0 | `powershell/core/packaging.psm1` |",

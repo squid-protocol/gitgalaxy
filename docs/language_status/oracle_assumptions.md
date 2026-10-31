@@ -2310,6 +2310,11 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   browse forms and INQUIRE CONTAINER (BTS only, X44) stay REFUSED by name. The GET64 / PUT64 hand-traced case is a
   cics-crucible case PR (companion repo). Pinned by `test_the_64_bit_container_commands_keep_their_refusals_by_name` and
   `test_inquire_container_is_refused_whole_in_every_form` in `tests/core_engine/test_cics_spec.py`.
+- **A PUT naming the other data type for an existing container (#5005, census 2026-10-31).** IBM: DATATYPE "applies only to new
+  containers" and INVREQ RESP2 33 covers "an attempt ... to change the data-type"; no IBM source says which wins, so it stays
+  REFUSED by name (`RuntimeRefusal` on PUT / PUT64 CONTAINER, both runtimes). Reach: 0 burned programs name BIT, CHAR or DATATYPE on a
+  PUT; the one FROMCCSID PUT is DBB `epscsmrd.cbl`, writing back `DFHREQUEST`, which the same program read as CHAR (INTOCCSID), so
+  no type changes. Pinned by `tests/cobol_mainframe/test_container_datatype_change_reach_5005.py`.
 
 ### X18. Interval control and the async API: START / RETRIEVE / CANCEL / RUN TRANSID / FETCH / FREE CHILD — ASSUMED, REFUSED where IBM is silent (#4270 slice 2, #4950)
 - **What IBM documents** (CICS TS, EXEC CICS START, RETRIEVE, CANCEL, RUN TRANSID, "Expiration times"). START: INTERVAL

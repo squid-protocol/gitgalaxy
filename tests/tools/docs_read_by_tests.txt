@@ -353,7 +353,7 @@ docs/language_status/progress_issues_cache.json	tests/tools/progress_report.py
 docs/language_status/readiness_report.md	tests/tools/generated_docs.py,tests/tools/test_generated_branch.py
 docs/language_status/refusal_map.json	tests/cobol_mainframe,tests/tools/support_matrix.py
 docs/language_status/register	tests/cobol_mainframe,tests/tools/test_generated_docs.py
-docs/language_status/register/	tests/tools/cobolrt_rules.py,tests/tools/register.py,tests/tools/test_generated_docs.py
+docs/language_status/register/	tests/tools/capability_ledger.py,tests/tools/cobolrt_rules.py,tests/tools/register.py,tests/tools/test_generated_docs.py
 docs/language_status/register/*.md	tests/cobol_mainframe,tests/tools/register.py
 docs/language_status/register/A1.md	tests/tools/test_ci_replay_6278.py
 docs/language_status/register/C11.md	tests/cobol_mainframe

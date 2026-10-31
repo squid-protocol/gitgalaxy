@@ -11,7 +11,7 @@
  "case": "cbsa-updcust",
  "survivors": [
   {
-   "id": "e41f891b51",
+   "id": "5aebb3a57b",
    "op": "LIT",
    "line": 47,
    "before": "\"MDAwMCAwMCAwMA==\"));",
@@ -20,7 +20,7 @@
    "reason": "UPDCUST's PROCEDURE DIVISION never reads DB2-DATE-REFORMAT (LOCAL-STORAGE), so its initial bytes cannot show"
   },
   {
-   "id": "50620eab9b",
+   "id": "95cc4e9254",
    "op": "LIT",
    "line": 53,
    "before": "\"MDAwMDAwMDAw\"));",
@@ -29,7 +29,7 @@
    "reason": "UPDCUST's PROCEDURE DIVISION never reads WS-SQLCODE-DISP, so its VALUE cannot show"
   },
   {
-   "id": "c1eed63c89",
+   "id": "23f3758c85",
    "op": "LIT",
    "line": 63,
    "before": "\"ICAuICAuICAgIA==\"));",
@@ -38,7 +38,7 @@
    "reason": "UPDCUST's PROCEDURE DIVISION never reads WS-ORIG-DATE-GRP-X, so its VALUE cannot show"
   },
   {
-   "id": "fca07f1cc1",
+   "id": "21e546575f",
    "op": "LIT",
    "line": 67,
    "before": "\"ICAgIDAwMDAwMCAgIA==\"));",
@@ -47,7 +47,7 @@
    "reason": "UPDCUST's PROCEDURE DIVISION never reads WS-PASSED-DATA, so its initial bytes cannot show"
   },
   {
-   "id": "f486875902",
+   "id": "f732b1b316",
    "op": "LIT",
    "line": 71,
    "before": "\"MDAwMDAwMDAwMDAwMDA=\"));",
@@ -56,7 +56,7 @@
    "reason": "UPDCUST's PROCEDURE DIVISION never reads CUSTOMER-KY, so its VALUE cannot show"
   },
   {
-   "id": "83f773e072",
+   "id": "e1d7179624",
    "op": "LIT",
    "line": 77,
    "before": "\"IA==\"));",
@@ -65,7 +65,7 @@
    "reason": "WS-TITLE-VALID's initial byte: A010 moves ' ' to it, then 'Y' / 'N', before it is read"
   },
   {
-   "id": "6599ece9f5",
+   "id": "72787758a5",
    "op": "LIT",
    "line": 81,
    "before": "\"QUJORFBST0M=\"));",
@@ -74,7 +74,7 @@
    "reason": "UPDCUST's PROCEDURE DIVISION never reads WS-ABEND-PGM (UPDCUST LINKs nothing), so its VALUE 'ABNDPROC' cannot show"
   },
   {
-   "id": "10e17faf33",
+   "id": "de82c444ed",
    "op": "CON",
    "line": 141,
    "before": "private final Field f70_WS_TIME_NOW = Field.zoned(s_WS_TIME_DATA, 0, 6, 0, false, false, false);",
@@ -83,7 +83,7 @@
    "reason": "POPULATE-TIME-DATE is never PERFORMed: it follows GET-ME-OUT-OF-HERE, whose GMOOH010 RETURNs, so WS-TIME-NOW, written only by its FORMATTIME, is never touched"
   },
   {
-   "id": "8cd8397c1e",
+   "id": "04798328a7",
    "op": "CON",
    "line": 141,
    "before": "private final Field f70_WS_TIME_NOW = Field.zoned(s_WS_TIME_DATA, 0, 6, 0, false, false, false);",
@@ -92,7 +92,7 @@
    "reason": "POPULATE-TIME-DATE is never PERFORMed: it follows GET-ME-OUT-OF-HERE, whose GMOOH010 RETURNs, so WS-TIME-NOW, written only by its FORMATTIME, is never touched"
   },
   {
-   "id": "f2c930bae8",
+   "id": "ea85118dc0",
    "op": "CON",
    "line": 150,
    "before": "private final Field f107_COMM_UPD_SUCCESS = Field.alphanumeric(s_DFHCOMMAREA, 259, 1, false);",
@@ -101,7 +101,7 @@
    "reason": "f107_COMM_UPD_SUCCESS is at offset 259; moving 'Y'/'N' into length 2 writes space padding to offset 260 (' '), which matches the unchanged COMM_UPD_FAIL_CD; reading offset 259 with length 1 sees identical character"
   },
   {
-   "id": "e680dc9c76",
+   "id": "d426d514e4",
    "op": "CON",
    "line": 152,
    "before": "private final Field f110_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
@@ -110,7 +110,7 @@
    "reason": "UPDCUST's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so EIBTIME width (8 digits spill into EIBDATE's first byte, also never read) cannot show"
   },
   {
-   "id": "2046af6bb9",
+   "id": "f08a4f4a15",
    "op": "NEG",
    "line": 182,
    "before": "if (task.level() > 1) {",
@@ -119,7 +119,7 @@
    "reason": "abended() is called only from condition(); condition() runs only for a CICS condition a command raises without RESP; UPDCUST's READ UPDATE and REWRITE have RESP, its RETURN raises none, and POPULATE-TIME-DATE (ASKTIME, FORMATTIME) never runs, so condition() -- and abended(), reached only from it -- never runs"
   },
   {
-   "id": "dc891a0510",
+   "id": "a9b00f1408",
    "op": "LIT",
    "line": 188,
    "before": "@SuppressWarnings(\"unchecked\")",
@@ -128,7 +128,7 @@
    "reason": "An @SuppressWarnings annotation string has no run-time effect."
   },
   {
-   "id": "de2084bf21",
+   "id": "f4b03de2bd",
    "op": "LIT",
    "line": 191,
    "before": "case \"CUSTOMER\" -> new DetCics.Store<OutputData>(outputDataRepository::findAll, e -> e.toRecord(CS), b -> OutputData.fromRecord(b, CS), e -> task.write(\"CUSTOMER\", () -> outputDataRepository.save(e)), e -> task.write(\"CUSTOMER\", () -> outputDataRepository.delete(e)), 4, 16, CS).withFindById(rec -> outputDataRepository.findById(id_OutputData(rec)));",
@@ -137,7 +137,7 @@
    "reason": "Store delete callback (the write label) runs only for EXEC CICS DELETE; UPDCUST issues only READ UPDATE and REWRITE on CUSTOMER."
   },
   {
-   "id": "9e85cafd71",
+   "id": "100f9e8592",
    "op": "CON",
    "line": 200,
    "before": "java.util.Map.entry(\"GMOOH999\", 8),",
@@ -146,7 +146,7 @@
    "reason": "PARAGRAPHS is read only by paragraph(), a HANDLE label's lookup: condition() runs only for a CICS condition a command raises without RESP; UPDCUST's READ UPDATE and REWRITE have RESP, its RETURN raises none, and POPULATE-TIME-DATE (ASKTIME, FORMATTIME) never runs, so condition() -- and paragraph(), reached only from it -- never runs"
   },
   {
-   "id": "35ebfc2aae",
+   "id": "12780d34b3",
    "op": "LIT",
    "line": 203,
    "before": "java.util.Map.entry(\"UCV999\", 5),",
@@ -155,7 +155,7 @@
    "reason": "paragraph()/PARAGRAPHS is only reached from condition() via task.abendOnCondition(label); UPDCUST has no HANDLE ABEND/CONDITION and every command carries RESP, so no label lookup happens."
   },
   {
-   "id": "af779aee2d",
+   "id": "49671ecb5c",
    "op": "NEG",
    "line": 213,
    "before": "if (i == null) {",
@@ -164,7 +164,7 @@
    "reason": "paragraph()/PARAGRAPHS is only reached from condition() via task.abendOnCondition(label); UPDCUST has no HANDLE ABEND/CONDITION and every command carries RESP, so no label lookup happens."
   },
   {
-   "id": "93b459ff75",
+   "id": "428da6dd1e",
    "op": "LIT",
    "line": 214,
    "before": "throw new IllegalStateException(\"no paragraph \" + name);",
@@ -173,7 +173,7 @@
    "reason": "paragraph()/PARAGRAPHS is only reached from condition() via task.abendOnCondition(label); UPDCUST has no HANDLE ABEND/CONDITION and every command carries RESP, so no label lookup happens."
   },
   {
-   "id": "36eb9f7063",
+   "id": "7133983f12",
    "op": "NEG",
    "line": 233,
    "before": "if (error != null) {",
@@ -182,7 +182,7 @@
    "reason": "condition() runs only for a CICS condition a command raises without RESP; UPDCUST's READ UPDATE and REWRITE have RESP, its RETURN raises none, and POPULATE-TIME-DATE (ASKTIME, FORMATTIME) never runs, so condition() -- and this test, reached only from it -- never runs"
   },
   {
-   "id": "3059d87f46",
+   "id": "066d9b39a9",
    "op": "NEG",
    "line": 237,
    "before": "if (label == null) {",
@@ -191,7 +191,7 @@
    "reason": "condition() runs only for a CICS condition a command raises without RESP; UPDCUST's READ UPDATE and REWRITE have RESP, its RETURN raises none, and POPULATE-TIME-DATE (ASKTIME, FORMATTIME) never runs, so condition() -- and this test, reached only from it -- never runs"
   },
   {
-   "id": "82aa0e1955",
+   "id": "579c46b059",
    "op": "ROR",
    "line": 248,
    "before": "if (d == null) {",
@@ -200,7 +200,7 @@
    "reason": "in_UpdcustDfhcommarea is called only under ca instanceof UpdcustDfhcommarea, so d is never null; the guard body return is unreachable"
   },
   {
-   "id": "0fbbbe8d16",
+   "id": "e77ea37f87",
    "op": "AOR",
    "line": 251,
    "before": "Cobol.move(d.getCommEye() == null ? \"\" : d.getCommEye(), Field.alphanumeric(s, base + 0, 4, false), CS);",
@@ -209,7 +209,7 @@
    "reason": "base - 0 is identical to base + 0 (COMM-EYE sits at offset 0)."
   },
   {
-   "id": "75116a5831",
+   "id": "f251f61da9",
    "op": "ROR",
    "line": 251,
    "before": "Cobol.move(d.getCommEye() == null ? \"\" : d.getCommEye(), Field.alphanumeric(s, base + 0, 4, false), CS);",
@@ -218,7 +218,7 @@
    "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
   },
   {
-   "id": "7440ad96d4",
+   "id": "46ff47ea57",
    "op": "CON",
    "line": 254,
    "before": "Cobol.move(d.getCommName() == null ? \"\" : d.getCommName(), Field.alphanumeric(s, base + 20, 60, false), CS);",
@@ -227,7 +227,7 @@
    "reason": "in_: COMM-NAME moved into 61 bytes (20-80) spills one byte into COMM-ADDR (80), which the next statement, the COMM-ADDR move into 80-239, overwrites"
   },
   {
-   "id": "9f96f423b4",
+   "id": "b5e2510b79",
    "op": "ROR",
    "line": 256,
    "before": "Cobol.move(d.getCommDob() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommDob().toString()), Field.zoned(s, base + 240, 8, 0, false, false, false), CS);",
@@ -236,7 +236,7 @@
    "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
   },
   {
-   "id": "a926d61392",
+   "id": "b303a80b8e",
    "op": "CON",
    "line": 256,
    "before": "Cobol.move(d.getCommDob() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommDob().toString()), Field.zoned(s, base + 240, 8, 0, false, false, false), CS);",
@@ -245,7 +245,7 @@
    "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
   },
   {
-   "id": "ca2445b43b",
+   "id": "f9f547e049",
    "op": "ROR",
    "line": 257,
    "before": "Cobol.move(d.getCommCreditScore() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommCreditScore().toString()), Field.zoned(s, base + 248, 3, 0, false, false, false), CS);",
@@ -254,7 +254,7 @@
    "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
   },
   {
-   "id": "fcce38905d",
+   "id": "fa56238aa8",
    "op": "ROR",
    "line": 259,
    "before": "Cobol.move(d.getCommUpdSuccess() == null ? \"\" : d.getCommUpdSuccess(), Field.alphanumeric(s, base + 259, 1, false), CS);",
@@ -263,7 +263,7 @@
    "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
   },
   {
-   "id": "298d1411d6",
+   "id": "cf3de4a3e7",
    "op": "CON",
    "line": 264,
    "before": "d.setCommEye(Cobol.text(Field.alphanumeric(s, base + 0, 4, false), CS));",
@@ -272,7 +272,7 @@
    "reason": "COMM-EYE is 'CUST' which is moved from CUSTOMER-EYECATCHER 'CUST' on success; caller DTO already holds 'CUST'"
   },
   {
-   "id": "9fd0d9d73d",
+   "id": "01566f08d7",
    "op": "DEL",
    "line": 267,
    "before": "d.setCommName(Cobol.text(Field.alphanumeric(s, base + 20, 60, false), CS));",
@@ -281,7 +281,7 @@
    "reason": "COMM-NAME is updated from input or reloaded from DB2 on success; omitting setter leaves caller DTO with input name"
   },
   {
-   "id": "2eacbf3627",
+   "id": "b65cc52ff0",
    "op": "DEL",
    "line": 269,
    "before": "d.setCommDob(Cobol.num(Field.zoned(s, base + 240, 8, 0, false, false, false), CS).intValue());",
@@ -290,7 +290,7 @@
    "reason": "COMM-DOB is never modified by UPDCUST; omitting setter leaves caller DTO with input date of birth"
   },
   {
-   "id": "e232705a5f",
+   "id": "a92734bb55",
    "op": "CON",
    "line": 269,
    "before": "d.setCommDob(Cobol.num(Field.zoned(s, base + 240, 8, 0, false, false, false), CS).intValue());",
@@ -299,7 +299,7 @@
    "reason": "COMM-DOB is never modified by UPDCUST; reading length 9 instead of 8 parses adjacent zoned zero/padding, yielding identical integer value"
   },
   {
-   "id": "84d9da0895",
+   "id": "190ec40418",
    "op": "CON",
    "line": 270,
    "before": "d.setCommCreditScore(Cobol.num(Field.zoned(s, base + 248, 3, 0, false, false, false), CS).intValue());",
@@ -308,7 +308,7 @@
    "reason": "COMM-CREDIT-SCORE is never modified by UPDCUST; reading length 4 instead of 3 parses adjacent zoned zero/padding, yielding identical integer value"
   },
   {
-   "id": "233578fc73",
+   "id": "f164ef5b5a",
    "op": "DEL",
    "line": 271,
    "before": "d.setCommCsReviewDate(Cobol.num(Field.zoned(s, base + 251, 8, 0, false, false, false), CS).intValue());",
@@ -317,7 +317,7 @@
    "reason": "COMM-CS-REVIEW-DATE is never modified by UPDCUST; omitting setter leaves caller DTO with input review date"
   },
   {
-   "id": "d2f72df52e",
+   "id": "2e7712ea3a",
    "op": "ROR",
    "line": 284,
    "before": "if (s_DFHCOMMAREA.bytes != whole) {",
@@ -326,7 +326,7 @@
    "reason": "caWhole helper is called only when calen < 261, which never occurs in any scenario"
   },
   {
-   "id": "3e1b8acb0a",
+   "id": "6d20c953e9",
    "op": "DEL",
    "line": 308,
    "before": "System.arraycopy(IMAGE_s_WS_CUST_DATA, 0, s_WS_CUST_DATA.bytes, 0, IMAGE_s_WS_CUST_DATA.length);",
@@ -335,7 +335,7 @@
    "reason": "WS-CUST-DATA's VALUE image is overwritten in full (259 bytes) by READ INTO before any read, and on a failed READ UCV999 is reached without touching it; REWRITE only follows a successful READ."
   },
   {
-   "id": "1d7b98bb95",
+   "id": "08f98ae229",
    "op": "DEL",
    "line": 309,
    "before": "System.arraycopy(IMAGE_s_WS_EIBTASKN12, 0, s_WS_EIBTASKN12.bytes, 0, IMAGE_s_WS_EIBTASKN12.length);",
@@ -344,7 +344,7 @@
    "reason": "WS-EIBTASKN12, WS-ORIG-DATE and WS-SORT-DIV are never read before being written (WS-ORIG-DATE is only FORMATTIME's target in the never-PERFORMed POPULATE-TIME-DATE; the other two are never referenced)."
   },
   {
-   "id": "7c97187dd4",
+   "id": "ef9a00fd52",
    "op": "DEL",
    "line": 314,
    "before": "System.arraycopy(IMAGE_s_WS_ORIG_DATE, 0, s_WS_ORIG_DATE.bytes, 0, IMAGE_s_WS_ORIG_DATE.length);",
@@ -353,7 +353,7 @@
    "reason": "WS-EIBTASKN12, WS-ORIG-DATE and WS-SORT-DIV are never read before being written (WS-ORIG-DATE is only FORMATTIME's target in the never-PERFORMed POPULATE-TIME-DATE; the other two are never referenced)."
   },
   {
-   "id": "58f9ea9912",
+   "id": "c4b74c9dea",
    "op": "DEL",
    "line": 318,
    "before": "System.arraycopy(IMAGE_s_WS_SORT_DIV, 0, s_WS_SORT_DIV.bytes, 0, IMAGE_s_WS_SORT_DIV.length);",
@@ -362,7 +362,7 @@
    "reason": "WS-EIBTASKN12, WS-ORIG-DATE and WS-SORT-DIV are never read before being written (WS-ORIG-DATE is only FORMATTIME's target in the never-PERFORMed POPULATE-TIME-DATE; the other two are never referenced)."
   },
   {
-   "id": "37a38dec1b",
+   "id": "466b545878",
    "op": "DEL",
    "line": 326,
    "before": "System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length);",
@@ -371,7 +371,7 @@
    "reason": "in_UpdcustDfhcommarea and raw arraycopy overwrite all DFHCOMMAREA fields before any COBOL statement reads them"
   },
   {
-   "id": "2e31e56679",
+   "id": "38bc56e28c",
    "op": "DEL",
    "line": 328,
    "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
@@ -380,7 +380,7 @@
    "reason": "RETURN-CODE (GG-RETURN-CODE) is never referenced by UPDCUST and the task path (runTask) never returns it; the image is two zero bytes, the same as a fresh Storage."
   },
   {
-   "id": "3deff53692",
+   "id": "a140d4b141",
    "op": "DEL",
    "line": 357,
    "before": "Cobol.move(task.transid(), f112_EIBTRNID, CS);",
@@ -389,7 +389,7 @@
    "reason": "UPDCUST references only EIBCALEN (and EIBRESP/RESP2 the commands set); EIBTRNID, EIBDATE and EIBTIME are never read, the ASKTIME/FORMATTIME paragraph is never performed, and DFHEIBLK is not compared."
   },
   {
-   "id": "1ce87bed98",
+   "id": "7dce27e836",
    "op": "DEL",
    "line": 361,
    "before": "Cobol.store(f111_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
@@ -398,7 +398,7 @@
    "reason": "UPDCUST references only EIBCALEN (and EIBRESP/RESP2 the commands set); EIBTRNID, EIBDATE and EIBTIME are never read, the ASKTIME/FORMATTIME paragraph is never performed, and DFHEIBLK is not compared."
   },
   {
-   "id": "69d3924720",
+   "id": "216ef7b4ff",
    "op": "AOR",
    "line": 361,
    "before": "Cobol.store(f111_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
@@ -407,7 +407,7 @@
    "reason": "UPDCUST's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so EIBDATE cannot show"
   },
   {
-   "id": "a64a6cb8df",
+   "id": "c9d3da7865",
    "op": "AOR",
    "line": 361,
    "before": "Cobol.store(f111_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
@@ -416,7 +416,7 @@
    "reason": "UPDCUST references only EIBCALEN (and EIBRESP/RESP2 the commands set); EIBTRNID, EIBDATE and EIBTIME are never read, the ASKTIME/FORMATTIME paragraph is never performed, and DFHEIBLK is not compared."
   },
   {
-   "id": "09f7022847",
+   "id": "3240fa1cb2",
    "op": "AOR",
    "line": 362,
    "before": "Cobol.store(f110_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
@@ -425,7 +425,7 @@
    "reason": "UPDCUST's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so EIBTIME cannot show"
   },
   {
-   "id": "61a2d236b8",
+   "id": "acdff9f61a",
    "op": "AOR",
    "line": 362,
    "before": "Cobol.store(f110_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
@@ -434,7 +434,7 @@
    "reason": "UPDCUST references only EIBCALEN (and EIBRESP/RESP2 the commands set); EIBTRNID, EIBDATE and EIBTIME are never read, the ASKTIME/FORMATTIME paragraph is never performed, and DFHEIBLK is not compared."
   },
   {
-   "id": "c4a83ddd57",
+   "id": "5481f8911f",
    "op": "AOR",
    "line": 362,
    "before": "Cobol.store(f110_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
@@ -443,7 +443,7 @@
    "reason": "UPDCUST's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so EIBTIME cannot show"
   },
   {
-   "id": "8faf81c0bf",
+   "id": "53e201dfa1",
    "op": "DEL",
    "line": 373,
    "before": "s_DFHCOMMAREA.beyond = null;",
@@ -452,7 +452,7 @@
    "reason": "s_DFHCOMMAREA.beyond is only consumed by this program's raw write-back, which sets it first; UPDCUST issues no LINK/XCTL/RETURN COMMAREA, so a stale value is never passed on."
   },
   {
-   "id": "93647ab5cd",
+   "id": "5d5b57e04f",
    "op": "ROR",
    "line": 377,
    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
@@ -461,7 +461,7 @@
    "reason": "ca instanceof byte[] branch is unreachable: callers pass UpdcustDfhcommarea DTO, never raw byte[]"
   },
   {
-   "id": "511a2d97ef",
+   "id": "e9ee5012fb",
    "op": "DEL",
    "line": 384,
    "before": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
@@ -470,7 +470,7 @@
    "reason": "in_UpdcustDfhcommarea has already populated s_DFHCOMMAREA with identical bytes from the DTO; omitting raw arraycopy leaves identical bytes"
   },
   {
-   "id": "bbca8be03d",
+   "id": "ec0053dd7b",
    "op": "AOR",
    "line": 388,
    "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
@@ -479,7 +479,7 @@
    "reason": "s_DFHCOMMAREA.beyond is null; the beyond arraycopy branch inside caBack is never entered"
   },
   {
-   "id": "699531afc0",
+   "id": "0e4d7d1e73",
    "op": "COR",
    "line": 391,
    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
@@ -488,7 +488,7 @@
    "reason": "task.exactCommarea() && calen < 261 is never true: all scenarios pass the full 261-byte COMMAREA"
   },
   {
-   "id": "73f85f9766",
+   "id": "884f451fa1",
    "op": "DEL",
    "line": 396,
    "before": "caBack = () -> { caWhole(whole); typed.run(); };",
@@ -497,7 +497,7 @@
    "reason": "calen < 261 is never true; the calen-cut caBack wrapping is dead code"
   },
   {
-   "id": "22774c1dce",
+   "id": "2f0c98ae43",
    "op": "NEG",
    "line": 406,
    "before": "if (caWhole == null) {",
@@ -506,7 +506,7 @@
    "reason": "IndexOutOfBoundsException is never thrown: all scenarios are 261 bytes and access within bounds"
   },
   {
-   "id": "e9581f8a97",
+   "id": "31a24c61d7",
    "op": "ROR",
    "line": 406,
    "before": "if (caWhole == null) {",
@@ -515,7 +515,7 @@
    "reason": "IndexOutOfBoundsException is never thrown: all scenarios are 261 bytes and access within bounds"
   },
   {
-   "id": "a09885bf61",
+   "id": "bc0de84c6a",
    "op": "DEL",
    "line": 412,
    "before": "caWhole(caWhole);",
@@ -524,7 +524,7 @@
    "reason": "caWhole is always null because calen is 261; if (caWhole != null) guard in finally is never entered"
   },
   {
-   "id": "a889ef4fb1",
+   "id": "2ac06b95be",
    "op": "LIT",
    "line": 434,
    "before": "CicsTask task = region.linked(\"UPDCUST\", request, area);",
@@ -533,7 +533,7 @@
    "reason": "handleLink(request, byte[] area) overload is never called by the equivalence test runner"
   },
   {
-   "id": "60a595ec33",
+   "id": "15b3828983",
    "op": "COR",
    "line": 437,
    "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
@@ -542,7 +542,7 @@
    "reason": "handleLink(request, byte[] area) overload is never called by the equivalence test runner"
   },
   {
-   "id": "335a5ca7a7",
+   "id": "c24a3582de",
    "op": "NEG",
    "line": 512,
    "before": "if (!jumped) {",
@@ -551,7 +551,7 @@
    "reason": "UPDCUST's sections run in their source order anyway: A010 PERFORMs UPDATE-CUSTOMER-VSAM (3-5) and then GET-ME-OUT-OF-HERE (6-8), which directly follows it, and GMOOH010 RETURNs; with the test negated the range-end checks are skipped for every normal return (and run once for UCV010's GO TO UCV999, whose paragraph 4 ends no range), control runs the same paragraphs in the same order to the same RETURN"
   },
   {
-   "id": "1ef3c51d93",
+   "id": "fa738252ae",
    "op": "ROR",
    "line": 522,
    "before": "if (next >= 12) {",
@@ -560,7 +560,7 @@
    "reason": "next is never >= 12: GMOOH010 unconditionally throws Goback and ends the program before paragraph 8..11 can execute"
   },
   {
-   "id": "8de891799d",
+   "id": "e5bea68d17",
    "op": "ROR",
    "line": 528,
    "before": "if (e.depth != mine) {",
@@ -569,7 +569,7 @@
    "reason": "PerformExit is thrown only when control reaches the end of an outer active PERFORM range from inside an inner one; the outer range ends at PTD999 (11), which never runs, so no PerformExit is ever thrown and this catch never runs"
   },
   {
-   "id": "be34bf5f7b",
+   "id": "3f3d3fb82f",
    "op": "DEL",
    "line": 563,
    "before": "Cobol.move(f1_SORTCODE, f92_COMM_SCODE, CS);",
@@ -578,7 +578,7 @@
    "reason": "SORTCODE is '987654' and COMM-SCODE is already '987654'; moving SORTCODE to COMM-SCODE overwrites identical bytes"
   },
   {
-   "id": "7f3a9209ab",
+   "id": "331d2ebda5",
    "op": "LIT",
    "line": 604,
    "before": "Cobol.move(\"Y\", f68_WS_TITLE_VALID, CS);",
@@ -587,7 +587,7 @@
    "reason": "WS-TITLE-VALID is only tested by 'IF WS-TITLE-VALID = N'; setting 'X' instead of 'Y' does not equal 'N' and WS-TITLE-VALID is never output"
   },
   {
-   "id": "86d2c975af",
+   "id": "5ffbc6b3dd",
    "op": "CON",
    "line": 665,
    "before": "if (true) return GOTO | 5;",
@@ -596,7 +596,7 @@
    "reason": "The jump to paragraph 6 (GET-ME-OUT-OF-HERE, whose first real paragraph issues RETURN) instead of 5 (UCV999, EXIT only) runs the same RETURN directly instead of after PERFORM UPDATE-CUSTOMER-VSAM returns; A010 has no statement between the two PERFORMs, so events and COMMAREA are identical."
   },
   {
-   "id": "0c23142e7f",
+   "id": "5d20f05402",
    "op": "COR",
    "line": 668,
    "before": "if (((Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0 || Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0 || Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0))) {",
@@ -605,7 +605,7 @@
    "reason": "When COMM-NAME is SPACES, ref(1,1) is also ' '; both conditions are true when blank, and when not blank the condition evaluates to false either way"
   },
   {
-   "id": "7129146b8c",
+   "id": "fb1515c8c9",
    "op": "COR",
    "line": 668,
    "before": "if (((Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0 || Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0 || Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0))) {",
@@ -614,7 +614,7 @@
    "reason": "When COMM-ADDR is SPACES, ref(1,1) is also ' '; both conditions are true when blank, and when not blank the condition evaluates to false either way"
   },
   {
-   "id": "098ac696a1",
+   "id": "69ac7128b2",
    "op": "COR",
    "line": 677,
    "before": "if (((Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0 || Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (!(Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0) || !(Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0)))) {",
@@ -623,7 +623,7 @@
    "reason": "the IF at UCV010 line 3 is reached only when the IF before it did not take its GO TO, i.e. not (name(1:1) = ' ' and addr(1:1) = ' '); `X = SPACES` implies `X(1:1) = ' '`. With name(1:1) = ' ' here, addr(1:1) = ' ' is false, so `addr NOT = SPACES` and `addr(1:1) NOT = ' '` are both true: AND and OR agree"
   },
   {
-   "id": "d1242c19ea",
+   "id": "cce28ddfa4",
    "op": "ROR",
    "line": 677,
    "before": "if (((Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0 || Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (!(Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0) || !(Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0)))) {",
@@ -632,7 +632,7 @@
    "reason": "Reached only with COMM-NAME blank and the previous IF (name and address both blank) already left via GO TO UCV999, so COMM-ADDR is neither SPACES nor starts with a space; the changed operand then differs only when COMM-ADDR(1:1) = ' ' or COMM-ADDR = SPACES, which cannot happen here."
   },
   {
-   "id": "c4c25b1b93",
+   "id": "50853b2dba",
    "op": "COR",
    "line": 682,
    "before": "if (((Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0 || Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (!(Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0) || !(Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0)))) {",
@@ -641,7 +641,7 @@
    "reason": "the IF at UCV010 line 3 is reached only when the IF before it did not take its GO TO, i.e. not (name(1:1) = ' ' and addr(1:1) = ' '); `X = SPACES` implies `X(1:1) = ' '`. With addr(1:1) = ' ' here, name(1:1) is not ' ' and the name is not SPACES: both operands are true, so AND and OR agree"
   },
   {
-   "id": "f7aede0ce4",
+   "id": "3a3064619d",
    "op": "ROR",
    "line": 682,
    "before": "if (((Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0 || Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (!(Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0) || !(Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0)))) {",
@@ -650,7 +650,7 @@
    "reason": "the IF at UCV010 line 3 is reached only when the IF before it did not take its GO TO, i.e. not (name(1:1) = ' ' and addr(1:1) = ' '); `X = SPACES` implies `X(1:1) = ' '`. With addr(1:1) = ' ' here, name(1:1) is not ' ', so `name NOT = SPACES` is true and the changed second operand of the OR cannot decide it"
   },
   {
-   "id": "f92bb46a07",
+   "id": "bb410fb112",
    "op": "LIT",
    "line": 682,
    "before": "if (((Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0 || Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (!(Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0) || !(Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0)))) {",
@@ -659,7 +659,7 @@
    "reason": "When COMM-NAME is not SPACES, the first disjunct is true so the second is not evaluated; when SPACES, the outer conjunction is false"
   },
   {
-   "id": "488afe4b04",
+   "id": "ab6f13f763",
    "op": "DEL",
    "line": 716,
    "before": "Cobol.move(f17_CUSTOMER_NUMBER, f93_COMM_CUSTNO, CS);",

@@ -428,7 +428,9 @@ def record_summary(case: str, status: dict[str, Any] | None) -> dict[str, Any] |
     img = (rec.get("oracle") or {}).get("image") or {}
     cov = rec.get("coverage") or {}
     st = status or {"status": "not measured", "stale": []}
+    ran = sorted({c for o in outs.values() for c in o.get("commands") or []})  # #5229: the stub verbs the COBOL ran
     return {
+        **({"commands_run": ran} if ran else {}),  # only when non-empty (python-test-traps.md)
         "status_at_build": st["status"],
         "stale_inputs": st["stale"],
         "verdict": "all equal" if p.get("verdict") == "proven" else ("none" if not p else "not equal"),
@@ -562,6 +564,35 @@ def backing(commands: list[str], crucible: dict[str, list[str]], disagree: dict[
             }
         )
     return out
+
+
+def event_spec_key(event: str) -> str | None:
+    """#5229: the spec key of a stub event verb (`WRITEQ-TS` is `WRITEQ TS`), or None when the spec has no entry of that
+    name (the MQI calls, which are no EXEC CICS command)."""
+    key = event.replace("-", " ")
+    return key if key in css.spec() else None
+
+
+def reach_of(case: dict[str, Any] | None) -> dict[str, Any] | str:
+    """#5229: the register entries a program reaches, MEASURED: the entries of the commands the COBOL run executed on
+    the chosen case's recorded scenarios (the record's `commands`, the oracle side). Measured only for the program's own
+    case (a LINKed program's events are its main program's) whose record carries commands, and only when every recorded
+    verb maps to a spec entry: otherwise "not measured". It is per command entry, not per option: an entry's registers
+    are all counted once one of its commands ran."""
+    rec = case["record"] if case and case["role"] == "program" else None
+    ran = (rec or {}).get("commands_run")
+    if not ran:
+        return "not measured"
+    keys = [event_spec_key(e) for e in ran]
+    if None in keys:
+        return "not measured"
+    spec = css.spec()
+    regs = {r for k in keys if k for r in css.registers(spec[k])}
+    return {
+        "registers": sorted(regs, key=lambda x: int(x[1:])),
+        "commands_run": sorted(k for k in keys if k),
+        "case": case["case"] if case else None,
+    }
 
 
 def _pct(score: float | None, current: bool | None) -> str:
@@ -843,7 +874,7 @@ def build_program(m: dict[str, Any], estate: str, ctx: dict[str, Any]) -> dict[s
         ],
         "facts_stated": sorted({f for b in p["oracle_backing"] for f in b["facts_stated"]}),
         "facts_unstated": unstated,
-        "reach": "not measured",
+        "reach": reach_of(chosen),
         "source_read": m.get("source_read", False),
     }
     risky = [a["id"] for a in p["assumptions"]["named_by_commands"] if re.search(r"ASSUMED|DIFFERS", a["status"])]
@@ -1337,7 +1368,7 @@ def preface(rep: dict[str, Any]) -> list[str]:
         (
             "**What is not measured.** Holes, unrun paragraphs and branch outcomes, unstated runtime facts and the "
             "ASSUMED / DIFFERS entries a program's commands name are listed per program. Which register entries a "
-            "program actually reaches is not measured. These migration dimensions are not measured at all:"
+            "program actually reaches is measured only where its evidence record carries the commands its scenarios executed. These migration dimensions are not measured at all:"
         ),
         "",
     ]
@@ -1462,7 +1493,7 @@ def render(rep: dict[str, Any]) -> str:
         "",
         (
             "From the spec entries of the commands the programs use, with the register's status. Which of them a "
-            "program's scenarios reach is not measured."
+            "program's scenarios reach is stated per program where its evidence record measured it."
         ),
         "",
         "| id | area | status | entry |",
@@ -1599,7 +1630,11 @@ def program_section(p: dict[str, Any]) -> list[str]:
             "- **Oracle backing:** no EXEC CICS command" + ("" if a["source_read"] else " found (source not read)")
         )
     named = ", ".join(f"{x['id']} ({x['status']})" for x in a["named_by_commands"]) or "none"
-    out.append(f"- **Assumptions relied on:** named by its commands' spec entries: {named}; reach: {a['reach']}")
+    reach = a["reach"]
+    if isinstance(reach, dict):  # #5229: measured from the case's recorded scenarios
+        shown = ", ".join(reach["registers"]) or "none"
+        reach = f"{shown} (entries of the commands case {reach['case']} executed: {', '.join(reach['commands_run'])})"
+    out.append(f"- **Assumptions relied on:** named by its commands' spec entries: {named}; reach: {reach}")
     out.append(f"  - {zos_line(a['named_by_commands'])}")
     if a["facts_stated"]:
         out.append("  - runtime facts the harness states for its commands: " + ", ".join(a["facts_stated"]))
@@ -1632,7 +1667,7 @@ def program_section(p: dict[str, Any]) -> list[str]:
     out.append(
         "- **Residual risk:** "
         + ("; ".join(x for x in risk if x) or "none listed beyond the estate-wide items")
-        + "; assumption reach and the migration dimensions above: not measured"
+        + "; assumption reach (where not stated above) and the migration dimensions above: not measured"
     )
     out.append("")
     return out

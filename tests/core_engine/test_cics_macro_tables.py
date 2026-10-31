@@ -433,6 +433,39 @@ def test_dfhjct_entry_is_a_journal(operands, expected):
 
 
 @pytest.mark.parametrize(
+    ("src", "expected"),
+    [
+        ("DFHJCT   CSECT\n", []),  # a label line is no macro
+        ("         dfhjct type=entry,jfileid=system\n", ["SYSTEM"]),
+        ("MYJCT    DFHJCT TYPE=ENTRY,JFILEID=(SYSTEM)\n", ["SYSTEM"]),  # label, parenthesised value
+        ("         DFHJCT JFILEID=SYSTEM\n", []),  # no TYPE names no entry
+        ("* DFHJCT TYPE=ENTRY,JFILEID=SYSTEM\n", []),  # a comment line
+        (_cont("         DFHJCT TYPE=ENTRY,JFILEID=03,", "JTYPE=TAPE1,BUFSIZE=4096"), ["03"]),
+        ("         DFHJCT TYPE=ENTRY,JFILEID=1\n         DFHJCT TYPE=ENTRY,JFILEID=2\n", ["1", "2"]),
+    ],
+)
+def test_dfhjct_statement_shapes(src, expected):
+    assert _named(src, "JOURNAL") == expected
+
+
+def test_dfhjct_dsname_is_lifted_as_an_assumed_operand():
+    """DSNAME= is not among [VSE Table 41 p.270-272]'s JCT operands; it is lifted anyway (ASSUMED, estate H-0063)."""
+    (row,) = _rows("         DFHJCT TYPE=ENTRY,JFILEID=01,DSNAME=A.B\n")
+    assert row["dsname"] == "A.B" and "DSNAME=A.B" in row["attributes"]
+    (row,) = _rows("         DFHJCT TYPE=ENTRY,JFILEID=01\n")
+    assert row["dsname"] is None
+
+
+def test_dfhjct_suffix_names_the_table_and_assembled_in_jcl():
+    src = "         DFHJCT TYPE=INITIAL,SUFFIX=A1\n         DFHJCT TYPE=ENTRY,JFILEID=SYSTEM\n"
+    (row,) = _rows(src)
+    assert (row["macro_table"], row["line"]) == ("DFHJCTA1", 2)
+    job = "//J JOB\n//ASM EXEC PGM=ASMA90\n//SYSIN DD *\n" + src + "/*\n"
+    rows = extract_boundary("jcl", job)["csd_resources"]
+    assert [(r["name"], r["macro_table"], r["line"]) for r in rows] == [("SYSTEM", "DFHJCTA1", 5)]
+
+
+@pytest.mark.parametrize(
     ("operands", "rtype", "expected"),
     [
         ("TYPE=TERMINAL,TRMIDNT=T001,ACCMETH=VTAM,TRMTYPE=3270", "TERMINAL", ["T001"]),

@@ -202,6 +202,19 @@ CONTAINERS_JAVA = """\
         }
     }
 
+    /** PUT CONTAINER (X42): IBM's INVREQ RESP2 30 / CHANNELERR RESP2 3 name CICS-defined read-only containers and channels and
+     *  list none. The pipeline containers a burned program writes back (DFHREQUEST, DFH-BODY, DFH-DATA) run as ordinary ones;
+     *  any other DFH container, and any DFH channel, is refused by name. */
+    private static void refuseCicsDefinedPut(String channel, String container) {
+        String c = container == null ? "" : container.strip().toUpperCase(java.util.Locale.ROOT);
+        boolean pipeline = c.equals("DFHREQUEST") || c.equals("DFH-BODY") || c.equals("DFH-DATA");
+        boolean dfhChannel = channel != null && channel.strip().toUpperCase(java.util.Locale.ROOT).startsWith("DFH");
+        if ((!pipeline && c.startsWith("DFH")) || dfhChannel) {
+            throw refused("PUT CONTAINER naming a CICS-defined (DFH...) container or channel: it may be read-only, "
+                    + "and IBM lists none (INVREQ RESP2 30, CHANNELERR RESP2 3)");
+        }
+    }
+
     private java.util.Set<String> inScope() {
         java.util.Set<String> all = new java.util.HashSet<>(channels.keySet());
         all.addAll(droppedChannels);
@@ -279,6 +292,7 @@ CONTAINERS_JAVA = """\
         if (planned != null) {
             return new ContainerResult(respName(planned[0]), planned[1], -1, null);
         }
+        refuseCicsDefinedPut(channel, container);
         boolean badChannel = channel != null && illegalName(channel, "channel");
         boolean badContainer = illegalName(container, "container");
         if (badChannel || badContainer) {

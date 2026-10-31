@@ -69,6 +69,15 @@ _CICS_DEFINED = RuntimeRefusal(
     java="naming a CICS-defined (DFH...) container or channel",
     c="naming a CICS-defined (DFH...) container or channel",
 )
+# #5005 (X42): PUT CONTAINER's page gives INVREQ RESP2 30 / CHANNELERR 3 too. DBB epscsmrd.cbl writes DFHREQUEST, DFH-BODY and
+# DFH-DATA back (the pipeline's containers), so those three names run as ordinary ones; any other DFH container, and any DFH channel, is refused.
+_CICS_DEFINED_PUT = RuntimeRefusal(
+    "a PUT to a container or channel named DFH... other than DFHREQUEST, DFH-BODY and DFH-DATA: it may be a CICS-defined "
+    "read-only one (INVREQ RESP2 30, CHANNELERR RESP2 3), and IBM lists none",
+    "X42",
+    java="PUT CONTAINER naming a CICS-defined (DFH...) container or channel",
+    c="PUT CONTAINER naming a CICS-defined (DFH...) container or channel",
+)
 # #4270 (X17): what the CHAR container conversion (FROMCCSID / INTOCCSID / CONVERTST, the region's 037) refuses while running
 _CCSID_REFUSALS = (
     RuntimeRefusal(
@@ -150,6 +159,7 @@ PUT_CONTAINER = Command(
         _SCOPE,
         _ILLEGAL_NAME,
         _DISPUTED_NAME,
+        _CICS_DEFINED_PUT,
         RuntimeRefusal(
             "an illegal CONTAINER and CHANNEL name together, or one with a negative FLENGTH or no channel: which condition "
             "IBM raises first is not documented",

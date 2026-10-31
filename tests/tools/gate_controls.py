@@ -58,7 +58,7 @@ GATES = (
          open_gap="tests/ is allowlisted; a scan error is printed, not failed"),
     Gate("X-Ray Inspector", "gitgalaxy.yml", "obfuscated payloads and denylisted files",
          "tests/security_auditing/test_xray_control.py::test_the_real_detector_fails_ci_on_a_dense_payload",
-         open_gap="misses payloads on lines of 250+ characters and XOR loops; reads only the first 8 KB (#7187)"),
+         open_gap="XOR loops aren't flagged; .ico and .tar have no header check (#7187)"),
     Gate("Supply Chain Firewall", "gitgalaxy.yml", "banned packages and risky behaviour",
          "tests/security_auditing/test_supply_chain_firewall.py::test_behavioral_threat_evaluation",
          open_gap="no directory-mode end-to-end test; unknown packages pass by default"),

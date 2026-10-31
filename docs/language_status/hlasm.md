@@ -435,3 +435,45 @@ misrouting (fixed, addenda b-g), `calls_out` forms (fixed, c/f), PDS routing (fi
 owning language; the Hyperion-class, MS-DOS and NASM trees are not held, so those rows stay as measured on the corpus DB. Other assembler
 profiles (`assembly`, `agc_assembly`) bind the same global debt rules and may overcount operand text the same way (not measured).
 No burned-estate program needs any of these.
+
+### Addendum (2026-10-31, #7064): consolidated post-fix probe, per signal
+
+Read-only measurement with the engine at HEAD after the fixes above. **Held and probed (copied to scratch, 44 files, 2,638 lines):** Che4z
+LSP samples (35 `.hlasm`/`.asm`), IBM-Z-zOS `oeconsol.asm` (939 lines, the only large file), zECS (2), zopeneditor-sample (2), CardDemo (2 `.asm`
+and 1 `.mac`). The scan routed 43 files `hlasm`; the one kept out is a 58-line Che4z `basics.hlasm` under the zero-density threshold
+(`Signals: 0`). **Not held, so not re-measured here:** Hyperion (scan outputs only, no source), the emulator tree, the two PDS-layout repos, MS-DOS
+and NASM; their rows in section 12 and its addenda stand as measured then. The corpus is small and mostly Che4z test fixtures, so counts are
+shape checks, not rates.
+
+Per signal, from the profile's rules run over the raw files (files / hits), with the reading on what fires:
+
+| Signal | Files / hits | Reading |
+|---|---|---|
+| `func_start` / `class_start` | 21 / 21, 4 / 6 | 15 `MACRO` (a macro is a unit), 3 `DFHEIENT`, 1 `CSECT`, 2 more; `DSECT` as class. Correct |
+| `args` | 4 / 4 | Only macros with an operand prototype; 11 of the 15 macros take none. Correct |
+| `macros` | 20 / 68 | `MACRO`/`MEND`/`AIF`/`MNOTE`. Correct |
+| `calls_out` | engine: 11 of 21 functions non-empty | `LOAD EP=` x3 in `oeconsol` named (`BPX1GLG`, `BPX1RED`, `BPX1WRT`); macro uses named (`MVSWAIT` -> `ASMWAIT`, `TEST` -> `TEST_1_BYTE`...). `CALL (15),...` x4 names nothing: correct (register target). `BAL` (10 lines, in-file labels) not an import |
+| `branch` | 5 / 89 | `BC`, `BZ`, `BE`, `BNE`: correct |
+| `high_risk_execution` | 3 / 22 | `MODESET` 11, `LOAD EP=` 3, `DELETE EP=` 3, `EXEC CICS ABEND` 2. `DELETE EP=` unloads rather than executes; it is kept on purpose (rule comment, #2878) |
+| `safety_bypasses`, `io`, `memory_alloc`, `concurrency`, `ui_framework`, `cleanup`, `telemetry`, `time_date_logic`, `ipc_rpc_bridges`, `listeners` | fire | `NOHANDLE` 19, `STORAGE OBTAIN/RELEASE`, `WAIT`/`POST`, CICS `SEND`/`RECEIVE`/`WRITEQ TD`/`ASKTIME`: correct |
+| `pointers` | 1 / 12 | `=A(`/`=AL4(` literals in `oeconsol`; correct |
+| `globals` | 5 / 53 | `DC` data definitions; a `DC A()` or `DC V()` line can also match `pointers`, the dual ownership recorded in section 12 |
+| `immutability_locks` | 9 / 109 | `EQU`: 80 of 110 `EQU` lines are plain numeric (register) equates, so the signal is dominated by register names, not constants |
+| `reflection_metaprogramming` | 1 / 3 | `EX R,...` execute target (instruction-level analogue), by design |
+| `dead_code` | 4 / 8 | `*TRY LR 1,1` instruction-shaped comments in `comments.hlasm`; correct |
+| `planned_debt`, `fragile_debt` | 0 / 0 | no marker on a comment line in these files; the `xxx` / `STUB` operand false positives of section 12 are gone |
+| `bitwise_ops`, `debug_prints`, `explicit_casts`, `thread_sleeps`, `panics_and_aborts`, `decorators`, `import`, `ownership`, `doc` | fire | `SLL`/`NR`, `WTO`, `UNPK`, `STIMER WAIT`, `ABEND`, `AMODE`/`RMODE`, `COPY`, `AUTHOR:`, `Function:` |
+| `safety`, `scientific`, `spec_exposure`, `ssr_boundaries`, `events`, `sync_locks`, `auth_middleware`, `serialization_parsing` | 0 | nothing in these files uses the construct (the CICS ones need `EXEC CICS WEB`/`SIGNAL`/`TRANSFORM`, absent here) |
+| `test`, `closures`, `generics`, `comprehensions`, `regex_execution`, `encapsulation`, `inline_asm`, `hardcoded_secrets`, `dependency_injection`, `system_config_mutation` | `None` | explicit, nothing expected |
+
+**No new false positive and no new miss found** on this set. The recorded false-positive classes of section 12 are each either fixed (routing,
+`calls_out` forms, debt) or a documented design choice (`api`/`func_start` on a `CSECT`, `pointers`/`globals` on `DC V()`, `EX`).
+
+**Sibling gaps (not filed, for churn):**
+1. `immutability_locks` is dominated by register `EQU` (73% of `EQU` lines here); a rule that counts only non-register equates would change the golden master.
+2. `BAL`/`BALR`/`BASR` to an in-file label is an internal edge that nothing models (unmeasured beyond 10 lines).
+3. `DELETE EP=` counts as `high_risk_execution` (unload, not a transfer): intended by #2878, but unreviewed against real use.
+4. A coverage gap, not a defect: Hyperion-class source, the emulator tree and the PDS repos need to be held again for a rate-level re-measure.
+5. DSP and MASM `.mac` still have no owning language; `assembly`/`agc_assembly` debt rules (#7218 in flight).
+
+No burned-estate proof claim is made; the CardDemo files are measured as scanner input only.

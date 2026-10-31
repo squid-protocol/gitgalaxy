@@ -32,6 +32,7 @@ MUTATION_PENDING: dict[str, str] = {
     "carddemo-copaua0c": "#5278: a det CICS port; its L5 mutation run (det_mutation.py run) and survivor review are a follow-up",
     "carddemo-copaus0c": "#5233: a det CICS port; its L5 mutation run (det_mutation.py run) and survivor review are a follow-up",
     "carddemo-copaus1c": "#5233: a det CICS port; its L5 mutation run (det_mutation.py run) and survivor review are a follow-up",
+    "carddemo-sort-tranrept": "#4268: a det batch port of a lowered DFSORT step; its L5 mutation run (det_mutation.py run) is a follow-up",
 }
 
 

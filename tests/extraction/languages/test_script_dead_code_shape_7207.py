@@ -1,10 +1,50 @@
-"""#7207 slices 4-5: python / shell / ruby / perl / php / lua dead_code counts a keyword-led comment only when it has a statement's shape."""
+"""#7207 slices 4-6: python / shell / ruby / perl / php / lua / abap / ada / apex / dart dead_code counts a keyword-led comment only when it has a statement's shape."""
 
 import pytest
 
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
 POSITIVES = {
+    "abap": [
+        "* DATA lv_old TYPE i.",
+        "* IF lv_x = 1.",
+        "* SELECT * FROM mara INTO TABLE lt_mara.",
+        "* WRITE 'hi'.",
+        "* METHOD run.",
+        "* DATA lv_x.",
+        '" IF lv_a > 0.',
+        "* WRITE: / 'x'.",
+    ],
+    "ada": [
+        "-- if X > 0 then",
+        "-- procedure Foo is",
+        "-- for I in 1 .. 3 loop",
+        "-- begin",
+        "-- end Foo;",
+        "-- function F (A : Integer) return Integer;",
+        "-- type T is new Integer;",
+        "-- package Util is",
+    ],
+    "apex": [
+        "// public class Foo",
+        "// class Foo extends Bar",
+        "// if (x) {",
+        "// insert acc;",
+        "// System.debug('x');",
+        "// [SELECT Id FROM Account]",
+        "/* trigger T on Account (before insert) */",
+        "// private with sharing class Svc",
+    ],
+    "dart": [
+        "// class Foo extends Bar",
+        "// mixin Util",
+        "// if (x) {",
+        "// print('x');",
+        "// return x;",
+        "/* void main() */",
+        "// var x = foo();",
+        "// Widget build(BuildContext c)",
+    ],
     "ruby": [
         "# def foo(a)",
         "# class Foo < Bar",
@@ -70,6 +110,46 @@ POSITIVES = {
 }
 
 NEGATIVES = {
+    "abap": [
+        "* if the user cancels, we retry",
+        "* write the total to the log.",
+        "* data is read from the table.",
+        "* Select the first row.",
+        "* method for sorting",
+        "* if the user cancels.",
+        "* Data loaded.",
+        "* IF the value from the list.",
+    ],
+    "ada": [
+        "-- if the user cancels, we retry",
+        "-- for each item in the list",
+        "-- procedure call overhead is high",
+        "-- begin the scan here",
+        "-- end of the loop",
+        "-- type of the result",
+        "-- while waiting for input",
+        "--- if x then",
+    ],
+    "apex": [
+        "// if the user cancels, we retry",
+        "// class names are capitalised",
+        "// public API is stable",
+        "// update the record later",
+        "// for each item in the list",
+        "// private data stays here",
+        "// insert order matters",
+        "// [SELECT is slow]",
+    ],
+    "dart": [
+        "// if the user cancels, we retry",
+        "// for each item in the list",
+        "// return value is ignored",
+        "// class names are capitalised",
+        "// print the result later",
+        "// void is not nullable",
+        "// while waiting for input",
+        "// mixin order matters",
+    ],
     "ruby": [
         "# if the user cancels, we retry",
         "# class names are capitalised",
@@ -126,6 +206,9 @@ NEGATIVES = {
 }
 
 
+MARKER = {"abap": "*", "ada": "--", "apex": "//", "dart": "//", "lua": "--", "php": "//"}
+
+
 def _rule(lang):
     return LANGUAGE_DEFINITIONS[lang]["rules"]["dead_code"]
 
@@ -142,5 +225,6 @@ def test_prose_does_not_count(lang, line):
 
 @pytest.mark.parametrize("lang", list(POSITIVES))
 def test_long_line_stays_fast(lang):
-    assert not _rule(lang).search("# if " + "(a " * 5000 + "\n")
-    assert not _rule(lang).search("# def " + "a:" * 5000 + " x\n")
+    m = MARKER.get(lang, "#")
+    assert not _rule(lang).search(m + " if " + "(a " * 5000 + "\n")
+    assert not _rule(lang).search(m + " def " + "a:" * 5000 + " x\n")

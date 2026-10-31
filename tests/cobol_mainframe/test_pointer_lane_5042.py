@@ -99,7 +99,6 @@ def test_every_member_translates_to_a_block_the_pointer_addresses(text, holds):
 
 
 _REFUSED = [
-    ("RECEIVE SET(PTR) LENGTH(RLEN)", "without MAXLENGTH"),
     ("RECEIVE SET(PTR) MAXLENGTH(80)", "without LENGTH"),
     ("RECEIVE SET(TBL-PTR) LENGTH(RLEN) MAXLENGTH(80)", "plain USAGE POINTER"),
     ("RECEIVE SET(OVER-PTR) LENGTH(RLEN) MAXLENGTH(80)", "REDEFINES overlays"),
@@ -179,7 +178,7 @@ def test_the_harness_calls_the_stubs_entry_point_for_every_member(text, call):
 @pytest.mark.parametrize(
     "text",
     [
-        "RECEIVE SET(P) LENGTH(L)",
+        "RECEIVE SET(P) MAXLENGTH(80)",
         "RECEIVE SET(A(1)) LENGTH(L) MAXLENGTH(80)",
         "RETRIEVE SET(P)",
         "RETRIEVE INTO(A) SET(P) LENGTH(L)",

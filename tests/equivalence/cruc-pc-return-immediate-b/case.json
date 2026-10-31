@@ -1,0 +1,41 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "PCIMMB",
+  "program_source": "cases/pseudo-conversational/pc-return-immediate/src/PCIMMB.cbl",
+  "copy_dirs": [],
+  "transid": "PC52",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": {
+    "segments": [
+      {
+        "copybook": "cases/pseudo-conversational/pc-return-immediate/src/PCIMMB.cbl",
+        "record": "DFHCOMMAREA"
+      }
+    ]
+  },
+  "screens": {},
+  "notes": "cics-crucible pseudo-conversational / pc-return-immediate (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): the program a RETURN IMMEDIATE attaches (PCIMMB): the first stage returns for the next ENTER, the second ends. Each scenario is one task; the crucible's multi-turn flows are restated one scenario per leg, each carrying the COMMAREA or channel the previous leg returned. The oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "stage-1",
+      "aid": "DFHENTER",
+      "commarea": {
+        "CA-STAGE": "1",
+        "CA-TEXT": "MENU-A1"
+      },
+      "why": "CA-STAGE 1: logged, stage set to 2, RETURN TRANSID(PC52) with the COMMAREA"
+    },
+    {
+      "name": "stage-2",
+      "aid": "DFHENTER",
+      "commarea": {
+        "CA-STAGE": "2",
+        "CA-TEXT": "MENU-A1"
+      },
+      "why": "CA-STAGE 2: logged, RETURN"
+    }
+  ],
+  "termid": "T001"
+}

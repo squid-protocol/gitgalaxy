@@ -39,6 +39,7 @@
 /Controller.java	tests/security_auditing
 /Dockerfile	tests/core_engine
 /FORMS.jcl	tests/cobol_mainframe
+/IFOXJOB.jcl	tests/cobol_mainframe
 /LAYCPY.cpy	tests/cobol_mainframe
 /LAYTOY.cbl	tests/cobol_mainframe
 /LICENSE.txt	tests/core_engine
@@ -243,6 +244,7 @@ cics_mainframe_facts.md	tests/tools/test_progress_report.py
 cics_spec_status.json	tests/cobol_mainframe,tests/tools/cics_spec_status.py,tests/tools/progress_report.py
 cics_spec_status.md	tests/tools/cics_spec_status.py,tests/tools/test_generated_docs.py
 clean_check.md	tests/tools/doom_speedrun
+cobolrt_api.json	tests/tools/cobolrt_api.py
 cobolrt_rules.json	gitgalaxy,tests/cobol_mainframe,tests/tools/cobolrt_rules.py,tests/tools/progress_report.py,tests/tools/support_matrix.py
 cobolrt_rules.md	tests/tools/cobolrt_rules.py
 construct_correspondence.md	tests/tools/test_progress_report.py
@@ -267,6 +269,8 @@ docs/a/b.json	tests/tools/test_post_merge_dispatch.py
 docs/api_rule_contract.md	gitgalaxy
 docs/architecture.md	tests/core_engine
 docs/args_rule_contract.md	gitgalaxy
+docs/benchmarks/det-refine-	tests/tools/cobolrt_api.py
+docs/benchmarks/det-refine-cbact02c/C.java	tests/cobol_mainframe
 docs/bias_data.json	tests/core_engine,tests/tools/fidelity_table.py
 docs/branch_rule_contract.md	gitgalaxy
 docs/calls_out_rule_contract.md	gitgalaxy
@@ -274,6 +278,7 @@ docs/ci.md	tests/tools/shepherd_gh.py,tests/tools/test_ci_critical_path_split.py
 docs/ci_env_gated_tests.md	tests/tools/test_env_gated_tests_run_in_ci_5954.py
 docs/class_start_rule_contract.md	gitgalaxy
 docs/cleanup_rule_contract.md	gitgalaxy
+docs/cobolrt_api_contract.md	tests/tools/cobolrt_api.py
 docs/conf.py	tests/core_engine
 docs/contract_roadmap.md	tests/signal_contract_audit.py
 docs/dart.md	tests/core_engine
@@ -311,6 +316,7 @@ docs/language_status/cobol_hfp_matrix.md	gitgalaxy
 docs/language_status/cobol_move_matrix.md	gitgalaxy
 docs/language_status/cobol_sort_matrix.md	gitgalaxy
 docs/language_status/cobol_string_matrix.md	gitgalaxy
+docs/language_status/cobolrt_api.json	tests/tools/cobolrt_api.py
 docs/language_status/cobolrt_rules.json	gitgalaxy,tests/cobol_mainframe,tests/tools/cobolrt_rules.py,tests/tools/progress_report.py,tests/tools/support_matrix.py
 docs/language_status/cobolrt_rules.md	tests/tools/cobolrt_rules.py,tests/tools/generated_docs.py,tests/tools/test_generated_branch.py
 docs/language_status/det_port_design.md	tests/cobol_mainframe,tests/tools/test_progress_report.py

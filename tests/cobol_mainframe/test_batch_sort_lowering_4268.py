@@ -90,7 +90,7 @@ def test_concatenated_lengths_must_agree():
     assert "states different LRECLs (80, 100)" in _line(_forge([*dds, {"dd": "SORTOUT", "dsn": "C"}]))
 
 
-@pytest.mark.parametrize("recfm", ["F", "FB", "FBA", "fb"])
+@pytest.mark.parametrize("recfm", ["F", "FB", "FBA", "FBM", "FBS", "fb"])
 def test_every_fixed_recfm_is_lowered(recfm):
     assert _step(_forge(_sort_in(lrecl=80, recfm=recfm))).lowered
 
@@ -113,6 +113,17 @@ def test_no_stated_length_is_refused(dds):
 def test_the_length_comes_from_the_step_that_wrote_the_dataset():
     other = [{"dd": "SORTOUT", "dsn": "APP.IN", **FB80}]
     st = _step(_forge(_sort_in(), other=other))
+    assert st.lowered and "the same dataset elsewhere in the job" in st.lowered_note
+
+
+def test_a_length_without_a_recfm_is_not_overruled_by_a_later_tier():
+    other = [{"dd": "SORTOUT", "dsn": "APP.IN", "lrecl": 100, "recfm": "FB"}]
+    line = _line(_forge(_sort_in(lrecl=80), other=other))
+    assert "states LRECL=100, but the input DD states LRECL=80 but no RECFM" in line
+
+
+def test_a_later_tier_supplies_the_recfm_of_the_same_length():
+    st = _step(_forge(_sort_in(lrecl=80), other=[{"dd": "SORTOUT", "dsn": "APP.IN", **FB80}]))
     assert st.lowered and "the same dataset elsewhere in the job" in st.lowered_note
 
 

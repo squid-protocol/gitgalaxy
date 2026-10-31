@@ -296,7 +296,8 @@ class BatchForge:
         the reason there is none. Looked for on the input DDs, then on the other DDs of the same dataset in the job
         (the step that wrote it), then on SORTOUT (only without OUTREC: it changes the length). Every length a tier
         states must agree, and a RECFM it states must be fixed (F, FB, FBA, FBM): variable and undefined records
-        are not a fixed-length COBOL record. A tier with an LRECL and no RECFM is not taken (no guess)."""
+        are not a fixed-length COBOL record. A tier with an LRECL and no RECFM is not taken (no guess), and a later
+        tier may not overrule the length it stated."""
         own = [d for d in st.dds if d.get("dd") in inputs]
         out = [d for d in st.dds if d.get("dd") == "SORTOUT"]
         key = {(d.get("dsn"), d.get("generation")) for d in own}
@@ -307,6 +308,7 @@ class BatchForge:
         if not rebuilt:
             tiers.append(("SORTOUT", out))
         reasons: list[str] = []
+        passed_over: set[int] = set()  # lengths of the tiers not taken for want of a RECFM
         for where, rows in tiers:
             lrecls = {d["lrecl"] for d in rows if d.get("lrecl")}
             if not lrecls:
@@ -316,10 +318,13 @@ class BatchForge:
             recfms = {str(d["recfm"]).upper() for d in rows if d.get("recfm")}
             if not recfms:
                 reasons.append(f"{where} states LRECL={next(iter(lrecls))} but no RECFM")
+                passed_over |= lrecls
                 continue
             bad = sorted(r for r in recfms if not r.startswith("F"))
             if bad:
                 return f"{where} states RECFM={'/'.join(bad)}, not fixed-length records"
+            if passed_over - lrecls:
+                return f"{where} states LRECL={next(iter(lrecls))}, but {'; '.join(reasons)}"
             return next(iter(lrecls)), where
         return "; ".join(reasons) or "the job facts carry no record length (LRECL) to lower it"
 

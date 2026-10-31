@@ -2329,6 +2329,12 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   REFUSED by name (`RuntimeRefusal` on PUT / PUT64 CONTAINER, both runtimes). Reach: 0 burned programs name BIT, CHAR or DATATYPE on a
   PUT; the one FROMCCSID PUT is DBB `epscsmrd.cbl`, writing back `DFHREQUEST`, which the same program read as CHAR (INTOCCSID), so
   no type changes. Pinned by `tests/cobol_mainframe/test_container_datatype_change_reach_5005.py`.
+- **IBM source read for that refusal (#5005, 2026-10-31).** IBM CICS TS 6.x, "PUT CONTAINER (CHANNEL)", DATATYPE: "This option
+  applies only to new containers." and "If the container exists, its data type was established when it was created and cannot be
+  changed."; Conditions, INVREQ RESP2 33: "An attempt was made to change the data-type of an existing container." The page never
+  says the option is ignored for an existing container, and never says what a DATATYPE equal to the existing type does. So the
+  source is not decisive and the refusal stays: both the changed-type half (INVREQ 33 or ignored) and the same-type half are open.
+  Pinned by `test_the_x17_note_quotes_the_ibm_wording` in `tests/cobol_mainframe/test_container_datatype_change_reach_5005.py`.
 
 ### X18. Interval control and the async API: START / RETRIEVE / CANCEL / RUN TRANSID / FETCH / FREE CHILD — ASSUMED, REFUSED where IBM is silent (#4270 slice 2, #4950)
 - **What IBM documents** (CICS TS, EXEC CICS START, RETRIEVE, CANCEL, RUN TRANSID, "Expiration times"). START: INTERVAL

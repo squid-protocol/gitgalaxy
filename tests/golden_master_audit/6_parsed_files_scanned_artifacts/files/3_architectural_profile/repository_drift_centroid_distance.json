@@ -1254,13 +1254,13 @@
       "dockerfile/SOURCES.md": 0.0
     },
     "dockerfile/moby/builder/dockerfile": {
-      "dockerfile/moby/builder/dockerfile/buildargs.go": 5.903,
+      "dockerfile/moby/builder/dockerfile/buildargs.go": 5.879,
       "dockerfile/moby/builder/dockerfile/buildargs_test.go": 6.624,
       "dockerfile/moby/builder/dockerfile/builder.go": 6.445,
       "dockerfile/moby/builder/dockerfile/builder_unix.go": 5.978,
       "dockerfile/moby/builder/dockerfile/builder_windows.go": 6.186,
       "dockerfile/moby/builder/dockerfile/containerbackend.go": 6.833,
-      "dockerfile/moby/builder/dockerfile/copy.go": 6.149,
+      "dockerfile/moby/builder/dockerfile/copy.go": 6.137,
       "dockerfile/moby/builder/dockerfile/copy_test.go": 4.799,
       "dockerfile/moby/builder/dockerfile/copy_unix.go": 5.83,
       "dockerfile/moby/builder/dockerfile/copy_windows.go": 4.667,
@@ -1275,8 +1275,8 @@
       "dockerfile/moby/builder/dockerfile/imagecontext.go": 6.027,
       "dockerfile/moby/builder/dockerfile/imagecontext_test.go": 6.433,
       "dockerfile/moby/builder/dockerfile/imageprobe.go": 5.739,
-      "dockerfile/moby/builder/dockerfile/internals.go": 6.754,
-      "dockerfile/moby/builder/dockerfile/internals_linux.go": 7.499,
+      "dockerfile/moby/builder/dockerfile/internals.go": 6.74,
+      "dockerfile/moby/builder/dockerfile/internals_linux.go": 7.342,
       "dockerfile/moby/builder/dockerfile/internals_linux_test.go": 5.398,
       "dockerfile/moby/builder/dockerfile/internals_test.go": 6.588,
       "dockerfile/moby/builder/dockerfile/internals_windows.go": 6.74,
@@ -1311,7 +1311,7 @@
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": 7.555,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_spec.md": 0.0,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": 7.442,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": 6.137,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": 6.115,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning_test.go": 5.141,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go": 5.401
     },
@@ -1370,23 +1370,23 @@
     "go/core": {
       "go/core/PATENTS": 0.0,
       "go/core/main.go": 8.446,
-      "go/core/mgc.go": 6.609,
-      "go/core/mutex.go": 6.451,
-      "go/core/proc.go": 7.558,
-      "go/core/server.go": 9.012,
-      "go/core/syscall_linux.go": 6.924,
-      "go/core/value.go": 8.254
+      "go/core/mgc.go": 6.61,
+      "go/core/mutex.go": 6.026,
+      "go/core/proc.go": 7.553,
+      "go/core/server.go": 9.007,
+      "go/core/syscall_linux.go": 6.925,
+      "go/core/value.go": 8.237
     },
     "go/go_runtime_rand": {
-      "go/go_runtime_rand/rand.go": 6.826
+      "go/go_runtime_rand/rand.go": 6.816
     },
     "go/kubernetes": {
-      "go/kubernetes/csi_plugin.go": 6.985,
-      "go/kubernetes/generic.go": 7.684,
-      "go/kubernetes/kubelet.go": 6.542,
+      "go/kubernetes/csi_plugin.go": 6.98,
+      "go/kubernetes/generic.go": 7.681,
+      "go/kubernetes/kubelet.go": 6.536,
       "go/kubernetes/options.go": 5.644,
-      "go/kubernetes/proxier.go": 6.941,
-      "go/kubernetes/replica_set.go": 6.671,
+      "go/kubernetes/proxier.go": 6.937,
+      "go/kubernetes/replica_set.go": 6.668,
       "go/kubernetes/scheduler.go": 7.204
     },
     "go/kubernetes_kubectl_tls": {
@@ -3754,7 +3754,7 @@
       "swift/alamofire/Package.swift": 2.036,
       "swift/alamofire/ParameterEncoder.swift": 7.727,
       "swift/alamofire/Request.swift": 8.808,
-      "swift/alamofire/Response.swift": 6.611,
+      "swift/alamofire/Response.swift": 6.291,
       "swift/alamofire/Session.swift": 7.692
     },
     "tabular": {

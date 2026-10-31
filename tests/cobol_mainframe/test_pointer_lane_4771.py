@@ -327,6 +327,11 @@ import t.cobolrt.cics.DetCics;
 public class Main {
     static Field rec(int n) { return Field.alphanumeric(new Storage(n), 0, n, false); }
     static String text(Field f) { return new String(f.storage().bytes, java.nio.charset.StandardCharsets.ISO_8859_1).replace('\\0', '.'); }
+    static void nullSet(CicsTask t, Field record, Field ptr) {
+        byte[] before = record.storage().bytes;
+        DetCics.setAddress(t, record, ptr);
+        System.out.println(record.storage().bytes == before ? "null SET ADDRESS: record unchanged" : "record moved");
+    }
     static void refused(Runnable r) {
         try { r.run(); System.out.println("not refused"); } catch (UnsupportedOperationException e) { System.out.println(e.getMessage()); }
     }
@@ -347,7 +352,7 @@ public class Main {
         System.out.println(DetCics.pointerValue(ptr2) != 0);
         int[] f = t.freemain(DetCics.pointerValue(ptr2));
         System.out.println("free of a record: " + f[0] + "/" + f[1]);
-        refused(() -> DetCics.setAddress(t, rec(4), rec(8)));
+        nullSet(t, rec(4), rec(8));
         Field p3 = rec(8);
         DetCics.getmain(t, p3, 3, false, init);
         DetCics.setAddress(t, big, p3);
@@ -359,7 +364,7 @@ public class Main {
         refused(() -> t.freemain(DetCics.pointerValue(ptr)));
         int[] z = DetCics.getmain(t, p3, 0, false, init);
         System.out.println(z[0] + "/" + z[1] + " " + DetCics.pointerValue(p3));
-        refused(() -> DetCics.setAddress(t, rec(4), p3));
+        nullSet(t, rec(4), p3);
         for (long n : new long[] {0, -1}) {
             long[] u = t.getmain(n, false, -1);
             System.out.println("no INITIMG, length " + n + ": " + u[0] + "/" + u[1] + " " + u[2]);
@@ -388,14 +393,14 @@ public class Main {
         "QxQQQQ true",
         "true",
         "free of a record: 16/1",
-        "SET ADDRESS OF a null or unknown pointer: not modelled",
+        "null SET ADDRESS: record unchanged",
         "QQQ.......",  # (a record longer than its storage reads zeros past it)
         "SET ADDRESS OF a record longer than its storage: not modelled",
         "free: 0/0",
         "SET ADDRESS OF storage already freed: not modelled",
         "FREEMAIN of storage already freed or received: not modelled",
         "22/1 0",
-        "SET ADDRESS OF a null or unknown pointer: not modelled",
+        "null SET ADDRESS: record unchanged",
         "no INITIMG, length 0: 22/1 0",
         "no INITIMG, length -1: 22/1 0",
         "no INITIMG, LENGTH 0: 22/1 0",

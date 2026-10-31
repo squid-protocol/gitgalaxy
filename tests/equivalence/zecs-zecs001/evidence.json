@@ -22,7 +22,7 @@
     "tests/equivalence/zecs-zecs001/**"
    ],
    "files": 5,
-   "sha256": "47bd1f152d289cac7203130805160c2d69af66a710e101396d3dcccc49151c5f"
+   "sha256": "79061f963d9a74afd6e9955b170c156866ab4c8d19d1d9ac8d6a035dd099b891"
   },
   "harness": {
    "paths": [
@@ -46,10 +46,10 @@
     "tests/tools/equivalence_ims.py"
    ],
    "files": 18,
-   "sha256": "aec48ee0ccf9392de7215e19befa79beae81e5343d44d31946b6c722c99e4177",
+   "sha256": "d52148f39dc64370700e9ab334ea3d832d67ddb027cdf5ab371daf507f72a05d",
    "components": {
-    "harness:cics": "bd4ea76b8af5c2cb290aec96dd2b7b6dcd8142d65e4384a7d8fb2a85d774e0f7",
-    "harness:core": "4285e62b9cbc17d702addd9dd1edec3ee029d95e6bbed79f569ad0054e75d364"
+    "harness:cics": "d42c79ea63c14f08a98cd2733e4e43d91db2228916da898185fb65aebbea13f1",
+    "harness:core": "c2eb9b306930c90dc2f661a15ce4e1eb654ff8b672dfd920cb30299f0c30e4b4"
    }
   },
   "oracle": {
@@ -65,9 +65,9 @@
     "tests/equivalence/ims/ggdli.c"
    ],
    "files": 51,
-   "sha256": "d116abf094df9113357b494b8b37fc5f183ba4f94eae2c062f04272dea865e7b",
+   "sha256": "26c13006dd6bdff1f94b4b4d2c38d88de84cf6ff09eb59371dfe535e0b8f1537",
    "components": {
-    "oracle:cics-stub": "99bb9a24f6003439e65c7e69d06634579e2954e58257823274a2b4b7b7f8ff96",
+    "oracle:cics-stub": "d0c683b42d6ffd0d4d19e3fd1b1e6618a37746c208a9beb9d5d4c9408dd513e5",
     "oracle:core": "b4bb775f0a30746a6054f259b4c8613e08cb0d8cf3b40f4a789d953aca4144a0",
     "oracle:le": "670c92cc59b722e108b688267be1fd89ecda9b7be62bb485da2ad4839b4f7011"
    }
@@ -76,8 +76,8 @@
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
-   "files": 124,
-   "sha256": "e4d07caa025c0910093f49c74e813f06ba6f951f2a5ad7ecf0a45c5034a641ec",
+   "files": 125,
+   "sha256": "3fbbf5a9eaece4e8f81ffe000a88398a61074c9fcf1c31ad0fcb1b31bc0ac16d",
    "components": {
     "generator:cobolrt/Accept.java": "4bc260fc6386c11e4654cc76eb67a87ca1fad76647373d1e75484ed61b6a0cf3",
     "generator:cobolrt/ArithSpec.java": "d4b515111d390800aa5fae88ea6505dc5aa91640a2a5c8cee3c8807fdf2aca89",
@@ -102,7 +102,7 @@
     "generator:cobolrt/StringSpec.java": "f832b696ce0b1860fb53a536efb2ee282d3355202ea42fab03e12df0ad24fec7",
     "generator:cobolrt/Zoned.java": "089f829155664fdd82f2f99a0699cfb58e40910621b1136eabd2b16c51415349",
     "generator:cobolrt/batch/DetFiles.java": "93a8b702e9dec728c6ed17a734125f0c7c4b34dd29afb055536a9592a9c7caa7",
-    "generator:cobolrt/cics/DetCics.java": "014d7e9811f4a42ce40fed4a1e01ef651214818a71a700ede10341aff127f045",
+    "generator:cobolrt/cics/DetCics.java": "3f0eb0767200ed3d87375dc633c9cc6155cf9db6e542a19040b52c1f9a691f85",
     "generator:cobolrt/cics/DetJustify.java": "ecf7fab2a14ac125e87f05d7be9bbb13610d1423fc7410c644d00b5767fb812a",
     "generator:cobolrt/cics/DetMq.java": "40204edf5e82cd78739db956e424860a0121cb3ec44e0a9c1e508ed41fcf3187",
     "generator:cobolrt/dli/DetDli.java": "56e263bc5b387bd987e6a86ee14ec69a1f72f489bdd2aa921b3e8ae4c96c8902",
@@ -127,23 +127,24 @@
     "generator:cobolrt/sql/DetSql.java": "628b9c0c44b32c007fcaa874d68435fb93a42f3b3495d2ca4ac4001195e27f82",
     "generator:cobolrt/standalone/CobolAbend.java": "f8b72030ecb8862738c562b0c826ff9b1a085d92050664082f96e6107d5dfdb7",
     "generator:cobolrt/standalone/Sysout.java": "290bd3e17b89bb6883cee226df6137927b753f3858fe5cfb1e3021ff7f8d5c44",
-    "generator:core": "c90edd854ae349eba9c6d594619c99b0df13b5821bb9f639c4cc67e39e0d62ae",
+    "generator:core": "bb0d08181041866776b7faa860902952cd3fe0906dc34f61959777e94e478016",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
     "generator:det/bll": "51a3de21e2afa9301080d7613bf7ba13c0a053a90c9b4c1b92acfd676b923163",
-    "generator:det/cics": "fef009b158ce420c1a445dd098d8ab8df6753e8099e3912f6474160a2f7c5eac",
-    "generator:det/cics_conditions": "c5bfb6ed32df1a582cf010bf59f1f16dd7440e4caa075a0458f62ca9b85f6219",
-    "generator:det/cics_containers": "5fc989229d444423f5b14d2c65a2c7c541efbe6cd0e5dc5a833beaf90c578b6b",
-    "generator:det/cics_faults": "022b25e0d5807e27992c2e0598d06fff3258412b4333821efc748dd7be728b4c",
-    "generator:det/cics_filecontrol": "2a1b7b0a0414ed5e263b6f70e757a88685b2696a4b964953ae306fbb753d528b",
-    "generator:det/cics_taskcontrol": "63df9b365888889a2ecf2d791d2c789879ad7d4bd7161ab8099702948187e7b8",
+    "generator:det/cics": "16b9f1f3d564f325ff2cd79d9e7b34aa25f77e8d224e8dda46051aaefddd5486",
+    "generator:det/cics_common": "630434fe24e2537a30f225058886dfb6d442e5792603d84cdc6628fbf42d9ff6",
+    "generator:det/cics_conditions": "81f7cac048ac8609a92f78bf0e0379dc9b59454a7f3754a50eb6d2538a74adc6",
+    "generator:det/cics_containers": "e96f548646b8060bd71e5c448e52ba193d6fd88aad3e78b4f1b1bd3731e518ff",
+    "generator:det/cics_faults": "863ce608ce8e183fe37350ba17f59b2176ce20452e1ebe86cb6b7ae6109fdb4e",
+    "generator:det/cics_filecontrol": "45b13e205f97e9c5cbdb464b23c1d71a626af3d1774d03d273dc6efdacca13e5",
+    "generator:det/cics_taskcontrol": "a63efa9bd5d9ad8d64ebaa96cc3f2aaed0603480130bca405bc94989c48594a2",
     "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
-    "generator:det/dfsort": "7c17680f7b7a0ef824f4c5c30c262ad8ed0fc2cf4188829b9c6e2d693274e3ac",
-    "generator:det/dli": "6c94b183b7f40bbce09c623fe2001c3c594534daada2a363417a61a0a3c9f41d",
-    "generator:det/dyncall": "641f9f29f4f40864b80a79230c7fd961e0d76851e2c6495b150cd723ead56a68",
+    "generator:det/dfsort": "19ef95f6dbe5c034880fc4b4e4aa6154964b57727c3d80358f0fb76c17f484b4",
+    "generator:det/dli": "3543f9f3c05be02b2f8e0702a09f53874303bb17de9972a36a1e05521d90bc57",
+    "generator:det/dyncall": "7b9e24a55b295ffdec5360050183092e1e3aa8126cf1f3a72410133edf57ae18",
     "generator:det/engine_layout": "a0019c6bd31e188fbba788e04b5271ce8a342e3b986a2ed1b6c5e8333c40f928",
     "generator:det/entity": "b6aa37067dc0413f6700ac83e7dd35610d8e2474aa607bdf54b5b8419ee4c7d6",
     "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
-    "generator:det/gen": "7e449f56144708e946a629a556a78d4e2d0c35ee4026b5c7846f5b712f98ea64",
+    "generator:det/gen": "534e5dc8870eff00a08f61cea755753427231ed628eeebba005fce4d5064ad89",
     "generator:det/hfp": "d7d641dafd602da31535a68f7f219c201a8d867cb7a1fec1c879be38e9ff86b7",
     "generator:det/hlasm": "c7117c636ab25d2ccb7b4e2d7f23766ddacb9c9f7600c2fd6d894a49a60f4748",
     "generator:det/idcams": "b1ceb4971514b7e8e92553148735cc1ac1aebce5938768b756838d1bae4cf6a2",
@@ -226,34 +227,34 @@
    },
    "runtime_sha256": "2e95aa6a2e154fc7484ae5d8606234b3805b29adfb9904a541b19799806537c3"
   },
-  "digest": "01596c808945d0ffc18837fe635e00e15dc3f96a60fb31eeb4d4cc9e1d44bf2a"
+  "digest": "4f94e1adf99347eff4a33f3554f72d3e550437cb7585e56ef498984a75d6355b"
  },
  "proof": {
-  "at": "2026-10-31T00:25:12Z",
+  "at": "2026-10-31T06:57:51Z",
   "verdict": "proven",
   "source": "det-sweep",
-  "runs": 66,
+  "runs": 69,
   "fault_runs": null,
   "environments": null,
   "outputs": {},
   "java_failed": false,
   "det_sweep": {
    "ledger": "tests/equivalence/det_sweep_coverage/zecs-zecs001.json",
-   "ledger_sha256": "0dac11dac2633b5d2b9f7917c35ad07955fd9f10ee13761e52890c6f4f9aaa37",
-   "measured_at": "61109e29cfb9a895a1b29b2ae31c2f2592a72c98",
+   "ledger_sha256": "29cac0a89b4994fb0cae4a432322ed4e4aaa0404bb6666953f284f84a43ce809",
+   "measured_at": "cd6a57a29a642caf1b0d47941a0574e6db401ec8",
    "stale_inputs": [],
-   "scenarios": 66
+   "scenarios": 69
   },
-  "harness_commit": "61109e29cfb9a895a1b29b2ae31c2f2592a72c98+uncommitted",
-  "inputs_digest": "01596c808945d0ffc18837fe635e00e15dc3f96a60fb31eeb4d4cc9e1d44bf2a"
+  "harness_commit": "cd6a57a29a642caf1b0d47941a0574e6db401ec8+uncommitted",
+  "inputs_digest": "4f94e1adf99347eff4a33f3554f72d3e550437cb7585e56ef498984a75d6355b"
  },
  "coverage": {
   "paragraphs": {
-   "covered": 107,
+   "covered": 109,
    "live": 119
   },
   "branches": {
-   "covered": 175,
+   "covered": 179,
    "total": 208
   },
   "uncovered_branches": [],
@@ -261,8 +262,8 @@
    "covered": null,
    "total": null
   },
-  "source": "det sweep at 61109e29cfb9a895a1b29b2ae31c2f2592a72c98 (det_coverage_ledger.py)",
-  "inputs_digest": "01596c808945d0ffc18837fe635e00e15dc3f96a60fb31eeb4d4cc9e1d44bf2a"
+  "source": "det sweep at cd6a57a29a642caf1b0d47941a0574e6db401ec8 (det_coverage_ledger.py)",
+  "inputs_digest": "4f94e1adf99347eff4a33f3554f72d3e550437cb7585e56ef498984a75d6355b"
  },
  "reach": null,
  "mutation": null,

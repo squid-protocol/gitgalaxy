@@ -649,7 +649,7 @@ public final class DetCics {
      *  "Default action: ignore the condition"). Every other condition's default is an abend. */
     // [rule RT-CICS-DEFAULT-ACTION]
     public static boolean ignoredByDefault(String condition) {
-        return "EOC".equals(condition);
+        return "EOC".equals(condition) || "EXPIRED".equals(condition);
     }
 
     /** #4414: the label HANDLE AID gives the key pressed (EIBAID's name: ENTER, CLEAR, PA1-PA3, PF1-PF24), else

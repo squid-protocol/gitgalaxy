@@ -236,7 +236,7 @@ int GGCCOND(gg_cics *c) {
     if (st > 0) { c->go_to = st; return 0; }
     /* #4413: EOC's default action is to ignore it (IBM, RECEIVE (LUTYPE2/LUTYPE3)); ERROR takes
      * only a condition whose "default action ... terminates the task abnormally" (HANDLE CONDITION) */
-    if (cond == EOC) return 0;
+    if (cond == EOC || cond == DFHRESP_EXPIRED) return 0; /* #5862 (X72): EXPIRED is ignored by default too */
     if (h->cond[ERRCOND] > 0) { c->go_to = h->cond[ERRCOND]; return 0; }
     abend(c, condition_abcode(cond), "condition", cond, 0);
     return 0;

@@ -1110,7 +1110,7 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
         textflags = " ".join(kind + [n for n in flags if n in ("ERASE", "FREEKB", "ALARM", "WAIT", "LAST")])
         return ([f"MOVE '{textflags[:40]}' TO GG-FLAGS"]
                 + _call("GGCSTXT", [f"BY REFERENCE {src}", f"BY VALUE {opts.get('LENGTH') or f'LENGTH OF {src}'}"])
-                + _resp(opts, can_fail=False))  # fmt: skip
+                + _resp(opts, can_fail=True))  # fmt: skip
     if verb in ("RETURN", "XCTL"):
         if verb == "XCTL" and not opts.get("PROGRAM"):
             raise Unsupported("XCTL without PROGRAM")

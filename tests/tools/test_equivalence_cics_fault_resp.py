@@ -144,6 +144,36 @@ def test_the_delay_stub_and_translator_read_the_same_plan():
     assert "if ({pl}[0] == 0) task.delay(" in det
 
 
+@pytest.mark.parametrize(
+    "command",
+    [
+        "DELAY INTERVAL(5)",
+        "DELAY FOR SECONDS(3)",
+        "DELAY TIME(120000)",
+        "DELAY",
+        "SEND TEXT FROM(WS-T) LENGTH(10)",
+        "SEND TEXT FROM(WS-T) LENGTH(10) ERASE",
+    ],
+)
+def test_an_unhandled_planned_fault_takes_the_default_action(command):
+    # #5862 (P121): a DELAY / SEND TEXT that codes no RESP hands its condition to GGCCOND (HANDLE CONDITION, ERROR, else the
+    # AEIx abend, as the det port does); one that codes RESP or NOHANDLE tests its own
+    plain = ec.translate_command(command)
+    assert "    CALL 'GGCCOND' USING GG-CICS" in plain
+    assert not any("GGCCOND" in x for x in ec.translate_command(command + " RESP(R) RESP2(R2)"))
+    assert not any("GGCCOND" in x for x in ec.translate_command(command + " NOHANDLE"))
+
+
+def test_expired_is_ignored_by_default_in_the_stub_and_the_det_runtime():
+    # #5862 (X72): "EXPIRED's default action when unhandled is to ignore it", as EOC's: GGCCOND and DetCics agree
+    cond = (REPO / "tests/equivalence/cics/ggcics_conditions.c").read_text(encoding="utf-8")
+    body = cond[cond.index("int GGCCOND") :]
+    assert "cond == EOC || cond == DFHRESP_EXPIRED" in body[: body.index("abend(c,")]
+    rt = (REPO / "gitgalaxy/tools/cobol_to_java/det/cobolrt/cics/DetCics.java").read_text(encoding="utf-8")
+    ign = rt[rt.index("ignoredByDefault") :]
+    assert '"EXPIRED".equals(condition)' in ign[: ign.index("}")]
+
+
 def test_a_plain_return_transid_that_codes_resp_reads_the_return_plan():
     # #6271 (X71): the stub, the Java task and the translator all let a planned RETURN fail the plain form -- only when
     # the program codes RESP (GG-ITEM 2); a plain RETURN with no RESP never consults the plan

@@ -1,617 +1,690 @@
 {
-  "format": "det-mutation/1",
-  "issue": "#4628",
-  "about": "#4628: mutation testing of each det port (tests/tools/mutation.py on `det_port.py run --translate-only`'s port, fast mode, seeded sample), written only by tests/tools/det_mutation.py. An entry is trusted only while its fingerprints match the tree; stale or missing is unknown. Survivors are accounted for in det_mutation_survivors/ (reviewed).",
-  "case": "carddemo-tranlist",
-  "entry": {
-    "program": "COTRN00C",
-    "commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
-    "date": "2026-10-23",
-    "mode": "fast",
-    "seed": 0,
-    "mutants": 2827,
-    "out_of_scope": 12,
-    "chosen": 150,
-    "coverage": "proven on 36 scenarios, covering 16/16 paragraphs and 96/101 branches",
-    "counts": {
-      "killed": 87,
-      "timeout": 6,
-      "survived": 55,
-      "stillborn": 2,
-      "error": 0,
-      "pending": 0
-    },
-    "killed": [
-      "0024cee31c",
-      "012c875dcc",
-      "03cffdc4c7",
-      "03f4041828",
-      "053c790ce5",
-      "0564405729",
-      "0c6d118729",
-      "0ec6e5df34",
-      "1141a15c61",
-      "1442495ac9",
-      "163e05c86c",
-      "1baf71def0",
-      "211f7c67f5",
-      "229c5d7696",
-      "238bc7a735",
-      "24b5fb26c9",
-      "27e1e6c3d0",
-      "31b68aaee6",
-      "370aa80008",
-      "393846930e",
-      "3f0f43d385",
-      "41057e4904",
-      "438d024403",
-      "43e2ed1198",
-      "444b0d44b7",
-      "445efa6b89",
-      "4632151fdf",
-      "485069a788",
-      "51072af00f",
-      "55ae3cdc60",
-      "5a2776c790",
-      "66f0193f0f",
-      "700889cf54",
-      "819a60b084",
-      "823559580f",
-      "842ecd23b7",
-      "8559da6183",
-      "8560c1b335",
-      "86869261f4",
-      "8daa77cea7",
-      "8e71a5e4d8",
-      "8f16057377",
-      "9036c35297",
-      "91dfb08227",
-      "9431ba9f3b",
-      "959e3e83b6",
-      "989ab73289",
-      "98aef0763e",
-      "9a05bc3a67",
-      "9a8b68f340",
-      "9f8962f59c",
-      "a011e1ab69",
-      "a4d1a9bc8f",
-      "a4d5591298",
-      "a772002aab",
-      "ab436889c2",
-      "acddb111ba",
-      "af8f54ccca",
-      "b08344c908",
-      "b1a3f6aaad",
-      "b27fa571eb",
-      "b54883a15f",
-      "b69346c7d6",
-      "b6e9ceda0c",
-      "b6f02378a1",
-      "b860f5a317",
-      "bc3e816163",
-      "c1cc2e678b",
-      "c4926e17db",
-      "c5d17bee4a",
-      "c72d02c1b7",
-      "c96450a56e",
-      "cba30f4ca4",
-      "ce4f62ffa4",
-      "d11e1f0f6e",
-      "d1b06d49e8",
-      "d50b0686fc",
-      "dc6722efa9",
-      "dce05f7f86",
-      "e5c1f53738",
-      "e63f5d13f8",
-      "eb635cf5c7",
-      "eccada3d49",
-      "ed061a8189",
-      "ed7fdc753b",
-      "efbec9c4d2",
-      "f09346d5d8",
-      "f1298bbac1",
-      "f1b9bd0aed",
-      "f3b823ee3c",
-      "f45934c20e",
-      "f7de3cacb9",
-      "f88602e677"
-    ],
-    "stillborn": [
-      "d8469770c4",
-      "dd1e310681"
-    ],
-    "survived": [
-      {
-        "id": "3cae0451cb",
-        "op": "LIT",
-        "file": "service/Cotrn00cService.java",
-        "line": 96,
-        "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
-        "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\","
-      },
-      {
-        "id": "8d7484efb2",
-        "op": "LIT",
-        "file": "service/Cotrn00cService.java",
-        "line": 116,
-        "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
-        "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\","
-      },
-      {
-        "id": "8fc8b8c2b2",
-        "op": "LIT",
-        "file": "service/Cotrn00cService.java",
-        "line": 123,
-        "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
-        "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\","
-      },
-      {
-        "id": "b586c8dea0",
-        "op": "LIT",
-        "file": "service/Cotrn00cService.java",
-        "line": 180,
-        "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
-        "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\","
-      },
-      {
-        "id": "ec02c09973",
-        "op": "CON",
-        "file": "service/Cotrn00cService.java",
-        "line": 243,
-        "before": "private final Field f83_PAGENUML = Field.binary(s_COTRN0AI, 162, 4, 0, true, false);",
-        "after": "private final Field f83_PAGENUML = Field.binary(s_COTRN0AI, 162, 5, 0, true, false);"
-      },
-      {
-        "id": "568f5691a7",
-        "op": "CON",
-        "file": "service/Cotrn00cService.java",
-        "line": 291,
-        "before": "private final Field f179_TAMT003L = Field.binary(s_COTRN0AI, 475, 4, 0, true, false);",
-        "after": "private final Field f179_TAMT003L = Field.binary(s_COTRN0AI, 475, 5, 0, true, false);"
-      },
-      {
-        "id": "719668e73e",
-        "op": "CON",
-        "file": "service/Cotrn00cService.java",
-        "line": 330,
-        "before": "private final Field f257_TDATE06L = Field.binary(s_COTRN0AI, 721, 4, 0, true, false);",
-        "after": "private final Field f257_TDATE06L = Field.binary(s_COTRN0AI, 721, 5, 0, true, false);"
-      },
-      {
-        "id": "c4985944c4",
-        "op": "CON",
-        "file": "service/Cotrn00cService.java",
-        "line": 330,
-        "before": "private final Field f257_TDATE06L = Field.binary(s_COTRN0AI, 721, 4, 0, true, false);",
-        "after": "private final Field f257_TDATE06L = Field.binary(s_COTRN0AI, 721, 4, 1, true, false);"
-      },
-      {
-        "id": "3f24ad61ac",
-        "op": "CON",
-        "file": "service/Cotrn00cService.java",
-        "line": 399,
-        "before": "private final Field f395_ERRMSGL = Field.binary(s_COTRN0AI, 1180, 4, 0, true, false);",
-        "after": "private final Field f395_ERRMSGL = Field.binary(s_COTRN0AI, 1180, 4, 1, true, false);"
-      },
-      {
-        "id": "50ffd8dfca",
-        "op": "CON",
-        "file": "service/Cotrn00cService.java",
-        "line": 432,
-        "before": "private final Field f462_TRNID01O = Field.alphanumeric(s_COTRN0AI, 215, 16, false);",
-        "after": "private final Field f462_TRNID01O = Field.alphanumeric(s_COTRN0AI, 215, 17, false);"
-      },
-      {
-        "id": "225e3f08c9",
-        "op": "CON",
-        "file": "service/Cotrn00cService.java",
-        "line": 464,
-        "before": "private final Field f526_TDATE03H = Field.alphanumeric(s_COTRN0AI, 432, 1, false);",
-        "after": "private final Field f526_TDATE03H = Field.alphanumeric(s_COTRN0AI, 432, 2, false);"
-      },
-      {
-        "id": "2fd00da40d",
-        "op": "CON",
-        "file": "service/Cotrn00cService.java",
-        "line": 486,
-        "before": "private final Field f570_TAMT004O = Field.alphanumeric(s_COTRN0AI, 580, 12, false);",
-        "after": "private final Field f570_TAMT004O = Field.alphanumeric(s_COTRN0AI, 580, 13, false);"
-      },
-      {
-        "id": "2797cac0ac",
-        "op": "CON",
-        "file": "service/Cotrn00cService.java",
-        "line": 542,
-        "before": "private final Field f682_TDESC08H = Field.alphanumeric(s_COTRN0AI, 937, 1, false);",
-        "after": "private final Field f682_TDESC08H = Field.alphanumeric(s_COTRN0AI, 937, 2, false);"
-      },
-      {
-        "id": "07e4a92495",
-        "op": "CON",
-        "file": "service/Cotrn00cService.java",
-        "line": 587,
-        "before": "private final Field f774_WS_CURDATE_MM_DD_YY = Field.group(s_WS_DATE_TIME, 16, 8);",
-        "after": "private final Field f774_WS_CURDATE_MM_DD_YY = Field.group(s_WS_DATE_TIME, 16, 9);"
-      },
-      {
-        "id": "d548565f93",
-        "op": "LIT",
-        "file": "service/Cotrn00cService.java",
-        "line": 708,
-        "before": "java.util.Map.entry(\"PROCESS-PF8-KEY\", 3),",
-        "after": "java.util.Map.entry(\"XROCESS-PF8-KEY\", 3),"
-      },
-      {
-        "id": "7c80ba7a64",
-        "op": "NEG",
-        "file": "service/Cotrn00cService.java",
-        "line": 716,
-        "before": "if (i == null) {",
-        "after": "if (!(i == null)) {"
-      },
-      {
-        "id": "a543e92eeb",
-        "op": "DEL",
-        "file": "service/Cotrn00cService.java",
-        "line": 812,
-        "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
-        "after": "/* System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length); */"
-      },
-      {
-        "id": "dd400361fb",
-        "op": "LIT",
-        "file": "service/Cotrn00cService.java",
-        "line": 850,
-        "before": "f8_WS_SEND_ERASE_FLG = \"Y\";",
-        "after": "f8_WS_SEND_ERASE_FLG = \"X\";"
-      },
-      {
-        "id": "25a71fdcd8",
-        "op": "LIT",
-        "file": "service/Cotrn00cService.java",
-        "line": 857,
-        "before": "f801_CCDA_MSG_THANK_YOU = \"Thank you for using CardDemo application...       \";",
-        "after": "f801_CCDA_MSG_THANK_YOU = \"Xhank you for using CardDemo application...       \";"
-      },
-      {
-        "id": "82f9ee290b",
-        "op": "DEL",
-        "file": "service/Cotrn00cService.java",
-        "line": 859,
-        "before": "Cobol.moveFigurative(Figurative.ZEROS, f14_WS_TRAN_AMT, CS);",
-        "after": "/* Cobol.moveFigurative(Figurative.ZEROS, f14_WS_TRAN_AMT, CS); */"
-      },
-      {
-        "id": "5aeb5c5995",
-        "op": "AOR",
-        "file": "service/Cotrn00cService.java",
-        "line": 890,
-        "before": "Cobol.store(f927_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
-        "after": "Cobol.store(f927_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);"
-      },
-      {
-        "id": "33372484f1",
-        "op": "AOR",
-        "file": "service/Cotrn00cService.java",
-        "line": 890,
-        "before": "Cobol.store(f927_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
-        "after": "Cobol.store(f927_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);"
-      },
-      {
-        "id": "784bed73f8",
-        "op": "AOR",
-        "file": "service/Cotrn00cService.java",
-        "line": 891,
-        "before": "Cobol.store(f926_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
-        "after": "Cobol.store(f926_EIBTIME, BigDecimal.valueOf(now.getHour() / 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);"
-      },
-      {
-        "id": "74d67ff018",
-        "op": "LIT",
-        "file": "service/Cotrn00cService.java",
-        "line": 905,
-        "before": "case \"PF1\" -> Cobol.move(f831_DFHPF1, f934_EIBAID, CS);",
-        "after": "case \"XF1\" -> Cobol.move(f831_DFHPF1, f934_EIBAID, CS);"
-      },
-      {
-        "id": "f74fc963a5",
-        "op": "DEL",
-        "file": "service/Cotrn00cService.java",
-        "line": 953,
-        "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-        "after": "/* caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } }; */"
-      },
-      {
-        "id": "c1e2365e98",
-        "op": "COR",
-        "file": "service/Cotrn00cService.java",
-        "line": 956,
-        "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
-        "after": "if (task.exactCommarea() || calen < s_DFHCOMMAREA.bytes.length) {"
-      },
-      {
-        "id": "353f8120e4",
-        "op": "ROR",
-        "file": "service/Cotrn00cService.java",
-        "line": 1036,
-        "before": "return lastLinkBytes == null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
-        "after": "return lastLinkBytes != null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);"
-      },
-      {
-        "id": "dc33f775e1",
-        "op": "DEL",
-        "file": "service/Cotrn00cService.java",
-        "line": 1045,
-        "before": "super(null, null, false, false);",
-        "after": "/* super(null, null, false, false); */"
-      },
-      {
-        "id": "17c5e72a01",
-        "op": "COR",
-        "file": "service/Cotrn00cService.java",
-        "line": 1278,
-        "before": "if (((!(Cobol.compareFigurative(f43_CDEMO_CT00_TRN_SEL_FLG, Figurative.SPACES, CS) == 0) && !(Cobol.compareFigurative(f43_CDEMO_CT00_TRN_SEL_FLG, Figurative.LOW_VALUES, CS) == 0)) && (!(Cobol.compareFigurative(f44_CDEMO_CT00_TRN_SELECTED, Figurative.SPACES, CS) == 0) && !(Cobol.compareFigurative(f44_CDEMO_CT00_TRN_SELECTED, Figurative.LOW_VALUES, CS) == 0)))) {",
-        "after": "if (((!(Cobol.compareFigurative(f43_CDEMO_CT00_TRN_SEL_FLG, Figurative.SPACES, CS) == 0) && !(Cobol.compareFigurative(f43_CDEMO_CT00_TRN_SEL_FLG, Figurative.LOW_VALUES, CS) == 0)) || (!(Cobol.compareFigurative(f44_CDEMO_CT00_TRN_SELECTED, Figurative.SPACES, CS) == 0) && !(Cobol.compareFigurative(f44_CDEMO_CT00_TRN_SELECTED, Figurative.LOW_VALUES, CS) == 0)))) {"
-      },
-      {
-        "id": "e3cfe7a216",
-        "op": "DEL",
-        "file": "service/Cotrn00cService.java",
-        "line": 1292,
-        "before": "Cobol.store(f954_EIBRESP, BigDecimal.valueOf(DetCics.resp(xr1)), false, CS);",
-        "after": "/* Cobol.store(f954_EIBRESP, BigDecimal.valueOf(DetCics.resp(xr1)), false, CS); */"
-      },
-      {
-        "id": "520bb3da7e",
-        "op": "COR",
-        "file": "service/Cotrn00cService.java",
-        "line": 1342,
-        "before": "if ((Cobol.compareFigurative(f39_CDEMO_CT00_TRNID_FIRST, Figurative.SPACES, CS) == 0 || Cobol.compareFigurative(f39_CDEMO_CT00_TRNID_FIRST, Figurative.LOW_VALUES, CS) == 0)) {",
-        "after": "if ((Cobol.compareFigurative(f39_CDEMO_CT00_TRNID_FIRST, Figurative.SPACES, CS) == 0 && Cobol.compareFigurative(f39_CDEMO_CT00_TRNID_FIRST, Figurative.LOW_VALUES, CS) == 0)) {"
-      },
-      {
-        "id": "19a8723f21",
-        "op": "NEG",
-        "file": "service/Cotrn00cService.java",
-        "line": 1407,
-        "before": "if ((isTransactNotEof() && isErrFlgOff())) {",
-        "after": "if (!((isTransactNotEof() && isErrFlgOff()))) {"
-      },
-      {
-        "id": "2e566b7f50",
-        "op": "COR",
-        "file": "service/Cotrn00cService.java",
-        "line": 1407,
-        "before": "if ((isTransactNotEof() && isErrFlgOff())) {",
-        "after": "if ((isTransactNotEof() || isErrFlgOff())) {"
-      },
-      {
-        "id": "56fe91c4a3",
-        "op": "BDM",
-        "file": "service/Cotrn00cService.java",
-        "line": 1452,
-        "before": "BigDecimal v4 = Cobol.add(Cobol.num(f41_CDEMO_CT00_PAGE_NUM, CS), DC_1);",
-        "after": "BigDecimal v4 = Cobol.subtract(Cobol.num(f41_CDEMO_CT00_PAGE_NUM, CS), DC_1);"
-      },
-      {
-        "id": "4a1511a55d",
-        "op": "COR",
-        "file": "service/Cotrn00cService.java",
-        "line": 1475,
-        "before": "if ((!(Cobol.compare(f934_EIBAID, f820_DFHENTER, CS) == 0) && !(Cobol.compare(f934_EIBAID, f838_DFHPF8, CS) == 0))) {",
-        "after": "if ((!(Cobol.compare(f934_EIBAID, f820_DFHENTER, CS) == 0) || !(Cobol.compare(f934_EIBAID, f838_DFHPF8, CS) == 0))) {"
-      },
-      {
-        "id": "6fcc1fe319",
-        "op": "COR",
-        "file": "service/Cotrn00cService.java",
-        "line": 1511,
-        "before": "if (((isTransactNotEof() && isErrFlgOff()) && Cobol.cmpNum(f41_CDEMO_CT00_PAGE_NUM, CS).compareTo(D1) > 0)) {",
-        "after": "if (((isTransactNotEof() || isErrFlgOff()) && Cobol.cmpNum(f41_CDEMO_CT00_PAGE_NUM, CS).compareTo(D1) > 0)) {"
-      },
-      {
-        "id": "db486a794d",
-        "op": "COR",
-        "file": "service/Cotrn00cService.java",
-        "line": 1511,
-        "before": "if (((isTransactNotEof() && isErrFlgOff()) && Cobol.cmpNum(f41_CDEMO_CT00_PAGE_NUM, CS).compareTo(D1) > 0)) {",
-        "after": "if (((isTransactNotEof() && isErrFlgOff()) || Cobol.cmpNum(f41_CDEMO_CT00_PAGE_NUM, CS).compareTo(D1) > 0)) {"
-      },
-      {
-        "id": "0c918a7818",
-        "op": "NEG",
-        "file": "service/Cotrn00cService.java",
-        "line": 1665,
-        "before": "} else if ((Cobol.num(f12_WS_IDX, CS).compareTo(D3) == 0)) {",
-        "after": "} else if (!((Cobol.num(f12_WS_IDX, CS).compareTo(D3) == 0))) {"
-      },
-      {
-        "id": "1f2e46352e",
-        "op": "NEG",
-        "file": "service/Cotrn00cService.java",
-        "line": 1674,
-        "before": "} else if ((Cobol.num(f12_WS_IDX, CS).compareTo(D4) == 0)) {",
-        "after": "} else if (!((Cobol.num(f12_WS_IDX, CS).compareTo(D4) == 0))) {"
-      },
-      {
-        "id": "f7764d630c",
-        "op": "NEG",
-        "file": "service/Cotrn00cService.java",
-        "line": 1692,
-        "before": "} else if ((Cobol.num(f12_WS_IDX, CS).compareTo(D6) == 0)) {",
-        "after": "} else if (!((Cobol.num(f12_WS_IDX, CS).compareTo(D6) == 0))) {"
-      },
-      {
-        "id": "eed6e394cd",
-        "op": "ROR",
-        "file": "service/Cotrn00cService.java",
-        "line": 1692,
-        "before": "} else if ((Cobol.num(f12_WS_IDX, CS).compareTo(D6) == 0)) {",
-        "after": "} else if ((Cobol.num(f12_WS_IDX, CS).compareTo(D6) != 0)) {"
-      },
-      {
-        "id": "b412a40e67",
-        "op": "DEL",
-        "file": "service/Cotrn00cService.java",
-        "line": 1696,
-        "before": "Cobol.moveFigurative(Figurative.SPACES, f262_TDATE06I, CS);",
-        "after": "/* Cobol.moveFigurative(Figurative.SPACES, f262_TDATE06I, CS); */"
-      },
-      {
-        "id": "bb465083f7",
-        "op": "DEL",
-        "file": "service/Cotrn00cService.java",
-        "line": 1718,
-        "before": "Cobol.moveFigurative(Figurative.SPACES, f334_TAMT008I, CS);",
-        "after": "/* Cobol.moveFigurative(Figurative.SPACES, f334_TAMT008I, CS); */"
-      },
-      {
-        "id": "aa3e38cb0b",
-        "op": "LIT",
-        "file": "service/Cotrn00cService.java",
-        "line": 1792,
-        "before": "DetCics.subfields(sub10, \"PAGENUM\", f83_PAGENUML, f86_PAGENUMA, f440_PAGENUMC, f442_PAGENUMH, CS);",
-        "after": "DetCics.subfields(sub10, \"XAGENUM\", f83_PAGENUML, f86_PAGENUMA, f440_PAGENUMC, f442_PAGENUMH, CS);"
-      },
-      {
-        "id": "511c273fd2",
-        "op": "LIT",
-        "file": "service/Cotrn00cService.java",
-        "line": 1814,
-        "before": "DetCics.subfields(sub10, \"TAMT002\", f149_TAMT002L, f152_TAMT002A, f506_TAMT002C, f508_TAMT002H, CS);",
-        "after": "DetCics.subfields(sub10, \"XAMT002\", f149_TAMT002L, f152_TAMT002A, f506_TAMT002C, f508_TAMT002H, CS);"
-      },
-      {
-        "id": "59a0a222ae",
-        "op": "LIT",
-        "file": "service/Cotrn00cService.java",
-        "line": 1878,
-        "before": "DetCics.subfields(sub10, \"TRNID09\", f341_TRNID09L, f344_TRNID09A, f698_TRNID09C, f700_TRNID09H, CS);",
-        "after": "DetCics.subfields(sub10, \"XRNID09\", f341_TRNID09L, f344_TRNID09A, f698_TRNID09C, f700_TRNID09H, CS);"
-      },
-      {
-        "id": "0bf7f92560",
-        "op": "ROR",
-        "file": "service/Cotrn00cService.java",
-        "line": 1903,
-        "before": "if (to >= 0) return GOTO | to;",
-        "after": "if (to < 0) return GOTO | to;"
-      },
-      {
-        "id": "7df4853469",
-        "op": "LIT",
-        "file": "service/Cotrn00cService.java",
-        "line": 1971,
-        "before": "values12.put(\"TDESC05\", Cobol.text(f594_TDESC05O, CS));",
-        "after": "values12.put(\"XDESC05\", Cobol.text(f594_TDESC05O, CS));"
-      },
-      {
-        "id": "6ac1b42ab5",
-        "op": "LIT",
-        "file": "service/Cotrn00cService.java",
-        "line": 1989,
-        "before": "values12.put(\"TDATE07\", Cobol.text(f648_TDATE07O, CS));",
-        "after": "values12.put(\"XDATE07\", Cobol.text(f648_TDATE07O, CS));"
-      },
-      {
-        "id": "c46a29125d",
-        "op": "DEL",
-        "file": "service/Cotrn00cService.java",
-        "line": 2030,
-        "before": "Cobol.store(f955_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
-        "after": "/* Cobol.store(f955_EIBRESP2, BigDecimal.valueOf(0), false, CS); */"
-      },
-      {
-        "id": "bb3a003f6e",
-        "op": "ROR",
-        "file": "service/Cotrn00cService.java",
-        "line": 2033,
-        "before": "if (to >= 0) return GOTO | to;",
-        "after": "if (to > 0) return GOTO | to;"
-      },
-      {
-        "id": "e0559a2806",
-        "op": "DEL",
-        "file": "service/Cotrn00cService.java",
-        "line": 2228,
-        "before": "Cobol.store(f10_WS_REAS_CD, BigDecimal.valueOf(0), false, CS);",
-        "after": "/* Cobol.store(f10_WS_REAS_CD, BigDecimal.valueOf(0), false, CS); */"
-      },
-      {
-        "id": "7f90a2fc3d",
-        "op": "DEL",
-        "file": "service/Cotrn00cService.java",
-        "line": 2321,
-        "before": "Cobol.move(DM1, f89_TRNIDINL, CS);",
-        "after": "/* Cobol.move(DM1, f89_TRNIDINL, CS); */"
-      },
-      {
-        "id": "92fbd4326a",
-        "op": "DEL",
-        "file": "service/Cotrn00cService.java",
-        "line": 2372,
-        "before": "Cobol.move(DM1, f89_TRNIDINL, CS);",
-        "after": "/* Cobol.move(DM1, f89_TRNIDINL, CS); */"
-      },
-      {
-        "id": "2a951ee9ba",
-        "op": "ROR",
-        "file": "service/Cotrn00cService.java",
-        "line": 2387,
-        "before": "if (to >= 0) return GOTO | to;",
-        "after": "if (to > 0) return GOTO | to;"
-      }
-    ],
-    "inputs": {
-      "port": "a0ddbf0706db165bd606e9f1bd196611401adfd1721f66d7223cb8a5dbdfdbdf",
-      "generator": "140bceaf0d6727d934e5f0eeca6332e708567250dcb4326c21e7fded289bf18f",
-      "case": "64f823c7dfe089f280c55998fd61a888565fbb2ce6e792267b772b976d8ed123",
-      "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-      "harness": "efbe51075ec1adca1d2de680be9c28392f4d525f661d39c1d5f9eeaf7ae38c86",
-      "oracle": "e9e74c7b948ad1020416ad6ae58cb9ae52e4027557d0f25419d12926e20cc83e",
-      "survivors": "8547473dc4d0a905ae4ab4dff75ac84d852e74dcf3ef7589ac857f62c535ff78"
-    },
-    "components": {
-      "generator": {
-        "generator:cobolrt/standalone/Sysout.java": "290bd3e17b89bb6883cee226df6137927b753f3858fe5cfb1e3021ff7f8d5c44",
-        "generator:core": "5835676e90b8075f69e69802dc022e2830ebe3ffccae9b2ad090ee45a18931de",
-        "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
-        "generator:det/cics": "2a4fbbd7a9e55ee9dc6b9fa0e2ff2802c57cab2ff0d36459b676c1143707b507",
-        "generator:det/cics_containers": "5fc989229d444423f5b14d2c65a2c7c541efbe6cd0e5dc5a833beaf90c578b6b",
-        "generator:det/cics_filecontrol": "3d10979d783b0f39b3184d3111b9e543cd87941cbe7814f0edc65454e6f1f2b7",
-        "generator:det/cics_taskcontrol": "7d3892cd106fe0ab3a165551af8497cb67ee0337d2cb97f7a72ef8805710bdbf",
-        "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
-        "generator:det/dli": "8a81045734ca0b53157f70ed0a4708159a20472e80fa51c334c50fde312133e6",
-        "generator:det/dyncall": "7f776808ec711cab1ada988a7ee2aded100227a543eeea393d17f5d389b3dc0c",
-        "generator:det/entity": "b6aa37067dc0413f6700ac83e7dd35610d8e2474aa607bdf54b5b8419ee4c7d6",
-        "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
-        "generator:det/gen": "bca5020bf4c777be262e3b09840d2aee977e9b69a01b3e2940bcffe3c54028f5",
-        "generator:det/hfp": "d7d641dafd602da31535a68f7f219c201a8d867cb7a1fec1c879be38e9ff86b7",
-        "generator:det/layout": "e3c70e4dcbb512324b5b16a57dac4010e60d18b7926c06fff5edbd6cf1a79e3e",
-        "generator:det/mq": "25055224f7c943069e828db7a79887ca1f4e6f4a06ec3b9781c97b31226491a0",
-        "generator:det/osvs": "4ca3599a4d9a49bd17def291a921278d6f4f45858f65acaf75ae817c17644dd5",
-        "generator:det/source": "dd5dec2f1f4f9a6a780228a8216daae573cf51aab899fe35dc71745fec33f2dd",
-        "generator:det/stmt": "72ade7437769eb7b8d8e94511613964e6f5cb98f30b4a4c5d6295709534b5176"
-      },
-      "harness": {
-        "harness:cics": "524c7ec5b94a8002f7cb66755e3328f295865ecc7399685916101df02b20703c",
-        "harness:core": "d62c9af2a5f83bb39a1deffe40cd7d7d63bb0d2945c4e8cec6b12503931f45ef"
-      },
-      "oracle": {
-        "oracle:cics-stub": "a87ec1941cad022e2a2706e2d20545b3da939139e7764b7aa9bec9358bcc82ae",
-        "oracle:core": "b5ba772713fe1ad0da7935c39e6bcfe79fcdaf13f631fb62ed6e2a003fab534a",
-        "oracle:le": "784d29a91956cd3efd57e16b59789a42c3ee30f3105125ef14a67fc9271a6ba2"
-      }
-    },
-    "refreshed": {
-      "from": "2026-10-23",
-      "survivors_rerun": 55,
-      "stale": [
-        "generator",
-        "harness",
-        "oracle"
-      ]
-    },
-    "port_moved": true
-  }
+ "format": "det-mutation/1",
+ "issue": "#4628",
+ "about": "#4628: mutation testing of each det port (tests/tools/mutation.py on `det_port.py run --translate-only`'s port, fast mode, seeded sample), written only by tests/tools/det_mutation.py. An entry is trusted only while its fingerprints match the tree; stale or missing is unknown. Survivors are accounted for in det_mutation_survivors/ (reviewed).",
+ "case": "carddemo-tranlist",
+ "entry": {
+  "program": "COTRN00C",
+  "commit": "28802e2e92a24078c5a4431b1535f1a8c65b6cc4+uncommitted",
+  "date": "2026-10-31",
+  "mode": "fast",
+  "seed": 0,
+  "mutants": 2850,
+  "out_of_scope": 12,
+  "chosen": 158,
+  "coverage": "proven on 36 scenarios, covering 16/16 paragraphs and 96/101 branches",
+  "counts": {
+   "killed": 85,
+   "timeout": 6,
+   "survived": 65,
+   "stillborn": 2,
+   "error": 0,
+   "pending": 0
+  },
+  "killed": [
+   "00fb1c54ab",
+   "02d56c99a9",
+   "036ac3dc0d",
+   "0409560285",
+   "04fd91e89c",
+   "05a09e550a",
+   "05af63843f",
+   "069d22a146",
+   "0703466fdd",
+   "0738de0c5a",
+   "0882490137",
+   "0a025c80ba",
+   "0ac29fc834",
+   "0d0a971116",
+   "0d7dea1dcb",
+   "100e85e24c",
+   "111c4bc85a",
+   "1322b24467",
+   "1b3a2aad6f",
+   "1f6c21c7f3",
+   "27063d527d",
+   "2f5c8b49c8",
+   "30ba610306",
+   "32ed42acb7",
+   "3652a2ccc3",
+   "3d3f1ffecd",
+   "4040b276bf",
+   "4167462828",
+   "45eac49fd2",
+   "4c77d2fcb7",
+   "4daf40bd2e",
+   "55c0cabb90",
+   "56bb52b89c",
+   "584f2be38f",
+   "58da65aa57",
+   "59e3959427",
+   "5b73b55cbf",
+   "5d8db61d8d",
+   "5f63d5330c",
+   "6a7e491c5e",
+   "6b8a2b67ee",
+   "6c6541062e",
+   "6fe6e6a716",
+   "715ef84414",
+   "7262b773cf",
+   "7887c6344c",
+   "78b7786b75",
+   "7c927bfb6a",
+   "8334ac329c",
+   "83436e62bf",
+   "850e3221f0",
+   "89fb945d8a",
+   "9062f5a449",
+   "93428f2e9d",
+   "982032394f",
+   "9c10fb189f",
+   "9f60546969",
+   "a16c829c5a",
+   "a222d8c7e7",
+   "a745971592",
+   "a80f03e187",
+   "aae1675193",
+   "b106054197",
+   "ba95ac3500",
+   "bcd2722e99",
+   "c836241822",
+   "c97803b686",
+   "ca4b8d8222",
+   "d1092d082a",
+   "d19933ec4a",
+   "d46f0a7b28",
+   "d502c2b150",
+   "d7aae3a623",
+   "dc1777db7c",
+   "df814641ab",
+   "e0dda3b846",
+   "e342fdcd73",
+   "e48af7fa64",
+   "e59ad83377",
+   "e70326ab95",
+   "eb5872f5dd",
+   "ec1bd4fe35",
+   "ed5be1ff61",
+   "f090938c10",
+   "f19980f1b6",
+   "f34d33d8aa",
+   "f76a14f66b",
+   "fad01249cd",
+   "fbd77348e2",
+   "fc68325203",
+   "ff73517bf0"
+  ],
+  "stillborn": [
+   "a913400989",
+   "fea4417355"
+  ],
+  "survived": [
+   {
+    "id": "43eb188a77",
+    "op": "LIT",
+    "file": "service/Cotrn00cService.java",
+    "line": 96,
+    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\","
+   },
+   {
+    "id": "264648a358",
+    "op": "LIT",
+    "file": "service/Cotrn00cService.java",
+    "line": 116,
+    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\","
+   },
+   {
+    "id": "d6a9115550",
+    "op": "LIT",
+    "file": "service/Cotrn00cService.java",
+    "line": 123,
+    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\","
+   },
+   {
+    "id": "6b57582b0f",
+    "op": "LIT",
+    "file": "service/Cotrn00cService.java",
+    "line": 180,
+    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\","
+   },
+   {
+    "id": "620ea66138",
+    "op": "CON",
+    "file": "service/Cotrn00cService.java",
+    "line": 243,
+    "before": "private final Field f83_PAGENUML = Field.binary(s_COTRN0AI, 162, 4, 0, true, false);",
+    "after": "private final Field f83_PAGENUML = Field.binary(s_COTRN0AI, 162, 5, 0, true, false);"
+   },
+   {
+    "id": "1a1282af14",
+    "op": "CON",
+    "file": "service/Cotrn00cService.java",
+    "line": 291,
+    "before": "private final Field f179_TAMT003L = Field.binary(s_COTRN0AI, 475, 4, 0, true, false);",
+    "after": "private final Field f179_TAMT003L = Field.binary(s_COTRN0AI, 475, 5, 0, true, false);"
+   },
+   {
+    "id": "a9a372d91e",
+    "op": "CON",
+    "file": "service/Cotrn00cService.java",
+    "line": 330,
+    "before": "private final Field f257_TDATE06L = Field.binary(s_COTRN0AI, 721, 4, 0, true, false);",
+    "after": "private final Field f257_TDATE06L = Field.binary(s_COTRN0AI, 721, 5, 0, true, false);"
+   },
+   {
+    "id": "fbc450a420",
+    "op": "CON",
+    "file": "service/Cotrn00cService.java",
+    "line": 330,
+    "before": "private final Field f257_TDATE06L = Field.binary(s_COTRN0AI, 721, 4, 0, true, false);",
+    "after": "private final Field f257_TDATE06L = Field.binary(s_COTRN0AI, 721, 4, 1, true, false);"
+   },
+   {
+    "id": "1ebc91c309",
+    "op": "CON",
+    "file": "service/Cotrn00cService.java",
+    "line": 399,
+    "before": "private final Field f395_ERRMSGL = Field.binary(s_COTRN0AI, 1180, 4, 0, true, false);",
+    "after": "private final Field f395_ERRMSGL = Field.binary(s_COTRN0AI, 1180, 4, 1, true, false);"
+   },
+   {
+    "id": "dbde6970da",
+    "op": "CON",
+    "file": "service/Cotrn00cService.java",
+    "line": 432,
+    "before": "private final Field f462_TRNID01O = Field.alphanumeric(s_COTRN0AI, 215, 16, false);",
+    "after": "private final Field f462_TRNID01O = Field.alphanumeric(s_COTRN0AI, 215, 17, false);"
+   },
+   {
+    "id": "1be674ac7c",
+    "op": "CON",
+    "file": "service/Cotrn00cService.java",
+    "line": 464,
+    "before": "private final Field f526_TDATE03H = Field.alphanumeric(s_COTRN0AI, 432, 1, false);",
+    "after": "private final Field f526_TDATE03H = Field.alphanumeric(s_COTRN0AI, 432, 2, false);"
+   },
+   {
+    "id": "a2c95c2d21",
+    "op": "CON",
+    "file": "service/Cotrn00cService.java",
+    "line": 486,
+    "before": "private final Field f570_TAMT004O = Field.alphanumeric(s_COTRN0AI, 580, 12, false);",
+    "after": "private final Field f570_TAMT004O = Field.alphanumeric(s_COTRN0AI, 580, 13, false);"
+   },
+   {
+    "id": "f890eca574",
+    "op": "CON",
+    "file": "service/Cotrn00cService.java",
+    "line": 542,
+    "before": "private final Field f682_TDESC08H = Field.alphanumeric(s_COTRN0AI, 937, 1, false);",
+    "after": "private final Field f682_TDESC08H = Field.alphanumeric(s_COTRN0AI, 937, 2, false);"
+   },
+   {
+    "id": "fe36c27753",
+    "op": "CON",
+    "file": "service/Cotrn00cService.java",
+    "line": 587,
+    "before": "private final Field f774_WS_CURDATE_MM_DD_YY = Field.group(s_WS_DATE_TIME, 16, 8);",
+    "after": "private final Field f774_WS_CURDATE_MM_DD_YY = Field.group(s_WS_DATE_TIME, 16, 9);"
+   },
+   {
+    "id": "9692191bbe",
+    "op": "LIT",
+    "file": "service/Cotrn00cService.java",
+    "line": 708,
+    "before": "java.util.Map.entry(\"PROCESS-PF8-KEY\", 3),",
+    "after": "java.util.Map.entry(\"XROCESS-PF8-KEY\", 3),"
+   },
+   {
+    "id": "3f999524f3",
+    "op": "NEG",
+    "file": "service/Cotrn00cService.java",
+    "line": 716,
+    "before": "if (i == null) {",
+    "after": "if (!(i == null)) {"
+   },
+   {
+    "id": "8c7320af7b",
+    "op": "DEL",
+    "file": "service/Cotrn00cService.java",
+    "line": 812,
+    "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
+    "after": "/* System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length); */"
+   },
+   {
+    "id": "396a64eab7",
+    "op": "LIT",
+    "file": "service/Cotrn00cService.java",
+    "line": 850,
+    "before": "f8_WS_SEND_ERASE_FLG = \"Y\";",
+    "after": "f8_WS_SEND_ERASE_FLG = \"X\";"
+   },
+   {
+    "id": "c55e086cbd",
+    "op": "LIT",
+    "file": "service/Cotrn00cService.java",
+    "line": 857,
+    "before": "f801_CCDA_MSG_THANK_YOU = \"Thank you for using CardDemo application...       \";",
+    "after": "f801_CCDA_MSG_THANK_YOU = \"Xhank you for using CardDemo application...       \";"
+   },
+   {
+    "id": "d53270caa4",
+    "op": "DEL",
+    "file": "service/Cotrn00cService.java",
+    "line": 859,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, f14_WS_TRAN_AMT, CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.ZEROS, f14_WS_TRAN_AMT, CS); */"
+   },
+   {
+    "id": "cf54bf8a6a",
+    "op": "AOR",
+    "file": "service/Cotrn00cService.java",
+    "line": 890,
+    "before": "Cobol.store(f927_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "Cobol.store(f927_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);"
+   },
+   {
+    "id": "1a491b73d8",
+    "op": "AOR",
+    "file": "service/Cotrn00cService.java",
+    "line": 890,
+    "before": "Cobol.store(f927_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "Cobol.store(f927_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);"
+   },
+   {
+    "id": "22a29cc298",
+    "op": "AOR",
+    "file": "service/Cotrn00cService.java",
+    "line": 891,
+    "before": "Cobol.store(f926_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "Cobol.store(f926_EIBTIME, BigDecimal.valueOf(now.getHour() / 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);"
+   },
+   {
+    "id": "c391594390",
+    "op": "LIT",
+    "file": "service/Cotrn00cService.java",
+    "line": 905,
+    "before": "case \"PF1\" -> Cobol.move(f831_DFHPF1, f934_EIBAID, CS);",
+    "after": "case \"XF1\" -> Cobol.move(f831_DFHPF1, f934_EIBAID, CS);"
+   },
+   {
+    "id": "c35e1875b9",
+    "op": "DEL",
+    "file": "service/Cotrn00cService.java",
+    "line": 953,
+    "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+    "after": "/* caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } }; */"
+   },
+   {
+    "id": "a5c903a5cd",
+    "op": "COR",
+    "file": "service/Cotrn00cService.java",
+    "line": 956,
+    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+    "after": "if (task.exactCommarea() || calen < s_DFHCOMMAREA.bytes.length) {"
+   },
+   {
+    "id": "adb7c7575b",
+    "op": "ROR",
+    "file": "service/Cotrn00cService.java",
+    "line": 1036,
+    "before": "return lastLinkBytes == null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
+    "after": "return lastLinkBytes != null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);"
+   },
+   {
+    "id": "927d35e37a",
+    "op": "DEL",
+    "file": "service/Cotrn00cService.java",
+    "line": 1045,
+    "before": "super(null, null, false, false);",
+    "after": "/* super(null, null, false, false); */"
+   },
+   {
+    "id": "a086ce4fe4",
+    "op": "COR",
+    "file": "service/Cotrn00cService.java",
+    "line": 1278,
+    "before": "if (((!(Cobol.compareFigurative(f43_CDEMO_CT00_TRN_SEL_FLG, Figurative.SPACES, CS) == 0) && !(Cobol.compareFigurative(f43_CDEMO_CT00_TRN_SEL_FLG, Figurative.LOW_VALUES, CS) == 0)) && (!(Cobol.compareFigurative(f44_CDEMO_CT00_TRN_SELECTED, Figurative.SPACES, CS) == 0) && !(Cobol.compareFigurative(f44_CDEMO_CT00_TRN_SELECTED, Figurative.LOW_VALUES, CS) == 0)))) {",
+    "after": "if (((!(Cobol.compareFigurative(f43_CDEMO_CT00_TRN_SEL_FLG, Figurative.SPACES, CS) == 0) && !(Cobol.compareFigurative(f43_CDEMO_CT00_TRN_SEL_FLG, Figurative.LOW_VALUES, CS) == 0)) || (!(Cobol.compareFigurative(f44_CDEMO_CT00_TRN_SELECTED, Figurative.SPACES, CS) == 0) && !(Cobol.compareFigurative(f44_CDEMO_CT00_TRN_SELECTED, Figurative.LOW_VALUES, CS) == 0)))) {"
+   },
+   {
+    "id": "3023c0bb30",
+    "op": "DEL",
+    "file": "service/Cotrn00cService.java",
+    "line": 1292,
+    "before": "Cobol.store(f954_EIBRESP, BigDecimal.valueOf(DetCics.resp(xr1)), false, CS);",
+    "after": "/* Cobol.store(f954_EIBRESP, BigDecimal.valueOf(DetCics.resp(xr1)), false, CS); */"
+   },
+   {
+    "id": "6aa97dfe25",
+    "op": "COR",
+    "file": "service/Cotrn00cService.java",
+    "line": 1342,
+    "before": "if ((Cobol.compareFigurative(f39_CDEMO_CT00_TRNID_FIRST, Figurative.SPACES, CS) == 0 || Cobol.compareFigurative(f39_CDEMO_CT00_TRNID_FIRST, Figurative.LOW_VALUES, CS) == 0)) {",
+    "after": "if ((Cobol.compareFigurative(f39_CDEMO_CT00_TRNID_FIRST, Figurative.SPACES, CS) == 0 && Cobol.compareFigurative(f39_CDEMO_CT00_TRNID_FIRST, Figurative.LOW_VALUES, CS) == 0)) {"
+   },
+   {
+    "id": "f544a47b1f",
+    "op": "NEG",
+    "file": "service/Cotrn00cService.java",
+    "line": 1407,
+    "before": "if ((isTransactNotEof() && isErrFlgOff())) {",
+    "after": "if (!((isTransactNotEof() && isErrFlgOff()))) {"
+   },
+   {
+    "id": "8267774811",
+    "op": "COR",
+    "file": "service/Cotrn00cService.java",
+    "line": 1407,
+    "before": "if ((isTransactNotEof() && isErrFlgOff())) {",
+    "after": "if ((isTransactNotEof() || isErrFlgOff())) {"
+   },
+   {
+    "id": "3c38d41d59",
+    "op": "BDM",
+    "file": "service/Cotrn00cService.java",
+    "line": 1452,
+    "before": "BigDecimal v4 = Cobol.add(Cobol.num(f41_CDEMO_CT00_PAGE_NUM, CS), DC_1);",
+    "after": "BigDecimal v4 = Cobol.subtract(Cobol.num(f41_CDEMO_CT00_PAGE_NUM, CS), DC_1);"
+   },
+   {
+    "id": "94b297841e",
+    "op": "COR",
+    "file": "service/Cotrn00cService.java",
+    "line": 1475,
+    "before": "if ((!(Cobol.compare(f934_EIBAID, f820_DFHENTER, CS) == 0) && !(Cobol.compare(f934_EIBAID, f838_DFHPF8, CS) == 0))) {",
+    "after": "if ((!(Cobol.compare(f934_EIBAID, f820_DFHENTER, CS) == 0) || !(Cobol.compare(f934_EIBAID, f838_DFHPF8, CS) == 0))) {"
+   },
+   {
+    "id": "c388237579",
+    "op": "COR",
+    "file": "service/Cotrn00cService.java",
+    "line": 1511,
+    "before": "if (((isTransactNotEof() && isErrFlgOff()) && Cobol.cmpNum(f41_CDEMO_CT00_PAGE_NUM, CS).compareTo(D1) > 0)) {",
+    "after": "if (((isTransactNotEof() || isErrFlgOff()) && Cobol.cmpNum(f41_CDEMO_CT00_PAGE_NUM, CS).compareTo(D1) > 0)) {"
+   },
+   {
+    "id": "ed421afbb2",
+    "op": "COR",
+    "file": "service/Cotrn00cService.java",
+    "line": 1511,
+    "before": "if (((isTransactNotEof() && isErrFlgOff()) && Cobol.cmpNum(f41_CDEMO_CT00_PAGE_NUM, CS).compareTo(D1) > 0)) {",
+    "after": "if (((isTransactNotEof() && isErrFlgOff()) || Cobol.cmpNum(f41_CDEMO_CT00_PAGE_NUM, CS).compareTo(D1) > 0)) {"
+   },
+   {
+    "id": "3b38461501",
+    "op": "NEG",
+    "file": "service/Cotrn00cService.java",
+    "line": 1665,
+    "before": "} else if ((Cobol.num(f12_WS_IDX, CS).compareTo(D3) == 0)) {",
+    "after": "} else if (!((Cobol.num(f12_WS_IDX, CS).compareTo(D3) == 0))) {"
+   },
+   {
+    "id": "a3546cec2d",
+    "op": "NEG",
+    "file": "service/Cotrn00cService.java",
+    "line": 1674,
+    "before": "} else if ((Cobol.num(f12_WS_IDX, CS).compareTo(D4) == 0)) {",
+    "after": "} else if (!((Cobol.num(f12_WS_IDX, CS).compareTo(D4) == 0))) {"
+   },
+   {
+    "id": "1dd2144828",
+    "op": "NEG",
+    "file": "service/Cotrn00cService.java",
+    "line": 1692,
+    "before": "} else if ((Cobol.num(f12_WS_IDX, CS).compareTo(D6) == 0)) {",
+    "after": "} else if (!((Cobol.num(f12_WS_IDX, CS).compareTo(D6) == 0))) {"
+   },
+   {
+    "id": "c4c5ad312b",
+    "op": "ROR",
+    "file": "service/Cotrn00cService.java",
+    "line": 1692,
+    "before": "} else if ((Cobol.num(f12_WS_IDX, CS).compareTo(D6) == 0)) {",
+    "after": "} else if ((Cobol.num(f12_WS_IDX, CS).compareTo(D6) != 0)) {"
+   },
+   {
+    "id": "4fa4f69dad",
+    "op": "DEL",
+    "file": "service/Cotrn00cService.java",
+    "line": 1696,
+    "before": "Cobol.moveFigurative(Figurative.SPACES, f262_TDATE06I, CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.SPACES, f262_TDATE06I, CS); */"
+   },
+   {
+    "id": "ef9de98587",
+    "op": "DEL",
+    "file": "service/Cotrn00cService.java",
+    "line": 1718,
+    "before": "Cobol.moveFigurative(Figurative.SPACES, f334_TAMT008I, CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.SPACES, f334_TAMT008I, CS); */"
+   },
+   {
+    "id": "66e11702f4",
+    "op": "LIT",
+    "file": "service/Cotrn00cService.java",
+    "line": 1792,
+    "before": "DetCics.subfields(sub10, \"PAGENUM\", f83_PAGENUML, f86_PAGENUMA, f440_PAGENUMC, f442_PAGENUMH, CS);",
+    "after": "DetCics.subfields(sub10, \"XAGENUM\", f83_PAGENUML, f86_PAGENUMA, f440_PAGENUMC, f442_PAGENUMH, CS);"
+   },
+   {
+    "id": "407d1f8421",
+    "op": "LIT",
+    "file": "service/Cotrn00cService.java",
+    "line": 1814,
+    "before": "DetCics.subfields(sub10, \"TAMT002\", f149_TAMT002L, f152_TAMT002A, f506_TAMT002C, f508_TAMT002H, CS);",
+    "after": "DetCics.subfields(sub10, \"XAMT002\", f149_TAMT002L, f152_TAMT002A, f506_TAMT002C, f508_TAMT002H, CS);"
+   },
+   {
+    "id": "403b8537e0",
+    "op": "LIT",
+    "file": "service/Cotrn00cService.java",
+    "line": 1878,
+    "before": "DetCics.subfields(sub10, \"TRNID09\", f341_TRNID09L, f344_TRNID09A, f698_TRNID09C, f700_TRNID09H, CS);",
+    "after": "DetCics.subfields(sub10, \"XRNID09\", f341_TRNID09L, f344_TRNID09A, f698_TRNID09C, f700_TRNID09H, CS);"
+   },
+   {
+    "id": "0a3ac1f370",
+    "op": "ROR",
+    "file": "service/Cotrn00cService.java",
+    "line": 1903,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to < 0) return GOTO | to;"
+   },
+   {
+    "id": "1020c89c3f",
+    "op": "ROR",
+    "file": "service/Cotrn00cService.java",
+    "line": 2033,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to > 0) return GOTO | to;"
+   },
+   {
+    "id": "d8c92e5b5c",
+    "op": "DEL",
+    "file": "service/Cotrn00cService.java",
+    "line": 2228,
+    "before": "Cobol.store(f10_WS_REAS_CD, BigDecimal.valueOf(0), false, CS);",
+    "after": "/* Cobol.store(f10_WS_REAS_CD, BigDecimal.valueOf(0), false, CS); */"
+   },
+   {
+    "id": "58e93d2f40",
+    "op": "DEL",
+    "file": "service/Cotrn00cService.java",
+    "line": 2321,
+    "before": "Cobol.move(DM1, f89_TRNIDINL, CS);",
+    "after": "/* Cobol.move(DM1, f89_TRNIDINL, CS); */"
+   },
+   {
+    "id": "d1cd74bac8",
+    "op": "DEL",
+    "file": "service/Cotrn00cService.java",
+    "line": 2372,
+    "before": "Cobol.move(DM1, f89_TRNIDINL, CS);",
+    "after": "/* Cobol.move(DM1, f89_TRNIDINL, CS); */"
+   },
+   {
+    "id": "e0c6970d30",
+    "op": "ROR",
+    "file": "service/Cotrn00cService.java",
+    "line": 2387,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to > 0) return GOTO | to;"
+   },
+   {
+    "id": "02119a8079",
+    "op": "LIT",
+    "file": "service/Cotrn00cService.java",
+    "line": 1929,
+    "before": "values13.put(\"SEL0001\", Cobol.text(f456_SEL0001O, CS));",
+    "after": "values13.put(\"XEL0001\", Cobol.text(f456_SEL0001O, CS));"
+   },
+   {
+    "id": "0249fa0071",
+    "op": "LIT",
+    "file": "service/Cotrn00cService.java",
+    "line": 2165,
+    "before": "DetCics.typed(f274_TAMT006I, f269_TAMT006L, typed18.get(\"TAMT006\"), CS);",
+    "after": "DetCics.typed(f274_TAMT006I, f269_TAMT006L, typed18.get(\"XAMT006\"), CS);"
+   },
+   {
+    "id": "02711027f4",
+    "op": "LIT",
+    "file": "service/Cotrn00cService.java",
+    "line": 2150,
+    "before": "DetCics.typed(f244_TAMT005I, f239_TAMT005L, typed18.get(\"TAMT005\"), CS);",
+    "after": "DetCics.typed(f244_TAMT005I, f239_TAMT005L, typed18.get(\"XAMT005\"), CS);"
+   },
+   {
+    "id": "02d455f9c3",
+    "op": "LIT",
+    "file": "service/Cotrn00cService.java",
+    "line": 1995,
+    "before": "values13.put(\"TDESC07\", Cobol.text(f654_TDESC07O, CS));",
+    "after": "values13.put(\"XDESC07\", Cobol.text(f654_TDESC07O, CS));"
+   },
+   {
+    "id": "05ac03936b",
+    "op": "LIT",
+    "file": "service/Cotrn00cService.java",
+    "line": 1930,
+    "before": "DetCics.subfields(sub14, \"SEL0001\", f95_SEL0001L, f98_SEL0001A, f452_SEL0001C, f454_SEL0001H, CS);",
+    "after": "DetCics.subfields(sub14, \"XEL0001\", f95_SEL0001L, f98_SEL0001A, f452_SEL0001C, f454_SEL0001H, CS);"
+   },
+   {
+    "id": "063fed6459",
+    "op": "LIT",
+    "file": "service/Cotrn00cService.java",
+    "line": 2020,
+    "before": "DetCics.subfields(sub14, \"SEL0010\", f365_SEL0010L, f368_SEL0010A, f722_SEL0010C, f724_SEL0010H, CS);",
+    "after": "DetCics.subfields(sub14, \"XEL0010\", f365_SEL0010L, f368_SEL0010A, f722_SEL0010C, f724_SEL0010H, CS);"
+   },
+   {
+    "id": "06de8af095",
+    "op": "LIT",
+    "file": "service/Cotrn00cService.java",
+    "line": 1941,
+    "before": "values13.put(\"TRNID02\", Cobol.text(f492_TRNID02O, CS));",
+    "after": "values13.put(\"XRNID02\", Cobol.text(f492_TRNID02O, CS));"
+   },
+   {
+    "id": "070e437bc9",
+    "op": "LIT",
+    "file": "service/Cotrn00cService.java",
+    "line": 2047,
+    "before": "int[] planned20 = task.planned(\"RECEIVE-MAP\", \"COTRN0A\");",
+    "after": "int[] planned20 = task.planned(\"XECEIVE-MAP\", \"COTRN0A\");"
+   },
+   {
+    "id": "07f74c8340",
+    "op": "LIT",
+    "file": "service/Cotrn00cService.java",
+    "line": 1935,
+    "before": "values13.put(\"TDESC01\", Cobol.text(f474_TDESC01O, CS));",
+    "after": "values13.put(\"XDESC01\", Cobol.text(f474_TDESC01O, CS));"
+   },
+   {
+    "id": "0808820dd5",
+    "op": "LIT",
+    "file": "service/Cotrn00cService.java",
+    "line": 2117,
+    "before": "DetCics.typed(f178_TDESC03I, f173_TDESC03L, typed18.get(\"TDESC03\"), CS);",
+    "after": "DetCics.typed(f178_TDESC03I, f173_TDESC03L, typed18.get(\"XDESC03\"), CS);"
+   },
+   {
+    "id": "0979287674",
+    "op": "LIT",
+    "file": "service/Cotrn00cService.java",
+    "line": 1977,
+    "before": "values13.put(\"TAMT005\", Cobol.text(f600_TAMT005O, CS));",
+    "after": "values13.put(\"XAMT005\", Cobol.text(f600_TAMT005O, CS));"
+   },
+   {
+    "id": "0ca859ad14",
+    "op": "LIT",
+    "file": "service/Cotrn00cService.java",
+    "line": 1953,
+    "before": "values13.put(\"TDATE03\", Cobol.text(f528_TDATE03O, CS));",
+    "after": "values13.put(\"XDATE03\", Cobol.text(f528_TDATE03O, CS));"
+   },
+   {
+    "id": "0d00ce14c4",
+    "op": "LIT",
+    "file": "service/Cotrn00cService.java",
+    "line": 1937,
+    "before": "values13.put(\"TAMT001\", Cobol.text(f480_TAMT001O, CS));",
+    "after": "values13.put(\"XAMT001\", Cobol.text(f480_TAMT001O, CS));"
+   }
+  ],
+  "inputs": {
+   "port": "7d44f253c3355f8c0f7013aaa211094090744b033bf2ce5c891b522fb26df8de",
+   "generator": "05aaa9d05c9834b0523ad4957ff182eb8b1035e02e7aa94a0ccdaa5f1c6ca731",
+   "case": "64f823c7dfe089f280c55998fd61a888565fbb2ce6e792267b772b976d8ed123",
+   "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
+   "harness": "f3bee1912a8b8cae8342f86d148233ef4b64848376208d5b0a3afe364df509b1",
+   "oracle": "d91ee6d2345e19e828ebba78a5e01464916f5df6ba248e9098ad90e9f6622711",
+   "survivors": "0bc23f186247dcca0db4503e890cac89d04845dce7aa7c18be32948c9f505839",
+   "runtime": "952e69d1fc6e827e339d2070f9e0f5758a2e9846f99af72a895c74d2576440ab"
+  },
+  "components": {
+   "generator": {
+    "generator:cobolrt/standalone/Sysout.java": "290bd3e17b89bb6883cee226df6137927b753f3858fe5cfb1e3021ff7f8d5c44",
+    "generator:core": "fca0af57a09e7b3f2879857241af0494f2749a6bd7f3ca80b597166d33d0f2c5",
+    "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
+    "generator:det/cics": "6619edb3d7a730bdb33d065a40ea3d0fc98ce8317f010a6bf2a87b5bb0d51c43",
+    "generator:det/cics_common": "16991c151d196fe6187dca2b11dc7b6b2ed4f65b42be8091a3b72411af515577",
+    "generator:det/cics_conditions": "81f7cac048ac8609a92f78bf0e0379dc9b59454a7f3754a50eb6d2538a74adc6",
+    "generator:det/cics_containers": "e96f548646b8060bd71e5c448e52ba193d6fd88aad3e78b4f1b1bd3731e518ff",
+    "generator:det/cics_faults": "863ce608ce8e183fe37350ba17f59b2176ce20452e1ebe86cb6b7ae6109fdb4e",
+    "generator:det/cics_filecontrol": "b03c1052fedac6c5e744625ded2d147a9d6bfcf143c2db441cd01be9bf709e25",
+    "generator:det/cics_taskcontrol": "a63efa9bd5d9ad8d64ebaa96cc3f2aaed0603480130bca405bc94989c48594a2",
+    "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
+    "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
+    "generator:det/hfp": "d7d641dafd602da31535a68f7f219c201a8d867cb7a1fec1c879be38e9ff86b7",
+    "generator:det/hlasm": "c7117c636ab25d2ccb7b4e2d7f23766ddacb9c9f7600c2fd6d894a49a60f4748",
+    "generator:det/layout": "d18ee78c6619817c817adda13a9e2cdd53737f372fadee306c4fd4d122cae2b7",
+    "generator:det/source": "fd7d20e0f7824a4d3b74201b0690914daf79834567b3fa5f064c98beb4d50e0b"
+   },
+   "harness": {
+    "harness:cics": "adcfdb44ff6e9ea52bcd313e07acb2b53af37b2c0efd8cdd40c0178534403d72",
+    "harness:core": "4a2b247571c6616bf9738ae3806284d8f1f08104d66695f25072801479bd3800"
+   },
+   "oracle": {
+    "oracle:cics-stub": "41cd1969af089b03f55805cac03ee6558b24473c981e26f1e94c66ee81cfb722",
+    "oracle:core": "b4bb775f0a30746a6054f259b4c8613e08cb0d8cf3b40f4a789d953aca4144a0",
+    "oracle:le": "670c92cc59b722e108b688267be1fd89ecda9b7be62bb485da2ad4839b4f7011"
+   }
+  },
+  "refreshed": {
+   "from": "2026-10-23",
+   "survivors_rerun": 0,
+   "fresh": 25,
+   "stale": []
+  },
+  "every": "0004696f40 005668efc8 007542865f 0097cda01a 00b9aa1276 00f738dca4 00fb1c54ab 0121740c96 012bf4277f 0136088deb 0143550a13 01448b92c6 01903eaa60 01a4b74a09 01a7acccad 01b92887e2 01bf3e3bc6 01e643c8d3 020cf39d73 02119a8079 0244ead1e0 0249fa0071 025a460928 025ee313c8 025fb1cf76 0260016356 026b70c48d 02711027f4 028950bb92 02ba8f3b21 02bbc18f3d 02c9ba111d 02cf927607 02d455f9c3 02d56c99a9 0320d72f3a 0327df3619 0347fdab04 036ac3dc0d 038e82f4e8 03ab7bddcb 03b71be6e5 03c22d6259 0409560285 041235f6a3 041e466f3c 0443d627dd 04465e6235 044a69cbc7 04809fd924 049a4a8ac1 04b9002471 04c3f7602b 04fd91e89c 05695285fd 056a7b435f 0571a2721b 057b3b323f 057f90d948 058ac5e19f 05a09e550a 05ac03936b 05af63843f 05db82ca04 05f0979cb4 05f10663d5 05f1cd73dd 05f358652b 05fbc6728e 06025ae05d 062942dba2 063fed6459 0641100921 064ed2f5e3 067bbb45ec 068633ecdd 068b321187 069d22a146 06af4c2dab 06d236383e 06de8af095 0703466fdd 070e437bc9 070eb6b3ed 0738de0c5a 074e37def8 075c693c0f 075e64639c 076b0a102a 07f74c8340 0808820dd5 080f6b401b 081bfc64b7 0834d3ad19 0870aef81a 0882490137 08881e96ad 08904ee562 08b1b779f7 08b3acc8bb 08e08f8edf 08e8286591 0921335c10 092b2d23f5 093a24493e 096619ae54 0979287674 0984be9953 098d3395c3 09b7362fe1 09b9f92baa 09f4465d45 0a025c80ba 0a125ace86 0a299c2e27 0a3ac1f370 0a5b1c51e8 0a8ee9e1fe 0aa02aeb03 0aaf49ed4d 0abe8c2d62 0ac29fc834 0b15ca4bf2 0b1ddf1c98 0b20904022 0b5aeadda2 0b775ad56e 0baa111fd1 0bb0a806c8 0bb6cda110 0c19ea5016 0c6861bac6 0ca4d7ad7a 0ca859ad14 0cc362e064 0cc3fe6911 0cc609bcc8 0ccd3725c0 0d00ce14c4 0d06483787 0d0a971116 0d3c586713 0d46208782 0d7dea1dcb 0d96b131ca 0d9b28b62d 0de731b988 0df715a00c 0dffc3dfea 0e101ac97f 0e479af46c 0e56299fe5 0e564efbd2 0e59af4820 0e81665f98 0ea5af6986 0eb7555bf2 0eba4fae63 0edcdb91de 0edd79f6d5 0edf999e42 0ee136e482 0f25d77465 0f4de93dbe 0f6915a15c 0faced3552 0fb134c0af 0fb1df83cf 0fd9fda0b4 100e85e24c 1020c89c3f 102ee87465 1060307250 106f38222e 1076fea680 108a4bfe55 10f0cf3c12 10fd40c126 1106e53a6f 11199b34bc 111c4bc85a 1141c8ab2f 11508d2864 1158313dd0 115c9b5fe4 11807e408e 11bb88586e 11c3bd6569 11cc1eaebf 1238d24151 12621dad2e 129fcae08c 12e061f354 1316f55608 1322b24467 133a1202e6 13470762cc 13503bd42b 139686519f 13b4e094fb 13b6ab6dd5 13ccf2ce8d 13e1d0ccbb 13eead63f0 14072ed8a7 146ea21d4f 147c9f15c2 14857d1505 14867a775c 14bcd7aa65 14c148ec4f 14c4d0a8aa 14e7682cf0 1509631c7e 156247dbda 15ae39b47c 15afafeb53 15ba68b9be 15bb655f0d 15c449049c 15e2d51ba8 1662e3d771 166700bc2d 1680cfc587 16b12e8fac 16bd7d0651 16cd1a3b61 16d0772970 16e11e327f 16f03bf16d 17025844e1 1720841d17 1723628234 174ed10c7c 1768f0d78c 17844cfaaa 179ffc8d54 17a912000b 17b24a76a5 17ea330f53 18020ebe72 1815c6a3fc 185d1bc888 1882e04e26 189dc16541 189e784a22 18a9b45575 18b1806b44 18cc77fefb 18df3fe30e 18f929eef2 1907c4ec68 1936dcf089 196dcc2325 19af69cd15 19fc682189 1a065836bd 1a0f503c6f 1a1282af14 1a1537e440 1a38dcb3f3 1a4912d255 1a491b73d8 1a4c647996 1a5a7773c4 1aa8f54a0f 1aeb96b6e0 1b052bdfc4 1b3a2aad6f 1b4b334358 1b742d0140 1bb838cd2c 1bc7b78bd3 1be674ac7c 1bea740f50 1c5b623f15 1c5e1f1cd7 1c9c161213 1cd5acb133 1cd739890b 1cfa31c20a 1cfa42a262 1cfd1c6643 1d2468312f 1d6924bd04 1daa362871 1dcfed11d4 1dd0480cbc 1dd2144828 1de860f407 1de95dfdc2 1debe76da2 1df44288c6 1e3256fb76 1e3e590e71 1e470ccab0 1e5443c2c3 1e7ab2296b 1e7e371f98 1e972af404 1ea8eb04cd 1eab167263 1ebc91c309 1ed7eb81d1 1f105e153d 1f69ffb514 1f6c21c7f3 1f90aacca1 1f952634a3 1fa2ef9a45 1fa6215fa6 1fac02f975 1fac34ae64 1fba0bfc5a 1fda5a1c92 1fdce2b0a5 201c539054 203c4abc79 203dbfc93f 204b144ddf 20524e9492 20532f8b10 206b3d870d 206d18cbfc 20ee864908 2111c1ff11 2136d9f502 213b2e1f9d 2140ee5cd2 216567e268 21db096d09 21ea8c3404 21f555c855 21fdc4638d 22092ea217 2237a27af3 2251549efa 2257ee242a 22a29cc298 22a80e0ade 22ae575251 22e9219072 230beeb072 2310ca13f9 2367606bb4 236f0586f6 237ce56843 23ac8468a9 23d69400e7 23e9e1b833 23ec63ddf8 23f5ac397c 23fcab37c2 24071aa724 2439c4cef0 2456e8a266 24585a508c 2463426edd 247a36e4b5 247ce5e25d 248558c31c 2498df1bf3 24b9132be6 24b9f9aefd 24bb5273b7 24d88d95ea 24dfd03108 24ef61e43c 2508c0a404 252c1c0e19 2533cdab12 25342dccad 253fb4846f 254cf83558 2557401682 256124abda 256882e76c 256d79e8c1 2574537d53 2582984284 2589b32bfc 259b8ec27d 25bf370acc 25d0f94fdc 25d32db2a7 25dfbfebd7 25e0e3bb05 25ed76003f 25f4c23e9b 263eb61f9a 264648a358 267b89d72e 26878703ff 26a492e2a8 26ab5e91a7 26d6f0aa55 26e411944c 26f2098df0 26f5db5c73 27063d527d 270d6af4e9 2715cc32f0 271df41789 2735e71568 27a22e4dc9 27a25128b0 280621f547 28140ed986 282b52757c 283968b85f 284f083a22 289023320e 28e0b60c9c 290d04eb22 2941efc2a3 297fc38bf4 2996d9ea12 29cd0f92db 29ee8d2ca0 2a055bbc14 2a0af12ab4 2a14a9fb89 2a1d1735c4 2a28270a2b 2a2fea19a9 2a390be9dd 2a5108ffa2 2a57320c93 2a9657bc44 2a96e7e651 2a977f3b12 2ae0367394 2af347f326 2b0b5c4664 2b2c01a5ca 2b34b7b385 2b3cf70e88 2b5606fdff 2b753f1c0a 2b80e30efc 2ba5439274 2bfae7d55c 2bfe9f477e 2c2a045e80 2c5a1f6060 2c5e971f3b 2c9bd26751 2ca0293d35 2caa41e661 2cab762209 2cba43f2c8 2cdc9b4a14 2d57f2c915 2d72dbe253 2d7dfc5ad1 2d91ca0c3a 2d96f76362 2db77b2e9d 2dcfae6052 2dddf4b1a0 2dfb046f9a 2e02fdb6a9 2e05fd30a0 2e0fcf0942 2e2cc0b8a9 2e33dc0c73 2e3dab3793 2e674bdc23 2ea146d47c 2ea34d16d4 2ebdbb7981 2ec2e18b64 2eca099d14 2ecade1d83 2ed6851c9e 2ee92a60fe 2f011c9b03 2f012df770 2f2414647f 2f2e0bff56 2f2f8cce26 2f33093705 2f5c8b49c8 2f90a91f82 2f95fbc058 2faa0d2f82 2fd6f61f72 2fd82009e4 2fe22f912b 2fe6bf118d 2ff3d4b53a 3023c0bb30 3048f0eeb1 3059ceebfa 3063b149ba 30753b42ad 308713e82a 309d347637 30ba610306 30c741fa08 30ef5e8321 31288d6103 313e8053fe 31489b99c1 3173af311d 31a7cc1956 31bc6dc56c 31e6039d85 31f4e708ff 3201e739cd 32176ab9fe 3219d56cae 323dffb9af 324ecdaa67 327979fb0a 3289cdacbe 329e3209a4 329f7cb8a9 32a377d8f2 32ab23096d 32ac0549b7 32c9138791 32d4fbe28c 32dbf98572 32e5f402e5 32ed42acb7 32fc87fa63 3325fd2f49 33332f3ce3 333a37f9cf 33438e5af3 335aeee97c 3372b09169 338aa76632 33907f78ad 339ac844cd 339fb44fc2 33ab6f5321 341a528777 34513c7574 346cdde628 3475ed39ee 348dc4cc86 349e34ac5f 34a67f8bbe 34a9351e4c 34a9e69a95 34e3758e5a 3500b90aa5 3516c8200e 351b855be1 353d564afe 3540741251 3546081dbe 354d39330b 355e1ff7ce 3560b097f1 35744985af 3591469a30 35925081dd 35b9d7354d 35bb14dbcb 35c4e05012 35d38b7533 35e27938c5 35e49cbbe0 35e81d58d3 35eb3de958 360172d1ce 3634216985 3652a2ccc3 3665a7c7c5 3673b1a59f 36755fcb13 368bf7e551 368f4f2c4d 3695afe3d5 36cf0ff703 36f11a4543 37293bda22 37312b9018 3731c288cd 3739e715e8 374c45c95c 374e71d46b 377360667b 378a09f430 37930d3a0c 37a76dd118 37b10fc158 37b31bace9 37bd68b6d2 37dc39183d 37eba55743 37f342febd 37f4d2e462 380b872043 3851b3e243 385a1a3384 3866f9e21e 38a5ed64cd 38ad1b383e 38b53fb586 38d8fd418c 38fa70511c 392db33095 392f56e14e 39333dae01 3946f2b2ba 395e3b531d 396a64eab7 39957a15f8 3999d053c1 399a360343 39bd7af99c 39bf4067e8 39c9184643 39d6e1bf2d 39db10db07 39f28cd365 3a1532ce89 3a29cbed7c 3a315851f9 3a345befcf 3a58db2da3 3a77da6133 3aafa54219 3b16a593f3 3b18876b82 3b38461501 3b48d1f2d4 3b5a6be3a9 3b7125dba1 3b7784001b 3bafa4191e 3be50242db 3bf626dc41 3c06353d30 3c1b92a334 3c38d41d59 3c3b1e8121 3c5b13901e 3c6c4a3848 3c785ac074 3c79025be1 3c9aa39321 3cbad2f1c8 3cc2c1b46b 3ccffc92d6 3cd305edb9 3ce4ab6005 3cf6b1f0bf 3cf71961f0 3d22c7dd61 3d3170e190 3d32fd8ef6 3d3f1ffecd 3d63ede994 3d6bfe1a36 3d72485e1f 3d7eaea23f 3dbc58084a 3dbdef48e2 3dcd8bff9c 3ddb675d6b 3de5bf5a41 3e14704855 3e2bcf41df 3e69480af6 3e7177f0ab 3ea6870fef 3ebba0c0e0 3edbe337e7 3ee26f11c9 3ef4de9cbc 3f015cbaac 3f2c2ce778 3f622b363a 3f93b5d2e5 3f999524f3 3fa89817d6 3fc9e8eb30 3fd25d4059 3fd651d48d 3fda7d19e4 3ffecac4d6 4007e3d218 400c7574d9 402107b4bb 402b686e1b 40396f4b54 403b8537e0 4040b276bf 40418895b0 4051c2f36e 4075ee1ed7 407d1f8421 40c6548f05 40f197854c 411fe3ea07 41229ef4f3 412ab452bf 41388a6355 413d70c2f9 4167462828 416909d398 4186dd950a 419f8d71c1 41a73eceb6 41afe7daa4 420e66a9ac 4242e0fbc4 424955b018 4271e7e406 4283702423 4286597762 42f25c9b75 42f695d922 430fec3f34 431def91bf 43264e0603 43587f8beb 435fa050fb 4366d53d68 43744e8879 43847518da 439af3664c 43a58dccb7 43bf6a8520 43d94253a4 43eb188a77 44003f659a 4411c787ed 443eb3bd04 444a637c48 446abbd551 447faa844b 4486548a8b 448ab99fc5 448ac231f6 44c46b86c1 44c61c0d6b 44e2bffa41 44e69b1078 44ee9b9caa 452ff1d6ba 453736d651 453a128b6c 4542935e76 45daf5a9d8 45e8d15240 45eac49fd2 46000ba284 46206d0606 46235950b1 462cc13ed9 465915c6d0 465d633de1 4665c0c1ba 469ada2166 46bb3acbe3 46c4775104 475c3b23cf 4775b21d07 47d9f47ebb 47e790d4c2 47f12d634a 4869255146 4873cb98bb 4877d4c54a 488300997d 4898ba5442 48a8044b81 48b7655fd6 48f24e562f 48f2aa40fb 48fe89fead 4923376aa2 49273da1c8 492f25f099 493773f3d3 494ce8e353 495456b3a3 4968525858 49796372e9 4996fc2a8b 49b557d712 49e452e8c8 49fe22d433 4a26ec775c 4a4180de1d 4a5e35b6f5 4a6548891b 4a88c220c9 4ab2c2b74f 4ab49a26db 4ac3534dd2 4ac56e9142 4acf0a63b3 4b08e23e57 4b2e89e10e 4b312e3757 4b32d11a71 4b5b8a578b 4b5ec24924 4b7fc50ff8 4b81859658 4b90f0888a 4ba1e02d43 4bbf2c3574 4bd2e52c9d 4bd62dac67 4bdfe1c6b7 4c02d3ad76 4c034f52e1 4c050f318c 4c58cd83d8 4c77d2fcb7 4ca0a7715f 4cb324a49b 4ccef33359 4d2be7b86c 4d7a84231e 4d8a6c31b8 4da34d9566 4daf40bd2e 4ddc8539b9 4ddffe3c9f 4deab8b466 4dee143228 4e1d046533 4e225d0f65 4e3c64c8f5 4e448ba7e4 4e45b350a4 4e579e7da9 4e7457b068 4e82980d87 4e8830594b 4e956eb83c 4eabfcb167 4ec5814756 4ed8eddc0e 4ee7530305 4ee8741576 4f2bb73763 4f6ad4ca11 4f98091f07 4fa4f69dad 4fa7938250 4fd1b31588 4feb69eea1 5009006b80 501c7adc1c 501d75a273 5042dfde86 50477adf4b 507729946d 508df08225 50cc427421 50ec7dc36b 50f627e37e 5103cdc782 510447e7b5 510f458dbb 51135a5e5b 5152eebf62 515374962a 5164a1bf95 5167c1cbfa 51a841311d 51b06238ce 51d084d814 51d6208581 51ed09d2e9 51ef73aa87 51f9e27082 520e73e805 5232f9530e 52484c21f2 5253e9c238 5254082779 5258b56b90 52868ab1c3 528b105ece 52992289b5 52bd5cb49e 52cca6081e 52d90dc368 52e7702e03 5311ddeb40 5329abba5d 5343e20083 534be895b2 5356d48198 53b3eff385 53d1112c98 53da880fa1 53f3d42824 54076dfa58 541e4d0816 5426d9077e 54514131f3 5452a1b31c 546bab93dc 546c8250fc 547834acb2 54814ae869 54a1d1c936 54a7d4c686 54e44a2a9c 54f929d1e3 54fe1b62ef 550c4d6db6 5547529caf 554fbba90a 555000a5ab 555f4a3a26 559b9c8c8a 55a25ca354 55a3b74160 55a7e114c0 55a8385778 55c0cabb90 55d6eedc20 55e7ef98e3 55f4859f2a 560d62fc57 5615e77d27 5640f5a908 564850e29d 564a631fa0 568cb1ccfc 56a453cd51 56afe05b3f 56b43047b7 56b84eac47 56bb52b89c 57089127ba 578302db81 578b15baf4 578baee11e 5796020d81 57ac6f413b 57b4dd443a 57e0334932 57e4c7fbe7 57f2a4b204 5802f5f523 5813784a17 582af30825 5831b6352d 5834aed672 584f2be38f 5870922e94 587c723a39 5898bb3aef 58abc9188d 58ad35a767 58b25b676a 58b62d98d4 58d3453727 58da65aa57 58de8aea5a 58e93d2f40 58ee391da5 58fc85bdfb 5931f4b0f0 595772fb4d 5985c291fe 59c2e826bd 59e3959427 59f06201a8 59feac3f69 5a4969f585 5a547026b8 5a81c429c5 5a9c14a041 5acafd4852 5ad2caf757 5aee3c60e6 5afc0fe1ea 5b3e84330b 5b4167d356 5b41bc9ef8 5b696f7b1d 5b73b55cbf 5b73b9d8db 5b8849e311 5b9bd09c17 5bb6296c14 5bbf7dac74 5bc414055c 5bd374f58d 5bf7f68edf 5c233fab2b 5c5788b246 5c762faf86 5c898ddd1e 5c957325ae 5ca38fcbf4 5cb616594e 5cebb78c8d 5d11c00816 5d1620bdf0 5d18e07cab 5d23620783 5d331cbdc1 5d40ea81b1 5d5fa28795 5d708f60d8 5d8c273b77 5d8db61d8d 5dc94ffb95 5dcc181246 5e33a7fdca 5e49ec6536 5e5b5371ed 5e5f28109b 5e66067625 5e8b986c7b 5ea8ce7bd5 5eb2650b3d 5ed0ba885c 5ed11914d2 5edf265cc4 5edf3bdccd 5eea009d5b 5f0c28ff60 5f35bc01ff 5f364867a0 5f3a5e572d 5f3da345c0 5f54768299 5f59d2ab5d 5f5af1f34a 5f63d5330c 5f649d228d 5f999921e7 5f9cd6f833 5fbe9ba6bc 5fe1990fc6 5fe8b3720b 601d5eac54 60322432a1 6052c4262c 608637eb39 609886ab95 60bb9eb81a 60bd55a2a8 60d03fb0c6 60f4b0470f 60f737e8fc 60f9ae7a2a 61232c76a5 6128bcf96d 61330b8be7 6134694c26 613cfd1296 613e521b3d 615db7bf10 618c79eedd 6195b0462f 61afca35cf 61e3036fc0 61e401f45e 61f0c05ed6 61f6c1b391 62072a17cf 620ea66138 6261ee002e 627c9fe584 62a4c625cc 62a53a9777 62c8c321c0 62e64e53e0 63003c90cf 630e89182a 632111dc82 632134b2eb 635855aadd 637edeaa72 638b4a6f62 63bc1e2249 63d030576e 63f893c55d 6407295f35 64129a922a 64423e02f3 6447947a10 6471afc842 648d12f1c4 648e9434bb 64a89d7dce 64b7feb1a5 64d693bf5b 64e25c6977 64e8a0ce8c 6509834fe9 6516c61900 6545f799c3 654c29fd22 6555b152a9 655928230e 655ba33b7e 655f1bfd7d 65644a6821 657d6ae238 658ee8d261 65b40ae5a7 65b4391eb1 65cc25d918 65dea801e1 65e8259e03 65eeddcd65 662f3f3c8f 663fd03c5b 6645d63142 665951e51b 66733d35b0 669661d86c 66ae0df73e 66ba7f13e5 66c1059379 66e11702f4 66ebf3c32e 66f86a0fcc 67057e0713 6709c8c1ad 6746bcb3c9 675350e077 677f173e11 6783f22ac7 6784e05352 678e5b66a2 6793214d65 67936574d3 679e2dcf6f 67ad59b012 67b959d9ed 67cc36e21b 67ee50da35 67ef4fbca1 6803e31a84 6805b8e94d 680d102ffb 68310cc6ad 6855d64989 686bd68d2e 68bbdb00ff 68df477ad5 68ed870b9a 691be76c3d 6938d17577 6939db0c46 6940141600 6955b998e1 698db60472 69ab3a84ba 69afe7f064 69b4f9ef88 69c7446f3a 69fe988a36 6a080493f9 6a164f2a95 6a2b5ff09d 6a4532f03a 6a753d6a32 6a7e491c5e 6aa97dfe25 6abf089680 6af5ae30cf 6afad76af9 6b367e48ee 6b484b97d7 6b4926e0e1 6b54f2627f 6b57582b0f 6b6a53d299 6b76beae98 6b792ec309 6b873bac6d 6b8a2b67ee 6b8efd3fb8 6bbaeecab5 6bc00c53ff 6bf04ccce0 6bf0db6761 6c1c569b8c 6c25f62f30 6c40fe37a9 6c6541062e 6c7a222bca 6ce0e5dab2 6ce5ec11e7 6d1a630679 6d2450f847 6d2906204f 6d46aadb7b 6d528e1bba 6d8c7f74f9 6d8f2d1ea1 6d8f61785d 6d9d59e943 6d9ffce56e 6de5869461 6e1194264d 6e23091536 6e41f657b6 6e68b827be 6e6b9f6d1e 6e7b19bc6b 6e7f751483 6e91e44ddb 6e9a837c0e 6eabb5d7e6 6f146289de 6f26c02efa 6f2811cf6f 6fa9b744ec 6faf118a92 6fd4d29b53 6fe6e6a716 6ffb20cfa1 702b38f18f 704362dcdc 706c7f81a0 70a5c6486e 70a78cb56f 70c21d97c6 70ca013217 70dd973a04 70fa46986f 710fa99247 71165c060b 711a7639b6 711c5a725b 7122b312ba 7155f2007c 715ef84414 7168e6541a 716ab7f070 718c597013 71dbbda1df 71dfdc6dc6 7203ddaf3a 7218c18138 722f1284cd 724b64fd50 724fed1a29 725a5049c4 725af1aab6 7262b773cf 728e9891dd 729e1ce151 72b50e0790 72c7dfdd16 73263e6615 73415c656b 734d20b1f2 7377e164f8 738a650b44 738b25077c 73ac1680f7 73c4b7b56d 73e59e5f80 73fdb91619 7407947cd9 7407e5f764 746c0c07fb 7490f4698c 74bffc9111 74c2cb52f3 74e7ac2a0c 74f9360a99 750af9d4bb 7518019a1e 751d169b6c 7556419b85 75a0e57f45 75c35b123c 75c4b23c68 75c8bad508 75cb996b63 75d2909a2e 75d92a40b8 75de97671c 75f15c205f 7601004b76 760816961f 76084b0076 761056e72c 7658cc77d1 76aaafcaf8 76bbf571e3 76f5b13948 76f653e0e3 7705c0611e 771d45bc2d 773cd8cd7a 773e410c4d 7783674f7d 7786555126 778d5fd0ac 77926ae61d 77aadb4b1e 77d4aa28ca 77d8c6539c 77dc0fdab9 77fee57953 7802a1259c 7811997ea8 7817a9df49 78297301f2 78330fb2ee 784809389d 785623b12d 7856872da4 7881887345 7887c6344c 789a06f4d1 789f6be335 78b7786b75 78b843bcc5 78cd6b4769 78d7d1e968 78e7943d84 7924bdc3ca 792dd94ab3 7930998bcf 7942ab31cb 7955650f17 795983cc87 795b5e34bc 79694bb51a 79785bdf69 7982a08351 7990093ec0 7999fafbe3 79b6333b46 79becf4acc 79c6eda732 79f29714ea 79f42bd055 7a2b2aa516 7a334c1f8b 7a824d19ad 7a92ef6e3d 7abe47d50a 7b37e1956e 7b479bc486 7b87480e6d 7bcdadca7c 7bf780223e 7bfe2831a8 7c302e0778 7c48256027 7c5fe2e40c 7c63adcd7c 7c664ab2aa 7c85bf0e66 7c880e687e 7c8eecc167 7c927bfb6a 7cace83b4b 7cb278848f 7cc4724fb2 7ce156039b 7ce5be6250 7ce72bfbcc 7d0c049e14 7d0e958079 7d4b1c48d7 7d4d41f748 7d50637d50 7d5a664262 7d631d061e 7da2be811e 7db6dd90d8 7df18a4a4e 7dffbf2f35 7e118d83fc 7e16557f19 7e187ca04b 7e45ed559d 7e55ee5ff0 7e5835cea9 7eab0b995b 7ead9554ba 7ec4a01c02 7edc65e0a2 7ef38770d3 7f108641ca 7f3e4ef2cf 7f45922a8d 7f49801356 7f590f9939 7f5c011997 7f7ee9fba4 7ff59a3578 7fff527a22 80202da883 8020ba06d8 802775202b 8031f52e06 805922ac07 80c90eb255 80daf945f2 8196704343 81bc30821c 81c6d55722 81ca19e1e5 81e0f9fd91 820e6f9e54 822445090d 82442534ff 824de2183a 82632dac22 8265b3d05e 8267774811 8267a7797c 826bd802bc 827295337b 8273d2e8b8 82859a257c 8289f90db8 828f8921db 8334ac329c 83371df380 83375213cd 83400f20b6 83436e62bf 836cc92100 83a2cc0e54 83c9e08815 83f022f73b 83f7216a7e 842bc5cbb8 844fc739c0 84557eb037 845b1a5eda 846ff0b456 848bd20224 849b56b99e 84b81299b9 84ee01f052 84fc382e9f 850e3221f0 850ffd1a80 853969c85c 853fc95b23 85475634e1 854d134de8 856c041fba 8572fdd283 857ecdc20a 8585bfa6a3 85abec1cc9 85f64d86a3 861ca2a291 8625f9f91f 862d043954 86429547f2 8696090fdc 86afe3a9dd 86bda34275 86d118af5c 86d60df395 872af05784 8766c7d403 876c6a3956 8782a18b3c 8799de023e 879dd9334e 87a8393b65 87dc2bba82 8802087ead 8818ba09d2 881b3a6508 881dca68f7 8823fa44d2 8832bba703 8837b29447 889db10a28 88acc37de6 88b95ab84b 88dac76359 88f22e1316 88fb6e9ac0 891718c2f2 891f690dbf 8938612ac1 893adec207 89632dd02c 89675a11ca 8968f2effe 8977a86fa5 898ff50193 8991e74c6d 89baac6108 89ce3a4672 89d2db79d1 89e196f366 89fb945d8a 8a0d2b6ccb 8a17161cfa 8a4114f780 8a43a0af49 8a5ff5c643 8a7961f5fa 8a7ef88226 8a841ea19d 8a86a80807 8aa22bc6fc 8ae62dc6b0 8afd99bb5c 8b311fb0a7 8b383dc1c7 8b765c7efd 8b9921bbec 8bb4ed1bf9 8bb6601b67 8bc0786e85 8bc75f7eab 8bcba84507 8bcfecf6b7 8bf6ad83b9 8c00feab0e 8c0f3dba85 8c2ad689f8 8c43114cc7 8c493e5e43 8c4e98eae7 8c4f4c266f 8c6deb0f4a 8c71ae5bc2 8c7320af7b 8c8a99e1e4 8ca5467f28 8ca56aa4a2 8cb8a33bdb 8cb8bb8833 8cd92cf13e 8cee519c54 8d16ca517a 8d1792d709 8d203dcd02 8d586c3af4 8d6be4f9af 8d7df3afe0 8d896b3b24 8db4f644e6 8db93941a3 8dc3ab1118 8dc4d4ff22 8de33d21f4 8e0717b1c1 8e2a1abd8e 8e33e7d6f2 8e35e30385 8e38d070dd 8e3d3c9496 8e55706075 8e5659ad6e 8e65ee8858 8e7dcec4b1 8e81c6b804 8e86cfc6b1 8e8c434c17 8eaa3f57df 8eecf8b435 8f0034a608 8f36921dfb 8f61bf37ed 8f790a8bce 8f828a3c28 8f8aef54f6 8f90470aa5 8fadfbac41 8fb991e3ee 8fba024e5a 8fbe735359 8fe5537cb6 8fec0ed0c7 8fffd0e3a6 902837bef4 903a6bfc21 9062f5a449 9077feb125 908aba50af 909cd61b83 90b0ef890b 9116253790 91326436de 91376c4aa0 913831e247 91524ebdcb 91534c0ec2 916c63dc11 917ae507a1 91e8a3a93b 91eedcaa76 9215cd7305 92208a0db9 922c4cd40d 9234e1faac 9261dbd68c 9271c14d70 927d35e37a 92be44b9f4 92ff4ef86f 930653244c 930936d701 931ab5ddc6 931e36ff94 93428f2e9d 93503959a0 935b8f8b47 9365346df4 9385152505 938c06719a 93e65f453b 93ea2ae8f1 947988a799 94b297841e 94b96f2e25 94bf5a60ef 94c1294e7c 94e85a2381 94fcb9a331 950c2b8eb2 9512eb597e 951943cb63 952cb80feb 95348d5fdd 95397305bc 95575026a9 9567cf743b 95737a115a 9573f4c2e3 957a074a30 957c4f2907 95a6915fe7 95bb08d1ff 95c1da99ca 95d456dea2 95db4eb03e 9604e37a00 96077b0fdb 9624763d90 962d1fe69c 9633738ec4 963c0c812b 963ebd5629 9692191bbe 9693eda34b 96ab87adab 96b25fd406 96b618c6e0 96dabac410 96db7c3724 96f9915892 96faf994de 9725220ffb 97793b8cd9 978e849a55 97b85d1739 97bbc073d2 97c78f2d31 97cf9f835f 97f1d7b177 97f3e66342 981135df8d 981cba20b5 981d017f13 982032394f 982fe746a9 98319a5fb4 984d6bb8a6 985be01898 98b135e55f 98ea8f9113 98f1c98d39 9923f9a3e4 9938acd902 994f5d7d86 996687889d 996d629250 9976eca6f6 9984b86d2f 999b0bf0ae 99baea14a1 99be755487 99d70943e2 99e12cd946 99e45a17be 99f9abaaed 9a071a5e8f 9a1b8b69c5 9a36c42e0a 9a5505154b 9a72bbdd4c 9a7bdbd02f 9a7c501c6f 9aac441b3d 9aad685dac 9ac514e337 9ae1b4714c 9b2a38adcc 9b5587f1c5 9b579cb163 9b66aedf0b 9b82b8a8f6 9b8e11de49 9ba94be0d2 9ba970f590 9bb5c4d1df 9bb8a34dd8 9bd1258cb8 9be5550a14 9bf971de10 9c000b2cad 9c10fb189f 9c126e673f 9c1c9385ec 9c5105791c 9c61b6ca87 9c70816f9b 9c7f727c6f 9c819f259e 9ccf363538 9cd021708a 9d24b6f4d8 9d342aea47 9d484f65f4 9d7231efd8 9d7f65cbc0 9d92a5557e 9da3908da2 9db93a349a 9dbc9101b6 9dc40f435e 9dd9affa3d 9e19370a86 9e1d18e982 9e3578c3ba 9e5da08b55 9e7400830e 9e881980c5 9ea0f7b810 9ef04dfadb 9f26f4930b 9f2c457cb0 9f465aabfe 9f4a573851 9f5607eb50 9f60546969 9f9d49bda5 9fcb90a366 9ff5cb3463 a02c974fef a03dbe6b04 a03e6d36ce a083aae98f a086ce4fe4 a0a03fe703 a0abcd185b a0fb59178b a10a607dcf a13fc1953e a16c4c9915 a16c829c5a a17509e47c a177a1f6f1 a1a2f8004c a1b114eedd a1cd17e4dc a1ddf9c72e a1eb311018 a1ecc0d9ec a214e2bdac a222d8c7e7 a22bd1e9a3 a232d056c8 a23f987b46 a24bc5fbe3 a281356999 a29d9c56d8 a2b95cc5cb a2c95c2d21 a30af842a8 a325e68fb1 a345756b59 a3546cec2d a3a253fd2e a3a8645747 a40fa53779 a4149f2a2d a4174d809d a4263be836 a427ff3a8f a4480fa5a6 a46c6d0371 a477a86c06 a485d5cb3f a48dc35054 a49c7fd5c7 a49c82bd79 a4b68e3e12 a4c76d4735 a4d8876478 a518fb931a a525b2886c a537ffc223 a53e983506 a54d14d8d9 a58604a325 a5aaa91166 a5c4e68e84 a5c903a5cd a5efc3f004 a5f7c2d99c a5fc7b42c5 a60569d4fb a60aa00817 a65a62b586 a6621a6401 a6851f2a55 a68a738fad a6941a094e a697d9875f a6cbe53b53 a6d628f537 a6e7dece6c a6f5303c18 a6fc0b1752 a71b9b65dd a7384df2c1 a74435f656 a745971592 a74ba867cf a75600f50f a75c5698d6 a7638f2baf a770185ec4 a77ce63fd9 a77f16a35e a788715b89 a79df6fcfa a79e7c0f2d a7a7e71074 a7a887ca29 a7b846fecc a7e205ce61 a80f03e187 a81da02cac a82547b9df a84995cfe4 a85bc9cb80 a865a694c2 a89bc4a8a8 a8a0c2badc a8b252481e a8b7d122f6 a8b9f03c62 a8cac5ef7e a9061a9f73 a909500e59 a90d2f6157 a913400989 a929afa8d1 a950137351 a9791d8a86 a985d3f2c8 a98d4571fd a98e1830e5 a9a372d91e a9d78637a6 a9da4c2c76 aa1b7514e3 aa3b517d8a aa57bc4b39 aa88039e08 aabba19bc9 aac5458fd3 aae1675193 aaf4924a58 ab0c2c23f0 ab14f97d70 ab1e84dc29 ab274fc981 ab4820dafc abbbda1e13 abe6740c82 abefcf77ed ac0f73f53f ac0f853e3a ac295038fa ac3c4a2908 ac4209690b ac421027ec ac529ead03 ac60fe9adb ac62a39faa ac892a92e9 acad073dab acad64074a acc0c37c51 acca3c932f acd2327354 acd7dec76f aced132f2a acf00733fb ad07817258 ad22c0b0f8 ad3303d293 ad62285edd ad7d2c5a99 ad957abf40 adb7c7575b ae12c8a485 ae16f5a4ec ae19e7dbb4 ae2f036631 ae3bda1d34 ae44828569 ae46566278 ae52cf6ba4 ae5b22b5dc ae5d93791a ae74af8c05 ae81f1070b ae93bcc921 af05966d1e af6378bd74 af91a32e8d af93fb3535 afa64c22eb afa69c5cef afb9b9e86b afbb5e1e2b afc1cf1fc7 afc51bd3e5 afc6d96147 afcc83e60c afcf713896 afe7e1d0b8 b011a7f9c5 b01ebf0748 b02e0b479c b04348ad43 b050bfd410 b07de2d149 b08d7fb373 b09e7d7fdd b0bf89ae8c b0e35d0716 b0f21ed533 b0f5f8b666 b106054197 b10c98b929 b114875813 b1455b1717 b150c0350c b15ac9d99f b1af25cbc4 b1d8e4d71f b1fe8319d5 b1ff31d1dd b2001bc9d8 b2356449a1 b25ed004a8 b2630dd3bc b268a8812d b27403fa04 b29121cdc3 b2965ef488 b29a18094c b2a57b4669 b2bd498b19 b2c88d98bd b2ce3f6b9d b2dd402cb1 b2dff258b7 b3066e9b1e b30f2d4700 b342a37b79 b35ec65bf4 b37806c2a4 b37ef51fab b3b2f886bf b3db9f1de5 b3fc32403f b404671f43 b4229ee8ed b44da693a4 b45679ed91 b468b4b05a b47b2423de b4873ce368 b488466b38 b48c44c0c3 b491c59e4a b4a576d8f3 b4b7f59883 b4df9bab24 b50876b01c b517d2b070 b51ad9b2e2 b562797adb b5648cc6e0 b56c588d20 b57896d204 b5b91d3d2c b5d9b8c6cd b5ea65e886 b5eb5bc113 b62ddd9b33 b631591990 b6379005d9 b6465ddc45 b6473bc793 b64c558b26 b6778b6e7b b67a1cd1bc b6b3338e84 b6b6e141b2 b6ecf92dfa b6faaf229a b7188cf9c5 b71ae03206 b74e35520c b768503e38 b76e024c4c b7715f3418 b795548082 b79e9fcb60 b7b0694eb0 b7b9965f31 b7e24b5040 b7f2035ed6 b7fce77907 b83230ef6c b837241a75 b8526eb79f b88e0806bb b8953c2e49 b89841f68f b8a6fca936 b8b67a05bb b8e48c4978 b8f0b18f07 b8f5f01ab9 b9254fd14d b92d6f2b00 b963fd119f b96460d934 b98dceae57 b99bc0ac1f b9c6e612cb ba2c0c432c ba4f81ad27 ba50051f33 ba69edb3e7 ba7d20f56f ba86e453b3 ba9569f544 ba95ac3500 babbd142e7 bac01e95e6 bad23c8c23 bad7eca3a3 bad8552061 bae671070d bae6d4d81e baf82a14f0 bafc34d9b4 bb047dd44f bb2424cbf2 bb2febe315 bb43aae5d1 bb60855fb3 bb9ca79f4b bbaddcc366 bbb74b356c bbe2f73ca0 bc05cd3f81 bc639d2eed bc8f121f19 bc9efda2a5 bca127f260 bcd2722e99 bcd336f2e8 bcd51e57e1 bcd5841396 bcd9460b87 bcf4001e17 bcf995a820 bd118c6b18 bd128760bc bd1f8d50df bd5fd0cfb3 bd6e36c40c bd988c5e43 bda5ab4c23 bdb056a5db bdb36b1c95 bdbc02f511 bdce0abb99 bddcc9409b bde8a34563 bdffa31a95 be174a3bfe be27351854 be41137eb3 be4358fdb4 beaca9c54c bed9ea7b9c bf14ef1abe bf1582e096 bf25394d2b bf7710d58f bf81dc423d bf94a2265b bfa055bef8 bfa937276c bfc43300c2 bfdefff4a0 bffdcc45f1 c0044247d6 c0364a01b4 c0396b91bf c03bc2417b c040d9ba0b c06c59f96b c0a191be0f c0cc20133a c0cea87d8e c0d34fb243 c0fdba49f8 c1141a9128 c124618e69 c13d7db63d c154be2ccc c15a0673d0 c163ba2eff c16b65aaaf c1c6cfa797 c202f72a47 c21678c2dc c21fd14eaa c229520304 c22dff9c89 c2352532ef c23a745465 c247d05794 c28362f86f c293c6216e c2946115cd c29aa275ff c29d265aa6 c2a7d7c5cb c2b2e813c7 c2e252e941 c2e5e2c90f c2f3bb4d0f c30112cd30 c30e18362a c313d8244b c33560b06a c35c79e858 c35e1875b9 c388237579 c38aa25e14 c38f1d0dbc c391594390 c393efd2ec c398cb547d c3b8acedda c3b8b2cbcc c3c5543643 c40d182952 c40d6969f7 c411980e94 c42d65a999 c42e03c8fd c431aabf1a c44e4641aa c45339064f c464e50dac c47595433c c47b70f0a7 c486d5a61c c4c5ad312b c4ca630b21 c4e116585c c4f023acc6 c4fb28ed53 c55e086cbd c59cf813b3 c5bba4e145 c5ca9d64bf c5d31ecedb c5dd57dee8 c5f0c93ddb c5f2548773 c60a53856c c62422a4f1 c62ae818d0 c638d6e91c c64dce5f6c c6658fb1cf c66c398b86 c6a043effb c6bf969efe c6c9b049df c6dac7687c c6fb24ba84 c70d8eb315 c7107ed73c c73562d11f c74dadbba4 c75cf64137 c772001873 c7814a0a91 c7b07a9d6d c7bca9f2f6 c7c293a66c c7d2bc757b c7d45e0cc8 c7e4d07de9 c7fac51753 c80f70192c c836241822 c86e74119a c86e949212 c88189c0e6 c88baa170d c8c944aceb c8d2cb75bc c8ef7fa245 c90cedd408 c90eb7aca3 c956eaf0d5 c95ec295e4 c96cfda8ff c97803b686 c982368797 c992fd076b c99894242f c99c92e37a c99e313a4e c9bbef49e3 c9d043a7c3 c9e95941a6 c9fdd4384f ca36bc6bdb ca3cff3e90 ca4b8d8222 ca686eee13 ca7d77d6b2 ca9b6c2ace caa11f0713 cac9b77604 cae59950db caee577c38 cafb9e67ba cb2dd30c98 cb7e0c54a5 cbbfe930a0 cbee8be561 cc15d2e7ea cc23f83dd9 cc3bc0d4fa cc40c73598 cc8bcce51d cc8bf79b1c ccb59e65a2 ccc3334581 cce99444d0 cd022d4544 cd29a7a044 cd39a46a55 cd43b63070 cd4f469426 cd60575972 cd87304016 cdc4f5eb8a cdef414157 cdf117796e ce058add90 ce2b469447 ce378e9ed7 ce6983f29e ce755cb6e0 ceac9d8e6d ceaf9e2689 cedc889ede ceeae47ea5 ceee7a7280 cef3f2eb9a cef6387e4f cf14039d4e cf16b74dea cf245e7a2b cf48e42d7d cf54bf8a6a cf6a745912 cf6df4b182 cf9bc8be07 cfc8af6fec cfd91260ab cfe1c56da0 cfe4d104ae cfe946c0bb cffb56a8fa d01bfa38d2 d057a2c126 d05a5ce0f4 d0736dccb3 d0813c0f09 d084596b2a d092fa8412 d0b22a65d0 d0b2c7579a d0b4f3567c d0d0d32a5a d0def334e3 d0febd6bde d1092d082a d10fd21a92 d1102f1bda d11a6becf9 d12154968b d15c2456f0 d16e781b2e d19933ec4a d19d8deee3 d1a8a84e8f d1cd74bac8 d1cf65d46b d1d5af6618 d1e0d5e70d d2562b990b d269848f09 d276eb8b29 d2b070e2fd d31194020e d326c29e8a d3409d6391 d3423d5e2f d34f3b986d d36dcea869 d370a13bcc d398308e25 d3a371058c d3d042c501 d3d8713756 d3d8fd0527 d404cd87ee d4413d3cd8 d452f75af9 d45fe30845 d4648b2675 d46f0a7b28 d4a14eab8e d4b336d223 d4e16087c6 d4e21abca8 d500d2113f d502c2b150 d508e705cb d53270caa4 d58b461253 d59133da55 d5946194d1 d5a93c5479 d5ae487f9e d5ba6172ca d5bad53f3e d5c8999bfb d5d699d9e4 d622cd4417 d6547cd480 d66aa6d295 d68abd792d d691af104e d6a9115550 d6c7c4af83 d6cd9546b9 d6e9c8f040 d70f572f82 d7170ce4a6 d719bd5784 d74f5a516f d79e5413c0 d7a1a829ab d7a63485f3 d7aa14b53a d7aae3a623 d7abf3845d d7bba5de49 d7e592bfbc d7f2f14bee d7f4af8fe9 d81f2b4dd2 d83400f3da d89c7d542e d89fcf1a48 d8b70bb508 d8b7b8fcdc d8c92e5b5c d8caa91eac d8d9d4a0d1 d8e037e0d8 d8efd9a8f4 d8f1d4e08b d907c7b948 d90e384662 d9181900a5 d91a25f169 d926050394 d948629280 d9852fd96b d9991ed1fc d9a78a9b37 d9be407de0 d9c50f7fcc d9d985ee93 d9e1c8e583 d9fb52a1eb da0692eec3 da102cc01e da179edf7f da20948b7e da3ff55c9a da6de4aedb da7c386c72 da979a5acc dabd5c972a dac4f5ec96 dac98a4e3a daf8ce8c8a db000a7729 db02cb479b db0fb755d5 db7680b50b dbbba82fd2 dbd68270ad dbd7ed1a90 dbde6970da dbe21b12ee dbee4fc8ff dbf0a117b6 dc1777db7c dc6a917209 dc9ae5a1bb dcdac8e62c dce4a9a4fd dcfb82326e dd01f6b345 dd0671b17f dd073db1ef dd0c0f9832 dd1c12e9d8 dd2d53cd80 dd43b36983 dd52878542 dd618788a7 dd68da25c1 dd6a95fd96 dd83645d6c dddb6ad5d0 dde7b1661c ddf0596abf ddf161eb55 ddf3d4ce4d de2d2a3e65 de37a48d4b de4faf7847 de8f2c1dcb decd05877b df435e3950 df53f72637 df79ab6b88 df7e3731e9 df814641ab dfb2587ebe dfe0a19907 e00e7d2925 e014b57bbe e04bcc57e4 e04faea18f e05feb03a1 e08d930d5d e0906f836a e0a35a0fbf e0abf092d2 e0ac33cf5a e0b2010f15 e0bf09ed0d e0c4199fd1 e0c6970d30 e0dda3b846 e0eaf0b92a e0eccd5917 e12997a49b e14e751c4a e156dbe9b8 e19d7f2c43 e1dbc91733 e1edf68de1 e21205de3d e220d2b76c e22b090209 e22e7d20ba e23a243c87 e27349007c e299d937b0 e2af4ce71f e2b7f73456 e2d1baa071 e2e5e425f4 e2f16a53bd e3032658a1 e30d3b8628 e32c56492c e342fdcd73 e365057263 e386128f05 e3d87d1545 e3e03c0436 e3eeb3c549 e42b66b97d e432548fed e438ce67a1 e439c47256 e46db4dba8 e48af7fa64 e495cbed7c e49716aa5a e4a1a46a69 e4a3d0ee98 e4bb158a42 e4c1ee831a e5015f5d44 e502be6c1c e51c0ddbd9 e52a4b1ef2 e534b4747b e53c57fd0d e5461962fd e59ad83377 e5afe28212 e5c24250bc e5f1ef2b36 e5f204ef07 e5f6921088 e60a0375ef e6125d3b89 e629a06956 e63e48771b e64b508079 e66c792519 e66fc2e8d2 e67e5d5d1a e68296905a e6853f3c74 e688c44afd e70326ab95 e70e19af28 e744332408 e749fd3437 e751a2b392 e75de8337e e75f960efb e76ad9cd6d e77abe4384 e781fd92d7 e796846ed8 e79748f5e8 e7992ccee1 e79a3d72db e7a41e7000 e7a7606de8 e7ab7afb54 e7beb9fb9a e7c5f33464 e7daa07cc6 e7dc111935 e7df51c419 e7f09b4141 e821e29ae6 e83e0844b1 e8818a6d33 e88e7d6a82 e8c2c8706c e8d1800574 e8fbd26fed e903159a25 e90a50d553 e91e1444db e93ada780e e94eb540df e9513e3747 e9a65dab03 e9b4d40ca2 e9ecc67beb ea09427f78 ea255c5dd4 ea2dbacd1a ea59fdd324 ea6b4ee904 ea79f4aeae ea7d3c069c ea8aa8219e ead77f2160 eada185653 eae77741b1 eaff1659c0 eb1f4e4766 eb32418174 eb5872f5dd eb65885237 eb6e43e6a7 eb7f789d1d eb84448822 eb96cddf24 eb9759ec6a ebb1b7af63 ebe5965a96 ebee04457d ec1bd4fe35 ec65388f5f ec678daba7 ec8684668a ec91908511 ecd7eed449 ecdbc1ab82 ece252e153 ece313a620 ed2e731952 ed421afbb2 ed5be1ff61 ed7cc461f8 ed9ae8c7cd eda0e61603 edbb525eb7 edda7b00bb ee037112a0 ee0410a9aa ee08e959af ee196e1068 ee2886329e ee744070b3 ee879ae307 ee92f0c461 ee955e7836 ee97308e81 eea5e23ee8 eec6baf78f eecdd90a6f eed227ccec eeeb3707c9 eeef3c4c74 eefde5d582 ef04729b8b ef06f34e1c ef100cbb46 ef1baed7ef ef1f60b381 ef4c0de5f2 ef9de98587 efb690987c efbfab6832 efd237a260 efe5026d3f efe569d9c3 effa809aba f0369f509a f03cc8e08e f062de1363 f064a33fae f06e9a3e47 f090938c10 f0c8ac9f4e f0f6f69a9b f12cb63239 f150dd0d1d f15a1dc5f3 f16b4a1c70 f18f0ebb9b f19638cbea f19980f1b6 f1a54aeb52 f1d62cd410 f1d94fc308 f1e8be4200 f1f60f50fa f1f704015f f209bcdeee f220d08d89 f235942c27 f25c72d629 f2ae5227de f2c3de603f f2dc828e03 f2e1db6ae0 f2ff82b5cc f304c3bcfa f3152bb380 f334216376 f33e028a7f f34d33d8aa f36cd5676e f380bf1d5c f38c9c0447 f393136602 f39edd322e f3a2817ae6 f3a693d017 f3bba4e1fb f41ef9d5d0 f424035675 f46733270f f46a7a6fbd f475bc1c94 f47a955dd2 f4906f4063 f497b966ac f4a8357842 f4ae10b0b5 f4cb76caa5 f4d4ee72f0 f4dc23939d f4f67e2867 f4fb0dc665 f536479821 f53c889360 f544a47b1f f55e40f849 f56fbdcb4f f5785c41de f5bec3be68 f5dce62efa f5e5e7f639 f64392267b f65888a4bc f66d39fbec f670a57fef f6891c56ca f69f42260e f6a907c30a f70abf341b f712790f38 f7131a8531 f7480bf9c4 f74d17ddc1 f76a14f66b f772940e17 f7747480ff f77c0ff7ce f780079c2c f787b4cf8c f78c81622e f7927ae7df f7e4c0d24a f811fbaee9 f867b7ff20 f867dc3f36 f890eca574 f9085d52ea f91c953520 f91f47810e f92d4db870 f9588f17a7 f978b9eb31 f983a61edc f9873afa88 f9c3fe5c1e f9cb92d2ee fa0a20ce45 fa0a64a6f5 fa0d24c65c fa44ce2a7d fa4ce65e8b fab046030c fab467d531 fac57a2c0d fad01249cd faf615ef24 fafbcfe94d fb0abdf29d fb26a1e0c6 fb311be65c fb41a26e9b fb4ac1849a fb4b2cba38 fbaec3d02e fbba55a5b3 fbc450a420 fbc7cd86b7 fbcc9eaf1c fbd77348e2 fbdc0a5319 fbdcd10965 fbe0e706dc fc489f9023 fc5c8cdeca fc615bc247 fc68325203 fc726b066d fc838e3e1a fc9f356f9b fcc54826cb fcfcd84428 fd0f7a5b66 fd10cce646 fd115044dd fd19020f7d fd228f9281 fd2b5c4bc1 fd382497f6 fd3b6bb6fb fd464869d0 fd53b62eea fd54f1b902 fd65f8b640 fd6644bbe5 fd7cae9795 fd8802ace6 fd94b12cf3 fdad1fdaf1 fdcd9ddbe2 fddd8d1ca7 fddf0b455a fde10511df fe31c0c5a9 fe36c27753 fe8d7dcb0b fea4417355 fea91c0253 feb2d0bb87 feb75d823c feca701812 fee265fbde ff73517bf0 ff96a8f559 ffd62a8e4a ffd90a236d"
+ }
 }

@@ -585,6 +585,31 @@ COMMENTED_STATEMENT = (
 COMMENTED_STATEMENT_C_FAMILY = r"(?<![/*])(?://|/\*)[ \t]*" + COMMENTED_STATEMENT  # (not a `///` doc line)
 
 
+# #7207: a comment led by a statement keyword is commented-out code only when the rest of the line has a statement's
+# shape: it ends in `;` `{` `}` or a `(...)` group (an optional `*/` after it), or it holds an assignment
+# (`x = 1`, `x += 1`, `x := 1`). `// return value is ignored` and `// if the user cancels, we retry` are prose.
+# Every alternative is bounded by the line and by 400 chars, so the pattern stays linear. Placed after a comment marker.
+_KEYWORD_STATEMENT_SHAPE = (
+    r"(?=[^\n]{0,400}[;{}][ \t]*(?:\*/[ \t]*)?(?m:$)"
+    r"|[^\n(]{0,400}\([^\n]{0,400}\)[ \t]*(?:\*/[ \t]*)?(?m:$)"
+    r"|[^\n]{0,400}?[\w\]][ \t]*(?:[-+*/%&|^:])?=(?![=>])[ \t]*[^\s=])"
+)
+
+
+def commented_keyword_statement(keywords: str, block: bool = True, marker: str | None = None, extra: str = "") -> str:
+    """Pattern source: a comment marker, one of `keywords`, then a statement-shaped rest of the line.
+
+    `marker` replaces the default `//` / `/*` (a regex, e.g. `#` or `--`); `extra` is one more shape alternative
+    (a lookahead branch, anchored at the text after the keyword) for a language whose statements end in neither
+    `;{}` nor `(...)` nor an assignment (Python's trailing `:`, a shell command's quoted argument).
+    """
+    shape = _KEYWORD_STATEMENT_SHAPE[:-1] + "|" + extra + ")" if extra else _KEYWORD_STATEMENT_SHAPE
+    if marker is not None:
+        return marker + r"[ \t]*(?:" + keywords + r")\b" + shape
+    marker = r"(?://|/\*)" if block else "//"
+    return r"(?<![/*])" + marker + r"[ \t]*(?:" + keywords + r")\b" + shape
+
+
 # ------------------------------------------------------------------------------
 # #5461: C/C++ function-defining macros (`CCMD(map) {`, `DEFINE_ACTION_FUNCTION(AActor, A_Look) {`,
 # `TEST(Suite, Name) {`, odamex `FUNC(LS_Door_Open) {`). Pattern SOURCE (an alternative of `func_start`; the macro's name lands in group 2 and the detector's `lastindex` read

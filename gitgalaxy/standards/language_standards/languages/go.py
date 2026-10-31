@@ -13,7 +13,7 @@ from typing import Any
 from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: compiled on first use
 from gitgalaxy.standards.language_standards.identifiers import CAPITAL, ID_CONTINUE, ID_START
 
-from .._shared_patterns import CALLS_OUT_GO, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import CALLS_OUT_GO, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT, commented_keyword_statement
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -237,7 +237,9 @@ DEFINITION: dict[str, Any] = {
             re.M,
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails)
-        "dead_code": re.compile(r"//[ \t]*(?:func|type|var|const|import|if|for|switch|select|return)\b"),
+        "dead_code": re.compile(
+            commented_keyword_statement("func|type|var|const|import|if|for|switch|select|return", block=False)
+        ),
         # 13. doc (Structured Documentation)
         # GoDoc standard: comments immediately preceding a declaration.
         "doc": re.compile(r"^[ \t]*//\s+[A-Z][" + ID_CONTINUE + r"]+\s+.*|^[ \t]*//\s*Package\s+", re.M),

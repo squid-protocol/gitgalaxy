@@ -16,6 +16,7 @@ program"; with no COMMAREA the pointer is X'FF000000' (no COBOL NULL, so refused
 from __future__ import annotations
 
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -26,6 +27,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(HERE.parents[1] / "tests" / "tools"))
 sys.path.insert(0, str(HERE.parents[1] / "tests" / "cics_crucible"))
+import cics_crucible as CCR  # noqa: E402
 import test_cics_runtimes as R  # noqa: E402  (bare imports: tests/ has no __init__.py, see CLAUDE.md)
 import test_pointer_lane_4771 as PL  # noqa: E402
 
@@ -243,13 +245,50 @@ def test_the_harness_refuses_what_the_translator_refuses(text):
         _ec().translate_command(text)
 
 
-def test_the_harness_refuses_addressing_a_commarea_the_program_does_not_declare():
+_NO_RECORD = PROGRAM.replace("       01  DFHCOMMAREA            PIC  X(32).\n", "")
+
+
+def test_the_harness_gives_a_program_with_no_commarea_record_a_stand_in_to_address():
+    """#5079 (X59): CAADSB-style callee: ADDRESS COMMAREA with no 01 DFHCOMMAREA. LINKAGE with other records, no LINKAGE
+    section at all, and a record already there (no duplicate) are the whole input class."""
     ec = _ec()
-    source = PROGRAM.replace("       01  DFHCOMMAREA            PIC  X(32).\n", "")
-    with pytest.raises(ec.Unsupported, match="no LINKAGE 01 DFHCOMMAREA"):
-        ec.translate(source.replace("       PROCEDURE DIVISION.", "       PROCEDURE DIVISION."))
-    text, has_commarea = ec.translate(PROGRAM)
-    assert has_commarea and "GGCADDR" in text
+    text, has_commarea = ec.translate(_NO_RECORD)  # LINKAGE SECTION holding other records
+    assert has_commarea and len(re.findall(r"01\s+DFHCOMMAREA", text)) == 1
+    assert (
+        text.index("LINKAGE SECTION")
+        < text.index("DFHCOMMAREA PIC X(1)")
+        < text.index("PROCEDURE DIVISION USING DFHCOMMAREA")
+    )
+    bare = re.sub(r"       LINKAGE SECTION\.\n(       01  EIB-VIEW[^\n]*\n)", "", _NO_RECORD)
+    assert "LINKAGE SECTION" not in bare
+    text, has_commarea = ec.translate(bare)  # no LINKAGE SECTION: one is made before the PROCEDURE DIVISION
+    assert has_commarea and text.index("LINKAGE SECTION") < text.index("DFHCOMMAREA PIC X(1)") < text.index(
+        "PROCEDURE DIVISION USING"
+    )
+    text, has_commarea = ec.translate(PROGRAM)  # declared: untouched
+    assert has_commarea and "PIC X(1)" not in text
+
+
+def test_a_program_that_addresses_only_the_eib_gets_no_stand_in():
+    ec = _ec()
+    source = _NO_RECORD.replace(" COMMAREA(CA-ADDRESS)", "")
+    text, has_commarea = ec.translate(source)
+    assert not has_commarea and "DFHCOMMAREA" not in text
+
+
+def _case_with(*events):
+    class _C:
+        expected = {"s": {"tasks": [{"events": list(events)}]}}
+
+    return _C()
+
+
+def test_the_runner_writes_an_empty_td_config_only_for_a_case_that_expects_qiderr():
+    """#5079 (X57): READQ TD / WRITEQ TD / DELETEQ TD answered QIDERR by the oracle, with no TDQUEUE in the CSD."""
+    for verb in ("READQ-TD", "WRITEQ-TD", "DELETEQ-TD"):
+        assert CCR._expects_undefined_td_queue(_case_with({"event": verb, "resp": "QIDERR"}))
+        assert not CCR._expects_undefined_td_queue(_case_with({"event": verb, "resp": "NORMAL"}))
+    assert not CCR._expects_undefined_td_queue(_case_with({"event": "READQ-TS", "resp": "QIDERR"}))
 
 
 # ---- both runtimes -------------------------------------------------------------------------------------------------------------
@@ -423,3 +462,46 @@ public class Main {
         "ADDRESS COMMAREA with a COMMAREA in a program with no 01 DFHCOMMAREA: its bytes are not modelled",
         "ADDRESS COMMAREA with no COMMAREA: not modelled",
     ]
+
+
+def _case(data, twasize=None):
+    from types import SimpleNamespace
+
+    return SimpleNamespace(csd={"twasize": twasize or {}, "userarealen": {}}, data={"terminal": "T001", **data})
+
+
+@pytest.mark.parametrize(
+    ("data", "twasize", "wanted", "absent"),
+    [
+        ({"wrkarea": 32}, None, ["GGCICS_WRKAREA=32 ", "GGCICS_CWA=/work/s1.cwa"], ["GGCICS_TWASIZE"]),
+        ({"wrkarea": 8}, {"CA0K": 16}, ["GGCICS_WRKAREA=8 ", "GGCICS_TWASIZE=16"], []),
+        ({}, None, [], ["GGCICS_WRKAREA", "GGCICS_CWA"]),  # none stated: the stub's own default (X'FF000000')
+        ({"wrkarea": 0}, None, [], ["GGCICS_WRKAREA", "GGCICS_CWA"]),
+    ],
+)
+def test_the_runner_hands_the_stub_a_wrkarea_only_when_the_case_states_one(data, twasize, wanted, absent):
+    """#5079 slice 2b (X59): case.json `wrkarea` (the SIT WRKAREA) becomes GGCICS_WRKAREA and the file that keeps the CWA."""
+    env = CCR.area_env(_case(data, twasize), "CA0K", "s1")
+    for w in wanted:
+        assert w in env
+    for a in absent:
+        assert a not in env
+
+
+def test_every_crucible_case_that_addresses_the_cwa_states_its_wrkarea():
+    """#5079: the crucible's `ca-address-cwa` (cics-crucible#47) is the cobol-stub proof of the CWA. Any checkout case whose
+    COBOL issues ADDRESS CWA states a positive wrkarea (the pinned ref that predates it has no such case: skipped)."""
+    from gitgalaxy.core.source_text import read_source
+
+    root = CCR.crucible_path(None) / "cases"
+    if not root.is_dir():
+        pytest.skip("no cics-crucible checkout")
+    seen = []
+    for case_json in sorted(root.glob("*/*/case.json")):
+        case = CCR.cc.load_case(case_json.parent)
+        text = " ".join(read_source(case.dir / rel).text for rel in case.data["sources"]["cobol"])
+        if re.search(r"ADDRESS\s+CWA\b", text):
+            seen.append(case.id)
+            assert int(case.data.get("wrkarea") or 0) >= 1, case.id
+    if not seen:
+        pytest.skip("the pinned cics-crucible ref has no ADDRESS CWA case yet (cics-crucible#47)")

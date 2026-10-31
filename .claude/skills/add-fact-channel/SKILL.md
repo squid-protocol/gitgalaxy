@@ -47,9 +47,14 @@ count, you're in the wrong skill — use `add-signal`.**
 5. (merged into 4.)
 6. `galaxy_ir.py`: `Engine<Fact>` dataclass, `EngineFile.<facts>` field, `_has_table`-gated read,
    and **update the SCOPE comment**.
-7. `refraction_differential.py`: a real forge-vs-engine compared datum with a real cause (never
+6b. Report rows: one `AuditSection` in `audit_recorder.AUDIT_SECTIONS` and one `FactLine` in
+   `llm_recorder.FACT_LINES` (+ a `FactSummary` for a repo-wide bullet). `test_fact_channels.py` fails a
+   per-file `payload_key` with neither (or without a listed reason).
+7. `refraction_differential.py`: a `SetChannel` entry (set-difference channel; `compare`/`summarize`/`flatten`/
+   `_key_verdict` iterate `SET_CHANNELS`, never edit them) and `differential="<language>"` on the registry entry; a real forge-vs-engine compared datum with a real cause (never
    `stated_absence` once the DB carries it); re-bless the baseline, `unexplained` must not rise.
-8. `cobol_answer_key.py`: drafted field via the key's OWN independent reader; INDEPENDENT verdict
+8. `cobol_answer_key.py`: a `DraftSection` in `DRAFT_SECTIONS` for a per-file section (the `add-<x>` command is built
+   from it), else a drafted field via the key's OWN independent reader; INDEPENDENT verdict
    gated behind an explicit per-program flag.
 8b. **Ground truth** (skill `mainframe-ground-truth`):
     - a scored field in `score()`, plus a `ground_truth_ledger.TRUTH_FLAGS` entry for its sign-off flag;

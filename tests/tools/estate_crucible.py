@@ -28,7 +28,7 @@ GalaxyIR, and diffs every fact channel of the key against it:
   cics_resources  cics_resource_data (MAP / FILE / QUEUE commands)
   jcl_datasets    a JCL member's DSN references in file_data.raw_imports (a GDG reference as
                   its base or with its relative generation)
-  file_control    file_control_data SELECTs;  entry_points  entry_point_data
+  file_control    file_control_data SELECTs (+ relative_key, alternate_keys with the DUPLICATES flag, when the key states them);  entry_points  entry_point_data
   file_edges      edge_data kinds 'call' (CALL / LINK / XCTL) and 'exec' (EXEC PGM)
   copy_collisions the scan's `copy_member_collisions` report (#4265), read from the master DB
                   (repo_data, #4421)
@@ -712,13 +712,22 @@ _STEP_FIELDS_WITHOUT_ENGINE_ROW = (
     ("rd", "job_flow_data keeps no RD= restart-definition parameter (core/job_flow.py)"),
     ("parm_overrides", "job_flow_data keeps no PARM.procstep= override on an EXEC of a procedure (core/job_flow.py)"),
     ("cond_overrides", "job_flow_data keeps no COND.procstep= override on an EXEC of a procedure (core/job_flow.py)"),
+    ("set_symbols", "job_flow_data keeps no SET statement before the EXEC (core/job_flow.py)"),
+    ("includes", "job_flow_data keeps no INCLUDE statement after the EXEC and does not expand it (core/job_flow.py)"),
 )
 
 
 def _compact(v: Any) -> str:
     """A key value as one short token for a check label (a list of override dicts becomes `RPT020:QUARTERLY`)."""
     if isinstance(v, list):
-        return ",".join(f"{o.get('step')}:{o.get('parm', o.get('cond'))}" for o in v)
+        return ",".join(
+            f"{o['name']}={o['value']}"
+            if "name" in o
+            else f"{o.get('step')}:{o.get('parm', o.get('cond'))}"
+            if isinstance(o, dict)
+            else str(o)
+            for o in v
+        )
     return str(v)
 
 
@@ -770,6 +779,17 @@ def score_jcl(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
     for f in entry.get("jcl_dds", []):
         dd = f.get("dd") or f.get("concat_of")
         label = f"{f['step']}.{f.get('dd') or '+' + str(f.get('concat_of'))} @{f['line']}"
+        if f.get("include"):
+            # a DD of an INCLUDE group has no job, proc or step of its own (SPEC.md section 3)
+            sc.add(
+                "jcl_dds",
+                path,
+                f"INCLUDE {f['include']}: {f.get('dd')} @{f['line']}",
+                "unscored",
+                f.get("horror"),
+                "a member of an INCLUDE group: job_flow_data does not expand INCLUDE (core/job_flow.py)",
+            )
+            continue
         if f.get("sysout") or f.get("dummy"):
             what = f"SYSOUT={f['sysout']}" if f.get("sysout") else "DD DUMMY"
             sc.add(
@@ -1062,8 +1082,16 @@ def score_file_control(sc: Score, path: str, entry: dict[str, Any], eng: Engine)
             sc.add("file_control", path, label, "missing", f.get("horror"))
             continue
         used.add(id(r))
+        extra = []
+        if "relative_key" in f:
+            extra.append(("relative_key", _u(f["relative_key"]), _u(r.relative_key)))
+        if "alternate_keys" in f:
+            want = sorted((_u(a["name"]), bool(a["duplicates"])) for a in f["alternate_keys"])
+            got = sorted((_u(n), bool(dup)) for n, dup in (r.alternate_keys or []))
+            extra.append(("alternate_keys", want, got))
         d = _diff(
-            [
+            extra
+            + [
                 ("assign", _u(f["assign"]), _u(r.assign)),
                 ("organization", _u(f["organization"]), _u(r.organization)),
                 ("access_mode", _u(f.get("access_mode")), _u(r.access_mode)),

@@ -115,6 +115,54 @@ One row per RUN/START/FETCH/RETRIEVE/CANCEL/DELAY/POST/WAIT/ENQ/DEQ command (`ve
 
 One row per DFHLS2WS / DFHLS2JS (provider) or DFHWS2LS / DFHJS2LS (requester) step of a web-services assistant JCL: `assistant`, `direction`, `program`, `uri`, the `request` / `response` copybook members, `interface` (PGMINT), `container`, `binding` (WSBIND), `document` (WSDL or JSON schema), `transaction_id` (the `transaction` payload key; TRANSACTION is an SQL keyword) and `line_number`. Per-file, cascade-deleted with `file_data`, restored on delta scans.
 
+### `job_submit_data` — internal-reader job submission (#3448)
+
+One row per COBOL literal `//NAME JOB` / `//STEP EXEC` card or JCL DD routed to `SYSOUT=(x,INTRDR)`: `kind` (`JOB` / `EXEC` / `INTRDR`), `step_name`, `submit_name` (the `name` payload key), `target_kind` (`PROC` / `PGM` / `DSN`), `target` and `line_number`. Per-file, cascade-deleted with `file_data`, restored on delta scans.
+
+### `mq_call_data` — IBM MQ calls (#3447)
+
+One row per `CALL 'MQxxx'`: `verb`, `direction`, `queue_operand`, `queue_name`, `queue_resolution`, `queue_candidates`, `handle`, `open_line` (its MQOPEN), `options` and `line_number`. Per-file, cascade-deleted with `file_data`, restored on delta scans.
+
+### `uow_handler_data` — units of work and error handling (#3453)
+
+One row per SYNCPOINT / COMMIT / ROLLBACK, HANDLE CONDITION / ABEND / AID, explicit ABEND or RESP check: `kind`, `source` (`CICS` / `SQL`), `verb`, `condition_name` (the `condition` payload key), `target`, `target_kind`, `resp_var`, `attributes` and `line_number`. Per-file, cascade-deleted with `file_data`, restored on delta scans.
+
+### `file_control_data` — FILE-CONTROL SELECTs (#3455)
+
+One row per SELECT: `select_name`, `assign_name` (the `assign` payload key), `organization`, `access_mode`, `record_key`, `alternate_keys`, `relative_key`, `file_status`, `fd_copies` and `line_number`. Per-file, cascade-deleted with `file_data`, restored on delta scans.
+
+### `vsam_define_data` — IDCAMS DEFINE CLUSTER / AIX / PATH (#3455)
+
+One row per DEFINE in JCL in-stream data: `kind` (`CLUSTER` / `AIX` / `PATH`), `cluster_name` (the `name` payload key), `organization`, `key_length` / `key_offset` (KEYS), `record_avg` / `record_max` (RECORDSIZE), `related`, `unique_key`, `upgrade`, `step_name` (the `step` key) and `line_number`. Per-file, cascade-deleted with `file_data`, restored on delta scans.
+
+### `job_flow_data` — JCL job flow (#3451)
+
+One row per JOB, EXEC step or DSN DD: `kind` (`JOB` / `STEP` / `DD`), `job_name`, `step_ordinal`, `step_name`, `program`, `proc_name`, `cond`, `if_cond`, `in_proc`, `dd_name`, `dsn`, `disp`, `generation`, `line_number`, and the columns healed onto older tables: `disp_normal`, `runs` / `runs_via` / `systsin_member`, `parm`, `instream`, `lrecl` / `recfm`. A healed column restores as an absent key when NULL or empty (and a baseline without it restores the same way). Per-file, cascade-deleted with `file_data`, restored on delta scans.
+
+### `entry_point_data` — program entry points (#3454)
+
+One row per PROCEDURE DIVISION [USING ...] or ENTRY 'X' [USING ...]: `kind` (`PROCEDURE` / `ENTRY`), `entry_name` (the ENTRY literal), `params` (comma-joined by position, BY VALUE / CONTENT prefixed) and `line_number`. Per-file, cascade-deleted with `file_data`, restored on delta scans.
+
+### `dli_call_data` — IMS DL/I calls (#3450)
+
+One row per EXEC DLI command or CALL 'CBLTDLI' / 'AIBTDLI', operands as written: `interface` (`EXEC` / `CALL`), `function` (the EXEC command; NULL on a CALL), `function_operand`, `pcb`, `io_area`, `segments`, `ssas`, `where_text`, `psb` and `line_number`. Per-file, cascade-deleted with `file_data`, restored on delta scans.
+
+### `ims_gen_data` — IMS PSB / DBD macros and region steps (#3477)
+
+One row per PSBGEN / PCB / SENSEG / DBD / DATASET / SEGM / FIELD / LCHILD macro or JCL `DFSRRC00` REGION step: `kind`, `name`, `parent`, `owner`, `dbd_name`, `procopt`, `pcb_type`, `access`, `bytes`, `start_pos`, `psb_name`, `program`, `attributes` and `line_number`. Per-file, cascade-deleted with `file_data`, restored on delta scans.
+
+### `copy_statement_data` — section-level COPY ... REPLACING (#4457)
+
+One row per COPY statement that no `record_data` entry carries (after a section header or FD, or before a section's first entry): `member`, `library`, `replacing` (JSON `[[from, to(, LEADING|TRAILING)], ...]`, as in `record_data.copy_replacing`), `section`, `fd_name`, `after_ordinal` (the `record_data` ordinal of the entry above it, NULL when none) and `line_number`. Per-file, cascade-deleted with `file_data`, restored on delta scans.
+
+### `special_names_data` — SPECIAL-NAMES currency / decimal point (#3820)
+
+One row per CURRENCY [SIGN] clause (`value` the currency string, `symbol` the PICTURE SYMBOL standing for it) and per DECIMAL-POINT IS COMMA (`value` COMMA), with `clause` and `line_number`. Widths are the reader's. Per-file, cascade-deleted with `file_data`, restored on delta scans.
+
+### `compiler_options_data` — CBL / PROCESS card options (#3828)
+
+One row per option in source order: `option` (full name, abbreviations spelled out), `value` (between its parentheses, as written), `written` (as on the card) and `line_number`. Per-file, cascade-deleted with `file_data`, restored on delta scans.
+
 ### `data_move_data` — field-level data movement (#3452)
 
 One row per source -> target pair of a MOVE/COMPUTE/ADD/SUBTRACT/MULTIPLY/DIVIDE/STRING/UNSTRING/INITIALIZE: `verb`, `source` and `target` as written (qualifiers kept, subscripts dropped), `source_kind` (`item`/`literal`/`figurative`/`function`/`length`/`address`, NULL on INITIALIZE), `corresponding`, `source_refmod`/`target_refmod` and, since #3655, their texts `source_refmod_text`/`target_refmod_text`, and `line_number`. Per-file, cascade-deleted with `file_data`, restored on delta scans.

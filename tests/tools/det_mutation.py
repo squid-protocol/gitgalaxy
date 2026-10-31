@@ -27,8 +27,11 @@ Two committed directories, one <CASE>.json per case in each (two PRs measuring d
     (`status` returns None). The generator, harness and oracle (`INFO`) are whole-tree hashes: their drift alone
     does not stale an entry (owner 2026-10-23, #5862), it is recorded and shown. `refresh` translates the case again
     and, when the port is byte-identical, renews the fingerprints (a case / corpus / survivors move re-runs only
-    the recorded survivors, same seed, and carries the rest); a port whose bytes moved marks the entry stale
-    (`port`) until `run` records it again.
+    the recorded survivors, same seed, and carries the rest). `port` covers the translated program only: the cobolrt
+    runtime is never mutated and moved on most days, so it has its own `runtime` fingerprint, recorded like the other
+    INFO inputs. A port whose program moved is carried too (#5862): a mutant keeps its id while its line does, so
+    `refresh` runs the mutants the entry's port did not have (`every` lists the ones it had), sampled at the entry's
+    own rate, and keeps the other verdicts. A move too large to carry marks the entry stale (`port`) until `run`.
 
   tests/equivalence/det_mutation_survivors/ -- written by a person: per case, a surviving mutant (by id, with
     the Java line before / after) and its verdict, `equivalent` (the change cannot alter anything the program
@@ -95,12 +98,24 @@ SURVIVORS_ABOUT = ("#4628: each surviving det-port mutant stated `equivalent` or
 
 
 # ---- the det port and its fingerprints ------------------------------------------------------------------------------
-def port_sha(port: Path) -> str:
-    """sha256 over the det port's .java files (path \\0 bytes \\0, sorted): the port the mutants were cut from."""
+def _java_sha(port: Path, runtime: bool) -> str:
+    """sha256 over the det port's .java files (path \\0 bytes \\0, sorted), the cobolrt runtime's or the rest."""
     h = hashlib.sha256()
     for f in sorted(port.rglob("*.java")):
-        h.update(f.relative_to(port).as_posix().encode() + b"\0" + f.read_bytes() + b"\0")
+        rel = f.relative_to(port)
+        if (rel.parts[0] == "cobolrt") == runtime:
+            h.update(rel.as_posix().encode() + b"\0" + f.read_bytes() + b"\0")
     return h.hexdigest()
+
+
+def port_sha(port: Path) -> str:
+    """The det port's translated program: what the mutants are cut from (`FILES`), without the cobolrt runtime."""
+    return _java_sha(port, runtime=False)
+
+
+def runtime_sha(port: Path) -> str:
+    """The det port's copy of the cobolrt runtime."""
+    return _java_sha(port, runtime=True)
 
 
 def fingerprints(case: str) -> dict[str, Any]:
@@ -263,7 +278,7 @@ def entry_from_run(case: str, run: dict[str, Any], port: Path, out_of_scope: int
         "killed": sorted(r["id"] for r in by["killed"] + by["timeout"]),
         "stillborn": sorted(r["id"] for r in by["stillborn"]),
         "survived": [{k: r[k] for k in ("id", "op", "file", "line", "before", "after")} for r in by["survived"]],
-        "inputs": {"port": port_sha(port), **{n: v["sha256"] for n, v in now.items()}},
+        "inputs": {"port": port_sha(port), "runtime": runtime_sha(port), **{n: v["sha256"] for n, v in now.items()}},
         "components": {n: v["components"] for n, v in now.items() if "components" in v},
     }
 
@@ -432,7 +447,10 @@ def record(case: str, run_dir: Path, port: Path) -> int:
     run = json.loads((run_dir / "mutation.json").read_text(encoding="utf-8"))
     every = mu.all_mutants(port, set(mu.OPERATORS), FILES)
     in_scope = scope_filter(case_kind(case), port)(every)
-    entry = entry_from_run(case, run, port, len(every) - len(in_scope))
+    entry = {
+        **entry_from_run(case, run, port, len(every) - len(in_scope)),
+        "every": " ".join(sorted(m.id for m in in_scope)),
+    }
     import tempfile
 
     try:
@@ -506,21 +524,85 @@ def _outdated(entry: dict[str, Any], now: dict[str, Any]) -> bool:
     return bool(stale(entry, now) or drifted(entry, now))
 
 
+def mutant_ids(case: str, port: Path) -> set[str]:
+    """The ids of the case's mutants in scope in `port`."""
+    import mutation as mu
+
+    return {m.id for m in scope_filter(case_kind(case), port)(mu.all_mutants(port, set(mu.OPERATORS), FILES))}
+
+
+FRESH_FLOOR, FRESH_SHARE = 40, 0.25  # more new mutants than this, and more than this share of them: a full `run`
+
+
+def fresh_mutants(entry: dict[str, Any], every: set[str]) -> list[str] | None:
+    """The mutants of a moved port the entry's port did not have; None when the move is too large to carry, or the
+    entry predates `every`."""
+    known = set((entry.get("every") or "").split())  # (one string: a ledger is not a list of thousands of lines)
+    fresh = sorted(every - known)
+    if not known or len(fresh) > max(FRESH_FLOOR, FRESH_SHARE * len(every)):
+        return None
+    # a sampled entry samples its new mutants too (ids are hashes: repeatable)
+    rate = entry["chosen"] / entry["mutants"]
+    return fresh if rate >= 1 else [i for i in fresh if int(i, 16) < rate * 16 ** len(i)]
+
+
+def rebase_entry(entry: dict[str, Any], every: set[str]) -> dict[str, Any]:
+    """The entry without the mutants the moved port no longer has."""
+    out = json.loads(json.dumps(entry))  # (a copy)
+    out["killed"] = [i for i in out.get("killed", []) if i in every]
+    out["stillborn"] = [i for i in out.get("stillborn", []) if i in every]
+    out["survived"] = [s for s in out.get("survived", []) if s["id"] in every]
+    counts = out["counts"]
+    counts["timeout"] = min(counts.get("timeout", 0), len(out["killed"]))
+    counts["killed"] = len(out["killed"]) - counts["timeout"]
+    counts["stillborn"], counts["survived"] = len(out["stillborn"]), len(out["survived"])
+    out["mutants"] = len(every)
+    out["chosen"] = len(out["killed"]) + len(out["stillborn"]) + len(out["survived"])
+    return out
+
+
+def add_fresh(entry: dict[str, Any], rerun: list[dict[str, Any]], fresh: list[str]) -> dict[str, Any] | None:
+    """The entry with the verdicts of the new mutants; None when one has no verdict to record (the entry stays stale).
+    A new survivor is listed like any other, so L5 is withheld until it is accounted for."""
+    got = {r["id"]: r for r in rerun}
+    out = json.loads(json.dumps(entry))  # (a copy)
+    for i in fresh:
+        r = got.get(i)
+        v = r["verdict"] if r else None
+        if v not in ("killed", "timeout", "survived", "stillborn"):
+            return None
+        out["counts"][v] = out["counts"].get(v, 0) + 1
+        if v == "survived":
+            out["survived"].append({k: r[k] for k in ("id", "op", "file", "line", "before", "after")})
+        else:
+            out["stillborn" if v == "stillborn" else "killed"].append(i)
+    out["killed"], out["stillborn"] = sorted(out["killed"]), sorted(out["stillborn"])
+    out["chosen"] += len(fresh)
+    return out
+
+
+SECONDS_PER_MUTANT = 10  # measured on the nightly lane: 150 mutants in 18-26 min, 490 of ASYNCPNT's 1992 in 78 min
+
+
 def rerun_moved(cases: list[str], work: Path, budget_min: float | None = None,
                 clock: Callable[[], float] = time.monotonic) -> tuple[list[str], int]:  # fmt: skip
     """`run` each case whose det port moved, with the sample, seed and mode its ledger entry was cut with (so the new
-    score is comparable), oldest entry first; no new case starts once `budget_min` minutes are spent (None: no limit).
-    A fresh `record` drops `port_moved`. Returns (the cases still flagged, the worst `run` status): a case left for
+    score is comparable), oldest entry first; no new case starts once `budget_min` minutes are spent (None: no limit),
+    and a case its own size says cannot fit what is left is passed over, so it cannot run into the job's time limit and
+    take the night with it. A fresh `record` drops `port_moved`. Returns (the cases still flagged, the worst `run` status): a case left for
     the next night, or one whose run failed, keeps its flag (#5862)."""
     ledger = load()
     order = sorted(cases, key=lambda c: (str(ledger[c].get("date") or ""), c))
-    start, rc, slowest, took, failed = clock(), 0, 0.0, [], []
+    start, rc, slowest, took, failed, passed = clock(), 0, 0.0, [], [], []
     for i, case in enumerate(order):
         used = clock() - start
         if budget_min is not None and used + slowest >= budget_min * 60:  # (the slowest case so far must still fit)
             print(f"det mutation: budget of {budget_min:g} min spent: {', '.join(order[i:])} left for the next run")
             break
         e = ledger[case]
+        if budget_min is not None and used + (e.get("chosen") or 0) * SECONDS_PER_MUTANT >= budget_min * 60:
+            passed.append(case)
+            continue
         t0 = clock()
         rc_case = run([case], work, e.get("chosen") or None, e.get("seed") or 0, 3, e.get("mode") == "full")
         secs = clock() - t0
@@ -530,6 +612,8 @@ def rerun_moved(cases: list[str], work: Path, budget_min: float | None = None,
             failed.append(case)
         rc |= rc_case
         print(f"det mutation: {case} ran in {secs / 60:.1f} min ({'failed' if rc_case else 'ok'})")
+    if passed:
+        print(f"det mutation: too large for what was left of {budget_min:g} min: {', '.join(passed)}")
     now = load()
     left = [c for c in order if (now.get(c) or {}).get("port_moved")]
     print(f"det mutation: {len(order)} moved, {len(took)} run in {sum(took) / 60:.1f} min "
@@ -543,8 +627,9 @@ def refresh(cases: list[str], work: Path, run_moved: bool = False, budget_min: f
     re-run only the recorded survivors (same seed, operators, scope and mode) and carry the other verdicts; a survivor that now dies drops out of the survivors (a stated
     `equivalent` / `unreachable` one is a wrong claim: exit 1), one still surviving with the same Java line before /
     after keeps its stated verdict. Mutants killed before are not re-proven (a case weakened since would not show).
-    A port whose bytes moved marks the entry stale (`port_moved`: `run` records it afresh). Exit 1: a wrong claim, an
-    error, a survivor not re-run. Exit 2: only that a port moved (a person runs `run`); the
+    The translated program moved: carry the verdicts of the mutants it still has and run the new ones, within
+    `budget_min` (a new survivor withholds L5 until it is accounted for). A move too large to carry marks the entry stale (`port_moved`: `run` records it
+    afresh). Exit 1: a wrong claim, an error, a survivor not re-run. Exit 2: only that a port moved (a person runs `run`); the
     scheduled lane (evidence-refresh.yml) warns on 2 and fails on 1. With `run_moved` the moved ports are run again
     here (`rerun_moved`, within `budget_min`), so exit 2 is left only for the cases the budget did not reach."""
     import evidence as ev
@@ -559,9 +644,13 @@ def refresh(cases: list[str], work: Path, run_moved: bool = False, budget_min: f
     print(f"det mutation: {len(todo)} of {len(ledger)} ledger(s) stale")
     det = translate(todo, work)
     rc, port_moved, moved_ports = 0, False, []
+    start = time.monotonic()
     for case in todo:
         entry, port = ledger[case], det / case / "port"
-        if not port.is_dir() or port_sha(port) != entry["inputs"]["port"]:
+        every = mutant_ids(case, port) if port.is_dir() else set()
+        same_port = port.is_dir() and port_sha(port) == entry["inputs"]["port"]
+        fresh = None if not port.is_dir() else [] if same_port else fresh_mutants(entry, every)
+        if fresh is None:
             print(f"{case}: the det port changed: re-run (det_mutation.py run {case} --work DIR)")
             port_moved = True
             if port.is_dir():
@@ -569,13 +658,21 @@ def refresh(cases: list[str], work: Path, run_moved: bool = False, budget_min: f
             if port.is_dir() and not entry.get("port_moved"):  # stale until `run` records the new port
                 write(case, {**entry, "port_moved": True})
             continue
+        if budget_min is not None and time.monotonic() - start >= budget_min * 60:
+            print(f"{case}: left for the next run: the budget of {budget_min:g} min is spent")
+            port_moved = True
+            continue
+        if not same_port:
+            entry = rebase_entry(entry, every)
+            print(f"{case}: the program moved: {len(fresh)} new mutant(s) to run")
         now = fingerprints(case)
-        moved = stale(entry, now)
+        moved = [m for m in stale(entry, now) if m != "port"]  # (the port is dealt with above)
         info = drifted(entry, now)
-        if moved and entry.get("survived"):
+        again = [s["id"] for s in entry.get("survived", [])] if moved else []
+        if fresh or again:
             only = work / case / "survivors"
             only.mkdir(parents=True, exist_ok=True)
-            results = [{"id": s["id"], "verdict": "survived"} for s in entry["survived"]]
+            results = [{"id": i, "verdict": "survived"} for i in [*again, *fresh]]
             (only / "mutation.json").write_text(json.dumps({"results": results}), encoding="utf-8")
             try:
                 res = mu.run(case, work / case / "rerun", 3, None, entry["seed"], set(mu.OPERATORS), None, False,
@@ -585,30 +682,35 @@ def refresh(cases: list[str], work: Path, run_moved: bool = False, budget_min: f
                 print(f"{case}: {e}")
                 rc = 1
                 continue
-            merged = merge_survivors(entry, res["results"])
+            merged = merge_survivors(entry, res["results"]) if again else entry
+            merged = merged and add_fresh(merged, res["results"], fresh)
             if merged is None:
                 print(f"{case}: a recorded survivor was not re-run or moved: re-run (det_mutation.py run {case})")
                 rc = 1
                 continue
-            merged["refreshed"] = {"from": entry.get("date"), "survivors_rerun": len(results), "stale": moved}
+            merged["refreshed"] = {"from": entry.get("date"), "survivors_rerun": len(again),
+                                   "fresh": len(fresh), "stale": moved}  # fmt: skip
             merged["date"] = datetime.datetime.now(datetime.timezone.utc).date().isoformat()
             merged["commit"] = ev.harness_commit()
             if res.get("coverage"):
                 merged["coverage"] = res["coverage"]
             entry = merged
-        entry.pop("port_moved", None)  # (the port is byte-identical again)
+        entry.pop("port_moved", None)  # (the entry speaks for this port again)
+        entry["every"], entry["inputs"]["port"] = " ".join(sorted(every)), port_sha(port)
+        entry["inputs"]["runtime"] = runtime_sha(port)
         for n, v in now.items():
             entry["inputs"][n] = v["sha256"]
             if "components" in v:
                 entry.setdefault("components", {})[n] = v["components"]
         write(case, entry)
         s = summary(case, entry)
-        print(f"{case}: the det port is unchanged: renewed ({', '.join(moved + info)}); {_row(s)}")
+        print(f"{case}: renewed ({', '.join(moved + info)}){'' if same_port else ', program moved'}; {_row(s)}")
         for i in s["refuted"]:
             print(f"{case}: {i} is stated {stated(case)[i]['verdict']} but the re-run killed it: the claim is wrong")
             rc = 1
     if run_moved and moved_ports:
-        left, rc_run = rerun_moved(moved_ports, work, budget_min)
+        spent = (time.monotonic() - start) / 60
+        left, rc_run = rerun_moved(moved_ports, work, None if budget_min is None else max(0, budget_min - spent))
         rc |= rc_run
         port_moved = bool(left)
     return rc or (2 if port_moved else 0)

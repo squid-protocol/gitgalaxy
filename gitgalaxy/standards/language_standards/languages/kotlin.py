@@ -13,7 +13,7 @@ from typing import Any
 from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: compiled on first use
 from gitgalaxy.standards.language_standards.identifiers import CAPITAL, ID_CONTINUE, ID_START
 
-from .._shared_patterns import CALLS_OUT_KOTLIN, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import CALLS_OUT_KOTLIN, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT, commented_keyword_statement
 
 # An extension function's receiver type and its dot, shared by `args` and
 # `func_start`. #3608: the receiver can be generic (`Collection<CodeBlock>.`,
@@ -266,7 +266,9 @@ DEFINITION: dict[str, Any] = {
             re.M,
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails)
-        "dead_code": re.compile(r"//[ \t]*(?:val|var|fun|class|interface|object|if|when|for|return|import)\b"),
+        "dead_code": re.compile(
+            commented_keyword_statement("val|var|fun|class|interface|object|if|when|for|return|import", block=False)
+        ),
         # 13. doc (Structured Documentation)
         # BUG FIX #2672: pair `/**` with its closing `*/` into one bounded
         # (0,15000 chars) non-greedy span so a KDoc block counts once, not

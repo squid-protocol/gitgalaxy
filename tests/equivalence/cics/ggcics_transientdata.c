@@ -297,7 +297,7 @@ int GGCWRTD(gg_cics *c, char *from) {
         if (f) { if (c->len > 0) fwrite(from, 1, (size_t)c->len, f); fclose(f); }
     }
     snprintf(ev, sizeof ev, "WRITEQ-TD queue=%s len=%d resp=%d", queue, c->len, c->resp);
-    event(ev, c->resp == NORMAL ? from : NULL, c->resp == NORMAL ? c->len : 0);
+    event(ev, from, c->len > 0 ? c->len : 0); /* #5079: the record the program sent, whatever the answer (the crucible logs it) */
     return 0;
 }
 
@@ -384,26 +384,30 @@ int GGCRDTD(gg_cics *c, char *into, int intolen) {
 /* DELETEQ TD QUEUE (IBM, EXEC CICS DELETEQ TD): every record of an intrapartition queue; QIDERR when the CSD does not
  * define it, INVREQ (RESP2 0: IBM lists none) for an extrapartition queue. */
 int GGCDLTD(gg_cics *c) {
-    char queue[17], target[17], dir[4096], path[4200];
+    char queue[17], target[17], dir[4096], path[4200], ev[96];
     trim(c->qname, 16, queue);
     c->resp = NORMAL;
     c->resp2 = 0;
     td_resolve(queue, target); /* #5168 */
     int kind = td_kind(target);
-    if (!kind) { c->resp = QIDERR; return 0; }
-    if (td_disabled(target)) { c->resp = DFHRESP_DISABLED; return 0; } /* #5168 round 5 (X66) */
-    if (kind == 2) { c->resp = INVREQ; return 0; }
-    if (kind == 3) refuse("DELETEQ TD of a queue whose TYPE is not INTRA or EXTRA: not modelled");
-    td_touch(target);
-    td_dir(target, dir, sizeof dir);
-    int head = td_head(dir), tail = td_tail(dir, head);
-    for (int i = head; i < tail; i++) {
-        snprintf(path, sizeof path, "%s/%06d.bin", dir, i);
+    if (!kind) c->resp = QIDERR;
+    else if (td_disabled(target)) c->resp = DFHRESP_DISABLED; /* #5168 round 5 (X66) */
+    else if (kind == 2) c->resp = INVREQ;
+    else if (kind == 3) refuse("DELETEQ TD of a queue whose TYPE is not INTRA or EXTRA: not modelled");
+    else {
+        td_touch(target);
+        td_dir(target, dir, sizeof dir);
+        int head = td_head(dir), tail = td_tail(dir, head);
+        for (int i = head; i < tail; i++) {
+            snprintf(path, sizeof path, "%s/%06d.bin", dir, i);
+            remove(path);
+        }
+        snprintf(path, sizeof path, "%s/head", dir);
         remove(path);
+        RMDIR(dir);
     }
-    snprintf(path, sizeof path, "%s/head", dir);
-    remove(path);
-    RMDIR(dir);
+    snprintf(ev, sizeof ev, "DELETEQ-TD queue=%s resp=%d", queue, c->resp); /* #5079 (X57): the crucible logs it */
+    event(ev, NULL, 0);
     return 0;
 }
 

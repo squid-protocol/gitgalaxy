@@ -172,7 +172,7 @@
 /swagger1.json	tests/security_auditing
 /swagger2.json	tests/security_auditing
 /templates	tests/core_engine,tests/tools/stamp_template_pins.py
-/tests	tests/cobol_mainframe,tests/core_engine,tests/security_auditing,tests/test_golden_store.py,tests/test_signal_contract_sheet.py,tests/test_source_reads.py,tests/tools/audit_check.py,tests/tools/cics_crucible.py,tests/tools/coverage_map.py,tests/tools/crucible_path_check.py,tests/tools/crucible_port_provenance.py,tests/tools/equivalence_env.py,tests/tools/estate_crucible.py,tests/tools/evidence.py,tests/tools/evidence_report.py,tests/tools/graph_coverage_chart.py,tests/tools/ladder_refresh.py,tests/tools/test_env_gated_tests_run_in_ci_5954.py,tests/tools/test_posix_only_imports_4934.py,tests/tools/test_timeouts_4904.py,tests/tools/tree_sitter_accuracy_audit.py
+/tests	tests/cobol_mainframe,tests/core_engine,tests/security_auditing,tests/test_golden_store.py,tests/test_signal_contract_sheet.py,tests/test_source_reads.py,tests/tools/audit_check.py,tests/tools/cics_crucible.py,tests/tools/coverage_map.py,tests/tools/crucible_path_check.py,tests/tools/crucible_port_provenance.py,tests/tools/equivalence_env.py,tests/tools/estate_crucible.py,tests/tools/evidence.py,tests/tools/evidence_report.py,tests/tools/graph_coverage_chart.py,tests/tools/ladder_refresh.py,tests/tools/mainframe_corpus.py,tests/tools/test_env_gated_tests_run_in_ci_5954.py,tests/tools/test_posix_only_imports_4934.py,tests/tools/test_timeouts_4904.py,tests/tools/tree_sitter_accuracy_audit.py
 /unreadable.dat	tests/security_auditing
 /zlib	tests/tools/test_callgraph_oracle.py
 08-03-transforming-regex-counts.md	tests/tools/fidelity_table.py
@@ -355,7 +355,7 @@ docs/language_status/progress_issues_cache.json	tests/tools/progress_report.py
 docs/language_status/readiness_report.md	tests/tools/generated_docs.py,tests/tools/test_generated_branch.py
 docs/language_status/refusal_map.json	tests/cobol_mainframe,tests/tools/support_matrix.py
 docs/language_status/register	tests/cobol_mainframe,tests/tools/test_generated_docs.py
-docs/language_status/register/	tests/tools/cobolrt_rules.py,tests/tools/register.py,tests/tools/test_generated_docs.py
+docs/language_status/register/	tests/tools/capability_ledger.py,tests/tools/cobolrt_rules.py,tests/tools/register.py,tests/tools/test_generated_docs.py
 docs/language_status/register/*.md	tests/cobol_mainframe,tests/tools/register.py
 docs/language_status/register/A1.md	tests/tools/test_ci_replay_6278.py
 docs/language_status/register/C11.md	tests/cobol_mainframe
@@ -365,6 +365,7 @@ docs/language_status/register/L1.md	tests/cobol_mainframe
 docs/language_status/register/L3.md	tests/cobol_mainframe
 docs/language_status/register/Q4.md	tests/cobol_mainframe
 docs/language_status/register/Q5.md	tests/cobol_mainframe
+docs/language_status/register/X17.md	tests/cobol_mainframe
 docs/language_status/register/X18.md	tests/cobol_mainframe
 docs/language_status/register/X54.md	tests/cobol_mainframe
 docs/language_status/register/X55.md	tests/core_engine

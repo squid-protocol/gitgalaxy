@@ -1,0 +1,59 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "HCRQTD",
+  "program_source": "cases/condition-handling/hc-readq-td/src/HCRQTD.cbl",
+  "copy_dirs": [
+    "cases/condition-handling/hc-readq-td/copy"
+  ],
+  "transid": "HC82",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "notes": "cics-crucible condition-handling / hc-readq-td (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): READQ TD: destructive FIFO read of an intrapartition queue (oldest first, the read destroys the record), QZERO on an empty or drained queue, QIDERR on an undefined queue (READQ / WRITEQ / DELETEQ), DELETEQ TD then READQ, LENGERR on a short INTO area. Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "fifo",
+      "commarea": null,
+      "terminal": "HC82 F",
+      "why": "WRITEQ TD of items of 5, 7 and 8 bytes, then READQ TD x4 into an 8-byte area: oldest first, each read destroys its record (5, 7, 8 bytes), the fourth is QZERO; the queue ends empty"
+    },
+    {
+      "name": "seeded",
+      "commarea": null,
+      "terminal": "HC82 S",
+      "why": "HCQ1 starts with one item; WRITEQ TD appends a second; READQ TD returns the seeded item first, then the written one, then QZERO"
+    },
+    {
+      "name": "empty",
+      "commarea": null,
+      "terminal": "HC82 E",
+      "why": "READQ TD of an empty queue: QZERO, the INTO area is not written"
+    },
+    {
+      "name": "undefined",
+      "commarea": null,
+      "terminal": "HC82 U",
+      "why": "READQ TD, WRITEQ TD and DELETEQ TD of HCNQ, a queue the CSD does not define: QIDERR each"
+    },
+    {
+      "name": "deleteq",
+      "commarea": null,
+      "terminal": "HC82 D",
+      "why": "WRITEQ TD of three items, DELETEQ TD of the queue, then READQ TD: the data is gone, QZERO"
+    },
+    {
+      "name": "lengerr",
+      "commarea": null,
+      "terminal": "HC82 L",
+      "why": "an 8-byte item read into a 4-byte area with LENGTH(4): LENGERR, the first 4 bytes are moved and LENGTH comes back 8"
+    },
+    {
+      "name": "unmatched-mode",
+      "commarea": null,
+      "terminal": "HC82 Z",
+      "why": "takes the EVALUATE/IF arm no crucible scenario reaches: a mode no WHEN names (falls through)"
+    }
+  ]
+}

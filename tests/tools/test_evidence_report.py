@@ -928,3 +928,51 @@ def test_a_reviewed_infeasible_paragraph_is_netted_from_the_paragraph_count_only
     assert "paragraph_net_pct" not in reached and reached["infeasible_refuted"] == ["6000-EXIT:paragraph"]
     # no paragraph entry: no optional key
     assert "paragraph_net_pct" not in er.coverage_of({"case": "d", "record": None}, {}, {"d": [15, 16, 38, 40]})
+
+
+# ---- #5229: reach measured from the commands a record carries ----------------------------------------------------
+def _case(commands, role="program"):
+    rec = {"commands_run": commands} if commands is not None else {}
+    return {"case": "c", "role": role, "record": rec}
+
+
+def test_reach_is_the_registers_of_the_commands_the_scenarios_ran():
+    spec = er.css.spec()
+    reach = er.reach_of(_case(["WRITEQ-TS", "RETURN", "SEND-MAP"]))
+    want = {r for k in ("WRITEQ TS", "RETURN", "SEND MAP") for r in er.css.registers(spec[k])}
+    assert reach["registers"] == sorted(want, key=lambda x: int(x[1:]))
+    assert reach["commands_run"] == ["RETURN", "SEND MAP", "WRITEQ TS"]
+
+
+@pytest.mark.parametrize(
+    "case",
+    [
+        None,  # no case
+        _case(None),  # a record from before the commands were recorded
+        _case([]),
+        _case(["RETURN"], role="linked"),  # a LINKed program's events are its main program's
+        _case(["RETURN", "MQGET"]),  # an MQI call is no spec entry: partial mapping is never reported as reach
+    ],
+)
+def test_reach_is_not_measured_without_every_command_mapped_for_the_programs_own_case(case):
+    assert er.reach_of(case) == "not measured"
+
+
+def test_record_summary_carries_commands_run_only_when_non_empty(monkeypatch):
+    class T:
+        db2 = False
+
+    def summary(outputs):
+        rec = {"proof": {"outputs": outputs, "verdict": "proven"}}
+        monkeypatch.setattr(er.ev, "equivalence_target", lambda case: T())
+        monkeypatch.setattr(er.ev, "load", lambda t: rec)
+        return er.record_summary("c", None)
+
+    got = summary(
+        {
+            "a": {"equal": 1, "records": 1, "commands": ["RETURN"]},
+            "b": {"equal": 1, "records": 1, "commands": ["LINK", "RETURN"]},
+        }
+    )
+    assert got["commands_run"] == ["LINK", "RETURN"]
+    assert "commands_run" not in summary({"a": {"equal": 1, "records": 1}})

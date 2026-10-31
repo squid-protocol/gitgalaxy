@@ -1,0 +1,77 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "GTOPTS",
+  "program_source": "cases/ghost-tasks/gt-start-options/src/GTOPTS.cbl",
+  "copy_dirs": [],
+  "transid": "GT21",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "programs": [
+    {
+      "program": "GTREAD",
+      "program_source": "cases/ghost-tasks/gt-start-options/src/GTREAD.cbl"
+    },
+    {
+      "program": "GTRTRN",
+      "program_source": "cases/ghost-tasks/gt-start-options/src/GTRTRN.cbl"
+    },
+    {
+      "program": "GTCHLD",
+      "program_source": "cases/ghost-tasks/gt-start-options/src/GTCHLD.cbl"
+    }
+  ],
+  "notes": "cics-crucible ghost-tasks / gt-start-options (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): START options beyond INTERVAL / TIME: the data options RTRANSID / RTERMID / QUEUE and RETRIEVE's ENVDEFERR, RETRIEVE with no INTO, AFTER / AT, INVREQ's RESP2, a REQID reused with FROM (IOERR); RUN TRANSID's child task. Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "data-options",
+      "commarea": null,
+      "terminal": "GT21 D",
+      "why": "START FROM with RTRANSID, RTERMID and QUEUE: GT22's one RETRIEVE gets the data and all three values"
+    },
+    {
+      "name": "envdeferr",
+      "commarea": null,
+      "terminal": "GT21 E",
+      "why": "START with FROM only: GT22's RETRIEVE also names RTRANSID / RTERMID / QUEUE, so ENVDEFERR"
+    },
+    {
+      "name": "no-into",
+      "commarea": null,
+      "terminal": "GT21 N",
+      "why": "START with RTRANSID and no FROM: still a data record; GT23 RETRIEVEs it with no INTO, then ENDDATA"
+    },
+    {
+      "name": "after-at",
+      "commarea": null,
+      "terminal": "GT21 A",
+      "why": "AFTER MINUTES(1), AFTER 0 h 0 m 30 s, AT 10:45 and TIME(250000) at 10:00: tasks at 10:00:30, 10:01, 10:45; the last is tomorrow's"
+    },
+    {
+      "name": "invreq-resp2",
+      "commarea": null,
+      "terminal": "GT21 V",
+      "why": "INTERVAL(70), AFTER HOURS(1) MINUTES(60), AFTER SECONDS(360000), AFTER HOURS(100): INVREQ with RESP2 6, 5, 6, 4; nothing starts"
+    },
+    {
+      "name": "run-transid",
+      "commarea": null,
+      "terminal": "GT21 U",
+      "why": "RUN TRANSID('GT24') CHILD attaches a child task that runs (no terminal); RUN of an undefined transaction is TRANSIDERR RESP2 1"
+    },
+    {
+      "name": "reqid-ioerr",
+      "commarea": null,
+      "terminal": "GT21 I",
+      "why": "the same REQID twice, both with FROM: the second START is IOERR; only the first runs"
+    },
+    {
+      "name": "unmatched-mode",
+      "commarea": null,
+      "terminal": "GT21 Z",
+      "why": "takes the EVALUATE/IF arm no crucible scenario reaches: a mode no WHEN names (falls through)"
+    }
+  ]
+}

@@ -14,6 +14,9 @@
 #     galaxy_ir `ir_field` that test_fact_channels.py checks against galaxy_ir's SCOPE
 #     comment and loader (checked, not generated). The recipe channel table and
 #     custom-insert channels are not registry-driven yet (#3383 remaining slices).
+#   - The recorders' AUDIT_SECTIONS / FACT_LINES, the differential's SET_CHANNELS and the answer key's
+#     DRAFT_SECTIONS are their own tables; test_fact_channels.py checks each against CHANNELS (payload_key,
+#     `differential`) so a channel without its report sections or comparison fails there.
 #   - A resolved channel (call_site_data, `resolved=True`) is inserted from the engine's repo-wide
 #     list by record_keeper's _insert_resolved_channel; its schema and restore live here too
 #     (transaction_data is the other one).
@@ -64,6 +67,10 @@ class FactChannel:
     # The column holding the owning file's id: `file_id` for a per-file channel, but a resolved
     # channel names its own (`src_file_id` on call_site_data, `file_id` on transaction_data).
     src_column: str = "file_id"
+    # The refraction differential's `SetChannel.language` that compares this channel (#3383), or ""
+    # when none does. test_fact_channels.py checks each names a real SetChannel and that every
+    # SetChannel is claimed by a channel, so a compared channel is declared here, not in a test.
+    differential: str = ""
 
     def select_sql(self, cursor: sqlite3.Cursor, has_table: Callable, has_column: Callable) -> str:
         if callable(self.restore_select):
@@ -357,6 +364,297 @@ _WEB_SERVICE_DDL = """
         """
 
 
+# #3454: program entry points -- PROCEDURE DIVISION [USING ...] and ENTRY 'X' [USING ...] (call_using.py): the
+# parameters a CALL's USING list pairs with. kind PROCEDURE | ENTRY; entry_name the ENTRY literal; params comma-joined
+# by position (BY VALUE / CONTENT prefixed).
+_ENTRY_POINT_DDL = """
+            CREATE TABLE IF NOT EXISTS entry_point_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                kind TEXT,
+                entry_name TEXT,
+                params TEXT,
+                line_number INTEGER,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """
+
+
+# #3450: IMS DL/I calls (core/dli_calls.py), operands as written. interface EXEC (EXEC DLI) | CALL (CALL 'CBLTDLI' /
+# 'AIBTDLI'); function the EXEC command (GU / GN / ISRT / SCHD ...), NULL on a CALL, whose code lives in
+# function_operand's VALUE; pcb / io_area PCB(...) / INTO|FROM, or a CALL's 2nd / 3rd argument; segments / where_text
+# EXEC SEGMENT(...)s (comma) / WHERE(...)s (`;`); ssas a CALL's SSA arguments (comma); psb SCHD PSB(...).
+_DLI_CALL_DDL = """
+            CREATE TABLE IF NOT EXISTS dli_call_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                interface TEXT,
+                function TEXT,
+                function_operand TEXT,
+                pcb TEXT,
+                io_area TEXT,
+                segments TEXT,
+                ssas TEXT,
+                where_text TEXT,
+                psb TEXT,
+                line_number INTEGER,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """
+
+
+# #3477: IMS PSB / DBD generation macros and JCL IMS region steps (core/ims_gen.py). kind PSBGEN | PCB | SENSEG | DBD |
+# DATASET | SEGM | FIELD | LCHILD | REGION; name / parent / owner the statement's object, its parent segment, and the
+# PCB (SENSEG) or DBD (SEGM / FIELD / LCHILD) it belongs to; dbd_name / procopt / pcb_type a PCB's DBDNAME / PROCOPT /
+# TYPE; access a DBD's ACCESS, a FIELD's SEQ, a REGION's type (DLI / BMP ...); psb_name / program a REGION's PSB and
+# program (DFSRRC00 PARM).
+_IMS_GEN_DDL = """
+            CREATE TABLE IF NOT EXISTS ims_gen_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                kind TEXT,
+                name TEXT,
+                parent TEXT,
+                owner TEXT,
+                dbd_name TEXT,
+                procopt TEXT,
+                pcb_type TEXT,
+                access TEXT,
+                bytes INTEGER,
+                start_pos INTEGER,
+                psb_name TEXT,
+                program TEXT,
+                attributes TEXT,
+                line_number INTEGER,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """
+
+
+# #3448: job submission through the internal reader (core/job_submits.py). kind JOB (a COBOL literal `//NAME JOB` card) |
+# EXEC (a COBOL literal `//STEP EXEC PROC=|PGM=` card) | INTRDR (a JCL DD routed to SYSOUT=(x,INTRDR)); step_name the
+# EXEC card's / INTRDR DD's step; submit_name the JOB card's job name, or the INTRDR DD's ddname; target_kind PROC | PGM
+# (EXEC) | DSN (INTRDR: the step's SYSUT1); target that procedure / program / dataset.
+_JOB_SUBMIT_DDL = """
+            CREATE TABLE IF NOT EXISTS job_submit_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                kind TEXT,
+                step_name TEXT,
+                submit_name TEXT,
+                target_kind TEXT,
+                target TEXT,
+                line_number INTEGER,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """
+
+
+# #3447: IBM MQ calls (core/mq_calls.py), one row per CALL 'MQxxx'. verb MQOPEN | MQPUT | MQPUT1 | MQGET | MQCLOSE |
+# MQINQ | ...; direction get | browse | put | inquire | set (open options; PUT/GET); queue_operand what was MOVEd to the
+# descriptor's OBJECTNAME; queue_name that operand resolved (NULL unless one literal); queue_resolution literal | value |
+# move | trigger (MQTM-QNAME) | reply_to (MQMD-REPLYTOQ) | ambiguous | unresolved; queue_candidates comma-joined values
+# when `ambiguous`; handle the object handle (MQOPEN's returned, or the one a PUT/GET/CLOSE passes); open_line its
+# MQOPEN; options the MQOO-/MQPMO-/MQGMO- option words in effect.
+_MQ_CALL_DDL = """
+            CREATE TABLE IF NOT EXISTS mq_call_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                verb TEXT,
+                direction TEXT,
+                queue_operand TEXT,
+                queue_name TEXT,
+                queue_resolution TEXT,
+                queue_candidates TEXT,
+                handle TEXT,
+                open_line INTEGER,
+                options TEXT,
+                line_number INTEGER,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """
+
+
+# #3453: units of work and error handling (core/uow_handlers.py). kind COMMIT | ROLLBACK | HANDLE_CONDITION |
+# IGNORE_CONDITION | HANDLE_ABEND | HANDLE_AID | PUSH_HANDLE | POP_HANDLE | ABEND | RESP_CHECK; source CICS | SQL; verb
+# as written (SYNCPOINT ROLLBACK, COMMIT WORK, HANDLE ABEND, or for RESP_CHECK the checked command: READ, LINK, ...);
+# condition_name the condition / AID key handled, the ABEND's ABCODE, or a RESP_CHECK's tested DFHRESP(...) names (NULL =
+# untested); target handler paragraph (LABEL) or program (PROGRAM); target_kind LABEL | PROGRAM | CANCEL | RESET |
+# DEFAULT; resp_var a RESP_CHECK's RESP field (EIBRESP under NOHANDLE).
+_UOW_HANDLER_DDL = """
+            CREATE TABLE IF NOT EXISTS uow_handler_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                kind TEXT,
+                source TEXT,
+                verb TEXT,
+                condition_name TEXT,
+                target TEXT,
+                target_kind TEXT,
+                resp_var TEXT,
+                attributes TEXT,
+                line_number INTEGER,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """
+
+
+# #3455: FILE-CONTROL SELECT definitions (core/file_control.py), per SELECT. select_name / assign_name the file and its
+# ASSIGN target; organization INDEXED | RELATIVE | SEQUENTIAL | LINE SEQUENTIAL (NULL: absent); access_mode SEQUENTIAL |
+# RANDOM | DYNAMIC; record_key / relative_key / file_status data-names as written; alternate_keys comma-joined, `+DUP` =
+# WITH DUPLICATES; fd_copies COPY members inside the file's FD entry (its record).
+_FILE_CONTROL_DDL = """
+            CREATE TABLE IF NOT EXISTS file_control_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                select_name TEXT,
+                assign_name TEXT,
+                organization TEXT,
+                access_mode TEXT,
+                record_key TEXT,
+                alternate_keys TEXT,
+                relative_key TEXT,
+                file_status TEXT,
+                fd_copies TEXT,
+                line_number INTEGER,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """
+
+
+# #3455: IDCAMS DEFINE CLUSTER / ALTERNATEINDEX / PATH in JCL in-stream data (core/file_control.py).
+#   kind          -- CLUSTER | AIX | PATH;  cluster_name as written
+#   organization  -- INDEXED | NUMBERED | NONINDEXED | LINEAR
+#   key_length / key_offset -- KEYS(l o);  record_avg / record_max -- RECORDSIZE
+#   related       -- an AIX's RELATE base, a PATH's PATHENTRY
+#   unique_key / upgrade -- AIX UNIQUEKEY|NONUNIQUEKEY, UPGRADE|NOUPGRADE
+_VSAM_DEFINE_DDL = """
+            CREATE TABLE IF NOT EXISTS vsam_define_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                kind TEXT,
+                cluster_name TEXT,
+                organization TEXT,
+                key_length INTEGER,
+                key_offset INTEGER,
+                record_avg INTEGER,
+                record_max INTEGER,
+                related TEXT,
+                unique_key TEXT,
+                upgrade TEXT,
+                step_name TEXT,
+                line_number INTEGER,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """
+
+
+# #3451: JCL job flow (core/job_flow.py): one row per JOB / EXEC step / DSN DD.
+#   kind          -- JOB | STEP | DD;  job_name on a JOB row
+#   step_ordinal / step_name -- a STEP's 1-based position in its job or PROC
+#   program / proc_name -- EXEC PGM= / EXEC PROC= (or positional)
+#   cond / if_cond -- COND= as written; the enclosing IF conditions (` AND `)
+#   in_proc       -- the PROC a STEP / DD belongs to
+#   dd_name / dsn / disp / generation -- a DD's name (an override's own), DSN
+#                    as written without generation, NEW|OLD|SHR|MOD, +1|0|-1
+_JOB_FLOW_DDL = """
+            CREATE TABLE IF NOT EXISTS job_flow_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                kind TEXT,
+                job_name TEXT,
+                step_ordinal INTEGER,
+                step_name TEXT,
+                program TEXT,
+                proc_name TEXT,
+                cond TEXT,
+                if_cond TEXT,
+                in_proc TEXT,
+                dd_name TEXT,
+                dsn TEXT,
+                disp TEXT,
+                generation TEXT,
+                line_number INTEGER,
+                disp_normal TEXT,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """
+
+
+# #4457: the COPY ... REPLACING statements no record_data entry carries (a COPY after a section header / FD,
+# or before a section's first entry): one row per statement, `replacing` the JSON [[from, to(, LEADING|TRAILING)], ...]
+# as in record_data.copy_replacing, `after_ordinal` the record_data ordinal of the entry above it (NULL when none).
+_COPY_STATEMENT_DDL = """
+            CREATE TABLE IF NOT EXISTS copy_statement_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                member TEXT,
+                library TEXT,
+                replacing TEXT,
+                section TEXT,
+                fd_name TEXT,
+                after_ordinal INTEGER,
+                line_number INTEGER,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """
+
+
+# #3820: the SPECIAL-NAMES clauses that change what a PIC's symbols are worth (core/special_names.py): one row per
+# CURRENCY [SIGN] clause (value = the currency string, symbol = the PICTURE SYMBOL standing for it) and per
+# DECIMAL-POINT IS COMMA (value COMMA). Widths are the reader's.
+_SPECIAL_NAMES_DDL = """
+            CREATE TABLE IF NOT EXISTS special_names_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                clause TEXT,
+                value TEXT,
+                symbol TEXT,
+                line_number INTEGER,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """
+
+
+# #3828: the CBL / PROCESS card options (core/compiler_options.py): one row per option in source order -- option (full
+# name, abbreviations spelled out), value (between its parentheses, as written), written (as on the card).
+_COMPILER_OPTIONS_DDL = """
+            CREATE TABLE IF NOT EXISTS compiler_options_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                option TEXT,
+                value TEXT,
+                written TEXT,
+                line_number INTEGER,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """
+
+
 # #3452: field-level data movement, per-file.
 _DATA_MOVE_DDL = """
             CREATE TABLE IF NOT EXISTS data_move_data (
@@ -488,6 +786,35 @@ def _dataset_select(cursor, has_table, has_column):
         f"{resolved_cols} "
         "FROM dataset_data ds JOIN file_data fd ON ds.file_id = fd.id "
         "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY ds.id"
+    )
+
+
+def _job_flow_select(cursor, has_table, has_column):
+    # Each healed column is NULL on a baseline written before it existed (#3622 disp_normal, #3710
+    # runs / runs_via / systsin_member, #3624 parm, #4268 instream and lrecl / recfm).
+    present = has_table(cursor, "job_flow_data")
+
+    def col(probe, *names):
+        if present and has_column(cursor, "job_flow_data", probe):
+            return ", ".join(f"jf.{n}" for n in names)
+        return ", ".join(f"NULL AS {n}" for n in names)
+
+    healed = ", ".join(
+        (
+            col("disp_normal", "disp_normal"),
+            col("runs", "runs", "runs_via", "systsin_member"),
+            col("parm", "parm"),
+            col("instream", "instream"),
+            col("lrecl", "lrecl", "recfm"),
+        )
+    )
+    return (
+        'SELECT fd.file_path AS _fp, jf.kind, jf.job_name AS "name", jf.step_ordinal, jf.step_name, jf.program, '  # noqa: S608 -- healed is built from literals; values are bound
+        'jf.proc_name AS "proc", jf.cond, jf.if_cond, jf.in_proc, jf.dd_name, jf.dsn, jf.disp, jf.generation, '
+        'jf.line_number AS "line", '
+        f"{healed} "
+        "FROM job_flow_data jf JOIN file_data fd ON jf.file_id = fd.id "
+        "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY jf.id"
     )
 
 
@@ -633,6 +960,7 @@ CHANNELS = (
     # resolution, unlike call_site_data above).
     FactChannel(
         name="dataset",
+        differential="jcl",
         ir_field="datasets",
         table="dataset_data",
         ddl=_DATASET_DDL,
@@ -688,6 +1016,7 @@ CHANNELS = (
     # per-file fact-channel shape as the dataset bindings above.
     FactChannel(
         name="record",
+        differential="pli",
         ir_field="records",
         table="record_data",
         ddl=_RECORD_DDL,
@@ -787,6 +1116,7 @@ CHANNELS = (
     # name). A pre-#3344 baseline has no table and restores nothing.
     FactChannel(
         name="sql_table",
+        differential="sql_table",
         ir_field="sql_tables",
         table="sql_table_data",
         ddl=_SQL_TABLE_DDL,
@@ -1035,12 +1365,445 @@ CHANNELS = (
             "line": int(r["line"] or 0),
         },
     ),
+    # #3454: program entry points -- per-file.
+    FactChannel(
+        name="entry_point",
+        ir_field="entry_points",
+        table="entry_point_data",
+        ddl=_ENTRY_POINT_DDL,
+        indexes=(
+            "CREATE INDEX IF NOT EXISTS idx_entry_point_file_id ON entry_point_data(file_id);",
+            "CREATE INDEX IF NOT EXISTS idx_entry_point_snapshot ON entry_point_data(repo_name, commit_hash);",
+        ),
+        payload_key="entry_points",
+        columns=("kind", "entry_name", "params", "line_number"),
+        to_row=lambda e: (e.get("kind"), e.get("entry_name"), e.get("params"), int(e.get("line", 0) or 0)),
+        restore_select=(
+            'SELECT fd.file_path AS _fp, ep.kind, ep.entry_name, ep.params, ep.line_number AS "line" '
+            "FROM entry_point_data ep JOIN file_data fd ON ep.file_id = fd.id "
+            "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY ep.id"
+        ),
+        to_payload=lambda r: {
+            "kind": r["kind"],
+            "entry_name": r["entry_name"],
+            "params": r["params"],
+            "line": int(r["line"] or 0),
+        },
+    ),
+    # #3450: IMS DL/I calls -- per-file; where_text is aliased back to the payload key "where".
+    FactChannel(
+        name="dli_call",
+        ir_field="dli_calls",
+        table="dli_call_data",
+        ddl=_DLI_CALL_DDL,
+        indexes=(
+            "CREATE INDEX IF NOT EXISTS idx_dli_call_file_id ON dli_call_data(file_id);",
+            "CREATE INDEX IF NOT EXISTS idx_dli_call_snapshot ON dli_call_data(repo_name, commit_hash);",
+        ),
+        payload_key="dli_calls",
+        columns=(
+            "interface",
+            "function",
+            "function_operand",
+            "pcb",
+            "io_area",
+            "segments",
+            "ssas",
+            "where_text",
+            "psb",
+            "line_number",
+        ),
+        to_row=lambda d: (
+            d.get("interface"),
+            d.get("function"),
+            d.get("function_operand"),
+            d.get("pcb"),
+            d.get("io_area"),
+            d.get("segments"),
+            d.get("ssas"),
+            d.get("where"),
+            d.get("psb"),
+            int(d.get("line", 0) or 0),
+        ),
+        restore_select=(
+            "SELECT fd.file_path AS _fp, dc.interface, dc.function, dc.function_operand, dc.pcb, dc.io_area, "
+            'dc.segments, dc.ssas, dc.where_text AS "where", dc.psb, dc.line_number AS "line" '
+            "FROM dli_call_data dc JOIN file_data fd ON dc.file_id = fd.id "
+            "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY dc.id"
+        ),
+        to_payload=lambda r: {
+            "interface": r["interface"],
+            "function": r["function"],
+            "function_operand": r["function_operand"],
+            "pcb": r["pcb"],
+            "io_area": r["io_area"],
+            "segments": r["segments"],
+            "ssas": r["ssas"],
+            "where": r["where"],
+            "psb": r["psb"],
+            "line": int(r["line"] or 0),
+        },
+    ),
+    # #3477: IMS PSB / DBD macros and region steps -- per-file; start_pos is aliased back to the payload key "start".
+    FactChannel(
+        name="ims_gen",
+        ir_field="ims_gen",
+        table="ims_gen_data",
+        ddl=_IMS_GEN_DDL,
+        indexes=(
+            "CREATE INDEX IF NOT EXISTS idx_ims_gen_file_id ON ims_gen_data(file_id);",
+            "CREATE INDEX IF NOT EXISTS idx_ims_gen_snapshot ON ims_gen_data(repo_name, commit_hash);",
+        ),
+        payload_key="ims_gen",
+        columns=(
+            "kind",
+            "name",
+            "parent",
+            "owner",
+            "dbd_name",
+            "procopt",
+            "pcb_type",
+            "access",
+            "bytes",
+            "start_pos",
+            "psb_name",
+            "program",
+            "attributes",
+            "line_number",
+        ),
+        to_row=lambda g: (
+            g.get("kind"),
+            g.get("name"),
+            g.get("parent"),
+            g.get("owner"),
+            g.get("dbd_name"),
+            g.get("procopt"),
+            g.get("pcb_type"),
+            g.get("access"),
+            int(g["bytes"]) if g.get("bytes") is not None else None,
+            int(g["start"]) if g.get("start") is not None else None,
+            g.get("psb_name"),
+            g.get("program"),
+            g.get("attributes"),
+            int(g.get("line", 0) or 0),
+        ),
+        restore_select=(
+            "SELECT fd.file_path AS _fp, ig.kind, ig.name, ig.parent, ig.owner, ig.dbd_name, ig.procopt, ig.pcb_type, "
+            'ig.access, ig.bytes, ig.start_pos AS "start", ig.psb_name, ig.program, ig.attributes, '
+            'ig.line_number AS "line" '
+            "FROM ims_gen_data ig JOIN file_data fd ON ig.file_id = fd.id "
+            "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY ig.id"
+        ),
+        to_payload=lambda r: {
+            "kind": r["kind"],
+            "name": r["name"],
+            "parent": r["parent"],
+            "owner": r["owner"],
+            "dbd_name": r["dbd_name"],
+            "procopt": r["procopt"],
+            "pcb_type": r["pcb_type"],
+            "access": r["access"],
+            "bytes": int(r["bytes"]) if r["bytes"] is not None else None,
+            "start": int(r["start"]) if r["start"] is not None else None,
+            "psb_name": r["psb_name"],
+            "program": r["program"],
+            "attributes": r["attributes"],
+            "line": int(r["line"] or 0),
+        },
+    ),
+    # #3448: job-submission evidence -- per-file; step / name are aliased back to the payload keys.
+    FactChannel(
+        name="job_submit",
+        ir_field="job_submits",
+        table="job_submit_data",
+        ddl=_JOB_SUBMIT_DDL,
+        indexes=(
+            "CREATE INDEX IF NOT EXISTS idx_job_submit_file_id ON job_submit_data(file_id);",
+            "CREATE INDEX IF NOT EXISTS idx_job_submit_snapshot ON job_submit_data(repo_name, commit_hash);",
+        ),
+        payload_key="job_submits",
+        columns=("kind", "step_name", "submit_name", "target_kind", "target", "line_number"),
+        to_row=lambda j: (
+            j.get("kind"),
+            j.get("step"),
+            j.get("name"),
+            j.get("target_kind"),
+            j.get("target"),
+            int(j.get("line", 0) or 0),
+        ),
+        restore_select=(
+            "SELECT fd.file_path AS _fp, js.kind, js.step_name AS step, js.submit_name AS name, "
+            "js.target_kind, js.target, js.line_number AS line "
+            "FROM job_submit_data js JOIN file_data fd ON js.file_id = fd.id "
+            "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY js.id"
+        ),
+        to_payload=lambda r: {
+            "kind": r["kind"],
+            "step": r["step"],
+            "name": r["name"],
+            "target_kind": r["target_kind"],
+            "target": r["target"],
+            "line": int(r["line"] or 0),
+        },
+    ),
+    # #3447: IBM MQ calls -- per-file; operand / queue / resolution / candidates are aliased back to the payload keys.
+    FactChannel(
+        name="mq_call",
+        ir_field="mq_calls",
+        table="mq_call_data",
+        ddl=_MQ_CALL_DDL,
+        indexes=(
+            "CREATE INDEX IF NOT EXISTS idx_mq_call_file_id ON mq_call_data(file_id);",
+            "CREATE INDEX IF NOT EXISTS idx_mq_call_queue ON mq_call_data(queue_name);",
+            "CREATE INDEX IF NOT EXISTS idx_mq_call_snapshot ON mq_call_data(repo_name, commit_hash);",
+        ),
+        payload_key="mq_calls",
+        columns=(
+            "verb",
+            "direction",
+            "queue_operand",
+            "queue_name",
+            "queue_resolution",
+            "queue_candidates",
+            "handle",
+            "open_line",
+            "options",
+            "line_number",
+        ),
+        to_row=lambda q: (
+            q.get("verb"),
+            q.get("direction"),
+            q.get("operand"),
+            q.get("queue"),
+            q.get("resolution"),
+            q.get("candidates"),
+            q.get("handle"),
+            int(q["open_line"]) if q.get("open_line") is not None else None,
+            q.get("options"),
+            int(q.get("line", 0) or 0),
+        ),
+        restore_select=(
+            "SELECT fd.file_path AS _fp, mq.verb, mq.direction, mq.queue_operand AS operand, "
+            "mq.queue_name AS queue, mq.queue_resolution AS resolution, mq.queue_candidates AS candidates, "
+            "mq.handle, mq.open_line, mq.options, mq.line_number AS line "
+            "FROM mq_call_data mq JOIN file_data fd ON mq.file_id = fd.id "
+            "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY mq.id"
+        ),
+        to_payload=lambda r: {
+            "verb": r["verb"],
+            "direction": r["direction"],
+            "operand": r["operand"],
+            "queue": r["queue"],
+            "resolution": r["resolution"],
+            "candidates": r["candidates"],
+            "handle": r["handle"],
+            "open_line": int(r["open_line"]) if r["open_line"] is not None else None,
+            "options": r["options"],
+            "line": int(r["line"] or 0),
+        },
+    ),
+    # #3453: units of work and error handling -- per-file; condition_name is aliased back to the payload key.
+    FactChannel(
+        name="uow_handler",
+        ir_field="uow_handlers",
+        table="uow_handler_data",
+        ddl=_UOW_HANDLER_DDL,
+        indexes=(
+            "CREATE INDEX IF NOT EXISTS idx_uow_handler_file_id ON uow_handler_data(file_id);",
+            "CREATE INDEX IF NOT EXISTS idx_uow_handler_kind ON uow_handler_data(kind);",
+            "CREATE INDEX IF NOT EXISTS idx_uow_handler_snapshot ON uow_handler_data(repo_name, commit_hash);",
+        ),
+        payload_key="uow_handlers",
+        columns=(
+            "kind",
+            "source",
+            "verb",
+            "condition_name",
+            "target",
+            "target_kind",
+            "resp_var",
+            "attributes",
+            "line_number",
+        ),
+        to_row=lambda u: (
+            u.get("kind"),
+            u.get("source"),
+            u.get("verb"),
+            u.get("condition"),
+            u.get("target"),
+            u.get("target_kind"),
+            u.get("resp_var"),
+            u.get("attributes"),
+            int(u.get("line", 0) or 0),
+        ),
+        restore_select=(
+            "SELECT fd.file_path AS _fp, u.kind, u.source, u.verb, u.condition_name AS condition, "
+            "u.target, u.target_kind, u.resp_var, u.attributes, u.line_number AS line "
+            "FROM uow_handler_data u JOIN file_data fd ON u.file_id = fd.id "
+            "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY u.id"
+        ),
+        to_payload=lambda r: {
+            "kind": r["kind"],
+            "source": r["source"],
+            "verb": r["verb"],
+            "condition": r["condition"],
+            "target": r["target"],
+            "target_kind": r["target_kind"],
+            "resp_var": r["resp_var"],
+            "attributes": r["attributes"],
+            "line": int(r["line"] or 0),
+        },
+    ),
+    # #3455: FILE-CONTROL definitions -- per-file; assign_name is aliased back to the payload key "assign".
+    FactChannel(
+        name="file_control",
+        ir_field="file_control",
+        table="file_control_data",
+        ddl=_FILE_CONTROL_DDL,
+        indexes=(
+            "CREATE INDEX IF NOT EXISTS idx_file_control_file_id ON file_control_data(file_id);",
+            "CREATE INDEX IF NOT EXISTS idx_file_control_snapshot ON file_control_data(repo_name, commit_hash);",
+        ),
+        payload_key="file_control",
+        columns=(
+            "select_name",
+            "assign_name",
+            "organization",
+            "access_mode",
+            "record_key",
+            "alternate_keys",
+            "relative_key",
+            "file_status",
+            "fd_copies",
+            "line_number",
+        ),
+        to_row=lambda f: (
+            f.get("select_name"),
+            f.get("assign"),
+            f.get("organization"),
+            f.get("access_mode"),
+            f.get("record_key"),
+            f.get("alternate_keys"),
+            f.get("relative_key"),
+            f.get("file_status"),
+            f.get("fd_copies"),
+            int(f.get("line", 0) or 0),
+        ),
+        restore_select=(
+            'SELECT fd.file_path AS _fp, fc.select_name, fc.assign_name AS "assign", fc.organization, '
+            "fc.access_mode, fc.record_key, fc.alternate_keys, fc.relative_key, fc.file_status, fc.fd_copies, "
+            'fc.line_number AS "line" '
+            "FROM file_control_data fc JOIN file_data fd ON fc.file_id = fd.id "
+            "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY fc.id"
+        ),
+        to_payload=lambda r: {
+            "select_name": r["select_name"],
+            "assign": r["assign"],
+            "organization": r["organization"],
+            "access_mode": r["access_mode"],
+            "record_key": r["record_key"],
+            "alternate_keys": r["alternate_keys"],
+            "relative_key": r["relative_key"],
+            "file_status": r["file_status"],
+            "fd_copies": r["fd_copies"],
+            "line": int(r["line"] or 0),
+        },
+    ),
+    # #4457: section-level COPY ... REPLACING statements -- per-file. A pre-#4457 baseline has no table and
+    # restores nothing.
+    FactChannel(
+        name="copy_statement",
+        ir_field="copy_statements",
+        table="copy_statement_data",
+        ddl=_COPY_STATEMENT_DDL,
+        indexes=(
+            "CREATE INDEX IF NOT EXISTS idx_copy_statement_file_id ON copy_statement_data(file_id);",
+            "CREATE INDEX IF NOT EXISTS idx_copy_statement_snapshot ON copy_statement_data(repo_name, commit_hash);",
+        ),
+        payload_key="section_copies",
+        columns=("member", "library", "replacing", "section", "fd_name", "after_ordinal", "line_number"),
+        to_row=lambda c: (
+            c.get("member"),
+            c.get("library"),
+            c.get("replacing"),
+            c.get("section"),
+            c.get("fd_name"),
+            c.get("after_ordinal"),
+            int(c.get("line", 0) or 0),
+        ),
+        restore_select=(
+            "SELECT fd.file_path AS _fp, cs.member, cs.library, cs.replacing, cs.section, cs.fd_name, "
+            'cs.after_ordinal, cs.line_number AS "line" '
+            "FROM copy_statement_data cs JOIN file_data fd ON cs.file_id = fd.id "
+            "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY cs.id"
+        ),
+        to_payload=lambda r: {
+            "member": r["member"],
+            "library": r["library"],
+            "replacing": r["replacing"],
+            "section": r["section"],
+            "fd_name": r["fd_name"],
+            "after_ordinal": r["after_ordinal"],
+            "line": int(r["line"] or 0),
+        },
+    ),
+    # #3820: SPECIAL-NAMES currency / decimal point -- per-file.
+    FactChannel(
+        name="special_names",
+        ir_field="special_names",
+        table="special_names_data",
+        ddl=_SPECIAL_NAMES_DDL,
+        indexes=(
+            "CREATE INDEX IF NOT EXISTS idx_special_names_file_id ON special_names_data(file_id);",
+            "CREATE INDEX IF NOT EXISTS idx_special_names_snapshot ON special_names_data(repo_name, commit_hash);",
+        ),
+        payload_key="special_names",
+        columns=("clause", "value", "symbol", "line_number"),
+        to_row=lambda n: (n.get("clause"), n.get("value"), n.get("symbol"), int(n.get("line", 0) or 0)),
+        restore_select=(
+            'SELECT fd.file_path AS _fp, sn.clause, sn.value, sn.symbol, sn.line_number AS "line" '
+            "FROM special_names_data sn JOIN file_data fd ON sn.file_id = fd.id "
+            "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY sn.id"
+        ),
+        to_payload=lambda r: {
+            "clause": r["clause"],
+            "value": r["value"],
+            "symbol": r["symbol"],
+            "line": int(r["line"] or 0),
+        },
+    ),
+    # #3828: CBL / PROCESS compiler options -- per-file.
+    FactChannel(
+        name="compiler_options",
+        ir_field="compiler_options",
+        table="compiler_options_data",
+        ddl=_COMPILER_OPTIONS_DDL,
+        indexes=(
+            "CREATE INDEX IF NOT EXISTS idx_compiler_options_file_id ON compiler_options_data(file_id);",
+            "CREATE INDEX IF NOT EXISTS idx_compiler_options_snapshot ON compiler_options_data(repo_name, commit_hash);",
+        ),
+        payload_key="compiler_options",
+        columns=("option", "value", "written", "line_number"),
+        to_row=lambda o: (o.get("option"), o.get("value"), o.get("written"), int(o.get("line", 0) or 0)),
+        restore_select=(
+            'SELECT fd.file_path AS _fp, co.option, co.value, co.written, co.line_number AS "line" '
+            "FROM compiler_options_data co JOIN file_data fd ON co.file_id = fd.id "
+            "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY co.id"
+        ),
+        to_payload=lambda r: {
+            "option": r["option"],
+            "value": r["value"],
+            "written": r["written"],
+            "line": int(r["line"] or 0),
+        },
+    ),
     # #3356: CSD resource definitions -- per-file, like sql_table_data.
     # #3356: CSD resource definitions, aliased back to the extractor's
     # payload keys (resource_name -> name, group_name -> group). A
     # pre-#3356 baseline has no table and restores nothing.
     FactChannel(
         name="csd_resource",
+        differential="csd_deck",
         ir_field="csd_resources",
         table="csd_resource_data",
         ddl=_CSD_RESOURCE_DDL,
@@ -1114,6 +1877,7 @@ CHANNELS = (
     # keys (field_name -> name, initial_value -> initial).
     FactChannel(
         name="screen_field",
+        differential="bms",
         ir_field="screen_fields",
         table="screen_field_data",
         ddl=_SCREEN_FIELD_DDL,
@@ -1184,6 +1948,7 @@ CHANNELS = (
     # extractor's payload keys. A pre-channel baseline restores nothing.
     FactChannel(
         name="cics_resource",
+        differential="cics",
         ir_field="cics_resources",
         table="cics_resource_data",
         ddl=_CICS_RESOURCE_DDL,
@@ -1251,6 +2016,7 @@ CHANNELS = (
     # #3200: every mainframe call site, resolved or not -- inserted from the engine's resolved list.
     FactChannel(
         name="call_site",
+        differential="commarea",
         ir_field="calls",
         table="call_site_data",
         resolved=True,
@@ -1335,6 +2101,155 @@ CHANNELS = (
             "group": r["_group"],
             "profile": r["profile"],
             "line": int(r["line"] or 0),
+        },
+    ),
+    # #3455: IDCAMS DEFINE CLUSTER / AIX / PATH -- per-file; `name` / `step` are aliased back to the payload keys.
+    FactChannel(
+        name="vsam_define",
+        ir_field="vsam_defines",
+        table="vsam_define_data",
+        ddl=_VSAM_DEFINE_DDL,
+        indexes=(
+            "CREATE INDEX IF NOT EXISTS idx_vsam_define_file_id ON vsam_define_data(file_id);",
+            "CREATE INDEX IF NOT EXISTS idx_vsam_define_name ON vsam_define_data(cluster_name);",
+            "CREATE INDEX IF NOT EXISTS idx_vsam_define_snapshot ON vsam_define_data(repo_name, commit_hash);",
+        ),
+        payload_key="vsam_defines",
+        columns=(
+            "kind",
+            "cluster_name",
+            "organization",
+            "key_length",
+            "key_offset",
+            "record_avg",
+            "record_max",
+            "related",
+            "unique_key",
+            "upgrade",
+            "step_name",
+            "line_number",
+        ),
+        to_row=lambda v: (
+            v.get("kind"),
+            v.get("name"),
+            v.get("organization"),
+            int(v["key_length"]) if v.get("key_length") is not None else None,
+            int(v["key_offset"]) if v.get("key_offset") is not None else None,
+            int(v["record_avg"]) if v.get("record_avg") is not None else None,
+            int(v["record_max"]) if v.get("record_max") is not None else None,
+            v.get("related"),
+            v.get("unique_key"),
+            v.get("upgrade"),
+            v.get("step"),
+            int(v.get("line", 0) or 0),
+        ),
+        restore_select=(
+            'SELECT fd.file_path AS _fp, vd.kind, vd.cluster_name AS "name", vd.organization, vd.key_length, '
+            "vd.key_offset, vd.record_avg, vd.record_max, vd.related, vd.unique_key, vd.upgrade, "
+            'vd.step_name AS "step", vd.line_number AS "line" '
+            "FROM vsam_define_data vd JOIN file_data fd ON vd.file_id = fd.id "
+            "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY vd.id"
+        ),
+        to_payload=lambda r: {
+            "kind": r["kind"],
+            "name": r["name"],
+            "organization": r["organization"],
+            "key_length": int(r["key_length"]) if r["key_length"] is not None else None,
+            "key_offset": int(r["key_offset"]) if r["key_offset"] is not None else None,
+            "record_avg": int(r["record_avg"]) if r["record_avg"] is not None else None,
+            "record_max": int(r["record_max"]) if r["record_max"] is not None else None,
+            "related": r["related"],
+            "unique_key": r["unique_key"],
+            "upgrade": r["upgrade"],
+            "step": r["step"],
+            "line": int(r["line"] or 0),
+        },
+    ),
+    # #3451: JCL job flow -- per-file; the healed columns (#3622 / #3710 / #3624 / #4268) restore only when set.
+    FactChannel(
+        name="job_flow",
+        ir_field="job_flow",
+        table="job_flow_data",
+        ddl=_JOB_FLOW_DDL,
+        extra_columns=(
+            ("disp_normal TEXT",),
+            ("runs TEXT", "runs_via TEXT", "systsin_member TEXT"),
+            ("parm TEXT",),
+            ("instream TEXT",),
+            ("lrecl INTEGER", "recfm TEXT"),
+        ),
+        indexes=(
+            "CREATE INDEX IF NOT EXISTS idx_job_flow_file_id ON job_flow_data(file_id);",
+            "CREATE INDEX IF NOT EXISTS idx_job_flow_dsn ON job_flow_data(dsn);",
+            "CREATE INDEX IF NOT EXISTS idx_job_flow_snapshot ON job_flow_data(repo_name, commit_hash);",
+        ),
+        payload_key="job_flow",
+        columns=(
+            "kind",
+            "job_name",
+            "step_ordinal",
+            "step_name",
+            "program",
+            "proc_name",
+            "cond",
+            "if_cond",
+            "in_proc",
+            "dd_name",
+            "dsn",
+            "disp",
+            "generation",
+            "line_number",
+            "disp_normal",
+            "runs",
+            "runs_via",
+            "systsin_member",
+            "parm",
+            "instream",
+            "lrecl",
+            "recfm",
+        ),
+        to_row=lambda j: (
+            j.get("kind"),
+            j.get("name"),
+            int(j["step_ordinal"]) if j.get("step_ordinal") is not None else None,
+            j.get("step_name"),
+            j.get("program"),
+            j.get("proc"),
+            j.get("cond"),
+            j.get("if_cond"),
+            j.get("in_proc"),
+            j.get("dd_name"),
+            j.get("dsn"),
+            j.get("disp"),
+            j.get("generation"),
+            int(j.get("line", 0) or 0),
+            j.get("disp_normal"),  # #3622
+            j.get("runs"),  # #3710
+            j.get("runs_via"),
+            j.get("systsin_member"),
+            j.get("parm"),  # #3624
+            j.get("instream"),  # #4268
+            j.get("lrecl"),  # #4268
+            j.get("recfm"),
+        ),
+        restore_select=_job_flow_select,
+        to_payload=lambda r: {
+            "kind": r["kind"],
+            "name": r["name"],
+            "step_ordinal": int(r["step_ordinal"]) if r["step_ordinal"] is not None else None,
+            "step_name": r["step_name"],
+            "program": r["program"],
+            "proc": r["proc"],
+            "cond": r["cond"],
+            "if_cond": r["if_cond"],
+            "in_proc": r["in_proc"],
+            "dd_name": r["dd_name"],
+            "dsn": r["dsn"],
+            "disp": r["disp"],
+            "generation": r["generation"],
+            "line": int(r["line"] or 0),
+            **({"disp_normal": r["disp_normal"]} if r["disp_normal"] else {}),
+            **{k: r[k] for k in ("runs", "runs_via", "systsin_member", "parm", "instream", "lrecl", "recfm") if r[k]},
         },
     ),
 )

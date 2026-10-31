@@ -91,6 +91,50 @@ def _workflow_coverage():
     return runs, path
 
 
+def _joint_runs():
+    """[(test paths, the step's pytest line)] for each pytest step whose one `env:` block sets BOTH EQUIVALENCE_E2E
+    and CICS_CRUCIBLE_PATH (a test that needs both is skipped when they sit in different steps)."""
+    runs = []
+    for wf in sorted(WORKFLOWS.glob("*.yml")):
+        lines = wf.read_text(encoding="utf-8").splitlines()
+        for i, line in enumerate(lines):
+            if not re.match(r"\s*EQUIVALENCE_E2E\s*:\s*[\"']?1", line):
+                continue
+            indent = len(line) - len(line.lstrip())
+            block = [line]
+            for rng in (range(i - 1, -1, -1), range(i + 1, len(lines))):
+                for j in rng:
+                    ln = lines[j]
+                    if ln.strip() and len(ln) - len(ln.lstrip()) != indent:
+                        break
+                    block.append(ln)
+            if not any(re.match(r"\s*CICS_CRUCIBLE_PATH\s*:", b) for b in block):
+                continue
+            for later in lines[i + 1 : i + 15]:
+                if "pytest" in later:
+                    named = [r.rstrip("/") for r in re.findall(r"\btests/[\w./-]*", later)]
+                    runs.append((named, later))
+                    break
+    return runs
+
+
+def test_a_file_needing_both_variables_gets_both_in_one_step_and_is_selected_by_its_marker():
+    """test_det_port_bytes_4965 skips unless EQUIVALENCE_E2E=1 AND the checkout path are both set, and the runner-tests
+    step selects `-m e2e`: setting each in a different step, or dropping the e2e mark, would leave it skipped in CI."""
+    e2e, path = _gated()
+    both = sorted(e2e & path)
+    assert "tests/cics_crucible/test_det_port_bytes_4965.py" in both
+    joint = _joint_runs()
+    assert joint, "no workflow step sets EQUIVALENCE_E2E and CICS_CRUCIBLE_PATH together"
+    for rel in both:
+        hits = [line for named, line in joint if _reached(rel, named)]
+        assert hits, f"{rel} needs both variables; no pytest step sets both and names it (#5954)"
+        if all("-m e2e" in line for line in hits):
+            assert re.search(r"pytest\.mark\.e2e|pytestmark\s*=.*e2e", read_source(REPO / rel).text), (
+                f"{rel}: the step selects -m e2e but the file marks no test e2e"
+            )
+
+
 def _reached(rel, reached, ignored=()):
     return rel not in ignored and any(rel == r or rel.startswith(r + "/") for r in reached)
 

@@ -12,6 +12,7 @@ import pytest
 
 TOOLS = Path(__file__).resolve().parent
 sys.path.insert(0, str(TOOLS))
+import capability_ledger as cl  # noqa: E402
 import progress_report as pr  # noqa: E402
 import progress_slide as ps  # noqa: E402
 
@@ -94,9 +95,8 @@ def test_every_number_on_the_slide_is_the_progress_json_value(report):
         f"{comp['translator']['whole']} / {comp['translator']['of']}",
         f"{lad['total']['l2_plus']} / {lad['total']['programs']}",
         f"{comp['cics']['modelled_both_runtimes']} / {comp['cics']['burned_commands']}",
-        f"{comp['mutation']['adjusted_kill_pct']:.1f}%",
-        f"{comp['cobolrt_rules']['status']['MATCHED']} / {comp['cobolrt_rules']['rules']}",
-        f"COBOL runtime rules: {comp['cobolrt_rules']['rules']} catalogued",
+        f"{lad['total']['levels']['L5']} / {lad['total']['programs']}",
+        f"Runtime rules, every family: {comp['cobolrt_rules']['rules']} catalogued",
         f"{iss['core']['closed']} / {iss['core']['total']}",
         str(iss["frontier"]["total"]),
         "78 / 97",
@@ -119,9 +119,11 @@ def test_every_number_on_the_slide_is_the_progress_json_value(report):
 
 def test_the_family_rows_come_from_the_rules_families(report):
     texts = _texts(ps.render(report))
-    for fam in ("SQL", "LE", "MQ", "DLI"):
+    for fam in ("SQL", "LE", "DLI"):
         c = report["components"]["cobolrt_rules"]["families"].get(fam, {})
         assert f"{c.get('MATCHED', 0)} / {sum(c.values())}" in texts
+    c = report["components"]["cobolrt_rules"]["families"].get("MQ", {})
+    assert any(f"{c.get('MATCHED', 0)} of {sum(c.values())} rules match IBM" in t for t in texts)
 
 
 def test_offline_the_github_parts_are_not_measured_and_print_no_number(offline):
@@ -131,15 +133,75 @@ def test_offline_the_github_parts_are_not_measured_and_print_no_number(offline):
     assert texts.count(ps.NOT_MEASURED) >= 4  # the four issue boxes
     assert any(t.startswith("Milestones: not measured") for t in texts)
     assert not any(re.search(r"\(\d+/\d+\)", t) for t in texts)  # no milestone fraction
-    assert not any("epic closed" in t for t in texts)
-    assert any(f"Epic #{n} state not measured" in t for t in texts for n in pr.OPEN_WORLD_EPICS)
 
 
-def test_a_closed_open_world_epic_turns_its_row_to_in_use(tmp_path, monkeypatch):
-    rep = _gather(tmp_path, monkeypatch, _cache({"4890": "closed", "4891": "open"}))
-    texts = _texts(ps.render(rep))
-    assert any("In use: Open World #4890; epic closed" in t for t in texts)
-    assert any(t.startswith("Not started: Open World #4891") for t in texts)
+def test_every_ledger_row_is_on_the_slide_with_its_state_and_count(report):
+    texts = _texts(ps.render(report))
+    caps = report["components"]["capabilities"]
+    for r in caps["rows"]:
+        assert r["name"] in texts and r["have"] in texts
+        assert cl.STATE_LABEL[r["state"]] in texts
+        if r["of"]:
+            assert f"{r['done']} / {r['of']}" in texts
+    assert sum(1 for r in caps["rows"] if not r["of"]) == texts.count("no list to count against")
+
+
+def test_a_state_comes_from_the_count_or_the_code_never_from_a_hand_typed_row():
+    assert [cl.of_state(*c) for c in ((0, 7), (3, 7), (7, 7))] == ["none", "partial", "works"]
+    assert cl.seen(cl.DET / "dfsort.py", "class Refused", "partial") == "partial"
+    assert cl.seen(cl.DET / "dfsort.py", "code that went away", "partial") == "none"
+    assert cl.seen(cl.DET / "no_such_file.py", "x", "works") == "none"
+
+
+def test_the_language_row_leaves_out_the_families_that_are_not_cobol():
+    rules = [
+        {"family": "CBL", "status": "MATCHED"},
+        {"family": "NUM", "status": "DIFFERS"},
+        {"family": "CICS", "status": "MATCHED"},
+    ]
+    assert cl.family_counts(rules, cl.LANGUAGE_FAMILIES) == (1, 2)
+
+
+def test_the_spec_tables_are_shown_as_depth_of_the_rules_not_as_more_rules(report):
+    row = next(r for r in report["components"]["capabilities"]["rows"] if r["name"] == "Runtime spec tables")
+    assert row["of"] is None and "part of the rules above" in row["note"]
+
+
+def test_a_test_estate_is_shown_and_never_counted():
+    prog = {"level": "L1", "program": "x/CAA.cbl", "translation": {"whole": True}}
+    rep = pr.ladder([prog, {**prog, "level": "L0", "translation": {"whole": False}}])
+    assert rep["levels"]["L1"] == 1 and rep["programs"] == 2
+    out = pr._test_estate_lines({"cics-crucible": rep})
+    assert any("`cics-crucible` | 2 | 1 | 1 |" in line for line in out)
+    assert pr._test_estate_lines({}) == []
+
+
+def _program(name, level, **mutation):
+    return {"program": f"src/{name}.cbl", "level": level, "mutation": mutation}
+
+
+def test_ready_is_not_l5_and_the_raw_score_and_sample_stay_beside_it():
+    reports = {"e": {"programs": [
+        _program("A", "L4", score=0.5, l5=True, current=False, killed=5, survived=5),
+        _program("B", "L5", score=1.0, l5=True, current=True, killed=10, survived=0),
+        _program("C", "L4", score=None),
+    ]}}  # fmt: skip
+    ledger = {
+        "e-a": {"program": "A", "chosen": 10, "mutants": 100},
+        "e-b": {"program": "B", "chosen": 10, "mutants": 10},
+    }
+    claims = {"e-a": [{"verdict": "equivalent"}] * 3 + [{"verdict": "unreachable"}] * 2}
+    r = pr.det_mutation_component(reports, ledger, claims)["estates"]["e"]
+    assert (r["measured"], r["l5"], r["ready"], r["programs"]) == (2, 1, 1, 3)
+    assert (r["raw_pct"], r["sampled"], r["mutants"]) == (75.0, 20, 110)
+    assert (r["equivalent"], r["unreachable"]) == (3, 2)
+
+
+def test_the_hand_port_score_is_not_called_the_translators(report):
+    text = " ".join(_texts(ps.render(report)))
+    assert "translator mutants caught" not in text
+    assert "hand-written ports, not the translator" in text
+    assert "not started" not in text.lower()
 
 
 def test_both_colour_schemes_are_present(report):

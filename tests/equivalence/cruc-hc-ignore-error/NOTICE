@@ -1,0 +1,13 @@
+cics-crucible
+Copyright 2026 the cics-crucible authors (squid-protocol)
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+All COBOL programs, BMS map sources, CSD definitions, copybooks, expected event logs and
+tools in this repository are original works written for this repository. No code, map or
+data is copied from IBM samples, AWS CardDemo, GenApp, CBSA or any other source.
+
+The copybooks in tools/stubs/ (DFHAID, DFHBMSCA, DFHEIBLK) are independent stand-ins that
+carry the constant names and values documented by IBM for CICS Transaction Server. They are
+not IBM's copybooks and are used only to syntax-check the programs. CICS, z/OS and IBM are
+trademarks of International Business Machines Corporation.

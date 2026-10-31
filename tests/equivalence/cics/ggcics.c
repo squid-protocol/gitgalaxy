@@ -255,6 +255,7 @@ static void blk_invalidate_prefix(const char *prefix);
 static int blk_held(const char *key);
 static void *blk_set_new(const char *key, const void *data, size_t n, int sync);
 static void blk_invalidate_sync(void);
+static size_t blk_room(const void *p); /* #6839: bytes from p to the end of the live task-storage block holding it, else 0 */
 static void file_set_end(const char *kind, const char *file) {
     char key[96];
     snprintf(key, sizeof key, "%s %s", kind, file);
@@ -2208,6 +2209,17 @@ static void *blk_new(size_t n, int kind) {
     return p;
 }
 
+/* #6839: the bytes from `p` to the end of the live GETMAIN / received block that holds it (0: no block does). A WEB command reads
+ * its FROM / PATH / QUERY from the address, so a record SET onto a larger block may carry a length past its declared area (IBM). */
+static size_t blk_room(const void *p) {
+    for (int i = 0; i < nblks; i++) {
+        if (blks[i].kind != BLK_FREED && (const char *)p >= (const char *)blks[i].p
+            && (const char *)p < (const char *)blks[i].p + blks[i].n)
+            return (size_t)((const char *)blks[i].p + blks[i].n - (const char *)p);
+    }
+    return 0;
+}
+
 /* #5042 (register X58): ends the validity of the SET(ptr) blocks of `key`. IBM says only that the pointer is then "no longer
  * valid"; the storage reads as zeros through any record already addressing it (ASSUMED), as CicsTask.invalidateSet. */
 static void blk_invalidate(const char *key) {
@@ -2332,6 +2344,28 @@ static int free_block_at(gg_cics *c, void *addr) {
     }
     c->resp = INVREQ;
     c->resp2 = 1;
+    return 0;
+}
+
+/* GGCPTRADV: `ADD|SUBTRACT n TO|FROM view` over the PIC S9(8) COMP view of a POINTER (#6839 slice 3, X47), lowered by
+ * equivalence_cics_pointer.py. GnuCOBOL's POINTER is 8 bytes little-endian and the view 4 bytes big-endian, so the ADD on the
+ * view itself corrupts the address. The pointer moves n bytes inside the block it addresses, as DetCics.advancePointer: a
+ * null pointer, one no block holds, a freed block, or a result below the block's first byte or past its end (one past the
+ * last byte is allowed) is refused. */
+int GGCPTRADV(void **slot, int n) {
+    unsigned char *at = (unsigned char *)*slot;
+    int i, hit = -1;
+    if (!at) refuse("pointer arithmetic on a null pointer");
+    for (i = 0; i < nblks; i++)
+        if (at >= (unsigned char *)blks[i].p && at < (unsigned char *)blks[i].p + blks[i].n) { hit = i; break; }
+    for (i = 0; hit < 0 && i < nblks; i++)
+        if (at == (unsigned char *)blks[i].p + blks[i].n) hit = i; /* one past the last byte */
+    if (hit < 0) refuse("pointer arithmetic on an address no block of task storage holds");
+    if (blks[hit].kind == BLK_FREED) refuse("pointer arithmetic on freed storage");
+    at += n;
+    if (at < (unsigned char *)blks[hit].p || at > (unsigned char *)blks[hit].p + blks[hit].n)
+        refuse("pointer arithmetic leaves the storage the pointer addresses");
+    *slot = at;
     return 0;
 }
 

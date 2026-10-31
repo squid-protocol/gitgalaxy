@@ -1,0 +1,27 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "HCEOE",
+  "program_source": "cases/condition-handling/hc-eoc-error/src/HCEOE.cbl",
+  "copy_dirs": [],
+  "transid": "EE01",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "notes": "cics-crucible condition-handling / hc-eoc-error (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): HANDLE CONDITION ERROR and EOC, a condition ignored by default, on an LUTYPE2 terminal's RECEIVE. Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "eoc-not-error",
+      "commarea": null,
+      "terminal": "EE01 Q",
+      "why": "HANDLE CONDITION ERROR only: EOC's default action is to ignore it, not an abend, so ERROR's label is not taken"
+    },
+    {
+      "name": "eoc-own-label",
+      "commarea": null,
+      "terminal": "EE02 R",
+      "why": "HANDLE CONDITION ERROR and EOC: EOC's own label"
+    }
+  ]
+}

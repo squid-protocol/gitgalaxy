@@ -335,6 +335,13 @@ int GGCGETC(gg_cics *c, char *into) {
     return 0;
 }
 
+/* IBM's MOVE CONTAINER (INVREQ RESP2 30 / 31, CHANNELERR 3), DELETE CHANNEL (CHANNELERR 3) and DELETE CONTAINER (INVREQ 30, CHANNELERR 3) pages name CICS-defined
+ * read-only containers and channels and list none: a name beginning DFH may be one, so the command is refused by name (X42 / X44). */
+static int cics_defined_name(const char *n) {
+    while (*n == ' ') n++;
+    return toupper((unsigned char)n[0]) == 'D' && toupper((unsigned char)n[1]) == 'F' && toupper((unsigned char)n[2]) == 'H';
+}
+
 /* DELETE CONTAINER(GG-QNAME) [CHANNEL]: CHANNELERR RESP2 2, INVREQ RESP2 4, CONTAINERERR RESP2 10. */
 int GGCDELC(gg_cics *c) {
     char name[17];
@@ -342,6 +349,13 @@ int GGCDELC(gg_cics *c) {
     c->resp = NORMAL;
     c->resp2 = 0;
     cics_name(c->qname, name, "container");
+    {
+        char flags[41], cn[17] = "";
+        trim(c->flags, 40, flags);
+        if (strstr(flags, "CHANNEL")) cics_name(c->chan, cn, "channel");
+        if (cics_defined_name(name) || cics_defined_name(cn))
+            refuse("DELETE CONTAINER naming a CICS-defined (DFH...) container or channel: it may be read-only, and IBM lists none (INVREQ RESP2 30, CHANNELERR RESP2 3)");
+    }
     ch = command_channel(c, 0, 4);
     if (!ch) return 0;
     gg_container *k = container_named(&chans[ch - 1], name, 0);
@@ -367,6 +381,7 @@ int GGCDELH(gg_cics *c) {
     c->resp = NORMAL;
     c->resp2 = 0;
     cics_name(c->chan, name, "channel");
+    if (cics_defined_name(name)) refuse("DELETE CHANNEL naming a CICS-defined (DFH...) container or channel: it may be read-only, and IBM lists none (INVREQ RESP2 30 / 31, CHANNELERR RESP2 3)");
     int ch = channel_named(name, 0);
     if (!ch) { c->resp = CHANNELERR; c->resp2 = 2; return 0; }
     if (ch == levels[lvl].cur) refuse("DELETE CHANNEL of the current channel");
@@ -424,6 +439,8 @@ int GGCMOVC(gg_cics *c) {
     else from = levels[lvl].cur;
     if (has_to) { cics_name(c->tochan, tn, "channel"); to = channel_named(tn, 0); }
     else to = levels[lvl].cur;
+    if (cics_defined_name(name) || cics_defined_name(target) || cics_defined_name(cn) || cics_defined_name(tn))
+        refuse("MOVE CONTAINER naming a CICS-defined (DFH...) container or channel: it may be read-only, and IBM lists none (INVREQ RESP2 30 / 31, CHANNELERR RESP2 3)");
     if ((!has_from || !has_to) && !levels[lvl].cur) { c->resp = INVREQ; c->resp2 = 4; return 0; }
     if (!from) { c->resp = CHANNELERR; c->resp2 = 2; return 0; }
     gg_container *src = container_named(&chans[from - 1], name, 0);

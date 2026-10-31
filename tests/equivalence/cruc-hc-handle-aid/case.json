@@ -1,0 +1,57 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "HCAID",
+  "program_source": "cases/condition-handling/hc-handle-aid/src/HCAID.cbl",
+  "copy_dirs": [],
+  "transid": "HA01",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "notes": "cics-crucible condition-handling / hc-handle-aid (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): HANDLE AID on a terminal RECEIVE: a key's own label, ANYKEY (not ENTER), a deactivated key, RESP, PUSH / POP HANDLE, and CLEAR / PA1 with no data. Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "anykey-not-enter",
+      "commarea": null,
+      "terminal": "HA01 A",
+      "why": "HANDLE AID PF7 / ANYKEY, ENTER pressed: ANYKEY is not ENTER, so no label; control goes on after the RECEIVE"
+    },
+    {
+      "name": "own-label",
+      "commarea": null,
+      "terminal": "HA01 B",
+      "why": "PF7 pressed: PF7's own label, after the RECEIVE moved the data and set LENGTH"
+    },
+    {
+      "name": "anykey-pf",
+      "commarea": null,
+      "terminal": "HA01 C",
+      "why": "PF9 pressed: no label of its own, so ANYKEY's"
+    },
+    {
+      "name": "deactivated",
+      "commarea": null,
+      "terminal": "HA02 D",
+      "why": "HANDLE AID PF7 without a label deactivates the PF7 label set before it: no transfer"
+    },
+    {
+      "name": "resp-no-aid",
+      "commarea": null,
+      "terminal": "HA03 E",
+      "why": "RESP on the RECEIVE: no action for the AID, the PF7 label is not taken"
+    },
+    {
+      "name": "push-suspends",
+      "commarea": null,
+      "terminal": "HA04 F",
+      "why": "PUSH HANDLE after HANDLE AID PF7: the label is suspended, no transfer"
+    },
+    {
+      "name": "pop-restores",
+      "commarea": null,
+      "terminal": "HA05 G",
+      "why": "PUSH HANDLE then POP HANDLE: the PF7 label is in effect again"
+    }
+  ]
+}

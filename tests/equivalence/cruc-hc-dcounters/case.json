@@ -1,0 +1,33 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "HCDCNT",
+  "program_source": "cases/condition-handling/hc-dcounters/src/HCDCNT.cbl",
+  "copy_dirs": [],
+  "transid": "HC72",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "notes": "cics-crucible condition-handling / hc-dcounters (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): Doubleword named counters: DEFINE / GET / QUERY / DELETE DCOUNTER with an 8-byte unsigned VALUE logged as hex, GET returns the value before the increment, QUERY does not advance, values past 2**31 and 2**32 kept exactly, a deleted counter is INVREQ RESP2 201. Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "life",
+      "commarea": null,
+      "terminal": "HC72 L",
+      "why": "GET / DELETE of a DCOUNTER that is not there (INVREQ 201), DEFINE VALUE(5), GET, GET, QUERY, GET, QUERY, DELETE, then GET and QUERY of the deleted counter (INVREQ 201)"
+    },
+    {
+      "name": "big",
+      "commarea": null,
+      "terminal": "HC72 B",
+      "why": "DEFINE at 2**31-1, 2**32-1 and 5; GET across 2**31 and 2**32, QUERY, and GET with a doubleword INCREMENT of 2**32: values kept exactly (hex)"
+    },
+    {
+      "name": "unmatched-mode",
+      "commarea": null,
+      "terminal": "HC72 Z",
+      "why": "takes the EVALUATE/IF arm no crucible scenario reaches: a mode no WHEN names (falls through)"
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "HCCNTR",
+  "program_source": "cases/condition-handling/hc-named-counters/src/HCCNTR.cbl",
+  "copy_dirs": [
+    "cases/condition-handling/hc-named-counters/copy"
+  ],
+  "transid": "HC71",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "notes": "cics-crucible condition-handling / hc-named-counters (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): Named counters: GET COUNTER of a counter that is not there is INVREQ RESP2 201 (not NOTFND), DEFINE COUNTER (initial value, duplicate INVREQ 202), DELETE COUNTER, QUERY COUNTER, pools, and names outside IBM's character rules (INVREQ 403 / 404). Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "lifecycle",
+      "commarea": null,
+      "terminal": "HC71 L",
+      "why": "GET / DELETE of a counter that is not there (INVREQ 201), DEFINE with and without VALUE, a second DEFINE (INVREQ 202), GET, QUERY, DELETE, and the same name in another pool"
+    },
+    {
+      "name": "names",
+      "commarea": null,
+      "terminal": "HC71 N",
+      "why": "names outside IBM's rules: INVREQ 404 (counter) and 403 (pool) for DEFINE / GET / DELETE; a counter using every allowed kind of character"
+    },
+    {
+      "name": "unmatched-mode",
+      "commarea": null,
+      "terminal": "HC71 Z",
+      "why": "takes the EVALUATE/IF arm no crucible scenario reaches: a mode no WHEN names (falls through)"
+    }
+  ]
+}

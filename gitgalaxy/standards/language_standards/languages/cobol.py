@@ -541,8 +541,23 @@ DEFINITION: dict[str, Any] = {
             re.I,
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails) Commented out structural logic (Column 7 indicator).
+        # #7207: a comment is commented-out code only when what follows the marker has the statement's shape
+        # (MOVE x TO y, COMPUTE n =, IF operand relation, PERFORM para / UNTIL|VARYING|TIMES, CALL 'lit' / n USING,
+        # EXEC SQL|CICS), not just its first word: prose, headings and pseudocode no longer match.
         "dead_code": re.compile(
-            r"^(?:.{6}\*|[ \t]*\*>)[ \t]*(?:MOVE|COMPUTE|IF|PERFORM|CALL|EXEC)\b",
+            r"^(?:.{6}\*|[ \t]*\*>)[ \t]*(?:"
+            r"MOVE[ \t]+(?:CORR(?:ESPONDING)?[ \t]+)?(?:'[^'\n]*'|\"[^\"\n]*\"|[^\s.'\"]+)[ \t]+TO[ \t]+[^\s.]"
+            # `TO` on the next line: only a hyphenated data name or a literal ends the line (not `MOVE LIST`)
+            r"|MOVE[ \t]+(?:\w+(?:-\w+)+|'[^'\n]*'|\"[^\"\n]*\")[ \t]*$"
+            r"|COMPUTE[ \t]+[\w-]+(?:\([^)\n]{0,40}\))?(?:[ \t]+ROUNDED)?[ \t]*="
+            r"|IF[ \t]+\(*(?:NOT[ \t]+)?[\w-]+(?:\([^)\n]{0,40}\))?[ \t]*"
+            r"(?:NOT[ \t]*)?(?:=|<>|<=|>=|<|>|(?:IS[ \t]+)?(?:NOT[ \t]+)?(?:EQUAL|GREATER|LESS|NUMERIC|ALPHABETIC)\b)"
+            r"|PERFORM[ \t]+(?:UNTIL|VARYING|WITH[ \t]+TEST)\b"
+            r"|PERFORM[ \t]+[\w-]+(?:[ \t]+(?:THRU|THROUGH)[ \t]+[\w-]+)?"
+            r"(?:[ \t]+(?:[\w-]+[ \t]+)?TIMES\b|[ \t]+(?:UNTIL|VARYING)\b|[ \t]*\.?[ \t]*$)"
+            r"|CALL[ \t]+(?:'[^'\n]+'|\"[^\"\n]+\"|[\w-]+[ \t]+USING\b)"
+            r"|EXEC[ \t]+(?:SQL|CICS)\b"
+            r")",
             re.I | re.M,
         ),
         # 13. doc: Structured Documentation. Identification metadata and structured comments.

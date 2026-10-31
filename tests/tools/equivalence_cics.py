@@ -39,6 +39,7 @@ import equivalence_cics_conditions as cics_conditions  # #5274: the conditions /
 import equivalence_cics_containers as cics_containers  # #5274: the channels / containers family
 import equivalence_cics_faults as cics_faults  # #5274: the fault-injection planner
 import equivalence_cics_filecontrol as cics_filecontrol  # #5274: the file control family
+import equivalence_cics_pointer  # #6839 (X47): the oracle lowering of a POINTER numeric view
 import equivalence_cics_taskcontrol as cics_taskcontrol  # #5274: the task / interval control family
 import equivalence_cics_tempstorage as cics_tempstorage  # #5274: the temporary storage family
 import equivalence_cics_web as cics_web  # #5274: the web / HTTP / TCP/IP family
@@ -1505,9 +1506,21 @@ def translate(source: str, copy_dirs: list[Path] | None = None) -> tuple[str, bo
                   count=1, flags=re.M | re.I)  # fmt: skip
     if "COPY DFHEIBLK" not in text:
         raise Unsupported("no WORKING-STORAGE SECTION to hold the EIB")
-    if not has_commarea and "BY REFERENCE DFHCOMMAREA" in text:  # #5079 (X59): ADDRESS COMMAREA needs the record
-        raise Unsupported("ADDRESS COMMAREA in a program with no LINKAGE 01 DFHCOMMAREA: no record to address",
-                          ["ADDRESS COMMAREA"])  # fmt: skip
+    if not has_commarea and "BY REFERENCE DFHCOMMAREA" in text:
+        # #5079 (X59): ADDRESS COMMAREA in a program that declares no record (the callee asks CICS for the address). The harness
+        # gives the LINKAGE SECTION a one-byte stand-in so the task is passed the real COMMAREA (the pointer GGCADDR stores is
+        # that area's own address, whatever size the stand-in declares).
+        stand_in = "       01  DFHCOMMAREA PIC X(1).\n"
+        text, n = re.subn(r"^(.{6} +LINKAGE\s+SECTION\.[^\n]*\n)", lambda m: m.group(1) + stand_in, text, count=1,
+                          flags=re.M | re.I)  # fmt: skip
+        if n != 1:
+            text, n = re.subn(r"^(.{6} +PROCEDURE\s+DIVISION\b)", lambda m: "       LINKAGE SECTION.\n" + stand_in + m.group(1),
+                              text, count=1, flags=re.M | re.I)  # fmt: skip
+        if n != 1:
+            raise Unsupported(
+                "ADDRESS COMMAREA: no PROCEDURE DIVISION to hold the COMMAREA stand-in", ["ADDRESS COMMAREA"]
+            )
+        has_commarea = True
     already = re.search(r"^.{6} +PROCEDURE\s+DIVISION\s+USING\s+DFHCOMMAREA\s*\.", text, re.M | re.I)
     if has_commarea and not already:  # (CBSA's ABNDPROC codes USING DFHCOMMAREA itself, as CICS allows)
         text, n = re.subn(r"^(.{6} +PROCEDURE\s+DIVISION)\s*\.", r"\1 USING DFHCOMMAREA.", text, count=1,
@@ -2516,6 +2529,10 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         for t in db2.get("compare", []):
             names = equivalence_db2.columns(t)
             dumps.append((t, equivalence_db2.dump_query(t, names), names))
+    try:  # #6839 (X47): a POINTER's numeric view is address arithmetic on the pointer, not a number in half of it
+        source = equivalence_cics_pointer.lower(source)
+    except equivalence_cics_pointer.Unsupported as e:
+        raise Unsupported(str(e), ["POINTER numeric view"]) from e
     text, has_commarea = translate(source, [src])
     (src / "PROGRAM.cbl").write_text(text, encoding=staged)
     (src / "EQCICSDR.cbl").write_text(cics_driver(case["program"], has_commarea), encoding="ascii")

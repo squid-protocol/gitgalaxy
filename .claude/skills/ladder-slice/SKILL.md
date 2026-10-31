@@ -114,3 +114,10 @@ Run targeted tests, not the whole `tests/cobol_mainframe` (it times out); CI run
 - `equivalence.py run CASE --keep DIR` leaves uncovered lists in `DIR/coverage.json`; sweep `--cases` and `ladder_gaps.py --sweep` need comma-separated cases plus a sweep dir.
 - `ladder_refresh` diffs that only change the oracle sha are not coverage movement: discard them.
 - `ggcics_web.c` caps WEB OPEN sessions at 64 per task; a scenario needing more is refused Unsupported (#6725).
+
+## cics-crucible as a ladder corpus (owner OK 2026-10-31, #6072)
+cics-crucible counts as a burned estate for the ladder. A case names it with `"corpus": "cics-crucible"` and a
+`program_source` relative to the checkout (`cases/<trap>/<case>/src/PROG.cbl`). `mainframe_corpus.select/require_clone`
+resolve it to `$CICS_CRUCIBLE_PATH` (else the sibling `cics-crucible`), refusing a checkout off the `tests/crucible_pins.toml`
+pin (run `tests/tools/box/sync-pins.sh`). It is not in `corpora.json` and not in `estate4_draw.BURNED_NAMES`; only
+`ladder_refresh.case_problems` accepts it. Ghost-tasks and commarea-mismatch slices queue behind this tool PR.

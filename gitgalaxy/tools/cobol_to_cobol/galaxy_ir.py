@@ -129,6 +129,8 @@
 # EngineFile.web_services): GalaxyIR.api_surface joins each service's program
 # and request / response copybooks, with the CSD's URIMAP / PIPELINE /
 # WEBSERVICE / TCPIPSERVICE definitions.
+# Since #4457, section-level COPY ... REPLACING statements (copy_statement_data,
+# per EngineFile.copy_statements) that close the record entry above them.
 # Since #3494, the CSD's REMOTESYSTEM definitions and call sites' SYSID
 # (call_site_data.sysid): GalaxyIR.remote_programs / remote_calls (DPL, remote
 # START) / remote_resources (function-shipped FILE / TD / TS queues).

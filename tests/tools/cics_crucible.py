@@ -218,6 +218,10 @@ COBOL_CAPS = cc.Capabilities(
         "DELETE": frozenset({"file", "ridfld", "generic", "resp", "resp2"}),
         "READQ-TS": frozenset({"queue", "item", "resp", "length", "data"}),
         "WRITEQ-TS": frozenset({"queue", "data", "resp", "item"}),
+        # #5079 (X57): what ggcics_transientdata.c's GGCWRTD / GGCRDTD / GGCDLTD record
+        "READQ-TD": frozenset({"queue", "resp", "length", "data"}),
+        "WRITEQ-TD": frozenset({"queue", "data", "resp"}),
+        "DELETEQ-TD": frozenset({"queue", "resp"}),
         "WRITE-OPERATOR": frozenset({"data", "resp"}),  # #4270 zECS (X32)
         "START": _START_KEYS,
         "RETRIEVE": _RETRIEVE_KEYS,
@@ -229,6 +233,7 @@ COBOL_CAPS = cc.Capabilities(
         **_WEB_CLIENT_KEYS,
     },
     ts_queues=True,
+    td_queues=True,  # #5079: seeded and read back from the stub's td-<hex> directories
     start_tasks=True,
     http_tasks=True,
 )
@@ -2328,6 +2333,16 @@ def _cobol_events(out: Path, program: str, screens: dict[str, Screen] | None = N
             resp = names.get(int(arg("resp") or 0), arg("resp"))
             ev.update(queue=bytes.fromhex(arg("queue")).decode("latin-1"), data=cc.RawArea(data, "latin-1"), resp=resp,
                       item=int(arg("item")) if resp == "NORMAL" else None)  # fmt: skip
+        elif verb == "READQ-TD":  # #5079 (X57): the queue in hex; length and data only where a record was read
+            n = int(arg("len") or -1)
+            ev.update(queue=bytes.fromhex(arg("queue")).decode("latin-1"),
+                      resp=names.get(int(arg("resp") or 0), arg("resp")), length=n if n >= 0 else None,
+                      data=cc.RawArea(data, "latin-1") if n >= 0 else None)  # fmt: skip
+        elif verb == "WRITEQ-TD":  # #5079 (X57): the queue in plain text; the record is logged whatever the answer
+            ev.update(queue=arg("queue"), data=cc.RawArea(data, "latin-1"),
+                      resp=names.get(int(arg("resp") or 0), arg("resp")))  # fmt: skip
+        elif verb == "DELETEQ-TD":  # #5079 (X57)
+            ev.update(queue=arg("queue"), resp=names.get(int(arg("resp") or 0), arg("resp")))
         elif verb == "WRITE-OPERATOR":  # #4270 zECS (X32): the text sent, in the stub's page
             ev.update(data=cc.RawArea(data, "latin-1"), resp=names.get(int(arg("resp") or 0), arg("resp")))
         elif verb == "RECEIVE-REFUSED":  # #4413
@@ -2493,6 +2508,33 @@ def seed_ts(root: Path, queues: dict[str, list[Any]]) -> None:
             (d / f"{n:06d}.bin").write_bytes(cc.expected_bytes(item).decode(cc.EBCDIC).encode("latin-1"))
 
 
+def seed_td(root: Path, queues: dict[str, list[Any]]) -> None:
+    """#5079 (X57): a scenario's `initial` TD queues in the stub's store (ggcics_transientdata.c td_dir): td-<hex of the
+    name>/000001.bin, ... (no `head` file: the first record is the head), in the stub's page as seed_ts does."""
+    root.mkdir(parents=True, exist_ok=True)
+    for name, items in queues.items():
+        d = root / ("td-" + name.encode("latin-1").hex().upper())
+        d.mkdir(exist_ok=True)
+        for n, item in enumerate(items, 1):
+            (d / f"{n:06d}.bin").write_bytes(cc.expected_bytes(item).decode(cc.EBCDIC).encode("latin-1"))
+
+
+def read_td(root: Path) -> dict[str, list[bytes]]:
+    """#5079 (X57): every intrapartition TD queue the stub's store holds, the records not yet read (from `head` on) as
+    EBCDIC bytes (the `final` state). A queue DELETEQ TD removed is absent: the comparison reads it as empty."""
+    out: dict[str, list[bytes]] = {}
+    for d in sorted(root.iterdir()) if root.is_dir() else []:
+        if not d.name.startswith("td-") or not d.is_dir():
+            continue
+        head = (d / "head").read_text(encoding="ascii").split() if (d / "head").is_file() else []
+        items, n = [], int(head[0]) if head else 1
+        while (d / f"{n:06d}.bin").is_file():
+            items.append(cc.to_ebcdic(cc.RawArea((d / f"{n:06d}.bin").read_bytes(), "latin-1")))
+            n += 1
+        out[bytes.fromhex(d.name[3:]).decode("latin-1")] = items
+    return out
+
+
 def seed_files(case: cc.Case, work: Path, sid: str) -> str:
     """#4443: the case's seeded files for the stub -- `data/<FILE>.dat` (one record per line, SPEC 2) as fixed-length
     records in `runs/<scenario>/files/<FILE>`, and the files.cfg text naming them (`FILE path reclen keyoff keylen`). The key is the
@@ -2525,7 +2567,7 @@ def read_ts(root: Path) -> dict[str, list[bytes]]:
     out: dict[str, list[bytes]] = {}
     for d in sorted(root.iterdir()) if root.is_dir() else []:
         if d.name.startswith("td-"):
-            continue  # an intrapartition TD queue lives beside the TS queues (ggcics.c td_dir); `final` td_queues are not compared yet
+            continue  # an intrapartition TD queue lives beside the TS queues (ggcics.c td_dir): read_td reads it
         items, n = [], 1
         while (d / f"{n:06d}.bin").is_file():
             items.append(cc.to_ebcdic(cc.RawArea((d / f"{n:06d}.bin").read_bytes(), "latin-1")))
@@ -2950,10 +2992,22 @@ def drive_scenario(case: cc.Case, sc: dict[str, Any], run_one: Any) -> tuple[lis
         return tasks, None
 
 
+def _expects_undefined_td_queue(case: cc.Case) -> bool:
+    """#5079 (X57): a case whose oracle log has a TD command answered QIDERR (queue not in the CSD) while its CSD defines no
+    TDQUEUE at all: the stub then needs an empty tdqueues.cfg (absent, it takes every queue as defined)."""
+    return any(
+        str(e.get("event", "")).endswith("-TD") and e.get("resp") == "QIDERR"
+        for log in case.expected.values()
+        for t in log["tasks"]
+        for e in t["events"]
+    )
+
+
 def run_scenario(case: cc.Case, sc: dict[str, Any], box: "Container", work: Path) -> dict[str, Any]:
     """One scenario on the stub, scheduled as SPEC section 4 says (drive_scenario)."""
     ts = f"runs/{sc['id']}/ts"  # #4002: the region's TS queues, shared by every task of the scenario
     seed_ts(work / ts, (sc.get("initial") or {}).get("ts_queues") or {})
+    seed_td(work / ts, (sc.get("initial") or {}).get("td_queues") or {})  # #5079
     count = iter(range(1000))
     origin = origin_peers(case, sc)
     files_cfg = seed_files(case, work, sc["id"])  # #4443
@@ -2976,7 +3030,7 @@ def run_scenario(case: cc.Case, sc: dict[str, Any], box: "Container", work: Path
         return task
 
     tasks, stopped = drive_scenario(case, sc, run_one)
-    return {"tasks": tasks, "stopped": stopped, "final": {"ts_queues": read_ts(work / ts)},
+    return {"tasks": tasks, "stopped": stopped, "final": {"ts_queues": read_ts(work / ts), "td_queues": read_td(work / ts)},
             **http_peer_log(case, sc, tasks)}  # fmt: skip
 
 
@@ -3007,6 +3061,11 @@ def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, tra
     (d / "programs.cfg").write_text("".join(f"{p}\n" for p in sorted(case.csd["programs"])), encoding="ascii")
     (d / "transactions.cfg").write_text("".join(f"{t}\n" for t in sorted(case.csd["transactions"])), encoding="ascii")
     (d / "terminals.cfg").write_text(f"{case.data['terminal']}\n", encoding="ascii")
+    if case.csd.get("tdqueues") or _expects_undefined_td_queue(
+        case
+    ):  # #5079 (X57): the CSD's TDQUEUEs; one it lacks is QIDERR
+        (d / "tdqueues.cfg").write_text("".join(f"{q} {w}\n" for q, w in sorted((case.csd.get("tdqueues") or {}).items())),
+                                        encoding="ascii")  # fmt: skip
     # #4270 zECS (X32): the URIMAP definitions the case CSD installs, `NAME TRANSACTION PATH` ('-': no transaction)
     (d / "urimaps.cfg").write_text("".join(f"{n} {t or '-'} {p}\n" for n, t, p in case.csd.get("urimaps") or []),
                                    encoding="ascii")  # fmt: skip

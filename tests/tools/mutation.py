@@ -224,6 +224,16 @@ def mutants_of(rel: str, text: str, ops: set[str]) -> list[Mutant]:
                 sites.append(("DEL", body_at, len(m.group(2)), f"/* {m.group(2).replace('*/', '* /')} */"))
         offset += len(line)
 
+    # #5862: a mutant's id names its line by content (the line, and how many identical lines come before it), not by
+    # byte offset, so a line added above leaves it alone and a ledger's verdicts can be carried to the moved port
+    nth: dict[int, int] = {}
+    identical: dict[str, int] = {}
+    offset = 0
+    for line in text.splitlines(keepends=True):
+        nth[offset] = identical.get(line.strip(), 0)
+        identical[line.strip()] = nth[offset] + 1
+        offset += len(line)
+
     out: list[Mutant] = []
     seen: set[tuple[int, int, str]] = set()
     for op, at, length, rep in sorted(sites, key=lambda s: (s[1], s[0], s[3])):
@@ -236,7 +246,8 @@ def mutants_of(rel: str, text: str, ops: set[str]) -> list[Mutant]:
         after_line = text[ls:at] + rep + text[at + length : le]
         if op == "NEG" and "\n" in text[at : at + length]:  # a condition over several lines: show its first line
             after_line = text[ls:at] + "!(" + text[at:le]
-        ident = hashlib.sha1(f"{rel}:{at}:{length}:{op}:{rep}".encode(), usedforsecurity=False).hexdigest()[:10]
+        where = f"{text[ls:le].strip()}:{nth.get(ls, 0)}:{at - ls}"
+        ident = hashlib.sha1(f"{rel}:{where}:{length}:{op}:{rep}".encode(), usedforsecurity=False).hexdigest()[:10]
         out.append(Mutant(ident, rel, line_no, op, text[ls:le].strip(), after_line.strip(), at, length, rep))
     return out
 

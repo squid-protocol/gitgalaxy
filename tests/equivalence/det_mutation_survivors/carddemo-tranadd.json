@@ -11,7 +11,7 @@
  "case": "carddemo-tranadd",
  "survivors": [
   {
-   "id": "2d5edcc867",
+   "id": "6d5688ccd1",
    "op": "DEL",
    "line": 105,
    "before": "System.arraycopy(IMAGE_s_FEEDBACK_CODE, 0, s_FEEDBACK_CODE.bytes, 0, IMAGE_s_FEEDBACK_CODE.length);",
@@ -20,7 +20,7 @@
    "reason": "CSUTLDTC's it VALUE image: every call writes the item before CSUTLDTC reads it (or never reads it)"
   },
   {
-   "id": "b74b73e66c",
+   "id": "06062379f6",
    "op": "DEL",
    "line": 106,
    "before": "System.arraycopy(IMAGE_s_LS_DATE, 0, s_LS_DATE.bytes, 0, IMAGE_s_LS_DATE.length);",
@@ -29,7 +29,7 @@
    "reason": "CSUTLDTC's it VALUE image: every call writes the item before CSUTLDTC reads it (or never reads it)"
   },
   {
-   "id": "2a277d897a",
+   "id": "6c84ca373f",
    "op": "DEL",
    "line": 109,
    "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
@@ -38,7 +38,7 @@
    "reason": "CSUTLDTC's it VALUE image: every call writes the item before CSUTLDTC reads it (or never reads it)"
   },
   {
-   "id": "682edfcf39",
+   "id": "3e0f86939e",
    "op": "ROR",
    "line": 147,
    "before": "Cobol.move(arg3.get() == null ? \"\" : arg3.get(), f39_LS_RESULT, CS);",
@@ -47,7 +47,7 @@
    "reason": "CSUTLDTC-RESULT is MOVEd SPACES before the CALL, so \"\" and arg3's text are the same bytes in LS-RESULT"
   },
   {
-   "id": "5023dc2954",
+   "id": "0835801c4d",
    "op": "CON",
    "line": 206,
    "before": "private int[] performThru = new int[64];",
@@ -56,7 +56,7 @@
    "reason": "performThru grows only at a PERFORM nesting depth of 64; COTRN02C nests far less (a handful of paragraphs deep)"
   },
   {
-   "id": "31e9f690a4",
+   "id": "f9518240f5",
    "op": "AOR",
    "line": 271,
    "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f10_WS_MESSAGE.storage(), f10_WS_MESSAGE.offset() + 0, 4, false), CS);",
@@ -65,7 +65,7 @@
    "reason": "offset() + 0 and offset() - 0 are the same value"
   },
   {
-   "id": "669f14f956",
+   "id": "de0f012427",
    "op": "NEG",
    "line": 321,
    "before": "} else if ((isFcInvalidEra())) {",
@@ -74,7 +74,7 @@
    "reason": "the FEEDBACK-token branches only set the WS-RESULT text (e.g. 'Invalid Era'); COTRN02C reads only the SEV-CD and MSG-NUM of CSUTLDTC-RESULT, never the text"
   },
   {
-   "id": "49522b8ab0",
+   "id": "feb50062df",
    "op": "ROR",
    "line": 362,
    "before": "private boolean isFcInvalidEra() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, Cobol.hex(\"\\000\\003\\011\\315Y\\303\\305\\305\", CS), CS) == 0; }",
@@ -83,7 +83,7 @@
    "reason": "the FEEDBACK-token branches only set the WS-RESULT text; COTRN02C reads only the SEV-CD and MSG-NUM of CSUTLDTC-RESULT, never the text"
   },
   {
-   "id": "a8c774b5cb",
+   "id": "90c05de5a5",
    "op": "LIT",
    "line": 365,
    "before": "private boolean isFcUnsuppRange() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, Cobol.hex(\"\\000\\003\\011\\321Y\\303\\305\\305\", CS), CS) == 0; }",
@@ -92,7 +92,7 @@
    "reason": "the FEEDBACK-token branches only set the WS-RESULT text; COTRN02C reads only the SEV-CD and MSG-NUM of CSUTLDTC-RESULT, never the text"
   },
   {
-   "id": "786cd8951c",
+   "id": "b0c316e207",
    "op": "ROR",
    "line": 377,
    "before": "private boolean isFcYearInEraZero() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, Cobol.hex(\"\\000\\003\\011\\331Y\\303\\305\\305\", CS), CS) == 0; }",
@@ -101,7 +101,7 @@
    "reason": "the FEEDBACK-token branches only set the WS-RESULT text; COTRN02C reads only the SEV-CD and MSG-NUM of CSUTLDTC-RESULT, never the text"
   },
   {
-   "id": "fa7785f2ac",
+   "id": "5e14a4a7c0",
    "op": "CON",
    "line": 627,
    "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
@@ -110,7 +110,7 @@
    "reason": "caWhole restores the full DFHCOMMAREA area from the EIBCALEN-narrowed copy at the end of a task. COTRN02C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN) (COTRN02C.cbl line 119, before anything here runs), and the RETURN / XCTL COMMAREA is built from CARDDEMO-COMMAREA, so the restored area's contents (a one-byte shift of them included) are not observable for a terminal task"
   },
   {
-   "id": "e1f72b004d",
+   "id": "1218912823",
    "op": "DEL",
    "line": 663,
    "before": "System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length);",
@@ -119,7 +119,7 @@
    "reason": "without initialState's copy of DFHCOMMAREA's image the area keeps what the last task left; COTRN02C reads only DFHCOMMAREA(1:EIBCALEN), which the task writes from the caller's COMMAREA first, and for a terminal task the area's final contents are not observable"
   },
   {
-   "id": "6136ffa8e2",
+   "id": "81f9d4cebc",
    "op": "LIT",
    "line": 690,
    "before": "f377_ACCT_ACTIVE_STATUS = \" \";",
@@ -128,7 +128,7 @@
    "reason": "ACCT-ACTIVE-STATUS is a VALUE-initialised item of the CVACT01Y copybook; COTRN02C never reads or writes it (its only ACCT names are WS-ACCT-ID-N and XREF-ACCT-ID), so the initial value cannot show"
   },
   {
-   "id": "1cb37d4933",
+   "id": "e6e3c8a882",
    "op": "DEL",
    "line": 724,
    "before": "handlers.clear();",
@@ -137,7 +137,7 @@
    "reason": "COTRN02C has no HANDLE CONDITION / HANDLE AID / HANDLE ABEND (and no IGNORE CONDITION), so the handlers map is never filled and clearing it changes nothing"
   },
   {
-   "id": "4f6d68a684",
+   "id": "117701fbdf",
    "op": "AOR",
    "line": 731,
    "before": "Cobol.store(f503_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
@@ -146,7 +146,7 @@
    "reason": "COTRN02C reads only EIBAID and EIBCALEN of the EIB (COTRN02C.cbl); EIBDATE is never read, so its value cannot show"
   },
   {
-   "id": "38d432f8ef",
+   "id": "f75814a8b6",
    "op": "AOR",
    "line": 732,
    "before": "Cobol.store(f502_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
@@ -155,7 +155,7 @@
    "reason": "COTRN02C reads only EIBAID and EIBCALEN of the EIB (COTRN02C.cbl); EIBTIME is never read, so its value cannot show"
   },
   {
-   "id": "1fe9456663",
+   "id": "c8fd6e658b",
    "op": "ROR",
    "line": 792,
    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
@@ -164,7 +164,7 @@
    "reason": "inside `if (raw != null)`: no CardDemo program LINKs COTRN02C (it is reached by terminal transaction CT02 and XCTL only), so task.linkArea() is null and this is never taken"
   },
   {
-   "id": "8bebacb3a6",
+   "id": "edfa927fc5",
    "op": "AOR",
    "line": 794,
    "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
@@ -173,7 +173,7 @@
    "reason": "inside `if (raw != null)`, in the write-back to the LINK area: no CardDemo program LINKs COTRN02C (it is reached by terminal transaction CT02 and XCTL only), so task.linkArea() is null and this is never taken"
   },
   {
-   "id": "9d8495fb8d",
+   "id": "a93d2b3475",
    "op": "ROR",
    "line": 794,
    "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
@@ -182,7 +182,7 @@
    "reason": "inside `if (raw != null)`, in the write-back to the LINK area: no CardDemo program LINKs COTRN02C (it is reached by terminal transaction CT02 and XCTL only), so task.linkArea() is null and this is never taken"
   },
   {
-   "id": "002ebea6c4",
+   "id": "f620465b63",
    "op": "COR",
    "line": 797,
    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
@@ -191,7 +191,7 @@
    "reason": "the narrowing of DFHCOMMAREA to EIBCALEN bytes only matters to a reference past EIBCALEN, and COTRN02C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN) (COTRN02C.cbl line 119); with the narrowing applied or not, the bytes read are the same, and the typed COMMAREA the program returns comes from CARDDEMO-COMMAREA"
   },
   {
-   "id": "ff1b8d2fe8",
+   "id": "e7f75ba182",
    "op": "ROR",
    "line": 797,
    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
@@ -200,7 +200,7 @@
    "reason": "at calen == the area's length the narrowing copies the area to a same-length array, which changes no byte; for every other calen the comparison agrees"
   },
   {
-   "id": "8ecef10a52",
+   "id": "9f3a218857",
    "op": "DEL",
    "line": 818,
    "before": "caWhole(caWhole);",
@@ -209,7 +209,7 @@
    "reason": "the finally block's caWhole(caWhole) only restores the full area after an abend or a refusal; on every RETURN / XCTL path caBack's own caWhole(whole) has already restored it, and after an abend the task ends with no COMMAREA, so the area is not observable"
   },
   {
-   "id": "61eead803f",
+   "id": "c1840c6a5d",
    "op": "LIT",
    "line": 856,
    "before": "region.run(task, \"COTRN02C\", this::runTask);",
@@ -218,7 +218,7 @@
    "reason": "the region name is used when a program LINKs to COTRN02C; no CardDemo program LINKs COTRN02C (it is reached by terminal transaction CT02 and XCTL only), so task.linkArea() is null and this is never taken"
   },
   {
-   "id": "2d83ed4340",
+   "id": "097218d9cd",
    "op": "COR",
    "line": 858,
    "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
@@ -227,7 +227,7 @@
    "reason": "lastLinkBytes records the COMMAREA a LINKed program returned; no CardDemo program LINKs COTRN02C (it is reached by terminal transaction CT02 and XCTL only), so task.linkArea() is null and this is never taken"
   },
   {
-   "id": "d40d5d11f2",
+   "id": "41fe0671de",
    "op": "AOR",
    "line": 946,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
@@ -236,7 +236,7 @@
    "reason": "the scan over outer PERFORMs runs only after a paragraph that is not its range's last returns; every PERFORM in COTRN02C names one paragraph (from == thru) except runTask's perform(0, 17), and MAIN-PARA (0) always ends in RETURN / XCTL, so the scan never iterates"
   },
   {
-   "id": "adf547b215",
+   "id": "0f1119399a",
    "op": "NEG",
    "line": 947,
    "before": "if (performThru[d] == i) {",
@@ -245,7 +245,7 @@
    "reason": "the scan over outer PERFORMs runs only after a paragraph that is not its range's last returns; every PERFORM in COTRN02C names one paragraph (from == thru) except runTask's perform(0, 17), and MAIN-PARA (0) always ends in RETURN / XCTL, so the test is never evaluated"
   },
   {
-   "id": "e933ce3396",
+   "id": "935ea7ac81",
    "op": "CON",
    "line": 1061,
    "before": "task.returnTransid(f3_WS_TRANID.strip(), out_Cotrn02cCarddemoCommarea(f29_CARDDEMO_COMMAREA.storage(), f29_CARDDEMO_COMMAREA.offset()), (Integer) null, Cobol.commarea(f29_CARDDEMO_COMMAREA, 218).bytes);",
@@ -254,7 +254,7 @@
    "reason": "the final RETURN TRANSID(CT02) re-enters COTRN02C itself, and the next task is the only reader of the COMMAREA length (its EIBCALEN). COTRN02C uses EIBCALEN twice: IF EIBCALEN = 0 (line 115), false for the length either way; and MOVE DFHCOMMAREA(1:EIBCALEN) TO CARDDEMO-COMMAREA (line 119), whose target CARDDEMO-COMMAREA is 218 bytes, so the one extra byte of the 219-byte mutant is truncated. DFHCOMMAREA is read nowhere else. Proposed for owner review, like the COADM01C line-952 verdict"
   },
   {
-   "id": "7696e19f3f",
+   "id": "6e6eebadd5",
    "op": "LIT",
    "line": 1087,
    "before": "f9_WS_ERR_FLG = \"Y\";",
@@ -263,7 +263,7 @@
    "reason": "dead store: MOVE 'Y' TO WS-ERR-FLG is followed by PERFORM SEND-TRNADD-SCREEN, which ends in RETURN TRANSID, so nothing reads the flag; its only reader (IF ERR-FLG-ON, line 237) runs on a fresh task where WS-ERR-FLG is 'N'"
   },
   {
-   "id": "6ac5c82ed4",
+   "id": "8b8bdb7457",
    "op": "DEL",
    "line": 1165,
    "before": "Cobol.moveFigurative(Figurative.SPACES, f125_TRNSRCI, CS);",
@@ -272,7 +272,7 @@
    "reason": "inside IF ERR-FLG-ON of VALIDATE-INPUT-DATA-FIELDS: every MOVE 'Y' TO WS-ERR-FLG is followed by PERFORM SEND-TRNADD-SCREEN, which ends in RETURN TRANSID, and WS-ERR-FLG starts each task as 'N', so the flag is never on here"
   },
   {
-   "id": "e268a7390e",
+   "id": "4836dcdf7d",
    "op": "CON",
    "line": 1220,
    "before": "perform(7, 7);",
@@ -281,7 +281,7 @@
    "reason": "the THRU end of PERFORM SEND-TRNADD-SCREEN is read only after the paragraph returns, and SEND-TRNADD-SCREEN always ends in RETURN TRANSID (a Goback), so perform's range is never reached"
   },
   {
-   "id": "a393e38ca3",
+   "id": "1c4985277d",
    "op": "LIT",
    "line": 1316,
    "before": "f9_WS_ERR_FLG = \"Y\";",
@@ -290,7 +290,7 @@
    "reason": "dead store: MOVE 'Y' TO WS-ERR-FLG is followed by PERFORM SEND-TRNADD-SCREEN, which ends in RETURN TRANSID, so nothing reads the flag; its only reader (IF ERR-FLG-ON, line 237) runs on a fresh task where WS-ERR-FLG is 'N'"
   },
   {
-   "id": "8cb6841bde",
+   "id": "c73925aa47",
    "op": "CON",
    "line": 1341,
    "before": "f18_WS_TRAN_AMT_N = Cobol.zoned(Hfp.fixedStore(v3, 2, false), 11, 2, true, false, CS);",
@@ -299,7 +299,7 @@
    "reason": "the COMPUTE runs only after the amount passed its format check (sign, 8 digits, '.', 2 digits: COTRN02C.cbl lines 340-343), so |value| < 10^8 and fits S9(9)V99 (11 digits) with room to spare: one more digit of width changes no stored value"
   },
   {
-   "id": "6d98a1c630",
+   "id": "fc997f38ec",
    "op": "COR",
    "line": 1532,
    "before": "if ((Cobol.compareFigurative(f34_CDEMO_TO_PROGRAM, Figurative.LOW_VALUES, CS) == 0 || Cobol.compareFigurative(f34_CDEMO_TO_PROGRAM, Figurative.SPACES, CS) == 0)) {",
@@ -308,7 +308,7 @@
    "reason": "RETURN-TO-PREV-SCREEN is performed only after CDEMO-TO-PROGRAM is set: to COSGN00C (EIBCALEN = 0, line 116), to COMEN01C, or to CDEMO-FROM-PROGRAM when that is not blank (PF3, lines 137-141), so the IF is false for either operator; with OR vs AND the branch is never taken"
   },
   {
-   "id": "ea6b26d82f",
+   "id": "15496d26cf",
    "op": "ROR",
    "line": 1549,
    "before": "if (to >= 0) return GOTO | to;",
@@ -317,7 +317,7 @@
    "reason": "`to` is what condition() returns, and with no HANDLE CONDITION / ABEND in COTRN02C and only EOC ignored by default (RECEIVE only), condition() throws for any SEND MAP failure and never returns"
   },
   {
-   "id": "315cdb5b19",
+   "id": "6c10ae7e70",
    "op": "DEL",
    "line": 1692,
    "before": "Cobol.store(f530_EIBRESP, BigDecimal.valueOf(resp21), false, CS);",
@@ -326,7 +326,7 @@
    "reason": "COTRN02C never references EIBRESP or EIBRESP2 (its commands use RESP(WS-RESP-CD) / RESP2(WS-REAS-CD); the only EIB fields it reads are EIBAID and EIBCALEN), so the store's value or absence cannot show"
   },
   {
-   "id": "d49d031aaa",
+   "id": "fa0d441df1",
    "op": "CON",
    "line": 1873,
    "before": "return 14;",
@@ -335,7 +335,7 @@
    "reason": "the next-paragraph index READPREV-TRANSACT-FILE returns is read only when the paragraph is not its range's last, and every PERFORM of it names that paragraph alone (from == thru), so the index is dropped"
   },
   {
-   "id": "0b1ed4391a",
+   "id": "36c9d7b310",
    "op": "NEG",
    "line": 1884,
    "before": "if (to >= 0) return GOTO | to;",

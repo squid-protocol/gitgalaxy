@@ -40,6 +40,7 @@ from __future__ import annotations
 
 import json
 import re
+import zlib
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -83,7 +84,10 @@ class Step:
     commands_only: bool = False  # a TSO runner running commands (DSN FREE / BIND, RACF), no program
     parm: str | None = None  # #3624: the text EXEC PARM= passes the program
     refused: str | None = None  # #4268: why a utility step the model cannot run is not lowered (named)
-    lowered: str | None = None  # #4268: a DFSORT step lowered to COBOL (dfsort.cobol_program), not yet ported
+    lowered: str | None = None  # #4268: a DFSORT step lowered to COBOL (dfsort.cobol_program)
+    sort_service: str = ""  # #4268: the class of its det translation (a service the step runs), "" until ported
+    sort_java: str = ""  # that service's source
+    not_ported: str = ""  # why the lowered program is not run (the det translation failed or holds holes)
     lowered_note: str = ""  # where its record length came from
     lowered_path: str = ""  # its resource, set once the job's class is named
     copy_dds: tuple[str, str] | None = None  # #4268: the (input, output) DDs of an IDCAMS REPRO copy
@@ -161,6 +165,8 @@ class BatchForge:
             j.cls = name
             for st in j.steps:
                 st.lowered_path = f"batch/sort/{name[: -len('JobConfig')]}-{self._const(st.name)}.cbl"
+                if st.lowered and j.kind == "application" and self.enabled:
+                    self._port_sort(name[: -len("JobConfig")], st)
         # A JCL job name is not unique across files (nor is it a Spring bean name): the Spring Batch
         # job carries it, suffixed with its file's stem when another generated job has it too.
         names = [j.job for j in self.applications]
@@ -257,7 +263,7 @@ class BatchForge:
         control statements (SYSIN with the SYMNAMES it names) go through `dfsort.parse`: what the model does not cover
         is named as it names it. A covered step needs its records' length, read from the DCB the job states
         (`_sort_reclen`), and is lowered by `dfsort.cobol_program` onto the SORTIN / SORTINnn and SORTOUT DDs. The
-        lowered program is not run here (it needs the det port): the step stays a utility step to port."""
+        lowered program is run through its det translation (`_port_sort`) once the job's class is named."""
         if st.program not in DFSORT:
             return f"is {st.program}, not DFSORT control statements the model reads"
         for dd in ("SORTCNTL", "DFSPARM"):
@@ -290,6 +296,36 @@ class BatchForge:
             return f"is a DFSORT {ctl.verb} the model reads, but lowering refuses {e}"
         st.lowered_note = f"{reclen[0]}-byte fixed records, LRECL from {reclen[1]}"
         return None
+
+    def _port_sort(self, base: str, st: Step) -> None:
+        """#4268: the det translation of a lowered SORT step (the port `test_dfsort_4268.py` proves against GnuCOBOL),
+        kept as a service the step runs on its DDs. A translation that fails or holds a hole is not run: the step
+        stays a named utility step and says why (`st.not_ported`)."""
+        import tempfile
+        from pathlib import Path
+
+        from gitgalaxy.tools.cobol_to_java.det import program as P
+
+        cls = f"DfsortStep{java_class_base(base)}{java_class_base(self._const(st.name))}Service"
+        pid = "GGSRT" + format(zlib.crc32(f"{base}/{st.name}".encode()) & 0xFFFFFF, "06X")
+        if st.lowered is None:
+            return
+        src = st.lowered.replace("PROGRAM-ID. DFSORTST.", f"PROGRAM-ID. {pid}.")
+        try:
+            with tempfile.TemporaryDirectory(prefix="gitgalaxy-sortstep-") as tmp:
+                path = Path(tmp) / f"{pid}.cbl"
+                path.write_text(src, encoding="utf-8")
+                r = P.translate(path, [], f"public class {cls} {{\n}}\n", self.package, None, None)
+        except Exception as e:  # any translator failure keeps the step a named utility step
+            st.not_ported = f"the det translation failed ({type(e).__name__}: {e})"
+            return
+        holes = r.stats["holes"]
+        if holes or r.extra:
+            st.not_ported = (
+                f"the det translation has {len(holes)} hole(s) ({holes[0] if holes else 'sibling programs'})"
+            )
+            return
+        st.sort_service, st.sort_java = r.service, r.java
 
     def _sort_reclen(self, file: str, st: Step, inputs: list[str], rebuilt: bool) -> tuple[int, str] | str:
         """#4268: the fixed record length of a SORT / MERGE step from the DCB its job states, as (length, where) or
@@ -378,7 +414,25 @@ class BatchForge:
             out["BatchJobController"] = _CONTROLLER.replace("{pkg}", pkg)
         for j in self.applications:
             out[j.cls] = self._job_source(j)
-        return {("base_pkg", SUBPACKAGE): out}
+        return {("base_pkg", SUBPACKAGE): out, **self._sort_sources()}
+
+    def _sort_sources(self) -> dict[tuple[str, ...], dict[str, str]]:
+        """#4268: the det services of the lowered SORT steps and the det runtime they run on (cobolrt, without its CICS
+        and SQL parts, as `test_dfsort_4268.py` proves it), only when a step has one."""
+        ported = [st for j in self.applications for st in j.steps if st.sort_service]
+        if not ported:
+            return {}
+        from gitgalaxy.tools.cobol_to_java.det import program as P
+
+        out: dict[tuple[str, ...], dict[str, str]] = {
+            ("base_pkg", "service"): {st.sort_service: st.sort_java for st in ported}
+        }
+        for rel, text in P.runtime_files(self.package, batch=True).items():
+            if rel.startswith(("cobolrt/cics/", "cobolrt/sql/")):
+                continue
+            where, _, name = rel.rpartition("/")
+            out.setdefault(("base_pkg", where), {})[name.removesuffix(".java")] = text
+        return out
 
     def resources(self) -> dict[str, str]:
         if not self.enabled or not self.jobs:
@@ -409,8 +463,11 @@ class BatchForge:
                    "org.springframework.context.annotation.Bean", "org.springframework.context.annotation.Configuration",
                    "org.springframework.transaction.PlatformTransactionManager", "java.util.List"}  # fmt: skip
         imports |= {f"{self.package}.service.{java_class_base(k)}Service" for k in services}
+        sorts = sorted({st.sort_service for st in j.steps if st.sort_service})
+        imports |= {f"{self.package}.service.{c}" for c in sorts}
         params = ["JobRepository jobRepository", "PlatformTransactionManager tx", "JclSteps steps"]
         params += [f"{java_class_base(k)}Service {self._var(k)}" for k in services]
+        params += [f"{c} {c[0].lower() + c[1:]}" for c in sorts]
         flows = self._flows_of(j)
         doc = [f"/** JCL job {j.job} ({j.file}) as a Spring Batch job (#3622): its steps in JCL order,",
                " *  each bypassed when its COND= (or the job's) is satisfied, as JCL does."]  # fmt: skip
@@ -447,6 +504,10 @@ class BatchForge:
         return re.sub(r"[^A-Z0-9]", "_", name.upper())
 
     @staticmethod
+    def _sort_var(st: Step) -> str:
+        return st.sort_service[0].lower() + st.sort_service[1:]
+
+    @staticmethod
     def _var(key: str) -> str:
         base = java_class_base(key) + "Service"
         return base[0].lower() + base[1:]
@@ -467,9 +528,12 @@ class BatchForge:
             return f"TODO: {st.jcl} runs {p}, which {st.refused} -- not run as a plain copy: a utility step to port"
         if p in SORTS and st.refused:
             return f"TODO: {st.jcl} runs {p}, which {st.refused} -- not run: a utility step to port"
+        if p in SORTS and st.sort_service:
+            return None
         if p in SORTS and st.lowered:
+            why = st.not_ported or "it is not det-ported yet"
             return (f"TODO: {st.jcl} runs {p}, lowered to the COBOL SORT / MERGE program {st.lowered_path} "
-                    f"({st.lowered_note}) -- not run until it is det-ported: a utility step to port")  # fmt: skip
+                    f"({st.lowered_note}) -- not run: {why}; a utility step to port")  # fmt: skip
         if st.key or p in ("IEFBR14", *COPY):
             return None
         if p in RUNNERS and st.commands_only:
@@ -487,6 +551,8 @@ class BatchForge:
         head = f"{_jstr(st.name)}, {_jstr(st.jcl)}, {_jstr(j.cond)}, {_jstr(st.cond)}, {_jstr(st.if_cond)}"
         if st.key:
             return f"steps.program({head}, () -> {self._var(st.key)}.runBatch({consts}, {_jstr(st.parm)}))"
+        if st.sort_service:  # #4268: the lowered SORT / MERGE, det-translated, on the step's DDs
+            return f"steps.program({head}, () -> {self._sort_var(st)}.runBatch({consts}, null))"
         if st.program == "IEFBR14":
             return f"steps.iefbr14({head}, {consts})"
         if st.program in COPY and not st.refused:

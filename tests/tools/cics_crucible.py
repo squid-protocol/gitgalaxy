@@ -823,6 +823,7 @@ class EquivalenceRunTest {
         final List<Map<String, Object>> requests = new ArrayList<>();
         final CicsTask.TempStorage ts = new CicsTask.TempStorage();  // #4002: shared by every task
         final Map<String, byte[]> tctuas = new LinkedHashMap<>();  // #5079 (X59): a terminal's TCTUA, kept across its tasks
+        byte[] cwa;  // #5079 (X59): the region's CWA (SIT WRKAREA), one for every task
         final List<Map<String, Object>> entries = new ArrayList<>();  // #4343: the entry point each program ran by
         int issued;
         String pending;
@@ -1115,6 +1116,10 @@ class EquivalenceRunTest {
                 }
                 if (plan.hasNonNull("twasize") && plan.get("twasize").hasNonNull(transid)) {
                     t.withTwaSize(plan.get("twasize").get(transid).asInt());  // #5079 (X59): TRANSACTION TWASIZE
+                }
+                if (plan.hasNonNull("wrkarea")) {
+                    if (cwa == null) cwa = new byte[plan.get("wrkarea").asInt()];
+                    t.withCwa(cwa);  // #5079 (X59): SIT WRKAREA -- one area for the whole region
                 }
                 if (plan.hasNonNull("userarealen") && frame.get("termid") instanceof String tid
                         && plan.get("userarealen").hasNonNull(tid)) {
@@ -1706,6 +1711,9 @@ def java_plan(case: cc.Case, src: Path) -> dict[str, Any]:
         "uctranst": terminal_uctranst(case),  # #4415: INQUIRE TERMINAL UCTRANST
         "origin": case.data.get("origin"),  # #4415 slice 2: INQUIRE ASSOCIATION's origin data (terminal-started tasks)
         **{k: case.csd[k] for k in ("twasize", "userarealen") if case.csd.get(k)},  # #5079 (X59): only when stated
+        **(
+            {"wrkarea": case.data["wrkarea"]} if case.data.get("wrkarea") else {}
+        ),  # #5079 (X59): SIT WRKAREA, not a CSD resource
         "urimaps": [list(u) for u in case.csd.get("urimaps") or []],  # #4270 zECS (X32): INQUIRE URIMAP's browse
         "doctemplates": case.data.get("doctemplates"),  # #4769 zECS (X33): DOCUMENT CREATE TEMPLATE's text per name
         "services": services,

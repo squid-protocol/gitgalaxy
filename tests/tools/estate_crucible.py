@@ -704,13 +704,22 @@ _STEP_FIELDS_WITHOUT_ENGINE_ROW = (
     ("rd", "job_flow_data keeps no RD= restart-definition parameter (core/job_flow.py)"),
     ("parm_overrides", "job_flow_data keeps no PARM.procstep= override on an EXEC of a procedure (core/job_flow.py)"),
     ("cond_overrides", "job_flow_data keeps no COND.procstep= override on an EXEC of a procedure (core/job_flow.py)"),
+    ("set_symbols", "job_flow_data keeps no SET statement before the EXEC (core/job_flow.py)"),
+    ("includes", "job_flow_data keeps no INCLUDE statement after the EXEC and does not expand it (core/job_flow.py)"),
 )
 
 
 def _compact(v: Any) -> str:
     """A key value as one short token for a check label (a list of override dicts becomes `RPT020:QUARTERLY`)."""
     if isinstance(v, list):
-        return ",".join(f"{o.get('step')}:{o.get('parm', o.get('cond'))}" for o in v)
+        return ",".join(
+            f"{o['name']}={o['value']}"
+            if "name" in o
+            else f"{o.get('step')}:{o.get('parm', o.get('cond'))}"
+            if isinstance(o, dict)
+            else str(o)
+            for o in v
+        )
     return str(v)
 
 
@@ -762,6 +771,17 @@ def score_jcl(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
     for f in entry.get("jcl_dds", []):
         dd = f.get("dd") or f.get("concat_of")
         label = f"{f['step']}.{f.get('dd') or '+' + str(f.get('concat_of'))} @{f['line']}"
+        if f.get("include"):
+            # a DD of an INCLUDE group has no job, proc or step of its own (SPEC.md section 3)
+            sc.add(
+                "jcl_dds",
+                path,
+                f"INCLUDE {f['include']}: {f.get('dd')} @{f['line']}",
+                "unscored",
+                f.get("horror"),
+                "a member of an INCLUDE group: job_flow_data does not expand INCLUDE (core/job_flow.py)",
+            )
+            continue
         if f.get("sysout") or f.get("dummy"):
             what = f"SYSOUT={f['sysout']}" if f.get("sysout") else "DD DUMMY"
             sc.add(

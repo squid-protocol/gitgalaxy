@@ -19,6 +19,7 @@ from gitgalaxy.tools.cobol_to_java.det import expr as E
 from gitgalaxy.tools.cobol_to_java.det import layout as L
 from gitgalaxy.tools.cobol_to_java.det import osvs as O
 from gitgalaxy.tools.cobol_to_java.det import stmt as S
+from gitgalaxy.tools.cobol_to_java.det.cics_common import jstr
 from gitgalaxy.tools.cobol_to_java.det.source import WIDE
 
 if TYPE_CHECKING:
@@ -117,26 +118,6 @@ LIBRARY_FLOATS = {
     "CEEUTCO": {2},
 }
 LIBRARY_CHARSET = {*LIBRARY_CLOCK, *LIBRARY_FLOATS, *LIBRARY_RC, "CEEDATE", "CEEQCEN", "CEESCEN"}
-
-
-def jstr(s: str) -> str:
-    """A Java string literal; every non-ASCII or control character escaped."""
-    out = []
-    for ch in s:
-        o = ord(ch)
-        if ch == '"':
-            out.append('\\"')
-        elif ch == "\\":
-            out.append("\\\\")
-        elif 32 <= o < 127:
-            out.append(ch)
-        elif o < 256:
-            # #4690: never the u-escapes 000a / 000d / 0022 (Java translates them before lexing, cutting the literal open);
-            # a three-digit octal escape is exact and cannot swallow a following digit
-            out.append(f"\\{o:03o}")
-        else:
-            out.append(f"\\u{o:04x}")
-    return '"' + "".join(out) + '"'
 
 
 def jname(cobol: str) -> str:

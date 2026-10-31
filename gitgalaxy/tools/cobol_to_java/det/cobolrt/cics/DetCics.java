@@ -737,6 +737,16 @@ public final class DetCics {
         setPointer(ptr, task.acquireSet(key, data, syncEnds));
     }
 
+    /** SET(ADDRESS OF record) of a file read (#6876, X47): a new block of task storage holding the data, addressed by the
+     *  LINKAGE 01 record exactly as SET ADDRESS OF record TO ptr would (the pointer is not the program's). */
+    // [rule RT-CICS-SET-BLOCK]
+    public static void setBlockAt(CicsTask task, Field record, String key, byte[] data, boolean syncEnds) {
+        wholeRecord(record, "SET(ADDRESS OF)");
+        long handle = task.acquireSet(key, data, syncEnds);
+        record.storage().bytes = task.storageAt(handle, record.length());
+        record.storage().base = task.offsetAt(handle);
+    }
+
     public static void setBlock(CicsTask task, Field ptr, String key, String data, Charset cs) {
         setBlock(task, ptr, key, data.getBytes(cs));
     }

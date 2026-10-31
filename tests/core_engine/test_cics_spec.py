@@ -337,6 +337,11 @@ def test_the_64_bit_container_commands_keep_their_refusals_by_name():
     ):
         assert option in COMMANDS[key].refused and option not in COMMANDS[key].options, (key, option)
         assert COMMANDS[key].refusal_message([option]).startswith(f"{key} {option}: option not modelled"), (key, option)
+    # X65 lists only what is still refused whole: the 64-bit storage commands, not the modelled container twins.
+    for key in ("GETMAIN64", "FREEMAIN64"):
+        assert COMMANDS[key].status != "modelled", key
+    x65 = (Path(__file__).resolve().parents[2] / "docs/language_status/register/X65.md").read_text(encoding="utf-8")
+    assert "64-bit GETMAIN64 / FREEMAIN64 (2;" in x65 and "64-bit GET64 / PUT64 CONTAINER and" not in x65
 
 
 def test_group_lookup():

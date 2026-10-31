@@ -2209,6 +2209,47 @@ int GGCGETM(gg_cics *c, void **slot, char *img, int imglen) {
     return 0;
 }
 
+/* LOAD PROGRAM(name1) [SET(ptr)] [LENGTH(halfword)] (#6876, X65; IBM, EXEC CICS LOAD): PGMIDERR RESP2 1 for a program the CSD does not
+ * define (the pointer and LENGTH are not written); else the program is loaded by this task, the pointer takes the address of a
+ * non-null image and LENGTH (GG-FLAGS LENGTH: the area is given) the image's length, a halfword written big-endian. IBM states no
+ * image bytes or length, so a program that reads them is outside the proof. RELEASE PROGRAM(name1): PGMIDERR RESP2 1 for an undefined
+ * program, INVREQ for one this task did not load, else NORMAL (IBM lists no other condition). */
+#define LOADED_MAX 32
+static char loaded[LOADED_MAX][9];
+static char load_image[256];
+
+int GGCLDPG(gg_cics *c, void **slot, unsigned char *len) {
+    char program[9], flags[41];
+    int i, free_at = -1;
+    trim(c->name1, 8, program);
+    trim(c->flags, 40, flags);
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (!program_defined(program)) { c->resp = PGMIDERR; c->resp2 = 1; return 0; }
+    for (i = 0; i < LOADED_MAX; i++) {
+        if (strcmp(loaded[i], program) == 0) { free_at = i; break; }
+        if (free_at < 0 && loaded[i][0] == 0) free_at = i;
+    }
+    if (free_at < 0) refuse("LOAD of more than 32 programs at once");
+    snprintf(loaded[free_at], sizeof loaded[free_at], "%s", program);
+    if (strstr(flags, "SET") != NULL) *slot = load_image;
+    if (strstr(flags, "LENGTH") != NULL) { len[0] = (unsigned char)(sizeof load_image >> 8); len[1] = (unsigned char)(sizeof load_image & 255); }
+    return 0;
+}
+
+int GGCRLPG(gg_cics *c) {
+    char program[9];
+    int i;
+    trim(c->name1, 8, program);
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (!program_defined(program)) { c->resp = PGMIDERR; c->resp2 = 1; return 0; }
+    for (i = 0; i < LOADED_MAX; i++)
+        if (strcmp(loaded[i], program) == 0) { loaded[i][0] = 0; return 0; }
+    c->resp = INVREQ;
+    return 0;
+}
+
 /* The release both FREEMAIN forms share: the block that starts at `addr`, INVREQ RESP2 1 when none does. */
 static int free_block_at(gg_cics *c, void *addr) {
     int i;

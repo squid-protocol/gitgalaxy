@@ -306,7 +306,7 @@ DELETE_CONTAINER = Command(
         Outcome("INVREQ", 4, "issued outside the scope of a currently-active channel"),
         Outcome("CONTAINERERR", 10, "the channel has no such container"),
     ),
-    runtime_refusals=(_SCOPE, _ILLEGAL_NAME, _DISPUTED_NAME),
+    runtime_refusals=(_SCOPE, _ILLEGAL_NAME, _DISPUTED_NAME, _CICS_DEFINED),
     state=("channel_scope", "handle_table"),
     engine=EngineFacts(resource="CONTAINER", access="delete"),
     impl=Impl(java="deleteContainer", c="GGCDELC", **_CONTAINER_IMPL),

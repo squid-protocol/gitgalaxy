@@ -1,0 +1,145 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "PCWIZ",
+  "program_source": "cases/pseudo-conversational/pc-wizard/src/PCWIZ.cbl",
+  "copy_dirs": [
+    "cases/pseudo-conversational/pc-wizard/copy"
+  ],
+  "transid": "PC01",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": {
+    "segments": [
+      {
+        "copybook": "cases/pseudo-conversational/pc-wizard/src/PCWIZ.cbl",
+        "record": "WS-STATE"
+      }
+    ]
+  },
+  "screens": {
+    "PCM1": {
+      "copybook": "cases/pseudo-conversational/pc-wizard/copy/PCSET.cpy",
+      "input": "PCM1I",
+      "output": "PCM1O"
+    },
+    "PCM2": {
+      "copybook": "cases/pseudo-conversational/pc-wizard/copy/PCSET.cpy",
+      "input": "PCM2I",
+      "output": "PCM2O"
+    }
+  },
+  "notes": "cics-crucible pseudo-conversational / pc-wizard (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): a three-screen wizard, name step (PCWIZ): MAPFAIL, CLEAR, PF3, the PF7 back-arrow arriving by XCTL. Each scenario is one task; the crucible's multi-turn flows are restated one scenario per leg, each carrying the COMMAREA or channel the previous leg returned. The oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "first-entry",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "why": "EIBCALEN 0: the name screen"
+    },
+    {
+      "name": "pf3-cancel",
+      "aid": "DFHPF3",
+      "commarea": {
+        "PC-STEP": 1,
+        "PC-NAME": "",
+        "PC-AMOUNT": 0,
+        "PC-ERRORS": 0,
+        "PC-BACK": "",
+        "PC-SPARE": ""
+      },
+      "why": "PF3 on the name screen: the wizard is cancelled before any RECEIVE MAP"
+    },
+    {
+      "name": "back-from-confirm",
+      "aid": "DFHENTER",
+      "commarea": {
+        "PC-STEP": 3,
+        "PC-NAME": "ALAN",
+        "PC-AMOUNT": 9.99,
+        "PC-ERRORS": 0,
+        "PC-BACK": "Y",
+        "PC-SPARE": ""
+      },
+      "why": "PC-BACK Y (set by PCCONF's PF7 XCTL): the amount screen is redrawn with CHANGE THE AMOUNT and the kept amount"
+    },
+    {
+      "name": "back-amount-zero",
+      "aid": "DFHENTER",
+      "commarea": {
+        "PC-STEP": 3,
+        "PC-NAME": "ALAN",
+        "PC-AMOUNT": 0,
+        "PC-ERRORS": 0,
+        "PC-BACK": "Y",
+        "PC-SPARE": ""
+      },
+      "why": "PC-BACK Y with a zero amount: the amount screen is redrawn without an amount"
+    },
+    {
+      "name": "clear",
+      "aid": "DFHCLEAR",
+      "commarea": {
+        "PC-STEP": 1,
+        "PC-NAME": "",
+        "PC-AMOUNT": 0,
+        "PC-ERRORS": 0,
+        "PC-BACK": "",
+        "PC-SPARE": ""
+      },
+      "why": "CLEAR: the name screen is redrawn with SCREEN RESTORED, no RECEIVE"
+    },
+    {
+      "name": "name-ok",
+      "aid": "DFHENTER",
+      "commarea": {
+        "PC-STEP": 1,
+        "PC-NAME": "",
+        "PC-AMOUNT": 0,
+        "PC-ERRORS": 0,
+        "PC-BACK": "",
+        "PC-SPARE": ""
+      },
+      "why": "a name typed: the amount screen follows",
+      "receive": {
+        "PCM1": {
+          "NAMEI": "ADA LOVELACE"
+        }
+      }
+    },
+    {
+      "name": "name-mapfail",
+      "aid": "DFHENTER",
+      "commarea": {
+        "PC-STEP": 1,
+        "PC-NAME": "",
+        "PC-AMOUNT": 0,
+        "PC-ERRORS": 0,
+        "PC-BACK": "",
+        "PC-SPARE": ""
+      },
+      "why": "ENTER with nothing typed: RECEIVE MAP gets MAPFAIL, the error is counted and the name screen redrawn",
+      "receive": {
+        "PCM1": {}
+      }
+    },
+    {
+      "name": "other-key-takes-name",
+      "aid": "DFHPF5",
+      "commarea": {
+        "PC-STEP": 1,
+        "PC-NAME": "",
+        "PC-AMOUNT": 0,
+        "PC-ERRORS": 0,
+        "PC-BACK": "",
+        "PC-SPARE": ""
+      },
+      "why": "PF5 (not PF3 or CLEAR) falls to WHEN OTHER: the name is taken as on ENTER",
+      "receive": {
+        "PCM1": {
+          "NAMEI": "GRACE"
+        }
+      }
+    }
+  ]
+}

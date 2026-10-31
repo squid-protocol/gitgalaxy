@@ -1966,6 +1966,9 @@ def test_cics_task_moves_containers_and_browses_a_channel_as_the_stub_does(tmp_p
             'blank(c.flags, 40, "CHANNEL"); GGCDELC(&c); next("n", t);',
             "browsed channel changed during the browse",
         ),
+        ('put("CH1", "DFHX", "x", "CHANNEL");', "PUT CONTAINER naming a CICS-defined"),
+        ('put("CH1", " dfhreq", "x", "CHANNEL");', "PUT CONTAINER naming a CICS-defined"),
+        ('put("DFHCH", "A", "a", "CHANNEL");', "PUT CONTAINER naming a CICS-defined"),
         ('start("s", "");', "STARTBROWSE CONTAINER with no channel"),
         ('put("CH1", " A", "a", "CHANNEL");', "illegal CONTAINER name and a channel not in scope"),
     ],
@@ -2040,6 +2043,9 @@ def test_the_stub_refuses_what_ibm_leaves_open_on_move_and_browse(tmp_path, step
             ' t.deleteContainer("CH1", "A"); t.getNextContainer(k);',
             "browsed channel changed during the browse",
         ),
+        ('t.putContainer("CH1", "DFHX", "x".getBytes(), 1, null, false);', "PUT CONTAINER naming a CICS-defined"),
+        ('t.putContainer("CH1", " dfhreq", "x".getBytes(), 1, null, false);', "PUT CONTAINER naming a CICS-defined"),
+        ('t.putContainer("DFHCH", "A", "a".getBytes(), 1, null, false);', "PUT CONTAINER naming a CICS-defined"),
         ("t.startBrowseContainer(null);", "STARTBROWSE CONTAINER with no channel"),
         (
             't.putContainer("CH1", " A", "a".getBytes(), 1, null, false);',
@@ -2056,6 +2062,18 @@ def test_cics_task_refuses_what_ibm_leaves_open_on_move_and_browse(tmp_path, ste
         'System.out.println("refused: " + e.getMessage());\n}',
     )
     assert out.startswith("refused: ") and why in out, out
+
+
+@needs_javac
+def test_cics_task_still_puts_the_pipeline_containers_a_burned_program_writes_back(tmp_path):
+    """#5005 (X42): DFHREQUEST, DFH-BODY and DFH-DATA (DBB epscsmrd.cbl) run as ordinary containers, in either case."""
+    out = _cics_task(
+        tmp_path,
+        'CicsTask t = new CicsTask("CA05", "ENTER", null, null).withProgram("MAIN");\n'
+        'for (String n : new String[] {"DFHREQUEST", "dfh-body", "DFH-DATA"})\n'
+        '    System.out.println(n + " " + t.putContainer("CH1", n, "a".getBytes(), 1, null, false).resp());',
+    )
+    assert out.split() == ["DFHREQUEST", "NORMAL", "dfh-body", "NORMAL", "DFH-DATA", "NORMAL"], out
 
 
 # ---- #5005: DELETE CHANNEL and QUERY CHANNEL -------------------------------------------------------------

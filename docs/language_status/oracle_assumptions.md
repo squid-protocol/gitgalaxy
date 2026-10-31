@@ -1776,7 +1776,15 @@ states each (`none (gap)`: no entry does). Only fields a burned corpus's COBOL n
     (`SORTIN`, `SORTIN1`, `SORTIN2`) are killed by one READ status-10 fault run per sort-input DD (`sortin-eof`,
     `sortin1-eof`, `sortin2-eof`; #4268). IBM defines status 10, so the run needs no Sort status model. An OPEN failure
     (35) on a USING file is not used: IBM leaves the implicit-I/O status undefined under FASTSRT, the oracle carries on
-    (RC 0) and the port still refuses by name (`Sort$NotModelled`); that, and GIVING-side faults, stay open (#4268).
+    (RC 0) and the port still refuses by name (`Sort$NotModelled`); that stays open (#4268).
+    **SORTOUT faults, measured 2026-10-31 (#4268, not added as fault runs).** A WRITE status 30 on SORTOUT was run on both
+    cases and differs, so neither case carries one. `carddemo-sort-combtran` (SORT ... GIVING): the port stops by name
+    (`Sort$NotModelled`, "SORT GIVING O-FILE: WRITE gave FILE STATUS 30: not modelled"), the same refusal as an implicit
+    USING open failure; IBM leaves implicit GIVING I/O status to FASTSRT. `carddemo-sort-tranrept` (explicit WRITE in the
+    OUTPUT PROCEDURE, no FILE STATUS): the oracle ends RETURN-CODE 1 and IBM abends, but the port ignores the WRITE status
+    and ends RETURN-CODE 0 (SORTOUT 1/24 records equal). That is a det-port gap for any WRITE with no FILE STATUS and no
+    declarative, not a sort one; a fault run waits for it, so the SORTOUT DD label is compared only by the 25/25 and 50/50
+    record equality.
   - **Declared difference.** The oracle's SORT rewrites a signed DISPLAY key's sign zone in the records it sorts
     (`cobc -std=ibm -fsign=EBCDIC`, cobc 3.1.2, measured 2026-10-28: an unsigned key `0001` comes out `000A`); DFSORT
     and Enterprise COBOL never change a record's bytes. The lowering therefore sorts a ZD / PD key as a copy carried

@@ -445,6 +445,24 @@ def _literal(c: Const, f: Field) -> str:
     return "X'" + c.text[: 2 * f.length].ljust(2 * f.length, "0") + "'"
 
 
+def _formats(ctl: Control) -> set[str]:
+    """The formats of every field the step compares: its keys and the operands of its INCLUDE / OMIT condition."""
+    out = {k.field.fmt for k in ctl.keys}
+
+    def walk(c: Cmp | Logic) -> None:
+        if isinstance(c, Logic):
+            walk(c.left)
+            walk(c.right)
+            return
+        out.add(c.left.fmt)
+        if isinstance(c.right, Field):
+            out.add(c.right.fmt)
+
+    if ctl.cond is not None:
+        walk(ctl.cond)
+    return out
+
+
 def cobol_program(ctl: Control, reclen: int, inputs: list[str], output: str = "SORTOUT",
                   program_id: str = "DFSORTST") -> str:  # fmt: skip
     """The step as a COBOL program: `inputs` are the input DD names (SORTIN's concatenation for a SORT or COPY; the
@@ -459,6 +477,13 @@ def cobol_program(ctl: Control, reclen: int, inputs: list[str], output: str = "S
     carried = any(k.field.fmt in ("ZD", "PD") for k in ctl.keys)
     if carried and ctl.verb == "MERGE":
         raise Refused("MERGE on a ZD or PD key (the oracle rewrites the key's sign in the merged records)")
+    # DFSORT orders CH fields by their EBCDIC bytes (SC23-6878, "FORMAT"); the oracle's data is ASCII. CH is compared
+    # under an EBCDIC PROGRAM COLLATING SEQUENCE, so the port stops by name where IBM's order and the oracle's differ
+    # (D1, #4035). BI is a byte-value compare the alphabet would wrongly reorder: a step with both is refused.
+    formats = _formats(ctl)
+    if "CH" in formats and "BI" in formats:
+        raise Refused("CH and BI fields compared in one step (CH takes the EBCDIC collating sequence, BI does not)")
+    ebcdic = "CH" in formats
     ins = [f"I{n}" for n in range(1, len(inputs) + 1)]
     selects = [f"SELECT {i}-FILE ASSIGN TO {dd}." for i, dd in zip(ins, inputs, strict=True)]
     selects += [f"SELECT O-FILE ASSIGN TO {output}.", "SELECT S-FILE ASSIGN TO SORTWK01."]
@@ -565,6 +590,8 @@ def cobol_program(ctl: Control, reclen: int, inputs: list[str], output: str = "S
             at += n
         proc[-1] += "."
     lines = ["IDENTIFICATION DIVISION.", f"PROGRAM-ID. {program_id}.", "ENVIRONMENT DIVISION.",
+             *(["CONFIGURATION SECTION.", "OBJECT-COMPUTER. GG", "    PROGRAM COLLATING SEQUENCE IS EB.",
+                "SPECIAL-NAMES.", "    ALPHABET EB IS EBCDIC."] if ebcdic else []),
              "INPUT-OUTPUT SECTION.", "FILE-CONTROL.", *[f"    {s}" for s in selects], "DATA DIVISION.",
              "FILE SECTION.", *files, "WORKING-STORAGE SECTION.", *data, "PROCEDURE DIVISION.", *proc]  # fmt: skip
     return "\n".join(_fixed(x) for x in lines) + "\n"

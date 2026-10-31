@@ -1362,6 +1362,8 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
             return self.receive(opts, ind)
         if key in ("GETMAIN", "FREEMAIN"):  # #4771 (X47): task storage addressed by a pointer
             return self.storage(key, opts, ind)
+        if key in ("LOAD", "RELEASE"):  # #6876 (X65): a program image addressed by a pointer
+            return self.load_release(key, opts, ind)
         if key == "ADDRESS":  # #5079 (X59): a pointer to the EIB / the COMMAREA
             return self.address(opts, ind)
         if key in ("DOCUMENT CREATE", "DOCUMENT RETRIEVE"):  # #4769 (X33): the document handler
@@ -1866,6 +1868,34 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
                     *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]  # fmt: skip
         call = f"DetCics.getmain(task, {ptr}, {self.int_(opts[form])}, {halfword}, {self.read_field(opts['INITIMG'])})"
         return [f"{ind}int[] {r} = {call};", *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
+
+    def load_release(self, key: str, opts: dict, ind: str) -> list[str]:
+        """#6876 (X65): LOAD PROGRAM [SET(ptr)] [LENGTH(halfword)] and RELEASE PROGRAM on CicsTask's loaded programs (IBM, EXEC
+        CICS LOAD / RELEASE). LOAD: PGMIDERR RESP2 1 for a program the CSD does not define (the pointer and LENGTH are then
+        left alone); else the pointer holds the handle of a 256-byte image block and LENGTH its length (IBM states neither:
+        the stub's values, ASSUMED). RELEASE: NORMAL once for a program this task loaded, INVREQ for one it did not (or
+        released already), PGMIDERR RESP2 1 for an undefined one. A program that reads the image is refused when it runs."""
+        if not opts.get("PROGRAM"):
+            raise CicsError(_msg(key, "required", "PROGRAM"))
+        prog = self.name(_arg(opts["PROGRAM"]))
+        r = self.g.tmpname("load")
+        if key == "RELEASE":
+            return [f"{ind}int[] {r} = task.releaseProgram({prog});", *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
+        ptr = self.pointer(opts["SET"]) if opts.get("SET") else None
+        out = [
+            f"{ind}long[] {r}g = task.loadProgram({prog});",
+            f"{ind}int[] {r} = new int[] {{(int) {r}g[0], (int) {r}g[1]}};",
+        ]
+        body: list[str] = []
+        if ptr is not None:
+            body.append(f"{ind}    DetCics.setPointer({ptr}, {r}g[2]);")
+        if opts.get("LENGTH"):
+            body.append(
+                f"{ind}    " + self.g.store_into(self.ref(_arg(opts["LENGTH"])), f"BigDecimal.valueOf({r}g[3])", False)
+            )
+        if body:
+            out += [f"{ind}if ({r}[0] == 0) {{", *body, f"{ind}}}"]
+        return [*out, *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
 
     def address(self, opts: dict, ind: str) -> list[str]:
         """#5079 (X59): ADDRESS EIB(ptr) / COMMAREA(ptr) (IBM, EXEC CICS ADDRESS: "a pointer reference set to the address of

@@ -189,8 +189,8 @@ _DCB_KEYS = ("LRECL", "RECFM")
 
 def _dcb(keyed: dict[str, str]) -> dict[str, Any]:
     """#4268: the record length / format a DD states: `DCB=(LRECL=80,RECFM=FB)`, `DCB=LRECL=80`, or the bare
-    `LRECL=` / `RECFM=` DD keywords (a bare one wins over the DCB subparameter). A referback (`DCB=*.DD`,
-    `DCB=dsn`), a symbolic value (`&LR`) and `LRECL=0` state nothing."""
+    `LRECL=` / `RECFM=` DD keywords (a bare one wins over the DCB subparameter). A referback to a catalogued dataset
+    (`DCB=dsn`; `DCB=*.dd` is _dcb_from_referback's), a symbolic value (`&LR`) and `LRECL=0` state nothing."""
     sub: dict[str, str] = {}
     for k, v in keyed.items():
         if k == "DCB":
@@ -204,6 +204,33 @@ def _dcb(keyed: dict[str, str]) -> dict[str, Any]:
         elif key == "RECFM" and re.fullmatch(r"[FVUDS]?[FVUDSBTAM]{0,5}", value):
             out["recfm"] = value
     return out
+
+
+def _dcb_referback(keyed: dict[str, str]) -> list[str] | None:
+    """#4268: the qualified name of the DD a `DCB=*.ddname` / `DCB=*.stepname.ddname` /
+    `DCB=(*.stepname.ddname,LRECL=..)` names, as its parts, else None."""
+    first = _split(keyed.get("DCB", "").strip().strip("()"))
+    ref = first[0][1].strip().upper() if first and first[0][0] is None else ""
+    return ref[2:].split(".") if ref.startswith("*.") and len(ref) > 2 else None
+
+
+def _dcb_from_referback(
+    rows: list[dict[str, Any]], keyed: dict[str, str], step: str | None, in_proc: str | None
+) -> dict[str, Any]:
+    """#4268: the LRECL / RECFM an earlier DD of the same scope states, which `DCB=*.[stepname.]ddname` borrows (IBM
+    z/OS MVS JCL Reference, DCB parameter: the referenced DD's coded subparameters). `*.ddname` is a DD of the
+    current step, `*.stepname.ddname` one of an earlier step; the nearest earlier DD of that name wins, and a chain
+    resolves through the row it names. A DD that is not an earlier row of this file (no DSN, a later step, a
+    procedure step `*.step.procstep.dd`) states nothing."""
+    parts = _dcb_referback(keyed)
+    if not parts or len(parts) > 2:
+        return {}
+    want_step, want_dd = (step, parts[0]) if len(parts) == 1 else (parts[0], parts[1])
+    for r in reversed(rows):
+        if (r["kind"] == "DD" and r["dd_name"] == want_dd and r["step_name"] == want_step
+                and r["in_proc"] == in_proc):  # fmt: skip
+            return {k: r[k] for k in ("lrecl", "recfm") if r.get(k)}
+    return {}
 
 
 def _parm(value: str | None) -> str | None:
@@ -335,7 +362,8 @@ def jcl_job_flow(code_stream: str) -> list[dict[str, Any]]:
                     line=line,
                     # #3622: presence-keyed -- a DD without a normal-end disposition keeps its pre-#3622 shape
                     **({"disp_normal": normal} if normal else {}),
-                    **_dcb(keyed),  # #4268: presence-keyed lrecl / recfm
+                    # #4268: presence-keyed lrecl / recfm; what the DD codes wins over what its referback lends
+                    **{**_dcb_from_referback(rows, keyed, dd_step, in_proc), **_dcb(keyed)},
                 )
             )
     return rows

@@ -110,7 +110,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | F1 | files | Natural FILE STATUS values come from GnuCOBOL's BDB files | ASSUMED | yes (00, 10, 23, 22) |
 | F2 | files | Fault FILE STATUS values are injected on both sides | MATCHED | yes |
 | F3 | files | RECFM=VB: records compared by content, framed as GnuCOBOL frames them, not as a z/OS RDW | ASSUMED | yes (CardDemo READACCT VBRCFILE) |
-| F4 | files | JCL utility steps: a DFSORT SORT / MERGE / COPY subset is lowered to a COBOL SORT program and proven; IEBGENER and an IDCAMS REPRO copy run in a generated job, the rest are not run; the COBOL SORT / MERGE verbs are translated (#4268) | PARTIAL (DFSORT subset modelled; other utility steps refused) | — |
+| F4 | files | JCL utility steps: a DFSORT SORT / MERGE / COPY subset is lowered to a COBOL SORT program and proven; IEBGENER, an IDCAMS REPRO copy and a lowered SORT / MERGE step run in a generated job, the rest are not run; the COBOL SORT / MERGE verbs are translated (#4268) | PARTIAL (DFSORT subset modelled; other utility steps refused) | — |
 | F5 | files | a key item that is not in a record of its own FD (WORKING-STORAGE, another file's record) is refused by name; GnuCOBOL does not compile it either (#4804) | REFUSED (key outside the record) | — |
 | X1 | CICS | Commands, RESP/RESP2 and EIB from IBM's API reference | ASSUMED | yes |
 | X2 | CICS | Screens compared as the symbolic map, not the 3270 stream | ASSUMED | yes |
@@ -1729,8 +1729,8 @@ states each (`none (gap)`: no entry does). Only fields a burned corpus's COBOL n
   - Pending z/OS calibration (#4702 part 2): a VB file written on z/OS, compared record for record.
 
 ### F4. JCL utility steps — a DFSORT subset modelled, the rest refused
-- A batch case runs one program step.
-- SORT, IDCAMS, IEBGENER and DFSORT steps are not run. The generated batch job refuses a utility step by name
+- A batch case runs one program step; a lowered SORT / MERGE step also runs in the generated job (below).
+- A SORT, IDCAMS, IEBGENER or DFSORT step the forge does not lower or translate is not run. The generated batch job refuses a utility step by name
   (`JclSteps.utility`: the job fails on its TODO, or with `gitgalaxy.batch.skip-unimplemented` the step is logged as
   skipped; never a silent success).
 - **DFSORT subset (#4268).** `det/dfsort.py` parses a SORT step's SYSIN and SYMNAMES and lowers the step to a COBOL
@@ -1775,8 +1775,12 @@ states each (`none (gap)`: no entry does). Only fields a burned corpus's COBOL n
     DDs (SORTIN, or SORTINnn for a MERGE; concatenated DDs must agree), else the same dataset (dsn and generation)
     stated elsewhere in the job, else SORTOUT when there is no OUTREC. When the length is stated and RECFM is fixed (F,
     FB, FBA, FBM, FBS) the step is lowered by `dfsort.cobol_program` and the COBOL is written under `batch/sort/` as a
-    resource. The step stays a `steps.utility` (counted as a utility step to port): the lowered program is not run
-    until the det port translates it. Refused by name: VB / V / U RECFM, an LRECL with no RECFM (no guess, and no other
+    resource, and the forge det-translates it (`det.program.translate`, program id `GGSRT` + a crc of job and step):
+    the step is `steps.program` over the emitted `DfsortStep<Job><Step>Service.runBatch(<step DDs>, null)`, with the
+    det runtime (`cobolrt/*`, no cics / sql) emitted beside it (`test_batch_sort_run_4268.py`: SORT / COPY / EQUALS +
+    INCLUDE / OUTREC / two-input MERGE translate with zero holes; the emitted service compiles on the det batch runtime
+    and sorts a dataset). A translation that fails or leaves a hole keeps the step a `steps.utility` with the reason
+    named (`the det translation failed ...`, counted as a utility step to port). Refused by name: VB / V / U RECFM, an LRECL with no RECFM (no guess, and no other
     DD may overrule it), disagreeing LRECLs, no stated length, a SORTIN / SORTOUT that is not a dataset, a SORTCNTL / DFSPARM / control dataset, and
     anything `dfsort` refuses. A `DCB=*.ddname` / `DCB=*.stepname.ddname` /
     `DCB=(*.stepname.ddname,LRECL=..)` back-reference borrows the LRECL / RECFM the nearest earlier DD of that name codes
@@ -1793,8 +1797,9 @@ states each (`none (gap)`: no entry does). Only fields a burned corpus's COBOL n
     In the forge: a step that parses (one REPRO, both DDs datasets of the step) becomes `steps.copy` over the two DDs
     (`test_batch_idcams_4268.py`); anything else, or a SYSIN dataset, stays `steps.utility` with the refusal named and
     counted as a utility step to port.
-  - Not yet run from a generated batch job: the SORT step, lowered or not, stays `JclSteps.utility`; det-porting the
-    lowered program into the job and a multi-step job case are the next slices of #4268.
+  - Not done: a SORT step the forge refuses stays `JclSteps.utility`; the emitted service needs `CobolRecords`, which the
+    skeleton forges write only when the estate has skeletons (a sort-only estate does not compile); the run is proven on
+    the service alone, not in a multi-step job case (the next slice of #4268).
 - The COBOL SORT / MERGE / RELEASE / RETURN verbs and the SD entry are translated (#4286), onto `cobolrt/Sort`:
   - Keys compare as a relation condition compares their items: a numeric key (zoned, packed, binary, signed or
     not) by value, any other byte by byte. WITH DUPLICATES IN ORDER is a stable sort; without it, records with

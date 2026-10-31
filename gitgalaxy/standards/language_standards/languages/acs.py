@@ -87,7 +87,7 @@ DEFINITION: dict[str, Any] = {
                 extra=r"(?<=script)[ \t]+(?:\d+|\"[^\"\n]{1,80}\")[ \t]+(?-i:[A-Z]+)[ \t]*(?m:$)",
             )
             + r"|//[ \t]*[A-Za-z_]\w*[ \t]*\([^)\n]*\)[ \t]*;",
-            re.I,
+            re.I | re.M,
         ),
         # 13. doc: no documentation-comment convention in the language.
         "doc": None,

@@ -157,7 +157,8 @@ DEFINITION: dict[str, Any] = {
                 r"|(?:(?<=class)|(?<=struct)|(?<=module))[ \t]+[A-Z]\w*(?:::\w+)*(?:[ \t]*<[ \t]*[A-Z][\w:(),]*)?[ \t]*(?m:$)"
                 r"|(?:(?<=if)|(?<=unless)|(?<=while))[ \t]+[^\n]{0,300}?(?:[<>]|==|!=|&&|\|\||\w\.\w+\?)"
                 r"|(?:(?<=puts)|(?<=p))[ \t]+(?:[\"'@:]|\w+\.\w)",
-            )
+            ),
+            re.M,
         ),
         # doc: Crystal's `crystal doc` markdown comment conventions (a fenced `crystal` example, a section label).
         "doc": re.compile(

@@ -313,7 +313,7 @@ DEFINITION: dict[str, Any] = {
                 r"|(?<=commit)[ \t]*(?:\*/[ \t]*)?(?m:$)"
                 r"|(?<=declare)[ \t]+[\w@#$-]+[ \t]+(?-i:CURSOR|CONDITION|HANDLER|CONTINUE|EXIT|INT|INTEGER|SMALLINT|BIGINT|VARCHAR|CHAR|DECIMAL|DATE|TIMESTAMP)\b",
             ),
-            re.I,
+            re.I | re.M,
         ),
         # doc: structured header conventions -- `--@param`-style tags, `/**` doc
         # blocks, and `-- Description:` headers (sqlite's set).

@@ -291,6 +291,7 @@ def ticking(step_s):
 
 
 def test_rerun_moved_stops_starting_cases_when_the_budget_is_spent(monkeypatch, tmp_path, capsys):
+    monkeypatch.setattr(dm, "SECONDS_PER_MUTANT", 0)  # (this test is about the clock, not a case's size)
     _, calls = moved_ledger(monkeypatch, {"a": "2026-10-01", "b": "2026-10-02", "c": "2026-10-03"})
     # readings: start 0, check a 1, t0 2, end 3 (a took 1 s); check b at 4 s, slowest 1: 4 + 1 >= 5 s budget
     left, rc = dm.rerun_moved(["a", "b", "c"], tmp_path, 5 / 60, clock=ticking(1))
@@ -298,6 +299,20 @@ def test_rerun_moved_stops_starting_cases_when_the_budget_is_spent(monkeypatch, 
     assert "b, c left for the next run" in capsys.readouterr().out
     _, calls = moved_ledger(monkeypatch, {"a": "2026-10-01"})
     assert dm.rerun_moved(["a"], tmp_path, 0, clock=lambda: 0) == (["a"], 0) and calls == []  # a zero budget runs none
+
+
+def test_rerun_moved_passes_over_a_case_too_large_for_the_budget_and_runs_the_next(monkeypatch, tmp_path, capsys):
+    ledger, calls = moved_ledger(monkeypatch, {"huge": "2026-10-01", "small": "2026-10-02"})
+    ledger["huge"]["chosen"] = 1992  # ASYNCPNT: about 5 h, the night's run ended at its time limit inside it
+    left, rc = dm.rerun_moved(["huge", "small"], tmp_path, 90, clock=lambda: 0)
+    assert (left, rc) == (["huge"], 0) and [c[0] for c in calls] == [["small"]]
+    assert "too large for what was left of 90 min: huge" in capsys.readouterr().out
+
+
+def test_the_nightly_keeps_the_ledgers_of_a_mutation_job_that_hit_its_time_limit():
+    text = (dm.REPO / ".github" / "workflows" / "evidence-refresh.yml").read_text(encoding="utf-8")
+    step = text[text.index("id: detmut_in"):text.index("uses:", text.index("id: detmut_in"))]
+    assert "needs.det-mutation.result == 'cancelled'" in step
 
 
 def test_rerun_moved_does_not_start_a_case_the_slowest_so_far_would_overrun(monkeypatch, tmp_path):

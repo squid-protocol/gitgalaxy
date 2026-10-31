@@ -506,21 +506,28 @@ def _outdated(entry: dict[str, Any], now: dict[str, Any]) -> bool:
     return bool(stale(entry, now) or drifted(entry, now))
 
 
+SECONDS_PER_MUTANT = 10  # measured on the nightly lane: 150 mutants in 18-26 min, 490 of ASYNCPNT's 1992 in 78 min
+
+
 def rerun_moved(cases: list[str], work: Path, budget_min: float | None = None,
                 clock: Callable[[], float] = time.monotonic) -> tuple[list[str], int]:  # fmt: skip
     """`run` each case whose det port moved, with the sample, seed and mode its ledger entry was cut with (so the new
-    score is comparable), oldest entry first; no new case starts once `budget_min` minutes are spent (None: no limit).
-    A fresh `record` drops `port_moved`. Returns (the cases still flagged, the worst `run` status): a case left for
+    score is comparable), oldest entry first; no new case starts once `budget_min` minutes are spent (None: no limit),
+    and a case its own size says cannot fit what is left is passed over, so it cannot run into the job's time limit and
+    take the night with it. A fresh `record` drops `port_moved`. Returns (the cases still flagged, the worst `run` status): a case left for
     the next night, or one whose run failed, keeps its flag (#5862)."""
     ledger = load()
     order = sorted(cases, key=lambda c: (str(ledger[c].get("date") or ""), c))
-    start, rc, slowest, took, failed = clock(), 0, 0.0, [], []
+    start, rc, slowest, took, failed, passed = clock(), 0, 0.0, [], [], []
     for i, case in enumerate(order):
         used = clock() - start
         if budget_min is not None and used + slowest >= budget_min * 60:  # (the slowest case so far must still fit)
             print(f"det mutation: budget of {budget_min:g} min spent: {', '.join(order[i:])} left for the next run")
             break
         e = ledger[case]
+        if budget_min is not None and used + (e.get("chosen") or 0) * SECONDS_PER_MUTANT >= budget_min * 60:
+            passed.append(case)
+            continue
         t0 = clock()
         rc_case = run([case], work, e.get("chosen") or None, e.get("seed") or 0, 3, e.get("mode") == "full")
         secs = clock() - t0
@@ -530,6 +537,8 @@ def rerun_moved(cases: list[str], work: Path, budget_min: float | None = None,
             failed.append(case)
         rc |= rc_case
         print(f"det mutation: {case} ran in {secs / 60:.1f} min ({'failed' if rc_case else 'ok'})")
+    if passed:
+        print(f"det mutation: too large for what was left of {budget_min:g} min: {', '.join(passed)}")
     now = load()
     left = [c for c in order if (now.get(c) or {}).get("port_moved")]
     print(f"det mutation: {len(order)} moved, {len(took)} run in {sum(took) / 60:.1f} min "

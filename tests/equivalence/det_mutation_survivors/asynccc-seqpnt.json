@@ -1,0 +1,860 @@
+{
+ "format": "det-mutation-survivors/1",
+ "issue": "#4628",
+ "about": "#4628: each surviving det-port mutant stated `equivalent` or `unreachable`, with the Java change and why it cannot alter observable behaviour; proposed in a PR, reviewed by the owner. A run that kills a stated mutant fails (the claim was wrong). Ids are mutation.py's; before / after are the Java line.",
+ "verdicts": {
+  "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
+  "unreachable": "no input of the program reaches the changed code",
+  "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
+  "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
+ },
+ "case": "asynccc-seqpnt",
+ "survivors": [
+  {
+   "id": "30428ca163",
+   "op": "NEG",
+   "line": 68,
+   "before": "if (CicsTask.undefinableFile(name)) {",
+   "after": "if (!(CicsTask.undefinableFile(name))) {",
+   "verdict": "unreachable",
+   "reason": "GetspndService.java line 68: the guard of the private store(String) helper, which has no caller in GetspndService.java: the program issues no file control command and the case has datasets {}, so no input runs it"
+  },
+  {
+   "id": "6b07eb78b6",
+   "op": "NEG",
+   "line": 68,
+   "before": "if (CicsTask.undefinableFile(name)) {",
+   "after": "if (!(CicsTask.undefinableFile(name))) {",
+   "verdict": "unreachable",
+   "reason": "GetpolService.java line 68: the guard of the private store(String) helper, which has no caller in GetpolService.java: the program issues no file control command and the case has datasets {}, so no input runs it"
+  },
+  {
+   "id": "215598863a",
+   "op": "NEG",
+   "line": 84,
+   "before": "if (CicsTask.undefinableFile(name)) {",
+   "after": "if (!(CicsTask.undefinableFile(name))) {",
+   "verdict": "unreachable",
+   "reason": "UpdcsdbService.java line 84: the guard of the private store(String) helper, which has no caller in UpdcsdbService.java: the program issues no file control command and the case has datasets {}, so no input runs it"
+  },
+  {
+   "id": "086dcd3227",
+   "op": "NEG",
+   "line": 92,
+   "before": "if (CicsTask.undefinableFile(name)) {",
+   "after": "if (!(CicsTask.undefinableFile(name))) {",
+   "verdict": "unreachable",
+   "reason": "GetnameService.java line 92: the guard of the private store(String) helper, which has no caller in GetnameService.java: the program issues no file control command and the case has datasets {}, so no input runs it"
+  },
+  {
+   "id": "781dbcc16e",
+   "op": "NEG",
+   "line": 92,
+   "before": "if (CicsTask.undefinableFile(name)) {",
+   "after": "if (!(CicsTask.undefinableFile(name))) {",
+   "verdict": "unreachable",
+   "reason": "CrdtchkService.java line 92: the guard of the private store(String) helper, which has no caller in CrdtchkService.java: the program issues no file control command and the case has datasets {}, so no input runs it"
+  },
+  {
+   "id": "f57444ef6b",
+   "op": "NEG",
+   "line": 94,
+   "before": "if (CicsTask.undefinableFile(name)) {",
+   "after": "if (!(CicsTask.undefinableFile(name))) {",
+   "verdict": "unreachable",
+   "reason": "GetaddrService.java line 94: the guard of the private store(String) helper, which has no caller in GetaddrService.java: the program issues no file control command and the case has datasets {}, so no input runs it"
+  },
+  {
+   "id": "4d9ad17af2",
+   "op": "NEG",
+   "line": 97,
+   "before": "if (CicsTask.undefinableFile(name)) {",
+   "after": "if (!(CicsTask.undefinableFile(name))) {",
+   "verdict": "unreachable",
+   "reason": "CsstatusService.java line 97: the guard of the private store(String) helper, which has no caller in CsstatusService.java: the program issues no file control command and the case has datasets {}, so no input runs it"
+  },
+  {
+   "id": "3482f9c6b3",
+   "op": "NEG",
+   "line": 139,
+   "before": "if (CicsTask.undefinableFile(name)) {",
+   "after": "if (!(CicsTask.undefinableFile(name))) {",
+   "verdict": "unreachable",
+   "reason": "SeqpntService.java line 139: the guard of the private store(String) helper, which has no caller in SeqpntService.java: the program issues no file control command and the case has datasets {}, so no input runs it"
+  },
+  {
+   "id": "71583c81cb",
+   "op": "LIT",
+   "line": 270,
+   "before": "int[] planned1 = task.planned(\"DELAY\", \"-\");",
+   "after": "int[] planned1 = task.planned(\"XELAY\", \"-\");",
+   "verdict": "harness-gap",
+   "reason": "GetpolService.java line 270: acts only when a DELAY fault is planned (register X72); the program codes no RESP and no HANDLE CONDITION on it, so IBM abends the task and the det port does (CicsSpec.abcodeFor), while the stub answers the plan and the COBOL goes on to RETURN: the proof cannot judge the scenario that would kill it (stub gap)"
+  },
+  {
+   "id": "97ffc4d20d",
+   "op": "LIT",
+   "line": 270,
+   "before": "int[] planned1 = task.planned(\"DELAY\", \"-\");",
+   "after": "int[] planned1 = task.planned(\"DELAY\", \"X\");",
+   "verdict": "harness-gap",
+   "reason": "GetpolService.java line 270: acts only when a DELAY fault is planned (register X72); the program codes no RESP and no HANDLE CONDITION on it, so IBM abends the task and the det port does (CicsSpec.abcodeFor), while the stub answers the plan and the COBOL goes on to RETURN: the proof cannot judge the scenario that would kill it (stub gap)"
+  },
+  {
+   "id": "a1987a91b7",
+   "op": "LIT",
+   "line": 270,
+   "before": "int[] planned1 = task.planned(\"DELAY\", \"-\");",
+   "after": "int[] planned1 = task.planned(\"XELAY\", \"-\");",
+   "verdict": "harness-gap",
+   "reason": "GetspndService.java line 270: acts only when a DELAY fault is planned (register X72); the program codes no RESP and no HANDLE CONDITION on it, so IBM abends the task and the det port does (CicsSpec.abcodeFor), while the stub answers the plan and the COBOL goes on to RETURN: the proof cannot judge the scenario that would kill it (stub gap)"
+  },
+  {
+   "id": "bc2752e7e4",
+   "op": "LIT",
+   "line": 270,
+   "before": "int[] planned1 = task.planned(\"DELAY\", \"-\");",
+   "after": "int[] planned1 = task.planned(\"DELAY\", \"X\");",
+   "verdict": "harness-gap",
+   "reason": "GetspndService.java line 270: acts only when a DELAY fault is planned (register X72); the program codes no RESP and no HANDLE CONDITION on it, so IBM abends the task and the det port does (CicsSpec.abcodeFor), while the stub answers the plan and the COBOL goes on to RETURN: the proof cannot judge the scenario that would kill it (stub gap)"
+  },
+  {
+   "id": "0d8a30cf46",
+   "op": "NEG",
+   "line": 271,
+   "before": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
+   "after": "if (!(planned1[0] == 0)) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
+   "verdict": "equivalent",
+   "reason": "GetspndService.java line 271: whether task.delay runs, or for how long; in this case's root task (no RUN TRANSID children) delay() only moves the scheduler clock (X4), which nothing reads, so it is unseen"
+  },
+  {
+   "id": "17122a137b",
+   "op": "LIT",
+   "line": 271,
+   "before": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
+   "after": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"XELAY out of range\");",
+   "verdict": "equivalent",
+   "reason": "GetpolService.java line 271: the `what` text of delay() is read only to build the refusal for a DELAY that is not a length of time; this DELAY is FOR SECONDS with a literal in range, so the text is never used"
+  },
+  {
+   "id": "1dfc0b5cd6",
+   "op": "CON",
+   "line": 271,
+   "before": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
+   "after": "if (planned1[0] == 1) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
+   "verdict": "equivalent",
+   "reason": "GetspndService.java line 271: whether task.delay runs, or for how long; in this case's root task (no RUN TRANSID children) delay() only moves the scheduler clock (X4), which nothing reads, so it is unseen"
+  },
+  {
+   "id": "5bc0f4de40",
+   "op": "CON",
+   "line": 271,
+   "before": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
+   "after": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");",
+   "verdict": "equivalent",
+   "reason": "GetspndService.java line 271: whether task.delay runs, or for how long; in this case's root task (no RUN TRANSID children) delay() only moves the scheduler clock (X4), which nothing reads, so it is unseen"
+  },
+  {
+   "id": "858377d742",
+   "op": "ROR",
+   "line": 271,
+   "before": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
+   "after": "if (planned1[0] != 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
+   "verdict": "equivalent",
+   "reason": "GetspndService.java line 271: whether task.delay runs, or for how long; in this case's root task (no RUN TRANSID children) delay() only moves the scheduler clock (X4), which nothing reads, so it is unseen"
+  },
+  {
+   "id": "8d9430c01c",
+   "op": "CON",
+   "line": 271,
+   "before": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
+   "after": "if (planned1[1] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
+   "verdict": "harness-gap",
+   "reason": "GetspndService.java line 271: acts only when a DELAY fault is planned (register X72); the program codes no RESP and no HANDLE CONDITION on it, so IBM abends the task AEIP and the det port does (CicsSpec.abcodeFor), while the stub answers the plan and the COBOL goes on to RETURN: the proof cannot judge the scenario that would kill it (stub gap)"
+  },
+  {
+   "id": "9e45999526",
+   "op": "NEG",
+   "line": 271,
+   "before": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
+   "after": "if (!(planned1[0] == 0)) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
+   "verdict": "equivalent",
+   "reason": "GetpolService.java line 271: whether task.delay runs, or for how long; in this case's root task (no RUN TRANSID children) delay() only moves the scheduler clock (X4), which nothing reads, so it is unseen"
+  },
+  {
+   "id": "b878f46d5b",
+   "op": "LIT",
+   "line": 271,
+   "before": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
+   "after": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"XELAY out of range\");",
+   "verdict": "equivalent",
+   "reason": "GetspndService.java line 271: the `what` text of delay() is read only to build the refusal for a DELAY that is not a length of time; this DELAY is FOR SECONDS with a literal in range, so the text is never used"
+  },
+  {
+   "id": "bbe447d435",
+   "op": "CON",
+   "line": 271,
+   "before": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
+   "after": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");",
+   "verdict": "equivalent",
+   "reason": "GetpolService.java line 271: whether task.delay runs, or for how long; in this case's root task (no RUN TRANSID children) delay() only moves the scheduler clock (X4), which nothing reads, so it is unseen"
+  },
+  {
+   "id": "bc24359b0e",
+   "op": "CON",
+   "line": 271,
+   "before": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
+   "after": "if (planned1[0] == 1) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
+   "verdict": "equivalent",
+   "reason": "GetpolService.java line 271: whether task.delay runs, or for how long; in this case's root task (no RUN TRANSID children) delay() only moves the scheduler clock (X4), which nothing reads, so it is unseen"
+  },
+  {
+   "id": "e9f57fcfb5",
+   "op": "CON",
+   "line": 271,
+   "before": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
+   "after": "if (planned1[1] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
+   "verdict": "harness-gap",
+   "reason": "GetpolService.java line 271: acts only when a DELAY fault is planned (register X72); the program codes no RESP and no HANDLE CONDITION on it, so IBM abends the task AEIP and the det port does (CicsSpec.abcodeFor), while the stub answers the plan and the COBOL goes on to RETURN: the proof cannot judge the scenario that would kill it (stub gap)"
+  },
+  {
+   "id": "f816579b39",
+   "op": "ROR",
+   "line": 271,
+   "before": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
+   "after": "if (planned1[0] != 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
+   "verdict": "equivalent",
+   "reason": "GetpolService.java line 271: whether task.delay runs, or for how long; in this case's root task (no RUN TRANSID children) delay() only moves the scheduler clock (X4), which nothing reads, so it is unseen"
+  },
+  {
+   "id": "2c97437c95",
+   "op": "CON",
+   "line": 272,
+   "before": "Cobol.store(f30_EIBRESP, BigDecimal.valueOf(planned1[0]), false, CS);",
+   "after": "Cobol.store(f30_EIBRESP, BigDecimal.valueOf(planned1[1]), false, CS);",
+   "verdict": "equivalent",
+   "reason": "GetpolService.java line 272: the value stored into f30_EIBRESP is changed (valueOf(planned1[1])); f30_EIBRESP is only ever written in GetpolService.java, nothing reads it, so any value is unseen"
+  },
+  {
+   "id": "89626a94bb",
+   "op": "CON",
+   "line": 272,
+   "before": "Cobol.store(f30_EIBRESP, BigDecimal.valueOf(planned1[0]), false, CS);",
+   "after": "Cobol.store(f30_EIBRESP, BigDecimal.valueOf(planned1[1]), false, CS);",
+   "verdict": "equivalent",
+   "reason": "GetspndService.java line 272: the value stored into f30_EIBRESP is changed (valueOf(planned1[1])); f30_EIBRESP is only ever written in GetspndService.java, nothing reads it, so any value is unseen"
+  },
+  {
+   "id": "9be37fe326",
+   "op": "DEL",
+   "line": 272,
+   "before": "Cobol.store(f30_EIBRESP, BigDecimal.valueOf(planned1[0]), false, CS);",
+   "after": "/* Cobol.store(f30_EIBRESP, BigDecimal.valueOf(planned1[0]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "GetspndService.java line 272: the store of the DELAY's answer into f30_EIBRESP is dead: f30_EIBRESP is written in GetspndService.java and read nowhere, and the branch after it tests planned[0] itself, not the field"
+  },
+  {
+   "id": "bdddff64da",
+   "op": "DEL",
+   "line": 272,
+   "before": "Cobol.store(f30_EIBRESP, BigDecimal.valueOf(planned1[0]), false, CS);",
+   "after": "/* Cobol.store(f30_EIBRESP, BigDecimal.valueOf(planned1[0]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "GetpolService.java line 272: the store of the DELAY's answer into f30_EIBRESP is dead: f30_EIBRESP is written in GetpolService.java and read nowhere, and the branch after it tests planned[0] itself, not the field"
+  },
+  {
+   "id": "9a45da41e1",
+   "op": "DEL",
+   "line": 273,
+   "before": "Cobol.store(f31_EIBRESP2, BigDecimal.valueOf(planned1[1]), false, CS);",
+   "after": "/* Cobol.store(f31_EIBRESP2, BigDecimal.valueOf(planned1[1]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "GetpolService.java line 273: the store of the DELAY's answer into f31_EIBRESP2 is dead: f31_EIBRESP2 is written in GetpolService.java and read nowhere, and the branch after it tests planned[0] itself, not the field"
+  },
+  {
+   "id": "f65de2f28b",
+   "op": "DEL",
+   "line": 273,
+   "before": "Cobol.store(f31_EIBRESP2, BigDecimal.valueOf(planned1[1]), false, CS);",
+   "after": "/* Cobol.store(f31_EIBRESP2, BigDecimal.valueOf(planned1[1]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "GetspndService.java line 273: the store of the DELAY's answer into f31_EIBRESP2 is dead: f31_EIBRESP2 is written in GetspndService.java and read nowhere, and the branch after it tests planned[0] itself, not the field"
+  },
+  {
+   "id": "47fae23bb1",
+   "op": "CON",
+   "line": 274,
+   "before": "if (planned1[0] != 0) {",
+   "after": "if (planned1[1] != 0) {",
+   "verdict": "harness-gap",
+   "reason": "GetspndService.java line 274: acts only when a DELAY fault is planned (register X72); the program codes no RESP and no HANDLE CONDITION on it, so IBM abends the task and the det port does (CicsSpec.abcodeFor), while the stub answers the plan and the COBOL goes on to RETURN: the proof cannot judge the scenario that would kill it (stub gap)"
+  },
+  {
+   "id": "cf6eb872e0",
+   "op": "CON",
+   "line": 274,
+   "before": "if (planned1[0] != 0) {",
+   "after": "if (planned1[1] != 0) {",
+   "verdict": "harness-gap",
+   "reason": "GetpolService.java line 274: acts only when a DELAY fault is planned (register X72); the program codes no RESP and no HANDLE CONDITION on it, so IBM abends the task and the det port does (CicsSpec.abcodeFor), while the stub answers the plan and the COBOL goes on to RETURN: the proof cannot judge the scenario that would kill it (stub gap)"
+  },
+  {
+   "id": "9430858797",
+   "op": "CON",
+   "line": 275,
+   "before": "int to = condition(DetCics.condition(planned1[0]));",
+   "after": "int to = condition(DetCics.condition(planned1[1]));",
+   "verdict": "harness-gap",
+   "reason": "GetpolService.java line 275: acts only when a DELAY fault is planned (register X72); the program codes no RESP and no HANDLE CONDITION on it, so IBM abends the task and the det port does (CicsSpec.abcodeFor), while the stub answers the plan and the COBOL goes on to RETURN: the proof cannot judge the scenario that would kill it (stub gap)"
+  },
+  {
+   "id": "9bc4cf6d5e",
+   "op": "CON",
+   "line": 275,
+   "before": "int to = condition(DetCics.condition(planned1[0]));",
+   "after": "int to = condition(DetCics.condition(planned1[1]));",
+   "verdict": "harness-gap",
+   "reason": "GetspndService.java line 275: acts only when a DELAY fault is planned (register X72); the program codes no RESP and no HANDLE CONDITION on it, so IBM abends the task and the det port does (CicsSpec.abcodeFor), while the stub answers the plan and the COBOL goes on to RETURN: the proof cannot judge the scenario that would kill it (stub gap)"
+  },
+  {
+   "id": "1ee3cf1def",
+   "op": "LIT",
+   "line": 292,
+   "before": "int[] planned1 = task.planned(\"DELAY\", \"-\");",
+   "after": "int[] planned1 = task.planned(\"XELAY\", \"-\");",
+   "verdict": "harness-gap",
+   "reason": "UpdcsdbService.java line 292: acts only when a DELAY fault is planned (register X72); the program codes no RESP and no HANDLE CONDITION on it, so IBM abends the task and the det port does (CicsSpec.abcodeFor), while the stub answers the plan and the COBOL goes on to RETURN: the proof cannot judge the scenario that would kill it (stub gap)"
+  },
+  {
+   "id": "308a148fdd",
+   "op": "LIT",
+   "line": 292,
+   "before": "int[] planned1 = task.planned(\"DELAY\", \"-\");",
+   "after": "int[] planned1 = task.planned(\"DELAY\", \"X\");",
+   "verdict": "harness-gap",
+   "reason": "UpdcsdbService.java line 292: acts only when a DELAY fault is planned (register X72); the program codes no RESP and no HANDLE CONDITION on it, so IBM abends the task and the det port does (CicsSpec.abcodeFor), while the stub answers the plan and the COBOL goes on to RETURN: the proof cannot judge the scenario that would kill it (stub gap)"
+  },
+  {
+   "id": "37d4b20ace",
+   "op": "CON",
+   "line": 293,
+   "before": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");",
+   "after": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(4), null), \"DELAY out of range\");",
+   "verdict": "equivalent",
+   "reason": "UpdcsdbService.java line 293: whether task.delay runs, or for how long; in this case's root task (no RUN TRANSID children) delay() only moves the scheduler clock (X4), which nothing reads, so it is unseen"
+  },
+  {
+   "id": "5e279a28d8",
+   "op": "ROR",
+   "line": 293,
+   "before": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");",
+   "after": "if (planned1[0] != 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");",
+   "verdict": "equivalent",
+   "reason": "UpdcsdbService.java line 293: whether task.delay runs, or for how long; in this case's root task (no RUN TRANSID children) delay() only moves the scheduler clock (X4), which nothing reads, so it is unseen"
+  },
+  {
+   "id": "73a627fdeb",
+   "op": "CON",
+   "line": 293,
+   "before": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");",
+   "after": "if (planned1[0] == 1) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");",
+   "verdict": "equivalent",
+   "reason": "UpdcsdbService.java line 293: whether task.delay runs, or for how long; in this case's root task (no RUN TRANSID children) delay() only moves the scheduler clock (X4), which nothing reads, so it is unseen"
+  },
+  {
+   "id": "b286d193ad",
+   "op": "CON",
+   "line": 293,
+   "before": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");",
+   "after": "if (planned1[1] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");",
+   "verdict": "harness-gap",
+   "reason": "UpdcsdbService.java line 293: acts only when a DELAY fault is planned (register X72); the program codes no RESP and no HANDLE CONDITION on it, so IBM abends the task AEIP and the det port does (CicsSpec.abcodeFor), while the stub answers the plan and the COBOL goes on to RETURN: the proof cannot judge the scenario that would kill it (stub gap)"
+  },
+  {
+   "id": "ba0e6f4469",
+   "op": "NEG",
+   "line": 293,
+   "before": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");",
+   "after": "if (!(planned1[0] == 0)) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");",
+   "verdict": "equivalent",
+   "reason": "UpdcsdbService.java line 293: whether task.delay runs, or for how long; in this case's root task (no RUN TRANSID children) delay() only moves the scheduler clock (X4), which nothing reads, so it is unseen"
+  },
+  {
+   "id": "e68b6d7889",
+   "op": "LIT",
+   "line": 293,
+   "before": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");",
+   "after": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), \"XELAY out of range\");",
+   "verdict": "equivalent",
+   "reason": "UpdcsdbService.java line 293: the `what` text of delay() is read only to build the refusal for a DELAY that is not a length of time; this DELAY is FOR SECONDS with a literal in range, so the text is never used"
+  },
+  {
+   "id": "9947406a9b",
+   "op": "CON",
+   "line": 294,
+   "before": "Cobol.store(f40_EIBRESP, BigDecimal.valueOf(planned1[0]), false, CS);",
+   "after": "Cobol.store(f40_EIBRESP, BigDecimal.valueOf(planned1[1]), false, CS);",
+   "verdict": "equivalent",
+   "reason": "UpdcsdbService.java line 294: the value stored into f40_EIBRESP is changed (valueOf(planned1[1])); f40_EIBRESP is only ever written in UpdcsdbService.java, nothing reads it, so any value is unseen"
+  },
+  {
+   "id": "ffd5294f5c",
+   "op": "DEL",
+   "line": 294,
+   "before": "Cobol.store(f40_EIBRESP, BigDecimal.valueOf(planned1[0]), false, CS);",
+   "after": "/* Cobol.store(f40_EIBRESP, BigDecimal.valueOf(planned1[0]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "UpdcsdbService.java line 294: the store of the DELAY's answer into f40_EIBRESP is dead: f40_EIBRESP is written in UpdcsdbService.java and read nowhere, and the branch after it tests planned[0] itself, not the field"
+  },
+  {
+   "id": "6dbdf67791",
+   "op": "DEL",
+   "line": 295,
+   "before": "Cobol.store(f41_EIBRESP2, BigDecimal.valueOf(planned1[1]), false, CS);",
+   "after": "/* Cobol.store(f41_EIBRESP2, BigDecimal.valueOf(planned1[1]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "UpdcsdbService.java line 295: the store of the DELAY's answer into f41_EIBRESP2 is dead: f41_EIBRESP2 is written in UpdcsdbService.java and read nowhere, and the branch after it tests planned[0] itself, not the field"
+  },
+  {
+   "id": "aab5f00ebd",
+   "op": "CON",
+   "line": 296,
+   "before": "if (planned1[0] != 0) {",
+   "after": "if (planned1[1] != 0) {",
+   "verdict": "harness-gap",
+   "reason": "UpdcsdbService.java line 296: acts only when a DELAY fault is planned (register X72); the program codes no RESP and no HANDLE CONDITION on it, so IBM abends the task and the det port does (CicsSpec.abcodeFor), while the stub answers the plan and the COBOL goes on to RETURN: the proof cannot judge the scenario that would kill it (stub gap)"
+  },
+  {
+   "id": "d9cb42163d",
+   "op": "CON",
+   "line": 297,
+   "before": "int to = condition(DetCics.condition(planned1[0]));",
+   "after": "int to = condition(DetCics.condition(planned1[1]));",
+   "verdict": "harness-gap",
+   "reason": "UpdcsdbService.java line 297: acts only when a DELAY fault is planned (register X72); the program codes no RESP and no HANDLE CONDITION on it, so IBM abends the task and the det port does (CicsSpec.abcodeFor), while the stub answers the plan and the COBOL goes on to RETURN: the proof cannot judge the scenario that would kill it (stub gap)"
+  },
+  {
+   "id": "05de1089bd",
+   "op": "LIT",
+   "line": 313,
+   "before": "int[] planned2 = task.planned(\"DELAY\", \"-\");",
+   "after": "int[] planned2 = task.planned(\"DELAY\", \"X\");",
+   "verdict": "harness-gap",
+   "reason": "CrdtchkService.java line 313: acts only when a DELAY fault is planned (register X72); the program codes no RESP and no HANDLE CONDITION on it, so IBM abends the task and the det port does (CicsSpec.abcodeFor), while the stub answers the plan and the COBOL goes on to RETURN: the proof cannot judge the scenario that would kill it (stub gap)"
+  },
+  {
+   "id": "d8cd8547e4",
+   "op": "LIT",
+   "line": 313,
+   "before": "int[] planned2 = task.planned(\"DELAY\", \"-\");",
+   "after": "int[] planned2 = task.planned(\"XELAY\", \"-\");",
+   "verdict": "harness-gap",
+   "reason": "CrdtchkService.java line 313: acts only when a DELAY fault is planned (register X72); the program codes no RESP and no HANDLE CONDITION on it, so IBM abends the task and the det port does (CicsSpec.abcodeFor), while the stub answers the plan and the COBOL goes on to RETURN: the proof cannot judge the scenario that would kill it (stub gap)"
+  },
+  {
+   "id": "087cc83267",
+   "op": "LIT",
+   "line": 314,
+   "before": "if (planned2[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
+   "after": "if (planned2[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"XELAY out of range\");",
+   "verdict": "equivalent",
+   "reason": "CrdtchkService.java line 314: the `what` text of delay() is read only to build the refusal for a DELAY that is not a length of time; this DELAY is FOR SECONDS with a literal in range, so the text is never used"
+  },
+  {
+   "id": "4bb8661ec1",
+   "op": "ROR",
+   "line": 314,
+   "before": "if (planned2[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
+   "after": "if (planned2[0] != 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
+   "verdict": "equivalent",
+   "reason": "CrdtchkService.java line 314: whether task.delay runs, or for how long; in this case's root task (no RUN TRANSID children) delay() only moves the scheduler clock (X4), which nothing reads, so it is unseen"
+  },
+  {
+   "id": "63eeef6274",
+   "op": "NEG",
+   "line": 314,
+   "before": "if (planned2[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
+   "after": "if (!(planned2[0] == 0)) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
+   "verdict": "equivalent",
+   "reason": "CrdtchkService.java line 314: whether task.delay runs, or for how long; in this case's root task (no RUN TRANSID children) delay() only moves the scheduler clock (X4), which nothing reads, so it is unseen"
+  },
+  {
+   "id": "8fd20ba8c4",
+   "op": "CON",
+   "line": 314,
+   "before": "if (planned2[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
+   "after": "if (planned2[0] == 1) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
+   "verdict": "equivalent",
+   "reason": "CrdtchkService.java line 314: whether task.delay runs, or for how long; in this case's root task (no RUN TRANSID children) delay() only moves the scheduler clock (X4), which nothing reads, so it is unseen"
+  },
+  {
+   "id": "bf9f1efd29",
+   "op": "CON",
+   "line": 314,
+   "before": "if (planned2[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
+   "after": "if (planned2[1] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
+   "verdict": "harness-gap",
+   "reason": "CrdtchkService.java line 314: acts only when a DELAY fault is planned (register X72); the program codes no RESP and no HANDLE CONDITION on it, so IBM abends the task AEIP and the det port does (CicsSpec.abcodeFor), while the stub answers the plan and the COBOL goes on to RETURN: the proof cannot judge the scenario that would kill it (stub gap)"
+  },
+  {
+   "id": "d5e202914a",
+   "op": "CON",
+   "line": 314,
+   "before": "if (planned2[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
+   "after": "if (planned2[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(6), null), \"DELAY out of range\");",
+   "verdict": "equivalent",
+   "reason": "CrdtchkService.java line 314: whether task.delay runs, or for how long; in this case's root task (no RUN TRANSID children) delay() only moves the scheduler clock (X4), which nothing reads, so it is unseen"
+  },
+  {
+   "id": "3d42ef7305",
+   "op": "DEL",
+   "line": 315,
+   "before": "Cobol.store(f41_EIBRESP, BigDecimal.valueOf(planned2[0]), false, CS);",
+   "after": "/* Cobol.store(f41_EIBRESP, BigDecimal.valueOf(planned2[0]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "CrdtchkService.java line 315: the store of the DELAY's answer into f41_EIBRESP is dead: f41_EIBRESP is written in CrdtchkService.java and read nowhere, and the branch after it tests planned[0] itself, not the field"
+  },
+  {
+   "id": "5fa707643a",
+   "op": "CON",
+   "line": 315,
+   "before": "Cobol.store(f41_EIBRESP, BigDecimal.valueOf(planned2[0]), false, CS);",
+   "after": "Cobol.store(f41_EIBRESP, BigDecimal.valueOf(planned2[1]), false, CS);",
+   "verdict": "equivalent",
+   "reason": "CrdtchkService.java line 315: the value stored into f41_EIBRESP is changed (valueOf(planned2[1])); f41_EIBRESP is only ever written in CrdtchkService.java, nothing reads it, so any value is unseen"
+  },
+  {
+   "id": "f9310f210d",
+   "op": "DEL",
+   "line": 316,
+   "before": "Cobol.store(f42_EIBRESP2, BigDecimal.valueOf(planned2[1]), false, CS);",
+   "after": "/* Cobol.store(f42_EIBRESP2, BigDecimal.valueOf(planned2[1]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "CrdtchkService.java line 316: the store of the DELAY's answer into f42_EIBRESP2 is dead: f42_EIBRESP2 is written in CrdtchkService.java and read nowhere, and the branch after it tests planned[0] itself, not the field"
+  },
+  {
+   "id": "1befa8bfa4",
+   "op": "CON",
+   "line": 317,
+   "before": "if (planned2[0] != 0) {",
+   "after": "if (planned2[1] != 0) {",
+   "verdict": "harness-gap",
+   "reason": "CrdtchkService.java line 317: acts only when a DELAY fault is planned (register X72); the program codes no RESP and no HANDLE CONDITION on it, so IBM abends the task and the det port does (CicsSpec.abcodeFor), while the stub answers the plan and the COBOL goes on to RETURN: the proof cannot judge the scenario that would kill it (stub gap)"
+  },
+  {
+   "id": "ab0adba5b5",
+   "op": "CON",
+   "line": 318,
+   "before": "int to = condition(DetCics.condition(planned2[0]));",
+   "after": "int to = condition(DetCics.condition(planned2[1]));",
+   "verdict": "harness-gap",
+   "reason": "CrdtchkService.java line 318: acts only when a DELAY fault is planned (register X72); the program codes no RESP and no HANDLE CONDITION on it, so IBM abends the task and the det port does (CicsSpec.abcodeFor), while the stub answers the plan and the COBOL goes on to RETURN: the proof cannot judge the scenario that would kill it (stub gap)"
+  },
+  {
+   "id": "2fd219e4d7",
+   "op": "LIT",
+   "line": 319,
+   "before": "int[] planned2 = task.planned(\"DELAY\", \"-\");",
+   "after": "int[] planned2 = task.planned(\"XELAY\", \"-\");",
+   "verdict": "harness-gap",
+   "reason": "GetaddrService.java line 319: acts only when a DELAY fault is planned (register X72); the program codes no RESP and no HANDLE CONDITION on it, so IBM abends the task and the det port does (CicsSpec.abcodeFor), while the stub answers the plan and the COBOL goes on to RETURN: the proof cannot judge the scenario that would kill it (stub gap)"
+  },
+  {
+   "id": "6d0938181a",
+   "op": "LIT",
+   "line": 319,
+   "before": "int[] planned2 = task.planned(\"DELAY\", \"-\");",
+   "after": "int[] planned2 = task.planned(\"DELAY\", \"X\");",
+   "verdict": "harness-gap",
+   "reason": "GetaddrService.java line 319: acts only when a DELAY fault is planned (register X72); the program codes no RESP and no HANDLE CONDITION on it, so IBM abends the task and the det port does (CicsSpec.abcodeFor), while the stub answers the plan and the COBOL goes on to RETURN: the proof cannot judge the scenario that would kill it (stub gap)"
+  },
+  {
+   "id": "1cdb70a5c7",
+   "op": "CON",
+   "line": 320,
+   "before": "if (planned2[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
+   "after": "if (planned2[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(6), null), \"DELAY out of range\");",
+   "verdict": "equivalent",
+   "reason": "GetaddrService.java line 320: whether task.delay runs, or for how long; in this case's root task (no RUN TRANSID children) delay() only moves the scheduler clock (X4), which nothing reads, so it is unseen"
+  },
+  {
+   "id": "2624780a91",
+   "op": "ROR",
+   "line": 320,
+   "before": "if (planned2[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
+   "after": "if (planned2[0] != 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
+   "verdict": "equivalent",
+   "reason": "GetaddrService.java line 320: whether task.delay runs, or for how long; in this case's root task (no RUN TRANSID children) delay() only moves the scheduler clock (X4), which nothing reads, so it is unseen"
+  },
+  {
+   "id": "55f9b97d5f",
+   "op": "CON",
+   "line": 320,
+   "before": "if (planned2[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
+   "after": "if (planned2[1] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
+   "verdict": "harness-gap",
+   "reason": "GetaddrService.java line 320: acts only when a DELAY fault is planned (register X72); the program codes no RESP and no HANDLE CONDITION on it, so IBM abends the task AEIP and the det port does (CicsSpec.abcodeFor), while the stub answers the plan and the COBOL goes on to RETURN: the proof cannot judge the scenario that would kill it (stub gap)"
+  },
+  {
+   "id": "5d1fcaea43",
+   "op": "CON",
+   "line": 320,
+   "before": "if (planned2[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
+   "after": "if (planned2[0] == 1) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
+   "verdict": "equivalent",
+   "reason": "GetaddrService.java line 320: whether task.delay runs, or for how long; in this case's root task (no RUN TRANSID children) delay() only moves the scheduler clock (X4), which nothing reads, so it is unseen"
+  },
+  {
+   "id": "60fd6f9be2",
+   "op": "LIT",
+   "line": 320,
+   "before": "if (planned2[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
+   "after": "if (planned2[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"XELAY out of range\");",
+   "verdict": "equivalent",
+   "reason": "GetaddrService.java line 320: the `what` text of delay() is read only to build the refusal for a DELAY that is not a length of time; this DELAY is FOR SECONDS with a literal in range, so the text is never used"
+  },
+  {
+   "id": "ec8a23f2c1",
+   "op": "NEG",
+   "line": 320,
+   "before": "if (planned2[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
+   "after": "if (!(planned2[0] == 0)) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
+   "verdict": "equivalent",
+   "reason": "GetaddrService.java line 320: whether task.delay runs, or for how long; in this case's root task (no RUN TRANSID children) delay() only moves the scheduler clock (X4), which nothing reads, so it is unseen"
+  },
+  {
+   "id": "7cc04b44e6",
+   "op": "DEL",
+   "line": 321,
+   "before": "Cobol.store(f43_EIBRESP, BigDecimal.valueOf(planned2[0]), false, CS);",
+   "after": "/* Cobol.store(f43_EIBRESP, BigDecimal.valueOf(planned2[0]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "GetaddrService.java line 321: the store of the DELAY's answer into f43_EIBRESP is dead: f43_EIBRESP is written in GetaddrService.java and read nowhere, and the branch after it tests planned[0] itself, not the field"
+  },
+  {
+   "id": "cb13bfe54b",
+   "op": "CON",
+   "line": 321,
+   "before": "Cobol.store(f43_EIBRESP, BigDecimal.valueOf(planned2[0]), false, CS);",
+   "after": "Cobol.store(f43_EIBRESP, BigDecimal.valueOf(planned2[1]), false, CS);",
+   "verdict": "equivalent",
+   "reason": "GetaddrService.java line 321: the value stored into f43_EIBRESP is changed (valueOf(planned2[1])); f43_EIBRESP is only ever written in GetaddrService.java, nothing reads it, so any value is unseen"
+  },
+  {
+   "id": "a31755a54a",
+   "op": "DEL",
+   "line": 322,
+   "before": "Cobol.store(f44_EIBRESP2, BigDecimal.valueOf(planned2[1]), false, CS);",
+   "after": "/* Cobol.store(f44_EIBRESP2, BigDecimal.valueOf(planned2[1]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "GetaddrService.java line 322: the store of the DELAY's answer into f44_EIBRESP2 is dead: f44_EIBRESP2 is written in GetaddrService.java and read nowhere, and the branch after it tests planned[0] itself, not the field"
+  },
+  {
+   "id": "9dbc769aaf",
+   "op": "CON",
+   "line": 323,
+   "before": "if (planned2[0] != 0) {",
+   "after": "if (planned2[1] != 0) {",
+   "verdict": "harness-gap",
+   "reason": "GetaddrService.java line 323: acts only when a DELAY fault is planned (register X72); the program codes no RESP and no HANDLE CONDITION on it, so IBM abends the task and the det port does (CicsSpec.abcodeFor), while the stub answers the plan and the COBOL goes on to RETURN: the proof cannot judge the scenario that would kill it (stub gap)"
+  },
+  {
+   "id": "26005250fe",
+   "op": "CON",
+   "line": 324,
+   "before": "int to = condition(DetCics.condition(planned2[0]));",
+   "after": "int to = condition(DetCics.condition(planned2[1]));",
+   "verdict": "harness-gap",
+   "reason": "GetaddrService.java line 324: acts only when a DELAY fault is planned (register X72); the program codes no RESP and no HANDLE CONDITION on it, so IBM abends the task and the det port does (CicsSpec.abcodeFor), while the stub answers the plan and the COBOL goes on to RETURN: the proof cannot judge the scenario that would kill it (stub gap)"
+  },
+  {
+   "id": "50ac6fc762",
+   "op": "DEL",
+   "line": 324,
+   "before": "Cobol.store(f41_EIBRESP, BigDecimal.valueOf(DetCics.resp(cont3.resp())), false, CS);",
+   "after": "/* Cobol.store(f41_EIBRESP, BigDecimal.valueOf(DetCics.resp(cont3.resp())), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "CrdtchkService.java line 324: the store of the PUT CONTAINER's answer into f41_EIBRESP is dead: f41_EIBRESP is written in CrdtchkService.java and read nowhere, and the next statement is another store or the RETURN, which shows no EIB or working-storage field"
+  },
+  {
+   "id": "14747ec0a6",
+   "op": "DEL",
+   "line": 325,
+   "before": "Cobol.store(f42_EIBRESP2, BigDecimal.valueOf(cont3.resp2()), false, CS);",
+   "after": "/* Cobol.store(f42_EIBRESP2, BigDecimal.valueOf(cont3.resp2()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "CrdtchkService.java line 325: the store of the PUT CONTAINER's answer into f42_EIBRESP2 is dead: f42_EIBRESP2 is written in CrdtchkService.java and read nowhere, and the next statement is another store or the RETURN, which shows no EIB or working-storage field"
+  },
+  {
+   "id": "5cebc1bcb0",
+   "op": "DEL",
+   "line": 326,
+   "before": "Cobol.store(f10_COMMAND_RESP, BigDecimal.valueOf(DetCics.resp(cont3.resp())), false, CS);",
+   "after": "/* Cobol.store(f10_COMMAND_RESP, BigDecimal.valueOf(DetCics.resp(cont3.resp())), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "CrdtchkService.java line 326: the store of the PUT CONTAINER's answer into f10_COMMAND_RESP is dead: f10_COMMAND_RESP is written in CrdtchkService.java and read nowhere, and the next statement is another store or the RETURN, which shows no EIB or working-storage field"
+  },
+  {
+   "id": "ab7034e588",
+   "op": "DEL",
+   "line": 327,
+   "before": "Cobol.store(f11_COMMAND_RESP2, BigDecimal.valueOf(cont3.resp2()), false, CS);",
+   "after": "/* Cobol.store(f11_COMMAND_RESP2, BigDecimal.valueOf(cont3.resp2()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "CrdtchkService.java line 327: the store of the PUT CONTAINER's answer into f11_COMMAND_RESP2 is dead: f11_COMMAND_RESP2 is written in CrdtchkService.java and read nowhere, and the next statement is another store or the RETURN, which shows no EIB or working-storage field"
+  },
+  {
+   "id": "2dd59abb94",
+   "op": "DEL",
+   "line": 330,
+   "before": "Cobol.store(f43_EIBRESP, BigDecimal.valueOf(DetCics.resp(cont3.resp())), false, CS);",
+   "after": "/* Cobol.store(f43_EIBRESP, BigDecimal.valueOf(DetCics.resp(cont3.resp())), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "GetaddrService.java line 330: the store of the PUT CONTAINER's answer into f43_EIBRESP is dead: f43_EIBRESP is written in GetaddrService.java and read nowhere, and the next statement is another store or the RETURN, which shows no EIB or working-storage field"
+  },
+  {
+   "id": "6af9cad108",
+   "op": "DEL",
+   "line": 331,
+   "before": "Cobol.store(f44_EIBRESP2, BigDecimal.valueOf(cont3.resp2()), false, CS);",
+   "after": "/* Cobol.store(f44_EIBRESP2, BigDecimal.valueOf(cont3.resp2()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "GetaddrService.java line 331: the store of the PUT CONTAINER's answer into f44_EIBRESP2 is dead: f44_EIBRESP2 is written in GetaddrService.java and read nowhere, and the next statement is another store or the RETURN, which shows no EIB or working-storage field"
+  },
+  {
+   "id": "ed0599a270",
+   "op": "DEL",
+   "line": 332,
+   "before": "Cobol.store(f12_COMMAND_RESP, BigDecimal.valueOf(DetCics.resp(cont3.resp())), false, CS);",
+   "after": "/* Cobol.store(f12_COMMAND_RESP, BigDecimal.valueOf(DetCics.resp(cont3.resp())), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "GetaddrService.java line 332: the store of the PUT CONTAINER's answer into f12_COMMAND_RESP is dead: f12_COMMAND_RESP is written in GetaddrService.java and read nowhere, and the next statement is another store or the RETURN, which shows no EIB or working-storage field"
+  },
+  {
+   "id": "9326dcd26d",
+   "op": "DEL",
+   "line": 333,
+   "before": "Cobol.store(f13_COMMAND_RESP2, BigDecimal.valueOf(cont3.resp2()), false, CS);",
+   "after": "/* Cobol.store(f13_COMMAND_RESP2, BigDecimal.valueOf(cont3.resp2()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "GetaddrService.java line 333: the store of the PUT CONTAINER's answer into f13_COMMAND_RESP2 is dead: f13_COMMAND_RESP2 is written in GetaddrService.java and read nowhere, and the next statement is another store or the RETURN, which shows no EIB or working-storage field"
+  },
+  {
+   "id": "a754d9598f",
+   "op": "DEL",
+   "line": 337,
+   "before": "Cobol.store(f43_EIBRESP, BigDecimal.valueOf(DetCics.resp(cont5.resp())), false, CS);",
+   "after": "/* Cobol.store(f43_EIBRESP, BigDecimal.valueOf(DetCics.resp(cont5.resp())), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "GetaddrService.java line 337: the store of the PUT CONTAINER's answer into f43_EIBRESP is dead: f43_EIBRESP is written in GetaddrService.java and read nowhere, and the next statement is another store or the RETURN, which shows no EIB or working-storage field"
+  },
+  {
+   "id": "3936c0ae0c",
+   "op": "DEL",
+   "line": 338,
+   "before": "Cobol.store(f44_EIBRESP2, BigDecimal.valueOf(cont5.resp2()), false, CS);",
+   "after": "/* Cobol.store(f44_EIBRESP2, BigDecimal.valueOf(cont5.resp2()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "GetaddrService.java line 338: the store of the PUT CONTAINER's answer into f44_EIBRESP2 is dead: f44_EIBRESP2 is written in GetaddrService.java and read nowhere, and the next statement is another store or the RETURN, which shows no EIB or working-storage field"
+  },
+  {
+   "id": "f148bfa97e",
+   "op": "DEL",
+   "line": 339,
+   "before": "Cobol.store(f12_COMMAND_RESP, BigDecimal.valueOf(DetCics.resp(cont5.resp())), false, CS);",
+   "after": "/* Cobol.store(f12_COMMAND_RESP, BigDecimal.valueOf(DetCics.resp(cont5.resp())), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "GetaddrService.java line 339: the store of the PUT CONTAINER's answer into f12_COMMAND_RESP is dead: f12_COMMAND_RESP is written in GetaddrService.java and read nowhere, and the next statement is another store or the RETURN, which shows no EIB or working-storage field"
+  },
+  {
+   "id": "57cfe26781",
+   "op": "DEL",
+   "line": 340,
+   "before": "Cobol.store(f13_COMMAND_RESP2, BigDecimal.valueOf(cont5.resp2()), false, CS);",
+   "after": "/* Cobol.store(f13_COMMAND_RESP2, BigDecimal.valueOf(cont5.resp2()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "GetaddrService.java line 340: the store of the PUT CONTAINER's answer into f13_COMMAND_RESP2 is dead: f13_COMMAND_RESP2 is written in GetaddrService.java and read nowhere, and the next statement is another store or the RETURN, which shows no EIB or working-storage field"
+  },
+  {
+   "id": "1a244097d0",
+   "op": "LIT",
+   "line": 545,
+   "before": "int[] planned28 = task.planned(\"SEND-TEXT\", \"-\");",
+   "after": "int[] planned28 = task.planned(\"SEND-TEXT\", \"X\");",
+   "verdict": "harness-gap",
+   "reason": "SeqpntService.java line 545: acts only when a SEND TEXT fault is planned (register X71); the program codes no RESP and no HANDLE CONDITION on it, so IBM abends the task and the det port does (CicsSpec.abcodeFor), while the stub answers the plan and the COBOL goes on to RETURN: the proof cannot judge the scenario that would kill it (stub gap)"
+  },
+  {
+   "id": "38027385c2",
+   "op": "LIT",
+   "line": 545,
+   "before": "int[] planned28 = task.planned(\"SEND-TEXT\", \"-\");",
+   "after": "int[] planned28 = task.planned(\"XEND-TEXT\", \"-\");",
+   "verdict": "harness-gap",
+   "reason": "SeqpntService.java line 545: acts only when a SEND TEXT fault is planned (register X71); the program codes no RESP and no HANDLE CONDITION on it, so IBM abends the task and the det port does (CicsSpec.abcodeFor), while the stub answers the plan and the COBOL goes on to RETURN: the proof cannot judge the scenario that would kill it (stub gap)"
+  },
+  {
+   "id": "b8897631f5",
+   "op": "CON",
+   "line": 546,
+   "before": "if (planned28[0] == 0) task.sendText(text27.substring(0, Math.min(text27.length(), 72)), 72, \"ERASE\", \"FREEKB\", \"WAIT\");",
+   "after": "if (planned28[1] == 0) task.sendText(text27.substring(0, Math.min(text27.length(), 72)), 72, \"ERASE\", \"FREEKB\", \"WAIT\");",
+   "verdict": "harness-gap",
+   "reason": "SeqpntService.java line 546: acts only when a SEND TEXT fault is planned (register X71); the program codes no RESP and no HANDLE CONDITION on it, so IBM abends the task and the det port does, while the stub answers the plan and the COBOL goes on to RETURN: the proof cannot judge the scenario that would kill it (stub gap)"
+  },
+  {
+   "id": "d3bb91227f",
+   "op": "CON",
+   "line": 546,
+   "before": "if (planned28[0] == 0) task.sendText(text27.substring(0, Math.min(text27.length(), 72)), 72, \"ERASE\", \"FREEKB\", \"WAIT\");",
+   "after": "if (planned28[0] == 0) task.sendText(text27.substring(0, Math.min(text27.length(), 73)), 72, \"ERASE\", \"FREEKB\", \"WAIT\");",
+   "verdict": "equivalent",
+   "reason": "SeqpntService.java line 546: the SEND TEXT text is the 72-byte PRINT-LINE group, so its length is 72 and min(72, 73) is the same 72 as min(72, 72)"
+  },
+  {
+   "id": "8e85448929",
+   "op": "CON",
+   "line": 547,
+   "before": "Cobol.store(f91_EIBRESP, BigDecimal.valueOf(planned28[0]), false, CS);",
+   "after": "Cobol.store(f91_EIBRESP, BigDecimal.valueOf(planned28[1]), false, CS);",
+   "verdict": "equivalent",
+   "reason": "SeqpntService.java line 547: the value stored into f91_EIBRESP is changed (valueOf(planned28[1])); f91_EIBRESP is only ever written in SeqpntService.java, nothing reads it, so any value is unseen"
+  },
+  {
+   "id": "b993834c7b",
+   "op": "DEL",
+   "line": 547,
+   "before": "Cobol.store(f91_EIBRESP, BigDecimal.valueOf(planned28[0]), false, CS);",
+   "after": "/* Cobol.store(f91_EIBRESP, BigDecimal.valueOf(planned28[0]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "SeqpntService.java line 547: the store of the DELAY's answer into f91_EIBRESP is dead: f91_EIBRESP is written in SeqpntService.java and read nowhere, and the branch after it tests planned[0] itself, not the field"
+  },
+  {
+   "id": "398254d0a8",
+   "op": "DEL",
+   "line": 548,
+   "before": "Cobol.store(f92_EIBRESP2, BigDecimal.valueOf(planned28[1]), false, CS);",
+   "after": "/* Cobol.store(f92_EIBRESP2, BigDecimal.valueOf(planned28[1]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "SeqpntService.java line 548: the store of the DELAY's answer into f92_EIBRESP2 is dead: f92_EIBRESP2 is written in SeqpntService.java and read nowhere, and the branch after it tests planned[0] itself, not the field"
+  },
+  {
+   "id": "d917a1e40b",
+   "op": "CON",
+   "line": 549,
+   "before": "if (planned28[0] != 0) {",
+   "after": "if (planned28[1] != 0) {",
+   "verdict": "harness-gap",
+   "reason": "SeqpntService.java line 549: acts only when a SEND TEXT fault is planned (register X71); the program codes no RESP and no HANDLE CONDITION on it, so IBM abends the task and the det port does (CicsSpec.abcodeFor), while the stub answers the plan and the COBOL goes on to RETURN: the proof cannot judge the scenario that would kill it (stub gap)"
+  },
+  {
+   "id": "d3ac97dded",
+   "op": "CON",
+   "line": 550,
+   "before": "int to = condition(DetCics.condition(planned28[0]));",
+   "after": "int to = condition(DetCics.condition(planned28[1]));",
+   "verdict": "harness-gap",
+   "reason": "SeqpntService.java line 550: acts only when a SEND TEXT fault is planned (register X71); the program codes no RESP and no HANDLE CONDITION on it, so IBM abends the task and the det port does (CicsSpec.abcodeFor), while the stub answers the plan and the COBOL goes on to RETURN: the proof cannot judge the scenario that would kill it (stub gap)"
+  }
+ ]
+}

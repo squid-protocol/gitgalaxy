@@ -131,6 +131,14 @@ One row per PSBGEN / PCB / SENSEG / DBD / DATASET / SEGM / FIELD / LCHILD macro 
 
 One row per COPY statement that no `record_data` entry carries (after a section header or FD, or before a section's first entry): `member`, `library`, `replacing` (JSON `[[from, to(, LEADING|TRAILING)], ...]`, as in `record_data.copy_replacing`), `section`, `fd_name`, `after_ordinal` (the `record_data` ordinal of the entry above it, NULL when none) and `line_number`. Per-file, cascade-deleted with `file_data`, restored on delta scans.
 
+### `special_names_data` — SPECIAL-NAMES currency / decimal point (#3820)
+
+One row per CURRENCY [SIGN] clause (`value` the currency string, `symbol` the PICTURE SYMBOL standing for it) and per DECIMAL-POINT IS COMMA (`value` COMMA), with `clause` and `line_number`. Widths are the reader's. Per-file, cascade-deleted with `file_data`, restored on delta scans.
+
+### `compiler_options_data` — CBL / PROCESS card options (#3828)
+
+One row per option in source order: `option` (full name, abbreviations spelled out), `value` (between its parentheses, as written), `written` (as on the card) and `line_number`. Per-file, cascade-deleted with `file_data`, restored on delta scans.
+
 ### `data_move_data` — field-level data movement (#3452)
 
 One row per source -> target pair of a MOVE/COMPUTE/ADD/SUBTRACT/MULTIPLY/DIVIDE/STRING/UNSTRING/INITIALIZE: `verb`, `source` and `target` as written (qualifiers kept, subscripts dropped), `source_kind` (`item`/`literal`/`figurative`/`function`/`length`/`address`, NULL on INITIALIZE), `corresponding`, `source_refmod`/`target_refmod` and, since #3655, their texts `source_refmod_text`/`target_refmod_text`, and `line_number`. Per-file, cascade-deleted with `file_data`, restored on delta scans.

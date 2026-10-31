@@ -451,6 +451,41 @@ _COPY_STATEMENT_DDL = """
         """
 
 
+# #3820: the SPECIAL-NAMES clauses that change what a PIC's symbols are worth (core/special_names.py): one row per
+# CURRENCY [SIGN] clause (value = the currency string, symbol = the PICTURE SYMBOL standing for it) and per
+# DECIMAL-POINT IS COMMA (value COMMA). Widths are the reader's.
+_SPECIAL_NAMES_DDL = """
+            CREATE TABLE IF NOT EXISTS special_names_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                clause TEXT,
+                value TEXT,
+                symbol TEXT,
+                line_number INTEGER,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """
+
+
+# #3828: the CBL / PROCESS card options (core/compiler_options.py): one row per option in source order -- option (full
+# name, abbreviations spelled out), value (between its parentheses, as written), written (as on the card).
+_COMPILER_OPTIONS_DDL = """
+            CREATE TABLE IF NOT EXISTS compiler_options_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                option TEXT,
+                value TEXT,
+                written TEXT,
+                line_number INTEGER,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """
+
+
 # #3452: field-level data movement, per-file.
 _DATA_MOVE_DDL = """
             CREATE TABLE IF NOT EXISTS data_move_data (
@@ -1310,6 +1345,56 @@ CHANNELS = (
             "section": r["section"],
             "fd_name": r["fd_name"],
             "after_ordinal": r["after_ordinal"],
+            "line": int(r["line"] or 0),
+        },
+    ),
+    # #3820: SPECIAL-NAMES currency / decimal point -- per-file.
+    FactChannel(
+        name="special_names",
+        ir_field="special_names",
+        table="special_names_data",
+        ddl=_SPECIAL_NAMES_DDL,
+        indexes=(
+            "CREATE INDEX IF NOT EXISTS idx_special_names_file_id ON special_names_data(file_id);",
+            "CREATE INDEX IF NOT EXISTS idx_special_names_snapshot ON special_names_data(repo_name, commit_hash);",
+        ),
+        payload_key="special_names",
+        columns=("clause", "value", "symbol", "line_number"),
+        to_row=lambda n: (n.get("clause"), n.get("value"), n.get("symbol"), int(n.get("line", 0) or 0)),
+        restore_select=(
+            'SELECT fd.file_path AS _fp, sn.clause, sn.value, sn.symbol, sn.line_number AS "line" '
+            "FROM special_names_data sn JOIN file_data fd ON sn.file_id = fd.id "
+            "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY sn.id"
+        ),
+        to_payload=lambda r: {
+            "clause": r["clause"],
+            "value": r["value"],
+            "symbol": r["symbol"],
+            "line": int(r["line"] or 0),
+        },
+    ),
+    # #3828: CBL / PROCESS compiler options -- per-file.
+    FactChannel(
+        name="compiler_options",
+        ir_field="compiler_options",
+        table="compiler_options_data",
+        ddl=_COMPILER_OPTIONS_DDL,
+        indexes=(
+            "CREATE INDEX IF NOT EXISTS idx_compiler_options_file_id ON compiler_options_data(file_id);",
+            "CREATE INDEX IF NOT EXISTS idx_compiler_options_snapshot ON compiler_options_data(repo_name, commit_hash);",
+        ),
+        payload_key="compiler_options",
+        columns=("option", "value", "written", "line_number"),
+        to_row=lambda o: (o.get("option"), o.get("value"), o.get("written"), int(o.get("line", 0) or 0)),
+        restore_select=(
+            'SELECT fd.file_path AS _fp, co.option, co.value, co.written, co.line_number AS "line" '
+            "FROM compiler_options_data co JOIN file_data fd ON co.file_id = fd.id "
+            "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY co.id"
+        ),
+        to_payload=lambda r: {
+            "option": r["option"],
+            "value": r["value"],
+            "written": r["written"],
             "line": int(r["line"] or 0),
         },
     ),

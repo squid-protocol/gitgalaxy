@@ -12,6 +12,7 @@ from pathlib import Path
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from gitgalaxy.core.source_text import read_source
 from gitgalaxy.tools.cobol_to_java.det import source as SRC
 from gitgalaxy.tools.cobol_to_java.det import stmt as S
 
@@ -105,6 +106,6 @@ def test_no_burned_program_uses_the_sort_verbs():
         str(p)
         for ext in ("cbl", "cob", "cobol")
         for p in Path(root).rglob("*." + ext)
-        if verb.search(p.read_text(errors="replace"))
+        if verb.search(read_source(p).text)
     ]
     assert hits == [], "a burned program now uses SORT / MERGE: add its equivalence case (#4268)"

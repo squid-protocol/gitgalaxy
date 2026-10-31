@@ -9,7 +9,15 @@ from __future__ import annotations
 from collections.abc import Iterator
 from typing import TYPE_CHECKING, Any
 
-from gitgalaxy.tools.cobol_to_java.det.cics_common import CicsError, KeylengthInvreq, _arg, _msg, _requires, jstr
+from gitgalaxy.tools.cobol_to_java.det.cics_common import (
+    CicsError,
+    KeylengthInvreq,
+    Untranslatable,
+    _arg,
+    _msg,
+    _requires,
+    jstr,
+)
 
 if TYPE_CHECKING:
     from gitgalaxy.tools.cobol_to_java.det import expr as E
@@ -295,9 +303,6 @@ class FileControlCommands:
         POINTER item takes the block's handle (setBlock); `ADDRESS OF rec`, a LINKAGE 01 record, is addressed to the block
         as SET ADDRESS OF rec TO ptr would (setBlockAt). Any other record is refused by name."""
         import re
-
-        from gitgalaxy.tools.cobol_to_java.det.cics import CicsError
-        from gitgalaxy.tools.cobol_to_java.det.gen import Untranslatable
 
         m = re.fullmatch(r"(?is)\s*ADDRESS\s+OF\s+([A-Z][A-Z0-9-]*)\s*", text)
         if m is None:

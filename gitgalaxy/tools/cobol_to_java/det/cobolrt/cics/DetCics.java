@@ -4,6 +4,7 @@ import __PACKAGE__.cics.CicsSpec;
 import __PACKAGE__.cics.CicsTask;
 import __PACKAGE__.cobolrt.Cobol;
 import __PACKAGE__.cobolrt.Field;
+import __PACKAGE__.cobolrt.Storage;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -385,6 +386,18 @@ public final class DetCics {
         }
         byte[] data = b.toString().getBytes(cs);
         System.arraycopy(data, 0, f.storage().bytes, f.offset(), f.length());
+    }
+
+    /** WEB SEND FROM(area) FROMLENGTH(n) (#6839 slice 2): the area's text. An area set onto a larger block (ZECS001's
+     *  CACHE-MESSAGE over a GETMAIN of several 32000-byte segments) holds the block's bytes past its declared length, so a
+     *  FROMLENGTH beyond the declaration reads them when the block is that long. Any other area, or a block too short,
+     *  gives the declared area's text (CicsTask.webSend then refuses the length). */
+    public static String fromText(Field f, int fromLength, Charset cs) {
+        Storage s = f.storage();
+        if (fromLength > f.length() && s.aliased() && f.offset() + fromLength <= s.bytes.length) {
+            return new String(s.bytes, f.offset(), fromLength, cs);
+        }
+        return Cobol.text(f, cs);
     }
 
     public static void put(Field f, byte[] data) {

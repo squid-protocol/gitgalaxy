@@ -126,6 +126,8 @@
   "cruc-hc-resp-options": 12,
   "cruc-hc-terminal-eoc": 12,
   "cruc-hc-terminal-receive": 12,
+  "cruc-hx-attr-bytes": 12,
+  "cruc-hx-extended-cursor": 12,
   "cruc-pc-aid-menu": 15,
   "cruc-pc-return-channel": 15,
   "cruc-pc-return-channel-b": 13,

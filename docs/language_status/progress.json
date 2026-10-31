@@ -1,5 +1,5 @@
 {
- "commit": "68f2b8860",
+ "commit": "c16894a85",
  "components": {
   "capabilities": {
    "groups": [
@@ -339,11 +339,11 @@
      "equivalent": 431,
      "l5": 0,
      "measured": 12,
-     "mutants": 23103,
+     "mutants": 23254,
      "programs": 44,
      "raw_pct": 65.6,
      "ready": 12,
-     "sampled": 1800,
+     "sampled": 1822,
      "sampled_pct": 7.8,
      "survived": 602,
      "unreachable": 171
@@ -353,11 +353,11 @@
      "equivalent": 0,
      "l5": 0,
      "measured": 10,
-     "mutants": 5943,
+     "mutants": 6083,
      "programs": 10,
      "raw_pct": 100.0,
      "ready": 10,
-     "sampled": 5943,
+     "sampled": 6083,
      "sampled_pct": 100.0,
      "survived": 0,
      "unreachable": 0
@@ -424,12 +424,12 @@
     "equivalent": 1175,
     "l5": 2,
     "measured": 30,
-    "mutants": 32959,
+    "mutants": 33250,
     "programs": 129,
     "raw_pct": 81.5,
     "ready": 28,
-    "sampled": 10020,
-    "sampled_pct": 30.4,
+    "sampled": 10182,
+    "sampled_pct": 30.6,
     "survived": 1795,
     "unreachable": 620
    }
@@ -481,7 +481,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-31T18:40:21Z",
+  "as_of": "2026-10-31T18:53:01Z",
   "core": {
    "closed": 200,
    "open": 11,

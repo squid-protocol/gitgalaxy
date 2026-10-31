@@ -636,3 +636,44 @@ def test_a_page_without_limits_has_no_limits_section(tmp_path):
     ledger = _synthetic_ledger()
     page = trial.trial_page(ledger, ledger["trials"][0], facts=trial.case_facts({"B": "caseB", "C": "caseC"}, tmp_path))
     assert "## Input-generation limits" not in page
+
+
+def _untranslated_res():
+    def row(corpus, prog, classes, burned=True, error=None):
+        return {"corpus": corpus, "program": prog, "burned": burned, "classes": classes} | (
+            {"error": error} if error else {}
+        )
+
+    return {"untranslated": [
+        row("estate", "a/NOCPY.cbl", ["refused: CopyUnresolved"], error="CopyUnresolved COPY MYBOOK: not found"),
+        row("estate", "a/NOSTUB.cbl", ["EXEC SQL SELECT"]),
+        row("estate", "a/OTHER.cbl", ["EXEC SQL SELECT"], burned=False),
+    ]}  # fmt: skip
+
+
+def test_the_page_names_untranslated_programs_by_cause():
+    import harness_report as hr
+
+    ledger = _synthetic_ledger()
+    t = ledger["trials"][0]
+    page = trial.trial_page(ledger, t, untranslated=hr.untranslated_blockers(_untranslated_res()))
+    assert "## Programs with no translation yet" in page
+    assert "COPY MYBOOK" in page and "a/NOSTUB.cbl" in page
+    assert "a/OTHER.cbl" not in page  # a non-burned program is never named
+    assert page.count("a/NOCPY.cbl") == 2  # once in the fix line, once in its item: one blocker only
+
+
+def test_a_page_without_untranslated_programs_is_unchanged():
+    ledger = _synthetic_ledger()
+    t = ledger["trials"][0]
+    assert trial.trial_page(ledger, t, untranslated=[]) == trial.trial_page(ledger, t)
+    assert "no translation yet" not in trial.trial_page(ledger, t)
+
+
+def test_preview_reads_proof_blockers(started, tmp_path):
+    pb = tmp_path / "pb.json"
+    pb.write_text(json.dumps(_untranslated_res()), encoding="utf-8")
+    page = tmp_path / "page.md"
+    rc = trial.main([*started["common"], "preview", "tiny-estate", "--estate-path", str(started["estate"]),
+                     "--work", str(tmp_path / "w"), "--page", str(page), "--proof-blockers", str(pb)])  # fmt: skip
+    assert rc == 0 and "COPY MYBOOK" in page.read_text(encoding="utf-8")

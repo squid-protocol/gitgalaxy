@@ -113,7 +113,7 @@ PARTS: dict[str, str] = {
 UPSTREAM: dict[str, str] = {
     r"^(shard|db2) \d+/\d+$": r"^plan$",
     r"^ground-truth part \d+/\d+$": r"^(tested-tree|plan|ground-truth-warm)$",
-    r"^(full-suite part \d+/\d+|durations key)$": r"^(tested-tree|suite-plan)$",
+    r"^(full-suite part \d+/\d+|plan the suite parts)$": r"^(tested-tree|suite-plan)$",
 }
 NON_REAL = ("main", "flake", "infra")  # a roll-up with no real part takes the first of these any failed part has
 

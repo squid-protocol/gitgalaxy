@@ -1649,3 +1649,20 @@ jobs:
             --message "harness report as of main $SHA" \
             docs/language_status/harness
           echo "published the harness report from main ${SHA::12}: https://github.com/${GITHUB_REPOSITORY}/tree/generated/docs/language_status/harness" >> "$GITHUB_STEP_SUMMARY"
+
+      # #4493: the trial protocol's pages (the first-try rate and one page per trialled estate) are generated from the
+      # committed ledger, so they need no corpora: published from the `main` checkout, in a step of their own, so a
+      # fresh estate's page lands on `generated` with the nightly run. No trial yet means no directory: nothing to do.
+      - name: Publish the fresh-estate trial pages to the generated branch (#4493)
+        if: github.ref == 'refs/heads/main'
+        env:
+          SHA: ${{ needs.refresh.outputs.sha }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cd main
+          [ -d docs/language_status/trials ] || { echo "No trial has run yet: no estate page to publish" >> "$GITHUB_STEP_SUMMARY"; exit 0; }
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          python tests/tools/generated_branch.py publish --stamp trial-pages \
+            --message "fresh-estate trial pages as of main $SHA" \
+            docs/language_status/trials docs/language_status/fresh_estate_trials.md
+          echo "published the trial pages from main ${SHA::12}: https://github.com/${GITHUB_REPOSITORY}/tree/generated/docs/language_status/trials" >> "$GITHUB_STEP_SUMMARY"

@@ -39,6 +39,7 @@
 /Controller.java	tests/security_auditing
 /Dockerfile	tests/core_engine
 /FORMS.jcl	tests/cobol_mainframe
+/IFOXJOB.jcl	tests/cobol_mainframe
 /LAYCPY.cpy	tests/cobol_mainframe
 /LAYTOY.cbl	tests/cobol_mainframe
 /LICENSE.txt	tests/core_engine

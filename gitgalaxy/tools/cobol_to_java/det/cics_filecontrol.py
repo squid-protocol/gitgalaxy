@@ -290,6 +290,23 @@ class FileControlCommands:
                f"{ind}}}"]  # fmt: skip
         return out + self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)
 
+    def set_target(self, text: str) -> tuple[str, str]:
+        """#6876 (X47): what a file read's SET names: (the Field, the DetCics method that gives it the record's block). A
+        POINTER item takes the block's handle (setBlock); `ADDRESS OF rec`, a LINKAGE 01 record, is addressed to the block
+        as SET ADDRESS OF rec TO ptr would (setBlockAt). Any other record is refused by name."""
+        import re
+
+        from gitgalaxy.tools.cobol_to_java.det.cics import CicsError
+        from gitgalaxy.tools.cobol_to_java.det.gen import Untranslatable
+
+        m = re.fullmatch(r"(?is)\s*ADDRESS\s+OF\s+([A-Z][A-Z0-9-]*)\s*", text)
+        if m is None:
+            return self.pointer(text), "setBlock"
+        try:
+            return self.g.address_record(m.group(1)), "setBlockAt"
+        except Untranslatable as e:
+            raise CicsError(str(e)) from None
+
     def read_set(self, verb: str, opts: dict, ind: str) -> list[str]:
         """#5042 (X58): READ / READNEXT / READPREV SET(pointer): as the INTO form (the same store lookups, holds and
         tokens), but the record goes into a new block the pointer addresses. READ's LENGTH(data-area) is set to the
@@ -298,7 +315,7 @@ class FileControlCommands:
         import re
 
         g = self.g
-        ptr = self.pointer(opts["SET"])
+        ptr, put = self.set_target(opts["SET"])
         st = self.store(opts)
         file = self.file_name(_arg(opts.get("DATASET") or opts.get("FILE")))
         rid = self.field(opts["RIDFLD"])
@@ -320,7 +337,7 @@ class FileControlCommands:
             out = [f"{ind}byte[] {rec} = DetCics.bytes({rid});",
                    f"{ind}CicsTask.FileRead<byte[]> {r} = {call};",
                    f"{ind}if ({r}.record() != null) {{",
-                   f'{ind}    DetCics.setBlock(task, {ptr}, "READ " + {file}, {r}.record(), {str(update).lower()});',
+                   f'{ind}    DetCics.{put}(task, {ptr}, "READ " + {file}, {r}.record(), {str(update).lower()});',
                    *([f"{ind}    heldKey.put({file}, {held});"] if "UPDATE" in opts and "TOKEN" not in opts else []),
                    *self.token_out(opts, file, st, r, f"{ind}    ")]  # fmt: skip
             if length is not None:
@@ -335,7 +352,7 @@ class FileControlCommands:
                f"{ind}if ({r}.normal()) {{",
                f"{ind}    DetCics.put({rid}, {r}.key().getBytes(CS));",
                f"{ind}    byte[] {got} = {st}.find({r}.key().getBytes(CS)).orElse(null);",
-               f'{ind}    if ({got} != null) DetCics.setBlock(task, {ptr}, "BROWSE " + {file}, {got}, true);',
+               f'{ind}    if ({got} != null) DetCics.{put}(task, {ptr}, "BROWSE " + {file}, {got}, true);',
                f"{ind}}}"]  # fmt: skip
         return out + self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)
 

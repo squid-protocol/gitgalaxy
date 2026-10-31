@@ -490,7 +490,14 @@ def cmd_preview(opts: argparse.Namespace) -> int:
     if opts.page:
         rehearsal = {"estate": opts.estate, "eligible": eligible, "out_of_scope": out,
                      "programs": {k: {"attempts": [], "final": "open"} for k in eligible}}  # fmt: skip
-        facts = case_facts(_parse_pairs(opts.case, "--case"), opts.cases_dir)
+        roots: list[Path] = []
+        try:  # the burned corpora, when they are on this box: the record layouts are read from them
+            import cics_census as cc
+
+            roots = [cc.mainframe_root(None)]
+        except (SystemExit, OSError):
+            roots = []
+        facts = case_facts(_parse_pairs(opts.case, "--case"), opts.cases_dir, roots)
         opts.page.write_text(
             trial_page({"estates": [], "trials": []}, rehearsal, rehearsal=True, facts=facts), encoding="utf-8"
         )
@@ -776,11 +783,14 @@ def _pct(n: int, d: int) -> str:
     return f"{100 * n / d:.0f}%" if d else "-"
 
 
-def case_facts(cases: dict[str, str] | None, cases_dir: Path | None) -> dict[str, dict[str, Any]]:
+def case_facts(
+    cases: dict[str, str] | None, cases_dir: Path | None, roots: list[Path] | None = None
+) -> dict[str, dict[str, Any]]:
     """{program: tests, input generation, coverage} for the programs that have an equivalence case (#4493).
 
     The harness report's own readers, so a trial page and the estate page can't disagree. Case JSON only; no estate
-    code is read. A program with no case is absent: its numbers stay 'not measured'."""
+    code is read. A program with no case is absent: its numbers stay 'not measured'. With corpus `roots`, each generated
+    record's layout limit is read too (`inputs.records`); the keys are present only when non-empty."""
     if not cases:
         return {}
     import harness_report as hr
@@ -790,7 +800,16 @@ def case_facts(cases: dict[str, str] | None, cases_dir: Path | None) -> dict[str
     for prog, name in sorted(cases.items()):
         case = hr.load_case(root, name)
         if case:
-            out[prog] = {"case": name, "tests": hr.scenario_count(case), "inputs": hr.input_generation(case),
+            inputs = hr.input_generation(case)
+            if roots is not None and inputs["generated"]:
+                inputs["records"] = [
+                    g | {"cause": c} | ({"symbols": sy} if sy else {})
+                    for g in inputs["generated"]
+                    for c, sy in [hr.record_limit(roots, case, g["dataset"])]
+                ]
+            if kinds := hr.non_vsam_kinds(case):
+                inputs["non_vsam"] = kinds
+            out[prog] = {"case": name, "tests": hr.scenario_count(case), "inputs": inputs,
                          "coverage": hr.case_coverage(root, name)}  # fmt: skip
     return out
 
@@ -866,6 +885,16 @@ def trial_page(
         if missing:
             out.append("")
             out.append(f"No equivalence case yet (inputs not measured): {', '.join(missing)}.")
+        import harness_report as hr
+
+        rows = [{"program": k, "case": f["case"]} for k, f in facts.items()]
+        limits = hr.input_blockers(rows, {f["case"]: f["inputs"] for f in facts.values()},
+                                   {f["case"]: f["tests"] for f in facts.values()})  # fmt: skip
+        if limits:
+            out += ["", "## Input-generation limits (what stops a test being generated)", ""]
+            for n, b in enumerate(limits, 1):
+                out.append(f"{n}. {b['fix']} Holds back {b['tests_held']} tests across {len(b['programs'])} programs.")
+                out += [f"   - {it}" for it in b["items"]]
     out += ["", "## Out of scope (declared at start)", ""]
     by_reason: dict[str, list[str]] = {}
     for key, why in sorted(oos.items()):

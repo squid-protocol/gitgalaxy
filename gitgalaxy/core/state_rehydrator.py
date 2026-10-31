@@ -650,73 +650,6 @@ class StateRehydrator:
                     },
                 )
 
-                # #3454: program entry points.
-                entry_points_by_file = _restore_child_table(
-                    cursor,
-                    repo_name,
-                    baseline_hash,
-                    "entry_point_data",
-                    "SELECT fd.file_path AS _fp, ep.kind, ep.entry_name, ep.params, ep.line_number AS line "
-                    "FROM entry_point_data ep JOIN file_data fd ON ep.file_id = fd.id "
-                    "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY ep.id",
-                    lambda r: {
-                        "kind": r["kind"],
-                        "entry_name": r["entry_name"],
-                        "params": r["params"],
-                        "line": int(r["line"] or 0),
-                    },
-                )
-
-                # #3450: IMS DL/I calls, aliased back to the payload keys.
-                dli_by_file = _restore_child_table(
-                    cursor,
-                    repo_name,
-                    baseline_hash,
-                    "dli_call_data",
-                    'SELECT fd.file_path AS _fp, dc.interface, dc.function, dc.function_operand, dc.pcb, dc.io_area, dc.segments, dc.ssas, dc.where_text AS "where", dc.psb, dc.line_number AS "line" '
-                    "FROM dli_call_data dc JOIN file_data fd ON dc.file_id = fd.id "
-                    "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY dc.id",
-                    lambda r: {
-                        "interface": r["interface"],
-                        "function": r["function"],
-                        "function_operand": r["function_operand"],
-                        "pcb": r["pcb"],
-                        "io_area": r["io_area"],
-                        "segments": r["segments"],
-                        "ssas": r["ssas"],
-                        "where": r["where"],
-                        "psb": r["psb"],
-                        "line": int(r["line"] or 0),
-                    },
-                )
-
-                # #3477: IMS PSB / DBD macros and region steps.
-                ims_gen_by_file = _restore_child_table(
-                    cursor,
-                    repo_name,
-                    baseline_hash,
-                    "ims_gen_data",
-                    'SELECT fd.file_path AS _fp, ig.kind, ig.name, ig.parent, ig.owner, ig.dbd_name, ig.procopt, ig.pcb_type, ig.access, ig.bytes, ig.start_pos AS "start", ig.psb_name, ig.program, ig.attributes, ig.line_number AS "line" '
-                    "FROM ims_gen_data ig JOIN file_data fd ON ig.file_id = fd.id "
-                    "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY ig.id",
-                    lambda r: {
-                        "kind": r["kind"],
-                        "name": r["name"],
-                        "parent": r["parent"],
-                        "owner": r["owner"],
-                        "dbd_name": r["dbd_name"],
-                        "procopt": r["procopt"],
-                        "pcb_type": r["pcb_type"],
-                        "access": r["access"],
-                        "bytes": int(r["bytes"]) if r["bytes"] is not None else None,
-                        "start": int(r["start"]) if r["start"] is not None else None,
-                        "psb_name": r["psb_name"],
-                        "program": r["program"],
-                        "attributes": r["attributes"],
-                        "line": int(r["line"] or 0),
-                    },
-                )
-
                 # #3820: SPECIAL-NAMES currency strings / decimal point.
                 special_by_file = _restore_child_table(
                     cursor,
@@ -788,9 +721,6 @@ class StateRehydrator:
                     node["file_control"] = file_control_by_file.get(rel_path, [])
                     node["vsam_defines"] = vsam_defines_by_file.get(rel_path, [])
                     node["job_flow"] = job_flow_by_file.get(rel_path, [])
-                    node["entry_points"] = entry_points_by_file.get(rel_path, [])
-                    node["dli_calls"] = dli_by_file.get(rel_path, [])
-                    node["ims_gen"] = ims_gen_by_file.get(rel_path, [])
                     node["special_names"] = special_by_file.get(rel_path, [])  # #3820
                     node["compiler_options"] = options_by_file.get(rel_path, [])  # #3828
             except sqlite3.Error as fc_err:

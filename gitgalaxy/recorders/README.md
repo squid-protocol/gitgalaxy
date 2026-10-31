@@ -115,6 +115,18 @@ One row per RUN/START/FETCH/RETRIEVE/CANCEL/DELAY/POST/WAIT/ENQ/DEQ command (`ve
 
 One row per DFHLS2WS / DFHLS2JS (provider) or DFHWS2LS / DFHJS2LS (requester) step of a web-services assistant JCL: `assistant`, `direction`, `program`, `uri`, the `request` / `response` copybook members, `interface` (PGMINT), `container`, `binding` (WSBIND), `document` (WSDL or JSON schema), `transaction_id` (the `transaction` payload key; TRANSACTION is an SQL keyword) and `line_number`. Per-file, cascade-deleted with `file_data`, restored on delta scans.
 
+### `entry_point_data` — program entry points (#3454)
+
+One row per PROCEDURE DIVISION [USING ...] or ENTRY 'X' [USING ...]: `kind` (`PROCEDURE` / `ENTRY`), `entry_name` (the ENTRY literal), `params` (comma-joined by position, BY VALUE / CONTENT prefixed) and `line_number`. Per-file, cascade-deleted with `file_data`, restored on delta scans.
+
+### `dli_call_data` — IMS DL/I calls (#3450)
+
+One row per EXEC DLI command or CALL 'CBLTDLI' / 'AIBTDLI', operands as written: `interface` (`EXEC` / `CALL`), `function` (the EXEC command; NULL on a CALL), `function_operand`, `pcb`, `io_area`, `segments`, `ssas`, `where_text`, `psb` and `line_number`. Per-file, cascade-deleted with `file_data`, restored on delta scans.
+
+### `ims_gen_data` — IMS PSB / DBD macros and region steps (#3477)
+
+One row per PSBGEN / PCB / SENSEG / DBD / DATASET / SEGM / FIELD / LCHILD macro or JCL `DFSRRC00` REGION step: `kind`, `name`, `parent`, `owner`, `dbd_name`, `procopt`, `pcb_type`, `access`, `bytes`, `start_pos`, `psb_name`, `program`, `attributes` and `line_number`. Per-file, cascade-deleted with `file_data`, restored on delta scans.
+
 ### `copy_statement_data` — section-level COPY ... REPLACING (#4457)
 
 One row per COPY statement that no `record_data` entry carries (after a section header or FD, or before a section's first entry): `member`, `library`, `replacing` (JSON `[[from, to(, LEADING|TRAILING)], ...]`, as in `record_data.copy_replacing`), `section`, `fd_name`, `after_ordinal` (the `record_data` ordinal of the entry above it, NULL when none) and `line_number`. Per-file, cascade-deleted with `file_data`, restored on delta scans.

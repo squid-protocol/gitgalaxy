@@ -527,6 +527,27 @@ def _getmain(opts: dict[str, str | None], labels: list[str] | None) -> list[str]
     return lines + _call("GGCGETM", args) + _resp(opts, True, labels)
 
 
+def _load(opts: dict[str, str | None], program: list[str]) -> list[str]:
+    """#6876 (register X65): LOAD PROGRAM(name) [SET(ptr)] [LENGTH(halfword)] -> GGCLDPG (GG-FLAGS names the options given; the stub
+    sets the pointer to a non-null image and LENGTH to its length, PGMIDERR for a program the CSD does not define). HOLD, ENTRY and
+    FLENGTH are not modelled by the stub."""
+    key = "LOAD"
+    _check_spec(key, opts, ("LOAD",), lambda bad: [f"{key} {o}" for o in bad])
+    for o in ("HOLD", "ENTRY", "FLENGTH"):
+        if o in opts:
+            raise _stub_only(f"LOAD {o}")
+    if not opts.get("PROGRAM"):
+        raise Unsupported(NEEDS_ARGUMENT, [key])
+    flags = [o for o in ("SET", "LENGTH") if o in opts]
+    for o in flags:
+        if not opts[o]:
+            raise Unsupported(NEEDS_ARGUMENT, [key])
+    ptr = f"BY REFERENCE {_pointer(key, opts['SET'])}" if "SET" in opts else "BY REFERENCE GG-FLAGS"
+    length = f"BY REFERENCE {opts['LENGTH']}" if "LENGTH" in opts else "BY REFERENCE GG-FLAGS"
+    mark = f"MOVE '{' '.join(flags)}' TO GG-FLAGS" if flags else "MOVE SPACES TO GG-FLAGS"
+    return [*program, mark, *_call("GGCLDPG", [ptr, length])]
+
+
 def _address(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
     """#5079 (register X59): ADDRESS EIB(ptr) / COMMAREA(ptr) / TWA(ptr) / TCTUA(ptr) -> GGCADDR, which sets the pointer to the address of the EIB /
     the program's DFHCOMMAREA (NORMAL: the command has no condition). A task with no COMMAREA (EIBCALEN 0) is refused by the
@@ -822,6 +843,13 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
         return _getmain(opts, labels)
     if verb == "FREEMAIN":
         return _freemain(opts, labels)
+    if verb == "LOAD":  # #6876 (X65): a program loaded by this task, addressed by a pointer
+        return _load(opts, [name(opts.get("PROGRAM"), "GG-NAME1")]) + _resp(opts, True, labels)
+    if verb == "RELEASE":
+        _check_spec("RELEASE", opts, (verb,), lambda bad: [f"RELEASE {o}" for o in bad])
+        if not opts.get("PROGRAM"):
+            raise Unsupported(NEEDS_ARGUMENT, ["RELEASE"])
+        return [name(opts["PROGRAM"], "GG-NAME1")] + _call("GGCRLPG", []) + _resp(opts, True, labels)
     if verb == "ADDRESS":  # #5079 (X59): a pointer to the EIB / the COMMAREA
         return _address(opts, labels)
     if verb == "WEB" and "RETRIEVE" in opts:  # #4941 (X41): the document of the last WEB SEND

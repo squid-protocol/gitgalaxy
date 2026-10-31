@@ -851,6 +851,15 @@ def main() -> int:
     for key in ("source_encoding", "data_encoding"):  # #3815: the CLI overrides the case
         if getattr(args, key):
             case[key] = getattr(args, key)
+    if case.get("kind") == "job":  # #4268: batch steps chained through datasets, each with its own corpus
+        if args.record or args.port or args.reuse or args.case_file:
+            raise SystemExit("a job case: no --record / --port / --reuse / --case-file (they name one step's port)")
+        import equivalence_job
+
+        work = equivalence_job.work_dir(args.keep, args.case)
+        return equivalence_job.run_case(
+            sys.modules[__name__], case, work, port=not args.generated_only, cobol_only=args.cobol_only
+        )
     data_encoding(case)  # a bad declaration fails here, not after the COBOL build
     if args.corpus_dir:  # #4269: a synthetic estate (a test's), not a manifest corpus
         corpus = args.corpus_dir.resolve()

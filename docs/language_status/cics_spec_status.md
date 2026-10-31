@@ -6,7 +6,7 @@ Per command the spec (`gitgalaxy/standards/cics`, design: [cics_command_spec.md]
 
 Census use is `programs (burned / non-burned)`, counts only. A spec key is the det translator's: `parse_exec` + `command_key`, then the name-only entry `whole_refusal` finds.
 
-**257 entries:** 103 full, 2 engine-only, 152 name-only.
+**257 entries:** 105 full, 0 engine-only, 152 name-only.
 
 ## Spec PRs (cics_command_spec.md section 7)
 
@@ -69,6 +69,8 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | RETURN | full | yes (8 options) | yes | X27 | — | 122 (93 / 29) | ca-channel-containers, ca-link-lengths, ca-xctl-versions, gt-assign-startcode, gt-start-options, gt-start-retrieve, gt-terminal-coalesce, hc-abend-link, hc-eoc-error, hc-handle-aid, hc-ignore-error, hc-perform-range, hc-terminal-eoc, hc-terminal-receive, hx-attr-bytes, hx-extended-cursor, pc-aid-menu, pc-wizard |
 | ABEND | full | yes (4 options) | yes | — | — | 57 (47 / 10) | gt-start-retrieve, hc-abend-link |
 | HANDLE ABEND | full | yes (4 options, 1 refused by name) | yes | X67 | — | 13 (13 / 0) | hc-abend-link |
+| LOAD | full | yes (6 options, 3 refused by name) | yes | X65 | — | 0 | — |
+| RELEASE | full | yes (4 options) | yes | X65 | — | 0 | — |
 | HANDLE CONDITION | full | yes (105 options) | yes | X16 | — | 6 (6 / 0) | ca-channel-containers, hc-abend-link, hc-eoc-error, hc-ignore-error, hc-perform-range, hc-terminal-eoc, hc-terminal-receive |
 | IGNORE CONDITION | full | yes (105 options) | yes | X16 | — | 0 | hc-ignore-error, hc-perform-range |
 | HANDLE AID | full | yes (34 options) | yes | X16 | — | 5 (5 / 0) | hc-handle-aid, pc-aid-menu |
@@ -129,8 +131,6 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | WEB STARTBROWSE QUERYPARM | full | yes (5 options, 3 refused by name) | yes | X38 | http_request | 0 | — |
 | WEB READNEXT QUERYPARM | full | yes (7 options) | yes | X38 | http_request | 0 | — |
 | WEB ENDBROWSE QUERYPARM | full | yes (4 options) | yes | X38 | http_request | 0 | — |
-| LOAD | engine-only | refused whole | yes | X65 | — | 0 | — |
-| RELEASE | engine-only | refused whole | yes | X65 | — | 0 | — |
 
 ## Name-only entries a census program uses
 

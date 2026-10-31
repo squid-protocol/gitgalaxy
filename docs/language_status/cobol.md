@@ -64,7 +64,7 @@ Grouped by the phase headers `language_standards.py` uses for COBOL. Description
 | `io` | `READ WRITE REWRITE OPEN CLOSE START DELETE`, plus `EXEC SQL` and `EXEC CICS READ/WRITE/REWRITE/DELETE` — disk, database, and CICS transaction I/O |
 | `api` | `ENTRY LINKAGE SECTION CALL INVOKE EXPORT` — exposed linkage points and external entry points |
 | `state_mutation` | `MOVE COMPUTE ADD SUBTRACT MULTIPLY DIVIDE SET INITIALIZE REPLACE STRING UNSTRING` — the core of COBOL data manipulation |
-| `dead_code` | Column-7 `*` or free-format `*>` comment prefix immediately followed by a real statement verb (`MOVE COMPUTE IF PERFORM CALL EXEC`) — i.e. commented-out logic, not just any comment |
+| `dead_code` | Column-7 `*` or free-format `*>` comment prefix followed by a statement-shaped body (`MOVE x TO y`, `COMPUTE n =`, `IF operand relation`, `PERFORM para` / `UNTIL` / `VARYING` / `TIMES`, `CALL 'lit'` / `CALL n USING`, `EXEC SQL` or `EXEC CICS`) — commented-out logic; prose, headings and pseudocode that merely start with the verb do not count (#7207) |
 | `doc` | `AUTHOR.`/`DATE-WRITTEN.`/`DATE-COMPILED.`/`REMARKS.`/`INSTALLATION.` identification-division headers, or `*> @param`/`@return`/`@author`-style Doxygen-ish tags |
 | `test` | `ZUNIT CBLUNIT ASSERT TEST-CASE READY TRACE` — COBOL unit-testing framework markers |
 

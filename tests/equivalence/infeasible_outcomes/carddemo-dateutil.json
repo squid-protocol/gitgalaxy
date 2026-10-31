@@ -6,6 +6,14 @@
       "unit": "A000-MAIN",
       "line": 128,
       "kind": "EVALUATE",
+      "outcome": "OTHER",
+      "family": "R",
+      "reason": "WHEN OTHER is a CEEDAYS feedback token that is none of the nine CSUTLDTC names. IBM documents the whole set: z/OS Language Environment Programming Reference (V2R2 edition), CEEDAYS, 'The following symbolic conditions can result from this service' (p. 245), lists CEE000 and the eight severity-3 conditions CEE2EB 2507, CEE2EC 2508, CEE2ED 2509, CEE2EH 2513, CEE2EL 2517, CEE2EM 2518, CEE2EO 2520, CEE2EP 2521. These are exactly the nine 88-levels of FEEDBACK-TOKEN-VALUE (lines 62-70 of CSUTLDTC), so no documented condition falls through. The IBM i copy of the service (ssw_ibm_i_73 apis/CEEDAYS.htm) adds only CEE0501 / CEE0502 (operational descriptor data type not valid / missing) and CEE9902 (unexpected user error); those are argument-shape or internal failures, and A000-MAIN passes four fixed items (WS-DATE-TO-TEST, WS-DATE-FORMAT, OUTPUT-LILLIAN, FEEDBACK-CODE) with no operational descriptors. The model (Ceedays.java, ceedays.c) returns only 0, 2507, 2508, 2513 and 2520, each a listed arm. Assumption: CEEDAYS raises only its documented conditions; a token outside them would be undocumented IBM behaviour (the reason is IBM's documented set, not a z/OS run)."
+    },
+    {
+      "unit": "A000-MAIN",
+      "line": 128,
+      "kind": "EVALUATE",
       "outcome": "WHEN@131",
       "family": "G",
       "reason": "FC-INSUFFICIENT-DATA (CEE2EB, 2507) needs a date shorter than the picture's span. A000-MAIN sets VSTRING-LENGTH OF WS-DATE-TO-TEST to LENGTH OF LS-DATE (line 108, a PIC X(10) LINKAGE item, always 10) and the longest picture CEEDAYS is modelled for spans 10 (YYYY-MM-DD); every caller (COTRN02C, CORPT00C: 'YYYY-MM-DD'; CSUTLDPY: 'YYYYMMDD') passes a constant picture of span 8 or 10, so the date is never shorter. Ceedays.java and ceedays.c do return 2507; only this program cannot reach it."

@@ -1761,6 +1761,11 @@ states each (`none (gap)`: no entry does). Only fields a burned corpus's COBOL n
     constant (cut or blank-padded to the field), X'..' (cut or X'00'-padded) or a decimal against ZD / PD; AND / OR
     with parentheses, AND binding tighter. Applied to each input record before the sort.
   - SORTIN as a concatenation of datasets reads them in order (SORT USING F1 F2).
+  - **CH collation case (#4035, #4268).** `carddemo-sort-combtran` (COMBTRAN STEP05R, SORTIN = two datasets, key TRAN-ID 1,16,CH)
+    carries TRAN-IDs of letters A-F and digits, so IBM's EBCDIC order (a letter before a digit) differs from the oracle's byte order
+    (a digit first): executed-equivalent, SORTOUT 50/50 records equal, RETURN-CODE 0, 1/1 paragraphs. The letters are synthetic
+    input (CardDemo's IDs are digits) on characters where the two EBCDIC tables agree. Residual risk: the oracle is GnuCOBOL's
+    EBCDIC alphabet, not z/OS; L5 mutation not run.
   - **Declared difference.** The oracle's SORT rewrites a signed DISPLAY key's sign zone in the records it sorts
     (`cobc -std=ibm -fsign=EBCDIC`, cobc 3.1.2, measured 2026-10-28: an unsigned key `0001` comes out `000A`); DFSORT
     and Enterprise COBOL never change a record's bytes. The lowering therefore sorts a ZD / PD key as a copy carried

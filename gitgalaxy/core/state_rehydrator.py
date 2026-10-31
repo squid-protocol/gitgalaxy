@@ -717,40 +717,6 @@ class StateRehydrator:
                     },
                 )
 
-                # #3820: SPECIAL-NAMES currency strings / decimal point.
-                special_by_file = _restore_child_table(
-                    cursor,
-                    repo_name,
-                    baseline_hash,
-                    "special_names_data",
-                    'SELECT fd.file_path AS _fp, sn.clause, sn.value, sn.symbol, sn.line_number AS "line" '
-                    "FROM special_names_data sn JOIN file_data fd ON sn.file_id = fd.id "
-                    "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY sn.id",
-                    lambda r: {
-                        "clause": r["clause"],
-                        "value": r["value"],
-                        "symbol": r["symbol"],
-                        "line": int(r["line"] or 0),
-                    },
-                )
-
-                # #3828: CBL / PROCESS compiler options.
-                options_by_file = _restore_child_table(
-                    cursor,
-                    repo_name,
-                    baseline_hash,
-                    "compiler_options_data",
-                    'SELECT fd.file_path AS _fp, co.option, co.value, co.written, co.line_number AS "line" '
-                    "FROM compiler_options_data co JOIN file_data fd ON co.file_id = fd.id "
-                    "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY co.id",
-                    lambda r: {
-                        "option": r["option"],
-                        "value": r["value"],
-                        "written": r["written"],
-                        "line": int(r["line"] or 0),
-                    },
-                )
-
                 # The slicer's synthetic top-level buckets: callers without a
                 # function_data row, restored so their calls re-resolve.
                 synthetic_by_file = _restore_child_table(
@@ -791,8 +757,6 @@ class StateRehydrator:
                     node["entry_points"] = entry_points_by_file.get(rel_path, [])
                     node["dli_calls"] = dli_by_file.get(rel_path, [])
                     node["ims_gen"] = ims_gen_by_file.get(rel_path, [])
-                    node["special_names"] = special_by_file.get(rel_path, [])  # #3820
-                    node["compiler_options"] = options_by_file.get(rel_path, [])  # #3828
             except sqlite3.Error as fc_err:
                 print(f"⚠️ Could not rehydrate functions/classes (structure counts may drift): {fc_err}")
 

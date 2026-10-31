@@ -351,6 +351,24 @@ def test_the_copy_statement_channel_round_trips_every_payload_key(tmp_path):
     assert node["section_copies"] == copies
 
 
+def test_the_special_names_and_compiler_options_channels_round_trip_every_payload_key(tmp_path):
+    names = [
+        {"clause": "CURRENCY", "value": "EUR", "symbol": "E", "line": 7},
+        {"clause": "DECIMAL-POINT", "value": "COMMA", "symbol": None, "line": 0},
+    ]
+    options = [
+        {"option": "TRUNC", "value": "BIN", "written": "TRUNC(BIN)", "line": 1},
+        {"option": "NUMPROC", "value": None, "written": "NUMPROC", "line": 1},
+    ]
+    files = [
+        {"path": "p.cbl", "lang_id": "cobol", "raw_imports": [], "special_names": names, "compiler_options": options}
+    ]
+    db = _record(tmp_path, files)
+    node = StateRehydrator(str(db)).load_state("RegistryRepo")["ram_cache"]["p.cbl"]
+    assert node["special_names"] == names
+    assert node["compiler_options"] == options
+
+
 def test_a_baseline_without_the_refmod_texts_restores_them_as_null():
     conn = sqlite3.connect(":memory:")
     conn.row_factory = sqlite3.Row
@@ -424,8 +442,6 @@ _GALAXY_IR = Path(__file__).resolve().parents[2] / "gitgalaxy" / "tools" / "cobo
 # slices). A table leaves this set when its channel is migrated; a new channel is never added here.
 _UNMIGRATED_IR_TABLES = frozenset(
     {
-        "special_names_data",
-        "compiler_options_data",
         "ims_gen_data",
         "dli_call_data",
         "entry_point_data",

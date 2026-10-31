@@ -40,6 +40,10 @@ PROGRAMS = {
     "gt-web-client": ("GTWCLI", ("GTWCLI",)),  # #4767: WEB OPEN / CONVERSE / CLOSE against a stated peer
     "gt-web-parse-url": ("GTWPARS", ("GTWPARS",)),  # #4767: WEB PARSE URL, IPv6 host and LENGERR
     "ca-getmain-pointer": ("CAGM", ("CAGMPT", "CAGMZ")),  # #6876: GETMAIN / FREEMAIN DATA, pointer arithmetic
+    "ca-load-set": (
+        "CALD",
+        ("CALDST", "CALDSX"),
+    ),  # #6876: LOAD / RELEASE; CALDTG (never run) has no CICS skeleton, see X65
 }
 
 

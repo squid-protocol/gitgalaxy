@@ -372,6 +372,26 @@
     }
    }
   },
+  "ca-receive-retrieve-set/CARCST": {
+   "live": 1,
+   "outcomes": 5,
+   "scenarios": {
+    "short-input": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "32:true",
+      "40:none"
+     ]
+    }
+   }
+  },
+  "ca-receive-retrieve-set/CARTWK": {
+   "live": 1,
+   "outcomes": 2,
+   "scenarios": {}
+  },
   "ca-xctl-versions/CAXA": {
    "live": 1,
    "outcomes": 3,

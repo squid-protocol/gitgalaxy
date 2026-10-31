@@ -115,6 +115,22 @@ One row per RUN/START/FETCH/RETRIEVE/CANCEL/DELAY/POST/WAIT/ENQ/DEQ command (`ve
 
 One row per DFHLS2WS / DFHLS2JS (provider) or DFHWS2LS / DFHJS2LS (requester) step of a web-services assistant JCL: `assistant`, `direction`, `program`, `uri`, the `request` / `response` copybook members, `interface` (PGMINT), `container`, `binding` (WSBIND), `document` (WSDL or JSON schema), `transaction_id` (the `transaction` payload key; TRANSACTION is an SQL keyword) and `line_number`. Per-file, cascade-deleted with `file_data`, restored on delta scans.
 
+### `job_submit_data` — internal-reader job submission (#3448)
+
+One row per COBOL literal `//NAME JOB` / `//STEP EXEC` card or JCL DD routed to `SYSOUT=(x,INTRDR)`: `kind` (`JOB` / `EXEC` / `INTRDR`), `step_name`, `submit_name` (the `name` payload key), `target_kind` (`PROC` / `PGM` / `DSN`), `target` and `line_number`. Per-file, cascade-deleted with `file_data`, restored on delta scans.
+
+### `mq_call_data` — IBM MQ calls (#3447)
+
+One row per `CALL 'MQxxx'`: `verb`, `direction`, `queue_operand`, `queue_name`, `queue_resolution`, `queue_candidates`, `handle`, `open_line` (its MQOPEN), `options` and `line_number`. Per-file, cascade-deleted with `file_data`, restored on delta scans.
+
+### `uow_handler_data` — units of work and error handling (#3453)
+
+One row per SYNCPOINT / COMMIT / ROLLBACK, HANDLE CONDITION / ABEND / AID, explicit ABEND or RESP check: `kind`, `source` (`CICS` / `SQL`), `verb`, `condition_name` (the `condition` payload key), `target`, `target_kind`, `resp_var`, `attributes` and `line_number`. Per-file, cascade-deleted with `file_data`, restored on delta scans.
+
+### `file_control_data` — FILE-CONTROL SELECTs (#3455)
+
+One row per SELECT: `select_name`, `assign_name` (the `assign` payload key), `organization`, `access_mode`, `record_key`, `alternate_keys`, `relative_key`, `file_status`, `fd_copies` and `line_number`. Per-file, cascade-deleted with `file_data`, restored on delta scans.
+
 ### `entry_point_data` — program entry points (#3454)
 
 One row per PROCEDURE DIVISION [USING ...] or ENTRY 'X' [USING ...]: `kind` (`PROCEDURE` / `ENTRY`), `entry_name` (the ENTRY literal), `params` (comma-joined by position, BY VALUE / CONTENT prefixed) and `line_number`. Per-file, cascade-deleted with `file_data`, restored on delta scans.

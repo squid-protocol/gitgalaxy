@@ -451,6 +451,106 @@ def test_the_entry_point_dli_call_and_ims_gen_channels_round_trip_every_payload_
     assert node["ims_gen"] == gen
 
 
+def test_the_job_submit_mq_call_uow_handler_and_file_control_channels_round_trip_every_payload_key(tmp_path):
+    submits = [
+        {"kind": "EXEC", "step": "S1", "name": None, "target_kind": "PGM", "target": "PGMA", "line": 7},
+        {"kind": "JOB", "step": None, "name": "JOBA", "target_kind": None, "target": None, "line": 0},
+    ]
+    mq = [
+        {
+            "verb": "MQOPEN",
+            "direction": "put",
+            "operand": "Q-NAME",
+            "queue": "Q.ONE",
+            "resolution": "literal",
+            "candidates": None,
+            "handle": "H1",
+            "open_line": None,
+            "options": "MQOO-OUTPUT",
+            "line": 10,
+        },
+        {
+            "verb": "MQPUT",
+            "direction": None,
+            "operand": None,
+            "queue": None,
+            "resolution": "ambiguous",
+            "candidates": "A,B",
+            "handle": "H1",
+            "open_line": 10,
+            "options": None,
+            "line": 0,
+        },
+    ]
+    uow = [
+        {
+            "kind": "HANDLE_CONDITION",
+            "source": "CICS",
+            "verb": "HANDLE CONDITION",
+            "condition": "NOTFND",
+            "target": "ERR-PARA",
+            "target_kind": "LABEL",
+            "resp_var": None,
+            "attributes": "x",
+            "line": 20,
+        },
+        {
+            "kind": "COMMIT",
+            "source": "SQL",
+            "verb": None,
+            "condition": None,
+            "target": None,
+            "target_kind": None,
+            "resp_var": "WS-RESP",
+            "attributes": None,
+            "line": 0,
+        },
+    ]
+    selects = [
+        {
+            "select_name": "F1",
+            "assign": "DD1",
+            "organization": "INDEXED",
+            "access_mode": "DYNAMIC",
+            "record_key": "K1",
+            "alternate_keys": "A1+DUP",
+            "relative_key": None,
+            "file_status": "FS",
+            "fd_copies": "CPY",
+            "line": 5,
+        },
+        {
+            "select_name": "F2",
+            "assign": None,
+            "organization": None,
+            "access_mode": None,
+            "record_key": None,
+            "alternate_keys": None,
+            "relative_key": "RK",
+            "file_status": None,
+            "fd_copies": None,
+            "line": 0,
+        },
+    ]
+    files = [
+        {
+            "path": "p.cbl",
+            "lang_id": "cobol",
+            "raw_imports": [],
+            "job_submits": submits,
+            "mq_calls": mq,
+            "uow_handlers": uow,
+            "file_control": selects,
+        }
+    ]
+    db = _record(tmp_path, files)
+    node = StateRehydrator(str(db)).load_state("RegistryRepo")["ram_cache"]["p.cbl"]
+    assert node["job_submits"] == submits
+    assert node["mq_calls"] == mq
+    assert node["uow_handlers"] == uow
+    assert node["file_control"] == selects
+
+
 def test_a_baseline_without_the_refmod_texts_restores_them_as_null():
     conn = sqlite3.connect(":memory:")
     conn.row_factory = sqlite3.Row
@@ -525,11 +625,7 @@ _GALAXY_IR = Path(__file__).resolve().parents[2] / "gitgalaxy" / "tools" / "cobo
 _UNMIGRATED_IR_TABLES = frozenset(
     {
         "job_flow_data",
-        "file_control_data",
         "vsam_define_data",
-        "uow_handler_data",
-        "mq_call_data",
-        "job_submit_data",
     }
 )
 

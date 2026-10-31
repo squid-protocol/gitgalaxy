@@ -46,3 +46,14 @@ def test_the_x17_note_quotes_the_ibm_wording():
         "An attempt was made to change the data-type of an existing container.",
     ):
         assert quote in note, quote
+
+
+def test_both_runtimes_refuse_only_the_changed_type_and_the_c_and_java_guards_agree():
+    """The refusal is one guard per runtime, on a DIFFERENT type only: the Java task and the C stub throw/refuse at
+    the same point, and a PUT naming the existing type is not refused (the container keeps its own type)."""
+    java = (ROOT / "gitgalaxy/tools/cobol_to_java/cics_task_containers.py").read_text(encoding="utf-8")
+    c_src = (ROOT / "tests/equivalence/cics/ggcics_containers.c").read_text(encoding="utf-8")
+    assert 'c != null && type != null && c.bit != "BIT".equals(type)' in java
+    assert "on an existing container of the other " in java
+    assert "k && (bit || chr) && k->bit != bit" in c_src
+    assert "PUT CONTAINER changing an existing container's data type" in c_src

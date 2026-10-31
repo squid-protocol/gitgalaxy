@@ -68,7 +68,7 @@ This is genuinely optional, and separate for a reason: it's the only job in this
 The `tool` input determines which GitGalaxy program executes. Choose the right tool for your specific pipeline stage:
 
 ### 1. The Orchestrator (Reporting & Observability)
-* **[`galaxyscope`](docs/wiki/01-02-galaxyscope-cli-reference.md)**: The core mapping engine. It calculates the 13 per-file structural vectors ([reference](docs/vectors.md)), runs ML threat inference when an XGBoost model is supplied and `full_precision` is on, and generates outputs (LLM Markdown Briefs, GPU Payloads, SQLite DBs, SARIF, and CycloneDX SBOM via `--sarif-only`/`--sbom-only`). *Does not fail the pipeline; strictly for reporting and cartography.*
+* **[`galaxyscope`](docs/wiki/01-02-galaxyscope-cli-reference.md)**: The core mapping engine. It calculates the 13 per-file structural vectors ([reference](docs/vectors.md)), runs ML threat inference when an XGBoost model is supplied and `full_precision` is on, and generates outputs (LLM Markdown Briefs, GPU Payloads, SQLite DBs, SARIF, and CycloneDX SBOM via `--sarif-only`/`--sbom-only`). *Reports only by default: it fails the pipeline only when you pass a gate (`--fail-on-secrets`, `--fail-on-malware`, `--max-risk-exposure`, `--max-systemic-threat`). Gates do not run on an `--incremental` scan.*
 
 ### 2. The Sentinels (Zero-Trust Enforcement)
 *These tools are designed to `sys.exit(1)` and break the build instantly if a threat is detected.*
@@ -99,10 +99,10 @@ Configure the GitGalaxy action via the `with` block in your workflow step.
 
 ### Understanding the `--paranoid` Flag
 
-When passing arguments via `args`, the `--paranoid` flag allows you to control the sensitivity of the [Security Lens](docs/wiki/02-06-security-lens.md).
+When passing arguments via `args`, the `--paranoid` flag raises the sensitivity of hardcoded-secret scoring. See the [CLI contract](docs/wiki/01-02-galaxyscope-cli-reference.md).
 
-* **Standard Mode (Omitted):** Built for typical enterprise environments. Evaluates codebase architecture using high-confidence security thresholds to prevent CI/CD fatigue. Focuses on undeniable architectural flaws and confirmed vulnerabilities. This is the recommended setting for standard blocking pipelines.
-* **Paranoid Mode (`--paranoid`):** Lowers all safety thresholds to their minimums, turning the engine into a hyper-sensitive threat hunter. It provides a full list of all *possible* issues, structural anomalies, and theoretical attack vectors. **Warning:** This mode is highly false-positive rich by design. It is intended for rigorous security audits, zero-trust sandbox evaluations, and aggressive red-teaming where you want to manually review every potential structural weakness.
+* **Standard Mode (Omitted):** The default `secrets_risk` threshold of 3.0 and slope of 1.0. This is the recommended setting for standard blocking pipelines.
+* **Paranoid Mode (`--paranoid`):** Lowers the `secrets_risk` threshold to 0.5, raises its slope to 2.0, and lifts the 2.0 cap on its amplifiers, so secrets score higher and more false positives appear. No other vector or threshold changes. Use it for security audits and sandbox evaluations of third-party code. `--paranoid` changes scores only; it fails a build only alongside a gate such as `--fail-on-secrets`.
 
 ---
 

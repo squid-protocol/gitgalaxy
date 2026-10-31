@@ -1,8 +1,7 @@
 """#5274: the task / interval control family of the det CICS translator, split out of det/cics.py -- START and RETRIEVE
 (#4270, #4950), RUN TRANSID / FETCH / FREE CHILD (#4884), DELAY, POST, WAIT EVENT, CANCEL, CONVERSE and SEND CONTROL,
 onto CicsTask. `Cics` inherits these methods; its command dispatch and `command_key` stay the registry. The
-translator's shared helpers are imported inside each method, as det/cics_containers.py does: a module-level import
-would close a cycle."""
+translator's shared helpers come from det/cics_common.py (#7153), which imports nothing back from cics.py or gen.py."""
 
 from __future__ import annotations
 
@@ -44,7 +43,7 @@ class TaskControlCommands:
         request's expiry, INVREQ RESP2 4 / 5 / 6, LENGERR, TRANSIDERR, TERMIDERR and IOERR are CicsTask's, through
         RESP / HANDLE CONDITION. FROM's bytes go in the region's page, as a TS item's do (#4528): the started task's
         RETRIEVE reads them back into its own storage's page."""
-        from gitgalaxy.tools.cobol_to_java.det.cics import SPEC, CicsError, _arg, _msg, _one_of
+        from gitgalaxy.tools.cobol_to_java.det.cics_common import SPEC, CicsError, _arg, _msg, _one_of
 
         if not opts.get("TRANSID"):
             raise CicsError(_msg("START", "required", "TRANSID"))
@@ -91,7 +90,7 @@ class TaskControlCommands:
         block of task storage the pointer addresses (DetCics.setBlock), LENGTH its length. WAIT is refused (OPTIONS)."""
         import re
 
-        from gitgalaxy.tools.cobol_to_java.det.cics import CicsError, _arg, _msg, _one_of
+        from gitgalaxy.tools.cobol_to_java.det.cics_common import CicsError, _arg, _msg, _one_of
 
         into = opts.get("INTO")
         length = _one_of(opts, "LENGTH", "FLENGTH")
@@ -139,7 +138,7 @@ class TaskControlCommands:
         """RUN TRANSID CHILD (IBM CICS TS, EXEC CICS RUN TRANSID) on CicsTask.runTransid: the child task runs once this task
         has ended (the harness's scheduler); CHILD's 16-character area gets the child token on NORMAL; TRANSIDERR
         RESP2 1 through RESP / HANDLE CONDITION."""
-        from gitgalaxy.tools.cobol_to_java.det.cics import NEEDS_ARGUMENT, CicsError, _msg, _option
+        from gitgalaxy.tools.cobol_to_java.det.cics_common import NEEDS_ARGUMENT, CicsError, _msg, _option
 
         transid, child = _option(opts, "TRANSID"), _option(opts, "CHILD")
         if not transid or not child:
@@ -158,7 +157,7 @@ class TaskControlCommands:
         (milliseconds) or neither (it waits); on NORMAL the token goes to ANY, the reply channel's name to CHANNEL, the
         abend code to ABCODE (only for a child that abended) and the completion status's CVDA to COMPSTATUS. The
         conditions (NOTFINISHED 52 / 53, NOTFND, INVREQ 50 / 52) through RESP / HANDLE CONDITION."""
-        from gitgalaxy.tools.cobol_to_java.det.cics import CicsError, _arg, _msg, _option
+        from gitgalaxy.tools.cobol_to_java.det.cics_common import CicsError, _arg, _msg, _option
 
         form = key.split()[1]
         token = _option(opts, form)
@@ -192,7 +191,7 @@ class TaskControlCommands:
     def free_child(self, opts: dict, ind: str) -> list[str]:
         """#4950: FREE CHILD(token) (IBM CICS TS, EXEC CICS FREE CHILD) on CicsTask.freeChild: INVREQ 50 for a token
         that is not a child's or was freed, through RESP / HANDLE CONDITION."""
-        from gitgalaxy.tools.cobol_to_java.det.cics import CicsError, _msg, _option
+        from gitgalaxy.tools.cobol_to_java.det.cics_common import CicsError, _msg, _option
 
         token = _option(opts, "CHILD")
         if not token:
@@ -207,7 +206,7 @@ class TaskControlCommands:
         takes no time (X4): NORMAL at once, after the RUN children the wait dispatches. TIME (a time of day) and a
         value out of range are refused in a task with RUN children (CicsTask.delay). #6271 (X72): a scenario's planned
         EXPIRED / INVREQ (CicsTask.planned) answers instead, and the delay is not performed."""
-        from gitgalaxy.tools.cobol_to_java.det.cics import _arg
+        from gitgalaxy.tools.cobol_to_java.det.cics_common import _arg
 
         def num(o: str) -> str:
             return f"Long.valueOf({self._number(_arg(opts[o]))})" if o in opts else "null"
@@ -235,7 +234,7 @@ class TaskControlCommands:
         SET ADDRESS OF reads, zero until posted); EXPIRED and INVREQ RESP2 4 / 5 / 6 leave it as it was. No REQID: IBM
         "generates one" and returns it in EIBREQID, which gets CicsTask's POSTnnnn (ASSUMED). No expiry option:
         INTERVAL(0). The conditions go through RESP / HANDLE CONDITION."""
-        from gitgalaxy.tools.cobol_to_java.det.cics import CicsError, _arg, _msg
+        from gitgalaxy.tools.cobol_to_java.det.cics_common import CicsError, _arg, _msg
 
         whens = [w for w in ("INTERVAL", "TIME", "AFTER", "AT") if w in opts]
         if len(whens) > 1:
@@ -260,7 +259,7 @@ class TaskControlCommands:
         a POST made is posted at its expiry (the clock runs to it; a task takes no time, X4), so the task resumes at once;
         INVREQ RESP2 2 for a null pointer. An address that is no POST's area, or one a later POST / CANCEL / START /
         DELAY ended, is refused when it runs. NAME only labels the waiting task (INQUIRE TASK): it changes nothing."""
-        from gitgalaxy.tools.cobol_to_java.det.cics import CicsError, _msg
+        from gitgalaxy.tools.cobol_to_java.det.cics_common import CicsError, _msg
 
         if not opts.get("ECADDR"):
             raise CicsError(_msg("WAIT EVENT", "required", "ECADDR"))
@@ -278,7 +277,7 @@ class TaskControlCommands:
         name by the spec entry."""
         import re
 
-        from gitgalaxy.tools.cobol_to_java.det.cics import CicsError, _arg, _msg, _one_of
+        from gitgalaxy.tools.cobol_to_java.det.cics_common import CicsError, _arg, _msg, _one_of
 
         for req in ("FROM", "INTO"):
             if not opts.get(req):
@@ -314,7 +313,7 @@ class TaskControlCommands:
     def cancel(self, opts: dict, ind: str) -> list[str]:
         """CANCEL REQID (IBM CICS TS, EXEC CICS CANCEL) on CicsTask.cancel: NORMAL for a request not yet expired,
         NOTFND when none matches "an unexpired interval control command"."""
-        from gitgalaxy.tools.cobol_to_java.det.cics import CicsError, _msg, _option
+        from gitgalaxy.tools.cobol_to_java.det.cics_common import CicsError, _msg, _option
 
         reqid = _option(opts, "REQID")
         if not reqid:
@@ -329,7 +328,8 @@ class TaskControlCommands:
         names an offset ("a halfword binary value that specifies the cursor position relative to zero"); without
         one IBM documents no meaning (symbolic cursor positioning needs a map), so it is refused. No condition it
         documents arises on a plain terminal: NORMAL."""
-        from gitgalaxy.tools.cobol_to_java.det.cics import _SEND_CONTROL, CicsError, G_jstr
+        from gitgalaxy.tools.cobol_to_java.det.cics_common import _SEND_CONTROL, CicsError
+        from gitgalaxy.tools.cobol_to_java.det.cics_common import jstr as G_jstr
 
         cursor = "null"
         if "CURSOR" in opts:

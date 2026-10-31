@@ -20,13 +20,24 @@ from gitgalaxy.standards.cics.commands.assign import (
 )
 from gitgalaxy.standards.cics.commands.handles import AID_KEYS  # noqa: F401 -- the conditions mixin reads it here
 from gitgalaxy.standards.cics.commands.send_text import TEXT_OPTIONS
-from gitgalaxy.standards.cics.commands.shared import BOTH_FORMS, NEEDS_ARGUMENT
 from gitgalaxy.standards.cics.commands.task import DATE_FORMS, NUMBER_FORMS
-from gitgalaxy.standards.cics.commands.terminal import MAP_OPTIONS, SEND_CONTROL_OPTIONS
-from gitgalaxy.standards.cics.model import GroupKind
+from gitgalaxy.standards.cics.commands.terminal import MAP_OPTIONS
 from gitgalaxy.standards.cics.resp import DFHRESP  # noqa: F401 -- tests and the conditions mixin read it here
 from gitgalaxy.tools.cobol_to_java.det import expr as E
 from gitgalaxy.tools.cobol_to_java.det import layout as L
+from gitgalaxy.tools.cobol_to_java.det.cics_common import (  # noqa: F401 -- re-exported for the mixins' old importers
+    _SEND_CONTROL,
+    REGION_PAGE,
+    CicsError,
+    KeylengthInvreq,
+    _arg,
+    _msg,
+    _one_of,
+    _option,
+    _requires,
+    jstr,
+    region_page,
+)
 from gitgalaxy.tools.cobol_to_java.det.cics_conditions import ConditionCommands  # #5274
 from gitgalaxy.tools.cobol_to_java.det.cics_containers import ContainerCommands  # #5274
 from gitgalaxy.tools.cobol_to_java.det.cics_faults import FaultCommands  # #5274
@@ -55,41 +66,6 @@ def reads_eibrcode(statements) -> bool:
     return reads_eibds(statements, EIBRCODE_WORD)
 
 
-class CicsError(Exception):
-    pass
-
-
-class KeylengthInvreq(CicsError):
-    """#5092 (X52): a KEYLENGTH IBM answers INVREQ (RESP2 25 / 26 / 42); READ emits the result, any other verb refuses."""
-
-    def __init__(self, msg: str, resp2: int):
-        super().__init__(msg)
-        self.resp2 = resp2
-
-
-# #4528: CICS's default CCSID, the region's page when the estate declares no EBCDIC one (cics-crucible SPEC 2: "every
-# byte in every area is CCSID 037")
-REGION_PAGE = "cp037"
-
-
-def region_page(declared: str | None) -> str:
-    """#4528: the JDK name of the region's code page -- the page a TS item's bytes are in on the COBOL side: the
-    estate's declared code page for the program when it is an EBCDIC one (cp273, cp277 ...: EngineCopies.page, the
-    page the engine decoded it with), else CCSID 037. An ASCII-family declaration says how the source was
-    transferred, not which page the region runs."""
-    from gitgalaxy.core.ebcdic_codecs import java_charset_name, register
-
-    register()
-    page = REGION_PAGE
-    if declared:
-        try:
-            if " ".encode(declared) == b"\x40":
-                page = declared
-        except (LookupError, UnicodeError):
-            pass
-    return java_charset_name(page)
-
-
 # #4411: every option each modelled command accepts -- the CICS command spec's (gitgalaxy/standards/cics, #4270 spec
 # PR 2): an option outside its command's set is refused by name (the statement becomes a hole), with the reason the
 # command's own spec entry gives, never accepted and ignored: a silently divergent port is worse than a visible hole.
@@ -98,20 +74,6 @@ OPTIONS: dict[str, frozenset | None] = {
     k: None if c.open_options else frozenset(c.options) for k, c in SPEC.items() if c.status == "modelled"
 }
 _FORMS = (*DATE_FORMS, *NUMBER_FORMS)
-_SEND_CONTROL = frozenset(SEND_CONTROL_OPTIONS)  # #4413: its device controls
-
-
-def _msg(key: str, kind: GroupKind, option: str, *parts: str) -> str:
-    """The message of the command's option rule (its spec Group), with the parts it names filled in."""
-    return SPEC[key].group(kind, option).msg.format(*parts)
-
-
-def _requires(key: str, option: str, needed: str) -> str:
-    """#4767: the message of the command's `requires` rule from `option` to `needed` (its spec Group)."""
-    for g in SPEC[key].groups:
-        if g.kind == "requires" and g.options[0] == option and needed in g.any_of:
-            return g.msg
-    raise KeyError(f"{key}: no requires group of {option} -> {needed}")
 
 
 def command_key(words: list[str], opts: dict) -> str:
@@ -176,13 +138,6 @@ def check_options(words: list[str], opts: dict) -> None:
 
 
 # ---- the EXEC text ----------------------------------------------------------------------------------------------
-def _arg(v: str | None) -> str:
-    """An EXEC CICS option's argument text; a bare option where one is needed is an error."""
-    if v is None:
-        raise CicsError(NEEDS_ARGUMENT)
-    return v
-
-
 # an option with no argument that can come first, so is never a verb word (#4413: RECEIVE NOTRUNCATE INTO(...))
 _BARE_OPTIONS = ("NOTRUNCATE", "NOHANDLE")  # (#4737: ASKTIME NOHANDLE)
 # a second word that is an option of the verb before it, never a verb word (#5119: IBM's own `READ UPDATE DATASET(...)`)
@@ -2331,31 +2286,10 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
         return None
 
 
-def _option(opts: dict, name: str) -> str | None:
-    """#4270: an option's argument, None when the option is not given; given without one, refused."""
-    if name not in opts:
-        return None
-    return _arg(opts[name])
-
-
-def _one_of(opts: dict, name: str, alt: str) -> str | None:
-    """#4413: the argument of option `name` or its alternative form `alt` (LENGTH / FLENGTH), None when neither is
-    given; both, or one without an argument, refused."""
-    given = [o for o in (name, alt) if o in opts]
-    if len(given) > 1:
-        raise CicsError(BOTH_FORMS.format(name, alt))
-    if given and not opts[given[0]]:
-        raise CicsError(f"{given[0]} needs an argument")
-    return opts[given[0]] if given else None
-
-
 def _literal(text: str | None) -> str | None:
     if text and text.strip()[:1] in "'\"":
         return text.strip()[1:-1].upper()
     return None
 
 
-def G_jstr(s: str) -> str:
-    from gitgalaxy.tools.cobol_to_java.det.gen import jstr
-
-    return jstr(s)
+G_jstr = jstr

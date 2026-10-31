@@ -5,7 +5,7 @@ loaded"; LENGTH "specifies a halfword binary value to be set to the length of th
 not defined. RELEASE lists INVREQ (not loaded by this task), NOTAUTH and PGMIDERR. The pieces:
 - the harness's translator (equivalence_cics): LOAD / RELEASE onto GGCLDPG / GGCRLPG, and HOLD / ENTRY / FLENGTH refused by name;
 - the stub (ggcics.c, compiled): the pointer and LENGTH set for a defined program, left alone under PGMIDERR, RELEASE's three outcomes.
-The det translator models both (test_pointer_lane_5042.py); the det ports of ca-load-set: test_load_release_det_port_6876.py.
+The det translator still refuses both commands (engine-only, test_pointer_lane_reach_5042.py).
 """
 
 from __future__ import annotations

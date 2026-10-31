@@ -1,5 +1,5 @@
 {
- "commit": "c46e041c1",
+ "commit": "7427789aa",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -103,9 +103,9 @@
   },
   "crucibles": {
    "cics_crucible": {
-    "programs": 69,
+    "programs": 73,
     "ref": "v0.10.0 (01e11fe6)",
-    "scenarios": 192
+    "scenarios": 197
    },
    "estate_crucible": {
     "horrors": 63,
@@ -160,7 +160,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-31T15:18:59Z",
+  "as_of": "2026-10-31T15:32:17Z",
   "core": {
    "closed": 200,
    "open": 11,

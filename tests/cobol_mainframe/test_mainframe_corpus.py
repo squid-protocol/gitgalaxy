@@ -174,13 +174,49 @@ def test_crucible_off_the_pin_is_refused_unless_unpinned(tmp_path, monkeypatch):
     assert mc.require_clone(entry) == repo
 
 
-def test_crucible_missing_checkout_and_fetch_are_refused(tmp_path, monkeypatch):
+def test_crucible_missing_checkout_is_refused(tmp_path, monkeypatch):
     (entry,) = mc.select(["cics-crucible"])
     monkeypatch.setenv(mc.CRUCIBLE_PATH_ENV, str(tmp_path / "absent"))
     with pytest.raises(SystemExit, match="no checkout"):
         mc.require_clone(entry)
-    with pytest.raises(SystemExit, match="sync-pins"):
-        mc.fetch(entry)
+
+
+def test_bare_fetch_takes_the_crucible_and_a_named_fetch_does_not():
+    bare = mc.fetch_targets([])
+    assert bare[: len(CORPORA)] == CORPORA and [c["name"] for c in bare[len(CORPORA) :]] == ["cics-crucible"]
+    assert mc.fetch_targets([CORPORA[0]["name"]]) == [CORPORA[0]]
+
+
+@pytest.mark.parametrize("by_sha", [False, True], ids=["tag", "sha"])
+def test_fetch_clones_an_absent_crucible_at_the_pin(tmp_path, monkeypatch, by_sha):
+    upstream, entry = _crucible_repo(tmp_path, monkeypatch)
+    entry["url"] = upstream.as_uri()
+    if by_sha:
+        entry["ref"] = _git("rev-parse", "HEAD", cwd=upstream)
+    dest = tmp_path / "ci" / "cics-crucible"
+    monkeypatch.setenv(mc.CRUCIBLE_PATH_ENV, str(dest))
+    assert mc.fetch(entry) == dest
+    assert mc.require_clone(entry) == dest  # the tag is kept, so the pin check resolves it
+    assert mc.fetch(entry) == dest  # a second fetch (ports-compile cloned first) is a no-op
+
+
+def test_fetch_retries_a_crucible_clone_that_died_before_a_checkout(tmp_path, monkeypatch):
+    upstream, entry = _crucible_repo(tmp_path, monkeypatch)
+    entry["url"] = upstream.as_uri()
+    dest = tmp_path / "cics-crucible-retry"
+    dest.mkdir()
+    _git("init", "-q", cwd=dest)
+    monkeypatch.setenv(mc.CRUCIBLE_PATH_ENV, str(dest))
+    mc.fetch(entry)
+    assert mc.require_clone(entry) == dest
+
+
+def test_fetch_leaves_an_existing_crucible_to_sync_pins(tmp_path, monkeypatch):
+    repo, entry = _crucible_repo(tmp_path, monkeypatch, tag_at_head=False)
+    entry["url"] = "file:///nowhere"  # a fetch would fail: it must not try
+    head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=repo, capture_output=True, text=True).stdout
+    assert mc.fetch(entry) == repo
+    assert subprocess.run(["git", "rev-parse", "HEAD"], cwd=repo, capture_output=True, text=True).stdout == head
 
 
 def test_unknown_corpus_still_lists_the_manifest():

@@ -30,6 +30,7 @@ from gitgalaxy.tools.cobol_to_java.det.cics_common import (  # noqa: F401 -- re-
     REGION_PAGE,
     CicsError,
     KeylengthInvreq,
+    Untranslatable,
     _arg,
     _msg,
     _one_of,
@@ -1811,7 +1812,6 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
 
     def pointer(self, text: str | None) -> str:
         """#4771 (X47): the Field of the plain USAGE POINTER item an option names (SET / DATAPOINTER)."""
-        from gitgalaxy.tools.cobol_to_java.det.gen import Untranslatable
 
         try:
             return self.g.pointer_item(_arg(text).strip())
@@ -1823,7 +1823,6 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
         of task storage (IBM, EXEC CICS GETMAIN / FREEMAIN). The pointer holds the block's handle; a LENGERR (RESP2 1)
         sets it to zero. INITIMG is a one-byte data area (IBM: "In COBOL, use a data area rather than a data value"). Without INITIMG (#6876) IBM gives the storage no contents: the run answers LENGERR for a length
         below 1 and refuses a valid one."""
-        from gitgalaxy.tools.cobol_to_java.det.gen import Untranslatable
 
         r = self.g.tmpname("storage")
         if key == "FREEMAIN":
@@ -1907,7 +1906,6 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
         condition: NORMAL. TWA / TCTUA (#5079 slice 2) set the pointer to the handle of the transaction work area / the
         terminal's user area the definitions size (TWASIZE / USERAREALEN), or X'FF000000' when none (DetCics.addressTwa /
         addressTctua). CWA / ACEE and ADDRESS SET are refused by the spec entry (check_options)."""
-        from gitgalaxy.tools.cobol_to_java.det.gen import Untranslatable
 
         if not any(opts.get(o) for o in ("EIB", "COMMAREA", "TWA", "TCTUA")):
             raise CicsError("ADDRESS without an area option: the pointer to set")
@@ -2294,7 +2292,6 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
     def constant_int(self, text: str) -> int | None:
         """An option's value when the translator knows it: an integer literal, LENGTH OF an item, or a data item
         with a numeric VALUE the program never changes; else None."""
-        from gitgalaxy.tools.cobol_to_java.det.gen import Untranslatable
 
         unknown = (CicsError, E.ExprError, KeyError, Untranslatable)  # (None: the caller refuses)
         t = text.strip()

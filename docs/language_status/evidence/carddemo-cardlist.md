@@ -8,8 +8,8 @@ The status above judges the record alone (policy: ported_unproven = block). Whet
 
 | | |
 |---|---|
-| proof | proven at 2026-10-30T14:34:59Z, harness `0712a98114140473d4b14442f973fa403cd68768` |
-| inputs digest | `51857a191fcdacb93d5b70bcd09734e8276d60b7ee8e67ad37ddb655f6bc7fd0` |
+| proof | proven at 2026-10-31T15:44:06Z, harness `28802e2e92a24078c5a4431b1535f1a8c65b6cc4` |
+| inputs digest | `17669598f06b6ac73a85677013242a944005ba18fa30864511723a9874a7e408` |
 | port | 1 files `2bcd35770ec734c5` |
 | case | 2 files `0f5ea3fe285c7283` |
 | corpus | aws-mainframe-modernization-carddemo @ `59cc6c2fd7ebd7ef7925cad552a01a4b8b6e4d5e` `d0c4803872ec126e` |
@@ -17,9 +17,9 @@ The status above judges the record alone (policy: ported_unproven = block). Whet
 | options |  `253a366c52b35ad1` |
 | runtime options | `486d6880280039b4` (cics 2, db2 8, le 3): cics.region.LOCALCCSID=037, cics.translator.options=CICS, db2.bind.CURRENTDATA=YES, db2.bind.ISOLATION=CS, db2.ccsid.SQLCCSID=NO, db2.format.DATE=ISO, db2.format.DEC=15, db2.format.DECPT=., db2.format.TIME=ISO, db2.precompile.PARM=HOST(IBMCOB),XREF,SOURCE,FLAG(I),APOST, le.runtime_options.ABTERMENC=ABEND, le.runtime_options.STORAGE=NONE,NONE,NONE,0K, le.runtime_options.TRAP=ON,SPIE |
 | compiler options | `be1b93eb5a2f1d6c` (4): ARITH=COMPAT, INTDATE=ANSI, NUMPROC=NOPFD, TRUNC=STD |
-| harness | 18 files `77e3c32f56e4bcd5` |
-| oracle | 51 files `90b9ccefc04328b0` |
-| generator | 120 files `ab0d4d56f74d39a4` |
+| harness | 18 files `f3bee1912a8b8cae` |
+| oracle | 51 files `d91ee6d2345e19e8` |
+| generator | 125 files `05aaa9d05c9834b0` |
 | oracle run | gnucobol-models: cobc (GnuCOBOL) 3.1.2.0, image `sha256:ea49b2f90e87` (matches pin: True) |
 | written by | model `claude-sonnet-5-5`, attempt 2 |
 

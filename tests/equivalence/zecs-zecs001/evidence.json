@@ -22,7 +22,7 @@
     "tests/equivalence/zecs-zecs001/**"
    ],
    "files": 5,
-   "sha256": "cd8fdaac7b972cb7d1a2f96085f5856e2e00cbe00088d08eaec8b3bc310da98a"
+   "sha256": "c6b171047011dbd16ede1925e52694e0c90cf71b1984ffb01b3e56111b2d916f"
   },
   "harness": {
    "paths": [
@@ -46,9 +46,9 @@
     "tests/tools/equivalence_ims.py"
    ],
    "files": 18,
-   "sha256": "d7c1f0ca758f190a6ddbb02fb8227defde0c0d76b44223946d57fd906a2edac7",
+   "sha256": "0f70d8c58a8342d27089de6011a34c119d1e049d0d1264c2cf837daef23ddc8d",
    "components": {
-    "harness:cics": "78a9c7e79e6668e9a50df39ba7fd5304cd5f64b58baed6d36baf2f529361aa4d",
+    "harness:cics": "ff91357880f7f556c72d656d38e328faf67e631a38c4c5bcb6cca28f7b5c58a0",
     "harness:core": "4a2b247571c6616bf9738ae3806284d8f1f08104d66695f25072801479bd3800"
    }
   },
@@ -65,9 +65,9 @@
     "tests/equivalence/ims/ggdli.c"
    ],
    "files": 51,
-   "sha256": "a6636d62adc84251425f71b9128afe00f9c2a043b7af1b9957000faeb7bd51bc",
+   "sha256": "8322ed308890cf617af0456d666f449ab5e286e391400079f1a8e50b452e391d",
    "components": {
-    "oracle:cics-stub": "80aa05daf1956de66fd5a32165108cd6262fb9fbd36dc88364750943b85b23b9",
+    "oracle:cics-stub": "448941335605a3d37e8af09ca08a8400447c2d66758bb59d4bc80b27c6a06ff7",
     "oracle:core": "b4bb775f0a30746a6054f259b4c8613e08cb0d8cf3b40f4a789d953aca4144a0",
     "oracle:le": "670c92cc59b722e108b688267be1fd89ecda9b7be62bb485da2ad4839b4f7011"
    }
@@ -227,26 +227,26 @@
    },
    "runtime_sha256": "2e95aa6a2e154fc7484ae5d8606234b3805b29adfb9904a541b19799806537c3"
   },
-  "digest": "b114493e4ea2856c4adbb22753cd5d397b74bf9667ab9bc3a9913f325730868d"
+  "digest": "d4bdd2bc763dfda49c72dfdf8b62bac8594cd329598619b17cdc4909f00bc2bc"
  },
  "proof": {
-  "at": "2026-10-31T11:23:04Z",
+  "at": "2026-10-31T12:20:46Z",
   "verdict": "proven",
   "source": "det-sweep",
-  "runs": 75,
+  "runs": 77,
   "fault_runs": null,
   "environments": null,
   "outputs": {},
   "java_failed": false,
   "det_sweep": {
    "ledger": "tests/equivalence/det_sweep_coverage/zecs-zecs001.json",
-   "ledger_sha256": "3425a6742fe9b3985edb424d88a99c0dd683ef13f71d17a514b3bc6d97680509",
-   "measured_at": "e157464572a117ec926d1164cebe3dcde552e1cd",
+   "ledger_sha256": "ccc6031d3c8dec36d787a38b1443a1a7c94099faf3c2ecac01c5f6f058f543f2",
+   "measured_at": "d6f7579f3570c14414b1d3df8bc589edf6aee082",
    "stale_inputs": [],
-   "scenarios": 75
+   "scenarios": 77
   },
-  "harness_commit": "e157464572a117ec926d1164cebe3dcde552e1cd+uncommitted",
-  "inputs_digest": "b114493e4ea2856c4adbb22753cd5d397b74bf9667ab9bc3a9913f325730868d"
+  "harness_commit": "d6f7579f3570c14414b1d3df8bc589edf6aee082+uncommitted",
+  "inputs_digest": "d4bdd2bc763dfda49c72dfdf8b62bac8594cd329598619b17cdc4909f00bc2bc"
  },
  "coverage": {
   "paragraphs": {
@@ -254,7 +254,7 @@
    "live": 119
   },
   "branches": {
-   "covered": 198,
+   "covered": 201,
    "total": 208
   },
   "uncovered_branches": [],
@@ -262,8 +262,8 @@
    "covered": null,
    "total": null
   },
-  "source": "det sweep at e157464572a117ec926d1164cebe3dcde552e1cd (det_coverage_ledger.py)",
-  "inputs_digest": "b114493e4ea2856c4adbb22753cd5d397b74bf9667ab9bc3a9913f325730868d"
+  "source": "det sweep at d6f7579f3570c14414b1d3df8bc589edf6aee082 (det_coverage_ledger.py)",
+  "inputs_digest": "d4bdd2bc763dfda49c72dfdf8b62bac8594cd329598619b17cdc4909f00bc2bc"
  },
  "reach": null,
  "mutation": null,

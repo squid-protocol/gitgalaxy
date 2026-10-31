@@ -11,6 +11,7 @@ import pytest
 TOOLS = Path(__file__).resolve().parents[1] / "tools"
 sys.path.insert(0, str(TOOLS))
 import cics_census as cc  # tests/tools/cics_census.py
+import evidence_report as er  # tests/tools/evidence_report.py
 import readiness_report as rr  # tests/tools/readiness_report.py
 
 FIXTURE_REPORTS = Path(__file__).resolve().parents[1] / "fixtures" / "evidence_report"
@@ -221,6 +222,53 @@ def test_caveats_narrow_to_the_reached_entries_and_mix_with_unmeasured_programs(
 def test_fully_measured_caveats_carry_no_named_only_key_and_render_without_upper_bound():
     rows = rr.caveats([_prog(["A1", "A2"], {"registers": ["A1"]}), _prog(["A1"], {"registers": []})])
     assert rows == [{"id": "A1", "status": "ASSUMED", "area": "area A1", "programs": 1}]
+
+
+def _measured_prog(commands, role="program"):
+    """A program whose `assumptions` is built the way evidence_report builds it: `named_by_commands` is every entry its
+    commands name (the upper bound), `reach` is reach_of() of the chosen case, not a hand-written dict."""
+    spec = er.css.spec()
+    named = sorted({r for k in ("WRITEQ TS", "RETURN", "SEND MAP") for r in er.css.registers(spec[k])})
+    rec = {"commands_run": commands} if commands is not None else {}
+    reach = er.reach_of({"case": "c", "role": role, "record": rec})
+    return {
+        "assumptions": {
+            "named_by_commands": [{"id": i, "status": "ASSUMED", "area": f"area {i}"} for i in named],
+            "reach": reach,
+        }
+    }, set(named)
+
+
+def test_caveats_consume_the_measured_reach_of_evidence_report():
+    """The producer/consumer contract (#5229): a reached entry is counted, a named-only one is not, and every shape
+    reach_of returns (a measured dict, "not measured" for no case / no commands / a LINKed role / an unmapped verb) is
+    read: measured programs narrow, the rest stay the upper bound."""
+    spec = er.css.spec()
+    reached = set(er.css.registers(spec["RETURN"]))
+    prog, named = _measured_prog(["RETURN"])
+    assert reached <= named
+    rows = {r["id"]: r for r in rr.caveats([prog])}
+    assert set(rows) == reached  # narrower than what the commands name, when the rest is not reached
+    assert all("named_only" not in r for r in rows.values())
+    for commands, role in (
+        (None, "program"),  # a record from before commands were recorded
+        ([], "program"),
+        (["RETURN"], "linked"),
+        (["RETURN", "MQGET"], "program"),  # an MQI call is no spec entry
+    ):
+        unmeasured, named = _measured_prog(commands, role)
+        assert unmeasured["assumptions"]["reach"] == "not measured"
+        got = {r["id"]: r for r in rr.caveats([unmeasured])}
+        assert set(got) == named and all(r["named_only"] == 1 for r in got.values())
+
+
+def test_estate_with_measured_and_unmeasured_programs_counts_each_by_its_own_basis():
+    measured, named = _measured_prog(["RETURN"])
+    unmeasured, _ = _measured_prog(None)
+    reached = set(er.css.registers(er.css.spec()["RETURN"]))
+    for r in rr.caveats([measured, unmeasured]):
+        assert r["named_only"] == 1  # the unmeasured program names every entry
+        assert r["programs"] == (2 if r["id"] in reached else 1)
 
 
 def test_blockers_one_run_writes_full_and_anonymized_reports_with_stable_hashes(tmp_path):

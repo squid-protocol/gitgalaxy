@@ -23,7 +23,10 @@ def _case() -> dict:
 def test_a_scenario_file_is_staged_from_its_stated_records(tmp_path):
     case = _case()
     case["scenarios"] = [s for s in case["scenarios"] if s["name"] == "delete-stored"]
-    files = [{"base": KEY, "reclen": 512, "key_offset": 0, "key_length": 255}, {"base": FILE, "reclen": 32700, "key_offset": 0, "key_length": 16}]
+    files = [
+        {"base": KEY, "reclen": 512, "key_offset": 0, "key_length": 255},
+        {"base": FILE, "reclen": 32700, "key_offset": 0, "key_length": 16},
+    ]
     ec.stage_scenario_inputs(case, tmp_path / "corpus-unused", files, tmp_path)
     staged = (tmp_path / f"{KEY}.delete-stored.in").read_bytes()
     stated = ec.case_file_records(case, tmp_path, {"input": "@case/zckey-ops.bin"}, 512, common.data_encoding(case))
@@ -34,7 +37,10 @@ def test_a_scenario_file_is_staged_from_its_stated_records(tmp_path):
 def test_staging_reads_nothing_the_cobol_task_wrote(tmp_path):
     case = _case()
     case["scenarios"] = [s for s in case["scenarios"] if s["name"] == "post-existing"]
-    files = [{"base": KEY, "reclen": 512, "key_offset": 0, "key_length": 255}, {"base": FILE, "reclen": 32700, "key_offset": 0, "key_length": 16}]
+    files = [
+        {"base": KEY, "reclen": 512, "key_offset": 0, "key_length": 255},
+        {"base": FILE, "reclen": 32700, "key_offset": 0, "key_length": 16},
+    ]
     # a COBOL work dir holding an end state: if staging read it, the staged file would be these bytes
     done = tmp_path / "cobol" / "scenarios" / "post-existing" / "files"
     done.mkdir(parents=True)

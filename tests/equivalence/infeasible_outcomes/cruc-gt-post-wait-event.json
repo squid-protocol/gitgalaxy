@@ -1,0 +1,22 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "cruc-gt-post-wait-event",
+  "entries": [
+    {
+      "unit": "POST-WAIT-CANCEL",
+      "line": 70,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "R",
+      "reason": "IBM CICS POST (SET): the timer-event control area is created as binary zeros, and POST AFTER SECONDS(5) with no condition (RESP NORMAL, the only answer the scenario's fixed request can get) hands its address over; 'IF LS-TEC = LOW-VALUES' false needs a non-zero area before any WAIT, which IBM never describes. Register X63."
+    },
+    {
+      "unit": "POST-WAIT-CANCEL",
+      "line": 76,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "R",
+      "reason": "IBM CICS POST / WAIT EVENT: once WAIT EVENT ECADDR on a POST's area returns NORMAL, the area is posted ('its first byte is set to X'40' and its third byte to X'80''), so 'IF LS-TEC(1:1) = X'40' AND LS-TEC(3:1) = X'80'' always holds; the fixed POST AFTER SECONDS(5) and WAIT give no scenario input that makes either answer a condition. Register X63."
+    }
+  ]
+}

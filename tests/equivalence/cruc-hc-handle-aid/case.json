@@ -21,12 +21,14 @@
       "name": "own-label",
       "commarea": null,
       "terminal": "HA01 B",
+      "aid": "DFHPF7",
       "why": "PF7 pressed: PF7's own label, after the RECEIVE moved the data and set LENGTH"
     },
     {
       "name": "anykey-pf",
       "commarea": null,
       "terminal": "HA01 C",
+      "aid": "DFHPF9",
       "why": "PF9 pressed: no label of its own, so ANYKEY's"
     },
     {

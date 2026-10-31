@@ -86,7 +86,7 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | INQUIRE TDQUEUE | full | yes (10 options) | yes | X61, X66 | — | 0 | — |
 | GETMAIN | full | yes (11 options, 2 refused by name) | yes | X47 | — | 2 (2 / 0) | — |
 | FREEMAIN | full | yes (5 options) | yes | X47 | — | 2 (2 / 0) | — |
-| ADDRESS | full | yes (7 options, 3 refused by name) | yes | X59 | — | 0 | — |
+| ADDRESS | full | yes (8 options, 2 refused by name) | yes | X59 | — | 0 | — |
 | ENQ | full | yes (9 options) | yes | X60 | — | 5 (5 / 0) | — |
 | DEQ | full | yes (8 options) | yes | — | — | 4 (4 / 0) | — |
 | DELAY | full | yes (10 options) | yes | X18 | — | 20 (11 / 9) | — |

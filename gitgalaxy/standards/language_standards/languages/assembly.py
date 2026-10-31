@@ -14,6 +14,8 @@ from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: comp
 
 from .._shared_patterns import CALLS_OUT_CALL_VERB, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
+_NOT_DIRECTIVE = r"(?<!\.)"
+
 DEFINITION: dict[str, Any] = {
     "_meta": {
         "target_version": "x86-64 (NASM/GAS) & ARMv8 (AArch64) - Backwards Compatible",
@@ -294,9 +296,10 @@ DEFINITION: dict[str, Any] = {
         ),
         # --- PHASE 4: SPECIALIZED SUB-SYSTEMS ---
         # 26. planned_debt (Annotated Debt / TODOs)
-        "planned_debt": GLOBAL_PLANNED_DEBT,
+        # #7064: `.stub` / `.hack` is a directive (a macro name in code), not a comment marker: 52 hits in one real file
+        "planned_debt": re.compile(_NOT_DIRECTIVE + "(?:" + GLOBAL_PLANNED_DEBT.pattern + ")", re.I),
         # 27. fragile_debt (Acknowledged Hacks / FIXMEs)
-        "fragile_debt": GLOBAL_FRAGILE_DEBT,
+        "fragile_debt": re.compile(_NOT_DIRECTIVE + "(?:" + GLOBAL_FRAGILE_DEBT.pattern + ")", re.I),
         # 29. spec_exposure (Spec / Audit Traceability)
         # BUG FIX (Rule 14, #713): adjacent unbounded quantifiers with
         # overlapping character sets (`\d+` next to `[^\]]*`) -- the

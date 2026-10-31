@@ -475,91 +475,6 @@ class StateRehydrator:
                     for channel in CHANNELS
                 }
 
-                vsam_defines_by_file = _restore_child_table(
-                    cursor,
-                    repo_name,
-                    baseline_hash,
-                    "vsam_define_data",
-                    'SELECT fd.file_path AS _fp, vd.kind, vd.cluster_name AS "name", vd.organization, vd.key_length, vd.key_offset, vd.record_avg, vd.record_max, vd.related, vd.unique_key, vd.upgrade, vd.step_name AS "step", vd.line_number AS "line" '
-                    "FROM vsam_define_data vd JOIN file_data fd ON vd.file_id = fd.id "
-                    "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY vd.id",
-                    lambda r: {
-                        "kind": r["kind"],
-                        "name": r["name"],
-                        "organization": r["organization"],
-                        "key_length": int(r["key_length"]) if r["key_length"] is not None else None,
-                        "key_offset": int(r["key_offset"]) if r["key_offset"] is not None else None,
-                        "record_avg": int(r["record_avg"]) if r["record_avg"] is not None else None,
-                        "record_max": int(r["record_max"]) if r["record_max"] is not None else None,
-                        "related": r["related"],
-                        "unique_key": r["unique_key"],
-                        "upgrade": r["upgrade"],
-                        "step": r["step"],
-                        "line": int(r["line"] or 0),
-                    },
-                )
-
-                # #3451: JCL job flow, aliased back to the payload keys.
-                # #3622: `disp_normal` is NULL on a baseline written before it existed.
-                normal_col = (
-                    "jf.disp_normal"
-                    if _has_table(cursor, "job_flow_data") and _has_column(cursor, "job_flow_data", "disp_normal")
-                    else "NULL"
-                )
-                # #3710: a runner step's runs / runs_via / systsin_member, NULL before they existed.
-                runner_cols = (
-                    "jf.runs, jf.runs_via, jf.systsin_member"
-                    if _has_table(cursor, "job_flow_data") and _has_column(cursor, "job_flow_data", "runs")
-                    else "NULL AS runs, NULL AS runs_via, NULL AS systsin_member"
-                )
-                parm_col = (  # #3624
-                    "jf.parm"
-                    if _has_table(cursor, "job_flow_data") and _has_column(cursor, "job_flow_data", "parm")
-                    else "NULL"
-                )
-                instream_col = (  # #4268
-                    "jf.instream"
-                    if _has_table(cursor, "job_flow_data") and _has_column(cursor, "job_flow_data", "instream")
-                    else "NULL"
-                )
-                dcb_cols = (  # #4268
-                    "jf.lrecl, jf.recfm"
-                    if _has_table(cursor, "job_flow_data") and _has_column(cursor, "job_flow_data", "lrecl")
-                    else "NULL AS lrecl, NULL AS recfm"
-                )
-                job_flow_by_file = _restore_child_table(
-                    cursor,
-                    repo_name,
-                    baseline_hash,
-                    "job_flow_data",
-                    'SELECT fd.file_path AS _fp, jf.kind, jf.job_name AS "name", jf.step_ordinal, jf.step_name, jf.program, jf.proc_name AS "proc", jf.cond, jf.if_cond, jf.in_proc, jf.dd_name, jf.dsn, jf.disp, jf.generation, jf.line_number AS "line", '  # noqa: S608 -- normal_col is one of two literals
-                    f"{normal_col} AS disp_normal, {runner_cols}, {parm_col} AS parm, {instream_col} AS instream, {dcb_cols} "
-                    "FROM job_flow_data jf JOIN file_data fd ON jf.file_id = fd.id "
-                    "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY jf.id",
-                    lambda r: {
-                        "kind": r["kind"],
-                        "name": r["name"],
-                        "step_ordinal": int(r["step_ordinal"]) if r["step_ordinal"] is not None else None,
-                        "step_name": r["step_name"],
-                        "program": r["program"],
-                        "proc": r["proc"],
-                        "cond": r["cond"],
-                        "if_cond": r["if_cond"],
-                        "in_proc": r["in_proc"],
-                        "dd_name": r["dd_name"],
-                        "dsn": r["dsn"],
-                        "disp": r["disp"],
-                        "generation": r["generation"],
-                        "line": int(r["line"] or 0),
-                        **({"disp_normal": r["disp_normal"]} if r["disp_normal"] else {}),
-                        **{
-                            k: r[k]
-                            for k in ("runs", "runs_via", "systsin_member", "parm", "instream", "lrecl", "recfm")
-                            if r[k]
-                        },
-                    },
-                )
-
                 # The slicer's synthetic top-level buckets: callers without a
                 # function_data row, restored so their calls re-resolve.
                 synthetic_by_file = _restore_child_table(
@@ -591,8 +506,6 @@ class StateRehydrator:
                     node["classes"] = classes_by_file.get(rel_path, [])
                     for channel in CHANNELS:
                         node[channel.payload_key] = channel_rows[channel.name].get(rel_path, [])
-                    node["vsam_defines"] = vsam_defines_by_file.get(rel_path, [])
-                    node["job_flow"] = job_flow_by_file.get(rel_path, [])
             except sqlite3.Error as fc_err:
                 print(f"⚠️ Could not rehydrate functions/classes (structure counts may drift): {fc_err}")
 

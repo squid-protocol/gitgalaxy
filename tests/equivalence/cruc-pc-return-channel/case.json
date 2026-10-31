@@ -1,0 +1,53 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "PCRCA",
+  "program_source": "cases/pseudo-conversational/pc-return-channel/src/PCRCA.cbl",
+  "copy_dirs": [
+    "cases/pseudo-conversational/pc-return-channel/copy"
+  ],
+  "transid": "PC61",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "programs": [
+    {
+      "program": "PCRCL",
+      "program_source": "cases/pseudo-conversational/pc-return-channel/src/PCRCL.cbl"
+    }
+  ],
+  "notes": "cics-crucible pseudo-conversational / pc-return-channel (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): RETURN TRANSID CHANNEL (PCRCA) and the PCRCL it links: a channel carried, changed, and a RETURN CHANNEL below the top logical level. Each scenario is one task; the crucible's multi-turn flows are restated one scenario per leg, each carrying the COMMAREA or channel the previous leg returned. The oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs. The case is entered as a LINKed program (\"linked\": true): the det service of a channel program has no handleTransaction facade, so the top-level RETURN TRANSID entry is not driven as such.",
+  "scenarios": [
+    {
+      "name": "carry",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "why": "mode C: PUT CONTAINER in channel PCCHAN, RETURN TRANSID(PC62) CHANNEL",
+      "terminal": "PC61 C"
+    },
+    {
+      "name": "modify",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "why": "mode M: the container replaced and the channel returned",
+      "terminal": "PC61 M"
+    },
+    {
+      "name": "link-level2",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "why": "mode L: LINK to PCRCL, whose RETURN CHANNEL is below the highest logical level (INVREQ), then it goes on",
+      "terminal": "PC61 L"
+    },
+    {
+      "name": "no-mode",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "why": "a mode no WHEN names: RETURN",
+      "terminal": "PC61 X"
+    }
+  ],
+  "termid": "T001",
+  "linked": true
+}

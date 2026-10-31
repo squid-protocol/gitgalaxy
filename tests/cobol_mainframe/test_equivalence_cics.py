@@ -420,7 +420,10 @@ def test_receive_notruncate_and_set_and_send_control():
     got = ec.translate_command("RECEIVE SET(ADDRESS OF LS-IN) LENGTH(WS-L) MAXLENGTH(20) RESP(WS-R)")
     assert got[:6] == ["MOVE SPACES TO GG-FLAGS", "MOVE 20 TO GG-LEN", "CALL 'GGCRECS' USING GG-CICS",
                        "    BY REFERENCE GG-PTR", "SET ADDRESS OF LS-IN TO GG-PTR", "MOVE GG-LEN TO WS-L"]  # fmt: skip
-    for bad in ("RECEIVE SET(ADDRESS OF LS-IN) LENGTH(WS-L)", "RECEIVE SET(ADDRESS OF LS-IN) MAXLENGTH(9)"):
+    # X15: with SET, LENGTH is output-only, so no MAXLENGTH means all the input (the stub's whole buffer), both SET forms
+    for cmd in ("RECEIVE SET(ADDRESS OF LS-IN) LENGTH(WS-L)", "RECEIVE SET(WS-P) LENGTH(WS-L) NOTRUNCATE"):
+        assert "MOVE 32768 TO GG-LEN" in ec.translate_command(cmd)
+    for bad in ("RECEIVE SET(ADDRESS OF LS-IN) MAXLENGTH(9)", "RECEIVE SET(WS-P) MAXLENGTH(9)"):
         with pytest.raises(ec.Unsupported):
             ec.translate_command(bad)
     assert ec.translate_command("SEND CONTROL FREEKB ERASE")[:3] == [
@@ -489,7 +492,7 @@ def test_a_delete_generic_is_named_to_the_stub():
                                   "HANDLE ABEND PROGRAM('X')", "ASSIGN OPID(U)", "HANDLE CONDITION NOSUCH(X)",
                                   "WRITEQ TS QUEUE(Q) FROM(A) SYSID(S)", "WRITEQ TS QUEUE(Q) FROM(A) REWRITE",
                                   "READQ TD QUEUE(Q) SET(P)",
-                                  "RECEIVE INTO(X) LENGTH(L) BUFFER", "RECEIVE SET(P) LENGTH(L)", "STARTBR FILE(F) RIDFLD(K) REQID(1)",
+                                  "RECEIVE INTO(X) LENGTH(L) BUFFER", "RECEIVE SET(P) MAXLENGTH(9)", "STARTBR FILE(F) RIDFLD(K) REQID(1)",
                                   "DELETE FILE('X') RIDFLD(K) GENERIC KEYLENGTH(2) NUMREC(N)", "LINK PROGRAM('X') SYSID('S')"])  # fmt: skip
 def test_an_unmodelled_command_is_refused_by_name(body):
     with pytest.raises(ec.Unsupported):

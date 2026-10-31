@@ -407,7 +407,7 @@
       "Diagnostic Reason": "Unsupported Format (.undeterminable)",
       "Discovery Proof": "Radar Scan",
       "Forensic Category": "Excluded Artifact",
-      "Identity Confidence": "8.2%",
+      "Identity Confidence": "8.0%",
       "Path": "cpp/NVDA/sconstruct",
       "Size": "24536 bytes"
     },

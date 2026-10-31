@@ -189,6 +189,23 @@ static gg_container *container_named(gg_channel *ch, const char *name, int creat
  * APPEND. No channel and no current one: INVREQ RESP2 4, 1 when a data type was named. FLENGTH
  * below zero: LENGERR RESP2 1. A new container takes the type named, else BIT (naming the other
  * type for an existing one is refused, below). The data replaces the container's, or follows it. */
+/* PUT CONTAINER (X42): the pipeline containers a burned program writes back (DFHREQUEST, DFH-BODY, DFH-DATA) run as ordinary ones;
+ * any other DFH container, and any DFH channel, is refused by name. */
+static int dfh_prefix(const char *n) {
+    while (*n == ' ') n++;
+    return toupper((unsigned char)n[0]) == 'D' && toupper((unsigned char)n[1]) == 'F' && toupper((unsigned char)n[2]) == 'H';
+}
+static void refuse_cics_defined_put(const char *container, const char *channel) {
+    char t[17];
+    int i = 0;
+    while (*container == ' ') container++;
+    for (; container[i] && container[i] != ' ' && i < 16; i++) t[i] = (char)toupper((unsigned char)container[i]);
+    t[i] = 0;
+    int pipeline = !strcmp(t, "DFHREQUEST") || !strcmp(t, "DFH-BODY") || !strcmp(t, "DFH-DATA");
+    if ((!pipeline && dfh_prefix(t)) || (channel && dfh_prefix(channel)))
+        refuse("PUT CONTAINER naming a CICS-defined (DFH...) container or channel: it may be read-only, and IBM lists none (INVREQ RESP2 30, CHANNELERR RESP2 3)");
+}
+
 int GGCPUTC(gg_cics *c, char *from) {
     char flags[41], name[17];
     int bit, chr, ch, from_ccsid;
@@ -200,6 +217,7 @@ int GGCPUTC(gg_cics *c, char *from) {
     c->resp2 = 0;
     int fresp, fresp2; /* #6882 (X17): a planned condition: the PUT is not performed */
     if (injected("PUT-CONTAINER", "-", &fresp, &fresp2)) { c->resp = fresp; c->resp2 = fresp2; return 0; }
+    refuse_cics_defined_put(c->qname, strstr(flags, "CHANNEL") ? c->chan : NULL);
     int bad_name = cics_name_check(c->qname, name, "container");
     int bad_chan = 0;
     if (strstr(flags, "CHANNEL")) {

@@ -41,7 +41,7 @@ jobs:
     if: ${{ always() }}
     runs-on: ubuntu-latest
     steps:
-      - run: echo "cancelled()=${{ cancelled() }} slow=${{ needs.slow.result }}"; exit 1
+      - run: echo "slow=${{ needs.slow.result }}"; exit 1
   gate-after-quick-long-queue:
     needs: [quick]
     if: ${{ !cancelled() }}

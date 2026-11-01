@@ -51,4 +51,4 @@ jobs:
     if: ${{ always() }}
     runs-on: ubuntu-latest
     steps:
-      - run: echo "cancelled()=${{ cancelled() }} slow=${{ needs.slow.result }} legs=${{ needs.legs.result }} fastfail=${{ needs.fastfail.result }}"
+      - run: echo "slow=${{ needs.slow.result }} legs=${{ needs.legs.result }} fastfail=${{ needs.fastfail.result }}"

@@ -759,3 +759,10 @@ def test_a_fresh_estate_page_of_either_kind_carries_the_caveat_and_one_blocker_p
     listed = [p for b in blockers for p in b["programs"]]
     assert sorted(listed) == ["B", "C", "D"] and len(listed) == len(set(listed))
     assert trial.stale_pages(ledger, trial.PAGES / "nonexistent-dir") == [name]
+
+
+# ---- #4493: the wiki describes the REDEFINES selector detection that exists -----------------
+def test_the_wiki_describes_the_redefines_selector_detection():
+    wiki = read_source(trial.REPO_ROOT / "docs" / "wiki" / "05-20-equivalence-harness.md").text
+    assert "is not decided" not in wiki
+    assert "(selector SEL)" in wiki and "(selector not found)" in wiki

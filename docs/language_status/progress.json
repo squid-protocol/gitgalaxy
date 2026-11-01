@@ -1,5 +1,5 @@
 {
- "commit": "76d344450",
+ "commit": "84ae0aa17",
  "components": {
   "capabilities": {
    "groups": [
@@ -335,45 +335,45 @@
   "det_mutation": {
    "estates": {
     "aws-mainframe-modernization-carddemo": {
-     "caught": 1148,
+     "caught": 1152,
      "equivalent": 431,
-     "l5": 0,
+     "l5": 5,
      "measured": 12,
      "mutants": 23824,
      "programs": 44,
-     "raw_pct": 65.6,
-     "ready": 12,
+     "raw_pct": 64.4,
+     "ready": 0,
      "sampled": 1847,
      "sampled_pct": 7.8,
-     "survived": 602,
+     "survived": 637,
      "unreachable": 178
     },
     "cics-async-api-credit-card-application-example": {
-     "caught": 5783,
+     "caught": 5665,
      "equivalent": 220,
-     "l5": 0,
+     "l5": 10,
      "measured": 10,
      "mutants": 6083,
      "programs": 10,
-     "raw_pct": 100.0,
-     "ready": 10,
+     "raw_pct": 95.6,
+     "ready": 0,
      "sampled": 6083,
      "sampled_pct": 100.0,
-     "survived": 0,
+     "survived": 258,
      "unreachable": 38
     },
     "cics-banking-sample-application-cbsa": {
-     "caught": 837,
+     "caught": 835,
      "equivalent": 679,
-     "l5": 0,
+     "l5": 1,
      "measured": 6,
      "mutants": 2846,
      "programs": 31,
-     "raw_pct": 44.5,
-     "ready": 6,
+     "raw_pct": 44.4,
+     "ready": 0,
      "sampled": 1977,
      "sampled_pct": 69.5,
-     "survived": 1044,
+     "survived": 1047,
      "unreachable": 365
     },
     "cics-genapp": {
@@ -405,33 +405,33 @@
      "unreachable": 0
     },
     "zecs": {
-     "caught": 134,
-     "equivalent": 294,
-     "l5": 2,
-     "measured": 2,
-     "mutants": 1067,
+     "caught": 1135,
+     "equivalent": 925,
+     "l5": 4,
+     "measured": 4,
+     "mutants": 2601,
      "programs": 7,
-     "raw_pct": 47.3,
+     "raw_pct": 45.5,
      "ready": 0,
-     "sampled": 1067,
+     "sampled": 2601,
      "sampled_pct": 100.0,
-     "survived": 149,
-     "unreachable": 266
+     "survived": 1362,
+     "unreachable": 437
     }
    },
    "total": {
-    "caught": 7902,
-    "equivalent": 1624,
-    "l5": 2,
-    "measured": 30,
-    "mutants": 33820,
+    "caught": 8787,
+    "equivalent": 2255,
+    "l5": 20,
+    "measured": 32,
+    "mutants": 35354,
     "programs": 129,
-    "raw_pct": 81.5,
-    "ready": 28,
-    "sampled": 10974,
-    "sampled_pct": 32.4,
-    "survived": 1795,
-    "unreachable": 847
+    "raw_pct": 72.7,
+    "ready": 0,
+    "sampled": 12508,
+    "sampled_pct": 35.4,
+    "survived": 3304,
+    "unreachable": 1018
    }
   },
   "mutation": {
@@ -465,12 +465,12 @@
   },
   "3": {
    "l2_plus": 14,
-   "l4_plus": 13,
+   "l4_plus": 14,
    "programs": 16
   },
   "4": {
    "l2_plus": 20,
-   "l4_plus": 19,
+   "l4_plus": 20,
    "programs": 21
   },
   "none": {
@@ -481,7 +481,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-11-01T11:25:42Z",
+  "as_of": "2026-11-01T11:58:10Z",
   "core": {
    "closed": 201,
    "open": 12,
@@ -507,15 +507,15 @@
   },
   "eta": "5 days",
   "frontier": {
-   "closed": 119,
+   "closed": 120,
    "found_last_window": 2,
-   "open": 79,
+   "open": 78,
    "total": 198
   },
   "frontier_milestone": {
-   "closed": 11,
+   "closed": 12,
    "number": 30,
-   "open": 39,
+   "open": 38,
    "total": 50
   },
   "infra": {
@@ -715,9 +715,9 @@
     "total": 8
    },
    {
-    "closed": 11,
+    "closed": 12,
     "number": 30,
-    "open": 39,
+    "open": 38,
     "title": "Gap Atlas \ud83d\uddfa\ufe0f \u2014 mapped, not yet built",
     "total": 50
    },
@@ -740,7 +740,7 @@
     "total": 112
    },
    "cobol": {
-    "closed": 135,
+    "closed": 136,
     "total": 151
    }
   },
@@ -751,16 +751,16 @@
    "aws-mainframe-modernization-carddemo": {
     "l2_plus": 42,
     "l2_plus_pct": 95.5,
-    "l4_plus": 41,
-    "l4_plus_pct": 93.2,
-    "l5": 0,
+    "l4_plus": 42,
+    "l4_plus_pct": 95.5,
+    "l5": 5,
     "levels": {
      "L0": 2,
      "L1": 0,
      "L2": 0,
-     "L3": 1,
-     "L4": 41,
-     "L5": 0
+     "L3": 0,
+     "L4": 37,
+     "L5": 5
     },
     "programs": 44,
     "translated_whole": 42
@@ -770,14 +770,14 @@
     "l2_plus_pct": 100.0,
     "l4_plus": 10,
     "l4_plus_pct": 100.0,
-    "l5": 0,
+    "l5": 10,
     "levels": {
      "L0": 0,
      "L1": 0,
      "L2": 0,
      "L3": 0,
-     "L4": 10,
-     "L5": 0
+     "L4": 0,
+     "L5": 10
     },
     "programs": 10,
     "translated_whole": 10
@@ -787,14 +787,14 @@
     "l2_plus_pct": 100.0,
     "l4_plus": 31,
     "l4_plus_pct": 100.0,
-    "l5": 0,
+    "l5": 1,
     "levels": {
      "L0": 0,
      "L1": 0,
      "L2": 0,
      "L3": 0,
-     "L4": 31,
-     "L5": 0
+     "L4": 30,
+     "L5": 1
     },
     "programs": 31,
     "translated_whole": 31
@@ -836,16 +836,16 @@
    "zecs": {
     "l2_plus": 7,
     "l2_plus_pct": 100.0,
-    "l4_plus": 6,
-    "l4_plus_pct": 85.7,
-    "l5": 2,
+    "l4_plus": 7,
+    "l4_plus_pct": 100.0,
+    "l5": 4,
     "levels": {
      "L0": 0,
      "L1": 0,
-     "L2": 1,
+     "L2": 0,
      "L3": 0,
-     "L4": 4,
-     "L5": 2
+     "L4": 3,
+     "L5": 4
     },
     "programs": 7,
     "translated_whole": 7
@@ -853,36 +853,36 @@
   },
   "test_estates": {
    "cics-crucible": {
-    "l2_plus": 0,
-    "l2_plus_pct": 0.0,
-    "l4_plus": 0,
-    "l4_plus_pct": 0.0,
+    "l2_plus": 64,
+    "l2_plus_pct": 80.0,
+    "l4_plus": 45,
+    "l4_plus_pct": 56.2,
     "l5": 0,
     "levels": {
-     "L0": 6,
-     "L1": 74,
-     "L2": 0,
-     "L3": 0,
-     "L4": 0,
+     "L0": 5,
+     "L1": 11,
+     "L2": 15,
+     "L3": 4,
+     "L4": 45,
      "L5": 0
     },
     "programs": 80,
-    "translated_whole": 74
+    "translated_whole": 75
    }
   },
   "total": {
    "l2_plus": 126,
    "l2_plus_pct": 97.7,
-   "l4_plus": 124,
-   "l4_plus_pct": 96.1,
-   "l5": 2,
+   "l4_plus": 126,
+   "l4_plus_pct": 97.7,
+   "l5": 20,
    "levels": {
     "L0": 3,
     "L1": 0,
-    "L2": 1,
-    "L3": 1,
-    "L4": 122,
-    "L5": 2
+    "L2": 0,
+    "L3": 0,
+    "L4": 106,
+    "L5": 20
    },
    "programs": 129,
    "reachable": 126,

@@ -1,6 +1,6 @@
 # Progress
 
-Generated from main at `76d344450` by `tests/tools/progress_report.py` (#5280); do not edit. Every
+Generated from main at `84ae0aa17` by `tests/tools/progress_report.py` (#5280); do not edit. Every
 denominator is fixed and every number names its source below. A level is an evidence level, never a bare
 claim of correctness: the oracle is GnuCOBOL plus IBM documentation, not z/OS.
 
@@ -19,13 +19,13 @@ Entries that no longer hold (the program is above L0): dbb-mortgage-application/
 
 | Estate | Programs | L0 | L1 | L2 | L3 | L4 | L5 | L2+ | L4+ | L5 |
 |---|---|---|---|---|---|---|---|---|---|---|
-| `aws-mainframe-modernization-carddemo` | 44 | 2 | 0 | 0 | 1 | 41 | 0 | 42 (95.5%) | 41 (93.2%) | 0 |
-| `cics-async-api-credit-card-application-example` | 10 | 0 | 0 | 0 | 0 | 10 | 0 | 10 (100.0%) | 10 (100.0%) | 0 |
-| `cics-banking-sample-application-cbsa` | 31 | 0 | 0 | 0 | 0 | 31 | 0 | 31 (100.0%) | 31 (100.0%) | 0 |
+| `aws-mainframe-modernization-carddemo` | 44 | 2 | 0 | 0 | 0 | 37 | 5 | 42 (95.5%) | 42 (95.5%) | 5 |
+| `cics-async-api-credit-card-application-example` | 10 | 0 | 0 | 0 | 0 | 0 | 10 | 10 (100.0%) | 10 (100.0%) | 10 |
+| `cics-banking-sample-application-cbsa` | 31 | 0 | 0 | 0 | 0 | 30 | 1 | 31 (100.0%) | 31 (100.0%) | 1 |
 | `cics-genapp` | 31 | 0 | 0 | 0 | 0 | 31 | 0 | 31 (100.0%) | 31 (100.0%) | 0 |
 | `dbb-mortgage-application` | 6 | 1 | 0 | 0 | 0 | 5 | 0 | 5 (83.3%) | 5 (83.3%) | 0 |
-| `zecs` | 7 | 0 | 0 | 1 | 0 | 4 | 2 | 7 (100.0%) | 6 (85.7%) | 2 |
-| **Total** | 129 | 3 | 0 | 1 | 1 | 122 | 2 | 126 (97.7%) | 124 (96.1%) | 2 |
+| `zecs` | 7 | 0 | 0 | 0 | 0 | 3 | 4 | 7 (100.0%) | 7 (100.0%) | 4 |
+| **Total** | 129 | 3 | 0 | 0 | 0 | 106 | 20 | 126 (97.7%) | 126 (97.7%) | 20 |
 
 L0 inventoried, L1 translated whole, L2 executed equal, L3 every paragraph, L4 every net branch, L5 every
 surviving translator mutant accounted for (`definition_of_done.md`).
@@ -34,7 +34,7 @@ Test estates, written to break the translator and so never in the denominator ab
 
 | Test estate | Programs | L0 | L1 | L2 | L3 | L4 | L5 |
 |---|---|---|---|---|---|---|---|
-| `cics-crucible` | 80 | 6 | 74 | 0 | 0 | 0 | 0 |
+| `cics-crucible` | 80 | 5 | 11 | 15 | 4 | 45 | 0 |
 
 ## L5: what it rests on
 
@@ -44,13 +44,13 @@ judged; *sample* is mutants judged of those the program has. Claims are the revi
 
 | Estate | Programs | Measured | L5 | Ready | Raw caught | Sample | Equivalent | Unreachable |
 |---|---|---|---|---|---|---|---|---|
-| `aws-mainframe-modernization-carddemo` | 44 | 12 | 0 | 12 | 65.6% (1148 of 1750) | 7.8% (1847 of 23824) | 431 | 178 |
-| `cics-async-api-credit-card-application-example` | 10 | 10 | 0 | 10 | 100.0% (5783 of 5783) | 100.0% (6083 of 6083) | 220 | 38 |
-| `cics-banking-sample-application-cbsa` | 31 | 6 | 0 | 6 | 44.5% (837 of 1881) | 69.5% (1977 of 2846) | 679 | 365 |
+| `aws-mainframe-modernization-carddemo` | 44 | 12 | 5 | 0 | 64.4% (1152 of 1789) | 7.8% (1847 of 23824) | 431 | 178 |
+| `cics-async-api-credit-card-application-example` | 10 | 10 | 10 | 0 | 95.6% (5665 of 5923) | 100.0% (6083 of 6083) | 220 | 38 |
+| `cics-banking-sample-application-cbsa` | 31 | 6 | 1 | 0 | 44.4% (835 of 1882) | 69.5% (1977 of 2846) | 679 | 365 |
 | `cics-genapp` | 31 | 0 | 0 | 0 | not measured | not measured | 0 | 0 |
 | `dbb-mortgage-application` | 6 | 0 | 0 | 0 | not measured | not measured | 0 | 0 |
-| `zecs` | 7 | 2 | 2 | 0 | 47.3% (134 of 283) | 100.0% (1067 of 1067) | 294 | 266 |
-| **Total** | 129 | 30 | 2 | 28 | 81.5% (7902 of 9697) | 32.4% (10974 of 33820) | 1624 | 847 |
+| `zecs` | 7 | 4 | 4 | 0 | 45.5% (1135 of 2497) | 100.0% (2601 of 2601) | 925 | 437 |
+| **Total** | 129 | 32 | 20 | 0 | 72.7% (8787 of 12091) | 35.4% (12508 of 35354) | 2255 | 1018 |
 
 ## Capability ledger
 
@@ -106,13 +106,13 @@ Source: tests/fixtures/feature_inventory/<estate>.json (era_tags.py). Programs p
 | 0 | 0 | 0 | 0 |
 | 1 | 9 | 9 | 9 |
 | 2 | 70 | 70 | 70 |
-| 3 | 16 | 14 | 13 |
-| 4 | 21 | 20 | 19 |
+| 3 | 16 | 14 | 14 |
+| 4 | 21 | 20 | 20 |
 | untagged | 13 | 13 | 13 |
 
 ## 4. Core burn-down
 
-Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-01T11:25:42Z.
+Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-01T11:58:10Z.
 
 - `scope:core`: 12 open, 201 closed.
 - Milestone 28: 7 open, 103 closed.
@@ -123,7 +123,7 @@ Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-
 
 Frontier issues are discoveries, not debt: the sweeps keep finding siblings, and each one is a new entry.
 
-- `scope:frontier`: 2 found in the last 7 days, 198 in total (79 open, 119 closed).
+- `scope:frontier`: 2 found in the last 7 days, 198 in total (78 open, 120 closed).
 - Milestone 30 (Gap Atlas): 50 issues.
 - `scope:sweep`: 5 open, 95 closed.
 - `scope:infra`: 25 open, 244 closed.

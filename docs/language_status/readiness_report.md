@@ -12,9 +12,9 @@ the charter in `definition_of_done.md`. Counts only; a level is an evidence leve
 | L0 inventoried | 2 |
 | L1 translated whole | 0 |
 | L2 executed equivalent | 0 |
-| L3 paragraph coverage | 1 |
-| L4 branch coverage | 41 |
-| L5 mutants accounted for | 0 |
+| L3 paragraph coverage | 0 |
+| L4 branch coverage | 37 |
+| L5 mutants accounted for | 5 |
 
 - translated whole: 42 / 44 (95%); with holes: 2; refused: 0
 - whole-translated but a CALL / LINK target has holes (below L2 until it is closed): 0
@@ -39,11 +39,10 @@ source is corrected. Not counted among the rules to land below.
 |---|---|---|---|---|---|
 | 1 | <name>: <name> is not defined in a record of file <name> | 2 | 0 | 2 | era 3: 2 |
 
-### Proof blockers (42 programs translated whole, 41 with no proof gap; top 1 of 1 classes, `proof_blockers.py` statistics)
+### Proof blockers (42 programs translated whole, 42 with no proof gap; top 0 of 0 classes, `proof_blockers.py` statistics)
 
 | rank | what stops the proof | alone | one gap away | touched |
 |---|---|---|---|---|
-| 1 | coverage: branch outcomes below the bar | 1 | 0 | 1 |
 
 ### Missing inputs
 
@@ -55,19 +54,17 @@ source is corrected. Not counted among the rules to land below.
 
 | id | status | area | programs | named only |
 |---|---|---|---|---|
-| X27 | ASSUMED (the STARTCODE; REFUSED where IBM is silent) | CICS | 25 | 25 |
-| X31 | ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name) | CICS | 21 | 21 |
-| X14 | ASSUMED (REFUSED where IBM is silent) | CICS | 13 | 13 |
-| X22 | ASSUMED (REFUSED where IBM is silent or the layout decides) | CICS | 13 | 13 |
-| X3 | MATCHED | CICS | 9 | 9 |
-| X20 | MATCHED (REFUSED where the region cannot decide) | CICS | 8 | 8 |
-| X52 | ASSUMED (REFUSED where IBM is silent) | CICS | 8 | 8 |
-| X67 | REFUSED | CICS | 5 | 5 |
-| X46 | ASSUMED (REFUSED where IBM is silent) | CICS | 4 | 4 |
+| X27 | ASSUMED (the STARTCODE; REFUSED where IBM is silent) | CICS | 25 | 8 |
+| X42 | ASSUMED (REFUSED where IBM is silent) | CICS | 25 | 8 |
+| X31 | ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name) | CICS | 21 | 4 |
+| X3 | MATCHED | CICS | 9 | 7 |
+| X20 | MATCHED (REFUSED where the region cannot decide) | CICS | 7 | 4 |
+| X14 | ASSUMED (REFUSED where IBM is silent) | CICS | 4 | 4 |
+| X22 | ASSUMED (REFUSED where IBM is silent or the layout decides) | CICS | 4 | 4 |
 | X18 | ASSUMED (REFUSED where IBM is silent) | CICS | 3 | 3 |
-| X16 | MATCHED (REFUSED where IBM is silent) | CICS | 1 | 1 |
-| X19 | ASSUMED (REFUSED where the harness cannot decide) | CICS | 1 | 1 |
-| X34 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 | 1 |
+| X46 | ASSUMED (REFUSED where IBM is silent) | CICS | 3 | 3 |
+| X67 | REFUSED | CICS | 3 | 3 |
+| X52 | ASSUMED (REFUSED where IBM is silent) | CICS | 2 | 2 |
 
 ## cics-async-api-credit-card-application-example
 
@@ -79,8 +76,8 @@ source is corrected. Not counted among the rules to land below.
 | L1 translated whole | 0 |
 | L2 executed equivalent | 0 |
 | L3 paragraph coverage | 0 |
-| L4 branch coverage | 10 |
-| L5 mutants accounted for | 0 |
+| L4 branch coverage | 0 |
+| L5 mutants accounted for | 10 |
 
 - translated whole: 10 / 10 (100%); with holes: 0; refused: 0
 - whole-translated but a CALL / LINK target has holes (below L2 until it is closed): 0
@@ -112,6 +109,7 @@ era 0: 0, era 1: 0, era 2: 0, era 3: 0, era 4: 7, era none: 3
 | id | status | area | programs | named only |
 |---|---|---|---|---|
 | X27 | ASSUMED (the STARTCODE; REFUSED where IBM is silent) | CICS | 10 | 10 |
+| X42 | ASSUMED (REFUSED where IBM is silent) | CICS | 10 | 10 |
 | X17 | ASSUMED (REFUSED where IBM is silent) | CICS | 7 | 7 |
 | X18 | ASSUMED (REFUSED where IBM is silent) | CICS | 7 | 7 |
 | X15 | ASSUMED (REFUSED where IBM is silent) | CICS | 2 | 2 |
@@ -128,8 +126,8 @@ era 0: 0, era 1: 0, era 2: 0, era 3: 0, era 4: 7, era none: 3
 | L1 translated whole | 0 |
 | L2 executed equivalent | 0 |
 | L3 paragraph coverage | 0 |
-| L4 branch coverage | 31 |
-| L5 mutants accounted for | 0 |
+| L4 branch coverage | 30 |
+| L5 mutants accounted for | 1 |
 
 - translated whole: 31 / 31 (100%); with holes: 0; refused: 0
 - whole-translated but a CALL / LINK target has holes (below L2 until it is closed): 0
@@ -160,19 +158,20 @@ era 0: 0, era 1: 0, era 2: 22, era 3: 1, era 4: 6, era none: 2
 
 | id | status | area | programs | named only |
 |---|---|---|---|---|
-| X27 | ASSUMED (the STARTCODE; REFUSED where IBM is silent) | CICS | 30 | 30 |
-| X46 | ASSUMED (REFUSED where IBM is silent) | CICS | 27 | 27 |
-| X19 | ASSUMED (REFUSED where the harness cannot decide) | CICS | 23 | 23 |
+| X27 | ASSUMED (the STARTCODE; REFUSED where IBM is silent) | CICS | 30 | 28 |
+| X42 | ASSUMED (REFUSED where IBM is silent) | CICS | 30 | 28 |
+| X46 | ASSUMED (REFUSED where IBM is silent) | CICS | 25 | 25 |
+| X19 | ASSUMED (REFUSED where the harness cannot decide) | CICS | 22 | 22 |
 | X18 | ASSUMED (REFUSED where IBM is silent) | CICS | 10 | 10 |
 | X20 | MATCHED (REFUSED where the region cannot decide) | CICS | 9 | 9 |
 | X31 | ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name) | CICS | 9 | 9 |
 | X15 | ASSUMED (REFUSED where IBM is silent) | CICS | 8 | 8 |
-| X67 | REFUSED | CICS | 7 | 7 |
 | X17 | ASSUMED (REFUSED where IBM is silent) | CICS | 6 | 6 |
 | X26 | ASSUMED (REFUSED where IBM is silent) | CICS | 6 | 6 |
+| X67 | REFUSED | CICS | 6 | 6 |
 | X14 | ASSUMED (REFUSED where IBM is silent) | CICS | 5 | 5 |
 | X22 | ASSUMED (REFUSED where IBM is silent or the layout decides) | CICS | 5 | 5 |
-| X3 | MATCHED | CICS | 5 | 5 |
+| X3 | MATCHED | CICS | 5 | 4 |
 | X52 | ASSUMED (REFUSED where IBM is silent) | CICS | 3 | 3 |
 | X60 | ASSUMED (REFUSED where IBM is silent) | CICS | 2 | 2 |
 | X29 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 | 1 |
@@ -219,25 +218,26 @@ era 0: 0, era 1: 4, era 2: 24, era 3: 0, era 4: 3, era none: 0
 
 | id | status | area | programs | named only |
 |---|---|---|---|---|
-| X27 | ASSUMED (the STARTCODE; REFUSED where IBM is silent) | CICS | 31 | 31 |
-| X46 | ASSUMED (REFUSED where IBM is silent) | CICS | 22 | 22 |
-| X20 | MATCHED (REFUSED where the region cannot decide) | CICS | 9 | 9 |
-| X3 | MATCHED | CICS | 6 | 6 |
+| X27 | ASSUMED (the STARTCODE; REFUSED where IBM is silent) | CICS | 31 | 25 |
+| X42 | ASSUMED (REFUSED where IBM is silent) | CICS | 31 | 25 |
+| X46 | ASSUMED (REFUSED where IBM is silent) | CICS | 17 | 17 |
+| X20 | MATCHED (REFUSED where the region cannot decide) | CICS | 9 | 8 |
+| X3 | MATCHED | CICS | 6 | 5 |
 | X16 | MATCHED (REFUSED where IBM is silent) | CICS | 5 | 5 |
-| X22 | ASSUMED (REFUSED where IBM is silent or the layout decides) | CICS | 5 | 5 |
 | X31 | ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name) | CICS | 5 | 5 |
-| X14 | ASSUMED (REFUSED where IBM is silent) | CICS | 4 | 4 |
-| X15 | ASSUMED (REFUSED where IBM is silent) | CICS | 4 | 4 |
-| X19 | ASSUMED (REFUSED where the harness cannot decide) | CICS | 4 | 4 |
+| X15 | ASSUMED (REFUSED where IBM is silent) | CICS | 4 | 3 |
+| X22 | ASSUMED (REFUSED where IBM is silent or the layout decides) | CICS | 4 | 4 |
 | X30 | ASSUMED (REFUSED where IBM is silent) | CICS | 4 | 4 |
+| X14 | ASSUMED (REFUSED where IBM is silent) | CICS | 3 | 3 |
+| X19 | ASSUMED (REFUSED where the harness cannot decide) | CICS | 3 | 3 |
 | X45 | ASSUMED (REFUSED where IBM is silent) | CICS | 3 | 3 |
 | X29 | ASSUMED (REFUSED where IBM is silent) | CICS | 2 | 2 |
-| X52 | ASSUMED (REFUSED where IBM is silent) | CICS | 2 | 2 |
 | X53 | ASSUMED (REFUSED where IBM is silent) | CICS | 2 | 2 |
 | X60 | ASSUMED (REFUSED where IBM is silent) | CICS | 2 | 2 |
 | X17 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 | 1 |
 | X18 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 | 1 |
 | X50 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 | 1 |
+| X52 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 | 1 |
 
 ## dbb-mortgage-application
 
@@ -289,10 +289,10 @@ era 0: 0, era 1: 0, era 2: 2, era 3: 0, era 4: 1, era none: 3
 | id | status | area | programs | named only |
 |---|---|---|---|---|
 | X27 | ASSUMED (the STARTCODE; REFUSED where IBM is silent) | CICS | 3 | 3 |
+| X42 | ASSUMED (REFUSED where IBM is silent) | CICS | 3 | 3 |
 | X31 | ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name) | CICS | 2 | 2 |
 | X17 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 | 1 |
 | X20 | MATCHED (REFUSED where the region cannot decide) | CICS | 1 | 1 |
-| X42 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 | 1 |
 | X47 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 | 1 |
 | X52 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 | 1 |
 | X65 | REFUSED | CICS | 1 | 1 |
@@ -305,10 +305,10 @@ era 0: 0, era 1: 0, era 2: 2, era 3: 0, era 4: 1, era none: 3
 |---|---|
 | L0 inventoried | 0 |
 | L1 translated whole | 0 |
-| L2 executed equivalent | 1 |
+| L2 executed equivalent | 0 |
 | L3 paragraph coverage | 0 |
-| L4 branch coverage | 4 |
-| L5 mutants accounted for | 2 |
+| L4 branch coverage | 3 |
+| L5 mutants accounted for | 4 |
 
 - translated whole: 7 / 7 (100%); with holes: 0; refused: 0
 - whole-translated but a CALL / LINK target has holes (below L2 until it is closed): 0
@@ -324,11 +324,10 @@ era 0: 0, era 1: 0, era 2: 0, era 3: 0, era 4: 4, era none: 3
 | rank | rule (gap class) | makes whole alone | one rule away | touched | era mix of the alone-set |
 |---|---|---|---|---|---|
 
-### Proof blockers (7 programs translated whole, 6 with no proof gap; top 1 of 1 classes, `proof_blockers.py` statistics)
+### Proof blockers (7 programs translated whole, 7 with no proof gap; top 0 of 0 classes, `proof_blockers.py` statistics)
 
 | rank | what stops the proof | alone | one gap away | touched |
 |---|---|---|---|---|
-| 1 | coverage: paragraphs below the bar | 1 | 0 | 1 |
 
 ### Missing inputs
 
@@ -341,6 +340,7 @@ era 0: 0, era 1: 0, era 2: 0, era 3: 0, era 4: 4, era none: 3
 | id | status | area | programs | named only |
 |---|---|---|---|---|
 | X27 | ASSUMED (the STARTCODE; REFUSED where IBM is silent) | CICS | 5 | 5 |
+| X42 | ASSUMED (REFUSED where IBM is silent) | CICS | 5 | 5 |
 | X32 | ASSUMED (REFUSED where IBM is silent) | CICS | 4 | 4 |
 | X35 | ASSUMED (REFUSED where IBM is silent) | CICS | 4 | 4 |
 | X14 | ASSUMED (REFUSED where IBM is silent) | CICS | 3 | 3 |

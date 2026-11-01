@@ -123,7 +123,7 @@ POSITIVES = {
         "// type Foo =",
         "// module Util",
         "// open System.IO",
-        "// printfn \"x\"",
+        '// printfn "x"',
         "// match x with",
         "// if x > 1 then",
     ],
@@ -144,7 +144,7 @@ POSITIVES = {
         "// class Foo extends Bar",
         "// object Main",
         "// import a.b._",
-        "// println(\"x\")",
+        '// println("x")',
         "/* trait T { */",
     ],
     "powershell": [
@@ -161,7 +161,7 @@ POSITIVES = {
         "# proc foo {a b} {",
         "# set x 1",
         "# set x $y",
-        "# set x \"abc\"",
+        '# set x "abc"',
         "# if {$x > 1} {",
         "# while {1} {",
         "# foreach i $list {",
@@ -366,7 +366,19 @@ NEGATIVES = {
 }
 
 
-MARKER = {"abap": "*", "ada": "--", "apex": "//", "dart": "//", "lua": "--", "php": "//", "fsharp": "//", "groovy": "//", "scala": "//", "rexx": "--", "matlab": "%"}
+MARKER = {
+    "abap": "*",
+    "ada": "--",
+    "apex": "//",
+    "dart": "//",
+    "lua": "--",
+    "php": "//",
+    "fsharp": "//",
+    "groovy": "//",
+    "scala": "//",
+    "rexx": "--",
+    "matlab": "%",
+}
 
 
 def _rule(lang):

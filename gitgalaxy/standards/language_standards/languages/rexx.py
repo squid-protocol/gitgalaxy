@@ -314,7 +314,10 @@ DEFINITION: dict[str, Any] = {
         "dead_code": re.compile(
             r"(?:/\*|--)[ \t]*(?:CALL[ \t]+" + _NAME + r"{1,64}[ \t]*(?:[(,;]|(?:\*/)?[ \t]*$)"
             r"|CALL[ \t]+" + _NAME + r"{1,64}[ \t]+['\"]"
-            r"|IF[ \t][^\n]{0,120}?[=<>\\(][^\n]{0,120}?" + _L + r"THEN" + _R
+            r"|IF[ \t][^\n]{0,120}?[=<>\\(][^\n]{0,120}?"
+            + _L
+            + r"THEN"
+            + _R
             + r"|DO[ \t]+(?:WHILE|UNTIL)[ \t][^\n]{0,120}?[=<>\\(]"
             + r"|EXECIO[ \t]+[\w*]+[ \t]+(?:DISK[RW]|CARD)"
             r"|PARSE[ \t]+(?:UPPER[ \t]+|LOWER[ \t]+)?(?:ARG|VAR|VALUE|PULL)"

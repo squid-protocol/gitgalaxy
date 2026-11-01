@@ -262,6 +262,13 @@ def test_ggcics_holds_the_task_control_stubs_in_its_family_file():
 
 
 # ---- ENQ / DEQ (#5274, fourth stub family): one stub function; DEQ is translated inline, with no stub ---------------
+def test_the_plain_stub_families_are_each_included_once_and_leave_only_the_entry_points():
+    host = (STUB / "ggcics.c").read_text(encoding="utf-8")
+    for family in ggcics_source.PLAIN_FAMILIES:
+        assert host.count(f'#include "ggcics_{family}.c"') == 1, family
+    assert "int GGCEND(" in host and "int GGCWRIT(" not in host and "int GGCGETM(" not in host
+
+
 def test_ggcics_holds_the_enq_stub_in_its_family_file():
     host = ggcics_source.stub_source()
     family = (STUB / "ggcics_enq.c").read_text(encoding="utf-8")
@@ -734,10 +741,3 @@ def test_every_reexported_name_resolves_whichever_module_is_imported_first(first
     )
     r = subprocess.run([sys.executable, "-I", "-c", code], capture_output=True, text=True, timeout=120)
     assert r.returncode == 0, r.stderr[-800:]
-
-
-def test_the_plain_stub_families_are_each_included_once_and_leave_only_the_entry_points():
-    host = (STUB / "ggcics.c").read_text(encoding="utf-8")
-    for family in ggcics_source.PLAIN_FAMILIES:
-        assert host.count(f'#include "ggcics_{family}.c"') == 1, family
-    assert "int GGCEND(" in host and "int GGCWRIT(" not in host and "int GGCGETM(" not in host

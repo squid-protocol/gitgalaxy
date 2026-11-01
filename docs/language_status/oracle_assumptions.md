@@ -4872,9 +4872,11 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
     loaded, INVREQ for one it did not or released already). The cics-crucible stub (`GGCLDPG` / `GGCRLPG`) answers the same. ASSUMED: IBM
     states no image bytes or length (the 256-byte block is ours; a program that reads the image is refused when it runs) and RELEASE's NORMAL
     is read from the absence of a listed condition. HOLD, ENTRY and FLENGTH are refused by name. `ca-load-set`: the cobol-stub cells and, with the
-    committed det ports of CALDST and CALDSX (23/23 and 27/27 statements), the java-ported and java-facade cells pass. CALDTG (a bare
-    `EXEC CICS RETURN`, LOADed and never run) gets no CICS skeleton from the forge, because the engine derives no LOAD edge yet (the
-    spec's `edge="load"` waits for PR 8b): its det translation is 0/1 and no port of it is committed. No burned estate issues either (0 programs
+    committed det ports of CALDST, CALDSX and CALDTG (23/23, 27/27 and 1/1 statements, no holes), the java-ported and java-facade cells pass.
+    CALDTG (a bare `EXEC CICS RETURN`, LOADed and never run) is a CICS program only through the LOAD edge: `mainframe_boundary._CICS_TRANSFER`
+    reads LOAD for COBOL hosts (`loads=True`; the LOAD's LENGTH is the image's, so no COMMAREA contract is read), `galaxy_ir.navigation()` emits
+    it, and the forge's `loaded_by()` counts the target as CICS while keeping it out of `incoming_links` (no LINK handler). Still open: PL/I and
+    HLASM record no LOAD edge, and RELEASE is deliberately not an edge. No burned estate issues either (0 programs
     in the census of the burned and local corpora); LOAD is heavy only in PL/I.
   - Singles: SUSPEND and CHANGE TASK (one task runs at a time), RESETBR (browse repositioning), ADDRESS SET (X59), BIF DIGEST,
     CONVERTTIME (a date-time string to ABSTIME).

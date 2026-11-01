@@ -42,8 +42,8 @@ PROGRAMS = {
     "ca-getmain-pointer": ("CAGM", ("CAGMPT", "CAGMZ")),  # #6876: GETMAIN / FREEMAIN DATA, pointer arithmetic
     "ca-load-set": (
         "CALD",
-        ("CALDST", "CALDSX"),
-    ),  # #6876: LOAD / RELEASE; CALDTG (never run) has no CICS skeleton, see X65
+        ("CALDST", "CALDSX", "CALDTG"),
+    ),  # #6876: LOAD / RELEASE; CALDTG (never run) is a CICS program through the LOAD edge, see X65
 }
 
 

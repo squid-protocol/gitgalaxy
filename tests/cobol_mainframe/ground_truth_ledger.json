@@ -284,9 +284,9 @@
         },
         "JCL job flow": {
           "engine": {
-            "got": 558,
-            "tp": 558,
-            "truth": 558
+            "got": 556,
+            "tp": 556,
+            "truth": 556
           },
           "forge": null,
           "truth": "cross_verified"

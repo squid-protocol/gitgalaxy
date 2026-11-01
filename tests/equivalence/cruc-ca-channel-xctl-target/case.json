@@ -1,0 +1,32 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "CACHXB",
+  "program_source": "cases/commarea-mismatch/ca-channel-containers/src/CACHXB.cbl",
+  "copy_dirs": [
+    "cases/commarea-mismatch/ca-channel-containers/copy"
+  ],
+  "transid": "CA05",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "programs": [],
+  "notes": "cics-crucible commarea-mismatch / ca-channel-containers (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): CACHXB, the XCTL target of CACHAN, entered directly with the channel CACHAN hands it (a REPLY container). The XCTL-reached run in cruc-ca-channel-containers is not counted as CACHXB's own coverage. The oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "reply-present",
+      "commarea": null,
+      "terminal": "CA05",
+      "why": "CACHXB entered with the channel CACHAN passes: ASSIGN CHANNEL, GET CONTAINER REPLY, then PUT/GET in a channel of its own",
+      "channel": {
+        "name": "CAREQUEST",
+        "containers": {
+          "REPLY": {
+            "text": "REPLY FROM CACHSUB"
+          }
+        }
+      }
+    }
+  ]
+}

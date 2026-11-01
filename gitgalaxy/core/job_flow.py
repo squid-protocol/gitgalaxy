@@ -28,7 +28,7 @@
 #   - Scheduler dependencies (CA-7, TWS, Control-M) are not in the repository;
 #     cross-job ORDER is therefore unknown, and producer -> consumer edges across
 #     jobs are candidates, not a schedule.
-#   - Only DDs that name a DSN are DD rows (not SYSOUT / DUMMY / in-stream `*`).
+#   - Only DDs that name a DSN are DD rows (not SYSOUT / DUMMY / DSN=NULLFILE / in-stream `*`).
 #     An in-stream control deck (`DD *` / `DD DATA` named SYSIN, SYMNAMES, SORTCNTL, DFSPARM, #4268) is an
 #     INSTREAM row: step_name, dd_name, in_proc, line, instream (the body as written). Other in-stream DDs
 #     (SYSTSIN has its own channel, runs / systsin_member) are not kept.
@@ -395,6 +395,8 @@ def jcl_job_flow(code_stream: str) -> list[dict[str, Any]]:
             if not dsn:
                 continue
             dsn = dsn.upper()
+            if dsn == "NULLFILE":  # z/OS MVS JCL Reference, DSNAME: "same effect as coding the DD DUMMY parameter"
+                continue
             gen = _GEN.search(dsn)
             if gen:
                 dsn = dsn[: gen.start()]

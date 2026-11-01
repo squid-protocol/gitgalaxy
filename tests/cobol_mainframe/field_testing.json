@@ -862,6 +862,21 @@
       "found_by": "ground-truth ledger on the epscsmrd onboarding (#4244)",
       "issue": 4244,
       "summary": "The refraction forge renders only the first program's DATA DIVISION of a multi-program source, so 193 record fields of DBB epscsmrd.cbl's sibling programs are missed (the engine and key read all programs since #4245)."
+    },
+    {
+      "id": "D050",
+      "estate": null,
+      "after_round": 8,
+      "side": "engine",
+      "fields": [
+        "JCL job flow",
+        "DD names"
+      ],
+      "language": "jcl",
+      "severity": "fact",
+      "found_by": "review",
+      "issue": 7065,
+      "summary": "A DD coded DSN=NULLFILE (IBM: same effect as DD DUMMY) was read as a dataset: job_flow kept a DD row with dsn NULLFILE and the JCL dependency capture kept NULLFILE as an import. Found by the Batch Badlands level estate-crucible (horror H-0084, SORTWK01), not by a keyed estate. job_flow now emits no row for it and the dependency capture skips it."
     }
   ],
   "fields": {

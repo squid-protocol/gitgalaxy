@@ -412,6 +412,7 @@ def task_number(case: dict[str, Any], sc: dict[str, Any]) -> int:
 
 UCTRANST_NAMES = ("UCTRAN", "NOUCTRAN", "TRANIDONLY")
 TERMINAL_DEVICES = ("3270", "LUTYPE2")  # #7434: LUTYPE2 raises EOC on the RECEIVE returning the input's last byte (X15)
+AREA_KEYS = ("twasize", "wrkarea", "userarealen")  # #5079 (X59): TRANSACTION TWASIZE, SIT WRKAREA, TYPETERM USERAREALEN
 ORIGIN_KEYS = ("applid", "userid", "facilname", "networkid", "faciltype")
 
 
@@ -435,9 +436,15 @@ def terminal_facts(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, Any]:
         raise Unsupported(f'scenario {sc.get("name")}: "uctranst" is one of {", ".join(UCTRANST_NAMES)}, of a '
                           'stated "termid"')  # fmt: skip
     # #5126: only when stated (an always-present empty key breaks exact-equality tests)
-    for k in ("userid", "screen", "device"):
+    for k in ("userid", "screen", "device", *AREA_KEYS):
         if sc.get(k, case.get(k)) is not None:
             out[k] = sc.get(k, case.get(k))
+    # #5079 (X59): the sizes of the TWA / CWA / TCTUA that ADDRESS returns, as the crucible runner states them; a TCTUA is the terminal's
+    for k in AREA_KEYS:
+        n = out.get(k)
+        if n is not None and (type(n) is not int or n < 0 or (k == "userarealen" and not t)):
+            raise Unsupported(f'scenario {sc.get("name")}: "{k}" is a byte count, 0 or more'
+                              + (' (of a stated "termid")' if k == "userarealen" else ""))  # fmt: skip
     # #7434: the TYPETERM DEVICE, as the crucible runner states it
     if out.get("device") not in (None, *TERMINAL_DEVICES):
         raise Unsupported(f'scenario {sc.get("name")}: "device" is one of {", ".join(TERMINAL_DEVICES)} (X15), not '
@@ -2104,6 +2111,9 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
                       + (f"GGCICS_USERID={term['userid']} " if term.get("userid") else "")  # #5126
                       + ("GGCICS_LU2=1 " if term.get("device") == "LUTYPE2" else "")  # #7434: EOC on RECEIVE (X15)
                       + (f"GGCICS_SCREEN='{term['screen'][0]} {term['screen'][1]}' " if term.get("screen") else "")
+                      + (f"GGCICS_TWASIZE={term['twasize']} " if term.get("twasize") else "")  # #5079 (X59)
+                      + (f"GGCICS_WRKAREA={term['wrkarea']} GGCICS_CWA={rel}/cwa " if term.get("wrkarea") else "")
+                      + (f"GGCICS_USERAREALEN={term['userarealen']} GGCICS_TCTUA={rel}/tctua " if term.get("userarealen") else "")
                       + (f"GGCICS_ORIGIN={','.join(term['origin'][k] for k in ORIGIN_KEYS)} " if term["origin"] else "")
                       + (f"GGCICS_URIMAPS={rel}/urimaps.cfg " if urimaps(case, sc) is not None else "")
                       + (f"GGCICS_MAPSETS='{mapsets_env(case)}' " if case.get("maps") else "")
@@ -3583,6 +3593,9 @@ class EquivalenceRunTest {{
                 task.withExactCommarea();
             }}
             if (sc.hasNonNull("userid")) task.withUserid(sc.get("userid").asText());  // #5126 (X19): ASSIGN USERID
+            if (sc.hasNonNull("twasize")) task.withTwaSize(sc.get("twasize").asInt());  // #5079 (X59): ADDRESS TWA
+            if (sc.hasNonNull("wrkarea")) task.withCwa(new byte[sc.get("wrkarea").asInt()]);  // ADDRESS CWA
+            if (sc.hasNonNull("userarealen")) task.withTctua(new byte[sc.get("userarealen").asInt()]);  // ADDRESS TCTUA
             if (sc.hasNonNull("screen")) task.withScreen(sc.get("screen").get(0).asInt(), sc.get("screen").get(1).asInt());
             if (sc.hasNonNull("origin")) {{  // #4270 (X29): INQUIRE ASSOCIATION -- the origin data the case states
                 JsonNode o = sc.get("origin");

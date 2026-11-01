@@ -285,11 +285,12 @@ _CALL_IDENTIFIER = re.compile(
 # A block never runs across another EXEC, so a missing END-EXEC masks nothing beyond it.
 _EXEC_BLOCK = re.compile(r"(?<![\w-])EXEC\s+\w+(?:(?!(?<![\w-])EXEC\s)[\s\S])*?(?<![\w-])END-EXEC(?![\w-])", re.I)
 
-# An `EXEC CICS LINK`/`XCTL` block, up to its END-EXEC. The body bound is
+# An `EXEC CICS LINK`/`XCTL`/`LOAD` block, up to its END-EXEC (#6876: LOAD PROGRAM names a program the
+# task loads and never runs, an edge to it all the same; its LENGTH is the image's, not a COMMAREA's). The body bound is
 # generous enough for the real multi-option blocks (PROGRAM/COMMAREA/RESP/
 # RESP2/SYNCONRETURN) and hard-capped so an unterminated EXEC cannot scan the
 # rest of the file.
-_CICS_TRANSFER = re.compile(r"\bEXEC[ \t\n\u3000]+CICS[ \t\n\u3000]+(LINK|XCTL)\b", re.I)
+_CICS_TRANSFER = re.compile(r"\bEXEC[ \t\n\u3000]+CICS[ \t\n\u3000]+(LINK|XCTL|LOAD)\b", re.I)
 # #3495: the identifier form also takes HLASM symbols (`_`, `@#$`) -- zECS's
 # `START TRANSID(Z_EXP)` read as `Z`. COBOL names never contain them.
 # The operand of PROGRAM(...) / TRANSID(...): a quoted literal, or a data name --
@@ -774,7 +775,7 @@ def _cobol_calls(code_stream: str, values: dict[str, str], cics_only: bool = Fal
             block = block[:end]
         operand_match = _CICS_PROGRAM_OPERAND.search(block)
         # #3355: the record this transfer passes, and its declared length(s).
-        contract = _cics_contract_operands(block)
+        contract = {} if match.group(1).upper() == "LOAD" else _cics_contract_operands(block)
         if not operand_match:
             # A LINK with no PROGRAM operand is a CHANNEL-only transfer or
             # malformed source. Recorded with no operand: the site exists.

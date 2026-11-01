@@ -5144,7 +5144,7 @@ class GalaxyIR:
                 if c.verb in TRANSACTION_ROUTING_VERBS and c.target:
                     out.append({"from": f.file_path, "line": c.line, "verb": c.verb, "program": c.target,
                                 "to": self._transaction_program(c.target), "via": "transaction"})  # fmt: skip
-                elif c.verb in ("LINK", "XCTL") and c.form != "identifier" and (c.resolves_to or c.target):
+                elif c.verb in ("LINK", "XCTL", "LOAD") and c.form != "identifier" and (c.resolves_to or c.target):
                     # A data-name site (even one bound through its VALUE) comes from
                     # dynamic_call_targets below, so no edge is listed twice.
                     out.append({"from": f.file_path, "line": c.line, "verb": c.verb, "program": c.target,

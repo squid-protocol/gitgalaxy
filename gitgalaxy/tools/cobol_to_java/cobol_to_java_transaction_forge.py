@@ -2727,6 +2727,14 @@ def incoming_links(skeleton: dict) -> list[dict]:
     return [rows[k] for k in sorted(rows)]
 
 
+def loaded_by(skeleton: dict) -> list[str]:
+    """The programs whose EXEC CICS LOAD names this one (#6876, X65). A loaded program is never LINKed to, so it has no
+    handler or contract; but a CICS region loaded it, so its own EXEC CICS statements are CICS (CALDTG's bare RETURN)."""
+    path = skeleton["program"]["file"]
+    rows = (skeleton.get("sections", {}).get("navigation") or {}).get("facts", [])
+    return sorted({r["from"] for r in rows if r.get("verb") == "LOAD" and r.get("to") == path})
+
+
 def is_cics_program(skeleton: dict) -> bool:
     """A program the engine saw CICS evidence for: an entry transaction, an EXEC CICS resource,
     a COMMAREA contract, a container, or a LINK / XCTL reaching it -- or (#4270) a program nothing in the
@@ -2742,6 +2750,7 @@ def is_cics_program(skeleton: dict) -> bool:
         or (sections.get("commarea_contracts") or {}).get("facts")
         or interface.get("containers")
         or incoming_links(skeleton)
+        or loaded_by(skeleton)
         or any(
             r.get("level") == 1 and r.get("section") == "LINKAGE" and str(r.get("name") or "").upper() == "DFHCOMMAREA"
             for r in (sections.get("records") or {}).get("facts") or []

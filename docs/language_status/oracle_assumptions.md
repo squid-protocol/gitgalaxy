@@ -4421,7 +4421,7 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
 - **Assumed.** (1) The EIB the pointer addresses is the task's own, updated by every later command as the program's DFHEIBLK is. (2) The
   COMMAREA the pointer addresses is the program's DFHCOMMAREA (the area the caller passed, X23), at its start. (3) The command raises no condition
   (the page lists none).
-- **Refused by name.** At translation: ACEE (the region defines none: no CICS system tables); in the harness translator, the old ADDRESS SET form,
+- **Refused by name.** At translation: ACEE (the region defines none: no CICS system tables and no security manager; IBM returns the DFLTUSER's ACEE for a task not signed on and X'FF000000' when none exists, which is not COBOL NULL, as for COMMAREA below); the old ADDRESS SET form (not an option on IBM's current ADDRESS page, which lists ACEE, COMMAREA, CWA, EIB, TCTUA and TWA); in the harness translator,
   ADDRESS COMMAREA in a program with no LINKAGE 01 DFHCOMMAREA (there is no record to address; the pointer could only be handed to SET ADDRESS OF
   another record), ADDRESS with neither EIB nor COMMAREA, a pointer that is not a plain USAGE POINTER item or that a REDEFINES overlays (X47). At
   run time: ADDRESS COMMAREA when EIBCALEN is 0 (IBM's X'FF000000' is not NULL, and a handle is no number the program can compare with it). BLL cells

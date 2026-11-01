@@ -713,6 +713,47 @@ int GGCWEVT(gg_cics *c, void **slot) {
     return 0;
 }
 
+/* #5079 (X63): WAIT EXTERNAL / WAITCICS ECBLIST(ptr) NUMEVENTS(GG-NUM) (IBM, EXEC CICS WAIT EXTERNAL / WAITCICS), as
+ * CicsTask.waitExternal; GG-FLAGS 'WAITCICS' for WAITCICS. The list is a task-storage block of NUMEVENTS pointers (a null one is
+ * ignored); an ECB is posted when its first byte is X'40' (ASSUMED: IBM names no bit) and one posted returns at once. INVREQ RESP2
+ * 2 (WAIT EXTERNAL) a null list, 3 NUMEVENTS below 1, 5 every entry null. Refused: a null WAITCICS list, a list or ECB that is no
+ * live task storage, and a list with no posted ECB (nothing else runs to post one: the task would wait forever). */
+int GGCECBW(gg_cics *c, void **slot) {
+    char *list = (char *)*slot;
+    long long n = c->num;
+    int valid = 0, posted = 0;
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (list == NULL) {
+        if (strstr(c->flags, "WAITCICS")) refuse("WAITCICS with a null ECBLIST");
+        c->resp = INVREQ;
+        c->resp2 = 2;
+        return 0;
+    }
+    if (n < 1) {
+        c->resp = INVREQ;
+        c->resp2 = 3;
+        return 0;
+    }
+    if (blk_room(list) < (size_t)n * sizeof(void *))
+        refuse("WAIT on an ECB list that is no task storage holding NUMEVENTS handles");
+    for (long long i = 0; i < n; i++) {
+        void *ecb;
+        memcpy(&ecb, list + i * sizeof(void *), sizeof ecb);
+        if (ecb == NULL) continue;
+        if (blk_room(ecb) == 0) refuse("WAIT on an ECB list that is no task storage holding NUMEVENTS handles");
+        valid = 1;
+        if (((unsigned char *)ecb)[0] == 0x40) posted = 1;
+    }
+    if (!valid) {
+        c->resp = INVREQ;
+        c->resp2 = 5;
+        return 0;
+    }
+    if (!posted) refuse("WAIT on an ECB list with no posted ECB");
+    return 0;
+}
+
 static int kid_of(const char *qname) {
     char token[17];
     memcpy(token, qname, 16);

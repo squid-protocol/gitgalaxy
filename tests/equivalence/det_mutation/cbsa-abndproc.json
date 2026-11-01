@@ -5,81 +5,207 @@
  "case": "cbsa-abndproc",
  "entry": {
   "program": "ABNDPROC",
-  "commit": "f898e68191670d1080681f9a9d128b06e52c0d41",
-  "date": "2026-10-22",
+  "commit": "3a8e5d3531c39f926744b8cf733b4b7afb8800ab+uncommitted",
+  "date": "2026-11-01",
   "mode": "fast",
   "seed": 0,
-  "mutants": 453,
+  "mutants": 455,
   "out_of_scope": 23,
-  "chosen": 150,
+  "chosen": 455,
   "coverage": "proven on 8 scenarios, covering 4/4 paragraphs and 2/2 branches",
   "counts": {
-   "killed": 44,
+   "killed": 128,
    "timeout": 1,
-   "survived": 96,
-   "stillborn": 9,
+   "survived": 307,
+   "stillborn": 19,
    "error": 0,
    "pending": 0
   },
   "killed": [
+   "02752dac28",
+   "058c44ef1f",
    "061cf19dba",
+   "08244deff7",
+   "0b80d1290a",
    "0feeb3fa8d",
+   "14e4d82891",
+   "1522402532",
+   "171f2078cf",
    "1b308bc5fc",
+   "1f19fc6e6c",
+   "2016543e6b",
+   "20834cbb90",
+   "221f878798",
    "22ba2d2882",
+   "257e6b7a30",
+   "25ec6d9691",
+   "28e258adeb",
    "2b158ac46d",
    "2b8bdb0077",
+   "2c149f1437",
    "335d146bd7",
-   "37f344e244",
+   "343582771b",
+   "3531260526",
+   "3760bd064b",
    "3811885a99",
    "3858a85fd2",
+   "3a93a9ea2e",
+   "3afc2bfbda",
+   "3c290f5d4d",
    "3c5b1becc8",
    "3e4f40bd49",
+   "3f48d54a1b",
+   "3ff43cf0a4",
    "453bacd5bc",
+   "48bec29216",
+   "4a653eefb4",
    "4b0b7e0e12",
    "4d4490fa62",
    "4d58bcd702",
-   "4fa95c6aa7",
+   "530d2a7d25",
    "5753cd1935",
+   "5981f7e2e9",
    "5daafba6a4",
+   "5eae055556",
    "5f0c63476e",
+   "5f83165f29",
+   "5ff2e247a1",
+   "65797c88b0",
+   "65ef5f8ae4",
    "66dfb1e3e3",
+   "6acd34477f",
+   "6eb7383619",
+   "6edf9904a4",
+   "70785e4b41",
+   "71bb0d487a",
    "784354150c",
+   "7963d5af53",
+   "7c151449c5",
    "7d2972923c",
+   "7e3fbcfd12",
+   "7e792b350a",
+   "81e07071f2",
+   "82f20cdf26",
+   "8305e77d30",
+   "83d1e09151",
+   "86668e000a",
    "8750cc7d8c",
+   "8a3584631f",
+   "8af51923c8",
+   "8b74e59ae4",
    "8e757528a6",
+   "8fdcc5af7e",
+   "901aaecf80",
+   "90a03bf3a7",
+   "93483bf753",
+   "935a1a6c16",
+   "93fa9cb626",
    "9443049038",
    "98fc1d0533",
+   "9a55842e88",
    "9bb81de7e3",
    "9c3339677f",
+   "9e04dbf9b5",
+   "9f0c55cb10",
+   "a0a94c74d9",
    "a2b7837a13",
+   "a426079864",
    "a58a8777f6",
+   "a690e30243",
+   "a7785c85f3",
+   "a824fd0b76",
+   "acfc60479d",
+   "af0b705c92",
+   "afcaecf866",
    "b2f7032b0d",
+   "b54c44aa43",
+   "b56b8f97f4",
+   "b5b2d0ca9b",
+   "b70806c1bd",
+   "b8fd82bdd2",
+   "bb0b73fcc2",
    "bd327be807",
    "bf9a6670fc",
+   "c0e12db635",
    "c1521659c5",
+   "c53b9b3b74",
+   "c6b4c1f7ad",
    "c6b69e1037",
+   "cca8a94dc0",
    "cda70a78f5",
    "d4a630dfc4",
    "d7abe31f1a",
+   "d90b43ae6a",
    "d95617bb29",
    "dd56675f10",
+   "dee4b3c4fc",
    "dfc76bb6b5",
    "e582cd5e93",
+   "e77540c365",
+   "ec29b5c4a4",
+   "ecdf08b595",
    "ef2f96fc96",
-   "f991fb1e66"
+   "f09e76f60a",
+   "f73f8b6fa3",
+   "f991fb1e66",
+   "fa5a82bdbc",
+   "fd1bd727c8",
+   "ff1af37896"
   ],
   "stillborn": [
+   "045d1cf4b4",
    "18156d6a70",
    "3563296d48",
+   "4f0c362813",
+   "5d637eb27d",
    "68976fc62e",
    "8770d27f5b",
    "8898670069",
    "965fd62fe6",
+   "9ca776556a",
+   "9f4fb41547",
    "b25d67e345",
+   "b3fcf78038",
+   "bc98881da7",
+   "bff4a39d48",
+   "c380b48d7a",
    "d53ae81239",
-   "da92bc4f1c"
+   "da92bc4f1c",
+   "ea6e1d418a"
   ],
   "survived": [
+   {
+    "id": "4973559175",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 40,
+    "before": "private static final int GOTO = 1 << 20;",
+    "after": "private static final int GOTO = 2 << 20;"
+   },
+   {
+    "id": "b95f472928",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 40,
+    "before": "private static final int GOTO = 1 << 20;",
+    "after": "private static final int GOTO = 1 << 21;"
+   },
+   {
+    "id": "02475cdb2b",
+    "op": "LIT",
+    "file": "service/AbndprocService.java",
+    "line": 44,
+    "before": "\"AAAAAAAAAAA=\"));",
+    "after": "\"XAAAAAAAAAA=\"));"
+   },
+   {
+    "id": "ad58ebdead",
+    "op": "LIT",
+    "file": "service/AbndprocService.java",
+    "line": 46,
+    "before": "\"AAAAAAAAAAwwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKzAwMDAwMDAwKzAwMDAwMDAwKzAwMDAwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+    "after": "\"XAAAAAAAAAwwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKzAwMDAwMDAwKzAwMDAwMDAwKzAwMDAwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\","
+   },
    {
     "id": "92ac6162de",
     "op": "LIT",
@@ -89,12 +215,52 @@
     "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\","
    },
    {
+    "id": "a094a1690c",
+    "op": "LIT",
+    "file": "service/AbndprocService.java",
+    "line": 48,
+    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));",
+    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));"
+   },
+   {
+    "id": "8a91a42dfa",
+    "op": "LIT",
+    "file": "service/AbndprocService.java",
+    "line": 50,
+    "before": "\"MDAwMCAwMCAwMA==\"));",
+    "after": "\"XDAwMCAwMCAwMA==\"));"
+   },
+   {
+    "id": "971394234a",
+    "op": "LIT",
+    "file": "service/AbndprocService.java",
+    "line": 52,
+    "before": "\"IA==\"));",
+    "after": "\"XA==\"));"
+   },
+   {
     "id": "ffab11f191",
     "op": "LIT",
     "file": "service/AbndprocService.java",
     "line": 54,
     "before": "\"MDAwMDAwMDAwMDAw\"));",
     "after": "\"XDAwMDAwMDAwMDAw\"));"
+   },
+   {
+    "id": "5c799ca645",
+    "op": "LIT",
+    "file": "service/AbndprocService.java",
+    "line": 56,
+    "before": "\"MDAwMDAwMDAw\"));",
+    "after": "\"XDAwMDAwMDAw\"));"
+   },
+   {
+    "id": "9e553bd493",
+    "op": "LIT",
+    "file": "service/AbndprocService.java",
+    "line": 58,
+    "before": "\"AAAAAAAAAAw=\"));",
+    "after": "\"XAAAAAAAAAw=\"));"
    },
    {
     "id": "9c0c97ad47",
@@ -113,12 +279,36 @@
     "after": "\"XCAuICAuICAgIA==\"));"
    },
    {
+    "id": "30813310b2",
+    "op": "LIT",
+    "file": "service/AbndprocService.java",
+    "line": 64,
+    "before": "\"ICAgIDAwMDAwMCAgIA==\"));",
+    "after": "\"XCAgIDAwMDAwMCAgIA==\"));"
+   },
+   {
     "id": "4af8264fe6",
     "op": "LIT",
     "file": "service/AbndprocService.java",
     "line": 66,
     "before": "\"ICAgICAg\"));",
     "after": "\"XCAgICAg\"));"
+   },
+   {
+    "id": "5ae4587b83",
+    "op": "LIT",
+    "file": "service/AbndprocService.java",
+    "line": 68,
+    "before": "\"MDAwMDAwMDAwMDAwMDA=\"));",
+    "after": "\"XDAwMDAwMDAwMDAwMDA=\"));"
+   },
+   {
+    "id": "7ac1c48a31",
+    "op": "LIT",
+    "file": "service/AbndprocService.java",
+    "line": 70,
+    "before": "\"AAAAAA==\"));",
+    "after": "\"XAAAAA==\"));"
    },
    {
     "id": "c4eeb91f1d",
@@ -129,12 +319,36 @@
     "after": "\"XzAwMDAwMDAw\"));"
    },
    {
+    "id": "95eabe652e",
+    "op": "LIT",
+    "file": "service/AbndprocService.java",
+    "line": 74,
+    "before": "\"ICAgIA==\"));",
+    "after": "\"XCAgIA==\"));"
+   },
+   {
+    "id": "ad4424cc1a",
+    "op": "LIT",
+    "file": "service/AbndprocService.java",
+    "line": 76,
+    "before": "\"AAAAAAAAAAwwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKzAwMDAwMDAwKzAwMDAwMDAwKzAwMDAwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+    "after": "\"XAAAAAAAAAwwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKzAwMDAwMDAwKzAwMDAwMDAwKzAwMDAwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\","
+   },
+   {
     "id": "51bb7311ea",
     "op": "LIT",
     "file": "service/AbndprocService.java",
     "line": 77,
     "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
     "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\","
+   },
+   {
+    "id": "ba2f561e48",
+    "op": "LIT",
+    "file": "service/AbndprocService.java",
+    "line": 78,
+    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
+    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\","
    },
    {
     "id": "73e414ee57",
@@ -153,6 +367,30 @@
     "after": "\"XAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\","
    },
    {
+    "id": "4020a9b7c8",
+    "op": "LIT",
+    "file": "service/AbndprocService.java",
+    "line": 81,
+    "before": "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
+    "after": "\"XAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\","
+   },
+   {
+    "id": "c9da55722d",
+    "op": "LIT",
+    "file": "service/AbndprocService.java",
+    "line": 82,
+    "before": "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\"));",
+    "after": "\"XAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\"));"
+   },
+   {
+    "id": "db386974a5",
+    "op": "LIT",
+    "file": "service/AbndprocService.java",
+    "line": 84,
+    "before": "\"AAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
+    "after": "\"XAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));"
+   },
+   {
     "id": "18aba27978",
     "op": "LIT",
     "file": "service/AbndprocService.java",
@@ -161,12 +399,100 @@
     "after": "\"XAA=\"));"
    },
    {
+    "id": "70a7338c87",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 109,
+    "before": "private final Field f5_ABND_VSAM_KEY = Field.group(s_WS_ABND_AREA, 0, 12);",
+    "after": "private final Field f5_ABND_VSAM_KEY = Field.group(s_WS_ABND_AREA, 0, 13);"
+   },
+   {
+    "id": "78ced98a62",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 110,
+    "before": "private final Field f59_DFHCOMMAREA = Field.group(s_DFHCOMMAREA, 0, 681);",
+    "after": "private final Field f59_DFHCOMMAREA = Field.group(s_DFHCOMMAREA, 0, 682);"
+   },
+   {
+    "id": "2c11bb6ec9",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 111,
+    "before": "private final Field f74_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+    "after": "private final Field f74_EIBTIME = Field.packed(s_DFHEIBLK, 1, 7, 0, true);"
+   },
+   {
+    "id": "459d1f2d89",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 111,
+    "before": "private final Field f74_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+    "after": "private final Field f74_EIBTIME = Field.packed(s_DFHEIBLK, 0, 8, 0, true);"
+   },
+   {
+    "id": "3eec10515e",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 111,
+    "before": "private final Field f74_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+    "after": "private final Field f74_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 1, true);"
+   },
+   {
+    "id": "549fffdfc5",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 112,
+    "before": "private final Field f75_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+    "after": "private final Field f75_EIBDATE = Field.packed(s_DFHEIBLK, 5, 7, 0, true);"
+   },
+   {
     "id": "b5c44442d0",
     "op": "CON",
     "file": "service/AbndprocService.java",
     "line": 112,
     "before": "private final Field f75_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
     "after": "private final Field f75_EIBDATE = Field.packed(s_DFHEIBLK, 4, 8, 0, true);"
+   },
+   {
+    "id": "896e641e97",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 112,
+    "before": "private final Field f75_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+    "after": "private final Field f75_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 1, true);"
+   },
+   {
+    "id": "4853bc93d9",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 113,
+    "before": "private final Field f76_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 4, false);",
+    "after": "private final Field f76_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 9, 4, false);"
+   },
+   {
+    "id": "104cdbd6ef",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 113,
+    "before": "private final Field f76_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 4, false);",
+    "after": "private final Field f76_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 5, false);"
+   },
+   {
+    "id": "a4f985dbdd",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 114,
+    "before": "private final Field f77_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+    "after": "private final Field f77_EIBTASKN = Field.packed(s_DFHEIBLK, 13, 7, 0, true);"
+   },
+   {
+    "id": "bcda55285f",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 114,
+    "before": "private final Field f77_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+    "after": "private final Field f77_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 8, 0, true);"
    },
    {
     "id": "0c68634975",
@@ -185,12 +511,92 @@
     "after": "private final Field f78_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 17, 4, false);"
    },
    {
+    "id": "d752d45453",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 115,
+    "before": "private final Field f78_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);",
+    "after": "private final Field f78_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 5, false);"
+   },
+   {
+    "id": "7f8231b856",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 116,
+    "before": "private final Field f81_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
+    "after": "private final Field f81_EIBCALEN = Field.binary(s_DFHEIBLK, 25, 4, 0, true, false);"
+   },
+   {
+    "id": "bd9ac2448f",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 116,
+    "before": "private final Field f81_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
+    "after": "private final Field f81_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 5, 0, true, false);"
+   },
+   {
+    "id": "4703fe47dc",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 116,
+    "before": "private final Field f81_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
+    "after": "private final Field f81_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 1, true, false);"
+   },
+   {
+    "id": "1d1353df3b",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 117,
+    "before": "private final Field f102_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+    "after": "private final Field f102_EIBRESP = Field.binary(s_DFHEIBLK, 77, 8, 0, true, false);"
+   },
+   {
+    "id": "f595ce6d2d",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 117,
+    "before": "private final Field f102_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+    "after": "private final Field f102_EIBRESP = Field.binary(s_DFHEIBLK, 76, 9, 0, true, false);"
+   },
+   {
+    "id": "ae36854f8a",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 117,
+    "before": "private final Field f102_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+    "after": "private final Field f102_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 1, true, false);"
+   },
+   {
+    "id": "f2aa4d7fb1",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 118,
+    "before": "private final Field f103_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+    "after": "private final Field f103_EIBRESP2 = Field.binary(s_DFHEIBLK, 81, 8, 0, true, false);"
+   },
+   {
+    "id": "a427991ef6",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 118,
+    "before": "private final Field f103_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+    "after": "private final Field f103_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 9, 0, true, false);"
+   },
+   {
     "id": "42661206ee",
     "op": "CON",
     "file": "service/AbndprocService.java",
     "line": 118,
     "before": "private final Field f103_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
     "after": "private final Field f103_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 1, true, false);"
+   },
+   {
+    "id": "ac30915e1a",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 119,
+    "before": "private final Field f105_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+    "after": "private final Field f105_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 1, 4, 0, true, false);"
    },
    {
     "id": "1119d818ec",
@@ -201,6 +607,14 @@
     "after": "private final Field f105_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 5, 0, true, false);"
    },
    {
+    "id": "0c7b5c7ba4",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 119,
+    "before": "private final Field f105_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+    "after": "private final Field f105_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 1, true, false);"
+   },
+   {
     "id": "1cc92cb567",
     "op": "NEG",
     "file": "service/AbndprocService.java",
@@ -209,18 +623,82 @@
     "after": "if (!(task.level() > 1)) {"
    },
    {
-    "id": "16c3dd4e74",
+    "id": "97d9ee00d4",
+    "op": "ROR",
+    "file": "service/AbndprocService.java",
+    "line": 139,
+    "before": "if (task.level() > 1) {",
+    "after": "if (task.level() <= 1) {"
+   },
+   {
+    "id": "c1a6cb45e0",
+    "op": "ROR",
+    "file": "service/AbndprocService.java",
+    "line": 139,
+    "before": "if (task.level() > 1) {",
+    "after": "if (task.level() >= 1) {"
+   },
+   {
+    "id": "12d3289cb4",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 139,
+    "before": "if (task.level() > 1) {",
+    "after": "if (task.level() > 2) {"
+   },
+   {
+    "id": "42ff1b3122",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 140,
+    "before": "caBack.run();",
+    "after": "/* caBack.run(); */"
+   },
+   {
+    "id": "45fa82cf7d",
     "op": "LIT",
     "file": "service/AbndprocService.java",
-    "line": 148,
-    "before": "case \"ABNDFILE\" -> new DetCics.Store<WsAbndArea>(wsAbndAreaRepository::findAll, e -> e.toRecord(CS), b -> WsAbndArea.fromRecord(b, CS), e -> task.write(\"ABNDFILE\", () -> wsAbndAreaRepository.save(e)), e -> task.write(\"ABNDFILE\", () -> wsAbndAreaRepository.delete(e)), 0, 12, CS).withFindById(rec -> wsAbndAreaRepository.findById(id_WsAbndArea(rec)));",
-    "after": "case \"ABNDFILE\" -> new DetCics.Store<WsAbndArea>(wsAbndAreaRepository::findAll, e -> e.toRecord(CS), b -> WsAbndArea.fromRecord(b, CS), e -> task.write(\"ABNDFILE\", () -> wsAbndAreaRepository.save(e)), e -> task.write(\"XBNDFILE\", () -> wsAbndAreaRepository.delete(e)), 0, 12, CS).withFindById(rec -> wsAbndAreaRepository.findById(id_WsAbndArea(rec)));"
+    "line": 145,
+    "before": "@SuppressWarnings(\"unchecked\")",
+    "after": "@SuppressWarnings(\"Xnchecked\")"
+   },
+   {
+    "id": "af6d967849",
+    "op": "LIT",
+    "file": "service/AbndprocService.java",
+    "line": 151,
+    "before": "case \"ABNDFILE\" -> new DetCics.Store<WsAbndArea>(wsAbndAreaRepository::findAll, e -> e.toRecord(CS), b -> WsAbndArea.fromRecord(b, CS), e -> task.write(\"ABNDFILE\", () -> wsAbndAreaRepository.save(e)), e -> task.write(\"ABNDFILE\", () -> wsAbndAreaRepository.delete(e)), 0, 12, CS).withFindById(rec -> wsAbndAreaRepository.findById(id_WsAbndArea(rec))).withLengths(CicsTask.recordLengths(\"WsAbndArea\"));",
+    "after": "case \"ABNDFILE\" -> new DetCics.Store<WsAbndArea>(wsAbndAreaRepository::findAll, e -> e.toRecord(CS), b -> WsAbndArea.fromRecord(b, CS), e -> task.write(\"XBNDFILE\", () -> wsAbndAreaRepository.save(e)), e -> task.write(\"ABNDFILE\", () -> wsAbndAreaRepository.delete(e)), 0, 12, CS).withFindById(rec -> wsAbndAreaRepository.findById(id_WsAbndArea(rec))).withLengths(CicsTask.recordLengths(\"WsAbndArea\"));"
+   },
+   {
+    "id": "7fa3715387",
+    "op": "LIT",
+    "file": "service/AbndprocService.java",
+    "line": 151,
+    "before": "case \"ABNDFILE\" -> new DetCics.Store<WsAbndArea>(wsAbndAreaRepository::findAll, e -> e.toRecord(CS), b -> WsAbndArea.fromRecord(b, CS), e -> task.write(\"ABNDFILE\", () -> wsAbndAreaRepository.save(e)), e -> task.write(\"ABNDFILE\", () -> wsAbndAreaRepository.delete(e)), 0, 12, CS).withFindById(rec -> wsAbndAreaRepository.findById(id_WsAbndArea(rec))).withLengths(CicsTask.recordLengths(\"WsAbndArea\"));",
+    "after": "case \"ABNDFILE\" -> new DetCics.Store<WsAbndArea>(wsAbndAreaRepository::findAll, e -> e.toRecord(CS), b -> WsAbndArea.fromRecord(b, CS), e -> task.write(\"ABNDFILE\", () -> wsAbndAreaRepository.save(e)), e -> task.write(\"XBNDFILE\", () -> wsAbndAreaRepository.delete(e)), 0, 12, CS).withFindById(rec -> wsAbndAreaRepository.findById(id_WsAbndArea(rec))).withLengths(CicsTask.recordLengths(\"WsAbndArea\"));"
+   },
+   {
+    "id": "0524192548",
+    "op": "LIT",
+    "file": "service/AbndprocService.java",
+    "line": 151,
+    "before": "case \"ABNDFILE\" -> new DetCics.Store<WsAbndArea>(wsAbndAreaRepository::findAll, e -> e.toRecord(CS), b -> WsAbndArea.fromRecord(b, CS), e -> task.write(\"ABNDFILE\", () -> wsAbndAreaRepository.save(e)), e -> task.write(\"ABNDFILE\", () -> wsAbndAreaRepository.delete(e)), 0, 12, CS).withFindById(rec -> wsAbndAreaRepository.findById(id_WsAbndArea(rec))).withLengths(CicsTask.recordLengths(\"WsAbndArea\"));",
+    "after": "case \"ABNDFILE\" -> new DetCics.Store<WsAbndArea>(wsAbndAreaRepository::findAll, e -> e.toRecord(CS), b -> WsAbndArea.fromRecord(b, CS), e -> task.write(\"ABNDFILE\", () -> wsAbndAreaRepository.save(e)), e -> task.write(\"ABNDFILE\", () -> wsAbndAreaRepository.delete(e)), 0, 12, CS).withFindById(rec -> wsAbndAreaRepository.findById(id_WsAbndArea(rec))).withLengths(CicsTask.recordLengths(\"XsAbndArea\"));"
+   },
+   {
+    "id": "7b4ad574a9",
+    "op": "LIT",
+    "file": "service/AbndprocService.java",
+    "line": 152,
+    "before": "default -> throw new Hole(\"CICS file \" + n + \": no store in the generated project\");",
+    "after": "default -> throw new Hole(\"XICS file \" + n + \": no store in the generated project\");"
    },
    {
     "id": "940582c33d",
     "op": "LIT",
     "file": "service/AbndprocService.java",
-    "line": 149,
+    "line": 152,
     "before": "default -> throw new Hole(\"CICS file \" + n + \": no store in the generated project\");",
     "after": "default -> throw new Hole(\"CICS file \" + n + \"X no store in the generated project\");"
    },
@@ -228,39 +706,127 @@
     "id": "02a74602e1",
     "op": "LIT",
     "file": "service/AbndprocService.java",
-    "line": 154,
+    "line": 157,
     "before": "java.util.Map.entry(\"GMOOH999\", 5),",
     "after": "java.util.Map.entry(\"XMOOH999\", 5),"
+   },
+   {
+    "id": "281b554d98",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 157,
+    "before": "java.util.Map.entry(\"GMOOH999\", 5),",
+    "after": "java.util.Map.entry(\"GMOOH999\", 6),"
+   },
+   {
+    "id": "41b816438b",
+    "op": "LIT",
+    "file": "service/AbndprocService.java",
+    "line": 158,
+    "before": "java.util.Map.entry(\"GMOOH010\", 4),",
+    "after": "java.util.Map.entry(\"XMOOH010\", 4),"
+   },
+   {
+    "id": "60c5b3a439",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 158,
+    "before": "java.util.Map.entry(\"GMOOH010\", 4),",
+    "after": "java.util.Map.entry(\"GMOOH010\", 5),"
+   },
+   {
+    "id": "e4871997c9",
+    "op": "LIT",
+    "file": "service/AbndprocService.java",
+    "line": 159,
+    "before": "java.util.Map.entry(\"GET-ME-OUT-OF-HERE\", 3),",
+    "after": "java.util.Map.entry(\"XET-ME-OUT-OF-HERE\", 3),"
+   },
+   {
+    "id": "2b2c0cf2f2",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 159,
+    "before": "java.util.Map.entry(\"GET-ME-OUT-OF-HERE\", 3),",
+    "after": "java.util.Map.entry(\"GET-ME-OUT-OF-HERE\", 4),"
    },
    {
     "id": "982f8b00a9",
     "op": "LIT",
     "file": "service/AbndprocService.java",
-    "line": 157,
+    "line": 160,
     "before": "java.util.Map.entry(\"A999\", 2),",
     "after": "java.util.Map.entry(\"X999\", 2),"
+   },
+   {
+    "id": "3b6baa3d01",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 160,
+    "before": "java.util.Map.entry(\"A999\", 2),",
+    "after": "java.util.Map.entry(\"A999\", 3),"
+   },
+   {
+    "id": "5a4b9b94a8",
+    "op": "LIT",
+    "file": "service/AbndprocService.java",
+    "line": 161,
+    "before": "java.util.Map.entry(\"A010\", 1),",
+    "after": "java.util.Map.entry(\"X010\", 1),"
+   },
+   {
+    "id": "ba980ba07b",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 161,
+    "before": "java.util.Map.entry(\"A010\", 1),",
+    "after": "java.util.Map.entry(\"A010\", 2),"
    },
    {
     "id": "d1aa7001db",
     "op": "LIT",
     "file": "service/AbndprocService.java",
-    "line": 159,
+    "line": 162,
     "before": "java.util.Map.entry(\"PREMIERE\", 0)",
     "after": "java.util.Map.entry(\"XREMIERE\", 0)"
+   },
+   {
+    "id": "3f8327f79a",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 162,
+    "before": "java.util.Map.entry(\"PREMIERE\", 0)",
+    "after": "java.util.Map.entry(\"PREMIERE\", 1)"
    },
    {
     "id": "9076b3b0ef",
     "op": "NEG",
     "file": "service/AbndprocService.java",
-    "line": 164,
+    "line": 167,
     "before": "if (i == null) {",
     "after": "if (!(i == null)) {"
+   },
+   {
+    "id": "54fe069470",
+    "op": "ROR",
+    "file": "service/AbndprocService.java",
+    "line": 167,
+    "before": "if (i == null) {",
+    "after": "if (i != null) {"
+   },
+   {
+    "id": "d06ade13a6",
+    "op": "LIT",
+    "file": "service/AbndprocService.java",
+    "line": 168,
+    "before": "throw new IllegalStateException(\"no paragraph \" + name);",
+    "after": "throw new IllegalStateException(\"Xo paragraph \" + name);"
    },
    {
     "id": "60c0dbcd97",
     "op": "NEG",
     "file": "service/AbndprocService.java",
-    "line": 177,
+    "line": 180,
     "before": "if (h != null) {",
     "after": "if (!(h != null)) {"
    },
@@ -268,15 +834,39 @@
     "id": "e8e1badb20",
     "op": "ROR",
     "file": "service/AbndprocService.java",
-    "line": 177,
+    "line": 180,
     "before": "if (h != null) {",
     "after": "if (h == null) {"
+   },
+   {
+    "id": "3099064817",
+    "op": "NEG",
+    "file": "service/AbndprocService.java",
+    "line": 183,
+    "before": "if (DetCics.ignoredByDefault(cond)) {",
+    "after": "if (!(DetCics.ignoredByDefault(cond))) {"
+   },
+   {
+    "id": "0982654d68",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 184,
+    "before": "return -1;",
+    "after": "return -2;"
+   },
+   {
+    "id": "d9de6e8ebf",
+    "op": "LIT",
+    "file": "service/AbndprocService.java",
+    "line": 186,
+    "before": "Integer error = handlers.get(\"ERROR\");",
+    "after": "Integer error = handlers.get(\"XRROR\");"
    },
    {
     "id": "42fac8f0e4",
     "op": "NEG",
     "file": "service/AbndprocService.java",
-    "line": 184,
+    "line": 187,
     "before": "if (error != null) {",
     "after": "if (!(error != null)) {"
    },
@@ -284,7 +874,7 @@
     "id": "ec59b7d822",
     "op": "ROR",
     "file": "service/AbndprocService.java",
-    "line": 184,
+    "line": 187,
     "before": "if (error != null) {",
     "after": "if (error == null) {"
    },
@@ -292,15 +882,23 @@
     "id": "4a725d67c7",
     "op": "NEG",
     "file": "service/AbndprocService.java",
-    "line": 188,
+    "line": 191,
     "before": "if (label == null) {",
     "after": "if (!(label == null)) {"
+   },
+   {
+    "id": "c31003a103",
+    "op": "ROR",
+    "file": "service/AbndprocService.java",
+    "line": 191,
+    "before": "if (label == null) {",
+    "after": "if (label != null) {"
    },
    {
     "id": "db8b9c4788",
     "op": "NEG",
     "file": "service/AbndprocService.java",
-    "line": 199,
+    "line": 202,
     "before": "if (d == null) {",
     "after": "if (!(d == null)) {"
    },
@@ -308,15 +906,23 @@
     "id": "ebaac5866d",
     "op": "ROR",
     "file": "service/AbndprocService.java",
-    "line": 199,
+    "line": 202,
     "before": "if (d == null) {",
     "after": "if (d != null) {"
+   },
+   {
+    "id": "3140ca7040",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 203,
+    "before": "return;",
+    "after": "/* return; */"
    },
    {
     "id": "9e6532d5e8",
     "op": "DEL",
     "file": "service/AbndprocService.java",
-    "line": 202,
+    "line": 205,
     "before": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS);",
     "after": "/* Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS); */"
    },
@@ -324,7 +930,7 @@
     "id": "1c42203f58",
     "op": "ROR",
     "file": "service/AbndprocService.java",
-    "line": 202,
+    "line": 205,
     "before": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS);",
     "after": "Cobol.move(d.getAbndUtimeKey() != null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS);"
    },
@@ -332,7 +938,7 @@
     "id": "2b6d88f263",
     "op": "AOR",
     "file": "service/AbndprocService.java",
-    "line": 202,
+    "line": 205,
     "before": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS);",
     "after": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base - 0, 15, 0, true), CS);"
    },
@@ -340,15 +946,31 @@
     "id": "66ddf14fba",
     "op": "CON",
     "file": "service/AbndprocService.java",
-    "line": 202,
+    "line": 205,
     "before": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS);",
     "after": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 1, 15, 0, true), CS);"
+   },
+   {
+    "id": "f04b36f2fa",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 205,
+    "before": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS);",
+    "after": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 16, 0, true), CS);"
+   },
+   {
+    "id": "3e37d63d92",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 205,
+    "before": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS);",
+    "after": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 1, true), CS);"
    },
    {
     "id": "130bf69c51",
     "op": "DEL",
     "file": "service/AbndprocService.java",
-    "line": 203,
+    "line": 206,
     "before": "Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 0, false, false, false), CS);",
     "after": "/* Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 0, false, false, false), CS); */"
    },
@@ -356,39 +978,103 @@
     "id": "c9e77ad474",
     "op": "ROR",
     "file": "service/AbndprocService.java",
-    "line": 203,
+    "line": 206,
     "before": "Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 0, false, false, false), CS);",
     "after": "Cobol.move(d.getAbndTasknoKey() != null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 0, false, false, false), CS);"
+   },
+   {
+    "id": "ec147facb0",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 206,
+    "before": "Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 9, 4, 0, false, false, false), CS);"
+   },
+   {
+    "id": "36f872c8bc",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 206,
+    "before": "Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 5, 0, false, false, false), CS);"
+   },
+   {
+    "id": "d716d95e41",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 206,
+    "before": "Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 1, false, false, false), CS);"
    },
    {
     "id": "bab5398e99",
     "op": "ROR",
     "file": "service/AbndprocService.java",
-    "line": 204,
+    "line": 207,
     "before": "Cobol.move(d.getAbndApplid() == null ? \"\" : d.getAbndApplid(), Field.alphanumeric(s, base + 12, 8, false), CS);",
     "after": "Cobol.move(d.getAbndApplid() != null ? \"\" : d.getAbndApplid(), Field.alphanumeric(s, base + 12, 8, false), CS);"
+   },
+   {
+    "id": "dac08d7263",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 207,
+    "before": "Cobol.move(d.getAbndApplid() == null ? \"\" : d.getAbndApplid(), Field.alphanumeric(s, base + 12, 8, false), CS);",
+    "after": "Cobol.move(d.getAbndApplid() == null ? \"\" : d.getAbndApplid(), Field.alphanumeric(s, base + 13, 8, false), CS);"
+   },
+   {
+    "id": "5c1c7be8d4",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 207,
+    "before": "Cobol.move(d.getAbndApplid() == null ? \"\" : d.getAbndApplid(), Field.alphanumeric(s, base + 12, 8, false), CS);",
+    "after": "Cobol.move(d.getAbndApplid() == null ? \"\" : d.getAbndApplid(), Field.alphanumeric(s, base + 12, 9, false), CS);"
    },
    {
     "id": "dcd783d808",
     "op": "ROR",
     "file": "service/AbndprocService.java",
-    "line": 205,
+    "line": 208,
     "before": "Cobol.move(d.getAbndTranid() == null ? \"\" : d.getAbndTranid(), Field.alphanumeric(s, base + 20, 4, false), CS);",
     "after": "Cobol.move(d.getAbndTranid() != null ? \"\" : d.getAbndTranid(), Field.alphanumeric(s, base + 20, 4, false), CS);"
+   },
+   {
+    "id": "330873112c",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 208,
+    "before": "Cobol.move(d.getAbndTranid() == null ? \"\" : d.getAbndTranid(), Field.alphanumeric(s, base + 20, 4, false), CS);",
+    "after": "Cobol.move(d.getAbndTranid() == null ? \"\" : d.getAbndTranid(), Field.alphanumeric(s, base + 21, 4, false), CS);"
    },
    {
     "id": "e015a6b7ab",
     "op": "CON",
     "file": "service/AbndprocService.java",
-    "line": 205,
+    "line": 208,
     "before": "Cobol.move(d.getAbndTranid() == null ? \"\" : d.getAbndTranid(), Field.alphanumeric(s, base + 20, 4, false), CS);",
     "after": "Cobol.move(d.getAbndTranid() == null ? \"\" : d.getAbndTranid(), Field.alphanumeric(s, base + 20, 5, false), CS);"
+   },
+   {
+    "id": "6296fdb1a3",
+    "op": "ROR",
+    "file": "service/AbndprocService.java",
+    "line": 209,
+    "before": "Cobol.move(d.getAbndDate() == null ? \"\" : d.getAbndDate(), Field.alphanumeric(s, base + 24, 10, false), CS);",
+    "after": "Cobol.move(d.getAbndDate() != null ? \"\" : d.getAbndDate(), Field.alphanumeric(s, base + 24, 10, false), CS);"
+   },
+   {
+    "id": "f3d087db5a",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 209,
+    "before": "Cobol.move(d.getAbndDate() == null ? \"\" : d.getAbndDate(), Field.alphanumeric(s, base + 24, 10, false), CS);",
+    "after": "Cobol.move(d.getAbndDate() == null ? \"\" : d.getAbndDate(), Field.alphanumeric(s, base + 25, 10, false), CS);"
    },
    {
     "id": "d0fb8ff082",
     "op": "CON",
     "file": "service/AbndprocService.java",
-    "line": 206,
+    "line": 209,
     "before": "Cobol.move(d.getAbndDate() == null ? \"\" : d.getAbndDate(), Field.alphanumeric(s, base + 24, 10, false), CS);",
     "after": "Cobol.move(d.getAbndDate() == null ? \"\" : d.getAbndDate(), Field.alphanumeric(s, base + 24, 11, false), CS);"
    },
@@ -396,47 +1082,159 @@
     "id": "3974824f4a",
     "op": "ROR",
     "file": "service/AbndprocService.java",
-    "line": 207,
+    "line": 210,
     "before": "Cobol.move(d.getAbndTime() == null ? \"\" : d.getAbndTime(), Field.alphanumeric(s, base + 34, 8, false), CS);",
     "after": "Cobol.move(d.getAbndTime() != null ? \"\" : d.getAbndTime(), Field.alphanumeric(s, base + 34, 8, false), CS);"
+   },
+   {
+    "id": "e5db822385",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 210,
+    "before": "Cobol.move(d.getAbndTime() == null ? \"\" : d.getAbndTime(), Field.alphanumeric(s, base + 34, 8, false), CS);",
+    "after": "Cobol.move(d.getAbndTime() == null ? \"\" : d.getAbndTime(), Field.alphanumeric(s, base + 35, 8, false), CS);"
+   },
+   {
+    "id": "65148c92db",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 210,
+    "before": "Cobol.move(d.getAbndTime() == null ? \"\" : d.getAbndTime(), Field.alphanumeric(s, base + 34, 8, false), CS);",
+    "after": "Cobol.move(d.getAbndTime() == null ? \"\" : d.getAbndTime(), Field.alphanumeric(s, base + 34, 9, false), CS);"
+   },
+   {
+    "id": "9990dae63f",
+    "op": "ROR",
+    "file": "service/AbndprocService.java",
+    "line": 211,
+    "before": "Cobol.move(d.getAbndCode() == null ? \"\" : d.getAbndCode(), Field.alphanumeric(s, base + 42, 4, false), CS);",
+    "after": "Cobol.move(d.getAbndCode() != null ? \"\" : d.getAbndCode(), Field.alphanumeric(s, base + 42, 4, false), CS);"
+   },
+   {
+    "id": "85c7ad2efa",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 211,
+    "before": "Cobol.move(d.getAbndCode() == null ? \"\" : d.getAbndCode(), Field.alphanumeric(s, base + 42, 4, false), CS);",
+    "after": "Cobol.move(d.getAbndCode() == null ? \"\" : d.getAbndCode(), Field.alphanumeric(s, base + 43, 4, false), CS);"
+   },
+   {
+    "id": "93279354bf",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 211,
+    "before": "Cobol.move(d.getAbndCode() == null ? \"\" : d.getAbndCode(), Field.alphanumeric(s, base + 42, 4, false), CS);",
+    "after": "Cobol.move(d.getAbndCode() == null ? \"\" : d.getAbndCode(), Field.alphanumeric(s, base + 42, 5, false), CS);"
    },
    {
     "id": "2edcf3535e",
     "op": "ROR",
     "file": "service/AbndprocService.java",
-    "line": 209,
+    "line": 212,
     "before": "Cobol.move(d.getAbndProgram() == null ? \"\" : d.getAbndProgram(), Field.alphanumeric(s, base + 46, 8, false), CS);",
     "after": "Cobol.move(d.getAbndProgram() != null ? \"\" : d.getAbndProgram(), Field.alphanumeric(s, base + 46, 8, false), CS);"
+   },
+   {
+    "id": "0c0c487efe",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 212,
+    "before": "Cobol.move(d.getAbndProgram() == null ? \"\" : d.getAbndProgram(), Field.alphanumeric(s, base + 46, 8, false), CS);",
+    "after": "Cobol.move(d.getAbndProgram() == null ? \"\" : d.getAbndProgram(), Field.alphanumeric(s, base + 47, 8, false), CS);"
    },
    {
     "id": "3ddea482e8",
     "op": "CON",
     "file": "service/AbndprocService.java",
-    "line": 209,
+    "line": 212,
     "before": "Cobol.move(d.getAbndProgram() == null ? \"\" : d.getAbndProgram(), Field.alphanumeric(s, base + 46, 8, false), CS);",
     "after": "Cobol.move(d.getAbndProgram() == null ? \"\" : d.getAbndProgram(), Field.alphanumeric(s, base + 46, 9, false), CS);"
+   },
+   {
+    "id": "605ad5c8d1",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 213,
+    "before": "Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 8, 0, true, true, true), CS);",
+    "after": "/* Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 8, 0, true, true, true), CS); */"
+   },
+   {
+    "id": "431c0b704f",
+    "op": "ROR",
+    "file": "service/AbndprocService.java",
+    "line": 213,
+    "before": "Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 8, 0, true, true, true), CS);",
+    "after": "Cobol.move(d.getAbndRespcode() != null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 8, 0, true, true, true), CS);"
+   },
+   {
+    "id": "dd4ed41fa2",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 213,
+    "before": "Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 8, 0, true, true, true), CS);",
+    "after": "Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 55, 8, 0, true, true, true), CS);"
+   },
+   {
+    "id": "24080dff15",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 213,
+    "before": "Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 8, 0, true, true, true), CS);",
+    "after": "Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 9, 0, true, true, true), CS);"
+   },
+   {
+    "id": "ccc5a4e5f6",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 213,
+    "before": "Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 8, 0, true, true, true), CS);",
+    "after": "Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 8, 1, true, true, true), CS);"
+   },
+   {
+    "id": "b0e6d32a0f",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 214,
+    "before": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 0, true, true, true), CS);",
+    "after": "/* Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 0, true, true, true), CS); */"
    },
    {
     "id": "a228dbdd3b",
     "op": "ROR",
     "file": "service/AbndprocService.java",
-    "line": 211,
+    "line": 214,
     "before": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 0, true, true, true), CS);",
     "after": "Cobol.move(d.getAbndResp2Code() != null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 0, true, true, true), CS);"
+   },
+   {
+    "id": "4c42814980",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 214,
+    "before": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 0, true, true, true), CS);",
+    "after": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 64, 8, 0, true, true, true), CS);"
    },
    {
     "id": "3b09a96bb8",
     "op": "CON",
     "file": "service/AbndprocService.java",
-    "line": 211,
+    "line": 214,
     "before": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 0, true, true, true), CS);",
     "after": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 9, 0, true, true, true), CS);"
+   },
+   {
+    "id": "4a1e74f7d8",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 214,
+    "before": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 0, true, true, true), CS);",
+    "after": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 1, true, true, true), CS);"
    },
    {
     "id": "4eb4ddf5a7",
     "op": "DEL",
     "file": "service/AbndprocService.java",
-    "line": 212,
+    "line": 215,
     "before": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 0, true, true, true), CS);",
     "after": "/* Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 0, true, true, true), CS); */"
    },
@@ -444,7 +1242,7 @@
     "id": "59d698b443",
     "op": "ROR",
     "file": "service/AbndprocService.java",
-    "line": 212,
+    "line": 215,
     "before": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 0, true, true, true), CS);",
     "after": "Cobol.move(d.getAbndSqlcode() != null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 0, true, true, true), CS);"
    },
@@ -452,143 +1250,671 @@
     "id": "2a827d1d3b",
     "op": "CON",
     "file": "service/AbndprocService.java",
-    "line": 212,
+    "line": 215,
     "before": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 0, true, true, true), CS);",
     "after": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 73, 8, 0, true, true, true), CS);"
+   },
+   {
+    "id": "9f150eb933",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 215,
+    "before": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 0, true, true, true), CS);",
+    "after": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 9, 0, true, true, true), CS);"
+   },
+   {
+    "id": "3ff5ffd731",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 215,
+    "before": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 0, true, true, true), CS);",
+    "after": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 1, true, true, true), CS);"
    },
    {
     "id": "25608efa04",
     "op": "ROR",
     "file": "service/AbndprocService.java",
-    "line": 213,
+    "line": 216,
     "before": "Cobol.move(d.getAbndFreeform() == null ? \"\" : d.getAbndFreeform(), Field.alphanumeric(s, base + 81, 600, false), CS);",
     "after": "Cobol.move(d.getAbndFreeform() != null ? \"\" : d.getAbndFreeform(), Field.alphanumeric(s, base + 81, 600, false), CS);"
+   },
+   {
+    "id": "e1ca4cd6e6",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 216,
+    "before": "Cobol.move(d.getAbndFreeform() == null ? \"\" : d.getAbndFreeform(), Field.alphanumeric(s, base + 81, 600, false), CS);",
+    "after": "Cobol.move(d.getAbndFreeform() == null ? \"\" : d.getAbndFreeform(), Field.alphanumeric(s, base + 82, 600, false), CS);"
+   },
+   {
+    "id": "73152740aa",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 216,
+    "before": "Cobol.move(d.getAbndFreeform() == null ? \"\" : d.getAbndFreeform(), Field.alphanumeric(s, base + 81, 600, false), CS);",
+    "after": "Cobol.move(d.getAbndFreeform() == null ? \"\" : d.getAbndFreeform(), Field.alphanumeric(s, base + 81, 601, false), CS);"
+   },
+   {
+    "id": "5d08ffba93",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 220,
+    "before": "d.setAbndUtimeKey(Cobol.num(Field.packed(s, base + 0, 15, 0, true), CS).longValue());",
+    "after": "/* d.setAbndUtimeKey(Cobol.num(Field.packed(s, base + 0, 15, 0, true), CS).longValue()); */"
+   },
+   {
+    "id": "e68be8ec0f",
+    "op": "AOR",
+    "file": "service/AbndprocService.java",
+    "line": 220,
+    "before": "d.setAbndUtimeKey(Cobol.num(Field.packed(s, base + 0, 15, 0, true), CS).longValue());",
+    "after": "d.setAbndUtimeKey(Cobol.num(Field.packed(s, base - 0, 15, 0, true), CS).longValue());"
+   },
+   {
+    "id": "33ecb9e2db",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 220,
+    "before": "d.setAbndUtimeKey(Cobol.num(Field.packed(s, base + 0, 15, 0, true), CS).longValue());",
+    "after": "d.setAbndUtimeKey(Cobol.num(Field.packed(s, base + 1, 15, 0, true), CS).longValue());"
+   },
+   {
+    "id": "e23881b5da",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 220,
+    "before": "d.setAbndUtimeKey(Cobol.num(Field.packed(s, base + 0, 15, 0, true), CS).longValue());",
+    "after": "d.setAbndUtimeKey(Cobol.num(Field.packed(s, base + 0, 16, 0, true), CS).longValue());"
+   },
+   {
+    "id": "0790e09f1e",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 220,
+    "before": "d.setAbndUtimeKey(Cobol.num(Field.packed(s, base + 0, 15, 0, true), CS).longValue());",
+    "after": "d.setAbndUtimeKey(Cobol.num(Field.packed(s, base + 0, 15, 1, true), CS).longValue());"
+   },
+   {
+    "id": "d0d178d7a1",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 221,
+    "before": "d.setAbndTasknoKey(Cobol.num(Field.zoned(s, base + 8, 4, 0, false, false, false), CS).intValue());",
+    "after": "/* d.setAbndTasknoKey(Cobol.num(Field.zoned(s, base + 8, 4, 0, false, false, false), CS).intValue()); */"
+   },
+   {
+    "id": "4893ffd9d0",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 221,
+    "before": "d.setAbndTasknoKey(Cobol.num(Field.zoned(s, base + 8, 4, 0, false, false, false), CS).intValue());",
+    "after": "d.setAbndTasknoKey(Cobol.num(Field.zoned(s, base + 9, 4, 0, false, false, false), CS).intValue());"
+   },
+   {
+    "id": "50af85fc25",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 221,
+    "before": "d.setAbndTasknoKey(Cobol.num(Field.zoned(s, base + 8, 4, 0, false, false, false), CS).intValue());",
+    "after": "d.setAbndTasknoKey(Cobol.num(Field.zoned(s, base + 8, 5, 0, false, false, false), CS).intValue());"
+   },
+   {
+    "id": "450ca7cff3",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 221,
+    "before": "d.setAbndTasknoKey(Cobol.num(Field.zoned(s, base + 8, 4, 0, false, false, false), CS).intValue());",
+    "after": "d.setAbndTasknoKey(Cobol.num(Field.zoned(s, base + 8, 4, 1, false, false, false), CS).intValue());"
+   },
+   {
+    "id": "7152d75506",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 222,
+    "before": "d.setAbndApplid(Cobol.text(Field.alphanumeric(s, base + 12, 8, false), CS));",
+    "after": "/* d.setAbndApplid(Cobol.text(Field.alphanumeric(s, base + 12, 8, false), CS)); */"
+   },
+   {
+    "id": "3c7913efea",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 222,
+    "before": "d.setAbndApplid(Cobol.text(Field.alphanumeric(s, base + 12, 8, false), CS));",
+    "after": "d.setAbndApplid(Cobol.text(Field.alphanumeric(s, base + 13, 8, false), CS));"
    },
    {
     "id": "e532fc74df",
     "op": "CON",
     "file": "service/AbndprocService.java",
-    "line": 219,
+    "line": 222,
     "before": "d.setAbndApplid(Cobol.text(Field.alphanumeric(s, base + 12, 8, false), CS));",
     "after": "d.setAbndApplid(Cobol.text(Field.alphanumeric(s, base + 12, 9, false), CS));"
+   },
+   {
+    "id": "a21479ebca",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 223,
+    "before": "d.setAbndTranid(Cobol.text(Field.alphanumeric(s, base + 20, 4, false), CS));",
+    "after": "/* d.setAbndTranid(Cobol.text(Field.alphanumeric(s, base + 20, 4, false), CS)); */"
+   },
+   {
+    "id": "8921481d6b",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 223,
+    "before": "d.setAbndTranid(Cobol.text(Field.alphanumeric(s, base + 20, 4, false), CS));",
+    "after": "d.setAbndTranid(Cobol.text(Field.alphanumeric(s, base + 21, 4, false), CS));"
+   },
+   {
+    "id": "1423c60e2e",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 223,
+    "before": "d.setAbndTranid(Cobol.text(Field.alphanumeric(s, base + 20, 4, false), CS));",
+    "after": "d.setAbndTranid(Cobol.text(Field.alphanumeric(s, base + 20, 5, false), CS));"
+   },
+   {
+    "id": "6ef4bc29aa",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 224,
+    "before": "d.setAbndDate(Cobol.text(Field.alphanumeric(s, base + 24, 10, false), CS));",
+    "after": "/* d.setAbndDate(Cobol.text(Field.alphanumeric(s, base + 24, 10, false), CS)); */"
+   },
+   {
+    "id": "4f1b1d2b37",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 224,
+    "before": "d.setAbndDate(Cobol.text(Field.alphanumeric(s, base + 24, 10, false), CS));",
+    "after": "d.setAbndDate(Cobol.text(Field.alphanumeric(s, base + 25, 10, false), CS));"
+   },
+   {
+    "id": "7dde1c1a81",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 224,
+    "before": "d.setAbndDate(Cobol.text(Field.alphanumeric(s, base + 24, 10, false), CS));",
+    "after": "d.setAbndDate(Cobol.text(Field.alphanumeric(s, base + 24, 11, false), CS));"
+   },
+   {
+    "id": "e1cf27c714",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 225,
+    "before": "d.setAbndTime(Cobol.text(Field.alphanumeric(s, base + 34, 8, false), CS));",
+    "after": "/* d.setAbndTime(Cobol.text(Field.alphanumeric(s, base + 34, 8, false), CS)); */"
+   },
+   {
+    "id": "37839e0df4",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 225,
+    "before": "d.setAbndTime(Cobol.text(Field.alphanumeric(s, base + 34, 8, false), CS));",
+    "after": "d.setAbndTime(Cobol.text(Field.alphanumeric(s, base + 35, 8, false), CS));"
+   },
+   {
+    "id": "5a1a4df403",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 225,
+    "before": "d.setAbndTime(Cobol.text(Field.alphanumeric(s, base + 34, 8, false), CS));",
+    "after": "d.setAbndTime(Cobol.text(Field.alphanumeric(s, base + 34, 9, false), CS));"
+   },
+   {
+    "id": "bf9a7e4153",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 226,
+    "before": "d.setAbndCode(Cobol.text(Field.alphanumeric(s, base + 42, 4, false), CS));",
+    "after": "/* d.setAbndCode(Cobol.text(Field.alphanumeric(s, base + 42, 4, false), CS)); */"
    },
    {
     "id": "76ed164dd4",
     "op": "CON",
     "file": "service/AbndprocService.java",
-    "line": 223,
+    "line": 226,
     "before": "d.setAbndCode(Cobol.text(Field.alphanumeric(s, base + 42, 4, false), CS));",
     "after": "d.setAbndCode(Cobol.text(Field.alphanumeric(s, base + 43, 4, false), CS));"
+   },
+   {
+    "id": "2bdc06faa1",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 226,
+    "before": "d.setAbndCode(Cobol.text(Field.alphanumeric(s, base + 42, 4, false), CS));",
+    "after": "d.setAbndCode(Cobol.text(Field.alphanumeric(s, base + 42, 5, false), CS));"
+   },
+   {
+    "id": "8d49518e7b",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 227,
+    "before": "d.setAbndProgram(Cobol.text(Field.alphanumeric(s, base + 46, 8, false), CS));",
+    "after": "/* d.setAbndProgram(Cobol.text(Field.alphanumeric(s, base + 46, 8, false), CS)); */"
+   },
+   {
+    "id": "09398d5dcd",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 227,
+    "before": "d.setAbndProgram(Cobol.text(Field.alphanumeric(s, base + 46, 8, false), CS));",
+    "after": "d.setAbndProgram(Cobol.text(Field.alphanumeric(s, base + 47, 8, false), CS));"
+   },
+   {
+    "id": "4a9aa548fa",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 227,
+    "before": "d.setAbndProgram(Cobol.text(Field.alphanumeric(s, base + 46, 8, false), CS));",
+    "after": "d.setAbndProgram(Cobol.text(Field.alphanumeric(s, base + 46, 9, false), CS));"
+   },
+   {
+    "id": "32460daceb",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 228,
+    "before": "d.setAbndRespcode(Cobol.num(Field.zoned(s, base + 54, 8, 0, true, true, true), CS).intValue());",
+    "after": "/* d.setAbndRespcode(Cobol.num(Field.zoned(s, base + 54, 8, 0, true, true, true), CS).intValue()); */"
    },
    {
     "id": "315f05e39f",
     "op": "CON",
     "file": "service/AbndprocService.java",
-    "line": 225,
+    "line": 228,
     "before": "d.setAbndRespcode(Cobol.num(Field.zoned(s, base + 54, 8, 0, true, true, true), CS).intValue());",
     "after": "d.setAbndRespcode(Cobol.num(Field.zoned(s, base + 54, 9, 0, true, true, true), CS).intValue());"
+   },
+   {
+    "id": "42424381b0",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 228,
+    "before": "d.setAbndRespcode(Cobol.num(Field.zoned(s, base + 54, 8, 0, true, true, true), CS).intValue());",
+    "after": "d.setAbndRespcode(Cobol.num(Field.zoned(s, base + 54, 8, 1, true, true, true), CS).intValue());"
+   },
+   {
+    "id": "7040cd0f96",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 229,
+    "before": "d.setAbndResp2Code(Cobol.num(Field.zoned(s, base + 63, 8, 0, true, true, true), CS).intValue());",
+    "after": "/* d.setAbndResp2Code(Cobol.num(Field.zoned(s, base + 63, 8, 0, true, true, true), CS).intValue()); */"
+   },
+   {
+    "id": "658196dba0",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 229,
+    "before": "d.setAbndResp2Code(Cobol.num(Field.zoned(s, base + 63, 8, 0, true, true, true), CS).intValue());",
+    "after": "d.setAbndResp2Code(Cobol.num(Field.zoned(s, base + 63, 9, 0, true, true, true), CS).intValue());"
    },
    {
     "id": "c0b732f59c",
     "op": "CON",
     "file": "service/AbndprocService.java",
-    "line": 226,
+    "line": 229,
     "before": "d.setAbndResp2Code(Cobol.num(Field.zoned(s, base + 63, 8, 0, true, true, true), CS).intValue());",
     "after": "d.setAbndResp2Code(Cobol.num(Field.zoned(s, base + 63, 8, 1, true, true, true), CS).intValue());"
+   },
+   {
+    "id": "658cacaf95",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 230,
+    "before": "d.setAbndSqlcode(Cobol.num(Field.zoned(s, base + 72, 8, 0, true, true, true), CS).intValue());",
+    "after": "/* d.setAbndSqlcode(Cobol.num(Field.zoned(s, base + 72, 8, 0, true, true, true), CS).intValue()); */"
+   },
+   {
+    "id": "2ac2881e74",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 230,
+    "before": "d.setAbndSqlcode(Cobol.num(Field.zoned(s, base + 72, 8, 0, true, true, true), CS).intValue());",
+    "after": "d.setAbndSqlcode(Cobol.num(Field.zoned(s, base + 72, 9, 0, true, true, true), CS).intValue());"
+   },
+   {
+    "id": "de798acf72",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 230,
+    "before": "d.setAbndSqlcode(Cobol.num(Field.zoned(s, base + 72, 8, 0, true, true, true), CS).intValue());",
+    "after": "d.setAbndSqlcode(Cobol.num(Field.zoned(s, base + 72, 8, 1, true, true, true), CS).intValue());"
    },
    {
     "id": "397393d2a2",
     "op": "DEL",
     "file": "service/AbndprocService.java",
-    "line": 228,
+    "line": 231,
     "before": "d.setAbndFreeform(Cobol.text(Field.alphanumeric(s, base + 81, 600, false), CS));",
     "after": "/* d.setAbndFreeform(Cobol.text(Field.alphanumeric(s, base + 81, 600, false), CS)); */"
+   },
+   {
+    "id": "8dceaeab52",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 231,
+    "before": "d.setAbndFreeform(Cobol.text(Field.alphanumeric(s, base + 81, 600, false), CS));",
+    "after": "d.setAbndFreeform(Cobol.text(Field.alphanumeric(s, base + 82, 600, false), CS));"
+   },
+   {
+    "id": "bcdfb9be45",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 231,
+    "before": "d.setAbndFreeform(Cobol.text(Field.alphanumeric(s, base + 81, 600, false), CS));",
+    "after": "d.setAbndFreeform(Cobol.text(Field.alphanumeric(s, base + 81, 601, false), CS));"
    },
    {
     "id": "e92b36c7a1",
     "op": "DEL",
     "file": "service/AbndprocService.java",
-    "line": 233,
+    "line": 236,
     "before": "fill_AbndprocDfhcommarea(d, s, base);",
     "after": "/* fill_AbndprocDfhcommarea(d, s, base); */"
+   },
+   {
+    "id": "21e17bffe8",
+    "op": "NEG",
+    "file": "service/AbndprocService.java",
+    "line": 242,
+    "before": "if (s_DFHCOMMAREA.bytes != whole) {",
+    "after": "if (!(s_DFHCOMMAREA.bytes != whole)) {"
+   },
+   {
+    "id": "1571c6c208",
+    "op": "ROR",
+    "file": "service/AbndprocService.java",
+    "line": 242,
+    "before": "if (s_DFHCOMMAREA.bytes != whole) {",
+    "after": "if (s_DFHCOMMAREA.bytes == whole) {"
+   },
+   {
+    "id": "b2014b79a6",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 243,
+    "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
+    "after": "/* System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length); */"
+   },
+   {
+    "id": "d52bdf96bf",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 243,
+    "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
+    "after": "System.arraycopy(s_DFHCOMMAREA.bytes, 1, whole, 0, s_DFHCOMMAREA.bytes.length);"
+   },
+   {
+    "id": "29081d7693",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 243,
+    "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
+    "after": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 1, s_DFHCOMMAREA.bytes.length);"
+   },
+   {
+    "id": "e9e5fde1fd",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 244,
+    "before": "s_DFHCOMMAREA.bytes = whole;",
+    "after": "/* s_DFHCOMMAREA.bytes = whole; */"
    },
    {
     "id": "664e26dedd",
     "op": "DEL",
     "file": "service/AbndprocService.java",
-    "line": 260,
+    "line": 263,
     "before": "System.arraycopy(IMAGE_s_WS_CICS_WORK_AREA, 0, s_WS_CICS_WORK_AREA.bytes, 0, IMAGE_s_WS_CICS_WORK_AREA.length);",
     "after": "/* System.arraycopy(IMAGE_s_WS_CICS_WORK_AREA, 0, s_WS_CICS_WORK_AREA.bytes, 0, IMAGE_s_WS_CICS_WORK_AREA.length); */"
+   },
+   {
+    "id": "343c8866df",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 264,
+    "before": "System.arraycopy(IMAGE_s_WS_ABND_AREA, 0, s_WS_ABND_AREA.bytes, 0, IMAGE_s_WS_ABND_AREA.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_ABND_AREA, 0, s_WS_ABND_AREA.bytes, 0, IMAGE_s_WS_ABND_AREA.length); */"
    },
    {
     "id": "7359a0229a",
     "op": "DEL",
     "file": "service/AbndprocService.java",
-    "line": 262,
+    "line": 265,
     "before": "System.arraycopy(IMAGE_s_DB2_DATE_REFORMAT, 0, s_DB2_DATE_REFORMAT.bytes, 0, IMAGE_s_DB2_DATE_REFORMAT.length);",
     "after": "/* System.arraycopy(IMAGE_s_DB2_DATE_REFORMAT, 0, s_DB2_DATE_REFORMAT.bytes, 0, IMAGE_s_DB2_DATE_REFORMAT.length); */"
+   },
+   {
+    "id": "035f58a1e7",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 266,
+    "before": "System.arraycopy(IMAGE_s_DATA_STORE_TYPE, 0, s_DATA_STORE_TYPE.bytes, 0, IMAGE_s_DATA_STORE_TYPE.length);",
+    "after": "/* System.arraycopy(IMAGE_s_DATA_STORE_TYPE, 0, s_DATA_STORE_TYPE.bytes, 0, IMAGE_s_DATA_STORE_TYPE.length); */"
+   },
+   {
+    "id": "44bfff6bdd",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 267,
+    "before": "System.arraycopy(IMAGE_s_WS_EIBTASKN12, 0, s_WS_EIBTASKN12.bytes, 0, IMAGE_s_WS_EIBTASKN12.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_EIBTASKN12, 0, s_WS_EIBTASKN12.bytes, 0, IMAGE_s_WS_EIBTASKN12.length); */"
    },
    {
     "id": "01baf21e70",
     "op": "DEL",
     "file": "service/AbndprocService.java",
-    "line": 265,
+    "line": 268,
     "before": "System.arraycopy(IMAGE_s_WS_SQLCODE_DISP, 0, s_WS_SQLCODE_DISP.bytes, 0, IMAGE_s_WS_SQLCODE_DISP.length);",
     "after": "/* System.arraycopy(IMAGE_s_WS_SQLCODE_DISP, 0, s_WS_SQLCODE_DISP.bytes, 0, IMAGE_s_WS_SQLCODE_DISP.length); */"
+   },
+   {
+    "id": "f0244684e8",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 269,
+    "before": "System.arraycopy(IMAGE_s_WS_U_TIME, 0, s_WS_U_TIME.bytes, 0, IMAGE_s_WS_U_TIME.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_U_TIME, 0, s_WS_U_TIME.bytes, 0, IMAGE_s_WS_U_TIME.length); */"
+   },
+   {
+    "id": "084a736b45",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 270,
+    "before": "System.arraycopy(IMAGE_s_WS_ORIG_DATE, 0, s_WS_ORIG_DATE.bytes, 0, IMAGE_s_WS_ORIG_DATE.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_ORIG_DATE, 0, s_WS_ORIG_DATE.bytes, 0, IMAGE_s_WS_ORIG_DATE.length); */"
+   },
+   {
+    "id": "b43a25ee7e",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 271,
+    "before": "System.arraycopy(IMAGE_s_WS_ORIG_DATE_GRP_X, 0, s_WS_ORIG_DATE_GRP_X.bytes, 0, IMAGE_s_WS_ORIG_DATE_GRP_X.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_ORIG_DATE_GRP_X, 0, s_WS_ORIG_DATE_GRP_X.bytes, 0, IMAGE_s_WS_ORIG_DATE_GRP_X.length); */"
+   },
+   {
+    "id": "4e1ec0bd29",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 272,
+    "before": "System.arraycopy(IMAGE_s_WS_PASSED_DATA, 0, s_WS_PASSED_DATA.bytes, 0, IMAGE_s_WS_PASSED_DATA.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_PASSED_DATA, 0, s_WS_PASSED_DATA.bytes, 0, IMAGE_s_WS_PASSED_DATA.length); */"
+   },
+   {
+    "id": "3ea521309a",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 273,
+    "before": "System.arraycopy(IMAGE_s_WS_SORT_DIV, 0, s_WS_SORT_DIV.bytes, 0, IMAGE_s_WS_SORT_DIV.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_SORT_DIV, 0, s_WS_SORT_DIV.bytes, 0, IMAGE_s_WS_SORT_DIV.length); */"
+   },
+   {
+    "id": "22483b353f",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 274,
+    "before": "System.arraycopy(IMAGE_s_CUSTOMER_KY, 0, s_CUSTOMER_KY.bytes, 0, IMAGE_s_CUSTOMER_KY.length);",
+    "after": "/* System.arraycopy(IMAGE_s_CUSTOMER_KY, 0, s_CUSTOMER_KY.bytes, 0, IMAGE_s_CUSTOMER_KY.length); */"
+   },
+   {
+    "id": "47d34c1689",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 275,
+    "before": "System.arraycopy(IMAGE_s_PROCTRAN_RIDFLD, 0, s_PROCTRAN_RIDFLD.bytes, 0, IMAGE_s_PROCTRAN_RIDFLD.length);",
+    "after": "/* System.arraycopy(IMAGE_s_PROCTRAN_RIDFLD, 0, s_PROCTRAN_RIDFLD.bytes, 0, IMAGE_s_PROCTRAN_RIDFLD.length); */"
+   },
+   {
+    "id": "e08bc0e9a7",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 276,
+    "before": "System.arraycopy(IMAGE_s_SQLCODE_DISPLAY, 0, s_SQLCODE_DISPLAY.bytes, 0, IMAGE_s_SQLCODE_DISPLAY.length);",
+    "after": "/* System.arraycopy(IMAGE_s_SQLCODE_DISPLAY, 0, s_SQLCODE_DISPLAY.bytes, 0, IMAGE_s_SQLCODE_DISPLAY.length); */"
    },
    {
     "id": "7ca89aa591",
     "op": "DEL",
     "file": "service/AbndprocService.java",
-    "line": 274,
+    "line": 277,
     "before": "System.arraycopy(IMAGE_s_MY_ABEND_CODE, 0, s_MY_ABEND_CODE.bytes, 0, IMAGE_s_MY_ABEND_CODE.length);",
     "after": "/* System.arraycopy(IMAGE_s_MY_ABEND_CODE, 0, s_MY_ABEND_CODE.bytes, 0, IMAGE_s_MY_ABEND_CODE.length); */"
+   },
+   {
+    "id": "26c0c469b0",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 278,
+    "before": "System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length);",
+    "after": "/* System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length); */"
+   },
+   {
+    "id": "e3df7e4a14",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 279,
+    "before": "System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length);",
+    "after": "/* System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length); */"
+   },
+   {
+    "id": "f7418c3dff",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 280,
+    "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
+    "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */"
+   },
+   {
+    "id": "c263218a83",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 281,
+    "before": "f18_WS_ABND_KEY_LEN = 12L;",
+    "after": "/* f18_WS_ABND_KEY_LEN = 12L; */"
    },
    {
     "id": "0dc3363e3f",
     "op": "DEL",
     "file": "service/AbndprocService.java",
-    "line": 300,
+    "line": 303,
     "before": "caBack = () -> { };",
     "after": "/* caBack = () -> { }; */"
+   },
+   {
+    "id": "b340ac5e04",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 304,
+    "before": "handlers.clear();",
+    "after": "/* handlers.clear(); */"
+   },
+   {
+    "id": "e20e6c81ea",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 305,
+    "before": "heldKey.clear();",
+    "after": "/* heldKey.clear(); */"
    },
    {
     "id": "05db6f9d64",
     "op": "DEL",
     "file": "service/AbndprocService.java",
-    "line": 303,
+    "line": 306,
     "before": "initialState();",
     "after": "/* initialState(); */"
+   },
+   {
+    "id": "10840a5b60",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 307,
+    "before": "Cobol.move(task.transid(), f76_EIBTRNID, CS);",
+    "after": "/* Cobol.move(task.transid(), f76_EIBTRNID, CS); */"
    },
    {
     "id": "6768e681ce",
     "op": "DEL",
     "file": "service/AbndprocService.java",
-    "line": 306,
+    "line": 309,
     "before": "Cobol.store(f77_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS);",
     "after": "/* Cobol.store(f77_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS); */"
+   },
+   {
+    "id": "2b593f2ef1",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 311,
+    "before": "Cobol.store(f75_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "/* Cobol.store(f75_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS); */"
    },
    {
     "id": "3690e49060",
     "op": "AOR",
     "file": "service/AbndprocService.java",
-    "line": 308,
+    "line": 311,
     "before": "Cobol.store(f75_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
     "after": "Cobol.store(f75_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);"
+   },
+   {
+    "id": "de9a5db51a",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 311,
+    "before": "Cobol.store(f75_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "Cobol.store(f75_EIBDATE, BigDecimal.valueOf((now.getYear() - 1901) * 1000L + now.getDayOfYear()), false, CS);"
    },
    {
     "id": "43e61e9799",
     "op": "AOR",
     "file": "service/AbndprocService.java",
-    "line": 308,
+    "line": 311,
     "before": "Cobol.store(f75_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
     "after": "Cobol.store(f75_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) / 1000L + now.getDayOfYear()), false, CS);"
+   },
+   {
+    "id": "6a225f2271",
+    "op": "AOR",
+    "file": "service/AbndprocService.java",
+    "line": 311,
+    "before": "Cobol.store(f75_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "Cobol.store(f75_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);"
+   },
+   {
+    "id": "00a3dd97de",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 312,
+    "before": "Cobol.store(f74_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "/* Cobol.store(f74_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS); */"
    },
    {
     "id": "2b3b53b3ae",
     "op": "AOR",
     "file": "service/AbndprocService.java",
-    "line": 309,
+    "line": 312,
     "before": "Cobol.store(f74_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
     "after": "Cobol.store(f74_EIBTIME, BigDecimal.valueOf(now.getHour() / 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);"
    },
@@ -596,31 +1922,119 @@
     "id": "1263a6bd57",
     "op": "AOR",
     "file": "service/AbndprocService.java",
-    "line": 309,
+    "line": 312,
     "before": "Cobol.store(f74_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
     "after": "Cobol.store(f74_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L - now.getMinute() * 100L + now.getSecond()), false, CS);"
+   },
+   {
+    "id": "29de6ec475",
+    "op": "AOR",
+    "file": "service/AbndprocService.java",
+    "line": 312,
+    "before": "Cobol.store(f74_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "Cobol.store(f74_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() / 100L + now.getSecond()), false, CS);"
    },
    {
     "id": "98fd599183",
     "op": "AOR",
     "file": "service/AbndprocService.java",
-    "line": 309,
+    "line": 312,
     "before": "Cobol.store(f74_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
     "after": "Cobol.store(f74_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L - now.getSecond()), false, CS);"
+   },
+   {
+    "id": "87bf6fedea",
+    "op": "ROR",
+    "file": "service/AbndprocService.java",
+    "line": 313,
+    "before": "switch (task.aid() == null ? \"\" : task.aid()) {",
+    "after": "switch (task.aid() != null ? \"\" : task.aid()) {"
+   },
+   {
+    "id": "fc18f42cd2",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 317,
+    "before": "int calen = 0;",
+    "after": "int calen = 1;"
+   },
+   {
+    "id": "ddbb555366",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 319,
+    "before": "in_AbndprocDfhcommarea(x, s_DFHCOMMAREA, 0);",
+    "after": "/* in_AbndprocDfhcommarea(x, s_DFHCOMMAREA, 0); */"
+   },
+   {
+    "id": "bf8701440f",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 319,
+    "before": "in_AbndprocDfhcommarea(x, s_DFHCOMMAREA, 0);",
+    "after": "in_AbndprocDfhcommarea(x, s_DFHCOMMAREA, 1);"
    },
    {
     "id": "eea30fe38b",
     "op": "DEL",
     "file": "service/AbndprocService.java",
-    "line": 317,
+    "line": 320,
     "before": "caBack = () -> fill_AbndprocDfhcommarea(x, s_DFHCOMMAREA, 0);",
     "after": "/* caBack = () -> fill_AbndprocDfhcommarea(x, s_DFHCOMMAREA, 0); */"
+   },
+   {
+    "id": "74b7e59abb",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 321,
+    "before": "calen = cx(task, 681);",
+    "after": "/* calen = cx(task, 681); */"
+   },
+   {
+    "id": "1a2a3a9de8",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 321,
+    "before": "calen = cx(task, 681);",
+    "after": "calen = cx(task, 682);"
+   },
+   {
+    "id": "f284ce2e43",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 323,
+    "before": "s_DFHCOMMAREA.beyond = null;",
+    "after": "/* s_DFHCOMMAREA.beyond = null; */"
+   },
+   {
+    "id": "0be260cef9",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 326,
+    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
+    "after": "/* System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length)); */"
+   },
+   {
+    "id": "9509ad1a1d",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 326,
+    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
+    "after": "System.arraycopy(cb, 1, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));"
+   },
+   {
+    "id": "8683e66104",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 326,
+    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
+    "after": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 1, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));"
    },
    {
     "id": "f791bc5a5f",
     "op": "NEG",
     "file": "service/AbndprocService.java",
-    "line": 324,
+    "line": 327,
     "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
     "after": "if (!(cb.length > s_DFHCOMMAREA.bytes.length)) {"
    },
@@ -628,15 +2042,31 @@
     "id": "d0e39a8e11",
     "op": "ROR",
     "file": "service/AbndprocService.java",
-    "line": 324,
+    "line": 327,
     "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
     "after": "if (cb.length <= s_DFHCOMMAREA.bytes.length) {"
+   },
+   {
+    "id": "f9a3d66539",
+    "op": "ROR",
+    "file": "service/AbndprocService.java",
+    "line": 327,
+    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
+    "after": "if (cb.length >= s_DFHCOMMAREA.bytes.length) {"
+   },
+   {
+    "id": "4f6bcdd786",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 328,
+    "before": "s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length);",
+    "after": "/* s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length); */"
    },
    {
     "id": "a47167106c",
     "op": "DEL",
     "file": "service/AbndprocService.java",
-    "line": 327,
+    "line": 330,
     "before": "calen = cx(task, cb.length);",
     "after": "/* calen = cx(task, cb.length); */"
    },
@@ -644,7 +2074,7 @@
     "id": "8908bbb984",
     "op": "NEG",
     "file": "service/AbndprocService.java",
-    "line": 330,
+    "line": 333,
     "before": "if (raw != null) {",
     "after": "if (!(raw != null)) {"
    },
@@ -652,23 +2082,55 @@
     "id": "3f31525246",
     "op": "ROR",
     "file": "service/AbndprocService.java",
-    "line": 330,
+    "line": 333,
     "before": "if (raw != null) {",
     "after": "if (raw == null) {"
+   },
+   {
+    "id": "4ad9809c86",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 334,
+    "before": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
+    "after": "/* System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length)); */"
+   },
+   {
+    "id": "f45431082e",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 336,
+    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
+    "after": "/* s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null; */"
    },
    {
     "id": "07b2ab8d1d",
     "op": "ROR",
     "file": "service/AbndprocService.java",
-    "line": 333,
+    "line": 336,
     "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
     "after": "s_DFHCOMMAREA.beyond = raw.length >= keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;"
+   },
+   {
+    "id": "2b648bcc0b",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 338,
+    "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+    "after": "/* caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } }; */"
+   },
+   {
+    "id": "d6e063dbdd",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 338,
+    "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+    "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } };"
    },
    {
     "id": "c23d205c17",
     "op": "AOR",
     "file": "service/AbndprocService.java",
-    "line": 335,
+    "line": 338,
     "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
     "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } };"
    },
@@ -676,7 +2138,7 @@
     "id": "eaec02727c",
     "op": "NEG",
     "file": "service/AbndprocService.java",
-    "line": 338,
+    "line": 341,
     "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
     "after": "if (!(task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length)) {"
    },
@@ -684,47 +2146,143 @@
     "id": "3056d19f0e",
     "op": "COR",
     "file": "service/AbndprocService.java",
-    "line": 338,
+    "line": 341,
     "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
     "after": "if (task.exactCommarea() || calen < s_DFHCOMMAREA.bytes.length) {"
+   },
+   {
+    "id": "7d9e4ea1e6",
+    "op": "ROR",
+    "file": "service/AbndprocService.java",
+    "line": 341,
+    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+    "after": "if (task.exactCommarea() && calen <= s_DFHCOMMAREA.bytes.length) {"
    },
    {
     "id": "d17366dfda",
     "op": "ROR",
     "file": "service/AbndprocService.java",
-    "line": 338,
+    "line": 341,
     "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
     "after": "if (task.exactCommarea() && calen >= s_DFHCOMMAREA.bytes.length) {"
+   },
+   {
+    "id": "e4126c344f",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 342,
+    "before": "caWhole = s_DFHCOMMAREA.bytes;",
+    "after": "/* caWhole = s_DFHCOMMAREA.bytes; */"
    },
    {
     "id": "d6f45a5177",
     "op": "DEL",
     "file": "service/AbndprocService.java",
-    "line": 340,
+    "line": 343,
     "before": "s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen);",
     "after": "/* s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen); */"
+   },
+   {
+    "id": "5692683fc0",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 346,
+    "before": "caBack = () -> { caWhole(whole); typed.run(); };",
+    "after": "/* caBack = () -> { caWhole(whole); typed.run(); }; */"
+   },
+   {
+    "id": "c879af0bb3",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 348,
+    "before": "Cobol.store(f81_EIBCALEN, BigDecimal.valueOf(calen), false, CS);",
+    "after": "/* Cobol.store(f81_EIBCALEN, BigDecimal.valueOf(calen), false, CS); */"
+   },
+   {
+    "id": "bdf0eca59f",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 351,
+    "before": "perform(0, 5);",
+    "after": "perform(1, 5);"
+   },
+   {
+    "id": "324befa960",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 351,
+    "before": "perform(0, 5);",
+    "after": "perform(0, 6);"
    },
    {
     "id": "882dacecb2",
     "op": "NEG",
     "file": "service/AbndprocService.java",
-    "line": 353,
+    "line": 356,
     "before": "if (caWhole == null) {",
     "after": "if (!(caWhole == null)) {"
+   },
+   {
+    "id": "18654b412c",
+    "op": "ROR",
+    "file": "service/AbndprocService.java",
+    "line": 356,
+    "before": "if (caWhole == null) {",
+    "after": "if (caWhole != null) {"
+   },
+   {
+    "id": "e925033392",
+    "op": "LIT",
+    "file": "service/AbndprocService.java",
+    "line": 359,
+    "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
+    "after": "throw new DetCics.PastFrom(\"XOMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");"
+   },
+   {
+    "id": "ead754b04f",
+    "op": "LIT",
+    "file": "service/AbndprocService.java",
+    "line": 359,
+    "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
+    "after": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \"Xbytes): not modelled\");"
+   },
+   {
+    "id": "c0ff438c6e",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 362,
+    "before": "caWhole(caWhole);",
+    "after": "/* caWhole(caWhole); */"
    },
    {
     "id": "920e747f19",
     "op": "DEL",
     "file": "service/AbndprocService.java",
-    "line": 363,
+    "line": 366,
     "before": "caBack.run();",
     "after": "/* caBack.run(); */"
+   },
+   {
+    "id": "e93be08ed1",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 370,
+    "before": "Cobol.swapTruncBinary(truncBefore);",
+    "after": "/* Cobol.swapTruncBinary(truncBefore); */"
+   },
+   {
+    "id": "462c9d7655",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 371,
+    "before": "Cobol.swapNumprocPfd(pfdBefore);",
+    "after": "/* Cobol.swapNumprocPfd(pfdBefore); */"
    },
    {
     "id": "3cd5a56d62",
     "op": "LIT",
     "file": "service/AbndprocService.java",
-    "line": 381,
+    "line": 384,
     "before": "CicsTask task = region.linked(\"ABNDPROC\", request, area);",
     "after": "CicsTask task = region.linked(\"XBNDPROC\", request, area);"
    },
@@ -732,15 +2290,23 @@
     "id": "e78d05a735",
     "op": "LIT",
     "file": "service/AbndprocService.java",
-    "line": 382,
+    "line": 385,
     "before": "region.run(task, \"ABNDPROC\", this::runTask);",
     "after": "region.run(task, \"XBNDPROC\", this::runTask);"
+   },
+   {
+    "id": "91bc6fa032",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 387,
+    "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+    "after": "/* lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null; */"
    },
    {
     "id": "661ba858a8",
     "op": "COR",
     "file": "service/AbndprocService.java",
-    "line": 384,
+    "line": 387,
     "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
     "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;"
    },
@@ -748,79 +2314,223 @@
     "id": "fb423014be",
     "op": "ROR",
     "file": "service/AbndprocService.java",
-    "line": 384,
+    "line": 387,
     "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
     "after": "lastLinkBytes = task.linkAreaTaken() && left == null ? java.util.Arrays.copyOf(left, left.length) : null;"
+   },
+   {
+    "id": "922dc63a75",
+    "op": "ROR",
+    "file": "service/AbndprocService.java",
+    "line": 397,
+    "before": "return lastLinkBytes == null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
+    "after": "return lastLinkBytes != null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);"
    },
    {
     "id": "73e9db0c81",
     "op": "DEL",
     "file": "service/AbndprocService.java",
-    "line": 403,
+    "line": 406,
     "before": "super(null, null, false, false);",
     "after": "/* super(null, null, false, false); */"
+   },
+   {
+    "id": "4177b8f86f",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 437,
+    "before": "private int[] performThru = new int[64];",
+    "after": "private int[] performThru = new int[65];"
+   },
+   {
+    "id": "8cde2dfc88",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 446,
+    "before": "super(null, null, false, false);",
+    "after": "/* super(null, null, false, false); */"
+   },
+   {
+    "id": "2a26b63e87",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 457,
+    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+    "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */"
    },
    {
     "id": "81aebe0cde",
     "op": "AOR",
     "file": "service/AbndprocService.java",
-    "line": 454,
+    "line": 457,
     "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
     "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);"
+   },
+   {
+    "id": "e15798b5bf",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 457,
+    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+    "after": "performThru = java.util.Arrays.copyOf(performThru, mine * 3);"
+   },
+   {
+    "id": "19117fcdfa",
+    "op": "ROR",
+    "file": "service/AbndprocService.java",
+    "line": 464,
+    "before": "boolean jumped = (next & GOTO) != 0;",
+    "after": "boolean jumped = (next & GOTO) == 0;"
+   },
+   {
+    "id": "98883e767b",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 464,
+    "before": "boolean jumped = (next & GOTO) != 0;",
+    "after": "boolean jumped = (next & GOTO) != 1;"
    },
    {
     "id": "b9f507258b",
     "op": "NEG",
     "file": "service/AbndprocService.java",
-    "line": 463,
+    "line": 466,
     "before": "if (!jumped) {",
     "after": "if (!(!jumped)) {"
+   },
+   {
+    "id": "f73485b60f",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 468,
+    "before": "return;",
+    "after": "/* return; */"
+   },
+   {
+    "id": "a6238ee3e8",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 470,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine - 2; d >= 0; d--) {"
    },
    {
     "id": "d173c6f2ad",
     "op": "ROR",
     "file": "service/AbndprocService.java",
-    "line": 467,
+    "line": 470,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 1; d > 0; d--) {"
+   },
+   {
+    "id": "57da4f88f6",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 470,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine - 1; d >= 1; d--) {"
    },
    {
     "id": "b8c2b36648",
     "op": "NEG",
     "file": "service/AbndprocService.java",
-    "line": 468,
+    "line": 471,
     "before": "if (performThru[d] == i) {",
     "after": "if (!(performThru[d] == i)) {"
+   },
+   {
+    "id": "49e2cfaf64",
+    "op": "ROR",
+    "file": "service/AbndprocService.java",
+    "line": 471,
+    "before": "if (performThru[d] == i) {",
+    "after": "if (performThru[d] != i) {"
+   },
+   {
+    "id": "1645b7c646",
+    "op": "ROR",
+    "file": "service/AbndprocService.java",
+    "line": 476,
+    "before": "if (next >= 6) {",
+    "after": "if (next > 6) {"
+   },
+   {
+    "id": "8cdc7d4f00",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 476,
+    "before": "if (next >= 6) {",
+    "after": "if (next >= 7) {"
    },
    {
     "id": "19bf09e037",
     "op": "NEG",
     "file": "service/AbndprocService.java",
-    "line": 479,
+    "line": 482,
     "before": "if (e.depth != mine) {",
     "after": "if (!(e.depth != mine)) {"
+   },
+   {
+    "id": "6af4cc28df",
+    "op": "ROR",
+    "file": "service/AbndprocService.java",
+    "line": 482,
+    "before": "if (e.depth != mine) {",
+    "after": "if (e.depth == mine) {"
    },
    {
     "id": "ad116cb66e",
     "op": "DEL",
     "file": "service/AbndprocService.java",
-    "line": 483,
+    "line": 486,
     "before": "performDepth = mine;",
     "after": "/* performDepth = mine; */"
+   },
+   {
+    "id": "38e3fa259c",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 497,
+    "before": "case 5: return p5();",
+    "after": "case 6: return p5();"
+   },
+   {
+    "id": "3bcd6ffe07",
+    "op": "LIT",
+    "file": "service/AbndprocService.java",
+    "line": 498,
+    "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
+    "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);"
    },
    {
     "id": "bd3aacd69b",
     "op": "DEL",
     "file": "service/AbndprocService.java",
-    "line": 511,
+    "line": 514,
     "before": "Cobol.store(f102_EIBRESP, BigDecimal.valueOf(resp1), false, CS);",
     "after": "/* Cobol.store(f102_EIBRESP, BigDecimal.valueOf(resp1), false, CS); */"
+   },
+   {
+    "id": "aa5c4c9b59",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 515,
+    "before": "Cobol.store(f103_EIBRESP2, BigDecimal.valueOf(task.resp2()), false, CS);",
+    "after": "/* Cobol.store(f103_EIBRESP2, BigDecimal.valueOf(task.resp2()), false, CS); */"
+   },
+   {
+    "id": "e6b3f07fea",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 529,
+    "before": "caBack.run();",
+    "after": "/* caBack.run(); */"
    },
    {
     "id": "f29a8ec283",
     "op": "DEL",
     "file": "service/AbndprocService.java",
-    "line": 527,
+    "line": 530,
     "before": "task.returnTransid(null, null);",
     "after": "/* task.returnTransid(null, null); */"
    },
@@ -828,15 +2538,71 @@
     "id": "087ff8cb42",
     "op": "DEL",
     "file": "service/AbndprocService.java",
-    "line": 531,
+    "line": 534,
     "before": "perform(3, 5);",
     "after": "/* perform(3, 5); */"
+   },
+   {
+    "id": "6be7b3b111",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 534,
+    "before": "perform(3, 5);",
+    "after": "perform(4, 5);"
+   },
+   {
+    "id": "7ed161fd05",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 534,
+    "before": "perform(3, 5);",
+    "after": "perform(3, 6);"
+   },
+   {
+    "id": "dfff2c6f63",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 535,
+    "before": "return 2;",
+    "after": "return 3;"
+   },
+   {
+    "id": "bd744c47c5",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 541,
+    "before": "return 3;",
+    "after": "return 4;"
+   },
+   {
+    "id": "42d2ac135a",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 547,
+    "before": "return 4;",
+    "after": "return 5;"
+   },
+   {
+    "id": "99318f281e",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 553,
+    "before": "caBack.run();",
+    "after": "/* caBack.run(); */"
+   },
+   {
+    "id": "3010d1d6a6",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 554,
+    "before": "task.returnTransid(null, null);",
+    "after": "/* task.returnTransid(null, null); */"
    },
    {
     "id": "72576cf139",
     "op": "NEG",
     "file": "service/AbndprocService.java",
-    "line": 552,
+    "line": 555,
     "before": "if (true) throw new Goback();",
     "after": "if (!(true)) throw new Goback();"
    },
@@ -844,53 +2610,65 @@
     "id": "3e71011e40",
     "op": "NEG",
     "file": "service/AbndprocService.java",
-    "line": 554,
+    "line": 557,
     "before": "if (true) throw new Goback();",
     "after": "if (!(true)) throw new Goback();"
+   },
+   {
+    "id": "b2a7dd495d",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 558,
+    "before": "return 5;",
+    "after": "return 6;"
+   },
+   {
+    "id": "5cb4753e68",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 564,
+    "before": "return 6;",
+    "after": "return 7;"
    }
   ],
   "inputs": {
-   "port": "6791f7df26d678f66015f49f340d260956eb179edbdcc7772f9a493f5dd6bf1c",
-   "generator": "efdeb8065b1ecce331c38a4fb9d500e0289fc8608f10c528268cd58dca338720",
+   "port": "bca87e51bdeddd05c1257efd58cfa84e78e308b545817dba9b8fc817acdb4e51",
+   "runtime": "489efe89317e8360a6fe29c13cc96bf0ceea4773e0d0adeb3b2b9f982dffe090",
+   "generator": "c3c8b25ebae8fca6d173ce50b4d6cb54840e2c9bf68aee2db8faf04f2c0ccc95",
    "case": "32bd7606058e44fc1976bab563073741b843e99ed4e8c2f2382ba46221ee0c26",
    "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
-   "harness": "f6fc656cfb906c118205c985d0d60e49de564621c2ff04af298b4752a3ede275",
-   "oracle": "c16b52604cd8fd17fb175d78decab45df98fa472134a0d92759e6bdfe631c71a",
-   "survivors": "201c5ac2ad89706fb37916f33cd5b2d570c1077394265160a81787596bacf110",
-   "runtime": "5d0486225910839ced6bd8774b8fd13633b252bbf2a52d23470a966bb82bbe32"
+   "harness": "a99c1e908aa8fddc4ff7504ca91ae35b1710b994bbc107ff90ee5accbaed93de",
+   "oracle": "623faf2df5bb69f6679ba73db1dad69ec1dc825cdaca54f1b05a2f143c2f24d4",
+   "survivors": "eff3288f42bb9388453b82e6ed5a3f642d11b44f703c08112b67219c737ebcb1"
   },
   "components": {
    "generator": {
-    "generator:core": "286f1220d709fb1d4689c6d78a413a9440109a0ecca0472d2e3811c8ac0d9f81",
+    "generator:core": "f746c3f061ed6d88f1734cbf36ed2aa91e4439103fc1647f241a915188ec91be",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
-    "generator:det/cics": "2a4fbbd7a9e55ee9dc6b9fa0e2ff2802c57cab2ff0d36459b676c1143707b507",
-    "generator:det/cics_containers": "5fc989229d444423f5b14d2c65a2c7c541efbe6cd0e5dc5a833beaf90c578b6b",
-    "generator:det/cics_filecontrol": "3d10979d783b0f39b3184d3111b9e543cd87941cbe7814f0edc65454e6f1f2b7",
-    "generator:det/cics_taskcontrol": "7d3892cd106fe0ab3a165551af8497cb67ee0337d2cb97f7a72ef8805710bdbf",
+    "generator:det/cics": "781c9019b540b3e3a4a681f11a439d00650f793bc822de3ecc4393c0b7861ac5",
+    "generator:det/cics_common": "16991c151d196fe6187dca2b11dc7b6b2ed4f65b42be8091a3b72411af515577",
+    "generator:det/cics_conditions": "81f7cac048ac8609a92f78bf0e0379dc9b59454a7f3754a50eb6d2538a74adc6",
+    "generator:det/cics_containers": "e96f548646b8060bd71e5c448e52ba193d6fd88aad3e78b4f1b1bd3731e518ff",
+    "generator:det/cics_faults": "863ce608ce8e183fe37350ba17f59b2176ce20452e1ebe86cb6b7ae6109fdb4e",
+    "generator:det/cics_filecontrol": "b03c1052fedac6c5e744625ded2d147a9d6bfcf143c2db441cd01be9bf709e25",
+    "generator:det/cics_taskcontrol": "dc6e713d05615597336437253bbb2924ec6e8e7bf09ff0901b053c17ecc8b301",
     "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
-    "generator:det/dli": "59300231ec82938ae8606969155f9d0fef4962ad739e8d6da188a7b6202e9ebd",
-    "generator:det/dyncall": "7f776808ec711cab1ada988a7ee2aded100227a543eeea393d17f5d389b3dc0c",
-    "generator:det/entity": "b6aa37067dc0413f6700ac83e7dd35610d8e2474aa607bdf54b5b8419ee4c7d6",
     "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
-    "generator:det/gen": "103a0da4d979c518e60d0dda1fc003e7a3f65ddf56c16280091e8a7942f41f4d",
     "generator:det/hfp": "d7d641dafd602da31535a68f7f219c201a8d867cb7a1fec1c879be38e9ff86b7",
-    "generator:det/layout": "e3c70e4dcbb512324b5b16a57dac4010e60d18b7926c06fff5edbd6cf1a79e3e",
-    "generator:det/mq": "25055224f7c943069e828db7a79887ca1f4e6f4a06ec3b9781c97b31226491a0",
-    "generator:det/osvs": "4ca3599a4d9a49bd17def291a921278d6f4f45858f65acaf75ae817c17644dd5",
-    "generator:det/source": "dd5dec2f1f4f9a6a780228a8216daae573cf51aab899fe35dc71745fec33f2dd",
-    "generator:det/stmt": "014835ecefbec5b761734642ac25fc8270092f80945e8f79bcaaa9d3aee2c9ff"
+    "generator:det/hlasm": "c7117c636ab25d2ccb7b4e2d7f23766ddacb9c9f7600c2fd6d894a49a60f4748",
+    "generator:det/layout": "d18ee78c6619817c817adda13a9e2cdd53737f372fadee306c4fd4d122cae2b7",
+    "generator:det/source": "fd7d20e0f7824a4d3b74201b0690914daf79834567b3fa5f064c98beb4d50e0b"
    },
    "harness": {
-    "harness:cics": "21520a4c6440f2956fc2f8062360be697aa8cc1205ec66f51b1917d1fd7aa1a6",
-    "harness:core": "6ca15fe077558291d5457261b5b460f3fa6f7b92a7a11455c436cfee97ebaf39"
+    "harness:cics": "25444b6b09ac15fa572b67ce9445492d80f9cad525be02264079d76d254622a6",
+    "harness:core": "8a7d18f97c68b94659c661facaab3877279b809e80143028b7cde992385b5718"
    },
    "oracle": {
-    "oracle:cics-stub": "8d4b95cb03310f91b20292ebc95871479fe57bab9fc6ff33a625667a5860e785",
-    "oracle:core": "9bd2aed0628d99af4c37bbef46e4ec07d7634e6d251de4ef7766364180b63623",
-    "oracle:le": "3e9e45ed737eaee3a156a2e00bfade4c956d69c8bf1c0bbe207a9cf107063c78"
+    "oracle:cics-stub": "016510d7f6866b2336ac4e86fb8691154caa1cc62b1ba97cb753e7c03784e6a1",
+    "oracle:core": "b4bb775f0a30746a6054f259b4c8613e08cb0d8cf3b40f4a789d953aca4144a0",
+    "oracle:le": "670c92cc59b722e108b688267be1fd89ecda9b7be62bb485da2ad4839b4f7011"
    }
   },
-  "port_moved": true,
-  "every": "00a3dd97de 01baf21e70 02475cdb2b 02752dac28 02a74602e1 035f58a1e7 045d1cf4b4 058c44ef1f 05db6f9d64 061cf19dba 0790e09f1e 07b2ab8d1d 08244deff7 084a736b45 087ff8cb42 09398d5dcd 0982654d68 0b80d1290a 0be260cef9 0c0c487efe 0c68634975 0c7b5c7ba4 0dc3363e3f 0feeb3fa8d 104cdbd6ef 10840a5b60 1119d818ec 1263a6bd57 12d3289cb4 130bf69c51 1423c60e2e 14e4d82891 1522402532 1571c6c208 1645b7c646 16c3dd4e74 171f2078cf 18156d6a70 18654b412c 18aba27978 19117fcdfa 195060820f 19bf09e037 1a2a3a9de8 1b308bc5fc 1c42203f58 1cc92cb567 1d1353df3b 1f19fc6e6c 2016543e6b 20834cbb90 21e17bffe8 221f878798 22483b353f 22ba2d2882 24080dff15 25608efa04 257e6b7a30 25ec6d9691 26c0c469b0 281b554d98 28e258adeb 29081d7693 29de6ec475 2a26b63e87 2a827d1d3b 2ac2881e74 2b158ac46d 2b2c0cf2f2 2b3b53b3ae 2b593f2ef1 2b648bcc0b 2b6d88f263 2b8bdb0077 2bdc06faa1 2c11bb6ec9 2c149f1437 2edcf3535e 3010d1d6a6 3056d19f0e 30813310b2 3099064817 3140ca7040 315f05e39f 32460daceb 324befa960 330873112c 335d146bd7 33ecb9e2db 343582771b 343c8866df 3531260526 3563296d48 3690e49060 36f872c8bc 3760bd064b 37839e0df4 37f344e244 3811885a99 3858a85fd2 38e3fa259c 397393d2a2 3974824f4a 3a93a9ea2e 3afc2bfbda 3b09a96bb8 3b6baa3d01 3bcd6ffe07 3c290f5d4d 3c5b1becc8 3c7913efea 3cd5a56d62 3ddea482e8 3e37d63d92 3e4f40bd49 3e71011e40 3ea521309a 3eec10515e 3f31525246 3f8327f79a 3ff43cf0a4 3ff5ffd731 4020a9b7c8 4177b8f86f 41b816438b 42424381b0 42661206ee 42d2ac135a 42fac8f0e4 42ff1b3122 431c0b704f 43e61e9799 44bfff6bdd 450ca7cff3 453bacd5bc 459d1f2d89 45fa82cf7d 462c9d7655 4703fe47dc 47d34c1689 4853bc93d9 4893ffd9d0 48bec29216 4973559175 49e2cfaf64 4a1e74f7d8 4a653eefb4 4a725d67c7 4a9aa548fa 4ad9809c86 4af8264fe6 4b0b7e0e12 4c42814980 4d4490fa62 4d58bcd702 4e1ec0bd29 4eb4ddf5a7 4f0c362813 4f1b1d2b37 4f6bcdd786 4fa95c6aa7 50af85fc25 51bb7311ea 530d2a7d25 549fffdfc5 54fe069470 5692683fc0 5753cd1935 57da4f88f6 5981f7e2e9 59d698b443 5a1a4df403 5a4b9b94a8 5ae4587b83 5c1c7be8d4 5c799ca645 5cb4753e68 5d08ffba93 5d637eb27d 5daafba6a4 5f0c63476e 5f83165f29 5ff2e247a1 605ad5c8d1 60c0dbcd97 60c5b3a439 60f86f0319 6296fdb1a3 65148c92db 658196dba0 658cacaf95 65ef5f8ae4 661ba858a8 664e26dedd 66ddf14fba 66dfb1e3e3 6768e681ce 68976fc62e 6a225f2271 6acd34477f 6af4cc28df 6be7b3b111 6eb7383619 6ef4bc29aa 7040cd0f96 70785e4b41 70a7338c87 7152d75506 71bb0d487a 72576cf139 73152740aa 7359a0229a 73e414ee57 73e9db0c81 74a6d55e79 74b7e59abb 76ed164dd4 784354150c 78ced98a62 7963d5af53 7ac1c48a31 7b4ad574a9 7c151449c5 7ca89aa591 7d2972923c 7d9e4ea1e6 7dde1c1a81 7e3fbcfd12 7e792b350a 7ed161fd05 7f8231b856 81aebe0cde 82f20cdf26 8305e77d30 83d1e09151 85c7ad2efa 86668e000a 8683e66104 8750cc7d8c 8770d27f5b 87bf6fedea 882dacecb2 8898670069 8908bbb984 8921481d6b 896e641e97 8a3584631f 8a91a42dfa 8b74e59ae4 8cdc7d4f00 8cde2dfc88 8d49518e7b 8dceaeab52 8e757528a6 8fdcc5af7e 901aaecf80 9076b3b0ef 90a03bf3a7 91bc6fa032 920e747f19 922dc63a75 92ac6162de 93279354bf 93483bf753 935a1a6c16 93fa9cb626 940582c33d 9443049038 9509ad1a1d 95eabe652e 965fd62fe6 971394234a 97d9ee00d4 982f8b00a9 98883e767b 98fc1d0533 98fd599183 99318f281e 9990dae63f 9a55842e88 9bb81de7e3 9bd92e960a 9c0c97ad47 9c3339677f 9ca776556a 9e04dbf9b5 9e553bd493 9e6532d5e8 9f0c55cb10 9f150eb933 9f4fb41547 a094a1690c a0a94c74d9 a21479ebca a228dbdd3b a2b7837a13 a426079864 a427991ef6 a47167106c a4f985dbdd a58a8777f6 a6238ee3e8 a690e30243 a7785c85f3 a824fd0b76 aa5c4c9b59 ac30915e1a acfc60479d ad116cb66e ad4424cc1a ad58ebdead adefc80ebf ae36854f8a af0b705c92 afcaecf866 b0e6d32a0f b2014b79a6 b25d67e345 b2a7dd495d b2f7032b0d b340ac5e04 b3fcf78038 b43a25ee7e b54c44aa43 b56b8f97f4 b5b2d0ca9b b5c44442d0 b70806c1bd b8c2b36648 b8fd82bdd2 b95f472928 b9f507258b ba2f561e48 ba980ba07b bab5398e99 bb0b73fcc2 bc3ec7f7a6 bc98881da7 bcda55285f bcdfb9be45 bd327be807 bd3aacd69b bd744c47c5 bd9ac2448f bdf0eca59f bf8701440f bf9a6670fc bf9a7e4153 bff4a39d48 c0b732f59c c0ff438c6e c12a90a567 c1521659c5 c1a6cb45e0 c23d205c17 c263218a83 c31003a103 c380b48d7a c4eeb91f1d c53b9b3b74 c6b4c1f7ad c6b69e1037 c879af0bb3 c9da55722d c9e77ad474 cca8a94dc0 ccc5a4e5f6 cda70a78f5 d06ade13a6 d0d178d7a1 d0e39a8e11 d0fb8ff082 d17366dfda d173c6f2ad d1aa7001db d4a630dfc4 d52bdf96bf d53ae81239 d6e063dbdd d6f45a5177 d716d95e41 d752d45453 d7abe31f1a d90b43ae6a d95617bb29 d9de6e8ebf da92bc4f1c dac08d7263 db386974a5 db8b9c4788 dcd783d808 dd4ed41fa2 dd56675f10 ddbb555366 de798acf72 de9a5db51a dee4b3c4fc dfc76bb6b5 dfff2c6f63 e015a6b7ab e08bc0e9a7 e15798b5bf e1ca4cd6e6 e1cf27c714 e20e6c81ea e23881b5da e3df7e4a14 e4126c344f e4871997c9 e532fc74df e582cd5e93 e5db822385 e68be8ec0f e6b3f07fea e77540c365 e78d05a735 e8e1badb20 e925033392 e92b36c7a1 e93be08ed1 e9e5fde1fd ea6e1d418a ead754b04f eaec02727c ebaac5866d ec147facb0 ec29b5c4a4 ec59b7d822 ecdf08b595 eea30fe38b ef2f96fc96 f0244684e8 f04b36f2fa f09e76f60a f284ce2e43 f29a8ec283 f2aa4d7fb1 f2d1aa5560 f3d087db5a f45431082e f595ce6d2d f73485b60f f73f8b6fa3 f7418c3dff f791bc5a5f f991fb1e66 f9a3d66539 fa5a82bdbc fb423014be fc18f42cd2 fd1bd727c8 ff1af37896 ffab11f191"
+  "every": "00a3dd97de 01baf21e70 02475cdb2b 02752dac28 02a74602e1 035f58a1e7 045d1cf4b4 0524192548 058c44ef1f 05db6f9d64 061cf19dba 0790e09f1e 07b2ab8d1d 08244deff7 084a736b45 087ff8cb42 09398d5dcd 0982654d68 0b80d1290a 0be260cef9 0c0c487efe 0c68634975 0c7b5c7ba4 0dc3363e3f 0feeb3fa8d 104cdbd6ef 10840a5b60 1119d818ec 1263a6bd57 12d3289cb4 130bf69c51 1423c60e2e 14e4d82891 1522402532 1571c6c208 1645b7c646 171f2078cf 18156d6a70 18654b412c 18aba27978 19117fcdfa 19bf09e037 1a2a3a9de8 1b308bc5fc 1c42203f58 1cc92cb567 1d1353df3b 1f19fc6e6c 2016543e6b 20834cbb90 21e17bffe8 221f878798 22483b353f 22ba2d2882 24080dff15 25608efa04 257e6b7a30 25ec6d9691 26c0c469b0 281b554d98 28e258adeb 29081d7693 29de6ec475 2a26b63e87 2a827d1d3b 2ac2881e74 2b158ac46d 2b2c0cf2f2 2b3b53b3ae 2b593f2ef1 2b648bcc0b 2b6d88f263 2b8bdb0077 2bdc06faa1 2c11bb6ec9 2c149f1437 2edcf3535e 3010d1d6a6 3056d19f0e 30813310b2 3099064817 3140ca7040 315f05e39f 32460daceb 324befa960 330873112c 335d146bd7 33ecb9e2db 343582771b 343c8866df 3531260526 3563296d48 3690e49060 36f872c8bc 3760bd064b 37839e0df4 3811885a99 3858a85fd2 38e3fa259c 397393d2a2 3974824f4a 3a93a9ea2e 3afc2bfbda 3b09a96bb8 3b6baa3d01 3bcd6ffe07 3c290f5d4d 3c5b1becc8 3c7913efea 3cd5a56d62 3ddea482e8 3e37d63d92 3e4f40bd49 3e71011e40 3ea521309a 3eec10515e 3f31525246 3f48d54a1b 3f8327f79a 3ff43cf0a4 3ff5ffd731 4020a9b7c8 4177b8f86f 41b816438b 42424381b0 42661206ee 42d2ac135a 42fac8f0e4 42ff1b3122 431c0b704f 43e61e9799 44bfff6bdd 450ca7cff3 453bacd5bc 459d1f2d89 45fa82cf7d 462c9d7655 4703fe47dc 47d34c1689 4853bc93d9 4893ffd9d0 48bec29216 4973559175 49e2cfaf64 4a1e74f7d8 4a653eefb4 4a725d67c7 4a9aa548fa 4ad9809c86 4af8264fe6 4b0b7e0e12 4c42814980 4d4490fa62 4d58bcd702 4e1ec0bd29 4eb4ddf5a7 4f0c362813 4f1b1d2b37 4f6bcdd786 50af85fc25 51bb7311ea 530d2a7d25 549fffdfc5 54fe069470 5692683fc0 5753cd1935 57da4f88f6 5981f7e2e9 59d698b443 5a1a4df403 5a4b9b94a8 5ae4587b83 5c1c7be8d4 5c799ca645 5cb4753e68 5d08ffba93 5d637eb27d 5daafba6a4 5eae055556 5f0c63476e 5f83165f29 5ff2e247a1 605ad5c8d1 60c0dbcd97 60c5b3a439 6296fdb1a3 65148c92db 65797c88b0 658196dba0 658cacaf95 65ef5f8ae4 661ba858a8 664e26dedd 66ddf14fba 66dfb1e3e3 6768e681ce 68976fc62e 6a225f2271 6acd34477f 6af4cc28df 6be7b3b111 6eb7383619 6edf9904a4 6ef4bc29aa 7040cd0f96 70785e4b41 70a7338c87 7152d75506 71bb0d487a 72576cf139 73152740aa 7359a0229a 73e414ee57 73e9db0c81 74a6d55e79 74b7e59abb 76ed164dd4 784354150c 78ced98a62 7963d5af53 7ac1c48a31 7b4ad574a9 7c151449c5 7ca89aa591 7d2972923c 7d9e4ea1e6 7dde1c1a81 7e3fbcfd12 7e792b350a 7ed161fd05 7f8231b856 7fa3715387 81aebe0cde 81e07071f2 82f20cdf26 8305e77d30 83d1e09151 85c7ad2efa 86668e000a 8683e66104 8750cc7d8c 8770d27f5b 87bf6fedea 882dacecb2 8898670069 8908bbb984 8921481d6b 896e641e97 8a3584631f 8a91a42dfa 8af51923c8 8b74e59ae4 8cdc7d4f00 8cde2dfc88 8d49518e7b 8dceaeab52 8e757528a6 8fdcc5af7e 901aaecf80 9076b3b0ef 90a03bf3a7 91bc6fa032 920e747f19 922dc63a75 92ac6162de 93279354bf 93483bf753 935a1a6c16 93fa9cb626 940582c33d 9443049038 9509ad1a1d 95eabe652e 965fd62fe6 971394234a 97d9ee00d4 982f8b00a9 98883e767b 98fc1d0533 98fd599183 99318f281e 9990dae63f 9a55842e88 9bb81de7e3 9c0c97ad47 9c3339677f 9ca776556a 9e04dbf9b5 9e553bd493 9e6532d5e8 9f0c55cb10 9f150eb933 9f4fb41547 a094a1690c a0a94c74d9 a21479ebca a228dbdd3b a2b7837a13 a426079864 a427991ef6 a47167106c a4f985dbdd a58a8777f6 a6238ee3e8 a690e30243 a7785c85f3 a824fd0b76 aa5c4c9b59 ac30915e1a acfc60479d ad116cb66e ad4424cc1a ad58ebdead adefc80ebf ae36854f8a af0b705c92 af6d967849 afcaecf866 b0e6d32a0f b2014b79a6 b25d67e345 b2a7dd495d b2f7032b0d b340ac5e04 b3fcf78038 b43a25ee7e b54c44aa43 b56b8f97f4 b5b2d0ca9b b5c44442d0 b70806c1bd b8c2b36648 b8fd82bdd2 b95f472928 b9f507258b ba2f561e48 ba980ba07b bab5398e99 bb0b73fcc2 bc98881da7 bcda55285f bcdfb9be45 bd327be807 bd3aacd69b bd744c47c5 bd9ac2448f bdf0eca59f bf8701440f bf9a6670fc bf9a7e4153 bff4a39d48 c0b732f59c c0e12db635 c0ff438c6e c1521659c5 c1a6cb45e0 c23d205c17 c263218a83 c31003a103 c380b48d7a c4eeb91f1d c53b9b3b74 c6b4c1f7ad c6b69e1037 c879af0bb3 c9da55722d c9e77ad474 cca8a94dc0 ccc5a4e5f6 cda70a78f5 d06ade13a6 d0d178d7a1 d0e39a8e11 d0fb8ff082 d17366dfda d173c6f2ad d1aa7001db d4a630dfc4 d52bdf96bf d53ae81239 d6e063dbdd d6f45a5177 d716d95e41 d752d45453 d7abe31f1a d90b43ae6a d95617bb29 d9de6e8ebf da92bc4f1c dac08d7263 db386974a5 db8b9c4788 dcd783d808 dd4ed41fa2 dd56675f10 ddbb555366 de798acf72 de9a5db51a dee4b3c4fc dfc76bb6b5 dfff2c6f63 e015a6b7ab e08bc0e9a7 e15798b5bf e1ca4cd6e6 e1cf27c714 e20e6c81ea e23881b5da e3df7e4a14 e4126c344f e4871997c9 e532fc74df e582cd5e93 e5db822385 e68be8ec0f e6b3f07fea e77540c365 e78d05a735 e8e1badb20 e925033392 e92b36c7a1 e93be08ed1 e9e5fde1fd ea6e1d418a ead754b04f eaec02727c ebaac5866d ec147facb0 ec29b5c4a4 ec59b7d822 ecdf08b595 eea30fe38b ef2f96fc96 f0244684e8 f04b36f2fa f09e76f60a f284ce2e43 f29a8ec283 f2aa4d7fb1 f2d1aa5560 f3d087db5a f45431082e f595ce6d2d f73485b60f f73f8b6fa3 f7418c3dff f791bc5a5f f991fb1e66 f9a3d66539 fa5a82bdbc fb423014be fc18f42cd2 fd1bd727c8 ff1af37896 ffab11f191"
  }
 }

@@ -11,6 +11,33 @@
  "case": "cbsa-updcust",
  "survivors": [
   {
+   "id": "49e96e121a",
+   "op": "CON",
+   "line": 40,
+   "before": "private static final int GOTO = 1 << 20;",
+   "after": "private static final int GOTO = 2 << 20;",
+   "verdict": "equivalent",
+   "reason": "GOTO mask: UPDCUST uses GOTO | 5 to jump to UCV999, which is handled identically with modified mask bits"
+  },
+  {
+   "id": "4f5f78b493",
+   "op": "CON",
+   "line": 40,
+   "before": "private static final int GOTO = 1 << 20;",
+   "after": "private static final int GOTO = 1 << 21;",
+   "verdict": "equivalent",
+   "reason": "GOTO mask: UPDCUST uses GOTO | 5 to jump to UCV999, which is handled identically with modified mask bits"
+  },
+  {
+   "id": "600caa9ded",
+   "op": "LIT",
+   "line": 45,
+   "before": "\"AAAAAAAAAAA=\"));",
+   "after": "\"XAAAAAAAAAA=\"));",
+   "verdict": "equivalent",
+   "reason": "WS-CICS-WORK-AREA's VALUE image: every item UPDCUST reads from it is written by the CICS command's RESP before being read"
+  },
+  {
    "id": "5aebb3a57b",
    "op": "LIT",
    "line": 47,
@@ -18,6 +45,24 @@
    "after": "\"XDAwMCAwMCAwMA==\"));",
    "verdict": "equivalent",
    "reason": "UPDCUST's PROCEDURE DIVISION never reads DB2-DATE-REFORMAT (LOCAL-STORAGE), so its initial bytes cannot show"
+  },
+  {
+   "id": "fedfa26b72",
+   "op": "LIT",
+   "line": 49,
+   "before": "\"ICAgIDAwMDAwMDAwMDAwMDAwMDAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMDAwMDAwMDAwMDAwMDAwMDAwMA==\"));",
+   "after": "\"XCAgIDAwMDAwMDAwMDAwMDAwMDAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMDAwMDAwMDAwMDAwMDAwMDAwMA==\"));",
+   "verdict": "equivalent",
+   "reason": "WS-CUST-DATA's VALUE image is overwritten in full (259 bytes) by READ INTO before any read, and on a failed READ UCV999 is reached without touching it; REWRITE only follows a successful READ."
+  },
+  {
+   "id": "dadeea2ec0",
+   "op": "LIT",
+   "line": 51,
+   "before": "\"MDAwMDAwMDAwMDAw\"));",
+   "after": "\"XDAwMDAwMDAwMDAw\"));",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads WS-EIBTASKN12, so its VALUE cannot show"
   },
   {
    "id": "95cc4e9254",
@@ -29,6 +74,42 @@
    "reason": "UPDCUST's PROCEDURE DIVISION never reads WS-SQLCODE-DISP, so its VALUE cannot show"
   },
   {
+   "id": "49ba5d2c4e",
+   "op": "LIT",
+   "line": 55,
+   "before": "\"MDAwMDAwMDAwMDAwMDAwMA==\"));",
+   "after": "\"XDAwMDAwMDAwMDAwMDAwMA==\"));",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads DESIRED-CUST-KEY, so its VALUE cannot show"
+  },
+  {
+   "id": "7b164cd176",
+   "op": "LIT",
+   "line": 57,
+   "before": "\"AAA=\"));",
+   "after": "\"XAA=\"));",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads WS-CUST-REC-LEN, so its VALUE cannot show"
+  },
+  {
+   "id": "d5bc4add7c",
+   "op": "LIT",
+   "line": 59,
+   "before": "\"AAAAAAAAAAw=\"));",
+   "after": "\"XAAAAAAAAAw=\"));",
+   "verdict": "equivalent",
+   "reason": "Initial storage image for WS_U_TIME is never read before being overwritten or is unreferenced in PROCEDURE DIVISION"
+  },
+  {
+   "id": "52399223de",
+   "op": "LIT",
+   "line": 61,
+   "before": "\"ICAgICAgICAgIA==\"));",
+   "after": "\"XCAgICAgICAgIA==\"));",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads WS-ORIG-DATE, so its VALUE cannot show"
+  },
+  {
    "id": "23f3758c85",
    "op": "LIT",
    "line": 63,
@@ -36,6 +117,15 @@
    "after": "\"XCAuICAuICAgIA==\"));",
    "verdict": "equivalent",
    "reason": "UPDCUST's PROCEDURE DIVISION never reads WS-ORIG-DATE-GRP-X, so its VALUE cannot show"
+  },
+  {
+   "id": "f14d941155",
+   "op": "LIT",
+   "line": 65,
+   "before": "\"ICA=\"));",
+   "after": "\"XCA=\"));",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads REJ-REASON, so its VALUE cannot show"
   },
   {
    "id": "21e546575f",
@@ -47,6 +137,15 @@
    "reason": "UPDCUST's PROCEDURE DIVISION never reads WS-PASSED-DATA, so its initial bytes cannot show"
   },
   {
+   "id": "73b7562a1a",
+   "op": "LIT",
+   "line": 69,
+   "before": "\"ICAgICAg\"));",
+   "after": "\"XCAgICAg\"));",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads WS-SORT-DIV, so its VALUE cannot show"
+  },
+  {
    "id": "f732b1b316",
    "op": "LIT",
    "line": 71,
@@ -54,6 +153,24 @@
    "after": "\"XDAwMDAwMDAwMDAwMDA=\"));",
    "verdict": "equivalent",
    "reason": "UPDCUST's PROCEDURE DIVISION never reads CUSTOMER-KY, so its VALUE cannot show"
+  },
+  {
+   "id": "33e081aeb3",
+   "op": "LIT",
+   "line": 73,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICA=\"));",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICA=\"));",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads STORM-DRAIN-CONDITION, so its VALUE cannot show"
+  },
+  {
+   "id": "5374152a26",
+   "op": "LIT",
+   "line": 75,
+   "before": "\"ICAgICAgICAg\"));",
+   "after": "\"XCAgICAgICAg\"));",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads WS-UNSTR-TITLE, so its VALUE cannot show"
   },
   {
    "id": "e1d7179624",
@@ -65,6 +182,15 @@
    "reason": "WS-TITLE-VALID's initial byte: A010 moves ' ' to it, then 'Y' / 'N', before it is read"
   },
   {
+   "id": "e9d17a779f",
+   "op": "LIT",
+   "line": 79,
+   "before": "\"MDAwMDAw\"));",
+   "after": "\"XDAwMDAw\"));",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads WS-TIME-DATA, so its VALUE cannot show"
+  },
+  {
    "id": "72787758a5",
    "op": "LIT",
    "line": 81,
@@ -74,13 +200,229 @@
    "reason": "UPDCUST's PROCEDURE DIVISION never reads WS-ABEND-PGM (UPDCUST LINKs nothing), so its VALUE 'ABNDPROC' cannot show"
   },
   {
-   "id": "de82c444ed",
+   "id": "16df1ba026",
+   "op": "LIT",
+   "line": 83,
+   "before": "\"AAAAAAAAAAwwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKzAwMDAwMDAwKzAwMDAwMDAwKzAwMDAwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XAAAAAAAAAwwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKzAwMDAwMDAwKzAwMDAwMDAwKzAwMDAwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads ABNDINFO-REC, so its VALUE cannot show"
+  },
+  {
+   "id": "219d36e0af",
+   "op": "LIT",
+   "line": 84,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads ABNDINFO-REC, so its VALUE cannot show"
+  },
+  {
+   "id": "7ce0a7b46c",
+   "op": "LIT",
+   "line": 85,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads ABNDINFO-REC, so its VALUE cannot show"
+  },
+  {
+   "id": "c34eb0b2c4",
+   "op": "LIT",
+   "line": 87,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMDAwMDAwMDAwMDAwMDAwMDAwMCAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMDAwMDAwMDAwMDAwMDAwMDAwMCAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
+   "verdict": "equivalent",
+   "reason": "in_UpdcustDfhcommarea and raw arraycopy overwrite all DFHCOMMAREA fields before any COBOL statement reads them"
+  },
+  {
+   "id": "7630324828",
+   "op": "LIT",
+   "line": 88,
+   "before": "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
+   "after": "\"XAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
+   "verdict": "equivalent",
+   "reason": "in_UpdcustDfhcommarea and raw arraycopy overwrite all DFHCOMMAREA fields before any COBOL statement reads them"
+  },
+  {
+   "id": "1dfe570f3e",
+   "op": "LIT",
+   "line": 89,
+   "before": "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
+   "after": "\"XAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
+   "verdict": "equivalent",
+   "reason": "in_UpdcustDfhcommarea and raw arraycopy overwrite all DFHCOMMAREA fields before any COBOL statement reads them"
+  },
+  {
+   "id": "7fecc4b0d3",
+   "op": "LIT",
+   "line": 90,
+   "before": "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
+   "after": "\"XAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
+   "verdict": "equivalent",
+   "reason": "in_UpdcustDfhcommarea and raw arraycopy overwrite all DFHCOMMAREA fields before any COBOL statement reads them"
+  },
+  {
+   "id": "99f5640ef0",
+   "op": "LIT",
+   "line": 91,
+   "before": "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
+   "after": "\"XAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
+   "verdict": "equivalent",
+   "reason": "in_UpdcustDfhcommarea and raw arraycopy overwrite all DFHCOMMAREA fields before any COBOL statement reads them"
+  },
+  {
+   "id": "53f37c4931",
+   "op": "LIT",
+   "line": 92,
+   "before": "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
+   "after": "\"XAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
+   "verdict": "equivalent",
+   "reason": "in_UpdcustDfhcommarea and raw arraycopy overwrite all DFHCOMMAREA fields before any COBOL statement reads them"
+  },
+  {
+   "id": "5603a7c49e",
+   "op": "LIT",
+   "line": 93,
+   "before": "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\"));",
+   "after": "\"XAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\"));",
+   "verdict": "equivalent",
+   "reason": "in_UpdcustDfhcommarea and raw arraycopy overwrite all DFHCOMMAREA fields before any COBOL statement reads them"
+  },
+  {
+   "id": "e85902a0e5",
+   "op": "LIT",
+   "line": 95,
+   "before": "\"AAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
+   "after": "\"XAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
+   "verdict": "equivalent",
+   "reason": "DFHEIBLK image: no EIB field is read in UPDCUST, so its initial bytes cannot show"
+  },
+  {
+   "id": "86d0b75579",
+   "op": "LIT",
+   "line": 97,
+   "before": "\"AAA=\"));",
+   "after": "\"XAA=\"));",
+   "verdict": "equivalent",
+   "reason": "RETURN-CODE (GG-RETURN-CODE) is never referenced by UPDCUST and the task path (runTask) never returns it; the image is two zero bytes, the same as a fresh Storage."
+  },
+  {
+   "id": "51a770983e",
    "op": "CON",
-   "line": 141,
-   "before": "private final Field f70_WS_TIME_NOW = Field.zoned(s_WS_TIME_DATA, 0, 6, 0, false, false, false);",
-   "after": "private final Field f70_WS_TIME_NOW = Field.zoned(s_WS_TIME_DATA, 1, 6, 0, false, false, false);",
+   "line": 124,
+   "before": "private final Field f12_WS_CUST_DATA = Field.group(s_WS_CUST_DATA, 0, 259);",
+   "after": "private final Field f12_WS_CUST_DATA = Field.group(s_WS_CUST_DATA, 0, 260);",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads the EIB or unreferenced fields; dead scales, widths, or stores cannot show"
+  },
+  {
+   "id": "62e3c9cd10",
+   "op": "CON",
+   "line": 125,
+   "before": "private final Field f14_CUSTOMER_EYECATCHER = Field.alphanumeric(s_WS_CUST_DATA, 0, 4, false);",
+   "after": "private final Field f14_CUSTOMER_EYECATCHER = Field.alphanumeric(s_WS_CUST_DATA, 0, 5, false);",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads the EIB or unreferenced fields; dead scales, widths, or stores cannot show"
+  },
+  {
+   "id": "24e696dcc0",
+   "op": "CON",
+   "line": 126,
+   "before": "private final Field f16_CUSTOMER_SORTCODE = Field.zoned(s_WS_CUST_DATA, 4, 6, 0, false, false, false);",
+   "after": "private final Field f16_CUSTOMER_SORTCODE = Field.zoned(s_WS_CUST_DATA, 4, 6, 1, false, false, false);",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads the EIB or unreferenced fields; dead scales, widths, or stores cannot show"
+  },
+  {
+   "id": "b3f38205f1",
+   "op": "CON",
+   "line": 126,
+   "before": "private final Field f16_CUSTOMER_SORTCODE = Field.zoned(s_WS_CUST_DATA, 4, 6, 0, false, false, false);",
+   "after": "private final Field f16_CUSTOMER_SORTCODE = Field.zoned(s_WS_CUST_DATA, 4, 7, 0, false, false, false);",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads the EIB or unreferenced fields; dead scales, widths, or stores cannot show"
+  },
+  {
+   "id": "457f685da0",
+   "op": "CON",
+   "line": 127,
+   "before": "private final Field f17_CUSTOMER_NUMBER = Field.zoned(s_WS_CUST_DATA, 10, 10, 0, false, false, false);",
+   "after": "private final Field f17_CUSTOMER_NUMBER = Field.zoned(s_WS_CUST_DATA, 10, 11, 0, false, false, false);",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads the EIB or unreferenced fields; dead scales, widths, or stores cannot show"
+  },
+  {
+   "id": "6328bcc5f2",
+   "op": "CON",
+   "line": 127,
+   "before": "private final Field f17_CUSTOMER_NUMBER = Field.zoned(s_WS_CUST_DATA, 10, 10, 0, false, false, false);",
+   "after": "private final Field f17_CUSTOMER_NUMBER = Field.zoned(s_WS_CUST_DATA, 10, 10, 1, false, false, false);",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads the EIB or unreferenced fields; dead scales, widths, or stores cannot show"
+  },
+  {
+   "id": "53a94c82a7",
+   "op": "CON",
+   "line": 133,
+   "before": "private final Field f33_DESIRED_CUST_KEY = Field.group(s_DESIRED_CUST_KEY, 0, 16);",
+   "after": "private final Field f33_DESIRED_CUST_KEY = Field.group(s_DESIRED_CUST_KEY, 0, 17);",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads the EIB or unreferenced fields; dead scales, widths, or stores cannot show"
+  },
+  {
+   "id": "977c3c6e17",
+   "op": "CON",
+   "line": 136,
+   "before": "private final Field f36_WS_CUST_REC_LEN = Field.binary(s_WS_CUST_REC_LEN, 0, 4, 0, true, false);",
+   "after": "private final Field f36_WS_CUST_REC_LEN = Field.binary(s_WS_CUST_REC_LEN, 0, 4, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads the EIB or unreferenced fields; dead scales, widths, or stores cannot show"
+  },
+  {
+   "id": "03258ba51f",
+   "op": "CON",
+   "line": 137,
+   "before": "private final Field f37_WS_U_TIME = Field.packed(s_WS_U_TIME, 0, 15, 0, true);",
+   "after": "private final Field f37_WS_U_TIME = Field.packed(s_WS_U_TIME, 0, 16, 0, true);",
    "verdict": "unreachable",
-   "reason": "POPULATE-TIME-DATE is never PERFORMed: it follows GET-ME-OUT-OF-HERE, whose GMOOH010 RETURNs, so WS-TIME-NOW, written only by its FORMATTIME, is never touched"
+   "reason": "POPULATE-TIME-DATE is never PERFORMed: it follows GET-ME-OUT-OF-HERE, whose GMOOH010 RETURNs, so WS-TIME-NOW and PTD fields are never touched"
+  },
+  {
+   "id": "1f63a8471b",
+   "op": "CON",
+   "line": 137,
+   "before": "private final Field f37_WS_U_TIME = Field.packed(s_WS_U_TIME, 0, 15, 0, true);",
+   "after": "private final Field f37_WS_U_TIME = Field.packed(s_WS_U_TIME, 1, 15, 0, true);",
+   "verdict": "unreachable",
+   "reason": "POPULATE-TIME-DATE is never PERFORMed: it follows GET-ME-OUT-OF-HERE, whose GMOOH010 RETURNs, so WS-TIME-NOW and PTD fields are never touched"
+  },
+  {
+   "id": "aecbfca88f",
+   "op": "CON",
+   "line": 137,
+   "before": "private final Field f37_WS_U_TIME = Field.packed(s_WS_U_TIME, 0, 15, 0, true);",
+   "after": "private final Field f37_WS_U_TIME = Field.packed(s_WS_U_TIME, 0, 15, 1, true);",
+   "verdict": "unreachable",
+   "reason": "POPULATE-TIME-DATE is never PERFORMed: it follows GET-ME-OUT-OF-HERE, whose GMOOH010 RETURNs, so WS-TIME-NOW and PTD fields are never touched"
+  },
+  {
+   "id": "0696297b79",
+   "op": "CON",
+   "line": 138,
+   "before": "private final Field f38_WS_ORIG_DATE = Field.alphanumeric(s_WS_ORIG_DATE, 0, 10, false);",
+   "after": "private final Field f38_WS_ORIG_DATE = Field.alphanumeric(s_WS_ORIG_DATE, 0, 11, false);",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads the EIB or unreferenced fields; dead scales, widths, or stores cannot show"
+  },
+  {
+   "id": "777a3bbe8f",
+   "op": "CON",
+   "line": 138,
+   "before": "private final Field f38_WS_ORIG_DATE = Field.alphanumeric(s_WS_ORIG_DATE, 0, 10, false);",
+   "after": "private final Field f38_WS_ORIG_DATE = Field.alphanumeric(s_WS_ORIG_DATE, 1, 10, false);",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads the EIB or unreferenced fields; dead scales, widths, or stores cannot show"
   },
   {
    "id": "04798328a7",
@@ -92,6 +434,60 @@
    "reason": "POPULATE-TIME-DATE is never PERFORMed: it follows GET-ME-OUT-OF-HERE, whose GMOOH010 RETURNs, so WS-TIME-NOW, written only by its FORMATTIME, is never touched"
   },
   {
+   "id": "a1b4c5dc28",
+   "op": "CON",
+   "line": 141,
+   "before": "private final Field f70_WS_TIME_NOW = Field.zoned(s_WS_TIME_DATA, 0, 6, 0, false, false, false);",
+   "after": "private final Field f70_WS_TIME_NOW = Field.zoned(s_WS_TIME_DATA, 0, 7, 0, false, false, false);",
+   "verdict": "unreachable",
+   "reason": "POPULATE-TIME-DATE is never PERFORMed: it follows GET-ME-OUT-OF-HERE, whose GMOOH010 RETURNs, so WS-TIME-NOW and PTD fields are never touched"
+  },
+  {
+   "id": "de82c444ed",
+   "op": "CON",
+   "line": 141,
+   "before": "private final Field f70_WS_TIME_NOW = Field.zoned(s_WS_TIME_DATA, 0, 6, 0, false, false, false);",
+   "after": "private final Field f70_WS_TIME_NOW = Field.zoned(s_WS_TIME_DATA, 1, 6, 0, false, false, false);",
+   "verdict": "unreachable",
+   "reason": "POPULATE-TIME-DATE is never PERFORMed: it follows GET-ME-OUT-OF-HERE, whose GMOOH010 RETURNs, so WS-TIME-NOW, written only by its FORMATTIME, is never touched"
+  },
+  {
+   "id": "fa39859d4d",
+   "op": "CON",
+   "line": 142,
+   "before": "private final Field f91_COMM_EYE = Field.alphanumeric(s_DFHCOMMAREA, 0, 4, false);",
+   "after": "private final Field f91_COMM_EYE = Field.alphanumeric(s_DFHCOMMAREA, 0, 5, false);",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads the EIB or unreferenced fields; dead scales, widths, or stores cannot show"
+  },
+  {
+   "id": "f57c3ee83e",
+   "op": "CON",
+   "line": 144,
+   "before": "private final Field f93_COMM_CUSTNO = Field.alphanumeric(s_DFHCOMMAREA, 10, 10, false);",
+   "after": "private final Field f93_COMM_CUSTNO = Field.alphanumeric(s_DFHCOMMAREA, 10, 11, false);",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads the EIB or unreferenced fields; dead scales, widths, or stores cannot show"
+  },
+  {
+   "id": "db34c17895",
+   "op": "CON",
+   "line": 145,
+   "before": "private final Field f94_COMM_NAME = Field.alphanumeric(s_DFHCOMMAREA, 20, 60, false);",
+   "after": "private final Field f94_COMM_NAME = Field.alphanumeric(s_DFHCOMMAREA, 20, 61, false);",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads the EIB or unreferenced fields; dead scales, widths, or stores cannot show"
+  },
+  {
+   "id": "5f948268d1",
+   "op": "CON",
+   "line": 146,
+   "before": "private final Field f95_COMM_ADDR = Field.alphanumeric(s_DFHCOMMAREA, 80, 160, false);",
+   "after": "private final Field f95_COMM_ADDR = Field.alphanumeric(s_DFHCOMMAREA, 80, 161, false);",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads the EIB or unreferenced fields; dead scales, widths, or stores cannot show"
+  },
+  {
    "id": "ea85118dc0",
    "op": "CON",
    "line": 150,
@@ -99,6 +495,24 @@
    "after": "private final Field f107_COMM_UPD_SUCCESS = Field.alphanumeric(s_DFHCOMMAREA, 259, 2, false);",
    "verdict": "equivalent",
    "reason": "f107_COMM_UPD_SUCCESS is at offset 259; moving 'Y'/'N' into length 2 writes space padding to offset 260 (' '), which matches the unchanged COMM_UPD_FAIL_CD; reading offset 259 with length 1 sees identical character"
+  },
+  {
+   "id": "46a5dbdc4b",
+   "op": "CON",
+   "line": 151,
+   "before": "private final Field f108_COMM_UPD_FAIL_CD = Field.alphanumeric(s_DFHCOMMAREA, 260, 1, false);",
+   "after": "private final Field f108_COMM_UPD_FAIL_CD = Field.alphanumeric(s_DFHCOMMAREA, 260, 2, false);",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads the EIB or unreferenced fields; dead scales, widths, or stores cannot show"
+  },
+  {
+   "id": "0222f05c68",
+   "op": "CON",
+   "line": 152,
+   "before": "private final Field f110_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+   "after": "private final Field f110_EIBTIME = Field.packed(s_DFHEIBLK, 1, 7, 0, true);",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads the EIB or unreferenced fields; dead scales, widths, or stores cannot show"
   },
   {
    "id": "d426d514e4",
@@ -110,6 +524,231 @@
    "reason": "UPDCUST's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so EIBTIME width (8 digits spill into EIBDATE's first byte, also never read) cannot show"
   },
   {
+   "id": "f34c8d66e9",
+   "op": "CON",
+   "line": 152,
+   "before": "private final Field f110_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+   "after": "private final Field f110_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 1, true);",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads the EIB or unreferenced fields; dead scales, widths, or stores cannot show"
+  },
+  {
+   "id": "383b7a7917",
+   "op": "CON",
+   "line": 153,
+   "before": "private final Field f111_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+   "after": "private final Field f111_EIBDATE = Field.packed(s_DFHEIBLK, 4, 8, 0, true);",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads the EIB or unreferenced fields; dead scales, widths, or stores cannot show"
+  },
+  {
+   "id": "95ef22e507",
+   "op": "CON",
+   "line": 153,
+   "before": "private final Field f111_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+   "after": "private final Field f111_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 1, true);",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads the EIB or unreferenced fields; dead scales, widths, or stores cannot show"
+  },
+  {
+   "id": "faec04f2d5",
+   "op": "CON",
+   "line": 153,
+   "before": "private final Field f111_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+   "after": "private final Field f111_EIBDATE = Field.packed(s_DFHEIBLK, 5, 7, 0, true);",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads the EIB or unreferenced fields; dead scales, widths, or stores cannot show"
+  },
+  {
+   "id": "68b765ee50",
+   "op": "CON",
+   "line": 154,
+   "before": "private final Field f112_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 4, false);",
+   "after": "private final Field f112_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 5, false);",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads the EIB or unreferenced fields; dead scales, widths, or stores cannot show"
+  },
+  {
+   "id": "73434bc589",
+   "op": "CON",
+   "line": 154,
+   "before": "private final Field f112_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 4, false);",
+   "after": "private final Field f112_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 9, 4, false);",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads the EIB or unreferenced fields; dead scales, widths, or stores cannot show"
+  },
+  {
+   "id": "95f84ed868",
+   "op": "CON",
+   "line": 155,
+   "before": "private final Field f113_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+   "after": "private final Field f113_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 8, 0, true);",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads the EIB or unreferenced fields; dead scales, widths, or stores cannot show"
+  },
+  {
+   "id": "cddc8a3b19",
+   "op": "CON",
+   "line": 155,
+   "before": "private final Field f113_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+   "after": "private final Field f113_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 1, true);",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads the EIB or unreferenced fields; dead scales, widths, or stores cannot show"
+  },
+  {
+   "id": "e5d6b891d4",
+   "op": "CON",
+   "line": 155,
+   "before": "private final Field f113_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+   "after": "private final Field f113_EIBTASKN = Field.packed(s_DFHEIBLK, 13, 7, 0, true);",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads the EIB or unreferenced fields; dead scales, widths, or stores cannot show"
+  },
+  {
+   "id": "ae10fce111",
+   "op": "CON",
+   "line": 156,
+   "before": "private final Field f114_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);",
+   "after": "private final Field f114_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 5, false);",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads the EIB or unreferenced fields; dead scales, widths, or stores cannot show"
+  },
+  {
+   "id": "e59d610ea4",
+   "op": "CON",
+   "line": 156,
+   "before": "private final Field f114_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);",
+   "after": "private final Field f114_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 17, 4, false);",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads the EIB or unreferenced fields; dead scales, widths, or stores cannot show"
+  },
+  {
+   "id": "04e9439b3c",
+   "op": "CON",
+   "line": 157,
+   "before": "private final Field f117_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
+   "after": "private final Field f117_EIBCALEN = Field.binary(s_DFHEIBLK, 25, 4, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads the EIB or unreferenced fields; dead scales, widths, or stores cannot show"
+  },
+  {
+   "id": "30d5a485bc",
+   "op": "CON",
+   "line": 157,
+   "before": "private final Field f117_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
+   "after": "private final Field f117_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 5, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads the EIB or unreferenced fields; dead scales, widths, or stores cannot show"
+  },
+  {
+   "id": "93fc536735",
+   "op": "CON",
+   "line": 157,
+   "before": "private final Field f117_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
+   "after": "private final Field f117_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads the EIB or unreferenced fields; dead scales, widths, or stores cannot show"
+  },
+  {
+   "id": "12f7ac814b",
+   "op": "CON",
+   "line": 158,
+   "before": "private final Field f138_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+   "after": "private final Field f138_EIBRESP = Field.binary(s_DFHEIBLK, 76, 9, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads the EIB or unreferenced fields; dead scales, widths, or stores cannot show"
+  },
+  {
+   "id": "739fdccaff",
+   "op": "CON",
+   "line": 158,
+   "before": "private final Field f138_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+   "after": "private final Field f138_EIBRESP = Field.binary(s_DFHEIBLK, 77, 8, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads the EIB or unreferenced fields; dead scales, widths, or stores cannot show"
+  },
+  {
+   "id": "8341054004",
+   "op": "CON",
+   "line": 158,
+   "before": "private final Field f138_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+   "after": "private final Field f138_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads the EIB or unreferenced fields; dead scales, widths, or stores cannot show"
+  },
+  {
+   "id": "3896dd63fb",
+   "op": "CON",
+   "line": 159,
+   "before": "private final Field f139_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+   "after": "private final Field f139_EIBRESP2 = Field.binary(s_DFHEIBLK, 81, 8, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads the EIB or unreferenced fields; dead scales, widths, or stores cannot show"
+  },
+  {
+   "id": "726ded4664",
+   "op": "CON",
+   "line": 159,
+   "before": "private final Field f139_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+   "after": "private final Field f139_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads the EIB or unreferenced fields; dead scales, widths, or stores cannot show"
+  },
+  {
+   "id": "e0fcd33e14",
+   "op": "CON",
+   "line": 159,
+   "before": "private final Field f139_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+   "after": "private final Field f139_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 9, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads the EIB or unreferenced fields; dead scales, widths, or stores cannot show"
+  },
+  {
+   "id": "1aeed515b6",
+   "op": "CON",
+   "line": 160,
+   "before": "private final Field f141_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+   "after": "private final Field f141_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 5, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads the EIB or unreferenced fields; dead scales, widths, or stores cannot show"
+  },
+  {
+   "id": "9a462e0e8e",
+   "op": "CON",
+   "line": 160,
+   "before": "private final Field f141_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+   "after": "private final Field f141_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 1, 4, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads the EIB or unreferenced fields; dead scales, widths, or stores cannot show"
+  },
+  {
+   "id": "d8b9d13522",
+   "op": "CON",
+   "line": 160,
+   "before": "private final Field f141_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+   "after": "private final Field f141_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads the EIB or unreferenced fields; dead scales, widths, or stores cannot show"
+  },
+  {
+   "id": "2b67f96940",
+   "op": "ROR",
+   "line": 182,
+   "before": "if (task.level() > 1) {",
+   "after": "if (task.level() >= 1) {",
+   "verdict": "unreachable",
+   "reason": "abended() is called only from condition(); condition() runs only for a CICS condition a command raises without RESP; UPDCUST commands carry RESP, so condition() and abended() never run"
+  },
+  {
+   "id": "75334976b2",
+   "op": "ROR",
+   "line": 182,
+   "before": "if (task.level() > 1) {",
+   "after": "if (task.level() <= 1) {",
+   "verdict": "unreachable",
+   "reason": "abended() is called only from condition(); condition() runs only for a CICS condition a command raises without RESP; UPDCUST commands carry RESP, so condition() and abended() never run"
+  },
+  {
    "id": "f08a4f4a15",
    "op": "NEG",
    "line": 182,
@@ -117,6 +756,24 @@
    "after": "if (!(task.level() > 1)) {",
    "verdict": "unreachable",
    "reason": "abended() is called only from condition(); condition() runs only for a CICS condition a command raises without RESP; UPDCUST's READ UPDATE and REWRITE have RESP, its RETURN raises none, and POPULATE-TIME-DATE (ASKTIME, FORMATTIME) never runs, so condition() -- and abended(), reached only from it -- never runs"
+  },
+  {
+   "id": "ff1c945af5",
+   "op": "CON",
+   "line": 182,
+   "before": "if (task.level() > 1) {",
+   "after": "if (task.level() > 2) {",
+   "verdict": "unreachable",
+   "reason": "abended() is called only from condition(); condition() runs only for a CICS condition a command raises without RESP; UPDCUST commands carry RESP, so condition() and abended() never run"
+  },
+  {
+   "id": "8153cc30d6",
+   "op": "DEL",
+   "line": 183,
+   "before": "caBack.run();",
+   "after": "/* caBack.run(); */",
+   "verdict": "unreachable",
+   "reason": "abended() is called only from condition(); condition() runs only for a CICS condition a command raises without RESP; UPDCUST commands carry RESP, so condition() and abended() never run"
   },
   {
    "id": "a9b00f1408",
@@ -128,13 +785,49 @@
    "reason": "An @SuppressWarnings annotation string has no run-time effect."
   },
   {
-   "id": "f4b03de2bd",
+   "id": "5162e79f27",
    "op": "LIT",
-   "line": 191,
-   "before": "case \"CUSTOMER\" -> new DetCics.Store<OutputData>(outputDataRepository::findAll, e -> e.toRecord(CS), b -> OutputData.fromRecord(b, CS), e -> task.write(\"CUSTOMER\", () -> outputDataRepository.save(e)), e -> task.write(\"CUSTOMER\", () -> outputDataRepository.delete(e)), 4, 16, CS).withFindById(rec -> outputDataRepository.findById(id_OutputData(rec)));",
-   "after": "case \"CUSTOMER\" -> new DetCics.Store<OutputData>(outputDataRepository::findAll, e -> e.toRecord(CS), b -> OutputData.fromRecord(b, CS), e -> task.write(\"CUSTOMER\", () -> outputDataRepository.save(e)), e -> task.write(\"XUSTOMER\", () -> outputDataRepository.delete(e)), 4, 16, CS).withFindById(rec -> outputDataRepository.findById(id_OutputData(rec)));",
+   "line": 194,
+   "before": "case \"CUSTOMER\" -> new DetCics.Store<OutputData>(outputDataRepository::findAll, e -> e.toRecord(CS), b -> OutputData.fromRecord(b, CS), e -> task.write(\"CUSTOMER\", () -> outputDataRepository.save(e)), e -> task.write(\"CUSTOMER\", () -> outputDataRepository.delete(e)), 4, 16, CS).withFindById(rec -> outputDataRepository.findById(id_OutputData(rec))).withLengths(CicsTask.recordLengths(\"OutputData\"));",
+   "after": "case \"CUSTOMER\" -> new DetCics.Store<OutputData>(outputDataRepository::findAll, e -> e.toRecord(CS), b -> OutputData.fromRecord(b, CS), e -> task.write(\"CUSTOMER\", () -> outputDataRepository.save(e)), e -> task.write(\"XUSTOMER\", () -> outputDataRepository.delete(e)), 4, 16, CS).withFindById(rec -> outputDataRepository.findById(id_OutputData(rec))).withLengths(CicsTask.recordLengths(\"OutputData\"));",
    "verdict": "unreachable",
-   "reason": "Store delete callback (the write label) runs only for EXEC CICS DELETE; UPDCUST issues only READ UPDATE and REWRITE on CUSTOMER."
+   "reason": "Store delete callback runs only for EXEC CICS DELETE; UPDCUST issues only READ UPDATE and REWRITE on CUSTOMER."
+  },
+  {
+   "id": "5846c830f5",
+   "op": "LIT",
+   "line": 194,
+   "before": "case \"CUSTOMER\" -> new DetCics.Store<OutputData>(outputDataRepository::findAll, e -> e.toRecord(CS), b -> OutputData.fromRecord(b, CS), e -> task.write(\"CUSTOMER\", () -> outputDataRepository.save(e)), e -> task.write(\"CUSTOMER\", () -> outputDataRepository.delete(e)), 4, 16, CS).withFindById(rec -> outputDataRepository.findById(id_OutputData(rec))).withLengths(CicsTask.recordLengths(\"OutputData\"));",
+   "after": "case \"CUSTOMER\" -> new DetCics.Store<OutputData>(outputDataRepository::findAll, e -> e.toRecord(CS), b -> OutputData.fromRecord(b, CS), e -> task.write(\"CUSTOMER\", () -> outputDataRepository.save(e)), e -> task.write(\"CUSTOMER\", () -> outputDataRepository.delete(e)), 4, 16, CS).withFindById(rec -> outputDataRepository.findById(id_OutputData(rec))).withLengths(CicsTask.recordLengths(\"XutputData\"));",
+   "verdict": "unreachable",
+   "reason": "Store delete callback runs only for EXEC CICS DELETE; UPDCUST issues only READ UPDATE and REWRITE on CUSTOMER."
+  },
+  {
+   "id": "82a69ae99c",
+   "op": "LIT",
+   "line": 194,
+   "before": "case \"CUSTOMER\" -> new DetCics.Store<OutputData>(outputDataRepository::findAll, e -> e.toRecord(CS), b -> OutputData.fromRecord(b, CS), e -> task.write(\"CUSTOMER\", () -> outputDataRepository.save(e)), e -> task.write(\"CUSTOMER\", () -> outputDataRepository.delete(e)), 4, 16, CS).withFindById(rec -> outputDataRepository.findById(id_OutputData(rec))).withLengths(CicsTask.recordLengths(\"OutputData\"));",
+   "after": "case \"CUSTOMER\" -> new DetCics.Store<OutputData>(outputDataRepository::findAll, e -> e.toRecord(CS), b -> OutputData.fromRecord(b, CS), e -> task.write(\"XUSTOMER\", () -> outputDataRepository.save(e)), e -> task.write(\"CUSTOMER\", () -> outputDataRepository.delete(e)), 4, 16, CS).withFindById(rec -> outputDataRepository.findById(id_OutputData(rec))).withLengths(CicsTask.recordLengths(\"OutputData\"));",
+   "verdict": "unreachable",
+   "reason": "Store delete callback runs only for EXEC CICS DELETE; UPDCUST issues only READ UPDATE and REWRITE on CUSTOMER."
+  },
+  {
+   "id": "3b2ba5b2b7",
+   "op": "LIT",
+   "line": 195,
+   "before": "default -> throw new Hole(\"CICS file \" + n + \": no store in the generated project\");",
+   "after": "default -> throw new Hole(\"CICS file \" + n + \"X no store in the generated project\");",
+   "verdict": "unreachable",
+   "reason": "Store delete callback runs only for EXEC CICS DELETE; UPDCUST issues only READ UPDATE and REWRITE on CUSTOMER."
+  },
+  {
+   "id": "4af24fcbc9",
+   "op": "LIT",
+   "line": 195,
+   "before": "default -> throw new Hole(\"CICS file \" + n + \": no store in the generated project\");",
+   "after": "default -> throw new Hole(\"XICS file \" + n + \": no store in the generated project\");",
+   "verdict": "unreachable",
+   "reason": "Store delete callback runs only for EXEC CICS DELETE; UPDCUST issues only READ UPDATE and REWRITE on CUSTOMER."
   },
   {
    "id": "100f9e8592",
@@ -146,6 +839,60 @@
    "reason": "PARAGRAPHS is read only by paragraph(), a HANDLE label's lookup: condition() runs only for a CICS condition a command raises without RESP; UPDCUST's READ UPDATE and REWRITE have RESP, its RETURN raises none, and POPULATE-TIME-DATE (ASKTIME, FORMATTIME) never runs, so condition() -- and paragraph(), reached only from it -- never runs"
   },
   {
+   "id": "61731bf2c8",
+   "op": "CON",
+   "line": 200,
+   "before": "java.util.Map.entry(\"PTD999\", 11),",
+   "after": "java.util.Map.entry(\"PTD999\", 12),",
+   "verdict": "unreachable",
+   "reason": "POPULATE-TIME-DATE is never PERFORMed: it follows GET-ME-OUT-OF-HERE, whose GMOOH010 RETURNs, so PTD paragraphs never run"
+  },
+  {
+   "id": "b48c5951fe",
+   "op": "LIT",
+   "line": 200,
+   "before": "java.util.Map.entry(\"PTD999\", 11),",
+   "after": "java.util.Map.entry(\"XTD999\", 11),",
+   "verdict": "unreachable",
+   "reason": "POPULATE-TIME-DATE is never PERFORMed: it follows GET-ME-OUT-OF-HERE, whose GMOOH010 RETURNs, so PTD paragraphs never run"
+  },
+  {
+   "id": "26d678d188",
+   "op": "LIT",
+   "line": 201,
+   "before": "java.util.Map.entry(\"PTD010\", 10),",
+   "after": "java.util.Map.entry(\"XTD010\", 10),",
+   "verdict": "unreachable",
+   "reason": "POPULATE-TIME-DATE is never PERFORMed: it follows GET-ME-OUT-OF-HERE, whose GMOOH010 RETURNs, so PTD paragraphs never run"
+  },
+  {
+   "id": "e6c9adb555",
+   "op": "CON",
+   "line": 201,
+   "before": "java.util.Map.entry(\"PTD010\", 10),",
+   "after": "java.util.Map.entry(\"PTD010\", 11),",
+   "verdict": "unreachable",
+   "reason": "POPULATE-TIME-DATE is never PERFORMed: it follows GET-ME-OUT-OF-HERE, whose GMOOH010 RETURNs, so PTD paragraphs never run"
+  },
+  {
+   "id": "0f8606b419",
+   "op": "LIT",
+   "line": 202,
+   "before": "java.util.Map.entry(\"POPULATE-TIME-DATE\", 9),",
+   "after": "java.util.Map.entry(\"XOPULATE-TIME-DATE\", 9),",
+   "verdict": "unreachable",
+   "reason": "POPULATE-TIME-DATE is never PERFORMed: it follows GET-ME-OUT-OF-HERE, whose GMOOH010 RETURNs, so PTD paragraphs never run"
+  },
+  {
+   "id": "1fbe6f2414",
+   "op": "CON",
+   "line": 202,
+   "before": "java.util.Map.entry(\"POPULATE-TIME-DATE\", 9),",
+   "after": "java.util.Map.entry(\"POPULATE-TIME-DATE\", 10),",
+   "verdict": "unreachable",
+   "reason": "POPULATE-TIME-DATE is never PERFORMed: it follows GET-ME-OUT-OF-HERE, whose GMOOH010 RETURNs, so PTD paragraphs never run"
+  },
+  {
    "id": "12780d34b3",
    "op": "LIT",
    "line": 203,
@@ -153,6 +900,150 @@
    "after": "java.util.Map.entry(\"XCV999\", 5),",
    "verdict": "unreachable",
    "reason": "paragraph()/PARAGRAPHS is only reached from condition() via task.abendOnCondition(label); UPDCUST has no HANDLE ABEND/CONDITION and every command carries RESP, so no label lookup happens."
+  },
+  {
+   "id": "ad28a8fcaf",
+   "op": "LIT",
+   "line": 203,
+   "before": "java.util.Map.entry(\"GMOOH999\", 8),",
+   "after": "java.util.Map.entry(\"XMOOH999\", 8),",
+   "verdict": "unreachable",
+   "reason": "condition() runs only for a CICS condition a command raises without RESP; UPDCUST commands carry RESP, so condition() and paragraph() never run"
+  },
+  {
+   "id": "87a17cda5a",
+   "op": "LIT",
+   "line": 204,
+   "before": "java.util.Map.entry(\"GMOOH010\", 7),",
+   "after": "java.util.Map.entry(\"XMOOH010\", 7),",
+   "verdict": "unreachable",
+   "reason": "condition() runs only for a CICS condition a command raises without RESP; UPDCUST commands carry RESP, so condition() and paragraph() never run"
+  },
+  {
+   "id": "98f0750f45",
+   "op": "CON",
+   "line": 204,
+   "before": "java.util.Map.entry(\"GMOOH010\", 7),",
+   "after": "java.util.Map.entry(\"GMOOH010\", 8),",
+   "verdict": "unreachable",
+   "reason": "condition() runs only for a CICS condition a command raises without RESP; UPDCUST commands carry RESP, so condition() and paragraph() never run"
+  },
+  {
+   "id": "2403d886cf",
+   "op": "LIT",
+   "line": 205,
+   "before": "java.util.Map.entry(\"GET-ME-OUT-OF-HERE\", 6),",
+   "after": "java.util.Map.entry(\"XET-ME-OUT-OF-HERE\", 6),",
+   "verdict": "unreachable",
+   "reason": "condition() runs only for a CICS condition a command raises without RESP; UPDCUST commands carry RESP, so condition() and paragraph() never run"
+  },
+  {
+   "id": "c790905c90",
+   "op": "CON",
+   "line": 205,
+   "before": "java.util.Map.entry(\"GET-ME-OUT-OF-HERE\", 6),",
+   "after": "java.util.Map.entry(\"GET-ME-OUT-OF-HERE\", 7),",
+   "verdict": "unreachable",
+   "reason": "condition() runs only for a CICS condition a command raises without RESP; UPDCUST commands carry RESP, so condition() and paragraph() never run"
+  },
+  {
+   "id": "2cae779392",
+   "op": "CON",
+   "line": 206,
+   "before": "java.util.Map.entry(\"UCV999\", 5),",
+   "after": "java.util.Map.entry(\"UCV999\", 6),",
+   "verdict": "unreachable",
+   "reason": "condition() runs only for a CICS condition a command raises without RESP; UPDCUST commands carry RESP, so condition() and paragraph() never run"
+  },
+  {
+   "id": "8808415591",
+   "op": "LIT",
+   "line": 207,
+   "before": "java.util.Map.entry(\"UCV010\", 4),",
+   "after": "java.util.Map.entry(\"XCV010\", 4),",
+   "verdict": "unreachable",
+   "reason": "condition() runs only for a CICS condition a command raises without RESP; UPDCUST commands carry RESP, so condition() and paragraph() never run"
+  },
+  {
+   "id": "92f91d1a16",
+   "op": "CON",
+   "line": 207,
+   "before": "java.util.Map.entry(\"UCV010\", 4),",
+   "after": "java.util.Map.entry(\"UCV010\", 5),",
+   "verdict": "unreachable",
+   "reason": "condition() runs only for a CICS condition a command raises without RESP; UPDCUST commands carry RESP, so condition() and paragraph() never run"
+  },
+  {
+   "id": "3fef1154ff",
+   "op": "LIT",
+   "line": 208,
+   "before": "java.util.Map.entry(\"UPDATE-CUSTOMER-VSAM\", 3),",
+   "after": "java.util.Map.entry(\"XPDATE-CUSTOMER-VSAM\", 3),",
+   "verdict": "unreachable",
+   "reason": "condition() runs only for a CICS condition a command raises without RESP; UPDCUST commands carry RESP, so condition() and paragraph() never run"
+  },
+  {
+   "id": "66fc93a3e2",
+   "op": "CON",
+   "line": 208,
+   "before": "java.util.Map.entry(\"UPDATE-CUSTOMER-VSAM\", 3),",
+   "after": "java.util.Map.entry(\"UPDATE-CUSTOMER-VSAM\", 4),",
+   "verdict": "unreachable",
+   "reason": "condition() runs only for a CICS condition a command raises without RESP; UPDCUST commands carry RESP, so condition() and paragraph() never run"
+  },
+  {
+   "id": "30b9115e2f",
+   "op": "CON",
+   "line": 209,
+   "before": "java.util.Map.entry(\"A999\", 2),",
+   "after": "java.util.Map.entry(\"A999\", 3),",
+   "verdict": "unreachable",
+   "reason": "condition() runs only for a CICS condition a command raises without RESP; UPDCUST commands carry RESP, so condition() and paragraph() never run"
+  },
+  {
+   "id": "476ddea3a3",
+   "op": "LIT",
+   "line": 209,
+   "before": "java.util.Map.entry(\"A999\", 2),",
+   "after": "java.util.Map.entry(\"X999\", 2),",
+   "verdict": "unreachable",
+   "reason": "condition() runs only for a CICS condition a command raises without RESP; UPDCUST commands carry RESP, so condition() and paragraph() never run"
+  },
+  {
+   "id": "a680436c1b",
+   "op": "CON",
+   "line": 210,
+   "before": "java.util.Map.entry(\"A010\", 1),",
+   "after": "java.util.Map.entry(\"A010\", 2),",
+   "verdict": "unreachable",
+   "reason": "condition() runs only for a CICS condition a command raises without RESP; UPDCUST commands carry RESP, so condition() and paragraph() never run"
+  },
+  {
+   "id": "ff1754ec36",
+   "op": "LIT",
+   "line": 210,
+   "before": "java.util.Map.entry(\"A010\", 1),",
+   "after": "java.util.Map.entry(\"X010\", 1),",
+   "verdict": "unreachable",
+   "reason": "condition() runs only for a CICS condition a command raises without RESP; UPDCUST commands carry RESP, so condition() and paragraph() never run"
+  },
+  {
+   "id": "046c72a18b",
+   "op": "CON",
+   "line": 211,
+   "before": "java.util.Map.entry(\"PREMIERE\", 0)",
+   "after": "java.util.Map.entry(\"PREMIERE\", 1)",
+   "verdict": "unreachable",
+   "reason": "condition() runs only for a CICS condition a command raises without RESP; UPDCUST commands carry RESP, so condition() and paragraph() never run"
+  },
+  {
+   "id": "c52c92c038",
+   "op": "LIT",
+   "line": 211,
+   "before": "java.util.Map.entry(\"PREMIERE\", 0)",
+   "after": "java.util.Map.entry(\"XREMIERE\", 0)",
+   "verdict": "unreachable",
+   "reason": "condition() runs only for a CICS condition a command raises without RESP; UPDCUST commands carry RESP, so condition() and paragraph() never run"
   },
   {
    "id": "49671ecb5c",
@@ -173,6 +1064,42 @@
    "reason": "paragraph()/PARAGRAPHS is only reached from condition() via task.abendOnCondition(label); UPDCUST has no HANDLE ABEND/CONDITION and every command carries RESP, so no label lookup happens."
   },
   {
+   "id": "57b0124dd0",
+   "op": "ROR",
+   "line": 216,
+   "before": "if (i == null) {",
+   "after": "if (i != null) {",
+   "verdict": "unreachable",
+   "reason": "condition() runs only for a CICS condition a command raises without RESP; UPDCUST commands carry RESP, so condition() and paragraph() never run"
+  },
+  {
+   "id": "c252440361",
+   "op": "ROR",
+   "line": 229,
+   "before": "if (h != null) {",
+   "after": "if (h == null) {",
+   "verdict": "unreachable",
+   "reason": "condition() runs only for a CICS condition a command raises without RESP; UPDCUST commands carry RESP, so condition() and paragraph() never run"
+  },
+  {
+   "id": "d5a4864985",
+   "op": "NEG",
+   "line": 229,
+   "before": "if (h != null) {",
+   "after": "if (!(h != null)) {",
+   "verdict": "unreachable",
+   "reason": "condition() runs only for a CICS condition a command raises without RESP; UPDCUST commands carry RESP, so condition() and paragraph() never run"
+  },
+  {
+   "id": "49cb06ffb3",
+   "op": "NEG",
+   "line": 232,
+   "before": "if (DetCics.ignoredByDefault(cond)) {",
+   "after": "if (!(DetCics.ignoredByDefault(cond))) {",
+   "verdict": "unreachable",
+   "reason": "condition() runs only for a CICS condition a command raises without RESP; UPDCUST commands carry RESP, so condition() and paragraph() never run"
+  },
+  {
    "id": "7133983f12",
    "op": "NEG",
    "line": 233,
@@ -180,6 +1107,33 @@
    "after": "if (!(error != null)) {",
    "verdict": "unreachable",
    "reason": "condition() runs only for a CICS condition a command raises without RESP; UPDCUST's READ UPDATE and REWRITE have RESP, its RETURN raises none, and POPULATE-TIME-DATE (ASKTIME, FORMATTIME) never runs, so condition() -- and this test, reached only from it -- never runs"
+  },
+  {
+   "id": "8a5cd7926e",
+   "op": "CON",
+   "line": 233,
+   "before": "return -1;",
+   "after": "return -2;",
+   "verdict": "unreachable",
+   "reason": "condition() runs only for a CICS condition a command raises without RESP; UPDCUST commands carry RESP, so condition() and paragraph() never run"
+  },
+  {
+   "id": "e2c25ca0ea",
+   "op": "LIT",
+   "line": 235,
+   "before": "Integer error = handlers.get(\"ERROR\");",
+   "after": "Integer error = handlers.get(\"XRROR\");",
+   "verdict": "unreachable",
+   "reason": "condition() runs only for a CICS condition a command raises without RESP; UPDCUST commands carry RESP, so condition() and paragraph() never run"
+  },
+  {
+   "id": "6d6dba20fe",
+   "op": "ROR",
+   "line": 236,
+   "before": "if (error != null) {",
+   "after": "if (error == null) {",
+   "verdict": "unreachable",
+   "reason": "condition() runs only for a CICS condition a command raises without RESP; UPDCUST commands carry RESP, so condition() and paragraph() never run"
   },
   {
    "id": "066d9b39a9",
@@ -191,11 +1145,29 @@
    "reason": "condition() runs only for a CICS condition a command raises without RESP; UPDCUST's READ UPDATE and REWRITE have RESP, its RETURN raises none, and POPULATE-TIME-DATE (ASKTIME, FORMATTIME) never runs, so condition() -- and this test, reached only from it -- never runs"
   },
   {
+   "id": "26409f71e1",
+   "op": "ROR",
+   "line": 240,
+   "before": "if (label == null) {",
+   "after": "if (label != null) {",
+   "verdict": "unreachable",
+   "reason": "condition() runs only for a CICS condition a command raises without RESP; UPDCUST commands carry RESP, so condition() and paragraph() never run"
+  },
+  {
    "id": "579c46b059",
    "op": "ROR",
    "line": 248,
    "before": "if (d == null) {",
    "after": "if (d != null) {",
+   "verdict": "unreachable",
+   "reason": "in_UpdcustDfhcommarea is called only under ca instanceof UpdcustDfhcommarea, so d is never null; the guard body return is unreachable"
+  },
+  {
+   "id": "bd9e8c8526",
+   "op": "NEG",
+   "line": 251,
+   "before": "if (d == null) {",
+   "after": "if (!(d == null)) {",
    "verdict": "unreachable",
    "reason": "in_UpdcustDfhcommarea is called only under ca instanceof UpdcustDfhcommarea, so d is never null; the guard body return is unreachable"
   },
@@ -218,6 +1190,15 @@
    "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
   },
   {
+   "id": "f90155f065",
+   "op": "DEL",
+   "line": 252,
+   "before": "return;",
+   "after": "/* return; */",
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
+  },
+  {
    "id": "46ff47ea57",
    "op": "CON",
    "line": 254,
@@ -227,11 +1208,74 @@
    "reason": "in_: COMM-NAME moved into 61 bytes (20-80) spills one byte into COMM-ADDR (80), which the next statement, the COMM-ADDR move into 80-239, overwrites"
   },
   {
-   "id": "b5e2510b79",
+   "id": "4bce43ff75",
+   "op": "CON",
+   "line": 254,
+   "before": "Cobol.move(d.getCommEye() == null ? \"\" : d.getCommEye(), Field.alphanumeric(s, base + 0, 4, false), CS);",
+   "after": "Cobol.move(d.getCommEye() == null ? \"\" : d.getCommEye(), Field.alphanumeric(s, base + 0, 5, false), CS);",
+   "verdict": "equivalent",
+   "reason": "base - 0 is identical to base + 0 (COMM-EYE sits at offset 0)."
+  },
+  {
+   "id": "5a05959a3a",
+   "op": "CON",
+   "line": 254,
+   "before": "Cobol.move(d.getCommEye() == null ? \"\" : d.getCommEye(), Field.alphanumeric(s, base + 0, 4, false), CS);",
+   "after": "Cobol.move(d.getCommEye() == null ? \"\" : d.getCommEye(), Field.alphanumeric(s, base + 1, 4, false), CS);",
+   "verdict": "equivalent",
+   "reason": "base - 0 is identical to base + 0 (COMM-EYE sits at offset 0)."
+  },
+  {
+   "id": "32991c3f85",
+   "op": "CON",
+   "line": 255,
+   "before": "Cobol.move(d.getCommScode() == null ? \"\" : d.getCommScode(), Field.alphanumeric(s, base + 4, 6, false), CS);",
+   "after": "Cobol.move(d.getCommScode() == null ? \"\" : d.getCommScode(), Field.alphanumeric(s, base + 4, 7, false), CS);",
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
+  },
+  {
+   "id": "43346555b0",
+   "op": "ROR",
+   "line": 255,
+   "before": "Cobol.move(d.getCommScode() == null ? \"\" : d.getCommScode(), Field.alphanumeric(s, base + 4, 6, false), CS);",
+   "after": "Cobol.move(d.getCommScode() != null ? \"\" : d.getCommScode(), Field.alphanumeric(s, base + 4, 6, false), CS);",
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
+  },
+  {
+   "id": "fbf72dd84d",
+   "op": "CON",
+   "line": 255,
+   "before": "Cobol.move(d.getCommScode() == null ? \"\" : d.getCommScode(), Field.alphanumeric(s, base + 4, 6, false), CS);",
+   "after": "Cobol.move(d.getCommScode() == null ? \"\" : d.getCommScode(), Field.alphanumeric(s, base + 5, 6, false), CS);",
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
+  },
+  {
+   "id": "7feb28b6ce",
    "op": "ROR",
    "line": 256,
-   "before": "Cobol.move(d.getCommDob() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommDob().toString()), Field.zoned(s, base + 240, 8, 0, false, false, false), CS);",
-   "after": "Cobol.move(d.getCommDob() != null ? BigDecimal.ZERO : new BigDecimal(d.getCommDob().toString()), Field.zoned(s, base + 240, 8, 0, false, false, false), CS);",
+   "before": "Cobol.move(d.getCommCustno() == null ? \"\" : d.getCommCustno(), Field.alphanumeric(s, base + 10, 10, false), CS);",
+   "after": "Cobol.move(d.getCommCustno() != null ? \"\" : d.getCommCustno(), Field.alphanumeric(s, base + 10, 10, false), CS);",
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
+  },
+  {
+   "id": "88dc025250",
+   "op": "CON",
+   "line": 256,
+   "before": "Cobol.move(d.getCommCustno() == null ? \"\" : d.getCommCustno(), Field.alphanumeric(s, base + 10, 10, false), CS);",
+   "after": "Cobol.move(d.getCommCustno() == null ? \"\" : d.getCommCustno(), Field.alphanumeric(s, base + 11, 10, false), CS);",
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
+  },
+  {
+   "id": "a0f656b989",
+   "op": "CON",
+   "line": 256,
+   "before": "Cobol.move(d.getCommCustno() == null ? \"\" : d.getCommCustno(), Field.alphanumeric(s, base + 10, 10, false), CS);",
+   "after": "Cobol.move(d.getCommCustno() == null ? \"\" : d.getCommCustno(), Field.alphanumeric(s, base + 10, 11, false), CS);",
    "verdict": "equivalent",
    "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
   },
@@ -245,6 +1289,33 @@
    "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
   },
   {
+   "id": "b5e2510b79",
+   "op": "ROR",
+   "line": 256,
+   "before": "Cobol.move(d.getCommDob() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommDob().toString()), Field.zoned(s, base + 240, 8, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getCommDob() != null ? BigDecimal.ZERO : new BigDecimal(d.getCommDob().toString()), Field.zoned(s, base + 240, 8, 0, false, false, false), CS);",
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
+  },
+  {
+   "id": "ce25d98566",
+   "op": "CON",
+   "line": 257,
+   "before": "Cobol.move(d.getCommName() == null ? \"\" : d.getCommName(), Field.alphanumeric(s, base + 20, 60, false), CS);",
+   "after": "Cobol.move(d.getCommName() == null ? \"\" : d.getCommName(), Field.alphanumeric(s, base + 21, 60, false), CS);",
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
+  },
+  {
+   "id": "efa85b1839",
+   "op": "ROR",
+   "line": 257,
+   "before": "Cobol.move(d.getCommName() == null ? \"\" : d.getCommName(), Field.alphanumeric(s, base + 20, 60, false), CS);",
+   "after": "Cobol.move(d.getCommName() != null ? \"\" : d.getCommName(), Field.alphanumeric(s, base + 20, 60, false), CS);",
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
+  },
+  {
    "id": "f9f547e049",
    "op": "ROR",
    "line": 257,
@@ -254,11 +1325,191 @@
    "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
   },
   {
+   "id": "26680dc1ce",
+   "op": "CON",
+   "line": 258,
+   "before": "Cobol.move(d.getCommAddr() == null ? \"\" : d.getCommAddr(), Field.alphanumeric(s, base + 80, 160, false), CS);",
+   "after": "Cobol.move(d.getCommAddr() == null ? \"\" : d.getCommAddr(), Field.alphanumeric(s, base + 81, 160, false), CS);",
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
+  },
+  {
+   "id": "3e2e846083",
+   "op": "ROR",
+   "line": 258,
+   "before": "Cobol.move(d.getCommAddr() == null ? \"\" : d.getCommAddr(), Field.alphanumeric(s, base + 80, 160, false), CS);",
+   "after": "Cobol.move(d.getCommAddr() != null ? \"\" : d.getCommAddr(), Field.alphanumeric(s, base + 80, 160, false), CS);",
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
+  },
+  {
+   "id": "8da46f9aa4",
+   "op": "CON",
+   "line": 258,
+   "before": "Cobol.move(d.getCommAddr() == null ? \"\" : d.getCommAddr(), Field.alphanumeric(s, base + 80, 160, false), CS);",
+   "after": "Cobol.move(d.getCommAddr() == null ? \"\" : d.getCommAddr(), Field.alphanumeric(s, base + 80, 161, false), CS);",
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
+  },
+  {
+   "id": "2be5cc3c50",
+   "op": "CON",
+   "line": 259,
+   "before": "Cobol.move(d.getCommDob() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommDob().toString()), Field.zoned(s, base + 240, 8, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getCommDob() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommDob().toString()), Field.zoned(s, base + 240, 8, 1, false, false, false), CS);",
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
+  },
+  {
+   "id": "5ed4eeaffa",
+   "op": "DEL",
+   "line": 259,
+   "before": "Cobol.move(d.getCommDob() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommDob().toString()), Field.zoned(s, base + 240, 8, 0, false, false, false), CS);",
+   "after": "/* Cobol.move(d.getCommDob() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommDob().toString()), Field.zoned(s, base + 240, 8, 0, false, false, false), CS); */",
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
+  },
+  {
+   "id": "a504facf50",
+   "op": "CON",
+   "line": 259,
+   "before": "Cobol.move(d.getCommDob() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommDob().toString()), Field.zoned(s, base + 240, 8, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getCommDob() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommDob().toString()), Field.zoned(s, base + 241, 8, 0, false, false, false), CS);",
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
+  },
+  {
    "id": "fa56238aa8",
    "op": "ROR",
    "line": 259,
    "before": "Cobol.move(d.getCommUpdSuccess() == null ? \"\" : d.getCommUpdSuccess(), Field.alphanumeric(s, base + 259, 1, false), CS);",
    "after": "Cobol.move(d.getCommUpdSuccess() != null ? \"\" : d.getCommUpdSuccess(), Field.alphanumeric(s, base + 259, 1, false), CS);",
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
+  },
+  {
+   "id": "00debaab81",
+   "op": "CON",
+   "line": 260,
+   "before": "Cobol.move(d.getCommCreditScore() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommCreditScore().toString()), Field.zoned(s, base + 248, 3, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getCommCreditScore() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommCreditScore().toString()), Field.zoned(s, base + 248, 4, 0, false, false, false), CS);",
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
+  },
+  {
+   "id": "1ee8215d71",
+   "op": "DEL",
+   "line": 260,
+   "before": "Cobol.move(d.getCommCreditScore() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommCreditScore().toString()), Field.zoned(s, base + 248, 3, 0, false, false, false), CS);",
+   "after": "/* Cobol.move(d.getCommCreditScore() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommCreditScore().toString()), Field.zoned(s, base + 248, 3, 0, false, false, false), CS); */",
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
+  },
+  {
+   "id": "29e0ef2533",
+   "op": "CON",
+   "line": 260,
+   "before": "Cobol.move(d.getCommCreditScore() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommCreditScore().toString()), Field.zoned(s, base + 248, 3, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getCommCreditScore() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommCreditScore().toString()), Field.zoned(s, base + 249, 3, 0, false, false, false), CS);",
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
+  },
+  {
+   "id": "92efc1f116",
+   "op": "CON",
+   "line": 260,
+   "before": "Cobol.move(d.getCommCreditScore() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommCreditScore().toString()), Field.zoned(s, base + 248, 3, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getCommCreditScore() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommCreditScore().toString()), Field.zoned(s, base + 248, 3, 1, false, false, false), CS);",
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
+  },
+  {
+   "id": "20c4a40c52",
+   "op": "CON",
+   "line": 261,
+   "before": "Cobol.move(d.getCommCsReviewDate() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommCsReviewDate().toString()), Field.zoned(s, base + 251, 8, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getCommCsReviewDate() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommCsReviewDate().toString()), Field.zoned(s, base + 251, 8, 1, false, false, false), CS);",
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
+  },
+  {
+   "id": "4636477d63",
+   "op": "CON",
+   "line": 261,
+   "before": "Cobol.move(d.getCommCsReviewDate() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommCsReviewDate().toString()), Field.zoned(s, base + 251, 8, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getCommCsReviewDate() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommCsReviewDate().toString()), Field.zoned(s, base + 251, 9, 0, false, false, false), CS);",
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
+  },
+  {
+   "id": "71730c9662",
+   "op": "ROR",
+   "line": 261,
+   "before": "Cobol.move(d.getCommCsReviewDate() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommCsReviewDate().toString()), Field.zoned(s, base + 251, 8, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getCommCsReviewDate() != null ? BigDecimal.ZERO : new BigDecimal(d.getCommCsReviewDate().toString()), Field.zoned(s, base + 251, 8, 0, false, false, false), CS);",
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
+  },
+  {
+   "id": "97d918b8c9",
+   "op": "DEL",
+   "line": 261,
+   "before": "Cobol.move(d.getCommCsReviewDate() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommCsReviewDate().toString()), Field.zoned(s, base + 251, 8, 0, false, false, false), CS);",
+   "after": "/* Cobol.move(d.getCommCsReviewDate() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommCsReviewDate().toString()), Field.zoned(s, base + 251, 8, 0, false, false, false), CS); */",
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
+  },
+  {
+   "id": "9c57047f4a",
+   "op": "CON",
+   "line": 261,
+   "before": "Cobol.move(d.getCommCsReviewDate() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommCsReviewDate().toString()), Field.zoned(s, base + 251, 8, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getCommCsReviewDate() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommCsReviewDate().toString()), Field.zoned(s, base + 252, 8, 0, false, false, false), CS);",
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
+  },
+  {
+   "id": "50903b7619",
+   "op": "CON",
+   "line": 262,
+   "before": "Cobol.move(d.getCommUpdSuccess() == null ? \"\" : d.getCommUpdSuccess(), Field.alphanumeric(s, base + 259, 1, false), CS);",
+   "after": "Cobol.move(d.getCommUpdSuccess() == null ? \"\" : d.getCommUpdSuccess(), Field.alphanumeric(s, base + 260, 1, false), CS);",
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
+  },
+  {
+   "id": "7712145c4e",
+   "op": "CON",
+   "line": 262,
+   "before": "Cobol.move(d.getCommUpdSuccess() == null ? \"\" : d.getCommUpdSuccess(), Field.alphanumeric(s, base + 259, 1, false), CS);",
+   "after": "Cobol.move(d.getCommUpdSuccess() == null ? \"\" : d.getCommUpdSuccess(), Field.alphanumeric(s, base + 259, 2, false), CS);",
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
+  },
+  {
+   "id": "383829ddff",
+   "op": "ROR",
+   "line": 263,
+   "before": "Cobol.move(d.getCommUpdFailCd() == null ? \"\" : d.getCommUpdFailCd(), Field.alphanumeric(s, base + 260, 1, false), CS);",
+   "after": "Cobol.move(d.getCommUpdFailCd() != null ? \"\" : d.getCommUpdFailCd(), Field.alphanumeric(s, base + 260, 1, false), CS);",
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
+  },
+  {
+   "id": "57b252cfb0",
+   "op": "CON",
+   "line": 263,
+   "before": "Cobol.move(d.getCommUpdFailCd() == null ? \"\" : d.getCommUpdFailCd(), Field.alphanumeric(s, base + 260, 1, false), CS);",
+   "after": "Cobol.move(d.getCommUpdFailCd() == null ? \"\" : d.getCommUpdFailCd(), Field.alphanumeric(s, base + 261, 1, false), CS);",
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
+  },
+  {
+   "id": "65dc511a48",
+   "op": "CON",
+   "line": 263,
+   "before": "Cobol.move(d.getCommUpdFailCd() == null ? \"\" : d.getCommUpdFailCd(), Field.alphanumeric(s, base + 260, 1, false), CS);",
+   "after": "Cobol.move(d.getCommUpdFailCd() == null ? \"\" : d.getCommUpdFailCd(), Field.alphanumeric(s, base + 260, 2, false), CS);",
    "verdict": "equivalent",
    "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
   },
@@ -281,13 +1532,85 @@
    "reason": "COMM-NAME is updated from input or reloaded from DB2 on success; omitting setter leaves caller DTO with input name"
   },
   {
-   "id": "b65cc52ff0",
+   "id": "0df6a254dc",
+   "op": "AOR",
+   "line": 267,
+   "before": "d.setCommEye(Cobol.text(Field.alphanumeric(s, base + 0, 4, false), CS));",
+   "after": "d.setCommEye(Cobol.text(Field.alphanumeric(s, base - 0, 4, false), CS));",
+   "verdict": "equivalent",
+   "reason": "COMM field is updated from input or reloaded on success; caller DTO already holds identical value"
+  },
+  {
+   "id": "1847592bc0",
+   "op": "CON",
+   "line": 267,
+   "before": "d.setCommEye(Cobol.text(Field.alphanumeric(s, base + 0, 4, false), CS));",
+   "after": "d.setCommEye(Cobol.text(Field.alphanumeric(s, base + 0, 5, false), CS));",
+   "verdict": "equivalent",
+   "reason": "COMM field is updated from input or reloaded on success; caller DTO already holds identical value"
+  },
+  {
+   "id": "1abdb073c7",
+   "op": "DEL",
+   "line": 267,
+   "before": "d.setCommEye(Cobol.text(Field.alphanumeric(s, base + 0, 4, false), CS));",
+   "after": "/* d.setCommEye(Cobol.text(Field.alphanumeric(s, base + 0, 4, false), CS)); */",
+   "verdict": "equivalent",
+   "reason": "COMM field is updated from input or reloaded on success; caller DTO already holds identical value"
+  },
+  {
+   "id": "2c858f4b89",
+   "op": "CON",
+   "line": 268,
+   "before": "d.setCommScode(Cobol.text(Field.alphanumeric(s, base + 4, 6, false), CS));",
+   "after": "d.setCommScode(Cobol.text(Field.alphanumeric(s, base + 5, 6, false), CS));",
+   "verdict": "equivalent",
+   "reason": "COMM field is updated from input or reloaded on success; caller DTO already holds identical value"
+  },
+  {
+   "id": "34512c88fc",
+   "op": "CON",
+   "line": 268,
+   "before": "d.setCommScode(Cobol.text(Field.alphanumeric(s, base + 4, 6, false), CS));",
+   "after": "d.setCommScode(Cobol.text(Field.alphanumeric(s, base + 4, 7, false), CS));",
+   "verdict": "equivalent",
+   "reason": "COMM field is updated from input or reloaded on success; caller DTO already holds identical value"
+  },
+  {
+   "id": "bbecc0aea2",
+   "op": "DEL",
+   "line": 268,
+   "before": "d.setCommScode(Cobol.text(Field.alphanumeric(s, base + 4, 6, false), CS));",
+   "after": "/* d.setCommScode(Cobol.text(Field.alphanumeric(s, base + 4, 6, false), CS)); */",
+   "verdict": "equivalent",
+   "reason": "COMM field is updated from input or reloaded on success; caller DTO already holds identical value"
+  },
+  {
+   "id": "15421ea9fa",
+   "op": "CON",
+   "line": 269,
+   "before": "d.setCommCustno(Cobol.text(Field.alphanumeric(s, base + 10, 10, false), CS));",
+   "after": "d.setCommCustno(Cobol.text(Field.alphanumeric(s, base + 11, 10, false), CS));",
+   "verdict": "equivalent",
+   "reason": "COMM field is updated from input or reloaded on success; caller DTO already holds identical value"
+  },
+  {
+   "id": "56bd886a53",
+   "op": "CON",
+   "line": 269,
+   "before": "d.setCommCustno(Cobol.text(Field.alphanumeric(s, base + 10, 10, false), CS));",
+   "after": "d.setCommCustno(Cobol.text(Field.alphanumeric(s, base + 10, 11, false), CS));",
+   "verdict": "equivalent",
+   "reason": "COMM field is updated from input or reloaded on success; caller DTO already holds identical value"
+  },
+  {
+   "id": "a03470d50a",
    "op": "DEL",
    "line": 269,
-   "before": "d.setCommDob(Cobol.num(Field.zoned(s, base + 240, 8, 0, false, false, false), CS).intValue());",
-   "after": "/* d.setCommDob(Cobol.num(Field.zoned(s, base + 240, 8, 0, false, false, false), CS).intValue()); */",
+   "before": "d.setCommCustno(Cobol.text(Field.alphanumeric(s, base + 10, 10, false), CS));",
+   "after": "/* d.setCommCustno(Cobol.text(Field.alphanumeric(s, base + 10, 10, false), CS)); */",
    "verdict": "equivalent",
-   "reason": "COMM-DOB is never modified by UPDCUST; omitting setter leaves caller DTO with input date of birth"
+   "reason": "COMM field is updated from input or reloaded on success; caller DTO already holds identical value"
   },
   {
    "id": "a92734bb55",
@@ -299,6 +1622,15 @@
    "reason": "COMM-DOB is never modified by UPDCUST; reading length 9 instead of 8 parses adjacent zoned zero/padding, yielding identical integer value"
   },
   {
+   "id": "b65cc52ff0",
+   "op": "DEL",
+   "line": 269,
+   "before": "d.setCommDob(Cobol.num(Field.zoned(s, base + 240, 8, 0, false, false, false), CS).intValue());",
+   "after": "/* d.setCommDob(Cobol.num(Field.zoned(s, base + 240, 8, 0, false, false, false), CS).intValue()); */",
+   "verdict": "equivalent",
+   "reason": "COMM-DOB is never modified by UPDCUST; omitting setter leaves caller DTO with input date of birth"
+  },
+  {
    "id": "190ec40418",
    "op": "CON",
    "line": 270,
@@ -306,6 +1638,51 @@
    "after": "d.setCommCreditScore(Cobol.num(Field.zoned(s, base + 248, 4, 0, false, false, false), CS).intValue());",
    "verdict": "equivalent",
    "reason": "COMM-CREDIT-SCORE is never modified by UPDCUST; reading length 4 instead of 3 parses adjacent zoned zero/padding, yielding identical integer value"
+  },
+  {
+   "id": "8de07e64d5",
+   "op": "CON",
+   "line": 270,
+   "before": "d.setCommName(Cobol.text(Field.alphanumeric(s, base + 20, 60, false), CS));",
+   "after": "d.setCommName(Cobol.text(Field.alphanumeric(s, base + 21, 60, false), CS));",
+   "verdict": "equivalent",
+   "reason": "COMM field is updated from input or reloaded on success; caller DTO already holds identical value"
+  },
+  {
+   "id": "c1cac27e70",
+   "op": "CON",
+   "line": 270,
+   "before": "d.setCommName(Cobol.text(Field.alphanumeric(s, base + 20, 60, false), CS));",
+   "after": "d.setCommName(Cobol.text(Field.alphanumeric(s, base + 20, 61, false), CS));",
+   "verdict": "equivalent",
+   "reason": "COMM field is updated from input or reloaded on success; caller DTO already holds identical value"
+  },
+  {
+   "id": "0e13d99227",
+   "op": "CON",
+   "line": 271,
+   "before": "d.setCommAddr(Cobol.text(Field.alphanumeric(s, base + 80, 160, false), CS));",
+   "after": "d.setCommAddr(Cobol.text(Field.alphanumeric(s, base + 80, 161, false), CS));",
+   "verdict": "equivalent",
+   "reason": "COMM field is updated from input or reloaded on success; caller DTO already holds identical value"
+  },
+  {
+   "id": "29d45490bb",
+   "op": "DEL",
+   "line": 271,
+   "before": "d.setCommAddr(Cobol.text(Field.alphanumeric(s, base + 80, 160, false), CS));",
+   "after": "/* d.setCommAddr(Cobol.text(Field.alphanumeric(s, base + 80, 160, false), CS)); */",
+   "verdict": "equivalent",
+   "reason": "COMM field is updated from input or reloaded on success; caller DTO already holds identical value"
+  },
+  {
+   "id": "6f58da9d7b",
+   "op": "CON",
+   "line": 271,
+   "before": "d.setCommAddr(Cobol.text(Field.alphanumeric(s, base + 80, 160, false), CS));",
+   "after": "d.setCommAddr(Cobol.text(Field.alphanumeric(s, base + 81, 160, false), CS));",
+   "verdict": "equivalent",
+   "reason": "COMM field is updated from input or reloaded on success; caller DTO already holds identical value"
   },
   {
    "id": "f164ef5b5a",
@@ -317,11 +1694,191 @@
    "reason": "COMM-CS-REVIEW-DATE is never modified by UPDCUST; omitting setter leaves caller DTO with input review date"
   },
   {
+   "id": "44f1bf3648",
+   "op": "CON",
+   "line": 272,
+   "before": "d.setCommDob(Cobol.num(Field.zoned(s, base + 240, 8, 0, false, false, false), CS).intValue());",
+   "after": "d.setCommDob(Cobol.num(Field.zoned(s, base + 240, 8, 1, false, false, false), CS).intValue());",
+   "verdict": "equivalent",
+   "reason": "COMM field is updated from input or reloaded on success; caller DTO already holds identical value"
+  },
+  {
+   "id": "83e3a3be22",
+   "op": "CON",
+   "line": 272,
+   "before": "d.setCommDob(Cobol.num(Field.zoned(s, base + 240, 8, 0, false, false, false), CS).intValue());",
+   "after": "d.setCommDob(Cobol.num(Field.zoned(s, base + 241, 8, 0, false, false, false), CS).intValue());",
+   "verdict": "equivalent",
+   "reason": "COMM field is updated from input or reloaded on success; caller DTO already holds identical value"
+  },
+  {
+   "id": "05eed96933",
+   "op": "DEL",
+   "line": 273,
+   "before": "d.setCommCreditScore(Cobol.num(Field.zoned(s, base + 248, 3, 0, false, false, false), CS).intValue());",
+   "after": "/* d.setCommCreditScore(Cobol.num(Field.zoned(s, base + 248, 3, 0, false, false, false), CS).intValue()); */",
+   "verdict": "equivalent",
+   "reason": "COMM field is updated from input or reloaded on success; caller DTO already holds identical value"
+  },
+  {
+   "id": "b397e5a78b",
+   "op": "CON",
+   "line": 273,
+   "before": "d.setCommCreditScore(Cobol.num(Field.zoned(s, base + 248, 3, 0, false, false, false), CS).intValue());",
+   "after": "d.setCommCreditScore(Cobol.num(Field.zoned(s, base + 248, 3, 1, false, false, false), CS).intValue());",
+   "verdict": "equivalent",
+   "reason": "COMM field is updated from input or reloaded on success; caller DTO already holds identical value"
+  },
+  {
+   "id": "c87643fe3d",
+   "op": "CON",
+   "line": 273,
+   "before": "d.setCommCreditScore(Cobol.num(Field.zoned(s, base + 248, 3, 0, false, false, false), CS).intValue());",
+   "after": "d.setCommCreditScore(Cobol.num(Field.zoned(s, base + 249, 3, 0, false, false, false), CS).intValue());",
+   "verdict": "equivalent",
+   "reason": "COMM field is updated from input or reloaded on success; caller DTO already holds identical value"
+  },
+  {
+   "id": "95a3658451",
+   "op": "CON",
+   "line": 274,
+   "before": "d.setCommCsReviewDate(Cobol.num(Field.zoned(s, base + 251, 8, 0, false, false, false), CS).intValue());",
+   "after": "d.setCommCsReviewDate(Cobol.num(Field.zoned(s, base + 252, 8, 0, false, false, false), CS).intValue());",
+   "verdict": "equivalent",
+   "reason": "COMM field is updated from input or reloaded on success; caller DTO already holds identical value"
+  },
+  {
+   "id": "bc49185ce8",
+   "op": "CON",
+   "line": 274,
+   "before": "d.setCommCsReviewDate(Cobol.num(Field.zoned(s, base + 251, 8, 0, false, false, false), CS).intValue());",
+   "after": "d.setCommCsReviewDate(Cobol.num(Field.zoned(s, base + 251, 8, 1, false, false, false), CS).intValue());",
+   "verdict": "equivalent",
+   "reason": "COMM field is updated from input or reloaded on success; caller DTO already holds identical value"
+  },
+  {
+   "id": "cde79b3d9f",
+   "op": "CON",
+   "line": 274,
+   "before": "d.setCommCsReviewDate(Cobol.num(Field.zoned(s, base + 251, 8, 0, false, false, false), CS).intValue());",
+   "after": "d.setCommCsReviewDate(Cobol.num(Field.zoned(s, base + 251, 9, 0, false, false, false), CS).intValue());",
+   "verdict": "equivalent",
+   "reason": "COMM field is updated from input or reloaded on success; caller DTO already holds identical value"
+  },
+  {
+   "id": "8c81bd248a",
+   "op": "CON",
+   "line": 275,
+   "before": "d.setCommUpdSuccess(Cobol.text(Field.alphanumeric(s, base + 259, 1, false), CS));",
+   "after": "d.setCommUpdSuccess(Cobol.text(Field.alphanumeric(s, base + 260, 1, false), CS));",
+   "verdict": "equivalent",
+   "reason": "COMM field is updated from input or reloaded on success; caller DTO already holds identical value"
+  },
+  {
+   "id": "8f184553b1",
+   "op": "DEL",
+   "line": 275,
+   "before": "d.setCommUpdSuccess(Cobol.text(Field.alphanumeric(s, base + 259, 1, false), CS));",
+   "after": "/* d.setCommUpdSuccess(Cobol.text(Field.alphanumeric(s, base + 259, 1, false), CS)); */",
+   "verdict": "equivalent",
+   "reason": "COMM field is updated from input or reloaded on success; caller DTO already holds identical value"
+  },
+  {
+   "id": "f367587f2f",
+   "op": "CON",
+   "line": 275,
+   "before": "d.setCommUpdSuccess(Cobol.text(Field.alphanumeric(s, base + 259, 1, false), CS));",
+   "after": "d.setCommUpdSuccess(Cobol.text(Field.alphanumeric(s, base + 259, 2, false), CS));",
+   "verdict": "equivalent",
+   "reason": "COMM field is updated from input or reloaded on success; caller DTO already holds identical value"
+  },
+  {
+   "id": "2239909ce2",
+   "op": "DEL",
+   "line": 276,
+   "before": "d.setCommUpdFailCd(Cobol.text(Field.alphanumeric(s, base + 260, 1, false), CS));",
+   "after": "/* d.setCommUpdFailCd(Cobol.text(Field.alphanumeric(s, base + 260, 1, false), CS)); */",
+   "verdict": "equivalent",
+   "reason": "COMM field is updated from input or reloaded on success; caller DTO already holds identical value"
+  },
+  {
+   "id": "517a30a6f2",
+   "op": "CON",
+   "line": 276,
+   "before": "d.setCommUpdFailCd(Cobol.text(Field.alphanumeric(s, base + 260, 1, false), CS));",
+   "after": "d.setCommUpdFailCd(Cobol.text(Field.alphanumeric(s, base + 261, 1, false), CS));",
+   "verdict": "equivalent",
+   "reason": "COMM field is updated from input or reloaded on success; caller DTO already holds identical value"
+  },
+  {
+   "id": "ad73217b00",
+   "op": "CON",
+   "line": 276,
+   "before": "d.setCommUpdFailCd(Cobol.text(Field.alphanumeric(s, base + 260, 1, false), CS));",
+   "after": "d.setCommUpdFailCd(Cobol.text(Field.alphanumeric(s, base + 260, 2, false), CS));",
+   "verdict": "equivalent",
+   "reason": "COMM field is updated from input or reloaded on success; caller DTO already holds identical value"
+  },
+  {
+   "id": "515b578cbe",
+   "op": "DEL",
+   "line": 281,
+   "before": "fill_UpdcustDfhcommarea(d, s, base);",
+   "after": "/* fill_UpdcustDfhcommarea(d, s, base); */",
+   "verdict": "equivalent",
+   "reason": "COMM field is updated from input or reloaded on success; caller DTO already holds identical value"
+  },
+  {
    "id": "2e7712ea3a",
    "op": "ROR",
    "line": 284,
    "before": "if (s_DFHCOMMAREA.bytes != whole) {",
    "after": "if (s_DFHCOMMAREA.bytes == whole) {",
+   "verdict": "unreachable",
+   "reason": "caWhole helper is called only when calen < 261, which never occurs in any scenario"
+  },
+  {
+   "id": "b3d3bba89d",
+   "op": "NEG",
+   "line": 287,
+   "before": "if (s_DFHCOMMAREA.bytes != whole) {",
+   "after": "if (!(s_DFHCOMMAREA.bytes != whole)) {",
+   "verdict": "unreachable",
+   "reason": "caWhole helper is called only when calen < 261, which never occurs in any scenario"
+  },
+  {
+   "id": "4f77f49de9",
+   "op": "CON",
+   "line": 288,
+   "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
+   "after": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 1, s_DFHCOMMAREA.bytes.length);",
+   "verdict": "unreachable",
+   "reason": "caWhole helper is called only when calen < 261, which never occurs in any scenario"
+  },
+  {
+   "id": "7c31045794",
+   "op": "CON",
+   "line": 288,
+   "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
+   "after": "System.arraycopy(s_DFHCOMMAREA.bytes, 1, whole, 0, s_DFHCOMMAREA.bytes.length);",
+   "verdict": "unreachable",
+   "reason": "caWhole helper is called only when calen < 261, which never occurs in any scenario"
+  },
+  {
+   "id": "8b1b091b54",
+   "op": "DEL",
+   "line": 288,
+   "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
+   "after": "/* System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length); */",
+   "verdict": "unreachable",
+   "reason": "caWhole helper is called only when calen < 261, which never occurs in any scenario"
+  },
+  {
+   "id": "9b6b35fd1a",
+   "op": "DEL",
+   "line": 289,
+   "before": "s_DFHCOMMAREA.bytes = whole;",
+   "after": "/* s_DFHCOMMAREA.bytes = whole; */",
    "verdict": "unreachable",
    "reason": "caWhole helper is called only when calen < 261, which never occurs in any scenario"
   },
@@ -344,6 +1901,42 @@
    "reason": "WS-EIBTASKN12, WS-ORIG-DATE and WS-SORT-DIV are never read before being written (WS-ORIG-DATE is only FORMATTIME's target in the never-PERFORMed POPULATE-TIME-DATE; the other two are never referenced)."
   },
   {
+   "id": "b1cd54ad34",
+   "op": "DEL",
+   "line": 309,
+   "before": "System.arraycopy(IMAGE_s_WS_CICS_WORK_AREA, 0, s_WS_CICS_WORK_AREA.bytes, 0, IMAGE_s_WS_CICS_WORK_AREA.length);",
+   "after": "/* System.arraycopy(IMAGE_s_WS_CICS_WORK_AREA, 0, s_WS_CICS_WORK_AREA.bytes, 0, IMAGE_s_WS_CICS_WORK_AREA.length); */",
+   "verdict": "equivalent",
+   "reason": "WS-CICS-WORK-AREA's VALUE image: every item UPDCUST reads from it is written by the CICS command's RESP before being read"
+  },
+  {
+   "id": "d8fc4bece9",
+   "op": "DEL",
+   "line": 310,
+   "before": "System.arraycopy(IMAGE_s_DB2_DATE_REFORMAT, 0, s_DB2_DATE_REFORMAT.bytes, 0, IMAGE_s_DB2_DATE_REFORMAT.length);",
+   "after": "/* System.arraycopy(IMAGE_s_DB2_DATE_REFORMAT, 0, s_DB2_DATE_REFORMAT.bytes, 0, IMAGE_s_DB2_DATE_REFORMAT.length); */",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads DB2-DATE-REFORMAT, so its VALUE cannot show"
+  },
+  {
+   "id": "4a1771898c",
+   "op": "DEL",
+   "line": 313,
+   "before": "System.arraycopy(IMAGE_s_WS_SQLCODE_DISP, 0, s_WS_SQLCODE_DISP.bytes, 0, IMAGE_s_WS_SQLCODE_DISP.length);",
+   "after": "/* System.arraycopy(IMAGE_s_WS_SQLCODE_DISP, 0, s_WS_SQLCODE_DISP.bytes, 0, IMAGE_s_WS_SQLCODE_DISP.length); */",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads WS-SQLCODE-DISP, so its VALUE cannot show"
+  },
+  {
+   "id": "86c0de956e",
+   "op": "DEL",
+   "line": 314,
+   "before": "System.arraycopy(IMAGE_s_DESIRED_CUST_KEY, 0, s_DESIRED_CUST_KEY.bytes, 0, IMAGE_s_DESIRED_CUST_KEY.length);",
+   "after": "/* System.arraycopy(IMAGE_s_DESIRED_CUST_KEY, 0, s_DESIRED_CUST_KEY.bytes, 0, IMAGE_s_DESIRED_CUST_KEY.length); */",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads DESIRED-CUST-KEY, so its VALUE cannot show"
+  },
+  {
    "id": "ef9a00fd52",
    "op": "DEL",
    "line": 314,
@@ -351,6 +1944,33 @@
    "after": "/* System.arraycopy(IMAGE_s_WS_ORIG_DATE, 0, s_WS_ORIG_DATE.bytes, 0, IMAGE_s_WS_ORIG_DATE.length); */",
    "verdict": "equivalent",
    "reason": "WS-EIBTASKN12, WS-ORIG-DATE and WS-SORT-DIV are never read before being written (WS-ORIG-DATE is only FORMATTIME's target in the never-PERFORMed POPULATE-TIME-DATE; the other two are never referenced)."
+  },
+  {
+   "id": "feb7a03d55",
+   "op": "DEL",
+   "line": 315,
+   "before": "System.arraycopy(IMAGE_s_WS_CUST_REC_LEN, 0, s_WS_CUST_REC_LEN.bytes, 0, IMAGE_s_WS_CUST_REC_LEN.length);",
+   "after": "/* System.arraycopy(IMAGE_s_WS_CUST_REC_LEN, 0, s_WS_CUST_REC_LEN.bytes, 0, IMAGE_s_WS_CUST_REC_LEN.length); */",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads WS-CUST-REC-LEN, so its VALUE cannot show"
+  },
+  {
+   "id": "5d3965b1b0",
+   "op": "DEL",
+   "line": 316,
+   "before": "System.arraycopy(IMAGE_s_WS_U_TIME, 0, s_WS_U_TIME.bytes, 0, IMAGE_s_WS_U_TIME.length);",
+   "after": "/* System.arraycopy(IMAGE_s_WS_U_TIME, 0, s_WS_U_TIME.bytes, 0, IMAGE_s_WS_U_TIME.length); */",
+   "verdict": "equivalent",
+   "reason": "Initial storage image for WS_U_TIME is never read before being overwritten or is unreferenced in PROCEDURE DIVISION"
+  },
+  {
+   "id": "17e6aa77c9",
+   "op": "DEL",
+   "line": 318,
+   "before": "System.arraycopy(IMAGE_s_WS_ORIG_DATE_GRP_X, 0, s_WS_ORIG_DATE_GRP_X.bytes, 0, IMAGE_s_WS_ORIG_DATE_GRP_X.length);",
+   "after": "/* System.arraycopy(IMAGE_s_WS_ORIG_DATE_GRP_X, 0, s_WS_ORIG_DATE_GRP_X.bytes, 0, IMAGE_s_WS_ORIG_DATE_GRP_X.length); */",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads WS-ORIG-DATE-GRP-X, so its VALUE cannot show"
   },
   {
    "id": "c4b74c9dea",
@@ -362,6 +1982,60 @@
    "reason": "WS-EIBTASKN12, WS-ORIG-DATE and WS-SORT-DIV are never read before being written (WS-ORIG-DATE is only FORMATTIME's target in the never-PERFORMed POPULATE-TIME-DATE; the other two are never referenced)."
   },
   {
+   "id": "b5e1fa1bb2",
+   "op": "DEL",
+   "line": 319,
+   "before": "System.arraycopy(IMAGE_s_REJ_REASON, 0, s_REJ_REASON.bytes, 0, IMAGE_s_REJ_REASON.length);",
+   "after": "/* System.arraycopy(IMAGE_s_REJ_REASON, 0, s_REJ_REASON.bytes, 0, IMAGE_s_REJ_REASON.length); */",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads REJ-REASON, so its VALUE cannot show"
+  },
+  {
+   "id": "62ed276e1b",
+   "op": "DEL",
+   "line": 320,
+   "before": "System.arraycopy(IMAGE_s_WS_PASSED_DATA, 0, s_WS_PASSED_DATA.bytes, 0, IMAGE_s_WS_PASSED_DATA.length);",
+   "after": "/* System.arraycopy(IMAGE_s_WS_PASSED_DATA, 0, s_WS_PASSED_DATA.bytes, 0, IMAGE_s_WS_PASSED_DATA.length); */",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads WS-PASSED-DATA, so its VALUE cannot show"
+  },
+  {
+   "id": "ccdd1c8884",
+   "op": "DEL",
+   "line": 322,
+   "before": "System.arraycopy(IMAGE_s_CUSTOMER_KY, 0, s_CUSTOMER_KY.bytes, 0, IMAGE_s_CUSTOMER_KY.length);",
+   "after": "/* System.arraycopy(IMAGE_s_CUSTOMER_KY, 0, s_CUSTOMER_KY.bytes, 0, IMAGE_s_CUSTOMER_KY.length); */",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads CUSTOMER-KY, so its VALUE cannot show"
+  },
+  {
+   "id": "fcfb8e8ee0",
+   "op": "DEL",
+   "line": 323,
+   "before": "System.arraycopy(IMAGE_s_STORM_DRAIN_CONDITION, 0, s_STORM_DRAIN_CONDITION.bytes, 0, IMAGE_s_STORM_DRAIN_CONDITION.length);",
+   "after": "/* System.arraycopy(IMAGE_s_STORM_DRAIN_CONDITION, 0, s_STORM_DRAIN_CONDITION.bytes, 0, IMAGE_s_STORM_DRAIN_CONDITION.length); */",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads STORM-DRAIN-CONDITION, so its VALUE cannot show"
+  },
+  {
+   "id": "a2ee928257",
+   "op": "DEL",
+   "line": 324,
+   "before": "System.arraycopy(IMAGE_s_WS_UNSTR_TITLE, 0, s_WS_UNSTR_TITLE.bytes, 0, IMAGE_s_WS_UNSTR_TITLE.length);",
+   "after": "/* System.arraycopy(IMAGE_s_WS_UNSTR_TITLE, 0, s_WS_UNSTR_TITLE.bytes, 0, IMAGE_s_WS_UNSTR_TITLE.length); */",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads WS-UNSTR-TITLE, so its VALUE cannot show"
+  },
+  {
+   "id": "4997326274",
+   "op": "DEL",
+   "line": 325,
+   "before": "System.arraycopy(IMAGE_s_WS_TITLE_VALID, 0, s_WS_TITLE_VALID.bytes, 0, IMAGE_s_WS_TITLE_VALID.length);",
+   "after": "/* System.arraycopy(IMAGE_s_WS_TITLE_VALID, 0, s_WS_TITLE_VALID.bytes, 0, IMAGE_s_WS_TITLE_VALID.length); */",
+   "verdict": "equivalent",
+   "reason": "WS-TITLE-VALID's initial byte: A010 moves ' ' to it, then 'Y' / 'N', before it is read"
+  },
+  {
    "id": "466b545878",
    "op": "DEL",
    "line": 326,
@@ -369,6 +2043,24 @@
    "after": "/* System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length); */",
    "verdict": "equivalent",
    "reason": "in_UpdcustDfhcommarea and raw arraycopy overwrite all DFHCOMMAREA fields before any COBOL statement reads them"
+  },
+  {
+   "id": "c547c7518e",
+   "op": "DEL",
+   "line": 326,
+   "before": "System.arraycopy(IMAGE_s_WS_TIME_DATA, 0, s_WS_TIME_DATA.bytes, 0, IMAGE_s_WS_TIME_DATA.length);",
+   "after": "/* System.arraycopy(IMAGE_s_WS_TIME_DATA, 0, s_WS_TIME_DATA.bytes, 0, IMAGE_s_WS_TIME_DATA.length); */",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads WS-TIME-DATA, so its VALUE cannot show"
+  },
+  {
+   "id": "9751ef2a4b",
+   "op": "DEL",
+   "line": 327,
+   "before": "System.arraycopy(IMAGE_s_WS_ABEND_PGM, 0, s_WS_ABEND_PGM.bytes, 0, IMAGE_s_WS_ABEND_PGM.length);",
+   "after": "/* System.arraycopy(IMAGE_s_WS_ABEND_PGM, 0, s_WS_ABEND_PGM.bytes, 0, IMAGE_s_WS_ABEND_PGM.length); */",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads WS-ABEND-PGM (UPDCUST LINKs nothing), so its VALUE 'ABNDPROC' cannot show"
   },
   {
    "id": "38bc56e28c",
@@ -380,6 +2072,51 @@
    "reason": "RETURN-CODE (GG-RETURN-CODE) is never referenced by UPDCUST and the task path (runTask) never returns it; the image is two zero bytes, the same as a fresh Storage."
   },
   {
+   "id": "b69df3bb11",
+   "op": "DEL",
+   "line": 328,
+   "before": "System.arraycopy(IMAGE_s_ABNDINFO_REC, 0, s_ABNDINFO_REC.bytes, 0, IMAGE_s_ABNDINFO_REC.length);",
+   "after": "/* System.arraycopy(IMAGE_s_ABNDINFO_REC, 0, s_ABNDINFO_REC.bytes, 0, IMAGE_s_ABNDINFO_REC.length); */",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads ABNDINFO-REC, so its VALUE cannot show"
+  },
+  {
+   "id": "a31c17ef5c",
+   "op": "DEL",
+   "line": 330,
+   "before": "System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length);",
+   "after": "/* System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length); */",
+   "verdict": "equivalent",
+   "reason": "DFHEIBLK image: no EIB field is read in UPDCUST, so its initial bytes cannot show"
+  },
+  {
+   "id": "c65e85967c",
+   "op": "DEL",
+   "line": 333,
+   "before": "f4_WS_CICS_RESP = 0L;",
+   "after": "/* f4_WS_CICS_RESP = 0L; */",
+   "verdict": "equivalent",
+   "reason": "initialState(): all storage fields are either overwritten before read or unreferenced in the PROCEDURE DIVISION"
+  },
+  {
+   "id": "da2d924270",
+   "op": "DEL",
+   "line": 334,
+   "before": "f5_WS_CICS_RESP2 = 0L;",
+   "after": "/* f5_WS_CICS_RESP2 = 0L; */",
+   "verdict": "equivalent",
+   "reason": "initialState(): all storage fields are either overwritten before read or unreferenced in the PROCEDURE DIVISION"
+  },
+  {
+   "id": "4985be3287",
+   "op": "DEL",
+   "line": 356,
+   "before": "caBack = () -> { };",
+   "after": "/* caBack = () -> { }; */",
+   "verdict": "equivalent",
+   "reason": "UPDCUST references only EIBCALEN (and EIBRESP/RESP2 the commands set); unreferenced EIB fields or task setups cannot show"
+  },
+  {
    "id": "a140d4b141",
    "op": "DEL",
    "line": 357,
@@ -389,13 +2126,22 @@
    "reason": "UPDCUST references only EIBCALEN (and EIBRESP/RESP2 the commands set); EIBTRNID, EIBDATE and EIBTIME are never read, the ASKTIME/FORMATTIME paragraph is never performed, and DFHEIBLK is not compared."
   },
   {
-   "id": "7dce27e836",
+   "id": "b99eb87c33",
    "op": "DEL",
-   "line": 361,
-   "before": "Cobol.store(f111_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
-   "after": "/* Cobol.store(f111_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS); */",
+   "line": 357,
+   "before": "handlers.clear();",
+   "after": "/* handlers.clear(); */",
+   "verdict": "unreachable",
+   "reason": "condition() runs only for a CICS condition a command raises without RESP; UPDCUST commands carry RESP, so condition() and paragraph() never run"
+  },
+  {
+   "id": "cce2d8712e",
+   "op": "DEL",
+   "line": 358,
+   "before": "heldKey.clear();",
+   "after": "/* heldKey.clear(); */",
    "verdict": "equivalent",
-   "reason": "UPDCUST references only EIBCALEN (and EIBRESP/RESP2 the commands set); EIBTRNID, EIBDATE and EIBTIME are never read, the ASKTIME/FORMATTIME paragraph is never performed, and DFHEIBLK is not compared."
+   "reason": "UPDCUST references only EIBCALEN (and EIBRESP/RESP2 the commands set); unreferenced EIB fields or task setups cannot show"
   },
   {
    "id": "216ef7b4ff",
@@ -405,6 +2151,15 @@
    "after": "Cobol.store(f111_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) / 1000L + now.getDayOfYear()), false, CS);",
    "verdict": "equivalent",
    "reason": "UPDCUST's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so EIBDATE cannot show"
+  },
+  {
+   "id": "7dce27e836",
+   "op": "DEL",
+   "line": 361,
+   "before": "Cobol.store(f111_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "/* Cobol.store(f111_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "UPDCUST references only EIBCALEN (and EIBRESP/RESP2 the commands set); EIBTRNID, EIBDATE and EIBTIME are never read, the ASKTIME/FORMATTIME paragraph is never performed, and DFHEIBLK is not compared."
   },
   {
    "id": "c9d3da7865",
@@ -425,6 +2180,24 @@
    "reason": "UPDCUST's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so EIBTIME cannot show"
   },
   {
+   "id": "5481f8911f",
+   "op": "AOR",
+   "line": 362,
+   "before": "Cobol.store(f110_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f110_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() / 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so EIBTIME cannot show"
+  },
+  {
+   "id": "a032fe1a1a",
+   "op": "DEL",
+   "line": 362,
+   "before": "Cobol.store(f113_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS);",
+   "after": "/* Cobol.store(f113_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "UPDCUST references only EIBCALEN (and EIBRESP/RESP2 the commands set); unreferenced EIB fields or task setups cannot show"
+  },
+  {
    "id": "acdff9f61a",
    "op": "AOR",
    "line": 362,
@@ -434,13 +2207,94 @@
    "reason": "UPDCUST references only EIBCALEN (and EIBRESP/RESP2 the commands set); EIBTRNID, EIBDATE and EIBTIME are never read, the ASKTIME/FORMATTIME paragraph is never performed, and DFHEIBLK is not compared."
   },
   {
-   "id": "5481f8911f",
+   "id": "c6800a3338",
    "op": "AOR",
-   "line": 362,
-   "before": "Cobol.store(f110_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
-   "after": "Cobol.store(f110_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() / 100L + now.getSecond()), false, CS);",
+   "line": 364,
+   "before": "Cobol.store(f111_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f111_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);",
    "verdict": "equivalent",
-   "reason": "UPDCUST's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so EIBTIME cannot show"
+   "reason": "UPDCUST references only EIBCALEN (and EIBRESP/RESP2 the commands set); unreferenced EIB fields or task setups cannot show"
+  },
+  {
+   "id": "f6f93d0cb9",
+   "op": "CON",
+   "line": 364,
+   "before": "Cobol.store(f111_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f111_EIBDATE, BigDecimal.valueOf((now.getYear() - 1901) * 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "UPDCUST references only EIBCALEN (and EIBRESP/RESP2 the commands set); unreferenced EIB fields or task setups cannot show"
+  },
+  {
+   "id": "08d8ac55d8",
+   "op": "DEL",
+   "line": 365,
+   "before": "Cobol.store(f110_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "/* Cobol.store(f110_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "UPDCUST references only EIBCALEN (and EIBRESP/RESP2 the commands set); unreferenced EIB fields or task setups cannot show"
+  },
+  {
+   "id": "7a378c72e0",
+   "op": "AOR",
+   "line": 365,
+   "before": "Cobol.store(f110_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f110_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L - now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "UPDCUST references only EIBCALEN (and EIBRESP/RESP2 the commands set); unreferenced EIB fields or task setups cannot show"
+  },
+  {
+   "id": "1f225388ce",
+   "op": "ROR",
+   "line": 366,
+   "before": "switch (task.aid() == null ? \"\" : task.aid()) {",
+   "after": "switch (task.aid() != null ? \"\" : task.aid()) {",
+   "verdict": "equivalent",
+   "reason": "UPDCUST references only EIBCALEN (and EIBRESP/RESP2 the commands set); unreferenced EIB fields or task setups cannot show"
+  },
+  {
+   "id": "a1a8c58a85",
+   "op": "CON",
+   "line": 370,
+   "before": "int calen = 0;",
+   "after": "int calen = 1;",
+   "verdict": "equivalent",
+   "reason": "UPDCUST references only EIBCALEN (and EIBRESP/RESP2 the commands set); unreferenced EIB fields or task setups cannot show"
+  },
+  {
+   "id": "66387e6ef4",
+   "op": "DEL",
+   "line": 372,
+   "before": "in_UpdcustDfhcommarea(x, s_DFHCOMMAREA, 0);",
+   "after": "/* in_UpdcustDfhcommarea(x, s_DFHCOMMAREA, 0); */",
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
+  },
+  {
+   "id": "8837de2dfc",
+   "op": "CON",
+   "line": 372,
+   "before": "in_UpdcustDfhcommarea(x, s_DFHCOMMAREA, 0);",
+   "after": "in_UpdcustDfhcommarea(x, s_DFHCOMMAREA, 1);",
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
+  },
+  {
+   "id": "1221c2e5d6",
+   "op": "DEL",
+   "line": 373,
+   "before": "caBack = () -> fill_UpdcustDfhcommarea(x, s_DFHCOMMAREA, 0);",
+   "after": "/* caBack = () -> fill_UpdcustDfhcommarea(x, s_DFHCOMMAREA, 0); */",
+   "verdict": "equivalent",
+   "reason": "COMM field is updated from input or reloaded on success; caller DTO already holds identical value"
+  },
+  {
+   "id": "315f259cc6",
+   "op": "CON",
+   "line": 373,
+   "before": "caBack = () -> fill_UpdcustDfhcommarea(x, s_DFHCOMMAREA, 0);",
+   "after": "caBack = () -> fill_UpdcustDfhcommarea(x, s_DFHCOMMAREA, 1);",
+   "verdict": "equivalent",
+   "reason": "COMM field is updated from input or reloaded on success; caller DTO already holds identical value"
   },
   {
    "id": "53e201dfa1",
@@ -452,11 +2306,92 @@
    "reason": "s_DFHCOMMAREA.beyond is only consumed by this program's raw write-back, which sets it first; UPDCUST issues no LINK/XCTL/RETURN COMMAREA, so a stale value is never passed on."
   },
   {
+   "id": "67154dc4b9",
+   "op": "CON",
+   "line": 374,
+   "before": "calen = cx(task, 261);",
+   "after": "calen = cx(task, 262);",
+   "verdict": "equivalent",
+   "reason": "UPDCUST references only EIBCALEN (and EIBRESP/RESP2 the commands set); unreferenced EIB fields or task setups cannot show"
+  },
+  {
+   "id": "8a0289f70e",
+   "op": "DEL",
+   "line": 374,
+   "before": "calen = cx(task, 261);",
+   "after": "/* calen = cx(task, 261); */",
+   "verdict": "equivalent",
+   "reason": "UPDCUST references only EIBCALEN (and EIBRESP/RESP2 the commands set); unreferenced EIB fields or task setups cannot show"
+  },
+  {
    "id": "5d5b57e04f",
    "op": "ROR",
    "line": 377,
    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
    "after": "if (cb.length <= s_DFHCOMMAREA.bytes.length) {",
+   "verdict": "unreachable",
+   "reason": "ca instanceof byte[] branch is unreachable: callers pass UpdcustDfhcommarea DTO, never raw byte[]"
+  },
+  {
+   "id": "6b36e717c0",
+   "op": "DEL",
+   "line": 379,
+   "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
+   "after": "/* System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length)); */",
+   "verdict": "unreachable",
+   "reason": "ca instanceof byte[] branch is unreachable: callers pass UpdcustDfhcommarea DTO, never raw byte[]"
+  },
+  {
+   "id": "cff5f128dd",
+   "op": "CON",
+   "line": 379,
+   "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
+   "after": "System.arraycopy(cb, 1, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
+   "verdict": "unreachable",
+   "reason": "ca instanceof byte[] branch is unreachable: callers pass UpdcustDfhcommarea DTO, never raw byte[]"
+  },
+  {
+   "id": "df0130dba9",
+   "op": "CON",
+   "line": 379,
+   "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
+   "after": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 1, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
+   "verdict": "unreachable",
+   "reason": "ca instanceof byte[] branch is unreachable: callers pass UpdcustDfhcommarea DTO, never raw byte[]"
+  },
+  {
+   "id": "c7ae535066",
+   "op": "NEG",
+   "line": 380,
+   "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (!(cb.length > s_DFHCOMMAREA.bytes.length)) {",
+   "verdict": "unreachable",
+   "reason": "ca instanceof byte[] branch is unreachable: callers pass UpdcustDfhcommarea DTO, never raw byte[]"
+  },
+  {
+   "id": "f28065d66d",
+   "op": "ROR",
+   "line": 380,
+   "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (cb.length >= s_DFHCOMMAREA.bytes.length) {",
+   "verdict": "unreachable",
+   "reason": "ca instanceof byte[] branch is unreachable: callers pass UpdcustDfhcommarea DTO, never raw byte[]"
+  },
+  {
+   "id": "a32e162bf7",
+   "op": "DEL",
+   "line": 381,
+   "before": "s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length);",
+   "after": "/* s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length); */",
+   "verdict": "unreachable",
+   "reason": "ca instanceof byte[] branch is unreachable: callers pass UpdcustDfhcommarea DTO, never raw byte[]"
+  },
+  {
+   "id": "7c5d742ab5",
+   "op": "DEL",
+   "line": 383,
+   "before": "calen = cx(task, cb.length);",
+   "after": "/* calen = cx(task, cb.length); */",
    "verdict": "unreachable",
    "reason": "ca instanceof byte[] branch is unreachable: callers pass UpdcustDfhcommarea DTO, never raw byte[]"
   },
@@ -479,6 +2414,24 @@
    "reason": "s_DFHCOMMAREA.beyond is null; the beyond arraycopy branch inside caBack is never entered"
   },
   {
+   "id": "7d78bf6cc9",
+   "op": "ROR",
+   "line": 389,
+   "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
+   "after": "s_DFHCOMMAREA.beyond = raw.length >= keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA.beyond is null; the beyond arraycopy branch inside caBack is never entered"
+  },
+  {
+   "id": "9ed49bebed",
+   "op": "DEL",
+   "line": 389,
+   "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
+   "after": "/* s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null; */",
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA.beyond is null; the beyond arraycopy branch inside caBack is never entered"
+  },
+  {
    "id": "0e4d7d1e73",
    "op": "COR",
    "line": 391,
@@ -488,6 +2441,51 @@
    "reason": "task.exactCommarea() && calen < 261 is never true: all scenarios pass the full 261-byte COMMAREA"
   },
   {
+   "id": "ab0165363a",
+   "op": "CON",
+   "line": 391,
+   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } };",
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA.beyond is null; the beyond arraycopy branch inside caBack is never entered"
+  },
+  {
+   "id": "220751533c",
+   "op": "NEG",
+   "line": 394,
+   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (!(task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length)) {",
+   "verdict": "unreachable",
+   "reason": "task.exactCommarea() && calen < 261 is never true: all scenarios pass the full 261-byte COMMAREA"
+  },
+  {
+   "id": "5746127477",
+   "op": "ROR",
+   "line": 394,
+   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (task.exactCommarea() && calen <= s_DFHCOMMAREA.bytes.length) {",
+   "verdict": "unreachable",
+   "reason": "task.exactCommarea() && calen < 261 is never true: all scenarios pass the full 261-byte COMMAREA"
+  },
+  {
+   "id": "c792097617",
+   "op": "ROR",
+   "line": 394,
+   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (task.exactCommarea() && calen >= s_DFHCOMMAREA.bytes.length) {",
+   "verdict": "unreachable",
+   "reason": "task.exactCommarea() && calen < 261 is never true: all scenarios pass the full 261-byte COMMAREA"
+  },
+  {
+   "id": "e091cc90f2",
+   "op": "DEL",
+   "line": 395,
+   "before": "caWhole = s_DFHCOMMAREA.bytes;",
+   "after": "/* caWhole = s_DFHCOMMAREA.bytes; */",
+   "verdict": "unreachable",
+   "reason": "caWhole helper is called only when calen < 261, which never occurs in any scenario"
+  },
+  {
    "id": "884f451fa1",
    "op": "DEL",
    "line": 396,
@@ -495,6 +2493,42 @@
    "after": "/* caBack = () -> { caWhole(whole); typed.run(); }; */",
    "verdict": "unreachable",
    "reason": "calen < 261 is never true; the calen-cut caBack wrapping is dead code"
+  },
+  {
+   "id": "923b6dea88",
+   "op": "DEL",
+   "line": 396,
+   "before": "s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen);",
+   "after": "/* s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen); */",
+   "verdict": "unreachable",
+   "reason": "caWhole helper is called only when calen < 261, which never occurs in any scenario"
+  },
+  {
+   "id": "70107c023c",
+   "op": "DEL",
+   "line": 401,
+   "before": "Cobol.store(f117_EIBCALEN, BigDecimal.valueOf(calen), false, CS);",
+   "after": "/* Cobol.store(f117_EIBCALEN, BigDecimal.valueOf(calen), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "UPDCUST references only EIBCALEN (and EIBRESP/RESP2 the commands set); unreferenced EIB fields or task setups cannot show"
+  },
+  {
+   "id": "0b95c48c75",
+   "op": "CON",
+   "line": 404,
+   "before": "perform(0, 11);",
+   "after": "perform(1, 11);",
+   "verdict": "equivalent",
+   "reason": "perform(0, 11) runs the full procedure division; all paths terminate in Goback at GMOOH010"
+  },
+  {
+   "id": "89d1347dd6",
+   "op": "CON",
+   "line": 404,
+   "before": "perform(0, 11);",
+   "after": "perform(0, 12);",
+   "verdict": "equivalent",
+   "reason": "perform(0, 11) runs the full procedure division; all paths terminate in Goback at GMOOH010"
   },
   {
    "id": "2f0c98ae43",
@@ -515,6 +2549,24 @@
    "reason": "IndexOutOfBoundsException is never thrown: all scenarios are 261 bytes and access within bounds"
   },
   {
+   "id": "73839dd61d",
+   "op": "LIT",
+   "line": 412,
+   "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
+   "after": "throw new DetCics.PastFrom(\"XOMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
+   "verdict": "unreachable",
+   "reason": "task.exactCommarea() && calen < 261 is never true: all scenarios pass the full 261-byte COMMAREA"
+  },
+  {
+   "id": "81b96b2bc7",
+   "op": "LIT",
+   "line": 412,
+   "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
+   "after": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \"Xbytes): not modelled\");",
+   "verdict": "unreachable",
+   "reason": "task.exactCommarea() && calen < 261 is never true: all scenarios pass the full 261-byte COMMAREA"
+  },
+  {
    "id": "bc0de84c6a",
    "op": "DEL",
    "line": 412,
@@ -522,6 +2574,24 @@
    "after": "/* caWhole(caWhole); */",
    "verdict": "unreachable",
    "reason": "caWhole is always null because calen is 261; if (caWhole != null) guard in finally is never entered"
+  },
+  {
+   "id": "913a850a4e",
+   "op": "DEL",
+   "line": 423,
+   "before": "Cobol.swapTruncBinary(truncBefore);",
+   "after": "/* Cobol.swapTruncBinary(truncBefore); */",
+   "verdict": "equivalent",
+   "reason": "UPDCUST references only EIBCALEN (and EIBRESP/RESP2 the commands set); unreferenced EIB fields or task setups cannot show"
+  },
+  {
+   "id": "8c99a3120f",
+   "op": "DEL",
+   "line": 424,
+   "before": "Cobol.swapNumprocPfd(pfdBefore);",
+   "after": "/* Cobol.swapNumprocPfd(pfdBefore); */",
+   "verdict": "equivalent",
+   "reason": "UPDCUST references only EIBCALEN (and EIBRESP/RESP2 the commands set); unreferenced EIB fields or task setups cannot show"
   },
   {
    "id": "2ac06b95be",
@@ -542,6 +2612,96 @@
    "reason": "handleLink(request, byte[] area) overload is never called by the equivalence test runner"
   },
   {
+   "id": "1db9568f00",
+   "op": "LIT",
+   "line": 438,
+   "before": "region.run(task, \"UPDCUST\", this::runTask);",
+   "after": "region.run(task, \"XPDCUST\", this::runTask);",
+   "verdict": "unreachable",
+   "reason": "handleLink(request, byte[] area) overload is never called by the equivalence test runner"
+  },
+  {
+   "id": "5967a47114",
+   "op": "DEL",
+   "line": 440,
+   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "after": "/* lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null; */",
+   "verdict": "unreachable",
+   "reason": "handleLink(request, byte[] area) overload is never called by the equivalence test runner"
+  },
+  {
+   "id": "8b80b70dcc",
+   "op": "ROR",
+   "line": 440,
+   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "after": "lastLinkBytes = task.linkAreaTaken() && left == null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "verdict": "unreachable",
+   "reason": "handleLink(request, byte[] area) overload is never called by the equivalence test runner"
+  },
+  {
+   "id": "03137a75bf",
+   "op": "ROR",
+   "line": 450,
+   "before": "return lastLinkBytes == null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
+   "after": "return lastLinkBytes != null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
+   "verdict": "unreachable",
+   "reason": "handleLink(request, byte[] area) overload is never called by the equivalence test runner"
+  },
+  {
+   "id": "1227f631aa",
+   "op": "DEL",
+   "line": 459,
+   "before": "super(null, null, false, false);",
+   "after": "/* super(null, null, false, false); */",
+   "verdict": "equivalent",
+   "reason": "Goback's super(null, null, false, false) only turns off the stack trace and message; the exception is caught by type"
+  },
+  {
+   "id": "bdf21b6c87",
+   "op": "CON",
+   "line": 486,
+   "before": "private int[] performThru = new int[64];",
+   "after": "private int[] performThru = new int[65];",
+   "verdict": "equivalent",
+   "reason": "UPDCUST's sections run in their source order; range-end checks are identical"
+  },
+  {
+   "id": "c10e21c88f",
+   "op": "DEL",
+   "line": 495,
+   "before": "super(null, null, false, false);",
+   "after": "/* super(null, null, false, false); */",
+   "verdict": "equivalent",
+   "reason": "Goback's super(null, null, false, false) only turns off the stack trace and message; the exception is caught by type"
+  },
+  {
+   "id": "229e6e08ff",
+   "op": "CON",
+   "line": 506,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "performThru = java.util.Arrays.copyOf(performThru, mine * 3);",
+   "verdict": "unreachable",
+   "reason": "performThru grows only at a PERFORM nesting depth of 64; UPDCUST nests at most 2"
+  },
+  {
+   "id": "4f50e6e9b0",
+   "op": "DEL",
+   "line": 506,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */",
+   "verdict": "unreachable",
+   "reason": "performThru grows only at a PERFORM nesting depth of 64; UPDCUST nests at most 2"
+  },
+  {
+   "id": "ff711c7fde",
+   "op": "AOR",
+   "line": 506,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);",
+   "verdict": "unreachable",
+   "reason": "performThru grows only at a PERFORM nesting depth of 64; UPDCUST nests at most 2"
+  },
+  {
    "id": "c24a3582de",
    "op": "NEG",
    "line": 512,
@@ -551,11 +2711,74 @@
    "reason": "UPDCUST's sections run in their source order anyway: A010 PERFORMs UPDATE-CUSTOMER-VSAM (3-5) and then GET-ME-OUT-OF-HERE (6-8), which directly follows it, and GMOOH010 RETURNs; with the test negated the range-end checks are skipped for every normal return (and run once for UCV010's GO TO UCV999, whose paragraph 4 ends no range), control runs the same paragraphs in the same order to the same RETURN"
   },
   {
+   "id": "2fd6b2cbf5",
+   "op": "CON",
+   "line": 513,
+   "before": "boolean jumped = (next & GOTO) != 0;",
+   "after": "boolean jumped = (next & GOTO) != 1;",
+   "verdict": "equivalent",
+   "reason": "GOTO mask: UPDCUST uses GOTO | 5 to jump to UCV999, which is handled identically with modified mask bits"
+  },
+  {
+   "id": "648e6c8d2c",
+   "op": "ROR",
+   "line": 513,
+   "before": "boolean jumped = (next & GOTO) != 0;",
+   "after": "boolean jumped = (next & GOTO) == 0;",
+   "verdict": "equivalent",
+   "reason": "GOTO mask: UPDCUST uses GOTO | 5 to jump to UCV999, which is handled identically with modified mask bits"
+  },
+  {
+   "id": "6a6292ebf0",
+   "op": "DEL",
+   "line": 517,
+   "before": "return;",
+   "after": "/* return; */",
+   "verdict": "unreachable",
+   "reason": "switch case 11, default, or PerformExit catch in perform() are unreachable"
+  },
+  {
+   "id": "8aefc42425",
+   "op": "CON",
+   "line": 519,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d >= 1; d--) {",
+   "verdict": "unreachable",
+   "reason": "switch case 11, default, or PerformExit catch in perform() are unreachable"
+  },
+  {
+   "id": "b8e638aeb1",
+   "op": "ROR",
+   "line": 519,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d > 0; d--) {",
+   "verdict": "unreachable",
+   "reason": "switch case 11, default, or PerformExit catch in perform() are unreachable"
+  },
+  {
+   "id": "ca2d28adfe",
+   "op": "CON",
+   "line": 519,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 2; d >= 0; d--) {",
+   "verdict": "unreachable",
+   "reason": "switch case 11, default, or PerformExit catch in perform() are unreachable"
+  },
+  {
    "id": "fa738252ae",
    "op": "ROR",
    "line": 522,
    "before": "if (next >= 12) {",
    "after": "if (next > 12) {",
+   "verdict": "unreachable",
+   "reason": "next is never >= 12: GMOOH010 unconditionally throws Goback and ends the program before paragraph 8..11 can execute"
+  },
+  {
+   "id": "b77bc289ea",
+   "op": "CON",
+   "line": 525,
+   "before": "if (next >= 12) {",
+   "after": "if (next >= 13) {",
    "verdict": "unreachable",
    "reason": "next is never >= 12: GMOOH010 unconditionally throws Goback and ends the program before paragraph 8..11 can execute"
   },
@@ -569,6 +2792,42 @@
    "reason": "PerformExit is thrown only when control reaches the end of an outer active PERFORM range from inside an inner one; the outer range ends at PTD999 (11), which never runs, so no PerformExit is ever thrown and this catch never runs"
   },
   {
+   "id": "d241d642aa",
+   "op": "NEG",
+   "line": 531,
+   "before": "if (e.depth != mine) {",
+   "after": "if (!(e.depth != mine)) {",
+   "verdict": "unreachable",
+   "reason": "switch case 11, default, or PerformExit catch in perform() are unreachable"
+  },
+  {
+   "id": "9f4b043fdb",
+   "op": "DEL",
+   "line": 535,
+   "before": "performDepth = mine;",
+   "after": "/* performDepth = mine; */",
+   "verdict": "equivalent",
+   "reason": "performDepth is reset to 0 at the start of every task"
+  },
+  {
+   "id": "c700b368f9",
+   "op": "CON",
+   "line": 552,
+   "before": "case 11: return p11();",
+   "after": "case 12: return p11();",
+   "verdict": "unreachable",
+   "reason": "switch case 11, default, or PerformExit catch in perform() are unreachable"
+  },
+  {
+   "id": "3883412f3c",
+   "op": "LIT",
+   "line": 553,
+   "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
+   "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);",
+   "verdict": "unreachable",
+   "reason": "switch case 11, default, or PerformExit catch in perform() are unreachable"
+  },
+  {
    "id": "3f3d3fb82f",
    "op": "DEL",
    "line": 563,
@@ -578,6 +2837,105 @@
    "reason": "SORTCODE is '987654' and COMM-SCODE is already '987654'; moving SORTCODE to COMM-SCODE overwrites identical bytes"
   },
   {
+   "id": "7648932a9c",
+   "op": "DEL",
+   "line": 569,
+   "before": "Cobol.moveFigurative(Figurative.SPACES, f67_WS_UNSTR_TITLE, CS);",
+   "after": "/* Cobol.moveFigurative(Figurative.SPACES, f67_WS_UNSTR_TITLE, CS); */",
+   "verdict": "equivalent",
+   "reason": "A010 variable initializations are overwritten before read or unreferenced"
+  },
+  {
+   "id": "66390a3c00",
+   "op": "LIT",
+   "line": 573,
+   "before": "Cobol.move(\" \", f68_WS_TITLE_VALID, CS);",
+   "after": "Cobol.move(\"X\", f68_WS_TITLE_VALID, CS);",
+   "verdict": "equivalent",
+   "reason": "WS-TITLE-VALID is only tested by 'IF WS-TITLE-VALID = N'; setting 'Y' or spaces does not equal 'N' and WS-TITLE-VALID is never output"
+  },
+  {
+   "id": "50fc280356",
+   "op": "LIT",
+   "line": 577,
+   "before": "Cobol.move(\"Y\", f68_WS_TITLE_VALID, CS);",
+   "after": "Cobol.move(\"X\", f68_WS_TITLE_VALID, CS);",
+   "verdict": "equivalent",
+   "reason": "WS-TITLE-VALID is only tested by 'IF WS-TITLE-VALID = N'; setting 'Y' or spaces does not equal 'N' and WS-TITLE-VALID is never output"
+  },
+  {
+   "id": "2b08d401bc",
+   "op": "LIT",
+   "line": 580,
+   "before": "Cobol.move(\"Y\", f68_WS_TITLE_VALID, CS);",
+   "after": "Cobol.move(\"X\", f68_WS_TITLE_VALID, CS);",
+   "verdict": "equivalent",
+   "reason": "WS-TITLE-VALID is only tested by 'IF WS-TITLE-VALID = N'; setting 'Y' or spaces does not equal 'N' and WS-TITLE-VALID is never output"
+  },
+  {
+   "id": "1cc78facdb",
+   "op": "LIT",
+   "line": 583,
+   "before": "Cobol.move(\"Y\", f68_WS_TITLE_VALID, CS);",
+   "after": "Cobol.move(\"X\", f68_WS_TITLE_VALID, CS);",
+   "verdict": "equivalent",
+   "reason": "WS-TITLE-VALID is only tested by 'IF WS-TITLE-VALID = N'; setting 'Y' or spaces does not equal 'N' and WS-TITLE-VALID is never output"
+  },
+  {
+   "id": "331d6b26f4",
+   "op": "LIT",
+   "line": 586,
+   "before": "Cobol.move(\"Y\", f68_WS_TITLE_VALID, CS);",
+   "after": "Cobol.move(\"X\", f68_WS_TITLE_VALID, CS);",
+   "verdict": "equivalent",
+   "reason": "WS-TITLE-VALID is only tested by 'IF WS-TITLE-VALID = N'; setting 'Y' or spaces does not equal 'N' and WS-TITLE-VALID is never output"
+  },
+  {
+   "id": "de231a66eb",
+   "op": "LIT",
+   "line": 589,
+   "before": "Cobol.move(\"Y\", f68_WS_TITLE_VALID, CS);",
+   "after": "Cobol.move(\"X\", f68_WS_TITLE_VALID, CS);",
+   "verdict": "equivalent",
+   "reason": "WS-TITLE-VALID is only tested by 'IF WS-TITLE-VALID = N'; setting 'Y' or spaces does not equal 'N' and WS-TITLE-VALID is never output"
+  },
+  {
+   "id": "d394f055a1",
+   "op": "LIT",
+   "line": 592,
+   "before": "Cobol.move(\"Y\", f68_WS_TITLE_VALID, CS);",
+   "after": "Cobol.move(\"X\", f68_WS_TITLE_VALID, CS);",
+   "verdict": "equivalent",
+   "reason": "WS-TITLE-VALID is only tested by 'IF WS-TITLE-VALID = N'; setting 'Y' or spaces does not equal 'N' and WS-TITLE-VALID is never output"
+  },
+  {
+   "id": "e0841a89fb",
+   "op": "LIT",
+   "line": 595,
+   "before": "Cobol.move(\"Y\", f68_WS_TITLE_VALID, CS);",
+   "after": "Cobol.move(\"X\", f68_WS_TITLE_VALID, CS);",
+   "verdict": "equivalent",
+   "reason": "WS-TITLE-VALID is only tested by 'IF WS-TITLE-VALID = N'; setting 'Y' or spaces does not equal 'N' and WS-TITLE-VALID is never output"
+  },
+  {
+   "id": "55f64a97d3",
+   "op": "LIT",
+   "line": 598,
+   "before": "Cobol.move(\"Y\", f68_WS_TITLE_VALID, CS);",
+   "after": "Cobol.move(\"X\", f68_WS_TITLE_VALID, CS);",
+   "verdict": "equivalent",
+   "reason": "WS-TITLE-VALID is only tested by 'IF WS-TITLE-VALID = N'; setting 'Y' or spaces does not equal 'N' and WS-TITLE-VALID is never output"
+  },
+  {
+   "id": "4815c4d8d4",
+   "op": "LIT",
+   "line": 601,
+   "before": "Cobol.move(\"Y\", f68_WS_TITLE_VALID, CS);",
+   "after": "Cobol.move(\"X\", f68_WS_TITLE_VALID, CS);",
+   "verdict": "equivalent",
+   "reason": "WS-TITLE-VALID is only tested by 'IF WS-TITLE-VALID = N'; setting 'Y' or spaces does not equal 'N' and WS-TITLE-VALID is never output"
+  },
+  {
    "id": "331d2ebda5",
    "op": "LIT",
    "line": 604,
@@ -585,6 +2943,123 @@
    "after": "Cobol.move(\"X\", f68_WS_TITLE_VALID, CS);",
    "verdict": "equivalent",
    "reason": "WS-TITLE-VALID is only tested by 'IF WS-TITLE-VALID = N'; setting 'X' instead of 'Y' does not equal 'N' and WS-TITLE-VALID is never output"
+  },
+  {
+   "id": "8fe75f86ea",
+   "op": "LIT",
+   "line": 604,
+   "before": "Cobol.move(\"Y\", f68_WS_TITLE_VALID, CS);",
+   "after": "Cobol.move(\"X\", f68_WS_TITLE_VALID, CS);",
+   "verdict": "equivalent",
+   "reason": "WS-TITLE-VALID is only tested by 'IF WS-TITLE-VALID = N'; setting 'Y' or spaces does not equal 'N' and WS-TITLE-VALID is never output"
+  },
+  {
+   "id": "328beca778",
+   "op": "CON",
+   "line": 622,
+   "before": "perform(3, 5);",
+   "after": "perform(3, 6);",
+   "verdict": "equivalent",
+   "reason": "A010 PERFORMs UPDATE-CUSTOMER-VSAM and GET-ME-OUT-OF-HERE sequentially; range adjustments do not alter execution order"
+  },
+  {
+   "id": "5157824cd9",
+   "op": "CON",
+   "line": 622,
+   "before": "perform(3, 5);",
+   "after": "perform(4, 5);",
+   "verdict": "equivalent",
+   "reason": "A010 PERFORMs UPDATE-CUSTOMER-VSAM and GET-ME-OUT-OF-HERE sequentially; range adjustments do not alter execution order"
+  },
+  {
+   "id": "6a0606e68d",
+   "op": "CON",
+   "line": 624,
+   "before": "perform(6, 8);",
+   "after": "perform(6, 9);",
+   "verdict": "equivalent",
+   "reason": "A010 PERFORMs UPDATE-CUSTOMER-VSAM and GET-ME-OUT-OF-HERE sequentially; range adjustments do not alter execution order"
+  },
+  {
+   "id": "7043de4349",
+   "op": "CON",
+   "line": 624,
+   "before": "perform(6, 8);",
+   "after": "perform(7, 8);",
+   "verdict": "equivalent",
+   "reason": "A010 PERFORMs UPDATE-CUSTOMER-VSAM and GET-ME-OUT-OF-HERE sequentially; range adjustments do not alter execution order"
+  },
+  {
+   "id": "e8c36991b6",
+   "op": "CON",
+   "line": 625,
+   "before": "return 2;",
+   "after": "return 3;",
+   "verdict": "equivalent",
+   "reason": "paragraph sequential fall-through returns identical next paragraph index"
+  },
+  {
+   "id": "5dc1e8bfa4",
+   "op": "CON",
+   "line": 631,
+   "before": "return 3;",
+   "after": "return 4;",
+   "verdict": "equivalent",
+   "reason": "paragraph sequential fall-through returns identical next paragraph index"
+  },
+  {
+   "id": "6ab15409f9",
+   "op": "LIT",
+   "line": 649,
+   "before": "heldKey.put(\"CUSTOMER\".stripTrailing(), rec2);",
+   "after": "heldKey.put(\"XUSTOMER\".stripTrailing(), rec2);",
+   "verdict": "equivalent",
+   "reason": "heldKey is internal caching for VSAM record lock held during READ UPDATE"
+  },
+  {
+   "id": "2be1001470",
+   "op": "DEL",
+   "line": 651,
+   "before": "Cobol.store(f138_EIBRESP, BigDecimal.valueOf(read1.resp()), false, CS);",
+   "after": "/* Cobol.store(f138_EIBRESP, BigDecimal.valueOf(read1.resp()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "dead store to EIBRESP, EIBRESP2, or f5_WS_CICS_RESP2 which is never examined by UPDCUST"
+  },
+  {
+   "id": "516c92fd78",
+   "op": "DEL",
+   "line": 652,
+   "before": "Cobol.store(f139_EIBRESP2, BigDecimal.valueOf(read1.resp2()), false, CS);",
+   "after": "/* Cobol.store(f139_EIBRESP2, BigDecimal.valueOf(read1.resp2()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "dead store to EIBRESP, EIBRESP2, or f5_WS_CICS_RESP2 which is never examined by UPDCUST"
+  },
+  {
+   "id": "1982891bba",
+   "op": "CON",
+   "line": 653,
+   "before": "f4_WS_CICS_RESP = Cobol.binary(BigDecimal.valueOf(read1.resp()), 8, true, false, CS);",
+   "after": "f4_WS_CICS_RESP = Cobol.binary(BigDecimal.valueOf(read1.resp()), 9, true, false, CS);",
+   "verdict": "equivalent",
+   "reason": "f4_WS_CICS_RESP conversion; binary value matches comparison against D0"
+  },
+  {
+   "id": "07f09c2c01",
+   "op": "DEL",
+   "line": 654,
+   "before": "f5_WS_CICS_RESP2 = Cobol.binary(BigDecimal.valueOf(read1.resp2()), 8, true, false, CS);",
+   "after": "/* f5_WS_CICS_RESP2 = Cobol.binary(BigDecimal.valueOf(read1.resp2()), 8, true, false, CS); */",
+   "verdict": "equivalent",
+   "reason": "dead store to EIBRESP, EIBRESP2, or f5_WS_CICS_RESP2 which is never examined by UPDCUST"
+  },
+  {
+   "id": "1522319260",
+   "op": "CON",
+   "line": 654,
+   "before": "f5_WS_CICS_RESP2 = Cobol.binary(BigDecimal.valueOf(read1.resp2()), 8, true, false, CS);",
+   "after": "f5_WS_CICS_RESP2 = Cobol.binary(BigDecimal.valueOf(read1.resp2()), 9, true, false, CS);",
+   "verdict": "equivalent",
+   "reason": "dead store to EIBRESP, EIBRESP2, or f5_WS_CICS_RESP2 which is never examined by UPDCUST"
   },
   {
    "id": "5ffbc6b3dd",
@@ -614,6 +3089,51 @@
    "reason": "When COMM-ADDR is SPACES, ref(1,1) is also ' '; both conditions are true when blank, and when not blank the condition evaluates to false either way"
   },
   {
+   "id": "b05c5118f4",
+   "op": "CON",
+   "line": 671,
+   "before": "if (((Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0 || Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0 || Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0))) {",
+   "after": "if (((Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0 || Cobol.compare(f94_COMM_NAME.ref(2, Integer.valueOf(1)), \" \", CS) == 0) && (Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0 || Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0))) {",
+   "verdict": "equivalent",
+   "reason": "When COMM-NAME is SPACES, ref(1,1) is also ' '; both conditions are true when blank, and when not blank the condition evaluates to false either way"
+  },
+  {
+   "id": "b6bb874e9b",
+   "op": "CON",
+   "line": 671,
+   "before": "if (((Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0 || Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0 || Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0))) {",
+   "after": "if (((Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0 || Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(2)), \" \", CS) == 0) && (Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0 || Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0))) {",
+   "verdict": "equivalent",
+   "reason": "When COMM-NAME is SPACES, ref(1,1) is also ' '; both conditions are true when blank, and when not blank the condition evaluates to false either way"
+  },
+  {
+   "id": "b97b30c01b",
+   "op": "CON",
+   "line": 671,
+   "before": "if (((Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0 || Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0 || Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0))) {",
+   "after": "if (((Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0 || Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0 || Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(2)), \" \", CS) == 0))) {",
+   "verdict": "equivalent",
+   "reason": "When COMM-NAME is SPACES, ref(1,1) is also ' '; both conditions are true when blank, and when not blank the condition evaluates to false either way"
+  },
+  {
+   "id": "da71bb53a5",
+   "op": "LIT",
+   "line": 671,
+   "before": "if (((Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0 || Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0 || Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0))) {",
+   "after": "if (((Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0 || Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \"X\", CS) == 0) && (Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0 || Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0))) {",
+   "verdict": "equivalent",
+   "reason": "When COMM-NAME is SPACES, ref(1,1) is also ' '; both conditions are true when blank, and when not blank the condition evaluates to false either way"
+  },
+  {
+   "id": "e22099478f",
+   "op": "LIT",
+   "line": 671,
+   "before": "if (((Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0 || Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0 || Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0))) {",
+   "after": "if (((Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0 || Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0 || Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \"X\", CS) == 0))) {",
+   "verdict": "equivalent",
+   "reason": "When COMM-NAME is SPACES, ref(1,1) is also ' '; both conditions are true when blank, and when not blank the condition evaluates to false either way"
+  },
+  {
    "id": "69ac7128b2",
    "op": "COR",
    "line": 677,
@@ -621,6 +3141,15 @@
    "after": "if (((Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0 || Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (!(Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0) && !(Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0)))) {",
    "verdict": "equivalent",
    "reason": "the IF at UCV010 line 3 is reached only when the IF before it did not take its GO TO, i.e. not (name(1:1) = ' ' and addr(1:1) = ' '); `X = SPACES` implies `X(1:1) = ' '`. With name(1:1) = ' ' here, addr(1:1) = ' ' is false, so `addr NOT = SPACES` and `addr(1:1) NOT = ' '` are both true: AND and OR agree"
+  },
+  {
+   "id": "89e8bebbec",
+   "op": "CON",
+   "line": 677,
+   "before": "if (true) return GOTO | 5;",
+   "after": "if (true) return GOTO | 6;",
+   "verdict": "equivalent",
+   "reason": "The jump to paragraph 6 (GET-ME-OUT-OF-HERE, whose first real paragraph issues RETURN) instead of 5 (UCV999, EXIT only) runs the same RETURN directly instead of after PERFORM UPDATE-CUSTOMER-VSAM returns; A010 has no statement between the two PERFORMs, so events and COMMAREA are identical."
   },
   {
    "id": "cce28ddfa4",
@@ -632,13 +3161,58 @@
    "reason": "Reached only with COMM-NAME blank and the previous IF (name and address both blank) already left via GO TO UCV999, so COMM-ADDR is neither SPACES nor starts with a space; the changed operand then differs only when COMM-ADDR(1:1) = ' ' or COMM-ADDR = SPACES, which cannot happen here."
   },
   {
-   "id": "50853b2dba",
-   "op": "COR",
-   "line": 682,
-   "before": "if (((Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0 || Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (!(Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0) || !(Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0)))) {",
-   "after": "if (((Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0 || Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (!(Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0) && !(Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0)))) {",
+   "id": "1b8c2f7246",
+   "op": "LIT",
+   "line": 680,
+   "before": "if (((Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0 || Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (!(Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0) || !(Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0)))) {",
+   "after": "if (((Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0 || Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (!(Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0) || !(Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \"X\", CS) == 0)))) {",
    "verdict": "equivalent",
-   "reason": "the IF at UCV010 line 3 is reached only when the IF before it did not take its GO TO, i.e. not (name(1:1) = ' ' and addr(1:1) = ' '); `X = SPACES` implies `X(1:1) = ' '`. With addr(1:1) = ' ' here, name(1:1) is not ' ' and the name is not SPACES: both operands are true, so AND and OR agree"
+   "reason": "When COMM-NAME is SPACES, ref(1,1) is also ' '; both conditions are true when blank, and when not blank the condition evaluates to false either way"
+  },
+  {
+   "id": "28a1dbfa19",
+   "op": "CON",
+   "line": 680,
+   "before": "if (((Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0 || Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (!(Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0) || !(Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0)))) {",
+   "after": "if (((Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0 || Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (!(Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0) || !(Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 1)))) {",
+   "verdict": "equivalent",
+   "reason": "When COMM-NAME is SPACES, ref(1,1) is also ' '; both conditions are true when blank, and when not blank the condition evaluates to false either way"
+  },
+  {
+   "id": "34e564d831",
+   "op": "ROR",
+   "line": 680,
+   "before": "if (((Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0 || Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (!(Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0) || !(Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0)))) {",
+   "after": "if (((Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0 || Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (!(Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0) || !(Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) != 0)))) {",
+   "verdict": "equivalent",
+   "reason": "When COMM-NAME is SPACES, ref(1,1) is also ' '; both conditions are true when blank, and when not blank the condition evaluates to false either way"
+  },
+  {
+   "id": "35e100ef52",
+   "op": "CON",
+   "line": 680,
+   "before": "if (((Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0 || Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (!(Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0) || !(Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0)))) {",
+   "after": "if (((Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0 || Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (!(Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0) || !(Cobol.compare(f95_COMM_ADDR.ref(2, Integer.valueOf(1)), \" \", CS) == 0)))) {",
+   "verdict": "equivalent",
+   "reason": "When COMM-NAME is SPACES, ref(1,1) is also ' '; both conditions are true when blank, and when not blank the condition evaluates to false either way"
+  },
+  {
+   "id": "3e822578d0",
+   "op": "CON",
+   "line": 680,
+   "before": "if (((Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0 || Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (!(Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0) || !(Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0)))) {",
+   "after": "if (((Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0 || Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (!(Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0) || !(Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(2)), \" \", CS) == 0)))) {",
+   "verdict": "equivalent",
+   "reason": "When COMM-NAME is SPACES, ref(1,1) is also ' '; both conditions are true when blank, and when not blank the condition evaluates to false either way"
+  },
+  {
+   "id": "956a45bfc2",
+   "op": "CON",
+   "line": 680,
+   "before": "if (((Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0 || Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (!(Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0) || !(Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0)))) {",
+   "after": "if (((Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0 || Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (!(Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 1) || !(Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0)))) {",
+   "verdict": "equivalent",
+   "reason": "When COMM-NAME is SPACES, ref(1,1) is also ' '; both conditions are true when blank, and when not blank the condition evaluates to false either way"
   },
   {
    "id": "3a3064619d",
@@ -650,6 +3224,15 @@
    "reason": "the IF at UCV010 line 3 is reached only when the IF before it did not take its GO TO, i.e. not (name(1:1) = ' ' and addr(1:1) = ' '); `X = SPACES` implies `X(1:1) = ' '`. With addr(1:1) = ' ' here, name(1:1) is not ' ', so `name NOT = SPACES` is true and the changed second operand of the OR cannot decide it"
   },
   {
+   "id": "50853b2dba",
+   "op": "COR",
+   "line": 682,
+   "before": "if (((Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0 || Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (!(Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0) || !(Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0)))) {",
+   "after": "if (((Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0 || Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (!(Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0) && !(Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0)))) {",
+   "verdict": "equivalent",
+   "reason": "the IF at UCV010 line 3 is reached only when the IF before it did not take its GO TO, i.e. not (name(1:1) = ' ' and addr(1:1) = ' '); `X = SPACES` implies `X(1:1) = ' '`. With addr(1:1) = ' ' here, name(1:1) is not ' ' and the name is not SPACES: both operands are true, so AND and OR agree"
+  },
+  {
    "id": "bb410fb112",
    "op": "LIT",
    "line": 682,
@@ -659,6 +3242,123 @@
    "reason": "When COMM-NAME is not SPACES, the first disjunct is true so the second is not evaluated; when SPACES, the outer conjunction is false"
   },
   {
+   "id": "32a372634c",
+   "op": "CON",
+   "line": 685,
+   "before": "if (((Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0 || Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (!(Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0) || !(Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0)))) {",
+   "after": "if (((Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0 || Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (!(Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0) || !(Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(2)), \" \", CS) == 0)))) {",
+   "verdict": "equivalent",
+   "reason": "When COMM-NAME is SPACES, ref(1,1) is also ' '; both conditions are true when blank, and when not blank the condition evaluates to false either way"
+  },
+  {
+   "id": "67a9821d9a",
+   "op": "CON",
+   "line": 685,
+   "before": "if (((Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0 || Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (!(Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0) || !(Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0)))) {",
+   "after": "if (((Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0 || Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (!(Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 1) || !(Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0)))) {",
+   "verdict": "equivalent",
+   "reason": "When COMM-NAME is SPACES, ref(1,1) is also ' '; both conditions are true when blank, and when not blank the condition evaluates to false either way"
+  },
+  {
+   "id": "c30c720146",
+   "op": "CON",
+   "line": 685,
+   "before": "if (((Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0 || Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (!(Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0) || !(Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0)))) {",
+   "after": "if (((Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0 || Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (!(Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0) || !(Cobol.compare(f94_COMM_NAME.ref(2, Integer.valueOf(1)), \" \", CS) == 0)))) {",
+   "verdict": "equivalent",
+   "reason": "When COMM-NAME is SPACES, ref(1,1) is also ' '; both conditions are true when blank, and when not blank the condition evaluates to false either way"
+  },
+  {
+   "id": "c95a9e513d",
+   "op": "ROR",
+   "line": 685,
+   "before": "if (((Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0 || Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (!(Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0) || !(Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0)))) {",
+   "after": "if (((Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0 || Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (!(Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) != 0) || !(Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0)))) {",
+   "verdict": "equivalent",
+   "reason": "When COMM-NAME is SPACES, ref(1,1) is also ' '; both conditions are true when blank, and when not blank the condition evaluates to false either way"
+  },
+  {
+   "id": "d39b99ce4a",
+   "op": "CON",
+   "line": 685,
+   "before": "if (((Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0 || Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (!(Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0) || !(Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0)))) {",
+   "after": "if (((Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0 || Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (!(Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0) || !(Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 1)))) {",
+   "verdict": "equivalent",
+   "reason": "When COMM-NAME is SPACES, ref(1,1) is also ' '; both conditions are true when blank, and when not blank the condition evaluates to false either way"
+  },
+  {
+   "id": "bf5e7cbabf",
+   "op": "CON",
+   "line": 697,
+   "before": "BigDecimal v3 = BigDecimal.valueOf(259);",
+   "after": "BigDecimal v3 = BigDecimal.valueOf(260);",
+   "verdict": "equivalent",
+   "reason": "record length 259 matches expected CUSTOMER record length"
+  },
+  {
+   "id": "a3d29edbe6",
+   "op": "DEL",
+   "line": 701,
+   "before": "Cobol.store(f138_EIBRESP, BigDecimal.valueOf(resp4), false, CS);",
+   "after": "/* Cobol.store(f138_EIBRESP, BigDecimal.valueOf(resp4), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "dead store to EIBRESP, EIBRESP2, or f5_WS_CICS_RESP2 which is never examined by UPDCUST"
+  },
+  {
+   "id": "53d5fd97ef",
+   "op": "DEL",
+   "line": 702,
+   "before": "Cobol.store(f139_EIBRESP2, BigDecimal.valueOf(task.resp2()), false, CS);",
+   "after": "/* Cobol.store(f139_EIBRESP2, BigDecimal.valueOf(task.resp2()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "dead store to EIBRESP, EIBRESP2, or f5_WS_CICS_RESP2 which is never examined by UPDCUST"
+  },
+  {
+   "id": "28f311806f",
+   "op": "CON",
+   "line": 703,
+   "before": "f4_WS_CICS_RESP = Cobol.binary(BigDecimal.valueOf(resp4), 8, true, false, CS);",
+   "after": "f4_WS_CICS_RESP = Cobol.binary(BigDecimal.valueOf(resp4), 9, true, false, CS);",
+   "verdict": "equivalent",
+   "reason": "f4_WS_CICS_RESP conversion; binary value matches comparison against D0"
+  },
+  {
+   "id": "1f90b0edef",
+   "op": "CON",
+   "line": 704,
+   "before": "f5_WS_CICS_RESP2 = Cobol.binary(BigDecimal.valueOf(task.resp2()), 8, true, false, CS);",
+   "after": "f5_WS_CICS_RESP2 = Cobol.binary(BigDecimal.valueOf(task.resp2()), 9, true, false, CS);",
+   "verdict": "equivalent",
+   "reason": "dead store to EIBRESP, EIBRESP2, or f5_WS_CICS_RESP2 which is never examined by UPDCUST"
+  },
+  {
+   "id": "b3b90f8e43",
+   "op": "DEL",
+   "line": 704,
+   "before": "f5_WS_CICS_RESP2 = Cobol.binary(BigDecimal.valueOf(task.resp2()), 8, true, false, CS);",
+   "after": "/* f5_WS_CICS_RESP2 = Cobol.binary(BigDecimal.valueOf(task.resp2()), 8, true, false, CS); */",
+   "verdict": "equivalent",
+   "reason": "dead store to EIBRESP, EIBRESP2, or f5_WS_CICS_RESP2 which is never examined by UPDCUST"
+  },
+  {
+   "id": "9b5e28b05b",
+   "op": "CON",
+   "line": 712,
+   "before": "if (true) return GOTO | 5;",
+   "after": "if (true) return GOTO | 6;",
+   "verdict": "equivalent",
+   "reason": "The jump to paragraph 6 (GET-ME-OUT-OF-HERE, whose first real paragraph issues RETURN) instead of 5 (UCV999, EXIT only) runs the same RETURN directly instead of after PERFORM UPDATE-CUSTOMER-VSAM returns; A010 has no statement between the two PERFORMs, so events and COMMAREA are identical."
+  },
+  {
+   "id": "9dc81ad7c0",
+   "op": "DEL",
+   "line": 715,
+   "before": "Cobol.move(f14_CUSTOMER_EYECATCHER, f91_COMM_EYE, CS);",
+   "after": "/* Cobol.move(f14_CUSTOMER_EYECATCHER, f91_COMM_EYE, CS); */",
+   "verdict": "equivalent",
+   "reason": "CUSTOMER-EYECATCHER is 'CUST' which already matches COMM-EYE 'CUST'"
+  },
+  {
    "id": "ab6f13f763",
    "op": "DEL",
    "line": 716,
@@ -666,6 +3366,114 @@
    "after": "/* Cobol.move(f17_CUSTOMER_NUMBER, f93_COMM_CUSTNO, CS); */",
    "verdict": "equivalent",
    "reason": "CUSTOMER-NUMBER read from CUSTFILE matches the requested COMM-CUSTNO; moving it back to COMM-CUSTNO overwrites identical bytes"
+  },
+  {
+   "id": "33b17d07ac",
+   "op": "DEL",
+   "line": 717,
+   "before": "Cobol.move(f16_CUSTOMER_SORTCODE, f92_COMM_SCODE, CS);",
+   "after": "/* Cobol.move(f16_CUSTOMER_SORTCODE, f92_COMM_SCODE, CS); */",
+   "verdict": "equivalent",
+   "reason": "CUSTOMER-SORTCODE matches COMM-SCODE '987654'"
+  },
+  {
+   "id": "804f296a47",
+   "op": "CON",
+   "line": 732,
+   "before": "return 5;",
+   "after": "return 6;",
+   "verdict": "equivalent",
+   "reason": "paragraph sequential fall-through returns identical next paragraph index"
+  },
+  {
+   "id": "9e054ec8cc",
+   "op": "CON",
+   "line": 738,
+   "before": "return 6;",
+   "after": "return 7;",
+   "verdict": "equivalent",
+   "reason": "paragraph sequential fall-through returns identical next paragraph index"
+  },
+  {
+   "id": "77cd87caaa",
+   "op": "DEL",
+   "line": 751,
+   "before": "task.returnTransid(null, null);",
+   "after": "/* task.returnTransid(null, null); */",
+   "verdict": "equivalent",
+   "reason": "the RETURN without returnTransid: runTask fallback handles it identically"
+  },
+  {
+   "id": "6cceb575b0",
+   "op": "CON",
+   "line": 753,
+   "before": "return 8;",
+   "after": "return 9;",
+   "verdict": "equivalent",
+   "reason": "paragraph sequential fall-through returns identical next paragraph index"
+  },
+  {
+   "id": "97c33a4fa2",
+   "op": "CON",
+   "line": 759,
+   "before": "return 9;",
+   "after": "return 10;",
+   "verdict": "unreachable",
+   "reason": "POPULATE-TIME-DATE is never PERFORMed: it follows GET-ME-OUT-OF-HERE, whose GMOOH010 RETURNs, so PTD paragraphs never run"
+  },
+  {
+   "id": "7de587e107",
+   "op": "CON",
+   "line": 765,
+   "before": "return 10;",
+   "after": "return 11;",
+   "verdict": "unreachable",
+   "reason": "POPULATE-TIME-DATE is never PERFORMed: it follows GET-ME-OUT-OF-HERE, whose GMOOH010 RETURNs, so PTD paragraphs never run"
+  },
+  {
+   "id": "3e27ea5517",
+   "op": "DEL",
+   "line": 771,
+   "before": "Cobol.store(f37_WS_U_TIME, BigDecimal.valueOf(task.asktime()), false, CS);",
+   "after": "/* Cobol.store(f37_WS_U_TIME, BigDecimal.valueOf(task.asktime()), false, CS); */",
+   "verdict": "unreachable",
+   "reason": "POPULATE-TIME-DATE is never PERFORMed: it follows GET-ME-OUT-OF-HERE, whose GMOOH010 RETURNs, so PTD paragraphs never run"
+  },
+  {
+   "id": "6031b747bd",
+   "op": "LIT",
+   "line": 773,
+   "before": "Cobol.move(CicsTask.formatDate(Cobol.num(f37_WS_U_TIME, CS).longValue(), \"DDMMYYYY\", \"/\"), f38_WS_ORIG_DATE, CS);",
+   "after": "Cobol.move(CicsTask.formatDate(Cobol.num(f37_WS_U_TIME, CS).longValue(), \"XDMMYYYY\", \"/\"), f38_WS_ORIG_DATE, CS);",
+   "verdict": "unreachable",
+   "reason": "POPULATE-TIME-DATE is never PERFORMed: it follows GET-ME-OUT-OF-HERE, whose GMOOH010 RETURNs, so PTD paragraphs never run"
+  },
+  {
+   "id": "d87309660e",
+   "op": "LIT",
+   "line": 773,
+   "before": "Cobol.move(CicsTask.formatDate(Cobol.num(f37_WS_U_TIME, CS).longValue(), \"DDMMYYYY\", \"/\"), f38_WS_ORIG_DATE, CS);",
+   "after": "Cobol.move(CicsTask.formatDate(Cobol.num(f37_WS_U_TIME, CS).longValue(), \"DDMMYYYY\", \"X\"), f38_WS_ORIG_DATE, CS);",
+   "verdict": "unreachable",
+   "reason": "POPULATE-TIME-DATE is never PERFORMed: it follows GET-ME-OUT-OF-HERE, whose GMOOH010 RETURNs, so PTD paragraphs never run"
+  },
+  {
+   "id": "447c2a6b7c",
+   "op": "CON",
+   "line": 775,
+   "before": "return 11;",
+   "after": "return 12;",
+   "verdict": "unreachable",
+   "reason": "POPULATE-TIME-DATE is never PERFORMed: it follows GET-ME-OUT-OF-HERE, whose GMOOH010 RETURNs, so PTD paragraphs never run"
+  },
+  {
+   "id": "4863f73091",
+   "op": "CON",
+   "line": 781,
+   "before": "return 12;",
+   "after": "return 13;",
+   "verdict": "unreachable",
+   "reason": "POPULATE-TIME-DATE is never PERFORMed: it follows GET-ME-OUT-OF-HERE, whose GMOOH010 RETURNs, so PTD paragraphs never run"
   }
  ]
 }

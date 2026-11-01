@@ -210,6 +210,8 @@ USAGE.md	gitgalaxy
 X18.md	tests/cobol_mainframe
 X47.md	tests/cobol_mainframe
 X55.md	tests/core_engine
+X59.md	tests/cobol_mainframe
+X63.md	tests/cobol_mainframe
 X68.md	tests/cobol_mainframe
 X69.md	tests/cobol_mainframe
 Z1.md	tests/tools/test_generated_docs.py

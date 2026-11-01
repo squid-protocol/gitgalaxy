@@ -23,7 +23,7 @@ from pathlib import Path
 
 import pytest
 
-from gitgalaxy.core.cics_macro_tables import sdsci_recform
+from gitgalaxy.core.cics_macro_tables import PCT_OPERAND_DISPOSITION, sdsci_recform
 from gitgalaxy.core.mainframe_boundary import extract_boundary
 
 FIXTURES = Path(__file__).resolve().parents[1] / "fixtures" / "cics_macro_estate"
@@ -174,6 +174,29 @@ def test_dfhpct_entry_is_a_transaction_routing_to_its_program():
 def test_dfhpct_restated_operands_follow_the_cross_reference_table(operand, expected):
     src = f"         DFHPCT TYPE=ENTRY,TRANSID=T001,PROGRAM=P1,{operand}"
     assert _rdo(_rows(src)[0]) == expected
+
+
+@pytest.mark.parametrize(("operand", "disposition"), sorted(PCT_OPERAND_DISPOSITION.items()))
+def test_every_listed_pct_operand_has_a_pinned_disposition(operand, disposition):
+    value = {"TRNPRTY": "5", "DTB": "YES", "TRANSID": "T001", "PROGRAM": "P1"}.get(operand, "X")
+    src = f"         DFHPCT TYPE=ENTRY,TRANSID=T001,PROGRAM=P1,{operand}={value}"
+    row = _rows(src)[0]
+    assert (row["transid"], row["program"]) == ("T001", "P1")
+    assert f"{operand}={value}" in row["attributes"].split(" => ")[0]  # always kept as written
+    # Restated only when RESTATED; ROW / SAME / ASSUMED add nothing after ` => `.
+    assert bool(_rdo(row)) == (disposition == "RESTATED")
+
+
+def test_assumed_pct_operands_are_never_restated_or_lifted():
+    src = "         DFHPCT TYPE=ENTRY,TRANSID=T001,PROGRAM=P1,TRANSEC=2,TPURGE=YES,SPURGE=NO,COMPAT=YES"
+    row = _rows(src)[0]
+    assert _rdo(row) == ""
+    assert {k for k, v in PCT_OPERAND_DISPOSITION.items() if v == "ASSUMED"} == {
+        "TRANSEC",
+        "TPURGE",
+        "SPURGE",
+        "COMPAT",
+    }
 
 
 def test_dfhppt_entry_names_a_program_a_mapset_or_a_partition_set():

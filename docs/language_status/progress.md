@@ -1,6 +1,6 @@
 # Progress
 
-Generated from main at `81c3f88b3` by `tests/tools/progress_report.py` (#5280); do not edit. Every
+Generated from main at `e0a5e13f6` by `tests/tools/progress_report.py` (#5280); do not edit. Every
 denominator is fixed and every number names its source below. A level is an evidence level, never a bare
 claim of correctness: the oracle is GnuCOBOL plus IBM documentation, not z/OS.
 
@@ -62,8 +62,8 @@ Counted from the code by `capability_ledger.py`. A blank denominator means no ho
 | COBOL language | Statements and data | Partial | 60 of 107 rules match IBM | statements, numerics, editing, functions, files |
 | COBOL language | Runtime spec tables | Works | no denominator | 8 tables, 71 rules, 153 test vectors, 162 matrix cells (part of the rules above: depth, not extra rules) |
 | CICS | Commands the estates use | Partial | 60 of 68 modelled on both runtimes | programs in the burned estates |
-| CICS | All CICS commands | Partial | 105 of 257 modelled; the rest refused by name | every command IBM's reference lists |
-| CICS | Command options | Partial | 938 of 1125 accepted | 187 refused by name |
+| CICS | All CICS commands | Partial | 107 of 257 modelled; the rest refused by name | every command IBM's reference lists |
+| CICS | Command options | Partial | 954 of 1141 accepted | 187 refused by name |
 | CICS | Macro resource tables | Reads only | no denominator | FCT, PCT, PPT, DCT, TST, SIT, SRT, JCT, TCT, MCT, PLT, DSNCRCT (12 tables read into the resource map; not run) |
 | Data and messaging | Db2 embedded SQL | Partial | 12 of 14 rules match IBM | 8 verbs refused by name |
 | Data and messaging | LE callable services | Partial | 12 of 19 rules match IBM | date, time and condition services |
@@ -95,7 +95,7 @@ z/OS: 0 of 191 rules measured. Register of named limits: 144 entries, 74 refuse 
 
 CICS commands not modelled on both runtimes: `(unlisted) ASKTIME NOHANDLE`, `(unlisted) GET`, `(unlisted) INQUIRE`, `(unlisted) INQUIRE URIMAP`, `(unlisted) SET`, `(unlisted) SYNCPOINT NOHANDLE`, `(unparsed)`, `SOAPFAULT CREATE`.
 
-Frontier context, not the denominator above: the whole CICS spec has 257 entries, 105 full, 0 engine-only and 152 refused by name.
+Frontier context, not the denominator above: the whole CICS spec has 257 entries, 107 full, 0 engine-only and 150 refused by name.
 
 ## 3. Eras
 
@@ -112,7 +112,7 @@ Source: tests/fixtures/feature_inventory/<estate>.json (era_tags.py). Programs p
 
 ## 4. Core burn-down
 
-Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-01T07:36:30Z.
+Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-01T07:43:22Z.
 
 - `scope:core`: 12 open, 201 closed.
 - Milestone 28: 7 open, 103 closed.

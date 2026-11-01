@@ -1,5 +1,5 @@
 {
- "commit": "81c3f88b3",
+ "commit": "e0a5e13f6",
  "components": {
   "capabilities": {
    "groups": [
@@ -45,7 +45,7 @@
      "unit": "modelled on both runtimes"
     },
     {
-     "done": 105,
+     "done": 107,
      "group": "CICS",
      "have": "every command IBM's reference lists",
      "name": "All CICS commands",
@@ -55,12 +55,12 @@
      "unit": "modelled; the rest refused by name"
     },
     {
-     "done": 938,
+     "done": 954,
      "group": "CICS",
      "have": "187 refused by name",
      "name": "Command options",
      "note": "",
-     "of": 1125,
+     "of": 1141,
      "state": "partial",
      "unit": "accepted"
     },
@@ -237,8 +237,8 @@
    "spec": {
     "engine_only": 0,
     "entries": 257,
-    "full": 105,
-    "name_only": 152
+    "full": 107,
+    "name_only": 150
    },
    "unlisted_or_unparsed": 7
   },
@@ -481,7 +481,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-11-01T07:36:30Z",
+  "as_of": "2026-11-01T07:43:22Z",
   "core": {
    "closed": 201,
    "open": 12,

@@ -2503,7 +2503,7 @@
     "objective-c/worldwideweb": {
       "objective-c/worldwideweb/Anchor.m": 6.882,
       "objective-c/worldwideweb/HText.c": 7.587,
-      "objective-c/worldwideweb/HyperManager.m": 6.723,
+      "objective-c/worldwideweb/HyperManager.m": 6.686,
       "objective-c/worldwideweb/HyperText.h": 8.12,
       "objective-c/worldwideweb/HyperText.m": 8.217,
       "objective-c/worldwideweb/TcpAccess.m": 7.474
@@ -4053,27 +4053,27 @@
     "zig/bun": {
       "zig/bun/LICENSE.md": 0.0,
       "zig/bun/MimallocArena.zig": 6.262,
-      "zig/bun/Parser.zig": 8.416,
+      "zig/bun/Parser.zig": 8.41,
       "zig/bun/comptime_string_map.zig": 8.372,
       "zig/bun/napi.zig": 7.68
     },
     "zig/mach": {
-      "zig/mach/Core.zig": 6.321,
+      "zig/mach/Core.zig": 6.318,
       "zig/mach/StringTable.zig": 8.51,
-      "zig/mach/collision.zig": 6.871,
+      "zig/mach/collision.zig": 6.843,
       "zig/mach/graph.zig": 8.498,
       "zig/mach/main.zig": 4.865,
-      "zig/mach/module.zig": 8.272,
+      "zig/mach/module.zig": 8.27,
       "zig/mach/testing.zig": 7.062,
       "zig/mach/win32.zig": 8.825
     },
     "zig/tigerbeetle": {
       "zig/tigerbeetle/aof.zig": 7.567,
-      "zig/tigerbeetle/build.zig": 6.263,
+      "zig/tigerbeetle/build.zig": 6.264,
       "zig/tigerbeetle/build_multiversion.zig": 6.695,
       "zig/tigerbeetle/cluster.zig": 9.169,
       "zig/tigerbeetle/config.zig": 7.269,
-      "zig/tigerbeetle/constants.zig": 6.785,
+      "zig/tigerbeetle/constants.zig": 6.768,
       "zig/tigerbeetle/copyhound.zig": 7.482,
       "zig/tigerbeetle/counting_allocator.zig": 8.169,
       "zig/tigerbeetle/direction.zig": 6.436,
@@ -4082,8 +4082,8 @@
       "zig/tigerbeetle/state_machine.zig": 8.147
     },
     "zig/zig": {
-      "zig/zig/Compilation.zig": 9.04,
-      "zig/zig/InternPool.zig": 10.734,
+      "zig/zig/Compilation.zig": 9.041,
+      "zig/zig/InternPool.zig": 10.733,
       "zig/zig/Sema.zig": 10.397,
       "zig/zig/Type.zig": 8.169,
       "zig/zig/Zcu.zig": 8.695,
@@ -4094,11 +4094,11 @@
     },
     "zig/zls": {
       "zig/zls/DocumentScope.zig": 6.977,
-      "zig/zls/DocumentStore.zig": 8.206,
+      "zig/zls/DocumentStore.zig": 8.207,
       "zig/zls/Server.zig": 6.673,
-      "zig/zls/analysis.zig": 7.508,
-      "zig/zls/ast.zig": 7.018,
-      "zig/zls/config_gen.zig": 9.382,
+      "zig/zls/analysis.zig": 7.509,
+      "zig/zls/ast.zig": 7.017,
+      "zig/zls/config_gen.zig": 9.381,
       "zig/zls/langref.html.in": 5.513,
       "zig/zls/print_ast.zig": 5.946
     }

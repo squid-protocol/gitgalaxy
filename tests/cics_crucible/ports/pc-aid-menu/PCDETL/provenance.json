@@ -222,6 +222,23 @@
      "handleLink",
      "handleTransaction"
     ]
+   },
+   {
+    "at": "2026-11-01T17:24:30+00:00",
+    "crucible_ref": "v0.11.0 (df992a3a)",
+    "summary": {
+     "aid-keys": "1/1",
+     "option1-xctl": "1/1",
+     "option2-next-transid": "1/1"
+    },
+    "port_sha256": "d86a169056d363ccabdab4b9e8fb9987fe7c4236e0c8e2ca053de7ab357926fd",
+    "harness_commit": "2ccff1f838c4752b229ae65c6e8e5ba31a0c2247",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program PCDETL --report-dir)",
+    "entry_points": [
+     "runTask",
+     "handleLink",
+     "handleTransaction"
+    ]
    }
   ]
  },

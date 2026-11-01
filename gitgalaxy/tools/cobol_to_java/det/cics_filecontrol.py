@@ -514,10 +514,10 @@ class FileControlCommands:
             return self.delete_generic(opts, ind)
         if "TOKEN" in opts:  # #5078 (X52): the record a READ UPDATE TOKEN holds
             return self.token_update(verb, opts, ind)
-        if verb == "UNLOCK":  # #5079 (X52): the file's tokenless hold
+        if verb == "UNLOCK":  # #5079 (X52): the file's tokenless hold, recorded as the SPEC 6.2 UNLOCK event (#6876)
             file = self.file_name(_arg(opts.get("DATASET") or opts.get("FILE")))
             r = self.g.tmpname("resp")
-            return [f"{ind}int {r} = task.unlockHeld({file});", *self.outcome(opts, r, "task.resp2()", ind)]
+            return [f"{ind}int {r} = task.unlock({file});", *self.outcome(opts, r, "task.resp2()", ind)]
         if verb == "DELETE":
             try:
                 self._keylength(verb, opts)

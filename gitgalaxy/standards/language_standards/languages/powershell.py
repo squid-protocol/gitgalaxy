@@ -13,7 +13,12 @@ from typing import Any
 from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: compiled on first use
 from gitgalaxy.standards.language_standards.identifiers import ID_CONTINUE, ID_START
 
-from .._shared_patterns import CALLS_OUT_COMMAND_POSITION, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import (
+    CALLS_OUT_COMMAND_POSITION,
+    GLOBAL_FRAGILE_DEBT,
+    GLOBAL_PLANNED_DEBT,
+    commented_keyword_statement,
+)
 
 # #3303: a parenthesised parameter list, three paren levels deep, with quoted strings stepped over whole
 # so a paren inside a string (`[ValidatePattern("^v(\\d+)$")]`) neither unbalances nor deepens the match.
@@ -279,7 +284,17 @@ DEFINITION: dict[str, Any] = {
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails)
         # Commented-out execution logic indicating dead features. Supports both `//` and `#` style comments.
-        "dead_code": re.compile(r"(?:#|<#)[ \t]*(?:function|class|if|foreach|while|return)\b", re.I),
+        # #7207: a statement's shape (`;{}`, `(...)`, an assignment, a bare `function Verb-Noun` / `class Name`,
+        # `return $x`), not just the keyword.
+        "dead_code": re.compile(
+            commented_keyword_statement(
+                "function|class|if|foreach|while|return",
+                marker=r"(?:#|<#)",
+                extra=r"(?:(?<=function)|(?<=class))[ \t]+[\w-]+(?:[ \t]*:[ \t]*[\w.]+)?[ \t]*(?:#>)?[ \t]*(?m:$)"
+                r"|(?<=return)[ \t]+(?:\$[\w:.]+|[\"'])[^\n]{0,400}(?m:$)",
+            ),
+            re.I,
+        ),
         # doc: Structured Documentation. Get-Help comment-based documentation.
         "doc": re.compile(
             r"\.(?:SYNOPSIS|DESCRIPTION|PARAMETER|EXAMPLE|NOTES|LINK|INPUTS|OUTPUTS|ROLE)\b",

@@ -178,8 +178,8 @@
           "value": 0.0
         },
         {
-          "name": "speedtest.tcl",
-          "path": "tcl/sqlite/speedtest.tcl",
+          "name": "testrunner.tcl",
+          "path": "tcl/sqlite/testrunner.tcl",
           "value": 0.0
         }
       ]

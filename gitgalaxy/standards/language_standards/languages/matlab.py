@@ -12,7 +12,7 @@ from typing import Any
 
 from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: compiled on first use
 
-from .._shared_patterns import CALLS_OUT_C_STYLE, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import CALLS_OUT_C_STYLE, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT, commented_keyword_statement
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -180,7 +180,19 @@ DEFINITION: dict[str, Any] = {
         # terminal `com = ''` / `varargout = {...}` / `h = uimenu(...)` binding.
         "_scope_filters": {"state_mutation": "matlab_return_channel"},
         # 12. dead_code (Commented Logic / Deprecated Trails)
-        "dead_code": re.compile(r"^[ \t]*%[ \t]*(?:if|for|while|function|classdef)\b", re.M),
+        # #7207: a statement's shape (`;`, `(...)`, an assignment, a bare `function name`, `classdef Name < base`,
+        # `if a > b`, `while true`), not just the keyword.
+        "dead_code": re.compile(
+            commented_keyword_statement(
+                "if|for|while|function|classdef",
+                marker=r"^[ \t]*%",
+                extra=r"(?<=function)[ \t]+[\w.]+[ \t]*(?m:$)"
+                r"|(?<=classdef)[ \t]+\w+(?:[ \t]*<[ \t]*[\w.& ]{1,100})?[ \t]*(?m:$)"
+                r"|(?<=if)[ \t]+[\w.]+[ \t]*(?:[<>~=]=?)[ \t]*[\w.]+[ \t]*(?m:$)"
+                r"|(?<=while)[ \t]+(?:true|1)[ \t]*(?m:$)",
+            ),
+            re.M,
+        ),
         # doc: Standard MATLAB Help text (`%%` sections) or typed annotations.
         "doc": re.compile(
             r"^[ \t]*%[ \t]*@(?:param|return|author)|^[ \t]*%%[ \t]*[A-Z][A-Z0-9_]*",

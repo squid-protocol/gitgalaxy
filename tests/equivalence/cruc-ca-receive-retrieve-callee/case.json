@@ -1,0 +1,18 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "CARTWK",
+  "program_source": "cases/commarea-mismatch/ca-receive-retrieve-set/src/CARTWK.cbl",
+  "copy_dirs": ["cases/commarea-mismatch/ca-receive-retrieve-set/copy"],
+  "transid": "CA0E",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "programs": [],
+  "notes": "cics-crucible commarea-mismatch / ca-receive-retrieve-set, CARTWK (the task a START CA0E runs) entered directly as the root program (the #7426 pattern), so its own coverage is measured: a LINKed or STARTed callee is capped at L2 (#4270). The oracle is GnuCOBOL plus the stub.",
+  "scenarios": [
+    {"name": "retrieve-equal", "commarea": null, "start_data": [{"text": "ABCDEFGHIJKLMNOPQRST"}], "why": "started with 20 bytes of FROM data: RETRIEVE SET, LENGTH equals the FROM length, then ENDDATA on the second RETRIEVE"},
+    {"name": "enddata", "commarea": null, "why": "started with no FROM data: the first RETRIEVE SET is ENDDATA"}
+  ]
+}

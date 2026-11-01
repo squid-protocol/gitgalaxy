@@ -1,0 +1,23 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "CASUB",
+  "program_source": "cases/commarea-mismatch/ca-link-lengths/src/CASUB.cbl",
+  "copy_dirs": ["cases/commarea-mismatch/ca-link-lengths/copy"],
+  "transid": "CA01",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": {
+    "segments": [
+      {"copybook": "cases/commarea-mismatch/ca-link-lengths/src/CASUB.cbl", "record": "DFHCOMMAREA"}
+    ]
+  },
+  "screens": {},
+  "programs": [],
+  "notes": "cics-crucible commarea-mismatch / ca-link-lengths, CASUB entered directly (the #7426 pattern): the callee a LINK reaches, run as the root program so its own coverage is measured (a LINKed callee is capped at L2, #4270). The oracle is GnuCOBOL plus the stub.",
+  "scenarios": [
+    {"name": "no-commarea", "commarea": null, "why": "EIBCALEN 0: the callee writes the NO COMMAREA trace and returns without touching DFHCOMMAREA"},
+    {"name": "short-100", "commarea": {"CA-EYE": "REQ1", "CA-VERSION": "1"}, "commarea_length": 100, "why": "EIBCALEN 100 (< 500): reply stamped, return code 04, the extension left alone"},
+    {"name": "full-500", "commarea": {"CA-EYE": "REQ1", "CA-VERSION": "1"}, "why": "EIBCALEN 500: the extension flag and data written, return code 00"}
+  ]
+}

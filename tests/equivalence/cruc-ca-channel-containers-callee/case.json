@@ -1,0 +1,18 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "CACHSUB",
+  "program_source": "cases/commarea-mismatch/ca-channel-containers/src/CACHSUB.cbl",
+  "copy_dirs": ["cases/commarea-mismatch/ca-channel-containers/copy"],
+  "transid": "CA05",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "programs": [],
+  "notes": "cics-crucible commarea-mismatch / ca-channel-containers, CACHSUB (the program CACHAN LINKs to with CHANNEL) entered directly as the root program (the #7426 pattern), so its own coverage is measured: a LINKed callee is capped at L2 (#4270). The oracle is GnuCOBOL plus the stub.",
+  "scenarios": [
+    {"name": "channel-request-count", "commarea": null, "terminal": "CA05", "why": "a channel carrying REQUEST (CHAR) and COUNT (4-byte BIT): the GETs, the short INTO, NODATA, the missing and other-channel containers, DELETE, PUT and the CONTAINERERR handler",
+     "channel": {"name": "CAHOME", "containers": {"REQUEST": {"text": "HELLO"}, "COUNT": {"hex": "00000007"}}}}
+  ]
+}

@@ -9,16 +9,40 @@
   "transid": "PC12",
   "clock": "2026/10/01 10:30:15.00",
   "datasets": {},
-  "commarea": null,
-  "screens": {},
+  "commarea": {
+    "segments": [
+      {
+        "copybook": "cases/pseudo-conversational/pc-aid-menu/src/PCDETL.cbl",
+        "record": "WS-CA"
+      }
+    ]
+  },
+  "screens": {
+    "PCDT": {
+      "copybook": "cases/pseudo-conversational/pc-aid-menu/copy/PCSET2.cpy",
+      "input": "PCDTI",
+      "output": "PCDTO"
+    }
+  },
   "programs": [],
-  "notes": "cics-crucible pseudo-conversational / pc-aid-menu (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): the detail screen PCDETL, entered as a LINKed program (\"linked\": true) because its PIC X(10) DFHCOMMAREA has no generated COMMAREA DTO for a top-level entry. EIBCALEN 0 arm only: the EIBCALEN 10 arm needs a COMMAREA DTO for the elementary PIC X(10) DFHCOMMAREA (harness gap, left open). The oracle is GnuCOBOL plus the stub, not z/OS.",
+  "notes": "cics-crucible pseudo-conversational / pc-aid-menu (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): the detail screen PCDETL, entered as a LINKed program (\"linked\": true) because its PIC X(10) DFHCOMMAREA has no generated COMMAREA DTO for a top-level entry. Both arms: EIBCALEN 0, and EIBCALEN 10 with the typed WS-CA record (the Object-service DTO fallback, #7422). The oracle is GnuCOBOL plus the stub, not z/OS.",
   "scenarios": [
     {
       "name": "no-context",
       "aid": "DFHENTER",
       "commarea": null,
       "why": "EIBCALEN 0: SEND TEXT NO CONTEXT, RETURN",
+      "terminal": "PC12"
+    },
+    {
+      "name": "with-context",
+      "aid": "DFHENTER",
+      "commarea": {
+        "MN-VISITS": 3,
+        "MN-LAST": "PF3",
+        "MN-FLAG": ""
+      },
+      "why": "EIBCALEN 10: the detail screen shows the menu COMMAREA and EIBTRNID",
       "terminal": "PC12"
     }
   ],

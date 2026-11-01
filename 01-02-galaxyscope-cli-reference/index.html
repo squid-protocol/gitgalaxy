@@ -8621,6 +8621,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#the-contract" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Contract
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#base-syntax" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -8632,22 +8643,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#global-execution-flags" class="md-nav__link">
+  <a href="#flags" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Global Execution Flags
+        Flags
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Global Execution Flags">
+    <nav class="md-nav" aria-label="Flags">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#security-physics-tuning" class="md-nav__link">
+  <a href="#output" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Security &amp; Physics Tuning
+        Output
       
     </span>
   </a>
@@ -8655,10 +8666,76 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#architectural-routing" class="md-nav__link">
+  <a href="#recorder-selection" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Architectural Routing
+        Recorder selection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ci-gates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CI gates
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#security-and-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Security and analysis
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mainframe-and-estate-inputs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mainframe and estate inputs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delta-scanning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Delta scanning
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dependency-audit-cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependency audit cache
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuration-and-profiling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration and profiling
       
     </span>
   </a>
@@ -8682,10 +8759,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#deterministic-exit-codes" class="md-nav__link">
+  <a href="#exit-codes" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Deterministic Exit Codes
+        Exit Codes
       
     </span>
   </a>
@@ -12302,71 +12379,357 @@
 <p><strong>Architecture: Hyper-Scale Static Analysis Wrapper</strong></p>
 <p><strong>Summary:</strong> The <code>galaxyscope</code> Command Line Interface (CLI) is the primary entry point for the GitGalaxy blAST engine. It acts as the master orchestrator, initializing the physics engine, routing the target repository through the appropriate Language and Security Lenses, and dispatching the final JSON Intermediate Representation (IR) telemetry.</p>
 </blockquote>
+<h2 id="the-contract">The Contract</h2>
+<p>This page is the contract for the <code>galaxyscope</code> command. <code>blast</code> is the same program under a second name.</p>
+<ul>
+<li>Every flag, environment variable and exit code listed here does what its row says.</li>
+<li>The parser and this page must agree in both directions. <code>tests/tools/test_cli_contract.py</code> fails on a listed flag the parser lacks, a parser flag this page omits, an exit code the code cannot produce, and a <code>galaxyscope</code> command in the docs that uses a flag the parser lacks. It also runs the example at the bottom of this page.</li>
+<li>Anything not listed is not promised. That includes log text, except the <code>BUILD FAILED:</code> prefix described under Exit Codes.</li>
+<li>Only the full flag spellings below are promised. The parser also accepts unambiguous abbreviations, such as <code>--out</code> for <code>--output</code>, but any new flag could make an abbreviation ambiguous, so scripts should not rely on them.</li>
+</ul>
 <h2 id="base-syntax">Base Syntax</h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>galaxyscope<span class="w"> </span><span class="o">[</span>target_path<span class="o">]</span><span class="w"> </span><span class="o">[</span>options<span class="o">]</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>galaxyscope<span class="w"> </span>&lt;target&gt;<span class="w"> </span><span class="o">[</span>options<span class="o">]</span>
 </code></pre></div>
 <ul>
-<li><strong><code>target_path</code></strong>: The absolute or relative path to the local repository directory, ZIP archive, or individual file you wish to analyze.</li>
+<li><strong><code>target</code></strong> (required): the path to a local repository directory, a ZIP archive, or a single file.</li>
 </ul>
-<h2 id="global-execution-flags">Global Execution Flags</h2>
-<p>The pipeline's behavior can be heavily modified at runtime to optimize for speed, security, or compliance.</p>
-<h3 id="security-physics-tuning">Security &amp; Physics Tuning</h3>
-<ul>
-<li><strong><code>--paranoid</code></strong></li>
-<li><strong>Action:</strong> Drops the threshold parameters in the Biaxial Security Lens and increases the multiplier for entropy and structural drift.</li>
-<li><strong>Use Case:</strong> Mandatory for auditing third-party vendor code or supply-chain injections where malicious evasion is highly probable.</li>
-<li><strong><code>--airgap</code></strong></li>
-<li><strong>Action:</strong> Physically disables the <code>llm_recorder.py</code>, <code>ai_appsec_sensor.py</code>, and any sub-modules requiring external network requests.</li>
-<li><strong>Use Case:</strong> Enterprise compliance mode. Guarantees 100% offline execution.</li>
-<li><strong><code>--ai-guardrails</code></strong></li>
-<li><strong>Action:</strong> Enables Phase 5 (Zero-Trust AI Guardrails — <code>dev_agent_firewall.py</code> + <code>ai_appsec_sensor.py</code>). The phase is <strong>off by default</strong>; without the flag the guardrail telemetry columns (<code>agentic_isolation_risk</code>, <code>requires_hitl</code>, <code>hallucination_zone</code>, <code>silent_mutation_risk</code>, <code>appsec_god_mode</code>) record <code>NULL</code> ("not evaluated" — <code>0</code> is reserved for "evaluated, no risk found") and no <code>GG-AGENT-GUARDRAIL</code> SARIF results are emitted. Also settable as <code>ai-guardrails: true</code> under the <code>galaxyscope:</code> section of <code>.galaxyscope.yaml</code>.</li>
-<li><strong>Use Case:</strong> Repositories with a real AI/agentic surface (LLM orchestration frameworks, autonomous coding agents). Most targets — e.g. a large COBOL modernization scan — have none, which is why the phase no longer pays its full per-file cost on every scan. Enabling is always an explicit choice; the engine never auto-detects, so turning the phase on is visible in the CLI/config rather than dependent on a heuristic.</li>
-</ul>
-<h3 id="architectural-routing">Architectural Routing</h3>
-<ul>
-<li><strong><code>--legacy</code></strong></li>
-<li><strong>Action:</strong> Forces the engine to route the payload through the Legacy Modernization spokes (COBOL Refractor, JCL Forge, DAG Architect).</li>
-<li><strong>Use Case:</strong> Explicitly processing mainframe payloads that might otherwise be misclassified as generic text by the Language Lens.</li>
-<li><strong><code>--out [path]</code></strong></li>
-<li><strong>Action:</strong> Redirects the generated <code>_galaxy.json</code>, SQLite databases, and audit reports to a specific directory instead of the repository root.</li>
-</ul>
+<h2 id="flags">Flags</h2>
+<h3 id="output">Output</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Flag</th>
+<th style="text-align: left;">Promise</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>-h</code>, <code>--help</code></td>
+<td style="text-align: left;">Prints usage and exits <code>0</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--output PATH</code></td>
+<td style="text-align: left;">Sets where reports go. A path that is an existing directory, or that has no file extension, is treated as a directory and created if needed; the name stem is <code>&lt;target-name&gt;_galaxy</code>. Any other path sets the stem: <code>--output out/scan.json</code> writes <code>out/scan_sarif.json</code> and so on. Without the flag, reports go to the current working directory, not the scanned repository.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--debug</code></td>
+<td style="text-align: left;">Turns on debug-level logging on stderr.</td>
+</tr>
+</tbody>
+</table>
+<p>A default run writes seven reports:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">File</th>
+<th style="text-align: left;">Contents</th>
+<th style="text-align: left;">Written alone by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>&lt;stem&gt;_gpu.json</code></td>
+<td style="text-align: left;">The payload you drop into the <a href="https://gitgalaxy.io">GitGalaxy.io</a> viewer</td>
+<td style="text-align: left;"><code>--gpu-only</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>&lt;stem&gt;_master.db</code></td>
+<td style="text-align: left;">The SQLite database</td>
+<td style="text-align: left;"><code>--db-only</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>&lt;stem&gt;_audit.json</code></td>
+<td style="text-align: left;">The forensic audit report</td>
+<td style="text-align: left;"><code>--audit-only</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>&lt;target-name&gt;_galaxy_llm.md</code></td>
+<td style="text-align: left;">The architecture brief</td>
+<td style="text-align: left;"><code>--llm-only</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>&lt;target-name&gt;_galaxy_graph.sqlite</code></td>
+<td style="text-align: left;">The graph database behind the brief</td>
+<td style="text-align: left;"><code>--llm-only</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>&lt;stem&gt;_sarif.json</code></td>
+<td style="text-align: left;">SARIF results</td>
+<td style="text-align: left;"><code>--sarif-only</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>&lt;stem&gt;_sbom.json</code></td>
+<td style="text-align: left;">CycloneDX SBOM</td>
+<td style="text-align: left;"><code>--sbom-only</code></td>
+</tr>
+</tbody>
+</table>
+<p>The two LLM files keep the target's name even when <code>--output</code> sets a stem. No file named plain <code>&lt;stem&gt;.json</code> is written.</p>
+<h3 id="recorder-selection">Recorder selection</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Flag</th>
+<th style="text-align: left;">Promise</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>--llm-only</code></td>
+<td style="text-align: left;">Runs only the LLM recorder. It writes a local brief and calls no model.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--gpu-only</code></td>
+<td style="text-align: left;">Runs only the GPU recorder.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--audit-only</code></td>
+<td style="text-align: left;">Runs only the audit recorder.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--db-only</code></td>
+<td style="text-align: left;">Runs only the SQLite recorder.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--sarif-only</code></td>
+<td style="text-align: left;">Runs only the SARIF exporter.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--sbom-only</code></td>
+<td style="text-align: left;">Runs only the CycloneDX SBOM generator.</td>
+</tr>
+</tbody>
+</table>
+<p>Naming several of these runs each one named.</p>
+<h3 id="ci-gates">CI gates</h3>
+<p>Gates are off by default. A gate that trips makes the scan exit <code>1</code> after every report has been written. A scan with no gate set never fails on what it found.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Flag</th>
+<th style="text-align: left;">Promise</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>--fail-on-secrets</code></td>
+<td style="text-align: left;">Fails if any file has a hardcoded secret that is not marked as mitigated.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--fail-on-malware</code></td>
+<td style="text-align: left;">Fails if ML threat inference flags a file. Inference needs <code>numpy</code>, <code>pandas</code> and <code>xgboost</code> (the <code>full</code> extra) and a model file, <code>gitgalaxy_malware_xgb_multiclass.json</code>, in <code>gitgalaxy/security/</code> or <code>gitgalaxy/utilities/</code>. The model does not ship with GitGalaxy. Without all of these the gate cannot fire, and the scan exits <code>0</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--max-risk-exposure N</code></td>
+<td style="text-align: left;">Fails if any file's highest risk vector is at or above <code>N</code> percent. <code>0.0</code> disables it.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--max-systemic-threat N</code></td>
+<td style="text-align: left;">Fails if any file's structural magnitude times normalized blast radius is at or above <code>N</code>. <code>0.0</code> disables it. Limits set before #3112 must be re-tuned.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Gates run on an <code>--incremental</code> scan too.</strong> A delta scan judges every file, unchanged ones included, with the same suppressions, so it fails on what a full scan fails on.</p>
+<h3 id="security-and-analysis">Security and analysis</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Flag</th>
+<th style="text-align: left;">Promise</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>--paranoid</code></td>
+<td style="text-align: left;">Makes the <code>secrets_risk</code> vector more sensitive: its threshold drops from 3.0 to 0.5, its slope rises from 1.0 to 2.0, and the 2.0 cap on its carelessness amplifiers is lifted. No other vector or threshold changes.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--ai-guardrails</code></td>
+<td style="text-align: left;">Enables Phase 5 (Zero-Trust AI Guardrails: <code>dev_agent_firewall.py</code> and <code>ai_appsec_sensor.py</code>). Off by default: without it the columns <code>agentic_isolation_risk</code>, <code>requires_hitl</code>, <code>hallucination_zone</code>, <code>silent_mutation_risk</code> and <code>appsec_god_mode</code> record <code>NULL</code> ("not evaluated"; <code>0</code> means "evaluated, no risk found") and no <code>GG-AGENT-GUARDRAIL</code> SARIF results are emitted. The engine never turns this on by itself.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--shadow-patch-detected</code></td>
+<td style="text-align: left;">Declares that the payload hash changed without a version bump. When ML threat inference runs, every file with <code>file_impact</code> above 0.5 is forced to the Stealer / Trojan class at score 100, so <code>--fail-on-malware</code> then trips on it.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--spec-alignment</code></td>
+<td style="text-align: left;">Measures and reports the Spec Alignment vector. Off by default; only useful if your code carries spec tags.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="mainframe-and-estate-inputs">Mainframe and estate inputs</h3>
+<p>There is no mainframe switch: COBOL, JCL and related languages are detected like any other. The legacy tools (<code>cobol-refractor</code>, <code>cobol-to-java</code> and the forges) are separate commands.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Flag</th>
+<th style="text-align: left;">Promise</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>--source-encoding CODEC</code></td>
+<td style="text-align: left;">Declares the estate's code page, tried after a BOM, UTF-16 and strict UTF-8 and before the cp1252 / Latin-1 guesses. Takes one codec, or comma-separated <code>GLOB=CODEC</code> pairs where the first match wins. An unknown codec exits <code>1</code> before any file is read.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--copy-libraries FILE</code></td>
+<td style="text-align: left;">Reads a JSON or YAML file declaring each COPY library's directories and each program's search order. A bad file exits <code>1</code> before any file is read.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="delta-scanning">Delta scanning</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Flag</th>
+<th style="text-align: left;">Promise</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>--incremental DB_PATH</code></td>
+<td style="text-align: left;">Rehydrates from a baseline SQLite database and rescans only what <code>git diff</code> reports as changed. It writes only <code>&lt;stem&gt;_master.db</code>, and its output directory must already exist. If rehydration or the diff fails, it logs a warning and runs a full scan.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--baseline COMMIT_SHA</code></td>
+<td style="text-align: left;">Picks the baseline commit for <code>--incremental</code>. Unset, the latest commit by date is used. Without <code>--incremental</code> it logs a warning and does nothing.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="dependency-audit-cache">Dependency audit cache</h3>
+<p>The SBOM audit keeps a hash cache at <code>&lt;target&gt;/.gitgalaxy/dependency_cache.db</code> by default, so a scan writes that one directory inside the target. Use <code>--dependency-cache</code> or <code>--no-dependency-cache</code> to avoid it.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Flag</th>
+<th style="text-align: left;">Promise</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>--dependency-cache DB_PATH</code></td>
+<td style="text-align: left;">Puts the cache at this path.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--no-dependency-cache</code></td>
+<td style="text-align: left;">Turns the cache off and uses capped-sampling SBOM verification.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--full-dependency-scan</code></td>
+<td style="text-align: left;">Ignores the per-package budget and verifies every dependency file this run. Has no effect in an exclusive mode that skips the SBOM.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--dependency-scan-budget N</code></td>
+<td style="text-align: left;">Sets the most cache-miss files freshly scanned per package per run. Default 25.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="configuration-and-profiling">Configuration and profiling</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Flag</th>
+<th style="text-align: left;">Promise</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>--config FILE</code></td>
+<td style="text-align: left;">Loads a YAML project config. Its <code>galaxyscope:</code> section can set any flag by name, such as <code>ai-guardrails: true</code>, and a value on the command line wins. The config is read only when this flag is passed: <code>.galaxyscope.yaml</code> is not discovered automatically. It needs the <code>yaml</code> extra. An unrecognized key exits <code>1</code>. A file that is missing, unreadable or not a YAML mapping, or a missing PyYAML, exits <code>1</code> before the scan: the file may hold your gates.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--splicing-speed</code></td>
+<td style="text-align: left;">Profiles regex and file processing speeds, capped at 5000 files.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--file-speed</code></td>
+<td style="text-align: left;">Profiles the phases of file processing.</td>
+</tr>
+</tbody>
+</table>
 <hr />
 <h2 id="environment-variables">Environment Variables</h2>
-<p>For automated CI/CD pipelines, GalaxyScope relies on the following environment variables to configure its external integrations and compute boundaries.</p>
 <table>
 <thead>
 <tr>
 <th style="text-align: left;">Variable</th>
 <th style="text-align: left;">Required</th>
-<th style="text-align: left;">Description</th>
+<th style="text-align: left;">Promise</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;"><code>GITGALAXY_LLM_KEY</code></td>
+<td style="text-align: left;"><code>GITGALAXY_LICENSE_KEY</code></td>
 <td style="text-align: left;"><strong>No</strong></td>
-<td style="text-align: left;">The API key (OpenAI/Anthropic) required for the <code>llm_recorder</code> and Autonomous Agent Ticket generators. Ignored if <code>--airgap</code> is passed.</td>
+<td style="text-align: left;">Your commercial key, or <code>COMMUNITY_FREE_TIER</code> for noncommercial use. Without a valid value the scan still runs, after a 5-second notice. Checked offline. May also be set in <code>~/.config/gitgalaxy/.env</code>.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>GITGALAXY_WORKERS</code></td>
+<td style="text-align: left;"><code>GALAXYSCOPE_MAX_WORKERS</code></td>
 <td style="text-align: left;"><strong>No</strong></td>
-<td style="text-align: left;">Number of parallel CPU threads to dedicate to the static analysis engine. Defaults to <code>os.cpu_count() - 1</code>.</td>
+<td style="text-align: left;">Extraction worker count. <code>1</code> forces a serial scan. Defaults to <code>os.cpu_count() - 1</code>, minimum 1.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>GITGALAXY_RAM_LIMIT_MB</code></td>
+<td style="text-align: left;"><code>GG_JOB_CORES</code></td>
 <td style="text-align: left;"><strong>No</strong></td>
-<td style="text-align: left;">Forces the IR State Manager to drop from RAM to SQLite disk-storage early if the host machine has strict memory limits.</td>
+<td style="text-align: left;">Worker count used when <code>GALAXYSCOPE_MAX_WORKERS</code> is unset, for a job holding a share of a shared machine.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>GITGALAXY_DISABLE_GIT_HISTORY</code></td>
+<td style="text-align: left;"><strong>No</strong></td>
+<td style="text-align: left;"><code>1</code> skips git history, so the history-based values are not measured.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>GITGALAXY_HISTORY_NOW</code></td>
+<td style="text-align: left;"><strong>No</strong></td>
+<td style="text-align: left;">Epoch seconds to use as "today" for the one-year history window, for reproducible fixtures.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>GITGALAXY_PREFETCH</code></td>
+<td style="text-align: left;"><strong>No</strong></td>
+<td style="text-align: left;">Read-ahead over the source files: <code>on</code>, <code>off</code>, or <code>auto</code> (the default).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>GITGALAXY_ASSESS_OFFLINE</code></td>
+<td style="text-align: left;"><strong>No</strong></td>
+<td style="text-align: left;">Internal. Set by <code>gitgalaxy assess</code> for its scan workers; not for direct use.</td>
 </tr>
 </tbody>
 </table>
+<p>The scan has no network client, so it needs no API key or offline switch: <code>--llm-only</code> and the guardrails run locally. <code>tests/tools/test_cli_contract.py</code> fails if the engine imports one.</p>
 <hr />
-<h2 id="deterministic-exit-codes">Deterministic Exit Codes</h2>
-<p>GalaxyScope utilizes strict exit codes to allow CI/CD pipelines to autonomously block pull requests based on architectural or security failures.</p>
+<h2 id="exit-codes">Exit Codes</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Code</th>
+<th style="text-align: left;">Meaning</th>
+<th style="text-align: left;">When</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>0</code></td>
+<td style="text-align: left;">The scan finished and no gate tripped.</td>
+<td style="text-align: left;">Also returned for <code>--help</code>, and for a scan with findings but no gate set.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>1</code></td>
+<td style="text-align: left;">Fatal error, or a gate tripped.</td>
+<td style="text-align: left;">A missing or unreadable target, a bad <code>--source-encoding</code> or <code>--copy-libraries</code>, a <code>--config</code> file that cannot be applied or holds an unrecognized key, or any engine failure. Also any gate under <a href="#ci-gates">CI gates</a>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>2</code></td>
+<td style="text-align: left;">Bad command line.</td>
+<td style="text-align: left;">An unknown flag, a missing <code>target</code>, or a bad flag value, reported by the argument parser before the scan starts.</td>
+</tr>
+</tbody>
+</table>
+<p>These are all the codes GalaxyScope sets. A few things to plan for:</p>
 <ul>
-<li><strong><code>0</code> (Success):</strong> The repository was successfully mapped, and the resulting <code>_galaxy.json</code> was generated without critical warnings.</li>
-<li><strong><code>1</code> (Fatal Error):</strong> The engine encountered a catastrophic runtime failure (e.g., target directory not found, insufficient read permissions, out of disk space).</li>
-<li><strong><code>3</code> (Security Breach):</strong> The Biaxial Security Lens detected a critical threat mass (e.g., Injection Surface, Obscured Payload, or Hardcoded Secret leak). The pipeline is halted and the repository should be quarantined.</li>
-<li><strong><code>4</code> (Architectural Deadlock):</strong> The DAG Architect detected an unresolvable cyclic dependency (e.g., File A blocks File B, which blocks File A) preventing a topological sort.</li>
+<li><strong>Telling the two <code>1</code>s apart:</strong> a gate logs one <code>BUILD FAILED:</code> line to stderr per failure, and its reports are complete. A fatal error logs <code>Critical failure during execution</code>, and reports may be missing.</li>
+<li><strong><code>0</code> does not prove every report exists.</strong> A failure inside the database, audit, LLM, SARIF or SBOM recorder is logged as an error and the scan still exits <code>0</code>. If a later step needs a report, check for the file.</li>
+<li><strong>Findings never change the exit code by themselves.</strong> A scan only exits <code>1</code> on what it found if a gate is set.</li>
+<li><strong>Being killed</strong> (Ctrl-C, a signal, out of memory) gives whatever code the OS or Python assigns. That is not part of this contract.</li>
 </ul>
 <hr />
 <h2 id="pipeline-integration-example-github-actions">Pipeline Integration Example (GitHub Actions)</h2>
@@ -12385,7 +12748,7 @@
 <a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pip install gitgalaxy</span>
 <a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>
 <a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Execute GalaxyScope (Paranoid Mode)</span>
-<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">galaxyscope ./ --paranoid --airgap --out ./gitgalaxy_reports/</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">galaxyscope ./ --paranoid --fail-on-secrets --output ./gitgalaxy_reports/</span>
 <a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>
 <a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Upload Telemetry Artifacts</span>
 <a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="w">        </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/upload-artifact@v4</span>

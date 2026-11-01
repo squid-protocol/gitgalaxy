@@ -22,6 +22,37 @@ from .dfsort import Control, Refused
 _COMMENT = re.compile(r"/\*.*?\*/", re.DOTALL)
 _PARAM = re.compile(r"\s*([A-Za-z][A-Za-z0-9]*)(?:\s*\(([^()]*)\))?")
 _DD = re.compile(r"[A-Z#@$][A-Z0-9#@$]{0,7}$")
+# Every other IDCAMS command (SC23-6853), refused by name with the reason (#4268). The oracle has no catalog, no VSAM
+# cluster and no condition-code register, so none of these has an effect it could compare.
+_CATALOG = "a catalog or VSAM effect the oracle has no model of"
+_CONDCODE = "condition-code logic (MAXCC / LASTCC) the oracle has no model of"
+_REFUSED = {
+    **dict.fromkeys(
+        (
+            "ALTER",
+            "BLDINDEX",
+            "DEFINE",
+            "DELETE",
+            "EXPORT",
+            "IMPORT",
+            "LISTCAT",
+            "LISTCRA",
+            "EXAMINE",
+            "DIAGNOSE",
+            "VERIFY",
+            "EXPORTRA",
+            "IMPORTRA",
+            "RESETCAT",
+            "PARAM",
+            "SHCDS",
+            "DCOLLECT",
+            "CREATE",
+        ),
+        _CATALOG,
+    ),
+    "PRINT": "a dump listing, not a data set the oracle compares",
+    **dict.fromkeys(("SET", "IF", "THEN", "ELSE", "DO", "END", "CANCEL"), _CONDCODE),
+}
 _ALIAS = {"INFILE": "INFILE", "IFILE": "INFILE", "OUTFILE": "OUTFILE", "OFILE": "OUTFILE"}
 
 
@@ -67,7 +98,7 @@ def parse(sysin: str) -> Repro:
     verb, _, rest = cmds[0].partition(" ")
     verb = verb.upper()
     if verb != "REPRO":
-        raise Refused(f"the IDCAMS {verb} command")
+        raise Refused(f"the IDCAMS {verb} command ({_REFUSED.get(verb, 'a command the oracle has no model of')})")
     dds: dict[str, str] = {}
     pos = 0
     while pos < len(rest.rstrip()):

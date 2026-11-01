@@ -51,7 +51,7 @@ counted in it (their fact counts are not recorded here).
 | CICS RIDFLD | 5 | 0 | 0 | 781 | 0 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | CICS resources | 5 | 0 | 3 | 3,588 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | CICS task control | 5 | 0 | 3 | 206 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
-| JCL job flow | 5 | 0 | 2 | 1,620 | 2 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
+| JCL job flow | 5 | 0 | 2 | 1,618 | 2 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | copybook layouts | 5 | 0 | 0 | 2,759 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | refmod spans | 5 | 0 | 0 | 373 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | DD names | 4 | 0 | 1 | 89 | 2 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
@@ -77,7 +77,7 @@ counted in it (their fact counts are not recorded here).
 |---|---|---|---|---|---|---|---|
 | 1 | zopeneditor-sample | public | 967 | 3 | 1 | 1 | 1 |
 | 2 | cics-banking-sample-application-cbsa | public | 3,674 | 43 | 2 | 1 | 0 |
-| 3 | aws-mainframe-modernization-carddemo | public | 4,880 | 26 | 8 | 4 | 1 |
+| 3 | aws-mainframe-modernization-carddemo | public | 4,880 | 28 | 8 | 4 | 1 |
 | 4 | cics-genapp | public | 2,294 | 11 | 4 | 1 | 0 |
 | 5 | zecs | public | 1,293 | 43 | 0 | 0 | 2 |
 | 6 | dsf | public | 2,018 | 4 | 7 | 1 | 0 |

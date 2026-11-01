@@ -103692,7 +103692,16 @@
           "asked": 51
         }
       },
-      "rulings": {}
+      "rulings": {
+        "flow:app/proc/REPROC.prc::L23 DD PRC001.FILEIN DSN=NULLFILE DISP=SHR GEN=- IN=REPROC": {
+          "verdict": "key_fixed",
+          "why": "REPROC.prc:23-26: DD DSN=NULLFILE. The z/OS MVS JCL Reference (DSNAME parameter) says NULLFILE has the same effect as coding the DD DUMMY parameter, so it names no dataset and a DD DUMMY is not a job-flow DD row. The key and the engine job-flow reader both listed it as a dataset; the engine now treats it as a dummy DD (with a test) and the key drops the row."
+        },
+        "flow:app/proc/REPROC.prc::L25 DD PRC001.FILEOUT DSN=NULLFILE DISP=SHR GEN=- IN=REPROC": {
+          "verdict": "key_fixed",
+          "why": "REPROC.prc:23-26: DD DSN=NULLFILE. The z/OS MVS JCL Reference (DSNAME parameter) says NULLFILE has the same effect as coding the DD DUMMY parameter, so it names no dataset and a DD DUMMY is not a job-flow DD row. The key and the engine job-flow reader both listed it as a dataset; the engine now treats it as a dummy DD (with a test) and the key drops the row."
+        }
+      }
     },
     {
       "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
@@ -110981,26 +110990,6 @@
           "if": null,
           "in": "REPROC",
           "line": 21
-        },
-        {
-          "kind": "DD",
-          "step": "PRC001",
-          "dd": "FILEIN",
-          "dsn": "NULLFILE",
-          "disp": "SHR",
-          "gen": null,
-          "in": "REPROC",
-          "line": 23
-        },
-        {
-          "kind": "DD",
-          "step": "PRC001",
-          "dd": "FILEOUT",
-          "dsn": "NULLFILE",
-          "disp": "SHR",
-          "gen": null,
-          "in": "REPROC",
-          "line": 25
         },
         {
           "kind": "DD",

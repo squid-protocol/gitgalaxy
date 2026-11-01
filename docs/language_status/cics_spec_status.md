@@ -63,7 +63,7 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | RECEIVE MAP | full | yes (8 options, 1 refused by name) | yes | X31 | — | 45 (36 / 9) | hx-attr-bytes, hx-extended-cursor, pc-aid-menu, pc-wizard |
 | SEND CONTROL | full | yes (9 options, 1 refused by name) | yes | X15 | — | 16 (8 / 8) | hc-terminal-receive |
 | RECEIVE | full | yes (10 options) | yes | X15 | — | 9 (5 / 4) | ca-link-lengths, ca-xctl-versions, gt-assign-startcode, gt-start-options, gt-start-retrieve, gt-terminal-coalesce, hc-eoc-error, hc-handle-aid, hc-ignore-error, hc-terminal-eoc, hc-terminal-receive |
-| CONVERSE | full | yes (12 options, 1 refused by name) | yes | X63 | — | 0 | — |
+| CONVERSE | full | yes (13 options) | yes | X63 | — | 0 | — |
 | LINK | full | yes (8 options, 1 refused by name) | yes | X27 | — | 56 (52 / 4) | ca-channel-containers, ca-link-lengths, hc-abend-link |
 | XCTL | full | yes (7 options) | yes | — | — | 31 (22 / 9) | ca-channel-containers, ca-xctl-versions, pc-aid-menu, pc-wizard |
 | RETURN | full | yes (8 options) | yes | X27 | — | 122 (93 / 29) | ca-channel-containers, ca-link-lengths, ca-xctl-versions, gt-assign-startcode, gt-start-options, gt-start-retrieve, gt-terminal-coalesce, hc-abend-link, hc-eoc-error, hc-handle-aid, hc-ignore-error, hc-perform-range, hc-terminal-eoc, hc-terminal-receive, hx-attr-bytes, hx-extended-cursor, pc-aid-menu, pc-wizard |

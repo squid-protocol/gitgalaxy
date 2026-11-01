@@ -1,6 +1,6 @@
 # Progress
 
-Generated from main at `9b3cd5f48` by `tests/tools/progress_report.py` (#5280); do not edit. Every
+Generated from main at `4eef0dab6` by `tests/tools/progress_report.py` (#5280); do not edit. Every
 denominator is fixed and every number names its source below. A level is an evidence level, never a bare
 claim of correctness: the oracle is GnuCOBOL plus IBM documentation, not z/OS.
 
@@ -63,7 +63,7 @@ Counted from the code by `capability_ledger.py`. A blank denominator means no ho
 | COBOL language | Runtime spec tables | Works | no denominator | 8 tables, 71 rules, 153 test vectors, 162 matrix cells (part of the rules above: depth, not extra rules) |
 | CICS | Commands the estates use | Partial | 60 of 68 modelled on both runtimes | programs in the burned estates |
 | CICS | All CICS commands | Partial | 105 of 257 modelled; the rest refused by name | every command IBM's reference lists |
-| CICS | Command options | Partial | 936 of 1124 accepted | 188 refused by name |
+| CICS | Command options | Partial | 938 of 1125 accepted | 187 refused by name |
 | CICS | Macro resource tables | Reads only | no denominator | FCT, PCT, PPT, DCT, TST, SIT, SRT, JCT, TCT, MCT, PLT, DSNCRCT (12 tables read into the resource map; not run) |
 | Data and messaging | Db2 embedded SQL | Partial | 12 of 14 rules match IBM | 8 verbs refused by name |
 | Data and messaging | LE callable services | Partial | 12 of 19 rules match IBM | date, time and condition services |
@@ -112,7 +112,7 @@ Source: tests/fixtures/feature_inventory/<estate>.json (era_tags.py). Programs p
 
 ## 4. Core burn-down
 
-Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-01T00:35:23Z.
+Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-01T00:44:14Z.
 
 - `scope:core`: 11 open, 200 closed.
 - Milestone 28: 7 open, 102 closed.

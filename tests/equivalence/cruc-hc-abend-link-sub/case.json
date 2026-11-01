@@ -1,0 +1,94 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "HCSUB",
+  "program_source": "cases/condition-handling/hc-abend-link/src/HCSUB.cbl",
+  "copy_dirs": [
+    "cases/condition-handling/hc-abend-link/copy"
+  ],
+  "transid": "HC02",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": {
+    "segments": [
+      {
+        "copybook": "cases/condition-handling/hc-abend-link/src/HCSUB.cbl",
+        "record": "DFHCOMMAREA"
+      }
+    ]
+  },
+  "screens": {},
+  "notes": "cics-crucible condition-handling / hc-abend-link, HCSUB entered directly with the 20-byte COMMAREA HCMAIN passes on LINK (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): the callee's modes N, Q and A, so its own paragraph and branch coverage is measured; the oracle is GnuCOBOL plus the stub.",
+  "scenarios": [
+    {
+      "name": "resp-qiderr",
+      "commarea": {
+        "CA-MODE": "N",
+        "CA-TRAIL": "",
+        "CA-RESULT": "",
+        "CA-COUNT": 0,
+        "CA-SPARE": ""
+      },
+      "aid": "DFHENTER",
+      "why": "mode N (WHEN OTHER): READQ TS of the absent HCNONE with RESP: QIDERR, result QIDR, trail n"
+    },
+    {
+      "name": "resp-queue-exists",
+      "commarea": {
+        "CA-MODE": "N",
+        "CA-TRAIL": "",
+        "CA-RESULT": "",
+        "CA-COUNT": 0,
+        "CA-SPARE": ""
+      },
+      "aid": "DFHENTER",
+      "ts": {
+        "HCNONE": [
+          "JUNK"
+        ]
+      },
+      "why": "the queue exists: RESP NORMAL, the QIDERR test is false"
+    },
+    {
+      "name": "own-abend-handler",
+      "commarea": {
+        "CA-MODE": "A",
+        "CA-TRAIL": "",
+        "CA-RESULT": "",
+        "CA-COUNT": 0,
+        "CA-SPARE": ""
+      },
+      "aid": "DFHENTER",
+      "why": "mode A: its own HANDLE ABEND LABEL, ABEND HCX1, recovery by RETURN with the abend code in CA-RESULT"
+    },
+    {
+      "name": "readq-no-resp",
+      "commarea": {
+        "CA-MODE": "Q",
+        "CA-TRAIL": "",
+        "CA-RESULT": "",
+        "CA-COUNT": 0,
+        "CA-SPARE": ""
+      },
+      "aid": "DFHENTER",
+      "why": "mode Q: READQ without RESP: QIDERR default action abends AEYH"
+    },
+    {
+      "name": "readq-no-resp-exists",
+      "commarea": {
+        "CA-MODE": "Q",
+        "CA-TRAIL": "",
+        "CA-RESULT": "",
+        "CA-COUNT": 0,
+        "CA-SPARE": ""
+      },
+      "aid": "DFHENTER",
+      "ts": {
+        "HCNONE": [
+          "JUNK"
+        ]
+      },
+      "why": "mode Q with the queue present: the READQ completes, trail x"
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-"""#5079 (oracle_assumptions.md X59): the runtime under EXEC CICS ADDRESS CWA (slice 1; the spec stays refused).
+"""#5079 (oracle_assumptions.md X59): the runtime under EXEC CICS ADDRESS CWA (slice 1; the spec models it since slice 2a).
 
 IBM, EXEC CICS ADDRESS: CWA "returns a pointer reference set to the address of the common work area (CWA)"; its size is the
 SIT's WRKAREA, one area for the region. Over the whole input class (CicsTask + DetCics, compiled):

@@ -88,8 +88,8 @@
    "line": 270,
    "before": "int[] planned1 = task.planned(\"DELAY\", \"-\");",
    "after": "int[] planned1 = task.planned(\"XELAY\", \"-\");",
-   "verdict": "harness-gap",
-   "reason": "GETPOL runs here as a grandchild (CSSTATS2 starts it), and a scenario fault's `child` key can only name a task RUN directly from the case's program, so asyncpnt cannot plan a fault in it; asynccc-csstatus's delay-invreq kills this mutant (#5862)"
+   "verdict": "unreachable",
+   "reason": "GetpolService.java line 270: GETPOL is RUN by the STUS child (CSSTATS2), which never waits, so it is never dispatched (register X18, ASSUMED: a task that never waits ends with its RUN children not run); its directory in the proof stays empty, so no input of this case reaches the line; asynccc-csstatus waits for it and its delay-invreq kills this mutant (#5862)"
   },
   {
    "id": "97ffc4d20d",
@@ -97,8 +97,8 @@
    "line": 270,
    "before": "int[] planned1 = task.planned(\"DELAY\", \"-\");",
    "after": "int[] planned1 = task.planned(\"DELAY\", \"X\");",
-   "verdict": "harness-gap",
-   "reason": "GETPOL runs here as a grandchild (CSSTATS2 starts it), and a scenario fault's `child` key can only name a task RUN directly from the case's program, so asyncpnt cannot plan a fault in it; asynccc-csstatus's delay-invreq kills this mutant (#5862)"
+   "verdict": "unreachable",
+   "reason": "GetpolService.java line 270: GETPOL is RUN by the STUS child (CSSTATS2), which never waits, so it is never dispatched (register X18, ASSUMED: a task that never waits ends with its RUN children not run); its directory in the proof stays empty, so no input of this case reaches the line; asynccc-csstatus waits for it and its delay-invreq kills this mutant (#5862)"
   },
   {
    "id": "a1987a91b7",
@@ -106,8 +106,8 @@
    "line": 270,
    "before": "int[] planned1 = task.planned(\"DELAY\", \"-\");",
    "after": "int[] planned1 = task.planned(\"XELAY\", \"-\");",
-   "verdict": "harness-gap",
-   "reason": "GETSPND runs here as a grandchild (CSSTATS2 starts it), and a scenario fault's `child` key can only name a task RUN directly from the case's program, so asyncpnt cannot plan a fault in it; asynccc-csstatus's delay-invreq kills this mutant (#5862)"
+   "verdict": "unreachable",
+   "reason": "GetspndService.java line 270: GETSPND is RUN by the STUS child (CSSTATS2), which never waits, so it is never dispatched (register X18, ASSUMED: a task that never waits ends with its RUN children not run); its directory in the proof stays empty, so no input of this case reaches the line; asynccc-csstatus waits for it and its delay-invreq kills this mutant (#5862)"
   },
   {
    "id": "bc2752e7e4",
@@ -115,8 +115,8 @@
    "line": 270,
    "before": "int[] planned1 = task.planned(\"DELAY\", \"-\");",
    "after": "int[] planned1 = task.planned(\"DELAY\", \"X\");",
-   "verdict": "harness-gap",
-   "reason": "GETSPND runs here as a grandchild (CSSTATS2 starts it), and a scenario fault's `child` key can only name a task RUN directly from the case's program, so asyncpnt cannot plan a fault in it; asynccc-csstatus's delay-invreq kills this mutant (#5862)"
+   "verdict": "unreachable",
+   "reason": "GetspndService.java line 270: GETSPND is RUN by the STUS child (CSSTATS2), which never waits, so it is never dispatched (register X18, ASSUMED: a task that never waits ends with its RUN children not run); its directory in the proof stays empty, so no input of this case reaches the line; asynccc-csstatus waits for it and its delay-invreq kills this mutant (#5862)"
   },
   {
    "id": "0d8a30cf46",
@@ -124,8 +124,8 @@
    "line": 271,
    "before": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
    "after": "if (!(planned1[0] == 0)) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
-   "verdict": "case-gap",
-   "reason": "GetspndService.java line 271: in this case the program runs as a RUN TRANSID child, so whether and how long it DELAYs is its completion time (X18), which decides the order FETCH ANY answers in; no scenario here turns on that order or on a FETCH TIMEOUT that falls between two children"
+   "verdict": "equivalent",
+   "reason": "GetspndService.java line 271: the change only moves whether or how long the task DELAYs, and a DELAY only advances the task's own clock (task.waited, X4/X18); only FETCH ANY / WAIT read it (a child's completion time) and ASYNCPNT issues neither (it FETCHes each child by token), nor ASKTIME, so no output, event, container or abend differs (#5862)"
   },
   {
    "id": "17122a137b",
@@ -142,8 +142,8 @@
    "line": 271,
    "before": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
    "after": "if (planned1[0] == 1) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
-   "verdict": "case-gap",
-   "reason": "GetspndService.java line 271: in this case the program runs as a RUN TRANSID child, so whether and how long it DELAYs is its completion time (X18), which decides the order FETCH ANY answers in; no scenario here turns on that order or on a FETCH TIMEOUT that falls between two children"
+   "verdict": "equivalent",
+   "reason": "GetspndService.java line 271: the change only moves whether or how long the task DELAYs, and a DELAY only advances the task's own clock (task.waited, X4/X18); only FETCH ANY / WAIT read it (a child's completion time) and ASYNCPNT issues neither (it FETCHes each child by token), nor ASKTIME, so no output, event, container or abend differs (#5862)"
   },
   {
    "id": "5bc0f4de40",
@@ -151,8 +151,8 @@
    "line": 271,
    "before": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
    "after": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");",
-   "verdict": "case-gap",
-   "reason": "GetspndService.java line 271: in this case the program runs as a RUN TRANSID child, so whether and how long it DELAYs is its completion time (X18), which decides the order FETCH ANY answers in; no scenario here turns on that order or on a FETCH TIMEOUT that falls between two children"
+   "verdict": "equivalent",
+   "reason": "GetspndService.java line 271: the change only moves whether or how long the task DELAYs, and a DELAY only advances the task's own clock (task.waited, X4/X18); only FETCH ANY / WAIT read it (a child's completion time) and ASYNCPNT issues neither (it FETCHes each child by token), nor ASKTIME, so no output, event, container or abend differs (#5862)"
   },
   {
    "id": "858377d742",
@@ -160,8 +160,8 @@
    "line": 271,
    "before": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
    "after": "if (planned1[0] != 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
-   "verdict": "case-gap",
-   "reason": "GetspndService.java line 271: in this case the program runs as a RUN TRANSID child, so whether and how long it DELAYs is its completion time (X18), which decides the order FETCH ANY answers in; no scenario here turns on that order or on a FETCH TIMEOUT that falls between two children"
+   "verdict": "equivalent",
+   "reason": "GetspndService.java line 271: the change only moves whether or how long the task DELAYs, and a DELAY only advances the task's own clock (task.waited, X4/X18); only FETCH ANY / WAIT read it (a child's completion time) and ASYNCPNT issues neither (it FETCHes each child by token), nor ASKTIME, so no output, event, container or abend differs (#5862)"
   },
   {
    "id": "8d9430c01c",
@@ -178,8 +178,8 @@
    "line": 271,
    "before": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
    "after": "if (!(planned1[0] == 0)) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
-   "verdict": "case-gap",
-   "reason": "GetpolService.java line 271: in this case the program runs as a RUN TRANSID child, so whether and how long it DELAYs is its completion time (X18), which decides the order FETCH ANY answers in; no scenario here turns on that order or on a FETCH TIMEOUT that falls between two children"
+   "verdict": "equivalent",
+   "reason": "GetpolService.java line 271: the change only moves whether or how long the task DELAYs, and a DELAY only advances the task's own clock (task.waited, X4/X18); only FETCH ANY / WAIT read it (a child's completion time) and ASYNCPNT issues neither (it FETCHes each child by token), nor ASKTIME, so no output, event, container or abend differs (#5862)"
   },
   {
    "id": "b878f46d5b",
@@ -196,8 +196,8 @@
    "line": 271,
    "before": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
    "after": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");",
-   "verdict": "case-gap",
-   "reason": "GetpolService.java line 271: in this case the program runs as a RUN TRANSID child, so whether and how long it DELAYs is its completion time (X18), which decides the order FETCH ANY answers in; no scenario here turns on that order or on a FETCH TIMEOUT that falls between two children"
+   "verdict": "equivalent",
+   "reason": "GetpolService.java line 271: the change only moves whether or how long the task DELAYs, and a DELAY only advances the task's own clock (task.waited, X4/X18); only FETCH ANY / WAIT read it (a child's completion time) and ASYNCPNT issues neither (it FETCHes each child by token), nor ASKTIME, so no output, event, container or abend differs (#5862)"
   },
   {
    "id": "bc24359b0e",
@@ -205,8 +205,8 @@
    "line": 271,
    "before": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
    "after": "if (planned1[0] == 1) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
-   "verdict": "case-gap",
-   "reason": "GetpolService.java line 271: in this case the program runs as a RUN TRANSID child, so whether and how long it DELAYs is its completion time (X18), which decides the order FETCH ANY answers in; no scenario here turns on that order or on a FETCH TIMEOUT that falls between two children"
+   "verdict": "equivalent",
+   "reason": "GetpolService.java line 271: the change only moves whether or how long the task DELAYs, and a DELAY only advances the task's own clock (task.waited, X4/X18); only FETCH ANY / WAIT read it (a child's completion time) and ASYNCPNT issues neither (it FETCHes each child by token), nor ASKTIME, so no output, event, container or abend differs (#5862)"
   },
   {
    "id": "e9f57fcfb5",
@@ -223,8 +223,8 @@
    "line": 271,
    "before": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
    "after": "if (planned1[0] != 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
-   "verdict": "case-gap",
-   "reason": "GetpolService.java line 271: in this case the program runs as a RUN TRANSID child, so whether and how long it DELAYs is its completion time (X18), which decides the order FETCH ANY answers in; no scenario here turns on that order or on a FETCH TIMEOUT that falls between two children"
+   "verdict": "equivalent",
+   "reason": "GetpolService.java line 271: the change only moves whether or how long the task DELAYs, and a DELAY only advances the task's own clock (task.waited, X4/X18); only FETCH ANY / WAIT read it (a child's completion time) and ASYNCPNT issues neither (it FETCHes each child by token), nor ASKTIME, so no output, event, container or abend differs (#5862)"
   },
   {
    "id": "2c97437c95",
@@ -313,8 +313,8 @@
    "line": 274,
    "before": "if (planned1[0] != 0) {",
    "after": "if (planned1[0] != 1) {",
-   "verdict": "harness-gap",
-   "reason": "GETPOL runs here as a grandchild (CSSTATS2 starts it), and a scenario fault's `child` key can only name a task RUN directly from the case's program, so asyncpnt cannot plan a fault in it; asynccc-csstatus's delay-invreq kills this mutant (#5862)"
+   "verdict": "unreachable",
+   "reason": "GetpolService.java line 274: GETPOL is RUN by the STUS child (CSSTATS2), which never waits, so it is never dispatched (register X18, ASSUMED: a task that never waits ends with its RUN children not run); its directory in the proof stays empty, so no input of this case reaches the line; asynccc-csstatus waits for it and its delay-invreq kills this mutant (#5862)"
   },
   {
    "id": "b6236419c9",
@@ -322,8 +322,8 @@
    "line": 274,
    "before": "if (planned1[0] != 0) {",
    "after": "if (planned1[0] != 1) {",
-   "verdict": "harness-gap",
-   "reason": "GETSPND runs here as a grandchild (CSSTATS2 starts it), and a scenario fault's `child` key can only name a task RUN directly from the case's program, so asyncpnt cannot plan a fault in it; asynccc-csstatus's delay-invreq kills this mutant (#5862)"
+   "verdict": "unreachable",
+   "reason": "GetspndService.java line 274: GETSPND is RUN by the STUS child (CSSTATS2), which never waits, so it is never dispatched (register X18, ASSUMED: a task that never waits ends with its RUN children not run); its directory in the proof stays empty, so no input of this case reaches the line; asynccc-csstatus waits for it and its delay-invreq kills this mutant (#5862)"
   },
   {
    "id": "cf6eb872e0",
@@ -340,8 +340,8 @@
    "line": 274,
    "before": "if (planned1[0] != 0) {",
    "after": "if (!(planned1[0] != 0)) {",
-   "verdict": "harness-gap",
-   "reason": "GETSPND runs here as a grandchild (CSSTATS2 starts it), and a scenario fault's `child` key can only name a task RUN directly from the case's program, so asyncpnt cannot plan a fault in it; asynccc-csstatus's delay-invreq kills this mutant (#5862)"
+   "verdict": "unreachable",
+   "reason": "GetspndService.java line 274: GETSPND is RUN by the STUS child (CSSTATS2), which never waits, so it is never dispatched (register X18, ASSUMED: a task that never waits ends with its RUN children not run); its directory in the proof stays empty, so no input of this case reaches the line; asynccc-csstatus waits for it and its delay-invreq kills this mutant (#5862)"
   },
   {
    "id": "e96b7f974b",
@@ -349,8 +349,8 @@
    "line": 274,
    "before": "if (planned1[0] != 0) {",
    "after": "if (planned1[0] == 0) {",
-   "verdict": "harness-gap",
-   "reason": "GETSPND runs here as a grandchild (CSSTATS2 starts it), and a scenario fault's `child` key can only name a task RUN directly from the case's program, so asyncpnt cannot plan a fault in it; asynccc-csstatus's delay-invreq kills this mutant (#5862)"
+   "verdict": "unreachable",
+   "reason": "GetspndService.java line 274: GETSPND is RUN by the STUS child (CSSTATS2), which never waits, so it is never dispatched (register X18, ASSUMED: a task that never waits ends with its RUN children not run); its directory in the proof stays empty, so no input of this case reaches the line; asynccc-csstatus waits for it and its delay-invreq kills this mutant (#5862)"
   },
   {
    "id": "ec1198e9ef",
@@ -358,8 +358,8 @@
    "line": 274,
    "before": "if (planned1[0] != 0) {",
    "after": "if (!(planned1[0] != 0)) {",
-   "verdict": "harness-gap",
-   "reason": "GETPOL runs here as a grandchild (CSSTATS2 starts it), and a scenario fault's `child` key can only name a task RUN directly from the case's program, so asyncpnt cannot plan a fault in it; asynccc-csstatus's delay-invreq kills this mutant (#5862)"
+   "verdict": "unreachable",
+   "reason": "GetpolService.java line 274: GETPOL is RUN by the STUS child (CSSTATS2), which never waits, so it is never dispatched (register X18, ASSUMED: a task that never waits ends with its RUN children not run); its directory in the proof stays empty, so no input of this case reaches the line; asynccc-csstatus waits for it and its delay-invreq kills this mutant (#5862)"
   },
   {
    "id": "f703eca69e",
@@ -367,8 +367,8 @@
    "line": 274,
    "before": "if (planned1[0] != 0) {",
    "after": "if (planned1[0] == 0) {",
-   "verdict": "harness-gap",
-   "reason": "GETPOL runs here as a grandchild (CSSTATS2 starts it), and a scenario fault's `child` key can only name a task RUN directly from the case's program, so asyncpnt cannot plan a fault in it; asynccc-csstatus's delay-invreq kills this mutant (#5862)"
+   "verdict": "unreachable",
+   "reason": "GetpolService.java line 274: GETPOL is RUN by the STUS child (CSSTATS2), which never waits, so it is never dispatched (register X18, ASSUMED: a task that never waits ends with its RUN children not run); its directory in the proof stays empty, so no input of this case reaches the line; asynccc-csstatus waits for it and its delay-invreq kills this mutant (#5862)"
   },
   {
    "id": "9430858797",
@@ -376,8 +376,8 @@
    "line": 275,
    "before": "int to = condition(DetCics.condition(planned1[0]));",
    "after": "int to = condition(DetCics.condition(planned1[1]));",
-   "verdict": "harness-gap",
-   "reason": "GETPOL runs here as a grandchild (CSSTATS2 starts it), and a scenario fault's `child` key can only name a task RUN directly from the case's program, so asyncpnt cannot plan a fault in it; asynccc-csstatus's delay-invreq kills this mutant (#5862)"
+   "verdict": "unreachable",
+   "reason": "GetpolService.java line 275: GETPOL is RUN by the STUS child (CSSTATS2), which never waits, so it is never dispatched (register X18, ASSUMED: a task that never waits ends with its RUN children not run); its directory in the proof stays empty, so no input of this case reaches the line; asynccc-csstatus waits for it and its delay-invreq kills this mutant (#5862)"
   },
   {
    "id": "9bc4cf6d5e",
@@ -385,8 +385,8 @@
    "line": 275,
    "before": "int to = condition(DetCics.condition(planned1[0]));",
    "after": "int to = condition(DetCics.condition(planned1[1]));",
-   "verdict": "harness-gap",
-   "reason": "GETSPND runs here as a grandchild (CSSTATS2 starts it), and a scenario fault's `child` key can only name a task RUN directly from the case's program, so asyncpnt cannot plan a fault in it; asynccc-csstatus's delay-invreq kills this mutant (#5862)"
+   "verdict": "unreachable",
+   "reason": "GetspndService.java line 275: GETSPND is RUN by the STUS child (CSSTATS2), which never waits, so it is never dispatched (register X18, ASSUMED: a task that never waits ends with its RUN children not run); its directory in the proof stays empty, so no input of this case reaches the line; asynccc-csstatus waits for it and its delay-invreq kills this mutant (#5862)"
   },
   {
    "id": "37d4b20ace",
@@ -394,8 +394,8 @@
    "line": 293,
    "before": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");",
    "after": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(4), null), \"DELAY out of range\");",
-   "verdict": "case-gap",
-   "reason": "UpdcsdbService.java line 293: in this case the program runs as a RUN TRANSID child, so whether and how long it DELAYs is its completion time (X18), which decides the order FETCH ANY answers in; no scenario here turns on that order or on a FETCH TIMEOUT that falls between two children"
+   "verdict": "equivalent",
+   "reason": "UpdcsdbService.java line 293: the change only moves whether or how long the task DELAYs, and a DELAY only advances the task's own clock (task.waited, X4/X18); only FETCH ANY / WAIT read it (a child's completion time) and ASYNCPNT issues neither (it FETCHes each child by token), nor ASKTIME, so no output, event, container or abend differs (#5862)"
   },
   {
    "id": "5e279a28d8",
@@ -403,8 +403,8 @@
    "line": 293,
    "before": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");",
    "after": "if (planned1[0] != 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");",
-   "verdict": "case-gap",
-   "reason": "UpdcsdbService.java line 293: in this case the program runs as a RUN TRANSID child, so whether and how long it DELAYs is its completion time (X18), which decides the order FETCH ANY answers in; no scenario here turns on that order or on a FETCH TIMEOUT that falls between two children"
+   "verdict": "equivalent",
+   "reason": "UpdcsdbService.java line 293: the change only moves whether or how long the task DELAYs, and a DELAY only advances the task's own clock (task.waited, X4/X18); only FETCH ANY / WAIT read it (a child's completion time) and ASYNCPNT issues neither (it FETCHes each child by token), nor ASKTIME, so no output, event, container or abend differs (#5862)"
   },
   {
    "id": "73a627fdeb",
@@ -412,8 +412,8 @@
    "line": 293,
    "before": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");",
    "after": "if (planned1[0] == 1) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");",
-   "verdict": "case-gap",
-   "reason": "UpdcsdbService.java line 293: in this case the program runs as a RUN TRANSID child, so whether and how long it DELAYs is its completion time (X18), which decides the order FETCH ANY answers in; no scenario here turns on that order or on a FETCH TIMEOUT that falls between two children"
+   "verdict": "equivalent",
+   "reason": "UpdcsdbService.java line 293: the change only moves whether or how long the task DELAYs, and a DELAY only advances the task's own clock (task.waited, X4/X18); only FETCH ANY / WAIT read it (a child's completion time) and ASYNCPNT issues neither (it FETCHes each child by token), nor ASKTIME, so no output, event, container or abend differs (#5862)"
   },
   {
    "id": "b286d193ad",
@@ -430,8 +430,8 @@
    "line": 293,
    "before": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");",
    "after": "if (!(planned1[0] == 0)) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");",
-   "verdict": "case-gap",
-   "reason": "UpdcsdbService.java line 293: in this case the program runs as a RUN TRANSID child, so whether and how long it DELAYs is its completion time (X18), which decides the order FETCH ANY answers in; no scenario here turns on that order or on a FETCH TIMEOUT that falls between two children"
+   "verdict": "equivalent",
+   "reason": "UpdcsdbService.java line 293: the change only moves whether or how long the task DELAYs, and a DELAY only advances the task's own clock (task.waited, X4/X18); only FETCH ANY / WAIT read it (a child's completion time) and ASYNCPNT issues neither (it FETCHes each child by token), nor ASKTIME, so no output, event, container or abend differs (#5862)"
   },
   {
    "id": "e68b6d7889",
@@ -493,8 +493,8 @@
    "line": 314,
    "before": "if (planned2[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
    "after": "if (planned2[0] != 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
-   "verdict": "case-gap",
-   "reason": "CrdtchkService.java line 314: in this case the program runs as a RUN TRANSID child, so whether and how long it DELAYs is its completion time (X18), which decides the order FETCH ANY answers in; no scenario here turns on that order or on a FETCH TIMEOUT that falls between two children"
+   "verdict": "equivalent",
+   "reason": "CrdtchkService.java line 314: the change only moves whether or how long the task DELAYs, and a DELAY only advances the task's own clock (task.waited, X4/X18); only FETCH ANY / WAIT read it (a child's completion time) and ASYNCPNT issues neither (it FETCHes each child by token), nor ASKTIME, so no output, event, container or abend differs (#5862)"
   },
   {
    "id": "63eeef6274",
@@ -502,8 +502,8 @@
    "line": 314,
    "before": "if (planned2[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
    "after": "if (!(planned2[0] == 0)) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
-   "verdict": "case-gap",
-   "reason": "CrdtchkService.java line 314: in this case the program runs as a RUN TRANSID child, so whether and how long it DELAYs is its completion time (X18), which decides the order FETCH ANY answers in; no scenario here turns on that order or on a FETCH TIMEOUT that falls between two children"
+   "verdict": "equivalent",
+   "reason": "CrdtchkService.java line 314: the change only moves whether or how long the task DELAYs, and a DELAY only advances the task's own clock (task.waited, X4/X18); only FETCH ANY / WAIT read it (a child's completion time) and ASYNCPNT issues neither (it FETCHes each child by token), nor ASKTIME, so no output, event, container or abend differs (#5862)"
   },
   {
    "id": "8fd20ba8c4",
@@ -511,8 +511,8 @@
    "line": 314,
    "before": "if (planned2[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
    "after": "if (planned2[0] == 1) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
-   "verdict": "case-gap",
-   "reason": "CrdtchkService.java line 314: in this case the program runs as a RUN TRANSID child, so whether and how long it DELAYs is its completion time (X18), which decides the order FETCH ANY answers in; no scenario here turns on that order or on a FETCH TIMEOUT that falls between two children"
+   "verdict": "equivalent",
+   "reason": "CrdtchkService.java line 314: the change only moves whether or how long the task DELAYs, and a DELAY only advances the task's own clock (task.waited, X4/X18); only FETCH ANY / WAIT read it (a child's completion time) and ASYNCPNT issues neither (it FETCHes each child by token), nor ASKTIME, so no output, event, container or abend differs (#5862)"
   },
   {
    "id": "bf9f1efd29",
@@ -529,8 +529,8 @@
    "line": 314,
    "before": "if (planned2[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
    "after": "if (planned2[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(6), null), \"DELAY out of range\");",
-   "verdict": "case-gap",
-   "reason": "CrdtchkService.java line 314: in this case the program runs as a RUN TRANSID child, so whether and how long it DELAYs is its completion time (X18), which decides the order FETCH ANY answers in; no scenario here turns on that order or on a FETCH TIMEOUT that falls between two children"
+   "verdict": "equivalent",
+   "reason": "CrdtchkService.java line 314: the change only moves whether or how long the task DELAYs, and a DELAY only advances the task's own clock (task.waited, X4/X18); only FETCH ANY / WAIT read it (a child's completion time) and ASYNCPNT issues neither (it FETCHes each child by token), nor ASKTIME, so no output, event, container or abend differs (#5862)"
   },
   {
    "id": "3d42ef7305",
@@ -574,8 +574,8 @@
    "line": 320,
    "before": "if (planned2[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
    "after": "if (planned2[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(6), null), \"DELAY out of range\");",
-   "verdict": "case-gap",
-   "reason": "GetaddrService.java line 320: in this case the program runs as a RUN TRANSID child, so whether and how long it DELAYs is its completion time (X18), which decides the order FETCH ANY answers in; no scenario here turns on that order or on a FETCH TIMEOUT that falls between two children"
+   "verdict": "equivalent",
+   "reason": "GetaddrService.java line 320: the change only moves whether or how long the task DELAYs, and a DELAY only advances the task's own clock (task.waited, X4/X18); only FETCH ANY / WAIT read it (a child's completion time) and ASYNCPNT issues neither (it FETCHes each child by token), nor ASKTIME, so no output, event, container or abend differs (#5862)"
   },
   {
    "id": "2624780a91",
@@ -583,8 +583,8 @@
    "line": 320,
    "before": "if (planned2[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
    "after": "if (planned2[0] != 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
-   "verdict": "case-gap",
-   "reason": "GetaddrService.java line 320: in this case the program runs as a RUN TRANSID child, so whether and how long it DELAYs is its completion time (X18), which decides the order FETCH ANY answers in; no scenario here turns on that order or on a FETCH TIMEOUT that falls between two children"
+   "verdict": "equivalent",
+   "reason": "GetaddrService.java line 320: the change only moves whether or how long the task DELAYs, and a DELAY only advances the task's own clock (task.waited, X4/X18); only FETCH ANY / WAIT read it (a child's completion time) and ASYNCPNT issues neither (it FETCHes each child by token), nor ASKTIME, so no output, event, container or abend differs (#5862)"
   },
   {
    "id": "55f9b97d5f",
@@ -601,8 +601,8 @@
    "line": 320,
    "before": "if (planned2[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
    "after": "if (planned2[0] == 1) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
-   "verdict": "case-gap",
-   "reason": "GetaddrService.java line 320: in this case the program runs as a RUN TRANSID child, so whether and how long it DELAYs is its completion time (X18), which decides the order FETCH ANY answers in; no scenario here turns on that order or on a FETCH TIMEOUT that falls between two children"
+   "verdict": "equivalent",
+   "reason": "GetaddrService.java line 320: the change only moves whether or how long the task DELAYs, and a DELAY only advances the task's own clock (task.waited, X4/X18); only FETCH ANY / WAIT read it (a child's completion time) and ASYNCPNT issues neither (it FETCHes each child by token), nor ASKTIME, so no output, event, container or abend differs (#5862)"
   },
   {
    "id": "60fd6f9be2",
@@ -619,8 +619,8 @@
    "line": 320,
    "before": "if (planned2[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
    "after": "if (!(planned2[0] == 0)) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
-   "verdict": "case-gap",
-   "reason": "GetaddrService.java line 320: in this case the program runs as a RUN TRANSID child, so whether and how long it DELAYs is its completion time (X18), which decides the order FETCH ANY answers in; no scenario here turns on that order or on a FETCH TIMEOUT that falls between two children"
+   "verdict": "equivalent",
+   "reason": "GetaddrService.java line 320: the change only moves whether or how long the task DELAYs, and a DELAY only advances the task's own clock (task.waited, X4/X18); only FETCH ANY / WAIT read it (a child's completion time) and ASYNCPNT issues neither (it FETCHes each child by token), nor ASKTIME, so no output, event, container or abend differs (#5862)"
   },
   {
    "id": "7cc04b44e6",
@@ -774,6 +774,15 @@
    "after": "if (planned23[1] == 0) task.sendText(text22.substring(0, Math.min(text22.length(), 72)), 72, \"ERASE\", \"FREEKB\", \"WAIT\");",
    "verdict": "equivalent",
    "reason": "planned23[1] is the RESP2 of the planned SEND TEXT fault. Every SEND TEXT fault this case plans is an INVREQ that carries a nonzero RESP2 (200; IBM sets RESP2 for these INVREQs), so planned[1] == 0 exactly when planned[0] == 0 on every input the case can plan, and the mutant behaves as the original (register X72, #5862)"
+  },
+  {
+   "id": "78010eaa89",
+   "op": "CON",
+   "line": 641,
+   "before": "if (planned23[0] == 0) task.sendText(text22.substring(0, Math.min(text22.length(), 72)), 72, \"ERASE\", \"FREEKB\", \"WAIT\");",
+   "after": "if (planned23[0] == 0) task.sendText(text22.substring(0, Math.min(text22.length(), 72)), 73, \"ERASE\", \"FREEKB\", \"WAIT\");",
+   "verdict": "harness-gap",
+   "reason": "the LENGTH argument of the SEND TEXT (72 -> 73) changes the length the Java task records in its SEND-TEXT event, but the proof compares a SEND-TEXT event's text and options only (equivalence_cics.py, the COBOL stub's len= is dropped when the event is built), so a different length is never seen; the harness must compare it (open, #5862)"
   },
   {
    "id": "d209d21f6f",

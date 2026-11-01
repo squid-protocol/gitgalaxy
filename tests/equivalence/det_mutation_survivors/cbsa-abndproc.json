@@ -272,15 +272,6 @@
    "reason": "ABNDPROC's PROCEDURE DIVISION reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; EIB and RETURN-CODE fields are never referenced by procedure division statements"
   },
   {
-   "id": "78ced98a62",
-   "op": "CON",
-   "line": 110,
-   "before": "private final Field f59_DFHCOMMAREA = Field.group(s_DFHCOMMAREA, 0, 681);",
-   "after": "private final Field f59_DFHCOMMAREA = Field.group(s_DFHCOMMAREA, 0, 682);",
-   "verdict": "equivalent",
-   "reason": "ABNDPROC's PROCEDURE DIVISION reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; EIB and RETURN-CODE fields are never referenced by procedure division statements"
-  },
-  {
    "id": "2c11bb6ec9",
    "op": "CON",
    "line": 111,
@@ -821,33 +812,6 @@
    "reason": "condition() runs only for a CICS condition a command raises without RESP; ABNDPROC's one command, the WRITE (ABNDPROC.cbl A010), has RESP(WS-CICS-RESP) RESP2, so condition(), abended(), and PARAGRAPHS lookups never run"
   },
   {
-   "id": "db8b9c4788",
-   "op": "NEG",
-   "line": 199,
-   "before": "if (d == null) {",
-   "after": "if (!(d == null)) {",
-   "verdict": "unreachable",
-   "reason": "in_AbndprocDfhcommarea is called only under ca instanceof AbndprocDfhcommarea, so d is never null; the guard body return is unreachable"
-  },
-  {
-   "id": "ebaac5866d",
-   "op": "ROR",
-   "line": 199,
-   "before": "if (d == null) {",
-   "after": "if (d != null) {",
-   "verdict": "unreachable",
-   "reason": "in_AbndprocDfhcommarea is called only under ca instanceof AbndprocDfhcommarea, so d is never null; the guard body return is unreachable"
-  },
-  {
-   "id": "1c42203f58",
-   "op": "ROR",
-   "line": 202,
-   "before": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS);",
-   "after": "Cobol.move(d.getAbndUtimeKey() != null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS);",
-   "verdict": "equivalent",
-   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
-  },
-  {
    "id": "2b6d88f263",
    "op": "AOR",
    "line": 202,
@@ -855,33 +819,6 @@
    "after": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base - 0, 15, 0, true), CS);",
    "verdict": "equivalent",
    "reason": "`base - 0` for `base + 0`: the same offset"
-  },
-  {
-   "id": "66ddf14fba",
-   "op": "CON",
-   "line": 202,
-   "before": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS);",
-   "after": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 1, 15, 0, true), CS);",
-   "verdict": "equivalent",
-   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
-  },
-  {
-   "id": "9e6532d5e8",
-   "op": "DEL",
-   "line": 202,
-   "before": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS);",
-   "after": "/* Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS); */",
-   "verdict": "equivalent",
-   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
-  },
-  {
-   "id": "130bf69c51",
-   "op": "DEL",
-   "line": 203,
-   "before": "Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 0, false, false, false), CS);",
-   "after": "/* Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 0, false, false, false), CS); */",
-   "verdict": "equivalent",
-   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
   },
   {
    "id": "3140ca7040",
@@ -893,42 +830,6 @@
    "reason": "in_AbndprocDfhcommarea is called only under ca instanceof AbndprocDfhcommarea, so d is never null; the guard body return is unreachable"
   },
   {
-   "id": "c9e77ad474",
-   "op": "ROR",
-   "line": 203,
-   "before": "Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 0, false, false, false), CS);",
-   "after": "Cobol.move(d.getAbndTasknoKey() != null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 0, false, false, false), CS);",
-   "verdict": "equivalent",
-   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
-  },
-  {
-   "id": "bab5398e99",
-   "op": "ROR",
-   "line": 204,
-   "before": "Cobol.move(d.getAbndApplid() == null ? \"\" : d.getAbndApplid(), Field.alphanumeric(s, base + 12, 8, false), CS);",
-   "after": "Cobol.move(d.getAbndApplid() != null ? \"\" : d.getAbndApplid(), Field.alphanumeric(s, base + 12, 8, false), CS);",
-   "verdict": "equivalent",
-   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
-  },
-  {
-   "id": "3e37d63d92",
-   "op": "CON",
-   "line": 205,
-   "before": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS);",
-   "after": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 1, true), CS);",
-   "verdict": "equivalent",
-   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
-  },
-  {
-   "id": "dcd783d808",
-   "op": "ROR",
-   "line": 205,
-   "before": "Cobol.move(d.getAbndTranid() == null ? \"\" : d.getAbndTranid(), Field.alphanumeric(s, base + 20, 4, false), CS);",
-   "after": "Cobol.move(d.getAbndTranid() != null ? \"\" : d.getAbndTranid(), Field.alphanumeric(s, base + 20, 4, false), CS);",
-   "verdict": "equivalent",
-   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
-  },
-  {
    "id": "e015a6b7ab",
    "op": "CON",
    "line": 205,
@@ -936,24 +837,6 @@
    "after": "Cobol.move(d.getAbndTranid() == null ? \"\" : d.getAbndTranid(), Field.alphanumeric(s, base + 20, 5, false), CS);",
    "verdict": "equivalent",
    "reason": "in_: ABND-TRANID moved into 5 bytes (20-24) instead of 4 spills one byte into ABND-DATE (24), which the next statement, the ABND-DATE move into 24-33, overwrites"
-  },
-  {
-   "id": "f04b36f2fa",
-   "op": "CON",
-   "line": 205,
-   "before": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS);",
-   "after": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 16, 0, true), CS);",
-   "verdict": "equivalent",
-   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
-  },
-  {
-   "id": "36f872c8bc",
-   "op": "CON",
-   "line": 206,
-   "before": "Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 0, false, false, false), CS);",
-   "after": "Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 5, 0, false, false, false), CS);",
-   "verdict": "equivalent",
-   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
   },
   {
    "id": "d0fb8ff082",
@@ -965,65 +848,11 @@
    "reason": "in_: ABND-DATE moved into 11 bytes (24-34) instead of 10 spills one byte into ABND-TIME (34), which the next statement, the ABND-TIME move into 34-41, overwrites"
   },
   {
-   "id": "d716d95e41",
-   "op": "CON",
-   "line": 206,
-   "before": "Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 0, false, false, false), CS);",
-   "after": "Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 1, false, false, false), CS);",
-   "verdict": "equivalent",
-   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
-  },
-  {
-   "id": "ec147facb0",
-   "op": "CON",
-   "line": 206,
-   "before": "Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 0, false, false, false), CS);",
-   "after": "Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 9, 4, 0, false, false, false), CS);",
-   "verdict": "equivalent",
-   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
-  },
-  {
-   "id": "3974824f4a",
-   "op": "ROR",
-   "line": 207,
-   "before": "Cobol.move(d.getAbndTime() == null ? \"\" : d.getAbndTime(), Field.alphanumeric(s, base + 34, 8, false), CS);",
-   "after": "Cobol.move(d.getAbndTime() != null ? \"\" : d.getAbndTime(), Field.alphanumeric(s, base + 34, 8, false), CS);",
-   "verdict": "equivalent",
-   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
-  },
-  {
    "id": "5c1c7be8d4",
    "op": "CON",
    "line": 207,
    "before": "Cobol.move(d.getAbndApplid() == null ? \"\" : d.getAbndApplid(), Field.alphanumeric(s, base + 12, 8, false), CS);",
    "after": "Cobol.move(d.getAbndApplid() == null ? \"\" : d.getAbndApplid(), Field.alphanumeric(s, base + 12, 9, false), CS);",
-   "verdict": "equivalent",
-   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
-  },
-  {
-   "id": "dac08d7263",
-   "op": "CON",
-   "line": 207,
-   "before": "Cobol.move(d.getAbndApplid() == null ? \"\" : d.getAbndApplid(), Field.alphanumeric(s, base + 12, 8, false), CS);",
-   "after": "Cobol.move(d.getAbndApplid() == null ? \"\" : d.getAbndApplid(), Field.alphanumeric(s, base + 13, 8, false), CS);",
-   "verdict": "equivalent",
-   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
-  },
-  {
-   "id": "330873112c",
-   "op": "CON",
-   "line": 208,
-   "before": "Cobol.move(d.getAbndTranid() == null ? \"\" : d.getAbndTranid(), Field.alphanumeric(s, base + 20, 4, false), CS);",
-   "after": "Cobol.move(d.getAbndTranid() == null ? \"\" : d.getAbndTranid(), Field.alphanumeric(s, base + 21, 4, false), CS);",
-   "verdict": "equivalent",
-   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
-  },
-  {
-   "id": "2edcf3535e",
-   "op": "ROR",
-   "line": 209,
-   "before": "Cobol.move(d.getAbndProgram() == null ? \"\" : d.getAbndProgram(), Field.alphanumeric(s, base + 46, 8, false), CS);",
-   "after": "Cobol.move(d.getAbndProgram() != null ? \"\" : d.getAbndProgram(), Field.alphanumeric(s, base + 46, 8, false), CS);",
    "verdict": "equivalent",
    "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
   },
@@ -1037,56 +866,11 @@
    "reason": "in_: ABND-PROGRAM moved into 9 bytes (46-54) instead of 8 spills one byte into ABND-RESPCODE (54), which the next statement, the ABND-RESPCODE move into 54-62, overwrites"
   },
   {
-   "id": "6296fdb1a3",
-   "op": "ROR",
-   "line": 209,
-   "before": "Cobol.move(d.getAbndDate() == null ? \"\" : d.getAbndDate(), Field.alphanumeric(s, base + 24, 10, false), CS);",
-   "after": "Cobol.move(d.getAbndDate() != null ? \"\" : d.getAbndDate(), Field.alphanumeric(s, base + 24, 10, false), CS);",
-   "verdict": "equivalent",
-   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
-  },
-  {
-   "id": "f3d087db5a",
-   "op": "CON",
-   "line": 209,
-   "before": "Cobol.move(d.getAbndDate() == null ? \"\" : d.getAbndDate(), Field.alphanumeric(s, base + 24, 10, false), CS);",
-   "after": "Cobol.move(d.getAbndDate() == null ? \"\" : d.getAbndDate(), Field.alphanumeric(s, base + 25, 10, false), CS);",
-   "verdict": "equivalent",
-   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
-  },
-  {
    "id": "65148c92db",
    "op": "CON",
    "line": 210,
    "before": "Cobol.move(d.getAbndTime() == null ? \"\" : d.getAbndTime(), Field.alphanumeric(s, base + 34, 8, false), CS);",
    "after": "Cobol.move(d.getAbndTime() == null ? \"\" : d.getAbndTime(), Field.alphanumeric(s, base + 34, 9, false), CS);",
-   "verdict": "equivalent",
-   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
-  },
-  {
-   "id": "e5db822385",
-   "op": "CON",
-   "line": 210,
-   "before": "Cobol.move(d.getAbndTime() == null ? \"\" : d.getAbndTime(), Field.alphanumeric(s, base + 34, 8, false), CS);",
-   "after": "Cobol.move(d.getAbndTime() == null ? \"\" : d.getAbndTime(), Field.alphanumeric(s, base + 35, 8, false), CS);",
-   "verdict": "equivalent",
-   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
-  },
-  {
-   "id": "3b09a96bb8",
-   "op": "CON",
-   "line": 211,
-   "before": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 0, true, true, true), CS);",
-   "after": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 9, 0, true, true, true), CS);",
-   "verdict": "equivalent",
-   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
-  },
-  {
-   "id": "85c7ad2efa",
-   "op": "CON",
-   "line": 211,
-   "before": "Cobol.move(d.getAbndCode() == null ? \"\" : d.getAbndCode(), Field.alphanumeric(s, base + 42, 4, false), CS);",
-   "after": "Cobol.move(d.getAbndCode() == null ? \"\" : d.getAbndCode(), Field.alphanumeric(s, base + 43, 4, false), CS);",
    "verdict": "equivalent",
    "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
   },
@@ -1100,159 +884,6 @@
    "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
   },
   {
-   "id": "9990dae63f",
-   "op": "ROR",
-   "line": 211,
-   "before": "Cobol.move(d.getAbndCode() == null ? \"\" : d.getAbndCode(), Field.alphanumeric(s, base + 42, 4, false), CS);",
-   "after": "Cobol.move(d.getAbndCode() != null ? \"\" : d.getAbndCode(), Field.alphanumeric(s, base + 42, 4, false), CS);",
-   "verdict": "equivalent",
-   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
-  },
-  {
-   "id": "a228dbdd3b",
-   "op": "ROR",
-   "line": 211,
-   "before": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 0, true, true, true), CS);",
-   "after": "Cobol.move(d.getAbndResp2Code() != null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 0, true, true, true), CS);",
-   "verdict": "equivalent",
-   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
-  },
-  {
-   "id": "0c0c487efe",
-   "op": "CON",
-   "line": 212,
-   "before": "Cobol.move(d.getAbndProgram() == null ? \"\" : d.getAbndProgram(), Field.alphanumeric(s, base + 46, 8, false), CS);",
-   "after": "Cobol.move(d.getAbndProgram() == null ? \"\" : d.getAbndProgram(), Field.alphanumeric(s, base + 47, 8, false), CS);",
-   "verdict": "equivalent",
-   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
-  },
-  {
-   "id": "2a827d1d3b",
-   "op": "CON",
-   "line": 212,
-   "before": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 0, true, true, true), CS);",
-   "after": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 73, 8, 0, true, true, true), CS);",
-   "verdict": "equivalent",
-   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
-  },
-  {
-   "id": "4eb4ddf5a7",
-   "op": "DEL",
-   "line": 212,
-   "before": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 0, true, true, true), CS);",
-   "after": "/* Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 0, true, true, true), CS); */",
-   "verdict": "equivalent",
-   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
-  },
-  {
-   "id": "59d698b443",
-   "op": "ROR",
-   "line": 212,
-   "before": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 0, true, true, true), CS);",
-   "after": "Cobol.move(d.getAbndSqlcode() != null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 0, true, true, true), CS);",
-   "verdict": "equivalent",
-   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
-  },
-  {
-   "id": "24080dff15",
-   "op": "CON",
-   "line": 213,
-   "before": "Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 8, 0, true, true, true), CS);",
-   "after": "Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 9, 0, true, true, true), CS);",
-   "verdict": "equivalent",
-   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
-  },
-  {
-   "id": "25608efa04",
-   "op": "ROR",
-   "line": 213,
-   "before": "Cobol.move(d.getAbndFreeform() == null ? \"\" : d.getAbndFreeform(), Field.alphanumeric(s, base + 81, 600, false), CS);",
-   "after": "Cobol.move(d.getAbndFreeform() != null ? \"\" : d.getAbndFreeform(), Field.alphanumeric(s, base + 81, 600, false), CS);",
-   "verdict": "equivalent",
-   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
-  },
-  {
-   "id": "431c0b704f",
-   "op": "ROR",
-   "line": 213,
-   "before": "Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 8, 0, true, true, true), CS);",
-   "after": "Cobol.move(d.getAbndRespcode() != null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 8, 0, true, true, true), CS);",
-   "verdict": "equivalent",
-   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
-  },
-  {
-   "id": "605ad5c8d1",
-   "op": "DEL",
-   "line": 213,
-   "before": "Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 8, 0, true, true, true), CS);",
-   "after": "/* Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 8, 0, true, true, true), CS); */",
-   "verdict": "equivalent",
-   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
-  },
-  {
-   "id": "ccc5a4e5f6",
-   "op": "CON",
-   "line": 213,
-   "before": "Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 8, 0, true, true, true), CS);",
-   "after": "Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 8, 1, true, true, true), CS);",
-   "verdict": "equivalent",
-   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
-  },
-  {
-   "id": "dd4ed41fa2",
-   "op": "CON",
-   "line": 213,
-   "before": "Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 8, 0, true, true, true), CS);",
-   "after": "Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 55, 8, 0, true, true, true), CS);",
-   "verdict": "equivalent",
-   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
-  },
-  {
-   "id": "4a1e74f7d8",
-   "op": "CON",
-   "line": 214,
-   "before": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 0, true, true, true), CS);",
-   "after": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 1, true, true, true), CS);",
-   "verdict": "equivalent",
-   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
-  },
-  {
-   "id": "4c42814980",
-   "op": "CON",
-   "line": 214,
-   "before": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 0, true, true, true), CS);",
-   "after": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 64, 8, 0, true, true, true), CS);",
-   "verdict": "equivalent",
-   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
-  },
-  {
-   "id": "b0e6d32a0f",
-   "op": "DEL",
-   "line": 214,
-   "before": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 0, true, true, true), CS);",
-   "after": "/* Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 0, true, true, true), CS); */",
-   "verdict": "equivalent",
-   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
-  },
-  {
-   "id": "3ff5ffd731",
-   "op": "CON",
-   "line": 215,
-   "before": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 0, true, true, true), CS);",
-   "after": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 1, true, true, true), CS);",
-   "verdict": "equivalent",
-   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
-  },
-  {
-   "id": "9f150eb933",
-   "op": "CON",
-   "line": 215,
-   "before": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 0, true, true, true), CS);",
-   "after": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 9, 0, true, true, true), CS);",
-   "verdict": "equivalent",
-   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
-  },
-  {
    "id": "73152740aa",
    "op": "CON",
    "line": 216,
@@ -1262,56 +893,11 @@
    "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
   },
   {
-   "id": "e1ca4cd6e6",
-   "op": "CON",
-   "line": 216,
-   "before": "Cobol.move(d.getAbndFreeform() == null ? \"\" : d.getAbndFreeform(), Field.alphanumeric(s, base + 81, 600, false), CS);",
-   "after": "Cobol.move(d.getAbndFreeform() == null ? \"\" : d.getAbndFreeform(), Field.alphanumeric(s, base + 82, 600, false), CS);",
-   "verdict": "equivalent",
-   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
-  },
-  {
-   "id": "e532fc74df",
-   "op": "CON",
-   "line": 219,
-   "before": "d.setAbndApplid(Cobol.text(Field.alphanumeric(s, base + 12, 8, false), CS));",
-   "after": "d.setAbndApplid(Cobol.text(Field.alphanumeric(s, base + 12, 9, false), CS));",
-   "verdict": "equivalent",
-   "reason": "ABNDPROC never alters COMMAREA; fill_ setter writes back unchanged value already held in caller DTO"
-  },
-  {
-   "id": "0790e09f1e",
-   "op": "CON",
-   "line": 220,
-   "before": "d.setAbndUtimeKey(Cobol.num(Field.packed(s, base + 0, 15, 0, true), CS).longValue());",
-   "after": "d.setAbndUtimeKey(Cobol.num(Field.packed(s, base + 0, 15, 1, true), CS).longValue());",
-   "verdict": "equivalent",
-   "reason": "ABNDPROC never modifies DFHCOMMAREA; caller DTO already holds every field value"
-  },
-  {
-   "id": "33ecb9e2db",
-   "op": "CON",
-   "line": 220,
-   "before": "d.setAbndUtimeKey(Cobol.num(Field.packed(s, base + 0, 15, 0, true), CS).longValue());",
-   "after": "d.setAbndUtimeKey(Cobol.num(Field.packed(s, base + 1, 15, 0, true), CS).longValue());",
-   "verdict": "equivalent",
-   "reason": "ABNDPROC never modifies DFHCOMMAREA; caller DTO already holds every field value"
-  },
-  {
    "id": "5d08ffba93",
    "op": "DEL",
    "line": 220,
    "before": "d.setAbndUtimeKey(Cobol.num(Field.packed(s, base + 0, 15, 0, true), CS).longValue());",
    "after": "/* d.setAbndUtimeKey(Cobol.num(Field.packed(s, base + 0, 15, 0, true), CS).longValue()); */",
-   "verdict": "equivalent",
-   "reason": "ABNDPROC never modifies DFHCOMMAREA; caller DTO already holds every field value"
-  },
-  {
-   "id": "e23881b5da",
-   "op": "CON",
-   "line": 220,
-   "before": "d.setAbndUtimeKey(Cobol.num(Field.packed(s, base + 0, 15, 0, true), CS).longValue());",
-   "after": "d.setAbndUtimeKey(Cobol.num(Field.packed(s, base + 0, 16, 0, true), CS).longValue());",
    "verdict": "equivalent",
    "reason": "ABNDPROC never modifies DFHCOMMAREA; caller DTO already holds every field value"
   },
@@ -1325,47 +911,11 @@
    "reason": "ABNDPROC never modifies DFHCOMMAREA; caller DTO already holds every field value"
   },
   {
-   "id": "450ca7cff3",
-   "op": "CON",
-   "line": 221,
-   "before": "d.setAbndTasknoKey(Cobol.num(Field.zoned(s, base + 8, 4, 0, false, false, false), CS).intValue());",
-   "after": "d.setAbndTasknoKey(Cobol.num(Field.zoned(s, base + 8, 4, 1, false, false, false), CS).intValue());",
-   "verdict": "equivalent",
-   "reason": "ABNDPROC never modifies DFHCOMMAREA; caller DTO already holds every field value"
-  },
-  {
-   "id": "4893ffd9d0",
-   "op": "CON",
-   "line": 221,
-   "before": "d.setAbndTasknoKey(Cobol.num(Field.zoned(s, base + 8, 4, 0, false, false, false), CS).intValue());",
-   "after": "d.setAbndTasknoKey(Cobol.num(Field.zoned(s, base + 9, 4, 0, false, false, false), CS).intValue());",
-   "verdict": "equivalent",
-   "reason": "ABNDPROC never modifies DFHCOMMAREA; caller DTO already holds every field value"
-  },
-  {
-   "id": "50af85fc25",
-   "op": "CON",
-   "line": 221,
-   "before": "d.setAbndTasknoKey(Cobol.num(Field.zoned(s, base + 8, 4, 0, false, false, false), CS).intValue());",
-   "after": "d.setAbndTasknoKey(Cobol.num(Field.zoned(s, base + 8, 5, 0, false, false, false), CS).intValue());",
-   "verdict": "equivalent",
-   "reason": "ABNDPROC never modifies DFHCOMMAREA; caller DTO already holds every field value"
-  },
-  {
    "id": "d0d178d7a1",
    "op": "DEL",
    "line": 221,
    "before": "d.setAbndTasknoKey(Cobol.num(Field.zoned(s, base + 8, 4, 0, false, false, false), CS).intValue());",
    "after": "/* d.setAbndTasknoKey(Cobol.num(Field.zoned(s, base + 8, 4, 0, false, false, false), CS).intValue()); */",
-   "verdict": "equivalent",
-   "reason": "ABNDPROC never modifies DFHCOMMAREA; caller DTO already holds every field value"
-  },
-  {
-   "id": "3c7913efea",
-   "op": "CON",
-   "line": 222,
-   "before": "d.setAbndApplid(Cobol.text(Field.alphanumeric(s, base + 12, 8, false), CS));",
-   "after": "d.setAbndApplid(Cobol.text(Field.alphanumeric(s, base + 13, 8, false), CS));",
    "verdict": "equivalent",
    "reason": "ABNDPROC never modifies DFHCOMMAREA; caller DTO already holds every field value"
   },
@@ -1379,47 +929,11 @@
    "reason": "ABNDPROC never modifies DFHCOMMAREA; caller DTO already holds every field value"
   },
   {
-   "id": "1423c60e2e",
-   "op": "CON",
-   "line": 223,
-   "before": "d.setAbndTranid(Cobol.text(Field.alphanumeric(s, base + 20, 4, false), CS));",
-   "after": "d.setAbndTranid(Cobol.text(Field.alphanumeric(s, base + 20, 5, false), CS));",
-   "verdict": "equivalent",
-   "reason": "ABNDPROC never modifies DFHCOMMAREA; caller DTO already holds every field value"
-  },
-  {
-   "id": "76ed164dd4",
-   "op": "CON",
-   "line": 223,
-   "before": "d.setAbndCode(Cobol.text(Field.alphanumeric(s, base + 42, 4, false), CS));",
-   "after": "d.setAbndCode(Cobol.text(Field.alphanumeric(s, base + 43, 4, false), CS));",
-   "verdict": "equivalent",
-   "reason": "ABNDPROC never alters COMMAREA; fill_ setter writes back unchanged value already held in caller DTO"
-  },
-  {
-   "id": "8921481d6b",
-   "op": "CON",
-   "line": 223,
-   "before": "d.setAbndTranid(Cobol.text(Field.alphanumeric(s, base + 20, 4, false), CS));",
-   "after": "d.setAbndTranid(Cobol.text(Field.alphanumeric(s, base + 21, 4, false), CS));",
-   "verdict": "equivalent",
-   "reason": "ABNDPROC never modifies DFHCOMMAREA; caller DTO already holds every field value"
-  },
-  {
    "id": "a21479ebca",
    "op": "DEL",
    "line": 223,
    "before": "d.setAbndTranid(Cobol.text(Field.alphanumeric(s, base + 20, 4, false), CS));",
    "after": "/* d.setAbndTranid(Cobol.text(Field.alphanumeric(s, base + 20, 4, false), CS)); */",
-   "verdict": "equivalent",
-   "reason": "ABNDPROC never modifies DFHCOMMAREA; caller DTO already holds every field value"
-  },
-  {
-   "id": "4f1b1d2b37",
-   "op": "CON",
-   "line": 224,
-   "before": "d.setAbndDate(Cobol.text(Field.alphanumeric(s, base + 24, 10, false), CS));",
-   "after": "d.setAbndDate(Cobol.text(Field.alphanumeric(s, base + 25, 10, false), CS));",
    "verdict": "equivalent",
    "reason": "ABNDPROC never modifies DFHCOMMAREA; caller DTO already holds every field value"
   },
@@ -1433,42 +947,6 @@
    "reason": "ABNDPROC never modifies DFHCOMMAREA; caller DTO already holds every field value"
   },
   {
-   "id": "7dde1c1a81",
-   "op": "CON",
-   "line": 224,
-   "before": "d.setAbndDate(Cobol.text(Field.alphanumeric(s, base + 24, 10, false), CS));",
-   "after": "d.setAbndDate(Cobol.text(Field.alphanumeric(s, base + 24, 11, false), CS));",
-   "verdict": "equivalent",
-   "reason": "ABNDPROC never modifies DFHCOMMAREA; caller DTO already holds every field value"
-  },
-  {
-   "id": "315f05e39f",
-   "op": "CON",
-   "line": 225,
-   "before": "d.setAbndRespcode(Cobol.num(Field.zoned(s, base + 54, 8, 0, true, true, true), CS).intValue());",
-   "after": "d.setAbndRespcode(Cobol.num(Field.zoned(s, base + 54, 9, 0, true, true, true), CS).intValue());",
-   "verdict": "equivalent",
-   "reason": "ABNDPROC never alters COMMAREA; fill_ setter writes back unchanged value already held in caller DTO"
-  },
-  {
-   "id": "37839e0df4",
-   "op": "CON",
-   "line": 225,
-   "before": "d.setAbndTime(Cobol.text(Field.alphanumeric(s, base + 34, 8, false), CS));",
-   "after": "d.setAbndTime(Cobol.text(Field.alphanumeric(s, base + 35, 8, false), CS));",
-   "verdict": "equivalent",
-   "reason": "ABNDPROC never modifies DFHCOMMAREA; caller DTO already holds every field value"
-  },
-  {
-   "id": "5a1a4df403",
-   "op": "CON",
-   "line": 225,
-   "before": "d.setAbndTime(Cobol.text(Field.alphanumeric(s, base + 34, 8, false), CS));",
-   "after": "d.setAbndTime(Cobol.text(Field.alphanumeric(s, base + 34, 9, false), CS));",
-   "verdict": "equivalent",
-   "reason": "ABNDPROC never modifies DFHCOMMAREA; caller DTO already holds every field value"
-  },
-  {
    "id": "e1cf27c714",
    "op": "DEL",
    "line": 225,
@@ -1478,47 +956,11 @@
    "reason": "ABNDPROC never modifies DFHCOMMAREA; caller DTO already holds every field value"
   },
   {
-   "id": "2bdc06faa1",
-   "op": "CON",
-   "line": 226,
-   "before": "d.setAbndCode(Cobol.text(Field.alphanumeric(s, base + 42, 4, false), CS));",
-   "after": "d.setAbndCode(Cobol.text(Field.alphanumeric(s, base + 42, 5, false), CS));",
-   "verdict": "equivalent",
-   "reason": "ABNDPROC never modifies DFHCOMMAREA; caller DTO already holds every field value"
-  },
-  {
    "id": "bf9a7e4153",
    "op": "DEL",
    "line": 226,
    "before": "d.setAbndCode(Cobol.text(Field.alphanumeric(s, base + 42, 4, false), CS));",
    "after": "/* d.setAbndCode(Cobol.text(Field.alphanumeric(s, base + 42, 4, false), CS)); */",
-   "verdict": "equivalent",
-   "reason": "ABNDPROC never modifies DFHCOMMAREA; caller DTO already holds every field value"
-  },
-  {
-   "id": "c0b732f59c",
-   "op": "CON",
-   "line": 226,
-   "before": "d.setAbndResp2Code(Cobol.num(Field.zoned(s, base + 63, 8, 0, true, true, true), CS).intValue());",
-   "after": "d.setAbndResp2Code(Cobol.num(Field.zoned(s, base + 63, 8, 1, true, true, true), CS).intValue());",
-   "verdict": "equivalent",
-   "reason": "ABNDPROC never alters COMMAREA; fill_ setter writes back unchanged value already held in caller DTO"
-  },
-  {
-   "id": "09398d5dcd",
-   "op": "CON",
-   "line": 227,
-   "before": "d.setAbndProgram(Cobol.text(Field.alphanumeric(s, base + 46, 8, false), CS));",
-   "after": "d.setAbndProgram(Cobol.text(Field.alphanumeric(s, base + 47, 8, false), CS));",
-   "verdict": "equivalent",
-   "reason": "ABNDPROC never modifies DFHCOMMAREA; caller DTO already holds every field value"
-  },
-  {
-   "id": "4a9aa548fa",
-   "op": "CON",
-   "line": 227,
-   "before": "d.setAbndProgram(Cobol.text(Field.alphanumeric(s, base + 46, 8, false), CS));",
-   "after": "d.setAbndProgram(Cobol.text(Field.alphanumeric(s, base + 46, 9, false), CS));",
    "verdict": "equivalent",
    "reason": "ABNDPROC never modifies DFHCOMMAREA; caller DTO already holds every field value"
   },
@@ -1550,38 +992,11 @@
    "reason": "ABNDPROC never writes DFHCOMMAREA, so on the way back each fill_ setter stores the value in_ took from the same DTO field (ABND-FREEFORM), padded to the field's width; without it the DTO keeps the caller's value -- the same COMMAREA bytes once laid out as the record, which is what a caller receives"
   },
   {
-   "id": "42424381b0",
-   "op": "CON",
-   "line": 228,
-   "before": "d.setAbndRespcode(Cobol.num(Field.zoned(s, base + 54, 8, 0, true, true, true), CS).intValue());",
-   "after": "d.setAbndRespcode(Cobol.num(Field.zoned(s, base + 54, 8, 1, true, true, true), CS).intValue());",
-   "verdict": "equivalent",
-   "reason": "ABNDPROC never modifies DFHCOMMAREA; caller DTO already holds every field value"
-  },
-  {
-   "id": "658196dba0",
-   "op": "CON",
-   "line": 229,
-   "before": "d.setAbndResp2Code(Cobol.num(Field.zoned(s, base + 63, 8, 0, true, true, true), CS).intValue());",
-   "after": "d.setAbndResp2Code(Cobol.num(Field.zoned(s, base + 63, 9, 0, true, true, true), CS).intValue());",
-   "verdict": "equivalent",
-   "reason": "ABNDPROC never modifies DFHCOMMAREA; caller DTO already holds every field value"
-  },
-  {
    "id": "7040cd0f96",
    "op": "DEL",
    "line": 229,
    "before": "d.setAbndResp2Code(Cobol.num(Field.zoned(s, base + 63, 8, 0, true, true, true), CS).intValue());",
    "after": "/* d.setAbndResp2Code(Cobol.num(Field.zoned(s, base + 63, 8, 0, true, true, true), CS).intValue()); */",
-   "verdict": "equivalent",
-   "reason": "ABNDPROC never modifies DFHCOMMAREA; caller DTO already holds every field value"
-  },
-  {
-   "id": "2ac2881e74",
-   "op": "CON",
-   "line": 230,
-   "before": "d.setAbndSqlcode(Cobol.num(Field.zoned(s, base + 72, 8, 0, true, true, true), CS).intValue());",
-   "after": "d.setAbndSqlcode(Cobol.num(Field.zoned(s, base + 72, 9, 0, true, true, true), CS).intValue());",
    "verdict": "equivalent",
    "reason": "ABNDPROC never modifies DFHCOMMAREA; caller DTO already holds every field value"
   },
@@ -1595,33 +1010,6 @@
    "reason": "ABNDPROC never modifies DFHCOMMAREA; caller DTO already holds every field value"
   },
   {
-   "id": "de798acf72",
-   "op": "CON",
-   "line": 230,
-   "before": "d.setAbndSqlcode(Cobol.num(Field.zoned(s, base + 72, 8, 0, true, true, true), CS).intValue());",
-   "after": "d.setAbndSqlcode(Cobol.num(Field.zoned(s, base + 72, 8, 1, true, true, true), CS).intValue());",
-   "verdict": "equivalent",
-   "reason": "ABNDPROC never modifies DFHCOMMAREA; caller DTO already holds every field value"
-  },
-  {
-   "id": "8dceaeab52",
-   "op": "CON",
-   "line": 231,
-   "before": "d.setAbndFreeform(Cobol.text(Field.alphanumeric(s, base + 81, 600, false), CS));",
-   "after": "d.setAbndFreeform(Cobol.text(Field.alphanumeric(s, base + 82, 600, false), CS));",
-   "verdict": "equivalent",
-   "reason": "ABNDPROC never modifies DFHCOMMAREA; caller DTO already holds every field value"
-  },
-  {
-   "id": "bcdfb9be45",
-   "op": "CON",
-   "line": 231,
-   "before": "d.setAbndFreeform(Cobol.text(Field.alphanumeric(s, base + 81, 600, false), CS));",
-   "after": "d.setAbndFreeform(Cobol.text(Field.alphanumeric(s, base + 81, 601, false), CS));",
-   "verdict": "equivalent",
-   "reason": "ABNDPROC never modifies DFHCOMMAREA; caller DTO already holds every field value"
-  },
-  {
    "id": "e92b36c7a1",
    "op": "DEL",
    "line": 233,
@@ -1631,56 +1019,11 @@
    "reason": "out_AbndprocDfhcommarea has no caller in the port: ABNDPROC is entered by LINK only (runTask / handleLink write the caller's DTO back through caBack -> fill_, never out_)"
   },
   {
-   "id": "1571c6c208",
-   "op": "ROR",
-   "line": 242,
-   "before": "if (s_DFHCOMMAREA.bytes != whole) {",
-   "after": "if (s_DFHCOMMAREA.bytes == whole) {",
-   "verdict": "unreachable",
-   "reason": "task.exactCommarea() is false for ABNDPROC's task (the LINK area is its full 681 bytes, calen == 681): caWhole is never called and this block is unreachable"
-  },
-  {
-   "id": "21e17bffe8",
-   "op": "NEG",
-   "line": 242,
-   "before": "if (s_DFHCOMMAREA.bytes != whole) {",
-   "after": "if (!(s_DFHCOMMAREA.bytes != whole)) {",
-   "verdict": "unreachable",
-   "reason": "task.exactCommarea() is false for ABNDPROC's task (the LINK area is its full 681 bytes, calen == 681): caWhole is never called and this block is unreachable"
-  },
-  {
-   "id": "29081d7693",
-   "op": "CON",
-   "line": 243,
-   "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
-   "after": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 1, s_DFHCOMMAREA.bytes.length);",
-   "verdict": "unreachable",
-   "reason": "task.exactCommarea() is false for ABNDPROC's task (the LINK area is its full 681 bytes, calen == 681): caWhole is never called and this block is unreachable"
-  },
-  {
    "id": "b2014b79a6",
    "op": "DEL",
    "line": 243,
    "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
    "after": "/* System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length); */",
-   "verdict": "unreachable",
-   "reason": "task.exactCommarea() is false for ABNDPROC's task (the LINK area is its full 681 bytes, calen == 681): caWhole is never called and this block is unreachable"
-  },
-  {
-   "id": "d52bdf96bf",
-   "op": "CON",
-   "line": 243,
-   "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
-   "after": "System.arraycopy(s_DFHCOMMAREA.bytes, 1, whole, 0, s_DFHCOMMAREA.bytes.length);",
-   "verdict": "unreachable",
-   "reason": "task.exactCommarea() is false for ABNDPROC's task (the LINK area is its full 681 bytes, calen == 681): caWhole is never called and this block is unreachable"
-  },
-  {
-   "id": "e9e5fde1fd",
-   "op": "DEL",
-   "line": 244,
-   "before": "s_DFHCOMMAREA.bytes = whole;",
-   "after": "/* s_DFHCOMMAREA.bytes = whole; */",
    "verdict": "unreachable",
    "reason": "task.exactCommarea() is false for ABNDPROC's task (the LINK area is its full 681 bytes, calen == 681): caWhole is never called and this block is unreachable"
   },
@@ -2009,15 +1352,6 @@
    "reason": "ABNDPROC's PROCEDURE DIVISION reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; no EIB field is referenced, so this store cannot show"
   },
   {
-   "id": "eea30fe38b",
-   "op": "DEL",
-   "line": 317,
-   "before": "caBack = () -> fill_AbndprocDfhcommarea(x, s_DFHCOMMAREA, 0);",
-   "after": "/* caBack = () -> fill_AbndprocDfhcommarea(x, s_DFHCOMMAREA, 0); */",
-   "verdict": "equivalent",
-   "reason": "ABNDPROC never modifies DFHCOMMAREA; caller DTO already holds every field value"
-  },
-  {
    "id": "fc18f42cd2",
    "op": "CON",
    "line": 317,
@@ -2027,22 +1361,13 @@
    "reason": "ABNDPROC's PROCEDURE DIVISION reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; no EIB field is referenced, so this store cannot show"
   },
   {
-   "id": "bf8701440f",
-   "op": "CON",
-   "line": 319,
-   "before": "in_AbndprocDfhcommarea(x, s_DFHCOMMAREA, 0);",
-   "after": "in_AbndprocDfhcommarea(x, s_DFHCOMMAREA, 1);",
-   "verdict": "equivalent",
-   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
-  },
-  {
-   "id": "ddbb555366",
+   "id": "eea30fe38b",
    "op": "DEL",
-   "line": 319,
-   "before": "in_AbndprocDfhcommarea(x, s_DFHCOMMAREA, 0);",
-   "after": "/* in_AbndprocDfhcommarea(x, s_DFHCOMMAREA, 0); */",
-   "verdict": "equivalent",
-   "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference"
+   "line": 320,
+   "before": "caBack = () -> fill_AbndprocDfhcommarea(x, s_DFHCOMMAREA, 0);",
+   "after": "/* caBack = () -> fill_AbndprocDfhcommarea(x, s_DFHCOMMAREA, 0); */",
+   "verdict": "harness-gap",
+   "reason": "caBack's fill_ call for ABNDPROC's typed DTO: with it the port differs from the COBOL, without it the port equals the COBOL. On ABND-RESPCODE (SIGN LEADING SEPARATE) sent as 9 spaces, fill_'s read through Cobol.num -> Zoned.operand does PUT_SIGN and the raw copy-back returns '+' plus 8 spaces where COBOL left the spaces (the COMMAREA sign write-back defect, #7485). So this mutant is observable, and the proof can only say so once that defect is fixed: the input is a port-differs and stays out of the case."
   },
   {
    "id": "1a2a3a9de8",
@@ -2054,40 +1379,13 @@
    "reason": "ABNDPROC's PROCEDURE DIVISION reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; no EIB field is referenced, so this store cannot show"
   },
   {
-   "id": "74b7e59abb",
-   "op": "DEL",
-   "line": 321,
-   "before": "calen = cx(task, 681);",
-   "after": "/* calen = cx(task, 681); */",
-   "verdict": "equivalent",
-   "reason": "ABNDPROC's PROCEDURE DIVISION reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; no EIB field is referenced, so this store cannot show"
-  },
-  {
    "id": "f284ce2e43",
    "op": "DEL",
    "line": 323,
    "before": "s_DFHCOMMAREA.beyond = null;",
    "after": "/* s_DFHCOMMAREA.beyond = null; */",
-   "verdict": "equivalent",
-   "reason": "ABNDPROC's PROCEDURE DIVISION reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; no EIB field is referenced, so this store cannot show"
-  },
-  {
-   "id": "d0e39a8e11",
-   "op": "ROR",
-   "line": 324,
-   "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (cb.length <= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "unreachable",
-   "reason": "ca instanceof byte[] branch is unreachable: callers pass AbndprocDfhcommarea DTO, never raw byte[]"
-  },
-  {
-   "id": "f791bc5a5f",
-   "op": "NEG",
-   "line": 324,
-   "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (!(cb.length > s_DFHCOMMAREA.bytes.length)) {",
-   "verdict": "unreachable",
-   "reason": "ca instanceof byte[] branch is unreachable: callers pass AbndprocDfhcommarea DTO, never raw byte[]"
+   "verdict": "harness-gap",
+   "reason": "ABNDPROC's bytes past the 681-byte record, deleted `s_DFHCOMMAREA.beyond = null;`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-100, bytes-680, bytes-681, bytes-682, bytes-700)."
   },
   {
    "id": "0be260cef9",
@@ -2095,8 +1393,8 @@
    "line": 326,
    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
    "after": "/* System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length)); */",
-   "verdict": "unreachable",
-   "reason": "ca instanceof byte[] branch is unreachable: callers pass AbndprocDfhcommarea DTO, never raw byte[]"
+   "verdict": "harness-gap",
+   "reason": "ABNDPROC's byte[] COMMAREA entry, deleted `System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_`: killed with the case's layout dropped and commarea_hex inputs (bytes-100, bytes-680, bytes-681, bytes-682, bytes-700), so this branch is reachable by an XCTL or RETURN that passes bytes. `try` refuses commarea_hex on a typed case, so no case can state it yet."
   },
   {
    "id": "8683e66104",
@@ -2104,8 +1402,8 @@
    "line": 326,
    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
    "after": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 1, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "verdict": "unreachable",
-   "reason": "ca instanceof byte[] branch is unreachable: callers pass AbndprocDfhcommarea DTO, never raw byte[]"
+   "verdict": "harness-gap",
+   "reason": "ABNDPROC's byte[] COMMAREA entry, ` s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s` -> `s, 1, Math.min(cb.length, s`: killed with the case's layout dropped and commarea_hex inputs (bytes-100, bytes-680, bytes-681, bytes-682, bytes-700), so this branch is reachable by an XCTL or RETURN that passes bytes. `try` refuses commarea_hex on a typed case, so no case can state it yet."
   },
   {
    "id": "9509ad1a1d",
@@ -2113,17 +1411,26 @@
    "line": 326,
    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
    "after": "System.arraycopy(cb, 1, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "verdict": "unreachable",
-   "reason": "ca instanceof byte[] branch is unreachable: callers pass AbndprocDfhcommarea DTO, never raw byte[]"
+   "verdict": "harness-gap",
+   "reason": "ABNDPROC's byte[] COMMAREA entry, `System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, ` -> `b, 1, s_DFHCOMMAREA.bytes, `: killed with the case's layout dropped and commarea_hex inputs (bytes-100, bytes-680, bytes-681, bytes-682, bytes-700), so this branch is reachable by an XCTL or RETURN that passes bytes. `try` refuses commarea_hex on a typed case, so no case can state it yet."
   },
   {
-   "id": "a47167106c",
-   "op": "DEL",
+   "id": "d0e39a8e11",
+   "op": "ROR",
    "line": 327,
-   "before": "calen = cx(task, cb.length);",
-   "after": "/* calen = cx(task, cb.length); */",
-   "verdict": "unreachable",
-   "reason": "ca instanceof byte[] branch is unreachable: callers pass AbndprocDfhcommarea DTO, never raw byte[]"
+   "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (cb.length <= s_DFHCOMMAREA.bytes.length) {",
+   "verdict": "harness-gap",
+   "reason": "ABNDPROC's byte[] COMMAREA entry, `if (cb.length > s_DFHCOMMAREA.bytes.le` -> `th <= s_DFHCOMMAREA.bytes.l`: killed with the case's layout dropped and commarea_hex inputs (bytes-100, bytes-680, bytes-681, bytes-682, bytes-700), so this branch is reachable by an XCTL or RETURN that passes bytes. `try` refuses commarea_hex on a typed case, so no case can state it yet."
+  },
+  {
+   "id": "f791bc5a5f",
+   "op": "NEG",
+   "line": 327,
+   "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (!(cb.length > s_DFHCOMMAREA.bytes.length)) {",
+   "verdict": "harness-gap",
+   "reason": "ABNDPROC's byte[] COMMAREA entry, `if (cb.length > s_DFHCOMMARE` -> `f (!(cb.length > s_DFHCOMMA`: killed with the case's layout dropped and commarea_hex inputs (bytes-100, bytes-680, bytes-681, bytes-682, bytes-700), so this branch is reachable by an XCTL or RETURN that passes bytes. `try` refuses commarea_hex on a typed case, so no case can state it yet."
   },
   {
    "id": "f9a3d66539",
@@ -2131,8 +1438,8 @@
    "line": 327,
    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
    "after": "if (cb.length >= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "unreachable",
-   "reason": "ca instanceof byte[] branch is unreachable: callers pass AbndprocDfhcommarea DTO, never raw byte[]"
+   "verdict": "harness-gap",
+   "reason": "ABNDPROC's byte[] COMMAREA entry, `if (cb.length > s_DFHCOMMAREA.bytes.len` -> `h >= s_DFHCOMMAREA.bytes.le`: run with commarea_hex (bytes-100, bytes-680, bytes-681, bytes-682, bytes-700) and equal, but this entry compares no end COMMAREA (no layout on the COBOL side) and the program shows the WRITE record; what the mutant changes here is outside the proof."
   },
   {
    "id": "4f6bcdd786",
@@ -2140,53 +1447,26 @@
    "line": 328,
    "before": "s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length);",
    "after": "/* s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length); */",
-   "verdict": "unreachable",
-   "reason": "ca instanceof byte[] branch is unreachable: callers pass AbndprocDfhcommarea DTO, never raw byte[]"
+   "verdict": "harness-gap",
+   "reason": "ABNDPROC's byte[] COMMAREA entry, deleted `s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.`: run with commarea_hex (bytes-100, bytes-680, bytes-681, bytes-682, bytes-700) and equal, but this entry compares no end COMMAREA (no layout on the COBOL side) and the program shows the WRITE record; what the mutant changes here is outside the proof."
   },
   {
-   "id": "3f31525246",
-   "op": "ROR",
+   "id": "a47167106c",
+   "op": "DEL",
    "line": 330,
-   "before": "if (raw != null) {",
-   "after": "if (raw == null) {",
-   "verdict": "equivalent",
-   "reason": "When raw copy is skipped, in_AbndprocDfhcommarea has already populated s_DFHCOMMAREA with identical bytes"
-  },
-  {
-   "id": "8908bbb984",
-   "op": "NEG",
-   "line": 330,
-   "before": "if (raw != null) {",
-   "after": "if (!(raw != null)) {",
-   "verdict": "equivalent",
-   "reason": "When raw copy is skipped, in_AbndprocDfhcommarea has already populated s_DFHCOMMAREA with identical bytes"
+   "before": "calen = cx(task, cb.length);",
+   "after": "/* calen = cx(task, cb.length); */",
+   "verdict": "harness-gap",
+   "reason": "ABNDPROC's byte[] COMMAREA entry, deleted `calen = cx(task, cb.length);`: killed with the case's layout dropped and commarea_hex inputs (bytes-100, bytes-680, bytes-681, bytes-682, bytes-700), so this branch is reachable by an XCTL or RETURN that passes bytes. `try` refuses commarea_hex on a typed case, so no case can state it yet."
   },
   {
    "id": "07b2ab8d1d",
    "op": "ROR",
-   "line": 333,
+   "line": 336,
    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
    "after": "s_DFHCOMMAREA.beyond = raw.length >= keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
-   "verdict": "equivalent",
-   "reason": "raw.length == keep == 681; copyOfRange produces empty byte array and 0 bytes are copied back"
-  },
-  {
-   "id": "4ad9809c86",
-   "op": "DEL",
-   "line": 334,
-   "before": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
-   "after": "/* System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length)); */",
-   "verdict": "equivalent",
-   "reason": "raw.length == keep == 681; copyOfRange produces empty byte array and arraycopy copies identical bytes"
-  },
-  {
-   "id": "c23d205c17",
-   "op": "AOR",
-   "line": 335,
-   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } };",
-   "verdict": "equivalent",
-   "reason": "raw.length - keep is 0; arraycopy copies 0 bytes"
+   "verdict": "harness-gap",
+   "reason": "ABNDPROC's bytes past the 681-byte record, `.beyond = raw.length > keep ? java.util.Arrays` -> `h >= keep ? java.util.Array`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-100, bytes-680, bytes-681, bytes-682, bytes-700)."
   },
   {
    "id": "f45431082e",
@@ -2194,8 +1474,8 @@
    "line": 336,
    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
    "after": "/* s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null; */",
-   "verdict": "equivalent",
-   "reason": "raw.length == keep == 681; copyOfRange produces empty byte array and arraycopy copies identical bytes"
+   "verdict": "harness-gap",
+   "reason": "ABNDPROC's bytes past the 681-byte record, deleted `s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRang`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-100, bytes-680, bytes-681, bytes-682, bytes-700)."
   },
   {
    "id": "2b648bcc0b",
@@ -2203,8 +1483,8 @@
    "line": 338,
    "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
    "after": "/* caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } }; */",
-   "verdict": "equivalent",
-   "reason": "raw.length == keep == 681; copyOfRange produces empty byte array and arraycopy copies identical bytes"
+   "verdict": "harness-gap",
+   "reason": "ABNDPROC's bytes past the 681-byte record, deleted `caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0,`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared."
   },
   {
    "id": "3056d19f0e",
@@ -2216,13 +1496,13 @@
    "reason": "task.exactCommarea() is false for ABNDPROC's task (the LINK area is its full 681 bytes, calen == 681): this block keeps the full bytes either way (copyOf at the same length), so each form of the test gives the same storage"
   },
   {
-   "id": "d17366dfda",
-   "op": "ROR",
+   "id": "c23d205c17",
+   "op": "AOR",
    "line": 338,
-   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (task.exactCommarea() && calen >= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "equivalent",
-   "reason": "task.exactCommarea() is false for ABNDPROC's task (the LINK area is its full 681 bytes, calen == 681): this block keeps the full bytes either way (copyOf at the same length), so each form of the test gives the same storage"
+   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } };",
+   "verdict": "harness-gap",
+   "reason": "ABNDPROC's bytes past the 681-byte record, `raw, keep, raw.length - keep); } };` -> `th + keep); } };`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared."
   },
   {
    "id": "d6e063dbdd",
@@ -2230,26 +1510,8 @@
    "line": 338,
    "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
    "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } };",
-   "verdict": "equivalent",
-   "reason": "raw.length == keep == 681; copyOfRange produces empty byte array and arraycopy copies identical bytes"
-  },
-  {
-   "id": "eaec02727c",
-   "op": "NEG",
-   "line": 338,
-   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (!(task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length)) {",
-   "verdict": "equivalent",
-   "reason": "task.exactCommarea() is false for ABNDPROC's task (the LINK area is its full 681 bytes, calen == 681): this block keeps the full bytes either way (copyOf at the same length), so each form of the test gives the same storage"
-  },
-  {
-   "id": "d6f45a5177",
-   "op": "DEL",
-   "line": 340,
-   "before": "s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen);",
-   "after": "/* s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen); */",
-   "verdict": "unreachable",
-   "reason": "task.exactCommarea() is false for ABNDPROC's task (the LINK area is its full 681 bytes, calen == 681): this block never runs"
+   "verdict": "harness-gap",
+   "reason": "ABNDPROC's bytes past the 681-byte record, `s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length` -> `d, 1, raw, keep, raw.length`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-100, bytes-680, bytes-681, bytes-682, bytes-700)."
   },
   {
    "id": "7d9e4ea1e6",
@@ -2259,15 +1521,6 @@
    "after": "if (task.exactCommarea() && calen <= s_DFHCOMMAREA.bytes.length) {",
    "verdict": "unreachable",
    "reason": "task.exactCommarea() is false for ABNDPROC's task (the LINK area is its full 681 bytes, calen == 681): this block never runs"
-  },
-  {
-   "id": "e4126c344f",
-   "op": "DEL",
-   "line": 342,
-   "before": "caWhole = s_DFHCOMMAREA.bytes;",
-   "after": "/* caWhole = s_DFHCOMMAREA.bytes; */",
-   "verdict": "unreachable",
-   "reason": "task.exactCommarea() is false for ABNDPROC's task (the LINK area is its full 681 bytes, calen == 681): caWhole is never called and this block is unreachable"
   },
   {
    "id": "5692683fc0",
@@ -2306,24 +1559,6 @@
    "reason": "perform(0, 5) range encompasses all paragraphs; modifying range arguments produces identical execution path ending at GMOOH010's RETURN"
   },
   {
-   "id": "882dacecb2",
-   "op": "NEG",
-   "line": 353,
-   "before": "if (caWhole == null) {",
-   "after": "if (!(caWhole == null)) {",
-   "verdict": "unreachable",
-   "reason": "the IndexOutOfBoundsException handler runs only for a short exact COMMAREA (task.exactCommarea() with calen < 681); ABNDPROC's is never short"
-  },
-  {
-   "id": "18654b412c",
-   "op": "ROR",
-   "line": 356,
-   "before": "if (caWhole == null) {",
-   "after": "if (caWhole != null) {",
-   "verdict": "unreachable",
-   "reason": "task.exactCommarea() is false for ABNDPROC's task (the LINK area is its full 681 bytes, calen == 681): caWhole is never called and this block is unreachable"
-  },
-  {
    "id": "e925033392",
    "op": "LIT",
    "line": 359,
@@ -2340,15 +1575,6 @@
    "after": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \"Xbytes): not modelled\");",
    "verdict": "unreachable",
    "reason": "the IndexOutOfBoundsException handler runs only for a short exact COMMAREA; ABNDPROC's is never short"
-  },
-  {
-   "id": "c0ff438c6e",
-   "op": "DEL",
-   "line": 362,
-   "before": "caWhole(caWhole);",
-   "after": "/* caWhole(caWhole); */",
-   "verdict": "unreachable",
-   "reason": "task.exactCommarea() is false for ABNDPROC's task (the LINK area is its full 681 bytes, calen == 681): caWhole is never called and this block is unreachable"
   },
   {
    "id": "920e747f19",
@@ -2380,38 +1606,29 @@
   {
    "id": "3cd5a56d62",
    "op": "LIT",
-   "line": 381,
+   "line": 384,
    "before": "CicsTask task = region.linked(\"ABNDPROC\", request, area);",
    "after": "CicsTask task = region.linked(\"XBNDPROC\", request, area);",
-   "verdict": "unreachable",
-   "reason": "handleLink(request, byte[] area) overload is never called by the equivalence test runner"
+   "verdict": "harness-gap",
+   "reason": "ABNDPROC's handleLink(request, byte[] area) / lastLinkBytes(), `task = region.linked(\"ABNDPROC\", request, area` -> `d(\"XBNDPROC\", request, area`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
   },
   {
    "id": "e78d05a735",
    "op": "LIT",
-   "line": 382,
+   "line": 385,
    "before": "region.run(task, \"ABNDPROC\", this::runTask);",
    "after": "region.run(task, \"XBNDPROC\", this::runTask);",
-   "verdict": "unreachable",
-   "reason": "handleLink(request, byte[] area) overload is never called by the equivalence test runner"
+   "verdict": "harness-gap",
+   "reason": "ABNDPROC's handleLink(request, byte[] area) / lastLinkBytes(), `region.run(task, \"ABNDPROC\", this::runTask` -> `, \"XBNDPROC\", this::runTask`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
   },
   {
    "id": "661ba858a8",
    "op": "COR",
-   "line": 384,
+   "line": 387,
    "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
    "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "verdict": "unreachable",
-   "reason": "handleLink(request, byte[] area) overload is never called by the equivalence test runner"
-  },
-  {
-   "id": "fb423014be",
-   "op": "ROR",
-   "line": 384,
-   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "after": "lastLinkBytes = task.linkAreaTaken() && left == null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "verdict": "unreachable",
-   "reason": "handleLink(request, byte[] area) overload is never called by the equivalence test runner"
+   "verdict": "harness-gap",
+   "reason": "ABNDPROC's handleLink(request, byte[] area) / lastLinkBytes(), ` task.linkAreaTaken() && left != null ? java.u` -> `() || left != null ? java.u`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
   },
   {
    "id": "91bc6fa032",
@@ -2419,8 +1636,17 @@
    "line": 387,
    "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
    "after": "/* lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null; */",
-   "verdict": "unreachable",
-   "reason": "handleLink(request, byte[] area) overload is never called by the equivalence test runner"
+   "verdict": "harness-gap",
+   "reason": "ABNDPROC's handleLink(request, byte[] area) / lastLinkBytes(), deleted `lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Array`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
+  },
+  {
+   "id": "fb423014be",
+   "op": "ROR",
+   "line": 387,
+   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "after": "lastLinkBytes = task.linkAreaTaken() && left == null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "verdict": "harness-gap",
+   "reason": "ABNDPROC's handleLink(request, byte[] area) / lastLinkBytes(), `nkAreaTaken() && left != null ? java.util.Arra` -> `ft == null ? java.util.Arra`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
   },
   {
    "id": "922dc63a75",
@@ -2428,8 +1654,8 @@
    "line": 397,
    "before": "return lastLinkBytes == null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
    "after": "return lastLinkBytes != null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
-   "verdict": "unreachable",
-   "reason": "handleLink(request, byte[] area) overload is never called by the equivalence test runner"
+   "verdict": "harness-gap",
+   "reason": "ABNDPROC's handleLink(request, byte[] area) / lastLinkBytes(), `return lastLinkBytes == null ? null : java.ut` -> `es != null ? null : java.ut`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
   },
   {
    "id": "73e9db0c81",

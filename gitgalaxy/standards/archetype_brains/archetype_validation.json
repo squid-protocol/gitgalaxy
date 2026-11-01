@@ -159,11 +159,27 @@
         "file": "UNVALIDATED",
         "function": "DRIFTING"
       }
+    },
+    {
+      "agreement": {
+        "composition_file": 0.9574,
+        "composition_repo": null,
+        "file": null,
+        "function": 0.9663
+      },
+      "date": "2026-11-01",
+      "engine_commit": "cdfbad5a",
+      "state": {
+        "composition_file": "DEGRADED",
+        "composition_repo": "INVALID",
+        "file": "UNVALIDATED",
+        "function": "DRIFTING"
+      }
     }
   ],
   "levels": {
     "composition_file": {
-      "agreement": 0.9629,
+      "agreement": 0.9574,
       "eroding": {
         "Callbacks & Closures Files": {
           "files": 43,
@@ -175,6 +191,11 @@
           "mostly_to": "Large Core Modules (3)",
           "retained": 0.9538
         },
+        "Declarative / Non-Code": {
+          "files": 618,
+          "mostly_to": "Large Core Modules",
+          "retained": 0.9579
+        },
         "Encapsulated Accessors Files": {
           "files": 53,
           "mostly_to": "Large Core Modules (2)",
@@ -183,7 +204,7 @@
         "Interface Declarations Files": {
           "files": 397,
           "mostly_to": "Large Core Modules",
-          "retained": 0.9798
+          "retained": 0.9773
         },
         "Large Core Modules": {
           "files": 304,
@@ -207,7 +228,7 @@
         }
       },
       "files_compared": 2725,
-      "fit_shift": -0.105
+      "fit_shift": -0.106
     },
     "composition_repo": {
       "crucible_label": {
@@ -217,7 +238,7 @@
       "inherits": "composition_file"
     },
     "file": {
-      "agreement": 0.9783,
+      "agreement": 0.9739,
       "eroding": {
         "file_cluster_13": {
           "files": 76,
@@ -251,8 +272,8 @@
         },
         "file_cluster_9": {
           "files": 52,
-          "mostly_to": "file_cluster_2",
-          "retained": 0.9231
+          "mostly_to": "file_cluster_11",
+          "retained": 0.8654
         }
       },
       "files_compared": 2725
@@ -270,7 +291,7 @@
         },
         "I/O & Config Routines": {
           "functions": 7440,
-          "retained": 0.925
+          "retained": 0.9255
         },
         "State Mutators": {
           "functions": 3313,
@@ -287,8 +308,8 @@
   "measured": {
     "corpus": "language-crucible@v1.7.0",
     "coverage": 0.9873,
-    "engine_commit": "48b56cc2",
-    "measured_at": "2026-10-30"
+    "engine_commit": "cdfbad5a",
+    "measured_at": "2026-11-01"
   },
   "retrain_issue": 4111,
   "schema": 1,

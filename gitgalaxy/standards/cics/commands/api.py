@@ -42,7 +42,8 @@ _TRANSFORM = "XML / JSON transformation (TRANSFORM) is not modelled"
 _SPOOL = "the JES spool interface is not modelled"
 _EVENT_WAIT = (
     "waiting on an event control block other than a POST's timer-event control area (WAIT EVENT, X63) is not modelled"
-    " (one task runs at a time)"
+    " (one task runs at a time); WAIT EXTERNAL / WAITCICS take an ECBLIST, a list of ECB addresses held as bytes in storage,"
+    " and the pointer lane holds handles, never an address in a byte of storage (X47), so the list cannot be read"
 )
 _LOGICAL_MESSAGE = "a BMS logical message (ACCUM / PAGING, completed by SEND PAGE) is not modelled"
 _PARTITION = "partitions / logical device codes: the region's terminal is one unpartitioned display"

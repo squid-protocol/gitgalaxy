@@ -141,7 +141,7 @@ CONVERSE = Command(
         "FROMLENGTH": Arg("value"),
         "FROMFLENGTH": Arg("value"),
         "INTO": Arg("area_out"),
-        "SET": Arg("pointer"),  # the reply in a task-storage block (X58); the stub refuses it
+        "SET": Arg("pointer"),  # the reply in a task-storage block (X58); the stub models it too (GGCCONS, #7371)
         "TOLENGTH": Arg("area_inout", width=2, binary=True, inout_unless_literal=True),
         "TOFLENGTH": Arg("area_inout", width=4, binary=True, inout_unless_literal=True),
         "MAXLENGTH": Arg("value"),

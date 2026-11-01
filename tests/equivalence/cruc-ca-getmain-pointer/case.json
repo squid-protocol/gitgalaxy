@@ -1,0 +1,23 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "CAGMPT",
+  "program_source": "cases/commarea-mismatch/ca-getmain-pointer/src/CAGMPT.cbl",
+  "copy_dirs": [
+    "cases/commarea-mismatch/ca-getmain-pointer/copy"
+  ],
+  "transid": "CA0B",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "notes": "cics-crucible commarea-mismatch / ca-getmain-pointer (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): GETMAIN SET(ptr) FLENGTH INITIMG, SET ADDRESS OF, pointer arithmetic through a binary REDEFINES, ADDRESS OF a subordinate item and FREEMAIN; a length below 1 raises LENGERR RESP2 1 and zeroes the pointer. Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "alloc",
+      "commarea": null,
+      "terminal": "CA0B",
+      "why": "GETMAIN SET(ptr) FLENGTH INITIMG, SET ADDRESS OF, pointer arithmetic, FREEMAIN"
+    }
+  ]
+}

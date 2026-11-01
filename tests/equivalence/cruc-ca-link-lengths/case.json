@@ -1,0 +1,41 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "CALINK",
+  "program_source": "cases/commarea-mismatch/ca-link-lengths/src/CALINK.cbl",
+  "copy_dirs": [
+    "cases/commarea-mismatch/ca-link-lengths/copy"
+  ],
+  "transid": "CA01",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "programs": [
+    {
+      "program": "CASUB",
+      "program_source": "cases/commarea-mismatch/ca-link-lengths/src/CASUB.cbl"
+    }
+  ],
+  "notes": "cics-crucible commarea-mismatch / ca-link-lengths (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): LINK with a COMMAREA shorter than, longer than, or absent from what the callee declares; LINK to an undefined program. Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "short-100",
+      "commarea": null,
+      "terminal": "CA01 S",
+      "why": "LENGTH(100) to a callee declaring 500 bytes: EIBCALEN 100, the callee leaves the extension alone"
+    },
+    {
+      "name": "long-500",
+      "commarea": null,
+      "terminal": "CA01 L",
+      "why": "LENGTH(500) naming a 100-byte item: the callee addresses 500 bytes of the caller's storage and writes land in the caller's WS-AFTER"
+    },
+    {
+      "name": "no-commarea",
+      "commarea": null,
+      "terminal": "CA01 Z",
+      "why": "LINK without COMMAREA: EIBCALEN 0, the callee must not touch DFHCOMMAREA"
+    }
+  ]
+}

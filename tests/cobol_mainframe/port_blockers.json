@@ -1812,7 +1812,7 @@
         "asyncpnt"
       ],
       "issue": 5862,
-      "fixed_by": null,
+      "fixed_by": "#7348",
       "refused_by_name": false,
       "new_class": false,
       "summary": "An unhandled injected DELAY fault cannot be proven: the oracle stub GGCDLAY (ggcics_taskcontrol.c) sets RESP/RESP2 and returns, with no default abend for an unhandled condition, while the det port abends (INVREQ -> AEIP, CicsSpec.abcodeFor). The asynccc programs code no RESP or HANDLE CONDITION on DELAY, so a DELAY INVREQ scenario differs (COBOL RETURN, Java ABEND). The DELAY-fault survivors of the det-mutation ledgers are harness-gap until the stub abends by name (X72). Also, an unhandled planned EXPIRED makes the det port throw IllegalArgumentException (no abend code known for condition EXPIRED) where X72 says EXPIRED's default is to ignore."

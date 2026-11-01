@@ -67,7 +67,7 @@ def _delay(opts: dict[str, str | None], labels: list[str]) -> list[str]:
             ("HOURS", "GG-HOURS"), ("MINUTES", "GG-MINS"), ("SECONDS", "GG-SECS"), ("MILLISECS", "GG-LEN"))]  # fmt: skip
     else:
         lines = ["MOVE SPACES TO GG-FLAGS"]
-    return lines + ec._call("GGCDLAY", []) + ec._resp(opts, False, labels)
+    return lines + ec._call("GGCDLAY", []) + ec._resp(opts, True, labels)
 
 
 def _post(opts: dict[str, str | None], labels: list[str]) -> list[str]:

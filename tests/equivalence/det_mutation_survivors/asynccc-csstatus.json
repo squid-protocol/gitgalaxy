@@ -38,42 +38,6 @@
    "reason": "CsstatusService.java line 97: the guard of the private store(String) helper, which has no caller in CsstatusService.java: the program issues no file control command and the case has datasets {}, so no input runs it"
   },
   {
-   "id": "71583c81cb",
-   "op": "LIT",
-   "line": 270,
-   "before": "int[] planned1 = task.planned(\"DELAY\", \"-\");",
-   "after": "int[] planned1 = task.planned(\"XELAY\", \"-\");",
-   "verdict": "harness-gap",
-   "reason": "GetpolService.java line 270: acts only when a DELAY fault is planned (register X72); the program codes no RESP and no HANDLE CONDITION on it, so IBM abends the task and the det port does (CicsSpec.abcodeFor), while the stub answers the plan and the COBOL goes on to RETURN: the proof cannot judge the scenario that would kill it (stub gap)"
-  },
-  {
-   "id": "97ffc4d20d",
-   "op": "LIT",
-   "line": 270,
-   "before": "int[] planned1 = task.planned(\"DELAY\", \"-\");",
-   "after": "int[] planned1 = task.planned(\"DELAY\", \"X\");",
-   "verdict": "harness-gap",
-   "reason": "GetpolService.java line 270: acts only when a DELAY fault is planned (register X72); the program codes no RESP and no HANDLE CONDITION on it, so IBM abends the task and the det port does (CicsSpec.abcodeFor), while the stub answers the plan and the COBOL goes on to RETURN: the proof cannot judge the scenario that would kill it (stub gap)"
-  },
-  {
-   "id": "a1987a91b7",
-   "op": "LIT",
-   "line": 270,
-   "before": "int[] planned1 = task.planned(\"DELAY\", \"-\");",
-   "after": "int[] planned1 = task.planned(\"XELAY\", \"-\");",
-   "verdict": "harness-gap",
-   "reason": "GetspndService.java line 270: acts only when a DELAY fault is planned (register X72); the program codes no RESP and no HANDLE CONDITION on it, so IBM abends the task and the det port does (CicsSpec.abcodeFor), while the stub answers the plan and the COBOL goes on to RETURN: the proof cannot judge the scenario that would kill it (stub gap)"
-  },
-  {
-   "id": "bc2752e7e4",
-   "op": "LIT",
-   "line": 270,
-   "before": "int[] planned1 = task.planned(\"DELAY\", \"-\");",
-   "after": "int[] planned1 = task.planned(\"DELAY\", \"X\");",
-   "verdict": "harness-gap",
-   "reason": "GetspndService.java line 270: acts only when a DELAY fault is planned (register X72); the program codes no RESP and no HANDLE CONDITION on it, so IBM abends the task and the det port does (CicsSpec.abcodeFor), while the stub answers the plan and the COBOL goes on to RETURN: the proof cannot judge the scenario that would kill it (stub gap)"
-  },
-  {
    "id": "0d8a30cf46",
    "op": "NEG",
    "line": 271,
@@ -124,8 +88,8 @@
    "line": 271,
    "before": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
    "after": "if (planned1[1] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
-   "verdict": "harness-gap",
-   "reason": "GetspndService.java line 271: acts only when a DELAY fault is planned (register X72); the program codes no RESP and no HANDLE CONDITION on it, so IBM abends the task AEIP and the det port does (CicsSpec.abcodeFor), while the stub answers the plan and the COBOL goes on to RETURN: the proof cannot judge the scenario that would kill it (stub gap)"
+   "verdict": "equivalent",
+   "reason": "planned1[1] is the RESP2 of the planned DELAY fault. Every DELAY fault this case plans is an INVREQ that carries a nonzero RESP2 (4; IBM sets RESP2 for these INVREQs), so planned[1] == 0 exactly when planned[0] == 0 on every input the case can plan, and the mutant behaves as the original (register X72, #5862)"
   },
   {
    "id": "9e45999526",
@@ -169,8 +133,8 @@
    "line": 271,
    "before": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
    "after": "if (planned1[1] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
-   "verdict": "harness-gap",
-   "reason": "GetpolService.java line 271: acts only when a DELAY fault is planned (register X72); the program codes no RESP and no HANDLE CONDITION on it, so IBM abends the task AEIP and the det port does (CicsSpec.abcodeFor), while the stub answers the plan and the COBOL goes on to RETURN: the proof cannot judge the scenario that would kill it (stub gap)"
+   "verdict": "equivalent",
+   "reason": "planned1[1] is the RESP2 of the planned DELAY fault. Every DELAY fault this case plans is an INVREQ that carries a nonzero RESP2 (4; IBM sets RESP2 for these INVREQs), so planned[1] == 0 exactly when planned[0] == 0 on every input the case can plan, and the mutant behaves as the original (register X72, #5862)"
   },
   {
    "id": "f816579b39",
@@ -241,8 +205,8 @@
    "line": 274,
    "before": "if (planned1[0] != 0) {",
    "after": "if (planned1[1] != 0) {",
-   "verdict": "harness-gap",
-   "reason": "GetspndService.java line 274: acts only when a DELAY fault is planned (register X72); the program codes no RESP and no HANDLE CONDITION on it, so IBM abends the task and the det port does (CicsSpec.abcodeFor), while the stub answers the plan and the COBOL goes on to RETURN: the proof cannot judge the scenario that would kill it (stub gap)"
+   "verdict": "equivalent",
+   "reason": "planned1[1] is the RESP2 of the planned DELAY fault. Every DELAY fault this case plans is an INVREQ that carries a nonzero RESP2 (4; IBM sets RESP2 for these INVREQs), so planned[1] == 0 exactly when planned[0] == 0 on every input the case can plan, and the mutant behaves as the original (register X72, #5862)"
   },
   {
    "id": "cf6eb872e0",
@@ -250,26 +214,8 @@
    "line": 274,
    "before": "if (planned1[0] != 0) {",
    "after": "if (planned1[1] != 0) {",
-   "verdict": "harness-gap",
-   "reason": "GetpolService.java line 274: acts only when a DELAY fault is planned (register X72); the program codes no RESP and no HANDLE CONDITION on it, so IBM abends the task and the det port does (CicsSpec.abcodeFor), while the stub answers the plan and the COBOL goes on to RETURN: the proof cannot judge the scenario that would kill it (stub gap)"
-  },
-  {
-   "id": "9430858797",
-   "op": "CON",
-   "line": 275,
-   "before": "int to = condition(DetCics.condition(planned1[0]));",
-   "after": "int to = condition(DetCics.condition(planned1[1]));",
-   "verdict": "harness-gap",
-   "reason": "GetpolService.java line 275: acts only when a DELAY fault is planned (register X72); the program codes no RESP and no HANDLE CONDITION on it, so IBM abends the task and the det port does (CicsSpec.abcodeFor), while the stub answers the plan and the COBOL goes on to RETURN: the proof cannot judge the scenario that would kill it (stub gap)"
-  },
-  {
-   "id": "9bc4cf6d5e",
-   "op": "CON",
-   "line": 275,
-   "before": "int to = condition(DetCics.condition(planned1[0]));",
-   "after": "int to = condition(DetCics.condition(planned1[1]));",
-   "verdict": "harness-gap",
-   "reason": "GetspndService.java line 275: acts only when a DELAY fault is planned (register X72); the program codes no RESP and no HANDLE CONDITION on it, so IBM abends the task and the det port does (CicsSpec.abcodeFor), while the stub answers the plan and the COBOL goes on to RETURN: the proof cannot judge the scenario that would kill it (stub gap)"
+   "verdict": "equivalent",
+   "reason": "planned1[1] is the RESP2 of the planned DELAY fault. Every DELAY fault this case plans is an INVREQ that carries a nonzero RESP2 (4; IBM sets RESP2 for these INVREQs), so planned[1] == 0 exactly when planned[0] == 0 on every input the case can plan, and the mutant behaves as the original (register X72, #5862)"
   }
  ]
 }

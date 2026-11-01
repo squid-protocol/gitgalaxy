@@ -189,6 +189,89 @@
     }
    ],
    "why": "injected NOTOPEN"
+  },
+  {
+   "name": "dto-full-write",
+   "dto_entry": true,
+   "commarea": {
+    "ABND-UTIME-KEY": 912345678901234,
+    "ABND-TASKNO-KEY": 4321,
+    "ABND-APPLID": "APPLQRST",
+    "ABND-TRANID": "TXYZ",
+    "ABND-DATE": "29.02.2024",
+    "ABND-TIME": "23:59:58",
+    "ABND-CODE": "ABCD",
+    "ABND-PROGRAM": "PROGNAME",
+    "ABND-RESPCODE": -12345678,
+    "ABND-RESP2CODE": 87654321,
+    "ABND-SQLCODE": -11223344,
+    "ABND-FREEFORM": "ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZAZ"
+   },
+   "why": "typed DTO alone: every field distinct and full, new key: the WRITE's record shows every in_ mapping, the returned DTO every fill_"
+  },
+  {
+   "name": "dto-eibcalen-100",
+   "dto_entry": true,
+   "commarea": {
+    "ABND-UTIME-KEY": 812345678901234,
+    "ABND-TASKNO-KEY": 5100,
+    "ABND-APPLID": "APPLQRST",
+    "ABND-TRANID": "TXYZ",
+    "ABND-DATE": "29.02.2024",
+    "ABND-TIME": "23:59:58",
+    "ABND-CODE": "ABCD",
+    "ABND-PROGRAM": "PROGNAME",
+    "ABND-RESPCODE": -12345678,
+    "ABND-RESP2CODE": 87654321,
+    "ABND-SQLCODE": -11223344,
+    "ABND-FREEFORM": "free form text"
+   },
+   "commarea_length": 100,
+   "why": "typed DTO, short"
+  },
+  {
+   "name": "dto-eibcalen-681",
+   "dto_entry": true,
+   "commarea": {
+    "ABND-UTIME-KEY": 812345678901234,
+    "ABND-TASKNO-KEY": 5681,
+    "ABND-APPLID": "APPLQRST",
+    "ABND-TRANID": "TXYZ",
+    "ABND-DATE": "29.02.2024",
+    "ABND-TIME": "23:59:58",
+    "ABND-CODE": "ABCD",
+    "ABND-PROGRAM": "PROGNAME",
+    "ABND-RESPCODE": -12345678,
+    "ABND-RESP2CODE": 87654321,
+    "ABND-SQLCODE": -11223344,
+    "ABND-FREEFORM": "free form text"
+   },
+   "commarea_length": 681,
+   "why": "typed DTO, exact length"
+  },
+  {
+   "name": "raw-numerics-written",
+   "commarea": {
+    "ABND-UTIME-KEY": 812345678901234,
+    "ABND-TASKNO-KEY": 4321,
+    "ABND-APPLID": "APPLQRST",
+    "ABND-TRANID": "TXYZ",
+    "ABND-DATE": "29.02.2024",
+    "ABND-TIME": "23:59:58",
+    "ABND-CODE": "ABCD",
+    "ABND-PROGRAM": "PROGNAME",
+    "ABND-RESPCODE": {
+     "hex": "000000000000000000"
+    },
+    "ABND-RESP2CODE": {
+     "hex": "000000000000000000"
+    },
+    "ABND-SQLCODE": {
+     "hex": "000000000000000000"
+    },
+    "ABND-FREEFORM": "free form text"
+   },
+   "why": "bytes the DTO cannot carry (low-values in the SIGN SEPARATE codes): MOVE DFHCOMMAREA writes them as they are"
   }
  ],
  "notes": "CBSA's abend recorder (ABNDPROC, LINKed by the other CBSA programs with an ABNDINFO-shaped COMMAREA): MOVE DFHCOMMAREA TO WS-ABND-AREA, EXEC CICS WRITE FILE('ABNDFILE') FROM(WS-ABND-AREA) RIDFLD(ABND-VSAM-KEY) RESP RESP2; on a non-NORMAL RESP it DISPLAYs 'Unable to write to the file ABNDFILE' with the RESP / RESP2 and RETURNs, else RETURNs through GET-ME-OUT-OF-HERE. DUPREC is exercised naturally (an existing key), NOSPACE / NOTOPEN by fault injection. The COMMAREA is described as BNKMENU's ABNDINFO-REC (the ABND-* names): the contract DTO the generator gives ABNDPROC is that caller's record -- the same 681-byte ABNDINFO layout ABNDPROC's own DFHCOMMAREA has as COMM-*. The DISPLAY lines go to the COBOL task's stdout, which the CICS harness does not compare: only the events (RETURN) and the file are compared. Each scenario's ABNDFILE is compared after the task. Keys: ABND-VSAM-KEY is ABND-UTIME-KEY PIC S9(15) COMP-3 (8 bytes) + ABND-TASKNO-KEY PIC 9(4): binary packed bytes then digits, no letters possible from the COMMAREA's numeric fields; no browse, so no key order is exercised. ABND-RESPCODE / RESP2CODE / SQLCODE are SIGN LEADING SEPARATE (9 bytes each). The CICS file's DSNAME CBSA.CICSBSA.ABNDFILE is joined to the IDCAMS define @BANK_PREFIX@.ABNDFILE (KEYS(12 0), RECORDSIZE 681) by the engine's symbolic candidate join (#3656). Data: abndfile.bin is SYNTHETIC (three abend records, the corpus ships none), fixed 681-byte ABNDINFO records one per line, with packed keys chosen so that no byte is a line end. Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived."

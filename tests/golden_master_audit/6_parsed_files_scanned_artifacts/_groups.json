@@ -7123,7 +7123,7 @@
       "Average Risk Exposures": {
         "API Exposure": "54.78%",
         "Cognitive Load Exposure": "59.09%",
-        "Commented Logic Exposure": "2.57%",
+        "Commented Logic Exposure": "1.99%",
         "Concurrency Exposure": "0.0%",
         "Documentation Exposure": "100.0%",
         "Error & Exception Exposure": "58.79%",
@@ -12707,7 +12707,7 @@
       "Average Risk Exposures": {
         "API Exposure": "9.06%",
         "Cognitive Load Exposure": "19.29%",
-        "Commented Logic Exposure": "2.9%",
+        "Commented Logic Exposure": "2.69%",
         "Concurrency Exposure": "0.0%",
         "Documentation Exposure": "33.59%",
         "Error & Exception Exposure": "39.69%",
@@ -12739,7 +12739,7 @@
       "Average Risk Exposures": {
         "API Exposure": "33.68%",
         "Cognitive Load Exposure": "11.79%",
-        "Commented Logic Exposure": "3.69%",
+        "Commented Logic Exposure": "2.38%",
         "Concurrency Exposure": "1.67%",
         "Documentation Exposure": "53.4%",
         "Error & Exception Exposure": "34.05%",
@@ -12776,7 +12776,7 @@
       "Average Risk Exposures": {
         "API Exposure": "24.44%",
         "Cognitive Load Exposure": "22.32%",
-        "Commented Logic Exposure": "1.36%",
+        "Commented Logic Exposure": "0.4%",
         "Concurrency Exposure": "0.0%",
         "Documentation Exposure": "73.39%",
         "Error & Exception Exposure": "49.52%",
@@ -12818,7 +12818,7 @@
       "Average Risk Exposures": {
         "API Exposure": "73.39%",
         "Cognitive Load Exposure": "22.26%",
-        "Commented Logic Exposure": "5.09%",
+        "Commented Logic Exposure": "3.23%",
         "Concurrency Exposure": "8.31%",
         "Documentation Exposure": "73.08%",
         "Error & Exception Exposure": "45.82%",
@@ -12875,7 +12875,7 @@
       "Average Risk Exposures": {
         "API Exposure": "35.55%",
         "Cognitive Load Exposure": "13.68%",
-        "Commented Logic Exposure": "2.69%",
+        "Commented Logic Exposure": "1.86%",
         "Concurrency Exposure": "10.69%",
         "Documentation Exposure": "82.47%",
         "Error & Exception Exposure": "40.71%",

@@ -1,0 +1,30 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "cruc-ca-getmain-pointer",
+  "entries": [
+    {
+      "unit": "MAIN-PARA",
+      "line": 65,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "`IF WS-PSUB = WS-PTR2`: WS-PTR2 is WS-PTR plus 4 (ADD 4 TO WS-PTR2-N, 52) and WS-PSUB is ADDRESS OF LS-BODY, the 12-byte item that follows the 4-byte LS-HEAD in the view based on WS-PTR (SET ADDRESS OF LS-AREA). Both are the same address on every run; no scenario input reaches this program."
+    },
+    {
+      "unit": "MAIN-PARA",
+      "line": 68,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "`IF WS-PSUB NOT = WS-PTR`: WS-PSUB is ADDRESS OF LS-BODY, four bytes past the base WS-PTR that LS-AREA is based on, so it is never equal to WS-PTR. The program takes no input."
+    },
+    {
+      "unit": "LOG-RESP",
+      "line": 86,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "R",
+      "reason": "`IF WS-RESP = 0` ELSE arm: the only commands it follows are GETMAIN FLENGTH(16) INITIMG and FREEMAIN DATA(LS-AREA) of the storage that GETMAIN obtained. GETMAIN raises LENGTHERR/NOSTG/INVREQ for a bad length, exhausted storage or a bad option, FREEMAIN INVREQ for storage not obtained by GETMAIN; none applies to a 16-byte request the program frees itself. The program takes no input."
+    }
+  ]
+}

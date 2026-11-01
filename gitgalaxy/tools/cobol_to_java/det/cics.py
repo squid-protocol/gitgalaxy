@@ -852,6 +852,9 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
             if "EVENT" in opts and opts["EVENT"] is None:  # #5079 (X63): WAIT EVENT ECADDR(ptr) is a command of its own
                 words = ["WAIT", "EVENT"]
                 del opts["EVENT"]
+            elif "EXTERNAL" in opts and opts["EXTERNAL"] is None:  # #5079 (X63): WAIT EXTERNAL ECBLIST(ptr)
+                words = ["WAIT", "EXTERNAL"]
+                del opts["EXTERNAL"]
         verb = " ".join(words)
         check_options(words, opts)  # #4411: an option the translation would ignore is refused first
         key = command_key(words, opts)
@@ -875,6 +878,8 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
             return self.post(opts, ind)
         if key == "WAIT EVENT":
             return self.wait_event(opts, ind)
+        if key in ("WAIT EXTERNAL", "WAITCICS"):
+            return self.wait_external(key, opts, ind)
         if key == "CONVERSE":
             return self.converse(opts, ind)
         if verb in ("START", "RETRIEVE", "CANCEL"):  # #4270 slice 2: interval control

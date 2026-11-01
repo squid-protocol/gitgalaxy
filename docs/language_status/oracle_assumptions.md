@@ -4422,6 +4422,7 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   every task sees what the last wrote. No stated size is the pointer `0xFF` (X'FF000000' through a `PIC X(4)` view). The crucible case `commarea-mismatch/ca-address-cwa` (cics-crucible#47, `wrkarea` 32; scenarios
   `cwa-shared`, `cwa-two-tasks`) issues it and its `cobol-stub` cells pass; it is not in the pinned ref until the next tag, and its `java`
   cells fail as the TWA case's do (the forge's stub, not a port). A stated size is crucible-proven; no size, or 0, is this entry's decision only. No burned estate program issues it.
+- **Frozen runtime copies (#5079).** The `DetCics.java` in the committed `pc-wizard` / `pc-return-immediate` crucible ports predates `addressCommarea`; this is deliberate (`docs/cobolrt_api_contract.md`, "Frozen runtime copies"): refreshing them promotes the copies' calls into `CicsTask` to public API and re-opens the ports' mutation scores and evidence. No program there issues ADDRESS. `tests/cics_crucible/test_port_runtime_fresh_5079.py` pins the two as the only frozen copies.
 - **Assumed.** (1) The EIB the pointer addresses is the task's own, updated by every later command as the program's DFHEIBLK is. (2) The
   COMMAREA the pointer addresses is the program's DFHCOMMAREA (the area the caller passed, X23), at its start. (3) The command raises no condition
   (the page lists none).

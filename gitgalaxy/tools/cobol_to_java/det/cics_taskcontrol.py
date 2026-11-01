@@ -267,6 +267,25 @@ class TaskControlCommands:
         return [f"{ind}int[] {r} = task.waitEvent(DetCics.pointerValue({self.pointer(opts['ECADDR'])}));",
                 *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]  # fmt: skip
 
+    def wait_external(self, key: str, opts: dict, ind: str) -> list[str]:
+        """#5079 (X63): WAIT EXTERNAL / WAITCICS ECBLIST(ptr) NUMEVENTS(n) [NAME] [PURGEABLE | NOTPURGEABLE] (IBM CICS TS,
+        EXEC CICS WAIT EXTERNAL / WAITCICS) on CicsTask.waitExternal: ECBLIST is a plain POINTER item whose handle addresses
+        a task-storage block of NUMEVENTS 8-byte handles (a POINTER table over it, as the pointer lane keeps them). An ECB is
+        posted when its first byte is X'40' (ASSUMED: IBM names no bit); a posted one returns NORMAL at once. INVREQ RESP2 2
+        (WAIT EXTERNAL only) for a null ECBLIST, 3 NUMEVENTS not positive, 5 every address null. A list with no posted ECB
+        is refused when it runs (nothing else runs to post one). NAME and PURGEABLE / NOTPURGEABLE change nothing here."""
+        from gitgalaxy.tools.cobol_to_java.det.cics_common import CicsError, _arg, _msg
+
+        for needed in ("ECBLIST", "NUMEVENTS"):
+            if not opts.get(needed):
+                raise CicsError(_msg(key, "required", needed))
+        if "PURGEABLE" in opts and "NOTPURGEABLE" in opts:
+            raise CicsError(_msg(key, "at_most_one", "PURGEABLE"))
+        r = self.g.tmpname("waited")
+        call = (f"task.waitExternal({'true' if key == 'WAITCICS' else 'false'}, "
+                f"DetCics.pointerValue({self.pointer(opts['ECBLIST'])}), {self._number(_arg(opts['NUMEVENTS']))})")  # fmt: skip
+        return [f"{ind}int[] {r} = {call};", *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
+
     def converse(self, opts: dict, ind: str) -> list[str]:
         """#5079 (X63): CONVERSE FROM [FROMLENGTH] INTO [TOLENGTH] [MAXLENGTH] [NOTRUNCATE] (IBM CICS TS, EXEC CICS CONVERSE
         (default)) on CicsTask.converse: the FROM data written to the terminal (what a plain SEND records: its first

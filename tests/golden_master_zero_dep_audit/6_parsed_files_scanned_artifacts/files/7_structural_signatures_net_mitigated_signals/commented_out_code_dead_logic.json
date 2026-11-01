@@ -2503,9 +2503,9 @@
     "objective-c/worldwideweb": {
       "objective-c/worldwideweb/Anchor.m": 0,
       "objective-c/worldwideweb/HText.c": 0,
-      "objective-c/worldwideweb/HyperManager.m": 4,
+      "objective-c/worldwideweb/HyperManager.m": 2,
       "objective-c/worldwideweb/HyperText.h": 0,
-      "objective-c/worldwideweb/HyperText.m": 2,
+      "objective-c/worldwideweb/HyperText.m": 1,
       "objective-c/worldwideweb/TcpAccess.m": 0
     },
     "perl": {
@@ -4053,52 +4053,52 @@
     "zig/bun": {
       "zig/bun/LICENSE.md": 0,
       "zig/bun/MimallocArena.zig": 0,
-      "zig/bun/Parser.zig": 13,
+      "zig/bun/Parser.zig": 11,
       "zig/bun/comptime_string_map.zig": 0,
-      "zig/bun/napi.zig": 3
+      "zig/bun/napi.zig": 2
     },
     "zig/mach": {
-      "zig/mach/Core.zig": 2,
+      "zig/mach/Core.zig": 0,
       "zig/mach/StringTable.zig": 0,
-      "zig/mach/collision.zig": 10,
+      "zig/mach/collision.zig": 6,
       "zig/mach/graph.zig": 0,
       "zig/mach/main.zig": 0,
-      "zig/mach/module.zig": 2,
+      "zig/mach/module.zig": 1,
       "zig/mach/testing.zig": 0,
       "zig/mach/win32.zig": 4
     },
     "zig/tigerbeetle": {
       "zig/tigerbeetle/aof.zig": 0,
-      "zig/tigerbeetle/build.zig": 1,
+      "zig/tigerbeetle/build.zig": 0,
       "zig/tigerbeetle/build_multiversion.zig": 0,
       "zig/tigerbeetle/cluster.zig": 0,
       "zig/tigerbeetle/config.zig": 0,
-      "zig/tigerbeetle/constants.zig": 2,
+      "zig/tigerbeetle/constants.zig": 0,
       "zig/tigerbeetle/copyhound.zig": 0,
       "zig/tigerbeetle/counting_allocator.zig": 0,
       "zig/tigerbeetle/direction.zig": 0,
       "zig/tigerbeetle/download.sh": 0,
       "zig/tigerbeetle/download.win.ps1": 0,
-      "zig/tigerbeetle/state_machine.zig": 9
+      "zig/tigerbeetle/state_machine.zig": 1
     },
     "zig/zig": {
-      "zig/zig/Compilation.zig": 4,
-      "zig/zig/InternPool.zig": 28,
-      "zig/zig/Sema.zig": 20,
-      "zig/zig/Type.zig": 1,
-      "zig/zig/Zcu.zig": 3,
-      "zig/zig/main.zig": 6
+      "zig/zig/Compilation.zig": 0,
+      "zig/zig/InternPool.zig": 3,
+      "zig/zig/Sema.zig": 9,
+      "zig/zig/Type.zig": 0,
+      "zig/zig/Zcu.zig": 2,
+      "zig/zig/main.zig": 1
     },
     "zig/zig_std_linux_mips": {
       "zig/zig_std_linux_mips/mips.zig": 0
     },
     "zig/zls": {
       "zig/zls/DocumentScope.zig": 0,
-      "zig/zls/DocumentStore.zig": 1,
+      "zig/zls/DocumentStore.zig": 0,
       "zig/zls/Server.zig": 0,
-      "zig/zls/analysis.zig": 9,
-      "zig/zls/ast.zig": 4,
-      "zig/zls/config_gen.zig": 2,
+      "zig/zls/analysis.zig": 1,
+      "zig/zls/ast.zig": 1,
+      "zig/zls/config_gen.zig": 1,
       "zig/zls/langref.html.in": 0,
       "zig/zls/print_ast.zig": 0
     }

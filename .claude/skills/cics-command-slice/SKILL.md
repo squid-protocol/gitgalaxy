@@ -95,6 +95,7 @@ Traps `--check` exists for:
 
 ## 2. Traps (each cost a slice a round trip)
 
+- **A new option on a command spec is silently accepted by the harness allow-list:** if the stub lacks it, add an explicit `_stub_only` refusal in the same PR (#7361).
 - **The runner stub keeps TD queues as `td-<hex>` beside the TS queue dirs:** anything iterating the TS root must skip them (#5277).
 - **importorskip.** Any test that touches the translator (det, tree-sitter) starts with
   `pytest.importorskip("tree_sitter_language_pack")`: the ground-truth CI job installs no `translator` extra

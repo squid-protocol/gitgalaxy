@@ -692,6 +692,31 @@ def test_send_text_options_are_compared_both_sides():
     assert ec.compare_events(cobol, other_text)["equal"] == 3
 
 
+def test_send_text_length_is_compared_both_sides():
+    """#5862: the stub's len= is the LENGTH the program passed; a Java event with another length differs."""
+    res = {
+        "events": ["SEND-TEXT len=72 opts=TEXT", "RETURN pgm=P level=1 transid= len=0"],
+        "screens": [],
+        "text": ["HELLO"],
+        "text_options": [[]],
+        "text_lengths": [72],
+        "return": {"transid": "", "commarea": None},
+    }
+    cobol = ec.cobol_events(res)
+    assert cobol[0]["length"] == 72
+    ret = {"event": "RETURN", "transid": None, "commarea": None}
+
+    def java(n):
+        return [{"event": "SEND-TEXT", "text": "HELLO", "options": [], **({} if n is None else {"length": n})}, ret]
+
+    assert ec.compare_events(cobol, java(72))["equal"] == 2
+    for wrong in (73, None):
+        got = ec.compare_events(cobol, java(wrong))
+        assert got["equal"] == 1 and got["diffs"][0]["fields"][0]["field"] == "length"
+    legacy = ec.cobol_events({**res, "text_lengths": []})  # no len logged: not compared
+    assert "length" not in legacy[0] and ec.compare_events(legacy, java(73))["equal"] == 2
+
+
 def test_a_tasks_terminal_and_origin_are_stated_facts_or_none():
     """#4270: "termid" / "uctranst" / "origin" -- the scenario's, else the case's; unstated None (the commands that
     read them are then refused by both runtimes); a malformed one refused by name."""

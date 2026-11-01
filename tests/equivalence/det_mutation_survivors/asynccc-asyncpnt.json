@@ -776,15 +776,6 @@
    "reason": "planned23[1] is the RESP2 of the planned SEND TEXT fault. Every SEND TEXT fault this case plans is an INVREQ that carries a nonzero RESP2 (200; IBM sets RESP2 for these INVREQs), so planned[1] == 0 exactly when planned[0] == 0 on every input the case can plan, and the mutant behaves as the original (register X72, #5862)"
   },
   {
-   "id": "78010eaa89",
-   "op": "CON",
-   "line": 641,
-   "before": "if (planned23[0] == 0) task.sendText(text22.substring(0, Math.min(text22.length(), 72)), 72, \"ERASE\", \"FREEKB\", \"WAIT\");",
-   "after": "if (planned23[0] == 0) task.sendText(text22.substring(0, Math.min(text22.length(), 72)), 73, \"ERASE\", \"FREEKB\", \"WAIT\");",
-   "verdict": "harness-gap",
-   "reason": "the LENGTH argument of the SEND TEXT (72 -> 73) changes the length the Java task records in its SEND-TEXT event, but the proof compares a SEND-TEXT event's text and options only (equivalence_cics.py, the COBOL stub's len= is dropped when the event is built), so a different length is never seen; the harness must compare it (open, #5862)"
-  },
-  {
    "id": "d209d21f6f",
    "op": "CON",
    "line": 641,

@@ -3178,6 +3178,8 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
             text = common._decode_text(data, enc)  # #3815: not text in the page -> the bytes shown, never dropped
             res["text"].append(f"<undecodable {data!r} in {enc}>" if text is None else text.rstrip(" \x00"))
             res.setdefault("text_options", []).append(_text_options(args))
+            if "len" in kv:  # #5862: the LENGTH the program passed, as CicsTask.sendText records it
+                res.setdefault("text_lengths", []).append(int(kv["len"]))
         # the task's own (a LINK level's: no); a RETURN IMMEDIATE that failed (it has a resp, #4270) went on in the program
         elif verb in ("RETURN", "XCTL") and int(kv.get("level", "1")) <= 1 and not (verb == "RETURN" and "resp" in kv):
             key = "transid" if verb == "RETURN" else "program"
@@ -4997,6 +4999,7 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
     out: list[dict[str, Any]] = []
     screens, texts, records = iter(res["screens"]), iter(res["text"]), iter(res.get("td", []))
     text_options = iter(res.get("text_options", []))
+    text_lengths = iter(res.get("text_lengths", []))
     queued = iter(res.get("ts", []))
     operator = iter(res.get("operator", []))
     reads = iter(res.get("reads", []))  # #4270: READQ TS / terminal RECEIVE
@@ -5017,7 +5020,10 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
             out.append({"event": "SEND-MAP", "map": s["map"], **({"mapset": s["mapset"]} if "mapset" in s else {}), "screen": s["fields"], "subfields": s["subfields"],
                         "options": s["options"], "cursor": s["cursor"]})  # fmt: skip
         elif verb == "SEND-TEXT":  # #5401: its options too, as CicsTask.sendText records them
-            out.append({"event": "SEND-TEXT", "text": next(texts), "options": next(text_options, [])})
+            sent = {"event": "SEND-TEXT", "text": next(texts), "options": next(text_options, [])}
+            if (n := next(text_lengths, None)) is not None:  # #5862: its LENGTH too, both ways
+                sent["length"] = n
+            out.append(sent)
         elif verb == "SEND-CONTROL":  # #4270: CicsTask.sendControl records it -- its options and CURSOR's offset
             cur = int((re.search(r"\bcursor=(-?\d+)", args) or [None, "-1"])[1])
             out.append({"event": "SEND-CONTROL", "options": args.partition("opts=")[2].split(),
@@ -5259,6 +5265,8 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
             java_options = sorted(o for o in j.get("options") or [] if o in TEXT_OPTIONS_FORWARDED)
             if c["options"] != java_options:
                 bad.append({"field": "options", "cobol": c["options"], "java": java_options})
+        if c["event"] == "SEND-TEXT" and "length" in c and c["length"] != j.get("length"):  # #5862
+            bad.append({"field": "length", "cobol": c["length"], "java": j.get("length")})
         if c["event"] == "SEND-CONTROL":  # #4270: ERASE / FREEKB / ALARM ... and the cursor, as the crucible compares
             if sorted(c.get("options") or []) != sorted(j.get("options") or []):
                 bad.append({"field": "options", "cobol": c.get("options"), "java": j.get("options")})

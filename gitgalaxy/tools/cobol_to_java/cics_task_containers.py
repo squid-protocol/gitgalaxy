@@ -215,6 +215,18 @@ CONTAINERS_JAVA = """\
         }
     }
 
+    /** LINK / XCTL / RETURN CHANNEL (#5005, X42): IBM's three pages list no read-only condition, but say CHANNEL(DFHTRANSACTION)
+     *  is the transaction channel, which never goes out of scope when the link level changes. That scope is not modelled
+     *  (it would run as an ordinary channel and drop out), so a channel named DFH... is refused by name, unless it is
+     *  already in this program's scope (a channel the harness handed the task, e.g. DFHEP.EVENT: used as is). */
+    private void refuseDfhHandedChannel(String command, String channel) {
+        if (channel != null && channel.stripLeading().toUpperCase(java.util.Locale.ROOT).startsWith("DFH")
+                && !channels.containsKey(channel.strip())) {
+            throw refused(command + " CHANNEL naming a DFH... channel not in scope: the transaction channel "
+                    + "(DFHTRANSACTION) and any other CICS-defined channel are not modelled");
+        }
+    }
+
     private java.util.Set<String> inScope() {
         java.util.Set<String> all = new java.util.HashSet<>(channels.keySet());
         all.addAll(droppedChannels);
@@ -696,6 +708,7 @@ CONTAINERS_JAVA = """\
      *  available to the called program"; one that does not exist is created empty): the callee's current channel,
      *  and the only one in its scope; what it puts there, the caller sees. EIBCALEN 0. */
     public String linkChannel(String program, String channel) {
+        refuseDfhHandedChannel("LINK", channel);
         return link(program, null, 0, null, scopeChannel(channel, true));
     }
 
@@ -704,6 +717,7 @@ CONTAINERS_JAVA = """\
      *  RESP2}: {0, 0} and the task ends, `returnedChannel` holding what the program put there; INVREQ RESP2 2 below the
      *  highest logical level -- the command then returns to the program. */
     public int[] returnChannel(String transid, String channel) {
+        refuseDfhHandedChannel("RETURN", channel);
         if (level > 1) {
             event("RETURN", "level", level, "transid", transid, "channel", channelName(channel, "channel"), "resp",
                     "INVREQ", "resp2", 2);
@@ -723,6 +737,7 @@ CONTAINERS_JAVA = """\
 
     /** XCTL PROGRAM(program) CHANNEL(channel): as LINK CHANNEL, at the same level. */
     public String xctlChannel(String program, String channel) {
+        refuseDfhHandedChannel("XCTL", channel);
         return xctl(program, null, null, scopeChannel(channel, true));
     }
 

@@ -15,9 +15,26 @@ A refused option shows no reason but LINK's SYSID (the reason the old global tab
 from __future__ import annotations
 
 from gitgalaxy.standards.cics.commands.shared import RESP_OPTIONS, SYSID_REMOTE, ibm
-from gitgalaxy.standards.cics.model import Arg, Command, EngineFacts, Outcome, Refusal, at_most_one, required
+from gitgalaxy.standards.cics.model import (
+    Arg,
+    Command,
+    EngineFacts,
+    Outcome,
+    Refusal,
+    RuntimeRefusal,
+    at_most_one,
+    required,
+)
 
 _PROGRAM = Arg("name", width=8)
+# #5005 (X42): IBM's LINK / XCTL / RETURN pages list no read-only channel condition, but CHANNEL(DFHTRANSACTION) is the transaction
+# channel, which stays in scope across link levels: not modelled, so a DFH... channel not already in scope is refused by name rather than run as ordinary
+_DFH_CHANNEL = RuntimeRefusal(
+    "CHANNEL naming a DFH... channel: DFHTRANSACTION, the transaction channel, stays in scope when the link level changes (not modelled)",
+    "X42",
+    java="CHANNEL naming a DFH... channel",
+    c="CHANNEL naming a DFH... channel",
+)
 # "LINK CHANNEL with COMMAREA / LENGTH: one or the other" (det/cics.py Cics.command)
 _ONE_OR_THE_OTHER = "{} CHANNEL with COMMAREA / LENGTH: one or the other"
 _TRANSFER_OUTCOMES = (
@@ -44,6 +61,7 @@ def _transfer(key: str, extra: dict[str, Arg] | None = None, **kw) -> Command:
         },
         groups=(at_most_one("CHANNEL", "COMMAREA", msg=msg), at_most_one("CHANNEL", "LENGTH", msg=msg)),
         outcomes=_TRANSFER_OUTCOMES,
+        runtime_refusals=(_DFH_CHANNEL,),
         state=("channel_scope", "handle_table"),
         engine=EngineFacts(channel_option="PROGRAM"),
         **kw,
@@ -90,6 +108,7 @@ RETURN = Command(
         ),
         Outcome("LENGERR", 11, "the COMMAREA length is below 0 or past 32763", raised_by=("IMMEDIATE",)),
     ),
+    runtime_refusals=(_DFH_CHANNEL,),
     state=("channel_scope",),
     engine=EngineFacts(channel_option="TRANSID"),
 )

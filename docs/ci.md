@@ -85,7 +85,7 @@ Every check that can hold a PR is listed in `tests/tools/gate_controls.py` with 
 ## Where the logic runs
 
 - `.github/workflows/shepherd-event.yml`: a label added or removed, or new commits (`pull_request_target`).
-- `.github/workflows/shepherd-reconcile.yml`: when a workflow behind a required check (or the Full Suite Gate, DOOM-rosetta, the call-graph accuracy audit) finishes on a PR, every 20 minutes, or by hand. Each pass reconciles every open PR (labels on labelled ones, `ci-gate` on all), so a burst of finishing runs coalesces into one pass and nothing waits for the cron (#4935).
+- `.github/workflows/shepherd-reconcile.yml`: when a workflow behind a required check (or the Full Suite Gate, DOOM-rosetta, the call-graph accuracy audit) finishes on a PR, every 20 minutes, or by hand. Each pass reconciles every open PR (labels on labelled ones, `ci-gate` on all), so a burst of finishing runs coalesces into one pass and nothing waits for the cron (#4935). A `skipped` completion (a draft's heavy workflows) takes no pass and sits in a concurrency group of its own, so it cannot cancel a real pending pass (#7455 item 1). The cron is a weak backstop: 38 scheduled runs fired in the 8 days to 2026-11-01, of 576 nominal.
 - `tests/tools/shepherd_gh.py`: the rules (`decide()` is pure and tested in `tests/tools/test_shepherd_gh.py`).
 - Triage and the digest: `tests/tools/ci_digest.py`. Readiness: `tests/tools/pr_check.py`.
 
@@ -93,6 +93,8 @@ Both workflows check out `main` only and never run pull-request code. They use t
 (fine-grained, this repository only: contents, pull requests, issues, actions).
 
 To create or refresh the label set (idempotent), run the reconcile workflow by hand with `ensure_labels: true`.
+
+**Why the reconcile workflow shows so many cancelled runs (#7455 item 1, measured 2026-10-25..11-01).** 9,321 runs: 6,544 cancelled (70%), 2,775 real passes (about 347 a day). A cancelled run here is GitHub replacing a pending run: 100 of 100 sampled had no job (40 of them the longest-lived), so no runner and no API call; the cost is rows on the dashboard. The real cost is the passes: 54 s of runner time at the median, 56 s mean (60 sampled), about 5 runner-hours a day, one slot at a time. Coalescing IS the cancel: keeping every run would mean about 1,660 real passes a day. Of 1,659 completions on 2026-10-31, 455 (27%) were `skipped`, 196 cancelled, 1,008 a real result. Skipped ones no longer reach the shared group, which replays to about 950 cancelled rows instead of 1,400 with the same passes. Cancelled ones still do: 15 of the 196 had no newer run that day, and that is what the shepherd reruns.
 
 ## Learned flakes
 

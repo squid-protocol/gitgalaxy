@@ -4534,7 +4534,7 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   already says that "CICS installs whichever is loaded last, which the source tree cannot say".
 - **Refused.** Any claim that a resource is installed, enabled, or has a given runtime value. A dump of CEMT / CEDA output
   placed in a repository is not a definition source and is not read.
-- **Assumed.** DFHPPT has none left: the `PARTITIONSET=` alias is now refused by name (below).
+- **Assumed.** DFHPPT has none left: the `PARTITIONSET=` alias is now refused by name (below). DFHPCT `TRANSEC=`, `TPURGE=`, `SPURGE=`, `COMPAT=` (SH20-1043-6 p.104-106) are ASSUMED: no cross-reference pair for them was read, so they stay in `attributes` as written, never restated or lifted (`PCT_OPERAND_DISPOSITION`, pinned). No burned estate carries a DFHPCT source.
 - **Confirmed (no longer assumed).** HLASM macro-instruction statement syntax (`SC26-4940-05` p.15, p.19, p.296-297:
   alternative statement format with per-line remarks after a trailing comma, continuation lines starting after column 16
   treated as remarks, spaces inside quoted operands, and ordinary/sequence/variable symbols in the name field).

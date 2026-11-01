@@ -4,6 +4,7 @@
   "program": "HCEOE",
   "program_source": "cases/condition-handling/hc-eoc-error/src/HCEOE.cbl",
   "copy_dirs": [],
+  "device": "LUTYPE2",
   "transid": "EE01",
   "clock": "2026/10/01 10:30:15.00",
   "datasets": {},

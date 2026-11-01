@@ -378,6 +378,7 @@ def task_number(case: dict[str, Any], sc: dict[str, Any]) -> int:
 
 
 UCTRANST_NAMES = ("UCTRAN", "NOUCTRAN", "TRANIDONLY")
+TERMINAL_DEVICES = ("3270", "LUTYPE2")  # #7434: LUTYPE2 raises EOC on the RECEIVE returning the input's last byte (X15)
 ORIGIN_KEYS = ("applid", "userid", "facilname", "networkid", "faciltype")
 
 
@@ -387,7 +388,7 @@ def terminal_facts(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, Any]:
     RETURN IMMEDIATE, register X27), "uctranst" (its TYPETERM's UCTRAN as INQUIRE TERMINAL UCTRANST answers it:
     $GGCICS_UCTRANST / withUctranst, X26) and "origin" (the task's origin data, {applid, userid, facilname,
     networkid, faciltype}: $GGCICS_ORIGIN / withOrigin, X29), plus "userid" (ASSIGN USERID: $GGCICS_USERID /
-    withUserid) and "screen" ([rows, columns], ASSIGN SCRNHT / SCRNWD: $GGCICS_SCREEN / withScreen; needs a termid;
+    withUserid), "device" ("LUTYPE2": the TYPETERM DEVICE, $GGCICS_LU2 / withEndOfChain, #7434; X15) and "screen" ([rows, columns], ASSIGN SCRNHT / SCRNWD: $GGCICS_SCREEN / withScreen; needs a termid;
     X19), each present only when stated (#5126). The scenario's, else the case's; unstated, None, and
     the commands that read them are refused by both runtimes, as before."""
     out: dict[str, Any] = {k: sc.get(k, case.get(k)) for k in ("termid", "uctranst", "origin")}
@@ -400,9 +401,14 @@ def terminal_facts(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, Any]:
     if out["uctranst"] is not None and (not t or out["uctranst"] not in UCTRANST_NAMES):
         raise Unsupported(f'scenario {sc.get("name")}: "uctranst" is one of {", ".join(UCTRANST_NAMES)}, of a '
                           'stated "termid"')  # fmt: skip
-    for k in ("userid", "screen"):  # #5126: only when stated (an always-present empty key breaks exact-equality tests)
+    # #5126: only when stated (an always-present empty key breaks exact-equality tests)
+    for k in ("userid", "screen", "device"):
         if sc.get(k, case.get(k)) is not None:
             out[k] = sc.get(k, case.get(k))
+    # #7434: the TYPETERM DEVICE, as the crucible runner states it
+    if out.get("device") not in (None, *TERMINAL_DEVICES):
+        raise Unsupported(f'scenario {sc.get("name")}: "device" is one of {", ".join(TERMINAL_DEVICES)} (X15), not '
+                          f'{out["device"]!r}')  # fmt: skip
     u = out.get("userid")
     if u is not None and (not isinstance(u, str) or not 1 <= len(u) <= 8 or not u.strip() or "," in u or " " in u):
         raise Unsupported(f'scenario {sc.get("name")}: "userid" {u!r} is not a user ID (1 to 8 characters)')
@@ -2818,6 +2824,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
                       + (f"GGCICS_FACILITY={term['termid']} " if term["termid"] is not None else "")  # "" = stated: no terminal
                       + (f"GGCICS_UCTRANST={term['uctranst']} " if term["uctranst"] else "")
                       + (f"GGCICS_USERID={term['userid']} " if term.get("userid") else "")  # #5126
+                      + ("GGCICS_LU2=1 " if term.get("device") == "LUTYPE2" else "")  # #7434: EOC on RECEIVE (X15)
                       + (f"GGCICS_SCREEN='{term['screen'][0]} {term['screen'][1]}' " if term.get("screen") else "")
                       + (f"GGCICS_ORIGIN={','.join(term['origin'][k] for k in ORIGIN_KEYS)} " if term["origin"] else "")
                       + (f"GGCICS_URIMAPS={rel}/urimaps.cfg " if urimaps(case, sc) is not None else "")
@@ -3090,8 +3097,9 @@ def _cobol_read(verb: str, kv: dict[str, str], data: bytes, enc: str) -> dict[st
     a number or NEXT, `resp` by number; the bytes read in the event's blob) as CicsTask records it: {queue, item,
     resp, data} / {resp, data}, the data as text in the data's page (none when nothing was read)."""
     resp = RESP_NAMES.get(int(kv.get("resp", "0")), kv.get("resp", ""))
-    text = common._decode_text(data, enc) if resp in ("NORMAL", "LENGERR") else None
-    if resp in ("NORMAL", "LENGERR") and text is None:
+    delivered = resp in ("NORMAL", "LENGERR", "EOC")  # #7434: EOC (LUTYPE2) still delivers the chain's data (X15)
+    text = common._decode_text(data, enc) if delivered else None
+    if delivered and text is None:
         text = f"<undecodable {data!r} in {enc}>"
     if verb == "RECEIVE":
         return {"event": verb, "resp": resp, "data": text}
@@ -4225,6 +4233,7 @@ class EquivalenceRunTest {{
                     // #4270: the task's terminal and origin data, as the stub's ($GGCICS_FACILITY, _UCTRANST, _ORIGIN)
                     .withTermidIfStated(sc.get("termid").isNull() ? null : sc.get("termid").asText())  // #5126: unstated is refused, as the stub
                     .withUctranst(sc.get("uctranst").isNull() ? null : sc.get("uctranst").asText())
+                    .withEndOfChain("LUTYPE2".equals(sc.path("device").asText()))  // #7434: TYPETERM DEVICE(LUTYPE2), as $GGCICS_LU2
                     .withTempStorage(tempStorage(sc))  // #4270: the TS queues the task starts with, as the stub's
                     // RECOVERY(NONE) files: their changes made outside the unit of work, so they survive a backout
                     .withNonRecoverable(java.util.Set.of({", ".join(f'"{x}"' for x in non_recoverable_files(case, files))}),

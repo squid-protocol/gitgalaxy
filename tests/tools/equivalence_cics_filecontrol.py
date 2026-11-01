@@ -204,3 +204,20 @@ def file_command(verb: str, opts: dict[str, str | None], labels: list[str] | Non
             [_name(file, "GG-NAME1"), *token] + ec._call("GGCUNLK", []) + ec._resp(opts, True, labels)
         )  # #5079: no TOKEN, the file's hold
     return None
+
+
+def command(
+    verb: str,
+    opts: dict[str, str | None],
+    pairs: list[tuple[str, str | None]],
+    labels: list[str],
+    handle_aid: bool,
+) -> list[str] | None:
+    """The file control commands, or None for a command of another family."""
+    if verb not in FILE_VERBS:
+        return None
+    lines = file_command(verb, opts, labels)
+    if lines is None or not labels or verb == "UNLOCK":
+        return lines
+    # #6271 (X70): a planned abend went to the HANDLE ABEND exit, or ends the task
+    return ["MOVE 0 TO GG-GOTO", *lines, *ec._map_abend(labels)]

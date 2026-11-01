@@ -23,7 +23,7 @@ GalaxyIR, and diffs every fact channel of the key against it:
   jcl_utility_cards  the control statements of an in-stream DD (job_flow_data INSTREAM rows)
   jcl_steps       STEP rows; JOB RESTART= (+ checkid), RD=, PARM.procstep=, COND.procstep= are unscored (no engine field)
   jcl_dds         DD rows (an override DD `//PROCSTEP.DD` matches the row named after its proc step);
-                  SYSOUT / DUMMY DDs are unscored (job_flow_data keeps only DDs that name a DSN)
+                  SYSOUT / DUMMY / DSN=NULLFILE DDs are unscored (job_flow_data keeps only DDs that name a DSN)
   sql_statements, sql_tables, jcl_steps, jcl_dds, screen_fields, csd_resources, transactions
   cics_resources  cics_resource_data (MAP / FILE / QUEUE commands)
   jcl_datasets    a JCL member's DSN references in file_data.raw_imports (a GDG reference as

@@ -22,7 +22,6 @@ counted in it (their fact counts are not recorded here).
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | units of work and handlers | 6 | 0 | 3 | 2,492 | 0 | 0 | 3 | 2,111 | 0.1% | field-tested | - |
 | BMS screen fields | 3 | 0 | 1 | 1,865 | 0 | 0 | 1 | 286 | 1.0% | open | 1 more clean fresh round(s), 14 more clean fresh facts |
-| JCL job flow | 5 | 0 | 2 | 1,620 | 1 | 0 | 1 | 261 | 1.1% | open | 1 more clean fresh round(s), 39 more clean fresh facts |
 | CSD resources | 4 | 0 | 2 | 457 | 0 | 0 | 2 | 223 | 1.3% | open | 77 more clean fresh facts |
 | JCL resolved DSNs | 5 | 0 | 2 | 752 | 1 | 0 | 1 | 102 | 2.9% | open | 1 more clean fresh round(s), 198 more clean fresh facts |
 | dead | 5 | 0 | 3 | 150 | 0 | 7 | 3 | 41 | 7.3% | open | 259 more clean fresh facts |
@@ -52,9 +51,10 @@ counted in it (their fact counts are not recorded here).
 | CICS RIDFLD | 5 | 0 | 0 | 781 | 0 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | CICS resources | 5 | 0 | 3 | 3,588 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | CICS task control | 5 | 0 | 3 | 206 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
+| JCL job flow | 5 | 0 | 2 | 1,620 | 2 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | copybook layouts | 5 | 0 | 0 | 2,759 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | refmod spans | 5 | 0 | 0 | 373 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
-| DD names | 4 | 0 | 1 | 89 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
+| DD names | 4 | 0 | 1 | 89 | 2 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | JCL runner programs | 4 | 0 | 0 | 86 | 0 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | file control | 4 | 0 | 1 | 89 | 1 | 3 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | DB2 table columns | 2 | 0 | 0 | 55 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
@@ -141,6 +141,7 @@ counted in it (their fact counts are not recorded here).
 | D047 | 8 | forge | fact | record fields | #4626 / #4643 | cobol_schema_forge reads no record fields from one-digit level numbers (`1 PROG-NAMES.` / `2 GETPOL PIC X(8) VALUE ...`): 0 of the 158 fields of the 8 programs that declare any, while the engine reads all of them. |
 | D048 | 7 | engine | fact | intra-program edges | #4244 | The engine's transfers_to records only the first target of `GO TO a b c ... DEPENDING ON x`: 184 of the GO TO edges of DBB epscsmrd.cbl's EPSCSMRI dispatch tables (COMPLETE-NUMERIC-MOVE, LOOKUP-SOURCE, ROUTE-ELEMENT, X000000C7-CA) are missed. |
 | D049 | 7 | forge | fact | record fields | #4244 | The refraction forge renders only the first program's DATA DIVISION of a multi-program source, so 193 record fields of DBB epscsmrd.cbl's sibling programs are missed (the engine and key read all programs since #4245). |
+| D050 | review, after 8 | engine | fact | JCL job flow, DD names | #7065 | A DD coded DSN=NULLFILE (IBM: same effect as DD DUMMY) was read as a dataset: job_flow kept a DD row with dsn NULLFILE and the JCL dependency capture kept NULLFILE as an import. Found by the Batch Badlands level estate-crucible (horror H-0084, SORTWK01), not by a keyed estate. job_flow now emits no row for it and the dependency capture skips it. |
 
 Key errors (the census's findings against the answer key itself) are counted from each key's
 rulings, not logged by hand. The engine agreeing with a key is only as good as the key: a key

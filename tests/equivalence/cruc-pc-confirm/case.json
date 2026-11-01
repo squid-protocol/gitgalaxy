@@ -1,0 +1,33 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "PCCONF",
+  "program_source": "cases/pseudo-conversational/pc-wizard/src/PCCONF.cbl",
+  "copy_dirs": [
+    "cases/pseudo-conversational/pc-wizard/copy"
+  ],
+  "transid": "PC03",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "programs": [],
+  "notes": "cics-crucible pseudo-conversational / pc-wizard (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): the confirmation step PCCONF (transaction PC03), the two arms that RETURN without a COMMAREA: PF3 cancel and ENTER posting. The COMMAREA is stated as raw bytes (commarea_hex): the elementary PIC X(30) DFHCOMMAREA has no generated DTO, and the harness refuses a RETURN / XCTL that carries a COMMAREA in a case with none, so the other arms are open (#6271). The oracle is GnuCOBOL plus the stub, not z/OS.",
+  "scenarios": [
+    {
+      "name": "pf3-cancel",
+      "aid": "DFHPF3",
+      "commarea": null,
+      "why": "PF3: SEND TEXT WIZARD CANCELLED, RETURN",
+      "commarea_hex": "33414c414e20202020202020202020200000999c00002020202020202020"
+    },
+    {
+      "name": "enter-post",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "why": "ENTER on the confirm step: the ledger line is written and POSTED shown",
+      "commarea_hex": "33414c414e20202020202020202020200000999c00002020202020202020"
+    }
+  ],
+  "termid": "T001"
+}

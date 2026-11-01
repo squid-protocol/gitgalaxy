@@ -4296,6 +4296,12 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   as an operand of a relation (IBM defines the special register's value as a pointer, but the det port holds a record's handle only once
   it is addressed, so `ADDRESS OF rec = NULL` has no defined handle: ASSUMED refusal). Tests:
   tests/cobol_mainframe/test_pointer_compare_5042.py (the unit cases and one program proven against GnuCOBOL).
+- **Scanner fact (#5119, #5117).** The era tagger's `bll-cell-list` tell (era 1, period-bound) reads the structure, not the word BLL: a
+  LINKAGE 01 with no PIC whose first child is a FILLER fullword (`S9(8)` / `S9(9)` COMP, COMPUTATIONAL, COMP-4/5, BINARY, USAGE, SYNC),
+  then named fullwords, and an EXEC CICS `SET(x)` / `DATAPOINTER(x)` naming one of them (the evidence rule of assumption 1, minus the
+  SERVICE RELOAD alternative that the `service-reload` tell already carries). A list in WORKING-STORAGE or FILE, a list no option names, a
+  halfword list, or a FILLER named by SET is no tell. Limit: the list and the SET option must be in the same text (a list in a copybook with
+  the SET in the program is not joined). Tests: tests/cobol_mainframe/test_era_tags.py.
 - **Status:** ASSUMED where listed, REFUSED where IBM is silent. Proven end to end on a synthetic estate (a long record over two cells,
   written past 4096 bytes and aliased by a second record through MOVE cell TO cell; a chain of three GETMAIN areas linked through a
   fullword and walked through a paragraph name; READQ TS SET(cell): GnuCOBOL and the det port SEND the same hand-traced text). No corpus

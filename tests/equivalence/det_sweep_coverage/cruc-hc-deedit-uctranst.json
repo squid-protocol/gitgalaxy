@@ -1,29 +1,16 @@
 {
  "format": "det-sweep-coverage/2",
- "scenarios": 3,
+ "scenarios": 4,
  "paragraphs": {
-  "covered": 4,
+  "covered": 7,
   "live": 7
  },
  "branches": {
-  "covered": 3,
+  "covered": 4,
   "total": 4
  },
- "uncovered": {
-  "paragraphs": [
-   "UCTRANST-PARA:103",
-   "LOG-U-OK:151",
-   "LOG-U-FAIL:158"
-  ],
-  "branches": [
-   "52:WHEN@55",
-   "paragraph:UCTRANST-PARA",
-   "paragraph:LOG-U-OK",
-   "paragraph:LOG-U-FAIL"
-  ]
- },
  "inputs": {
-  "case": "363c482f11b690d1bb561e93c9a131ed2dfc832f870d8d086815a7697ae1d45a",
+  "case": "77cb12b4d7e04e285dc25927be1a8a176e09c38127a73094c4ba39a1fe840ecf",
   "corpus": "bfea00a9f77a5e777a0d6ffe75847c17e25a24c024b01404f0167fe059c233bf",
   "harness": "a190a05750c12e4e4cb45cdd86d471be05a67233e78916cd2a866b0b605980df",
   "oracle": "5a4eb2cf86a27cc865224422a5b105b96ae56305f70977ac96104e431a93ffa6",
@@ -39,5 +26,5 @@
    }
   }
  },
- "measured_at": "51fb201a0d31c9db98e48ae497a36fcf01060f74"
+ "measured_at": "578a4d4af92a3012e5b7aa9878029f6e3268dbd1"
 }

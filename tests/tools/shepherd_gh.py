@@ -21,8 +21,8 @@ Status (set and cleared by this module only): shepherd:needs-fix, shepherd:waiti
 Rules, all in decide() (pure: a snapshot in, actions out):
   * a request label added by someone without write access is removed, with a comment (their label, not ours);
   * a new head (synchronize) removes shepherd:merge with a comment, so a commit nobody approved never merges by
-    label. The one exception is a plain merge of main (a worker's, or one the bot made before #5134; the latter leaves
-    a marker pair). The
+    label. The one exception is a plain merge of main that leaves the PR's own change identical (clean_main_merge: a
+    worker's, or one the bot made before #5134; the latter leaves a marker pair). The
     drop sets shepherd:reapprove, which outlives the request labels, so a PR that lost its approval is findable
     (`label:shepherd:reapprove`) instead of sitting silently (#4858 waited on a dropped label, 2026-10-10). The drop
     also turns the PR back into a draft and cancels the head's heavy runs (#6278 item 6): intermediate pushes run the
@@ -36,18 +36,22 @@ Rules, all in decide() (pure: a snapshot in, actions out):
     (#5484, reconcile only): a PR labelled shepherd:waiting-on-main whose failing check is now green on main's newest
     commit, and whose head lacks that commit, gets main merged in ONCE (a plain merge); the label stays until a run on
     that head finishes, and a failure that survives it is `real`.
-Nothing here checks out PR code: it reads PR metadata, check runs and job logs through the GitHub API only.
+Nothing here checks out or runs PR code: it reads PR metadata, check runs and job logs through the GitHub API, and
+clean_main_merge reads a few PR files through it as data (`git merge-file`, on fixed temp names).
 Reused: pr_check (classify, paged, gh_api, merge conventions), ci_digest (triage and the digest text).
 """
 
 from __future__ import annotations
 
 import argparse
+import base64
+import hashlib
 import json
 import os
 import re
 import subprocess
 import sys
+import tempfile
 import time
 from collections.abc import Callable
 from datetime import datetime
@@ -97,6 +101,7 @@ ADVISORY: tuple[str, ...] = ()  # check names whose failure never holds a merge 
 # #6278 item 6: the pull_request workflows that run on a draft (#5104); a drop cancels every other one on the head.
 # test_workflow_draft_gate.py reads this set, so the two cannot drift.
 CHEAP_ON_DRAFT = frozenset({"ruff-audit.yml", "mypy-audit.yml", "small-audits.yml", "answer-key-guard.yml"})
+MERGE_READS = 20  # files clean_main_merge will read three times each (#7455 item 3); more goes to re-approval
 DET_WORKFLOW = "det-sweep.yml"  # shepherd:full reruns its latest pull_request run (it no longer runs on label events)
 DEPENDS = re.compile(r"Depends on #(\d+)", re.I)
 DOCS = "docs/ci.md"
@@ -397,8 +402,8 @@ def _attempts(api: Api, run_id: int) -> tuple[int, float | None, bool]:
     return used, updated, live
 
 
-def _files(api: Api, base: str, head: str) -> dict[str, tuple[str, str]] | None:
-    """{path: (status, blob sha)} of the three-dot compare base...head, or None when it cannot be trusted
+def _files(api: Api, base: str, head: str) -> dict[str, tuple[Any, ...]] | None:
+    """{path: (status, blob sha, old path, patch)} of the three-dot compare base...head, or None when it cannot be trusted
     (an unreadable compare, or a file list GitHub may have truncated at 300 files)."""
     try:
         files = pr_check.paged(api, f"repos/{REPO_SLUG}/compare/{base}...{head}", "files", limit=3)
@@ -406,16 +411,76 @@ def _files(api: Api, base: str, head: str) -> dict[str, tuple[str, str]] | None:
         return None
     if len(files) >= 300:
         return None
-    return {f["filename"]: (f.get("status", ""), f.get("sha", "")) for f in files}
+    return {
+        f["filename"]: (f.get("status", ""), f.get("sha", ""), f.get("previous_filename"), f.get("patch"))
+        for f in files
+    }
 
 
-def clean_main_merge(api: Api, approved: str, head: str, base_ref: str) -> bool:
-    """True only when `head` is a plain merge of main into the approved head and brought in nothing but main's changes.
+def _blob(api: Api, path: str, ref: str) -> bytes | None:
+    """A file's bytes at `ref`, as data. None when it cannot be read: missing, or over the contents API's 1 MB."""
+    try:
+        doc = api(f"repos/{REPO_SLUG}/contents/{quote(path, safe='/')}?ref={ref}")
+        return base64.b64decode(doc["content"]) if doc.get("encoding") == "base64" else None
+    except (SystemExit, AttributeError, KeyError, TypeError, ValueError):
+        return None
 
-    Parents are exactly (approved head, a commit already on main), in either order. The change the merge made to the
-    approved head must equal main's own change since the merge base, file for file and blob for blob, and the PR's own
-    files must not overlap main's (so no conflict resolution, and no three-way merge to judge). Anything else, or any
-    read that fails, is False: the new head then goes to re-approval (#4948, #4966 waited on this, 2026-10-12)."""
+
+def _is_clean_merge(api: Api, path: str, base: str, ours: str, theirs: str, want: str) -> bool:
+    """Whether blob `want` is byte for byte the clean three-way merge of `path` (#7455 item 3). `git merge-file` only reads
+    the three files as text under fixed names: no PR code runs, and the path never reaches the filesystem."""
+    texts = [_blob(api, path, ref) for ref in (base, ours, theirs)]
+    if texts[0] is None or texts[1] is None or texts[2] is None:
+        return False
+    merged = texts[1]
+    # main changed the file too; when it did not, the PR's own bytes are the merge (binary too)
+    if texts[0] != texts[2]:
+        with tempfile.TemporaryDirectory() as tmp:
+            names = [os.path.join(tmp, x) for x in ("base", "ours", "theirs")]
+            for name, text in zip(names, texts, strict=True):
+                Path(name).write_bytes(text)
+            if _run(["git", "merge-file", "-q", names[1], names[0], names[2]]).returncode:
+                return False  # a conflict (the count), or a binary file: the hand-resolved merge is a new change
+            merged = Path(names[1]).read_bytes()
+    return hashlib.sha1(b"blob %d\0" % len(merged) + merged, usedforsecurity=False).hexdigest() == want
+
+
+def _same_modes(graphql: pr_check.GraphQL | None, a: str, b: str, paths: list[str]) -> bool:
+    """Whether every path has one file mode at commits a and b. Only a mode change to a file the PR already changes
+    needs this: no compare shows it (a mode-only change elsewhere is a row of its own). Paths go as query variables, so
+    a file name cannot change the query; a path missing at either commit is an error, so False."""
+    if not paths:
+        return True
+    if graphql is None:
+        return False
+    owner, name = REPO_SLUG.split("/")
+    args = "".join(f",$p{i}:String!" for i in range(len(paths)))
+    fields = " ".join(f"f{i}:file(path:$p{i}){{mode}}" for i in range(len(paths)))
+    query = (
+        f"query($owner:String!,$name:String!,$a:GitObjectID!,$b:GitObjectID!{args})"
+        "{repository(owner:$owner,name:$name){a:object(oid:$a){...F} b:object(oid:$b){...F}}}"
+        f" fragment F on Commit{{{fields}}}"
+    )
+    try:
+        variables = {"owner": owner, "name": name, "a": a, "b": b} | {f"p{i}": p for i, p in enumerate(paths)}
+        repo = graphql(query, variables)
+        modes = repo["repository"]["a"]
+        return len(modes) == len(paths) and None not in modes.values() and modes == repo["repository"]["b"]
+    except (SystemExit, AttributeError, KeyError, TypeError):
+        return False
+
+
+def clean_main_merge(
+    api: Api, approved: str, head: str, base_ref: str, graphql: pr_check.GraphQL | None = None
+) -> bool:
+    """True only when `head` is a plain merge of main into the approved head and the PR's own change did not move.
+
+    Parents are exactly (approved head, a commit already on main), in either order. Against that commit, head's diff
+    (the whole of what head adds to main, so an evil merge's extra change is in it) must name the same files as the
+    approved diff. Each file has the same status, blob and patch, or (main touched the file too, #7455 item 3) head's
+    blob is byte for byte the clean three-way merge. `git patch-id` is not used: it ignores whitespace and hunk position.
+    A conflict resolution is therefore a change. Anything else, or any read that fails, is False: the new head then
+    goes to re-approval (#4948, #4966 waited on this, 2026-10-12). Every file's mode must match too (_same_modes)."""
     try:
         parents = [x["sha"] for x in api(f"repos/{REPO_SLUG}/commits/{head}").get("parents", [])]
         if len(parents) != 2 or approved not in parents:
@@ -426,14 +491,22 @@ def clean_main_merge(api: Api, approved: str, head: str, base_ref: str) -> bool:
             "identical",
         ):
             return False  # the other parent is not already on main
-        merged = _files(api, approved, head)  # what the merge changed on the approved head
-        theirs = _files(api, approved, other)  # what main changed since the merge base
-        mine = _files(api, other, approved)  # what the PR itself changed against main
-    except (SystemExit, KeyError, TypeError):
+        mine = _files(api, other, approved)  # the approved patch, from its merge base with main
+        now = _files(api, other, head)  # the same patch on the new head: all that head adds to that main commit
+        if not mine or now is None or set(mine) != set(now):
+            return False
+        # a file with no patch (binary, too large) may hide a change of main's that head undid: read it
+        unseen = [f for f in mine if mine[f][3] is None and mine[f][0] not in ("added", "removed")]
+        moved = sorted({f for f in mine if mine[f] != now[f]} | set(unseen))
+        if len(moved) > MERGE_READS or any(mine[f][0] != "modified" or now[f][0] != "modified" for f in moved):
+            return False  # a rename, an add or a delete on both sides is a merge no one can call plain
+        base = api(f"repos/{REPO_SLUG}/compare/{other}...{approved}")["merge_base_commit"]["sha"] if moved else ""
+    except (SystemExit, AttributeError, KeyError, TypeError):
         return False
-    if merged is None or theirs is None or mine is None or not theirs:
-        return False
-    return merged == theirs and not (set(mine) & set(theirs))
+    kept = [f for f in now if now[f][0] != "removed"]
+    return all(_is_clean_merge(api, f, base, approved, other, now[f][1]) for f in moved) and _same_modes(
+        graphql, approved, head, kept
+    )
 
 
 TRUSTED_BOTS_ENV = "SHEPHERD_TRUSTED_BOTS"
@@ -607,7 +680,7 @@ def gather(
       * its sha is the current head -> approved;
       * the head is the bot's own update-branch result (its marker pair from=<approved> to=<head>, and the head's
         first parent is the approved commit) -> approved, carried over;
-      * the head is a plain merge of main into the approved head that brought in nothing but main's changes
+      * the head is a plain merge of main into the approved head that left the PR's own change identical
         (clean_main_merge) -> approved, carried over; any other new head is not;
       * the bot's update is between its two markers -> pending, no decision;
       * no trusted marker at all -> awaiting (the labeled run never happened, or was dropped): no drop, quiet;
@@ -709,7 +782,8 @@ def gather(
         elif frm == approved_sha and not to:
             pending = True
         else:  # someone else's plain merge of main (the web "update branch", a local `git merge`): same approval
-            carried = approved = clean_main_merge(api, approved_sha, sha, (pr.get("base") or {}).get("ref") or "main")
+            base_ref = (pr.get("base") or {}).get("ref") or "main"
+            carried = approved = clean_main_merge(api, approved_sha, sha, base_ref, graphql)
     # no decision either way: the push time or the label time is unknown (a read failed, or the timeline lags)
     awaiting = MERGE in labels and not (approved or pending) and not (pushed and labelled)
     head_fork = head_repo != REPO_SLUG

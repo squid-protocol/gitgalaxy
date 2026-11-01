@@ -1,5 +1,7 @@
 """shepherd_gh (#4847 item 3): the label rules, against decide() and a fake GitHub; plus the workflows' security lint."""
 
+import base64
+import hashlib
 import json
 import re
 import os
@@ -382,6 +384,8 @@ class Gh:
         self.comments = [bot_comment(f"<!-- shepherd:approved sha={SHA} by=joe -->")]
         self.parents = {}  # commit sha -> parent shas
         self.compare = {}  # (base, head) -> the compare response; an absent pair is an unreadable compare
+        self.contents = {}  # (path, ref) -> the contents response; an absent pair is an unreadable file
+        self.modes = {}  # (commit, path) -> a mode other than 100644 (33188); "unreadable" fails the read
         self.pushed_at = "2026-10-10T19:59:00Z"  # when the head became the head (its first check suite)
         url = f"https://github.com/{sg.REPO_SLUG}/actions/runs/9/job/1"
         self.runs = [{"id": 1, "name": "smoke", "status": "completed", "conclusion": "success", "html_url": url,
@@ -405,6 +409,10 @@ class Gh:
             return [self.pr]
         if re.fullmatch(r"repos/[^/]+/[^/]+/commits/[0-9a-f]{40}", bare):
             return {"parents": [{"sha": x} for x in self.parents.get(bare.rsplit("/", 1)[1], [])]}
+        if m := re.search(r"/contents/(.+)\?ref=([0-9a-f]{40})$", path):
+            if (m[1], m[2]) not in self.contents:
+                raise SystemExit("gh api contents failed")
+            return self.contents[(m[1], m[2])]
         if m := re.search(r"/compare/([^/]+)\.\.\.([0-9a-f]{40})$", bare):
             if (m[1], m[2]) not in self.compare:
                 raise SystemExit("gh api compare failed")
@@ -433,6 +441,15 @@ class Gh:
         """The same state as the REST fake, answered as the query asks (#6534): one PR, a batch (`p<N>` aliases), the
         open labelled PRs, or main's tip."""
         self.gql.append(variables)
+        if "fragment F on Commit" in query:  # _same_modes
+            modes = {}
+            for ref in ("a", "b"):
+                paths = {k: v for k, v in variables.items() if re.fullmatch(r"p\d+", k)}
+                modes[ref] = {f"f{k[1:]}": {"mode": self.modes.get((variables[ref], v), 33188)} for k, v in paths.items()}
+                assert not any(v in query for v in paths.values())  # a file name stays out of the query's text
+            if self.modes.get("unreadable"):
+                raise SystemExit("gh api graphql failed")
+            return {"repository": modes}
         if query == sg.PR_QUERY:
             assert variables["n"] == 7
             return self._wrap(self._pull())
@@ -1403,62 +1420,261 @@ def test_every_reconcile_pass_covers_all_labelled_prs():
     assert "--head-sha" not in rec
 
 
-def _merge_of_main(gh, files_merge, files_main, files_pr=(("pr.py", "modified", "p1"),), main_status="behind"):
-    """A PR whose approved head is SHA and whose new head B is a merge of main commit M into it."""
-    b, m = "b" * 40, "e" * 40
-    gh.pr["head"]["sha"] = b
-    gh.parents = {b: [SHA, m]}
-    f = lambda rows: {"files": [{"filename": n, "status": s, "sha": h} for n, s, h in rows]}  # noqa: E731
-    gh.compare = {
-        ("main", m): {"status": main_status},
-        (SHA, b): f(files_merge),
-        (SHA, m): f(files_main),
-        (m, SHA): f(files_pr),
-    }
+NEW, MAIN_TIP, MERGE_BASE = "b" * 40, "e" * 40, "c" * 40
+PR_FILE = (("pr.py", "modified", "p1", "@@ -1 +1 @@\n-a\n+b"),)
 
 
-def test_a_clean_merge_of_main_keeps_the_approval_and_the_label():
-    gh = Gh()
-    main_change = (("lib.py", "modified", "m1"),)
-    _merge_of_main(gh, main_change, main_change)
-    lines = sg.process(7, gh.api, gh.run, None)
+def _merge_of_main(gh, files_now, files_pr=PR_FILE, main_status="behind"):
+    """A PR whose approved head is SHA and whose new head is a merge of main commit MAIN_TIP into it. `files_*`: the rows
+    of the compare from MAIN_TIP to the new head, and to the approved head."""
+
+    def rows(files):
+        keys = ("filename", "status", "sha", "patch")
+        return {"merge_base_commit": {"sha": MERGE_BASE}, "files": [dict(zip(keys, r)) for r in files]}
+
+    gh.pr["head"]["sha"] = NEW
+    gh.parents = {NEW: [SHA, MAIN_TIP]}
+    gh.compare = {("main", MAIN_TIP): {"status": main_status}, (MAIN_TIP, SHA): rows(files_pr), (MAIN_TIP, NEW): rows(files_now)}
+
+
+def _blob_id(text):
+    return hashlib.sha1(b"blob %d\0" % len(text) + text, usedforsecurity=False).hexdigest()
+
+
+def _files_of_a_merge(gh, base, ours, theirs, result, path="pr.py"):
+    """main and the PR both changed `path`: `result` is the new head's bytes. Both patches differ, as a real compare's do."""
+    for ref, text in ((MERGE_BASE, base), (SHA, ours), (MAIN_TIP, theirs)):
+        gh.contents[(path, ref)] = {"encoding": "base64", "content": base64.b64encode(text).decode()}
+    _merge_of_main(
+        gh,
+        ((path, "modified", _blob_id(result), "@@ -9,1 +9,1 @@\n-a\n+b"),),
+        ((path, "modified", _blob_id(ours), "@@ -1,1 +1,1 @@\n-a\n+b"),),
+    )
+
+
+def _dropped(gh):
+    lines = sg.process(7, gh.api, gh.run, None, graphql=gh.graphql)
+    assert not merged_by(gh)
+    assert any(sg.REAPPROVE in " ".join(c) for c in gh.cmds)
+    return any("unlabel" in x for x in lines)
+
+
+def _kept(gh):
+    lines = sg.process(7, gh.api, gh.run, None, graphql=gh.graphql)
     assert not any("unlabel" in x for x in lines)
     assert not any(sg.REAPPROVE in " ".join(c) for c in gh.cmds)
+    assert not any("--undo" in c for c in gh.cmds)  # no draft flip, so no cancelled runs either
     assert any("approval marker for bbbbbbbbbbbb" in x for x in lines)
-    assert merged_by(gh)
+    return merged_by(gh)
 
 
-def test_a_merge_of_main_with_extra_changes_goes_to_reapproval():
+LINES = b"".join(b"line %d\n" % i for i in range(30))
+OURS = LINES.replace(b"line 3\n", b"line 3 pr\n")
+THEIRS = LINES.replace(b"line 25\n", b"line 25 main\n")
+BOTH = OURS.replace(b"line 25\n", b"line 25 main\n")
+
+
+def test_an_identical_patch_keeps_the_approval_the_label_and_the_ready_state():
     gh = Gh()
-    _merge_of_main(gh, (("lib.py", "modified", "m1"), ("evil.py", "added", "x1")), (("lib.py", "modified", "m1"),))
-    lines = sg.process(7, gh.api, gh.run, None)
-    assert any("unlabel" in x for x in lines) and not merged_by(gh)
-    assert any(sg.REAPPROVE in " ".join(c) for c in gh.cmds)
+    _merge_of_main(gh, PR_FILE)
+    assert _kept(gh)
 
 
-def test_a_merge_that_resolved_a_conflict_in_a_file_the_pr_changed_goes_to_reapproval():
+def test_main_can_move_any_number_of_files_under_an_identical_patch():
+    # #7332, 2026-10-31: main's 416 files passed the 300-file limit of a compare, so a clean merge lost its approval.
+    # The fake has no compare of main's own change, so a read of one would fail this: only the PR's patch is compared.
     gh = Gh()
-    same = (("pr.py", "modified", "m1"),)
-    _merge_of_main(gh, same, same)  # main and the PR both touch pr.py: not a plain merge we can judge
-    lines = sg.process(7, gh.api, gh.run, None)
-    assert any("unlabel" in x for x in lines) and not merged_by(gh)
+    _merge_of_main(gh, PR_FILE)
+    assert (SHA, MAIN_TIP) not in gh.compare and _kept(gh)
 
 
-def test_a_merge_whose_other_parent_is_not_on_main_goes_to_reapproval():
+def test_main_touching_the_prs_file_elsewhere_keeps_the_approval_when_the_merge_is_exact():
     gh = Gh()
-    same = (("lib.py", "modified", "m1"),)
-    _merge_of_main(gh, same, same, main_status="diverged")
-    lines = sg.process(7, gh.api, gh.run, None)
-    assert any("unlabel" in x for x in lines) and not merged_by(gh)
+    _files_of_a_merge(gh, LINES, OURS, THEIRS, BOTH)
+    assert _kept(gh)
 
 
-def test_an_unreadable_compare_falls_back_to_reapproval():
+def test_one_extra_line_in_a_file_only_the_pr_touched_drops_the_approval():
     gh = Gh()
-    same = (("lib.py", "modified", "m1"),)
-    _merge_of_main(gh, same, same)
-    del gh.compare[(SHA, "e" * 40)]
-    lines = sg.process(7, gh.api, gh.run, None)
-    assert any("unlabel" in x for x in lines) and not merged_by(gh)
+    gh.contents.update(
+        {("pr.py", r): {"encoding": "base64", "content": base64.b64encode(t).decode()}
+         for r, t in ((MERGE_BASE, LINES), (SHA, OURS), (MAIN_TIP, LINES))}
+    )  # fmt: skip
+    _merge_of_main(gh, (("pr.py", "modified", _blob_id(OURS + b"more\n"), "@@ -1 +1,2 @@\n-a\n+b\n+more"),))
+    assert _dropped(gh)
+
+
+def test_an_evil_merge_with_a_file_of_its_own_drops_the_approval():
+    gh = Gh()
+    _merge_of_main(gh, (*PR_FILE, ("evil.py", "added", "x1", "@@ -0,0 +1 @@\n+evil")))
+    assert _dropped(gh)
+
+
+def test_an_evil_merge_that_edits_a_file_only_main_changed_drops_the_approval():
+    # main's file differs from the merge parent, so it is in head's diff: a file the approved patch does not have
+    gh = Gh()
+    _merge_of_main(gh, (*PR_FILE, ("lib.py", "modified", "x2", "@@ -1 +1 @@\n-main\n+evil")))
+    assert _dropped(gh)
+
+
+def test_an_evil_merge_inside_a_file_both_sides_changed_drops_the_approval():
+    gh = Gh()
+    _files_of_a_merge(gh, LINES, OURS, THEIRS, BOTH + b"import evil\n")
+    assert _dropped(gh)
+
+
+def test_a_merge_that_undoes_main_in_a_shared_file_drops_the_approval():
+    gh = Gh()
+    _files_of_a_merge(gh, LINES, OURS, THEIRS, OURS)  # head kept the approved blob, so main's line 25 is lost
+    assert _dropped(gh)
+
+
+def test_a_whitespace_only_change_drops_the_approval():
+    # `git patch-id` ignores whitespace: this is why it is not the rule
+    gh = Gh()
+    _files_of_a_merge(gh, LINES, OURS, THEIRS, BOTH.replace(b"line 3 pr\n", b"  line 3 pr\n"))
+    assert _dropped(gh)
+
+
+def test_the_same_hunk_at_another_place_drops_the_approval():
+    # the same lines and context, one block down: same patch text but for its numbers, and patch-id ignores those
+    block = b"a\nb\nc\nd\n"
+    base = (block + b"x\ny\nz\nw\n") * 3
+    ours = base.replace(block, b"a\nb\nNEW\nc\nd\n", 1)
+    theirs = base + b"main\n"
+    moved = (block + b"x\ny\nz\nw\n" + b"a\nb\nNEW\nc\nd\n" + b"x\ny\nz\nw\n" + block + b"x\ny\nz\nw\nmain\n")
+    gh = Gh()
+    _files_of_a_merge(gh, base, ours, theirs, moved)
+    assert _dropped(gh)
+
+
+def test_a_merge_that_resolved_a_conflict_drops_the_approval():
+    gh = Gh()
+    theirs = LINES.replace(b"line 3\n", b"line 3 main\n")
+    _files_of_a_merge(gh, LINES, OURS, theirs, OURS)
+    assert _dropped(gh)
+
+
+def test_a_mode_change_inside_a_merge_drops_the_approval():
+    # same status, blob and patch: only the mode moved, and no compare shows it on a file the PR already changes
+    gh = Gh()
+    _merge_of_main(gh, PR_FILE)
+    gh.modes[(NEW, "pr.py")] = 33261
+    assert _dropped(gh)
+
+
+def test_an_unreadable_mode_drops_the_approval():
+    gh = Gh()
+    _merge_of_main(gh, PR_FILE)
+    gh.modes["unreadable"] = True
+    assert _dropped(gh)
+
+
+def test_no_graphql_client_drops_the_approval():
+    gh = Gh()
+    _merge_of_main(gh, PR_FILE)
+    assert not sg.clean_main_merge(gh.api, SHA, NEW, "main")
+
+
+def test_a_file_the_pr_removed_is_not_asked_for_a_mode():
+    gh = Gh()
+    row = (("old.py", "removed", "o1", "@@ -1 +0,0 @@\n-a"),)
+    _merge_of_main(gh, row, row)
+    assert _kept(gh) and not any("p0" in v for v in gh.gql)
+
+
+def test_a_binary_file_only_the_pr_touched_keeps_the_approval_and_one_main_also_touched_drops_it():
+    def binary(theirs, result):
+        gh = Gh()
+        _files_of_a_merge(gh, b"\0base", b"\0ours", theirs, result)
+        rows = gh.compare[(MAIN_TIP, NEW)]["files"], gh.compare[(MAIN_TIP, SHA)]["files"]
+        for row in rows:
+            del row[0]["patch"]  # GitHub sends no patch for a binary file
+        return gh
+
+    assert _kept(binary(b"\0base", b"\0ours"))  # main left it alone
+    assert _dropped(binary(b"\0main", b"\0ours"))  # the same blob and no patch would have hidden a lost main change
+
+
+def test_a_file_the_pr_added_with_no_patch_needs_no_read():
+    gh = Gh()
+    row = (("data.gz", "added", "g1", None),)
+    _merge_of_main(gh, row, row)
+    assert _kept(gh)
+
+
+@pytest.mark.parametrize("ref", [MERGE_BASE, SHA, MAIN_TIP])
+def test_an_unreadable_file_drops_the_approval(ref):
+    gh = Gh()
+    _files_of_a_merge(gh, LINES, OURS, THEIRS, BOTH)
+    del gh.contents[("pr.py", ref)]
+    assert _dropped(gh)
+
+
+def test_a_file_too_large_to_read_drops_the_approval():
+    gh = Gh()
+    _files_of_a_merge(gh, LINES, OURS, THEIRS, BOTH)
+    gh.contents[("pr.py", SHA)] = {"encoding": "none", "content": ""}
+    assert _dropped(gh)
+
+
+def test_too_many_files_to_read_drop_the_approval():
+    gh = Gh()
+    rows = tuple((f"f{i}.py", "modified", f"h{i}", None) for i in range(sg.MERGE_READS + 1))
+    _merge_of_main(gh, rows, rows)
+    assert _dropped(gh)
+
+
+def test_a_rename_on_both_sides_drops_the_approval():
+    gh = Gh()
+    _merge_of_main(gh, (("pr.py", "renamed", "p2", "@@ x"),), (("pr.py", "renamed", "p1", "@@ x"),))
+    assert _dropped(gh)
+
+
+def test_a_patch_already_on_main_drops_the_approval():
+    # #7271: nothing left to approve; the empty diff is not the patch that was reviewed
+    gh = Gh()
+    _merge_of_main(gh, ())
+    assert _dropped(gh)
+
+
+def test_a_compare_truncated_at_300_files_drops_the_approval():
+    gh = Gh()
+    rows = tuple((f"f{i}.py", "modified", "h", "@@ x") for i in range(300))
+    _merge_of_main(gh, rows, rows)
+    assert _dropped(gh)
+
+
+def test_a_merge_whose_other_parent_is_not_on_main_drops_the_approval():
+    gh = Gh()
+    _merge_of_main(gh, PR_FILE, main_status="diverged")
+    assert _dropped(gh)
+
+
+@pytest.mark.parametrize("pair", [(MAIN_TIP, NEW), (MAIN_TIP, SHA), ("main", MAIN_TIP)])
+def test_an_unreadable_compare_drops_the_approval(pair):
+    gh = Gh()
+    _merge_of_main(gh, PR_FILE)
+    del gh.compare[pair]
+    assert _dropped(gh)
+
+
+def test_an_unreadable_merge_base_drops_the_approval():
+    gh = Gh()
+    _files_of_a_merge(gh, LINES, OURS, THEIRS, BOTH)
+    del gh.compare[(MAIN_TIP, SHA)]["merge_base_commit"]
+    assert _dropped(gh)
+
+
+def test_a_file_path_reaches_the_api_quoted():
+    seen = []
+
+    def api(path):
+        seen.append(path)
+        raise SystemExit("unreadable")
+
+    assert sg._blob(api, "a b/c#d.py", SHA) is None
+    assert seen == [f"repos/{sg.REPO_SLUG}/contents/a%20b/c%23d.py?ref={SHA}"]
 
 
 def test_an_ordinary_new_commit_goes_to_reapproval():

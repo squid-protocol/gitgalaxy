@@ -4207,7 +4207,12 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   a LINKAGE record no cell addresses; DFHCOMMAREA after the list (IBM: it must precede it); a level-77 / REDEFINES record among the
   addressed ones; a cell list, or a statement the lowering changes, in a COPY member. Each command's own refusals stay for a cell: RECEIVE
   SET without MAXLENGTH, RETRIEVE SET without LENGTH, READQ TS SET with a literal LENGTH, READ SET with RBA / RRN / XRBA, READNEXT /
-  READPREV SET with LENGTH (X58), LOAD PROGRAM SET (#5042), ADDRESS CWA / TWA / TCTUA / CSA (#5079).
+  READPREV SET with LENGTH (X58), LOAD PROGRAM SET (#5042), ADDRESS ACEE and the macro-level ADDRESS CSA (X59).
+- **ADDRESS into a cell (#5119, #5079).** `EXEC CICS ADDRESS EIB / COMMAREA / CWA / TWA / TCTUA (cell)` needs no further lowering: the
+  cell is a POINTER after `bll.py`, so ADDRESS sets it as X59 does a pointer, and SERVICE RELOAD of a record is `SET ADDRESS OF record TO
+  cell` after it. Tests: each option translates with no hole and the oracle's text is the same lowered program; ACEE and CSA stay
+  refused, a secondary cell is no target; ADDRESS EIB into a cell, reloaded and read, is proven against GnuCOBOL (tests/cobol_mainframe/test_bll_cells_5119.py).
+  CWA / TWA / TCTUA into a cell are translation-level here (their run-time proofs are X59's own crucible cases); a cell program adds nothing at run time.
 - **A cell or pointer tested for no address (#5197).** IBM's relation condition (Enterprise COBOL for z/OS Language Reference, "Conditional
   expressions", pointer comparisons; the manual's section was named, its page not checked) compares a pointer only for = and NOT =, with
   NULL or another pointer, never with a number. An OS/VS COBOL cell is a fullword, so `IF cell = ZERO` is its test for no address, and
@@ -4372,7 +4377,7 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   ADDRESS COMMAREA in a program with no LINKAGE 01 DFHCOMMAREA (there is no record to address; the pointer could only be handed to SET ADDRESS OF
   another record), ADDRESS with neither EIB nor COMMAREA, a pointer that is not a plain USAGE POINTER item or that a REDEFINES overlays (X47). At
   run time: ADDRESS COMMAREA when EIBCALEN is 0 (IBM's X'FF000000' is not NULL, and a handle is no number the program can compare with it). BLL cells
-  (OS/VS COBOL, X56) keep ADDRESS TWA / CWA a hole for the same reason.
+  (OS/VS COBOL, X56) take every modelled ADDRESS option as the lowered pointer (#5119; ADDRESS EIB(cell) is proven against GnuCOBOL).
 - **The old-style sweep (refused whole, by name; each with its own reason in `standards/cics/commands/api.py`).**
   - **SEND PAGE** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-send-page): "completes a BMS logical message" and "causes BMS to
     generate a device-dependent data stream for the last (perhaps the only) page of data"; RETAIN / RELEASE, OPERPURGE; conditions IGREQCD,

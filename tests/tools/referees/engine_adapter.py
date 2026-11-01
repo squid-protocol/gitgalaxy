@@ -28,6 +28,16 @@ import cobol_answer_key as ak
 import facts as F
 
 
+def engine_unit_names(prog: dict[str, Any], units: list[dict[str, Any]]) -> set[str]:
+    """The `units` channel: paragraph and section names. The main line (#7170) is a unit with an extent, so it
+    belongs to `unit_extents` only, as on the key's and the translator's side."""
+    return {
+        ak.keyed_unit_name(prog, u["name"], u["start"])
+        for u in units
+        if not u["synthetic"] and u["name"] != ak.MAIN_LINE
+    }
+
+
 def engine_version() -> str:
     """The engine checkout's HEAD (the scan is cached per engine commit, mainframe_corpus.py)."""
     out = subprocess.run(["git", "rev-parse", "--short=12", "HEAD"], cwd=REPO_ROOT, capture_output=True, text=True)
@@ -40,7 +50,8 @@ def _raw_imports(db: Path, repo_name: str, commit_hash: str) -> dict[str, set[st
     con = sqlite3.connect(f"file:{db}?mode=ro", uri=True)
     try:
         rows = con.execute(
-            "SELECT file_path, raw_imports FROM file_data WHERE repo_name = ? AND commit_hash = ?", (repo_name, commit_hash)
+            "SELECT file_path, raw_imports FROM file_data WHERE repo_name = ? AND commit_hash = ?",
+            (repo_name, commit_hash),
         ).fetchall()
     finally:
         con.close()
@@ -67,7 +78,7 @@ def engine_doc(db: Path, corpus: str, key: dict[str, Any]) -> dict[str, Any]:
         units = graph.get(rel, [])
         call_names = {n.upper() for c in ef.calls for n in (c.operand, c.target) if n}
         f["unit_extents"] = ak.engine_unit_extents(prog, units)
-        f["units"] = {ak.keyed_unit_name(prog, u["name"], u["start"]) for u in units if not u["synthetic"]}
+        f["units"] = engine_unit_names(prog, units)
         f["edges"] = ak.engine_unit_edges(prog, units, call_names)
         for c in ef.calls:
             if c.verb.upper() not in ("CALL", "LINK", "XCTL"):

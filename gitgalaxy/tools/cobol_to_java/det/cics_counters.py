@@ -6,8 +6,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from gitgalaxy.standards.cics.commands.api import COUNTER
+from gitgalaxy.tools.cobol_to_java.det import expr as E
 from gitgalaxy.tools.cobol_to_java.det.cics_common import (
     CicsError,
+    Untranslatable,
     _arg,
     _msg,
     _requires,
@@ -28,6 +30,40 @@ class CounterCommands:
         def __getattr__(self, name: str) -> Any:
             """The members `Cics` defines, for the type checker."""
 
+    def _raw_area(self, text: str) -> bool:
+        """#7434: a counter option's data area that is raw bytes (PIC X, a group), not a number: IBM's VALUE / MINIMUM / MAXIMUM /
+        INCREMENT is a doubleword (DCOUNTER) or fullword (COUNTER) binary value in any area of that size."""
+        e = self.operand(text)
+        if not isinstance(e, E.Ref):
+            return False
+        try:
+            return self.g.resolve(e).category not in ("NUMERIC", "FLOAT")
+        except (
+            Untranslatable,
+            LookupError,
+        ):  # an item the translator cannot place: the numeric path refuses it by name, as before
+            return False
+
+    def _clong(self, text: str) -> str:
+        """A counter option's doubleword: the bytes of a raw area as an unsigned big-endian number, else `long_`."""
+        if self._raw_area(text):
+            return f"Cobol.rawUnsigned({self.g.field_expr(self.ref(text))})"
+        return self.long_(text)
+
+    def _cint(self, text: str) -> str:
+        """A counter option's fullword: a raw area's bytes (big-endian), else `int_`."""
+        if self._raw_area(text):
+            return f"(int) Cobol.rawUnsigned({self.g.field_expr(self.ref(text))})"
+        return self.int_(text)
+
+    def _cstore(self, text: str, value: str, raw: str, unsigned: bool) -> str:
+        """Store a counter result: into a raw area the low bytes of `raw` as they are (IBM's low-order 32 bits for a fullword
+        area); else the numeric store of `value`."""
+        if self._raw_area(text):
+            low = raw if unsigned else f"(long) {raw} & 0xFFFFFFFFL"
+            return f"Cobol.putRawUnsigned({self.g.field_expr(self.ref(text))}, {low});"
+        return self.g.store_into(self.ref(text), value, False)
+
     def dispatch_counters(self, words: list[str], verb: str, key: str, opts: dict, ind: str) -> list[str] | None:  # noqa: ARG002
         """The named counter commands; any other command naming a counter is refused here, or None for a command of another family."""
         if verb == "GET" and ("COUNTER" in opts or "DCOUNTER" in opts):
@@ -42,10 +78,10 @@ class CounterCommands:
             nm = self.name(_arg(opts.get("COUNTER") or opts["DCOUNTER"]))
             # #4770 (X45): INCREMENT is an unsigned doubleword and WRAP acts at a DEFINE DCOUNTER counter's maximum; the VALUE
             # of a doubleword counter is unsigned too (a 64-bit value past 2**63 is not a negative number)
-            inc = f", {self.long_(_arg(opts['INCREMENT']))}" if opts.get("INCREMENT") else ""
+            inc = f", {self._clong(_arg(opts['INCREMENT']))}" if opts.get("INCREMENT") else ""
             if "REDUCE" in opts or opts.get("COMPAREMIN") or opts.get("COMPAREMAX"):
                 # #5039 (X53): REDUCE, COMPAREMIN / COMPAREMAX (the bounds the value handed out must meet; null: not given)
-                bound = lambda o: f"Long.valueOf({self.long_(_arg(opts[o]))})" if opts.get(o) else "null"  # noqa: E731
+                bound = lambda o: f"Long.valueOf({self._clong(_arg(opts[o]))})" if opts.get(o) else "null"  # noqa: E731
                 inc = (f"{inc or ', 1L'}, {'true' if 'WRAP' in opts else 'false'}, {'true' if 'REDUCE' in opts else 'false'}, "
                        f"{bound('COMPAREMIN')}, {bound('COMPAREMAX')}, {'true' if 'COUNTER' in opts else 'false'}")  # fmt: skip
             elif "WRAP" in opts:
@@ -61,7 +97,7 @@ class CounterCommands:
             return [f"{ind}long[] {v} = task.getCounter({pool}, {nm}{inc});",
                     *([f"{ind}{v} = task.fullwordGet({pool}, {nm}, {v});"] if full else []),
                     f"{ind}if ({v}[0] == 0{' || ' + v + '[0] == 22' if full else ''}) {{",
-                    ind + "    " + self.g.store_into(self.ref(_arg(opts["VALUE"])), val, False),
+                    ind + "    " + self._cstore(_arg(opts["VALUE"]), val, f"{v}[2]", "DCOUNTER" in opts),
                     f"{ind}}}",
                     *self.outcome(opts, f"(int) {v}[0]", f"(int) {v}[1]", ind)]  # fmt: skip
         if verb in ("DEFINE", "DELETE", "QUERY") and ("COUNTER" in opts or "DCOUNTER" in opts):
@@ -81,14 +117,14 @@ class CounterCommands:
             elif (
                 "DCOUNTER" in opts
             ):  # #4770 (X45): doubleword limits; IBM's defaults MINIMUM zero, MAXIMUM a doubleword of X'FF'
-                val = self.long_(_arg(opts["VALUE"])) if opts.get("VALUE") else "0L"
-                lo = self.long_(_arg(opts["MINIMUM"])) if opts.get("MINIMUM") else "0L"
-                hi = self.long_(_arg(opts["MAXIMUM"])) if opts.get("MAXIMUM") else "-1L"
+                val = self._clong(_arg(opts["VALUE"])) if opts.get("VALUE") else "0L"
+                lo = self._clong(_arg(opts["MINIMUM"])) if opts.get("MINIMUM") else "0L"
+                hi = self._clong(_arg(opts["MAXIMUM"])) if opts.get("MAXIMUM") else "-1L"
                 call = f"task.defineDcounter({pool}, {nm}, {val}, {lo}, {hi})"
             else:  # #5039 (X50): fullword limits; IBM's defaults MINIMUM zero, MAXIMUM X'7FFFFFFF' (2147483647)
-                val = self.int_(_arg(opts["VALUE"])) if opts.get("VALUE") else "0"
-                lo = self.int_(_arg(opts["MINIMUM"])) if opts.get("MINIMUM") else "0"
-                hi = self.int_(_arg(opts["MAXIMUM"])) if opts.get("MAXIMUM") else "2147483647"
+                val = self._cint(_arg(opts["VALUE"])) if opts.get("VALUE") else "0"
+                lo = self._cint(_arg(opts["MINIMUM"])) if opts.get("MINIMUM") else "0"
+                hi = self._cint(_arg(opts["MAXIMUM"])) if opts.get("MAXIMUM") else "2147483647"
                 call = f"task.defineCounter({pool}, {nm}, {val}, {lo}, {hi})"
             return [f"{ind}int[] {v} = {call};", *self.outcome(opts, f"{v}[0]", f"{v}[1]", ind)]
         if verb == "QUERY" and "DCOUNTER" in opts:  # #4770 (X45): value and limits, unsigned doublewords
@@ -104,8 +140,8 @@ class CounterCommands:
                     lines.append(
                         ind
                         + "    "
-                        + self.g.store_into(
-                            self.ref(_arg(opts[o])), f"new BigDecimal(Long.toUnsignedString({v}[{i}]))", False
+                        + self._cstore(
+                            _arg(opts[o]), f"new BigDecimal(Long.toUnsignedString({v}[{i}]))", f"{v}[{i}]", True
                         )
                     )
             return [*lines, f"{ind}}}", *self.outcome(opts, f"(int) {v}[0]", f"(int) {v}[1]", ind)]
@@ -120,9 +156,7 @@ class CounterCommands:
             for o, i in (("VALUE", 2), ("MINIMUM", 3), ("MAXIMUM", 4)):
                 if opts.get(o):
                     lines.append(
-                        ind
-                        + "    "
-                        + self.g.store_into(self.ref(_arg(opts[o])), f"BigDecimal.valueOf({v}[{i}])", False)
+                        ind + "    " + self._cstore(_arg(opts[o]), f"BigDecimal.valueOf({v}[{i}])", f"{v}[{i}]", False)
                     )
             return [*lines, f"{ind}}}", *self.outcome(opts, f"{v}[0]", f"{v}[1]", ind)]
         if verb in ("REWIND", "UPDATE") and ("COUNTER" in opts or "DCOUNTER" in opts):
@@ -133,12 +167,12 @@ class CounterCommands:
             pool = self.name(_arg(opts["POOL"])) if opts.get("POOL") else '""'
             nm = self.name(_arg(opts.get("COUNTER") or opts["DCOUNTER"]))
             if verb == "REWIND":
-                inc = self.long_(_arg(opts["INCREMENT"])) if opts.get("INCREMENT") else "1L"
+                inc = self._clong(_arg(opts["INCREMENT"])) if opts.get("INCREMENT") else "1L"
                 call = f"task.rewindCounter({pool}, {nm}, {inc})"
             else:
                 if not opts.get("VALUE"):
                     raise CicsError(_msg("UPDATE COUNTER", "required", "VALUE"))
-                call = f"task.updateCounter({pool}, {nm}, {self.long_(_arg(opts['VALUE']))}, {'true' if 'COUNTER' in opts else 'false'})"
+                call = f"task.updateCounter({pool}, {nm}, {self._clong(_arg(opts['VALUE']))}, {'true' if 'COUNTER' in opts else 'false'})"
             return [f"{ind}int[] {v} = {call};", *self.outcome(opts, f"{v}[0]", f"{v}[1]", ind)]
         if "COUNTER" in opts or "DCOUNTER" in opts:
             # any other named-counter command: not modelled

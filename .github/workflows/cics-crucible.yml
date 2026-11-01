@@ -158,7 +158,19 @@ jobs:
       - name: Install GitGalaxy
         run: |
           python -m pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
-          pip install --require-hashes -r gitgalaxy/ci/requirements/pytest.txt && pip install --no-build-isolation -e ./gitgalaxy
+          pip install --require-hashes -r gitgalaxy/ci/requirements/pytest.txt
+          # the COBOL side parses a BLL program's records (det/bll.py lower_text): without the parser ca-bll-cells
+          # raises ImportError and the shard writes no results.json (#5119)
+          pip install --require-hashes -r gitgalaxy/ci/requirements/treesitter.txt
+          pip install --no-build-isolation -e ./gitgalaxy
+
+      - name: Cache tree-sitter language pack
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/tree-sitter-language-pack
+          key: tree-sitter-${{ runner.os }}-${{ hashFiles('gitgalaxy/ci/requirements/treesitter.txt') }}
+          restore-keys: |
+            tree-sitter-${{ runner.os }}-
 
       - name: Setup JDK 17
         uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
@@ -361,11 +373,11 @@ jobs:
           path: ${{ runner.temp }}/gnucobol-image.tar
           key: gnucobol-image-${{ hashFiles('gitgalaxy/tests/equivalence/gnucobol.Dockerfile') }}
 
-  # The required check (its name is the job id). Always runs: a shard that failed or never started is a failure here,
-  # never a pass by absence.
+  # The required check (its name is the job id). Runs unless the run was cancelled: a shard that failed or never started
+  # is a failure here, never a pass by absence.
   crucible:
     needs: [plan, measure, runner-tests]
-    if: ${{ always() && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) }}
+    if: ${{ !cancelled() && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) }}  # #7455: !cancelled(), not always(): in a cancelled run this ends cancelled, not a false failure, and never skipped (docs/ci.md)
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:

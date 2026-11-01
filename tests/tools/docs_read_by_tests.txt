@@ -278,7 +278,7 @@ docs/benchmarks/det-refine-cbact02c/C.java	tests/cobol_mainframe
 docs/bias_data.json	tests/core_engine,tests/tools/fidelity_table.py
 docs/branch_rule_contract.md	gitgalaxy
 docs/calls_out_rule_contract.md	gitgalaxy
-docs/ci.md	tests/tools/shepherd_gh.py,tests/tools/test_ci_critical_path_split.py,tests/tools/test_engine_reach_workflows.py,tests/tools/test_post_merge_dispatch.py
+docs/ci.md	tests/tools/shepherd_gh.py,tests/tools/test_cancelled_gates.py,tests/tools/test_ci_critical_path_split.py,tests/tools/test_engine_reach_workflows.py,tests/tools/test_post_merge_dispatch.py
 docs/ci_env_gated_tests.md	tests/tools/test_env_gated_tests_run_in_ci_5954.py
 docs/class_start_rule_contract.md	gitgalaxy
 docs/cleanup_rule_contract.md	gitgalaxy
@@ -351,7 +351,7 @@ docs/language_status/fact_ownership.md	tests/tools/test_progress_report.py
 docs/language_status/fresh_estate_trials.md	tests/tools/trial.py
 docs/language_status/fresh_estate_trials.svg	tests/tools/trial.py
 docs/language_status/gap_prevalence.md	tests/tools/gap_prevalence.py
-docs/language_status/harness	tests/tools/test_generated_branch.py
+docs/language_status/harness	tests/tools/test_generated_branch.py,tests/tools/test_harness_report.py
 docs/language_status/harness/	tests/tools/test_generated_branch.py
 docs/language_status/mutation_equivalent_spot_check.md	tests/cobol_mainframe
 docs/language_status/mutation_scores.json	tests/cobol_mainframe,tests/tools/evidence.py,tests/tools/mutation_crucible.py,tests/tools/mutation_scores.py,tests/tools/progress_report.py,tests/tools/strengthen.py
@@ -520,6 +520,7 @@ scan_comparison.md	tests/tools/publish_examples.py
 scorecard.md	tests/tools/referees
 signal_contracts.md	tests/signal_contract_audit.py,tests/test_signal_contract_sheet.py
 space.md	tests/extraction
+src/harness_report.md	tests/tools/test_harness_report.py
 stray.md	tests/tools/test_evidence_report.py
 strengthen.md	tests/tools/strengthen.py
 subsystem_distribution.md	tests/tools/doom_speedrun,tests/tools/test_doom_subsystem_distribution.py

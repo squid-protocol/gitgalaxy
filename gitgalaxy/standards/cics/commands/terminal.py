@@ -38,6 +38,19 @@ SEND_CONTROL_OPTIONS = ("ERASE", "ERASEAUP", "FREEKB", "ALARM", "CURSOR", "FRSET
 
 _MAP = {"MAP": Arg("name", width=7), "MAPSET": Arg("name", width=8)}
 
+# #5079 (X59): SEND MAP's output disposition and printer options that the one 3270 display cannot honour. They stay in
+# MAP_OPTIONS (the parser must read them as flags, never as verb words) but are refused by name, as SEND TEXT refuses
+# them (X20): ACCUM / PAGING build a BMS logical message that nothing sends until SEND PAGE, so passing them on as a
+# plain send would put a map on the screen that IBM keeps back
+_MAP_LOGICAL = "a BMS logical message (ACCUM / PAGING, completed by SEND PAGE) is not modelled"
+_MAP_PRINTER = "printer formatting: the region's terminal is a 3270 display"
+MAP_REFUSED_OPTIONS = {
+    "ACCUM": Refusal(_MAP_LOGICAL),
+    "PAGING": Refusal("output kept in temporary storage for terminal paging (CSPG): " + _MAP_LOGICAL),
+    "NLEOM": Refusal(_MAP_PRINTER),
+    "FORMFEED": Refusal(_MAP_PRINTER),
+}
+
 # #4270 (X31): IBM CICS TS, abend code ABM0 -- "The map specified for a basic mapping support (BMS) request could not be
 # located." System action: "The transaction is abnormally terminated with a CICS transaction dump." A map is found only
 # inside its own mapset (MAPSET defaults to the MAP name), so a map the mapset does not hold is this abend. SEND MAP's and
@@ -50,8 +63,13 @@ SEND_MAP = Command(
     key="SEND MAP",
     ibm=ibm("EXEC CICS SEND MAP", "summary-send-map"),
     status="modelled",
-    options={**_MAP, "FROM": Arg("area_in"), **{o: Arg("flag") for o in MAP_OPTIONS}, **RESP_OPTIONS},
-    refused={"SET": SET_POINTER},
+    options={
+        **_MAP,
+        "FROM": Arg("area_in"),
+        **{o: Arg("flag") for o in MAP_OPTIONS if o not in MAP_REFUSED_OPTIONS},
+        **RESP_OPTIONS,
+    },
+    refused={"SET": SET_POINTER, **MAP_REFUSED_OPTIONS},
     outcomes=(Outcome("NORMAL", 0, ""),),
     abends=(MAP_NOT_FOUND,),
     state=("terminal",),

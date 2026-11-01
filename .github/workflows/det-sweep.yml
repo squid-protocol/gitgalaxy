@@ -835,7 +835,7 @@ jobs:
   # that now proves fails -- and a case with no result (a shard that died before reporting) fails.
   det:
     needs: [plan, shard, db2, detmut]
-    if: ${{ always() && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) }}  # #5104: draft PRs skip heavy CI
+    if: ${{ !cancelled() && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) }}  # #5104: draft PRs skip heavy CI; #7455: !cancelled(), not always(): in a cancelled run this ends cancelled, not a false failure, and never skipped (docs/ci.md)
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:

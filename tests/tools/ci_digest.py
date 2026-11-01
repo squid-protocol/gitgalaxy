@@ -116,6 +116,11 @@ UPSTREAM: dict[str, str] = {
     r"^(full-suite part \d+/\d+|plan the suite parts)$": r"^(tested-tree|suite-plan)$",
 }
 NON_REAL = ("main", "flake", "infra")  # a roll-up with no real part takes the first of these any failed part has
+# A roll-up's own result line when what it summarises was cancelled and nothing failed: `full-suite parts: cancelled`,
+# `measure: cancelled, runner-tests: cancelled`, `the plan job did not succeed (cancelled)`. A push or a label flip
+# cancels the parts before they run, and a part cancelled before its matrix expands keeps its `${{ ... }}` name.
+ROLLUP_CANCELLED = re.compile(r"\b(?:shards|parts|measure|runner-tests|db2): cancelled\b|did not succeed \(cancelled\)")
+MATRIX_TEMPLATE = re.compile(r"\$\{\{.*?\}\}")
 
 Logs = Callable[[int], str]
 Files = Callable[[], set[str] | None]
@@ -150,6 +155,7 @@ def extract(log: str, tail: int = 40, max_errors: int = 25) -> dict[str, Any]:
     other = [x for x in errors if not RATCHET_FAIL.match(x) and not EXIT_LINE.search(x)]
     return {"errors": errors[:max_errors], "more_errors": max(0, len(errors) - max_errors), "tail": lines[-tail:],
             "tests": tests, "cases": cases, "ratchet": ratchet,
+            "rollup_cancelled": any(ROLLUP_CANCELLED.search(x) and "failure" not in x for x in lines),
             "ratchet_only": bool(ratchet) and not tests and not other}  # fmt: skip
 
 
@@ -243,15 +249,23 @@ def stale_by_source(mine: set[str] | None, main_changed: set[str], tests: list[s
     )
 
 
+def is_part(pattern: str, name: str) -> bool:
+    """`name` is a part job of a PARTS pattern, reading an unexpanded `${{ ... }}` as a matrix value (`1` or `1/1`)."""
+    return any(re.search(pattern, MATRIX_TEMPLATE.sub(value, name)) for value in ("1", "1/1"))
+
+
 def rollup_kind(name: str, kind: str, ex: dict[str, Any], kinds: dict[str, str]) -> str:
     """#5273: a `real` roll-up check (full-suite, ground-truth, det) whose failed part jobs are all non-real takes theirs:
-    a Db2 image pull leaves `det` with "shard did not report", a suite part is over its time limit."""
+    a Db2 image pull leaves `det` with "shard did not report", a suite part is over its time limit. With no failed part
+    to read, a roll-up whose own log says its parts were cancelled is `infra` too: a rerun, not a worker."""
     pat = PARTS.get(name)
     if kind != "real" or not pat or ex["tests"] or ex["cases"]:
         return kind
-    parts = [k for part, k in kinds.items() if re.search(pat, part)]
-    if not parts or any(k not in NON_REAL for k in parts):
+    parts = [k for part, k in kinds.items() if is_part(pat, part)]
+    if any(k not in NON_REAL for k in parts):
         return kind
+    if not parts:
+        return "infra" if ex.get("rollup_cancelled") else kind
     return next(k for k in NON_REAL if k in parts)
 
 

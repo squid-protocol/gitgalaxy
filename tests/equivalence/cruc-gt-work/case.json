@@ -1,0 +1,57 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "GTWORK",
+  "program_source": "cases/ghost-tasks/gt-start-retrieve/src/GTWORK.cbl",
+  "copy_dirs": [],
+  "transid": "GT02",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "notes": "cics-crucible ghost-tasks / gt-start-retrieve (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): the started task alone: RETRIEVE loop until ENDDATA, LENGERR on an over-long record. Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "one-record",
+      "commarea": null,
+      "startcode": "S",
+      "start_data": [
+        {
+          "text": "PAYLOAD-ONE-0000001"
+        }
+      ],
+      "why": "one 20-byte record, then ENDDATA"
+    },
+    {
+      "name": "two-records",
+      "commarea": null,
+      "startcode": "S",
+      "start_data": [
+        {
+          "text": "FIRST-RECORD-00001"
+        },
+        {
+          "text": "SECOND-RECORD-0002"
+        }
+      ],
+      "why": "two records are read in order, then ENDDATA"
+    },
+    {
+      "name": "lengerr",
+      "commarea": null,
+      "startcode": "S",
+      "start_data": [
+        {
+          "text": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+        }
+      ],
+      "why": "a 30-byte record into the 20-byte area: LENGERR, LENGTH 30, still logged"
+    },
+    {
+      "name": "no-data",
+      "commarea": null,
+      "startcode": "S",
+      "why": "started with no data: the first RETRIEVE is ENDDATA"
+    }
+  ]
+}

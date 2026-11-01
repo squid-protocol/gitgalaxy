@@ -173,10 +173,15 @@ def test_the_system_areas_are_modelled_on_every_surface_and_no_text_says_the_spe
     root = HERE.parents[1]
     for area in ("CWA", "TWA", "TCTUA"):
         assert area in ADDRESS.options and area not in ADDRESS.refused
-    det = (root / "gitgalaxy/tools/cobol_to_java/det/cics.py").read_text(encoding="utf-8")
+    det_dir = root / "gitgalaxy/tools/cobol_to_java/det"
+    # #5274: ADDRESS lives in the storage family module, split out of det/cics.py; read the host and every family
+    det = "".join(f.read_text(encoding="utf-8") for f in sorted(det_dir.glob("cics*.py")))
+    assert "DetCics.address{option.capitalize()}" in det
+    det_java = (det_dir / "cobolrt/cics/DetCics.java").read_text(encoding="utf-8")
     harness = (root / "tests/tools/equivalence_cics_storage.py").read_text(encoding="utf-8")
     for name in ("addressCwa", "addressTwa", "addressTctua"):
         assert name in det, name
+        assert f"static void {name}(" in det_java, name
     assert "CWA" in harness and "TWA" in harness and "TCTUA" in harness
     rules = json.loads((root / "docs/language_status/cobolrt_rules.json").read_text(encoding="utf-8"))
     title = next(r["title"] for r in rules["rules"] if r["id"] == "RT-CICS-ADDRESS")

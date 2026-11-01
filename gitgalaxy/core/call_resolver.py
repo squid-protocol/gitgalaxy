@@ -919,6 +919,10 @@ def _index(parsed_files: list[dict[str, Any]]) -> dict[tuple[str, str], _Bucket]
             if func.get("is_synthetic_slice"):
                 continue
             shape = func.get("def_shape") or None
+            if shape == "main_line":
+                # #7170: a COBOL main line is named after its program but entered at the
+                # program's start, never PERFORMed or called by that name: a caller, not a target.
+                continue
             name = str(func.get("name") or "")
             leaf, prefix = _leaf(name)
             if not leaf:

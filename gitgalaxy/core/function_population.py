@@ -11,7 +11,9 @@ The slicer emits units that are not functions -- a file's top-level bucket
 (``__global_context__``), ``Anonymous_Block``, and Mode E statement slices
 (``CREATE_Statement``, ``Declarative_Block``, ...). ``detector`` stamps every
 one of them ``is_synthetic_slice`` (``_is_uncountable_slice``). A narrower flag,
-``calls_only``, marks only Python's module-level bucket.
+``calls_only``, marks Python's module-level bucket and a COBOL main line that has
+no PROGRAM-ID to name it (#4302). A COBOL main line named by its PROGRAM-ID is a
+real function (``def_shape`` "main_line", #7170): it is counted and listed.
 
 Consumers used to choose between the two flags by hand, and they disagreed: the
 scan DB's ``function_data`` (and every per-function statistic, #2691) excluded

@@ -119,20 +119,20 @@
    "reason": "LITERAL-SORTCODE is only the sender of a MOVE to the alphanumeric SORTCODE: the 6 digit bytes are copied whatever scale the item declares; no arithmetic, compare or edit reads the scale"
   },
   {
-   "id": "2090174c23",
-   "op": "CON",
-   "line": 62,
-   "before": "private final Field f6_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
-   "after": "private final Field f6_EIBTIME = Field.packed(s_DFHEIBLK, 1, 7, 0, true);",
-   "verdict": "equivalent",
-   "reason": "GETSCODE's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the field's layout cannot show; GG-RETURN-CODE is never referenced and the task path never returns it"
-  },
-  {
    "id": "1b4df4a4b4",
    "op": "CON",
    "line": 62,
    "before": "private final Field f6_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
    "after": "private final Field f6_EIBTIME = Field.packed(s_DFHEIBLK, 0, 8, 0, true);",
+   "verdict": "equivalent",
+   "reason": "GETSCODE's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the field's layout cannot show; GG-RETURN-CODE is never referenced and the task path never returns it"
+  },
+  {
+   "id": "2090174c23",
+   "op": "CON",
+   "line": 62,
+   "before": "private final Field f6_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+   "after": "private final Field f6_EIBTIME = Field.packed(s_DFHEIBLK, 1, 7, 0, true);",
    "verdict": "equivalent",
    "reason": "GETSCODE's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the field's layout cannot show; GG-RETURN-CODE is never referenced and the task path never returns it"
   },
@@ -173,15 +173,6 @@
    "reason": "GETSCODE's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the field's layout cannot show; GG-RETURN-CODE is never referenced and the task path never returns it"
   },
   {
-   "id": "dfba6dc27d",
-   "op": "CON",
-   "line": 64,
-   "before": "private final Field f8_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 4, false);",
-   "after": "private final Field f8_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 9, 4, false);",
-   "verdict": "equivalent",
-   "reason": "GETSCODE's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the field's layout cannot show; GG-RETURN-CODE is never referenced and the task path never returns it"
-  },
-  {
    "id": "46b653c4ad",
    "op": "CON",
    "line": 64,
@@ -191,11 +182,11 @@
    "reason": "GETSCODE's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the field's layout cannot show; GG-RETURN-CODE is never referenced and the task path never returns it"
   },
   {
-   "id": "fc4b4e70e4",
+   "id": "dfba6dc27d",
    "op": "CON",
-   "line": 65,
-   "before": "private final Field f9_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
-   "after": "private final Field f9_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 1, true);",
+   "line": 64,
+   "before": "private final Field f8_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 4, false);",
+   "after": "private final Field f8_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 9, 4, false);",
    "verdict": "equivalent",
    "reason": "GETSCODE's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the field's layout cannot show; GG-RETURN-CODE is never referenced and the task path never returns it"
   },
@@ -218,6 +209,15 @@
    "reason": "GETSCODE's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the field's layout cannot show; GG-RETURN-CODE is never referenced and the task path never returns it"
   },
   {
+   "id": "fc4b4e70e4",
+   "op": "CON",
+   "line": 65,
+   "before": "private final Field f9_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+   "after": "private final Field f9_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 1, true);",
+   "verdict": "equivalent",
+   "reason": "GETSCODE's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the field's layout cannot show; GG-RETURN-CODE is never referenced and the task path never returns it"
+  },
+  {
    "id": "9101bf6dde",
    "op": "CON",
    "line": 66,
@@ -232,15 +232,6 @@
    "line": 66,
    "before": "private final Field f10_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);",
    "after": "private final Field f10_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 5, false);",
-   "verdict": "equivalent",
-   "reason": "GETSCODE's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the field's layout cannot show; GG-RETURN-CODE is never referenced and the task path never returns it"
-  },
-  {
-   "id": "a17818773d",
-   "op": "CON",
-   "line": 67,
-   "before": "private final Field f13_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
-   "after": "private final Field f13_EIBCALEN = Field.binary(s_DFHEIBLK, 25, 4, 0, true, false);",
    "verdict": "equivalent",
    "reason": "GETSCODE's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the field's layout cannot show; GG-RETURN-CODE is never referenced and the task path never returns it"
   },
@@ -263,11 +254,11 @@
    "reason": "GETSCODE's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the field's layout cannot show; GG-RETURN-CODE is never referenced and the task path never returns it"
   },
   {
-   "id": "ee2bb5d2db",
+   "id": "a17818773d",
    "op": "CON",
-   "line": 68,
-   "before": "private final Field f37_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
-   "after": "private final Field f37_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 5, 0, true, false);",
+   "line": 67,
+   "before": "private final Field f13_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
+   "after": "private final Field f13_EIBCALEN = Field.binary(s_DFHEIBLK, 25, 4, 0, true, false);",
    "verdict": "equivalent",
    "reason": "GETSCODE's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the field's layout cannot show; GG-RETURN-CODE is never referenced and the task path never returns it"
   },
@@ -290,22 +281,13 @@
    "reason": "GETSCODE's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the field's layout cannot show; GG-RETURN-CODE is never referenced and the task path never returns it"
   },
   {
-   "id": "81db8d511d",
-   "op": "ROR",
-   "line": 79,
-   "before": "if (task.level() > 1) {",
-   "after": "if (task.level() <= 1) {",
-   "verdict": "unreachable",
-   "reason": "abended() is called only from condition(); GETSCODE issues only EXEC CICS RETURN, which raises no condition, so it never runs"
-  },
-  {
-   "id": "926d3edf62",
+   "id": "ee2bb5d2db",
    "op": "CON",
-   "line": 79,
-   "before": "if (task.level() > 1) {",
-   "after": "if (task.level() > 2) {",
-   "verdict": "unreachable",
-   "reason": "abended() is called only from condition(); GETSCODE issues only EXEC CICS RETURN, which raises no condition, so it never runs"
+   "line": 68,
+   "before": "private final Field f37_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+   "after": "private final Field f37_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 5, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "GETSCODE's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the field's layout cannot show; GG-RETURN-CODE is never referenced and the task path never returns it"
   },
   {
    "id": "0965161aa4",
@@ -322,6 +304,24 @@
    "line": 79,
    "before": "if (task.level() > 1) {",
    "after": "if (!(task.level() > 1)) {",
+   "verdict": "unreachable",
+   "reason": "abended() is called only from condition(); GETSCODE issues only EXEC CICS RETURN, which raises no condition, so it never runs"
+  },
+  {
+   "id": "81db8d511d",
+   "op": "ROR",
+   "line": 79,
+   "before": "if (task.level() > 1) {",
+   "after": "if (task.level() <= 1) {",
+   "verdict": "unreachable",
+   "reason": "abended() is called only from condition(); GETSCODE issues only EXEC CICS RETURN, which raises no condition, so it never runs"
+  },
+  {
+   "id": "926d3edf62",
+   "op": "CON",
+   "line": 79,
+   "before": "if (task.level() > 1) {",
+   "after": "if (task.level() > 2) {",
    "verdict": "unreachable",
    "reason": "abended() is called only from condition(); GETSCODE issues only EXEC CICS RETURN, which raises no condition, so it never runs"
   },
@@ -344,13 +344,16 @@
    "reason": "An @SuppressWarnings annotation string has no run-time effect."
   },
   {
-   "id": "4c7e6a071d",
-   "op": "LIT",
+   "id": "03a226307f",
+   "op": "NEG",
    "line": 87,
-   "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
-   "after": "throw new Hole(\"XICS file \" + name + \": the program names no file the generated project stores\");",
+   "before": "if (CicsTask.undefinableFile(name)) {",
+   "after": "if (!(CicsTask.undefinableFile(name))) {",
    "verdict": "unreachable",
-   "reason": "The Hole is thrown by the file-store lookup, reached only by a file command; GETSCODE issues none."
+   "reason": "GETSCODE's store(name), the CicsTask.undefinableFile test negated: nothing in this port calls store(); the only `store(` calls are Cobol.store, and the program's one command is EXEC CICS RETURN, so no file command ever looks a store up.",
+   "tried": [
+    "plain-gs"
+   ]
   },
   {
    "id": "054fa3eaaa",
@@ -362,13 +365,13 @@
    "reason": "The Hole is thrown by the file-store lookup, reached only by a file command; GETSCODE issues none."
   },
   {
-   "id": "fb34bea25c",
+   "id": "4c7e6a071d",
    "op": "LIT",
-   "line": 91,
-   "before": "java.util.Map.entry(\"A010\", 1),",
-   "after": "java.util.Map.entry(\"X010\", 1),",
+   "line": 87,
+   "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
+   "after": "throw new Hole(\"XICS file \" + name + \": the program names no file the generated project stores\");",
    "verdict": "unreachable",
-   "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; GETSCODE has no HANDLE and GETSCODE issues only EXEC CICS RETURN, which raises none"
+   "reason": "The Hole is thrown by the file-store lookup, reached only by a file command; GETSCODE issues none."
   },
   {
    "id": "8de53f4adb",
@@ -376,6 +379,15 @@
    "line": 91,
    "before": "java.util.Map.entry(\"A010\", 1),",
    "after": "java.util.Map.entry(\"A010\", 2),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; GETSCODE has no HANDLE and GETSCODE issues only EXEC CICS RETURN, which raises none"
+  },
+  {
+   "id": "fb34bea25c",
+   "op": "LIT",
+   "line": 91,
+   "before": "java.util.Map.entry(\"A010\", 1),",
+   "after": "java.util.Map.entry(\"X010\", 1),",
    "verdict": "unreachable",
    "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; GETSCODE has no HANDLE and GETSCODE issues only EXEC CICS RETURN, which raises none"
   },
@@ -398,20 +410,20 @@
    "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; GETSCODE has no HANDLE and GETSCODE issues only EXEC CICS RETURN, which raises none"
   },
   {
-   "id": "c3b3001904",
-   "op": "ROR",
-   "line": 97,
-   "before": "if (i == null) {",
-   "after": "if (i != null) {",
-   "verdict": "unreachable",
-   "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; GETSCODE has no HANDLE and GETSCODE issues only EXEC CICS RETURN, which raises none"
-  },
-  {
    "id": "2ee187673d",
    "op": "NEG",
    "line": 97,
    "before": "if (i == null) {",
    "after": "if (!(i == null)) {",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; GETSCODE has no HANDLE and GETSCODE issues only EXEC CICS RETURN, which raises none"
+  },
+  {
+   "id": "c3b3001904",
+   "op": "ROR",
+   "line": 97,
+   "before": "if (i == null) {",
+   "after": "if (i != null) {",
    "verdict": "unreachable",
    "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; GETSCODE has no HANDLE and GETSCODE issues only EXEC CICS RETURN, which raises none"
   },
@@ -533,24 +545,6 @@
    "reason": "in_ is called only under `ca instanceof GetscodeDfhcommarea x`, which is never null, so the null guard never fires"
   },
   {
-   "id": "b026656309",
-   "op": "AOR",
-   "line": 135,
-   "before": "Cobol.move(d.getSortcode() == null ? \"\" : d.getSortcode(), Field.alphanumeric(s, base + 0, 6, false), CS);",
-   "after": "Cobol.move(d.getSortcode() == null ? \"\" : d.getSortcode(), Field.alphanumeric(s, base - 0, 6, false), CS);",
-   "verdict": "equivalent",
-   "reason": "in_GetscodeDfhcommarea copies the DTO's SORTCODE into the 6-byte COMMAREA storage, and the program's one statement then MOVEs its literal over those same 6 bytes before anything reads or writes back the field (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back): whatever in_ stores, or not, is overwritten"
-  },
-  {
-   "id": "fdeb8ef564",
-   "op": "CON",
-   "line": 135,
-   "before": "Cobol.move(d.getSortcode() == null ? \"\" : d.getSortcode(), Field.alphanumeric(s, base + 0, 6, false), CS);",
-   "after": "Cobol.move(d.getSortcode() == null ? \"\" : d.getSortcode(), Field.alphanumeric(s, base + 0, 7, false), CS);",
-   "verdict": "equivalent",
-   "reason": "in_GetscodeDfhcommarea copies the DTO's SORTCODE into the 6-byte COMMAREA storage, and the program's one statement then MOVEs its literal over those same 6 bytes before anything reads or writes back the field (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back): whatever in_ stores, or not, is overwritten"
-  },
-  {
    "id": "7ef7390128",
    "op": "ROR",
    "line": 135,
@@ -560,11 +554,29 @@
    "reason": "in_GetscodeDfhcommarea copies the DTO's SORTCODE into the 6-byte COMMAREA storage, and the program's one statement then MOVEs its literal over those same 6 bytes before anything reads or writes back the field (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back): whatever in_ stores, or not, is overwritten"
   },
   {
+   "id": "b026656309",
+   "op": "AOR",
+   "line": 135,
+   "before": "Cobol.move(d.getSortcode() == null ? \"\" : d.getSortcode(), Field.alphanumeric(s, base + 0, 6, false), CS);",
+   "after": "Cobol.move(d.getSortcode() == null ? \"\" : d.getSortcode(), Field.alphanumeric(s, base - 0, 6, false), CS);",
+   "verdict": "equivalent",
+   "reason": "in_GetscodeDfhcommarea copies the DTO's SORTCODE into the 6-byte COMMAREA storage, and the program's one statement then MOVEs its literal over those same 6 bytes before anything reads or writes back the field (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back): whatever in_ stores, or not, is overwritten"
+  },
+  {
    "id": "c714de083c",
    "op": "CON",
    "line": 135,
    "before": "Cobol.move(d.getSortcode() == null ? \"\" : d.getSortcode(), Field.alphanumeric(s, base + 0, 6, false), CS);",
    "after": "Cobol.move(d.getSortcode() == null ? \"\" : d.getSortcode(), Field.alphanumeric(s, base + 1, 6, false), CS);",
+   "verdict": "equivalent",
+   "reason": "in_GetscodeDfhcommarea copies the DTO's SORTCODE into the 6-byte COMMAREA storage, and the program's one statement then MOVEs its literal over those same 6 bytes before anything reads or writes back the field (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back): whatever in_ stores, or not, is overwritten"
+  },
+  {
+   "id": "fdeb8ef564",
+   "op": "CON",
+   "line": 135,
+   "before": "Cobol.move(d.getSortcode() == null ? \"\" : d.getSortcode(), Field.alphanumeric(s, base + 0, 6, false), CS);",
+   "after": "Cobol.move(d.getSortcode() == null ? \"\" : d.getSortcode(), Field.alphanumeric(s, base + 0, 7, false), CS);",
    "verdict": "equivalent",
    "reason": "in_GetscodeDfhcommarea copies the DTO's SORTCODE into the 6-byte COMMAREA storage, and the program's one statement then MOVEs its literal over those same 6 bytes before anything reads or writes back the field (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back): whatever in_ stores, or not, is overwritten"
   },
@@ -659,20 +671,20 @@
    "reason": "GETSCODE's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTRMID/EIBTASKN/EIBDATE/EIBTIME cannot show"
   },
   {
+   "id": "56685c157b",
+   "op": "CON",
+   "line": 203,
+   "before": "Cobol.store(f7_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f7_EIBDATE, BigDecimal.valueOf((now.getYear() - 1901) * 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "GETSCODE's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTRMID/EIBTASKN/EIBDATE/EIBTIME cannot show"
+  },
+  {
    "id": "a4bcbd409e",
    "op": "AOR",
    "line": 203,
    "before": "Cobol.store(f7_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
    "after": "Cobol.store(f7_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);",
-   "verdict": "equivalent",
-   "reason": "GETSCODE's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTRMID/EIBTASKN/EIBDATE/EIBTIME cannot show"
-  },
-  {
-   "id": "da0954e2b0",
-   "op": "AOR",
-   "line": 203,
-   "before": "Cobol.store(f7_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
-   "after": "Cobol.store(f7_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) / 1000L + now.getDayOfYear()), false, CS);",
    "verdict": "equivalent",
    "reason": "GETSCODE's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTRMID/EIBTASKN/EIBDATE/EIBTIME cannot show"
   },
@@ -686,20 +698,20 @@
    "reason": "GETSCODE's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTRMID/EIBTASKN/EIBDATE/EIBTIME cannot show"
   },
   {
-   "id": "56685c157b",
-   "op": "CON",
-   "line": 203,
-   "before": "Cobol.store(f7_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
-   "after": "Cobol.store(f7_EIBDATE, BigDecimal.valueOf((now.getYear() - 1901) * 1000L + now.getDayOfYear()), false, CS);",
-   "verdict": "equivalent",
-   "reason": "GETSCODE's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTRMID/EIBTASKN/EIBDATE/EIBTIME cannot show"
-  },
-  {
    "id": "b67dc4d62e",
    "op": "DEL",
    "line": 203,
    "before": "Cobol.store(f7_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
    "after": "/* Cobol.store(f7_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "GETSCODE's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTRMID/EIBTASKN/EIBDATE/EIBTIME cannot show"
+  },
+  {
+   "id": "da0954e2b0",
+   "op": "AOR",
+   "line": 203,
+   "before": "Cobol.store(f7_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f7_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) / 1000L + now.getDayOfYear()), false, CS);",
    "verdict": "equivalent",
    "reason": "GETSCODE's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTRMID/EIBTASKN/EIBDATE/EIBTIME cannot show"
   },
@@ -722,11 +734,11 @@
    "reason": "GETSCODE's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTRMID/EIBTASKN/EIBDATE/EIBTIME cannot show"
   },
   {
-   "id": "d6a2784426",
-   "op": "AOR",
+   "id": "6e3fbffe82",
+   "op": "DEL",
    "line": 204,
    "before": "Cobol.store(f6_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
-   "after": "Cobol.store(f6_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L - now.getSecond()), false, CS);",
+   "after": "/* Cobol.store(f6_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS); */",
    "verdict": "equivalent",
    "reason": "GETSCODE's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTRMID/EIBTASKN/EIBDATE/EIBTIME cannot show"
   },
@@ -740,11 +752,11 @@
    "reason": "GETSCODE's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTRMID/EIBTASKN/EIBDATE/EIBTIME cannot show"
   },
   {
-   "id": "6e3fbffe82",
-   "op": "DEL",
+   "id": "d6a2784426",
+   "op": "AOR",
    "line": 204,
    "before": "Cobol.store(f6_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
-   "after": "/* Cobol.store(f6_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS); */",
+   "after": "Cobol.store(f6_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L - now.getSecond()), false, CS);",
    "verdict": "equivalent",
    "reason": "GETSCODE's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTRMID/EIBTASKN/EIBDATE/EIBTIME cannot show"
   },
@@ -767,20 +779,20 @@
    "reason": "calen starts 0 only for a task with no DTO; it then reaches EIBCALEN (never read by the program) and, if exactCommarea, a cut to 0 or 1 byte that the MOVE fails either way (PastFrom, refused on both sides)"
   },
   {
-   "id": "8ec167415c",
-   "op": "CON",
-   "line": 211,
-   "before": "in_GetscodeDfhcommarea(x, s_DFHCOMMAREA, 0);",
-   "after": "in_GetscodeDfhcommarea(x, s_DFHCOMMAREA, 1);",
-   "verdict": "equivalent",
-   "reason": "in_GetscodeDfhcommarea copies the DTO's SORTCODE into the 6-byte COMMAREA storage, and the program's one statement then MOVEs its literal over those same 6 bytes before anything reads or writes back the field (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back): whatever in_ stores, or not, is overwritten"
-  },
-  {
    "id": "260b193b88",
    "op": "DEL",
    "line": 211,
    "before": "in_GetscodeDfhcommarea(x, s_DFHCOMMAREA, 0);",
    "after": "/* in_GetscodeDfhcommarea(x, s_DFHCOMMAREA, 0); */",
+   "verdict": "equivalent",
+   "reason": "in_GetscodeDfhcommarea copies the DTO's SORTCODE into the 6-byte COMMAREA storage, and the program's one statement then MOVEs its literal over those same 6 bytes before anything reads or writes back the field (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back): whatever in_ stores, or not, is overwritten"
+  },
+  {
+   "id": "8ec167415c",
+   "op": "CON",
+   "line": 211,
+   "before": "in_GetscodeDfhcommarea(x, s_DFHCOMMAREA, 0);",
+   "after": "in_GetscodeDfhcommarea(x, s_DFHCOMMAREA, 1);",
    "verdict": "equivalent",
    "reason": "in_GetscodeDfhcommarea copies the DTO's SORTCODE into the 6-byte COMMAREA storage, and the program's one statement then MOVEs its literal over those same 6 bytes before anything reads or writes back the field (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back): whatever in_ stores, or not, is overwritten"
   },
@@ -796,83 +808,83 @@
   {
    "id": "bdc7f67fcd",
    "op": "DEL",
-   "line": 215,
+   "line": 218,
    "before": "s_DFHCOMMAREA.beyond = null;",
    "after": "/* s_DFHCOMMAREA.beyond = null; */",
-   "verdict": "equivalent",
-   "reason": "s_DFHCOMMAREA.beyond is initialized to null on Storage creation; deleting this initialization leaves it null."
-  },
-  {
-   "id": "f83a5cc9c2",
-   "op": "CON",
-   "line": 218,
-   "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "after": "System.arraycopy(cb, 1, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "verdict": "unreachable",
-   "reason": "ca instanceof byte[] branch is unreachable: callers pass GetscodeDfhcommarea DTO, never raw byte[]"
+   "verdict": "harness-gap",
+   "reason": "GETSCODE's bytes past the 6-byte record, deleted `s_DFHCOMMAREA.beyond = null;`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-26, bytes-3, bytes-6, bytes-7)."
   },
   {
    "id": "4ef0500e50",
    "op": "CON",
-   "line": 218,
+   "line": 221,
    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
    "after": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 1, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "verdict": "unreachable",
-   "reason": "ca instanceof byte[] branch is unreachable: callers pass GetscodeDfhcommarea DTO, never raw byte[]"
+   "verdict": "harness-gap",
+   "reason": "GETSCODE's byte[] COMMAREA entry, ` s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s` -> `s, 1, Math.min(cb.length, s`: run with commarea_hex (bytes-26, bytes-3, bytes-6, bytes-7) and equal, but this entry compares no end COMMAREA (no layout on the COBOL side) and the program shows nothing it reads (its one MOVE replaces the field); what the mutant changes here is outside the proof."
   },
   {
    "id": "7b67bd0248",
    "op": "DEL",
-   "line": 218,
+   "line": 221,
    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
    "after": "/* System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length)); */",
-   "verdict": "unreachable",
-   "reason": "ca instanceof byte[] branch is unreachable: callers pass GetscodeDfhcommarea DTO, never raw byte[]"
+   "verdict": "harness-gap",
+   "reason": "GETSCODE's byte[] COMMAREA entry, deleted `System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_`: run with commarea_hex (bytes-26, bytes-3, bytes-6, bytes-7) and equal, but this entry compares no end COMMAREA (no layout on the COBOL side) and the program shows nothing it reads (its one MOVE replaces the field); what the mutant changes here is outside the proof."
   },
   {
-   "id": "2f8669f8ee",
-   "op": "NEG",
-   "line": 219,
-   "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (!(cb.length > s_DFHCOMMAREA.bytes.length)) {",
-   "verdict": "unreachable",
-   "reason": "ca instanceof byte[] branch is unreachable: callers pass GetscodeDfhcommarea DTO, never raw byte[]"
-  },
-  {
-   "id": "b765d06589",
-   "op": "ROR",
-   "line": 219,
-   "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (cb.length >= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "unreachable",
-   "reason": "ca instanceof byte[] branch is unreachable: callers pass GetscodeDfhcommarea DTO, never raw byte[]"
+   "id": "f83a5cc9c2",
+   "op": "CON",
+   "line": 221,
+   "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
+   "after": "System.arraycopy(cb, 1, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
+   "verdict": "harness-gap",
+   "reason": "GETSCODE's byte[] COMMAREA entry, `System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, ` -> `b, 1, s_DFHCOMMAREA.bytes, `: killed with the case's layout dropped and commarea_hex inputs (bytes-26, bytes-3, bytes-6, bytes-7), so this branch is reachable by an XCTL or RETURN that passes bytes. `try` refuses commarea_hex on a typed case, so no case can state it yet."
   },
   {
    "id": "1c35fbae12",
    "op": "ROR",
-   "line": 219,
+   "line": 222,
    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
    "after": "if (cb.length <= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "unreachable",
-   "reason": "ca instanceof byte[] branch is unreachable: callers pass GetscodeDfhcommarea DTO, never raw byte[]"
+   "verdict": "harness-gap",
+   "reason": "GETSCODE's byte[] COMMAREA entry, `if (cb.length > s_DFHCOMMAREA.bytes.le` -> `th <= s_DFHCOMMAREA.bytes.l`: killed with the case's layout dropped and commarea_hex inputs (bytes-26, bytes-3, bytes-6, bytes-7), so this branch is reachable by an XCTL or RETURN that passes bytes. `try` refuses commarea_hex on a typed case, so no case can state it yet."
+  },
+  {
+   "id": "2f8669f8ee",
+   "op": "NEG",
+   "line": 222,
+   "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (!(cb.length > s_DFHCOMMAREA.bytes.length)) {",
+   "verdict": "harness-gap",
+   "reason": "GETSCODE's byte[] COMMAREA entry, `if (cb.length > s_DFHCOMMARE` -> `f (!(cb.length > s_DFHCOMMA`: killed with the case's layout dropped and commarea_hex inputs (bytes-26, bytes-3, bytes-6, bytes-7), so this branch is reachable by an XCTL or RETURN that passes bytes. `try` refuses commarea_hex on a typed case, so no case can state it yet."
+  },
+  {
+   "id": "b765d06589",
+   "op": "ROR",
+   "line": 222,
+   "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (cb.length >= s_DFHCOMMAREA.bytes.length) {",
+   "verdict": "harness-gap",
+   "reason": "GETSCODE's byte[] COMMAREA entry, `if (cb.length > s_DFHCOMMAREA.bytes.len` -> `h >= s_DFHCOMMAREA.bytes.le`: run with commarea_hex (bytes-26, bytes-3, bytes-6, bytes-7) and equal, but this entry compares no end COMMAREA (no layout on the COBOL side) and the program shows nothing it reads (its one MOVE replaces the field); what the mutant changes here is outside the proof."
   },
   {
    "id": "70d9f3d9bb",
    "op": "DEL",
-   "line": 220,
+   "line": 223,
    "before": "s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length);",
    "after": "/* s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length); */",
-   "verdict": "unreachable",
-   "reason": "ca instanceof byte[] branch is unreachable: callers pass GetscodeDfhcommarea DTO, never raw byte[]"
+   "verdict": "harness-gap",
+   "reason": "GETSCODE's byte[] COMMAREA entry, deleted `s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.`: run with commarea_hex (bytes-26, bytes-3, bytes-6, bytes-7) and equal, but this entry compares no end COMMAREA (no layout on the COBOL side) and the program shows nothing it reads (its one MOVE replaces the field); what the mutant changes here is outside the proof."
   },
   {
    "id": "1c96b6ee72",
    "op": "DEL",
-   "line": 222,
+   "line": 225,
    "before": "calen = cx(task, cb.length);",
    "after": "/* calen = cx(task, cb.length); */",
-   "verdict": "unreachable",
-   "reason": "ca instanceof byte[] branch is unreachable: callers pass GetscodeDfhcommarea DTO, never raw byte[]"
+   "verdict": "harness-gap",
+   "reason": "GETSCODE's byte[] COMMAREA entry, deleted `calen = cx(task, cb.length);`: killed with the case's layout dropped and commarea_hex inputs (bytes-26, bytes-3, bytes-6, bytes-7), so this branch is reachable by an XCTL or RETURN that passes bytes. `try` refuses commarea_hex on a typed case, so no case can state it yet."
   },
   {
    "id": "43d7eb31bd",
@@ -895,38 +907,20 @@
   {
    "id": "4e27c53ee0",
    "op": "ROR",
-   "line": 228,
+   "line": 231,
    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
    "after": "s_DFHCOMMAREA.beyond = raw.length >= keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
-   "verdict": "unreachable",
-   "reason": "raw != null branch is unreachable: task.linkArea() is only passed by 2-param handleLink, which is never invoked"
+   "verdict": "harness-gap",
+   "reason": "GETSCODE's bytes past the 6-byte record, `.beyond = raw.length > keep ? java.util.Arrays` -> `h >= keep ? java.util.Array`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-26, bytes-3, bytes-6, bytes-7)."
   },
   {
    "id": "98ce520e58",
    "op": "DEL",
-   "line": 228,
+   "line": 231,
    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
    "after": "/* s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null; */",
-   "verdict": "unreachable",
-   "reason": "raw != null branch is unreachable: task.linkArea() is only passed by 2-param handleLink, which is never invoked"
-  },
-  {
-   "id": "cef46ad0df",
-   "op": "AOR",
-   "line": 230,
-   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } };",
-   "verdict": "unreachable",
-   "reason": "raw != null branch is unreachable: task.linkArea() is only passed by 2-param handleLink, which is never invoked"
-  },
-  {
-   "id": "f115a2c269",
-   "op": "CON",
-   "line": 230,
-   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } };",
-   "verdict": "unreachable",
-   "reason": "raw != null branch is unreachable: task.linkArea() is only passed by 2-param handleLink, which is never invoked"
+   "verdict": "harness-gap",
+   "reason": "GETSCODE's bytes past the 6-byte record, deleted `s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRang`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-26, bytes-3, bytes-6, bytes-7)."
   },
   {
    "id": "29bd895463",
@@ -936,6 +930,24 @@
    "after": "if (task.exactCommarea() && calen <= s_DFHCOMMAREA.bytes.length) {",
    "verdict": "equivalent",
    "reason": "calen == the 1985-byte storage would only copy the full area to an array of its own length and restore it; no stated EIBCALEN reaches 1985 (the harness caps it at the record), and the result is the same bytes either way"
+  },
+  {
+   "id": "cef46ad0df",
+   "op": "AOR",
+   "line": 233,
+   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } };",
+   "verdict": "harness-gap",
+   "reason": "GETSCODE's bytes past the 6-byte record, `raw, keep, raw.length - keep); } };` -> `th + keep); } };`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-26, bytes-3, bytes-6, bytes-7)."
+  },
+  {
+   "id": "f115a2c269",
+   "op": "CON",
+   "line": 233,
+   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } };",
+   "verdict": "harness-gap",
+   "reason": "GETSCODE's bytes past the 6-byte record, `s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length` -> `d, 1, raw, keep, raw.length`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-26, bytes-3, bytes-6, bytes-7)."
   },
   {
    "id": "b7a6de129d",
@@ -956,20 +968,20 @@
    "reason": "GETSCODE's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTRMID/EIBTASKN/EIBDATE/EIBTIME cannot show"
   },
   {
-   "id": "d6be69c0fb",
-   "op": "CON",
-   "line": 243,
-   "before": "perform(0, 1);",
-   "after": "perform(1, 1);",
-   "verdict": "equivalent",
-   "reason": "p0 (PREMIERE) is empty and returns 1, so starting at paragraph 1 (A010) or stopping at thru 2 runs the same A010 and its RETURN"
-  },
-  {
    "id": "046b8fffd6",
    "op": "CON",
    "line": 243,
    "before": "perform(0, 1);",
    "after": "perform(0, 2);",
+   "verdict": "equivalent",
+   "reason": "p0 (PREMIERE) is empty and returns 1, so starting at paragraph 1 (A010) or stopping at thru 2 runs the same A010 and its RETURN"
+  },
+  {
+   "id": "d6be69c0fb",
+   "op": "CON",
+   "line": 243,
+   "before": "perform(0, 1);",
+   "after": "perform(1, 1);",
    "verdict": "equivalent",
    "reason": "p0 (PREMIERE) is empty and returns 1, so starting at paragraph 1 (A010) or stopping at thru 2 runs the same A010 and its RETURN"
   },
@@ -1030,56 +1042,56 @@
   {
    "id": "5be2b6fb5f",
    "op": "LIT",
-   "line": 277,
+   "line": 280,
    "before": "CicsTask task = region.linked(\"GETSCODE\", request, area);",
    "after": "CicsTask task = region.linked(\"XETSCODE\", request, area);",
-   "verdict": "unreachable",
-   "reason": "handleLink(request, byte[] area) overload is never called by the equivalence test runner"
+   "verdict": "harness-gap",
+   "reason": "GETSCODE's handleLink(request, byte[] area) / lastLinkBytes(), `task = region.linked(\"GETSCODE\", request, area` -> `d(\"XETSCODE\", request, area`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
   },
   {
    "id": "d5276d9df0",
    "op": "LIT",
-   "line": 278,
+   "line": 281,
    "before": "region.run(task, \"GETSCODE\", this::runTask);",
    "after": "region.run(task, \"XETSCODE\", this::runTask);",
-   "verdict": "unreachable",
-   "reason": "handleLink(request, byte[] area) overload is never called by the equivalence test runner"
-  },
-  {
-   "id": "98915d9552",
-   "op": "ROR",
-   "line": 280,
-   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "after": "lastLinkBytes = task.linkAreaTaken() && left == null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "verdict": "unreachable",
-   "reason": "handleLink(request, byte[] area) overload is never called by the equivalence test runner"
-  },
-  {
-   "id": "7cddf4101a",
-   "op": "COR",
-   "line": 280,
-   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "verdict": "unreachable",
-   "reason": "handleLink(request, byte[] area) overload is never called by the equivalence test runner"
+   "verdict": "harness-gap",
+   "reason": "GETSCODE's handleLink(request, byte[] area) / lastLinkBytes(), `region.run(task, \"GETSCODE\", this::runTask` -> `, \"XETSCODE\", this::runTask`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
   },
   {
    "id": "74e9fb8540",
    "op": "DEL",
-   "line": 280,
+   "line": 283,
    "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
    "after": "/* lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null; */",
-   "verdict": "unreachable",
-   "reason": "handleLink(request, byte[] area) overload is never called by the equivalence test runner"
+   "verdict": "harness-gap",
+   "reason": "GETSCODE's handleLink(request, byte[] area) / lastLinkBytes(), deleted `lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Array`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
+  },
+  {
+   "id": "7cddf4101a",
+   "op": "COR",
+   "line": 283,
+   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "verdict": "harness-gap",
+   "reason": "GETSCODE's handleLink(request, byte[] area) / lastLinkBytes(), ` task.linkAreaTaken() && left != null ? java.u` -> `() || left != null ? java.u`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
+  },
+  {
+   "id": "98915d9552",
+   "op": "ROR",
+   "line": 283,
+   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "after": "lastLinkBytes = task.linkAreaTaken() && left == null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "verdict": "harness-gap",
+   "reason": "GETSCODE's handleLink(request, byte[] area) / lastLinkBytes(), `nkAreaTaken() && left != null ? java.util.Arra` -> `ft == null ? java.util.Arra`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
   },
   {
    "id": "e6fc845a99",
    "op": "ROR",
-   "line": 290,
+   "line": 293,
    "before": "return lastLinkBytes == null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
    "after": "return lastLinkBytes != null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
-   "verdict": "unreachable",
-   "reason": "lastLinkBytes() helper is never called in equivalence testing"
+   "verdict": "harness-gap",
+   "reason": "GETSCODE's handleLink(request, byte[] area) / lastLinkBytes(), `return lastLinkBytes == null ? null : java.ut` -> `es != null ? null : java.ut`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
   },
   {
    "id": "42a8a02e1c",
@@ -1118,20 +1130,20 @@
    "reason": "The stack grows only when 64 PERFORMs are active at once; this program makes one (perform(0, 1) from runTask)."
   },
   {
-   "id": "e5fc3129db",
-   "op": "DEL",
-   "line": 352,
-   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
-   "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */",
-   "verdict": "unreachable",
-   "reason": "The stack grows only when 64 PERFORMs are active at once; this program makes one (perform(0, 1) from runTask)."
-  },
-  {
    "id": "5181663da8",
    "op": "AOR",
    "line": 352,
    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
    "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);",
+   "verdict": "unreachable",
+   "reason": "The stack grows only when 64 PERFORMs are active at once; this program makes one (perform(0, 1) from runTask)."
+  },
+  {
+   "id": "e5fc3129db",
+   "op": "DEL",
+   "line": 352,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */",
    "verdict": "unreachable",
    "reason": "The stack grows only when 64 PERFORMs are active at once; this program makes one (perform(0, 1) from runTask)."
   },
@@ -1190,20 +1202,20 @@
    "reason": "The scan runs over the PERFORMs outside this one: perform() is entered once, at depth mine = 0, so `d = mine - 1` is -1 and the body never runs"
   },
   {
-   "id": "9aad3c40a5",
-   "op": "CON",
-   "line": 365,
-   "before": "for (int d = mine - 1; d >= 0; d--) {",
-   "after": "for (int d = mine - 1; d >= 1; d--) {",
-   "verdict": "unreachable",
-   "reason": "The scan runs over the PERFORMs outside this one: perform() is entered once, at depth mine = 0, so `d = mine - 1` is -1 and the body never runs"
-  },
-  {
    "id": "21e87ba6b6",
    "op": "ROR",
    "line": 365,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
    "after": "for (int d = mine - 1; d > 0; d--) {",
+   "verdict": "unreachable",
+   "reason": "The scan runs over the PERFORMs outside this one: perform() is entered once, at depth mine = 0, so `d = mine - 1` is -1 and the body never runs"
+  },
+  {
+   "id": "9aad3c40a5",
+   "op": "CON",
+   "line": 365,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d >= 1; d--) {",
    "verdict": "unreachable",
    "reason": "The scan runs over the PERFORMs outside this one: perform() is entered once, at depth mine = 0, so `d = mine - 1` is -1 and the body never runs"
   },
@@ -1217,20 +1229,20 @@
    "reason": "The scan runs over the PERFORMs outside this one: perform() is entered once, at depth mine = 0, so `d = mine - 1` is -1 and the body never runs"
   },
   {
-   "id": "f9ea506dab",
-   "op": "NEG",
-   "line": 366,
-   "before": "if (performThru[d] == i) {",
-   "after": "if (!(performThru[d] == i)) {",
-   "verdict": "unreachable",
-   "reason": "The scan runs over the PERFORMs outside this one: perform() is entered once, at depth mine = 0, so `d = mine - 1` is -1 and the body never runs"
-  },
-  {
    "id": "bc364ec96e",
    "op": "ROR",
    "line": 366,
    "before": "if (performThru[d] == i) {",
    "after": "if (performThru[d] != i) {",
+   "verdict": "unreachable",
+   "reason": "The scan runs over the PERFORMs outside this one: perform() is entered once, at depth mine = 0, so `d = mine - 1` is -1 and the body never runs"
+  },
+  {
+   "id": "f9ea506dab",
+   "op": "NEG",
+   "line": 366,
+   "before": "if (performThru[d] == i) {",
+   "after": "if (!(performThru[d] == i)) {",
    "verdict": "unreachable",
    "reason": "The scan runs over the PERFORMs outside this one: perform() is entered once, at depth mine = 0, so `d = mine - 1` is -1 and the body never runs"
   },

@@ -449,8 +449,8 @@ def test_a_sibling_refused_for_its_own_reason_maps_to_the_entry_owning_that_reas
     [
         ("CALL EPSCSMRI: no service of its own, its translation is refused: epscsmrd.cbl:1266: the PICTURE N (a "
          "national / DBCS item) is not modelled (national / DBCS data, #4664)", "national-text"),
-        ("CALL EPSCSMRO: no service of its own, its translation is refused: OS/VS COBOL BLL addressing: SERVICE "
-         "LABEL (line 3332): not modelled", "bll-cells"),
+        ("CALL EPSCSMRO: no service of its own, its translation is refused: LE recovery point: SERVICE LABEL "
+         "(line 3332): the resume point after CEE3SRP, not BLL addressing: not modelled", "le-recovery-point"),
         ("CALL EPSCSMRX: a sibling program of this source (translated on its own)", "multi-program-call"),
         ("CALL CALL EPSCSMRX", "multi-program-call"),
     ],
@@ -483,7 +483,7 @@ def test_the_real_epscsmrd_resolves_its_translatable_sibling_and_names_the_other
     assert not any("EPSCSMRX" in h for h in holes), holes
     assert sorted(calls) == ["CALL EPSCSMRI", "CALL EPSCSMRO"], calls
     owners = {k: [e["id"] for e in sm.classify(v, sm.load_map())] for k, v in calls.items()}
-    assert owners == {"CALL EPSCSMRI": ["national-text"], "CALL EPSCSMRO": ["bll-cells"]}, owners
+    assert owners == {"CALL EPSCSMRI": ["national-text"], "CALL EPSCSMRO": ["le-recovery-point"]}, owners
     assert not [h for h in holes if "a sibling program of this source" in h]
 
 
@@ -522,7 +522,7 @@ def test_the_real_epscsmrd_registration_holes_are_each_owned_by_one_entry():
 def test_the_real_epscsmrd_handler_program_holds_two_ceemget_holes_only():
     """EPSCSMRF translated as its own unit: CEEMGET at lines 406 and 422 (`le-condition-handling`); SET ADDRESS OF ... TO
     TOKEN (line 383) now translates, as does its SET RESUME TO TRUE and the rest. CEE3SRP / CEENCOD (EPSCSMRI, EPSCSMRO) sit
-    behind those programs' own refusals (national-text, bll-cells) and so are not reached."""
+    behind those programs' own refusals (national-text, le-recovery-point) and so are not reached."""
     holes = _real_epscsmrd("EPSCSMRF")
     by_line = {re.match(r"line (\d+): ", h).group(1): h for h in holes}
     assert sorted(by_line) == ["406", "422"], holes

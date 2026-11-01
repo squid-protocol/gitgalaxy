@@ -529,7 +529,7 @@ jobs:
   # The check to read (and to require, if the owner wants it): a plan of `none` is a pass by plan, never by absence of a shard.
   equivalence-e2e:
     needs: [tested-tree, plan, shard, db2]
-    if: ${{ always() && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) }}
+    if: ${{ !cancelled() && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) }}  # #7455: !cancelled(), not always(): in a cancelled run this ends cancelled, not a false failure, and never skipped (docs/ci.md)
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:

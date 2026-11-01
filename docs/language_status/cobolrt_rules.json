@@ -129,6 +129,8 @@
     "divideIntermediateScale",
     "divideRemainder",
     "isOverflow",
+    "rawUnsigned",
+    "putRawUnsigned",
     "inspectModeName",
     "phraseTypeName",
     "isPointerValid"

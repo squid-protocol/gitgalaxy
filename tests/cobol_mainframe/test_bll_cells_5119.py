@@ -206,11 +206,6 @@ def test_a_program_with_no_bll_evidence_is_left_as_it_is(tmp_path):
         ("FROM(WS-OUT) LENGTH(20)", "FROM(TSPTR) LENGTH(4)", "FROM(TSPTR) (line 33): a BLL cell as a command's data"),
         (
             "           MOVE 'HEAD' TO FIELD1(1:4).\n",
-            "           SERVICE LABEL.\n",
-            "SERVICE LABEL (line 29: the CICS translator's output)",
-        ),
-        (
-            "           MOVE 'HEAD' TO FIELD1(1:4).\n",
             "           SERVICE RELOAD WS-OUT.\n",
             "SERVICE RELOAD WS-OUT (line 29): not a LINKAGE SECTION 01 record",
         ),
@@ -229,6 +224,22 @@ def test_what_the_lowering_cannot_keep_is_refused_whole_by_name(tmp_path, old, n
     assert msg.startswith(B.REFUSED_PREFIX + ": ") and msg.endswith(": not modelled"), msg
     assert why in msg, (why, msg)
     assert isinstance(e.value, L.LayoutError)  # (the translator reads such a program no further, as any refused whole)
+
+
+@pytest.mark.parametrize("spelling", ["SERVICE LABEL.", "service   label."])
+@pytest.mark.parametrize("bll", [True, False])
+def test_service_label_is_an_le_recovery_point_not_a_bll_refusal(tmp_path, spelling, bll):
+    """#5119: SERVICE LABEL follows CALL 'CEE3SRP' (DBB's EPSCSMRO has no BLL cells): refused whole under its own prefix,
+    owned by #5106's le-condition-handling, in a BLL program and in one without cells alike."""
+    src = PROGRAM.replace("           MOVE 'HEAD' TO FIELD1(1:4).\n", f"           {spelling}\n", 1)
+    assert spelling in src
+    if not bll:
+        src = src.replace("SERVICE RELOAD", "CONTINUE. *> ")
+    with pytest.raises(B.Refused) as e:
+        _lowered(tmp_path, src)
+    msg = str(e.value)
+    assert msg.startswith(B.LE_REFUSED_PREFIX + ": SERVICE LABEL (line 29)") and msg.endswith(": not modelled"), msg
+    assert B.REFUSED_PREFIX not in msg
 
 
 # ---- #5119 remainder: a cell cleared, and where a record needs another cell ---------------------------------------
@@ -600,7 +611,7 @@ def test_the_oracle_runs_the_same_lowered_program():
     assert "           05  FRPTR USAGE POINTER." in text and "           SET ADDRESS OF FILE-REC TO FRPTR." in text
     assert "BY REFERENCE FRPTR" in text  # (GETMAIN's stub call sets the POINTER, as for any pointer)
     assert all(len(ln) <= 72 for ln in text.splitlines())
-    with pytest.raises(ec.Unsupported, match="OS/VS COBOL BLL addressing: SERVICE LABEL"):
+    with pytest.raises(ec.Unsupported, match="LE recovery point: SERVICE LABEL"):
         ec.translate(PROGRAM.replace("           MOVE 'HEAD' TO FIELD1(1:4).\n", "           SERVICE LABEL.\n"))
 
 

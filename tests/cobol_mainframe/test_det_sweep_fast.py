@@ -698,7 +698,7 @@ def test_the_required_det_check_waits_for_detmut_and_fails_on_its_failure_only()
     jobs = _det_sweep_jobs()
     det = jobs["det"]
     assert "detmut" in det["needs"]
-    assert "always()" in det["if"]  # a skipped detmut (draft, nightly, dispatch) must not skip `det`
+    assert "!cancelled()" in det["if"]  # a skipped detmut (draft, nightly, dispatch) must not skip `det`
     gate = next(s for s in det["steps"] if "detmut.result" in str(s.get("if", "")))
     assert gate["if"].strip() == "needs.detmut.result == 'failure'"
     assert "exit 1" in gate["run"]

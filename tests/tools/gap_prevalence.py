@@ -61,6 +61,7 @@ OWNERS: tuple[tuple[str, str], ...] = (
     (r"^EXEC CICS", "#4270 (cics-command-slice)"),
     (r"^grammar:", "#4462"),
     (r"^CEE(?:HDL[RU]|MGET|SGL|NCOD|MRCE|3SRP):", "#5106 (le-condition-handling)"),
+    (r"LE recovery point: SERVICE LABEL", "#5106 (le-condition-handling)"),
     (r"OS/VS COBOL BLL addressing", "#5119"),
     (r"the PICTURE N \(", "#4272"),
     (r"^SET TO ENTRY:", "#5106"),

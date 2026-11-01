@@ -1046,6 +1046,25 @@ public final class Cobol {
         }
     }
 
+    /** #7434: a counter command's raw data area (PIC X, a group) read as an unsigned big-endian number: IBM's VALUE /
+     *  MINIMUM / MAXIMUM / INCREMENT is a fullword or doubleword binary value in any area of that size. */
+    public static long rawUnsigned(Field f) {
+        long v = 0;
+        for (byte x : f.raw()) v = (v << 8) | (x & 0xFF);
+        return v;
+    }
+
+    /** #7434: the low `f.len` bytes of `v`, big-endian, stored as they are in a raw data area (a fullword area takes the
+     *  low-order 32 bits, as IBM's LENGERR documents). */
+    public static void putRawUnsigned(Field f, long v) {
+        byte[] b = new byte[f.len];
+        for (int i = 0; i < f.len; i++) {
+            int shift = 8 * (f.len - 1 - i);
+            b[i] = shift >= 64 ? 0 : (byte) (v >>> shift);
+        }
+        f.putRaw(b);
+    }
+
     /** As {@link #binary}, for the statements {@link #storeNative} marks (#4684, C4): IBM's absolute value; `comp5`
      *  for a COMP-5 item, which no TRUNC truncates. */
     public static long binaryNative(BigDecimal value, int digits, boolean signed, boolean comp5, Charset cs) {

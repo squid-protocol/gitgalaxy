@@ -203,7 +203,7 @@
     {
       "id": "multi-program-call",
       "match": "^CALL CALL EPSCSMR[A-Z]$|^CALL [A-Z0-9#@$-]+: a sibling program of this source",
-      "note": "A CALL to a sibling program of the same multi-program source (DBB epscsmrd.cbl's EPSCSMRI / EPSCSMRO / EPSCSMRX): resolved since #5106 to a service of its own (static and dynamic CALL; OMITTED, RETURNING, group and BY CONTENT USING items). What stays refused is a sibling that cannot be translated: its CALL reads `X: no service of its own, its translation is refused: <the sibling's reason>` and maps to the entry owning that reason (EPSCSMRI: national text; EPSCSMRO: bll-cells), not here. This entry holds only a CALL refused for the sibling's contract (BY VALUE, a unit that CALLs back, a CICS unit, a USING shape the entry does not take) and the old report text `CALL CALL EPSCSMRX`. Engine side: #4447, #4404.",
+      "note": "A CALL to a sibling program of the same multi-program source (DBB epscsmrd.cbl's EPSCSMRI / EPSCSMRO / EPSCSMRX): resolved since #5106 to a service of its own (static and dynamic CALL; OMITTED, RETURNING, group and BY CONTENT USING items). What stays refused is a sibling that cannot be translated: its CALL reads `X: no service of its own, its translation is refused: <the sibling's reason>` and maps to the entry owning that reason (EPSCSMRI: national text; EPSCSMRO: le-recovery-point), not here. This entry holds only a CALL refused for the sibling's contract (BY VALUE, a unit that CALLs back, a CICS unit, a USING shape the entry does not take) and the old report text `CALL CALL EPSCSMRX`. Engine side: #4447, #4404.",
       "issue": 5106
     },
     {
@@ -238,6 +238,15 @@
       "match": "GETMAIN without INITIMG",
       "note": "EXEC CICS GETMAIN without INITIMG: IBM gives acquired storage no default contents, so a zero-filled block would be an invented fact; refused by name (storage.py, register X47). DBB epscsmrd's ALLOCATE-DFH-BODY-WORK-AREA / ALLOCATE-DFH-DATA-WORK-AREA are the only burned users (#5106).",
       "issue": 4771
+    },
+    {
+      "id": "le-recovery-point",
+      "match": "LE recovery point: SERVICE LABEL",
+      "issue": 5106,
+      "features": [
+        "statements: SERVICE"
+      ],
+      "note": "SERVICE LABEL after CALL 'CEE3SRP' (an LE recovery point: where control resumes after a condition is handled; DBB epscsmrd's EPSCSMRO, generated converter code in an Enterprise COBOL program with no BLL cells). Refused whole by name in det/bll.py; it needs LE's condition dispatch (le-condition-handling) before it can be modelled. Until #5119 it was reported as an OS/VS COBOL BLL refusal."
     },
     {
       "id": "bll-cells",

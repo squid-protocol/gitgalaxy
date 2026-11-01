@@ -2686,7 +2686,7 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   WRITE-ERROR-MESSAGE's `EIBCALEN < 91` (40 bytes, the DELETE failing); LGIPDB01's five '98' returns (40 bytes) and
   `< 91` (the SELECT failing); LGACDB02 `< 91` (60 bytes, the INSERT failing). Each `< 91` task then LINKs LGSTSQ with
   CA-ERROR-MSG and is judged up to X6. Pinned by
-  `tests/cobol_mainframe/test_equivalence_cics.py` (the guard page, the driver, the length's checks) and
+  `tests/cobol_mainframe/test_equivalence_cics_commarea.py` (the guard page, the driver, the length's checks) and
   `tests/cobol_mainframe/test_det_translate.py` (the det port's cut storage).
 
 ### X24. A task started with a channel; the containers it leaves compared — ASSUMED (#4270)
@@ -2717,7 +2717,7 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   facade carries yet (#4343): the java-facade side runs such a program through runTask, and its `entries` say so.
 - **Reached.** The async credit-card services CRDTCHK, GETADDR, GETNAME, CSSTATUS (which LINKs GETPOL and GETSPND)
   and CSSTATS2 (RUN TRANSID GETP / SPND): their '0001' and other-account branches, and the containers they PUT.
-  Pinned by `tests/cobol_mainframe/test_equivalence_cics.py` (the stub's channel in and containers out, the
+  Pinned by `tests/cobol_mainframe/test_equivalence_cics_channels.py` (the stub's channel in and containers out, the
   comparison, the drop on abend).
 
 ### X25. SYNCHRONIZED slack bytes -- 8-byte binary alignment ASSUMED to be IBM's fullword (#4266)

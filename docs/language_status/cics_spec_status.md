@@ -20,7 +20,7 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | 6 | open | outcome conformance check (3.2), report-only for one week, then an undeclared (RESP, RESP2) fails the crucible cell | harness, CI |
 | 7 | open | check-register in pr_gates.py | docs, skill |
 | 8a | open | engine walkers import their verb tables from the spec (same rows | engine |
-| 8b | open | after the blind 4th-estate trial, one engine batch of new edge kinds: LOAD, START TRANSID, MQ queues, dynamic CALL (golden master regenerated with cru | engine |
+| 8b | open | after the blind 4th-estate trial, one engine batch of new edge kinds: START TRANSID, MQ queues, dynamic CALL, and LOAD for PL/I and HLASM (the COBOL L | engine |
 
 ## Full and engine-only entries
 

@@ -726,7 +726,7 @@ translator writes, so `tests/tools/det_mutation.py` runs `mutation.py` on it:
 python tests/tools/det_mutation.py run CASE... --work DIR --sample 150 --jobs 3   # translate, mutate, record
 python tests/tools/det_mutation.py table                     # per program: the PR / report table
 python tests/tools/det_mutation.py survivors [CASE]          # every survivor with its stated verdict
-python tests/tools/det_mutation.py state CASE TRIAGE.json    # {id: {verdict, reason}} -> the reviewed list
+python tests/tools/det_mutation.py state CASE TRIAGE.json --attempts DIR/attempts.json   # needs an attack on record (survivor_attack.py)
 python tests/tools/det_mutation.py check                     # the claims against the ledger
 python tests/tools/det_mutation.py refresh --work DIR        # an input moved: same port bytes carry the verdicts (#5862)
 ```

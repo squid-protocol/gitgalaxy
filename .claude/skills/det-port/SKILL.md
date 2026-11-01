@@ -233,7 +233,8 @@ A translator fix is never a hand edit of a port.
   A full run with every mutant killed (687/0) can be wrong: cross-check with a small `--sample` run in a fresh `--work` dir
   (#6024). Use a private `TMPDIR`: a shared /tmp corrupts `mutation.py` baselines (#6165). `mutation_scores.py --rejudged`
   needs identical mutant ids, and any port edit shifts them: refresh with the port edit or not at all (#6053). A survivor in
-  code no proof runs is `unreachable`, not `harness_gap`; `test_proof_reach` pins the flagged count (#6217).
+  code no proof runs is not `unreachable` for that reason alone: code an input of the program reaches is `case-gap` (the
+  `survivor-attack` skill). `test_proof_reach` pins the flagged count of the hand-port scores (#6217).
 - **After a case change refresh together**: `det_mutation.py refresh` (`det_mutation/<case>.json`), `proof_sweep.py --det-only
   --db2-only --cases CASE --no-ratchet --skip-ledger-check` then `det_coverage_ledger.py update` (`det_sweep_coverage/<case>.json`),
   and `equivalence.py run CASE --record` (`evidence.json`) (#6217). A PR adding a proven det case adds its ledger entry; the

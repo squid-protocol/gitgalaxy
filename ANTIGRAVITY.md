@@ -151,6 +151,15 @@ To ensure rigorous, adversarial testing, structure your work into a strict **5-s
 
 *(Tip: You can use the `/teamwork-preview` slash command to help automate and visualize complex multi-agent teams for large projects).*
 
+## 8a. Mutation Survivors: Attack First
+
+**Any L5, mutation survivor or `det_mutation.py state` work starts with the `survivor-attack` skill.** Read `.agents/skills/survivor-attack/SKILL.md` before writing a verdict.
+
+- A survivor means the tests are too weak until shown otherwise. The goal is new inputs that kill it, not a label.
+- `case-gap` and `harness-gap` are honest results. Never pick `equivalent` or `unreachable` to reach L5.
+- "The test runner never calls it" is a `case-gap` or `harness-gap`, never `unreachable`.
+- A `port-differs` result from `survivor_attack.py try` is a real finding: stop and report it.
+
 ## 8b. The Repo Constellation & Skills
 
 - GitGalaxy is the hub of several sibling repos (language-crucible, keyword-rosetta,

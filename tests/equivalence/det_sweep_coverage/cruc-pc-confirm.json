@@ -1,46 +1,34 @@
 {
  "format": "det-sweep-coverage/2",
- "scenarios": 2,
+ "scenarios": 10,
  "paragraphs": {
-  "covered": 2,
+  "covered": 5,
   "live": 5
  },
  "branches": {
-  "covered": 2,
+  "covered": 14,
   "total": 14
  },
- "uncovered": {
-  "paragraphs": [
-   "TAKE-AMOUNT:59",
-   "SEND-STEP2:74",
-   "SEND-STEP3:87"
-  ],
-  "branches": [
-   "34:WHEN@39",
-   "34:WHEN@46",
-   "34:WHEN@48",
-   "34:OTHER",
-   "41:true",
-   "41:false",
-   "64:true",
-   "64:false",
-   "77:true",
-   "77:false",
-   "92:true",
-   "92:false",
-   "paragraph:TAKE-AMOUNT",
-   "paragraph:SEND-STEP2",
-   "paragraph:SEND-STEP3"
-  ]
+ "linked": {
+  "PCWIZ": {
+   "paragraphs": {
+    "covered": 0,
+    "live": 5
+   },
+   "branches": {
+    "covered": 0,
+    "total": 10
+   }
+  }
  },
  "inputs": {
-  "case": "61b70f78885144abfad01763d22f32b25182e81aedc6ea65224d14271772b361",
+  "case": "3df04e1708c35cacad21d128e64786b02ae113fea5213029ba2bba700fcf75bb",
   "corpus": "bfea00a9f77a5e777a0d6ffe75847c17e25a24c024b01404f0167fe059c233bf",
-  "harness": "a99c1e908aa8fddc4ff7504ca91ae35b1710b994bbc107ff90ee5accbaed93de",
+  "harness": "47e4d3165ee0ea1ec8c420d71561862b59cb23c4694c7691cb203b331c9386e1",
   "oracle": "623faf2df5bb69f6679ba73db1dad69ec1dc825cdaca54f1b05a2f143c2f24d4",
   "components": {
    "harness": {
-    "harness:cics": "25444b6b09ac15fa572b67ce9445492d80f9cad525be02264079d76d254622a6",
+    "harness:cics": "f801fd46979b41cc86ea34d9b526078ca2bd3c46eec94083d35670906a438816",
     "harness:core": "8a7d18f97c68b94659c661facaab3877279b809e80143028b7cde992385b5718"
    },
    "oracle": {
@@ -50,5 +38,5 @@
    }
   }
  },
- "measured_at": "15efa35bc5ce2bfd6c2fdee19e102a5ff1d90286"
+ "measured_at": "b102b63bcaa79981eca85b2a7f7fee073105703d"
 }

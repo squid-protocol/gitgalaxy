@@ -1,0 +1,31 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "screens": {},
+  "program": "CATWSB",
+  "program_source": "cases/commarea-mismatch/ca-address-twa-tctua/src/CATWSB.cbl",
+  "copy_dirs": [
+    "cases/commarea-mismatch/ca-address-twa-tctua/copy"
+  ],
+  "transid": "CA0H",
+  "commarea": null,
+  "termid": "T001",
+  "programs": [],
+  "notes": "cics-crucible commarea-mismatch / ca-address-twa-tctua, CATWSB entered directly (the #7426 pattern): the callee CATWAD LINKs to, run as the root so its own coverage is measured (a LINKed callee is capped at L2, #4270). Oracle is GnuCOBOL plus the stub.",
+  "scenarios": [
+    {
+      "name": "twa-present",
+      "commarea": null,
+      "twasize": 32,
+      "why": "TWASIZE 32: ADDRESS TWA is a real address, PRESENT arm"
+    },
+    {
+      "name": "twa-absent",
+      "commarea": null,
+      "twasize": 0,
+      "why": "TWASIZE 0: ADDRESS TWA is X'FF000000', ABSENT arm"
+    }
+  ]
+}

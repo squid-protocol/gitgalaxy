@@ -14,9 +14,9 @@
    "pct": 99.8
   },
   "branches": {
-   "covered": 1464,
+   "covered": 1469,
    "total": 1543,
-   "pct": 94.9
+   "pct": 95.2
   },
   "cases_measured": 31,
   "cases": 98
@@ -261,7 +261,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 3
+   "tests": 4
   },
   {
    "corpus": "cics-async-api-credit-card-application-example",
@@ -279,7 +279,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 3
+   "tests": 5
   },
   {
    "corpus": "cics-async-api-credit-card-application-example",
@@ -288,7 +288,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 3
+   "tests": 4
   },
   {
    "corpus": "cics-async-api-credit-card-application-example",
@@ -306,7 +306,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 1
+   "tests": 2
   },
   {
    "corpus": "cics-async-api-credit-card-application-example",
@@ -315,7 +315,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 1
+   "tests": 2
   },
   {
    "corpus": "cics-async-api-credit-card-application-example",
@@ -324,7 +324,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 4
+   "tests": 10
   },
   {
    "corpus": "cics-async-api-credit-card-application-example",
@@ -333,7 +333,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 1
+   "tests": 2
   },
   {
    "corpus": "cics-banking-sample-application-cbsa",
@@ -909,7 +909,7 @@
    "reasons": {
     "coverage: LINKed program ZECS002 has live paragraphs no scenario runs": "22/24 paragraphs"
    },
-   "tests": 77,
+   "tests": 79,
    "blocker": "coverage: LINKed program ZECS002 has live paragraphs no scenario runs"
   },
   {
@@ -1045,7 +1045,7 @@
     "coverage: LINKed program GETSPND has live paragraphs no scenario runs": "0/1 paragraphs",
     "coverage: LINKed program UPDCSDB has live paragraphs no scenario runs": "0/1 paragraphs"
    },
-   "tests": 4,
+   "tests": 6,
    "blocker": "coverage: LINKed program CRDTCHK has live paragraphs no scenario runs"
   },
   {
@@ -1183,14 +1183,14 @@
    "shipped": [],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 4
+   "tests": 6
   },
   "asynccc-crdtchk": {
    "generated": [],
    "shipped": [],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 3
+   "tests": 4
   },
   "asynccc-csstats2": {
    "generated": [],
@@ -1204,14 +1204,14 @@
    "shipped": [],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 3
+   "tests": 5
   },
   "asynccc-getaddr": {
    "generated": [],
    "shipped": [],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 3
+   "tests": 4
   },
   "asynccc-getname": {
    "generated": [],
@@ -1225,28 +1225,28 @@
    "shipped": [],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 1
+   "tests": 2
   },
   "asynccc-getspnd": {
    "generated": [],
    "shipped": [],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 1
+   "tests": 2
   },
   "asynccc-seqpnt": {
    "generated": [],
    "shipped": [],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 4
+   "tests": 10
   },
   "asynccc-updcsdb": {
    "generated": [],
    "shipped": [],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 1
+   "tests": 2
   },
   "carddemo-acctupdate": {
    "generated": [],
@@ -2125,7 +2125,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 77
+   "tests": 79
   },
   "zecs-zecs003": {
    "generated": [],
@@ -2172,7 +2172,7 @@
     "zecs-zecs001"
    ],
    "programs_unlocked": 1,
-   "tests_unlocked": 77,
+   "tests_unlocked": 79,
    "programs_also_blocked": [],
    "then_needs": {}
   },

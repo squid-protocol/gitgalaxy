@@ -454,11 +454,15 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | cobol-stub | data bytes differ | 1 |
 | cobol-stub | text differs | 1 |
 | java | runTask records no events (the generated stub: PROCEDURE DIVISION not ported) | 177 |
-| java-ported | not ported | 114 |
+| java-ported | not ported | 110 |
+| java-ported | STARTBR expected, other event | 3 |
 | java-ported | item differs | 2 |
-| java-facade | not ported | 114 |
+| java-ported | READ expected, other event | 1 |
+| java-facade | not ported | 110 |
 | java-facade | RECEIVE expected, other event | 3 |
+| java-facade | STARTBR expected, other event | 3 |
 | java-facade | item differs | 2 |
+| java-facade | READ expected, other event | 1 |
 
 ## Every cell that does not pass
 
@@ -700,17 +704,17 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | `hc-eoc-error/eoc-own-label/java-facade` | fail | no port of any of its programs |
 | `hc-eoc-error/eoc-own-label/java-ported` | fail | no port of any of its programs |
 | `hc-file-read-set/browse-back/java` | fail | task 1 (HC83) event 1: RECEIVE expected, the side recorded no further event |
-| `hc-file-read-set/browse-back/java-facade` | fail | no port of any of its programs |
-| `hc-file-read-set/browse-back/java-ported` | fail | no port of any of its programs |
+| `hc-file-read-set/browse-back/java-facade` | fail | task 1 (HC83) event 2: STARTBR expected, got DRIVER-ERROR (runTask threw com.gitgalaxy.modernized.cobolrt.Hole: CICS file HCRS: the program names no file the generated project stores) |
+| `hc-file-read-set/browse-back/java-ported` | fail | task 1 (HC83) event 2: STARTBR expected, got DRIVER-ERROR (runTask threw com.gitgalaxy.modernized.cobolrt.Hole: CICS file HCRS: the program names no file the generated project stores) |
 | `hc-file-read-set/browse-fwd/java` | fail | task 1 (HC83) event 1: RECEIVE expected, the side recorded no further event |
-| `hc-file-read-set/browse-fwd/java-facade` | fail | no port of any of its programs |
-| `hc-file-read-set/browse-fwd/java-ported` | fail | no port of any of its programs |
+| `hc-file-read-set/browse-fwd/java-facade` | fail | task 1 (HC83) event 2: STARTBR expected, got DRIVER-ERROR (runTask threw com.gitgalaxy.modernized.cobolrt.Hole: CICS file HCRS: the program names no file the generated project stores) |
+| `hc-file-read-set/browse-fwd/java-ported` | fail | task 1 (HC83) event 2: STARTBR expected, got DRIVER-ERROR (runTask threw com.gitgalaxy.modernized.cobolrt.Hole: CICS file HCRS: the program names no file the generated project stores) |
 | `hc-file-read-set/browse-notfnd/java` | fail | task 1 (HC83) event 1: RECEIVE expected, the side recorded no further event |
-| `hc-file-read-set/browse-notfnd/java-facade` | fail | no port of any of its programs |
-| `hc-file-read-set/browse-notfnd/java-ported` | fail | no port of any of its programs |
+| `hc-file-read-set/browse-notfnd/java-facade` | fail | task 1 (HC83) event 2: STARTBR expected, got DRIVER-ERROR (runTask threw com.gitgalaxy.modernized.cobolrt.Hole: CICS file HCRS: the program names no file the generated project stores) |
+| `hc-file-read-set/browse-notfnd/java-ported` | fail | task 1 (HC83) event 2: STARTBR expected, got DRIVER-ERROR (runTask threw com.gitgalaxy.modernized.cobolrt.Hole: CICS file HCRS: the program names no file the generated project stores) |
 | `hc-file-read-set/read-set/java` | fail | task 1 (HC83) event 1: RECEIVE expected, the side recorded no further event |
-| `hc-file-read-set/read-set/java-facade` | fail | no port of any of its programs |
-| `hc-file-read-set/read-set/java-ported` | fail | no port of any of its programs |
+| `hc-file-read-set/read-set/java-facade` | fail | task 1 (HC83) event 2: READ expected, got DRIVER-ERROR (runTask threw com.gitgalaxy.modernized.cobolrt.Hole: CICS file HCRS: the program names no file the generated project stores) |
+| `hc-file-read-set/read-set/java-ported` | fail | task 1 (HC83) event 2: READ expected, got DRIVER-ERROR (runTask threw com.gitgalaxy.modernized.cobolrt.Hole: CICS file HCRS: the program names no file the generated project stores) |
 | `hc-file-unlock/read-short/java` | fail | task 1 (HC81) event 1: RECEIVE expected, the side recorded no further event |
 | `hc-file-unlock/read-short/java-facade` | fail | no port of any of its programs |
 | `hc-file-unlock/read-short/java-ported` | fail | no port of any of its programs |

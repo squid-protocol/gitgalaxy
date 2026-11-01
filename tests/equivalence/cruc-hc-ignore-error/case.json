@@ -21,49 +21,57 @@
       "name": "error-label",
       "commarea": null,
       "terminal": "IE02 XYZ",
-      "why": "HANDLE CONDITION ERROR only: LENGERR has no action of its own and its default is an abend, so ERROR's label"
+      "why": "HANDLE CONDITION ERROR only: LENGERR has no action of its own and its default is an abend, so ERROR's label",
+      "transid": "IE02"
     },
     {
       "name": "own-before-error",
       "commarea": null,
       "terminal": "IE03 XYZ",
-      "why": "HANDLE CONDITION ERROR and LENGERR: LENGERR's own label"
+      "why": "HANDLE CONDITION ERROR and LENGERR: LENGERR's own label",
+      "transid": "IE03"
     },
     {
       "name": "ignore-before-error",
       "commarea": null,
       "terminal": "IE04 XYZ",
-      "why": "HANDLE CONDITION ERROR, IGNORE CONDITION LENGERR: the IGNORE, not ERROR"
+      "why": "HANDLE CONDITION ERROR, IGNORE CONDITION LENGERR: the IGNORE, not ERROR",
+      "transid": "IE04"
     },
     {
       "name": "push-suspends-ignore",
       "commarea": null,
       "terminal": "IE05 XYZ",
-      "why": "IGNORE CONDITION LENGERR, PUSH HANDLE: the IGNORE is suspended, LENGERR's default action abends the task (AEIV)"
+      "why": "IGNORE CONDITION LENGERR, PUSH HANDLE: the IGNORE is suspended, LENGERR's default action abends the task (AEIV)",
+      "transid": "IE05"
     },
     {
       "name": "pop-restores-ignore",
       "commarea": null,
       "terminal": "IE06 XYZ",
-      "why": "IGNORE CONDITION LENGERR, PUSH HANDLE, POP HANDLE: ignored again"
+      "why": "IGNORE CONDITION LENGERR, PUSH HANDLE, POP HANDLE: ignored again",
+      "transid": "IE06"
     },
     {
       "name": "pop-nothing-pushed",
       "commarea": null,
       "terminal": "IE07 XYZ",
-      "why": "POP HANDLE with nothing pushed: INVREQ, which has no label of its own, so ERROR's"
+      "why": "POP HANDLE with nothing pushed: INVREQ, which has no label of its own, so ERROR's",
+      "transid": "IE07"
     },
     {
       "name": "ignore-overrides-handle",
       "commarea": null,
       "terminal": "IE08 XYZ",
-      "why": "HANDLE CONDITION LENGERR then IGNORE CONDITION LENGERR: the IGNORE overrides it"
+      "why": "HANDLE CONDITION LENGERR then IGNORE CONDITION LENGERR: the IGNORE overrides it",
+      "transid": "IE08"
     },
     {
       "name": "push-suspends-error",
       "commarea": null,
       "terminal": "IE09 XYZ",
-      "why": "HANDLE CONDITION ERROR, PUSH HANDLE: ERROR's label is suspended, LENGERR abends the task (AEIV)"
+      "why": "HANDLE CONDITION ERROR, PUSH HANDLE: ERROR's label is suspended, LENGERR abends the task (AEIV)",
+      "transid": "IE09"
     }
   ]
 }

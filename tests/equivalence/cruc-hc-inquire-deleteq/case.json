@@ -49,6 +49,13 @@
       "commarea": null,
       "terminal": "HC61 Z",
       "why": "takes the EVALUATE arm no crucible scenario reaches: a mode no WHEN names (falls through)"
+    },
+    {
+      "name": "receive-asis",
+      "commarea": null,
+      "terminal": "HC62 R",
+      "why": "HC62, the RETURN TRANSID of the earlier legs: RECEIVE MAP ... TERMINAL ASIS and its log",
+      "transid": "HC62"
     }
   ]
 }

@@ -129,7 +129,7 @@ def test_the_harness_emits_each_stated_fact_on_both_sides():
         "GGCICS_FACILITY=",  # stub: termid
         "GGCICS_USERID=",
         "GGCICS_SCREEN=",
-        "withTermidOrNone(",  # det port
+        "withTermidIfStated(",  # det port
         "task.withUserid(",
         "task.withScreen(",
     ):

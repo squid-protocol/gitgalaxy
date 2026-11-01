@@ -4207,7 +4207,7 @@ class EquivalenceRunTest {{
                     .withStartcode(sc.get("startcode").isNull() ? null : sc.get("startcode").asText())
                     .withTerminalInput(sc.get("terminal").isNull() ? null : sc.get("terminal").asText())
                     // #4270: the task's terminal and origin data, as the stub's ($GGCICS_FACILITY, _UCTRANST, _ORIGIN)
-                    .withTermidOrNone(sc.get("termid").isNull() ? null : sc.get("termid").asText())  // #5126: unstated is refused, as the stub
+                    .withTermidIfStated(sc.get("termid").isNull() ? null : sc.get("termid").asText())  // #5126: unstated is refused, as the stub
                     .withUctranst(sc.get("uctranst").isNull() ? null : sc.get("uctranst").asText())
                     .withTempStorage(tempStorage(sc))  // #4270: the TS queues the task starts with, as the stub's
                     // RECOVERY(NONE) files: their changes made outside the unit of work, so they survive a backout
@@ -4218,6 +4218,7 @@ class EquivalenceRunTest {{
                                 t.setPropagationBehavior(org.springframework.transaction.TransactionDefinition.PROPAGATION_REQUIRES_NEW);
                                 t.executeWithoutResult(s -> change.run());
                             }});
+            if (sc.path("termid").isTextual() && sc.get("termid").asText().isEmpty()) task.withTermid(null);  // #6072: "" states a task with no terminal
             if (sc.hasNonNull("start_data")) {{  // #4892: the data the task was started with, as the stub's retrieve_NNN.bin
                 List<byte[]> started = new ArrayList<>();
                 sc.get("start_data").forEach(x -> started.add(java.util.HexFormat.of().parseHex(x.asText())));

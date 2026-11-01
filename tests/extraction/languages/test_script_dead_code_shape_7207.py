@@ -1,4 +1,4 @@
-"""#7207 slices 4-8: python / shell / ruby / perl / php / lua / abap / ada / apex / dart / embedded_python / fsharp / groovy / scala dead_code counts a keyword-led comment only when it has a statement's shape."""
+"""#7207 slices 4-9: python / shell / ruby / perl / php / lua / abap / ada / apex / dart / embedded_python / fsharp / groovy / scala / powershell / tcl / rexx / matlab dead_code counts a keyword-led comment only when it has a statement's shape."""
 
 import pytest
 
@@ -123,7 +123,7 @@ POSITIVES = {
         "// type Foo =",
         "// module Util",
         "// open System.IO",
-        "// printfn \"x\"",
+        '// printfn "x"',
         "// match x with",
         "// if x > 1 then",
     ],
@@ -144,8 +144,49 @@ POSITIVES = {
         "// class Foo extends Bar",
         "// object Main",
         "// import a.b._",
-        "// println(\"x\")",
+        '// println("x")',
         "/* trait T { */",
+    ],
+    "powershell": [
+        "# function Get-Foo {",
+        "# function Get-Foo",
+        "# class Foo : Base",
+        "# if ($x -gt 1) {",
+        "# foreach ($i in $list) {",
+        "# while ($true) { Start-Sleep 1 }",
+        "# return $result",
+        "<# if ($x) {",
+    ],
+    "tcl": [
+        "# proc foo {a b} {",
+        "# set x 1",
+        "# set x $y",
+        '# set x "abc"',
+        "# if {$x > 1} {",
+        "# while {1} {",
+        "# foreach i $list {",
+        "# return $x",
+    ],
+    "rexx": [
+        "-- call setup",
+        "/* call setup(a) */",
+        "-- call setup 'abc'",
+        "/* call old_probe 1 */",
+        "-- if x = 1 then",
+        "/* do while i < 3 */",
+        "-- execio * diskr indd (stem lines.",
+        "-- parse arg a b",
+        "-- x = 1",
+    ],
+    "matlab": [
+        "% function foo",
+        "% function [a, b] = foo(x)",
+        "% classdef Foo < handle",
+        "% if x > 1",
+        "% if isempty(x)",
+        "% for i = 1:3",
+        "% while true",
+        "% while (x < 3);",
     ],
 }
 
@@ -283,10 +324,62 @@ NEGATIVES = {
         "// println is slow",
         "// import order matters",
     ],
+    "powershell": [
+        "# if the user cancels, we retry",
+        "# function names are verb-noun",
+        "# class names are capitalised",
+        "# foreach item in the list",
+        "# while waiting for input",
+        "# return value is ignored",
+        "# if x is set",
+        "<# if the file exists #>",
+    ],
+    "tcl": [
+        "# if the user cancels, we retry",
+        "# proc names are global",
+        "# set the flag first",
+        "# set up 3 workers",
+        "# while waiting for input",
+        "# foreach item in the list",
+        "# return value is ignored",
+        "# return the result later",
+    ],
+    "rexx": [
+        "-- call this once at startup",
+        "-- if the user cancels, we retry",
+        "/* do while waiting for input */",
+        "-- execio is slow",
+        "-- parse arguments first",
+        "-- if you wish then stop",
+        "-- return value is ignored",
+        "/* call this once */",
+    ],
+    "matlab": [
+        "% if the user cancels, we retry",
+        "% for each item in the list",
+        "% while waiting for input",
+        "% function names are lowercase",
+        "% classdef is the class keyword",
+        "% if x is empty we skip",
+        "%% if x",
+        "% function handles are slow",
+    ],
 }
 
 
-MARKER = {"abap": "*", "ada": "--", "apex": "//", "dart": "//", "lua": "--", "php": "//", "fsharp": "//", "groovy": "//", "scala": "//"}
+MARKER = {
+    "abap": "*",
+    "ada": "--",
+    "apex": "//",
+    "dart": "//",
+    "lua": "--",
+    "php": "//",
+    "fsharp": "//",
+    "groovy": "//",
+    "scala": "//",
+    "rexx": "--",
+    "matlab": "%",
+}
 
 
 def _rule(lang):

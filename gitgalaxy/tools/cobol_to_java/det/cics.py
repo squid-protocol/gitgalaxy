@@ -1826,7 +1826,10 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
         """#4771 (X47): the Field of the plain USAGE POINTER item an option names (SET / DATAPOINTER)."""
 
         try:
-            return self.g.pointer_item(_arg(text).strip())
+            ref = E.Parser(
+                E.tokenize(_arg(text).strip())
+            ).ref()  # #5079: `PTR` or an element `TBL(I)` of a pointer table
+            return self.g.pointer_item(ref.name, ref if ref.subscripts else None)
         except Untranslatable as e:
             raise CicsError(str(e)) from None
 

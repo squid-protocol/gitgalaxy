@@ -21,13 +21,15 @@
       "name": "eoc-handled",
       "commarea": null,
       "terminal": "HC05 Y",
-      "why": "HANDLE CONDITION EOC(GOT-EOC): control goes to the label after the data and LENGTH are set"
+      "why": "HANDLE CONDITION EOC(GOT-EOC): control goes to the label after the data and LENGTH are set",
+      "transid": "HC05"
     },
     {
       "name": "eoc-default",
       "commarea": null,
       "terminal": "HC06 Z",
-      "why": "neither RESP nor a handler: EOC's default action is to ignore it; the program goes on, EIBRESP 6"
+      "why": "neither RESP nor a handler: EOC's default action is to ignore it; the program goes on, EIBRESP 6",
+      "transid": "HC06"
     }
   ]
 }

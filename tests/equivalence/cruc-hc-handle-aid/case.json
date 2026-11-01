@@ -35,25 +35,52 @@
       "name": "deactivated",
       "commarea": null,
       "terminal": "HA02 D",
-      "why": "HANDLE AID PF7 without a label deactivates the PF7 label set before it: no transfer"
+      "why": "HANDLE AID PF7 without a label deactivates the PF7 label set before it: no transfer",
+      "transid": "HA02"
     },
     {
       "name": "resp-no-aid",
       "commarea": null,
       "terminal": "HA03 E",
-      "why": "RESP on the RECEIVE: no action for the AID, the PF7 label is not taken"
+      "why": "RESP on the RECEIVE: no action for the AID, the PF7 label is not taken",
+      "transid": "HA03"
     },
     {
       "name": "push-suspends",
       "commarea": null,
       "terminal": "HA04 F",
-      "why": "PUSH HANDLE after HANDLE AID PF7: the label is suspended, no transfer"
+      "why": "PUSH HANDLE after HANDLE AID PF7: the label is suspended, no transfer",
+      "transid": "HA04"
     },
     {
       "name": "pop-restores",
       "commarea": null,
       "terminal": "HA05 G",
-      "why": "PUSH HANDLE then POP HANDLE: the PF7 label is in effect again"
+      "why": "PUSH HANDLE then POP HANDLE: the PF7 label is in effect again",
+      "transid": "HA05"
+    },
+    {
+      "name": "clear-no-data",
+      "commarea": null,
+      "transid": "HA07",
+      "terminal": null,
+      "aid": "DFHCLEAR",
+      "why": "HA07 started by CLEAR (the second leg of HA06 -> HA07): the RECEIVE returns no data and CLEAR's label GOT-CLEAR is taken"
+    },
+    {
+      "name": "pa1-anykey",
+      "commarea": null,
+      "transid": "HA07",
+      "terminal": null,
+      "aid": "DFHPA1",
+      "why": "HA07 started by PA1, which sends no data either: no CLEAR label, so ANYKEY's GOT-ANY"
+    },
+    {
+      "name": "first-leg",
+      "commarea": null,
+      "terminal": "HA06 H",
+      "why": "HA06 sets no label and RETURNs TRANSID('HA07'): the first leg of the two-transaction path",
+      "transid": "HA06"
     }
   ]
 }

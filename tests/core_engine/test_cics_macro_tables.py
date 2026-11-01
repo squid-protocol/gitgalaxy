@@ -153,6 +153,29 @@ def test_dfhpct_entry_is_a_transaction_routing_to_its_program():
     assert _rdo(rows[1]) == "REMOTESYSTEM(SYSB) REMOTENAME(RR01) PARTITIONSET(PS1) INDOUBT(BACKOUT)"
 
 
+@pytest.mark.parametrize(
+    ("operand", "expected"),
+    [
+        ("TRNPRTY=0", "PRIORITY(0)"),
+        ("TRNPRTY=255", "PRIORITY(255)"),
+        ("TRNPRTY=256", ""),  # outside the RDO PRIORITY range: not restated
+        ("SYSIDNT=SYSB", "REMOTESYSTEM(SYSB)"),
+        ("RMTNAME=RR01", "REMOTENAME(RR01)"),
+        ("PARTSET=PS1", "PARTITIONSET(PS1)"),  # SC33-1166-02 App. C p.378
+        ("DTB=YES", "INDOUBT(BACKOUT)"),  # SC33-1166-02 App. C p.377
+        ("DTB=(YES,NO)", "INDOUBT(COMMIT)"),
+        ("DTB=(YES,WAIT)", "INDOUBT(WAIT)"),
+        ("DTB=NO", ""),  # no RDO equivalent: SC33-1166-02 App. C note 4, p.380
+        ("DTB=(NO,WAIT)", ""),  # a combination the manual does not list: REFUSED
+        ("DTB=MAYBE", ""),
+        ("TWASIZE=64", ""),  # same name in RDO: nothing to restate
+    ],
+)
+def test_dfhpct_restated_operands_follow_the_cross_reference_table(operand, expected):
+    src = f"         DFHPCT TYPE=ENTRY,TRANSID=T001,PROGRAM=P1,{operand}"
+    assert _rdo(_rows(src)[0]) == expected
+
+
 def test_dfhppt_entry_names_a_program_a_mapset_or_a_partition_set():
     src = "\n".join(
         [
@@ -214,6 +237,7 @@ def test_every_sdsci_recform_word_maps_to_the_csd_tdqueue_spelling(word, expecte
 
 @pytest.mark.parametrize("word", ["UNDEFINED", "VARIABLE", "FIXED", "FIXBLKX", "FIXUNBAM", "BLK", ""])
 def test_a_recform_word_outside_the_manual_set_claims_nothing(word):
+    # SC33-1166-02 p.257-258 Table 28 lists twelve words; UNDEFINED is an FCT word, not an SDSCI one.
     assert sdsci_recform(word) == (None, None, None)
     src = f"         DFHDCT TYPE=EXTRA,DESTID=Q1,DSCNAME=DD1\n         DFHDCT TYPE=SDSCI,DSCNAME=DD1,RECFORM={word}"
     assert _rows(src)[0]["record_format"] is None

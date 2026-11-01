@@ -89,7 +89,7 @@ Rule-based threat detection is unaffected: hardcoded secrets, `--fail-on-secrets
 
 | Output | Without |
 |---|---|
-| `--config` / `.galaxyscope.yaml` | **ignored** with a warning, so every setting falls back to its default |
+| `--config` / `.galaxyscope.yaml` | **stops the run** with exit 1 when `--config` names a file: it may hold the gates, and a scan must not pass without them. Without `--config` nothing is read |
 | YAML (`.yaml`/`.yml`) OpenAPI/Swagger specs | not parsed, so `audit_shadow_apis` reads 0 |
 
 ## Telling which mode a scan ran in

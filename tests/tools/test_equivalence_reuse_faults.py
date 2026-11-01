@@ -56,3 +56,12 @@ def test_a_second_pass_over_the_work_dir_logs_once(tmp_path):
         with (work / "FAULTS").open("a") as f:
             f.write(FIRED)
     assert (work / "FAULTS").read_text() == FIRED
+
+
+def test_the_java_driver_clears_a_scenarios_fired_fault_log_before_running_it():
+    """The Java side appends to out/<scenario>.faults too: a --reuse copy of the baseline's out dir logged every
+    fault twice, so a mutant looked killed by "faults fired differ" (#5862)."""
+    src = (Path(__file__).resolve().parent / "equivalence_cics.py").read_text(encoding="utf-8")
+    clear = src.index('Files.deleteIfExists(out.resolve(sc.get("name").asText() + ".faults"))')
+    assert clear < src.index("task.withFaults(faults,")
+    assert clear < src.index("dliReset(in.resolve")

@@ -1,0 +1,99 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "GTASGN",
+  "program_source": "cases/ghost-tasks/gt-assign-startcode/src/GTASGN.cbl",
+  "copy_dirs": [],
+  "transid": "GT31",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": {
+    "segments": [
+      {
+        "copybook": "cases/ghost-tasks/gt-assign-startcode/src/GTASGN.cbl",
+        "record": "WS-CA"
+      }
+    ]
+  },
+  "screens": {},
+  "programs": [
+    {
+      "program": "GTASNT",
+      "program_source": "cases/ghost-tasks/gt-assign-startcode/src/GTASNT.cbl"
+    },
+    {
+      "program": "GTASAB",
+      "program_source": "cases/ghost-tasks/gt-assign-startcode/src/GTASAB.cbl"
+    }
+  ],
+  "notes": "cics-crucible ghost-tasks / gt-assign-startcode (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): ASSIGN STARTCODE / USERID / FACILITY / SCRNHT / SCRNWD: how a task was started, the default user, and the terminal facts. Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "mode-t",
+      "commarea": null,
+      "terminal": "GT31 T",
+      "startcode": "TD",
+      "termid": "T001",
+      "userid": "CICSUSER",
+      "screen": [
+        24,
+        80
+      ],
+      "why": "a terminal task: STARTCODE TD, the user, FACILITY T001, 24x80; then three STARTs"
+    },
+    {
+      "name": "mode-p",
+      "commarea": null,
+      "terminal": "GT31 P",
+      "startcode": "TD",
+      "termid": "T001",
+      "userid": "CICSUSER",
+      "screen": [
+        24,
+        80
+      ],
+      "why": "mode P: logs, SEND TEXT, RETURN TRANSID with a COMMAREA"
+    },
+    {
+      "name": "second-run",
+      "commarea": {
+        "WS-CA": "NEXT"
+      },
+      "terminal": "GT31 P",
+      "startcode": "TD",
+      "termid": "T001",
+      "userid": "CICSUSER",
+      "screen": [
+        24,
+        80
+      ],
+      "why": "EIBCALEN 4 (the RETURN TRANSID's next input): logs P31B and returns"
+    },
+    {
+      "name": "mode-x",
+      "commarea": null,
+      "terminal": "GT31 X",
+      "startcode": "TD",
+      "termid": "T001",
+      "userid": "CICSUSER",
+      "screen": [
+        24,
+        80
+      ],
+      "why": "mode X: START GT34 (no terminal), then SEND TEXT"
+    },
+    {
+      "name": "mode-other",
+      "commarea": null,
+      "terminal": "GT31 Q",
+      "startcode": "TD",
+      "termid": "T001",
+      "userid": "CICSUSER",
+      "screen": [
+        24,
+        80
+      ],
+      "why": "a mode no WHEN names: no START, the screen text still goes out"
+    }
+  ]
+}

@@ -29,6 +29,7 @@ sys.path.insert(0, str(HERE.parents[1] / "tests" / "tools"))
 sys.path.insert(0, str(HERE.parents[1] / "tests" / "cics_crucible"))
 import test_cics_runtimes as R  # noqa: E402  (bare imports: tests/ has no __init__.py, see CLAUDE.md)
 import test_pointer_lane_4771 as PL  # noqa: E402
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
@@ -132,6 +133,30 @@ def test_converse_translates_whole_in_every_length_form(tmp_path, command, expec
         assert fragment in java, fragment
 
 
+@pytest.mark.parametrize(
+    ("command", "expect"),
+    [
+        (
+            "CONVERSE FROM(WS-IN) SET(ECB-PTR) TOLENGTH(WS-LEN)",
+            ("Integer.MAX_VALUE, false", "DetCics.setBlock(task, ", '"RECEIVE"'),
+        ),
+        ("CONVERSE FROM(WS-IN) SET(ECB-PTR) TOFLENGTH(WS-LEN4)", ("WS_LEN4", "Integer.MAX_VALUE, false")),
+        (
+            "CONVERSE FROM(WS-IN) FROMLENGTH(4) SET(ECB-PTR) TOLENGTH(WS-LEN) MAXLENGTH(5) NOTRUNCATE",
+            (", 4, 5, true", "setBlock"),
+        ),
+        ("CONVERSE FROM(WS-IN) SET(ECB-PTR) TOLENGTH(WS-LEN) RESP(WS-RESP)", ("WS_RESP", "setBlock")),
+    ],
+)
+def test_converse_set_puts_the_reply_in_a_block_as_receive_set_does(tmp_path, command, expect):
+    """X58: CONVERSE SET(pointer) is RECEIVE SET's lane (same key, so the next terminal read ends it); TOLENGTH is output-only."""
+    holes, java = _java(tmp_path, command)
+    assert holes == [], holes
+    for fragment in expect:
+        assert fragment in java, fragment
+    assert "DetCics.received(" not in java  # (the INTO form's store is not used)
+
+
 # ---- each refusal, by name -----------------------------------------------------------------------------------------------------
 @pytest.mark.parametrize(
     ("command", "why"),
@@ -145,7 +170,15 @@ def test_converse_translates_whole_in_every_length_form(tmp_path, command, expec
         ("WAIT EVENT", "WAIT EVENT without ECADDR"),
         ("WAIT EVENT ECADDR(WS-RESP)", "not a plain USAGE POINTER"),
         ("WAIT EVENT ECADDR(ECB-PTR) ECBLIST(ECB-PTR)", "option not modelled"),
-        ("CONVERSE FROM(WS-IN) SET(ECB-PTR)", "SET: the reply in a block"),
+        ("CONVERSE FROM(WS-IN) SET(ECB-PTR)", "CONVERSE SET without TOLENGTH(data-area)"),
+        ("CONVERSE FROM(WS-IN) SET(ECB-PTR) TOLENGTH(4)", "CONVERSE SET without TOLENGTH(data-area)"),
+        ("CONVERSE FROM(WS-IN) SET(ECB-PTR) TOFLENGTH(4)", "CONVERSE SET without TOLENGTH(data-area)"),
+        ("CONVERSE FROM(WS-IN) SET(WS-RESP) TOLENGTH(WS-LEN)", "not a plain USAGE POINTER"),
+        ("CONVERSE FROM(WS-IN) INTO(WS-IN) SET(ECB-PTR) TOLENGTH(WS-LEN)", "CONVERSE without INTO"),
+        (
+            "CONVERSE FROM(WS-IN) SET(ECB-PTR) TOLENGTH(WS-LEN) CONVID('C1')",
+            "a conversation with a partner transaction",
+        ),
         ("CONVERSE FROM(WS-IN) INTO(WS-IN) CONVID('C1')", "a conversation with a partner transaction"),
         ("CONVERSE FROM(WS-IN) INTO(WS-IN) STATE(WS-LEN)", "a conversation with a partner transaction"),
         ("CONVERSE ATTACHID('A1') INTO(WS-IN)", "a conversation with a partner transaction"),

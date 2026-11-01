@@ -16,6 +16,19 @@
    "name": "delay-then-return",
    "commarea": null,
    "why": "no COMMAREA (EIBCALEN 0): DELAY FOR SECONDS(3) NORMAL, then RETURN -- the whole program; the RETURN (no TRANSID, no COMMAREA) is its one event"
+  },
+  {
+   "name": "delay-invreq",
+   "commarea": null,
+   "why": "DELAY INVREQ planned (X72), no RESP / HANDLE: the default action, an AEIP abend (#5862)",
+   "faults": [
+    {
+     "cmd": "DELAY",
+     "nth": 1,
+     "resp": "INVREQ",
+     "resp2": 4
+    }
+   ]
   }
  ]
 }

@@ -1,0 +1,27 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "PCDETL",
+  "program_source": "cases/pseudo-conversational/pc-aid-menu/src/PCDETL.cbl",
+  "copy_dirs": [
+    "cases/pseudo-conversational/pc-aid-menu/copy"
+  ],
+  "transid": "PC12",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "programs": [],
+  "notes": "cics-crucible pseudo-conversational / pc-aid-menu (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): the detail screen PCDETL, entered as a LINKed program (\"linked\": true) because its PIC X(10) DFHCOMMAREA has no generated COMMAREA DTO for a top-level entry. EIBCALEN 0 arm only: the EIBCALEN 10 arm needs a COMMAREA DTO for the elementary PIC X(10) DFHCOMMAREA (harness gap, left open). The oracle is GnuCOBOL plus the stub, not z/OS.",
+  "scenarios": [
+    {
+      "name": "no-context",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "why": "EIBCALEN 0: SEND TEXT NO CONTEXT, RETURN",
+      "terminal": "PC12"
+    }
+  ],
+  "termid": "T001",
+  "linked": true
+}

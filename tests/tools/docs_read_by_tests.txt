@@ -44,12 +44,14 @@
 /LAYTOY.cbl	tests/cobol_mainframe
 /LICENSE.txt	tests/core_engine
 /MAIN.cbl	tests/cobol_mainframe
+/MAINLN.cbl	tests/cobol_mainframe
 /MAPSET.bms	tests/cobol_mainframe
 /MYDATA.cpy	tests/cobol_mainframe
 /MYREC.cpy	tests/cobol_mainframe
 /Main.java	tests/cobol_mainframe
 /MinApi.cs	tests/security_auditing
 /NIGHTLY.jcl	tests/core_engine
+/NOPARAS.cbl	tests/cobol_mainframe
 /P.cbl	tests/cobol_mainframe
 /P1.cbl	tests/cobol_mainframe
 /P2.cbl	tests/cobol_mainframe
@@ -86,7 +88,7 @@
 /action.yml	tests/core_engine
 /api_v1	tests/security_auditing
 /api_v2	tests/security_auditing
-/app.py	tests/security_auditing
+/app.py	tests/security_auditing,tests/tools/test_cli_contract.py
 /approved	tests/security_auditing
 /approved_keys	tests/security_auditing
 /apps	tests/cobol_mainframe
@@ -174,13 +176,14 @@
 /tests	tests/cobol_mainframe,tests/core_engine,tests/security_auditing,tests/test_golden_store.py,tests/test_signal_contract_sheet.py,tests/test_source_reads.py,tests/tools/audit_check.py,tests/tools/cics_crucible.py,tests/tools/coverage_map.py,tests/tools/crucible_path_check.py,tests/tools/crucible_port_provenance.py,tests/tools/equivalence_env.py,tests/tools/estate_crucible.py,tests/tools/evidence.py,tests/tools/evidence_report.py,tests/tools/graph_coverage_chart.py,tests/tools/ladder_refresh.py,tests/tools/mainframe_corpus.py,tests/tools/test_env_gated_tests_run_in_ci_5954.py,tests/tools/test_posix_only_imports_4934.py,tests/tools/test_timeouts_4904.py,tests/tools/tree_sitter_accuracy_audit.py
 /unreadable.dat	tests/security_auditing
 /zlib	tests/tools/test_callgraph_oracle.py
+01-02-galaxyscope-cli-reference.md	tests/tools/test_cli_contract.py
 08-03-transforming-regex-counts.md	tests/tools/fidelity_table.py
 AGENTS.md	tests/tools/crucible_case.py
 ARCHITECTURE.md	gitgalaxy
 AUTHORS.md	tests/extraction
 BROKEN_LINK.md	tests/core_engine
 C18.md	tests/cobol_mainframe
-CONTRIBUTING.md	gitgalaxy,tests/tools/update_golden_master.py
+CONTRIBUTING.md	gitgalaxy,tests/tools/test_cli_contract.py,tests/tools/update_golden_master.py
 DESIGN.md	gitgalaxy
 EUROBAT_port_ticket.md	tests/cobol_mainframe
 EXAMPLE.COM/x.md	tests/extraction
@@ -195,7 +198,7 @@ POSTIT_port_ticket.md	tests/cobol_mainframe
 PROVENANCE.md	tests/tools/publish_examples.py
 Q4.md	tests/cobol_mainframe
 README-TEST.md	tests/core_engine
-README.md	gitgalaxy,tests/cobol_mainframe,tests/core_engine,tests/security_auditing,tests/tools/evidence.py,tests/tools/evidence_report.py,tests/tools/language_addition_audit.py,tests/tools/publish_examples.py,tests/tools/test_ci_critical_path_split.py,tests/tools/test_ci_replay_6278.py,tests/tools/test_context_pack.py,tests/tools/test_crucible_release.py,tests/tools/test_doom_fidelity.py,tests/tools/test_doom_subsystem_distribution.py,tests/tools/test_evidence_match_5162.py,tests/tools/test_evidence_report.py,tests/tools/test_evidence_report_single_source.py,tests/tools/test_generated_branch.py,tests/tools/test_generated_readers.py,tests/tools/test_post_merge_dispatch.py,tests/tools/test_pr_runner_cost.py,tests/tools/test_progress_report.py,tests/tools/test_progress_slide.py,tests/tools/test_readme_hand_counts.py,tests/tools/test_status_page_snapshots.py,tests/tools/test_workflow_inputs.py,tests/tools/xctl_commarea_capture_kit.py,tests/tools_recorders
+README.md	gitgalaxy,tests/cobol_mainframe,tests/core_engine,tests/security_auditing,tests/tools/evidence.py,tests/tools/evidence_report.py,tests/tools/language_addition_audit.py,tests/tools/publish_examples.py,tests/tools/test_ci_critical_path_split.py,tests/tools/test_ci_replay_6278.py,tests/tools/test_cli_contract.py,tests/tools/test_context_pack.py,tests/tools/test_crucible_release.py,tests/tools/test_doom_fidelity.py,tests/tools/test_doom_subsystem_distribution.py,tests/tools/test_evidence_match_5162.py,tests/tools/test_evidence_report.py,tests/tools/test_evidence_report_single_source.py,tests/tools/test_generated_branch.py,tests/tools/test_generated_readers.py,tests/tools/test_post_merge_dispatch.py,tests/tools/test_pr_runner_cost.py,tests/tools/test_progress_report.py,tests/tools/test_progress_slide.py,tests/tools/test_readme_hand_counts.py,tests/tools/test_status_page_snapshots.py,tests/tools/test_workflow_inputs.py,tests/tools/xctl_commarea_capture_kit.py,tests/tools_recorders
 RELEASING.md	tests/tools/crucible_pins.py,tests/tools/crucible_release.py
 SOURCE.md	tests/cobol_mainframe,tests/tools/mainframe_corpus.py,tests/tools/port_invariance.py
 SOURCES.md	tests/tools/estate4_draw.py
@@ -242,6 +245,7 @@ cics_mainframe_facts.md	tests/tools/test_progress_report.py
 cics_spec_status.json	tests/cobol_mainframe,tests/tools/cics_spec_status.py,tests/tools/progress_report.py
 cics_spec_status.md	tests/tools/cics_spec_status.py,tests/tools/test_generated_docs.py
 clean_check.md	tests/tools/doom_speedrun
+cobolrt_api.json	tests/tools/cobolrt_api.py
 cobolrt_rules.json	gitgalaxy,tests/cobol_mainframe,tests/tools/cobolrt_rules.py,tests/tools/progress_report.py,tests/tools/support_matrix.py
 cobolrt_rules.md	tests/tools/cobolrt_rules.py
 construct_correspondence.md	tests/tools/test_progress_report.py
@@ -266,6 +270,8 @@ docs/a/b.json	tests/tools/test_post_merge_dispatch.py
 docs/api_rule_contract.md	gitgalaxy
 docs/architecture.md	tests/core_engine
 docs/args_rule_contract.md	gitgalaxy
+docs/benchmarks/det-refine-	tests/tools/cobolrt_api.py
+docs/benchmarks/det-refine-cbact02c/C.java	tests/cobol_mainframe
 docs/bias_data.json	tests/core_engine,tests/tools/fidelity_table.py
 docs/branch_rule_contract.md	gitgalaxy
 docs/calls_out_rule_contract.md	gitgalaxy
@@ -273,6 +279,7 @@ docs/ci.md	tests/tools/shepherd_gh.py,tests/tools/test_ci_critical_path_split.py
 docs/ci_env_gated_tests.md	tests/tools/test_env_gated_tests_run_in_ci_5954.py
 docs/class_start_rule_contract.md	gitgalaxy
 docs/cleanup_rule_contract.md	gitgalaxy
+docs/cobolrt_api_contract.md	tests/tools/cobolrt_api.py
 docs/conf.py	tests/core_engine
 docs/contract_roadmap.md	tests/signal_contract_audit.py
 docs/dart.md	tests/core_engine
@@ -310,6 +317,7 @@ docs/language_status/cobol_hfp_matrix.md	gitgalaxy
 docs/language_status/cobol_move_matrix.md	gitgalaxy
 docs/language_status/cobol_sort_matrix.md	gitgalaxy
 docs/language_status/cobol_string_matrix.md	gitgalaxy
+docs/language_status/cobolrt_api.json	tests/tools/cobolrt_api.py
 docs/language_status/cobolrt_rules.json	gitgalaxy,tests/cobol_mainframe,tests/tools/cobolrt_rules.py,tests/tools/progress_report.py,tests/tools/support_matrix.py
 docs/language_status/cobolrt_rules.md	tests/tools/cobolrt_rules.py,tests/tools/generated_docs.py,tests/tools/test_generated_branch.py
 docs/language_status/det_port_design.md	tests/cobol_mainframe,tests/tools/test_progress_report.py
@@ -419,6 +427,7 @@ docs/test_rule_contract.md	gitgalaxy
 docs/unreferenced_by_name_contract.md	tests/core_engine
 docs/vectors.md	gitgalaxy
 docs/why_gitgalaxy_beats_ast_here.md	tests/tools/tree_sitter_accuracy_audit.py
+docs/wiki/01-02-galaxyscope-cli-reference.md	tests/tools/test_cli_contract.py
 docs/wiki/05-19-proven-cobol-to-java-ports.md	tests/cobol_mainframe
 docs/wiki/05-20-equivalence-harness.md	tests/tools/test_generated_branch.py
 docs/wiki/08-03-transforming-regex-counts.md	tests/tools/fidelity_table.py
@@ -450,12 +459,13 @@ fresh_estate_trials.md	tests/tools/trial.py
 fresh_estate_trials.svg	tests/tools/trial.py
 gap_prevalence.md	tests/tools/gap_prevalence.py
 generated/docs/language_status/progress.md	tests/tools/test_progress_report.py,tests/tools/test_status_page_snapshots.py
-gitgalaxy/README.md	tests/tools/test_ci_critical_path_split.py,tests/tools/test_post_merge_dispatch.py,tests/tools/test_readme_hand_counts.py
+gitgalaxy/README.md	tests/tools/test_ci_critical_path_split.py,tests/tools/test_cli_contract.py,tests/tools/test_post_merge_dispatch.py,tests/tools/test_readme_hand_counts.py
 gitgalaxy/standards/cics/README.md	tests/tools/test_progress_report.py
 gitgalaxy/tools/cobol_to_cobol/README.md	tests/tools/test_engine_reach_workflows.py,tests/tools/test_progress_report.py
 gitgalaxy/tools/cobol_to_java/README.md	tests/tools/test_engine_reach_workflows.py,tests/tools/test_progress_report.py,tests/tools/test_progress_slide.py
 gitgalaxy/tools/cobol_to_java/det/NOTES.md	tests/cobol_mainframe
 gitgalaxy/tools/supply_chain_security/README.md	tests/tools/test_readme_hand_counts.py
+github-action-readme.md	tests/tools/test_cli_contract.py
 github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md	tests/tools/test_progress_slide.py
 github.com/squid-protocol/gitgalaxy/blob/main/docs/language_status/definition_of_done.md	tests/tools/support_matrix.py
 github.com/squid-protocol/gitgalaxy/blob/main/docs/zero_dependency_mode.md	gitgalaxy
@@ -473,6 +483,7 @@ issue.md	tests/tools/test_context_pack.py
 ledger.md	tests/tools/bugfix_kit.py
 libraries/ZVulkan/LICENSE.md	tests/core_engine
 lineage.md	tests/tools/doom_speedrun,tests/tools/test_doom_lineage.py
+llm.md	tests/tools/test_cli_contract.py
 loop.md	tests/tools/porting_loop.py
 mainframe-evidence-policy.md	tests/tools/ladder_refresh.py
 manual_verification.json	tests/tools/tri_comparison_chart.py
@@ -496,6 +507,7 @@ readiness.md	tests/cobol_mainframe
 recorders/README.md	tests/core_engine
 refusal_map.json	tests/tools/support_matrix.py
 repo/b.md	tests/security_auditing
+repo_galaxy_llm.md	tests/tools/test_cli_contract.py
 report.md	tests/cultural_gauntlet,tests/tools/cics_crucible.py,tests/tools/cultural_gauntlet.py,tests/tools/equivalence.py,tests/tools/equivalence_cics.py,tests/tools/estate_evidence.py,tests/tools/evidence_report.py,tests/tools/publish_examples.py,tests/tools/test_estate_evidence.py,tests/tools/test_evidence_report.py,tests/tools/test_generated_branch.py,tests/tools/test_unicode_gauntlet_vs_treesitter.py,tests/tools/unicode_gauntlet.py,tests/tools/unicode_gauntlet_vs_treesitter.py
 report_generated.md	tests/tools/publish_examples.py
 report_ported.md	tests/tools/publish_examples.py

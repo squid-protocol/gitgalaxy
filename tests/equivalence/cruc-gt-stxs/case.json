@@ -1,0 +1,28 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "GTSTXS",
+  "program_source": "cases/ghost-tasks/gt-send-text-terminal/src/GTSTXS.cbl",
+  "copy_dirs": [],
+  "transid": "GT42",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "notes": "cics-crucible ghost-tasks / gt-send-text-terminal (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): ASSIGN FACILITY then SEND TEXT TERMINAL, or a TS note when there is no terminal. Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "with-terminal",
+      "commarea": null,
+      "terminal": "GT42",
+      "startcode": "TD",
+      "termid": "T001",
+      "userid": "CICSUSER",
+      "screen": [
+        24,
+        80
+      ],
+      "why": "a terminal task: FACILITY T001, SEND TEXT TERMINAL"
+    }
+  ]
+}

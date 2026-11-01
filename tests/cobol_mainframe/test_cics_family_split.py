@@ -16,6 +16,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 import equivalence_cics as ec  # noqa: E402
 import equivalence_cics_containers as ecc  # noqa: E402
+import ggcics_source  # noqa: E402
 
 from gitgalaxy.standards.cics.commands import COMMANDS  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_conditions as tcn  # noqa: E402
@@ -58,7 +59,7 @@ def test_cicstask_holds_the_containers_java_once_where_it_sat():
 
 
 def test_ggcics_includes_its_families_once():
-    host = (STUB / "ggcics.c").read_text(encoding="utf-8")
+    host = ggcics_source.stub_source()
     family = (STUB / "ggcics_containers.c").read_text(encoding="utf-8")
     assert re.findall(r'^#include "(ggcics_\w+\.c)"', host, re.M) == [
         "ggcics_faults.c",
@@ -114,7 +115,7 @@ def test_cicstask_holds_the_file_control_java_once_where_it_sat():
 
 
 def test_ggcics_holds_the_file_control_stubs_in_its_family_file():
-    host = (STUB / "ggcics.c").read_text(encoding="utf-8")
+    host = ggcics_source.stub_source()
     family = (STUB / "ggcics_filecontrol.c").read_text(encoding="utf-8")
     assert "#include" not in family
     for entry in ("GGCREAD", "GGCSTBR", "GGCRDNX", "GGCRDPV", "GGCENBR", "GGCDELT", "GGCUNLK"):
@@ -237,7 +238,7 @@ TASK_ENTRIES = ("GGCSTRT", "GGCRTRV", "GGCRUNT", "GGCCHLD", "GGCDLAY", "GGCPOST"
 
 
 def test_ggcics_holds_the_task_control_stubs_in_its_family_file():
-    host = (STUB / "ggcics.c").read_text(encoding="utf-8")
+    host = ggcics_source.stub_source()
     family = (STUB / "ggcics_taskcontrol.c").read_text(encoding="utf-8")
     assert "#include" not in family
     for entry in TASK_ENTRIES:
@@ -262,7 +263,7 @@ def test_ggcics_holds_the_task_control_stubs_in_its_family_file():
 
 # ---- ENQ / DEQ (#5274, fourth stub family): one stub function; DEQ is translated inline, with no stub ---------------
 def test_ggcics_holds_the_enq_stub_in_its_family_file():
-    host = (STUB / "ggcics.c").read_text(encoding="utf-8")
+    host = ggcics_source.stub_source()
     family = (STUB / "ggcics_enq.c").read_text(encoding="utf-8")
     assert "#include" not in family
     assert re.search(r"^int GGCENQ\(", family, re.M) and not re.search(r"^int GGCENQ\(", host, re.M)
@@ -284,7 +285,7 @@ def test_enq_still_translates_to_its_stub_and_deq_to_none():
 
 # ---- transient data (#5274, fifth stub family): READQ / WRITEQ / DELETEQ TD, SET / INQUIRE TDQUEUE -------------------
 def test_ggcics_holds_the_transient_data_stubs_in_its_family_file():
-    host = (STUB / "ggcics.c").read_text(encoding="utf-8")
+    host = ggcics_source.stub_source()
     family = (STUB / "ggcics_transientdata.c").read_text(encoding="utf-8")
     assert "#include" not in family
     for entry in ("GGCWRTD", "GGCRDTD", "GGCDLTD", "GGCRDTS", "GGCSTDQ", "GGCSTDE", "GGCSTDT", "GGCITDQ"):
@@ -310,7 +311,7 @@ def test_the_td_verbs_still_translate_to_their_stubs():
 
 # ---- temporary storage and conditions / abends (#5274, sixth and seventh stub families) ---------------------------------
 def test_ggcics_holds_the_temporary_storage_stubs_in_its_family_file():
-    host = (STUB / "ggcics.c").read_text(encoding="utf-8")
+    host = ggcics_source.stub_source()
     family = (STUB / "ggcics_tempstorage.c").read_text(encoding="utf-8")
     assert "#include" not in family
     for entry in ("GGCREADQ", "GGCWRTQ", "GGCDELQ"):
@@ -322,7 +323,7 @@ def test_ggcics_holds_the_temporary_storage_stubs_in_its_family_file():
 
 
 def test_ggcics_holds_the_condition_and_abend_handlers_in_its_family_file():
-    host = (STUB / "ggcics.c").read_text(encoding="utf-8")
+    host = ggcics_source.stub_source()
     family = (STUB / "ggcics_conditions.c").read_text(encoding="utf-8")
     assert "#include" not in family
     for entry in ("GGCPENT", "GGCHCND", "GGCHABN", "GGCPUSH", "GGCPOP", "GGCHAID", "GGCAID", "GGCABND", "GGCCOND",
@@ -339,7 +340,7 @@ def test_ggcics_holds_the_condition_and_abend_handlers_in_its_family_file():
 
 
 def test_ggcics_holds_the_fault_injection_in_its_family_file():
-    host = (STUB / "ggcics.c").read_text(encoding="utf-8")
+    host = ggcics_source.stub_source()
     family = (STUB / "ggcics_faults.c").read_text(encoding="utf-8")
     assert "#include" not in family
     for entry in ("GGCSQLAB",):
@@ -359,7 +360,7 @@ def test_ggcics_holds_the_fault_injection_in_its_family_file():
 
 
 def test_deleteq_ts_is_the_second_include_of_the_temporary_storage_family():
-    host = (STUB / "ggcics.c").read_text(encoding="utf-8")
+    host = ggcics_source.stub_source()
     family = (STUB / "ggcics_tempstorage.c").read_text(encoding="utf-8")
     assert host.count('#include "ggcics_tempstorage.c"') == 2
     assert (
@@ -660,7 +661,7 @@ WEB_ENTRIES = ("GGCWOPN", "GGCWCNV", "GGCWCLS", "GGCWPRS", "GGCWSND", "GGCWSDC",
 
 
 def test_ggcics_holds_the_web_stubs_in_its_family_file():
-    host = (STUB / "ggcics.c").read_text(encoding="utf-8")
+    host = ggcics_source.stub_source()
     family = (STUB / "ggcics_web.c").read_text(encoding="utf-8")
     assert "#include" not in family
     for entry in WEB_ENTRIES:
@@ -680,7 +681,7 @@ def test_ggcics_holds_the_web_stubs_in_its_family_file():
 
 
 def test_the_web_parts_are_included_around_the_storage_block():
-    host = (STUB / "ggcics.c").read_text(encoding="utf-8")
+    host = ggcics_source.stub_source()
     at = [m.start() for m in re.finditer(r'^#include "ggcics_web\.c"', host, re.M)]
     assert len(at) == 3
     assert host.index("int GGCEND(") < at[0] < host.index("enum { BLK_GETMAIN") < at[1] < host.index("int GGCRECP(")
@@ -733,3 +734,10 @@ def test_every_reexported_name_resolves_whichever_module_is_imported_first(first
     )
     r = subprocess.run([sys.executable, "-I", "-c", code], capture_output=True, text=True, timeout=120)
     assert r.returncode == 0, r.stderr[-800:]
+
+
+def test_the_plain_stub_families_are_each_included_once_and_leave_only_the_entry_points():
+    host = (STUB / "ggcics.c").read_text(encoding="utf-8")
+    for family in ggcics_source.PLAIN_FAMILIES:
+        assert host.count(f'#include "ggcics_{family}.c"') == 1, family
+    assert "int GGCEND(" in host and "int GGCWRIT(" not in host and "int GGCGETM(" not in host

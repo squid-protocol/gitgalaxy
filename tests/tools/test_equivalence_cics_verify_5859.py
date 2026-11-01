@@ -10,6 +10,7 @@ import pytest
 TESTS = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(TESTS / "tools"))
 import equivalence_cics as ec  # noqa: E402
+import ggcics_source  # noqa: E402
 from gitgalaxy.core.source_text import read_source  # noqa: E402
 
 REPO = TESTS.parent
@@ -69,7 +70,7 @@ def test_the_other_verify_forms_stay_refused(src):
 
 
 def test_the_stub_the_task_and_the_translator_name_the_same_hook():
-    stub = read_source(REPO / "tests/equivalence/cics/ggcics.c").text
+    stub = ggcics_source.stub_source()
     forge = read_source(REPO / "gitgalaxy/tools/cobol_to_java/cobol_to_java_transaction_forge.py").text
     assert "int GGCVER(" in stub
     assert 'injected("VERIFY", id' in stub

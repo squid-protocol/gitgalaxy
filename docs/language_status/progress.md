@@ -1,6 +1,6 @@
 # Progress
 
-Generated from main at `4eef0dab6` by `tests/tools/progress_report.py` (#5280); do not edit. Every
+Generated from main at `d2340369e` by `tests/tools/progress_report.py` (#5280); do not edit. Every
 denominator is fixed and every number names its source below. A level is an evidence level, never a bare
 claim of correctness: the oracle is GnuCOBOL plus IBM documentation, not z/OS.
 
@@ -45,12 +45,12 @@ judged; *sample* is mutants judged of those the program has. Claims are the revi
 | Estate | Programs | Measured | L5 | Ready | Raw caught | Sample | Equivalent | Unreachable |
 |---|---|---|---|---|---|---|---|---|
 | `aws-mainframe-modernization-carddemo` | 44 | 12 | 0 | 12 | 65.6% (1148 of 1750) | 7.8% (1847 of 23824) | 431 | 178 |
-| `cics-async-api-credit-card-application-example` | 10 | 10 | 0 | 10 | 100.0% (5783 of 5783) | 100.0% (6083 of 6083) | 162 | 26 |
+| `cics-async-api-credit-card-application-example` | 10 | 10 | 0 | 10 | 100.0% (5783 of 5783) | 100.0% (6083 of 6083) | 200 | 26 |
 | `cics-banking-sample-application-cbsa` | 31 | 6 | 0 | 6 | 44.5% (837 of 1881) | 69.5% (1977 of 2846) | 679 | 365 |
 | `cics-genapp` | 31 | 0 | 0 | 0 | not measured | not measured | 0 | 0 |
 | `dbb-mortgage-application` | 6 | 0 | 0 | 0 | not measured | not measured | 0 | 0 |
 | `zecs` | 7 | 2 | 2 | 0 | 47.3% (134 of 283) | 50.0% (533 of 1067) | 143 | 153 |
-| **Total** | 129 | 30 | 2 | 28 | 81.5% (7902 of 9697) | 30.9% (10440 of 33820) | 1415 | 722 |
+| **Total** | 129 | 30 | 2 | 28 | 81.5% (7902 of 9697) | 30.9% (10440 of 33820) | 1453 | 722 |
 
 ## Capability ledger
 
@@ -112,12 +112,12 @@ Source: tests/fixtures/feature_inventory/<estate>.json (era_tags.py). Programs p
 
 ## 4. Core burn-down
 
-Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-01T00:44:14Z.
+Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-01T00:57:18Z.
 
-- `scope:core`: 11 open, 200 closed.
-- Milestone 28: 7 open, 102 closed.
-- Last 7 days: 10 opened, 28 closed, net +18 closed.
-- ETA (open / net closure rate): **4 days**.
+- `scope:core`: 12 open, 200 closed.
+- Milestone 28: 8 open, 102 closed.
+- Last 7 days: 11 opened, 28 closed, net +17 closed.
+- ETA (open / net closure rate): **5 days**.
 
 ## 5. Gap Atlas
 

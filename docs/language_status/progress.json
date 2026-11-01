@@ -1,5 +1,5 @@
 {
- "commit": "4eef0dab6",
+ "commit": "d2340369e",
  "components": {
   "capabilities": {
    "groups": [
@@ -350,7 +350,7 @@
     },
     "cics-async-api-credit-card-application-example": {
      "caught": 5783,
-     "equivalent": 162,
+     "equivalent": 200,
      "l5": 0,
      "measured": 10,
      "mutants": 6083,
@@ -421,7 +421,7 @@
    },
    "total": {
     "caught": 7902,
-    "equivalent": 1415,
+    "equivalent": 1453,
     "l5": 2,
     "measured": 30,
     "mutants": 33820,
@@ -481,22 +481,22 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-11-01T00:44:14Z",
+  "as_of": "2026-11-01T00:57:18Z",
   "core": {
    "closed": 200,
-   "open": 11,
-   "total": 211
+   "open": 12,
+   "total": 212
   },
   "core_last_window": {
    "closed": 28,
-   "net_closed": 18,
-   "opened": 10
+   "net_closed": 17,
+   "opened": 11
   },
   "core_milestone": {
    "closed": 102,
    "number": 28,
-   "open": 7,
-   "total": 109
+   "open": 8,
+   "total": 110
   },
   "epics": {
    "4890": "open",
@@ -505,7 +505,7 @@
    "4893": "open",
    "4894": "open"
   },
-  "eta": "4 days",
+  "eta": "5 days",
   "frontier": {
    "closed": 118,
    "found_last_window": 2,
@@ -703,9 +703,9 @@
    {
     "closed": 264,
     "number": 28,
-    "open": 7,
+    "open": 8,
     "title": "Training Montage \ud83c\udfcb\ufe0f \u2014 Prepping to one-shot our 4th CICS to Java translation attempt",
-    "total": 271
+    "total": 272
    },
    {
     "closed": 2,
@@ -737,7 +737,7 @@
   "title_counts": {
    "cics": {
     "closed": 101,
-    "total": 111
+    "total": 112
    },
    "cobol": {
     "closed": 133,

@@ -35,6 +35,12 @@
    "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
    "id": "X27",
    "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+  },
+  {
+   "area": "CICS",
+   "entry": "MOVE CONTAINER (rename across channels, TOCHANNEL made when absent, an existing AS overwritten) and STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER (the names of a channel's containers, in creation order, one token per browse) with IBM's RESP / RESP2: INVREQ 4, CHANNELERR 2, CONTAINERERR 10, END 2, TOKENERR 3; refused: a move onto itself or onto the other data type, a browse of a channel that changed, a browse with no channel, and the conditions no modelled state reaches (CHANNELERR 1 / 3, CONTAINERERR 18, INVREQ 30 / 31, ILLOGIC 1)",
+   "id": "X42",
+   "status": "ASSUMED (REFUSED where IBM is silent)"
   }
  ],
  "bars": {
@@ -432,6 +438,12 @@
     17,
     17
    ],
+   "carddemo-sort-combtran": [
+    1,
+    1,
+    0,
+    0
+   ],
    "carddemo-sort-tranrept": [
     1,
     1,
@@ -810,6 +822,336 @@
     45,
     81
    ],
+   "cruc-ca-address-commarea": [
+    2,
+    4,
+    3,
+    8
+   ],
+   "cruc-ca-address-eib-commarea": [
+    2,
+    4,
+    3,
+    10
+   ],
+   "cruc-ca-channel-containers": [
+    3,
+    3,
+    0,
+    0
+   ],
+   "cruc-ca-channel-errors": [
+    2,
+    2,
+    0,
+    0
+   ],
+   "cruc-ca-container-bit": [
+    3,
+    3,
+    0,
+    0
+   ],
+   "cruc-ca-container-byteoffset": [
+    4,
+    4,
+    0,
+    0
+   ],
+   "cruc-ca-container-byteoffset-past-end": [
+    4,
+    4,
+    0,
+    0
+   ],
+   "cruc-ca-get-container-set-errors": [
+    2,
+    2,
+    0,
+    0
+   ],
+   "cruc-ca-getmain-pointer": [
+    2,
+    2,
+    3,
+    6
+   ],
+   "cruc-ca-link-lengths": [
+    1,
+    1,
+    3,
+    4
+   ],
+   "cruc-ca-receive-retrieve-set": [
+    1,
+    1,
+    4,
+    5
+   ],
+   "cruc-ca-xctl-versions": [
+    1,
+    1,
+    6,
+    6
+   ],
+   "cruc-gt-asab": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "cruc-gt-asnt": [
+    1,
+    1,
+    2,
+    2
+   ],
+   "cruc-gt-assign-startcode": [
+    2,
+    2,
+    6,
+    6
+   ],
+   "cruc-gt-chld": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "cruc-gt-post-wait-event": [
+    5,
+    5,
+    7,
+    9
+   ],
+   "cruc-gt-read": [
+    1,
+    1,
+    1,
+    2
+   ],
+   "cruc-gt-rtrn": [
+    1,
+    1,
+    1,
+    2
+   ],
+   "cruc-gt-send-text-terminal": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "cruc-gt-show": [
+    1,
+    1,
+    4,
+    4
+   ],
+   "cruc-gt-start-options": [
+    2,
+    2,
+    8,
+    8
+   ],
+   "cruc-gt-start-retrieve": [
+    1,
+    1,
+    6,
+    6
+   ],
+   "cruc-gt-stxs": [
+    1,
+    1,
+    2,
+    2
+   ],
+   "cruc-gt-terminal-coalesce": [
+    1,
+    1,
+    4,
+    4
+   ],
+   "cruc-gt-unext": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "cruc-gt-urimap-browse": [
+    2,
+    2,
+    8,
+    8
+   ],
+   "cruc-gt-web-client": [
+    1,
+    1,
+    4,
+    4
+   ],
+   "cruc-gt-web-parse-url": [
+    5,
+    5,
+    8,
+    10
+   ],
+   "cruc-gt-work": [
+    1,
+    1,
+    2,
+    2
+   ],
+   "cruc-hc-abend-link": [
+    4,
+    4,
+    4,
+    4
+   ],
+   "cruc-hc-dcounters": [
+    7,
+    7,
+    7,
+    7
+   ],
+   "cruc-hc-deedit-uctranst": [
+    7,
+    7,
+    4,
+    4
+   ],
+   "cruc-hc-eoc-error": [
+    3,
+    4,
+    2,
+    2
+   ],
+   "cruc-hc-handle-aid": [
+    6,
+    6,
+    7,
+    7
+   ],
+   "cruc-hc-ignore-error": [
+    5,
+    5,
+    9,
+    9
+   ],
+   "cruc-hc-inquire-deleteq": [
+    7,
+    7,
+    6,
+    6
+   ],
+   "cruc-hc-map-not-in-mapset": [
+    2,
+    2,
+    5,
+    5
+   ],
+   "cruc-hc-named-counters": [
+    6,
+    6,
+    7,
+    7
+   ],
+   "cruc-hc-perform-range": [
+    8,
+    8,
+    0,
+    0
+   ],
+   "cruc-hc-readq-td": [
+    9,
+    9,
+    7,
+    7
+   ],
+   "cruc-hc-resp-options": [
+    7,
+    7,
+    6,
+    6
+   ],
+   "cruc-hc-terminal-eoc": [
+    3,
+    4,
+    3,
+    3
+   ],
+   "cruc-hc-terminal-receive": [
+    10,
+    10,
+    6,
+    6
+   ],
+   "cruc-hx-attr-bytes": [
+    4,
+    4,
+    6,
+    6
+   ],
+   "cruc-hx-extended-cursor": [
+    3,
+    3,
+    6,
+    6
+   ],
+   "cruc-pc-aid-menu": [
+    4,
+    4,
+    9,
+    9
+   ],
+   "cruc-pc-confirm": [
+    2,
+    5,
+    2,
+    14
+   ],
+   "cruc-pc-detl": [
+    1,
+    1,
+    1,
+    2
+   ],
+   "cruc-pc-immediate-a": [
+    5,
+    6,
+    4,
+    5
+   ],
+   "cruc-pc-immediate-s": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "cruc-pc-return-channel": [
+    5,
+    5,
+    4,
+    4
+   ],
+   "cruc-pc-return-channel-b": [
+    7,
+    7,
+    6,
+    6
+   ],
+   "cruc-pc-return-immediate-b": [
+    2,
+    2,
+    2,
+    2
+   ],
+   "cruc-pc-wizard": [
+    5,
+    5,
+    10,
+    10
+   ],
    "genapp-lgacdb01": [
     4,
     4,
@@ -1147,9 +1489,9 @@
     48
    ],
    "zecs-zecs001": [
-    117,
     119,
-    194,
+    119,
+    206,
     208
    ],
    "zecs-zecs002": [
@@ -1734,6 +2076,10 @@
     "stale": [],
     "status": "shown equal, unapproved"
    },
+   "carddemo-sort-combtran": {
+    "stale": [],
+    "status": "shown equal, unapproved"
+   },
    "carddemo-sort-tranrept": {
     "stale": [],
     "status": "shown equal, unapproved"
@@ -1806,10 +2152,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "0095c320d884c1a6e8a4870ab8746c47997e8cea",
+   "sha": "eedd31c0da913f333c7d45ad9c05e81f01e04154",
    "translator": {
     "files": 161,
-    "sha256": "ca8afa03b44523070ed37b60b01715eb1e97d13fcf8360635400312e6651d2d4"
+    "sha256": "d6ab4e6728508b3114c0be3a58ff39d452b6921d5f447500f2766d4f21169262"
    }
   },
   "sweeps": {}
@@ -2014,6 +2360,12 @@
       "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
       "id": "X27",
       "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "MOVE CONTAINER (rename across channels, TOCHANNEL made when absent, an existing AS overwritten) and STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER (the names of a channel's containers, in creation order, one token per browse) with IBM's RESP / RESP2: INVREQ 4, CHANNELERR 2, CONTAINERERR 10, END 2, TOKENERR 3; refused: a move onto itself or onto the other data type, a browse of a channel that changed, a browse with no channel, and the conditions no modelled state reaches (CHANNELERR 1 / 3, CONTAINERERR 18, INVREQ 30 / 31, ILLOGIC 1)",
+      "id": "X42",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -2049,7 +2401,7 @@
     "cases": [
      {
       "case": "asynccc-asyncpnt",
-      "case_scenarios": 4,
+      "case_scenarios": 6,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -2061,7 +2413,7 @@
     ],
     "chosen": {
      "case": "asynccc-asyncpnt",
-     "case_scenarios": 4,
+     "case_scenarios": 6,
      "db2": false,
      "det": {
       "source": "CI det-sweep ratchet on main",
@@ -2071,29 +2423,22 @@
      "role": "program"
     }
    },
-   "level": "L4",
+   "level": "L5",
    "level_current": true,
    "mutation": {
-    "accounted": 0,
-    "current": false,
-    "det_port": "stale (port moved), last measured: raw 100% (1992/1992 caught; 2042 of 2042 mutants, seed 0); every survivor accounted for (0)",
-    "drifted": [
-     "generator",
-     "harness",
-     "oracle"
-    ],
-    "killed": 1992,
+    "accounted": 90,
+    "chosen": 2086,
+    "current": true,
+    "det_port": "raw 96% (1946/2036 caught; 2086 of 2086 mutants, seed 0); every survivor accounted for (90)",
+    "killed": 1946,
     "l5": true,
-    "score": 1.0,
-    "stale_inputs": [
-     "port"
-    ],
-    "survived": 0,
+    "mutants": 2086,
+    "score": 0.9558,
+    "stale_inputs": [],
+    "survived": 90,
     "unaccounted": 0
    },
-   "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (port moved), last measured: raw 100% (1992/1992 caught; 2042 of 2042 mutants, seed 0); every survivor accounted for (0))"
-   ],
+   "next": [],
    "options": {
     "assumed": 4,
     "compiler": {
@@ -2298,7 +2643,8 @@
      ],
      "facts_stated": [],
      "registers": [
-      "X17"
+      "X17",
+      "X42"
      ],
      "spec_entry": "full"
     },
@@ -2465,7 +2811,8 @@
      ],
      "facts_stated": [],
      "registers": [
-      "X27"
+      "X27",
+      "X42"
      ],
      "spec_entry": "full"
     },
@@ -2579,7 +2926,8 @@
      "X17",
      "X18",
      "X19",
-     "X27"
+     "X27",
+     "X42"
     ],
     "branch_outcomes_unrun": 0,
     "commands": 8,
@@ -2631,6 +2979,12 @@
       "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
       "id": "X27",
       "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "MOVE CONTAINER (rename across channels, TOCHANNEL made when absent, an existing AS overwritten) and STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER (the names of a channel's containers, in creation order, one token per browse) with IBM's RESP / RESP2: INVREQ 4, CHANNELERR 2, CONTAINERERR 10, END 2, TOKENERR 3; refused: a move onto itself or onto the other data type, a browse of a channel that changed, a browse with no channel, and the conditions no modelled state reaches (CHANNELERR 1 / 3, CONTAINERERR 18, INVREQ 30 / 31, ILLOGIC 1)",
+      "id": "X42",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -2666,7 +3020,7 @@
     "cases": [
      {
       "case": "asynccc-asyncpnt",
-      "case_scenarios": 4,
+      "case_scenarios": 6,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -2677,7 +3031,7 @@
      },
      {
       "case": "asynccc-crdtchk",
-      "case_scenarios": 3,
+      "case_scenarios": 4,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -2688,7 +3042,7 @@
      },
      {
       "case": "asynccc-seqpnt",
-      "case_scenarios": 4,
+      "case_scenarios": 10,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -2700,7 +3054,7 @@
     ],
     "chosen": {
      "case": "asynccc-crdtchk",
-     "case_scenarios": 3,
+     "case_scenarios": 4,
      "db2": false,
      "det": {
       "source": "CI det-sweep ratchet on main",
@@ -2710,29 +3064,22 @@
      "role": "program"
     }
    },
-   "level": "L4",
+   "level": "L5",
    "level_current": true,
    "mutation": {
-    "accounted": 0,
-    "current": false,
-    "det_port": "stale (port moved), last measured: raw 100% (217/217 caught; 223 of 223 mutants, seed 0); every survivor accounted for (0)",
-    "drifted": [
-     "generator",
-     "harness",
-     "oracle"
-    ],
-    "killed": 217,
+    "accounted": 15,
+    "chosen": 230,
+    "current": true,
+    "det_port": "raw 93% (209/224 caught; 230 of 230 mutants, seed 0); every survivor accounted for (15)",
+    "killed": 209,
     "l5": true,
-    "score": 1.0,
-    "stale_inputs": [
-     "port"
-    ],
-    "survived": 0,
+    "mutants": 230,
+    "score": 0.933,
+    "stale_inputs": [],
+    "survived": 15,
     "unaccounted": 0
    },
-   "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (port moved), last measured: raw 100% (217/217 caught; 223 of 223 mutants, seed 0); every survivor accounted for (0))"
-   ],
+   "next": [],
    "options": {
     "assumed": 4,
     "compiler": {
@@ -2906,7 +3253,8 @@
      ],
      "facts_stated": [],
      "registers": [
-      "X17"
+      "X17",
+      "X42"
      ],
      "spec_entry": "full"
     },
@@ -3007,7 +3355,8 @@
      ],
      "facts_stated": [],
      "registers": [
-      "X27"
+      "X27",
+      "X42"
      ],
      "spec_entry": "full"
     }
@@ -3017,7 +3366,8 @@
     "assumed_or_differs_named": [
      "X17",
      "X18",
-     "X27"
+     "X27",
+     "X42"
     ],
     "branch_outcomes_unrun": 0,
     "commands": 4,
@@ -3068,6 +3418,12 @@
       "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
       "id": "X27",
       "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "MOVE CONTAINER (rename across channels, TOCHANNEL made when absent, an existing AS overwritten) and STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER (the names of a channel's containers, in creation order, one token per browse) with IBM's RESP / RESP2: INVREQ 4, CHANNELERR 2, CONTAINERERR 10, END 2, TOKENERR 3; refused: a move onto itself or onto the other data type, a browse of a channel that changed, a browse with no channel, and the conditions no modelled state reaches (CHANNELERR 1 / 3, CONTAINERERR 18, INVREQ 30 / 31, ILLOGIC 1)",
+      "id": "X42",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -3103,7 +3459,7 @@
     "cases": [
      {
       "case": "asynccc-asyncpnt",
-      "case_scenarios": 4,
+      "case_scenarios": 6,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -3136,29 +3492,22 @@
      "role": "program"
     }
    },
-   "level": "L4",
+   "level": "L5",
    "level_current": true,
    "mutation": {
-    "accounted": 0,
-    "current": false,
-    "det_port": "stale (port moved), last measured: raw 100% (240/240 caught; 246 of 246 mutants, seed 0); every survivor accounted for (0)",
-    "drifted": [
-     "generator",
-     "harness",
-     "oracle"
-    ],
+    "accounted": 1,
+    "chosen": 247,
+    "current": true,
+    "det_port": "raw 100% (240/241 caught; 247 of 247 mutants, seed 0); every survivor accounted for (1)",
     "killed": 240,
     "l5": true,
-    "score": 1.0,
-    "stale_inputs": [
-     "port"
-    ],
-    "survived": 0,
+    "mutants": 247,
+    "score": 0.9959,
+    "stale_inputs": [],
+    "survived": 1,
     "unaccounted": 0
    },
-   "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (port moved), last measured: raw 100% (240/240 caught; 246 of 246 mutants, seed 0); every survivor accounted for (0))"
-   ],
+   "next": [],
    "options": {
     "assumed": 4,
     "compiler": {
@@ -3322,7 +3671,8 @@
      ],
      "facts_stated": [],
      "registers": [
-      "X17"
+      "X17",
+      "X42"
      ],
      "spec_entry": "full"
     },
@@ -3423,7 +3773,8 @@
      ],
      "facts_stated": [],
      "registers": [
-      "X27"
+      "X27",
+      "X42"
      ],
      "spec_entry": "full"
     },
@@ -3449,7 +3800,8 @@
     "assumed_or_differs_named": [
      "X17",
      "X18",
-     "X27"
+     "X27",
+     "X42"
     ],
     "branch_outcomes_unrun": 0,
     "commands": 4,
@@ -3494,6 +3846,12 @@
       "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
       "id": "X27",
       "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "MOVE CONTAINER (rename across channels, TOCHANNEL made when absent, an existing AS overwritten) and STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER (the names of a channel's containers, in creation order, one token per browse) with IBM's RESP / RESP2: INVREQ 4, CHANNELERR 2, CONTAINERERR 10, END 2, TOKENERR 3; refused: a move onto itself or onto the other data type, a browse of a channel that changed, a browse with no channel, and the conditions no modelled state reaches (CHANNELERR 1 / 3, CONTAINERERR 18, INVREQ 30 / 31, ILLOGIC 1)",
+      "id": "X42",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -3529,7 +3887,7 @@
     "cases": [
      {
       "case": "asynccc-csstatus",
-      "case_scenarios": 3,
+      "case_scenarios": 5,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -3540,7 +3898,7 @@
      },
      {
       "case": "asynccc-seqpnt",
-      "case_scenarios": 4,
+      "case_scenarios": 10,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -3552,7 +3910,7 @@
     ],
     "chosen": {
      "case": "asynccc-csstatus",
-     "case_scenarios": 3,
+     "case_scenarios": 5,
      "db2": false,
      "det": {
       "source": "CI det-sweep ratchet on main",
@@ -3562,29 +3920,22 @@
      "role": "program"
     }
    },
-   "level": "L4",
+   "level": "L5",
    "level_current": true,
    "mutation": {
-    "accounted": 0,
-    "current": false,
-    "det_port": "stale (port moved), last measured: raw 100% (558/558 caught; 576 of 576 mutants, seed 0); every survivor accounted for (0)",
-    "drifted": [
-     "generator",
-     "harness",
-     "oracle"
-    ],
-    "killed": 558,
+    "accounted": 23,
+    "chosen": 591,
+    "current": true,
+    "det_port": "raw 96% (550/573 caught; 591 of 591 mutants, seed 0); every survivor accounted for (23)",
+    "killed": 550,
     "l5": true,
-    "score": 1.0,
-    "stale_inputs": [
-     "port"
-    ],
-    "survived": 0,
+    "mutants": 591,
+    "score": 0.9599,
+    "stale_inputs": [],
+    "survived": 23,
     "unaccounted": 0
    },
-   "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (port moved), last measured: raw 100% (558/558 caught; 576 of 576 mutants, seed 0); every survivor accounted for (0))"
-   ],
+   "next": [],
    "options": {
     "assumed": 4,
     "compiler": {
@@ -3758,7 +4109,8 @@
      ],
      "facts_stated": [],
      "registers": [
-      "X27"
+      "X27",
+      "X42"
      ],
      "spec_entry": "full"
     },
@@ -3774,7 +4126,8 @@
      ],
      "facts_stated": [],
      "registers": [
-      "X17"
+      "X17",
+      "X42"
      ],
      "spec_entry": "full"
     },
@@ -3875,7 +4228,8 @@
      ],
      "facts_stated": [],
      "registers": [
-      "X27"
+      "X27",
+      "X42"
      ],
      "spec_entry": "full"
     }
@@ -3884,7 +4238,8 @@
    "residual": {
     "assumed_or_differs_named": [
      "X17",
-     "X27"
+     "X27",
+     "X42"
     ],
     "branch_outcomes_unrun": 0,
     "commands": 4,
@@ -3934,6 +4289,12 @@
       "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
       "id": "X27",
       "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "MOVE CONTAINER (rename across channels, TOCHANNEL made when absent, an existing AS overwritten) and STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER (the names of a channel's containers, in creation order, one token per browse) with IBM's RESP / RESP2: INVREQ 4, CHANNELERR 2, CONTAINERERR 10, END 2, TOKENERR 3; refused: a move onto itself or onto the other data type, a browse of a channel that changed, a browse with no channel, and the conditions no modelled state reaches (CHANNELERR 1 / 3, CONTAINERERR 18, INVREQ 30 / 31, ILLOGIC 1)",
+      "id": "X42",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -3969,7 +4330,7 @@
     "cases": [
      {
       "case": "asynccc-asyncpnt",
-      "case_scenarios": 4,
+      "case_scenarios": 6,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -3980,7 +4341,7 @@
      },
      {
       "case": "asynccc-getaddr",
-      "case_scenarios": 3,
+      "case_scenarios": 4,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -3991,7 +4352,7 @@
      },
      {
       "case": "asynccc-seqpnt",
-      "case_scenarios": 4,
+      "case_scenarios": 10,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -4003,7 +4364,7 @@
     ],
     "chosen": {
      "case": "asynccc-getaddr",
-     "case_scenarios": 3,
+     "case_scenarios": 4,
      "db2": false,
      "det": {
       "source": "CI det-sweep ratchet on main",
@@ -4013,29 +4374,22 @@
      "role": "program"
     }
    },
-   "level": "L4",
+   "level": "L5",
    "level_current": true,
    "mutation": {
-    "accounted": 0,
-    "current": false,
-    "det_port": "stale (port moved), last measured: raw 100% (228/228 caught; 234 of 234 mutants, seed 0); every survivor accounted for (0)",
-    "drifted": [
-     "generator",
-     "harness",
-     "oracle"
-    ],
-    "killed": 228,
+    "accounted": 19,
+    "chosen": 241,
+    "current": true,
+    "det_port": "raw 92% (216/235 caught; 241 of 241 mutants, seed 0); every survivor accounted for (19)",
+    "killed": 216,
     "l5": true,
-    "score": 1.0,
-    "stale_inputs": [
-     "port"
-    ],
-    "survived": 0,
+    "mutants": 241,
+    "score": 0.9191,
+    "stale_inputs": [],
+    "survived": 19,
     "unaccounted": 0
    },
-   "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (port moved), last measured: raw 100% (228/228 caught; 234 of 234 mutants, seed 0); every survivor accounted for (0))"
-   ],
+   "next": [],
    "options": {
     "assumed": 4,
     "compiler": {
@@ -4209,7 +4563,8 @@
      ],
      "facts_stated": [],
      "registers": [
-      "X17"
+      "X17",
+      "X42"
      ],
      "spec_entry": "full"
     },
@@ -4310,7 +4665,8 @@
      ],
      "facts_stated": [],
      "registers": [
-      "X27"
+      "X27",
+      "X42"
      ],
      "spec_entry": "full"
     }
@@ -4320,7 +4676,8 @@
     "assumed_or_differs_named": [
      "X17",
      "X18",
-     "X27"
+     "X27",
+     "X42"
     ],
     "branch_outcomes_unrun": 0,
     "commands": 4,
@@ -4365,6 +4722,12 @@
       "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
       "id": "X27",
       "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "MOVE CONTAINER (rename across channels, TOCHANNEL made when absent, an existing AS overwritten) and STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER (the names of a channel's containers, in creation order, one token per browse) with IBM's RESP / RESP2: INVREQ 4, CHANNELERR 2, CONTAINERERR 10, END 2, TOKENERR 3; refused: a move onto itself or onto the other data type, a browse of a channel that changed, a browse with no channel, and the conditions no modelled state reaches (CHANNELERR 1 / 3, CONTAINERERR 18, INVREQ 30 / 31, ILLOGIC 1)",
+      "id": "X42",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -4400,7 +4763,7 @@
     "cases": [
      {
       "case": "asynccc-asyncpnt",
-      "case_scenarios": 4,
+      "case_scenarios": 6,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -4422,7 +4785,7 @@
      },
      {
       "case": "asynccc-seqpnt",
-      "case_scenarios": 4,
+      "case_scenarios": 10,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -4444,29 +4807,22 @@
      "role": "program"
     }
    },
-   "level": "L4",
+   "level": "L5",
    "level_current": true,
    "mutation": {
-    "accounted": 0,
-    "current": false,
-    "det_port": "stale (port moved), last measured: raw 100% (202/202 caught; 208 of 208 mutants, seed 0); every survivor accounted for (0)",
-    "drifted": [
-     "generator",
-     "harness",
-     "oracle"
-    ],
+    "accounted": 1,
+    "chosen": 209,
+    "current": true,
+    "det_port": "raw 100% (202/203 caught; 209 of 209 mutants, seed 0); every survivor accounted for (1)",
     "killed": 202,
     "l5": true,
-    "score": 1.0,
-    "stale_inputs": [
-     "port"
-    ],
-    "survived": 0,
+    "mutants": 209,
+    "score": 0.9951,
+    "stale_inputs": [],
+    "survived": 1,
     "unaccounted": 0
    },
-   "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (port moved), last measured: raw 100% (202/202 caught; 208 of 208 mutants, seed 0); every survivor accounted for (0))"
-   ],
+   "next": [],
    "options": {
     "assumed": 4,
     "compiler": {
@@ -4630,7 +4986,8 @@
      ],
      "facts_stated": [],
      "registers": [
-      "X17"
+      "X17",
+      "X42"
      ],
      "spec_entry": "full"
     },
@@ -4731,7 +5088,8 @@
      ],
      "facts_stated": [],
      "registers": [
-      "X27"
+      "X27",
+      "X42"
      ],
      "spec_entry": "full"
     }
@@ -4740,7 +5098,8 @@
    "residual": {
     "assumed_or_differs_named": [
      "X17",
-     "X27"
+     "X27",
+     "X42"
     ],
     "branch_outcomes_unrun": 0,
     "commands": 3,
@@ -4784,6 +5143,12 @@
       "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
       "id": "X27",
       "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "MOVE CONTAINER (rename across channels, TOCHANNEL made when absent, an existing AS overwritten) and STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER (the names of a channel's containers, in creation order, one token per browse) with IBM's RESP / RESP2: INVREQ 4, CHANNELERR 2, CONTAINERERR 10, END 2, TOKENERR 3; refused: a move onto itself or onto the other data type, a browse of a channel that changed, a browse with no channel, and the conditions no modelled state reaches (CHANNELERR 1 / 3, CONTAINERERR 18, INVREQ 30 / 31, ILLOGIC 1)",
+      "id": "X42",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -4819,7 +5184,7 @@
     "cases": [
      {
       "case": "asynccc-asyncpnt",
-      "case_scenarios": 4,
+      "case_scenarios": 6,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -4830,7 +5195,7 @@
      },
      {
       "case": "asynccc-csstatus",
-      "case_scenarios": 3,
+      "case_scenarios": 5,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -4841,7 +5206,7 @@
      },
      {
       "case": "asynccc-getpol",
-      "case_scenarios": 1,
+      "case_scenarios": 2,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -4852,7 +5217,7 @@
      },
      {
       "case": "asynccc-seqpnt",
-      "case_scenarios": 4,
+      "case_scenarios": 10,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -4864,7 +5229,7 @@
     ],
     "chosen": {
      "case": "asynccc-getpol",
-     "case_scenarios": 1,
+     "case_scenarios": 2,
      "db2": false,
      "det": {
       "source": "CI det-sweep ratchet on main",
@@ -4874,29 +5239,22 @@
      "role": "program"
     }
    },
-   "level": "L4",
+   "level": "L5",
    "level_current": true,
    "mutation": {
-    "accounted": 0,
-    "current": false,
-    "det_port": "stale (port moved), last measured: raw 100% (162/162 caught; 168 of 168 mutants, seed 0); every survivor accounted for (0)",
-    "drifted": [
-     "generator",
-     "harness",
-     "oracle"
-    ],
-    "killed": 162,
+    "accounted": 11,
+    "chosen": 175,
+    "current": true,
+    "det_port": "raw 93% (158/169 caught; 175 of 175 mutants, seed 0); every survivor accounted for (11)",
+    "killed": 158,
     "l5": true,
-    "score": 1.0,
-    "stale_inputs": [
-     "port"
-    ],
-    "survived": 0,
+    "mutants": 175,
+    "score": 0.9349,
+    "stale_inputs": [],
+    "survived": 11,
     "unaccounted": 0
    },
-   "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (port moved), last measured: raw 100% (162/162 caught; 168 of 168 mutants, seed 0); every survivor accounted for (0))"
-   ],
+   "next": [],
    "options": {
     "assumed": 4,
     "compiler": {
@@ -5139,7 +5497,8 @@
      ],
      "facts_stated": [],
      "registers": [
-      "X27"
+      "X27",
+      "X42"
      ],
      "spec_entry": "full"
     }
@@ -5148,7 +5507,8 @@
    "residual": {
     "assumed_or_differs_named": [
      "X18",
-     "X27"
+     "X27",
+     "X42"
     ],
     "branch_outcomes_unrun": 0,
     "commands": 2,
@@ -5191,6 +5551,12 @@
       "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
       "id": "X27",
       "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "MOVE CONTAINER (rename across channels, TOCHANNEL made when absent, an existing AS overwritten) and STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER (the names of a channel's containers, in creation order, one token per browse) with IBM's RESP / RESP2: INVREQ 4, CHANNELERR 2, CONTAINERERR 10, END 2, TOKENERR 3; refused: a move onto itself or onto the other data type, a browse of a channel that changed, a browse with no channel, and the conditions no modelled state reaches (CHANNELERR 1 / 3, CONTAINERERR 18, INVREQ 30 / 31, ILLOGIC 1)",
+      "id": "X42",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -5226,7 +5592,7 @@
     "cases": [
      {
       "case": "asynccc-asyncpnt",
-      "case_scenarios": 4,
+      "case_scenarios": 6,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -5237,7 +5603,7 @@
      },
      {
       "case": "asynccc-csstatus",
-      "case_scenarios": 3,
+      "case_scenarios": 5,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -5248,7 +5614,7 @@
      },
      {
       "case": "asynccc-getspnd",
-      "case_scenarios": 1,
+      "case_scenarios": 2,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -5259,7 +5625,7 @@
      },
      {
       "case": "asynccc-seqpnt",
-      "case_scenarios": 4,
+      "case_scenarios": 10,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -5271,7 +5637,7 @@
     ],
     "chosen": {
      "case": "asynccc-getspnd",
-     "case_scenarios": 1,
+     "case_scenarios": 2,
      "db2": false,
      "det": {
       "source": "CI det-sweep ratchet on main",
@@ -5281,29 +5647,22 @@
      "role": "program"
     }
    },
-   "level": "L4",
+   "level": "L5",
    "level_current": true,
    "mutation": {
-    "accounted": 0,
-    "current": false,
-    "det_port": "stale (port moved), last measured: raw 100% (162/162 caught; 168 of 168 mutants, seed 0); every survivor accounted for (0)",
-    "drifted": [
-     "generator",
-     "harness",
-     "oracle"
-    ],
-    "killed": 162,
+    "accounted": 11,
+    "chosen": 175,
+    "current": true,
+    "det_port": "raw 93% (158/169 caught; 175 of 175 mutants, seed 0); every survivor accounted for (11)",
+    "killed": 158,
     "l5": true,
-    "score": 1.0,
-    "stale_inputs": [
-     "port"
-    ],
-    "survived": 0,
+    "mutants": 175,
+    "score": 0.9349,
+    "stale_inputs": [],
+    "survived": 11,
     "unaccounted": 0
    },
-   "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (port moved), last measured: raw 100% (162/162 caught; 168 of 168 mutants, seed 0); every survivor accounted for (0))"
-   ],
+   "next": [],
    "options": {
     "assumed": 4,
     "compiler": {
@@ -5546,7 +5905,8 @@
      ],
      "facts_stated": [],
      "registers": [
-      "X27"
+      "X27",
+      "X42"
      ],
      "spec_entry": "full"
     }
@@ -5555,7 +5915,8 @@
    "residual": {
     "assumed_or_differs_named": [
      "X18",
-     "X27"
+     "X27",
+     "X42"
     ],
     "branch_outcomes_unrun": 0,
     "commands": 2,
@@ -5621,6 +5982,12 @@
       "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
       "id": "X27",
       "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "MOVE CONTAINER (rename across channels, TOCHANNEL made when absent, an existing AS overwritten) and STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER (the names of a channel's containers, in creation order, one token per browse) with IBM's RESP / RESP2: INVREQ 4, CHANNELERR 2, CONTAINERERR 10, END 2, TOKENERR 3; refused: a move onto itself or onto the other data type, a browse of a channel that changed, a browse with no channel, and the conditions no modelled state reaches (CHANNELERR 1 / 3, CONTAINERERR 18, INVREQ 30 / 31, ILLOGIC 1)",
+      "id": "X42",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -5656,7 +6023,7 @@
     "cases": [
      {
       "case": "asynccc-seqpnt",
-      "case_scenarios": 4,
+      "case_scenarios": 10,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -5668,7 +6035,7 @@
     ],
     "chosen": {
      "case": "asynccc-seqpnt",
-     "case_scenarios": 4,
+     "case_scenarios": 10,
      "db2": false,
      "det": {
       "source": "CI det-sweep ratchet on main",
@@ -5678,29 +6045,22 @@
      "role": "program"
     }
    },
-   "level": "L4",
+   "level": "L5",
    "level_current": true,
    "mutation": {
-    "accounted": 0,
-    "current": false,
-    "det_port": "stale (port moved), last measured: raw 100% (1839/1839 caught; 1889 of 1889 mutants, seed 0); every survivor accounted for (0)",
-    "drifted": [
-     "generator",
-     "harness",
-     "oracle"
-    ],
-    "killed": 1839,
+    "accounted": 76,
+    "chosen": 1933,
+    "current": true,
+    "det_port": "raw 96% (1807/1883 caught; 1933 of 1933 mutants, seed 0); every survivor accounted for (76)",
+    "killed": 1807,
     "l5": true,
-    "score": 1.0,
-    "stale_inputs": [
-     "port"
-    ],
-    "survived": 0,
+    "mutants": 1933,
+    "score": 0.9596,
+    "stale_inputs": [],
+    "survived": 76,
     "unaccounted": 0
    },
-   "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (port moved), last measured: raw 100% (1839/1839 caught; 1889 of 1889 mutants, seed 0); every survivor accounted for (0))"
-   ],
+   "next": [],
    "options": {
     "assumed": 4,
     "compiler": {
@@ -5905,7 +6265,8 @@
      ],
      "facts_stated": [],
      "registers": [
-      "X27"
+      "X27",
+      "X42"
      ],
      "spec_entry": "full"
     },
@@ -5921,7 +6282,8 @@
      ],
      "facts_stated": [],
      "registers": [
-      "X17"
+      "X17",
+      "X42"
      ],
      "spec_entry": "full"
     },
@@ -6088,7 +6450,8 @@
      ],
      "facts_stated": [],
      "registers": [
-      "X27"
+      "X27",
+      "X42"
      ],
      "spec_entry": "full"
     },
@@ -6185,7 +6548,8 @@
      "X15",
      "X17",
      "X19",
-     "X27"
+     "X27",
+     "X42"
     ],
     "branch_outcomes_unrun": 0,
     "commands": 7,
@@ -6229,6 +6593,12 @@
       "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
       "id": "X27",
       "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "MOVE CONTAINER (rename across channels, TOCHANNEL made when absent, an existing AS overwritten) and STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER (the names of a channel's containers, in creation order, one token per browse) with IBM's RESP / RESP2: INVREQ 4, CHANNELERR 2, CONTAINERERR 10, END 2, TOKENERR 3; refused: a move onto itself or onto the other data type, a browse of a channel that changed, a browse with no channel, and the conditions no modelled state reaches (CHANNELERR 1 / 3, CONTAINERERR 18, INVREQ 30 / 31, ILLOGIC 1)",
+      "id": "X42",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -6264,7 +6634,7 @@
     "cases": [
      {
       "case": "asynccc-asyncpnt",
-      "case_scenarios": 4,
+      "case_scenarios": 6,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -6275,7 +6645,7 @@
      },
      {
       "case": "asynccc-seqpnt",
-      "case_scenarios": 4,
+      "case_scenarios": 10,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -6286,7 +6656,7 @@
      },
      {
       "case": "asynccc-updcsdb",
-      "case_scenarios": 1,
+      "case_scenarios": 2,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -6298,7 +6668,7 @@
     ],
     "chosen": {
      "case": "asynccc-updcsdb",
-     "case_scenarios": 1,
+     "case_scenarios": 2,
      "db2": false,
      "det": {
       "source": "CI det-sweep ratchet on main",
@@ -6308,29 +6678,22 @@
      "role": "program"
     }
    },
-   "level": "L4",
+   "level": "L5",
    "level_current": true,
    "mutation": {
-    "accounted": 0,
-    "current": false,
-    "det_port": "stale (port moved), last measured: raw 100% (183/183 caught; 189 of 189 mutants, seed 0); every survivor accounted for (0)",
-    "drifted": [
-     "generator",
-     "harness",
-     "oracle"
-    ],
-    "killed": 183,
+    "accounted": 11,
+    "chosen": 196,
+    "current": true,
+    "det_port": "raw 94% (179/190 caught; 196 of 196 mutants, seed 0); every survivor accounted for (11)",
+    "killed": 179,
     "l5": true,
-    "score": 1.0,
-    "stale_inputs": [
-     "port"
-    ],
-    "survived": 0,
+    "mutants": 196,
+    "score": 0.9421,
+    "stale_inputs": [],
+    "survived": 11,
     "unaccounted": 0
    },
-   "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (port moved), last measured: raw 100% (183/183 caught; 189 of 189 mutants, seed 0); every survivor accounted for (0))"
-   ],
+   "next": [],
    "options": {
     "assumed": 4,
     "compiler": {
@@ -6573,7 +6936,8 @@
      ],
      "facts_stated": [],
      "registers": [
-      "X27"
+      "X27",
+      "X42"
      ],
      "spec_entry": "full"
     }
@@ -6582,7 +6946,8 @@
    "residual": {
     "assumed_or_differs_named": [
      "X18",
-     "X27"
+     "X27",
+     "X42"
     ],
     "branch_outcomes_unrun": 0,
     "commands": 2,
@@ -6612,8 +6977,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 0095c320d884c1a6e8a4870ab8746c47997e8cea",
-   "python tests/tools/evidence_report.py cics-async-api-credit-card-application-example --baseline --sha 0095c320d884c1a6e8a4870ab8746c47997e8cea",
+   "python tests/tools/cics_census.py survey --baseline --sha eedd31c0da913f333c7d45ad9c05e81f01e04154",
+   "python tests/tools/evidence_report.py cics-async-api-credit-card-application-example --baseline --sha eedd31c0da913f333c7d45ad9c05e81f01e04154",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases asynccc-asyncpnt,asynccc-crdtchk,asynccc-csstats2,asynccc-csstatus,asynccc-getaddr,asynccc-getname,asynccc-getpol,asynccc-getspnd,asynccc-seqpnt,asynccc-updcsdb",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -6634,13 +6999,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "0095c320d884c1a6e8a4870ab8746c47997e8cea",
+   "sha": "eedd31c0da913f333c7d45ad9c05e81f01e04154",
    "translator": {
     "files": 161,
-    "sha256": "ca8afa03b44523070ed37b60b01715eb1e97d13fcf8360635400312e6651d2d4"
+    "sha256": "d6ab4e6728508b3114c0be3a58ff39d452b6921d5f447500f2766d4f21169262"
    }
   },
-  "translator_commit": "0095c320d884c1a6e8a4870ab8746c47997e8cea",
+  "translator_commit": "eedd31c0da913f333c7d45ad9c05e81f01e04154",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -6651,8 +7016,8 @@
    "L1": 0,
    "L2": 0,
    "L3": 0,
-   "L4": 10,
-   "L5": 0
+   "L4": 0,
+   "L5": 10
   },
   "histogram_stale": {
    "L0": 0,
@@ -6683,6 +7048,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "ca8afa03b44523070ed37b60b01715eb1e97d13fcf8360635400312e6651d2d4"
+  "fingerprint": "d6ab4e6728508b3114c0be3a58ff39d452b6921d5f447500f2766d4f21169262"
  }
 }

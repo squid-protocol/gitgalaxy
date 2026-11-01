@@ -4,9 +4,9 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `0095c320d884c1a6e8a4870ab8746c47997e8cea` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `eedd31c0da913f333c7d45ad9c05e81f01e04154` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
-The translation survey matches the translator in the tree (translator fingerprint `ca8afa03b445`).
+The translation survey matches the translator in the tree (translator fingerprint `d6ab4e672850`).
 
 ## How to read this report
 
@@ -27,7 +27,7 @@ The translation survey matches the translator in the tree (translator fingerprin
 | L4 | branch coverage | L3, and >= 100.0 percent of its branch outcomes, net of the case's reviewed infeasible outcomes (listed under its assumptions) |
 | L5 | mutants accounted for | L4, and every surviving mutant of the det port's seeded mutation sample accounted for (stated equivalent / unreachable, owner-reviewed; a fresh det_mutation/ entry, #4628: the case, corpus and survivors list unchanged and the det port's bytes not found moved; generator, harness and oracle drift is recorded, not staling, #5862) |
 
-**What is not measured.** Holes, unrun paragraphs and branch outcomes, unstated runtime facts and the ASSUMED / DIFFERS entries a program's commands name are listed per program. Which register entries a program actually reaches is not measured. These migration dimensions are not measured at all:
+**What is not measured.** Holes, unrun paragraphs and branch outcomes, unstated runtime facts and the ASSUMED / DIFFERS entries a program's commands name are listed per program. Which register entries a program actually reaches is measured only where its evidence record carries the commands its scenarios executed. These migration dimensions are not measured at all:
 
 - **data** (#4514): data migration: VSAM / Db2 / sequential data converted and reconciled
 - **JCL streams** (#4514): the batch job streams that run the programs (steps, utilities, restart)
@@ -42,13 +42,13 @@ The translation survey matches the translator in the tree (translator fingerprin
 |---|---|---|
 | L0 | 0 | 0 |
 | L1 | 0 | 0 |
-| L2 | 1 | 0 |
+| L2 | 0 | 0 |
 | L3 | 0 | 0 |
-| L4 | 4 | 0 |
-| L5 | 2 | 0 |
+| L4 | 3 | 0 |
+| L5 | 4 | 0 |
 
 - stale (`*`, last measured): 0 of 7 programs; the rest are current
-- L2+: 7 (0 awaiting re-check); L3+: 6 (0 awaiting re-check); L4+: 6 (0 awaiting re-check)
+- L2+: 7 (0 awaiting re-check); L3+: 7 (0 awaiting re-check); L4+: 7 (0 awaiting re-check)
 
 - programs: 7 (with an EXEC CICS command: 5; source not read: 0)
 - translated whole: 7; refused whole: 0; holes left: 0
@@ -83,13 +83,13 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
 
 | program | level | translated / statements | holes | case | det port | scenarios | record | paragraphs | branches (raw) | branches (net of infeasible) | det-port mutation (raw) | det-port mutation | CICS commands oracle-backed |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Source/ECS001.cbl | L5 | 105/105 | 0 | zecs-ecs001 | equal | 0 | not measured | 15/15 (100.0%) | 18/20 (90.0%) | 18/18 (100.0%) | 59% | raw 59% (84/143 caught; 150 of 684 mutants, seed 0); every survivor accounted for (59) (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh) | 3/7 |
-| Source/ZECSPLT.cbl | L5 | 27/27 | 0 | zecs-zecsplt | equal | 0 | not measured | 11/11 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | 36% | raw 36% (50/140 caught; 150 of 383 mutants, seed 0); every survivor accounted for (90) (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh) | 2/5 |
+| Source/ECS001.cbl | L5 | 105/105 | 0 | zecs-ecs001 | equal | 0 | not measured | 15/15 (100.0%) | 18/20 (90.0%) | 18/18 (100.0%) | 51% | raw 51% (339/662 caught; 684 of 684 mutants, seed 0); every survivor accounted for (323) | 3/7 |
+| Source/ZECS003.cbl | L5 | 73/73 | 0 | zecs-zecs003 | equal | 0 | not measured | 21/21 (100.0%) | 30/30 (100.0%) | 30/30 (100.0%) | 45% | raw 45% (432/950 caught; 988 of 988 mutants, seed 0); every survivor accounted for (518) | 1/12 |
+| Source/ZECSNC.asm | L5 | 54/54 | 0 | zecs-zecsnc | equal | 0 | not measured | 13/13 (100.0%) | 10/10 (100.0%) | 10/10 (100.0%) | 46% | raw 46% (240/524 caught; 546 of 546 mutants, seed 0); every survivor accounted for (284) | — |
+| Source/ZECSPLT.cbl | L5 | 27/27 | 0 | zecs-zecsplt | equal | 0 | not measured | 11/11 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | 34% | raw 34% (124/361 caught; 383 of 383 mutants, seed 0); every survivor accounted for (237) | 2/5 |
 | Source/ZECS000.cbl | L4 | 173/173 | 0 | zecs-zecs000 | equal | 0 | not measured | 38/38 (100.0%) | 48/48 (100.0%) | 48/48 (100.0%) | — | not measured (no det_mutation/ entry) | 5/22 |
+| Source/ZECS001.cbl | L4 | 561/561 | 0 | zecs-zecs001 | equal | 0 | not measured | 119/119 (100.0%) | 206/208 (99.0%) | 206/206 (100.0%) | — | not measured (no det_mutation/ entry) | 3/27 |
 | Source/ZECS002.asm | L4 | 511/511 | 0 | zecs-zecs002 | equal | 0 | not measured | 24/24 (100.0%) | 70/242 (28.9%) | 70/70 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| Source/ZECS003.cbl | L4 | 73/73 | 0 | zecs-zecs003 | equal | 0 | not measured | 21/21 (100.0%) | 30/30 (100.0%) | 30/30 (100.0%) | — | not measured (no det_mutation/ entry) | 1/12 |
-| Source/ZECSNC.asm | L4 | 54/54 | 0 | zecs-zecsnc | equal | 0 | not measured | 13/13 (100.0%) | 10/10 (100.0%) | 10/10 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| Source/ZECS001.cbl | L2 | 561/561 | 0 | zecs-zecs001 | equal | 0 | not measured | 117/119 (98.3%) | 194/208 (93.3%) | 194/207 (93.7%) | — | not measured (no det_mutation/ entry) | 3/27 |
 
 ## Per program
 
@@ -115,13 +115,62 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
   | WEB CONVERSE | full | none | no |
   | WEB OPEN | full | none | no |
 
-- **Assumptions relied on:** named by its commands' spec entries: X15 (ASSUMED (REFUSED where IBM is silent)), X20 (MATCHED (REFUSED where the region cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X32 (ASSUMED (REFUSED where IBM is silent)), X35 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
-  - z/OS-calibrated: 0 of 5 named assumptions (none measured on z/OS)
+- **Assumptions relied on:** named by its commands' spec entries: X15 (ASSUMED (REFUSED where IBM is silent)), X20 (MATCHED (REFUSED where the region cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X32 (ASSUMED (REFUSED where IBM is silent)), X35 (ASSUMED (REFUSED where IBM is silent)), X42 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
+  - z/OS-calibrated: 0 of 6 named assumptions (none measured on z/OS)
   - runtime facts the harness states for its commands: http_peers, urimaps
   - stated infeasible branch outcome (reviewed claim, family R): A3000-OPEN-CONNECTION:197:false (IF) -- `IF EIBRESP = DFHRESP(NORMAL)` after `WEB OPEN SESSTOKEN(SESSION-TOKEN) URIMAP(URIMAP-NAME)` (190-194): URIMAP-NAME is the copybook-less constant `VALUE 'ECS001'` (line 37), never written, and the region's WEB OPEN by URIMAP (GGCWOPN, register X35) answers NORMAL for the peer the scenario states and refuses (the run stops) for one it does not; the stub raises no condition for the URIMAP form (its LENGERR 21 / INVREQ 40 / 138 belong to the HOST form, which ECS001 does not use). IBM documents more WEB OPEN conditions than the model raises (assumption X35): owner review.
   - stated infeasible branch outcome (reviewed claim, family R): A5000-CLOSE-CONNECTION:353:false (IF) -- `IF EIBRESP = DFHRESP(NORMAL)` after `WEB CLOSE SESSTOKEN(SESSION-TOKEN)` (A5000): the only condition the region raises for WEB CLOSE is NOTOPEN (GGCWCLS, register X35), for a token no open session holds; A5000 runs only after A3000 left through line 197's NORMAL arm with SESSION-TOKEN written by the WEB OPEN, A4000 never closes it, and ECS001 closes it once, so the session is open. IBM's other WEB CLOSE conditions are not raised by the model (assumption X35): owner review.
-- **Det-port mutation:** raw 59% (84/143 caught; 150 of 684 mutants, seed 0); every survivor accounted for (59) (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh)
-- **Residual risk:** 2 branch outcomes unrun; ASSUMED / DIFFERS entries named: X15, X27, X32, X35; commands without oracle backing: INQUIRE URIMAP, WEB CLOSE, WEB CONVERSE, WEB OPEN; assumption reach and the migration dimensions above: not measured
+- **Det-port mutation:** raw 51% (339/662 caught; 684 of 684 mutants, seed 0); every survivor accounted for (323)
+- **Residual risk:** 2 branch outcomes unrun; ASSUMED / DIFFERS entries named: X15, X27, X32, X35, X42; commands without oracle backing: INQUIRE URIMAP, WEB CLOSE, WEB CONVERSE, WEB OPEN; assumption reach (where not stated above) and the migration dimensions above: not measured
+
+### Source/ZECS003.cbl -- L5
+
+- **Executed equivalent** on the 18 scenarios of zecs-zecs003 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** 
+- **Translation:** 73/73 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 4.2; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(BIN) [assumed: owner decision (the case's compiler_options)]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; cics.region.CICS_TS=4.2 [no effect; found at System Requirements and Considerations.md:13]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
+- **Executed equivalence** (zecs-zecs003, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
+  - evidence record (the case's committed port): not measured; its proof: all equal, 0/0 scenarios equal, 0/0 records equal, 18 runs (— fault runs)
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 21/21 (100.0%), branch outcomes 30/30 (100.0%) raw, 30/30 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
+
+  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
+  |---|---|---|---|
+  | ASKTIME | full | none | no |
+  | DELETE | full | none | no |
+  | DOCUMENT CREATE | full | none | no |
+  | DOCUMENT RETRIEVE | full | none | no |
+  | INQUIRE URIMAP | full | none | no |
+  | READ | full | none | no |
+  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | WEB CLOSE | full | none | no |
+  | WEB CONVERSE | full | none | no |
+  | WEB OPEN | full | none | no |
+  | WEB PARSE URL | full | none | no |
+  | WEB SEND | full | none | no |
+
+- **Assumptions relied on:** named by its commands' spec entries: X14 (ASSUMED (REFUSED where IBM is silent)), X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X32 (ASSUMED (REFUSED where IBM is silent)), X33 (ASSUMED (REFUSED where IBM is silent)), X35 (ASSUMED (REFUSED where IBM is silent)), X36 (ASSUMED (REFUSED where IBM is silent)), X37 (ASSUMED (REFUSED where IBM is silent)), X42 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
+  - z/OS-calibrated: 0 of 9 named assumptions (none measured on z/OS)
+  - runtime facts the harness states for its commands: doctemplates, http_peers, http_request, urimaps
+- **Det-port mutation:** raw 45% (432/950 caught; 988 of 988 mutants, seed 0); every survivor accounted for (518)
+- **Residual risk:** ASSUMED / DIFFERS entries named: X14, X22, X27, X32, X33, X35, X36, X37, X42; commands without oracle backing: ASKTIME, DELETE, DOCUMENT CREATE, DOCUMENT RETRIEVE, INQUIRE URIMAP, READ, WEB CLOSE, WEB CONVERSE, WEB OPEN, WEB PARSE URL, WEB SEND; assumption reach (where not stated above) and the migration dimensions above: not measured
+
+### Source/ZECSNC.asm -- L5
+
+- **Executed equivalent** on the 8 scenarios of zecs-zecsnc against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** 
+- **Translation:** 54/54 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 4.2; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; cics.region.CICS_TS=4.2 [no effect; found at System Requirements and Considerations.md:13]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
+- **Executed equivalence** (zecs-zecsnc, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
+  - evidence record (the case's committed port): not measured; its proof: all equal, 0/0 scenarios equal, 0/0 records equal, 8 runs (— fault runs)
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 13/13 (100.0%), branch outcomes 10/10 (100.0%) raw, 10/10 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
+- **Oracle backing:** no EXEC CICS command
+- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
+  - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
+- **Det-port mutation:** raw 46% (240/524 caught; 546 of 546 mutants, seed 0); every survivor accounted for (284)
+- **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
 ### Source/ZECSPLT.cbl -- L5
 
@@ -143,11 +192,11 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
   | WRITE OPERATOR | full | none | no |
   | WRITEQ TD | full | none | no |
 
-- **Assumptions relied on:** named by its commands' spec entries: X18 (ASSUMED (REFUSED where IBM is silent)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X32 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
-  - z/OS-calibrated: 0 of 3 named assumptions (none measured on z/OS)
+- **Assumptions relied on:** named by its commands' spec entries: X18 (ASSUMED (REFUSED where IBM is silent)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X32 (ASSUMED (REFUSED where IBM is silent)), X42 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
+  - z/OS-calibrated: 0 of 4 named assumptions (none measured on z/OS)
   - runtime facts the harness states for its commands: urimaps
-- **Det-port mutation:** raw 36% (50/140 caught; 150 of 383 mutants, seed 0); every survivor accounted for (90) (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh)
-- **Residual risk:** ASSUMED / DIFFERS entries named: X18, X27, X32; commands without oracle backing: INQUIRE URIMAP, WRITE OPERATOR, WRITEQ TD; assumption reach and the migration dimensions above: not measured
+- **Det-port mutation:** raw 34% (124/361 caught; 383 of 383 mutants, seed 0); every survivor accounted for (237)
+- **Residual risk:** ASSUMED / DIFFERS entries named: X18, X27, X32, X42; commands without oracle backing: INQUIRE URIMAP, WRITE OPERATOR, WRITEQ TD; assumption reach (where not stated above) and the migration dimensions above: not measured
 
 ### Source/ZECS000.cbl -- L4
 
@@ -186,11 +235,62 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
   | WRITE | full | none | no |
   | WRITEQ TD | full | none | no |
 
-- **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X14 (ASSUMED (REFUSED where IBM is silent)), X18 (ASSUMED (REFUSED where IBM is silent)), X19 (ASSUMED (REFUSED where the harness cannot decide)), X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X32 (ASSUMED (REFUSED where IBM is silent)), X33 (ASSUMED (REFUSED where IBM is silent)), X35 (ASSUMED (REFUSED where IBM is silent)), X36 (ASSUMED (REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)), X52 (ASSUMED (REFUSED where IBM is silent)), X60 (ASSUMED (REFUSED where IBM is silent)), X67 (REFUSED); reach: not measured
-  - z/OS-calibrated: 0 of 14 named assumptions (none measured on z/OS)
+- **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X14 (ASSUMED (REFUSED where IBM is silent)), X18 (ASSUMED (REFUSED where IBM is silent)), X19 (ASSUMED (REFUSED where the harness cannot decide)), X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X32 (ASSUMED (REFUSED where IBM is silent)), X33 (ASSUMED (REFUSED where IBM is silent)), X35 (ASSUMED (REFUSED where IBM is silent)), X36 (ASSUMED (REFUSED where IBM is silent)), X42 (ASSUMED (REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)), X52 (ASSUMED (REFUSED where IBM is silent)), X60 (ASSUMED (REFUSED where IBM is silent)), X67 (REFUSED); reach: not measured
+  - z/OS-calibrated: 0 of 15 named assumptions (none measured on z/OS)
   - runtime facts the harness states for its commands: doctemplates, facility, http_peers, screen, startcode, urimaps, userid
 - **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** ASSUMED / DIFFERS entries named: X14, X18, X19, X22, X27, X32, X33, X35, X36, X46, X52, X60; commands without oracle backing: ASKTIME, DELAY, DELETE, DOCUMENT CREATE, DOCUMENT RETRIEVE, ENQ, FORMATTIME, INQUIRE URIMAP, READ, REWRITE, SYNCPOINT, WEB CLOSE, WEB CONVERSE, WEB OPEN, WEB PARSE URL, WRITE, WRITEQ TD; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** ASSUMED / DIFFERS entries named: X14, X18, X19, X22, X27, X32, X33, X35, X36, X42, X46, X52, X60; commands without oracle backing: ASKTIME, DELAY, DELETE, DOCUMENT CREATE, DOCUMENT RETRIEVE, ENQ, FORMATTIME, INQUIRE URIMAP, READ, REWRITE, SYNCPOINT, WEB CLOSE, WEB CONVERSE, WEB OPEN, WEB PARSE URL, WRITE, WRITEQ TD; assumption reach (where not stated above) and the migration dimensions above: not measured
+
+### Source/ZECS001.cbl -- L4
+
+- **Executed equivalent** on the 79 scenarios of zecs-zecs001 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
+- **Translation:** 561/561 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 4.2; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(BIN) [assumed: owner decision (the case's compiler_options)]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; cics.region.CICS_TS=4.2 [no effect; found at System Requirements and Considerations.md:13]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
+- **Executed equivalence** (zecs-zecs001, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
+  - evidence record (the case's committed port): not measured; its proof: all equal, 0/0 scenarios equal, 0/0 records equal, 79 runs (— fault runs)
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 119/119 (100.0%), branch outcomes 206/208 (99.0%) raw, 206/206 (100.0%) net of 1 stated infeasible and 1 undefined by IBM; unrun paragraphs by name: not recorded
+  - undefined by IBM (owner ruling 2026-10-29; not proven, not infeasible): 1310-TTL:704:false
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
+
+  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
+  |---|---|---|---|
+  | ASKTIME | full | none | no |
+  | DELETE | full | none | no |
+  | DOCUMENT CREATE | full | none | no |
+  | DOCUMENT RETRIEVE | full | none | no |
+  | FORMATTIME | full | none | no |
+  | FREEMAIN | full | none | no |
+  | GET COUNTER | full | none | no |
+  | GETMAIN | full | none | no |
+  | INQUIRE PROGRAM | full | none | no |
+  | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
+  | READ | full | none | no |
+  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | REWRITE | full | none | no |
+  | SYNCPOINT | full | none | no |
+  | SYNCPOINT ROLLBACK | full | none | no |
+  | WEB CLOSE | full | none | no |
+  | WEB CONVERSE | full | none | no |
+  | WEB EXTRACT | full | none | no |
+  | WEB OPEN | full | none | no |
+  | WEB PARSE URL | full | none | no |
+  | WEB READ HTTPHEADER | full | none | no |
+  | WEB RECEIVE | full | none | no |
+  | WEB SEND | full | none | no |
+  | WEB WRITE HTTPHEADER | full | none | no |
+  | WRITE | full | none | no |
+  | WRITEQ TD | full | none | no |
+  | XCTL | full | ca-channel-containers (yes / no), ca-xctl-versions (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+
+- **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X14 (ASSUMED (REFUSED where IBM is silent)), X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X30 (ASSUMED (REFUSED where IBM is silent)), X33 (ASSUMED (REFUSED where IBM is silent)), X34 (ASSUMED (REFUSED where IBM is silent)), X35 (ASSUMED (REFUSED where IBM is silent)), X36 (ASSUMED (REFUSED where IBM is silent)), X37 (ASSUMED (REFUSED where IBM is silent)), X38 (ASSUMED (REFUSED where IBM is silent)), X42 (ASSUMED (REFUSED where IBM is silent)), X45 (ASSUMED (REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)), X47 (ASSUMED (REFUSED where IBM is silent)), X52 (ASSUMED (REFUSED where IBM is silent)), X53 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
+  - z/OS-calibrated: 0 of 17 named assumptions (none measured on z/OS)
+  - runtime facts the harness states for its commands: doctemplates, http_peers, http_request
+  - stated infeasible branch outcome (reviewed claim, family G): 1310-TTL:718:false (IF) -- `IF ETTL-RESP EQUAL DFHRESP(NORMAL) OR ETTL-STATUS EQUAL DFHVALUE(ENABLED)` (718) in 1310-TTL sits inside `IF ZF-TTL GREATER THAN SEVEN-DAYS` (716, 604800 s). ZF-TTL exceeds seven days only if it also exceeds twenty-four hours (86400 s), and then the test at 712-715 ran first: when ETTL-RESP is not NORMAL (or ETTL-STATUS is DISABLED) it MOVEs TWENTY-FOUR-HOURS to ZF-TTL, so 716 is false. Line 718 is therefore reached only with ETTL-RESP NORMAL, and its first operand ETTL-RESP EQUAL NORMAL is then true; no input makes both operands false.
+  - undefined by IBM outcome (owner ruling 2026-10-29; not proven, not infeasible): 1310-TTL:704:false (IF) -- `IF TTL-SECONDS NUMERIC` (704) is false only when the UNSTRING (699-702) puts a non-digit into `TTL-SECONDS` (PIC 9(06), USAGE DISPLAY), e.g. the query `ttl=abc`. The piece is an alphanumeric sender of a numeric MOVE: GnuCOBOL stores `000000`, so NUMERIC is true and 704:false is never taken; on z/OS the non-digit bytes stay and NUMERIC would be false. IBM documents no result for non-digit data in a numeric DISPLAY item (Enterprise COBOL 6.4 Programming Guide SC27-8714-03, ZONEDATA(PFD) assumes valid data; register C11), so the outcome is undefined by IBM, not infeasible: an input does reach it. Scenario `post-ttl-nonnumeric` proves cobc's bytes, not z/OS's. Owner ruling 2026-10-31 (#6839 row J) extends family U from out-of-range subscripts and reference modifications (2026-10-29) to non-digit data in a numeric DISPLAY item.
+- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Residual risk:** 2 branch outcomes unrun; ASSUMED / DIFFERS entries named: X14, X22, X27, X30, X33, X34, X35, X36, X37, X38, X42, X45, X46, X47, X52, X53; commands without oracle backing: ASKTIME, DELETE, DOCUMENT CREATE, DOCUMENT RETRIEVE, FORMATTIME, FREEMAIN, GET COUNTER, GETMAIN, INQUIRE PROGRAM, READ, REWRITE, SYNCPOINT, SYNCPOINT ROLLBACK, WEB CLOSE, WEB CONVERSE, WEB EXTRACT, WEB OPEN, WEB PARSE URL, WEB READ HTTPHEADER, WEB RECEIVE, WEB SEND, WEB WRITE HTTPHEADER, WRITE, WRITEQ TD; assumption reach (where not stated above) and the migration dimensions above: not measured
 
 ### Source/ZECS002.asm -- L4
 
@@ -200,7 +300,7 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
 - **Options in force** (compile options that change results; Enterprise COBOL 4.2; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; cics.region.CICS_TS=4.2 [no effect; found at System Requirements and Considerations.md:13]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
 - **Executed equivalence** (zecs-zecs001, linked): det port equal (CI det-sweep ratchet on main)
-  - evidence record (the case's committed port): not measured; its proof: all equal, 0/0 scenarios equal, 0/0 records equal, 72 runs (— fault runs)
+  - evidence record (the case's committed port): not measured; its proof: all equal, 0/0 scenarios equal, 0/0 records equal, 79 runs (— fault runs)
 - **Executed equivalence** (zecs-zecs002, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record (the case's committed port): not measured; its proof: all equal, 0/0 scenarios equal, 0/0 records equal, 16 runs (— fault runs)
 - **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 24/24 (100.0%), branch outcomes 70/242 (28.9%) raw, 70/70 (100.0%) net of 172 stated infeasible; unrun paragraphs by name: not recorded
@@ -380,109 +480,11 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
   - stated infeasible branch outcome (reviewed claim, family G): SY-1200:1074:false (IF) -- inside a WHEN arm of the HL-RG EVALUATE at line 1044 that cannot be selected: R6 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached
   - stated infeasible branch outcome (reviewed claim, family G): SY-1200:1074:true (IF) -- inside a WHEN arm of the HL-RG EVALUATE at line 1044 that cannot be selected: R6 always holds region 1 (DFHCOMMAREA), so neither outcome of this offset check is reached
 - **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 172 branch outcomes unrun; assumption reach and the migration dimensions above: not measured
-
-### Source/ZECS003.cbl -- L4
-
-- **Executed equivalent** on the 18 scenarios of zecs-zecs003 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
-- **Translation:** 73/73 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; Enterprise COBOL 4.2; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(BIN) [assumed: owner decision (the case's compiler_options)]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
-  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; cics.region.CICS_TS=4.2 [no effect; found at System Requirements and Considerations.md:13]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
-- **Executed equivalence** (zecs-zecs003, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
-  - evidence record (the case's committed port): not measured; its proof: all equal, 0/0 scenarios equal, 0/0 records equal, 18 runs (— fault runs)
-- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 21/21 (100.0%), branch outcomes 30/30 (100.0%) raw, 30/30 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
-- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
-
-  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
-  |---|---|---|---|
-  | ASKTIME | full | none | no |
-  | DELETE | full | none | no |
-  | DOCUMENT CREATE | full | none | no |
-  | DOCUMENT RETRIEVE | full | none | no |
-  | INQUIRE URIMAP | full | none | no |
-  | READ | full | none | no |
-  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | WEB CLOSE | full | none | no |
-  | WEB CONVERSE | full | none | no |
-  | WEB OPEN | full | none | no |
-  | WEB PARSE URL | full | none | no |
-  | WEB SEND | full | none | no |
-
-- **Assumptions relied on:** named by its commands' spec entries: X14 (ASSUMED (REFUSED where IBM is silent)), X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X32 (ASSUMED (REFUSED where IBM is silent)), X33 (ASSUMED (REFUSED where IBM is silent)), X35 (ASSUMED (REFUSED where IBM is silent)), X36 (ASSUMED (REFUSED where IBM is silent)), X37 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
-  - z/OS-calibrated: 0 of 8 named assumptions (none measured on z/OS)
-  - runtime facts the harness states for its commands: doctemplates, http_peers, http_request, urimaps
-- **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** ASSUMED / DIFFERS entries named: X14, X22, X27, X32, X33, X35, X36, X37; commands without oracle backing: ASKTIME, DELETE, DOCUMENT CREATE, DOCUMENT RETRIEVE, INQUIRE URIMAP, READ, WEB CLOSE, WEB CONVERSE, WEB OPEN, WEB PARSE URL, WEB SEND; assumption reach and the migration dimensions above: not measured
-
-### Source/ZECSNC.asm -- L4
-
-- **Executed equivalent** on the 8 scenarios of zecs-zecsnc against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
-- **Translation:** 54/54 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; Enterprise COBOL 4.2; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
-  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; cics.region.CICS_TS=4.2 [no effect; found at System Requirements and Considerations.md:13]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
-- **Executed equivalence** (zecs-zecsnc, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
-  - evidence record (the case's committed port): not measured; its proof: all equal, 0/0 scenarios equal, 0/0 records equal, 8 runs (— fault runs)
-- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 13/13 (100.0%), branch outcomes 10/10 (100.0%) raw, 10/10 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
-- **Oracle backing:** no EXEC CICS command
-- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
-  - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
-- **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** none listed beyond the estate-wide items; assumption reach and the migration dimensions above: not measured
-
-### Source/ZECS001.cbl -- L2
-
-- **Executed equivalent** on the 72 scenarios of zecs-zecs001 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** paragraph coverage >= 100.0 (now 98.3)
-- **Translation:** 561/561 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; Enterprise COBOL 4.2; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(BIN) [assumed: owner decision (the case's compiler_options)]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
-  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; cics.region.CICS_TS=4.2 [no effect; found at System Requirements and Considerations.md:13]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
-- **Executed equivalence** (zecs-zecs001, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
-  - evidence record (the case's committed port): not measured; its proof: all equal, 0/0 scenarios equal, 0/0 records equal, 72 runs (— fault runs)
-- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 117/119 (98.3%), branch outcomes 194/208 (93.3%) raw, 194/207 (93.7%) net of 1 stated infeasible; unrun paragraphs by name: not recorded
-- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
-
-  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
-  |---|---|---|---|
-  | ASKTIME | full | none | no |
-  | DELETE | full | none | no |
-  | DOCUMENT CREATE | full | none | no |
-  | DOCUMENT RETRIEVE | full | none | no |
-  | FORMATTIME | full | none | no |
-  | FREEMAIN | full | none | no |
-  | GET COUNTER | full | none | no |
-  | GETMAIN | full | none | no |
-  | INQUIRE PROGRAM | full | none | no |
-  | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
-  | READ | full | none | no |
-  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | REWRITE | full | none | no |
-  | SYNCPOINT | full | none | no |
-  | SYNCPOINT ROLLBACK | full | none | no |
-  | WEB CLOSE | full | none | no |
-  | WEB CONVERSE | full | none | no |
-  | WEB EXTRACT | full | none | no |
-  | WEB OPEN | full | none | no |
-  | WEB PARSE URL | full | none | no |
-  | WEB READ HTTPHEADER | full | none | no |
-  | WEB RECEIVE | full | none | no |
-  | WEB SEND | full | none | no |
-  | WEB WRITE HTTPHEADER | full | none | no |
-  | WRITE | full | none | no |
-  | WRITEQ TD | full | none | no |
-  | XCTL | full | ca-channel-containers (yes / no), ca-xctl-versions (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-
-- **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X14 (ASSUMED (REFUSED where IBM is silent)), X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X30 (ASSUMED (REFUSED where IBM is silent)), X33 (ASSUMED (REFUSED where IBM is silent)), X34 (ASSUMED (REFUSED where IBM is silent)), X35 (ASSUMED (REFUSED where IBM is silent)), X36 (ASSUMED (REFUSED where IBM is silent)), X37 (ASSUMED (REFUSED where IBM is silent)), X38 (ASSUMED (REFUSED where IBM is silent)), X45 (ASSUMED (REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)), X47 (ASSUMED (REFUSED where IBM is silent)), X52 (ASSUMED (REFUSED where IBM is silent)), X53 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
-  - z/OS-calibrated: 0 of 16 named assumptions (none measured on z/OS)
-  - runtime facts the harness states for its commands: doctemplates, http_peers, http_request
-  - stated infeasible branch outcome (reviewed claim, family G): 1310-TTL:718:false (IF) -- `IF ETTL-RESP EQUAL DFHRESP(NORMAL) OR ETTL-STATUS EQUAL DFHVALUE(ENABLED)` (718) in 1310-TTL sits inside `IF ZF-TTL GREATER THAN SEVEN-DAYS` (716, 604800 s). ZF-TTL exceeds seven days only if it also exceeds twenty-four hours (86400 s), and then the test at 712-715 ran first: when ETTL-RESP is not NORMAL (or ETTL-STATUS is DISABLED) it MOVEs TWENTY-FOUR-HOURS to ZF-TTL, so 716 is false. Line 718 is therefore reached only with ETTL-RESP NORMAL, and its first operand ETTL-RESP EQUAL NORMAL is then true; no input makes both operands false.
-- **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 2 live paragraphs unrun; 14 branch outcomes unrun; ASSUMED / DIFFERS entries named: X14, X22, X27, X30, X33, X34, X35, X36, X37, X38, X45, X46, X47, X52, X53; commands without oracle backing: ASKTIME, DELETE, DOCUMENT CREATE, DOCUMENT RETRIEVE, FORMATTIME, FREEMAIN, GET COUNTER, GETMAIN, INQUIRE PROGRAM, READ, REWRITE, SYNCPOINT, SYNCPOINT ROLLBACK, WEB CLOSE, WEB CONVERSE, WEB EXTRACT, WEB OPEN, WEB PARSE URL, WEB READ HTTPHEADER, WEB RECEIVE, WEB SEND, WEB WRITE HTTPHEADER, WRITE, WRITEQ TD; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 172 branch outcomes unrun; assumption reach (where not stated above) and the migration dimensions above: not measured
 
 ## Assumptions the estate's CICS commands name
 
-From the spec entries of the commands the programs use, with the register's status. Which of them a program's scenarios reach is not measured.
+From the spec entries of the commands the programs use, with the register's status. Which of them a program's scenarios reach is stated per program where its evidence record measured it.
 
 | id | area | status | entry |
 |---|---|---|---|
@@ -502,19 +504,20 @@ From the spec entries of the commands the programs use, with the register's stat
 | X36 | CICS | ASSUMED (REFUSED where IBM is silent) | WEB PARSE URL is pure: URL / URLLENGTH are split into SCHEMENAME (upper case, blank-padded to its 16-byte area), HOST / HOSTLENGTH, PORTNUMBER (explicit, else 80 for HTTP and 443 for HTTPS), PATH / PATHLENGTH (with its leading slash) and QUERYSTRING / QUERYSTRLEN (without its question mark, still escaped); each length option is read as the area's size and set to the piece's length; INVREQ 28 (no scheme and ://, an empty scheme or host, a port that is not 1-5 digits or above 65535: ASSUMED) and INVREQ 65 (a percent not followed by two of 0-9 A-F); the areas are written on NORMAL only; an IPv6 host is written in brackets and returned without them (IBM, per the crucible's gt-web-parse-url); LENGERR RESP2 29 / 30 / 8 (host / path / query string longer than its length) with the areas and lengths left alone (ASSUMED); refused: a scheme other than HTTP / HTTPS, user-info, a fragment, an IPv6 host that is not [hex:colons] or [hex:colons]:port, an empty port or port 0, a lowercase hex digit in an escape, a URLLENGTH not above zero or past its area, a length past its area, a PATH or QUERYSTRING asked for when the URL has none, two conditions at once (INVREQ and LENGERR, or two pieces too long), HOSTTYPE |
 | X37 | CICS | ASSUMED (REFUSED where IBM is silent) | The task serves one inbound HTTP request that whoever runs it STATES (http_request: scheme, host, port, method, version, path, query, headers, media type and body; unstated, WEB SEND is refused); WEB SEND FROM / FROMLENGTH, DOCTOKEN or CONTAINER [CHANNEL] with ACTION(IMMEDIATE), ACTION(EVENTUAL) or no ACTION, MEDIATYPE, STATUSCODE (200 when omitted), STATUSTEXT / STATUSLEN (the whole area when STATUSLEN is omitted), SRVCONVERT / NOSRVCONVERT and, for a document, DOCSTATUS(DOCDELETE | NODOCDELETE) is recorded as a WEB-SEND event (status, reason phrase or none, media type or none, body, action) and compared; an IMMEDIATE response is recorded when sent, an EVENTUAL one (and an omitted ACTION, IBM's default for a send that is not chunked) is held and recorded once at the end of the task, after the task's other events, a second EVENTUAL send replacing the first (the whole response: ASSUMED); DOCDELETE deletes the document once its contents are saved (a later request for it is NOTFND 1), NODOCDELETE (the default) keeps it; INVREQ 11 (an action that is neither IMMEDIATE nor EVENTUAL), INVREQ 72 (204 / 205 / 304 with a body), INVREQ 143 (an invalid DOCSTATUS), NOTFND 1 (a DOCTOKEN that names no document: not created, deleted or wrongly named); for a container body CONTAINERERR 2 (no such container), CHANNELERR 2 (no such channel), INVREQ 145 (no CHANNEL and no current channel), INVREQ 150 (SRVCONVERT on a DATATYPE BIT container); the response is in the program's characters (conversion changes nothing); refused: no stated request, an empty container body, a BIT container sent without conversion, FROM, DOCTOKEN or CHUNKING together with CONTAINER, CHANNEL without CONTAINER, a second send after an IMMEDIATE one, an IMMEDIATE send after an EVENTUAL one, a task that ended in an abend with an EVENTUAL response held, a WEB WRITE HTTPHEADER after any send, DOCSTATUS on a FROM send, FROMLENGTH or STATUSLEN not above zero, a length past its area, a STATUSCODE outside 100-599, a blank or malformed MEDIATYPE, SRVCONVERT on a media type that is not text/*, two conditions at once, and CHUNKING, CHARACTERSET, CLNTCODEPAGE, HOSTCODEPAGE, CLOSESTATUS, LENGTH |
 | X38 | CICS | ASSUMED (REFUSED where IBM is silent) | #4972: EXTRACT WEB is IBM's synonym of WEB EXTRACT (one table, one runtime call, the same answers and refusals); EXTRACT TCPIP reads the connection the run STATES (tcpip: client / server IPv4 address, the names the DNS knows, the port, the SSL type): CLIENTADDR / CADDRLENGTH, CLIENTNAME / CNAMELENGTH, SERVERADDR / SADDRLENGTH, SERVERNAME / SNAMELENGTH written as bytes with each length option set to the real length (areas on NORMAL only), CLIENTADDRNU / SERVERADDRNU (the address as a signed fullword), CLNTIPFAMILY / SRVRIPFAMILY (IPV4, 300), PORTNUMNU, SSLTYPE (SSL 1030 / NOSSL 1031 / CLIENTAUTH 1032 / ATTLSAWARE 1205); an area given with its length option missing or not above zero LENGERR RESP2 1; a client name the DNS does not know length 0, the area left alone, NORMAL; refused: no connection stated, an address that is not IPv4 dotted decimal (IPv6, CLNTADDR6NU / SRVRADDR6NU), an address number past a signed fullword, a SERVERNAME the connection does not state, a name or address longer than its length (LENGERR RESP2 3 / 4 / 6 / 7), PORTNUMBER (the character form), AUTHENTICATE, TCPIPSERVICE, PRIVACY, MAXDATALEN, a length past its area, two conditions at once. #4940: WEB READ FORMFIELD / QUERYPARM read the stated body form (application/x-www-form-urlencoded) / query string as name=value pairs joined by '&' (split at the first '=', only %XX unescaped), the name matched without case (IBM), two pairs of the name refused, NAMELENGTH / VALUELENGTH not above zero LENGERR RESP2 1, no data INVREQ RESP2 13, no such name NOTFND RESP2 1, a value longer than VALUELENGTH cut with LENGERR RESP2 5 and VALUELENGTH its real length; WEB STARTBROWSE / READNEXT / ENDBROWSE of HTTPHEADER, FORMFIELD, QUERYPARM keep a browse per kind (ILLOGIC RESP2 10 / 5 for a second start, INVREQ RESP2 43 / 13 for no headers / data, INVREQ RESP2 4 READNEXT / ENDBROWSE before a start, ENDFILE with RESP2 0 at the end, LENGERR RESP2 1 for a length not above zero with the browse left where it was, LENGERR RESP2 4 / 5 for a FORMFIELD / QUERYPARM name / value that does not fit, cut, the same pair returned again, lengths the real ones), a start name matched exactly (case-only or duplicate matches refused), a start that raises a condition starts no browse (ASSUMED); refused: the code-page options, the client form (SESSTOKEN), HTTPHEADER truncation on READNEXT, a body that is not application/x-www-form-urlencoded, data with a pair lacking '=', an empty name or pair, ';', '+', a bad escape, an escaped name or a byte outside printable ASCII, a READNEXT after ENDFILE, a name and value both too long, two conditions at once. #4767: The task serves the one inbound HTTP request that whoever runs it STATES (http_request, as X37; unstated, each command is refused); WEB EXTRACT (server form) returns the stated scheme (CVDA HTTP 1096 / HTTPS 1029), host, HTTP method, HTTP version (the text the run states: ASSUMED), path, query string (none: length 0, area left alone: ASSUMED), the port and REQUESTTYPE HTTPYES, each length option read as the area's size and set to the piece's length, the areas written on NORMAL only; LENGERR RESP2 21 / 5 / 7 for a HOSTLENGTH / PATHLENGTH / VERSIONLEN not above zero; WEB RECEIVE INTO / LENGTH / MAXLENGTH / MEDIATYPE returns the stated body (cut at MAXLENGTH with LENGERR RESP2 57, LENGTH the bytes returned, LENGERR RESP2 16 for a MAXLENGTH not above zero, MEDIATYPE blank-padded to 56) with SRVCONVERT / NOSRVCONVERT changing nothing (program characters); WEB READ HTTPHEADER returns the value of the stated header of that exact name (INVREQ RESP2 43 no headers, NOTFND RESP2 1 no such header, LENGERR RESP2 1 VALUELENGTH not above zero); WEB WRITE HTTPHEADER adds a header to the response, recorded as WEB-HEADER and compared (a name written twice is two headers; LENGERR RESP2 35 / 55); refused: NOTRUNCATE, containers, every code-page option, SERVERCONV, BODYCHARSET, TYPE, the client forms (SESSTOKEN, REALM), HOSTTYPE, URIMAP, a LENGERR on a piece or value longer than its length, a METHODLENGTH / QUERYSTRLEN not above zero, a request with no body, a second RECEIVE other than one SRVCONVERT pass after NOSRVCONVERT, a header found only without case or stated twice, a header written after the response was sent, a name with a blank or colon, a length past its area, two conditions at once |
+| X42 | CICS | ASSUMED (REFUSED where IBM is silent) | MOVE CONTAINER (rename across channels, TOCHANNEL made when absent, an existing AS overwritten) and STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER (the names of a channel's containers, in creation order, one token per browse) with IBM's RESP / RESP2: INVREQ 4, CHANNELERR 2, CONTAINERERR 10, END 2, TOKENERR 3; refused: a move onto itself or onto the other data type, a browse of a channel that changed, a browse with no channel, and the conditions no modelled state reaches (CHANNELERR 1 / 3, CONTAINERERR 18, INVREQ 30 / 31, ILLOGIC 1) |
 | X45 | CICS | ASSUMED (REFUSED where IBM is silent) | A doubleword counter has the limits DEFINE DCOUNTER gave it (MINIMUM zero and MAXIMUM a doubleword of X'FF' when omitted; VALUE zero; INVREQ RESP2 407 for MAXIMUM below MINIMUM, 406 for VALUE below MINIMUM or above MAXIMUM + 1); GET DCOUNTER at MAXIMUM + 1 is SUPPRESSED RESP2 101 and leaves the counter, or with WRAP returns MINIMUM and goes on from it; QUERY DCOUNTER returns VALUE / MINIMUM / MAXIMUM; DELETE DCOUNTER; an INCREMENT beyond MAXIMUM - MINIMUM or past MAXIMUM + 1, a counter past a doubleword, and the limits of a counter DEFINE COUNTER made are refused |
 | X46 | CICS | ASSUMED (REFUSED where IBM is silent) | FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup) |
-| X47 | CICS | ASSUMED (REFUSED where IBM is silent) | A USAGE POINTER item holds the handle of a block of task storage; GETMAIN SET(ptr) FLENGTH / LENGTH INITIMG(byte) acquires one (every byte the INITIMG value; LENGERR RESP2 1 for FLENGTH below 1 or LENGTH zero, the pointer then zero), FREEMAIN DATAPOINTER(ptr) releases it (INVREQ RESP2 1 for an address GETMAIN did not return: a null pointer, a record's address), WEB RECEIVE SET(ptr) LENGTH(area) [MAXLENGTH] puts the request body in a new block (MAXLENGTH optional: all of it; LENGERR RESP2 16 leaves the pointer as it was, RESP2 57 cuts the body and sets it), SET ADDRESS OF record TO pointer / TO ADDRESS OF record makes a LINKAGE 01 record's bytes the block's (a real alias), SET ADDRESS OF record TO ADDRESS OF item (a subordinate item or a WORKING-STORAGE record) makes the record a window onto that item's bytes (Storage.base), SET pointer TO ADDRESS OF record / item gives its handle (block plus offset); refused: a literal INITIMG, a GETMAIN without INITIMG that acquires storage (at run time, on the det port and the stub), SHARED, NOSUSPEND, FREEMAIN DATA, a length above 256 MiB (LENGTH above 65520), a second FREEMAIN of the same block, FREEMAIN of a WEB RECEIVE SET body, SET ADDRESS OF a null / freed pointer, ADDRESS OF a table element, SET ADDRESS OF ... TO NULL, a pointer a REDEFINES overlays (pointer arithmetic) |
+| X47 | CICS | ASSUMED (REFUSED where IBM is silent) | A USAGE POINTER item holds the handle of a block of task storage; GETMAIN SET(ptr) FLENGTH / LENGTH INITIMG(byte) acquires one (every byte the INITIMG value; LENGERR RESP2 1 for FLENGTH below 1 or LENGTH zero, the pointer then zero), FREEMAIN DATAPOINTER(ptr) releases it (INVREQ RESP2 1 for an address GETMAIN did not return: a null pointer, a record's address), WEB RECEIVE SET(ptr) LENGTH(area) [MAXLENGTH] puts the request body in a new block (MAXLENGTH optional: all of it; LENGERR RESP2 16 leaves the pointer as it was, RESP2 57 cuts the body and sets it), SET ADDRESS OF record TO pointer / TO ADDRESS OF record makes a LINKAGE 01 record's bytes the block's (a real alias), SET ADDRESS OF record TO ADDRESS OF item (a subordinate item or a WORKING-STORAGE record) makes the record a window onto that item's bytes (Storage.base), SET pointer TO ADDRESS OF record / item gives its handle (block plus offset); refused: a literal INITIMG, a GETMAIN without INITIMG that acquires storage (at run time, on the det port and the stub), SHARED, NOSUSPEND, FREEMAIN DATA, a length above 256 MiB (LENGTH above 65520), a second FREEMAIN of the same block, FREEMAIN of a WEB RECEIVE SET body, SET ADDRESS OF a freed / unknown pointer, ADDRESS OF a table element, a pointer table named without its subscripts, SET ADDRESS OF ... TO NULL, a pointer a REDEFINES overlays (pointer arithmetic) |
 | X52 | CICS | ASSUMED (REFUSED where IBM is silent) | READ NOTFND RESP2 80 and INVREQ 25 / 26 / 42 for a KEYLENGTH (#5092), READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key |
 | X53 | CICS | ASSUMED (REFUSED where IBM is silent) | REWIND resets a counter that has reached its limit (MAXIMUM + 1) to its minimum, else SUPPRESSED RESP2 102, INVREQ 406 for an INCREMENT beyond (maximum - minimum) + 1; UPDATE sets the current value (INVREQ 406 below MINIMUM or above MAXIMUM + 1); GET REDUCE leaves a counter an INCREMENT would carry past MAXIMUM + 1 at MAXIMUM + 1, GET COMPAREMIN / COMPAREMAX hand the value out only when it is in range (either bound when COMPAREMAX is below COMPAREMIN), else SUPPRESSED RESP2 103 and the counter stays; NOSUSPEND is accepted and changes nothing (one task, no coupling-facility structure, so BUSY RESP2 500 cannot occur). Refused: UPDATE COMPAREMIN / COMPAREMAX, REWIND INCREMENT above 1, REDUCE with WRAP or at a counter already at its limit, COMPARE at a counter already at its limit, a negative VALUE / compare value of a fullword counter, REWIND / UPDATE of a counter whose limits the run does not state |
 | X60 | CICS | ASSUMED (REFUSED where IBM is silent) | A scenario can plan ENQBUSY (RESP 55) for an ENQ by the RESOURCE operand as the program writes it; RESP2 is 0 because IBM states none for ENQBUSY. The ENQ must say NOSUSPEND: without it IBM suspends the task and the runtimes refuse. ENQ's other conditions come from the program's own operands, never from a plan: LENGTH outside 1 through 255 is LENGERR RESP2 1 and a MAXLIFETIME that is neither UOW nor TASK is INVREQ RESP2 2 (both modelled, as IBM states them). Refused: ENQBUSY planned for any other command, any other condition planned for ENQ, a RESP2 on an ENQBUSY plan, a planned-busy ENQ without NOSUSPEND, a resource that is no data-name of 1 to 16 characters, both bad operands at once (IBM names no order) |
 | X67 | CICS | REFUSED | EXEC CICS HANDLE ABEND PROGRAM(name) names a program that gets control when the task abends. The det translator honours LABEL, CANCEL and RESET and refuses PROGRAM by name with this entry; the cobol-stub refuses it too (equivalence_cics.Unsupported), so the two sides agree |
 
-- z/OS-calibrated: 0 of 23 named assumptions (none measured on z/OS)
+- z/OS-calibrated: 0 of 24 named assumptions (none measured on z/OS)
 
 ## Reproducibility
 
-- translator commit (the survey's): `0095c320d884c1a6e8a4870ab8746c47997e8cea`
+- translator commit (the survey's): `eedd31c0da913f333c7d45ad9c05e81f01e04154`
 - corpus pin: `zecs` at `6d6bcbbc89c9be086a58cb7ad2ff4d702e873d02`
 - crucible pins: cics `v0.10.0`, estate `v0.5.0`, language `v1.7.0`; cics crucible baseline measured at `v0.10.0 (01e11fe6)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
@@ -524,8 +527,8 @@ From the spec entries of the commands the programs use, with the register's stat
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 0095c320d884c1a6e8a4870ab8746c47997e8cea
-python tests/tools/evidence_report.py zecs --baseline --sha 0095c320d884c1a6e8a4870ab8746c47997e8cea
+python tests/tools/cics_census.py survey --baseline --sha eedd31c0da913f333c7d45ad9c05e81f01e04154
+python tests/tools/evidence_report.py zecs --baseline --sha eedd31c0da913f333c7d45ad9c05e81f01e04154
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases zecs-ecs001,zecs-zecs000,zecs-zecs001,zecs-zecs002,zecs-zecs003,zecs-zecsnc,zecs-zecsplt
 python tests/tools/evidence.py prove zecs-ecs001 zecs-zecs000 zecs-zecs001 zecs-zecs002 zecs-zecs003 zecs-zecsnc zecs-zecsplt

@@ -32,7 +32,7 @@
   },
   {
    "area": "CICS",
-   "entry": "A USAGE POINTER item holds the handle of a block of task storage; GETMAIN SET(ptr) FLENGTH / LENGTH INITIMG(byte) acquires one (every byte the INITIMG value; LENGERR RESP2 1 for FLENGTH below 1 or LENGTH zero, the pointer then zero), FREEMAIN DATAPOINTER(ptr) releases it (INVREQ RESP2 1 for an address GETMAIN did not return: a null pointer, a record's address), WEB RECEIVE SET(ptr) LENGTH(area) [MAXLENGTH] puts the request body in a new block (MAXLENGTH optional: all of it; LENGERR RESP2 16 leaves the pointer as it was, RESP2 57 cuts the body and sets it), SET ADDRESS OF record TO pointer / TO ADDRESS OF record makes a LINKAGE 01 record's bytes the block's (a real alias), SET ADDRESS OF record TO ADDRESS OF item (a subordinate item or a WORKING-STORAGE record) makes the record a window onto that item's bytes (Storage.base), SET pointer TO ADDRESS OF record / item gives its handle (block plus offset); refused: a literal INITIMG, a GETMAIN without INITIMG that acquires storage (at run time, on the det port and the stub), SHARED, NOSUSPEND, FREEMAIN DATA, a length above 256 MiB (LENGTH above 65520), a second FREEMAIN of the same block, FREEMAIN of a WEB RECEIVE SET body, SET ADDRESS OF a null / freed pointer, ADDRESS OF a table element, SET ADDRESS OF ... TO NULL, a pointer a REDEFINES overlays (pointer arithmetic)",
+   "entry": "A USAGE POINTER item holds the handle of a block of task storage; GETMAIN SET(ptr) FLENGTH / LENGTH INITIMG(byte) acquires one (every byte the INITIMG value; LENGERR RESP2 1 for FLENGTH below 1 or LENGTH zero, the pointer then zero), FREEMAIN DATAPOINTER(ptr) releases it (INVREQ RESP2 1 for an address GETMAIN did not return: a null pointer, a record's address), WEB RECEIVE SET(ptr) LENGTH(area) [MAXLENGTH] puts the request body in a new block (MAXLENGTH optional: all of it; LENGERR RESP2 16 leaves the pointer as it was, RESP2 57 cuts the body and sets it), SET ADDRESS OF record TO pointer / TO ADDRESS OF record makes a LINKAGE 01 record's bytes the block's (a real alias), SET ADDRESS OF record TO ADDRESS OF item (a subordinate item or a WORKING-STORAGE record) makes the record a window onto that item's bytes (Storage.base), SET pointer TO ADDRESS OF record / item gives its handle (block plus offset); refused: a literal INITIMG, a GETMAIN without INITIMG that acquires storage (at run time, on the det port and the stub), SHARED, NOSUSPEND, FREEMAIN DATA, a length above 256 MiB (LENGTH above 65520), a second FREEMAIN of the same block, FREEMAIN of a WEB RECEIVE SET body, SET ADDRESS OF a freed / unknown pointer, ADDRESS OF a table element, a pointer table named without its subscripts, SET ADDRESS OF ... TO NULL, a pointer a REDEFINES overlays (pointer arithmetic)",
    "id": "X47",
    "status": "ASSUMED (REFUSED where IBM is silent)"
   },
@@ -44,7 +44,7 @@
   },
   {
    "area": "CICS",
-   "entry": "Every EXEC CICS command the det translator does not model is a hole named after the command, never a guess. This entry lists them by class with the reason: BTS (40 commands), APPC / DTP conversations (13) and GDS (14), batch data interchange ISSUE (13), security (12), terminal control beyond one 3270 display (11), SOAP / WS-Addressing (9), journals (5), JES spool (5), TRANSFORM (4), DOCUMENT INSERT / SET / DELETE (3), OpenTelemetry (3), 64-bit GETMAIN64 / FREEMAIN64 (2; GET64 / PUT64 CONTAINER are modelled, X17), partitions (2), trace and monitoring (2), and single commands (SUSPEND, ISSUE PASS, ROUTE, ADDRESS SET, RESETBR, INVOKE APPLICATION, BIF DIGEST, CHANGE TASK, CONVERTTIME, INQUIRE CONTAINER). Each command's own reason is its entry in gitgalaxy/standards/cics/commands/api.py (the translator's hole message); X46 (DUMP TRANSACTION), X59 and X63 keep their own entries",
+   "entry": "Every EXEC CICS command the det translator does not model is a hole named after the command, never a guess. This entry lists them by class with the reason: BTS (40 commands), APPC / DTP conversations (13) and GDS (14), batch data interchange ISSUE (13), security (12), terminal control beyond one 3270 display (8), SOAP / WS-Addressing (9), journals (5), JES spool (5), TRANSFORM (4), DOCUMENT INSERT / SET / DELETE (3), OpenTelemetry (3), 64-bit GETMAIN64 / FREEMAIN64 (2; GET64 / PUT64 CONTAINER are modelled, X17), partitions (2), trace and monitoring (2), and single commands (SUSPEND, ISSUE PASS, ROUTE, ADDRESS SET, RESETBR, INVOKE APPLICATION, BIF DIGEST, CHANGE TASK, CONVERTTIME, INQUIRE CONTAINER). Each command's own reason is its entry in gitgalaxy/standards/cics/commands/api.py (the translator's hole message); X46 (DUMP TRANSACTION), X59 and X63 keep their own entries",
    "id": "X65",
    "status": "REFUSED"
   }
@@ -444,6 +444,12 @@
     17,
     17
    ],
+   "carddemo-sort-combtran": [
+    1,
+    1,
+    0,
+    0
+   ],
    "carddemo-sort-tranrept": [
     1,
     1,
@@ -822,6 +828,336 @@
     45,
     81
    ],
+   "cruc-ca-address-commarea": [
+    2,
+    4,
+    3,
+    8
+   ],
+   "cruc-ca-address-eib-commarea": [
+    2,
+    4,
+    3,
+    10
+   ],
+   "cruc-ca-channel-containers": [
+    3,
+    3,
+    0,
+    0
+   ],
+   "cruc-ca-channel-errors": [
+    2,
+    2,
+    0,
+    0
+   ],
+   "cruc-ca-container-bit": [
+    3,
+    3,
+    0,
+    0
+   ],
+   "cruc-ca-container-byteoffset": [
+    4,
+    4,
+    0,
+    0
+   ],
+   "cruc-ca-container-byteoffset-past-end": [
+    4,
+    4,
+    0,
+    0
+   ],
+   "cruc-ca-get-container-set-errors": [
+    2,
+    2,
+    0,
+    0
+   ],
+   "cruc-ca-getmain-pointer": [
+    2,
+    2,
+    3,
+    6
+   ],
+   "cruc-ca-link-lengths": [
+    1,
+    1,
+    3,
+    4
+   ],
+   "cruc-ca-receive-retrieve-set": [
+    1,
+    1,
+    4,
+    5
+   ],
+   "cruc-ca-xctl-versions": [
+    1,
+    1,
+    6,
+    6
+   ],
+   "cruc-gt-asab": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "cruc-gt-asnt": [
+    1,
+    1,
+    2,
+    2
+   ],
+   "cruc-gt-assign-startcode": [
+    2,
+    2,
+    6,
+    6
+   ],
+   "cruc-gt-chld": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "cruc-gt-post-wait-event": [
+    5,
+    5,
+    7,
+    9
+   ],
+   "cruc-gt-read": [
+    1,
+    1,
+    1,
+    2
+   ],
+   "cruc-gt-rtrn": [
+    1,
+    1,
+    1,
+    2
+   ],
+   "cruc-gt-send-text-terminal": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "cruc-gt-show": [
+    1,
+    1,
+    4,
+    4
+   ],
+   "cruc-gt-start-options": [
+    2,
+    2,
+    8,
+    8
+   ],
+   "cruc-gt-start-retrieve": [
+    1,
+    1,
+    6,
+    6
+   ],
+   "cruc-gt-stxs": [
+    1,
+    1,
+    2,
+    2
+   ],
+   "cruc-gt-terminal-coalesce": [
+    1,
+    1,
+    4,
+    4
+   ],
+   "cruc-gt-unext": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "cruc-gt-urimap-browse": [
+    2,
+    2,
+    8,
+    8
+   ],
+   "cruc-gt-web-client": [
+    1,
+    1,
+    4,
+    4
+   ],
+   "cruc-gt-web-parse-url": [
+    5,
+    5,
+    8,
+    10
+   ],
+   "cruc-gt-work": [
+    1,
+    1,
+    2,
+    2
+   ],
+   "cruc-hc-abend-link": [
+    4,
+    4,
+    4,
+    4
+   ],
+   "cruc-hc-dcounters": [
+    7,
+    7,
+    7,
+    7
+   ],
+   "cruc-hc-deedit-uctranst": [
+    7,
+    7,
+    4,
+    4
+   ],
+   "cruc-hc-eoc-error": [
+    3,
+    4,
+    2,
+    2
+   ],
+   "cruc-hc-handle-aid": [
+    6,
+    6,
+    7,
+    7
+   ],
+   "cruc-hc-ignore-error": [
+    5,
+    5,
+    9,
+    9
+   ],
+   "cruc-hc-inquire-deleteq": [
+    7,
+    7,
+    6,
+    6
+   ],
+   "cruc-hc-map-not-in-mapset": [
+    2,
+    2,
+    5,
+    5
+   ],
+   "cruc-hc-named-counters": [
+    6,
+    6,
+    7,
+    7
+   ],
+   "cruc-hc-perform-range": [
+    8,
+    8,
+    0,
+    0
+   ],
+   "cruc-hc-readq-td": [
+    9,
+    9,
+    7,
+    7
+   ],
+   "cruc-hc-resp-options": [
+    7,
+    7,
+    6,
+    6
+   ],
+   "cruc-hc-terminal-eoc": [
+    3,
+    4,
+    3,
+    3
+   ],
+   "cruc-hc-terminal-receive": [
+    10,
+    10,
+    6,
+    6
+   ],
+   "cruc-hx-attr-bytes": [
+    4,
+    4,
+    6,
+    6
+   ],
+   "cruc-hx-extended-cursor": [
+    3,
+    3,
+    6,
+    6
+   ],
+   "cruc-pc-aid-menu": [
+    4,
+    4,
+    9,
+    9
+   ],
+   "cruc-pc-confirm": [
+    2,
+    5,
+    2,
+    14
+   ],
+   "cruc-pc-detl": [
+    1,
+    1,
+    1,
+    2
+   ],
+   "cruc-pc-immediate-a": [
+    5,
+    6,
+    4,
+    5
+   ],
+   "cruc-pc-immediate-s": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "cruc-pc-return-channel": [
+    5,
+    5,
+    4,
+    4
+   ],
+   "cruc-pc-return-channel-b": [
+    7,
+    7,
+    6,
+    6
+   ],
+   "cruc-pc-return-immediate-b": [
+    2,
+    2,
+    2,
+    2
+   ],
+   "cruc-pc-wizard": [
+    5,
+    5,
+    10,
+    10
+   ],
    "genapp-lgacdb01": [
     4,
     4,
@@ -1159,9 +1495,9 @@
     48
    ],
    "zecs-zecs001": [
-    117,
     119,
-    194,
+    119,
+    206,
     208
    ],
    "zecs-zecs002": [
@@ -1594,6 +1930,10 @@
     "stale": [],
     "status": "shown equal, unapproved"
    },
+   "carddemo-sort-combtran": {
+    "stale": [],
+    "status": "shown equal, unapproved"
+   },
    "carddemo-sort-tranrept": {
     "stale": [],
     "status": "shown equal, unapproved"
@@ -1666,10 +2006,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "0095c320d884c1a6e8a4870ab8746c47997e8cea",
+   "sha": "eedd31c0da913f333c7d45ad9c05e81f01e04154",
    "translator": {
     "files": 161,
-    "sha256": "ca8afa03b44523070ed37b60b01715eb1e97d13fcf8360635400312e6651d2d4"
+    "sha256": "d6ab4e6728508b3114c0be3a58ff39d452b6921d5f447500f2766d4f21169262"
    }
   },
   "sweeps": {}
@@ -1857,6 +2197,12 @@
       "entry": "SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system`",
       "id": "X31",
       "status": "ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)"
+     },
+     {
+      "area": "CICS",
+      "entry": "MOVE CONTAINER (rename across channels, TOCHANNEL made when absent, an existing AS overwritten) and STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER (the names of a channel's containers, in creation order, one token per browse) with IBM's RESP / RESP2: INVREQ 4, CHANNELERR 2, CONTAINERERR 10, END 2, TOKENERR 3; refused: a move onto itself or onto the other data type, a browse of a channel that changed, a browse with no channel, and the conditions no modelled state reaches (CHANNELERR 1 / 3, CONTAINERERR 18, INVREQ 30 / 31, ILLOGIC 1)",
+      "id": "X42",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -2111,7 +2457,8 @@
      ],
      "facts_stated": [],
      "registers": [
-      "X27"
+      "X27",
+      "X42"
      ],
      "spec_entry": "full"
     },
@@ -2243,7 +2590,8 @@
      ],
      "facts_stated": [],
      "registers": [
-      "X27"
+      "X27",
+      "X42"
      ],
      "spec_entry": "full"
     },
@@ -2369,7 +2717,8 @@
    "residual": {
     "assumed_or_differs_named": [
      "X27",
-     "X31"
+     "X31",
+     "X42"
     ],
     "branch_outcomes_unrun": 2,
     "commands": 5,
@@ -2674,6 +3023,12 @@
      },
      {
       "area": "CICS",
+      "entry": "MOVE CONTAINER (rename across channels, TOCHANNEL made when absent, an existing AS overwritten) and STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER (the names of a channel's containers, in creation order, one token per browse) with IBM's RESP / RESP2: INVREQ 4, CHANNELERR 2, CONTAINERERR 10, END 2, TOKENERR 3; refused: a move onto itself or onto the other data type, a browse of a channel that changed, a browse with no channel, and the conditions no modelled state reaches (CHANNELERR 1 / 3, CONTAINERERR 18, INVREQ 30 / 31, ILLOGIC 1)",
+      "id": "X42",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
       "entry": "READ NOTFND RESP2 80 and INVREQ 25 / 26 / 42 for a KEYLENGTH (#5092), READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key",
       "id": "X52",
       "status": "ASSUMED (REFUSED where IBM is silent)"
@@ -2939,7 +3294,8 @@
      ],
      "facts_stated": [],
      "registers": [
-      "X27"
+      "X27",
+      "X42"
      ],
      "spec_entry": "full"
     },
@@ -3050,7 +3406,8 @@
      ],
      "facts_stated": [],
      "registers": [
-      "X27"
+      "X27",
+      "X42"
      ],
      "spec_entry": "full"
     },
@@ -3099,6 +3456,7 @@
     "assumed_or_differs_named": [
      "X27",
      "X31",
+     "X42",
      "X52"
     ],
     "branch_outcomes_unrun": 0,
@@ -3631,13 +3989,13 @@
      },
      {
       "area": "CICS",
-      "entry": "A USAGE POINTER item holds the handle of a block of task storage; GETMAIN SET(ptr) FLENGTH / LENGTH INITIMG(byte) acquires one (every byte the INITIMG value; LENGERR RESP2 1 for FLENGTH below 1 or LENGTH zero, the pointer then zero), FREEMAIN DATAPOINTER(ptr) releases it (INVREQ RESP2 1 for an address GETMAIN did not return: a null pointer, a record's address), WEB RECEIVE SET(ptr) LENGTH(area) [MAXLENGTH] puts the request body in a new block (MAXLENGTH optional: all of it; LENGERR RESP2 16 leaves the pointer as it was, RESP2 57 cuts the body and sets it), SET ADDRESS OF record TO pointer / TO ADDRESS OF record makes a LINKAGE 01 record's bytes the block's (a real alias), SET ADDRESS OF record TO ADDRESS OF item (a subordinate item or a WORKING-STORAGE record) makes the record a window onto that item's bytes (Storage.base), SET pointer TO ADDRESS OF record / item gives its handle (block plus offset); refused: a literal INITIMG, a GETMAIN without INITIMG that acquires storage (at run time, on the det port and the stub), SHARED, NOSUSPEND, FREEMAIN DATA, a length above 256 MiB (LENGTH above 65520), a second FREEMAIN of the same block, FREEMAIN of a WEB RECEIVE SET body, SET ADDRESS OF a null / freed pointer, ADDRESS OF a table element, SET ADDRESS OF ... TO NULL, a pointer a REDEFINES overlays (pointer arithmetic)",
+      "entry": "A USAGE POINTER item holds the handle of a block of task storage; GETMAIN SET(ptr) FLENGTH / LENGTH INITIMG(byte) acquires one (every byte the INITIMG value; LENGERR RESP2 1 for FLENGTH below 1 or LENGTH zero, the pointer then zero), FREEMAIN DATAPOINTER(ptr) releases it (INVREQ RESP2 1 for an address GETMAIN did not return: a null pointer, a record's address), WEB RECEIVE SET(ptr) LENGTH(area) [MAXLENGTH] puts the request body in a new block (MAXLENGTH optional: all of it; LENGERR RESP2 16 leaves the pointer as it was, RESP2 57 cuts the body and sets it), SET ADDRESS OF record TO pointer / TO ADDRESS OF record makes a LINKAGE 01 record's bytes the block's (a real alias), SET ADDRESS OF record TO ADDRESS OF item (a subordinate item or a WORKING-STORAGE record) makes the record a window onto that item's bytes (Storage.base), SET pointer TO ADDRESS OF record / item gives its handle (block plus offset); refused: a literal INITIMG, a GETMAIN without INITIMG that acquires storage (at run time, on the det port and the stub), SHARED, NOSUSPEND, FREEMAIN DATA, a length above 256 MiB (LENGTH above 65520), a second FREEMAIN of the same block, FREEMAIN of a WEB RECEIVE SET body, SET ADDRESS OF a freed / unknown pointer, ADDRESS OF a table element, a pointer table named without its subscripts, SET ADDRESS OF ... TO NULL, a pointer a REDEFINES overlays (pointer arithmetic)",
       "id": "X47",
       "status": "ASSUMED (REFUSED where IBM is silent)"
      },
      {
       "area": "CICS",
-      "entry": "Every EXEC CICS command the det translator does not model is a hole named after the command, never a guess. This entry lists them by class with the reason: BTS (40 commands), APPC / DTP conversations (13) and GDS (14), batch data interchange ISSUE (13), security (12), terminal control beyond one 3270 display (11), SOAP / WS-Addressing (9), journals (5), JES spool (5), TRANSFORM (4), DOCUMENT INSERT / SET / DELETE (3), OpenTelemetry (3), 64-bit GETMAIN64 / FREEMAIN64 (2; GET64 / PUT64 CONTAINER are modelled, X17), partitions (2), trace and monitoring (2), and single commands (SUSPEND, ISSUE PASS, ROUTE, ADDRESS SET, RESETBR, INVOKE APPLICATION, BIF DIGEST, CHANGE TASK, CONVERTTIME, INQUIRE CONTAINER). Each command's own reason is its entry in gitgalaxy/standards/cics/commands/api.py (the translator's hole message); X46 (DUMP TRANSACTION), X59 and X63 keep their own entries",
+      "entry": "Every EXEC CICS command the det translator does not model is a hole named after the command, never a guess. This entry lists them by class with the reason: BTS (40 commands), APPC / DTP conversations (13) and GDS (14), batch data interchange ISSUE (13), security (12), terminal control beyond one 3270 display (8), SOAP / WS-Addressing (9), journals (5), JES spool (5), TRANSFORM (4), DOCUMENT INSERT / SET / DELETE (3), OpenTelemetry (3), 64-bit GETMAIN64 / FREEMAIN64 (2; GET64 / PUT64 CONTAINER are modelled, X17), partitions (2), trace and monitoring (2), and single commands (SUSPEND, ISSUE PASS, ROUTE, ADDRESS SET, RESETBR, INVOKE APPLICATION, BIF DIGEST, CHANGE TASK, CONVERTTIME, INQUIRE CONTAINER). Each command's own reason is its entry in gitgalaxy/standards/cics/commands/api.py (the translator's hole message); X46 (DUMP TRANSACTION), X59 and X63 keep their own entries",
       "id": "X65",
       "status": "REFUSED"
      }
@@ -3902,7 +4260,8 @@
      ],
      "facts_stated": [],
      "registers": [
-      "X17"
+      "X17",
+      "X42"
      ],
      "spec_entry": "full"
     },
@@ -4003,7 +4362,8 @@
      ],
      "facts_stated": [],
      "registers": [
-      "X27"
+      "X27",
+      "X42"
      ],
      "spec_entry": "full"
     },
@@ -4087,8 +4447,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 0095c320d884c1a6e8a4870ab8746c47997e8cea",
-   "python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha 0095c320d884c1a6e8a4870ab8746c47997e8cea",
+   "python tests/tools/cics_census.py survey --baseline --sha eedd31c0da913f333c7d45ad9c05e81f01e04154",
+   "python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha eedd31c0da913f333c7d45ad9c05e81f01e04154",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases mortgage-cmort,mortgage-csmrt,mortgage-mlist,mortgage-mlist-generated,mortgage-mpmt,mortgage-nbrvl  # Db2 cases (1) need the Db2 container",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -4109,13 +4469,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "0095c320d884c1a6e8a4870ab8746c47997e8cea",
+   "sha": "eedd31c0da913f333c7d45ad9c05e81f01e04154",
    "translator": {
     "files": 161,
-    "sha256": "ca8afa03b44523070ed37b60b01715eb1e97d13fcf8360635400312e6651d2d4"
+    "sha256": "d6ab4e6728508b3114c0be3a58ff39d452b6921d5f447500f2766d4f21169262"
    }
   },
-  "translator_commit": "0095c320d884c1a6e8a4870ab8746c47997e8cea",
+  "translator_commit": "eedd31c0da913f333c7d45ad9c05e81f01e04154",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -4158,6 +4518,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "ca8afa03b44523070ed37b60b01715eb1e97d13fcf8360635400312e6651d2d4"
+  "fingerprint": "d6ab4e6728508b3114c0be3a58ff39d452b6921d5f447500f2766d4f21169262"
  }
 }

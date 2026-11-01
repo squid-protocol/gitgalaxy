@@ -4,9 +4,9 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `0095c320d884c1a6e8a4870ab8746c47997e8cea` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `eedd31c0da913f333c7d45ad9c05e81f01e04154` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
-The translation survey matches the translator in the tree (translator fingerprint `ca8afa03b445`).
+The translation survey matches the translator in the tree (translator fingerprint `d6ab4e672850`).
 
 ## How to read this report
 
@@ -27,7 +27,7 @@ The translation survey matches the translator in the tree (translator fingerprin
 | L4 | branch coverage | L3, and >= 100.0 percent of its branch outcomes, net of the case's reviewed infeasible outcomes (listed under its assumptions) |
 | L5 | mutants accounted for | L4, and every surviving mutant of the det port's seeded mutation sample accounted for (stated equivalent / unreachable, owner-reviewed; a fresh det_mutation/ entry, #4628: the case, corpus and survivors list unchanged and the det port's bytes not found moved; generator, harness and oracle drift is recorded, not staling, #5862) |
 
-**What is not measured.** Holes, unrun paragraphs and branch outcomes, unstated runtime facts and the ASSUMED / DIFFERS entries a program's commands name are listed per program. Which register entries a program actually reaches is not measured. These migration dimensions are not measured at all:
+**What is not measured.** Holes, unrun paragraphs and branch outcomes, unstated runtime facts and the ASSUMED / DIFFERS entries a program's commands name are listed per program. Which register entries a program actually reaches is measured only where its evidence record carries the commands its scenarios executed. These migration dimensions are not measured at all:
 
 - **data** (#4514): data migration: VSAM / Db2 / sequential data converted and reconciled
 - **JCL streams** (#4514): the batch job streams that run the programs (steps, utilities, restart)
@@ -113,12 +113,12 @@ From `tests/equivalence/estate_options/dbb-mortgage-application.json`: 9 values 
   | SEND MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
   | SEND TEXT | full | ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
 
-- **Assumptions relied on:** named by its commands' spec entries: X20 (MATCHED (REFUSED where the region cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X31 (ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)); reach: not measured
-  - z/OS-calibrated: 0 of 3 named assumptions (none measured on z/OS)
+- **Assumptions relied on:** named by its commands' spec entries: X20 (MATCHED (REFUSED where the region cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X31 (ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)), X42 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
+  - z/OS-calibrated: 0 of 4 named assumptions (none measured on z/OS)
   - stated infeasible branch outcome (reviewed claim, family G): A300-SEND-MAP:156:WHEN@157 (EVALUATE) -- `WHEN SEND-MAPONLY` (W-SEND-FLAG '3'): every PERFORM of A300-SEND-MAP (85, 92, 111, 152) follows a SET of W-SEND-FLAG to SEND-ERASE ('1'), SEND-ALL ('5') or SEND-DATAONLY ('2'); the only SET SEND-DATAONLY-ALARM ('4') is commented out (138-139) and nothing SETs SEND-MAPONLY ('3') or MOVEs to W-SEND-FLAG.
   - stated infeasible branch outcome (reviewed claim, family G): A300-SEND-MAP:156:none (EVALUATE) -- no WHEN matches: the flag is always '1', '2' or '5' when A300 runs, each named by a WHEN (every PERFORM of A300-SEND-MAP (85, 92, 111, 152) follows a SET of W-SEND-FLAG to SEND-ERASE ('1'), SEND-ALL ('5') or SEND-DATAONLY ('2'); the only SET SEND-DATAONLY-ALARM ('4') is commented out (138-139) and nothing SETs SEND-MAPONLY ('3') or MOVEs to W-SEND-FLAG.)
 - **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 2 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X31; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 2 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X31, X42; assumption reach (where not stated above) and the migration dimensions above: not measured
 
 ### zBuilder/MortgageApplication/cobol/epscsmrt.cbl -- L4
 
@@ -138,7 +138,7 @@ From `tests/equivalence/estate_options/dbb-mortgage-application.json`: 9 values 
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
   - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
 - **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** none listed beyond the estate-wide items; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
 ### zBuilder/MortgageApplication/cobol/epsmlist.cbl -- L4
 
@@ -165,10 +165,10 @@ From `tests/equivalence/estate_options/dbb-mortgage-application.json`: 9 values 
   | SEND MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
   | STARTBR | full | none | no |
 
-- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X31 (ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)), X52 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
-  - z/OS-calibrated: 0 of 3 named assumptions (none measured on z/OS)
+- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X31 (ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)), X42 (ASSUMED (REFUSED where IBM is silent)), X52 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
+  - z/OS-calibrated: 0 of 4 named assumptions (none measured on z/OS)
 - **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** ASSUMED / DIFFERS entries named: X27, X31, X52; commands without oracle backing: ENDBR, READNEXT, STARTBR; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** ASSUMED / DIFFERS entries named: X27, X31, X42, X52; commands without oracle backing: ENDBR, READNEXT, STARTBR; assumption reach (where not stated above) and the migration dimensions above: not measured
 
 ### zBuilder/MortgageApplication/cobol/epsmpmt.cbl -- L4
 
@@ -184,7 +184,7 @@ From `tests/equivalence/estate_options/dbb-mortgage-application.json`: 9 values 
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
   - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
 - **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** none listed beyond the estate-wide items; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
 ### zBuilder/MortgageApplication/cobol/epsnbrvl.cbl -- L4
 
@@ -200,7 +200,7 @@ From `tests/equivalence/estate_options/dbb-mortgage-application.json`: 9 values 
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
   - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
 - **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** none listed beyond the estate-wide items; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
 ### zBuilder/MortgageApplication/cobol/epscsmrd.cbl -- L0
 
@@ -235,11 +235,11 @@ From `tests/equivalence/estate_options/dbb-mortgage-application.json`: 9 values 
 - **Assumptions relied on:** named by its commands' spec entries: X17 (ASSUMED (REFUSED where IBM is silent)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X42 (ASSUMED (REFUSED where IBM is silent)), X47 (ASSUMED (REFUSED where IBM is silent)), X65 (REFUSED); reach: not measured
   - z/OS-calibrated: 0 of 5 named assumptions (none measured on z/OS)
 - **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 7 holes; ASSUMED / DIFFERS entries named: X17, X27, X42, X47; commands without oracle backing: FREEMAIN, GET CONTAINER, GETMAIN, GETNEXT CONTAINER, PUT CONTAINER, SOAPFAULT CREATE, STARTBROWSE CONTAINER; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 7 holes; ASSUMED / DIFFERS entries named: X17, X27, X42, X47; commands without oracle backing: FREEMAIN, GET CONTAINER, GETMAIN, GETNEXT CONTAINER, PUT CONTAINER, SOAPFAULT CREATE, STARTBROWSE CONTAINER; assumption reach (where not stated above) and the migration dimensions above: not measured
 
 ## Assumptions the estate's CICS commands name
 
-From the spec entries of the commands the programs use, with the register's status. Which of them a program's scenarios reach is not measured.
+From the spec entries of the commands the programs use, with the register's status. Which of them a program's scenarios reach is stated per program where its evidence record measured it.
 
 | id | area | status | entry |
 |---|---|---|---|
@@ -248,15 +248,15 @@ From the spec entries of the commands the programs use, with the register's stat
 | X27 | CICS | ASSUMED (the STARTCODE; REFUSED where IBM is silent) | RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: "ignored if the link is local"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused |
 | X31 | CICS | ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name) | SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system` |
 | X42 | CICS | ASSUMED (REFUSED where IBM is silent) | MOVE CONTAINER (rename across channels, TOCHANNEL made when absent, an existing AS overwritten) and STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER (the names of a channel's containers, in creation order, one token per browse) with IBM's RESP / RESP2: INVREQ 4, CHANNELERR 2, CONTAINERERR 10, END 2, TOKENERR 3; refused: a move onto itself or onto the other data type, a browse of a channel that changed, a browse with no channel, and the conditions no modelled state reaches (CHANNELERR 1 / 3, CONTAINERERR 18, INVREQ 30 / 31, ILLOGIC 1) |
-| X47 | CICS | ASSUMED (REFUSED where IBM is silent) | A USAGE POINTER item holds the handle of a block of task storage; GETMAIN SET(ptr) FLENGTH / LENGTH INITIMG(byte) acquires one (every byte the INITIMG value; LENGERR RESP2 1 for FLENGTH below 1 or LENGTH zero, the pointer then zero), FREEMAIN DATAPOINTER(ptr) releases it (INVREQ RESP2 1 for an address GETMAIN did not return: a null pointer, a record's address), WEB RECEIVE SET(ptr) LENGTH(area) [MAXLENGTH] puts the request body in a new block (MAXLENGTH optional: all of it; LENGERR RESP2 16 leaves the pointer as it was, RESP2 57 cuts the body and sets it), SET ADDRESS OF record TO pointer / TO ADDRESS OF record makes a LINKAGE 01 record's bytes the block's (a real alias), SET ADDRESS OF record TO ADDRESS OF item (a subordinate item or a WORKING-STORAGE record) makes the record a window onto that item's bytes (Storage.base), SET pointer TO ADDRESS OF record / item gives its handle (block plus offset); refused: a literal INITIMG, a GETMAIN without INITIMG that acquires storage (at run time, on the det port and the stub), SHARED, NOSUSPEND, FREEMAIN DATA, a length above 256 MiB (LENGTH above 65520), a second FREEMAIN of the same block, FREEMAIN of a WEB RECEIVE SET body, SET ADDRESS OF a null / freed pointer, ADDRESS OF a table element, SET ADDRESS OF ... TO NULL, a pointer a REDEFINES overlays (pointer arithmetic) |
+| X47 | CICS | ASSUMED (REFUSED where IBM is silent) | A USAGE POINTER item holds the handle of a block of task storage; GETMAIN SET(ptr) FLENGTH / LENGTH INITIMG(byte) acquires one (every byte the INITIMG value; LENGERR RESP2 1 for FLENGTH below 1 or LENGTH zero, the pointer then zero), FREEMAIN DATAPOINTER(ptr) releases it (INVREQ RESP2 1 for an address GETMAIN did not return: a null pointer, a record's address), WEB RECEIVE SET(ptr) LENGTH(area) [MAXLENGTH] puts the request body in a new block (MAXLENGTH optional: all of it; LENGERR RESP2 16 leaves the pointer as it was, RESP2 57 cuts the body and sets it), SET ADDRESS OF record TO pointer / TO ADDRESS OF record makes a LINKAGE 01 record's bytes the block's (a real alias), SET ADDRESS OF record TO ADDRESS OF item (a subordinate item or a WORKING-STORAGE record) makes the record a window onto that item's bytes (Storage.base), SET pointer TO ADDRESS OF record / item gives its handle (block plus offset); refused: a literal INITIMG, a GETMAIN without INITIMG that acquires storage (at run time, on the det port and the stub), SHARED, NOSUSPEND, FREEMAIN DATA, a length above 256 MiB (LENGTH above 65520), a second FREEMAIN of the same block, FREEMAIN of a WEB RECEIVE SET body, SET ADDRESS OF a freed / unknown pointer, ADDRESS OF a table element, a pointer table named without its subscripts, SET ADDRESS OF ... TO NULL, a pointer a REDEFINES overlays (pointer arithmetic) |
 | X52 | CICS | ASSUMED (REFUSED where IBM is silent) | READ NOTFND RESP2 80 and INVREQ 25 / 26 / 42 for a KEYLENGTH (#5092), READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key |
-| X65 | CICS | REFUSED | Every EXEC CICS command the det translator does not model is a hole named after the command, never a guess. This entry lists them by class with the reason: BTS (40 commands), APPC / DTP conversations (13) and GDS (14), batch data interchange ISSUE (13), security (12), terminal control beyond one 3270 display (11), SOAP / WS-Addressing (9), journals (5), JES spool (5), TRANSFORM (4), DOCUMENT INSERT / SET / DELETE (3), OpenTelemetry (3), 64-bit GETMAIN64 / FREEMAIN64 (2; GET64 / PUT64 CONTAINER are modelled, X17), partitions (2), trace and monitoring (2), and single commands (SUSPEND, ISSUE PASS, ROUTE, ADDRESS SET, RESETBR, INVOKE APPLICATION, BIF DIGEST, CHANGE TASK, CONVERTTIME, INQUIRE CONTAINER). Each command's own reason is its entry in gitgalaxy/standards/cics/commands/api.py (the translator's hole message); X46 (DUMP TRANSACTION), X59 and X63 keep their own entries |
+| X65 | CICS | REFUSED | Every EXEC CICS command the det translator does not model is a hole named after the command, never a guess. This entry lists them by class with the reason: BTS (40 commands), APPC / DTP conversations (13) and GDS (14), batch data interchange ISSUE (13), security (12), terminal control beyond one 3270 display (8), SOAP / WS-Addressing (9), journals (5), JES spool (5), TRANSFORM (4), DOCUMENT INSERT / SET / DELETE (3), OpenTelemetry (3), 64-bit GETMAIN64 / FREEMAIN64 (2; GET64 / PUT64 CONTAINER are modelled, X17), partitions (2), trace and monitoring (2), and single commands (SUSPEND, ISSUE PASS, ROUTE, ADDRESS SET, RESETBR, INVOKE APPLICATION, BIF DIGEST, CHANGE TASK, CONVERTTIME, INQUIRE CONTAINER). Each command's own reason is its entry in gitgalaxy/standards/cics/commands/api.py (the translator's hole message); X46 (DUMP TRANSACTION), X59 and X63 keep their own entries |
 
 - z/OS-calibrated: 0 of 8 named assumptions (none measured on z/OS)
 
 ## Reproducibility
 
-- translator commit (the survey's): `0095c320d884c1a6e8a4870ab8746c47997e8cea`
+- translator commit (the survey's): `eedd31c0da913f333c7d45ad9c05e81f01e04154`
 - corpus pin: `dbb-mortgage-application` at `ce2c1be58eb049e000c6627bd8273263fef0c606`
 - crucible pins: cics `v0.10.0`, estate `v0.5.0`, language `v1.7.0`; cics crucible baseline measured at `v0.10.0 (01e11fe6)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
@@ -266,8 +266,8 @@ From the spec entries of the commands the programs use, with the register's stat
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 0095c320d884c1a6e8a4870ab8746c47997e8cea
-python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha 0095c320d884c1a6e8a4870ab8746c47997e8cea
+python tests/tools/cics_census.py survey --baseline --sha eedd31c0da913f333c7d45ad9c05e81f01e04154
+python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha eedd31c0da913f333c7d45ad9c05e81f01e04154
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases mortgage-cmort,mortgage-csmrt,mortgage-mlist,mortgage-mlist-generated,mortgage-mpmt,mortgage-nbrvl  # Db2 cases (1) need the Db2 container
 python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin

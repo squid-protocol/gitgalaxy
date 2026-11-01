@@ -13,7 +13,7 @@ from typing import Any
 from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: compiled on first use
 from gitgalaxy.standards.language_standards.identifiers import CAPITAL, ID_CONTINUE, ID_START
 
-from .._shared_patterns import GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT, commented_keyword_statement
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -453,8 +453,15 @@ DEFINITION: dict[str, Any] = {
             re.M,
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails) Commented out structural code.
+        # #7207: a statement's shape (`if (...)`, `NSLog(...)`, `[obj msg];`, `- (void)run`, `@interface Foo : Bar`),
+        # not just the opener: `// if the user cancels` and `// [ ... ] see above` are prose.
         "dead_code": re.compile(
-            r"//[ \t]*(?:@interface|@implementation|\[|if|NSLog|- \()|/\*[ \t]*(?:@interface|@implementation|\[|if|NSLog|- \()"
+            commented_keyword_statement(
+                "@interface|@implementation|if|NSLog",
+                extra=r"(?:(?<=@interface)|(?<=@implementation))[ \t]+[A-Z]\w{0,64}(?:[ \t]*[:(][^\n]{0,100})?[ \t]*(?m:$)",
+            )
+            + r"|(?<![/*])(?://|/\*)[ \t]*(?:\[[^\n\]]{1,200}\][ \t]*;"
+            r"|[-+][ \t]*\([ \t]*(?:void|id|BOOL|NSInteger|NSUInteger|instancetype|[A-Z]\w{0,40}[ \t]*\*?)[ \t]*\)[ \t]*[a-z]\w{0,64}[ \t]*(?:[;{:]|(?:\*/)?[ \t]*(?m:$)))"
         ),
         # 13. doc: Structured Documentation. Structured documentation (Includes NeXT style).
         # BUG FIX #2672: `/**`/`/*!`, `///` and the doc tags (`@param`,

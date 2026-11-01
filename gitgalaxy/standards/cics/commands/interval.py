@@ -487,4 +487,71 @@ WAIT_EVENT = Command(
     impl=Impl(translator="Cics.wait_event", java="waitEvent", c="GGCWEVT", harness="_wait_event"),
 )
 
-COMMANDS = (START, RETRIEVE, CANCEL, RUN, FETCH_ANY, FETCH_CHILD, FREE_CHILD, POST, WAIT_EVENT)
+# #5079 (X63): WAIT EXTERNAL / WAITCICS -- wait for an MVS-format ECB of the program's own. ECBLIST addresses a list of ECB
+# addresses held in task storage (8-byte handles, as a POINTER table); a block's first byte X'40' is "posted" (ASSUMED: IBM names
+# no bit). Nothing else runs to post one, so a list with no posted ECB is refused (it would wait forever).
+_NOT_POSTED = RuntimeRefusal(
+    "a WAIT on an ECB list with no posted ECB (nothing else runs to post one: the task would wait forever)",
+    "X63",
+    java="no ECB in the list is posted",
+    c="no ECB in the list is posted",
+)
+_ECB_UNKNOWN = RuntimeRefusal(
+    "a WAIT on an ECB list that is no task-storage block holding NUMEVENTS handles, or names an address no block holds",
+    "X63",
+    java="the ECB list or an ECB in it is no task storage",
+    c="the ECB list or an ECB in it is no task storage",
+)
+_WAITCICS_NULL = RuntimeRefusal(
+    "WAITCICS with a null ECBLIST (IBM gives RESP2 2 to WAIT EXTERNAL only)",
+    "X63",
+    java="WAITCICS with a null ECBLIST",
+    c="WAITCICS with a null ECBLIST",
+)
+_ECB_OUTCOMES = (
+    Outcome("NORMAL", 0, "an ECB in the list is posted: the task is not suspended"),
+    Outcome("INVREQ", 3, "NUMEVENTS is not positive"),
+    Outcome("INVREQ", 5, "no valid ECB in the list (every address is null)"),
+)
+_ECB_OPTIONS = {
+    "ECBLIST": Arg("pointer"),
+    "NUMEVENTS": Arg("value"),
+    "NAME": Arg("name", width=8),  # labels the suspended task only
+    "PURGEABLE": Arg("flag"),  # no DTIMOUT / task purge arises on the stated clock: both change nothing here
+    "NOTPURGEABLE": Arg("flag"),
+    **RESP_OPTIONS,
+}
+
+WAIT_EXTERNAL = Command(
+    key="WAIT EXTERNAL",
+    ibm=ibm("EXEC CICS WAIT EXTERNAL", "summary-wait-external"),
+    status="modelled",
+    register="X63",
+    options=dict(_ECB_OPTIONS),
+    groups=(
+        required("ECBLIST", msg="WAIT EXTERNAL without ECBLIST"),
+        required("NUMEVENTS", msg="WAIT EXTERNAL without NUMEVENTS"),
+        at_most_one("PURGEABLE", "NOTPURGEABLE", msg="WAIT EXTERNAL: PURGEABLE and NOTPURGEABLE"),
+    ),
+    outcomes=(*_ECB_OUTCOMES, Outcome("INVREQ", 2, "the ECBLIST address is a null pointer")),
+    runtime_refusals=(_ECB_UNKNOWN, _NOT_POSTED),
+    state=("handle_table",),
+)
+
+WAITCICS = Command(
+    key="WAITCICS",
+    ibm=ibm("EXEC CICS WAITCICS", "summary-waitcics"),
+    status="modelled",
+    register="X63",
+    options=dict(_ECB_OPTIONS),
+    groups=(
+        required("ECBLIST", msg="WAITCICS without ECBLIST"),
+        required("NUMEVENTS", msg="WAITCICS without NUMEVENTS"),
+        at_most_one("PURGEABLE", "NOTPURGEABLE", msg="WAITCICS: PURGEABLE and NOTPURGEABLE"),
+    ),
+    outcomes=_ECB_OUTCOMES,
+    runtime_refusals=(_WAITCICS_NULL, _ECB_UNKNOWN, _NOT_POSTED),
+    state=("handle_table",),
+)
+
+COMMANDS = (START, RETRIEVE, CANCEL, RUN, FETCH_ANY, FETCH_CHILD, FREE_CHILD, POST, WAIT_EVENT, WAIT_EXTERNAL, WAITCICS)

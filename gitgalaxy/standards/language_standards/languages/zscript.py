@@ -12,7 +12,7 @@ from typing import Any
 
 from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: compiled on first use
 
-from .._shared_patterns import CALLS_OUT_C_STYLE, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import CALLS_OUT_C_STYLE, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT, commented_keyword_statement
 
 # One method header: scope/virtual modifiers, then a return type (`void`, `Class<Actor>`, `Array<int>`,
 # or a multi-value `int, bool`), then the name. Shared by `func_start`, `args` and `api` so the three agree.
@@ -98,7 +98,17 @@ DEFINITION: dict[str, Any] = {
             re.M,
         ),
         # 12. dead_code: commented-out statements.
-        "dead_code": re.compile(r"//[ \t]*(?:(?:if|for|while|return|override|virtual|class)\b|A_\w+[ \t]*\()", re.I),
+        # #7207: a statement's shape (`if (...)`, `return x;`, `virtual void Tick()`, `class Foo : Actor`, `A_Chase();`),
+        # not just the keyword: `// return value is ignored` and `// class of the monster` are prose.
+        "dead_code": re.compile(
+            commented_keyword_statement(
+                "if|for|while|return|override|virtual|class",
+                block=False,
+                extra=r"(?<=class)[ \t]+\w{1,64}[ \t]*:[ \t]*\w[^\n]{0,100}(?m:$)",
+            )
+            + r"|(?<![/*])//[ \t]*A_\w+[ \t]*\(",
+            re.I,
+        ),
         # 13. doc: no documentation-comment convention in the language.
         "doc": None,
         # 14. test: no test framework.

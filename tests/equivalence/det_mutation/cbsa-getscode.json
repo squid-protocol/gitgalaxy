@@ -5,7 +5,7 @@
  "case": "cbsa-getscode",
  "entry": {
   "program": "GETSCODE",
-  "commit": "faac469eb83e0a2bb1c94853ec2e408cddd37b91+uncommitted",
+  "commit": "da12da12571e76c1d834e5e3617c416b1c4a8967+uncommitted",
   "date": "2026-11-01",
   "mode": "fast",
   "seed": 0,
@@ -404,10 +404,18 @@
     "after": "@SuppressWarnings(\"Xnchecked\")"
    },
    {
+    "id": "03a226307f",
+    "op": "NEG",
+    "file": "service/GetscodeService.java",
+    "line": 87,
+    "before": "if (CicsTask.undefinableFile(name)) {",
+    "after": "if (!(CicsTask.undefinableFile(name))) {"
+   },
+   {
     "id": "4c7e6a071d",
     "op": "LIT",
     "file": "service/GetscodeService.java",
-    "line": 87,
+    "line": 90,
     "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
     "after": "throw new Hole(\"XICS file \" + name + \": the program names no file the generated project stores\");"
    },
@@ -415,7 +423,7 @@
     "id": "054fa3eaaa",
     "op": "LIT",
     "file": "service/GetscodeService.java",
-    "line": 87,
+    "line": 90,
     "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
     "after": "throw new Hole(\"CICS file \" + name + \"X the program names no file the generated project stores\");"
    },
@@ -423,7 +431,7 @@
     "id": "fb34bea25c",
     "op": "LIT",
     "file": "service/GetscodeService.java",
-    "line": 91,
+    "line": 94,
     "before": "java.util.Map.entry(\"A010\", 1),",
     "after": "java.util.Map.entry(\"X010\", 1),"
    },
@@ -431,7 +439,7 @@
     "id": "8de53f4adb",
     "op": "CON",
     "file": "service/GetscodeService.java",
-    "line": 91,
+    "line": 94,
     "before": "java.util.Map.entry(\"A010\", 1),",
     "after": "java.util.Map.entry(\"A010\", 2),"
    },
@@ -439,7 +447,7 @@
     "id": "573402682f",
     "op": "LIT",
     "file": "service/GetscodeService.java",
-    "line": 92,
+    "line": 95,
     "before": "java.util.Map.entry(\"PREMIERE\", 0)",
     "after": "java.util.Map.entry(\"XREMIERE\", 0)"
    },
@@ -447,7 +455,7 @@
     "id": "46c4b9415e",
     "op": "CON",
     "file": "service/GetscodeService.java",
-    "line": 92,
+    "line": 95,
     "before": "java.util.Map.entry(\"PREMIERE\", 0)",
     "after": "java.util.Map.entry(\"PREMIERE\", 1)"
    },
@@ -455,7 +463,7 @@
     "id": "2ee187673d",
     "op": "NEG",
     "file": "service/GetscodeService.java",
-    "line": 97,
+    "line": 100,
     "before": "if (i == null) {",
     "after": "if (!(i == null)) {"
    },
@@ -463,7 +471,7 @@
     "id": "c3b3001904",
     "op": "ROR",
     "file": "service/GetscodeService.java",
-    "line": 97,
+    "line": 100,
     "before": "if (i == null) {",
     "after": "if (i != null) {"
    },
@@ -471,7 +479,7 @@
     "id": "f29082fad1",
     "op": "LIT",
     "file": "service/GetscodeService.java",
-    "line": 98,
+    "line": 101,
     "before": "throw new IllegalStateException(\"no paragraph \" + name);",
     "after": "throw new IllegalStateException(\"Xo paragraph \" + name);"
    },
@@ -479,7 +487,7 @@
     "id": "a7a2363a69",
     "op": "NEG",
     "file": "service/GetscodeService.java",
-    "line": 110,
+    "line": 113,
     "before": "if (h != null) {",
     "after": "if (!(h != null)) {"
    },
@@ -487,7 +495,7 @@
     "id": "2a829a554f",
     "op": "ROR",
     "file": "service/GetscodeService.java",
-    "line": 110,
+    "line": 113,
     "before": "if (h != null) {",
     "after": "if (h == null) {"
    },
@@ -495,7 +503,7 @@
     "id": "68f531f8d6",
     "op": "NEG",
     "file": "service/GetscodeService.java",
-    "line": 113,
+    "line": 116,
     "before": "if (DetCics.ignoredByDefault(cond)) {",
     "after": "if (!(DetCics.ignoredByDefault(cond))) {"
    },
@@ -503,7 +511,7 @@
     "id": "993b564d8c",
     "op": "CON",
     "file": "service/GetscodeService.java",
-    "line": 114,
+    "line": 117,
     "before": "return -1;",
     "after": "return -2;"
    },
@@ -511,7 +519,7 @@
     "id": "48e063e384",
     "op": "LIT",
     "file": "service/GetscodeService.java",
-    "line": 116,
+    "line": 119,
     "before": "Integer error = handlers.get(\"ERROR\");",
     "after": "Integer error = handlers.get(\"XRROR\");"
    },
@@ -519,7 +527,7 @@
     "id": "ced9b654da",
     "op": "NEG",
     "file": "service/GetscodeService.java",
-    "line": 117,
+    "line": 120,
     "before": "if (error != null) {",
     "after": "if (!(error != null)) {"
    },
@@ -527,7 +535,7 @@
     "id": "dd17495d8f",
     "op": "ROR",
     "file": "service/GetscodeService.java",
-    "line": 117,
+    "line": 120,
     "before": "if (error != null) {",
     "after": "if (error == null) {"
    },
@@ -535,7 +543,7 @@
     "id": "4281948e82",
     "op": "NEG",
     "file": "service/GetscodeService.java",
-    "line": 121,
+    "line": 124,
     "before": "if (label == null) {",
     "after": "if (!(label == null)) {"
    },
@@ -543,7 +551,7 @@
     "id": "4e41f32009",
     "op": "ROR",
     "file": "service/GetscodeService.java",
-    "line": 121,
+    "line": 124,
     "before": "if (label == null) {",
     "after": "if (label != null) {"
    },
@@ -551,7 +559,7 @@
     "id": "0a3c0dd42b",
     "op": "NEG",
     "file": "service/GetscodeService.java",
-    "line": 132,
+    "line": 135,
     "before": "if (d == null) {",
     "after": "if (!(d == null)) {"
    },
@@ -559,7 +567,7 @@
     "id": "ec5fb45a0f",
     "op": "ROR",
     "file": "service/GetscodeService.java",
-    "line": 132,
+    "line": 135,
     "before": "if (d == null) {",
     "after": "if (d != null) {"
    },
@@ -567,7 +575,7 @@
     "id": "c721d73d65",
     "op": "DEL",
     "file": "service/GetscodeService.java",
-    "line": 133,
+    "line": 136,
     "before": "return;",
     "after": "/* return; */"
    },
@@ -575,7 +583,7 @@
     "id": "7ef7390128",
     "op": "ROR",
     "file": "service/GetscodeService.java",
-    "line": 135,
+    "line": 138,
     "before": "Cobol.move(d.getSortcode() == null ? \"\" : d.getSortcode(), Field.alphanumeric(s, base + 0, 6, false), CS);",
     "after": "Cobol.move(d.getSortcode() != null ? \"\" : d.getSortcode(), Field.alphanumeric(s, base + 0, 6, false), CS);"
    },
@@ -583,7 +591,7 @@
     "id": "b026656309",
     "op": "AOR",
     "file": "service/GetscodeService.java",
-    "line": 135,
+    "line": 138,
     "before": "Cobol.move(d.getSortcode() == null ? \"\" : d.getSortcode(), Field.alphanumeric(s, base + 0, 6, false), CS);",
     "after": "Cobol.move(d.getSortcode() == null ? \"\" : d.getSortcode(), Field.alphanumeric(s, base - 0, 6, false), CS);"
    },
@@ -591,7 +599,7 @@
     "id": "c714de083c",
     "op": "CON",
     "file": "service/GetscodeService.java",
-    "line": 135,
+    "line": 138,
     "before": "Cobol.move(d.getSortcode() == null ? \"\" : d.getSortcode(), Field.alphanumeric(s, base + 0, 6, false), CS);",
     "after": "Cobol.move(d.getSortcode() == null ? \"\" : d.getSortcode(), Field.alphanumeric(s, base + 1, 6, false), CS);"
    },
@@ -599,7 +607,7 @@
     "id": "fdeb8ef564",
     "op": "CON",
     "file": "service/GetscodeService.java",
-    "line": 135,
+    "line": 138,
     "before": "Cobol.move(d.getSortcode() == null ? \"\" : d.getSortcode(), Field.alphanumeric(s, base + 0, 6, false), CS);",
     "after": "Cobol.move(d.getSortcode() == null ? \"\" : d.getSortcode(), Field.alphanumeric(s, base + 0, 7, false), CS);"
    },
@@ -607,7 +615,7 @@
     "id": "54c0222668",
     "op": "AOR",
     "file": "service/GetscodeService.java",
-    "line": 139,
+    "line": 142,
     "before": "d.setSortcode(Cobol.text(Field.alphanumeric(s, base + 0, 6, false), CS));",
     "after": "d.setSortcode(Cobol.text(Field.alphanumeric(s, base - 0, 6, false), CS));"
    },
@@ -615,7 +623,7 @@
     "id": "8505f6428f",
     "op": "DEL",
     "file": "service/GetscodeService.java",
-    "line": 144,
+    "line": 147,
     "before": "fill_GetscodeDfhcommarea(d, s, base);",
     "after": "/* fill_GetscodeDfhcommarea(d, s, base); */"
    },
@@ -623,7 +631,7 @@
     "id": "843326e638",
     "op": "DEL",
     "file": "service/GetscodeService.java",
-    "line": 170,
+    "line": 173,
     "before": "System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length);",
     "after": "/* System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length); */"
    },
@@ -631,7 +639,7 @@
     "id": "864f782381",
     "op": "DEL",
     "file": "service/GetscodeService.java",
-    "line": 171,
+    "line": 174,
     "before": "System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length);",
     "after": "/* System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length); */"
    },
@@ -639,7 +647,7 @@
     "id": "36b16bd66b",
     "op": "DEL",
     "file": "service/GetscodeService.java",
-    "line": 172,
+    "line": 175,
     "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
     "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */"
    },
@@ -647,7 +655,7 @@
     "id": "1d482437d7",
     "op": "DEL",
     "file": "service/GetscodeService.java",
-    "line": 195,
+    "line": 198,
     "before": "caBack = () -> { };",
     "after": "/* caBack = () -> { }; */"
    },
@@ -655,7 +663,7 @@
     "id": "e7db03c99c",
     "op": "DEL",
     "file": "service/GetscodeService.java",
-    "line": 196,
+    "line": 199,
     "before": "handlers.clear();",
     "after": "/* handlers.clear(); */"
    },
@@ -663,7 +671,7 @@
     "id": "bbd0120a82",
     "op": "DEL",
     "file": "service/GetscodeService.java",
-    "line": 197,
+    "line": 200,
     "before": "heldKey.clear();",
     "after": "/* heldKey.clear(); */"
    },
@@ -671,7 +679,7 @@
     "id": "42d00ca2fa",
     "op": "DEL",
     "file": "service/GetscodeService.java",
-    "line": 199,
+    "line": 202,
     "before": "Cobol.move(task.transid(), f8_EIBTRNID, CS);",
     "after": "/* Cobol.move(task.transid(), f8_EIBTRNID, CS); */"
    },
@@ -679,7 +687,7 @@
     "id": "75644f3c5d",
     "op": "DEL",
     "file": "service/GetscodeService.java",
-    "line": 201,
+    "line": 204,
     "before": "Cobol.store(f9_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS);",
     "after": "/* Cobol.store(f9_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS); */"
    },
@@ -687,7 +695,7 @@
     "id": "b67dc4d62e",
     "op": "DEL",
     "file": "service/GetscodeService.java",
-    "line": 203,
+    "line": 206,
     "before": "Cobol.store(f7_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
     "after": "/* Cobol.store(f7_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS); */"
    },
@@ -695,7 +703,7 @@
     "id": "a4bcbd409e",
     "op": "AOR",
     "file": "service/GetscodeService.java",
-    "line": 203,
+    "line": 206,
     "before": "Cobol.store(f7_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
     "after": "Cobol.store(f7_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);"
    },
@@ -703,7 +711,7 @@
     "id": "56685c157b",
     "op": "CON",
     "file": "service/GetscodeService.java",
-    "line": 203,
+    "line": 206,
     "before": "Cobol.store(f7_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
     "after": "Cobol.store(f7_EIBDATE, BigDecimal.valueOf((now.getYear() - 1901) * 1000L + now.getDayOfYear()), false, CS);"
    },
@@ -711,7 +719,7 @@
     "id": "da0954e2b0",
     "op": "AOR",
     "file": "service/GetscodeService.java",
-    "line": 203,
+    "line": 206,
     "before": "Cobol.store(f7_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
     "after": "Cobol.store(f7_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) / 1000L + now.getDayOfYear()), false, CS);"
    },
@@ -719,7 +727,7 @@
     "id": "b3be41a142",
     "op": "AOR",
     "file": "service/GetscodeService.java",
-    "line": 203,
+    "line": 206,
     "before": "Cobol.store(f7_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
     "after": "Cobol.store(f7_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);"
    },
@@ -727,7 +735,7 @@
     "id": "6e3fbffe82",
     "op": "DEL",
     "file": "service/GetscodeService.java",
-    "line": 204,
+    "line": 207,
     "before": "Cobol.store(f6_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
     "after": "/* Cobol.store(f6_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS); */"
    },
@@ -735,7 +743,7 @@
     "id": "0dbe5bbd66",
     "op": "AOR",
     "file": "service/GetscodeService.java",
-    "line": 204,
+    "line": 207,
     "before": "Cobol.store(f6_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
     "after": "Cobol.store(f6_EIBTIME, BigDecimal.valueOf(now.getHour() / 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);"
    },
@@ -743,7 +751,7 @@
     "id": "af01e18c8f",
     "op": "AOR",
     "file": "service/GetscodeService.java",
-    "line": 204,
+    "line": 207,
     "before": "Cobol.store(f6_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
     "after": "Cobol.store(f6_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L - now.getMinute() * 100L + now.getSecond()), false, CS);"
    },
@@ -751,7 +759,7 @@
     "id": "3bb1728714",
     "op": "AOR",
     "file": "service/GetscodeService.java",
-    "line": 204,
+    "line": 207,
     "before": "Cobol.store(f6_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
     "after": "Cobol.store(f6_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() / 100L + now.getSecond()), false, CS);"
    },
@@ -759,7 +767,7 @@
     "id": "d6a2784426",
     "op": "AOR",
     "file": "service/GetscodeService.java",
-    "line": 204,
+    "line": 207,
     "before": "Cobol.store(f6_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
     "after": "Cobol.store(f6_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L - now.getSecond()), false, CS);"
    },
@@ -767,7 +775,7 @@
     "id": "4cf1d70b9b",
     "op": "ROR",
     "file": "service/GetscodeService.java",
-    "line": 205,
+    "line": 208,
     "before": "switch (task.aid() == null ? \"\" : task.aid()) {",
     "after": "switch (task.aid() != null ? \"\" : task.aid()) {"
    },
@@ -775,7 +783,7 @@
     "id": "fbd23e1e90",
     "op": "CON",
     "file": "service/GetscodeService.java",
-    "line": 209,
+    "line": 212,
     "before": "int calen = 0;",
     "after": "int calen = 1;"
    },
@@ -783,7 +791,7 @@
     "id": "260b193b88",
     "op": "DEL",
     "file": "service/GetscodeService.java",
-    "line": 211,
+    "line": 214,
     "before": "in_GetscodeDfhcommarea(x, s_DFHCOMMAREA, 0);",
     "after": "/* in_GetscodeDfhcommarea(x, s_DFHCOMMAREA, 0); */"
    },
@@ -791,7 +799,7 @@
     "id": "8ec167415c",
     "op": "CON",
     "file": "service/GetscodeService.java",
-    "line": 211,
+    "line": 214,
     "before": "in_GetscodeDfhcommarea(x, s_DFHCOMMAREA, 0);",
     "after": "in_GetscodeDfhcommarea(x, s_DFHCOMMAREA, 1);"
    },
@@ -799,7 +807,7 @@
     "id": "6893fb8c19",
     "op": "CON",
     "file": "service/GetscodeService.java",
-    "line": 213,
+    "line": 216,
     "before": "calen = cx(task, 6);",
     "after": "calen = cx(task, 7);"
    },
@@ -807,7 +815,7 @@
     "id": "bdc7f67fcd",
     "op": "DEL",
     "file": "service/GetscodeService.java",
-    "line": 215,
+    "line": 218,
     "before": "s_DFHCOMMAREA.beyond = null;",
     "after": "/* s_DFHCOMMAREA.beyond = null; */"
    },
@@ -815,7 +823,7 @@
     "id": "7b67bd0248",
     "op": "DEL",
     "file": "service/GetscodeService.java",
-    "line": 218,
+    "line": 221,
     "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
     "after": "/* System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length)); */"
    },
@@ -823,7 +831,7 @@
     "id": "f83a5cc9c2",
     "op": "CON",
     "file": "service/GetscodeService.java",
-    "line": 218,
+    "line": 221,
     "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
     "after": "System.arraycopy(cb, 1, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));"
    },
@@ -831,7 +839,7 @@
     "id": "4ef0500e50",
     "op": "CON",
     "file": "service/GetscodeService.java",
-    "line": 218,
+    "line": 221,
     "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
     "after": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 1, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));"
    },
@@ -839,7 +847,7 @@
     "id": "2f8669f8ee",
     "op": "NEG",
     "file": "service/GetscodeService.java",
-    "line": 219,
+    "line": 222,
     "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
     "after": "if (!(cb.length > s_DFHCOMMAREA.bytes.length)) {"
    },
@@ -847,7 +855,7 @@
     "id": "1c35fbae12",
     "op": "ROR",
     "file": "service/GetscodeService.java",
-    "line": 219,
+    "line": 222,
     "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
     "after": "if (cb.length <= s_DFHCOMMAREA.bytes.length) {"
    },
@@ -855,7 +863,7 @@
     "id": "b765d06589",
     "op": "ROR",
     "file": "service/GetscodeService.java",
-    "line": 219,
+    "line": 222,
     "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
     "after": "if (cb.length >= s_DFHCOMMAREA.bytes.length) {"
    },
@@ -863,7 +871,7 @@
     "id": "70d9f3d9bb",
     "op": "DEL",
     "file": "service/GetscodeService.java",
-    "line": 220,
+    "line": 223,
     "before": "s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length);",
     "after": "/* s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length); */"
    },
@@ -871,7 +879,7 @@
     "id": "1c96b6ee72",
     "op": "DEL",
     "file": "service/GetscodeService.java",
-    "line": 222,
+    "line": 225,
     "before": "calen = cx(task, cb.length);",
     "after": "/* calen = cx(task, cb.length); */"
    },
@@ -879,7 +887,7 @@
     "id": "4e314673b0",
     "op": "DEL",
     "file": "service/GetscodeService.java",
-    "line": 226,
+    "line": 229,
     "before": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
     "after": "/* System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length)); */"
    },
@@ -887,7 +895,7 @@
     "id": "43d7eb31bd",
     "op": "CON",
     "file": "service/GetscodeService.java",
-    "line": 226,
+    "line": 229,
     "before": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
     "after": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 1, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));"
    },
@@ -895,7 +903,7 @@
     "id": "98ce520e58",
     "op": "DEL",
     "file": "service/GetscodeService.java",
-    "line": 228,
+    "line": 231,
     "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
     "after": "/* s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null; */"
    },
@@ -903,7 +911,7 @@
     "id": "4e27c53ee0",
     "op": "ROR",
     "file": "service/GetscodeService.java",
-    "line": 228,
+    "line": 231,
     "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
     "after": "s_DFHCOMMAREA.beyond = raw.length >= keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;"
    },
@@ -911,7 +919,7 @@
     "id": "f115a2c269",
     "op": "CON",
     "file": "service/GetscodeService.java",
-    "line": 230,
+    "line": 233,
     "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
     "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } };"
    },
@@ -919,7 +927,7 @@
     "id": "cef46ad0df",
     "op": "AOR",
     "file": "service/GetscodeService.java",
-    "line": 230,
+    "line": 233,
     "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
     "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } };"
    },
@@ -927,7 +935,7 @@
     "id": "29bd895463",
     "op": "ROR",
     "file": "service/GetscodeService.java",
-    "line": 233,
+    "line": 236,
     "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
     "after": "if (task.exactCommarea() && calen <= s_DFHCOMMAREA.bytes.length) {"
    },
@@ -935,7 +943,7 @@
     "id": "b7a6de129d",
     "op": "DEL",
     "file": "service/GetscodeService.java",
-    "line": 238,
+    "line": 241,
     "before": "caBack = () -> { caWhole(whole); typed.run(); };",
     "after": "/* caBack = () -> { caWhole(whole); typed.run(); }; */"
    },
@@ -943,7 +951,7 @@
     "id": "bd1005ab62",
     "op": "DEL",
     "file": "service/GetscodeService.java",
-    "line": 240,
+    "line": 243,
     "before": "Cobol.store(f13_EIBCALEN, BigDecimal.valueOf(calen), false, CS);",
     "after": "/* Cobol.store(f13_EIBCALEN, BigDecimal.valueOf(calen), false, CS); */"
    },
@@ -951,7 +959,7 @@
     "id": "d6be69c0fb",
     "op": "CON",
     "file": "service/GetscodeService.java",
-    "line": 243,
+    "line": 246,
     "before": "perform(0, 1);",
     "after": "perform(1, 1);"
    },
@@ -959,7 +967,7 @@
     "id": "046b8fffd6",
     "op": "CON",
     "file": "service/GetscodeService.java",
-    "line": 243,
+    "line": 246,
     "before": "perform(0, 1);",
     "after": "perform(0, 2);"
    },
@@ -967,7 +975,7 @@
     "id": "daca3a8843",
     "op": "LIT",
     "file": "service/GetscodeService.java",
-    "line": 251,
+    "line": 254,
     "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
     "after": "throw new DetCics.PastFrom(\"XOMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");"
    },
@@ -975,7 +983,7 @@
     "id": "65e90cee92",
     "op": "LIT",
     "file": "service/GetscodeService.java",
-    "line": 251,
+    "line": 254,
     "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
     "after": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \"Xbytes): not modelled\");"
    },
@@ -983,7 +991,7 @@
     "id": "eeffae35b8",
     "op": "DEL",
     "file": "service/GetscodeService.java",
-    "line": 258,
+    "line": 261,
     "before": "caBack.run();",
     "after": "/* caBack.run(); */"
    },
@@ -991,7 +999,7 @@
     "id": "3aa6050bed",
     "op": "DEL",
     "file": "service/GetscodeService.java",
-    "line": 262,
+    "line": 265,
     "before": "Cobol.swapTruncOpt(optBefore);",
     "after": "/* Cobol.swapTruncOpt(optBefore); */"
    },
@@ -999,7 +1007,7 @@
     "id": "9404c807b2",
     "op": "DEL",
     "file": "service/GetscodeService.java",
-    "line": 263,
+    "line": 266,
     "before": "Cobol.swapTruncBinary(truncBefore);",
     "after": "/* Cobol.swapTruncBinary(truncBefore); */"
    },
@@ -1007,7 +1015,7 @@
     "id": "27e97e2e8c",
     "op": "DEL",
     "file": "service/GetscodeService.java",
-    "line": 264,
+    "line": 267,
     "before": "Cobol.swapNumprocPfd(pfdBefore);",
     "after": "/* Cobol.swapNumprocPfd(pfdBefore); */"
    },
@@ -1015,7 +1023,7 @@
     "id": "5be2b6fb5f",
     "op": "LIT",
     "file": "service/GetscodeService.java",
-    "line": 277,
+    "line": 280,
     "before": "CicsTask task = region.linked(\"GETSCODE\", request, area);",
     "after": "CicsTask task = region.linked(\"XETSCODE\", request, area);"
    },
@@ -1023,7 +1031,7 @@
     "id": "d5276d9df0",
     "op": "LIT",
     "file": "service/GetscodeService.java",
-    "line": 278,
+    "line": 281,
     "before": "region.run(task, \"GETSCODE\", this::runTask);",
     "after": "region.run(task, \"XETSCODE\", this::runTask);"
    },
@@ -1031,7 +1039,7 @@
     "id": "74e9fb8540",
     "op": "DEL",
     "file": "service/GetscodeService.java",
-    "line": 280,
+    "line": 283,
     "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
     "after": "/* lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null; */"
    },
@@ -1039,7 +1047,7 @@
     "id": "7cddf4101a",
     "op": "COR",
     "file": "service/GetscodeService.java",
-    "line": 280,
+    "line": 283,
     "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
     "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;"
    },
@@ -1047,7 +1055,7 @@
     "id": "98915d9552",
     "op": "ROR",
     "file": "service/GetscodeService.java",
-    "line": 280,
+    "line": 283,
     "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
     "after": "lastLinkBytes = task.linkAreaTaken() && left == null ? java.util.Arrays.copyOf(left, left.length) : null;"
    },
@@ -1055,7 +1063,7 @@
     "id": "e6fc845a99",
     "op": "ROR",
     "file": "service/GetscodeService.java",
-    "line": 290,
+    "line": 293,
     "before": "return lastLinkBytes == null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
     "after": "return lastLinkBytes != null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);"
    },
@@ -1063,7 +1071,7 @@
     "id": "42a8a02e1c",
     "op": "DEL",
     "file": "service/GetscodeService.java",
-    "line": 299,
+    "line": 302,
     "before": "super(null, null, false, false);",
     "after": "/* super(null, null, false, false); */"
    },
@@ -1071,7 +1079,7 @@
     "id": "158003bca9",
     "op": "CON",
     "file": "service/GetscodeService.java",
-    "line": 332,
+    "line": 335,
     "before": "private int[] performThru = new int[64];",
     "after": "private int[] performThru = new int[65];"
    },
@@ -1079,7 +1087,7 @@
     "id": "ec27a7ccf2",
     "op": "DEL",
     "file": "service/GetscodeService.java",
-    "line": 341,
+    "line": 344,
     "before": "super(null, null, false, false);",
     "after": "/* super(null, null, false, false); */"
    },
@@ -1087,7 +1095,7 @@
     "id": "e5fc3129db",
     "op": "DEL",
     "file": "service/GetscodeService.java",
-    "line": 352,
+    "line": 355,
     "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
     "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */"
    },
@@ -1095,7 +1103,7 @@
     "id": "5181663da8",
     "op": "AOR",
     "file": "service/GetscodeService.java",
-    "line": 352,
+    "line": 355,
     "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
     "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);"
    },
@@ -1103,7 +1111,7 @@
     "id": "176d149b7c",
     "op": "CON",
     "file": "service/GetscodeService.java",
-    "line": 352,
+    "line": 355,
     "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
     "after": "performThru = java.util.Arrays.copyOf(performThru, mine * 3);"
    },
@@ -1111,7 +1119,7 @@
     "id": "4f6165e8a9",
     "op": "AOR",
     "file": "service/GetscodeService.java",
-    "line": 354,
+    "line": 357,
     "before": "performThru[performDepth++] = thru;",
     "after": "performThru[performDepth--] = thru;"
    },
@@ -1119,7 +1127,7 @@
     "id": "06d6ca3a7e",
     "op": "ROR",
     "file": "service/GetscodeService.java",
-    "line": 359,
+    "line": 362,
     "before": "boolean jumped = (next & GOTO) != 0;",
     "after": "boolean jumped = (next & GOTO) == 0;"
    },
@@ -1127,7 +1135,7 @@
     "id": "55d60d3414",
     "op": "CON",
     "file": "service/GetscodeService.java",
-    "line": 359,
+    "line": 362,
     "before": "boolean jumped = (next & GOTO) != 0;",
     "after": "boolean jumped = (next & GOTO) != 1;"
    },
@@ -1135,7 +1143,7 @@
     "id": "ba86708c78",
     "op": "NEG",
     "file": "service/GetscodeService.java",
-    "line": 361,
+    "line": 364,
     "before": "if (!jumped) {",
     "after": "if (!(!jumped)) {"
    },
@@ -1143,7 +1151,7 @@
     "id": "4227da956f",
     "op": "DEL",
     "file": "service/GetscodeService.java",
-    "line": 363,
+    "line": 366,
     "before": "return;",
     "after": "/* return; */"
    },
@@ -1151,7 +1159,7 @@
     "id": "009e5c6813",
     "op": "CON",
     "file": "service/GetscodeService.java",
-    "line": 365,
+    "line": 368,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 2; d >= 0; d--) {"
    },
@@ -1159,7 +1167,7 @@
     "id": "21e87ba6b6",
     "op": "ROR",
     "file": "service/GetscodeService.java",
-    "line": 365,
+    "line": 368,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 1; d > 0; d--) {"
    },
@@ -1167,7 +1175,7 @@
     "id": "9aad3c40a5",
     "op": "CON",
     "file": "service/GetscodeService.java",
-    "line": 365,
+    "line": 368,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 1; d >= 1; d--) {"
    },
@@ -1175,7 +1183,7 @@
     "id": "c8ac4b420b",
     "op": "AOR",
     "file": "service/GetscodeService.java",
-    "line": 365,
+    "line": 368,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 1; d >= 0; d++) {"
    },
@@ -1183,7 +1191,7 @@
     "id": "f9ea506dab",
     "op": "NEG",
     "file": "service/GetscodeService.java",
-    "line": 366,
+    "line": 369,
     "before": "if (performThru[d] == i) {",
     "after": "if (!(performThru[d] == i)) {"
    },
@@ -1191,7 +1199,7 @@
     "id": "bc364ec96e",
     "op": "ROR",
     "file": "service/GetscodeService.java",
-    "line": 366,
+    "line": 369,
     "before": "if (performThru[d] == i) {",
     "after": "if (performThru[d] != i) {"
    },
@@ -1199,7 +1207,7 @@
     "id": "7db5f9582f",
     "op": "ROR",
     "file": "service/GetscodeService.java",
-    "line": 371,
+    "line": 374,
     "before": "if (next >= 2) {",
     "after": "if (next > 2) {"
    },
@@ -1207,7 +1215,7 @@
     "id": "f2dd3c097d",
     "op": "CON",
     "file": "service/GetscodeService.java",
-    "line": 371,
+    "line": 374,
     "before": "if (next >= 2) {",
     "after": "if (next >= 3) {"
    },
@@ -1215,7 +1223,7 @@
     "id": "31004e0ce3",
     "op": "NEG",
     "file": "service/GetscodeService.java",
-    "line": 377,
+    "line": 380,
     "before": "if (e.depth != mine) {",
     "after": "if (!(e.depth != mine)) {"
    },
@@ -1223,7 +1231,7 @@
     "id": "4185415ee3",
     "op": "ROR",
     "file": "service/GetscodeService.java",
-    "line": 377,
+    "line": 380,
     "before": "if (e.depth != mine) {",
     "after": "if (e.depth == mine) {"
    },
@@ -1231,7 +1239,7 @@
     "id": "cf16b63847",
     "op": "DEL",
     "file": "service/GetscodeService.java",
-    "line": 381,
+    "line": 384,
     "before": "performDepth = mine;",
     "after": "/* performDepth = mine; */"
    },
@@ -1239,7 +1247,7 @@
     "id": "76cb23f091",
     "op": "LIT",
     "file": "service/GetscodeService.java",
-    "line": 389,
+    "line": 392,
     "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
     "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);"
    },
@@ -1247,7 +1255,7 @@
     "id": "eb02a74e12",
     "op": "DEL",
     "file": "service/GetscodeService.java",
-    "line": 405,
+    "line": 408,
     "before": "task.returnTransid(null, null);",
     "after": "/* task.returnTransid(null, null); */"
    },
@@ -1255,7 +1263,7 @@
     "id": "0813955334",
     "op": "NEG",
     "file": "service/GetscodeService.java",
-    "line": 406,
+    "line": 409,
     "before": "if (true) throw new Goback();",
     "after": "if (!(true)) throw new Goback();"
    },
@@ -1263,7 +1271,7 @@
     "id": "f1a1e3da48",
     "op": "NEG",
     "file": "service/GetscodeService.java",
-    "line": 408,
+    "line": 411,
     "before": "if (true) throw new Goback();",
     "after": "if (!(true)) throw new Goback();"
    },
@@ -1271,28 +1279,20 @@
     "id": "18b52fab8b",
     "op": "CON",
     "file": "service/GetscodeService.java",
-    "line": 409,
+    "line": 412,
     "before": "return 2;",
     "after": "return 3;"
-   },
-   {
-    "id": "03a226307f",
-    "op": "NEG",
-    "file": "service/GetscodeService.java",
-    "line": 87,
-    "before": "if (CicsTask.undefinableFile(name)) {",
-    "after": "if (!(CicsTask.undefinableFile(name))) {"
    }
   ],
   "inputs": {
    "port": "d7248ee94f290f6f4816309dd382905f3eb33b05f9671fe521098e91d4e24334",
-   "generator": "de7bc4d6125408536cfc2b8b5b1cd1441506bd94080198eb3d2888809d3ca447",
+   "runtime": "cd4cd407674d87981f8545cf9298df6ea78439f48df4c0640e77497e86caa8cc",
+   "generator": "fd955a1cebb1923ec2937ad70d55971c9d38e3851adc42aa00b32b38c3fb4dab",
    "case": "493711a4510110c6fe663006d27cdbb2ae1cd7c1e9df64b99ae8ee60f5b33fd3",
    "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
-   "harness": "312b22f910ed2b893d7a53809796756b6f090f17a50697d8d37452f86c011ec2",
+   "harness": "b88073698db013f9dc74cf873416c3553d27115cac916d7bbfebf52614051e29",
    "oracle": "6a51f0c26da65b72d04dda8a383ddccd728bbf928bdc5a7042660da769569dd6",
-   "survivors": "a144fd0be9dba9ec26e13bc30072b3fc2dfd73febf90a01b0dcc0a566516189d",
-   "runtime": "489efe89317e8360a6fe29c13cc96bf0ceea4773e0d0adeb3b2b9f982dffe090"
+   "survivors": "7c6943da0fcab81dac1e702e0a6637327389fb4f810ef2cd70d236fce10e46fb"
   },
   "components": {
    "generator": {
@@ -1302,7 +1302,7 @@
     "generator:det/cics_common": "03fe34eeea3470e5e1b689ad1154e7012663890618326f8049c23025595e23c8",
     "generator:det/cics_conditions": "3ebd12a753735f4cfb594d4e5d80ec98f3c19a1e30fe9a9d945ccc142cdb8752",
     "generator:det/cics_containers": "0b061073eabfc3de21e12ddd608470b6fbe70c1539fffc0a40a263f2a21d3142",
-    "generator:det/cics_counters": "eca3bf23c49cf60dd34c13443c44bba6378772164ec75e6fa2692ccd05f0c534",
+    "generator:det/cics_counters": "494271d107d6554da2b7436d5c882f6c92db2141bb3b97c8fff218194d4993c4",
     "generator:det/cics_faults": "863ce608ce8e183fe37350ba17f59b2176ce20452e1ebe86cb6b7ae6109fdb4e",
     "generator:det/cics_filecontrol": "3d5338f50899b757d370ac0712924fd9f3e294bfe6a01c843b6b0bea1ebae984",
     "generator:det/cics_program": "d48437e7dba39ab0eb4db61b75c2558892d9c45ff53e7feb114cf3eb700f313f",
@@ -1320,7 +1320,7 @@
     "generator:det/source": "fd7d20e0f7824a4d3b74201b0690914daf79834567b3fa5f064c98beb4d50e0b"
    },
    "harness": {
-    "harness:cics": "372558e50a7b253e192c336eaf39754c1359b149baa2ea95d3dbe03eb98338d2",
+    "harness:cics": "1f71bf1c66b94b2beaad3ef12d6c4744d6e6d9c5445e1be2fc4ee18430596b44",
     "harness:core": "8a7d18f97c68b94659c661facaab3877279b809e80143028b7cde992385b5718"
    },
    "oracle": {
@@ -1329,12 +1329,6 @@
     "oracle:le": "670c92cc59b722e108b688267be1fd89ecda9b7be62bb485da2ad4839b4f7011"
    }
   },
-  "every": "007b27c212 009e5c6813 00bda0ea11 03a226307f 04039cf12a 041f756622 046b8fffd6 0493bb5838 054fa3eaaa 069fc35d35 06d6ca3a7e 0813955334 083364a1c1 08de09947a 0965161aa4 0a3c0dd42b 0b6da7b0d5 0c9ba8d96b 0dbe5bbd66 10c326c033 1260a08655 158003bca9 16ca8eb207 176d149b7c 18a305f0d7 18b52fab8b 199ca70092 1b4df4a4b4 1c35fbae12 1c96b6ee72 1d482437d7 1e088dfd00 1edfea23f2 1f3a5f00e9 1f7e41316c 2090174c23 21e87ba6b6 2292832569 2420406a7f 25db44a9a9 260b193b88 27e97e2e8c 29bd895463 2a829a554f 2d1f459d0d 2d519a8cf6 2ee187673d 2f8669f8ee 31004e0ce3 31a7d50f34 33fb72682c 36b16bd66b 37d197efc8 38d9b9ff6a 3aa6050bed 3b4045aa71 3bb1728714 4185415ee3 4192ff1fd4 4227da956f 4281948e82 42a8a02e1c 42d00ca2fa 43d7eb31bd 4414e93280 46b653c4ad 46c4b9415e 47904656a2 48e063e384 4a0127e6e2 4b36f0a41d 4c102b2c6f 4c7e6a071d 4cf1d70b9b 4d823499fd 4e27c53ee0 4e314673b0 4e41f32009 4ef0500e50 4f6165e8a9 5181663da8 540e1ece7e 54c0222668 55d60d3414 55e8f29bbb 564fb0aca4 56685c157b 573402682f 57c770b3db 57e0f07655 594534e221 59d04ac042 59e5b8dbb9 5be2b6fb5f 62e3779fad 644de9058d 65bfe118eb 65e90cee92 6692aa8da3 6716cf8f3e 6893fb8c19 68f531f8d6 6bf9f49dcc 6dda998923 6e3fbffe82 6ec45e99e9 6f2a38d9b8 70d9f3d9bb 72c05c24bf 735dc7ee83 74e9fb8540 75644f3c5d 759e2a85d9 76cb23f091 7b67bd0248 7cddf4101a 7db5f9582f 7ef7390128 81db8d511d 82125ff431 8388008bf8 843326e638 84e7326554 8505f6428f 864f782381 880b643b2b 88a6da5460 88da4d7e32 8b8202d48d 8cc5a9a2c6 8cf773106c 8d76a469f1 8de53f4adb 8ec167415c 90cbdda83c 9101bf6dde 926d3edf62 9404c807b2 98915d9552 98ce520e58 993b564d8c 99ec141f73 9aad3c40a5 a17818773d a28fc6efe4 a366f1006c a4bcbd409e a63bc3ae21 a7a2363a69 a8238ec664 a92f7a3519 abe5e24bd3 ac14f04465 af01e18c8f b007bad3cf b026656309 b38e5231c0 b3be41a142 b5202792c0 b67dc4d62e b765d06589 b7a6de129d ba86708c78 bbd0120a82 bc364ec96e bd1005ab62 bdc7f67fcd bf3760204f bf7b16551e c198dcaedd c3b3001904 c549ed1549 c5ab861417 c5ac4504e8 c68080e2ac c714de083c c721d73d65 c7577ee1fb c8ac4b420b c984d2b1c6 cc5943b251 cdff82aafb ced9b654da cef46ad0df cf16b63847 d5276d9df0 d6a2784426 d6be69c0fb d96dfca520 d99089c078 da0954e2b0 daca3a8843 dbc096e5dc dd17495d8f dd86f60fda dd9364ef20 dfba6dc27d e3483b22df e5fc3129db e6fc845a99 e74671c74f e7db03c99c ea0001d0cf eb02a74e12 eb5589eb69 ec27a7ccf2 ec5fb45a0f ec8cd7c1a4 ecd17887db ed2139ad93 ed5346ad9d ee1e04d193 ee2bb5d2db eeffae35b8 efa091c785 f115a2c269 f1a1e3da48 f29082fad1 f2bb3bb656 f2dd3c097d f32da76d85 f83a5cc9c2 f9ea506dab fb34bea25c fbd23e1e90 fbfc7109d8 fc4b4e70e4 fdeb8ef564",
-  "refreshed": {
-   "from": "2026-10-22",
-   "survivors_rerun": 0,
-   "fresh": 1,
-   "stale": []
-  }
+  "every": "007b27c212 009e5c6813 00bda0ea11 03a226307f 04039cf12a 041f756622 046b8fffd6 0493bb5838 054fa3eaaa 069fc35d35 06d6ca3a7e 0813955334 083364a1c1 08de09947a 0965161aa4 0a3c0dd42b 0b6da7b0d5 0c9ba8d96b 0dbe5bbd66 10c326c033 1260a08655 158003bca9 16ca8eb207 176d149b7c 18a305f0d7 18b52fab8b 199ca70092 1b4df4a4b4 1c35fbae12 1c96b6ee72 1d482437d7 1e088dfd00 1edfea23f2 1f3a5f00e9 1f7e41316c 2090174c23 21e87ba6b6 2292832569 2420406a7f 25db44a9a9 260b193b88 27e97e2e8c 29bd895463 2a829a554f 2d1f459d0d 2d519a8cf6 2ee187673d 2f8669f8ee 31004e0ce3 31a7d50f34 33fb72682c 36b16bd66b 37d197efc8 38d9b9ff6a 3aa6050bed 3b4045aa71 3bb1728714 4185415ee3 4192ff1fd4 4227da956f 4281948e82 42a8a02e1c 42d00ca2fa 43d7eb31bd 4414e93280 46b653c4ad 46c4b9415e 47904656a2 48e063e384 4a0127e6e2 4b36f0a41d 4c102b2c6f 4c7e6a071d 4cf1d70b9b 4d823499fd 4e27c53ee0 4e314673b0 4e41f32009 4ef0500e50 4f6165e8a9 5181663da8 540e1ece7e 54c0222668 55d60d3414 55e8f29bbb 564fb0aca4 56685c157b 573402682f 57c770b3db 57e0f07655 594534e221 59d04ac042 59e5b8dbb9 5be2b6fb5f 62e3779fad 644de9058d 65bfe118eb 65e90cee92 6692aa8da3 6716cf8f3e 6893fb8c19 68f531f8d6 6bf9f49dcc 6dda998923 6e3fbffe82 6ec45e99e9 6f2a38d9b8 70d9f3d9bb 72c05c24bf 735dc7ee83 74e9fb8540 75644f3c5d 759e2a85d9 76cb23f091 7b67bd0248 7cddf4101a 7db5f9582f 7ef7390128 81db8d511d 82125ff431 8388008bf8 843326e638 84e7326554 8505f6428f 864f782381 880b643b2b 88a6da5460 88da4d7e32 8b8202d48d 8cc5a9a2c6 8cf773106c 8d76a469f1 8de53f4adb 8ec167415c 90cbdda83c 9101bf6dde 926d3edf62 9404c807b2 98915d9552 98ce520e58 993b564d8c 99ec141f73 9aad3c40a5 a17818773d a28fc6efe4 a366f1006c a4bcbd409e a63bc3ae21 a7a2363a69 a8238ec664 a92f7a3519 abe5e24bd3 ac14f04465 af01e18c8f b007bad3cf b026656309 b38e5231c0 b3be41a142 b5202792c0 b67dc4d62e b765d06589 b7a6de129d ba86708c78 bbd0120a82 bc364ec96e bd1005ab62 bdc7f67fcd bf3760204f bf7b16551e c198dcaedd c3b3001904 c549ed1549 c5ab861417 c5ac4504e8 c68080e2ac c714de083c c721d73d65 c7577ee1fb c8ac4b420b c984d2b1c6 cc5943b251 cdff82aafb ced9b654da cef46ad0df cf16b63847 d5276d9df0 d6a2784426 d6be69c0fb d96dfca520 d99089c078 da0954e2b0 daca3a8843 dbc096e5dc dd17495d8f dd86f60fda dd9364ef20 dfba6dc27d e3483b22df e5fc3129db e6fc845a99 e74671c74f e7db03c99c ea0001d0cf eb02a74e12 eb5589eb69 ec27a7ccf2 ec5fb45a0f ec8cd7c1a4 ecd17887db ed2139ad93 ed5346ad9d ee1e04d193 ee2bb5d2db eeffae35b8 efa091c785 f115a2c269 f1a1e3da48 f29082fad1 f2bb3bb656 f2dd3c097d f32da76d85 f83a5cc9c2 f9ea506dab fb34bea25c fbd23e1e90 fbfc7109d8 fc4b4e70e4 fdeb8ef564"
  }
 }

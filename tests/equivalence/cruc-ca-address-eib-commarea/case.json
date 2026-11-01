@@ -1,0 +1,29 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "CAEBCA",
+  "program_source": "cases/commarea-mismatch/ca-address-eib-commarea/src/CAEBCA.cbl",
+  "copy_dirs": [
+    "cases/commarea-mismatch/ca-address-eib-commarea/copy"
+  ],
+  "transid": "CA0K",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "programs": [
+    {
+      "program": "CAEBSB",
+      "program_source": "cases/commarea-mismatch/ca-address-eib-commarea/src/CAEBSB.cbl"
+    }
+  ],
+  "notes": "cics-crucible commarea-mismatch / ca-address-eib-commarea (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): ADDRESS EIB and ADDRESS COMMAREA views together. Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "eib-qiderr",
+      "commarea": null,
+      "terminal": "CA0K Q",
+      "why": "ADDRESS EIB view, then READQ TD of an undefined queue with RESP: the view holds the failed command's EIB fields"
+    }
+  ]
+}

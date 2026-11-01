@@ -1,0 +1,67 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "CAXB",
+  "program_source": "cases/commarea-mismatch/ca-xctl-versions/src/CAXB.cbl",
+  "copy_dirs": [
+    "cases/commarea-mismatch/ca-xctl-versions/copy"
+  ],
+  "transid": "CA03",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": {
+    "segments": [
+      {
+        "copybook": "cases/commarea-mismatch/ca-xctl-versions/src/CAXB.cbl",
+        "record": "DFHCOMMAREA"
+      }
+    ]
+  },
+  "screens": {},
+  "notes": "cics-crucible commarea-mismatch / ca-xctl-versions (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): CAXB, the version-2 target of the crucible's XCTL, entered with the COMMAREA lengths its three callers produce (0, 10, 80) and the PF3 end. CAXA is not in this case: its XCTL passes a WORKING-STORAGE item, which the harness cannot describe as a COMMAREA class. Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "direct-entry",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "why": "EIBCALEN 0: every V2 field defaulted (and still labelled UPGRADED FROM V1)"
+    },
+    {
+      "name": "short-upgrade-10",
+      "aid": "DFHENTER",
+      "commarea": {
+        "V2-VERSION": "1",
+        "V2-CUSTID": "C0042",
+        "V2-VISITS": 7
+      },
+      "commarea_length": 10,
+      "why": "EIBCALEN 10 (< LENGTH OF WS-V2): the first 10 bytes copied, the rest defaulted, version stamped 2"
+    },
+    {
+      "name": "full-80",
+      "aid": "DFHENTER",
+      "commarea": {
+        "V2-VERSION": "2",
+        "V2-CUSTID": "C0042",
+        "V2-VISITS": 7,
+        "V2-TIER": "GOLD",
+        "V2-BALANCE": 12345.67,
+        "V2-NOTE": "FULL VERSION 2 AREA"
+      },
+      "why": "EIBCALEN 80: the whole version-2 area copied"
+    },
+    {
+      "name": "pf3-end",
+      "aid": "DFHPF3",
+      "commarea": {
+        "V2-VERSION": "2",
+        "V2-CUSTID": "C0042",
+        "V2-VISITS": 7,
+        "V2-TIER": "GOLD",
+        "V2-BALANCE": 12345.67,
+        "V2-NOTE": "FULL VERSION 2 AREA"
+      },
+      "why": "PF3 under CA03: SESSION ENDED"
+    }
+  ]
+}

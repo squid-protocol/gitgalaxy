@@ -90,4 +90,5 @@ globs: "gitgalaxy/**/*.py,tests/**/*.py"
 * **`pr_gates --fast` lint misses `ruff format` drift in tests:** run the pinned `bin/ruff format --check` on your changed test files (#6614).
 * **A job-level `if: ... && success()` is false when any ancestor in `needs` was skipped:** use `!cancelled() && needs.<job>.result == 'success'` (#6629).
 * **`gh run view --json jobs` has no per-job `createdAt`,** so per-job queue wait can't be read from it (#6633).
+* **`ci_digest.PARTS` matches only the expanded job name** (`full-suite part N/M`): a matrix job cancelled before expansion keeps the raw `${{ matrix.group }}` name and triages `real`, so `ci-gate` fails with no test run. After a drop-to-draft cancels a head's runs, read the part jobs' conclusions before hunting a code failure (#7164, #7326).
 * **Test stubs that replace a translator method** (`_OverCics`, `no_dto` in `test_det_translate.py`) break on a new keyword arg: grep `dto_for =` / `def no_dto` when its signature changes (#7009).

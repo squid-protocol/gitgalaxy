@@ -57,16 +57,23 @@ def test_the_ports_dir_adds_the_runtime_and_keeps_the_services(tmp_path):
 def test_the_call_site_reader_records_a_load_as_an_edge_without_a_commarea_contract(source, verb, form, operand):
     from gitgalaxy.core.mainframe_boundary import _cobol_calls
 
-    (site,) = _cobol_calls(source, {})
+    (site,) = _cobol_calls(source, {}, loads=True)
     assert (site["verb"], site["form"], site["operand"]) == (verb, form, operand)
     if verb == "LOAD":  # LOAD's LENGTH is the image's, never a COMMAREA length
         assert "commarea_length" not in site and "commarea" not in site
 
 
+def test_a_load_is_read_for_cobol_hosts_only():
+    from gitgalaxy.core.mainframe_boundary import _cobol_calls
+
+    src = "EXEC CICS LOAD PROGRAM('X') END-EXEC"
+    assert _cobol_calls(src, {}) == [] and _cobol_calls(src, {}, cics_only=True) == []  # PL/I, HLASM: unchanged
+
+
 def test_release_is_not_an_edge():
     from gitgalaxy.core.mainframe_boundary import _cobol_calls
 
-    assert _cobol_calls("EXEC CICS RELEASE PROGRAM('CALDTG') END-EXEC", {}) == []
+    assert _cobol_calls("EXEC CICS RELEASE PROGRAM('CALDTG') END-EXEC", {}, loads=True) == []
 
 
 def _skeleton(nav):

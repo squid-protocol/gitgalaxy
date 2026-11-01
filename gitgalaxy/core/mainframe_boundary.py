@@ -733,11 +733,14 @@ def _identifier_value(values: dict[str, str], operand: str) -> str | None:
     return values.get(operand) or (values.get(operand.rsplit(".", 1)[-1]) if "." in operand else None)
 
 
-def _cobol_calls(code_stream: str, values: dict[str, str], cics_only: bool = False) -> list[dict[str, Any]]:
+def _cobol_calls(
+    code_stream: str, values: dict[str, str], cics_only: bool = False, loads: bool = False
+) -> list[dict[str, Any]]:
     """Every COBOL invocation site: `CALL`, and CICS `LINK`/`XCTL PROGRAM(...)`.
 
     `cics_only` (#3495) reads just the EXEC CICS sites, for a host language whose
-    own CALL is not COBOL's (HLASM's `CALL` macro)."""
+    own CALL is not COBOL's (HLASM's `CALL` macro). `loads` (#6876) also records `EXEC CICS LOAD PROGRAM` as an
+    edge: COBOL hosts only, since PL/I's and HLASM's answer keys list no LOAD site."""
     calls: list[dict[str, Any]] = []
 
     # Line numbers come from a precomputed newline index. Counting newlines per
@@ -767,7 +770,7 @@ def _cobol_calls(code_stream: str, values: dict[str, str], cics_only: bool = Fal
     # 1. EXEC CICS LINK / XCTL. Read first so the PROGRAM(...) operand is
     #    attributed to its own verb, and recorded at the line of the EXEC.
     for match in _CICS_TRANSFER.finditer(code_stream):
-        if _shielded(match.start()):
+        if _shielded(match.start()) or (match.group(1).upper() == "LOAD" and not loads):
             continue
         block = code_stream[match.end() : match.end() + _CICS_BLOCK_LIMIT]
         end = block.upper().find("END-EXEC")
@@ -2654,7 +2657,7 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
         records = _cobol_records(code_stream, any(sn["clause"] == "DECIMAL-POINT" for sn in specials), section_copies)
         return {
             "section_copies": section_copies,  # #4457
-            "calls": _cobol_calls(code_stream, values),
+            "calls": _cobol_calls(code_stream, values, loads=True),
             "datasets": _cobol_datasets(code_stream),
             "records": records,
             "transactions": [],

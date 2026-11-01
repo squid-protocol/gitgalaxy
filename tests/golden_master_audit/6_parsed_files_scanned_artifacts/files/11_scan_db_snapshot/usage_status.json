@@ -6110,91 +6110,91 @@
     },
     "cobol/CICS-Cobol": {
       "cobol/CICS-Cobol/CBL0102v01DivisionAmbiente.cbl": {
-        "MAIN-PROCEDURE@22": 1
+        "MAIN-PROCEDURE@22": 0
       },
       "cobol/CICS-Cobol/CBL0103v01DivisionData.cbl": {
-        "MAIN-PROCEDURE@31": 1
+        "MAIN-PROCEDURE@31": 0
       },
       "cobol/CICS-Cobol/CBL0104v01ProcedureDivision.cbl": {
-        "MAIN-PROCEDURE@15": 1
+        "MAIN-PROCEDURE@15": 0
       },
       "cobol/CICS-Cobol/CBL0105v01DeclararElementoGrupo.cbl": {
-        "MAIN-PROCEDURE@19": 1
+        "MAIN-PROCEDURE@19": 0
       },
       "cobol/CICS-Cobol/CBL0106v01ClausulaImagen.cbl": {
-        "MAIN-PROCEDURE@18": 1
+        "MAIN-PROCEDURE@18": 0
       },
       "cobol/CICS-Cobol/CBL0201v01VerbosBasicos.cbl": {
-        "MAIN-PROCEDURE@15": 1
+        "MAIN-PROCEDURE@15": 0
       },
       "cobol/CICS-Cobol/CBL0202v01IniciarlizarVerbo.cbl": {
-        "MAIN-PROCEDURE@19": 1
+        "MAIN-PROCEDURE@19": 0
       },
       "cobol/CICS-Cobol/CBL0203v01MoveVerb.cbl": {
-        "MAIN-PROCEDURE@23": 1
+        "MAIN-PROCEDURE@23": 0
       },
       "cobol/CICS-Cobol/CBL0204v01AddVerb.cbl": {
-        "MAIN-PROCEDURE@24": 1
+        "MAIN-PROCEDURE@24": 0
       },
       "cobol/CICS-Cobol/CBL0205v01SubtractVerb.cbl": {
-        "MAIN-PROCEDURE@24": 1
+        "MAIN-PROCEDURE@24": 0
       },
       "cobol/CICS-Cobol/CBL0206v01MultiplyVerb.cbl": {
-        "MAIN-PROCEDURE@24": 1
+        "MAIN-PROCEDURE@24": 0
       },
       "cobol/CICS-Cobol/CBL0207v01DivideVerb.cbl": {
-        "MAIN-PROCEDURE@26": 1
+        "MAIN-PROCEDURE@26": 0
       },
       "cobol/CICS-Cobol/CBL0208v01ComputeVerb.cbl": {
-        "MAIN-PROCEDURE@26": 1
+        "MAIN-PROCEDURE@26": 0
       },
       "cobol/CICS-Cobol/CBL0301v01DataLayoutRedefine.cbl": {
-        "MAIN-PROCEDURE@24": 1
+        "MAIN-PROCEDURE@24": 0
       },
       "cobol/CICS-Cobol/CBL0302v01DataLayoutRenames.cbl": {
-        "MAIN-PROCEDURE@26": 1
+        "MAIN-PROCEDURE@26": 0
       },
       "cobol/CICS-Cobol/CBL0303v01ClausuleUse.cbl": {
-        "MAIN-PROCEDURE@19": 1
+        "MAIN-PROCEDURE@19": 0
       },
       "cobol/CICS-Cobol/CBL0304v01ClausuleComp.cbl": {
-        "MAIN-PROCEDURE@29": 1
+        "MAIN-PROCEDURE@29": 0
       },
       "cobol/CICS-Cobol/CBL0305v01ClausuleComp-1.cbl": {
-        "MAIN-PROCEDURE@27": 1
+        "MAIN-PROCEDURE@27": 0
       },
       "cobol/CICS-Cobol/CBL0306v01ClausuleComp-2.cbl": {
-        "MAIN-PROCEDURE@27": 1
+        "MAIN-PROCEDURE@27": 0
       },
       "cobol/CICS-Cobol/CBL0307v01ClausuleComp-3.cbl": {
-        "MAIN-PROCEDURE@37": 1
+        "MAIN-PROCEDURE@37": 0
       },
       "cobol/CICS-Cobol/CBL0401v01ClausuleCopy.cbl": {
-        "MAIN-PROCEDURE@17": 1
+        "MAIN-PROCEDURE@17": 0
       },
       "cobol/CICS-Cobol/CBL0501v01DeclaracioCondicionIF.cbl": {
-        "MAIN-PROCEDURE@18": 1
+        "MAIN-PROCEDURE@18": 0
       },
       "cobol/CICS-Cobol/CBL0502v01CondicionRelacion.cbl": {
-        "MAIN-PROCEDURE@21": 1
+        "MAIN-PROCEDURE@21": 0
       },
       "cobol/CICS-Cobol/CBL0503v01CondicionSigno.cbl": {
-        "MAIN-PROCEDURE@17": 1
+        "MAIN-PROCEDURE@17": 0
       },
       "cobol/CICS-Cobol/CBL0504v01CondicionClass.cbl": {
-        "MAIN-PROCEDURE@18": 1
+        "MAIN-PROCEDURE@18": 0
       },
       "cobol/CICS-Cobol/CBL0505v01CondicionName.cbl": {
-        "MAIN-PROCEDURE@23": 1
+        "MAIN-PROCEDURE@23": 0
       },
       "cobol/CICS-Cobol/CBL0506v01CondicionNot.cbl": {
-        "MAIN-PROCEDURE@19": 1
+        "MAIN-PROCEDURE@19": 0
       },
       "cobol/CICS-Cobol/CBL0507v01CondicionCombined.cbl": {
-        "MAIN-PROCEDURE@20": 1
+        "MAIN-PROCEDURE@20": 0
       },
       "cobol/CICS-Cobol/CBL0508v01CondicionVerb.cbl": {
-        "MAIN-PROCEDURE@19": 1
+        "MAIN-PROCEDURE@19": 0
       },
       "cobol/CICS-Cobol/CBL0601v01InOutLineLoop.cbl": {
         "A-PARA@29": 1,
@@ -6202,92 +6202,92 @@
         "C-PARA@41": 0,
         "D-PARA@44": 1,
         "E-PARA@47": 0,
-        "MAIN-PROCEDURE@21": 1
+        "MAIN-PROCEDURE@21": 0
       },
       "cobol/CICS-Cobol/CBL0602v01PerformUntil.cbl": {
         "CONTADOR@29": 0,
-        "MAIN-PROCEDURE@18": 1
+        "MAIN-PROCEDURE@18": 0
       },
       "cobol/CICS-Cobol/CBL0603v01PerformTimes.cbl": {
-        "0000-MAIN@18": 1,
+        "0000-MAIN@18": 0,
         "0100-CONTADOR@29": 0
       },
       "cobol/CICS-Cobol/CBL0604v01PerformVariying.cbl": {
-        "0000-MAIN@17": 1,
+        "0000-MAIN@17": 0,
         "0100-CONTADOR@37": 0
       },
       "cobol/CICS-Cobol/CBL0605v01GotoStatement.cbl": {
-        "0000-MAIN@17": 1,
+        "0000-MAIN@17": 0,
         "0100-CONTADOR@39": 1,
         "B-PARA@27": 0,
         "C-PARA@31": 0,
         "D-PARA@34": 0
       },
       "cobol/CICS-Cobol/CBL0701v01StatementInspect.cbl": {
-        "0000-MAIN@21": 1
+        "0000-MAIN@21": 0
       },
       "cobol/CICS-Cobol/CBL0702v01InspectReplacing.cbl": {
-        "0000-MAIN@19": 1
+        "0000-MAIN@19": 0
       },
       "cobol/CICS-Cobol/CBL0703v01StatementString.cbl": {
-        "0000-MAIN@20": 1
+        "0000-MAIN@20": 0
       },
       "cobol/CICS-Cobol/CBL0704v01StatementNotString.cbl": {
-        "0000-MAIN@22": 1
+        "0000-MAIN@22": 0
       },
       "cobol/CICS-Cobol/CBL0801v01TableOneDimention.cbl": {
-        "0000-MAIN@19": 1
+        "0000-MAIN@19": 0
       },
       "cobol/CICS-Cobol/CBL0802v01TableTwoDimention.cbl": {
-        "0000-MAIN@23": 1
+        "0000-MAIN@23": 0
       },
       "cobol/CICS-Cobol/CBL0803v01TableUseSubIndice.cbl": {
-        "0000-MAIN@23": 1
+        "0000-MAIN@23": 0
       },
       "cobol/CICS-Cobol/CBL0804v01TableUseIndice.cbl": {
-        "0000-MAIN@31": 1,
+        "0000-MAIN@31": 0,
         "100-ONE-DIMENSION@52": 0,
         "200-TWO-DIMENSION@55": 0,
         "300-MOSTRAR@58": 0
       },
       "cobol/CICS-Cobol/CBL0805v01TableUseIndiceWithSet.cbl": {
-        "0000-MAIN@29": 1,
+        "0000-MAIN@29": 0,
         "100-ONE-DIMENSION@57": 0,
         "200-TWO-DIMENSION@61": 0,
         "300-MOSTRAR@64": 0
       },
       "cobol/CICS-Cobol/CBL0806v01TableSearch.cbl": {
-        "0000-MAIN@32": 1,
+        "0000-MAIN@32": 0,
         "100-ONE-DIMENSION@46": 0
       },
       "cobol/CICS-Cobol/CBL0807v01TableSearchAll.cbl": {
-        "0000-MAIN@33": 1,
+        "0000-MAIN@33": 0,
         "050-SHOW-BEFORE@49": 0,
         "100-ONE-BUSCAR@57": 0,
         "150-SHOW-AFTER@68": 0
       },
       "cobol/CICS-Cobol/CBL0901v01AccesoSecuencial.cbl": {
-        "0000-MAIN@52": 1,
+        "0000-MAIN@52": 0,
         "1000-INICIO@56": 0,
         "4000-FINAL@60": 0
       },
       "cobol/CICS-Cobol/CBL0901v02AccesoSecuencialFiles.cbl": {
-        "0000-MAIN@77": 1,
+        "0000-MAIN@77": 0,
         "1000-INICIO@81": 0,
         "4000-FINAL@86": 0
       },
       "cobol/CICS-Cobol/CBL0902v01AccesoAleatorio.cbl": {
-        "0000-MAIN@68": 1,
+        "0000-MAIN@68": 0,
         "1000-INICIO@72": 0,
         "4000-FINAL@76": 0
       },
       "cobol/CICS-Cobol/CBL0903v01AccesoDinamico.cbl": {
-        "0000-MAIN@69": 1,
+        "0000-MAIN@69": 0,
         "1000-INICIO@73": 0,
         "4000-FINAL@76": 0
       },
       "cobol/CICS-Cobol/CBL1001v01ManejoCICS.cbl": {
-        "0000-PRINCIPAL@33": 1,
+        "0000-PRINCIPAL@33": 0,
         "1000-INICIO@39": 0,
         "2000-PROCESO@43": 0,
         "2100-PEDIR-DATOS@48": 0,
@@ -6394,7 +6394,7 @@
         "9300-CARDFILE-CLOSE@413": 0,
         "9400-ACCTFILE-CLOSE@431": 0,
         "9500-TRANFILE-CLOSE@449": 0,
-        "MAIN-PARA@155": 1,
+        "MAIN-PARA@155": 0,
         "Z-ABEND-PROGRAM@467": 0,
         "Z-DISPLAY-IO-STATUS@474": 0
       },
@@ -6458,7 +6458,7 @@
       },
       "cobol/aws-mainframe-modernization-carddemo/COACTUPC.cbl": {
         "0000-MAIN-EXIT@1029": 1,
-        "0000-MAIN@867": 1,
+        "0000-MAIN@867": 0,
         "1000-PROCESS-INPUTS-EXIT@1044": 0,
         "1000-PROCESS-INPUTS@1033": 0,
         "1100-RECEIVE-MAP-EXIT@1434": 0,
@@ -6546,7 +6546,7 @@
       "cobol/aws-mainframe-modernization-carddemo/COACTVWC.cbl": {
         "0000-MAIN-EXIT@408": 2,
         "0000-MAIN-EXIT@411": 2,
-        "0000-MAIN@262": 1,
+        "0000-MAIN@262": 0,
         "1000-SEND-MAP-EXIT@427": 0,
         "1000-SEND-MAP@416": 0,
         "1100-SCREEN-INIT-EXIT@457": 0,
@@ -6582,7 +6582,7 @@
       },
       "cobol/aws-mainframe-modernization-carddemo/COADM01C.cbl": {
         "BUILD-MENU-OPTIONS@226": 0,
-        "MAIN-PARA@75": 1,
+        "MAIN-PARA@75": 0,
         "POPULATE-HEADER-INFO@202": 0,
         "PROCESS-ENTER-KEY@115": 0,
         "RECEIVE-MENU-SCREEN@189": 0,
@@ -6594,7 +6594,7 @@
         "ENDBR-TRANSACT-FILE@501": 0,
         "GET-CURRENT-TIMESTAMP@249": 0,
         "INITIALIZE-ALL-FIELDS@560": 0,
-        "MAIN-PARA@99": 1,
+        "MAIN-PARA@99": 0,
         "POPULATE-HEADER-INFO@319": 0,
         "PROCESS-ENTER-KEY@154": 0,
         "READ-ACCTDAT-FILE@343": 0,
@@ -6609,7 +6609,7 @@
       },
       "cobol/aws-mainframe-modernization-carddemo/COCRDLIC.cbl": {
         "0000-MAIN-EXIT@621": 1,
-        "0000-MAIN@298": 1,
+        "0000-MAIN@298": 0,
         "1000-SEND-MAP-EXIT@639": 0,
         "1000-SEND-MAP@624": 0,
         "1100-SCREEN-INIT-EXIT@674": 0,
@@ -6650,7 +6650,7 @@
       },
       "cobol/aws-mainframe-modernization-carddemo/COCRDSLC.cbl": {
         "0000-MAIN-EXIT@408": 1,
-        "0000-MAIN@248": 1,
+        "0000-MAIN@248": 0,
         "1000-SEND-MAP-EXIT@423": 0,
         "1000-SEND-MAP@412": 0,
         "1100-SCREEN-INIT-EXIT@453": 0,
@@ -6686,7 +6686,7 @@
       },
       "cobol/aws-mainframe-modernization-carddemo/COCRDUPC.cbl": {
         "0000-MAIN-EXIT@560": 1,
-        "0000-MAIN@367": 1,
+        "0000-MAIN@367": 0,
         "1000-PROCESS-INPUTS-EXIT@575": 0,
         "1000-PROCESS-INPUTS@564": 0,
         "1100-RECEIVE-MAP-EXIT@638": 0,
@@ -6733,7 +6733,7 @@
       },
       "cobol/aws-mainframe-modernization-carddemo/COMEN01C.cbl": {
         "BUILD-MENU-OPTIONS@236": 0,
-        "MAIN-PARA@75": 1,
+        "MAIN-PARA@75": 0,
         "POPULATE-HEADER-INFO@212": 0,
         "PROCESS-ENTER-KEY@115": 0,
         "RECEIVE-MENU-SCREEN@199": 0,
@@ -6742,7 +6742,7 @@
       },
       "cobol/aws-mainframe-modernization-carddemo/CORPT00C.cbl": {
         "INITIALIZE-ALL-FIELDS@633": 0,
-        "MAIN-PARA@163": 1,
+        "MAIN-PARA@163": 0,
         "POPULATE-HEADER-INFO@609": 0,
         "PROCESS-ENTER-KEY@208": 0,
         "RECEIVE-TRNRPT-SCREEN@596": 0,
@@ -6753,7 +6753,7 @@
         "WIRTE-JOBSUB-TDQ@515": 0
       },
       "cobol/aws-mainframe-modernization-carddemo/COSGN00C.cbl": {
-        "MAIN-PARA@73": 1,
+        "MAIN-PARA@73": 0,
         "POPULATE-HEADER-INFO@177": 0,
         "PROCESS-ENTER-KEY@108": 0,
         "READ-USER-SEC-FILE@209": 0,
@@ -6763,7 +6763,7 @@
       "cobol/aws-mainframe-modernization-carddemo/COTRN00C.cbl": {
         "ENDBR-TRANSACT-FILE@692": 0,
         "INITIALIZE-TRAN-DATA@450": 0,
-        "MAIN-PARA@95": 1,
+        "MAIN-PARA@95": 0,
         "POPULATE-HEADER-INFO@567": 0,
         "POPULATE-TRAN-DATA@381": 0,
         "PROCESS-ENTER-KEY@146": 0,
@@ -6781,7 +6781,7 @@
       "cobol/aws-mainframe-modernization-carddemo/COTRN01C.cbl": {
         "CLEAR-CURRENT-SCREEN@301": 0,
         "INITIALIZE-ALL-FIELDS@309": 0,
-        "MAIN-PARA@86": 1,
+        "MAIN-PARA@86": 0,
         "POPULATE-HEADER-INFO@243": 0,
         "PROCESS-ENTER-KEY@144": 0,
         "READ-TRANSACT-FILE@267": 0,
@@ -6795,7 +6795,7 @@
         "COPY-LAST-TRAN-DATA@471": 0,
         "ENDBR-TRANSACT-FILE@702": 0,
         "INITIALIZE-ALL-FIELDS@762": 0,
-        "MAIN-PARA@107": 1,
+        "MAIN-PARA@107": 0,
         "POPULATE-HEADER-INFO@552": 0,
         "PROCESS-ENTER-KEY@164": 0,
         "READ-CCXREF-FILE@609": 0,
@@ -6812,7 +6812,7 @@
       "cobol/aws-mainframe-modernization-carddemo/COUSR00C.cbl": {
         "ENDBR-USER-SEC-FILE@687": 0,
         "INITIALIZE-USER-DATA@446": 0,
-        "MAIN-PARA@98": 1,
+        "MAIN-PARA@98": 0,
         "POPULATE-HEADER-INFO@562": 0,
         "POPULATE-USER-DATA@384": 0,
         "PROCESS-ENTER-KEY@149": 0,
@@ -6830,7 +6830,7 @@
       "cobol/aws-mainframe-modernization-carddemo/COUSR01C.cbl": {
         "CLEAR-CURRENT-SCREEN@279": 0,
         "INITIALIZE-ALL-FIELDS@287": 0,
-        "MAIN-PARA@71": 1,
+        "MAIN-PARA@71": 0,
         "POPULATE-HEADER-INFO@214": 0,
         "PROCESS-ENTER-KEY@115": 0,
         "RECEIVE-USRADD-SCREEN@201": 0,
@@ -6841,7 +6841,7 @@
       "cobol/aws-mainframe-modernization-carddemo/COUSR02C.cbl": {
         "CLEAR-CURRENT-SCREEN@395": 0,
         "INITIALIZE-ALL-FIELDS@403": 0,
-        "MAIN-PARA@82": 1,
+        "MAIN-PARA@82": 0,
         "POPULATE-HEADER-INFO@296": 0,
         "PROCESS-ENTER-KEY@143": 0,
         "READ-USER-SEC-FILE@320": 0,
@@ -6856,7 +6856,7 @@
         "DELETE-USER-INFO@174": 0,
         "DELETE-USER-SEC-FILE@305": 0,
         "INITIALIZE-ALL-FIELDS@349": 0,
-        "MAIN-PARA@82": 1,
+        "MAIN-PARA@82": 0,
         "POPULATE-HEADER-INFO@243": 0,
         "PROCESS-ENTER-KEY@142": 0,
         "READ-USER-SEC-FILE@267": 0,
@@ -6909,7 +6909,7 @@
         "ADSORT@36": 0
       },
       "cobol/che-che4z_lsp_project_fixtures/BASIC.cbl": {
-        "000-Main-Logic@28": 1,
+        "000-Main-Logic@28": 0,
         "100-Print-User@32": 0
       },
       "cobol/che-che4z_lsp_project_fixtures/CALL.cbl": {
@@ -6945,20 +6945,20 @@
         "MAINLINE@31": 0
       },
       "cobol/che-che4z_lsp_project_fixtures/REPLA.CBL": {
-        "MAINLINE@17": 1
+        "MAINLINE@17": 0
       },
       "cobol/che-che4z_lsp_project_fixtures/REPLACING.CBL": {
-        "MAINLINE@21": 1
+        "MAINLINE@21": 0
       },
       "cobol/che-che4z_lsp_project_fixtures/TEST.CBL": {
-        "MAINLINE@22": 1
+        "MAINLINE@22": 0
       },
       "cobol/che-che4z_lsp_project_fixtures/TEST1.CBL": {
-        "MAINLINE@22": 1
+        "MAINLINE@22": 0
       },
       "cobol/che-che4z_lsp_project_fixtures/TEST10.CBL": {
         "MAIN-EXIT@46": 1,
-        "MAIN-PARA@20": 1
+        "MAIN-PARA@20": 0
       },
       "cobol/che-che4z_lsp_project_fixtures/TEST14.CBL": {
         "TEST14@16": 0
@@ -6970,82 +6970,82 @@
         "TEST16@11": 0
       },
       "cobol/che-che4z_lsp_project_fixtures/TEST2.CBL": {
-        "MAINLINE@22": 1
+        "MAINLINE@22": 0
       },
       "cobol/che-che4z_lsp_project_fixtures/TEST21.CBL": {
-        "MAINLINE@22": 1
+        "MAINLINE@22": 0
       },
       "cobol/che-che4z_lsp_project_fixtures/TEST3.CBL": {
-        "MAINLINE@23": 1
+        "MAINLINE@23": 0
       },
       "cobol/che-che4z_lsp_project_fixtures/TEST4.CBL": {
-        "MAINLINE@22": 1
+        "MAINLINE@22": 0
       },
       "cobol/che-che4z_lsp_project_fixtures/TEST5.CBL": {
-        "MAINLINE@21": 1
+        "MAINLINE@21": 0
       },
       "cobol/che-che4z_lsp_project_fixtures/TEST51.CBL": {
         "TEST3@15": 0
       },
       "cobol/che-che4z_lsp_project_fixtures/TEST6.CBL": {
-        "MAINLINE@30": 1
+        "MAINLINE@30": 0
       },
       "cobol/che-che4z_lsp_project_fixtures/TEST61.CBL": {
         "TEST3@10": 0
       },
       "cobol/che-che4z_lsp_project_fixtures/TEST7.CBL": {
-        "MAINLINE@30": 1
+        "MAINLINE@30": 0
       },
       "cobol/che-che4z_lsp_project_fixtures/TEST8.CBL": {
-        "MAINLINE@22": 1
+        "MAINLINE@22": 0
       },
       "cobol/che-che4z_lsp_project_fixtures/TEST_TITLE.CBL": {
-        "MAINLINE@24": 1
+        "MAINLINE@24": 0
       },
       "cobol/che-che4z_lsp_project_fixtures/USER1.cbl": {
-        "000-Main-Logic@28": 1,
+        "000-Main-Logic@28": 0,
         "100-Print-User@32": 0
       },
       "cobol/che-che4z_lsp_project_fixtures/USER2.cbl": {
-        "000-Main-Logic@28": 1,
+        "000-Main-Logic@28": 0,
         "100-Print-User@32": 0
       },
       "cobol/che-che4z_lsp_project_fixtures/USERC1F.cbl": {
-        "000-Main-Logic@30": 1,
+        "000-Main-Logic@30": 0,
         "100-Print-User@34": 0
       },
       "cobol/che-che4z_lsp_project_fixtures/USERC1N1.cbl": {
-        "000-Main-Logic@30": 1,
+        "000-Main-Logic@30": 0,
         "100-Print-User@34": 0
       },
       "cobol/che-che4z_lsp_project_fixtures/USERC1N2.cbl": {
-        "000-Main-Logic@31": 1,
+        "000-Main-Logic@31": 0,
         "100-Print-User@35": 0
       },
       "cobol/che-che4z_lsp_project_fixtures/USERC1R.cbl": {
-        "000-Main-Logic@30": 1,
+        "000-Main-Logic@30": 0,
         "100-Print-User@34": 0
       },
       "cobol/che-che4z_lsp_project_fixtures/VAR.cbl": {
-        "MAINLINE@22": 1
+        "MAINLINE@22": 0
       },
       "cobol/che-che4z_lsp_project_fixtures/XML1.cbl": {
         "EVENT-HANDLER@38": 0,
-        "PARA1@24": 1
+        "PARA1@24": 0
       },
       "cobol/che-che4z_lsp_project_fixtures/XML2.cbl": {
         "EVENT-HANDLER@37": 0,
-        "PARA1@23": 1
+        "PARA1@23": 0
       },
       "cobol/che-che4z_lsp_project_fixtures/XML3.cbl": {
         "EVENT-HANDLER@43": 0,
-        "PARA1@29": 1
+        "PARA1@29": 0
       },
       "cobol/che-che4z_lsp_project_fixtures/cobol-daco_DACOSMPL.cbl": {
-        "S310-000@41": 1,
+        "S310-000@41": 0,
         "S310-500@45": 1,
         "S310-999@51": 1,
-        "S310@40": 1,
+        "S310@40": 0,
         "S311-000@55": 1,
         "S311-100@58": 1,
         "S311-999@63": 1,
@@ -7060,10 +7060,10 @@
         "CALC2@20": 0
       },
       "cobol/che-che4z_lsp_project_fixtures/cobol-idms_DACOSMPL.cbl": {
-        "S310-000@41": 1,
+        "S310-000@41": 0,
         "S310-500@45": 1,
         "S310-999@51": 1,
-        "S310@40": 1,
+        "S310@40": 0,
         "S311-000@55": 1,
         "S311-100@58": 1,
         "S311-999@63": 1,
@@ -7075,9 +7075,9 @@
         "S312@66": 0
       },
       "cobol/che-che4z_lsp_project_fixtures/cobol-idms_IDMSSMPL.cbl": {
-        "S410-000@33": 1,
+        "S410-000@33": 0,
         "S410-999@48": 0,
-        "S410@32": 1,
+        "S410@32": 0,
         "S630-000@52": 1,
         "S630-200@57": 0,
         "S630-999@58": 0,
@@ -7095,10 +7095,10 @@
         "S3@37": 0
       },
       "cobol/che-che4z_lsp_project_fixtures/cobol-vanila_DACOSMPL.cbl": {
-        "S310-000@40": 1,
+        "S310-000@40": 0,
         "S310-500@44": 1,
         "S310-999@50": 1,
-        "S310@39": 1,
+        "S310@39": 0,
         "S311-000@54": 1,
         "S311-100@57": 1,
         "S311-999@62": 1,
@@ -7110,9 +7110,9 @@
         "S312@65": 0
       },
       "cobol/che-che4z_lsp_project_fixtures/cobol-vanila_IDMSSMPL.cbl": {
-        "S410-000@33": 1,
+        "S410-000@33": 0,
         "S410-999@48": 0,
-        "S410@32": 1,
+        "S410@32": 0,
         "S630-000@52": 1,
         "S630-200@57": 0,
         "S630-999@58": 0,
@@ -7125,18 +7125,18 @@
         "MAKEDIAG@2": 1
       },
       "cobol/che-che4z_lsp_project_fixtures/copybook-analysis_mainfile1.cbl": {
-        "MAIN-PROCESSING@28": 1,
-        "MAINLINE-PARAGRAPH@29": 1
+        "MAIN-PROCESSING@28": 0,
+        "MAINLINE-PARAGRAPH@29": 0
       },
       "cobol/che-che4z_lsp_project_fixtures/copybook-analysis_mainfile2.cbl": {
-        "MAIN-PROCESSING@28": 1,
-        "MAINLINE-PARAGRAPH@29": 1
+        "MAIN-PROCESSING@28": 0,
+        "MAINLINE-PARAGRAPH@29": 0
       },
       "cobol/che-che4z_lsp_project_fixtures/outline.cbl": {
-        "MAINLINE@21": 1
+        "MAINLINE@21": 0
       },
       "cobol/che-che4z_lsp_project_fixtures/special_schema.cbl": {
-        "m@69": 1,
+        "m@69": 0,
         "p@88": 0
       },
       "cobol/che-che4z_lsp_project_fixtures/testing_CPY1.cpy": {
@@ -7487,7 +7487,7 @@
         "CCVS-999999@378": 1,
         "CCVS-EXIT@377": 0,
         "CCVS1-EXIT@303": 0,
-        "CCVS1@191": 1,
+        "CCVS1@191": 0,
         "CLOSE-FILES@198": 0,
         "COLUMN-NAMES-ROUTINE@226": 0,
         "DE-LETE@207": 1,
@@ -7502,7 +7502,7 @@
         "FAIL@206": 0,
         "HEAD-ROUTINE@221": 0,
         "INSPT@204": 1,
-        "OPEN-FILES@192": 1,
+        "OPEN-FILES@192": 0,
         "PASS@205": 0,
         "PRINT-DETAIL@209": 0,
         "SECT-IC101-0001@305": 1,
@@ -7513,8 +7513,8 @@
       },
       "cobol/che-che4z_nist_ccvs85/IC1024.2.cbl": {
         "CALL-EXIT-001@44": 1,
-        "CALL-TEST-001@41": 1,
-        "SECT-IC102-0001@40": 1
+        "CALL-TEST-001@41": 0,
+        "SECT-IC102-0001@40": 0
       },
       "cobol/che-che4z_nist_ccvs85/IC1034.2.cbl": {
         "BAIL-OUT-EX@306": 0,
@@ -7545,7 +7545,7 @@
         "CCVS-999999@493": 1,
         "CCVS-EXIT@492": 0,
         "CCVS1-EXIT@307": 0,
-        "CCVS1@195": 1,
+        "CCVS1@195": 0,
         "CLOSE-FILES@202": 0,
         "COLUMN-NAMES-ROUTINE@230": 0,
         "DE-LETE@211": 0,
@@ -7578,7 +7578,7 @@
         "FAIL@210": 0,
         "HEAD-ROUTINE@225": 0,
         "INSPT@208": 1,
-        "OPEN-FILES@196": 1,
+        "OPEN-FILES@196": 0,
         "PASS@209": 0,
         "PRINT-DETAIL@213": 0,
         "SECT-IC103-0001@309": 1,
@@ -7590,20 +7590,20 @@
       },
       "cobol/che-che4z_nist_ccvs85/IC1044.2.cbl": {
         "CALL-EXIT-06@67": 1,
-        "CALL-TEST-06@60": 1,
-        "SECT-IC104-0001@57": 1
+        "CALL-TEST-06@60": 0,
+        "SECT-IC104-0001@57": 0
       },
       "cobol/che-che4z_nist_ccvs85/IC1054.2.cbl": {
         "EXIT-STATEMENT-001@40": 1,
         "EXIT-STATEMENT-002@46": 1,
         "EXIT-STATEMENT-003@52": 1,
         "EXIT-STATEMENT-004@60": 0,
-        "EXIT-TEST-001@36": 1,
+        "EXIT-TEST-001@36": 0,
         "EXIT-TEST-002@42": 0,
         "EXIT-TEST-003@48": 0,
         "EXIT-TEST-004@54": 0,
         "EXTRANEOUS-PARAGRAPH@57": 1,
-        "SECT-IC105-0001@35": 1
+        "SECT-IC105-0001@35": 0
       },
       "cobol/che-che4z_nist_ccvs85/IC1064.2.cbl": {
         "BAIL-OUT-EX@309": 0,
@@ -7613,7 +7613,7 @@
         "CCVS-999999@526": 1,
         "CCVS-EXIT@525": 0,
         "CCVS1-EXIT@310": 0,
-        "CCVS1@198": 1,
+        "CCVS1@198": 0,
         "CLOSE-FILES@205": 0,
         "COLUMN-NAMES-ROUTINE@233": 0,
         "DE-LETE@214": 1,
@@ -7678,7 +7678,7 @@
         "LINK-WRITE-06-01@497": 0,
         "LINK-WRITE-06-02@509": 0,
         "LINK-WRITE-06-03@521": 0,
-        "OPEN-FILES@199": 1,
+        "OPEN-FILES@199": 0,
         "PASS@212": 0,
         "PRINT-DETAIL@216": 0,
         "SEC-IC106-0001@312": 1,
@@ -7689,7 +7689,7 @@
       },
       "cobol/che-che4z_nist_ccvs85/IC1074.2.cbl": {
         "EXIT-IC107@105": 1,
-        "LINK-TEST-02-01@61": 1,
+        "LINK-TEST-02-01@61": 0,
         "LINK-TEST-02-02@65": 1,
         "LINK-TEST-03-01@73": 1,
         "LINK-TEST-03-02@77": 1,
@@ -7698,7 +7698,7 @@
         "LINK-TEST-05-01@93": 1,
         "LINK-TEST-05-02@97": 1,
         "LINK-TEST-06@101": 1,
-        "SECT-IC107-0001@60": 1
+        "SECT-IC107-0001@60": 0
       },
       "cobol/che-che4z_nist_ccvs85/IC1084.2.cbl": {
         "BAIL-OUT-EX@304": 0,
@@ -7729,7 +7729,7 @@
         "CCVS-999999@440": 1,
         "CCVS-EXIT@439": 0,
         "CCVS1-EXIT@305": 0,
-        "CCVS1@193": 1,
+        "CCVS1@193": 0,
         "CLOSE-FILES@200": 0,
         "COLUMN-NAMES-ROUTINE@228": 0,
         "DE-LETE@209": 1,
@@ -7754,7 +7754,7 @@
         "LINK-WRITE-07-01@412": 0,
         "LINK-WRITE-07-02@424": 0,
         "LINK-WRITE-07-03@436": 0,
-        "OPEN-FILES@194": 1,
+        "OPEN-FILES@194": 0,
         "PASS@207": 0,
         "PRINT-DETAIL@211": 0,
         "SECTION-IC108-0001@307": 1,
@@ -7765,24 +7765,24 @@
       },
       "cobol/che-che4z_nist_ccvs85/IC1094.2.cbl": {
         "EXIT-IC109@61": 1,
-        "PARA-IC109@55": 1,
-        "SECT-IC109-0001@54": 1
+        "PARA-IC109@55": 0,
+        "SECT-IC109-0001@54": 0
       },
       "cobol/che-che4z_nist_ccvs85/IC1104.2.cbl": {
         "EXIT-IC110@65": 1,
-        "PARA-IC110@57": 1,
-        "SECT-IC110-0001@56": 1
+        "PARA-IC110@57": 0,
+        "SECT-IC110-0001@56": 0
       },
       "cobol/che-che4z_nist_ccvs85/IC1114.2.cbl": {
         "EXIT-IC111@52": 1,
-        "PARA-IC111@47": 1,
-        "SECT-IC111-0001@46": 1
+        "PARA-IC111@47": 0,
+        "SECT-IC111-0001@46": 0
       },
       "cobol/che-che4z_nist_ccvs85/IC1134.2.cbl": {
         "LINK-EXIT-08@69": 0,
         "LINK-FAIL-08@71": 0,
-        "LINK-TEST-08@57": 1,
-        "SECT-IC113-0001@56": 1
+        "LINK-TEST-08@57": 0,
+        "SECT-IC113-0001@56": 0
       },
       "cobol/che-che4z_nist_ccvs85/IC1144.2.cbl": {
         "BAIL-OUT-EX@323": 0,
@@ -7792,7 +7792,7 @@
         "CCVS-999999@466": 1,
         "CCVS-EXIT@465": 1,
         "CCVS1-EXIT@324": 0,
-        "CCVS1@212": 1,
+        "CCVS1@212": 0,
         "CLOSE-FILES@219": 0,
         "COLUMN-NAMES-ROUTINE@247": 0,
         "DE-LETE@228": 1,
@@ -7831,7 +7831,7 @@
         "LINK-WRITE-10@345": 0,
         "LINK-WRITE-11@370": 0,
         "LINK-WRITE-12@430": 0,
-        "OPEN-FILES@213": 1,
+        "OPEN-FILES@213": 0,
         "PASS@226": 0,
         "PRINT-DETAIL@230": 0,
         "TERMINATE-CALL@223": 1,
@@ -7848,7 +7848,7 @@
         "CCVS-999999@338": 1,
         "CCVS-EXIT@337": 1,
         "CCVS1-EXIT@313": 0,
-        "CCVS1@201": 1,
+        "CCVS1@201": 0,
         "CLOSE-FILES@208": 0,
         "COLUMN-NAMES-ROUTINE@236": 0,
         "DE-LETE@217": 1,
@@ -7864,7 +7864,7 @@
         "HEAD-ROUTINE@231": 0,
         "IC116-EXIT@335": 1,
         "INSPT@214": 1,
-        "OPEN-FILES@202": 1,
+        "OPEN-FILES@202": 0,
         "PASS@215": 0,
         "PRINT-DETAIL@219": 0,
         "SECT-IC116-0001@315": 1,
@@ -7881,12 +7881,12 @@
         "USNG-DISPLAY-02@54": 1,
         "USNG-DISPLAY-03@64": 1,
         "USNG-TEST-03@57": 1,
-        "USNG-VERIFY-02@48": 1
+        "USNG-VERIFY-02@48": 0
       },
       "cobol/che-che4z_nist_ccvs85/IC1184.2.cbl": {
         "IC118-EXIT@50": 1,
         "USNG-DISPLAY-04@48": 1,
-        "USNG-VERIFY-04@42": 1
+        "USNG-VERIFY-04@42": 0
       },
       "cobol/che-che4z_nist_ccvs85/IC2014.2.cbl": {
         "BAIL-OUT-EX@303": 0,
@@ -7951,7 +7951,7 @@
         "CCVS-999999@614": 1,
         "CCVS-EXIT@613": 0,
         "CCVS1-EXIT@304": 0,
-        "CCVS1@192": 1,
+        "CCVS1@192": 0,
         "CHECK-02-03-2@481": 0,
         "CHECK-02-03-3@489": 0,
         "CHECK-02-03-4@497": 0,
@@ -7972,7 +7972,7 @@
         "FAIL@207": 0,
         "HEAD-ROUTINE@222": 0,
         "INSPT@205": 1,
-        "OPEN-FILES@193": 1,
+        "OPEN-FILES@193": 0,
         "PASS@206": 0,
         "PRINT-DETAIL@210": 0,
         "SECT-IC201-0001@306": 1,
@@ -7984,8 +7984,8 @@
       },
       "cobol/che-che4z_nist_ccvs85/IC2024.2.cbl": {
         "CALL-EXIT-001@53": 1,
-        "CALL-TEST-001@47": 1,
-        "SECT-IC202-0001@46": 1
+        "CALL-TEST-001@47": 0,
+        "SECT-IC202-0001@46": 0
       },
       "cobol/che-che4z_nist_ccvs85/IC2034.2.cbl": {
         "BAIL-OUT-EX@305": 0,
@@ -8017,7 +8017,7 @@
         "CCVS-999999@678": 1,
         "CCVS-EXIT@677": 1,
         "CCVS1-EXIT@306": 0,
-        "CCVS1@194": 1,
+        "CCVS1@194": 0,
         "CLOSE-FILES@201": 0,
         "CNCL-DELETE-01@422": 1,
         "CNCL-DELETE-02@475": 1,
@@ -8092,7 +8092,7 @@
         "FAIL@209": 0,
         "HEAD-ROUTINE@224": 0,
         "INSPT@207": 1,
-        "OPEN-FILES@195": 1,
+        "OPEN-FILES@195": 0,
         "PASS@208": 0,
         "PRINT-DETAIL@212": 0,
         "SECT-IC203-0001@308": 1,
@@ -8102,21 +8102,21 @@
         "WRT-LN@278": 0
       },
       "cobol/che-che4z_nist_ccvs85/IC2044.2.cbl": {
-        "CNCL-TEST-01@52": 1,
+        "CNCL-TEST-01@52": 0,
         "CNCL-TEST-02@55": 1,
         "CNCL-TEST-03@60": 1,
         "IC204-EXIT@64": 1,
-        "SECT-IC204-0001@51": 1
+        "SECT-IC204-0001@51": 0
       },
       "cobol/che-che4z_nist_ccvs85/IC2054.2.cbl": {
-        "CNCL-TEST-05@49": 1,
+        "CNCL-TEST-05@49": 0,
         "CNCL-TEST-06@63": 0,
         "EXIT-IC205@65": 1
       },
       "cobol/che-che4z_nist_ccvs85/IC2064.2.cbl": {
         "EXIT-IC206@51": 1,
-        "SECT-IC206-0001@47": 1,
-        "TEST-PARAGRAPH@48": 1
+        "SECT-IC206-0001@47": 0,
+        "TEST-PARAGRAPH@48": 0
       },
       "cobol/che-che4z_nist_ccvs85/IC2074.2.cbl": {
         "BAIL-OUT-EX@305": 0,
@@ -8126,7 +8126,7 @@
         "CCVS-999999@474": 1,
         "CCVS-EXIT@473": 0,
         "CCVS1-EXIT@306": 0,
-        "CCVS1@194": 1,
+        "CCVS1@194": 0,
         "CLOSE-FILES@201": 0,
         "COLUMN-NAMES-ROUTINE@229": 0,
         "DE-LETE@210": 1,
@@ -8178,7 +8178,7 @@
         "LINK-WRITE-04-01@444": 0,
         "LINK-WRITE-04-02@455": 0,
         "LINK-WRITE-04-03@469": 0,
-        "OPEN-FILES@195": 1,
+        "OPEN-FILES@195": 0,
         "PASS@208": 0,
         "PRINT-DETAIL@212": 0,
         "SECT-IC207-0001@308": 1,
@@ -8189,7 +8189,7 @@
       },
       "cobol/che-che4z_nist_ccvs85/IC2084.2.cbl": {
         "EXIT-IC208@98": 1,
-        "LINK-TEST-01@48": 1,
+        "LINK-TEST-01@48": 0,
         "LINK-TEST-02-01@56": 1,
         "LINK-TEST-02-02@62": 1,
         "LINK-TEST-02-03@68": 1,
@@ -8199,7 +8199,7 @@
         "LINK-TEST-03-03@90": 1,
         "LINK-TEST-03@81": 1,
         "LINK-TEST-04@92": 1,
-        "SECT-IC208-0001@47": 1
+        "SECT-IC208-0001@47": 0
       },
       "cobol/che-che4z_nist_ccvs85/IC2094.2.cbl": {
         "BAIL-OUT-EX@293": 0,
@@ -8221,7 +8221,7 @@
         "CCVS-999999@347": 1,
         "CCVS-EXIT@346": 1,
         "CCVS1-EXIT@294": 0,
-        "CCVS1@182": 1,
+        "CCVS1@182": 0,
         "CLOSE-FILES@189": 0,
         "COLUMN-NAMES-ROUTINE@217": 0,
         "DE-LETE@198": 1,
@@ -8236,7 +8236,7 @@
         "FAIL@197": 0,
         "HEAD-ROUTINE@212": 0,
         "INSPT@195": 1,
-        "OPEN-FILES@183": 1,
+        "OPEN-FILES@183": 0,
         "PASS@196": 0,
         "PRINT-DETAIL@200": 0,
         "TERMINATE-CALL@193": 1,
@@ -8245,17 +8245,17 @@
         "WRT-LN@266": 0
       },
       "cobol/che-che4z_nist_ccvs85/IC2104.2.cbl": {
-        "CALL-TEST-2@33": 1,
+        "CALL-TEST-2@33": 0,
         "CALL-TEST-3@38": 0,
         "CANCEL-TEST-1@42": 0,
         "IC210-EXIT@45": 1
       },
       "cobol/che-che4z_nist_ccvs85/IC2114.2.cbl": {
-        "CALL-TEST-2@33": 1,
+        "CALL-TEST-2@33": 0,
         "IC211-EXIT@35": 1
       },
       "cobol/che-che4z_nist_ccvs85/IC2124.2.cbl": {
-        "CALL-TEST-3@33": 1,
+        "CALL-TEST-3@33": 0,
         "IC212-EXIT@35": 1
       },
       "cobol/che-che4z_nist_ccvs85/IC2134.2.cbl": {
@@ -8275,7 +8275,7 @@
         "CCVS-999999@336": 1,
         "CCVS-EXIT@335": 1,
         "CCVS1-EXIT@292": 0,
-        "CCVS1@180": 1,
+        "CCVS1@180": 0,
         "CLOSE-FILES@187": 0,
         "COLUMN-NAMES-ROUTINE@215": 0,
         "DE-LETE@196": 1,
@@ -8290,7 +8290,7 @@
         "FAIL@195": 0,
         "HEAD-ROUTINE@210": 0,
         "INSPT@193": 1,
-        "OPEN-FILES@181": 1,
+        "OPEN-FILES@181": 0,
         "PASS@194": 0,
         "PRINT-DETAIL@198": 0,
         "TERMINATE-CALL@191": 1,
@@ -8299,11 +8299,11 @@
         "WRT-LN@264": 0
       },
       "cobol/che-che4z_nist_ccvs85/IC2144.2.cbl": {
-        "CALL-TEST-1@29": 1,
+        "CALL-TEST-1@29": 0,
         "IC214-EXIT@31": 1
       },
       "cobol/che-che4z_nist_ccvs85/IC2154.2.cbl": {
-        "CALL-TEST-2@30": 1,
+        "CALL-TEST-2@30": 0,
         "CANCEL-TEST-1@32": 1,
         "IC215-EXIT@35": 1
       },
@@ -8321,7 +8321,7 @@
         "CCVS-999999@328": 1,
         "CCVS-EXIT@327": 1,
         "CCVS1-EXIT@298": 0,
-        "CCVS1@186": 1,
+        "CCVS1@186": 0,
         "CLOSE-FILES@193": 0,
         "COLUMN-NAMES-ROUTINE@221": 0,
         "DE-LETE@202": 1,
@@ -8336,7 +8336,7 @@
         "FAIL@201": 0,
         "HEAD-ROUTINE@216": 0,
         "INSPT@199": 1,
-        "OPEN-FILES@187": 1,
+        "OPEN-FILES@187": 0,
         "PASS@200": 0,
         "PRINT-DETAIL@204": 0,
         "TERMINATE-CALL@197": 1,
@@ -8345,7 +8345,7 @@
         "WRT-LN@270": 0
       },
       "cobol/che-che4z_nist_ccvs85/IC2174.2.cbl": {
-        "CALL-TEST-1@37": 1,
+        "CALL-TEST-1@37": 0,
         "CALL-TEST-2@39": 1,
         "IC217-EXIT@43": 1
       },
@@ -8370,7 +8370,7 @@
         "CALL-INIT-03-02@459": 0,
         "CALL-INIT-03-03@477": 0,
         "CALL-INIT-03-04@495": 0,
-        "CALL-TEST-001@687": 1,
+        "CALL-TEST-001@687": 0,
         "CALL-TEST-01-01@334": 1,
         "CALL-TEST-01-02@344": 1,
         "CALL-TEST-01-03@355": 0,
@@ -8388,7 +8388,7 @@
         "CCVS-999999@569": 1,
         "CCVS-EXIT@568": 0,
         "CCVS1-EXIT@322": 0,
-        "CCVS1@210": 1,
+        "CCVS1@210": 0,
         "CHECK-TEST-01@525": 0,
         "CLOSE-FILES@217": 0,
         "COLUMN-NAMES-ROUTINE@245": 0,
@@ -8405,11 +8405,11 @@
         "FAIL@225": 0,
         "HEAD-ROUTINE@240": 0,
         "INSPT@223": 1,
-        "OPEN-FILES@211": 1,
+        "OPEN-FILES@211": 0,
         "PASS@224": 0,
         "PRINT-DETAIL@228": 0,
         "SECT-IC224A-001@324": 1,
-        "SECT-IC224A-1-001@686": 1,
+        "SECT-IC224A-1-001@686": 0,
         "SECT-IC224A-CHECK-01@523": 1,
         "TERMINATE-CALL@221": 1,
         "TERMINATE-CCVS@219": 1,
@@ -8427,7 +8427,7 @@
         "CCVS-999999@381": 1,
         "CCVS-EXIT@380": 0,
         "CCVS1-EXIT@313": 0,
-        "CCVS1@201": 1,
+        "CCVS1@201": 0,
         "CLOSE-FILES@208": 0,
         "COLUMN-NAMES-ROUTINE@236": 0,
         "DE-LETE@217": 0,
@@ -8439,7 +8439,7 @@
         "EXT-DELETE-01-01@328": 1,
         "EXT-EXIT-001@496": 1,
         "EXT-INIT-01@316": 1,
-        "EXT-TEST-001@491": 1,
+        "EXT-TEST-001@491": 0,
         "EXT-TEST-01-01-0@324": 1,
         "EXT-TEST-01-01-1@332": 0,
         "FAIL-ROUTINE-EX@303": 0,
@@ -8448,11 +8448,11 @@
         "FAIL@216": 0,
         "HEAD-ROUTINE@231": 0,
         "INSPT@214": 1,
-        "OPEN-FILES@202": 1,
+        "OPEN-FILES@202": 0,
         "PASS@215": 0,
         "PRINT-DETAIL@219": 0,
         "SECT-IC226A-001@315": 1,
-        "SECT-IC226A-1-001@490": 1,
+        "SECT-IC226A-1-001@490": 0,
         "TERMINATE-CALL@212": 1,
         "TERMINATE-CCVS@210": 1,
         "WRITE-LINE@273": 0,
@@ -8469,7 +8469,7 @@
         "CCVS-999999@383": 1,
         "CCVS-EXIT@382": 0,
         "CCVS1-EXIT@316": 0,
-        "CCVS1@204": 1,
+        "CCVS1@204": 0,
         "CLOSE-FILES@211": 0,
         "COLUMN-NAMES-ROUTINE@239": 0,
         "DE-LETE@220": 0,
@@ -8485,16 +8485,16 @@
         "GLO-DELETE-01-01@330": 1,
         "GLO-EXIT-001@434": 1,
         "GLO-INIT-01@319": 1,
-        "GLO-TEST-001@429": 1,
+        "GLO-TEST-001@429": 0,
         "GLO-TEST-01-01-0@326": 1,
         "GLO-TEST-01-01-1@334": 0,
         "HEAD-ROUTINE@234": 0,
         "INSPT@217": 1,
-        "OPEN-FILES@205": 1,
+        "OPEN-FILES@205": 0,
         "PASS@218": 0,
         "PRINT-DETAIL@222": 0,
         "SECT-IC228A-001@318": 1,
-        "SECT-IC228A-1-001@428": 1,
+        "SECT-IC228A-1-001@428": 0,
         "TERMINATE-CALL@215": 1,
         "TERMINATE-CCVS@213": 1,
         "WRITE-LINE@276": 0,
@@ -8539,7 +8539,7 @@
         "PASS@276": 0,
         "PRINT-DETAIL@280": 0,
         "SECT-IC233A-001@200": 1,
-        "SECT-IC233A-1-001@497": 1,
+        "SECT-IC233A-1-001@497": 0,
         "SECT-IC233A-1R-001@376": 1,
         "TERMINATE-CALL@273": 1,
         "TERMINATE-CCVS@271": 1,
@@ -8584,7 +8584,7 @@
         "SECT-IC234A-1-001@477": 1,
         "SECT-IC234A-1R-001@332": 1,
         "SECT-IC234A-2-001@596": 1,
-        "SECT-IC234A-3-001@709": 1,
+        "SECT-IC234A-3-001@709": 0,
         "TERMINATE-CALL@229": 1,
         "TERMINATE-CCVS@227": 1,
         "USE-DELETE-1@354": 1,
@@ -8610,11 +8610,11 @@
         "CALL-INIT-1@300": 1,
         "CALL-TEST-0@305": 1,
         "CALL-TEST-1@307": 0,
-        "CALLED-FROM-NC121A-FUNCTION@420": 1,
+        "CALLED-FROM-NC121A-FUNCTION@420": 0,
         "CCVS-999999@320": 1,
         "CCVS-EXIT@319": 1,
         "CCVS1-EXIT@296": 0,
-        "CCVS1@184": 1,
+        "CCVS1@184": 0,
         "CLOSE-FILES@191": 0,
         "COLUMN-NAMES-ROUTINE@219": 0,
         "DE-LETE@200": 1,
@@ -8631,18 +8631,18 @@
         "HEAD-ROUTINE@214": 0,
         "IC237A-EXIT@422": 1,
         "INSPT@197": 1,
-        "OPEN-FILES@185": 1,
+        "OPEN-FILES@185": 0,
         "PASS@198": 0,
         "PRINT-DETAIL@202": 0,
         "SECT-IC237A-001@298": 1,
-        "SECT-IC237A-1-001@418": 1,
+        "SECT-IC237A-1-001@418": 0,
         "TERMINATE-CALL@195": 1,
         "TERMINATE-CCVS@193": 1,
         "WRITE-LINE@256": 0,
         "WRT-LN@268": 0
       },
       "cobol/che-che4z_nist_ccvs85/IC4014.2.cbl": {
-        "DUMMY-PARA@66": 1,
+        "DUMMY-PARA@66": 0,
         "END-PARA@69": 1,
         "IC401M-BYCONT@48": 0,
         "IC401M-BYREF@43": 1,
@@ -8659,7 +8659,7 @@
         "CCVS-999999@595": 1,
         "CCVS-EXIT@594": 1,
         "CCVS1-EXIT@331": 0,
-        "CCVS1@210": 1,
+        "CCVS1@210": 0,
         "CLOSE-FILES@217": 0,
         "COLUMN-NAMES-ROUTINE@243": 0,
         "DE-LETE@224": 0,
@@ -8726,7 +8726,7 @@
         "FAIL@223": 0,
         "HEAD-ROUTINE@238": 0,
         "INSPT@221": 1,
-        "OPEN-FILES@211": 1,
+        "OPEN-FILES@211": 0,
         "PASS@222": 0,
         "PRINT-DETAIL@226": 0,
         "SECT-IF102A@336": 1,
@@ -8742,7 +8742,7 @@
         "CCVS-999999@470": 1,
         "CCVS-EXIT@469": 1,
         "CCVS1-EXIT@331": 0,
-        "CCVS1@210": 1,
+        "CCVS1@210": 0,
         "CLOSE-FILES@217": 0,
         "COLUMN-NAMES-ROUTINE@243": 0,
         "DE-LETE@224": 0,
@@ -8789,7 +8789,7 @@
         "FAIL@223": 0,
         "HEAD-ROUTINE@238": 0,
         "INSPT@221": 1,
-        "OPEN-FILES@211": 1,
+        "OPEN-FILES@211": 0,
         "PASS@222": 0,
         "PRINT-DETAIL@226": 0,
         "SECT-IF105A@336": 1,
@@ -8805,7 +8805,7 @@
         "CCVS-999999@368": 1,
         "CCVS-EXIT@367": 1,
         "CCVS1-EXIT@318": 0,
-        "CCVS1@202": 1,
+        "CCVS1@202": 0,
         "CLOSE-FILES@209": 0,
         "COLUMN-NAMES-ROUTINE@235": 0,
         "DE-LETE@216": 0,
@@ -8828,7 +8828,7 @@
         "FAIL@215": 0,
         "HEAD-ROUTINE@230": 0,
         "INSPT@213": 1,
-        "OPEN-FILES@203": 1,
+        "OPEN-FILES@203": 0,
         "PASS@214": 0,
         "PRINT-DETAIL@218": 0,
         "SECT-IF107A@323": 1,
@@ -8844,7 +8844,7 @@
         "CCVS-999999@470": 1,
         "CCVS-EXIT@469": 1,
         "CCVS1-EXIT@294": 0,
-        "CCVS1@179": 1,
+        "CCVS1@179": 0,
         "CLOSE-FILES@186": 0,
         "COLUMN-NAMES-ROUTINE@212": 0,
         "DE-LETE@193": 0,
@@ -8898,7 +8898,7 @@
         "FAIL@192": 0,
         "HEAD-ROUTINE@207": 0,
         "INSPT@190": 1,
-        "OPEN-FILES@180": 1,
+        "OPEN-FILES@180": 0,
         "PASS@191": 0,
         "PRINT-DETAIL@195": 0,
         "SECT-IF108A@299": 1,
@@ -8914,7 +8914,7 @@
         "CCVS-999999@434": 1,
         "CCVS-EXIT@433": 1,
         "CCVS1-EXIT@294": 0,
-        "CCVS1@179": 1,
+        "CCVS1@179": 0,
         "CLOSE-FILES@186": 0,
         "COLUMN-NAMES-ROUTINE@212": 0,
         "DE-LETE@193": 0,
@@ -8960,7 +8960,7 @@
         "FAIL@192": 0,
         "HEAD-ROUTINE@207": 0,
         "INSPT@190": 1,
-        "OPEN-FILES@180": 1,
+        "OPEN-FILES@180": 0,
         "PASS@191": 0,
         "PRINT-DETAIL@195": 0,
         "SECT-IF109A@299": 1,
@@ -8976,7 +8976,7 @@
         "CCVS-999999@482": 1,
         "CCVS-EXIT@481": 1,
         "CCVS1-EXIT@329": 0,
-        "CCVS1@208": 1,
+        "CCVS1@208": 0,
         "CLOSE-FILES@215": 0,
         "COLUMN-NAMES-ROUTINE@241": 0,
         "DE-LETE@222": 0,
@@ -9026,7 +9026,7 @@
         "FAIL@221": 0,
         "HEAD-ROUTINE@236": 0,
         "INSPT@219": 1,
-        "OPEN-FILES@209": 1,
+        "OPEN-FILES@209": 0,
         "PASS@220": 0,
         "PRINT-DETAIL@224": 0,
         "SECT-IF110A@334": 1,
@@ -9042,7 +9042,7 @@
         "CCVS-999999@698": 1,
         "CCVS-EXIT@697": 1,
         "CCVS1-EXIT@298": 0,
-        "CCVS1@183": 1,
+        "CCVS1@183": 0,
         "CLOSE-FILES@190": 0,
         "COLUMN-NAMES-ROUTINE@216": 0,
         "DE-LETE@197": 0,
@@ -9150,7 +9150,7 @@
         "FAIL@196": 0,
         "HEAD-ROUTINE@211": 0,
         "INSPT@194": 1,
-        "OPEN-FILES@184": 1,
+        "OPEN-FILES@184": 0,
         "PASS@195": 0,
         "PRINT-DETAIL@199": 0,
         "SECT-IF111A@303": 1,
@@ -9166,7 +9166,7 @@
         "CCVS-999999@435": 1,
         "CCVS-EXIT@434": 1,
         "CCVS1-EXIT@293": 0,
-        "CCVS1@178": 1,
+        "CCVS1@178": 0,
         "CLOSE-FILES@185": 0,
         "COLUMN-NAMES-ROUTINE@211": 0,
         "DE-LETE@192": 0,
@@ -9212,7 +9212,7 @@
         "FAIL@191": 0,
         "HEAD-ROUTINE@206": 0,
         "INSPT@189": 1,
-        "OPEN-FILES@179": 1,
+        "OPEN-FILES@179": 0,
         "PASS@190": 0,
         "PRINT-DETAIL@194": 0,
         "SECT-IF112A@298": 1,
@@ -9228,7 +9228,7 @@
         "CCVS-999999@434": 1,
         "CCVS-EXIT@433": 1,
         "CCVS1-EXIT@294": 0,
-        "CCVS1@179": 1,
+        "CCVS1@179": 0,
         "CLOSE-FILES@186": 0,
         "COLUMN-NAMES-ROUTINE@212": 0,
         "DE-LETE@193": 0,
@@ -9274,7 +9274,7 @@
         "FAIL@192": 0,
         "HEAD-ROUTINE@207": 0,
         "INSPT@190": 1,
-        "OPEN-FILES@180": 1,
+        "OPEN-FILES@180": 0,
         "PASS@191": 0,
         "PRINT-DETAIL@195": 0,
         "SECT-IF113A@299": 1,
@@ -9290,7 +9290,7 @@
         "CCVS-999999@700": 1,
         "CCVS-EXIT@699": 1,
         "CCVS1-EXIT@298": 0,
-        "CCVS1@183": 1,
+        "CCVS1@183": 0,
         "CLOSE-FILES@190": 0,
         "COLUMN-NAMES-ROUTINE@216": 0,
         "DE-LETE@197": 0,
@@ -9398,7 +9398,7 @@
         "FAIL@196": 0,
         "HEAD-ROUTINE@211": 0,
         "INSPT@194": 1,
-        "OPEN-FILES@184": 1,
+        "OPEN-FILES@184": 0,
         "PASS@195": 0,
         "PRINT-DETAIL@199": 0,
         "SECT-IF114A@303": 1,
@@ -9414,7 +9414,7 @@
         "CCVS-999999@433": 1,
         "CCVS-EXIT@432": 1,
         "CCVS1-EXIT@291": 0,
-        "CCVS1@176": 1,
+        "CCVS1@176": 0,
         "CLOSE-FILES@183": 0,
         "COLUMN-NAMES-ROUTINE@209": 0,
         "DE-LETE@190": 0,
@@ -9461,7 +9461,7 @@
         "FAIL@189": 0,
         "HEAD-ROUTINE@204": 0,
         "INSPT@187": 1,
-        "OPEN-FILES@177": 1,
+        "OPEN-FILES@177": 0,
         "PASS@188": 0,
         "PRINT-DETAIL@192": 0,
         "SECT-IF115A@296": 1,
@@ -9477,7 +9477,7 @@
         "CCVS-999999@522": 1,
         "CCVS-EXIT@521": 1,
         "CCVS1-EXIT@293": 0,
-        "CCVS1@178": 1,
+        "CCVS1@178": 0,
         "CLOSE-FILES@185": 0,
         "COLUMN-NAMES-ROUTINE@211": 0,
         "DE-LETE@192": 0,
@@ -9544,7 +9544,7 @@
         "FAIL@191": 0,
         "HEAD-ROUTINE@206": 0,
         "INSPT@189": 1,
-        "OPEN-FILES@179": 1,
+        "OPEN-FILES@179": 0,
         "PASS@190": 0,
         "PRINT-DETAIL@194": 0,
         "SECT-IF118A@298": 1,
@@ -9560,7 +9560,7 @@
         "CCVS-999999@658": 1,
         "CCVS-EXIT@657": 1,
         "CCVS1-EXIT@341": 0,
-        "CCVS1@220": 1,
+        "CCVS1@220": 0,
         "CLOSE-FILES@227": 0,
         "COLUMN-NAMES-ROUTINE@253": 0,
         "DE-LETE@234": 0,
@@ -9642,7 +9642,7 @@
         "FAIL@233": 0,
         "HEAD-ROUTINE@248": 0,
         "INSPT@231": 1,
-        "OPEN-FILES@221": 1,
+        "OPEN-FILES@221": 0,
         "PASS@232": 0,
         "PRINT-DETAIL@236": 0,
         "SECT-IF120A@346": 1,
@@ -9658,7 +9658,7 @@
         "CCVS-999999@654": 1,
         "CCVS-EXIT@653": 1,
         "CCVS1-EXIT@341": 0,
-        "CCVS1@220": 1,
+        "CCVS1@220": 0,
         "CLOSE-FILES@227": 0,
         "COLUMN-NAMES-ROUTINE@253": 0,
         "DE-LETE@234": 0,
@@ -9740,7 +9740,7 @@
         "FAIL@233": 0,
         "HEAD-ROUTINE@248": 0,
         "INSPT@231": 1,
-        "OPEN-FILES@221": 1,
+        "OPEN-FILES@221": 0,
         "PASS@232": 0,
         "PRINT-DETAIL@236": 0,
         "SECT-IF121A@346": 1,
@@ -9756,7 +9756,7 @@
         "CCVS-999999@654": 1,
         "CCVS-EXIT@653": 1,
         "CCVS1-EXIT@340": 0,
-        "CCVS1@219": 1,
+        "CCVS1@219": 0,
         "CLOSE-FILES@226": 0,
         "COLUMN-NAMES-ROUTINE@252": 0,
         "DE-LETE@233": 0,
@@ -9838,7 +9838,7 @@
         "FAIL@232": 0,
         "HEAD-ROUTINE@247": 0,
         "INSPT@230": 1,
-        "OPEN-FILES@220": 1,
+        "OPEN-FILES@220": 0,
         "PASS@231": 0,
         "PRINT-DETAIL@235": 0,
         "SECT-IF122A@345": 1,
@@ -9854,7 +9854,7 @@
         "CCVS-999999@731": 1,
         "CCVS-EXIT@730": 1,
         "CCVS1-EXIT@328": 0,
-        "CCVS1@207": 1,
+        "CCVS1@207": 0,
         "CLOSE-FILES@214": 0,
         "COLUMN-NAMES-ROUTINE@240": 0,
         "DE-LETE@221": 0,
@@ -9952,7 +9952,7 @@
         "FAIL@220": 0,
         "HEAD-ROUTINE@235": 0,
         "INSPT@218": 1,
-        "OPEN-FILES@208": 1,
+        "OPEN-FILES@208": 0,
         "PASS@219": 0,
         "PRINT-DETAIL@223": 0,
         "SECT-IF124A@333": 1,
@@ -9968,7 +9968,7 @@
         "CCVS-999999@657": 1,
         "CCVS-EXIT@656": 1,
         "CCVS1-EXIT@297": 0,
-        "CCVS1@182": 1,
+        "CCVS1@182": 0,
         "CLOSE-FILES@189": 0,
         "COLUMN-NAMES-ROUTINE@215": 0,
         "DE-LETE@196": 0,
@@ -10063,7 +10063,7 @@
         "FAIL@195": 0,
         "HEAD-ROUTINE@210": 0,
         "INSPT@193": 1,
-        "OPEN-FILES@183": 1,
+        "OPEN-FILES@183": 0,
         "PASS@194": 0,
         "PRINT-DETAIL@198": 0,
         "SECT-IF125A@302": 1,
@@ -10079,7 +10079,7 @@
         "CCVS-999999@487": 1,
         "CCVS-EXIT@486": 1,
         "CCVS1-EXIT@330": 0,
-        "CCVS1@209": 1,
+        "CCVS1@209": 0,
         "CLOSE-FILES@216": 0,
         "COLUMN-NAMES-ROUTINE@242": 0,
         "DE-LETE@223": 0,
@@ -10130,7 +10130,7 @@
         "FAIL@222": 0,
         "HEAD-ROUTINE@237": 0,
         "INSPT@220": 1,
-        "OPEN-FILES@210": 1,
+        "OPEN-FILES@210": 0,
         "PASS@221": 0,
         "PRINT-DETAIL@225": 0,
         "SECT-IF127A@335": 1,
@@ -10146,7 +10146,7 @@
         "CCVS-999999@621": 1,
         "CCVS-EXIT@620": 1,
         "CCVS1-EXIT@338": 0,
-        "CCVS1@217": 1,
+        "CCVS1@217": 0,
         "CLOSE-FILES@224": 0,
         "COLUMN-NAMES-ROUTINE@250": 0,
         "DE-LETE@231": 0,
@@ -10225,7 +10225,7 @@
         "FAIL@230": 0,
         "HEAD-ROUTINE@245": 0,
         "INSPT@228": 1,
-        "OPEN-FILES@218": 1,
+        "OPEN-FILES@218": 0,
         "PASS@229": 0,
         "PRINT-DETAIL@233": 0,
         "SECT-IF128A@343": 1,
@@ -10241,7 +10241,7 @@
         "CCVS-999999@604": 1,
         "CCVS-EXIT@603": 1,
         "CCVS1-EXIT@304": 0,
-        "CCVS1@189": 1,
+        "CCVS1@189": 0,
         "CLOSE-FILES@196": 0,
         "COLUMN-NAMES-ROUTINE@222": 0,
         "DE-LETE@203": 0,
@@ -10324,7 +10324,7 @@
         "FAIL@202": 0,
         "HEAD-ROUTINE@217": 0,
         "INSPT@200": 1,
-        "OPEN-FILES@190": 1,
+        "OPEN-FILES@190": 0,
         "PASS@201": 0,
         "PRINT-DETAIL@205": 0,
         "SECT-IF129A@309": 1,
@@ -10340,7 +10340,7 @@
         "CCVS-999999@495": 1,
         "CCVS-EXIT@494": 1,
         "CCVS1-EXIT@328": 0,
-        "CCVS1@207": 1,
+        "CCVS1@207": 0,
         "CLOSE-FILES@214": 0,
         "COLUMN-NAMES-ROUTINE@240": 0,
         "DE-LETE@221": 0,
@@ -10387,7 +10387,7 @@
         "FAIL@220": 0,
         "HEAD-ROUTINE@235": 0,
         "INSPT@218": 1,
-        "OPEN-FILES@208": 1,
+        "OPEN-FILES@208": 0,
         "PASS@219": 0,
         "PRINT-DETAIL@223": 0,
         "SECT-IF131A@333": 1,
@@ -10403,7 +10403,7 @@
         "CCVS-999999@609": 1,
         "CCVS-EXIT@608": 1,
         "CCVS1-EXIT@340": 0,
-        "CCVS1@219": 1,
+        "CCVS1@219": 0,
         "CLOSE-FILES@226": 0,
         "COLUMN-NAMES-ROUTINE@252": 0,
         "DE-LETE@233": 0,
@@ -10477,7 +10477,7 @@
         "FAIL@232": 0,
         "HEAD-ROUTINE@247": 0,
         "INSPT@230": 1,
-        "OPEN-FILES@220": 1,
+        "OPEN-FILES@220": 0,
         "PASS@231": 0,
         "PRINT-DETAIL@235": 0,
         "SECT-IF132A@345": 1,
@@ -10493,7 +10493,7 @@
         "CCVS-999999@652": 1,
         "CCVS-EXIT@651": 1,
         "CCVS1-EXIT@329": 0,
-        "CCVS1@208": 1,
+        "CCVS1@208": 0,
         "CLOSE-FILES@215": 0,
         "COLUMN-NAMES-ROUTINE@241": 0,
         "DE-LETE@222": 0,
@@ -10575,7 +10575,7 @@
         "FAIL@221": 0,
         "HEAD-ROUTINE@236": 0,
         "INSPT@219": 1,
-        "OPEN-FILES@209": 1,
+        "OPEN-FILES@209": 0,
         "PASS@220": 0,
         "PRINT-DETAIL@224": 0,
         "SECT-IF133A@334": 1,
@@ -10591,7 +10591,7 @@
         "CCVS-999999@524": 1,
         "CCVS-EXIT@523": 1,
         "CCVS1-EXIT@293": 0,
-        "CCVS1@178": 1,
+        "CCVS1@178": 0,
         "CLOSE-FILES@185": 0,
         "COLUMN-NAMES-ROUTINE@211": 0,
         "DE-LETE@192": 0,
@@ -10659,7 +10659,7 @@
         "FAIL@191": 0,
         "HEAD-ROUTINE@206": 0,
         "INSPT@189": 1,
-        "OPEN-FILES@179": 1,
+        "OPEN-FILES@179": 0,
         "PASS@190": 0,
         "PRINT-DETAIL@194": 0,
         "SECT-IF134A@298": 1,
@@ -10675,7 +10675,7 @@
         "CCVS-999999@699": 1,
         "CCVS-EXIT@698": 1,
         "CCVS1-EXIT@338": 0,
-        "CCVS1@217": 1,
+        "CCVS1@217": 0,
         "CLOSE-FILES@224": 0,
         "COLUMN-NAMES-ROUTINE@250": 0,
         "DE-LETE@231": 0,
@@ -10758,7 +10758,7 @@
         "FAIL@230": 0,
         "HEAD-ROUTINE@245": 0,
         "INSPT@228": 1,
-        "OPEN-FILES@218": 1,
+        "OPEN-FILES@218": 0,
         "PASS@229": 0,
         "PRINT-DETAIL@233": 0,
         "SECT-IF137A@343": 1,
@@ -10774,7 +10774,7 @@
         "CCVS-999999@634": 1,
         "CCVS-EXIT@633": 1,
         "CCVS1-EXIT@340": 0,
-        "CCVS1@219": 1,
+        "CCVS1@219": 0,
         "CLOSE-FILES@226": 0,
         "COLUMN-NAMES-ROUTINE@252": 0,
         "DE-LETE@233": 0,
@@ -10852,7 +10852,7 @@
         "FAIL@232": 0,
         "HEAD-ROUTINE@247": 0,
         "INSPT@230": 1,
-        "OPEN-FILES@220": 1,
+        "OPEN-FILES@220": 0,
         "PASS@231": 0,
         "PRINT-DETAIL@235": 0,
         "SECT-IF138A@345": 1,
@@ -10868,7 +10868,7 @@
         "CCVS-999999@521": 1,
         "CCVS-EXIT@520": 1,
         "CCVS1-EXIT@293": 0,
-        "CCVS1@178": 1,
+        "CCVS1@178": 0,
         "CLOSE-FILES@185": 0,
         "COLUMN-NAMES-ROUTINE@211": 0,
         "DE-LETE@192": 0,
@@ -10935,7 +10935,7 @@
         "FAIL@191": 0,
         "HEAD-ROUTINE@206": 0,
         "INSPT@189": 1,
-        "OPEN-FILES@179": 1,
+        "OPEN-FILES@179": 0,
         "PASS@190": 0,
         "PRINT-DETAIL@194": 0,
         "SECT-IF140A@298": 1,
@@ -10951,7 +10951,7 @@
         "CCVS-999999@667": 1,
         "CCVS-EXIT@666": 1,
         "CCVS1-EXIT@336": 0,
-        "CCVS1@215": 1,
+        "CCVS1@215": 0,
         "CLOSE-FILES@222": 0,
         "COLUMN-NAMES-ROUTINE@248": 0,
         "DE-LETE@229": 0,
@@ -11030,7 +11030,7 @@
         "FAIL@228": 0,
         "HEAD-ROUTINE@243": 0,
         "INSPT@226": 1,
-        "OPEN-FILES@216": 1,
+        "OPEN-FILES@216": 0,
         "PASS@227": 0,
         "PRINT-DETAIL@231": 0,
         "SECT-IF141A@341": 1,
@@ -11046,7 +11046,7 @@
         "CCVS-999999@356": 1,
         "CCVS-EXIT@355": 1,
         "CCVS1-EXIT@307": 0,
-        "CCVS1@191": 1,
+        "CCVS1@191": 0,
         "CLOSE-FILES@198": 0,
         "COLUMN-NAMES-ROUTINE@224": 0,
         "DE-LETE@205": 0,
@@ -11069,7 +11069,7 @@
         "FAIL@204": 0,
         "HEAD-ROUTINE@219": 0,
         "INSPT@202": 1,
-        "OPEN-FILES@192": 1,
+        "OPEN-FILES@192": 0,
         "PASS@203": 0,
         "PRINT-DETAIL@207": 0,
         "SECT-IF142A@312": 1,
@@ -11078,7 +11078,7 @@
         "WRT-LN@277": 0
       },
       "cobol/che-che4z_nist_ccvs85/IF4014.2.cbl": {
-        "IF401M-ACOS@28": 1,
+        "IF401M-ACOS@28": 0,
         "IF401M-ANNUITY@33": 1,
         "IF401M-ASIN@38": 1,
         "IF401M-ATAN@43": 1,
@@ -11096,7 +11096,7 @@
       },
       "cobol/che-che4z_nist_ccvs85/IF4024.2.cbl": {
         "IF402M-END@120": 1,
-        "IF402M-LENGTH@32": 1,
+        "IF402M-LENGTH@32": 0,
         "IF402M-LOG10@42": 1,
         "IF402M-LOG@37": 1,
         "IF402M-LOWER-CASE@47": 1,
@@ -11114,7 +11114,7 @@
       },
       "cobol/che-che4z_nist_ccvs85/IF4034.2.cbl": {
         "IF403M-END@93": 1,
-        "IF403M-PRESENT-VALUE@26": 1,
+        "IF403M-PRESENT-VALUE@26": 0,
         "IF403M-RANDOM@32": 1,
         "IF403M-RANGE@37": 1,
         "IF403M-REM@43": 1,
@@ -11138,7 +11138,7 @@
         "CCVS-INIT-EXIT@315": 1,
         "CCVS-INIT-FILE@311": 0,
         "CCVS1-EXIT@439": 0,
-        "CCVS1@293": 1,
+        "CCVS1@293": 0,
         "CLOSE-FILES@317": 0,
         "COLUMN-NAMES-ROUTINE@357": 0,
         "DE-LETE@338": 1,
@@ -11155,7 +11155,7 @@
         "FAIL@337": 0,
         "HEAD-ROUTINE@352": 0,
         "INSPT@335": 1,
-        "OPEN-FILES@294": 1,
+        "OPEN-FILES@294": 0,
         "PASS@336": 0,
         "PRINT-DETAIL@340": 0,
         "READ-INIT-GF-01@477": 1,
@@ -11183,7 +11183,7 @@
         "CCVS-INIT-EXIT@339": 1,
         "CCVS-INIT-FILE@335": 0,
         "CCVS1-EXIT@463": 0,
-        "CCVS1@317": 1,
+        "CCVS1@317": 0,
         "CLOSE-FILES@341": 0,
         "COLUMN-NAMES-ROUTINE@381": 0,
         "DE-LETE@362": 1,
@@ -11200,7 +11200,7 @@
         "FAIL@361": 0,
         "HEAD-ROUTINE@376": 0,
         "INSPT@359": 1,
-        "OPEN-FILES@318": 1,
+        "OPEN-FILES@318": 0,
         "PASS@360": 0,
         "PRINT-DETAIL@364": 0,
         "READ-INIT-F2-01@466": 1,
@@ -12112,7 +12112,7 @@
         "CCVS-INIT-EXIT@316": 1,
         "CCVS-INIT-FILE@312": 0,
         "CCVS1-EXIT@440": 0,
-        "CCVS1@294": 1,
+        "CCVS1@294": 0,
         "CLOSE-FILES@318": 0,
         "COLUMN-NAMES-ROUTINE@358": 0,
         "DE-LETE@339": 1,
@@ -12129,7 +12129,7 @@
         "FAIL@338": 0,
         "HEAD-ROUTINE@353": 0,
         "INSPT@336": 1,
-        "OPEN-FILES@295": 1,
+        "OPEN-FILES@295": 0,
         "PASS@337": 0,
         "PRINT-DETAIL@341": 0,
         "READ-INIT-F1-01@476": 1,
@@ -12155,7 +12155,7 @@
         "CCVS-INIT-EXIT@332": 1,
         "CCVS-INIT-FILE@328": 0,
         "CCVS1-EXIT@456": 0,
-        "CCVS1@310": 1,
+        "CCVS1@310": 0,
         "CLOSE-FILES@334": 0,
         "COLUMN-NAMES-ROUTINE@374": 0,
         "DE-LETE@355": 1,
@@ -12184,7 +12184,7 @@
         "FAIL@354": 0,
         "HEAD-ROUTINE@369": 0,
         "INSPT@352": 1,
-        "OPEN-FILES@311": 1,
+        "OPEN-FILES@311": 0,
         "PASS@353": 0,
         "PRINT-DETAIL@357": 0,
         "READ-INIT-F1-01-0@482": 1,
@@ -12272,7 +12272,7 @@
         "CCVS-INIT-EXIT@336": 1,
         "CCVS-INIT-FILE@332": 0,
         "CCVS1-EXIT@446": 0,
-        "CCVS1@324": 1,
+        "CCVS1@324": 0,
         "CLOSE-FILES@338": 0,
         "COLUMN-NAMES-ROUTINE@364": 0,
         "DE-LETE@345": 1,
@@ -12287,7 +12287,7 @@
         "FAIL@344": 0,
         "HEAD-ROUTINE@359": 0,
         "INSPT@342": 1,
-        "OPEN-FILES@325": 1,
+        "OPEN-FILES@325": 0,
         "OPN-FAIL-GF-01@463": 1,
         "OPN-FAIL-GF-02@568": 1,
         "OPN-INIT-GF-01@454": 1,
@@ -12401,7 +12401,7 @@
       "cobol/che-che4z_nist_ccvs85/IX3014.2.cbl": {
         "DONE-PARA@67": 0,
         "INV-PARA@64": 0,
-        "IX301M-CONTROL@38": 1,
+        "IX301M-CONTROL@38": 0,
         "IX301M-DELETE@59": 0,
         "IX301M-READ@44": 0,
         "IX301M-REWRITE@49": 1,
@@ -12409,7 +12409,7 @@
       },
       "cobol/che-che4z_nist_ccvs85/IX4014.2.cbl": {
         "IX401M-CLOSE@59": 0,
-        "IX401M-CONTROL@52": 1,
+        "IX401M-CONTROL@52": 0,
         "IX401M-OPENEXT@63": 1,
         "IX401M-READKEY@73": 1,
         "IX401M-READNEXT@67": 1,
@@ -12419,7 +12419,7 @@
         "ENDER-PRINT@66": 1,
         "GO-FAIL@59": 1,
         "GO-TEST@55": 1,
-        "HEADER-PRINT@30": 1,
+        "HEADER-PRINT@30": 0,
         "PASS@84": 0,
         "PERFORM-TEST@62": 0
       },
@@ -12432,7 +12432,7 @@
         "CCVS-999999@474": 1,
         "CCVS-EXIT@473": 1,
         "CCVS1-EXIT@310": 0,
-        "CCVS1@193": 1,
+        "CCVS1@193": 0,
         "CLOSE-FILES@200": 0,
         "COLUMN-NAMES-ROUTINE@228": 0,
         "DE-LETE@209": 0,
@@ -12447,7 +12447,7 @@
         "FAIL@208": 0,
         "HEAD-ROUTINE@223": 0,
         "INSPT@206": 1,
-        "OPEN-FILES@194": 1,
+        "OPEN-FILES@194": 0,
         "PASS@207": 0,
         "PRINT-DETAIL@211": 0,
         "SECT-NC111A-001@312": 1,
@@ -12537,7 +12537,7 @@
         "CCVS-999999@746": 1,
         "CCVS-EXIT@745": 1,
         "CCVS1-EXIT@385": 0,
-        "CCVS1@268": 1,
+        "CCVS1@268": 0,
         "CLOSE-FILES@275": 0,
         "COLUMN-NAMES-ROUTINE@303": 0,
         "DE-LETE@284": 0,
@@ -12612,7 +12612,7 @@
         "FAIL@283": 0,
         "HEAD-ROUTINE@298": 0,
         "INSPT@281": 1,
-        "OPEN-FILES@269": 1,
+        "OPEN-FILES@269": 0,
         "PASS@282": 0,
         "PRINT-DETAIL@286": 0,
         "SECT-NC125A-001@387": 1,
@@ -12629,7 +12629,7 @@
         "CCVS-999999@345": 1,
         "CCVS-EXIT@344": 1,
         "CCVS1-EXIT@302": 0,
-        "CCVS1@185": 1,
+        "CCVS1@185": 0,
         "CLOSE-FILES@192": 0,
         "COLUMN-NAMES-ROUTINE@220": 0,
         "DE-LETE@201": 0,
@@ -12644,7 +12644,7 @@
         "FAIL@200": 0,
         "HEAD-ROUTINE@215": 0,
         "INSPT@198": 1,
-        "OPEN-FILES@186": 1,
+        "OPEN-FILES@186": 0,
         "PASS@199": 0,
         "PRINT-DETAIL@203": 0,
         "TERMINATE-CALL@196": 1,
@@ -12671,7 +12671,7 @@
         "CCVS-999999@464": 1,
         "CCVS-EXIT@463": 1,
         "CCVS1-EXIT@312": 0,
-        "CCVS1@195": 1,
+        "CCVS1@195": 0,
         "CL-OSE@410": 0,
         "CLOSE-FILES@202": 0,
         "COLUMN-NAMES-ROUTINE@230": 0,
@@ -12708,7 +12708,7 @@
         "OK8-2@435": 0,
         "OK9-1@450": 0,
         "OK9-2@459": 0,
-        "OPEN-FILES@196": 1,
+        "OPEN-FILES@196": 0,
         "P-LIST@400": 0,
         "PASS@209": 0,
         "PRINT-DETAIL@213": 0,
@@ -12732,7 +12732,7 @@
         "CCVS-999999@709": 1,
         "CCVS-EXIT@708": 0,
         "CCVS1-EXIT@322": 0,
-        "CCVS1@205": 1,
+        "CCVS1@205": 0,
         "CLOSE-FILES@212": 0,
         "COLUMN-NAMES-ROUTINE@240": 0,
         "DE-LETE@221": 0,
@@ -12821,7 +12821,7 @@
         "IDX-WRITE-9@472": 0,
         "INIT-WRITE@337": 0,
         "INSPT@218": 1,
-        "OPEN-FILES@206": 1,
+        "OPEN-FILES@206": 0,
         "PASS@219": 0,
         "PRINT-DETAIL@223": 0,
         "SECT-TH133A-001@324": 1,
@@ -12843,7 +12843,7 @@
         "CCVS-999999@709": 1,
         "CCVS-EXIT@708": 1,
         "CCVS1-EXIT@355": 0,
-        "CCVS1@238": 1,
+        "CCVS1@238": 0,
         "CLOSE-FILES@245": 0,
         "COLUMN-NAMES-ROUTINE@273": 0,
         "CONSTRUCTION@418": 0,
@@ -12867,7 +12867,7 @@
         "HEAD-ROUTINE@268": 0,
         "INSPT@251": 1,
         "NC-05-001@358": 1,
-        "OPEN-FILES@239": 1,
+        "OPEN-FILES@239": 0,
         "PASS@252": 0,
         "PRINT-DETAIL@256": 0,
         "PRINT-TABLE@673": 0,
@@ -12952,7 +12952,7 @@
         "CCVS-999999@517": 1,
         "CCVS-EXIT@516": 1,
         "CCVS1-EXIT@320": 0,
-        "CCVS1@203": 1,
+        "CCVS1@203": 0,
         "CLOSE-FILES@210": 0,
         "COLUMN-NAMES-ROUTINE@238": 0,
         "DE-LETE@219": 0,
@@ -12981,7 +12981,7 @@
         "INDEX-TEST-6@434": 0,
         "INDEX-TEST-7@453": 0,
         "INSPT@216": 0,
-        "OPEN-FILES@204": 1,
+        "OPEN-FILES@204": 0,
         "PARAGRAPH-NAME-10@469": 1,
         "PARAGRAPH-NAME-11@488": 0,
         "PARAGRAPH-NAME-12@497": 0,
@@ -13023,7 +13023,7 @@
         "CCVS-999999@485": 1,
         "CCVS-EXIT@484": 1,
         "CCVS1-EXIT@333": 0,
-        "CCVS1@216": 1,
+        "CCVS1@216": 0,
         "CHECK-ENTRIES@367": 0,
         "CLOSE-FILES@223": 0,
         "COLUMN-NAMES-ROUTINE@251": 0,
@@ -13041,7 +13041,7 @@
         "HEAD-ROUTINE@246": 0,
         "INSPT@229": 1,
         "NC136-001@336": 1,
-        "OPEN-FILES@217": 1,
+        "OPEN-FILES@217": 0,
         "PASS@230": 0,
         "PRINT-DETAIL@234": 0,
         "SECT-NC136A-001@335": 1,
@@ -13075,7 +13075,7 @@
         "CCVS-999999@499": 1,
         "CCVS-EXIT@498": 1,
         "CCVS1-EXIT@332": 0,
-        "CCVS1@215": 1,
+        "CCVS1@215": 0,
         "CHECK-ENTRIES@366": 0,
         "CLOSE-FILES@222": 0,
         "COLUMN-NAMES-ROUTINE@250": 0,
@@ -13093,7 +13093,7 @@
         "HEAD-ROUTINE@245": 0,
         "INSPT@228": 1,
         "NC137A-001@335": 1,
-        "OPEN-FILES@216": 1,
+        "OPEN-FILES@216": 0,
         "PASS@229": 0,
         "PRINT-DETAIL@233": 0,
         "SECT-NC137A-001@334": 1,
@@ -13124,7 +13124,7 @@
         "CCVS-999999@650": 1,
         "CCVS-EXIT@649": 0,
         "CCVS1-EXIT@327": 0,
-        "CCVS1@210": 1,
+        "CCVS1@210": 0,
         "CLOSE-FILES@217": 0,
         "COLUMN-NAMES-ROUTINE@245": 0,
         "DE-LETE@226": 0,
@@ -13142,7 +13142,7 @@
         "INSPT@223": 1,
         "MOVE-VALUE@333": 0,
         "NC138A-0001@330": 1,
-        "OPEN-FILES@211": 1,
+        "OPEN-FILES@211": 0,
         "PASS@224": 0,
         "PRINT-DETAIL@228": 0,
         "SECT-0002-INIT@351": 1,
@@ -13231,7 +13231,7 @@
         "CCVS-999999@611": 1,
         "CCVS-EXIT@610": 0,
         "CCVS1-EXIT@338": 0,
-        "CCVS1@221": 1,
+        "CCVS1@221": 0,
         "CLOSE-FILES@228": 0,
         "COLUMN-NAMES-ROUTINE@256": 0,
         "DE-LETE@237": 0,
@@ -13305,7 +13305,7 @@
         "IND-TEST-006-05@589": 1,
         "INSPT@234": 1,
         "NC139A-001@346": 1,
-        "OPEN-FILES@222": 1,
+        "OPEN-FILES@222": 0,
         "PASS@235": 0,
         "PRINT-DETAIL@239": 0,
         "SECT-NC139A-001@345": 1,
@@ -13327,7 +13327,7 @@
         "CCVS-999999@742": 1,
         "CCVS-EXIT@741": 0,
         "CCVS1-EXIT@326": 0,
-        "CCVS1@209": 1,
+        "CCVS1@209": 0,
         "CLOSE-FILES@216": 0,
         "COLUMN-NAMES-ROUTINE@244": 0,
         "DE-LETE@225": 0,
@@ -13345,7 +13345,7 @@
         "INSPT@222": 1,
         "MOVE-VALUE@338": 0,
         "NC140A-0001@334": 1,
-        "OPEN-FILES@210": 1,
+        "OPEN-FILES@210": 0,
         "PASS@223": 0,
         "PRINT-DETAIL@227": 0,
         "SECT-NC140A-0001@333": 1,
@@ -13448,7 +13448,7 @@
         "CCVS-999999@503": 1,
         "CCVS-EXIT@502": 1,
         "CCVS1-EXIT@307": 0,
-        "CCVS1@190": 1,
+        "CCVS1@190": 0,
         "CLOSE-FILES@197": 0,
         "COLUMN-NAMES-ROUTINE@225": 0,
         "DE-LETE@206": 0,
@@ -13464,7 +13464,7 @@
         "HEAD-ROUTINE@220": 0,
         "INIT-PARA@310": 1,
         "INSPT@203": 1,
-        "OPEN-FILES@191": 1,
+        "OPEN-FILES@191": 0,
         "PASS@204": 0,
         "PRINT-DETAIL@208": 0,
         "SECT-NC141A-001@309": 1,
@@ -13517,7 +13517,7 @@
         "CCVS-999999@733": 1,
         "CCVS-EXIT@732": 1,
         "CCVS1-EXIT@388": 0,
-        "CCVS1@278": 1,
+        "CCVS1@278": 0,
         "CLOSE-FILES@285": 0,
         "COLUMN-NAMES-ROUTINE@311": 0,
         "DE-LETE@292": 0,
@@ -13543,7 +13543,7 @@
         "IF-WRITE-GF-X@659": 0,
         "IF-WRITE-GF-Y@722": 0,
         "INSPT@289": 1,
-        "OPEN-FILES@279": 1,
+        "OPEN-FILES@279": 0,
         "PASS@290": 0,
         "PRINT-DETAIL@294": 0,
         "SECT-NC210A-001@390": 1,
@@ -13576,7 +13576,7 @@
         "CCVS-999999@404": 1,
         "CCVS-EXIT@403": 1,
         "CCVS1-EXIT@337": 0,
-        "CCVS1@225": 1,
+        "CCVS1@225": 0,
         "CLOSE-FILES@232": 0,
         "COLUMN-NAMES-ROUTINE@260": 0,
         "DE-LETE@241": 0,
@@ -13591,7 +13591,7 @@
         "FAIL@240": 0,
         "HEAD-ROUTINE@255": 0,
         "INSPT@238": 1,
-        "OPEN-FILES@226": 1,
+        "OPEN-FILES@226": 0,
         "PASS@239": 1,
         "PRINT-DETAIL@243": 0,
         "SECT-NC214M-001@339": 1,
@@ -13609,7 +13609,7 @@
         "CCVS-999999@478": 1,
         "CCVS-EXIT@477": 1,
         "CCVS1-EXIT@325": 0,
-        "CCVS1@213": 1,
+        "CCVS1@213": 0,
         "CLOSE-FILES@220": 0,
         "COLUMN-NAMES-ROUTINE@248": 0,
         "DE-LETE@229": 0,
@@ -13624,7 +13624,7 @@
         "FAIL@228": 0,
         "HEAD-ROUTINE@243": 0,
         "INSPT@226": 1,
-        "OPEN-FILES@214": 1,
+        "OPEN-FILES@214": 0,
         "PASS@227": 0,
         "PRINT-DETAIL@231": 0,
         "SECT-NC215A-001@327": 1,
@@ -13676,7 +13676,7 @@
         "CCVS-999999@586": 1,
         "CCVS-EXIT@585": 1,
         "CCVS1-EXIT@337": 0,
-        "CCVS1@225": 1,
+        "CCVS1@225": 0,
         "CLOSE-FILES@232": 0,
         "COLUMN-NAMES-ROUTINE@260": 0,
         "DE-LETE@241": 0,
@@ -13691,7 +13691,7 @@
         "FAIL@240": 0,
         "HEAD-ROUTINE@255": 0,
         "INSPT@238": 1,
-        "OPEN-FILES@226": 1,
+        "OPEN-FILES@226": 0,
         "PASS@239": 0,
         "PRINT-DETAIL@243": 0,
         "SECT-NC219A-001@339": 1,
@@ -13758,7 +13758,7 @@
         "CCVS-999999@547": 0,
         "CCVS-EXIT@546": 1,
         "CCVS1-EXIT@321": 0,
-        "CCVS1@209": 1,
+        "CCVS1@209": 0,
         "CLOSE-FILES@216": 0,
         "COLUMN-NAMES-ROUTINE@244": 0,
         "DE-LETE@225": 0,
@@ -13810,7 +13810,7 @@
         "MOV-WRITE-F2-3-2@494": 0,
         "MOV-WRITE-F2-4-1@524": 0,
         "MOV-WRITE-F2-4-2@543": 0,
-        "OPEN-FILES@210": 1,
+        "OPEN-FILES@210": 0,
         "PASS@223": 0,
         "PRINT-DETAIL@227": 0,
         "SUBTRACT-DELETE-F2-1@382": 1,
@@ -13832,7 +13832,7 @@
         "CCVS-999999@642": 1,
         "CCVS-EXIT@641": 0,
         "CCVS1-EXIT@313": 0,
-        "CCVS1@199": 1,
+        "CCVS1@199": 0,
         "CLOSE-FILES@206": 0,
         "COLUMN-NAMES-ROUTINE@234": 0,
         "DE-LETE@215": 0,
@@ -13847,7 +13847,7 @@
         "FAIL@214": 0,
         "HEAD-ROUTINE@229": 0,
         "INSPT@212": 1,
-        "OPEN-FILES@200": 1,
+        "OPEN-FILES@200": 0,
         "PASS@213": 0,
         "PRINT-DETAIL@217": 0,
         "REF-DELETE-GF-1-1@334": 1,
@@ -13932,7 +13932,7 @@
         "CCVS-999999@621": 1,
         "CCVS-EXIT@620": 0,
         "CCVS1-EXIT@313": 0,
-        "CCVS1@201": 1,
+        "CCVS1@201": 0,
         "CLOSE-FILES@208": 0,
         "COLUMN-NAMES-ROUTINE@236": 0,
         "DE-LETE@217": 0,
@@ -14014,7 +14014,7 @@
         "INIT-TBL-TH309@317": 0,
         "INIT-WRITE@325": 0,
         "INSPT@214": 1,
-        "OPEN-FILES@202": 1,
+        "OPEN-FILES@202": 0,
         "PASS@215": 0,
         "PRINT-DETAIL@219": 0,
         "PUTOUT-COMPUTED-A@615": 0,
@@ -14033,7 +14033,7 @@
         "CCVS-999999@579": 1,
         "CCVS-EXIT@578": 1,
         "CCVS1-EXIT@314": 0,
-        "CCVS1@202": 1,
+        "CCVS1@202": 0,
         "CLOSE-FILES@209": 0,
         "COLUMN-NAMES-ROUTINE@237": 0,
         "DE-LETE@218": 0,
@@ -14048,7 +14048,7 @@
         "FAIL@217": 0,
         "HEAD-ROUTINE@232": 0,
         "INSPT@215": 1,
-        "OPEN-FILES@203": 1,
+        "OPEN-FILES@203": 0,
         "PASS@216": 0,
         "PRINT-DETAIL@220": 0,
         "SCH-DELETE-F1-10@564": 1,
@@ -14119,7 +14119,7 @@
         "CCVS-999999@656": 1,
         "CCVS-EXIT@655": 1,
         "CCVS1-EXIT@328": 0,
-        "CCVS1@216": 1,
+        "CCVS1@216": 0,
         "CLOSE-FILES@223": 0,
         "COLUMN-NAMES-ROUTINE@251": 0,
         "DE-LETE@232": 0,
@@ -14199,7 +14199,7 @@
         "IDX-WRITE-GF-7@513": 0,
         "IDX-WRITE-GF-8@535": 0,
         "INSPT@229": 1,
-        "OPEN-FILES@217": 1,
+        "OPEN-FILES@217": 0,
         "PASS@230": 0,
         "PRINT-DETAIL@234": 0,
         "SECT-NC237A-001@330": 1,
@@ -14220,7 +14220,7 @@
         "CCVS-999999@653": 1,
         "CCVS-EXIT@652": 1,
         "CCVS1-EXIT@359": 0,
-        "CCVS1@247": 1,
+        "CCVS1@247": 0,
         "CLOSE-FILES@254": 0,
         "COLUMN-NAMES-ROUTINE@282": 0,
         "DE-LETE@263": 0,
@@ -14236,7 +14236,7 @@
         "FAIL@262": 0,
         "HEAD-ROUTINE@277": 0,
         "INSPT@260": 1,
-        "OPEN-FILES@248": 1,
+        "OPEN-FILES@248": 0,
         "PASS@261": 0,
         "PRINT-DETAIL@265": 0,
         "SCH-DELETE-F1-1@401": 1,
@@ -14304,7 +14304,7 @@
         "CCVS-999999@523": 1,
         "CCVS-EXIT@522": 1,
         "CCVS1-EXIT@328": 0,
-        "CCVS1@216": 1,
+        "CCVS1@216": 0,
         "CLOSE-FILES@223": 0,
         "COLUMN-NAMES-ROUTINE@251": 0,
         "DE-LETE@232": 0,
@@ -14319,7 +14319,7 @@
         "FAIL@231": 0,
         "HEAD-ROUTINE@246": 0,
         "INSPT@229": 1,
-        "OPEN-FILES@217": 1,
+        "OPEN-FILES@217": 0,
         "PASS@230": 0,
         "PRINT-DETAIL@234": 0,
         "SECT-NC239A-001@330": 1,
@@ -14380,7 +14380,7 @@
         "CCVS-999999@688": 1,
         "CCVS-EXIT@687": 1,
         "CCVS1-EXIT@334": 0,
-        "CCVS1@222": 1,
+        "CCVS1@222": 0,
         "CHECK-ENTRIES@366": 0,
         "CLOSE-FILES@229": 0,
         "COLUMN-NAMES-ROUTINE@257": 0,
@@ -14400,7 +14400,7 @@
         "FIND-LEVEL-3-ENTRY@681": 0,
         "HEAD-ROUTINE@252": 0,
         "INSPT@235": 1,
-        "OPEN-FILES@223": 1,
+        "OPEN-FILES@223": 0,
         "PASS@236": 0,
         "PRINT-DETAIL@240": 0,
         "SECT-NC24A-0001@336": 1,
@@ -14473,7 +14473,7 @@
         "CCVS-999999@666": 1,
         "CCVS-EXIT@665": 1,
         "CCVS1-EXIT@334": 0,
-        "CCVS1@222": 1,
+        "CCVS1@222": 0,
         "CHECK-ENTRIES@355": 0,
         "CLOSE-FILES@229": 0,
         "COLUMN-NAMES-ROUTINE@257": 0,
@@ -14493,7 +14493,7 @@
         "FIND-LEVEL-3-ENTRY@659": 0,
         "HEAD-ROUTINE@252": 0,
         "INSPT@235": 1,
-        "OPEN-FILES@223": 1,
+        "OPEN-FILES@223": 0,
         "PARA-1@344": 0,
         "PASS@236": 0,
         "PRINT-DETAIL@240": 0,
@@ -14567,7 +14567,7 @@
         "CCVS-999999@570": 0,
         "CCVS-EXIT@569": 1,
         "CCVS1-EXIT@365": 0,
-        "CCVS1@253": 1,
+        "CCVS1@253": 0,
         "CHECK-ENTRIES@386": 0,
         "CLOSE-FILES@260": 0,
         "COLUMN-NAMES-ROUTINE@288": 0,
@@ -14584,7 +14584,7 @@
         "FAIL@268": 0,
         "HEAD-ROUTINE@283": 0,
         "INSPT@266": 1,
-        "OPEN-FILES@254": 1,
+        "OPEN-FILES@254": 0,
         "PARA-1@375": 0,
         "PASS@267": 0,
         "PRINT-DETAIL@271": 0,
@@ -14626,7 +14626,7 @@
         "CCVS-999999@697": 1,
         "CCVS-EXIT@696": 0,
         "CCVS1-EXIT@362": 0,
-        "CCVS1@250": 1,
+        "CCVS1@250": 0,
         "CHECK-ENTRIES@395": 0,
         "CLOSE-FILES@257": 0,
         "COLUMN-NAMES-ROUTINE@285": 0,
@@ -14658,7 +14658,7 @@
         "LEVEL-3-TEST-2@529": 0,
         "LEVEL-3-TEST-3@544": 0,
         "LEVEL-3-TEST-4@558": 0,
-        "OPEN-FILES@251": 1,
+        "OPEN-FILES@251": 0,
         "PASS-TH@579": 0,
         "PASS@264": 0,
         "PRINT-DETAIL@268": 0,
@@ -14695,7 +14695,7 @@
         "CCVS-999999@506": 1,
         "CCVS-EXIT@505": 1,
         "CCVS1-EXIT@317": 0,
-        "CCVS1@205": 1,
+        "CCVS1@205": 0,
         "CLOSE-FILES@212": 0,
         "COLUMN-NAMES-ROUTINE@240": 0,
         "DE-LETE@221": 0,
@@ -14740,7 +14740,7 @@
         "IDX-WRITE-F2-5@481": 0,
         "IDX-WRITE-F2-6@503": 0,
         "INSPT@218": 1,
-        "OPEN-FILES@206": 1,
+        "OPEN-FILES@206": 0,
         "PASS@219": 0,
         "PRINT-DETAIL@223": 0,
         "SECT-NC244A-001@319": 1,
@@ -14763,7 +14763,7 @@
         "CCVS-999999@530": 1,
         "CCVS-EXIT@529": 0,
         "CCVS1-EXIT@320": 0,
-        "CCVS1@208": 1,
+        "CCVS1@208": 0,
         "CLOSE-FILES@215": 0,
         "COLUMN-NAMES-ROUTINE@243": 0,
         "DE-LETE@224": 0,
@@ -14779,7 +14779,7 @@
         "HEAD-ROUTINE@238": 0,
         "INCRE-SUBS@345": 1,
         "INSPT@221": 1,
-        "OPEN-FILES@209": 1,
+        "OPEN-FILES@209": 0,
         "PASS@222": 0,
         "PRINT-DETAIL@226": 0,
         "SECT-NC245A-001@336": 1,
@@ -14840,7 +14840,7 @@
         "CCVS-999999@616": 1,
         "CCVS-EXIT@615": 1,
         "CCVS1-EXIT@322": 0,
-        "CCVS1@210": 1,
+        "CCVS1@210": 0,
         "CLOSE-FILES@217": 0,
         "COLUMN-NAMES-ROUTINE@245": 0,
         "DE-LETE@226": 0,
@@ -14855,7 +14855,7 @@
         "FAIL@225": 0,
         "HEAD-ROUTINE@240": 0,
         "INSPT@223": 1,
-        "OPEN-FILES@211": 1,
+        "OPEN-FILES@211": 0,
         "PASS@224": 0,
         "PRINT-DETAIL@228": 0,
         "SET-DELETE-F1-1@351": 1,
@@ -14923,15 +14923,15 @@
         "WRT-LN@294": 0
       },
       "cobol/che-che4z_nist_ccvs85/NC3034.2.cbl": {
-        "NC303M-CONTROL@18": 1,
+        "NC303M-CONTROL@18": 0,
         "NC303M-GOTO-2@28": 0,
         "NC303M-GOTO@24": 0
       },
       "cobol/che-che4z_nist_ccvs85/OBIC14.2.cbl": {
         "CALL-FAIL@57": 1,
-        "CALL-IC219@54": 1,
+        "CALL-IC219@54": 0,
         "END-OF-PROGRAM@75": 1,
-        "SECT-IC218-0001@53": 1
+        "SECT-IC218-0001@53": 0
       },
       "cobol/che-che4z_nist_ccvs85/OBIC24.2.cbl": {
         "CHECK-ABCD-RECORDS@277": 0,
@@ -14946,7 +14946,7 @@
         "RELEASE-RECORD@186": 0,
         "RETURN-EXIT@275": 0,
         "RETURN-RECORD@271": 0,
-        "SECT-IC219-0001@126": 1,
+        "SECT-IC219-0001@126": 0,
         "SECT-IC219-0002-EXIT@193": 0,
         "SECT-IC219-0002@140": 0,
         "SECT-IC219-0003-EXIT@305": 0,
@@ -14954,7 +14954,7 @@
         "SORT-FAIL@291": 0,
         "SORT-INPUT-PROCEDURE@155": 1,
         "SORT-OUTPUT-INIT@217": 1,
-        "SORT-PARAGRAPH@132": 1,
+        "SORT-PARAGRAPH@132": 0,
         "WRAPUP-OUTPUT-PROC@262": 1,
         "WRITE-RESULTS@258": 0
       },
@@ -14963,7 +14963,7 @@
         "BAIL-OUT-WRITE@295": 0,
         "BAIL-OUT@292": 0,
         "BLANK-LINE-PRINT@276": 1,
-        "BOILER-PLATE@194": 1,
+        "BOILER-PLATE@194": 0,
         "BRANCH-STATEMENT@304": 1,
         "CCVS1-EXIT@301": 0,
         "CLOSE-FILES@196": 0,
@@ -14987,7 +14987,7 @@
         "PRINT-FOOTING@318": 0,
         "PRINT-HEADING@310": 0,
         "PROCESS-LINE@321": 0,
-        "SECT-IC220-0001@193": 1,
+        "SECT-IC220-0001@193": 0,
         "SECT-IC220-0002@303": 1,
         "TERMINATE-CALL@200": 1,
         "TERMINATE-CCVS@198": 1,
@@ -15005,7 +15005,7 @@
         "CCVS-INIT-EXIT@324": 1,
         "CCVS-INIT-FILE@320": 0,
         "CCVS1-EXIT@436": 0,
-        "CCVS1@302": 1,
+        "CCVS1@302": 0,
         "CLOSE-FILES@326": 0,
         "COLUMN-NAMES-ROUTINE@365": 0,
         "DE-LETE@347": 1,
@@ -15023,7 +15023,7 @@
         "HEAD-ROUTINE@361": 0,
         "INSPT@344": 1,
         "OBSQ3A-END-ROUTINE@631": 1,
-        "OPEN-FILES@303": 1,
+        "OPEN-FILES@303": 0,
         "PASS@345": 1,
         "PRINT-DETAIL@349": 0,
         "SECT-OBSQ3A-0001@438": 1,
@@ -15075,7 +15075,7 @@
         "CCVS-INIT-EXIT@285": 1,
         "CCVS-INIT-FILE@281": 0,
         "CCVS1-EXIT@397": 0,
-        "CCVS1@263": 1,
+        "CCVS1@263": 0,
         "CLOSE-FILES@287": 0,
         "COLUMN-NAMES-ROUTINE@326": 0,
         "DE-LETE@308": 1,
@@ -15093,7 +15093,7 @@
         "HEAD-ROUTINE@322": 0,
         "INSPT@305": 1,
         "OBSQ4A-END-ROUTINE@567": 1,
-        "OPEN-FILES@264": 1,
+        "OPEN-FILES@264": 0,
         "PASS@306": 0,
         "PRINT-DETAIL@310": 0,
         "SECT-OBSQ4A-0001@399": 1,
@@ -15140,7 +15140,7 @@
         "CCVS-INIT-EXIT@295": 1,
         "CCVS-INIT-FILE@291": 0,
         "CCVS1-EXIT@407": 0,
-        "CCVS1@273": 1,
+        "CCVS1@273": 0,
         "CLOSE-FILES@297": 0,
         "COLUMN-NAMES-ROUTINE@336": 0,
         "DE-LETE@318": 1,
@@ -15158,7 +15158,7 @@
         "HEAD-ROUTINE@332": 0,
         "INSPT@315": 1,
         "OBSQ5A-END-ROUTINE@619": 1,
-        "OPEN-FILES@274": 1,
+        "OPEN-FILES@274": 0,
         "PASS@316": 0,
         "PRINT-DETAIL@320": 0,
         "SECT-OBSQ5A-0001@409": 1,
@@ -15203,12 +15203,12 @@
         "WRT-LN@385": 0
       },
       "cobol/che-che4z_nist_ccvs85/PDC0001.cbl": {
-        "Mainline@8": 1
+        "Mainline@8": 0
       },
       "cobol/che-che4z_nist_ccvs85/RL3014.2.cbl": {
         "DONE-PARA@64": 0,
         "INV-PARA@61": 0,
-        "RL301M-CONTROL@35": 1,
+        "RL301M-CONTROL@35": 0,
         "RL301M-DELETE@56": 0,
         "RL301M-READ@41": 0,
         "RL301M-REWRITE@46": 1,
@@ -15216,24 +15216,24 @@
       },
       "cobol/che-che4z_nist_ccvs85/RL4014.2.cbl": {
         "RL401M-CLOSE@59": 0,
-        "RL401M-CONTROL@52": 1,
+        "RL401M-CONTROL@52": 0,
         "RL401M-OPENEXT@64": 1,
         "RL401M-READNEXT@68": 1,
         "RL401M-START@73": 0
       },
       "cobol/che-che4z_nist_ccvs85/SG3034.2.cbl": {
-        "NUMBER1@17": 1,
+        "NUMBER1@17": 0,
         "NUMBER2@23": 1,
         "NUMBER3@29": 1,
-        "SG303M-CONTROL@20": 1,
+        "SG303M-CONTROL@20": 0,
         "SG303M-DUMMY1@26": 1,
         "SG303M-DUMMY2@32": 1
       },
       "cobol/che-che4z_nist_ccvs85/SG4014.2.cbl": {
-        "NUMBER1@19": 1,
+        "NUMBER1@19": 0,
         "NUMBER2@24": 1,
         "NUMBER3@29": 1,
-        "SG401M-CONTROL@21": 1,
+        "SG401M-CONTROL@21": 0,
         "SG401M-DUMMY2@31": 1,
         "SG401M-DUMMY@26": 1
       },
@@ -15245,7 +15245,7 @@
         "CCVS-999999@304": 1,
         "CCVS-EXIT@303": 1,
         "CCVS1-EXIT@292": 0,
-        "CCVS1@180": 1,
+        "CCVS1@180": 0,
         "CLOSE-FILES@187": 0,
         "COLUMN-NAMES-ROUTINE@215": 0,
         "DE-LETE@196": 1,
@@ -15260,7 +15260,7 @@
         "FAIL@195": 0,
         "HEAD-ROUTINE@210": 0,
         "INSPT@193": 1,
-        "OPEN-FILES@181": 1,
+        "OPEN-FILES@181": 0,
         "PASS@194": 1,
         "PRINT-DETAIL@198": 1,
         "TERMINATE-CALL@191": 1,
@@ -15270,7 +15270,7 @@
         "WRT-LN@264": 0
       },
       "cobol/che-che4z_nist_ccvs85/SQ3034.2.cbl": {
-        "SQ303M-CONTROL@41": 1
+        "SQ303M-CONTROL@41": 0
       },
       "cobol/che-che4z_nist_ccvs85/ST1084.2.cbl": {
         "B-IS-LESS-THAN-SPACE@279": 1,
@@ -15324,8 +15324,8 @@
         "SORT-FAIL-8@367": 1,
         "SORT-FAIL-9@401": 1,
         "SORT-INIT-A@280": 1,
-        "SORT-PARA@215": 1,
-        "SORT-PARAGRAPH@216": 1,
+        "SORT-PARA@215": 0,
+        "SORT-PARAGRAPH@216": 0,
         "SORT-REMARK-A@374": 1,
         "SORT-REMARK-B@385": 1,
         "SORT-TEST-10@408": 0,
@@ -15420,8 +15420,8 @@
         "SORT-FAIL-8@377": 1,
         "SORT-FAIL-9@411": 1,
         "SORT-INIT-A@290": 1,
-        "SORT-PARA@225": 1,
-        "SORT-PARAGRAPH@226": 1,
+        "SORT-PARA@225": 0,
+        "SORT-PARAGRAPH@226": 0,
         "SORT-REMARK-A@384": 1,
         "SORT-REMARK-B@395": 1,
         "SORT-TEST-10@418": 0,
@@ -15465,7 +15465,7 @@
         "WRT-LN@593": 0
       },
       "cobol/che-che4z_nist_ccvs85/ST3014.2.cbl": {
-        "ST301M-CONTROL@57": 1,
+        "ST301M-CONTROL@57": 0,
         "ST301M-MERGE@61": 0,
         "ST301M-RELEASE@68": 0,
         "ST301M-RETURN@72": 0,
@@ -15474,15 +15474,15 @@
     },
     "cobol/cics-banking-sample-application-cbsa": {
       "cobol/cics-banking-sample-application-cbsa/ABNDPROC.cbl": {
-        "A010@132": 1,
+        "A010@132": 0,
         "A999@165": 1,
         "GET-ME-OUT-OF-HERE@169": 0,
         "GMOOH010@170": 1,
         "GMOOH999@175": 1,
-        "PREMIERE@131": 1
+        "PREMIERE@131": 0
       },
       "cobol/cics-banking-sample-application-cbsa/BANKDATA.cbl": {
-        "A010@370": 1,
+        "A010@370": 0,
         "A999@675": 1,
         "CALC-DAY-OF-WEEK@1406": 1,
         "CDW010@1407": 1,
@@ -15507,12 +15507,12 @@
         "PD010@682": 1,
         "PD999@685": 1,
         "POPULATE-ACC@716": 0,
-        "PREMIERE@369": 1,
+        "PREMIERE@369": 0,
         "PROGRAM-DONE@681": 0,
         "TIMESTAMP@1441": 0
       },
       "cobol/cics-banking-sample-application-cbsa/BNK1CAC.cbl": {
-        "A010@161": 1,
+        "A010@161": 0,
         "A999@316": 1,
         "ABEND-THIS-TASK@1272": 0,
         "ATT010@1273": 1,
@@ -15526,7 +15526,7 @@
         "PM010@321": 1,
         "PM999@347": 1,
         "POPULATE-TIME-DATE@1286": 0,
-        "PREMIERE@160": 1,
+        "PREMIERE@160": 0,
         "PROCESS-MAP@320": 0,
         "PTD010@1287": 1,
         "PTD999@1300": 1,
@@ -15541,7 +15541,7 @@
         "STM999@1268": 1
       },
       "cobol/cics-banking-sample-application-cbsa/BNK1CCA.cbl": {
-        "A010@154": 1,
+        "A010@154": 0,
         "A999@292": 1,
         "ABEND-THIS-TASK@928": 0,
         "ATT010@929": 1,
@@ -15555,7 +15555,7 @@
         "PM010@297": 1,
         "PM999@323": 1,
         "POPULATE-TIME-DATE@940": 0,
-        "PREMIERE@153": 1,
+        "PREMIERE@153": 0,
         "PROCESS-MAP@296": 0,
         "PTD010@941": 1,
         "PTD999@954": 1,
@@ -15570,7 +15570,7 @@
         "STM999@924": 1
       },
       "cobol/cics-banking-sample-application-cbsa/BNK1CCS.cbl": {
-        "A010@159": 1,
+        "A010@159": 0,
         "A999@345": 1,
         "ABEND-THIS-TASK@1599": 0,
         "ATT010@1600": 1,
@@ -15587,7 +15587,7 @@
         "PM010@350": 1,
         "PM999@376": 1,
         "POPULATE-TIME-DATE@1626": 0,
-        "PREMIERE@158": 1,
+        "PREMIERE@158": 0,
         "PROCESS-MAP@349": 0,
         "PTD10@1627": 1,
         "PTD999@1640": 1,
@@ -15608,7 +15608,7 @@
         "STORE-TERM-DEF@1099": 0
       },
       "cobol/cics-banking-sample-application-cbsa/BNK1CRA.cbl": {
-        "A010@178": 1,
+        "A010@178": 0,
         "A999@330": 1,
         "ABEND-THIS-TASK@950": 0,
         "ATT010@951": 1,
@@ -15619,7 +15619,7 @@
         "PM010@335": 1,
         "PM999@361": 1,
         "POPULATE-TIME-DATE@1154": 0,
-        "PREMIERE@177": 1,
+        "PREMIERE@177": 0,
         "PROCESS-MAP@334": 0,
         "PTD010@1155": 1,
         "PTD999@1168": 1,
@@ -15640,7 +15640,7 @@
         "VALIDATE-AMOUNT@962": 0
       },
       "cobol/cics-banking-sample-application-cbsa/BNK1DAC.cbl": {
-        "A010@189": 1,
+        "A010@189": 0,
         "A999@362": 1,
         "ABEND-THIS-TASK@1134": 0,
         "ATT010@1135": 1,
@@ -15657,7 +15657,7 @@
         "PM010@367": 1,
         "PM999@417": 1,
         "POPULATE-TIME-DATE@1145": 0,
-        "PREMIERE@188": 1,
+        "PREMIERE@188": 0,
         "PROCESS-MAP@366": 0,
         "PTD010@1146": 1,
         "PTD999@1160": 1,
@@ -15675,7 +15675,7 @@
         "VD999@540": 1
       },
       "cobol/cics-banking-sample-application-cbsa/BNK1DCS.cbl": {
-        "A010@190": 1,
+        "A010@190": 0,
         "A999@396": 1,
         "ABEND-HANDLING@2044": 0,
         "ABEND-THIS-TASK@1910": 0,
@@ -15700,7 +15700,7 @@
         "PM010@401": 1,
         "PM999@492": 1,
         "POPULATE-TIME-DATE@1924": 0,
-        "PREMIERE@189": 1,
+        "PREMIERE@189": 0,
         "PROCESS-MAP@400": 0,
         "PROT-CUST-DATA@1943": 0,
         "PTD10@1925": 1,
@@ -15731,7 +15731,7 @@
         "VD999@819": 1
       },
       "cobol/cics-banking-sample-application-cbsa/BNK1TFN.cbl": {
-        "A010@175": 1,
+        "A010@175": 0,
         "A999@315": 1,
         "ABEND-THIS-TASK@973": 0,
         "ATT010@974": 1,
@@ -15745,7 +15745,7 @@
         "PM010@320": 1,
         "PM999@347": 1,
         "POPULATE-TIME-DATE@1210": 0,
-        "PREMIERE@174": 1,
+        "PREMIERE@174": 0,
         "PROCESS-MAP@319": 0,
         "PTD010@1211": 1,
         "PTD999@1226": 1,
@@ -15763,7 +15763,7 @@
         "VALIDATE-AMOUNT@988": 0
       },
       "cobol/cics-banking-sample-application-cbsa/BNK1UAC.cbl": {
-        "A010@198": 1,
+        "A010@198": 0,
         "A999@362": 1,
         "ABEND-THIS-TASK@1381": 0,
         "ATT010@1382": 1,
@@ -15777,7 +15777,7 @@
         "PM010@367": 1,
         "PM999@410": 1,
         "POPULATE-TIME-DATE@1393": 0,
-        "PREMIERE@197": 1,
+        "PREMIERE@197": 0,
         "PROCESS-MAP@366": 0,
         "PTD010@1394": 1,
         "PTD999@1407": 1,
@@ -15798,7 +15798,7 @@
         "VD999@753": 0
       },
       "cobol/cics-banking-sample-application-cbsa/BNKMENU.cbl": {
-        "A010@109": 1,
+        "A010@109": 0,
         "A999@237": 1,
         "ABEND-THIS-TASK@1285": 0,
         "ATT010@1286": 1,
@@ -15812,7 +15812,7 @@
         "PMM010@242": 1,
         "PMM999@265": 1,
         "POPULATE-TIME-DATE@1298": 0,
-        "PREMIERE@108": 1,
+        "PREMIERE@108": 0,
         "PROCESS-MENU-MAP@241": 0,
         "PTD010@1299": 1,
         "PTD999@1313": 1,
@@ -15827,57 +15827,57 @@
         "STM999@1281": 1
       },
       "cobol/cics-banking-sample-application-cbsa/CRDTAGY1.cbl": {
-        "A010@114": 1,
+        "A010@114": 0,
         "A999@244": 1,
         "GET-ME-OUT-OF-HERE@248": 0,
         "GMOFH010@249": 1,
         "GMOFH999@254": 1,
         "POPULATE-TIME-DATE@258": 0,
-        "PREMIERE@113": 1,
+        "PREMIERE@113": 0,
         "PTD010@259": 1,
         "PTD999@272": 1
       },
       "cobol/cics-banking-sample-application-cbsa/CRDTAGY2.cbl": {
-        "A010@113": 1,
+        "A010@113": 0,
         "A999@244": 1,
         "GET-ME-OUT-OF-HERE@248": 0,
         "GMOFH010@249": 1,
         "GMOFH999@254": 1,
         "POPULATE-TIME-DATE@258": 0,
-        "PREMIERE@112": 1,
+        "PREMIERE@112": 0,
         "PTD010@259": 1,
         "PTD999@272": 1
       },
       "cobol/cics-banking-sample-application-cbsa/CRDTAGY3.cbl": {
-        "A010@113": 1,
+        "A010@113": 0,
         "A999@243": 1,
         "GET-ME-OUT-OF-HERE@247": 0,
         "GMOFH010@248": 1,
         "GMOFH999@253": 1,
         "POPULATE-TIME-DATE@257": 0,
-        "PREMIERE@112": 1,
+        "PREMIERE@112": 0,
         "PTD010@258": 1,
         "PTD999@271": 1
       },
       "cobol/cics-banking-sample-application-cbsa/CRDTAGY4.cbl": {
-        "A010@114": 1,
+        "A010@114": 0,
         "A999@246": 1,
         "GET-ME-OUT-OF-HERE@250": 0,
         "GMOFH010@251": 1,
         "GMOFH999@256": 1,
         "POPULATE-TIME-DATE@260": 0,
-        "PREMIERE@113": 1,
+        "PREMIERE@113": 0,
         "PTD010@261": 1,
         "PTD999@274": 1
       },
       "cobol/cics-banking-sample-application-cbsa/CRDTAGY5.cbl": {
-        "A010@112": 1,
+        "A010@112": 0,
         "A999@246": 1,
         "GET-ME-OUT-OF-HERE@250": 0,
         "GMOFH010@251": 1,
         "GMOFH999@256": 1,
         "POPULATE-TIME-DATE@260": 0,
-        "PREMIERE@111": 1,
+        "PREMIERE@111": 0,
         "PTD010@261": 1,
         "PTD999@274": 1
       },
@@ -15961,7 +15961,7 @@
         "WRITE-PROCTRAN@1179": 0
       },
       "cobol/cics-banking-sample-application-cbsa/DBCRFUN.cbl": {
-        "A010@200": 1,
+        "A010@200": 0,
         "A999@231": 1,
         "ABEND-HANDLING@701": 0,
         "AH010@702": 1,
@@ -15973,7 +15973,7 @@
         "GMOOH010@659": 1,
         "GMOOH999@664": 1,
         "POPULATE-TIME-DATE@846": 0,
-        "PREMIERE@199": 1,
+        "PREMIERE@199": 0,
         "PTD10@847": 1,
         "PTD999@860": 1,
         "UAD010@236": 1,
@@ -16196,25 +16196,25 @@
       "cobol/cics-genapp/lgacdb01.cbl": {
         "INSERT-CUSTOMER@215": 0,
         "MAINLINE-EXIT@194": 1,
-        "MAINLINE@128": 1,
+        "MAINLINE@128": 0,
         "Obtain-CUSTOMER-Number@199": 0,
         "WRITE-ERROR-MESSAGE@295": 0
       },
       "cobol/cics-genapp/lgacdb02.cbl": {
         "INSERT-CUSTOMER-PASSWORD@161": 0,
         "MAINLINE-EXIT@157": 1,
-        "MAINLINE@115": 1,
+        "MAINLINE@115": 0,
         "WRITE-ERROR-MESSAGE@192": 0
       },
       "cobol/cics-genapp/lgacus01.cbl": {
         "INSERT-CUSTOMER@132": 0,
         "MAINLINE-EXIT@125": 1,
-        "MAINLINE@78": 1,
+        "MAINLINE@78": 0,
         "WRITE-ERROR-MESSAGE@147": 0
       },
       "cobol/cics-genapp/lgacvs01.cbl": {
         "A-EXIT@85": 1,
-        "MAINLINE@63": 1,
+        "MAINLINE@63": 0,
         "WRITE-ERROR-MESSAGE@89": 0
       },
       "cobol/cics-genapp/lgapdb01.cbl": {
@@ -16224,57 +16224,57 @@
         "INSERT-MOTOR@440": 0,
         "INSERT-POLICY@261": 0,
         "MAINLINE-EXIT@252": 1,
-        "MAINLINE@146": 1,
+        "MAINLINE@146": 0,
         "WRITE-ERROR-MESSAGE@562": 0
       },
       "cobol/cics-genapp/lgapol01.cbl": {
         "MAINLINE-EXIT@128": 1,
-        "MAINLINE@80": 1,
+        "MAINLINE@80": 0,
         "WRITE-ERROR-MESSAGE@137": 0
       },
       "cobol/cics-genapp/lgapvs01.cbl": {
         "A-EXIT@151": 1,
-        "MAINLINE@94": 1,
+        "MAINLINE@94": 0,
         "WRITE-ERROR-MESSAGE@155": 0
       },
       "cobol/cics-genapp/lgastat1.cbl": {
         "MAINLINE-EXIT@137": 1,
-        "MAINLINE@69": 1
+        "MAINLINE@69": 0
       },
       "cobol/cics-genapp/lgdpdb01.cbl": {
         "DELETE-POLICY-DB2-INFO@186": 0,
         "MAINLINE-EXIT@177": 1,
-        "MAINLINE@111": 1,
+        "MAINLINE@111": 0,
         "WRITE-ERROR-MESSAGE@212": 0
       },
       "cobol/cics-genapp/lgdpol01.cbl": {
         "DELETE-POLICY-DB2-INFO@139": 0,
         "MAINLINE-EXIT@135": 1,
-        "MAINLINE@78": 1,
+        "MAINLINE@78": 0,
         "WRITE-ERROR-MESSAGE@154": 0
       },
       "cobol/cics-genapp/lgdpvs01.cbl": {
         "A-EXIT@95": 1,
-        "MAINLINE@72": 1,
+        "MAINLINE@72": 0,
         "WRITE-ERROR-MESSAGE@99": 0
       },
       "cobol/cics-genapp/lgicdb01.cbl": {
         "GET-CUSTOMER-INFO@167": 0,
         "MAINLINE-END@159": 1,
         "MAINLINE-EXIT@163": 1,
-        "MAINLINE@102": 1,
+        "MAINLINE@102": 0,
         "WRITE-ERROR-MESSAGE@212": 0
       },
       "cobol/cics-genapp/lgicus01.cbl": {
         "GET-CUSTOMER-INFO@120": 0,
         "MAINLINE-END@114": 1,
         "MAINLINE-EXIT@117": 1,
-        "MAINLINE@77": 1,
+        "MAINLINE@77": 0,
         "WRITE-ERROR-MESSAGE@135": 0
       },
       "cobol/cics-genapp/lgicvs01.cbl": {
         "A-EXIT@227": 1,
-        "MAINLINE@93": 1
+        "MAINLINE@93": 0
       },
       "cobol/cics-genapp/lgipdb01.cbl": {
         "End-Program@312": 0,
@@ -16288,25 +16288,25 @@
         "GET-HOUSE-DB2-INFO@441": 0,
         "GET-MOTOR-DB2-INFO@529": 0,
         "MAINLINE-EXIT@315": 1,
-        "MAINLINE@230": 1,
+        "MAINLINE@230": 0,
         "WRITE-ERROR-MESSAGE@997": 0
       },
       "cobol/cics-genapp/lgipol01.cbl": {
         "MAINLINE-EXIT@98": 1,
-        "MAINLINE@70": 1,
+        "MAINLINE@70": 0,
         "WRITE-ERROR-MESSAGE@107": 0
       },
       "cobol/cics-genapp/lgipvs01.cbl": {
         "A-EXIT@146": 1,
-        "MAINLINE@75": 1
+        "MAINLINE@75": 0
       },
       "cobol/cics-genapp/lgsetup.cbl": {
         "A-EXIT@530": 1,
-        "MAINLINE@126": 1
+        "MAINLINE@126": 0
       },
       "cobol/cics-genapp/lgstsq.cbl": {
         "A-EXIT@124": 1,
-        "MAINLINE@55": 1
+        "MAINLINE@55": 0
       },
       "cobol/cics-genapp/lgtestc1.cbl": {
         "A-GAIN@70": 0,
@@ -16314,7 +16314,7 @@
         "ENDIT-STARTIT@230": 0,
         "ENDIT@236": 0,
         "ERROR-OUT@271": 0,
-        "MAINLINE@53": 1,
+        "MAINLINE@53": 0,
         "NO-ADD@263": 0,
         "NO-DATA@267": 0,
         "NO-UPD@259": 0,
@@ -16326,7 +16326,7 @@
         "ENDIT-STARTIT@257": 0,
         "ENDIT@263": 0,
         "ERROR-OUT@308": 0,
-        "MAINLINE@30": 1,
+        "MAINLINE@30": 0,
         "NO-ADD@286": 0,
         "NO-DATA@304": 0,
         "NO-DELETE@300": 0,
@@ -16338,7 +16338,7 @@
         "ENDIT-STARTIT@239": 0,
         "ENDIT@245": 0,
         "ERROR-OUT@290": 0,
-        "MAINLINE@30": 1,
+        "MAINLINE@30": 0,
         "NO-ADD@268": 0,
         "NO-DATA@286": 0,
         "NO-DELETE@282": 0,
@@ -16350,7 +16350,7 @@
         "ENDIT-STARTIT@238": 0,
         "ENDIT@244": 0,
         "ERROR-OUT@289": 0,
-        "MAINLINE@30": 1,
+        "MAINLINE@30": 0,
         "NO-ADD@267": 0,
         "NO-DATA@285": 0,
         "NO-DELETE@281": 0,
@@ -16362,7 +16362,7 @@
         "ENDIT-STARTIT@257": 0,
         "ENDIT@263": 0,
         "ERROR-OUT@308": 0,
-        "MAINLINE@30": 1,
+        "MAINLINE@30": 0,
         "NO-ADD@286": 0,
         "NO-DATA@304": 0,
         "NO-DELETE@300": 0,
@@ -16371,20 +16371,20 @@
       "cobol/cics-genapp/lgucdb01.cbl": {
         "END-PROGRAM@142": 1,
         "MAINLINE-EXIT@145": 1,
-        "MAINLINE@101": 1,
+        "MAINLINE@101": 0,
         "UPDATE-CUSTOMER-INFO@152": 0,
         "WRITE-ERROR-MESSAGE@189": 0
       },
       "cobol/cics-genapp/lgucus01.cbl": {
         "END-PROGRAM@119": 0,
         "MAINLINE-EXIT@122": 1,
-        "MAINLINE@83": 1,
+        "MAINLINE@83": 0,
         "UPDATE-CUSTOMER-INFO@126": 0,
         "WRITE-ERROR-MESSAGE@140": 0
       },
       "cobol/cics-genapp/lgucvs01.cbl": {
         "A-EXIT@100": 1,
-        "MAINLINE@64": 1,
+        "MAINLINE@64": 0,
         "WRITE-ERROR-MESSAGE@104": 0
       },
       "cobol/cics-genapp/lgupdb01.cbl": {
@@ -16392,7 +16392,7 @@
         "END-PROGRAM@215": 1,
         "FETCH-DB2-POLICY-ROW@228": 0,
         "MAINLINE-EXIT@218": 1,
-        "MAINLINE@162": 1,
+        "MAINLINE@162": 0,
         "UPDATE-ENDOW-DB2-INFO@387": 0,
         "UPDATE-HOUSE-DB2-INFO@424": 0,
         "UPDATE-MOTOR-DB2-INFO@460": 0,
@@ -16402,32 +16402,32 @@
       "cobol/cics-genapp/lgupol01.cbl": {
         "END-PROGRAM@146": 1,
         "MAINLINE-EXIT@149": 1,
-        "MAINLINE@83": 1,
+        "MAINLINE@83": 0,
         "UPDATE-POLICY-DB2-INFO@155": 0,
         "WRITE-ERROR-MESSAGE@169": 0
       },
       "cobol/cics-genapp/lgupvs01.cbl": {
         "A-EXIT@170": 1,
-        "MAINLINE@97": 1,
+        "MAINLINE@97": 0,
         "WRITE-ERROR-MESSAGE@174": 0
       },
       "cobol/cics-genapp/lgwebst5.cbl": {
         "A-EXIT@711": 1,
-        "MAINLINE@250": 1,
+        "MAINLINE@250": 0,
         "Tran-Rate-Counts@769": 0,
         "Tran-Rate-Interval@715": 0
       }
     },
     "cobol/cics-java-jcics-samples": {
       "cobol/cics-java-jcics-samples/EC01.cbl": {
-        "A-CONTROL@63": 1,
+        "A-CONTROL@63": 0,
         "ZZX-CICS-ERROR-ROUTINE@98": 0,
         "ZZX-EXIT@115": 1
       },
       "cobol/cics-java-jcics-samples/EDUCHAN.cbl": {
         "ABEND-ROUTINE@164": 0,
         "END-PGM@170": 0,
-        "MAIN-PROCESSING@66": 1,
+        "MAIN-PROCESSING@66": 0,
         "RESP-ERROR@155": 0
       }
     },
@@ -16462,14 +16462,14 @@
         "BIPM012@41": 0
       },
       "cobol/cobol-check/src_main_cobol_DB2PROG.cbl": {
-        "0000-MAIN@25": 1,
+        "0000-MAIN@25": 0,
         "1000-SELECT@35": 0,
         "2000-OPEN-CURSOR@58": 0,
         "3000-FETCH-SQL@70": 0,
         "4000-CLOSE-CURSOR@85": 0
       },
       "cobol/cobol-check/src_main_cobol_DPICNUMBERS.CBL": {
-        "100-ASSIGN@20": 1,
+        "100-ASSIGN@20": 0,
         "999-END@24": 1
       },
       "cobol/cobol-check/src_main_cobol_FileCopy.cbl": {
@@ -16492,7 +16492,7 @@
         "GREETING@33": 0
       },
       "cobol/cobol-check/src_main_cobol_MOCK.CBL": {
-        "000-START@24": 1,
+        "000-START@24": 0,
         "100-WELCOME@37": 0,
         "200-GOODBYE@46": 0,
         "400-CHANGE-2@68": 0,
@@ -16506,7 +16506,7 @@
         "999-END@141": 0
       },
       "cobol/cobol-check/src_main_cobol_MOCKPARA.CBL": {
-        "100-COMPUTE-VALUE@24": 1,
+        "100-COMPUTE-VALUE@24": 0,
         "201-DUMMY@32": 1,
         "210-MOVE-TEXT-TO-2@36": 1,
         "220-MOVE-TEXT-TO-3@40": 1,
@@ -16514,7 +16514,7 @@
         "310-SKIP-CURRENT-NUMERIC@47": 1
       },
       "cobol/cobol-check/src_main_cobol_MOCKTEST.CBL": {
-        "000-START@24": 1,
+        "000-START@24": 0,
         "100-WELCOME@35": 0,
         "1000-MAKE-CALL@126": 1,
         "1100-MAKE-CALL@132": 1,
@@ -16541,10 +16541,10 @@
         "GREETING@36": 0
       },
       "cobol/cobol-check/src_main_cobol_RETURNCODE.CBL": {
-        "000-MAKE-CALL@17": 1
+        "000-MAKE-CALL@17": 0
       },
       "cobol/cobol-check/src_main_cobol_TESTNESTED.CBL": {
-        "MOCK-SECTION-WITH-ERROR@13": 1
+        "MOCK-SECTION-WITH-ERROR@13": 0
       },
       "cobol/cobol-check/src_main_cobol_WS88LEVEL.CBL": {
         "001-INITIALIZE@108": 0,
@@ -16556,7 +16556,7 @@
         "CLOSE-STOP@151": 1,
         "IS-OVERLIMIT@163": 0,
         "IS-STATE-VIRGINIA@172": 0,
-        "OPEN-FILES@123": 1,
+        "OPEN-FILES@123": 0,
         "READ-NEXT-RECORD@141": 1,
         "READ-RECORD@158": 0,
         "WRITE-HEADERS@127": 1,
@@ -16567,7 +16567,7 @@
         "CLOSE-STOP@152": 1,
         "IS-OVERLIMIT@164": 0,
         "IS-STATE-VIRGINIA@181": 0,
-        "OPEN-FILES@124": 1,
+        "OPEN-FILES@124": 0,
         "READ-NEXT-RECORD@142": 1,
         "READ-RECORD@159": 0,
         "WRITE-HEADERS@128": 1,
@@ -16579,7 +16579,7 @@
         "PRINT-A-LINE@123": 0,
         "PRINT-AND-GET1@120": 0,
         "PROG-END@95": 1,
-        "PROG-START@92": 1,
+        "PROG-START@92": 0,
         "SQL-ERROR-HANDLING@132": 0
       },
       "cobol/cobol-programming-course/CBLDB22.cbl": {
@@ -16590,7 +16590,7 @@
         "PRINT-SPECIFIC@176": 0,
         "PROCESS-INPUT@124": 0,
         "PROG-END@119": 1,
-        "PROG-START@111": 1,
+        "PROG-START@111": 0,
         "SQL-ERROR-HANDLING@189": 0
       },
       "cobol/cobol-programming-course/CBLDB23.cbl": {
@@ -16601,7 +16601,7 @@
         "PRINT-SPECIFIC@166": 0,
         "PROCESS-INPUT@118": 0,
         "PROG-END@114": 1,
-        "PROG-START@107": 1,
+        "PROG-START@107": 0,
         "SQL-ERROR-HANDLING@176": 0
       },
       "cobol/cobol-programming-course/DEPTPAY.CBL": {
@@ -16619,8 +16619,8 @@
     },
     "cobol/gnucobol": {
       "cobol/gnucobol/CBL_OC_DUMP.cob": {
-        "MAIN00@101": 1,
-        "MAIN@100": 1
+        "MAIN00@101": 0,
+        "MAIN@100": 0
       },
       "cobol/gnucobol/numeric-display.cob": {
         "PROG@93": 0
@@ -18317,7 +18317,7 @@
     },
     "cobol/zopeneditor-sample": {
       "cobol/zopeneditor-sample/SAM1.cbl": {
-        "000-MAIN@217": 1,
+        "000-MAIN@217": 0,
         "100-PROCESS-TRANSACTIONS@261": 0,
         "200-PROCESS-UPDATE-TRAN@293": 0,
         "210-PROCESS-ADD-TRAN@315": 0,
@@ -18335,7 +18335,7 @@
         "850-REPORT-TRAN-STATS@480": 0
       },
       "cobol/zopeneditor-sample/SAM2.cbl": {
-        "000-MAIN@57": 1,
+        "000-MAIN@57": 0,
         "100-VALIDATE-TRAN@72": 0,
         "200-PROCESS-TRAN@113": 0,
         "300-PROCESS-CPU-CRUNCH@143": 0,

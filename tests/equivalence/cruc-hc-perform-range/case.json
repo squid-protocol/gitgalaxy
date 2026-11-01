@@ -1,0 +1,42 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "HCQREAD",
+  "program_source": "cases/condition-handling/hc-perform-range/src/HCQREAD.cbl",
+  "copy_dirs": [],
+  "transid": "HC01",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "notes": "cics-crucible condition-handling / hc-perform-range (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): HANDLE CONDITION labels inside a PERFORM THRU range, an ERROR catch-all outside it, RESP and IGNORE overriding HANDLE. Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "three-items",
+      "commarea": null,
+      "terminal": "HC01",
+      "ts": {"HCQ1": ["AAA", "BBB", "CCC"]},
+      "why": "HCQ1 holds three 3-byte items: the loop reads them, ITEMERR on item 4 jumps to PAST-END inside the PERFORM range, which returns to MAIN-PARA"
+    },
+    {
+      "name": "no-queue",
+      "commarea": null,
+      "terminal": "HC01",
+      "why": "HCQ1 does not exist: QIDERR jumps to NO-QUEUE, which falls through PAST-END into READ-ITEMS-EXIT and returns from the PERFORM"
+    },
+    {
+      "name": "five-items",
+      "commarea": null,
+      "terminal": "HC01",
+      "ts": {"HCQ1": ["A", "B", "C", "D", "E"]},
+      "why": "HCQ1 holds five items: the loop ends normally and control falls through NO-QUEUE and PAST-END although no condition occurred"
+    },
+    {
+      "name": "length-trap",
+      "commarea": null,
+      "terminal": "HC01",
+      "ts": {"HCQ1": ["A", "BBBBB"]},
+      "why": "item 1 is 1 byte, so LENGTH is left at 1; item 2 is 5 bytes: LENGERR, no specific handler, so the ERROR label outside the PERFORM range takes it"
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "GTUBROW",
+  "program_source": "cases/ghost-tasks/gt-urimap-browse/src/GTUBROW.cbl",
+  "copy_dirs": [],
+  "transid": "GT61",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "programs": [
+    {
+      "program": "GTUNEXT",
+      "program_source": "cases/ghost-tasks/gt-urimap-browse/src/GTUNEXT.cbl"
+    }
+  ],
+  "urimaps": [
+    [
+      "ZCONE",
+      "GT62",
+      "/zecs/one"
+    ],
+    [
+      "ZCOTHER",
+      "GT62",
+      "/other/x"
+    ],
+    [
+      "AAPLAIN",
+      "GT62",
+      "/zecs/plain"
+    ],
+    [
+      "BBTHREE",
+      "GT62",
+      "/three"
+    ]
+  ],
+  "notes": "cics-crucible ghost-tasks / gt-urimap-browse (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): INQUIRE URIMAP START / NEXT / END browse, a second START while open, START of an alias task, WRITE OPERATOR. Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "browse",
+      "commarea": null,
+      "terminal": "GT61",
+      "why": "one browse of the four installed URIMAPs: counts, one START, END after the last"
+    },
+    {
+      "name": "browse-twice",
+      "commarea": null,
+      "terminal": "GT61",
+      "why": "the same browse run again ten seconds later"
+    }
+  ]
+}

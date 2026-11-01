@@ -5,8 +5,8 @@ IBM, EXEC CICS ADDRESS: EIB "returns a pointer reference set to the address of t
 program"; with no COMMAREA the pointer is X'FF000000' (no COBOL NULL, so refused). The pieces, each over the whole class:
 - the det translator, over a whole program: ADDRESS EIB / COMMAREA translate with no hole; CWA, TWA, TCTUA, ACEE, the old
   ADDRESS SET form, a program with no DFHCOMMAREA and a pointer that is no plain USAGE POINTER are holes by name; so are
-  SEND PAGE, PURGE MESSAGE and WAIT EXTERNAL (each with its reason and the register entry; CONVERSE, POST and WAIT EVENT
-  are modelled by X63, test_post_wait_converse_5079.py);
+  SEND PAGE and PURGE MESSAGE (each with its reason and the register entry; CONVERSE,
+  POST, WAIT EVENT, WAIT EXTERNAL and WAITCICS are modelled by X63, test_post_wait_converse_5079.py);
 - the equivalence harness's translator (equivalence_cics): the same members onto the stub's GGCADDR, and the same refusals;
 - both runtimes (the stub's GGCADDR, compiled; DetCics.addressCommarea, compiled): the pointer is the area's own address,
   and a task with no COMMAREA is refused by name.
@@ -16,6 +16,7 @@ program"; with no COMMAREA the pointer is X'FF000000' (no COBOL NULL, so refused
 from __future__ import annotations
 
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -26,6 +27,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(HERE.parents[1] / "tests" / "tools"))
 sys.path.insert(0, str(HERE.parents[1] / "tests" / "cics_crucible"))
+import cics_crucible as CCR  # noqa: E402
 import test_cics_runtimes as R  # noqa: E402  (bare imports: tests/ has no __init__.py, see CLAUDE.md)
 import test_pointer_lane_4771 as PL  # noqa: E402
 
@@ -148,16 +150,26 @@ def test_what_the_command_cannot_model_is_refused_by_name(tmp_path, edit, why):
     assert any(why in h for h in r.stats["holes"]), (why, r.stats["holes"])
 
 
+def test_every_option_on_ibms_address_page_is_modelled_or_refused_by_name():
+    """IBM's ADDRESS page (CICS TS 6.x) lists exactly ACEE, COMMAREA, CWA, EIB, TCTUA, TWA; SET is the old form."""
+    from gitgalaxy.standards.cics.commands.storage import ADDRESS
+
+    ibm_options = {"ACEE", "COMMAREA", "CWA", "EIB", "TCTUA", "TWA"}
+    modelled = {k for k in ADDRESS.options if k in ibm_options}
+    assert modelled | set(ADDRESS.refused) >= ibm_options
+    assert ibm_options - modelled == {"ACEE"}
+    for key in ("ACEE", "SET"):
+        assert ADDRESS.refused[key].register == "X59"
+    assert "DFLTUSER" in ADDRESS.refused["ACEE"].why
+    assert "current ADDRESS page" in ADDRESS.refused["SET"].why
+
+
 @pytest.mark.parametrize(
     ("command", "why"),
     [
         ("SEND PAGE", "a BMS logical message (ACCUM / PAGING, completed by SEND PAGE) is not modelled"),
         ("SEND PAGE RELEASE", "a BMS logical message"),
         ("PURGE MESSAGE", "a BMS logical message"),
-        (
-            "WAIT EXTERNAL ECBLIST(EIB-ADDRESS) NUMEVENTS(1)",
-            "waiting on an event control block other than a POST's timer-event control area",
-        ),
         (
             "WAIT TERMINAL",
             "terminal control beyond the one 3270 display",
@@ -195,19 +207,21 @@ def _ec():
 @pytest.mark.parametrize(
     ("options", "areas"),
     [
+        ("CWA(P)", ["CWA"]),
         ("TWA(P)", ["TWA"]),
         ("TCTUA(P)", ["TCTUA"]),
         ("TWA(P) TCTUA(Q)", ["TWA", "TCTUA"]),
-        ("EIB(E) COMMAREA(C) TWA(P) TCTUA(Q)", ["TWA", "TCTUA"]),
+        ("TCTUA(Q) TWA(P) CWA(R)", ["CWA", "TWA", "TCTUA"]),
+        ("EIB(E) COMMAREA(C) CWA(R) TWA(P) TCTUA(Q)", ["CWA", "TWA", "TCTUA"]),
     ],
 )
 def test_the_harness_names_the_system_area_to_the_stub_in_option_order(options, areas):
-    """#5079 slice 2b (X59): TWA / TCTUA reach GGCADDR as a GG-FLAGS name, after EIB and COMMAREA, one call each."""
+    """#5079 slice 2b (X59): CWA / TWA / TCTUA reach GGCADDR as a GG-FLAGS name, after EIB and COMMAREA, one call each."""
     out = _ec().translate_command(f"ADDRESS {options} NOHANDLE")
     names = [
         ln.split("'")[1]
         for ln in out
-        if ln.startswith("MOVE '") and "TO GG-FLAGS" in ln and ln.split("'")[1] in ("TWA", "TCTUA")
+        if ln.startswith("MOVE '") and "TO GG-FLAGS" in ln and ln.split("'")[1] in ("CWA", "TWA", "TCTUA")
     ]
     assert names == areas
     assert sum(ln.strip() == "CALL 'GGCADDR' USING GG-CICS" for ln in out) >= len(areas)
@@ -227,7 +241,6 @@ def test_the_harness_calls_the_stubs_entry_point_for_the_eib_and_the_commarea():
 @pytest.mark.parametrize(
     "text",
     [
-        "ADDRESS CWA(P)",
         "ADDRESS ACEE(P)",
         "ADDRESS SET(P)",
         "ADDRESS NOHANDLE",
@@ -242,13 +255,50 @@ def test_the_harness_refuses_what_the_translator_refuses(text):
         _ec().translate_command(text)
 
 
-def test_the_harness_refuses_addressing_a_commarea_the_program_does_not_declare():
+_NO_RECORD = PROGRAM.replace("       01  DFHCOMMAREA            PIC  X(32).\n", "")
+
+
+def test_the_harness_gives_a_program_with_no_commarea_record_a_stand_in_to_address():
+    """#5079 (X59): CAADSB-style callee: ADDRESS COMMAREA with no 01 DFHCOMMAREA. LINKAGE with other records, no LINKAGE
+    section at all, and a record already there (no duplicate) are the whole input class."""
     ec = _ec()
-    source = PROGRAM.replace("       01  DFHCOMMAREA            PIC  X(32).\n", "")
-    with pytest.raises(ec.Unsupported, match="no LINKAGE 01 DFHCOMMAREA"):
-        ec.translate(source.replace("       PROCEDURE DIVISION.", "       PROCEDURE DIVISION."))
-    text, has_commarea = ec.translate(PROGRAM)
-    assert has_commarea and "GGCADDR" in text
+    text, has_commarea = ec.translate(_NO_RECORD)  # LINKAGE SECTION holding other records
+    assert has_commarea and len(re.findall(r"01\s+DFHCOMMAREA", text)) == 1
+    assert (
+        text.index("LINKAGE SECTION")
+        < text.index("DFHCOMMAREA PIC X(1)")
+        < text.index("PROCEDURE DIVISION USING DFHCOMMAREA")
+    )
+    bare = re.sub(r"       LINKAGE SECTION\.\n(       01  EIB-VIEW[^\n]*\n)", "", _NO_RECORD)
+    assert "LINKAGE SECTION" not in bare
+    text, has_commarea = ec.translate(bare)  # no LINKAGE SECTION: one is made before the PROCEDURE DIVISION
+    assert has_commarea and text.index("LINKAGE SECTION") < text.index("DFHCOMMAREA PIC X(1)") < text.index(
+        "PROCEDURE DIVISION USING"
+    )
+    text, has_commarea = ec.translate(PROGRAM)  # declared: untouched
+    assert has_commarea and "PIC X(1)" not in text
+
+
+def test_a_program_that_addresses_only_the_eib_gets_no_stand_in():
+    ec = _ec()
+    source = _NO_RECORD.replace(" COMMAREA(CA-ADDRESS)", "")
+    text, has_commarea = ec.translate(source)
+    assert not has_commarea and "DFHCOMMAREA" not in text
+
+
+def _case_with(*events):
+    class _C:
+        expected = {"s": {"tasks": [{"events": list(events)}]}}
+
+    return _C()
+
+
+def test_the_runner_writes_an_empty_td_config_only_for_a_case_that_expects_qiderr():
+    """#5079 (X57): READQ TD / WRITEQ TD / DELETEQ TD answered QIDERR by the oracle, with no TDQUEUE in the CSD."""
+    for verb in ("READQ-TD", "WRITEQ-TD", "DELETEQ-TD"):
+        assert CCR._expects_undefined_td_queue(_case_with({"event": verb, "resp": "QIDERR"}))
+        assert not CCR._expects_undefined_td_queue(_case_with({"event": verb, "resp": "NORMAL"}))
+    assert not CCR._expects_undefined_td_queue(_case_with({"event": "READQ-TS", "resp": "QIDERR"}))
 
 
 # ---- both runtimes -------------------------------------------------------------------------------------------------------------
@@ -277,6 +327,57 @@ int main(int argc, char **argv) {
     return 0;
 }
 """
+
+
+_CWA_MAIN = r"""
+#include <stdio.h>
+#include <string.h>
+typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
+                 char qname[16]; int item; int num; int go_to; char chan[16]; int hours, mins, secs;
+                 char rtran[4], rterm[4], rqueue[8]; char as[16], tochan[16]; } gg_cics;
+int GGCADDR(gg_cics *c, void **slot, void *area);
+static gg_cics c;
+int main(int argc, char **argv) {
+    void *p = NULL, *q = NULL;
+    unsigned char *b;
+    memset(&c, 0, sizeof c);
+    memset(c.flags, ' ', 40);
+    memcpy(c.flags, "CWA", 3);
+    GGCADDR(&c, &p, NULL);
+    GGCADDR(&c, &q, NULL);
+    printf("%d/%d same %d\n", c.resp, c.resp2, p == q);
+    if ((size_t)p == 0xFF) { printf("null\n"); return 0; }
+    b = (unsigned char *)p;
+    printf("first %d size-ok %d\n", b[0], b[7]);
+    if (argc > 1) { b[0] = (unsigned char)atoi(argv[1]); b[7] = 9; }
+    return 0;
+}
+"""
+
+
+@R.needs_cc
+def test_the_stub_gives_the_cwa_its_wrkarea_bytes_for_the_region_and_null_when_unstated(tmp_path):
+    """#5079 slice 2b (X59): GGCADDR CWA is a zeroed block of $GGCICS_WRKAREA bytes, the same one on every ADDRESS, kept in
+    $GGCICS_CWA so the next task of the region sees what the last wrote; no stated size (unset, 0) is IBM's X'FF000000'."""
+    exe = R._stub(tmp_path, "#include <stdlib.h>\n" + _CWA_MAIN)
+    work = tmp_path / "w"
+    out = work / "out"
+    out.mkdir(parents=True)
+    base = {**R._stub_base_env(), "GGCICS_DIR": str(work), "GGCICS_OUT": str(out)}
+    keep = tmp_path / "region.cwa"
+
+    def run(extra, *argv):
+        r = subprocess.run([str(exe), *argv], env={**base, **extra}, capture_output=True, text=True, check=False)  # noqa: S603
+        assert r.returncode == 0, (r.stdout, r.stderr)
+        return r.stdout.splitlines()
+
+    assert run({}) == ["0/0 same 1", "null"]
+    assert run({"GGCICS_WRKAREA": "0", "GGCICS_CWA": str(keep)}) == ["0/0 same 1", "null"]
+    assert run({"GGCICS_WRKAREA": "8"}) == ["0/0 same 1", "null"]  # no file to keep it in: no region area
+    stated = {"GGCICS_WRKAREA": "8", "GGCICS_CWA": str(keep)}
+    assert run(stated, "5") == ["0/0 same 1", "first 0 size-ok 0"]
+    assert keep.read_bytes() == bytes([5, 0, 0, 0, 0, 0, 0, 9])
+    assert run(stated) == ["0/0 same 1", "first 5 size-ok 9"]
 
 
 @R.needs_cc
@@ -371,3 +472,46 @@ public class Main {
         "ADDRESS COMMAREA with a COMMAREA in a program with no 01 DFHCOMMAREA: its bytes are not modelled",
         "ADDRESS COMMAREA with no COMMAREA: not modelled",
     ]
+
+
+def _case(data, twasize=None):
+    from types import SimpleNamespace
+
+    return SimpleNamespace(csd={"twasize": twasize or {}, "userarealen": {}}, data={"terminal": "T001", **data})
+
+
+@pytest.mark.parametrize(
+    ("data", "twasize", "wanted", "absent"),
+    [
+        ({"wrkarea": 32}, None, ["GGCICS_WRKAREA=32 ", "GGCICS_CWA=/work/s1.cwa"], ["GGCICS_TWASIZE"]),
+        ({"wrkarea": 8}, {"CA0K": 16}, ["GGCICS_WRKAREA=8 ", "GGCICS_TWASIZE=16"], []),
+        ({}, None, [], ["GGCICS_WRKAREA", "GGCICS_CWA"]),  # none stated: the stub's own default (X'FF000000')
+        ({"wrkarea": 0}, None, [], ["GGCICS_WRKAREA", "GGCICS_CWA"]),
+    ],
+)
+def test_the_runner_hands_the_stub_a_wrkarea_only_when_the_case_states_one(data, twasize, wanted, absent):
+    """#5079 slice 2b (X59): case.json `wrkarea` (the SIT WRKAREA) becomes GGCICS_WRKAREA and the file that keeps the CWA."""
+    env = CCR.area_env(_case(data, twasize), "CA0K", "s1")
+    for w in wanted:
+        assert w in env
+    for a in absent:
+        assert a not in env
+
+
+def test_every_crucible_case_that_addresses_the_cwa_states_its_wrkarea():
+    """#5079: the crucible's `ca-address-cwa` (cics-crucible#47) is the cobol-stub proof of the CWA. Any checkout case whose
+    COBOL issues ADDRESS CWA states a positive wrkarea (the pinned ref that predates it has no such case: skipped)."""
+    from gitgalaxy.core.source_text import read_source
+
+    root = CCR.crucible_path(None) / "cases"
+    if not root.is_dir():
+        pytest.skip("no cics-crucible checkout")
+    seen = []
+    for case_json in sorted(root.glob("*/*/case.json")):
+        case = CCR.cc.load_case(case_json.parent)
+        text = " ".join(read_source(case.dir / rel).text for rel in case.data["sources"]["cobol"])
+        if re.search(r"ADDRESS\s+CWA\b", text):
+            seen.append(case.id)
+            assert int(case.data.get("wrkarea") or 0) >= 1, case.id
+    if not seen:
+        pytest.skip("the pinned cics-crucible ref has no ADDRESS CWA case yet (cics-crucible#47)")

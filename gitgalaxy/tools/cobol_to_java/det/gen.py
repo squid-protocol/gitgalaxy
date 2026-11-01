@@ -289,15 +289,20 @@ class Gen:
                 q in _ancestors(c.parent) for q in ref.qualifiers))]  # fmt: skip
         return cands[0] if len(cands) == 1 else None
 
-    def pointer_item(self, name: str) -> str:
+    def pointer_item(self, name: str, ref: E.Ref | None = None) -> str:
         """#4771 (X47): the Field of a plain USAGE POINTER item the pointer lane works on. A pointer a REDEFINES overlays
-        (ZECS001's CACHE-ADDRESS-X: ADD n TO the address) is refused: a handle is no number to do arithmetic on."""
+        (ZECS001's CACHE-ADDRESS-X: ADD n TO the address) is refused: a handle is no number to do arithmetic on.
+        #5079: `ref` is an element of a pointer table (`TBL(I)`, one subscript per OCCURS level): its own 8-byte Field,
+        a handle like any other. A table named without subscripts is refused (it would silently be its first element)."""
         it = self.resolve(E.Ref(name.upper()))
-        if it.usage != "POINTER" or it.occurs > 1:
-            raise Untranslatable(f"{name}: not a plain USAGE POINTER item")
+        levels = len(_occurs_chain(it))
+        subscripts = len(ref.subscripts) if ref is not None else 0
+        if it.usage != "POINTER" or subscripts != levels:
+            why = " (a pointer table named without its subscripts)" if levels and not subscripts else ""
+            raise Untranslatable(f"{name}: not a plain USAGE POINTER item{why}")
         if name.upper() in self.overlaid_pointers:
             raise Untranslatable(f"{name}: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)")
-        return self.field_expr(E.Ref(name.upper()))
+        return self.field_expr(ref if ref is not None else E.Ref(name.upper()))
 
     def view_pointer(self, e) -> str | None:
         """#4771 (X47): the pointer a plain reference to a pure numeric view of one (program.pointer_view_of) names."""
@@ -2318,6 +2323,8 @@ class Gen:
                 it = self.resolve(r)
                 if it.usage != "POINTER":
                     raise Untranslatable(f"SET {r.name} TO NULL: not a pointer")
+                if len(_occurs_chain(it)) != len(r.subscripts):  # #5079: one element, never a table's first by default
+                    raise Untranslatable(f"SET {r.name} TO NULL: a pointer table named without its subscripts")
                 out.append(f"{ind}Cobol.moveFigurative(Figurative.LOW_VALUES, {self.field_expr(r)}, CS);")
             return out
         if k == "SET-POINTER":
@@ -2325,7 +2332,7 @@ class Gen:
                 return [c, f"{ind}// the pointer is never read (write_only_pointers): no effect any output can show"]
             if self.cics is None:
                 raise Untranslatable("SET ADDRESS OF (pointers)")
-            ptr = self.pointer_item(s.data["target"])
+            ptr = self.pointer_item(s.data["target"], s.data.get("target_ref"))
             of, windowed = self.address_item(s.data["of"])
             return [c, f"{ind}DetCics.{'setPointerToItem' if windowed else 'setPointerToRecord'}(task, {ptr}, {of});"]
         if k == "SET-ADDRESS":  # #4771 (X47): the record's storage becomes the pointer's / another record's
@@ -2334,10 +2341,16 @@ class Gen:
             rec = self.address_record(s.data["record"])
             if self.cics is None:  # #5856 (A2): the z/OS control block the pointer addresses (PSA / TCB / TIOT)
                 self.uses_mvs = True
-                return [c, f"{ind}DetMvs.setAddress({rec}, {self.pointer_item(s.data['pointer'])}, CS);"]
+                return [
+                    c,
+                    f"{ind}DetMvs.setAddress({rec}, {self.pointer_item(s.data['pointer'], s.data.get('pointer_ref'))}, CS);",
+                ]
             self.uses_set_address = True
             if s.data["pointer"]:
-                return [c, f"{ind}DetCics.setAddress(task, {rec}, {self.pointer_item(s.data['pointer'])});"]
+                return [
+                    c,
+                    f"{ind}DetCics.setAddress(task, {rec}, {self.pointer_item(s.data['pointer'], s.data.get('pointer_ref'))});",
+                ]
             of, windowed = self.address_item(s.data["of"])
             return [c, f"{ind}DetCics.{'setAddressOfItem' if windowed else 'setAddressOfRecord'}(task, {rec}, {of});"]
         if k == "INITIALIZE":
@@ -3331,6 +3344,7 @@ class Gen:
                     raise Untranslatable(f"READ {fd.select}: its key is not in its record")
                 out.append(f"{ind}String {st} = {v}.readKey({key.offset}, {key.size});")
             out += self.status(fd, st, ind)
+            out += self.unhandled_io(fd, s, st, ind, ("10",), ("21", "22", "23", "24"))
             if s.data["into"] is not None:
                 rec = self.ids[id(fd.record)]
                 out.append(f'{ind}if ({st}.startsWith("0")) {{')
@@ -3358,6 +3372,7 @@ class Gen:
             else:
                 out.append(f"{ind}String {st} = {v}.{k.lower()}({rec_item.size});")
             out += self.status(fd, st, ind)
+            out += self.unhandled_io(fd, s, st, ind, (), ("21", "22", "23", "24"))
             out += self.io_phrases(s, st, ind, at_end=None, invalid=("21", "22", "23", "24"))
             return out
         if k == "START":
@@ -3628,6 +3643,22 @@ class Gen:
         if fd.status is None:
             return []
         return [ind + self.move_text(st, E.Ref(fd.status[0], fd.status[1:]))]
+
+    def unhandled_io(self, fd: FileDef, s: S.Stmt, st: str, ind: str, at_end: tuple, invalid: tuple) -> list[str]:
+        """A READ / WRITE / REWRITE that fails on a file with no FILE STATUS, no phrase for that condition and no
+        USE declarative (the det parser has none) is a run-time error on IBM (Enterprise COBOL for z/OS Language
+        Reference, "Error handling for input-output": the program abends); ignoring the status would carry on and end
+        RETURN-CODE 0. The port stops by name instead (#4268). INVALID KEY is the 21-24 group, handled only when the
+        statement carries the phrase; a READ's end-of-file 10 is left as it was (a sibling gap)."""
+        if fd.status is not None:
+            return []
+        ok = list(at_end)
+        if "INVALID-KEY" in s.phrases:
+            ok += invalid
+        test = "".join(f" && !{st}.equals({jstr(c)})" for c in ok)
+        what = f"{s.kind} {fd.select}: FILE STATUS "
+        return [f'{ind}if (!{st}.startsWith("0"){test}) throw new Hole(' + jstr(what) + f' + {st} + " with no FILE STATUS, '
+                'handling phrase or declarative: IBM abends (not modelled)");']  # fmt: skip
 
     def move_text(self, java: str, target: E.Ref) -> str:
         return f"Cobol.move({java}, {self.field_expr(target)}, CS);"

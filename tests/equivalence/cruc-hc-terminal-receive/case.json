@@ -1,0 +1,57 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "HCTERM",
+  "program_source": "cases/condition-handling/hc-terminal-receive/src/HCTERM.cbl",
+  "copy_dirs": [],
+  "transid": "HC03",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "notes": "cics-crucible condition-handling / hc-terminal-receive (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): Unformatted terminal RECEIVE: LENGTH in/out, LENGERR by RESP, by HANDLE CONDITION and by default, MAXLENGTH NOTRUNCATE pieces, SET; SEND CONTROL. Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "lengerr-resp",
+      "commarea": null,
+      "terminal": "HC03 RLONGDATA",
+      "why": "RECEIVE INTO LENGTH(4) of an 8-byte rest with RESP: LENGERR, INTO gets the first 4 bytes, LENGTH the original 8"
+    },
+    {
+      "name": "lengerr-handled",
+      "commarea": null,
+      "terminal": "HC03 HTOOLONG",
+      "why": "RECEIVE INTO with no LENGTH (INTO's 4 bytes) of a 7-byte rest under HANDLE CONDITION LENGERR: control goes to the label"
+    },
+    {
+      "name": "handler-unused",
+      "commarea": null,
+      "terminal": "HC03 HOK",
+      "why": "the same RECEIVE with a 2-byte rest: NORMAL, the LENGERR label is not taken"
+    },
+    {
+      "name": "lengerr-default",
+      "commarea": null,
+      "terminal": "HC03 AOVERFLOW",
+      "why": "LENGERR with neither RESP nor a handler: CICS's default action abends the task (AEIV)"
+    },
+    {
+      "name": "in-pieces",
+      "commarea": null,
+      "terminal": "HC03 NABCDEFGHIJ",
+      "why": "MAXLENGTH(4) NOTRUNCATE in a loop: the rest comes back 4, 4 and 2 bytes, each NORMAL, nothing discarded"
+    },
+    {
+      "name": "set-address",
+      "commarea": null,
+      "terminal": "HC03 SVIA-SET",
+      "why": "RECEIVE SET(ADDRESS OF LS-INPUT) MAXLENGTH(20): the LINKAGE record addresses the 7 bytes received"
+    },
+    {
+      "name": "device-controls",
+      "commarea": null,
+      "terminal": "HC03 C",
+      "why": "nothing left after the first RECEIVE; a second SEND CONTROL with CURSOR(85) ALARM FRSET ERASEAUP"
+    }
+  ]
+}

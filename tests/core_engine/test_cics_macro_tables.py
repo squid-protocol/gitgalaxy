@@ -13,7 +13,7 @@ TYPE=ENTRY,JFILEID={SYSTEM|nn}), ch.33 (DFHTCT TYPE=GPENTRY), and Appendices C/E
 DFHPPT PROGRAM=/MAPSET=/PARTSET=/USAGE=MAP); CICS/VS System Programmer's Reference Manual
 SH20-1043-6 (DFHDCT, DFHPCT, DFHPPT); CICS for MVS/ESA Migration Guide V4R1 GC33-1162-04;
 and IBM APAR II05097 (`DFHPPT TYPE=ENTRY,MAPSET=`). The PPT `PARTITIONSET=` spelling is
-ASSUMED as an alias of `PARTSET=` (register X62). DFHSIT SUFFIX= and the refusals of DFHMCT TYPE=RECORD and
+REFUSED by name (no manual lists it as a macro operand; register X62). DFHSIT SUFFIX= and the refusals of DFHMCT TYPE=RECORD and
 DFHTCT TYPE=LINE / SDSCI are read from the CICS TS 5.x pages the module header cites. Every fixture is hand-written, with a
 labelled and an unlabelled statement, column-72 continuation, comments and lower case.
 """
@@ -23,7 +23,7 @@ from pathlib import Path
 
 import pytest
 
-from gitgalaxy.core.cics_macro_tables import sdsci_recform
+from gitgalaxy.core.cics_macro_tables import PCT_OPERAND_DISPOSITION, sdsci_recform
 from gitgalaxy.core.mainframe_boundary import extract_boundary
 
 FIXTURES = Path(__file__).resolve().parents[1] / "fixtures" / "cics_macro_estate"
@@ -153,6 +153,52 @@ def test_dfhpct_entry_is_a_transaction_routing_to_its_program():
     assert _rdo(rows[1]) == "REMOTESYSTEM(SYSB) REMOTENAME(RR01) PARTITIONSET(PS1) INDOUBT(BACKOUT)"
 
 
+@pytest.mark.parametrize(
+    ("operand", "expected"),
+    [
+        ("TRNPRTY=0", "PRIORITY(0)"),
+        ("TRNPRTY=255", "PRIORITY(255)"),
+        ("TRNPRTY=256", ""),  # outside the RDO PRIORITY range: not restated
+        ("SYSIDNT=SYSB", "REMOTESYSTEM(SYSB)"),
+        ("RMTNAME=RR01", "REMOTENAME(RR01)"),
+        ("PARTSET=PS1", "PARTITIONSET(PS1)"),  # SC33-1166-02 App. C p.378
+        ("DTB=YES", "INDOUBT(BACKOUT)"),  # SC33-1166-02 App. C p.377
+        ("DTB=(YES,NO)", "INDOUBT(COMMIT)"),
+        ("DTB=(YES,WAIT)", "INDOUBT(WAIT)"),
+        ("DTB=NO", ""),  # no RDO equivalent: SC33-1166-02 App. C note 4, p.380
+        ("DTB=(NO,WAIT)", ""),  # a combination the manual does not list: REFUSED
+        ("DTB=MAYBE", ""),
+        ("TWASIZE=64", ""),  # same name in RDO: nothing to restate
+    ],
+)
+def test_dfhpct_restated_operands_follow_the_cross_reference_table(operand, expected):
+    src = f"         DFHPCT TYPE=ENTRY,TRANSID=T001,PROGRAM=P1,{operand}"
+    assert _rdo(_rows(src)[0]) == expected
+
+
+@pytest.mark.parametrize(("operand", "disposition"), sorted(PCT_OPERAND_DISPOSITION.items()))
+def test_every_listed_pct_operand_has_a_pinned_disposition(operand, disposition):
+    value = {"TRNPRTY": "5", "DTB": "YES", "TRANSID": "T001", "PROGRAM": "P1"}.get(operand, "X")
+    src = f"         DFHPCT TYPE=ENTRY,TRANSID=T001,PROGRAM=P1,{operand}={value}"
+    row = _rows(src)[0]
+    assert (row["transid"], row["program"]) == ("T001", "P1")
+    assert f"{operand}={value}" in row["attributes"].split(" => ")[0]  # always kept as written
+    # Restated only when RESTATED; ROW / SAME / ASSUMED add nothing after ` => `.
+    assert bool(_rdo(row)) == (disposition == "RESTATED")
+
+
+def test_assumed_pct_operands_are_never_restated_or_lifted():
+    src = "         DFHPCT TYPE=ENTRY,TRANSID=T001,PROGRAM=P1,TRANSEC=2,TPURGE=YES,SPURGE=NO,COMPAT=YES"
+    row = _rows(src)[0]
+    assert _rdo(row) == ""
+    assert {k for k, v in PCT_OPERAND_DISPOSITION.items() if v == "ASSUMED"} == {
+        "TRANSEC",
+        "TPURGE",
+        "SPURGE",
+        "COMPAT",
+    }
+
+
 def test_dfhppt_entry_names_a_program_a_mapset_or_a_partition_set():
     src = "\n".join(
         [
@@ -161,7 +207,8 @@ def test_dfhppt_entry_names_a_program_a_mapset_or_a_partition_set():
             "         DFHPPT TYPE=ENTRY,PROGRAM=BANKASM,PGMLANG=ASSEMBLER,USAGE=MAP",  # ASSEMBLER + USAGE=MAP -> MAPSET
             "         DFHPPT TYPE=ENTRY,PROGRAM=BANKCBL,PGMLANG=COBOL,USAGE=MAP",  # non-ASSEMBLER stays PROGRAM
             "         DFHPPT TYPE=ENTRY,MAPSET=DSTMAPSM,RES=YES",  # IBM APAR II05097; SC33-1653-05 p.372
-            "         DFHPPT TYPE=ENTRY,PARTITIONSET=BANKPS",
+            "         DFHPPT TYPE=ENTRY,PARTITIONSET=BANKPS",  # REFUSED: the RDO word, in no macro manual -> no row
+            "         DFHPPT TYPE=ENTRY,PARTSET=BANKPS",
             "         DFHPPT TYPE=ENTRY,PARTSET=OLDPS,USAGE=MAP",  # SC33-1653-05 p.349, p.372
             "         DFHPPT TYPE=ENTRY",
             "         DFHPPT TYPE=FINAL",
@@ -214,6 +261,7 @@ def test_every_sdsci_recform_word_maps_to_the_csd_tdqueue_spelling(word, expecte
 
 @pytest.mark.parametrize("word", ["UNDEFINED", "VARIABLE", "FIXED", "FIXBLKX", "FIXUNBAM", "BLK", ""])
 def test_a_recform_word_outside_the_manual_set_claims_nothing(word):
+    # SC33-1166-02 p.257-258 Table 28 lists twelve words; UNDEFINED is an FCT word, not an SDSCI one.
     assert sdsci_recform(word) == (None, None, None)
     src = f"         DFHDCT TYPE=EXTRA,DESTID=Q1,DSCNAME=DD1\n         DFHDCT TYPE=SDSCI,DSCNAME=DD1,RECFORM={word}"
     assert _rows(src)[0]["record_format"] is None
@@ -663,6 +711,37 @@ def test_dfhtct_region_state_holds_inside_jcl_sysin():
     job = "//J JOB\n//ASM EXEC PGM=ASMA90\n//SYSIN DD *\n" + src + "/*\n"
     (row,) = extract_boundary("jcl", job)["csd_resources"]
     assert (row["name"], row["macro_table"], _rdo(row)) == ("T2", "DFHTCT01", "REMOTESYSTEM(SYSB)")
+
+
+_MCT = "         DFHMCT "
+
+
+@pytest.mark.parametrize(
+    ("src", "expected"),
+    [
+        # ASSUMED (IBM's TYPE=EMP page not read for these; pinned as-is, #5154):
+        (
+            _MCT + "TYPE=EMP,CLASS=PERFORM,ID=5\n" + _MCT + "TYPE=EMP,CLASS=PERFORM,ID=5\n",
+            ["USER.5", "USER.5"],
+        ),  # repeat not folded
+        (_MCT + "TYPE=EMP,CLASS=PERFORM,ID=(PP,3)\n" + _MCT + "TYPE=EMP,ID=USER.202\n", ["USER.202", "USER.202"]),
+        (_MCT + "TYPE=EMP,ID=5\n", ["USER.5"]),  # CLASS omitted still names the point
+        (_MCT + "TYPE=EMP,CLASS=ACCOUNT,ID=5\n", ["USER.5"]),  # CLASS is not decided on
+        (_MCT + "TYPE=EMP,CLASS=PERFORM,ID='BANK.7'\n", ["BANK.7"]),  # quotes stripped
+        (_MCT + "TYPE=EMP,CLASS=PERFORM,ID=TOOLONGNAME.7\n", ["TOOLONGNAME.7"]),  # entryname length not bounded
+        # statements that name no monitoring point
+        (_MCT + "TYPE=INITIAL,SUFFIX=01\n" + _MCT + "TYPE=FINAL\n", []),
+        (_MCT + "TYPE=EMP,CLASS=PERFORM\n", []),  # no ID
+    ],
+)
+def test_dfhmct_emp_shapes_pinned(src, expected):
+    assert _named(src, "MONITORPOINT") == expected
+
+
+def test_dfhmct_suffix_no_names_the_table_assumed():
+    """`SUFFIX=NO` is excluded only for SIT / DSNCRCT; for MCT it is ASSUMED to name `DFHMCTNO` (#5154)."""
+    (row,) = _rows(_MCT + "TYPE=INITIAL,SUFFIX=NO\n" + _MCT + "TYPE=EMP,ID=1\n")
+    assert (row["name"], row["macro_table"]) == ("USER.1", "DFHMCTNO")
 
 
 def test_dfhmct_other_types_are_refused():

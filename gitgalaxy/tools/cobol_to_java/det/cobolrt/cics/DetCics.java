@@ -4,6 +4,7 @@ import __PACKAGE__.cics.CicsSpec;
 import __PACKAGE__.cics.CicsTask;
 import __PACKAGE__.cobolrt.Cobol;
 import __PACKAGE__.cobolrt.Field;
+import __PACKAGE__.cobolrt.Storage;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -387,6 +388,18 @@ public final class DetCics {
         System.arraycopy(data, 0, f.storage().bytes, f.offset(), f.length());
     }
 
+    /** WEB SEND FROM(area) FROMLENGTH(n) (#6839 slice 2): the area's text. An area set onto a larger block (ZECS001's
+     *  CACHE-MESSAGE over a GETMAIN of several 32000-byte segments) holds the block's bytes past its declared length, so a
+     *  FROMLENGTH beyond the declaration reads them when the block is that long. Any other area, or a block too short,
+     *  gives the declared area's text (CicsTask.webSend then refuses the length). */
+    public static String fromText(Field f, int fromLength, Charset cs) {
+        Storage s = f.storage();
+        if (fromLength > f.length() && s.aliased() && f.offset() + fromLength <= s.bytes.length) {
+            return new String(s.bytes, f.offset(), fromLength, cs);
+        }
+        return Cobol.text(f, cs);
+    }
+
     public static void put(Field f, byte[] data) {
         System.arraycopy(data, 0, f.storage().bytes, f.offset(), Math.min(data.length, f.length()));
     }
@@ -636,7 +649,7 @@ public final class DetCics {
      *  "Default action: ignore the condition"). Every other condition's default is an abend. */
     // [rule RT-CICS-DEFAULT-ACTION]
     public static boolean ignoredByDefault(String condition) {
-        return "EOC".equals(condition);
+        return "EOC".equals(condition) || "EXPIRED".equals(condition);
     }
 
     /** #4414: the label HANDLE AID gives the key pressed (EIBAID's name: ENTER, CLEAR, PA1-PA3, PF1-PF24), else

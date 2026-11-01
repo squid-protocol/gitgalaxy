@@ -22,8 +22,8 @@ Sources (nothing is re-measured here):
   missing inputs         estate_intake.py (#4709): assumed options and missing copybooks
   oracle caveats         the register entries each program relies on: those it reaches when its evidence report
                          measured that (`assumptions.reach.registers`), else those its commands name (an upper bound,
-                         counted per row in `named_only`; the report does not yet measure reach,
-                         definition_of_done.md section 3)
+                         counted per row in `named_only`; reach is measured by evidence_report.reach_of() from the
+                         commands the COBOL run executed, definition_of_done.md section 3)
   blocker twins          (#5054) with --blockers DIR the same run also writes, per estate, DIR/<estate>/
                          blocker_report.full.* and the anonymized blocker_report.anon.* (blocker_report.py) from the
                          programs' gap classes (a whole program: its proof classes; any other: its translation gaps)

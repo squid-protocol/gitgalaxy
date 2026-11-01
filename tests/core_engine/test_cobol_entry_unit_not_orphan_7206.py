@@ -58,7 +58,9 @@ def test_a_section_with_code_before_its_first_paragraph_does_not_enter_the_parag
 
 def test_a_main_line_is_the_entry_so_the_first_paragraph_is_still_flagged():
     code = HEAD.format("P") + "           DISPLAY 'MAIN'.\n       FIRST-PARA.\n           DISPLAY 'F'.\n"
-    assert _status(code) == {"FIRST-PARA": 1}
+    # #7170: the main line is its own unit, named after the program, and never an orphan;
+    # the paragraph it falls into is reached only by fall-through, so it stays flagged.
+    assert _status(code) == {"P": 0, "FIRST-PARA": 1}
 
 
 def test_nested_and_sibling_programs_each_have_their_own_entry():

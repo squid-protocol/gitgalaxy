@@ -3,6 +3,11 @@ description: "Building a multi-language static analysis engine is notoriously di
 ---
 # Tracking the Genetic Drift of DOOM: A GitGalaxy Stress Test
 
+> **Updated study (31 October 2026):** this page is the first version of the DOOM comparison. The current study measures
+> 43 descendants at one engine version, checks every result against the source text, chance and unrelated programs, and
+> is published as **[DOOM's DNA](museum-of-code/teardown-of-doom.md)**
+> ([interactive edition](museum-of-code/doom-dna/index.html)).
+
 Building a multi-language static analysis engine is notoriously difficult. Every programming language operates on its own unique physical laws. C relies on raw memory and macro expansion, C# forces strict object-oriented hierarchies, and JavaScript lives and dies by event-driven closures.
 
 So, how do you prove that a multi-language scanner actually understands architecture? How do you prove it can compare apples to oranges, rather than just counting syntax tokens?

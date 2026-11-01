@@ -129,6 +129,8 @@
 # EngineFile.web_services): GalaxyIR.api_surface joins each service's program
 # and request / response copybooks, with the CSD's URIMAP / PIPELINE /
 # WEBSERVICE / TCPIPSERVICE definitions.
+# Since #4457, section-level COPY ... REPLACING statements (copy_statement_data,
+# per EngineFile.copy_statements) that close the record entry above them.
 # Since #3494, the CSD's REMOTESYSTEM definitions and call sites' SYSID
 # (call_site_data.sysid): GalaxyIR.remote_programs / remote_calls (DPL, remote
 # START) / remote_resources (function-shipped FILE / TD / TS queues).
@@ -170,6 +172,7 @@ from gitgalaxy.core.cobol_preprocessor import replace_text as _replace_text  # #
 from gitgalaxy.core.compiler_options import effective as effective_options
 from gitgalaxy.core.invocation_resolver import SQL_ROUTINE_LANGUAGES
 from gitgalaxy.core.jcl_runners import systsin_programs
+from gitgalaxy.core.job_flow import ASSEMBLER_PROCS, ASSEMBLER_PROGRAMS
 from gitgalaxy.core.source_text import read_source
 from gitgalaxy.core.unicode_paths import nfc
 from gitgalaxy.tools.cobol_to_cobol import pli_mapping
@@ -4673,10 +4676,10 @@ class GalaxyIR:
                 out += [row(f, job.name, st.step_name, None, st.step_ordinal, r) for r in mine.get(id(st), [])]
         return out
 
-    # #5154: the programs a JCL assembler step runs (core/mainframe_boundary._JCL_ASSEMBLER's PGM= set).
-    _ASSEMBLER_PROGRAMS = frozenset({"ASMA90", "IEV90", "IEUASM", "ASMAHL", "ASMBLR"})
-    # #5154: a proc that wraps the assembler; its SYSIN is a job-level `//STEP.SYSIN` override DD.
-    _ASSEMBLER_PROCS = frozenset({"DFHAUPLE"})
+    # #5154: the programs a JCL assembler step runs, and the procs that wrap it (their SYSIN is a job-level
+    # `//STEP.SYSIN` override DD): one set, shared with the inline-SYSIN reader.
+    _ASSEMBLER_PROGRAMS = ASSEMBLER_PROGRAMS
+    _ASSEMBLER_PROCS = ASSEMBLER_PROCS
 
     def job_macro_tables(self) -> list:
         """The CICS macro tables an assembler step reads from a separate SYSIN member (#5154).
@@ -5141,7 +5144,7 @@ class GalaxyIR:
                 if c.verb in TRANSACTION_ROUTING_VERBS and c.target:
                     out.append({"from": f.file_path, "line": c.line, "verb": c.verb, "program": c.target,
                                 "to": self._transaction_program(c.target), "via": "transaction"})  # fmt: skip
-                elif c.verb in ("LINK", "XCTL") and c.form != "identifier" and (c.resolves_to or c.target):
+                elif c.verb in ("LINK", "XCTL", "LOAD") and c.form != "identifier" and (c.resolves_to or c.target):
                     # A data-name site (even one bound through its VALUE) comes from
                     # dynamic_call_targets below, so no edge is listed twice.
                     out.append({"from": f.file_path, "line": c.line, "verb": c.verb, "program": c.target,
@@ -6419,8 +6422,14 @@ def load_galaxy_ir(db_path: Path, repo_name: str | None = None) -> GalaxyIR:
             if file_id in by_id and class_name:
                 by_id[file_id].program_ids.append(class_name)
 
+        # #7170: a COBOL main line is a function_data row (def_shape 'main_line'), not a
+        # paragraph or section, so it stays out of the unit inventory; NULL on a pre-#3757 DB.
+        not_main = (
+            "WHERE COALESCE(def_shape, '') != 'main_line' " if _has_column(cur, "function_data", "def_shape") else ""
+        )
         for file_id, name, start, loc, status in cur.execute(
-            "SELECT file_id, func_name, start_line, loc, usage_status FROM function_data ORDER BY file_id, start_line"
+            "SELECT file_id, func_name, start_line, loc, usage_status FROM function_data "  # noqa: S608 -- literals only
+            f"{not_main}ORDER BY file_id, start_line"
         ):
             if file_id in by_id:
                 by_id[file_id].units.append(EngineUnit(name or "", int(start or 0), int(loc or 0), int(status or 0)))

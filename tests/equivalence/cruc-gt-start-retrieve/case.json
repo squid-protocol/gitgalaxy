@@ -1,0 +1,57 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "GTSTART",
+  "program_source": "cases/ghost-tasks/gt-start-retrieve/src/GTSTART.cbl",
+  "copy_dirs": [],
+  "transid": "GT01",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "programs": [
+    {
+      "program": "GTWORK",
+      "program_source": "cases/ghost-tasks/gt-start-retrieve/src/GTWORK.cbl"
+    }
+  ],
+  "notes": "cics-crucible ghost-tasks / gt-start-retrieve (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): START of background tasks: INTERVAL vs TIME (the six-hour rule), FROM data and RETRIEVE, ENDDATA, LENGERR, PROTECT vs an abending starter. Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "interval-data",
+      "commarea": null,
+      "terminal": "GT01 A",
+      "why": "START INTERVAL(0) FROM 20 bytes: one GT02 task retrieves them, then ENDDATA"
+    },
+    {
+      "name": "no-data",
+      "commarea": null,
+      "terminal": "GT01 N",
+      "why": "START with no FROM: the first RETRIEVE is already ENDDATA"
+    },
+    {
+      "name": "time-six-hours",
+      "commarea": null,
+      "terminal": "GT01 T",
+      "why": "at 10:00, TIME(103000) runs at 10:30, but TIME(093000) is in the past within six hours and runs at once, so the second START runs first"
+    },
+    {
+      "name": "retrieve-lengerr",
+      "commarea": null,
+      "terminal": "GT01 L",
+      "why": "30 bytes of FROM data into a 20-byte RETRIEVE area: truncated, LENGERR, LENGTH set to 30"
+    },
+    {
+      "name": "protect-abend",
+      "commarea": null,
+      "terminal": "GT01 X",
+      "why": "the starter abends after two STARTs: the plain START still runs its task, the START PROTECT is discarded"
+    },
+    {
+      "name": "unknown-mode",
+      "commarea": null,
+      "terminal": "GT01 Z",
+      "why": "mode Z matches no WHEN (and there is no WHEN OTHER): no START is issued and no GT02 task runs, but the screen still says STARTS ISSUED"
+    }
+  ]
+}

@@ -1937,6 +1937,22 @@ def test_cics_task_moves_containers_and_browses_a_channel_as_the_stub_does(tmp_p
     ("steps", "why"),
     [
         ('put("CH1", "A", "a", "CHANNEL"); move("m", "A", "A", "CH1", "CH1");', "MOVE CONTAINER onto itself"),
+        ('put("CH1", "A", "a", "CHANNEL"); move("m", "DFHX", "B", "CH1", "CH1");', "CICS-defined (DFH...)"),
+        ('put("CH1", "A", "a", "CHANNEL"); move("m", "A", "dfhB", "CH1", "CH1");', "CICS-defined (DFH...)"),
+        ('put("CH1", "A", "a", "CHANNEL"); move("m", "A", "B", "DFHTRANSACTION", "CH1");', "CICS-defined (DFH...)"),
+        ('put("CH1", "A", "a", "CHANNEL"); move("m", "A", "B", "CH1", "DFHCH");', "CICS-defined (DFH...)"),
+        (
+            'put("CH1", "A", "a", "CHANNEL"); blank(c.chan, 16, "DFHTRANSACTION"); GGCDELH(&c);',
+            "DELETE CHANNEL naming a CICS-defined",
+        ),
+        (
+            'put("CH1", "A", "a", "CHANNEL"); blank(c.qname, 16, "dfhreq"); GGCDELC(&c);',
+            "DELETE CONTAINER naming a CICS-defined",
+        ),
+        (
+            'put("CH1", "A", "a", "CHANNEL"); blank(c.qname, 16, "A"); blank(c.chan, 16, "DFHCH"); GGCDELC(&c);',
+            "DELETE CONTAINER naming a CICS-defined",
+        ),
         (
             'put("CH1", "A", "a", "CHANNEL CHAR"); put("CH1", "B", "b", "CHANNEL"); move("m", "A", "B", "CH1", "CH1");',
             "onto a container of the other data type",
@@ -1950,6 +1966,9 @@ def test_cics_task_moves_containers_and_browses_a_channel_as_the_stub_does(tmp_p
             'blank(c.flags, 40, "CHANNEL"); GGCDELC(&c); next("n", t);',
             "browsed channel changed during the browse",
         ),
+        ('put("CH1", "DFHX", "x", "CHANNEL");', "PUT CONTAINER naming a CICS-defined"),
+        ('put("CH1", " dfhreq", "x", "CHANNEL");', "PUT CONTAINER naming a CICS-defined"),
+        ('put("DFHCH", "A", "a", "CHANNEL");', "PUT CONTAINER naming a CICS-defined"),
         ('start("s", "");', "STARTBROWSE CONTAINER with no channel"),
         ('put("CH1", " A", "a", "CHANNEL");', "illegal CONTAINER name and a channel not in scope"),
     ],
@@ -1958,9 +1977,9 @@ def test_the_stub_refuses_what_ibm_leaves_open_on_move_and_browse(tmp_path, step
     """#4951 (X42): a move onto itself or onto the other data type, a browse of a channel that changed, a browse with no
     channel (IBM: the BTS form) and a name with an embedded blank are refused, never guessed."""
     main = (
-        _MOVE_STUB_MAIN.replace("int GGCSYNC(gg_cics *c);", "int GGCSYNC(gg_cics *c); int GGCDELC(gg_cics *c);").split(
-            "int main(void) {"
-        )[0]
+        _MOVE_STUB_MAIN.replace(
+            "int GGCSYNC(gg_cics *c);", "int GGCSYNC(gg_cics *c); int GGCDELC(gg_cics *c); int GGCDELH(gg_cics *c);"
+        ).split("int main(void) {")[0]
         + "int main(void) {\n    char *area = NULL;\n"
         + '    blank(c.name1, 8, "MAIN"); c.len = 0; GGCTASK(&c); GGCNEXT(&c, &area);\n'
         + steps
@@ -1982,6 +2001,34 @@ def test_the_stub_refuses_what_ibm_leaves_open_on_move_and_browse(tmp_path, step
             "MOVE CONTAINER onto itself",
         ),
         (
+            't.putContainer("CH1", "A", "a".getBytes(), 1, null, false); t.moveContainer("CH1", "DFHX", "B", "CH1");',
+            "CICS-defined (DFH...)",
+        ),
+        (
+            't.putContainer("CH1", "A", "a".getBytes(), 1, null, false); t.moveContainer("CH1", "A", "dfhB", "CH1");',
+            "CICS-defined (DFH...)",
+        ),
+        (
+            't.putContainer("CH1", "A", "a".getBytes(), 1, null, false); t.moveContainer("DFHTRANSACTION", "A", "B", "CH1");',
+            "CICS-defined (DFH...)",
+        ),
+        (
+            't.putContainer("CH1", "A", "a".getBytes(), 1, null, false); t.moveContainer("CH1", "A", "B", "DFHCH");',
+            "CICS-defined (DFH...)",
+        ),
+        (
+            't.putContainer("CH1", "A", "a".getBytes(), 1, null, false); t.deleteChannel("DFHTRANSACTION");',
+            "DELETE CHANNEL naming a CICS-defined",
+        ),
+        (
+            't.putContainer("CH1", "A", "a".getBytes(), 1, null, false); t.deleteContainer("CH1", "dfhreq");',
+            "DELETE CONTAINER naming a CICS-defined",
+        ),
+        (
+            't.putContainer("CH1", "A", "a".getBytes(), 1, null, false); t.deleteContainer("DFHCH", "A");',
+            "DELETE CONTAINER naming a CICS-defined",
+        ),
+        (
             't.putContainer("CH1", "A", "a".getBytes(), 1, "CHAR", false); t.putContainer("CH1", "B", "b".getBytes(), 1, null, false);'
             ' t.moveContainer("CH1", "A", "B", "CH1");',
             "onto a container of the other data type",
@@ -1996,6 +2043,9 @@ def test_the_stub_refuses_what_ibm_leaves_open_on_move_and_browse(tmp_path, step
             ' t.deleteContainer("CH1", "A"); t.getNextContainer(k);',
             "browsed channel changed during the browse",
         ),
+        ('t.putContainer("CH1", "DFHX", "x".getBytes(), 1, null, false);', "PUT CONTAINER naming a CICS-defined"),
+        ('t.putContainer("CH1", " dfhreq", "x".getBytes(), 1, null, false);', "PUT CONTAINER naming a CICS-defined"),
+        ('t.putContainer("DFHCH", "A", "a".getBytes(), 1, null, false);', "PUT CONTAINER naming a CICS-defined"),
         ("t.startBrowseContainer(null);", "STARTBROWSE CONTAINER with no channel"),
         (
             't.putContainer("CH1", " A", "a".getBytes(), 1, null, false);',
@@ -2012,6 +2062,86 @@ def test_cics_task_refuses_what_ibm_leaves_open_on_move_and_browse(tmp_path, ste
         'System.out.println("refused: " + e.getMessage());\n}',
     )
     assert out.startswith("refused: ") and why in out, out
+
+
+@needs_cc
+@pytest.mark.parametrize("chan", ["DFHTRANSACTION", "dfhx", "DFH", " DFHCH"])
+@pytest.mark.parametrize("command", ["RETURN", "XCTL"])
+def test_the_stub_refuses_a_dfh_channel_on_return_and_xctl(tmp_path, command, chan):
+    """#5005 (X42): IBM's LINK / XCTL / RETURN pages make CHANNEL(DFHTRANSACTION) the transaction channel, which stays in
+    scope across link levels; not modelled, so a DFH... channel is refused by name, in either case and after a blank."""
+    call = (
+        'blank(c.name1, 8, "NEXT"); blank(c.chan, 16, "%s"); GGCRETC(&c, NULL, 0);' % chan
+        if command == "RETURN"
+        else 'blank(c.name1, 8, "NEXT"); blank(c.chan, 16, "%s"); blank(c.flags, 40, "CHANNEL"); GGCXCTL(&c, NULL, 0);'
+        % chan
+    )
+    main = (
+        _MOVE_STUB_MAIN.replace(
+            "int GGCSYNC(gg_cics *c);",
+            "int GGCSYNC(gg_cics *c); int GGCRETC(gg_cics *c, char *u, int n); int GGCXCTL(gg_cics *c, char *a, int n);",
+        ).split("int main(void) {")[0]
+        + "int main(void) {\n    char *area = NULL;\n"
+        + '    blank(c.name1, 8, "MAIN"); c.len = 0; GGCTASK(&c); GGCNEXT(&c, &area);\n'
+        + call
+        + "\n    return 0;\n}\n"
+    )
+    exe = _stub(tmp_path, main)
+    (tmp_path / "out").mkdir(exist_ok=True)
+    env = {**_stub_base_env(), "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out")}
+    proc = subprocess.run([str(exe)], env=env, capture_output=True, text=True, check=False)  # noqa: S603
+    assert proc.returncode != 0 and "CHANNEL naming a DFH... channel" in proc.stderr + proc.stdout
+
+
+@needs_javac
+@pytest.mark.parametrize("chan", ["DFHTRANSACTION", "dfhx", "DFH", " DFHCH"])
+@pytest.mark.parametrize(
+    "call", ['t.linkChannel("SUB", "%s")', 't.xctlChannel("SUB", "%s")', 't.returnChannel("NEXT", "%s")']
+)
+def test_cics_task_refuses_a_dfh_channel_on_link_xctl_and_return(tmp_path, call, chan):
+    """#5005 (X42): the same refusal on CicsTask, before the channel is made."""
+    out = _cics_task(
+        tmp_path,
+        'CicsTask t = new CicsTask("CA05", "ENTER", null, null).withProgram("MAIN");\n'
+        "try {\n" + call % chan + ';\nSystem.out.println("no refusal");\n} catch (UnsupportedOperationException e) {\n'
+        'System.out.println("refused: " + e.getMessage());\n}',
+    )
+    assert out.startswith("refused: ") and "CHANNEL naming a DFH... channel" in out, out
+
+
+@needs_javac
+def test_cics_task_still_returns_on_a_channel_whose_name_only_contains_dfh(tmp_path):
+    """#5005 (X42): only a name that BEGINS DFH is refused; XDFH is an ordinary channel."""
+    out = _cics_task(
+        tmp_path,
+        'CicsTask t = new CicsTask("CA05", "ENTER", null, null).withProgram("MAIN");\n'
+        'System.out.println("XDFH " + t.returnChannel("NEXT", "XDFH")[0]);',
+    )
+    assert out.split() == ["XDFH", "0"], out
+
+
+@needs_javac
+def test_cics_task_returns_on_a_dfh_channel_the_harness_handed_it(tmp_path):
+    """#5005 (X42): a DFH channel already in scope (genapp-lgastat1's DFHEP.EVENT) is used as is, not refused."""
+    out = _cics_task(
+        tmp_path,
+        'CicsTask t = new CicsTask("CA05", "ENTER", null, null).withProgram("MAIN")'
+        '.withChannel(new CicsTask.Channel("DFHEP.EVENT"));\n'
+        'System.out.println("DFHEP.EVENT " + t.returnChannel("NEXT", "DFHEP.EVENT")[0]);',
+    )
+    assert out.split() == ["DFHEP.EVENT", "0"], out
+
+
+@needs_javac
+def test_cics_task_still_puts_the_pipeline_containers_a_burned_program_writes_back(tmp_path):
+    """#5005 (X42): DFHREQUEST, DFH-BODY and DFH-DATA (DBB epscsmrd.cbl) run as ordinary containers, in either case."""
+    out = _cics_task(
+        tmp_path,
+        'CicsTask t = new CicsTask("CA05", "ENTER", null, null).withProgram("MAIN");\n'
+        'for (String n : new String[] {"DFHREQUEST", "dfh-body", "DFH-DATA"})\n'
+        '    System.out.println(n + " " + t.putContainer("CH1", n, "a".getBytes(), 1, null, false).resp());',
+    )
+    assert out.split() == ["DFHREQUEST", "NORMAL", "dfh-body", "NORMAL", "DFH-DATA", "NORMAL"], out
 
 
 # ---- #5005: DELETE CHANNEL and QUERY CHANNEL -------------------------------------------------------------
@@ -4199,6 +4329,89 @@ def test_the_stub_web_send(tmp_path):
     env = {**_stub_base_env(), "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out0")}
     unstated = subprocess.run([str(exe), "x 1 - 2 - - - 0"], env=env, capture_output=True, text=True, check=False)  # noqa: S603
     assert unstated.returncode == 98 and "HTTP request is not stated" in unstated.stdout
+
+
+_X37_BLOCK_MAIN = r"""
+#include <stdio.h>
+#include <string.h>
+typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
+                 char qname[16]; int item; int num; int go_to; char chan[16]; int hours, mins, secs;
+                 char rtran[4], rterm[4], rqueue[8]; } gg_cics;
+int GGCGETM(gg_cics *c, void **slot, char *img, int imglen);
+int GGCFREM(gg_cics *c, void **slot);
+int GGCWSND(gg_cics *c, char *from, int fromcap, char *media, int mediacap, char *stext, int stextcap);
+int GGCWCNV(gg_cics *c, char *token, char *path, int pathcap, char *query, int querycap, char *from, int fromcap,
+            char *media, int mediacap, char *into, int intocap, char *stext, int stextcap);
+static gg_cics c;
+static char flat[64000];
+static void put(char *dst, int n, const char *what) { memset(dst, ' ', n); memcpy(dst, what, strlen(what)); }
+/* argv: verb (send | conv) where (block | mid | none | freed) offset fromlength [declared area, default 32000] */
+int main(int argc, char **argv) {
+    void *blk = NULL;
+    char media[56], stext[20], into[40], tok[8], img = ' ';
+    char *from;
+    int off = atoi(argv[3]), fl = atoi(argv[4]), cap = argc > 5 ? atoi(argv[5]) : 32000;
+    c.num = 64000;
+    GGCGETM(&c, &blk, &img, 1);
+    if (strcmp(argv[2], "freed") == 0) GGCFREM(&c, &blk);
+    from = strcmp(argv[2], "none") == 0 ? flat : (char *)blk + off;
+    put(media, 56, "text/plain");
+    memset(stext, ' ', sizeof stext);
+    memset(tok, 'Z', 8);
+    if (strcmp(argv[1], "send") == 0) {
+        c.len = fl; c.hours = -1; c.num = -1; c.item = 0; c.mins = 0; put(c.flags, 40, "MEDIA");
+        GGCWSND(&c, from, cap, media, 56, stext, 20);
+    } else { /* the session is not open: NOTOPEN, once every length is checked against its area */
+        c.num = 636; c.len = 100; c.item = -1; c.hours = 0; c.mins = 0; c.secs = fl;
+        put(c.flags, 40, "FROM MEDIA");
+        GGCWCNV(&c, tok, from, 64, from, 64, from, cap, media, 56, into, 40, stext, 20);
+    }
+    printf("%d/%d\n", c.resp, c.resp2);
+    return 0;
+}
+"""
+# (verb, where, offset, FROMLENGTH, declared area): None = the stub answers, else what it refuses with
+_X37_BLOCK_CASES = [
+    ("send", "block", 0, 32004, 32000, None),  # #6839: the record is SET onto a 64000 block: sent from the block
+    ("send", "block", 0, 64000, 32000, None),  # to the block's end
+    ("send", "block", 0, 64001, 32000, "WEB SEND length beyond its area"),  # not past it
+    ("send", "mid", 60000, 4000, 100, None),  # a pointer into the middle has the rest of the block
+    ("send", "mid", 60000, 4001, 100, "WEB SEND length beyond its area"),
+    ("send", "none", 0, 32004, 32000, "WEB SEND length beyond its area"),  # no block: the declared area
+    ("send", "freed", 0, 32004, 32000, "WEB SEND length beyond its area"),  # a block FREEMAINed is no area
+    ("conv", "block", 0, 32004, 32000, None),
+    ("conv", "block", 0, 64001, 32000, "WEB CONVERSE length beyond its area"),
+    ("conv", "none", 0, 32004, 32000, "WEB CONVERSE length beyond its area"),
+    ("conv", "freed", 0, 32004, 32000, "WEB CONVERSE length beyond its area"),
+]
+
+
+@pytest.mark.parametrize(("verb", "where", "off", "fl", "cap", "why"), _X37_BLOCK_CASES)
+def test_the_stub_web_length_may_reach_the_pointed_block(tmp_path, verb, where, off, fl, cap, why):
+    """#6839 (X37), IBM WEB SEND / WEB CONVERSE: FROM is read from the address for FROMLENGTH bytes, so a record SET onto a larger
+    GETMAIN block may carry a length past its declared area, up to the block's end; with no live block under it the declared
+    area bounds the length, and a length past the block is refused."""
+    exe = _stub(tmp_path, _X37_BLOCK_MAIN)
+    req = tmp_path / "webreq.cfg"
+    req.write_text("R HTTP 7A656373 80 PUT 2F6B -\n", encoding="ascii")
+    http = tmp_path / "http.cfg"
+    http.write_text("", encoding="ascii")
+    out = tmp_path / "out"
+    out.mkdir()
+    env = {
+        **_stub_base_env(),
+        "GGCICS_DIR": str(tmp_path),
+        "GGCICS_OUT": str(out),
+        "GGCICS_WEBREQ": str(req),
+        "GGCICS_HTTP": str(http),
+    }
+    run = subprocess.run(  # noqa: S603
+        [str(exe), verb, where, str(off), str(fl), str(cap)], env=env, capture_output=True, text=True, check=False
+    )
+    if why is None:
+        assert run.returncode == 0 and run.stdout.splitlines() == ["0/0" if verb == "send" else "19/27"], run.stdout
+    else:
+        assert run.returncode == 98 and why in run.stdout, (run.returncode, run.stdout)
 
 
 def _x37_java(steps: list[str]) -> str:
@@ -7265,3 +7478,19 @@ def test_cics_task_sends_a_container_as_the_stub_does(tmp_path):
     assert len(refusals) == len(_X37_CT_REFUSED)
     for got, (_steps, why) in zip(refusals, _X37_CT_REFUSED):
         assert why in got and got.endswith(": not modelled"), (got, why)
+
+
+@needs_javac
+def test_cics_task_still_runs_get_put_and_ordinary_moves_beside_dfh_names(tmp_path):
+    """#5005 (X42): MOVE CONTAINER, DELETE CONTAINER and DELETE CHANNEL refuse a DFH name; PUT / GET of one (the
+    pipeline's DFHREQUEST) and a move or delete of ordinary names are unchanged."""
+    out = _cics_task(
+        tmp_path,
+        'CicsTask t = new CicsTask("CA05", "ENTER", null, null).withProgram("MAIN");\n'
+        't.putContainer("CH1", "DFHREQUEST", "a".getBytes(), 1, null, false);\n'
+        't.putContainer("CH1", "A", "b".getBytes(), 1, null, false);\n'
+        'System.out.println("move=" + t.moveContainer("CH1", "A", "B", "CH1").resp());\n'
+        'System.out.println("get=" + t.getContainer("CH1", "DFHREQUEST", 1).resp());\n'
+        'System.out.println("del=" + t.deleteContainer("CH1", "B").resp());',
+    )
+    assert "move=NORMAL" in out and "del=NORMAL" in out, out

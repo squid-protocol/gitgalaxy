@@ -1,0 +1,1384 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="43 programs descend from the 1997 DOOM source code. Measured by shape alone, without reading the code, they still show who copied whom, and which translations kept the original blueprint. An interactive article by Joe Esquibel, made with the GitGalaxy code-scanning engine.">
+<meta name="author" content="Joe Esquibel">
+<link rel="canonical" href="https://squid-protocol.github.io/gitgalaxy/museum-of-code/doom-dna/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DOOM's DNA: How code keeps its family resemblance">
+<meta property="og:description" content="43 programs descend from the 1997 DOOM source code. Measured by shape alone, without reading the code, they still show who copied whom, and which translations kept the original blueprint. An interactive article by Joe Esquibel, made with the GitGalaxy code-scanning engine.">
+<meta property="og:url" content="https://squid-protocol.github.io/gitgalaxy/museum-of-code/doom-dna/">
+<meta property="og:image" content="https://squid-protocol.github.io/gitgalaxy/museum-of-code/doom-dna/collage.png">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "DOOM's DNA: How code keeps its family resemblance", "description": "43 programs descend from the 1997 DOOM source code. Measured by shape alone, without reading the code, they still show who copied whom, and which translations kept the original blueprint. An interactive article by Joe Esquibel, made with the GitGalaxy code-scanning engine.", "author": {"@type": "Person", "name": "Joe Esquibel"}, "datePublished": "2026-10-31", "url": "https://squid-protocol.github.io/gitgalaxy/museum-of-code/doom-dna/", "image": "https://squid-protocol.github.io/gitgalaxy/museum-of-code/doom-dna/collage.png", "publisher": {"@type": "Organization", "name": "GitGalaxy", "url": "https://github.com/squid-protocol/gitgalaxy"}, "isBasedOn": "https://github.com/squid-protocol/gitgalaxy/blob/main/docs/research/doom-port-study.md"}</script>
+<meta charset="utf-8">
+<title>DOOM's DNA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Metal+Mania&family=Black+Ops+One&family=Press+Start+2P&family=New+Rocker&family=Creepster&family=Russo+One&family=VT323&family=Pirata+One&family=Bungee&family=Silkscreen:wght@700&family=Rubik+Glitch&family=Teko:wght@600&display=swap">
+<style>
+/* Layout: overview ranking + port detail, two columns on desktop (list | detail), one column on phones; maps on linuxdoom's fixed station layout. */
+:root {
+  --paper: #f6f7f8; --panel: #ffffff; --ink: #15202b; --ink-2: #4a5663; --ink-3: #6f7a86; --rule: #d9dee3; --hover: #eef2f6;
+  --measured: #2a78d6; --deep: #0f3f7a; --tint: #e8f1fc; --second: #eb6834; --third: #1baf7a; --fourth: #eda100; --chance: #8b949e; --line: #9aa6b2;
+  --font-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Source Serif 4", Georgia, serif;
+  --font-data: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #14181c; --panel: #1b2026; --ink: #e9edf1; --ink-2: #b4bec8; --ink-3: #8994a0; --rule: #2d343c; --hover: #232a31;
+    --measured: #3987e5; --deep: #9cc3f5; --tint: #1c2a3a; --second: #d95926; --third: #199e70; --fourth: #c98500; --chance: #7d8792; --line: #5d6873; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #14181c; --panel: #1b2026; --ink: #e9edf1; --ink-2: #b4bec8; --ink-3: #8994a0; --rule: #2d343c; --hover: #232a31;
+  --measured: #3987e5; --deep: #9cc3f5; --tint: #1c2a3a; --second: #d95926; --third: #199e70; --fourth: #c98500; --chance: #7d8792; --line: #5d6873; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 1rem; line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 1.6rem 3rem;
+}
+.wrap { max-width: 76rem; margin: 0 auto; display: flex; flex-direction: column; gap: 1.4rem; }
+header { display: flex; flex-direction: column; gap: 0.5rem; max-width: 50rem; }
+.kicker { font-family: var(--font-display); font-weight: 700; font-size: 0.72rem; letter-spacing: 0.07em; text-transform: uppercase; color: var(--ink-3); }
+h1 { font-family: var(--font-display); font-weight: 800; font-size: clamp(1.9rem, 5vw, 2.7rem); line-height: 1.05; letter-spacing: -0.02em; margin: 0; }
+h2 { font-family: var(--font-display); font-weight: 800; font-size: 1.6rem; margin: 0; line-height: 1.1; overflow-wrap: anywhere; }
+h3 { font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; margin: 0; }
+p { margin: 0; }
+.lede { color: var(--ink-2); }
+a { color: var(--measured); text-underline-offset: 2px; }
+:focus-visible { outline: 2px solid var(--measured); outline-offset: 2px; }
+.layout { display: grid; grid-template-columns: minmax(0, 21rem) minmax(0, 1fr); gap: 1.4rem; align-items: start; }
+@media (max-width: 860px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+.card { background: var(--panel); border: 1px solid var(--rule); border-radius: 6px; padding: 1rem; display: flex; flex-direction: column; gap: 0.8rem; min-width: 0; }
+.controls { display: flex; flex-direction: column; gap: 0.6rem; }
+input[type="search"] { width: 100%; font: inherit; font-family: var(--font-data); font-size: 0.85rem; padding: 0.5rem 0.6rem; border: 1px solid var(--rule); border-radius: 4px; background: var(--paper); color: var(--ink); }
+.chips { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.chip { font-family: var(--font-display); font-size: 0.78rem; padding: 0.25rem 0.55rem; border: 1px solid var(--rule); border-radius: 999px; background: transparent; color: var(--ink-2); cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.sortrow { display: flex; gap: 0.5rem; align-items: center; font-family: var(--font-display); font-size: 0.8rem; color: var(--ink-3); flex-wrap: wrap; }
+select { font: inherit; font-family: var(--font-data); font-size: 0.75rem; padding: 0.2rem 0.3rem; background: var(--paper); color: var(--ink); border: 1px solid var(--rule); border-radius: 4px; }
+.list { display: flex; flex-direction: column; max-height: 70vh; overflow-y: auto; margin: 0 -0.4rem; }
+@media (max-width: 860px) { .list { max-height: 22rem; } }
+.row { display: grid; grid-template-columns: minmax(0, 1fr) 4.2rem 3.3rem; gap: 0.5rem; align-items: center; padding: 0.32rem 0.4rem; border-radius: 4px; cursor: pointer; border: 0; background: transparent; color: inherit; text-align: left; font: inherit; }
+.row:hover { background: var(--hover); }
+.row[aria-current="true"] { background: var(--hover); box-shadow: inset 3px 0 0 var(--measured); }
+.row .nm { font-family: var(--font-data); font-size: 0.8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.row .lg { font-family: var(--font-data); font-size: 0.68rem; color: var(--ink-3); }
+.row .bar { position: relative; height: 10px; }
+.row .bar svg { display: block; width: 100%; height: 10px; }
+.row .v { font-family: var(--font-data); font-size: 0.74rem; text-align: right; font-variant-numeric: tabular-nums; }
+.listhead { display: grid; grid-template-columns: minmax(0, 1fr) 4.2rem 3.3rem; gap: 0.5rem; padding: 0 0.4rem; font-family: var(--font-display); font-weight: 700; font-size: 0.66rem; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+.listhead span:last-child { text-align: right; }
+.detail { display: flex; flex-direction: column; gap: 1rem; min-width: 0; }
+.meta { display: flex; flex-wrap: wrap; gap: 0.35rem 0.9rem; font-family: var(--font-data); font-size: 0.74rem; color: var(--ink-2); }
+.meta b { color: var(--ink); font-weight: 600; }
+.lineage { font-size: 0.92rem; color: var(--ink-2); }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr)); gap: 0.8rem; }
+.stat { display: flex; flex-direction: column; gap: 0.15rem; border-top: 3px solid var(--ink); padding-top: 0.5rem; }
+.stat b { font-family: var(--font-display); font-weight: 800; font-size: 1.55rem; line-height: 1.05; font-variant-numeric: tabular-nums; }
+.stat span { font-size: 0.8rem; color: var(--ink-2); line-height: 1.35; }
+.stat.na b { color: var(--ink-3); }
+.maps { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0.8rem; }
+@media (max-width: 620px) { .maps { grid-template-columns: minmax(0, 1fr); } }
+.map { display: flex; flex-direction: column; gap: 0.3rem; min-width: 0; }
+.map svg { width: 100%; height: auto; display: block; background: var(--paper); border-radius: 4px; }
+.cap { font-size: 0.82rem; color: var(--ink-2); line-height: 1.45; }
+.legend { display: flex; flex-wrap: wrap; gap: 0.35rem 1rem; font-family: var(--font-display); font-size: 0.8rem; color: var(--ink-2); align-items: center; }
+.sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 0.35rem; vertical-align: -1px; }
+.ramp { display: inline-block; width: 70px; height: 9px; border-radius: 2px; vertical-align: -1px; margin: 0 0.35rem; background: linear-gradient(90deg, color-mix(in oklab, var(--measured) 12%, var(--panel)), var(--measured)); }
+.stack { display: flex; height: 12px; gap: 2px; border-radius: 3px; overflow: hidden; }
+.stack span { display: block; height: 100%; }
+.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; }
+@media (max-width: 620px) { .two { grid-template-columns: minmax(0, 1fr); } }
+.tablewrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-family: var(--font-data); font-size: 0.74rem; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 0.28rem 0.6rem 0.28rem 0; border-bottom: 1px solid var(--rule); white-space: nowrap; }
+th { color: var(--ink-3); font-weight: 600; }
+td.n, th.n { text-align: right; }
+.tag { font-size: 0.66rem; padding: 0.05rem 0.35rem; border-radius: 3px; border: 1px solid var(--rule); color: var(--ink-2); }
+.empty { color: var(--ink-3); font-size: 0.88rem; }
+.tip { position: fixed; pointer-events: none; background: var(--ink); color: var(--paper); font-family: var(--font-data); font-size: 0.72rem; line-height: 1.4; padding: 0.35rem 0.55rem; border-radius: 4px; max-width: 17rem; z-index: 5; }
+footer { font-size: 0.8rem; color: var(--ink-3); max-width: 60rem; }
+svg text { font-family: var(--font-data); fill: var(--ink-2); }
+.findings { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 1rem 1.6rem; }
+.finding { border-top: 3px solid var(--measured); padding-top: 0.6rem; display: flex; flex-direction: column; gap: 0.3rem; }
+.finding b { font-family: var(--font-display); font-weight: 800; font-size: 1.6rem; line-height: 1.05; }
+.finding h3 { font-size: 1rem; }
+.finding p { font-size: 0.92rem; color: var(--ink-2); line-height: 1.45; }
+.dek { font-size: 1.12rem; color: var(--ink); max-width: 46rem; }
+details.more { padding: 0; }
+details.more > summary { padding: 1rem; list-style: none; display: flex; justify-content: space-between; gap: 1rem; align-items: baseline; }
+details.more > summary::after { content: "show ▾"; font-family: var(--font-display); font-size: 0.8rem; color: var(--measured); }
+details.more[open] > summary::after { content: "hide ▴"; }
+details.more > .inner { padding: 0 1rem 1rem; display: flex; flex-direction: column; gap: 1.2rem; }
+.swipe { display: none; }
+@media (max-width: 700px) { .swipe { display: block; } }
+.showall { align-self: flex-start; }
+.loading { font-family: var(--font-data); font-size: 0.85rem; color: var(--ink-3); }
+.blurb { font-size: 1.02rem; color: var(--ink); border-left: 3px solid var(--rule); padding-left: 0.7rem; }
+.blurb small { display: block; font-family: var(--font-data); font-size: 0.66rem; color: var(--ink-3); margin-top: 0.15rem; }
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr)); gap: 0.6rem 0.9rem; }
+.fact { display: flex; flex-direction: column; gap: 0.05rem; min-width: 0; }
+.fact b { font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; line-height: 1.15; font-variant-numeric: tabular-nums; }
+.fact span { font-family: var(--font-display); font-weight: 700; font-size: 0.68rem; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.05em; }
+.fact em { font-style: normal; font-size: 0.78rem; color: var(--ink-2); }
+.grow { display: grid; grid-template-columns: minmax(5.5rem, auto) minmax(0, 1fr) 3.6rem; gap: 0.25rem 0.6rem; align-items: center; font-family: var(--font-data); font-size: 0.72rem; }
+.grow .gb { position: relative; height: 12px; }
+.grow .gb span { position: absolute; top: 0; height: 12px; border-radius: 2px; }
+.grow .n { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink-2); }
+.famous { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 0.9rem 1.2rem; }
+.fgroup { display: flex; flex-direction: column; gap: 0.3rem; min-width: 0; }
+.fgroup .kicker { margin-bottom: 0.1rem; }
+.fn { display: grid; grid-template-columns: 6.6rem minmax(0, 1fr); gap: 0.5rem; align-items: baseline; }
+.fn code { font-family: var(--font-data); font-size: 0.76rem; overflow-wrap: anywhere; }
+.fn small { display: block; font-size: 0.74rem; color: var(--ink-3); line-height: 1.3; }
+.fate { font-family: var(--font-data); font-size: 0.64rem; text-align: center; padding: 0.12rem 0.2rem; border-radius: 3px; border: 1.5px solid var(--measured); white-space: nowrap; }
+.fate.exact, .fate.original { background: var(--measured); color: var(--paper); }
+.fate.near { background: color-mix(in oklab, var(--measured) 62%, var(--panel)); color: var(--ink); }
+.fate.derived { background: color-mix(in oklab, var(--measured) 28%, var(--panel)); color: var(--ink); }
+.fate.name-only { background: transparent; color: var(--ink); }
+.fate.gone { background: transparent; color: var(--ink-3); border: 1.5px dashed var(--chance); }
+.heroes { display: flex; flex-direction: column; gap: 0.75rem; }
+.hero { display: flex; flex-direction: column; gap: 0.1rem; border-left: 3px solid var(--measured); padding-left: 0.6rem; min-width: 0; }
+.hero code { font-family: var(--font-data); font-size: 0.86rem; font-weight: 600; overflow-wrap: anywhere; }
+.hero span { font-size: 0.8rem; color: var(--ink-2); }
+.records { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: 1rem 1.4rem; }
+.record ol { margin: 0.3rem 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 0.15rem; }
+.record li { display: grid; grid-template-columns: 1.1rem minmax(0, 1fr) auto; gap: 0.4rem; align-items: baseline; font-family: var(--font-data); font-size: 0.76rem; }
+.record li i { font-style: normal; color: var(--ink-3); }
+.record li span { text-align: right; color: var(--ink-2); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.record a, .tree a, .chain a { color: var(--ink); text-decoration: none; border-bottom: 1px dotted var(--ink-3); }
+.record a:hover, .tree a:hover, .chain a:hover { color: var(--measured); }
+details > summary { cursor: pointer; font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; }
+#familybox > summary { font-size: 1.45rem; font-weight: 800; margin-bottom: 0.4rem; }
+#familybox > summary .cap { font-size: 0.95rem; }
+details > summary .cap { font-family: var(--font-body); font-weight: 400; }
+.tree { overflow-x: auto; }
+.tree svg { display: block; width: 100%; min-width: 640px; height: auto; }
+@media (max-width: 700px) { .tree svg { min-width: 900px; } }
+.tree .tnode:hover text { fill: var(--measured) !important; }
+.ext { color: var(--ink-3); font-style: italic; }
+.kind { font-size: 0.62rem; color: var(--ink-3); margin-left: 0.3rem; }
+.here { background: var(--measured); color: var(--paper) !important; padding: 0 0.3rem; border-radius: 3px; border: 0 !important; }
+.chain { display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem 0.4rem; font-family: var(--font-data); font-size: 0.8rem; }
+.chain .arrow { color: var(--ink-3); font-size: 0.7rem; display: inline-flex; flex-direction: column; align-items: center; line-height: 1.1; }
+.chain .arrow small { font-size: 0.58rem; }
+.drift svg { width: 100%; height: auto; display: block; }
+.cmpbar { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; font-family: var(--font-display); font-size: 0.8rem; color: var(--ink-3); }
+.cmp td:first-child { color: var(--ink-3); white-space: normal; min-width: 7rem; }
+.cmp td, .cmp th { padding-right: 0.5rem; }
+.cmp td.win { font-weight: 600; color: var(--ink); }
+
+/* --- article layer: a reading column for the story, full-width bands for the interactives --- */
+.wrap { gap: 2.4rem; }
+.col { width: 100%; max-width: 44rem; margin: 0 auto; }
+.band { width: 100%; }
+.prose { display: flex; flex-direction: column; gap: 1rem; }
+.prose p, .prose li { font-size: 1.0875rem; line-height: 1.65; }
+.kicker.accent { color: var(--measured); }
+h1.mast { font-weight: 900; font-size: clamp(3rem, 11vw, 5.2rem); line-height: 0.95; letter-spacing: -0.03em; }
+h1.mast small { display: block; font-weight: 700; font-size: 0.4em; letter-spacing: -0.01em; line-height: 1.15; margin-top: 0.4rem; color: var(--ink-2); }
+header.col { display: flex; flex-direction: column; gap: 1rem; max-width: 44rem; }
+.dek { font-size: 1.28rem; line-height: 1.45; }
+.byline { font-family: var(--font-display); font-size: 0.82rem; color: var(--ink-3); }
+.lede::first-letter { font-family: var(--font-display); font-weight: 900; float: left; font-size: 3.6em; line-height: 0.82; padding: 0.08em 0.1em 0 0; color: var(--measured); }
+.prose h2, .bandhead h2 { font-weight: 800; font-size: clamp(1.5rem, 4.4vw, 1.95rem); line-height: 1.12; letter-spacing: -0.01em; text-wrap: balance; }
+.bigfacts { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: 1.2rem; }
+.bigfact { display: flex; flex-direction: column; gap: 0.35rem; padding-top: 0.75rem; border-top: 4px solid var(--measured); }
+.bigfact b { font-family: var(--font-display); font-weight: 900; font-size: 2.2rem; line-height: 1; letter-spacing: -0.02em; }
+.bigfact span { font-size: 0.95rem; color: var(--ink-2); line-height: 1.4; }
+.pull { font-family: var(--font-display); font-weight: 800 !important; font-size: clamp(1.35rem, 4vw, 1.75rem) !important; line-height: 1.2 !important;
+  color: var(--deep); border-left: 5px solid var(--measured); padding: 0.2rem 0 0.2rem 1.1rem; letter-spacing: -0.01em; }
+figure { margin: 0; background: var(--panel); border: 1px solid var(--rule); border-radius: 8px; padding: 1.2rem 1.2rem 1rem; display: flex; flex-direction: column; gap: 0.65rem; min-width: 0; }
+figure .over, .side .over { font-family: var(--font-display); font-weight: 700; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
+figure h3 { font-weight: 800; font-size: 1.12rem; line-height: 1.25; text-wrap: balance; }
+figcaption { font-size: 0.92rem; color: var(--ink-2); line-height: 1.5; }
+figure details { font-size: 0.9rem; color: var(--ink-2); }
+figure summary { font-size: 0.82rem; color: var(--measured); }
+.chart { overflow-x: auto; }
+.chart svg { display: block; width: 100%; height: auto; min-width: 30rem; }
+.chart svg text { font-family: var(--font-display); fill: var(--ink-2); font-size: 12px; }
+.chart svg .lab { fill: var(--ink); font-size: 12.5px; font-family: var(--font-data); }
+.chart svg .grp { fill: var(--ink-3); font-size: 10.5px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; }
+.chart svg .grid { stroke: var(--rule); stroke-width: 1; }
+.chart svg .hit { fill: transparent; cursor: default; }
+.legend i { display: inline-block; width: 11px; height: 11px; border-radius: 50%; margin-right: 0.4rem; vertical-align: -1px; }
+.side { background: var(--tint); border-radius: 8px; padding: 1.2rem 1.3rem; display: flex; flex-direction: column; gap: 0.6rem; }
+.side .over { color: var(--measured); }
+.side p, .side li { font-size: 0.98rem !important; }
+ul.plain { margin: 0; padding-left: 1.1rem; display: flex; flex-direction: column; gap: 0.5rem; }
+.bandhead { display: flex; flex-direction: column; gap: 0.35rem; max-width: 46rem; }
+.band.card { padding: 1.3rem; gap: 1rem; }
+#familybox > summary { font-size: 1.6rem; font-weight: 800; margin-bottom: 0.4rem; }
+footer.col { font-size: 0.84rem; color: var(--ink-3); border-top: 1px solid var(--rule); padding-top: 1rem; }
+/* Follow a function */
+.fnpick { display: flex; flex-direction: column; gap: 0.6rem; }
+.fnpick input { max-width: 26rem; }
+.fnhead { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.3rem 1rem; }
+.fnhead code { font-family: var(--font-data); font-size: 1.5rem; font-weight: 600; }
+.fnhead span { font-family: var(--font-display); font-size: 0.85rem; color: var(--ink-3); }
+.fnsum { font-size: 1.02rem; }
+.fatebar { display: flex; height: 16px; border-radius: 4px; overflow: hidden; gap: 2px; }
+.fatebar span { display: block; height: 100%; }
+.fatebar .exact { background: var(--measured); } .fatebar .near { background: color-mix(in oklab, var(--measured) 62%, var(--panel)); }
+.fatebar .derived { background: color-mix(in oklab, var(--measured) 28%, var(--panel)); } .fatebar .name-only { background: var(--panel); box-shadow: inset 0 0 0 1.5px var(--measured); }
+.fatebar .gone { background: var(--rule); }
+.tilegroups { display: flex; flex-direction: column; gap: 0.9rem; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(8.6rem, 1fr)); gap: 0.4rem; }
+.tile { font: inherit; text-align: left; cursor: pointer; padding: 0.45rem 0.55rem; border-radius: 5px; display: flex; flex-direction: column; gap: 0.05rem; min-width: 0; }
+.tile b { font-family: var(--font-data); font-size: 0.76rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tile small { font-family: var(--font-display); font-size: 0.68rem; opacity: 0.85; }
+.tile.fate { white-space: normal; text-align: left; }
+.tile:hover { outline: 2px solid var(--ink); outline-offset: 1px; }
+.rank button { font: inherit; background: none; border: 0; padding: 0; color: var(--ink); cursor: pointer; font-family: var(--font-data); font-size: 0.8rem; border-bottom: 1px dotted var(--ink-3); }
+.rank button:hover { color: var(--measured); }
+.rank ol { margin: 0.4rem 0 0; padding-left: 1.3rem; display: flex; flex-direction: column; gap: 0.2rem; font-size: 0.9rem; }
+.rank li span { color: var(--ink-3); font-size: 0.82rem; }
+#wiremaps { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; }
+@media (max-width: 620px) { #wiremaps { grid-template-columns: minmax(0, 1fr); } }
+.wirestat { font-family: var(--font-display); font-weight: 800; font-size: 1.15rem; }
+.credits { border-top: 4px solid var(--ink); padding-top: 1.6rem; }
+.sig { display: flex; flex-direction: column; gap: 0.3rem; }
+.sigline { font-family: var(--font-display); font-size: 1.35rem !important; line-height: 1.3 !important; font-weight: 500; }
+.sigline b { font-weight: 800; }
+.biglink { font-family: var(--font-data); font-size: 1rem; font-weight: 600; }
+ul.sources { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.75rem; }
+ul.sources li { display: flex; flex-direction: column; gap: 0.1rem; padding-left: 0.9rem; border-left: 3px solid var(--rule); }
+ul.sources li span { font-size: 0.95rem; color: var(--ink-2); line-height: 1.45; }
+ul.sources li a b { font-family: var(--font-display); font-weight: 800; }
+.hero { padding: 0; gap: 0; background: #120807; border: 0; border-radius: 10px; overflow: hidden; }
+.hero svg { display: block; width: 100%; height: auto; background: radial-gradient(ellipse at 50% 55%, #3a1208 0%, #1c0a06 45%, #0d0605 100%); }
+.hero svg text { cursor: pointer; }
+.hero svg text:hover { filter: brightness(1.35); }
+.hero figcaption { color: #c9b9a8; padding: 0.7rem 1.1rem 0.9rem; font-size: 0.9rem; }
+.jump { display: flex; flex-wrap: wrap; gap: 0.4rem 0.6rem; align-items: center; font-family: var(--font-display); font-size: 0.9rem; }
+.jump span { color: var(--ink-3); font-weight: 700; }
+.jump a { text-decoration: none; padding: 0.3rem 0.75rem; border-radius: 999px; background: var(--tint); color: var(--deep); font-weight: 700; }
+.jump a:hover { background: var(--measured); color: var(--paper); }
+.srchead { font-family: var(--font-display); font-weight: 800; color: var(--measured); }
+.dlbtn { margin-top: 0.3rem; align-self: flex-start; }
+#dlnote { font-style: normal; }
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header class="col">
+    <div class="kicker accent">Software archaeology · The DOOM study</div>
+    <h1 class="mast">DOOM's DNA<small>How code keeps its family resemblance</small></h1>
+    <p class="dek">Forty-three programs are descended from the 1997 release of DOOM's source code. Measure only their
+      shape and you can still tell who copied whom, and which translations kept the original blueprint.</p>
+    <p class="byline">By <b>Joe Esquibel</b> · 31 October 2026 · Everything on this page is interactive: tap, hover, pick.</p>
+  </header>
+
+  <figure class="hero band" id="hero">
+    <svg id="collage" viewBox="0 0 1200 600" role="img" aria-label="The names of the 43 DOOM descendants in the study, with the original, linuxdoom, at the centre; each name is sized by how many functions the program has"></svg>
+    <figcaption>The 43 descendants we scanned, around the original. Each name is sized by how many functions the program has, from
+      the Claude-written COBOL raycaster's 45 to Doomsday's 25,482. Tap one to open it.</figcaption>
+  </figure>
+
+  <section class="col prose">
+    <p class="lede">Strip a program of every name, every comment, every line of readable text. What's left is its
+      shape: how long each function is, how often it branches, which parts of the program call which. That shape, it
+      turns out, works like a fingerprint.</p>
+    <p>DOOM is the perfect place to test it. When id Software released the game's source code in 1997 (the version known
+      as <b>linuxdoom</b>), programmers started copying it, porting it and rebuilding it, and they have not stopped. We
+      gathered 43 of those descendants: faithful copies, souped-up source ports, and translations into about twenty
+      languages, from Go and Scheme to Fortran, COBOL and even SQL. Then we fed them to a code-measuring engine that
+      never reads the code, and asked it where each one came from.</p>
+  </section>
+
+  <div class="bigfacts col" aria-label="The three headline facts">
+    <div class="bigfact"><b>87% / 35%</b><span>Chocolate Doom keeps 87% of the original's function names, but only 35% of the code inside them is unchanged</span></div>
+    <div class="bigfact"><b>0 to 0.6%</b><span>of DOOM's shape shows up in Quake, Quake II and Lua. A faithful DOOM copy: 31%</span></div>
+    <div class="bigfact"><b>60% vs 20%</b><span>with every name hidden, a Go translation's functions still land in the right part of the game; guessing manages 20%</span></div>
+  </div>
+
+  <nav class="jump col" aria-label="Jump to an interactive">
+    <span>Jump to the toys:</span>
+    <a href="#follow">Follow a function</a><a href="#tree-band">The family tree</a><a href="#wiring-band">Compare the wiring</a><a href="#explore">Explore all 43</a>
+  </nav>
+
+  <section class="col prose">
+    <h2>Names lie</h2>
+    <p><b>First, the old-fashioned way.</b> Before trusting a machine that never reads code, we read it: we compared every
+      descendant's source text with the original's, function by function. That gives the ground truth for everything that
+      follows. Then, in the next part, we throw the text away.</p>
+    <p>Start with the obvious way to trace a program's ancestry: look at what its functions are called. It does not work
+      as well as you'd think. Chocolate Doom, whose whole mission is an accurate reproduction of the original "including
+      bugs", keeps 87% of the original's function names, but only 35% of those functions still contain the same code.
+      Doom Retro keeps 69% of the names and just 0.2% of the code. GZDoom, a heavily modernised engine, keeps 32% of the
+      names and 0.2% of the code.</p>
+    <figure>
+      <div class="over">Copies keep the labels, rewrite the contents</div>
+      <h3>Forks keep the original's function names long after the code inside has been rewritten</h3>
+      <div class="legend" aria-hidden="true"><span><i style="background:var(--measured)"></i>same function name</span><span><i style="background:var(--deep)"></i>same code, unchanged</span></div>
+      <div class="chart" id="chart-survival"></div>
+      <figcaption>Share of the original's functions (at least 20 words of code) present in each C descendant, by name and by
+        unchanged code. Measured by comparing the source text directly.</figcaption>
+      <details><summary>Show as a table</summary><div class="tablewrap" id="table-survival"></div></details>
+    </figure>
+    <p class="pull">Chocolate Doom keeps 87% of DOOM's function names, and 35% of the code inside them.</p>
+    <p>Averages hide the fun part, which is following one function through the whole family. The original has 662
+      functions big enough to score. Pick one below and see what became of it in every descendant.</p>
+  </section>
+
+  <section class="band card" id="follow" aria-label="Follow a function">
+    <div class="bandhead"><div class="kicker accent">Play with it</div><h2>Follow a function</h2>
+      <p class="cap">Pick a famous one, or type any of the original's 662 functions. Each tile is one descendant; its colour is
+        what became of that function there. Tap a tile to open that descendant at the bottom of the page.</p></div>
+    <div class="fnpick">
+      <input type="search" id="fnq" list="fnlist" placeholder="type a function, e.g. P_Random... R_DrawSpan" autocomplete="off" aria-label="Function name">
+      <datalist id="fnlist"></datalist>
+      <div class="chips" id="fnchips" role="group" aria-label="Famous functions"></div>
+    </div>
+    <div id="fnview"></div>
+    <div class="legend fatekey"><span><span class="fate exact">identical</span> same code</span><span><span class="fate near">near-identical</span> 90%+ the same</span><span><span class="fate derived">derived</span> 60%+</span><span><span class="fate name-only">name only</span> name kept, code rewritten</span><span><span class="fate gone">gone</span> no trace</span></div>
+    <div class="two" id="fnranks"></div>
+  </section>
+
+  <section class="col prose">
+    <h2>A fingerprint you can't read</h2>
+    <p>So skip the names. The engine we used records, for every function, dozens of measurements: its length, its
+      branches, its inputs, what it touches, and which other functions it calls. A companion tool then hunts for
+      "look-alikes": functions in a descendant whose measurements match one of the original's too closely to be a
+      coincidence. It never sees the code or the names.</p>
+    <p>Then we checked its work against the actual source text. <strong>93% of the look-alikes it found really are
+      copies</strong>, and it caught about two-thirds of all the copies the text comparison found.</p>
+    <p>The real test is what happens with programs that have nothing to do with DOOM. Quake and Quake II, id Software's own
+      later games, and the Lua programming language are all written in C, like DOOM. They share between 0 and 0.6% of DOOM's
+      shape. Chocolate Doom shares 31%. And the fingerprint is not tuned to DOOM: Quake and Quake II, which really are
+      related, share 12.7% with each other.</p>
+    <aside class="side">
+      <div class="over">Borrowed sideways</div>
+      <p>Family trees assume code flows from parent to child. Biology knows better: bacteria swap genes with neighbours.
+        Code does too. The engine's closest match for Eternity, a long-lived DOOM engine, isn't the original at all but
+        a Chocolate Doom relative, through 200 look-alike functions. Only afterwards did the names explain it: Eternity
+        carries 216 functions of Chocolate Doom's on-screen text library, and so does Odamex. The original has none.</p>
+    </aside>
+    <p>Put those fingerprints together with each project's own account of where it came from and you can draw the whole
+      family, the way biologists draw an evolutionary tree. One honest difference: a biologist infers who descends from
+      whom. Here the family links are what each project says about itself; only the branch lengths are measured.</p>
+  </section>
+
+  <section class="band card" id="tree-band">
+    <details id="familybox" open>
+      <summary>The family tree <span class="cap">· who copied or translated whom, and how much code each one still shares with its parent</span></summary>
+      <div class="legend"><span><span class="sw" style="background:var(--measured)"></span>fork</span><span><span class="sw" style="background:var(--second)"></span>translation into another language</span><span><span class="sw" style="background:var(--third)"></span>rewrite</span><span>- - - an ancestor the study did not scan (distance unknown)</span><span>dot size: number of functions</span></div>
+      <p class="cap">Drawn like an evolutionary tree: <b>short branch = close copy, long branch = little code in common.</b>
+        Branch length is one minus the code shape a descendant shares with its parent. <b>Who descends from whom is as each project states it, not inferred</b>; the lengths are measured. Translations rewrite every line, so they all reach the far edge, even the ones that
+        kept DOOM's design; that is the next part of the story. Hover a name for its numbers; click to open it below.</p>
+      <p class="cap swipe">Swipe sideways to see the whole tree.</p>
+      <div class="tree" id="tree"></div>
+    </details>
+  </section>
+
+  <section class="col prose">
+    <h2>The blind test</h2>
+    <p>Translations are the hard case. Rewrite DOOM in Go and every line changes, every function gets a new name, and
+      the look-alike hunt finds nothing. So what, if anything, survives?</p>
+    <p>We tried a blind test. DOOM's code is organised into 16 parts: the renderer, the monsters and physics, the
+      sound, the status bar and so on. We hid every name and file path in a translation and asked the engine to sort each
+      function into one of those parts using only its shape and who it calls. Then we checked where the names say it
+      belongs.</p>
+    <figure>
+      <div class="over">Sorting functions with every name hidden</div>
+      <h3>Some translations still sort themselves into DOOM's parts far better than guessing</h3>
+      <div class="legend" aria-hidden="true"><span><i style="background:var(--measured)"></i>sorted correctly, names hidden</span><span><i style="background:var(--chance)"></i>guessing (labels shuffled)</span></div>
+      <div class="chart" id="chart-blind"></div>
+      <figcaption>Share of each descendant's functions the engine put in the same part of the game as their names do. The
+        number on the right is how many points it beats guessing by. Chocolate Doom, a straight C copy, is the sanity check.</figcaption>
+      <details><summary>Show as a table</summary><div class="tablewrap" id="table-blind"></div></details>
+    </figure>
+    <p>For the Go translation, the engine sorts 60% of the functions correctly; shuffled labels manage 20%. Among the
+      quarter of functions it was most sure about, it was right 99% of the time. Scramble the Go program's wiring, keeping
+      how many calls each function makes, and it drops to 39%: the wiring itself carries much of the signal.</p>
+    <p class="pull">Hide every name, and a Go port's functions still land in the right part of DOOM 60% of the time.
+      Guessing manages 20%.</p>
+  </section>
+
+  <section class="col prose">
+    <h2>Translations that kept the blueprint</h2>
+    <p>If the wiring carries the signal, look at the wiring directly. For every descendant we drew a map of which parts of
+      the game call which, and compared it with the original's map. To know how much of the match is real, we also
+      scored each program against itself with its functions shuffled at random between the parts. The gap between the two
+      is the design that survived.</p>
+    <figure>
+      <div class="over">The wiring diagram, against chance</div>
+      <h3>The Scheme and Go translations kept DOOM's wiring as well as a straight C copy; Java, Kotlin and C# kept none</h3>
+      <div class="legend" aria-hidden="true"><span><i style="background:var(--measured)"></i>match with the original's wiring</span><span><i style="background:var(--chance)"></i>same program, functions shuffled</span></div>
+      <div class="chart" id="chart-wiring"></div>
+      <figcaption>Wiring match, from 0 (nothing in common) to 1 (identical). The number on the right is the gap from grey to
+        blue: how much of the match comes from the program's design rather than chance.</figcaption>
+      <details><summary>Show as a table</summary><div class="tablewrap" id="table-wiring"></div></details>
+    </figure>
+    <p>The Scheme and Go translations keep the original's wiring as far above chance as Chocolate Doom does. The Dart
+      translation keeps some. The Fortran, Java, Kotlin and C# translations keep none, and programs written from scratch,
+      or not related to DOOM at all, sit at chance, as they should. Don't take our word for it: draw the maps yourself.</p>
+  </section>
+
+  <section class="band card" id="wiring-band" aria-label="Compare wiring maps">
+    <div class="bandhead"><div class="kicker accent">Play with it</div><h2>Compare the wiring</h2>
+      <p class="cap">Each circle is a part of the game, placed where the original's wiring puts it; each line is calls between
+        two parts, thicker for more. A descendant wired like the original draws the same lines. Pick one.</p></div>
+    <div class="chips" id="wirechips" role="group" aria-label="Descendant to compare"></div>
+    <div class="maps" id="wiremaps"></div>
+    <p class="cap" id="wirenote"></p>
+  </section>
+
+  <section class="col prose">
+    <h2>Explore all 43</h2>
+    <p>Every descendant has its own story: when it started, how big it grew, which famous functions it kept, how far it
+      drifted year by year. Pick one from the list, or compare any two.</p>
+  </section>
+
+  <div class="layout band" id="explore">
+    <aside class="card" aria-label="Descendants">
+      <div class="controls">
+        <label class="kicker" for="q">Find a descendant</label>
+        <input type="search" id="q" placeholder="name or language, e.g. scheme" autocomplete="off">
+        <div class="chips" role="group" aria-label="Filter by kind" id="chips"></div>
+        <div class="sortrow"><label for="sort">Sort by</label>
+          <select id="sort">
+            <option value="gap">DOOM wiring kept</option>
+            <option value="shared">code shape shared</option>
+            <option value="names">names kept</option>
+            <option value="functions">functions</option>
+            <option value="stars">GitHub stars</option>
+            <option value="famous">famous functions kept</option>
+            <option value="started">oldest first</option>
+            <option value="name">name</option>
+          </select>
+        </div>
+      </div>
+      <div class="listhead"><span>descendant</span><span>DOOM wiring</span><span>vs chance</span></div>
+      <div class="list" id="list"><p class="loading">Loading the 43 descendants...</p></div>
+      <div class="legend"><span><span class="sw" style="background:var(--chance);border-radius:50%"></span>chance</span><span><span class="sw" style="background:var(--measured);border-radius:50%"></span>measured</span></div>
+    </aside>
+    <main class="detail" id="detail" aria-live="polite"><p class="loading">Loading...</p></main>
+  </div>
+
+  <details class="card more band" aria-label="Records">
+    <summary><h3>Records <span class="cap">· biggest, smallest, most faithful, most starred, oldest history, languages</span></h3></summary>
+    <div class="inner"><div class="records" id="records"><p class="loading">Loading...</p></div></div>
+  </details>
+
+  <section class="col prose">
+    <h2>What it can't tell you</h2>
+    <ul class="plain">
+      <li><strong>Family across languages from look-alikes.</strong> Look-alike functions only work within one language.
+        Across languages only the wiring carries a signal, and only for the closer translations.</li>
+      <li><strong>Why Java, Kotlin and C# show nothing.</strong> Those translations reorganised the most and chopped the code
+        into tiny pieces: 34% of the Java port's functions and 43% of the Kotlin port's are three lines or shorter, against
+        under 2% in the C copies. A lost design and a test that can't see it look the same here.</li>
+      <li><strong>Whether two programs play the same.</strong> This measures the shape of code, not what it does.</li>
+    </ul>
+    <aside class="side" aria-label="How we know it's not luck">
+      <div class="over">How we know it's not luck</div>
+      <ul class="plain">
+        <li><strong>Against the text.</strong> Every claim about copying is scored against a direct comparison of the source
+          code (27,778 function-and-descendant pairs). Ranked by how much of the original each descendant kept, the
+          two methods agree closely (rank correlation 0.83 across 43 descendants).</li>
+        <li><strong>Against chance.</strong> Every similarity is shown next to the same program with the thing being measured
+          shuffled. That matters: the raw wiring score made every translation look faithful (0.72 to 0.95), because most
+          calls stay inside their own part of the program. The Fortran translation scored 0.91; shuffled at random, it still
+          scored 0.80.</li>
+        <li><strong>Against outsiders.</strong> Three unrelated C programs (Quake, Quake II, Lua) set the baseline.</li>
+        <li><strong>Against other tools.</strong> On 42 of the 44 programs the engine's reading passes all seven checks against
+          independent code tools (Universal Ctags, tree-sitter, libclang); the other two count functions differently.</li>
+        <li><strong>One engine, one scan.</strong> Every number comes from the same scans at one engine version (6c7c6c1bc) and
+          regenerates from a command. Descriptions, stars and commit dates come from GitHub, read 31 October 2026.</li>
+      </ul>
+    </aside>
+  </section>
+
+  <section class="col prose credits" aria-label="About this article">
+    <div class="sig">
+      <p class="sigline">Written by <b>Joe Esquibel</b>, using the <a href="https://github.com/squid-protocol/gitgalaxy">GitGalaxy</a> code-scanning engine.</p>
+      <p><a class="biglink" href="https://github.com/squid-protocol/gitgalaxy">github.com/squid-protocol/gitgalaxy</a></p>
+    </div>
+    <h2>Check my work</h2>
+    <p>Every number on this page comes from public code and can be rebuilt from it. Here is everything you need to examine
+      the data and the methods, or to run them yourself.</p>
+    <ul class="sources">
+      <li><a href="https://github.com/squid-protocol/gitgalaxy/blob/main/docs/research/doom-port-study.md"><b>The full study</b></a>
+        <span>Every table behind this article, the checks, and the commands that regenerate them.</span></li>
+      <li><a href="https://github.com/squid-protocol/gitgalaxy/blob/main/tests/doom_rosetta/manifest.csv"><b>The 44 programs</b></a> <span class="cap">(the original and its 43 descendants)</span>
+        <span>Each descendant's source repository, the exact commit measured, its language, licence and stated lineage.</span></li>
+      <li><a href="https://github.com/squid-protocol/gitgalaxy/tree/6c7c6c1bca80dbaf4c3ac31410dc6cc960a65198"><b>The engine, as measured</b></a>
+        <span>GitGalaxy at commit 6c7c6c1bc, the one version every number here comes from.</span></li>
+      <li><a href="https://github.com/squid-protocol/gitgalaxy-population-analyses/tree/main/structural-fingerprint-scanner"><b>The fingerprint scanner</b></a>
+        <span>The tool that compares programs by shape alone: look-alike functions, wiring maps, the blind test and the drift timelines.</span></li>
+      <li><a href="https://github.com/squid-protocol/gitgalaxy-population-analyses/tree/main/structural-fingerprint-scanner/examples/doom"><b>The DOOM runs</b></a>
+        <span>The scanner's DOOM inputs and results, including the subsystem map, the declared lineage and the blind-test output.</span></li>
+      <li><a href="https://github.com/squid-protocol/gitgalaxy-population-analyses/blob/main/structural-fingerprint-scanner/docs/wiring-against-chance.md"><b>Method: reading a score against chance</b></a>
+        <span>Why every similarity here sits next to a shuffled version of the same program.</span></li>
+      <li><a href="https://github.com/squid-protocol/gitgalaxy-population-analyses/blob/main/structural-fingerprint-scanner/examples/doom/blind_placement.md"><b>Method: the blind test</b></a>
+        <span>How functions were sorted with every name hidden, and the checks against chance and a scrambled call graph.</span></li>
+      <li><b class="srchead">The data on this page</b>
+        <span>One JSON file with every measurement the charts and tools above draw from (no source code).</span>
+        <span><a class="chip dlbtn" href="data.json" download="doom-dna-data.json">Download the data (doom-dna-data.json)</a></span></li>
+    </ul>
+    <p class="cap">Found something that doesn't add up? Open an issue on the GitGalaxy repository.</p>
+  </section>
+
+  <footer class="col">Measurements only: no program's source code is reproduced, and only programs with a
+    clear licence are included. Function names and file paths appear where they help read a result. "DOOM" is used
+    descriptively; this project is not affiliated with or endorsed by id Software, ZeniMax Media or Microsoft. Quake and
+    Quake II (GPL-2.0) and Lua (MIT) were scanned as unrelated controls.</footer>
+</div>
+
+<div class="tip" id="tip" hidden></div>
+
+<script>
+const KINDS = [
+  ["all", "all"], ["fork", "C/C++ forks"], ["translation", "translations"], ["reimplementation", "reimplementations"], ["other", "other"],
+];
+const C_FAMILY = new Set(["c", "cpp", "objective-c"]);
+function kind(p) {
+  if (p.name === "linuxdoom") return "original";
+  if (p.class === "reimplementation") return "reimplementation";
+  if (p.class === "engine-port" || p.class === "separate-engine") return C_FAMILY.has(p.language) ? "fork" : "translation";
+  return "other";
+}
+const LANG = { c: "C", cpp: "C++", "objective-c": "Obj-C", go: "Go", scheme: "Scheme", dart: "Dart", java: "Java", kotlin: "Kotlin",
+  csharp: "C#", fortran: "Fortran", rust: "Rust", javascript: "JS", python: "Python", crystal: "Crystal", fsharp: "F#", cobol: "COBOL", assembly: "asm" };
+const lang = (p) => LANG[p.language] || p.language || "?";
+const pct = (v, d = 0) => (v == null ? "n/a" : (v * 100).toFixed(d) + "%");
+const f2 = (v) => (v == null ? "n/a" : v.toFixed(2));
+const sgn = (v) => (v == null ? "n/a" : Math.abs(v) < 0.005 ? "0.00" : (v >= 0 ? "+" : "−") + Math.abs(v).toFixed(2));
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const NS = "http://www.w3.org/2000/svg";
+function el(name, attrs, parent, text) {
+  const e = document.createElementNS(NS, name);
+  for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+  if (text !== undefined) e.textContent = text;
+  if (parent) parent.appendChild(e);
+  return e;
+}
+const tip = document.getElementById("tip");
+function showTip(evt, html) {
+  tip.innerHTML = html; tip.hidden = false;
+  const w = tip.offsetWidth, h = tip.offsetHeight;
+  let x = evt.clientX + 12, y = evt.clientY + 12;
+  if (x + w > innerWidth - 8) x = evt.clientX - w - 12;
+  if (y + h > innerHeight - 8) y = evt.clientY - h - 12;
+  tip.style.left = x + "px"; tip.style.top = y + "px";
+}
+const hideTip = () => { tip.hidden = true; };
+
+let DATA, BY, REF, state = { q: "", kind: "all", sort: "gap", port: null };
+try { const s = localStorage.getItem("doom-explorer-sort"); if (s) state.sort = s; } catch (e) {}
+
+function filtered() {
+  const q = state.q.trim().toLowerCase();
+  let ps = DATA.ports.filter((p) => p.name !== "linuxdoom");
+  if (state.kind !== "all") ps = ps.filter((p) => kind(p) === state.kind);
+  if (q) ps = ps.filter((p) => p.name.includes(q) || lang(p).toLowerCase().includes(q) || (p.language || "").includes(q));
+  const key = {
+    gap: (p) => p.gap ?? -9, shared: (p) => p.shared_with_linuxdoom ?? -1, names: (p) => p.survival?.name ?? -1,
+    functions: (p) => p.functions, name: null, stars: (p) => p.facts?.github?.stars ?? -1,
+    famous: (p) => Object.values(p.facts?.famous || {}).filter((v) => ["exact", "near"].includes(v.cls)).length,
+    started: (p) => -Number((p.facts?.github?.first_commit || "9999").slice(0, 4)),
+  }[state.sort];
+  ps.sort(key ? (a, b) => key(b) - key(a) || a.name.localeCompare(b.name) : (a, b) => a.name.localeCompare(b.name));
+  return ps;
+}
+
+function miniBar(p) {
+  const svg = el("svg", { viewBox: "0 0 100 10", preserveAspectRatio: "none", "aria-hidden": "true" });
+  el("line", { x1: 0, x2: 100, y1: 5, y2: 5, stroke: "var(--rule)", "stroke-width": 1 }, svg);
+  if (p.cross_wiring == null) return svg;
+  const a = p.cross_null * 100, b = p.cross_wiring * 100;
+  el("line", { x1: Math.min(a, b), x2: Math.max(a, b), y1: 5, y2: 5, stroke: "var(--chance)", "stroke-width": 2 }, svg);
+  el("circle", { cx: a, cy: 5, r: 3, fill: "var(--chance)" }, svg);
+  el("circle", { cx: b, cy: 5, r: 3.4, fill: "var(--measured)" }, svg);
+  return svg;
+}
+
+function renderList() {
+  const list = document.getElementById("list");
+  list.innerHTML = "";
+  const ps = filtered();
+  if (!ps.length) { list.innerHTML = '<p class="empty">No port matches. Clear the search or pick "all".</p>'; return; }
+  for (const p of ps) {
+    const b = document.createElement("button");
+    b.className = "row"; b.type = "button";
+    if (p.name === state.port) b.setAttribute("aria-current", "true");
+    b.innerHTML = `<span><span class="nm">${esc(p.name)}</span> <span class="lg">${esc(lang(p))}</span></span><span class="bar"></span><span class="v">${sgn(p.gap)}</span>`;
+    b.querySelector(".bar").appendChild(miniBar(p));
+    b.addEventListener("click", () => select(p.name));
+    list.appendChild(b);
+  }
+}
+
+function renderChips() {
+  const box = document.getElementById("chips");
+  box.innerHTML = "";
+  for (const [k, label] of KINDS) {
+    const c = document.createElement("button");
+    c.type = "button"; c.className = "chip"; c.textContent = label;
+    c.setAttribute("aria-pressed", String(state.kind === k));
+    c.addEventListener("click", () => { state.kind = k; renderChips(); renderList(); });
+    box.appendChild(c);
+  }
+}
+
+// Subway map on linuxdoom's layout: station area = functions, fill = share of linuxdoom's functions with a twin here,
+// line width = share of the repository's cross-subsystem calls.
+function subwayMap(p, opts) {
+  const W = 420, H = 340, pad = 40;
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": `${p.name} call graph on linuxdoom's subsystems` });
+  const pos = {};
+  for (const s of DATA.subsystems) pos[s.name] = [pad + s.x * (W - 2 * pad), pad + s.y * (H - 2 * pad)];
+  const und = {};
+  let tot = 0;
+  for (const ln of p.lines) {
+    if (ln.from === ln.to) continue;
+    const k = [ln.from, ln.to].sort().join("|");
+    und[k] = (und[k] || 0) + ln.calls; tot += ln.calls;
+  }
+  for (const [k, c] of Object.entries(und)) {
+    const [a, b] = k.split("|");
+    const share = c / (tot || 1);
+    const line = el("line", { x1: pos[a][0], y1: pos[a][1], x2: pos[b][0], y2: pos[b][1], stroke: "var(--line)", "stroke-width": Math.max(0.6, Math.sqrt(share) * 16), "stroke-linecap": "round", opacity: 0.8 }, svg);
+    line.addEventListener("mousemove", (e) => showTip(e, `${esc(a)} ↔ ${esc(b)}<br>${c} calls · ${(share * 100).toFixed(1)}% of cross-subsystem calls`));
+    line.addEventListener("mouseleave", hideTip);
+  }
+  const maxF = Math.max(...Object.values(p.stations).map((s) => s.functions), 1);
+  for (const s of DATA.subsystems) {
+    const st = p.stations[s.name] || { functions: 0, survival: null };
+    const [x, y] = pos[s.name];
+    const r = st.functions ? 4 + Math.sqrt(st.functions / maxF) * 18 : 3;
+    const sv = st.survival;
+    const fill = st.functions === 0 ? "var(--panel)" : sv == null ? "var(--chance)" : `color-mix(in oklab, var(--measured) ${Math.round(12 + 88 * Math.min(sv, 1))}%, var(--panel))`;
+    const c = el("circle", { cx: x, cy: y, r, fill, stroke: "var(--ink-2)", "stroke-width": st.functions ? 1.2 : 0.8, "stroke-dasharray": st.functions ? "" : "2 2" }, svg);
+    if (opts.labels) el("text", { x, y: y - r - 4, "text-anchor": "middle", "font-size": 10 }, svg, s.name);
+    const hit = el("circle", { cx: x, cy: y, r: Math.max(r, 10), fill: "transparent" }, svg);
+    hit.addEventListener("mousemove", (e) => showTip(e, `<b>${esc(s.name)}</b><br>${st.functions} functions` + (sv == null ? "" : `<br>${pct(sv)} of linuxdoom's ${esc(s.name)} functions have a twin here`)));
+    hit.addEventListener("mouseleave", hideTip);
+  }
+  return svg;
+}
+
+const num = (v) => (v == null ? "n/a" : Number(v).toLocaleString());
+const times = (a, b) => (a == null || !b ? "" : (a / b >= 10 ? Math.round(a / b) : (a / b).toFixed(a / b >= 1 ? 1 : 2)) + "× linuxdoom");
+function monthsBetween(a, b) {
+  const [y1, m1] = a.split("-").map(Number), [y2, m2] = b.split("-").map(Number);
+  return (y2 - y1) * 12 + (m2 - m1);
+}
+function fact(value, label, note) {
+  return `<div class="fact"><span>${label}</span><b>${value}</b>${note ? `<em>${note}</em>` : ""}</div>`;
+}
+
+// 1. Identity: the project's own words and its life on GitHub.
+function identityHTML(p) {
+  const g = p.facts?.github || {};
+  const ref = p.name === DATA.reference;
+  let active = "n/a", activeNote = "";
+  if (g.last_commit) {
+    const m = monthsBetween(g.last_commit, DATA.facts_built);
+    active = m <= 2 ? "active" : m < 12 ? `${m} months quiet` : `${Math.floor(m / 12)}+ yr quiet`;
+    activeNote = "last commit " + g.last_commit;
+  }
+  const started = ref ? "1993" : g.first_commit ? g.first_commit.slice(0, 4) : "n/a";
+  const startNote = ref ? "source released Dec 1997; on GitHub since 2012" : g.first_commit ? "first commit " + g.first_commit : "";
+  return `${g.description ? `<p class="blurb">${esc(g.description)}<small>the project's own description on GitHub${g.archived ? " · archived" : ""}</small></p>` : ""}
+    <div class="facts">
+      ${fact(started, "started", startNote)}
+      ${fact(ref ? "frozen" : active, "status", ref ? "the 1997 release, unchanged" : activeNote)}
+      ${fact(num(g.stars), "GitHub stars")}
+      ${fact(num(g.contributors), "contributors", g.commits ? num(g.commits) + (g.commits === 1 ? " commit" : " commits") : "")}
+    </div>`;
+}
+
+// 2. Size against the original, and where the functions went.
+function sizeHTML(p) {
+  const s = p.facts?.size, r = DATA.reference_size;
+  if (!s) return "";
+  const share = s.code_functions ? s.linuxdoom_named / s.code_functions : null;
+  const rows = DATA.subsystems.map((sub) => ({ name: sub.name, ref: REF.stations[sub.name]?.functions || 0, port: p.stations[sub.name]?.functions || 0 }))
+    .filter((x) => x.ref || x.port).sort((a, b) => Math.abs(b.port - b.ref) - Math.abs(a.port - a.ref)).slice(0, 6);
+  const mx = Math.max(1, ...rows.map((x) => Math.max(x.ref, x.port)));
+  return `<section class="card">
+    <h3>Size against the original</h3>
+    <div class="facts">
+      ${fact(num(s.coding_loc), "lines of code", times(s.coding_loc, r.coding_loc))}
+      ${fact(num(s.code_functions), "functions", times(s.code_functions, r.functions))}
+      ${fact(num(s.files), "files", times(s.files, r.files))}
+      ${fact(share == null ? "n/a" : pct(share), "linuxdoom names", "share of its functions named like one of linuxdoom's")}
+    </div>
+    ${p.name === DATA.reference ? "" : `<div class="kicker">biggest changes by subsystem, in functions</div>
+    <div class="grow">${rows.map((x) => `<span>${esc(x.name)}</span><span class="gb" title="linuxdoom ${x.ref}, ${esc(p.name)} ${x.port}">
+        <span style="left:0;width:${(100 * x.ref) / mx}%;background:var(--chance);opacity:.45"></span>
+        <span style="left:0;width:${(100 * x.port) / mx}%;height:6px;top:3px;background:var(--measured)"></span></span>
+      <span class="n">${x.port - x.ref >= 0 ? "+" : "−"}${num(Math.abs(x.port - x.ref))}</span>`).join("")}</div>
+    <div class="legend"><span><span class="sw" style="background:var(--chance);opacity:.45"></span>linuxdoom</span><span><span class="sw" style="background:var(--measured)"></span>${esc(p.name)}</span></div>`}
+    <p class="cap">Lines of code leave out comments and blank lines. Functions are counted in code files only. A name match is case- and underscore-blind, so a Go <code>m_Responder</code> counts as linuxdoom's <code>M_Responder</code>; it says the port kept the vocabulary, not the code.</p>
+  </section>`;
+}
+
+// 3. Famous functions: what became of the ones DOOM players know.
+const FATE = { original: "original", exact: "identical", near: "near-identical", derived: "derived", "name-only": "name only", gone: "gone" };
+function famousHTML(p) {
+  const f = p.facts?.famous;
+  if (!f) return "";
+  const counts = {};
+  for (const v of Object.values(f)) counts[v.cls] = (counts[v.cls] || 0) + 1;
+  const total = Object.values(f).length;
+  const kept = (counts.exact || 0) + (counts.near || 0) + (counts.original || 0);
+  return `<section class="card">
+    <h3>Famous functions</h3>
+    <p class="cap">${p.name === DATA.reference ? `The ${total} functions below are the originals every other port is compared with.` :
+      `Of these ${total} well-known functions, ${esc(p.name)} keeps <b>${kept}</b> identical or nearly so, keeps <b>${(counts.derived || 0) + (counts["name-only"] || 0)}</b> in reworked form (similar code, or only the name), and has lost <b>${counts.gone || 0}</b>.`}</p>
+    <div class="famous">${DATA.famous.map((g) => `<div class="fgroup"><div class="kicker">${esc(g.group)}</div>
+      ${g.functions.map((fn) => { const v = f[fn.name] || { cls: "gone", sim: 0 };
+        return `<div class="fn"><span class="fate ${v.cls}" title="body similarity ${v.sim.toFixed(2)}">${FATE[v.cls] || v.cls}</span><span><code>${esc(fn.name)}</code><small>${esc(fn.what)}</small></span></div>`; }).join("")}
+    </div>`).join("")}</div>
+    <div class="legend"><span><span class="fate exact">identical</span> same body</span><span><span class="fate near">near-identical</span> 90%+ similar</span><span><span class="fate derived">derived</span> 60%+</span><span><span class="fate name-only">name only</span> name kept, body rewritten</span><span><span class="fate gone">gone</span> no trace</span></div>
+    <p class="cap">From comparing the source text itself, not the shape measurements. A translation into another language rewrites every body, so its best result is "name only".</p>
+  </section>`;
+}
+
+// 4. Hero functions: the port's own standouts.
+function heroHTML(p) {
+  const h = p.facts?.hero;
+  if (!h) return "";
+  const tag = (x) => (x.linuxdoom_name ? ' <span class="tag">linuxdoom name</span>' : "");
+  const one = (x, label, what) => (x ? `<div class="hero"><span class="kicker">${label}</span><code>${esc(x.name)}</code><span>${what(x)} · ${esc(x.file)}${tag(x)}</span></div>` : "");
+  const hub = h.called?.[0];
+  const own = (h.new || []).find((x) => x.name !== h.complex?.[0]?.name);  // don't repeat the most complex one
+  return `<section class="card">
+    <h3>Standout functions</h3>
+    <div class="heroes">
+      ${one(h.complex?.[0], "most complex", (x) => `${num(x.complexity)} decision points, ${num(x.loc)} lines`)}
+      ${one(hub, "most called", (x) => `called from ${num(x.calls_in)} places` + (h.called.length > 1 ? `; then ${h.called.slice(1).map((y) => `<code>${esc(y.name)}</code> (${num(y.calls_in)})`).join(", ")}` : ""))}
+      ${p.name === DATA.reference ? "" : one(own, own === h.new?.[0] ? "biggest function of its own" : "next-biggest function of its own", (x) => `${num(x.loc)} lines, ${num(x.complexity)} decision points, not a name from the original`)}
+    </div>
+    <p class="cap">Decision points are the branches (if, loop, case) the engine counts. "Called from" counts call sites the engine resolved inside the port; data tables (complexity 0) don't count as functions of its own.</p>
+  </section>`;
+}
+
+const pctFine = (v) => pct(v, v != null && v < 0.01 ? 1 : 0);
+const kept = (p) => Object.values(p.facts?.famous || {}).filter((v) => ["exact", "near", "original"].includes(v.cls)).length;
+const link = (n) => (BY[n] ? `<a href="#${esc(n)}"${n === state.port ? ' class="here"' : ""}>${esc(n)}</a>` : `<span class="ext">${esc(n)}</span>`);
+
+// 7a. Records: the top three on each measure; a name opens that port.
+function renderRecords() {
+  const ports = DATA.ports.filter((p) => p.name !== DATA.reference);
+  const g = (p) => p.facts?.github || {};
+  const top = (key, fmt, asc = false, keep = () => true) => ports.filter((p) => keep(p) && key(p) != null)
+    .sort((a, b) => (asc ? key(a) - key(b) : key(b) - key(a)) || a.name.localeCompare(b.name)).slice(0, 3)
+    .map((p, i) => `<li><i>${i + 1}</i>${link(p.name)}<span>${fmt(key(p), p)}</span></li>`).join("");
+  const year = (p) => (g(p).first_commit ? Number(g(p).first_commit.slice(0, 4)) + Number(g(p).first_commit.slice(5, 7)) / 12 : null);
+  const edgeOf = Object.fromEntries(DATA.family.edges.map((e) => [e.child, e]));
+  const forkShare = (p) => (edgeOf[p.name]?.kind === "fork" && edgeOf[p.name].shared != null ? edgeOf[p.name].shared : null);
+  const langs = {};
+  for (const p of ports) langs[lang(p)] = (langs[lang(p)] || 0) + 1;
+  const odd = Object.entries(langs).filter(([, n]) => n === 1).map(([l]) => l).sort();
+  const boxes = [
+    ["Biggest", "lines of code", top((p) => p.facts?.size?.coding_loc, (v) => num(v))],
+    ["Smallest", "lines of code", top((p) => p.facts?.size?.coding_loc || null, (v) => num(v), true)],
+    ["Most faithful", "famous functions kept identical or near", top((p) => kept(p) + (p.survival?.exact || 0) / 1000, (v, p) => `${kept(p)} of 22`)],
+    ["Oldest history", "first commit in its git history (inherited history counts)", top(year, (v, p) => g(p).first_commit, true)],
+    ["Newest", "first commit", top(year, (v, p) => g(p).first_commit)],
+    ["Most starred", "GitHub stars", top((p) => g(p).stars, (v) => num(v))],
+    ["Most contributors", "on GitHub", top((p) => g(p).contributors, (v) => num(v))],
+    ["Closest to its parent", "share of its parent's structure kept", top(forkShare, (v) => pct(v))],
+    ["Furthest from its parent", "a stated fork that kept the least", top(forkShare, (v) => pct(v, 1), true)],
+  ];
+  document.getElementById("records").innerHTML = boxes.map(([t, sub, rows]) => `<div class="record"><div class="kicker">${t} · ${sub}</div><ol>${rows}</ol></div>`).join("")
+    + `<div class="record"><div class="kicker">Languages · ${Object.keys(langs).length} in all</div><ol>${Object.entries(langs).filter(([, n]) => n > 1).sort((a, b) => b[1] - a[1]).map(([l, n]) =>
+      `<li><i></i><a href="#" data-lang="${esc(l)}">${esc(l)}</a><span>${n} ports</span></li>`).join("")}</ol><p class="cap">one each: ${odd.map((l) => `<a href="#" data-lang="${esc(l)}">${esc(l)}</a>`).join(", ")}</p></div>`;
+  for (const a of document.querySelectorAll("#records [data-lang]")) a.addEventListener("click", (e) => {
+    e.preventDefault(); state.q = a.dataset.lang.toLowerCase(); state.kind = "all";
+    document.getElementById("q").value = a.dataset.lang; renderChips(); renderList();
+    document.getElementById("list").scrollIntoView({ block: "nearest" });
+  });
+}
+
+// 5a. The whole family as a tree.
+function children() {
+  const kids = {};
+  for (const e of DATA.family.edges) (kids[e.parent] ||= []).push(e);
+  for (const k of Object.values(kids)) k.sort((a, b) => a.child.localeCompare(b.child));
+  return kids;
+}
+// A phylogram: root on the left, one row per lineage member, right-angle branches. A branch's length is how far the
+// child moved from its parent (1 - structure shared), so close forks sit near their parent and translations reach far
+// out; links to ancestors the study did not scan have no measurement and get a short dashed stub instead.
+const UNMEASURED = 0.22;
+const KIND_COLOR = { fork: "var(--measured)", translation: "var(--second)", rewrite: "var(--third)" };
+function renderTree() {
+  const box = document.getElementById("tree");
+  box.innerHTML = "";
+  const kids = children();
+  const size = {};
+  const count = (n) => (size[n] = 1 + (kids[n] || []).reduce((a, e) => a + count(e.child), 0));
+  count(DATA.reference);
+  for (const k of Object.values(kids)) k.sort((a, b) => size[a.child] - size[b.child] || a.child.localeCompare(b.child));  // ladderize
+  const nodes = [];
+  const place = (name, edge, depth) => {
+    const me = { name, edge, depth, row: 0, kids: [] };
+    nodes.push(me);
+    for (const e of kids[name] || []) {
+      const len = e.external.length || e.shared == null ? UNMEASURED : Math.max(0.03, 1 - e.shared);
+      me.kids.push(place(e.child, e, depth + len));
+    }
+    return me;
+  };
+  const root = place(DATA.reference, null, 0);
+  // rows: every member gets its own row (an ancestor above its descendants), so no name shares a row with a branch
+  let next = 0;
+  const rowOf = (n) => { n.row = next++; n.kids.forEach(rowOf); };
+  rowOf(root);
+  const gap = 1.6;
+  const indep = DATA.family.independent.map((name, i) => ({ name, edge: null, depth: 0, row: next + gap + i, kids: [], indep: true }));
+  const rows = next + gap + indep.length;
+  const maxD = Math.max(...nodes.map((n) => n.depth), 1);
+  const RH = 17, L = 16, LABEL = 160, W = 760, H = Math.ceil(rows * RH + 50);
+  const X = (d) => L + (d / maxD) * (W - L - LABEL), Y = (r) => 22 + r * RH;
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Family tree of the DOOM ports drawn as a phylogram: branch length is structural divergence from the parent" }, box);
+  for (let d = 0; d <= maxD + 1e-9; d += 0.5) {
+    el("line", { x1: X(d), x2: X(d), y1: 12, y2: H - 20, stroke: "var(--rule)", "stroke-width": 1, "stroke-dasharray": "2 4" }, svg);
+    el("text", { x: X(d), y: H - 6, "text-anchor": "middle", "font-size": 9 }, svg, d.toFixed(1));
+    el("text", { x: X(d), y: 9, "text-anchor": "middle", "font-size": 9 }, svg, d.toFixed(1));
+  }
+  el("text", { x: X(maxD) + 14, y: H - 6, "font-size": 9 }, svg, "→ less code in common");
+  el("text", { x: X(maxD) + 14, y: 9, "font-size": 9 }, svg, "→ less code in common");
+  const up = Object.fromEntries(DATA.family.edges.map((e) => [e.child, e.parent]));
+  const path = new Set();
+  for (let n = state.port, g = 0; n && g < 15; n = up[n], g++) path.add(n);
+  for (const n of nodes) {
+    for (const c of n.kids) {
+      const e = c.edge, on = path.has(c.name) && path.has(n.name);
+      const dashed = e.external.length || e.shared == null;
+      el("path", { d: `M${X(n.depth)},${Y(n.row)} V${Y(c.row)} H${X(c.depth)}`, fill: "none", stroke: on ? "var(--ink)" : KIND_COLOR[e.kind],
+        "stroke-width": on ? 2.8 : 1.6, "stroke-dasharray": dashed ? "3 3" : "", "stroke-linejoin": "round" }, svg);
+    }
+  }
+  const maxF = Math.max(...DATA.ports.map((p) => p.facts?.size?.code_functions || 0), 1);
+  const drawNode = (n) => {
+    const p = BY[n.name], x = X(n.depth), y = Y(n.row), here = n.name === state.port;
+    const g = el("g", { class: p ? "tnode" : "" }, svg);
+    if (n.indep) el("line", { x1: x - 14, x2: x, y1: y, y2: y, stroke: "var(--chance)", "stroke-width": 1.6 }, g);
+    const r = p ? 2.5 + Math.sqrt((p.facts?.size?.code_functions || 0) / maxF) * 7 : 2.5;
+    const ring = n.edge ? KIND_COLOR[n.edge.kind] : n.indep ? "var(--chance)" : "var(--ink)";
+    el("circle", { cx: x, cy: y, r, fill: p ? (here ? "var(--ink)" : "var(--panel)") : "var(--chance)", stroke: p ? ring : "none", "stroke-width": 1.8 }, g);
+    const t = el("text", { x: x + r + 4, y: y + 3.5, "font-size": 10.5,
+      "font-weight": here || n.name === DATA.reference ? 700 : 400, "font-style": p ? "normal" : "italic" }, g, n.name);
+    const halo = "paint-order: stroke; stroke: var(--panel); stroke-width: 3.5px; stroke-linejoin: round;";
+    t.setAttribute("style", halo + (!p ? "fill: var(--ink-3)" : here ? "fill: var(--ink)" : ""));
+    if (!p) return;
+    const e = n.edge, gh = p.facts?.github || {};
+    g.style.cursor = "pointer";
+    g.addEventListener("click", () => { hideTip(); location.hash = "#" + n.name; });
+    g.addEventListener("mousemove", (ev) => showTip(ev, `<b>${esc(n.name)}</b> · ${esc(lang(p))}${gh.first_commit ? " · history from " + gh.first_commit.slice(0, 4) : ""}<br>`
+      + (e ? `${esc(e.kind)} of ${esc(e.parent)}${e.shared != null && !e.external.length ? ` · keeps ${pctFine(e.shared)} of its structure` : " · distance not measured"}` : n.indep ? "no stated parent" : "the 1997 source")
+      + `<br>${num(p.facts?.size?.code_functions)} functions`));
+    g.addEventListener("mouseleave", hideTip);
+  };
+  nodes.forEach(drawNode);
+  el("text", { x: L, y: Y(next + gap - 0.7), "font-size": 10, "letter-spacing": "0.06em", style: "fill: var(--ink-3)" }, svg, "BUILT FROM SCRATCH, OR NO PARENT STATED");
+  indep.forEach((n) => { n.depth = 0.06 * maxD; drawNode(n); });
+}
+
+// 5b. One port's line of descent and its descendants.
+function familyHTML(p) {
+  const up = Object.fromEntries(DATA.family.edges.map((e) => [e.child, e]));
+  const chain = [];
+  for (let n = p.name, guard = 0; up[n] && guard < 12; n = up[n].parent, guard++) chain.unshift(up[n]);
+  const kids = children();
+  const desc = []; const walk = (n) => (kids[n] || []).forEach((e) => { desc.push(e.child); walk(e.child); });
+  walk(p.name);
+  const direct = (kids[p.name] || []).map((e) => e.child);
+  let body;
+  if (!chain.length && p.name !== DATA.reference) {
+    body = `<p class="cap">${esc(p.name)} states no parent: it was written independently of the ports here.${p.nearest.length ? ` Its nearest structural relative is ${link(p.nearest[0].name)} (${pct(p.nearest[0].shared, 1)} shared).` : ""}</p>`;
+  } else {
+    const steps = chain.map((e) => `<span class="arrow">→<small>${e.kind === "fork" ? (e.shared != null ? pctFine(e.shared) + " kept" : "fork") : e.kind}</small></span>${link(e.child)}`).join("");
+    body = `<div class="chain">${link(chain.length ? chain[0].parent : p.name)}${steps}</div>
+      <p class="cap">${chain.length ? `Each arrow is a stated fork or translation; the number under it is the share of its parent's code shape the child still has, where both were measured.${chain.some((e) => e.measured) ? " Links the source text confirms are part of the lineage measurement." : ""}` : "The root: every other port is compared with it."}</p>`;
+  }
+  return `<section class="card"><h3>Family</h3>${body}
+    ${desc.length ? `<p class="cap"><b>${desc.length}</b> descendant${desc.length > 1 ? "s" : ""} here: ${direct.map(link).join(", ")}${desc.length > direct.length ? ` and through them ${desc.filter((d) => !direct.includes(d)).map(link).join(", ")}` : ""}.</p>` : ""}
+  </section>`;
+}
+
+// 6. Drift: yearly snapshots of the port's own history, against linuxdoom.
+function driftHTML(p) {
+  const s = p.facts?.drift;
+  if (s && s.length >= 3 && Math.max(...s.map((r) => r.survival)) < 0.03) {
+    const a = s[0], b = s[s.length - 1];
+    return `<section class="card"><h3>Drift over time</h3><p class="cap">${esc(p.name)} kept almost none of the original's functions in any of its
+      ${s.length} yearly snapshots (${a.date.slice(0, 4)} to ${b.date.slice(0, 4)}): ${kind(p) === "translation" ? "it was translated into another language, which rewrites every function" : kind(p) === "fork" ? "it descends from DOOM through ancestors that had already rewritten nearly all of it" : "it was written anew"}.
+      Over those years it went from ${num(a.functions)} to ${num(b.functions)} functions. What it can keep is the original's design, which the wiring score at the top measures.</p></section>`;
+  }
+  if (!s || s.length < 3) return `<section class="card"><h3>Drift over time</h3><p class="empty">${!s ? `No history could be measured for ${esc(p.name)}.`
+    : `${esc(p.name)}'s history spans ${s.length === 1 ? "a single yearly snapshot" : "two yearly snapshots"}${s.length ? ` (${s.map((r) => r.date.slice(0, 4)).join(", ")})` : ""}, too short to draw a drift.`}
+    See a long-lived fork such as <a href="#chocolate-doom">chocolate-doom</a> for how a port moves away from the original year by year.</p></section>`;
+  return `<section class="card"><h3>Drift over time</h3><div class="drift" id="drift"></div>
+    <div class="legend"><span><span class="sw" style="background:var(--measured)"></span>share of the original's functions it still has a look-alike for (left axis)</span><span><span class="sw" style="background:var(--chance);opacity:.35"></span>functions (right axis)</span></div>
+    <p class="cap">One snapshot a year of ${esc(p.name)}'s own git history (which starts with the code it forked from), ${DATA.drift_engine && DATA.drift_engine !== DATA.engine ? `measured by an earlier engine (${esc(DATA.drift_engine)}), so the last point can differ a little from the numbers above` : `measured by the same engine as the rest of this page; the last point is the project's current head, which can be newer than the pinned commit the other numbers use`}.</p></section>`;
+}
+function drawDrift(p) {
+  const s = p.facts?.drift, box = document.getElementById("drift");
+  if (!s || s.length < 3 || !box || Math.max(...s.map((r) => r.survival)) < 0.03) return;
+  const W = 400, H = 220, L = 44, R = 56, T = 12, B = 30;
+  const t = (d) => new Date(d).getTime(), t0 = t(s[0].date), t1 = t(s[s.length - 1].date) || t0 + 1;
+  const x = (d) => L + ((t(d) - t0) / (t1 - t0 || 1)) * (W - L - R), y = (v) => T + (1 - v) * (H - T - B);
+  const fmax = Math.max(...s.map((r) => r.functions), 1), yf = (v) => T + (1 - v / fmax) * (H - T - B);
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": `${p.name}: share of the original's functions it still has, year by year` }, box);
+  for (const v of [0, 0.25, 0.5, 0.75, 1]) {
+    el("line", { x1: L, x2: W - R, y1: y(v), y2: y(v), stroke: "var(--rule)", "stroke-width": 1 }, svg);
+    el("text", { x: L - 5, y: y(v) + 3, "text-anchor": "end", "font-size": 14 }, svg, Math.round(v * 100) + "%");
+  }
+  el("text", { x: W - R + 5, y: T + 9, "font-size": 14 }, svg, num(fmax));
+  el("text", { x: W - R + 5, y: H - B, "font-size": 14 }, svg, "0");
+  const bw = Math.max(2, ((W - L - R) / s.length) * 0.55);
+  for (const r of s) el("rect", { x: x(r.date) - bw / 2, y: yf(r.functions), width: bw, height: H - B - yf(r.functions), fill: "var(--chance)", opacity: 0.3, rx: 1 }, svg);
+  const first = Number(s[0].date.slice(0, 4)), last = Number(s[s.length - 1].date.slice(0, 4));
+  for (let yr = first; yr <= last; yr += Math.max(1, Math.ceil((last - first) / 6)))
+    el("text", { x: x(`${yr}-07-01`), y: H - 8, "text-anchor": "middle", "font-size": 14 }, svg, yr);
+  el("polyline", { points: s.map((r) => `${x(r.date)},${y(r.survival)}`).join(" "), fill: "none", stroke: "var(--measured)", "stroke-width": 2.2, "stroke-linejoin": "round" }, svg);
+  for (const r of s) {
+    el("circle", { cx: x(r.date), cy: y(r.survival), r: 3, fill: "var(--measured)" }, svg);
+    const hit = el("circle", { cx: x(r.date), cy: y(r.survival), r: 9, fill: "transparent" }, svg);
+    hit.addEventListener("mousemove", (e) => showTip(e, `<b>${r.date}</b><br>${pct(r.survival)} of the original's functions still have a look-alike<br>${num(r.functions)} functions · ${num(r.coding_loc)} lines`));
+    hit.addEventListener("mouseleave", hideTip);
+  }
+}
+
+// 7b. Compare two ports side by side.
+function compareHTML(a, b) {
+  if (!b) return "";
+  const ga = a.facts?.github || {}, gb = b.facts?.github || {};
+  const rows = [
+    ["started", ga.first_commit?.slice(0, 4), gb.first_commit?.slice(0, 4), null],
+    ["language", lang(a), lang(b), null],
+    ["GitHub stars", ga.stars, gb.stars, 1],
+    ["contributors", ga.contributors, gb.contributors, 1],
+    ["lines of code", a.facts?.size?.coding_loc, b.facts?.size?.coding_loc, null],
+    ["functions", a.facts?.size?.code_functions, b.facts?.size?.code_functions, null],
+    ["structure shared with linuxdoom", a.shared_with_linuxdoom, b.shared_with_linuxdoom, 1, (v) => pct(v, 1)],
+    ["wiring above chance", a.gap, b.gap, 1, sgn],
+    ["famous functions kept", kept(a), kept(b), 1, (v) => v + " of 22"],
+    ["linuxdoom functions kept by name", a.survival?.name, b.survival?.name, 1, (v) => v.toFixed(0) + "%"],
+  ];
+  const fmtv = (v, f) => (v == null ? "n/a" : f ? f(v) : typeof v === "number" ? num(v) : esc(v));
+  const shared = (BY[a.name].nearest || []).find((n) => n.name === b.name);
+  const fates = DATA.famous.flatMap((g) => g.functions.map((f) => [f.name, a.facts.famous[f.name]?.cls, b.facts.famous[f.name]?.cls]));
+  const differ = fates.filter(([, x, y]) => x !== y);
+  return `<section class="card" id="cmp"><h3>${esc(a.name)} vs ${esc(b.name)}</h3>
+    <div class="tablewrap"><table class="cmp"><thead><tr><th></th><th>${esc(a.name)}</th><th>${esc(b.name)}</th></tr></thead><tbody>
+    ${rows.map(([k, x, y, hi, f]) => `<tr><td>${k}</td><td class="${hi && x != null && y != null && x > y ? "win" : ""}">${fmtv(x, f)}</td><td class="${hi && x != null && y != null && y > x ? "win" : ""}">${fmtv(y, f)}</td></tr>`).join("")}
+    </tbody></table></div>
+    <p class="cap">${shared ? `They share ${pct(shared.shared, 1)} of their structure. ` : ""}${differ.length ? `Famous functions where they differ: ${differ.map(([n, x, y]) => `<code>${esc(n)}</code> ${esc(FATE[x] || x)} / ${esc(FATE[y] || y)}`).join("; ")}.` : "Every famous function fared the same in both."}</p>
+    <button class="chip" type="button" id="cmpclose">close comparison</button></section>`;
+}
+
+function stat(value, label, na) {
+  return `<div class="stat${na ? " na" : ""}"><b>${value}</b><span>${label}</span></div>`;
+}
+
+function select(hash, push = true) {
+  let [name, vs] = decodeURIComponent(hash || "").split("&vs=");
+  if (!BY[name]) name = "gore";
+  state.port = name;
+  state.cmp = BY[vs] && vs !== name ? vs : null;
+  const want = "#" + name + (state.cmp ? "&vs=" + state.cmp : "");
+  if (push && location.hash !== want) history.replaceState(null, "", want);
+  renderList();
+  renderTree();
+  renderDetail(BY[name]);
+}
+
+function renderDetail(p) {
+  const d = document.getElementById("detail");
+  const sv = p.survival, bl = p.blind, tw = p.twins;
+  const upstream = /^https:\/\//.test(p.upstream) ? `<a href="${esc(p.upstream)}" target="_blank" rel="noopener">source repository</a>` : "";
+  const src = Object.entries(p.assigned_by || {});
+  const srcTot = src.reduce((a, [, n]) => a + n, 0) || 1;
+  const SRC = [["twin", "var(--measured)", "look-alike"], ["name", "var(--fourth)", "name"], ["path", "var(--ink-3)", "file"], ["fallback", "var(--rule)", "couldn't place"]];
+  d.innerHTML = `
+    <section class="card">
+      <div class="kicker">${esc(kind(p))} · ${esc(lang(p))}</div>
+      <h2>${esc(p.name)}</h2>
+      <div class="meta"><span>calls itself <b>${esc(p.fidelity)}</b></span><span>licence <b>${esc(p.license || "n/a")}</b></span>
+        <span>${p.functions.toLocaleString()} functions on the map</span>${upstream ? `<span>${upstream}</span>` : ""}</div>
+      ${p.lineage ? `<p class="lineage">Says it descends from: ${esc(p.lineage)}</p>` : ""}
+      ${identityHTML(p)}
+      <div class="cmpbar"><label for="cmpsel">compare with</label><select id="cmpsel"><option value="">another port...</option>
+        ${DATA.ports.filter((x) => x.name !== p.name).map((x) => x.name).sort().map((n) => `<option value="${esc(n)}"${n === state.cmp ? " selected" : ""}>${esc(n)}</option>`).join("")}</select></div>
+      <div class="kicker">against the original (linuxdoom)</div>
+      <div class="stats">
+        ${stat(sv ? sv.name.toFixed(0) + "% / " + (sv.exact < 1 ? sv.exact.toFixed(1) : sv.exact.toFixed(0)) + "%" : "n/a", "of the original's functions it still has by name / with the code unchanged", !sv)}
+        ${stat(p.shared_with_linuxdoom == null ? "n/a" : pctFine(p.shared_with_linuxdoom), "of its code shape matches the original's, measured without reading it (unrelated C programs: 0 to 0.6%)", p.shared_with_linuxdoom == null)}
+        ${stat(sgn(p.gap), `how much more its parts connect like DOOM's than chance would (0 = chance; Chocolate Doom +0.51)`, p.gap == null)}
+        ${stat(bl ? pct(bl.accuracy) + " vs " + pct(bl.accuracy_null) : "not tested", bl ? "of its functions put in the right part of the game with every name hidden, vs chance" : "the blind test was run on 14 descendants", !bl)}
+      </div>
+    </section>
+    ${compareHTML(p, BY[state.cmp])}
+    <div class="two">${sizeHTML(p)}${heroHTML(p)}</div>
+    ${famousHTML(p)}
+    <div class="two">${familyHTML(p)}${driftHTML(p)}</div>
+    <details class="card more">
+      <summary><h3>More detail <span class="cap">· wiring maps, how functions were placed, nearest relatives, copied functions</span></h3></summary>
+      <div class="inner">
+    <section>
+      <h3>Wiring: which parts of the game call which</h3>
+      <div class="maps">
+        <div class="map" id="map-port"><div class="kicker">${esc(p.name)}</div></div>
+        <div class="map" id="map-ref"><div class="kicker">the original (linuxdoom), for comparison</div></div>
+      </div>
+      <div class="legend"><span>station size: functions</span><span>fill: share of linuxdoom's functions with a twin here<span class="ramp" aria-hidden="true"></span>0 to 100%</span><span><span class="sw" style="background:var(--chance)"></span>no twin data</span><span>line width: share of cross-subsystem calls</span></div>
+      <p class="cap">Each circle is a part of the game (renderer, monsters and physics, sound...), placed where the original's
+        wiring puts it, so a descendant wired like the original draws the same lines. Hover a circle or a line for its numbers.
+        Wiring match ${f2(p.wiring)}, but a program whose parts never call each other would already score ${f2(DATA.wiring_floor)}:
+        that is why the score at the top is measured against chance.</p>
+    </section>
+    <div class="two">
+      <section>
+        <h3>How its functions were sorted into parts</h3>
+        <div class="stack" role="img" aria-label="placement sources">${SRC.map(([k, c]) => (p.assigned_by[k] ? `<span style="width:${(100 * p.assigned_by[k]) / srcTot}%;background:${c}"></span>` : "")).join("")}</div>
+        <div class="legend">${SRC.map(([k, c, label]) => `<span><span class="sw" style="background:${c}"></span>${label} ${(p.assigned_by[k] || 0).toLocaleString()}</span>`).join("")}</div>
+        <p class="cap">Each function goes to a part of the game by its look-alike in the original first, then by its name, then by
+          its file. A descendant placed mostly by "couldn't place" shares little of the original's layout, and its wiring score says little.</p>
+      </section>
+      <section>
+        <h3>Nearest relatives by code shape</h3>
+        ${p.nearest.length ? `<table><thead><tr><th>port</th><th class="n">shared</th></tr></thead><tbody>${p.nearest.map((n) => `<tr><td><a href="#${esc(n.name)}">${esc(n.name)}</a></td><td class="n">${pct(n.shared, 1)}</td></tr>`).join("")}</tbody></table>`
+          : '<p class="empty">No other port shares at least 2% of its structure, the threshold below which shared structure is no evidence of descent. Translations and reimplementations usually land here.</p>'}
+        ${p.crosscheck && p.crosscheck.precision != null ? `<p class="cap">Against the source text, ${pct(p.crosscheck.precision)} of this descendant's look-alike functions are real copies, and they find ${pct(p.crosscheck.recall)} of the copies the text finds (for this descendant; 93% and 65% across all of them).</p>` : ""}
+      </section>
+    </div>
+    <section>
+      <h3>Look-alike functions</h3>
+      ${tw ? `<p class="cap">${tw.count.toLocaleString()} functions whose shape matches one of the original's, found from measurements alone; the names are shown only to read the result. <span class="tag">exact</span> marks an identical shape, <span class="tag">renamed</span> a different name; a blank tag is a close match under the same name.</p>
+        <div class="tablewrap"><table><thead><tr><th>linuxdoom function</th><th>file</th><th class="n">lines</th><th>twin in ${esc(p.name)}</th><th>file</th><th class="n">lines</th><th></th></tr></thead>
+        <tbody>${tw.sample.map((t, i) => `<tr${i >= 10 ? ' class="extra" hidden' : ""}><td>${esc(t.ref)}</td><td>${esc(t.ref_file.split("/").pop())}</td><td class="n">${t.ref_loc}</td><td>${esc(t.port)}</td><td>${esc(t.port_file.split("/").pop())}</td><td class="n">${t.port_loc}</td><td>${t.exact ? '<span class="tag">exact</span>' : ""} ${t.same_name ? "" : '<span class="tag">renamed</span>'}</td></tr>`).join("")}</tbody></table></div>${tw.sample.length > 10 ? `<button class="chip showall" type="button" id="showall">show ${tw.sample.length < tw.count ? "the first " + tw.sample.length : "all " + tw.sample.length}</button>` : ""}`
+        : '<p class="empty">None. That is expected for translations and from-scratch rewrites: rewriting every line changes every function\'s shape.</p>'}
+    </section>
+      </div>
+    </details>`;
+  document.getElementById("map-port").appendChild(subwayMap(p, { labels: true }));
+  document.getElementById("map-ref").appendChild(subwayMap(REF, { labels: true }));
+  drawDrift(p);
+  document.getElementById("showall")?.addEventListener("click", (e) => {
+    document.querySelectorAll("tr.extra").forEach((r) => (r.hidden = false)); e.target.remove();
+  });
+  document.getElementById("cmpsel").addEventListener("change", (e) => {
+    select(p.name + (e.target.value ? "&vs=" + e.target.value : ""));
+    document.getElementById("cmp")?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  });
+  document.getElementById("cmpclose")?.addEventListener("click", () => select(p.name));
+}
+
+fetch("data.json").then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); }).then((data) => {
+  DATA = data; BY = Object.fromEntries(data.ports.map((p) => [p.name, p]));
+  REF = BY[data.reference];
+  document.getElementById("sort").value = state.sort;
+  renderChips();
+  renderRecords();
+  drawArticleCharts();
+  renderCollage();
+  renderFnSection();
+  renderWiringDemo("gore");
+  const h = decodeURIComponent(location.hash.slice(1));
+  select(h || "gore", false);
+  if (BY[h.split("&vs=")[0]]) document.getElementById("explore").scrollIntoView();
+}).catch((e) => {
+  document.getElementById("detail").innerHTML = `<p class="empty">The port data did not load (${esc(e.message)}). Reload the page to try again.</p>`;
+  document.getElementById("list").innerHTML = "";
+});
+document.getElementById("q").addEventListener("input", (e) => { state.q = e.target.value; renderList(); });
+document.getElementById("sort").addEventListener("change", (e) => {
+  state.sort = e.target.value; try { localStorage.setItem("doom-explorer-sort", state.sort); } catch (err) {}
+  renderList();
+});
+addEventListener("hashchange", () => {
+  if (!DATA) return;
+  const h = decodeURIComponent(location.hash.slice(1));
+  if (!BY[h.split("&vs=")[0]]) return;
+  select(h, false);
+  document.getElementById("explore").scrollIntoView({ behavior: "smooth", block: "start" });
+});
+function drawArticleCharts() {
+
+const WIRING = [
+  { g: "C copies", rows: [["chocolate-doom", "C", 0.8272, 0.3183], ["crispy-doom", "C", 0.8303, 0.3757], ["doom-wasm", "C", 0.7343, 0.2637]] },
+  { g: "Translations", rows: [["doom-scheme", "Scheme", 0.7512, 0.2408], ["gore", "Go", 0.6495, 0.1506], ["dartdoom", "Dart", 0.5863, 0.3974],
+    ["doomf77", "Fortran", 0.4113, 0.3635], ["mochadoom", "Java", 0.3785, 0.3728], ["kocoa-doom", "Kotlin", 0.2701, 0.3542], ["managed-doom", "C#", 0.0952, 0.2476]] },
+  { g: "Written from scratch", rows: [["rust-doom", "Rust", 0.0979, 0.0404], ["room4doom", "Rust", 0.0769, 0.0804], ["helion", "C#", 0.0737, 0.1562]] },
+  { g: "Not related to DOOM", rows: [["Quake II", "C", 0.1073, 0.0901], ["WinQuake", "C", 0.0481, 0.0738], ["Lua", "C", 0.0007, 0.0002]] },
+];
+const BLIND = [
+  { g: "Sanity check: a C copy", rows: [["chocolate-doom", "C", 0.50, 0.21, 0.37]] },
+  { g: "Translations", rows: [["gore", "Go", 0.60, 0.20, 0.50], ["dartdoom", "Dart", 0.48, 0.24, 0.31], ["doom-scheme", "Scheme", 0.46, 0.26, 0.26],
+    ["managed-doom", "C#", 0.47, 0.37, 0.17], ["doomf77", "Fortran", 0.42, 0.39, 0.06], ["mochadoom", "Java", 0.20, 0.17, 0.05], ["kocoa-doom", "Kotlin", 0.19, 0.16, 0.03]] },
+  { g: "Written from scratch", rows: [["room4doom", "Rust", 0.27, 0.24, 0.03]] },
+];
+const SURVIVAL = [["doomgeneric", 85.5, 39.4], ["chocolate-doom", 86.7, 34.9], ["crispy-doom", 86.7, 21.0], ["prboom-plus", 80.5, 8.8],
+  ["fastdoom", 72.4, 6.8], ["eternity", 66.3, 0.8], ["doomretro", 69.0, 0.2], ["gzdoom", 32.0, 0.2]];
+
+
+
+
+
+
+// Dumbbell: chance (grey) to measured (blue) on one 0-1 axis, grouped rows.
+function dumbbell(id, groups, opts) {
+  const W = 640, left = 168, right = 74, rowH = 24, groupH = 26, top = 26;
+  const n = groups.reduce((a, g) => a + g.rows.length, 0);
+  const H = top + groups.length * groupH + n * rowH + 10;
+  const x = (v) => left + v * (W - left - right);
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": opts.label });
+  for (const t of [0, 0.25, 0.5, 0.75, 1]) {
+    el("line", { x1: x(t), x2: x(t), y1: top - 6, y2: H - 6, class: "grid" }, svg);
+    el("text", { x: x(t), y: top - 12, "text-anchor": "middle" }, svg, t.toFixed(2).replace(/\.?0+$/, "") || "0");
+  }
+  let y = top;
+  for (const g of groups) {
+    y += groupH;
+    el("text", { x: 0, y: y - 8, class: "grp" }, svg, g.g);
+    for (const r of g.rows) {
+      const cy = y + rowH / 2 - 4;
+      const [name, lang, val, nul] = r;
+      el("text", { x: 0, y: cy + 4, class: "lab" }, svg, name);
+      el("text", { x: left - 10, y: cy + 4, "text-anchor": "end" }, svg, lang);
+      el("line", { x1: x(Math.min(val, nul)), x2: x(Math.max(val, nul)), y1: cy, y2: cy, stroke: "var(--chance)", "stroke-width": 2, "stroke-linecap": "round", opacity: 0.55 }, svg);
+      el("circle", { cx: x(nul), cy, r: 5, fill: "var(--chance)", stroke: "var(--panel)", "stroke-width": 2, class: "dot" }, svg);
+      el("circle", { cx: x(val), cy, r: 5.5, fill: "var(--measured)", stroke: "var(--panel)", "stroke-width": 2, class: "dot" }, svg);
+      const gap = val - nul;
+      el("text", { x: W - right + 10, y: cy + 4, class: "lab" }, svg, opts.right(r, gap));
+      const hit = el("rect", { x: 0, y: cy - rowH / 2, width: W, height: rowH, class: "hit" }, svg);
+      hit.addEventListener("mousemove", (e) => showTip(e, opts.tip(r, gap)));
+      hit.addEventListener("mouseleave", hideTip);
+      y += rowH;
+    }
+  }
+  document.getElementById(id).appendChild(svg);
+}
+
+function artTable(id, head, rows) {
+  const t = document.createElement("table");
+  t.innerHTML = "<thead><tr>" + head.map((h, i) => `<th${i > 1 ? ' class="n"' : ""}>${h}</th>`).join("") + "</tr></thead>";
+  const b = document.createElement("tbody");
+  for (const r of rows) b.innerHTML += "<tr>" + r.map((c, i) => `<td${i > 1 ? ' class="n"' : ""}>${c}</td>`).join("") + "</tr>";
+  t.appendChild(b);
+  document.getElementById(id).appendChild(t);
+}
+
+dumbbell("chart-wiring", WIRING, {
+  label: "Cross-subsystem wiring compared with linuxdoom, measured against shuffled chance, per port",
+  right: (r, gap) => (Math.abs(gap) < 0.005 ? "0.00" : (gap >= 0 ? "+" : "−") + Math.abs(gap).toFixed(2)),
+  tip: (r, gap) => `<b>${r[0]}</b> (${r[1]})<br>measured ${f2(r[2])} · chance ${f2(r[3])}<br>gap ${(gap >= 0 ? "+" : "−") + Math.abs(gap).toFixed(2)}`,
+});
+artTable("table-wiring", ["program", "language", "wiring match", "shuffled", "gap"],
+  WIRING.flatMap((g) => g.rows.map((r) => [r[0], r[1], f2(r[2]), f2(r[3]), (r[2] - r[3] >= 0 ? "+" : "−") + Math.abs(r[2] - r[3]).toFixed(2)])));
+
+dumbbell("chart-blind", BLIND, {
+  label: "Blind placement agreement with name and path placement, against chance, per port",
+  right: (r) => "+" + Math.round((r[2] - r[3]) * 100) + " pts",
+  tip: (r) => `<b>${r[0]}</b> (${r[1]})<br>sorted correctly ${Math.round(r[2] * 100)}% · guessing ${Math.round(r[3] * 100)}%`,
+});
+artTable("table-blind", ["program", "language", "sorted correctly", "guessing", "agreement beyond chance (κ)"],
+  BLIND.flatMap((g) => g.rows.map((r) => [r[0], r[1], Math.round(r[2] * 100) + "%", Math.round(r[3] * 100) + "%", f2(r[4])])));
+
+// Paired horizontal bars: names vs identical bodies, one 0-100% axis.
+(function survival() {
+  const W = 640, left = 130, right = 40, barH = 9, gapIn = 2, rowH = 30, top = 24;
+  const H = top + SURVIVAL.length * rowH + 8;
+  const x = (v) => left + (v / 100) * (W - left - right);
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "linuxdoom functions surviving by name and by identical body, per port" });
+  for (const t of [0, 25, 50, 75, 100]) {
+    el("line", { x1: x(t), x2: x(t), y1: top - 6, y2: H - 4, class: "grid" }, svg);
+    el("text", { x: x(t), y: top - 12, "text-anchor": "middle" }, svg, t + "%");
+  }
+  SURVIVAL.forEach(([name, names, bodies], i) => {
+    const y = top + i * rowH + 4;
+    el("text", { x: 0, y: y + barH + 3, class: "lab" }, svg, name);
+    const bar = (v, yy, color) => {
+      const w = Math.max(x(v) - x(0), 1.5);
+      el("path", { d: `M${x(0)},${yy} h${Math.max(w - 3, 0)} a3,3 0 0 1 3,3 v${barH - 6} a3,3 0 0 1 -3,3 h${-Math.max(w - 3, 0)} z`, fill: color }, svg);
+      el("text", { x: x(0) + w + 6, y: yy + barH - 1 }, svg, v.toFixed(1) + "%");
+    };
+    bar(names, y, "var(--measured)");
+    bar(bodies, y + barH + gapIn, "var(--deep)");
+    const hit = el("rect", { x: 0, y: y - 4, width: W, height: rowH, class: "hit" }, svg);
+    hit.addEventListener("mousemove", (e) => showTip(e, `<b>${name}</b><br>same name ${names.toFixed(1)}%<br>same code, unchanged ${bodies.toFixed(1)}%`));
+    hit.addEventListener("mouseleave", hideTip);
+  });
+  document.getElementById("chart-survival").appendChild(svg);
+  artTable("table-survival", ["program", "", "same name", "same code, unchanged"], SURVIVAL.map((r) => [r[0], "", r[1].toFixed(1) + "%", r[2].toFixed(1) + "%"]));
+})();
+
+}
+
+// ---------------------------------------------------------------- Follow a function
+const FATE_OF = { e: "exact", n: "near", d: "derived", o: "name-only", g: "gone" };
+const FATE_WORD = { e: "identical", n: "near-identical", d: "derived", o: "name only", g: "gone" };
+const PART = { playsim: "monsters & physics", "game-loop": "game loop", "hud/ui": "status bar, map & menus", "main/defs": "startup",
+  renderer: "renderer", sound: "sound", netcode: "network", misc: "misc", "data-tables": "data tables", wad: "WAD files",
+  system: "system", video: "video", net: "network", menu: "menus", automap: "automap", finale: "finale", intermission: "intermission" };
+const GROUPS = [["fork", "C and C++ copies"], ["translation", "Translations"], ["reimplementation", "Written from scratch"], ["other", "Other"]];
+let FNSEL = null;
+function famousWhat(name) {
+  for (const g of DATA.famous) for (const f of g.functions) if (f.name === name) return f.what;
+  return null;
+}
+function findFn(q) {
+  q = q.trim().toLowerCase();
+  return DATA.fates.funcs.find((f) => f.name.toLowerCase() === q) || null;
+}
+function renderFnSection() {
+  const F = DATA.fates;
+  document.getElementById("fnlist").innerHTML = [...new Set(F.funcs.map((f) => f.name))].map((n) => `<option value="${esc(n)}">`).join("");
+  const chips = document.getElementById("fnchips");
+  chips.innerHTML = DATA.famous.flatMap((g) => g.functions.map((f) =>
+    `<button type="button" class="chip" data-fn="${esc(f.name)}" title="${esc(g.group)}: ${esc(f.what)}">${esc(f.name)}</button>`)).join("");
+  chips.addEventListener("click", (e) => { const b = e.target.closest("[data-fn]"); if (b) pickFn(b.dataset.fn); });
+  const q = document.getElementById("fnq");
+  q.addEventListener("change", () => { const f = findFn(q.value); if (f) pickFn(f.name); });
+  q.addEventListener("keydown", (e) => { if (e.key === "Enter") { const f = findFn(q.value); if (f) pickFn(f.name); } });
+  // rankings over the C and C++ copies: which functions everyone kept, which went first
+  const forks = F.ports.map((n, i) => [n, i]).filter(([n]) => BY[n] && kind(BY[n]) === "fork");
+  const score = (f) => forks.reduce((a, [, i]) => a + ("en".includes(f.f[i]) ? 1 : 0), 0);
+  const gone = (f) => forks.reduce((a, [, i]) => a + (f.f[i] === "g" ? 1 : 0), 0);
+  const big = F.funcs.filter((f) => f.loc >= 15 && f.sub !== "netcode");  // game code: not the 1993 DOS network and serial drivers
+  const best = [...big].sort((a, b) => score(b) - score(a) || b.loc - a.loc).slice(0, 8);
+  const worst = [...big].sort((a, b) => gone(b) - gone(a) || b.loc - a.loc).slice(0, 8);
+  const li = (f, v, w) => `<li><button type="button" data-fn="${esc(f.name)}">${esc(f.name)}</button> <span>${v} of ${forks.length} ${w}</span></li>`;
+  const ranks = document.getElementById("fnranks");
+  ranks.innerHTML = `<div class="rank"><h3>Survivors</h3><p class="cap">Game functions of 15+ lines kept identical or nearly so by the most C and C++ copies.</p><ol>${best.map((f) => li(f, score(f), "copies")).join("")}</ol></div>
+    <div class="rank"><h3>First to go</h3><p class="cap">Functions of 15+ lines that have vanished from the most C and C++ copies: almost all the original's 1997 Linux plumbing (X11 graphics, the sound server), which every port had to replace.</p><ol>${worst.map((f) => li(f, gone(f), "copies lost it")).join("")}</ol></div>`;
+  ranks.addEventListener("click", (e) => { const b = e.target.closest("[data-fn]"); if (b) pickFn(b.dataset.fn, true); });
+  pickFn("R_DrawColumn");
+}
+function pickFn(name, scroll) {
+  const F = DATA.fates, f = F.funcs.find((x) => x.name === name);
+  if (!f) return;
+  FNSEL = name;
+  document.getElementById("fnq").value = name;
+  for (const c of document.querySelectorAll("#fnchips .chip")) c.setAttribute("aria-pressed", String(c.dataset.fn === name));
+  const counts = { e: 0, n: 0, d: 0, o: 0, g: 0 };
+  for (const c of f.f) counts[c]++;
+  const total = f.f.length, what = famousWhat(name);
+  const groups = Object.fromEntries(GROUPS.map(([k]) => [k, []]));
+  F.ports.forEach((p, i) => { const k = BY[p] ? kind(BY[p]) : "other"; (groups[k] || groups.other).push([p, f.f[i], f.s[i]]); });
+  const order = { e: 0, n: 1, d: 2, o: 3, g: 4 };
+  const kept = counts.e + counts.n;
+  const sum = kept ? `Kept identical or nearly so by <b>${kept}</b> of ${total} descendants, reworked in <b>${counts.d + counts.o}</b>, and gone from <b>${counts.g}</b>.`
+    : counts.g === total ? `Gone from every descendant: nobody kept this one.` : `No descendant kept its code unchanged; <b>${counts.d + counts.o}</b> kept a reworked version or the name, and it is gone from <b>${counts.g}</b>.`;
+  document.getElementById("fnview").innerHTML = `
+    <div class="fnhead"><code>${esc(f.name)}</code><span>${esc(f.file)} · ${esc(PART[f.sub] || f.sub)} · ${f.loc} lines in the original${what ? " · " + esc(what) : ""}</span></div>
+    <p class="fnsum">${sum}</p>
+    <div class="fatebar" role="img" aria-label="fate across ${total} descendants">${"endog".split("").map((c) => counts[c] ? `<span class="${FATE_OF[c]}" style="width:${(100 * counts[c]) / total}%" title="${FATE_WORD[c]}: ${counts[c]}"></span>` : "").join("")}</div>
+    <div class="tilegroups">${GROUPS.filter(([k]) => groups[k].length).map(([k, label]) => `<div><div class="kicker">${label}</div><div class="tiles">
+      ${groups[k].sort((a, b) => order[a[1]] - order[b[1]] || a[0].localeCompare(b[0])).map(([p, c, s]) =>
+        `<button type="button" class="tile fate ${FATE_OF[c]}" data-port="${esc(p)}" title="${esc(p)}: ${FATE_WORD[c]}${c !== "g" ? ", closest code " + s + "0% similar" : ""}"><b>${esc(p)}</b><small>${FATE_WORD[c]}</small></button>`).join("")}
+    </div></div>`).join("")}</div>`;
+  for (const t of document.querySelectorAll("#fnview .tile")) t.addEventListener("click", () => { location.hash = "#" + t.dataset.port; });
+  if (scroll) document.getElementById("follow").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+// ---------------------------------------------------------------- The opening collage
+const COLLAGE_FONTS = ["Metal Mania", "Black Ops One", "Press Start 2P", "New Rocker", "Creepster", "Russo One", "VT323",
+  "Pirata One", "Bungee", "Silkscreen", "Rubik Glitch", "Teko"];
+const FIRE = ["#ff3b1f", "#ff7a00", "#ffb000", "#e0201a", "#ff5a2a", "#f2d6a2", "#ffcf6b", "#c9b29b"];
+async function renderCollage() {
+  const svg = document.getElementById("collage");
+  if (!svg) return;
+  try {  // measure with the real faces; carry on with fallbacks if they are slow
+    await Promise.race([Promise.all(COLLAGE_FONTS.map((f) => document.fonts.load(`40px "${f}"`))), new Promise((r) => setTimeout(r, 2500))]);
+  } catch (e) {}
+  let seed = 7;
+  const rnd = () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
+  const W = 1200, H = 600, pad = 7;
+  const fmax = Math.max(...DATA.ports.map((p) => p.facts?.size?.code_functions || 1));
+  const items = DATA.ports.map((p) => ({ name: p.name, n: p.facts?.size?.code_functions || 1 }))
+    .sort((a, b) => (a.name === DATA.reference ? -1 : b.name === DATA.reference ? 1 : b.n - a.n));
+  const placed = [];
+  const hits = (r) => r.x < 4 || r.y < 4 || r.x + r.w > W - 4 || r.y + r.h > H - 4 ||
+    placed.some((q) => r.x < q.x + q.w + pad && r.x + r.w + pad > q.x && r.y < q.y + q.h + pad && r.y + r.h + pad > q.y);
+  items.forEach((it, i) => {
+    const ref = it.name === DATA.reference;
+    const font = ref ? "Metal Mania" : COLLAGE_FONTS[i % COLLAGE_FONTS.length];
+    const size = ref ? 92 : 15 + 46 * Math.sqrt(it.n / fmax) * (font === "Press Start 2P" ? 0.62 : font === "Silkscreen" ? 0.8 : 1);
+    const vertical = !ref && size < 40 && rnd() < 0.22;
+    const t = el("text", { "dominant-baseline": "middle", "text-anchor": "middle", opacity: ref ? 1 : (0.78 + 0.22 * rnd()).toFixed(2) }, svg, it.name);
+    // inline style: the page's chart-text rule would otherwise override the face and colour
+    t.style.fontFamily = `"${font}", Impact, sans-serif`;
+    t.style.fontSize = size.toFixed(1) + "px";
+    t.style.fill = ref ? "#f2d6a2" : FIRE[Math.floor(rnd() * FIRE.length)];
+    if (ref) t.style.filter = "drop-shadow(0 0 14px rgba(255, 90, 30, 0.55))";
+    const bb = t.getBBox();
+    const w = vertical ? bb.height : bb.width, h = vertical ? bb.width : bb.height;
+    const a0 = rnd() * Math.PI * 2;
+    for (let k = 0; k < 2600; k++) {
+      const th = a0 + k * 0.21, rad = 3.2 * k * 0.21;
+      const cx = W / 2 + rad * Math.cos(th) * 1.9, cy = H / 2 + rad * Math.sin(th);
+      const r = { x: cx - w / 2, y: cy - h / 2, w, h };
+      if (!hits(r)) {
+        placed.push(r);
+        t.setAttribute("x", cx.toFixed(1)); t.setAttribute("y", cy.toFixed(1));
+        if (vertical) t.setAttribute("transform", `rotate(-90 ${cx.toFixed(1)} ${cy.toFixed(1)})`);
+        const title = el("title", {}, t, `${it.name}: ${it.n.toLocaleString()} functions`);
+        t.addEventListener("click", () => { location.hash = "#" + it.name; });
+        return;
+      }
+    }
+    t.remove();  // no room left: better missing than overlapping
+  });
+}
+
+// ---------------------------------------------------------------- Download the data (the viewer confirms each save)
+(async function setupDownload() {
+  const btn = document.getElementById("dlbtn"), note = document.getElementById("dlnote");
+  if (!btn) return;
+  const dl = window.claude && window.claude.use ? await window.claude.use("downloads") : null;
+  if (!dl) { note.textContent = "The download button works when this page is open on claude.ai."; return; }
+  btn.hidden = false; note.textContent = "";
+  btn.addEventListener("click", async () => {
+    try {
+      const blob = await (await fetch("data.json")).blob();
+      await dl.save({ filename: "doom-dna-data.json", data: blob });
+      note.textContent = "Saved.";
+    } catch (e) {
+      const code = e && e.code;
+      note.textContent = code === "declined" ? "" : code === "rate_limited" ? "A save is already waiting for your answer." : "The download is not available here.";
+      if (!["declined", "rate_limited"].includes(code)) btn.hidden = true;
+    }
+  });
+})();
+
+// ---------------------------------------------------------------- Compare the wiring
+const WIRE_PICKS = ["chocolate-doom", "doom-scheme", "gore", "dartdoom", "doomf77", "mochadoom", "managed-doom", "rust-doom"];
+function renderWiringDemo(name) {
+  const box = document.getElementById("wirechips");
+  if (!box.dataset.ready) {
+    box.innerHTML = WIRE_PICKS.filter((n) => BY[n]).map((n) => `<button type="button" class="chip" data-wire="${n}">${n} <span style="opacity:.7">${esc(lang(BY[n]))}</span></button>`).join("")
+      + `<select id="wiresel" aria-label="any descendant"><option value="">any descendant...</option>${DATA.ports.filter((p) => p.name !== DATA.reference && p.cross_wiring != null).map((p) => p.name).sort().map((n) => `<option>${esc(n)}</option>`).join("")}</select>`;
+    box.addEventListener("click", (e) => { const b = e.target.closest("[data-wire]"); if (b) renderWiringDemo(b.dataset.wire); });
+    document.getElementById("wiresel").addEventListener("change", (e) => { if (e.target.value) renderWiringDemo(e.target.value); });
+    box.dataset.ready = "1";
+  }
+  const p = BY[name];
+  for (const c of box.querySelectorAll(".chip")) c.setAttribute("aria-pressed", String(c.dataset.wire === name));
+  const maps = document.getElementById("wiremaps");
+  maps.innerHTML = `<div class="map"><div class="kicker">${esc(name)} · ${esc(lang(p))}</div></div><div class="map"><div class="kicker">the original (linuxdoom)</div></div>`;
+  maps.children[0].appendChild(subwayMap(p, { labels: true }));
+  maps.children[1].appendChild(subwayMap(REF, { labels: true }));
+  const g = p.gap;
+  const verdict = g == null ? "" : g >= 0.4 ? "That is as much as a straight C copy keeps." : g >= 0.15 ? "Some of the original's design survives." : g > -0.05 ? "No more than chance: the original's design did not survive, or this test can't see it." : "Below chance: its parts are wired differently from the original's.";
+  document.getElementById("wirenote").innerHTML = `<span class="wirestat">${esc(name)}: ${sgn(g)} above chance</span> · wiring match ${f2(p.cross_wiring)}, against ${f2(p.cross_null)} with its functions shuffled. ${verdict} <a href="#${esc(name)}">Open ${esc(name)} below</a>.`;
+}
+</script>
+
+</body>
+</html>

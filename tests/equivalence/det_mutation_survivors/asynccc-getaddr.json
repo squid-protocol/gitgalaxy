@@ -1,0 +1,185 @@
+{
+ "format": "det-mutation-survivors/1",
+ "issue": "#4628",
+ "about": "#4628: each surviving det-port mutant stated `equivalent` or `unreachable`, with the Java change and why it cannot alter observable behaviour; proposed in a PR, reviewed by the owner. A run that kills a stated mutant fails (the claim was wrong). Ids are mutation.py's; before / after are the Java line.",
+ "verdicts": {
+  "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
+  "unreachable": "no input of the program reaches the changed code",
+  "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
+  "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
+ },
+ "case": "asynccc-getaddr",
+ "survivors": [
+  {
+   "id": "f57444ef6b",
+   "op": "NEG",
+   "line": 94,
+   "before": "if (CicsTask.undefinableFile(name)) {",
+   "after": "if (!(CicsTask.undefinableFile(name))) {",
+   "verdict": "unreachable",
+   "reason": "GetaddrService.java line 94: the guard of the private store(String) helper, which has no caller in GetaddrService.java: the program issues no file control command and the case has datasets {}, so no input runs it"
+  },
+  {
+   "id": "1cdb70a5c7",
+   "op": "CON",
+   "line": 320,
+   "before": "if (planned2[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
+   "after": "if (planned2[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(6), null), \"DELAY out of range\");",
+   "verdict": "equivalent",
+   "reason": "GetaddrService.java line 320: whether task.delay runs, or for how long; in this case's root task (no RUN TRANSID children) delay() only moves the scheduler clock (X4), which nothing reads, so it is unseen"
+  },
+  {
+   "id": "2624780a91",
+   "op": "ROR",
+   "line": 320,
+   "before": "if (planned2[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
+   "after": "if (planned2[0] != 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
+   "verdict": "equivalent",
+   "reason": "GetaddrService.java line 320: whether task.delay runs, or for how long; in this case's root task (no RUN TRANSID children) delay() only moves the scheduler clock (X4), which nothing reads, so it is unseen"
+  },
+  {
+   "id": "55f9b97d5f",
+   "op": "CON",
+   "line": 320,
+   "before": "if (planned2[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
+   "after": "if (planned2[1] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
+   "verdict": "equivalent",
+   "reason": "planned2[1] is the RESP2 of the planned DELAY fault. Every DELAY fault this case plans is an INVREQ that carries a nonzero RESP2 (4; IBM sets RESP2 for these INVREQs), so planned[1] == 0 exactly when planned[0] == 0 on every input the case can plan, and the mutant behaves as the original (register X72, #5862)"
+  },
+  {
+   "id": "5d1fcaea43",
+   "op": "CON",
+   "line": 320,
+   "before": "if (planned2[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
+   "after": "if (planned2[0] == 1) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
+   "verdict": "equivalent",
+   "reason": "GetaddrService.java line 320: whether task.delay runs, or for how long; in this case's root task (no RUN TRANSID children) delay() only moves the scheduler clock (X4), which nothing reads, so it is unseen"
+  },
+  {
+   "id": "60fd6f9be2",
+   "op": "LIT",
+   "line": 320,
+   "before": "if (planned2[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
+   "after": "if (planned2[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"XELAY out of range\");",
+   "verdict": "equivalent",
+   "reason": "GetaddrService.java line 320: the `what` text of delay() is read only to build the refusal for a DELAY that is not a length of time; this DELAY is FOR SECONDS with a literal in range, so the text is never used"
+  },
+  {
+   "id": "ec8a23f2c1",
+   "op": "NEG",
+   "line": 320,
+   "before": "if (planned2[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
+   "after": "if (!(planned2[0] == 0)) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
+   "verdict": "equivalent",
+   "reason": "GetaddrService.java line 320: whether task.delay runs, or for how long; in this case's root task (no RUN TRANSID children) delay() only moves the scheduler clock (X4), which nothing reads, so it is unseen"
+  },
+  {
+   "id": "7cc04b44e6",
+   "op": "DEL",
+   "line": 321,
+   "before": "Cobol.store(f43_EIBRESP, BigDecimal.valueOf(planned2[0]), false, CS);",
+   "after": "/* Cobol.store(f43_EIBRESP, BigDecimal.valueOf(planned2[0]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "GetaddrService.java line 321: the store of the DELAY's answer into f43_EIBRESP is dead: f43_EIBRESP is written in GetaddrService.java and read nowhere, and the branch after it tests planned[0] itself, not the field"
+  },
+  {
+   "id": "cb13bfe54b",
+   "op": "CON",
+   "line": 321,
+   "before": "Cobol.store(f43_EIBRESP, BigDecimal.valueOf(planned2[0]), false, CS);",
+   "after": "Cobol.store(f43_EIBRESP, BigDecimal.valueOf(planned2[1]), false, CS);",
+   "verdict": "equivalent",
+   "reason": "GetaddrService.java line 321: the value stored into f43_EIBRESP is changed (valueOf(planned2[1])); f43_EIBRESP is only ever written in GetaddrService.java, nothing reads it, so any value is unseen"
+  },
+  {
+   "id": "a31755a54a",
+   "op": "DEL",
+   "line": 322,
+   "before": "Cobol.store(f44_EIBRESP2, BigDecimal.valueOf(planned2[1]), false, CS);",
+   "after": "/* Cobol.store(f44_EIBRESP2, BigDecimal.valueOf(planned2[1]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "GetaddrService.java line 322: the store of the DELAY's answer into f44_EIBRESP2 is dead: f44_EIBRESP2 is written in GetaddrService.java and read nowhere, and the branch after it tests planned[0] itself, not the field"
+  },
+  {
+   "id": "9dbc769aaf",
+   "op": "CON",
+   "line": 323,
+   "before": "if (planned2[0] != 0) {",
+   "after": "if (planned2[1] != 0) {",
+   "verdict": "equivalent",
+   "reason": "planned2[1] is the RESP2 of the planned DELAY fault. Every DELAY fault this case plans is an INVREQ that carries a nonzero RESP2 (4; IBM sets RESP2 for these INVREQs), so planned[1] == 0 exactly when planned[0] == 0 on every input the case can plan, and the mutant behaves as the original (register X72, #5862)"
+  },
+  {
+   "id": "2dd59abb94",
+   "op": "DEL",
+   "line": 330,
+   "before": "Cobol.store(f43_EIBRESP, BigDecimal.valueOf(DetCics.resp(cont3.resp())), false, CS);",
+   "after": "/* Cobol.store(f43_EIBRESP, BigDecimal.valueOf(DetCics.resp(cont3.resp())), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "GetaddrService.java line 330: the store of the PUT CONTAINER's answer into f43_EIBRESP is dead: f43_EIBRESP is written in GetaddrService.java and read nowhere, and the next statement is another store or the RETURN, which shows no EIB or working-storage field"
+  },
+  {
+   "id": "6af9cad108",
+   "op": "DEL",
+   "line": 331,
+   "before": "Cobol.store(f44_EIBRESP2, BigDecimal.valueOf(cont3.resp2()), false, CS);",
+   "after": "/* Cobol.store(f44_EIBRESP2, BigDecimal.valueOf(cont3.resp2()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "GetaddrService.java line 331: the store of the PUT CONTAINER's answer into f44_EIBRESP2 is dead: f44_EIBRESP2 is written in GetaddrService.java and read nowhere, and the next statement is another store or the RETURN, which shows no EIB or working-storage field"
+  },
+  {
+   "id": "ed0599a270",
+   "op": "DEL",
+   "line": 332,
+   "before": "Cobol.store(f12_COMMAND_RESP, BigDecimal.valueOf(DetCics.resp(cont3.resp())), false, CS);",
+   "after": "/* Cobol.store(f12_COMMAND_RESP, BigDecimal.valueOf(DetCics.resp(cont3.resp())), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "GetaddrService.java line 332: the store of the PUT CONTAINER's answer into f12_COMMAND_RESP is dead: f12_COMMAND_RESP is written in GetaddrService.java and read nowhere, and the next statement is another store or the RETURN, which shows no EIB or working-storage field"
+  },
+  {
+   "id": "9326dcd26d",
+   "op": "DEL",
+   "line": 333,
+   "before": "Cobol.store(f13_COMMAND_RESP2, BigDecimal.valueOf(cont3.resp2()), false, CS);",
+   "after": "/* Cobol.store(f13_COMMAND_RESP2, BigDecimal.valueOf(cont3.resp2()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "GetaddrService.java line 333: the store of the PUT CONTAINER's answer into f13_COMMAND_RESP2 is dead: f13_COMMAND_RESP2 is written in GetaddrService.java and read nowhere, and the next statement is another store or the RETURN, which shows no EIB or working-storage field"
+  },
+  {
+   "id": "a754d9598f",
+   "op": "DEL",
+   "line": 337,
+   "before": "Cobol.store(f43_EIBRESP, BigDecimal.valueOf(DetCics.resp(cont5.resp())), false, CS);",
+   "after": "/* Cobol.store(f43_EIBRESP, BigDecimal.valueOf(DetCics.resp(cont5.resp())), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "GetaddrService.java line 337: the store of the PUT CONTAINER's answer into f43_EIBRESP is dead: f43_EIBRESP is written in GetaddrService.java and read nowhere, and the next statement is another store or the RETURN, which shows no EIB or working-storage field"
+  },
+  {
+   "id": "3936c0ae0c",
+   "op": "DEL",
+   "line": 338,
+   "before": "Cobol.store(f44_EIBRESP2, BigDecimal.valueOf(cont5.resp2()), false, CS);",
+   "after": "/* Cobol.store(f44_EIBRESP2, BigDecimal.valueOf(cont5.resp2()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "GetaddrService.java line 338: the store of the PUT CONTAINER's answer into f44_EIBRESP2 is dead: f44_EIBRESP2 is written in GetaddrService.java and read nowhere, and the next statement is another store or the RETURN, which shows no EIB or working-storage field"
+  },
+  {
+   "id": "f148bfa97e",
+   "op": "DEL",
+   "line": 339,
+   "before": "Cobol.store(f12_COMMAND_RESP, BigDecimal.valueOf(DetCics.resp(cont5.resp())), false, CS);",
+   "after": "/* Cobol.store(f12_COMMAND_RESP, BigDecimal.valueOf(DetCics.resp(cont5.resp())), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "GetaddrService.java line 339: the store of the PUT CONTAINER's answer into f12_COMMAND_RESP is dead: f12_COMMAND_RESP is written in GetaddrService.java and read nowhere, and the next statement is another store or the RETURN, which shows no EIB or working-storage field"
+  },
+  {
+   "id": "57cfe26781",
+   "op": "DEL",
+   "line": 340,
+   "before": "Cobol.store(f13_COMMAND_RESP2, BigDecimal.valueOf(cont5.resp2()), false, CS);",
+   "after": "/* Cobol.store(f13_COMMAND_RESP2, BigDecimal.valueOf(cont5.resp2()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "GetaddrService.java line 340: the store of the PUT CONTAINER's answer into f13_COMMAND_RESP2 is dead: f13_COMMAND_RESP2 is written in GetaddrService.java and read nowhere, and the next statement is another store or the RETURN, which shows no EIB or working-storage field"
+  }
+ ]
+}

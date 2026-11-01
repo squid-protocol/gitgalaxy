@@ -11,7 +11,7 @@
  "case": "carddemo-userlist",
  "survivors": [
   {
-   "id": "6c9dd302a5",
+   "id": "78866fa6dc",
    "op": "LIT",
    "line": 97,
    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
@@ -20,7 +20,7 @@
    "reason": "IMAGE of DFHCOMMAREA (a byte of its 32767-byte space padding, past the 194 the CARDDEMO-COMMAREA fills): COUSR00C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN), and the port overwrites those bytes with the caller's COMMAREA before it does"
   },
   {
-   "id": "ef5ef0c3c1",
+   "id": "37888a7517",
    "op": "LIT",
    "line": 117,
    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
@@ -29,7 +29,7 @@
    "reason": "IMAGE of DFHCOMMAREA (a byte of its 32767-byte space padding, past the 194 the CARDDEMO-COMMAREA fills): COUSR00C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN), and the port overwrites those bytes with the caller's COMMAREA before it does"
   },
   {
-   "id": "e5244d6b2b",
+   "id": "fd1576f86e",
    "op": "LIT",
    "line": 124,
    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
@@ -38,7 +38,7 @@
    "reason": "IMAGE of DFHCOMMAREA (a byte of its 32767-byte space padding, past the 194 the CARDDEMO-COMMAREA fills): COUSR00C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN), and the port overwrites those bytes with the caller's COMMAREA before it does"
   },
   {
-   "id": "43daad65d7",
+   "id": "d1d417da3a",
    "op": "LIT",
    "line": 181,
    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
@@ -47,7 +47,7 @@
    "reason": "IMAGE of DFHCOMMAREA (a byte of its 32767-byte space padding, past the 194 the CARDDEMO-COMMAREA fills): COUSR00C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN), and the port overwrites those bytes with the caller's COMMAREA before it does"
   },
   {
-   "id": "df2429704a",
+   "id": "93311334bf",
    "op": "CON",
    "line": 245,
    "before": "private final Field f93_PAGENUMA = Field.alphanumeric(s_COUSR0AI, 164, 1, false);",
@@ -56,7 +56,7 @@
    "reason": "every SEND MAP follows MOVE LOW-VALUES TO COUSR0AO or RECEIVE MAP's clear of COUSR0AI (same storage), and COUSR00C never writes to PAGENUMA; reading offset 165 reads the adjacent FILLER byte, which is also LOW-VALUES (0x00), so DetCics.subfields emits no attribute either way."
   },
   {
-   "id": "8df4dee96a",
+   "id": "65669739f9",
    "op": "CON",
    "line": 293,
    "before": "private final Field f189_UTYPE03A = Field.alphanumeric(s_COUSR0AI, 441, 1, false);",
@@ -65,7 +65,7 @@
    "reason": "every SEND MAP follows MOVE LOW-VALUES TO COUSR0AO or RECEIVE MAP's clear of COUSR0AI (same storage), and COUSR00C never writes to UTYPE03A; reading offset 442 reads the adjacent FILLER byte, which is also LOW-VALUES (0x00), so DetCics.subfields emits no attribute either way."
   },
   {
-   "id": "64bce0b373",
+   "id": "d2b7bab3e4",
    "op": "CON",
    "line": 332,
    "before": "private final Field f267_FNAME06A = Field.alphanumeric(s_COUSR0AI, 642, 1, false);",
@@ -74,7 +74,7 @@
    "reason": "every SEND MAP follows MOVE LOW-VALUES TO COUSR0AO or RECEIVE MAP's clear of COUSR0AI (same storage), and COUSR00C never writes to FNAME06A; reading offset 643 reads the adjacent FILLER byte, which is also LOW-VALUES (0x00), so DetCics.subfields emits no attribute either way."
   },
   {
-   "id": "d67b4d7463",
+   "id": "58fed5553c",
    "op": "CON",
    "line": 332,
    "before": "private final Field f267_FNAME06A = Field.alphanumeric(s_COUSR0AI, 642, 1, false);",
@@ -83,7 +83,7 @@
    "reason": "COUSR00C never writes to FNAME06A (it remains LOW-VALUES in s_COUSR0AI), and DetCics.subfields inspects only the single byte at attr.offset() (b != 0 && b != space), never reading beyond the first byte or using the field's length."
   },
   {
-   "id": "063c5e0be6",
+   "id": "4ebb56378e",
    "op": "CON",
    "line": 401,
    "before": "private final Field f405_ERRMSGA = Field.alphanumeric(s_COUSR0AI, 1044, 1, false);",
@@ -92,7 +92,7 @@
    "reason": "COUSR00C never writes to ERRMSGA (it remains LOW-VALUES in s_COUSR0AI), and DetCics.subfields inspects only the single byte at attr.offset() (b != 0 && b != space), never reading beyond the first byte or using the field's length."
   },
   {
-   "id": "cf87264fb7",
+   "id": "f482d66217",
    "op": "CON",
    "line": 434,
    "before": "private final Field f471_FNAME01C = Field.alphanumeric(s_COUSR0AI, 218, 1, false);",
@@ -101,7 +101,7 @@
    "reason": "COUSR00C never writes to FNAME01C (it remains LOW-VALUES in s_COUSR0AI), and DetCics.subfields inspects only the single byte at color.offset() (b != 0 && b != space), never reading beyond the first byte or using the field's length."
   },
   {
-   "id": "f4322ccc77",
+   "id": "7a4db3d58e",
    "op": "CON",
    "line": 443,
    "before": "private final Field f489_SEL0002C = Field.alphanumeric(s_COUSR0AI, 280, 1, false);",
@@ -110,7 +110,7 @@
    "reason": "every SEND MAP follows MOVE LOW-VALUES TO COUSR0AO or RECEIVE MAP's clear of COUSR0AI (same storage), and COUSR00C never writes to SEL0002C; reading offset 281 reads the adjacent SEL0002P byte, which is also LOW-VALUES (0x00), so DetCics.subfields emits no color either way."
   },
   {
-   "id": "84ef57af73",
+   "id": "6b538809b9",
    "op": "CON",
    "line": 466,
    "before": "private final Field f535_FNAME03O = Field.alphanumeric(s_COUSR0AI, 392, 20, false);",
@@ -119,7 +119,7 @@
    "reason": "an O-field one byte longer than its PIC X(20): the 21st byte at offset 412 is LNAME03L (0x00), so the decoded string has a trailing NUL which equivalence_cics._same rstrip(\" \\x00\") strips; the screen values are identical"
   },
   {
-   "id": "b1cfbccbb1",
+   "id": "265362bb98",
    "op": "CON",
    "line": 488,
    "before": "private final Field f579_SEL0005C = Field.alphanumeric(s_COUSR0AI, 535, 1, false);",
@@ -128,7 +128,7 @@
    "reason": "COUSR00C never writes to SEL0005C (it remains LOW-VALUES in s_COUSR0AI), and DetCics.subfields inspects only the single byte at color.offset() (b != 0 && b != space), never reading beyond the first byte or using the field's length."
   },
   {
-   "id": "e5a2ff0185",
+   "id": "bbe7170f41",
    "op": "CON",
    "line": 544,
    "before": "private final Field f691_LNAME08O = Field.alphanumeric(s_COUSR0AI, 844, 20, false);",
@@ -137,7 +137,7 @@
    "reason": "an O-field one byte longer than its PIC X(20): the 21st byte at offset 864 is SEL0009L (0x00), so the decoded string has a trailing NUL which equivalence_cics._same rstrip(\" \\x00\") strips; the screen values are identical"
   },
   {
-   "id": "c709e61b6a",
+   "id": "f19c0d5e4f",
    "op": "CON",
    "line": 572,
    "before": "private final Field f747_LNAME10C = Field.alphanumeric(s_COUSR0AI, 1010, 1, false);",
@@ -146,7 +146,7 @@
    "reason": "every SEND MAP follows MOVE LOW-VALUES TO COUSR0AO or RECEIVE MAP's clear of COUSR0AI (same storage), and COUSR00C never writes to LNAME10C; reading offset 1011 reads the adjacent LNAME10P byte, which is also LOW-VALUES (0x00), so DetCics.subfields emits no color either way."
   },
   {
-   "id": "f8f619ceea",
+   "id": "7671a00fb6",
    "op": "DEL",
    "line": 685,
    "before": "caBack.run();",
@@ -155,7 +155,7 @@
    "reason": "inside `if (task.level() > 1)` in abended(): level above 1 is a LINKed program, and no CardDemo program LINKs COUSR00C (it is reached by terminal transaction CU00 and XCTL only)"
   },
   {
-   "id": "acda6270ee",
+   "id": "7f8c9b127d",
    "op": "LIT",
    "line": 693,
    "before": "case \"USRSEC\" -> new DetCics.Store<SecUserData>(secUserDataRepository::findAll, e -> e.toRecord(CS), b -> SecUserData.fromRecord(b, CS), e -> task.write(\"USRSEC\", () -> secUserDataRepository.save(e)), e -> task.write(\"USRSEC\", () -> secUserDataRepository.delete(e)), 0, 8, CS).withFindById(rec -> secUserDataRepository.findById(id_SecUserData(rec)));",
@@ -164,7 +164,7 @@
    "reason": "the USRSEC store's write lambda: COUSR00C only browses USRSEC (STARTBR, READNEXT, READPREV, ENDBR) and has no WRITE or REWRITE, so the lambda is never called"
   },
   {
-   "id": "c7c6029152",
+   "id": "1498d19802",
    "op": "CON",
    "line": 711,
    "before": "java.util.Map.entry(\"PROCESS-PF8-KEY\", 3),",
@@ -173,7 +173,7 @@
    "reason": "PARAGRAPHS is read only by paragraph(), for a HANDLE ABEND label (task.abendOnCondition); COUSR00C issues no HANDLE"
   },
   {
-   "id": "0094267b55",
+   "id": "db12a4c1ac",
    "op": "LIT",
    "line": 712,
    "before": "java.util.Map.entry(\"PROCESS-PF7-KEY\", 2),",
@@ -182,7 +182,7 @@
    "reason": "PARAGRAPHS is read only by paragraph(), for a HANDLE ABEND label (task.abendOnCondition); COUSR00C issues no HANDLE"
   },
   {
-   "id": "dc1b341b03",
+   "id": "ee3f23744d",
    "op": "AOR",
    "line": 782,
    "before": "d.setCdemoFromTranid(Cobol.text(Field.alphanumeric(s, base + 0, 4, false), CS));",
@@ -191,7 +191,7 @@
    "reason": "`base + 0` and `base - 0` are the same offset"
   },
   {
-   "id": "255d341836",
+   "id": "8d5c030b20",
    "op": "DEL",
    "line": 841,
    "before": "System.arraycopy(IMAGE_s_CCDA_COMMON_MESSAGES, 0, s_CCDA_COMMON_MESSAGES.bytes, 0, IMAGE_s_CCDA_COMMON_MESSAGES.length);",
@@ -200,7 +200,7 @@
    "reason": "CCDA-COMMON-MESSAGES fields (CCDA-MSG-INVALID-KEY) are lifted to Java String fields (f809_CCDA_MSG_INVALID_KEY) initialized directly in initialState; the underlying storage s_CCDA_COMMON_MESSAGES is never read"
   },
   {
-   "id": "112c95692a",
+   "id": "d8e126b0ef",
    "op": "AOR",
    "line": 899,
    "before": "Cobol.store(f926_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
@@ -209,7 +209,7 @@
    "reason": "EIBDATE / EIBTIME are never read by COUSR00C (its date and time come from FUNCTION CURRENT-DATE), and the proof compares neither"
   },
   {
-   "id": "df18fe7d16",
+   "id": "488c9c811d",
    "op": "AOR",
    "line": 900,
    "before": "Cobol.store(f925_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
@@ -218,7 +218,7 @@
    "reason": "EIBDATE / EIBTIME are never read by COUSR00C (its date and time come from FUNCTION CURRENT-DATE), and the proof compares neither"
   },
   {
-   "id": "f591441e02",
+   "id": "676bdcf646",
    "op": "LIT",
    "line": 909,
    "before": "case \"STRF\" -> Cobol.move(f825_DFHSTRF, f933_EIBAID, CS);",
@@ -227,7 +227,7 @@
    "reason": "no scenario sends AID 'STRF'; if sent, EIBAID would retain its initial byte (a space), which matches none of DFHENTER / DFHPF3 / DFHPF7 / DFHPF8, taking WHEN OTHER exactly as DFHSTRF does"
   },
   {
-   "id": "33d6b2d71c",
+   "id": "34799ba0a3",
    "op": "DEL",
    "line": 950,
    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
@@ -236,7 +236,7 @@
    "reason": "the byte[] COMMAREA entry (ca instanceof byte[]) runs only for a LINK from a caller handing raw bytes; COUSR00C is a terminal transaction reached by XCTL, so the area is always the typed DTO"
   },
   {
-   "id": "73392963ef",
+   "id": "f38b97a36c",
    "op": "ROR",
    "line": 962,
    "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
@@ -245,7 +245,7 @@
    "reason": "inside `if (raw != null)`, in the write-back to the LINK area: no CardDemo program LINKs COUSR00C, so task.linkArea() is null and this is never entered"
   },
   {
-   "id": "43ffc2d158",
+   "id": "2cbe9c04aa",
    "op": "ROR",
    "line": 965,
    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
@@ -254,7 +254,7 @@
    "reason": "at calen == the area's length the narrowing copies the area to a same-length array, which changes no byte; for every other calen the comparison agrees"
   },
   {
-   "id": "beebb62656",
+   "id": "ce878f3bbb",
    "op": "COR",
    "line": 1026,
    "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
@@ -263,7 +263,7 @@
    "reason": "lastLinkBytes is set only in handleLink, which only a caller's LINK reaches; no CardDemo program LINKs COUSR00C"
   },
   {
-   "id": "54c95775a1",
+   "id": "cbc51dba26",
    "op": "AOR",
    "line": 1101,
    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
@@ -272,7 +272,7 @@
    "reason": "performThru grows only at a PERFORM nesting depth of 64 (mine == length); COUSR00C nests at most 5 paragraphs deep"
   },
   {
-   "id": "5ec2cb3e70",
+   "id": "bbed619754",
    "op": "DEL",
    "line": 1170,
    "before": "Cobol.move(DM1, f96_USRIDINL, CS);",
@@ -281,7 +281,7 @@
    "reason": "in MAIN-PARA (paragraph 0), MOVE -1 TO USRIDINL is completely overwritten in every execution branch before any read: if EIBCALEN = 0 the program exits via RETURN-TO-PREV-SCREEN without reading it, if not re-entering it is overwritten with LOW-VALUES on line 1188 by MOVE LOW-VALUES TO COUSR0AO, and if re-entering it is cleared with 0x00 by Arrays.fill on line 2054 in RECEIVE-USRLST-SCREEN"
   },
   {
-   "id": "ad68cf86da",
+   "id": "83df92f382",
    "op": "COR",
    "line": 1287,
    "before": "if (((!(Cobol.compareFigurative(f50_CDEMO_CU00_USR_SEL_FLG, Figurative.SPACES, CS) == 0) && !(Cobol.compareFigurative(f50_CDEMO_CU00_USR_SEL_FLG, Figurative.LOW_VALUES, CS) == 0)) && (!(Cobol.compareFigurative(f51_CDEMO_CU00_USR_SELECTED, Figurative.SPACES, CS) == 0) && !(Cobol.compareFigurative(f51_CDEMO_CU00_USR_SELECTED, Figurative.LOW_VALUES, CS) == 0)))) {",
@@ -290,7 +290,7 @@
    "reason": "the line 187 test: CDEMO-CU00-USR-SEL-FLG and CDEMO-CU00-USR-SELECTED are always set together by the EVALUATE above it (the flag a non-blank, non-LOW-VALUES SELnnI, or both SPACES), so whenever SELECTED is non-blank the flag is too and `NOT = SPACES` is true either way"
   },
   {
-   "id": "cf6184501f",
+   "id": "4b86a5c024",
    "op": "DEL",
    "line": 1319,
    "before": "Cobol.store(f953_EIBRESP, BigDecimal.valueOf(DetCics.resp(xr2)), false, CS);",
@@ -299,7 +299,7 @@
    "reason": "EIBRESP is never read by COUSR00C, and the store is followed by condition(), which throws for the failed XCTL; nothing observes the stored value"
   },
   {
-   "id": "55cb3996f7",
+   "id": "2136e28209",
    "op": "ROR",
    "line": 1323,
    "before": "if (to >= 0) return GOTO | to;",
@@ -308,7 +308,7 @@
    "reason": "`to` is what condition() returns after a failed XCTL; COUSR00C has no HANDLE CONDITION / ABEND and XCTL has no RESP, so condition() throws for any XCTL failure and never returns (only EOC is ignored by default)"
   },
   {
-   "id": "9822a90949",
+   "id": "69913dc0cd",
    "op": "NEG",
    "line": 1323,
    "before": "if (to >= 0) return GOTO | to;",
@@ -317,7 +317,7 @@
    "reason": "`to` is what condition() returns after a failed XCTL; COUSR00C has no HANDLE CONDITION / ABEND and XCTL has no RESP, so condition() throws for any XCTL failure and never returns (only EOC is ignored by default)"
   },
   {
-   "id": "580bca8eea",
+   "id": "7c6d5055f5",
    "op": "COR",
    "line": 1333,
    "before": "if ((Cobol.compareFigurative(f101_USRIDINI, Figurative.SPACES, CS) == 0 || Cobol.compareFigurative(f101_USRIDINI, Figurative.LOW_VALUES, CS) == 0)) {",
@@ -326,7 +326,7 @@
    "reason": "in PROCESS-ENTER-KEY, changing OR to AND causes a blank USRIDINI to move SPACES instead of LOW-VALUES into SEC-USR-ID before STARTBR GTEQ; every USRSEC key is uppercase alphanumeric (>= 'A' / 0x41), which sorts strictly above both 0x00 and 0x20, so GTEQ positions at the identical first record in both cases and subsequent READNEXT overwrites SEC-USR-ID"
   },
   {
-   "id": "709e10b0a6",
+   "id": "8526a1b6cf",
    "op": "COR",
    "line": 1357,
    "before": "if ((Cobol.compareFigurative(f46_CDEMO_CU00_USRID_FIRST, Figurative.SPACES, CS) == 0 || Cobol.compareFigurative(f46_CDEMO_CU00_USRID_FIRST, Figurative.LOW_VALUES, CS) == 0)) {",
@@ -335,7 +335,7 @@
    "reason": "in PROCESS-PF7-KEY, changing OR to AND causes a blank CDEMO-CU00-USRID-FIRST to move SPACES instead of LOW-VALUES into SEC-USR-ID before STARTBR GTEQ; every USRSEC key is uppercase alphanumeric (>= 'A' / 0x41), which sorts strictly above both 0x00 and 0x20, so GTEQ positions at the identical first record in both cases and subsequent READNEXT overwrites SEC-USR-ID"
   },
   {
-   "id": "557f2a41e8",
+   "id": "98f763aa95",
    "op": "COR",
    "line": 1490,
    "before": "if ((!(Cobol.compare(f933_EIBAID, f819_DFHENTER, CS) == 0) && !(Cobol.compare(f933_EIBAID, f837_DFHPF8, CS) == 0))) {",
@@ -344,7 +344,7 @@
    "reason": "PROCESS-PAGE-BACKWARD runs only from PROCESS-PF7-KEY (EVALUATE EIBAID WHEN DFHPF7), so EIBAID is PF7: both `NOT = DFHENTER` and `NOT = DFHPF8` are true and `&&` and `||` agree"
   },
   {
-   "id": "4eb811e188",
+   "id": "0ac6ec0bfb",
    "op": "NEG",
    "line": 1740,
    "before": "} else if (true) {",
@@ -353,7 +353,7 @@
    "reason": "the WHEN OTHER branch of the EVALUATE is CONTINUE: an empty body, so its test changes nothing"
   },
   {
-   "id": "2eb7b22df7",
+   "id": "214545ccda",
    "op": "COR",
    "line": 1749,
    "before": "if ((Cobol.compareFigurative(f28_CDEMO_TO_PROGRAM, Figurative.LOW_VALUES, CS) == 0 || Cobol.compareFigurative(f28_CDEMO_TO_PROGRAM, Figurative.SPACES, CS) == 0)) {",
@@ -362,7 +362,7 @@
    "reason": "RETURN-TO-PREV-SCREEN is performed only after CDEMO-TO-PROGRAM is moved a literal (COSGN00C or COADM01C), so it is never SPACES or LOW-VALUES and neither form of the test is true"
   },
   {
-   "id": "b3819a8ca7",
+   "id": "c863d63e6a",
    "op": "NEG",
    "line": 1766,
    "before": "if (to >= 0) return GOTO | to;",
@@ -371,7 +371,7 @@
    "reason": "`to` is what condition() returns after a failed XCTL; COUSR00C has no HANDLE CONDITION / ABEND and XCTL has no RESP, so condition() throws for any XCTL failure and never returns (only EOC is ignored by default)"
   },
   {
-   "id": "65ffcd0d19",
+   "id": "da7d9b40bb",
    "op": "LIT",
    "line": 1966,
    "before": "DetCics.subfields(sub15, \"LNAME04\", f210_LNAME04L, f213_LNAME04A, f567_LNAME04C, f569_LNAME04H, CS);",
@@ -380,7 +380,7 @@
    "reason": "COUSR00C never writes to LNAME04A, LNAME04C, or LNAME04H (all remain LOW-VALUES 0x00 in s_COUSR0AI), and LNAME04L is never -1; DetCics.subfields never calls sub.cursor, sub.attr, sub.color, or sub.hilight, so the field name is never passed and the mutant has no effect."
   },
   {
-   "id": "29fa4e2bd9",
+   "id": "874e2e595b",
    "op": "LIT",
    "line": 1984,
    "before": "DetCics.subfields(sub15, \"FNAME06\", f264_FNAME06L, f267_FNAME06A, f621_FNAME06C, f623_FNAME06H, CS);",
@@ -389,7 +389,7 @@
    "reason": "COUSR00C never writes to FNAME06A, FNAME06C, or FNAME06H (all remain LOW-VALUES 0x00 in s_COUSR0AI), and FNAME06L is never -1; DetCics.subfields never calls sub.cursor, sub.attr, sub.color, or sub.hilight, so the field name is never passed and the mutant has no effect."
   },
   {
-   "id": "c16b4812c3",
+   "id": "ae3e4cc8c1",
    "op": "ROR",
    "line": 2049,
    "before": "int resp20 = planned21[0] != 0 ? planned21[0] : received18.isPresent() ? 0 : 36;",

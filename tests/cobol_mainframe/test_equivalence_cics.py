@@ -7,6 +7,7 @@ pieces the comparison stands on are pinned: field encoding round-trips, a DTO's 
 from its comments, and events compared field by field.
 """
 
+import inspect
 import sys
 from decimal import Decimal
 from pathlib import Path
@@ -420,7 +421,10 @@ def test_receive_notruncate_and_set_and_send_control():
     got = ec.translate_command("RECEIVE SET(ADDRESS OF LS-IN) LENGTH(WS-L) MAXLENGTH(20) RESP(WS-R)")
     assert got[:6] == ["MOVE SPACES TO GG-FLAGS", "MOVE 20 TO GG-LEN", "CALL 'GGCRECS' USING GG-CICS",
                        "    BY REFERENCE GG-PTR", "SET ADDRESS OF LS-IN TO GG-PTR", "MOVE GG-LEN TO WS-L"]  # fmt: skip
-    for bad in ("RECEIVE SET(ADDRESS OF LS-IN) LENGTH(WS-L)", "RECEIVE SET(ADDRESS OF LS-IN) MAXLENGTH(9)"):
+    # X15: with SET, LENGTH is output-only, so no MAXLENGTH means all the input (the stub's whole buffer), both SET forms
+    for cmd in ("RECEIVE SET(ADDRESS OF LS-IN) LENGTH(WS-L)", "RECEIVE SET(WS-P) LENGTH(WS-L) NOTRUNCATE"):
+        assert "MOVE 32768 TO GG-LEN" in ec.translate_command(cmd)
+    for bad in ("RECEIVE SET(ADDRESS OF LS-IN) MAXLENGTH(9)", "RECEIVE SET(WS-P) MAXLENGTH(9)"):
         with pytest.raises(ec.Unsupported):
             ec.translate_command(bad)
     assert ec.translate_command("SEND CONTROL FREEKB ERASE")[:3] == [
@@ -489,7 +493,7 @@ def test_a_delete_generic_is_named_to_the_stub():
                                   "HANDLE ABEND PROGRAM('X')", "ASSIGN OPID(U)", "HANDLE CONDITION NOSUCH(X)",
                                   "WRITEQ TS QUEUE(Q) FROM(A) SYSID(S)", "WRITEQ TS QUEUE(Q) FROM(A) REWRITE",
                                   "READQ TD QUEUE(Q) SET(P)",
-                                  "RECEIVE INTO(X) LENGTH(L) BUFFER", "RECEIVE SET(P) LENGTH(L)", "STARTBR FILE(F) RIDFLD(K) REQID(1)",
+                                  "RECEIVE INTO(X) LENGTH(L) BUFFER", "RECEIVE SET(P) MAXLENGTH(9)", "STARTBR FILE(F) RIDFLD(K) REQID(1)",
                                   "DELETE FILE('X') RIDFLD(K) GENERIC KEYLENGTH(2) NUMREC(N)", "LINK PROGRAM('X') SYSID('S')"])  # fmt: skip
 def test_an_unmodelled_command_is_refused_by_name(body):
     with pytest.raises(ec.Unsupported):
@@ -686,6 +690,31 @@ def test_send_text_options_are_compared_both_sides():
     assert ec.compare_events(cobol, java(["ERASE", "FREEKB"], [], ["LAST"]))["equal"] == 3
     other_text = [{**same[0], "text": "BYE"}, *same[1:]]
     assert ec.compare_events(cobol, other_text)["equal"] == 3
+
+
+def test_send_text_length_is_compared_both_sides():
+    """#5862: the stub's len= is the LENGTH the program passed; a Java event with another length differs."""
+    res = {
+        "events": ["SEND-TEXT len=72 opts=TEXT", "RETURN pgm=P level=1 transid= len=0"],
+        "screens": [],
+        "text": ["HELLO"],
+        "text_options": [[]],
+        "text_lengths": [72],
+        "return": {"transid": "", "commarea": None},
+    }
+    cobol = ec.cobol_events(res)
+    assert cobol[0]["length"] == 72
+    ret = {"event": "RETURN", "transid": None, "commarea": None}
+
+    def java(n):
+        return [{"event": "SEND-TEXT", "text": "HELLO", "options": [], **({} if n is None else {"length": n})}, ret]
+
+    assert ec.compare_events(cobol, java(72))["equal"] == 2
+    for wrong in (73, None):
+        got = ec.compare_events(cobol, java(wrong))
+        assert got["equal"] == 1 and got["diffs"][0]["fields"][0]["field"] == "length"
+    legacy = ec.cobol_events({**res, "text_lengths": []})  # no len logged: not compared
+    assert "length" not in legacy[0] and ec.compare_events(legacy, java(73))["equal"] == 2
 
 
 def test_a_tasks_terminal_and_origin_are_stated_facts_or_none():
@@ -2141,6 +2170,36 @@ def test_a_case_says_its_program_takes_no_commarea(tmp_path):
     assert 'm = method(service, "handleLink", 0);' in java  # the facade side enters handleLink() itself
 
 
+@pytest.mark.parametrize("sig", ["handleTransaction(String transid, Object request)", "handleLink(Object request)"])
+def test_an_object_service_carries_the_cases_commarea_record_dto(tmp_path, sig):
+    """#6072: a service typed `Object` (PCCONF, PCDETL, PCIMMA) still carries the DTO of the case's COMMAREA record when
+    the case states one and the forge generated it; otherwise no DTO (an HLASM facade, #5859; a case with none)."""
+    svc = tmp_path / "PcconfService.java"
+    svc.write_text(f"public class PcconfService {{\n    public Object {sig} {{\n    }}\n}}\n", encoding="utf-8")
+    typed = {"program": "PCCONF", "commarea": {"segments": [{"copybook": "PCCONF.cbl", "record": "WS-STATE"}]}}
+    assert ec.commarea_class(typed, tmp_path, svc) is None  # the DTO was not generated
+    # a shared copybook record is named bare; the program's own record after its declarer (PcconfWsState), and the
+    # service also imports the XCTL target's PcwizWsState: the case program's own wins
+    (tmp_path / "WsState.java").write_text("public class WsState {}", encoding="utf-8")
+    assert ec.commarea_class(typed, tmp_path, svc) == "WsState"
+    for dto in ("PcwizWsState", "PcconfWsState"):
+        (tmp_path / f"{dto}.java").write_text(f"public class {dto} {{}}", encoding="utf-8")
+    svc.write_text(
+        "import x.dto.contract.PcwizWsState;\nimport x.dto.contract.PcconfWsState;\n" + svc.read_text(),
+        encoding="utf-8",
+    )
+    assert ec.commarea_class(typed, tmp_path, svc) == "PcconfWsState"
+    for none in ({"commarea": None}, {"commarea": {}}, {"commarea": {"segments": []}}, {}):
+        assert ec.commarea_class(none, tmp_path, svc) is None
+
+
+def test_a_typed_service_keeps_its_own_commarea_class(tmp_path):
+    svc = tmp_path / "XService.java"
+    svc.write_text("public void handleTransaction(String transid, XCa request) {}", encoding="utf-8")
+    case = {"commarea": {"segments": [{"copybook": "X.cbl", "record": "OTHER"}]}}
+    assert ec.commarea_class(case, tmp_path, svc) == "XCa"
+
+
 def test_a_commarea_in_an_event_of_a_case_with_none_is_refused(tmp_path):
     out = tmp_path / "out"
     out.mkdir()
@@ -2864,6 +2923,23 @@ def test_the_td_queue_types_a_csd_defines_are_read_with_their_names(tmp_path):
     assert ec.csd_tdqueue_types(tmp_path, case) == {"JOBS": "EXTRA", "AUDQ": "INTRA", "NONE": ""}
     assert ec.csd_tdqueues(tmp_path, case) == ["AUDQ", "JOBS", "NONE"]
     assert ec.csd_tdqueue_types(tmp_path, {}) is None and ec.csd_tdqueues(tmp_path, {}) is None
+
+
+def test_a_scenario_states_its_own_transid_else_the_cases():
+    """#6072: `scenario_transid` is the scenario's "transid", else the case's; a value that is not one to four
+    characters is refused by name, and the case is left untouched."""
+    case = _facade_case()
+    before = repr(case)
+    assert ec.scenario_transid(case, {"name": "a"}) == "T001"
+    assert ec.scenario_transid(case, {"name": "b", "transid": "HCA1"}) == "HCA1"
+    assert ec.scenario_transid(case, {"name": "c", "transid": "X"}) == "X"
+    assert repr(case) == before
+    for bad in ("", "TOOLG", 5, None):
+        with pytest.raises(ec.Unsupported, match="transid"):
+            ec.scenario_transid(case, {"name": "d", "transid": bad})
+    src = inspect.getsource(ec)
+    assert "scenario_transid(case, sc):<4}" in src  # eib.in, the COBOL side
+    assert 'new CicsTask(sc.path("transid").asText(' in src  # the Java side
 
 
 def test_a_scenario_states_its_own_clock_else_the_cases():

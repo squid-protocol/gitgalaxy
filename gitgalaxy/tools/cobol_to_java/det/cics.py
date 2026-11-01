@@ -533,6 +533,14 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
         with self.g.reading():
             return self.field(text)
 
+    def linkage_record(self, text: str) -> bool:
+        """Whether the operand is a LINKAGE 01 record (a SET ADDRESS OF can window it onto a larger block)."""
+        try:
+            it = self.g.resolve(self.ref(text))
+        except Untranslatable:  # an ambiguous name: the plain path says so
+            return False
+        return getattr(it, "section", None) == "LINKAGE" and getattr(it, "level", None) == 1
+
     def size(self, text: str) -> int:
         r = self.ref(text)
         it = self.g.resolve(r)
@@ -841,9 +849,12 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
             # WAIT EXTERNAL, WAIT TERMINAL ...) read as no verb at all and crashed on the empty verb: WAIT is its verb
             words = ["WAIT"]
             del opts["WAIT"]
-            if "EVENT" in opts and opts["EVENT"] is None:  # #5079 (X63): WAIT EVENT ECADDR(ptr) is a command of its own
-                words = ["WAIT", "EVENT"]
-                del opts["EVENT"]
+            # #5079 (X63): WAIT EVENT ECADDR(ptr) and WAIT EXTERNAL ECBLIST(ptr) are commands of their own
+            for second in ("EVENT", "EXTERNAL"):
+                if second in opts and opts[second] is None:
+                    words = ["WAIT", second]
+                    del opts[second]
+                    break
         verb = " ".join(words)
         check_options(words, opts)  # #4411: an option the translation would ignore is refused first
         key = command_key(words, opts)
@@ -867,6 +878,8 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
             return self.post(opts, ind)
         if key == "WAIT EVENT":
             return self.wait_event(opts, ind)
+        if key in ("WAIT EXTERNAL", "WAITCICS"):
+            return self.wait_external(key, opts, ind)
         if key == "CONVERSE":
             return self.converse(opts, ind)
         if verb in ("START", "RETRIEVE", "CANCEL"):  # #4270 slice 2: interval control
@@ -1571,7 +1584,10 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
                     f"{num('STATUSCODE', '-1')}, {text('STATUSTEXT')}, {num('STATUSLEN', '-1')}, {conv}, "
                     f"{num('DOCSTATUS', '0')}, CS)")  # fmt: skip
             return [f"{ind}int[] {r} = {call};", *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
-        call = (f"task.webSend({text('FROM')}, {num('FROMLENGTH', '0')}, {text('MEDIATYPE')}, {num('ACTION', '0')}, "
+        frm = text("FROM")
+        if "FROM" in opts and self.linkage_record(_arg(opts["FROM"])):  # #6839: an area set onto a larger block
+            frm = f"DetCics.fromText({self.read_field(_arg(opts['FROM']))}, {num('FROMLENGTH', '0')}, CS)"
+        call = (f"task.webSend({frm}, {num('FROMLENGTH', '0')}, {text('MEDIATYPE')}, {num('ACTION', '0')}, "
                 f"{num('STATUSCODE', '-1')}, {text('STATUSTEXT')}, {num('STATUSLEN', '-1')}, {conv})")  # fmt: skip
         return [f"{ind}int[] {r} = {call};", *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
 
@@ -1815,7 +1831,10 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
         """#4771 (X47): the Field of the plain USAGE POINTER item an option names (SET / DATAPOINTER)."""
 
         try:
-            return self.g.pointer_item(_arg(text).strip())
+            ref = E.Parser(
+                E.tokenize(_arg(text).strip())
+            ).ref()  # #5079: `PTR` or an element `TBL(I)` of a pointer table
+            return self.g.pointer_item(ref.name, ref if ref.subscripts else None)
         except Untranslatable as e:
             raise CicsError(str(e)) from None
 
@@ -1936,9 +1955,9 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
         """A terminal RECEIVE (IBM, EXEC CICS RECEIVE (3270 logical), (LUTYPE2/LUTYPE3)) on CicsTask.receive.
 
         INTO: the most taken is MAXLENGTH, else LENGTH's value, else INTO's length; the data goes into INTO's first
-        bytes. SET(ADDRESS OF record): the LINKAGE record addresses the data (DetCics.receivedSet); it needs MAXLENGTH
-        -- without it IBM's "the value indicated in the LENGTH option is assumed" reads LENGTH, which SET only sets
-        -- and LENGTH(data-area). LENGTH / FLENGTH is set to the length the runtime returns (the data's, or under
+        bytes. SET(ADDRESS OF record): the LINKAGE record addresses the data (DetCics.receivedSet); it needs
+        LENGTH(data-area). With SET, LENGTH is only an output (IBM: the data area "is set to the length of the data"), so
+        without MAXLENGTH nothing bounds the data: the whole input comes back (an unbounded limit; X15). LENGTH / FLENGTH is set to the length the runtime returns (the data's, or under
         LENGERR the original length). LENGERR (22) and EOC (6, an LUTYPE2 terminal; ignored by default) go through
         RESP / HANDLE CONDITION like any condition."""
         length = _one_of(opts, "LENGTH", "FLENGTH")  # (FLENGTH / MAXFLENGTH: the fullword forms)
@@ -1951,11 +1970,9 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
             put = "received"
         elif opts.get("SET") and "INTO" not in opts:
             m = re.fullmatch(r"(?is)ADDRESS\s+OF\s+([A-Z0-9-]+)", opts["SET"].strip())
-            if not most:
-                raise CicsError("RECEIVE SET without MAXLENGTH: the most it takes is not documented")
             if not settable:
                 raise CicsError("RECEIVE SET without LENGTH(data-area)")
-            limit = self.int_(most)
+            limit = self.int_(most) if most else "Integer.MAX_VALUE"  # LENGTH is output-only with SET (X15)
             if m is None:  # #5042 (X58): SET(pointer): the data in a new block of task storage the pointer addresses
                 target = self.pointer(opts["SET"])
                 put = "setBlock"

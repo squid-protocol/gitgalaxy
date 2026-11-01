@@ -1,0 +1,45 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "GTTERM",
+  "program_source": "cases/ghost-tasks/gt-terminal-coalesce/src/GTTERM.cbl",
+  "copy_dirs": [],
+  "transid": "GT11",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "programs": [
+    {
+      "program": "GTSHOW",
+      "program_source": "cases/ghost-tasks/gt-terminal-coalesce/src/GTSHOW.cbl"
+    }
+  ],
+  "notes": "cics-crucible ghost-tasks / gt-terminal-coalesce (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): START TERMID: several expired requests for one transaction and terminal become ONE task; staggered expiry; CANCEL REQID before and after expiry. Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "three-in-one",
+      "commarea": null,
+      "terminal": "GT11 3",
+      "why": "three STARTs of GT12 for T001 expire while GT11 holds the terminal: one GT12 task RETRIEVEs all three, in order"
+    },
+    {
+      "name": "staggered",
+      "commarea": null,
+      "terminal": "GT11 S",
+      "why": "INTERVAL(0) and INTERVAL(10): the first GT12 sees only ALPHA (BRAVO has not expired), a second GT12 at +10s sees BRAVO"
+    },
+    {
+      "name": "mode-c",
+      "commarea": null,
+      "terminal": "GT11 C",
+      "why": "takes the EVALUATE/IF arm no crucible scenario reaches: mode-c"
+    },
+    {
+      "name": "unmatched-mode",
+      "commarea": null,
+      "terminal": "GT11 Z",
+      "why": "takes the EVALUATE/IF arm no crucible scenario reaches: a mode no WHEN names (falls through)"
+    }
+  ]
+}

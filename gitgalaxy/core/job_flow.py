@@ -28,7 +28,7 @@
 #   - Scheduler dependencies (CA-7, TWS, Control-M) are not in the repository;
 #     cross-job ORDER is therefore unknown, and producer -> consumer edges across
 #     jobs are candidates, not a schedule.
-#   - Only DDs that name a DSN are DD rows (not SYSOUT / DUMMY / in-stream `*`).
+#   - Only DDs that name a DSN are DD rows (not SYSOUT / DUMMY / DSN=NULLFILE / in-stream `*`).
 #     An in-stream control deck (`DD *` / `DD DATA` named SYSIN, SYMNAMES, SORTCNTL, DFSPARM, #4268) is an
 #     INSTREAM row: step_name, dd_name, in_proc, line, instream (the body as written). Other in-stream DDs
 #     (SYSTSIN has its own channel, runs / systsin_member) are not kept.
@@ -133,7 +133,7 @@ _DLM = re.compile(r"DLM=(?:'(..)'|(..))", re.I)
 _CONTROL_DDS = frozenset({"SYSIN", "SYMNAMES", "SORTCNTL", "DFSPARM"})
 
 
-def _instream_bodies(code_stream: str) -> dict[int, str]:
+def _instream_bodies(code_stream: str, dds: frozenset[str] | None = _CONTROL_DDS) -> dict[int, str]:
     """DD statement line -> the in-stream body of a `DD *` / `DD DATA` named in `_CONTROL_DDS` (#4268).
 
     `DD *` ends at `/*`, at the next `//` statement, or at its `DLM=xx` delimiter; `DD DATA` ends at `/*` (or its
@@ -144,7 +144,7 @@ def _instream_bodies(code_stream: str) -> dict[int, str]:
     while i < len(lines):
         m = _INSTREAM_DD.match(lines[i][:72])
         i += 1
-        if not m or m.group(1).rsplit(".", 1)[-1].upper() not in _CONTROL_DDS:
+        if not m or (dds is not None and m.group(1).rsplit(".", 1)[-1].upper() not in dds):
             continue
         dd_line = i
         dlm = _DLM.search(m.group(3) or "")
@@ -249,6 +249,54 @@ def _parm(value: str | None) -> str | None:
     return v
 
 
+# #5154: what a JCL job assembles. A step is an assembler step when it runs one of these programs (HLASM
+# ASMA90 and its IEV90 alias, assembler F IEUASM / IFOX00, the older ASMAHL / ASMBLR) or calls a procedure that
+# wraps it: CICS's DFHAUPLE, the HLASM cataloged procedures ASMAC / ASMACG / ASMACL / ASMACLG and the assembler F
+# ones ASMFC / ASMFCG / ASMFCL / ASMFCLG (ASSUMED names: the manual page was not read offline).
+ASSEMBLER_PROGRAMS = frozenset({"ASMA90", "IEV90", "IEUASM", "IFOX00", "ASMAHL", "ASMBLR"})
+ASSEMBLER_PROCS = frozenset(
+    {"DFHAUPLE", "ASMAC", "ASMACG", "ASMACL", "ASMACLG", "ASMFC", "ASMFCG", "ASMFCL", "ASMFCLG"}
+)
+
+
+def _assembler_kind(operands: str) -> str | None:
+    """ "pgm" for `EXEC PGM=<assembler>`, "proc" for a call of an assembler procedure, else None."""
+    first = operands.split(",", 1)[0].strip().upper()
+    if first.startswith("PGM="):
+        return "pgm" if first[4:] in ASSEMBLER_PROGRAMS else None
+    return "proc" if first.removeprefix("PROC=") in ASSEMBLER_PROCS else None
+
+
+def jcl_assembler_instream(code_stream: str) -> str:
+    """The in-stream source an assembler step of a job reads, every other line blanked (#5154).
+
+    Same number of lines as the job, so a row found in the result keeps its line in the job. Kept: the
+    `DD *` / `DD DATA` body of the SYSIN of a step that runs an assembler (and of the unnamed DDs concatenated
+    after it), and every in-stream override DD of a step that calls an assembler procedure (DFHAUPLE's
+    `COPY.SYSUT1`, `ASSEM.SYSIN`). Not kept: a deck of any other step (an IEBGENER copy writes a member, it does
+    not assemble it), however the job's other steps run."""
+    if not code_stream or "//" not in code_stream:
+        return ""
+    bodies = _instream_bodies(code_stream, None)
+    out = [""] * len(code_stream.split("\n"))
+    kind: str | None = None
+    sysin = False
+    for no, name, op, operands in _statements(code_stream):
+        if op in ("JOB", "PROC", "PEND"):
+            kind, sysin = None, False
+        elif op == "EXEC":
+            kind, sysin = _assembler_kind(operands), False
+        elif op == "DD" and kind:
+            if name.rsplit(".", 1)[-1] == "SYSIN":
+                sysin = True
+            elif name:
+                sysin = False
+            if no in bodies and (kind == "proc" or sysin):
+                for k, text in enumerate(bodies[no].split("\n")):
+                    out[no + k] = text
+    return "\n".join(out)
+
+
 def jcl_job_flow(code_stream: str) -> list[dict[str, Any]]:
     """The job flow of one JCL file (see the module header)."""
     if not code_stream or "//" not in code_stream:
@@ -347,6 +395,8 @@ def jcl_job_flow(code_stream: str) -> list[dict[str, Any]]:
             if not dsn:
                 continue
             dsn = dsn.upper()
+            if dsn == "NULLFILE":  # z/OS MVS JCL Reference, DSNAME: "same effect as coding the DD DUMMY parameter"
+                continue
             gen = _GEN.search(dsn)
             if gen:
                 dsn = dsn[: gen.start()]

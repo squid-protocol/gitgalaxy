@@ -13,7 +13,12 @@ from typing import Any
 from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: compiled on first use
 from gitgalaxy.standards.language_standards.identifiers import ID_CONTINUE, ID_START
 
-from .._shared_patterns import CALLS_OUT_C_STYLE, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import (
+    CALLS_OUT_C_STYLE,
+    GLOBAL_FRAGILE_DEBT,
+    GLOBAL_PLANNED_DEBT,
+    commented_keyword_statement,
+)
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -233,9 +238,20 @@ DEFINITION: dict[str, Any] = {
         # standard, far more common single-line comment style, e.g.
         # `// function foo() {}`) never matched at all. Applied the
         # same keyword check to both comment styles.
+        # #7207: a keyword-led comment counts only with a statement's shape (`;{}`, `(...)`, an assignment, a quote /
+        # `$` argument, or a bare `class|namespace|function Name`); a lone `// ;` / `// }` and a commented `$var ...`
+        # expression still count.
         "dead_code": re.compile(
-            r"//\s*[;{}]|(?://|/\*)\s*(?:function|class|namespace|use|if|foreach)\b"
-            r"|#\s*\$|//\s*(?:echo|print|\$|return|var_dump)"
+            r"//[ \t]*[;{}][ \t]*(?m:$)"
+            r"|(?:#|//)[ \t]*\$\w+[ \t]*(?:[-+*/.%?]?=(?![=>])|->|\[|\(|;)|"
+            + commented_keyword_statement(
+                "function|class|namespace|use|if|foreach",
+                extra=r"[ \t]+\$"
+                r"|(?:(?<=class)|(?<=namespace)|(?<=function))[ \t]+[\w\\]+"
+                r"(?:[ \t]+(?:extends|implements)[ \t]+[\w\\, ]+)?[ \t]*(?:\*/[ \t]*)?(?m:$)",
+            )
+            + "|"
+            + commented_keyword_statement("echo|print|return|var_dump", block=False, extra=r"[ \t]+[\"'$]")
         ),
         # 13. doc (Structured Documentation)
         # BUG FIX #2672: pair `/**` with its closing `*/` into one bounded

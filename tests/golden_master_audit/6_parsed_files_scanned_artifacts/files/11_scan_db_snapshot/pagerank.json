@@ -375,7 +375,7 @@
         "TTY_URL_With_Commit@150": 1.1e-05,
         "To_TOML@873": 1.1e-05,
         "To_TOML@928": 1.1e-05,
-        "URL@123": 8e-05,
+        "URL@123": 7.9e-05,
         "URL_Basename@304": 2.6e-05,
         "Unique_Ids@252": 1.1e-05,
         "Whenever@951": 1.1e-05
@@ -1229,7 +1229,7 @@
         "TCALARM2@175": 1.1e-05
       },
       "agc_assembly/apollo-11/ALARM_AND_ABORT.agc": {
-        "ABORT2@175": 0.00011,
+        "ABORT2@175": 0.000109,
         "ALARM2@56": 2.9e-05,
         "ALARM@53": 4.7e-05,
         "BAILOUT@143": 3.3e-05,
@@ -4531,7 +4531,7 @@
         "dict_length@3644": 1.1e-05,
         "dict_merge@4157": 0.0001,
         "dict_merge_api@4248": 6.3e-05,
-        "dict_merge_from_seq2@4032": 3.2e-05,
+        "dict_merge_from_seq2@4032": 3.1e-05,
         "dict_new@5187": 2.1e-05,
         "dict_new_presized@2267": 2.8e-05,
         "dict_or@5026": 1.5e-05,
@@ -4909,7 +4909,7 @@
         "Py_IsFalse@3375": 1.1e-05,
         "Py_IsNone@3365": 2.3e-05,
         "Py_IsTrue@3370": 1.1e-05,
-        "Py_NewRef@3341": 0.000722,
+        "Py_NewRef@3341": 0.000721,
         "Py_REFCNT@3499": 0.000114,
         "Py_ReprEnter@3087": 2.2e-05,
         "Py_ReprLeave@3121": 2.2e-05,
@@ -5119,7 +5119,7 @@
         "check_basicsize_includes_size_and_offsets@5176": 1.2e-05,
         "check_duplicates@3268": 1.5e-05,
         "check_immutable_bases@5216": 1.4e-05,
-        "check_num_args@9638": 0.000151,
+        "check_num_args@9638": 0.00015,
         "check_pow_args@9654": 2.9e-05,
         "check_set_special_type_attr@1486": 2.5e-05,
         "class_name@3257": 2.8e-05,
@@ -5145,7 +5145,7 @@
         "get_builtin_base_with_dict@3955": 1.4e-05,
         "get_dict_descriptor@3967": 1.4e-05,
         "get_subclasses_key@9568": 1.5e-05,
-        "get_type_cache@976": 3.1e-05,
+        "get_type_cache@976": 3e-05,
         "getindex@9815": 2.9e-05,
         "hackcheck@9996": 2.4e-05,
         "hackcheck_unlocked@9948": 3.1e-05,
@@ -5173,7 +5173,7 @@
         "managed_static_type_index_is_set@235": 0.000138,
         "managed_static_type_index_set@250": 1.5e-05,
         "managed_static_type_state_clear@385": 2.1e-05,
-        "managed_static_type_state_get@288": 0.000279,
+        "managed_static_type_state_get@288": 0.000278,
         "managed_static_type_state_init@313": 1.5e-05,
         "maybe_call_special_no_args@3162": 5e-05,
         "maybe_call_special_one_arg@3182": 3e-05,
@@ -5224,7 +5224,7 @@
         "set_tp_mro@654": 1.5e-05,
         "set_version_unlocked@1137": 5.3e-05,
         "shape_differs@3760": 2.8e-05,
-        "should_assign_version_tag@6167": 3.1e-05,
+        "should_assign_version_tag@6167": 3e-05,
         "signature_from_flags@928": 1.6e-05,
         "skip_signature@855": 2.7e-05,
         "slot_am_aiter@11328": 1.1e-05,
@@ -5739,7 +5739,7 @@
         "emit_pre_pop_reg_reg_reg@982": 2.1e-05,
         "ensure_extra_stack@777": 8.2e-05,
         "load_reg_stack_imm@879": 4.7e-05,
-        "need_reg_all@868": 0.000136,
+        "need_reg_all@868": 0.000135,
         "need_reg_single@853": 5.9e-05,
         "need_stack_settled@903": 3e-05,
         "peek_stack@837": 4e-05,
@@ -6298,19 +6298,25 @@
     },
     "cobol/Z-SMS-Gateway": {
       "cobol/Z-SMS-Gateway/BALANCE.cbl": {
+        "BALANCE@94": 1.1e-05,
         "SEND-JSON-ERROR@457": 1.5e-05,
         "SEND-JSON-RESPONSE@492": 1.5e-05
       },
       "cobol/Z-SMS-Gateway/HISTORY.cbl": {
+        "HISTORY@117": 1.1e-05,
         "SEND-JSON-ERROR@404": 1.5e-05,
         "SEND-JSON-RESPONSE@439": 1.5e-05
       },
       "cobol/Z-SMS-Gateway/MESSAGES.cbl": {
         "8000-DUMP-HEXA@323": 1.2e-05,
         "CHECK-USER-CREDIT@354": 1.2e-05,
+        "MESSAGES@129": 1.1e-05,
         "SAVE-SMS-HISTORY@419": 1.2e-05,
         "SEND-JSON-ERROR@469": 2.3e-05,
         "SEND-JSON-RESPONSE@502": 1.2e-05
+      },
+      "cobol/Z-SMS-Gateway/SENDSMS.cbl": {
+        "SENDSMS@47": 1.1e-05
       }
     },
     "cobol/aws-mainframe-modernization-carddemo": {
@@ -6320,21 +6326,24 @@
         "1100-DISPLAY-ACCT-RECORD@118": 1.4e-05,
         "9000-ACCTFILE-CLOSE@151": 1.4e-05,
         "9910-DISPLAY-IO-STATUS@176": 2.6e-05,
-        "9999-ABEND-PROGRAM@169": 2.6e-05
+        "9999-ABEND-PROGRAM@169": 2.6e-05,
+        "CBACT01C@70": 1.1e-05
       },
       "cobol/aws-mainframe-modernization-carddemo/CBACT02C.cbl": {
         "0000-CARDFILE-OPEN@118": 1.4e-05,
         "1000-CARDFILE-GET-NEXT@92": 1.4e-05,
         "9000-CARDFILE-CLOSE@136": 1.4e-05,
         "9910-DISPLAY-IO-STATUS@161": 2.8e-05,
-        "9999-ABEND-PROGRAM@154": 2.8e-05
+        "9999-ABEND-PROGRAM@154": 2.8e-05,
+        "CBACT02C@70": 1.1e-05
       },
       "cobol/aws-mainframe-modernization-carddemo/CBACT03C.cbl": {
         "0000-XREFFILE-OPEN@118": 1.4e-05,
         "1000-XREFFILE-GET-NEXT@92": 1.4e-05,
         "9000-XREFFILE-CLOSE@136": 1.4e-05,
         "9910-DISPLAY-IO-STATUS@161": 2.8e-05,
-        "9999-ABEND-PROGRAM@154": 2.8e-05
+        "9999-ABEND-PROGRAM@154": 2.8e-05,
+        "CBACT03C@70": 1.1e-05
       },
       "cobol/aws-mainframe-modernization-carddemo/CBACT04C.cbl": {
         "0000-TCATBALF-OPEN@234": 1.1e-05,
@@ -6358,12 +6367,14 @@
         "9400-TRANFILE-CLOSE@595": 1.1e-05,
         "9910-DISPLAY-IO-STATUS@635": 9.2e-05,
         "9999-ABEND-PROGRAM@628": 9.2e-05,
+        "CBACT04C@180": 1.1e-05,
         "Z-GET-DB2-FORMAT-TIMESTAMP@613": 1.6e-05
       },
       "cobol/aws-mainframe-modernization-carddemo/CBCUS01C.cbl": {
         "0000-CUSTFILE-OPEN@118": 1.4e-05,
         "1000-CUSTFILE-GET-NEXT@92": 1.4e-05,
         "9000-CUSTFILE-CLOSE@136": 1.4e-05,
+        "CBCUS01C@70": 1.1e-05,
         "Z-ABEND-PROGRAM@154": 2.8e-05,
         "Z-DISPLAY-IO-STATUS@161": 2.8e-05
       },
@@ -6413,6 +6424,7 @@
         "9500-TCATBALF-CLOSE@674": 1.1e-05,
         "9910-DISPLAY-IO-STATUS@714": 9.7e-05,
         "9999-ABEND-PROGRAM@707": 9.7e-05,
+        "CBTRN02C@193": 1.1e-05,
         "Z-GET-DB2-FORMAT-TIMESTAMP@692": 1.3e-05
       },
       "cobol/aws-mainframe-modernization-carddemo/CBTRN03C.cbl": {
@@ -6441,7 +6453,8 @@
         "9400-TRANCATG-CLOSE@587": 1.1e-05,
         "9500-DATEPARM-CLOSE@605": 1.1e-05,
         "9910-DISPLAY-IO-STATUS@633": 0.000118,
-        "9999-ABEND-PROGRAM@626": 0.000118
+        "9999-ABEND-PROGRAM@626": 0.000118,
+        "CBTRN03C@159": 1.1e-05
       },
       "cobol/aws-mainframe-modernization-carddemo/COACTUPC.cbl": {
         "0000-MAIN-EXIT@1029": 1.1e-05,
@@ -6873,7 +6886,8 @@
       },
       "cobol/aws-mainframe-modernization-carddemo/CSUTLDTC.cbl": {
         "A000-MAIN-EXIT@152": 1.1e-05,
-        "A000-MAIN@103": 2e-05
+        "A000-MAIN@103": 2e-05,
+        "CSUTLDTC@88": 1.1e-05
       }
     },
     "cobol/cash-account-cobol": {
@@ -6883,15 +6897,46 @@
         "CASH-ACCT-DEBIT@238": 1.2e-05,
         "CASH-ACCT-DELETE@185": 1.2e-05,
         "CASH-ACCT-READ@136": 1.2e-05,
-        "CASH-ACCT-UPDATE@164": 1.2e-05
+        "CASH-ACCT-UPDATE@164": 1.2e-05,
+        "CASH00@66": 1.1e-05
       }
     },
     "cobol/che-che4z_lsp_project_fixtures": {
+      "cobol/che-che4z_lsp_project_fixtures/ABCD.cbl": {
+        "VSAMTEST@23": 1.1e-05
+      },
+      "cobol/che-che4z_lsp_project_fixtures/ADSORT.cbl": {
+        "ADSORT@36": 1.1e-05
+      },
       "cobol/che-che4z_lsp_project_fixtures/BASIC.cbl": {
         "000-Main-Logic@28": 1.1e-05,
         "100-Print-User@32": 2e-05
       },
+      "cobol/che-che4z_lsp_project_fixtures/CALL.cbl": {
+        "HELLO-WORLD@20": 1.1e-05
+      },
+      "cobol/che-che4z_lsp_project_fixtures/CFAST.cbl": {
+        "MAIN2@31": 1.1e-05,
+        "MAIN@17": 1.1e-05,
+        "NESTED1@22": 1.1e-05
+      },
+      "cobol/che-che4z_lsp_project_fixtures/DIAGNOSTIC_TEST_A.CBL": {
+        "TESTREPL@6": 1.1e-05
+      },
+      "cobol/che-che4z_lsp_project_fixtures/DIAGNOSTIC_TEST_B.CBL": {
+        "TESTREPL@6": 1.1e-05
+      },
+      "cobol/che-che4z_lsp_project_fixtures/DIAGNOSTIC_TEST_C.CBL": {
+        "TESTREPL@6": 1.1e-05
+      },
+      "cobol/che-che4z_lsp_project_fixtures/HELLO-WORLD.cbl": {
+        "HELLO-WORLD@20": 1.1e-05
+      },
+      "cobol/che-che4z_lsp_project_fixtures/HOVER.CBL": {
+        "VARIABLES@46": 1.1e-05
+      },
       "cobol/che-che4z_lsp_project_fixtures/HOVER_PARA.CBL": {
+        "CASE4@3": 1.1e-05,
         "PARAG1@6": 2e-05,
         "S010@12": 1.1e-05,
         "S090@14": 1.1e-05
@@ -6915,6 +6960,15 @@
         "MAIN-EXIT@46": 1.1e-05,
         "MAIN-PARA@20": 1.1e-05
       },
+      "cobol/che-che4z_lsp_project_fixtures/TEST14.CBL": {
+        "TEST14@16": 1.1e-05
+      },
+      "cobol/che-che4z_lsp_project_fixtures/TEST15.CBL": {
+        "PROG@13": 1.1e-05
+      },
+      "cobol/che-che4z_lsp_project_fixtures/TEST16.CBL": {
+        "TEST16@11": 1.1e-05
+      },
       "cobol/che-che4z_lsp_project_fixtures/TEST2.CBL": {
         "MAINLINE@22": 1.1e-05
       },
@@ -6930,8 +6984,14 @@
       "cobol/che-che4z_lsp_project_fixtures/TEST5.CBL": {
         "MAINLINE@21": 1.1e-05
       },
+      "cobol/che-che4z_lsp_project_fixtures/TEST51.CBL": {
+        "TEST3@15": 1.1e-05
+      },
       "cobol/che-che4z_lsp_project_fixtures/TEST6.CBL": {
         "MAINLINE@30": 1.1e-05
+      },
+      "cobol/che-che4z_lsp_project_fixtures/TEST61.CBL": {
+        "TEST3@10": 1.1e-05
       },
       "cobol/che-che4z_lsp_project_fixtures/TEST7.CBL": {
         "MAINLINE@30": 1.1e-05
@@ -6996,6 +7056,9 @@
         "S312-999@92": 2.9e-05,
         "S312@66": 1.5e-05
       },
+      "cobol/che-che4z_lsp_project_fixtures/cobol-dc_ABCD.cbl": {
+        "CALC2@20": 1.1e-05
+      },
       "cobol/che-che4z_lsp_project_fixtures/cobol-idms_DACOSMPL.cbl": {
         "S310-000@41": 1.1e-05,
         "S310-500@45": 1.1e-05,
@@ -7027,6 +7090,7 @@
         "MAINLINE-PARAGRAPH@29": 1.1e-05,
         "MAKEDIAG@27": 1.1e-05,
         "P2@34": 1.1e-05,
+        "PROG@24": 1.1e-05,
         "S2@33": 1.1e-05,
         "S3@37": 1.1e-05
       },
@@ -8890,8 +8954,8 @@
         "F-DAYOFINT-WRITE-06@393": 1.8e-05,
         "F-DAYOFINT-WRITE-07@411": 1.8e-05,
         "F-DAYOFINT-WRITE-08@430": 1.7e-05,
-        "FAIL-ROUTINE-EX@283": 2.8e-05,
-        "FAIL-ROUTINE-WRITE@278": 2.8e-05,
+        "FAIL-ROUTINE-EX@283": 2.7e-05,
+        "FAIL-ROUTINE-WRITE@278": 2.7e-05,
         "FAIL-ROUTINE@269": 5e-05,
         "FAIL@192": 3.4e-05,
         "HEAD-ROUTINE@207": 1.5e-05,
@@ -9091,7 +9155,7 @@
         "PRINT-DETAIL@199": 0.000366,
         "SECT-IF111A@303": 1.1e-05,
         "TERMINATE-CCVS@192": 1.1e-05,
-        "WRITE-LINE@252": 0.000327,
+        "WRITE-LINE@252": 0.000326,
         "WRT-LN@268": 0.000269
       },
       "cobol/che-che4z_nist_ccvs85/IF1124.2.cbl": {
@@ -9142,8 +9206,8 @@
         "F-DATEOFINT-WRITE-06@392": 1.8e-05,
         "F-DATEOFINT-WRITE-07@410": 1.8e-05,
         "F-DATEOFINT-WRITE-10@431": 1.7e-05,
-        "FAIL-ROUTINE-EX@282": 2.8e-05,
-        "FAIL-ROUTINE-WRITE@277": 2.8e-05,
+        "FAIL-ROUTINE-EX@282": 2.7e-05,
+        "FAIL-ROUTINE-WRITE@277": 2.7e-05,
         "FAIL-ROUTINE@268": 5e-05,
         "FAIL@191": 3.4e-05,
         "HEAD-ROUTINE@206": 1.5e-05,
@@ -9204,8 +9268,8 @@
         "F-INTOFDAY-WRITE-06@393": 1.8e-05,
         "F-INTOFDAY-WRITE-07@411": 1.8e-05,
         "F-INTOFDAY-WRITE-08@430": 1.7e-05,
-        "FAIL-ROUTINE-EX@283": 2.8e-05,
-        "FAIL-ROUTINE-WRITE@278": 2.8e-05,
+        "FAIL-ROUTINE-EX@283": 2.7e-05,
+        "FAIL-ROUTINE-WRITE@278": 2.7e-05,
         "FAIL-ROUTINE@269": 5e-05,
         "FAIL@192": 3.4e-05,
         "HEAD-ROUTINE@207": 1.5e-05,
@@ -9339,7 +9403,7 @@
         "PRINT-DETAIL@199": 0.000366,
         "SECT-IF114A@303": 1.1e-05,
         "TERMINATE-CCVS@192": 1.1e-05,
-        "WRITE-LINE@252": 0.000327,
+        "WRITE-LINE@252": 0.000326,
         "WRT-LN@268": 0.000269
       },
       "cobol/che-che4z_nist_ccvs85/IF1154.2.cbl": {
@@ -10005,7 +10069,7 @@
         "SECT-IF125A@302": 1.1e-05,
         "TERMINATE-CCVS@191": 1.1e-05,
         "WRITE-LINE@251": 0.000301,
-        "WRT-LN@267": 0.000252
+        "WRT-LN@267": 0.000251
       },
       "cobol/che-che4z_nist_ccvs85/IF1274.2.cbl": {
         "BAIL-OUT-EX@329": 3.8e-05,
@@ -12555,7 +12619,7 @@
         "TERMINATE-CALL@279": 1.1e-05,
         "TERMINATE-CCVS@277": 1.1e-05,
         "WRITE-LINE@340": 0.000198,
-        "WRT-LN@356": 0.000177
+        "WRT-LN@356": 0.000176
       },
       "cobol/che-che4z_nist_ccvs85/NC1274.2.cbl": {
         "BAIL-OUT-EX@301": 2.1e-05,
@@ -13484,7 +13548,7 @@
         "PRINT-DETAIL@294": 2.5e-05,
         "SECT-NC210A-001@390": 1.1e-05,
         "TERMINATE-CCVS@287": 1.1e-05,
-        "TEST-EXIT@730": 2e-05,
+        "TEST-EXIT@730": 1.9e-05,
         "WRITE-LINE@348": 0.000133,
         "WRT-LN@360": 0.000137
       },
@@ -13689,7 +13753,7 @@
         "ADD-WRITE-F2-1@359": 1.8e-05,
         "BAIL-OUT-EX@320": 3.7e-05,
         "BAIL-OUT-WRITE@315": 3.7e-05,
-        "BAIL-OUT@312": 5.4e-05,
+        "BAIL-OUT@312": 5.3e-05,
         "BLANK-LINE-PRINT@296": 1.1e-05,
         "CCVS-999999@547": 1.4e-05,
         "CCVS-EXIT@546": 1.1e-05,
@@ -13705,7 +13769,7 @@
         "END-RTN-EXIT@250": 1.1e-05,
         "FAIL-ROUTINE-EX@311": 2.8e-05,
         "FAIL-ROUTINE-WRITE@306": 2.8e-05,
-        "FAIL-ROUTINE@298": 5.4e-05,
+        "FAIL-ROUTINE@298": 5.3e-05,
         "FAIL@224": 0.000108,
         "HEAD-ROUTINE@239": 1.5e-05,
         "INITIALISE-TABLE1@323": 2.4e-05,
@@ -16249,7 +16313,7 @@
         "CLEARIT@246": 1.1e-05,
         "ENDIT-STARTIT@230": 5.6e-05,
         "ENDIT@236": 1.1e-05,
-        "ERROR-OUT@271": 4.7e-05,
+        "ERROR-OUT@271": 4.6e-05,
         "MAINLINE@53": 1.1e-05,
         "NO-ADD@263": 1.4e-05,
         "NO-DATA@267": 1.4e-05,
@@ -16371,6 +16435,7 @@
       "cobol/cobol-check/TESTPRG.CBL": {
         "2000-SPEAK@451": 1.2e-05,
         "9999-END@468": 1.1e-05,
+        "GREETING@124": 1.1e-05,
         "UT-AFTER@438": 1.2e-05,
         "UT-ASSERT-ACCESSES@228": 1.1e-05,
         "UT-ASSERT-EQUAL@169": 1.2e-05,
@@ -16389,8 +16454,12 @@
         "UT-SET-MOCK@312": 1.1e-05,
         "UT-SET-PARA-MOCK@371": 1.3e-05
       },
+      "cobol/cobol-check/src_main_cobol_ALPHA.CBL": {
+        "ALPHA@25": 1.1e-05
+      },
       "cobol/cobol-check/src_main_cobol_BIPM012.CBL": {
-        "100-MOVE-DATA@45": 1.1e-05
+        "100-MOVE-DATA@45": 1.1e-05,
+        "BIPM012@41": 1.1e-05
       },
       "cobol/cobol-check/src_main_cobol_DB2PROG.cbl": {
         "0000-MAIN@25": 1.1e-05,
@@ -16409,15 +16478,18 @@
         "5200-PREPARE-OUTPUT-RECORD@102": 1.6e-05,
         "5400-WRITE-OUTPUT-RECORD@109": 1.6e-05,
         "8000-HOUSEKEEPING@122": 1.4e-05,
-        "9999-ABORT@128": 3.6e-05
+        "9999-ABORT@128": 3.6e-05,
+        "FILECOPY@53": 1.1e-05
       },
       "cobol/cobol-check/src_main_cobol_GREETING.CBL": {
         "2000-SPEAK@29": 1.1e-05,
-        "9999-END@46": 1.1e-05
+        "9999-END@46": 1.1e-05,
+        "GREETING@25": 1.1e-05
       },
       "cobol/cobol-check/src_main_cobol_LONGLINESANDNUMBERS.CBL": {
         "2000-SPEAK@37": 1.1e-05,
-        "9999-END@62": 1.1e-05
+        "9999-END@62": 1.1e-05,
+        "GREETING@33": 1.1e-05
       },
       "cobol/cobol-check/src_main_cobol_MOCK.CBL": {
         "000-START@24": 1.1e-05,
@@ -16459,10 +16531,14 @@
         "900-MAKE-CALL@120": 1.1e-05,
         "999-END@159": 1.2e-05
       },
+      "cobol/cobol-check/src_main_cobol_NUMBERS.CBL": {
+        "NUMBERS@19": 1.1e-05
+      },
       "cobol/cobol-check/src_main_cobol_REPLAC.CBL": {
         "2000-SPEAK@41": 1.1e-05,
         "3000-SAY-NO-MORE@58": 1.1e-05,
-        "9999-END@64": 1.1e-05
+        "9999-END@64": 1.1e-05,
+        "GREETING@36": 1.1e-05
       },
       "cobol/cobol-check/src_main_cobol_RETURNCODE.CBL": {
         "000-MAKE-CALL@17": 1.1e-05
@@ -16471,7 +16547,8 @@
         "MOCK-SECTION-WITH-ERROR@13": 1.1e-05
       },
       "cobol/cobol-check/src_main_cobol_WS88LEVEL.CBL": {
-        "001-INITIALIZE@108": 2e-05
+        "001-INITIALIZE@108": 2e-05,
+        "LV88TEST@98": 1.1e-05
       }
     },
     "cobol/cobol-programming-course": {
@@ -16529,9 +16606,11 @@
       },
       "cobol/cobol-programming-course/DEPTPAY.CBL": {
         "AVERAGE-SALARY@19": 1.5e-05,
+        "DEPTPAY@14": 1.1e-05,
         "DISPLAY-DETAILS@29": 1.5e-05
       },
       "cobol/cobol-programming-course/EMPPAY.CBL": {
+        "EMPPAY@19": 1.1e-05,
         "INITIALIZATION@25": 1.3e-05,
         "PAYMENT-MONTHLY@40": 1.3e-05,
         "PAYMENT-WEEKLY@30": 1.3e-05,
@@ -16543,7 +16622,14 @@
         "MAIN00@101": 1.1e-05,
         "MAIN@100": 1.1e-05
       },
+      "cobol/gnucobol/numeric-display.cob": {
+        "PROG@93": 1.1e-05
+      },
+      "cobol/gnucobol/numeric-dump.cob": {
+        "PROG@165": 1.1e-05
+      },
       "cobol/gnucobol/tutorial.cob": {
+        "TUTORIAL@93": 1.1e-05,
         "call-file-handler@188": 3.4e-05,
         "display-file-status@192": 1.2e-05,
         "read-all-records@204": 1.2e-05,
@@ -18135,6 +18221,7 @@
         "A5000-EXIT@368": 1.6e-05,
         "A6000-DISPLAY-RESULTS@375": 1.2e-05,
         "A6000-EXIT@399": 1.1e-05,
+        "ECS001@79": 1.1e-05,
         "Z1000-EXIT-PROGRAM@406": 5.3e-05,
         "Z1000-EXIT@421": 1.1e-05
       },
@@ -18184,7 +18271,8 @@
         "9950-ABS@792": 2e-05,
         "9950-EXIT@796": 1.1e-05,
         "9999-EXIT@837": 1.1e-05,
-        "9999-GET-URL@806": 1.1e-05
+        "9999-GET-URL@806": 1.1e-05,
+        "ZECS000@233": 1.1e-05
       },
       "cobol/zECS/ZECS003.cbl": {
         "1000-EXIT@203": 1.1e-05,
@@ -18208,7 +18296,8 @@
         "8000-EXIT@451": 1.1e-05,
         "8000-SEND-RESPONSE@437": 3.2e-05,
         "9000-EXIT@462": 1.1e-05,
-        "9000-RETURN@457": 1.2e-05
+        "9000-RETURN@457": 1.2e-05,
+        "ZECS003@172": 1.1e-05
       },
       "cobol/zECS/ZECSPLT.cbl": {
         "1000-EXIT@81": 1.1e-05,
@@ -18222,7 +18311,8 @@
         "3000-EXIT@157": 1.1e-05,
         "3000-INQUIRE-END@152": 1.3e-05,
         "9000-EXIT@168": 1.1e-05,
-        "9000-RETURN@163": 1.3e-05
+        "9000-RETURN@163": 1.3e-05,
+        "ZECSPLT@61": 1.1e-05
       }
     },
     "cobol/zopeneditor-sample": {
@@ -18847,7 +18937,7 @@
         "EditorNode::_resources_reimported@1450": 1.1e-05,
         "EditorNode::_resources_reimporting@1421": 1.1e-05,
         "EditorNode::_restart_editor@6693": 1.3e-05,
-        "EditorNode::_save_all_scenes@2611": 2.7e-05,
+        "EditorNode::_save_all_scenes@2611": 2.6e-05,
         "EditorNode::_save_central_editor_layout_to_config@6327": 1.5e-05,
         "EditorNode::_save_edited_subresources@2228": 1.1e-05,
         "EditorNode::_save_editor_layout@6247": 2.1e-05,
@@ -19049,7 +19139,7 @@
         "get_bottom_panel@757": 1.1e-05,
         "get_center_split@756": 1.1e-05,
         "get_distraction_free_button@760": 1.1e-05,
-        "get_edited_scene@864": 0.00015,
+        "get_edited_scene@864": 0.000149,
         "get_editor_data@751": 7.6e-05,
         "get_editor_folding@752": 1.1e-05,
         "get_editor_main_screen@758": 1.1e-05,
@@ -19064,7 +19154,7 @@
         "get_project_settings@805": 1.1e-05,
         "get_quick_open_dialog@1008": 1.1e-05,
         "get_scene_root@860": 1.1e-05,
-        "get_singleton@748": 0.000922,
+        "get_singleton@748": 0.000921,
         "get_title_bar@754": 1.1e-05,
         "get_top_split@755": 1.1e-05,
         "has_unsaved_changes@765": 1.1e-05,
@@ -19467,7 +19557,7 @@
         "Object::get@302": 5e-05,
         "Object::get_all_signal_connections@1441": 3e-05,
         "Object::get_argument_options@2386": 1.5e-05,
-        "Object::get_class_name@2106": 0.000151,
+        "Object::get_class_name@2106": 0.00015,
         "Object::get_class_name_for_extension@2110": 1.1e-05,
         "Object::get_edited_version@2083": 1.1e-05,
         "Object::get_gdtype@2088": 0.000181,
@@ -20763,7 +20853,7 @@
         "ReduceIncompleteMembers@857": 1.5e-05,
         "Release@14570": 1.2e-05,
         "Reset@14561": 1.2e-05,
-        "Reset@14588": 0.000125,
+        "Reset@14588": 0.000124,
         "ResetPoint@14608": 3.8e-05,
         "ScanCast@12894": 1.1e-05,
         "ScanDesignator@12233": 1.5e-05,
@@ -23005,7 +23095,7 @@
         "ThemeData.fallback@890": 2e-05,
         "ThemeData.from@840": 1.1e-05,
         "ThemeData.light@871": 2.7e-05,
-        "ThemeData.raw@700": 2.8e-05,
+        "ThemeData.raw@700": 2.7e-05,
         "ThemeData@265": 6.1e-05,
         "ThemeExtension@133": 1.1e-05,
         "VisualDensity@3188": 2.9e-05,
@@ -24109,7 +24199,7 @@
         "checkTimersNoP@3930": 1.1e-05,
         "checkdead@6397": 2.4e-05,
         "checkmcount@967": 2.7e-05,
-        "clear@7360": 4.8e-05,
+        "clear@7360": 4.7e-05,
         "clearAllpSnapshot@1101": 1.3e-05,
         "cpuinit@764": 1.2e-05,
         "decGSyscallNoP@5174": 1.4e-05,
@@ -24277,7 +24367,7 @@
         "startTemplateThread@2941": 1.6e-05,
         "startTheWorld@1549": 2.3e-05,
         "startTheWorldGC@1584": 1.4e-05,
-        "startTheWorldWithSema@1764": 3.5e-05,
+        "startTheWorldWithSema@1764": 3.4e-05,
         "startlockedm@3284": 1.3e-05,
         "startm@3041": 2.8e-05,
         "stealWork@3834": 1.1e-05,
@@ -24427,7 +24517,7 @@
         "logf@3715": 3.2e-05,
         "matchOrRedirect@2746": 1.2e-05,
         "matchingMethods@2823": 1.2e-05,
-        "maxHeaderBytes@922": 2.1e-05,
+        "maxHeaderBytes@922": 2e-05,
         "maybeServeUnencryptedHTTP2@2183": 1.1e-05,
         "newBufioReader@882": 1.1e-05,
         "newBufioWriterSize@898": 1.2e-05,
@@ -24642,7 +24732,7 @@
         "OverflowFloat@1987": 1.1e-05,
         "OverflowInt@2007": 1.1e-05,
         "OverflowUint@2020": 1.1e-05,
-        "Pointer@2052": 0.000936,
+        "Pointer@2052": 0.000935,
         "Recv@2101": 1.1e-05,
         "Select@2949": 1.1e-05,
         "Send@2134": 1.1e-05,
@@ -24664,7 +24754,7 @@
         "String@2452": 0.000212,
         "TryRecv@2474": 1.1e-05,
         "TrySend@2484": 1.1e-05,
-        "Type@2491": 0.000194,
+        "Type@2491": 0.000193,
         "TypeAssert@1529": 1.1e-05,
         "Uint@2553": 2.1e-05,
         "UnsafeAddr@2582": 1.1e-05,
@@ -24750,7 +24840,7 @@
         "packEfaceData@132": 1.6e-05,
         "packIfaceValueIntoEmptyIface@1604": 2.6e-05,
         "panicNotBool@289": 1.6e-05,
-        "pointer@112": 0.000136,
+        "pointer@112": 0.000135,
         "recv@2109": 1.7e-05,
         "ro@90": 0.000101,
         "rselect@2901": 1.2e-05,
@@ -25079,7 +25169,7 @@
         "getCustomOperationTraceSerializableModel@353": 1.1e-05,
         "getPluginClass@327": 1.2e-05,
         "getPluginContainer@123": 1.1e-05,
-        "getPluginId@320": 4e-05,
+        "getPluginId@320": 3.9e-05,
         "getTargetPath@337": 1.2e-05,
         "getTargetType@332": 1.2e-05,
         "hasPlugin@251": 1.1e-05,
@@ -27368,7 +27458,7 @@
         "mountSuspenseFallbackChildren@2634": 1.2e-05,
         "mountSuspenseOffscreenState@2261": 1.3e-05,
         "mountSuspensePrimaryChildren@2614": 2.2e-05,
-        "mountWorkInProgressOffscreenFiber@2699": 7.1e-05,
+        "mountWorkInProgressOffscreenFiber@2699": 7e-05,
         "propagateSuspenseContextChange@3177": 1.2e-05,
         "pushHostRootContext@1785": 1.5e-05,
         "reconcileChildren@340": 0.000156,
@@ -27532,10 +27622,10 @@
         "throwAndUnwindWorkLoop@3212": 1.3e-05,
         "throwIfInfiniteUpdateLoopDetected@5178": 7.4e-05,
         "unwindUnitOfWork@3411": 4.5e-05,
-        "warnAboutRenderPhaseUpdatesInDEV@5462": 1.3e-05,
+        "warnAboutRenderPhaseUpdatesInDEV@5462": 1.2e-05,
         "warnAboutUpdateOnNotYetMountedFiberInDEV@5408": 1.1e-05,
         "warnIfSuspenseResolutionNotWrappedWithActDEV@5593": 1.4e-05,
-        "warnIfUpdatesNotWrappedWithActDEV@5544": 1.3e-05,
+        "warnIfUpdatesNotWrappedWithActDEV@5544": 1.2e-05,
         "workLoopConcurrent@3034": 1.1e-05,
         "workLoopConcurrentByScheduler@3051": 1.1e-05,
         "workLoopSync@2750": 1.3e-05
@@ -32616,7 +32706,7 @@
         "decrement@1106": 1.1e-05,
         "decrementEach@1248": 1.1e-05,
         "decrementQuietly@1222": 1.1e-05,
-        "delete@1712": 4.8e-05,
+        "delete@1712": 4.7e-05,
         "deleteOrFail@1763": 1.1e-05,
         "deleteQuietly@1751": 1.1e-05,
         "destroy@1673": 2e-05,
@@ -33665,7 +33755,7 @@
         "_wp_check_alternate_file_names@2823": 1.2e-05,
         "_wp_check_existing_file_names@2847": 2.2e-05,
         "_wp_die_process_input@4309": 3.5e-05,
-        "_wp_json_convert_string@4492": 4.5e-05,
+        "_wp_json_convert_string@4492": 4.4e-05,
         "_wp_json_prepare_data@4524": 1.1e-05,
         "_wp_json_sanity_check@4430": 3.7e-05,
         "_wp_mysql_week@7094": 1.1e-05,
@@ -33848,7 +33938,7 @@
         "xmlrpc_removepostdata@820": 1.1e-05
       },
       "php/wordpress/plugin.php": {
-        "_wp_call_all_hook@971": 0.001016,
+        "_wp_call_all_hook@971": 0.001015,
         "_wp_filter_build_unique_id@1000": 1.1e-05,
         "add_action@446": 3.5e-05,
         "add_filter@121": 5.1e-05,
@@ -35206,8 +35296,8 @@
         "func_attributes@1744": 1.5e-05,
         "generate_arg_assignment@4474": 1.2e-05,
         "generate_arg_conversion@4674": 2.1e-05,
-        "generate_arg_conversion_from_pyobject@4693": 2e-05,
-        "generate_arg_conversion_to_pyobject@4706": 2e-05,
+        "generate_arg_conversion_from_pyobject@4693": 1.9e-05,
+        "generate_arg_conversion_to_pyobject@4706": 1.9e-05,
         "generate_arg_decref@4135": 1.2e-05,
         "generate_arg_none_check@2604": 2e-05,
         "generate_arg_type_test@2581": 2e-05,
@@ -35459,7 +35549,7 @@
         "openapi@1108": 1.1e-05,
         "options@3069": 2.1e-05,
         "patch@3815": 2.1e-05,
-        "post@2318": 0.000515,
+        "post@2318": 0.000514,
         "put@1940": 3.3e-05,
         "redoc_html@1151": 8.6e-05,
         "setup@1105": 0.000162,
@@ -35480,7 +35570,7 @@
         "contextmanager_in_threadpool@18": 1.1e-05
       },
       "python/fastapi/fastapi/datastructures.py": {
-        "Default@174": 0.00223,
+        "Default@174": 0.002229,
         "__bool__@164": 1.1e-05,
         "__eq__@167": 1.1e-05,
         "__get_pydantic_core_schema__@145": 1.1e-05,
@@ -35521,7 +35611,7 @@
         "File@1968": 8.9e-05,
         "Form@1653": 0.000134,
         "Header@701": 8.8e-05,
-        "Path@13": 0.000154,
+        "Path@13": 0.000153,
         "Query@357": 0.000222,
         "Security@2372": 0.000322
       },
@@ -35547,7 +35637,7 @@
         "__aexit__@182": 1.1e-05,
         "__aexit__@243": 1.1e-05,
         "__call__@246": 1.1e-05,
-        "__init__@1032": 0.000235,
+        "__init__@1032": 0.000234,
         "__init__@176": 4.8e-05,
         "__init__@237": 6.4e-05,
         "__init__@770": 0.000106,
@@ -35568,7 +35658,7 @@
         "_startup@4873": 2e-05,
         "_sync_stream_jsonl@641": 1.5e-05,
         "_wrap_gen_lifespan_context@192": 6.4e-05,
-        "add_api_route@1336": 0.000143,
+        "add_api_route@1336": 0.000142,
         "add_api_websocket_route@1481": 8.2e-05,
         "add_event_handler@4905": 3.2e-05,
         "api_route@1419": 0.000209,
@@ -38243,7 +38333,7 @@
         "make_mask_none@1698": 7.5e-05,
         "mask@3593": 2.2e-05,
         "mask@3603": 1.1e-05,
-        "mask_or@1759": 9.6e-05,
+        "mask_or@1759": 9.5e-05,
         "masked_equal@2143": 1.1e-05,
         "masked_greater@2008": 1.1e-05,
         "masked_greater_equal@2035": 1.1e-05,
@@ -38535,7 +38625,7 @@
         "as_deref@1028": 1.1e-05,
         "as_eq@1034": 1.1e-05,
         "as_expr@927": 7.4e-05,
-        "as_factors@1073": 1.9e-05,
+        "as_factors@1073": 1.8e-05,
         "as_ge@1054": 1.1e-05,
         "as_gt@1050": 1.1e-05,
         "as_integer@962": 1.8e-05,
@@ -38548,7 +38638,7 @@
         "as_ref@1022": 1.1e-05,
         "as_string@988": 4e-05,
         "as_symbol@943": 1.2e-05,
-        "as_term_coeff@1094": 1.8e-05,
+        "as_term_coeff@1094": 1.7e-05,
         "as_terms@1058": 1.3e-05,
         "as_ternary@1016": 1.1e-05,
         "contains@715": 1.1e-05,
@@ -39205,7 +39295,7 @@
         "_handle_action_missing@236": 1.1e-05,
         "_valid_action_name?@293": 2.1e-05,
         "abstract!@58": 1.1e-05,
-        "action_method?@213": 3e-05,
+        "action_method?@213": 2.9e-05,
         "action_methods@164": 1.1e-05,
         "action_methods@94": 1.1e-05,
         "available_action?@179": 1.1e-05,
@@ -41910,7 +42000,7 @@
         "submitAlterPartition@1687": 1.1e-05,
         "toString@1835": 1.1e-05,
         "topic@177": 9.8e-05,
-        "topicId@454": 5.8e-05,
+        "topicId@454": 5.7e-05,
         "truncateFullyAndStartAt@1562": 1.5e-05,
         "truncateTo@1547": 1.1e-05,
         "tryCompleteDelayedRequests@1085": 2e-05,
@@ -42797,7 +42887,7 @@
         "fetchable_name@166": 1.1e-05,
         "formula_aliases@177": 1.1e-05,
         "formula_in_array?@65": 7.9e-05,
-        "formula_installed?@81": 4e-05,
+        "formula_installed?@81": 3.9e-05,
         "formula_installed_and_up_to_date?@54": 2.9e-05,
         "formula_oldnames@196": 1.1e-05,
         "formula_to_hash@226": 1.1e-05,
@@ -44977,7 +45067,7 @@
         "createSuperExpression@386": 1.1e-05,
         "createSwitchCase@682": 1.5e-05,
         "createSwitchStatement@674": 1.4e-05,
-        "createTemplateLiteralExpression@392": 1.8e-05,
+        "createTemplateLiteralExpression@392": 1.7e-05,
         "createTernaryExpression@370": 1.6e-05,
         "createThisExpression@402": 1.1e-05,
         "createThrowStatement@690": 1.4e-05,
@@ -45623,9 +45713,9 @@
         "checkArgsRequired@11324": 0.00063,
         "checkConstantType@11147": 8.1e-05,
         "checkFeatureEnabled@11257": 0.000484,
-        "checkTypeAbsent@11310": 0.001987,
+        "checkTypeAbsent@11310": 0.001986,
         "checkTypeOptional@11292": 0.000155,
-        "checkTypeRequired@11270": 0.000475,
+        "checkTypeRequired@11270": 0.000474,
         "compileRTTI@11083": 1.1e-05,
         "compileVisitGlobals@10832": 1.1e-05,
         "compileVisitMembers@10995": 1.1e-05,
@@ -45720,15 +45810,15 @@
         "constructor@234": 1.1e-05,
         "constructor@486": 2e-05,
         "convertExpression@3546": 0.000172,
-        "doCompileDoStatement@2447": 2.3e-05,
-        "doCompileForStatement@2571": 2.3e-05,
-        "doCompileWhileStatement@3245": 2.3e-05,
+        "doCompileDoStatement@2447": 2.2e-05,
+        "doCompileForStatement@2571": 2.2e-05,
+        "doCompileWhileStatement@3245": 2.2e-05,
         "ensureArgumentsLength@6529": 2.9e-05,
         "ensureConstructor@8869": 4.9e-05,
         "ensureEnumToString@1525": 3.2e-05,
         "ensureOverrideStub@6672": 2e-05,
         "ensureRuntimeFunction@2125": 4e-05,
-        "ensureSmallIntegerWrap@9963": 0.000275,
+        "ensureSmallIntegerWrap@9963": 0.000274,
         "ensureStaticString@1963": 9e-05,
         "ensureStaticStringPtr@1970": 6.4e-05,
         "ensureVarargsStub@6539": 2.4e-05,
@@ -45772,7 +45862,7 @@
         "makeOr@5561": 1.4e-05,
         "makePow@5088": 1.4e-05,
         "makeRem@5354": 2e-05,
-        "makeRuntimeDowncastCheck@10577": 4.2e-05,
+        "makeRuntimeDowncastCheck@10577": 4.1e-05,
         "makeRuntimeNonNullCheck@10533": 0.000111,
         "makeShl@5436": 1.4e-05,
         "makeShr@5467": 1.4e-05,
@@ -46458,7 +46548,7 @@
         "innerText@1283": 1.1e-05,
         "inputValue@1299": 1.1e-05,
         "interceptConsoleMessage@376": 1.1e-05,
-        "invalidateNonStallingEvaluations@539": 6.7e-05,
+        "invalidateNonStallingEvaluations@539": 6.6e-05,
         "isChecked@1374": 1.1e-05,
         "isDisabled@1362": 1.1e-05,
         "isEditable@1370": 1.1e-05,
@@ -46825,7 +46915,7 @@
         "checkAsyncFunctionReturnType@43838": 1.2e-05,
         "checkAwaitExpression@39974": 1.2e-05,
         "checkAwaitGrammar@39891": 1.6e-05,
-        "checkAwaitedType@43585": 1.8e-05,
+        "checkAwaitedType@43585": 1.7e-05,
         "checkBaseTypeAccessibility@47443": 1.1e-05,
         "checkBinaryLikeExpression@40697": 1.3e-05,
         "checkBinaryLikeExpressionWorker@40714": 1.5e-05,
@@ -46879,7 +46969,7 @@
         "checkExportSpecifier@48818": 1.1e-05,
         "checkExportsOnMergedDeclarations@43358": 1.6e-05,
         "checkExportsOnMergedDeclarationsWorker@43362": 1.7e-05,
-        "checkExpression@41753": 0.000334,
+        "checkExpression@41753": 0.000333,
         "checkExpressionCached@41335": 9.3e-05,
         "checkExpressionForMutableLocation@41496": 4.4e-05,
         "checkExpressionForMutableLocationWithContextualType@21527": 1.3e-05,
@@ -47117,7 +47207,7 @@
         "checkTypeAliasDeclaration@47862": 1.2e-05,
         "checkTypeArgumentConstraints@42679": 1.3e-05,
         "checkTypeArguments@35984": 1.7e-05,
-        "checkTypeAssignableTo@21338": 5.4e-05,
+        "checkTypeAssignableTo@21338": 5.3e-05,
         "checkTypeAssignableToAndOptionallyElaborate@21346": 2.6e-05,
         "checkTypeComparableTo@21899": 1.5e-05,
         "checkTypeForDuplicateIndexSignatures@42380": 1.4e-05,
@@ -47258,7 +47348,7 @@
         "createEmptyObjectTypeFromStringLiteral@26427": 1.4e-05,
         "createEntityNameFromSymbolChain@8886": 2e-05,
         "createErasedSignature@16606": 2.9e-05,
-        "createError@2533": 0.000949,
+        "createError@2533": 0.000948,
         "createEvolvingArrayType@28641": 2.4e-05,
         "createExpressionFromSymbolChain@8911": 2.5e-05,
         "createFinalArrayType@28659": 3.7e-05,
@@ -47289,7 +47379,7 @@
         "createMarkerType@25080": 1.6e-05,
         "createNewTargetExpressionType@39182": 1.4e-05,
         "createNodeBuilder@6309": 1.1e-05,
-        "createNormalizedTupleType@17936": 2.6e-05,
+        "createNormalizedTupleType@17936": 2.5e-05,
         "createNormalizedTypeReference@17932": 2.8e-05,
         "createObjectLiteralType@33715": 1.1e-05,
         "createObjectType@5552": 0.000193,
@@ -47372,7 +47462,7 @@
         "ensurePendingDiagnosticWorkComplete@49702": 4.3e-05,
         "enterNewScope@6396": 1.1e-05,
         "enterNewScope@8158": 1.3e-05,
-        "error@2539": 0.001125,
+        "error@2539": 0.001124,
         "errorAndMaybeSuggestAwait@2581": 3.7e-05,
         "errorIfWritingToReadonlyIndex@19423": 1.1e-05,
         "errorInfo@43910": 1.1e-05,
@@ -47668,7 +47758,7 @@
         "getEnclosingDeclarationIgnoringFakeScope@9069": 1.2e-05,
         "getEnclosingIterationStatement@31267": 3.7e-05,
         "getEndElementCount@18046": 2.9e-05,
-        "getEntityNameForDecoratorMetadata@44097": 5.4e-05,
+        "getEntityNameForDecoratorMetadata@44097": 5.3e-05,
         "getEntityNameForDecoratorMetadataFromTypeList@44117": 5.3e-05,
         "getEntityNameForExtendingInterface@3449": 1.4e-05,
         "getEnumLiteralType@20324": 1.4e-05,
@@ -47776,7 +47866,7 @@
         "getGlobalType@17482": 1.1e-05,
         "getGlobalType@17483": 1.1e-05,
         "getGlobalType@17484": 1.1e-05,
-        "getGlobalType@17485": 0.000452,
+        "getGlobalType@17485": 0.000451,
         "getGlobalTypeAliasSymbol@17461": 8.7e-05,
         "getGlobalTypeOrUndefined@17639": 1.1e-05,
         "getGlobalTypeSymbol@17457": 0.000221,
@@ -47815,7 +47905,7 @@
         "getIndexTypeOfType@1659": 1.1e-05,
         "getIndexTypeOrString@19002": 1.2e-05,
         "getIndexedAccessType@19637": 0.000112,
-        "getIndexedAccessTypeOrUndefined@19654": 0.000113,
+        "getIndexedAccessTypeOrUndefined@19654": 0.000112,
         "getIndexedMappedTypeSubstitutedTypeOfContextualType@32436": 1.4e-05,
         "getInferTypeParameters@19933": 1.7e-05,
         "getInferenceContext@32907": 3.6e-05,
@@ -47948,7 +48038,7 @@
         "getNoInferType@17215": 1.8e-05,
         "getNodeCheckFlags@50919": 3.8e-05,
         "getNodeCount@1611": 1.1e-05,
-        "getNodeId@1460": 0.000636,
+        "getNodeId@1460": 0.000635,
         "getNodeLinks@2938": 0.000682,
         "getNonArrayRestType@38627": 1.5e-05,
         "getNonInheritedProperties@47695": 1.1e-05,
@@ -48021,7 +48111,7 @@
         "getQuickTypeOfExpression@41707": 4.1e-05,
         "getRecursionIdentity@25300": 3.9e-05,
         "getRedirectFromSourceFile@54268": 1.1e-05,
-        "getReducedApparentType@15559": 0.000161,
+        "getReducedApparentType@15559": 0.00016,
         "getReducedType@15811": 0.000133,
         "getReducedUnionType@15825": 6.6e-05,
         "getReferenceCandidate@28429": 1.8e-05,
@@ -48041,7 +48131,7 @@
         "getRequiresScopeChangeCache@3206": 1.1e-05,
         "getResolvedApparentTypeOfMappedType@15507": 3.1e-05,
         "getResolvedBaseConstraint@15322": 0.000152,
-        "getResolvedMembersOrExportsOfSymbol@13949": 0.000176,
+        "getResolvedMembersOrExportsOfSymbol@13949": 0.000175,
         "getResolvedSignature@1778": 1.1e-05,
         "getResolvedSignature@37658": 4.6e-05,
         "getResolvedSignatureForSignatureHelp@1780": 1.1e-05,
@@ -48077,7 +48167,7 @@
         "getSignatureTextRangeLocation@10172": 1.2e-05,
         "getSignaturesOfStructuredType@15936": 4e-05,
         "getSignaturesOfSymbol@16366": 3.1e-05,
-        "getSignaturesOfType@15948": 0.000191,
+        "getSignaturesOfType@15948": 0.00019,
         "getSimplifiedConditionalType@19575": 2.4e-05,
         "getSimplifiedIndexType@19600": 2.4e-05,
         "getSimplifiedIndexedAccessType@19526": 2.4e-05,
@@ -48135,7 +48225,7 @@
         "getSymbolForExpression@32230": 1.2e-05,
         "getSymbolForPrivateIdentifierExpression@34803": 2.2e-05,
         "getSymbolHasInstanceMethodOfObjectType@40137": 1.6e-05,
-        "getSymbolId@1469": 0.000704,
+        "getSymbolId@1469": 0.000703,
         "getSymbolIfSameReference@5498": 8.4e-05,
         "getSymbolLinks@2932": 0.000764,
         "getSymbolOfDeclaration@5314": 0.000704,
@@ -48176,7 +48266,7 @@
         "getThisTypeFromContextualType@31862": 1.7e-05,
         "getThisTypeOfDeclaration@12702": 1.2e-05,
         "getThisTypeOfObjectLiteralFromContextualType@31868": 1.4e-05,
-        "getThisTypeOfSignature@16418": 3.1e-05,
+        "getThisTypeOfSignature@16418": 3e-05,
         "getTopmostIndexedAccessType@8590": 1.3e-05,
         "getTotalFixedElementCount@18050": 1.9e-05,
         "getTrueType@1852": 1.1e-05,
@@ -48267,7 +48357,7 @@
         "getTypeOfAssignmentPattern@50468": 1.5e-05,
         "getTypeOfConcretePropertyOfContextualType@32450": 1.4e-05,
         "getTypeOfDestructuredArrayElement@28315": 2e-05,
-        "getTypeOfDestructuredProperty@28308": 2.4e-05,
+        "getTypeOfDestructuredProperty@28308": 2.3e-05,
         "getTypeOfDestructuredSpreadExpression@28328": 2e-05,
         "getTypeOfDottedName@28758": 1.5e-05,
         "getTypeOfEnumMember@12839": 5.4e-05,
@@ -48369,7 +48459,7 @@
         "getYieldedTypeOfYieldExpression@39346": 1.3e-05,
         "grammarErrorAfterFirstToken@53569": 1.4e-05,
         "grammarErrorAtPos@53353": 0.000131,
-        "grammarErrorOnFirstToken@53343": 0.00016,
+        "grammarErrorOnFirstToken@53343": 0.000159,
         "grammarErrorOnNode@53371": 0.000304,
         "grammarErrorOnNodeSkippedOn@53362": 2.2e-05,
         "hadError@8113": 1.1e-05,
@@ -48445,7 +48535,7 @@
         "inferFromTypeArguments@27088": 1.4e-05,
         "inferFromTypes@26784": 0.000117,
         "inferJsxTypeArguments@35809": 1.1e-05,
-        "inferReverseMappedType@26522": 3.7e-05,
+        "inferReverseMappedType@26522": 3.6e-05,
         "inferReverseMappedTypeWorker@26514": 2.5e-05,
         "inferSignatureInstantiationForOverloadFailure@36979": 1.3e-05,
         "inferToConditionalType@27266": 1.1e-05,
@@ -48492,7 +48582,7 @@
         "instantiateTypes@20560": 5e-05,
         "intersectTypes@14508": 1.1e-05,
         "intersectTypes@14509": 1.1e-05,
-        "intersectTypes@14510": 2e-05,
+        "intersectTypes@14510": 1.9e-05,
         "intersectUnionsOfPrimitiveTypes@18590": 2e-05,
         "invocationError@37367": 1.4e-05,
         "invocationErrorDetails@37282": 1.5e-05,
@@ -48503,7 +48593,7 @@
         "isAliasSymbolDeclaration@3683": 2.2e-05,
         "isAliasableOrJsExpression@3704": 3e-05,
         "isAnySymbolAccessible@5905": 3.1e-05,
-        "isApplicableIndexType@16012": 3e-05,
+        "isApplicableIndexType@16012": 2.9e-05,
         "isArgumentsLocalBinding@50594": 1.1e-05,
         "isAritySmaller@33198": 1.5e-05,
         "isArrayLikeType@25535": 3.6e-05,
@@ -48579,7 +48669,7 @@
         "isEnumTypeRelatedTo@22163": 3.7e-05,
         "isErrorType@11595": 0.00012,
         "isEvolvingArrayOperationTarget@28697": 1.9e-05,
-        "isEvolvingArrayTypeList@28682": 1.4e-05,
+        "isEvolvingArrayTypeList@28682": 1.3e-05,
         "isExactOptionalPropertyMismatch@24930": 1.6e-05,
         "isExcessPropertyCheckTarget@34416": 1.4e-05,
         "isExcludedMappedPropertyName@32368": 1.3e-05,
@@ -49083,10 +49173,10 @@
         "resolveBaseTypesOfClass@13317": 1.8e-05,
         "resolveBaseTypesOfInterface@13400": 1.8e-05,
         "resolveCall@36540": 1.6e-05,
-        "resolveCallExpression@37004": 1.6e-05,
+        "resolveCallExpression@37004": 1.5e-05,
         "resolveClassOrInterfaceMembers@14112": 4.9e-05,
         "resolveDeclaredMembers@13753": 3.9e-05,
-        "resolveDecorator@37455": 1.6e-05,
+        "resolveDecorator@37455": 1.5e-05,
         "resolveESModuleSymbol@5026": 2e-05,
         "resolveEntityName@4533": 0.000112,
         "resolveEntityNameFromAssignmentDeclaration@4638": 1.6e-05,
@@ -49102,15 +49192,15 @@
         "resolveExternalModuleTypeByLiteral@16406": 1.2e-05,
         "resolveHelpersModule@51786": 1.6e-05,
         "resolveImportSymbolType@20058": 1.2e-05,
-        "resolveInstanceofExpression@37586": 1.6e-05,
+        "resolveInstanceofExpression@37586": 1.5e-05,
         "resolveIntersectionTypeMembers@14537": 4.9e-05,
         "resolveIterationType@2210": 1.1e-05,
         "resolveIterationType@2226": 1.1e-05,
         "resolveJSDocMemberName@50169": 2.2e-05,
-        "resolveJsxOpeningLikeElement@37544": 1.6e-05,
+        "resolveJsxOpeningLikeElement@37544": 1.5e-05,
         "resolveMappedTypeMembers@14811": 4.9e-05,
         "resolveName@1882": 1.1e-05,
-        "resolveNewExpression@37131": 1.6e-05,
+        "resolveNewExpression@37131": 1.5e-05,
         "resolveObjectTypeMembers@14068": 3.8e-05,
         "resolveReverseMappedTypeMembers@14712": 4.9e-05,
         "resolveSignature@37631": 3e-05,
@@ -49118,7 +49208,7 @@
         "resolveSymbol@4295": 1.1e-05,
         "resolveSymbol@4296": 1.1e-05,
         "resolveSymbol@4297": 0.000152,
-        "resolveTaggedTemplateExpression@37397": 1.6e-05,
+        "resolveTaggedTemplateExpression@37397": 1.5e-05,
         "resolveTypeReferenceMembers@14116": 4.9e-05,
         "resolveTypeReferenceName@17154": 2.2e-05,
         "resolveUnionTypeMembers@14499": 4.9e-05,
@@ -49662,7 +49752,7 @@
         "getOutputPathsForBundle@506": 2.4e-05,
         "getOutputs@605": 1.4e-05,
         "getOwnOutputFileNames@618": 1.4e-05,
-        "getPipelinePhase@1499": 0.000557,
+        "getPipelinePhase@1499": 0.000556,
         "getSeparatingLineTerminatorCount@5067": 1.8e-05,
         "getSingleOutputFileNames@610": 1.4e-05,
         "getSortedEmitHelpers@2097": 1.8e-05,
@@ -49703,7 +49793,7 @@
         "originalNodesHaveSameParent@5952": 1.4e-05,
         "parenthesizeExpressionForNoAsi@3247": 2.6e-05,
         "parenthesizeExpressionForNoAsiAndDisallowedComma@3335": 1.1e-05,
-        "pipelineEmit@1482": 0.000525,
+        "pipelineEmit@1482": 0.000524,
         "pipelineEmitWithComments@5795": 1.1e-05,
         "pipelineEmitWithHint@1540": 1.1e-05,
         "pipelineEmitWithHintWorker@1556": 2e-05,
@@ -49770,7 +49860,7 @@
         "writeTokenText@4949": 1.1e-05,
         "writeTokenText@4950": 1.1e-05,
         "writeTokenText@4951": 6.6e-05,
-        "writeTrailingSemicolon@4881": 8.1e-05
+        "writeTrailingSemicolon@4881": 8e-05
       },
       "typescript/typescript_compiler/parser.ts": {
         "abortParsingListOrMoveToNextToken@3410": 2.2e-05,
@@ -51647,10 +51737,10 @@
         "constructor@1761": 4.1e-05,
         "constructor@1869": 1.1e-05,
         "constructor@1902": 1.1e-05,
-        "constructor@2016": 8.2e-05,
+        "constructor@2016": 8.1e-05,
         "constructor@2218": 1.1e-05,
         "constructor@231": 1.5e-05,
-        "constructor@2372": 7.6e-05,
+        "constructor@2372": 7.5e-05,
         "constructor@2528": 2e-05,
         "constructor@2551": 1.1e-05,
         "constructor@390": 1.5e-05,
@@ -51917,7 +52007,7 @@
         "executeCommand@1316": 0.000108,
         "executeCommands@1323": 1.1e-05,
         "executeEdits@1282": 2e-05,
-        "fire@2196": 0.000228,
+        "fire@2196": 0.000227,
         "focus@1517": 1.2e-05,
         "getAction@1102": 1.1e-05,
         "getActions@1090": 2e-05,
@@ -54147,7 +54237,7 @@
         "schedule@1068": 1.1e-05,
         "schedule@2511": 1.1e-05,
         "scheduleDispatch@1658": 2.2e-05,
-        "set@134": 3.8e-05,
+        "set@134": 3.7e-05,
         "setLastError@15": 0.000188,
         "toC@213": 1.1e-05,
         "toJS@7": 7.7e-05,
@@ -55395,7 +55485,7 @@
         "dumpGenericInstancesFallible@11435": 1.1e-05,
         "dumpStatsFallible@11068": 1.5e-05,
         "ensureTotalCapacity@1290": 0.000351,
-        "ensureUnusedCapacity@1286": 0.00062,
+        "ensureUnusedCapacity@1286": 0.000619,
         "eql@1870": 1.1e-05,
         "eql@2202": 1.1e-05,
         "eql@2547": 1.1e-05,
@@ -56883,7 +56973,7 @@
         "startScope@426": 3e-05,
         "toOptional@153": 4.1e-05,
         "toOptional@293": 1.1e-05,
-        "unwrap@162": 7.7e-05,
+        "unwrap@162": 7.6e-05,
         "unwrap@303": 1.1e-05,
         "walkBinOpNode@1236": 1.6e-05,
         "walkBlockNode@893": 1.6e-05,
@@ -57227,7 +57317,7 @@
         "stringifyParameter@173": 1.1e-05,
         "stringifyTypeOf@4554": 1.1e-05,
         "stringifyTypeVal@4564": 1.1e-05,
-        "toNode@4827": 0.00011,
+        "toNode@4827": 0.000109,
         "tokenLocAppend@5343": 1.2e-05,
         "trimCommonIndentation@583": 1.5e-05,
         "typeDeclarationNode@5710": 1.1e-05,

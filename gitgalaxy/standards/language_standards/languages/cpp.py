@@ -20,6 +20,7 @@ from .._shared_patterns import (
     COMMENTED_STATEMENT_C_FAMILY,
     GLOBAL_FRAGILE_DEBT,
     GLOBAL_PLANNED_DEBT,
+    commented_keyword_statement,
 )
 
 # #5462: a class-template qualifier segment (`Foo<A, B>::`) in an out-of-line member
@@ -586,7 +587,7 @@ DEFINITION: dict[str, Any] = {
         # `standard_block` language where both styles are equally
         # idiomatic (`/* if (x) foo(); */`).
         "dead_code": re.compile(
-            r"(?://|/\*)[ \t]*(?:if|for|while|auto|class|struct|std::cout|std::print|printf|void|int|return)\b"
+            commented_keyword_statement("if|for|while|auto|class|struct|std::cout|std::print|printf|void|int|return")
             + r"|"
             + COMMENTED_STATEMENT_C_FAMILY
         ),

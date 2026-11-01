@@ -12,7 +12,7 @@ from typing import Any
 
 from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: compiled on first use
 
-from .._shared_patterns import GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT, commented_keyword_statement
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -160,8 +160,17 @@ DEFINITION: dict[str, Any] = {
             re.I | re.M,
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails) Commented out structural logic (supports * and ").
+        # #7207: a statement's shape, not just the keyword. An ABAP statement ends in `.`: it counts when it holds an
+        # operator, an uppercase clause word (`TYPE`, `FROM`, `INTO`...) or a quote, or is a bare `METHOD name.` /
+        # `DATA lv_name.`. `* if the user cancels.` and `* write the total to the log.` are prose.
         "dead_code": re.compile(
-            r'^[ \t]*\*[ \t]*(?:DATA|METHOD|IF|SELECT|WRITE)\b|"[ \t]*(?:DATA|METHOD|IF|SELECT|WRITE)\b',
+            commented_keyword_statement(
+                "DATA|METHOD|IF|SELECT|WRITE",
+                marker=r'(?:^[ \t]*\*|")',
+                extra=r"[^\n.]{0,300}?(?:[=<>]|[ \t](?-i:TYPE|LIKE|FROM|INTO|EQ|NE|GT|LT|GE|LE)[ \t]|['`|])[^\n]{0,300}\.[ \t]*(?m:$)"
+                r"|(?:(?<=method)|(?<=data))[ \t]+[\w~-]*[_~-][\w~-]*\.[ \t]*(?m:$)"
+                r"|(?<=method)[ \t]+\w+\.[ \t]*(?m:$)",
+            ),
             re.I | re.M,
         ),
         # 13. doc: Structured Documentation. ABAP Doc annotations and metadata headers.

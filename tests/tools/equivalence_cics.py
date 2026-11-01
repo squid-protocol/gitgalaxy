@@ -39,6 +39,7 @@ import equivalence_cics_conditions as cics_conditions  # #5274: the conditions /
 import equivalence_cics_containers as cics_containers  # #5274: the channels / containers family
 import equivalence_cics_faults as cics_faults  # #5274: the fault-injection planner
 import equivalence_cics_filecontrol as cics_filecontrol  # #5274: the file control family
+import equivalence_cics_pointer  # #6839 (X47): the oracle lowering of a POINTER numeric view
 import equivalence_cics_taskcontrol as cics_taskcontrol  # #5274: the task / interval control family
 import equivalence_cics_tempstorage as cics_tempstorage  # #5274: the temporary storage family
 import equivalence_cics_web as cics_web  # #5274: the web / HTTP / TCP/IP family
@@ -321,6 +322,16 @@ def doctemplates(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, str] | N
 _SCENARIO_CLOCK = re.compile(r"\d{4}/\d\d/\d\d \d\d:\d\d:\d\d\.\d\d")
 
 
+def scenario_transid(case: dict[str, Any], sc: dict[str, Any]) -> str:
+    """#6072: the task's transaction id (EIBTRNID) -- the scenario's "transid", else the case's: a sibling scenario that
+    enters the program under another transaction (a program that branches on EIBTRNID) needs one the case's never is.
+    Stated on both sides: the COBOL task's eib.in, the Java task's CicsTask."""
+    transid = sc.get("transid", case["transid"])
+    if not isinstance(transid, str) or not 1 <= len(transid) <= 4:
+        raise Unsupported(f'scenario {sc.get("name")}: "transid" is one to four characters (got {transid!r})')
+    return transid
+
+
 def scenario_clock(case: dict[str, Any], sc: dict[str, Any]) -> str:
     """#4622: the task's clock ("2026/10/01 10:30:15.00", COB_CURRENT_DATE's form) -- the scenario's "clock", else the
     case's: a program that reads FUNCTION CURRENT-DATE (CORPT00C's month wrap in December) needs a date the case's
@@ -381,9 +392,12 @@ def terminal_facts(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, Any]:
     the commands that read them are refused by both runtimes, as before."""
     out: dict[str, Any] = {k: sc.get(k, case.get(k)) for k in ("termid", "uctranst", "origin")}
     t = out["termid"]
-    if t is not None and (not isinstance(t, str) or not 1 <= len(t) <= 4 or not t.strip() or "," in t or " " in t):
+    # "" states a task with no terminal (ASSIGN FACILITY / TERMCHK: INVREQ; $GGCICS_FACILITY empty, withTermid(null))
+    if t not in (None, "") and (
+        not isinstance(t, str) or not 1 <= len(t) <= 4 or not t.strip() or "," in t or " " in t
+    ):
         raise Unsupported(f'scenario {sc.get("name")}: "termid" {t!r} is not a terminal name (1 to 4 characters)')
-    if out["uctranst"] is not None and (t is None or out["uctranst"] not in UCTRANST_NAMES):
+    if out["uctranst"] is not None and (not t or out["uctranst"] not in UCTRANST_NAMES):
         raise Unsupported(f'scenario {sc.get("name")}: "uctranst" is one of {", ".join(UCTRANST_NAMES)}, of a '
                           'stated "termid"')  # fmt: skip
     for k in ("userid", "screen"):  # #5126: only when stated (an always-present empty key breaks exact-equality tests)
@@ -394,7 +408,7 @@ def terminal_facts(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, Any]:
         raise Unsupported(f'scenario {sc.get("name")}: "userid" {u!r} is not a user ID (1 to 8 characters)')
     scr = out.get("screen")
     if scr is not None and (not isinstance(scr, list) or len(scr) != 2
-                            or not all(type(n) is int and n > 0 for n in scr) or t is None):  # fmt: skip
+                            or not all(type(n) is int and n > 0 for n in scr) or not t):  # fmt: skip
         raise Unsupported(
             f'scenario {sc.get("name")}: "screen" is [rows, columns], positive ints, of a stated "termid"'
         )
@@ -564,16 +578,14 @@ def _load(opts: dict[str, str | None], program: list[str]) -> list[str]:
 
 
 def _address(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
-    """#5079 (register X59): ADDRESS EIB(ptr) / COMMAREA(ptr) / TWA(ptr) / TCTUA(ptr) -> GGCADDR, which sets the pointer to the address of the EIB /
+    """#5079 (register X59): ADDRESS EIB(ptr) / COMMAREA(ptr) / CWA(ptr) / TWA(ptr) / TCTUA(ptr) -> GGCADDR, which sets the pointer to the address of the EIB /
     the program's DFHCOMMAREA (NORMAL: the command has no condition). A task with no COMMAREA (EIBCALEN 0) is refused by the
     stub: IBM's X'FF000000' is no COBOL NULL, and a LINKAGE item that was not passed is no area to name, so the area given
     then is the pointer itself. The option rules as the det translator's."""
     key = "ADDRESS"
     _check_spec(key, opts, ("ADDRESS",), lambda bad: [f"{key} {o}" for o in bad])
-    if opts.get("CWA"):  # #5079 slice 2a: the port models it; the stub's GGCADDR does not yet (slice 2b)
-        raise Unsupported("ADDRESS CWA: the stub does not model the common work area yet (#5079 slice 2b)", [key])
-    if not any(opts.get(o) for o in ("EIB", "COMMAREA", "TWA", "TCTUA")):
-        raise Unsupported("ADDRESS without EIB, COMMAREA, TWA or TCTUA: the pointer to set", [key])
+    if not any(opts.get(o) for o in ("EIB", "COMMAREA", "CWA", "TWA", "TCTUA")):
+        raise Unsupported("ADDRESS without EIB, COMMAREA, CWA, TWA or TCTUA: the pointer to set", [key])
     lines: list[str] = []
     if opts.get("EIB"):
         lines += ["MOVE SPACES TO GG-FLAGS"]
@@ -585,8 +597,8 @@ def _address(opts: dict[str, str | None], labels: list[str] | None) -> list[str]
         lines += ["ELSE"]
         lines += [f"    {ln}" for ln in _call("GGCADDR", [f"BY REFERENCE {ptr}", "BY REFERENCE DFHCOMMAREA"])]
         lines += ["END-IF"]
-    # #5079 slice 2b: GGCADDR names the system area in GG-FLAGS (the port's addressTwa / addressTctua)
-    for area in ("TWA", "TCTUA"):
+    # #5079 slice 2b: GGCADDR names the system area in GG-FLAGS (the port's addressCwa / addressTwa / addressTctua)
+    for area in ("CWA", "TWA", "TCTUA"):
         if opts.get(area):
             lines += [f"MOVE '{area}' TO GG-FLAGS"]
             lines += _call(
@@ -692,6 +704,8 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
         return cics_taskcontrol._post(opts, labels)
     if verb == "WAIT" and "EVENT" in opts and opts["EVENT"] is None:
         return cics_taskcontrol._wait_event(opts, labels)
+    if verb == "WAITCICS" or (verb == "WAIT" and "EXTERNAL" in opts and opts["EXTERNAL"] is None):  # #5079 (X63)
+        return cics_taskcontrol._wait_external("WAITCICS" if verb == "WAITCICS" else "WAIT EXTERNAL", opts, labels)
     if verb == "CONVERSE":
         return cics_taskcontrol._converse(opts, labels)
     if verb in ("ENQ", "DEQ"):
@@ -1046,10 +1060,11 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
         length = _one_of("RECEIVE", opts, "LENGTH", "FLENGTH")
         most = _one_of("RECEIVE", opts, "MAXLENGTH", "MAXFLENGTH")
         flags = "MOVE 'NOTRUNCATE' TO GG-FLAGS" if "NOTRUNCATE" in opts else "MOVE SPACES TO GG-FLAGS"  # #4413
-        if setp:  # #4413: SET(ADDRESS OF record), MAXLENGTH and LENGTH(data-area) required (det/cics.py says why)
+        if setp:  # #4413: SET(ADDRESS OF record), LENGTH(data-area) required; no MAXLENGTH: all the input (det/cics.py says why)
             m = re.fullmatch(r"ADDRESS\s+OF\s+([A-Z0-9-]+)", setp, re.I)
-            if into or not most or not length:
-                raise Unsupported("RECEIVE SET without MAXLENGTH and LENGTH", ["RECEIVE SET"])
+            if into or not length:
+                raise Unsupported("RECEIVE SET without LENGTH", ["RECEIVE SET"])
+            most = most or "32768"  # LENGTH is output-only with SET (X15): the whole input, the stub's buffer size
             if not m:  # #5042 (X58): SET(pointer) -> GGCRECP, the data in a new block the pointer addresses
                 return ([flags, f"MOVE {most} TO GG-LEN"] + _call("GGCRECP", [f"BY REFERENCE {_pointer('RECEIVE', setp)}"])
                         + [f"MOVE GG-LEN TO {length}"] + cics_conditions.input_resp(opts, labels, handle_aid))  # fmt: skip
@@ -1111,7 +1126,7 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
         textflags = " ".join(kind + [n for n in flags if n in ("ERASE", "FREEKB", "ALARM", "WAIT", "LAST")])
         return ([f"MOVE '{textflags[:40]}' TO GG-FLAGS"]
                 + _call("GGCSTXT", [f"BY REFERENCE {src}", f"BY VALUE {opts.get('LENGTH') or f'LENGTH OF {src}'}"])
-                + _resp(opts, can_fail=False))  # fmt: skip
+                + _resp(opts, can_fail=True))  # fmt: skip
     if verb in ("RETURN", "XCTL"):
         if verb == "XCTL" and not opts.get("PROGRAM"):
             raise Unsupported("XCTL without PROGRAM")
@@ -1507,9 +1522,21 @@ def translate(source: str, copy_dirs: list[Path] | None = None) -> tuple[str, bo
                   count=1, flags=re.M | re.I)  # fmt: skip
     if "COPY DFHEIBLK" not in text:
         raise Unsupported("no WORKING-STORAGE SECTION to hold the EIB")
-    if not has_commarea and "BY REFERENCE DFHCOMMAREA" in text:  # #5079 (X59): ADDRESS COMMAREA needs the record
-        raise Unsupported("ADDRESS COMMAREA in a program with no LINKAGE 01 DFHCOMMAREA: no record to address",
-                          ["ADDRESS COMMAREA"])  # fmt: skip
+    if not has_commarea and "BY REFERENCE DFHCOMMAREA" in text:
+        # #5079 (X59): ADDRESS COMMAREA in a program that declares no record (the callee asks CICS for the address). The harness
+        # gives the LINKAGE SECTION a one-byte stand-in so the task is passed the real COMMAREA (the pointer GGCADDR stores is
+        # that area's own address, whatever size the stand-in declares).
+        stand_in = "       01  DFHCOMMAREA PIC X(1).\n"
+        text, n = re.subn(r"^(.{6} +LINKAGE\s+SECTION\.[^\n]*\n)", lambda m: m.group(1) + stand_in, text, count=1,
+                          flags=re.M | re.I)  # fmt: skip
+        if n != 1:
+            text, n = re.subn(r"^(.{6} +PROCEDURE\s+DIVISION\b)", lambda m: "       LINKAGE SECTION.\n" + stand_in + m.group(1),
+                              text, count=1, flags=re.M | re.I)  # fmt: skip
+        if n != 1:
+            raise Unsupported(
+                "ADDRESS COMMAREA: no PROCEDURE DIVISION to hold the COMMAREA stand-in", ["ADDRESS COMMAREA"]
+            )
+        has_commarea = True
     already = re.search(r"^.{6} +PROCEDURE\s+DIVISION\s+USING\s+DFHCOMMAREA\s*\.", text, re.M | re.I)
     if has_commarea and not already:  # (CBSA's ABNDPROC codes USING DFHCOMMAREA itself, as CICS allows)
         text, n = re.subn(r"^(.{6} +PROCEDURE\s+DIVISION)\s*\.", r"\1 USING DFHCOMMAREA.", text, count=1,
@@ -2518,6 +2545,10 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         for t in db2.get("compare", []):
             names = equivalence_db2.columns(t)
             dumps.append((t, equivalence_db2.dump_query(t, names), names))
+    try:  # #6839 (X47): a POINTER's numeric view is address arithmetic on the pointer, not a number in half of it
+        source = equivalence_cics_pointer.lower(source)
+    except equivalence_cics_pointer.Unsupported as e:
+        raise Unsupported(str(e), ["POINTER numeric view"]) from e
     text, has_commarea = translate(source, [src])
     (src / "PROGRAM.cbl").write_text(text, encoding=staged)
     (src / "EQCICSDR.cbl").write_text(cics_driver(case["program"], has_commarea), encoding="ascii")
@@ -2764,7 +2795,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         eib_date = f"{int(y) - 1900:03d}{_day_of_year(int(y), int(mo), int(dd)):03d}"[-7:].rjust(7, "0")
         eib_time = "0" + time.replace(":", "")[:6]
         term = terminal_facts(case, sc)  # #4270: the task's terminal, when the case states one
-        (d / "eib.in").write_text(f"{case['transid']:<4} {sc.get('aid', 'DFHENTER'):<8} {eib_date} {eib_time} "
+        (d / "eib.in").write_text(f"{scenario_transid(case, sc):<4} {sc.get('aid', 'DFHENTER'):<8} {eib_date} {eib_time} "
                                   f"{term['termid'] or '':<4}\n", encoding="ascii")  # fmt: skip
         if term["termid"]:  # the region's terminals: the task's own (START / INQUIRE / SET TERMINAL's TERMIDERR)
             (d / "terminals.cfg").write_text(f"{term['termid']}\n", encoding="ascii")
@@ -2784,7 +2815,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         script.append(f"set +e; {cov.trace_env(f'{rel}/{cov.TRACE_NAME}')}{dlienv}GGCICS_DIR={rel} GGCICS_OUT={rel}/out EIBIN={rel}/eib.in "
                       f"GGCICS_TASKN={task_number(case, sc)} LD_PRELOAD=/work/ggdisplay.so "
                       + (f"GGCICS_STARTCODE={task_facts(case, sc)[0]} " if task_facts(case, sc)[0] else "")
-                      + (f"GGCICS_FACILITY={term['termid']} " if term["termid"] else "")
+                      + (f"GGCICS_FACILITY={term['termid']} " if term["termid"] is not None else "")  # "" = stated: no terminal
                       + (f"GGCICS_UCTRANST={term['uctranst']} " if term["uctranst"] else "")
                       + (f"GGCICS_USERID={term['userid']} " if term.get("userid") else "")  # #5126
                       + (f"GGCICS_SCREEN='{term['screen'][0]} {term['screen'][1]}' " if term.get("screen") else "")
@@ -3152,6 +3183,8 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
             text = common._decode_text(data, enc)  # #3815: not text in the page -> the bytes shown, never dropped
             res["text"].append(f"<undecodable {data!r} in {enc}>" if text is None else text.rstrip(" \x00"))
             res.setdefault("text_options", []).append(_text_options(args))
+            if "len" in kv:  # #5862: the LENGTH the program passed, as CicsTask.sendText records it
+                res.setdefault("text_lengths", []).append(int(kv["len"]))
         # the task's own (a LINK level's: no); a RETURN IMMEDIATE that failed (it has a resp, #4270) went on in the program
         elif verb in ("RETURN", "XCTL") and int(kv.get("level", "1")) <= 1 and not (verb == "RETURN" and "resp" in kv):
             key = "transid" if verb == "RETURN" else "program"
@@ -3400,6 +3433,20 @@ def commarea_class(case: dict[str, Any], src: Path, svc_file: Path) -> str | Non
         r"handleLink\((\w+) request\)", svc_text
     )  # a LINKed program (CBSA): its contract COMMAREA DTO
     if m and m.group(1) == "Object":  # #5859: an HLASM program's facade (hlasm.service_stub) types no COMMAREA
+        # #6072: a service that takes Object but whose case states a typed COMMAREA record (PCCONF, PCDETL, PCIMMA)
+        # carries that record's generated DTO; none stated, or no such DTO generated: no DTO, as before
+        segments = (case.get("commarea") or {}).get("segments")
+        if not segments:
+            return None
+        base = java_class_base(segments[0]["record"])
+        # the forge names a program's own record after its declarer (PcconfWsState); a shared copybook record bare. The
+        # service imports the DTO it carries (dto.contract.<Name>), so take the one named for the record
+        imported = re.findall(r"import [\w.]*dto\.contract\.(\w+);", svc_text)
+        own = java_class_base(case.get("program", "")) + base  # the program's own record: PcconfWsState
+        named = [n for n in imported if re.fullmatch(rf"\w*?{base}\d*", n)]
+        for name in (own, *([named[0]] if len(named) == 1 else []), base):
+            if any(src.rglob(f"{name}.java")):
+                return name
         return None
     if m:
         return m.group(1)
@@ -4147,6 +4194,8 @@ class EquivalenceRunTest {{
     @Test
     void run() throws IOException {{
         for (JsonNode sc : json.readTree(in.resolve("scenarios.json").toFile())) {{
+            // the fired-fault log is appended to: a --reuse copy of the baseline's out dir would log every fault twice
+            Files.deleteIfExists(out.resolve(sc.get("name").asText() + ".faults"));
             // each task starts from the files as loaded, and what it leaves is compared (file updates)
 {chr(10).join(loads)}
 {db2_reset}
@@ -4164,7 +4213,7 @@ class EquivalenceRunTest {{
             Path sysout = out.resolve(sc.get("name").asText() + ".sysout");
             Files.deleteIfExists(sysout);
             System.setProperty("gitgalaxy.sysout", sysout.toString());
-{tod_stmt}            CicsTask task = new CicsTask("{case["transid"]}", sc.get("aid").asText(), commarea, calen, received)
+{tod_stmt}            CicsTask task = new CicsTask(sc.path("transid").asText("{case["transid"]}"), sc.get("aid").asText(), commarea, calen, received)
                     .withClock(java.time.LocalDateTime.parse(sc.path("clock").asText("{ej._clock(case)}")))  // EIBTIME / ASKTIME: the scenario's clock, else the case's
                     .withRegion({region_java})  // ASSIGN APPLID / SYSID
                     .withProgram("{case["program"]}")  // the task's first program (a LINK's INVOKINGPROG)
@@ -4185,6 +4234,7 @@ class EquivalenceRunTest {{
                                 t.setPropagationBehavior(org.springframework.transaction.TransactionDefinition.PROPAGATION_REQUIRES_NEW);
                                 t.executeWithoutResult(s -> change.run());
                             }});
+            if (sc.path("termid").isTextual() && sc.get("termid").asText().isEmpty()) task.withTermid(null);  // #6072: "" states a task with no terminal
             if (sc.hasNonNull("start_data")) {{  // #4892: the data the task was started with, as the stub's retrieve_NNN.bin
                 List<byte[]> started = new ArrayList<>();
                 sc.get("start_data").forEach(x -> started.add(java.util.HexFormat.of().parseHex(x.asText())));
@@ -4588,6 +4638,7 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
                           "counters": _counters(case, sc), "taskn": task_number(case, sc),
                           "startcode": task_facts(case, sc)[0], "terminal": task_facts(case, sc)[1],
                           **terminal_facts(case, sc),
+                          **({"transid": scenario_transid(case, sc)} if "transid" in sc else {}),
                           **({"clock": ej._clock({**case, "clock": scenario_clock(case, sc)})} if "clock" in sc else {}),
                           **({"tod": scenario_tod(case, sc)} if scenario_tod(case, sc) else {}),
                           "ts": cics_tempstorage.ts_seed(case, sc), "urimaps": urimaps(case, sc),
@@ -4968,6 +5019,7 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
     out: list[dict[str, Any]] = []
     screens, texts, records = iter(res["screens"]), iter(res["text"]), iter(res.get("td", []))
     text_options = iter(res.get("text_options", []))
+    text_lengths = iter(res.get("text_lengths", []))
     queued = iter(res.get("ts", []))
     operator = iter(res.get("operator", []))
     reads = iter(res.get("reads", []))  # #4270: READQ TS / terminal RECEIVE
@@ -4988,7 +5040,10 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
             out.append({"event": "SEND-MAP", "map": s["map"], **({"mapset": s["mapset"]} if "mapset" in s else {}), "screen": s["fields"], "subfields": s["subfields"],
                         "options": s["options"], "cursor": s["cursor"]})  # fmt: skip
         elif verb == "SEND-TEXT":  # #5401: its options too, as CicsTask.sendText records them
-            out.append({"event": "SEND-TEXT", "text": next(texts), "options": next(text_options, [])})
+            sent = {"event": "SEND-TEXT", "text": next(texts), "options": next(text_options, [])}
+            if (n := next(text_lengths, None)) is not None:  # #5862: its LENGTH too, both ways
+                sent["length"] = n
+            out.append(sent)
         elif verb == "SEND-CONTROL":  # #4270: CicsTask.sendControl records it -- its options and CURSOR's offset
             cur = int((re.search(r"\bcursor=(-?\d+)", args) or [None, "-1"])[1])
             out.append({"event": "SEND-CONTROL", "options": args.partition("opts=")[2].split(),
@@ -5230,6 +5285,8 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
             java_options = sorted(o for o in j.get("options") or [] if o in TEXT_OPTIONS_FORWARDED)
             if c["options"] != java_options:
                 bad.append({"field": "options", "cobol": c["options"], "java": java_options})
+        if c["event"] == "SEND-TEXT" and "length" in c and c["length"] != j.get("length"):  # #5862
+            bad.append({"field": "length", "cobol": c["length"], "java": j.get("length")})
         if c["event"] == "SEND-CONTROL":  # #4270: ERASE / FREEKB / ALARM ... and the cursor, as the crucible compares
             if sorted(c.get("options") or []) != sorted(j.get("options") or []):
                 bad.append({"field": "options", "cobol": c.get("options"), "java": j.get("options")})

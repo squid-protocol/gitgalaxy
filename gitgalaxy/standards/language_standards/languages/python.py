@@ -24,6 +24,7 @@ from .._shared_patterns import (
     PY_LLM_ORCHESTRATOR,
     PY_LLM_VECTOR_STORE,
     PY_ML_TRADITIONAL,
+    commented_keyword_statement,
 )
 
 DEFINITION: dict[str, Any] = {
@@ -309,7 +310,14 @@ DEFINITION: dict[str, Any] = {
             re.M,
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails)
-        "dead_code": re.compile(r"#[ \t]*(?:def|class|import|if|for|while|try|return)\b"),
+        # #7207: a statement's shape (`(...)`, an assignment, a trailing `:`, or `import a.b [as c]`), not just the keyword.
+        "dead_code": re.compile(
+            commented_keyword_statement(
+                "def|class|import|if|for|while|try|return",
+                marker="#",
+                extra=r"[^\n]{0,400}:[ \t]*(?m:$)|[ \t]+[\w.]+(?:[ \t]+as[ \t]+\w+)?[ \t]*(?m:$)",
+            )
+        ),
         # 13. doc (Structured Documentation)
         # BUG FIX #2658: Match full docstring span as a single bounded body so
         # """ counts as doc=1, not 2. Unterminated delimiters fail safely.

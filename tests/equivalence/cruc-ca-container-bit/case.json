@@ -1,0 +1,28 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "CACCBIT",
+  "program_source": "cases/commarea-mismatch/ca-container-ccsid/src/CACCBIT.cbl",
+  "copy_dirs": [
+    "cases/commarea-mismatch/ca-container-ccsid/copy"
+  ],
+  "transid": "CA08",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "notes": "cics-crucible commarea-mismatch / ca-container-ccsid (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): Character conversion of a container: FROMCCSID / INTOCCSID (037 and 1208), DATATYPE(CHAR), INTOCCSID and FROMCCSID on a BIT container. Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "bit-container",
+      "commarea": null,
+      "terminal": "CA08",
+      "why": "INTOCCSID and FROMCCSID on a BIT container",
+      "channel": {
+        "name": "CAHOME",
+        "containers": {}
+      }
+    }
+  ],
+  "linked": true
+}

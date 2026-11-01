@@ -150,7 +150,7 @@ def case_states(case: dict[str, Any]) -> dict[str, bool]:
     """The runtime facts an equivalence case states in every scenario (the case's value is each scenario's default):
     the `Run` flags startcode / termid / userid / screen / rcode (#5077, #5126)."""
     scens = case.get("scenarios") or []
-    termid = bool(scens) and all(sc.get("termid", case.get("termid")) for sc in scens)
+    termid = bool(scens) and all(sc.get("termid", case.get("termid")) is not None for sc in scens)
     return {
         "startcode": bool(scens) and all(sc.get("startcode", case.get("startcode")) for sc in scens),
         "termid": termid,

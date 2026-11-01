@@ -18,6 +18,7 @@ from .._shared_patterns import (
     COMMENTED_STATEMENT_C_FAMILY,
     GLOBAL_FRAGILE_DEBT,
     GLOBAL_PLANNED_DEBT,
+    commented_keyword_statement,
 )
 
 DEFINITION: dict[str, Any] = {
@@ -361,7 +362,8 @@ DEFINITION: dict[str, Any] = {
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails)
         "dead_code": re.compile(
-            r"(?://|/\*)[ \t]*(?:public|private|protected|class|void|if|for|while|return|import)\b|"
+            commented_keyword_statement("public|private|protected|class|void|if|for|while|return|import")
+            + r"|"
             + COMMENTED_STATEMENT_C_FAMILY
         ),
         # 13. doc (Structured Documentation)

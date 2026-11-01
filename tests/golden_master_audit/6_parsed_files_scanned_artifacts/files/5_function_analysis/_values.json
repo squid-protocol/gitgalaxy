@@ -74340,6 +74340,19 @@
     "cobol/Z-SMS-Gateway": {
       "cobol/Z-SMS-Gateway/BALANCE.cbl": [
         {
+          "Control Flow Branches": 20,
+          "Control Flow Ratio": "46.5%",
+          "End Line": 449,
+          "Function Name": "BALANCE",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 356,
+          "Reflection Hits": 21,
+          "Start Line": 94,
+          "Structural Impact": 38.8
+        },
+        {
           "Control Flow Branches": 2,
           "Control Flow Ratio": "50.0%",
           "End Line": 481,
@@ -74368,6 +74381,19 @@
       ],
       "cobol/Z-SMS-Gateway/HISTORY.cbl": [
         {
+          "Control Flow Branches": 14,
+          "Control Flow Ratio": "43.8%",
+          "End Line": 396,
+          "Function Name": "HISTORY",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 280,
+          "Reflection Hits": 17,
+          "Start Line": 117,
+          "Structural Impact": 29.0
+        },
+        {
           "Control Flow Branches": 2,
           "Control Flow Ratio": "50.0%",
           "End Line": 428,
@@ -74395,6 +74421,19 @@
         }
       ],
       "cobol/Z-SMS-Gateway/MESSAGES.cbl": [
+        {
+          "Control Flow Branches": 13,
+          "Control Flow Ratio": "33.3%",
+          "End Line": 315,
+          "Function Name": "MESSAGES",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 187,
+          "Reflection Hits": 7,
+          "Start Line": 129,
+          "Structural Impact": 23.4
+        },
         {
           "Control Flow Branches": 3,
           "Control Flow Ratio": "27.3%",
@@ -74461,7 +74500,21 @@
           "Structural Impact": 4.2
         }
       ],
-      "cobol/Z-SMS-Gateway/SENDSMS.cbl": []
+      "cobol/Z-SMS-Gateway/SENDSMS.cbl": [
+        {
+          "Control Flow Branches": 9,
+          "Control Flow Ratio": "29.0%",
+          "End Line": 191,
+          "Function Name": "SENDSMS",
+          "Input Parameters": 3,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 145,
+          "Reflection Hits": 3,
+          "Start Line": 47,
+          "Structural Impact": 27.2
+        }
+      ]
     },
     "cobol/aws-mainframe-modernization-carddemo": {
       "cobol/aws-mainframe-modernization-carddemo/CBACT01C.cbl": [
@@ -74503,6 +74556,19 @@
           "Reflection Hits": 0,
           "Start Line": 151,
           "Structural Impact": 5.8
+        },
+        {
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "25.0%",
+          "End Line": 87,
+          "Function Name": "CBACT01C",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 18,
+          "Reflection Hits": 0,
+          "Start Line": 70,
+          "Structural Impact": 4.9
         },
         {
           "Control Flow Branches": 2,
@@ -74585,6 +74651,19 @@
           "Structural Impact": 5.8
         },
         {
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "25.0%",
+          "End Line": 87,
+          "Function Name": "CBACT02C",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 18,
+          "Reflection Hits": 0,
+          "Start Line": 70,
+          "Structural Impact": 4.9
+        },
+        {
           "Control Flow Branches": 2,
           "Control Flow Ratio": "40.0%",
           "End Line": 174,
@@ -74652,6 +74731,19 @@
           "Structural Impact": 5.8
         },
         {
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "25.0%",
+          "End Line": 87,
+          "Function Name": "CBACT03C",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 18,
+          "Reflection Hits": 0,
+          "Start Line": 70,
+          "Structural Impact": 4.9
+        },
+        {
           "Control Flow Branches": 2,
           "Control Flow Ratio": "40.0%",
           "End Line": 174,
@@ -74679,6 +74771,19 @@
         }
       ],
       "cobol/aws-mainframe-modernization-carddemo/CBACT04C.cbl": [
+        {
+          "Control Flow Branches": 8,
+          "Control Flow Ratio": "25.0%",
+          "End Line": 232,
+          "Function Name": "CBACT04C",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 53,
+          "Reflection Hits": 0,
+          "Start Line": 180,
+          "Structural Impact": 15.4
+        },
         {
           "Control Flow Branches": 8,
           "Control Flow Ratio": "61.5%",
@@ -75007,6 +75112,19 @@
           "Structural Impact": 5.8
         },
         {
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "25.0%",
+          "End Line": 87,
+          "Function Name": "CBCUS01C",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 18,
+          "Reflection Hits": 0,
+          "Start Line": 70,
+          "Structural Impact": 4.9
+        },
+        {
           "Control Flow Branches": 2,
           "Control Flow Ratio": "40.0%",
           "End Line": 174,
@@ -75295,6 +75413,19 @@
           "Reflection Hits": 0,
           "Start Line": 467,
           "Structural Impact": 9.8
+        },
+        {
+          "Control Flow Branches": 6,
+          "Control Flow Ratio": "20.7%",
+          "End Line": 234,
+          "Function Name": "CBTRN02C",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 42,
+          "Reflection Hits": 0,
+          "Start Line": 193,
+          "Structural Impact": 9.1
         },
         {
           "Control Flow Branches": 6,
@@ -75610,6 +75741,19 @@
         }
       ],
       "cobol/aws-mainframe-modernization-carddemo/CBTRN03C.cbl": [
+        {
+          "Control Flow Branches": 8,
+          "Control Flow Ratio": "21.1%",
+          "End Line": 217,
+          "Function Name": "CBTRN03C",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 59,
+          "Reflection Hits": 0,
+          "Start Line": 159,
+          "Structural Impact": 11.9
+        },
         {
           "Control Flow Branches": 8,
           "Control Flow Ratio": "66.7%",
@@ -81101,6 +81245,19 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
+          "End Line": 102,
+          "Function Name": "CSUTLDTC",
+          "Input Parameters": 3,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 15,
+          "Reflection Hits": 0,
+          "Start Line": 88,
+          "Structural Impact": 2.8
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 154,
           "Function Name": "A000-MAIN-EXIT",
           "Input Parameters": 0,
@@ -81135,6 +81292,19 @@
     },
     "cobol/cash-account-cobol": {
       "cobol/cash-account-cobol/CASH00.cbl": [
+        {
+          "Control Flow Branches": 7,
+          "Control Flow Ratio": "33.3%",
+          "End Line": 134,
+          "Function Name": "CASH00",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 69,
+          "Reflection Hits": 6,
+          "Start Line": 66,
+          "Structural Impact": 11.4
+        },
         {
           "Control Flow Branches": 2,
           "Control Flow Ratio": "100.0%",
@@ -81225,8 +81395,36 @@
       "cobol/che-che4z-lsp-for-cobol/SQLDA.cpy": []
     },
     "cobol/che-che4z_lsp_project_fixtures": {
-      "cobol/che-che4z_lsp_project_fixtures/ABCD.cbl": [],
-      "cobol/che-che4z_lsp_project_fixtures/ADSORT.cbl": [],
+      "cobol/che-che4z_lsp_project_fixtures/ABCD.cbl": [
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 26,
+          "Function Name": "VSAMTEST",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 4,
+          "Reflection Hits": 0,
+          "Start Line": 23,
+          "Structural Impact": 1.2
+        }
+      ],
+      "cobol/che-che4z_lsp_project_fixtures/ADSORT.cbl": [
+        {
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "42.9%",
+          "End Line": 60,
+          "Function Name": "ADSORT",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 25,
+          "Reflection Hits": 1,
+          "Start Line": 36,
+          "Structural Impact": 8.2
+        }
+      ],
       "cobol/che-che4z_lsp_project_fixtures/BASIC.cbl": [
         {
           "Control Flow Branches": 0,
@@ -81255,13 +81453,137 @@
           "Structural Impact": 1.1
         }
       ],
-      "cobol/che-che4z_lsp_project_fixtures/CALL.cbl": [],
-      "cobol/che-che4z_lsp_project_fixtures/CFAST.cbl": [],
-      "cobol/che-che4z_lsp_project_fixtures/DIAGNOSTIC_TEST_A.CBL": [],
-      "cobol/che-che4z_lsp_project_fixtures/DIAGNOSTIC_TEST_B.CBL": [],
-      "cobol/che-che4z_lsp_project_fixtures/DIAGNOSTIC_TEST_C.CBL": [],
-      "cobol/che-che4z_lsp_project_fixtures/HELLO-WORLD.cbl": [],
-      "cobol/che-che4z_lsp_project_fixtures/HOVER.CBL": [],
+      "cobol/che-che4z_lsp_project_fixtures/CALL.cbl": [
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 23,
+          "Function Name": "HELLO-WORLD",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 4,
+          "Reflection Hits": 0,
+          "Start Line": 20,
+          "Structural Impact": 1.2
+        }
+      ],
+      "cobol/che-che4z_lsp_project_fixtures/CFAST.cbl": [
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 18,
+          "Function Name": "MAIN",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 2,
+          "Reflection Hits": 0,
+          "Start Line": 17,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 23,
+          "Function Name": "NESTED1",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 2,
+          "Reflection Hits": 0,
+          "Start Line": 22,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 32,
+          "Function Name": "MAIN2",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 2,
+          "Reflection Hits": 0,
+          "Start Line": 31,
+          "Structural Impact": 1.1
+        }
+      ],
+      "cobol/che-che4z_lsp_project_fixtures/DIAGNOSTIC_TEST_A.CBL": [
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 7,
+          "Function Name": "TESTREPL",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 2,
+          "Reflection Hits": 0,
+          "Start Line": 6,
+          "Structural Impact": 1.1
+        }
+      ],
+      "cobol/che-che4z_lsp_project_fixtures/DIAGNOSTIC_TEST_B.CBL": [
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 7,
+          "Function Name": "TESTREPL",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 2,
+          "Reflection Hits": 0,
+          "Start Line": 6,
+          "Structural Impact": 1.1
+        }
+      ],
+      "cobol/che-che4z_lsp_project_fixtures/DIAGNOSTIC_TEST_C.CBL": [
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 7,
+          "Function Name": "TESTREPL",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 2,
+          "Reflection Hits": 0,
+          "Start Line": 6,
+          "Structural Impact": 1.1
+        }
+      ],
+      "cobol/che-che4z_lsp_project_fixtures/HELLO-WORLD.cbl": [
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 24,
+          "Function Name": "HELLO-WORLD",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 5,
+          "Reflection Hits": 0,
+          "Start Line": 20,
+          "Structural Impact": 1.2
+        }
+      ],
+      "cobol/che-che4z_lsp_project_fixtures/HOVER.CBL": [
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 48,
+          "Function Name": "VARIABLES",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 46,
+          "Structural Impact": 1.1
+        }
+      ],
       "cobol/che-che4z_lsp_project_fixtures/HOVER_COPYBOOK_NESTED.CBL": [],
       "cobol/che-che4z_lsp_project_fixtures/HOVER_PARA.CBL": [
         {
@@ -81301,6 +81623,19 @@
           "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 14,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 5,
+          "Function Name": "CASE4",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 3,
           "Structural Impact": 1.1
         }
       ],
@@ -81412,9 +81747,51 @@
           "Structural Impact": 1.1
         }
       ],
-      "cobol/che-che4z_lsp_project_fixtures/TEST14.CBL": [],
-      "cobol/che-che4z_lsp_project_fixtures/TEST15.CBL": [],
-      "cobol/che-che4z_lsp_project_fixtures/TEST16.CBL": [],
+      "cobol/che-che4z_lsp_project_fixtures/TEST14.CBL": [
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "25.0%",
+          "End Line": 28,
+          "Function Name": "TEST14",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 13,
+          "Reflection Hits": 0,
+          "Start Line": 16,
+          "Structural Impact": 2.6
+        }
+      ],
+      "cobol/che-che4z_lsp_project_fixtures/TEST15.CBL": [
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "33.3%",
+          "End Line": 22,
+          "Function Name": "PROG",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 10,
+          "Reflection Hits": 0,
+          "Start Line": 13,
+          "Structural Impact": 2.5
+        }
+      ],
+      "cobol/che-che4z_lsp_project_fixtures/TEST16.CBL": [
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 17,
+          "Function Name": "TEST16",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 7,
+          "Reflection Hits": 0,
+          "Start Line": 11,
+          "Structural Impact": 1.4
+        }
+      ],
       "cobol/che-che4z_lsp_project_fixtures/TEST2.CBL": [
         {
           "Control Flow Branches": 0,
@@ -81490,7 +81867,21 @@
           "Structural Impact": 1.1
         }
       ],
-      "cobol/che-che4z_lsp_project_fixtures/TEST51.CBL": [],
+      "cobol/che-che4z_lsp_project_fixtures/TEST51.CBL": [
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 16,
+          "Function Name": "TEST3",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 2,
+          "Reflection Hits": 0,
+          "Start Line": 15,
+          "Structural Impact": 1.1
+        }
+      ],
       "cobol/che-che4z_lsp_project_fixtures/TEST6.CBL": [
         {
           "Control Flow Branches": 0,
@@ -81506,7 +81897,21 @@
           "Structural Impact": 1.4
         }
       ],
-      "cobol/che-che4z_lsp_project_fixtures/TEST61.CBL": [],
+      "cobol/che-che4z_lsp_project_fixtures/TEST61.CBL": [
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 13,
+          "Function Name": "TEST3",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 4,
+          "Reflection Hits": 0,
+          "Start Line": 10,
+          "Structural Impact": 1.2
+        }
+      ],
       "cobol/che-che4z_lsp_project_fixtures/TEST7.CBL": [
         {
           "Control Flow Branches": 0,
@@ -81992,7 +82397,21 @@
           "Structural Impact": 1.1
         }
       ],
-      "cobol/che-che4z_lsp_project_fixtures/cobol-dc_ABCD.cbl": [],
+      "cobol/che-che4z_lsp_project_fixtures/cobol-dc_ABCD.cbl": [
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 23,
+          "Function Name": "CALC2",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 4,
+          "Reflection Hits": 0,
+          "Start Line": 20,
+          "Structural Impact": 1.2
+        }
+      ],
       "cobol/che-che4z_lsp_project_fixtures/cobol-idms_DACOSMPL.cbl": [
         {
           "Control Flow Branches": 2,
@@ -82360,6 +82779,19 @@
           "Lines of Code (LOC)": 2,
           "Reflection Hits": 0,
           "Start Line": 37,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 26,
+          "Function Name": "PROG",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 24,
           "Structural Impact": 1.1
         }
       ],
@@ -198484,6 +198916,19 @@
           "Structural Impact": 5.7
         },
         {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "10.0%",
+          "End Line": 167,
+          "Function Name": "GREETING",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 44,
+          "Reflection Hits": 0,
+          "Start Line": 124,
+          "Structural Impact": 5.2
+        },
+        {
           "Control Flow Branches": 3,
           "Control Flow Ratio": "100.0%",
           "End Line": 204,
@@ -198669,7 +199114,21 @@
       "cobol/cobol-check/copybooks_CCHECKPD.CPY": [],
       "cobol/cobol-check/copybooks_CCHECKWS.CPY": [],
       "cobol/cobol-check/copybooks_DFHEIBLK.CPY": [],
-      "cobol/cobol-check/src_main_cobol_ALPHA.CBL": [],
+      "cobol/cobol-check/src_main_cobol_ALPHA.CBL": [
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 26,
+          "Function Name": "ALPHA",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 2,
+          "Reflection Hits": 0,
+          "Start Line": 25,
+          "Structural Impact": 1.1
+        }
+      ],
       "cobol/cobol-check/src_main_cobol_BIPM012.CBL": [
         {
           "Control Flow Branches": 0,
@@ -198682,6 +199141,19 @@
           "Lines of Code (LOC)": 4,
           "Reflection Hits": 0,
           "Start Line": 45,
+          "Structural Impact": 1.2
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 44,
+          "Function Name": "BIPM012",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 4,
+          "Reflection Hits": 0,
+          "Start Line": 41,
           "Structural Impact": 1.2
         }
       ],
@@ -198849,6 +199321,19 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
+          "End Line": 58,
+          "Function Name": "FILECOPY",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 6,
+          "Reflection Hits": 0,
+          "Start Line": 53,
+          "Structural Impact": 1.3
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 131,
           "Function Name": "9999-ABORT",
           "Input Parameters": 0,
@@ -198886,6 +199371,19 @@
           "Reflection Hits": 0,
           "Start Line": 46,
           "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 27,
+          "Function Name": "GREETING",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 25,
+          "Structural Impact": 1.1
         }
       ],
       "cobol/cobol-check/src_main_cobol_LONGLINESANDNUMBERS.CBL": [
@@ -198913,6 +199411,19 @@
           "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 62,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 35,
+          "Function Name": "GREETING",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 33,
           "Structural Impact": 1.1
         }
       ],
@@ -199364,7 +199875,21 @@
           "Structural Impact": 1.1
         }
       ],
-      "cobol/cobol-check/src_main_cobol_NUMBERS.CBL": [],
+      "cobol/cobol-check/src_main_cobol_NUMBERS.CBL": [
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 20,
+          "Function Name": "NUMBERS",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 2,
+          "Reflection Hits": 0,
+          "Start Line": 19,
+          "Structural Impact": 1.1
+        }
+      ],
       "cobol/cobol-check/src_main_cobol_REPLAC.CBL": [
         {
           "Control Flow Branches": 6,
@@ -199404,6 +199929,19 @@
           "Reflection Hits": 0,
           "Start Line": 64,
           "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 38,
+          "Function Name": "GREETING",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 36,
+          "Structural Impact": 1.1
         }
       ],
       "cobol/cobol-check/src_main_cobol_RETURNCODE.CBL": [
@@ -199437,6 +199975,19 @@
         }
       ],
       "cobol/cobol-check/src_main_cobol_WS88LEVEL.CBL": [
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 106,
+          "Function Name": "LV88TEST",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 9,
+          "Reflection Hits": 0,
+          "Start Line": 98,
+          "Structural Impact": 1.4
+        },
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
@@ -200061,6 +200612,19 @@
           "Reflection Hits": 0,
           "Start Line": 29,
           "Structural Impact": 1.4
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 17,
+          "Function Name": "DEPTPAY",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 4,
+          "Reflection Hits": 0,
+          "Start Line": 14,
+          "Structural Impact": 1.2
         }
       ],
       "cobol/cobol-programming-course/EMPPAY.CBL": [
@@ -200102,6 +200666,19 @@
           "Reflection Hits": 0,
           "Start Line": 48,
           "Structural Impact": 1.4
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 24,
+          "Function Name": "EMPPAY",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 6,
+          "Reflection Hits": 0,
+          "Start Line": 19,
+          "Structural Impact": 1.3
         },
         {
           "Control Flow Branches": 0,
@@ -200181,8 +200758,36 @@
         }
       ],
       "cobol/gnucobol/COPYING": [],
-      "cobol/gnucobol/numeric-display.cob": [],
-      "cobol/gnucobol/numeric-dump.cob": [],
+      "cobol/gnucobol/numeric-display.cob": [
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 166,
+          "Function Name": "PROG",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 74,
+          "Reflection Hits": 0,
+          "Start Line": 93,
+          "Structural Impact": 4.7
+        }
+      ],
+      "cobol/gnucobol/numeric-dump.cob": [
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 455,
+          "Function Name": "PROG",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 291,
+          "Reflection Hits": 0,
+          "Start Line": 165,
+          "Structural Impact": 2.5
+        }
+      ],
       "cobol/gnucobol/sqlca.cpy": [],
       "cobol/gnucobol/sqlda.cpy": [],
       "cobol/gnucobol/tutorial.cob": [
@@ -200211,6 +200816,19 @@
           "Reflection Hits": 0,
           "Start Line": 231,
           "Structural Impact": 6.3
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "5.3%",
+          "End Line": 150,
+          "Function Name": "TUTORIAL",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 58,
+          "Reflection Hits": 0,
+          "Start Line": 93,
+          "Structural Impact": 4.9
         },
         {
           "Control Flow Branches": 2,
@@ -220593,6 +221211,19 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
+          "End Line": 89,
+          "Function Name": "ECS001",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 11,
+          "Reflection Hits": 0,
+          "Start Line": 79,
+          "Structural Impact": 1.6
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 419,
           "Function Name": "Z1000-EXIT-PROGRAM",
           "Input Parameters": 0,
@@ -220876,6 +221507,19 @@
           "Lines of Code (LOC)": 11,
           "Reflection Hits": 1,
           "Start Line": 311,
+          "Structural Impact": 2.5
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "16.7%",
+          "End Line": 243,
+          "Function Name": "ZECS000",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 11,
+          "Reflection Hits": 0,
+          "Start Line": 233,
           "Structural Impact": 2.5
         },
         {
@@ -221363,6 +222007,19 @@
         },
         {
           "Control Flow Branches": 1,
+          "Control Flow Ratio": "14.3%",
+          "End Line": 183,
+          "Function Name": "ZECS003",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 12,
+          "Reflection Hits": 0,
+          "Start Line": 172,
+          "Structural Impact": 2.6
+        },
+        {
+          "Control Flow Branches": 1,
           "Control Flow Ratio": "50.0%",
           "End Line": 201,
           "Function Name": "1000-INITIALIZE",
@@ -221609,6 +222266,19 @@
           "Reflection Hits": 1,
           "Start Line": 87,
           "Structural Impact": 3.6
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "16.7%",
+          "End Line": 71,
+          "Function Name": "ZECSPLT",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 11,
+          "Reflection Hits": 0,
+          "Start Line": 61,
+          "Structural Impact": 2.5
         },
         {
           "Control Flow Branches": 1,

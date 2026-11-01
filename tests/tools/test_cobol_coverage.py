@@ -89,6 +89,25 @@ def test_branch_points_arms_and_their_first_statements() -> None:
     assert stmts[(23, "IF")] == 1
 
 
+def test_a_verb_name_inside_a_condition_parenthesis_is_no_statement() -> None:
+    """`DFHVALUE(DELETE)` names a constant; the arm's first statement is the one after the IF (#6839)."""
+    src = _cbl(
+        "IDENTIFICATION DIVISION.",
+        "PROGRAM-ID. T.",
+        "PROCEDURE DIVISION.",
+        "P1.",
+        "    IF WS-CMD = DFHVALUE(DELETE)",
+        "       DISPLAY 'GONE'",
+        "    END-IF",
+        "    IF WS-CMD = DFHVALUE(READ) OR DFHVALUE(WRITE)",
+        "       DISPLAY 'IO'",
+        "    END-IF.",
+    )
+    branches, _ = cov.branch_points(src)
+    got = {b.line: [(a.outcome, a.first) for a in b.arms] for b in branches}
+    assert got == {5: [("true", (6, "DISPLAY"))], 8: [("true", (9, "DISPLAY"))]}
+
+
 def test_nesting_else_pairing_period_and_exec() -> None:
     text = _cbl(
         "PROCEDURE DIVISION.",  # 1

@@ -1,0 +1,83 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "PCRCB",
+  "program_source": "cases/pseudo-conversational/pc-return-channel/src/PCRCB.cbl",
+  "copy_dirs": [
+    "cases/pseudo-conversational/pc-return-channel/copy"
+  ],
+  "transid": "PC62",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "notes": "cics-crucible pseudo-conversational / pc-return-channel (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): the next task of the conversation (PCRCB): ASSIGN CHANNEL, GET and DELETE CONTAINER over the three stages. Each scenario is one task; the crucible's multi-turn flows are restated one scenario per leg, each carrying the COMMAREA or channel the previous leg returned. The oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs. The case is entered as a LINKed program (\"linked\": true): the det service of a channel program has no handleTransaction facade, so the top-level RETURN TRANSID entry is not driven as such.",
+  "scenarios": [
+    {
+      "name": "stage-1",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "why": "STATE 1MODIFY0: replaced, EXTRA added, the channel returned",
+      "channel": {
+        "name": "PCCHAN",
+        "containers": {
+          "STATE": {
+            "text": "1MODIFY0",
+            "datatype": "CHAR"
+          }
+        }
+      }
+    },
+    {
+      "name": "stage-2",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "why": "STATE 2CHANGED with EXTRA: EXTRA read and deleted, STATE replaced, the channel returned",
+      "channel": {
+        "name": "PCCHAN",
+        "containers": {
+          "STATE": {
+            "text": "2CHANGED",
+            "datatype": "CHAR"
+          },
+          "EXTRA": {
+            "text": "EXTRA",
+            "datatype": "CHAR"
+          }
+        }
+      }
+    },
+    {
+      "name": "stage-3",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "why": "STATE 3AGAIN-2 with EXTRA gone: GET CONTAINER EXTRA fails",
+      "channel": {
+        "name": "PCCHAN",
+        "containers": {
+          "STATE": {
+            "text": "3AGAIN-2",
+            "datatype": "CHAR"
+          }
+        }
+      }
+    },
+    {
+      "name": "stage-other",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "why": "STATE with a stage no WHEN names",
+      "channel": {
+        "name": "PCCHAN",
+        "containers": {
+          "STATE": {
+            "text": "9OTHER00",
+            "datatype": "CHAR"
+          }
+        }
+      }
+    }
+  ],
+  "termid": "T001",
+  "linked": true
+}

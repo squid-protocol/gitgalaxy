@@ -18,6 +18,8 @@ for p in (str(TOOLS), str(TOOLS / "referees")):
     if p not in sys.path:
         sys.path.insert(0, p)
 
+import cobol_answer_key as ak
+import engine_adapter as EA
 import fact_crosscheck as X
 import translator_adapter as TA
 
@@ -440,3 +442,21 @@ def test_every_registered_stand_in_is_shipped_and_comment_free():
         assert (STAND_IN_DIR / f"{member}.cpy").is_file()
         assert "GitGalaxy-written" not in stand_in_text(member)  # the comment block is blanked
     assert stand_in_text("DFHAID") is None  # shipped for the translator, but not a register stand-in
+
+
+def test_engine_units_channel_leaves_the_main_line_to_unit_extents() -> None:
+    """#7374: the main line (a function_data unit since #7170) is no paragraph or section name."""
+
+    def unit(name: str, start: int, end: int, synthetic: bool = False) -> dict:
+        return {"name": name, "start": start, "end": end, "synthetic": synthetic}
+
+    prog = {"siblings": {"INNER": {"line": 20, "end_line": 40}}}
+    units = [
+        unit(ak.MAIN_LINE, 5, 9),
+        unit("A-PARA", 10, 14),
+        unit("B-PARA", 25, 30),
+        unit("__global_context__", 1, 1, True),
+    ]
+    assert EA.engine_unit_names(prog, units) == {"A-PARA", ak.keyed_unit_name(prog, "B-PARA", 25)}
+    assert EA.engine_unit_names(prog, units) != EA.engine_unit_names({}, units)
+    assert f"{ak.MAIN_LINE} L5-9" in ak.engine_unit_extents(prog, units)

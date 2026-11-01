@@ -51,6 +51,8 @@ def case_problems(cases: list[str]) -> list[str]:
     """Why a CASE cannot be refreshed: no such case, or a corpus that is not a burned estate."""
     from estate4_draw import BURNED_NAMES  # noqa: PLC0415 -- heavy import, only when cases are checked
 
+    # owner OK 2026-10-31 (#6072): cics-crucible counts as a burned estate for the ladder (BURNED_NAMES is unchanged)
+    ladder_estates = BURNED_NAMES | {"cics-crucible"}
     out = []
     for c in cases:
         f = EQUIVALENCE / c / "case.json"
@@ -58,7 +60,7 @@ def case_problems(cases: list[str]) -> list[str]:
             out.append(f"{c}: no such case (tests/equivalence/{c}/case.json)")
             continue
         corpus = str(json.loads(f.read_text(encoding="utf-8")).get("corpus", "")).lower()
-        if corpus not in BURNED_NAMES:
+        if corpus not in ladder_estates:
             out.append(f"{c}: corpus {corpus!r} is not a burned estate (mainframe-evidence-policy.md section 2)")
     return out
 

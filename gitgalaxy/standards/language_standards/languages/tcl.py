@@ -13,7 +13,7 @@ from typing import Any
 from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: compiled on first use
 from gitgalaxy.standards.language_standards.identifiers import ID_CONTINUE, ID_START
 
-from .._shared_patterns import GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT, commented_keyword_statement
 
 # #5909: a `switch` arm is `label body`. The label is a pattern, not a command, and a one-line body
 # (`x { doX }`) is not at command position. `_expose_switch_arms` blanks each label and puts the body on
@@ -253,7 +253,16 @@ DEFINITION: dict[str, Any] = {
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails)
         # Commented out structural code.
-        "dead_code": re.compile(r"^[ \t]*#[ \t]*(?:proc|set|if|while|foreach|return)\b", re.M),
+        # #7207: a statement's shape (`;{}`, `(...)`, an assignment, `set x $y` / `set x 1`, `return $x`), not just the keyword.
+        "dead_code": re.compile(
+            commented_keyword_statement(
+                "proc|set|if|while|foreach|return",
+                marker=r"^[ \t]*#",
+                extra=r"(?<=set)[ \t]+[\w:()$]+[ \t]+(?:[\"$\[{][^\n]{0,400}|-?\d+(?:\.\d+)?[ \t]*)(?m:$)"
+                r"|(?<=return)[ \t]+(?:\$[\w:]+|[\"\[]|-code\b)[^\n]{0,400}(?m:$)",
+            ),
+            re.M,
+        ),
         # 13. doc (Structured Documentation)
         # Tcl doc blocks.
         "doc": re.compile(r"^[ \t]*#[ \t]*@(?:param|return|brief|author)", re.M),

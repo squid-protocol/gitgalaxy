@@ -963,4 +963,48 @@ TASKCONTROL_JAVA = """\
         return new int[] {0, 0};
     }
 
+    /** WAIT EXTERNAL / WAITCICS ECBLIST(ptr) NUMEVENTS(n) (IBM CICS TS, EXEC CICS WAIT EXTERNAL / WAITCICS; register X63):
+     *  {RESP, RESP2}. `list` is the handle of a task-storage block of NUMEVENTS 8-byte big-endian handles (the pointer lane's
+     *  width, not IBM's 4-byte addresses); a null entry is ignored. An ECB is a block whose first byte is X'40' (ASSUMED: IBM
+     *  names no bit); one posted returns at once (IBM: the task "is not suspended"; the ECB is not cleared). INVREQ RESP2 2
+     *  (WAIT EXTERNAL) a null ECBLIST, 3 NUMEVENTS below 1, 5 every address null. Refused: a null WAITCICS ECBLIST (IBM gives
+     *  RESP2 2 to WAIT EXTERNAL only), a list or ECB that is no task storage, a list shorter than NUMEVENTS handles, and a
+     *  list with no posted ECB (nothing else runs to post one: the task would wait forever). */
+    public int[] waitExternal(boolean waitcics, long list, long numEvents) {
+        if (list == 0) {
+            if (waitcics) {
+                throw refused("WAITCICS with a null ECBLIST");
+            }
+            return new int[] {16, 2};
+        }
+        if (numEvents < 1) {
+            return new int[] {16, 3};
+        }
+        Block lb = root().blocks.get(list);
+        if (lb == null || lb.kind == 3 || lb.kind == 4 || numEvents > (lb.bytes.length - lb.off) / 8) {
+            throw refused("WAIT on an ECB list that is no task storage holding NUMEVENTS handles");
+        }
+        boolean valid = false;
+        boolean posted = false;
+        for (int i = 0; i < numEvents; i++) {
+            long h = java.nio.ByteBuffer.wrap(lb.bytes, lb.off + 8 * i, 8).getLong();
+            if (h == 0) {
+                continue;
+            }
+            Block eb = root().blocks.get(h);
+            if (eb == null || eb.kind == 3 || eb.kind == 4 || eb.off >= eb.bytes.length) {
+                throw refused("WAIT on an ECB list that is no task storage holding NUMEVENTS handles");
+            }
+            valid = true;
+            posted |= eb.bytes[eb.off] == 0x40;
+        }
+        if (!valid) {
+            return new int[] {16, 5};
+        }
+        if (!posted) {
+            throw refused("WAIT on an ECB list with no posted ECB");
+        }
+        return new int[] {0, 0};
+    }
+
 """

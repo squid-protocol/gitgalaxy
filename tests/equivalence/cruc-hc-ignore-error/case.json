@@ -1,0 +1,77 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "HCIGN",
+  "program_source": "cases/condition-handling/hc-ignore-error/src/HCIGN.cbl",
+  "copy_dirs": [],
+  "transid": "IE01",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "notes": "cics-crucible condition-handling / hc-ignore-error (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): IGNORE CONDITION, HANDLE CONDITION ERROR and PUSH / POP HANDLE around one LENGERR, and POP HANDLE's INVREQ. Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "ignored",
+      "commarea": null,
+      "terminal": "IE01 XYZ",
+      "why": "IGNORE CONDITION LENGERR: control goes on after the RECEIVE, EIBRESP 22"
+    },
+    {
+      "name": "error-label",
+      "commarea": null,
+      "terminal": "IE02 XYZ",
+      "why": "HANDLE CONDITION ERROR only: LENGERR has no action of its own and its default is an abend, so ERROR's label",
+      "transid": "IE02"
+    },
+    {
+      "name": "own-before-error",
+      "commarea": null,
+      "terminal": "IE03 XYZ",
+      "why": "HANDLE CONDITION ERROR and LENGERR: LENGERR's own label",
+      "transid": "IE03"
+    },
+    {
+      "name": "ignore-before-error",
+      "commarea": null,
+      "terminal": "IE04 XYZ",
+      "why": "HANDLE CONDITION ERROR, IGNORE CONDITION LENGERR: the IGNORE, not ERROR",
+      "transid": "IE04"
+    },
+    {
+      "name": "push-suspends-ignore",
+      "commarea": null,
+      "terminal": "IE05 XYZ",
+      "why": "IGNORE CONDITION LENGERR, PUSH HANDLE: the IGNORE is suspended, LENGERR's default action abends the task (AEIV)",
+      "transid": "IE05"
+    },
+    {
+      "name": "pop-restores-ignore",
+      "commarea": null,
+      "terminal": "IE06 XYZ",
+      "why": "IGNORE CONDITION LENGERR, PUSH HANDLE, POP HANDLE: ignored again",
+      "transid": "IE06"
+    },
+    {
+      "name": "pop-nothing-pushed",
+      "commarea": null,
+      "terminal": "IE07 XYZ",
+      "why": "POP HANDLE with nothing pushed: INVREQ, which has no label of its own, so ERROR's",
+      "transid": "IE07"
+    },
+    {
+      "name": "ignore-overrides-handle",
+      "commarea": null,
+      "terminal": "IE08 XYZ",
+      "why": "HANDLE CONDITION LENGERR then IGNORE CONDITION LENGERR: the IGNORE overrides it",
+      "transid": "IE08"
+    },
+    {
+      "name": "push-suspends-error",
+      "commarea": null,
+      "terminal": "IE09 XYZ",
+      "why": "HANDLE CONDITION ERROR, PUSH HANDLE: ERROR's label is suspended, LENGERR abends the task (AEIV)",
+      "transid": "IE09"
+    }
+  ]
+}

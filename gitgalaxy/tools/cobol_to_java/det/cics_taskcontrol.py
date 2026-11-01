@@ -267,21 +267,41 @@ class TaskControlCommands:
         return [f"{ind}int[] {r} = task.waitEvent(DetCics.pointerValue({self.pointer(opts['ECADDR'])}));",
                 *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]  # fmt: skip
 
+    def wait_external(self, key: str, opts: dict, ind: str) -> list[str]:
+        """#5079 (X63): WAIT EXTERNAL / WAITCICS ECBLIST(ptr) NUMEVENTS(n) [NAME] [PURGEABLE | NOTPURGEABLE] (IBM CICS TS,
+        EXEC CICS WAIT EXTERNAL / WAITCICS) on CicsTask.waitExternal: ECBLIST is a plain POINTER item whose handle addresses
+        a task-storage block of NUMEVENTS 8-byte handles (a POINTER table over it, as the pointer lane keeps them). An ECB is
+        posted when its first byte is X'40' (ASSUMED: IBM names no bit); a posted one returns NORMAL at once. INVREQ RESP2 2
+        (WAIT EXTERNAL only) for a null ECBLIST, 3 NUMEVENTS not positive, 5 every address null. A list with no posted ECB
+        is refused when it runs (nothing else runs to post one). NAME and PURGEABLE / NOTPURGEABLE change nothing here."""
+        from gitgalaxy.tools.cobol_to_java.det.cics_common import CicsError, _arg, _msg
+
+        for needed in ("ECBLIST", "NUMEVENTS"):
+            if not opts.get(needed):
+                raise CicsError(_msg(key, "required", needed))
+        if "PURGEABLE" in opts and "NOTPURGEABLE" in opts:
+            raise CicsError(_msg(key, "at_most_one", "PURGEABLE"))
+        r = self.g.tmpname("waited")
+        call = (f"task.waitExternal({'true' if key == 'WAITCICS' else 'false'}, "
+                f"DetCics.pointerValue({self.pointer(opts['ECBLIST'])}), {self._number(_arg(opts['NUMEVENTS']))})")  # fmt: skip
+        return [f"{ind}int[] {r} = {call};", *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
+
     def converse(self, opts: dict, ind: str) -> list[str]:
         """#5079 (X63): CONVERSE FROM [FROMLENGTH] INTO [TOLENGTH] [MAXLENGTH] [NOTRUNCATE] (IBM CICS TS, EXEC CICS CONVERSE
         (default)) on CicsTask.converse: the FROM data written to the terminal (what a plain SEND records: its first
         FROMLENGTH bytes, else FROM's length), then a terminal RECEIVE of the reply (as `receive`: the most taken is
         MAXLENGTH, else TOLENGTH's value, else INTO's length; TOLENGTH set to the reply's length, or the original length
         under LENGERR). LENGERR is the only condition IBM lists; the reply's EOC of an LUTYPE2 terminal is refused when it
-        runs. A negative FROMLENGTH is LENGERR with nothing sent (ASSUMED). SET and the conversation options are refused by
-        name by the spec entry."""
+        runs. A negative FROMLENGTH is LENGERR with nothing sent (ASSUMED). SET(pointer) puts the reply in a task-storage
+        block as RECEIVE SET does (X58; needs TOLENGTH(data-area)); the conversation options are refused by name by the spec."""
         import re
 
         from gitgalaxy.tools.cobol_to_java.det.cics_common import CicsError, _arg, _msg, _one_of
 
-        for req in ("FROM", "INTO"):
-            if not opts.get(req):
-                raise CicsError(_msg("CONVERSE", "required", req))
+        if not opts.get("FROM"):
+            raise CicsError(_msg("CONVERSE", "required", "FROM"))
+        if bool(opts.get("INTO")) == bool(opts.get("SET")):  # one of INTO / SET, not both, not neither
+            raise CicsError(_msg("CONVERSE", "one_of", "INTO"))
         frm = _arg(opts["FROM"])
         sent = _one_of(opts, "FROMLENGTH", "FROMFLENGTH")
         length = _one_of(opts, "TOLENGTH", "TOFLENGTH")
@@ -296,13 +316,21 @@ class TaskControlCommands:
             self.read_field(frm), n
         )
         rec = g.record_bytes(self.ref(frm)) if past else None  # #6882: typed items in FROM's record packed first
-        target = self.field(opts["INTO"])
-        limit = self.int_(most) if most else self.int_(length) if length else str(self.size(opts["INTO"]))
+        if opts.get("SET"):  # #5079 (X58): the reply in a block a pointer addresses, as RECEIVE SET(pointer)
+            if not settable:
+                raise CicsError("CONVERSE SET without TOLENGTH(data-area)")
+            target = self.pointer(opts["SET"])
+            limit = self.int_(most) if most else "Integer.MAX_VALUE"  # TOLENGTH is output-only with SET (X15)
+            store = f'DetCics.setBlock(task, {target}, "RECEIVE", {r}.data(), CS);'
+        else:
+            target = self.field(opts["INTO"])
+            limit = self.int_(most) if most else self.int_(length) if length else str(self.size(opts["INTO"]))
+            store = f"DetCics.received({target}, {r}.data(), CS);"
         out = [*([f"{ind}Field {g.tmpname('rec')} = {rec};"] if rec else []),
                f"{ind}String {t} = {text};",
                (f"{ind}CicsTask.Received {r} = task.converse({t}.substring(0, Math.min({t}.length(), Math.max({n}, 0))), "
                 f"{n}, {limit}, {str('NOTRUNCATE' in opts).lower()});"),
-               f"{ind}if ({r}.data() != null) DetCics.received({target}, {r}.data(), CS);"]  # fmt: skip
+               f"{ind}if ({r}.data() != null) {store}"]  # fmt: skip
         if settable and length is not None:
             out.append(
                 f"{ind}if ({r}.length() >= 0) "

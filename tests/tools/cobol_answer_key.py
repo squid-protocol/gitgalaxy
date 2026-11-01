@@ -6866,6 +6866,7 @@ def engine_call_targets(calls) -> set[str]:
 # GalaxyIR carries neither the edges nor the synthetic rows, so `score` reads
 # them here, read-only, from the same snapshot GalaxyIR loaded.
 ENGINE_MAIN_LINE = "__global_context__"
+ENGINE_MAIN_LINE_SHAPE = "main_line"  # #7170: function_data.def_shape of a program's main line
 
 
 def engine_unit_graph(db: Path, repo_name: str, commit_hash: str) -> dict[str, list[dict[str, Any]]]:
@@ -6886,14 +6887,20 @@ def engine_unit_graph(db: Path, repo_name: str, commit_hash: str) -> dict[str, l
         def edges(raw: str | None) -> list[str]:
             return [str(x).upper() for x in (json.loads(raw) if raw else [])]
 
-        for fid, name, start, loc, calls, transfers in con.execute(
-            "SELECT file_id, func_name, start_line, loc, calls_out_to, transfers_to FROM function_data"
+        # #7170: the main line is a function_data row (def_shape 'main_line') with a real
+        # extent; an older DB has no such row and keeps it in synthetic_unit_data below.
+        has_shape = any(r[1] == "def_shape" for r in con.execute("PRAGMA table_info(function_data)"))
+        shape_col = "def_shape" if has_shape else "NULL"
+        for fid, name, start, loc, calls, transfers, shape in con.execute(
+            f"SELECT file_id, func_name, start_line, loc, calls_out_to, transfers_to, {shape_col} "  # noqa: S608
+            "FROM function_data"
         ):
             if fid in ids:
                 start, loc = int(start or 0), int(loc or 0)
                 out.setdefault(ids[fid], []).append(
-                    {"name": (name or "").upper(), "start": start, "end": start + max(loc, 1) - 1,
-                     "calls": edges(calls), "transfers": edges(transfers), "synthetic": False}
+                    {"name": MAIN_LINE if shape == ENGINE_MAIN_LINE_SHAPE else (name or "").upper(), "start": start,
+                     "end": start + max(loc, 1) - 1, "calls": edges(calls), "transfers": edges(transfers),
+                     "synthetic": False}
                 )  # fmt: skip
         has_synthetic = con.execute(
             "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'synthetic_unit_data'"

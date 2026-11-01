@@ -1,0 +1,33 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "PCIMMS",
+  "program_source": "cases/pseudo-conversational/pc-return-immediate/src/PCIMMS.cbl",
+  "copy_dirs": [
+    "cases/pseudo-conversational/pc-return-immediate/copy"
+  ],
+  "transid": "PC54",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "notes": "cics-crucible pseudo-conversational / pc-return-immediate (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): PCIMMS, the task START PC54 attaches with no terminal, whose RETURN IMMEDIATE has no terminal to attach to. The oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs. Scenario terminal-immediate states the terminal T001 (PC52 is attached at once); scenario no-terminal states a started task with no terminal (termid \"\", #7390), the INVREQ outcome. The oracle is GnuCOBOL plus the stub.",
+  "scenarios": [
+    {
+      "name": "terminal-immediate",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "why": "RETURN TRANSID(PC52) IMMEDIATE with the terminal T001 stated: PC52 is attached at once"
+    },
+    {
+      "name": "no-terminal",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "startcode": "S",
+      "termid": "",
+      "why": "the task START PC54 starts has no terminal: RETURN IMMEDIATE is INVREQ and the program logs the response"
+    }
+  ],
+  "programs": [],
+  "termid": "T001"
+}

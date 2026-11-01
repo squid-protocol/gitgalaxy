@@ -125,7 +125,7 @@ RECEIVE = Command(
 )
 
 # #5079 (X63): CONVERSE (default), the terminal form -- the data written to the terminal (what a plain SEND records), then what a
-# RECEIVE reads. The APPC / MRO conversation forms (CONVID, STATE, ATTACHID, STRFIELD ...) and SET are refused.
+# RECEIVE reads (INTO, or SET(pointer) as RECEIVE SET, X58). The APPC / MRO conversation forms (CONVID, STATE, ATTACHID, STRFIELD ...) are refused.
 _CONVERSE_APPC = Refusal(
     "a conversation with a partner transaction (APPC / distributed program link: CONVID, STATE, ATTACHID, STRFIELD ...) is"
     " not modelled: only the terminal form is",
@@ -141,6 +141,7 @@ CONVERSE = Command(
         "FROMLENGTH": Arg("value"),
         "FROMFLENGTH": Arg("value"),
         "INTO": Arg("area_out"),
+        "SET": Arg("pointer"),  # the reply in a task-storage block (X58); the stub models it too (GGCCONS, #7371)
         "TOLENGTH": Arg("area_inout", width=2, binary=True, inout_unless_literal=True),
         "TOFLENGTH": Arg("area_inout", width=4, binary=True, inout_unless_literal=True),
         "MAXLENGTH": Arg("value"),
@@ -148,27 +149,21 @@ CONVERSE = Command(
         "NOTRUNCATE": Arg("flag"),
         **RESP_OPTIONS,
     },
-    refused={
-        "SET": Refusal(
-            "the reply in a block the pointer addresses is not modelled for CONVERSE (RECEIVE SET is, X58): use INTO",
-            "X63",
-        ),
-    },
     default_refusal=_CONVERSE_APPC,
     groups=(
         required("FROM", msg="CONVERSE without FROM: the data written to the terminal"),
-        required("INTO", msg="CONVERSE without INTO: the reply read from the terminal"),
+        one_of("INTO", "SET", msg="CONVERSE without INTO or SET: the reply read from the terminal"),
         at_most_one("FROMLENGTH", "FROMFLENGTH", msg=BOTH_FORMS),
         at_most_one("TOLENGTH", "TOFLENGTH", msg=BOTH_FORMS),
         at_most_one("MAXLENGTH", "MAXFLENGTH", msg=BOTH_FORMS),
     ),
     outcomes=(
-        Outcome("NORMAL", 0, "", writes=("INTO", "TOLENGTH", "TOFLENGTH")),
+        Outcome("NORMAL", 0, "", writes=("INTO", "SET", "TOLENGTH", "TOFLENGTH")),
         Outcome(
             "LENGERR",
             None,
             "the reply is longer than the most taken (truncated), or a length is out of range",
-            writes=("INTO", "TOLENGTH", "TOFLENGTH"),
+            writes=("INTO", "SET", "TOLENGTH", "TOFLENGTH"),
         ),
     ),
     runtime_refusals=(

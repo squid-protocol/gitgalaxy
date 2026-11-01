@@ -1,0 +1,37 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "GTASNT",
+  "program_source": "cases/ghost-tasks/gt-assign-startcode/src/GTASNT.cbl",
+  "copy_dirs": [],
+  "transid": "GT32",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "notes": "cics-crucible ghost-tasks / gt-assign-startcode (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): ASSIGN STARTCODE / USERID / FACILITY / SCRNHT / SCRNWD alone. Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "terminal",
+      "commarea": null,
+      "terminal": "GT32",
+      "startcode": "TD",
+      "termid": "T001",
+      "userid": "CICSUSER",
+      "screen": [
+        24,
+        80
+      ],
+      "why": "terminal task: facts logged"
+    },
+    {
+      "name": "no-terminal",
+      "commarea": null,
+      "terminal": null,
+      "startcode": "S",
+      "termid": "",
+      "userid": "CICSUSER",
+      "why": "a started task with no terminal: ASSIGN FACILITY is INVREQ (RESP2 5), the else arm logs the response"
+    }
+  ]
+}

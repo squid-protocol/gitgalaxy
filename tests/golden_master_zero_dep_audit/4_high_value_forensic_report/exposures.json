@@ -153,17 +153,17 @@
         {
           "name": "Chapter_02_movexamps.s",
           "path": "assembly/hellosilicon_aarch64/Chapter_02_movexamps.s",
-          "value": 99.959
-        },
-        {
-          "name": "tokio_named_pipe.rs",
-          "path": "rust/tokio/tokio_named_pipe.rs",
-          "value": 99.7975
+          "value": 99.7527
         },
         {
           "name": "comments.hlasm",
           "path": "hlasm/che4z_hlasm/comments.hlasm",
           "value": 99.7527
+        },
+        {
+          "name": "TEST6.CBL",
+          "path": "cobol/che-che4z_lsp_project_fixtures/TEST6.CBL",
+          "value": 91.6827
         }
       ],
       "lowest": [
@@ -178,8 +178,8 @@
           "value": 0.0
         },
         {
-          "name": "speedtest.tcl",
-          "path": "tcl/sqlite/speedtest.tcl",
+          "name": "testrunner.tcl",
+          "path": "tcl/sqlite/testrunner.tcl",
           "value": 0.0
         }
       ]

@@ -12,7 +12,13 @@ from typing import Any
 
 from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: compiled on first use
 
-from .._shared_patterns import CALLS_OUT_C_STYLE, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT, PY_CRYPTOGRAPHY
+from .._shared_patterns import (
+    CALLS_OUT_C_STYLE,
+    GLOBAL_FRAGILE_DEBT,
+    GLOBAL_PLANNED_DEBT,
+    PY_CRYPTOGRAPHY,
+    commented_keyword_statement,
+)
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -188,7 +194,14 @@ DEFINITION: dict[str, Any] = {
             re.M,
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails)
-        "dead_code": re.compile(r"#[ \t]*(?:def|class|import|if|for|while|try|print|machine\.Pin)\b"),
+        # #7207: a statement's shape (`(...)`, an assignment, a trailing `:`, or `import a.b [as c]`), not just the keyword.
+        "dead_code": re.compile(
+            commented_keyword_statement(
+                "def|class|import|if|for|while|try|print|machine\\.Pin",
+                marker="#",
+                extra=r"[^\n]{0,400}:[ \t]*(?m:$)|[ \t]+[\w.]+(?:[ \t]+as[ \t]+\w+)?[ \t]*(?m:$)",
+            )
+        ),
         # 13. doc (Structured Documentation)
         # BUG FIX #2658: Match full docstring span as a single bounded body so
         # """ counts as doc=1, not 2. Unterminated delimiters fail safely.

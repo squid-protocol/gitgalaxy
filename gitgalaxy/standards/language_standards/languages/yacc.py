@@ -12,7 +12,7 @@ from typing import Any
 
 from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: compiled on first use
 
-from .._shared_patterns import CALLS_OUT_C_STYLE, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import CALLS_OUT_C_STYLE, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT, commented_keyword_statement
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -115,7 +115,15 @@ DEFINITION: dict[str, Any] = {
             r"|[\w)\]$][ \t]*(?:\+\+|--)|(?:\+\+|--)[ \t]*[A-Za-z_(*$]",
             re.M,
         ),
-        "dead_code": re.compile(r"//[ \t]*(?:if|for|while|return|%token)\b|/\*[ \t]*(?:if|for|while|return|%token)"),
+        # #7207: a statement's shape (`if (...) {`, `return x;`, `%token NUM`), not just the keyword:
+        # `// return value is ignored` and `// if the parse fails` are prose. A `%token` declaration ends in
+        # neither `;{}` nor `(...)`: it is the directive plus ALL-CAPS token names (an optional `<type>` tag).
+        "dead_code": re.compile(
+            commented_keyword_statement(
+                "if|for|while|return|%token",
+                extra=r"(?<=%token)(?:[ \t]*<[^\n>]{1,64}>)?(?:[ \t]+[A-Z_][A-Z0-9_]{0,64}(?:[ \t]+\d{1,6})?){1,20}[ \t]*(?:\*/[ \t]*)?(?m:$)",
+            )
+        ),
         # #2672: doc-family fix -- block form first (bounded, non-greedy, same
         # shape/bound as #2658) so a whole /** ... */ doc comment counts once
         # even when it carries @param/@return tags inside it, instead of once

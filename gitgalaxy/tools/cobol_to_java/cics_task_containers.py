@@ -190,6 +190,43 @@ CONTAINERS_JAVA = """\
         return false;
     }
 
+    /** IBM's MOVE CONTAINER (INVREQ RESP2 30 / 31, CHANNELERR 3) and DELETE CHANNEL (CHANNELERR 3) pages name CICS-defined
+     *  read-only containers and channels and list none. A name beginning DFH may be one, so the command is refused by name
+     *  rather than run as on an ordinary one (X42 / X44). */
+    private static void refuseCicsDefined(String command, String... names) {
+        for (String n : names) {
+            if (n != null && n.stripLeading().toUpperCase(java.util.Locale.ROOT).startsWith("DFH")) {
+                throw refused(command + " naming a CICS-defined (DFH...) container or channel: it may be read-only, "
+                        + "and IBM lists none (INVREQ RESP2 30 / 31, CHANNELERR RESP2 3)");
+            }
+        }
+    }
+
+    /** PUT CONTAINER (X42): IBM's INVREQ RESP2 30 / CHANNELERR RESP2 3 name CICS-defined read-only containers and channels and
+     *  list none. The pipeline containers a burned program writes back (DFHREQUEST, DFH-BODY, DFH-DATA) run as ordinary ones;
+     *  any other DFH container, and any DFH channel, is refused by name. */
+    private static void refuseCicsDefinedPut(String channel, String container) {
+        String c = container == null ? "" : container.strip().toUpperCase(java.util.Locale.ROOT);
+        boolean pipeline = c.equals("DFHREQUEST") || c.equals("DFH-BODY") || c.equals("DFH-DATA");
+        boolean dfhChannel = channel != null && channel.strip().toUpperCase(java.util.Locale.ROOT).startsWith("DFH");
+        if ((!pipeline && c.startsWith("DFH")) || dfhChannel) {
+            throw refused("PUT CONTAINER naming a CICS-defined (DFH...) container or channel: it may be read-only, "
+                    + "and IBM lists none (INVREQ RESP2 30, CHANNELERR RESP2 3)");
+        }
+    }
+
+    /** LINK / XCTL / RETURN CHANNEL (#5005, X42): IBM's three pages list no read-only condition, but say CHANNEL(DFHTRANSACTION)
+     *  is the transaction channel, which never goes out of scope when the link level changes. That scope is not modelled
+     *  (it would run as an ordinary channel and drop out), so a channel named DFH... is refused by name, unless it is
+     *  already in this program's scope (a channel the harness handed the task, e.g. DFHEP.EVENT: used as is). */
+    private void refuseDfhHandedChannel(String command, String channel) {
+        if (channel != null && channel.stripLeading().toUpperCase(java.util.Locale.ROOT).startsWith("DFH")
+                && !channels.containsKey(channel.strip())) {
+            throw refused(command + " CHANNEL naming a DFH... channel not in scope: the transaction channel "
+                    + "(DFHTRANSACTION) and any other CICS-defined channel are not modelled");
+        }
+    }
+
     private java.util.Set<String> inScope() {
         java.util.Set<String> all = new java.util.HashSet<>(channels.keySet());
         all.addAll(droppedChannels);
@@ -267,6 +304,7 @@ CONTAINERS_JAVA = """\
         if (planned != null) {
             return new ContainerResult(respName(planned[0]), planned[1], -1, null);
         }
+        refuseCicsDefinedPut(channel, container);
         boolean badChannel = channel != null && illegalName(channel, "channel");
         boolean badContainer = illegalName(container, "container");
         if (badChannel || badContainer) {
@@ -472,8 +510,11 @@ CONTAINERS_JAVA = """\
     }
 
     /** DELETE CONTAINER(container) [CHANNEL(channel)] (IBM, EXEC CICS DELETE CONTAINER (CHANNEL)): CHANNELERR
-     *  RESP2 2, INVREQ RESP2 4 ("issued outside the scope of a currently-active channel"), CONTAINERERR RESP2 10. */
+     *  RESP2 2, INVREQ RESP2 4 ("issued outside the scope of a currently-active channel"), CONTAINERERR RESP2 10. IBM's
+     *  INVREQ RESP2 30 (a CICS-defined read-only container) and CHANNELERR RESP2 3 (a read-only channel) list no set: a
+     *  container or channel named DFH... is refused by name (X42). */
     public ContainerResult deleteContainer(String channel, String container) {
+        refuseCicsDefined("DELETE CONTAINER", container, channel);
         Channel ch = channel == null ? currentChannel : scopeChannel(channel, false);
         String name = channelName(container, "container");
         if (ch == null) {
@@ -493,9 +534,11 @@ CONTAINERS_JAVA = """\
      *  RESP2 2: not in the program's scope. IBM's other RESP2 values name the current channel (4), the transaction
      *  channel (5), a channel not owned by the calling program (6) and a read-only channel (3); a channel the program
      *  is passed is the current one, and is also not its own, so IBM's order among 4 / 5 / 6 decides and it gives none:
-     *  the current channel is refused (ASSUMED: no read-only channel exists). A browse of the deleted channel is
+     *  the current channel is refused. A channel named DFH... may be CICS-defined and read-only (CHANNELERR RESP2 3): refused
+     *  by name (X44; IBM lists no set). A browse of the deleted channel is
      *  refused at its next GETNEXT, as for any change to the channel (X42). */
     public ContainerResult deleteChannel(String channel) {
+        refuseCicsDefined("DELETE CHANNEL", channel);
         Channel ch = scopeChannel(channel, false);
         if (ch == null) {
             return new ContainerResult("CHANNELERR", 2, -1, null);
@@ -526,10 +569,13 @@ CONTAINERS_JAVA = """\
      *  current channel. Conditions, in this order (IBM gives none): INVREQ RESP2 4 (CHANNEL or TOCHANNEL omitted and
      *  no current channel), CHANNELERR RESP2 2 (CHANNEL not in scope), CONTAINERERR RESP2 10 (no such container). A
      *  move that raises a condition changes nothing, and creates no channel (ASSUMED). The container keeps its data
-     *  type; one moved onto an existing container of the other type, or onto itself, is refused. */
+     *  type; one moved onto an existing container of the other type, or onto itself, is refused, and so is any name
+     *  (container, AS, channel) beginning DFH: IBM's INVREQ RESP2 30 / 31 and CHANNELERR RESP2 3 name CICS-defined
+     *  read-only containers and channels but give no list of them (X42). */
     public ContainerResult moveContainer(String channel, String container, String as, String toChannel) {
         String name = channelName(container, "container");
         String target = channelName(as, "container");
+        refuseCicsDefined("MOVE CONTAINER", name, target, channel, toChannel);
         Channel from = channel == null ? currentChannel : scopeChannel(channel, false);
         Channel to = toChannel == null ? currentChannel : scopeChannel(toChannel, false);
         if ((channel == null || toChannel == null) && currentChannel == null) {
@@ -662,6 +708,7 @@ CONTAINERS_JAVA = """\
      *  available to the called program"; one that does not exist is created empty): the callee's current channel,
      *  and the only one in its scope; what it puts there, the caller sees. EIBCALEN 0. */
     public String linkChannel(String program, String channel) {
+        refuseDfhHandedChannel("LINK", channel);
         return link(program, null, 0, null, scopeChannel(channel, true));
     }
 
@@ -670,6 +717,7 @@ CONTAINERS_JAVA = """\
      *  RESP2}: {0, 0} and the task ends, `returnedChannel` holding what the program put there; INVREQ RESP2 2 below the
      *  highest logical level -- the command then returns to the program. */
     public int[] returnChannel(String transid, String channel) {
+        refuseDfhHandedChannel("RETURN", channel);
         if (level > 1) {
             event("RETURN", "level", level, "transid", transid, "channel", channelName(channel, "channel"), "resp",
                     "INVREQ", "resp2", 2);
@@ -689,6 +737,7 @@ CONTAINERS_JAVA = """\
 
     /** XCTL PROGRAM(program) CHANNEL(channel): as LINK CHANNEL, at the same level. */
     public String xctlChannel(String program, String channel) {
+        refuseDfhHandedChannel("XCTL", channel);
         return xctl(program, null, null, scopeChannel(channel, true));
     }
 

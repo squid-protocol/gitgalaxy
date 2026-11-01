@@ -1087,8 +1087,8 @@ _RESP_ELSEWHERE = {
     "FREEMAIN": "Cics.storage ends in outcome() (test_getmain_and_freemain_work_on_task_storage_through_a_pointer)",
     "ADDRESS": "Cics.address ends in outcome(); needs the generator's pointer items, which this double lacks: test_address_5079.py::test_a_program_addressing_the_eib_and_the_commarea_translates_whole",
     **dict.fromkeys(
-        ("POST", "WAIT EVENT", "CONVERSE"),
-        "Cics.post / wait_event / converse end in outcome() and need the generator's pointer items and fields, which this "
+        ("POST", "WAIT EVENT", "WAIT EXTERNAL", "WAITCICS", "CONVERSE"),
+        "Cics.post / wait_event / wait_external / converse end in outcome() and need the generator's pointer items and fields, which this "
         "double lacks: test_post_wait_converse_5079.py::test_post_raises_its_conditions_through_resp_and_handle_condition",
     ),
     "SET TERMINAL": "needs the generator's int_expr, which this double lacks: test_bif_deedit_and_the_terminal_uctranst_cvdas",
@@ -1172,10 +1172,12 @@ def test_receive_set_addresses_a_linkage_record_and_the_rest_is_refused():
     assert out[:3] == ["CicsTask.Received received1 = task.receive(INT(80), false);",
                        "DetCics.receivedSet(f_LS-REC, received1.data(), CS);",
                        "STORE(RLEN, BigDecimal.valueOf(received1.length()));"]  # fmt: skip
+    # X15 (#5079): LENGTH is output-only with SET, so no MAXLENGTH takes all the input (no limit, never LENGERR)
+    out = _TermCics().command("RECEIVE SET(ADDRESS OF LS-REC) LENGTH(RLEN)", "")
+    assert out[0] == "CicsTask.Received received1 = task.receive(Integer.MAX_VALUE, false);"
     for bad, why in (
         ("RECEIVE SET(ADDRESS OF WS-REC) LENGTH(RLEN) MAXLENGTH(80)", "not a LINKAGE 01"),
         ("RECEIVE SET(ADDRESS OF LS-PART) LENGTH(RLEN) MAXLENGTH(80)", "not a LINKAGE 01"),
-        ("RECEIVE SET(ADDRESS OF LS-REC) LENGTH(RLEN)", "without MAXLENGTH"),
         ("RECEIVE SET(ADDRESS OF LS-REC) MAXLENGTH(80)", "without LENGTH"),
         ("RECEIVE LENGTH(RLEN)", "one of INTO / SET"),
         ("RECEIVE INTO(REC) SET(ADDRESS OF LS-REC) LENGTH(RLEN)", "one of INTO / SET"),
@@ -1204,7 +1206,7 @@ def test_eoc_is_ignored_by_default_and_handled_like_any_condition():
     # DetCics.condition / resp delegate to the generated CicsSpec (#4270 spec PR 4)
     rt = (Path(C.__file__).parent / "cobolrt/cics/DetCics.java").read_text(encoding="utf-8") + CICS_SPEC_JAVA
     assert 'case 6 -> "EOC";' in rt and 'case "EOC" -> 6;' in rt
-    assert re.search(r'ignoredByDefault\(String condition\) \{\s*return "EOC"\.equals\(condition\);', rt)
+    assert re.search(r'ignoredByDefault\(String condition\) \{\s*return "EOC"\.equals\(condition\) \|\| "EXPIRED"\.equals\(condition\);', rt)
 
 
 def test_a_terminal_only_cics_program_translates_whole_and_imports_only_packages_that_exist(tmp_path):
@@ -1703,6 +1705,13 @@ def test_web_send_is_the_response_to_the_stated_request():
     the conversion flag (0 / 1 SRVCONVERT / 2 NOSRVCONVERT); every condition through RESP / HANDLE CONDITION. What IBM leaves
     open, or zECS does not use, is refused by name."""
     c = _ChanCics()
+    base_resolve = c.g.resolve
+    c.g.resolve = lambda ref: base_resolve(ref) if ref.name in ("LS-REC", "WS-REC") else base_resolve(E.Ref("WS-REC"))
+    # #6839: FROM a LINKAGE 01 record (a SET ADDRESS OF can window it onto a larger block) reads FROMLENGTH bytes of the
+    # block (DetCics.fromText); a WORKING-STORAGE area keeps the declared area's text
+    ls = c.command("WEB SEND FROM(LS-REC) FROMLENGTH(R) NOHANDLE", "")
+    assert ".webSend(DetCics.fromText(" in ls[0] and ", INT(R), CS), INT(R)," in ls[0]
+    assert ".webSend(Cobol.text(" in c.command("WEB SEND FROM(WS-REC) FROMLENGTH(R) NOHANDLE", "")[0]
     w = c.command(
         "WEB SEND FROM(REC) FROMLENGTH(R) MEDIATYPE(REC) ACTION(R2) STATUSCODE(R) STATUSTEXT(REC) SRVCONVERT NOHANDLE",
         "",

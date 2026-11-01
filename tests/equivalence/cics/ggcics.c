@@ -255,6 +255,7 @@ static void blk_invalidate_prefix(const char *prefix);
 static int blk_held(const char *key);
 static void *blk_set_new(const char *key, const void *data, size_t n, int sync);
 static void blk_invalidate_sync(void);
+static size_t blk_room(const void *p); /* #6839: bytes from p to the end of the live task-storage block holding it, else 0 */
 static void file_set_end(const char *kind, const char *file) {
     char key[96];
     snprintf(key, sizeof key, "%s %s", kind, file);
@@ -807,7 +808,8 @@ int GGCSTXT(gg_cics *c, char *from, int len) {
  * terminal (`from`, `fromlen` bytes), recorded as a plain SEND records it, then the terminal RECEIVE of the reply INTO `into` (GG-LEN the
  * most taken, GG-FLAGS NOTRUNCATE; on return GG-LEN the reply's length). A negative `fromlen` is LENGERR with nothing sent and nothing
  * read (GG-LEN -1: ASSUMED). Refused on an LUTYPE2 terminal (the reply would raise EOC, which IBM does not list for CONVERSE). */
-int GGCCONV(gg_cics *c, char *from, int fromlen, char *into) {
+/* CONVERSE's write half: 0 when the data was recorded, -1 (LENGERR, GG-LEN -1) for a negative length; the most taken is kept in GG-LEN. */
+static int converse_write(gg_cics *c, char *from, int fromlen) {
     char saved[40];
     int most = c->len;
     if (getenv("GGCICS_LU2") != NULL) refuse("CONVERSE on an LUTYPE2 terminal (the reply would raise EOC, which IBM does not list for CONVERSE)");
@@ -815,7 +817,7 @@ int GGCCONV(gg_cics *c, char *from, int fromlen, char *into) {
         c->resp = LENGERR;
         c->resp2 = 0;
         c->len = -1;
-        return 0;
+        return -1;
     }
     memcpy(saved, c->flags, sizeof saved);
     memset(c->flags, ' ', sizeof saved);
@@ -823,7 +825,11 @@ int GGCCONV(gg_cics *c, char *from, int fromlen, char *into) {
     send_text_event(c, from, fromlen);
     memcpy(c->flags, saved, sizeof saved);
     c->len = most;
-    terminal_receive(c, into);
+    return 0;
+}
+
+int GGCCONV(gg_cics *c, char *from, int fromlen, char *into) {
+    if (converse_write(c, from, fromlen) == 0) terminal_receive(c, into);
     return 0;
 }
 
@@ -2208,6 +2214,17 @@ static void *blk_new(size_t n, int kind) {
     return p;
 }
 
+/* #6839: the bytes from `p` to the end of the live GETMAIN / received block that holds it (0: no block does). A WEB command reads
+ * its FROM / PATH / QUERY from the address, so a record SET onto a larger block may carry a length past its declared area (IBM). */
+static size_t blk_room(const void *p) {
+    for (int i = 0; i < nblks; i++) {
+        if (blks[i].kind != BLK_FREED && (const char *)p >= (const char *)blks[i].p
+            && (const char *)p < (const char *)blks[i].p + blks[i].n)
+            return (size_t)((const char *)blks[i].p + blks[i].n - (const char *)p);
+    }
+    return 0;
+}
+
 /* #5042 (register X58): ends the validity of the SET(ptr) blocks of `key`. IBM says only that the pointer is then "no longer
  * valid"; the storage reads as zeros through any record already addressing it (ASSUMED), as CicsTask.invalidateSet. */
 static void blk_invalidate(const char *key) {
@@ -2335,6 +2352,28 @@ static int free_block_at(gg_cics *c, void *addr) {
     return 0;
 }
 
+/* GGCPTRADV: `ADD|SUBTRACT n TO|FROM view` over the PIC S9(8) COMP view of a POINTER (#6839 slice 3, X47), lowered by
+ * equivalence_cics_pointer.py. GnuCOBOL's POINTER is 8 bytes little-endian and the view 4 bytes big-endian, so the ADD on the
+ * view itself corrupts the address. The pointer moves n bytes inside the block it addresses, as DetCics.advancePointer: a
+ * null pointer, one no block holds, a freed block, or a result below the block's first byte or past its end (one past the
+ * last byte is allowed) is refused. */
+int GGCPTRADV(void **slot, int n) {
+    unsigned char *at = (unsigned char *)*slot;
+    int i, hit = -1;
+    if (!at) refuse("pointer arithmetic on a null pointer");
+    for (i = 0; i < nblks; i++)
+        if (at >= (unsigned char *)blks[i].p && at < (unsigned char *)blks[i].p + blks[i].n) { hit = i; break; }
+    for (i = 0; hit < 0 && i < nblks; i++)
+        if (at == (unsigned char *)blks[i].p + blks[i].n) hit = i; /* one past the last byte */
+    if (hit < 0) refuse("pointer arithmetic on an address no block of task storage holds");
+    if (blks[hit].kind == BLK_FREED) refuse("pointer arithmetic on freed storage");
+    at += n;
+    if (at < (unsigned char *)blks[hit].p || at > (unsigned char *)blks[hit].p + blks[hit].n)
+        refuse("pointer arithmetic leaves the storage the pointer addresses");
+    *slot = at;
+    return 0;
+}
+
 /* GGCFREM: FREEMAIN DATAPOINTER(ptr): INVREQ RESP2 1 for an address GETMAIN did not return (a null pointer, a record's address). Refused:
  * storage already freed, a WEB RECEIVE SET body (IBM does not say whether FREEMAIN is allowed). */
 int GGCFREM(gg_cics *c, void **slot) {
@@ -2398,8 +2437,8 @@ int GGCBLLG(unsigned char *data, void **cell) {
  * each task reads when it first addresses the area and writes back as it ends. An area of size 0 or unstated is IBM's X'FF000000':
  * the pointer's first four bytes (little-endian 0xFF), so a program's PIC X(4) view of it compares equal. IBM does not state the
  * initial content: zeros, as the port. */
-static char *twa_area, *tctua_area;
-static long tctua_len;
+static char *twa_area, *tctua_area, *cwa_area;
+static long tctua_len, cwa_len;
 
 static long env_size(const char *name) {
     const char *v = getenv(name);
@@ -2413,7 +2452,26 @@ static void tctua_save(void) {
     if (f) { fwrite(tctua_area, 1, (size_t)tctua_len, f); fclose(f); }
 }
 
+static void cwa_save(void) {
+    const char *path = getenv("GGCICS_CWA");
+    FILE *f = path && cwa_area ? fopen(path, "wb") : NULL;
+    if (f) { fwrite(cwa_area, 1, (size_t)cwa_len, f); fclose(f); }
+}
+
 static void *system_area(const char *kind) {
+    if (strcmp(kind, "CWA") == 0) {  /* #5079 slice 2b: SIT WRKAREA ($GGCICS_WRKAREA); one area for the region, so its bytes live in $GGCICS_CWA */
+        long n = env_size("GGCICS_WRKAREA");
+        const char *path = getenv("GGCICS_CWA");
+        if (n == 0 || !path) return (void *)(size_t)0xFF;
+        if (!cwa_area) {
+            FILE *f = fopen(path, "rb");
+            cwa_len = n;
+            cwa_area = calloc((size_t)n, 1);
+            if (f) { size_t got = fread(cwa_area, 1, (size_t)n, f); (void)got; fclose(f); }
+            atexit(cwa_save);
+        }
+        return cwa_area;
+    }
     if (strcmp(kind, "TWA") == 0) {
         long n = env_size("GGCICS_TWASIZE");
         if (n == 0) return (void *)(size_t)0xFF;
@@ -2433,9 +2491,9 @@ static void *system_area(const char *kind) {
     return tctua_area;
 }
 
-/* GGCADDR: ADDRESS EIB(ptr) | COMMAREA(ptr) | TWA(ptr) | TCTUA(ptr) (X59). `area` is the EIB or the program's DFHCOMMAREA; the pointer
+/* GGCADDR: ADDRESS EIB(ptr) | COMMAREA(ptr) | CWA(ptr) | TWA(ptr) | TCTUA(ptr) (X59). `area` is the EIB or the program's DFHCOMMAREA; the pointer
  * takes its address (NORMAL: the command has no condition). GG-FLAGS COMMAREA with GG-NUM (EIBCALEN) 0: refused -- IBM sets X'FF000000',
- * which is no COBOL NULL, and a LINKAGE item the caller did not pass names no storage. GG-FLAGS TWA / TCTUA: the system area (`area`
+ * which is no COBOL NULL, and a LINKAGE item the caller did not pass names no storage. GG-FLAGS CWA / TWA / TCTUA: the system area (`area`
  * is unused). */
 int GGCADDR(gg_cics *c, void **slot, void *area) {
     char flags[41];
@@ -2443,6 +2501,7 @@ int GGCADDR(gg_cics *c, void **slot, void *area) {
     c->resp = NORMAL;
     c->resp2 = 0;
     if (strstr(flags, "COMMAREA") != NULL && c->num == 0) refuse("ADDRESS COMMAREA with no COMMAREA");
+    if (strstr(flags, "CWA") != NULL) { *slot = system_area("CWA"); return 0; }
     if (strstr(flags, "TCTUA") != NULL) { *slot = system_area("TCTUA"); return 0; }
     if (strstr(flags, "TWA") != NULL) { *slot = system_area("TWA"); return 0; }
     *slot = area;
@@ -2464,6 +2523,18 @@ int GGCRECP(gg_cics *c, void **slot) {
     memset(set_buf, 0, sizeof set_buf);
     int copied = terminal_receive(c, set_buf);
     if (copied >= 0) *slot = blk_set_new("RECEIVE", set_buf, (size_t)copied, 0);
+    return 0;
+}
+
+/* CONVERSE FROM FROMLENGTH SET(ptr) TOLENGTH (#5079, X63 / X58): GGCCONV's write, then RECEIVE SET's read -- the reply as a new block the
+ * pointer addresses (key "RECEIVE": it ends at the next RECEIVE SET or CONVERSE SET, ASSUMED). GG-LEN the most in, the length out; where
+ * nothing was delivered (a negative FROMLENGTH, a second terminal read) the pointer is as it was. */
+int GGCCONS(gg_cics *c, char *from, int fromlen, void **slot) {
+    if (converse_write(c, from, fromlen) == 0) {
+        memset(set_buf, 0, sizeof set_buf);
+        int copied = terminal_receive(c, set_buf);
+        if (copied >= 0) *slot = blk_set_new("RECEIVE", set_buf, (size_t)copied, 0);
+    }
     return 0;
 }
 

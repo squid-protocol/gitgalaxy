@@ -981,6 +981,16 @@ _STRUCTURAL_UNIT_END_LANGS = frozenset({"cobol", "pli"})
 # `RETURNING ...` may run over several lines).
 _COBOL_PROCEDURE_DIVISION_RE = re.compile(r"^(?:[^\n]{6})?[ \t]*PROCEDURE[ \t]+DIVISION(?![\w-])", re.I | re.M)
 _COBOL_SEPARATOR_PERIOD_RE = re.compile(r"\.(?=\s|$)")
+# #7170: the main line is a real unit, named after its program. The nearest PROGRAM-ID
+# before a PROCEDURE DIVISION names it (a nested program's own ID division precedes its
+# own procedure division); the name may be quoted (`PROGRAM-ID. 'MAINLN'.`).
+_COBOL_PROGRAM_ID_RE = re.compile(
+    r"^(?:[^\n]{6})?[ \t]*PROGRAM-ID[ \t]*\.?[ \t]*['\"]?([A-Z0-9][A-Z0-9-]*)", re.I | re.M
+)
+_COBOL_DECLARATIVES_RE = re.compile(r"DECLARATIVES[ \t]*\.", re.I)
+# The def_shape of a COBOL main-line unit: a unit the program enters at its start, never
+# PERFORMed by name -- so no orphan/duplicate verdict, and never a call-resolution target.
+COBOL_MAIN_LINE_SHAPE = "main_line"
 
 # #1949 follow-up: a Mode A "function" can be a bare data/constant definition
 # rather than real code -- confirmed against real corpus source. NASM's `equ`
@@ -3998,7 +4008,11 @@ class StructuralExtractor:
                     func_name
                     and not _is_synthetic_satellite_name(func_name)
                     and func_name not in self._keyword_bucket_names
+                    # #7206: the unit a PROCEDURE DIVISION falls into is reached with no PERFORM.
                     and func.get("start_idx") not in cobol_entry_starts
+                    # #7170: a COBOL main line is entered at the program's start, never by
+                    # name, so "nothing names it" is not dead code and its name is the program's.
+                    and func.get("def_shape") != COBOL_MAIN_LINE_SHAPE
                 ):
                     # Check for Duplicates: same name AND materially the same body,
                     # defined multiple times in the same file.
@@ -5672,8 +5686,12 @@ class StructuralExtractor:
                         mode_name = "Mode_A_Labels"
                         sats, impact = self._slice_by_labels(code, rules, offset, spatial_map)
                         if lang_id == "cobol":
-                            # #4302: calls-only, so `impact` is unchanged.
-                            sats.extend(self._cobol_procedure_entry_units(code, sats, rules, offset))
+                            # #4302/#7170: the main line is a unit and adds its own impact.
+                            entry, entry_impact = self._cobol_procedure_entry_units(
+                                code, sats, rules, offset, spatial_map
+                            )
+                            sats.extend(entry)
+                            impact += entry_impact
                     elif lang_id == "m4":
                         mode_name = "Mode_F_M4_Brackets"
                         sats, impact = self._slice_by_m4_brackets(code, rules, offset, spatial_map)
@@ -8624,20 +8642,33 @@ class StructuralExtractor:
         return sat
 
     def _cobol_procedure_entry_units(
-        self, code: str, satellites: list[FunctionNode], rules: dict[str, Any], offset: int
-    ) -> list[FunctionNode]:
-        """#4302: each PROCEDURE DIVISION's entry code, as a calls-only `__global_context__`.
+        self,
+        code: str,
+        satellites: list[FunctionNode],
+        rules: dict[str, Any],
+        offset: int,
+        spatial_map: dict[str, list[int]] | None = None,
+    ) -> tuple[list[FunctionNode], float]:
+        """Each PROCEDURE DIVISION's main line (#4302, #7170), and the impact it adds.
 
-        The entry code runs from the header's separator period to the first unit
+        The main line runs from the PROCEDURE DIVISION header to the first unit
         header after it, or to the program's end / the next program's header
         (`_COBOL_UNIT_END_RE`), whichever is first -- so a nested or sibling
-        program's entry code is its own bucket. A bucket is kept only when it
-        PERFORMs, CALLs or GOes TO something: it exists to carry those edges.
-        Like Python's module-level unit it has no weight of its own, so no
-        file's magnitude or impact moves, and it stays out of the population.
+        program's main line is its own unit. A header followed directly by a
+        paragraph has no main line.
+
+        #7170: the main line is a real unit, measured like a paragraph (its span
+        starts at its header, `loc` is the physical span, its args are the header's
+        USING list) and named after the program's PROGRAM-ID, with
+        `def_shape` = COBOL_MAIN_LINE_SHAPE. Before, it was a calls-only
+        `__global_context__` bucket (#4302): kept only when it had edges, with no
+        size or complexity, so a program that does its work before its first
+        paragraph (or has none) was invisible to every per-function view. Without a
+        PROGRAM-ID to name it, it stays that calls-only bucket.
         """
         unit_starts = sorted(int(s["start_idx"]) for s in satellites if isinstance(s.get("start_idx"), int))
         units: list[FunctionNode] = []
+        impact = 0.0
         for header in _COBOL_PROCEDURE_DIVISION_RE.finditer(code):
             bound = next((u for u in unit_starts if u >= header.end()), len(code))
             program_end = _COBOL_UNIT_END_RE.search(code, header.end(), bound)
@@ -8646,24 +8677,48 @@ class StructuralExtractor:
             period = _COBOL_SEPARATOR_PERIOD_RE.search(code, header.end(), bound)
             if period is None:
                 continue
-            block = code[period.end() : bound]
-            if not block.strip():
+            body = code[period.end() : bound]
+            if not body.strip():
+                continue
+            if _COBOL_DECLARATIVES_RE.match(body.lstrip()):
+                # `DECLARATIVES.` opens the division: what follows is its sections, not a main line.
                 continue
             start_line = offset + code.count("\n", 0, header.start()) + 1
-            end_line = offset + code.count("\n", 0, period.end() + len(block.rstrip())) + 1
-            loc = sum(1 for line in block.splitlines() if line.strip())
-            sat, _ = self._calculate_block_metrics(
-                "__global_context__", block, loc, start_line, end_line, rules, period.end(), bound
-            )
-            if not sat.get("calls_out_to") and not sat.get("transfers_to"):
+            # the nearest PROGRAM-ID before this header names its program
+            program = next(reversed(list(_COBOL_PROGRAM_ID_RE.finditer(code, 0, header.start()))), None)
+            if program is None:
+                loc = sum(1 for line in body.splitlines() if line.strip())
+                end_line = offset + code.count("\n", 0, period.end() + len(body.rstrip())) + 1
+                sat, _ = self._calculate_block_metrics(
+                    "__global_context__", body, loc, start_line, end_line, rules, period.end(), bound
+                )
+                if not sat.get("calls_out_to") and not sat.get("transfers_to"):
+                    continue
+                for weight in ("magnitude", "mag", "impact"):
+                    sat[weight] = 0.0  # type: ignore[literal-required]
+                sat["calls_only"] = True
+                sat["references_to"] = []
+                sat["references_qualifiers"] = {}
+                units.append(sat)
                 continue
-            for weight in ("magnitude", "mag", "impact"):
-                sat[weight] = 0.0  # type: ignore[literal-required]
-            sat["calls_only"] = True
-            sat["references_to"] = []
-            sat["references_qualifiers"] = {}
+            block = code[header.start() : bound].rstrip()
+            loc = block.count("\n") + 1
+            sat, mag = self._calculate_block_metrics(
+                program.group(1).upper(),
+                block,
+                loc,
+                start_line,
+                start_line + loc - 1,
+                rules,
+                header.start(),
+                header.start() + len(block),
+                spatial_map,
+                args_search_text=code[header.start() : period.end()],
+            )
+            sat["def_shape"] = COBOL_MAIN_LINE_SHAPE
             units.append(sat)
-        return units
+            impact += mag
+        return units, impact
 
     @staticmethod
     def _cobol_entry_unit_starts(code: str, functions: list[FunctionNode]) -> frozenset[int]:

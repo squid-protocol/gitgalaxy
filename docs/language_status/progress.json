@@ -1,5 +1,5 @@
 {
- "commit": "ab8d8a277",
+ "commit": "5f7c99a3e",
  "components": {
   "capabilities": {
    "groups": [
@@ -481,22 +481,22 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-11-01T20:18:06Z",
+  "as_of": "2026-11-01T20:24:51Z",
   "core": {
    "closed": 202,
-   "open": 12,
-   "total": 214
+   "open": 13,
+   "total": 215
   },
   "core_last_window": {
    "closed": 29,
-   "net_closed": 16,
-   "opened": 13
+   "net_closed": 15,
+   "opened": 14
   },
   "core_milestone": {
    "closed": 104,
    "number": 28,
-   "open": 7,
-   "total": 111
+   "open": 8,
+   "total": 112
   },
   "epics": {
    "4890": "open",
@@ -505,17 +505,17 @@
    "4893": "open",
    "4894": "open"
   },
-  "eta": "5 days",
+  "eta": "6 days",
   "frontier": {
-   "closed": 120,
+   "closed": 121,
    "found_last_window": 2,
-   "open": 78,
+   "open": 77,
    "total": 198
   },
   "frontier_milestone": {
-   "closed": 12,
+   "closed": 13,
    "number": 30,
-   "open": 38,
+   "open": 37,
    "total": 50
   },
   "infra": {
@@ -703,9 +703,9 @@
    {
     "closed": 266,
     "number": 28,
-    "open": 7,
+    "open": 8,
     "title": "Training Montage \ud83c\udfcb\ufe0f \u2014 Prepping to one-shot our 4th CICS to Java translation attempt",
-    "total": 273
+    "total": 274
    },
    {
     "closed": 2,
@@ -715,9 +715,9 @@
     "total": 8
    },
    {
-    "closed": 12,
+    "closed": 13,
     "number": 30,
-    "open": 38,
+    "open": 37,
     "title": "Gap Atlas \ud83d\uddfa\ufe0f \u2014 mapped, not yet built",
     "total": 50
    },
@@ -736,7 +736,7 @@
   },
   "title_counts": {
    "cics": {
-    "closed": 102,
+    "closed": 103,
     "total": 113
    },
    "cobol": {
@@ -853,21 +853,21 @@
   },
   "test_estates": {
    "cics-crucible": {
-    "l2_plus": 64,
-    "l2_plus_pct": 80.0,
-    "l4_plus": 45,
-    "l4_plus_pct": 56.2,
+    "l2_plus": 65,
+    "l2_plus_pct": 76.5,
+    "l4_plus": 57,
+    "l4_plus_pct": 67.1,
     "l5": 0,
     "levels": {
-     "L0": 5,
-     "L1": 11,
-     "L2": 15,
-     "L3": 4,
-     "L4": 45,
+     "L0": 4,
+     "L1": 16,
+     "L2": 5,
+     "L3": 3,
+     "L4": 57,
      "L5": 0
     },
-    "programs": 80,
-    "translated_whole": 75
+    "programs": 85,
+    "translated_whole": 81
    }
   },
   "total": {

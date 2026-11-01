@@ -2030,8 +2030,12 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         if doctemplates(case, sc) is not None:  # #4769 zECS (X33): DOCUMENT CREATE TEMPLATE's installed definitions
             (d / "doctemplates.cfg").write_text("".join(f"{n} {t.encode(enc).hex().upper() or '-'}\n"
                                                         for n, t in doctemplates(case, sc).items()), encoding="ascii")  # fmt: skip
-        for i, data in enumerate(equivalence_mq.start_data(case, sc, enc), 1):  # #4892: the data it was started with
-            (d / f"retrieve_{i:03d}.bin").write_bytes(data)
+        for i, rec in enumerate(equivalence_mq.start_records(case, sc, enc), 1):  # #4892: the data it was started with
+            if rec["data"] is not None:
+                (d / f"retrieve_{i:03d}.bin").write_bytes(rec["data"])
+            opt = equivalence_mq.start_opt_text(rec)  # #7475: RTRANSID / RTERMID / QUEUE, as the stub's .opt
+            if opt is not None:
+                (d / f"retrieve_{i:03d}.opt").write_text(opt, encoding="ascii")
         if DLI_CALL.search(source):  # #5278: the databases (the stub's $GGCICS_DIR)
             dli_stage(case, corpus, d, sc)
         if equivalence_mq.state(case, sc) is not None:  # #4892 (W): the queue manager its MQI calls reach
@@ -3533,9 +3537,19 @@ class EquivalenceRunTest {{
                             }});
             if (sc.path("termid").isTextual() && sc.get("termid").asText().isEmpty()) task.withTermid(null);  // #6072: "" states a task with no terminal
             if (sc.hasNonNull("start_data")) {{  // #4892: the data the task was started with, as the stub's retrieve_NNN.bin
-                List<byte[]> started = new ArrayList<>();
-                sc.get("start_data").forEach(x -> started.add(java.util.HexFormat.of().parseHex(x.asText())));
-                task.withRetrieveData(started);
+                List<CicsTask.StartData> started = new ArrayList<>();
+                sc.get("start_data").forEach(x -> {{  // text: FROM alone; object: #7475 FROM and/or RTRANSID / RTERMID / QUEUE
+                    if (x.isTextual()) {{
+                        started.add(new CicsTask.StartData(java.util.HexFormat.of().parseHex(x.asText()), null, null, null));
+                    }} else {{
+                        started.add(new CicsTask.StartData(
+                                x.hasNonNull("from") ? java.util.HexFormat.of().parseHex(x.get("from").asText()) : null,
+                                x.hasNonNull("rtransid") ? x.get("rtransid").asText() : null,
+                                x.hasNonNull("rtermid") ? x.get("rtermid").asText() : null,
+                                x.hasNonNull("queue") ? x.get("queue").asText() : null));
+                    }}
+                }});
+                task.withStartData(started);
             }}
             if (sc.hasNonNull("mq")) {{  // #4892 (W): the queue manager its MQI calls reach, as the stub's mq.cfg
                 mqAttach(task, in.resolve(sc.get("mq").asText()));
@@ -4007,15 +4021,25 @@ def _java_dli(case: dict[str, Any], corpus: Path, inputs: Path, sc: dict[str, An
     return {"dli": {"dir": where, "dbs": dli_stage(case, corpus, inputs / where, sc)}}
 
 
+def _java_start_record(rec: dict[str, Any], enc: str, page: str) -> Any:
+    """#7475: one START data record for the Java runner: FROM's hex alone (a plain string, as before) or, when the START
+    gave RTRANSID / RTERMID / QUEUE or no FROM, an object of them."""
+    frm = None if rec["data"] is None else rec["data"].decode(enc).encode(page).hex().upper()
+    named = {k: rec[k] for k in equivalence_mq.START_OPTION_WIDTHS if rec.get(k) is not None}
+    if frm is not None and not named:
+        return frm
+    return ({"from": frm} if frm is not None else {}) | named
+
+
 def _java_mq(case: dict[str, Any], sc: dict[str, Any], inputs: Path, n: int) -> dict[str, Any]:
     """#4892: the scenario's start data (hex, in the region's page: CicsTask.withRetrieveData, as the stub's
     retrieve_NNN.bin) and its queue manager's mq.cfg (the stub's very file, under the runner's inputs); none: no key."""
     from gitgalaxy.tools.cobol_to_java.det.cics import REGION_PAGE
 
     enc, out = common.data_encoding(case), {}
-    data = equivalence_mq.start_data(case, sc, enc)
-    if data:
-        out["start_data"] = [d.decode(enc).encode(REGION_PAGE).hex().upper() for d in data]
+    recs = equivalence_mq.start_records(case, sc, enc)
+    if recs:
+        out["start_data"] = [_java_start_record(r, enc, REGION_PAGE) for r in recs]
     st = equivalence_mq.state(case, sc)
     if st is not None:
         (inputs / f"mq_{n}.cfg").write_text(equivalence_mq.cfg(st, enc), encoding="ascii")

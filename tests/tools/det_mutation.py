@@ -14,7 +14,8 @@ mode and seeded sample -- and each mutant the proof does not kill either killed 
     python tests/tools/det_mutation.py stale-check [--vs REF]            # exit 1: a ledger an input moved (the PR's cases)
     python tests/tools/det_mutation.py table [CASE ...]                  # per program, as the PR table
     python tests/tools/det_mutation.py survivors [CASE ...]              # the survivors and their stated verdicts
-    python tests/tools/det_mutation.py state CASE TRIAGE.json            # {id: {verdict, reason}} -> the list
+    python tests/tools/det_mutation.py state CASE TRIAGE.json --attempts DIR/attempts.json  # {id: {verdict, reason}}
+        # an `equivalent` / `unreachable` verdict needs an attack on record: tests/tools/survivor_attack.py
 
 Two committed directories, one <CASE>.json per case in each (two PRs measuring different cases never collide):
 
@@ -37,7 +38,8 @@ Two committed directories, one <CASE>.json per case in each (two PRs measuring d
     the Java line before / after) and its verdict, `equivalent` (the change cannot alter anything the program
     shows: an initial value overwritten before use, a pad the field's width truncates) or `unreachable` (no input
     gets there: an entry point the case's kind never calls is out of scope already; this is code after a transfer,
-    a guard every path has satisfied), and the reason. Proposed in the PR, reviewed by the owner.
+    a guard every path has satisfied), the reason, and `tried`: what it held against (tests/tools/survivor_attack.py;
+    entries from before 2026-11-01 have none). Proposed in the PR, reviewed by the owner.
 
     A run that KILLS a stated mutant fails (`record` exits 1 and `check` fails): the claim was wrong, the entry goes.
 
@@ -84,6 +86,21 @@ VERDICTS = {
     "case-gap": "an input the case lacks would kill it (open: strengthen the case)",
 }
 ACCOUNTED = ("equivalent", "unreachable")
+# what must stand behind an accounted verdict in `state`: an attack the mutant survived, or a fact of the port's own
+# text (tests/tools/survivor_attack.py). A verdict is a claim about every input; a reason alone does not show that
+ATTACK_SETTLED = ("no-entry-path", "constant-unused")
+ATTACK_HELD = ("survived", *ATTACK_SETTLED)
+# `unreachable` is about the program, never the tests: code a test does not call is a case or harness gap
+TESTS_NOT_PROGRAM = re.compile(
+    r"test runner|\bharness\b|equivalence (?:test|runner|proof)|no (?:current |existing )?(?:scenario|test)|"
+    r"(?:scenario|test|proof|case)s? (?:do|does|did|can|could)(?:es)?(?:n't| not| never)|"
+    r"(?:scenario|test|proof|case)s? (?:never|lacks?|has no|have no)|"
+    r"never (?:called|driven|exercised|reached) by (?:the|a|any) (?:test|proof|case|scenario|runner)",
+    re.I,
+)
+VAGUE_REASON = re.compile(r"sound technical|no observable|does(?: not|n't) (?:affect|matter)|cannot affect|no effect|"
+                          r"identical (?:behaviou?r|statements?|output)|dead (?:code|logic|condition)", re.I)  # fmt: skip
+MIN_REASON = 40  # characters: a reason names the field, the line and why
 FILES = "service/*.java"  # the translated program(s); never the cobolrt runtime
 # entry points the case's kind never calls: their mutants are out of scope (not sampled, not scored)
 SCOPE = {"cics": ("runProgram", "runBatch", "dd"), "batch": ("runTask", "handleTransaction", "handleLink"),
@@ -778,19 +795,55 @@ def stale_check(ref: str | None = None) -> int:
     return 1 if bad else 0
 
 
-def state(case: str, triage: dict[str, dict[str, str]]) -> int:
+def reason_problems(verdict: str, reason: str) -> list[str]:
+    """Why a stated reason does not support its verdict, or []. A cheap floor, not a proof: a reason that passes can
+    still be wrong."""
+    out = []
+    if verdict == "unreachable" and TESTS_NOT_PROGRAM.search(reason):
+        out.append("it says what the tests do, and `unreachable` is about the program: state `case-gap` or "
+                   "`harness-gap`, or show that no input of the program gets there")  # fmt: skip
+    if verdict in ACCOUNTED and len(reason.strip()) < MIN_REASON:
+        out.append(f"shorter than {MIN_REASON} characters: name the field or method and why")
+    return out
+
+
+def attempt_problems(verdict: str, attempts: list[dict[str, Any]]) -> list[str]:
+    """Why the attempts on record do not support an accounted verdict, or []. A kill always wins."""
+    if verdict not in ACCOUNTED:
+        return []
+    results = {a.get("result") for a in attempts}
+    if "killed" in results:
+        return ["an attack killed it: add that input to the case instead of stating a verdict"]
+    if "port-differs" in results:
+        return ["the port differs from the COBOL on an attack's input: report that first"]
+    if not results & set(ATTACK_HELD):
+        return ["no attack on record: run `survivor_attack.py facts`, or `try` an input, first"]
+    return []
+
+
+def state(case: str, triage: dict[str, dict[str, str]], attempts: dict[str, list[dict[str, Any]]] | None = None) -> int:
     """Write verdicts for the case's surviving mutants into the survivor list, the Java line before / after taken
-    from the ledger's run (an id the run did not see survive is refused)."""
+    from the ledger's run (an id the run did not see survive is refused). An `equivalent` / `unreachable` verdict needs
+    a reason that says something about the program and an attack it held against (`attempts`, written by
+    tests/tools/survivor_attack.py), recorded in the entry's `tried`; `case-gap` / `harness-gap` need neither."""
     survived = {s["id"]: s for s in (load().get(case) or {}).get("survived", [])}
     unknown = sorted(set(triage) - set(survived))
     if unknown:
         raise SystemExit(f"{case}: not survivors of the ledger's run: {', '.join(unknown)}")
+    attempts = attempts or {}
+    refused = [f"{case} {i}: {p}" for i, t in sorted(triage.items())
+               for p in [*reason_problems(t["verdict"], t["reason"]), *attempt_problems(t["verdict"], attempts.get(i, []))]]  # fmt: skip
+    if refused:
+        raise SystemExit("\n".join(refused))
     all_ = load_survivors()
     mine = {e["id"]: e for e in all_.get(case, [])}
     for i, t in triage.items():
         s = survived[i]
         mine[i] = {"id": i, "op": s["op"], "line": s["line"], "before": s["before"], "after": s["after"],
                    "verdict": t["verdict"], "reason": t["reason"]}  # fmt: skip
+        held = [a for a in attempts.get(i, []) if a.get("result") in ATTACK_HELD]
+        if t["verdict"] in ACCOUNTED and held:
+            mine[i]["tried"] = sorted({n for a in held for n in a.get("inputs") or [str(a["result"])]})
     entries = sorted(mine.values(), key=lambda e: (e["line"], e["id"]))
     problems = problems_in_survivors({case: entries})
     if problems:
@@ -863,6 +916,7 @@ def main(argv: list[str] | None = None) -> int:
     st = sub.add_parser("state")
     st.add_argument("case")
     st.add_argument("triage", type=Path, help="a JSON file {mutant id: {verdict, reason}}")
+    st.add_argument("--attempts", type=Path, help="survivor_attack.py's DIR/attempts.json")
     sv = sub.add_parser("survivors")
     sv.add_argument("cases", nargs="*")
     args = ap.parse_args(argv)
@@ -878,7 +932,8 @@ def main(argv: list[str] | None = None) -> int:
         print(table(args.cases or None))
         return 0
     if args.cmd == "state":
-        return state(args.case, json.loads(args.triage.read_text(encoding="utf-8")))
+        tried = json.loads(args.attempts.read_text(encoding="utf-8")) if args.attempts else {}
+        return state(args.case, json.loads(args.triage.read_text(encoding="utf-8")), tried)
     if args.cmd == "survivors":
         print(survivors_table(args.cases or None))
         return 0

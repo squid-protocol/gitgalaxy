@@ -139,17 +139,50 @@ def mqtm(spec: dict[str, Any], enc: str) -> bytes:
     return rec
 
 
-def start_data(case: dict[str, Any], sc: dict[str, Any], enc: str) -> list[bytes]:
-    """The START data records the task was started with (RETRIEVE's), in the data's page."""
+START_OPTION_WIDTHS = {"rtransid": 4, "rtermid": 4, "queue": 8}  # the stub's opt_value widths (ggcics_taskcontrol.c)
+
+
+def start_records(case: dict[str, Any], sc: dict[str, Any], enc: str) -> list[dict[str, Any]]:
+    """#7475: the START data records the task was started with, in RETRIEVE order: {"data": bytes | None (no FROM),
+    "rtransid" / "rtermid" / "queue": str, each only when the START gave it}. A record may state the options beside
+    its text / hex / mqtm, or only the options (a START with no FROM). A record with neither stores nothing in CICS
+    (RETRIEVE gets ENDDATA), so it is refused."""
     out = []
     for r in sc.get("start_data", case.get("start_data", [])):
+        rec: dict[str, Any] = {"data": None}
         if "mqtm" in r:
-            out.append(mqtm(r["mqtm"], enc))
+            rec["data"] = mqtm(r["mqtm"], enc)
         elif "hex" in r:
-            out.append(bytes.fromhex(r["hex"]))
-        else:
-            out.append(str(r["text"]).encode(enc))
+            rec["data"] = bytes.fromhex(r["hex"])
+        elif "text" in r:
+            rec["data"] = str(r["text"]).encode(enc)
+        for k, width in START_OPTION_WIDTHS.items():
+            if r.get(k) is not None:
+                if len(str(r[k])) > width:
+                    raise ValueError(f"start_data {k} {r[k]!r} is longer than {width} bytes")
+                rec[k] = str(r[k])
+        if rec["data"] is None and len(rec) == 1:
+            raise ValueError(f"start_data record {r!r} gives no FROM data and no RTRANSID / RTERMID / QUEUE")
+        out.append(rec)
     return out
+
+
+def start_data(case: dict[str, Any], sc: dict[str, Any], enc: str) -> list[bytes]:
+    """The START data records the task was started with (RETRIEVE's), in the data's page (FROM's bytes only)."""
+    return [rec["data"] for rec in start_records(case, sc, enc) if rec["data"] is not None]
+
+
+def start_opt_text(rec: dict[str, Any]) -> str | None:
+    """#7475: the stub's retrieve_NNN.opt line for a record (`from=0|1 rtransid=<hex> ...`), None when the record is
+    FROM data alone (only retrieve_NNN.bin then). The very format tests/tools/cics_crucible.py writes."""
+    named = {k: rec[k] for k in START_OPTION_WIDTHS if rec.get(k) is not None}
+    if not named and rec.get("data") is not None:
+        return None
+    return (
+        f"from={int(rec.get('data') is not None)}"
+        + "".join(f" {k}={v.encode('latin-1').hex()}" for k, v in named.items())
+        + "\n"
+    )
 
 
 def cobol_event(verb: str, kv: dict[str, str], data: bytes) -> dict[str, Any]:

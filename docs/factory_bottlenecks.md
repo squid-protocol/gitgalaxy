@@ -36,6 +36,21 @@ Each of these misled someone on 2026-11-01.
 
 ## Entries, newest first
 
+### Attack survivors before excusing them (2026-11-01): shipped (#7474)
+
+- **Hypothesis:** L5 counted a label the same as a kill, and no tool could aim at a det port's survivors, so survivors
+  were labelled instead of tested.
+- **Change:** `tests/tools/survivor_attack.py` and the `survivor-attack` skill. `det_mutation.py state` now refuses an
+  `equivalent` / `unreachable` verdict with no attack on record, or a reason that only says what the tests do.
+- **Measurement:** origin/main e444a35ac: 3,966 survivors in 34 programs, all accounted, none open. 141 of the 145 gaps
+  open on 2026-10-23 still survive with the same Java line, relabelled on 10-30 with no case file changed. Audit of 24
+  random verdicts: 3 killed by a new input on the real oracle, 1 mislabelled, 20 held (range for 3 of 24: about 3-32%).
+  Lint refuses 80 of the 3,966 stated reasons. Ranking puts 2 of the 3 kills in the top 10%, measured on the examples it
+  was written from, so treat it as an order of work and not a detector.
+- **Verdict:** shipped as tooling. L5 still means every survivor accounted for, and the kill rate is published beside it. The 3,966 stated verdicts stand until re-attacked.
+- **Follow-up:** re-attack ZECS003, COSGN00C and the 141 relabelled mutants. `strengthen.py --case-gaps` reads only
+  `mutation_scores.json`, so batch det cases still have no attack route.
+
 ### Keep approval on a merge-only update (2026-11-01): rejected
 
 - **Hypothesis:** PRs that only take main lose approval and re-run CI, as #7441 and #7439 seemed to.

@@ -3,9 +3,6 @@
   "corpus": "cics-crucible",
   "program": "CABLL",
   "program_source": "cases/commarea-mismatch/ca-bll-cells/src/CABLL.cbl",
-  "copy_dirs": [
-    "cases/commarea-mismatch/ca-bll-cells/copy"
-  ],
   "transid": "CA0N",
   "clock": "2026/10/01 10:30:15.00",
   "datasets": {},

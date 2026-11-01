@@ -92,6 +92,21 @@
      "runTask",
      "handleLink"
     ]
+   },
+   {
+    "at": "2026-11-01T15:02:34+00:00",
+    "crucible_ref": "v0.11.0 (df992a3a)",
+    "summary": {
+     "link-level2": "1/1",
+     "synconreturn": "1/1"
+    },
+    "port_sha256": "8e2511be6b425d7b58804141bd2466ae6ffcbae8dd2424209f92aa3c6c2fe16f",
+    "harness_commit": "c99afa603109fccb8224fb9d33f6621563ad9f9b",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program PCIMML --report-dir)",
+    "entry_points": [
+     "runTask",
+     "handleLink"
+    ]
    }
   ]
  }

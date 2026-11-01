@@ -1,6 +1,6 @@
 {
  "format": "cics-crucible-coverage/1",
- "crucible_ref": "v0.10.0 (01e11fe6)",
+ "crucible_ref": "v0.11.0 (df992a3a)",
  "note": "#4023: the COBOL each passing cobol-stub scenario executes (live paragraphs and sections entered; branch outcomes as LINE:OUTCOME of the crucible's source) -- a ratchet (tests/tools/cics_crucible.py --ci). Regenerate with --update-baseline.",
  "programs": {
   "ca-address-commarea/CAADDR": {
@@ -39,6 +39,44 @@
      "outcomes": [
       "39:false"
      ]
+    }
+   }
+  },
+  "ca-address-cwa/CACWAD": {
+   "live": 4,
+   "outcomes": 4,
+   "scenarios": {
+    "cwa-shared": {
+     "units": [
+      "CWA-LINK-PARA",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "39:WHEN@40"
+     ]
+    },
+    "cwa-two-tasks": {
+     "units": [
+      "CWA-READ-PARA",
+      "CWA-STORE-PARA",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "39:WHEN@42",
+      "39:WHEN@44"
+     ]
+    }
+   }
+  },
+  "ca-address-cwa/CACWSB": {
+   "live": 1,
+   "outcomes": 0,
+   "scenarios": {
+    "cwa-shared": {
+     "units": [
+      "SUB-MAIN"
+     ],
+     "outcomes": []
     }
    }
   },
@@ -118,6 +156,72 @@
      ],
      "outcomes": [
       "32:false"
+     ]
+    }
+   }
+  },
+  "ca-bll-cells/CABLL": {
+   "live": 2,
+   "outcomes": 4,
+   "scenarios": {
+    "read-set-cell": {
+     "units": [
+      "READ-PARA"
+     ],
+     "outcomes": [
+      "49:true",
+      "50:false"
+     ]
+    },
+    "long-record": {
+     "units": [
+      "LONG-PARA"
+     ],
+     "outcomes": [
+      "49:false",
+      "50:true"
+     ]
+    }
+   }
+  },
+  "ca-channel-browse/CABRERR": {
+   "live": 2,
+   "outcomes": 0,
+   "scenarios": {
+    "unhandled-channelerr": {
+     "units": [
+      "ERR-MAIN",
+      "LOG-ENTRY"
+     ],
+     "outcomes": []
+    }
+   }
+  },
+  "ca-channel-browse/CABROW": {
+   "live": 6,
+   "outcomes": 16,
+   "scenarios": {
+    "browse-move-delete": {
+     "units": [
+      "LOG-ENTRY",
+      "LOG-RESP",
+      "MAIN-PARA",
+      "NEXT-NAME",
+      "QUERY-CH",
+      "QUERY-MV"
+     ],
+     "outcomes": [
+      "65:true",
+      "66:true",
+      "67:true",
+      "160:false",
+      "160:true",
+      "169:true",
+      "179:false",
+      "179:true",
+      "180:WHEN@181",
+      "180:WHEN@182",
+      "180:WHEN@183"
      ]
     }
    }

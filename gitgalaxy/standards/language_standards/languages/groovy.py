@@ -13,7 +13,12 @@ from typing import Any
 from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: compiled on first use
 from gitgalaxy.standards.language_standards.identifiers import CAPITAL, ID_CONTINUE, ID_START
 
-from .._shared_patterns import CALLS_OUT_C_STYLE_GENERIC_NO_ANNOTATION, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import (
+    CALLS_OUT_C_STYLE_GENERIC_NO_ANNOTATION,
+    GLOBAL_FRAGILE_DEBT,
+    GLOBAL_PLANNED_DEBT,
+    commented_keyword_statement,
+)
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -394,8 +399,15 @@ DEFINITION: dict[str, Any] = {
         # `/* */`), but this only ever fired on `//` -- every block-
         # commented-out construct (`/* class Foo {} */`) silently never
         # matched.
+        # #7207: a statement's shape (`;{}`, `(...)`, an assignment, a Gradle dependency `implementation 'g:a:v'`, a bare
+        # `class Name [extends ...]` or a dotted `import a.b.C`), not just the keyword.
         "dead_code": re.compile(
-            r"(?://|/\*)[ \t]*(?:def|class|void|if|for|while|import|implementation|compile|api|testImplementation)\b"
+            commented_keyword_statement(
+                "def|class|void|if|for|while|import|implementation|compile|api|testImplementation",
+                extra=r"(?:(?<=implementation)|(?<=compile)|(?<=api)|(?<=testImplementation))[ \t]+['\"][^\n'\"]{1,200}['\"][ \t]*(?m:$)"
+                r"|(?<=class)[ \t]+[A-Z]\w*(?:[ \t]+(?:extends|implements)\b[^\n]{0,200})?[ \t]*(?m:$)"
+                r"|(?<=import)[ \t]+(?:static[ \t]+)?\w+(?:\.[\w*]+)+[ \t]*(?m:$)",
+            )
         ),
         # 13. doc (Structured Documentation)
         # BUG FIX #2672: pair `/**` with its closing `*/` into one bounded

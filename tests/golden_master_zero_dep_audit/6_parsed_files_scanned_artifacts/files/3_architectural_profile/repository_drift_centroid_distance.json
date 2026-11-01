@@ -1514,7 +1514,7 @@
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheBuildSrcIntegrationTest.groovy": 6.652,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheBuildSrcProblemReportingIntegrationTest.groovy": 6.259,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCircularReferenceIntegrationTest.groovy": 5.787,
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheClassLoaderCachingIntegrationTest.groovy": 6.949,
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheClassLoaderCachingIntegrationTest.groovy": 6.91,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheClassLoaderValidationIntegrationTest.groovy": 5.925,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCleanupIntegrationTest.groovy": 7.623,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCompositeBuildProblemReportingIntegrationTest.groovy": 7.103,
@@ -1699,7 +1699,7 @@
       "groovy/spock_specs/org_spockframework_docs_extension_ExtensionStoreSpec.groovy": 7.736,
       "groovy/spock_specs/org_spockframework_docs_extension_FancyMockMakerDocSpec.groovy": 4.199,
       "groovy/spock_specs/org_spockframework_docs_extension_IgnoreIfDocSpec.groovy": 6.194,
-      "groovy/spock_specs/org_spockframework_docs_extension_InterceptorSpec.groovy": 6.933,
+      "groovy/spock_specs/org_spockframework_docs_extension_InterceptorSpec.groovy": 6.877,
       "groovy/spock_specs/org_spockframework_docs_extension_IssueDocSpec.groovy": 4.644,
       "groovy/spock_specs/org_spockframework_docs_extension_MockMakerConfigurationDocSpec.groovy": 6.702,
       "groovy/spock_specs/org_spockframework_docs_extension_ParameterInjectionSpec.groovy": 6.388,
@@ -3291,7 +3291,7 @@
       "scala/kafka/LogManager.scala": 8.302,
       "scala/kafka/Partition.scala": 8.821,
       "scala/kafka/ReplicaManager.scala": 9.795,
-      "scala/kafka/SocketServer.scala": 7.825
+      "scala/kafka/SocketServer.scala": 7.824
     },
     "scheme": {
       "scheme/SOURCES.md": 0.0

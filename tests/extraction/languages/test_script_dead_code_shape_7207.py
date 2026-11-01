@@ -1,4 +1,4 @@
-"""#7207 slices 4-6: python / shell / ruby / perl / php / lua / abap / ada / apex / dart dead_code counts a keyword-led comment only when it has a statement's shape."""
+"""#7207 slices 4-8: python / shell / ruby / perl / php / lua / abap / ada / apex / dart / embedded_python / fsharp / groovy / scala dead_code counts a keyword-led comment only when it has a statement's shape."""
 
 import pytest
 
@@ -107,6 +107,46 @@ POSITIVES = {
         "# cd /tmp && ls",
         "# ls | wc -l",
     ],
+    "embedded_python": [
+        "# def foo(a):",
+        "# class Foo(Base):",
+        "# import machine",
+        "# import os.path as p",
+        "# if x > 1:",
+        "# print('x')",
+        "# machine.Pin(2, machine.Pin.OUT)",
+        "# for i in range(3):",
+    ],
+    "fsharp": [
+        "// let x = 1",
+        "// let f x =",
+        "// type Foo =",
+        "// module Util",
+        "// open System.IO",
+        "// printfn \"x\"",
+        "// match x with",
+        "// if x > 1 then",
+    ],
+    "groovy": [
+        "// def x = 1",
+        "// class Foo extends Bar",
+        "// if (x) {",
+        "// import a.b.C",
+        "// implementation 'org.foo:bar:1.0'",
+        "// testImplementation project(':core')",
+        "/* void run() */",
+        "// for (i in 1..3) {",
+    ],
+    "scala": [
+        "// def foo(a: Int): Int = a",
+        "// val x = 1",
+        "// val x: Int",
+        "// class Foo extends Bar",
+        "// object Main",
+        "// import a.b._",
+        "// println(\"x\")",
+        "/* trait T { */",
+    ],
 }
 
 NEGATIVES = {
@@ -203,10 +243,50 @@ NEGATIVES = {
         "# echo is slow here",
         "# rm removes files",
     ],
+    "embedded_python": [
+        "# if the user cancels, we retry",
+        "# for each item in the list",
+        "# import order matters",
+        "# class names are capitalised",
+        "# print the result later",
+        "# try again later",
+        "# while waiting for input",
+        "# def is short for define",
+    ],
+    "fsharp": [
+        "// let the user cancel, we retry",
+        "// type of the result",
+        "// module order matters",
+        "// open the file first",
+        "// match the piece",
+        "// if the user cancels, we retry",
+        "// printfn is slow",
+        "/// let x = 1",
+    ],
+    "groovy": [
+        "// if the user cancels, we retry",
+        "// class names are capitalised",
+        "// import order matters",
+        "// for each item in the list",
+        "// def is short for define",
+        "// api is stable",
+        "// compile the sources first",
+        "// void is not nullable",
+    ],
+    "scala": [
+        "// if the user cancels, we retry",
+        "// def is short for define",
+        "// val is immutable",
+        "// class names are capitalised",
+        "// object order matters",
+        "// match the piece",
+        "// println is slow",
+        "// import order matters",
+    ],
 }
 
 
-MARKER = {"abap": "*", "ada": "--", "apex": "//", "dart": "//", "lua": "--", "php": "//"}
+MARKER = {"abap": "*", "ada": "--", "apex": "//", "dart": "//", "lua": "--", "php": "//", "fsharp": "//", "groovy": "//", "scala": "//"}
 
 
 def _rule(lang):

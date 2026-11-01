@@ -227,7 +227,7 @@
     "| docs | 50894 | 679 | 5 | `dart/flutter/framework.dart` |",
     "| debt | 12508 | 1077 | 7 | `shell/curl/ech_tests.sh` |",
     "| mutation | 237886 | 2353 | 141 | `typescript/typescript_compiler/checker.ts` |",
-    "| dead_code | 16196 | 1526 | 11 | `rust/wasmtime/wasmtime_pulley_interp.rs` |",
+    "| dead_code | 16192 | 1526 | 11 | `rust/wasmtime/wasmtime_pulley_interp.rs` |",
     "| credential | 123 | 65 | 0 | `powershell/core/packaging.psm1` |",
     "| threat | 185 | 32 | 0 | `php/wordpress/functions.php` |",
     "| ml_ai | 3034 | 312 | 0 | `lua/cosmopolitan/math.lua` |",

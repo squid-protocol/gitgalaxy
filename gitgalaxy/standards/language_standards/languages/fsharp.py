@@ -13,7 +13,7 @@ from typing import Any
 from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: compiled on first use
 from gitgalaxy.standards.language_standards.identifiers import CAPITAL, ID_CONTINUE, ID_START
 
-from .._shared_patterns import CALLS_OUT_C_STYLE, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import CALLS_OUT_C_STYLE, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT, commented_keyword_statement
 
 _NAME = r"([" + ID_START + r"][" + ID_CONTINUE + r"']*)"
 _MODS = (
@@ -209,7 +209,21 @@ DEFINITION: dict[str, Any] = {
             r"|\b(?:incr|decr)\b",
             re.M,
         ),
-        "dead_code": re.compile(r"//[ \t]*(?:let|type|module|open|member|printfn|match|if)\b", re.M),
+        # #7207: a statement's shape (`(...)`, an assignment, `if .. then`, `match .. with`, `printfn "..."`, a trailing `=`
+        # after `let`/`type`/`module Name`, a dotted or capitalised `open Ns`), not just the keyword; `///` is a doc line.
+        "dead_code": re.compile(
+            commented_keyword_statement(
+                "let|type|module|open|member|printfn|match|if",
+                block=False,
+                extra=r"(?<=if)[^\n]{0,300}?[ \t]then[ \t]*(?m:$)"
+                r"|(?<=match)[^\n]{0,300}?[ \t]with[ \t]*(?m:$)"
+                r'|(?<=printfn)[ \t]+"'
+                r"|(?<=let)[^\n]{0,300}?=[ \t]*(?m:$)"
+                r"|(?:(?<=type)|(?<=module))[ \t]+[A-Z]\w*(?:<[^>\n]{0,100}>)?[ \t]*=?[ \t]*(?m:$)"
+                r"|(?<=open)[ \t]+[A-Z]\w*(?:\.\w+)*[ \t]*(?m:$)",
+            ),
+            re.M,
+        ),
         # doc: XML doc comments and the `(** *)` doc block.
         "doc": re.compile(r"^[ \t]*///|\(\*\*(?=[ \t\r\n])", re.M),
         "test": re.compile(

@@ -12,7 +12,12 @@ from typing import Any
 
 from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: compiled on first use
 
-from .._shared_patterns import CALLS_OUT_CALL_VERB, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import (
+    CALLS_OUT_CALL_VERB,
+    GLOBAL_FRAGILE_DEBT,
+    GLOBAL_PLANNED_DEBT,
+    commented_keyword_statement,
+)
 
 # #5638: intrinsics and statement words that read `NAME(` but are no user routine, lowercase
 _CALLS_OUT_IGNORE_WORDS = (
@@ -329,7 +334,17 @@ DEFINITION: dict[str, Any] = {
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails)
         # Commented-out logic, commented-out structural code. Supports both Fortran 90+ (`!`) and legacy F77 (`C`/`*` in column 1).
-        "dead_code": re.compile(r"(?i)(?:!|^[cC*])[ \t]*(?:if|do|where|call|function|subroutine|allocate)\b"),
+        # #7207: a statement's shape (`(...)`, an assignment, `if (a .gt. b) then`, a bare `call name` /
+        # `subroutine name`), not just the keyword.
+        "dead_code": re.compile(
+            commented_keyword_statement(
+                "if|do|where|call|function|subroutine|allocate",
+                marker=r"(?:!|^[cC*])",
+                extra=r"(?<=if)[ \t]*\([^\n)]{0,200}\)[ \t]*then[ \t]*(?m:$)"
+                r"|(?:(?<=call)|(?<=function)|(?<=subroutine))[ \t]+\w{1,64}[ \t]*(?m:$)",
+            ),
+            re.I,
+        ),
         # 13. doc (Structured Documentation)
         # Documentation meant to be parsed by generators (Doxygen style `!>`, `!<`, or `! @`).
         "doc": re.compile(

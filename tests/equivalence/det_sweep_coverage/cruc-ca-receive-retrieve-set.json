@@ -6,28 +6,28 @@
   "live": 1
  },
  "branches": {
-  "covered": 1,
-  "total": 2
+  "covered": 4,
+  "total": 5
  },
  "linked": {
-  "CARCST": {
+  "CARTWK": {
    "paragraphs": {
     "covered": 0,
     "live": 1
    },
    "branches": {
     "covered": 0,
-    "total": 5
+    "total": 2
    }
   }
  },
  "uncovered": {
   "branches": [
-   "33:true"
+   "32:false"
   ]
  },
  "inputs": {
-  "case": "f7fe603e22fcbd14e8c560fa2f7d7d2906ead25df0e083b98a6c65b8beb36881",
+  "case": "ced87f3c48cadecc27084298e06df9f42a89b5bbfb155cdded825322f810fd3b",
   "corpus": "bfea00a9f77a5e777a0d6ffe75847c17e25a24c024b01404f0167fe059c233bf",
   "harness": "7a107bdec5a0bdd844a8e02f82c909ff2959ed9a39d97ce1eae7f0a3540dacf7",
   "oracle": "5a4eb2cf86a27cc865224422a5b105b96ae56305f70977ac96104e431a93ffa6",
@@ -43,5 +43,5 @@
    }
   }
  },
- "measured_at": "ee4072535f75af05c8371cca90e330aa8c009b38"
+ "measured_at": "4cf6d32b046688b28505fd942dfdfebb8b452c94"
 }

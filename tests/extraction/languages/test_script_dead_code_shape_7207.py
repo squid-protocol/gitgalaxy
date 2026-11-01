@@ -1,4 +1,4 @@
-"""#7207 slices 4-9: python / shell / ruby / perl / php / lua / abap / ada / apex / dart / embedded_python / fsharp / groovy / scala / powershell / tcl / rexx / matlab dead_code counts a keyword-led comment only when it has a statement's shape."""
+"""#7207 slices 4-10: python / shell / ruby / perl / php / lua / abap / ada / apex / dart / embedded_python / fsharp / groovy / scala / powershell / tcl / rexx / matlab / assembly / fortran / haskell / livecode dead_code counts a keyword-led comment only when it has a statement's shape."""
 
 import pytest
 
@@ -188,6 +188,54 @@ POSITIVES = {
         "% while true",
         "% while (x < 3);",
     ],
+    "assembly": [
+        "; mov eax, 1",
+        "; mov [rbp-4], 0",
+        "# add r0, r1, r2",
+        "; cmp dword ptr [x], 3",
+        "; jmp loop_start",
+        "; call _printf",
+        "; push ebp",
+        "; pop eax",
+        "; call foo(1)",
+    ],
+    "fortran": [
+        "! call setup",
+        "! call foo(x)",
+        "! if (x .gt. 0) then",
+        "! do i = 1, n",
+        "! do while (i < 3)",
+        "! subroutine foo",
+        "! function f(x)",
+        "! allocate(a(n))",
+        "! where (a > 0)",
+    ],
+    "haskell": [
+        "-- import Data.List",
+        "-- import qualified Data.Map as M",
+        "-- data Foo = Foo Int",
+        "-- class Foo a where",
+        "-- instance Show Foo where",
+        "-- let x = 5",
+        '-- putStrLn "hi"',
+        "-- putStrLn $ show x",
+        "-- type Name = String",
+    ],
+    "livecode": [
+        "-- on mouseUp",
+        "-- end mouseUp",
+        "-- end if",
+        '-- put "abc" into tName',
+        "-- put 3 into field 1",
+        "-- if tCount > 3 then",
+        "-- if tName is empty then",
+        "-- repeat with i = 1 to 3",
+        "-- repeat for each line tLine in tData",
+        "-- repeat 3 times",
+        "-- get field 1",
+        '-- set the visible of btn "x" to false',
+        "# try",
+    ],
 }
 
 NEGATIVES = {
@@ -364,6 +412,50 @@ NEGATIVES = {
         "%% if x",
         "% function handles are slow",
     ],
+    "assembly": [
+        "; add the values together",
+        "; call this once at startup",
+        "; sub is short for subtract",
+        "; push the result later",
+        "; pop is the inverse",
+        "; move the cursor first",
+        "; jump over the table",
+        "; compare the totals",
+    ],
+    "fortran": [
+        "! if the user cancels, we retry",
+        "! do the work later",
+        "! call this once at startup",
+        "! where the data lives",
+        "! function names are lowercase",
+        "! subroutine is a unit",
+        "! allocate memory first",
+        "! do nothing here",
+    ],
+    "haskell": [
+        "-- data is stored here",
+        "-- type of the result",
+        "-- class names are capitalised",
+        "-- instance of the thing",
+        "-- let the user cancel",
+        "-- where the file lives",
+        "-- import order matters",
+        "-- putStrLn is slow",
+        "--- import Data.List",
+    ],
+    "livecode": [
+        "-- on the other hand, we stop",
+        "-- put the result here",
+        "-- get the value first",
+        "-- set the flag first",
+        "-- if the user cancels, we retry",
+        "-- end of the loop",
+        "-- repeat until done",
+        "-- try again later",
+        "-- function names are lowercase",
+        "-- if the file is missing then we stop",
+        "-- put the result into the cache",
+    ],
 }
 
 
@@ -379,6 +471,10 @@ MARKER = {
     "scala": "//",
     "rexx": "--",
     "matlab": "%",
+    "assembly": ";",
+    "fortran": "!",
+    "haskell": "--",
+    "livecode": "--",
 }
 
 

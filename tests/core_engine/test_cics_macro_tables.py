@@ -13,7 +13,7 @@ TYPE=ENTRY,JFILEID={SYSTEM|nn}), ch.33 (DFHTCT TYPE=GPENTRY), and Appendices C/E
 DFHPPT PROGRAM=/MAPSET=/PARTSET=/USAGE=MAP); CICS/VS System Programmer's Reference Manual
 SH20-1043-6 (DFHDCT, DFHPCT, DFHPPT); CICS for MVS/ESA Migration Guide V4R1 GC33-1162-04;
 and IBM APAR II05097 (`DFHPPT TYPE=ENTRY,MAPSET=`). The PPT `PARTITIONSET=` spelling is
-ASSUMED as an alias of `PARTSET=` (register X62). DFHSIT SUFFIX= and the refusals of DFHMCT TYPE=RECORD and
+REFUSED by name (no manual lists it as a macro operand; register X62). DFHSIT SUFFIX= and the refusals of DFHMCT TYPE=RECORD and
 DFHTCT TYPE=LINE / SDSCI are read from the CICS TS 5.x pages the module header cites. Every fixture is hand-written, with a
 labelled and an unlabelled statement, column-72 continuation, comments and lower case.
 """
@@ -184,7 +184,8 @@ def test_dfhppt_entry_names_a_program_a_mapset_or_a_partition_set():
             "         DFHPPT TYPE=ENTRY,PROGRAM=BANKASM,PGMLANG=ASSEMBLER,USAGE=MAP",  # ASSEMBLER + USAGE=MAP -> MAPSET
             "         DFHPPT TYPE=ENTRY,PROGRAM=BANKCBL,PGMLANG=COBOL,USAGE=MAP",  # non-ASSEMBLER stays PROGRAM
             "         DFHPPT TYPE=ENTRY,MAPSET=DSTMAPSM,RES=YES",  # IBM APAR II05097; SC33-1653-05 p.372
-            "         DFHPPT TYPE=ENTRY,PARTITIONSET=BANKPS",
+            "         DFHPPT TYPE=ENTRY,PARTITIONSET=BANKPS",  # REFUSED: the RDO word, in no macro manual -> no row
+            "         DFHPPT TYPE=ENTRY,PARTSET=BANKPS",
             "         DFHPPT TYPE=ENTRY,PARTSET=OLDPS,USAGE=MAP",  # SC33-1653-05 p.349, p.372
             "         DFHPPT TYPE=ENTRY",
             "         DFHPPT TYPE=FINAL",

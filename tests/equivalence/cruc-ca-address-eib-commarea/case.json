@@ -24,6 +24,12 @@
       "commarea": null,
       "terminal": "CA0K Q",
       "why": "ADDRESS EIB view, then READQ TD of an undefined queue with RESP: the view holds the failed command's EIB fields"
+    },
+    {
+      "name": "unknown-mode",
+      "commarea": null,
+      "terminal": "CA0K X",
+      "why": "A mode letter no WHEN names: the EVALUATE falls through"
     }
   ]
 }

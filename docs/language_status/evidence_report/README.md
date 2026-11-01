@@ -15,11 +15,11 @@ These files are derived output, published on the `generated` branch and not comm
 | [aws-mainframe-modernization-carddemo](aws-mainframe-modernization-carddemo/report.md) | 44 | 2 | 0 | 0 | 0 | 37 | 5 |
 | [cics-async-api-credit-card-application-example](cics-async-api-credit-card-application-example/report.md) | 10 | 0 | 0 | 0 | 0 | 0 | 10 |
 | [cics-banking-sample-application-cbsa](cics-banking-sample-application-cbsa/report.md) | 31 | 0 | 0 | 0 | 0 | 30 | 1 |
-| [cics-crucible](cics-crucible/report.md) | 80 | 5 | 11 | 15 | 4 | 45 | 0 |
+| [cics-crucible](cics-crucible/report.md) | 85 | 4 | 16 | 5 | 3 | 57 | 0 |
 | [cics-genapp](cics-genapp/report.md) | 31 | 0 | 0 | 0 | 0 | 31 | 0 |
 | [dbb-mortgage-application](dbb-mortgage-application/report.md) | 6 | 1 | 0 | 0 | 0 | 5 | 0 |
 | [zecs](zecs/report.md) | 7 | 0 | 0 | 0 | 0 | 3 | 4 |
-| total | 209 | 8 | 11 | 15 | 4 | 151 | 20 |
+| total | 214 | 7 | 16 | 5 | 3 | 163 | 20 |
 
 ## Non-burned estates
 

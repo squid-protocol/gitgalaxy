@@ -840,15 +840,33 @@
     3,
     10
    ],
+   "cruc-ca-bll-cells": [
+    2,
+    2,
+    4,
+    4
+   ],
    "cruc-ca-channel-containers": [
     3,
     3,
     0,
     0
    ],
+   "cruc-ca-channel-containers-callee": [
+    4,
+    4,
+    0,
+    0
+   ],
    "cruc-ca-channel-errors": [
     2,
     2,
+    0,
+    0
+   ],
+   "cruc-ca-channel-xctl-target": [
+    3,
+    3,
     0,
     0
    ],
@@ -887,6 +905,18 @@
     1,
     3,
     4
+   ],
+   "cruc-ca-link-lengths-callee": [
+    1,
+    1,
+    4,
+    4
+   ],
+   "cruc-ca-receive-retrieve-callee": [
+    1,
+    1,
+    2,
+    2
    ],
    "cruc-ca-receive-retrieve-set": [
     1,
@@ -1014,6 +1044,12 @@
     4,
     4
    ],
+   "cruc-hc-abend-link-sub": [
+    2,
+    2,
+    5,
+    5
+   ],
    "cruc-hc-dcounters": [
     7,
     7,
@@ -1027,7 +1063,7 @@
     4
    ],
    "cruc-hc-eoc-error": [
-    3,
+    4,
     4,
     2,
     2
@@ -1081,7 +1117,7 @@
     6
    ],
    "cruc-hc-terminal-eoc": [
-    3,
+    4,
     4,
     3,
     3
@@ -1111,15 +1147,15 @@
     9
    ],
    "cruc-pc-confirm": [
-    2,
     5,
-    2,
+    5,
+    14,
     14
    ],
    "cruc-pc-detl": [
     1,
     1,
-    1,
+    2,
     2
    ],
    "cruc-pc-immediate-a": [
@@ -1127,6 +1163,12 @@
     6,
     4,
     5
+   ],
+   "cruc-pc-immediate-l": [
+    1,
+    1,
+    2,
+    2
    ],
    "cruc-pc-immediate-s": [
     1,
@@ -1145,6 +1187,12 @@
     7,
     6,
     6
+   ],
+   "cruc-pc-return-channel-l": [
+    2,
+    2,
+    0,
+    0
    ],
    "cruc-pc-return-immediate-b": [
     2,
@@ -2006,10 +2054,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "eedd31c0da913f333c7d45ad9c05e81f01e04154",
+   "sha": "faac469eb83e0a2bb1c94853ec2e408cddd37b91",
    "translator": {
-    "files": 161,
-    "sha256": "d6ab4e6728508b3114c0be3a58ff39d452b6921d5f447500f2766d4f21169262"
+    "files": 168,
+    "sha256": "0f14f2b658a3fc1e9282b5639a2a176792afc4a6a05caf025d8babc95ed9dd0c"
    }
   },
   "sweeps": {}
@@ -4447,18 +4495,18 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha eedd31c0da913f333c7d45ad9c05e81f01e04154",
-   "python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha eedd31c0da913f333c7d45ad9c05e81f01e04154",
+   "python tests/tools/cics_census.py survey --baseline --sha faac469eb83e0a2bb1c94853ec2e408cddd37b91",
+   "python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha faac469eb83e0a2bb1c94853ec2e408cddd37b91",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases mortgage-cmort,mortgage-csmrt,mortgage-mlist,mortgage-mlist-generated,mortgage-mpmt,mortgage-nbrvl  # Db2 cases (1) need the Db2 container",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
   ],
   "corpus_ref": "ce2c1be58eb049e000c6627bd8273263fef0c606",
   "coverage_from": "det-sweep coverage ledger, freshness at build time",
-  "crucible_baseline_ref": "v0.10.0 (01e11fe6)",
+  "crucible_baseline_ref": "v0.11.0 (df992a3a)",
   "crucible_cases_measured_at": "v0.5.0",
   "crucible_pins": {
-   "cics": "v0.10.0",
+   "cics": "v0.11.0",
    "estate": "v0.5.0",
    "language": "v1.7.0"
   },
@@ -4469,13 +4517,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "eedd31c0da913f333c7d45ad9c05e81f01e04154",
+   "sha": "faac469eb83e0a2bb1c94853ec2e408cddd37b91",
    "translator": {
-    "files": 161,
-    "sha256": "d6ab4e6728508b3114c0be3a58ff39d452b6921d5f447500f2766d4f21169262"
+    "files": 168,
+    "sha256": "0f14f2b658a3fc1e9282b5639a2a176792afc4a6a05caf025d8babc95ed9dd0c"
    }
   },
-  "translator_commit": "eedd31c0da913f333c7d45ad9c05e81f01e04154",
+  "translator_commit": "faac469eb83e0a2bb1c94853ec2e408cddd37b91",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -4518,6 +4566,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "d6ab4e6728508b3114c0be3a58ff39d452b6921d5f447500f2766d4f21169262"
+  "fingerprint": "0f14f2b658a3fc1e9282b5639a2a176792afc4a6a05caf025d8babc95ed9dd0c"
  }
 }

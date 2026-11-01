@@ -3438,8 +3438,16 @@ def commarea_class(case: dict[str, Any], src: Path, svc_file: Path) -> str | Non
         segments = (case.get("commarea") or {}).get("segments")
         if not segments:
             return None
-        name = java_class_base(segments[0]["record"])
-        return name if any(src.rglob(f"{name}.java")) else None
+        base = java_class_base(segments[0]["record"])
+        # the forge names a program's own record after its declarer (PcconfWsState); a shared copybook record bare. The
+        # service imports the DTO it carries (dto.contract.<Name>), so take the one named for the record
+        imported = re.findall(r"import [\w.]*dto\.contract\.(\w+);", svc_text)
+        own = java_class_base(case.get("program", "")) + base  # the program's own record: PcconfWsState
+        named = [n for n in imported if re.fullmatch(rf"\w*?{base}\d*", n)]
+        for name in (own, *([named[0]] if len(named) == 1 else []), base):
+            if any(src.rglob(f"{name}.java")):
+                return name
+        return None
     if m:
         return m.group(1)
     if "commarea" in case and case["commarea"] is None:  # #4270: a program that takes none (handleLink()): no DTO

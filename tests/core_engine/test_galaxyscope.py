@@ -2698,9 +2698,9 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
     def test_yaml_config_load_failure(self, mock_license, mock_orchestrator):
         """
         COVERAGE TARGET: Lines 2445-2446.
-        Ensures that if the `.galaxyscope.yaml` file is physically corrupted or
-        malformed, the CLI parser catches the exception, logs it, and falls back
-        to the default parameters without killing the execution.
+        Ensures that if a `--config` file is corrupted or malformed, the CLI logs it and
+        exits 1 before the scan: the file may hold the gates, and a scan without them must
+        not pass.
         """
         import sys
         import tempfile
@@ -2715,18 +2715,10 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         test_args = ["galaxyscope", ".", "--config", temp_yaml_path]
 
         with patch.object(sys, "argv", test_args):
-            mock_orchestrator.return_value.policy_failed = False
-            try:
+            with self.assertRaises(SystemExit) as stopped:
                 main()
-            except SystemExit:
-                self.fail("CLI crashed on malformed YAML instead of catching it!")
-
-        args, _ = mock_orchestrator.call_args
-        ignited_config = args[1]
-
-        # Validate the orchestrator defaulted to standard configuration
-        self.assertFalse(ignited_config.get("FAIL_ON_SECRETS", False), "Failed to default configuration safely!")
-
+        self.assertEqual(stopped.exception.code, 1)
+        mock_orchestrator.assert_not_called()
         os.remove(temp_yaml_path)
 
     # ==============================================================================

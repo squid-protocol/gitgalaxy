@@ -39,7 +39,7 @@ from gitgalaxy.core.invocation_resolver import resolve_invocations, resolve_tran
 from gitgalaxy.core.mainframe_boundary import extract_boundary
 from gitgalaxy.core.network_risk_sensor import CASE_INSENSITIVE_IMPORT_LANGS, STAR_EXPORT_PREFIX, NetworkRiskSensor
 from gitgalaxy.core.prefetch import start_prefetch
-from gitgalaxy.core.prism import Prism
+from gitgalaxy.core.prism import Prism, extract_mitigations
 from gitgalaxy.core.rust_modules import enclosing_modules, inline_module_spans, rescope_to_file
 from gitgalaxy.core.source_text import parse_source_encoding, read_source, resolve_declared_encoding
 from gitgalaxy.core.spatial_correlation import correlate_against_ledger
@@ -1614,6 +1614,245 @@ class Orchestrator:
             "file_count": 0,
         }
 
+    def _restore_inline_mitigations(self) -> None:
+        """Delta scan: an unchanged file's `galaxyscope:ignore` directives, read back from disk. A baseline stores none,
+        and without them the risk recomputed for a rehydrated file, and the gates, would ignore the suppression."""
+        for rel_path, meta in self.ram_cache.items():
+            if not meta.get("rehydrated"):
+                continue
+            try:
+                raw = (self.root / self.disk_paths.get(rel_path, rel_path)).read_bytes()
+            except OSError:
+                continue
+            if b"galaxyscope:ignore" in raw.lower():
+                meta["mitigations"] = extract_mitigations(raw.decode("utf-8", "replace"))
+
+    def _apply_threat_suppression(self, repository_graph: list[dict[str, Any]] | None) -> None:
+        """Phase 10.5, shared by the full and the delta scan: config exclusions and mitigations, ahead of the gates."""
+        # ==========================================================
+        # PHASE 10.5: THREAT SUPPRESSION (Apply Config Exclusions & Mitigations)
+        # ==========================================================
+        # Runs BEFORE the policy gate (Phase 10.6) on purpose: SARIF_IGNORED_PATHS /
+        # SARIF_IGNORED_RULES / per-file mitigations are supposed to shield known-noisy
+        # paths (e.g. gitgalaxy/standards/'s regex-dense rule files) from build-breaking
+        # false positives, not just from the exported SARIF JSON. Suppressing is_ml_threat
+        # and zeroing risk_vector here, ahead of the gate, is what makes that exclusion
+        # list actually protect --fail-on-malware/--fail-on-secrets/--max-risk-exposure/
+        # --max-systemic-threat -- it used to only sanitize post-gate SARIF output, so an
+        # excluded path could still fail the build with no way to suppress it.
+        logger.info("🧹 Sanitizing telemetry to prevent export of mitigated and ignored threats...")
+
+        ignored_rules = self.config.get("SARIF_IGNORED_RULES", [])
+        ignored_paths = self.config.get("SARIF_IGNORED_PATHS", [])
+
+        for file_data in repository_graph or []:
+            # Ensure cross-platform slash normalization
+            file_path = file_data.get("path", "").replace("\\", "/")
+            path_excluded = any(p in file_path for p in ignored_paths)
+
+            if path_excluded:
+                file_data["equations"] = {}
+                file_data["is_ml_threat"] = False
+
+                if "hit_vector" in file_data and isinstance(file_data["hit_vector"], list):
+                    file_data["hit_vector"] = [0] * len(file_data["hit_vector"])
+
+                if "risk_vector" in file_data and isinstance(file_data["risk_vector"], list):
+                    file_data["risk_vector"] = [0.0] * len(file_data["risk_vector"])
+
+                if "telemetry" in file_data:
+                    file_data["telemetry"] = {
+                        "popularity": file_data["telemetry"].get("popularity", 0),
+                        "ownership": file_data["telemetry"].get("ownership", "Unknown"),
+                    }
+
+                if "metadata" in file_data:
+                    file_data["metadata"] = {}
+
+                continue
+
+            mitigs = file_data.get("mitigations", [])
+            if isinstance(mitigs, dict):
+                mitigs = list(mitigs.keys())
+            elif not isinstance(mitigs, list):
+                mitigs = []
+
+            ts = file_data.get("telemetry", {}).get("threat_snippets", {})
+            eqs = file_data.get("equations", {})
+
+            if isinstance(ts, dict) and isinstance(eqs, dict):
+                keys_to_delete_ts = [
+                    k
+                    for k in ts.keys()  # noqa: SIM118
+                    if k in mitigs
+                    or f"sec_{k}" in mitigs
+                    or k.replace("sec_", "") in mitigs
+                    or k in ignored_rules
+                    or f"sec_{k}" in ignored_rules
+                    or f"GG-SAST-{k.upper()}" in ignored_rules
+                    or f"GG-SAST-{k.replace('sec_', '').upper()}" in ignored_rules
+                ]
+                keys_to_delete_eqs = [
+                    k
+                    for k in eqs.keys()  # noqa: SIM118
+                    if k in mitigs
+                    or k.replace("sec_", "") in mitigs
+                    or k in ignored_rules
+                    or k.replace("sec_", "") in ignored_rules
+                    or f"GG-SAST-{k.upper()}" in ignored_rules
+                    or f"GG-SAST-{k.replace('sec_', '').upper()}" in ignored_rules
+                ]
+
+                for k in keys_to_delete_ts:
+                    if k in ts:
+                        del ts[k]
+
+                for k in keys_to_delete_eqs:
+                    if k in eqs:
+                        del eqs[k]
+
+            if "GG-AGENT-VULNERABILITY" in ignored_rules or "ai_appsec" in mitigs:  # noqa: SIM102
+                if "ai_appsec" in file_data.get("telemetry", {}):
+                    del file_data["telemetry"]["ai_appsec"]
+
+            if "GG-AGENT-GUARDRAIL" in ignored_rules or "ai_guardrails" in mitigs:  # noqa: SIM102
+                if "ai_guardrails" in file_data.get("telemetry", {}):
+                    del file_data["telemetry"]["ai_guardrails"]
+
+            if file_data.get("is_ml_threat"):
+                ai_class = file_data.get("telemetry", {}).get("domain_context", {}).get("AI Threat Class", "Unknown")
+                if (
+                    f"GG-ML-{ai_class.upper().replace(' ', '_').replace('/', '')}" in ignored_rules
+                    or "ml_threat" in mitigs
+                ):
+                    file_data["is_ml_threat"] = False
+
+    def _enforce_policy_gates(self, repository_graph: list[dict[str, Any]] | None) -> None:
+        """Phase 10.6, shared by the full and the delta scan: sets `policy_failed`, which main() turns into exit 1.
+
+        A delta scan judges every file, rehydrated ones included, so it fails on what a full scan fails on."""
+        # ==========================================================
+        # PHASE 10.6: CI/CD POLICY ENFORCEMENT GATE
+        # ==========================================================
+        self.policy_failed = False
+        max_risk_allowed = self.config.get("MAX_RISK_EXPOSURE", 0.0)
+        max_systemic_threat = self.config.get("MAX_SYSTEMIC_THREAT", 0.0)
+
+        if (
+            self.config.get("FAIL_ON_SECRETS")
+            or self.config.get("FAIL_ON_MALWARE")
+            or max_risk_allowed > 0.0
+            or max_systemic_threat > 0.0
+        ):
+            logger.info("🛡️ Evaluating CI/CD Threat Thresholds...")
+
+            from gitgalaxy.metrics.signal_processor import SignalProcessor
+
+            for file_data in repository_graph or []:
+                # 1. Absolute Security Floor (Secrets)
+                if self.config.get("FAIL_ON_SECRETS"):
+                    has_secrets = False
+
+                    # Extract mitigations safely
+                    mitigs = file_data.get("mitigations", [])
+                    if isinstance(mitigs, dict):
+                        mitigs = list(mitigs.keys())
+                    elif not isinstance(mitigs, list):
+                        mitigs = []
+
+                    if "sec_hardcoded_secrets" not in mitigs and "secrets_risk" not in mitigs:
+                        # Check Risk Vector
+                        if "secrets_risk" in SignalProcessor.RISK_SCHEMA:
+                            idx = SignalProcessor.RISK_SCHEMA.index("secrets_risk")
+                            rv = file_data.get("risk_vector", [])
+                            if isinstance(rv, list) and len(rv) > idx and rv[idx] > 0.0:
+                                has_secrets = True
+
+                        # THE FIX: Bulletproof Truthiness Check
+                        ts = file_data.get("telemetry", {}).get("threat_snippets", {})
+                        if isinstance(ts, dict):  # noqa: SIM102
+                            if ts.get("hardcoded_secrets") or ts.get("sec_hardcoded_secrets"):
+                                has_secrets = True
+
+                        # Check Domain Context
+                        ctx = file_data.get("telemetry", {}).get("domain_context", {})
+                        if isinstance(ctx, dict):
+                            warning_msg = ctx.get("warning", "")
+                            if warning_msg and "CRITICAL CREDENTIAL LEAK DETECTED" in str(warning_msg):
+                                has_secrets = True
+
+                    if has_secrets:
+                        logger.critical(
+                            f"BUILD FAILED: Hardcoded secret detected in {file_data.get('path', 'unknown')}"
+                        )
+                        self.policy_failed = True
+
+                # 2. XGBoost Malware Floor
+                if self.config.get("FAIL_ON_MALWARE") and file_data.get("is_ml_threat", False):
+                    ai_class = (
+                        file_data.get("telemetry", {}).get("domain_context", {}).get("AI Threat Class", "Unknown")
+                    )
+                    logger.critical(
+                        f"BUILD FAILED: Behavioral malware signature ({ai_class}) detected in {file_data.get('path', 'unknown')}"
+                    )
+                    self.policy_failed = True
+
+                # 3. Maximum Risk Exposure Ratchet (per-file)
+                if max_risk_allowed > 0.0:
+                    risk_vec = file_data.get("risk_vector", [])
+                    highest_risk = max(risk_vec) if isinstance(risk_vec, list) and risk_vec else 0.0
+                    if highest_risk >= max_risk_allowed:
+                        logger.critical(
+                            f"BUILD FAILED: {file_data.get('path', 'unknown')} exceeded maximum risk threshold ({highest_risk}% >= {max_risk_allowed}%)"
+                        )
+                        self.policy_failed = True
+
+                # 4. Systemic Threat Ceiling (Structural Magnitude * Blast Radius)
+                #
+                # #3112 BREAKING CHANGE: this gate used to multiply blast
+                # radius by the Cumulative Risk composite -- a unitless
+                # sum over all 13 risk vectors, ~31% of which was constant
+                # or dead. That composite is gone, so the ceiling is now
+                # structural magnitude * blast radius.
+                #
+                # The flag's INTENT is unchanged and is arguably better
+                # served: "fail when something structurally heavy is also
+                # widely depended upon". Both factors are now unit-honest
+                # -- magnitude is explicitly "NOT a risk score" in the
+                # brief, and blast radius is a normalized PageRank.
+                #
+                # THRESHOLD VALUES DO NOT CARRY OVER. The old basis summed
+                # up to 13 sigmoid percentages (observed ~556 on a real
+                # scan); magnitude is a different scale entirely, so any
+                # existing --max-systemic-threat number must be re-tuned.
+                # Deliberately NOT silently rescaled: a fabricated
+                # conversion factor would be a worse failure than an
+                # obvious one. See CHANGELOG.
+                if max_systemic_threat > 0.0:
+                    structural_magnitude = file_data.get("file_impact", 0.0) or 0.0
+
+                    net_metrics = file_data.get("telemetry", {}).get("network_metrics", {})
+                    # #3027: blast radius is computed in every mode (native
+                    # PageRank, no optional package); None only when that
+                    # computation failed, in which case this file's ceiling
+                    # cannot be evaluated -- say so, don't multiply a placeholder.
+                    blast_radius = net_metrics.get("normalized_blast_radius")
+                    if blast_radius is None:
+                        logger.warning(
+                            f"--max-systemic-threat not evaluated for {file_data.get('path', 'unknown')}: "
+                            "no blast radius was computed."
+                        )
+
+                    systemic_threat = structural_magnitude * (blast_radius or 0.0)
+
+                    if systemic_threat >= max_systemic_threat:
+                        logger.critical(
+                            f"BUILD FAILED: {file_data.get('path', 'unknown')} exceeded Systemic Threat limit "
+                            f"({systemic_threat:.1f} >= {max_systemic_threat}). "
+                            f"Structural Magnitude: {structural_magnitude:.1f} | Blast Radius: {blast_radius:.3f}"
+                        )
+                        self.policy_failed = True
+
     def execute_pipeline(self, output_file: str = "galaxy.json"):
         """
         Executes the synthesis protocol with a multi-recorder exit strategy.
@@ -1830,227 +2069,8 @@ class Orchestrator:
             # (top level, not nested under ecosystem_audits).
             summary["typosquat_hits"] = getattr(self, "typosquat_hits", 0)
 
-            # ==========================================================
-            # PHASE 10.5: THREAT SUPPRESSION (Apply Config Exclusions & Mitigations)
-            # ==========================================================
-            # Runs BEFORE the policy gate (Phase 10.6) on purpose: SARIF_IGNORED_PATHS /
-            # SARIF_IGNORED_RULES / per-file mitigations are supposed to shield known-noisy
-            # paths (e.g. gitgalaxy/standards/'s regex-dense rule files) from build-breaking
-            # false positives, not just from the exported SARIF JSON. Suppressing is_ml_threat
-            # and zeroing risk_vector here, ahead of the gate, is what makes that exclusion
-            # list actually protect --fail-on-malware/--fail-on-secrets/--max-risk-exposure/
-            # --max-systemic-threat -- it used to only sanitize post-gate SARIF output, so an
-            # excluded path could still fail the build with no way to suppress it.
-            logger.info("🧹 Sanitizing telemetry to prevent export of mitigated and ignored threats...")
-
-            ignored_rules = self.config.get("SARIF_IGNORED_RULES", [])
-            ignored_paths = self.config.get("SARIF_IGNORED_PATHS", [])
-
-            for file_data in repository_graph or []:
-                # Ensure cross-platform slash normalization
-                file_path = file_data.get("path", "").replace("\\", "/")
-                path_excluded = any(p in file_path for p in ignored_paths)
-
-                if path_excluded:
-                    file_data["equations"] = {}
-                    file_data["is_ml_threat"] = False
-
-                    if "hit_vector" in file_data and isinstance(file_data["hit_vector"], list):
-                        file_data["hit_vector"] = [0] * len(file_data["hit_vector"])
-
-                    if "risk_vector" in file_data and isinstance(file_data["risk_vector"], list):
-                        file_data["risk_vector"] = [0.0] * len(file_data["risk_vector"])
-
-                    if "telemetry" in file_data:
-                        file_data["telemetry"] = {
-                            "popularity": file_data["telemetry"].get("popularity", 0),
-                            "ownership": file_data["telemetry"].get("ownership", "Unknown"),
-                        }
-
-                    if "metadata" in file_data:
-                        file_data["metadata"] = {}
-
-                    continue
-
-                mitigs = file_data.get("mitigations", [])
-                if isinstance(mitigs, dict):
-                    mitigs = list(mitigs.keys())
-                elif not isinstance(mitigs, list):
-                    mitigs = []
-
-                ts = file_data.get("telemetry", {}).get("threat_snippets", {})
-                eqs = file_data.get("equations", {})
-
-                if isinstance(ts, dict) and isinstance(eqs, dict):
-                    keys_to_delete_ts = [
-                        k
-                        for k in ts.keys()  # noqa: SIM118
-                        if k in mitigs
-                        or f"sec_{k}" in mitigs
-                        or k.replace("sec_", "") in mitigs
-                        or k in ignored_rules
-                        or f"sec_{k}" in ignored_rules
-                        or f"GG-SAST-{k.upper()}" in ignored_rules
-                        or f"GG-SAST-{k.replace('sec_', '').upper()}" in ignored_rules
-                    ]
-                    keys_to_delete_eqs = [
-                        k
-                        for k in eqs.keys()  # noqa: SIM118
-                        if k in mitigs
-                        or k.replace("sec_", "") in mitigs
-                        or k in ignored_rules
-                        or k.replace("sec_", "") in ignored_rules
-                        or f"GG-SAST-{k.upper()}" in ignored_rules
-                        or f"GG-SAST-{k.replace('sec_', '').upper()}" in ignored_rules
-                    ]
-
-                    for k in keys_to_delete_ts:
-                        if k in ts:
-                            del ts[k]
-
-                    for k in keys_to_delete_eqs:
-                        if k in eqs:
-                            del eqs[k]
-
-                if "GG-AGENT-VULNERABILITY" in ignored_rules or "ai_appsec" in mitigs:  # noqa: SIM102
-                    if "ai_appsec" in file_data.get("telemetry", {}):
-                        del file_data["telemetry"]["ai_appsec"]
-
-                if "GG-AGENT-GUARDRAIL" in ignored_rules or "ai_guardrails" in mitigs:  # noqa: SIM102
-                    if "ai_guardrails" in file_data.get("telemetry", {}):
-                        del file_data["telemetry"]["ai_guardrails"]
-
-                if file_data.get("is_ml_threat"):
-                    ai_class = (
-                        file_data.get("telemetry", {}).get("domain_context", {}).get("AI Threat Class", "Unknown")
-                    )
-                    if (
-                        f"GG-ML-{ai_class.upper().replace(' ', '_').replace('/', '')}" in ignored_rules
-                        or "ml_threat" in mitigs
-                    ):
-                        file_data["is_ml_threat"] = False
-
-            # ==========================================================
-            # PHASE 10.6: CI/CD POLICY ENFORCEMENT GATE
-            # ==========================================================
-            self.policy_failed = False
-            max_risk_allowed = self.config.get("MAX_RISK_EXPOSURE", 0.0)
-            max_systemic_threat = self.config.get("MAX_SYSTEMIC_THREAT", 0.0)
-
-            if (
-                self.config.get("FAIL_ON_SECRETS")
-                or self.config.get("FAIL_ON_MALWARE")
-                or max_risk_allowed > 0.0
-                or max_systemic_threat > 0.0
-            ):
-                logger.info("🛡️ Evaluating CI/CD Threat Thresholds...")
-
-                from gitgalaxy.metrics.signal_processor import SignalProcessor
-
-                for file_data in repository_graph or []:
-                    # 1. Absolute Security Floor (Secrets)
-                    if self.config.get("FAIL_ON_SECRETS"):
-                        has_secrets = False
-
-                        # Extract mitigations safely
-                        mitigs = file_data.get("mitigations", [])
-                        if isinstance(mitigs, dict):
-                            mitigs = list(mitigs.keys())
-                        elif not isinstance(mitigs, list):
-                            mitigs = []
-
-                        if "sec_hardcoded_secrets" not in mitigs and "secrets_risk" not in mitigs:
-                            # Check Risk Vector
-                            if "secrets_risk" in SignalProcessor.RISK_SCHEMA:
-                                idx = SignalProcessor.RISK_SCHEMA.index("secrets_risk")
-                                rv = file_data.get("risk_vector", [])
-                                if isinstance(rv, list) and len(rv) > idx and rv[idx] > 0.0:
-                                    has_secrets = True
-
-                            # THE FIX: Bulletproof Truthiness Check
-                            ts = file_data.get("telemetry", {}).get("threat_snippets", {})
-                            if isinstance(ts, dict):  # noqa: SIM102
-                                if ts.get("hardcoded_secrets") or ts.get("sec_hardcoded_secrets"):
-                                    has_secrets = True
-
-                            # Check Domain Context
-                            ctx = file_data.get("telemetry", {}).get("domain_context", {})
-                            if isinstance(ctx, dict):
-                                warning_msg = ctx.get("warning", "")
-                                if warning_msg and "CRITICAL CREDENTIAL LEAK DETECTED" in str(warning_msg):
-                                    has_secrets = True
-
-                        if has_secrets:
-                            logger.critical(
-                                f"BUILD FAILED: Hardcoded secret detected in {file_data.get('path', 'unknown')}"
-                            )
-                            self.policy_failed = True
-
-                    # 2. XGBoost Malware Floor
-                    if self.config.get("FAIL_ON_MALWARE") and file_data.get("is_ml_threat", False):
-                        ai_class = (
-                            file_data.get("telemetry", {}).get("domain_context", {}).get("AI Threat Class", "Unknown")
-                        )
-                        logger.critical(
-                            f"BUILD FAILED: Behavioral malware signature ({ai_class}) detected in {file_data.get('path', 'unknown')}"
-                        )
-                        self.policy_failed = True
-
-                    # 3. Maximum Risk Exposure Ratchet (per-file)
-                    if max_risk_allowed > 0.0:
-                        risk_vec = file_data.get("risk_vector", [])
-                        highest_risk = max(risk_vec) if isinstance(risk_vec, list) and risk_vec else 0.0
-                        if highest_risk >= max_risk_allowed:
-                            logger.critical(
-                                f"BUILD FAILED: {file_data.get('path', 'unknown')} exceeded maximum risk threshold ({highest_risk}% >= {max_risk_allowed}%)"
-                            )
-                            self.policy_failed = True
-
-                    # 4. Systemic Threat Ceiling (Structural Magnitude * Blast Radius)
-                    #
-                    # #3112 BREAKING CHANGE: this gate used to multiply blast
-                    # radius by the Cumulative Risk composite -- a unitless
-                    # sum over all 13 risk vectors, ~31% of which was constant
-                    # or dead. That composite is gone, so the ceiling is now
-                    # structural magnitude * blast radius.
-                    #
-                    # The flag's INTENT is unchanged and is arguably better
-                    # served: "fail when something structurally heavy is also
-                    # widely depended upon". Both factors are now unit-honest
-                    # -- magnitude is explicitly "NOT a risk score" in the
-                    # brief, and blast radius is a normalized PageRank.
-                    #
-                    # THRESHOLD VALUES DO NOT CARRY OVER. The old basis summed
-                    # up to 13 sigmoid percentages (observed ~556 on a real
-                    # scan); magnitude is a different scale entirely, so any
-                    # existing --max-systemic-threat number must be re-tuned.
-                    # Deliberately NOT silently rescaled: a fabricated
-                    # conversion factor would be a worse failure than an
-                    # obvious one. See CHANGELOG.
-                    if max_systemic_threat > 0.0:
-                        structural_magnitude = file_data.get("file_impact", 0.0) or 0.0
-
-                        net_metrics = file_data.get("telemetry", {}).get("network_metrics", {})
-                        # #3027: blast radius is computed in every mode (native
-                        # PageRank, no optional package); None only when that
-                        # computation failed, in which case this file's ceiling
-                        # cannot be evaluated -- say so, don't multiply a placeholder.
-                        blast_radius = net_metrics.get("normalized_blast_radius")
-                        if blast_radius is None:
-                            logger.warning(
-                                f"--max-systemic-threat not evaluated for {file_data.get('path', 'unknown')}: "
-                                "no blast radius was computed."
-                            )
-
-                        systemic_threat = structural_magnitude * (blast_radius or 0.0)
-
-                        if systemic_threat >= max_systemic_threat:
-                            logger.critical(
-                                f"BUILD FAILED: {file_data.get('path', 'unknown')} exceeded Systemic Threat limit "
-                                f"({systemic_threat:.1f} >= {max_systemic_threat}). "
-                                f"Structural Magnitude: {structural_magnitude:.1f} | Blast Radius: {blast_radius:.3f}"
-                            )
-                            self.policy_failed = True
+            self._apply_threat_suppression(repository_graph)
+            self._enforce_policy_gates(repository_graph)
 
             # ==========================================================
             # PHASE 11: GLOBAL TELEMETRY & METADATA LOCKING
@@ -4078,6 +4098,7 @@ class Orchestrator:
             self._extract_features_parallel()
 
             # 5. The Ripple Effect (Recalculate Downstream Exposure for ALL files)
+            self._restore_inline_mitigations()
             self.stem_map = {f: f for f in self.ram_cache.keys()}  # noqa: SIM118
             self._resolve_dependency_graph()
             self._calculate_risk_exposures()
@@ -4123,6 +4144,10 @@ class Orchestrator:
 
             # #376: see the identical backfill in the main pipeline above.
             summary["typosquat_hits"] = getattr(self, "typosquat_hits", 0)
+
+            # the same suppression and gates as a full scan: a delta scan used to have no gate phase and exited 0
+            self._apply_threat_suppression(repository_graph)
+            self._enforce_policy_gates(repository_graph)
 
             session_meta = {
                 "engine": f"GitGalaxy Scope v{self.version} (Delta Mode)",
@@ -4372,6 +4397,7 @@ def main():
     # ---------------------------------------------------------
     # YAML Configuration File Interceptor
     # ---------------------------------------------------------
+    # A named config that cannot be applied stops the run: it may hold the gates, and a scan without them must not pass.
     config_file_data = {}
     if args.config and HAS_PYYAML:
         import yaml
@@ -4379,14 +4405,19 @@ def main():
         try:
             with open(args.config) as f:
                 config_file_data = yaml.safe_load(f) or {}
+            section = config_file_data.get("galaxyscope", {}) if isinstance(config_file_data, dict) else None
+            if not isinstance(section, dict):
+                raise ValueError("expected a mapping, with a `galaxyscope:` mapping if that section is present")
             logging.info(f"⚙️ Loaded repository configuration from {args.config}")
         except Exception as e:
             logging.error(f"Failed to load config file {args.config}: {e}")
+            sys.exit(1)
     elif args.config and not HAS_PYYAML:
-        logging.warning(
-            f"⚙️ PyYAML not installed -- ignoring --config {args.config}. "
-            "Install with `pip install gitgalaxy[yaml]` to enable .galaxyscope.yaml config-file support."
+        logging.error(
+            f"Cannot read --config {args.config}: PyYAML is not installed. "
+            "Install it with `pip install gitgalaxy[yaml]`, or drop --config."
         )
+        sys.exit(1)
 
     # Map YAML configurations directly to argparse attributes if not overridden via CLI.
     # #247: `is None` -- not a truthy/falsy check -- because None is the only

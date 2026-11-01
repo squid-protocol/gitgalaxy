@@ -63,6 +63,9 @@ gitgalaxy_scan:
         echo "Installing GitGalaxy version ${GG_VERSION} (NOT hash-verified)..."
         pip install "gitgalaxy[${GG_REQS}]==${GG_VERSION}"
       fi
+    - |
+      # --config is fatal on a missing file: drop the default one when the repository has none
+      if [ ! -f .galaxyscope.yaml ]; then GG_ARGS=$(printf '%s' "$GG_ARGS" | sed 's/--config \.galaxyscope\.yaml//'); fi
     - 'echo "Running: ${GG_TOOL} ${GG_TARGET} ${GG_ARGS}"'
     - ${GG_TOOL} ${GG_TARGET} ${GG_ARGS}
   artifacts:

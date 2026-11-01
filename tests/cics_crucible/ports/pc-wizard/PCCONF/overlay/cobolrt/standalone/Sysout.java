@@ -48,8 +48,6 @@ public final class Sysout {
                 char c = text.charAt(i);
                 if (c < 256 && bytes[i] == '?' && c != '?') {
                     bytes[i] = (byte) c;
-                } else if (c >= 0xE000 && c < 0xE100 && bytes[i] == '?') { // Lossless: a byte whose character a lower byte has
-                    bytes[i] = (byte) (c - 0xE000);
                 }
             }
         }

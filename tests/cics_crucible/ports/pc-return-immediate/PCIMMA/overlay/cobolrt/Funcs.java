@@ -9,7 +9,6 @@ public final class Funcs {
     private Funcs() {
     }
 
-    // [rule RT-FUNC-CASE]
     public static String upperCase(String s) {
         return s.toUpperCase(Locale.ROOT);
     }
@@ -18,14 +17,12 @@ public final class Funcs {
         return s.toLowerCase(Locale.ROOT);
     }
 
-    // [rule RT-FUNC-REVERSE]
     public static String reverse(String s) {
         return new StringBuilder(s).reverse().toString();
     }
 
     /** FUNCTION TRIM: leading and trailing spaces removed -- spaces only (low-values stay), and an all-space
      *  argument gives a zero-length result (GnuCOBOL, checked: test_det_programs.py TRIMS). */
-    // [rule RT-FUNC-TRIM]
     public static String trim(String s) {
         return trimTrailing(trimLeading(s));
     }
@@ -49,7 +46,6 @@ public final class Funcs {
     }
 
     /** FUNCTION MOD: a - b * FLOOR(a / b); a zero b gives 0, no size error (the oracle, #4655). */
-    // [rule RT-FUNC-MOD-REM]
     public static BigDecimal mod(BigDecimal a, BigDecimal b) {
         if (b.signum() == 0) {
             return BigDecimal.ZERO;
@@ -67,7 +63,6 @@ public final class Funcs {
         return a.subtract(b.multiply(q));
     }
 
-    // [rule RT-FUNC-INTEGER-ABS-MIN-MAX]
     public static BigDecimal integer(BigDecimal a) {
         return a.setScale(0, RoundingMode.FLOOR);
     }
@@ -97,7 +92,6 @@ public final class Funcs {
     }
 
     /** FUNCTION NUMVAL: the number in a text (leading / trailing spaces, a sign + - CR DB, a decimal point). */
-    // [rule RT-FUNC-NUMVAL]
     public static BigDecimal numval(String s) {
         String t = s.strip().toUpperCase(Locale.ROOT);
         boolean neg = false;
@@ -118,7 +112,6 @@ public final class Funcs {
     }
 
     /** FUNCTION CURRENT-DATE where the project has no clock bean: YYYYMMDDHHMMSShh and the UTC offset. */
-    // [rule RT-FUNC-CURRENT-DATE]
     public static String currentDate(java.time.LocalDateTime now) {
         return now.format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMddHHmmss", java.util.Locale.ROOT))
                 + String.format(java.util.Locale.ROOT, "%02d", now.getNano() / 10_000_000) + "+0000";
@@ -148,7 +141,6 @@ public final class Funcs {
         }
 
         /** FUNCTION RANDOM(seed). */
-        // [rule RT-FUNC-RANDOM]
         public BigDecimal next(BigDecimal seed) {
             BigDecimal s = seed.stripTrailingZeros();
             if (s.signum() < 0 || s.scale() > 0 || s.compareTo(BigDecimal.valueOf(RAND_MAX)) > 0) {
@@ -197,7 +189,6 @@ public final class Funcs {
     private static final java.time.LocalDate DAY_ZERO = java.time.LocalDate.of(1600, 12, 31);
 
     /** FUNCTION INTEGER-OF-DATE: YYYYMMDD -> days since 31 December 1600 (1 January 1601 is day 1). */
-    // [rule RT-FUNC-DATE-INTEGER]
     public static BigDecimal integerOfDate(BigDecimal yyyymmdd) {
         int v = yyyymmdd.intValue();
         java.time.LocalDate d = java.time.LocalDate.of(v / 10000, v / 100 % 100, v % 100);
@@ -210,27 +201,9 @@ public final class Funcs {
         return BigDecimal.valueOf(d.getYear() * 10000L + d.getMonthValue() * 100L + d.getDayOfMonth());
     }
 
-    private static final java.time.LocalDate LILIAN_DAY_ZERO = java.time.LocalDate.of(1582, 10, 14);
-
-    /** INTEGER-OF-DATE under INTDATE(LILIAN) (#4706): day 1 is 15 October 1582, so the same date is 6653 higher than
-     *  under ANSI. */
-    // [rule RT-FUNC-DATE-INTEGER]
-    public static BigDecimal integerOfDateLilian(BigDecimal yyyymmdd) {
-        int v = yyyymmdd.intValue();
-        java.time.LocalDate d = java.time.LocalDate.of(v / 10000, v / 100 % 100, v % 100);
-        return BigDecimal.valueOf(java.time.temporal.ChronoUnit.DAYS.between(LILIAN_DAY_ZERO, d));
-    }
-
-    /** DATE-OF-INTEGER under INTDATE(LILIAN) (#4706): days since 14 October 1582 -> YYYYMMDD. */
-    public static BigDecimal dateOfIntegerLilian(BigDecimal days) {
-        java.time.LocalDate d = LILIAN_DAY_ZERO.plusDays(days.longValue());
-        return BigDecimal.valueOf(d.getYear() * 10000L + d.getMonthValue() * 100L + d.getDayOfMonth());
-    }
-
     /** FUNCTION TEST-NUMVAL: 0 when the argument is valid for NUMVAL, else the (1-based) position of the first
      *  character that makes it invalid -- the argument's length + 1 when it ends before a digit (GnuCOBOL,
      *  checked: one sign, leading or trailing; + - CR DB in upper case; nothing but spaces after a trailing one). */
-    // [rule RT-FUNC-TEST-NUMVAL]
     public static BigDecimal testNumval(String s) {
         return BigDecimal.valueOf(testNumval(s, false));
     }

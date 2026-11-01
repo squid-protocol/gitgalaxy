@@ -210,23 +210,6 @@ public final class Funcs {
         return BigDecimal.valueOf(d.getYear() * 10000L + d.getMonthValue() * 100L + d.getDayOfMonth());
     }
 
-    private static final java.time.LocalDate LILIAN_DAY_ZERO = java.time.LocalDate.of(1582, 10, 14);
-
-    /** INTEGER-OF-DATE under INTDATE(LILIAN) (#4706): day 1 is 15 October 1582, so the same date is 6653 higher than
-     *  under ANSI. */
-    // [rule RT-FUNC-DATE-INTEGER]
-    public static BigDecimal integerOfDateLilian(BigDecimal yyyymmdd) {
-        int v = yyyymmdd.intValue();
-        java.time.LocalDate d = java.time.LocalDate.of(v / 10000, v / 100 % 100, v % 100);
-        return BigDecimal.valueOf(java.time.temporal.ChronoUnit.DAYS.between(LILIAN_DAY_ZERO, d));
-    }
-
-    /** DATE-OF-INTEGER under INTDATE(LILIAN) (#4706): days since 14 October 1582 -> YYYYMMDD. */
-    public static BigDecimal dateOfIntegerLilian(BigDecimal days) {
-        java.time.LocalDate d = LILIAN_DAY_ZERO.plusDays(days.longValue());
-        return BigDecimal.valueOf(d.getYear() * 10000L + d.getMonthValue() * 100L + d.getDayOfMonth());
-    }
-
     /** FUNCTION TEST-NUMVAL: 0 when the argument is valid for NUMVAL, else the (1-based) position of the first
      *  character that makes it invalid -- the argument's length + 1 when it ends before a digit (GnuCOBOL,
      *  checked: one sign, leading or trailing; + - CR DB in upper case; nothing but spaces after a trailing one). */

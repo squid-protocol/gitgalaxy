@@ -23,7 +23,6 @@ final class Editing {
     /** As above; `rawDigits` (#4662), when not null, are the digit characters of the PICTURE's digit positions as the
      *  oracle gets them from a zoned item holding non-digits (cob_move_display_to_edited feeds the bytes as they
      *  are, suppressing only a '0'), `negative` the sign then. */
-    // [rule RT-EDIT-CURRENCY-SIGN] [rule RT-EDIT-FLOATING-INSERTION] [rule RT-EDIT-NONDIGIT-SENDER] [rule RT-EDIT-NUMERIC-EDITING]
     static String format(String pic, BigDecimal value, boolean decimalComma, String currency, String rawDigits,
                          boolean negative) {
         pic = expand(pic);
@@ -194,7 +193,6 @@ final class Editing {
     }
 
     /** {integer digit positions, decimal digit positions} of an edit PICTURE (floating insertion included). */
-    // [rule RT-EDIT-PICTURE-SHAPE]
     static int[] shape(String pic) {
         return shape(pic, false);
     }

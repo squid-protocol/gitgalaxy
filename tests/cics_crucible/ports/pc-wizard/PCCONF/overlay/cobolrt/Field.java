@@ -137,14 +137,8 @@ public final class Field {
         return st;
     }
 
-    /** The item's first byte in `storage().bytes`: its offset in the record, past the storage's window (#4771). */
     public int offset() {
-        return st.base + off;
-    }
-
-    /** As offset(): what the byte readers index with. */
-    int at() {
-        return st.base + off;
+        return off;
     }
 
     public int length() {
@@ -175,12 +169,12 @@ public final class Field {
     /** A copy of the item's bytes. */
     public byte[] raw() {
         byte[] b = new byte[len];
-        System.arraycopy(st.bytes, at(), b, 0, len);
+        System.arraycopy(st.bytes, off, b, 0, len);
         return b;
     }
 
     /** Overwrites the item's bytes (at most its length) with `b`. */
     public void putRaw(byte[] b) {
-        System.arraycopy(b, 0, st.bytes, at(), Math.min(b.length, len));
+        System.arraycopy(b, 0, st.bytes, off, Math.min(b.length, len));
     }
 }

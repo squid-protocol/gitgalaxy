@@ -54,7 +54,7 @@ final class Zoned {
     }
 
     private static int start(Field f) {
-        return f.signSeparate && f.signLeading ? f.at() + 1 : f.at();
+        return f.signSeparate && f.signLeading ? f.off + 1 : f.off;
     }
 
     private static int signAt(Field f) {
@@ -62,7 +62,7 @@ final class Zoned {
     }
 
     private static int sepAt(Field f) {
-        return f.signSeparate ? (f.signLeading ? f.at() : f.at() + f.digits) : -1;
+        return f.signSeparate ? (f.signLeading ? f.off : f.off + f.digits) : -1;
     }
 
     /** libcob's GET_SIGN on one sign byte: {digit char, 1 if negative}. `compare`: the comparison's reading, which
@@ -172,7 +172,7 @@ final class Zoned {
         refuseP(f);
         if (Codec.numprocPfd && !Codec.preferredSign(f, cs)) throw Codec.nonPreferredSign(f);
         int n = f.digits;
-        int first = f.st.bytes[f.at()] & 0xFF;
+        int first = f.st.bytes[f.off] & 0xFF;
         if (first == 0xFF || first == 0) {  // HIGH-VALUES / LOW-VALUES: 10^size, positive or negative
             return scaled(BigInteger.TEN.pow(n), first == 0, f.scale);
         }
@@ -278,6 +278,6 @@ final class Zoned {
             v[lead + j] = c < 0 || c == ' ' ? 0 : c - '0';
         }
         v[nibbles - 1] = !to.signed ? 0x0F : r.neg ? 0x0D : 0x0C;
-        for (int i = 0; i < to.len; i++) d[to.at() + i] = (byte) ((v[2 * i] * 16 + v[2 * i + 1]) & 0xFF);
+        for (int i = 0; i < to.len; i++) d[to.off + i] = (byte) ((v[2 * i] * 16 + v[2 * i + 1]) & 0xFF);
     }
 }

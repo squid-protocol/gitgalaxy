@@ -1,0 +1,65 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "CATWAD",
+  "program_source": "cases/commarea-mismatch/ca-address-twa-tctua/src/CATWAD.cbl",
+  "copy_dirs": [
+    "cases/commarea-mismatch/ca-address-twa-tctua/copy"
+  ],
+  "transid": "CA0H",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "termid": "T001",
+  "programs": [
+    {
+      "program": "CATWSB",
+      "program_source": "cases/commarea-mismatch/ca-address-twa-tctua/src/CATWSB.cbl"
+    }
+  ],
+  "notes": "cics-crucible commarea-mismatch / ca-address-twa-tctua (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): ADDRESS TWA and ADDRESS TCTUA. The TWA and TCTUA sizes are stated per scenario (twasize, userarealen; register X59, #5079). The crucible's two-task TCTUA scenario (S then R) is two single-step scenarios here: the harness does not carry a TCTUA across scenarios, so R reads a fresh area. Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "twa-sized",
+      "commarea": null,
+      "terminal": "CA0H W",
+      "twasize": 32,
+      "why": "TWASIZE 32: the caller stamps the TWA, the LINKed callee reads it and writes its reply through its own ADDRESS TWA"
+    },
+    {
+      "name": "twasize-zero",
+      "commarea": null,
+      "terminal": "CA0I Z",
+      "twasize": 0,
+      "why": "TWASIZE 0: ADDRESS TWA gives X'FF000000' (ABSENT)"
+    },
+    {
+      "name": "tctua-store",
+      "commarea": null,
+      "terminal": "CA0J S",
+      "userarealen": 16,
+      "why": "TYPETERM USERAREALEN 16: a stamp is written through ADDRESS TCTUA"
+    },
+    {
+      "name": "tctua-read",
+      "commarea": null,
+      "terminal": "CA0J R",
+      "userarealen": 16,
+      "why": "ADDRESS TCTUA read in a task of its own: the area is the terminal's own 16 bytes"
+    },
+    {
+      "name": "unknown-mode",
+      "terminal": "CA0H X",
+      "commarea": null,
+      "why": "mode X matches no WHEN: the EVALUATE falls through"
+    },
+    {
+      "name": "twasize-set",
+      "terminal": "CA0I Z",
+      "twasize": 32,
+      "commarea": null,
+      "why": "mode Z with a 32-byte TWA: ADDRESS TWA is a real address, so the PRESENT arm of the Z check"
+    }
+  ]
+}

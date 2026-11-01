@@ -760,6 +760,55 @@ def cases_to_rerun(ref: str) -> list[str]:
     return sorted(changed & set(load())) if changed else []
 
 
+def _at_ref(ref: str, path: Path) -> dict[str, Any] | None:
+    """The JSON file `path` as `ref` has it, or None (the file is new there, or git cannot say)."""
+    rel = path.relative_to(REPO).as_posix()
+    got = subprocess.run(["git", "show", f"{ref}:{rel}"], cwd=REPO, capture_output=True, text=True, check=False)  # noqa: S603, S607
+    return json.loads(got.stdout) if got.returncode == 0 else None
+
+
+def regressions(case: str, entry: dict[str, Any] | None, survivors: list[dict[str, Any]],
+                old_entry: dict[str, Any] | None, old_survivors: list[dict[str, Any]]) -> list[str]:  # fmt: skip
+    """What a change does to a case's ledgers that it must not. A narrower run than the one it replaces judges fewer
+    mutants under the same claim: an evidence refresh cut from an older commit wrote a sample over a full run. A new
+    `equivalent` / `unreachable` verdict with no `tried` came round `state`, which requires an attack."""
+    out = []
+    was, now = (old_entry or {}).get("chosen") or 0, (entry or {}).get("chosen") or 0
+    if entry and now < was:
+        out.append(f"{case}: this run judged {now} mutants and replaces one that judged {was}: merge main, or run "
+                   f"`det_mutation.py run {case} --sample 0`")  # fmt: skip
+    known = {(e.get("before"), e.get("after"), e.get("verdict")) for e in old_survivors}
+    bare = [e["id"] for e in survivors if e.get("verdict") in ACCOUNTED and not e.get("tried")
+            and (e.get("before"), e.get("after"), e.get("verdict")) not in known]  # fmt: skip
+    if bare:
+        out.append(f"{case}: {len(bare)} new verdicts with no attack on record, e.g. {', '.join(bare[:3])}: use "
+                   "`survivor_attack.py`, then `det_mutation.py state --attempts`")  # fmt: skip
+    return out
+
+
+def changed_ledgers(ref: str) -> set[str]:
+    """The cases whose ledger or survivor list differs from `ref`'s merge base (`changed_cases` leaves these out: a
+    ledger is an output there, and a change to one is what this guards)."""
+    base = subprocess.run(["git", "merge-base", ref, "HEAD"], cwd=REPO, capture_output=True, text=True, check=False)  # noqa: S603, S607
+    if base.returncode:
+        return set()
+    dirs = [(CASES / d).relative_to(REPO).as_posix() for d in sorted(LEDGER_DIRS)]
+    diff = subprocess.run(["git", "diff", "--name-only", base.stdout.strip(), "--", *dirs], cwd=REPO,  # noqa: S603, S607
+                          capture_output=True, text=True, check=False)  # fmt: skip
+    return {Path(f).stem for f in diff.stdout.split() if f.endswith(".json")}
+
+
+def ledger_regressions(ref: str, scope: set[str]) -> list[str]:
+    """`regressions` for the cases this branch changes against `ref`."""
+    out = []
+    ledger, survivors = load(), load_survivors()
+    for case in sorted(scope):
+        old = _at_ref(ref, LEDGER / f"{case}.json") or {}
+        old_s = _at_ref(ref, SURVIVORS / f"{case}.json") or {}
+        out += regressions(case, ledger.get(case), survivors.get(case, []), old.get("entry"), old_s.get("survivors", []))
+    return out
+
+
 def stale_check(ref: str | None = None) -> int:
     """Exit 1 when a ledger's case has an input that moved (cheap: fingerprints only, no translate). With `ref`, only
     the cases this PR changes: a case-strengthening PR re-runs its ledger in the same PR (#5862); drift main already
@@ -770,6 +819,10 @@ def stale_check(ref: str | None = None) -> int:
         print(f"det mutation: cannot diff against {ref}: checking every ledger")
     bad: list[str] = []
     drift: list[str] = []
+    if ref:
+        for problem in ledger_regressions(ref, changed_ledgers(ref)):
+            print(f"det mutation: {problem}")
+            bad.append(problem)
     for case in sorted(ledger):
         if scope is not None and case not in scope or not (CASES / case / "case.json").is_file():
             continue

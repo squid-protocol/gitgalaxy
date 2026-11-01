@@ -100,8 +100,8 @@
 #                               `PROGRAM=name` -> PROGRAM (or MAPSET with `USAGE(TRANSIENT)` when
 #                               `USAGE=MAP` is coded without a non-ASSEMBLER `PGMLANG=` [VSE p.372]);
 #                               `MAPSET=name` -> MAPSET; `PARTSET=name` -> PARTITIONSET ([VSE p.349,
-#                               p.372, ESA4 p.378]; `PARTITIONSET=` is accepted as an ASSUMED alias: no manual lists it as a
-#                               macro operand, kept so a deck spelling the RDO word still reads, pinned in the tests). `PGMLANG=`,
+#                               p.372, ESA4 p.378]; `PARTITIONSET=` is REFUSED by name: no manual lists it as a
+#                               macro operand (the RDO word, not a macro one), so it yields no row, pinned in the tests). `PGMLANG=`,
 #                               `RES=YES|NO`, `PGMSTAT=` restated as `LANGUAGE`, `RESIDENT`, `STATUS`.
 #   DFHDCT TYPE=INTRA|EXTRA|INDIRECT|REMOTE  DESTID=   TDQUEUE  (queue_type = the TYPE)
 #          INTRA:    TRANSID= -> transid; TRIGLEV= (default 1 when TRANSID= is coded) ->
@@ -376,7 +376,7 @@ def _ppt_rows(line: int, text: str, keyed: dict[str, str], table: str) -> list[d
 
     `PROGRAM=name` with `USAGE=MAP` (unless `PGMLANG` names a language other than ASSEMBLER) defines
     a MAPSET with `USAGE(TRANSIENT)` [VSE p.372]; `PARTSET=name` defines a PARTITIONSET [VSE p.349,
-    p.372, ESA4 p.378] (`PARTITIONSET=` is accepted as an ASSUMED alias: no manual lists it).
+    p.372, ESA4 p.378] (`PARTITIONSET=` is REFUSED by name: no manual lists it as a macro operand, so it yields no row).
     """
     usage_map = _name(keyed.get("USAGE")) == "MAP"
     lang = _name(keyed.get("PGMLANG"))
@@ -386,7 +386,6 @@ def _ppt_rows(line: int, text: str, keyed: dict[str, str], table: str) -> list[d
     for operand, rtype in (
         ("PROGRAM", "MAPSET" if usage_map and lang in (None, "ASSEMBLER") else "PROGRAM"),
         ("MAPSET", "MAPSET"),
-        ("PARTITIONSET", "PARTITIONSET"),
         ("PARTSET", "PARTITIONSET"),
     ):
         name = _name(keyed.get(operand))

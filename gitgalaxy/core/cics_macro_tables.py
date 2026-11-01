@@ -47,6 +47,17 @@
 #          `PROGRAM=name` with `USAGE=MAP` and no non-ASSEMBLER `PGMLANG=` -> MAPSET,
 #          with `USAGE(TRANSIENT)`; `MAPSET=name` -> MAPSET; `PARTSET=name` ->
 #          PARTITIONSET).
+#   [ESA4] CICS for MVS/ESA Resource Definition Guide, Version 4 Release 1, SC33-1166-02 (public.dhe.ibm.com
+#          .../os390/dfhla414.pdf; read for #5154). DFHDCT TYPE=SDSCI p.257-258 (Table 28:
+#          `RECFORM={FIXUNB|FIXUNBA|FIXUNBM|FIXBLK|FIXBLKA|FIXBLKM|VARBLK|VARBLKA|VARBLKM|VARUNB|VARUNBA|VARUNBM}`,
+#          twelve words, no UNDEFINED; `DSCNAME=` is the ddname; no DSNAME operand). Appendix C "Keyword
+#          cross-reference tables" p.377-381, "Macro operand to RDO keyword": `PARTSET` -> PARTITIONSET (Partitionset
+#          and Transaction, p.378), `PGMSTAT` -> STATUS (Mapset / Partitionset / Program, p.378), `PROGRAM` ->
+#          Program / Transaction, `MAPSET` -> Mapset (p.378), `RMTNAME` -> REMOTENAME and `SYSIDNT` ->
+#          REMOTESYSTEM (Transaction, p.379), `TRANSID` -> TRANSACTION (p.379), `TRNPRTY` -> PRIORITY and
+#          `TWASIZE` -> TWASIZE (p.380), `DTB=YES|YES,NO|YES,WAIT` -> INDOUBT(BACKOUT|COMMIT|WAIT) (p.377), and
+#          note 4 (p.380): `DTB=NO` has no RDO equivalent. The manual lists the operand `PARTSET=` only: no
+#          `PARTITIONSET=` macro operand appears in the table.
 #   [SPRM] CICS/VS System Programmer's Reference Manual, SH20-1043-6 (Seventh Edition,
 #          March 1975): DFHDCT p.86-103 (`TYPE=SDSCI` `RECFORM=FIXUNB|FIXBLK|VARUNB|VARBLK`
 #          with optional `A`/`M`, p.95-96), DFHPCT p.104-107 (`TYPE=INITIAL|ENTRY|FINAL`,
@@ -80,13 +91,17 @@
 #   DFHFCT TYPE=REMOTE,FILE=    FILE     KEYLEN=, LRECL=; SYSIDNT= / RMTNAME= -> REMOTESYSTEM /
 #                               REMOTENAME in `attributes` [RDG p.532-533]
 #   DFHPCT TYPE=ENTRY           TRANSACTION  TRANSID=, PROGRAM=; RDO attribute restatements from
-#                               [SPRM p.104-106] and [VSE p.347-351, p.365-368] (PRIORITY,
-#                               REMOTESYSTEM, REMOTENAME, PARTITIONSET, INDOUBT)
+#                               [SPRM p.104-106], [VSE p.347-351, p.365-368] and [ESA4 p.377-380]
+#                               (TRNPRTY -> PRIORITY, SYSIDNT -> REMOTESYSTEM, RMTNAME -> REMOTENAME,
+#                               PARTSET -> PARTITIONSET, DTB -> INDOUBT). `DTB=NO` has no RDO attribute
+#                               [ESA4 note 4, p.380]: no restatement, REFUSED by name. A DTB value outside
+#                               {YES, YES,NO, YES,WAIT} is likewise not restated.
 #   DFHPPT TYPE=ENTRY           PROGRAM | MAPSET | PARTITIONSET [SPRM p.108-109, VSE p.348-350, p.372]
 #                               `PROGRAM=name` -> PROGRAM (or MAPSET with `USAGE(TRANSIENT)` when
 #                               `USAGE=MAP` is coded without a non-ASSEMBLER `PGMLANG=` [VSE p.372]);
 #                               `MAPSET=name` -> MAPSET; `PARTSET=name` -> PARTITIONSET ([VSE p.349,
-#                               p.372]; `PARTITIONSET=` is accepted as an ASSUMED alias). `PGMLANG=`,
+#                               p.372, ESA4 p.378]; `PARTITIONSET=` is accepted as an ASSUMED alias: no manual lists it as a
+#                               macro operand, kept so a deck spelling the RDO word still reads, pinned in the tests). `PGMLANG=`,
 #                               `RES=YES|NO`, `PGMSTAT=` restated as `LANGUAGE`, `RESIDENT`, `STATUS`.
 #   DFHDCT TYPE=INTRA|EXTRA|INDIRECT|REMOTE  DESTID=   TDQUEUE  (queue_type = the TYPE)
 #          INTRA:    TRANSID= -> transid; TRIGLEV= (default 1 when TRANSID= is coded) ->
@@ -103,8 +118,10 @@
 #            (the CSD TDQUEUE RECORDFORMAT spelling), BLOCKFORMAT BLOCKED / UNBLOCKED and
 #            PRINTCONTROL ASA / MACHINE in `attributes` [RDG p.534 note 7]; RECSIZE= ->
 #            record_size. SDSCI has NO DSNAME operand: the dataset is the JCL DD named
-#            DSCNAME, so dsname is never lifted here. RECFORM=UNDEFINED is outside both
-#            [RDG p.376] and [SPRM p.95-96]: record_format None, text kept.
+#            DSCNAME, so dsname is never lifted here. RECFORM=UNDEFINED is outside all three
+#            [RDG p.376, SPRM p.95-96, ESA4 p.257-258 Table 28: twelve words, UNDEFINED not
+#            among them; UNDEFINED is an FCT RECFORM word, RDG p.392]: REFUSED, record_format
+#            None, text kept as `RECFORM(UNDEFINED)`.
 #   DFHTST TYPE=RECOVERY|ENTRY|LOCAL|REMOTE|SECURITY  DATAID=  TSMODEL  (name = the prefix,
 #          RDO PREFIX [RDG p.531]); one row per DATAID string. TYPE=ENTRY is "retained for
 #          compatibility ... exactly the same as TYPE=RECOVERY" [RDG p.484]. RECOVERY(YES) /
@@ -242,7 +259,7 @@ def sdsci_recform(value: str | None) -> tuple[str | None, str | None, str | None
 
     FIXUNB / FIXBLK / VARUNB / VARBLK, each optionally suffixed A (ASA control
     characters) or M (machine). A word outside that set -- UNDEFINED included -- maps to
-    all None: nothing is claimed for it.
+    all None: nothing is claimed for it. The manual set is the twelve words of [ESA4 p.257-258 Table 28].
     """
     word = (value or "").strip().strip("()'\"").upper()
     base, suffix = word[:6], word[6:]
@@ -341,7 +358,7 @@ def _dct_row(line: int, text: str, keyed: dict[str, str], kind: str, table: str,
 
 
 def _pct_rdo(keyed: dict[str, str]) -> list[str]:
-    """DFHPCT TYPE=ENTRY operands spelled differently in RDO -> their RDO attribute restatement [VSE p.347-351, p.367]."""
+    """DFHPCT TYPE=ENTRY operands spelled differently in RDO -> their RDO attribute restatement [VSE p.347-351, p.367, ESA4 p.377-380]."""
     rdo: list[str] = []
     if (prio := _int(keyed.get("TRNPRTY"))) is not None and 0 <= prio <= 255:
         rdo.append(f"PRIORITY({prio})")
@@ -359,7 +376,7 @@ def _ppt_rows(line: int, text: str, keyed: dict[str, str], table: str) -> list[d
 
     `PROGRAM=name` with `USAGE=MAP` (unless `PGMLANG` names a language other than ASSEMBLER) defines
     a MAPSET with `USAGE(TRANSIENT)` [VSE p.372]; `PARTSET=name` defines a PARTITIONSET [VSE p.349,
-    p.372] (`PARTITIONSET=` is accepted as an ASSUMED alias).
+    p.372, ESA4 p.378] (`PARTITIONSET=` is accepted as an ASSUMED alias: no manual lists it).
     """
     usage_map = _name(keyed.get("USAGE")) == "MAP"
     lang = _name(keyed.get("PGMLANG"))

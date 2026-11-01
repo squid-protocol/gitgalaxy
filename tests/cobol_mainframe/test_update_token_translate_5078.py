@@ -62,7 +62,7 @@ def test_unlock_without_a_token_releases_the_files_hold_on_the_stub_and_the_det_
     ul = ec.translate_command("UNLOCK DATASET('F')")
     assert ul[:3] == ["MOVE 'F' TO GG-NAME1", "MOVE SPACES TO GG-FLAGS", "CALL 'GGCUNLK' USING GG-CICS"]
     for text in ("UNLOCK FILE('KSDS') RESP(R)", "UNLOCK DATASET('KSDS')"):
-        assert any("task.unlockHeld('KSDS'.stripTrailing())" in x for x in _LenCics().command(text, ""))
+        assert any("task.unlock('KSDS'.stripTrailing())" in x for x in _LenCics().command(text, ""))
 
 
 @pytest.mark.parametrize(

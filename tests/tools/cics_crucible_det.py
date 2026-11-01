@@ -45,6 +45,7 @@ PROGRAMS = {
         ("CALDST", "CALDSX", "CALDTG"),
     ),  # #6876: LOAD / RELEASE; CALDTG (never run) is a CICS program through the LOAD edge, see X65
     "ca-receive-retrieve-set": ("CARR", ("CARCST", "CARTWK")),  # #6876: RECEIVE SET / RETRIEVE SET into a pointer
+    "hc-file-read-set": ("HCRS", ("HCRDST",)),  # #6876: READ / STARTBR / READNEXT / READPREV SET(ADDRESS OF record)
 }
 
 

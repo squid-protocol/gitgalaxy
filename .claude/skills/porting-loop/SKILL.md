@@ -92,7 +92,8 @@ errors), not to smuggle in a specific answer.
 
 `tests/tools/mutation.py run <case> --work DIR [--sample N] [--jobs 3]` breaks the proven port one small change at
 a time and re-proves each mutant (fast mode: `--reuse` + `--first-difference`, validated 386/386 against
-`--full`). Read `docs/language_status/mutation_testing.md` first. Triage every survivor:
+`--full`). Read `docs/language_status/mutation_testing.md` first. Attack each survivor before excusing it (the
+`survivor-attack` skill, det ports), then triage it:
 
 - **case gap**: add data, a scenario or a fault (the COBOL decides the expected result);
 - **harness gap**: the comparison doesn't look there (screen attributes #4053, SYSOUT #4056);

@@ -23,6 +23,12 @@
       "terminal": "EE02 R",
       "why": "HANDLE CONDITION ERROR and EOC: EOC's own label",
       "transid": "EE02"
+    },
+    {
+      "name": "length-error",
+      "commarea": null,
+      "terminal": "EE01 ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+      "why": "an input longer than the program's 20-byte LENGTH: LENGERR (22), whose default action is an abend, so HANDLE CONDITION ERROR takes GOT-ERROR (no crucible scenario reaches it)"
     }
   ]
 }

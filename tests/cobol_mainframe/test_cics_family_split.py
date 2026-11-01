@@ -802,3 +802,9 @@ def test_every_harness_family_is_an_input_of_the_evidence_and_the_trial():
     families = {p.name for p in (ROOT / "tests" / "tools").glob("equivalence_cics_*.py")}
     for inputs in (evidence.HARNESS, trial.HARNESS_PATHS):
         assert families <= {Path(p).name for p in inputs}
+
+
+def test_a_harness_family_edit_triggers_the_cics_crucible():
+    """A slice now edits a family module alone: a filter naming only the host would skip the crucible gate for it."""
+    workflow = (ROOT / ".github" / "workflows" / "cics-crucible.yml").read_text(encoding="utf-8")
+    assert '- "tests/tools/equivalence_cics*.py"' in workflow

@@ -633,6 +633,14 @@ _IBM_OPTIONS = {
     "WRITE": "FILE DATASET MASSINSERT FROM RIDFLD KEYLENGTH SYSID LENGTH RBA RRN XRBA NOSUSPEND",
     "REWRITE": "FILE DATASET TOKEN FROM SYSID LENGTH NOSUSPEND",
     "DELETE": "FILE DATASET TOKEN RIDFLD KEYLENGTH GENERIC NUMREC SYSID RBA RRN XRBA NOSUSPEND",
+    # #5079: UNLOCK and the queue commands (IBM: UNLOCK FILE/DATASET TOKEN SYSID; the TD and TS queue commands)
+    "UNLOCK": "FILE DATASET TOKEN SYSID",
+    "READQ TD": "QUEUE INTO SET LENGTH SYSID NOSUSPEND",
+    "WRITEQ TD": "QUEUE FROM LENGTH SYSID",
+    "DELETEQ TD": "QUEUE SYSID",
+    "READQ TS": "QUEUE QNAME INTO SET LENGTH NUMITEMS ITEM NEXT SYSID",
+    "WRITEQ TS": "QUEUE QNAME FROM LENGTH NUMITEMS ITEM REWRITE AUXILIARY MAIN SYSID NOSUSPEND",
+    "DELETEQ TS": "QUEUE QNAME SYSID",
     "ASSIGN": "ABCODE APPLID INVOKINGPROG PROGRAM SYSID USERID NETNAME OPID TERMCODE STARTCODE TWALENG CWALENG "
     "CHANNEL FACILITY FCI SCRNHT SCRNWD DEFSCRNHT DEFSCRNWD ALTSCRNHT ALTSCRNWD TCTUALENG TASKPRIORITY RETURNPROG "
     "PRINSYSID OPCLASS OPSECURITY USERNAME QNAME OPERKEYS",
@@ -1206,7 +1214,10 @@ def test_eoc_is_ignored_by_default_and_handled_like_any_condition():
     # DetCics.condition / resp delegate to the generated CicsSpec (#4270 spec PR 4)
     rt = (Path(C.__file__).parent / "cobolrt/cics/DetCics.java").read_text(encoding="utf-8") + CICS_SPEC_JAVA
     assert 'case 6 -> "EOC";' in rt and 'case "EOC" -> 6;' in rt
-    assert re.search(r'ignoredByDefault\(String condition\) \{\s*return "EOC"\.equals\(condition\) \|\| "EXPIRED"\.equals\(condition\);', rt)
+    assert re.search(
+        r'ignoredByDefault\(String condition\) \{\s*return "EOC"\.equals\(condition\) \|\| "EXPIRED"\.equals\(condition\);',
+        rt,
+    )
 
 
 def test_a_terminal_only_cics_program_translates_whole_and_imports_only_packages_that_exist(tmp_path):

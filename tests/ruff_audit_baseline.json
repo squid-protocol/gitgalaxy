@@ -62,7 +62,6 @@
   "gitgalaxy/tools/cobol_to_java/cobol_to_java_transaction_forge.py: ISC004 @12ecd7ae7758#0": "Unparenthesized implicit string concatenation in collection",
   "gitgalaxy/tools/cobol_to_java/cobol_to_java_transaction_forge.py: ISC004 @860198c8c6fe#0": "Unparenthesized implicit string concatenation in collection",
   "gitgalaxy/tools/cobol_to_java/cobol_to_java_transaction_forge.py: ISC004 @d568546ac8c0#0": "Unparenthesized implicit string concatenation in collection",
-  "gitgalaxy/tools/cobol_to_java/det/cics.py: ISC004 @14fc56a6a8c3#0": "Unparenthesized implicit string concatenation in collection",
   "gitgalaxy/tools/cobol_to_java/det/cics_filecontrol.py: ISC004 @63b4ef900fb1#0": "Unparenthesized implicit string concatenation in collection",
   "gitgalaxy/tools/cobol_to_java/det/cics_filecontrol.py: ISC004 @f3a44a25b11c#0": "Unparenthesized implicit string concatenation in collection",
   "gitgalaxy/tools/cobol_to_java/det/cics_filecontrol.py: ISC004 @faa281b2982c#0": "Unparenthesized implicit string concatenation in collection",

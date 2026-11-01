@@ -3003,6 +3003,9 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
 - **Proof.** cics-crucible `hc-map-not-in-mapset` (hand-traced; `in-mapset`, `omitted-mapset`, `receive`, `exit`): the
   cobol-stub and the det port (java-ported) agree with the log; unit tests on both runtimes
   (`test_det_cics_map_names_4270.py`, `test_equivalence_cics.py`).
+- **Refused options (#5079).** SEND MAP ACCUM / PAGING (a BMS logical message kept back until SEND PAGE) and NLEOM / FORMFEED
+  (printer only) are refused by name, as SEND TEXT refuses them (X20); IBM's SEND PAGE and PURGE MESSAGE pages and the reasons are
+  in X59. PRINT, LAST, WAIT and TERMINAL stay flags.
 
 ### X32. INQUIRE URIMAP's browse, WRITE OPERATOR — ASSUMED, REFUSED where IBM is silent (#4270, zECS ZECSPLT)
 - **INQUIRE URIMAP** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=commands-inquire-urimap; "Browsing resource definitions",
@@ -4452,6 +4455,13 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
     INVPARTN, INVPARTNSET, PARTNFAIL). The region has one unpartitioned 3270 display and no other terminal to route to, and SEND MAP / SEND TEXT
     refuse the logical message ROUTE would address, so each is refused by name (#5079). They moved here from the X65 class entry; no burned estate
     program issues any of them, and the owner (2026-10-14) wants no crucible case for the BMS paging family.
+  - **SEND MAP ACCUM / PAGING / NLEOM / FORMFEED** (#5079 audit). ACCUM and PAGING make SEND MAP build a BMS logical message, which IBM
+    keeps back until SEND PAGE; NLEOM and FORMFEED are printer-only. SEND MAP used to pass all four on as plain flags and put the
+    map on the screen at once, so a program that ACCUMulated then SEND PAGEd translated with a hole only at SEND PAGE and ran with
+    a wrong screen before it. They are now refused by name on SEND MAP as on SEND TEXT (X20), with this entry's reason; PRINT, LAST,
+    WAIT and TERMINAL stay flags. No burned estate issues any of them (2026-11-01: a grep of the six burned estates finds no
+    ACCUM, SEND PAGE, ROUTE or ADDRESS ACEE; CardDemo COTRTLIC's only hit is the word PAGING in a variable name).
+    Pinned in tests/cobol_mainframe/test_old_style_sweep_5079.py, which also walks every #5079 member (modelled or refused, register entry).
   - **CONVERSE** (terminal), **POST** and **WAIT EVENT** were refused here by #5185; they are modelled by X63 (#5079), which carries their IBM pages.
     WAIT EXTERNAL and WAITCICS stay name-only (X63).
 - **A PIC X(4) byte view of the pointer (#6876).** A `PIC X(4)` item that a plain POINTER shares (either one REDEFINES the other) may be

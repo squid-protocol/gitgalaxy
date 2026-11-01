@@ -865,3 +865,102 @@ def test_a_rerun_clause_adds_one_unscored_check_beside_the_scored_select():
     assert [c.status for c in sc.checks] == ["pass", "unscored"]
     assert "RERUN SYSCKPT" in sc.checks[1].fact and "RERUN" in sc.checks[1].detail
     assert [c.status for c in _fc(_fc_key(), _fc_row()).checks] == ["pass"]
+
+
+# ---- #7065: the JCL key fields #7449 listed as uncompared (job, utility, symbolic, added, rerun every)
+
+
+def _st(flow, channel, **entry):
+    """Statuses of the keyed facts of one channel (a phantom row of the other scorer is not under test)."""
+    return [c.status for c in _jcl(flow, **entry).checks if c.channel == channel and c.status != "phantom"]
+
+
+def _job_row(name="J1"):
+    return _row("JOB", name=name, line=1)
+
+
+@pytest.mark.parametrize("engine_job,status", [("J1", "pass"), ("OTHER", "fail")])
+def test_a_step_and_a_dd_are_compared_on_the_job_they_belong_to(engine_job, status):
+    flow = [_job_row(engine_job), _step_row(), _dd_row()]
+    assert _st(flow, "jcl_steps", jcl_steps=[_step_key(job="J1")]) == [status]
+    assert _st(flow, "jcl_dds", jcl_dds=[_dd_key(job="J1")]) == [status]
+
+
+def test_a_row_in_a_proc_has_no_job_and_a_row_before_any_job_row_fails_a_keyed_job():
+    flow = [_job_row(), _step_row(in_proc="P1"), _dd_row(in_proc="P1")]
+    assert _st(flow, "jcl_steps", jcl_steps=[_step_key(job=None, proc="P1")]) == ["pass"]
+    assert _st(flow, "jcl_dds", jcl_dds=[_dd_key(job=None, proc="P1")]) == ["pass"]
+    assert _st([_step_row()], "jcl_steps", jcl_steps=[_step_key(job="J1")]) == ["fail"]
+
+
+def test_the_second_job_of_a_file_owns_the_rows_after_its_job_row():
+    flow = [_job_row("J1"), _step_row(), _job_row("J2"), _dd_row()]
+    assert _st(flow, "jcl_dds", jcl_dds=[_dd_key(job="J2")]) == ["pass"]
+    assert _st(flow, "jcl_dds", jcl_dds=[_dd_key(job="J1")]) == ["fail"]
+
+
+@pytest.mark.parametrize(
+    "dsn,symbolic,status",
+    [
+        ("&HLQ..X", True, "pass"),
+        ("&&T", False, "pass"),
+        ("A.B", False, "pass"),
+        ("&&T", True, "fail"),
+        ("&HLQ..X", False, "fail"),
+    ],
+)
+def test_a_symbolic_dsn_is_one_single_ampersand_never_a_temporary_dataset(dsn, symbolic, status):
+    key = [dict(_dd_key(symbolic=symbolic), dsn=dsn)]
+    assert _jcl([_dd_row(dsn=dsn)], jcl_dds=key).checks[0].status == status
+
+
+def test_a_key_without_symbolic_or_job_scores_a_dd_as_before():
+    assert _jcl([_dd_row(dsn="&HLQ..X")], jcl_dds=[dict(_dd_key(), dsn="&HLQ..X")]).checks[0].status == "pass"
+
+
+@pytest.mark.parametrize("extra", [dict(), dict(sysout="B"), dict(dummy=True)])
+def test_an_added_dd_is_unscored_with_a_reason_whatever_kind_of_dd_it_is(extra):
+    key = [dict(_dd_key(added=True, override_of="STEP1"), **extra)]
+    cs = _jcl([_dd_row(step_name="STEP1")], jcl_dds=key).checks if not extra else _jcl([], jcl_dds=key).checks
+    assert any(c.status == "unscored" and "added to STEP1" in c.detail and "override" in c.detail for c in cs)
+
+
+@pytest.mark.parametrize("program,status", [("IDCAMS", "pass"), ("SORT", "fail")])
+def test_a_card_is_compared_on_the_utility_its_step_runs(program, status):
+    row = _row("INSTREAM", step_name="S1", dd_name="SYSIN", line=10, instream=_BODY)
+    flow = [_row("STEP", step_name="S1", step_ordinal=1, program=program, line=9), row]
+    assert _st(flow, "jcl_utility_cards", jcl_utility_cards=[_card("DELETE", "PROD.X CLUSTER PURGE", 11)]) == [status]
+
+
+def test_a_card_in_a_proc_step_looks_up_the_step_of_that_proc():
+    row = _row("INSTREAM", step_name="S1", dd_name="SYSIN", line=10, instream=_BODY, in_proc="P1")
+    flow = [
+        _row("STEP", step_name="S1", step_ordinal=1, program="SORT", line=3),
+        _row("STEP", step_name="S1", step_ordinal=1, program="IDCAMS", line=9, in_proc="P1"),
+        row,
+    ]
+    card = dict(_card("DELETE", "PROD.X CLUSTER PURGE", 11), proc="P1")
+    assert _st(flow, "jcl_utility_cards", jcl_utility_cards=[card]) == ["pass"]
+
+
+def test_a_rerun_every_count_is_named_in_the_unscored_file_control_check():
+    from types import SimpleNamespace as NS
+
+    row = NS(
+        select_name="F", assign="A", organization=None, access_mode=None, record_key=None, file_status=None,
+        fd_copies=[], line=3, relative_key=None, alternate_keys=[],
+    )  # fmt: skip
+    eng = FakeEngine(files={"p.cbl": NS(file_control=[row])})
+    key = dict(
+        select="F",
+        assign="A",
+        organization=None,
+        file_status=None,
+        fd_copies=[],
+        line=3,
+        rerun=dict(assign="CK", every=1000),
+    )
+    sc = ec.Score()
+    ec.score_file_control(sc, "p.cbl", dict(language="cobol", file_control=[key]), eng)
+    c = [c for c in sc.checks if c.status == "unscored"][0]
+    assert "1000" in c.detail

@@ -229,6 +229,9 @@ _NAME_ONLY: tuple[tuple[str, str | None, str], ...] = (
 _REGISTER = {
     "SEND PAGE": "X59",
     "PURGE MESSAGE": "X59",
+    "ROUTE": "X59",
+    "SEND PARTNSET": "X59",
+    "RECEIVE PARTN": "X59",
     "DUMP TRANSACTION": "X46",
 }
 

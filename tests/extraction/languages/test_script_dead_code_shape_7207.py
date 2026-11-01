@@ -1,4 +1,4 @@
-"""#7207 slices 4-10: python / shell / ruby / perl / php / lua / abap / ada / apex / dart / embedded_python / fsharp / groovy / scala / powershell / tcl / rexx / matlab / assembly / fortran / haskell / livecode dead_code counts a keyword-led comment only when it has a statement's shape."""
+"""#7207 slices 4-11: python / shell / ruby / perl / php / lua / abap / ada / apex / dart / embedded_python / fsharp / groovy / scala / powershell / tcl / rexx / matlab / assembly / fortran / haskell / livecode / objective-c / solidity / zig / zscript dead_code counts a keyword-led comment only when it has a statement's shape."""
 
 import pytest
 
@@ -236,6 +236,44 @@ POSITIVES = {
         '-- set the visible of btn "x" to false',
         "# try",
     ],
+    "objective-c": [
+        "// if (x) {",
+        '// NSLog(@"x");',
+        "// [self run];",
+        "// - (void)run",
+        "// @interface Foo : NSObject",
+        "// @implementation Foo",
+        "/* if (a > 1) */",
+        "// if (ok) return;",
+    ],
+    "solidity": [
+        "// function f(uint a) public {",
+        "// require(x > 0);",
+        "// uint256 x = 1;",
+        "// address owner;",
+        "// contract A is B",
+        "// if (a) {",
+        "// function f() external view returns (uint);",
+    ],
+    "zig": [
+        "// pub fn main() void {",
+        "// const x = 1;",
+        "// var i: usize = 0;",
+        "// try foo();",
+        "// if (x) {",
+        "// for (xs) |x| {",
+        "// while (true) {",
+        "// catch unreachable;",
+    ],
+    "zscript": [
+        "// if (x) {",
+        "// return x;",
+        "// virtual void Tick()",
+        "// class Foo : Actor",
+        "// A_Chase();",
+        "// override void PostBeginPlay()",
+        "// while (i < 3) {",
+    ],
 }
 
 NEGATIVES = {
@@ -456,6 +494,42 @@ NEGATIVES = {
         "-- if the file is missing then we stop",
         "-- put the result into the cache",
     ],
+    "objective-c": [
+        "// if the user cancels, we retry",
+        "// [see above] for details",
+        "// [1] the spec",
+        "// - (see below)",
+        "// @interface is declared in the header",
+        "// NSLog is slow",
+        "// @implementation notes",
+    ],
+    "solidity": [
+        "// function names are lowercase",
+        "// contract terms apply",
+        "// if the call fails, we revert",
+        "// require a nonzero value",
+        "// address the issue later",
+        "// uint is unsigned",
+    ],
+    "zig": [
+        "// for each item in the list",
+        "// try again later",
+        "// const values are folded",
+        "// var names are short",
+        "// pub is exported",
+        "// if the file is missing we stop",
+        "// while waiting for input",
+        "// catch the error here",
+    ],
+    "zscript": [
+        "// if the user cancels, we retry",
+        "// return value is ignored",
+        "// class of the monster",
+        "// for each item in the list",
+        "// while waiting for input",
+        "// virtual methods are slow",
+        "// override the default",
+    ],
 }
 
 
@@ -475,6 +549,10 @@ MARKER = {
     "fortran": "!",
     "haskell": "--",
     "livecode": "--",
+    "objective-c": "//",
+    "solidity": "//",
+    "zig": "//",
+    "zscript": "//",
 }
 
 

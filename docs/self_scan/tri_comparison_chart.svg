@@ -197,13 +197,13 @@
 <text class="bar-value-label" x="726.0" y="463">1712</text>
 <text class="lang-label" x="20" y="495.5">cobol</text>
 <rect class="bar-track" x="154" y="475" width="88" height="34" rx="2"/>
-<rect x="154" y="475" width="64.8" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="198.0" y="483">9825</text>
+<rect x="154" y="475" width="65.1" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="198.0" y="483">9875</text>
 <rect x="154" y="487" width="88.0" height="10" rx="2" fill="#1baf7a"/>
 <text class="bar-value-label" x="198.0" y="495">13346</text>
 <rect class="bar-track" x="286" y="475" width="88" height="34" rx="2"/>
 <rect x="286" y="475" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="330.0" y="483">9825/9825</text>
+<text class="bar-value-label" x="330.0" y="483">9875/9875</text>
 <rect x="286" y="487" width="64.7" height="10" rx="2" fill="#1baf7a"/>
 <text class="bar-value-label" x="330.0" y="495">9812/13346</text>
 <circle cx="390.0" cy="492.0" r="8" fill="#2a78d6"/>
@@ -222,7 +222,7 @@
 <text class="badge-label" x="654.0" y="495.0">G</text>
 <rect class="bar-track" x="682" y="475" width="88" height="34" rx="2"/>
 <rect x="682" y="475" width="88" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="726.0" y="483">0†</text>
+<text class="bar-value-label" x="726.0" y="483">9†</text>
 <rect class="stripe" x="16" y="514" width="780" height="44"/>
 <text class="lang-label" x="20" y="539.5">cpp</text>
 <rect class="bar-track" x="154" y="519" width="88" height="34" rx="2"/>

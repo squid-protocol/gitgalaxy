@@ -171,6 +171,7 @@ POSITIVES = {
         "-- call setup",
         "/* call setup(a) */",
         "-- call setup 'abc'",
+        "/* call old_probe 1 */",
         "-- if x = 1 then",
         "/* do while i < 3 */",
         "-- execio * diskr indd (stem lines.",

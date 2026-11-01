@@ -313,7 +313,7 @@ DEFINITION: dict[str, Any] = {
         # in comment prose.
         "dead_code": re.compile(
             r"(?:/\*|--)[ \t]*(?:CALL[ \t]+" + _NAME + r"{1,64}[ \t]*(?:[(,;]|(?:\*/)?[ \t]*$)"
-            r"|CALL[ \t]+" + _NAME + r"{1,64}[ \t]+['\"]"
+            r"|CALL[ \t]+" + _NAME + r"{1,64}[ \t]+['\"\d]"
             r"|IF[ \t][^\n]{0,120}?[=<>\\(][^\n]{0,120}?"
             + _L
             + r"THEN"

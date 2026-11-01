@@ -1,0 +1,53 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "PCIMMA",
+  "program_source": "cases/pseudo-conversational/pc-return-immediate/src/PCIMMA.cbl",
+  "copy_dirs": [
+    "cases/pseudo-conversational/pc-return-immediate/copy"
+  ],
+  "transid": "PC51",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "notes": "cics-crucible pseudo-conversational / pc-return-immediate (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): PCIMMA's four modes (RETURN IMMEDIATE, LINK with and without a COMMAREA, START) and the PCIMML it links. Each scenario is one task. The case is entered as a LINKed program (linked: true), as the pc-return-channel case is. The oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "link-commarea",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "why": "mode L: LINK PCIMML with a COMMAREA and SYNCONRETURN; PCIMML rewrites the text",
+      "terminal": "PC51 L"
+    },
+    {
+      "name": "link-no-commarea",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "why": "mode N: LINK PCIMML with none; its RETURN IMMEDIATE is below the highest logical level",
+      "terminal": "PC51 N"
+    },
+    {
+      "name": "start",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "why": "mode S: START PC54 INTERVAL(0), a task with no terminal",
+      "terminal": "PC51 S"
+    },
+    {
+      "name": "no-mode",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "why": "a mode no WHEN names: RETURN",
+      "terminal": "PC51 X"
+    }
+  ],
+  "termid": "T001",
+  "programs": [
+    {
+      "program": "PCIMML",
+      "program_source": "cases/pseudo-conversational/pc-return-immediate/src/PCIMML.cbl"
+    }
+  ],
+  "linked": true
+}

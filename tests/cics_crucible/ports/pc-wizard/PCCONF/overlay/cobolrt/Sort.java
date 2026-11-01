@@ -5,6 +5,7 @@ import java.nio.charset.CharsetEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.IdentityHashMap;
 import java.util.List;
 
 /**
@@ -27,6 +28,13 @@ import java.util.List;
  * differ stop the run by name ({@link NotModelled}); equal records are indistinguishable, so their order is not.</li>
  * <li>MERGE: records with equal keys come out in the order of the USING files. IBM's result is predictable only when
  * each input is already in key order: an input out of order stops the run by name.</li>
+ * <li>Records of different lengths (an SD with 01 records of unequal size): a RELEASE passes the record named, so
+ * its length is that record's; the sort's `length` is the longest. The bytes of the record area past a shorter
+ * record's length are undefined in IBM and are kept as GnuCOBOL keeps them (the whole area goes in and comes out);
+ * a RETURN INTO moves only the record's own bytes, space-padded, as IBM moves the record just read. The keys lie
+ * within the shortest record (the translator checks). A fixed USING file's records go in at the file's length (between
+ * the shortest and the longest); a GIVING file receives the records only when they are all its length: IBM writes
+ * each at its own length, the oracle the file's fixed record, so a mixed run stops by name.</li>
  * </ul>
  */
 public final class Sort {
@@ -261,8 +269,11 @@ public final class Sort {
     private final Field[] leftKeys;
     private final Field[] rightKeys;
     private final List<List<byte[]>> inputs = new ArrayList<>();
+    /** Each record's own length, by record (identity): the record named by its RELEASE, or the USING file's. */
+    private final IdentityHashMap<byte[], Integer> lengths = new IdentityHashMap<>();
     private List<byte[]> sorted;
     private int next;
+    private int lastLength;
 
     /**
      * @param name the SD file's name (for the refusals' messages)
@@ -293,21 +304,59 @@ public final class Sort {
         inputs.add(new ArrayList<>());
     }
 
-    /** RELEASE: a copy of the SD record area's bytes (`record` is the SD record), into the sort. */
+    /**
+     * The SORT-RETURN special register (S9(4) BINARY). IBM: moving 16 to it in an input or output procedure ends
+     * the sort at the next RELEASE or RETURN, and a successful sort leaves it 0. GnuCOBOL (measured, 3.x) ignores
+     * the 16, runs the sort to the end and leaves whatever value the program put there. Where the two differ the
+     * run stops by name; a program that only reads the register, or sets and restores it, runs as both do.
+     */
+    // [rule RT-SORT-RETURN]
+    static void endsSort(Field sortReturn, Charset cs, String verb) {
+        if (Cobol.num(sortReturn, cs).compareTo(java.math.BigDecimal.valueOf(16)) == 0) {
+            throw new NotModelled("SORT-RETURN 16 set by the program before a " + verb + " (IBM: ends the sort at it;"
+                + " GnuCOBOL ignores the register)");
+        }
+    }
+
+    /** The end of a SORT / MERGE: IBM leaves SORT-RETURN 0, GnuCOBOL leaves the program's value. */
+    public static void finished(Field sortReturn, Charset cs) {
+        if (Cobol.num(sortReturn, cs).signum() != 0) {
+            throw new NotModelled("SORT-RETURN holds a value the program set (IBM: 0 after a successful sort;"
+                + " GnuCOBOL leaves it)");
+        }
+    }
+
+    /** RELEASE from an input procedure, with the SORT-RETURN check. */
+    public void release(Field record, Field sortReturn, Charset cs) {
+        endsSort(sortReturn, cs, "RELEASE");
+        release(record);
+    }
+
+    /** RETURN from an output procedure, with the SORT-RETURN check. */
+    public boolean returnInto(Field record, Field sortReturn, Charset cs) {
+        endsSort(sortReturn, cs, "RETURN");
+        return returnInto(record);
+    }
+
+    /** RELEASE: a copy of the SD record area (`record` is the SD record named: its length is the record's own),
+     *  into the sort. */
     // [rule RT-SORT-PROCEDURES]
     public void release(Field record) {
         if (sorted != null) {
             throw new IllegalStateException("RELEASE " + name + " after its input phase");
         }
-        byte[] r = record.raw();
-        if (r.length != length) {
-            throw new NotModelled("RELEASE " + name + ": a record of " + r.length + " bytes, the sort's are " + length);
+        if (record.length() > length) {
+            throw new NotModelled("RELEASE " + name + ": a record of " + record.length() + " bytes, the sort's are "
+                    + length);
         }
+        Storage st = record.storage();
+        byte[] r = Arrays.copyOfRange(st.bytes, record.offset(), record.offset() + length);
+        lengths.put(r, record.length());
         inputs.get(inputs.size() - 1).add(r);
     }
 
-    /** A record of a USING file. Its bytes go in as they are (the translator refuses a USING file whose records are
-     *  not the SD record's length). */
+    /** A record of a USING file, at the file's own record length (the translator keeps it between the SD's shortest
+     *  and longest record). Its bytes go in as they are. */
     public void add(Field record) {
         release(record);
     }
@@ -343,8 +392,11 @@ public final class Sort {
             for (int i = 1; i < all.size(); i++) {
                 // under a Collating, every neighbour pair compared once more: the order is then IBM's and the
                 // oracle's (a pair the two decide differently stops the run), whichever pairs the sort compared
-                if (compare(all.get(i - 1), all.get(i)) == 0 && !duplicatesInOrder
-                        && !Arrays.equals(all.get(i - 1), all.get(i))) {
+                byte[] x = all.get(i - 1);
+                byte[] y = all.get(i);
+                int n = lengths.get(x);  // two records IBM cannot tell apart: the same length, the same bytes within it
+                if (compare(x, y) == 0 && !duplicatesInOrder
+                        && !(n == lengths.get(y) && Arrays.equals(Arrays.copyOf(x, n), Arrays.copyOf(y, n)))) {
                     throw new NotModelled("SORT " + name + " without DUPLICATES: records with equal keys (IBM: "
                             + "their order is undefined)");
                 }
@@ -378,14 +430,23 @@ public final class Sort {
         next = 0;
     }
 
-    /** RETURN: the next record into the SD record area; false (AT END) when none is left. */
+    /** RETURN: the next record into the SD record area (the whole area, as the oracle does: the bytes past a shorter
+     *  record's own length are undefined in IBM); false (AT END) when none is left. */
     public boolean returnInto(Field record) {
         byte[] r = next();
         if (r == null) {
             return false;
         }
-        record.putRaw(r);
+        Storage st = record.storage();
+        System.arraycopy(r, 0, st.bytes, record.offset(), Math.min(r.length, st.bytes.length - record.offset()));
+        lastLength = lengths.get(r);
         return true;
+    }
+
+    /** RETURN ... INTO: the record the last RETURN gave moves to `into` as IBM's INTO does, only its own length (a
+     *  shorter record pads `into` with spaces; the oracle moves the whole area). */
+    public void returnInto(Field record, Field into) {
+        Cobol.move(Field.group(record.storage(), record.offset() - record.storage().base, lastLength), into, cs);
     }
 
     /** The next record in order (a RETURN, or a GIVING file's next record), or null at the end. */
@@ -396,8 +457,16 @@ public final class Sort {
         return next < sorted.size() ? sorted.get(next++) : null;
     }
 
-    /** GIVING: the records again from the first (each GIVING file receives them all). */
-    public void rewind() {
+    /** GIVING: the records again from the first (each GIVING file receives them all). A GIVING file of `size` bytes
+     *  takes records of that length only: records of other lengths stop the run by name (IBM writes each at its own
+     *  length, the oracle the file's fixed record). */
+    public void rewind(int size) {
+        for (byte[] r : sorted) {
+            if (lengths.get(r) != size) {
+                throw new NotModelled("GIVING of " + name + ": records of different lengths (IBM writes each at its "
+                        + "own length, the oracle the file's fixed record of " + size + " bytes)");
+            }
+        }
         next = 0;
     }
 

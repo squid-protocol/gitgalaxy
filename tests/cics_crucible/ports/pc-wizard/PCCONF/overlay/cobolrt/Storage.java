@@ -14,6 +14,37 @@ public final class Storage {
      *  with that LENGTH passes them on (DetCics.commareaOut, Cobol.commarea). Null: none. */
     public byte[] beyond;
 
+    /** #4771 (X47): where this area's record starts in `bytes`. 0 for every area but a LINKAGE record set onto a block
+     *  at an offset (SET ADDRESS OF record TO ADDRESS OF a subordinate item): the record's item at offset k is then
+     *  `bytes[base + k]`, so a write through the record or through the item it addresses is seen by both. Every
+     *  byte reader indexes with Field.at() / offset(), never the item's own offset alone. */
+    public int base;
+
+    /** #4767: the area's own bytes while `bytes` is aliased onto another storage's (SET ADDRESS OF); null when never aliased. */
+    private byte[] home;
+
+    /** SET ADDRESS OF: this area's record is `to` from `at` on. The first alias remembers the area's own bytes. */
+    public void alias(byte[] to, int at) {
+        if (home == null) {
+            home = bytes;
+        }
+        bytes = to;
+        base = at;
+    }
+
+    /** Whether `bytes` is aliased onto another storage's (SET ADDRESS OF): the record is a window on a larger block. */
+    public boolean aliased() {
+        return home != null && bytes != home;
+    }
+
+    /** Back to the area's own bytes (a new task: the service keeps its storages, the addresses a task set are gone). */
+    public void unalias() {
+        if (home != null) {
+            bytes = home;
+            base = 0;
+        }
+    }
+
     /** All zero bytes; the translator's initial image sets every byte. */
     public Storage(int size) {
         this.bytes = new byte[size];

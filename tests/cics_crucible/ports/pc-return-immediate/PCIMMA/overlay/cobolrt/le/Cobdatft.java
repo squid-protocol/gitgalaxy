@@ -23,6 +23,7 @@ public final class Cobdatft {
     private Cobdatft() {
     }
 
+    // [rule RT-LE-COBDATFT]
     public static void call(Field rec) {
         byte[] b = rec.storage().bytes;
         int r = rec.offset();

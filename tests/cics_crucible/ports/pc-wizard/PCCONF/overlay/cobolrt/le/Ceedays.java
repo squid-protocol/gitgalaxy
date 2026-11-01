@@ -84,10 +84,11 @@ public final class Ceedays {
         if (span == 0) {
             throw new UnsupportedOperationException("CEEDAYS: picture not modelled");
         }
-        // owner decision 2026-10-14 (register L1): the picture's tail past the span is assumed ignored only when it is
-        // all blanks; a non-blank byte, or one past the picture item (foreign storage), is refused by name
+        // owner decisions (register L1): 2026-10-14 the picture's tail past the span is assumed ignored only when it is
+        // all blanks, a non-blank byte is refused by name; 2026-10-23 a byte past the picture item (CRECUST's declared
+        // length 10 over 8: storage IBM does not specify) is ASSUMED blank, so it is never read
         for (int t = span; t < pl; t++) {
-            if (2 + t >= pic.length() || pb[p + t] != ' ') {
+            if (2 + t < pic.length() && pb[p + t] != ' ') {
                 throw new UnsupportedOperationException(
                     "CEEDAYS: picture not modelled: a non-blank tail after the date tokens");
             }
@@ -138,7 +139,10 @@ public final class Ceedays {
             days = civil(y, 1, 1) + doy - 1 - civil(1582, 10, 14);
         } else {
             if (m < 1 || m > 12) {
-                throw new UnsupportedOperationException("CEEDAYS: a month outside 1-12 is not modelled");
+                // owner ruling 2026-10-29 (register L1, ASSUMED: IBM's documentation does not say): a numeric month
+                // outside 1-12 is CEE2EC (2508, date value not valid), not CEE2EL (2517)
+                putFc(fc, 2508);
+                return;
             }
             if (dd < 1 || dd > mdays[m - 1] + (m == 2 && leap(y) ? 1 : 0)) {
                 putFc(fc, 2508);

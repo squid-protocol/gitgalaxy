@@ -45,6 +45,7 @@ final class Codec {
     }
 
     /** The named stop of a value past a binary receiver's PICTURE under TRUNC(OPT) (register C5, #4706). */
+    // [rule RT-NUM-TRUNC-OPT-STOP]
     static UnsupportedOperationException truncOptUnpredictable(Field f, BigInteger magnitude, boolean neg) {
         return new UnsupportedOperationException("TRUNC(OPT): value exceeds PICTURE; IBM result unpredictable ("
                 + (neg && f.signed ? "-" : "") + new BigDecimal(magnitude, f.scale).toPlainString() + " into a "
@@ -67,6 +68,7 @@ final class Codec {
     static volatile boolean numprocPfd = false;
 
     /** The refusal of a non-preferred sign under NUMPROC(PFD) (register C5). */
+    // [rule RT-NUM-NUMPROC-PFD-SIGN]
     static UnsupportedOperationException nonPreferredSign(Field f) {
         return new UnsupportedOperationException("NUMPROC(PFD): a " + (f.signed ? "signed " : "unsigned ")
                 + (f.kind == Field.Kind.NUMERIC_PACKED ? "packed" : "zoned")
@@ -78,13 +80,13 @@ final class Codec {
     static boolean preferredSign(Field f, Charset cs) {
         byte[] d = f.st.bytes;
         if (f.kind == Field.Kind.NUMERIC_PACKED) {
-            int sign = d[f.off + f.len - 1] & 0x0F;
+            int sign = d[f.at() + f.len - 1] & 0x0F;
             if (!f.signed) return sign == 0x0F;
             if (sign == 0x0C) return true;
             return sign == 0x0D && readAny(f, cs).mag.signum() != 0;
         }
         if (f.kind != Field.Kind.NUMERIC_DISPLAY || f.signSeparate) return true;
-        char c = ch(d[f.signLeading ? f.off : f.off + f.digits - 1], cs);
+        char c = ch(d[f.signLeading ? f.at() : f.at() + f.digits - 1], cs);
         if (!f.signed) return c >= '0' && c <= '9';
         if (POSITIVE.indexOf(c) >= 0) return true;
         return NEGATIVE.indexOf(c) >= 0 && readAny(f, cs).mag.signum() != 0;
@@ -127,6 +129,7 @@ final class Codec {
     }
 
     /** digit value and sign of a zoned byte: {digit, 1 if overpunched negative, 1 if overpunched positive}. */
+    // [rule RT-NUM-ZONED-OVERPUNCH]
     private static int[] zonedDigit(byte b, Charset cs, boolean overpunch) {
         char c = ch(b, cs);
         if (c >= '0' && c <= '9') return new int[] {c - '0', 0, 0};
@@ -144,17 +147,18 @@ final class Codec {
         return readAny(f, cs);
     }
 
+    // [rule RT-NUM-BINARY-BYTE-ORDER] [rule RT-NUM-PACKED-SIGN]
     private static Num readAny(Field f, Charset cs) {
         byte[] d = f.st.bytes;
         switch (f.kind) {
             case NUMERIC_DISPLAY: {
                 boolean neg = false;
-                int start = f.off;
+                int start = f.at();
                 int n = f.digits;
                 if (f.signSeparate) {
-                    int sp = f.signLeading ? f.off : f.off + f.digits;
+                    int sp = f.signLeading ? f.at() : f.at() + f.digits;
                     neg = ch(d[sp], cs) == '-';
-                    if (f.signLeading) start = f.off + 1;
+                    if (f.signLeading) start = f.at() + 1;
                 }
                 BigInteger v = BigInteger.ZERO;
                 for (int i = 0; i < n; i++) {
@@ -168,11 +172,11 @@ final class Codec {
             case NUMERIC_PACKED: {
                 BigInteger v = BigInteger.ZERO;
                 for (int i = 0; i < f.len; i++) {
-                    int b = d[f.off + i] & 0xFF;
+                    int b = d[f.at() + i] & 0xFF;
                     v = v.multiply(BigInteger.TEN).add(BigInteger.valueOf(Math.min(b >> 4, 9)));
                     if (i < f.len - 1) v = v.multiply(BigInteger.TEN).add(BigInteger.valueOf(Math.min(b & 0x0F, 9)));
                 }
-                int sign = d[f.off + f.len - 1] & 0x0F;
+                int sign = d[f.at() + f.len - 1] & 0x0F;
                 return new Num(v, f.scale, f.signed && (sign == 0x0D || sign == 0x0B));
             }
             case NUMERIC_FLOAT:
@@ -180,7 +184,7 @@ final class Codec {
             case NUMERIC_BINARY: {
                 byte[] b = new byte[f.len];
                 for (int i = 0; i < f.len; i++) {
-                    b[i] = f.nativeBin ? d[f.off + f.len - 1 - i] : d[f.off + i];
+                    b[i] = f.nativeBin ? d[f.at() + f.len - 1 - i] : d[f.at() + i];
                 }
                 BigInteger v = f.signed ? new BigInteger(b) : new BigInteger(1, b);
                 return new Num(v.abs(), f.scale, v.signum() < 0);
@@ -191,6 +195,7 @@ final class Codec {
     }
 
     /** The unscaled magnitude `m` (already at the field's scale) with sign `neg`, stored truncated to the digits. */
+    // [rule RT-NUM-TRUNC-BINARY]
     static void write(Field f, BigInteger m, boolean neg, Charset cs) {
         byte[] d = f.st.bytes;
         BigInteger limit = BigInteger.TEN.pow(f.digits);
@@ -199,11 +204,11 @@ final class Codec {
                 String s = m.mod(limit).toString();
                 s = "0".repeat(f.digits - s.length()) + s;
                 boolean negative = neg && f.signed;
-                int start = f.off;
+                int start = f.at();
                 if (f.signSeparate) {
-                    int sp = f.signLeading ? f.off : f.off + f.digits;
+                    int sp = f.signLeading ? f.at() : f.at() + f.digits;
                     d[sp] = by(negative ? '-' : '+', cs);
-                    if (f.signLeading) start = f.off + 1;
+                    if (f.signLeading) start = f.at() + 1;
                 }
                 for (int i = 0; i < f.digits; i++) {
                     char c = s.charAt(i);
@@ -221,7 +226,7 @@ final class Codec {
                 for (int i = 0; i < f.len; i++) {
                     int hi = s.charAt(2 * i) - '0';
                     int lo = i < f.len - 1 ? s.charAt(2 * i + 1) - '0' : sign;
-                    d[f.off + i] = (byte) ((hi << 4) | lo);
+                    d[f.at() + i] = (byte) ((hi << 4) | lo);
                 }
                 return;
             }
@@ -237,7 +242,7 @@ final class Codec {
                 for (int i = 0; i < f.len; i++) {
                     int from = b.length - f.len + i;
                     byte x = from >= 0 ? b[from] : fill;
-                    d[f.nativeBin ? f.off + f.len - 1 - i : f.off + i] = x;
+                    d[f.nativeBin ? f.at() + f.len - 1 - i : f.at() + i] = x;
                 }
                 return;
             }
@@ -247,6 +252,7 @@ final class Codec {
     }
 
     /** Whether `magnitude` (at the field's scale) fits the field without losing high-order digits. */
+    // [rule RT-NUM-FITS]
     static boolean fits(Field f, BigInteger magnitude, boolean neg) {
         if (f.kind == Field.Kind.NUMERIC_BINARY && (f.nativeBin || !truncBinary)) {
             int bits = f.len * 8;

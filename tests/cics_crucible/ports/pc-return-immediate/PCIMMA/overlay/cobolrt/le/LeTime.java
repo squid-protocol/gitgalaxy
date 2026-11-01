@@ -6,8 +6,8 @@ import java.math.BigDecimal;
 import java.nio.charset.Charset;
 
 /**
- * The Language Environment date/time callable services CEEGMT / CEEUTC, CEEDATM, CEESECS, CEEDATE, CEEISEC and
- * CEEQCEN (#4949), as the equivalence harness models them for the COBOL side (tests/equivalence/le/le_time.c): the
+ * The Language Environment date/time callable services CEEGMT / CEEUTC, CEEDATM, CEESECS, CEEDATE, CEEISEC, CEESECI,
+ * CEEDYWK, CEEQCEN and CEESCEN (#4949, #5003), as the equivalence harness models them for the COBOL side (tests/equivalence/le/le_time.c): the
  * same conditions, the same bytes, and the same refusals -- what that model does not model, this does not either
  * ("NAME: ... is not modelled"). Register L6 says what IBM documents, what is assumed and what is refused.
  *
@@ -26,6 +26,7 @@ final class LeTime {
         return new UnsupportedOperationException(service + ": " + what + " is not modelled");
     }
 
+    // [rule RT-LE-LILIAN]
     static boolean leap(long y) {
         return (y % 4 == 0 && y % 100 != 0) || y % 400 == 0;
     }
@@ -75,6 +76,7 @@ final class LeTime {
     }
 
     /** The 12-byte feedback token: all zero for success, else severity 3, message number, case/severity/control, 'CEE'. */
+    // [rule RT-LE-FEEDBACK-CODE]
     static void putFc(Field fc, int msgno) {
         byte[] b = fc.storage().bytes;
         int o = fc.offset();
@@ -98,6 +100,7 @@ final class LeTime {
     record Tok(String tag, char lit) {
     }
 
+    // [rule RT-LE-PICTURE-STRING]
     static java.util.List<Tok> picture(String service, Field pic) {
         byte[] pb = pic.storage().bytes;
         int p0 = pic.offset();
@@ -161,6 +164,7 @@ final class LeTime {
     }
 
     /** A VSTRING result: halfword length, the text, nothing past it (register L6: the rest of the item is untouched). */
+    // [rule RT-LE-VSTRING]
     static void putVstring(String service, Field out, String text, Charset cs) {
         byte[] t = text.getBytes(cs);
         if (out.length() < 2 + t.length) {
@@ -181,6 +185,7 @@ final class LeTime {
     // ----------------------------------------------------------------------------------------- services
 
     /** CEEGMT / CEEUTC: the run's clock is GMT (the det runtime's CURRENT-DATE carries offset +0000). */
+    // [rule RT-LE-CEEGMT]
     static void gmt(String now, Field lilian, Field seconds, Field fc, Charset cs) {
         long days = civil(Integer.parseInt(now.substring(0, 4)), Integer.parseInt(now.substring(4, 6)),
                 Integer.parseInt(now.substring(6, 8))) - EPOCH;
@@ -192,11 +197,27 @@ final class LeTime {
         putFc(fc, 0);
     }
 
+    /** The century window's start (years before the system date): the run's setting, 80 until CEESCEN changes it. */
+    private static int centuryStart = 80;
+
+    // [rule RT-LE-CEEQCEN]
     static void qcen(Field century, Field fc) {
-        putInt(century, 80);
+        putInt(century, centuryStart);
         putFc(fc, 0);
     }
 
+    /** CEESCEN: 0 to 100, else CEE2533 and the setting is unchanged. CEESECS reads it for a YY. */
+    static void scen(Field century, Field fc) {
+        int v = getInt(century);
+        if (v < 0 || v > 100) {
+            putFc(fc, 2533);
+            return;
+        }
+        centuryStart = v;
+        putFc(fc, 0);
+    }
+
+    // [rule RT-LE-CEEDATE]
     static void date(Field lilian, Field pic, Field out, Field fc, Charset cs) {
         java.util.List<Tok> p = picture("CEEDATE", pic);
         int n = getInt(lilian);
@@ -209,6 +230,7 @@ final class LeTime {
         putFc(fc, 0);
     }
 
+    // [rule RT-LE-CEEDATM]
     static void datm(Field seconds, Field pic, Field out, Field fc, Charset cs) {
         java.util.List<Tok> p = picture("CEEDATM", pic);
         BigDecimal v = Cobol.num(seconds, cs);
@@ -225,7 +247,8 @@ final class LeTime {
         putFc(fc, 0);
     }
 
-    static void secs(Field ts, Field pic, Field seconds, Field fc, Charset cs) {
+    // [rule RT-LE-CEESECS]
+    static void secs(String now, Field ts, Field pic, Field seconds, Field fc, Charset cs) {
         java.util.List<Tok> p = picture("CEESECS", pic);
         byte[] db = ts.storage().bytes;
         int d0 = ts.offset();
@@ -240,8 +263,8 @@ final class LeTime {
             Tok t = p.get(k);
             char next = k + 1 < p.size() && p.get(k + 1).tag() == null ? p.get(k + 1).lit() : (char) 0;
             int w = t.tag() == null ? 1 : t.tag().length();
-            if (t.tag() != null && (t.tag().equals("YY") || t.tag().equals("DDD"))) {
-                throw refuse("CEESECS", "picture token " + t.tag() + " (the century window / a Julian day)");
+            if (t.tag() != null && t.tag().equals("DDD")) {
+                throw refuse("CEESECS", "picture token DDD (a Julian day)");
             }
             if (pos + w > dl) {
                 throw refuse("CEESECS", "a timestamp shorter than its picture");
@@ -271,6 +294,10 @@ final class LeTime {
             pos += w;
             switch (t.tag()) {
                 case "YYYY" -> v[0] = val;
+                case "YY" -> { // the century window: [system year - start, + 99], the system year the run clock's
+                    long base = Integer.parseInt(now.substring(0, 4)) - centuryStart;
+                    v[0] = base + ((val - base) % 100 + 100) % 100;
+                }
                 case "MM" -> v[1] = val;
                 case "DD" -> v[2] = val;
                 case "HH" -> v[3] = val;
@@ -287,6 +314,7 @@ final class LeTime {
     }
 
     /** The shared check and conversion of CEESECS and CEEISEC; the day / year codes differ between them. */
+    // [rule RT-LE-CEEISEC]
     private static void isec(long[] v, Field seconds, Field fc, Charset cs, int dayCode, int yearCode) {
         int bad = 0;
         int code = 0;
@@ -340,6 +368,42 @@ final class LeTime {
     static void isec(Field y, Field mo, Field d, Field h, Field mi, Field s, Field ms, Field seconds, Field fc, Charset cs) {
         long[] v = {getInt(y), getInt(mo), getInt(d), getInt(h), getInt(mi), getInt(s), getInt(ms)};
         isec(v, seconds, fc, cs, 2511, 2514);
+    }
+
+    // [rule RT-LE-CEESECI]
+    static void seci(Field seconds, Field y, Field mo, Field d, Field h, Field mi, Field s, Field ms, Field fc, Charset cs) {
+        BigDecimal v = Cobol.num(seconds, cs);
+        BigDecimal whole = v.setScale(0, java.math.RoundingMode.FLOOR);
+        if (whole.compareTo(BigDecimal.valueOf(86400)) < 0 || whole.compareTo(BigDecimal.valueOf(MAX_SECONDS)) >= 0) {
+            for (Field f : new Field[] {y, mo, d, h, mi, s, ms}) {
+                putInt(f, 0);
+            }
+            putFc(fc, 2505);
+            return;
+        }
+        long w = whole.longValue();
+        int[] date = ymd(w / 86400);
+        long sod = w % 86400;
+        putInt(y, date[0]);
+        putInt(mo, date[1]);
+        putInt(d, date[2]);
+        putInt(h, sod / 3600);
+        putInt(mi, sod / 60 % 60);
+        putInt(s, sod % 60);
+        putInt(ms, v.subtract(whole).multiply(BigDecimal.valueOf(1000)).setScale(0, java.math.RoundingMode.FLOOR).longValue());
+        putFc(fc, 0);
+    }
+
+    // [rule RT-LE-CEEDYWK]
+    static void dywk(Field lilian, Field out, Field fc) {
+        long n = getInt(lilian);
+        if (n < 1 || n > MAX_DAY) {
+            putInt(out, 0);
+            putFc(fc, 2512);
+            return;
+        }
+        putInt(out, (n + 4) % 7 + 1);
+        putFc(fc, 0);
     }
 
     private static void zero(Field seconds, Charset cs) {

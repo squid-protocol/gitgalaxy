@@ -347,13 +347,20 @@ public final class Cobol {
         // (cb_build_move_copy): libcob's store_common_region, and the sign rewrite, never run, so a space or letter in
         // a digit position travels as it is (COCRDUPC's CVV, register C11).
         if (to.kind == Field.Kind.NUMERIC_DISPLAY && sameZonedShape(from, to)) {
-            System.arraycopy(from.st.bytes, from.off, to.st.bytes, to.off, from.len);
+            System.arraycopy(from.st.bytes, from.at(), to.st.bytes, to.at(), from.len);
             return;
         }
         // #4662: libcob reads a zoned sender's sign (GET_SIGN) and writes it back (PUT_SIGN) after the MOVE
         Zoned.Raw raw = Zoned.get(from, cs);
         moveBytes(from, to, raw, cs);
         Zoned.putSign(from, raw, cs);
+    }
+
+    /** Whether two items of one length hold the same bytes (INITIALIZE REPLACING of a table: oracle register C17). */
+    // [rule RT-CBL-INITIALIZE-REPLACING-TABLE]
+    public static boolean sameBytes(Field a, Field b) {
+        return a.length() == b.length() && Arrays.equals(a.storage().bytes, a.at(), a.at() + a.length(),
+                b.storage().bytes, b.at(), b.at() + b.length());
     }
 
     private static boolean sameZonedShape(Field a, Field b) {
@@ -415,7 +422,7 @@ public final class Cobol {
         }
         byte[] d = from.st.bytes;
         int n = from.digits;
-        int sepAt = from.signSeparate ? (from.signLeading ? from.off : from.off + n) : -1;
+        int sepAt = from.signSeparate ? (from.signLeading ? from.at() : from.at() + n) : -1;
         boolean neg = raw.neg;
         if (sepAt >= 0) {
             char s = Codec.ch(d[sepAt], cs);
@@ -526,18 +533,18 @@ public final class Cobol {
                 if (fig == Figurative.ZEROS) {
                     Codec.write(to, BigInteger.ZERO, false, cs);
                 } else {
-                    Arrays.fill(to.st.bytes, to.off, to.off + to.len, b);
+                    Arrays.fill(to.st.bytes, to.at(), to.at() + to.len, b);
                 }
                 break;
             case NUM_EDITED:
                 if (fig == Figurative.ZEROS) {
                     edit(to, new Codec.Num(BigInteger.ZERO, 0, false), cs);
                 } else {
-                    Arrays.fill(to.st.bytes, to.off, to.off + to.len, b);
+                    Arrays.fill(to.st.bytes, to.at(), to.at() + to.len, b);
                 }
                 break;
             default:
-                Arrays.fill(to.st.bytes, to.off, to.off + to.len, b);
+                Arrays.fill(to.st.bytes, to.at(), to.at() + to.len, b);
         }
     }
 
@@ -566,7 +573,7 @@ public final class Cobol {
                 move(temp(b), to, cs);
                 break;
             default:
-                System.arraycopy(b, 0, to.st.bytes, to.off, b.length);
+                System.arraycopy(b, 0, to.st.bytes, to.at(), b.length);
         }
     }
 
@@ -576,8 +583,8 @@ public final class Cobol {
     private static void refuseUndefinedSign(Field from, int fc, Charset cs) {
         if (fc != NUMERIC || from.kind != Field.Kind.NUMERIC_DISPLAY || !from.signed || from.len == 0) return;
         byte[] d = from.st.bytes;
-        int at = from.signSeparate ? (from.signLeading ? from.off : from.off + from.len - 1)
-                : (from.signLeading ? from.off : from.off + from.digits - 1);
+        int at = from.signSeparate ? (from.signLeading ? from.at() : from.at() + from.len - 1)
+                : (from.signLeading ? from.at() : from.at() + from.digits - 1);
         char c = Codec.ch(d[at], cs);
         boolean ok = from.signSeparate ? (c == '+' || c == '-' || c == ' ')
                 : (c >= '0' && c <= '9') || c == ' ' || "{ABCDEFGHI}JKLMNOPQR".indexOf(c) >= 0;
@@ -754,11 +761,11 @@ public final class Cobol {
         byte[] d = to.st.bytes;
         int n = to.len;
         if (!right) {
-            for (int i = 0; i < n; i++) d[to.off + i] = i < src.length ? src[i] : sp;
+            for (int i = 0; i < n; i++) d[to.at() + i] = i < src.length ? src[i] : sp;
         } else {
             for (int i = 0; i < n; i++) {
                 int from = src.length - n + i;
-                d[to.off + i] = from >= 0 ? src[from] : sp;
+                d[to.at() + i] = from >= 0 ? src[from] : sp;
             }
         }
     }
@@ -774,7 +781,7 @@ public final class Cobol {
             else if (c == '0') b = Codec.by('0', cs);
             else if (c == '/') b = Codec.by('/', cs);
             else b = k < src.length ? src[k++] : sp;
-            to.st.bytes[to.off + i] = b;
+            to.st.bytes[to.at() + i] = b;
         }
     }
 
@@ -819,7 +826,8 @@ public final class Cobol {
     }
 
     /** The current value of the receiver of `ADD x TO y` / `SUBTRACT x FROM y` / `MULTIPLY x BY y` / `DIVIDE x INTO y`
-     *  (#4692, register C11): the statement reads y before it stores. A zoned y holding a non-digit -- spaces,
+     *  and the step of a PERFORM VARYING variable and of SET x UP / DOWN BY (#4692, register C11): the statement reads
+     *  y before it stores. A zoned y holding a non-digit -- spaces,
      *  letters, low-values, a sign byte that is no sign -- is refused by name: IBM documents no result (ZONEDATA(PFD),
      *  the default, assumes valid zone bits; ZONEDATA(NOPFD|MIG) makes an addition correct invalid zone bits, APAR
      *  PI57769, but no source states what a non-digit digit position adds up to), and GnuCOBOL 3.1.2's answer
@@ -853,14 +861,14 @@ public final class Cobol {
     /** The item's bytes as text. */
     // [rule RT-CBL-ALPHANUMERIC-TEXT]
     public static String text(Field f, Charset cs) {
-        return new String(f.st.bytes, f.off, f.len, cs);
+        return new String(f.st.bytes, f.at(), f.len, cs);
     }
 
     /** A typed alphanumeric item's text back into its bytes (det-port typed groups): exactly its length, which a
      *  lifted String always has. */
     public static void putText(Field f, String s, Charset cs) {
         byte[] b = s.getBytes(cs);
-        System.arraycopy(b, 0, f.st.bytes, f.off, Math.min(b.length, f.len));
+        System.arraycopy(b, 0, f.st.bytes, f.at(), Math.min(b.length, f.len));
     }
 
     // -------------------------------------------------------------------------------------- arithmetic store
@@ -973,11 +981,12 @@ public final class Cobol {
      *  nonnumeric one (alphanumeric, alphabetic, edited) is its digits as characters (IBM Enterprise COBOL 6.4
      *  Language Reference, "Comparison of numeric and alphanumeric operands": as if moved to an alphanumeric item of
      *  as many characters as its digits; GnuCOBOL likewise): a zoned item's bytes, its overpunched sign digit
-     *  unpunched; a packed or binary item's value in its PICTURE's digits, unsigned. A sign-separate or P-scaled item
-     *  the generator refuses (register C13). Anything else (a group): its bytes. */
+     *  unpunched; a packed or binary item's value in its PICTURE's digits, unsigned. A group is such a nonnumeric
+     *  comparand too (#4671; measured: GnuCOBOL compares a numeric item against a group as its digits, sign dropped,
+     *  as IBM's unsigned integer). A sign-separate or P-scaled item the generator refuses (register C13). */
     // [rule RT-CBL-COMPARE-NUMERIC-WITH-NONNUMERIC]
     private static byte[] operand(Field f, Field other, Charset cs) {
-        if (cat(f) != NUMERIC || cat(other) == NUMERIC || cat(other) == GROUP || f.kind == Field.Kind.NUMERIC_FLOAT) {
+        if (cat(f) != NUMERIC || cat(other) == NUMERIC || f.kind == Field.Kind.NUMERIC_FLOAT) {
             return f.raw();
         }
         return digitsText(f, cs);
@@ -1033,7 +1042,7 @@ public final class Cobol {
         byte[] d = f.st.bytes;
         for (int i = 0; i < f.len; i++) {
             byte x = (byte) (v >>> (8 * (f.len - 1 - i)));
-            d[f.nativeBin ? f.off + f.len - 1 - i : f.off + i] = x;
+            d[f.nativeBin ? f.at() + f.len - 1 - i : f.at() + i] = x;
         }
     }
 
@@ -1177,9 +1186,9 @@ public final class Cobol {
     /** Whether a signed zoned or packed item's sign is X'F' (an unsigned-form sign in a signed item). */
     private static boolean isNumericSignF(Field f, Charset cs) {
         byte[] d = f.st.bytes;
-        if (f.kind == Field.Kind.NUMERIC_PACKED) return (d[f.off + f.len - 1] & 0x0F) == 0x0F;
+        if (f.kind == Field.Kind.NUMERIC_PACKED) return (d[f.at() + f.len - 1] & 0x0F) == 0x0F;
         if (f.kind != Field.Kind.NUMERIC_DISPLAY) return false;
-        char c = Codec.ch(d[f.signLeading ? f.off : f.off + f.digits - 1], cs);
+        char c = Codec.ch(d[f.signLeading ? f.at() : f.at() + f.digits - 1], cs);
         return c >= '0' && c <= '9';
     }
 
@@ -1193,9 +1202,9 @@ public final class Cobol {
         }
         switch (f.kind) {
             case NUMERIC_DISPLAY: {
-                int start = f.off;
+                int start = f.at();
                 if (f.signSeparate) {
-                    char sc = Codec.ch(d[f.signLeading ? f.off : f.off + f.digits], cs);
+                    char sc = Codec.ch(d[f.signLeading ? f.at() : f.at() + f.digits], cs);
                     if (sc != '+' && sc != '-') return false;
                     if (f.signLeading) start++;
                 }
@@ -1210,11 +1219,11 @@ public final class Cobol {
             }
             case NUMERIC_PACKED: {
                 for (int i = 0; i < f.len; i++) {
-                    int b = d[f.off + i] & 0xFF;
+                    int b = d[f.at() + i] & 0xFF;
                     if ((b >> 4) > 9) return false;
                     if (i < f.len - 1 && (b & 0x0F) > 9) return false;
                 }
-                int sign = d[f.off + f.len - 1] & 0x0F;
+                int sign = d[f.at() + f.len - 1] & 0x0F;
                 return f.signed ? sign >= 0x0A : sign == 0x0F;
             }
             case NUMERIC_BINARY:
@@ -1224,7 +1233,7 @@ public final class Cobol {
             default: {
                 if (f.len == 0) return false;
                 for (int i = 0; i < f.len; i++) {
-                    char c = Codec.ch(d[f.off + i], cs);
+                    char c = Codec.ch(d[f.at() + i], cs);
                     if (c < '0' || c > '9') return false;
                 }
                 return true;
@@ -1235,7 +1244,7 @@ public final class Cobol {
     private static boolean letters(Field f, Charset cs, boolean upper, boolean lower) {
         if (f.len == 0) return false;
         for (int i = 0; i < f.len; i++) {
-            char c = Codec.ch(f.st.bytes[f.off + i], cs);
+            char c = Codec.ch(f.st.bytes[f.at() + i], cs);
             boolean ok = c == ' ' || (upper && c >= 'A' && c <= 'Z') || (lower && c >= 'a' && c <= 'z');
             if (!ok) return false;
         }
@@ -1354,12 +1363,12 @@ public final class Cobol {
             }
             int room = into.len - off;
             if (n > room) {
-                System.arraycopy(part.src, 0, into.st.bytes, into.off + off, room);
+                System.arraycopy(part.src, 0, into.st.bytes, into.at() + off, room);
                 off = into.len;
                 overflow = true;
                 break outer;
             }
-            System.arraycopy(part.src, 0, into.st.bytes, into.off + off, n);
+            System.arraycopy(part.src, 0, into.st.bytes, into.at() + off, n);
             off += n;
         }
         if (pointer != null) store(pointer, BigDecimal.valueOf(off + 1), false, cs);
@@ -1605,7 +1614,7 @@ public final class Cobol {
                 if (c.mode == Mode.FIRST) break;
             }
         }
-        System.arraycopy(out, 0, target.st.bytes, target.off, n);
+        System.arraycopy(out, 0, target.st.bytes, target.at(), n);
         for (int ci = 0; ci < clauses.length; ci++) {
             Clause c = clauses[ci];
             if (c.counter != null) {

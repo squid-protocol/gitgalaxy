@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.IntSupplier;
+import java.util.function.ToIntFunction;
 import java.util.function.Supplier;
 
 /**
@@ -32,8 +33,9 @@ import java.util.function.Supplier;
  *
  * #4173 -- SQL faults. Each statement's call carries its key, "PROGRAM:LINE" (the program and the line of its EXEC
  * SQL in that program's source). A fault plan -- withFaults, or the file the system property gitgalaxy.sqlfaults.plan
- * names -- has one fault per line, `PROGRAM LINE NTH|* SQLCODE SQLSTATE`: the nth execution of that statement does
- * not run; its SQLCA is reset's with that SQLCODE and SQLSTATE, and nothing else changes. Each fault that fires is
+ * names -- has one fault per line, `PROGRAM LINE NTH|* SQLCODE SQLSTATE [TOKEN [SQLERRD3]]`: the nth execution of that
+ * statement does not run; its SQLCA is reset's with that SQLCODE and SQLSTATE (and, when declared, one message token
+ * as SQLERRMC with its SQLERRML, and SQLERRD(3): #5561), and nothing else changes. Each fault that fires is
  * appended to the log (gitgalaxy.sqlfaults.log) as `SQL PROGRAM LINE N SQLCODE` -- the line the equivalence harness's
  * COBOL side (tests/equivalence/db2/ggsql.c) writes for the same fault.
  *
@@ -68,14 +70,15 @@ public final class DetSql {
         }
     }
 
-    /** The fault plan from here on (one fault per line, `PROGRAM LINE NTH|* SQLCODE SQLSTATE`), each statement's
-     *  executions counted afresh, each fault that fires appended to `log` (null: not logged). */
+    /** The fault plan from here on (one fault per line, `PROGRAM LINE NTH|* SQLCODE SQLSTATE [TOKEN [SQLERRD3]]`),
+     *  each statement's executions counted afresh, each fault that fires appended to `log` (null: not logged). */
+    // [rule RT-SQL-FAULT-INJECTION]
     public static void withFaults(List<String> plan, java.nio.file.Path log) {
         FAULTS.clear();
         RUNS.clear();
         for (String line : plan) {
             String[] f = line.trim().split("\\s+");
-            if (f.length == 5) {
+            if (f.length >= 5 && f.length <= 7) {
                 FAULTS.add(f);
             }
         }
@@ -93,6 +96,12 @@ public final class DetSql {
         for (String[] f : FAULTS) {
             if (f[0].equals(program) && f[1].equals(line) && ("*".equals(f[2]) || Integer.parseInt(f[2]) == n)) {
                 code(ca, Integer.parseInt(f[3]), f[4], cs);
+                if (f.length > 5) {  // #5561: the declared message token and reason code
+                    String token = "-".equals(f[5]) ? "" : f[5].length() > 70 ? f[5].substring(0, 70) : f[5];  // `-`: none
+                    putInt(ca, SQLERRML, 2, token.length());
+                    put(ca, SQLERRMC, 70, token, cs);
+                    putInt(ca, SQLERRD + 8, 4, f.length > 6 ? Integer.parseInt(f[6]) : 0);
+                }
                 if (faultLog != null) {
                     try {
                         java.nio.file.Files.writeString(faultLog, "SQL " + program + " " + line + " " + n + " " + f[3]
@@ -126,6 +135,7 @@ public final class DetSql {
     }
 
     /** The SQLCA as a statement leaves it before its outcome: SQLCODE 0, no warning. */
+    // [rule RT-SQL-SQLCA]
     public static void reset(Field ca, Charset cs) {
         put(ca, 0, 8, "SQLCA", cs);
         putInt(ca, 8, 4, 136);
@@ -215,6 +225,7 @@ public final class DetSql {
 
     // ---- host variables into the statement ---------------------------------------------------------------
     /** A PIC X(n) host variable: CHAR(n), its n bytes. */
+    // [rule RT-SQL-HOST-VARIABLE-IN]
     public static String charIn(Field f, Charset cs) {
         return Cobol.text(f, cs);
     }
@@ -238,6 +249,7 @@ public final class DetSql {
 
     // ---- statements -----------------------------------------------------------------------------------------
     /** INSERT / UPDATE / DELETE: `searched` (an UPDATE or DELETE with a WHERE, or none) that changes no row is +100. */
+    // [rule RT-SQL-SEARCHED-NOT-FOUND]
     public static void update(Field ca, IntSupplier statement, boolean searched, Charset cs) {
         update(ca, null, statement, searched, cs);
     }
@@ -259,7 +271,82 @@ public final class DetSql {
         }
     }
 
+    /** INSERT ... VALUES (:A1, :A2) FOR n ROWS [ATOMIC] (#4269; IBM Db2 for z/OS SQL Reference, INSERT): the single-row
+     *  statement run for element 1..n of every column's host variable table (`hosts[column][row]`, `indicators` null
+     *  where none), SQLERRD(3) the rows inserted. ATOMIC (the default): a row that fails is Db2's error with the whole
+     *  statement undone -- nothing inserted, SQLERRD(3) 0. The undo of the rows before the failing one is a savepoint
+     *  (INSERT_ROWS_SAVEPOINT) set on the unit of work's connection before row 1 and rolled back to; with no unit of
+     *  work a failure after row 1 is refused (the rows were committed as they ran). n above the host variable
+     *  tables (`capacity`) or below 1 is refused. */
+    // [rule RT-SQL-INSERT-ROWS]
+    public static void insertRows(Field ca, String at, long n, int capacity, String kinds, String[] names,
+                                  Field[][] hosts, Field[][] indicators, ToIntFunction<Map<String, Object>> statement,
+                                  Charset cs) {
+        reset(ca, cs);
+        if (injected(ca, at, cs)) {
+            return;
+        }
+        if (n < 1 || n > capacity) {
+            throw new UnsupportedOperationException("EXEC SQL INSERT at " + at + ": FOR " + n
+                    + " ROWS with host variable tables of " + capacity);
+        }
+        int done = 0;
+        boolean undoable = n > 1 && unitOfWork != null;
+        if (undoable) {
+            try {
+                unitOfWork.execute("SAVEPOINT " + INSERT_ROWS_SAVEPOINT + " ON ROLLBACK RETAIN CURSORS");
+            } catch (RuntimeException e) {
+                failed(ca, e, cs);
+                return;
+            }
+        }
+        for (int j = 0; j < n; j++) {
+            Map<String, Object> params = new HashMap<>();
+            for (int c = 0; c < hosts.length; c++) {
+                Object v = kinds.charAt(c) == 'N' ? numIn(hosts[c][j], cs) : charIn(hosts[c][j], cs);
+                if (indicators != null && indicators[c] != null) {
+                    v = orNull(v, indicators[c][j], cs);
+                }
+                params.put(names[c], v);
+            }
+            try {
+                done += statement.applyAsInt(params);
+            } catch (RuntimeException e) {
+                if (done == 0 && !undoable) {
+                    failed(ca, e, cs);
+                    return;
+                }
+                if (undoable) {
+                    try {
+                        unitOfWork.execute("ROLLBACK TO SAVEPOINT " + INSERT_ROWS_SAVEPOINT);
+                        unitOfWork.execute("RELEASE SAVEPOINT " + INSERT_ROWS_SAVEPOINT);
+                    } catch (RuntimeException undo) {
+                        throw new UnsupportedOperationException("EXEC SQL INSERT at " + at + ": row " + (j + 1)
+                                + " of " + n + " failed and ATOMIC's undo failed too", undo);
+                    }
+                    failed(ca, e, cs);
+                    return;
+                }
+                throw new UnsupportedOperationException("EXEC SQL INSERT at " + at + ": row " + (j + 1) + " of " + n
+                        + " failed after " + done + " were inserted; ATOMIC's undo is not modelled", e);
+            }
+        }
+        if (undoable) {
+            try {
+                unitOfWork.execute("RELEASE SAVEPOINT " + INSERT_ROWS_SAVEPOINT);
+            } catch (RuntimeException e) {
+                failed(ca, e, cs);
+                return;
+            }
+        }
+        putInt(ca, SQLERRD + 8, 4, done);
+    }
+
+    /** The savepoint ATOMIC's undo of INSERT ... FOR n ROWS rolls back to (a name a program's own savepoint won't use). */
+    private static final String INSERT_ROWS_SAVEPOINT = "GGINSROWS_UNDO";
+
     /** SELECT INTO: the one row, or null (+100 no row, -811 more than one, or Db2's error). */
+    // [rule RT-SQL-SELECT-INTO]
     public static Map<String, Object> selectOne(Field ca, Supplier<Map<String, Object>> statement, Charset cs) {
         return selectOne(ca, null, statement, cs);
     }
@@ -287,6 +374,7 @@ public final class DetSql {
 
     /** A row's columns, in order, into the host variables (`kinds`: X, V, N per host variable; `indicators` null
      *  where none): false when an assignment failed (-304 / -305 set; the rest not assigned). */
+    // [rule RT-SQL-HOST-VARIABLE-OUT]
     public static boolean into(Field ca, Map<String, Object> row, String kinds, Field[] hosts, Field[] texts,
                                Field[] indicators, Charset cs) {
         Iterator<Object> values = row.entrySet().stream()  // GG_RID: the row id a positioned statement uses, no column
@@ -392,6 +480,7 @@ public final class DetSql {
 
     /** EXEC SQL COMMIT [WORK] at `at`: the unit of work committed (Db2's SQLCODE if it fails); every cursor not
      *  declared WITH HOLD closed, a held one left with no current row. */
+    // [rule RT-SQL-UNIT-OF-WORK]
     public static void commit(Field ca, String at, Charset cs) {
         reset(ca, cs);
         if (injected(ca, at, cs)) {
@@ -406,6 +495,7 @@ public final class DetSql {
             }
         }
         OPEN.keySet().removeIf(c -> !HOLD.contains(c));
+        POS.keySet().retainAll(OPEN.keySet());
         CURRENT.clear();
     }
 
@@ -427,12 +517,14 @@ public final class DetSql {
             return;
         }
         OPEN.clear();
+        POS.clear();
         CURRENT.clear();
     }
 
     /** EXEC SQL SAVEPOINT / ROLLBACK TO SAVEPOINT / RELEASE SAVEPOINT at `at`: `sql` as written, on the unit of
      *  work's connection, Db2 answering (-880: no such savepoint). The cursors are not touched: a savepoint is set ON
      *  ROLLBACK RETAIN CURSORS. Refused with no unit of work, as ROLLBACK is. */
+    // [rule RT-SQL-SAVEPOINT]
     public static void savepoint(Field ca, String at, String sql, Charset cs) {
         reset(ca, cs);
         if (injected(ca, at, cs)) {
@@ -450,11 +542,15 @@ public final class DetSql {
     }
 
     // ---- cursors --------------------------------------------------------------------------------------------
-    private static final Map<String, Iterator<Map<String, Object>>> OPEN = new HashMap<>();
+    // #4269: an open cursor is its result rows (read at OPEN) and a position: 0 before the first row, 1..n on a row,
+    // n + 1 after the last. FETCH [NEXT] steps it forward; a scroll cursor's orientations (fetchScroll) move it.
+    private static final Map<String, List<Map<String, Object>>> OPEN = new HashMap<>();
+    private static final Map<String, Integer> POS = new HashMap<>();
     private static final Map<String, Map<String, Object>> CURRENT = new HashMap<>();  // the row FETCH last returned
     private static final java.util.Set<String> HOLD = new java.util.HashSet<>();  // #4269: open cursors WITH HOLD
 
     /** OPEN: the cursor's query run with the host variables' values now (-502 when it is open). */
+    // [rule RT-SQL-CURSOR]
     public static void open(Field ca, String cursor, Supplier<List<Map<String, Object>>> query, Charset cs) {
         open(ca, null, cursor, query, cs);
     }
@@ -477,7 +573,8 @@ public final class DetSql {
             return;
         }
         try {
-            OPEN.put(cursor, query.get().iterator());
+            OPEN.put(cursor, query.get());
+            POS.put(cursor, 0);
             if (hold) {
                 HOLD.add(cursor);
             } else {
@@ -499,17 +596,138 @@ public final class DetSql {
         if (injected(ca, at, cs)) {
             return null;
         }
-        Iterator<Map<String, Object>> rows = OPEN.get(cursor);
+        List<Map<String, Object>> rows = OPEN.get(cursor);
         if (rows == null) {
             code(ca, -501, "24501", cs);
             return null;
         }
-        if (!rows.hasNext()) {
-            CURRENT.remove(cursor);  // after the last row: no current row
+        return moveTo(ca, cursor, rows, POS.get(cursor) + 1, cs);
+    }
+
+    /** FETCH [NEXT] ROWSET FROM cursor FOR n ROWS (#4269; IBM Db2 for z/OS SQL Reference, FETCH): up to n next rows of
+     *  the cursor, SQLERRD(3) the number read. A rowset that reaches the end of the data holds fewer than n rows (or
+     *  none) and is SQLCODE +100 with SQLERRD(3) set (register Q4); n above the host variable tables (`capacity`) or
+     *  below 1 is refused. */
+    // [rule RT-SQL-ROWSET-FETCH]
+    public static List<Map<String, Object>> fetchRowset(Field ca, String at, String cursor, long n, int capacity,
+                                                        Charset cs) {
+        reset(ca, cs);
+        if (injected(ca, at, cs)) {
+            return List.of();
+        }
+        List<Map<String, Object>> rows = OPEN.get(cursor);
+        if (rows == null) {
+            code(ca, -501, "24501", cs);
+            return List.of();
+        }
+        if (n < 1 || n > capacity) {
+            throw new UnsupportedOperationException("EXEC SQL FETCH ROWSET at " + at + ": FOR " + n
+                    + " ROWS with host variable tables of " + capacity);
+        }
+        List<Map<String, Object>> got = new ArrayList<>();
+        while (got.size() < n) {
+            Map<String, Object> row = moveTo(ca, cursor, rows, POS.get(cursor) + 1, cs);
+            if (row == null) {
+                break;
+            }
+            got.add(row);
+        }
+        putInt(ca, SQLERRD + 8, 4, got.size());
+        return got;
+    }
+
+    /** The rowset's rows into the host variable tables: row j into element j of every column's table
+     *  (`hosts[column][row]`, `indicators` null where none): the first row that fails to assign (-304 / -305) stops. */
+    public static void intoRows(Field ca, List<Map<String, Object>> rows, String kinds, Field[][] hosts,
+                                Field[][] indicators, Charset cs) {
+        for (int j = 0; j < rows.size(); j++) {
+            Field[] h = new Field[hosts.length];
+            Field[] ind = indicators == null ? null : new Field[hosts.length];
+            for (int c = 0; c < hosts.length; c++) {
+                h[c] = hosts[c][j];
+                if (ind != null) {
+                    ind[c] = indicators[c] == null ? null : indicators[c][j];
+                }
+            }
+            if (!into(ca, rows.get(j), kinds, h, new Field[hosts.length], ind, cs)) {
+                return;
+            }
+        }
+    }
+
+    /** FETCH of a scroll cursor with an orientation (#4269; IBM Db2 for z/OS SQL Reference, FETCH): `orientation` is
+     *  PRIOR, FIRST, LAST, CURRENT, ABSOLUTE (n a row number, a negative one counted from the last row) or RELATIVE
+     *  (n rows from the current position). The cursor is insensitive: its rows are those OPEN read. A move off either
+     *  end is +100 and leaves the cursor before the first row or after the last; FETCH CURRENT with no current row
+     *  is refused (Db2 for z/OS answers +231, Db2 for LUW +100: not the same answer on both). */
+    // [rule RT-SQL-SCROLL-FETCH]
+    public static Map<String, Object> fetchScroll(Field ca, String at, String cursor, String orientation, long n,
+                                                  Charset cs) {
+        reset(ca, cs);
+        if (injected(ca, at, cs)) {
+            return null;
+        }
+        List<Map<String, Object>> rows = OPEN.get(cursor);
+        if (rows == null) {
+            code(ca, -501, "24501", cs);
+            return null;
+        }
+        long size = rows.size();
+        long pos = POS.get(cursor);
+        long target;
+        switch (orientation) {
+            case "NEXT": target = pos + 1; break;
+            case "PRIOR": target = pos - 1; break;
+            case "FIRST": target = 1; break;
+            case "LAST": target = size; break;
+            case "CURRENT":
+                if (pos < 1 || pos > size) {
+                    throw new UnsupportedOperationException("EXEC SQL FETCH CURRENT at " + at + ": the cursor has no "
+                            + "current row (Db2 for z/OS +231, Db2 for LUW +100: not modelled)");
+                }
+                target = pos;
+                break;
+            case "ABSOLUTE": target = n > 0 ? n : n < 0 ? size + n + 1 : 0; break;
+            case "RELATIVE": target = pos + n; break;
+            default: throw new UnsupportedOperationException("EXEC SQL FETCH " + orientation + " not modelled");
+        }
+        return moveTo(ca, cursor, rows, Math.max(0, Math.min(target, size + 1)), cs);
+    }
+
+    /** FETCH BEFORE | AFTER of a scroll cursor (#4269; IBM Db2 for z/OS SQL Reference, FETCH): the cursor is parked before
+     *  its first row (position 0) or after its last (n + 1); SQLCODE 0, no row returned, no host variable touched. The
+     *  cursor then has no current row. -501 when it is not open. */
+    // [rule RT-SQL-SCROLL-POSITION]
+    public static void positionScroll(Field ca, String at, String cursor, String where, Charset cs) {
+        reset(ca, cs);
+        if (injected(ca, at, cs)) {
+            return;
+        }
+        List<Map<String, Object>> rows = OPEN.get(cursor);
+        if (rows == null) {
+            code(ca, -501, "24501", cs);
+            return;
+        }
+        switch (where) {
+            case "BEFORE": POS.put(cursor, 0); break;
+            case "AFTER": POS.put(cursor, rows.size() + 1); break;
+            default: throw new UnsupportedOperationException("EXEC SQL FETCH " + where + " not modelled");
+        }
+        CURRENT.remove(cursor);
+    }
+
+    /** The cursor positioned at `target` (0 .. n + 1): its row, or null and +100 when that is off either end. */
+    private static Map<String, Object> moveTo(Field ca, String cursor, List<Map<String, Object>> rows, long target,
+                                              Charset cs) {
+        int size = rows.size();
+        int pos = (int) Math.max(0, Math.min(target, size + 1));
+        POS.put(cursor, pos);
+        if (pos < 1 || pos > size) {
+            CURRENT.remove(cursor);  // before the first row or after the last: no current row
             code(ca, 100, "02000", cs);
             return null;
         }
-        Map<String, Object> row = rows.next();
+        Map<String, Object> row = rows.get(pos - 1);
         CURRENT.put(cursor, row);
         return row;
     }
@@ -517,6 +735,7 @@ public final class DetSql {
     /** A positioned UPDATE / DELETE (WHERE CURRENT OF cursor): the generated method, given the current row's id
      *  (GG_RID, which the cursor's query returns). -501 when the cursor is not open, -508 when it has no current row
      *  (before its first FETCH, or after +100). */
+    // [rule RT-SQL-POSITIONED-UPDATE]
     public static void updateCurrent(Field ca, String cursor, java.util.function.Function<Object, Integer> statement,
                                      Charset cs) {
         updateCurrent(ca, null, cursor, statement, cs);
@@ -553,6 +772,7 @@ public final class DetSql {
             return;
         }
         CURRENT.remove(cursor);
+        POS.remove(cursor);
         if (OPEN.remove(cursor) == null) {
             code(ca, -501, "24501", cs);
         }
@@ -561,6 +781,7 @@ public final class DetSql {
     /** A task's or a step's end: its cursors closed. */
     public static void closeAll() {
         OPEN.clear();
+        POS.clear();
         CURRENT.clear();
         HOLD.clear();
     }

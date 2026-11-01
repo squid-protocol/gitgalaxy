@@ -25,7 +25,7 @@ from typing import Any
 
 # Import exclusively from the GitGalaxy Hub
 from gitgalaxy.metrics.signal_processor import SignalProcessor
-from gitgalaxy.standards.config_resolver import ResolvedConfig, resolve_config
+from gitgalaxy.standards.config_resolver import ResolvedConfig, path_allowlisted, resolve_config
 
 # The behavioral category this firewall gates on, mapped to its name in
 # SignalProcessor.RISK_SCHEMA -- Phase 3 computes it once; the firewall
@@ -89,7 +89,7 @@ def run_firewall_audit(
 
     for file_node in parsed_files:
         rel_path_str = file_node.get("path", "unknown")
-        is_whitelisted = any(approved in rel_path_str for approved in allowlist_paths)
+        is_whitelisted = path_allowlisted(rel_path_str, allowlist_paths)
 
         # =====================================================================
         # NEW: CONTEXTUAL ALIAS RESOLUTION

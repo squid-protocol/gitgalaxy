@@ -1,0 +1,10 @@
+{
+  "kind": "job",
+  "job": "TRANREPT",
+  "steps": [
+    {"case": "carddemo-sort-tranrept"},
+    {"case": "carddemo-trnrpt", "feeds": {"TRANFILE": {"step": "carddemo-sort-tranrept", "dd": "SORTOUT"}},
+     "inputs": {"DATEPARM": "tranrept-dateparm.txt"}}
+  ],
+  "notes": "CardDemo job TRANREPT (app/proc/TRANREPT.prc): STEP05R (the DFSORT step, lowered to COBOL SORT by det/dfsort.py) then STEP10R (CBTRN03C). STEP10R's TRANFILE is STEP05R's SORTOUT, the COBOL side's bytes, also given to the Java side. STEP10R reads the same date window STEP05R sorts on (2022-01-01 .. 2022-07-06, the job's one parameter card: its own case's 2022-07-01 .. 07-31 window would leave this feed with an empty report). Each step is proven as its own batch case; the chain is their composition. Assumption: the JCL wiring is this file, not a read job (register F4)."
+}

@@ -146,6 +146,20 @@ def states_rcode(scens: list[dict[str, Any]]) -> bool:
     return bool(faults) and all(f.get("rcode") for f in faults)
 
 
+def case_states(case: dict[str, Any]) -> dict[str, bool]:
+    """The runtime facts an equivalence case states in every scenario (the case's value is each scenario's default):
+    the `Run` flags startcode / termid / userid / screen / rcode (#5077, #5126)."""
+    scens = case.get("scenarios") or []
+    termid = bool(scens) and all(sc.get("termid", case.get("termid")) is not None for sc in scens)
+    return {
+        "startcode": bool(scens) and all(sc.get("startcode", case.get("startcode")) for sc in scens),
+        "termid": termid,
+        "userid": bool(scens) and all(sc.get("userid", case.get("userid")) for sc in scens),
+        "screen": termid and all(sc.get("screen", case.get("screen")) for sc in scens),
+        "rcode": states_rcode(scens),
+    }
+
+
 def _norm(path: str) -> str:
     return path.replace("\\", "/").lower()
 
@@ -158,23 +172,14 @@ def equivalence_runs(cases_dir: Path = CASES) -> dict[tuple[str, str], list[Run]
         if "corpus" not in case or "program_source" not in case:
             continue
         db2, region = "db2" in case, bool((case.get("region") or {}).get("applid"))
-        scens = case.get("scenarios") or []
-        startcode = bool(scens) and all(sc.get("startcode", case.get("startcode")) for sc in scens)
-        termid = bool(scens) and all(sc.get("termid", case.get("termid")) for sc in scens)
-        userid = bool(scens) and all(sc.get("userid", case.get("userid")) for sc in scens)
-        screen = termid and all(sc.get("screen", case.get("screen")) for sc in scens)
-        rcode = states_rcode(scens)
+        states = case_states(case)
         out[(case["corpus"], _norm(case["program_source"]))].append(
             Run(
                 "equivalence",
                 f.parent.name,
                 db2=db2,
                 region=region,
-                startcode=startcode,
-                termid=termid,
-                userid=userid,
-                screen=screen,
-                rcode=rcode,
+                **states,
             )  # fmt: skip
         )
         for extra in case.get("programs", []):  # LINKed programs: det_port.py translates them the same way
@@ -185,11 +190,7 @@ def equivalence_runs(cases_dir: Path = CASES) -> dict[tuple[str, str], list[Run]
                     role="linked",
                     db2=db2,
                     region=region,
-                    startcode=startcode,
-                    termid=termid,
-                    userid=userid,
-                    screen=screen,
-                    rcode=rcode,
+                    **states,
                     program=str(extra.get("program", "")).upper(),
                 )
             )
@@ -576,25 +577,35 @@ def facts_needed(text: str) -> dict[str, set[str]]:
     return {"eib": eib, "assign_task": task, "assign_region": region}
 
 
-def fact_gaps(facts: dict[str, set[str]], run: Run | None) -> set[str]:
-    """The fact gaps of a program under one proof subject (None: no case yet -- what a new case would need that no
-    case can state)."""
+def unstated_facts(facts: dict[str, set[str]], run: Run | None) -> dict[str, list[str]]:
+    """The EIB fields (`eib`) and ASSIGN task facts (`assign_task`) a program reads that no harness states under one
+    proof subject (None: no case yet -- what a new case would need that no case can state). #5126: one rule for the
+    gap lists and the evidence report."""
     case_states = run is None or run.kind == "equivalence"  # a new equivalence case would state them too
-    out = {
-        f"fact: {e} (no harness states it)"
+    eib = sorted(
+        e
         for e in facts.get("eib", ())
         if not (case_states and e in CASE_STATED_EIB)
-        and not (e == "EIBRCODE" and run is not None and run.kind == "equivalence" and run.rcode)  # #5126: it states it
-    }
+        and not (e == "EIBRCODE" and run is not None and run.kind == "equivalence" and run.rcode)  # it states it
+    )
+    task: list[str] = []
     if case_states:
-        out |= {
-            f"fact: ASSIGN {f} (no equivalence case states it)"
+        task = sorted(
+            f
             for f in facts.get("assign_task", ())
             if not (f == "STARTCODE" and run is not None and run.startcode)  # #5077: the case states it
             and not (f == "FACILITY" and run is not None and run.termid)  # #5126: its "termid" is the facility
             and not (f == "USERID" and run is not None and run.userid)  # #5126: the case states it
             and not (f == "SCRNHT/SCRNWD" and run is not None and run.screen)
-        }
+        )
+    return {"eib": eib, "assign_task": task}
+
+
+def fact_gaps(facts: dict[str, set[str]], run: Run | None) -> set[str]:
+    """The fact gaps of a program under one proof subject (see `unstated_facts`)."""
+    left = unstated_facts(facts, run)
+    out = {f"fact: {e} (no harness states it)" for e in left["eib"]}
+    out |= {f"fact: ASSIGN {f} (no equivalence case states it)" for f in left["assign_task"]}
     if run is not None and run.kind == "equivalence" and facts.get("assign_region") and not run.region:
         out.add("fact: ASSIGN APPLID/SYSID (the case states no region)")
     return out

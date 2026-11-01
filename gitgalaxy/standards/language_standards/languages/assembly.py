@@ -12,7 +12,18 @@ from typing import Any
 
 from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: compiled on first use
 
-from .._shared_patterns import CALLS_OUT_CALL_VERB, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import (
+    CALLS_OUT_CALL_VERB,
+    GLOBAL_FRAGILE_DEBT,
+    GLOBAL_PLANNED_DEBT,
+    commented_keyword_statement,
+)
+
+# #7207: x86 / ARM register names and a destination operand (register, or a `[mem]` with an optional size word).
+_ASM_REG = r"(?:[er]?[abcd]x|[abcd][lh]|[er]?[sd]i|[er]?[sb]p|r\d{1,2}[dwb]?|[xw]\d{1,2}|sp|lr|pc)\b"
+_ASM_DST = r"(?:" + _ASM_REG + r"|(?:(?:byte|word|dword|qword)[ \t]+(?:ptr[ \t]+)?)?\[[^\]\n]{1,60}\])"
+
+_NOT_DIRECTIVE = r"(?<!\.)"
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -225,7 +236,21 @@ DEFINITION: dict[str, Any] = {
             re.I | re.M,
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails)
-        "dead_code": re.compile(r"(?i)(?:;|#|//)[ \t]*(?:jmp|call|mov|push|pop|cmp|add|sub)\b"),
+        # #7207: an instruction's shape (operands: a register or `[mem]` destination, a symbol-like branch target,
+        # a pushed/popped register), not just the mnemonic.
+        "dead_code": re.compile(
+            commented_keyword_statement(
+                "jmp|call|mov|push|pop|cmp|add|sub",
+                marker=r"(?:;|#|//)",
+                extra=r"(?:(?<=mov)|(?<=add)|(?<=sub)|(?<=cmp))[ \t]+" + _ASM_DST + r"[ \t]*,[ \t]*[^\n]{1,60}(?m:$)"
+                r"|(?:(?<=jmp)|(?<=call))[ \t]+(?:(?:short|near|far)[ \t]+)?"
+                r"(?:[\w.@$]*[_.@$\d][\w.@$]*|\[[^\]\n]{1,60}\]|" + _ASM_REG + r")[ \t]*(?m:$)"
+                r"|(?:(?<=push)|(?<=pop))[ \t]+(?:"
+                + _ASM_REG
+                + r"|\[[^\]\n]{1,60}\]|0x[\da-f]{1,16}|\d{1,10})[ \t]*(?m:$)",
+            ),
+            re.I,
+        ),
         # 13. doc (Structured Documentation)
         # #2882 contract C4: doc counts the block, not the author tag -- @author is ownership's alone.
         "doc": re.compile(r"^[;#@/|]+\s*@(?:param|return|brief|note)", re.M | re.I),
@@ -294,9 +319,10 @@ DEFINITION: dict[str, Any] = {
         ),
         # --- PHASE 4: SPECIALIZED SUB-SYSTEMS ---
         # 26. planned_debt (Annotated Debt / TODOs)
-        "planned_debt": GLOBAL_PLANNED_DEBT,
+        # #7064: `.stub` / `.hack` is a directive (a macro name in code), not a comment marker: 52 hits in one real file
+        "planned_debt": re.compile(_NOT_DIRECTIVE + "(?:" + GLOBAL_PLANNED_DEBT.pattern + ")", re.I),
         # 27. fragile_debt (Acknowledged Hacks / FIXMEs)
-        "fragile_debt": GLOBAL_FRAGILE_DEBT,
+        "fragile_debt": re.compile(_NOT_DIRECTIVE + "(?:" + GLOBAL_FRAGILE_DEBT.pattern + ")", re.I),
         # 29. spec_exposure (Spec / Audit Traceability)
         # BUG FIX (Rule 14, #713): adjacent unbounded quantifiers with
         # overlapping character sets (`\d+` next to `[^\]]*`) -- the

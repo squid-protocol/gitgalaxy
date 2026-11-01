@@ -70,6 +70,8 @@ def test_the_statement_text_may_span_lines_and_keep_its_case():
         ("CONNECT RESET", "EXEC SQL CONNECT: .*one connection"),
         ("CALL PROC1 (:A)", "EXEC SQL CALL: .*stored procedure"),
         ("SET CURRENT SQLID = 'X'", "EXEC SQL SET: .*SET CURRENT"),
+        ("ALLOCATE C1 CURSOR FOR RESULT SET :LOC", "EXEC SQL ALLOCATE: .*result set locator"),
+        ("ASSOCIATE LOCATORS (:LOC) WITH PROCEDURE PROC1", "EXEC SQL ASSOCIATE: .*result sets"),
         ("EXECUTE STMT1 USING :A", "EXEC SQL EXECUTE"),
         ("EXECUTE STMT1 USING DESCRIPTOR :SQLDA", "EXEC SQL EXECUTE"),
         ("EXECUTE STMT1", "EXEC SQL EXECUTE"),
@@ -337,7 +339,19 @@ _BURNED_CORPORA = (
     "dbb-mortgage-application",
     "zecs",
 )
-_REFUSED_SQL_VERB = re.compile(r"EXEC\s+SQL\s+(CALL|CONNECT|DESCRIBE|PREPARE|EXECUTE|WHENEVER)\b", re.I)
+# the whole refused class of det/sql.py's _REFUSED_VERBS (a SET that assigns a host variable, SET :H = ..., is modelled)
+_REFUSED_SQL_VERB = re.compile(
+    r"EXEC\s+SQL\s+(CALL|CONNECT|DESCRIBE|PREPARE|EXECUTE|WHENEVER|ALLOCATE|ASSOCIATE|SET\s+(?!\(?\s*:))\b", re.I
+)
+
+
+def test_the_burned_estate_pin_covers_every_refused_verb():
+    from gitgalaxy.tools.cobol_to_java.det.sql import _REFUSED_VERBS
+
+    for verb in _REFUSED_VERBS:
+        probe = "SET CURRENT SQLID" if verb == "SET" else verb
+        assert _REFUSED_SQL_VERB.search(f"EXEC SQL {probe} X"), verb
+    assert not _REFUSED_SQL_VERB.search("EXEC SQL SET :H = CURRENT TIMESTAMP")
 
 
 def test_no_burned_estate_program_issues_a_refused_dynamic_or_connection_sql_verb():
@@ -362,7 +376,7 @@ _SCROLL_AND_ROWSET = [
     ("FETCH FIRST FROM C1 INTO :A", "FETCH FIRST"),
     ("FETCH LAST FROM C1 INTO :A", "FETCH LAST"),
     ("FETCH CURRENT FROM C1 INTO :A", "FETCH CURRENT"),
-    ("FETCH BEFORE FROM C1", "FETCH BEFORE"),
+    ("FETCH BEFORE FROM C1", "FETCH BEFORE"),  # (C1 is not declared SCROLL)
     ("FETCH AFTER FROM C1", "FETCH AFTER"),
     ("FETCH ABSOLUTE 3 FROM C1 INTO :A", "FETCH ABSOLUTE"),
     ("FETCH RELATIVE -2 C1 INTO :A", "FETCH RELATIVE"),
@@ -372,8 +386,8 @@ _SCROLL_AND_ROWSET = [
     ("FETCH NEXT ROWSET FROM C1 INTO :A", "multi-row FETCH"),
     ("FETCH ROWSET STARTING AT ABSOLUTE 4 FROM C1 FOR :N ROWS INTO :A", "FETCH ABSOLUTE|multi-row FETCH"),
     ("FETCH FROM C1 FOR 3 ROWS INTO :A", "multi-row FETCH"),
-    ("INSERT INTO T (A) VALUES (:A) FOR :N ROWS", "multi-row INSERT"),
-    ("INSERT INTO T (A) VALUES (:A) FOR 10 ROWS ATOMIC", "multi-row INSERT"),
+    ("INSERT INTO T (A) VALUES (:A) FOR :N ROWS NOT ATOMIC CONTINUE ON SQLEXCEPTION", "multi-row INSERT"),
+    ("INSERT INTO T (A) VALUES (:A) FOR 10 ROWS NOT ATOMIC CONTINUE ON SQLEXCEPTION", "multi-row INSERT"),
 ]
 
 
@@ -467,8 +481,13 @@ def _scroll_sql(declare):
         ("S1 SCROLL CURSOR WITH HOLD", "FETCH FIRST S1 INTO :A", "WITH HOLD"),
         ("S1 NO SCROLL CURSOR", "FETCH FIRST S1 INTO :A", "not declared SCROLL"),
         ("S1 CURSOR", "FETCH ABSOLUTE 2 S1 INTO :A", "not declared SCROLL"),
-        ("S1 SCROLL CURSOR", "FETCH BEFORE S1", "only positions"),
-        ("S1 SCROLL CURSOR", "FETCH AFTER S1", "only positions"),
+        ("S1 CURSOR", "FETCH BEFORE S1", "needs a cursor declared SCROLL"),
+        ("S1 NO SCROLL CURSOR", "FETCH AFTER FROM S1", "needs a cursor declared SCROLL"),
+        ("S1 SENSITIVE SCROLL CURSOR", "FETCH BEFORE S1", "SENSITIVE or DYNAMIC"),
+        ("S1 INSENSITIVE SCROLL CURSOR", "FETCH SENSITIVE AFTER S1", "SENSITIVE or DYNAMIC"),
+        ("S1 SCROLL CURSOR WITH HOLD", "FETCH AFTER S1", "WITH HOLD"),
+        ("S1 SCROLL CURSOR", "FETCH BEFORE S1 INTO :A", "BEFORE / AFTER: takes a cursor and no INTO"),
+        ("S1 SCROLL CURSOR", "FETCH INSENSITIVE AFTER FROM S1 INTO :A", "BEFORE / AFTER: takes a cursor and no INTO"),
         ("S1 SCROLL CURSOR", "FETCH ROWSET STARTING AT ABSOLUTE 2 FROM S1 FOR 2 ROWS INTO :A", "multi-row"),
     ],
 )
@@ -489,6 +508,32 @@ def test_a_scroll_fetch_of_a_scroll_cursor_passes_the_checks(declare, fetch):
 
     with pytest.raises(SqlError, match="no generated Db2 repository method"):
         _scroll_sql(declare).command(f"EXEC SQL {fetch} INTO :A END-EXEC", 7, "")
+
+
+@pytest.mark.parametrize("declare", ["S1 SCROLL CURSOR", "S1 INSENSITIVE SCROLL CURSOR", "S1 ASENSITIVE SCROLL CURSOR"])
+@pytest.mark.parametrize(
+    "fetch, where",
+    [
+        ("FETCH BEFORE S1", "BEFORE"),
+        ("FETCH AFTER S1", "AFTER"),
+        ("FETCH BEFORE FROM S1", "BEFORE"),
+        ("FETCH INSENSITIVE AFTER FROM S1", "AFTER"),
+        ("fetch\n  after\n from s1", "AFTER"),
+    ],
+)
+def test_fetch_before_or_after_a_scroll_cursor_parks_it_with_no_row_and_no_repository_method(declare, fetch, where):
+    # (no generated method in this stub, none needed: a position reads no row)
+    out = _scroll_sql(declare).command(f"EXEC SQL {fetch} END-EXEC", 7, "")
+    assert out == [f'DetSql.positionScroll(ca, "P:7", "S1", "{where}", CS);']
+
+
+def test_fetch_before_and_after_are_refused_in_a_cics_program_too():
+    from gitgalaxy.tools.cobol_to_java.det.sql import SqlError
+
+    gen = _Gen()
+    gen.cics = SimpleNamespace()
+    with pytest.raises(SqlError, match="register Q4"):
+        _run("FETCH BEFORE FROM C1", gen=gen)
 
 
 _SCROLL_MAIN = """package ggtest;
@@ -517,7 +562,9 @@ public class Main {
     }
 
     static void go(Field ca, String c, String o, long n) {
-        Map<String, Object> row = o.equals("NEXT") ? DetSql.fetch(ca, "P:9", c, CS) : DetSql.fetchScroll(ca, "P:9", c, o, n, CS);
+        Map<String, Object> row = null;
+        if (o.equals("BEFORE") || o.equals("AFTER")) DetSql.positionScroll(ca, "P:9", c, o, CS);
+        else row = o.equals("NEXT") ? DetSql.fetch(ca, "P:9", c, CS) : DetSql.fetchScroll(ca, "P:9", c, o, n, CS);
         if (row != null) last = row.get("ID");
         System.out.println(o + " " + n + " " + sqlcode(ca) + " " + last);
     }
@@ -529,14 +576,22 @@ public class Main {
             {"NEXT", 0}, {"LAST", 0}, {"PRIOR", 0}, {"FIRST", 0}, {"ABSOLUTE", 3}, {"ABSOLUTE", -2}, {"RELATIVE", 1},
             {"RELATIVE", 1}, {"PRIOR", 0}, {"CURRENT", 0}, {"RELATIVE", -3}, {"ABSOLUTE", 4}, {"FIRST", 0}, {"PRIOR", 0},
             {"NEXT", 0}, {"ABSOLUTE", 9}, {"PRIOR", 0}, {"RELATIVE", -9}, {"NEXT", 0}, {"ABSOLUTE", 0}, {"ABSOLUTE", -5},
-            {"ABSOLUTE", -6}, {"NEXT", 0}, {"RELATIVE", 0}};
+            {"ABSOLUTE", -6}, {"NEXT", 0}, {"RELATIVE", 0},
+            {"AFTER", 0}, {"PRIOR", 0}, {"BEFORE", 0}, {"NEXT", 0}, {"AFTER", 0}, {"NEXT", 0}, {"BEFORE", 0}, {"PRIOR", 0},
+            {"AFTER", 0}, {"BEFORE", 0}, {"LAST", 0}};
         for (Object[] s : steps) go(ca, "S1", (String) s[0], ((Number) s[1]).longValue());
         DetSql.close(ca, "P:2", "S1", CS);
         go(ca, "S1", "LAST", 0);
+        go(ca, "S1", "AFTER", 0);
+        go(ca, "S1", "BEFORE", 0);
         DetSql.open(ca, "P:3", "S2", () -> rows(0), CS);
         go(ca, "S2", "FIRST", 0);
         go(ca, "S2", "LAST", 0);
         go(ca, "S2", "NEXT", 0);
+        go(ca, "S2", "PRIOR", 0);
+        go(ca, "S2", "AFTER", 0);
+        go(ca, "S2", "NEXT", 0);
+        go(ca, "S2", "BEFORE", 0);
         go(ca, "S2", "PRIOR", 0);
         try {
             DetSql.fetchScroll(ca, "P:4", "S2", "SIDEWAYS", 0, CS);
@@ -598,11 +653,28 @@ def test_detsql_moves_a_position_over_the_rows_read_at_open_as_db2_does(tmp_path
         "ABSOLUTE -6 100 10",  # -n counts from the end; one more than there are is before the first
         "NEXT 0 0 10",
         "RELATIVE 0 0 10",
-        "LAST 0 -501 10",  # closed
-        "FIRST 0 100 10",
-        "LAST 0 100 10",
-        "NEXT 0 100 10",
-        "PRIOR 0 100 10",  # no rows: every move is +100
+        "AFTER 0 0 10",  # FETCH AFTER / BEFORE: a position, SQLCODE 0, the host variable untouched
+        "PRIOR 0 0 50",  # from after the last row, PRIOR is the last
+        "BEFORE 0 0 50",
+        "NEXT 0 0 10",  # from before the first, NEXT is the first
+        "AFTER 0 0 10",
+        "NEXT 0 100 10",  # after the last: still +100
+        "BEFORE 0 0 10",
+        "PRIOR 0 100 10",
+        "AFTER 0 0 10",
+        "BEFORE 0 0 10",
+        "LAST 0 0 50",
+        "LAST 0 -501 50",  # closed
+        "AFTER 0 -501 50",
+        "BEFORE 0 -501 50",
+        "FIRST 0 100 50",
+        "LAST 0 100 50",
+        "NEXT 0 100 50",
+        "PRIOR 0 100 50",  # no rows: every move is +100
+        "AFTER 0 0 50",
+        "NEXT 0 100 50",
+        "BEFORE 0 0 50",
+        "PRIOR 0 100 50",
         "refused",
     ]
 
@@ -613,10 +685,30 @@ _TRACED_SCROLL = [
     ("NEXT", 0, 10), ("LAST", 0, 50), ("PRIOR", 0, 40), ("FIRST", 0, 10), ("ABS 3", 0, 30), ("ABS -2", 0, 40),
     ("REL 1", 0, 50), ("REL 1 PAST", 100, 50), ("PRIOR OFF", 0, 50), ("CURRENT", 0, 50), ("REL VAR -3", 0, 20),
     ("ABS VAR 4", 0, 40), ("FIRST", 0, 10), ("PRIOR BEFORE", 100, 10), ("NEXT AFTER", 0, 10), ("ABS 9", 100, 10),
-    ("PRIOR LAST", 0, 50), ("REL -9", 100, 50), ("NEXT FIRST", 0, 10), ("ABS 0", 100, 10), ("CLOSE", 0, 10),
+    ("PRIOR LAST", 0, 50), ("REL -9", 100, 50), ("NEXT FIRST", 0, 10), ("ABS 0", 100, 10),
+    ("AFTER", 0, 10), ("PRIOR AFTER", 0, 50), ("BEFORE", 0, 50), ("NEXT BEFORE", 0, 10), ("AFTER FROM", 0, 10),
+    ("NEXT PAST", 100, 10), ("BEFORE FROM", 0, 10), ("PRIOR PAST", 100, 10), ("CLOSE", 0, 10),
     ("LAST CLOSED", -501, 10), ("EMPTY FIRST", 100, 10), ("EMPTY LAST", 100, 10),
+    ("EMPTY AFTER", 0, 10), ("EMPTY BEFORE", 0, 10),
 ]  # fmt: skip
 TRACED_SCROLL = "".join(f"{t:<14}{c:>10}{v:>10}\n" for t, c, v in _TRACED_SCROLL)
+
+
+def test_the_oracle_takes_fetch_before_and_after_as_a_position_with_no_row():
+    """#4269: equivalence_sql.py gives BEFORE / AFTER (no INTO) a scroll statement with no host variable; ggsql.c reads
+    the `K:BEFORE` / `K:AFTER` token. A cursor not declared SCROLL, or the INTO form, stays refused by name."""
+    import equivalence_sql as Q
+
+    _, table = Q.precompile((SCR / "cbl" / "SCRDEMO.cbl").read_text(encoding="utf-8"), [], Path("SCRDEMO.cbl"))
+    fetches = [ln.split() for ln in table.splitlines() if ln.startswith("S ") and " FETCH " in ln]
+    positions = [(f[5], f[8]) for f in fetches if f[8] in ("K:BEFORE", "K:AFTER")]
+    assert positions == [("SC1", "K:AFTER"), ("SC1", "K:BEFORE"), ("SC1", "K:AFTER"), ("SC1", "K:BEFORE"),
+                         ("SC2", "K:AFTER"), ("SC2", "K:BEFORE")]  # fmt: skip
+    assert all(f[3:5] == ["0", "0"] for f in fetches if f[8] in ("K:BEFORE", "K:AFTER"))  # no input, no output
+    src = (SCR / "cbl" / "SCRDEMO.cbl").read_text(encoding="utf-8")
+    plain = src.replace("SC1 INSENSITIVE SCROLL CURSOR", "SC1 CURSOR").replace("SC2 SCROLL CURSOR", "SC2 CURSOR")
+    with pytest.raises(Q.Unsupported, match="not declared SCROLL"):
+        Q.precompile(plain, [], Path("SCRDEMO.cbl"))
 
 
 @pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
@@ -642,7 +734,8 @@ def test_scrolldemo_det_port_proves_on_db2_against_the_hand_trace(tmp_path):
     stub = (project / "src/main/java" / det_port.PKG_DIR / "service" / "ScrdemoService.java").read_text("utf-8")
     r = P.translate(estate / "cbl/SCRDEMO.cbl", [estate / "cbl"], stub, det_port.PKG, P.estate_files(project), project)
     assert r.stats["holes"] == []
-    assert r.java.count("DetSql.fetchScroll(") == 20  # every FETCH but the three plain NEXT ones (18 on SC1, 2 on SC2)
+    assert r.java.count("DetSql.fetchScroll(") == 22  # every FETCH but the plain NEXT ones and BEFORE / AFTER
+    assert r.java.count("DetSql.positionScroll(") == 6  # (4 on SC1, 2 on the empty SC2): the oracle runs these as well
     port = tmp_path / "port"
     (port / "service").mkdir(parents=True)
     (port / "service" / f"{r.service}.java").write_text(r.java, encoding="utf-8")
@@ -829,6 +922,248 @@ def test_rowdemo_det_port_proves_on_db2_against_the_hand_trace(tmp_path):
     assert (keep / "cobol" / "stdout.txt").read_text(encoding="latin-1") == TRACED_ROWSET
 
 
+# #4269 INSERT ... FOR n ROWS: the translator's reading of the host variable tables, with items in place of a COBOL source
+def _insert_rows_sql(items):
+    from types import SimpleNamespace as NS
+
+    from gitgalaxy.tools.cobol_to_java.det.sql import Method, Sql
+
+    def item(name, pic="X(4)", occurs=3, category="ALPHANUMERIC"):
+        return NS(name=name, parent=None, pic=pic, occurs=occurs, category=category, children=[], usage="DISPLAY",
+                  level=5)  # fmt: skip
+
+    class Gen(_Gen):
+        def tmpname(self, base):
+            return base
+
+        def resolve(self, ref):
+            return items(item)[ref.name]
+
+    sql = Sql(Gen(), "P", None)
+    sql.methods = {
+        ("P", 7): Method("Repo", "ins", "INSERT", {k: k.lower() for k in ("A", "B", "C", "S", "N", "T", "SHORT")})
+    }
+    return sql
+
+
+def _insert_items(item):
+    return {
+        "A": item("A"),
+        "B": item("B", "S9(5)", 3, "NUMERIC"),
+        "C": item("C", "S9(4)", 3, "NUMERIC"),
+        "S": item("S", "X(4)", 1),
+        "N": item("N", "S9(4)", 1, "NUMERIC"),
+        "T": item("T", "X(4)", 1, "ALPHANUMERIC"),
+        "SHORT": item("SHORT", "X(4)", 2),
+    }
+
+
+def test_insert_for_n_rows_calls_the_single_row_insert_per_element():
+    out = _insert_rows_sql(_insert_items).command(
+        "EXEC SQL INSERT INTO T (A, B) VALUES (:A, :B :C) FOR 2 ROWS ATOMIC END-EXEC", 7, ""
+    )
+    assert out == [
+        'DetSql.insertRows(ca, "P:7", 2L, 3, "XN", new String[] {"a", "b"}, '
+        "new Field[][] {{ca, ca, ca}, {ca, ca, ca}}, new Field[][] {null, {ca, ca, ca}}, p -> repo.ins(p), CS);"
+    ]
+
+
+def test_insert_for_a_host_variable_n_rows_reads_n_at_run_time():
+    out = _insert_rows_sql(_insert_items).command("EXEC SQL INSERT INTO T (A) VALUES (:A) FOR :N ROWS END-EXEC", 7, "")
+    assert 'DetSql.insertRows(ca, "P:7", DetSql.numIn(ca, CS).longValue(), 3, "X"' in out[0]
+
+
+@pytest.mark.parametrize(
+    "stmt, why",
+    [
+        ("INSERT INTO T (A) VALUES (:S) FOR 2 ROWS", "not an elementary table"),
+        ("INSERT INTO T (A, B) VALUES (:A, :S) FOR 2 ROWS", "not an elementary table"),
+        ("INSERT INTO T (A) VALUES (:A) FOR 4 ROWS", "exceeds the host variable tables"),
+        ("INSERT INTO T (A) VALUES (:A) FOR :T ROWS", "not a numeric host variable"),
+        ("INSERT INTO T (A, B) VALUES (:A, :SHORT) FOR 3 ROWS", "exceeds the host variable tables"),
+        ("INSERT INTO T (A) VALUES (:A :SHORT) FOR 2 ROWS", "indicator array"),
+    ],
+)
+def test_insert_for_n_rows_with_host_variables_that_are_not_matching_tables_is_refused(stmt, why):
+    from gitgalaxy.tools.cobol_to_java.det.sql import SqlError
+
+    with pytest.raises(SqlError, match=why):
+        _insert_rows_sql(_insert_items).command(f"EXEC SQL {stmt} END-EXEC", 7, "")
+
+
+def test_the_forge_method_for_insert_for_n_rows_is_the_single_row_insert():
+    from gitgalaxy.tools.cobol_to_java.cobol_to_java_db2_forge import to_jdbc
+
+    for tail in ("FOR 2 ROWS", "FOR :N ROWS ATOMIC", "for 10 rows"):
+        sql, params, _notes = to_jdbc(f"INSERT INTO T (A, B) VALUES (:WS-A, :WS-B) {tail}", "INSERT")
+        assert sql == "INSERT INTO T (A, B) VALUES (:wsA, :wsB)"
+        assert [h for h, _ in params] == ["WS-A", "WS-B"]
+
+
+# #4269 INSERT ... FOR n ROWS, proven on Db2: INSDEMO is built inline; GGINS.ITEM holds one seeded row (id 1)
+_INSDEMO_CBL = """\
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. INSDEMO.
+       ENVIRONMENT DIVISION.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+           EXEC SQL INCLUDE SQLCA END-EXEC.
+           EXEC SQL DECLARE GGINS.ITEM TABLE
+               ( ID                 INTEGER NOT NULL,
+                 NAME               CHAR(4) NOT NULL,
+                 QTY                DECIMAL(5,2)
+               ) END-EXEC.
+       01  WS-TABLES.
+           05  WS-ID                PIC S9(9) COMP OCCURS 3.
+           05  WS-NAME              PIC X(4) OCCURS 3.
+           05  WS-QTY               PIC S9(3)V99 COMP-3 OCCURS 3.
+           05  WS-QI                PIC S9(4) COMP OCCURS 3.
+       01  WS-N                     PIC S9(9) COMP.
+       01  WS-CNT                   PIC S9(9) COMP.
+       01  WS-CODE                  PIC -(9)9.
+       01  WS-ROWS                  PIC -(9)9.
+       01  WS-TAG                   PIC X(8).
+       PROCEDURE DIVISION.
+       MAIN-PARA.
+           MOVE 10 TO WS-ID(1)
+           MOVE 20 TO WS-ID(2)
+           MOVE 30 TO WS-ID(3)
+           MOVE 'AAAA' TO WS-NAME(1)
+           MOVE 'BBBB' TO WS-NAME(2)
+           MOVE 'CCCC' TO WS-NAME(3)
+           MOVE 1.5 TO WS-QTY(1)
+           MOVE 2.5 TO WS-QTY(2)
+           MOVE 3.5 TO WS-QTY(3)
+           MOVE 0 TO WS-QI(1)
+           MOVE -1 TO WS-QI(2)
+           MOVE 0 TO WS-QI(3)
+           EXEC SQL INSERT INTO GGINS.ITEM (ID, NAME, QTY)
+               VALUES (:WS-ID, :WS-NAME, :WS-QTY :WS-QI)
+               FOR 2 ROWS END-EXEC
+           MOVE 'LIT 2' TO WS-TAG
+           PERFORM SHOW-PARA
+           MOVE 3 TO WS-N
+           MOVE 40 TO WS-ID(1)
+           MOVE 50 TO WS-ID(2)
+           MOVE 60 TO WS-ID(3)
+           EXEC SQL INSERT INTO GGINS.ITEM (ID, NAME, QTY)
+               VALUES (:WS-ID, :WS-NAME, :WS-QTY :WS-QI)
+               FOR :WS-N ROWS ATOMIC END-EXEC
+           MOVE 'VAR 3' TO WS-TAG
+           PERFORM SHOW-PARA
+           MOVE 1 TO WS-ID(1)
+           MOVE 70 TO WS-ID(2)
+           EXEC SQL INSERT INTO GGINS.ITEM (ID, NAME, QTY)
+               VALUES (:WS-ID, :WS-NAME, :WS-QTY :WS-QI)
+               FOR 2 ROWS END-EXEC
+           MOVE 'DUP KEY' TO WS-TAG
+           PERFORM SHOW-PARA
+           MOVE 80 TO WS-ID(1)
+           MOVE 1 TO WS-ID(2)
+           MOVE 90 TO WS-ID(3)
+           EXEC SQL INSERT INTO GGINS.ITEM (ID, NAME, QTY)
+               VALUES (:WS-ID, :WS-NAME, :WS-QTY :WS-QI)
+               FOR 3 ROWS ATOMIC END-EXEC
+           MOVE 'DUP ROW2' TO WS-TAG
+           PERFORM SHOW-PARA
+           MOVE 81 TO WS-ID(1)
+           MOVE 82 TO WS-ID(2)
+           MOVE 1 TO WS-ID(3)
+           MOVE 3 TO WS-N
+           EXEC SQL INSERT INTO GGINS.ITEM (ID, NAME, QTY)
+               VALUES (:WS-ID, :WS-NAME, :WS-QTY :WS-QI)
+               FOR :WS-N ROWS END-EXEC
+           MOVE 'DUP LAST' TO WS-TAG
+           PERFORM SHOW-PARA
+           EXEC SQL SELECT COUNT(*) INTO :WS-CNT FROM GGINS.ITEM
+           END-EXEC
+           MOVE WS-CNT TO SQLERRD(3)
+           MOVE 'COUNT' TO WS-TAG
+           PERFORM SHOW-PARA
+           STOP RUN.
+       SHOW-PARA.
+           MOVE SQLCODE TO WS-CODE
+           MOVE SQLERRD(3) TO WS-ROWS
+           DISPLAY WS-TAG WS-CODE WS-ROWS.
+"""
+_INSDEMO_JCL = _ROWDEMO_JCL.replace("ROWDEMO", "INSDEMO").replace("GGROW", "GGINS")
+_INSDEMO_DDL = (
+    "CREATE TABLE GGINS.ITEM (ID INTEGER NOT NULL, NAME CHAR(4) NOT NULL, QTY DECIMAL(5,2), PRIMARY KEY (ID));\n"
+)
+_INSDEMO_SEED = "INSERT INTO GGINS.ITEM VALUES (1, 'ZZZZ', 9.00);\n"
+# per statement: tag (8), SQLCODE (10), SQLERRD(3) (10); the duplicate key is the first row: -803, nothing inserted; a
+# duplicate on row 2 or the last row is -803 with the rows before it undone (ATOMIC), the count still 6
+TRACED_INSERT_ROWS = "".join(
+    f"{tag:<8}{code:>10}{rows:>10}\n"
+    for tag, code, rows in (
+        ("LIT 2", 0, 2),
+        ("VAR 3", 0, 3),
+        ("DUP KEY", -803, 0),
+        ("DUP ROW2", -803, 0),
+        ("DUP LAST", -803, 0),
+        ("COUNT", 0, 6),
+    )
+)
+
+
+def _insdemo_port(tmp_path):
+    pytest.importorskip("tree_sitter_language_pack")
+    import det_port
+
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    estate = tmp_path / "estate"
+    for rel, text in (
+        ("cbl/INSDEMO.cbl", _INSDEMO_CBL),
+        ("jcl/INSDEMO.jcl", _INSDEMO_JCL),
+        ("ddl/ITEM.ddl", _INSDEMO_DDL),
+    ):
+        (estate / rel).parent.mkdir(parents=True, exist_ok=True)
+        (estate / rel).write_text(text, encoding="utf-8")
+    (tmp_path / "seed.sql").write_text(_INSDEMO_SEED, encoding="utf-8")
+    for argv in (["init", "-q"], ["add", "-A"], ["-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qm", "e"]):
+        subprocess.run(["git", "-C", str(estate), *argv], check=True)  # noqa: S603, S607
+    project = det_port.estate(estate, tmp_path / "translate")  # (its own work: never inside the estate)
+    stub = (project / "src/main/java" / det_port.PKG_DIR / "service" / "InsdemoService.java").read_text("utf-8")
+    r = P.translate(estate / "cbl/INSDEMO.cbl", [estate / "cbl"], stub, det_port.PKG, P.estate_files(project), project)
+    port = tmp_path / "port"
+    (port / "service").mkdir(parents=True)
+    (port / "service" / f"{r.service}.java").write_text(r.java, encoding="utf-8")
+    for rel, text in P.runtime_files(det_port.PKG, P.has_batch(project)).items():
+        if "/cics/" not in rel:
+            (port / rel).parent.mkdir(parents=True, exist_ok=True)
+            (port / rel).write_text(text, encoding="utf-8")
+    return estate, r, port
+
+
+@pytest.mark.slow(reason="builds an estate and runs the det-port translator (tree-sitter load, ~40 s)")
+def test_insdemo_translates_every_insert_for_n_rows_with_no_holes(tmp_path):
+    _estate, r, _port = _insdemo_port(tmp_path)
+    assert r.stats["holes"] == []
+    assert r.java.count("DetSql.insertRows(") == 5
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_insdemo_det_port_proves_on_db2_against_the_hand_trace(tmp_path):
+    import json
+
+    estate, _r, port = _insdemo_port(tmp_path)
+    case = {"corpus": "insert-rows-synthetic", "program": "INSDEMO", "program_source": "cbl/INSDEMO.cbl",
+            "copy_dirs": [], "parm": None, "clock": "2026/10/30 10:00:00.00", "datasets": {},
+            "db2": {"ddl": ["ddl/ITEM.ddl"], "seed": str(tmp_path / "seed.sql"), "compare": ["GGINS.ITEM"],
+                    "compare_sql": True}}  # fmt: skip
+    (tmp_path / "case.json").write_text(json.dumps(case), encoding="utf-8")
+    keep = tmp_path / "proof"
+    proc = subprocess.run([sys.executable, str(TOOLS / "equivalence.py"), "run", "insrows", "--case-file",  # noqa: S603
+                           str(tmp_path / "case.json"), "--corpus-dir", str(estate), "--port", str(port), "--keep",
+                           str(keep), "--faults", "none", "--sql-faults", "none"],
+                          capture_output=True, text=True, check=False)  # fmt: skip
+    assert proc.returncode == 0, proc.stdout[-3000:] + proc.stderr[-3000:]
+    report = json.loads((keep / "report.json").read_text(encoding="utf-8"))
+    assert report["proven"] is True
+    assert (keep / "cobol" / "stdout.txt").read_text(encoding="latin-1") == TRACED_INSERT_ROWS
+
+
 @pytest.mark.parametrize(
     "declare, why",
     [
@@ -903,8 +1238,8 @@ public class Main {
 """
 
 
-@pytest.mark.skipif(_jdk() is None, reason="no JDK (JDK_17 / JAVA_HOME)")
-def test_detsql_reads_a_rowset_and_sets_sqlerrd3_as_db2_does(tmp_path):
+def _run_detsql_main(tmp_path, main_java):
+    """Compile the det runtime beside `main_java` (ggtest.Main) with the JDK and return its stdout lines."""
     from javac_server import javac as javac_run
 
     rt = TOOLS.parent.parent / "gitgalaxy" / "tools" / "cobol_to_java" / "det" / "cobolrt"
@@ -914,14 +1249,19 @@ def test_detsql_reads_a_rowset_and_sets_sqlerrd3_as_db2_does(tmp_path):
         for f in (rt / sub).glob("*.java"):
             text = f.read_text(encoding="utf-8").replace("__PACKAGE__", "ggtest")
             (src / "cobolrt" / sub / f.name).write_text(text, encoding="utf-8")
-    (src / "Main.java").write_text(_ROWSET_MAIN, encoding="utf-8")
+    (src / "Main.java").write_text(main_java, encoding="utf-8")
     jdk = _jdk()
     files = [str(p) for p in (tmp_path / "src").rglob("*.java")]
     javac = javac_run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"), *files],  # noqa: S603
                       capture_output=True, text=True, encoding="utf-8", check=False)  # fmt: skip
     assert javac.returncode == 0, javac.stderr[:3000]
-    out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "ggtest.Main"],  # noqa: S603
+    return subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "ggtest.Main"],  # noqa: S603
                          capture_output=True, text=True, encoding="utf-8", check=True).stdout.splitlines()  # fmt: skip
+
+
+@pytest.mark.skipif(_jdk() is None, reason="no JDK (JDK_17 / JAVA_HOME)")
+def test_detsql_reads_a_rowset_and_sets_sqlerrd3_as_db2_does(tmp_path):
+    out = _run_detsql_main(tmp_path, _ROWSET_MAIN)
     assert out == [
         "R1 2 code=0 rows=2 erd3=2",
         "R1 3 code=0 rows=3 erd3=3",  # rows 3, 4, 5: full
@@ -931,4 +1271,85 @@ def test_detsql_reads_a_rowset_and_sets_sqlerrd3_as_db2_does(tmp_path):
         "R2 2 code=100 rows=0 erd3=0",  # no rows
         "refused 0",
         "refused 4",
+    ]
+
+
+_INSERT_ROWS_MAIN = """\
+package ggtest;
+
+import ggtest.cobolrt.Field;
+import ggtest.cobolrt.Storage;
+import ggtest.cobolrt.sql.DetSql;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+
+public class Main {
+    static final Charset CS = StandardCharsets.ISO_8859_1;
+    static final List<String> LOG = new ArrayList<>();
+
+    static int num(Field ca, int off) {
+        byte[] b = ca.storage().bytes;
+        return (b[off] & 0xFF) | (b[off + 1] & 0xFF) << 8 | (b[off + 2] & 0xFF) << 16 | b[off + 3] << 24;
+    }
+
+    static void go(String tag, long n, int failAt, boolean unit) {
+        Field ca = Field.group(new Storage(136), 0, 136);
+        Field cell = Field.group(new Storage(4), 0, 4);
+        Field[][] hosts = {{cell, cell, cell}};
+        int[] row = {0};
+        LOG.clear();
+        DetSql.unitOfWork(unit ? new DetSql.UnitOfWork() {
+            public void commit() {}
+            public void rollback() {}
+            public void execute(String sql) { LOG.add(sql); }
+        } : null);
+        try {
+            DetSql.insertRows(ca, "P:1", n, 3, "X", new String[] {"a"}, hosts, new Field[][] {null},
+                    p -> { if (++row[0] == failAt) throw new IllegalStateException(new java.sql.SQLException("duplicate", "23505", -803)); return 1; }, CS);
+            System.out.println(tag + " erd3=" + num(ca, 104) + " rows=" + row[0] + " " + LOG);
+        } catch (UnsupportedOperationException e) {
+            System.out.println(tag + " refused rows=" + row[0] + " " + LOG);
+        }
+        System.out.println(tag + " code=" + num(ca, 12));
+    }
+
+    public static void main(String[] a) {
+        go("ok3", 3, 0, true);
+        go("ok1", 1, 0, true);
+        go("fail1", 3, 1, true);
+        go("fail2", 3, 2, true);
+        go("fail3", 3, 3, true);
+        go("single", 1, 1, true);
+        go("nounit_fail1", 2, 1, false);
+        go("nounit_fail2", 2, 2, false);
+    }
+}
+"""
+
+
+@pytest.mark.skipif(_jdk() is None, reason="no JDK (JDK_17 / JAVA_HOME)")
+def test_detsql_insert_rows_undoes_the_rows_before_a_failing_one_with_a_savepoint(tmp_path):
+    sp = "SAVEPOINT GGINSROWS_UNDO ON ROLLBACK RETAIN CURSORS"
+    undo = "ROLLBACK TO SAVEPOINT GGINSROWS_UNDO"
+    rel = "RELEASE SAVEPOINT GGINSROWS_UNDO"
+    out = _run_detsql_main(tmp_path, _INSERT_ROWS_MAIN)
+    assert out == [
+        f"ok3 erd3=3 rows=3 [{sp}, {rel}]",  # a whole rowset: the savepoint released
+        "ok3 code=0",
+        "ok1 erd3=1 rows=1 []",  # one row needs no undo
+        "ok1 code=0",
+        f"fail1 erd3=0 rows=1 [{sp}, {undo}, {rel}]",  # the first row: nothing inserted
+        "fail1 code=-803",
+        f"fail2 erd3=0 rows=2 [{sp}, {undo}, {rel}]",  # row 2 of 3: row 1 undone, row 3 never run
+        "fail2 code=-803",
+        f"fail3 erd3=0 rows=3 [{sp}, {undo}, {rel}]",  # the last row: rows 1 and 2 undone
+        "fail3 code=-803",
+        "single erd3=0 rows=1 []",
+        "single code=-803",
+        "nounit_fail1 erd3=0 rows=1 []",  # no unit of work: the first row is Db2's error as before
+        "nounit_fail1 code=-803",
+        "nounit_fail2 refused rows=2 []",  # ... a later row is refused, never answered
+        "nounit_fail2 code=0",
     ]

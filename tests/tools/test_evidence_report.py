@@ -264,6 +264,29 @@ def test_infeasible_outcomes_are_stated_and_netted_never_hidden():
     assert all(e["family"] in "GCR" and e["reason"] for e in got["infeasible_stated"])
 
 
+def test_undefined_by_ibm_nets_out_but_is_never_listed_infeasible():
+    """Owner ruling 2026-10-29 (policy section 7): BNK1CAC's four family-U outcomes leave the branch bar like stated
+    infeasible ones, but are named under `undefined_by_ibm`, never in `infeasible_netted` / `infeasible_stated`.
+    The coverage is the det-sweep ledger's counts (uncovered None: every entry taken as uncovered)."""
+    import infeasible_outcomes as io
+
+    four = ["ED010:611:true", "ED010:637:false", "ED010:637:true", "ED010:717:true"]
+    got = er.coverage_of({"case": "cbsa-bnk1cac", "role": "program"}, {}, {"cbsa-bnk1cac": [25, 25, 77, 97]})
+    assert got["branches"] == {"covered": 77, "total": 97}
+    assert got["branches_net"] == {"covered": 77, "total": 77} and got["branch_net_pct"] == 100.0
+    assert got["undefined_by_ibm"] == four
+    assert len(got["infeasible_netted"]) == 16 and not set(four) & set(got["infeasible_netted"])
+    assert len(got["infeasible_stated"]) == 16 and all(e["family"] in "GCR" for e in got["infeasible_stated"])
+    assert [e["key"] for e in got["undefined_by_ibm_stated"]] == four
+    assert all(e["family"] == io.UNDEFINED and e["reason"] for e in got["undefined_by_ibm_stated"])
+    # a case with no U entry carries no `undefined_by_ibm_stated` key at all
+    case, entries = next((c, es) for c, es in io.load().items() if not any(io.is_undefined(e) for e in es))
+    assert "undefined_by_ibm_stated" not in er.coverage_of({"case": case}, {}, {case: [5, 5, 10, 10 + len(entries)]})
+    # and the level: with the net at 100, BNK1CAC's coverage holds nothing below L4
+    p = program(branch=(77, 97), net=(77, 77))
+    assert er.level_of(p, BARS)[0] == "L4"
+
+
 def test_neutral_rewords_quoted_tool_text():
     assert er.neutral("not proven in CI; 7 cases re-proven; Verified") == (
         "not shown equal in CI; 7 cases re-shown equal; checked"
@@ -905,3 +928,51 @@ def test_a_reviewed_infeasible_paragraph_is_netted_from_the_paragraph_count_only
     assert "paragraph_net_pct" not in reached and reached["infeasible_refuted"] == ["6000-EXIT:paragraph"]
     # no paragraph entry: no optional key
     assert "paragraph_net_pct" not in er.coverage_of({"case": "d", "record": None}, {}, {"d": [15, 16, 38, 40]})
+
+
+# ---- #5229: reach measured from the commands a record carries ----------------------------------------------------
+def _case(commands, role="program"):
+    rec = {"commands_run": commands} if commands is not None else {}
+    return {"case": "c", "role": role, "record": rec}
+
+
+def test_reach_is_the_registers_of_the_commands_the_scenarios_ran():
+    spec = er.css.spec()
+    reach = er.reach_of(_case(["WRITEQ-TS", "RETURN", "SEND-MAP"]))
+    want = {r for k in ("WRITEQ TS", "RETURN", "SEND MAP") for r in er.css.registers(spec[k])}
+    assert reach["registers"] == sorted(want, key=lambda x: int(x[1:]))
+    assert reach["commands_run"] == ["RETURN", "SEND MAP", "WRITEQ TS"]
+
+
+@pytest.mark.parametrize(
+    "case",
+    [
+        None,  # no case
+        _case(None),  # a record from before the commands were recorded
+        _case([]),
+        _case(["RETURN"], role="linked"),  # a LINKed program's events are its main program's
+        _case(["RETURN", "MQGET"]),  # an MQI call is no spec entry: partial mapping is never reported as reach
+    ],
+)
+def test_reach_is_not_measured_without_every_command_mapped_for_the_programs_own_case(case):
+    assert er.reach_of(case) == "not measured"
+
+
+def test_record_summary_carries_commands_run_only_when_non_empty(monkeypatch):
+    class T:
+        db2 = False
+
+    def summary(outputs):
+        rec = {"proof": {"outputs": outputs, "verdict": "proven"}}
+        monkeypatch.setattr(er.ev, "equivalence_target", lambda case: T())
+        monkeypatch.setattr(er.ev, "load", lambda t: rec)
+        return er.record_summary("c", None)
+
+    got = summary(
+        {
+            "a": {"equal": 1, "records": 1, "commands": ["RETURN"]},
+            "b": {"equal": 1, "records": 1, "commands": ["LINK", "RETURN"]},
+        }
+    )
+    assert got["commands_run"] == ["LINK", "RETURN"]
+    assert "commands_run" not in summary({"a": {"equal": 1, "records": 1}})

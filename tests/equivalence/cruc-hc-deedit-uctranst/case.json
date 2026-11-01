@@ -1,0 +1,58 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "HCDEED",
+  "program_source": "cases/condition-handling/hc-deedit-uctranst/src/HCDEED.cbl",
+  "copy_dirs": [],
+  "transid": "HC41",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "notes": "cics-crucible condition-handling / hc-deedit-uctranst (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): EXEC CICS BIF DEEDIT (digits right-aligned, the negative zone, a rightmost zoned byte, LENGERR) and INQUIRE / SET TERMINAL UCTRANST with DFHVALUE CVDAs (INVREQ RESP2 43, TERMIDERR RESP2 1 / 23). Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "deedit",
+      "commarea": null,
+      "terminal": "HC41 D",
+      "why": "BIF DEEDIT on IBM's two examples, a trailing minus, a 1-byte field and a zoned rightmost byte; LENGTH 0 raises LENGERR (RESP)"
+    },
+    {
+      "name": "uctranst",
+      "commarea": null,
+      "terminal": "HC41 U",
+      "termid": "T001",
+      "uctranst": "UCTRAN",
+      "why": "INQUIRE TERMINAL UCTRANST returns the TYPETERM's UCTRAN as a CVDA; SET TERMINAL UCTRANST(DFHVALUE(..)) changes it; a bad CVDA is INVREQ RESP2 43; an undefined terminal is TERMIDERR (planned, X26: the bad CVDA 999 is SET #3 INVREQ RESP2 43; the undefined terminal ZZZZ is INQUIRE #4 and SET #4 TERMIDERR)",
+      "faults": [
+        {
+          "cmd": "SET-TERMINAL",
+          "nth": 3,
+          "resp": "INVREQ"
+        },
+        {
+          "cmd": "INQ-TERMINAL",
+          "nth": 4,
+          "resp": "TERMIDERR"
+        },
+        {
+          "cmd": "SET-TERMINAL",
+          "nth": 4,
+          "resp": "TERMIDERR"
+        }
+      ]
+    },
+    {
+      "name": "lengerr-abend",
+      "commarea": null,
+      "terminal": "HC41 L",
+      "why": "BIF DEEDIT with LENGTH 0 and no RESP: LENGERR's default action, abend AEIV"
+    },
+    {
+      "name": "unmatched-mode",
+      "commarea": null,
+      "terminal": "HC41 Z",
+      "why": "takes the EVALUATE arm no crucible scenario reaches: a mode no WHEN names (falls through)"
+    }
+  ]
+}

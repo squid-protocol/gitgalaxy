@@ -238,6 +238,10 @@ def test_resolved_wrapper_proc_joins_its_assembler_step_sysin(tmp_path):
         "//DEF      EXEC BANKASM\n"
         "//NOTASM   EXEC BANKASM\n"
         "//PRE.SYSIN DD DSN=BANK.SRCLIB(TBL01),DISP=SHR\n"
+        "//         DD DSN=BANK.SRCLIB(TBL01),DISP=SHR\n"  # #5218: PRE's concatenation, not ASMSTEP's override
+        "//CONCAT   EXEC BANKASM\n"
+        "//ASMSTEP.SYSIN DD DSN=BANK.SRCLIB(EMPTY01),DISP=SHR\n"
+        "//         DD DSN=BANK.SRCLIB(TBL01),DISP=SHR\n"
         "//UNKNOWN  EXEC MYASM\n"
         "//ASMSTEP.SYSIN DD DSN=BANK.SRCLIB(TBL01),DISP=SHR\n",
         encoding="utf-8",
@@ -247,5 +251,177 @@ def test_resolved_wrapper_proc_joins_its_assembler_step_sysin(tmp_path):
     assert got == [
         ("OVR", "TBL01", "joined"),  # //ASMSTEP.SYSIN override wins over the proc's own SYSIN
         ("DEF", "EMPTY01", "no_tables"),  # no override: the proc's own ASMSTEP SYSIN
-        ("NOTASM", "EMPTY01", "no_tables"),  # //PRE.SYSIN is for IEFBR14, not ASMSTEP, so not an override of ASMSTEP
+        ("NOTASM", "EMPTY01", "no_tables"),  # //PRE.SYSIN (and its concatenation) is IEFBR14's, not ASMSTEP's
+        ("CONCAT", "EMPTY01", "no_tables"),  # an override concatenation: every DD is joined
+        ("CONCAT", "TBL01", "joined"),
     ]
+
+
+def test_assembler_proc_call_forms_join_only_the_override_sysin_they_state(tmp_path):
+    """#5218: DFHAUPLE keyword form, no override, symbolic assembler program, temp SYSIN, nested and doubly qualified
+    override DDs, and step-name case: each either joins its member or is not read (refused by name, never guessed)."""
+    base = tmp_path / "forms"
+    repo = base / "region"
+    shutil.copytree(FIXTURES / "jcl_sysin_shapes", repo)
+    (repo / "FORMS.jcl").write_text(
+        "//FORMS    JOB (ACCT),'FORMS',CLASS=A\n"
+        "//KEYWORD  EXEC PROC=DFHAUPLE,TABLE=X\n"
+        "//ASSEM.SYSIN DD DSN=BANK.SRCLIB(TBL01),DISP=SHR\n"
+        "//BARE     EXEC DFHAUPLE\n"
+        "//SYMBOLIC EXEC PGM=&ASMBLR\n"
+        "//SYSIN    DD DSN=&&TEMPM,DISP=(OLD,PASS)\n"
+        "//lower    EXEC pgm=asma90\n"
+        "//sysin    DD DSN=BANK.SRCLIB(TBL01),DISP=SHR\n"
+        "//QUAL     EXEC DFHAUPLE\n"
+        "//QUAL.ASSEM.SYSIN DD DSN=BANK.SRCLIB(TBL01),DISP=SHR\n",
+        encoding="utf-8",
+    )
+    ir = load_galaxy_ir(scan_to_db(repo, base / "scan"))
+    got = [(r["step"], r["member"], r["status"]) for r in ir.job_macro_tables() if r["file"] == "FORMS.jcl"]
+    assert got == [
+        ("KEYWORD", "TBL01", "joined"),
+        ("LOWER", "TBL01", "joined"),  # the parser upper-cases step names
+    ]
+
+
+def test_concatenated_sysin_is_joined_in_every_placement(tmp_path):
+    """#5218: a SYSIN concatenation (unnamed DDs) in a procedure's own SYSIN, a PROCSTEP override, behind a DUMMY first
+    DD, with a non-member DSN, a continued DSN and an in-stream tail: every member DD is joined, the rest is not read,
+    and the concatenation never leaks into the next EXEC step."""
+    base = tmp_path / "cat"
+    repo = base / "region"
+    shutil.copytree(FIXTURES / "jcl_sysin_shapes", repo)
+    (repo / "procs").mkdir()
+    (repo / "procs" / "CATASM.prc").write_text(
+        "//CATASM   PROC\n"
+        "//ASMSTEP  EXEC PGM=ASMA90\n"
+        "//SYSIN    DD DSN=BANK.SRCLIB(TBL01),DISP=SHR\n"
+        "//         DD DSN=BANK.SRCLIB(EMPTY01),DISP=SHR\n",
+        encoding="utf-8",
+    )
+    (repo / "CATJOB.jcl").write_text(
+        "//CATJOB   JOB (ACCT),'CAT',CLASS=A\n"
+        "//OWN      EXEC CATASM\n"
+        "//OVR      EXEC CATASM\n"
+        "//ASMSTEP.SYSIN DD DSN=BANK.SRCLIB(NOSUCH),DISP=SHR\n"
+        "//         DD DSN=BANK.SRCLIB(TBL01),DISP=SHR\n"
+        "//DUMMY    EXEC PGM=ASMA90\n"
+        "//SYSIN    DD DUMMY\n"
+        "//         DD DSN=BANK.SRCLIB(TBL01),DISP=SHR\n"
+        "//MIXED    EXEC PGM=ASMA90\n"
+        "//SYSIN    DD DSN=BANK.SRCLIB(EMPTY01),DISP=SHR\n"
+        "//         DD DSN=BANK.MACLIB,DISP=SHR\n"
+        "//         DD DSN=BANK.SRCLIB(TBL01),\n"
+        "//            DISP=SHR\n"
+        "//TAIL     EXEC PGM=ASMA90\n"
+        "//SYSIN    DD DSN=BANK.SRCLIB(TBL01),DISP=SHR\n"
+        "//         DD *\n"
+        "         DFHFCT TYPE=FILE,FILE=INLINE,DSNAME=BANK.IN.LINE\n"
+        "/*\n"
+        "//AFTER    EXEC PGM=IEFBR14\n"
+        "//         DD DSN=BANK.SRCLIB(TBL01),DISP=SHR\n",
+        encoding="utf-8",
+    )
+    ir = load_galaxy_ir(scan_to_db(repo, base / "scan"))
+    got = [(r["step"], r["member"], r["status"]) for r in ir.job_macro_tables() if r["file"] == "CATJOB.jcl"]
+    assert got == [
+        ("OWN", "TBL01", "joined"),  # the procedure's own SYSIN and its concatenation
+        ("OWN", "EMPTY01", "no_tables"),
+        ("OVR", "NOSUCH", "not_found"),  # the override replaces the proc's DDs, concatenation included
+        ("OVR", "TBL01", "joined"),
+        ("DUMMY", "TBL01", "joined"),  # DD DUMMY first: the concatenated member is still read
+        ("MIXED", "EMPTY01", "no_tables"),
+        ("MIXED", "TBL01", "joined"),  # BANK.MACLIB has no member: no entry; the continued DSN is read
+        ("TAIL", "TBL01", "joined"),  # the in-stream tail is the job's own csd_resources, not a member
+    ]
+
+
+_TBL = "         DFHFCT TYPE=FILE,FILE={n},DSNAME=BANK.{n}.DAM,KEYLEN=11\n"
+
+
+def _read_jcl_tables(jcl):
+    from gitgalaxy.core.mainframe_boundary import _jcl_macro_table_resources
+
+    return [(r["name"], r["line"]) for r in _jcl_macro_table_resources(jcl)]
+
+
+@pytest.mark.parametrize(
+    "exec_stmt",
+    [
+        "EXEC PGM=ASMA90",
+        "EXEC PGM=IEV90",
+        "EXEC PGM=IEUASM",
+        "EXEC PGM=IFOX00",
+        "EXEC PGM=ASMAHL,PARM='OBJECT'",
+        "EXEC ASMAC",
+        "EXEC ASMACL",
+        "EXEC PROC=ASMACLG",
+        "EXEC ASMFCLG",
+    ],
+)
+def test_5154_every_assembler_spelling_reads_its_inline_sysin(exec_stmt):
+    """#5154: an assembler program or IBM cataloged assembler procedure reads the SYSIN deck it is given."""
+    ddname = "ASM.SYSIN" if "PGM=" not in exec_stmt else "SYSIN"
+    jcl = f"//J JOB\n//S1 {exec_stmt}\n//{ddname} DD *\n" + _TBL.format(n="ACCTDAT") + "/*\n"
+    assert _read_jcl_tables(jcl) == [("ACCTDAT", 4)]
+
+
+def test_5154_only_the_assembler_steps_deck_is_read():
+    """#5154: a table in another step's deck (an IEBGENER copy, a later utility) is not assembled by the job."""
+    jcl = (
+        "//J JOB\n"
+        "//C EXEC PGM=IEBGENER\n"
+        "//SYSUT1 DD *\n" + _TBL.format(n="COPYONLY") + "/*\n"
+        "//SYSUT2 DD DSN=BANK.SRCLIB(TBL),DISP=SHR\n"
+        "//A EXEC PGM=ASMA90\n"
+        "//SYSLIB DD *\n" + _TBL.format(n="NOTSYSIN") + "/*\n"
+        "//SYSIN DD *\n" + _TBL.format(n="ASSEMBLED") + "/*\n"
+        "//LKED EXEC PGM=IEWL\n"
+        "//SYSIN DD *\n" + _TBL.format(n="LINKCARD") + "/*\n"
+        "//Z EXEC PGM=IEFBR14\n"
+        "//X DD *\n" + _TBL.format(n="AFTER") + "/*\n"
+    )
+    assert _read_jcl_tables(jcl) == [("ASSEMBLED", 12)]
+
+
+def test_5154_deck_shapes_dlm_comment_concatenation_and_assembler_proc_overrides():
+    """#5154: DD DATA,DLM= and a `/*` inside it; a `//*` comment is no deck; an unnamed DD concatenated after the
+    SYSIN is the SYSIN's; DFHAUPLE's COPY.SYSUT1 override deck is read; a job with no assembler reads nothing."""
+    dlm = "//J JOB\n//A EXEC PGM=ASMA90\n//SYSIN DD DATA,DLM=@@\n" + _TBL.format(n="DLMTBL") + "/*\n@@\n"
+    assert _read_jcl_tables(dlm) == [("DLMTBL", 4)]
+    comment = (
+        "//J JOB\n//A EXEC PGM=ASMA90\n//* DFHFCT TYPE=FILE,FILE=INCMT,DSNAME=A.B\n//SYSIN DD *\n"
+        + _TBL.format(n="REAL")
+        + "/*\n"
+    )
+    assert _read_jcl_tables(comment) == [("REAL", 5)]
+    concat = (
+        "//J JOB\n//A EXEC PGM=ASMA90\n//SYSIN DD *\n"
+        + _TBL.format(n="ONE")
+        + "/*\n//  DD *\n"
+        + _TBL.format(n="TWO")
+        + "/*\n"
+    )
+    assert _read_jcl_tables(concat) == [("ONE", 4), ("TWO", 7)]
+    aup = "//J JOB\n//ASSEM EXEC DFHAUPLE,TABLE=DFHFCT01\n//COPY.SYSUT1 DD *\n" + _TBL.format(n="AUPTBL") + "/*\n"
+    assert _read_jcl_tables(aup) == [("AUPTBL", 4)]
+    none = "//J JOB\n//S EXEC PGM=IEFBR14\n//SYSIN DD *\n" + _TBL.format(n="GHOST") + "/*\n"
+    assert _read_jcl_tables(none) == []
+
+
+def test_5154_sysin_member_join_recognises_the_same_assemblers(tmp_path):
+    """#5154: the SYSIN-member join shares the assembler sets with the inline reader (IFOX00, ASMACL)."""
+    base = tmp_path / "ifox"
+    repo = base / "region"
+    shutil.copytree(FIXTURES / "jcl_sysin_shapes", repo)
+    (repo / "IFOXJOB.jcl").write_text(
+        "//IFOXJOB  JOB (ACCT),'IFOX',CLASS=A\n"
+        "//A        EXEC PGM=IFOX00\n"
+        "//SYSIN    DD DSN=BANK.SRCLIB(TBL01),DISP=SHR\n"
+        "//B        EXEC ASMACL\n"
+        "//ASM.SYSIN DD DSN=BANK.SRCLIB(TBL01),DISP=SHR\n",
+        encoding="utf-8",
+    )
+    ir = load_galaxy_ir(scan_to_db(repo, base / "scan"))
+    got = [(r["step"], r["member"], r["status"]) for r in ir.job_macro_tables() if r["file"] == "IFOXJOB.jcl"]
+    assert got == [("A", "TBL01", "joined"), ("B", "TBL01", "joined")]

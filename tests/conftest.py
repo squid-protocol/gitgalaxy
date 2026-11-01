@@ -1,6 +1,6 @@
 """Suite-wide pytest hooks.
 
-Long string parameters get short test IDs. pytest puts every test's node ID in the
+Long string and bytes parameters get short test IDs. pytest puts every test's node ID in the
 PYTEST_CURRENT_TEST environment variable, and Windows caps one environment
 variable at 32,767 characters. A ReDoS test that parametrizes on its own
 pathological payload (e.g. `"COMMAREA " * 5000`) therefore fails on Windows during
@@ -36,10 +36,15 @@ import pytest
 _MAX_ID_CHARS = 64
 
 
+_MAX_NODEID_CHARS = 4000  # far under Windows' 32,767 env-var cap; the id hook keeps real ids a few hundred
+
+
 def pytest_make_parametrize_id(val):
-    if isinstance(val, str) and len(val) > _MAX_ID_CHARS:
-        digest = hashlib.sha256(val.encode("utf-8", "surrogatepass")).hexdigest()[:8]
-        return f"{val[:40]!r}...len{len(val)}-{digest}"
+    """str and bytes alike (a raw bytes payload put 40k characters in a node id, #7280)."""
+    if isinstance(val, (str, bytes, bytearray)) and len(val) > _MAX_ID_CHARS:
+        raw = val.encode("utf-8", "surrogatepass") if isinstance(val, str) else bytes(val)
+        head = val[:40] if isinstance(val, str) else bytes(val[:40])
+        return f"{head!r}...len{len(val)}-{hashlib.sha256(raw).hexdigest()[:8]}"
     return None
 
 
@@ -72,6 +77,10 @@ def _is_redos_sweep(item):
 @pytest.hookimpl(tryfirst=True)
 def pytest_collection_modifyitems(items):
     for item in items:
+        if len(item.nodeid) > _MAX_NODEID_CHARS:
+            raise pytest.UsageError(
+                f"{item.nodeid[:200]}...: node id is {len(item.nodeid)} characters; give the parameter an explicit ids="
+            )
         if _is_redos_sweep(item):
             item.add_marker(pytest.mark.redos_sweep)
         reason = _slow_reason(item)

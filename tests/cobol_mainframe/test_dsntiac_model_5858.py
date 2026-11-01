@@ -39,3 +39,13 @@ def test_library_and_return_code_registration():
 
     assert "DSNTIAC" in gen.LIBRARY and "DSNTIAC" in gen.LIBRARY_RC and "DSNTIAC" in gen.LIBRARY_CHARSET
     assert "DSNTIAC" not in dyncall.REFUSED_BY_NAME and "DSNTIAR" in dyncall.REFUSED_BY_NAME
+
+
+def test_dsntiar_stays_refused_by_name_and_the_message_points_at_register_q5():
+    """#4269: DSNTIAR is kept refused with a register entry; the refusal names the entry that exists on disk."""
+    from gitgalaxy.tools.cobol_to_java.det import dyncall
+
+    message = dyncall.REFUSED_BY_NAME["DSNTIAR"]
+    assert "Db2's message text is not modelled" in message and "(register Q5)" in message
+    register = " ".join((ROOT / "docs/language_status/register/Q5.md").read_text(encoding="utf-8").split())
+    assert "DSNTIAR stays refused by name" in register and "DSNTIAR: Db2's message text is not modelled" in register

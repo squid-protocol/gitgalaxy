@@ -1,0 +1,49 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "GTSHOW",
+  "program_source": "cases/ghost-tasks/gt-terminal-coalesce/src/GTSHOW.cbl",
+  "copy_dirs": [],
+  "transid": "GT12",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "notes": "cics-crucible ghost-tasks / gt-terminal-coalesce (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): the started task alone: RETRIEVE records into one SEND TEXT line, comma-joined. Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "three",
+      "commarea": null,
+      "startcode": "S",
+      "start_data": [
+        {
+          "text": "AA"
+        },
+        {
+          "text": "BB"
+        },
+        {
+          "text": "CC"
+        }
+      ],
+      "why": "three records joined with commas"
+    },
+    {
+      "name": "one",
+      "commarea": null,
+      "startcode": "S",
+      "start_data": [
+        {
+          "text": "ONLY"
+        }
+      ],
+      "why": "one record: no comma"
+    },
+    {
+      "name": "none",
+      "commarea": null,
+      "startcode": "S",
+      "why": "no data: SHOW: only"
+    }
+  ]
+}

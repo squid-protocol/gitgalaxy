@@ -94,15 +94,17 @@ int GGCREAD(gg_cics *c, char *ridfld, int keylen, char *into, int intolen) {
             int cmp = keylen < klen ? keylen : klen;
             while (rec && ((search && at >= 0) || (data && fread(rec, 1, (size_t)reclen, data) == (size_t)reclen))) {
                 if (search || memcmp(rec + keyoff, ridfld, (size_t)cmp) == 0) {
-                    int max = c->len, moved = reclen < max ? reclen : max;
+                    /* #6839: a variable-length file's record has its own length (<path>.len), else the slot's */
+                    int rl = is_var(want) ? len_get(path, rec + keyoff, klen, reclen) : reclen;
+                    int max = c->len, moved = rl < max ? rl : max;
                     if (max < 0) refuse("READ LENGTH (negative)");
                     if (moved > intolen) refuse("READ INTO LENGTH: a record moved past INTO");
-                    if (reclen > max && strstr(c->flags, "UPDATE"))
+                    if (rl > max && strstr(c->flags, "UPDATE"))
                         refuse("READ UPDATE LENGERR (whether the record is held)");
                     memcpy(into, rec, (size_t)moved);
-                    c->resp = reclen > max ? LENGERR : NORMAL;
-                    c->resp2 = reclen > max ? 11 : 0;
-                    c->len = reclen;
+                    c->resp = rl > max ? LENGERR : NORMAL;
+                    c->resp2 = rl > max ? 11 : 0;
+                    c->len = rl;
                     if (c->resp == NORMAL && strstr(c->flags, "TOKEN")) c->num = token_hold(want, rec + keyoff, klen);
                     else if (c->resp == NORMAL && strstr(c->flags, "UPDATE")) hold(want, rec + keyoff, klen);
                     break;
@@ -429,14 +431,15 @@ static int browse_read(gg_cics *c, int dir, char *ridfld, int keylen, char *into
         }
         if (at >= 0) {
             const char *rec = all + at * reclen;
-            memcpy(into, rec, (size_t)(reclen < intolen ? reclen : intolen));
+            int rl = is_var(want) ? len_get(path, rec + keyoff, klen, reclen) : reclen;  /* #6839 */
+            memcpy(into, rec, (size_t)(rl < intolen ? rl : intolen));
             memcpy(ridfld, rec + keyoff, (size_t)len);
             memset(br[s].lastkey, 0, sizeof br[s].lastkey);
             memcpy(br[s].lastkey, rec + keyoff, (size_t)klen);
             br[s].have_last = 1;
             br[s].dir = dir;
-            got = reclen;
-            if (reclen > intolen) { c->resp = LENGERR; c->resp2 = 11; }
+            got = rl;
+            if (rl > intolen) { c->resp = LENGERR; c->resp2 = 11; }
         }
         free(all);
     }
@@ -453,16 +456,20 @@ int GGCRDPV(gg_cics *c, char *ridfld, int keylen, char *into, int intolen) {
     return browse_read(c, -1, ridfld, keylen, into, intolen);
 }
 
-/* ENDBR FILE(name1). */
+/* ENDBR FILE(name1). #6262: a file the region does not define is FILENOTFOUND RESP2 1 (X75), as for the other browse
+ * commands, not the INVREQ 35 of a defined file with no browse. */
 int GGCENBR(gg_cics *c) {
-    char want[9], ev[100];
-    int fresp, fresp2, n;
+    char want[9], ev[100], path[3000];
+    int fresp, fresp2, n, reclen, keyoff, klen;
     trim(c->name1, 8, want);
     c->resp2 = 0;
     int s = browse_slot(want, 0);
     if (injected("ENDBR", want, &fresp, &fresp2)) {
         c->resp = fresp;
         c->resp2 = fresp2;
+    } else if (!file_cfg(want, path, &reclen, &keyoff, &klen)) {
+        c->resp = FILENOTFOUND;
+        c->resp2 = 1;
     } else if (s < 0 || !br[s].active) {
         c->resp = INVREQ;
         c->resp2 = 35;
@@ -493,20 +500,20 @@ int GGCDELT(gg_cics *c, char *ridfld, int keylen) {
     if (injected("DELETE", want, &fresp, &fresp2)) {
         c->resp = fresp;
         c->resp2 = fresp2;
-        file_event("DELETE", want, ridfld, by_hold ? 0 : keylen, c->resp);
+        file_event("DELETE", want, ridfld, by_hold ? -1 : keylen, c, NULL, 0);
         return 0;
     }
     int generic = strstr(c->flags, "GENERIC") != NULL;
     if (is_esds(want)) {  /* #5092: IBM INVREQ 21 (ESDS), 22 (generic delete of a non-KSDS); the key is not logged: an ESDS has none */
         c->resp = INVREQ;
         c->resp2 = generic ? 22 : 21;
-        file_event("DELETE", want, ridfld, 0, c->resp);
+        file_event("DELETE", want, ridfld, -1, c, NULL, 0);
         return 0;
     }
     if (!file_cfg(want, path, &reclen, &keyoff, &klen)) {
         c->resp = FILENOTFOUND;
         c->resp2 = 1;  /* IBM: RESP2 1, the file is not defined to CICS (X75) */
-        file_event("DELETE", want, ridfld, by_hold ? 0 : keylen, c->resp);
+        file_event("DELETE", want, ridfld, by_hold ? -1 : keylen, c, NULL, 0);
         return 0;
     }
     int bad = 0;
@@ -515,7 +522,7 @@ int GGCDELT(gg_cics *c, char *ridfld, int keylen) {
     if (bad) {
         c->resp = INVREQ;
         c->resp2 = bad;
-        file_event("DELETE", want, ridfld, 0, c->resp);  /* the key is not logged: KEYLENGTH may exceed RIDFLD */
+        file_event("DELETE", want, ridfld, keylen < 0 ? 0 : keylen < klen ? keylen : klen, c, NULL, 0);  /* KEYLENGTH may exceed RIDFLD: log at most the key's length */
         return 0;
     }
     if (generic && keylen == 0) refuse("DELETE GENERIC KEYLENGTH not above zero (zero is undocumented)");
@@ -527,7 +534,7 @@ int GGCDELT(gg_cics *c, char *ridfld, int keylen) {
         if (ti < 0) {
             c->resp = INVREQ;
             c->resp2 = 47;
-            file_event("DELETE", want, ridfld, 0, c->resp);
+            file_event("DELETE", want, ridfld, -1, c, NULL, 0);
             return 0;
         }
         memcpy(key, tokens[ti].key, (size_t)tokens[ti].klen);
@@ -553,7 +560,7 @@ int GGCDELT(gg_cics *c, char *ridfld, int keylen) {
         c->resp2 = gone ? 0 : 80;
         free(all);
         if (c->resp == NORMAL) file_set_end("READ", want);
-        file_event("DELETE", want, key, keylen, c->resp);
+        file_event("DELETE", want, key, keylen, c, NULL, 0);
         return 0;
     }
     long long at = (by_hold && s < 0) ? -1 : pick(all, n, reclen, keyoff, keylen < klen && !by_hold ? keylen : klen, key, 0);
@@ -574,7 +581,7 @@ int GGCDELT(gg_cics *c, char *ridfld, int keylen) {
     }
     free(all);
     if (c->resp == NORMAL) file_set_end("READ", want);
-    file_event("DELETE", want, key, klen, c->resp);
+    file_event("DELETE", want, key, by_hold ? -1 : keylen < klen ? keylen : klen, c, NULL, 0);
     return 0;
 }
 

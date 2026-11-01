@@ -1,0 +1,26 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "GTUNEXT",
+  "program_source": "cases/ghost-tasks/gt-urimap-browse/src/GTUNEXT.cbl",
+  "copy_dirs": [],
+  "transid": "GT62",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "notes": "cics-crucible ghost-tasks / gt-urimap-browse (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): the started alias task alone: RETRIEVE 4 bytes, log them. Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "tran",
+      "commarea": null,
+      "startcode": "S",
+      "start_data": [
+        {
+          "text": "GT62"
+        }
+      ],
+      "why": "started with a 4-byte transaction name"
+    }
+  ]
+}

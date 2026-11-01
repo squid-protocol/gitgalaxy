@@ -7,6 +7,143 @@
   "4": 9,
   "none": 8
  },
+ "close_next": [
+  {
+   "gained": 9,
+   "gained_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 8,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "gap": "missing copybook: estate-owned",
+   "share": 0.425,
+   "upper_bound": true,
+   "whole": 17
+  },
+  {
+   "gained": 9,
+   "gained_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 9,
+    "3": 0,
+    "4": 0,
+    "none": 0
+   },
+   "gap": "refused: LayoutError",
+   "share": 0.65,
+   "upper_bound": true,
+   "whole": 26
+  },
+  {
+   "gained": 2,
+   "gained_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "none": 2
+   },
+   "gap": "refused: generation",
+   "share": 0.7,
+   "upper_bound": true,
+   "whole": 28
+  },
+  {
+   "gained": 2,
+   "gained_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 2,
+    "none": 0
+   },
+   "gap": "<name>: bytes overlap another item",
+   "share": 0.75,
+   "upper_bound": true,
+   "whole": 30
+  },
+  {
+   "gained": 1,
+   "gained_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "none": 1
+   },
+   "gap": "<name>: undeclared item",
+   "share": 0.775,
+   "upper_bound": true,
+   "whole": 31
+  },
+  {
+   "gained": 1,
+   "gained_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 1,
+    "3": 0,
+    "4": 0,
+    "none": 0
+   },
+   "gap": "PERFORM: undeclared paragraph",
+   "share": 0.8,
+   "upper_bound": true,
+   "whole": 32
+  },
+  {
+   "gained": 1,
+   "gained_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "none": 1
+   },
+   "gap": "refused: ExprError",
+   "share": 0.825,
+   "upper_bound": true,
+   "whole": 33
+  },
+  {
+   "gained": 1,
+   "gained_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "gap": "refused: LayoutDisagrees",
+   "share": 0.85,
+   "upper_bound": true,
+   "whole": 34
+  },
+  {
+   "gained": 1,
+   "gained_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "none": 1
+   },
+   "gap": "refused: UnitRefused",
+   "share": 0.875,
+   "upper_bound": true,
+   "whole": 35
+  }
+ ],
  "coverage_if_closed": [
   {
    "share": 0.425,
@@ -527,7 +664,316 @@
    "status": "refused by name"
   }
  ],
+ "needs_together": [
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 1,
+    "3": 0,
+    "4": 0,
+    "none": 0
+   },
+   "estates": 1,
+   "gaps": [
+    "<name>: no such item",
+    "EXEC CICS map: no <name> field"
+   ],
+   "programs": 1,
+   "upper_bound": false
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 1,
+    "3": 0,
+    "4": 0,
+    "none": 0
+   },
+   "estates": 1,
+   "gaps": [
+    "<name>: no such item",
+    "MOVE: literal beyond the single-byte code page",
+    "STRING: numeric sender with P or a decimal place"
+   ],
+   "programs": 1,
+   "upper_bound": false
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "estates": 1,
+   "gaps": [
+    "EXEC CICS WEB RECEIVE NOTRUNCATE",
+    "JSON GENERATE: not modelled",
+    "JSON PARSE: not modelled"
+   ],
+   "programs": 1,
+   "upper_bound": false
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "estates": 1,
+   "gaps": [
+    "EXEC CICS WEB CONVERSE URIMAP POST",
+    "EXEC CICS WEB WRITE HTTPHEADER SESSTOKEN",
+    "JSON GENERATE: not modelled",
+    "JSON PARSE: not modelled"
+   ],
+   "programs": 1,
+   "upper_bound": false
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 1,
+    "3": 0,
+    "4": 0,
+    "none": 0
+   },
+   "estates": 1,
+   "gaps": [
+    "<name>: no such item",
+    "EXEC CICS map: no <name> field",
+    "EXEC SQL: other",
+    "MOVE: literal beyond the single-byte code page",
+    "STRING: literal beyond the single-byte code page",
+    "STRING: numeric sender with P or a decimal place"
+   ],
+   "programs": 1,
+   "upper_bound": false
+  }
+ ],
  "programs": 40,
  "scope": "census estates (aggregate, opaque labels)",
+ "shapes": [
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 2,
+    "none": 0
+   },
+   "gaps": [
+    "<name>: bytes overlap another item"
+   ],
+   "programs": 2
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 1,
+    "3": 0,
+    "4": 0,
+    "none": 0
+   },
+   "gaps": [
+    "<name>: no such item",
+    "<name>: undeclared item",
+    "EXEC CICS map: no <name> field"
+   ],
+   "programs": 1
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 1,
+    "3": 0,
+    "4": 0,
+    "none": 0
+   },
+   "gaps": [
+    "<name>: no such item",
+    "<name>: undeclared item",
+    "EXEC CICS map: no <name> field",
+    "EXEC SQL: other",
+    "MOVE: literal beyond the single-byte code page",
+    "STRING: literal beyond the single-byte code page",
+    "STRING: numeric sender with P or a decimal place"
+   ],
+   "programs": 1
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 1,
+    "3": 0,
+    "4": 0,
+    "none": 0
+   },
+   "gaps": [
+    "<name>: no such item",
+    "MOVE: literal beyond the single-byte code page",
+    "STRING: numeric sender with P or a decimal place"
+   ],
+   "programs": 1
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "none": 1
+   },
+   "gaps": [
+    "<name>: undeclared item"
+   ],
+   "programs": 1
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 1,
+    "3": 0,
+    "4": 0,
+    "none": 0
+   },
+   "gaps": [
+    "<name>: undeclared item",
+    "PERFORM: undeclared paragraph"
+   ],
+   "programs": 1
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "gaps": [
+    "EXEC CICS WEB CONVERSE URIMAP POST",
+    "EXEC CICS WEB WRITE HTTPHEADER SESSTOKEN",
+    "JSON GENERATE: not modelled",
+    "JSON PARSE: not modelled"
+   ],
+   "programs": 1
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "gaps": [
+    "EXEC CICS WEB RECEIVE NOTRUNCATE",
+    "JSON GENERATE: not modelled",
+    "JSON PARSE: not modelled"
+   ],
+   "programs": 1
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 8,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "gaps": [
+    "missing copybook: estate-owned"
+   ],
+   "programs": 9
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "none": 1
+   },
+   "gaps": [
+    "refused: ExprError"
+   ],
+   "programs": 1
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "gaps": [
+    "refused: LayoutDisagrees"
+   ],
+   "programs": 1
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 9,
+    "3": 0,
+    "4": 0,
+    "none": 0
+   },
+   "gaps": [
+    "refused: LayoutError"
+   ],
+   "programs": 9
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "none": 1
+   },
+   "gaps": [
+    "refused: UnitRefused"
+   ],
+   "programs": 1
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "none": 2
+   },
+   "gaps": [
+    "refused: generation"
+   ],
+   "programs": 2
+  }
+ ],
  "whole_now": 8
 }

@@ -292,6 +292,51 @@ FILECONTROL_JAVA = """\
         return resp;
     }
 
+    /** #6262 WRITE FILE(file) RIDFLD(ridfld) FROM(from), recorded as the SPEC 6.2 WRITE event: as write. `ridfld` is the
+     *  key on entry, `data` the record as issued, RESP2 where the command is not NORMAL. */
+    public int writeEvent(String file, byte[] ridfld, byte[] from, boolean exists, Runnable store) {
+        int resp = write(file, exists, store);
+        event("WRITE", "file", file, "ridfld", ridfld, "data", from, "resp", respName(resp),
+                "resp2", documentedResp2(resp));
+        return resp;
+    }
+
+    /** #6262 DELETE FILE(file) RIDFLD(ridfld), recorded as the SPEC 6.2 DELETE event: as delete. */
+    public int deleteEvent(String file, byte[] ridfld, boolean exists, Runnable remove) {
+        return deleteRecorded(file, ridfld, null, delete(file, exists, remove));
+    }
+
+    /** #6262 DELETE FILE(file) RIDFLD(ridfld) GENERIC, recorded with `generic`: as deleteGeneric. */
+    public int deleteGenericEvent(String file, byte[] ridfld, boolean exists, Runnable remove) {
+        return deleteRecorded(file, ridfld, Boolean.TRUE, deleteGeneric(file, exists, remove));
+    }
+
+    /** #6262 DELETE FILE(file) [GENERIC] KEYLENGTH(n) that IBM answers INVREQ, recorded: as deleteInvalid. */
+    public int deleteInvalidEvent(String file, byte[] ridfld, boolean generic, int resp2) {
+        return deleteRecorded(file, ridfld, generic ? Boolean.TRUE : null, deleteInvalid(file, generic, resp2));
+    }
+
+    /** #6262 DELETE FILE(file) without RIDFLD (the held record), recorded with no `ridfld`: as deleteHeld. */
+    public int deleteHeldEvent(String file, Runnable remove) {
+        return deleteRecorded(file, null, null, deleteHeld(file, remove));
+    }
+
+    /** #6262 DELETE FILE(file) TOKEN(token), recorded with no `ridfld`: as deleteToken. */
+    public int deleteTokenEvent(String file, int token, java.util.function.Consumer<byte[]> remove) {
+        return deleteRecorded(file, null, null, deleteToken(file, token, remove));
+    }
+
+    private int deleteRecorded(String file, byte[] ridfld, Boolean generic, int resp) {
+        event("DELETE", "file", file, "ridfld", ridfld, "generic", generic, "resp", respName(resp),
+                "resp2", documentedResp2(resp));
+        return resp;
+    }
+
+    /** The RESP2 a WRITE / DELETE event carries: none on NORMAL or where the command states none (DUPREC), as the stub. */
+    private Integer documentedResp2(int resp) {
+        return resp == 0 || resp2() == 0 ? null : resp2();
+    }
+
     /** #6262 STARTBR FILE(file) RIDFLD(ridfld) [GTEQ | EQUAL], recorded as the SPEC 6.2 STARTBR event: as startbr;
      *  `mode` is GTEQ or EQUAL, `ridfld` the key on entry, RESP2 where the command is not NORMAL. */
     public int startbrEvent(String file, byte[] ridfld, String key, boolean equal,
@@ -654,6 +699,29 @@ FILECONTROL_JAVA = """\
         }
         int[] o = root().dupkeyOr();
         return new BrowsedRba(o[0], o[1], rba, rec);
+    }
+
+    /** #6262 STARTBR ... RBA, recorded as a STARTBR event with `rba` true: `ridfld` is the fullword on entry, as the stub's
+     *  `rba=` line; no `mode` (GTEQ is not valid for an RBA browse) and no RESP2. As startbrRba. */
+    public int startbrRbaEvent(String file, long rba) {
+        int resp = startbrRba(file, rba);
+        event("STARTBR", "file", file, "ridfld", rbaBytes(rba), "rba", Boolean.TRUE, "resp", respName(resp));
+        return resp;
+    }
+
+    /** #6262 READNEXT / READPREV ... RBA, recorded with `rba` true: `ridfld` is the RBA of the record read (the RIDFLD on
+     *  entry when none was), `resp` its RESP; no data, length or RESP2, which the stub's `rba=` line does not carry. */
+    public BrowsedRba readnextRbaEvent(String file, long ridfld, int intoLength) {
+        return rbaReadEvent("READNEXT", readnextRba(file, ridfld, intoLength), file);
+    }
+
+    public BrowsedRba readprevRbaEvent(String file, long ridfld, int intoLength) {
+        return rbaReadEvent("READPREV", readprevRba(file, ridfld, intoLength), file);
+    }
+
+    private BrowsedRba rbaReadEvent(String kind, BrowsedRba b, String file) {
+        event(kind, "file", file, "ridfld", rbaBytes(b.rba()), "rba", Boolean.TRUE, "resp", respName(b.resp()));
+        return b;
     }
 
     /** ENDBR FILE(file): the browse ends; INVREQ (16) when none is active. */

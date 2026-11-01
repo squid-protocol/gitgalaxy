@@ -1,0 +1,65 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "HCMAIN",
+  "program_source": "cases/condition-handling/hc-abend-link/src/HCMAIN.cbl",
+  "copy_dirs": [
+    "cases/condition-handling/hc-abend-link/copy"
+  ],
+  "transid": "HC02",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "programs": [
+    {
+      "program": "HCSUB",
+      "program_source": "cases/condition-handling/hc-abend-link/src/HCSUB.cbl"
+    }
+  ],
+  "notes": "cics-crucible condition-handling / hc-abend-link (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): HANDLE CONDITION / HANDLE ABEND across LINK levels, abend exits at a higher level, PUSH and POP HANDLE. Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "sub-resp",
+      "commarea": null,
+      "terminal": "HC02",
+      "ts": {"HCMODE": ["N"]},
+      "why": "HCSUB tests QIDERR with RESP; back in HCMAIN the QIDERR handler is in force again"
+    },
+    {
+      "name": "sub-queue-exists",
+      "commarea": null,
+      "terminal": "HC02",
+      "ts": {"HCMODE": ["N"], "HCNONE": ["JUNK"]},
+      "why": "HCSUB's READQ TS of HCNONE completes (the queue exists here; the crucible never creates it): RESP is NORMAL, so the QIDERR test is false"
+    },
+    {
+      "name": "sub-unhandled",
+      "commarea": null,
+      "terminal": "HC02",
+      "ts": {"HCMODE": ["Q"]},
+      "why": "HCSUB raises QIDERR without RESP: HCMAIN's handler is not inherited, the task abends AEYH in HCSUB, and HCMAIN's HANDLE ABEND LABEL exit (one level up) gets control"
+    },
+    {
+      "name": "sub-own-exit",
+      "commarea": null,
+      "terminal": "HC02",
+      "ts": {"HCMODE": ["A"]},
+      "why": "HCSUB sets its own abend exit, ABENDs with HCX1, recovers in the exit and RETURNs normally to HCMAIN"
+    },
+    {
+      "name": "push-pop",
+      "commarea": null,
+      "terminal": "HC02",
+      "ts": {"HCMODE": ["O"]},
+      "why": "PUSH HANDLE then POP HANDLE: the QIDERR handler is back after the POP"
+    },
+    {
+      "name": "pushed-abend",
+      "commarea": null,
+      "terminal": "HC02",
+      "ts": {"HCMODE": ["P"]},
+      "why": "QIDERR while handlers are PUSHed: neither the QIDERR handler nor the HANDLE ABEND exit is in effect, so the task terminates with AEYH"
+    }
+  ]
+}

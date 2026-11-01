@@ -199,3 +199,14 @@ operand.
    registers agree on all 71, zero differences. Slice 7 (done) adds the storage-byte instructions and slice 8 (done) the linkage and fullword ones (above).
    Not built, on purpose: `MVI` (outside the subset), high / low collation after `CLC` / `CLI` (refused by name), and a general
    assembler path for non-zECS programs. No burned program needs them (slice 9 pins that).
+
+## Boundary siblings of #6839 (#7011)
+
+- **Linked coverage and parity for a lowered target: done.** `cobol_coverage.run_coverage` measures an HLASM program as its
+  lowered COBOL (#6839) and `det_parity` counts it the same way (#7072, #7096), so `linked.ZECS002` under `zecs-zecs001`
+  is 22/24 paragraphs, not 0/0 (pinned in `tests/tools/test_det_coverage_ledger.py`).
+- **ZECSNC as a START target: no burned program starts it.** The estate's only STARTs are ZECSPLT's `ZX<id>`, ZECS000's
+  own transaction and ZECSNC's `ZX<id>`; there is nothing to prove from a COBOL case
+  (`test_no_burned_program_starts_zecsnc`, `test_hlasm_lowering_5859.py`).
+- **ZECS001 line 854 false arm: closed** by the two scan-bound scenarios (#7092).
+- **Code page for a re-hosted HLASM program:** frontier, mapped only (assumption 3 above).

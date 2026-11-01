@@ -101,7 +101,7 @@ from gitgalaxy.core.hlasm_cics import cics_stream, dc_values
 from gitgalaxy.core.ims_gen import ims_gen_macros, jcl_ims_regions
 from gitgalaxy.core.jcics import jcics
 from gitgalaxy.core.jcl_runners import runner_targets
-from gitgalaxy.core.job_flow import jcl_job_flow
+from gitgalaxy.core.job_flow import jcl_assembler_instream, jcl_job_flow
 from gitgalaxy.core.job_submits import cobol_job_cards, jcl_intrdr_dds
 from gitgalaxy.core.mq_calls import extract_mq_calls
 from gitgalaxy.core.pli_calls import blank_sequence_fields, pli_cics_stream, pli_external_calls
@@ -285,11 +285,12 @@ _CALL_IDENTIFIER = re.compile(
 # A block never runs across another EXEC, so a missing END-EXEC masks nothing beyond it.
 _EXEC_BLOCK = re.compile(r"(?<![\w-])EXEC\s+\w+(?:(?!(?<![\w-])EXEC\s)[\s\S])*?(?<![\w-])END-EXEC(?![\w-])", re.I)
 
-# An `EXEC CICS LINK`/`XCTL` block, up to its END-EXEC. The body bound is
+# An `EXEC CICS LINK`/`XCTL`/`LOAD` block, up to its END-EXEC (#6876: LOAD PROGRAM names a program the
+# task loads and never runs, an edge to it all the same; its LENGTH is the image's, not a COMMAREA's). The body bound is
 # generous enough for the real multi-option blocks (PROGRAM/COMMAREA/RESP/
 # RESP2/SYNCONRETURN) and hard-capped so an unterminated EXEC cannot scan the
 # rest of the file.
-_CICS_TRANSFER = re.compile(r"\bEXEC[ \t\n\u3000]+CICS[ \t\n\u3000]+(LINK|XCTL)\b", re.I)
+_CICS_TRANSFER = re.compile(r"\bEXEC[ \t\n\u3000]+CICS[ \t\n\u3000]+(LINK|XCTL|LOAD)\b", re.I)
 # #3495: the identifier form also takes HLASM symbols (`_`, `@#$`) -- zECS's
 # `START TRANSID(Z_EXP)` read as `Z`. COBOL names never contain them.
 # The operand of PROGRAM(...) / TRANSID(...): a quoted literal, or a data name --
@@ -580,12 +581,6 @@ _CONDITION_LEVELS = (66, 88)
 # A DFHCSDUP/CEDA deck runs DFHCSDUP; a JCL that does not is not a CSD deck and
 # the inline pass is skipped entirely.
 _DFHCSDUP = re.compile(r"\bPGM=DFHCSDUP\b", re.I)
-# #5154: a job that assembles CICS macro tables -- an assembler step (HLASM ASMA90, its
-# IEV90 alias, the older assemblers) or CICS's DFHAUPLE assemble-and-link procedure.
-_JCL_ASSEMBLER = re.compile(
-    r"^//(?!\*)[^\n]*?(?:\bPGM=(?:ASMA90|IEV90|IEUASM|ASMAHL|ASMBLR)\b|\bEXEC\s+(?:PROC=)?DFHAUPLE\b|\bPROC\s+DFHAUPLE\b)",
-    re.I | re.M,
-)
 # A CSD command opens a line (tolerating a leading blank column or JCL-inline
 # indentation): DEFINE a resource, or a structural command (DELETE/ADD/LIST/...).
 # Only DEFINE carries a resource we capture; the rest merely terminate the record
@@ -738,11 +733,14 @@ def _identifier_value(values: dict[str, str], operand: str) -> str | None:
     return values.get(operand) or (values.get(operand.rsplit(".", 1)[-1]) if "." in operand else None)
 
 
-def _cobol_calls(code_stream: str, values: dict[str, str], cics_only: bool = False) -> list[dict[str, Any]]:
+def _cobol_calls(
+    code_stream: str, values: dict[str, str], cics_only: bool = False, loads: bool = False
+) -> list[dict[str, Any]]:
     """Every COBOL invocation site: `CALL`, and CICS `LINK`/`XCTL PROGRAM(...)`.
 
     `cics_only` (#3495) reads just the EXEC CICS sites, for a host language whose
-    own CALL is not COBOL's (HLASM's `CALL` macro)."""
+    own CALL is not COBOL's (HLASM's `CALL` macro). `loads` (#6876) also records `EXEC CICS LOAD PROGRAM` as an
+    edge: COBOL hosts only, since PL/I's and HLASM's answer keys list no LOAD site."""
     calls: list[dict[str, Any]] = []
 
     # Line numbers come from a precomputed newline index. Counting newlines per
@@ -772,7 +770,7 @@ def _cobol_calls(code_stream: str, values: dict[str, str], cics_only: bool = Fal
     # 1. EXEC CICS LINK / XCTL. Read first so the PROGRAM(...) operand is
     #    attributed to its own verb, and recorded at the line of the EXEC.
     for match in _CICS_TRANSFER.finditer(code_stream):
-        if _shielded(match.start()):
+        if _shielded(match.start()) or (match.group(1).upper() == "LOAD" and not loads):
             continue
         block = code_stream[match.end() : match.end() + _CICS_BLOCK_LIMIT]
         end = block.upper().find("END-EXEC")
@@ -780,7 +778,7 @@ def _cobol_calls(code_stream: str, values: dict[str, str], cics_only: bool = Fal
             block = block[:end]
         operand_match = _CICS_PROGRAM_OPERAND.search(block)
         # #3355: the record this transfer passes, and its declared length(s).
-        contract = _cics_contract_operands(block)
+        contract = {} if match.group(1).upper() == "LOAD" else _cics_contract_operands(block)
         if not operand_match:
             # A LINK with no PROGRAM operand is a CHANNEL-only transfer or
             # malformed source. Recorded with no operand: the site exists.
@@ -2352,18 +2350,15 @@ def _jcl_csd_resources(code_stream: str) -> list[dict[str, Any]]:
 def _jcl_macro_table_resources(code_stream: str) -> list[dict[str, Any]]:
     """The CICS macro tables (DFHFCT ... DFHMCT) in the inline SYSIN of a JCL assembler step (#5154), or [].
 
-    Gated on an assembler step so a DFHxxx word elsewhere in a job reads nothing; a step
-    whose SYSIN is a separate member yields nothing here (that member is read as assembler)."""
-    if not _JCL_ASSEMBLER.search(code_stream):
-        return []
-    return cics_macro_table_resources(code_stream)
+    Reads only the in-stream source an assembler step takes (`jcl_assembler_instream`), so a table in any other
+    step's deck reads nothing; a step whose SYSIN is a separate member yields nothing here (that member is
+    read as assembler). Row lines stay the lines of the job."""
+    return cics_macro_table_resources(jcl_assembler_instream(code_stream))
 
 
 def _jcl_macro_table_transactions(code_stream: str) -> list[dict[str, Any]]:
     """The DFHPCT transaction routes in the inline SYSIN of a JCL assembler step (#5154), or []."""
-    if not _JCL_ASSEMBLER.search(code_stream):
-        return []
-    return cics_macro_table_transactions(code_stream)
+    return cics_macro_table_transactions(jcl_assembler_instream(code_stream))
 
 
 def _pli_value_map(records: list[dict[str, Any]]) -> dict[str, str]:
@@ -2662,7 +2657,7 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
         records = _cobol_records(code_stream, any(sn["clause"] == "DECIMAL-POINT" for sn in specials), section_copies)
         return {
             "section_copies": section_copies,  # #4457
-            "calls": _cobol_calls(code_stream, values),
+            "calls": _cobol_calls(code_stream, values, loads=True),
             "datasets": _cobol_datasets(code_stream),
             "records": records,
             "transactions": [],

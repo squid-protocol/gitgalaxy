@@ -86,6 +86,22 @@ def test_a_program_with_the_four_pointer_statements_translates_whole(tmp_path):
     assert "setPointerToItem" not in java and "setAddressOfItem" not in java  # a LINKAGE 01 record: unchanged output
 
 
+def test_getmain_without_initimg_translates_and_is_refused_only_when_it_would_acquire_storage(tmp_path):
+    """#6876 (X47, CAGMZ): IBM gives GETMAIN storage no default contents, so INITIMG is optional at translation: a length
+    below 1 is LENGERR before any storage exists (the pointer zero), a valid length is refused by name when it runs (the
+    runtime refusal is pinned in test_a_record_set_onto_a_block_is_an_alias_of_it). A literal or wide INITIMG stays refused."""
+    source = PROGRAM.replace(
+        "FLENGTH(GETMAIN-LENGTH)\n                INITIMG(BINARY-ZEROES) NOHANDLE", "FLENGTH(GETMAIN-LENGTH) NOHANDLE"
+    )
+    assert source != PROGRAM
+    r = _translate(tmp_path, source)
+    assert r.stats["holes"] == [], r.stats["holes"]
+    assert ", -1);" in r.java and "task.getmain(" in r.java and "DetCics.setPointer(" in r.java
+    assert "DetCics.getmain(task, " not in r.java
+    literal = PROGRAM.replace("INITIMG(BINARY-ZEROES)", "INITIMG('Q')")
+    assert any("INITIMG as a literal" in h for h in _translate(tmp_path, literal).stats["holes"])
+
+
 def test_address_of_a_subordinate_or_working_storage_item_is_a_windowed_alias(tmp_path):
     """#4771 (X47): SET ADDRESS OF record TO ADDRESS OF item and SET ptr TO ADDRESS OF item, for an item inside a record
     (ZECS001's ZF-DATA) or a WORKING-STORAGE record, translate whole through the window calls."""
@@ -173,7 +189,7 @@ _OVERLAY_HEAD = """\
         "MOVE CACHE-ADDRESS-X TO OUT-NUMBER.",
         "MOVE ZF-LENGTH TO CACHE-ADDRESS-X.",
         "COMPUTE OUT-NUMBER = CACHE-ADDRESS-X + 1.",
-        "IF CACHE-ADDRESS-X EQUAL ZEROES MOVE 1 TO OUT-NUMBER END-IF.",
+        "IF CACHE-ADDRESS-X = 5 MOVE 1 TO OUT-NUMBER END-IF.",
         "MOVE SAVE-LOW TO OUT-NUMBER.",  # a field under the overlay is the pointer's bytes too
         "MOVE ZERO TO SAVE-HIGH.",
     ],
@@ -239,6 +255,44 @@ def test_a_pure_numeric_view_of_a_pointer_moves_the_pointer_not_its_bytes(tmp_pa
     assert "-(" in r.java or not statement.startswith("SUBTRACT")
 
 
+@pytest.mark.parametrize(
+    "condition",
+    [
+        "CACHE-ADDRESS-X = 0",
+        "CACHE-ADDRESS-X NOT = 0",
+        "0 = CACHE-ADDRESS-X",
+        "CACHE-ADDRESS-X EQUAL ZEROES",
+        "CACHE-ADDRESS-X = ZERO",
+        "CACHE-ADDRESS-X NOT EQUAL ZEROS",
+    ],
+)
+def test_the_zero_test_of_a_pure_numeric_view_is_the_pointers_null_test(tmp_path, condition):
+    """#6876 (X47), CAGMZ's `IF WS-PTR2-N = 0`: a handle's zero is NULL, so `view = 0` / NOT = / ZERO either side lowers to
+    the pointer's own NULL test and the view's bytes are never read as a number. The whole program translates."""
+    source = (
+        _PURE_HEAD
+        + f"           IF {condition}\n               MOVE 'A' TO BINARY-ZEROES\n           END-IF.\n"
+        + "           EXEC CICS RETURN\n           END-EXEC.\n"
+    )
+    r = _translate(tmp_path, source)
+    assert r.stats["holes"] == [], r.stats["holes"]
+    assert "Figurative.LOW_VALUES" in r.java
+
+
+@pytest.mark.parametrize(
+    "condition",
+    ["CACHE-ADDRESS-X > 0", "CACHE-ADDRESS-X = 5", "CACHE-ADDRESS-X = SAVE-ADDRESS-X", "CACHE-ADDRESS-X = SPACES"],
+)
+def test_any_other_comparison_of_a_numeric_view_stays_a_hole(tmp_path, condition):
+    source = (
+        _PURE_HEAD
+        + f"           IF {condition}\n               MOVE 'A' TO BINARY-ZEROES\n           END-IF.\n"
+        + "           EXEC CICS RETURN\n           END-EXEC.\n"
+    )
+    r = _translate(tmp_path, source)
+    assert any("REDEFINES overlays a POINTER" in h or "numeric view" in h for h in r.stats["holes"]), r.stats["holes"]
+
+
 def test_the_whole_group_holding_a_pointer_still_moves_as_bytes(tmp_path):
     """A MOVE or INITIALIZE of the group that holds the pointer and its overlay copies / clears the handle bytes, which
     is what IBM's group move does: only a statement that names the numeric view is refused."""
@@ -273,6 +327,11 @@ import t.cobolrt.cics.DetCics;
 public class Main {
     static Field rec(int n) { return Field.alphanumeric(new Storage(n), 0, n, false); }
     static String text(Field f) { return new String(f.storage().bytes, java.nio.charset.StandardCharsets.ISO_8859_1).replace('\\0', '.'); }
+    static void nullSet(CicsTask t, Field record, Field ptr) {
+        byte[] before = record.storage().bytes;
+        DetCics.setAddress(t, record, ptr);
+        System.out.println(record.storage().bytes == before ? "null SET ADDRESS: record unchanged" : "record moved");
+    }
     static void refused(Runnable r) {
         try { r.run(); System.out.println("not refused"); } catch (UnsupportedOperationException e) { System.out.println(e.getMessage()); }
     }
@@ -293,7 +352,7 @@ public class Main {
         System.out.println(DetCics.pointerValue(ptr2) != 0);
         int[] f = t.freemain(DetCics.pointerValue(ptr2));
         System.out.println("free of a record: " + f[0] + "/" + f[1]);
-        refused(() -> DetCics.setAddress(t, rec(4), rec(8)));
+        nullSet(t, rec(4), rec(8));
         Field p3 = rec(8);
         DetCics.getmain(t, p3, 3, false, init);
         DetCics.setAddress(t, big, p3);
@@ -305,7 +364,15 @@ public class Main {
         refused(() -> t.freemain(DetCics.pointerValue(ptr)));
         int[] z = DetCics.getmain(t, p3, 0, false, init);
         System.out.println(z[0] + "/" + z[1] + " " + DetCics.pointerValue(p3));
-        refused(() -> DetCics.setAddress(t, rec(4), p3));
+        nullSet(t, rec(4), p3);
+        for (long n : new long[] {0, -1}) {
+            long[] u = t.getmain(n, false, -1);
+            System.out.println("no INITIMG, length " + n + ": " + u[0] + "/" + u[1] + " " + u[2]);
+        }
+        long[] h = t.getmain(0, true, -1);
+        System.out.println("no INITIMG, LENGTH 0: " + h[0] + "/" + h[1] + " " + h[2]);
+        refused(() -> t.getmain(8, false, -1));
+        refused(() -> t.getmain(8, true, -1));
         Field slice = Field.alphanumeric(a1.storage(), 2, 2, false);
         refused(() -> DetCics.setAddress(t, slice, ptr2));
     }
@@ -326,14 +393,19 @@ public class Main {
         "QxQQQQ true",
         "true",
         "free of a record: 16/1",
-        "SET ADDRESS OF a null or unknown pointer: not modelled",
+        "null SET ADDRESS: record unchanged",
         "QQQ.......",  # (a record longer than its storage reads zeros past it)
         "SET ADDRESS OF a record longer than its storage: not modelled",
         "free: 0/0",
         "SET ADDRESS OF storage already freed: not modelled",
         "FREEMAIN of storage already freed or received: not modelled",
         "22/1 0",
-        "SET ADDRESS OF a null or unknown pointer: not modelled",
+        "null SET ADDRESS: record unchanged",
+        "no INITIMG, length 0: 22/1 0",
+        "no INITIMG, length -1: 22/1 0",
+        "no INITIMG, LENGTH 0: 22/1 0",
+        "GETMAIN without INITIMG acquired storage: not modelled",
+        "GETMAIN without INITIMG acquired storage: not modelled",
         "SET ADDRESS OF an item that is not a whole 01 record: not modelled",
     ]
 

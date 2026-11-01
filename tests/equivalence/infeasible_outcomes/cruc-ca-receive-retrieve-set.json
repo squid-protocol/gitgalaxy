@@ -1,0 +1,14 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "cruc-ca-receive-retrieve-set",
+  "entries": [
+    {
+      "unit": "MAIN-PARA",
+      "line": 32,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "R",
+      "reason": "`IF WS-RESP = 0` ELSE arm after `RECEIVE SET(WS-PTR) LENGTH(WS-LEN) RESP(WS-RESP)` as the first command of CA0D: CA0D is a terminal transaction, started only by typing its id, so a terminal is attached and its input is the data RECEIVE reads. RECEIVE raises NOTALLOC for a task with no terminal (a START-ed task; nothing in the estate STARTs CA0D, CA0E is the started one), LENGERR only for a too-small INTO area (SET has none), INVREQ for a bad option or a second RECEIVE on a finished input, EOC / INBFMH / SIGNAL for chained or FMH data on a 3270 the transaction never sets up, and TERMERR for a device fault. No scenario input (the typed text) reaches any of them; TERMERR is a device fault, not program input."
+    }
+  ]
+}

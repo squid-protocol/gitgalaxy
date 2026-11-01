@@ -12,7 +12,10 @@ from typing import Any
 
 from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: compiled on first use
 
-from .._shared_patterns import CALLS_OUT_C_STYLE, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import CALLS_OUT_C_STYLE, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT, commented_keyword_statement
+
+# #7207: what may follow a bare declaration name on a commented-out Apex line, up to the end of the line.
+_APEX_DECL_TAIL = r"(?:[ \t]+(?:extends|implements|on)\b[^\n]{0,200})?[ \t]*(?m:$)"
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -227,8 +230,17 @@ DEFINITION: dict[str, Any] = {
             re.I | re.M,
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails) Commented out structural code or queries.
+        # #7207: a statement's shape (`;{}`, `(...)`, an assignment, a bare `[public|private] class Name [extends ...]`,
+        # a SOQL query with its `FROM`), not just the keyword.
         "dead_code": re.compile(
-            r"//[ \t]*(?:class|trigger|public|private|if|for|while|System\.debug|\[\s*SELECT|insert|update)\b|/\*[ \t]*(?:class|trigger|\[\s*SELECT)",
+            commented_keyword_statement(
+                "class|trigger|public|private|if|for|while|System\\.debug|insert|update",
+                extra=r"(?:(?<=class)|(?<=trigger))[ \t]+(?-i:[A-Z])\w*"
+                + _APEX_DECL_TAIL
+                + r"|(?:(?<=public)|(?<=private))[ \t]+(?:(?:static|virtual|abstract|with[ \t]+sharing|without[ \t]+sharing)[ \t]+)*"
+                r"class[ \t]+(?-i:[A-Z])\w*" + _APEX_DECL_TAIL,
+            )
+            + r"|(?<![/*])(?://|/\*)[ \t]*\[[ \t]*SELECT\b[^\]\n]{0,300}\bFROM\b",
             re.I | re.M,
         ),
         # 13. doc: Structured Documentation. ApexDoc annotations and metadata blocks.

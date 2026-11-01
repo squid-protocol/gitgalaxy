@@ -12,7 +12,7 @@ from typing import Any
 
 from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: compiled on first use
 
-from .._shared_patterns import CALLS_OUT_C_STYLE, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import CALLS_OUT_C_STYLE, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT, commented_keyword_statement
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -155,7 +155,9 @@ DEFINITION: dict[str, Any] = {
             re.M,
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails) Commented out structural code.
-        "dead_code": re.compile(r"//[ \t]*(?:fn|const|var|pub|if|for|while|try|catch)\b"),
+        # #7207: a statement's shape (`pub fn f() void {`, `const x = 1;`, `try f();`), not just the keyword:
+        # `// for each item in the list` and `// try again later` are prose.
+        "dead_code": re.compile(commented_keyword_statement("fn|const|var|pub|if|for|while|try|catch", block=False)),
         # 13. doc: Structured Documentation. Structured documentation (/// and //!).
         "doc": re.compile(r"///|//!"),
         # 14. test: Testing & Assertions. Native test framework blocks.

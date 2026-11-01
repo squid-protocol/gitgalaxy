@@ -50,7 +50,7 @@ def test_the_restore_that_picks_the_newest_runs_once_per_workflow_run():
     # det-sweep `det` is the single nightly merge job (not a shard): it extends the newest file, then saves it; the plan
     # picks the newest of each namespace (#5882: the Db2 cases' own, which Evidence Refresh's single `db2` merge job extends)
     assert sorted(pickers) == [("det-sweep", "det"), ("det-sweep", "det"), ("det-sweep", "plan"), ("det-sweep", "plan"),
-                               ("evidence-refresh", "db2"), ("smoke-test", "durations")]  # fmt: skip
+                               ("evidence-refresh", "db2"), ("smoke-test", "shard-plan")]  # fmt: skip
 
 
 @pytest.mark.parametrize("job", ["shard", "db2"])
@@ -78,17 +78,17 @@ def test_the_db2_durations_namespace_is_not_a_prefix_match_of_the_main_one():
     assert not "det-db2-durations-".startswith("det-durations-")
 
 
-def test_smoke_test_parts_restore_the_exact_key_the_durations_job_chose():
+def test_smoke_test_parts_restore_the_exact_key_the_planning_job_chose():
     jobs = load("smoke-test")["jobs"]
     part = jobs["full-suite-part"]
-    assert "durations" in part["needs"]
+    assert "shard-plan" in part["needs"]
     (step,) = [s for s in restore_steps(part) if "durations" in str(s.get("with"))]
     w = step["with"]
     assert "restore-keys" not in w
-    assert w["key"] == "${{ needs.durations.outputs.key }}"
-    assert jobs["durations"]["outputs"]["key"]
+    assert w["key"] == "${{ needs.shard-plan.outputs.durations_key }}"
+    assert jobs["shard-plan"]["outputs"]["durations_key"]
     # a missing key must not fail or skip the part: it falls back to the committed .test_durations
-    assert "needs.durations.outputs.key" in step["if"]
+    assert "needs.shard-plan.outputs.durations_key" in step["if"]
     assert "!cancelled()" in part["if"]
 
 

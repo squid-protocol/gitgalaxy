@@ -47,6 +47,17 @@
 #          `PROGRAM=name` with `USAGE=MAP` and no non-ASSEMBLER `PGMLANG=` -> MAPSET,
 #          with `USAGE(TRANSIENT)`; `MAPSET=name` -> MAPSET; `PARTSET=name` ->
 #          PARTITIONSET).
+#   [ESA4] CICS for MVS/ESA Resource Definition Guide, Version 4 Release 1, SC33-1166-02 (public.dhe.ibm.com
+#          .../os390/dfhla414.pdf; read for #5154). DFHDCT TYPE=SDSCI p.257-258 (Table 28:
+#          `RECFORM={FIXUNB|FIXUNBA|FIXUNBM|FIXBLK|FIXBLKA|FIXBLKM|VARBLK|VARBLKA|VARBLKM|VARUNB|VARUNBA|VARUNBM}`,
+#          twelve words, no UNDEFINED; `DSCNAME=` is the ddname; no DSNAME operand). Appendix C "Keyword
+#          cross-reference tables" p.377-381, "Macro operand to RDO keyword": `PARTSET` -> PARTITIONSET (Partitionset
+#          and Transaction, p.378), `PGMSTAT` -> STATUS (Mapset / Partitionset / Program, p.378), `PROGRAM` ->
+#          Program / Transaction, `MAPSET` -> Mapset (p.378), `RMTNAME` -> REMOTENAME and `SYSIDNT` ->
+#          REMOTESYSTEM (Transaction, p.379), `TRANSID` -> TRANSACTION (p.379), `TRNPRTY` -> PRIORITY and
+#          `TWASIZE` -> TWASIZE (p.380), `DTB=YES|YES,NO|YES,WAIT` -> INDOUBT(BACKOUT|COMMIT|WAIT) (p.377), and
+#          note 4 (p.380): `DTB=NO` has no RDO equivalent. The manual lists the operand `PARTSET=` only: no
+#          `PARTITIONSET=` macro operand appears in the table.
 #   [SPRM] CICS/VS System Programmer's Reference Manual, SH20-1043-6 (Seventh Edition,
 #          March 1975): DFHDCT p.86-103 (`TYPE=SDSCI` `RECFORM=FIXUNB|FIXBLK|VARUNB|VARBLK`
 #          with optional `A`/`M`, p.95-96), DFHPCT p.104-107 (`TYPE=INITIAL|ENTRY|FINAL`,
@@ -80,13 +91,17 @@
 #   DFHFCT TYPE=REMOTE,FILE=    FILE     KEYLEN=, LRECL=; SYSIDNT= / RMTNAME= -> REMOTESYSTEM /
 #                               REMOTENAME in `attributes` [RDG p.532-533]
 #   DFHPCT TYPE=ENTRY           TRANSACTION  TRANSID=, PROGRAM=; RDO attribute restatements from
-#                               [SPRM p.104-106] and [VSE p.347-351, p.365-368] (PRIORITY,
-#                               REMOTESYSTEM, REMOTENAME, PARTITIONSET, INDOUBT)
+#                               [SPRM p.104-106], [VSE p.347-351, p.365-368] and [ESA4 p.377-380]
+#                               (TRNPRTY -> PRIORITY, SYSIDNT -> REMOTESYSTEM, RMTNAME -> REMOTENAME,
+#                               PARTSET -> PARTITIONSET, DTB -> INDOUBT). `DTB=NO` has no RDO attribute
+#                               [ESA4 note 4, p.380]: no restatement, REFUSED by name. A DTB value outside
+#                               {YES, YES,NO, YES,WAIT} is likewise not restated.
 #   DFHPPT TYPE=ENTRY           PROGRAM | MAPSET | PARTITIONSET [SPRM p.108-109, VSE p.348-350, p.372]
 #                               `PROGRAM=name` -> PROGRAM (or MAPSET with `USAGE(TRANSIENT)` when
 #                               `USAGE=MAP` is coded without a non-ASSEMBLER `PGMLANG=` [VSE p.372]);
 #                               `MAPSET=name` -> MAPSET; `PARTSET=name` -> PARTITIONSET ([VSE p.349,
-#                               p.372]; `PARTITIONSET=` is accepted as an ASSUMED alias). `PGMLANG=`,
+#                               p.372, ESA4 p.378]; `PARTITIONSET=` is REFUSED by name: no manual lists it as a
+#                               macro operand (the RDO word, not a macro one), so it yields no row, pinned in the tests). `PGMLANG=`,
 #                               `RES=YES|NO`, `PGMSTAT=` restated as `LANGUAGE`, `RESIDENT`, `STATUS`.
 #   DFHDCT TYPE=INTRA|EXTRA|INDIRECT|REMOTE  DESTID=   TDQUEUE  (queue_type = the TYPE)
 #          INTRA:    TRANSID= -> transid; TRIGLEV= (default 1 when TRANSID= is coded) ->
@@ -103,8 +118,10 @@
 #            (the CSD TDQUEUE RECORDFORMAT spelling), BLOCKFORMAT BLOCKED / UNBLOCKED and
 #            PRINTCONTROL ASA / MACHINE in `attributes` [RDG p.534 note 7]; RECSIZE= ->
 #            record_size. SDSCI has NO DSNAME operand: the dataset is the JCL DD named
-#            DSCNAME, so dsname is never lifted here. RECFORM=UNDEFINED is outside both
-#            [RDG p.376] and [SPRM p.95-96]: record_format None, text kept.
+#            DSCNAME, so dsname is never lifted here. RECFORM=UNDEFINED is outside all three
+#            [RDG p.376, SPRM p.95-96, ESA4 p.257-258 Table 28: twelve words, UNDEFINED not
+#            among them; UNDEFINED is an FCT RECFORM word, RDG p.392]: REFUSED, record_format
+#            None, text kept as `RECFORM(UNDEFINED)`.
 #   DFHTST TYPE=RECOVERY|ENTRY|LOCAL|REMOTE|SECURITY  DATAID=  TSMODEL  (name = the prefix,
 #          RDO PREFIX [RDG p.531]); one row per DATAID string. TYPE=ENTRY is "retained for
 #          compatibility ... exactly the same as TYPE=RECOVERY" [RDG p.484]. RECOVERY(YES) /
@@ -112,10 +129,14 @@
 #
 #   DFHSRT TYPE=SYSTEM|USER,ABCODE=(..),RECOVER=YES   SRT  one row per code, named as MVS names it
 #          (Sxxx three hex digits / Unnnn decimal) [TS]. RECOVER=NO or no RECOVER REMOVES the codes
-#          [TS]: that is not a definition, so no row. (The operand is ABCODE, not CODE.)
+#          [TS]: that is not a definition, so no row, and in the same table it takes out a row an
+#          earlier RECOVER=YES made. A code repeated in one table is one row. (The operand is ABCODE.)
 #   DFHJCT TYPE=ENTRY,JFILEID=SYSTEM|nn   JOURNAL  [VSE ch.29 Table 41, p.270-272]: `JFILEID=SYSTEM`
 #          (system log) or decimal `nn` (1-99 user journal; 01-99 accepted); `JTYPE=`, `BUFSIZE=`,
-#          `JOUROPT=` stay in `attributes`.
+#          `JOUROPT=` stay in `attributes`. DSNAME= is not listed among the JCT operands in [VSE Table 41], but the estate-crucible
+#          key (H-0063) expects it lifted into `dsname`: ASSUMED, left open (see #5154 sibling gaps).
+#          `JTYPE=` never decides a row: a word outside {TAPE1|TAPE2|DISK1|DISK2|SMF} still yields it (ASSUMED, IBM silent); a repeated
+#          JFILEID is not folded (`01` and `1` are two rows; IBM silent on a repeated entry), both pinned in the tests.
 #   DFHTCT TYPE=TERMINAL|REMOTE|GPENTRY,TRMIDNT=  TERMINAL [TS, RDG p.473-475, VSE p.297];
 #          `TYPE=REGION,SYSIDNT={ssss|LOCAL}` sets the region for subsequent `TYPE=TERMINAL`
 #          entries ("Remote terminals, method 1", [RDG Table 74 p.473-474, p.551]); `SYSIDNT=`
@@ -123,8 +144,15 @@
 #          restated as `REMOTESYSTEM` / `REMOTENAME` [RDG p.532-533, p.551].
 #          TYPE=SYSTEM,SYSIDNT=  CONNECTION [TS, RDG p.529, p.553]; `ACCMETH=` restated as
 #          `ACCESSMETHOD(IRC|VTAM|INDIRECT|XM)`.
+#          ASSUMED, manual page not read (pinned in the tests): a TRMIDNT longer than 4 characters is still a row; a repeated
+#          TRMIDNT / SYSIDNT is not folded; `TYPE=REGION` applies to `TYPE=TERMINAL` only, not to REMOTE / GPENTRY; an
+#          ACCMETH outside the listed four is a row with no ACCESSMETHOD restatement. No burned estate uses DFHTCT.
+#   DFHTCT / DFHMCT `TYPE=INITIAL,SUFFIX=xx` (1-2 characters) names the table (`DFHTCTxx`, `DFHMCTxx`), in source and in a JCL SYSIN.
+#          `SUFFIX=NO` / `DY` is excluded only for DFHSIT and DSNCRCT; for TCT / MCT it is ASSUMED to name a table (not settled from the manual).
 #   DFHMCT TYPE=EMP,CLASS=PERFORM,ID=  MONITORPOINT (a user event monitoring point; it has no CSD
 #          counterpart; ID is `number`, `(PP,number)` or `entryname.number`, kept as written) [TS].
+#          ASSUMED, manual page not read (pinned in the tests): a repeated ID is not folded; CLASS (omitted or not PERFORM) does not
+#          decide a row; the entryname length is not bounded; TYPE=INITIAL / FINAL name nothing. No burned estate uses DFHMCT.
 #   DFHPLT TYPE=ENTRY,PROGRAM=(p1,p2,...)  PLT  [RDG p.415-418, Table 50-51]: one PLT row per named
 #          program (`name=prog`, `program=prog`, `macro_table=DFHPLTxx`), except `PROGRAM=DFHDELIM`
 #          which "is not a program -- it serves as a delimiter only" [RDG p.417] and is refused as a
@@ -152,6 +180,10 @@
 #          the row's `line` is the line in the job. A SYSIN that is a separate member is that member's:
 #          `GalaxyIR.job_macro_tables` joins the member's tables to the job step (#5154).
 #   CEDA / CEMT runtime state is REFUSED: installed state is not in a source tree (register X62).
+#
+#   DFHPCT TYPE=ENTRY operands: `PCT_OPERAND_DISPOSITION` classifies each one the manuals list as ROW / RESTATED / SAME /
+#   ASSUMED. TRANSEC, TPURGE, SPURGE and COMPAT ([SPRM p.104-106]) are ASSUMED: no cross-reference pair for them was read, so
+#   they stay in `attributes` as written. No burned estate carries a DFHPCT source (grep of the mainframe corpora).
 #
 #   REFUSED (read nothing rather than guess): FCT `RECSIZE=` (not an FCT operand; the
 #   record length is LRECL); DATAID=() (the "any other queue" null, it names no prefix);
@@ -207,6 +239,28 @@ _SDSCI_CONTROL = {"": None, "A": "ASA", "M": "MACHINE"}
 _TST_TYPES = frozenset({"LOCAL", "REMOTE", "RECOVERY", "SECURITY", "ENTRY"})
 _TRIGLEV_MAX = 32767  # [RDG p.383]
 _PCT_DTB = {"YES": "BACKOUT", "YES,NO": "COMMIT", "YES,WAIT": "WAIT"}  # [VSE p.348, p.367]
+# DFHPCT TYPE=ENTRY operands spelled differently in RDO -> the RDO attribute they restate [VSE p.347-351, ESA4 p.377-380].
+_PCT_RENAMED = {"SYSIDNT": "REMOTESYSTEM", "RMTNAME": "REMOTENAME", "PARTSET": "PARTITIONSET"}
+# Every DFHPCT TYPE=ENTRY operand the manuals list, and what the reader does with it (pinned in the tests):
+#   ROW       names or routes the row (TRANSID -> name, PROGRAM -> program), not restated.
+#   RESTATED  spelled differently in RDO; the RDO attribute follows ` => ` ([ESA4 p.377-380]; DTB=NO has none, note 4).
+#   SAME      same name in RDO [ESA4 p.380 TWASIZE]: stays in `attributes`, nothing to restate.
+#   ASSUMED   [SPRM p.104-106] lists it, but no [VSE] / [ESA4] cross-reference pair for it is among those read:
+#             kept as written in `attributes`, never restated, never lifted.
+PCT_OPERAND_DISPOSITION = {
+    "TRANSID": "ROW",
+    "PROGRAM": "ROW",
+    "TRNPRTY": "RESTATED",
+    "SYSIDNT": "RESTATED",
+    "RMTNAME": "RESTATED",
+    "PARTSET": "RESTATED",
+    "DTB": "RESTATED",
+    "TWASIZE": "SAME",
+    "TRANSEC": "ASSUMED",
+    "TPURGE": "ASSUMED",
+    "SPURGE": "ASSUMED",
+    "COMPAT": "ASSUMED",
+}
 _TCT_ACCMETH = {"INDIRECT": "INDIRECT", "IRC": "IRC", "VTAM": "VTAM", "IRC,XM": "XM"}  # [RDG p.529]
 _RDO_SEP = " => "
 
@@ -231,7 +285,7 @@ def sdsci_recform(value: str | None) -> tuple[str | None, str | None, str | None
 
     FIXUNB / FIXBLK / VARUNB / VARBLK, each optionally suffixed A (ASA control
     characters) or M (machine). A word outside that set -- UNDEFINED included -- maps to
-    all None: nothing is claimed for it.
+    all None: nothing is claimed for it. The manual set is the twelve words of [ESA4 p.257-258 Table 28].
     """
     word = (value or "").strip().strip("()'\"").upper()
     base, suffix = word[:6], word[6:]
@@ -330,11 +384,11 @@ def _dct_row(line: int, text: str, keyed: dict[str, str], kind: str, table: str,
 
 
 def _pct_rdo(keyed: dict[str, str]) -> list[str]:
-    """DFHPCT TYPE=ENTRY operands spelled differently in RDO -> their RDO attribute restatement [VSE p.347-351, p.367]."""
+    """DFHPCT TYPE=ENTRY operands spelled differently in RDO -> their RDO attribute restatement [VSE p.347-351, p.367, ESA4 p.377-380]."""
     rdo: list[str] = []
     if (prio := _int(keyed.get("TRNPRTY"))) is not None and 0 <= prio <= 255:
         rdo.append(f"PRIORITY({prio})")
-    for op_name, rdo_name in (("SYSIDNT", "REMOTESYSTEM"), ("RMTNAME", "REMOTENAME"), ("PARTSET", "PARTITIONSET")):
+    for op_name, rdo_name in _PCT_RENAMED.items():
         if val := _name(keyed.get(op_name)):
             rdo.append(f"{rdo_name}({val})")
     dtb = ",".join(p.strip("() '\"").upper() for p in (keyed.get("DTB") or "").split(",") if p.strip("() '\""))
@@ -348,7 +402,7 @@ def _ppt_rows(line: int, text: str, keyed: dict[str, str], table: str) -> list[d
 
     `PROGRAM=name` with `USAGE=MAP` (unless `PGMLANG` names a language other than ASSEMBLER) defines
     a MAPSET with `USAGE(TRANSIENT)` [VSE p.372]; `PARTSET=name` defines a PARTITIONSET [VSE p.349,
-    p.372] (`PARTITIONSET=` is accepted as an ASSUMED alias).
+    p.372, ESA4 p.378] (`PARTITIONSET=` is REFUSED by name: no manual lists it as a macro operand, so it yields no row).
     """
     usage_map = _name(keyed.get("USAGE")) == "MAP"
     lang = _name(keyed.get("PGMLANG"))
@@ -358,7 +412,6 @@ def _ppt_rows(line: int, text: str, keyed: dict[str, str], table: str) -> list[d
     for operand, rtype in (
         ("PROGRAM", "MAPSET" if usage_map and lang in (None, "ASSEMBLER") else "PROGRAM"),
         ("MAPSET", "MAPSET"),
-        ("PARTITIONSET", "PARTITIONSET"),
         ("PARTSET", "PARTITIONSET"),
     ):
         name = _name(keyed.get(operand))
@@ -407,18 +460,14 @@ def _emp_id(value: str | None) -> str | None:
     return f"{entry or 'USER'}.{int(number)}"
 
 
-def _srt_rows(line: int, text: str, keyed: dict[str, str], kind: str, table: str) -> list[dict[str, Any]]:
-    """DFHSRT TYPE=SYSTEM|USER: one SRT row per intercepted abend code, only for RECOVER=YES.
+def _srt_codes(keyed: dict[str, str], kind: str) -> list[str]:
+    """DFHSRT TYPE=SYSTEM|USER ABCODE= -> the abend codes as MVS names them (Sxxx / Unnnn), in order, once each.
 
-    RECOVER=NO, or no RECOVER, "removes" the codes from the SRT: that is not a definition,
-    so it yields nothing. A code that is not three hex digits (SYSTEM) or a decimal number
-    (USER) is dropped. The row is named as the MVS code is: Sxxx / Unnnn.
+    A code that is not three hex digits (SYSTEM) or a decimal number (USER) is dropped.
     """
-    if (_first(keyed.get("RECOVER")) or "") != "YES":
-        return []
     shape, prefix = (_SRT_SYSTEM_CODE, "S") if kind == "SYSTEM" else (_SRT_USER_CODE, "U")
     codes = [c.strip("() '\"").upper() for c in (keyed.get("ABCODE") or "").split(",")]
-    return [_row("SRT", prefix + code, table, line, text, ["RECOVER(YES)"]) for code in codes if shape.match(code)]
+    return list(dict.fromkeys(prefix + code for code in codes if shape.match(code)))
 
 
 def _plt_rows(line: int, text: str, keyed: dict[str, str], table: str, stage: int) -> tuple[list[dict[str, Any]], int]:
@@ -607,7 +656,22 @@ def cics_macro_table_resources(code_stream: str) -> list[dict[str, Any]]:
             prefixes = [p.strip("() '\"").upper() for p in (keyed.get("DATAID") or "").strip().split(",")]
             rows.extend(_row("TSMODEL", prefix, table, line, text, rdo) for prefix in prefixes if prefix)
         elif op == "DFHSRT" and kind in ("SYSTEM", "USER"):
-            rows.extend(_srt_rows(line, text, keyed, kind, table))
+            # RECOVER=YES defines the codes; RECOVER=NO (or none) "removes" them [TS], so a later NO
+            # takes a code an earlier YES defined in the same table out, and a repeat adds no second row.
+            recover = (_first(keyed.get("RECOVER")) or "") == "YES"
+            for code in _srt_codes(keyed, kind):
+                held = next(
+                    (
+                        r
+                        for r in rows
+                        if r["resource_type"] == "SRT" and r["name"] == code and r["macro_table"] == table
+                    ),
+                    None,
+                )
+                if not recover and held is not None:
+                    rows.remove(held)
+                elif recover and held is None:
+                    rows.append(_row("SRT", code, table, line, text, ["RECOVER(YES)"]))
         elif op == "DFHJCT" and kind == "ENTRY":
             name = _jfileid(keyed.get("JFILEID"))
             if name:

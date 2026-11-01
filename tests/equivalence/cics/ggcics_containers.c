@@ -61,6 +61,8 @@ static void cics_name(const char *src, char *dst, const char *what) {
 
 /* The channel `name` in the current level's scope (index + 1), 0 when there is none; with
  * `create`, a new empty one when there is none. A name an XCTL left behind is refused. */
+static int cics_defined_name(const char *n);
+static int harness_channel; /* set while load_channel makes a channel the harness hands the task (DFHEP.EVENT): never refused */
 static int channel_named(const char *name, int create) {
     level *L = &levels[lvl];
     char msg[96];
@@ -74,6 +76,9 @@ static int channel_named(const char *name, int create) {
         if (strcmp(chans[L->scope[i] - 1].name, name) == 0) return L->scope[i];
     }
     if (!create) return 0;
+    /* #5005 (X42): a channel LINK / XCTL / RETURN CHANNEL would make is never DFH... (DFHTRANSACTION, the transaction channel,
+     * is not modelled; PUT and MOVE refuse such a name before they get here); one already in scope returned above */
+    if (!harness_channel && cics_defined_name(name)) refuse("LINK / XCTL / RETURN CHANNEL naming a DFH... channel not in scope: the transaction channel (DFHTRANSACTION) and any other CICS-defined channel are not modelled");
     if (nchans >= MAX_CHANNELS || L->nscope >= 32) refuse("more channels than the stub holds");
     snprintf(chans[nchans].name, sizeof chans[nchans].name, "%s", name);
     nchans++;
@@ -189,6 +194,23 @@ static gg_container *container_named(gg_channel *ch, const char *name, int creat
  * APPEND. No channel and no current one: INVREQ RESP2 4, 1 when a data type was named. FLENGTH
  * below zero: LENGERR RESP2 1. A new container takes the type named, else BIT (naming the other
  * type for an existing one is refused, below). The data replaces the container's, or follows it. */
+/* PUT CONTAINER (X42): the pipeline containers a burned program writes back (DFHREQUEST, DFH-BODY, DFH-DATA) run as ordinary ones;
+ * any other DFH container, and any DFH channel, is refused by name. */
+static int dfh_prefix(const char *n) {
+    while (*n == ' ') n++;
+    return toupper((unsigned char)n[0]) == 'D' && toupper((unsigned char)n[1]) == 'F' && toupper((unsigned char)n[2]) == 'H';
+}
+static void refuse_cics_defined_put(const char *container, const char *channel) {
+    char t[17];
+    int i = 0;
+    while (*container == ' ') container++;
+    for (; container[i] && container[i] != ' ' && i < 16; i++) t[i] = (char)toupper((unsigned char)container[i]);
+    t[i] = 0;
+    int pipeline = !strcmp(t, "DFHREQUEST") || !strcmp(t, "DFH-BODY") || !strcmp(t, "DFH-DATA");
+    if ((!pipeline && dfh_prefix(t)) || (channel && dfh_prefix(channel)))
+        refuse("PUT CONTAINER naming a CICS-defined (DFH...) container or channel: it may be read-only, and IBM lists none (INVREQ RESP2 30, CHANNELERR RESP2 3)");
+}
+
 int GGCPUTC(gg_cics *c, char *from) {
     char flags[41], name[17];
     int bit, chr, ch, from_ccsid;
@@ -200,6 +222,7 @@ int GGCPUTC(gg_cics *c, char *from) {
     c->resp2 = 0;
     int fresp, fresp2; /* #6882 (X17): a planned condition: the PUT is not performed */
     if (injected("PUT-CONTAINER", "-", &fresp, &fresp2)) { c->resp = fresp; c->resp2 = fresp2; return 0; }
+    refuse_cics_defined_put(c->qname, strstr(flags, "CHANNEL") ? c->chan : NULL);
     int bad_name = cics_name_check(c->qname, name, "container");
     int bad_chan = 0;
     if (strstr(flags, "CHANNEL")) {
@@ -335,6 +358,13 @@ int GGCGETC(gg_cics *c, char *into) {
     return 0;
 }
 
+/* IBM's MOVE CONTAINER (INVREQ RESP2 30 / 31, CHANNELERR 3), DELETE CHANNEL (CHANNELERR 3) and DELETE CONTAINER (INVREQ 30, CHANNELERR 3) pages name CICS-defined
+ * read-only containers and channels and list none: a name beginning DFH may be one, so the command is refused by name (X42 / X44). */
+static int cics_defined_name(const char *n) {
+    while (*n == ' ') n++;
+    return toupper((unsigned char)n[0]) == 'D' && toupper((unsigned char)n[1]) == 'F' && toupper((unsigned char)n[2]) == 'H';
+}
+
 /* DELETE CONTAINER(GG-QNAME) [CHANNEL]: CHANNELERR RESP2 2, INVREQ RESP2 4, CONTAINERERR RESP2 10. */
 int GGCDELC(gg_cics *c) {
     char name[17];
@@ -342,6 +372,13 @@ int GGCDELC(gg_cics *c) {
     c->resp = NORMAL;
     c->resp2 = 0;
     cics_name(c->qname, name, "container");
+    {
+        char flags[41], cn[17] = "";
+        trim(c->flags, 40, flags);
+        if (strstr(flags, "CHANNEL")) cics_name(c->chan, cn, "channel");
+        if (cics_defined_name(name) || cics_defined_name(cn))
+            refuse("DELETE CONTAINER naming a CICS-defined (DFH...) container or channel: it may be read-only, and IBM lists none (INVREQ RESP2 30, CHANNELERR RESP2 3)");
+    }
     ch = command_channel(c, 0, 4);
     if (!ch) return 0;
     gg_container *k = container_named(&chans[ch - 1], name, 0);
@@ -367,6 +404,7 @@ int GGCDELH(gg_cics *c) {
     c->resp = NORMAL;
     c->resp2 = 0;
     cics_name(c->chan, name, "channel");
+    if (cics_defined_name(name)) refuse("DELETE CHANNEL naming a CICS-defined (DFH...) container or channel: it may be read-only, and IBM lists none (INVREQ RESP2 30 / 31, CHANNELERR RESP2 3)");
     int ch = channel_named(name, 0);
     if (!ch) { c->resp = CHANNELERR; c->resp2 = 2; return 0; }
     if (ch == levels[lvl].cur) refuse("DELETE CHANNEL of the current channel");
@@ -424,6 +462,8 @@ int GGCMOVC(gg_cics *c) {
     else from = levels[lvl].cur;
     if (has_to) { cics_name(c->tochan, tn, "channel"); to = channel_named(tn, 0); }
     else to = levels[lvl].cur;
+    if (cics_defined_name(name) || cics_defined_name(target) || cics_defined_name(cn) || cics_defined_name(tn))
+        refuse("MOVE CONTAINER naming a CICS-defined (DFH...) container or channel: it may be read-only, and IBM lists none (INVREQ RESP2 30 / 31, CHANNELERR RESP2 3)");
     if ((!has_from || !has_to) && !levels[lvl].cur) { c->resp = INVREQ; c->resp2 = 4; return 0; }
     if (!from) { c->resp = CHANNELERR; c->resp2 = 2; return 0; }
     gg_container *src = container_named(&chans[from - 1], name, 0);
@@ -569,7 +609,9 @@ static int load_channel(const char *path, const char *as) {
     char *line = malloc(size);
     if (!line) refuse("out of memory");
     if (!fgets(line, (int)size, f) || sscanf(line, "%16s", name) != 1) refuse("channel.cfg: no channel name");
+    harness_channel = 1;
     int ch = channel_named(as ? as : name, 1);
+    harness_channel = 0;
     while (fgets(line, (int)size, f)) {
         char *hex = malloc(size);
         if (!hex) refuse("out of memory");

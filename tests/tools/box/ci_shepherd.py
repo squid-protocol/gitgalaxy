@@ -52,6 +52,7 @@ import pr_check  # noqa: E402
 
 STATE = Path(os.environ.get("CI_SHEPHERD_STATE", Path.home() / ".cache" / "gitgalaxy" / "ci_shepherd.json"))
 REPO_SLUG = pr_check.REPO_SLUG
+API_CACHE = Path(os.environ.get("SHEPHERD_API_CACHE", Path.home() / ".cache" / "gitgalaxy" / "ci_shepherd_api"))
 Run = Callable[[list[str]], subprocess.CompletedProcess[str]]
 
 
@@ -349,25 +350,28 @@ def _pass_one(
 
 
 def step(state: dict[str, Any], api: pr_check.Api = pr_check.gh_api, run: Run = _run,
-         digest: Callable[[int], dict[str, Any]] | None = None, settle: float = 30) -> list[str]:  # fmt: skip
+         digest: Callable[[int], dict[str, Any]] | None = None, settle: float = 30,
+         graphql: pr_check.GraphQL | None = None) -> list[str]:  # fmt: skip
     """One pass over the queue. Returns what it did (for the log and the tests). Every queued PR gets at least one
-    line: what it did, or its state and why nothing was done (#4790: a pass logged nothing about #4837)."""
+    line: what it did, or its state and why nothing was done (#4790: a pass logged nothing about #4837).
+    `graphql` (#6534): each PR's state and a failing PR's digest, and main's failing checks (read once per pass), come
+    from GraphQL, REST when a query fails."""
     on_main_cache: list[set[str]] = []
 
     flaky_cache: list[set[str]] = []
 
     def _default_digest(n: int) -> dict[str, Any]:
         if not on_main_cache:
-            on_main_cache.append(ci_digest.main_failures(api))
+            on_main_cache.append(ci_digest.main_failures(api, graphql=graphql))
             flaky_cache.append(learned_flakes(state))
-        return ci_digest.digest(n, api, on_main=on_main_cache[0], flaky=flaky_cache[0])
+        return ci_digest.digest(n, api, on_main=on_main_cache[0], flaky=flaky_cache[0], graphql=graphql)
 
     digest_fn = digest or _default_digest
     did: list[str] = []
     in_flight = [0]
     fixers: list[tuple[int, str, dict[str, Any]]] = []
     for n in list(state["queue"]):
-        res = pr_check.check(n, api)
+        res = pr_check.check(n, api, graphql)
         if res["state"] != "open":
             state["queue"].remove(n)
             did.append(f"#{n} {res['state']}: left the queue")
@@ -383,6 +387,12 @@ def step(state: dict[str, Any], api: pr_check.Api = pr_check.gh_api, run: Run = 
     if fixers:
         start_fixers(state, fixers, os.environ.get("CI_SHEPHERD_FIXER", ""), did)
     return did
+
+
+def pass_api(store: Path | None = None) -> pr_check.Api:
+    """The REST reads that stay, for one pass (#6534): conditional (ETag; a 304 costs no quota, the store persists
+    across passes) with a finished SHA's reads, a commit and a completed run shared within the pass."""
+    return pr_check.pass_cache(pr_check.conditional_api(API_CACHE if store is None else store))
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -414,9 +424,10 @@ def main(argv: list[str] | None = None) -> int:
                 with open(STATE.with_suffix(".lock"), "w") as lock:  # held per pass; add/drop wait for it
                     fcntl.flock(lock, fcntl.LOCK_EX)
                     state = load()
-                    for line in step(state):
+                    for line in step(state, pass_api(), graphql=pr_check.gh_graphql):
                         log(line)
                     save(state)
+                    pr_check.prune_api_store(API_CACHE)  # the store a long run keeps stays small
                 if args.once or (args.exit_when_empty and not state["queue"]) or time.time() > end:
                     log(
                         "queue empty"

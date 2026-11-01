@@ -1,0 +1,27 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "GTSTXT",
+  "program_source": "cases/ghost-tasks/gt-send-text-terminal/src/GTSTXT.cbl",
+  "copy_dirs": [],
+  "transid": "GT41",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "programs": [
+    {
+      "program": "GTSTXS",
+      "program_source": "cases/ghost-tasks/gt-send-text-terminal/src/GTSTXS.cbl"
+    }
+  ],
+  "notes": "cics-crucible ghost-tasks / gt-send-text-terminal (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): SEND TEXT ... TERMINAL: the default output disposition, the task's principal facility -- the typing terminal for a terminal task, the START TERMID terminal for a started one; nothing for a task with none. Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "terminal-and-started",
+      "commarea": null,
+      "terminal": "GT41",
+      "why": "SEND TEXT with and without TERMINAL record the same event; a task started at T001 sends to T001; a task with no terminal (ASSIGN FACILITY INVREQ) sends nothing"
+    }
+  ]
+}

@@ -3,6 +3,125 @@
  "crucible_ref": "v0.10.0 (01e11fe6)",
  "note": "#4023: the COBOL each passing cobol-stub scenario executes (live paragraphs and sections entered; branch outcomes as LINE:OUTCOME of the crucible's source) -- a ratchet (tests/tools/cics_crucible.py --ci). Regenerate with --update-baseline.",
  "programs": {
+  "ca-address-commarea/CAADDR": {
+   "live": 4,
+   "outcomes": 8,
+   "scenarios": {
+    "link-view": {
+     "units": [
+      "LINK-PARA",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "62:WHEN@63"
+     ]
+    },
+    "eib-view": {
+     "units": [
+      "EIB-PARA",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "62:WHEN@67",
+      "106:true"
+     ]
+    }
+   }
+  },
+  "ca-address-commarea/CAADSB": {
+   "live": 1,
+   "outcomes": 2,
+   "scenarios": {
+    "link-view": {
+     "units": [
+      "SUB-MAIN"
+     ],
+     "outcomes": [
+      "39:false"
+     ]
+    }
+   }
+  },
+  "ca-address-eib-commarea/CAEBCA": {
+   "live": 4,
+   "outcomes": 10,
+   "scenarios": {
+    "commarea-writethru": {
+     "units": [
+      "LINK-PARA",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "85:WHEN@88"
+     ]
+    }
+   }
+  },
+  "ca-address-eib-commarea/CAEBSB": {
+   "live": 1,
+   "outcomes": 4,
+   "scenarios": {
+    "commarea-writethru": {
+     "units": [
+      "SUB-MAIN"
+     ],
+     "outcomes": [
+      "53:true",
+      "56:false"
+     ]
+    }
+   }
+  },
+  "ca-address-twa-tctua/CATWAD": {
+   "live": 5,
+   "outcomes": 7,
+   "scenarios": {
+    "twa-sized": {
+     "units": [
+      "MAIN-PARA",
+      "TWA-LINK-PARA"
+     ],
+     "outcomes": [
+      "44:WHEN@45"
+     ]
+    },
+    "twasize-zero": {
+     "units": [
+      "MAIN-PARA",
+      "TWA-NONE-PARA"
+     ],
+     "outcomes": [
+      "44:WHEN@47",
+      "77:true"
+     ]
+    },
+    "tctua-two-tasks": {
+     "units": [
+      "MAIN-PARA",
+      "UA-READ-PARA",
+      "UA-STORE-PARA"
+     ],
+     "outcomes": [
+      "44:WHEN@49",
+      "44:WHEN@51"
+     ]
+    }
+   }
+  },
+  "ca-address-twa-tctua/CATWSB": {
+   "live": 1,
+   "outcomes": 2,
+   "scenarios": {
+    "twa-sized": {
+     "units": [
+      "SUB-MAIN"
+     ],
+     "outcomes": [
+      "32:false"
+     ]
+    }
+   }
+  },
   "ca-channel-containers/CACHAN": {
    "live": 3,
    "outcomes": 0,
@@ -131,6 +250,25 @@
    "outcomes": 6,
    "scenarios": {}
   },
+  "ca-getmain-pointer/CAGMZ": {
+   "live": 3,
+   "outcomes": 4,
+   "scenarios": {
+    "zero-length": {
+     "units": [
+      "LOG-RESP",
+      "LOG-ZERO",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "76:false",
+      "76:true",
+      "83:false",
+      "83:true"
+     ]
+    }
+   }
+  },
   "ca-link-lengths/CALINK": {
    "live": 1,
    "outcomes": 4,
@@ -200,6 +338,59 @@
      ]
     }
    }
+  },
+  "ca-load-set/CALDST": {
+   "live": 3,
+   "outcomes": 4,
+   "scenarios": {
+    "load": {
+     "units": [
+      "LOG-LOAD",
+      "LOG-RESP",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "40:false",
+      "45:true"
+     ]
+    }
+   }
+  },
+  "ca-load-set/CALDSX": {
+   "live": 2,
+   "outcomes": 4,
+   "scenarios": {
+    "pgmiderr": {
+     "units": [
+      "LOG-RESP",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "37:false",
+      "42:true"
+     ]
+    }
+   }
+  },
+  "ca-receive-retrieve-set/CARCST": {
+   "live": 1,
+   "outcomes": 5,
+   "scenarios": {
+    "short-input": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "32:true",
+      "40:none"
+     ]
+    }
+   }
+  },
+  "ca-receive-retrieve-set/CARTWK": {
+   "live": 1,
+   "outcomes": 2,
+   "scenarios": {}
   },
   "ca-xctl-versions/CAXA": {
    "live": 1,
@@ -1127,6 +1318,74 @@
     }
    }
   },
+  "hc-file-read-set/HCRDST": {
+   "live": 8,
+   "outcomes": 9,
+   "scenarios": {
+    "read-set": {
+     "units": [
+      "LOG-D",
+      "LOG-W",
+      "MAIN-PARA",
+      "READ-PARA"
+     ],
+     "outcomes": [
+      "42:WHEN@43",
+      "152:false",
+      "152:true",
+      "164:false",
+      "164:true"
+     ]
+    },
+    "browse-fwd": {
+     "units": [
+      "FWD-PARA",
+      "LOG-D",
+      "LOG-R",
+      "LOG-W",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "42:WHEN@45",
+      "152:false",
+      "152:true",
+      "164:false",
+      "164:true"
+     ]
+    },
+    "browse-back": {
+     "units": [
+      "BACK-PARA",
+      "LOG-D",
+      "LOG-R",
+      "LOG-W",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "42:WHEN@47",
+      "152:false",
+      "152:true",
+      "164:false",
+      "164:true"
+     ]
+    },
+    "browse-notfnd": {
+     "units": [
+      "LOG-D",
+      "LOG-R",
+      "LOG-W",
+      "MAIN-PARA",
+      "NOTFND-PARA"
+     ],
+     "outcomes": [
+      "42:WHEN@49",
+      "152:true",
+      "164:false",
+      "164:true"
+     ]
+    }
+   }
+  },
   "hc-file-unlock/HCUNLK": {
    "live": 9,
    "outcomes": 9,
@@ -1559,7 +1818,68 @@
   "hc-readq-td/HCRQTD": {
    "live": 9,
    "outcomes": 7,
-   "scenarios": {}
+   "scenarios": {
+    "fifo": {
+     "units": [
+      "FIFO-PARA",
+      "MAIN-PARA",
+      "READ-ONE",
+      "WRITE-THREE"
+     ],
+     "outcomes": [
+      "41:WHEN@42"
+     ]
+    },
+    "seeded": {
+     "units": [
+      "MAIN-PARA",
+      "READ-ONE",
+      "SEED-PARA"
+     ],
+     "outcomes": [
+      "41:WHEN@44"
+     ]
+    },
+    "empty": {
+     "units": [
+      "EMPTY-PARA",
+      "MAIN-PARA",
+      "READ-ONE"
+     ],
+     "outcomes": [
+      "41:WHEN@46"
+     ]
+    },
+    "undefined": {
+     "units": [
+      "MAIN-PARA",
+      "UNDEF-PARA"
+     ],
+     "outcomes": [
+      "41:WHEN@48"
+     ]
+    },
+    "deleteq": {
+     "units": [
+      "DELETE-PARA",
+      "MAIN-PARA",
+      "READ-ONE",
+      "WRITE-THREE"
+     ],
+     "outcomes": [
+      "41:WHEN@50"
+     ]
+    },
+    "lengerr": {
+     "units": [
+      "LENGERR-PARA",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "41:WHEN@52"
+     ]
+    }
+   }
   },
   "hc-resp-options/HCOPT": {
    "live": 7,

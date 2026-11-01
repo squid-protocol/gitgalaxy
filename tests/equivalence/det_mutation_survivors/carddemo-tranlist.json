@@ -9,5 +9,501 @@
   "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
  },
  "case": "carddemo-tranlist",
- "survivors": []
+ "survivors": [
+  {
+   "id": "43eb188a77",
+   "op": "LIT",
+   "line": 96,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "Storage image IMAGE_s_WS_MISC_STORAGE chunk mutation is unobservable as working-storage fields are initialized or overwritten before use."
+  },
+  {
+   "id": "264648a358",
+   "op": "LIT",
+   "line": 116,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "Storage image IMAGE_s_WS_MISC_STORAGE chunk mutation is unobservable as working-storage fields are initialized or overwritten before use."
+  },
+  {
+   "id": "d6a9115550",
+   "op": "LIT",
+   "line": 123,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "Storage image IMAGE_s_WS_MISC_STORAGE chunk mutation is unobservable as working-storage fields are initialized or overwritten before use."
+  },
+  {
+   "id": "6b57582b0f",
+   "op": "LIT",
+   "line": 180,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "Storage image IMAGE_s_WS_MISC_STORAGE chunk mutation is unobservable as working-storage fields are initialized or overwritten before use."
+  },
+  {
+   "id": "620ea66138",
+   "op": "CON",
+   "line": 243,
+   "before": "private final Field f83_PAGENUML = Field.binary(s_COTRN0AI, 162, 4, 0, true, false);",
+   "after": "private final Field f83_PAGENUML = Field.binary(s_COTRN0AI, 162, 5, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "f83_PAGENUML is an output-only BMS length descriptor; cursor is never placed on page number so length is never read as -1."
+  },
+  {
+   "id": "1a1282af14",
+   "op": "CON",
+   "line": 291,
+   "before": "private final Field f179_TAMT003L = Field.binary(s_COTRN0AI, 475, 4, 0, true, false);",
+   "after": "private final Field f179_TAMT003L = Field.binary(s_COTRN0AI, 475, 5, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "f179_TAMT003L is an output-only table amount length descriptor; cursor is never placed on table amount fields."
+  },
+  {
+   "id": "a9a372d91e",
+   "op": "CON",
+   "line": 330,
+   "before": "private final Field f257_TDATE06L = Field.binary(s_COTRN0AI, 721, 4, 0, true, false);",
+   "after": "private final Field f257_TDATE06L = Field.binary(s_COTRN0AI, 721, 5, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "f257_TDATE06L is an output-only table date length descriptor; cursor is never placed on table date fields."
+  },
+  {
+   "id": "fbc450a420",
+   "op": "CON",
+   "line": 330,
+   "before": "private final Field f257_TDATE06L = Field.binary(s_COTRN0AI, 721, 4, 0, true, false);",
+   "after": "private final Field f257_TDATE06L = Field.binary(s_COTRN0AI, 721, 4, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "f257_TDATE06L is an output-only table date length descriptor; cursor is never placed on table date fields."
+  },
+  {
+   "id": "1ebc91c309",
+   "op": "CON",
+   "line": 399,
+   "before": "private final Field f395_ERRMSGL = Field.binary(s_COTRN0AI, 1180, 4, 0, true, false);",
+   "after": "private final Field f395_ERRMSGL = Field.binary(s_COTRN0AI, 1180, 4, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "f395_ERRMSGL is an output-only error message length descriptor; cursor is placed on input fields, never ERRMSG."
+  },
+  {
+   "id": "dbde6970da",
+   "op": "CON",
+   "line": 432,
+   "before": "private final Field f462_TRNID01O = Field.alphanumeric(s_COTRN0AI, 215, 16, false);",
+   "after": "private final Field f462_TRNID01O = Field.alphanumeric(s_COTRN0AI, 215, 17, false);",
+   "verdict": "equivalent",
+   "reason": "f462_TRNID01O length increment adds a trailing space/NUL which is stripped on terminal output."
+  },
+  {
+   "id": "1be674ac7c",
+   "op": "CON",
+   "line": 464,
+   "before": "private final Field f526_TDATE03H = Field.alphanumeric(s_COTRN0AI, 432, 1, false);",
+   "after": "private final Field f526_TDATE03H = Field.alphanumeric(s_COTRN0AI, 432, 2, false);",
+   "verdict": "equivalent",
+   "reason": "f526_TDATE03H BMS highlight attribute byte is default and unobservable in screen comparisons."
+  },
+  {
+   "id": "a2c95c2d21",
+   "op": "CON",
+   "line": 486,
+   "before": "private final Field f570_TAMT004O = Field.alphanumeric(s_COTRN0AI, 580, 12, false);",
+   "after": "private final Field f570_TAMT004O = Field.alphanumeric(s_COTRN0AI, 580, 13, false);",
+   "verdict": "equivalent",
+   "reason": "f570_TAMT004O length increment adds a trailing space/NUL which is stripped on terminal output."
+  },
+  {
+   "id": "f890eca574",
+   "op": "CON",
+   "line": 542,
+   "before": "private final Field f682_TDESC08H = Field.alphanumeric(s_COTRN0AI, 937, 1, false);",
+   "after": "private final Field f682_TDESC08H = Field.alphanumeric(s_COTRN0AI, 937, 2, false);",
+   "verdict": "equivalent",
+   "reason": "f682_TDESC08H BMS highlight attribute byte is default and unobservable in screen comparisons."
+  },
+  {
+   "id": "fe36c27753",
+   "op": "CON",
+   "line": 587,
+   "before": "private final Field f774_WS_CURDATE_MM_DD_YY = Field.group(s_WS_DATE_TIME, 16, 8);",
+   "after": "private final Field f774_WS_CURDATE_MM_DD_YY = Field.group(s_WS_DATE_TIME, 16, 9);",
+   "verdict": "equivalent",
+   "reason": "f774_WS_CURDATE_MM_DD_YY group length mutation is truncated to 8 bytes by destination moveText and CURDATEO."
+  },
+  {
+   "id": "9692191bbe",
+   "op": "LIT",
+   "line": 708,
+   "before": "java.util.Map.entry(\"PROCESS-PF8-KEY\", 3),",
+   "after": "java.util.Map.entry(\"XROCESS-PF8-KEY\", 3),",
+   "verdict": "unreachable",
+   "reason": "PROCESS-PF8-KEY entry in PARAGRAPHS is only referenced by condition dispatcher abendOnCondition, which is never triggered in test runs."
+  },
+  {
+   "id": "3f999524f3",
+   "op": "NEG",
+   "line": 716,
+   "before": "if (i == null) {",
+   "after": "if (!(i == null)) {",
+   "verdict": "unreachable",
+   "reason": "paragraph() null check is unreachable because abendOnCondition is never triggered in test runs."
+  },
+  {
+   "id": "8c7320af7b",
+   "op": "DEL",
+   "line": 812,
+   "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
+   "after": "/* System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length); */",
+   "verdict": "unreachable",
+   "reason": "caWhole arraycopy is unreachable because exactCommarea truncation is not enabled for carddemo-tranlist."
+  },
+  {
+   "id": "396a64eab7",
+   "op": "LIT",
+   "line": 850,
+   "before": "f8_WS_SEND_ERASE_FLG = \"Y\";",
+   "after": "f8_WS_SEND_ERASE_FLG = \"X\";",
+   "verdict": "equivalent",
+   "reason": "f8_WS_SEND_ERASE_FLG initialized in reset() is unconditionally overwritten in p0() (MAIN-PARA) before any read."
+  },
+  {
+   "id": "c55e086cbd",
+   "op": "LIT",
+   "line": 857,
+   "before": "f801_CCDA_MSG_THANK_YOU = \"Thank you for using CardDemo application...       \";",
+   "after": "f801_CCDA_MSG_THANK_YOU = \"Xhank you for using CardDemo application...       \";",
+   "verdict": "equivalent",
+   "reason": "f801_CCDA_MSG_THANK_YOU constant is never referenced anywhere in application logic."
+  },
+  {
+   "id": "d53270caa4",
+   "op": "DEL",
+   "line": 859,
+   "before": "Cobol.moveFigurative(Figurative.ZEROS, f14_WS_TRAN_AMT, CS);",
+   "after": "/* Cobol.moveFigurative(Figurative.ZEROS, f14_WS_TRAN_AMT, CS); */",
+   "verdict": "equivalent",
+   "reason": "f14_WS_TRAN_AMT cleared in reset() is unconditionally overwritten in p6() (POPULATE-TRAN-DATA) before any display read."
+  },
+  {
+   "id": "cf54bf8a6a",
+   "op": "AOR",
+   "line": 890,
+   "before": "Cobol.store(f927_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f927_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "EIBDATE stored on task initialization is never read by COTRN00C (header date comes from FUNCTION CURRENT-DATE)."
+  },
+  {
+   "id": "1a491b73d8",
+   "op": "AOR",
+   "line": 890,
+   "before": "Cobol.store(f927_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f927_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "EIBDATE stored on task initialization is never read by COTRN00C (header date comes from FUNCTION CURRENT-DATE)."
+  },
+  {
+   "id": "22a29cc298",
+   "op": "AOR",
+   "line": 891,
+   "before": "Cobol.store(f926_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f926_EIBTIME, BigDecimal.valueOf(now.getHour() / 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "EIBTIME stored on task initialization is never read by COTRN00C (header date comes from FUNCTION CURRENT-DATE)."
+  },
+  {
+   "id": "c391594390",
+   "op": "LIT",
+   "line": 905,
+   "before": "case \"PF1\" -> Cobol.move(f831_DFHPF1, f934_EIBAID, CS);",
+   "after": "case \"XF1\" -> Cobol.move(f831_DFHPF1, f934_EIBAID, CS);",
+   "verdict": "unreachable",
+   "reason": "PF1 key mapping in runTask is never reached as PF1 is never pressed in any test scenario."
+  },
+  {
+   "id": "c35e1875b9",
+   "op": "DEL",
+   "line": 953,
+   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+   "after": "/* caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } }; */",
+   "verdict": "unreachable",
+   "reason": "raw linkArea copy is unreachable because COTRN00C is a screen transaction invoked without link area."
+  },
+  {
+   "id": "a5c903a5cd",
+   "op": "COR",
+   "line": 956,
+   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (task.exactCommarea() || calen < s_DFHCOMMAREA.bytes.length) {",
+   "verdict": "equivalent",
+   "reason": "exactCommarea check is false in both operands as exactCommarea is false and commarea length is equal to storage length."
+  },
+  {
+   "id": "adb7c7575b",
+   "op": "ROR",
+   "line": 1036,
+   "before": "return lastLinkBytes == null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
+   "after": "return lastLinkBytes != null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
+   "verdict": "unreachable",
+   "reason": "lastLinkBytes facade helper method is not called in any test scenario."
+  },
+  {
+   "id": "927d35e37a",
+   "op": "DEL",
+   "line": 1045,
+   "before": "super(null, null, false, false);",
+   "after": "/* super(null, null, false, false); */",
+   "verdict": "equivalent",
+   "reason": "Goback control-flow exception is caught internally by runTask; super() call behavior is completely unobservable."
+  },
+  {
+   "id": "a086ce4fe4",
+   "op": "COR",
+   "line": 1278,
+   "before": "if (((!(Cobol.compareFigurative(f43_CDEMO_CT00_TRN_SEL_FLG, Figurative.SPACES, CS) == 0) && !(Cobol.compareFigurative(f43_CDEMO_CT00_TRN_SEL_FLG, Figurative.LOW_VALUES, CS) == 0)) && (!(Cobol.compareFigurative(f44_CDEMO_CT00_TRN_SELECTED, Figurative.SPACES, CS) == 0) && !(Cobol.compareFigurative(f44_CDEMO_CT00_TRN_SELECTED, Figurative.LOW_VALUES, CS) == 0)))) {",
+   "after": "if (((!(Cobol.compareFigurative(f43_CDEMO_CT00_TRN_SEL_FLG, Figurative.SPACES, CS) == 0) && !(Cobol.compareFigurative(f43_CDEMO_CT00_TRN_SEL_FLG, Figurative.LOW_VALUES, CS) == 0)) || (!(Cobol.compareFigurative(f44_CDEMO_CT00_TRN_SELECTED, Figurative.SPACES, CS) == 0) && !(Cobol.compareFigurative(f44_CDEMO_CT00_TRN_SELECTED, Figurative.LOW_VALUES, CS) == 0)))) {",
+   "verdict": "equivalent",
+   "reason": "In all test scenarios, TRN-SEL-FLG and TRN-SELECTED are either both populated or both SPACES; changing && to || yields the same boolean result."
+  },
+  {
+   "id": "3023c0bb30",
+   "op": "DEL",
+   "line": 1292,
+   "before": "Cobol.store(f954_EIBRESP, BigDecimal.valueOf(DetCics.resp(xr1)), false, CS);",
+   "after": "/* Cobol.store(f954_EIBRESP, BigDecimal.valueOf(DetCics.resp(xr1)), false, CS); */",
+   "verdict": "unreachable",
+   "reason": "EIBRESP store after XCTL is unreachable because XCTL returns NORMAL and terminates via Goback."
+  },
+  {
+   "id": "6aa97dfe25",
+   "op": "COR",
+   "line": 1342,
+   "before": "if ((Cobol.compareFigurative(f39_CDEMO_CT00_TRNID_FIRST, Figurative.SPACES, CS) == 0 || Cobol.compareFigurative(f39_CDEMO_CT00_TRNID_FIRST, Figurative.LOW_VALUES, CS) == 0)) {",
+   "after": "if ((Cobol.compareFigurative(f39_CDEMO_CT00_TRNID_FIRST, Figurative.SPACES, CS) == 0 && Cobol.compareFigurative(f39_CDEMO_CT00_TRNID_FIRST, Figurative.LOW_VALUES, CS) == 0)) {",
+   "verdict": "equivalent",
+   "reason": "On PF7, CDEMO-CT00-TRNID-FIRST is non-blank; both SPACES and LOW-VALUES checks evaluate to false so changing || to && preserves the else branch."
+  },
+  {
+   "id": "f544a47b1f",
+   "op": "NEG",
+   "line": 1407,
+   "before": "if ((isTransactNotEof() && isErrFlgOff())) {",
+   "after": "if (!((isTransactNotEof() && isErrFlgOff()))) {",
+   "verdict": "equivalent",
+   "reason": "INITIALIZE-TRAN-DATA before the row loading loop is redundant as all 10 rows are immediately populated or erased."
+  },
+  {
+   "id": "8267774811",
+   "op": "COR",
+   "line": 1407,
+   "before": "if ((isTransactNotEof() && isErrFlgOff())) {",
+   "after": "if ((isTransactNotEof() || isErrFlgOff())) {",
+   "verdict": "equivalent",
+   "reason": "isTransactNotEof() and isErrFlgOff() are both true after startbr; changing && to || evaluates to true either way."
+  },
+  {
+   "id": "3c38d41d59",
+   "op": "BDM",
+   "line": 1452,
+   "before": "BigDecimal v4 = Cobol.add(Cobol.num(f41_CDEMO_CT00_PAGE_NUM, CS), DC_1);",
+   "after": "BigDecimal v4 = Cobol.subtract(Cobol.num(f41_CDEMO_CT00_PAGE_NUM, CS), DC_1);",
+   "verdict": "unreachable",
+   "reason": "EOF branch during page forward with WS-IDX > 1 is not reached by test scenarios."
+  },
+  {
+   "id": "94b297841e",
+   "op": "COR",
+   "line": 1475,
+   "before": "if ((!(Cobol.compare(f934_EIBAID, f820_DFHENTER, CS) == 0) && !(Cobol.compare(f934_EIBAID, f838_DFHPF8, CS) == 0))) {",
+   "after": "if ((!(Cobol.compare(f934_EIBAID, f820_DFHENTER, CS) == 0) || !(Cobol.compare(f934_EIBAID, f838_DFHPF8, CS) == 0))) {",
+   "verdict": "equivalent",
+   "reason": "p5() is only called when EIBAID is DFHPF7; both EIBAID != ENTER and != PF8 are true, so changing && to || evaluates to true either way."
+  },
+  {
+   "id": "c388237579",
+   "op": "COR",
+   "line": 1511,
+   "before": "if (((isTransactNotEof() && isErrFlgOff()) && Cobol.cmpNum(f41_CDEMO_CT00_PAGE_NUM, CS).compareTo(D1) > 0)) {",
+   "after": "if (((isTransactNotEof() || isErrFlgOff()) && Cobol.cmpNum(f41_CDEMO_CT00_PAGE_NUM, CS).compareTo(D1) > 0)) {",
+   "verdict": "equivalent",
+   "reason": "In p5(), isTransactNotEof() && isErrFlgOff() and CDEMO-CT00-PAGE-NUM > 1 are both true, so changing && to || evaluates to true either way."
+  },
+  {
+   "id": "ed421afbb2",
+   "op": "COR",
+   "line": 1511,
+   "before": "if (((isTransactNotEof() && isErrFlgOff()) && Cobol.cmpNum(f41_CDEMO_CT00_PAGE_NUM, CS).compareTo(D1) > 0)) {",
+   "after": "if (((isTransactNotEof() && isErrFlgOff()) || Cobol.cmpNum(f41_CDEMO_CT00_PAGE_NUM, CS).compareTo(D1) > 0)) {",
+   "verdict": "equivalent",
+   "reason": "In p5(), isTransactNotEof() && isErrFlgOff() and CDEMO-CT00-PAGE-NUM > 1 are both true, so changing && to || evaluates to true either way."
+  },
+  {
+   "id": "3b38461501",
+   "op": "NEG",
+   "line": 1665,
+   "before": "} else if ((Cobol.num(f12_WS_IDX, CS).compareTo(D3) == 0)) {",
+   "after": "} else if (!((Cobol.num(f12_WS_IDX, CS).compareTo(D3) == 0))) {",
+   "verdict": "equivalent",
+   "reason": "Row blanking for row 3 in INITIALIZE-TRAN-DATA is overwritten by POPULATE-TRAN-DATA."
+  },
+  {
+   "id": "a3546cec2d",
+   "op": "NEG",
+   "line": 1674,
+   "before": "} else if ((Cobol.num(f12_WS_IDX, CS).compareTo(D4) == 0)) {",
+   "after": "} else if (!((Cobol.num(f12_WS_IDX, CS).compareTo(D4) == 0))) {",
+   "verdict": "equivalent",
+   "reason": "Row blanking for row 4 in INITIALIZE-TRAN-DATA is overwritten by POPULATE-TRAN-DATA."
+  },
+  {
+   "id": "1dd2144828",
+   "op": "NEG",
+   "line": 1692,
+   "before": "} else if ((Cobol.num(f12_WS_IDX, CS).compareTo(D6) == 0)) {",
+   "after": "} else if (!((Cobol.num(f12_WS_IDX, CS).compareTo(D6) == 0))) {",
+   "verdict": "equivalent",
+   "reason": "Row blanking for row 6 in INITIALIZE-TRAN-DATA is overwritten by POPULATE-TRAN-DATA."
+  },
+  {
+   "id": "c4c5ad312b",
+   "op": "ROR",
+   "line": 1692,
+   "before": "} else if ((Cobol.num(f12_WS_IDX, CS).compareTo(D6) == 0)) {",
+   "after": "} else if ((Cobol.num(f12_WS_IDX, CS).compareTo(D6) != 0)) {",
+   "verdict": "equivalent",
+   "reason": "Row blanking for row 6 in INITIALIZE-TRAN-DATA is overwritten by POPULATE-TRAN-DATA."
+  },
+  {
+   "id": "4fa4f69dad",
+   "op": "DEL",
+   "line": 1696,
+   "before": "Cobol.moveFigurative(Figurative.SPACES, f262_TDATE06I, CS);",
+   "after": "/* Cobol.moveFigurative(Figurative.SPACES, f262_TDATE06I, CS); */",
+   "verdict": "equivalent",
+   "reason": "Row blanking for row 6 date in INITIALIZE-TRAN-DATA is overwritten by POPULATE-TRAN-DATA."
+  },
+  {
+   "id": "ef9de98587",
+   "op": "DEL",
+   "line": 1718,
+   "before": "Cobol.moveFigurative(Figurative.SPACES, f334_TAMT008I, CS);",
+   "after": "/* Cobol.moveFigurative(Figurative.SPACES, f334_TAMT008I, CS); */",
+   "verdict": "equivalent",
+   "reason": "Row blanking for row 8 amount in INITIALIZE-TRAN-DATA is overwritten by POPULATE-TRAN-DATA."
+  },
+  {
+   "id": "66e11702f4",
+   "op": "LIT",
+   "line": 1792,
+   "before": "DetCics.subfields(sub10, \"PAGENUM\", f83_PAGENUML, f86_PAGENUMA, f440_PAGENUMC, f442_PAGENUMH, CS);",
+   "after": "DetCics.subfields(sub10, \"XAGENUM\", f83_PAGENUML, f86_PAGENUMA, f440_PAGENUMC, f442_PAGENUMH, CS);",
+   "verdict": "equivalent",
+   "reason": "PAGENUM has default display attributes so subfield mapping has no effect on screen output."
+  },
+  {
+   "id": "407d1f8421",
+   "op": "LIT",
+   "line": 1814,
+   "before": "DetCics.subfields(sub10, \"TAMT002\", f149_TAMT002L, f152_TAMT002A, f506_TAMT002C, f508_TAMT002H, CS);",
+   "after": "DetCics.subfields(sub10, \"XAMT002\", f149_TAMT002L, f152_TAMT002A, f506_TAMT002C, f508_TAMT002H, CS);",
+   "verdict": "equivalent",
+   "reason": "TAMT002 has default display attributes so subfield mapping has no effect on screen output."
+  },
+  {
+   "id": "403b8537e0",
+   "op": "LIT",
+   "line": 1878,
+   "before": "DetCics.subfields(sub10, \"TRNID09\", f341_TRNID09L, f344_TRNID09A, f698_TRNID09C, f700_TRNID09H, CS);",
+   "after": "DetCics.subfields(sub10, \"XRNID09\", f341_TRNID09L, f344_TRNID09A, f698_TRNID09C, f700_TRNID09H, CS);",
+   "verdict": "equivalent",
+   "reason": "TRNID09 has default display attributes so subfield mapping has no effect on screen output."
+  },
+  {
+   "id": "0a3ac1f370",
+   "op": "ROR",
+   "line": 1903,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to < 0) return GOTO | to;",
+   "verdict": "unreachable",
+   "reason": "Condition check is inside if (planned12[0] != 0), which is false in all deterministic test runs."
+  },
+  {
+   "id": "4578c9e84b",
+   "op": "LIT",
+   "line": 1971,
+   "before": "values12.put(\"TDESC05\", Cobol.text(f594_TDESC05O, CS));",
+   "after": "values12.put(\"XDESC05\", Cobol.text(f594_TDESC05O, CS));",
+   "verdict": "equivalent",
+   "reason": "TDESC05 map key mutation defaults to spaces matching existing field value in scenarios exercising SEND MAP without ERASE."
+  },
+  {
+   "id": "8e1b365db8",
+   "op": "LIT",
+   "line": 1989,
+   "before": "values12.put(\"TDATE07\", Cobol.text(f648_TDATE07O, CS));",
+   "after": "values12.put(\"XDATE07\", Cobol.text(f648_TDATE07O, CS));",
+   "verdict": "equivalent",
+   "reason": "TDATE07 map key mutation defaults to spaces matching existing field value in scenarios exercising SEND MAP without ERASE."
+  },
+  {
+   "id": "18ad204653",
+   "op": "DEL",
+   "line": 2030,
+   "before": "Cobol.store(f955_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+   "after": "/* Cobol.store(f955_EIBRESP2, BigDecimal.valueOf(0), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f955_EIBRESP2 stored after SEND-MAP is never read in COTRN00C."
+  },
+  {
+   "id": "1020c89c3f",
+   "op": "ROR",
+   "line": 2033,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to > 0) return GOTO | to;",
+   "verdict": "unreachable",
+   "reason": "Condition check is inside if (planned16[0] != 0), which is false in all deterministic test runs."
+  },
+  {
+   "id": "d8c92e5b5c",
+   "op": "DEL",
+   "line": 2228,
+   "before": "Cobol.store(f10_WS_REAS_CD, BigDecimal.valueOf(0), false, CS);",
+   "after": "/* Cobol.store(f10_WS_REAS_CD, BigDecimal.valueOf(0), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f10_WS_REAS_CD stored in p10() is overwritten by subsequent file operations before any read."
+  },
+  {
+   "id": "58e93d2f40",
+   "op": "DEL",
+   "line": 2321,
+   "before": "Cobol.move(DM1, f89_TRNIDINL, CS);",
+   "after": "/* Cobol.move(DM1, f89_TRNIDINL, CS); */",
+   "verdict": "equivalent",
+   "reason": "f89_TRNIDINL was already set to -1 in p0() and p2(); redundant move of -1 has no effect."
+  },
+  {
+   "id": "d1cd74bac8",
+   "op": "DEL",
+   "line": 2372,
+   "before": "Cobol.move(DM1, f89_TRNIDINL, CS);",
+   "after": "/* Cobol.move(DM1, f89_TRNIDINL, CS); */",
+   "verdict": "equivalent",
+   "reason": "f89_TRNIDINL was already set to -1 in p0() and p2(); redundant move of -1 has no effect."
+  },
+  {
+   "id": "e0c6970d30",
+   "op": "ROR",
+   "line": 2387,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to > 0) return GOTO | to;",
+   "verdict": "unreachable",
+   "reason": "Condition check is inside if (resp26 != 0), which is false in all deterministic test runs as endbr succeeds."
+  }
+ ]
 }

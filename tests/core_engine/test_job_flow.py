@@ -97,3 +97,64 @@ def test_a_comment_inside_a_continued_statement_does_not_end_it():
         "//*           UNIT=3390,DSNTYPE=LIBRARY", ""
     )
     assert [r["disp"] for r in jcl_job_flow(blanked) if r["kind"] == "DD"] == ["SHR"]
+
+
+def test_an_unnamed_dd_continues_the_step_of_the_dd_it_concatenates_onto():
+    # #5218: a continuation of a qualified override DD belongs to the overridden step, not the EXEC step.
+    src = (
+        "//J JOB\n"
+        "//S1 EXEC PROC=P\n"
+        "//A.SYSIN DD DSN=X.LIB(M1),DISP=SHR\n"
+        "//        DD DSN=X.LIB(M2),DISP=SHR\n"
+        "//        DD DSN=X.LIB(M3),DISP=SHR\n"
+        "//B.C.SYSIN DD DSN=X.LIB(M4),DISP=SHR\n"
+        "//        DD DSN=X.LIB(M5),DISP=SHR\n"
+        "//SYSIN DD DSN=X.LIB(M6),DISP=SHR\n"
+        "//        DD DSN=X.LIB(M7),DISP=SHR\n"
+        "//S2 EXEC PGM=X\n"
+        "//        DD DSN=X.LIB(M8),DISP=SHR\n"
+        "//SYSIN DD DSN=X.LIB(M9),DISP=SHR\n"
+        "//        DD DSN=X.LIB(MA),DISP=SHR\n"
+    )
+    got = [(r["step_name"], r["dd_name"], r["dsn"]) for r in jcl_job_flow(src) if r["kind"] == "DD"]
+    assert got == [
+        ("A", "SYSIN", "X.LIB(M1)"),
+        ("A", "SYSIN", "X.LIB(M2)"),
+        ("A", "SYSIN", "X.LIB(M3)"),
+        ("B", "C.SYSIN", "X.LIB(M4)"),
+        ("B", "C.SYSIN", "X.LIB(M5)"),
+        ("S1", "SYSIN", "X.LIB(M6)"),
+        ("S1", "SYSIN", "X.LIB(M7)"),
+        ("S2", None, "X.LIB(M8)"),  # nothing above it in this step: no ddname to inherit
+        ("S2", "SYSIN", "X.LIB(M9)"),
+        ("S2", "SYSIN", "X.LIB(MA)"),
+    ]
+
+
+def test_dsn_nullfile_is_a_dummy_dd_not_a_dataset():
+    # z/OS MVS JCL Reference, DSNAME: NULLFILE "has the same effect as coding the DD DUMMY parameter" (H-0084).
+    src = (
+        "//J JOB\n"
+        "//S1 EXEC PGM=SORT\n"
+        "//SORTWK01 DD DSN=NULLFILE\n"
+        "//SORTWK02 DD DSNAME=nullfile,DISP=SHR\n"
+        "//SORTWK03 DD DISP=SHR,\n"
+        "//            DSN=NULLFILE\n"
+        "//SORTIN DD DSN=NULLFILE.REAL,DISP=SHR\n"
+        "//        DD DSN=NULLFILES,DISP=SHR\n"
+        "//SORTOUT DD DSN=APP.OUT,DISP=(NEW,CATLG)\n"
+    )
+    got = [(r["dd_name"], r["dsn"]) for r in jcl_job_flow(src) if r["kind"] == "DD"]
+    assert got == [("SORTIN", "NULLFILE.REAL"), ("SORTIN", "NULLFILES"), ("SORTOUT", "APP.OUT")]
+
+
+def test_dsn_nullfile_is_no_dependency_capture():
+    from gitgalaxy.standards.language_standards.languages.jcl import DEFINITION as d
+
+    rx = d["_dependency_capture"] if "_dependency_capture" in d else d["rules"]["_dependency_capture"]
+    src = (
+        "//A DD DSN=NULLFILE\n//B DD DSNAME=NULLFILE,DISP=SHR\n//C DD DISP=SHR,DSN=NULLFILE\n"
+        "//D DD DSN=NULLFILE.X,DISP=SHR\n//E DD DSN=PROD.IN,DISP=SHR\n"
+    )
+    got = [next(g for g in m.groups() if g) for m in rx.finditer(src)]
+    assert got == ["NULLFILE.X", "PROD.IN"]

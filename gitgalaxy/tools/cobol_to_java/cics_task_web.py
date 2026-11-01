@@ -366,7 +366,12 @@ WEB_SESSION_JAVA = """\
         }
         String mt = null;
         if (mediaType != null) {
-            mt = (mediaType.length() > 56 ? mediaType.substring(0, 56) : mediaType).stripTrailing();
+            mt = mediaType.length() > 56 ? mediaType.substring(0, 56) : mediaType;
+            int pad = mt.indexOf('\0');  // #6839 (X37): an area padded to its end with X'00' is the type before the padding
+            if (pad >= 0 && mt.substring(pad).chars().allMatch(c -> c == 0)) {
+                mt = mt.substring(0, pad);
+            }
+            mt = mt.stripTrailing();
             int slash = mt.indexOf('/');
             if (slash < 1 || slash == mt.length() - 1 || mt.chars().anyMatch(c -> c <= ' ' || c > '~')) {
                 throw refused("WEB SEND MEDIATYPE blank or not type/subtype");

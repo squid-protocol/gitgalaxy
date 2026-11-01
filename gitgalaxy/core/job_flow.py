@@ -18,7 +18,8 @@
 #   DD    step_name (the step, or for an override `//PROCSTEP.DD` the proc step),
 #         dd_name, dsn (as written, generation stripped), disp (NEW / OLD / SHR /
 #         MOD; NEW when a DSN is coded without DISP), generation (+1 / 0 / -1),
-#         in_proc; a concatenation's unnamed DDs take the name above them
+#         in_proc, lrecl / recfm (the record length and format the DD states, #4268; only when stated);
+#         a concatenation's unnamed DDs take the name above them
 #
 # SCOPE AND NON-SCOPE:
 #   - Extraction only, per file. Expanding an EXEC of a PROC into its steps, and
@@ -27,7 +28,7 @@
 #   - Scheduler dependencies (CA-7, TWS, Control-M) are not in the repository;
 #     cross-job ORDER is therefore unknown, and producer -> consumer edges across
 #     jobs are candidates, not a schedule.
-#   - Only DDs that name a DSN are DD rows (not SYSOUT / DUMMY / in-stream `*`).
+#   - Only DDs that name a DSN are DD rows (not SYSOUT / DUMMY / DSN=NULLFILE / in-stream `*`).
 #     An in-stream control deck (`DD *` / `DD DATA` named SYSIN, SYMNAMES, SORTCNTL, DFSPARM, #4268) is an
 #     INSTREAM row: step_name, dd_name, in_proc, line, instream (the body as written). Other in-stream DDs
 #     (SYSTSIN has its own channel, runs / systsin_member) are not kept.
@@ -132,7 +133,7 @@ _DLM = re.compile(r"DLM=(?:'(..)'|(..))", re.I)
 _CONTROL_DDS = frozenset({"SYSIN", "SYMNAMES", "SORTCNTL", "DFSPARM"})
 
 
-def _instream_bodies(code_stream: str) -> dict[int, str]:
+def _instream_bodies(code_stream: str, dds: frozenset[str] | None = _CONTROL_DDS) -> dict[int, str]:
     """DD statement line -> the in-stream body of a `DD *` / `DD DATA` named in `_CONTROL_DDS` (#4268).
 
     `DD *` ends at `/*`, at the next `//` statement, or at its `DLM=xx` delimiter; `DD DATA` ends at `/*` (or its
@@ -143,7 +144,7 @@ def _instream_bodies(code_stream: str) -> dict[int, str]:
     while i < len(lines):
         m = _INSTREAM_DD.match(lines[i][:72])
         i += 1
-        if not m or m.group(1).rsplit(".", 1)[-1].upper() not in _CONTROL_DDS:
+        if not m or (dds is not None and m.group(1).rsplit(".", 1)[-1].upper() not in dds):
             continue
         dd_line = i
         dlm = _DLM.search(m.group(3) or "")
@@ -183,6 +184,58 @@ def _generation(text: str) -> str:
     return f"+{n}" if n > 0 else str(n)
 
 
+_DCB_KEYS = ("LRECL", "RECFM")
+
+
+def _dcb(keyed: dict[str, str]) -> dict[str, Any]:
+    """#4268: the record length / format a DD states: `DCB=(LRECL=80,RECFM=FB)`, `DCB=LRECL=80`, or the bare
+    `LRECL=` / `RECFM=` DD keywords (a bare one wins over the DCB subparameter). A referback to a catalogued dataset
+    (`DCB=dsn`; `DCB=*.dd` is _dcb_from_referback's), a symbolic value (`&LR`) and `LRECL=0` state nothing."""
+    sub: dict[str, str] = {}
+    for k, v in keyed.items():
+        if k == "DCB":
+            sub.update({kk: vv for kk, vv in _split(v.strip().strip("()")) if kk})
+    found = {**sub, **{k: v for k, v in keyed.items() if k in _DCB_KEYS}}
+    out: dict[str, Any] = {}
+    for key, value in found.items():
+        value = value.strip().strip("()").replace(",", "").upper()
+        if key == "LRECL" and value.isdigit() and int(value) > 0:
+            out["lrecl"] = int(value)
+        elif key == "RECFM" and re.fullmatch(r"[FVUDS]?[FVUDSBTAM]{0,5}", value):
+            out["recfm"] = value
+    return out
+
+
+def _dcb_referback(keyed: dict[str, str]) -> list[str] | None:
+    """#4268: the qualified name of the DD a `DCB=*.ddname` / `DCB=*.stepname.ddname` /
+    `DCB=(*.stepname.ddname,LRECL=..)` names, as its parts, else None."""
+    ref = ""
+    for k, v in keyed.items():  # as _dcb reads it: the DCB operand is found by iterating, not by a constant subscript
+        if k == "DCB":
+            first = _split(v.strip().strip("()"))
+            ref = first[0][1].strip().upper() if first and first[0][0] is None else ""
+    return ref[2:].split(".") if ref.startswith("*.") and len(ref) > 2 else None
+
+
+def _dcb_from_referback(
+    rows: list[dict[str, Any]], keyed: dict[str, str], step: str | None, in_proc: str | None
+) -> dict[str, Any]:
+    """#4268: the LRECL / RECFM an earlier DD of the same scope states, which `DCB=*.[stepname.]ddname` borrows (IBM
+    z/OS MVS JCL Reference, DCB parameter: the referenced DD's coded subparameters). `*.ddname` is a DD of the
+    current step, `*.stepname.ddname` one of an earlier step; the nearest earlier DD of that name wins, and a chain
+    resolves through the row it names. A DD that is not an earlier row of this file (no DSN, a later step, a
+    procedure step `*.step.procstep.dd`) states nothing."""
+    parts = _dcb_referback(keyed)
+    if not parts or len(parts) > 2:
+        return {}
+    want_step, want_dd = (step, parts[0]) if len(parts) == 1 else (parts[0], parts[1])
+    for r in reversed(rows):
+        if (r["kind"] == "DD" and r["dd_name"] == want_dd and r["step_name"] == want_step
+                and r["in_proc"] == in_proc):  # fmt: skip
+            return {k: r[k] for k in ("lrecl", "recfm") if r.get(k)}
+    return {}
+
+
 def _parm(value: str | None) -> str | None:
     """#3624: the text a step's PARM= hands its program -- `'2022071800'` -> 2022071800,
     `(A,B)` -> A,B -- quotes and parentheses removed, a doubled quote made one."""
@@ -194,6 +247,54 @@ def _parm(value: str | None) -> str | None:
     if len(v) >= 2 and v[0] == v[-1] == "'":
         v = v[1:-1].replace("''", "'")
     return v
+
+
+# #5154: what a JCL job assembles. A step is an assembler step when it runs one of these programs (HLASM
+# ASMA90 and its IEV90 alias, assembler F IEUASM / IFOX00, the older ASMAHL / ASMBLR) or calls a procedure that
+# wraps it: CICS's DFHAUPLE, the HLASM cataloged procedures ASMAC / ASMACG / ASMACL / ASMACLG and the assembler F
+# ones ASMFC / ASMFCG / ASMFCL / ASMFCLG (ASSUMED names: the manual page was not read offline).
+ASSEMBLER_PROGRAMS = frozenset({"ASMA90", "IEV90", "IEUASM", "IFOX00", "ASMAHL", "ASMBLR"})
+ASSEMBLER_PROCS = frozenset(
+    {"DFHAUPLE", "ASMAC", "ASMACG", "ASMACL", "ASMACLG", "ASMFC", "ASMFCG", "ASMFCL", "ASMFCLG"}
+)
+
+
+def _assembler_kind(operands: str) -> str | None:
+    """ "pgm" for `EXEC PGM=<assembler>`, "proc" for a call of an assembler procedure, else None."""
+    first = operands.split(",", 1)[0].strip().upper()
+    if first.startswith("PGM="):
+        return "pgm" if first[4:] in ASSEMBLER_PROGRAMS else None
+    return "proc" if first.removeprefix("PROC=") in ASSEMBLER_PROCS else None
+
+
+def jcl_assembler_instream(code_stream: str) -> str:
+    """The in-stream source an assembler step of a job reads, every other line blanked (#5154).
+
+    Same number of lines as the job, so a row found in the result keeps its line in the job. Kept: the
+    `DD *` / `DD DATA` body of the SYSIN of a step that runs an assembler (and of the unnamed DDs concatenated
+    after it), and every in-stream override DD of a step that calls an assembler procedure (DFHAUPLE's
+    `COPY.SYSUT1`, `ASSEM.SYSIN`). Not kept: a deck of any other step (an IEBGENER copy writes a member, it does
+    not assemble it), however the job's other steps run."""
+    if not code_stream or "//" not in code_stream:
+        return ""
+    bodies = _instream_bodies(code_stream, None)
+    out = [""] * len(code_stream.split("\n"))
+    kind: str | None = None
+    sysin = False
+    for no, name, op, operands in _statements(code_stream):
+        if op in ("JOB", "PROC", "PEND"):
+            kind, sysin = None, False
+        elif op == "EXEC":
+            kind, sysin = _assembler_kind(operands), False
+        elif op == "DD" and kind:
+            if name.rsplit(".", 1)[-1] == "SYSIN":
+                sysin = True
+            elif name:
+                sysin = False
+            if no in bodies and (kind == "proc" or sysin):
+                for k, text in enumerate(bodies[no].split("\n")):
+                    out[no + k] = text
+    return "\n".join(out)
 
 
 def jcl_job_flow(code_stream: str) -> list[dict[str, Any]]:
@@ -221,6 +322,7 @@ def jcl_job_flow(code_stream: str) -> list[dict[str, Any]]:
     ordinal = 0
     step: str | None = None
     last_dd: str | None = None
+    last_dd_step: str | None = None
     ifs: list[str] = []
     bodies = _instream_bodies(code_stream)
     for line, name, op, field in _statements(code_stream):
@@ -248,6 +350,7 @@ def jcl_job_flow(code_stream: str) -> list[dict[str, Any]]:
             ordinal += 1
             step = name or None
             last_dd = None
+            last_dd_step = None
             rows.append(
                 dict(
                     blank,
@@ -268,9 +371,12 @@ def jcl_job_flow(code_stream: str) -> list[dict[str, Any]]:
             if "." in name:
                 dd_step, dd_name = name.split(".", 1)
             if dd_name:
-                last_dd = dd_name
+                last_dd, last_dd_step = dd_name, dd_step
             else:
+                # An unnamed DD concatenates onto the DD above it: same ddname AND the same (possibly
+                # qualified) step, so a continuation of `//PRE.SYSIN` is PRE's, not the EXEC step's.
                 dd_name = last_dd or ""
+                dd_step = last_dd_step or dd_step
             if line in bodies:  # #4268: presence-keyed kind; no existing reader looks at it
                 rows.append(
                     dict(
@@ -289,6 +395,8 @@ def jcl_job_flow(code_stream: str) -> list[dict[str, Any]]:
             if not dsn:
                 continue
             dsn = dsn.upper()
+            if dsn == "NULLFILE":  # z/OS MVS JCL Reference, DSNAME: "same effect as coding the DD DUMMY parameter"
+                continue
             gen = _GEN.search(dsn)
             if gen:
                 dsn = dsn[: gen.start()]
@@ -307,6 +415,8 @@ def jcl_job_flow(code_stream: str) -> list[dict[str, Any]]:
                     line=line,
                     # #3622: presence-keyed -- a DD without a normal-end disposition keeps its pre-#3622 shape
                     **({"disp_normal": normal} if normal else {}),
+                    # #4268: presence-keyed lrecl / recfm; what the DD codes wins over what its referback lends
+                    **{**_dcb_from_referback(rows, keyed, dd_step, in_proc), **_dcb(keyed)},
                 )
             )
     return rows

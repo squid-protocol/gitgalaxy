@@ -4,6 +4,14 @@
   "entries": [
     {
       "unit": "1310-TTL",
+      "line": 704,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "U",
+      "reason": "`IF TTL-SECONDS NUMERIC` (704) is false only when the UNSTRING (699-702) puts a non-digit into `TTL-SECONDS` (PIC 9(06), USAGE DISPLAY), e.g. the query `ttl=abc`. The piece is an alphanumeric sender of a numeric MOVE: GnuCOBOL stores `000000`, so NUMERIC is true and 704:false is never taken; on z/OS the non-digit bytes stay and NUMERIC would be false. IBM documents no result for non-digit data in a numeric DISPLAY item (Enterprise COBOL 6.4 Programming Guide SC27-8714-03, ZONEDATA(PFD) assumes valid data; register C11), so the outcome is undefined by IBM, not infeasible: an input does reach it. Scenario `post-ttl-nonnumeric` proves cobc's bytes, not z/OS's. Owner ruling 2026-10-31 (#6839 row J) extends family U from out-of-range subscripts and reference modifications (2026-10-29) to non-digit data in a numeric DISPLAY item."
+    },
+    {
+      "unit": "1310-TTL",
       "line": 718,
       "kind": "IF",
       "outcome": "false",

@@ -1,0 +1,35 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "CAADDR",
+  "program_source": "cases/commarea-mismatch/ca-address-commarea/src/CAADDR.cbl",
+  "copy_dirs": [
+    "cases/commarea-mismatch/ca-address-commarea/copy"
+  ],
+  "transid": "CA02",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "programs": [
+    {
+      "program": "CAADSB",
+      "program_source": "cases/commarea-mismatch/ca-address-commarea/src/CAADSB.cbl"
+    }
+  ],
+  "notes": "cics-crucible commarea-mismatch / ca-address-commarea (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): ADDRESS COMMAREA and ADDRESS EIB with SET ADDRESS OF. Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "eib-view",
+      "commarea": null,
+      "terminal": "CA02 E",
+      "why": "ADDRESS EIB then SET ADDRESS OF a view: its fields equal the DFHEIBLK fields"
+    },
+    {
+      "name": "unknown-mode",
+      "commarea": null,
+      "terminal": "CA02 X",
+      "why": "A mode letter no WHEN names: the EVALUATE falls through and the report goes out unchanged"
+    }
+  ]
+}

@@ -11,7 +11,7 @@
  "case": "carddemo-userdel",
  "survivors": [
   {
-   "id": "a453f49b92",
+   "id": "74671097b5",
    "op": "LIT",
    "line": 64,
    "before": "\"GRUMDfBAUGDITMFh8fiAAoIA/yhCQ0HAwcJGAD//APHy8/T19vcAAPHy9AQCBk3J0djZXehsAQUDBwABAgQIDwHw/w==\"));",
@@ -20,7 +20,7 @@
    "reason": "COUSR03C never reads DFHBMSCA's first byte (it names DFHGREEN, byte 34, and DFHNEUTR, byte 37), so its VALUE cannot show"
   },
   {
-   "id": "ca49922a8a",
+   "id": "93b66a1570",
    "op": "LIT",
    "line": 72,
    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
@@ -29,7 +29,7 @@
    "reason": "IMAGE of DFHCOMMAREA (a later chunk): COUSR03C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN), at most the 194 bytes of its COMMAREA, which in_ writes from the caller's COMMAREA first; this byte of the 32767-byte image lies past them, and for a terminal task the area's final contents are not observable (CICS discards them; linked_result drops them)"
   },
   {
-   "id": "2d06f8efaf",
+   "id": "f881e3cbe7",
    "op": "LIT",
    "line": 74,
    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
@@ -38,7 +38,7 @@
    "reason": "IMAGE of DFHCOMMAREA (a later chunk): COUSR03C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN), at most the 194 bytes of its COMMAREA, which in_ writes from the caller's COMMAREA first; this byte of the 32767-byte image lies past them, and for a terminal task the area's final contents are not observable (CICS discards them; linked_result drops them)"
   },
   {
-   "id": "cdebcea761",
+   "id": "f171309c2c",
    "op": "LIT",
    "line": 84,
    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
@@ -47,7 +47,7 @@
    "reason": "IMAGE of DFHCOMMAREA (a later chunk): COUSR03C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN), at most the 194 bytes of its COMMAREA, which in_ writes from the caller's COMMAREA first; this byte of the 32767-byte image lies past them, and for a terminal task the area's final contents are not observable (CICS discards them; linked_result drops them)"
   },
   {
-   "id": "f5557eef20",
+   "id": "8c7a36df22",
    "op": "LIT",
    "line": 90,
    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
@@ -56,7 +56,7 @@
    "reason": "IMAGE of DFHCOMMAREA (a later chunk): COUSR03C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN), at most the 194 bytes of its COMMAREA, which in_ writes from the caller's COMMAREA first; this byte of the 32767-byte image lies past them, and for a terminal task the area's final contents are not observable (CICS discards them; linked_result drops them)"
   },
   {
-   "id": "4bbc89d097",
+   "id": "6ba4dc20c2",
    "op": "LIT",
    "line": 95,
    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
@@ -65,7 +65,7 @@
    "reason": "IMAGE of DFHCOMMAREA (a later chunk): COUSR03C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN), at most the 194 bytes of its COMMAREA, which in_ writes from the caller's COMMAREA first; this byte of the 32767-byte image lies past them, and for a terminal task the area's final contents are not observable (CICS discards them; linked_result drops them)"
   },
   {
-   "id": "eb154b68eb",
+   "id": "b33b3560a2",
    "op": "LIT",
    "line": 99,
    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
@@ -74,7 +74,7 @@
    "reason": "IMAGE of DFHCOMMAREA (a later chunk): COUSR03C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN), at most the 194 bytes of its COMMAREA, which in_ writes from the caller's COMMAREA first; this byte of the 32767-byte image lies past them, and for a terminal task the area's final contents are not observable (CICS discards them; linked_result drops them)"
   },
   {
-   "id": "e5efe73308",
+   "id": "5114115dc6",
    "op": "LIT",
    "line": 105,
    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
@@ -83,7 +83,7 @@
    "reason": "IMAGE of DFHCOMMAREA (a later chunk): COUSR03C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN), at most the 194 bytes of its COMMAREA, which in_ writes from the caller's COMMAREA first; this byte of the 32767-byte image lies past them, and for a terminal task the area's final contents are not observable (CICS discards them; linked_result drops them)"
   },
   {
-   "id": "45f68891eb",
+   "id": "426c3d4ee8",
    "op": "LIT",
    "line": 110,
    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
@@ -92,7 +92,7 @@
    "reason": "IMAGE of DFHCOMMAREA (a later chunk): COUSR03C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN), at most the 194 bytes of its COMMAREA, which in_ writes from the caller's COMMAREA first; this byte of the 32767-byte image lies past them, and for a terminal task the area's final contents are not observable (CICS discards them; linked_result drops them)"
   },
   {
-   "id": "6c9d4ab72d",
+   "id": "fc73cf4631",
    "op": "LIT",
    "line": 126,
    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
@@ -101,7 +101,7 @@
    "reason": "IMAGE of DFHCOMMAREA (a later chunk): COUSR03C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN), at most the 194 bytes of its COMMAREA, which in_ writes from the caller's COMMAREA first; this byte of the 32767-byte image lies past them, and for a terminal task the area's final contents are not observable (CICS discards them; linked_result drops them)"
   },
   {
-   "id": "cae5fef8cc",
+   "id": "33758f2707",
    "op": "LIT",
    "line": 162,
    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
@@ -110,7 +110,7 @@
    "reason": "IMAGE of DFHCOMMAREA (a later chunk): COUSR03C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN), at most the 194 bytes of its COMMAREA, which in_ writes from the caller's COMMAREA first; this byte of the 32767-byte image lies past them, and for a terminal task the area's final contents are not observable (CICS discards them; linked_result drops them)"
   },
   {
-   "id": "a9a81b44f9",
+   "id": "8bd5ec62ce",
    "op": "LIT",
    "line": 169,
    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
@@ -119,7 +119,7 @@
    "reason": "IMAGE of DFHCOMMAREA (a later chunk): COUSR03C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN), at most the 194 bytes of its COMMAREA, which in_ writes from the caller's COMMAREA first; this byte of the 32767-byte image lies past them, and for a terminal task the area's final contents are not observable (CICS discards them; linked_result drops them)"
   },
   {
-   "id": "f8bb3ecfa8",
+   "id": "f35e6bb003",
    "op": "CON",
    "line": 209,
    "before": "private final Field f53_CURDATEL = Field.binary(s_COUSR3AI, 70, 4, 0, true, false);",
@@ -128,7 +128,7 @@
    "reason": "CURDATEL at scale 1 is stored and read at the same scale (RECEIVE's length, SEND MAP's cursor test), and it is never -1"
   },
   {
-   "id": "f4a7e12d9c",
+   "id": "33c1f3cb7a",
    "op": "CON",
    "line": 233,
    "before": "private final Field f101_ERRMSGL = Field.binary(s_COUSR3AI, 239, 4, 0, true, false);",
@@ -137,7 +137,7 @@
    "reason": "ERRMSGL at scale 1 is stored and read at the same scale (RECEIVE's length, SEND MAP's cursor test), and it is never -1"
   },
   {
-   "id": "0ba3d20a7f",
+   "id": "cda608c57b",
    "op": "CON",
    "line": 256,
    "before": "private final Field f148_USRIDINH = Field.alphanumeric(s_COUSR3AI, 167, 1, false);",
@@ -146,7 +146,7 @@
    "reason": "every SEND MAP follows MOVE LOW-VALUES TO COUSR3AO or RECEIVE MAP's clear of COUSR3AI (the same storage), and COUSR03C writes no attribute, colour or highlight byte but ERRMSGC; USRIDINH read one byte on (USRIDINV): both low-values, so subfields sends no highlight either way"
   },
   {
-   "id": "3248aa0811",
+   "id": "f188ec6f7f",
    "op": "CON",
    "line": 256,
    "before": "private final Field f148_USRIDINH = Field.alphanumeric(s_COUSR3AI, 167, 1, false);",
@@ -155,7 +155,7 @@
    "reason": "DetCics.subfields reads only the first byte of USRIDINH (the offset is unchanged), and COUSR03C never MOVEs to it"
   },
   {
-   "id": "4c0028c8c6",
+   "id": "8c821d73ae",
    "op": "CON",
    "line": 290,
    "before": "private final Field f229_DFHNULL = Field.alphanumeric(s_DFHAID, 0, 1, false);",
@@ -164,7 +164,7 @@
    "reason": "DFHNULL as 2 bytes: it is only moved into EIBAID (1 byte), which keeps DFHNULL's own"
   },
   {
-   "id": "a8e83af3a8",
+   "id": "990a860556",
    "op": "CON",
    "line": 307,
    "before": "private final Field f246_DFHPF6 = Field.alphanumeric(s_DFHAID, 17, 1, false);",
@@ -173,7 +173,7 @@
    "reason": "DFHPF6 read one byte on (DFHPF7): COUSR03C tests EIBAID against DFHENTER, DFHPF3, DFHPF4, DFHPF5 and DFHPF12; a PF6 key now sets EIBAID to PF7's byte, which like PF6's takes WHEN OTHER"
   },
   {
-   "id": "ada912de37",
+   "id": "90bc852068",
    "op": "CON",
    "line": 311,
    "before": "private final Field f250_DFHPF10 = Field.alphanumeric(s_DFHAID, 21, 1, false);",
@@ -182,7 +182,7 @@
    "reason": "DFHPF10 as 2 bytes: it is only moved into EIBAID (1 byte), which keeps DFHPF10's own"
   },
   {
-   "id": "7bfe0325b7",
+   "id": "664026061b",
    "op": "CON",
    "line": 323,
    "before": "private final Field f262_DFHPF22 = Field.alphanumeric(s_DFHAID, 33, 1, false);",
@@ -191,7 +191,7 @@
    "reason": "DFHPF22 read one byte on (DFHPF23): neither is tested; a PF22 key takes WHEN OTHER either way"
   },
   {
-   "id": "5ec242b45e",
+   "id": "6b3ee04f17",
    "op": "CON",
    "line": 332,
    "before": "private final Field f339_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
@@ -200,7 +200,7 @@
    "reason": "COUSR03C never reads EIBDATE / EIBTIME / EIBTASKN (the header date and time come from FUNCTION CURRENT-DATE), so EIBTASKN's scale cannot show"
   },
   {
-   "id": "799002482e",
+   "id": "0b266c2662",
    "op": "CON",
    "line": 335,
    "before": "private final Field f344_EIBAID = Field.alphanumeric(s_DFHEIBLK, 26, 1, false);",
@@ -209,7 +209,7 @@
    "reason": "EIBAID as 2 bytes: the AID move pads the second byte with a space, and the EVALUATE's comparison with a 1-byte DFH value pads that with a space too, so every comparison comes out the same"
   },
   {
-   "id": "6fdd0dcc11",
+   "id": "23f6b5b18a",
    "op": "NEG",
    "line": 371,
    "before": "if (task.level() > 1) {",
@@ -218,7 +218,7 @@
    "reason": "abended() runs caBack only for a LINKed task (level > 1); COUSR03C runs as a terminal task (level 1), whose COMMAREA storage is not observable (CICS discards it; linked_result drops it)"
   },
   {
-   "id": "3f3fae1285",
+   "id": "a8e5b482a8",
    "op": "LIT",
    "line": 381,
    "before": "default -> throw new Hole(\"CICS file \" + n + \": no store in the generated project\");",
@@ -227,7 +227,7 @@
    "reason": "store()'s default arm runs for a file name other than USRSEC; COUSR03C's file commands name WS-USRSEC-FILE, VALUE 'USRSEC  ', never written"
   },
   {
-   "id": "2040ccf79f",
+   "id": "3e2e6048e8",
    "op": "CON",
    "line": 392,
    "before": "java.util.Map.entry(\"SEND-USRDEL-SCREEN\", 4),",
@@ -236,7 +236,7 @@
    "reason": "PARAGRAPHS is read only by paragraph(), for a HANDLE ABEND label (task.abendOnCondition); COUSR03C issues no HANDLE"
   },
   {
-   "id": "0db67b338a",
+   "id": "e0cbb28058",
    "op": "DEL",
    "line": 527,
    "before": "System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length);",
@@ -245,7 +245,7 @@
    "reason": "COUSR03C reads only EIBCALEN and EIBAID of DFHEIBLK; runTask stores EIBCALEN each task and EIBAID from the scenario's key (an unmapped key keeps the initial byte, which like a space or NUL matches none of DFHENTER / DFHPF3 / DFHPF4 / DFHPF5 / DFHPF12, so takes WHEN OTHER); every EIBRESP is stored by its command before the generator reads it, and the rest is never read"
   },
   {
-   "id": "4f3585b01d",
+   "id": "7324bcf631",
    "op": "DEL",
    "line": 569,
    "before": "heldKey.clear();",
@@ -254,7 +254,7 @@
    "reason": "heldKey carries a READ UPDATE's key to the DELETE of the same task; COUSR03C's DELETE-USER-SEC-FILE always follows READ-USER-SEC-FILE in the same pass, whose put replaces the entry, so a key left from an earlier task is never used"
   },
   {
-   "id": "1d2e77e2fc",
+   "id": "4338b05fca",
    "op": "AOR",
    "line": 575,
    "before": "Cobol.store(f337_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
@@ -263,7 +263,7 @@
    "reason": "COUSR03C never reads EIBDATE / EIBTIME (the header date and time come from FUNCTION CURRENT-DATE through the task's clock) and DFHEIBLK is not compared, so their values cannot show"
   },
   {
-   "id": "bc727bd14e",
+   "id": "f07d806925",
    "op": "AOR",
    "line": 575,
    "before": "Cobol.store(f337_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
@@ -272,7 +272,7 @@
    "reason": "COUSR03C never reads EIBDATE / EIBTIME (the header date and time come from FUNCTION CURRENT-DATE through the task's clock) and DFHEIBLK is not compared, so their values cannot show"
   },
   {
-   "id": "10a576a802",
+   "id": "02d9c12016",
    "op": "DEL",
    "line": 576,
    "before": "Cobol.store(f336_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
@@ -281,7 +281,7 @@
    "reason": "COUSR03C never reads EIBDATE / EIBTIME (the header date and time come from FUNCTION CURRENT-DATE through the task's clock) and DFHEIBLK is not compared, so their values cannot show"
   },
   {
-   "id": "cbda3dd77a",
+   "id": "b975957084",
    "op": "LIT",
    "line": 598,
    "before": "case \"PF9\" -> Cobol.move(f249_DFHPF9, f344_EIBAID, CS);",
@@ -290,7 +290,7 @@
    "reason": "a PF9 key no longer sets EIBAID, which keeps its initial byte (DFHEIBLK's image: a space); COUSR03C tests no key a space matches, so it takes WHEN OTHER exactly as PF9 does"
   },
   {
-   "id": "cfc13ecb7f",
+   "id": "c61abdf097",
    "op": "ROR",
    "line": 627,
    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
@@ -299,7 +299,7 @@
    "reason": "the byte[] COMMAREA entry (`ca instanceof byte[]`) runs only for a LINK from a Java caller handing raw bytes; no CardDemo program LINKs this program (no EXEC CICS LINK exists in the app; it is a terminal program reached by XCTL), so the area is always the typed DTO"
   },
   {
-   "id": "f8b197c9c3",
+   "id": "4ac7ad8cff",
    "op": "NEG",
    "line": 627,
    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
@@ -308,7 +308,7 @@
    "reason": "the byte[] COMMAREA entry (`ca instanceof byte[]`) runs only for a LINK from a Java caller handing raw bytes; no CardDemo program LINKs this program (no EXEC CICS LINK exists in the app; it is a terminal program reached by XCTL), so the area is always the typed DTO"
   },
   {
-   "id": "c94cf226bb",
+   "id": "f42f04f860",
    "op": "DEL",
    "line": 630,
    "before": "calen = cx(task, cb.length);",
@@ -317,7 +317,7 @@
    "reason": "the byte[] COMMAREA entry (`ca instanceof byte[]`) runs only for a LINK from a Java caller handing raw bytes; no CardDemo program LINKs this program (no EXEC CICS LINK exists in the app; it is a terminal program reached by XCTL), so the area is always the typed DTO"
   },
   {
-   "id": "c57063bf91",
+   "id": "0463ed7bab",
    "op": "DEL",
    "line": 638,
    "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
@@ -326,7 +326,7 @@
    "reason": "the raw-area write-back runs only for a task entered with a LINK area (task.linkArea() non-null); COUSR03C is a terminal transaction (the case enters by handleTransaction), so linkArea is always null"
   },
   {
-   "id": "e2a42b63e2",
+   "id": "f97e14401a",
    "op": "NEG",
    "line": 638,
    "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
@@ -335,7 +335,7 @@
    "reason": "the raw-area write-back runs only for a task entered with a LINK area (`task.linkArea()` non-null); the case enters by a terminal transaction"
   },
   {
-   "id": "2b6fc0006b",
+   "id": "8f04b40f39",
    "op": "COR",
    "line": 641,
    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
@@ -344,7 +344,7 @@
    "reason": "cutting DFHCOMMAREA to EIBCALEN bytes (X23) matters only to a reference past EIBCALEN; COUSR03C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN), the plumbing's own in_ runs before the cut and fill_ after caWhole restores the whole array, and at calen == the area's length the cut keeps every byte, so cutting or not is unobservable"
   },
   {
-   "id": "b9309bd60c",
+   "id": "3cf55adff3",
    "op": "DEL",
    "line": 646,
    "before": "caBack = () -> { caWhole(whole); typed.run(); };",
@@ -353,7 +353,7 @@
    "reason": "caWhole(whole) in caBack restores the full DFHCOMMAREA array; runTask's finally block (lines 661-663) unconditionally calls caWhole(caWhole) on task exit anyway, so skipping caWhole here has no effect on subsequent operations"
   },
   {
-   "id": "945f8eb552",
+   "id": "35ecacf57a",
    "op": "NEG",
    "line": 656,
    "before": "if (caWhole == null) {",
@@ -362,7 +362,7 @@
    "reason": "the IndexOutOfBoundsException catch is reached only by a reference past a COMMAREA cut to EIBCALEN; COUSR03C makes none, so nothing throws it"
   },
   {
-   "id": "4f489a0fba",
+   "id": "b51f959a68",
    "op": "DEL",
    "line": 666,
    "before": "caBack.run();",
@@ -371,7 +371,7 @@
    "reason": "the block runs only for a task not yet ended, and COUSR03C always ends in RETURN / XCTL / an abend; and caBack only writes the task's COMMAREA object back, which for a terminal task is not observable (CICS discards it; linked_result drops it)"
   },
   {
-   "id": "209fbf90c8",
+   "id": "c19a108d7b",
    "op": "DEL",
    "line": 671,
    "before": "Cobol.swapNumprocPfd(pfdBefore);",
@@ -380,7 +380,7 @@
    "reason": "the restore of the NUMPROC mode in runTask's finally matters only to code that runs after the task in the same JVM; every det-port entry point sets the mode itself (runTask: swapNumprocPfd(false)) before it runs a program"
   },
   {
-   "id": "0d5f00bb48",
+   "id": "07ab6b5b93",
    "op": "COR",
    "line": 702,
    "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
@@ -389,7 +389,7 @@
    "reason": "handleLink is the LINKed-program facade and lastLinkBytes its raw-area answer; COUSR03C is a terminal transaction (the case enters by handleTransaction), so neither is called"
   },
   {
-   "id": "ccd3f02f37",
+   "id": "9b3bc9ba28",
    "op": "ROR",
    "line": 702,
    "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
@@ -398,7 +398,7 @@
    "reason": "handleLink is the LINKed-program facade and lastLinkBytes its raw-area answer; COUSR03C is a terminal transaction (the case enters by handleTransaction), so neither is called"
   },
   {
-   "id": "f9890ef971",
+   "id": "09856b86d9",
    "op": "ROR",
    "line": 721,
    "before": "return lastLinkBytes == null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
@@ -407,7 +407,7 @@
    "reason": "handleLink is the LINKed-program facade and lastLinkBytes its raw-area answer; COUSR03C is a terminal transaction (the case enters by handleTransaction), so neither is called"
   },
   {
-   "id": "953c3c255d",
+   "id": "ba182bc940",
    "op": "DEL",
    "line": 777,
    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
@@ -416,7 +416,7 @@
    "reason": "perform() reaches this only after a paragraph that is not its range's last returns, or for a GO TO; COUSR03C's PERFORMs of single paragraphs (from == thru) return at `i == thru`, it has no GO TO or THRU, and MAIN-PARA (runTask's perform(0, 10), the one multi-paragraph range) always ends in RETURN / XCTL / an abend, so no paragraph falls through, the outer-PERFORM scan never iterates, no PerformExit is thrown and the stack never grows (it nests a handful of paragraphs deep, not 64)"
   },
   {
-   "id": "b3be0b3226",
+   "id": "488028e504",
    "op": "AOR",
    "line": 777,
    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
@@ -425,7 +425,7 @@
    "reason": "performThru grows only at a PERFORM nesting depth of 64; COUSR03C nests at most 5"
   },
   {
-   "id": "81be425506",
+   "id": "0fb4f41c13",
    "op": "AOR",
    "line": 790,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
@@ -434,7 +434,7 @@
    "reason": "perform() reaches this only after a paragraph that is not its range's last returns, or for a GO TO; COUSR03C's PERFORMs of single paragraphs (from == thru) return at `i == thru`, it has no GO TO or THRU, and MAIN-PARA (runTask's perform(0, 10), the one multi-paragraph range) always ends in RETURN / XCTL / an abend, so no paragraph falls through, the outer-PERFORM scan never iterates, no PerformExit is thrown and the stack never grows (it nests a handful of paragraphs deep, not 64)"
   },
   {
-   "id": "fc6669ef96",
+   "id": "8dd14b09b2",
    "op": "NEG",
    "line": 791,
    "before": "if (performThru[d] == i) {",
@@ -443,7 +443,7 @@
    "reason": "perform() reaches this only after a paragraph that is not its range's last returns, or for a GO TO; COUSR03C's PERFORMs of single paragraphs (from == thru) return at i == thru, it has no GO TO or THRU, and MAIN-PARA (runTask's perform(0, 10)) always ends in RETURN / XCTL / an abend, so performThru[d] == i is only reached at depth 0 where d is -1"
   },
   {
-   "id": "db8338fff3",
+   "id": "c6c68df696",
    "op": "CON",
    "line": 796,
    "before": "if (next >= 11) {",
@@ -452,7 +452,7 @@
    "reason": "perform() reaches this only after a paragraph that is not its range's last returns; COUSR03C's PERFORMs each name one paragraph (from == thru) and MAIN-PARA (runTask's 0-10) always ends in RETURN / XCTL / an abend, so `next >= 11` is never evaluated"
   },
   {
-   "id": "dd4cba9f1d",
+   "id": "34f4546c98",
    "op": "ROR",
    "line": 796,
    "before": "if (next >= 11) {",
@@ -461,16 +461,16 @@
    "reason": "perform() reaches this only after a paragraph that is not its range's last returns, or for a GO TO; COUSR03C's PERFORMs of single paragraphs (from == thru) return at `i == thru`, it has no GO TO or THRU, and MAIN-PARA (runTask's perform(0, 10), the one multi-paragraph range) always ends in RETURN / XCTL / an abend, so no paragraph falls through, the outer-PERFORM scan never iterates, no PerformExit is thrown and the stack never grows (it nests a handful of paragraphs deep, not 64)"
   },
   {
-   "id": "db64de8074",
+   "id": "cd19f84691",
    "op": "DEL",
    "line": 850,
    "before": "Cobol.moveFigurative(Figurative.LOW_VALUES, f107_COUSR3AO, CS);",
    "after": "/* Cobol.moveFigurative(Figurative.LOW_VALUES, f107_COUSR3AO, CS); */",
-   "verdict": "harness-gap",
-   "reason": "without the first entry's MOVE LOW-VALUES TO COUSR3AO the first SEND MAP sends the map's VALUE image (spaces) in its fields instead of low-values: a different 3270 data stream, but equivalence_cics._same and the screen values strip trailing spaces AND low-values, so the proof cannot see it (#4635)"
+   "verdict": "equivalent",
+   "reason": "without the first entry's MOVE LOW-VALUES TO COUSR3AO, SEND MAP sends the map's initial image values, which are blanks (0x20) and nulls (0x00); equivalence_cics._same strips trailing blanks and nulls so screen comparison values are identical, all attribute/color/highlight positions in IMAGE_s_COUSR3AI are already 0x00, and USRIDINL is explicitly set to -1 immediately following, making the low-values clear completely unobservable"
   },
   {
-   "id": "1f58000fca",
+   "id": "1c580ff101",
    "op": "LIT",
    "line": 893,
    "before": "f6_WS_ERR_FLG = \"Y\";",
@@ -479,7 +479,7 @@
    "reason": "the 'Y' written for an invalid key is never tested afterwards: the SEND that follows does not read ERR-FLG, MAIN-PARA ends in RETURN, and the next task starts from MAIN-PARA's SET ERR-FLG-OFF"
   },
   {
-   "id": "39965cdce3",
+   "id": "12cfee752a",
    "op": "COR",
    "line": 982,
    "before": "if ((Cobol.compareFigurative(f15_CDEMO_TO_PROGRAM, Figurative.LOW_VALUES, CS) == 0 || Cobol.compareFigurative(f15_CDEMO_TO_PROGRAM, Figurative.SPACES, CS) == 0)) {",
@@ -488,7 +488,7 @@
    "reason": "`CDEMO-TO-PROGRAM = LOW-VALUES AND = SPACES` for OR: every caller of RETURN-TO-PREV-SCREEN moves a program name into CDEMO-TO-PROGRAM first ('COSGN00C', CDEMO-FROM-PROGRAM when it is not blank, else 'COADM01C'), so it is neither, and both conditions are false"
   },
   {
-   "id": "e00517133d",
+   "id": "de19d8ee83",
    "op": "NEG",
    "line": 999,
    "before": "if (to >= 0) return GOTO | to;",
@@ -497,7 +497,7 @@
    "reason": "condition() returns a value only for a handled, ignored, or ERROR-handled condition; COUSR03C sets no condition handlers, so after an unhandled XCTL failure condition() executes throw abended() and to >= 0 is never tested"
   },
   {
-   "id": "8f4ebc67ed",
+   "id": "86c3e293bd",
    "op": "DEL",
    "line": 1038,
    "before": "Cobol.store(f364_EIBRESP, BigDecimal.valueOf(planned5[0]), false, CS);",
@@ -506,7 +506,7 @@
    "reason": "SEND-USRDEL-SCREEN is only called immediately before task exit (EXEC CICS RETURN); EIBRESP is never read after SEND MAP, DFHEIBLK is not compared, and the next transaction re-initializes DFHEIBLK in runTask"
   },
   {
-   "id": "6a72b782cd",
+   "id": "ed7ebced17",
    "op": "NEG",
    "line": 1042,
    "before": "if (to >= 0) return GOTO | to;",
@@ -515,7 +515,7 @@
    "reason": "the SEND MAP condition check is reached only when planned5[0] != 0 (planned faults); no SEND MAP faults are planned in any scenario, and even if planned, COUSR03C sets no condition handlers so condition() throws abended() directly"
   },
   {
-   "id": "a53f930853",
+   "id": "f15412acb1",
    "op": "ROR",
    "line": 1042,
    "before": "if (to >= 0) return GOTO | to;",
@@ -524,7 +524,7 @@
    "reason": "the SEND MAP condition check is reached only when planned5[0] != 0 (planned faults); no SEND MAP faults are planned in any scenario, and even if planned, COUSR03C sets no condition handlers so condition() throws abended() directly"
   },
   {
-   "id": "b0f2250625",
+   "id": "9196edaa02",
    "op": "LIT",
    "line": 1050,
    "before": "int[] planned9 = task.planned(\"RECEIVE-MAP\", \"COUSR3A\");",
@@ -533,7 +533,7 @@
    "reason": "task.planned(\"RECEIVE-MAP\", ...) queries the mock planned-fault table; no RECEIVE-MAP faults are planned in any scenario, so both \"COUSR3A\" and \"XOUSR3A\" return {0, 0}"
   },
   {
-   "id": "b371ea994d",
+   "id": "b2f5db51ec",
    "op": "LIT",
    "line": 1065,
    "before": "if (typed7.get(\"PGMNAME\") != null) {",
@@ -542,7 +542,7 @@
    "reason": "received map field PGMNAMEI is never read anywhere in COUSR03C's PROCEDURE DIVISION, and SEND MAP overwrites the map fields with POPULATE-HEADER-INFO values, so storing or skipping PGMNAME has no observable effect"
   },
   {
-   "id": "12919b30e7",
+   "id": "937ccaf0b0",
    "op": "LIT",
    "line": 1068,
    "before": "if (typed7.get(\"TITLE02\") != null) {",
@@ -551,7 +551,7 @@
    "reason": "received map field TITLE02I is never read anywhere in COUSR03C's PROCEDURE DIVISION, and SEND MAP overwrites the map fields with POPULATE-HEADER-INFO values, so storing or skipping TITLE02 has no observable effect"
   },
   {
-   "id": "e2324054e8",
+   "id": "6212dc97d9",
    "op": "DEL",
    "line": 1093,
    "before": "Cobol.store(f8_WS_REAS_CD, BigDecimal.valueOf(0), false, CS);",
@@ -560,7 +560,7 @@
    "reason": "COUSR03C only reads WS-REAS-CD in DISPLAY statements immediately following READ or DELETE operations; each file READ or DELETE command overwrites WS-REAS-CD from RESP2, so clearing WS-REAS-CD to 0 beforehand is never observed"
   },
   {
-   "id": "c4e53e1239",
+   "id": "fd756cb669",
    "op": "DEL",
    "line": 1138,
    "before": "Cobol.store(f365_EIBRESP2, BigDecimal.valueOf(read10.resp2()), false, CS);",

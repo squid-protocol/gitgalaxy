@@ -129,6 +129,8 @@
 # EngineFile.web_services): GalaxyIR.api_surface joins each service's program
 # and request / response copybooks, with the CSD's URIMAP / PIPELINE /
 # WEBSERVICE / TCPIPSERVICE definitions.
+# Since #4457, section-level COPY ... REPLACING statements (copy_statement_data,
+# per EngineFile.copy_statements) that close the record entry above them.
 # Since #3494, the CSD's REMOTESYSTEM definitions and call sites' SYSID
 # (call_site_data.sysid): GalaxyIR.remote_programs / remote_calls (DPL, remote
 # START) / remote_resources (function-shipped FILE / TD / TS queues).
@@ -170,6 +172,7 @@ from gitgalaxy.core.cobol_preprocessor import replace_text as _replace_text  # #
 from gitgalaxy.core.compiler_options import effective as effective_options
 from gitgalaxy.core.invocation_resolver import SQL_ROUTINE_LANGUAGES
 from gitgalaxy.core.jcl_runners import systsin_programs
+from gitgalaxy.core.job_flow import ASSEMBLER_PROCS, ASSEMBLER_PROGRAMS
 from gitgalaxy.core.source_text import read_source
 from gitgalaxy.core.unicode_paths import nfc
 from gitgalaxy.tools.cobol_to_cobol import pli_mapping
@@ -784,6 +787,8 @@ class EngineJobFlow:
     systsin_member: str | None = None
     parm: str | None = None  # #3624: the text EXEC PARM= passes the program
     instream: str | None = None  # #4268: an INSTREAM row's SYSIN / SYMNAMES / SORTCNTL / DFSPARM body, as written
+    lrecl: int | None = None  # #4268: the record length a DD row states (DCB / LRECL=), None when not stated
+    recfm: str | None = None  # #4268: the record format a DD row states (FB / VB / ...), None when not stated
 
 
 @dataclass
@@ -4613,7 +4618,8 @@ class GalaxyIR:
         DD of each step -- a PROC call's DDs are its procedure's, per procedure step -- with
         `file`, `job`, `step` (the job step), `proc_step` (the procedure step, else None),
         `ordinal`, `dd`, `dsn` (resolved where the engine resolved it, GDG generation apart),
-        `disp`, `generation`, `line` and `source` (the file the DD is written in). The rows
+        `disp`, `generation`, `line`, `source` (the file the DD is written in) and, only when the DD
+        states them, `lrecl` / `recfm` (#4268). The rows
         are job_flow's DD rows; override DDs (`//STEP.DD`) are out of scope, as there."""
         resolved: dict[tuple[str, int], str] = {}
         for f in self.files.values():
@@ -4631,7 +4637,10 @@ class GalaxyIR:
             return {"file": job_file, "job": job, "step": step, "proc_step": proc_step, "ordinal": ordinal,
                     "dd": r.dd_name, "dsn": dsn, "disp": r.disp, "disp_normal": r.disp_normal, "generation": gen,
                     "line": r.line,
-                    "source": f.file_path}  # fmt: skip
+                    "source": f.file_path,
+                    # #4268: presence-keyed -- a DD that states no record length / format keeps its shape
+                    **({"lrecl": r.lrecl} if r.lrecl else {}),
+                    **({"recfm": r.recfm} if r.recfm else {})}  # fmt: skip
 
         def by_step(rows: list, in_proc: str | None) -> dict:
             """A DD belongs to the STEP row it follows (DD rows carry no ordinal)."""
@@ -4667,10 +4676,10 @@ class GalaxyIR:
                 out += [row(f, job.name, st.step_name, None, st.step_ordinal, r) for r in mine.get(id(st), [])]
         return out
 
-    # #5154: the programs a JCL assembler step runs (core/mainframe_boundary._JCL_ASSEMBLER's PGM= set).
-    _ASSEMBLER_PROGRAMS = frozenset({"ASMA90", "IEV90", "IEUASM", "ASMAHL", "ASMBLR"})
-    # #5154: a proc that wraps the assembler; its SYSIN is a job-level `//STEP.SYSIN` override DD.
-    _ASSEMBLER_PROCS = frozenset({"DFHAUPLE"})
+    # #5154: the programs a JCL assembler step runs, and the procs that wrap it (their SYSIN is a job-level
+    # `//STEP.SYSIN` override DD): one set, shared with the inline-SYSIN reader.
+    _ASSEMBLER_PROGRAMS = ASSEMBLER_PROGRAMS
+    _ASSEMBLER_PROCS = ASSEMBLER_PROCS
 
     def job_macro_tables(self) -> list:
         """The CICS macro tables an assembler step reads from a separate SYSIN member (#5154).
@@ -5135,7 +5144,7 @@ class GalaxyIR:
                 if c.verb in TRANSACTION_ROUTING_VERBS and c.target:
                     out.append({"from": f.file_path, "line": c.line, "verb": c.verb, "program": c.target,
                                 "to": self._transaction_program(c.target), "via": "transaction"})  # fmt: skip
-                elif c.verb in ("LINK", "XCTL") and c.form != "identifier" and (c.resolves_to or c.target):
+                elif c.verb in ("LINK", "XCTL", "LOAD") and c.form != "identifier" and (c.resolves_to or c.target):
                     # A data-name site (even one bound through its VALUE) comes from
                     # dynamic_call_targets below, so no edge is listed twice.
                     out.append({"from": f.file_path, "line": c.line, "verb": c.verb, "program": c.target,
@@ -5945,8 +5954,11 @@ _CONTRACT_VERBS = ("LINK", "XCTL", "RETURN TRANSID")
 _COPY_DEPTH = 8  # nested COPY expansion bound (a copybook that COPYs itself ends here)
 
 
-def _pic_positions(pic: str) -> list | None:
-    """The picture string expanded to one symbol per position (`X(3)9` -> X X X 9)."""
+def _pic_runs(pic: str) -> list | None:
+    """The picture string as (symbol, positions) runs (`X(3)9` -> [(X, 3), (9, 1)]), or None when a repeat
+    count is malformed. #7169: never expanded to one entry per position -- `PIC X(1073741824)` (a GnuCOBOL
+    caller-sized LINKAGE buffer) is one run, not 10^9 list entries. CR / DB are two positions of their first
+    letter, and a repeat count after one repeats that letter; `X(0)` stays one position."""
     out: list = []
     i, text = 0, pic.upper()
     while i < len(text):
@@ -5955,20 +5967,25 @@ def _pic_positions(pic: str) -> list | None:
             close = text.find(")", i)
             if close == -1 or not text[i + 1 : close].isdigit():
                 return None
-            out.extend(out[-1:] * (int(text[i + 1 : close]) - 1))
+            try:
+                count = int(text[i + 1 : close])
+            except ValueError:  # a digit int() does not read (a superscript)
+                return None
+            sym, n = out[-1]
+            out[-1] = (sym, n + max(count - 1, 0))
             i = close + 1
             continue
         if text.startswith(("CR", "DB"), i):
-            out.extend([ch, ch])
+            out.append((ch, 2))
             i += 2
             continue
-        out.append(ch)
+        out.append((ch, 1))
         i += 1
     return out
 
 
 # #3820: the picture symbols a position can be (IBM Enterprise COBOL, plus `1`
-# boolean and `U` UTF-8), CR/DB expanded to two positions by _pic_positions. A
+# boolean and `U` UTF-8), CR/DB counted as two positions by _pic_runs. A
 # currency position is any Unicode currency sign (`$`, `£` -- the default sign
 # byte 0x5B on CP285 --, `€`, `¥`) or a symbol the program's SPECIAL-NAMES
 # declares; any other character (a REPLACING tag such as `:TAG:`) makes the width
@@ -6190,9 +6207,10 @@ def _elementary_bytes(
         return 8
     if not item.pic:
         return None
-    positions = _pic_positions(item.pic)
-    if positions is None:
+    runs = _pic_runs(item.pic)
+    if runs is None:
         return None
+    symbols = {sym for sym, _ in runs}
     # #3820: a declared currency symbol stands for its whole currency string. In a
     # run of them (floating insertion) or alone (fixed insertion) the string takes
     # its length once and each further symbol one position: `UUU9.99` with 'EUR '
@@ -6201,11 +6219,11 @@ def _elementary_bytes(
     for sym, string in item.currency.items():
         if string is None:
             return None  # the estate declares this symbol with different strings
-        if sym in positions:
+        if sym in symbols:
             extra += len(string) - 1
-    if any(p not in _PIC_SYMBOLS and p not in item.currency and not _is_currency_sign(p) for p in positions):
+    if any(p not in _PIC_SYMBOLS and p not in item.currency and not _is_currency_sign(p) for p in symbols):
         return None
-    digits = sum(1 for p in positions if p == "9")
+    digits = sum(n for p, n in runs if p == "9")
     cls = _item_class(item, usage)
     if cls == "P":
         return digits // 2 + 1
@@ -6213,11 +6231,10 @@ def _elementary_bytes(
         if not digits or digits > 18:
             return None
         return 2 if digits <= 4 else 4 if digits <= 9 else 8
-    storage = [p for p in positions if p not in ("S", "V", "P")]
     # #3816: NATIONAL (UTF-16) and DISPLAY-1 (DBCS) take 2 bytes a position, N / G whatever the usage says
     wide = usage in ("NATIONAL", "DISPLAY-1")
-    width = sum(2 if wide or p in ("N", "G") else 1 for p in storage)
-    if width and item.sign_separate and "S" in positions:
+    width = sum((2 if wide or p in ("N", "G") else 1) * n for p, n in runs if p not in ("S", "V", "P"))
+    if width and item.sign_separate and "S" in symbols:
         width += 1  # #3694: SIGN ... SEPARATE -- the sign is a character of its own
     return (width + extra) or None
 
@@ -6405,8 +6422,14 @@ def load_galaxy_ir(db_path: Path, repo_name: str | None = None) -> GalaxyIR:
             if file_id in by_id and class_name:
                 by_id[file_id].program_ids.append(class_name)
 
+        # #7170: a COBOL main line is a function_data row (def_shape 'main_line'), not a
+        # paragraph or section, so it stays out of the unit inventory; NULL on a pre-#3757 DB.
+        not_main = (
+            "WHERE COALESCE(def_shape, '') != 'main_line' " if _has_column(cur, "function_data", "def_shape") else ""
+        )
         for file_id, name, start, loc, status in cur.execute(
-            "SELECT file_id, func_name, start_line, loc, usage_status FROM function_data ORDER BY file_id, start_line"
+            "SELECT file_id, func_name, start_line, loc, usage_status FROM function_data "  # noqa: S608 -- literals only
+            f"{not_main}ORDER BY file_id, start_line"
         ):
             if file_id in by_id:
                 by_id[file_id].units.append(EngineUnit(name or "", int(start or 0), int(loc or 0), int(status or 0)))
@@ -6952,9 +6975,10 @@ def load_galaxy_ir(db_path: Path, repo_name: str | None = None) -> GalaxyIR:
             )
             parm_col = "parm" if _has_column(cur, "job_flow_data", "parm") else "NULL"  # #3624
             instream_col = "instream" if _has_column(cur, "job_flow_data", "instream") else "NULL"  # #4268
+            dcb_cols = "lrecl, recfm" if _has_column(cur, "job_flow_data", "lrecl") else "NULL, NULL"  # #4268
             for row in cur.execute(
                 "SELECT file_id, kind, job_name, step_ordinal, step_name, program, proc_name, cond, if_cond, in_proc, "  # noqa: S608 -- normal_col / runner_cols are literals
-                f"dd_name, dsn, disp, generation, line_number, {normal_col}, {runner_cols}, {parm_col}, {instream_col} FROM job_flow_data "
+                f"dd_name, dsn, disp, generation, line_number, {normal_col}, {runner_cols}, {parm_col}, {instream_col}, {dcb_cols} FROM job_flow_data "
                 "WHERE repo_name = ? AND commit_hash = ? ORDER BY file_id, line_number, id",
                 (repo_name, commit_hash),
             ):
@@ -6981,6 +7005,8 @@ def load_galaxy_ir(db_path: Path, repo_name: str | None = None) -> GalaxyIR:
                             systsin_member=row[18],
                             parm=row[19],
                             instream=row[20],
+                            lrecl=int(row[21]) if row[21] else None,
+                            recfm=row[22],
                         )
                     )
         # #3455: file definitions. A pre-#3455 database has neither table.

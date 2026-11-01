@@ -10,8 +10,9 @@ description: "Charter (#4722): what 'done' means for a COBOL/CICS/Db2 migration 
 
 **In scope:** COBOL programs, with the CICS commands and Db2 SQL they use, and batch file I/O, on IBM z/OS, under
 the compile and runtime options recorded for each estate (`tests/equivalence/estate_options/<estate>.json`, #4704).
-The COBOL `SORT` / `MERGE` verbs are translated. JCL **utility steps** (SORT, IDCAMS, IEBGENER, DFSORT) are *not* run
-([register](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/oracle_assumptions.md) F4): the generated job refuses them by name.
+The COBOL `SORT` / `MERGE` verbs are translated. JCL **utility steps**: a DFSORT SORT / MERGE / COPY subset, IEBGENER with an empty SYSIN and an IDCAMS REPRO copy are
+run in the oracle; every other utility step or command is refused by name, in the harness and in the generated job
+([register](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/oracle_assumptions.md) F4).
 
 **Out of scope or parked** (state of 2026-10-09; recheck before quoting):
 

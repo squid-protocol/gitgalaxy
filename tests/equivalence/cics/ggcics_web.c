@@ -195,6 +195,13 @@ int GGCWOPN(gg_cics *c, char *token, char *host, int hostcap) {
     return 0;
 }
 
+/* #6839: the length an input area may carry. IBM reads FROM / PATH / QUERY from the address, so a record SET onto a larger
+ * GETMAIN block is valid up to that block's end; the declared length is the least (blk_room, in ggcics.c, is 0 off a block). */
+static int web_area(const char *p, int cap) {
+    size_t room = blk_room(p);
+    return room > (size_t)cap ? (room > 0x7fffffffU ? 0x7fffffff : (int)room) : cap;
+}
+
 /* WEB CONVERSE: GG-NUM the METHOD CVDA (out: STATUSCODE), GG-HOURS PATHLENGTH, GG-MINS QUERYSTRLEN, GG-SECS FROMLENGTH,
  * GG-LEN MAXLENGTH (out: TOLENGTH), GG-ITEM STATUSLEN (-1: no STATUSTEXT); GG-FLAGS names PATH QUERY FROM MEDIA given.
  * The conditions IBM lists for what the program gives come back with nothing sent; a response longer than MAXLENGTH is
@@ -236,7 +243,7 @@ int GGCWCNV(gg_cics *c, char *token, char *path, int pathcap, char *query, int q
     else if (max == 0) refuse("WEB CONVERSE MAXLENGTH 0");
     if (hasf && fl <= 0) WEB_COND(LENGERR, 50);
     if (sl == 0 || sl < -1) WEB_COND(LENGERR, 59);
-    if ((hasp && pl > pathcap) || (hasq && ql > querycap) || (hasf && fl > fromcap))
+    if ((hasp && pl > web_area(path, pathcap)) || (hasq && ql > web_area(query, querycap)) || (hasf && fl > web_area(from, fromcap)))
         refuse("WEB CONVERSE length beyond its area");
 #undef WEB_COND
     if (conds > 1) refuse("WEB CONVERSE with more than one condition at once");
@@ -452,6 +459,15 @@ static int web_send_body(gg_cics *c, const char *from, int fl, char *media, int 
     if (hasm) {
         mtl = mediacap < 56 ? mediacap : 56;
         memcpy(mt, media, (size_t)mtl);
+        /* #6839 (X37, owner ruling 2026-10-28): an area padded to its end with X'00' (zECS ZECS001 INSPECTs the spaces of its
+         * 56-byte MEDIATYPE area to LOW-VALUES) is the type before the padding; a X'00' followed by any other byte stays
+         * invalid below. */
+        for (i = 0; i < mtl && mt[i] != '\0'; i++) ;
+        if (i < mtl) {
+            int pad = i;
+            while (i < mtl && mt[i] == '\0') i++;
+            if (i == mtl) mtl = pad;
+        }
         while (mtl > 0 && mt[mtl - 1] == ' ') mtl--;
         mt[mtl] = '\0';
         for (i = 0; i < mtl; i++) if ((unsigned char)mt[i] <= ' ' || (unsigned char)mt[i] > '~') mtl = -1;
@@ -514,7 +530,7 @@ int GGCWSND(gg_cics *c, char *from, int fromcap, char *media, int mediacap, char
     trim(c->flags, 40, flags);
     hast = strstr(flags, "STEXT") != NULL;
     if (fl <= 0 || (hast && sl == 0) || sl < -1) refuse("WEB SEND FROMLENGTH or STATUSLEN not above zero");
-    if (fl > fromcap || (hast && sl > stextcap)) refuse("WEB SEND length beyond its area");
+    if (fl > web_area(from, fromcap) || (hast && sl > stextcap)) refuse("WEB SEND length beyond its area");
     return web_send_body(c, from, fl, media, mediacap, stext, stextcap, 0, -1, 0, 0, 0);
 }
 

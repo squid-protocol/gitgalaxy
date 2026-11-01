@@ -77,11 +77,17 @@ EVENT_KEYS: dict[str, tuple[str, ...]] = {
     "RUN": ("transid", "resp", "resp2"),  # #4270: RUN TRANSID (its child token is not observable)
     "READQ-TS": ("queue", "item", "resp", "length", "data"),
     "WRITEQ-TS": ("queue", "data", "resp", "item"),
+    "READQ-TD": ("queue", "resp", "length", "data"),  # #5079 (X57)
+    "WRITEQ-TD": ("queue", "data", "resp"),
+    "DELETEQ-TD": ("queue", "resp"),
     "WRITE-OPERATOR": ("data", "resp"),  # #4270 zECS (X32): the console message
     # #4443: the keyed file commands (SPEC 6.2): `update` / `set` only on those forms, `length` and `data` after the read
     "READ": ("file", "ridfld", "update", "resp", "resp2", "set", "length", "data"),
     "REWRITE": ("file", "data", "resp", "resp2"),
     "UNLOCK": ("file", "resp", "resp2"),
+    # #6262: WRITE / DELETE (SPEC 6.2): `ridfld` the key on entry (a DELETE of the held / token record has none), `generic` only on GENERIC
+    "WRITE": ("file", "ridfld", "data", "resp", "resp2"),
+    "DELETE": ("file", "ridfld", "generic", "resp", "resp2"),
     # #6262: the browse (SPEC 6.2): `ridfld` is the key on entry; `set` only on the SET form, `length` / `data` with INTO
     "STARTBR": ("file", "ridfld", "mode", "resp", "resp2"),
     "READNEXT": ("file", "ridfld", "set", "resp", "resp2", "length", "data"),
@@ -122,6 +128,11 @@ def parse_csd(text: str) -> dict[str, Any]:
     uctrans: dict[str, str] = {}  # #4415: a TYPETERM's UCTRAN (YES / NO / TRANID), when the CSD says
     urimaps: list[tuple[str, str, str]] = []  # #4270 zECS (X32): (name, TRANSACTION or "", PATH), in the CSD's order
     disabled: set[str] = set()  # #4768 (X34): programs defined STATUS(DISABLED)
+    twasizes: dict[str, int] = {}  # #5079 (X59): TRANSACTION TWASIZE(n)
+    userarealens: dict[str, int] = {}  # #5079 (X59): TYPETERM USERAREALEN(n)
+    tdqueues: dict[
+        str, str
+    ] = {}  # #5079 (X57): DEFINE TDQUEUE -> its tdqueues.cfg words after the name (TYPE, KEY=VALUE...)
     files: set[str] = set()  # #4443: the DEFINE FILE names (the cobol-stub's files.cfg is built from them)
     server_urimaps: list[
         dict[str, str]
@@ -138,6 +149,11 @@ def parse_csd(text: str) -> dict[str, Any]:
             mapsets.add(name)
         elif kind == "FILE":
             files.add(name)
+        elif kind == "TDQUEUE":  # the stub reads `NAME TYPE KEY=VALUE...` (ggcics_transientdata.c td_kind / td_attr)
+            ty = re.search(r"\bTYPE\s*\(\s*([A-Z]+)\s*\)", rest, re.I)
+            attrs = [f"{k}={a.group(1).upper()}" for k in ("RECOVSTATUS", "TYPEFILE", "OPENTIME", "INDIRECTNAME", "TRIGGERLEVEL", "TRANSID")
+                     if (a := re.search(rf"\b{k}\s*\(\s*([A-Z0-9@#$]+)\s*\)", rest, re.I))]  # fmt: skip
+            tdqueues[name] = " ".join([ty.group(1).upper() if ty else "-", *attrs])
         elif kind == "URIMAP":
             tr = re.search(r"\bTRANSACTION\s*\(\s*([^)\s]+)\s*\)", rest, re.I)
             pa = re.search(r"\bPATH\s*\(\s*([^)\s]+)\s*\)", rest, re.I)
@@ -153,9 +169,15 @@ def parse_csd(text: str) -> dict[str, Any]:
             prog = re.search(r"\bPROGRAM\s*\(\s*([^)\s]+)\s*\)", rest, re.I)
             if prog:
                 transactions[name] = prog.group(1).upper()
+            tw = re.search(r"\bTWASIZE\s*\(\s*(\d+)\s*\)", rest, re.I)
+            if tw:
+                twasizes[name] = int(tw.group(1))
         elif kind == "TYPETERM":
             dev = re.search(r"\bDEVICE\s*\(\s*([^)\s]+)\s*\)", rest, re.I)
             devices[name] = dev.group(1).upper() if dev else "3270"
+            ua = re.search(r"\bUSERAREALEN\s*\(\s*(\d+)\s*\)", rest, re.I)
+            if ua:
+                userarealens[name] = int(ua.group(1))
             uc = re.search(r"\bUCTRAN\s*\(\s*([^)\s]+)\s*\)", rest, re.I)
             if uc:
                 uctrans[name] = uc.group(1).upper()
@@ -167,10 +189,18 @@ def parse_csd(text: str) -> dict[str, Any]:
     uctran = {t: uctrans[tt] for t, tt in terminal_types.items() if tt in uctrans}
     out = {"programs": programs, "transactions": transactions, "mapsets": mapsets, "terminals": terminals,
            "uctran": uctran, "urimaps": urimaps, "disabled": disabled}  # fmt: skip
+    if tdqueues:  # #5079 (X57), added only when non-empty: with none the stub takes every queue as defined
+        out["tdqueues"] = tdqueues
     if files:  # added only when non-empty, like server_urimaps
         out["files"] = files
     if server_urimaps:  # added only when non-empty: an always-present empty key breaks exact-equality tests
         out["server_urimaps"] = server_urimaps
+    if twasizes:  # #5079 (X59), added only when non-empty
+        out["twasize"] = twasizes
+    if userarealens:  # keyed by termid through the TERMINAL's TYPETERM; added only when non-empty
+        user_areas = {t: userarealens[tt] for t, tt in terminal_types.items() if tt in userarealens}
+        if user_areas:
+            out["userarealen"] = user_areas
     return out
 
 
@@ -358,6 +388,7 @@ class Capabilities:
     task_keys: frozenset[str]
     events: dict[str, frozenset[str]]
     ts_queues: bool = False  # seeds a scenario's `initial` TS queues and reports the `final` ones
+    td_queues: bool = False  # #5079: seeds a scenario's `initial` TD queues and reports the `final` ones
     start_tasks: bool = False
     http_tasks: bool = False  # #4767 (X37): schedules an inbound HTTP request as an `http` task
 
@@ -388,6 +419,8 @@ def blockers(expected: dict[str, Any], caps: Capabilities, scenario: dict[str, A
 
     if scenario and (scenario.get("initial") or {}).get("ts_queues") and not caps.ts_queues:
         need(f"{caps.layer}: TS queue seeding")
+    if scenario and (scenario.get("initial") or {}).get("td_queues") and not caps.td_queues:
+        need(f"{caps.layer}: TD queue seeding")
     for task in expected["tasks"]:
         if task["trigger"]["kind"] in ("start", "run") and not caps.start_tasks:  # (#4270: a RUN TRANSID child)
             need(f"scheduler: START-triggered tasks ({caps.layer})")
@@ -414,6 +447,8 @@ def blockers(expected: dict[str, Any], caps: Capabilities, scenario: dict[str, A
                     need(feature_name(caps.layer, kind, "fields.omission"))
     if expected.get("final", {}).get("ts_queues") and not caps.ts_queues:
         need(f"{caps.layer}: TS queue final state")
+    if expected.get("final", {}).get("td_queues") is not None and not caps.td_queues:
+        need(f"{caps.layer}: TD queue final state")
     return out
 
 
@@ -686,6 +721,25 @@ class _Walk:
                     # (trailing blanks optional); #4006 met the first items written from a longer area
                     known = len(a) if isinstance(a, (bytes, bytearray)) else None
                     self.text(f"final TS queue {q} item {n + 1}", "item", e, a, known)
+        final_td = exp.get("final", {}).get("td_queues")
+        if final_td is not None:  # #5079 (X57): the records left, first in first out; a deleted queue is empty
+            if not self.caps.td_queues:
+                self.unsupported(f"{self.caps.layer}: TD queue final state")
+            got_td = act.get("final", {}).get("td_queues", {})
+            for q, items in final_td.items():
+                have = got_td.get(q, [])
+                if len(have) != len(items):
+                    self.fail(
+                        f"final TD queue {q}", f"{len(items)} records expected, got {len(have)}", "final TD differs"
+                    )
+                for n, (e, a) in enumerate(zip(items, have, strict=False)):  # reason: length may differ
+                    self.text(
+                        f"final TD queue {q} record {n + 1}",
+                        "record",
+                        e,
+                        a,
+                        len(a) if isinstance(a, (bytes, bytearray)) else None,
+                    )
 
 
 def compare(expected: dict[str, Any], actual: dict[str, Any], caps: Capabilities, ctx: Context,

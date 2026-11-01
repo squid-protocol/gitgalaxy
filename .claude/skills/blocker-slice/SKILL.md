@@ -102,6 +102,7 @@ $PY tests/tools/proof_blockers.py SURVEY_DIR --label LABEL [--sweep SWEEP_DIR]
 
 - **`cics_census.py survey --baseline` surveys an OLD commit.** For HEAD use `survey --no-census --out DIR --label head`,
   then `proof_blockers.py DIR --label head --no-census` (#5279).
+- **A "sort-only estate" premise:** a job whose steps are all utilities is `kind == 'utility'` in `BatchForge._plan` (no service for its SORT): check `_plan` first (#7259).
 - **Shared cics-crucible checkout off the pin.** Never move it; `equivalence_env.py --provision` gives a private
   clone at `tests/_cics_crucible_pin.py`'s ref (or `git clone <shared> $SCRATCH/crucible && git checkout vX.Y.Z`).
   A case branch runs with `--crucible-dir DIR --unpinned`.

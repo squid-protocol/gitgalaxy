@@ -14,7 +14,7 @@ Using the **GitGalaxy blAST engine**, we have stripped away the abstractions of 
 * 🚀 **[Apollo 11](teardown-of-apollo-11.md)** - The AGC assembly code that took humanity to the moon.
 * 🪙 **[Bitcoin v0.1.0](teardown-of-bitcoin.md)** - The original, highly coupled C++ prototype of decentralized finance.
 * 🔬 **[BLAST](teardown-of-blast.md)** - The high-performance C/C++ engine decoding genomics.
-* 👹 **[DOOM](teardown-of-doom.md)** - The 1993 C monolith that pioneered real-time 3D rendering.
+* 👹 **[DOOM's DNA](doom-dna/index.html)** - 43 descendants of the 1993 shooter, measured by shape alone: who copied whom, and which translations kept the blueprint. An interactive article ([text edition](teardown-of-doom.md)).
 * 🏦 **[Fineract](teardown-of-fineract.md)** - The sprawling Java core banking platform.
 * 😈 **[FreeBSD](teardown-of-freebsd.md)** - The legendary 13.8-million-line OS monolith.
 * 🔐 **[GnuPG](teardown-of-gnupg.md)** - The strict C architecture securing the internet's cryptography.

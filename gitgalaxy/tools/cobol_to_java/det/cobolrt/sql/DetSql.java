@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.IntSupplier;
+import java.util.function.ToIntFunction;
 import java.util.function.Supplier;
 
 /**
@@ -269,6 +270,80 @@ public final class DetSql {
             failed(ca, e, cs);
         }
     }
+
+    /** INSERT ... VALUES (:A1, :A2) FOR n ROWS [ATOMIC] (#4269; IBM Db2 for z/OS SQL Reference, INSERT): the single-row
+     *  statement run for element 1..n of every column's host variable table (`hosts[column][row]`, `indicators` null
+     *  where none), SQLERRD(3) the rows inserted. ATOMIC (the default): a row that fails is Db2's error with the whole
+     *  statement undone -- nothing inserted, SQLERRD(3) 0. The undo of the rows before the failing one is a savepoint
+     *  (INSERT_ROWS_SAVEPOINT) set on the unit of work's connection before row 1 and rolled back to; with no unit of
+     *  work a failure after row 1 is refused (the rows were committed as they ran). n above the host variable
+     *  tables (`capacity`) or below 1 is refused. */
+    // [rule RT-SQL-INSERT-ROWS]
+    public static void insertRows(Field ca, String at, long n, int capacity, String kinds, String[] names,
+                                  Field[][] hosts, Field[][] indicators, ToIntFunction<Map<String, Object>> statement,
+                                  Charset cs) {
+        reset(ca, cs);
+        if (injected(ca, at, cs)) {
+            return;
+        }
+        if (n < 1 || n > capacity) {
+            throw new UnsupportedOperationException("EXEC SQL INSERT at " + at + ": FOR " + n
+                    + " ROWS with host variable tables of " + capacity);
+        }
+        int done = 0;
+        boolean undoable = n > 1 && unitOfWork != null;
+        if (undoable) {
+            try {
+                unitOfWork.execute("SAVEPOINT " + INSERT_ROWS_SAVEPOINT + " ON ROLLBACK RETAIN CURSORS");
+            } catch (RuntimeException e) {
+                failed(ca, e, cs);
+                return;
+            }
+        }
+        for (int j = 0; j < n; j++) {
+            Map<String, Object> params = new HashMap<>();
+            for (int c = 0; c < hosts.length; c++) {
+                Object v = kinds.charAt(c) == 'N' ? numIn(hosts[c][j], cs) : charIn(hosts[c][j], cs);
+                if (indicators != null && indicators[c] != null) {
+                    v = orNull(v, indicators[c][j], cs);
+                }
+                params.put(names[c], v);
+            }
+            try {
+                done += statement.applyAsInt(params);
+            } catch (RuntimeException e) {
+                if (done == 0 && !undoable) {
+                    failed(ca, e, cs);
+                    return;
+                }
+                if (undoable) {
+                    try {
+                        unitOfWork.execute("ROLLBACK TO SAVEPOINT " + INSERT_ROWS_SAVEPOINT);
+                        unitOfWork.execute("RELEASE SAVEPOINT " + INSERT_ROWS_SAVEPOINT);
+                    } catch (RuntimeException undo) {
+                        throw new UnsupportedOperationException("EXEC SQL INSERT at " + at + ": row " + (j + 1)
+                                + " of " + n + " failed and ATOMIC's undo failed too", undo);
+                    }
+                    failed(ca, e, cs);
+                    return;
+                }
+                throw new UnsupportedOperationException("EXEC SQL INSERT at " + at + ": row " + (j + 1) + " of " + n
+                        + " failed after " + done + " were inserted; ATOMIC's undo is not modelled", e);
+            }
+        }
+        if (undoable) {
+            try {
+                unitOfWork.execute("RELEASE SAVEPOINT " + INSERT_ROWS_SAVEPOINT);
+            } catch (RuntimeException e) {
+                failed(ca, e, cs);
+                return;
+            }
+        }
+        putInt(ca, SQLERRD + 8, 4, done);
+    }
+
+    /** The savepoint ATOMIC's undo of INSERT ... FOR n ROWS rolls back to (a name a program's own savepoint won't use). */
+    private static final String INSERT_ROWS_SAVEPOINT = "GGINSROWS_UNDO";
 
     /** SELECT INTO: the one row, or null (+100 no row, -811 more than one, or Db2's error). */
     // [rule RT-SQL-SELECT-INTO]
@@ -617,6 +692,28 @@ public final class DetSql {
             default: throw new UnsupportedOperationException("EXEC SQL FETCH " + orientation + " not modelled");
         }
         return moveTo(ca, cursor, rows, Math.max(0, Math.min(target, size + 1)), cs);
+    }
+
+    /** FETCH BEFORE | AFTER of a scroll cursor (#4269; IBM Db2 for z/OS SQL Reference, FETCH): the cursor is parked before
+     *  its first row (position 0) or after its last (n + 1); SQLCODE 0, no row returned, no host variable touched. The
+     *  cursor then has no current row. -501 when it is not open. */
+    // [rule RT-SQL-SCROLL-POSITION]
+    public static void positionScroll(Field ca, String at, String cursor, String where, Charset cs) {
+        reset(ca, cs);
+        if (injected(ca, at, cs)) {
+            return;
+        }
+        List<Map<String, Object>> rows = OPEN.get(cursor);
+        if (rows == null) {
+            code(ca, -501, "24501", cs);
+            return;
+        }
+        switch (where) {
+            case "BEFORE": POS.put(cursor, 0); break;
+            case "AFTER": POS.put(cursor, rows.size() + 1); break;
+            default: throw new UnsupportedOperationException("EXEC SQL FETCH " + where + " not modelled");
+        }
+        CURRENT.remove(cursor);
     }
 
     /** The cursor positioned at `target` (0 .. n + 1): its row, or null and +100 when that is off either end. */

@@ -120,7 +120,10 @@ def test_the_jobs_become_spring_batch_jobs(scanned, tmp_path):
     order = [cfg.index(f'new StepBuilder("{s}"') for s in ("CLEAN", "SORT1", "RUN", "COPY.GEN")]
     assert order == sorted(order)  # JCL order, the PROC's step expanded
     assert 'steps.iefbr14("CLEAN", "CLEAN", null, null, null, DDS_CLEAN)' in cfg
-    assert 'steps.utility("SORT1", "SORT1", null, null, null, "SORT", "SORT1 runs the utility SORT' in cfg
+    assert (
+        'steps.utility("SORT1", "SORT1", null, null, null, "SORT", "SORT1 runs SORT, which is a DFSORT SORT the model lowers'
+        in cfg
+    )  # #4268: parsed from the scanned in-stream SYSIN
     assert 'steps.program("RUN", "RUN", null, "(4,LT)", null, () -> postitService.runBatch(DDS_RUN, null))' in cfg
     assert 'steps.copy("COPY.GEN", "COPY.GEN", null, null, null, DDS_COPY_GEN)' in cfg
     assert 'new Dd("SORTOUT", "APP.TRANS.SORTED", "NEW", "CATLG", "+1")' in cfg  # DISP=(NEW,CATLG,DELETE)

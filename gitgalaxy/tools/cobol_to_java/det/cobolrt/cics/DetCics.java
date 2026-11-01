@@ -4,6 +4,7 @@ import __PACKAGE__.cics.CicsSpec;
 import __PACKAGE__.cics.CicsTask;
 import __PACKAGE__.cobolrt.Cobol;
 import __PACKAGE__.cobolrt.Field;
+import __PACKAGE__.cobolrt.Storage;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -58,6 +59,7 @@ public final class DetCics {
         private final int keyLength;
         private final Charset cs;
         private Function<byte[], Optional<E>> byId;  // the repository's findById on the key's id, when it has one
+        private java.util.Map<String, Integer> lengths;  // #6839: a variable-length file's record lengths, by key
 
         public Store(Supplier<List<E>> all, Function<E, byte[]> toRecord, Function<byte[], E> fromRecord,
                      Consumer<E> save, Consumer<E> delete, int keyOffset, int keyLength, Charset cs) {
@@ -76,6 +78,23 @@ public final class DetCics {
          *  only lets a command's eagerly evaluated arguments (a WRITE's `exists`) run first. */
         public static <E> Store<E> undefined(Charset cs) {
             return new Store<>(List::of, e -> new byte[0], b -> null, e -> { }, e -> { }, 0, 0, cs);
+        }
+
+        /** #6839 (row D): a variable-length file (CicsTask.recordLengths; null: fixed-length). A record read is cut
+         *  to the length it was written with (IBM, EXEC CICS READ: LENGTH returns the record's length); a record
+         *  stored keeps its own length (WRITE / REWRITE LENGTH). */
+        public Store<E> withLengths(java.util.Map<String, Integer> lengths) {
+            this.lengths = lengths;
+            return this;
+        }
+
+        private String hexKey(byte[] rec) {
+            return java.util.HexFormat.of().withUpperCase().formatHex(key(rec));  // the key's bytes, as the stub's .len
+        }
+
+        private byte[] cut(byte[] rec) {
+            Integer n = lengths == null ? null : lengths.get(hexKey(rec));
+            return n == null || n >= rec.length ? rec : Arrays.copyOf(rec, n);
         }
 
         /** A keyed read through the repository's findById: `byId` gets a buffer with the key in its record place. */
@@ -121,12 +140,12 @@ public final class DetCics {
         // [rule RT-CICS-FILE-KEY-ORDER]
         public Optional<byte[]> find(byte[] key) {
             if (byId != null) {
-                return findById(key).map(r -> (byte[]) r[1]);
+                return findById(key).map(r -> cut((byte[]) r[1]));
             }
             byte[] k = Arrays.copyOf(key, keyLength);
             for (Object[] r : rows()) {
                 if (Arrays.equals(key((byte[]) r[1]), k)) {
-                    return Optional.of((byte[]) r[1]);
+                    return Optional.of(cut((byte[]) r[1]));
                 }
             }
             return Optional.empty();
@@ -142,7 +161,7 @@ public final class DetCics {
             for (Object[] r : rows()) {
                 int c = o.compare(Arrays.copyOf(key((byte[]) r[1]), length), k);
                 if (c == 0 || gteq && c > 0) {
-                    return Optional.of((byte[]) r[1]);
+                    return Optional.of(cut((byte[]) r[1]));
                 }
             }
             return Optional.empty();
@@ -168,6 +187,9 @@ public final class DetCics {
         }
 
         public void store(byte[] rec) {
+            if (lengths != null) {
+                lengths.put(hexKey(rec), rec.length);
+            }
             save.accept(fromRecord.apply(rec));
         }
 
@@ -364,6 +386,18 @@ public final class DetCics {
         }
         byte[] data = b.toString().getBytes(cs);
         System.arraycopy(data, 0, f.storage().bytes, f.offset(), f.length());
+    }
+
+    /** WEB SEND FROM(area) FROMLENGTH(n) (#6839 slice 2): the area's text. An area set onto a larger block (ZECS001's
+     *  CACHE-MESSAGE over a GETMAIN of several 32000-byte segments) holds the block's bytes past its declared length, so a
+     *  FROMLENGTH beyond the declaration reads them when the block is that long. Any other area, or a block too short,
+     *  gives the declared area's text (CicsTask.webSend then refuses the length). */
+    public static String fromText(Field f, int fromLength, Charset cs) {
+        Storage s = f.storage();
+        if (fromLength > f.length() && s.aliased() && f.offset() + fromLength <= s.bytes.length) {
+            return new String(s.bytes, f.offset(), fromLength, cs);
+        }
+        return Cobol.text(f, cs);
     }
 
     public static void put(Field f, byte[] data) {
@@ -615,7 +649,7 @@ public final class DetCics {
      *  "Default action: ignore the condition"). Every other condition's default is an abend. */
     // [rule RT-CICS-DEFAULT-ACTION]
     public static boolean ignoredByDefault(String condition) {
-        return "EOC".equals(condition);
+        return "EOC".equals(condition) || "EXPIRED".equals(condition);
     }
 
     /** #4414: the label HANDLE AID gives the key pressed (EIBAID's name: ENTER, CLEAR, PA1-PA3, PF1-PF24), else
@@ -737,6 +771,16 @@ public final class DetCics {
         setPointer(ptr, task.acquireSet(key, data, syncEnds));
     }
 
+    /** SET(ADDRESS OF record) of a file read (#6876, X47): a new block of task storage holding the data, addressed by the
+     *  LINKAGE 01 record exactly as SET ADDRESS OF record TO ptr would (the pointer is not the program's). */
+    // [rule RT-CICS-SET-BLOCK]
+    public static void setBlockAt(CicsTask task, Field record, String key, byte[] data, boolean syncEnds) {
+        wholeRecord(record, "SET(ADDRESS OF)");
+        long handle = task.acquireSet(key, data, syncEnds);
+        record.storage().bytes = task.storageAt(handle, record.length());
+        record.storage().base = task.offsetAt(handle);
+    }
+
     public static void setBlock(CicsTask task, Field ptr, String key, String data, Charset cs) {
         setBlock(task, ptr, key, data.getBytes(cs));
     }
@@ -745,8 +789,10 @@ public final class DetCics {
     public static void setAddress(CicsTask task, Field record, Field ptr) {
         wholeRecord(record, "SET ADDRESS OF");
         long handle = pointerValue(ptr);
-        record.storage().bytes = task.storageAt(handle, record.length());
-        record.storage().base = task.offsetAt(handle);
+        if (handle == 0) {
+            return;  // NULL (ASSUMED, X47): the record keeps its storage; a program that then uses it differs from the oracle's null record
+        }
+        record.storage().alias(task.storageAt(handle, record.length()), task.offsetAt(handle));
     }
 
     /** SET ADDRESS OF record TO ADDRESS OF other: both are one storage from here on. */
@@ -756,8 +802,7 @@ public final class DetCics {
         if (other.storage().bytes.length < record.length()) {
             throw new UnsupportedOperationException("SET ADDRESS OF a record longer than its storage: not modelled");
         }
-        record.storage().bytes = other.storage().bytes;
-        record.storage().base = other.storage().base;
+        record.storage().alias(other.storage().bytes, other.storage().base);
     }
 
     /** SET ADDRESS OF record TO ADDRESS OF item, an item inside a larger storage (ZECS001's ZF-DATA in ZF-RECORD; #4771,
@@ -768,8 +813,7 @@ public final class DetCics {
         if (item.storage().bytes.length - item.offset() < record.length()) {
             throw new UnsupportedOperationException("SET ADDRESS OF a record longer than the storage after the item: not modelled");
         }
-        record.storage().bytes = item.storage().bytes;
-        record.storage().base = item.offset();
+        record.storage().alias(item.storage().bytes, item.offset());
     }
 
     /** SET ptr TO ADDRESS OF record: the handle of the record's bytes. */
@@ -838,6 +882,29 @@ public final class DetCics {
             throw new PastFrom("ADDRESS COMMAREA with a COMMAREA in a program with no 01 DFHCOMMAREA: its bytes are not modelled");
         }
         setPointer(ptr, NO_COMMAREA);
+    }
+
+    /** #5079 (X59): ADDRESS TWA(ptr) / TCTUA(ptr) (IBM: the address of the transaction work area / terminal control table user
+     *  area; with none defined the pointer holds X'FF000000', as for a task with no COMMAREA). The pointer holds the handle
+     *  of the area's own bytes, so SET ADDRESS OF rec TO ptr shares them across every program of the task (TWA) or task of
+     *  the terminal (TCTUA). */
+    // [rule RT-CICS-ADDRESS]
+    public static void addressTwa(CicsTask task, Field ptr) {
+        long h = task.twaHandle();
+        setPointer(ptr, h == 0 ? NO_COMMAREA : h);
+    }
+
+    // [rule RT-CICS-ADDRESS]
+    public static void addressTctua(CicsTask task, Field ptr) {
+        long h = task.tctuaHandle();
+        setPointer(ptr, h == 0 ? NO_COMMAREA : h);
+    }
+
+    /** #5079 (X59): ADDRESS CWA(ptr), the region's common work area (SIT WRKAREA bytes); the same bytes for every task. */
+    // [rule RT-CICS-ADDRESS]
+    public static void addressCwa(CicsTask task, Field ptr) {
+        long h = task.cwaHandle();
+        setPointer(ptr, h == 0 ? NO_COMMAREA : h);
     }
 
     /** #5119 (X56): OS/VS COBOL's `MOVE cell TO fullword` (a chained storage area's pointer to the next area): the fullword

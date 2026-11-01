@@ -19,15 +19,22 @@ from gitgalaxy.tools.cobol_to_java.det import expr as E
 from gitgalaxy.tools.cobol_to_java.det import layout as L
 from gitgalaxy.tools.cobol_to_java.det import osvs as O
 from gitgalaxy.tools.cobol_to_java.det import stmt as S
+from gitgalaxy.tools.cobol_to_java.det.cics_common import (
+    LIBRARY,
+    LIBRARY_CHARSET,
+    LIBRARY_CLOCK,
+    LIBRARY_FLOATS,
+    LIBRARY_RC,
+    Untranslatable,
+    _extents,
+    _occurs_chain,
+    jstr,
+)
 from gitgalaxy.tools.cobol_to_java.det.source import WIDE
 
 if TYPE_CHECKING:
     from gitgalaxy.tools.cobol_to_java.det.cics import Cics
     from gitgalaxy.tools.cobol_to_java.det.source import EngineCopies
-
-
-class Untranslatable(Exception):
-    pass
 
 
 def p_unmodelled(it: L.Item) -> str | None:
@@ -66,77 +73,9 @@ class LiftViolation(Exception):
         self.names = set(names)
 
 
-# Library routines the runtime models (each the twin of the harness's COBOL-side model): program -> (Java, args)
-LIBRARY = {
-    "CEEDAYS": ("__PACKAGE__.cobolrt.le.Ceedays.call", 4),
-    "COBDATFT": ("__PACKAGE__.cobolrt.le.Cobdatft.call", 1),
-    "MVSWAIT": ("__PACKAGE__.cobolrt.le.Mvswait.call", 1),  # #5106: CardDemo's assembler wait (COBSWAIT)
-    "CEELOCT": ("__PACKAGE__.cobolrt.le.Ceeloct.call", 4),  # #4884: also takes the clock first and the charset last
-    # #4949: the LE date/time services (register L6); each is the twin of tests/equivalence/le/le_time.c
-    "CEEGMT": ("__PACKAGE__.cobolrt.le.Ceegmt.call", 3),
-    "CEEUTC": ("__PACKAGE__.cobolrt.le.Ceeutc.call", 3),
-    "CEEDATM": ("__PACKAGE__.cobolrt.le.Ceedatm.call", 4),
-    "CEESECS": ("__PACKAGE__.cobolrt.le.Ceesecs.call", 4),
-    "CEEDATE": ("__PACKAGE__.cobolrt.le.Ceedate.call", 4),
-    "CEEISEC": ("__PACKAGE__.cobolrt.le.Ceeisec.call", 9),
-    "CEEQCEN": ("__PACKAGE__.cobolrt.le.Ceeqcen.call", 2),
-    # #5003: sets the window CEEQCEN reads (one class, one setting)
-    "CEESCEN": ("__PACKAGE__.cobolrt.le.Ceeqcen.set", 2),
-    # #5003: Lilian seconds to integer fields (the inverse of CEEISEC) and the day of the week of a Lilian date
-    "CEESECI": ("__PACKAGE__.cobolrt.le.Ceeseci.call", 9),
-    "CEEDYWK": ("__PACKAGE__.cobolrt.le.Ceedywk.call", 3),
-    # #5003: the offset from GMT (zero: the run's clock is GMT); CEEUTCO is the same service as CEEGMTO
-    "CEEGMTO": ("__PACKAGE__.cobolrt.le.Ceegmto.call", 4),
-    "CEEUTCO": ("__PACKAGE__.cobolrt.le.Ceegmto.call", 4),
-    # #5858 (register Q5): Db2's SQLCA message formatter as a stand-in, the twin of tests/equivalence/le/dsntiac.c
-    "DSNTIAC": ("__PACKAGE__.cobolrt.le.Dsntiac.call", 5),
-    # #5945 (register X47): zECS's store-clock wrapper; its 16 bytes are a stated input of the run ($GGC_ZUIDSTCK_TOD)
-    "ZUIDSTCK": ("__PACKAGE__.cobolrt.le.Zuidstck.call", 1),
-}
-LIBRARY_RC = {"DSNTIAC"}  # the routines whose int result is the CALL's RETURN-CODE
-LIBRARY_CLOCK = {
-    "CEELOCT",
-    "CEEGMT",
-    "CEEUTC",
-    "CEESECS",  # #5003: the system year the century window (a YY) is anchored on
-}  # the routines that read the run's clock (the harness pins it, like CURRENT-DATE)
-# The COMP-2 arguments (by position) a routine reads or stores by value (Cobol.num / Cobol.store), never by bytes: HFP on
-# z/OS, IEEE on the oracle (register C6). Every routine with one, and every clock routine, also takes the charset last.
 # #5119 (X56): the CALLs det/bll.py lowers OS/VS COBOL's chained storage areas to (`MOVE cell TO fullword`, `MOVE fullword TO
 # cell`, a record re-addressed at a paragraph name); the oracle's stub (ggcics.c) has the first two, and sees SET ADDRESS OF
 BLL_CALLS = ("GGCBLLP", "GGCBLLG", "GGCBLLR")
-LIBRARY_FLOATS = {
-    "CEELOCT": {1},
-    "CEEGMT": {1},
-    "CEEUTC": {1},
-    "CEEDATM": {0},
-    "CEESECS": {2},
-    "CEEISEC": {7},
-    "CEESECI": {0},
-    "CEEGMTO": {2},
-    "CEEUTCO": {2},
-}
-LIBRARY_CHARSET = {*LIBRARY_CLOCK, *LIBRARY_FLOATS, *LIBRARY_RC, "CEEDATE", "CEEQCEN", "CEESCEN"}
-
-
-def jstr(s: str) -> str:
-    """A Java string literal; every non-ASCII or control character escaped."""
-    out = []
-    for ch in s:
-        o = ord(ch)
-        if ch == '"':
-            out.append('\\"')
-        elif ch == "\\":
-            out.append("\\\\")
-        elif 32 <= o < 127:
-            out.append(ch)
-        elif o < 256:
-            # #4690: never the u-escapes 000a / 000d / 0022 (Java translates them before lexing, cutting the literal open);
-            # a three-digit octal escape is exact and cannot swallow a following digit
-            out.append(f"\\{o:03o}")
-        else:
-            out.append(f"\\u{o:04x}")
-    return '"' + "".join(out) + '"'
 
 
 def jname(cobol: str) -> str:
@@ -289,6 +228,7 @@ class Gen:
         self.sql: Any = None  # det.sql.Sql for a program with EXEC SQL
         self.dli_pcbs: list[str] | None = None  # #4893: the PCBs IMS passes at ENTRY 'DLITCBL' (det/dli.py)
         self.clock = "clock.currentDate()"  # FUNCTION CURRENT-DATE outside CICS
+        self.uses_set_address = False  # #4767: a CICS SET ADDRESS OF aliases a storage; initialState() undoes it
         self.uses_mvs = False  # #5856: a batch pointer addresses a z/OS control block (DetMvs, register A2)
         self.uses_random = False  # FUNCTION RANDOM: the program keeps a run unit's sequence (Funcs.Random)
         self.callees: dict[str, str] = {}  # CALLed program -> the ObjectProvider field of its service
@@ -349,15 +289,20 @@ class Gen:
                 q in _ancestors(c.parent) for q in ref.qualifiers))]  # fmt: skip
         return cands[0] if len(cands) == 1 else None
 
-    def pointer_item(self, name: str) -> str:
+    def pointer_item(self, name: str, ref: E.Ref | None = None) -> str:
         """#4771 (X47): the Field of a plain USAGE POINTER item the pointer lane works on. A pointer a REDEFINES overlays
-        (ZECS001's CACHE-ADDRESS-X: ADD n TO the address) is refused: a handle is no number to do arithmetic on."""
+        (ZECS001's CACHE-ADDRESS-X: ADD n TO the address) is refused: a handle is no number to do arithmetic on.
+        #5079: `ref` is an element of a pointer table (`TBL(I)`, one subscript per OCCURS level): its own 8-byte Field,
+        a handle like any other. A table named without subscripts is refused (it would silently be its first element)."""
         it = self.resolve(E.Ref(name.upper()))
-        if it.usage != "POINTER" or it.occurs > 1:
-            raise Untranslatable(f"{name}: not a plain USAGE POINTER item")
+        levels = len(_occurs_chain(it))
+        subscripts = len(ref.subscripts) if ref is not None else 0
+        if it.usage != "POINTER" or subscripts != levels:
+            why = " (a pointer table named without its subscripts)" if levels and not subscripts else ""
+            raise Untranslatable(f"{name}: not a plain USAGE POINTER item{why}")
         if name.upper() in self.overlaid_pointers:
             raise Untranslatable(f"{name}: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)")
-        return self.field_expr(E.Ref(name.upper()))
+        return self.field_expr(ref if ref is not None else E.Ref(name.upper()))
 
     def view_pointer(self, e) -> str | None:
         """#4771 (X47): the pointer a plain reference to a pure numeric view of one (program.pointer_view_of) names."""
@@ -644,7 +589,10 @@ class Gen:
             if c.abbrev is not None and self.resolve_cond(c.ref) is None:
                 rel = E.Rel(c.abbrev[0], c.abbrev[1], c.ref)
                 if not (
-                    self.null_relation(rel) or self.pointer_relation(rel) or self.byte_view_relation(rel) is not None
+                    self.null_relation(rel)
+                    or self.pointer_relation(rel)
+                    or self.byte_view_relation(rel) is not None
+                    or self.view_zero_relation(rel) is not None
                 ):
                     out.append(self._relation(c.abbrev[1], c.ref, c.abbrev[0] == "="))
         elif isinstance(c, E.ClassCond):
@@ -655,6 +603,7 @@ class Gen:
             and not self.null_relation(c)
             and not self.pointer_relation(c)
             and self.byte_view_relation(c) is None
+            and self.view_zero_relation(c) is None
         ):
             out.append(self._relation(c.left, c.right, c.op == "="))
 
@@ -1527,6 +1476,8 @@ class Gen:
                 return self.rel_null(c)
             if self.byte_view_relation(c) is not None:
                 return self.rel_pointer_bytes(c)
+            if self.view_zero_relation(c) is not None:
+                return self.rel_view_zero(c)
             if self.pointer_operand(c.left) and self.pointer_operand(c.right):
                 return self.rel_pointers(c)
             with self.relation():
@@ -1574,6 +1525,32 @@ class Gen:
             ):  # fmt: skip
                 return self.pointer_byte_view_of.get(view.name.upper())
         return None
+
+    def view_zero_relation(self, c) -> str | None:
+        """#6876 (X47): the pointer whose pure numeric view (program.pointer_view_of) a relation compares with zero (`0`, ZERO,
+        ZEROS, ZEROES), either side; None for anything else (it stays refused by field_expr), and in batch, where a pointer's
+        zero is not stated (the z/OS control blocks of #5856: BUMP-TIOT = 0 stays a hole)."""
+        if self.cics is None:
+            return None
+        for view, zero in ((c.left, c.right), (c.right, c.left)):
+            is_zero = (isinstance(zero, E.Fig) and zero.kind == "ZEROS" and zero.all_literal is None) or (
+                isinstance(zero, E.Lit) and isinstance(zero.value, Decimal) and zero.value == 0
+            )
+            ptr = self.view_pointer(view)
+            if is_zero and ptr is not None:
+                return ptr
+        return None
+
+    def rel_view_zero(self, c: E.Rel) -> str:
+        """#6876 (X47): `view = 0` (and NOT =, which the parser wraps in Not) over a numeric view of a pointer (CAGMZ's
+        `IF WS-PTR2-N = 0`). A handle's zero is NULL, so the test is the pointer's NULL test (rel_null); the view's bytes are
+        never read as a number. Only = is a test of it; an ordering operator is refused by name."""
+        if c.op != "=":
+            raise Untranslatable(f"pointer numeric view {c.op} zero: only = and NOT = test a pointer for NULL (X47)")
+        ptr = self.view_zero_relation(c)
+        if ptr is None:
+            raise Untranslatable("pointer numeric view compared with something other than zero (X47)")
+        return f"Cobol.compareFigurative({self.pointer_item(ptr)}, Figurative.LOW_VALUES, CS) == 0"
 
     def rel_pointer_bytes(self, c: E.Rel) -> str:
         """#6876 (X59): `byte-view = X'FF000000'` (and NOT =, which the parser wraps in Not). A handle is not an address, so
@@ -1795,7 +1772,7 @@ class Gen:
             if it.sign_separate and it.signed:
                 raise Untranslatable(f"{num.name} (SIGN SEPARATE) compared with the nonnumeric {other.name}: GnuCOBOL "
                                      f"compares its sign character, IBM no sign (C13)")  # fmt: skip
-            if "P" in it.picture():
+            if "P" in it.symbols():
                 raise Untranslatable(f"{num.name} (P-scaled) compared with the nonnumeric {other.name}: not modelled "
                                      f"(C13)")  # fmt: skip
 
@@ -2346,6 +2323,8 @@ class Gen:
                 it = self.resolve(r)
                 if it.usage != "POINTER":
                     raise Untranslatable(f"SET {r.name} TO NULL: not a pointer")
+                if len(_occurs_chain(it)) != len(r.subscripts):  # #5079: one element, never a table's first by default
+                    raise Untranslatable(f"SET {r.name} TO NULL: a pointer table named without its subscripts")
                 out.append(f"{ind}Cobol.moveFigurative(Figurative.LOW_VALUES, {self.field_expr(r)}, CS);")
             return out
         if k == "SET-POINTER":
@@ -2353,7 +2332,7 @@ class Gen:
                 return [c, f"{ind}// the pointer is never read (write_only_pointers): no effect any output can show"]
             if self.cics is None:
                 raise Untranslatable("SET ADDRESS OF (pointers)")
-            ptr = self.pointer_item(s.data["target"])
+            ptr = self.pointer_item(s.data["target"], s.data.get("target_ref"))
             of, windowed = self.address_item(s.data["of"])
             return [c, f"{ind}DetCics.{'setPointerToItem' if windowed else 'setPointerToRecord'}(task, {ptr}, {of});"]
         if k == "SET-ADDRESS":  # #4771 (X47): the record's storage becomes the pointer's / another record's
@@ -2362,9 +2341,16 @@ class Gen:
             rec = self.address_record(s.data["record"])
             if self.cics is None:  # #5856 (A2): the z/OS control block the pointer addresses (PSA / TCB / TIOT)
                 self.uses_mvs = True
-                return [c, f"{ind}DetMvs.setAddress({rec}, {self.pointer_item(s.data['pointer'])}, CS);"]
+                return [
+                    c,
+                    f"{ind}DetMvs.setAddress({rec}, {self.pointer_item(s.data['pointer'], s.data.get('pointer_ref'))}, CS);",
+                ]
+            self.uses_set_address = True
             if s.data["pointer"]:
-                return [c, f"{ind}DetCics.setAddress(task, {rec}, {self.pointer_item(s.data['pointer'])});"]
+                return [
+                    c,
+                    f"{ind}DetCics.setAddress(task, {rec}, {self.pointer_item(s.data['pointer'], s.data.get('pointer_ref'))});",
+                ]
             of, windowed = self.address_item(s.data["of"])
             return [c, f"{ind}DetCics.{'setAddressOfItem' if windowed else 'setAddressOfRecord'}(task, {rec}, {of});"]
         if k == "INITIALIZE":
@@ -3358,6 +3344,7 @@ class Gen:
                     raise Untranslatable(f"READ {fd.select}: its key is not in its record")
                 out.append(f"{ind}String {st} = {v}.readKey({key.offset}, {key.size});")
             out += self.status(fd, st, ind)
+            out += self.unhandled_io(fd, s, st, ind, ("10",), ("21", "22", "23", "24"))
             if s.data["into"] is not None:
                 rec = self.ids[id(fd.record)]
                 out.append(f'{ind}if ({st}.startsWith("0")) {{')
@@ -3385,6 +3372,7 @@ class Gen:
             else:
                 out.append(f"{ind}String {st} = {v}.{k.lower()}({rec_item.size});")
             out += self.status(fd, st, ind)
+            out += self.unhandled_io(fd, s, st, ind, (), ("21", "22", "23", "24"))
             out += self.io_phrases(s, st, ind, at_end=None, invalid=("21", "22", "23", "24"))
             return out
         if k == "START":
@@ -3656,6 +3644,22 @@ class Gen:
             return []
         return [ind + self.move_text(st, E.Ref(fd.status[0], fd.status[1:]))]
 
+    def unhandled_io(self, fd: FileDef, s: S.Stmt, st: str, ind: str, at_end: tuple, invalid: tuple) -> list[str]:
+        """A READ / WRITE / REWRITE that fails on a file with no FILE STATUS, no phrase for that condition and no
+        USE declarative (the det parser has none) is a run-time error on IBM (Enterprise COBOL for z/OS Language
+        Reference, "Error handling for input-output": the program abends); ignoring the status would carry on and end
+        RETURN-CODE 0. The port stops by name instead (#4268). INVALID KEY is the 21-24 group, handled only when the
+        statement carries the phrase; a READ's end-of-file 10 is left as it was (a sibling gap)."""
+        if fd.status is not None:
+            return []
+        ok = list(at_end)
+        if "INVALID-KEY" in s.phrases:
+            ok += invalid
+        test = "".join(f" && !{st}.equals({jstr(c)})" for c in ok)
+        what = f"{s.kind} {fd.select}: FILE STATUS "
+        return [f'{ind}if (!{st}.startsWith("0"){test}) throw new Hole(' + jstr(what) + f' + {st} + " with no FILE STATUS, '
+                'handling phrase or declarative: IBM abends (not modelled)");']  # fmt: skip
+
     def move_text(self, java: str, target: E.Ref) -> str:
         return f"Cobol.move({java}, {self.field_expr(target)}, CS);"
 
@@ -3712,20 +3716,6 @@ FLOAT_BYTES = "IBM hexadecimal floating point on z/OS, IEEE on the oracle: oracl
 IEEE_BINARY64_PROGRAMS = frozenset({"EPSMPMT"})
 
 
-def _extents(it: L.Item) -> tuple[tuple[int, int], tuple[int, int], list[int]]:
-    """An item's bytes within its record: its first occurrence, the whole of its outermost table, and the ids of
-    the OCCURS items it lies in."""
-    first = (it.offset, it.offset + it.size * it.occurs)
-    full, tables = first, []
-    a: L.Item | None = it
-    while a is not None:
-        if a.occurs > 1:
-            tables.append(id(a))
-            full = (a.offset, a.offset + a.size * a.occurs)
-        a = a.parent
-    return first, full, tables
-
-
 def camel(cobol: str) -> str:
     """ACCT-CURR-BAL -> acctCurrBal; 1000-CARDFILE-GET-NEXT -> 1000CardfileGetNext (callers prefix a digit)."""
     parts = [p for p in re.split(r"[^A-Za-z0-9]+", cobol) if p]
@@ -3753,29 +3743,18 @@ def _ancestors(it: L.Item) -> list[str]:
     return out
 
 
-def _occurs_chain(it: L.Item) -> list[L.Item]:
-    """The OCCURS items from the outermost to `it` (itself included when it OCCURS)."""
-    chain = []
-    a: L.Item | None = it
-    while a is not None:
-        if a.occurs > 1 or a.depending:
-            chain.append(a)
-        a = a.parent
-    return list(reversed(chain))
-
-
 def _text_item(it: L.Item) -> bool:
     """Every elementary item of `it` (itself, or a group's) holds characters: alphanumeric, alphabetic or edited,
     USAGE DISPLAY, not national / DBCS."""
     if it.children:
         return all(_text_item(c) for c in it.children)
-    return (it.usage == "DISPLAY" and not set(it.picture()) & set("NG")
+    return (it.usage == "DISPLAY" and not it.symbols() & set("NG")
             and it.category in ("ALPHANUMERIC", "ALPHABETIC", "NUMERIC-EDITED", "ALPHANUMERIC-EDITED"))  # fmt: skip
 
 
 def _unsigned_zoned(it: L.Item) -> bool:
     """An unsigned zoned decimal item (USAGE DISPLAY): its bytes are digit characters, as an alphanumeric item's."""
-    return not it.children and it.category == "NUMERIC" and it.usage == "DISPLAY" and "S" not in it.picture()
+    return not it.children and it.category == "NUMERIC" and it.usage == "DISPLAY" and "S" not in it.symbols()
 
 
 def _may_nan(e) -> bool:

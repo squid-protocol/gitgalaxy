@@ -428,7 +428,9 @@ def record_summary(case: str, status: dict[str, Any] | None) -> dict[str, Any] |
     img = (rec.get("oracle") or {}).get("image") or {}
     cov = rec.get("coverage") or {}
     st = status or {"status": "not measured", "stale": []}
+    ran = sorted({c for o in outs.values() for c in o.get("commands") or []})  # #5229: the stub verbs the COBOL ran
     return {
+        **({"commands_run": ran} if ran else {}),  # only when non-empty (python-test-traps.md)
         "status_at_build": st["status"],
         "stale_inputs": st["stale"],
         "verdict": "all equal" if p.get("verdict") == "proven" else ("none" if not p else "not equal"),
@@ -489,12 +491,17 @@ def coverage_of(case: dict[str, Any] | None, swept: dict[str, Any], ledger: dict
         return out
     import infeasible_outcomes as io
 
-    out["infeasible_stated"] = [
+    stated = [
         {k: e[k] for k in ("key", "unit", "line", "kind", "outcome", "family", "reason") if k in e}
         for e in io.stated(case["case"])
     ]
-    for e in out["infeasible_stated"]:
+    for e in stated:
         e["reason"] = neutral(e["reason"])
+    # owner ruling 2026-10-29 (mainframe-evidence-policy.md section 7): an 'undefined by IBM' entry (family U) is never
+    # listed as infeasible; it has its own list, added only when the case has one (exact-equality tests elsewhere)
+    out["infeasible_stated"] = [e for e in stated if not io.is_undefined(e)]
+    if len(out["infeasible_stated"]) != len(stated):
+        out["undefined_by_ibm_stated"] = [e for e in stated if io.is_undefined(e)]
     row = swept.get(case["case"], {})
     line = pb.coverage_of(row.get("coverage", ""))
     uncovered = row.get("uncovered") if line else None
@@ -559,6 +566,35 @@ def backing(commands: list[str], crucible: dict[str, list[str]], disagree: dict[
     return out
 
 
+def event_spec_key(event: str) -> str | None:
+    """#5229: the spec key of a stub event verb (`WRITEQ-TS` is `WRITEQ TS`), or None when the spec has no entry of that
+    name (the MQI calls, which are no EXEC CICS command)."""
+    key = event.replace("-", " ")
+    return key if key in css.spec() else None
+
+
+def reach_of(case: dict[str, Any] | None) -> dict[str, Any] | str:
+    """#5229: the register entries a program reaches, MEASURED: the entries of the commands the COBOL run executed on
+    the chosen case's recorded scenarios (the record's `commands`, the oracle side). Measured only for the program's own
+    case (a LINKed program's events are its main program's) whose record carries commands, and only when every recorded
+    verb maps to a spec entry: otherwise "not measured". It is per command entry, not per option: an entry's registers
+    are all counted once one of its commands ran."""
+    rec = case["record"] if case and case["role"] == "program" else None
+    ran = (rec or {}).get("commands_run")
+    if not ran:
+        return "not measured"
+    keys = [event_spec_key(e) for e in ran]
+    if None in keys:
+        return "not measured"
+    spec = css.spec()
+    regs = {r for k in keys if k for r in css.registers(spec[k])}
+    return {
+        "registers": sorted(regs, key=lambda x: int(x[1:])),
+        "commands_run": sorted(k for k in keys if k),
+        "case": case["case"] if case else None,
+    }
+
+
 def _pct(score: float | None, current: bool | None) -> str:
     """A 0-1 score as a percent ('—' unmeasured; '(stale)' when its entry's inputs moved)."""
     return "—" if score is None else f"{100 * score:.0f}%" + ("" if current else " (stale)")
@@ -610,7 +646,7 @@ def mutation_of(case: dict[str, Any] | None, program: str, cache: dict[str, Any]
             "score": s["score"] if s else None,
             "current": bool(s and s["current"]),
             "l5": bool(s and s["l5"]),
-            **({k: s[k] for k in ("killed", "survived", "accounted", "unaccounted", "stale_inputs")} if s else {}),
+            **({k: s[k] for k in ("killed", "survived", "accounted", "unaccounted", "chosen", "mutants", "stale_inputs")} if s else {}),
             **({"drifted": s["drifted"]} if s and s.get("drifted") else {}),
         }
     return cache[key]
@@ -809,8 +845,14 @@ def build_program(m: dict[str, Any], estate: str, ctx: dict[str, Any]) -> dict[s
     # hand ports only, so it is deliberately left out here (it says nothing about the det port).
     regs = sorted({x for b in p["oracle_backing"] for x in b["registers"]}, key=lambda x: int(x[1:]))
     region = bool(chosen and ev._case_json(chosen["case"]).get("region", {}).get("applid"))
-    unstated = [f"EIB field {e} (both runtimes read zero; z/OS does not)" for e in facts.get("eib", [])]
-    unstated += [f"ASSIGN {f} (no equivalence case states it)" for f in facts.get("assign_task", [])]
+    # #5126: a fact the chosen case states is not unstated (proof_blockers' rule, shared); with no case all are
+    left = (
+        pb.unstated_facts(facts, pb.Run("equivalence", chosen["case"], **pb.case_states(ev._case_json(chosen["case"]))))
+        if chosen
+        else {"eib": facts.get("eib", []), "assign_task": facts.get("assign_task", [])}
+    )
+    unstated = [f"EIB field {e} (both runtimes read zero; z/OS does not)" for e in left["eib"]]
+    unstated += [f"ASSIGN {f} (no equivalence case states it)" for f in left["assign_task"]]
     if facts.get("assign_region") and not region:
         unstated.append("ASSIGN " + "/".join(facts["assign_region"]) + " (the case states no region)")
     chosen_case = ev._case_json(chosen["case"]) if chosen else None
@@ -832,7 +874,7 @@ def build_program(m: dict[str, Any], estate: str, ctx: dict[str, Any]) -> dict[s
         ],
         "facts_stated": sorted({f for b in p["oracle_backing"] for f in b["facts_stated"]}),
         "facts_unstated": unstated,
-        "reach": "not measured",
+        "reach": reach_of(chosen),
         "source_read": m.get("source_read", False),
     }
     risky = [a["id"] for a in p["assumptions"]["named_by_commands"] if re.search(r"ASSUMED|DIFFERS", a["status"])]
@@ -1326,7 +1368,7 @@ def preface(rep: dict[str, Any]) -> list[str]:
         (
             "**What is not measured.** Holes, unrun paragraphs and branch outcomes, unstated runtime facts and the "
             "ASSUMED / DIFFERS entries a program's commands name are listed per program. Which register entries a "
-            "program actually reaches is not measured. These migration dimensions are not measured at all:"
+            "program actually reaches is measured only where its evidence record carries the commands its scenarios executed. These migration dimensions are not measured at all:"
         ),
         "",
     ]
@@ -1451,7 +1493,7 @@ def render(rep: dict[str, Any]) -> str:
         "",
         (
             "From the spec entries of the commands the programs use, with the register's status. Which of them a "
-            "program's scenarios reach is not measured."
+            "program's scenarios reach is stated per program where its evidence record measured it."
         ),
         "",
         "| id | area | status | entry |",
@@ -1588,15 +1630,24 @@ def program_section(p: dict[str, Any]) -> list[str]:
             "- **Oracle backing:** no EXEC CICS command" + ("" if a["source_read"] else " found (source not read)")
         )
     named = ", ".join(f"{x['id']} ({x['status']})" for x in a["named_by_commands"]) or "none"
-    out.append(f"- **Assumptions relied on:** named by its commands' spec entries: {named}; reach: {a['reach']}")
+    reach = a["reach"]
+    if isinstance(reach, dict):  # #5229: measured from the case's recorded scenarios
+        shown = ", ".join(reach["registers"]) or "none"
+        reach = f"{shown} (entries of the commands case {reach['case']} executed: {', '.join(reach['commands_run'])})"
+    out.append(f"- **Assumptions relied on:** named by its commands' spec entries: {named}; reach: {reach}")
     out.append(f"  - {zos_line(a['named_by_commands'])}")
     if a["facts_stated"]:
         out.append("  - runtime facts the harness states for its commands: " + ", ".join(a["facts_stated"]))
     out += [f"  - runtime fact no harness states: {f}" for f in a["facts_unstated"]]
     out += [
-        f"  - {'undefined by IBM outcome (owner ruling)' if e['family'] == 'U' else 'stated infeasible branch outcome (reviewed claim, family ' + e['family'] + ')'}: "
+        f"  - stated infeasible branch outcome (reviewed claim, family {e['family']}): "
         f"{e['key']} ({e['kind']}) -- {e['reason']}"
         for e in cov["infeasible_stated"]
+    ]
+    out += [
+        f"  - undefined by IBM outcome (owner ruling 2026-10-29; not proven, not infeasible): "
+        f"{e['key']} ({e['kind']}) -- {e['reason']}"
+        for e in cov.get("undefined_by_ibm_stated") or []
     ]
     out.append(f"- **Det-port mutation:** {p['mutation']['det_port']}")
     risk = [
@@ -1616,7 +1667,7 @@ def program_section(p: dict[str, Any]) -> list[str]:
     out.append(
         "- **Residual risk:** "
         + ("; ".join(x for x in risk if x) or "none listed beyond the estate-wide items")
-        + "; assumption reach and the migration dimensions above: not measured"
+        + "; assumption reach (where not stated above) and the migration dimensions above: not measured"
     )
     out.append("")
     return out

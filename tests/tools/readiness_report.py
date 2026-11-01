@@ -16,11 +16,14 @@ Sources (nothing is re-measured here):
                          sweep, a callee with holes), ranked by proof_blockers.rank() -- derived from the report, not a
                          proof_blockers run (that needs a survey and the corpora). The L5 mutant entry is left out
   era                    tests/fixtures/feature_inventory/<estate>.json `eras` (era_tags.py, #5117)
+  fix the source first   (#5866) ladder_exclusions.py: a program held at L0 because its source is one IBM's compiler
+                         rejects is named with the IBM citation, apart from the translator rules to land (it is
+                         not read from the report's `source_defects`: a published report may predate the entry)
   missing inputs         estate_intake.py (#4709): assumed options and missing copybooks
   oracle caveats         the register entries each program relies on: those it reaches when its evidence report
                          measured that (`assumptions.reach.registers`), else those its commands name (an upper bound,
-                         counted per row in `named_only`; the report does not yet measure reach,
-                         definition_of_done.md section 3)
+                         counted per row in `named_only`; reach is measured by evidence_report.reach_of() from the
+                         commands the COBOL run executed, definition_of_done.md section 3)
   blocker twins          (#5054) with --blockers DIR the same run also writes, per estate, DIR/<estate>/
                          blocker_report.full.* and the anonymized blocker_report.anon.* (blocker_report.py) from the
                          programs' gap classes (a whole program: its proof classes; any other: its translation gaps)
@@ -45,6 +48,7 @@ from typing import Any
 TOOLS = Path(__file__).resolve().parent
 REPO = TOOLS.parents[1]
 sys.path.insert(0, str(TOOLS))
+import ladder_exclusions  # noqa: E402
 
 INVENTORY = TOOLS.parent / "fixtures" / "feature_inventory"
 OPTIONS = TOOLS.parent / "equivalence" / "estate_options"
@@ -231,6 +235,18 @@ def caveats(programs: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return sorted(seen.values(), key=lambda r: (-r["programs"], r["id"]))
 
 
+def source_first(estate: str, programs: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """#5866: the programs to fix at the source before any port: held at L0 by a `source_defect` entry, with the IBM
+    reason, the issue and the translator's own first hole. An entry whose program left L0 is not listed (stale)."""
+    rows = []
+    for p in sorted(programs, key=lambda q: q["program"]):
+        e = ladder_exclusions.lookup(estate, p["program"])
+        if e is None or e["kind"] != "source_defect" or p["level"] != "L0" or p["translation"]["whole"]:
+            continue
+        rows.append({"program": p["program"], "reason": e["reason"], "issue": e["issue"]})
+    return rows
+
+
 def missing_inputs(estate: str, report: dict[str, Any]) -> dict[str, Any]:
     import estate_intake
 
@@ -262,6 +278,9 @@ def build_estate(estate: str, report: dict[str, Any], inventory: dict[str, Any],
         "oracle_caveats": caveats(programs),
         "charter": {"bars": report["bars"], "levels": report["levels"]},
     }
+    held = source_first(estate, programs)
+    if held:  # added only when non-empty
+        out["fix_source_first"] = held
     if not eras:
         out["eras_note"] = "the inventory predates era tags"
     return out
@@ -311,6 +330,9 @@ def delta(old: dict[str, Any], new: dict[str, Any]) -> dict[str, Any]:
             if was != (i, g["only"]):
                 proofs[g["gap"]] = {"rank": [was[0] if was else None, i], "only": [was[1] if was else None, g["only"]]}
         out[name] = {"ladder": lad, "rules": rules, "no_longer_ranked": gone, "proofs": proofs}
+        held = (len(prev.get("fix_source_first") or []), len(cur.get("fix_source_first") or []))
+        if held[0] != held[1]:
+            out[name]["fix_source_first"] = list(held)
     return out
 
 
@@ -348,6 +370,15 @@ def render_estate(m: dict[str, Any], d: dict[str, Any] | None = None) -> list[st
     out.append(
         ", ".join(f"era {e}: {c}" for e, c in m["eras"].items()) + (f" ({m['eras_note']})" if "eras_note" in m else "")
     )
+    if m.get("fix_source_first"):
+        out += [
+            "",
+            "### Fix the source first",
+            "",
+            "Held at L0 by the source, not by a translator gap: IBM's compiler rejects it, so no port is honest until the",
+            "source is corrected. Not counted among the rules to land below.",
+            "",
+        ] + [f"- {h['program']}: {h['reason']} ({h['issue']})" for h in m["fix_source_first"]]
     r = m["rules_to_land"]
     out += [
         "",
@@ -410,6 +441,8 @@ def render_estate(m: dict[str, Any], d: dict[str, Any] | None = None) -> list[st
             out += [f"- rule `{g[:80]}`: rank {v['rank'][0]} -> {v['rank'][1]}, alone {v['only'][0]} -> {v['only'][1]}"
                     for g, v in d["rules"].items()]  # fmt: skip
             out += [f"- rule `{g[:80]}` is no longer ranked" for g in d["no_longer_ranked"]]
+            if "fix_source_first" in d:
+                out.append("- programs to fix at the source: {} -> {}".format(*d["fix_source_first"]))
             out += [
                 f"- proof gap `{g[:80]}`: rank {v['rank'][0]} -> {v['rank'][1]}, alone {v['only'][0]} -> {v['only'][1]}"
                 for g, v in d.get("proofs", {}).items()

@@ -13,7 +13,12 @@ from typing import Any
 from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: compiled on first use
 from gitgalaxy.standards.language_standards.identifiers import CAPITAL, ID_CONTINUE, ID_START
 
-from .._shared_patterns import CALLS_OUT_C_STYLE_NO_ANNOTATION, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import (
+    CALLS_OUT_C_STYLE_NO_ANNOTATION,
+    GLOBAL_FRAGILE_DEBT,
+    GLOBAL_PLANNED_DEBT,
+    commented_keyword_statement,
+)
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -219,8 +224,17 @@ DEFINITION: dict[str, Any] = {
             re.M,
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails) Commented out structural code or logic trails.
+        # #7207: a statement's shape (`;{}`, `(...)`, an assignment, `val x: Type`, `def f: Type`, a bare
+        # `class|object|trait Name [extends ...]`, `println "..."`, a dotted `import a.b._`), not just the keyword.
         "dead_code": re.compile(
-            r"//[ \t]*(?:def|val|var|class|object|trait|if|match|println|import)\b|/\*[ \t]*(?:def|val|class|object)"
+            commented_keyword_statement(
+                "def|val|var|class|object|trait|if|match|println|import",
+                extra=r"(?:(?<=val)|(?<=var))[ \t]+\w+[ \t]*:[ \t]*[A-Z][\w\[\], .]{0,100}[ \t]*(?m:$)"
+                r"|(?<=def)[ \t]+\w+[ \t]*(?:\[[^\n\]]{0,100}\])?[ \t]*:[ \t]*[A-Z][\w\[\], .]{0,100}[ \t]*(?m:$)"
+                r"|(?:(?<=class)|(?<=object)|(?<=trait))[ \t]+[A-Z]\w*(?:[ \t]+(?:extends|with)\b[^\n]{0,200})?[ \t]*(?m:$)"
+                r'|(?<=println)[ \t]+"'
+                r"|(?<=import)[ \t]+\w+(?:\.[\w_{}, ]+)+[ \t]*(?m:$)",
+            )
         ),
         # 13. doc: Structured Documentation. Scaladoc documentation (/**) and annotations.
         # BUG FIX #2672: pair `/**` with its closing `*/` into one bounded

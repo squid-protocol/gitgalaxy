@@ -1,0 +1,509 @@
+{
+ "format": "det-mutation-survivors/1",
+ "issue": "#4628",
+ "about": "#4628: each surviving det-port mutant stated `equivalent` or `unreachable`, with the Java change and why it cannot alter observable behaviour; proposed in a PR, reviewed by the owner. A run that kills a stated mutant fails (the claim was wrong). Ids are mutation.py's; before / after are the Java line.",
+ "verdicts": {
+  "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
+  "unreachable": "no input of the program reaches the changed code",
+  "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
+  "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
+ },
+ "case": "carddemo-cbstm03a",
+ "survivors": [
+  {
+   "id": "4259efb85d",
+   "op": "LIT",
+   "line": 79,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of WS_M03B_AREA: space padding in WS-M03B-FLDT deep in the initial 1040-byte linkage area; before every call to CBSTM03B and before any read, relevant fields are explicitly overwritten, rendering initial buffer space modifications completely unobservable"
+  },
+  {
+   "id": "5f6341a16f",
+   "op": "CON",
+   "line": 84,
+   "before": "private final Field f10_FD_CUST_ID = Field.alphanumeric(s_FD_CUSTFILE_REC, 0, 9, false);",
+   "after": "private final Field f10_FD_CUST_ID = Field.alphanumeric(s_FD_CUSTFILE_REC, 0, 10, false);",
+   "verdict": "equivalent",
+   "reason": "f10_FD_CUST_ID length 9 -> 10 in CBSTM03B; moving 9-byte key pads byte 9 with space, but CUST_FILE.readKey(0, 9) only compares bytes 0..8, and on success the entire 500-byte record overwrites s_FD_CUSTFILE_REC"
+  },
+  {
+   "id": "40d9316be1",
+   "op": "LIT",
+   "line": 89,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of WS_M03B_AREA: space padding in WS-M03B-FLDT deep in the initial 1040-byte linkage area; before every call to CBSTM03B and before any read, relevant fields are explicitly overwritten, rendering initial buffer space modifications completely unobservable"
+  },
+  {
+   "id": "b6c840c2b9",
+   "op": "LIT",
+   "line": 93,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of WS_M03B_AREA: space padding in WS-M03B-FLDT deep in the initial 1040-byte linkage area; before every call to CBSTM03B and before any read, relevant fields are explicitly overwritten, rendering initial buffer space modifications completely unobservable"
+  },
+  {
+   "id": "073664bc44",
+   "op": "DEL",
+   "line": 125,
+   "before": "return;",
+   "after": "/* return; */",
+   "verdict": "unreachable",
+   "reason": "in in_Cbstm03bLkM03bArea, if (d == null) return; CBSTM03A always passes a non-null DTO instance, so d is never null"
+  },
+  {
+   "id": "e7c499b515",
+   "op": "ROR",
+   "line": 129,
+   "before": "Cobol.move(d.getLkM03BRc() == null ? \"\" : d.getLkM03BRc(), Field.alphanumeric(s, base + 9, 2, false), CS);",
+   "after": "Cobol.move(d.getLkM03BRc() != null ? \"\" : d.getLkM03BRc(), Field.alphanumeric(s, base + 9, 2, false), CS);",
+   "verdict": "equivalent",
+   "reason": "in in_Cbstm03bLkM03bArea, reversing null check on d.getLkM03BRc(); LK-M03B-RC is an output parameter overwritten by CBSTM03B before returning, and never read inside CBSTM03B"
+  },
+  {
+   "id": "03312279f9",
+   "op": "LIT",
+   "line": 143,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of WS_M03B_AREA: space padding in WS-M03B-FLDT deep in the initial 1040-byte linkage area; before every call to CBSTM03B and before any read, relevant fields are explicitly overwritten, rendering initial buffer space modifications completely unobservable"
+  },
+  {
+   "id": "f9c63d1454",
+   "op": "DEL",
+   "line": 186,
+   "before": "System.arraycopy(IMAGE_s_XREFFILE_STATUS, 0, s_XREFFILE_STATUS.bytes, 0, IMAGE_s_XREFFILE_STATUS.length);",
+   "after": "/* System.arraycopy(IMAGE_s_XREFFILE_STATUS, 0, s_XREFFILE_STATUS.bytes, 0, IMAGE_s_XREFFILE_STATUS.length); */",
+   "verdict": "unreachable",
+   "reason": "System.arraycopy(IMAGE_s_XREFFILE_STATUS, ...) in initialState(); CBSTM03B is a batch subprogram whose entry point handleCall never calls initialState()"
+  },
+  {
+   "id": "66c54aef44",
+   "op": "LIT",
+   "line": 206,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of WS_M03B_AREA: space padding in WS-M03B-FLDT deep in the initial 1040-byte linkage area; before every call to CBSTM03B and before any read, relevant fields are explicitly overwritten, rendering initial buffer space modifications completely unobservable"
+  },
+  {
+   "id": "225b51370d",
+   "op": "DEL",
+   "line": 265,
+   "before": "System.arraycopy(parmText, 0, s_LK_M03B_AREA.bytes, 2, Math.min(parmText.length, s_LK_M03B_AREA.bytes.length - 2));",
+   "after": "/* System.arraycopy(parmText, 0, s_LK_M03B_AREA.bytes, 2, Math.min(parmText.length, s_LK_M03B_AREA.bytes.length - 2)); */",
+   "verdict": "unreachable",
+   "reason": "System.arraycopy(parmText, ...) in runBatch; CBSTM03B is a subprogram, not the batch job entry point (CBSTM03A is), so runBatch is never called"
+  },
+  {
+   "id": "ebff207ec8",
+   "op": "AOR",
+   "line": 265,
+   "before": "System.arraycopy(parmText, 0, s_LK_M03B_AREA.bytes, 2, Math.min(parmText.length, s_LK_M03B_AREA.bytes.length - 2));",
+   "after": "System.arraycopy(parmText, 0, s_LK_M03B_AREA.bytes, 2, Math.min(parmText.length, s_LK_M03B_AREA.bytes.length + 2));",
+   "verdict": "unreachable",
+   "reason": "bytes.length - 2 -> + 2 in runBatch; CBSTM03B is a subprogram, not the batch job entry point, so runBatch is never called"
+  },
+  {
+   "id": "fa21dd36d2",
+   "op": "LIT",
+   "line": 293,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of WS_M03B_AREA: space padding in WS-M03B-FLDT deep in the initial 1040-byte linkage area; before every call to CBSTM03B and before any read, relevant fields are explicitly overwritten, rendering initial buffer space modifications completely unobservable"
+  },
+  {
+   "id": "f5828c8d21",
+   "op": "LIT",
+   "line": 310,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of WS_M03B_AREA: space padding in WS-M03B-FLDT deep in the initial 1040-byte linkage area; before every call to CBSTM03B and before any read, relevant fields are explicitly overwritten, rendering initial buffer space modifications completely unobservable"
+  },
+  {
+   "id": "5d3ec98ceb",
+   "op": "ROR",
+   "line": 316,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d > 0; d--) {",
+   "verdict": "unreachable",
+   "reason": "d >= 0 -> d > 0 in perform loop checking performThru[d] == i; in CBSTM03B, performThru[0] is 13, and inner perform targets never match 13 without hitting i == thru first, so PerformExit is never thrown"
+  },
+  {
+   "id": "1583412787",
+   "op": "CON",
+   "line": 322,
+   "before": "if (next >= 14) {",
+   "after": "if (next >= 15) {",
+   "verdict": "unreachable",
+   "reason": "if (next >= 14) -> 15 in perform; all paragraphs in CBSTM03B either throw Goback or exit via i == thru, so next >= 14 is never evaluated"
+  },
+  {
+   "id": "9168e7253d",
+   "op": "LIT",
+   "line": 351,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of WS_M03B_AREA: space padding in WS-M03B-FLDT deep in the initial 1040-byte linkage area; before every call to CBSTM03B and before any read, relevant fields are explicitly overwritten, rendering initial buffer space modifications completely unobservable"
+  },
+  {
+   "id": "4cc762ca1d",
+   "op": "LIT",
+   "line": 400,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of WS_M03B_AREA: space padding in WS-M03B-FLDT deep in the initial 1040-byte linkage area; before every call to CBSTM03B and before any read, relevant fields are explicitly overwritten, rendering initial buffer space modifications completely unobservable"
+  },
+  {
+   "id": "90c31daa38",
+   "op": "LIT",
+   "line": 416,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of WS_M03B_AREA: space padding in WS-M03B-FLDT deep in the initial 1040-byte linkage area; before every call to CBSTM03B and before any read, relevant fields are explicitly overwritten, rendering initial buffer space modifications completely unobservable"
+  },
+  {
+   "id": "032d4d5355",
+   "op": "LIT",
+   "line": 418,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of WS_M03B_AREA: space padding in WS-M03B-FLDT deep in the initial 1040-byte linkage area; before every call to CBSTM03B and before any read, relevant fields are explicitly overwritten, rendering initial buffer space modifications completely unobservable"
+  },
+  {
+   "id": "ccabb7b72f",
+   "op": "LIT",
+   "line": 437,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of WS_M03B_AREA: space padding in WS-M03B-FLDT deep in the initial 1040-byte linkage area; before every call to CBSTM03B and before any read, relevant fields are explicitly overwritten, rendering initial buffer space modifications completely unobservable"
+  },
+  {
+   "id": "d0a1b7fe2d",
+   "op": "NEG",
+   "line": 449,
+   "before": "if (true) return GOTO | 6;",
+   "after": "if (!(true)) return GOTO | 6;",
+   "verdict": "equivalent",
+   "reason": "in p5 (2000-XREFFILE-PROC), if (true) return GOTO | 6; when isM03bOpen() is true, all subsequent if conditions are false, so falling through executes return 6, reaching the identical paragraph 6 (2900-EXIT)"
+  },
+  {
+   "id": "16adfae76c",
+   "op": "NEG",
+   "line": 496,
+   "before": "if (true) return GOTO | 9;",
+   "after": "if (!(true)) return GOTO | 9;",
+   "verdict": "equivalent",
+   "reason": "in p8 (3000-CUSTFILE-PROC), if (true) return GOTO | 9; when isM03bOpen() is true, falling through false conditions executes return 9 (3900-EXIT) directly, reaching the identical exit paragraph"
+  },
+  {
+   "id": "5d2ff46ea6",
+   "op": "LIT",
+   "line": 521,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of WS_M03B_AREA: space padding in WS-M03B-FLDT deep in the initial 1040-byte linkage area; before every call to CBSTM03B and before any read, relevant fields are explicitly overwritten, rendering initial buffer space modifications completely unobservable"
+  },
+  {
+   "id": "1239143193",
+   "op": "LIT",
+   "line": 560,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of WS_M03B_AREA: space padding in WS-M03B-FLDT deep in the initial 1040-byte linkage area; before every call to CBSTM03B and before any read, relevant fields are explicitly overwritten, rendering initial buffer space modifications completely unobservable"
+  },
+  {
+   "id": "c006f37ebf",
+   "op": "LIT",
+   "line": 571,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of WS_M03B_AREA: space padding in WS-M03B-FLDT deep in the initial 1040-byte linkage area; before every call to CBSTM03B and before any read, relevant fields are explicitly overwritten, rendering initial buffer space modifications completely unobservable"
+  },
+  {
+   "id": "ae8e253534",
+   "op": "CON",
+   "line": 795,
+   "before": "Cobol.move(d.getLkM03BKey() == null ? \"\" : d.getLkM03BKey(), Field.alphanumeric(s, base + 11, 25, false), CS);",
+   "after": "Cobol.move(d.getLkM03BKey() == null ? \"\" : d.getLkM03BKey(), Field.alphanumeric(s, base + 12, 25, false), CS);",
+   "verdict": "equivalent",
+   "reason": "in in_Cbstm03bLkM03bArea, shifting offset base + 11 to base + 12 when copying back returned key; CBSTM03A never reads WS-M03B-KEY after calling CBSTM03B (only RC and FLDT), so modifying the write offset into unread storage has zero observable effect"
+  },
+  {
+   "id": "117350368f",
+   "op": "LIT",
+   "line": 1042,
+   "before": "String st1 = STMT_FILE.open(\"OUTPUT\");",
+   "after": "String st1 = STMT_FILE.open(\"XUTPUT\");",
+   "verdict": "equivalent",
+   "reason": "STMT_FILE.open(\"OUTPUT\") vs \"XUTPUT\": DetFiles.Sequential.open treats mode as input if INPUT or I-O and append if EXTEND; any other value opens a new output stream via Files.newOutputStream(p), so both produce the exact same file stream, and the returned status is not checked"
+  },
+  {
+   "id": "89dbca22c2",
+   "op": "DEL",
+   "line": 1047,
+   "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f152_WS_TRNX_TABLE.storage(), f152_WS_TRNX_TABLE.offset() + 32, 318, false), CS);",
+   "after": "/* Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f152_WS_TRNX_TABLE.storage(), f152_WS_TRNX_TABLE.offset() + 32, 318, false), CS); */",
+   "verdict": "equivalent",
+   "reason": "in 0000-START, moving SPACES into s_WS_TRNX_TABLE; the entire 171,156-byte storage of s_WS_TRNX_TABLE is already initialized with spaces (0x20) from IMAGE_s_WS_TRNX_TABLE at program startup, making individual space stores redundant"
+  },
+  {
+   "id": "5b6b535cf9",
+   "op": "DEL",
+   "line": 1074,
+   "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f152_WS_TRNX_TABLE.storage(), f152_WS_TRNX_TABLE.offset() + 30236, 318, false), CS);",
+   "after": "/* Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f152_WS_TRNX_TABLE.storage(), f152_WS_TRNX_TABLE.offset() + 30236, 318, false), CS); */",
+   "verdict": "equivalent",
+   "reason": "in 0000-START, moving SPACES into s_WS_TRNX_TABLE; the entire 171,156-byte storage of s_WS_TRNX_TABLE is already initialized with spaces (0x20) from IMAGE_s_WS_TRNX_TABLE at program startup, making individual space stores redundant"
+  },
+  {
+   "id": "98b4627bb9",
+   "op": "DEL",
+   "line": 1102,
+   "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f152_WS_TRNX_TABLE.storage(), f152_WS_TRNX_TABLE.offset() + 63764, 16, false), CS);",
+   "after": "/* Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f152_WS_TRNX_TABLE.storage(), f152_WS_TRNX_TABLE.offset() + 63764, 16, false), CS); */",
+   "verdict": "equivalent",
+   "reason": "in 0000-START, moving SPACES into s_WS_TRNX_TABLE; the entire 171,156-byte storage of s_WS_TRNX_TABLE is already initialized with spaces (0x20) from IMAGE_s_WS_TRNX_TABLE at program startup, making individual space stores redundant"
+  },
+  {
+   "id": "e1888fbcbb",
+   "op": "CON",
+   "line": 1113,
+   "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f152_WS_TRNX_TABLE.storage(), f152_WS_TRNX_TABLE.offset() + 73864, 318, false), CS);",
+   "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f152_WS_TRNX_TABLE.storage(), f152_WS_TRNX_TABLE.offset() + 73865, 318, false), CS);",
+   "verdict": "equivalent",
+   "reason": "in 0000-START, moving SPACES into s_WS_TRNX_TABLE starting at offset + 73865 vs + 73864; the entire 171,156-byte storage of s_WS_TRNX_TABLE is already initialized with spaces (0x20) from IMAGE_s_WS_TRNX_TABLE, writing spaces to offset 73865 writes 0x20 to bytes that already contain 0x20"
+  },
+  {
+   "id": "0c6cd6a012",
+   "op": "DEL",
+   "line": 1141,
+   "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f152_WS_TRNX_TABLE.storage(), f152_WS_TRNX_TABLE.offset() + 107392, 16, false), CS);",
+   "after": "/* Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f152_WS_TRNX_TABLE.storage(), f152_WS_TRNX_TABLE.offset() + 107392, 16, false), CS); */",
+   "verdict": "equivalent",
+   "reason": "in 0000-START, moving SPACES into s_WS_TRNX_TABLE; the entire 171,156-byte storage of s_WS_TRNX_TABLE is already initialized with spaces (0x20) from IMAGE_s_WS_TRNX_TABLE at program startup, making individual space stores redundant"
+  },
+  {
+   "id": "cfb6a4842f",
+   "op": "CON",
+   "line": 1146,
+   "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f152_WS_TRNX_TABLE.storage(), f152_WS_TRNX_TABLE.offset() + 110780, 318, false), CS);",
+   "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f152_WS_TRNX_TABLE.storage(), f152_WS_TRNX_TABLE.offset() + 110781, 318, false), CS);",
+   "verdict": "equivalent",
+   "reason": "in 0000-START, moving SPACES into s_WS_TRNX_TABLE starting at offset + 110781 vs + 110780; the entire 171,156-byte storage of s_WS_TRNX_TABLE is already initialized with spaces (0x20) from IMAGE_s_WS_TRNX_TABLE, writing spaces to offset 110781 writes 0x20 to bytes that already contain 0x20"
+  },
+  {
+   "id": "385ff5f465",
+   "op": "CON",
+   "line": 1154,
+   "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f152_WS_TRNX_TABLE.storage(), f152_WS_TRNX_TABLE.offset() + 120832, 16, false), CS);",
+   "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f152_WS_TRNX_TABLE.storage(), f152_WS_TRNX_TABLE.offset() + 120832, 17, false), CS);",
+   "verdict": "equivalent",
+   "reason": "in 0000-START, moving SPACES into s_WS_TRNX_TABLE with length 17 vs 16; the 17th byte is within s_WS_TRNX_TABLE and already initialized with spaces (0x20), so writing 17 spaces produces the identical byte contents"
+  },
+  {
+   "id": "dbcc089de1",
+   "op": "CON",
+   "line": 1178,
+   "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f152_WS_TRNX_TABLE.storage(), f152_WS_TRNX_TABLE.offset() + 147680, 16, false), CS);",
+   "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f152_WS_TRNX_TABLE.storage(), f152_WS_TRNX_TABLE.offset() + 147681, 16, false), CS);",
+   "verdict": "equivalent",
+   "reason": "in 0000-START, moving SPACES into s_WS_TRNX_TABLE starting at offset + 147681 vs + 147680; the entire 171,156-byte storage of s_WS_TRNX_TABLE is already initialized with spaces (0x20) from IMAGE_s_WS_TRNX_TABLE, writing spaces to offset 147681 writes 0x20 to bytes that already contain 0x20"
+  },
+  {
+   "id": "4ed39a6c47",
+   "op": "CON",
+   "line": 1199,
+   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.binary(f158_WS_TRN_TBL_CNTR.storage(), f158_WS_TRN_TBL_CNTR.offset() + 2, 4, 0, true, false), CS);",
+   "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.binary(f158_WS_TRN_TBL_CNTR.storage(), f158_WS_TRN_TBL_CNTR.offset() + 2, 5, 0, true, false), CS);",
+   "verdict": "equivalent",
+   "reason": "binary field digits 4 -> 5 when storing ZEROS into s_WS_TRN_TBL_CNTR; moving ZEROS into a 2-byte binary item writes 0x00 0x00 regardless of whether declared digits is 4 or 5"
+  },
+  {
+   "id": "0c7a3f861b",
+   "op": "CON",
+   "line": 1204,
+   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.binary(f158_WS_TRN_TBL_CNTR.storage(), f158_WS_TRN_TBL_CNTR.offset() + 12, 4, 0, true, false), CS);",
+   "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.binary(f158_WS_TRN_TBL_CNTR.storage(), f158_WS_TRN_TBL_CNTR.offset() + 13, 4, 0, true, false), CS);",
+   "verdict": "equivalent",
+   "reason": "binary field digits 4 -> 5 when storing ZEROS into s_WS_TRN_TBL_CNTR; moving ZEROS into a 2-byte binary item writes 0x00 0x00 regardless of whether declared digits is 4 or 5"
+  },
+  {
+   "id": "80ce6aabdc",
+   "op": "DEL",
+   "line": 1207,
+   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.binary(f158_WS_TRN_TBL_CNTR.storage(), f158_WS_TRN_TBL_CNTR.offset() + 18, 4, 0, true, false), CS);",
+   "after": "/* Cobol.moveFigurative(Figurative.ZEROS, Field.binary(f158_WS_TRN_TBL_CNTR.storage(), f158_WS_TRN_TBL_CNTR.offset() + 18, 4, 0, true, false), CS); */",
+   "verdict": "equivalent",
+   "reason": "in 0000-START, moving ZEROS into s_WS_TRN_TBL_CNTR; the entire 102-byte storage of s_WS_TRN_TBL_CNTR is already initialized with binary zeros (0x00) from IMAGE_s_WS_TRN_TBL_CNTR at program startup, making zero initialization redundant"
+  },
+  {
+   "id": "f5343254b7",
+   "op": "DEL",
+   "line": 1216,
+   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.binary(f158_WS_TRN_TBL_CNTR.storage(), f158_WS_TRN_TBL_CNTR.offset() + 36, 4, 0, true, false), CS);",
+   "after": "/* Cobol.moveFigurative(Figurative.ZEROS, Field.binary(f158_WS_TRN_TBL_CNTR.storage(), f158_WS_TRN_TBL_CNTR.offset() + 36, 4, 0, true, false), CS); */",
+   "verdict": "equivalent",
+   "reason": "in 0000-START, moving ZEROS into s_WS_TRN_TBL_CNTR; the entire 102-byte storage of s_WS_TRN_TBL_CNTR is already initialized with binary zeros (0x00) from IMAGE_s_WS_TRN_TBL_CNTR at program startup, making zero initialization redundant"
+  },
+  {
+   "id": "e58cdd7ec2",
+   "op": "CON",
+   "line": 1236,
+   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.binary(f158_WS_TRN_TBL_CNTR.storage(), f158_WS_TRN_TBL_CNTR.offset() + 76, 4, 0, true, false), CS);",
+   "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.binary(f158_WS_TRN_TBL_CNTR.storage(), f158_WS_TRN_TBL_CNTR.offset() + 76, 4, 1, true, false), CS);",
+   "verdict": "equivalent",
+   "reason": "binary field digits 4 -> 5 when storing ZEROS into s_WS_TRN_TBL_CNTR; moving ZEROS into a 2-byte binary item writes 0x00 0x00 regardless of whether declared digits is 4 or 5"
+  },
+  {
+   "id": "5c80409130",
+   "op": "NEG",
+   "line": 1280,
+   "before": "if (true) return GOTO | 3;",
+   "after": "if (!(true)) return GOTO | 3;",
+   "verdict": "unreachable",
+   "reason": "in 0000-START, EVALUATE WS-FL-DD default WHEN OTHER branch; WS-FL-DD is only ever assigned TRNXFILE, XREFFILE, CUSTFILE, ACCTFILE, or READTRNX in the entire program, so WHEN OTHER is never reached"
+  },
+  {
+   "id": "042ba71721",
+   "op": "LIT",
+   "line": 1509,
+   "before": "if (!st21.startsWith(\"0\")) throw new Hole(\"WRITE HTML-FILE: FILE STATUS \" + st21 + \" with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)\");",
+   "after": "if (!st21.startsWith(\"0\")) throw new Hole(\"XRITE HTML-FILE: FILE STATUS \" + st21 + \" with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)\");",
+   "verdict": "unreachable",
+   "reason": "the text of a Hole message for a failed READ/WRITE on a file with no FILE STATUS (#4268): the case reaches no non-zero status there, so the message is never built (a by-name stop whose wording nothing compares)."
+  },
+  {
+   "id": "09bb0e454d",
+   "op": "LIT",
+   "line": 1509,
+   "before": "if (!st21.startsWith(\"0\")) throw new Hole(\"WRITE HTML-FILE: FILE STATUS \" + st21 + \" with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)\");",
+   "after": "if (!st21.startsWith(\"0\")) throw new Hole(\"WRITE HTML-FILE: FILE STATUS \" + st21 + \"Xwith no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)\");",
+   "verdict": "unreachable",
+   "reason": "the text of a Hole message for a failed READ/WRITE on a file with no FILE STATUS (#4268): the case reaches no non-zero status there, so the message is never built (a by-name stop whose wording nothing compares)."
+  },
+  {
+   "id": "0549d6bde9",
+   "op": "CON",
+   "line": 1537,
+   "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f78_STATEMENT_LINES.storage(), f78_STATEMENT_LINES.offset() + 1120, 16, false), CS);",
+   "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f78_STATEMENT_LINES.storage(), f78_STATEMENT_LINES.offset() + 1121, 16, false), CS);",
+   "verdict": "equivalent",
+   "reason": "offset 1120 -> 1121 when moving SPACES into f78_STATEMENT_LINES; offsets 1115..1145 in IMAGE_s_STATEMENT_LINES are already filled with spaces (0x20), and ST-TRANID (offset 1120, len 16) is overwritten with transaction data before output"
+  },
+  {
+   "id": "08e10117bc",
+   "op": "LIT",
+   "line": 1613,
+   "before": "if (!st36.startsWith(\"0\")) throw new Hole(\"WRITE STMT-FILE: FILE STATUS \" + st36 + \" with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)\");",
+   "after": "if (!st36.startsWith(\"0\")) throw new Hole(\"XRITE STMT-FILE: FILE STATUS \" + st36 + \" with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)\");",
+   "verdict": "unreachable",
+   "reason": "the text of a Hole message for a failed READ/WRITE on a file with no FILE STATUS (#4268): the case reaches no non-zero status there, so the message is never built (a by-name stop whose wording nothing compares)."
+  },
+  {
+   "id": "056f94d7b6",
+   "op": "LIT",
+   "line": 1651,
+   "before": "if (!st43.startsWith(\"0\")) throw new Hole(\"WRITE HTML-FILE: FILE STATUS \" + st43 + \" with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)\");",
+   "after": "if (!st43.startsWith(\"0\")) throw new Hole(\"WRITE HTML-FILE: FILE STATUS \" + st43 + \"Xwith no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)\");",
+   "verdict": "unreachable",
+   "reason": "the text of a Hole message for a failed READ/WRITE on a file with no FILE STATUS (#4268): the case reaches no non-zero status there, so the message is never built (a by-name stop whose wording nothing compares)."
+  },
+  {
+   "id": "0539f5313e",
+   "op": "LIT",
+   "line": 1869,
+   "before": "if (!st76.startsWith(\"0\")) throw new Hole(\"WRITE HTML-FILE: FILE STATUS \" + st76 + \" with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)\");",
+   "after": "if (!st76.startsWith(\"0\")) throw new Hole(\"XRITE HTML-FILE: FILE STATUS \" + st76 + \" with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)\");",
+   "verdict": "unreachable",
+   "reason": "the text of a Hole message for a failed READ/WRITE on a file with no FILE STATUS (#4268): the case reaches no non-zero status there, so the message is never built (a by-name stop whose wording nothing compares)."
+  },
+  {
+   "id": "0ae1d51d07",
+   "op": "LIT",
+   "line": 1885,
+   "before": "if (!st78.startsWith(\"0\")) throw new Hole(\"WRITE HTML-FILE: FILE STATUS \" + st78 + \" with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)\");",
+   "after": "if (!st78.startsWith(\"0\")) throw new Hole(\"XRITE HTML-FILE: FILE STATUS \" + st78 + \" with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)\");",
+   "verdict": "unreachable",
+   "reason": "the text of a Hole message for a failed READ/WRITE on a file with no FILE STATUS (#4268): the case reaches no non-zero status there, so the message is never built (a by-name stop whose wording nothing compares)."
+  },
+  {
+   "id": "0bc5decc9a",
+   "op": "LIT",
+   "line": 1899,
+   "before": "if (!st80.startsWith(\"0\")) throw new Hole(\"WRITE HTML-FILE: FILE STATUS \" + st80 + \" with no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)\");",
+   "after": "if (!st80.startsWith(\"0\")) throw new Hole(\"WRITE HTML-FILE: FILE STATUS \" + st80 + \"Xwith no FILE STATUS, handling phrase or declarative: IBM abends (not modelled)\");",
+   "verdict": "unreachable",
+   "reason": "the text of a Hole message for a failed READ/WRITE on a file with no FILE STATUS (#4268): the case reaches no non-zero status there, so the message is never built (a by-name stop whose wording nothing compares)."
+  },
+  {
+   "id": "5576c130fd",
+   "op": "ROR",
+   "line": 2007,
+   "before": "if (alt14 < 0) throw new Hole(\"GO TO with no operand reached before any ALTER\");",
+   "after": "if (alt14 <= 0) throw new Hole(\"GO TO with no operand reached before any ALTER\");",
+   "verdict": "equivalent",
+   "reason": "alt14 < 0 -> alt14 <= 0 in 8100-FILE-OPEN; alt14 is initialized to 15 and only assigned 15, 16, 17, or 18, so both conditions evaluate to false on every execution"
+  },
+  {
+   "id": "81e969859f",
+   "op": "DEL",
+   "line": 2039,
+   "before": "Cobol.moveFigurative(Figurative.SPACES, f77_WS_M03B_FLDT, CS);",
+   "after": "/* Cobol.moveFigurative(Figurative.SPACES, f77_WS_M03B_FLDT, CS); */",
+   "verdict": "equivalent",
+   "reason": "moving SPACES into f77_WS_M03B_FLDT before calling CBSTM03B; on successful read CBSTM03B overwrites the field with the record, and on error the program abends without reading the field"
+  },
+  {
+   "id": "7f2d56c8f0",
+   "op": "NEG",
+   "line": 2099,
+   "before": "if (true) return GOTO | 1;",
+   "after": "if (!(true)) return GOTO | 1;",
+   "verdict": "equivalent",
+   "reason": "in 8200-XREFFILE-OPEN (paragraph 16), GO TO 0000-START jumps to the dispatcher which alters alt14 to 17 and jumps to paragraph 17 (8300-CUSTFILE-OPEN); negating the jump falls through to return 17, which reaches the identical paragraph 17 directly"
+  },
+  {
+   "id": "1c25a02ca0",
+   "op": "CON",
+   "line": 2172,
+   "before": "f61_TR_CNT = Cobol.binary(BigDecimal.valueOf(f61_TR_CNT).add(t120), 4, true, false, CS);",
+   "after": "f61_TR_CNT = Cobol.binary(BigDecimal.valueOf(f61_TR_CNT).add(t120), 5, true, false, CS);",
+   "verdict": "equivalent",
+   "reason": "binary precision 4 -> 5 when adding 1 to TR-CNT; transaction count per card never exceeds 9999, so 4-digit and 5-digit binary representations return the identical numeric value"
+  },
+  {
+   "id": "4f7b0337bb",
+   "op": "DEL",
+   "line": 2324,
+   "before": "Cobol.moveFigurative(Figurative.ZEROS, f74_WS_M03B_RC, CS);",
+   "after": "/* Cobol.moveFigurative(Figurative.ZEROS, f74_WS_M03B_RC, CS); */",
+   "verdict": "equivalent",
+   "reason": "moving ZEROS to f74_WS_M03B_RC before CALL 'CBSTM03B' (ACCTFILE CLOSE); LK-M03B-RC is an output parameter written by CBSTM03B and never read by it, so pre-clearing it is unobservable"
+  },
+  {
+   "id": "4606d2551d",
+   "op": "CON",
+   "line": 2342,
+   "before": "return 25;",
+   "after": "return 26;",
+   "verdict": "equivalent",
+   "reason": "return 25 -> 26 in p24 (9400-ACCTFILE-CLOSE); p24 is called via perform(24, 24), which exits immediately upon i == thru without inspecting the returned next-paragraph value"
+  }
+ ]
+}

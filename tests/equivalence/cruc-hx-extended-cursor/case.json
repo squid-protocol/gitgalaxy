@@ -1,0 +1,90 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "HXEXT",
+  "program_source": "cases/hex-attributes/hx-extended-cursor/src/HXEXT.cbl",
+  "copy_dirs": [
+    "cases/hex-attributes/hx-extended-cursor/copy"
+  ],
+  "transid": "HX02",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": {
+    "segments": [
+      {
+        "copybook": "cases/hex-attributes/hx-extended-cursor/src/HXEXT.cbl",
+        "record": "WS-CA"
+      }
+    ]
+  },
+  "screens": {
+    "HXM2": {
+      "copybook": "cases/hex-attributes/hx-extended-cursor/copy/HXSET2.cpy",
+      "input": "HXM2I",
+      "output": "HXM2O"
+    }
+  },
+  "notes": "cics-crucible hex-attributes / hx-extended-cursor (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): extended colour / highlight bytes, a cursor set through a -1 length, a NUM field validated on RECEIVE MAP. Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "first-display",
+      "commarea": null,
+      "terminal": "HX02 A",
+      "why": "EIBCALEN 0: SEND MAP ERASE with the prompt, RETURN TRANSID"
+    },
+    {
+      "name": "bad-account",
+      "commarea": {
+        "WS-CA": "E"
+      },
+      "terminal": "HX02 A",
+      "aid": "DFHENTER",
+      "receive": {
+        "HXM2": {
+          "ACCTI": "AB12",
+          "AMOUNTI": "125"
+        }
+      },
+      "why": "CHECK-INPUT: ACCTL is not 6: the field is re-sent red, blinking, cursor by -1 in its length"
+    },
+    {
+      "name": "non-numeric-6",
+      "commarea": {
+        "WS-CA": "E"
+      },
+      "terminal": "HX02 A",
+      "aid": "DFHENTER",
+      "receive": {
+        "HXM2": {
+          "ACCTI": "AB1234",
+          "AMOUNTI": "125"
+        }
+      },
+      "why": "ACCTL is 6 but ACCTI is not NUMERIC: the second operand of the OR takes the error arm"
+    },
+    {
+      "name": "good-entry",
+      "commarea": {
+        "WS-CA": "E"
+      },
+      "terminal": "HX02 A",
+      "aid": "DFHENTER",
+      "receive": {
+        "HXM2": {
+          "ACCTI": "123456",
+          "AMOUNTI": "0000125"
+        }
+      },
+      "why": "a valid account: the OK message is STRINGed, SEND MAP DATAONLY without CURSOR"
+    },
+    {
+      "name": "pf5-blink",
+      "commarea": {
+        "WS-CA": "E"
+      },
+      "terminal": "HX02 A",
+      "aid": "DFHPF5",
+      "why": "PF5: BLINK-MISTAKE, X'F1' in the attribute byte next to DFHBLINK in the highlight byte"
+    }
+  ]
+}

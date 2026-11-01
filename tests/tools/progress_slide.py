@@ -1,8 +1,9 @@
-"""#5286: the CICS-to-Java "where we stand" slide as one self-contained SVG (light and dark), a generated page.
+"""#5286: the COBOL-to-Java "where we stand" slide as one self-contained SVG (light and dark), a generated page.
 
 Every number comes from the progress report (`progress_report.gather()` -> progress.json), so the slide cannot drift
 from the page; the GitHub parts (milestones, title-search counts, Open World epic states) read "not measured" when the
-issues cache is absent and no token is set -- never a number. The design is the owner-reviewed prototype (two rounds).
+issues cache is absent and no token is set -- never a number. The design is the owner-reviewed prototype (two rounds),
+with its hand-typed runtime rows replaced by the capability ledger: every state there is computed, and the zeros stay.
 
     python tests/tools/progress_slide.py [--out FILE]      # default: stdout
 """
@@ -18,6 +19,8 @@ from typing import Any
 TOOLS = Path(__file__).resolve().parent
 sys.path.insert(0, str(TOOLS))
 sys.path.insert(0, str(TOOLS.parents[1]))
+
+import capability_ledger  # noqa: E402
 
 W = 1280
 PAD = 40
@@ -38,7 +41,7 @@ LEVELS = [
     ("L2", "Runs equal", "same outputs as the oracle"),
     ("L3", "Every paragraph", "tests run every paragraph"),
     ("L4", "Every branch", "tests take every branch"),
-    ("L5", "Mutants caught", "tests catch planted bugs"),
+    ("L5", "Mutants accounted", "every planted bug caught or explained"),
 ]
 ERAS = [
     ("0", "~1969-80", "Macro-level CICS", "ANS 68 COBOL", "DFHxx macros, CSA/TCA"),
@@ -55,6 +58,7 @@ ESTATE_NAMES = {
     "dbb-mortgage-application": "DBB Mortgage",
     "zecs": "zECS",
 }
+TEST_ESTATE_NAMES = {"cics-crucible": "CICS crucible (test)"}
 # Mainframe milestones shown, in story order
 MILESTONES = [10, 13, 15, 20, 24, 18, 27, 28, 19, 29, 30]
 NOT_MEASURED = "not measured"
@@ -128,13 +132,29 @@ def pct(a, b) -> str:
     return f"{100 * a / b:.0f}%" if b else "-"
 
 
+def state_icon(s: Svg, cx: float, cy: float, state: str) -> None:
+    """Each state has its own shape, so none rests on colour alone."""
+    if state == "works":
+        s.add(f'<circle cx="{cx}" cy="{cy}" r="6" class="st-good"/>')
+    elif state == "partial":
+        s.add(f'<circle cx="{cx}" cy="{cy}" r="6" class="st-warn"/>')
+        s.add(f'<path d="M {cx} {cy - 6} A 6 6 0 0 1 {cx} {cy + 6} Z" class="st-warn-fill"/>')
+    elif state == "extract":
+        s.add(f'<circle cx="{cx}" cy="{cy}" r="6" class="st-warn"/>')
+        s.add(f'<circle cx="{cx}" cy="{cy}" r="2.5" class="st-warn-fill"/>')
+    elif state == "refused":
+        s.add(f'<circle cx="{cx}" cy="{cy}" r="6" class="st-none"/>')
+        s.add(f'<line x1="{cx - 4}" y1="{cy + 4}" x2="{cx + 4}" y2="{cy - 4}" class="st-none"/>')
+    else:
+        s.add(f'<circle cx="{cx}" cy="{cy}" r="6" class="st-none"/>')
+
+
 def render(prog: dict[str, Any]) -> str:
     """The slide from a progress report (`progress_report.build()` / progress.json)."""
     lad, comp, eras, iss = prog["ladder"], prog["components"], prog["eras"], prog["issues"]
     measured = bool(iss.get("measured"))
     ms = {m["number"]: m for m in iss.get("milestones", [])}
     ic = iss.get("title_counts")
-    epics = iss.get("epics") or {}
     rules = comp["cobolrt_rules"]
     estates = lad["estates"]
     total = lad["total"]["levels"]
@@ -143,8 +163,10 @@ def render(prog: dict[str, Any]) -> str:
 
     s = Svg()
     y = PAD
+    det = comp["det_mutation"]
+    caps = comp["capabilities"]
     # ---------------------------------------------------------------- header
-    s.text(PAD, y + 24, "CICS to Java: where we stand", cls="t1", size=30, weight=700)
+    s.text(PAD, y + 24, "COBOL to Java: where we stand", cls="t1", size=30, weight=700)
     s.text(
         PAD,
         y + 52,
@@ -177,10 +199,10 @@ def render(prog: dict[str, Any]) -> str:
             "modelled on both runtimes",
         ),
         (
-            f"{comp['mutation']['adjusted_kill_pct']:.1f}%",
-            "",
-            "translator mutants caught",
-            f"{comp['mutation']['killed']} of {comp['mutation']['adjusted_total']}, over {comp['mutation']['ports']} ports",
+            f"{total['L5']} / {n_prog}",
+            pct(total["L5"], n_prog),
+            "programs at L5",
+            f"{det['total']['ready']} more pass, awaiting a refresh",
         ),
     ]
     for i, (big, p, lab, sub) in enumerate(tiles):
@@ -229,9 +251,10 @@ def render(prog: dict[str, Any]) -> str:
     rows = sorted(estates.items(), key=lambda kv: -kv[1]["programs"]) + [
         ("__total__", {"levels": total, "programs": n_prog})
     ]
+    rows += list(lad.get("test_estates", {}).items())  # below the total: never part of it
     for key, e in rows:
         is_total = key == "__total__"
-        nm = "All estates" if is_total else ESTATE_NAMES.get(key, key)
+        nm = "All estates" if is_total else ESTATE_NAMES.get(key) or TEST_ESTATE_NAMES.get(key, key)
         if is_total:
             s.add(f'<line x1="{PAD}" x2="{W - PAD}" y1="{y + 4}" y2="{y + 4}" class="rule"/>')
             y += 8
@@ -261,107 +284,142 @@ def render(prog: dict[str, Any]) -> str:
             )
         s.text(cx0 + 46 * 6 + 60, y + 20, e["programs"], cls="t1", size=14, weight=700, anchor="end")
         y += row_h
+    if lad.get("test_estates"):
+        s.text(
+            PAD,
+            y + 8,
+            "A test estate is written to break the translator, so it stays out of the totals above.",
+            cls="t3",
+            size=12,
+        )
+        y += 18
     y += 30
 
-    # ---------------------------------------------------------------- eras
-    s.text(PAD, y, "By era: the CICS and COBOL generations in the estates", cls="t1", size=20, weight=700)
+    # ---------------------------------------------------------------- L5
+    s.text(PAD, y, "L5: what it rests on", cls="t1", size=20, weight=700)
     s.text(
         PAD,
         y + 22,
-        "Real estates are layered: 1980s programs LINK 1990s ones that call 2010s Db2 code. "
-        f"Era from the code's tells (era_tags.py); {eras.get('none', {}).get('programs', 0)} programs carry no tell.",
+        "L5 has no score bar: every surviving mutant of the sample must be caught or explained, on current inputs. "
+        "Raw score and sample stay beside it.",
         cls="t3",
         size=13,
     )
-    y += 40
-    ew, eh, egap = (W - 2 * PAD - 4 * 14) / 5, 196, 14
-    for i, (num, when, cics, cobol, tells) in enumerate(ERAS):
-        x = PAD + i * (ew + egap)
-        e = eras.get(num, {"programs": 0, "l2_plus": 0, "l4_plus": 0})
-        s.rect(x, y, ew, eh, "card", rx=10)
-        s.text(x + 16, y + 28, f"Era {num}", cls="t1", size=18, weight=700)
-        s.text(x + ew - 16, y + 28, when, cls="t3", size=13, anchor="end")
-        s.text(x + 16, y + 52, cics, cls="t1", size=13.5, weight=600)
-        s.text(x + 16, y + 70, cobol, cls="t2", size=12.5)
-        s.text(x + 16, y + 88, tells, cls="t3", size=12)
-        if e["programs"]:
-            s.text(x + 16, y + 118, f"{e['programs']} programs", cls="t1", size=15, weight=700)
-            for k, (lab, v) in enumerate([("run equal (L2+)", e["l2_plus"]), ("every branch (L4+)", e["l4_plus"])]):
-                yy = y + 134 + k * 30
-                s.rect(x + 16, yy, ew - 32, 8, "track", rx=4)
-                s.rect(
-                    x + 16,
-                    yy,
-                    (ew - 32) * v / e["programs"],
-                    8,
-                    "lv2" if k == 0 else "lv4",
-                    rx=4,
-                    title=f"Era {num}: {v} of {e['programs']} {lab}",
-                )
-                s.text(x + 16, yy + 24, f"{lab}: {v} ({pct(v, e['programs'])})", cls="t2", size=12)
+    y += 44
+    cols = [(PAD + 200, "L5"), (PAD + 250, "Ready"), (PAD + 346, "Not measured")]
+    raw_x, smp_x, claim_x, mbw = PAD + 386, PAD + 640, W - PAD, 130
+    for cx, lab in cols:
+        s.text(cx, y, lab, cls="t3", size=12, weight=600, anchor="end")
+    s.text(PAD, y, "Estate", cls="t3", size=12, weight=600)
+    s.text(raw_x, y, "Raw: caught, of those judged", cls="t3", size=12, weight=600)
+    s.text(smp_x, y, "Sample: judged, of all mutants", cls="t3", size=12, weight=600)
+    s.text(claim_x, y, "Survivor claims", cls="t3", size=12, weight=600, anchor="end")
+    y += 10
+    mrows = sorted(det["estates"].items(), key=lambda kv: -kv[1]["programs"]) + [("__total__", det["total"])]
+    for key, e in mrows:
+        is_total = key == "__total__"
+        if is_total:
+            s.add(f'<line x1="{PAD}" x2="{W - PAD}" y1="{y + 4}" y2="{y + 4}" class="rule"/>')
+            y += 8
+        nm = "All estates" if is_total else ESTATE_NAMES.get(key, key)
+        wt = 700 if is_total else 400
+        s.text(PAD, y + 18, nm, cls="t1", size=14, weight=700 if is_total else 500)
+        for (cx, _), v in zip(cols, (e["l5"], e["ready"], e["programs"] - e["measured"])):
+            s.text(cx, y + 18, v if v else "·", cls="t1" if v else "t3", size=14, weight=wt, anchor="end")
+        if e["measured"]:
+            s.rect(raw_x, y + 8, mbw, 10, "track", rx=4)
+            s.rect(raw_x, y + 8, mbw * (e["raw_pct"] or 0) / 100, 10, "lv5", rx=4, title=f"{nm}: raw {e['raw_pct']}%")
+            s.text(raw_x + mbw + 8, y + 18, f"{e['raw_pct']:.0f}%", cls="t1", size=13, weight=600)
+            s.rect(smp_x, y + 8, mbw, 10, "track", rx=4)
+            if e["mutants"]:
+                sw = mbw * e["sampled"] / e["mutants"]
+                s.rect(smp_x, y + 8, sw, 10, "lv3", rx=4, title=f"{nm}: {e['sampled']} of {e['mutants']} mutants")
+                s.text(smp_x + mbw + 8, y + 18, f"{e['sampled_pct']:.0f}%", cls="t1", size=13, weight=600)
+            n = e["equivalent"] + e["unreachable"]
+            s.text(claim_x, y + 18, n if n else "none needed", cls="t1" if n else "t3", size=13, anchor="end",
+                   title=f"{e['equivalent']} equivalent, {e['unreachable']} unreachable")  # fmt: skip
         else:
-            s.text(x + 16, y + 118, "No burned program", cls="t1", size=15, weight=700)
-            s.text(x + 16, y + 140, "refused by name (#5121);", cls="t3", size=12)
-            s.text(x + 16, y + 158, "mapped in the Gap Atlas", cls="t3", size=12)
-    y += eh + 40
+            s.text(raw_x, y + 18, NOT_MEASURED, cls="t3", size=12.5)
+            s.text(smp_x, y + 18, NOT_MEASURED, cls="t3", size=12.5)
+        y += 28
+    m = comp["mutation"]
+    s.text(
+        PAD,
+        y + 12,
+        f"Separate from these: hand-written ports, not the translator, score {m['adjusted_kill_pct']:.1f}% adjusted and "
+        f"{m['raw_kill_pct']:.1f}% raw over {m['ports']} ports. They feed no level.",
+        cls="t3",
+        size=12,
+    )
+    y += 50
 
-    # ---------------------------------------------------------------- runtimes (left) + cobolrt (right)
-    left_w = (W - 2 * PAD - 30) * 0.45
-    right_x = PAD + left_w + 30
-    right_w = W - PAD - right_x
-    top = y
-    s.text(PAD, y, "Runtimes and regions", cls="t1", size=20, weight=700)
-    s.text(PAD, y + 22, "What the translated Java can run today, against what the estates need", cls="t3", size=13)
-    y += 46
+    # ---------------------------------------------------------------- capability ledger
+    s.text(PAD, y, "Capability ledger: everything the translator can do, zeros included", cls="t1", size=20, weight=700)
+    s.text(
+        PAD,
+        y + 22,
+        "Counted from the code on every run. A bar needs a list to measure against; where IBM publishes none, the row "
+        "says what exists instead of inventing a percentage.",
+        cls="t3",
+        size=13,
+    )
+    y += 44
+    lx = PAD
+    for st in capability_ledger.STATES:
+        state_icon(s, lx + 8, y - 4, st)
+        s.text(lx + 22, y, capability_ledger.STATE_LABEL[st], cls="t2", size=13, weight=600)
+        lx += 120
+    y += 26
+    for group in caps["groups"]:
+        s.text(PAD, y + 4, group, cls="t1", size=14.5, weight=700)
+        s.add(f'<line x1="{PAD}" x2="{W - PAD}" y1="{y + 11}" y2="{y + 11}" class="rule"/>')
+        y += 32
+        for r in (r for r in caps["rows"] if r["group"] == group):
+            state_icon(s, PAD + 8, y - 4, r["state"])
+            s.text(PAD + 22, y, capability_ledger.STATE_LABEL[r["state"]], cls="t3", size=12)
+            s.text(PAD + 104, y, r["name"], cls="t1", size=13.5, weight=600)
+            s.text(PAD + 306, y, r["have"], cls="t3", size=12)
+            if not r["of"]:
+                s.text(W - PAD, y, "no list to count against", cls="t3", size=11.5, anchor="end")
+            else:
+                bx, bw = W - PAD - 280, 110
+                s.rect(bx, y - 10, bw, 10, "track", rx=4)
+                s.rect(
+                    bx,
+                    y - 10,
+                    bw * r["done"] / r["of"],
+                    10,
+                    "prog",
+                    rx=4,
+                    title=f"{r['name']}: {r['done']} of {r['of']}",
+                )
+                s.text(bx + bw + 10, y, f"{r['done']} / {r['of']}", cls="t1", size=13.5, weight=700)
+                s.text(W - PAD, y, r["unit"].replace("modelled on both runtimes", "modelled").replace(
+                    "modelled; the rest refused by name", "modelled"), cls="t3", size=11.5, anchor="end")  # fmt: skip
+            if r["note"]:
+                s.text(PAD + 306, y + 16, r["note"], cls="t3", size=11.5)
+                y += 16
+            y += 26
+        y += 8
+    z = caps["zos"]
+    s.text(
+        PAD,
+        y + 4,
+        f"Every match above means IBM's documentation. Measured on z/OS: {z['measured']} of {z['of']} rules (#4702). "
+        f"{caps['register']['entries']} named limits in the register, {caps['register']['refused']} refuse by name.",
+        cls="t2",
+        size=13,
+        weight=600,
+    )
+    y += 44
+
+    # ---------------------------------------------------------------- cobolrt rules
+    right_x, right_w = PAD, W - 2 * PAD
     fams = rules.get("families", {})
     allst = rules["status"]
     n_rules = rules["rules"]
-
-    def fam(name: str) -> tuple[str, str]:
-        c = fams.get(name, {})
-        return f"{c.get('MATCHED', 0)} / {sum(c.values())}", "rules match IBM"
-
-    cics_big = f"{comp['cics']['modelled_both_runtimes']} / {comp['cics']['burned_commands']}"
-    # (default state, name, detail, big number, unit, Open World epic)
-    rt_rows = [
-        (
-            "ok",
-            "COBOL language (cobolrt)",
-            "all runtime rules",
-            f"{allst['MATCHED']} / {n_rules}",
-            "rules match IBM",
-            None,
-        ),
-        ("ok", "CICS commands", "commands the estates use", cics_big, "modelled", None),
-        ("ok", "Db2 embedded SQL", "checked against a real Db2", *fam("SQL"), None),
-        ("ok", "LE callable services", "date, time and condition services", *fam("LE"), None),
-        ("part", "IBM MQ", "first calls proven (#5236); estate slice #5278", *fam("MQ"), 4892),
-        ("part", "IMS DL/I", "modelled, not yet matched; epic #4893", *fam("DLI"), 4893),
-        ("todo", "JCL execution", "Open World #4891", "-", "not started", 4891),
-        ("todo", "Batch utilities (DFSORT, IDCAMS)", "Open World #4890", "-", "not started", 4890),
-        ("todo", "VSAM AIX / ESDS / RRDS", "Open World #4894", "-", "not started", 4894),
-    ]
-    icon = {"ok": ("st-good", "In use"), "part": ("st-warn", "Partial"), "todo": ("st-none", "Not started")}
-    for st, name, detail, big, unit, epic in rt_rows:
-        state = epics.get(str(epic)) if epic else None
-        if state == "closed":  # the epic landed: the row is in use
-            st, detail = "ok", f"{detail}; epic closed"
-        cls, lab = icon[st]
-        if epic and state is None:  # the row's state comes from the epic, which was not read
-            lab = f"Epic #{epic} state {NOT_MEASURED}"
-        s.add(f'<circle cx="{PAD + 8}" cy="{y - 4}" r="6" class="{cls}"/>')
-        if st == "part":
-            s.add(f'<path d="M {PAD + 8} {y - 10} A 6 6 0 0 1 {PAD + 8} {y + 2} Z" class="st-warn-fill"/>')
-        s.text(PAD + 22, y, name, cls="t1", size=14, weight=600)
-        s.text(PAD + 22, y + 18, f"{lab}: {detail}", cls="t3", size=12)
-        s.text(PAD + left_w - 110, y + 6, big, cls="t1" if big != "-" else "t3", size=22, weight=700, anchor="end")
-        s.text(PAD + left_w - 100, y + 6, unit, cls="t3", size=11.5)
-        y += 42
-    left_bottom = y
-
-    y = top
     st_all = allst
-    s.text(right_x, y, f"COBOL runtime rules: {n_rules} catalogued", cls="t1", size=20, weight=700)
+    s.text(right_x, y, f"Runtime rules, every family: {n_rules} catalogued", cls="t1", size=20, weight=700)
     s.text(
         right_x,
         y + 22,
@@ -442,7 +500,49 @@ def render(prog: dict[str, Any]) -> str:
         cls="t3",
         size=12,
     )
-    y = max(y + 30, left_bottom) + 30
+    y += 60
+
+    # ---------------------------------------------------------------- eras
+    s.text(PAD, y, "By era: the CICS and COBOL generations in the estates", cls="t1", size=20, weight=700)
+    s.text(
+        PAD,
+        y + 22,
+        "Real estates are layered: 1980s programs LINK 1990s ones that call 2010s Db2 code. "
+        f"Era from the code's tells (era_tags.py); {eras.get('none', {}).get('programs', 0)} programs carry no tell.",
+        cls="t3",
+        size=13,
+    )
+    y += 40
+    ew, eh, egap = (W - 2 * PAD - 4 * 14) / 5, 196, 14
+    for i, (num, when, cics, cobol, tells) in enumerate(ERAS):
+        x = PAD + i * (ew + egap)
+        e = eras.get(num, {"programs": 0, "l2_plus": 0, "l4_plus": 0})
+        s.rect(x, y, ew, eh, "card", rx=10)
+        s.text(x + 16, y + 28, f"Era {num}", cls="t1", size=18, weight=700)
+        s.text(x + ew - 16, y + 28, when, cls="t3", size=13, anchor="end")
+        s.text(x + 16, y + 52, cics, cls="t1", size=13.5, weight=600)
+        s.text(x + 16, y + 70, cobol, cls="t2", size=12.5)
+        s.text(x + 16, y + 88, tells, cls="t3", size=12)
+        if e["programs"]:
+            s.text(x + 16, y + 118, f"{e['programs']} programs", cls="t1", size=15, weight=700)
+            for k, (lab, v) in enumerate([("run equal (L2+)", e["l2_plus"]), ("every branch (L4+)", e["l4_plus"])]):
+                yy = y + 134 + k * 30
+                s.rect(x + 16, yy, ew - 32, 8, "track", rx=4)
+                s.rect(
+                    x + 16,
+                    yy,
+                    (ew - 32) * v / e["programs"],
+                    8,
+                    "lv2" if k == 0 else "lv4",
+                    rx=4,
+                    title=f"Era {num}: {v} of {e['programs']} {lab}",
+                )
+                s.text(x + 16, yy + 24, f"{lab}: {v} ({pct(v, e['programs'])})", cls="t2", size=12)
+        else:
+            s.text(x + 16, y + 118, "No burned program", cls="t1", size=15, weight=700)
+            s.text(x + 16, y + 140, "refused by name (#5121);", cls="t3", size=12)
+            s.text(x + 16, y + 158, "mapped in the Gap Atlas", cls="t3", size=12)
+    y += eh + 40
 
     # ---------------------------------------------------------------- milestones + issues
     s.text(PAD, y, "Mainframe milestones and issues", cls="t1", size=20, weight=700)
@@ -550,7 +650,7 @@ def render(prog: dict[str, Any]) -> str:
   </style>"""
     return (
         f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H:.0f}" width="{W}" height="{H:.0f}" '
-        f'role="img" aria-labelledby="ttl"><title id="ttl">CICS to Java: where we stand</title>{style}'
+        f'role="img" aria-labelledby="ttl"><title id="ttl">COBOL to Java: where we stand</title>{style}'
         f'<rect class="bg" width="{W}" height="{H:.0f}" rx="16"/>' + "".join(s.parts) + "</svg>"
     )
 

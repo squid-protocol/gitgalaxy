@@ -175,7 +175,7 @@ jobs:
           setsid nohup bash -c "python3 tests/tools/db2_image_cache.py load '$RUNNER_TEMP/db2-image-cache' || tests/tools/ci_retry.sh 4 15 -- docker pull -q '$image'; date +%s > '$RUNNER_TEMP/pull-done'" > "$RUNNER_TEMP/pull.log" 2>&1 &
 
       - name: Set up Python 3.12
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.12"
           cache: pip
@@ -290,13 +290,15 @@ jobs:
         env:
           EQUIVALENCE_E2E: "1"
           GITGALAXY_ORACLE_STRICT: "1"
+          # a PR's heaviest proofs run their faults in one JVM (`equivalence.py --one-jvm`); a push and the nightly keep a JVM per run
+          EQUIVALENCE_E2E_ONE_JVM: ${{ github.event_name == 'pull_request' && '1' || '' }}
           GROUP: ${{ matrix.group }}
           SPLITS: ${{ needs.plan.outputs.splits }}
           GITGALAXY_TEST_TIMES: ${{ runner.temp }}/times-shard-${{ matrix.group }}.json
         run: |
           mapfile -t selected < <(python tests/tools/equivalence_e2e_select.py)
           test "${#selected[@]}" -gt 1
-          pytest "${selected[@]}" --splits "$SPLITS" --splitting-algorithm least_duration --durations-path tests/equivalence_e2e_durations.json --group "$GROUP" -n 2 -q -ra --durations=25 --timeout=1200 -p no:cacheprovider --ignore=tests/cobol_mainframe/test_evidence_components.py --ignore=tests/cobol_mainframe/test_equivalence_db2_rows.py --ignore=tests/cobol_mainframe/test_regional_options.py --ignore=tests/cobol_mainframe/test_sql_dynamic.py --ignore=tests/cobol_mainframe/test_sql_unit_of_work.py --ignore=tests/cobol_mainframe/test_sql_whenever.py
+          pytest "${selected[@]}" --splits "$SPLITS" --splitting-algorithm least_duration --durations-path tests/equivalence_e2e_durations.json --group "$GROUP" -n 4 -q -ra --durations=25 --timeout=1200 -p no:cacheprovider --ignore=tests/cobol_mainframe/test_evidence_components.py --ignore=tests/cobol_mainframe/test_equivalence_db2_rows.py --ignore=tests/cobol_mainframe/test_regional_options.py --ignore=tests/cobol_mainframe/test_sql_dynamic.py --ignore=tests/cobol_mainframe/test_sql_unit_of_work.py --ignore=tests/cobol_mainframe/test_sql_whenever.py
 
       - name: Upload this shard's test seconds (to refresh tests/equivalence_e2e_durations.json)
         if: ${{ !cancelled() }}
@@ -346,6 +348,7 @@ jobs:
   # #5954 slice 3: the five test files that also need a Db2 container, in one job (the shards `--ignore` them). One runner
   # and a pool of three databases, one per xdist worker: the rows file alone is ~34 min serial (50 proofs of ~45 s), so the
   # three run in parallel and Db2's start is paid once, not per shard. The pinned image is restored from det-sweep.yml's cache entry (main saves it).
+  # -n 3 stays: -n 4 with a pool of four was slower on a 4-vCPU runner (test step 1402 s against 1290 s, Db2 itself needs CPU).
   db2:
     needs: [tested-tree, plan]
     # #6664: on a PR only when a changed file is an input of the five Db2 files (equivalence_e2e_plan.db2_input); push,
@@ -385,7 +388,7 @@ jobs:
           setsid nohup bash -c "python3 tests/tools/db2_image_cache.py load '$RUNNER_TEMP/db2-image-cache' || tests/tools/ci_retry.sh 4 15 -- docker pull -q '$image'; date +%s > '$RUNNER_TEMP/pull-done'" > "$RUNNER_TEMP/pull.log" 2>&1 &
 
       - name: Set up Python 3.12
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.12"
           cache: pip
@@ -477,7 +480,7 @@ jobs:
           path: tests/equivalence/linuxx64_odbc_cli.tar.gz
           key: db2-odbc-cli-${{ hashFiles('tests/equivalence/odbc_cli.pin') }}
 
-      # the --deselect id failed on its first run (never run before #5954 slice 3): docs/ci_env_gated_tests.md lists it
+      # no --deselect: the last one (uowdemo, DetMq compile) was fixed in #5954 slice 6
       # one pytest line: tests/tools/test_env_gated_tests_run_in_ci_5954.py reads the paths off it
       - name: The Db2 e2e tests of tests/cobol_mainframe under EQUIVALENCE_E2E
         env:
@@ -485,7 +488,7 @@ jobs:
           GITGALAXY_ORACLE_STRICT: "1"
           GITGALAXY_TEST_TIMES: ${{ runner.temp }}/times-db2.json
         run: |
-          pytest tests/cobol_mainframe/test_equivalence_db2_rows.py tests/cobol_mainframe/test_regional_options.py tests/cobol_mainframe/test_sql_dynamic.py tests/cobol_mainframe/test_sql_unit_of_work.py tests/cobol_mainframe/test_sql_whenever.py -n 3 -q -ra --durations=25 --timeout=1800 -p no:cacheprovider --deselect=tests/cobol_mainframe/test_sql_unit_of_work.py::test_uowdemo_det_port_proves_on_db2_against_the_hand_trace
+          pytest tests/cobol_mainframe/test_equivalence_db2_rows.py tests/cobol_mainframe/test_regional_options.py tests/cobol_mainframe/test_sql_dynamic.py tests/cobol_mainframe/test_sql_unit_of_work.py tests/cobol_mainframe/test_sql_whenever.py -n 3 -q -ra --durations=25 --timeout=1800 -p no:cacheprovider
 
       # #6675: main only (a PR's save is scoped to its ref, which nothing else reads); only on a miss
       - name: Save the tree-sitter language pack to the cache

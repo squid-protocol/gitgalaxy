@@ -508,3 +508,312 @@ def test_cics_macro_table_resources_and_explicit_phantoms_are_scored():
             ("transactions", "SHPM", "pass", "H-0063"),
         ]
     )
+
+
+# ---- Batch Badlands (#7065): the JCL execution and utility-card facts
+
+
+def _row(kind, **kw):
+    base = dict(
+        kind=kind,
+        name=None,
+        step_ordinal=None,
+        step_name=None,
+        program=None,
+        proc=None,
+        cond=None,
+        if_cond=None,
+        in_proc=None,
+        dd_name=None,
+        dsn=None,
+        disp=None,
+        generation=None,
+        line=0,
+        disp_normal=None,
+        parm=None,
+        instream=None,
+    )
+    return SimpleNamespace(**dict(base, **kw))
+
+
+def _jcl(flow, **entry):
+    eng = FakeEngine(files={"j.jcl": SimpleNamespace(job_flow=flow)})
+    sc = ec.Score()
+    ec.score_jcl(sc, "j.jcl", dict(language="jcl", **entry), eng)
+    ec.score_jcl_utility_cards(sc, "j.jcl", dict(language="jcl", **entry), eng)
+    return sc
+
+
+def _step_key(**kw):
+    return dict(step="S1", ordinal=1, program="X", exec_proc=None, cond=None, line=5, **kw)
+
+
+def _step_row(**kw):
+    return _row("STEP", step_name="S1", step_ordinal=1, program="X", line=5, **kw)
+
+
+def test_a_step_parm_and_if_branch_are_compared_when_the_key_states_them():
+    key = [_step_key(parm="MONTHLY", if_cond="LOAD020.RC = 0", branch="then")]
+    sc = _jcl([_step_row(parm="MONTHLY", if_cond="(LOAD020.RC = 0)")], jcl_steps=key)
+    assert [c.status for c in sc.checks] == ["pass"]
+    sc = _jcl([_step_row(parm="WEEKLY", if_cond="NOT (LOAD020.RC = 0)")], jcl_steps=key)
+    assert sc.checks[0].status == "fail"
+    assert "parm" in sc.checks[0].detail and "branch" in sc.checks[0].detail
+    key = [_step_key(if_cond="LOAD020.RC = 0", branch="else")]
+    assert _jcl([_step_row(if_cond="NOT (LOAD020.RC = 0)")], jcl_steps=key).checks[0].status == "pass"
+
+
+def test_a_key_without_the_new_fields_scores_a_step_as_before():
+    sc = _jcl([_step_row(parm="IGNORED", if_cond="(A.RC = 0)")], jcl_steps=[_step_key()])
+    assert [c.status for c in sc.checks] == ["pass"]
+
+
+def test_a_job_restart_is_unscored_because_the_engine_keeps_none():
+    sc = _jcl([_step_row()], jcl_steps=[_step_key(restart="LOAD020")])
+    assert [c.status for c in sc.checks] == ["pass", "unscored"]
+
+
+_SLICE3_STEP_FIELDS = {
+    "restart_checkid": "C0000012",
+    "rd": "R",
+    "parm_overrides": [{"step": "RPT020", "parm": "QUARTERLY"}],
+    "cond_overrides": [{"step": "RPT020", "cond": "(4,LT,SRT010)"}],
+}
+
+
+@pytest.mark.parametrize("field", sorted(_SLICE3_STEP_FIELDS))
+def test_each_slice3_step_field_is_reported_unscored_with_a_reason_never_dropped(field):
+    sc = _jcl([_step_row()], jcl_steps=[_step_key(**{field: _SLICE3_STEP_FIELDS[field]})])
+    assert [c.status for c in sc.checks] == ["pass", "unscored"]
+    assert field in sc.checks[1].fact and "job_flow_data keeps no" in sc.checks[1].detail
+
+
+def test_a_step_with_every_slice3_field_adds_one_unscored_check_per_field():
+    sc = _jcl([_step_row()], jcl_steps=[_step_key(restart="CHK020", **_SLICE3_STEP_FIELDS)])
+    assert sorted(c.status for c in sc.checks) == ["pass"] + ["unscored"] * 5
+    assert "RPT020:QUARTERLY" in " ".join(c.fact for c in sc.checks)
+
+
+def test_a_step_without_the_slice3_fields_adds_no_check():
+    assert [c.status for c in _jcl([_step_row()], jcl_steps=[_step_key()]).checks] == ["pass"]
+
+
+def test_a_job_level_dd_before_the_first_exec_has_a_null_step_and_scores_against_a_null_step_row():
+    key = [dict(_dd_key(), step=None, dd="SYSCHK", dsn="P.CHK", disp="OLD")]
+    row = _dd_row(step_name=None, dd_name="SYSCHK", dsn="P.CHK", disp="OLD")
+    sc = _jcl([row], jcl_dds=key)
+    assert [c.status for c in sc.checks] == ["pass"]
+    assert [c.status for c in _jcl([], jcl_dds=key).checks] == ["missing"]
+    # the same DD under a step is not the job-level one
+    sc = _jcl([_dd_row(dsn="P.CHK", dd_name="SYSCHK")], jcl_dds=key)
+    assert sorted(c.status for c in sc.checks) == ["missing", "phantom"]
+
+
+def test_an_override_dd_naming_a_dsn_matches_the_row_named_after_the_proc_step():
+    key = [dict(_dd_key(override_of="RPT020"), step="QTR", dd="RPTOUT", dsn="P.OUT", disp="NEW")]
+    row = _dd_row(step_name="RPT020", dd_name="RPTOUT", dsn="P.OUT", disp="NEW")
+    assert _jcl([row], jcl_dds=key).checks[0].status == "pass"
+    assert _jcl([dict_row(row, dsn="P.OTHER")], jcl_dds=key).checks[0].status == "fail"
+    # a row under the calling step's own name is not the override
+    sc = _jcl([dict_row(row, step_name="QTR")], jcl_dds=key)
+    assert sorted(c.status for c in sc.checks) == ["missing", "phantom"]
+
+
+def test_an_override_dd_that_is_sysout_stays_unscored():
+    key = [dict(_dd_key(override_of="RPT020"), step="QTR", dd="RPTOUT", dsn=None, disp=None, sysout="B")]
+    assert [c.status for c in _jcl([], jcl_dds=key).checks] == ["unscored"]
+
+
+_SLICE4_STEP_FIELDS = {"set_symbols": [{"name": "HLQ", "value": "PROD"}], "includes": ["BDLDDDS"]}
+
+
+@pytest.mark.parametrize("field", sorted(_SLICE4_STEP_FIELDS))
+def test_each_slice4_step_field_is_reported_unscored_with_a_reason(field):
+    sc = _jcl([_step_row()], jcl_steps=[_step_key(**{field: _SLICE4_STEP_FIELDS[field]})])
+    assert [c.status for c in sc.checks] == ["pass", "unscored"]
+    assert field in sc.checks[1].fact and "job_flow_data keeps no" in sc.checks[1].detail
+
+
+def test_a_set_symbol_is_labelled_name_equals_value():
+    sc = _jcl([_step_row()], jcl_steps=[_step_key(set_symbols=[{"name": "HLQ", "value": "PROD"}])])
+    assert "HLQ=PROD" in sc.checks[1].fact
+
+
+def test_a_dd_of_an_include_group_is_unscored_not_matched_against_a_null_step_row():
+    key = [dict(_dd_key(), job=None, proc=None, step=None, include="BDLDDDS", sysout="*", dsn=None, disp=None)]
+    sc = _jcl([], jcl_dds=key)
+    assert [c.status for c in sc.checks] == ["unscored"]
+    assert "INCLUDE BDLDDDS" in sc.checks[0].fact and "INCLUDE" in sc.checks[0].detail
+    # a non-SYSOUT member is not matched against the job-level row either
+    key = [dict(key[0], sysout=None, dsn="A.B", disp="SHR")]
+    assert [c.status for c in _jcl([_dd_row(step_name=None)], jcl_dds=key).checks] != ["pass"]
+
+
+def test_an_added_sysout_dd_on_a_proc_step_is_unscored():
+    key = [dict(_dd_key(override_of="RPT020", added=True), step="ADDQ", dd="AUDIT", dsn=None, disp=None, sysout="B")]
+    assert [c.status for c in _jcl([], jcl_dds=key).checks] == ["unscored"]
+
+
+def test_a_nullfile_dd_is_a_dummy_and_unscored():
+    key = [dict(_dd_key(), dd="SORTWK01", dsn=None, disp=None, dummy=True)]
+    assert [c.status for c in _jcl([], jcl_dds=key).checks] == ["unscored"]
+
+
+def _dd_key(**kw):
+    return dict(step="S1", dd="D", dsn="A.B", generation=None, disp="SHR", disp_normal=None, sysout=None, line=6, **kw)
+
+
+def _dd_row(**kw):
+    return _row("DD", **dict(dict(step_name="S1", dd_name="D", dsn="A.B", disp="SHR", line=6), **kw))
+
+
+def test_a_temporary_dataset_is_a_dsn_starting_with_two_ampersands():
+    key = [dict(_dd_key(temp=True), dsn="&&T")]
+    assert _jcl([_dd_row(dsn="&&T")], jcl_dds=key).checks[0].status == "pass"
+    assert _jcl([_dd_row(dsn="&&T")], jcl_dds=[dict(key[0], temp=False)]).checks[0].status == "fail"
+
+
+def test_a_concatenated_dd_has_no_name_of_its_own_and_matches_the_next_row_of_its_parent():
+    first = _dd_key()
+    cont = dict(_dd_key(concat_of="D"), dd=None, dsn="C.D", line=7)
+    rows = [_dd_row(), _row("DD", step_name="S1", dd_name="D", dsn="C.D", disp="SHR", line=7)]
+    sc = _jcl(rows, jcl_dds=[first, cont])
+    assert [c.status for c in sc.checks] == ["pass", "pass"]
+    assert _jcl(rows[:1], jcl_dds=[first, cont]).checks[1].status == "missing"
+
+
+def test_a_dummy_dd_is_unscored():
+    key = [dict(_dd_key(dummy=True), dsn=None, disp=None)]
+    assert [c.status for c in _jcl([], jcl_dds=key).checks] == ["unscored"]
+
+
+def test_an_inline_stream_is_found_in_its_instream_row_and_counted_in_lines():
+    key = [dict(_dd_key(inline_lines=2), dsn=None, disp=None)]
+    row = _row("INSTREAM", step_name="S1", dd_name="D", line=6, instream=" SORT FIELDS=(1,2,CH,A)\n SUM FIELDS=NONE")
+    assert _jcl([row], jcl_dds=key).checks[0].status == "pass"
+    assert _jcl([dict_row(row, instream=" SORT")], jcl_dds=key).checks[0].status == "fail"
+    assert _jcl([], jcl_dds=key).checks[0].status == "missing"
+
+
+def dict_row(row, **kw):
+    return SimpleNamespace(**dict(vars(row), **kw))
+
+
+_BODY = (
+    " DELETE PROD.X CLUSTER PURGE\n"
+    " DEFINE CLUSTER (NAME(PROD.X) -\n"
+    "        INDEXED KEYS(10 0)) -\n"
+    "        CYLINDERS(1 1)\n"
+    "* a comment\n"
+    " SORT FIELDS=(1,10,CH,A),\n"
+    "   EQUALS\n"
+    " SUM FIELDS=NONE"
+)
+
+
+def _card(verb, operands, line):
+    return dict(job="J", proc=None, step="S1", utility="IDCAMS", dd="SYSIN", verb=verb, operands=operands, line=line)
+
+
+def test_cards_are_split_with_continuations_joined_and_the_hyphen_dropped():
+    assert ec._cards(_BODY) == [
+        (0, "DELETE", "PROD.X CLUSTER PURGE"),
+        (1, "DEFINE", "CLUSTER (NAME(PROD.X) INDEXED KEYS(10 0)) CYLINDERS(1 1)"),
+        (5, "SORT", "FIELDS=(1,10,CH,A), EQUALS"),
+        (7, "SUM", "FIELDS=NONE"),
+    ]
+
+
+def test_a_card_is_scored_on_its_line_verb_and_operands():
+    row = _row("INSTREAM", step_name="S1", dd_name="SYSIN", line=10, instream=_BODY)
+    cards = [
+        _card("DELETE", "PROD.X CLUSTER PURGE", 11),
+        _card("DEFINE", "CLUSTER (NAME(PROD.X) INDEXED KEYS(10 0)) CYLINDERS(1 1)", 12),
+        _card("SORT", "FIELDS=(1,10,CH,A), EQUALS", 16),
+        _card("SUM", "FIELDS=ZD", 18),  # operands differ
+        _card("INREC", "FIELDS=(1,2)", 17),  # not there
+    ]
+    sc = _jcl([row], jcl_utility_cards=cards)
+    assert [c.status for c in sc.checks] == ["pass", "pass", "pass", "fail", "missing"]
+    assert {c.channel for c in sc.checks} == {"jcl_utility_cards"}
+
+
+def test_a_card_in_a_dd_the_engine_keeps_no_body_for_is_missing():
+    card = dict(_card("COPY", "FROM(A)", 30), dd="TOOLIN")
+    row = _row("INSTREAM", step_name="S1", dd_name="SYSIN", line=10, instream=_BODY)
+    assert _jcl([row], jcl_utility_cards=[card]).checks[0].status == "missing"
+
+
+def test_an_explicit_temp_dataset_phantom_is_attributed_and_its_absence_passes():
+    ph = dict(channel="jcl_datasets", dsn="&&T", step="S1", line=7, why="temporary", horror="H-0065")
+    eng = FakeEngine(raw_imports={"j.jcl": ["&&T", "A.B"]})
+    sc = ec.Score()
+    ec.score_jcl_datasets(sc, "j.jcl", dict(language="jcl", jcl_datasets=[], phantoms=[ph]), eng)
+    assert [(c.status, c.horror) for c in sc.checks if c.fact == "raw import &&T"] == [("phantom", "H-0065")]
+    eng.raw_imports["j.jcl"] = ["A.B"]
+    sc = ec.Score()
+    ec.score_jcl_datasets(sc, "j.jcl", dict(language="jcl", jcl_datasets=[], phantoms=[ph]), eng)
+    assert [(c.fact, c.status) for c in sc.checks if c.status == "pass"] == [("not &&T", "pass")]
+
+
+def _fc_key(**kw):
+    base = {
+        "select": "ORD-FILE",
+        "assign": "ORDKSD",
+        "organization": "INDEXED",
+        "access_mode": "DYNAMIC",
+        "record_key": "ORD-ID",
+        "file_status": "WS-ST",
+        "fd_copies": [],
+        "line": 11,
+    }
+    return dict(base, **kw)
+
+
+def _fc_row(**kw):
+    base = {
+        "select_name": "ORD-FILE",
+        "assign": "ORDKSD",
+        "organization": "INDEXED",
+        "access_mode": "DYNAMIC",
+        "record_key": "ORD-ID",
+        "alternate_keys": [],
+        "relative_key": None,
+        "file_status": "WS-ST",
+        "fd_copies": [],
+        "line": 11,
+    }
+    return SimpleNamespace(**dict(base, **kw))
+
+
+def _fc(key, row):
+    eng = FakeEngine(files={"p.cbl": SimpleNamespace(file_control=[row])})
+    sc = ec.Score()
+    ec.score_file_control(sc, "p.cbl", {"file_control": [key]}, eng)
+    return sc
+
+
+def test_alternate_keys_are_scored_on_name_and_duplicates_flag():
+    key = _fc_key(alternate_keys=[{"name": "ORD-CUST", "duplicates": True}, {"name": "ORD-DT", "duplicates": False}])
+    ok = _fc_row(alternate_keys=[("ORD-DT", False), ("ORD-CUST", True)])
+    assert [c.status for c in _fc(key, ok).checks] == ["pass"]
+    wrong_flag = _fc_row(alternate_keys=[("ORD-CUST", False), ("ORD-DT", False)])
+    sc = _fc(key, wrong_flag)
+    assert sc.checks[0].status == "fail" and "alternate_keys" in sc.checks[0].detail
+    missing = _fc_row(alternate_keys=[("ORD-CUST", True)])
+    assert _fc(key, missing).checks[0].status == "fail"
+
+
+def test_relative_key_is_scored_when_the_key_states_it():
+    key = _fc_key(organization="RELATIVE", record_key=None, relative_key="WS-SLOT-NO")
+    row = _fc_row(organization="RELATIVE", record_key=None, relative_key="ws-slot-no")
+    assert [c.status for c in _fc(key, row).checks] == ["pass"]
+    sc = _fc(key, _fc_row(organization="RELATIVE", record_key=None, relative_key=None))
+    assert sc.checks[0].status == "fail" and "relative_key" in sc.checks[0].detail
+
+
+def test_a_file_without_key_fields_adds_no_check_even_if_the_engine_has_some():
+    key = _fc_key(organization="SEQUENTIAL", record_key=None, access_mode="SEQUENTIAL")
+    row = _fc_row(organization="SEQUENTIAL", record_key=None, access_mode="SEQUENTIAL")
+    assert [c.status for c in _fc(key, row).checks] == ["pass"]
+    assert [c.status for c in _fc(_fc_key(), _fc_row(alternate_keys=[("X", True)])).checks] == ["pass"]

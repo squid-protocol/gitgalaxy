@@ -102,3 +102,39 @@ def test_the_evidence_report_names_a_source_defect_and_only_an_entry_gets_the_no
     assert er.name_exclusion(t, "zecs", "Source/ZECS000.cbl") is None and t["source_defects"] == []
     t = tr(whole=True)  # a program that now translates whole is no longer excluded
     assert er.name_exclusion(t, "aws-mainframe-modernization-carddemo", "app/cbl/CBEXPORT.cbl") is None
+
+
+CARDDEMO = "aws-mainframe-modernization-carddemo"
+
+
+def committed_program(estate, base):
+    return next(p for p in REPORTS[estate]["programs"] if p["program"].lower().endswith(base))
+
+
+def test_the_committed_ladder_lists_both_source_defects_and_nothing_stale_of_that_kind():
+    out = lx.summarize({n: r["programs"] for n, r in REPORTS.items()})
+    sd = out["kinds"]["source_defect"]
+    assert sd["programs"] == [f"{CARDDEMO}/app/cbl/CBEXPORT.cbl", f"{CARDDEMO}/app/cbl/CBIMPORT.cbl"]
+    assert sd["issues"] == ["#5866"]
+    assert not [s for s in out.get("stale", []) if s.startswith(CARDDEMO)]
+
+
+def test_every_source_defect_entry_still_carries_its_ibm_hole_in_the_committed_report():
+    for (estate, base), e in lx.EXCLUSIONS.items():
+        if e["kind"] != "source_defect":
+            continue
+        t = committed_program(estate, base)["translation"]
+        assert not t["whole"], (estate, base)
+        assert any("is not defined in a record of file" in h and "IBM:" in h for h in t["holes"]), (estate, base)
+
+
+def test_a_committed_source_defect_row_is_named_in_the_evidence_report_text():
+    import evidence_report as er
+
+    p = json.loads(json.dumps(committed_program(CARDDEMO, "cbexport.cbl")))
+    excl = er.name_exclusion(p["translation"], CARDDEMO, p["program"])
+    p["ladder_exclusion"] = {**excl, "kind_label": lx.KIND_LABEL[excl["kind"]]}
+    text = "\n".join(er.program_section(p))
+    assert "named source defects: RECORD KEY names an item defined in WORKING-STORAGE" in text
+    assert "**Not a translator gap:** source defect (source IBM rejects) (#5866)" in text
+    assert "hole: OPEN EXPORT-OUTPUT" in text  # the translator's own IBM reason stays beside the named defect

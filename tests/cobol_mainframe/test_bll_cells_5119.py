@@ -8,8 +8,8 @@ POINTERs in WORKING-STORAGE, SERVICE RELOAD record becomes SET ADDRESS OF record
 pointer lane. The pieces, the whole input class each:
 - the lowering of IBM's own examples (Figure 3, the SERVICE RELOAD example, Figure 5, the MOVE example), unchanged for
   a program with no BLL evidence, and each idiom it cannot keep refused whole by name;
-- the det translator: a BLL program translates with no hole; READ SET(cell) and ADDRESS TWA(cell) (X59: only EIB and COMMAREA are modelled) are still holes
-  under their own commands' refusals;
+- the det translator: a BLL program translates with no hole; ADDRESS EIB / COMMAREA / CWA / TWA / TCTUA (X59) into a
+  cell lower as they do for a pointer, ADDRESS ACEE and CSA keep their own refusals;
 - the oracle's translate(): the same lowered program, a refusal raised as Unsupported;
 - end to end (EQUIVALENCE_E2E): GnuCOBOL and the det port, one proven case on a synthetic estate.
 """
@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -315,8 +316,8 @@ def test_a_bll_program_translates_whole_on_the_pointer_lane(tmp_path):
     [  # the cell form of a command that is refused for a pointer too stays refused, under that command's reason
         (
             "MOVE FRPTR TO TSPTR SERVICE RELOAD TS-REC.",
-            "EXEC CICS ADDRESS TWA(TSPTR) END-EXEC SERVICE RELOAD TS-REC.",
-            "ADDRESS TWA: option not modelled",
+            "EXEC CICS ADDRESS ACEE(TSPTR) END-EXEC SERVICE RELOAD TS-REC.",
+            "ADDRESS ACEE: option not modelled",
         ),
         # a list that is not the first LINKAGE record (IBM: only DFHCOMMAREA may precede it) is no BLL list: its
         # fullwords are data, and SET(FRPTR) names no pointer
@@ -351,6 +352,7 @@ _WS_LEN = ("       01  WS-NUM ", "       01  WS-LEN                 PIC S9(4) CO
         ("READNEXT FILE('F') RIDFLD(WS-OUT) SET(FRPTR)", '"BROWSE " + "F".stripTrailing()', "GGCRDNS"),
         ("READPREV FILE('F') RIDFLD(WS-OUT) SET(FRPTR)", '"BROWSE " + "F".stripTrailing()', "GGCRDPS"),
         ("RECEIVE SET(FRPTR) LENGTH(WS-LEN)\n                MAXLENGTH(80)", '"RECEIVE"', "GGCRECP"),
+        ("RECEIVE SET(FRPTR) LENGTH(WS-LEN)", '"RECEIVE"', "GGCRECP"),  # X15: no MAXLENGTH, all the input
         ("RETRIEVE SET(FRPTR) LENGTH(WS-LEN)", "null", "GGCRTRS"),
         ("READQ TS QUEUE('Q') SET(FRPTR)\n                LENGTH(WS-LEN) ITEM(1)", '"READQ"', "GGCRDQS"),
     ],
@@ -373,18 +375,61 @@ def test_each_set_command_into_a_cell_is_its_pointer_form(tmp_path, command, jav
 @pytest.mark.parametrize(
     "command, hole",
     [  # the cell form keeps each command's own refusal (X58)
-        ("RECEIVE SET(FRPTR) LENGTH(WS-LEN)", "RECEIVE SET without MAXLENGTH"),
+        ("RECEIVE SET(FRPTR) MAXLENGTH(80)", "RECEIVE SET without LENGTH"),
         ("RETRIEVE SET(FRPTR)", "RETRIEVE SET without LENGTH"),
         ("READQ TS QUEUE('Q') SET(FRPTR) LENGTH(80)", "READQ TS SET with a literal LENGTH"),
         ("READ FILE('F') RIDFLD(WS-OUT) SET(FRPTR) RBA", "READ SET with RBA / RRN / XRBA"),
         ("READNEXT FILE('F') RIDFLD(WS-OUT) SET(FRPTR)\n                LENGTH(WS-LEN)", "READNEXT SET with LENGTH"),
-        ("LOAD PROGRAM('P') SET(FRPTR)", "EXEC CICS LOAD not modelled"),  # (#5042: the loaded bytes)
     ],
 )
 def test_each_set_command_into_a_cell_keeps_its_own_refusal(tmp_path, command, hole):
     source = PROGRAM.replace(_GETMAIN, f"EXEC CICS {command}\n                END-EXEC.").replace(*_WS_LEN)
     r = _translate(tmp_path, source)
     assert any(hole in h for h in r.stats["holes"]), r.stats["holes"]
+
+
+# ---- ADDRESS into a cell (#5079's X59, the lowering's SET(pointer) form) ---------------------------------------------
+_WITH_CA = ("       01  PARMLIST.\n", "       01  DFHCOMMAREA PIC X(4).\n       01  PARMLIST.\n")
+
+
+@pytest.mark.parametrize("option", ["EIB", "COMMAREA", "CWA", "TWA", "TCTUA"])
+def test_each_address_option_into_a_cell_is_its_pointer_form(tmp_path, option):
+    """Every ADDRESS option X59 models, named with a BLL cell: the det port sets the cell as ADDRESS does a pointer, and
+    the oracle's text is the same lowered program (the cell a POINTER, SERVICE RELOAD a SET ADDRESS OF)."""
+    source = PROGRAM.replace(*_WITH_CA).replace(
+        _GETMAIN, f"EXEC CICS ADDRESS {option}(FRPTR)\n                END-EXEC."
+    )
+    r = _translate(tmp_path, source)
+    assert r.stats["holes"] == [], r.stats["holes"]
+    if option in ("CWA", "TWA", "TCTUA"):
+        assert re.search(rf"DetCics\.address{option.capitalize()}\(task, f\d+_FRPTR", r.java), option
+    else:  # EIB / COMMAREA: the cell is set the way a pointer is (det/cics.py), whatever the call
+        assert re.search(r"f\d+_FRPTR", r.java.split("EXEC CICS ADDRESS", 1)[1].split("SET ADDRESS OF", 1)[0])
+    assert re.search(r"DetCics\.setAddress\(task, f\d+_FILE_REC, f\d+_FRPTR\);", r.java)
+    sys.path.insert(0, str(TOOLS))
+    import equivalence_cics as ec
+
+    text, _ = ec.translate(source)
+    assert "           05  FRPTR USAGE POINTER." in text and "           SET ADDRESS OF FILE-REC TO FRPTR." in text
+    assert "FRPTR" in "".join(ln for ln in text.splitlines() if "CALL" in ln or "ADDRESS" in ln)
+
+
+@pytest.mark.parametrize(
+    "option, why",
+    [  # what X59 refuses for a pointer stays refused for a cell, and a secondary cell is no ADDRESS target
+        ("ACEE(FRPTR)", "ADDRESS ACEE: option not modelled"),
+        ("CSA(FRPTR)", "macro-level CICS not supported"),
+        ("TWA(FRPTR1)", "secondary cell"),
+    ],
+)
+def test_an_address_option_the_lane_refuses_is_refused_for_a_cell(tmp_path, option, why):
+    source = PROGRAM.replace(*_WITH_CA).replace(_GETMAIN, f"EXEC CICS ADDRESS {option}\n                END-EXEC.")
+    try:
+        r = _translate(tmp_path, source)
+    except Exception as e:  # a whole-program refusal (LayoutError) or the macro-level one
+        assert why in str(e), str(e)
+    else:
+        assert any(why in h for h in r.stats["holes"]), r.stats["holes"]
 
 
 # ---- IBM's chained storage areas (p. 22): a paragraph name re-addresses; an address held in data -------------------
@@ -680,3 +725,36 @@ def test_only_a_program_with_bll_evidence_is_read_by_the_lowering():
     assert B.needed(PROGRAM.splitlines())
     assert B.needed(["    SERVICE RELOAD X."])
     assert B.lower_text(POINTER_PROGRAM, []) == POINTER_PROGRAM
+
+
+# hand-traced: ADDRESS EIB into a cell, SERVICE RELOAD of the EIB view, and the transaction id it holds (EIBTRNID, byte 9)
+EIBCELL = """\
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. BLLDEMO.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-OUT                 PIC X(20) VALUE SPACES.
+       LINKAGE SECTION.
+       01  DFHCOMMAREA            PIC X(4).
+       01  PARMLIST.
+           02  FILLER             PIC S9(8) COMP.
+           02  EIBPTR             PIC S9(8) COMP.
+       01  EV.
+           02  FILLER             PIC X(8).
+           02  EV-TRNID           PIC X(4).
+           02  FILLER             PIC X(64).
+       PROCEDURE DIVISION.
+           SERVICE RELOAD PARMLIST.
+           EXEC CICS ADDRESS EIB(EIBPTR) END-EXEC.
+           SERVICE RELOAD EV.
+           MOVE EV-TRNID TO WS-OUT(1:4).
+           EXEC CICS SEND TEXT FROM(WS-OUT) LENGTH(4) ERASE
+                END-EXEC.
+           EXEC CICS RETURN END-EXEC.
+"""
+
+
+@_E2E
+def test_an_address_eib_into_a_cell_is_proven_against_gnucobol(tmp_path):
+    """The EIB addressed through a BLL cell and reloaded: both runtimes show the task's transaction id (BLL1)."""
+    _prove(tmp_path, "BLLEIB", EIBCELL, "BLL1")

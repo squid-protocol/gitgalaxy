@@ -55,7 +55,8 @@ FAMILIES = {
     "C": "a test of a constant: a copybook VALUE never written, a table built once, a loop index with fixed bounds",
     "R": "a response the command never raises (IBM's documented conditions; the reason cites the page)",
     "U": "undefined by IBM: reachable only through an out-of-range subscript or reference modification without SSRANGE "
-    "(IBM leaves the result undefined, GnuCOBOL refuses; owner ruling 2026-10-29). Netted from the bar like the others, "
+    "(IBM leaves the result undefined, GnuCOBOL refuses; owner ruling 2026-10-29), or through non-digit data in a numeric "
+    "DISPLAY item (IBM documents no result, GnuCOBOL gives one; owner ruling 2026-10-31, register C11). Netted from the bar like the others, "
     "but reported by name with counts as its own class, never as proven or as infeasible",
 }
 UNDEFINED = "U"  # the family of an 'undefined by IBM' outcome

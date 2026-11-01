@@ -128,6 +128,8 @@ nav:
       - 'Unpack ETL from CBL': "cookbook/unpacking-etl-from-cbl-files.md"
   - '🏛️ Museum of Code':
       - 'Welcome to the Museum': 'museum-of-code/index.md'
+      - "DOOM's DNA (interactive)": "https://squid-protocol.github.io/gitgalaxy/museum-of-code/doom-dna/"
+      - "DOOM's DNA (text edition)": 'museum-of-code/teardown-of-doom.md'
   - '🤖 AI Agent Directives':
       - 'Directory Index': 'agents/index.md'
       - 'Standard LLM Test Repos':

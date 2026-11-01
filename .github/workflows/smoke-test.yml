@@ -143,26 +143,6 @@ jobs:
   # could land on a different cache than its neighbours (the nightly saves one between their starts) and pytest-split
   # then cuts different slices. lookup-only downloads nothing; the parts restore this exact key. An empty key (no
   # cache yet, or this job failed) means every part uses the committed .test_durations: the same file, so still one split.
-  durations:
-    name: durations key
-    needs: [tested-tree, suite-plan]
-    if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (!cancelled() && needs.tested-tree.outputs.skip != 'true' && needs.suite-plan.outputs.mode != 'skip') }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    outputs:
-      key: ${{ steps.durations.outputs.cache-matched-key }}
-    steps:
-      - name: Find the newest measured durations (#4847)
-        id: durations
-        continue-on-error: true
-        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: durations-cache
-          key: test-durations-${{ github.run_id }}  # never an exact hit: restore-keys takes the newest saved one
-          restore-keys: |
-            test-durations-
-          lookup-only: true
-
   # Full pytest suite, ONE representative environment (ubuntu/3.12), on
   # every push. This is the fast-feedback regression net that used to run
   # 12x inside the old smoke-test matrix (now os-smoke-grid.yml); running it once here keeps that
@@ -177,11 +157,11 @@ jobs:
   # back to the committed .test_durations on a miss; the nightly parts store their seconds and that job merges them.
   # #5919: the part count and the part jobs' timeout come from the measured durations (suite_shard_plan.py --smoke), not
   # from YAML: the suite grows every day. It plans from the exact durations the parts will balance by (the key the
-  # `durations` job chose, else the committed .test_durations). The queue depth is read on a pull request only (empty =
+  # planning job chose, else the committed .test_durations). The queue depth is read on a pull request only (empty =
   # calm). A plan that fails (no durations) skips the parts, so the required `full-suite` check fails.
   shard-plan:
     name: plan the suite parts
-    needs: [tested-tree, suite-plan, durations]
+    needs: [tested-tree, suite-plan]
     if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (!cancelled() && needs.tested-tree.outputs.skip != 'true' && needs.suite-plan.outputs.mode != 'skip') }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -192,6 +172,7 @@ jobs:
       matrix: ${{ steps.plan.outputs.matrix }}
       splits: ${{ steps.plan.outputs.splits }}
       timeout: ${{ steps.plan.outputs.timeout }}
+      durations_key: ${{ steps.durations.outputs.cache-matched-key }}
     steps:
       - name: Check out the planner
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -205,13 +186,16 @@ jobs:
           sparse-checkout-cone-mode: false
           persist-credentials: false
 
-      - name: Restore the durations the plan chose (#4847, #5114)
+      # #7155: this lookup was its own job, a runner start for 4 seconds of work
+      - name: Restore the newest measured durations (#4847, #5114)
         id: durations
-        if: needs.durations.outputs.key != ''
+        continue-on-error: true
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: durations-cache
-          key: ${{ needs.durations.outputs.key }}
+          key: test-durations-${{ github.run_id }}  # never an exact hit: restore-keys takes the newest saved one
+          restore-keys: |
+            test-durations-
 
       - name: Balance by the restored durations (else the committed .test_durations)
         if: steps.durations.outputs.cache-matched-key != ''
@@ -229,7 +213,7 @@ jobs:
 
   full-suite-part:
     name: full-suite part ${{ matrix.group }}/${{ needs.shard-plan.outputs.splits }}
-    needs: [tested-tree, suite-plan, durations, shard-plan]
+    needs: [tested-tree, suite-plan, shard-plan]
     # #6278: suite plan mode `skip` starts no part (full-suite reports success); empty (push, schedule, a failed plan) is full
     if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (!cancelled() && needs.tested-tree.outputs.skip != 'true' && needs.suite-plan.outputs.mode != 'skip') }}
     runs-on: ubuntu-latest
@@ -251,7 +235,7 @@ jobs:
           persist-credentials: false
 
       - name: Set up Python 3.12
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 #
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 #
         with:
           python-version: "3.12"
           cache: pip
@@ -279,15 +263,18 @@ jobs:
       # save between two parts' starts gave them different slices: a test dropped or run twice).
       - name: Restore the durations the plan chose (#4847, #5114)
         id: durations
-        if: needs.durations.outputs.key != ''
+        if: needs.shard-plan.outputs.durations_key != ''
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: durations-cache
-          key: ${{ needs.durations.outputs.key }}
+          key: ${{ needs.shard-plan.outputs.durations_key }}
 
       - name: Balance by the restored durations (else the committed .test_durations)
         if: steps.durations.outputs.cache-matched-key != ''
-        run: cp durations-cache/test_durations.json .test_durations
+        # #5162: the weights this part balanced by, kept beside its times (test-times-part-N) to compare actual/weight per part
+        run: |
+          cp durations-cache/test_durations.json .test_durations
+          cp durations-cache/test_durations.json "$RUNNER_TEMP/restored-durations-part-${{ matrix.group }}.json"
 
       - name: Entry point --help - Core Engine
         if: matrix.group == 1
@@ -385,7 +372,9 @@ jobs:
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: test-times-part-${{ matrix.group }}
-          path: ${{ runner.temp }}/times-part-${{ matrix.group }}.json
+          path: |
+            ${{ runner.temp }}/times-part-${{ matrix.group }}.json
+            ${{ runner.temp }}/restored-durations-part-${{ matrix.group }}.json
           retention-days: 7
           if-no-files-found: ignore
 
@@ -436,7 +425,7 @@ jobs:
           persist-credentials: false
 
       - name: Set up Python 3.12
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 #
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 #
         with:
           python-version: "3.12"
           cache: pip

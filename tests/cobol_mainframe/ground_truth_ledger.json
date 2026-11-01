@@ -21,11 +21,6 @@
       "kind": "defect",
       "summary": "The engine's transfers_to records only the FIRST target of GO TO a b c ... DEPENDING ON x (languages/cobol.py _transfers_out, one capture group; #3362 chose it when the whole crucible had one such statement). DBB epscsmrd.cbl EPSCSMRI has dispatch tables of 80+ targets (COMPLETE-NUMERIC-MOVE, LOOKUP-SOURCE, ROUTE-ELEMENT, X000000C7-CA), so 184 keyed edges are missed. Owner is this PR's issue until a sibling issue is filed."
     },
-    "engine_main_line_in_no_unit": {
-      "issue": 4302,
-      "kind": "defect",
-      "summary": "The key's main line (statements between PROCEDURE DIVISION and the first header) is in no engine unit: its extent is missing and its PERFORM / GO TO edges are never recorded. A synthetic calls-only main line (#4323) would carry the edges; it records no extent, so the extent entry stays with this issue."
-    },
     "engine_unit_end_counts_noncode_lines": {
       "issue": 4300,
       "kind": "defect",
@@ -127,16 +122,6 @@
         "engine | dead | app/cbl/COUSR02C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead | app/cbl/COUSR03C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
         "engine | intra-program edges | app/cbl/CBSTM03A.CBL | 8500-READTRNX-READ -> GO TO 8500-READTRNX-READ | fn": "engine_drops_self_transfer",
-        "engine | unit extents | app/cbl/CBACT01C.cbl | (procedure division) L140-160 | fn": "engine_main_line_in_no_unit",
-        "engine | unit extents | app/cbl/CBACT02C.cbl | (procedure division) L70-87 | fn": "engine_main_line_in_no_unit",
-        "engine | unit extents | app/cbl/CBACT03C.cbl | (procedure division) L70-87 | fn": "engine_main_line_in_no_unit",
-        "engine | unit extents | app/cbl/CBACT04C.cbl | (procedure division) L180-232 | fn": "engine_main_line_in_no_unit",
-        "engine | unit extents | app/cbl/CBCUS01C.cbl | (procedure division) L70-87 | fn": "engine_main_line_in_no_unit",
-        "engine | unit extents | app/cbl/CBSTM03A.CBL | (procedure division) L262-294 | fn": "engine_main_line_in_no_unit",
-        "engine | unit extents | app/cbl/CBTRN02C.cbl | (procedure division) L193-234 | fn": "engine_main_line_in_no_unit",
-        "engine | unit extents | app/cbl/CBTRN03C.cbl | (procedure division) L159-217 | fn": "engine_main_line_in_no_unit",
-        "engine | unit extents | app/cbl/COBSWAIT.cbl | (procedure division) L34-40 | fn": "engine_main_line_in_no_unit",
-        "engine | unit extents | app/cbl/CSUTLDTC.cbl | (procedure division) L88-102 | fn": "engine_main_line_in_no_unit",
         "forge | units | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 9998-PRIMING-QUERY | fp": "forge_units_include_copied_paragraphs",
         "forge | units | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 9998-PRIMING-QUERY-EXIT | fp": "forge_units_include_copied_paragraphs",
         "forge | units | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 9999-FORMAT-DB2-MESSAGE | fp": "forge_units_include_copied_paragraphs",
@@ -299,9 +284,9 @@
         },
         "JCL job flow": {
           "engine": {
-            "got": 558,
-            "tp": 558,
-            "truth": 558
+            "got": 556,
+            "tp": 556,
+            "truth": 556
           },
           "forge": null,
           "truth": "cross_verified"
@@ -603,9 +588,9 @@
         },
         "unit extents": {
           "engine": {
-            "got": 871,
-            "outside": 237,
-            "tp": 871,
+            "got": 881,
+            "outside": 0,
+            "tp": 881,
             "truth": 881
           },
           "forge": null,
@@ -3326,9 +3311,6 @@
         "engine | intra-program edges | src/GML/FO04F1X1.cobol | LES-KORT -> GO TO LES-KORT | fn": "engine_drops_self_transfer",
         "engine | intra-program edges | src/GML/FO04F1X1.cobol | LES-PARAM -> GO TO LES-PARAM | fn": "engine_drops_self_transfer",
         "engine | intra-program edges | src/GML/R001BYDL.cobol | 1000 -> GO TO 1000 | fn": "engine_drops_self_transfer",
-        "engine | unit extents | src/GML/FO04D1X1.cobol | (procedure division) L125-132 | fn": "engine_main_line_in_no_unit",
-        "engine | unit extents | src/GML/PLUKKFR.cobol | (procedure division) L73-75 | fn": "engine_main_line_in_no_unit",
-        "engine | unit extents | src/GML/PLUKKFRN.cobol | (procedure division) L73-75 | fn": "engine_main_line_in_no_unit",
         "engine | unit extents | src/GML/R0010422.pli | R001B1 L23-177 | fn": "engine_unit_end_counts_noncode_lines",
         "engine | unit extents | src/GML/R0010422.pli | R001B1 L23-181 | fp": "engine_unit_end_counts_noncode_lines",
         "engine | unit extents | src/GML/R0010423.pli | R001B1 L22-253 | fn": "engine_unit_end_counts_noncode_lines",
@@ -3731,9 +3713,9 @@
         },
         "unit extents": {
           "engine": {
-            "got": 163,
-            "outside": 14,
-            "tp": 155,
+            "got": 166,
+            "outside": 0,
+            "tp": 158,
             "truth": 166
           },
           "forge": null,
@@ -3777,12 +3759,7 @@
         "engine | dead | Source/ZECS000.cbl | 9950-EXIT | fn": "engine_dead_is_unreferenced_by_name",
         "engine | dead | Source/ZECS001.cbl | 9000-EXIT | fn": "engine_dead_is_unreferenced_by_name",
         "engine | dead | Source/ZECS003.cbl | 9000-EXIT | fn": "engine_dead_is_unreferenced_by_name",
-        "engine | dead | Source/ZECSPLT.cbl | 9000-EXIT | fn": "engine_dead_is_unreferenced_by_name",
-        "engine | unit extents | Source/ECS001.cbl | (procedure division) L79-89 | fn": "engine_main_line_in_no_unit",
-        "engine | unit extents | Source/ZECS000.cbl | (procedure division) L233-243 | fn": "engine_main_line_in_no_unit",
-        "engine | unit extents | Source/ZECS001.cbl | (procedure division) L453-460 | fn": "engine_main_line_in_no_unit",
-        "engine | unit extents | Source/ZECS003.cbl | (procedure division) L172-183 | fn": "engine_main_line_in_no_unit",
-        "engine | unit extents | Source/ZECSPLT.cbl | (procedure division) L61-71 | fn": "engine_main_line_in_no_unit"
+        "engine | dead | Source/ZECSPLT.cbl | 9000-EXIT | fn": "engine_dead_is_unreferenced_by_name"
       },
       "scoreboard": {
         "BMS screen fields": {
@@ -4165,9 +4142,9 @@
         },
         "unit extents": {
           "engine": {
-            "got": 216,
-            "outside": 34,
-            "tp": 216,
+            "got": 221,
+            "outside": 0,
+            "tp": 221,
             "truth": 221
           },
           "forge": null,

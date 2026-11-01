@@ -1,11 +1,11 @@
 * DFHPPT: hand-written fixture (#5120, #5154), syntax per IBM CICS/VS System Programmer's Reference Manual
 * SH20-1043-6 p.108-109, CICS TS for VSE/ESA R1 Resource Definition Guide SC33-1653-05 Appendix C p.348-350 &
-* Appendix F p.371-374, and APAR II05097; PARTITIONSET= ASSUMED. No IBM table text or sample is reproduced.
+* Appendix F p.371-374, and APAR II05097 (PARTITIONSET= is not a macro operand: REFUSED). No IBM table text or sample is reproduced.
 DFHPPT   CSECT
          DFHPPT TYPE=INITIAL,SUFFIX=01
          DFHPPT TYPE=ENTRY,PROGRAM=BANKINQ,PGMLANG=COBOL,RES=NO
          DFHPPT TYPE=ENTRY,PROGRAM=BANKUPD,PGMLANG=ASSEMBLER
          DFHPPT TYPE=ENTRY,MAPSET=BANKMAP
-         DFHPPT TYPE=ENTRY,PARTITIONSET=BANKPS
+         DFHPPT TYPE=ENTRY,PARTSET=BANKPS
          DFHPPT TYPE=FINAL
          END

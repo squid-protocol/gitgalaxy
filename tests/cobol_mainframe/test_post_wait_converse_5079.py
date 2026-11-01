@@ -29,6 +29,7 @@ sys.path.insert(0, str(HERE.parents[1] / "tests" / "tools"))
 sys.path.insert(0, str(HERE.parents[1] / "tests" / "cics_crucible"))
 import test_cics_runtimes as R  # noqa: E402  (bare imports: tests/ has no __init__.py, see CLAUDE.md)
 import test_pointer_lane_4771 as PL  # noqa: E402
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
@@ -132,6 +133,30 @@ def test_converse_translates_whole_in_every_length_form(tmp_path, command, expec
         assert fragment in java, fragment
 
 
+@pytest.mark.parametrize(
+    ("command", "expect"),
+    [
+        (
+            "CONVERSE FROM(WS-IN) SET(ECB-PTR) TOLENGTH(WS-LEN)",
+            ("Integer.MAX_VALUE, false", "DetCics.setBlock(task, ", '"RECEIVE"'),
+        ),
+        ("CONVERSE FROM(WS-IN) SET(ECB-PTR) TOFLENGTH(WS-LEN4)", ("WS_LEN4", "Integer.MAX_VALUE, false")),
+        (
+            "CONVERSE FROM(WS-IN) FROMLENGTH(4) SET(ECB-PTR) TOLENGTH(WS-LEN) MAXLENGTH(5) NOTRUNCATE",
+            (", 4, 5, true", "setBlock"),
+        ),
+        ("CONVERSE FROM(WS-IN) SET(ECB-PTR) TOLENGTH(WS-LEN) RESP(WS-RESP)", ("WS_RESP", "setBlock")),
+    ],
+)
+def test_converse_set_puts_the_reply_in_a_block_as_receive_set_does(tmp_path, command, expect):
+    """X58: CONVERSE SET(pointer) is RECEIVE SET's lane (same key, so the next terminal read ends it); TOLENGTH is output-only."""
+    holes, java = _java(tmp_path, command)
+    assert holes == [], holes
+    for fragment in expect:
+        assert fragment in java, fragment
+    assert "DetCics.received(" not in java  # (the INTO form's store is not used)
+
+
 # ---- each refusal, by name -----------------------------------------------------------------------------------------------------
 @pytest.mark.parametrize(
     ("command", "why"),
@@ -145,7 +170,15 @@ def test_converse_translates_whole_in_every_length_form(tmp_path, command, expec
         ("WAIT EVENT", "WAIT EVENT without ECADDR"),
         ("WAIT EVENT ECADDR(WS-RESP)", "not a plain USAGE POINTER"),
         ("WAIT EVENT ECADDR(ECB-PTR) ECBLIST(ECB-PTR)", "option not modelled"),
-        ("CONVERSE FROM(WS-IN) SET(ECB-PTR)", "SET: the reply in a block"),
+        ("CONVERSE FROM(WS-IN) SET(ECB-PTR)", "CONVERSE SET without TOLENGTH(data-area)"),
+        ("CONVERSE FROM(WS-IN) SET(ECB-PTR) TOLENGTH(4)", "CONVERSE SET without TOLENGTH(data-area)"),
+        ("CONVERSE FROM(WS-IN) SET(ECB-PTR) TOFLENGTH(4)", "CONVERSE SET without TOLENGTH(data-area)"),
+        ("CONVERSE FROM(WS-IN) SET(WS-RESP) TOLENGTH(WS-LEN)", "not a plain USAGE POINTER"),
+        ("CONVERSE FROM(WS-IN) INTO(WS-IN) SET(ECB-PTR) TOLENGTH(WS-LEN)", "CONVERSE without INTO"),
+        (
+            "CONVERSE FROM(WS-IN) SET(ECB-PTR) TOLENGTH(WS-LEN) CONVID('C1')",
+            "a conversation with a partner transaction",
+        ),
         ("CONVERSE FROM(WS-IN) INTO(WS-IN) CONVID('C1')", "a conversation with a partner transaction"),
         ("CONVERSE FROM(WS-IN) INTO(WS-IN) STATE(WS-LEN)", "a conversation with a partner transaction"),
         ("CONVERSE ATTACHID('A1') INTO(WS-IN)", "a conversation with a partner transaction"),
@@ -161,21 +194,58 @@ def test_what_the_commands_cannot_model_is_refused_by_name(tmp_path, command, wh
     assert any(why in h for h in holes), (why, holes)
 
 
-def test_wait_external_and_waitcics_stay_name_only_with_the_x63_reason(tmp_path):
-    for command in ("WAIT EXTERNAL ECBLIST(ECB-PTR) NUMEVENTS(1)", "WAITCICS ECBLIST(ECB-PTR) NUMEVENTS(1)"):
-        holes, _java_text = _java(tmp_path, command)
-        assert any("other than a POST's timer-event control area" in h for h in holes), holes
+@pytest.mark.parametrize("verb", ["WAIT EXTERNAL", "WAITCICS"])
+@pytest.mark.parametrize(
+    ("tail", "args"),
+    [
+        ("ECBLIST(ECB-PTR) NUMEVENTS(1)", "DetCics.pointerValue(f1_ECB_PTR), 1)"),
+        ("ECBLIST(ECB-PTR) NUMEVENTS(WS-N) NAME('X') PURGEABLE", "DetCics.pointerValue(f1_ECB_PTR), Cobol.num("),
+        ("NUMEVENTS(2) ECBLIST(ECB-PTR) NOTPURGEABLE RESP(WS-RESP)", "DetCics.pointerValue(f1_ECB_PTR), 2)"),
+    ],
+)
+def test_wait_external_and_waitcics_translate_whole_on_the_task(tmp_path, verb, tail, args):
+    holes, java = _java(tmp_path, f"{verb} {tail}")
+    assert holes == [], holes
+    assert f"task.waitExternal({'true' if verb == 'WAITCICS' else 'false'}, {args}" in java, java
+    assert ("f2_WS_RESP, BigDecimal.valueOf(waited1[0])" in java) == ("RESP(" in tail)
+
+
+@pytest.mark.parametrize("verb", ["WAIT EXTERNAL", "WAITCICS"])
+@pytest.mark.parametrize(
+    ("tail", "why"),
+    [
+        ("ECBLIST(ECB-PTR)", "without NUMEVENTS"),
+        ("NUMEVENTS(1)", "without ECBLIST"),
+        ("ECBLIST(ECB-PTR) NUMEVENTS(1) PURGEABLE NOTPURGEABLE", "PURGEABLE and NOTPURGEABLE"),
+        ("ECBLIST(ECB-PTR) NUMEVENTS(1) PURGEABILITY(WS-N)", "PURGEABILITY: option not modelled"),
+        ("ECBLIST(WS-IN) NUMEVENTS(1)", "not a plain USAGE POINTER item"),
+    ],
+)
+def test_wait_external_and_waitcics_refuse_by_name_what_they_cannot_model(tmp_path, verb, tail, why):
+    holes, _java_text = _java(tmp_path, f"{verb} {tail}")
+    assert any(why in h for h in holes), (why, holes)
+
+
+def test_the_x63_entry_records_ibms_wait_external_conditions_and_the_ecb_assumptions():
+    register = (HERE.parents[1] / "docs/language_status/register/X63.md").read_text(encoding="utf-8")
+    for needle in (
+        "topic=summary-wait-external",
+        "topic=summary-waitcics",
+        "ECBLIST(ptr-value)",
+        "previously posted and not subsequently cleared",
+        "first byte X'40'",
+        "no posted ECB",
+    ):
+        assert needle in register, needle
 
 
 def test_the_register_entry_cites_each_ibm_page_and_the_spec_points_at_it():
     from gitgalaxy.standards.cics.commands import COMMANDS
 
     register = (HERE.parents[1] / "docs/language_status/register/X63.md").read_text(encoding="utf-8")
-    for key in ("POST", "WAIT EVENT", "CONVERSE"):
+    for key in ("POST", "WAIT EVENT", "WAIT EXTERNAL", "WAITCICS", "CONVERSE"):
         assert COMMANDS[key].status == "modelled" and COMMANDS[key].register == "X63", key
         assert COMMANDS[key].ibm.url in register, key
-    for key in ("WAIT EXTERNAL", "WAITCICS"):
-        assert COMMANDS[key].status == "refused" and COMMANDS[key].register == "X63", key
     for key in ("SEND PAGE", "PURGE MESSAGE"):  # (still refused: the BMS logical message)
         assert COMMANDS[key].status == "refused" and COMMANDS[key].register == "X59", key
 
@@ -208,6 +278,56 @@ def test_the_harness_calls_the_stubs_entry_points():
     plain = ec.translate_command("CONVERSE FROM(A) INTO(B)")
     assert "MOVE LENGTH OF B TO GG-LEN" in plain and "    BY VALUE LENGTH OF A" in plain
     assert not any("MOVE GG-LEN TO" in line for line in plain)  # (no TOLENGTH: nothing to set)
+
+
+def test_the_harness_translates_wait_external_and_waitcics_to_the_ecb_stub():
+    ec = _ec()
+    for text, flag in (("WAIT EXTERNAL ECBLIST(P) NUMEVENTS(2) NAME('X') PURGEABLE RESP(R)", "EXTERNAL"),
+                       ("WAITCICS ECBLIST(P) NUMEVENTS(WS-N) NOTPURGEABLE RESP(R)", "WAITCICS")):  # fmt: skip
+        out = ec.translate_command(text)
+        assert (
+            out[0] == f"MOVE '{flag}' TO GG-FLAGS" and out[1].startswith("MOVE ") and out[1].endswith(" TO GG-NUM")
+        ), out
+        assert out[2:4] == ["CALL 'GGCECBW' USING GG-CICS", "    BY REFERENCE P"] and "MOVE GG-RESP TO R" in out
+    assert "MOVE 2 TO GG-NUM" in ec.translate_command("WAIT EXTERNAL ECBLIST(P) NUMEVENTS(2)")
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "WAIT EXTERNAL ECBLIST(P)",
+        "WAIT EXTERNAL NUMEVENTS(1)",
+        "WAITCICS ECBLIST(P)",
+        "WAITCICS NUMEVENTS(1)",
+        "WAIT EXTERNAL ECBLIST(P) NUMEVENTS(1) PURGEABLE NOTPURGEABLE",
+        "WAITCICS ECBLIST(P) NUMEVENTS(1) PURGEABLE NOTPURGEABLE",
+        "WAIT EXTERNAL ECBLIST(P) NUMEVENTS(1) PURGEABILITY(X)",
+        "WAITCICS ECBLIST(A OF B) NUMEVENTS(1)",
+        "WAIT EXTERNAL ECBLIST(A(1)) NUMEVENTS(1)",
+    ],
+)
+def test_the_harness_refuses_what_the_translator_refuses_for_the_ecb_waits(text):
+    with pytest.raises(_ec().Unsupported):
+        _ec().translate_command(text)
+
+
+def test_the_ecb_stub_is_defined_once_and_wired_into_the_spec():
+    from gitgalaxy.standards.cics.commands import COMMANDS
+
+    stub = (HERE.parents[1] / "tests/equivalence/cics/ggcics_taskcontrol.c").read_text(encoding="utf-8")
+    assert stub.count("int GGCECBW(gg_cics *c, void **slot)") == 1
+    for needle in (
+        "INVREQ",
+        "c->resp2 = 5",
+        "c->resp2 = 3",
+        "== 0x40",
+        "no posted ECB",
+        "WAITCICS with a null ECBLIST",
+    ):
+        assert needle in stub, needle
+    for key in ("WAIT EXTERNAL", "WAITCICS"):
+        impl = COMMANDS[key].impl
+        assert (impl.c, impl.harness, impl.java) == ("GGCECBW", "_wait_external", "waitExternal"), key
 
 
 @pytest.mark.parametrize(
@@ -685,3 +805,92 @@ def test_the_port_answers_each_scenario_as_the_stub_does(tmp_path):
         else:
             current.append(line)
     assert {name: lines for name, lines in got.items()} == {s[0]: s[4] for s in SCENARIOS}
+
+
+@pytest.mark.skipif(_javac() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+def test_the_port_waits_on_an_ecb_list_in_task_storage(tmp_path):
+    """CicsTask.waitExternal over a list block of 8-byte handles: a posted ECB (first byte X'40') returns NORMAL, null
+    entries are ignored, NUMEVENTS below 1 is INVREQ 3, a null ECBLIST INVREQ 2 (WAIT EXTERNAL) or refused (WAITCICS), a
+    list of nulls INVREQ 5; no posted ECB, a list shorter than NUMEVENTS, an unknown handle and a freed ECB are refused."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge import CICS_SPEC_JAVA, CICS_TASK_JAVA
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    src = tmp_path / "src"
+    files = {"t/cics/CicsTask.java": CICS_TASK_JAVA.replace("__PACKAGE__", "t").replace("__ZONE__", "UTC"),
+             "t/cics/CicsSpec.java": CICS_SPEC_JAVA.replace("__PACKAGE__", "t"),
+             **{f"t/{k}": v for k, v in P.runtime_files("t", batch=False).items()}}  # fmt: skip
+    files["Main.java"] = """
+import t.cics.CicsTask;
+import t.cobolrt.Field;
+import t.cobolrt.Storage;
+import t.cobolrt.cics.DetCics;
+public class Main {
+    static Field rec(int n) { return Field.alphanumeric(new Storage(n), 0, n, false); }
+    static Field ptr() { return Field.group(new Storage(8), 0, 8); }
+    static Field block(CicsTask t, int n) {
+        Field p = ptr();
+        DetCics.getmain(t, p, n, false, rec(1));
+        return p;
+    }
+    static void show(String label, java.util.function.Supplier<int[]> call) {
+        try { int[] r = call.get(); System.out.println(label + " " + r[0] + "/" + r[1]); }
+        catch (UnsupportedOperationException e) { System.out.println(label + " refused: " + e.getMessage()); }
+    }
+    public static void main(String[] a) {
+        CicsTask t = new CicsTask("ZC01", "ENTER", null, null);
+        Field e1 = block(t, 4), e2 = block(t, 4), list = block(t, 24);
+        Field listRec = rec(24), e2Rec = rec(4);
+        DetCics.setAddress(t, listRec, list);
+        DetCics.setAddress(t, e2Rec, e2);
+        Field table = Field.group(listRec.storage(), 0, 8);
+        DetCics.setPointer(table.at(1, 8), DetCics.pointerValue(e1));
+        DetCics.setPointer(table.at(3, 8), DetCics.pointerValue(e2));
+        long l = DetCics.pointerValue(list);
+        show("unposted", () -> t.waitExternal(false, l, 3));
+        e2Rec.storage().bytes[0] = 0x40;
+        show("posted", () -> t.waitExternal(false, l, 3));
+        show("posted-cics", () -> t.waitExternal(true, l, 3));
+        show("first-two-only", () -> t.waitExternal(false, l, 2));
+        show("numevents-0", () -> t.waitExternal(false, l, 0));
+        show("numevents-neg", () -> t.waitExternal(true, l, -1));
+        show("null-list", () -> t.waitExternal(false, 0, 1));
+        show("null-list-cics", () -> t.waitExternal(true, 0, 1));
+        show("too-short", () -> t.waitExternal(false, l, 4));
+        show("unknown-handle", () -> t.waitExternal(false, 987654L, 1));
+        Field nulls = block(t, 16);
+        show("all-null", () -> t.waitExternal(false, DetCics.pointerValue(nulls), 2));
+        DetCics.setPointer(table.at(3, 8), 987654L);
+        show("bad-entry", () -> t.waitExternal(false, l, 3));
+        DetCics.setPointer(table.at(3, 8), DetCics.pointerValue(e1));
+        t.freemain(DetCics.pointerValue(e1));
+        show("freed-ecb", () -> t.waitExternal(false, l, 3));
+    }
+}
+"""
+    for rel, text in files.items():
+        (src / rel).parent.mkdir(parents=True, exist_ok=True)
+        (src / rel).write_text(text, encoding="utf-8")
+    jdk = _javac()
+    assert jdk is not None
+    built = javac_run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
+                       *map(str, src.rglob("*.java"))], capture_output=True, text=True, encoding="utf-8", check=False)  # fmt: skip
+    assert built.returncode == 0, built.stderr
+    out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "Main"],  # noqa: S603
+                         capture_output=True, text=True, encoding="utf-8", check=True).stdout.splitlines()  # fmt: skip
+    refused = "refused: "
+    assert out == [
+        f"unposted {refused}WAIT on an ECB list with no posted ECB: not modelled",
+        "posted 0/0",
+        "posted-cics 0/0",
+        f"first-two-only {refused}WAIT on an ECB list with no posted ECB: not modelled",
+        "numevents-0 16/3",
+        "numevents-neg 16/3",
+        "null-list 16/2",
+        f"null-list-cics {refused}WAITCICS with a null ECBLIST: not modelled",
+        f"too-short {refused}WAIT on an ECB list that is no task storage holding NUMEVENTS handles: not modelled",
+        f"unknown-handle {refused}WAIT on an ECB list that is no task storage holding NUMEVENTS handles: not modelled",
+        "all-null 16/5",
+        f"bad-entry {refused}WAIT on an ECB list that is no task storage holding NUMEVENTS handles: not modelled",
+        f"freed-ecb {refused}WAIT on an ECB list that is no task storage holding NUMEVENTS handles: not modelled",
+    ], out

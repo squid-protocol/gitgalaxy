@@ -12,11 +12,11 @@ Every cell that does not pass is ledgered in `tests/cics_crucible/baseline.json`
 |---|---|---|---|---|
 | engine-facts | 48 | 0 | 0 | 48 |
 | forge-compile | 48 | 0 | 0 | 48 |
-| cobol-stub | 135 | 5 | 31 | 171 |
+| cobol-stub | 155 | 10 | 6 | 171 |
 | java | 0 | 171 | 0 | 171 |
-| java-ported | 56 | 115 | 0 | 171 |
-| java-facade | 53 | 118 | 0 | 171 |
-| **all** | **340** | **409** | **31** | **780** |
+| java-ported | 60 | 111 | 0 | 171 |
+| java-facade | 57 | 114 | 0 | 171 |
+| **all** | **368** | **406** | **6** | **780** |
 
 ## By trap and case
 
@@ -24,17 +24,17 @@ Pass counts per side (scenario sides: passing / scenarios).
 
 | trap | case | engine-facts | forge-compile | cobol-stub | java | java-ported | java-facade |
 |---|---|---|---|---|---|---|---|
-| commarea-mismatch | `ca-address-commarea` | pass | pass | 0 / 3 | 0 / 3 | 0 / 3 | 0 / 3 |
-| commarea-mismatch | `ca-address-eib-commarea` | pass | pass | 0 / 3 | 0 / 3 | 0 / 3 | 0 / 3 |
-| commarea-mismatch | `ca-address-twa-tctua` | pass | pass | 0 / 3 | 0 / 3 | 0 / 3 | 0 / 3 |
+| commarea-mismatch | `ca-address-commarea` | pass | pass | 2 / 3 | 0 / 3 | 0 / 3 | 0 / 3 |
+| commarea-mismatch | `ca-address-eib-commarea` | pass | pass | 1 / 3 | 0 / 3 | 0 / 3 | 0 / 3 |
+| commarea-mismatch | `ca-address-twa-tctua` | pass | pass | 3 / 3 | 0 / 3 | 0 / 3 | 0 / 3 |
 | commarea-mismatch | `ca-channel-containers` | pass | pass | 2 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
 | commarea-mismatch | `ca-container-byteoffset` | pass | pass | 2 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
 | commarea-mismatch | `ca-container-ccsid` | pass | pass | 1 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
 | commarea-mismatch | `ca-get-container-set` | pass | pass | 1 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
-| commarea-mismatch | `ca-getmain-pointer` | pass | pass | 0 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
+| commarea-mismatch | `ca-getmain-pointer` | pass | pass | 1 / 2 | 0 / 2 | 2 / 2 | 2 / 2 |
 | commarea-mismatch | `ca-link-lengths` | pass | pass | 4 / 4 | 0 / 4 | 4 / 4 | 4 / 4 |
-| commarea-mismatch | `ca-load-set` | pass | pass | 0 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
-| commarea-mismatch | `ca-receive-retrieve-set` | pass | pass | 0 / 3 | 0 / 3 | 0 / 3 | 0 / 3 |
+| commarea-mismatch | `ca-load-set` | pass | pass | 2 / 2 | 0 / 2 | 2 / 2 | 2 / 2 |
+| commarea-mismatch | `ca-receive-retrieve-set` | pass | pass | 1 / 3 | 0 / 3 | 0 / 3 | 0 / 3 |
 | commarea-mismatch | `ca-xctl-versions` | pass | pass | 4 / 4 | 0 / 4 | 4 / 4 | 4 / 4 |
 | condition-handling | `hc-abend-link` | pass | pass | 5 / 5 | 0 / 5 | 5 / 5 | 5 / 5 |
 | condition-handling | `hc-counter-increment-wrap` | pass | pass | 1 / 3 | 0 / 3 | 0 / 3 | 0 / 3 |
@@ -42,7 +42,7 @@ Pass counts per side (scenario sides: passing / scenarios).
 | condition-handling | `hc-dcounters` | pass | pass | 2 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
 | condition-handling | `hc-deedit-uctranst` | pass | pass | 3 / 3 | 0 / 3 | 0 / 3 | 0 / 3 |
 | condition-handling | `hc-eoc-error` | pass | pass | 2 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
-| condition-handling | `hc-file-read-set` | pass | pass | 0 / 4 | 0 / 4 | 0 / 4 | 0 / 4 |
+| condition-handling | `hc-file-read-set` | pass | pass | 4 / 4 | 0 / 4 | 0 / 4 | 0 / 4 |
 | condition-handling | `hc-file-unlock` | pass | pass | 4 / 4 | 0 / 4 | 0 / 4 | 0 / 4 |
 | condition-handling | `hc-handle-aid` | pass | pass | 9 / 9 | 0 / 9 | 0 / 9 | 0 / 9 |
 | condition-handling | `hc-ignore-error` | pass | pass | 9 / 9 | 0 / 9 | 0 / 9 | 0 / 9 |
@@ -50,7 +50,7 @@ Pass counts per side (scenario sides: passing / scenarios).
 | condition-handling | `hc-map-not-in-mapset` | pass | pass | 4 / 4 | 0 / 4 | 0 / 4 | 0 / 4 |
 | condition-handling | `hc-named-counters` | pass | pass | 2 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
 | condition-handling | `hc-perform-range` | pass | pass | 4 / 4 | 0 / 4 | 4 / 4 | 4 / 4 |
-| condition-handling | `hc-readq-td` | pass | pass | 0 / 6 | 0 / 6 | 0 / 6 | 0 / 6 |
+| condition-handling | `hc-readq-td` | pass | pass | 6 / 6 | 0 / 6 | 0 / 6 | 0 / 6 |
 | condition-handling | `hc-resp-options` | pass | pass | 3 / 3 | 0 / 3 | 0 / 3 | 0 / 3 |
 | condition-handling | `hc-terminal-eoc` | pass | pass | 3 / 3 | 0 / 3 | 0 / 3 | 0 / 3 |
 | condition-handling | `hc-terminal-receive` | pass | pass | 7 / 7 | 0 / 7 | 0 / 7 | 0 / 7 |
@@ -79,6 +79,12 @@ Each cobol-stub scenario runs the COBOL compiled with `-ftraceall` (tests/tools/
 
 | case | program | scenarios | paragraphs | branches | HANDLE labels | dead | port |
 |---|---|---|---|---|---|---|---|
+| `ca-address-commarea` | CAADDR | 2 | 3/4 | 3/8 | 0/0 | 0 | proven on 0 scenarios, covering 0/4 paragraphs and 0/8 branches |
+| `ca-address-commarea` | CAADSB | 1 | 1/1 | 1/2 | 0/0 | 0 | proven on 0 scenarios, covering 0/1 paragraphs and 0/2 branches |
+| `ca-address-eib-commarea` | CAEBCA | 1 | 2/4 | 1/10 | 0/0 | 0 | proven on 0 scenarios, covering 0/4 paragraphs and 0/10 branches |
+| `ca-address-eib-commarea` | CAEBSB | 1 | 1/1 | 2/4 | 0/0 | 0 | proven on 0 scenarios, covering 0/1 paragraphs and 0/4 branches |
+| `ca-address-twa-tctua` | CATWAD | 3 | 5/5 | 5/7 | 0/0 | 0 | proven on 0 scenarios, covering 0/5 paragraphs and 0/7 branches |
+| `ca-address-twa-tctua` | CATWSB | 1 | 1/1 | 1/2 | 0/0 | 0 | proven on 0 scenarios, covering 0/1 paragraphs and 0/2 branches |
 | `ca-channel-containers` | CACHAN | 1 | 3/3 | 0/0 | 0/0 | 0 | proven on 0 scenarios, covering 0/3 paragraphs and 0/0 branches |
 | `ca-channel-containers` | CACHERR | 1 | 2/2 | 0/0 | 0/0 | 0 | proven on 0 scenarios, covering 0/2 paragraphs and 0/0 branches |
 | `ca-channel-containers` | CACHSUB | 1 | 4/4 | 0/0 | 1/1 | 0 | proven on 0 scenarios, covering 0/4 paragraphs and 0/0 branches |
@@ -90,8 +96,13 @@ Each cobol-stub scenario runs the COBOL compiled with `-ftraceall` (tests/tools/
 | `ca-get-container-set` | CAGCST | 0 | 0/2 | 0/0 | 0/0 | 0 | -- |
 | `ca-get-container-set` | CAGCSX | 1 | 2/2 | 0/0 | 0/0 | 0 | proven on 0 scenarios, covering 0/2 paragraphs and 0/0 branches |
 | `ca-getmain-pointer` | CAGMPT | 0 | 0/2 | 0/6 | 0/0 | 0 | -- |
+| `ca-getmain-pointer` | CAGMZ | 1 | 3/3 | 4/4 | 0/0 | 0 | proven on 1 scenario, covering 3/3 paragraphs and 4/4 branches |
 | `ca-link-lengths` | CALINK | 4 | 1/1 | 4/4 | 0/0 | 0 | proven on 4 scenarios, covering 1/1 paragraphs and 4/4 branches |
 | `ca-link-lengths` | CASUB | 3 | 1/1 | 4/4 | 0/0 | 0 | proven on 3 scenarios, covering 1/1 paragraphs and 4/4 branches |
+| `ca-load-set` | CALDST | 1 | 3/3 | 2/4 | 0/0 | 0 | proven on 1 scenario, covering 3/3 paragraphs and 2/4 branches |
+| `ca-load-set` | CALDSX | 1 | 2/2 | 2/4 | 0/0 | 0 | proven on 1 scenario, covering 2/2 paragraphs and 2/4 branches |
+| `ca-receive-retrieve-set` | CARCST | 1 | 1/1 | 2/5 | 0/0 | 0 | proven on 0 scenarios, covering 0/1 paragraphs and 0/5 branches |
+| `ca-receive-retrieve-set` | CARTWK | 0 | 0/1 | 0/2 | 0/0 | 0 | -- |
 | `ca-xctl-versions` | CAXA | 3 | 1/1 | 3/3 | 0/0 | 0 | proven on 3 scenarios, covering 1/1 paragraphs and 3/3 branches |
 | `ca-xctl-versions` | CAXB | 3 | 1/1 | 6/6 | 0/0 | 0 | proven on 3 scenarios, covering 1/1 paragraphs and 6/6 branches |
 | `gt-assign-startcode` | GTASAB | 1 | 1/1 | 0/0 | 0/0 | 0 | proven on 0 scenarios, covering 0/1 paragraphs and 0/0 branches |
@@ -119,6 +130,7 @@ Each cobol-stub scenario runs the COBOL compiled with `-ftraceall` (tests/tools/
 | `hc-dcounters` | HCDCNT | 2 | 7/7 | 6/7 | 0/0 | 0 | proven on 0 scenarios, covering 0/7 paragraphs and 0/7 branches |
 | `hc-deedit-uctranst` | HCDEED | 3 | 7/7 | 3/4 | 0/0 | 0 | proven on 0 scenarios, covering 0/7 paragraphs and 0/4 branches |
 | `hc-eoc-error` | HCEOE | 2 | 3/4 | 2/2 | 1/2 | 0 | proven on 0 scenarios, covering 0/4 paragraphs and 0/2 branches |
+| `hc-file-read-set` | HCRDST | 4 | 8/8 | 8/9 | 0/0 | 0 | proven on 0 scenarios, covering 0/8 paragraphs and 0/9 branches |
 | `hc-file-unlock` | HCUNLK | 4 | 9/9 | 7/9 | 0/0 | 0 | proven on 0 scenarios, covering 0/9 paragraphs and 0/9 branches |
 | `hc-handle-aid` | HCAID | 9 | 6/6 | 7/7 | 3/3 | 0 | proven on 0 scenarios, covering 0/6 paragraphs and 0/7 branches |
 | `hc-ignore-error` | HCIGN | 9 | 5/5 | 9/9 | 2/2 | 0 | proven on 0 scenarios, covering 0/5 paragraphs and 0/9 branches |
@@ -126,7 +138,7 @@ Each cobol-stub scenario runs the COBOL compiled with `-ftraceall` (tests/tools/
 | `hc-map-not-in-mapset` | HCMAB | 4 | 2/2 | 4/5 | 1/1 | 0 | proven on 0 scenarios, covering 0/2 paragraphs and 0/5 branches |
 | `hc-named-counters` | HCCNTR | 2 | 6/6 | 6/7 | 0/0 | 0 | proven on 0 scenarios, covering 0/6 paragraphs and 0/7 branches |
 | `hc-perform-range` | HCQREAD | 4 | 8/8 | 0/0 | 4/4 | 0 | proven on 4 scenarios, covering 8/8 paragraphs and 0/0 branches |
-| `hc-readq-td` | HCRQTD | 0 | 0/9 | 0/7 | 0/0 | 0 | -- |
+| `hc-readq-td` | HCRQTD | 6 | 9/9 | 6/7 | 0/0 | 0 | proven on 0 scenarios, covering 0/9 paragraphs and 0/7 branches |
 | `hc-resp-options` | HCOPT | 3 | 7/7 | 5/6 | 0/0 | 0 | proven on 0 scenarios, covering 0/7 paragraphs and 0/6 branches |
 | `hc-terminal-eoc` | HCEOC | 3 | 4/4 | 3/3 | 1/1 | 0 | proven on 0 scenarios, covering 0/4 paragraphs and 0/3 branches |
 | `hc-terminal-receive` | HCTERM | 7 | 10/10 | 6/6 | 1/1 | 0 | proven on 0 scenarios, covering 0/10 paragraphs and 0/6 branches |
@@ -147,6 +159,47 @@ Each cobol-stub scenario runs the COBOL compiled with `-ftraceall` (tests/tools/
 ### Live code no scenario reaches
 
 Each item is a scenario to propose: a crucible PR adds it with a hand-written, doc-cited expected log, like every other. Dead code is not a gap: nothing can reach it.
+
+#### `ca-address-commarea` CAADDR
+
+- paragraph `NONE-PARA` (line 82)
+- EVALUATE at line 62 in `MAIN-PARA`: `WHEN at line 65` never taken
+- EVALUATE at line 62 in `MAIN-PARA`: no WHEN arm matched: never
+- IF at line 88 in `NONE-PARA`: never true
+- IF at line 88 in `NONE-PARA`: never false
+- IF at line 106 in `EIB-PARA`: never false
+
+#### `ca-address-commarea` CAADSB
+
+- IF at line 39 in `SUB-MAIN`: never true
+
+#### `ca-address-eib-commarea` CAEBCA
+
+- paragraph `QIDERR-PARA` (line 96)
+- paragraph `NONE-PARA` (line 124)
+- EVALUATE at line 85 in `MAIN-PARA`: `WHEN at line 86` never taken
+- EVALUATE at line 85 in `MAIN-PARA`: `WHEN at line 90` never taken
+- EVALUATE at line 85 in `MAIN-PARA`: no WHEN arm matched: never
+- IF at line 104 in `QIDERR-PARA`: never true
+- IF at line 104 in `QIDERR-PARA`: never false
+- IF at line 130 in `NONE-PARA`: never true
+- IF at line 130 in `NONE-PARA`: never false
+- IF at line 136 in `NONE-PARA`: never true
+- IF at line 136 in `NONE-PARA`: never false
+
+#### `ca-address-eib-commarea` CAEBSB
+
+- IF at line 53 in `SUB-MAIN`: never false
+- IF at line 56 in `SUB-MAIN`: never true
+
+#### `ca-address-twa-tctua` CATWAD
+
+- EVALUATE at line 44 in `MAIN-PARA`: no WHEN arm matched: never
+- IF at line 77 in `TWA-NONE-PARA`: never false
+
+#### `ca-address-twa-tctua` CATWSB
+
+- IF at line 32 in `SUB-MAIN`: never true
 
 #### `ca-container-ccsid` CACCSID
 
@@ -169,6 +222,28 @@ Each item is a scenario to propose: a crucible PR adds it with a hand-written, d
 - IF at line 68 in `MAIN-PARA`: never false
 - IF at line 86 in `LOG-RESP`: never true
 - IF at line 86 in `LOG-RESP`: never false
+
+#### `ca-load-set` CALDST
+
+- IF at line 40 in `LOG-LOAD`: never true
+- IF at line 45 in `LOG-LOAD`: never false
+
+#### `ca-load-set` CALDSX
+
+- IF at line 37 in `MAIN-PARA`: never true
+- IF at line 42 in `MAIN-PARA`: never false
+
+#### `ca-receive-retrieve-set` CARCST
+
+- IF at line 32 in `MAIN-PARA`: never false
+- EVALUATE at line 40 in `MAIN-PARA`: `WHEN at line 41` never taken
+- EVALUATE at line 40 in `MAIN-PARA`: `WHEN at line 45` never taken
+
+#### `ca-receive-retrieve-set` CARTWK
+
+- paragraph `MAIN-PARA` (line 23)
+- IF at line 33 in `MAIN-PARA`: never true
+- IF at line 33 in `MAIN-PARA`: never false
 
 #### `gt-assign-startcode` GTASGN
 
@@ -225,6 +300,10 @@ Each item is a scenario to propose: a crucible PR adds it with a hand-written, d
 - paragraph `GOT-ERROR` (line 37)
 - HANDLE label `GOT-ERROR` never entered
 
+#### `hc-file-read-set` HCRDST
+
+- EVALUATE at line 42 in `MAIN-PARA`: no WHEN arm matched: never
+
 #### `hc-file-unlock` HCUNLK
 
 - EVALUATE at line 41 in `MAIN-PARA`: no WHEN arm matched: never
@@ -244,21 +323,6 @@ Each item is a scenario to propose: a crucible PR adds it with a hand-written, d
 
 #### `hc-readq-td` HCRQTD
 
-- paragraph `MAIN-PARA` (line 37)
-- paragraph `FIFO-PARA` (line 58)
-- paragraph `SEED-PARA` (line 64)
-- paragraph `EMPTY-PARA` (line 71)
-- paragraph `UNDEF-PARA` (line 73)
-- paragraph `DELETE-PARA` (line 83)
-- paragraph `LENGERR-PARA` (line 88)
-- paragraph `WRITE-THREE` (line 95)
-- paragraph `READ-ONE` (line 105)
-- EVALUATE at line 41 in `MAIN-PARA`: `WHEN at line 42` never taken
-- EVALUATE at line 41 in `MAIN-PARA`: `WHEN at line 44` never taken
-- EVALUATE at line 41 in `MAIN-PARA`: `WHEN at line 46` never taken
-- EVALUATE at line 41 in `MAIN-PARA`: `WHEN at line 48` never taken
-- EVALUATE at line 41 in `MAIN-PARA`: `WHEN at line 50` never taken
-- EVALUATE at line 41 in `MAIN-PARA`: `WHEN at line 52` never taken
 - EVALUATE at line 41 in `MAIN-PARA`: no WHEN arm matched: never
 
 #### `hc-resp-options` HCOPT
@@ -278,49 +342,43 @@ Each item is a scenario to propose: a crucible PR adds it with a hand-written, d
 
 Each missing feature belongs to a piece of harness work (below: the features themselves). A cell is *unlocked* when every piece its features need is done: it then gets a pass or fail verdict rather than `unsupported`. **needs** counts the cells that do not pass and need the piece, **alone** the unsupported cells it unlocks by itself, and **cumulative** the unsupported cells unlocked by it and every row above it (rows are chosen greedily).
 
-### cobol-stub (31 unsupported)
+### cobol-stub (6 unsupported)
 
 | # | harness work | needs | alone | cumulative |
 |---|---|---|---|---|
-| 1 | ADDRESS COMMAREA | 6 | 5 | 5 |
-| 2 | TS queues: READQ / WRITEQ TS, seeding, final state | 7 | 4 | 10 |
-| 3 | terminal RECEIVE (unformatted input) | 3 | 3 | 13 |
-| 4 | DELETEQ-TD event | 2 | 0 | 15 |
-| 5 | GETMAIN | 1 | 1 | 16 |
-| 6 | WEB SEND CHARACTERSET | 6 | 0 | 16 |
-| 7 | WEB SEND HOSTCODEPAGE | 6 | 0 | 16 |
-| 8 | WEB READ HTTPHEADER | 5 | 0 | 16 |
-| 9 | WEB WRITE HTTPHEADER | 1 | 0 | 17 |
-| 10 | WEB RECEIVE CHARACTERSET | 5 | 0 | 17 |
-| 11 | WEB RECEIVE HOSTCODEPAGE | 5 | 0 | 22 |
-| 12 | READ | 4 | 0 | 22 |
-| 13 | READNEXT | 4 | 0 | 22 |
-| 14 | READPREV | 4 | 0 | 26 |
-| 15 | ADDRESS TCTUA | 3 | 0 | 26 |
-| 16 | ADDRESS TWA | 3 | 0 | 29 |
-| 17 | LOAD | 2 | 0 | 29 |
-| 18 | RELEASE | 2 | 0 | 31 |
+| 1 | WEB SEND CHARACTERSET | 6 | 0 | 0 |
+| 2 | WEB SEND HOSTCODEPAGE | 6 | 0 | 0 |
+| 3 | WEB READ HTTPHEADER | 5 | 0 | 0 |
+| 4 | WEB WRITE HTTPHEADER | 1 | 0 | 1 |
+| 5 | WEB RECEIVE CHARACTERSET | 5 | 0 | 1 |
+| 6 | WEB RECEIVE HOSTCODEPAGE | 5 | 0 | 6 |
 
 ### java (0 unsupported)
 
 | # | harness work | needs | alone | cumulative |
 |---|---|---|---|---|
 | 1 | DELETEQ-TD event | 2 | 0 | 0 |
-| 2 | TS queues: READQ / WRITEQ TS, seeding, final state | 7 | 0 | 0 |
+| 2 | TD queue final state | 4 | 0 | 0 |
+| 3 | TD queue seeding | 1 | 0 | 0 |
+| 4 | TS queues: READQ / WRITEQ TS, seeding, final state | 7 | 0 | 0 |
 
 ### java-ported (0 unsupported)
 
 | # | harness work | needs | alone | cumulative |
 |---|---|---|---|---|
 | 1 | DELETEQ-TD event | 2 | 0 | 0 |
-| 2 | TS queues: READQ / WRITEQ TS, seeding, final state | 7 | 0 | 0 |
+| 2 | TD queue final state | 4 | 0 | 0 |
+| 3 | TD queue seeding | 1 | 0 | 0 |
+| 4 | TS queues: READQ / WRITEQ TS, seeding, final state | 7 | 0 | 0 |
 
 ### java-facade (0 unsupported)
 
 | # | harness work | needs | alone | cumulative |
 |---|---|---|---|---|
 | 1 | DELETEQ-TD event | 2 | 0 | 0 |
-| 2 | TS queues: READQ / WRITEQ TS, seeding, final state | 7 | 0 | 0 |
+| 2 | TD queue final state | 4 | 0 | 0 |
+| 3 | TD queue seeding | 1 | 0 | 0 |
+| 4 | TS queues: READQ / WRITEQ TS, seeding, final state | 7 | 0 | 0 |
 
 ## Unsupported features, by how many cells need them
 
@@ -330,24 +388,11 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 
 | feature | cells | harness work |
 |---|---|---|
-| stub: READQ-TD event | 7 | TS queues: READQ / WRITEQ TS, seeding, final state |
-| translator: ADDRESS COMMAREA | 6 | ADDRESS COMMAREA |
 | translator: WEB SEND CHARACTERSET | 6 | WEB SEND CHARACTERSET |
 | translator: WEB SEND HOSTCODEPAGE | 6 | WEB SEND HOSTCODEPAGE |
-| stub: WRITEQ-TD event | 5 | TS queues: READQ / WRITEQ TS, seeding, final state |
 | translator: WEB READ HTTPHEADER | 5 | WEB READ HTTPHEADER |
 | translator: WEB RECEIVE CHARACTERSET | 5 | WEB RECEIVE CHARACTERSET |
 | translator: WEB RECEIVE HOSTCODEPAGE | 5 | WEB RECEIVE HOSTCODEPAGE |
-| translator: READ | 4 | READ |
-| translator: READNEXT | 4 | READNEXT |
-| translator: READPREV | 4 | READPREV |
-| translator: ADDRESS TCTUA | 3 | ADDRESS TCTUA |
-| translator: ADDRESS TWA | 3 | ADDRESS TWA |
-| translator: RECEIVE SET | 3 | terminal RECEIVE (unformatted input) |
-| stub: DELETEQ-TD event | 2 | DELETEQ-TD event |
-| translator: LOAD | 2 | LOAD |
-| translator: RELEASE | 2 | RELEASE |
-| translator: GETMAIN | 1 | GETMAIN |
 | translator: WEB WRITE HTTPHEADER | 1 | WEB WRITE HTTPHEADER |
 
 ### java
@@ -356,7 +401,9 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 |---|---|---|
 | CicsTask: READQ-TD event | 7 | TS queues: READQ / WRITEQ TS, seeding, final state |
 | CicsTask: WRITEQ-TD event | 5 | TS queues: READQ / WRITEQ TS, seeding, final state |
+| CicsTask: TD queue final state | 4 | TD queue final state |
 | CicsTask: DELETEQ-TD event | 2 | DELETEQ-TD event |
+| CicsTask: TD queue seeding | 1 | TD queue seeding |
 
 ### java-ported
 
@@ -364,7 +411,9 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 |---|---|---|
 | CicsTask: READQ-TD event | 7 | TS queues: READQ / WRITEQ TS, seeding, final state |
 | CicsTask: WRITEQ-TD event | 5 | TS queues: READQ / WRITEQ TS, seeding, final state |
+| CicsTask: TD queue final state | 4 | TD queue final state |
 | CicsTask: DELETEQ-TD event | 2 | DELETEQ-TD event |
+| CicsTask: TD queue seeding | 1 | TD queue seeding |
 
 ### java-facade
 
@@ -372,56 +421,54 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 |---|---|---|
 | CicsTask: READQ-TD event | 7 | TS queues: READQ / WRITEQ TS, seeding, final state |
 | CicsTask: WRITEQ-TD event | 5 | TS queues: READQ / WRITEQ TS, seeding, final state |
+| CicsTask: TD queue final state | 4 | TD queue final state |
 | CicsTask: DELETEQ-TD event | 2 | DELETEQ-TD event |
+| CicsTask: TD queue seeding | 1 | TD queue seeding |
 
 ## Failure reasons, grouped
 
 | side | reason | cells |
 |---|---|---|
-| cobol-stub | WRITEQ-TS missing | 4 |
+| cobol-stub | WRITEQ-TS missing | 6 |
+| cobol-stub | item differs | 2 |
 | cobol-stub | data bytes differ | 1 |
+| cobol-stub | text differs | 1 |
 | java | runTask records no events (the generated stub: PROCEDURE DIVISION not ported) | 171 |
-| java-ported | not ported | 115 |
-| java-facade | not ported | 115 |
+| java-ported | not ported | 111 |
+| java-facade | not ported | 111 |
 | java-facade | RECEIVE expected, other event | 3 |
 
 ## Every cell that does not pass
 
 | cell | status | first divergence / reason |
 |---|---|---|
-| `ca-address-commarea/eib-view/cobol-stub` | unsupported | translator: ADDRESS COMMAREA |
 | `ca-address-commarea/eib-view/java` | fail | task 1 (CA02) event 1: RECEIVE expected, the side recorded no further event |
 | `ca-address-commarea/eib-view/java-facade` | fail | no port of any of its programs |
 | `ca-address-commarea/eib-view/java-ported` | fail | no port of any of its programs |
-| `ca-address-commarea/link-view/cobol-stub` | unsupported | translator: ADDRESS COMMAREA |
 | `ca-address-commarea/link-view/java` | fail | task 1 (CA02) event 1: RECEIVE expected, the side recorded no further event |
 | `ca-address-commarea/link-view/java-facade` | fail | no port of any of its programs |
 | `ca-address-commarea/link-view/java-ported` | fail | no port of any of its programs |
-| `ca-address-commarea/no-commarea/cobol-stub` | unsupported | translator: ADDRESS COMMAREA |
+| `ca-address-commarea/no-commarea/cobol-stub` | fail | task 1 (CA02) event 2: WRITEQ-TS expected, the side recorded no further event |
 | `ca-address-commarea/no-commarea/java` | fail | task 1 (CA02) event 1: RECEIVE expected, the side recorded no further event |
 | `ca-address-commarea/no-commarea/java-facade` | fail | no port of any of its programs |
 | `ca-address-commarea/no-commarea/java-ported` | fail | no port of any of its programs |
-| `ca-address-eib-commarea/commarea-writethru/cobol-stub` | unsupported | translator: ADDRESS COMMAREA |
 | `ca-address-eib-commarea/commarea-writethru/java` | fail | task 1 (CA0K) event 1: RECEIVE expected, the side recorded no further event |
 | `ca-address-eib-commarea/commarea-writethru/java-facade` | fail | no port of any of its programs |
 | `ca-address-eib-commarea/commarea-writethru/java-ported` | fail | no port of any of its programs |
-| `ca-address-eib-commarea/eib-qiderr/cobol-stub` | unsupported | translator: ADDRESS COMMAREA |
+| `ca-address-eib-commarea/eib-qiderr/cobol-stub` | fail | task 1 (CA0K) event 4: text 'MODE=Q RESP=0044 SAME=Y ' expected, got 'MODE=Q RESP=0000 SAME=Y ' |
 | `ca-address-eib-commarea/eib-qiderr/java` | fail | task 1 (CA0K) event 1: RECEIVE expected, the side recorded no further event |
 | `ca-address-eib-commarea/eib-qiderr/java-facade` | fail | no port of any of its programs |
 | `ca-address-eib-commarea/eib-qiderr/java-ported` | fail | no port of any of its programs |
-| `ca-address-eib-commarea/no-commarea/cobol-stub` | unsupported | translator: ADDRESS COMMAREA |
+| `ca-address-eib-commarea/no-commarea/cobol-stub` | fail | task 1 (CA0K) event 2: WRITEQ-TS expected, the side recorded no further event |
 | `ca-address-eib-commarea/no-commarea/java` | fail | task 1 (CA0K) event 1: RECEIVE expected, the side recorded no further event |
 | `ca-address-eib-commarea/no-commarea/java-facade` | fail | no port of any of its programs |
 | `ca-address-eib-commarea/no-commarea/java-ported` | fail | no port of any of its programs |
-| `ca-address-twa-tctua/tctua-two-tasks/cobol-stub` | unsupported | translator: ADDRESS TWA; translator: ADDRESS TCTUA |
 | `ca-address-twa-tctua/tctua-two-tasks/java` | fail | task 1 (CA0J) event 1: RECEIVE expected, the side recorded no further event |
 | `ca-address-twa-tctua/tctua-two-tasks/java-facade` | fail | no port of any of its programs |
 | `ca-address-twa-tctua/tctua-two-tasks/java-ported` | fail | no port of any of its programs |
-| `ca-address-twa-tctua/twa-sized/cobol-stub` | unsupported | translator: ADDRESS TWA; translator: ADDRESS TCTUA |
 | `ca-address-twa-tctua/twa-sized/java` | fail | task 1 (CA0H) event 1: RECEIVE expected, the side recorded no further event |
 | `ca-address-twa-tctua/twa-sized/java-facade` | fail | no port of any of its programs |
 | `ca-address-twa-tctua/twa-sized/java-ported` | fail | no port of any of its programs |
-| `ca-address-twa-tctua/twasize-zero/cobol-stub` | unsupported | translator: ADDRESS TWA; translator: ADDRESS TCTUA |
 | `ca-address-twa-tctua/twasize-zero/java` | fail | task 1 (CA0I) event 1: RECEIVE expected, the side recorded no further event |
 | `ca-address-twa-tctua/twasize-zero/java-facade` | fail | no port of any of its programs |
 | `ca-address-twa-tctua/twasize-zero/java-ported` | fail | no port of any of its programs |
@@ -453,33 +500,21 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | `ca-get-container-set/set/java-ported` | fail | no port of any of its programs |
 | `ca-getmain-pointer/alloc/cobol-stub` | fail | task 1 (CA0B) event 4: WRITEQ-TS expected, the side recorded no further event |
 | `ca-getmain-pointer/alloc/java` | fail | task 1 (CA0B) event 1: WRITEQ-TS expected, the side recorded no further event |
-| `ca-getmain-pointer/alloc/java-facade` | fail | no port of any of its programs |
-| `ca-getmain-pointer/alloc/java-ported` | fail | no port of any of its programs |
-| `ca-getmain-pointer/zero-length/cobol-stub` | unsupported | translator: GETMAIN |
 | `ca-getmain-pointer/zero-length/java` | fail | task 1 (CA0C) event 1: WRITEQ-TS expected, the side recorded no further event |
-| `ca-getmain-pointer/zero-length/java-facade` | fail | no port of any of its programs |
-| `ca-getmain-pointer/zero-length/java-ported` | fail | no port of any of its programs |
 | `ca-link-lengths/long-500/java` | fail | task 1 (CA01) event 1: RECEIVE expected, the side recorded no further event |
 | `ca-link-lengths/no-commarea/java` | fail | task 1 (CA01) event 1: RECEIVE expected, the side recorded no further event |
 | `ca-link-lengths/short-100/java` | fail | task 1 (CA01) event 1: RECEIVE expected, the side recorded no further event |
 | `ca-link-lengths/undefined-program/java` | fail | task 1 (CA01) event 1: RECEIVE expected, the side recorded no further event |
-| `ca-load-set/load/cobol-stub` | unsupported | translator: LOAD; translator: RELEASE |
 | `ca-load-set/load/java` | fail | task 1 (CA0L) event 1: WRITEQ-TS expected, the side recorded no further event |
-| `ca-load-set/load/java-facade` | fail | no port of any of its programs |
-| `ca-load-set/load/java-ported` | fail | no port of any of its programs |
-| `ca-load-set/pgmiderr/cobol-stub` | unsupported | translator: LOAD; translator: RELEASE |
 | `ca-load-set/pgmiderr/java` | fail | task 1 (CA0M) event 1: WRITEQ-TS expected, the side recorded no further event |
-| `ca-load-set/pgmiderr/java-facade` | fail | no port of any of its programs |
-| `ca-load-set/pgmiderr/java-ported` | fail | no port of any of its programs |
-| `ca-receive-retrieve-set/enddata/cobol-stub` | unsupported | translator: RECEIVE SET |
+| `ca-receive-retrieve-set/enddata/cobol-stub` | fail | task 2 (CA0E) event 2: item 1 expected, got 2 |
 | `ca-receive-retrieve-set/enddata/java` | fail | task 1 (CA0D) event 1: RECEIVE expected, the side recorded no further event |
 | `ca-receive-retrieve-set/enddata/java-facade` | fail | no port of any of its programs |
 | `ca-receive-retrieve-set/enddata/java-ported` | fail | no port of any of its programs |
-| `ca-receive-retrieve-set/retrieve-equal/cobol-stub` | unsupported | translator: RECEIVE SET |
+| `ca-receive-retrieve-set/retrieve-equal/cobol-stub` | fail | task 2 (CA0E) event 2: item 1 expected, got 2 |
 | `ca-receive-retrieve-set/retrieve-equal/java` | fail | task 1 (CA0D) event 1: RECEIVE expected, the side recorded no further event |
 | `ca-receive-retrieve-set/retrieve-equal/java-facade` | fail | no port of any of its programs |
 | `ca-receive-retrieve-set/retrieve-equal/java-ported` | fail | no port of any of its programs |
-| `ca-receive-retrieve-set/short-input/cobol-stub` | unsupported | translator: RECEIVE SET |
 | `ca-receive-retrieve-set/short-input/java` | fail | task 1 (CA0D) event 1: RECEIVE expected, the side recorded no further event |
 | `ca-receive-retrieve-set/short-input/java-facade` | fail | no port of any of its programs |
 | `ca-receive-retrieve-set/short-input/java-ported` | fail | no port of any of its programs |
@@ -626,19 +661,15 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | `hc-eoc-error/eoc-own-label/java` | fail | task 1 (EE02) event 1: RECEIVE expected, the side recorded no further event |
 | `hc-eoc-error/eoc-own-label/java-facade` | fail | no port of any of its programs |
 | `hc-eoc-error/eoc-own-label/java-ported` | fail | no port of any of its programs |
-| `hc-file-read-set/browse-back/cobol-stub` | unsupported | translator: READ; translator: READNEXT; translator: READPREV |
 | `hc-file-read-set/browse-back/java` | fail | task 1 (HC83) event 1: RECEIVE expected, the side recorded no further event |
 | `hc-file-read-set/browse-back/java-facade` | fail | no port of any of its programs |
 | `hc-file-read-set/browse-back/java-ported` | fail | no port of any of its programs |
-| `hc-file-read-set/browse-fwd/cobol-stub` | unsupported | translator: READ; translator: READNEXT; translator: READPREV |
 | `hc-file-read-set/browse-fwd/java` | fail | task 1 (HC83) event 1: RECEIVE expected, the side recorded no further event |
 | `hc-file-read-set/browse-fwd/java-facade` | fail | no port of any of its programs |
 | `hc-file-read-set/browse-fwd/java-ported` | fail | no port of any of its programs |
-| `hc-file-read-set/browse-notfnd/cobol-stub` | unsupported | translator: READ; translator: READNEXT; translator: READPREV |
 | `hc-file-read-set/browse-notfnd/java` | fail | task 1 (HC83) event 1: RECEIVE expected, the side recorded no further event |
 | `hc-file-read-set/browse-notfnd/java-facade` | fail | no port of any of its programs |
 | `hc-file-read-set/browse-notfnd/java-ported` | fail | no port of any of its programs |
-| `hc-file-read-set/read-set/cobol-stub` | unsupported | translator: READ; translator: READNEXT; translator: READPREV |
 | `hc-file-read-set/read-set/java` | fail | task 1 (HC83) event 1: RECEIVE expected, the side recorded no further event |
 | `hc-file-read-set/read-set/java-facade` | fail | no port of any of its programs |
 | `hc-file-read-set/read-set/java-ported` | fail | no port of any of its programs |
@@ -739,27 +770,21 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | `hc-perform-range/length-trap/java` | fail | task 1 (HC01) event 1: READQ-TS expected, the side recorded no further event |
 | `hc-perform-range/no-queue/java` | fail | task 1 (HC01) event 1: READQ-TS expected, the side recorded no further event |
 | `hc-perform-range/three-items/java` | fail | task 1 (HC01) event 1: READQ-TS expected, the side recorded no further event |
-| `hc-readq-td/deleteq/cobol-stub` | unsupported | stub: WRITEQ-TD event |
 | `hc-readq-td/deleteq/java` | fail | task 1 (HC82) event 1: RECEIVE expected, the side recorded no further event |
 | `hc-readq-td/deleteq/java-facade` | fail | no port of any of its programs |
 | `hc-readq-td/deleteq/java-ported` | fail | no port of any of its programs |
-| `hc-readq-td/empty/cobol-stub` | unsupported | stub: READQ-TD event |
 | `hc-readq-td/empty/java` | fail | task 1 (HC82) event 1: RECEIVE expected, the side recorded no further event |
 | `hc-readq-td/empty/java-facade` | fail | no port of any of its programs |
 | `hc-readq-td/empty/java-ported` | fail | no port of any of its programs |
-| `hc-readq-td/fifo/cobol-stub` | unsupported | stub: WRITEQ-TD event |
 | `hc-readq-td/fifo/java` | fail | task 1 (HC82) event 1: RECEIVE expected, the side recorded no further event |
 | `hc-readq-td/fifo/java-facade` | fail | no port of any of its programs |
 | `hc-readq-td/fifo/java-ported` | fail | no port of any of its programs |
-| `hc-readq-td/lengerr/cobol-stub` | unsupported | stub: WRITEQ-TD event |
 | `hc-readq-td/lengerr/java` | fail | task 1 (HC82) event 1: RECEIVE expected, the side recorded no further event |
 | `hc-readq-td/lengerr/java-facade` | fail | no port of any of its programs |
 | `hc-readq-td/lengerr/java-ported` | fail | no port of any of its programs |
-| `hc-readq-td/seeded/cobol-stub` | unsupported | stub: WRITEQ-TD event |
 | `hc-readq-td/seeded/java` | fail | task 1 (HC82) event 1: RECEIVE expected, the side recorded no further event |
 | `hc-readq-td/seeded/java-facade` | fail | no port of any of its programs |
 | `hc-readq-td/seeded/java-ported` | fail | no port of any of its programs |
-| `hc-readq-td/undefined/cobol-stub` | unsupported | stub: READQ-TD event |
 | `hc-readq-td/undefined/java` | fail | task 1 (HC82) event 1: RECEIVE expected, the side recorded no further event |
 | `hc-readq-td/undefined/java-facade` | fail | no port of any of its programs |
 | `hc-readq-td/undefined/java-ported` | fail | no port of any of its programs |

@@ -52,7 +52,7 @@ The core engine powers a massive ecosystem of specialized tools:
 * **AI Governance:** Threat sensors designed to hunt RCE Funnels, God-Mode Agents, and Context Window Shredders.
 
 ### 3. The Presentation: The Observatory
-Drop your `_galaxy.json` into the free viewer at [GitGalaxy.io](https://gitgalaxy.io) or use the repo's `airgap_observatory`, a standalone WebGPU visualizer. Both visualizers read the JSON contract and render the entire codebase as a procedural 3D galaxy where files are stars, allowing humans to visually map scale and risk exposure instantly.
+Drop your `_galaxy_gpu.json` into the free viewer at [GitGalaxy.io](https://gitgalaxy.io) or use the repo's `airgap_observatory`, a standalone WebGPU visualizer. Both visualizers read the JSON contract and render the entire codebase as a procedural 3D galaxy where files are stars, allowing humans to visually map scale and risk exposure instantly.
 
 ---
 
@@ -204,7 +204,7 @@ galaxyscope /path/to/your/local/repo
 
 **3. View the Galaxy**
 GitGalaxy offers two ways to visualize your 3D architecture, both built on a strict Zero-Trust Privacy Model where your code never leaves your machine.
-* **The Web Viewer (Frictionless):** Drag and drop your generated `_galaxy.json` file directly into [GitGalaxy.io](https://gitgalaxy.io). All rendering and scanning happens entirely in your browser's local memory.
+* **The Web Viewer (Frictionless):** Drag and drop your generated `_galaxy_gpu.json` file directly into [GitGalaxy.io](https://gitgalaxy.io). All rendering and scanning happens entirely in your browser's local memory.
 * **The Local Server (Enterprise & Offline):** For teams operating under strict compliance rules, GitGalaxy includes a 100% static, zero-telemetry local viewer called the Airgap Observatory.
 
 ---

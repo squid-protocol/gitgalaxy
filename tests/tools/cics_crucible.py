@@ -213,8 +213,15 @@ COBOL_CAPS = cc.Capabilities(
         "READNEXT": frozenset({"file", "ridfld", "set", "resp", "resp2", "length", "data"}),
         "READPREV": frozenset({"file", "ridfld", "set", "resp", "resp2", "length", "data"}),
         "ENDBR": frozenset({"file", "resp", "resp2"}),
+        # #6262: what ggcics.c's file_event records for GGCWRIT and ggcics_filecontrol.c's GGCDELT
+        "WRITE": frozenset({"file", "ridfld", "data", "resp", "resp2"}),
+        "DELETE": frozenset({"file", "ridfld", "generic", "resp", "resp2"}),
         "READQ-TS": frozenset({"queue", "item", "resp", "length", "data"}),
         "WRITEQ-TS": frozenset({"queue", "data", "resp", "item"}),
+        # #5079 (X57): what ggcics_transientdata.c's GGCWRTD / GGCRDTD / GGCDLTD record
+        "READQ-TD": frozenset({"queue", "resp", "length", "data"}),
+        "WRITEQ-TD": frozenset({"queue", "data", "resp"}),
+        "DELETEQ-TD": frozenset({"queue", "resp"}),
         "WRITE-OPERATOR": frozenset({"data", "resp"}),  # #4270 zECS (X32)
         "START": _START_KEYS,
         "RETRIEVE": _RETRIEVE_KEYS,
@@ -226,6 +233,7 @@ COBOL_CAPS = cc.Capabilities(
         **_WEB_CLIENT_KEYS,
     },
     ts_queues=True,
+    td_queues=True,  # #5079: seeded and read back from the stub's td-<hex> directories
     start_tasks=True,
     http_tasks=True,
 )
@@ -255,6 +263,9 @@ JAVA_CAPS = cc.Capabilities(
         "READNEXT": frozenset({"file", "ridfld", "set", "resp", "resp2", "length", "data"}),
         "READPREV": frozenset({"file", "ridfld", "set", "resp", "resp2", "length", "data"}),
         "ENDBR": frozenset({"file", "resp", "resp2"}),
+        # #6262: what CicsTask.writeEvent / deleteEvent (and the generic, held, token forms) record
+        "WRITE": frozenset({"file", "ridfld", "data", "resp", "resp2"}),
+        "DELETE": frozenset({"file", "ridfld", "generic", "resp", "resp2"}),
         "WRITE-OPERATOR": frozenset({"data", "resp"}),  # #4270 zECS (X32)
         "START": _START_KEYS,
         "RETRIEVE": _RETRIEVE_KEYS,
@@ -816,6 +827,8 @@ class EquivalenceRunTest {
         final List<Map<String, Object>> tasks = new ArrayList<>();
         final List<Map<String, Object>> requests = new ArrayList<>();
         final CicsTask.TempStorage ts = new CicsTask.TempStorage();  // #4002: shared by every task
+        final Map<String, byte[]> tctuas = new LinkedHashMap<>();  // #5079 (X59): a terminal's TCTUA, kept across its tasks
+        byte[] cwa;  // #5079 (X59): the region's CWA (SIT WRKAREA), one for every task
         final List<Map<String, Object>> entries = new ArrayList<>();  // #4343: the entry point each program ran by
         int issued;
         String pending;
@@ -1105,6 +1118,18 @@ class EquivalenceRunTest {
                                 p.get("port").asInt(), null, null, xs));
                     }
                     t.withHttpPeers(peers);
+                }
+                if (plan.hasNonNull("twasize") && plan.get("twasize").hasNonNull(transid)) {
+                    t.withTwaSize(plan.get("twasize").get(transid).asInt());  // #5079 (X59): TRANSACTION TWASIZE
+                }
+                if (plan.hasNonNull("wrkarea")) {
+                    if (cwa == null) cwa = new byte[plan.get("wrkarea").asInt()];
+                    t.withCwa(cwa);  // #5079 (X59): SIT WRKAREA -- one area for the whole region
+                }
+                if (plan.hasNonNull("userarealen") && frame.get("termid") instanceof String tid
+                        && plan.get("userarealen").hasNonNull(tid)) {
+                    // #5079 (X59): TYPETERM USERAREALEN -- one area per terminal, the same bytes for each of its tasks
+                    t.withTctua(tctuas.computeIfAbsent(tid, k -> new byte[plan.get("userarealen").get(k).asInt()]));
                 }
                 if (plan.has("urimaps")) {
                     // #4270 zECS (X32): INQUIRE URIMAP -- the URIMAP definitions the case CSD installs, as {name,
@@ -1690,12 +1715,29 @@ def java_plan(case: cc.Case, src: Path) -> dict[str, Any]:
         "terminal_device": terminal_device(case),  # #4413: LUTYPE2 raises EOC on RECEIVE
         "uctranst": terminal_uctranst(case),  # #4415: INQUIRE TERMINAL UCTRANST
         "origin": case.data.get("origin"),  # #4415 slice 2: INQUIRE ASSOCIATION's origin data (terminal-started tasks)
+        **{k: case.csd[k] for k in ("twasize", "userarealen") if case.csd.get(k)},  # #5079 (X59): only when stated
+        **(
+            {"wrkarea": case.data["wrkarea"]} if case.data.get("wrkarea") else {}
+        ),  # #5079 (X59): SIT WRKAREA, not a CSD resource
         "urimaps": [list(u) for u in case.csd.get("urimaps") or []],  # #4270 zECS (X32): INQUIRE URIMAP's browse
         "doctemplates": case.data.get("doctemplates"),  # #4769 zECS (X33): DOCUMENT CREATE TEMPLATE's text per name
         "services": services,
         "screens": screens,
         "scenarios": scenarios,
     }
+
+
+def area_env(case: cc.Case, transid: str, ts: str) -> str:
+    """#5079 slice 2b (X59): the stub's TWA / TCTUA sizes from the CSD and the CWA's (SIT WRKAREA, case data), only when stated;
+    the TCTUA's and the CWA's bytes persist in a file beside the scenario's TS dir, which the next task reads."""
+    twa = (case.csd.get("twasize") or {}).get(transid)
+    ua = (case.csd.get("userarealen") or {}).get(case.data["terminal"])
+    wrk = case.data.get("wrkarea")
+    return (
+        (f"GGCICS_TWASIZE={twa} " if twa else "")
+        + (f"GGCICS_WRKAREA={wrk} GGCICS_CWA=/work/{ts}.cwa " if wrk else "")
+        + (f"GGCICS_USERAREALEN={ua} GGCICS_TCTUA=/work/{ts}.tctua " if ua else "")
+    )
 
 
 def terminal_device(case: cc.Case) -> str:
@@ -1861,9 +1903,16 @@ def _java_file_event(kind: str, e: dict[str, Any]) -> dict[str, Any]:
     ev: dict[str, Any] = {"file": e.get("file"), "resp": e.get("resp")}
     if e.get("set"):  # #6262: the SET form
         ev["set"] = True
+    if kind in ("WRITE", "DELETE"):  # #6262: the key on entry (a DELETE of the held / token record has none)
+        if e.get("ridfld") is not None:
+            ev["ridfld"] = base64.b64decode(e["ridfld"])
+        if e.get("generic"):
+            ev["generic"] = True
     if kind in ("STARTBR", "READNEXT", "READPREV"):  # #6262: the key on entry; STARTBR's mode, a browse read's record
         ev["ridfld"] = base64.b64decode(e["ridfld"]) if e.get("ridfld") is not None else None
-        if kind == "STARTBR":
+        if e.get("rba"):  # the RBA browse: as the stub's `rba=` line, the file and RESP; RIDFLD is no key (SPEC 6.2)
+            ev["ridfld"] = cc.Unmodelled("an RBA browse's event")
+        elif kind == "STARTBR":
             ev["mode"] = e.get("mode")
         else:
             if e.get("length") is not None:
@@ -1876,10 +1925,14 @@ def _java_file_event(kind: str, e: dict[str, Any]) -> dict[str, Any]:
             ev["update"] = True
         if e.get("length") is not None:
             ev["length"] = e["length"]
-    if kind in ("READ", "REWRITE"):
+    if kind in ("READ", "REWRITE", "WRITE"):
         b64 = e.get("data")
         ev["data"] = cc.RawArea(base64.b64decode(b64), cc.EBCDIC) if b64 is not None else None
-    if e.get("resp2") is not None and not (kind in ("READ", "READNEXT", "READPREV") and e.get("resp") == "LENGERR"):
+    if (
+        e.get("resp2") is not None
+        and not e.get("rba")
+        and not (kind in ("READ", "READNEXT", "READPREV") and e.get("resp") == "LENGERR")
+    ):
         ev["resp2"] = e["resp2"]
     return ev
 
@@ -1924,6 +1977,8 @@ def java_actual(case: cc.Case, raw: dict[str, Any], src: Path,
             elif kind in (
                 "READ",
                 "REWRITE",
+                "WRITE",
+                "DELETE",
                 "UNLOCK",
                 "STARTBR",
                 "READNEXT",
@@ -2219,6 +2274,13 @@ def _read_screens(case: cc.Case) -> dict[str, Screen]:
     return out
 
 
+def _key_ebcdic(rid_hex: str) -> bytes:
+    """A key the stub logged as hex, in the log's CCSID 037. The program's text is ASCII; an X'FF' (HIGH-VALUES) is no
+    text and stays X'FF' on both legs (#6262: a READPREV from the end), where latin-1 would make it X'DF'."""
+    raw = bytes.fromhex(rid_hex)
+    return b"".join(b"\xff" if b == 0xFF else bytes([b]).decode("latin-1").encode(cc.EBCDIC) for b in raw)
+
+
 def _cobol_events(out: Path, program: str, screens: dict[str, Screen] | None = None) -> list[dict[str, Any]]:
     """The stub's events.txt -> events as SPEC 6.2 spells them (runtime bytes kept as RawArea). Each line
     names its issuing program (`pgm=`, #4004); `program` stands in where one does not."""
@@ -2271,6 +2333,16 @@ def _cobol_events(out: Path, program: str, screens: dict[str, Screen] | None = N
             resp = names.get(int(arg("resp") or 0), arg("resp"))
             ev.update(queue=bytes.fromhex(arg("queue")).decode("latin-1"), data=cc.RawArea(data, "latin-1"), resp=resp,
                       item=int(arg("item")) if resp == "NORMAL" else None)  # fmt: skip
+        elif verb == "READQ-TD":  # #5079 (X57): the queue in hex; length and data only where a record was read
+            n = int(arg("len") or -1)
+            ev.update(queue=bytes.fromhex(arg("queue")).decode("latin-1"),
+                      resp=names.get(int(arg("resp") or 0), arg("resp")), length=n if n >= 0 else None,
+                      data=cc.RawArea(data, "latin-1") if n >= 0 else None)  # fmt: skip
+        elif verb == "WRITEQ-TD":  # #5079 (X57): the queue in plain text; the record is logged whatever the answer
+            ev.update(queue=arg("queue"), data=cc.RawArea(data, "latin-1"),
+                      resp=names.get(int(arg("resp") or 0), arg("resp")))  # fmt: skip
+        elif verb == "DELETEQ-TD":  # #5079 (X57)
+            ev.update(queue=arg("queue"), resp=names.get(int(arg("resp") or 0), arg("resp")))
         elif verb == "WRITE-OPERATOR":  # #4270 zECS (X32): the text sent, in the stub's page
             ev.update(data=cc.RawArea(data, "latin-1"), resp=names.get(int(arg("resp") or 0), arg("resp")))
         elif verb == "RECEIVE-REFUSED":  # #4413
@@ -2366,7 +2438,7 @@ def _cobol_events(out: Path, program: str, screens: dict[str, Screen] | None = N
             if arg("rba"):  # the RBA browse (#4213) has no Java-leg event: its RIDFLD is a fullword, not a key
                 ev["ridfld"] = cc.Unmodelled("an RBA browse's event")
             elif verb != "ENDBR":
-                ev["ridfld"] = bytes.fromhex(arg("rid")).decode("latin-1").encode(cc.EBCDIC)
+                ev["ridfld"] = _key_ebcdic(arg("rid"))
             if verb == "STARTBR" and not arg("rba"):
                 ev["mode"] = arg("mode")
             if verb in ("READNEXT", "READPREV") and not arg("rba"):
@@ -2376,6 +2448,16 @@ def _cobol_events(out: Path, program: str, screens: dict[str, Screen] | None = N
                     ev["length"] = int(arg("len"))
                 ev["data"] = cc.RawArea(data, "latin-1") if ev["resp"] in ("NORMAL", "DUPKEY") else None
             if arg("resp2") and not (verb != "STARTBR" and verb != "ENDBR" and ev["resp"] == "LENGERR"):
+                ev["resp2"] = int(arg("resp2"))
+        elif verb in ("WRITE", "DELETE"):  # #6262: SPEC 6.2 keys only where the command carries them
+            ev.update(file=arg("file"), resp=names.get(int(arg("resp") or 0), arg("resp")))
+            if re.search(r"\brid=", args):  # a DELETE of the held or the token's record has no RIDFLD
+                ev["ridfld"] = _key_ebcdic(arg("rid"))
+            if verb == "WRITE":
+                ev["data"] = cc.RawArea(data, "latin-1")
+            elif arg("generic"):
+                ev["generic"] = True
+            if arg("resp2"):
                 ev["resp2"] = int(arg("resp2"))
         elif verb in ("RETURN", "END"):
             level = int(arg("level") or 1)
@@ -2426,6 +2508,33 @@ def seed_ts(root: Path, queues: dict[str, list[Any]]) -> None:
             (d / f"{n:06d}.bin").write_bytes(cc.expected_bytes(item).decode(cc.EBCDIC).encode("latin-1"))
 
 
+def seed_td(root: Path, queues: dict[str, list[Any]]) -> None:
+    """#5079 (X57): a scenario's `initial` TD queues in the stub's store (ggcics_transientdata.c td_dir): td-<hex of the
+    name>/000001.bin, ... (no `head` file: the first record is the head), in the stub's page as seed_ts does."""
+    root.mkdir(parents=True, exist_ok=True)
+    for name, items in queues.items():
+        d = root / ("td-" + name.encode("latin-1").hex().upper())
+        d.mkdir(exist_ok=True)
+        for n, item in enumerate(items, 1):
+            (d / f"{n:06d}.bin").write_bytes(cc.expected_bytes(item).decode(cc.EBCDIC).encode("latin-1"))
+
+
+def read_td(root: Path) -> dict[str, list[bytes]]:
+    """#5079 (X57): every intrapartition TD queue the stub's store holds, the records not yet read (from `head` on) as
+    EBCDIC bytes (the `final` state). A queue DELETEQ TD removed is absent: the comparison reads it as empty."""
+    out: dict[str, list[bytes]] = {}
+    for d in sorted(root.iterdir()) if root.is_dir() else []:
+        if not d.name.startswith("td-") or not d.is_dir():
+            continue
+        head = (d / "head").read_text(encoding="ascii").split() if (d / "head").is_file() else []
+        items, n = [], int(head[0]) if head else 1
+        while (d / f"{n:06d}.bin").is_file():
+            items.append(cc.to_ebcdic(cc.RawArea((d / f"{n:06d}.bin").read_bytes(), "latin-1")))
+            n += 1
+        out[bytes.fromhex(d.name[3:]).decode("latin-1")] = items
+    return out
+
+
 def seed_files(case: cc.Case, work: Path, sid: str) -> str:
     """#4443: the case's seeded files for the stub -- `data/<FILE>.dat` (one record per line, SPEC 2) as fixed-length
     records in `runs/<scenario>/files/<FILE>`, and the files.cfg text naming them (`FILE path reclen keyoff keylen`). The key is the
@@ -2458,7 +2567,7 @@ def read_ts(root: Path) -> dict[str, list[bytes]]:
     out: dict[str, list[bytes]] = {}
     for d in sorted(root.iterdir()) if root.is_dir() else []:
         if d.name.startswith("td-"):
-            continue  # an intrapartition TD queue lives beside the TS queues (ggcics.c td_dir); `final` td_queues are not compared yet
+            continue  # an intrapartition TD queue lives beside the TS queues (ggcics.c td_dir): read_td reads it
         items, n = [], 1
         while (d / f"{n:06d}.bin").is_file():
             items.append(cc.to_ebcdic(cc.RawArea((d / f"{n:06d}.bin").read_bytes(), "latin-1")))
@@ -2883,14 +2992,28 @@ def drive_scenario(case: cc.Case, sc: dict[str, Any], run_one: Any) -> tuple[lis
         return tasks, None
 
 
+def _expects_undefined_td_queue(case: cc.Case) -> bool:
+    """#5079 (X57): a case whose oracle log has a TD command answered QIDERR (queue not in the CSD) while its CSD defines no
+    TDQUEUE at all: the stub then needs an empty tdqueues.cfg (absent, it takes every queue as defined)."""
+    return any(
+        str(e.get("event", "")).endswith("-TD") and e.get("resp") == "QIDERR"
+        for log in case.expected.values()
+        for t in log["tasks"]
+        for e in t["events"]
+    )
+
+
 def run_scenario(case: cc.Case, sc: dict[str, Any], box: "Container", work: Path) -> dict[str, Any]:
     """One scenario on the stub, scheduled as SPEC section 4 says (drive_scenario)."""
     ts = f"runs/{sc['id']}/ts"  # #4002: the region's TS queues, shared by every task of the scenario
     seed_ts(work / ts, (sc.get("initial") or {}).get("ts_queues") or {})
+    seed_td(work / ts, (sc.get("initial") or {}).get("td_queues") or {})  # #5079
     count = iter(range(1000))
     origin = origin_peers(case, sc)
     files_cfg = seed_files(case, work, sc["id"])  # #4443
-    carried: list[Path | None] = [None]  # #5005 (X17): the channel the terminal's last RETURN CHANNEL left for its next task
+    carried: list[Path | None] = [
+        None
+    ]  # #5005 (X17): the channel the terminal's last RETURN CHANNEL left for its next task
 
     def run_one(frame: dict[str, Any], transid: str, commarea: bytes | None, step: dict[str, Any] | None,
                 data: list[Any], requests: list[tuple[str, int]]) -> dict[str, Any]:  # fmt: skip
@@ -2907,7 +3030,7 @@ def run_scenario(case: cc.Case, sc: dict[str, Any], box: "Container", work: Path
         return task
 
     tasks, stopped = drive_scenario(case, sc, run_one)
-    return {"tasks": tasks, "stopped": stopped, "final": {"ts_queues": read_ts(work / ts)},
+    return {"tasks": tasks, "stopped": stopped, "final": {"ts_queues": read_ts(work / ts), "td_queues": read_td(work / ts)},
             **http_peer_log(case, sc, tasks)}  # fmt: skip
 
 
@@ -2938,6 +3061,11 @@ def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, tra
     (d / "programs.cfg").write_text("".join(f"{p}\n" for p in sorted(case.csd["programs"])), encoding="ascii")
     (d / "transactions.cfg").write_text("".join(f"{t}\n" for t in sorted(case.csd["transactions"])), encoding="ascii")
     (d / "terminals.cfg").write_text(f"{case.data['terminal']}\n", encoding="ascii")
+    if case.csd.get("tdqueues") or _expects_undefined_td_queue(
+        case
+    ):  # #5079 (X57): the CSD's TDQUEUEs; one it lacks is QIDERR
+        (d / "tdqueues.cfg").write_text("".join(f"{q} {w}\n" for q, w in sorted((case.csd.get("tdqueues") or {}).items())),
+                                        encoding="ascii")  # fmt: skip
     # #4270 zECS (X32): the URIMAP definitions the case CSD installs, `NAME TRANSACTION PATH` ('-': no transaction)
     (d / "urimaps.cfg").write_text("".join(f"{n} {t or '-'} {p}\n" for n, t, p in case.csd.get("urimaps") or []),
                                    encoding="ascii")  # fmt: skip
@@ -2998,6 +3126,7 @@ def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, tra
            f"{'GGCICS_RUNCHILD=1 ' if (frame.get('trigger') or {}).get('kind') == 'run' else ''}"  # #4270
            f"{f'GGCICS_STARTCODE={startcode} ' if startcode else ''}GGCICS_USERID={REGION_USERID} "  # #4270 slice 3
            f"GGCICS_FACILITY={frame.get('termid') or ''} GGCICS_SCREEN='{REGION_SCREEN[0]} {REGION_SCREEN[1]}' "
+           f"{area_env(case, transid, ts)}"  # #5079 slice 2b (X59): TWASIZE / USERAREALEN
            f"GGCICS_TS=/work/{ts} GGCICS_NOW={frame['at']} COB_CURRENT_DATE='{when.strftime('%Y/%m/%d %H:%M:%S')}.00' ./bin/task "
            f"> /work/{rel}/stdout.txt 2>&1")  # fmt: skip
     task["events"] = _cobol_events(d / "out", program, screens)

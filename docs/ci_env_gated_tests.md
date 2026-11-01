@@ -27,6 +27,10 @@ files skip in ground-truth for "no JDK 17" without reading the variable). That k
 shards (3177 s) and 188 s of the duplicates. A new file that needs the shards' tools must say so in a skip reason, or
 read the variable, to be selected.
 
+On a pull request the shards set `EQUIVALENCE_E2E_ONE_JVM=1`: the end-to-end proofs of `test_porting_loop_tooling.py` and
+`test_equivalence.py` pass `--one-jvm`, so a proof's runs share a JVM instead of starting one each (the validated mode of
+`docs/language_status/mutation_testing.md`). A push to main and the nightly leave it unset and keep a JVM per run.
+
 The split weighs tests by `tests/equivalence_e2e_durations.json`, not `.test_durations` (ground-truth records the latter,
 where these tests skip, so it weighs them about 0 s). Each shard uploads `test-times-equivalence-e2e-shard-N`; refresh the
 file from a nightly run with `gh run download RUN --pattern 'test-times-equivalence-e2e-shard-*'` and
@@ -49,11 +53,8 @@ The five files the shards `--ignore` and the `db2` job names: `test_equivalence_
 `test_sql_dynamic`, `test_sql_unit_of_work`, `test_sql_whenever` (all under `tests/cobol_mainframe/`; needs: db2, docker,
 jdk_maven). Retiring a test that can no longer run (step 3 of the issue) is still open.
 
-## Deselected in the db2 job (failed on their first CI run)
+## Deselected in the db2 job
 
-None of the shard files carries a `--deselect` any more. Two tests in the five Db2 files were never executed in CI before #5954 and fail on a pristine checkout, locally and on
-the runner; each is a defect to fix in the engine or the test, then drop its `--deselect`.
-
-The `db2` job `--deselect`s `test_sql_unit_of_work.py::test_uowdemo_det_port_proves_on_db2_against_the_hand_trace` (both `[N]` and `[A]`): the det port's `DetMq.java` fails to compile on a pristine checkout (`package com.gitgalaxy.modernized.cics
-does not exist`, `CicsTask` not found: the generated estate carries no `cics` package for a batch program that uses MQ
-stubs). The other tests of the five files pass locally against Db2 (178 of 181 ran: 128 in four files, 50 in the rows file, 34 min serial).
+None: the two tests that failed on their first CI run (#5954) are fixed and no shard carries a `--deselect`. The last,
+`test_sql_unit_of_work.py::test_uowdemo_det_port_proves_on_db2_against_the_hand_trace`, copied `cobolrt/cics/*.java` (`DetMq` imports
+`CicsTask`) into an estate with no `cics` package; the test now leaves the whole `cobolrt/cics/` directory out (`DetCics`, `DetMq`, `DetJustify`).

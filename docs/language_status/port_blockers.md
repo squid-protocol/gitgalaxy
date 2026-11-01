@@ -15,9 +15,9 @@ an unfinished log, not a clean estate.
 | 2 | cics-banking-sample-application-cbsa | 19 | 19 | 7 | 12 | 14 | 1.36 | 0 |
 | 3 | aws-mainframe-modernization-carddemo | 31 | 50 | 3 | 28 | 24 | 1.29 | 1 |
 | 4 | cics-genapp | 7 | 57 | 0 | 7 | 4 | 1.75 | 0 |
-| 5 | zecs | 7 | 64 | 0 | 7 | 4 | 1.75 | 0 |
-| 7 | dbb-mortgage-application | 4 | 68 | 0 | 4 | 3 | 1.33 | 0 |
-| 8 | cics-async-api-credit-card-application-example | 3 | 71 | 0 | 3 | 1 | 3.00 | 0 |
+| 5 | zecs | 8 | 65 | 0 | 8 | 4 | 2.00 | 0 |
+| 7 | dbb-mortgage-application | 4 | 69 | 0 | 4 | 3 | 1.33 | 0 |
+| 8 | cics-async-api-credit-card-application-example | 4 | 73 | 0 | 4 | 8 | 0.50 | 0 |
 
 No single estate: 48 (P005 by sibling sweep after round 8, P065 by sibling sweep after round 8, P066 by review after round 8, P067 by review after round 8, P068 by review after round 8, P069 by sibling sweep after round 8, P070 by sibling sweep after round 8, P071 by sibling sweep after round 8, P072 by sibling sweep after round 8, P073 by sibling sweep after round 8, P074 by sibling sweep after round 8, P075 by sibling sweep after round 8, P076 by sibling sweep after round 8, P079 by sibling sweep after round 8, P081 by sibling sweep after round 8, P082 by sibling sweep after round 8, P083 by review after round 8, P084 by review after round 8, P085 by review after round 8, P086 by review after round 8, P087 by review after round 8, P088 by review after round 8, P089 by review after round 8, P090 by crucible after round 8, P091 by crucible after round 8, P092 by sibling sweep after round 8, P093 by sibling sweep after round 8, P095 by crucible after round 8, P096 by crucible after round 8, P097 by crucible after round 8, P098 by crucible after round 8, P099 by crucible after round 8, P100 by crucible after round 8, P101 by crucible after round 8, P102 by crucible after round 8, P103 by review after round 8, P104 by crucible after round 8, P105 by review after round 8, P106 by review after round 8, P108 by sibling sweep after round 8, P109 by sibling sweep after round 8, P110 by sibling sweep after round 8, P111 by sibling sweep after round 8, P112 by sibling sweep after round 8, P113 by sibling sweep after round 8, P114 by sibling sweep after round 8, P115 by sibling sweep after round 8, P116 by sibling sweep after round 8).
 
@@ -26,14 +26,14 @@ No single estate: 48 (P005 by sibling sweep after round 8, P065 by sibling sweep
 | side | blockers | | class | blockers | first seen |
 |---|---|---|---|---|---|
 | det | 71 | | cics-command | 23 | P024 |
-| transaction-forge | 4 | | cobol-dialect | 23 | P006 |
+| transaction-forge | 4 | | cobol-dialect | 24 | P006 |
 | facade | 8 | | commarea-bytes | 23 | P028 |
-| harness | 33 | | data-layout | 8 | P027 |
-| runtime | 3 | | control-flow | 7 | P015 |
+| harness | 34 | | data-layout | 8 | P027 |
+| runtime | 4 | | control-flow | 7 | P015 |
 |  |  | | db2 | 8 | P026 |
 |  |  | | vsam | 9 | P019 |
 |  |  | | eib-fact | 1 | P005 |
-|  |  | | oracle-model | 11 | P025 |
+|  |  | | oracle-model | 12 | P025 |
 |  |  | | ci-gate | 4 | P001 |
 |  |  | | ims-mq | 2 | P040 |
 
@@ -47,63 +47,63 @@ logged blockers per program. A blocker with no estate is counted on its own row,
 | 2 | cics-banking-sample-application-cbsa | 31 | 19 | 0.61 | 19 | 7 | 7 | 0 |
 | 3 | aws-mainframe-modernization-carddemo | 44 | 31 | 0.70 | 50 | 3 | 10 | 0 |
 | 4 | cics-genapp | 31 | 7 | 0.23 | 57 | 0 | 10 | 1 |
-| 5 | zecs | 5 | 7 | 1.40 | 64 | 0 | 10 | 2 |
-| 7 | dbb-mortgage-application | 6 | 4 | 0.67 | 68 | 0 | 10 | 3 |
-| 8 | cics-async-api-credit-card-application-example | 10 | 3 | 0.30 | 71 | 0 | 10 | 4 |
-| 8 | none (sibling sweep, P005) | | 1 | | 72 | 1 | 11 | |
-| 8 | none (sibling sweep, P065) | | 1 | | 73 | 0 | 11 | |
-| 8 | none (review, P066) | | 1 | | 74 | 0 | 11 | |
-| 8 | none (review, P067) | | 1 | | 75 | 0 | 11 | |
-| 8 | none (review, P068) | | 1 | | 76 | 0 | 11 | |
-| 8 | none (sibling sweep, P069) | | 1 | | 77 | 0 | 11 | |
-| 8 | none (sibling sweep, P070) | | 1 | | 78 | 0 | 11 | |
-| 8 | none (sibling sweep, P071) | | 1 | | 79 | 0 | 11 | |
-| 8 | none (sibling sweep, P072) | | 1 | | 80 | 0 | 11 | |
-| 8 | none (sibling sweep, P073) | | 1 | | 81 | 0 | 11 | |
-| 8 | none (sibling sweep, P074) | | 1 | | 82 | 0 | 11 | |
-| 8 | none (sibling sweep, P075) | | 1 | | 83 | 0 | 11 | |
-| 8 | none (sibling sweep, P076) | | 1 | | 84 | 0 | 11 | |
-| 8 | none (sibling sweep, P079) | | 1 | | 85 | 0 | 11 | |
-| 8 | none (sibling sweep, P081) | | 1 | | 86 | 0 | 11 | |
-| 8 | none (sibling sweep, P082) | | 1 | | 87 | 0 | 11 | |
-| 8 | none (review, P083) | | 1 | | 88 | 0 | 11 | |
-| 8 | none (review, P084) | | 1 | | 89 | 0 | 11 | |
-| 8 | none (review, P085) | | 1 | | 90 | 0 | 11 | |
-| 8 | none (review, P086) | | 1 | | 91 | 0 | 11 | |
-| 8 | none (review, P087) | | 1 | | 92 | 0 | 11 | |
-| 8 | none (review, P088) | | 1 | | 93 | 0 | 11 | |
-| 8 | none (review, P089) | | 1 | | 94 | 0 | 11 | |
-| 8 | none (crucible, P090) | | 1 | | 95 | 0 | 11 | |
-| 8 | none (crucible, P091) | | 1 | | 96 | 0 | 11 | |
-| 8 | none (sibling sweep, P092) | | 1 | | 97 | 0 | 11 | |
-| 8 | none (sibling sweep, P093) | | 1 | | 98 | 0 | 11 | |
-| 8 | none (crucible, P095) | | 1 | | 99 | 0 | 11 | |
-| 8 | none (crucible, P096) | | 1 | | 100 | 0 | 11 | |
-| 8 | none (crucible, P097) | | 1 | | 101 | 0 | 11 | |
-| 8 | none (crucible, P098) | | 1 | | 102 | 0 | 11 | |
-| 8 | none (crucible, P099) | | 1 | | 103 | 0 | 11 | |
-| 8 | none (crucible, P100) | | 1 | | 104 | 0 | 11 | |
-| 8 | none (crucible, P101) | | 1 | | 105 | 0 | 11 | |
-| 8 | none (crucible, P102) | | 1 | | 106 | 0 | 11 | |
-| 8 | none (review, P103) | | 1 | | 107 | 0 | 11 | |
-| 8 | none (crucible, P104) | | 1 | | 108 | 0 | 11 | |
-| 8 | none (review, P105) | | 1 | | 109 | 0 | 11 | |
-| 8 | none (review, P106) | | 1 | | 110 | 0 | 11 | |
-| 8 | none (sibling sweep, P108) | | 1 | | 111 | 0 | 11 | |
-| 8 | none (sibling sweep, P109) | | 1 | | 112 | 0 | 11 | |
-| 8 | none (sibling sweep, P110) | | 1 | | 113 | 0 | 11 | |
-| 8 | none (sibling sweep, P111) | | 1 | | 114 | 0 | 11 | |
-| 8 | none (sibling sweep, P112) | | 1 | | 115 | 0 | 11 | |
-| 8 | none (sibling sweep, P113) | | 1 | | 116 | 0 | 11 | |
-| 8 | none (sibling sweep, P114) | | 1 | | 117 | 0 | 11 | |
-| 8 | none (sibling sweep, P115) | | 1 | | 118 | 0 | 11 | |
-| 8 | none (sibling sweep, P116) | | 1 | | 119 | 0 | 11 | |
+| 5 | zecs | 5 | 8 | 1.60 | 65 | 0 | 10 | 2 |
+| 7 | dbb-mortgage-application | 6 | 4 | 0.67 | 69 | 0 | 10 | 3 |
+| 8 | cics-async-api-credit-card-application-example | 10 | 4 | 0.40 | 73 | 0 | 10 | 4 |
+| 8 | none (sibling sweep, P005) | | 1 | | 74 | 1 | 11 | |
+| 8 | none (sibling sweep, P065) | | 1 | | 75 | 0 | 11 | |
+| 8 | none (review, P066) | | 1 | | 76 | 0 | 11 | |
+| 8 | none (review, P067) | | 1 | | 77 | 0 | 11 | |
+| 8 | none (review, P068) | | 1 | | 78 | 0 | 11 | |
+| 8 | none (sibling sweep, P069) | | 1 | | 79 | 0 | 11 | |
+| 8 | none (sibling sweep, P070) | | 1 | | 80 | 0 | 11 | |
+| 8 | none (sibling sweep, P071) | | 1 | | 81 | 0 | 11 | |
+| 8 | none (sibling sweep, P072) | | 1 | | 82 | 0 | 11 | |
+| 8 | none (sibling sweep, P073) | | 1 | | 83 | 0 | 11 | |
+| 8 | none (sibling sweep, P074) | | 1 | | 84 | 0 | 11 | |
+| 8 | none (sibling sweep, P075) | | 1 | | 85 | 0 | 11 | |
+| 8 | none (sibling sweep, P076) | | 1 | | 86 | 0 | 11 | |
+| 8 | none (sibling sweep, P079) | | 1 | | 87 | 0 | 11 | |
+| 8 | none (sibling sweep, P081) | | 1 | | 88 | 0 | 11 | |
+| 8 | none (sibling sweep, P082) | | 1 | | 89 | 0 | 11 | |
+| 8 | none (review, P083) | | 1 | | 90 | 0 | 11 | |
+| 8 | none (review, P084) | | 1 | | 91 | 0 | 11 | |
+| 8 | none (review, P085) | | 1 | | 92 | 0 | 11 | |
+| 8 | none (review, P086) | | 1 | | 93 | 0 | 11 | |
+| 8 | none (review, P087) | | 1 | | 94 | 0 | 11 | |
+| 8 | none (review, P088) | | 1 | | 95 | 0 | 11 | |
+| 8 | none (review, P089) | | 1 | | 96 | 0 | 11 | |
+| 8 | none (crucible, P090) | | 1 | | 97 | 0 | 11 | |
+| 8 | none (crucible, P091) | | 1 | | 98 | 0 | 11 | |
+| 8 | none (sibling sweep, P092) | | 1 | | 99 | 0 | 11 | |
+| 8 | none (sibling sweep, P093) | | 1 | | 100 | 0 | 11 | |
+| 8 | none (crucible, P095) | | 1 | | 101 | 0 | 11 | |
+| 8 | none (crucible, P096) | | 1 | | 102 | 0 | 11 | |
+| 8 | none (crucible, P097) | | 1 | | 103 | 0 | 11 | |
+| 8 | none (crucible, P098) | | 1 | | 104 | 0 | 11 | |
+| 8 | none (crucible, P099) | | 1 | | 105 | 0 | 11 | |
+| 8 | none (crucible, P100) | | 1 | | 106 | 0 | 11 | |
+| 8 | none (crucible, P101) | | 1 | | 107 | 0 | 11 | |
+| 8 | none (crucible, P102) | | 1 | | 108 | 0 | 11 | |
+| 8 | none (review, P103) | | 1 | | 109 | 0 | 11 | |
+| 8 | none (crucible, P104) | | 1 | | 110 | 0 | 11 | |
+| 8 | none (review, P105) | | 1 | | 111 | 0 | 11 | |
+| 8 | none (review, P106) | | 1 | | 112 | 0 | 11 | |
+| 8 | none (sibling sweep, P108) | | 1 | | 113 | 0 | 11 | |
+| 8 | none (sibling sweep, P109) | | 1 | | 114 | 0 | 11 | |
+| 8 | none (sibling sweep, P110) | | 1 | | 115 | 0 | 11 | |
+| 8 | none (sibling sweep, P111) | | 1 | | 116 | 0 | 11 | |
+| 8 | none (sibling sweep, P112) | | 1 | | 117 | 0 | 11 | |
+| 8 | none (sibling sweep, P113) | | 1 | | 118 | 0 | 11 | |
+| 8 | none (sibling sweep, P114) | | 1 | | 119 | 0 | 11 | |
+| 8 | none (sibling sweep, P115) | | 1 | | 120 | 0 | 11 | |
+| 8 | none (sibling sweep, P116) | | 1 | | 121 | 0 | 11 | |
 
 ## Expected for the next estate
 
-Logged blockers per program over the last 3 estates: 0.67 pooled (range 0.30 to 1.40); over all 6 estates 0.56. For a next estate of N programs that is about 0.7*N logged blockers (between 0.3*N and 1.4*N): 6.7 per 10 programs, 27 for 40.
+Logged blockers per program over the last 3 estates: 0.76 pooled (range 0.40 to 1.60); over all 6 estates 0.57. For a next estate of N programs that is about 0.8*N logged blockers (between 0.4*N and 1.6*N): 7.6 per 10 programs, 30 for 40.
 
-New classes: 11 of the 119 logged blockers opened a class, and the last 4 estate(s) opened none, so a next estate is expected to bring repeats of known classes, not a new one. The class vocabulary is coarse (zECS used unseen API areas and still logged only repeats), so read that as a floor on novelty, not a guarantee.
+New classes: 11 of the 121 logged blockers opened a class, and the last 4 estate(s) opened none, so a next estate is expected to bring repeats of known classes, not a new one. The class vocabulary is coarse (zECS used unseen API areas and still logged only repeats), so read that as a floor on novelty, not a guarantee.
 
 Read this as an order of magnitude. The ledger is a partial backfill (the issue's keyword count is ~1.3 blockers per program on the first port falling to ~0.25 on the fifth, zECS excepted for new API areas, which is higher than the logged rate here), so the logged rate is a lower bound. There are 6 data points and no variance model: the range is the spread of the last 3, not a confidence interval.
 
@@ -174,7 +174,8 @@ Read this as an order of magnitude. The ledger is a partial backfill (the issue'
 | P055 | 5 | zecs | det | cics-command | no | zecs000, zecs001, zecs003 | #4769 / #4858 | no | EXEC CICS DOCUMENT CREATE / RETRIEVE (the document handler) was refused, holding up the HTTP-facing zECS programs. |
 | P056 | 5 | zecs | det | cics-command | no | ecs001, zecs000, zecs001, zecs003 | #4768 / #4873 | no | INQUIRE URIMAP(name) in its direct form and INQUIRE PROGRAM STATUS were refused (only the URIMAP browse and program existence were modelled). |
 | P057 | 5 | zecs | det | cobol-dialect | no | zecs001 | #5945 / #6006 | no | CALL ZUIDSTCK (an assembler STCK wrapper the estate does not ship) was ZECS001's only hole; it needed a harness-stated TOD stand-in on both runtimes. |
-| P117 | 5 | zecs | harness | vsam | no | zecs001 | #6839 | no | A GET that hits a stored ZECS001 record cannot be proven: the harness serves every VSAM record at the dataset's fixed reclen, so READ ... LENGTH(ZF-LENGTH) returns the area length (32700) where IBM returns the record's own length, and 3400-STAGE's ZF-DATA(1:ZF-LENGTH) / WEB SEND FROMLENGTH run past 32000 bytes (libcob out of bounds, WEB SEND length beyond its area). The det-side divergence of ZECS001's DELETE of a stored key and POST / PUT over an existing key (204 Record not found; SYNCPOINT rollback) was the harness handing the Java task the COBOL task's updated file, not the port (#6839 row A, fixed): scenarios delete-stored, post-existing, put-existing and post-existing-rewrite-ioerr now prove. ZECS001 4600-REPLICATE: the SIGSEGV at the converse (PROGRAM.cbl:2113) was the oracle's 8-byte POINTER copied through the 4-byte CACHE-ADDRESS-X view into a block above 4 GiB (#6839 row G); the stub now places task storage in the low 2 GiB (Linux MAP_32BIT) and the post-replicate-aa scenario (AA data centre, one http_peers exchange) is executed-equivalent. The 5400-REPLICATE twin (PUT/DELETE side) has no scenario yet. Round 6 (#6072): a POST body of 32000 or 40000 bytes is refused by the det runtime (SET ADDRESS OF a record longer than its storage: not modelled), so 4400-WRITE-FILE's segmented arms and 3500-READ-SEGMENTS stay open; an Authorization header over six bytes LINKs ZECS002 (HLASM, refused: the case runs one program), so 1500-AUTHENTICATE's long-header arms and 1600-USER-ACCESS / 1610-SCAN-ZCXXSD stay open. Round 7 (#6072): `ttl=abc` (the NUMERIC false arm, 704:false) is not reached: libcob stores 000000 from the non-digit piece, so NUMERIC is true where z/OS keeps the bytes (register C11 DIFFERS, #6839 row J); the empty-path arm (492:false) is closed by scenario get-empty-path (row K); the `clear=*` XCTL arm is closed (the harness reads an XCTL area of another program's DTO by its bytes). Round 9 (#6839 row F): the text/* and application/xml WEB RECEIVE second pass (SRVCONVERT after NOSRVCONVERT) is modelled (register X38, ASSUMED: same body and media type back) and scenarios post-text-plain and put-application-xml close 540:true. Round 8 (#6839 row H): the case LINKs the lowered ZECS002 (`programs`), so 1500-AUTHENTICATE's long-header arms, 1600-USER-ACCESS and 1610-SCAN-ZCXXSD are closed (8 auth scenarios; the header and the ZC01SD user ids are stated in cp037, docs/language_status/hlasm_cics_design.md assumption 3). |
+| P117 | 5 | zecs | harness | vsam | no | zecs001 | #6839 | no | A GET that hits a stored ZECS001 record was unprovable: the harness served every VSAM record at the dataset's fixed reclen, so READ ... LENGTH(ZF-LENGTH) returned the area length (32700) where IBM returns the record's own length, and 3400-STAGE's ZF-DATA(1:ZF-LENGTH) / WEB SEND FROMLENGTH ran past 32000 bytes (libcob out of bounds). Fixed (#6839 row D, #7255): a RECORDFORMAT(V) file keeps each record's own length (stub <file>.len, harness `variable` / `lengths`, det Store.cut), and the GET scenarios (get-hit, get-binary, get-no-media, get-lat-hit, the segment ones) prove; tests/tools/test_equivalence_cics_variable_lengths_6839.py pins the harness side. The det-side divergence of ZECS001's DELETE of a stored key and POST / PUT over an existing key (204 Record not found; SYNCPOINT rollback) was the harness handing the Java task the COBOL task's updated file, not the port (#6839 row A, fixed): scenarios delete-stored, post-existing, put-existing and post-existing-rewrite-ioerr now prove. ZECS001 4600-REPLICATE: the SIGSEGV at the converse (PROGRAM.cbl:2113) was the oracle's 8-byte POINTER copied through the 4-byte CACHE-ADDRESS-X view into a block above 4 GiB (#6839 row G); the stub now places task storage in the low 2 GiB (Linux MAP_32BIT) and the post-replicate-aa scenario (AA data centre, one http_peers exchange) is executed-equivalent. The 5400-REPLICATE twin (PUT/DELETE side) has no scenario yet. Round 6 (#6072): a POST body of 32000 or 40000 bytes is refused by the det runtime (SET ADDRESS OF a record longer than its storage: not modelled), so 4400-WRITE-FILE's segmented arms and 3500-READ-SEGMENTS stay open; an Authorization header over six bytes LINKs ZECS002 (HLASM, refused: the case runs one program), so 1500-AUTHENTICATE's long-header arms and 1600-USER-ACCESS / 1610-SCAN-ZCXXSD stay open. Round 7 (#6072): `ttl=abc` (the NUMERIC false arm, 704:false) is not reached: libcob stores 000000 from the non-digit piece, so NUMERIC is true where z/OS keeps the bytes (register C11 DIFFERS, #6839 row J); the empty-path arm (492:false) is closed by scenario get-empty-path (row K); the `clear=*` XCTL arm is closed (the harness reads an XCTL area of another program's DTO by its bytes). Round 9 (#6839 row F): the text/* and application/xml WEB RECEIVE second pass (SRVCONVERT after NOSRVCONVERT) is modelled (register X38, ASSUMED: same body and media type back) and scenarios post-text-plain and put-application-xml close 540:true. Round 8 (#6839 row H): the case LINKs the lowered ZECS002 (`programs`), so 1500-AUTHENTICATE's long-header arms, 1600-USER-ACCESS and 1610-SCAN-ZCXXSD are closed (8 auth scenarios; the header and the ZC01SD user ids are stated in cp037, docs/language_status/hlasm_cics_design.md assumption 3). |
+| P120 | 5 | zecs | runtime | cobol-dialect | no | zecs001 | #7267 | no | ZECS001's DELETE data-center replication (5300 -> 5400-REPLICATE -> 8200, `SET ADDRESS OF CACHE-MESSAGE TO SAVE-ADDRESS` with SAVE-ADDRESS never set on a DELETE) cannot be proven: the Java runtime refuses SET ADDRESS OF a null pointer by name (CicsTask.storageAt, 'a null or unknown pointer', pinned by test_pointer_lane_4771), while GnuCOBOL runs it and nothing reads CACHE-MESSAGE afterwards (the DELETE WEB CONVERSE has no FROM). Three scenarios (type AA, type AS, AA with a text/plain request) all stop java-side; they would close 5400-REPLICATE/5400-EXIT and 1651:true, 1670:true, 1858:false, 1879:false, 1902:true, 1852:true. Modelled (#4767, X47): SET ADDRESS OF record TO a NULL pointer leaves the det port's record as it was (ASSUMED), so a program that then uses the record differs from the oracle's null record and fails the proof; scenarios delete-replicate-aa, -as and -tx are executed-equivalent and close 5400-REPLICATE and 5400-EXIT. Freed and unknown non-zero pointers stay refused by name. |
 | P030 | 7 | dbb-mortgage-application | det | vsam | no | epsmlist | #4213 | no | ESDS browse by RBA (STARTBR/READNEXT ... RBA) was refused, blocking EPSMLIST. |
 | P031 | 7 | dbb-mortgage-application | transaction-forge | cobol-dialect | no | epscsmrd | #4243 | no | The forge and differential read a multi-program source as one program, blocking EPSCSMRD onboarding. |
 | P032 | 7 | dbb-mortgage-application | harness | cics-command | no |  | #4506 | no | The equivalence harness had no BMS map support. |
@@ -230,3 +231,4 @@ Read this as an order of magnitude. The ledger is a partial backfill (the issue'
 | P114 | 8 | none | det | cics-command | no |  | #5092 / #5204 | no | Tokenless update holds recorded INVREQ RESP2 0 in both runtimes (REWRITE with no prior READ UPDATE: 30; DELETE without RIDFLD: 31; a second tokenless READ UPDATE: 28, not modelled); modelled with the full-key READ and DELETE INVREQ / NOTFND RESP2 values checked against IBM's pages. |
 | P115 | 8 | none | det | cobol-dialect | no |  | #5645 / #5654 | no | The det translator resolved COPY with its own regex that did not match a quoted copybook literal with an extension (COPY "x.cpy".), so the copybook was never expanded and its items were unresolved in the generated Java; the scanner and translator now share one COPY / REPLACING rule. |
 | P116 | 8 | none | det | vsam | no |  | #6065 / #6111 | no | In an estate with no application JCL job the batch forge emitted no batch package (CobolFiles), so every OPEN / READ / WRITE / CLOSE was a hole (~50 statements), and WRITE ... ADVANCING phrases were holes too (33); about two-thirds of the holes in two non-burned survey corpora. Batch file runtime now generated for file-owning estates; unmodelled WRITE phrases are named. |
+| P121 | 8 | cics-async-api-credit-card-application-example | harness | oracle-model | no | getpol, getspnd, updcsdb, csstatus, crdtchk, getaddr, seqpnt, asyncpnt | #5862 / #7348 | no | An unhandled injected DELAY fault cannot be proven: the oracle stub GGCDLAY (ggcics_taskcontrol.c) sets RESP/RESP2 and returns, with no default abend for an unhandled condition, while the det port abends (INVREQ -> AEIP, CicsSpec.abcodeFor). The asynccc programs code no RESP or HANDLE CONDITION on DELAY, so a DELAY INVREQ scenario differs (COBOL RETURN, Java ABEND). The DELAY-fault survivors of the det-mutation ledgers are harness-gap until the stub abends by name (X72). Also, an unhandled planned EXPIRED makes the det port throw IllegalArgumentException (no abend code known for condition EXPIRED) where X72 says EXPIRED's default is to ignore. |

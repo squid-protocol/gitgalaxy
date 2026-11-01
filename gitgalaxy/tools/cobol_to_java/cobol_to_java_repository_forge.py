@@ -34,6 +34,9 @@ from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import (
     java_path,
     java_type,
     parse_pic_precision,
+    pic_runs,
+    runs_count,
+    runs_partition,
     status_text,
 )
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base, sql_name
@@ -69,11 +72,11 @@ _PACKED_USAGES = frozenset({"COMP-3", "PACKED-DECIMAL", "COMPUTATIONAL-3"})
 
 def _pic_numeric(pic: str) -> tuple[bool, int, int] | None:
     """(signed, digits, scale) of a plain numeric PIC (`S9(10)V99`), None for text or an edited PIC."""
-    p = re.sub(r"(.)\((\d+)\)", lambda m: m.group(1) * int(m.group(2)), pic.upper())
-    if not p or re.search(r"[^S9V]", p):
+    runs = pic_runs(pic.upper())  # #7169: run lengths, never the expansion
+    if not runs or any(s not in "S9V" for s, _ in runs):
         return None
-    whole, _, frac = p.partition("V")
-    return p.startswith("S"), whole.count("9") + frac.count("9"), frac.count("9")
+    _, _, frac = runs_partition(runs, "V")
+    return runs[0][0] == "S", runs_count(runs, "9"), runs_count(frac, "9")
 
 
 def _codec_kind(f: Field) -> str | None:

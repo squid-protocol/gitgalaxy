@@ -30,6 +30,9 @@ DEFINITION: dict[str, Any] = {
     "extensions": [".jcl", ".prc", ".idcams"],
     "exact_matches": [],
     "discriminators": [".cbl", ".cob", ".cpy"],
+    # #7064: an extensionless PDS member under `PAYR.JCL/`, `PAYR.CNTL/`, `SYS1.PROCLIB/` or `PAYR.PROC/` (see
+    # `LanguageDetector._pds_library_lang`); the member must still win the lexical scan on its `//` cards.
+    "library_directory_suffixes": ["jcl", "cntl", "proclib", "proc"],
     "shebangs": [],
     # #2806: JCL is the one corpus language whose callable units cannot be
     # invoked by name. A job's EXEC steps -- what `func_start` above extracts
@@ -404,7 +407,7 @@ DEFINITION: dict[str, Any] = {
         # other language with a non-None `import`), so the dependency graph never
         # captured which member a JCL job/proc pulls in via INCLUDE. Captures the
         # MEMBER= name for the network/blast-radius graph. Also captures dataset
-        # names in DD statements and JCLLIB orders, ignoring temporary/internal ptrs (&&, *).
+        # names in DD statements and JCLLIB orders, ignoring temporary/internal ptrs (&&, *) and DSN=NULLFILE (a dummy DD).
         # #4331: a GDG relative generation -- `(0)`, `(+n)`, `(-n)` -- is stripped to the base DSN, so
         # `X(+1)` / `X(0)` / `X(-1)` and the bare `X` are one dependency (job_flow_data records the base
         # DSN plus `generation`). It used to stop the class at the sign and leave a dangling `X(`. A PDS
@@ -416,7 +419,7 @@ DEFINITION: dict[str, Any] = {
             + NATIONAL
             + r"a-z0-9_#$@]+)|JCLLIB[ \t]+ORDER=\(?([A-Z"
             + NATIONAL
-            + r"a-z0-9_#$@.]+)\)?|DD[ \t]+(?:.*?[ \t,])?DSN(?:AME)?=(?!(?:&&|\*))([A-Z"
+            + r"a-z0-9_#$@.]+)\)?|DD[ \t]+(?:.*?[ \t,])?DSN(?:AME)?=(?!(?:&&|\*|NULLFILE(?=[ \t,]|$)))([A-Z"
             + NATIONAL
             + r"a-z0-9_#$@.&]+(?:\((?!(?:0|[+-][0-9]+)\))[A-Z"
             + NATIONAL

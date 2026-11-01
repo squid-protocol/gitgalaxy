@@ -20,11 +20,15 @@ GalaxyIR, and diffs every fact channel of the key against it:
   layouts         GalaxyIR.record_layout of every 01 a program writes: bytes and every
                   elementary field's offset / length (REDEFINES overlays: unscored, the
                   layout reader skips them by design)
+  jcl_utility_cards  the control statements of an in-stream DD (job_flow_data INSTREAM rows)
+  jcl_steps       STEP rows; JOB RESTART= (+ checkid), RD=, PARM.procstep=, COND.procstep= are unscored (no engine field)
+  jcl_dds         DD rows (an override DD `//PROCSTEP.DD` matches the row named after its proc step);
+                  SYSOUT / DUMMY DDs are unscored (job_flow_data keeps only DDs that name a DSN)
   sql_statements, sql_tables, jcl_steps, jcl_dds, screen_fields, csd_resources, transactions
   cics_resources  cics_resource_data (MAP / FILE / QUEUE commands)
   jcl_datasets    a JCL member's DSN references in file_data.raw_imports (a GDG reference as
                   its base or with its relative generation)
-  file_control    file_control_data SELECTs;  entry_points  entry_point_data
+  file_control    file_control_data SELECTs (+ relative_key, alternate_keys with the DUPLICATES flag, when the key states them);  entry_points  entry_point_data
   file_edges      edge_data kinds 'call' (CALL / LINK / XCTL) and 'exec' (EXEC PGM)
   copy_collisions the scan's `copy_member_collisions` report (#4265), read from the master DB
                   (repo_data, #4421)
@@ -84,6 +88,7 @@ CHANNELS = (
     "sql_tables",
     "jcl_steps",
     "jcl_dds",
+    "jcl_utility_cards",
     "screen_fields",
     "csd_resources",
     "transactions",
@@ -259,8 +264,13 @@ class Engine:
                         self.raw_imports[ids[fid]] = []
             # (path, unit) -> {"start", "end", "calls", "transfers", "usage"}
             self.units: dict[str, list[dict[str, Any]]] = defaultdict(list)
-            for fid, name, start, loc, calls, transfers, usage in conn.execute(
-                "SELECT file_id, func_name, start_line, loc, calls_out_to, transfers_to, usage_status FROM function_data"
+            # #7170: a program's main line is a function_data row with def_shape 'main_line'
+            shape_col = (
+                "def_shape" if any(r[1] == "def_shape" for r in conn.execute("PRAGMA table_info(function_data)")) else "NULL"
+            )
+            for fid, name, start, loc, calls, transfers, usage, shape in conn.execute(
+                "SELECT file_id, func_name, start_line, loc, calls_out_to, transfers_to, usage_status, "  # noqa: S608
+                f"{shape_col} FROM function_data"
             ):
                 if fid in ids:
                     self.units[ids[fid]].append(
@@ -273,6 +283,7 @@ class Engine:
                             "synthetic": False,
                             # detector: 0 normal, 1 orphan / unused, 2 duplicate
                             "usage": usage,
+                            "main_line": shape == "main_line",
                         }
                     )
             self.synthetic: dict[str, list[dict[str, Any]]] = defaultdict(list)
@@ -353,15 +364,16 @@ def score_programs(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> 
 def _owner(eng: Engine, path: str, unit: str | None, start: int | None) -> dict[str, Any] | None:
     """The engine unit that holds a key unit: by name (the one nearest `start` when a member
     holds several programs with the same paragraph names), or, for the main line (no name),
-    a synthetic_unit_data row or a function_data unit at its first line."""
+    a function_data main-line unit (#7170) or synthetic_unit_data row, or a unit at its first line."""
     if unit is not None:
-        hits = [u for u in eng.units.get(path, []) if u["name"].upper() == unit.upper()]
+        hits = [u for u in eng.units.get(path, []) if u["name"].upper() == unit.upper() and not u.get("main_line")]
         if start is not None and hits:
             return min(hits, key=lambda u: abs(u["start"] - start))
         return hits[0] if hits else None
     cands = eng.synthetic.get(path, []) + eng.units.get(path, [])
     if start is None:
-        return eng.synthetic[path][0] if eng.synthetic.get(path) else None
+        mains = [u for u in eng.units.get(path, []) if u.get("main_line")] + eng.synthetic.get(path, [])
+        return mains[0] if mains else None
     near = [u for u in cands if start - 2 <= u["start"] <= start]
     return max(near, key=lambda u: u["start"]) if near else None
 
@@ -390,7 +402,8 @@ def score_units(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> Non
         if not any(u["name"].upper() == p["name"].upper() for u in eng.units.get(path, [])):
             sc.add("units", path, f"not {p['name']}", "pass", p.get("horror"))
     for u in eng.units.get(path, []):
-        if id(u) not in keyed:
+        # #7170: a main line the key does not list is not a phantom paragraph (keys list paragraphs/sections)
+        if id(u) not in keyed and not u.get("main_line"):
             p = explicit.get(u["name"].upper())
             sc.add(
                 "units",
@@ -692,6 +705,32 @@ def score_sql(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
         sc.add("sql_tables", path, f["table"], "fail" if d else "pass", f.get("horror"), d)
 
 
+# Optional key fields on a jcl_steps entry that job_flow_data has no field for (the key states them, the DB cannot
+# answer): each is reported `unscored` with its reason, never silently dropped (gitgalaxy#7065, H-0073, H-0075).
+_STEP_FIELDS_WITHOUT_ENGINE_ROW = (
+    ("restart_checkid", "job_flow_data keeps no checkid of JOB RESTART=(step,checkid) (core/job_flow.py)"),
+    ("rd", "job_flow_data keeps no RD= restart-definition parameter (core/job_flow.py)"),
+    ("parm_overrides", "job_flow_data keeps no PARM.procstep= override on an EXEC of a procedure (core/job_flow.py)"),
+    ("cond_overrides", "job_flow_data keeps no COND.procstep= override on an EXEC of a procedure (core/job_flow.py)"),
+    ("set_symbols", "job_flow_data keeps no SET statement before the EXEC (core/job_flow.py)"),
+    ("includes", "job_flow_data keeps no INCLUDE statement after the EXEC and does not expand it (core/job_flow.py)"),
+)
+
+
+def _compact(v: Any) -> str:
+    """A key value as one short token for a check label (a list of override dicts becomes `RPT020:QUARTERLY`)."""
+    if isinstance(v, list):
+        return ",".join(
+            f"{o['name']}={o['value']}"
+            if "name" in o
+            else f"{o.get('step')}:{o.get('parm', o.get('cond'))}"
+            if isinstance(o, dict)
+            else str(o)
+            for o in v
+        )
+    return str(v)
+
+
 def score_jcl(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
     ef = eng.files.get(path)
     flow = list(ef.job_flow) if ef else []
@@ -715,44 +754,145 @@ def score_jcl(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
                 ("in_proc", _u(f.get("proc")), _u(s.in_proc)),
             ]
         )
+        opt = [("parm", f["parm"], s.parm)] if "parm" in f else []
+        if "if_cond" in f:
+            cond, branch = _if_branch(s.if_cond)
+            opt += [("if_cond", f["if_cond"], cond), ("branch", f.get("branch"), branch)]
+        d = "; ".join(x for x in (d, _diff(opt)) if x)
         sc.add("jcl_steps", path, label, "fail" if d else "pass", f.get("horror"), d)
+        if f.get("restart"):
+            sc.add(
+                "jcl_steps",
+                path,
+                f"{label} restart={f['restart']}",
+                "unscored",
+                f.get("horror"),
+                "job_flow_data keeps no JOB RESTART= (core/job_flow.py)",
+            )
+        for key, why in _STEP_FIELDS_WITHOUT_ENGINE_ROW:
+            if f.get(key):
+                sc.add("jcl_steps", path, f"{label} {key}={_compact(f[key])}", "unscored", f.get("horror"), why)
     for s in steps:
         if id(s) not in used:
             sc.add("jcl_steps", path, f"{s.step_name} @{s.line}", "phantom", None, "not in the key")
+    ins = [r for r in flow if _u(r.kind) == "INSTREAM"]
     for f in entry.get("jcl_dds", []):
-        label = f"{f['step']}.{f['dd']} @{f['line']}"
-        if f.get("sysout"):
+        dd = f.get("dd") or f.get("concat_of")
+        label = f"{f['step']}.{f.get('dd') or '+' + str(f.get('concat_of'))} @{f['line']}"
+        if f.get("include"):
+            # a DD of an INCLUDE group has no job, proc or step of its own (SPEC.md section 3)
+            sc.add(
+                "jcl_dds",
+                path,
+                f"INCLUDE {f['include']}: {f.get('dd')} @{f['line']}",
+                "unscored",
+                f.get("horror"),
+                "a member of an INCLUDE group: job_flow_data does not expand INCLUDE (core/job_flow.py)",
+            )
+            continue
+        if f.get("sysout") or f.get("dummy"):
+            what = f"SYSOUT={f['sysout']}" if f.get("sysout") else "DD DUMMY"
             sc.add(
                 "jcl_dds",
                 path,
                 label,
                 "unscored",
                 f.get("horror"),
-                f"SYSOUT={f['sysout']}: job_flow_data records only DDs that name a DSN (core/job_flow.py)",
+                f"{what}: job_flow_data records only DDs that name a DSN (core/job_flow.py)",
             )
             continue
-        r = next(
-            (x for x in dds if _u(x.step_name) == f["step"] and _u(x.dd_name) == f["dd"] and id(x) not in used), None
-        )
+        if "inline_lines" in f:
+            r = next((x for x in ins if _u(x.step_name) == f["step"] and _u(x.dd_name) == f["dd"]), None)
+            if r is None:
+                sc.add("jcl_dds", path, label, "missing", f.get("horror"), "no INSTREAM row for this DD")
+                continue
+            body = r.instream or ""
+            n = len(body.split("\n")) if body else 0
+            d = _diff([("line", f["line"], r.line), ("inline_lines", f["inline_lines"], n)])
+            sc.add("jcl_dds", path, label, "fail" if d else "pass", f.get("horror"), d)
+            continue
+        # `//PROCSTEP.DD` on an EXEC of a procedure: job_flow names the row after the proc step (header of job_flow.py)
+        owner = f.get("override_of") or f["step"]
+        r = next((x for x in dds if _u(x.step_name) == _u(owner) and _u(x.dd_name) == dd and id(x) not in used), None)
         if r is None:
-            sc.add(
-                "jcl_dds", path, label, "missing", f.get("horror"), f"SYSOUT={f['sysout']}" if f.get("sysout") else ""
-            )
+            sc.add("jcl_dds", path, label, "missing", f.get("horror"))
             continue
         used.add(id(r))
-        d = _diff(
-            [
-                ("line", f["line"], r.line),
-                ("dsn", _u(f.get("dsn")), _u(r.dsn)),
-                ("generation", f.get("generation"), r.generation),
-                ("disp", f.get("disp"), r.disp),
-                ("disp_normal", f.get("disp_normal"), r.disp_normal),
-            ]
-        )
+        pairs = [
+            ("line", f["line"], r.line),
+            ("dsn", _u(f.get("dsn")), _u(r.dsn)),
+            ("generation", f.get("generation"), r.generation),
+            ("disp", f.get("disp"), r.disp),
+            ("disp_normal", f.get("disp_normal"), r.disp_normal),
+        ]
+        if "temp" in f:
+            pairs.append(("temp", f["temp"], (r.dsn or "").startswith("&&")))
+        d = _diff(pairs)
         sc.add("jcl_dds", path, label, "fail" if d else "pass", f.get("horror"), d)
     for r in dds:
         if id(r) not in used:
             sc.add("jcl_dds", path, f"{r.step_name}.{r.dd_name} @{r.line}", "phantom", None, "not in the key")
+
+
+def _if_branch(text: str | None) -> tuple[str | None, str | None]:
+    """job_flow's `if_cond` ("(A.RC = 0)", "NOT (A.RC = 0)" after ELSE) as the key's (condition, branch)."""
+    if not text:
+        return None, None
+    t = text.strip()
+    branch = "then"
+    if t.upper().startswith("NOT "):
+        t, branch = t[4:].strip(), "else"
+    if t.upper().endswith(" THEN"):
+        t = t[:-5].strip()
+    if t.startswith("(") and t.endswith(")"):
+        t = t[1:-1].strip()
+    return t, branch
+
+
+def _cards(body: str) -> list[tuple[int, str, str]]:
+    """The control statements of an in-stream body as (index of its first line, verb, operands).
+
+    A line ending in `-` (IDCAMS) or `,` (DFSORT / ICETOOL) continues on the next; the hyphen is dropped and
+    the pieces joined with one blank. This is the scorer's own reading of the text the engine kept."""
+    out: list[tuple[int, str, str]] = []
+    pending: list[str] = []
+    start = 0
+    for i, raw in enumerate(body.split("\n")):
+        line = raw.strip()
+        if not pending:
+            if not line or line.startswith("*"):
+                continue
+            start = i
+        cont = line.endswith(("-", ","))
+        pending.append(line[:-1].rstrip() if line.endswith("-") else line)
+        if cont:
+            continue
+        text = " ".join(" ".join(pending).split())
+        verb, _, operands = text.partition(" ")
+        out.append((start, verb.upper(), operands.strip()))
+        pending = []
+    return out
+
+
+def score_jcl_utility_cards(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
+    """Each keyed control statement against the INSTREAM row of its (step, DD): the engine keeps the body, not
+    the statements, so a card passes when it is in the body at its line with the keyed operands."""
+    ef = eng.files.get(path)
+    ins = [r for r in (ef.job_flow if ef else []) if _u(r.kind) == "INSTREAM"]
+    parsed: dict[int, list[tuple[int, str, str]]] = {}
+    for f in entry.get("jcl_utility_cards", []):
+        label = f"{f['step']}.{f['dd']} {f['verb']} @{f['line']}"
+        r = next((x for x in ins if _u(x.step_name) == f["step"] and _u(x.dd_name) == f["dd"]), None)
+        if r is None:
+            sc.add("jcl_utility_cards", path, label, "missing", f.get("horror"), "no INSTREAM row for this DD")
+            continue
+        cards = parsed.setdefault(id(r), _cards(r.instream or ""))
+        c = next((x for x in cards if r.line + 1 + x[0] == f["line"] and x[1] == f["verb"]), None)
+        if c is None:
+            sc.add("jcl_utility_cards", path, label, "missing", f.get("horror"), "no such statement at that line")
+            continue
+        d = _diff([("operands", f["operands"], c[2])])
+        sc.add("jcl_utility_cards", path, label, "fail" if d else "pass", f.get("horror"), d)
 
 
 def score_cics(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
@@ -912,7 +1052,14 @@ def score_jcl_datasets(sc: Score, path: str, entry: dict[str, Any], eng: Engine)
             f.get("depends_on"),
         )
     horrors = sorted({f["horror"] for f in entry.get("jcl_datasets", []) if f.get("horror")})
+    explicit = {_u(p["dsn"]): p for p in _phantoms(entry, "jcl_datasets")}
+    for dsn, p in explicit.items():
+        if dsn not in raw:
+            sc.add("jcl_datasets", path, f"not {p['dsn']}", "pass", p.get("horror"))
     for r in sorted(raw - accepted):
+        if r in explicit:
+            sc.add("jcl_datasets", path, f"raw import {r}", "phantom", explicit[r].get("horror"), explicit[r]["why"])
+            continue
         h = next((f.get("horror") for f in entry.get("jcl_datasets", []) if r.startswith(f["dsn"].upper())), None)
         sc.add(
             "jcl_datasets",
@@ -935,8 +1082,16 @@ def score_file_control(sc: Score, path: str, entry: dict[str, Any], eng: Engine)
             sc.add("file_control", path, label, "missing", f.get("horror"))
             continue
         used.add(id(r))
+        extra = []
+        if "relative_key" in f:
+            extra.append(("relative_key", _u(f["relative_key"]), _u(r.relative_key)))
+        if "alternate_keys" in f:
+            want = sorted((_u(a["name"]), bool(a["duplicates"])) for a in f["alternate_keys"])
+            got = sorted((_u(n), bool(dup)) for n, dup in (r.alternate_keys or []))
+            extra.append(("alternate_keys", want, got))
         d = _diff(
-            [
+            extra
+            + [
                 ("assign", _u(f["assign"]), _u(r.assign)),
                 ("organization", _u(f["organization"]), _u(r.organization)),
                 ("access_mode", _u(f.get("access_mode")), _u(r.access_mode)),
@@ -1119,7 +1274,9 @@ def score_dead(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None
     for f in entry.get("dead", []):
         label = f"{f['kind']} {f['name']} @{f['line']}"
         if f["kind"] == "paragraph":
-            u = next((x for x in eng.units.get(path, []) if _u(x["name"]) == _u(f["name"])), None)
+            u = next(
+                (x for x in eng.units.get(path, []) if _u(x["name"]) == _u(f["name"]) and not x.get("main_line")), None
+            )
             if u is None:
                 sc.add("dead", path, label, "missing", f.get("horror"), "no such unit", f.get("depends_on"))
                 continue
@@ -1158,6 +1315,7 @@ SCORERS = (
     score_layouts,
     score_sql,
     score_jcl,
+    score_jcl_utility_cards,
     score_cics,
     score_cics_resources,
     score_jcl_datasets,

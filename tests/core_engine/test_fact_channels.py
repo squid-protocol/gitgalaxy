@@ -15,6 +15,7 @@ these pin what a registry entry must satisfy for both to work, for every entry:
 import dataclasses
 import re
 import sqlite3
+import sys
 from pathlib import Path
 
 from gitgalaxy.core.fact_channels import _WEB_SERVICE_FIELDS, CHANNELS, CHANNELS_BY_NAME, create_channel_table
@@ -324,6 +325,326 @@ def test_the_web_service_channel_round_trips_every_payload_key(tmp_path):
     assert "transaction_id" in columns and "transaction" not in columns
 
 
+def test_the_copy_statement_channel_round_trips_every_payload_key(tmp_path):
+    copies = [
+        {
+            "member": "CPYA",
+            "library": "LIB1",
+            "replacing": '[["==:X:==", "==Y==", "LEADING"]]',
+            "section": "WORKING-STORAGE",
+            "fd_name": "FD1",
+            "after_ordinal": 4,
+            "line": 21,
+        },
+        {
+            "member": "CPYB",
+            "library": None,
+            "replacing": None,
+            "section": None,
+            "fd_name": None,
+            "after_ordinal": None,
+            "line": 0,
+        },
+    ]
+    files = [{"path": "p.cbl", "lang_id": "cobol", "raw_imports": [], "section_copies": copies}]
+    db = _record(tmp_path, files)
+    node = StateRehydrator(str(db)).load_state("RegistryRepo")["ram_cache"]["p.cbl"]
+    assert node["section_copies"] == copies
+
+
+def test_the_special_names_and_compiler_options_channels_round_trip_every_payload_key(tmp_path):
+    names = [
+        {"clause": "CURRENCY", "value": "EUR", "symbol": "E", "line": 7},
+        {"clause": "DECIMAL-POINT", "value": "COMMA", "symbol": None, "line": 0},
+    ]
+    options = [
+        {"option": "TRUNC", "value": "BIN", "written": "TRUNC(BIN)", "line": 1},
+        {"option": "NUMPROC", "value": None, "written": "NUMPROC", "line": 1},
+    ]
+    files = [
+        {"path": "p.cbl", "lang_id": "cobol", "raw_imports": [], "special_names": names, "compiler_options": options}
+    ]
+    db = _record(tmp_path, files)
+    node = StateRehydrator(str(db)).load_state("RegistryRepo")["ram_cache"]["p.cbl"]
+    assert node["special_names"] == names
+    assert node["compiler_options"] == options
+
+
+def test_the_entry_point_dli_call_and_ims_gen_channels_round_trip_every_payload_key(tmp_path):
+    entries = [
+        {"kind": "PROCEDURE", "entry_name": None, "params": "A,B", "line": 4},
+        {"kind": "ENTRY", "entry_name": "ALT", "params": None, "line": 90},
+    ]
+    dli = [
+        {
+            "interface": "EXEC",
+            "function": "GU",
+            "function_operand": None,
+            "pcb": "PCB1",
+            "io_area": "IO",
+            "segments": "S1,S2",
+            "ssas": None,
+            "where": "K = 1;K = 2",
+            "psb": "PSB1",
+            "line": 12,
+        },
+        {
+            "interface": "CALL",
+            "function": None,
+            "function_operand": "FUNC",
+            "pcb": "P",
+            "io_area": "IO",
+            "segments": None,
+            "ssas": "SSA1",
+            "where": None,
+            "psb": None,
+            "line": 0,
+        },
+    ]
+    gen = [
+        {
+            "kind": "FIELD",
+            "name": "F",
+            "parent": "SEG",
+            "owner": "DBD1",
+            "dbd_name": None,
+            "procopt": None,
+            "pcb_type": None,
+            "access": "SEQ",
+            "bytes": 8,
+            "start": 1,
+            "psb_name": None,
+            "program": None,
+            "attributes": None,
+            "line": 3,
+        },
+        {
+            "kind": "REGION",
+            "name": None,
+            "parent": None,
+            "owner": None,
+            "dbd_name": None,
+            "procopt": None,
+            "pcb_type": None,
+            "access": "BMP",
+            "bytes": None,
+            "start": None,
+            "psb_name": "PSB1",
+            "program": "PGM",
+            "attributes": "x",
+            "line": 0,
+        },
+    ]
+    files = [
+        {
+            "path": "p.cbl",
+            "lang_id": "cobol",
+            "raw_imports": [],
+            "entry_points": entries,
+            "dli_calls": dli,
+            "ims_gen": gen,
+        }
+    ]
+    db = _record(tmp_path, files)
+    node = StateRehydrator(str(db)).load_state("RegistryRepo")["ram_cache"]["p.cbl"]
+    assert node["entry_points"] == entries
+    assert node["dli_calls"] == dli
+    assert node["ims_gen"] == gen
+
+
+def test_the_job_submit_mq_call_uow_handler_and_file_control_channels_round_trip_every_payload_key(tmp_path):
+    submits = [
+        {"kind": "EXEC", "step": "S1", "name": None, "target_kind": "PGM", "target": "PGMA", "line": 7},
+        {"kind": "JOB", "step": None, "name": "JOBA", "target_kind": None, "target": None, "line": 0},
+    ]
+    mq = [
+        {
+            "verb": "MQOPEN",
+            "direction": "put",
+            "operand": "Q-NAME",
+            "queue": "Q.ONE",
+            "resolution": "literal",
+            "candidates": None,
+            "handle": "H1",
+            "open_line": None,
+            "options": "MQOO-OUTPUT",
+            "line": 10,
+        },
+        {
+            "verb": "MQPUT",
+            "direction": None,
+            "operand": None,
+            "queue": None,
+            "resolution": "ambiguous",
+            "candidates": "A,B",
+            "handle": "H1",
+            "open_line": 10,
+            "options": None,
+            "line": 0,
+        },
+    ]
+    uow = [
+        {
+            "kind": "HANDLE_CONDITION",
+            "source": "CICS",
+            "verb": "HANDLE CONDITION",
+            "condition": "NOTFND",
+            "target": "ERR-PARA",
+            "target_kind": "LABEL",
+            "resp_var": None,
+            "attributes": "x",
+            "line": 20,
+        },
+        {
+            "kind": "COMMIT",
+            "source": "SQL",
+            "verb": None,
+            "condition": None,
+            "target": None,
+            "target_kind": None,
+            "resp_var": "WS-RESP",
+            "attributes": None,
+            "line": 0,
+        },
+    ]
+    selects = [
+        {
+            "select_name": "F1",
+            "assign": "DD1",
+            "organization": "INDEXED",
+            "access_mode": "DYNAMIC",
+            "record_key": "K1",
+            "alternate_keys": "A1+DUP",
+            "relative_key": None,
+            "file_status": "FS",
+            "fd_copies": "CPY",
+            "line": 5,
+        },
+        {
+            "select_name": "F2",
+            "assign": None,
+            "organization": None,
+            "access_mode": None,
+            "record_key": None,
+            "alternate_keys": None,
+            "relative_key": "RK",
+            "file_status": None,
+            "fd_copies": None,
+            "line": 0,
+        },
+    ]
+    files = [
+        {
+            "path": "p.cbl",
+            "lang_id": "cobol",
+            "raw_imports": [],
+            "job_submits": submits,
+            "mq_calls": mq,
+            "uow_handlers": uow,
+            "file_control": selects,
+        }
+    ]
+    db = _record(tmp_path, files)
+    node = StateRehydrator(str(db)).load_state("RegistryRepo")["ram_cache"]["p.cbl"]
+    assert node["job_submits"] == submits
+    assert node["mq_calls"] == mq
+    assert node["uow_handlers"] == uow
+    assert node["file_control"] == selects
+
+
+def test_the_vsam_define_and_job_flow_channels_round_trip_every_payload_key(tmp_path):
+    vsam = [
+        {
+            "kind": "CLUSTER",
+            "name": "A.B.KSDS",
+            "organization": "INDEXED",
+            "key_length": 8,
+            "key_offset": 0,
+            "record_avg": 80,
+            "record_max": 200,
+            "related": None,
+            "unique_key": None,
+            "upgrade": None,
+            "step": "DEF1",
+            "line": 4,
+        },
+        {
+            "kind": "AIX",
+            "name": "A.B.AIX",
+            "organization": None,
+            "key_length": None,
+            "key_offset": None,
+            "record_avg": None,
+            "record_max": None,
+            "related": "A.B.KSDS",
+            "unique_key": "UNIQUEKEY",
+            "upgrade": "UPGRADE",
+            "step": None,
+            "line": 0,
+        },
+    ]
+    base = {
+        "kind": "STEP",
+        "name": None,
+        "step_ordinal": 1,
+        "step_name": "S1",
+        "program": "PGMA",
+        "proc": None,
+        "cond": "(4,LT)",
+        "if_cond": None,
+        "in_proc": None,
+        "dd_name": None,
+        "dsn": None,
+        "disp": None,
+        "generation": None,
+        "line": 3,
+    }
+    flow = [
+        {
+            **base,
+            "disp_normal": "CATLG",
+            "runs": "PGMB",
+            "runs_via": "PARM",
+            "systsin_member": "MEM",
+            "parm": "X",
+            "instream": "BODY",
+            "lrecl": 80,
+            "recfm": "FB",
+        },
+        {**base, "kind": "JOB", "name": "JOBA", "step_ordinal": None, "step_name": None, "program": None, "line": 0},
+    ]
+    files = [{"path": "j.jcl", "lang_id": "jcl", "raw_imports": [], "vsam_defines": vsam, "job_flow": flow}]
+    db = _record(tmp_path, files)
+    node = StateRehydrator(str(db)).load_state("RegistryRepo")["ram_cache"]["j.jcl"]
+    assert node["vsam_defines"] == vsam
+    assert node["job_flow"] == flow
+
+
+def test_a_baseline_without_the_healed_job_flow_columns_restores_them_as_absent():
+    conn = sqlite3.connect(":memory:")
+    conn.row_factory = sqlite3.Row
+    try:
+        cursor = conn.cursor()
+        cursor.execute(
+            "CREATE TABLE file_data (id INTEGER PRIMARY KEY, repo_name TEXT, commit_hash TEXT, file_path TEXT)"
+        )
+        old = CHANNELS_BY_NAME["job_flow"].ddl
+        old = "\n".join(ln for ln in old.split("\n") if not ln.strip().startswith("disp_normal "))
+        cursor.execute(old)
+        cursor.execute("INSERT INTO file_data VALUES (1, 'r', 'h', 'j.jcl')")
+        cursor.execute(
+            "INSERT INTO job_flow_data (repo_name, commit_hash, file_id, kind, step_name, line_number) "
+            "VALUES ('r', 'h', 1, 'STEP', 'S1', 2)"
+        )
+        channel = CHANNELS_BY_NAME["job_flow"]
+        row = cursor.execute(channel.select_sql(cursor, _has_table, _has_column), ("r", "h")).fetchone()
+        payload = channel.to_payload(row)
+        assert payload["step_name"] == "S1" and payload["line"] == 2
+        assert not {"disp_normal", "runs", "parm", "instream", "lrecl", "recfm"} & payload.keys()
+    finally:
+        conn.close()
+
+
 def test_a_baseline_without_the_refmod_texts_restores_them_as_null():
     conn = sqlite3.connect(":memory:")
     conn.row_factory = sqlite3.Row
@@ -348,7 +669,10 @@ def test_a_baseline_without_the_refmod_texts_restores_them_as_null():
         conn.close()
 
 
-_HEALED_ONLY = {"sql_statement": ("routine_name",)}
+_HEALED_ONLY = {
+    "sql_statement": ("routine_name",),
+    "job_flow": ("runs", "runs_via", "systsin_member", "parm", "instream", "lrecl", "recfm"),
+}
 
 
 def test_every_channel_declares_a_schema_that_names_its_own_table():
@@ -395,22 +719,7 @@ _GALAXY_IR = Path(__file__).resolve().parents[2] / "gitgalaxy" / "tools" / "cobo
 
 # Tables galaxy_ir loads that have no registry entry yet (custom insert or restore, #3383 remaining
 # slices). A table leaves this set when its channel is migrated; a new channel is never added here.
-_UNMIGRATED_IR_TABLES = frozenset(
-    {
-        "copy_statement_data",
-        "special_names_data",
-        "compiler_options_data",
-        "ims_gen_data",
-        "dli_call_data",
-        "entry_point_data",
-        "job_flow_data",
-        "file_control_data",
-        "vsam_define_data",
-        "uow_handler_data",
-        "mq_call_data",
-        "job_submit_data",
-    }
-)
+_UNMIGRATED_IR_TABLES: frozenset = frozenset()
 
 
 def _galaxy_ir_source():
@@ -441,7 +750,7 @@ _RECIPE = Path(__file__).resolve().parents[2] / "gitgalaxy" / "core" / "how_to_a
 # Tables the recipe table names that are not registry channels yet: the unmigrated galaxy_ir tables
 # the recipe has a row for, plus wrapper_data (global/resolved, no galaxy_ir loader) and file_data
 # (the host of the wrapper_facts column, not a channel). A table leaves this set when migrated.
-_UNMIGRATED_RECIPE_TABLES = (_UNMIGRATED_IR_TABLES - {"copy_statement_data"}) | {
+_UNMIGRATED_RECIPE_TABLES = _UNMIGRATED_IR_TABLES | {
     "wrapper_data",
     "file_data",
 }
@@ -483,3 +792,46 @@ def test_every_channel_table_is_in_the_recorders_readme():
 def test_the_core_readme_points_at_the_registry():
     text = _CORE_README.read_text(encoding="utf-8")
     assert "core/fact_channels.py" in text and "how_to_add_a_fact_channel.md" in text
+
+
+# The recorders and the differential (#3383): their section tables are checked against the registry.
+# A per-file payload key that is deliberately not reported is listed here with its reason.
+_NO_AUDIT_SECTION = {"section_copies"}  # reader-applied COPY ... REPLACING, no standalone report rows yet
+_NO_LLM_LINE = {"section_copies", "entry_points"}  # the brief carries no bullet for these two
+
+
+def _per_file_payload_keys():
+    return {c.payload_key for c in CHANNELS if not c.resolved}
+
+
+def test_every_per_file_channel_has_an_audit_section_or_a_listed_reason():
+    from gitgalaxy.recorders.audit_recorder import AUDIT_SECTIONS
+
+    reported = {s.key for s in AUDIT_SECTIONS}
+    assert _per_file_payload_keys() - reported == _NO_AUDIT_SECTION, "add an AuditSection (or list the reason)"
+
+
+def test_every_per_file_channel_has_an_llm_line_or_a_listed_reason():
+    from gitgalaxy.recorders.llm_recorder import FACT_LINES, FACT_SUMMARIES
+
+    lined = {s.key for s in FACT_LINES}
+    assert _per_file_payload_keys() - lined == _NO_LLM_LINE, "add a FactLine (or list the reason)"
+    assert {s.key for s in FACT_SUMMARIES} <= _per_file_payload_keys()
+
+
+def test_every_recorder_section_names_a_registered_payload_key_or_the_call_graph():
+    from gitgalaxy.recorders.audit_recorder import AUDIT_SECTIONS
+    from gitgalaxy.recorders.llm_recorder import FACT_LINES
+
+    known = {c.payload_key for c in CHANNELS}
+    assert {s.key for s in AUDIT_SECTIONS} - known == set()
+    assert {s.key for s in FACT_LINES} - known == set()
+
+
+def test_the_differential_set_channels_and_the_registry_name_each_other():
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+    import refraction_differential as rd
+
+    compared = [c.differential for c in CHANNELS if c.differential]
+    assert len(compared) == len(set(compared)), "two channels claim one SetChannel"
+    assert set(compared) == {s.language for s in rd.SET_CHANNELS}, "declare `differential=` on the channel"

@@ -96,7 +96,8 @@ def case_programs() -> dict[str, dict[str, list[str]]]:
             d["program_source"],
             *[p["program_source"] for p in d.get("programs", []) if p.get("program_source")],
         ]:
-            out[d["corpus"]].setdefault(src, dirs)
+            if not src.startswith("@case/"):  # #4268: a program the case itself carries is in no corpus clone
+                out[d["corpus"]].setdefault(src, dirs)
     return dict(out)
 
 

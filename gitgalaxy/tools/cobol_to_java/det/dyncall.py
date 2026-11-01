@@ -23,6 +23,7 @@ from decimal import Decimal
 import gitgalaxy.tools.cobol_to_java.det.expr as E
 import gitgalaxy.tools.cobol_to_java.det.layout as L
 import gitgalaxy.tools.cobol_to_java.det.stmt as S
+from gitgalaxy.tools.cobol_to_java.det.cics_common import LIBRARY, _extents, _occurs_chain
 
 _WORD = re.compile(r"[A-Z0-9][A-Z0-9-]*")
 # a program name the port matches: IBM's PGMNAME(COMPAT) names are at most 8 characters, uppercase (PGMNAME(MIXED) /
@@ -30,11 +31,11 @@ _WORD = re.compile(r"[A-Z0-9][A-Z0-9-]*")
 _NAME = re.compile(r"[A-Z0-9@#$]{1,8}")
 # statements that write no data item of their own (their nested statements are walked on their own)
 _READ_ONLY = {"DISPLAY", "GOTO", "CONTINUE", "EXIT", "GOBACK", "STOP", "NEXT-SENTENCE", "IF", "EVALUATE"}
-# IBM's Db2 SQLCA formatter: the text is Db2's message catalogue (oracle_assumptions.md Q5); DSNTIAC, its CICS interface,
+# IBM's Db2 SQLCA formatter: the text is Db2's message catalogue (register Q5); DSNTIAC, its CICS interface,
 # is the stand-in det/cobolrt/le/Dsntiac.java (#5858) and no longer refused; ZUIDSTCK (zECS's store-clock wrapper) is
 # the stand-in Zuidstck.java (#5945, X47)
 REFUSED_BY_NAME = {
-    "DSNTIAR": "DSNTIAR: Db2's message text is not modelled (oracle_assumptions.md Q5)",
+    "DSNTIAR": "DSNTIAR: Db2's message text is not modelled (register Q5)",
     # #5106: IBM LE CEEHDLR / CEEHDLU register and unregister a user condition handler that LE calls, with the
     # condition token, when a condition is raised in the enclosing stack frame (DBB epscsmrd:
     # REGISTER-EXCEPTION-HANDLER). Three things a registration needs are not modelled: the procedure pointer it is
@@ -110,12 +111,6 @@ def _overlap_names(gen, it: L.Item) -> set[str]:
         names |= {c.name for c in lst if c.parent is not None and id(c.parent) in ids}
     names.discard("FILLER")
     return names
-
-
-def _extents(it: L.Item):
-    from gitgalaxy.tools.cobol_to_java.det.gen import _extents as ext
-
-    return ext(it)
 
 
 def _may_write(st: S.Stmt, names: set[str]) -> bool:
@@ -194,7 +189,6 @@ def _plain_text_item(gen, ref: E.Ref, role: str) -> L.Item:
 
 def _element(ref: E.Ref, it: L.Item) -> tuple[int, int]:
     """The byte range of the element a literal-subscripted reference names, within the item's record."""
-    from gitgalaxy.tools.cobol_to_java.det.gen import _occurs_chain
 
     chain = _occurs_chain(it)
     if len(chain) != len(ref.subscripts):
@@ -332,7 +326,7 @@ def targets(gen, s: S.Stmt) -> list[str]:
     """`values`, each checked to be a program the port can call: an unknown value, a name no estate service or
     library routine answers to, or one the port does not match (blank, mixed case, over 8 characters) is refused by name."""
     from gitgalaxy.standards.mq import CALLS as MQ_CALLS
-    from gitgalaxy.tools.cobol_to_java.det.gen import LIBRARY, Untranslatable
+    from gitgalaxy.tools.cobol_to_java.det.cics_common import Untranslatable
 
     ref = s.data["dynamic"]
     try:

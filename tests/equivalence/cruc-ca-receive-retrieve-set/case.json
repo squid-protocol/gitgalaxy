@@ -1,0 +1,41 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "CARCST",
+  "program_source": "cases/commarea-mismatch/ca-receive-retrieve-set/src/CARCST.cbl",
+  "copy_dirs": [
+    "cases/commarea-mismatch/ca-receive-retrieve-set/copy"
+  ],
+  "transid": "CA0D",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "programs": [
+    {
+      "program": "CARTWK",
+      "program_source": "cases/commarea-mismatch/ca-receive-retrieve-set/src/CARTWK.cbl"
+    }
+  ],
+  "notes": "cics-crucible commarea-mismatch / ca-receive-retrieve-set (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): RECEIVE SET and RETRIEVE SET. Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "short-input",
+      "commarea": null,
+      "terminal": "CA0D S",
+      "why": "RECEIVE SET the 6 typed bytes into a pointer"
+    },
+    {
+      "name": "retrieve-equal",
+      "commarea": null,
+      "terminal": "CA0D E",
+      "why": "START INTERVAL(0) FROM 20 bytes: RETRIEVE SET, LENGTH equals the FROM length"
+    },
+    {
+      "name": "enddata",
+      "commarea": null,
+      "terminal": "CA0D N",
+      "why": "START INTERVAL(0) with no FROM: the first RETRIEVE SET is ENDDATA"
+    }
+  ]
+}

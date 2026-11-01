@@ -59,6 +59,25 @@ _DISPUTED_NAME = RuntimeRefusal(
     java="holds & < or a not sign: IBM's RUN ",
     c="holds & < or a not sign: IBM's RUN TRANSID",
 )
+# #5005 (X42 / X44): IBM's MOVE CONTAINER (INVREQ RESP2 30 / 31, CHANNELERR 3) and DELETE CHANNEL (CHANNELERR 3) pages name
+# CICS-defined read-only containers and channels and list none (they mention DFHTRANSACTION only): no state here is read-only, so a
+# name beginning DFH is refused by name rather than run as on an ordinary one.
+_CICS_DEFINED = RuntimeRefusal(
+    "a container or channel named DFH...: it may be a CICS-defined read-only one (INVREQ RESP2 30 / 31, CHANNELERR RESP2 3), and "
+    "IBM lists none",
+    "X42",
+    java="naming a CICS-defined (DFH...) container or channel",
+    c="naming a CICS-defined (DFH...) container or channel",
+)
+# #5005 (X42): PUT CONTAINER's page gives INVREQ RESP2 30 / CHANNELERR 3 too. DBB epscsmrd.cbl writes DFHREQUEST, DFH-BODY and
+# DFH-DATA back (the pipeline's containers), so those three names run as ordinary ones; any other DFH container, and any DFH channel, is refused.
+_CICS_DEFINED_PUT = RuntimeRefusal(
+    "a PUT to a container or channel named DFH... other than DFHREQUEST, DFH-BODY and DFH-DATA: it may be a CICS-defined "
+    "read-only one (INVREQ RESP2 30, CHANNELERR RESP2 3), and IBM lists none",
+    "X42",
+    java="PUT CONTAINER naming a CICS-defined (DFH...) container or channel",
+    c="PUT CONTAINER naming a CICS-defined (DFH...) container or channel",
+)
 # #4270 (X17): what the CHAR container conversion (FROMCCSID / INTOCCSID / CONVERTST, the region's 037) refuses while running
 _CCSID_REFUSALS = (
     RuntimeRefusal(
@@ -140,6 +159,7 @@ PUT_CONTAINER = Command(
         _SCOPE,
         _ILLEGAL_NAME,
         _DISPUTED_NAME,
+        _CICS_DEFINED_PUT,
         RuntimeRefusal(
             "an illegal CONTAINER and CHANNEL name together, or one with a negative FLENGTH or no channel: which condition "
             "IBM raises first is not documented",
@@ -296,7 +316,7 @@ DELETE_CONTAINER = Command(
         Outcome("INVREQ", 4, "issued outside the scope of a currently-active channel"),
         Outcome("CONTAINERERR", 10, "the channel has no such container"),
     ),
-    runtime_refusals=(_SCOPE, _ILLEGAL_NAME, _DISPUTED_NAME),
+    runtime_refusals=(_SCOPE, _ILLEGAL_NAME, _DISPUTED_NAME, _CICS_DEFINED),
     state=("channel_scope", "handle_table"),
     engine=EngineFacts(resource="CONTAINER", access="delete"),
     impl=Impl(java="deleteContainer", c="GGCDELC", **_CONTAINER_IMPL),
@@ -325,6 +345,7 @@ MOVE_CONTAINER = Command(
         _SCOPE,
         _ILLEGAL_NAME,
         _DISPUTED_NAME,
+        _CICS_DEFINED,
         RuntimeRefusal(
             "a container moved onto itself (the same name in the same channel): IBM does not say",
             "X42",
@@ -428,6 +449,7 @@ DELETE_CHANNEL = Command(
         _SCOPE,
         _ILLEGAL_NAME,
         _DISPUTED_NAME,
+        _CICS_DEFINED,
         RuntimeRefusal(
             "the program's current channel: IBM gives CHANNELERR RESP2 4 (current), 5 (transaction channel) or 6 (not "
             "owned by the calling program), and a channel a program is passed is all of them, unranked",

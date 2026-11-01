@@ -43,6 +43,7 @@ from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import (
     java_identifier,
     java_path,
     java_type,
+    pic_runs,
     status_text,
 )
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base, java_url_segment
@@ -172,10 +173,10 @@ def commarea_codec(cls: str, layout: dict, records: str, dbcs_page: str | None =
     return methods
 
 
-def _expanded_pic(pic: str | None) -> str:
-    """`X(08)` -> `XXXXXXXX`: a PICTURE as the characters it repeats, so equal pictures compare equal."""
-    p = re.sub(r"\s+", "", (pic or "").upper())
-    return re.sub(r"(.)\((\d+)\)", lambda m: m.group(1) * int(m.group(2)), p)
+def _expanded_pic(pic: str | None) -> tuple:
+    """`X(08)` and `XXXXXXXX` -> ((X, 8),): a PICTURE as the runs of characters it repeats, so equal pictures compare
+    equal. #7169: run lengths, never the expansion (`PIC X(1073741824)` is one run, not a 1 GiB string)."""
+    return tuple(pic_runs(re.sub(r"\s+", "", (pic or "").upper())))
 
 
 def layout_partition(layout: dict) -> tuple:
@@ -985,10 +986,14 @@ CICS_TASK_JAVA += """\
 
     /** GETMAIN SET(ptr) FLENGTH(n) | LENGTH(n) INITIMG(byte) (IBM CICS TS, EXEC CICS GETMAIN; register X47): {resp, resp2,
      *  handle}. LENGERR 1 for FLENGTH below 1 or a LENGTH of zero (the handle is then 0, "ptr-ref is set to zero"). Refused:
-     *  a length above the limit (IBM's NOSTG), a LENGTH above 65520. `halfword`: the LENGTH form. */
+     *  a length above the limit (IBM's NOSTG), a LENGTH above 65520, no INITIMG (initimg -1) for a valid length: IBM gives the
+     *  storage no default contents. `halfword`: the LENGTH form. */
     public long[] getmain(long length, boolean halfword, int initimg) {
         if (length < 1) {
             return new long[] {22, 1, 0};
+        }
+        if (initimg < 0) {
+            throw refused("GETMAIN without INITIMG acquired storage");
         }
         if (length > 268435456L || (halfword && length > 65520)) {
             throw refused("GETMAIN length beyond the limit");
@@ -1033,6 +1038,30 @@ CICS_TASK_JAVA += """\
             throw refused("FREEMAIN DATA of a record no pointer addresses");
         }
         return freemain(found);
+    }
+
+    // ---- #6876 (register X65): programs LOADed into storage, addressed by a pointer ---------------------------------
+    private final java.util.Set<String> loaded = new java.util.HashSet<>();
+    private static final int PROGRAM_IMAGE = 256;  // IBM states no image length: the stub's (ASSUMED, X65)
+
+    /** LOAD PROGRAM (IBM, EXEC CICS LOAD; X65): {resp, resp2, handle, length}. PGMIDERR 1 for a program the CSD does not
+     *  define (nothing is set). Else a block of PROGRAM_IMAGE bytes (kind 4: no program may read it) and its length. */
+    public long[] loadProgram(String program) {
+        String name = program.stripTrailing();
+        if (root().programs == null || !root().programs.defined(name)) {
+            return new long[] {27, 1, 0, 0};
+        }
+        root().loaded.add(name);
+        return new long[] {0, 0, newBlock(new byte[PROGRAM_IMAGE], 4), PROGRAM_IMAGE};
+    }
+
+    /** RELEASE PROGRAM (X65): {resp, resp2}: PGMIDERR 1 undefined; NORMAL for a program this task loaded; INVREQ else. */
+    public int[] releaseProgram(String program) {
+        String name = program.stripTrailing();
+        if (root().programs == null || !root().programs.defined(name)) {
+            return new int[] {27, 1};
+        }
+        return root().loaded.remove(name) ? new int[] {0, 0} : new int[] {16, 0};
     }
 
     /** The body WEB RECEIVE SET hands the program (X47): a new block, whose handle goes into the pointer. */
@@ -1155,6 +1184,9 @@ CICS_TASK_JAVA += """\
         if (b.kind == 3) {
             throw refused("SET ADDRESS OF storage already freed");
         }
+        if (b.kind == 4) {
+            throw refused("SET ADDRESS OF a LOADed program's image: IBM's bytes are not modelled (X65)");
+        }
         if (b.bytes.length - b.off < need) {
             if (b.kind == 2 && ownedByTaskBlock(b.bytes)) {
                 growShared(b.bytes, b.off + need);  // #6839: a window advanced over GETMAIN / received storage
@@ -1256,6 +1288,52 @@ CICS_TASK_JAVA += """\
     /** EIBTRMID (#3989): the task's terminal, the same at every LINK / XCTL level; null for a non-terminal task. */
     public String termid() {
         return root().termid;
+    }
+
+    // #5079 (X59): ADDRESS TWA / TCTUA (IBM CICS TS, EXEC CICS ADDRESS: "the address of the task's transaction work area" /
+    // "of the terminal control table user area"). Each area's size is a fact of the definition (TRANSACTION TWASIZE,
+    // TYPETERM USERAREALEN) that whoever runs the task states; an area of size 0 or unstated does not exist. The TWA is the
+    // task's (every program it LINKs to sees the same bytes); the TCTUA is the terminal's, so the caller keeps one array per
+    // terminal and hands it to each task that terminal starts.
+    private byte[] twa;                                     // the task's root's
+    private byte[] tctua;                                   // the task's root's (the caller's array: it outlives the task)
+    private byte[] cwa;                                     // the task's root's (the caller's array: one for the whole region)
+
+    /** TRANSACTION TWASIZE(n): the task's transaction work area is `size` bytes; 0 means none. */
+    public CicsTask withTwaSize(int size) {
+        this.twa = size > 0 ? new byte[size] : null;
+        return this;
+    }
+
+    /** The terminal's TCTUA, USERAREALEN bytes the caller keeps across the terminal's tasks; null means none. */
+    public CicsTask withTctua(byte[] area) {
+        this.tctua = area != null && area.length > 0 ? area : null;
+        return this;
+    }
+
+    /** The region's CWA (IBM, SIT WRKAREA: "the number of bytes ... for the common work area"), one array the caller keeps for
+     *  every task of the region; null or empty means none. */
+    public CicsTask withCwa(byte[] area) {
+        this.cwa = area != null && area.length > 0 ? area : null;
+        return this;
+    }
+
+    /** ADDRESS TWA: the handle of the TWA's bytes, the same one each time and at every LINK level; 0 for a task with none. */
+    public long twaHandle() {
+        byte[] a = root().twa;
+        return a == null ? 0 : addressOf(a);
+    }
+
+    /** ADDRESS TCTUA: the handle of the terminal's user area; 0 for a task with none. */
+    public long tctuaHandle() {
+        byte[] a = root().tctua;
+        return a == null ? 0 : addressOf(a);
+    }
+
+    /** ADDRESS CWA: the handle of the region's common work area; 0 for a task with none. */
+    public long cwaHandle() {
+        byte[] a = root().cwa;
+        return a == null ? 0 : addressOf(a);
     }
 
     /** #4270: EIBTASKN, the task's number -- a fact of the run that whoever runs the task states (as the stub's
@@ -1976,6 +2054,17 @@ CICS_TASK_JAVA += """\
         }
     }
 
+    /** #6839 (row D): a variable-length file's record lengths, by the file's entity, each record's key (hex) to the
+     *  length it was written with (IBM, EXEC CICS WRITE / REWRITE LENGTH; READ returns it). Filled by whoever loads
+     *  the file (the equivalence harness from the stub's <file>.len) and backed out with the file's records; a file
+     *  with no entry here is a fixed-length one. */
+    public static final java.util.Map<String, java.util.Map<String, Integer>> RECORD_LENGTHS = new java.util.HashMap<>();
+
+    /** #6839: the record lengths of the file over `entity`, or null for a fixed-length file. */
+    public static java.util.Map<String, Integer> recordLengths(String entity) {
+        return RECORD_LENGTHS.get(entity);
+    }
+
 """
 # #5274: the faults family's methods (withFaults, injected, logFault, logAbend, planned, the deferred DUPKEY) live in
 # their own module (cics_task_faults.py).
@@ -2638,6 +2727,14 @@ def incoming_links(skeleton: dict) -> list[dict]:
     return [rows[k] for k in sorted(rows)]
 
 
+def loaded_by(skeleton: dict) -> list[str]:
+    """The programs whose EXEC CICS LOAD names this one (#6876, X65). A loaded program is never LINKed to, so it has no
+    handler or contract; but a CICS region loaded it, so its own EXEC CICS statements are CICS (CALDTG's bare RETURN)."""
+    path = skeleton["program"]["file"]
+    rows = (skeleton.get("sections", {}).get("navigation") or {}).get("facts", [])
+    return sorted({r["from"] for r in rows if r.get("verb") == "LOAD" and r.get("to") == path})
+
+
 def is_cics_program(skeleton: dict) -> bool:
     """A program the engine saw CICS evidence for: an entry transaction, an EXEC CICS resource,
     a COMMAREA contract, a container, or a LINK / XCTL reaching it -- or (#4270) a program nothing in the
@@ -2653,6 +2750,7 @@ def is_cics_program(skeleton: dict) -> bool:
         or (sections.get("commarea_contracts") or {}).get("facts")
         or interface.get("containers")
         or incoming_links(skeleton)
+        or loaded_by(skeleton)
         or any(
             r.get("level") == 1 and r.get("section") == "LINKAGE" and str(r.get("name") or "").upper() == "DFHCOMMAREA"
             for r in (sections.get("records") or {}).get("facts") or []

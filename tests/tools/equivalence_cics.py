@@ -39,6 +39,7 @@ import equivalence_cics_conditions as cics_conditions  # #5274: the conditions /
 import equivalence_cics_containers as cics_containers  # #5274: the channels / containers family
 import equivalence_cics_faults as cics_faults  # #5274: the fault-injection planner
 import equivalence_cics_filecontrol as cics_filecontrol  # #5274: the file control family
+import equivalence_cics_pointer  # #6839 (X47): the oracle lowering of a POINTER numeric view
 import equivalence_cics_taskcontrol as cics_taskcontrol  # #5274: the task / interval control family
 import equivalence_cics_tempstorage as cics_tempstorage  # #5274: the temporary storage family
 import equivalence_cics_web as cics_web  # #5274: the web / HTTP / TCP/IP family
@@ -58,30 +59,44 @@ from gitgalaxy.standards.cics.model import GroupKind
 from gitgalaxy.standards.cics.resp import DFHRESP as SPEC_DFHRESP
 from gitgalaxy.tools.cobol_to_java.det.cvda import CVDA  # #4415: DFHVALUE(name), IBM's CVDA numbers
 
-handler_labels = cics_conditions.handler_labels
-check_child_faults = cics_faults.check_child_faults
-fault_lines = cics_faults.fault_lines  # public names the tests and the runners reach through this module
-dli_fault_lines = cics_faults.dli_fault_lines
-enq_fault_key = cics_faults.enq_fault_key
-FAULT_COMMANDS = cics_faults.FAULT_COMMANDS
-UI_FAULT_CONDITIONS = cics_faults.UI_FAULT_CONDITIONS
-FILE_FAULT_CONDITIONS = cics_faults.FILE_FAULT_CONDITIONS
-LINK_REFUSED_CONDITIONS = cics_faults.LINK_REFUSED_CONDITIONS
-ts_seed = cics_tempstorage.ts_seed  # public names the tests and the compare step reach through this module
-java_ts_as_compared = cics_tempstorage.java_ts_as_compared
-java_start_as_compared = cics_taskcontrol.java_start_as_compared
-java_retrieve_as_compared = cics_taskcontrol.java_retrieve_as_compared
-_cobol_retrieve = cics_taskcontrol._cobol_retrieve  # (the unit test reads it through this module)
-http_peers = cics_web.http_peers  # public names the tests and the runners reach through this module
-http_peers_cfg = cics_web.http_peers_cfg
-http_request = cics_web.http_request
-http_request_cfg = cics_web.http_request_cfg
-tcpip = cics_web.tcpip
-tcpip_cfg = cics_web.tcpip_cfg
-_cobol_web = cics_web._cobol_web  # (the unit tests read the event readers through this module)
-_cobol_web_open = cics_web._cobol_web_open
-_cobol_web_send = cics_web._cobol_web_send
-_cobol_web_header = cics_web._cobol_web_header
+# Public names the tests and the runners reach through this module live in the family modules (#5274). They are
+# resolved on first use (PEP 562), not copied at import: a family module imports this one, so a copy made while it is
+# half-initialised is the py/unsafe-cyclic-import (#7153). Inside this file call `cics_<family>.<name>` directly.
+_FAMILY_NAMES: dict[str, Any] = {
+    "handler_labels": cics_conditions,
+    "check_child_faults": cics_faults,
+    "fault_lines": cics_faults,
+    "dli_fault_lines": cics_faults,
+    "enq_fault_key": cics_faults,
+    "FAULT_COMMANDS": cics_faults,
+    "UI_FAULT_CONDITIONS": cics_faults,
+    "FILE_FAULT_CONDITIONS": cics_faults,
+    "LINK_REFUSED_CONDITIONS": cics_faults,
+    "ts_seed": cics_tempstorage,
+    "java_ts_as_compared": cics_tempstorage,
+    "java_start_as_compared": cics_taskcontrol,
+    "java_retrieve_as_compared": cics_taskcontrol,
+    "_cobol_retrieve": cics_taskcontrol,
+    "http_peers": cics_web,
+    "http_peers_cfg": cics_web,
+    "http_request": cics_web,
+    "http_request_cfg": cics_web,
+    "tcpip": cics_web,
+    "tcpip_cfg": cics_web,
+    "_cobol_web": cics_web,
+    "_cobol_web_open": cics_web,
+    "_cobol_web_send": cics_web,
+    "_cobol_web_header": cics_web,
+}
+
+
+def __getattr__(name: str) -> Any:
+    family = _FAMILY_NAMES.get(name)
+    if family is None:
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    return getattr(family, name)
+
+
 STUB = common.CASES / "cics"
 LE_MODELS = common.CASES / "le"  # Language Environment service models (CEEDAYS) a CALLed subprogram may use
 
@@ -237,6 +252,7 @@ def _literal(value: str) -> str | None:
 def _cfg_flags(case: dict[str, Any], f: dict[str, Any]) -> str:
     """files.cfg's sixth column: the file's flags, comma-separated -- NONE (RECOVERY(NONE)) and ESDS (#4213)."""
     flags = (["NONE"] if _recovery(case, f) else []) + (["ESDS"] if f.get("organization") == "ESDS" else [])
+    flags += ["VAR"] if variable_file(case, f["base"]) else []  # #6839: records keep their own lengths
     return " " + ",".join(flags) if flags else ""
 
 
@@ -306,6 +322,16 @@ def doctemplates(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, str] | N
 _SCENARIO_CLOCK = re.compile(r"\d{4}/\d\d/\d\d \d\d:\d\d:\d\d\.\d\d")
 
 
+def scenario_transid(case: dict[str, Any], sc: dict[str, Any]) -> str:
+    """#6072: the task's transaction id (EIBTRNID) -- the scenario's "transid", else the case's: a sibling scenario that
+    enters the program under another transaction (a program that branches on EIBTRNID) needs one the case's never is.
+    Stated on both sides: the COBOL task's eib.in, the Java task's CicsTask."""
+    transid = sc.get("transid", case["transid"])
+    if not isinstance(transid, str) or not 1 <= len(transid) <= 4:
+        raise Unsupported(f'scenario {sc.get("name")}: "transid" is one to four characters (got {transid!r})')
+    return transid
+
+
 def scenario_clock(case: dict[str, Any], sc: dict[str, Any]) -> str:
     """#4622: the task's clock ("2026/10/01 10:30:15.00", COB_CURRENT_DATE's form) -- the scenario's "clock", else the
     case's: a program that reads FUNCTION CURRENT-DATE (CORPT00C's month wrap in December) needs a date the case's
@@ -366,9 +392,12 @@ def terminal_facts(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, Any]:
     the commands that read them are refused by both runtimes, as before."""
     out: dict[str, Any] = {k: sc.get(k, case.get(k)) for k in ("termid", "uctranst", "origin")}
     t = out["termid"]
-    if t is not None and (not isinstance(t, str) or not 1 <= len(t) <= 4 or not t.strip() or "," in t or " " in t):
+    # "" states a task with no terminal (ASSIGN FACILITY / TERMCHK: INVREQ; $GGCICS_FACILITY empty, withTermid(null))
+    if t not in (None, "") and (
+        not isinstance(t, str) or not 1 <= len(t) <= 4 or not t.strip() or "," in t or " " in t
+    ):
         raise Unsupported(f'scenario {sc.get("name")}: "termid" {t!r} is not a terminal name (1 to 4 characters)')
-    if out["uctranst"] is not None and (t is None or out["uctranst"] not in UCTRANST_NAMES):
+    if out["uctranst"] is not None and (not t or out["uctranst"] not in UCTRANST_NAMES):
         raise Unsupported(f'scenario {sc.get("name")}: "uctranst" is one of {", ".join(UCTRANST_NAMES)}, of a '
                           'stated "termid"')  # fmt: skip
     for k in ("userid", "screen"):  # #5126: only when stated (an always-present empty key breaks exact-equality tests)
@@ -379,7 +408,7 @@ def terminal_facts(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, Any]:
         raise Unsupported(f'scenario {sc.get("name")}: "userid" {u!r} is not a user ID (1 to 8 characters)')
     scr = out.get("screen")
     if scr is not None and (not isinstance(scr, list) or len(scr) != 2
-                            or not all(type(n) is int and n > 0 for n in scr) or t is None):  # fmt: skip
+                            or not all(type(n) is int and n > 0 for n in scr) or not t):  # fmt: skip
         raise Unsupported(
             f'scenario {sc.get("name")}: "screen" is [rows, columns], positive ints, of a stated "termid"'
         )
@@ -498,7 +527,7 @@ def _pointer(key: str, text: str | None) -> str:
 
 
 def _getmain(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
-    """#4771 (register X47): GETMAIN SET(ptr) FLENGTH / LENGTH INITIMG(area) -> GGCGETM (length in GG-NUM, GG-FLAGS SHORT for the
+    """#4771 (register X47): GETMAIN SET(ptr) FLENGTH / LENGTH [INITIMG(area)] -> GGCGETM (length in GG-NUM, GG-FLAGS SHORT for the
     LENGTH form; the stub sets the pointer, to zero under LENGERR). The option rules as the det translator's."""
     key = "GETMAIN"
     _check_spec(key, opts, ("GETMAIN",), lambda bad: [f"{key} {o}" for o in bad])
@@ -506,33 +535,57 @@ def _getmain(opts: dict[str, str | None], labels: list[str] | None) -> list[str]
         raise Unsupported(_rule(key, "required", "SET"), [key])
     if ("FLENGTH" in opts) == ("LENGTH" in opts):
         raise Unsupported(_rule(key, "one_of", "FLENGTH"), [key])
-    if not opts.get("INITIMG"):
-        raise Unsupported(_rule(key, "required", "INITIMG"), [key])
     if "USERDATAKEY" in opts and "CICSDATAKEY" in opts:
         raise Unsupported(_rule(key, "at_most_one", "USERDATAKEY"), [key])
     form = "FLENGTH" if "FLENGTH" in opts else "LENGTH"
     if not opts.get(form):
         raise Unsupported(NEEDS_ARGUMENT, [key])
-    if _literal(opts["INITIMG"]) is not None or re.fullmatch(r"(?is)\s*[A-Z][A-Z0-9-]*\s*", opts["INITIMG"]) is None:
+    img = opts.get("INITIMG")
+    if img is not None and (_literal(img) is not None or re.fullmatch(r"(?is)\s*[A-Z][A-Z0-9-]*\s*", img) is None):
         raise Unsupported("GETMAIN INITIMG as a literal: a data area is the COBOL form", [key])
-    img = opts["INITIMG"].strip()
     lines = [
         f"MOVE {opts[form]} TO GG-NUM",
         "MOVE 'SHORT' TO GG-FLAGS" if form == "LENGTH" else "MOVE SPACES TO GG-FLAGS",
     ]
-    args = [f"BY REFERENCE {_pointer(key, opts['SET'])}", f"BY REFERENCE {img}", f"BY VALUE LENGTH OF {img}"]
+    # #6876: no INITIMG: IBM gives the storage no contents; the stub answers LENGERR or refuses (image length 0)
+    if img is None:
+        args = [f"BY REFERENCE {_pointer(key, opts['SET'])}", "BY REFERENCE GG-FLAGS", "BY VALUE 0"]
+    else:
+        img = img.strip()
+        args = [f"BY REFERENCE {_pointer(key, opts['SET'])}", f"BY REFERENCE {img}", f"BY VALUE LENGTH OF {img}"]
     return lines + _call("GGCGETM", args) + _resp(opts, True, labels)
 
 
+def _load(opts: dict[str, str | None], program: list[str]) -> list[str]:
+    """#6876 (register X65): LOAD PROGRAM(name) [SET(ptr)] [LENGTH(halfword)] -> GGCLDPG (GG-FLAGS names the options given; the stub
+    sets the pointer to a non-null image and LENGTH to its length, PGMIDERR for a program the CSD does not define). HOLD, ENTRY and
+    FLENGTH are not modelled by the stub."""
+    key = "LOAD"
+    _check_spec(key, opts, ("LOAD",), lambda bad: [f"{key} {o}" for o in bad])
+    for o in ("HOLD", "ENTRY", "FLENGTH"):
+        if o in opts:
+            raise _stub_only(f"LOAD {o}")
+    if not opts.get("PROGRAM"):
+        raise Unsupported(NEEDS_ARGUMENT, [key])
+    flags = [o for o in ("SET", "LENGTH") if o in opts]
+    for o in flags:
+        if not opts[o]:
+            raise Unsupported(NEEDS_ARGUMENT, [key])
+    ptr = f"BY REFERENCE {_pointer(key, opts['SET'])}" if "SET" in opts else "BY REFERENCE GG-FLAGS"
+    length = f"BY REFERENCE {opts['LENGTH']}" if "LENGTH" in opts else "BY REFERENCE GG-FLAGS"
+    mark = f"MOVE '{' '.join(flags)}' TO GG-FLAGS" if flags else "MOVE SPACES TO GG-FLAGS"
+    return [*program, mark, *_call("GGCLDPG", [ptr, length])]
+
+
 def _address(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
-    """#5079 (register X59): ADDRESS EIB(ptr) / COMMAREA(ptr) -> GGCADDR, which sets the pointer to the address of the EIB /
+    """#5079 (register X59): ADDRESS EIB(ptr) / COMMAREA(ptr) / CWA(ptr) / TWA(ptr) / TCTUA(ptr) -> GGCADDR, which sets the pointer to the address of the EIB /
     the program's DFHCOMMAREA (NORMAL: the command has no condition). A task with no COMMAREA (EIBCALEN 0) is refused by the
     stub: IBM's X'FF000000' is no COBOL NULL, and a LINKAGE item that was not passed is no area to name, so the area given
     then is the pointer itself. The option rules as the det translator's."""
     key = "ADDRESS"
     _check_spec(key, opts, ("ADDRESS",), lambda bad: [f"{key} {o}" for o in bad])
-    if not (opts.get("EIB") or opts.get("COMMAREA")):
-        raise Unsupported("ADDRESS without EIB or COMMAREA: the pointer to set", [key])
+    if not any(opts.get(o) for o in ("EIB", "COMMAREA", "CWA", "TWA", "TCTUA")):
+        raise Unsupported("ADDRESS without EIB, COMMAREA, CWA, TWA or TCTUA: the pointer to set", [key])
     lines: list[str] = []
     if opts.get("EIB"):
         lines += ["MOVE SPACES TO GG-FLAGS"]
@@ -544,6 +597,13 @@ def _address(opts: dict[str, str | None], labels: list[str] | None) -> list[str]
         lines += ["ELSE"]
         lines += [f"    {ln}" for ln in _call("GGCADDR", [f"BY REFERENCE {ptr}", "BY REFERENCE DFHCOMMAREA"])]
         lines += ["END-IF"]
+    # #5079 slice 2b: GGCADDR names the system area in GG-FLAGS (the port's addressCwa / addressTwa / addressTctua)
+    for area in ("CWA", "TWA", "TCTUA"):
+        if opts.get(area):
+            lines += [f"MOVE '{area}' TO GG-FLAGS"]
+            lines += _call(
+                "GGCADDR", [f"BY REFERENCE {_pointer(key, opts[area])}", f"BY REFERENCE {_pointer(key, opts[area])}"]
+            )
     return lines + _resp(opts, False, labels)
 
 
@@ -644,6 +704,8 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
         return cics_taskcontrol._post(opts, labels)
     if verb == "WAIT" and "EVENT" in opts and opts["EVENT"] is None:
         return cics_taskcontrol._wait_event(opts, labels)
+    if verb == "WAITCICS" or (verb == "WAIT" and "EXTERNAL" in opts and opts["EXTERNAL"] is None):  # #5079 (X63)
+        return cics_taskcontrol._wait_external("WAITCICS" if verb == "WAITCICS" else "WAIT EXTERNAL", opts, labels)
     if verb == "CONVERSE":
         return cics_taskcontrol._converse(opts, labels)
     if verb in ("ENQ", "DEQ"):
@@ -651,7 +713,7 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
         # (EIBTIME / ASKTIME stay as dispatched; oracle_assumptions.md X4)
         _check_spec(verb, opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
         if verb == "ENQ":  # #5089: GGCENQ -- NORMAL, or the ENQBUSY a scenario plans (faults, name = the RESOURCE text)
-            key = enq_fault_key(opts.get("RESOURCE"))
+            key = cics_faults.enq_fault_key(opts.get("RESOURCE"))
             flag = "MOVE 'NOSUSPEND' TO GG-NAME1" if "NOSUSPEND" in opts else "MOVE SPACES TO GG-NAME1"
             given = ("L" if opts.get("LENGTH") else "") + ("M" if opts.get("MAXLIFETIME") else "")  # X60: GG-NAME2
             ops = [f"MOVE {opts['LENGTH']} TO GG-LEN"] if opts.get("LENGTH") else []
@@ -812,6 +874,13 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
         return _getmain(opts, labels)
     if verb == "FREEMAIN":
         return _freemain(opts, labels)
+    if verb == "LOAD":  # #6876 (X65): a program loaded by this task, addressed by a pointer
+        return _load(opts, [name(opts.get("PROGRAM"), "GG-NAME1")]) + _resp(opts, True, labels)
+    if verb == "RELEASE":
+        _check_spec("RELEASE", opts, (verb,), lambda bad: [f"RELEASE {o}" for o in bad])
+        if not opts.get("PROGRAM"):
+            raise Unsupported(NEEDS_ARGUMENT, ["RELEASE"])
+        return [name(opts["PROGRAM"], "GG-NAME1")] + _call("GGCRLPG", []) + _resp(opts, True, labels)
     if verb == "ADDRESS":  # #5079 (X59): a pointer to the EIB / the COMMAREA
         return _address(opts, labels)
     if verb == "WEB" and "RETRIEVE" in opts:  # #4941 (X41): the document of the last WEB SEND
@@ -991,10 +1060,11 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
         length = _one_of("RECEIVE", opts, "LENGTH", "FLENGTH")
         most = _one_of("RECEIVE", opts, "MAXLENGTH", "MAXFLENGTH")
         flags = "MOVE 'NOTRUNCATE' TO GG-FLAGS" if "NOTRUNCATE" in opts else "MOVE SPACES TO GG-FLAGS"  # #4413
-        if setp:  # #4413: SET(ADDRESS OF record), MAXLENGTH and LENGTH(data-area) required (det/cics.py says why)
+        if setp:  # #4413: SET(ADDRESS OF record), LENGTH(data-area) required; no MAXLENGTH: all the input (det/cics.py says why)
             m = re.fullmatch(r"ADDRESS\s+OF\s+([A-Z0-9-]+)", setp, re.I)
-            if into or not most or not length:
-                raise Unsupported("RECEIVE SET without MAXLENGTH and LENGTH", ["RECEIVE SET"])
+            if into or not length:
+                raise Unsupported("RECEIVE SET without LENGTH", ["RECEIVE SET"])
+            most = most or "32768"  # LENGTH is output-only with SET (X15): the whole input, the stub's buffer size
             if not m:  # #5042 (X58): SET(pointer) -> GGCRECP, the data in a new block the pointer addresses
                 return ([flags, f"MOVE {most} TO GG-LEN"] + _call("GGCRECP", [f"BY REFERENCE {_pointer('RECEIVE', setp)}"])
                         + [f"MOVE GG-LEN TO {length}"] + cics_conditions.input_resp(opts, labels, handle_aid))  # fmt: skip
@@ -1056,7 +1126,7 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
         textflags = " ".join(kind + [n for n in flags if n in ("ERASE", "FREEKB", "ALARM", "WAIT", "LAST")])
         return ([f"MOVE '{textflags[:40]}' TO GG-FLAGS"]
                 + _call("GGCSTXT", [f"BY REFERENCE {src}", f"BY VALUE {opts.get('LENGTH') or f'LENGTH OF {src}'}"])
-                + _resp(opts, can_fail=False))  # fmt: skip
+                + _resp(opts, can_fail=True))  # fmt: skip
     if verb in ("RETURN", "XCTL"):
         if verb == "XCTL" and not opts.get("PROGRAM"):
             raise Unsupported("XCTL without PROGRAM")
@@ -1452,9 +1522,21 @@ def translate(source: str, copy_dirs: list[Path] | None = None) -> tuple[str, bo
                   count=1, flags=re.M | re.I)  # fmt: skip
     if "COPY DFHEIBLK" not in text:
         raise Unsupported("no WORKING-STORAGE SECTION to hold the EIB")
-    if not has_commarea and "BY REFERENCE DFHCOMMAREA" in text:  # #5079 (X59): ADDRESS COMMAREA needs the record
-        raise Unsupported("ADDRESS COMMAREA in a program with no LINKAGE 01 DFHCOMMAREA: no record to address",
-                          ["ADDRESS COMMAREA"])  # fmt: skip
+    if not has_commarea and "BY REFERENCE DFHCOMMAREA" in text:
+        # #5079 (X59): ADDRESS COMMAREA in a program that declares no record (the callee asks CICS for the address). The harness
+        # gives the LINKAGE SECTION a one-byte stand-in so the task is passed the real COMMAREA (the pointer GGCADDR stores is
+        # that area's own address, whatever size the stand-in declares).
+        stand_in = "       01  DFHCOMMAREA PIC X(1).\n"
+        text, n = re.subn(r"^(.{6} +LINKAGE\s+SECTION\.[^\n]*\n)", lambda m: m.group(1) + stand_in, text, count=1,
+                          flags=re.M | re.I)  # fmt: skip
+        if n != 1:
+            text, n = re.subn(r"^(.{6} +PROCEDURE\s+DIVISION\b)", lambda m: "       LINKAGE SECTION.\n" + stand_in + m.group(1),
+                              text, count=1, flags=re.M | re.I)  # fmt: skip
+        if n != 1:
+            raise Unsupported(
+                "ADDRESS COMMAREA: no PROCEDURE DIVISION to hold the COMMAREA stand-in", ["ADDRESS COMMAREA"]
+            )
+        has_commarea = True
     already = re.search(r"^.{6} +PROCEDURE\s+DIVISION\s+USING\s+DFHCOMMAREA\s*\.", text, re.M | re.I)
     if has_commarea and not already:  # (CBSA's ABNDPROC codes USING DFHCOMMAREA itself, as CICS allows)
         text, n = re.subn(r"^(.{6} +PROCEDURE\s+DIVISION)\s*\.", r"\1 USING DFHCOMMAREA.", text, count=1,
@@ -2337,6 +2419,47 @@ def case_file_records(case: dict[str, Any], corpus: Path, spec: dict[str, Any], 
     return data
 
 
+def variable_file(case: dict[str, Any], base: str) -> bool:
+    """#6839 (row D): a RECORDFORMAT(V) KSDS the case states `"variable": true` -- each record keeps the length it was
+    written with (IBM, EXEC CICS WRITE / REWRITE LENGTH), and READ returns it."""
+    spec = (case.get("datasets") or {}).get(base) or {}
+    return (spec.get("vsam") or {}).get("variable") is True
+
+
+def record_lengths(case: dict[str, Any], corpus: Path, spec: dict[str, Any], f: dict[str, Any]) -> bytes:
+    """#6839: a variable-length file's `.len` (the stub's, and the Java side's input): "HEXKEY LENGTH" per record the
+    dataset states a length for; a record without one is its slot's reclen. `"lengths"` is {"<key bytes, hex>": n},
+    or "lines": each record of the dataset's input (and `append`), a line of the file, is as long as its line (the
+    records the case writes as lines are the records as written, which the fixed slots pad)."""
+    lengths = spec.get("lengths") or {}
+    if lengths == "lines":
+        enc = common.data_encoding(case)
+        if not common.ascii_compatible(enc):
+            raise Unsupported(f'"lengths": "lines" for {f["base"]}: a seed in {enc} (not ASCII-compatible)')
+        lengths = {}
+        ko, kl, reclen = f["key_offset"], f["key_length"], f["reclen"]
+        for part in ("input", "append"):
+            if not spec.get(part):
+                continue
+            for ln in common._input_path(case, corpus, spec[part]).read_bytes().split(b"\n"):
+                ln = ln[:-1] if ln.endswith(b"\r") else ln
+                if ln:
+                    rec = ln[:reclen].ljust(reclen, " ".encode(enc))
+                    lengths[rec[ko : ko + kl].hex().upper()] = min(len(ln), reclen)
+    elif not isinstance(lengths, dict):
+        raise Unsupported(f'"lengths" for {f["base"]}: a map of key (hex) to length, or "lines"')
+    return "".join(f"{k.upper()} {int(v)}\n" for k, v in sorted(lengths.items())).encode("ascii")
+
+
+def parse_lengths(data: bytes) -> dict[str, int]:
+    out: dict[str, int] = {}
+    for ln in data.decode("ascii").splitlines():
+        w = ln.split()
+        if len(w) == 2:
+            out[w[0].upper()] = int(w[1])
+    return out
+
+
 def scenario_datasets(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, dict[str, Any]]:
     """#4622: the datasets this scenario's task starts with that differ from the case's -- the scenario's "datasets",
     {DD: {"input": path, "append": path}} (a path as in the case's own dataset, `@case/...` included), each DD's spec
@@ -2345,7 +2468,7 @@ def scenario_datasets(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, dic
     out: dict[str, dict[str, Any]] = {}
     for dd, over in (sc.get("datasets") or {}).items():
         base = (case.get("datasets") or {}).get(dd)
-        if base is None or not isinstance(over, dict) or not set(over) <= {"input", "append"}:
+        if base is None or not isinstance(over, dict) or not set(over) <= {"input", "append", "lengths"}:
             raise Unsupported(f'scenario {sc.get("name")}: "datasets" overrides a dataset of the case ({dd!r}) with '
                               '{"input": path, "append": path}')  # fmt: skip
         if base.get("input") == "@generate":
@@ -2364,11 +2487,13 @@ def stage_scenario_inputs(case: dict[str, Any], corpus: Path, files: list[dict[s
     from another file (ZECS001's DELETE of a stored key answered 204; ZECS000's expiry scenarios ran on files the
     COBOL task had already pruned)."""
     enc = common.data_encoding(case)
-    reclens = {f["base"]: f["reclen"] for f in files}
+    by_base = {f["base"]: f for f in files}
     for sc in case["scenarios"]:
         for base, over in scenario_datasets(case, sc).items():
-            data = case_file_records(case, corpus, over, reclens[base], enc)
+            data = case_file_records(case, corpus, over, by_base[base]["reclen"], enc)
             (inputs / f"{base}.{sc['name']}.in").write_bytes(data)
+            if variable_file(case, base):  # #6839: its records' own lengths, as stated
+                (inputs / f"{base}.{sc['name']}.len").write_bytes(record_lengths(case, corpus, over, by_base[base]))
 
 
 def sql_first_id(table: str) -> int:
@@ -2420,6 +2545,10 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         for t in db2.get("compare", []):
             names = equivalence_db2.columns(t)
             dumps.append((t, equivalence_db2.dump_query(t, names), names))
+    try:  # #6839 (X47): a POINTER's numeric view is address arithmetic on the pointer, not a number in half of it
+        source = equivalence_cics_pointer.lower(source)
+    except equivalence_cics_pointer.Unsupported as e:
+        raise Unsupported(str(e), ["POINTER numeric view"]) from e
     text, has_commarea = translate(source, [src])
     (src / "PROGRAM.cbl").write_text(text, encoding=staged)
     (src / "EQCICSDR.cbl").write_text(cics_driver(case["program"], has_commarea), encoding="ascii")
@@ -2437,6 +2566,8 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             generated[f["base"]] if f["base"] in generated else case_file_records(case, corpus, spec, f["reclen"], enc)
         )
         (work / "files" / f["base"]).write_bytes(data)
+        if variable_file(case, f["base"]):  # #6839: each record's own length (none stated: the slot's)
+            (work / "files" / f"{f['base']}.len").write_bytes(record_lengths(case, corpus, spec, f))
     ca_fields = commarea_fields(corpus, case, occurrences=True)  # #4765: the whole record, every occurrence
     # The COBOL programs the program CALLs (COTRN02C -> CSUTLDTC), as they are, and the LE service models
     # (tests/equivalence/le: CEEDAYS) they may call in turn.
@@ -2564,6 +2695,8 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             over = scenario_datasets(case, sc).get(f["base"])
             if over is not None:
                 (d / "files" / f["base"]).write_bytes(case_file_records(case, corpus, over, f["reclen"], enc))
+                if variable_file(case, f["base"]):  # #6839
+                    (d / "files" / f"{f['base']}.len").write_bytes(record_lengths(case, corpus, over, f))
         (d / "files.cfg").write_text("".join(
             f"{_cfg_file_name(case, f)} /work/scenarios/{sc['name']}/files/{f['base']} {f['reclen']} {f['key_offset']} "
             f"{f['key_length']}{_cfg_flags(case, f)}\n" for f in files
@@ -2595,12 +2728,14 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         if urimaps(case, sc) is not None:  # #4270 zECS (X32): INQUIRE URIMAP's installed definitions
             (d / "urimaps.cfg").write_text("".join(f"{n} {tr or '-'} {pa}\n" for n, tr, pa in urimaps(case, sc)),
                                            encoding="ascii")  # fmt: skip
-        if http_peers(case, sc) is not None:  # #4767 zECS (X35): the HTTP servers the task can reach
-            (d / "http.cfg").write_text(http_peers_cfg(http_peers(case, sc), enc), encoding="ascii")
-        if http_request(case, sc) is not None:  # #4767 zECS (X37): the request the task serves
-            (d / "webreq.cfg").write_text(http_request_cfg(http_request(case, sc), enc), encoding="ascii")
-        if tcpip(case, sc) is not None:  # #4972 (X38): the connection the task was started on
-            (d / "tcpip.cfg").write_text(tcpip_cfg(tcpip(case, sc), enc), encoding="ascii")
+        if cics_web.http_peers(case, sc) is not None:  # #4767 zECS (X35): the HTTP servers the task can reach
+            (d / "http.cfg").write_text(cics_web.http_peers_cfg(cics_web.http_peers(case, sc), enc), encoding="ascii")
+        if cics_web.http_request(case, sc) is not None:  # #4767 zECS (X37): the request the task serves
+            (d / "webreq.cfg").write_text(
+                cics_web.http_request_cfg(cics_web.http_request(case, sc), enc), encoding="ascii"
+            )
+        if cics_web.tcpip(case, sc) is not None:  # #4972 (X38): the connection the task was started on
+            (d / "tcpip.cfg").write_text(cics_web.tcpip_cfg(cics_web.tcpip(case, sc), enc), encoding="ascii")
         if doctemplates(case, sc) is not None:  # #4769 zECS (X33): DOCUMENT CREATE TEMPLATE's installed definitions
             (d / "doctemplates.cfg").write_text("".join(f"{n} {t.encode(enc).hex().upper() or '-'}\n"
                                                         for n, t in doctemplates(case, sc).items()), encoding="ascii")  # fmt: skip
@@ -2645,12 +2780,14 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             (d / "region.cfg").write_text(f"APPLID {case['region']['applid']}\nSYSID {case['region']['sysid']}\n",
                                           encoding="ascii")  # fmt: skip
         if sc.get("faults") or sc.get("sql_abend_plan"):  # #4023 follow-up: the stub's injected conditions
-            check_child_faults(case, sc)  # #6967
+            cics_faults.check_child_faults(case, sc)  # #6967
             (d / "faults.cfg").write_text(
-                "".join(x + "\n" for x in fault_lines(sc)), encoding="latin-1"
+                "".join(x + "\n" for x in cics_faults.fault_lines(sc)), encoding="latin-1"
             )  # #5859 userid_hex
         if sc.get("dli_faults"):  # #5233: the DL/I stub's planned statuses
-            (d / "dlifaults.cfg").write_text("".join(x + "\n" for x in dli_fault_lines(case, sc)), encoding="ascii")
+            (d / "dlifaults.cfg").write_text(
+                "".join(x + "\n" for x in cics_faults.dli_fault_lines(case, sc)), encoding="ascii"
+            )
         if sc.get("sql_plan"):  # #4173: the SQL stub's planned faults (resolved by sql_fault_plan)
             (d / "sqlfaults.cfg").write_text("".join(x + "\n" for x in sc["sql_plan"]), encoding="ascii")
         date, _, time = scenario_clock(case, sc).partition(" ")  # #4622: the scenario's clock, else the case's
@@ -2658,7 +2795,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         eib_date = f"{int(y) - 1900:03d}{_day_of_year(int(y), int(mo), int(dd)):03d}"[-7:].rjust(7, "0")
         eib_time = "0" + time.replace(":", "")[:6]
         term = terminal_facts(case, sc)  # #4270: the task's terminal, when the case states one
-        (d / "eib.in").write_text(f"{case['transid']:<4} {sc.get('aid', 'DFHENTER'):<8} {eib_date} {eib_time} "
+        (d / "eib.in").write_text(f"{scenario_transid(case, sc):<4} {sc.get('aid', 'DFHENTER'):<8} {eib_date} {eib_time} "
                                   f"{term['termid'] or '':<4}\n", encoding="ascii")  # fmt: skip
         if term["termid"]:  # the region's terminals: the task's own (START / INQUIRE / SET TERMINAL's TERMIDERR)
             (d / "terminals.cfg").write_text(f"{term['termid']}\n", encoding="ascii")
@@ -2678,7 +2815,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         script.append(f"set +e; {cov.trace_env(f'{rel}/{cov.TRACE_NAME}')}{dlienv}GGCICS_DIR={rel} GGCICS_OUT={rel}/out EIBIN={rel}/eib.in "
                       f"GGCICS_TASKN={task_number(case, sc)} LD_PRELOAD=/work/ggdisplay.so "
                       + (f"GGCICS_STARTCODE={task_facts(case, sc)[0]} " if task_facts(case, sc)[0] else "")
-                      + (f"GGCICS_FACILITY={term['termid']} " if term["termid"] else "")
+                      + (f"GGCICS_FACILITY={term['termid']} " if term["termid"] is not None else "")  # "" = stated: no terminal
                       + (f"GGCICS_UCTRANST={term['uctranst']} " if term["uctranst"] else "")
                       + (f"GGCICS_USERID={term['userid']} " if term.get("userid") else "")  # #5126
                       + (f"GGCICS_SCREEN='{term['screen'][0]} {term['screen'][1]}' " if term.get("screen") else "")
@@ -2686,9 +2823,9 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
                       + (f"GGCICS_URIMAPS={rel}/urimaps.cfg " if urimaps(case, sc) is not None else "")
                       + (f"GGCICS_MAPSETS='{mapsets_env(case)}' " if case.get("maps") else "")
                       + (f"GGCICS_DOCTEMPLATES={rel}/doctemplates.cfg " if doctemplates(case, sc) is not None else "")
-                      + (f"GGCICS_HTTP={rel}/http.cfg " if http_peers(case, sc) is not None else "")
-                      + (f"GGCICS_WEBREQ={rel}/webreq.cfg " if http_request(case, sc) is not None else "")
-                      + (f"GGCICS_TCPIP={rel}/tcpip.cfg " if tcpip(case, sc) is not None else "")
+                      + (f"GGCICS_HTTP={rel}/http.cfg " if cics_web.http_peers(case, sc) is not None else "")
+                      + (f"GGCICS_WEBREQ={rel}/webreq.cfg " if cics_web.http_request(case, sc) is not None else "")
+                      + (f"GGCICS_TCPIP={rel}/tcpip.cfg " if cics_web.tcpip(case, sc) is not None else "")
                       + (f"GGC_ZUIDSTCK_TOD={scenario_tod(case, sc)} " if scenario_tod(case, sc) else "")
                       + f"{sqlenv}COB_CURRENT_DATE='{scenario_clock(case, sc)}' GGCICS_NOW={clock_iso(case, sc)} ./task > {rel}/stdout.txt 2>&1; "
                       f"echo $? > {rel}/rc; set -e")  # fmt: skip
@@ -3046,6 +3183,8 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
             text = common._decode_text(data, enc)  # #3815: not text in the page -> the bytes shown, never dropped
             res["text"].append(f"<undecodable {data!r} in {enc}>" if text is None else text.rstrip(" \x00"))
             res.setdefault("text_options", []).append(_text_options(args))
+            if "len" in kv:  # #5862: the LENGTH the program passed, as CicsTask.sendText records it
+                res.setdefault("text_lengths", []).append(int(kv["len"]))
         # the task's own (a LINK level's: no); a RETURN IMMEDIATE that failed (it has a resp, #4270) went on in the program
         elif verb in ("RETURN", "XCTL") and int(kv.get("level", "1")) <= 1 and not (verb == "RETURN" and "resp" in kv):
             key = "transid" if verb == "RETURN" else "program"
@@ -3072,7 +3211,7 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
         elif verb == "WEB-SEND":  # #4767 (X37): the response the program sent, as CicsTask records it
             res.setdefault("websend", []).append(cics_web._cobol_web_send(kv, data, enc))
         elif verb == "WEB-HEADER":  # #4767 (X38): a response header the program wrote
-            res.setdefault("webheader", []).append(_cobol_web_header(kv, enc))
+            res.setdefault("webheader", []).append(cics_web._cobol_web_header(kv, enc))
         elif verb == "WEB-RECEIVE":  # #4767 (X38): the request body the program read, as CicsTask records it
             res.setdefault("webreceive", []).append(cics_web._cobol_web_receive(kv, data, enc))
         elif verb == "WRITEQ-TS":  # #4607: as CicsTask records it (queue, data, resp, item)
@@ -3294,6 +3433,20 @@ def commarea_class(case: dict[str, Any], src: Path, svc_file: Path) -> str | Non
         r"handleLink\((\w+) request\)", svc_text
     )  # a LINKed program (CBSA): its contract COMMAREA DTO
     if m and m.group(1) == "Object":  # #5859: an HLASM program's facade (hlasm.service_stub) types no COMMAREA
+        # #6072: a service that takes Object but whose case states a typed COMMAREA record (PCCONF, PCDETL, PCIMMA)
+        # carries that record's generated DTO; none stated, or no such DTO generated: no DTO, as before
+        segments = (case.get("commarea") or {}).get("segments")
+        if not segments:
+            return None
+        base = java_class_base(segments[0]["record"])
+        # the forge names a program's own record after its declarer (PcconfWsState); a shared copybook record bare. The
+        # service imports the DTO it carries (dto.contract.<Name>), so take the one named for the record
+        imported = re.findall(r"import [\w.]*dto\.contract\.(\w+);", svc_text)
+        own = java_class_base(case.get("program", "")) + base  # the program's own record: PcconfWsState
+        named = [n for n in imported if re.fullmatch(rf"\w*?{base}\d*", n)]
+        for name in (own, *([named[0]] if len(named) == 1 else []), base):
+            if any(src.rglob(f"{name}.java")):
+                return name
         return None
     if m:
         return m.group(1)
@@ -3808,6 +3961,9 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
         )
         dumps.append(f'            dump(sc.get("name").asText() + ".{dsn}.out", {repo}.findAll().stream()'
                      f'.map(row -> row.toRecord(TEXT)).toList());')  # fmt: skip
+        if variable_file(case, dsn):  # #6839: its record lengths, in and out
+            loads.append(f'            lengthsIn(sc, "{dsn}", "{ent}");')
+            dumps.append(f'            lengthsOut(sc.get("name").asText() + ".{dsn}.len.out", "{ent}");')
     # a Db2 case: the tables reset to the seed before each task (in/db2reset.sql), each compared table dumped after
     # it (in/db2dumps.txt: table TAB query), on the database the COBOL side ran on (equivalence_db2)
     db2 = bool(case.get("db2"))
@@ -3888,9 +4044,28 @@ class EquivalenceRunTest {{
         private final org.springframework.transaction.PlatformTransactionManager tm;
         private org.springframework.transaction.TransactionStatus st;
 
+        // #6839: the variable-length files' record lengths, backed out with the records (the stub's <file>.len.uow)
+        private Map<String, Map<String, Integer>> lengths = lengthsNow();
+
         Uow(org.springframework.transaction.PlatformTransactionManager tm) {{
             this.tm = tm;
             this.st = tm.getTransaction(new org.springframework.transaction.support.DefaultTransactionDefinition());
+        }}
+
+        private static Map<String, Map<String, Integer>> lengthsNow() {{
+            Map<String, Map<String, Integer>> m = new java.util.HashMap<>();
+            CicsTask.RECORD_LENGTHS.forEach((k, v) -> m.put(k, new java.util.HashMap<>(v)));
+            return m;
+        }}
+
+        private void lengthsBack() {{
+            lengths.forEach((k, v) -> {{
+                Map<String, Integer> now = CicsTask.RECORD_LENGTHS.get(k);
+                if (now != null) {{
+                    now.clear();
+                    now.putAll(v);
+                }}
+            }});
         }}
 
         void setRollbackOnly() {{
@@ -3899,12 +4074,14 @@ class EquivalenceRunTest {{
 
         void restart() {{
             tm.rollback(st);
+            lengthsBack();
             st = tm.getTransaction(new org.springframework.transaction.support.DefaultTransactionDefinition());
         }}
 
         void end() {{
             if (st.isRollbackOnly()) {{
                 tm.rollback(st);
+                lengthsBack();
             }} else {{
                 tm.commit(st);
             }}
@@ -3913,6 +4090,7 @@ class EquivalenceRunTest {{
         void abort() {{
             if (!st.isCompleted()) {{
                 tm.rollback(st);
+                lengthsBack();
             }}
         }}
     }}
@@ -4016,6 +4194,8 @@ class EquivalenceRunTest {{
     @Test
     void run() throws IOException {{
         for (JsonNode sc : json.readTree(in.resolve("scenarios.json").toFile())) {{
+            // the fired-fault log is appended to: a --reuse copy of the baseline's out dir would log every fault twice
+            Files.deleteIfExists(out.resolve(sc.get("name").asText() + ".faults"));
             // each task starts from the files as loaded, and what it leaves is compared (file updates)
 {chr(10).join(loads)}
 {db2_reset}
@@ -4033,7 +4213,7 @@ class EquivalenceRunTest {{
             Path sysout = out.resolve(sc.get("name").asText() + ".sysout");
             Files.deleteIfExists(sysout);
             System.setProperty("gitgalaxy.sysout", sysout.toString());
-{tod_stmt}            CicsTask task = new CicsTask("{case["transid"]}", sc.get("aid").asText(), commarea, calen, received)
+{tod_stmt}            CicsTask task = new CicsTask(sc.path("transid").asText("{case["transid"]}"), sc.get("aid").asText(), commarea, calen, received)
                     .withClock(java.time.LocalDateTime.parse(sc.path("clock").asText("{ej._clock(case)}")))  // EIBTIME / ASKTIME: the scenario's clock, else the case's
                     .withRegion({region_java})  // ASSIGN APPLID / SYSID
                     .withProgram("{case["program"]}")  // the task's first program (a LINK's INVOKINGPROG)
@@ -4054,6 +4234,7 @@ class EquivalenceRunTest {{
                                 t.setPropagationBehavior(org.springframework.transaction.TransactionDefinition.PROPAGATION_REQUIRES_NEW);
                                 t.executeWithoutResult(s -> change.run());
                             }});
+            if (sc.path("termid").isTextual() && sc.get("termid").asText().isEmpty()) task.withTermid(null);  // #6072: "" states a task with no terminal
             if (sc.hasNonNull("start_data")) {{  // #4892: the data the task was started with, as the stub's retrieve_NNN.bin
                 List<byte[]> started = new ArrayList<>();
                 sc.get("start_data").forEach(x -> started.add(java.util.HexFormat.of().parseHex(x.asText())));
@@ -4300,6 +4481,34 @@ class EquivalenceRunTest {{
         }}
         repo.saveAll(rows);
     }}
+
+    /** #6839 (row D): a variable-length file's record lengths as the task starts (in/<DD>[.<scenario>].len, the
+     *  stub's own <file>.len), into the registry the det port's Store reads (CicsTask.RECORD_LENGTHS). */
+    void lengthsIn(JsonNode sc, String dd, String entity) throws IOException {{
+        Path own = in.resolve(dd + "." + sc.get("name").asText() + ".len");
+        Path p = Files.exists(own) ? own : in.resolve(dd + ".len");
+        Map<String, Integer> m = new java.util.HashMap<>();
+        if (Files.exists(p)) {{
+            for (String ln : Files.readAllLines(p)) {{
+                String[] w = ln.trim().split(" ");
+                if (w.length == 2) {{
+                    m.put(w[0], Integer.parseInt(w[1]));
+                }}
+            }}
+        }}
+        // the same map object every scenario: a Store built for an earlier scenario holds it (CicsTask.recordLengths)
+        Map<String, Integer> reg = CicsTask.RECORD_LENGTHS.computeIfAbsent(entity, k -> new java.util.HashMap<>());
+        reg.clear();
+        reg.putAll(m);
+    }}
+
+    /** #6839: the record lengths the task left, "HEXKEY LENGTH" lines in key order. */
+    void lengthsOut(String name, String entity) throws IOException {{
+        Map<String, Integer> m = CicsTask.RECORD_LENGTHS.getOrDefault(entity, Map.of());
+        List<String> lines = new ArrayList<>();
+        new java.util.TreeMap<>(m).forEach((k, v) -> lines.add(k + " " + v));
+        Files.write(out.resolve(name), lines);
+    }}
 }}
 """
 
@@ -4383,6 +4592,8 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
     inputs.mkdir(parents=True, exist_ok=True)
     for f in files:
         shutil.copy(cobol_work / "files" / f["base"], inputs / f"{f['base']}.in")
+        if variable_file(case, f["base"]):  # #6839: the lengths the task starts with (the case's, as stated)
+            (inputs / f"{f['base']}.len").write_bytes(record_lengths(case, corpus, case["datasets"][f["base"]], f))
     stage_scenario_inputs(case, corpus, files, inputs)
     ca_fields = commarea_fields(corpus, case)  # as the DTO lists them: an OCCURS group's fields once
     ca_read = commarea_fields(corpus, case, occurrences=True)  # #4765: the whole record, every occurrence
@@ -4418,8 +4629,8 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
             m: {f.removesuffix("I"): v for f, v in typed.items()} for m, typed in (sc.get("receive") or {}).items()
         }
         scenarios.append({"name": sc["name"], "aid": sc.get("aid", "DFHENTER").removeprefix("DFH"),
-                          "commarea": ca, "area": area, **({"raw_commarea": True} if raw_names_of(sc) else {}), "receive": receive, "faults": fault_lines(sc), "sql_faults": sc.get("sql_plan", []),
-                          "dli_faults": dli_fault_lines(case, sc),
+                          "commarea": ca, "area": area, **({"raw_commarea": True} if raw_names_of(sc) else {}), "receive": receive, "faults": cics_faults.fault_lines(sc), "sql_faults": sc.get("sql_plan", []),
+                          "dli_faults": cics_faults.dli_fault_lines(case, sc),
                           "sql_unjudged": sql_unjudged(sc.get("sql_plan", []), seams),
                           "derived": bool(sc.get("derived")), "commarea_length": commarea_length(sc, ca_read),
                           **_java_untyped_commarea(case, sc, ca_read),
@@ -4427,12 +4638,13 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
                           "counters": _counters(case, sc), "taskn": task_number(case, sc),
                           "startcode": task_facts(case, sc)[0], "terminal": task_facts(case, sc)[1],
                           **terminal_facts(case, sc),
+                          **({"transid": scenario_transid(case, sc)} if "transid" in sc else {}),
                           **({"clock": ej._clock({**case, "clock": scenario_clock(case, sc)})} if "clock" in sc else {}),
                           **({"tod": scenario_tod(case, sc)} if scenario_tod(case, sc) else {}),
                           "ts": cics_tempstorage.ts_seed(case, sc), "urimaps": urimaps(case, sc),
                           **({"td": td_seed(case, sc)} if td_seed(case, sc) else {}),
-                          "doctemplates": doctemplates(case, sc), "http_peers": http_peers(case, sc),
-                          "http_request": http_request(case, sc), "tcpip": tcpip(case, sc),
+                          "doctemplates": doctemplates(case, sc), "http_peers": cics_web.http_peers(case, sc),
+                          "http_request": cics_web.http_request(case, sc), "tcpip": cics_web.tcpip(case, sc),
                           **_java_mq(case, sc, inputs, len(scenarios)), **_java_dli(case, corpus, inputs, sc)})  # fmt: skip
     (inputs / "scenarios.json").write_text(json.dumps(scenarios, indent=1), encoding="utf-8")
     props = ej.data_charset_arg(case)
@@ -4615,6 +4827,25 @@ def _java_events(case: dict[str, Any], out: Path, shape: dict[str, Any],
 
 
 # ---- the comparison -------------------------------------------------------------------
+def _compare_lengths(f: dict[str, Any], left: bytes, right: bytes, cobol_len: bytes, java_len: Path) -> dict[str, Any]:
+    """#6839: a variable-length file's record lengths on each side, for the keys of the records that side left, a
+    length equal to the slot's reclen dropped (the same record); {} when they agree."""
+    reclen, ko, kl = f["reclen"], f["key_offset"], f["key_length"]
+
+    def norm(data: bytes, lens: dict[str, int]) -> dict[str, int]:
+        keys = {data[i + ko : i + ko + kl].hex().upper() for i in range(0, len(data) - reclen + 1, reclen)}
+        return {k: n for k, n in lens.items() if k in keys and n != reclen}
+
+    a = norm(left, parse_lengths(cobol_len))
+    b = norm(right, parse_lengths(java_len.read_bytes() if java_len.is_file() else b""))
+    if a == b:
+        return {}
+    keys = sorted(set(a) | set(b))
+    return {"records": len(keys), "equal": sum(a.get(k) == b.get(k) for k in keys),
+            "lengths": [{"key": k, "cobol": a.get(k, reclen), "java": b.get(k, reclen)} for k in keys
+                        if a.get(k) != b.get(k)]}  # fmt: skip
+
+
 def compare_files(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]], cobol: dict[str, bytes],
                   java_out: Path, scenario: str) -> dict[str, dict[str, Any]]:  # fmt: skip
     """File updates: per file, what the task left on each side, both in key order; only the files that differ.
@@ -4634,6 +4865,11 @@ def compare_files(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]
             return b"".join(sorted(recs, key=lambda r: r[f["key_offset"] : f["key_offset"] + f["key_length"]]))
 
         left, right = by_key(left), by_key(right)
+        if variable_file(case, base):  # #6839: each record's own length, for the records each side left
+            lens = _compare_lengths(f, left, right, cobol.get(f"{base}.len", b""),
+                                    java_out / f"{scenario}.{base}.len.out")  # fmt: skip
+            if lens:
+                out[f"{base} lengths"] = lens
         if left == right:
             continue
         spec = case.get("datasets", {}).get(base, {})
@@ -4783,6 +5019,7 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
     out: list[dict[str, Any]] = []
     screens, texts, records = iter(res["screens"]), iter(res["text"]), iter(res.get("td", []))
     text_options = iter(res.get("text_options", []))
+    text_lengths = iter(res.get("text_lengths", []))
     queued = iter(res.get("ts", []))
     operator = iter(res.get("operator", []))
     reads = iter(res.get("reads", []))  # #4270: READQ TS / terminal RECEIVE
@@ -4803,7 +5040,10 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
             out.append({"event": "SEND-MAP", "map": s["map"], **({"mapset": s["mapset"]} if "mapset" in s else {}), "screen": s["fields"], "subfields": s["subfields"],
                         "options": s["options"], "cursor": s["cursor"]})  # fmt: skip
         elif verb == "SEND-TEXT":  # #5401: its options too, as CicsTask.sendText records them
-            out.append({"event": "SEND-TEXT", "text": next(texts), "options": next(text_options, [])})
+            sent = {"event": "SEND-TEXT", "text": next(texts), "options": next(text_options, [])}
+            if (n := next(text_lengths, None)) is not None:  # #5862: its LENGTH too, both ways
+                sent["length"] = n
+            out.append(sent)
         elif verb == "SEND-CONTROL":  # #4270: CicsTask.sendControl records it -- its options and CURSOR's offset
             cur = int((re.search(r"\bcursor=(-?\d+)", args) or [None, "-1"])[1])
             out.append({"event": "SEND-CONTROL", "options": args.partition("opts=")[2].split(),
@@ -5045,6 +5285,8 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
             java_options = sorted(o for o in j.get("options") or [] if o in TEXT_OPTIONS_FORWARDED)
             if c["options"] != java_options:
                 bad.append({"field": "options", "cobol": c["options"], "java": java_options})
+        if c["event"] == "SEND-TEXT" and "length" in c and c["length"] != j.get("length"):  # #5862
+            bad.append({"field": "length", "cobol": c["length"], "java": j.get("length")})
         if c["event"] == "SEND-CONTROL":  # #4270: ERASE / FREEKB / ALARM ... and the cursor, as the crucible compares
             if sorted(c.get("options") or []) != sorted(j.get("options") or []):
                 bad.append({"field": "options", "cobol": c.get("options"), "java": j.get("options")})

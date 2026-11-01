@@ -338,3 +338,15 @@ def test_check_only_warns_when_the_uncovered_lists_differ(monkeypatch):
     problems, warnings = dcl.check({CASE: row}, {CASE: entry()})  # an entry from before #6072
     assert not problems and "uncovered lists differ" in warnings[0]
     assert dcl.check({CASE: {"proved": True, "coverage": LINE}}, {CASE: entry()}) == ([], [])  # a row without the key
+
+
+def test_the_committed_zecs001_entry_measures_the_lowered_hlasm_target():
+    """#7011: ZECS001 LINKs the HLASM ZECS002; its linked counts come from the lowered COBOL (#6839), not the .asm read as
+    COBOL, which gave 0/0."""
+    ledger = json.loads(
+        (TOOLS.parents[1] / "tests" / "equivalence" / "det_sweep_coverage" / "zecs-zecs001.json").read_text()
+    )
+    zecs002 = ledger["linked"]["ZECS002"]
+    assert zecs002["paragraphs"]["live"] > 0 and zecs002["branches"]["total"] > 0
+    assert zecs002["paragraphs"]["covered"] <= zecs002["paragraphs"]["live"]
+    assert zecs002["branches"]["covered"] <= zecs002["branches"]["total"]

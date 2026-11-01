@@ -102,6 +102,51 @@
         }
       },
       "why": "account 9999 through the web service: the children's ELSE branches, RETURN-DATA put back"
+    },
+    {
+      "name": "delay-invreq-children",
+      "commarea": null,
+      "startcode": "TD",
+      "terminal": "SCCA 0001",
+      "why": "terminal account 0001 with the first DELAY of every task failing INVREQ (RESP2 4, register X72): none of the programs codes RESP or HANDLE CONDITION on DELAY, so each child takes the default action and abends AEIP; ASYNCPNT FETCHes the children's ABEND status",
+      "faults": [
+        {
+          "cmd": "DELAY",
+          "nth": 1,
+          "resp": "INVREQ",
+          "resp2": 4,
+          "child": "ICCK"
+        },
+        {
+          "cmd": "DELAY",
+          "nth": 1,
+          "resp": "INVREQ",
+          "resp2": 4,
+          "child": "GETA"
+        },
+        {
+          "cmd": "DELAY",
+          "nth": 1,
+          "resp": "INVREQ",
+          "resp2": 4,
+          "child": "UPDB"
+        }
+      ]
+    },
+    {
+      "name": "send-text-invreq",
+      "commarea": null,
+      "startcode": "TD",
+      "terminal": "SCCA 0001",
+      "why": "terminal account 0001 with the first SEND TEXT failing INVREQ (RESP2 200, register X71): ASYNCPNT codes no RESP or HANDLE CONDITION on SEND TEXT, so it takes the default action and abends AEIP",
+      "faults": [
+        {
+          "cmd": "SEND-TEXT",
+          "nth": 1,
+          "resp": "INVREQ",
+          "resp2": 200
+        }
+      ]
     }
   ],
   "notes": "IBM's CICS asynchronous API credit-card example: ASYNCPNT (transaction ASYN here, also a web service) RUNs ICCK (CRDTCHK), GETA (GETADDR), STUS (CSSTATS2) and GETN (GETNAME) with the channel MYCHANNEL, FETCHes ICCK, then RUNs UPDB (UPDCSDB) and FETCHes it, GETN, STUS, GETA and UPDB in that order, SENDing a progress line as each step ends when it was started from a terminal. #5089: the STUS child (CSSTATS2) RUNs GETP (GETPOL) and SPND (GETSPND) and never FETCHes them, so this is the nested RUN TRANSID the harness refused as 'a grandchild' (X18): the child's own RUN events are compared with its other events as one CHILD event, on the COBOL stub (each child is a process of its own) and on the Java side (CicsTask). A task that never waits ends with the children it RUNs not run, at every level (X18, ASSUMED); IBM's RUN TRANSID and FETCH pages do not restrict a child from issuing RUN, and the Redbook describes a parent that 'initiates further child tasks'. The region's transactions are the bundle's nine (etc/CICS_bundles/cics-async-creditcardapplication-resources/*.transaction); \"child_programs\" states what each runs (a deployment fact the case states, as the CSD's TRANSACTION definitions give it). The five services are proven on their own by the asynccc- cases; here they run as children (the containers each leaves on MYCHANNEL are compared as the caller sees them after FETCH CHILD). Derived from github.com/cicsdev/cics-async-api-credit-card-application-example (Apache-2.0; Copyright IBM Corp. 2016): LICENSE here is the corpus's own, NOTICE names the source and what was derived."

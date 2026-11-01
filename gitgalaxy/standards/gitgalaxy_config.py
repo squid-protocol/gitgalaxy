@@ -86,7 +86,8 @@ ALLOWLIST_PATHS = [
     # "tests/phpunit/integration/includes/Json/key1.pem.pub",
     # "tests/phpunit/integration/includes/Json/key2.pem",
     # "tests/phpunit/integration/includes/Json/key2.pem.pub"
-    "tests/"
+    "tests/",
+    ".test_durations",  # pytest-split's generated timings: test names, which can read like credentials
 ]
 
 # ------------------------------------------------------------------

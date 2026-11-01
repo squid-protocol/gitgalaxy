@@ -312,14 +312,17 @@ DEFINITION: dict[str, Any] = {
         # out deliberately -- "say" and "address" are everyday English words
         # in comment prose.
         "dead_code": re.compile(
-            r"(?:/\*|--)[ \t]*(?:CALL[ \t]+" + _NAME + r"{1,64}"
-            r"|IF[ \t][^\n]{0,120}?" + _L + r"THEN" + _R + r"|DO[ \t]+(?:WHILE|UNTIL)" + _R + r"|EXECIO[ \t]"
+            r"(?:/\*|--)[ \t]*(?:CALL[ \t]+" + _NAME + r"{1,64}[ \t]*(?:[(,;]|(?:\*/)?[ \t]*$)"
+            r"|CALL[ \t]+" + _NAME + r"{1,64}[ \t]+['\"]"
+            r"|IF[ \t][^\n]{0,120}?[=<>\\(][^\n]{0,120}?" + _L + r"THEN" + _R
+            + r"|DO[ \t]+(?:WHILE|UNTIL)[ \t][^\n]{0,120}?[=<>\\(]"
+            + r"|EXECIO[ \t]+[\w*]+[ \t]+(?:DISK[RW]|CARD)"
             r"|PARSE[ \t]+(?:UPPER[ \t]+|LOWER[ \t]+)?(?:ARG|VAR|VALUE|PULL)"
             + _R
             + r"|"
             + _NAME
             + r"{1,64}[ \t]*=[ \t]*[\w.!?@#$'\"])",
-            re.I,
+            re.I | re.M,
         ),
         # doc: REXX has no generator-read comment syntax of its own; the
         # conventions in real execs are a `/**` doc block left open past its

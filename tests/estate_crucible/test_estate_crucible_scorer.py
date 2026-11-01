@@ -688,8 +688,10 @@ def test_a_dummy_dd_is_unscored():
 
 
 def test_an_inline_stream_is_found_in_its_instream_row_and_counted_in_lines():
-    key = [dict(_dd_key(inline_lines=2), dsn=None, disp=None)]
-    row = _row("INSTREAM", step_name="S1", dd_name="D", line=6, instream=" SORT FIELDS=(1,2,CH,A)\n SUM FIELDS=NONE")
+    key = [dict(_dd_key(inline_lines=2), dd="SYSIN", dsn=None, disp=None)]
+    row = _row(
+        "INSTREAM", step_name="S1", dd_name="SYSIN", line=6, instream=" SORT FIELDS=(1,2,CH,A)\n SUM FIELDS=NONE"
+    )
     assert _jcl([row], jcl_dds=key).checks[0].status == "pass"
     assert _jcl([dict_row(row, instream=" SORT")], jcl_dds=key).checks[0].status == "fail"
     assert _jcl([], jcl_dds=key).checks[0].status == "missing"
@@ -738,10 +740,27 @@ def test_a_card_is_scored_on_its_line_verb_and_operands():
     assert {c.channel for c in sc.checks} == {"jcl_utility_cards"}
 
 
-def test_a_card_in_a_dd_the_engine_keeps_no_body_for_is_missing():
-    card = dict(_card("COPY", "FROM(A)", 30), dd="TOOLIN")
+@pytest.mark.parametrize("dd", ["TOOLIN", "SYSUT1", "SYSTSIN", "systsin"])
+def test_a_card_in_a_dd_the_engine_keeps_no_body_for_is_unscored_with_a_reason(dd):
+    card = dict(_card("COPY", "FROM(A)", 30), dd=dd)
     row = _row("INSTREAM", step_name="S1", dd_name="SYSIN", line=10, instream=_BODY)
-    assert _jcl([row], jcl_utility_cards=[card]).checks[0].status == "missing"
+    c = _jcl([row], jcl_utility_cards=[card]).checks[0]
+    assert (c.status, dd.upper() in c.detail) == ("unscored", True)
+
+
+@pytest.mark.parametrize("dd", ["SYSTSIN", "SYSUT1", "SORTIN"])
+def test_an_inline_dd_the_engine_keeps_no_body_for_is_unscored_not_missing(dd):
+    key = [dict(_dd_key(inline_lines=2), dd=dd, dsn=None, disp=None)]
+    c = _jcl([], jcl_dds=key).checks[0]
+    assert c.status == "unscored" and "core/job_flow.py" in c.detail
+
+
+@pytest.mark.parametrize("dd", ["SYSIN", "SYMNAMES", "SORTCNTL", "DFSPARM"])
+def test_a_kept_control_dd_with_no_instream_row_is_still_missing(dd):
+    key = [dict(_dd_key(inline_lines=2), dd=dd, dsn=None, disp=None)]
+    assert _jcl([], jcl_dds=key).checks[0].status == "missing"
+    card = dict(_card("SORT", "FIELDS=(1,2,CH,A)", 7), dd=dd)
+    assert _jcl([], jcl_utility_cards=[card]).checks[0].status == "missing"
 
 
 def test_an_explicit_temp_dataset_phantom_is_attributed_and_its_absence_passes():

@@ -20,7 +20,8 @@ GalaxyIR, and diffs every fact channel of the key against it:
   layouts         GalaxyIR.record_layout of every 01 a program writes: bytes and every
                   elementary field's offset / length (REDEFINES overlays: unscored, the
                   layout reader skips them by design)
-  jcl_utility_cards  the control statements of an in-stream DD (job_flow_data INSTREAM rows)
+  jcl_utility_cards  the control statements of an in-stream DD (job_flow_data INSTREAM rows); a DD outside
+                  SYSIN / SYMNAMES / SORTCNTL / DFSPARM (SYSTSIN, SYSUT1, TOOLIN) is unscored: the engine keeps no body
   jcl_steps       STEP rows; JOB RESTART= (+ checkid), RD=, PARM.procstep=, COND.procstep= are unscored (no engine field)
   jcl_dds         DD rows (an override DD `//PROCSTEP.DD` matches the row named after its proc step);
                   SYSOUT / DUMMY DDs are unscored (job_flow_data keeps only DDs that name a DSN), so a
@@ -722,6 +723,23 @@ _STEP_FIELDS_WITHOUT_ENGINE_ROW = (
 )
 
 
+# The in-stream DDs job_flow_data keeps an INSTREAM row for (core/job_flow.py `_CONTROL_DDS`). Any other `DD *` has no
+# row: SYSTSIN has its own channel (runs / systsin_member), SYSUT1 / TOOLIN / SORTIN bodies are not kept (#7065).
+_INSTREAM_KEPT_DDS = frozenset({"SYSIN", "SYMNAMES", "SORTCNTL", "DFSPARM"})
+
+
+def _instream_not_kept(dd: Any) -> str | None:
+    """Why job_flow_data has no INSTREAM row for an in-stream DD named `dd`, or None when it keeps one."""
+    name = _u(dd)
+    if name in _INSTREAM_KEPT_DDS:
+        return None
+    if name == "SYSTSIN":
+        return "SYSTSIN: job_flow_data keeps no body for it, its commands are the runs / systsin_member channel (core/job_flow.py)"
+    return (
+        f"{name}: job_flow_data keeps an in-stream body only for SYSIN, SYMNAMES, SORTCNTL, DFSPARM (core/job_flow.py)"
+    )
+
+
 def _compact(v: Any) -> str:
     """A key value as one short token for a check label (a list of override dicts becomes `RPT020:QUARTERLY`)."""
     if isinstance(v, list):
@@ -808,6 +826,10 @@ def score_jcl(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
             )
             continue
         if "inline_lines" in f:
+            why = _instream_not_kept(f["dd"])
+            if why:
+                sc.add("jcl_dds", path, label, "unscored", f.get("horror"), why)
+                continue
             r = next((x for x in ins if _u(x.step_name) == f["step"] and _u(x.dd_name) == f["dd"]), None)
             if r is None:
                 sc.add("jcl_dds", path, label, "missing", f.get("horror"), "no INSTREAM row for this DD")
@@ -888,6 +910,10 @@ def score_jcl_utility_cards(sc: Score, path: str, entry: dict[str, Any], eng: En
     parsed: dict[int, list[tuple[int, str, str]]] = {}
     for f in entry.get("jcl_utility_cards", []):
         label = f"{f['step']}.{f['dd']} {f['verb']} @{f['line']}"
+        why = _instream_not_kept(f["dd"])
+        if why:
+            sc.add("jcl_utility_cards", path, label, "unscored", f.get("horror"), why)
+            continue
         r = next((x for x in ins if _u(x.step_name) == f["step"] and _u(x.dd_name) == f["dd"]), None)
         if r is None:
             sc.add("jcl_utility_cards", path, label, "missing", f.get("horror"), "no INSTREAM row for this DD")

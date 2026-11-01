@@ -37,16 +37,20 @@ concurrency:
   # One reconcile pass at a time. GitHub keeps one PENDING run per group and cancels older pending ones; that is
   # harmless here because every pass reconciles ALL labelled PRs (#4935), so a burst of completions coalesces into
   # one pass instead of dropping the PRs whose run was cancelled. shepherd-event.yml has no group (#4854).
-  group: shepherd
+  # #7455 item 1: a `skipped` completion (a draft's heavy workflow) has a group of its own: its job is skipped below,
+  # so in the shared group it could only cancel a real pending pass. A cancelled pending run took no runner.
+  group: ${{ github.event.workflow_run.conclusion == 'skipped' && format('shepherd-skipped-{0}', github.run_id) || 'shepherd' }}
   cancel-in-progress: false
 
 jobs:
   reconcile:
     name: shepherd (reconcile)
-    # a run of a push changes no PR's merge state; PR CI and the matrix (dispatched on a PR branch) do
+    # a run of a push changes no PR's merge state; PR CI and the matrix (dispatched on a PR branch) do. Nor does a
+    # skipped workflow: no job ran, so there is no result to read (#7455 item 1). A cancelled one stays: a cancel with no
+    # newer run on the head is what the shepherd reruns.
     if: >-
-      github.event_name != 'workflow_run' || github.event.workflow_run.event == 'pull_request'
-      || github.event.workflow_run.event == 'workflow_dispatch'
+      github.event_name != 'workflow_run' || (github.event.workflow_run.conclusion != 'skipped'
+      && (github.event.workflow_run.event == 'pull_request' || github.event.workflow_run.event == 'workflow_dispatch'))
     runs-on: ubuntu-latest
     timeout-minutes: 35
     permissions:

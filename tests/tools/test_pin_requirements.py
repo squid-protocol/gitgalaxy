@@ -4,10 +4,13 @@
 from __future__ import annotations
 
 import os
+import sys
+from pathlib import Path
 
 import pytest
 
-from tests.tools.pin_requirements import (
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from pin_requirements import (
     find_uv,
     main,
     verify_multiversion_markers,
@@ -101,7 +104,7 @@ def test_lockfile_floor_is_python_311():
     """#3322: the universal compile floor is 3.11, and no lockfile keeps a <3.11 backport marker."""
     from pathlib import Path
 
-    from tests.tools import pin_requirements as pr
+    import pin_requirements as pr
 
     src = Path(pr.__file__).read_text(encoding="utf-8")
     assert '"--python-version",\n        "3.11",' in src

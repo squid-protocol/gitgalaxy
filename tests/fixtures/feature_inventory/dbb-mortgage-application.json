@@ -924,7 +924,7 @@
       ]
     },
     "SET-ADDRESS": {
-      "count": 76,
+      "count": 81,
       "programs": [
         "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
       ]
@@ -936,7 +936,7 @@
       ]
     },
     "SET-POINTER": {
-      "count": 5,
+      "count": 16,
       "programs": [
         "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
       ]
@@ -961,7 +961,7 @@
       ]
     },
     "unknown": {
-      "count": 24,
+      "count": 8,
       "programs": [
         "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
       ]

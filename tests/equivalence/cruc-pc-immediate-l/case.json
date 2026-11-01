@@ -1,0 +1,41 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": {
+    "segments": [
+      {
+        "copybook": "cases/pseudo-conversational/pc-return-immediate/src/PCIMML.cbl",
+        "record": "DFHCOMMAREA"
+      }
+    ]
+  },
+  "screens": {},
+  "termid": "T001",
+  "linked": true,
+  "program": "PCIMML",
+  "program_source": "cases/pseudo-conversational/pc-return-immediate/src/PCIMML.cbl",
+  "copy_dirs": [
+    "cases/pseudo-conversational/pc-return-immediate/copy"
+  ],
+  "transid": "PC51",
+  "notes": "cics-crucible pseudo-conversational / pc-return-immediate (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): PCIMML as its own case, entered as a LINKed program, so its coverage is measured (inside cruc-pc-immediate-a it is a callee and not measured). The oracle is GnuCOBOL plus the stub, not z/OS.",
+  "scenarios": [
+    {
+      "name": "no-commarea",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "why": "EIBCALEN 0: RETURN TRANSID IMMEDIATE below the highest logical level, the outcome logged"
+    },
+    {
+      "name": "with-commarea",
+      "aid": "DFHENTER",
+      "commarea": {
+        "CA-STAGE": "1",
+        "CA-TEXT": "LINK-A1"
+      },
+      "why": "EIBCALEN 8: the text is rewritten to LINKED! and the program returns"
+    }
+  ]
+}

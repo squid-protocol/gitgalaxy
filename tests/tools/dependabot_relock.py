@@ -35,7 +35,7 @@ REQ_DIRS = ("ci/requirements/", "templates/requirements/")
 TEMPLATE_DIR = "templates/requirements/"
 PIN = re.compile(r"^([A-Za-z0-9_.\-]+)(?:\[[^\]]*\])?==([^\s;\\]+)", re.M)
 DEPENDABOT_BUMP = re.compile(
-    r"^\s*-\s*dependency-name:\s*([A-Za-z0-9_.\-]+)\s*\n\s*dependency-version:\s*([^\s\n]+)",
+    r"^\s*-\s*dependency-name:[ \t]*([A-Za-z0-9_.\-]+)[ \t]*\n[ \t]*dependency-version:[ \t]*([^\s]*)",
     re.M,
 )
 
@@ -57,10 +57,15 @@ def parse_dependabot_metadata(text: str) -> dict[str, set[str]]:
 
     Needed when Dependabot's pip-compile drops an "unsafe" package like setuptools or pip from bootstrap.txt
     instead of writing the new version (#6300), leaving no new version in the .txt diff for parse_pins() to see.
+
+    A grouped update can drop such a package and leave its `dependency-version:` blank (#7119). There is no target to
+    pin then, and a plain upgrade would take whatever is newest past the cooldown in dependabot.yml, so the package
+    is skipped and stays on main's pin.
     """
     bumps: dict[str, set[str]] = {}
     for name, ver in DEPENDABOT_BUMP.findall(text or ""):
-        bumps.setdefault(_norm(name), set()).add(ver)
+        if ver:
+            bumps.setdefault(_norm(name), set()).add(ver)
     return bumps
 
 

@@ -41,7 +41,7 @@ on:
       - "pyproject.toml"
       - "tests/tools/cics_crucible*.py"
       - "tests/tools/crucible_port_provenance.py"
-      - "tests/tools/equivalence_cics.py"
+      - "tests/tools/equivalence_cics*.py"  # #5274: the host and every family module
       - "tests/tools/cobol_coverage.py"
       - "gitgalaxy/tools/cobol_to_cobol/cobol_graveyard_finder.py"
       - "tests/tools/equivalence_common.py"

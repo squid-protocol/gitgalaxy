@@ -3,6 +3,8 @@
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import ci_digest as cd  # noqa: E402
 
@@ -367,6 +369,60 @@ def test_a_cancelled_shard_makes_the_e2e_roll_up_a_rerun_not_a_real_failure():  
     runs[0] = run(1, "db2", "failure")  # a real db2 failure beside the cancelled shard: the roll-up is a real red
     d = cd.digest(7, fake_api(runs), lambda i: {1: "FAILED tests/x.py::test_y - AssertionError"}.get(i, ""))
     assert {f["check"]: f["triage"] for f in d["failed"]}["equivalence-e2e"] == "real"
+
+
+EXIT_1 = "##[error]Process completed with exit code 1."
+
+
+@pytest.mark.parametrize(
+    ("rollup", "line"),
+    [
+        ("crucible", "measure: cancelled, runner-tests: cancelled"),
+        ("det", "the plan job did not succeed (cancelled)"),
+        ("equivalence-e2e", "plan: , db2  (cancelled), shards: cancelled, db2: cancelled"),
+        ("full-suite", "full-suite parts: cancelled (tested-tree skip: , suite plan: select)"),
+        ("ground-truth", "ground-truth warm: cancelled, parts: cancelled (tested-tree skip: , plan mode: full)"),
+    ],
+)
+def test_a_roll_up_whose_log_says_cancelled_is_a_rerun_with_no_part_left_to_read(rollup, line):
+    """The result lines are the real ones from #7241's cancelled run; the parts themselves left no failed check."""
+    d = cd.digest(7, fake_api([run(1, rollup, "failure")]), lambda i: f"{line}\n{EXIT_1}")
+    assert d["failed"][0]["triage"] == "infra"
+
+
+@pytest.mark.parametrize(
+    ("rollup", "part"),
+    [
+        ("det", "db2 ${{ matrix.shard }}"),
+        ("det", "shard ${{ matrix.group }}/3"),
+        ("full-suite", "full-suite part ${{ matrix.group }}/${{ needs.shard-plan.outputs.splits }}"),
+        ("crucible", "measure (shard ${{ matrix.shard }})"),
+    ],
+)
+def test_a_part_cancelled_before_its_matrix_expanded_still_counts_as_a_part(rollup, part):
+    runs = [run(1, part, "cancelled"), run(2, rollup, "failure")]
+    d = cd.digest(7, fake_api(runs), lambda i: EXIT_1 if i == 2 else "")
+    assert {f["check"]: f["triage"] for f in d["failed"]}[rollup] == "infra"
+
+
+@pytest.mark.parametrize(
+    "log",
+    [
+        "measure: failure, runner-tests: cancelled",  # a part failed: the cancelled one beside it changes nothing
+        "the plan job did not succeed (failure)",
+        "FAILED tests/x.py::test_y - AssertionError\nfull-suite parts: cancelled",  # a named test always stays real
+        "no shard reported a sweep.json",  # says nothing of a cancellation
+    ],
+)
+def test_a_roll_up_with_a_real_failure_stays_real(log):
+    d = cd.digest(7, fake_api([run(1, "crucible", "failure")]), lambda i: f"{log}\n{EXIT_1}")
+    assert d["failed"][0]["triage"] == "real"
+
+
+def test_a_real_part_beside_a_cancelled_roll_up_line_stays_real():
+    runs = [run(1, "shard 1/3", "failure"), run(2, "det", "failure")]
+    logs = {1: "FAILED tests/x.py::test_y - AssertionError", 2: f"the plan job did not succeed (cancelled)\n{EXIT_1}"}
+    assert {f["check"]: f["triage"] for f in cd.digest(7, fake_api(runs), logs.get)["failed"]}["det"] == "real"
 
 
 def test_every_alternative_of_the_det_pattern_matches_a_job():

@@ -17,9 +17,17 @@ import pytest
 TESTS = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(TESTS / "tools"))
 import equivalence_cics as ec  # noqa: E402
+import ggcics_source  # noqa: E402
 from gitgalaxy.core.source_text import read_source  # noqa: E402
 
 REPO = TESTS.parent
+
+
+def _det_cics_source() -> str:
+    """det/cics.py and its command families (#5274)."""
+    return "\n".join(
+        p.read_text(encoding="utf-8") for p in sorted((REPO / "gitgalaxy/tools/cobol_to_java/det").glob("cics*.py"))
+    )
 
 
 def _lines(**f):
@@ -120,18 +128,18 @@ def test_a_command_key_fits_the_stubs_parse_buffer():
 
 
 def test_the_stub_the_task_and_the_translator_read_the_same_plan():
-    stub = (REPO / "tests/equivalence/cics/ggcics.c").read_text(encoding="utf-8")
+    stub = ggcics_source.stub_source()
     task = (REPO / "gitgalaxy/tools/cobol_to_java/cobol_to_java_transaction_forge.py").read_text(encoding="utf-8")
     faults = (REPO / "gitgalaxy/tools/cobol_to_java/cics_task_faults.py").read_text(encoding="utf-8")  # #5274
-    cics = (REPO / "gitgalaxy/tools/cobol_to_java/det/cics.py").read_text(encoding="utf-8")
+    cics = _det_cics_source()
     for cmd in ("SEND-MAP", "RECEIVE-MAP", "RETURN", "SYNCPOINT", "ROLLBACK"):
         assert f'"{cmd}"' in stub or cmd in ("SYNCPOINT", "ROLLBACK"), cmd
     assert 'rollback ? "ROLLBACK" : "SYNCPOINT"' in stub
     assert "public int[] planned(String cmd, String name)" in faults
     assert 'root().injected("RETURN", "-")' in task
     for cmd in ("SEND-MAP", "RECEIVE-MAP"):
-        assert f'task.planned("{cmd}", {{G_jstr(m)}})' in cics.replace('\\"', '"')
-    assert 'task.planned({G_jstr("ROLLBACK" if back else "SYNCPOINT")}' in cics
+        assert f'task.planned("{cmd}", {{jstr(m)}})' in cics.replace('\\"', '"')
+    assert 'task.planned({jstr("ROLLBACK" if back else "SYNCPOINT")}' in cics
 
 
 def test_the_delay_stub_and_translator_read_the_same_plan():
@@ -177,9 +185,9 @@ def test_expired_is_ignored_by_default_in_the_stub_and_the_det_runtime():
 def test_a_plain_return_transid_that_codes_resp_reads_the_return_plan():
     # #6271 (X71): the stub, the Java task and the translator all let a planned RETURN fail the plain form -- only when
     # the program codes RESP (GG-ITEM 2); a plain RETURN with no RESP never consults the plan
-    stub = (REPO / "tests/equivalence/cics/ggcics.c").read_text(encoding="utf-8")
+    stub = ggcics_source.stub_source()
     task = (REPO / "gitgalaxy/tools/cobol_to_java/cobol_to_java_transaction_forge.py").read_text(encoding="utf-8")
-    cics = (REPO / "gitgalaxy/tools/cobol_to_java/det/cics.py").read_text(encoding="utf-8")
+    cics = _det_cics_source()
     body = stub[stub.index("int GGCRETN") : stub.index("int GGCRETI")]
     assert 'c->item == 2 && lvl == 0 && injected("RETURN", "-"' in body
     assert body.index("injected(") < body.index("return_event(transid")
@@ -233,8 +241,8 @@ def test_the_send_text_refusal_names_register_x71():
 
 
 def test_the_send_text_stub_and_translator_read_the_same_plan():
-    stub = (REPO / "tests/equivalence/cics/ggcics.c").read_text(encoding="utf-8")
-    cics = (REPO / "gitgalaxy/tools/cobol_to_java/det/cics.py").read_text(encoding="utf-8")
+    stub = ggcics_source.stub_source()
+    cics = _det_cics_source()
     assert 'injected("SEND-TEXT", "-"' in stub
     assert 'task.planned("SEND-TEXT", "-")' in cics
     assert "if ({pl}[0] == 0) task.sendText(" in cics
@@ -299,8 +307,8 @@ def test_no_burned_cbsa_send_control_codes_resp():
 
 
 def test_the_terminal_stub_and_translator_read_the_same_plan():
-    stub = (REPO / "tests/equivalence/cics/ggcics.c").read_text(encoding="utf-8")
-    det = (REPO / "gitgalaxy/tools/cobol_to_java/det/cics.py").read_text(encoding="utf-8")
+    stub = ggcics_source.stub_source()
+    det = _det_cics_source()
     for cmd, fn in (("SET-TERMINAL", "int GGCSETT"), ("INQ-TERMINAL", "int GGCINQT")):
         body = stub[stub.index(fn) :]
         # planned before the terminal is looked up: a failed command changes nothing

@@ -688,8 +688,10 @@ def test_a_dummy_dd_is_unscored():
 
 
 def test_an_inline_stream_is_found_in_its_instream_row_and_counted_in_lines():
-    key = [dict(_dd_key(inline_lines=2), dsn=None, disp=None)]
-    row = _row("INSTREAM", step_name="S1", dd_name="D", line=6, instream=" SORT FIELDS=(1,2,CH,A)\n SUM FIELDS=NONE")
+    key = [dict(_dd_key(inline_lines=2), dd="SYSIN", dsn=None, disp=None)]
+    row = _row(
+        "INSTREAM", step_name="S1", dd_name="SYSIN", line=6, instream=" SORT FIELDS=(1,2,CH,A)\n SUM FIELDS=NONE"
+    )
     assert _jcl([row], jcl_dds=key).checks[0].status == "pass"
     assert _jcl([dict_row(row, instream=" SORT")], jcl_dds=key).checks[0].status == "fail"
     assert _jcl([], jcl_dds=key).checks[0].status == "missing"
@@ -738,10 +740,27 @@ def test_a_card_is_scored_on_its_line_verb_and_operands():
     assert {c.channel for c in sc.checks} == {"jcl_utility_cards"}
 
 
-def test_a_card_in_a_dd_the_engine_keeps_no_body_for_is_missing():
-    card = dict(_card("COPY", "FROM(A)", 30), dd="TOOLIN")
+@pytest.mark.parametrize("dd", ["TOOLIN", "SYSUT1", "SYSTSIN", "systsin"])
+def test_a_card_in_a_dd_the_engine_keeps_no_body_for_is_unscored_with_a_reason(dd):
+    card = dict(_card("COPY", "FROM(A)", 30), dd=dd)
     row = _row("INSTREAM", step_name="S1", dd_name="SYSIN", line=10, instream=_BODY)
-    assert _jcl([row], jcl_utility_cards=[card]).checks[0].status == "missing"
+    c = _jcl([row], jcl_utility_cards=[card]).checks[0]
+    assert (c.status, dd.upper() in c.detail) == ("unscored", True)
+
+
+@pytest.mark.parametrize("dd", ["SYSTSIN", "SYSUT1", "SORTIN"])
+def test_an_inline_dd_the_engine_keeps_no_body_for_is_unscored_not_missing(dd):
+    key = [dict(_dd_key(inline_lines=2), dd=dd, dsn=None, disp=None)]
+    c = _jcl([], jcl_dds=key).checks[0]
+    assert c.status == "unscored" and "core/job_flow.py" in c.detail
+
+
+@pytest.mark.parametrize("dd", ["SYSIN", "SYMNAMES", "SORTCNTL", "DFSPARM"])
+def test_a_kept_control_dd_with_no_instream_row_is_still_missing(dd):
+    key = [dict(_dd_key(inline_lines=2), dd=dd, dsn=None, disp=None)]
+    assert _jcl([], jcl_dds=key).checks[0].status == "missing"
+    card = dict(_card("SORT", "FIELDS=(1,2,CH,A)", 7), dd=dd)
+    assert _jcl([], jcl_utility_cards=[card]).checks[0].status == "missing"
 
 
 def test_an_explicit_temp_dataset_phantom_is_attributed_and_its_absence_passes():
@@ -817,3 +836,131 @@ def test_a_file_without_key_fields_adds_no_check_even_if_the_engine_has_some():
     row = _fc_row(organization="SEQUENTIAL", record_key=None, access_mode="SEQUENTIAL")
     assert [c.status for c in _fc(key, row).checks] == ["pass"]
     assert [c.status for c in _fc(_fc_key(), _fc_row(alternate_keys=[("X", True)])).checks] == ["pass"]
+
+
+def test_every_output_jcl_statement_is_unscored_with_a_reason_at_job_and_step_level():
+    outs = [
+        dict(job="BDLDOUT", step=None, name="OUT1", params=["DEST", "CLASS"], line=3),
+        dict(job="BDLDOUT", step="OUT010", name="LOCAL", params=["COPIES"], line=9),
+    ]
+    eng = FakeEngine(files={"j.jcl": SimpleNamespace(job_flow=[])})
+    sc = ec.Score()
+    ec.score_jcl_outputs(sc, "j.jcl", {"jcl_outputs": outs}, eng)
+    assert [c.status for c in sc.checks] == ["unscored", "unscored"]
+    assert "OUT1 OUTPUT (job level)" in sc.checks[0].fact and "OUTPUT (OUT010)" in sc.checks[1].fact
+    assert all("job_flow_data keeps no OUTPUT" in c.detail for c in sc.checks)
+    assert "jcl_outputs" in ec.CHANNELS and ec.score_jcl_outputs in ec.SCORERS
+
+
+def test_a_sysout_dd_with_output_references_is_unscored_and_names_them():
+    key = [dict(_dd_key(output_refs=["*.OUT1", "*.LOCAL"]), dd="RPTOUT", dsn=None, disp=None, sysout="A")]
+    sc = _jcl([], jcl_dds=key)
+    assert [c.status for c in sc.checks] == ["unscored"]
+    assert "OUTPUT=*.OUT1,*.LOCAL" in sc.checks[0].detail
+
+
+def test_a_rerun_clause_adds_one_unscored_check_beside_the_scored_select():
+    key = _fc_key(rerun={"assign": "SYSCKPT", "every": 1000})
+    sc = _fc(key, _fc_row())
+    assert [c.status for c in sc.checks] == ["pass", "unscored"]
+    assert "RERUN SYSCKPT" in sc.checks[1].fact and "RERUN" in sc.checks[1].detail
+    assert [c.status for c in _fc(_fc_key(), _fc_row()).checks] == ["pass"]
+
+
+# ---- #7065: the JCL key fields #7449 listed as uncompared (job, utility, symbolic, added, rerun every)
+
+
+def _st(flow, channel, **entry):
+    """Statuses of the keyed facts of one channel (a phantom row of the other scorer is not under test)."""
+    return [c.status for c in _jcl(flow, **entry).checks if c.channel == channel and c.status != "phantom"]
+
+
+def _job_row(name="J1"):
+    return _row("JOB", name=name, line=1)
+
+
+@pytest.mark.parametrize("engine_job,status", [("J1", "pass"), ("OTHER", "fail")])
+def test_a_step_and_a_dd_are_compared_on_the_job_they_belong_to(engine_job, status):
+    flow = [_job_row(engine_job), _step_row(), _dd_row()]
+    assert _st(flow, "jcl_steps", jcl_steps=[_step_key(job="J1")]) == [status]
+    assert _st(flow, "jcl_dds", jcl_dds=[_dd_key(job="J1")]) == [status]
+
+
+def test_a_row_in_a_proc_has_no_job_and_a_row_before_any_job_row_fails_a_keyed_job():
+    flow = [_job_row(), _step_row(in_proc="P1"), _dd_row(in_proc="P1")]
+    assert _st(flow, "jcl_steps", jcl_steps=[_step_key(job=None, proc="P1")]) == ["pass"]
+    assert _st(flow, "jcl_dds", jcl_dds=[_dd_key(job=None, proc="P1")]) == ["pass"]
+    assert _st([_step_row()], "jcl_steps", jcl_steps=[_step_key(job="J1")]) == ["fail"]
+
+
+def test_the_second_job_of_a_file_owns_the_rows_after_its_job_row():
+    flow = [_job_row("J1"), _step_row(), _job_row("J2"), _dd_row()]
+    assert _st(flow, "jcl_dds", jcl_dds=[_dd_key(job="J2")]) == ["pass"]
+    assert _st(flow, "jcl_dds", jcl_dds=[_dd_key(job="J1")]) == ["fail"]
+
+
+@pytest.mark.parametrize(
+    "dsn,symbolic,status",
+    [
+        ("&HLQ..X", True, "pass"),
+        ("&&T", False, "pass"),
+        ("A.B", False, "pass"),
+        ("&&T", True, "fail"),
+        ("&HLQ..X", False, "fail"),
+    ],
+)
+def test_a_symbolic_dsn_is_one_single_ampersand_never_a_temporary_dataset(dsn, symbolic, status):
+    key = [dict(_dd_key(symbolic=symbolic), dsn=dsn)]
+    assert _jcl([_dd_row(dsn=dsn)], jcl_dds=key).checks[0].status == status
+
+
+def test_a_key_without_symbolic_or_job_scores_a_dd_as_before():
+    assert _jcl([_dd_row(dsn="&HLQ..X")], jcl_dds=[dict(_dd_key(), dsn="&HLQ..X")]).checks[0].status == "pass"
+
+
+@pytest.mark.parametrize("extra", [dict(), dict(sysout="B"), dict(dummy=True)])
+def test_an_added_dd_is_unscored_with_a_reason_whatever_kind_of_dd_it_is(extra):
+    key = [dict(_dd_key(added=True, override_of="STEP1"), **extra)]
+    cs = _jcl([_dd_row(step_name="STEP1")], jcl_dds=key).checks if not extra else _jcl([], jcl_dds=key).checks
+    assert any(c.status == "unscored" and "added to STEP1" in c.detail and "override" in c.detail for c in cs)
+
+
+@pytest.mark.parametrize("program,status", [("IDCAMS", "pass"), ("SORT", "fail")])
+def test_a_card_is_compared_on_the_utility_its_step_runs(program, status):
+    row = _row("INSTREAM", step_name="S1", dd_name="SYSIN", line=10, instream=_BODY)
+    flow = [_row("STEP", step_name="S1", step_ordinal=1, program=program, line=9), row]
+    assert _st(flow, "jcl_utility_cards", jcl_utility_cards=[_card("DELETE", "PROD.X CLUSTER PURGE", 11)]) == [status]
+
+
+def test_a_card_in_a_proc_step_looks_up_the_step_of_that_proc():
+    row = _row("INSTREAM", step_name="S1", dd_name="SYSIN", line=10, instream=_BODY, in_proc="P1")
+    flow = [
+        _row("STEP", step_name="S1", step_ordinal=1, program="SORT", line=3),
+        _row("STEP", step_name="S1", step_ordinal=1, program="IDCAMS", line=9, in_proc="P1"),
+        row,
+    ]
+    card = dict(_card("DELETE", "PROD.X CLUSTER PURGE", 11), proc="P1")
+    assert _st(flow, "jcl_utility_cards", jcl_utility_cards=[card]) == ["pass"]
+
+
+def test_a_rerun_every_count_is_named_in_the_unscored_file_control_check():
+    from types import SimpleNamespace as NS
+
+    row = NS(
+        select_name="F", assign="A", organization=None, access_mode=None, record_key=None, file_status=None,
+        fd_copies=[], line=3, relative_key=None, alternate_keys=[],
+    )  # fmt: skip
+    eng = FakeEngine(files={"p.cbl": NS(file_control=[row])})
+    key = dict(
+        select="F",
+        assign="A",
+        organization=None,
+        file_status=None,
+        fd_copies=[],
+        line=3,
+        rerun=dict(assign="CK", every=1000),
+    )
+    sc = ec.Score()
+    ec.score_file_control(sc, "p.cbl", dict(language="cobol", file_control=[key]), eng)
+    c = [c for c in sc.checks if c.status == "unscored"][0]
+    assert "1000" in c.detail

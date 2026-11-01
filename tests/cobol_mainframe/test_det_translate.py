@@ -16,12 +16,9 @@ import pytest
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
+from gitgalaxy.standards.cics.commands.send_text import TEXT_OPTIONS  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import cics as C  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import cics_conditions as CN  # noqa: E402
-from gitgalaxy.tools.cobol_to_java.det import cics_faults as CFL  # noqa: E402
-from gitgalaxy.tools.cobol_to_java.det import cics_containers as CC  # noqa: E402
-from gitgalaxy.tools.cobol_to_java.det import cics_filecontrol as CF  # noqa: E402
-from gitgalaxy.tools.cobol_to_java.det import cics_taskcontrol as CT  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import expr as E  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import stmt as S  # noqa: E402
 
@@ -633,6 +630,14 @@ _IBM_OPTIONS = {
     "WRITE": "FILE DATASET MASSINSERT FROM RIDFLD KEYLENGTH SYSID LENGTH RBA RRN XRBA NOSUSPEND",
     "REWRITE": "FILE DATASET TOKEN FROM SYSID LENGTH NOSUSPEND",
     "DELETE": "FILE DATASET TOKEN RIDFLD KEYLENGTH GENERIC NUMREC SYSID RBA RRN XRBA NOSUSPEND",
+    # #5079: UNLOCK and the queue commands (IBM: UNLOCK FILE/DATASET TOKEN SYSID; the TD and TS queue commands)
+    "UNLOCK": "FILE DATASET TOKEN SYSID",
+    "READQ TD": "QUEUE INTO SET LENGTH SYSID NOSUSPEND",
+    "WRITEQ TD": "QUEUE FROM LENGTH SYSID",
+    "DELETEQ TD": "QUEUE SYSID",
+    "READQ TS": "QUEUE QNAME INTO SET LENGTH NUMITEMS ITEM NEXT SYSID",
+    "WRITEQ TS": "QUEUE QNAME FROM LENGTH NUMITEMS ITEM REWRITE AUXILIARY MAIN SYSID NOSUSPEND",
+    "DELETEQ TS": "QUEUE QNAME SYSID",
     "ASSIGN": "ABCODE APPLID INVOKINGPROG PROGRAM SYSID USERID NETNAME OPID TERMCODE STARTCODE TWALENG CWALENG "
     "CHANNEL FACILITY FCI SCRNHT SCRNWD DEFSCRNHT DEFSCRNWD ALTSCRNHT ALTSCRNWD TCTUALENG TASKPRIORITY RETURNPROG "
     "PRINSYSID OPCLASS OPSECURITY USERNAME QNAME OPERKEYS",
@@ -689,12 +694,12 @@ def test_options_honoured_without_code_say_why():
     whose having no effect the table states."""
     src = Path(C.__file__).read_text(encoding="utf-8")
     code = src[src.index("def command_key") :]
-    for family in (CC, CF, CT, CN, CFL):  # #5274: the command families split out of det/cics.py
-        code += Path(family.__file__).read_text(encoding="utf-8")
+    for family in Path(C.__file__).parent.glob("cics_*.py"):  # #5274: the command families split out of det/cics.py
+        code += family.read_text(encoding="utf-8")
     stated = {"NODUMP", "MAIN", "AUXILIARY", "NOSUSPEND", "EQUAL", "GTEQ", "TASK", "UOW", "MAXLIFETIME", "RESOURCE",
               "FOR", "INTERVAL", "TIME", "HOURS", "MINUTES", "SECONDS", "MILLISECS", "TS",
               "TERMINAL", "BELOW", "EXECUTABLE", "NAME", "EVENTUAL"}  # (#5079 X63: WAIT EVENT NAME only labels the task)  # (#5859 X32: WRITE OPERATOR EVENTUAL only says when the operator acts)  # (#4771 X47: GETMAIN's placement flags change no byte the program sees)  # fmt: skip
-    flags = {*C.MAP_OPTIONS, *C.TEXT_OPTIONS, *C._FORMS}
+    flags = {*C.MAP_OPTIONS, *TEXT_OPTIONS, *C._FORMS}
     for key, allowed in C.OPTIONS.items():
         for opt in allowed or ():
             read = f'"{opt}"' in code or f"'{opt}'" in code
@@ -1206,7 +1211,10 @@ def test_eoc_is_ignored_by_default_and_handled_like_any_condition():
     # DetCics.condition / resp delegate to the generated CicsSpec (#4270 spec PR 4)
     rt = (Path(C.__file__).parent / "cobolrt/cics/DetCics.java").read_text(encoding="utf-8") + CICS_SPEC_JAVA
     assert 'case 6 -> "EOC";' in rt and 'case "EOC" -> 6;' in rt
-    assert re.search(r'ignoredByDefault\(String condition\) \{\s*return "EOC"\.equals\(condition\) \|\| "EXPIRED"\.equals\(condition\);', rt)
+    assert re.search(
+        r'ignoredByDefault\(String condition\) \{\s*return "EOC"\.equals\(condition\) \|\| "EXPIRED"\.equals\(condition\);',
+        rt,
+    )
 
 
 def test_a_terminal_only_cics_program_translates_whole_and_imports_only_packages_that_exist(tmp_path):

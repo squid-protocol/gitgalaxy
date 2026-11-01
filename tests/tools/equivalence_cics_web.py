@@ -359,7 +359,11 @@ def _web_receive(opts: dict[str, str | None], labels: list[str] | None) -> list[
             )
     if "LENGTH" in opts and not opts["LENGTH"]:
         raise ec.Unsupported(ec.NEEDS_ARGUMENT, [key])
-    flags = " ".join(f for f, on in (("MEDIA", "MEDIATYPE" in opts), ("CONV", "SRVCONVERT" in opts), ("RAW", "NOSRVCONVERT" in opts)) if on)
+    flags = " ".join(
+        f
+        for f, on in (("MEDIA", "MEDIATYPE" in opts), ("CONV", "SRVCONVERT" in opts), ("RAW", "NOSRVCONVERT" in opts))
+        if on
+    )
     lines = [
         f"MOVE {opts['MAXLENGTH']} TO GG-NUM" if opts.get("MAXLENGTH") else "MOVE 2147483647 TO GG-NUM",
         f"MOVE '{flags}' TO GG-FLAGS" if flags else "MOVE SPACES TO GG-FLAGS",
@@ -591,3 +595,38 @@ def _cobol_web_receive(kv: dict[str, str], data: bytes, enc: str) -> dict[str, A
     none = kv["resp2"] == "16"
     return {"mediatype": None if kv["media"] == "-" else bytes.fromhex(kv["media"]).decode(enc),
             "body": None if none else data.decode(enc), "resp": int(kv["resp"]), "resp2": int(kv["resp2"])}  # fmt: skip
+
+
+def command(
+    verb: str,
+    opts: dict[str, str | None],
+    pairs: list[tuple[str, str | None]],
+    labels: list[str],
+    handle_aid: bool,
+) -> list[str] | None:
+    """The web commands, or None for a command of another family."""
+    if (verb == "WEB PARSE" or (verb == "WEB" and "PARSE" in opts)) and "URL" in opts:  # #4767 (X36): WEB PARSE URL
+        return _web_parse(opts, labels)
+    if verb == "WEB SEND" or (verb == "WEB" and "SEND" in opts):  # #4767 (X37): the server's response
+        return _web_send(opts, labels)
+    if verb == "WEB EXTRACT" or (verb == "WEB" and "EXTRACT" in opts):  # #4767 (X38): the server reads its request
+        return _web_extract(opts, labels)
+    if verb == "EXTRACT" and "WEB" in opts:  # #4972 (X38): the same, IBM's synonym
+        return _web_extract(opts, labels, "EXTRACT WEB")
+    if verb == "EXTRACT" and "TCPIP" in opts:  # #4972 (X38): the connection the task was started on
+        return _extract_tcpip(opts, labels)
+    if verb == "WEB RECEIVE" or (verb == "WEB" and "RECEIVE" in opts):
+        return _web_receive(opts, labels)
+    if verb == "WEB" and "RETRIEVE" in opts:  # #4941 (X41): the document of the last WEB SEND
+        return _web_retrieve(opts, labels)
+    if verb == "WEB" and "HTTPHEADER" in opts and ({"READ", "WRITE"} & set(opts)):
+        return _web_header("READ" if "READ" in opts else "WRITE", opts, labels)
+    if (
+        verb == "WEB"
+        and ({"READ", "STARTBROWSE", "READNEXT", "ENDBROWSE"} & set(opts))
+        and any(k in opts for k in _WEB_KIND)
+    ):
+        return _web_forms(next(f for f in ("READ", "STARTBROWSE", "READNEXT", "ENDBROWSE") if f in opts), opts, labels)
+    if verb == "WEB" and ({"OPEN", "CONVERSE", "CLOSE"} & set(opts)):  # #4767 zECS (X35): CICS web support, client
+        return _web(opts, labels)
+    return None

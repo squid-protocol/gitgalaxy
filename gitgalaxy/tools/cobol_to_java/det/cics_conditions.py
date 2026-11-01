@@ -20,6 +20,10 @@ class ConditionCommands:
     """The condition, handler and ASSIGN commands of `Cics` (det/cics.py), which defines the members declared below."""
 
     if TYPE_CHECKING:
+
+        def __getattr__(self, name: str) -> Any:
+            """The members `Cics` defines, for the type checker."""
+
         g: Any
         handle_aid: bool
 
@@ -122,3 +126,31 @@ class ConditionCommands:
         to = self.g.tmpname("aidTo")
         return [f"{ind}aid({resp});", *self.outcome(opts, resp, "0", ind),
                 f"{ind}int {to} = aid({resp});", f"{ind}if ({to} >= 0) {self.g.jump(to)}"]  # fmt: skip
+
+    def dispatch_conditions(self, words: list[str], verb: str, key: str, opts: dict, ind: str) -> list[str] | None:  # noqa: ARG002
+        """The handler, ABEND and ASSIGN commands, or None for a command of another family."""
+        g = self.g
+        if verb == "HANDLE ABEND":
+            return self.handle_abend_(opts, ind)
+        if verb == "HANDLE CONDITION":
+            out = []
+            self.conditions(verb, opts)
+            for cond, target in opts.items():
+                if target is None:
+                    out.append(f"{ind}handlers.remove({jstr(cond)});")
+                    continue
+                if target.upper() not in g.para_index:
+                    raise CicsError(f"HANDLE CONDITION {cond}({target}): no such paragraph")
+                out.append(f"{ind}handlers.put({jstr(cond)}, {g.para_index[target.upper()]});")
+            return out
+        if verb == "IGNORE CONDITION":
+            return [f"{ind}handlers.put({jstr(c)}, -1);" for c in self.conditions(verb, opts, ignore=True)]
+        if verb == "HANDLE AID":
+            return self.handle_aid_(opts, ind)
+        if verb in ("PUSH HANDLE", "POP HANDLE"):
+            return self.push_pop(verb, opts, ind)
+        if verb == "ABEND":
+            return self.abend(opts, ind)
+        if verb == "ASSIGN":
+            return self.assign(opts, ind)
+        return None

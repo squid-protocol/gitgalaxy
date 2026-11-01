@@ -12,7 +12,21 @@ from typing import Any
 
 from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: compiled on first use
 
-from .._shared_patterns import CALLS_OUT_COMMAND_POSITION, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import (
+    CALLS_OUT_COMMAND_POSITION,
+    GLOBAL_FRAGILE_DEBT,
+    GLOBAL_PLANNED_DEBT,
+    commented_keyword_statement,
+)
+
+# #7207: a LiveCode variable by convention (local `t`, param `p`, script-local `s`, global `g` + a capital; case-sensitive
+# inside the case-insensitive rule), and a comparison (`<>=`, `contains`, `is not empty`, `is 3`).
+_LC_VAR = r"(?-i:[tpsg][A-Z]\w{0,60})"
+_LC_COMPARE = (
+    r"(?:[<>=]|[ \t]contains[ \t]|[ \t]is[ \t]+(?:not[ \t]+)?(?:empty|true|false|\d+|\"[^\"\n]{0,100}\"|"
+    + _LC_VAR
+    + r")\b)"
+)
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -257,8 +271,33 @@ DEFINITION: dict[str, Any] = {
             re.I,
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails) Commented out structural code.
+        # #7207: a statement's shape (a camelCase handler header, `end if`, `put <value> into <target>`,
+        # `if <comparison> then`, `repeat with i = 1 to 3`), not just the keyword.
         "dead_code": re.compile(
-            r"^[ \t]*(?:--|#|//)[ \t]*(?:on|command|function|put|get|set|if|repeat|try|end)\b",
+            commented_keyword_statement(
+                "on|command|function|put|get|set|if|repeat|try|end",
+                marker=r"^[ \t]*(?:--|#|//)",
+                extra=r"(?:(?<=on)|(?<=command)|(?<=function))[ \t]+(?:[a-z]+[A-Z]\w{0,60}|\w{0,60}_\w{0,60})(?:[ \t]+\w{1,40}(?:,[ \t]*\w{1,40}){0,8})?[ \t]*(?m:$)"
+                r"|(?<=end)[ \t]+(?:if|repeat|try|switch|[a-z]+[A-Z]\w{0,60})[ \t]*(?m:$)"
+                r"|(?<=try)[ \t]*(?m:$)"
+                r"|(?<=put)[ \t]+(?:\"[^\"\n]{0,200}\"|-?\d+(?:\.\d+)?|empty|"
+                + _LC_VAR
+                + r")[ \t]+(?:into|before|after)[ \t]+[^\n]{1,100}(?m:$)"
+                r"|(?<=get)[ \t]+(?:"
+                + _LC_VAR
+                + r"|(?:fld|field|btn|button|line|char|item|word)[ \t]+[\d\"][^\n]{0,100}"
+                r"|url[ \t]+\"[^\n]{0,200}|the[ \t]+\w+[ \t]+of[ \t]+(?:fld|field|btn|button|card|stack|group|img|image)[ \t]+[^\n]{1,100})(?m:$)"
+                r"|(?<=set)[ \t]+the[ \t]+\w+[ \t]+of[ \t]+[^\n]{1,100}?[ \t]+to[ \t]+(?:\"[^\n]{0,100}|true|false|\d+|"
+                + _LC_VAR
+                + r")[ \t]*(?m:$)"
+                r"|(?<=if)[ \t]+[^\n]{0,150}?" + _LC_COMPARE + r"[^\n]{0,150}?[ \t]then\b"
+                r"|(?<=repeat)[ \t]+(?:forever[ \t]*(?m:$)"
+                r"|for[ \t]+each[ \t]+(?:line|item|char|word|token|element|key)[ \t]+"
+                + _LC_VAR
+                + r"[ \t]+in[ \t]+[^\n]{1,100}(?m:$)"
+                r"|(?:\d+|" + _LC_VAR + r")[ \t]+times[ \t]*(?m:$)"
+                r"|(?:until|while)[ \t]+[^\n]{0,100}?" + _LC_COMPARE + r")",
+            ),
             re.I | re.M,
         ),
         # 13. doc: Structured Documentation. Structured documentation (/** or --@ tags).

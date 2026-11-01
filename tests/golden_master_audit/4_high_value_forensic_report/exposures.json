@@ -153,7 +153,7 @@
         {
           "name": "Chapter_02_movexamps.s",
           "path": "assembly/hellosilicon_aarch64/Chapter_02_movexamps.s",
-          "value": 99.959
+          "value": 99.7527
         },
         {
           "name": "comments.hlasm",
@@ -161,9 +161,9 @@
           "value": 99.7527
         },
         {
-          "name": "apm_shutdown2.S",
-          "path": "assembly/x86_bare_metal/apm_shutdown2.S",
-          "value": 98.0604
+          "name": "TEST6.CBL",
+          "path": "cobol/che-che4z_lsp_project_fixtures/TEST6.CBL",
+          "value": 91.6827
         }
       ],
       "lowest": [

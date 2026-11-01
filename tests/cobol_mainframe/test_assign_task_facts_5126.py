@@ -87,8 +87,8 @@ def test_a_stated_fact_drops_only_its_own_gap():
 
 
 def test_the_scenario_rules_hold_for_a_whole_case(tmp_path):
-    """Every scenario must state the fact (the case's value is the default); an empty value or a screen with no termid
-    states nothing."""
+    """Every scenario must state the fact (the case's value is the default); an empty userid or a screen with no termid
+    states nothing; an empty termid states a task with no terminal (#6072)."""
     cases = tmp_path / "cases"
     sc = [{"name": "a"}, {"name": "b"}]
     _case = _case_writer(cases)
@@ -107,7 +107,7 @@ def test_the_scenario_rules_hold_for_a_whole_case(tmp_path):
         "each": (True, True, True),
         "part": (True, False, False),
         "noterm": (False, True, False),
-        "empty": (False, False, False),
+        "empty": (True, False, False),  # #6072: termid "" states a task with no terminal
     }
 
 
@@ -172,3 +172,21 @@ def test_the_evidence_report_drops_what_the_chosen_case_states(monkeypatch):
     src = read_source(HERE.parents[0] / "tools" / "evidence_report.py").text
     assert "pb.unstated_facts(" in src and "pb.case_states(" in src
     assert er.pb is pb
+
+
+def test_a_blank_termid_states_a_task_with_no_terminal():
+    """#6072: "" is a stated "no terminal" (stub: $GGCICS_FACILITY empty; det: withTermid(null)); absent stays unstated."""
+    import equivalence_cics as ec
+
+    assert ec.terminal_facts({}, {"name": "a", "termid": ""})["termid"] == ""
+    assert ec.terminal_facts({"termid": "T1"}, {"name": "a", "termid": ""})["termid"] == ""
+    assert ec.terminal_facts({}, {"name": "a"})["termid"] is None
+    assert ec.terminal_facts({"termid": "T1"}, {"name": "a"})["termid"] == "T1"
+    for bad in ("TOOLONG", " ", "A,B", 5):
+        with pytest.raises(ec.Unsupported):
+            ec.terminal_facts({}, {"name": "a", "termid": bad})
+    for extra in ({"uctranst": "UCTRAN"}, {"screen": [24, 80]}):
+        with pytest.raises(ec.Unsupported):
+            ec.terminal_facts({}, {"name": "a", "termid": "", **extra})
+    src = read_source(HERE.parents[0] / "tools" / "equivalence_cics.py").text
+    assert 'if term["termid"] is not None else ""' in src  # the stub is told "none" with an empty GGCICS_FACILITY=

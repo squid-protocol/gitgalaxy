@@ -194,7 +194,9 @@ def test_eibtaskn_is_stated_by_an_equivalence_case_not_yet_by_the_crucible():
     assert pb.fact_gaps(facts, pb.Run("equivalence", "c")) == set()
     assert pb.fact_gaps(facts, None) == set()
     assert pb.fact_gaps(facts, pb.Run("crucible", "k")) == {"fact: EIBTASKN (no harness states it)"}
-    assert pb.fact_gaps({"eib": {"EIBRCODE"}}, pb.Run("equivalence", "c")) == {"fact: EIBRCODE (no harness states it)"}  # no fault states one
+    assert pb.fact_gaps({"eib": {"EIBRCODE"}}, pb.Run("equivalence", "c")) == {
+        "fact: EIBRCODE (no harness states it)"
+    }  # no fault states one
 
 
 def test_eib_names_match_whole_words_outside_literals_and_comments():
@@ -253,7 +255,7 @@ def test_a_case_that_states_startcode_drops_the_gap(tmp_path):
 
 def test_a_case_that_states_a_terminal_drops_the_facility_gap(tmp_path):
     """#5126: ASSIGN FACILITY / TERMCHK are stated by a case's (or every scenario's) "termid" (GGCICS_FACILITY on the
-    stub, CicsTask.withTermid on the port); one scenario without it, an empty one, or none keeps the gap. USERID and
+    stub, CicsTask.withTermid on the port); one scenario without it, or none, keeps the gap; "" states a task with no terminal (#6072). USERID and
     SCRNHT / SCRNWD stay gaps: the harness states neither."""
     cases = tmp_path / "cases"
     sc = {"name": "a"}, {"name": "b"}
@@ -266,7 +268,7 @@ def test_a_case_that_states_a_terminal_drops_the_facility_gap(tmp_path):
     runs = pb.equivalence_runs(cases)
     stated = {c: runs[("k", f"src/{f}.cbl")][0].termid for c, f in
               (("top", "t"), ("each", "e"), ("part", "p"), ("empty", "m"), ("none", "n"), ("noscen", "s"))}  # fmt: skip
-    assert stated == {"top": True, "each": True, "part": False, "empty": False, "none": False, "noscen": False}
+    assert stated == {"top": True, "each": True, "part": False, "empty": True, "none": False, "noscen": False}
     facts = {"eib": set(), "assign_task": {"FACILITY", "USERID", "SCRNHT/SCRNWD"}, "assign_region": set()}
     userid, screen = ("fact: ASSIGN USERID (no equivalence case states it)",
                       "fact: ASSIGN SCRNHT/SCRNWD (no equivalence case states it)")  # fmt: skip

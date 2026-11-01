@@ -282,7 +282,7 @@ docs/ci.md	tests/tools/shepherd_gh.py,tests/tools/test_ci_critical_path_split.py
 docs/ci_env_gated_tests.md	tests/tools/test_env_gated_tests_run_in_ci_5954.py
 docs/class_start_rule_contract.md	gitgalaxy
 docs/cleanup_rule_contract.md	gitgalaxy
-docs/cobolrt_api_contract.md	tests/tools/cobolrt_api.py
+docs/cobolrt_api_contract.md	tests/cics_crucible,tests/tools/cobolrt_api.py
 docs/conf.py	tests/core_engine
 docs/contract_roadmap.md	tests/signal_contract_audit.py
 docs/dart.md	tests/core_engine

@@ -124,3 +124,20 @@ def handle(pairs: list[tuple[str, str | None]], labels: list[str]) -> list[str]:
         index = -1 if verb == "IGNORE" else (labels.index(label.upper()) + 1 if label else 0)
         lines += [f"MOVE {ec.DFHRESP[cond]} TO GG-NUM", f"MOVE {index} TO GG-ITEM"] + ec._call("GGCHCND", [])
     return lines
+
+
+def command(
+    verb: str,
+    opts: dict[str, str | None],
+    pairs: list[tuple[str, str | None]],
+    labels: list[str],
+    handle_aid: bool,
+) -> list[str] | None:
+    """The handler and ASSIGN commands, or None for a command of another family."""
+    if (
+        (verb in ("HANDLE", "IGNORE") and len(pairs) > 1 and pairs[1][0] in ("CONDITION", "ABEND", "AID"))
+        or (verb in ("PUSH", "POP") and len(pairs) > 1 and pairs[1][0] == "HANDLE")
+        or verb == "ASSIGN"
+    ):
+        return handle(pairs, labels)  # fmt: skip
+    return None

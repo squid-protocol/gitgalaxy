@@ -76,6 +76,14 @@ HARNESS_PATHS = ("tests/tools/equivalence.py", "tests/tools/equivalence_common.p
                  "tests/tools/equivalence_cics_filecontrol.py",  # #5274: ... and its file control family
                  "tests/tools/equivalence_cics_tempstorage.py",  # #5274: ... and its temporary storage family
                  "tests/tools/equivalence_cics_taskcontrol.py",  # #5274: ... and its task / interval control family
+                 "tests/tools/equivalence_cics_counters.py",  # #5274: ... and its named counter family
+                 "tests/tools/equivalence_cics_program.py",  # #5274: ... and its program control family
+                 "tests/tools/equivalence_cics_storage.py",  # #5274: ... and its storage family
+                 "tests/tools/equivalence_cics_system.py",  # #5274: ... and its system services family
+                 "tests/tools/equivalence_cics_tdqueue.py",  # #5274: ... and its transient data family
+                 "tests/tools/equivalence_cics_terminal.py",  # #5274: ... and its terminal family
+                 "tests/tools/equivalence_cics_web.py",  # #5274: ... and its web family
+                 "tests/tools/equivalence_cics_pointer.py",  # #5274: ... and its POINTER view family
                  "tests/tools/cobol_coverage.py",  # #4023: every COBOL run is traced through it
                  "tests/equivalence/faults/ggfault.c", "tests/equivalence/faults/ggabend.c",  # fault runs, CEE3ABD
                  "tests/equivalence/faults/ggdisplay.c",  # #4056: DISPLAY as IBM writes it

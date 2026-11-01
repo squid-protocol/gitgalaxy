@@ -341,3 +341,32 @@ def java_start_as_compared(e: dict[str, Any]) -> dict[str, Any]:
         return {**e, "from": raw.decode(REGION_PAGE)}
     except UnicodeDecodeError:
         return {**e, "from": f"<undecodable {raw!r} in {REGION_PAGE}>"}
+
+
+def command(
+    verb: str,
+    opts: dict[str, str | None],
+    pairs: list[tuple[str, str | None]],
+    labels: list[str],
+    handle_aid: bool,
+) -> list[str] | None:
+    """The task / interval control commands, or None for a command of another family."""
+    if verb == "DELAY":  # #4950: the wait at which RUN children are dispatched (GGCDLAY)
+        return _delay(opts, labels)
+    if verb == "POST":  # #5079 (X63): a timer-event control area
+        return _post(opts, labels)
+    if verb == "WAIT" and "EVENT" in opts and opts["EVENT"] is None:
+        return _wait_event(opts, labels)
+    if verb == "WAITCICS" or (verb == "WAIT" and "EXTERNAL" in opts and opts["EXTERNAL"] is None):  # #5079 (X63)
+        return _wait_external("WAITCICS" if verb == "WAITCICS" else "WAIT EXTERNAL", opts, labels)
+    if verb == "CONVERSE":
+        return _converse(opts, labels)
+    if verb == "RUN":  # #4270 slice 2: RUN TRANSID CHILD (#4884: CHANNEL)
+        return _run_transid(opts, labels)
+    if verb == "FETCH" and ("ANY" in opts) != ("CHILD" in opts):  # #4884, #4950
+        return _fetch_child("FETCH ANY" if "ANY" in opts else "FETCH CHILD", opts, labels)
+    if verb == "FREE" and "CHILD" in opts:  # #4950
+        return _free_child(opts, labels)
+    if verb in ("START", "RETRIEVE", "CANCEL"):  # #4006: interval control
+        return _interval_command(verb, opts, labels)
+    return None

@@ -168,3 +168,26 @@ def _channel_command(verb: str, opts: dict[str, str | None], labels: list[str] |
         return lines + ec._call("GGCDELH", []) + ec._resp(opts, True, labels)
     return (lines + ec._call("GGCQCHN", []) + ["IF GG-RESP = 0", f"    MOVE GG-NUM TO {opts['CONTAINERCNT']}", "END-IF"]
             + ec._resp(opts, True, labels))  # fmt: skip
+
+
+def command(
+    verb: str,
+    opts: dict[str, str | None],
+    pairs: list[tuple[str, str | None]],
+    labels: list[str],
+    handle_aid: bool,
+) -> list[str] | None:
+    """The container and channel commands, or None for a command of another family."""
+    if verb in ("PUT", "GET", "DELETE") and "CONTAINER" in opts:  # #4270
+        return _container_command(verb, opts, labels)
+    if (
+        verb in ("PUT64", "GET64") and "CONTAINER" in opts
+    ):  # #5005 (X17): the base command; SET (64-bit pointer) refused
+        if "SET" in opts:
+            raise ec.Unsupported(ec.SPEC[f"{verb} CONTAINER"].refusal_message(["SET"]), [f"{verb} CONTAINER SET"])
+        return _container_command(verb[:3], {o: v for o, v in opts.items() if o != verb}, labels)
+    if verb in ("MOVE", "STARTBROWSE", "GETNEXT", "ENDBROWSE") and "CONTAINER" in opts:  # #4951
+        return _container_browse_command(verb, opts, labels)
+    if verb in ("DELETE", "QUERY") and "CHANNEL" in opts and "CONTAINER" not in opts:  # #5005
+        return _channel_command(verb, opts, labels)
+    return None

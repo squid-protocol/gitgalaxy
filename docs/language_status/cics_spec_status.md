@@ -64,9 +64,9 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | SEND CONTROL | full | yes (9 options, 1 refused by name) | yes | X15 | — | 16 (8 / 8) | hc-terminal-receive |
 | RECEIVE | full | yes (10 options) | yes | X15 | — | 9 (5 / 4) | ca-link-lengths, ca-xctl-versions, gt-assign-startcode, gt-start-options, gt-start-retrieve, gt-terminal-coalesce, hc-eoc-error, hc-handle-aid, hc-ignore-error, hc-terminal-eoc, hc-terminal-receive |
 | CONVERSE | full | yes (13 options) | yes | X63 | — | 0 | — |
-| LINK | full | yes (8 options, 1 refused by name) | yes | X27 | — | 56 (52 / 4) | ca-channel-containers, ca-link-lengths, hc-abend-link |
-| XCTL | full | yes (7 options) | yes | — | — | 31 (22 / 9) | ca-channel-containers, ca-xctl-versions, pc-aid-menu, pc-wizard |
-| RETURN | full | yes (8 options) | yes | X27 | — | 122 (93 / 29) | ca-channel-containers, ca-link-lengths, ca-xctl-versions, gt-assign-startcode, gt-start-options, gt-start-retrieve, gt-terminal-coalesce, hc-abend-link, hc-eoc-error, hc-handle-aid, hc-ignore-error, hc-perform-range, hc-terminal-eoc, hc-terminal-receive, hx-attr-bytes, hx-extended-cursor, pc-aid-menu, pc-wizard |
+| LINK | full | yes (8 options, 1 refused by name) | yes | X27, X42 | — | 56 (52 / 4) | ca-channel-containers, ca-link-lengths, hc-abend-link |
+| XCTL | full | yes (7 options) | yes | X42 | — | 31 (22 / 9) | ca-channel-containers, ca-xctl-versions, pc-aid-menu, pc-wizard |
+| RETURN | full | yes (8 options) | yes | X27, X42 | — | 122 (93 / 29) | ca-channel-containers, ca-link-lengths, ca-xctl-versions, gt-assign-startcode, gt-start-options, gt-start-retrieve, gt-terminal-coalesce, hc-abend-link, hc-eoc-error, hc-handle-aid, hc-ignore-error, hc-perform-range, hc-terminal-eoc, hc-terminal-receive, hx-attr-bytes, hx-extended-cursor, pc-aid-menu, pc-wizard |
 | ABEND | full | yes (4 options) | yes | — | — | 57 (47 / 10) | gt-start-retrieve, hc-abend-link |
 | HANDLE ABEND | full | yes (4 options, 1 refused by name) | yes | X67 | — | 13 (13 / 0) | hc-abend-link |
 | LOAD | full | yes (6 options, 3 refused by name) | yes | X65 | — | 0 | — |

@@ -3534,6 +3534,11 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   unchanged (reading a read-only item is legal). PUT CONTAINER's page gives INVREQ 30 / CHANNELERR 3 too: a PUT naming a DFH channel, or a DFH
   container other than `DFHREQUEST`, `DFH-BODY` and `DFH-DATA`, is refused by name; those three are the pipeline containers DBB
   `epscsmrd.cbl` reads and writes back (the only DFH names a burned program PUTs, grepped 2026-10-31), so they run as ordinary ones.
+  LINK, XCTL and RETURN with CHANNEL(DFH...) not already in the program's scope are refused by name too (a DFH channel the harness handed the task, e.g. `DFHEP.EVENT` in genapp-lgastat1, is in scope and used as is), for a different reason (read 2026-10-31,
+  `summary-link`, `summary-xctl`, `summary-return`): their pages list no read-only condition (CHANNELERR has RESP2 1 only), but
+  say CHANNEL(DFHTRANSACTION) selects the transaction channel, "always accessible in the task" when the link level changes. That
+  scope is not modelled, and without the refusal a DFHTRANSACTION run as an ordinary channel and dropped out at the next level.
+  (`RUN` / `START` CHANNEL already refused DFH names.) GET, GET64, the browse and QUERY CHANNEL are unchanged.
   Still not modelled: the real outcomes, which need an IBM list of the read-only names. Census 2026-10-31 (`cics_census.py usage "MOVE CONTAINER" --no-census`): 0 programs
   in the burned and local corpora use MOVE CONTAINER, and no burned program deletes a DFH channel, so no estate needs the real
   outcomes; they need an IBM list of the read-only names. Proved in `tests/cics_crucible/test_cics_runtimes.py`.

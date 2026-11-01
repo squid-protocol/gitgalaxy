@@ -181,6 +181,10 @@
 #          `GalaxyIR.job_macro_tables` joins the member's tables to the job step (#5154).
 #   CEDA / CEMT runtime state is REFUSED: installed state is not in a source tree (register X62).
 #
+#   DFHPCT TYPE=ENTRY operands: `PCT_OPERAND_DISPOSITION` classifies each one the manuals list as ROW / RESTATED / SAME /
+#   ASSUMED. TRANSEC, TPURGE, SPURGE and COMPAT ([SPRM p.104-106]) are ASSUMED: no cross-reference pair for them was read, so
+#   they stay in `attributes` as written. No burned estate carries a DFHPCT source (grep of the mainframe corpora).
+#
 #   REFUSED (read nothing rather than guess): FCT `RECSIZE=` (not an FCT operand; the
 #   record length is LRECL); DATAID=() (the "any other queue" null, it names no prefix);
 #   DFHTST TYPE=SHARED (a pool, not a model); TYPE=INITIAL / FINAL / GROUP (assembly
@@ -235,6 +239,28 @@ _SDSCI_CONTROL = {"": None, "A": "ASA", "M": "MACHINE"}
 _TST_TYPES = frozenset({"LOCAL", "REMOTE", "RECOVERY", "SECURITY", "ENTRY"})
 _TRIGLEV_MAX = 32767  # [RDG p.383]
 _PCT_DTB = {"YES": "BACKOUT", "YES,NO": "COMMIT", "YES,WAIT": "WAIT"}  # [VSE p.348, p.367]
+# DFHPCT TYPE=ENTRY operands spelled differently in RDO -> the RDO attribute they restate [VSE p.347-351, ESA4 p.377-380].
+_PCT_RENAMED = {"SYSIDNT": "REMOTESYSTEM", "RMTNAME": "REMOTENAME", "PARTSET": "PARTITIONSET"}
+# Every DFHPCT TYPE=ENTRY operand the manuals list, and what the reader does with it (pinned in the tests):
+#   ROW       names or routes the row (TRANSID -> name, PROGRAM -> program), not restated.
+#   RESTATED  spelled differently in RDO; the RDO attribute follows ` => ` ([ESA4 p.377-380]; DTB=NO has none, note 4).
+#   SAME      same name in RDO [ESA4 p.380 TWASIZE]: stays in `attributes`, nothing to restate.
+#   ASSUMED   [SPRM p.104-106] lists it, but no [VSE] / [ESA4] cross-reference pair for it is among those read:
+#             kept as written in `attributes`, never restated, never lifted.
+PCT_OPERAND_DISPOSITION = {
+    "TRANSID": "ROW",
+    "PROGRAM": "ROW",
+    "TRNPRTY": "RESTATED",
+    "SYSIDNT": "RESTATED",
+    "RMTNAME": "RESTATED",
+    "PARTSET": "RESTATED",
+    "DTB": "RESTATED",
+    "TWASIZE": "SAME",
+    "TRANSEC": "ASSUMED",
+    "TPURGE": "ASSUMED",
+    "SPURGE": "ASSUMED",
+    "COMPAT": "ASSUMED",
+}
 _TCT_ACCMETH = {"INDIRECT": "INDIRECT", "IRC": "IRC", "VTAM": "VTAM", "IRC,XM": "XM"}  # [RDG p.529]
 _RDO_SEP = " => "
 
@@ -362,7 +388,7 @@ def _pct_rdo(keyed: dict[str, str]) -> list[str]:
     rdo: list[str] = []
     if (prio := _int(keyed.get("TRNPRTY"))) is not None and 0 <= prio <= 255:
         rdo.append(f"PRIORITY({prio})")
-    for op_name, rdo_name in (("SYSIDNT", "REMOTESYSTEM"), ("RMTNAME", "REMOTENAME"), ("PARTSET", "PARTITIONSET")):
+    for op_name, rdo_name in _PCT_RENAMED.items():
         if val := _name(keyed.get(op_name)):
             rdo.append(f"{rdo_name}({val})")
     dtb = ",".join(p.strip("() '\"").upper() for p in (keyed.get("DTB") or "").split(",") if p.strip("() '\""))

@@ -1,0 +1,24 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "termid": "T001",
+  "program": "PCRCL",
+  "program_source": "cases/pseudo-conversational/pc-return-channel/src/PCRCL.cbl",
+  "copy_dirs": [
+    "cases/pseudo-conversational/pc-return-channel/copy"
+  ],
+  "transid": "PC61",
+  "notes": "cics-crucible pseudo-conversational / pc-return-channel (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): PCRCL as its own case, entered as a top-level task (a channel program has no LINK facade), so its coverage is measured (inside cruc-pc-return-channel it is a callee and not measured). The oracle is GnuCOBOL plus the stub, not z/OS.",
+  "scenarios": [
+    {
+      "name": "channel-return",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "why": "PUT CONTAINER on a channel, RETURN TRANSID CHANNEL from below the highest logical level, both outcomes logged"
+    }
+  ]
+}

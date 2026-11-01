@@ -641,6 +641,15 @@
    "reason": "GetaddrService.java line 340: the store of the PUT CONTAINER's answer into f13_COMMAND_RESP2 is dead: f13_COMMAND_RESP2 is written in GetaddrService.java and read nowhere, and the next statement is another store or the RETURN, which shows no EIB or working-storage field"
   },
   {
+   "id": "13ffc5c52c",
+   "op": "CON",
+   "line": 546,
+   "before": "if (planned28[0] == 0) task.sendText(text27.substring(0, Math.min(text27.length(), 72)), 72, \"ERASE\", \"FREEKB\", \"WAIT\");",
+   "after": "if (planned28[0] == 0) task.sendText(text27.substring(0, Math.min(text27.length(), 72)), 73, \"ERASE\", \"FREEKB\", \"WAIT\");",
+   "verdict": "harness-gap",
+   "reason": "the LENGTH argument of the SEND TEXT (72 -> 73) changes the length the Java task records in its SEND-TEXT event, but the proof compares a SEND-TEXT event's text and options only (equivalence_cics.py, the COBOL stub's len= is dropped when the event is built), so a different length is never seen; the harness must compare it (open, #5862)"
+  },
+  {
    "id": "b8897631f5",
    "op": "CON",
    "line": 546,

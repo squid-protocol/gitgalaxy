@@ -55,7 +55,7 @@ Traps `--check` exists for:
       operation (#5213).
       A failing test first in `tests/cobol_mainframe/test_det_translate.py`.
 - [ ] **BOTH runtimes**, the same semantics: the Java `CicsTask` / `DetCics` (cobolrt) AND the stub
-      `tests/equivalence/cics/ggcics.c` (+ `tests/tools/equivalence_cics.py`). A fact the runtime cannot know (a
+      `tests/equivalence/cics/ggcics.c` (+ the family's `command` in `tests/tools/equivalence_cics_<family>.py`; the host `_translate_command` is only the registry loop, #5274). A fact the runtime cannot know (a
       start code, a user id, a terminal) is STATED by whoever runs the task (`CicsTask.withX`, `$GGCICS_X`), never
       guessed; an unstated fact is refused at run time.
 - [ ] **SPEC** (cics-crucible): only if a log must say something new. Additive optional keys only (SPEC rule 5:

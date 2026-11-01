@@ -37,11 +37,17 @@ import cobol_coverage as cov  # #4023
 import equivalence_common as common
 import equivalence_cics_conditions as cics_conditions  # #5274: the conditions / handlers family
 import equivalence_cics_containers as cics_containers  # #5274: the channels / containers family
+import equivalence_cics_counters as cics_counters  # #5274: the named counter family
 import equivalence_cics_faults as cics_faults  # #5274: the fault-injection planner
 import equivalence_cics_filecontrol as cics_filecontrol  # #5274: the file control family
 import equivalence_cics_pointer  # #6839 (X47): the oracle lowering of a POINTER numeric view
+import equivalence_cics_program as cics_program  # #5274: the program control family
+import equivalence_cics_storage as cics_storage  # #5274: the storage family
+import equivalence_cics_system as cics_system  # #5274: the remaining services
 import equivalence_cics_taskcontrol as cics_taskcontrol  # #5274: the task / interval control family
+import equivalence_cics_tdqueue as cics_tdqueue  # #5274: the transient data family
 import equivalence_cics_tempstorage as cics_tempstorage  # #5274: the temporary storage family
+import equivalence_cics_terminal as cics_terminal  # #5274: the terminal family
 import equivalence_cics_web as cics_web  # #5274: the web / HTTP / TCP/IP family
 import equivalence_db2
 import equivalence_ims  # #5278
@@ -53,7 +59,8 @@ import equivalence_sql
 from gitgalaxy.standards.cics.commands import COMMANDS as SPEC
 from gitgalaxy.standards.cics.eib import EIB_FACTS, TASKN_MAX
 from gitgalaxy.standards.cics.commands import whole_refusal
-from gitgalaxy.standards.cics.commands.shared import BOTH_FORMS, NEEDS_ARGUMENT
+from gitgalaxy.standards.cics.commands.shared import BOTH_FORMS
+from gitgalaxy.standards.cics.commands.shared import NEEDS_ARGUMENT  # noqa: F401  # the families read it as ec.NEEDS_ARGUMENT
 from gitgalaxy.standards.cics.commands.terminal import MAP_OPTIONS
 from gitgalaxy.standards.cics.model import GroupKind
 from gitgalaxy.standards.cics.resp import DFHRESP as SPEC_DFHRESP
@@ -87,7 +94,29 @@ _FAMILY_NAMES: dict[str, Any] = {
     "_cobol_web_open": cics_web,
     "_cobol_web_send": cics_web,
     "_cobol_web_header": cics_web,
+    "_getmain": cics_storage,
+    "_freemain": cics_storage,
+    "_address": cics_storage,
+    "_load": cics_storage,
 }
+
+# The stub translator's families (#5274): `_translate_command` asks each `command` in turn and the first that answers
+# with lines wins. A new command goes in its family's `command`, so a slice leaves this file alone; a new family is one
+# line here. The order is the dispatch order: file control first, then a counter before a container (GET, DELETE, QUERY).
+_COMMAND_FAMILIES = (
+    cics_filecontrol,
+    cics_taskcontrol,
+    cics_counters,
+    cics_system,
+    cics_web,
+    cics_storage,
+    cics_tdqueue,
+    cics_terminal,
+    cics_tempstorage,
+    cics_program,
+    cics_conditions,
+    cics_containers,
+)
 
 
 def __getattr__(name: str) -> Any:
@@ -204,6 +233,10 @@ def _options(text: str) -> list[tuple[str, str | None]]:
             value, i = " ".join(text[i + 1 : j].split()), j + 1
         out.append((name, value))
     return out
+
+
+def _name(operand: str | None, into: str) -> str:
+    return f"MOVE {operand} TO {into}" if operand else f"MOVE SPACES TO {into}"
 
 
 def _call(entry: str, args: list[str]) -> list[str]:
@@ -378,6 +411,7 @@ def task_number(case: dict[str, Any], sc: dict[str, Any]) -> int:
 
 
 UCTRANST_NAMES = ("UCTRAN", "NOUCTRAN", "TRANIDONLY")
+TERMINAL_DEVICES = ("3270", "LUTYPE2")  # #7434: LUTYPE2 raises EOC on the RECEIVE returning the input's last byte (X15)
 ORIGIN_KEYS = ("applid", "userid", "facilname", "networkid", "faciltype")
 
 
@@ -387,7 +421,7 @@ def terminal_facts(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, Any]:
     RETURN IMMEDIATE, register X27), "uctranst" (its TYPETERM's UCTRAN as INQUIRE TERMINAL UCTRANST answers it:
     $GGCICS_UCTRANST / withUctranst, X26) and "origin" (the task's origin data, {applid, userid, facilname,
     networkid, faciltype}: $GGCICS_ORIGIN / withOrigin, X29), plus "userid" (ASSIGN USERID: $GGCICS_USERID /
-    withUserid) and "screen" ([rows, columns], ASSIGN SCRNHT / SCRNWD: $GGCICS_SCREEN / withScreen; needs a termid;
+    withUserid), "device" ("LUTYPE2": the TYPETERM DEVICE, $GGCICS_LU2 / withEndOfChain, #7434; X15) and "screen" ([rows, columns], ASSIGN SCRNHT / SCRNWD: $GGCICS_SCREEN / withScreen; needs a termid;
     X19), each present only when stated (#5126). The scenario's, else the case's; unstated, None, and
     the commands that read them are refused by both runtimes, as before."""
     out: dict[str, Any] = {k: sc.get(k, case.get(k)) for k in ("termid", "uctranst", "origin")}
@@ -400,9 +434,14 @@ def terminal_facts(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, Any]:
     if out["uctranst"] is not None and (not t or out["uctranst"] not in UCTRANST_NAMES):
         raise Unsupported(f'scenario {sc.get("name")}: "uctranst" is one of {", ".join(UCTRANST_NAMES)}, of a '
                           'stated "termid"')  # fmt: skip
-    for k in ("userid", "screen"):  # #5126: only when stated (an always-present empty key breaks exact-equality tests)
+    # #5126: only when stated (an always-present empty key breaks exact-equality tests)
+    for k in ("userid", "screen", "device"):
         if sc.get(k, case.get(k)) is not None:
             out[k] = sc.get(k, case.get(k))
+    # #7434: the TYPETERM DEVICE, as the crucible runner states it
+    if out.get("device") not in (None, *TERMINAL_DEVICES):
+        raise Unsupported(f'scenario {sc.get("name")}: "device" is one of {", ".join(TERMINAL_DEVICES)} (X15), not '
+                          f'{out["device"]!r}')  # fmt: skip
     u = out.get("userid")
     if u is not None and (not isinstance(u, str) or not 1 <= len(u) <= 8 or not u.strip() or "," in u or " " in u):
         raise Unsupported(f'scenario {sc.get("name")}: "userid" {u!r} is not a user ID (1 to 8 characters)')
@@ -484,142 +523,12 @@ def _write_from(length: str | None, area: str, what: str, call: list[str]) -> li
             "ELSE", *["    " + ln for ln in call], "END-IF"]  # fmt: skip
 
 
-def _td_command(verb: str, opts: dict[str, str | None], labels: list[str] | None = None) -> list[str]:
-    """#5079 (X57): READQ TD / DELETEQ TD -> GGCRDTD / GGCDLTD (the queue in GG-QNAME). READQ's LENGTH is in-out, as READ's:
-    in, the most INTO takes; out, the record's length, on NORMAL and LENGERR."""
-    feature = f"{verb} TD"
-    _check_spec(feature, opts, (verb, "TD"), lambda bad: [f"{feature} {bad[0]}"])
-    queue = opts.get("QUEUE")
-    if not queue:
-        raise Unsupported(f"{feature} without QUEUE", [feature])
-    lines = [f"MOVE {queue} TO GG-QNAME"]
-    if verb == "DELETEQ":
-        return lines + _call("GGCDLTD", []) + _resp(opts, True, labels)
-    into, length = opts.get("INTO"), opts.get("LENGTH")
-    if (
-        "NOSUSPEND" in opts
-    ):  # #5168 (X61): the stub reads (and clears) it: a planned QBUSY needs NOSUSPEND, else IBM suspends
-        lines.append("MOVE 'TDNOSUSPEND' TO GG-FLAGS")
-    if opts.get(
-        "SET"
-    ):  # #5168 (X61): SET(pointer) LENGTH(data-area) -> GGCRDTS, the record as a new block (X58's lane)
-        if into:
-            raise Unsupported(_rule(feature, "at_most_one", "INTO"), [feature])
-        if not length or re.fullmatch(r"(?is)\d+|LENGTH\s+OF\s+.+", length.strip()):
-            raise Unsupported(_rule(feature, "requires", "SET"), [feature])
-        return (lines + _call("GGCRDTS", [f"BY REFERENCE {_pointer(feature, opts['SET'])}"])
-                + ["IF GG-RESP = 0", f"    MOVE GG-LEN TO {length}", "END-IF"] + _resp(opts, True, labels))  # fmt: skip
-    if not into:
-        raise Unsupported(f"{feature} without INTO", [feature])
-    settable = bool(length) and re.fullmatch(r"(?is)\d+|LENGTH\s+OF\s+.+", length.strip()) is None
-    after = ["IF GG-RESP = 0 OR GG-RESP = 22", f"    MOVE GG-LEN TO {length}", "END-IF"] if settable else []
-    lines.append(f"MOVE {length or f'LENGTH OF {into}'} TO GG-LEN")
-    return (lines + _call("GGCRDTD", [f"BY REFERENCE {into}", f"BY VALUE LENGTH OF {into}"])
-            + after + _resp(opts, True, labels))  # fmt: skip
-
-
 def _pointer(key: str, text: str | None) -> str:
     """#4771 (X47): the USAGE POINTER item an option names: a plain data name (GnuCOBOL's own compile refuses a name that is no
     pointer; a subscripted or qualified one is refused here, as the translator refuses it)."""
     if not text or re.fullmatch(r"(?is)\s*[A-Z][A-Z0-9-]*\s*", text) is None:
         raise Unsupported(f"{key}: a pointer is a plain data name: not modelled", [key])
     return text.strip()
-
-
-def _getmain(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
-    """#4771 (register X47): GETMAIN SET(ptr) FLENGTH / LENGTH [INITIMG(area)] -> GGCGETM (length in GG-NUM, GG-FLAGS SHORT for the
-    LENGTH form; the stub sets the pointer, to zero under LENGERR). The option rules as the det translator's."""
-    key = "GETMAIN"
-    _check_spec(key, opts, ("GETMAIN",), lambda bad: [f"{key} {o}" for o in bad])
-    if not opts.get("SET"):
-        raise Unsupported(_rule(key, "required", "SET"), [key])
-    if ("FLENGTH" in opts) == ("LENGTH" in opts):
-        raise Unsupported(_rule(key, "one_of", "FLENGTH"), [key])
-    if "USERDATAKEY" in opts and "CICSDATAKEY" in opts:
-        raise Unsupported(_rule(key, "at_most_one", "USERDATAKEY"), [key])
-    form = "FLENGTH" if "FLENGTH" in opts else "LENGTH"
-    if not opts.get(form):
-        raise Unsupported(NEEDS_ARGUMENT, [key])
-    img = opts.get("INITIMG")
-    if img is not None and (_literal(img) is not None or re.fullmatch(r"(?is)\s*[A-Z][A-Z0-9-]*\s*", img) is None):
-        raise Unsupported("GETMAIN INITIMG as a literal: a data area is the COBOL form", [key])
-    lines = [
-        f"MOVE {opts[form]} TO GG-NUM",
-        "MOVE 'SHORT' TO GG-FLAGS" if form == "LENGTH" else "MOVE SPACES TO GG-FLAGS",
-    ]
-    # #6876: no INITIMG: IBM gives the storage no contents; the stub answers LENGERR or refuses (image length 0)
-    if img is None:
-        args = [f"BY REFERENCE {_pointer(key, opts['SET'])}", "BY REFERENCE GG-FLAGS", "BY VALUE 0"]
-    else:
-        img = img.strip()
-        args = [f"BY REFERENCE {_pointer(key, opts['SET'])}", f"BY REFERENCE {img}", f"BY VALUE LENGTH OF {img}"]
-    return lines + _call("GGCGETM", args) + _resp(opts, True, labels)
-
-
-def _load(opts: dict[str, str | None], program: list[str]) -> list[str]:
-    """#6876 (register X65): LOAD PROGRAM(name) [SET(ptr)] [LENGTH(halfword)] -> GGCLDPG (GG-FLAGS names the options given; the stub
-    sets the pointer to a non-null image and LENGTH to its length, PGMIDERR for a program the CSD does not define). HOLD, ENTRY and
-    FLENGTH are not modelled by the stub."""
-    key = "LOAD"
-    _check_spec(key, opts, ("LOAD",), lambda bad: [f"{key} {o}" for o in bad])
-    for o in ("HOLD", "ENTRY", "FLENGTH"):
-        if o in opts:
-            raise _stub_only(f"LOAD {o}")
-    if not opts.get("PROGRAM"):
-        raise Unsupported(NEEDS_ARGUMENT, [key])
-    flags = [o for o in ("SET", "LENGTH") if o in opts]
-    for o in flags:
-        if not opts[o]:
-            raise Unsupported(NEEDS_ARGUMENT, [key])
-    ptr = f"BY REFERENCE {_pointer(key, opts['SET'])}" if "SET" in opts else "BY REFERENCE GG-FLAGS"
-    length = f"BY REFERENCE {opts['LENGTH']}" if "LENGTH" in opts else "BY REFERENCE GG-FLAGS"
-    mark = f"MOVE '{' '.join(flags)}' TO GG-FLAGS" if flags else "MOVE SPACES TO GG-FLAGS"
-    return [*program, mark, *_call("GGCLDPG", [ptr, length])]
-
-
-def _address(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
-    """#5079 (register X59): ADDRESS EIB(ptr) / COMMAREA(ptr) / CWA(ptr) / TWA(ptr) / TCTUA(ptr) -> GGCADDR, which sets the pointer to the address of the EIB /
-    the program's DFHCOMMAREA (NORMAL: the command has no condition). A task with no COMMAREA (EIBCALEN 0) is refused by the
-    stub: IBM's X'FF000000' is no COBOL NULL, and a LINKAGE item that was not passed is no area to name, so the area given
-    then is the pointer itself. The option rules as the det translator's."""
-    key = "ADDRESS"
-    _check_spec(key, opts, ("ADDRESS",), lambda bad: [f"{key} {o}" for o in bad])
-    if not any(opts.get(o) for o in ("EIB", "COMMAREA", "CWA", "TWA", "TCTUA")):
-        raise Unsupported("ADDRESS without EIB, COMMAREA, CWA, TWA or TCTUA: the pointer to set", [key])
-    lines: list[str] = []
-    if opts.get("EIB"):
-        lines += ["MOVE SPACES TO GG-FLAGS"]
-        lines += _call("GGCADDR", [f"BY REFERENCE {_pointer(key, opts['EIB'])}", "BY REFERENCE DFHEIBLK"])
-    if opts.get("COMMAREA"):
-        ptr = _pointer(key, opts["COMMAREA"])
-        lines += ["MOVE EIBCALEN TO GG-NUM", "MOVE 'COMMAREA' TO GG-FLAGS", "IF EIBCALEN = 0"]
-        lines += [f"    {ln}" for ln in _call("GGCADDR", [f"BY REFERENCE {ptr}", f"BY REFERENCE {ptr}"])]
-        lines += ["ELSE"]
-        lines += [f"    {ln}" for ln in _call("GGCADDR", [f"BY REFERENCE {ptr}", "BY REFERENCE DFHCOMMAREA"])]
-        lines += ["END-IF"]
-    # #5079 slice 2b: GGCADDR names the system area in GG-FLAGS (the port's addressCwa / addressTwa / addressTctua)
-    for area in ("CWA", "TWA", "TCTUA"):
-        if opts.get(area):
-            lines += [f"MOVE '{area}' TO GG-FLAGS"]
-            lines += _call(
-                "GGCADDR", [f"BY REFERENCE {_pointer(key, opts[area])}", f"BY REFERENCE {_pointer(key, opts[area])}"]
-            )
-    return lines + _resp(opts, False, labels)
-
-
-def _freemain(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
-    """#4771 (register X47): FREEMAIN DATAPOINTER(ptr) -> GGCFREM, DATA(record) -> GGCFRED (#6876); INVREQ RESP2 1 for an address GETMAIN did not return."""
-    key = "FREEMAIN"
-    _check_spec(key, opts, ("FREEMAIN",), lambda bad: [f"{key} {o}" for o in bad])
-    if opts.get("DATA") and opts.get("DATAPOINTER"):
-        raise Unsupported(_rule(key, "at_most_one", "DATAPOINTER"), [key])
-    if opts.get("DATA"):  # #6876: the 01 LINKAGE record's address is the storage; GnuCOBOL passes it BY REFERENCE
-        if re.fullmatch(r"(?is)\s*[A-Z][A-Z0-9-]*\s*", opts["DATA"]) is None:
-            raise Unsupported("FREEMAIN DATA: a data area is the COBOL form", [key])
-        return _call("GGCFRED", [f"BY REFERENCE {opts['DATA'].strip()}"]) + _resp(opts, True, labels)
-    if not opts.get("DATAPOINTER"):
-        raise Unsupported(_rule(key, "one_of", "DATAPOINTER"), [key])
-    return _call("GGCFREM", [f"BY REFERENCE {_pointer(key, opts['DATAPOINTER'])}"]) + _resp(opts, True, labels)
 
 
 # #5126 (X64): the file control commands set EIBDS, "the symbolic identifier of the last data set referred to in a file
@@ -683,541 +592,10 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
     labels = cics_conditions.handler_labels([body]) if labels is None else labels
     opts = dict(pairs)
     verb = pairs[0][0]
-    flags = [n for n, v in pairs[1:] if v is None and n not in ("NOHANDLE",)]
-
-    def name(operand: str | None, into: str) -> str:
-        return f"MOVE {operand} TO {into}" if operand else f"MOVE SPACES TO {into}"
-
-    if verb in cics_filecontrol.FILE_VERBS:  # #5274: the file control family
-        lines = cics_filecontrol.file_command(verb, opts, labels)
+    for family in _COMMAND_FAMILIES:
+        lines = family.command(verb, opts, pairs, labels, handle_aid)
         if lines is not None:
-            if (
-                labels and verb != "UNLOCK"
-            ):  # #6271 (X70): a planned abend went to the HANDLE ABEND exit, or ends the task
-                return ["MOVE 0 TO GG-GOTO", *lines, *_map_abend(labels)]
             return lines
-    if verb == "GGSQLAB":  # #6271 (X73): the harness's own marker after a Db2 statement planned to abend AD2Z
-        return ["MOVE 0 TO GG-GOTO", f"MOVE {opts['NAME']} TO GG-FLAGS", *_call("GGCSQLAB", []), *_map_abend(labels)]
-    if verb == "DELAY":  # #4950: the wait at which RUN children are dispatched (GGCDLAY)
-        return cics_taskcontrol._delay(opts, labels)
-    if verb == "POST":  # #5079 (X63): a timer-event control area
-        return cics_taskcontrol._post(opts, labels)
-    if verb == "WAIT" and "EVENT" in opts and opts["EVENT"] is None:
-        return cics_taskcontrol._wait_event(opts, labels)
-    if verb == "WAITCICS" or (verb == "WAIT" and "EXTERNAL" in opts and opts["EXTERNAL"] is None):  # #5079 (X63)
-        return cics_taskcontrol._wait_external("WAITCICS" if verb == "WAITCICS" else "WAIT EXTERNAL", opts, labels)
-    if verb == "CONVERSE":
-        return cics_taskcontrol._converse(opts, labels)
-    if verb in ("ENQ", "DEQ"):
-        # one task in the region: nothing else holds the resource (ENQ / DEQ NORMAL), and a task takes no time
-        # (EIBTIME / ASKTIME stay as dispatched; oracle_assumptions.md X4)
-        _check_spec(verb, opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
-        if verb == "ENQ":  # #5089: GGCENQ -- NORMAL, or the ENQBUSY a scenario plans (faults, name = the RESOURCE text)
-            key = cics_faults.enq_fault_key(opts.get("RESOURCE"))
-            flag = "MOVE 'NOSUSPEND' TO GG-NAME1" if "NOSUSPEND" in opts else "MOVE SPACES TO GG-NAME1"
-            given = ("L" if opts.get("LENGTH") else "") + ("M" if opts.get("MAXLIFETIME") else "")  # X60: GG-NAME2
-            ops = [f"MOVE {opts['LENGTH']} TO GG-LEN"] if opts.get("LENGTH") else []
-            ops += [f"MOVE {opts['MAXLIFETIME']} TO GG-NUM"] if opts.get("MAXLIFETIME") else []
-            ops.append(f"MOVE '{given}' TO GG-NAME2" if given else "MOVE SPACES TO GG-NAME2")
-            return [f"MOVE '{key}' TO GG-FLAGS", flag, *ops] + _call("GGCENQ", []) + _resp(opts, True, labels)
-        return ["MOVE 0 TO GG-RESP", "MOVE 0 TO GG-RESP2"] + _resp(opts, False, labels)
-    if verb == "GET" and ("COUNTER" in opts or "DCOUNTER" in opts):  # a named counter (IBM CICS TS, GET COUNTER)
-        _check_spec("GET COUNTER", opts, (verb,), lambda bad: ["GET COUNTER"])
-        if not opts.get("VALUE"):
-            raise Unsupported(_rule("GET COUNTER", "required", "VALUE"), ["GET COUNTER"])
-        if ("COUNTER" in opts) == ("DCOUNTER" in opts):
-            raise Unsupported(_rule("GET COUNTER", "one_of", "COUNTER"), ["GET COUNTER"])
-        for o in ("VALUE", "INCREMENT", "COMPAREMIN", "COMPAREMAX"):
-            # (#5039: a bound is read from its bytes, so a number written in place is no area either)
-            if opts.get(o) and (_literal(opts[o]) or (o.startswith("COMPARE") and re.fullmatch(r"[+-]?\d+", opts[o]))):
-                kind = "DCOUNTER" if "DCOUNTER" in opts else "COUNTER"
-                raise Unsupported(f"{kind} {o} as a literal: a data area is the COBOL form", ["GET COUNTER"])
-        full = "COUNTER" in opts  # #5039 (X50): the fullword form
-        inc = opts.get("INCREMENT") or "GG-NAME2"
-        head = ([name(opts.get("COUNTER") or opts["DCOUNTER"], "GG-QNAME"), name(opts.get("POOL") or "' '", "GG-NAME1")]
-                + ([] if opts.get("INCREMENT") else ["MOVE X'0000000000000001' TO GG-NAME2"]))  # fmt: skip
-        areas = [f"BY REFERENCE {opts['VALUE']}", f"BY VALUE LENGTH OF {opts['VALUE']}",
-                 f"BY REFERENCE {inc}", f"BY VALUE LENGTH OF {inc}", f"BY VALUE {1 if 'WRAP' in opts else 0}"]  # fmt: skip
-        if "REDUCE" in opts or opts.get("COMPAREMIN") or opts.get("COMPAREMAX"):
-            # #5039 (X53): REDUCE and the bounds (an area each, length 0: not given)
-            areas.append(f"BY VALUE {1 if 'REDUCE' in opts else 0}")
-            for o in ("COMPAREMIN", "COMPAREMAX"):
-                v = opts.get(o)
-                areas += (
-                    [f"BY REFERENCE {v}", f"BY VALUE LENGTH OF {v}"] if v else ["BY REFERENCE GG-NAME2", "BY VALUE 0"]
-                )
-            return head + _call("GGCGCNX" if full else "GGCGDCX", areas) + _resp(opts, True, labels)
-        # #5039 (X50): GET COUNTER fullword form with INCREMENT and WRAP; #4767 (X30): GET DCOUNTER, the doubleword form: the stub
-        # writes VALUE (8 bytes) and reads INCREMENT (an area; 1 when not given, through GG-NAME2's 8 bytes); #4770 (X45): WRAP
-        # acts at DEFINE DCOUNTER's limits
-        return head + _call("GGCGCNT" if full else "GGCGDCN", areas) + _resp(opts, True, labels)
-    if verb in ("REWIND", "UPDATE") and {"COUNTER", "DCOUNTER"} & set(opts):  # #5039 (X53): REWIND / UPDATE COUNTER
-        _check_spec(f"{verb} COUNTER", opts, (verb,), lambda bad: [f"{verb} COUNTER"])
-        if ("COUNTER" in opts) == ("DCOUNTER" in opts):
-            raise Unsupported(_rule(f"{verb} COUNTER", "one_of", "COUNTER"), [f"{verb} COUNTER"])
-        head = [name(opts.get("COUNTER") or opts["DCOUNTER"], "GG-QNAME"), name(opts.get("POOL") or "' '", "GG-NAME1")]
-        full = "COUNTER" in opts
-        o = "INCREMENT" if verb == "REWIND" else "VALUE"
-        v = opts.get(o)
-        if verb == "UPDATE" and not v:
-            raise Unsupported(_rule("UPDATE COUNTER", "required", "VALUE"), ["UPDATE COUNTER"])
-        if v and (_literal(v) or re.fullmatch(r"[+-]?\d+", v)):
-            raise Unsupported(
-                f"{'COUNTER' if full else 'DCOUNTER'} {o} as a literal: a data area is the COBOL form",
-                [f"{verb} COUNTER"],
-            )
-        fn = {"REWIND": ("GGCRCNT", "GGCRDCN"), "UPDATE": ("GGCUCNT", "GGCUDCN")}[verb][0 if full else 1]
-        areas = [f"BY REFERENCE {v}", f"BY VALUE LENGTH OF {v}"] if v else ["BY REFERENCE GG-NAME2", "BY VALUE 0"]
-        return head + _call(fn, areas) + _resp(opts, True, labels)
-    if verb == "QUERY" and (
-        "COUNTER" in opts or "DCOUNTER" in opts
-    ):  # #4415 slice 2 (X29): a named counter's value, unchanged
-        _check_spec("QUERY COUNTER", opts, (verb,), lambda bad: ["QUERY COUNTER"])
-        if not opts.get("VALUE"):
-            raise Unsupported(_rule("QUERY COUNTER", "required", "VALUE"), ["QUERY COUNTER"])
-        if ("COUNTER" in opts) == ("DCOUNTER" in opts):
-            raise Unsupported(_rule("QUERY COUNTER", "one_of", "COUNTER"), ["QUERY COUNTER"])
-        if "DCOUNTER" in opts:  # #4770 (X45): value and limits, unsigned doublewords in 8-byte areas
-            return ([name(opts["DCOUNTER"], "GG-QNAME"), name(opts.get("POOL") or "' '", "GG-NAME1")]
-                    + _call("GGCQDCN", _dcounter_areas(opts, ("VALUE", "MINIMUM", "MAXIMUM")))
-                    + _resp(opts, True, labels))  # fmt: skip
-        return ([name(opts["COUNTER"], "GG-QNAME"), name(opts.get("POOL") or "' '", "GG-NAME1")]
-                + _call("GGCQCNT", _counter_areas(opts, ("VALUE", "MINIMUM", "MAXIMUM"))[1])
-                + _resp(opts, True, labels))  # fmt: skip
-    if verb in ("DEFINE", "DELETE") and (
-        {"COUNTER", "DCOUNTER"} & set(opts)
-    ):  # #4270 (X30): DEFINE / DELETE COUNTER -> GGCDCNT / GGCXCNT
-        _check_spec(f"{verb} COUNTER", opts, (verb,), lambda bad: [f"{verb} COUNTER"])
-        if ("COUNTER" in opts) == ("DCOUNTER" in opts):
-            raise Unsupported(_rule(f"{verb} COUNTER", "one_of", "COUNTER"), [f"{verb} COUNTER"])
-        if verb == "DEFINE" and opts.get("MINIMUM") and not opts.get("VALUE"):
-            why = next(
-                g.msg for g in SPEC["DEFINE COUNTER"].groups if g.kind == "requires" and "VALUE" in (g.any_of or ())
-            )
-            raise Unsupported(why, ["DEFINE COUNTER"])
-        head = [name(opts.get("COUNTER") or opts["DCOUNTER"], "GG-QNAME"), name(opts.get("POOL") or "' '", "GG-NAME1")]
-        if verb == "DELETE":
-            return head + _call("GGCXCNT", []) + _resp(opts, True, labels)
-        if "DCOUNTER" in opts:  # #4770 (X45): VALUE / MINIMUM / MAXIMUM, each an 8-byte area (length 0: omitted)
-            return (
-                head
-                + _call("GGCDDCN", _dcounter_areas(opts, ("VALUE", "MINIMUM", "MAXIMUM")))
-                + _resp(opts, True, labels)
-            )
-        staged, areas = _counter_areas(opts, ("VALUE", "MINIMUM", "MAXIMUM"), ("VALUE", "MINIMUM", "MAXIMUM"))
-        return head + staged + _call("GGCDCNT", areas) + _resp(opts, True, labels)
-    if verb == "ASKTIME":  # the task's clock; a task takes no time, so EIBDATE / EIBTIME stay as dispatched
-        _check_spec("ASKTIME", opts, (verb,))
-        if not opts.get("ABSTIME"):
-            return ["CONTINUE"]
-        return ["MOVE FUNCTION CURRENT-DATE(1:8) TO GG-YMD", "MOVE FUNCTION CURRENT-DATE(9:8) TO GG-HMSC",
-                f"COMPUTE {opts['ABSTIME']} =", "    (FUNCTION INTEGER-OF-DATE(GG-DATE8)",
-                "    - FUNCTION INTEGER-OF-DATE(19000101)) * 86400000",
-                "    + GG-HH * 3600000 + GG-MI * 60000", "    + GG-SS * 1000 + GG-CS * 10"]  # fmt: skip
-    if verb == "FORMATTIME":
-        out = _formattime(opts)
-        return out + _resp(opts, True, labels) if opts.get("RESP") or opts.get("RESP2") else out
-    if verb == "SYNCPOINT":
-        _check_spec("SYNCPOINT", opts, (verb,))
-        mode = "MOVE 'ROLLBACK' TO GG-FLAGS" if "ROLLBACK" in opts else "MOVE SPACES TO GG-FLAGS"
-        return [mode] + _call("GGCSYNC", []) + _resp(opts, False, labels)
-    if verb == "INQUIRE" and "PROGRAM" in opts:  # #4023 follow-up: is the program installed (COMEN01C's option check)
-        _check_spec("INQUIRE PROGRAM", opts, (verb,), lambda bad: ["INQUIRE PROGRAM"])
-        if not opts["PROGRAM"]:
-            raise Unsupported(NEEDS_ARGUMENT, ["INQUIRE PROGRAM"])
-        if "STATUS" in opts and not opts["STATUS"]:
-            raise Unsupported(NEEDS_ARGUMENT, ["INQUIRE PROGRAM"])
-        status = (["IF GG-RESP = 0", f"    MOVE GG-NUM TO {opts['STATUS']}", "END-IF"]
-                  if opts.get("STATUS") else [])  # #4768 (X34): the definition's CVDA, on NORMAL only  # fmt: skip
-        return [name(opts["PROGRAM"], "GG-NAME1")] + _call("GGCINQP", []) + status + _resp(opts, True, labels)
-    if verb == "BIF" and "DEEDIT" in opts:  # #4415 slice 1 (X26): FIELD edited in place, in the region's EBCDIC page
-        _check_spec("BIF DEEDIT", opts, ("BIF", "DEEDIT"), lambda bad: ["BIF DEEDIT"])
-        if not opts.get("FIELD"):
-            raise Unsupported(_rule("BIF DEEDIT", "required", "FIELD"), ["BIF DEEDIT"])
-        field = opts["FIELD"]
-        return ([f"MOVE {opts.get('LENGTH') or f'LENGTH OF {field}'} TO GG-NUM"]
-                + _call("GGCDEED", [f"BY REFERENCE {field}", f"BY VALUE LENGTH OF {field}"])
-                + _resp(opts, True, labels))  # fmt: skip
-    if verb == "INQUIRE" and "ASSOCIATION" in opts:  # #4415 slice 2 (X29): the task's own origin data
-        _check_spec("INQUIRE ASSOCIATION", opts, (verb,), lambda bad: ["INQUIRE ASSOCIATION"])
-        if not opts["ASSOCIATION"] or opts["ASSOCIATION"].strip().upper() != "EIBTASKN":
-            raise Unsupported(
-                f"INQUIRE ASSOCIATION({opts['ASSOCIATION']}): only the task's own number, EIBTASKN, is "
-                "modelled (IBM gives no representation for the 4 bytes)",
-                ["INQUIRE ASSOCIATION"],
-            )
-        wanted = [o for o in ("ODAPPLID", "ODUSERID", "ODFACILNAME", "ODNETWORKID", "ODFACILTYPE") if opts.get(o)]
-        if not wanted:  # IBM's INVREQ RESP2 2 ("specified with no arguments") is ambiguous about ASSOCIATION alone
-            raise Unsupported(
-                "INQUIRE ASSOCIATION without an origin option: IBM's INVREQ RESP2 2 does not say whether "
-                "ASSOCIATION alone is none: not modelled",
-                ["INQUIRE ASSOCIATION"],
-            )
-        lines = []
-        for o in wanted:
-            lines += [f"MOVE '{o}' TO GG-FLAGS"] + _call("GGCINQA", [])
-            lines.append(f"MOVE GG-NUM TO {opts[o]}" if o == "ODFACILTYPE" else f"MOVE GG-NAME1 TO {opts[o]}")
-        return lines + _resp(opts, False, labels)
-    if (verb == "WEB PARSE" or (verb == "WEB" and "PARSE" in opts)) and "URL" in opts:  # #4767 (X36): WEB PARSE URL
-        return cics_web._web_parse(opts, labels)
-    if verb == "WEB SEND" or (verb == "WEB" and "SEND" in opts):  # #4767 (X37): the server's response
-        return cics_web._web_send(opts, labels)
-    if verb == "WEB EXTRACT" or (verb == "WEB" and "EXTRACT" in opts):  # #4767 (X38): the server reads its request
-        return cics_web._web_extract(opts, labels)
-    if verb == "EXTRACT" and "WEB" in opts:  # #4972 (X38): the same, IBM's synonym
-        return cics_web._web_extract(opts, labels, "EXTRACT WEB")
-    if verb == "EXTRACT" and "TCPIP" in opts:  # #4972 (X38): the connection the task was started on
-        return cics_web._extract_tcpip(opts, labels)
-    if verb == "WEB RECEIVE" or (verb == "WEB" and "RECEIVE" in opts):
-        return cics_web._web_receive(opts, labels)
-    if verb == "GETMAIN":  # #4771 (X47): task storage addressed by a pointer
-        return _getmain(opts, labels)
-    if verb == "FREEMAIN":
-        return _freemain(opts, labels)
-    if verb == "LOAD":  # #6876 (X65): a program loaded by this task, addressed by a pointer
-        return _load(opts, [name(opts.get("PROGRAM"), "GG-NAME1")]) + _resp(opts, True, labels)
-    if verb == "RELEASE":
-        _check_spec("RELEASE", opts, (verb,), lambda bad: [f"RELEASE {o}" for o in bad])
-        if not opts.get("PROGRAM"):
-            raise Unsupported(NEEDS_ARGUMENT, ["RELEASE"])
-        return [name(opts["PROGRAM"], "GG-NAME1")] + _call("GGCRLPG", []) + _resp(opts, True, labels)
-    if verb == "ADDRESS":  # #5079 (X59): a pointer to the EIB / the COMMAREA
-        return _address(opts, labels)
-    if verb == "WEB" and "RETRIEVE" in opts:  # #4941 (X41): the document of the last WEB SEND
-        return cics_web._web_retrieve(opts, labels)
-    if verb == "WEB" and "HTTPHEADER" in opts and ({"READ", "WRITE"} & set(opts)):
-        return cics_web._web_header("READ" if "READ" in opts else "WRITE", opts, labels)
-    if (
-        verb == "WEB"
-        and ({"READ", "STARTBROWSE", "READNEXT", "ENDBROWSE"} & set(opts))
-        and any(k in opts for k in cics_web._WEB_KIND)
-    ):
-        return cics_web._web_forms(
-            next(f for f in ("READ", "STARTBROWSE", "READNEXT", "ENDBROWSE") if f in opts), opts, labels
-        )
-    if verb == "WEB" and ({"OPEN", "CONVERSE", "CLOSE"} & set(opts)):  # #4767 zECS (X35): CICS web support, client
-        return cics_web._web(opts, labels)
-    if verb == "DOCUMENT" and ({"CREATE", "RETRIEVE"} & set(opts)):  # #4769 zECS (X33): the document handler
-        form = "CREATE" if "CREATE" in opts else "RETRIEVE"
-        key = f"DOCUMENT {form}"
-        _check_spec(key, opts, (verb, form), lambda bad: [f"{key} {o}" for o in bad])
-        tok = opts.get("DOCTOKEN")
-        if not tok:
-            raise Unsupported(_rule(key, "required", "DOCTOKEN"), [key])
-        for o in ("DOCTOKEN", "TEXT", "BINARY", "INTO"):  # (IBM's COBOL form takes a data area)
-            if opts.get(o) and _literal(opts[o]):
-                raise Unsupported(f"{key} {o} as a literal: a data area is the COBOL form", [key])
-        tokarg = [f"BY REFERENCE {tok}", f"BY VALUE LENGTH OF {tok}"]
-        if form == "CREATE":
-            given = [o for o in ("TEXT", "BINARY", "TEMPLATE") if o in opts]
-            if len(given) > 1:
-                raise Unsupported(_rule(key, "at_most_one", "TEXT"), [key])
-            for o in ("TEXT", "BINARY"):
-                if o in opts and "LENGTH" not in opts:
-                    raise Unsupported(_rule(key, "requires", "TEXT"), [key])
-            if "LENGTH" in opts and not ({"TEXT", "BINARY"} & set(opts)):
-                raise Unsupported(_rule(key, "requires", "LENGTH"), [key])
-            if "TEXT" in opts or "BINARY" in opts:
-                area = opts["TEXT"] if "TEXT" in opts else opts["BINARY"]
-                lines = [f"MOVE {opts['LENGTH']} TO GG-LEN", "MOVE 'DATA' TO GG-FLAGS"]
-                src = [f"BY REFERENCE {area}", f"BY VALUE LENGTH OF {area}"]
-            elif "TEMPLATE" in opts:
-                t = opts["TEMPLATE"]
-                lit = _literal(t)
-                lines = ["MOVE 'TEMPLATE' TO GG-FLAGS"]
-                src = [f"BY REFERENCE {t}", f"BY VALUE {len(lit) if lit is not None else f'LENGTH OF {t}'}"]
-            else:
-                lines = ["MOVE 'EMPTY' TO GG-FLAGS"]
-                src = tokarg[:1] + ["BY VALUE 0"]
-            return lines + _call("GGCDOCC", src + tokarg) + _resp(opts, True, labels)
-        for o in ("INTO", "MAXLENGTH", "DATAONLY"):
-            if o not in opts:
-                raise Unsupported(_rule(key, "required", o), [key])
-        after = []
-        if opts.get("LENGTH"):  # (LENGTH is set on NORMAL and on the truncating LENGERR, RESP2 2, only)
-            after = ["IF GG-RESP = 0 OR (GG-RESP = 22 AND GG-RESP2 = 2)", f"    MOVE GG-LEN TO {opts['LENGTH']}",
-                     "END-IF"]  # fmt: skip
-        return ([f"MOVE {opts['MAXLENGTH']} TO GG-LEN"]
-                + _call("GGCDOCR", tokarg + [f"BY REFERENCE {opts['INTO']}", f"BY VALUE LENGTH OF {opts['INTO']}"])
-                + after + _resp(opts, True, labels))  # fmt: skip
-    if verb == "INQUIRE" and "URIMAP" in opts:  # #4270 zECS (X32): the browse of the installed URIMAP definitions
-        _check_spec("INQUIRE URIMAP", opts, (verb,), lambda bad: [f"INQUIRE URIMAP {o}" for o in bad])
-        form = [f for f in ("START", "NEXT", "END") if f in opts]
-        if len(form) > 1:
-            raise Unsupported(_rule("INQUIRE URIMAP", "at_most_one", "START"), ["INQUIRE URIMAP"])
-        if not form:  # #4768 (X34): the direct form, URIMAP(name) -- NOTFND RESP2 3 when it is not installed
-            if not opts.get("URIMAP"):
-                raise Unsupported(_rule("INQUIRE URIMAP", "required", "URIMAP"), ["INQUIRE URIMAP"])
-            outs = [o for o in ("PATH", "TRANSACTION") if opts.get(o)]
-            lines = [name(opts["URIMAP"], "GG-NAME1"), "MOVE 'DIRECT' TO GG-FLAGS"] + _call("GGCURIB", [])
-        else:
-            outs = [o for o in ("URIMAP", "PATH", "TRANSACTION") if opts.get(o)]
-            if form[0] != "NEXT" and outs:
-                raise Unsupported(f"INQUIRE URIMAP {form[0]} {outs[0]}: a browse {form[0]} returns no definition",
-                                  ["INQUIRE URIMAP"])  # fmt: skip
-            lines = [f"MOVE '{form[0]}' TO GG-FLAGS"] + _call("GGCURIB", [])
-        if outs:
-            lines.append("IF GG-RESP = 0")
-            for o in outs:
-                lines += [f"    MOVE '{o}' TO GG-FLAGS"] + [
-                    f"    {ln}" for ln in _call("GGCURIP", [f"BY REFERENCE {opts[o]}", f"BY VALUE LENGTH OF {opts[o]}"])
-                ]
-            lines.append("END-IF")
-        return lines + _resp(opts, True, labels)
-    # #5859 (X32): GGCVER -- the verdict a scenario states for the USERID
-    if verb == "VERIFY" and not ({"PHRASE", "TOKEN"} & set(opts)):
-        _check_spec("VERIFY PASSWORD", opts, (verb,), lambda bad: [f"VERIFY PASSWORD {bad[0]}"])
-        for need in ("USERID", "PASSWORD"):
-            if not opts.get(need):
-                raise Unsupported(f"VERIFY PASSWORD without {need}", ["VERIFY PASSWORD"])
-        user = opts["USERID"]
-        return (_call("GGCVER", [f"BY REFERENCE {user}", f"BY VALUE LENGTH OF {user}"])
-                + _resp(opts, True, labels))  # fmt: skip
-    if verb == "VERIFY":
-        raise _stub_only("VERIFY PHRASE / VERIFY TOKEN")
-    if verb == "WRITE" and "OPERATOR" in opts:  # #4270 zECS (X32): a plain message to the console
-        _check_spec("WRITE OPERATOR", opts, (verb, "OPERATOR"))
-        text = opts.get("TEXT")
-        if not text:
-            raise Unsupported(_rule("WRITE OPERATOR", "required", "TEXT"), ["WRITE OPERATOR"])
-        if _literal(text):  # (IBM's COBOL form takes a data area)
-            raise Unsupported("WRITE OPERATOR TEXT as a literal: a data area is the COBOL form", ["WRITE OPERATOR"])
-        if ("ROUTECODES" in opts) != ("NUMROUTES" in opts):  # (the rule goes both ways)
-            raise Unsupported(_rule("WRITE OPERATOR", "requires", "ROUTECODES"), ["WRITE OPERATOR"])
-        if not any(o in opts for o in ("TEXTLENGTH", "ROUTECODES")):
-            return ([f"MOVE LENGTH OF {text} TO GG-LEN"] + _call("GGCWTO", [f"BY REFERENCE {text}"])
-                    + _resp(opts, True, labels))  # fmt: skip
-        # #5859 (X32): TEXTLENGTH is GG-LEN, ROUTECODES / NUMROUTES the routes area and GG-NUM; GG-FLAGS says which were given
-        # (EVENTUAL changes nothing observable). The areas' sizes go by value; the flags are cleared after the call.
-        flags = " ".join(f for f, o in (("TEXTLENGTH", "TEXTLENGTH"), ("ROUTES", "ROUTECODES")) if o in opts)
-        routes = opts.get("ROUTECODES") or text
-        lines = [
-            f"MOVE {opts['TEXTLENGTH']} TO GG-LEN" if opts.get("TEXTLENGTH") else f"MOVE LENGTH OF {text} TO GG-LEN"
-        ]
-        if opts.get("NUMROUTES"):
-            lines.append(f"MOVE {opts['NUMROUTES']} TO GG-NUM")
-        lines.append(f"MOVE '{flags}' TO GG-FLAGS")
-        lines += _call("GGCWTO", [f"BY REFERENCE {text}", f"BY VALUE LENGTH OF {text}", f"BY REFERENCE {routes}",
-                                  f"BY VALUE LENGTH OF {routes}"])  # fmt: skip
-        return lines + ["MOVE SPACES TO GG-FLAGS"] + _resp(opts, True, labels)
-    if verb in ("INQUIRE", "SET") and "TDQUEUE" in opts:  # #5168 round 3 (X61): an extrapartition queue's open state
-        key = f"{verb} TDQUEUE"
-        _check_spec(key, opts, (verb,), lambda bad: [key])
-        if not opts.get("TDQUEUE"):
-            raise Unsupported(_rule(key, "required", "TDQUEUE"), [key])
-        queue = name(opts["TDQUEUE"], "GG-QNAME")
-        if verb == "SET":
-            given = [o for o in ("OPENSTATUS", "ENABLESTATUS", "TRIGGERLEVEL") if opts.get(o)]
-            if not given:
-                raise Unsupported(_rule(key, "requires", "TDQUEUE"), [key])
-            if len(given) > 1:  # #5168 round 5 (X66): one state per command
-                raise Unsupported(f"SET TDQUEUE with {' and '.join(given)} together", [key])
-            if opts.get("TRIGGERLEVEL"):  # #5168 round 7 (X66): the level in GG-NUM
-                return ([queue, f"MOVE {opts['TRIGGERLEVEL']} TO GG-NUM"] + _call("GGCSTDT", [])
-                        + _resp(opts, True, labels))  # fmt: skip
-            if opts.get("ENABLESTATUS"):
-                return ([queue, f"MOVE {opts['ENABLESTATUS']} TO GG-NUM"] + _call("GGCSTDE", [])
-                        + _resp(opts, True, labels))  # fmt: skip
-            return [queue, f"MOVE {opts['OPENSTATUS']} TO GG-NUM"] + _call("GGCSTDQ", []) + _resp(opts, True, labels)
-        wanted = [
-            o for o in ("OPENSTATUS", "TYPE", "ENABLESTATUS", "TRIGGERLEVEL", "RECOVSTATUS", "TRANSID") if opts.get(o)
-        ]
-        if not wanted:
-            raise Unsupported(_rule(key, "requires", "TDQUEUE"), [key])
-        # #5168 round 6 (X66): TRIGGERLEVEL, RECOVSTATUS and TRANSID come back in the otherwise unused GG-HOURS, GG-MINS, GG-RTRAN
-        field = {"OPENSTATUS": "GG-NUM", "TYPE": "GG-LEN", "ENABLESTATUS": "GG-ITEM", "TRIGGERLEVEL": "GG-HOURS",
-                 "RECOVSTATUS": "GG-MINS", "TRANSID": "GG-RTRAN"}  # fmt: skip
-        return ([queue, f"MOVE '{' '.join(wanted)}' TO GG-FLAGS"] + _call("GGCITDQ", []) + ["IF GG-RESP = 0"]
-                + [f"    MOVE {field[o]} TO {opts[o]}" for o in wanted]
-                + ["END-IF"] + _resp(opts, True, labels))  # fmt: skip
-    if verb in ("INQUIRE", "SET") and "TERMINAL" in opts:  # #4415 slice 1 (X26): the terminal's UCTRANST CVDA
-        key = f"{verb} TERMINAL"
-        _check_spec(key, opts, (verb,), lambda bad: [key])
-        if not opts.get("TERMINAL"):
-            raise Unsupported(_rule(key, "required", "TERMINAL"), [key])
-        if not opts.get("UCTRANST"):
-            raise Unsupported(f"{key} without UCTRANST", [key])
-        if verb == "SET":
-            return ([name(opts["TERMINAL"], "GG-NAME1"), f"MOVE {opts['UCTRANST']} TO GG-NUM"]
-                    + _call("GGCSETT", []) + _resp(opts, True, labels))  # fmt: skip
-        return ([name(opts["TERMINAL"], "GG-NAME1")] + _call("GGCINQT", [])
-                + ["IF GG-RESP = 0", f"    MOVE GG-NUM TO {opts['UCTRANST']}", "END-IF"]
-                + _resp(opts, True, labels))  # fmt: skip
-    if verb == "RECEIVE" and "MAP" in opts:
-        _check_spec("RECEIVE MAP", opts, (verb,))
-        into = opts.get("INTO") or (f"{_literal(opts['MAP'])}I" if _literal(opts["MAP"]) else None)
-        if not into:
-            raise Unsupported("RECEIVE MAP(data-name) without INTO")
-        return ([name(opts["MAP"], "GG-NAME1"), name(opts.get("MAPSET") or opts["MAP"], "GG-NAME2")]
-                + _call("GGCRECV", [f"BY REFERENCE {into}", f"BY VALUE LENGTH OF {into}"])
-                + _map_abend(labels)
-                + cics_conditions.input_resp(opts, labels, handle_aid))  # fmt: skip
-    if verb == "RECEIVE":  # #4005: terminal input, unformatted (SPEC 5: the step's `text`)
-        _check_spec("RECEIVE", opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
-        into, setp = opts.get("INTO"), opts.get("SET")
-        # LENGTH / FLENGTH is in-out: in, the most INTO takes (unless MAXLENGTH / MAXFLENGTH says so);
-        # out, the length of the data. COBOL may omit it: the translator supplies LENGTH OF INTO.
-        length = _one_of("RECEIVE", opts, "LENGTH", "FLENGTH")
-        most = _one_of("RECEIVE", opts, "MAXLENGTH", "MAXFLENGTH")
-        flags = "MOVE 'NOTRUNCATE' TO GG-FLAGS" if "NOTRUNCATE" in opts else "MOVE SPACES TO GG-FLAGS"  # #4413
-        if setp:  # #4413: SET(ADDRESS OF record), LENGTH(data-area) required; no MAXLENGTH: all the input (det/cics.py says why)
-            m = re.fullmatch(r"ADDRESS\s+OF\s+([A-Z0-9-]+)", setp, re.I)
-            if into or not length:
-                raise Unsupported("RECEIVE SET without LENGTH", ["RECEIVE SET"])
-            most = most or "32768"  # LENGTH is output-only with SET (X15): the whole input, the stub's buffer size
-            if not m:  # #5042 (X58): SET(pointer) -> GGCRECP, the data in a new block the pointer addresses
-                return ([flags, f"MOVE {most} TO GG-LEN"] + _call("GGCRECP", [f"BY REFERENCE {_pointer('RECEIVE', setp)}"])
-                        + [f"MOVE GG-LEN TO {length}"] + cics_conditions.input_resp(opts, labels, handle_aid))  # fmt: skip
-            return ([flags, f"MOVE {most} TO GG-LEN"] + _call("GGCRECS", ["BY REFERENCE GG-PTR"])
-                    + [f"SET ADDRESS OF {m.group(1)} TO GG-PTR", f"MOVE GG-LEN TO {length}"]
-                    + cics_conditions.input_resp(opts, labels, handle_aid))  # fmt: skip
-        if not into:
-            raise Unsupported(_rule("RECEIVE", "one_of", "INTO"), ["RECEIVE"])
-        limit = most or length or f"LENGTH OF {into}"
-        lines = [flags, f"MOVE {limit} TO GG-LEN"] + _call("GGCRECT", [f"BY REFERENCE {into}"])
-        if length:
-            lines.append(f"MOVE GG-LEN TO {length}")
-        return lines + cics_conditions.input_resp(opts, labels, handle_aid)
-    if verb == "WRITEQ" and "TD" in opts:  # transient data: a record on an extrapartition / intrapartition queue
-        _check_spec("WRITEQ TD", opts, (verb, "TD"), lambda bad: [f"WRITEQ TD {bad[0]}"])
-        queue, frm = opts.get("QUEUE"), opts.get("FROM")
-        if not (queue and frm):
-            raise Unsupported("WRITEQ TD without QUEUE / FROM", ["WRITEQ TD"])
-        return ([name(queue, "GG-QNAME"), f"MOVE {opts.get('LENGTH') or 'LENGTH OF ' + frm} TO GG-LEN"]
-                + _write_from(opts.get("LENGTH"), frm, "WRITEQ TD", _call("GGCWRTD", [f"BY REFERENCE {frm}"]))
-                + _resp(opts, True, labels))  # fmt: skip
-    if verb in ("READQ", "DELETEQ") and "TD" in opts:  # #5079 (X57): transient data, intrapartition
-        return _td_command(verb, opts, labels)
-    if verb == "DELETEQ" and "TD" not in opts:  # #4415 slice 2 (X29): the whole TS queue
-        return cics_tempstorage.delete_queue(opts, labels)
-    if verb in ("READQ", "WRITEQ") and "TD" not in opts:  # #4002: temporary storage (TS is the default)
-        return cics_tempstorage.ts_command(verb, opts, labels)
-    if verb == "SEND" and "MAP" in opts:
-        _check_spec("SEND MAP", opts, (verb,))
-        lines = [name(opts["MAP"], "GG-NAME1"), name(opts.get("MAPSET") or opts["MAP"], "GG-NAME2")]
-        mapflags = [n for n, _v in pairs[1:] if n in ("ERASE", "ERASEAUP", "MAPONLY", "DATAONLY", "CURSOR",
-                                                       "FREEKB", "ALARM", "FRSET", "PRINT")]  # fmt: skip
-        lines.append(f"MOVE '{' '.join(mapflags)[:40]}' TO GG-FLAGS" if mapflags else "MOVE SPACES TO GG-FLAGS")
-        lines.append(f"MOVE {opts.get('CURSOR') or '-1'} TO GG-LEN")  # #4001: CURSOR(n); -1: none given
-        if "MAPONLY" in opts:
-            args = ["BY REFERENCE GG-FLAGS", "BY VALUE 0"]
-        else:
-            src = opts.get("FROM") or (f"{_literal(opts['MAP'])}O" if _literal(opts["MAP"]) else None)
-            if not src:
-                raise Unsupported("SEND MAP(data-name) without FROM")
-            args = [f"BY REFERENCE {src}", f"BY VALUE {opts.get('LENGTH') or f'LENGTH OF {src}'}"]
-        return lines + _call("GGCSMAP", args) + _map_abend(labels) + _resp(opts, can_fail=False)
-    if verb == "SEND" and "CONTROL" in opts:  # #4413: device controls; CURSOR's value in GG-LEN, -1: none
-        _check_spec("SEND CONTROL", opts, (verb, "CONTROL"), lambda bad: ["SEND CONTROL"])
-        if "CURSOR" in opts and not opts["CURSOR"]:
-            raise Unsupported("SEND CONTROL CURSOR without a value", ["SEND CONTROL"])
-        ctl = sorted(o for o in opts if o in ("ERASE", "ERASEAUP", "FREEKB", "ALARM", "FRSET", "CURSOR"))
-        return ([f"MOVE '{' '.join(ctl)[:40]}' TO GG-FLAGS" if ctl else "MOVE SPACES TO GG-FLAGS",
-                 f"MOVE {opts.get('CURSOR') or '-1'} TO GG-LEN"]
-                + _call("GGCSCTL", []) + _resp(opts, can_fail=False))  # fmt: skip
-    if verb == "SEND" and ("TEXT" in opts or "FROM" in opts) and "CONTROL" not in opts:
-        src = opts.get("FROM")
-        if not src:
-            raise Unsupported("SEND TEXT without FROM")
-        # #4270 slice 4: TERMINAL, the default output disposition (the principal facility), changes nothing; the
-        # full-BMS / printer / partition options are refused by name, as the det port refuses them (register X20)
-        _check_spec("SEND TEXT", opts, (verb, "TEXT"))  # (a deny-list until spec PR 3: an unknown option was ignored)
-        kind = ["TEXT"] if "TEXT" in opts else ["DATA"]
-        textflags = " ".join(kind + [n for n in flags if n in ("ERASE", "FREEKB", "ALARM", "WAIT", "LAST")])
-        return ([f"MOVE '{textflags[:40]}' TO GG-FLAGS"]
-                + _call("GGCSTXT", [f"BY REFERENCE {src}", f"BY VALUE {opts.get('LENGTH') or f'LENGTH OF {src}'}"])
-                + _resp(opts, can_fail=True))  # fmt: skip
-    if verb in ("RETURN", "XCTL"):
-        if verb == "XCTL" and not opts.get("PROGRAM"):
-            raise Unsupported("XCTL without PROGRAM")
-        _check_spec(verb, opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
-        if verb == "RETURN" and "CHANNEL" in opts:  # #5005 (X17): the next task's current channel (GGCRETC)
-            if not opts.get("TRANSID") or {"COMMAREA", "LENGTH", "IMMEDIATE"} & opts.keys():
-                raise Unsupported(_rule("RETURN", "at_most_one", "CHANNEL"), ["RETURN CHANNEL"])
-            return ([name(opts["TRANSID"], "GG-NAME1"), f"MOVE {opts['CHANNEL']} TO GG-CHAN"]
-                    + _call("GGCRETC", ["BY REFERENCE GG-FLAGS", "BY VALUE 0"])
-                    + ["IF GG-RESP = 0", "    GOBACK", "END-IF"] + _resp(opts, True, labels))  # fmt: skip
-        if verb == "XCTL" and opts.get("CHANNEL"):  # #4270: the target's current channel (GGCXCTL)
-            if "COMMAREA" in opts or "LENGTH" in opts:
-                raise Unsupported(_rule("XCTL", "at_most_one", "CHANNEL"), ["XCTL CHANNEL"])
-            return ([name(opts["PROGRAM"], "GG-NAME1"), "MOVE 0 TO GG-ITEM", "MOVE 'CHANNEL' TO GG-FLAGS",
-                     f"MOVE {opts['CHANNEL']} TO GG-CHAN"]
-                    + _call("GGCXCTL", ["BY REFERENCE GG-FLAGS", "BY VALUE 0"])
-                    + ["IF GG-RESP = 0", "    GOBACK", "END-IF"] + _resp(opts, True, labels))  # fmt: skip
-        target = opts.get("TRANSID") if verb == "RETURN" else opts.get("PROGRAM")
-        area = opts.get("COMMAREA")
-        args = ([f"BY REFERENCE {area}", f"BY VALUE {opts.get('LENGTH') or f'LENGTH OF {area}'}"] if area
-                else ["BY REFERENCE GG-FLAGS", "BY VALUE 0"])  # fmt: skip
-        if verb == "RETURN" and "IMMEDIATE" in opts:  # #4270 (X27): the next task attached at once; can fail (GGCRETI)
-            if not target:
-                raise Unsupported("RETURN IMMEDIATE without TRANSID: IBM does not say what it attaches (not modelled)",
-                                  ["RETURN IMMEDIATE"])  # fmt: skip
-            return ([name(target, "GG-NAME1"), f"MOVE {1 if area else 0} TO GG-ITEM"]
-                    + _call("GGCRETI", args) + ["IF GG-RESP = 0", "    GOBACK", "END-IF"]
-                    + _resp(opts, True, labels))  # fmt: skip
-        if verb == "RETURN" and opts.get("TRANSID") and opts.get("RESP"):  # #6271 (X71): a planned fault fails it
-            return ([name(target, "GG-NAME1"), "MOVE 2 TO GG-ITEM"] + _call("GGCRETN", args)
-                    + ["IF GG-RESP = 0", "    GOBACK", "END-IF"] + _resp(opts, True, labels))  # fmt: skip
-        if verb == "RETURN":
-            return [name(target, "GG-NAME1")] + _call("GGCRETN", args) + ["GOBACK"]
-        # #4008: a failed XCTL (LENGERR, PGMIDERR) leaves control here, through the condition handling
-        return ([name(target, "GG-NAME1"), f"MOVE {1 if area else 0} TO GG-ITEM", "MOVE SPACES TO GG-FLAGS"]
-                + _call("GGCXCTL", args)
-                + ["IF GG-RESP = 0", "    GOBACK", "END-IF"] + _resp(opts, True, labels))  # fmt: skip
-    if verb == "RUN":  # #4270 slice 2: RUN TRANSID CHILD (#4884: CHANNEL)
-        return cics_taskcontrol._run_transid(opts, labels)
-    if verb == "FETCH" and ("ANY" in opts) != ("CHILD" in opts):  # #4884, #4950
-        return cics_taskcontrol._fetch_child("FETCH ANY" if "ANY" in opts else "FETCH CHILD", opts, labels)
-    if verb == "FREE" and "CHILD" in opts:  # #4950
-        return cics_taskcontrol._free_child(opts, labels)
-    if verb in ("START", "RETRIEVE", "CANCEL"):  # #4006: interval control
-        return cics_taskcontrol._interval_command(verb, opts, labels)
-    if verb == "LINK":  # #4004: a new level runs the program on the caller's own COMMAREA storage
-        _check_spec("LINK", opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
-        if not opts.get("PROGRAM"):
-            raise Unsupported("LINK without PROGRAM", ["LINK"])
-        if "CHANNEL" in opts and not opts["CHANNEL"]:
-            raise Unsupported(NEEDS_ARGUMENT, ["LINK CHANNEL"])
-        if "CHANNEL" in opts and ("COMMAREA" in opts or "LENGTH" in opts):
-            raise Unsupported(_rule("LINK", "at_most_one", "CHANNEL"), ["LINK CHANNEL"])
-        area = opts.get("COMMAREA")
-        # #4270: CHANNEL -- the callee's current channel (GGCLINK)
-        chan = (
-            ["MOVE 'CHANNEL' TO GG-FLAGS", f"MOVE {opts['CHANNEL']} TO GG-CHAN"]
-            if opts.get("CHANNEL")
-            else ["MOVE SPACES TO GG-FLAGS"]
-        )
-        length = opts.get("LENGTH") or opts.get("FLENGTH") or (f"LENGTH OF {area}" if area else "0")
-        ref = area or "GG-FLAGS"
-        return ([name(opts["PROGRAM"], "GG-NAME1"), f"MOVE {length} TO GG-LEN", f"MOVE {1 if area else 0} TO GG-ITEM"]
-                + chan + _call("GGCLINK", [f"BY REFERENCE {ref}"])
-                + _map_abend(labels)  # #6271 (X70): a planned abend at the LINK went to the exit, or ended the task
-                + ["IF GG-RESP = 0", f"    CALL 'GGCRUN' USING {ref}", "    CALL 'GGCLRET' USING GG-CICS"]
-                + [f"    {ln}" for ln in _transfer(labels)]
-                + ["    IF GG-GOTO < 0", "        GOBACK", "    END-IF", "END-IF"]
-                + _resp(opts, True, labels))  # fmt: skip
-    if verb == "ABEND":  # #4003: an exit at this level takes it by GO TO; else the program is left
-        _check_spec("ABEND", opts, (verb,))
-        return ([name(opts.get("ABCODE"), "GG-NAME1"), "MOVE 'CANCEL' TO GG-FLAGS" if "CANCEL" in opts else "MOVE SPACES TO GG-FLAGS"]
-                + _call("GGCABND", []) + _transfer(labels) + ["GOBACK"])  # fmt: skip
-    if (
-        (verb in ("HANDLE", "IGNORE") and len(pairs) > 1 and pairs[1][0] in ("CONDITION", "ABEND", "AID"))
-        or (verb in ("PUSH", "POP") and len(pairs) > 1 and pairs[1][0] == "HANDLE")
-        or verb == "ASSIGN"
-    ):
-        return cics_conditions.handle(pairs, labels)  # fmt: skip
-    if verb in ("PUT", "GET", "DELETE") and "CONTAINER" in opts:  # #4270
-        return cics_containers._container_command(verb, opts, labels)
-    if (
-        verb in ("PUT64", "GET64") and "CONTAINER" in opts
-    ):  # #5005 (X17): the base command; SET (64-bit pointer) refused
-        if "SET" in opts:
-            raise Unsupported(SPEC[f"{verb} CONTAINER"].refusal_message(["SET"]), [f"{verb} CONTAINER SET"])
-        return cics_containers._container_command(verb[:3], {o: v for o, v in opts.items() if o != verb}, labels)
-    if verb in ("MOVE", "STARTBROWSE", "GETNEXT", "ENDBROWSE") and "CONTAINER" in opts:  # #4951
-        return cics_containers._container_browse_command(verb, opts, labels)
-    if verb in ("DELETE", "QUERY") and "CHANNEL" in opts and "CONTAINER" not in opts:  # #5005
-        return cics_containers._channel_command(verb, opts, labels)
     raise Unsupported(_whole_message(pairs), [_feature(pairs)])
 
 
@@ -1235,39 +613,6 @@ def _whole_message(pairs: list[tuple[str, str | None]]) -> str:
     key = f"{verb} COUNTER" if verb != "GET" and {"COUNTER", "DCOUNTER"} & set(rest) else verb
     known = whole_refusal(key, verb, rest[0] if rest else None)
     return known.whole_message(verb) if known is not None else f"EXEC CICS {verb} not modelled"
-
-
-def _dcounter_areas(opts: dict[str, str | None], names: tuple[str, ...]) -> list[str]:
-    """#4770 (X45): the doubleword areas of a DCOUNTER command as (area, length) pairs, `BY VALUE 0` for one the command omits;
-    a literal is refused (the stub reads and writes the area's bytes: a data area is the COBOL form)."""
-    out: list[str] = []
-    for o in names:
-        v = opts.get(o)
-        if v and (_literal(v) or re.fullmatch(r"[+-]?\d+", v)):
-            raise Unsupported(f"DCOUNTER {o} as a literal: a data area is the COBOL form", ["DEFINE COUNTER"])
-        out += [f"BY REFERENCE {v}", f"BY VALUE LENGTH OF {v}"] if v else ["BY REFERENCE GG-NAME2", "BY VALUE 0"]
-    return out
-
-
-def _counter_areas(
-    opts: dict[str, str | None], names: tuple[str, ...], literals: tuple[str, ...] = ()
-) -> tuple[list[str], list[str]]:
-    """#5039 (X50): the fullword areas of a COUNTER command as (area, length) pairs, `BY VALUE 0` for one the command omits,
-    with the lines that stage a numeric literal. A command that WRITES an area (QUERY) takes a data area only; DEFINE
-    reads its VALUE / MINIMUM / MAXIMUM (`literals`), so a decimal literal is staged big-endian in GG-FLAGS (the stub reads
-    the bytes as IBM's fullword binary), as before X50 gave it a literal VALUE through GG-NUM."""
-    out: list[str] = []
-    pre: list[str] = []
-    for n, o in enumerate(names):
-        v = opts.get(o)
-        if v and (_literal(v) or re.fullmatch(r"[+-]?\d+", v)):
-            if o not in literals or not re.fullmatch(r"[+-]?\d+", v):
-                raise Unsupported(f"COUNTER {o} as a literal: a data area is the COBOL form", ["DEFINE COUNTER"])
-            slot = f"GG-FLAGS({4 * n + 1}:4)"
-            pre.append(f"MOVE X'{int(v) & 0xFFFFFFFF:08X}' TO {slot}")
-            v = slot
-        out += [f"BY REFERENCE {v}", f"BY VALUE LENGTH OF {v}"] if v else ["BY REFERENCE GG-NAME2", "BY VALUE 0"]
-    return pre, out
 
 
 # the det translator's system members (register L4: CEEIGZCT, a GitGalaxy-written stand-in)
@@ -2054,67 +1399,6 @@ def map_input(fields: list[dict[str, Any]], values: dict[str, str], enc: str = c
     return encode_record(fields, typed, b"\x00", enc)
 
 
-# FORMATTIME's date forms (IBM CICS TS, EXEC CICS FORMATTIME): the parts in order, and the separator's default
-_DATE_FORMS = {"YYYYMMDD": ("GG-Y", "GG-M", "GG-D"), "MMDDYYYY": ("GG-M", "GG-D", "GG-Y"),
-               "DDMMYYYY": ("GG-D", "GG-M", "GG-Y"), "YYMMDD": ("GG-Y(3:2)", "GG-M", "GG-D"),
-               "MMDDYY": ("GG-M", "GG-D", "GG-Y(3:2)"), "DDMMYY": ("GG-D", "GG-M", "GG-Y(3:2)"),
-               "YYDDD": ("GG-Y(3:2)", "GG-DOY"), "YYYYDDD": ("GG-Y", "GG-DOY"),
-               "YYDDMM": ("GG-Y(3:2)", "GG-D", "GG-M"), "YYYYDDMM": ("GG-Y", "GG-D", "GG-M")}  # fmt: skip
-# #4415 slice 3 (X46): the binary forms, each the COBOL expression of IBM's value (DAYCOUNT: 1 January 1900 is day 1;
-# DAYOFWEEK: Sunday=0; GG-DAYS 0 is a Monday)
-_NUMBER_FORMS = {"DAYCOUNT": "GG-DAYS + 1", "DAYOFMONTH": "GG-D", "DAYOFWEEK": "FUNCTION MOD(GG-DAYS + 1, 7)",
-                 "MONTHOFYEAR": "GG-M", "YEAR": "GG-Y", "MILLISECONDS": "FUNCTION MOD({t}, 1000)"}  # fmt: skip
-
-
-def _formattime(opts: dict[str, str]) -> list[str]:
-    """FORMATTIME ABSTIME(t) [date forms] [DATESEP] [TIME] [TIMESEP], in COBOL: t split into the day number since
-    1900-01-01 and the milliseconds into the day. DATESEP / TIMESEP without a value are '/' and ':'; absent, none."""
-    _check_spec("FORMATTIME", opts, ("FORMATTIME",), lambda bad: ["FORMATTIME"])
-    if not opts.get("ABSTIME"):
-        raise Unsupported("FORMATTIME without ABSTIME", ["FORMATTIME"])
-    t = opts["ABSTIME"]
-    lines = [f"COMPUTE GG-DAYS = {t} / 86400000", f"COMPUTE GG-REM = {t} - GG-DAYS * 86400000",
-             "COMPUTE GG-DATE8 = FUNCTION DATE-OF-INTEGER(GG-DAYS",
-             "    + FUNCTION INTEGER-OF-DATE(19000101))",
-             "COMPUTE GG-DOY = FUNCTION INTEGER-OF-DATE(GG-DATE8)",
-             "    - FUNCTION INTEGER-OF-DATE(GG-Y * 10000 + 101) + 1",
-             "COMPUTE GG-HH = GG-REM / 3600000", "COMPUTE GG-MI = (GG-REM - GG-HH * 3600000) / 60000",
-             "COMPUTE GG-SS = (GG-REM - GG-HH * 3600000", "    - GG-MI * 60000) / 1000"]  # fmt: skip
-
-    def sep(option: str, default: str) -> str | None:
-        if option not in opts:
-            return None
-        return opts[option] or f"'{default}'"
-
-    def build(parts: tuple[str, ...], separator: str | None, target: str) -> list[str]:
-        pieces = []
-        for i, p in enumerate(parts):
-            if i and separator:
-                pieces.append(separator)
-            pieces.append(p)
-        width = sum({"GG-Y": 4, "GG-DOY": 3}.get(p, 2) for p in parts) + (len(parts) - 1 if separator else 0)
-        return (["MOVE SPACES TO GG-OUT", "STRING " + " ".join(pieces), "    DELIMITED BY SIZE INTO GG-OUT"]
-                + [f"MOVE GG-OUT(1:{width}) TO {target}(1:{width})"])  # fmt: skip
-
-    body: list[str] = []
-    for form, parts in _DATE_FORMS.items():
-        if opts.get(form):
-            body += build(parts, sep("DATESEP", "/"), opts[form])
-    for form, expr in _NUMBER_FORMS.items():
-        if opts.get(form):
-            body += [f"COMPUTE {opts[form]} = {expr.format(t=t)}"]
-    if opts.get("TIME"):
-        body += build(("GG-HH", "GG-MI", "GG-SS"), sep("TIMESEP", ":"), opts["TIME"])
-    # #4737 (X28): IBM, INVREQ RESP2 1 "The ABSTIME value is less than zero or not in packed-decimal format": with RESP /
-    # RESP2 nothing is formatted and the condition is the program's; without them INVREQ's handling is not modelled
-    # (refused, as CicsTask refuses it)
-    if not opts.get("RESP") and not opts.get("RESP2"):
-        return [f"IF {t} < 0", "    DISPLAY 'FORMATTIME ABSTIME < 0 NO RESP: not modelled'",
-                "    MOVE 98 TO RETURN-CODE", "    STOP RUN", "END-IF"] + lines + body  # fmt: skip
-    return (["MOVE 0 TO GG-RESP", "MOVE 0 TO GG-RESP2", f"IF {t} < 0", "    MOVE 16 TO GG-RESP",
-             "    MOVE 1 TO GG-RESP2", "ELSE"] + [f"    {ln}" for ln in lines + body] + ["END-IF"])  # fmt: skip
-
-
 # ---- running a case -------------------------------------------------------------------
 def csd_programs(corpus: Path, case: dict[str, Any]) -> list[str] | None:
     """The programs the case's CSD (its "csd": a DFHCSDUP listing in the corpus) defines, or None: every program
@@ -2818,6 +2102,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
                       + (f"GGCICS_FACILITY={term['termid']} " if term["termid"] is not None else "")  # "" = stated: no terminal
                       + (f"GGCICS_UCTRANST={term['uctranst']} " if term["uctranst"] else "")
                       + (f"GGCICS_USERID={term['userid']} " if term.get("userid") else "")  # #5126
+                      + ("GGCICS_LU2=1 " if term.get("device") == "LUTYPE2" else "")  # #7434: EOC on RECEIVE (X15)
                       + (f"GGCICS_SCREEN='{term['screen'][0]} {term['screen'][1]}' " if term.get("screen") else "")
                       + (f"GGCICS_ORIGIN={','.join(term['origin'][k] for k in ORIGIN_KEYS)} " if term["origin"] else "")
                       + (f"GGCICS_URIMAPS={rel}/urimaps.cfg " if urimaps(case, sc) is not None else "")
@@ -3090,8 +2375,9 @@ def _cobol_read(verb: str, kv: dict[str, str], data: bytes, enc: str) -> dict[st
     a number or NEXT, `resp` by number; the bytes read in the event's blob) as CicsTask records it: {queue, item,
     resp, data} / {resp, data}, the data as text in the data's page (none when nothing was read)."""
     resp = RESP_NAMES.get(int(kv.get("resp", "0")), kv.get("resp", ""))
-    text = common._decode_text(data, enc) if resp in ("NORMAL", "LENGERR") else None
-    if resp in ("NORMAL", "LENGERR") and text is None:
+    delivered = resp in ("NORMAL", "LENGERR", "EOC")  # #7434: EOC (LUTYPE2) still delivers the chain's data (X15)
+    text = common._decode_text(data, enc) if delivered else None
+    if delivered and text is None:
         text = f"<undecodable {data!r} in {enc}>"
     if verb == "RECEIVE":
         return {"event": verb, "resp": resp, "data": text}
@@ -4225,6 +3511,7 @@ class EquivalenceRunTest {{
                     // #4270: the task's terminal and origin data, as the stub's ($GGCICS_FACILITY, _UCTRANST, _ORIGIN)
                     .withTermidIfStated(sc.get("termid").isNull() ? null : sc.get("termid").asText())  // #5126: unstated is refused, as the stub
                     .withUctranst(sc.get("uctranst").isNull() ? null : sc.get("uctranst").asText())
+                    .withEndOfChain("LUTYPE2".equals(sc.path("device").asText()))  // #7434: TYPETERM DEVICE(LUTYPE2), as $GGCICS_LU2
                     .withTempStorage(tempStorage(sc))  // #4270: the TS queues the task starts with, as the stub's
                     // RECOVERY(NONE) files: their changes made outside the unit of work, so they survive a backout
                     .withNonRecoverable(java.util.Set.of({", ".join(f'"{x}"' for x in non_recoverable_files(case, files))}),

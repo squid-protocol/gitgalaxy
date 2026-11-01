@@ -66,9 +66,9 @@ Refusal sites: 64 `raise CicsError` in `det/cics.py`, 87 `raise Unsupported` in 
 `refuse(` in `ggcics.c`. Not one of them shares its text with a refusal on another side.
 
 **PL/I.** `cics_census.py --pli` counts PL/I programs, and the engine reads PL/I EXEC CICS through the COBOL reader
-(`mainframe_boundary.py:2392`). But no engine table knows **LOAD / RELEASE**: `LOAD` does not appear in
-`cics_resources.py`, `cics_tasks.py` or `mainframe_boundary.py`. A LOAD-heavy PL/I estate therefore shows no edges
-from its programs to the modules and tables they load.
+(`mainframe_boundary.py:2392`). COBOL hosts now record `EXEC CICS LOAD PROGRAM` as an edge (#6876: `mainframe_boundary._CICS_TRANSFER`, read with
+`loads=True`), but the PL/I and HLASM readers do not, and RELEASE is deliberately not an edge. A LOAD-heavy PL/I estate
+therefore still shows no edges from its programs to the modules and tables they load.
 
 ## 2. The format: Python data (frozen dataclasses)
 
@@ -358,10 +358,10 @@ Each front end maps `Arg.kind` to its own type system. The spec has one optional
 the rare option that exists in one language only. What PL/I gets at once, with no PL/I translator:
 
 1. **Engine facts.** The spec has full `LOAD` / `RELEASE` entries (`PROGRAM`, `SET` pointer, `HOLD`) with
-   `EngineFacts(edge="load", target_option="PROGRAM")` from PR 2. The engine emits the new load edges only in PR 8b,
-   one engine batch **after the blind 4th-estate trial**: the golden master regen and score shifts are unwanted during
-   the pre-freeze. PL/I and COBOL programs then gain load edges to the modules and tables they load, the gap named in
-   1.2.
+   `EngineFacts(edge="load", target_option="PROGRAM")` from PR 2. The engine emits the load edge for COBOL hosts
+   (#6876: `mainframe_boundary._CICS_TRANSFER` with `loads=True`, `galaxy_ir.navigation()`, the forge's `loaded_by()`),
+   so COBOL programs already gain edges to the modules and tables they load. PL/I and HLASM record none yet: that part
+   of the gap named in 1.2 is still open and waits for PR 8b.
 2. **The census.** `cics_census.py --pli` classifies PL/I options against the same spec, so we can measure how far a
    PL/I front end would get before anyone writes one.
 3. **A PL/I det front end later** reads the same `options` / `groups` / `refused` and needs only its own `Arg.kind`
@@ -390,7 +390,7 @@ it says what **we** model. These rules keep it out of the oracle:
 
 ## 7. Migration: small PRs, identical verdicts at each step
 
-"Identical verdicts" is the bar for every PR before PR 8b:
+"Identical verdicts" is the bar for every PR before PR 8b (the COBOL LOAD edge has since shipped on its own, #6876):
 
 - the det survey's holes, deduplicated and without line numbers (`cics_census.py compare`), are byte-identical before
   and after;
@@ -412,7 +412,7 @@ Each PR is "Part of #4270".
 | 6 | outcome conformance check (3.2), report-only for one week, then an undeclared `(RESP, RESP2)` fails the crucible cell; the spec-vs-oracle cross-check (section 6 rule 3) in CI, report-only | harness, CI | must find 0 undeclared outcomes on the current baseline before it gates |
 | 7 | `check-register` in `pr_gates.py`; the slice skill's checklist says "spec entry first", with full entries only where the blocker ranking (`cics_census.py blockers`, #4587) calls for a command | docs, skill | — |
 | 8a | engine walkers import their verb tables from the spec (same rows; may land before the trial) | engine | fact_crosscheck ledger identical |
-| 8b | **after the blind 4th-estate trial**, one engine batch of new edge kinds: LOAD, START TRANSID, MQ queues, dynamic CALL (golden master regenerated with `crucible_check.py --update --yes` + `scope_check.py --expect`) | engine | golden diff and score shifts reviewed |
+| 8b | **after the blind 4th-estate trial**, one engine batch of new edge kinds: START TRANSID, MQ queues, dynamic CALL, and LOAD for PL/I and HLASM (the COBOL LOAD edge shipped in #6876; golden master regenerated with `crucible_check.py --update --yes` + `scope_check.py --expect`) | engine | golden diff and score shifts reviewed |
 
 PRs 1-2 are the first two: PR 1 changes no behaviour and makes every existing copy provably equal to the spec. PR 2
 then removes the largest source of drift, the translator's tables. Each later slice adds a spec entry and deletes a
@@ -455,7 +455,8 @@ that removes roughly 15-25% of each slice's diff and every place two copies can 
    commands, 206 (PR 2's count of IBM's command summary; this page said "about 125" before), get name-only refusal entries (name, IBM URL, reason). SPI / system-programming commands are
    left out. A name-only entry becomes a full one only when the blocker ranking (`cics_census.py blockers`, #4587)
    calls for that command.
-5. **New engine edge kinds wait.** LOAD, START TRANSID, MQ queues and dynamic CALL come as one engine batch (PR 8b)
+5. **New engine edge kinds wait.** The COBOL LOAD edge shipped ahead of the batch (#6876). START TRANSID, MQ queues,
+   dynamic CALL and LOAD for PL/I and HLASM come as one engine batch (PR 8b)
    **after the blind 4th-estate trial**. PR 8a (same rows, ledger identical) may go before it. The `hosts` field
    stays, since it costs little.
 6. **The conformance check gates.** After the report-only week, an undeclared `(RESP, RESP2)` fails a crucible cell.

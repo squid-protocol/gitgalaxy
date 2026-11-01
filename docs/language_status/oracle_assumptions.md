@@ -4529,12 +4529,12 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   `TYPE=INITIAL,SUFFIX=xx` (1 or 2 characters). DFHTCT / DFHMCT suffix and JCL SYSIN assembly are pinned; `SUFFIX=NO`/`DY` is excluded only for SIT and DSNCRCT, so for TCT / MCT it is an ASSUMED table name. DFHSIT `SUFFIX=`: one or two characters, not NO or DY, SIT only (TS 5.4
   dfha2_suffix); the SIT row is named DFHSIT + suffix. DFHPCT `TYPE=ENTRY` (`TRANSID=`, `PROGRAM=`, `TWASIZE=`,
   `TRNPRTY=` -> `PRIORITY`, `SYSIDNT=` -> `REMOTESYSTEM`, `RMTNAME=` -> `REMOTENAME`, `PARTSET=` -> `PARTITIONSET`,
-  `DTB=` -> `INDOUBT`, plus `transactions` routing to the target program: SH20-1043-6 p.104-106; SC33-1653-05 Appendix C p.347-351 & Appendix E p.365-368). DFHPPT
+  `DTB=` -> `INDOUBT`, plus `transactions` routing to the target program: SH20-1043-6 p.104-106; SC33-1653-05 Appendix C p.347-351 & Appendix E p.365-368; SC33-1166-02 (CICS/ESA 4.1) Appendix C p.377-380 confirms each pair; `DTB=NO` has no RDO equivalent (note 4, p.380) and `DTB` outside YES / YES,NO / YES,WAIT is not restated, REFUSED by name). DFHPPT
   `TYPE=ENTRY` (`PROGRAM=`, `MAPSET=`, `PARTSET=` -> `PARTITIONSET`, `PROGRAM=` with `USAGE=MAP` -> `MAPSET` with
   `USAGE(TRANSIENT)`, `PGMLANG=` -> `LANGUAGE`, `RES=YES|NO` -> `RESIDENT`, `PGMSTAT=` -> `STATUS`: SH20-1043-6
-  p.108-109; SC33-1653-05 Appendix C p.348-350 & Appendix F p.372). DFHDCT `TYPE=SDSCI` `RECFORM=UNDEFINED`: outside the
-  manual's `FIXUNB` / `FIXBLK` / `VARUNB` / `VARBLK` set in both SH20-1043-6 p.95-96 and SC33-1684-30 p.376, so
-  `record_format` is `None`. DFHJCT `TYPE=ENTRY` (`JFILEID={SYSTEM|nn}` for the system log or user journal 1-99,
+  p.108-109; SC33-1653-05 Appendix C p.348-350 & Appendix F p.372; SC33-1166-02 Appendix C p.378 lists `PARTSET` only: a `PARTITIONSET=` macro operand is in no manual read, so the alias stays ASSUMED, pinned in the tests). DFHDCT `TYPE=SDSCI` `RECFORM=UNDEFINED`: outside the
+  manual's `FIXUNB` / `FIXBLK` / `VARUNB` / `VARBLK` set in both SH20-1043-6 p.95-96 and SC33-1684-30 p.376 and SC33-1166-02 p.257-258 Table 28 (twelve words, no UNDEFINED; UNDEFINED is an FCT word), so
+  `record_format` is `None` (REFUSED by name). DFHJCT `TYPE=ENTRY` (`JFILEID={SYSTEM|nn}` for the system log or user journal 1-99,
   `JTYPE={TAPE1|TAPE2|DISK1|DISK2|SMF}`, `BUFSIZE=`, `JOUROPT=`: SC33-1653-05 ch.29 Table 41 p.270-272; `DSNAME=` is not listed there, yet is lifted into `dsname` as an ASSUMED operand; a `JTYPE=` word outside that list still yields the row and a repeated `JFILEID` is not folded, both ASSUMED because IBM is silent; no burned estate uses DFHJCT; an RDO `JOURNALMODEL` is its own resource type and is never merged with a JCT journal, IBM giving no mapping between them: SC33-1684-30 ch.16). DFHTCT
   `TYPE=GPENTRY` (`TRMIDNT=xxxx` sequential terminal definition, `GPBLKSZ=`, `GPTYPE=`, `LININL=`: SC33-1653-05 ch.33
   p.297; ASSUMED, manual page not read, all pinned: a `TRMIDNT` over 4 characters is still a row, a repeated `TRMIDNT` / `SYSIDNT` is not folded, `TYPE=REGION` applies to `TYPE=TERMINAL` only, an `ACCMETH` outside IRC / VTAM / INDIRECT / IRC,XM is a row without `ACCESSMETHOD`; no burned estate uses DFHTCT), `TYPE=REGION` (`SYSIDNT={ssss|LOCAL}` sets `REMOTESYSTEM(ssss)` on following `TYPE=TERMINAL` definitions until

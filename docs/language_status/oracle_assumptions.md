@@ -3554,6 +3554,12 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   names and fails on any beyond `DFHREQUEST`, `DFH-BODY`, `DFH-DATA` (DBB `epscsmrd.cbl`, PUT back, run as ordinary) and the four `DFHEP.*` names
   (GenApp `lgastat1.cbl`, read only). So no burned program meets a real INVREQ 30 / 31 or CHANNELERR 3 outcome; the checklist item is closed for the
   burned estates, and the outcomes for any other estate stay refused until an IBM list exists.
+- **BTS browse forms (#5005, 2026-11-01).** STARTBROWSE / GETNEXT / ENDBROWSE ACTIVITY and PROCESS (and the EVENT / TIMER browses) stay refused
+  by name (`standards/cics/commands/api.py`, BTS reason, X65): IBM's channel browse is the CONTAINER form, and BTS is out of scope unless an estate
+  needs it. `tests/cics_crucible/test_cics_bts_browse_burned_corpora_5005.py` scans the six burned estates' COBOL and fails on any EXEC CICS
+  statement for a command refused with the BTS reason; none exists today. The one browse that reads like BTS, DBB `epscsmrd.cbl`'s
+  `STARTBROWSE CONTAINER` with no CHANNEL, runs on the task's current channel (the modelled form; only no CHANNEL and no current channel is
+  refused). Other estates keep the refusal.
 - **Reached.** Unit proofs: `tests/cics_crucible/test_cics_runtimes.py` runs one 31-step scenario (MOVE across, within and to a new
   channel, onto an existing container, every condition; browse to END, ENDBROWSE, a reused token, a never-given token, a sync point,
   another program's token) on the stub and on CicsTask, which print the same lines, and the refusals above on both. cics-crucible `ca-channel-browse` (companion PR on the crucible, branch `cases/5005-channel-browse`, not pinned) is

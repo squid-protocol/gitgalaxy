@@ -4608,6 +4608,21 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   WAIT EVENT without ECADDR, a pointer that is no plain USAGE POINTER item. Running: WAIT EVENT on an address that is no POST's area, on an area a later POST,
   CANCEL, local START or DELAY ended (IBM: unpredictable), CONVERSE on an LUTYPE2 terminal (the reply's last byte raises EOC, which IBM does not list for
   CONVERSE). WAIT EXTERNAL and WAITCICS stay name-only (an ECB of the program's own, not a POST's timer-event control area).
+- **WAIT EXTERNAL / WAITCICS: why they stay refused (#5079, checked against IBM's pages).**
+  WAIT EXTERNAL (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-wait-external) and WAITCICS
+  (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-waitcics) take ECBLIST(ptr-value), "a pointer to a list of addresses of MVS-format ECBs",
+  and NUMEVENTS, "the number of such events, corresponding to the number of addresses in the ECBLIST"; "Null (X'00000000' and X'FF000000') ECB
+  addresses are ignored". NAME labels the wait; PURGEABLE / NOTPURGEABLE / PURGEABILITY(cvda) say whether a DTIMOUT expiry or a task purge ends it
+  (AEXY). Conditions are all INVREQ: RESP2 1 an ECB not valid (not fullword aligned), 2 (WAIT EXTERNAL only) the ECB address is a null pointer,
+  3 NUMEVENTS not positive, 4 a bad PURGEABILITY CVDA, 5 no valid ECB in the list; an ECB in read-only storage is INVREQ with no RESP2 stated.
+  "If you wait on an ECB that has been previously posted and not subsequently cleared" the task "is not suspended"; CICS does not clear the ECB.
+  IBM names no bit or byte for "posted" on either page (WAITCICS: posting "by hand ... moving an appropriate value into the ECB"; WAIT EXTERNAL:
+  "If a WAIT EXTERNAL ECB is hand posted ... unpredictable errors occur"), so the MVS completion bit X'40' would be this register's assumption.
+  **Why no model yet:** the list is addresses stored as bytes (a table of POINTER items, or a record addressed by the ECBLIST pointer). The pointer
+  lane (X47) holds a handle in a POINTER item, refuses a POINTER under an OCCURS and a pointer written to storage as bytes, so the port cannot read
+  the list; and with one task running and nothing to post an ECB, an unposted one would wait forever. A future model needs a pointer-table lane
+  (handles stored in a list block) first, then: a posted ECB returns NORMAL, an unposted one is refused when it runs, the five INVREQ RESP2 values
+  above. The refusal's reason names this (api.py `_EVENT_WAIT`). No burned estate program issues either command.
 - **Still refused (X59):** SEND PAGE and PURGE MESSAGE, which complete and discard a BMS logical message (ACCUM / PAGING), which SEND MAP and SEND TEXT refuse.
 - **Status:** ASSUMED where listed, REFUSED where IBM is silent. Reached by no corpus program yet, so no port moves. cics-crucible cases to add (separate queue
   items): POST AFTER + WAIT EVENT + CANCEL NOTFND; a POST then a second POST (the first area ended: refused); CONVERSE with a reply that fits and one that is cut

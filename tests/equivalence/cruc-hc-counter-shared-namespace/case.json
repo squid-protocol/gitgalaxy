@@ -1,0 +1,39 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "HCCNSP",
+  "program_source": "cases/condition-handling/hc-counter-shared-namespace/src/HCCNSP.cbl",
+  "copy_dirs": [],
+  "transid": "HC74",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "notes": "cics-crucible condition-handling / hc-counter-shared-namespace (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): a DCOUNTER read by COUNTER commands (LENGERR RESP2 001 / 002 / 003 once its value no longer fits a fullword) and DEFINE COUNTER / DEFINE DCOUNTER of a name the other command already uses (INVREQ RESP2 202). The program holds its VALUE areas as raw PIC X bytes (an X(8) doubleword, an X(4) fullword), which the translator stores big-endian (#7434). Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "big",
+      "commarea": null,
+      "terminal": "HC74 B",
+      "why": "DCOUNTERs at 2**31, 2**32 and 2**33 read by QUERY / GET COUNTER: LENGERR RESP2 001, 002, 003, the low 32 bits in the fullword area"
+    },
+    {
+      "name": "fit",
+      "commarea": null,
+      "terminal": "HC74 F",
+      "why": "a DCOUNTER at 2**31 - 2 read by COUNTER commands while it fits, then walked across 2**31: LENGERR RESP2 001"
+    },
+    {
+      "name": "dup",
+      "commarea": null,
+      "terminal": "HC74 D",
+      "why": "DEFINE COUNTER of a DCOUNTER's name and DEFINE DCOUNTER of a COUNTER's name: INVREQ RESP2 202"
+    },
+    {
+      "name": "unmatched-mode",
+      "commarea": null,
+      "terminal": "HC74 Z",
+      "why": "takes the EVALUATE arm no crucible scenario reaches: a mode no WHEN names (falls through)"
+    }
+  ]
+}

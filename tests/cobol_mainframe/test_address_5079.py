@@ -5,8 +5,8 @@ IBM, EXEC CICS ADDRESS: EIB "returns a pointer reference set to the address of t
 program"; with no COMMAREA the pointer is X'FF000000' (no COBOL NULL, so refused). The pieces, each over the whole class:
 - the det translator, over a whole program: ADDRESS EIB / COMMAREA translate with no hole; CWA, TWA, TCTUA, ACEE, the old
   ADDRESS SET form, a program with no DFHCOMMAREA and a pointer that is no plain USAGE POINTER are holes by name; so are
-  SEND PAGE, PURGE MESSAGE and WAIT EXTERNAL (each with its reason and the register entry; CONVERSE, POST and WAIT EVENT
-  are modelled by X63, test_post_wait_converse_5079.py);
+  SEND PAGE and PURGE MESSAGE (each with its reason and the register entry; CONVERSE,
+  POST, WAIT EVENT, WAIT EXTERNAL and WAITCICS are modelled by X63, test_post_wait_converse_5079.py);
 - the equivalence harness's translator (equivalence_cics): the same members onto the stub's GGCADDR, and the same refusals;
 - both runtimes (the stub's GGCADDR, compiled; DetCics.addressCommarea, compiled): the pointer is the area's own address,
   and a task with no COMMAREA is refused by name.
@@ -156,10 +156,6 @@ def test_what_the_command_cannot_model_is_refused_by_name(tmp_path, edit, why):
         ("SEND PAGE", "a BMS logical message (ACCUM / PAGING, completed by SEND PAGE) is not modelled"),
         ("SEND PAGE RELEASE", "a BMS logical message"),
         ("PURGE MESSAGE", "a BMS logical message"),
-        (
-            "WAIT EXTERNAL ECBLIST(EIB-ADDRESS) NUMEVENTS(1)",
-            "waiting on an event control block other than a POST's timer-event control area",
-        ),
         (
             "WAIT TERMINAL",
             "terminal control beyond the one 3270 display",

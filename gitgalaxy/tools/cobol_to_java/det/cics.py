@@ -849,9 +849,12 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
             # WAIT EXTERNAL, WAIT TERMINAL ...) read as no verb at all and crashed on the empty verb: WAIT is its verb
             words = ["WAIT"]
             del opts["WAIT"]
-            if "EVENT" in opts and opts["EVENT"] is None:  # #5079 (X63): WAIT EVENT ECADDR(ptr) is a command of its own
-                words = ["WAIT", "EVENT"]
-                del opts["EVENT"]
+            # #5079 (X63): WAIT EVENT ECADDR(ptr) and WAIT EXTERNAL ECBLIST(ptr) are commands of their own
+            for second in ("EVENT", "EXTERNAL"):
+                if second in opts and opts[second] is None:
+                    words = ["WAIT", second]
+                    del opts[second]
+                    break
         verb = " ".join(words)
         check_options(words, opts)  # #4411: an option the translation would ignore is refused first
         key = command_key(words, opts)
@@ -875,6 +878,8 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
             return self.post(opts, ind)
         if key == "WAIT EVENT":
             return self.wait_event(opts, ind)
+        if key in ("WAIT EXTERNAL", "WAITCICS"):
+            return self.wait_external(key, opts, ind)
         if key == "CONVERSE":
             return self.converse(opts, ind)
         if verb in ("START", "RETRIEVE", "CANCEL"):  # #4270 slice 2: interval control

@@ -217,11 +217,13 @@ CONTAINERS_JAVA = """\
 
     /** LINK / XCTL / RETURN CHANNEL (#5005, X42): IBM's three pages list no read-only condition, but say CHANNEL(DFHTRANSACTION)
      *  is the transaction channel, which never goes out of scope when the link level changes. That scope is not modelled
-     *  (it would run as an ordinary channel and drop out), so a channel named DFH... is refused by name. */
-    private static void refuseDfhHandedChannel(String command, String channel) {
-        if (channel != null && channel.stripLeading().toUpperCase(java.util.Locale.ROOT).startsWith("DFH")) {
-            throw refused(command + " CHANNEL naming a DFH... channel: the transaction channel (DFHTRANSACTION) and any "
-                    + "other CICS-defined channel are not modelled");
+     *  (it would run as an ordinary channel and drop out), so a channel named DFH... is refused by name, unless it is
+     *  already in this program's scope (a channel the harness handed the task, e.g. DFHEP.EVENT: used as is). */
+    private void refuseDfhHandedChannel(String command, String channel) {
+        if (channel != null && channel.stripLeading().toUpperCase(java.util.Locale.ROOT).startsWith("DFH")
+                && !channels.containsKey(channel.strip())) {
+            throw refused(command + " CHANNEL naming a DFH... channel not in scope: the transaction channel "
+                    + "(DFHTRANSACTION) and any other CICS-defined channel are not modelled");
         }
     }
 

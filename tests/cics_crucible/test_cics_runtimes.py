@@ -2121,6 +2121,18 @@ def test_cics_task_still_returns_on_a_channel_whose_name_only_contains_dfh(tmp_p
 
 
 @needs_javac
+def test_cics_task_returns_on_a_dfh_channel_the_harness_handed_it(tmp_path):
+    """#5005 (X42): a DFH channel already in scope (genapp-lgastat1's DFHEP.EVENT) is used as is, not refused."""
+    out = _cics_task(
+        tmp_path,
+        'CicsTask t = new CicsTask("CA05", "ENTER", null, null).withProgram("MAIN")'
+        '.withChannel(new CicsTask.Channel("DFHEP.EVENT"));\n'
+        'System.out.println("DFHEP.EVENT " + t.returnChannel("NEXT", "DFHEP.EVENT")[0]);',
+    )
+    assert out.split() == ["DFHEP.EVENT", "0"], out
+
+
+@needs_javac
 def test_cics_task_still_puts_the_pipeline_containers_a_burned_program_writes_back(tmp_path):
     """#5005 (X42): DFHREQUEST, DFH-BODY and DFH-DATA (DBB epscsmrd.cbl) run as ordinary containers, in either case."""
     out = _cics_task(

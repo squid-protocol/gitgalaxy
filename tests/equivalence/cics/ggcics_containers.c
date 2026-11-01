@@ -62,6 +62,7 @@ static void cics_name(const char *src, char *dst, const char *what) {
 /* The channel `name` in the current level's scope (index + 1), 0 when there is none; with
  * `create`, a new empty one when there is none. A name an XCTL left behind is refused. */
 static int cics_defined_name(const char *n);
+static int harness_channel; /* set while load_channel makes a channel the harness hands the task (DFHEP.EVENT): never refused */
 static int channel_named(const char *name, int create) {
     level *L = &levels[lvl];
     char msg[96];
@@ -76,8 +77,8 @@ static int channel_named(const char *name, int create) {
     }
     if (!create) return 0;
     /* #5005 (X42): a channel LINK / XCTL / RETURN CHANNEL would make is never DFH... (DFHTRANSACTION, the transaction channel,
-     * is not modelled; PUT and MOVE refuse such a name before they get here) */
-    if (cics_defined_name(name)) refuse("LINK / XCTL / RETURN CHANNEL naming a DFH... channel: the transaction channel (DFHTRANSACTION) and any other CICS-defined channel are not modelled");
+     * is not modelled; PUT and MOVE refuse such a name before they get here); one already in scope returned above */
+    if (!harness_channel && cics_defined_name(name)) refuse("LINK / XCTL / RETURN CHANNEL naming a DFH... channel not in scope: the transaction channel (DFHTRANSACTION) and any other CICS-defined channel are not modelled");
     if (nchans >= MAX_CHANNELS || L->nscope >= 32) refuse("more channels than the stub holds");
     snprintf(chans[nchans].name, sizeof chans[nchans].name, "%s", name);
     nchans++;
@@ -608,7 +609,9 @@ static int load_channel(const char *path, const char *as) {
     char *line = malloc(size);
     if (!line) refuse("out of memory");
     if (!fgets(line, (int)size, f) || sscanf(line, "%16s", name) != 1) refuse("channel.cfg: no channel name");
+    harness_channel = 1;
     int ch = channel_named(as ? as : name, 1);
+    harness_channel = 0;
     while (fgets(line, (int)size, f)) {
         char *hex = malloc(size);
         if (!hex) refuse("out of memory");

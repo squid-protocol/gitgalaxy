@@ -28,7 +28,7 @@ from gitgalaxy.standards.cics.model import (
 
 _PROGRAM = Arg("name", width=8)
 # #5005 (X42): IBM's LINK / XCTL / RETURN pages list no read-only channel condition, but CHANNEL(DFHTRANSACTION) is the transaction
-# channel, which stays in scope across link levels: not modelled, so a DFH... channel is refused by name rather than run as ordinary
+# channel, which stays in scope across link levels: not modelled, so a DFH... channel not already in scope is refused by name rather than run as ordinary
 _DFH_CHANNEL = RuntimeRefusal(
     "CHANNEL naming a DFH... channel: DFHTRANSACTION, the transaction channel, stays in scope when the link level changes (not modelled)",
     "X42",

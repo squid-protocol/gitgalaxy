@@ -114,12 +114,15 @@ def _converse(opts: dict[str, str | None], labels: list[str]) -> list[str]:
     """#5079 (register X63): CONVERSE FROM [FROMLENGTH] INTO [TOLENGTH] [MAXLENGTH] [NOTRUNCATE] -> GGCCONV: the FROM data
     written to the terminal (a plain SEND's event), then the terminal RECEIVE of the reply (GG-LEN the most taken, GG-FLAGS
     NOTRUNCATE; on return the reply's length, -1 for a negative FROMLENGTH: LENGERR, nothing sent). TOLENGTH is set on NORMAL
-    / LENGERR. The option rules as the det translator's (SET and the conversation options refused by name)."""
+    / LENGERR. The option rules as the det translator's (the conversation options refused by name; SET: the stub has no entry yet)."""
     key = "CONVERSE"
     ec._check_spec(key, opts, (key,), lambda bad: [f"{key} {o}" for o in bad])
-    for req in ("FROM", "INTO"):
-        if not opts.get(req):
-            raise ec.Unsupported(ec._rule(key, "required", req), [key])
+    if not opts.get("FROM"):
+        raise ec.Unsupported(ec._rule(key, "required", "FROM"), [key])
+    if bool(opts.get("INTO")) == bool(opts.get("SET")):
+        raise ec.Unsupported(ec._rule(key, "one_of", "INTO"), [key])
+    if opts.get("SET"):  # X58: the det port models the reply in a block; the stub's GGCCONV has no pointer form yet
+        raise ec._stub_only("CONVERSE SET")
     sent = ec._one_of(key, opts, "FROMLENGTH", "FROMFLENGTH")
     length = ec._one_of(key, opts, "TOLENGTH", "TOFLENGTH")
     most = ec._one_of(key, opts, "MAXLENGTH", "MAXFLENGTH")

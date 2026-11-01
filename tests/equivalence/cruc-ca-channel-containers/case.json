@@ -1,0 +1,42 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "CACHAN",
+  "program_source": "cases/commarea-mismatch/ca-channel-containers/src/CACHAN.cbl",
+  "copy_dirs": [
+    "cases/commarea-mismatch/ca-channel-containers/copy"
+  ],
+  "transid": "CA05",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "programs": [
+    {
+      "program": "CACHSUB",
+      "program_source": "cases/commarea-mismatch/ca-channel-containers/src/CACHSUB.cbl"
+    },
+    {
+      "program": "CACHXB",
+      "program_source": "cases/commarea-mismatch/ca-channel-containers/src/CACHXB.cbl"
+    }
+  ],
+  "notes": "cics-crucible commarea-mismatch / ca-channel-containers (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): A channel in place of a COMMAREA: CHAR and BIT containers, APPEND, LINK / XCTL CHANNEL, the current channel, CONTAINERERR, CHANNELERR, LENGERR, INVREQ. Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "round-trip",
+      "commarea": null,
+      "terminal": "CA05",
+      "why": "CHAR and BIT containers, APPEND, LINK / XCTL CHANNEL, the current channel",
+      "channel": {
+        "name": "CAHOME",
+        "containers": {
+          "REQUEST": {
+            "text": "HELLO"
+          }
+        }
+      }
+    }
+  ],
+  "linked": true
+}

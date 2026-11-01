@@ -1,0 +1,28 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "CAGCSX",
+  "program_source": "cases/commarea-mismatch/ca-get-container-set/src/CAGCSX.cbl",
+  "copy_dirs": [
+    "cases/commarea-mismatch/ca-get-container-set/copy"
+  ],
+  "transid": "CA0G",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "notes": "cics-crucible commarea-mismatch / ca-get-container-set (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): GET CONTAINER SET(ptr) FLENGTH(len): FLENGTH is output only, the SET ADDRESS OF view covers the container's data, a repeated GET SET and a GET SET after a replacing PUT; CONTAINERERR RESP2 10 and CHANNELERR RESP2 2. Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "errors",
+      "commarea": null,
+      "terminal": "CA0G",
+      "why": "GET CONTAINER SET: CONTAINERERR RESP2 10 and CHANNELERR RESP2 2",
+      "channel": {
+        "name": "CAHOME",
+        "containers": {}
+      }
+    }
+  ],
+  "linked": true
+}

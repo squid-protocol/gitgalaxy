@@ -16,12 +16,9 @@ import pytest
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
+from gitgalaxy.standards.cics.commands.send_text import TEXT_OPTIONS  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import cics as C  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import cics_conditions as CN  # noqa: E402
-from gitgalaxy.tools.cobol_to_java.det import cics_faults as CFL  # noqa: E402
-from gitgalaxy.tools.cobol_to_java.det import cics_containers as CC  # noqa: E402
-from gitgalaxy.tools.cobol_to_java.det import cics_filecontrol as CF  # noqa: E402
-from gitgalaxy.tools.cobol_to_java.det import cics_taskcontrol as CT  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import expr as E  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import stmt as S  # noqa: E402
 
@@ -697,12 +694,12 @@ def test_options_honoured_without_code_say_why():
     whose having no effect the table states."""
     src = Path(C.__file__).read_text(encoding="utf-8")
     code = src[src.index("def command_key") :]
-    for family in (CC, CF, CT, CN, CFL):  # #5274: the command families split out of det/cics.py
-        code += Path(family.__file__).read_text(encoding="utf-8")
+    for family in Path(C.__file__).parent.glob("cics_*.py"):  # #5274: the command families split out of det/cics.py
+        code += family.read_text(encoding="utf-8")
     stated = {"NODUMP", "MAIN", "AUXILIARY", "NOSUSPEND", "EQUAL", "GTEQ", "TASK", "UOW", "MAXLIFETIME", "RESOURCE",
               "FOR", "INTERVAL", "TIME", "HOURS", "MINUTES", "SECONDS", "MILLISECS", "TS",
               "TERMINAL", "BELOW", "EXECUTABLE", "NAME", "EVENTUAL"}  # (#5079 X63: WAIT EVENT NAME only labels the task)  # (#5859 X32: WRITE OPERATOR EVENTUAL only says when the operator acts)  # (#4771 X47: GETMAIN's placement flags change no byte the program sees)  # fmt: skip
-    flags = {*C.MAP_OPTIONS, *C.TEXT_OPTIONS, *C._FORMS}
+    flags = {*C.MAP_OPTIONS, *TEXT_OPTIONS, *C._FORMS}
     for key, allowed in C.OPTIONS.items():
         for opt in allowed or ():
             read = f'"{opt}"' in code or f"'{opt}'" in code

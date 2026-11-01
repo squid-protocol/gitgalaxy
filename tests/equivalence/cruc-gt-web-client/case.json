@@ -1,0 +1,91 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "GTWCLI",
+  "program_source": "cases/ghost-tasks/gt-web-client/src/GTWCLI.cbl",
+  "copy_dirs": [],
+  "transid": "GT85",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "http_peers": [
+    {
+      "scheme": "HTTP",
+      "host": "orders.example",
+      "port": 80,
+      "urimap": null,
+      "path": null,
+      "exchanges": [
+        {
+          "method": "GET",
+          "path": "/gt/item",
+          "query": "",
+          "status": 200,
+          "statustext": "OK",
+          "mediatype": "text/plain",
+          "body": "item=42"
+        }
+      ]
+    },
+    {
+      "scheme": "HTTP",
+      "host": "gone.example",
+      "port": 80,
+      "urimap": null,
+      "path": null,
+      "exchanges": [
+        {
+          "method": "GET",
+          "path": "/gt/item",
+          "query": "",
+          "status": 404,
+          "statustext": "Not Found",
+          "mediatype": "text/plain",
+          "body": "no such item"
+        }
+      ]
+    }
+  ],
+  "notes": "cics-crucible ghost-tasks / gt-web-client (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): WEB OPEN / WEB CONVERSE / WEB CLOSE against stated HTTP peers: a 200 body and a 404 that is a normal response. Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "ok",
+      "commarea": null,
+      "terminal": "GT85 A",
+      "why": "GT85 A: orders.example answers 200 with body item=42; the task closes and shows status, length, body"
+    },
+    {
+      "name": "notfound",
+      "commarea": null,
+      "terminal": "GT85 B",
+      "why": "GT85 B: gone.example answers 404 'no such item': a 404 is a normal response (RESP NORMAL)"
+    },
+    {
+      "name": "body-truncated",
+      "commarea": null,
+      "terminal": "GT85 A",
+      "http_peers": [
+        {
+          "scheme": "HTTP",
+          "host": "orders.example",
+          "port": 80,
+          "urimap": null,
+          "path": null,
+          "exchanges": [
+            {
+              "method": "GET",
+              "path": "/gt/item",
+              "query": "",
+              "status": 200,
+              "statustext": "OK",
+              "mediatype": "text/plain",
+              "body": "item=42;item=42;item=42;item=42;item=42;"
+            }
+          ]
+        }
+      ],
+      "why": "orders.example answers 200 with a 40-byte body into a 32-byte area: LENGERR (RESP2 57), so the task shows no status"
+    }
+  ]
+}

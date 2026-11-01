@@ -12,7 +12,7 @@ from typing import Any
 
 from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: compiled on first use
 
-from .._shared_patterns import CALLS_OUT_C_STYLE, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import CALLS_OUT_C_STYLE, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT, commented_keyword_statement
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -127,7 +127,15 @@ DEFINITION: dict[str, Any] = {
             re.M,
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails) Commented out execution flow or structural definitions.
-        "dead_code": re.compile(r"//[ \t]*(?:function|contract|if|require|uint|address)\b"),
+        # #7207: a statement's shape (`function f() ... {`, `require(...)`, `uint256 x = 1;`, `contract A is B`),
+        # not just the keyword: `// address the issue later` and `// if the call fails` are prose.
+        "dead_code": re.compile(
+            commented_keyword_statement(
+                r"function|contract|if|require|uint\d*|address",
+                block=False,
+                extra=r"(?<=contract)[ \t]+[A-Z]\w{0,64}[ \t]+is[ \t]+[^\n]{1,100}(?m:$)",
+            )
+        ),
         # 13. doc: Structured Documentation. NatSpec (Ethereum Natural Specification Format).
         # BUG FIX #2672: `/**`, `///` and the NatSpec tags (`@param`,
         # `@notice`, ...) were independent alternatives, so one NatSpec

@@ -536,6 +536,7 @@ WAIT_EXTERNAL = Command(
     outcomes=(*_ECB_OUTCOMES, Outcome("INVREQ", 2, "the ECBLIST address is a null pointer")),
     runtime_refusals=(_ECB_UNKNOWN, _NOT_POSTED),
     state=("handle_table",),
+    impl=Impl(translator="Cics.wait_external", java="waitExternal", c="GGCECBW", harness="_wait_external"),
 )
 
 WAITCICS = Command(
@@ -552,6 +553,7 @@ WAITCICS = Command(
     outcomes=_ECB_OUTCOMES,
     runtime_refusals=(_WAITCICS_NULL, _ECB_UNKNOWN, _NOT_POSTED),
     state=("handle_table",),
+    impl=Impl(translator="Cics.wait_external", java="waitExternal", c="GGCECBW", harness="_wait_external"),
 )
 
 COMMANDS = (START, RETRIEVE, CANCEL, RUN, FETCH_ANY, FETCH_CHILD, FREE_CHILD, POST, WAIT_EVENT, WAIT_EXTERNAL, WAITCICS)

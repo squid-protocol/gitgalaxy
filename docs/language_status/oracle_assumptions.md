@@ -3987,6 +3987,9 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
 - **Refused by name (#5092).** A GENERIC KEYLENGTH of zero (IBM is silent). The values bound to options or files the region refuses: INVREQ
   40 (BDAM), 44, 51-53, 55, 59 and NOTFND 81 (RBA / XRBA, CONSISTENT, REPEATABLE, NOSUSPEND), 56 and 57 (coupling-facility data tables,
   RREPL): those options are refused at translation and the file kinds do not exist in the region.
+- **UNLOCK's option class (#5079).** IBM (summary-unlock) gives UNLOCK FILE (or DATASET), TOKEN and SYSID. FILE / DATASET and TOKEN are modelled
+  above; SYSID (a remote file) is refused by name on both translators with the remote-system reason. Pinned with the other file commands in
+  `tests/cobol_mainframe/test_det_translate.py` (`_IBM_OPTIONS`) and `tests/cobol_mainframe/test_unlock_readq_td_5079.py`.
 
 ### X53. REWIND / UPDATE COUNTER and DCOUNTER, GET REDUCE / COMPAREMIN / COMPAREMAX, NOSUSPEND on the named-counter commands — ASSUMED, REFUSED where IBM is silent (#5039)
 - **What IBM says** (CICS TS 6.x, https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-rewind-counter-rewind-dcounter,
@@ -4326,6 +4329,9 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   `td_queues` (the records not yet read; a deleted queue is empty). The java legs do not compare TD yet: CicsTask records no
   DELETEQ-TD event and `JAVA_CAPS` has no TD keys (baseline: `unsupported`). The oracle is GnuCOBOL plus the stub, not z/OS.
 - **Status:** ASSUMED where listed, REFUSED where IBM is silent. The oracle is GnuCOBOL plus the stub, not z/OS.
+- **Option class (#5079).** IBM lists READQ TD QUEUE, INTO, SET, LENGTH, SYSID, NOSUSPEND; WRITEQ TD QUEUE, FROM, LENGTH, SYSID; DELETEQ TD
+  QUEUE, SYSID. All but SYSID are modelled (above); SYSID is refused by name on both translators, as are the TS siblings' SYSID. Pinned by
+  `_IBM_OPTIONS` in `tests/cobol_mainframe/test_det_translate.py` and `tests/cobol_mainframe/test_unlock_readq_td_5079.py`.
 
 ### X58. SET(ptr) on RECEIVE, RETRIEVE, READQ TS, GET CONTAINER, READ, READNEXT and READPREV — ASSUMED, REFUSED where IBM is silent (#5042)
 - **RECEIVE (3270 logical)** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-receive-3270-logical). SET "specifies the pointer reference

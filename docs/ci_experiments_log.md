@@ -39,6 +39,36 @@ not an entry. Newest first within each section.
 
 ---
 
+## 2026-11-01 admission floor and main's runs (#7455)
+
+### Raise the admission floor — `shipped` (config, not code)
+- **Hypothesis:** `target_util` sat at its 0.3 floor while PR jobs waited well under the 5 min target, so admission held
+  launches CI could have taken. melek's 8 days to 11-01: slots full 16% of logged time, admission held 58.6 h, the largest cause.
+- **Change:** `churn config ci.util_min 0.5` and `ci.util_init 0.5`. Set `util_init` too: a stored target below the new
+  floor is dropped and restarts from `util_init`, which was 0.8. Rollback: `ci.util_min 0.3`, `ci.util_init 0.8`.
+- **Measurement:** none yet. In 24 h, admission held 352 ticks, 33 of them with PR job wait p50 over 5 min. That is a
+  hint only: holding back is partly why waits stay short, and the #94 cost bug inflated some of those hours.
+- **Follow-up (owed):** after a few days compare merges per hour, `wait_p90` (15.4 min on 10-31) and held hours. Roll back
+  if queues grow without more merges.
+
+### Run main's heavy checks less often — `measured, not built`
+- **Measurement (push runs on main, about 40 h to 11-01, job minutes on 5 successful runs each):** main was 20-39% of
+  sampled runner time on 10-28 to 10-31. Three workflows make about half of it:
+
+  | Workflow | Finished runs | Cancelled | Median | Runner-min a day |
+  |---|---:|---:|---:|---:|
+  | Equivalence E2E | 81 | 118 | 30.8 | ~1,530 |
+  | GitGalaxy Smoke Tests | 97 | 101 | 15.7 | ~900 |
+  | Mainframe Ground Truth | 90 | 108 | 14.7 | ~780 |
+
+  That is about 3,200 runner-min a day, about 2.2 slots around the clock, or 11% of a ~28,000-min day. Cancelled runs cost
+  ~0 min, so concurrency already collapses bursts. Each workflow finishes about twice an hour.
+- **Why not built:** these runs catch what a PR cannot. On 11-01 they found a collision of two PRs that each passed.
+  Running hourly saves about 1,600 runner-min a day (about 6%), but doubles the time to detect a red main.
+- **If revisited:** decide from how long a red main costs. Agents building on it, as on 11-01, may cost more than the saving.
+
+---
+
 ## 2026-10-25 review (one session: issues #6664, #6670, #6672, #6675)
 
 Starting point, measured from ~700 job records of PR runs on 2026-10-25: **58% of PR slot-minutes (990 of 1,712) went

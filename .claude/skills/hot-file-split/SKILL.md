@@ -78,5 +78,7 @@ A split breaks things that name the old file. Each of these went wrong once:
 
 ## 6. The PR
 
+Read `docs/factory_bottlenecks.md` first, and add an entry when the PR lands.
+
 One file per PR, behaviour-preserving, no golden or evidence changes. In the body: why (holds, commits), what moved, the
 proof and its control, and what was not run locally.

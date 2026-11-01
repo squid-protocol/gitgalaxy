@@ -4392,6 +4392,10 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
 - **Status:** ASSUMED where listed, REFUSED where IBM is silent. Unit-proven only (see `reached`): no cics-crucible case or estate program exercises it
   yet (cics-crucible C2 covers RECEIVE / RETRIEVE SET and C3 / C4 are the container and file cases still to land), so no port moves and no ZECS program
   is made whole by this entry.
+- **File SET (#6876).** cics-crucible `hc-file-read-set` HCRDST (READ / STARTBR / READNEXT / READPREV SET(ADDRESS OF LS-REC), 77/77, no holes) has a committed
+  det port. Its four scenarios do not pass the Java sides yet: the case states no key for file HCRS (the CSD DEFINE FILE has DSNAME only, no IDCAMS KEYS), so the
+  generated project stores no file and the port refuses by name at run time (`CICS file HCRS: the program names no file the generated project stores`).
+  What lifts it is a stated key (key 4 is only in the case's NOTES) in the cics-crucible case plus a pin bump, and a harness seed of data/HCRS.dat on the Java sides.
 - **Burned-estate reach of the members still refused (#5042, 2026-10-30).** Over the six burned estates (`cics_census.py usage --no-census`;
   names and counts only) no program issues LOAD, GETMAIN64, FREEMAIN64 or GET64 CONTAINER; none issues SET on SEND MAP (37 programs), RECEIVE MAP
   (36) or SEND CONTROL (8), which use MAPSET / INTO / ERASE / FREEKB only; none issues READ / READNEXT / READPREV SET with RBA / RRN / XRBA (the one

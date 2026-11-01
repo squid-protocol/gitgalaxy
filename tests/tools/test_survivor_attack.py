@@ -153,3 +153,19 @@ def test_state_takes_a_gap_without_an_attack(monkeypatch, tmp_path):
     dm.state("cbsa-abndproc", {S1["id"]: {"verdict": "case-gap", "reason": "a longer COMMAREA would kill it"}})
     assert written["cbsa-abndproc"][0]["verdict"] == "case-gap"
     assert "tried" not in written["cbsa-abndproc"][0]
+
+
+def test_a_change_cannot_narrow_a_run():
+    full, sample = {"chosen": 455}, {"chosen": 149}
+    assert "replaces one that judged 455" in dm.regressions("c", sample, [], full, [])[0]
+    assert dm.regressions("c", full, [], sample, []) == []
+    assert dm.regressions("c", full, [], None, []) == []
+
+
+def test_a_new_verdict_needs_its_attack_but_a_carried_one_does_not():
+    old = {"id": "a", "before": "x", "after": "y", "verdict": "equivalent"}
+    assert dm.regressions("c", None, [{**old, "id": "b"}], None, [old]) == []  # the same mutant, a new id
+    new = {"id": "n", "before": "p", "after": "q", "verdict": "unreachable"}
+    assert "1 new verdicts" in dm.regressions("c", None, [old, new], None, [old])[0]
+    assert dm.regressions("c", None, [old, {**new, "tried": ["long-body"]}], None, [old]) == []
+    assert dm.regressions("c", None, [old, {**new, "verdict": "case-gap"}], None, [old]) == []

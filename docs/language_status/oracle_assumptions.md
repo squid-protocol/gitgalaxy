@@ -1861,7 +1861,7 @@ states each (`none (gap)`: no entry does). Only fields a burned corpus's COBOL n
     counted as a utility step to port.
   - Not done: a SORT step the forge refuses stays `JclSteps.utility`; the emitted service needs `CobolRecords`, which the
     skeleton forges write only when the estate has skeletons (a sort-only estate does not compile); the run is proven on
-    the service alone; a multi-step job case exists in the harness (above), a committed one over a lowered step is next.
+    the service alone; a multi-step job case over a lowered step is committed (`carddemo-job-tranrept`, above); a job case is still wired by its `feeds`, not read from JCL.
 - The COBOL SORT / MERGE / RELEASE / RETURN verbs and the SD entry are translated (#4286), onto `cobolrt/Sort`:
   - Keys compare as a relation condition compares their items: a numeric key (zoned, packed, binary, signed or
     not) by value, any other byte by byte. WITH DUPLICATES IN ORDER is a stable sort; without it, records with

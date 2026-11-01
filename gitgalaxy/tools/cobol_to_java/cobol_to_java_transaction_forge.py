@@ -1285,6 +1285,11 @@ CICS_TASK_JAVA += """\
         return termid == null || termid.isEmpty() ? this : withTermid(termid);
     }
 
+    /** #6072: withTermidIfStated where "" is a stated task with no terminal (case.json "termid": ""); null is unstated. */
+    public CicsTask withTermidOrNone(String termid) {
+        return termid == null ? this : withTermid(termid.isEmpty() ? null : termid);
+    }
+
     /** EIBTRMID (#3989): the task's terminal, the same at every LINK / XCTL level; null for a non-terminal task. */
     public String termid() {
         return root().termid;

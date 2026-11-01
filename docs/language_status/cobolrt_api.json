@@ -1,7 +1,7 @@
 {
   "schema": "cobolrt-api/1",
   "about": ["The cobolrt public API (#4718). Written by tests/tools/cobolrt_api.py generate: edit only a `visibility`, to public or internal; docs/cobolrt_api_contract.md says what they promise.", "`evidence` records who called the item when it was last refreshed, and is never checked: det-port, model-port (committed ports), frozen-overlay (a frozen runtime copy's call to a live class), generated (translator output), emitter (a translator string), emitter-dynamic (a name a computed emission may take), runtime, harness; empty: no caller was found."],
-  "summary": {"types": 124, "types_public": 101, "members": 1178, "members_public": 781, "members_internal": 397},
+  "summary": {"types": 124, "types_public": 101, "members": 1179, "members_public": 781, "members_internal": 398},
   "types": [
     {"id": "batch.CobolAbend", "kind": "class", "source": "gitgalaxy/tools/cobol_to_java/cobol_to_java_batch_forge.py", "variants": ["forge-batch-jobs", "forge-batch-files"], "supers": ["RuntimeException"], "visibility": "public", "evidence": ["det-port", "emitter", "generated", "model-port", "signature", "harness"], "members": [
       {"id": "batch.CobolAbend.<init>(String,String)", "kind": "constructor", "visibility": "internal", "evidence": []},
@@ -383,6 +383,7 @@
       {"id": "cics.CicsTask.withTempStorage(TempStorage)", "kind": "method", "returns": "cics.CicsTask", "visibility": "internal", "evidence": ["harness"]},
       {"id": "cics.CicsTask.withTermid(String)", "kind": "method", "returns": "cics.CicsTask", "visibility": "internal", "evidence": ["harness", "runtime"]},
       {"id": "cics.CicsTask.withTermidIfStated(String)", "kind": "method", "returns": "cics.CicsTask", "visibility": "internal", "evidence": ["harness"]},
+      {"id": "cics.CicsTask.withTermidOrNone(String)", "kind": "method", "returns": "cics.CicsTask", "visibility": "internal", "evidence": ["harness"]},
       {"id": "cics.CicsTask.withTerminalInput(String)", "kind": "method", "returns": "cics.CicsTask", "visibility": "internal", "evidence": ["harness"]},
       {"id": "cics.CicsTask.withTwaSize(int)", "kind": "method", "returns": "cics.CicsTask", "visibility": "internal", "evidence": ["harness"]},
       {"id": "cics.CicsTask.withUctranst(String)", "kind": "method", "returns": "cics.CicsTask", "visibility": "internal", "evidence": ["harness"]},

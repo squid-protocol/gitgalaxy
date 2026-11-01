@@ -392,9 +392,12 @@ def terminal_facts(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, Any]:
     the commands that read them are refused by both runtimes, as before."""
     out: dict[str, Any] = {k: sc.get(k, case.get(k)) for k in ("termid", "uctranst", "origin")}
     t = out["termid"]
-    if t is not None and (not isinstance(t, str) or not 1 <= len(t) <= 4 or not t.strip() or "," in t or " " in t):
+    # "" states a task with no terminal (ASSIGN FACILITY / TERMCHK: INVREQ; $GGCICS_FACILITY empty, withTermid(null))
+    if t not in (None, "") and (
+        not isinstance(t, str) or not 1 <= len(t) <= 4 or not t.strip() or "," in t or " " in t
+    ):
         raise Unsupported(f'scenario {sc.get("name")}: "termid" {t!r} is not a terminal name (1 to 4 characters)')
-    if out["uctranst"] is not None and (t is None or out["uctranst"] not in UCTRANST_NAMES):
+    if out["uctranst"] is not None and (not t or out["uctranst"] not in UCTRANST_NAMES):
         raise Unsupported(f'scenario {sc.get("name")}: "uctranst" is one of {", ".join(UCTRANST_NAMES)}, of a '
                           'stated "termid"')  # fmt: skip
     for k in ("userid", "screen"):  # #5126: only when stated (an always-present empty key breaks exact-equality tests)
@@ -405,7 +408,7 @@ def terminal_facts(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, Any]:
         raise Unsupported(f'scenario {sc.get("name")}: "userid" {u!r} is not a user ID (1 to 8 characters)')
     scr = out.get("screen")
     if scr is not None and (not isinstance(scr, list) or len(scr) != 2
-                            or not all(type(n) is int and n > 0 for n in scr) or t is None):  # fmt: skip
+                            or not all(type(n) is int and n > 0 for n in scr) or not t):  # fmt: skip
         raise Unsupported(
             f'scenario {sc.get("name")}: "screen" is [rows, columns], positive ints, of a stated "termid"'
         )
@@ -2810,7 +2813,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         script.append(f"set +e; {cov.trace_env(f'{rel}/{cov.TRACE_NAME}')}{dlienv}GGCICS_DIR={rel} GGCICS_OUT={rel}/out EIBIN={rel}/eib.in "
                       f"GGCICS_TASKN={task_number(case, sc)} LD_PRELOAD=/work/ggdisplay.so "
                       + (f"GGCICS_STARTCODE={task_facts(case, sc)[0]} " if task_facts(case, sc)[0] else "")
-                      + (f"GGCICS_FACILITY={term['termid']} " if term["termid"] else "")
+                      + (f"GGCICS_FACILITY={term['termid']} " if term["termid"] is not None else "")  # "" = stated: no terminal
                       + (f"GGCICS_UCTRANST={term['uctranst']} " if term["uctranst"] else "")
                       + (f"GGCICS_USERID={term['userid']} " if term.get("userid") else "")  # #5126
                       + (f"GGCICS_SCREEN='{term['screen'][0]} {term['screen'][1]}' " if term.get("screen") else "")
@@ -4204,7 +4207,7 @@ class EquivalenceRunTest {{
                     .withStartcode(sc.get("startcode").isNull() ? null : sc.get("startcode").asText())
                     .withTerminalInput(sc.get("terminal").isNull() ? null : sc.get("terminal").asText())
                     // #4270: the task's terminal and origin data, as the stub's ($GGCICS_FACILITY, _UCTRANST, _ORIGIN)
-                    .withTermidIfStated(sc.get("termid").isNull() ? null : sc.get("termid").asText())  // #5126: unstated is refused, as the stub
+                    .withTermidOrNone(sc.get("termid").isNull() ? null : sc.get("termid").asText())  // #5126: unstated is refused, as the stub
                     .withUctranst(sc.get("uctranst").isNull() ? null : sc.get("uctranst").asText())
                     .withTempStorage(tempStorage(sc))  // #4270: the TS queues the task starts with, as the stub's
                     // RECOVERY(NONE) files: their changes made outside the unit of work, so they survive a backout

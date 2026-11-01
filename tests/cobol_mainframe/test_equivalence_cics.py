@@ -1062,6 +1062,22 @@ def test_a_tasks_userid_and_screen_are_stated_only_when_given():
             ec.terminal_facts({}, {"name": "s", **bad})
 
 
+def test_a_terminal_device_is_stated_only_when_given_and_reaches_both_sides():
+    """#7434 (X15): "device" ("3270" or "LUTYPE2") -- the scenario's, else the case's; absent unless stated, anything
+    else refused by name; LUTYPE2 sets the stub's GGCICS_LU2 and the port's withEndOfChain."""
+    assert "device" not in ec.terminal_facts({}, {"name": "s"})
+    for dev in ("3270", "LUTYPE2"):
+        assert ec.terminal_facts({"device": dev}, {"name": "s"})["device"] == dev
+    assert ec.terminal_facts({"device": "3270"}, {"name": "s", "device": "LUTYPE2"})["device"] == "LUTYPE2"
+    for bad in ("LUTYPE6", "", "lutype2", 2):
+        with pytest.raises(ec.Unsupported):
+            ec.terminal_facts({}, {"name": "s", "device": bad})
+    src = Path(ec.__file__).read_text(encoding="utf-8")
+    assert ec._cobol_read("RECEIVE", {"resp": "6"}, b"AB", "ascii")["data"] == "AB"  # EOC delivers its data
+    assert 'GGCICS_LU2=1 " if term.get("device") == "LUTYPE2"' in src
+    assert '.withEndOfChain("LUTYPE2".equals(sc.path("device").asText()))' in src
+
+
 def test_assign_startcode_userid_and_the_terminal_facts_translate():
     """#4270 slice 3: STARTCODE / USERID through GGCASGN; FACILITY / SCRNHT / SCRNWD behind TERMCHK (INVREQ RESP2 5 for
     a task with no terminal, then no data area written), with the condition's handling."""

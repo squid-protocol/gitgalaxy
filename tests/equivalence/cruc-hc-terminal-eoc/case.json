@@ -4,6 +4,7 @@
   "program": "HCEOC",
   "program_source": "cases/condition-handling/hc-terminal-eoc/src/HCEOC.cbl",
   "copy_dirs": [],
+  "device": "LUTYPE2",
   "transid": "HC04",
   "clock": "2026/10/01 10:30:15.00",
   "datasets": {},

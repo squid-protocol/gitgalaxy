@@ -38,6 +38,20 @@
       "commarea": null,
       "startcode": "S",
       "why": "no data: ENDDATA arm"
+    },
+    {
+      "name": "read-options",
+      "commarea": null,
+      "startcode": "S",
+      "start_data": [
+        {
+          "text": "PAYLOAD-ONE-0000001",
+          "rtransid": "GTRD",
+          "rtermid": "T001",
+          "queue": "QQ"
+        }
+      ],
+      "why": "started with FROM plus RTRANSID/RTERMID/QUEUE: NORMAL arm moves the options to the log (#7475)"
     }
   ]
 }

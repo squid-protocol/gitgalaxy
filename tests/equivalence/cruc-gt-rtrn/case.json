@@ -21,6 +21,17 @@
         }
       ],
       "why": "started with data: RETRIEVE RTRANSID answers until it does not"
+    },
+    {
+      "name": "rtrans-options",
+      "commarea": null,
+      "startcode": "S",
+      "start_data": [
+        {
+          "rtransid": "GTRD"
+        }
+      ],
+      "why": "started with RTRANSID and no FROM: RETRIEVE RTRANSID answers NORMAL once (#7475)"
     }
   ]
 }

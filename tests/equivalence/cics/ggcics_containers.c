@@ -61,6 +61,7 @@ static void cics_name(const char *src, char *dst, const char *what) {
 
 /* The channel `name` in the current level's scope (index + 1), 0 when there is none; with
  * `create`, a new empty one when there is none. A name an XCTL left behind is refused. */
+static int cics_defined_name(const char *n);
 static int channel_named(const char *name, int create) {
     level *L = &levels[lvl];
     char msg[96];
@@ -74,6 +75,9 @@ static int channel_named(const char *name, int create) {
         if (strcmp(chans[L->scope[i] - 1].name, name) == 0) return L->scope[i];
     }
     if (!create) return 0;
+    /* #5005 (X42): a channel LINK / XCTL / RETURN CHANNEL would make is never DFH... (DFHTRANSACTION, the transaction channel,
+     * is not modelled; PUT and MOVE refuse such a name before they get here) */
+    if (cics_defined_name(name)) refuse("LINK / XCTL / RETURN CHANNEL naming a DFH... channel: the transaction channel (DFHTRANSACTION) and any other CICS-defined channel are not modelled");
     if (nchans >= MAX_CHANNELS || L->nscope >= 32) refuse("more channels than the stub holds");
     snprintf(chans[nchans].name, sizeof chans[nchans].name, "%s", name);
     nchans++;

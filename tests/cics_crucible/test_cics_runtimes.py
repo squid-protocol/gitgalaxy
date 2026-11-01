@@ -2064,6 +2064,62 @@ def test_cics_task_refuses_what_ibm_leaves_open_on_move_and_browse(tmp_path, ste
     assert out.startswith("refused: ") and why in out, out
 
 
+@needs_cc
+@pytest.mark.parametrize("chan", ["DFHTRANSACTION", "dfhx", "DFH", " DFHCH"])
+@pytest.mark.parametrize("command", ["RETURN", "XCTL"])
+def test_the_stub_refuses_a_dfh_channel_on_return_and_xctl(tmp_path, command, chan):
+    """#5005 (X42): IBM's LINK / XCTL / RETURN pages make CHANNEL(DFHTRANSACTION) the transaction channel, which stays in
+    scope across link levels; not modelled, so a DFH... channel is refused by name, in either case and after a blank."""
+    call = (
+        'blank(c.name1, 8, "NEXT"); blank(c.chan, 16, "%s"); GGCRETC(&c, NULL, 0);' % chan
+        if command == "RETURN"
+        else 'blank(c.name1, 8, "NEXT"); blank(c.chan, 16, "%s"); blank(c.flags, 40, "CHANNEL"); GGCXCTL(&c, NULL, 0);'
+        % chan
+    )
+    main = (
+        _MOVE_STUB_MAIN.replace(
+            "int GGCSYNC(gg_cics *c);",
+            "int GGCSYNC(gg_cics *c); int GGCRETC(gg_cics *c, char *u, int n); int GGCXCTL(gg_cics *c, char *a, int n);",
+        ).split("int main(void) {")[0]
+        + "int main(void) {\n    char *area = NULL;\n"
+        + '    blank(c.name1, 8, "MAIN"); c.len = 0; GGCTASK(&c); GGCNEXT(&c, &area);\n'
+        + call
+        + "\n    return 0;\n}\n"
+    )
+    exe = _stub(tmp_path, main)
+    (tmp_path / "out").mkdir(exist_ok=True)
+    env = {**_stub_base_env(), "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out")}
+    proc = subprocess.run([str(exe)], env=env, capture_output=True, text=True, check=False)  # noqa: S603
+    assert proc.returncode != 0 and "CHANNEL naming a DFH... channel" in proc.stderr + proc.stdout
+
+
+@needs_javac
+@pytest.mark.parametrize("chan", ["DFHTRANSACTION", "dfhx", "DFH", " DFHCH"])
+@pytest.mark.parametrize(
+    "call", ['t.linkChannel("SUB", "%s")', 't.xctlChannel("SUB", "%s")', 't.returnChannel("NEXT", "%s")']
+)
+def test_cics_task_refuses_a_dfh_channel_on_link_xctl_and_return(tmp_path, call, chan):
+    """#5005 (X42): the same refusal on CicsTask, before the channel is made."""
+    out = _cics_task(
+        tmp_path,
+        'CicsTask t = new CicsTask("CA05", "ENTER", null, null).withProgram("MAIN");\n'
+        "try {\n" + call % chan + ';\nSystem.out.println("no refusal");\n} catch (UnsupportedOperationException e) {\n'
+        'System.out.println("refused: " + e.getMessage());\n}',
+    )
+    assert out.startswith("refused: ") and "CHANNEL naming a DFH... channel" in out, out
+
+
+@needs_javac
+def test_cics_task_still_returns_on_a_channel_whose_name_only_contains_dfh(tmp_path):
+    """#5005 (X42): only a name that BEGINS DFH is refused; XDFH is an ordinary channel."""
+    out = _cics_task(
+        tmp_path,
+        'CicsTask t = new CicsTask("CA05", "ENTER", null, null).withProgram("MAIN");\n'
+        'System.out.println("XDFH " + t.returnChannel("NEXT", "XDFH")[0]);',
+    )
+    assert out.split() == ["XDFH", "0"], out
+
+
 @needs_javac
 def test_cics_task_still_puts_the_pipeline_containers_a_burned_program_writes_back(tmp_path):
     """#5005 (X42): DFHREQUEST, DFH-BODY and DFH-DATA (DBB epscsmrd.cbl) run as ordinary containers, in either case."""

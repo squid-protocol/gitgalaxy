@@ -38,6 +38,9 @@ from gitgalaxy.tools.cobol_to_java.det import layout as L
 from gitgalaxy.tools.cobol_to_java.det.source import Line, _outside_literals, expand, logical_lines
 
 CELL_SPAN = 4096  # each BLL cell addresses this many bytes of its record (IBM, "Bll and large storage areas")
+# #5119: SERVICE LABEL marks an LE recovery point (generated code after CALL 'CEE3SRP', DBB epscsmrd's EPSCSMRO), a
+# program with or without BLL cells: its refusal is not a BLL one (refusal_map.json: le-recovery-point, #5106)
+LE_REFUSED_PREFIX = "LE recovery point"
 REFUSED_PREFIX = "OS/VS COBOL BLL addressing"  # every refusal's first words (refusal_map.json: bll-cells)
 
 # a program the lowering must read: a SERVICE statement, or a SET / DATAPOINTER option naming an item declared as a
@@ -85,8 +88,8 @@ class Refused(L.LayoutError):
     """A BLL program the lowering cannot keep exactly: refused whole, by name (the message starts REFUSED_PREFIX), as
     the translator refuses any program it reads no further (a LayoutError)."""
 
-    def __init__(self, why: str):
-        super().__init__(f"{REFUSED_PREFIX}: {why}: not modelled")
+    def __init__(self, why: str, prefix: str = REFUSED_PREFIX):
+        super().__init__(f"{prefix}: {why}: not modelled")
 
 
 @dataclass
@@ -235,7 +238,11 @@ def plan(lines: list[Line], records: list, own: str, oracle: bool = False) -> Pl
     found: list[tuple[int, int, str, tuple]] = []
     for m in _LABEL.finditer(text):
         if not in_exec(m.start()):
-            raise Refused(f"SERVICE LABEL (line {lines[line_of(m.start())].line}: the CICS translator's output)")
+            raise Refused(
+                f"SERVICE LABEL (line {lines[line_of(m.start())].line}): the resume point after CEE3SRP, not BLL "
+                "addressing",
+                LE_REFUSED_PREFIX,
+            )
     for m in _RELOAD.finditer(text):
         if in_exec(m.start()):
             continue

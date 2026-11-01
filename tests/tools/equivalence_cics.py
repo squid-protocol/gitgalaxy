@@ -3433,7 +3433,13 @@ def commarea_class(case: dict[str, Any], src: Path, svc_file: Path) -> str | Non
         r"handleLink\((\w+) request\)", svc_text
     )  # a LINKed program (CBSA): its contract COMMAREA DTO
     if m and m.group(1) == "Object":  # #5859: an HLASM program's facade (hlasm.service_stub) types no COMMAREA
-        return None
+        # #6072: a service that takes Object but whose case states a typed COMMAREA record (PCCONF, PCDETL, PCIMMA)
+        # carries that record's generated DTO; none stated, or no such DTO generated: no DTO, as before
+        segments = (case.get("commarea") or {}).get("segments")
+        if not segments:
+            return None
+        name = java_class_base(segments[0]["record"])
+        return name if any(src.rglob(f"{name}.java")) else None
     if m:
         return m.group(1)
     if "commarea" in case and case["commarea"] is None:  # #4270: a program that takes none (handleLink()): no DTO

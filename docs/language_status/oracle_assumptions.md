@@ -4529,8 +4529,7 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   already says that "CICS installs whichever is loaded last, which the source tree cannot say".
 - **Refused.** Any claim that a resource is installed, enabled, or has a given runtime value. A dump of CEMT / CEDA output
   placed in a repository is not a definition source and is not read.
-- **Assumed.** Still by name: DFHPPT `PARTITIONSET=` (an alias of the macro's `PARTSET=` spelling, which maps to RDO
-  `PARTITIONSET` in SC33-1653-05 p.349, p.372).
+- **Assumed.** DFHPPT has none left: the `PARTITIONSET=` alias is now refused by name (below).
 - **Confirmed (no longer assumed).** HLASM macro-instruction statement syntax (`SC26-4940-05` p.15, p.19, p.296-297:
   alternative statement format with per-line remarks after a trailing comma, continuation lines starting after column 16
   treated as remarks, spaces inside quoted operands, and ordinary/sequence/variable symbols in the name field).
@@ -4540,7 +4539,7 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   `DTB=` -> `INDOUBT`, plus `transactions` routing to the target program: SH20-1043-6 p.104-106; SC33-1653-05 Appendix C p.347-351 & Appendix E p.365-368; SC33-1166-02 (CICS/ESA 4.1) Appendix C p.377-380 confirms each pair; `DTB=NO` has no RDO equivalent (note 4, p.380) and `DTB` outside YES / YES,NO / YES,WAIT is not restated, REFUSED by name). DFHPPT
   `TYPE=ENTRY` (`PROGRAM=`, `MAPSET=`, `PARTSET=` -> `PARTITIONSET`, `PROGRAM=` with `USAGE=MAP` -> `MAPSET` with
   `USAGE(TRANSIENT)`, `PGMLANG=` -> `LANGUAGE`, `RES=YES|NO` -> `RESIDENT`, `PGMSTAT=` -> `STATUS`: SH20-1043-6
-  p.108-109; SC33-1653-05 Appendix C p.348-350 & Appendix F p.372; SC33-1166-02 Appendix C p.378 lists `PARTSET` only: a `PARTITIONSET=` macro operand is in no manual read, so the alias stays ASSUMED, pinned in the tests). DFHDCT `TYPE=SDSCI` `RECFORM=UNDEFINED`: outside the
+  p.108-109; SC33-1653-05 Appendix C p.348-350 & Appendix F p.372; SC33-1166-02 Appendix C p.378 lists `PARTSET` only: a `PARTITIONSET=` macro operand is in no manual read, so it is REFUSED by name: it yields no row, pinned in the tests). DFHDCT `TYPE=SDSCI` `RECFORM=UNDEFINED`: outside the
   manual's `FIXUNB` / `FIXBLK` / `VARUNB` / `VARBLK` set in both SH20-1043-6 p.95-96 and SC33-1684-30 p.376 and SC33-1166-02 p.257-258 Table 28 (twelve words, no UNDEFINED; UNDEFINED is an FCT word), so
   `record_format` is `None` (REFUSED by name). DFHJCT `TYPE=ENTRY` (`JFILEID={SYSTEM|nn}` for the system log or user journal 1-99,
   `JTYPE={TAPE1|TAPE2|DISK1|DISK2|SMF}`, `BUFSIZE=`, `JOUROPT=`: SC33-1653-05 ch.29 Table 41 p.270-272; `DSNAME=` is not listed there, yet is lifted into `dsname` as an ASSUMED operand; a `JTYPE=` word outside that list still yields the row and a repeated `JFILEID` is not folded, both ASSUMED because IBM is silent; no burned estate uses DFHJCT; an RDO `JOURNALMODEL` is its own resource type and is never merged with a JCT journal, IBM giving no mapping between them: SC33-1684-30 ch.16). DFHTCT

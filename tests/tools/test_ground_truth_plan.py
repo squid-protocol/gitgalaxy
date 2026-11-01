@@ -185,8 +185,8 @@ def test_the_workflow_wires_the_plan_to_the_required_check():
     assert "plan" in jobs["ground-truth-warm"]["needs"]
     assert "needs.plan.outputs.mode != 'none'" in jobs["ground-truth-warm"]["if"]
     assert "needs.plan.outputs.mode != 'none'" in jobs["ground-truth-part"]["if"]
-    # the required check always reports (always()), and passes on skipped parts only for mode none or a tested tree
-    assert jobs["ground-truth"]["if"].startswith("${{ always()")
+    # the required check reports unless the run was cancelled, and passes on skipped parts only for mode none or a tested tree
+    assert jobs["ground-truth"]["if"].startswith("${{ !cancelled()")
     env = jobs["ground-truth"]["steps"][0]["env"]
     assert env["MODE"] == "${{ needs.plan.outputs.mode }}"
     run = jobs["ground-truth"]["steps"][0]["run"]

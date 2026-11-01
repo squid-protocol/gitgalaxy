@@ -37,10 +37,10 @@ jobs:
   # The required check (#4825 ruleset): one name, whatever the number of parts.
   full-suite:
     needs: [tested-tree, suite-plan, full-suite-part]
-    # #5104: draft PRs skip heavy CI. A main push superseded by the next push (cancel-in-progress) skips this summary
-    # instead of failing it (40 false-red `full-suite` jobs on main 2026-10-20); on a PR a cancel still fails it, so a
-    # cancelled head can never pass the required check by being skipped.
-    if: ${{ always() && !(github.event_name != 'pull_request' && cancelled()) && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) }}
+    # #5104: draft PRs skip heavy CI. #7455: in a cancelled run this job ends `cancelled`, not a false failure and never
+    # `skipped` (a skip reads as green), and `cancelled` does not satisfy the required check; docs/ci.md has the evidence.
+    # A part that timed out in a live run still reaches the step below, which fails it.
+    if: ${{ !cancelled() && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

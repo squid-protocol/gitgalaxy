@@ -361,11 +361,11 @@ jobs:
           path: ${{ runner.temp }}/gnucobol-image.tar
           key: gnucobol-image-${{ hashFiles('gitgalaxy/tests/equivalence/gnucobol.Dockerfile') }}
 
-  # The required check (its name is the job id). Always runs: a shard that failed or never started is a failure here,
-  # never a pass by absence.
+  # The required check (its name is the job id). Runs unless the run was cancelled: a shard that failed or never started
+  # is a failure here, never a pass by absence.
   crucible:
     needs: [plan, measure, runner-tests]
-    if: ${{ always() && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) }}
+    if: ${{ !cancelled() && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) }}  # #7455: !cancelled(), not always(): in a cancelled run this ends cancelled, not a false failure, and never skipped (docs/ci.md)
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:

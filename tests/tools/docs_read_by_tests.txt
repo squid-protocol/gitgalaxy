@@ -278,7 +278,7 @@ docs/benchmarks/det-refine-cbact02c/C.java	tests/cobol_mainframe
 docs/bias_data.json	tests/core_engine,tests/tools/fidelity_table.py
 docs/branch_rule_contract.md	gitgalaxy
 docs/calls_out_rule_contract.md	gitgalaxy
-docs/ci.md	tests/tools/shepherd_gh.py,tests/tools/test_ci_critical_path_split.py,tests/tools/test_engine_reach_workflows.py,tests/tools/test_post_merge_dispatch.py
+docs/ci.md	tests/tools/shepherd_gh.py,tests/tools/test_cancelled_gates.py,tests/tools/test_ci_critical_path_split.py,tests/tools/test_engine_reach_workflows.py,tests/tools/test_post_merge_dispatch.py
 docs/ci_env_gated_tests.md	tests/tools/test_env_gated_tests_run_in_ci_5954.py
 docs/class_start_rule_contract.md	gitgalaxy
 docs/cleanup_rule_contract.md	gitgalaxy

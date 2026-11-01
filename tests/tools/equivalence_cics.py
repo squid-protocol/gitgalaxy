@@ -1113,6 +1113,30 @@ def _cfg_file_name(case: dict[str, Any], f: dict[str, Any]) -> str:
     return substitute_install_symbols(f["file"], symbols) if symbols else f["file"]
 
 
+def _stated_vsam_file(e: dict[str, Any], dsn: str, definition: dict[str, Any], stated: Any, via: list[str]) -> dict:
+    """The stub entry for a file the engine's IDCAMS facts do not key: the case's dataset states `vsam`
+    {key_offset, key_length, reclen, why} (#5089 install-symbol names, #7434 a file defined only in the CSD)."""
+    vsam = stated if isinstance(stated, dict) else {}
+    ints = all(
+        isinstance(vsam.get(k), int) and not isinstance(vsam.get(k), bool)
+        for k in ("key_offset", "key_length", "reclen")
+    )
+    if not ints or vsam["key_length"] < 1 or vsam["reclen"] < 1 or vsam["key_offset"] < 0 or not vsam.get("why"):
+        raise Unsupported(
+            f"CICS file {e['name']}: no IDCAMS DEFINE for {dsn}; the case's dataset {dsn} states "
+            "vsam {key_offset, key_length, reclen, why} (the IDCAMS job's KEYS and RECORDSIZE)"
+        )
+    if (definition.get("record_format") or "").upper() == "V" and vsam.get("variable") is not True:
+        raise Unsupported(  # the stub keeps fixed-length records: a V file is stood in for only when stated
+            f"CICS file {e['name']}: {dsn} is a variable-length file (RECORDFORMAT(V)); the stub keeps fixed-"
+            'length records, so the case\'s vsam must say "variable": true -- every record of the file is the '
+            "one length the program writes and reads, stated as reclen (IBM returns each record at its own length)"
+        )
+    return {"file": e["name"], "dsname": dsn, "base": dsn, "key_offset": vsam["key_offset"],
+            "key_length": vsam["key_length"], "reclen": vsam["reclen"],
+            "via": [*via, "the case's vsam"]}  # fmt: skip
+
+
 def stub_files(
     ir: Any,
     program_file: str,
@@ -1161,27 +1185,14 @@ def stub_files(
         # #5089: a name resolved through the install symbols takes the case's stated vsam, also when the engine now
         # reads the IDCAMS job as a define (its name keeps the placeholders, so its base would not be the dataset's)
         if (d is None or stated_vsam) and symbols and dsn != defs[0]["dsname"].upper():
-            vsam = stated_vsam or {}
-            if not all(isinstance(vsam.get(k), int) for k in ("key_offset", "key_length", "reclen")) or not vsam.get(
-                "why"
-            ):
-                raise Unsupported(
-                    f"CICS file {e['name']}: no IDCAMS DEFINE for {dsn}; the case's dataset {dsn} states "
-                    "vsam {key_offset, key_length, reclen, why} (the IDCAMS job's KEYS and RECORDSIZE)"
-                )
-            if (defs[0].get("record_format") or "").upper() == "V" and vsam.get("variable") is not True:
-                raise Unsupported(  # the stub keeps fixed-length records: a V file is stood in for only when stated
-                    f"CICS file {e['name']}: {dsn} is a variable-length file (RECORDFORMAT(V)); the stub keeps fixed-"
-                    'length records, so the case\'s vsam must say "variable": true -- every record of the file is the '
-                    "one length the program writes and reads, stated as reclen (IBM returns each record at its own length)"
-                )
-            out.append({"file": e["name"], "dsname": dsn, "base": dsn, "key_offset": vsam["key_offset"],
-                        "key_length": vsam["key_length"], "reclen": vsam["reclen"],
-                        "via": ["the case's install_symbols", "the case's vsam"]})  # fmt: skip
+            out.append(_stated_vsam_file(e, dsn, defs[0], stated_vsam, ["the case's install_symbols"]))
             continue
         if d is None:  # #3656: the engine's candidate join of an IDCAMS name written with installation symbols
             st = next((x for x in ir.vsam_stores() if (x.get("dataset") or "").upper() == dsn and x.get("defined")
                        and (x.get("defined_by") or {}).get("match") == "symbolic"), None)  # fmt: skip
+            if st is None and stated_vsam:  # #7434: a CSD-only file (no IDCAMS job at all): the case states its KEYS
+                out.append(_stated_vsam_file(e, dsn, defs[0], stated_vsam, []))
+                continue
             if st is None or None in (st["key_offset"], st["key_length"], st["record_max"]):
                 raise Unsupported(f"CICS file {e['name']}: no IDCAMS DEFINE for {dsn}")
             out.append({"file": e["name"], "dsname": dsn, "base": dsn, "key_offset": st["key_offset"],

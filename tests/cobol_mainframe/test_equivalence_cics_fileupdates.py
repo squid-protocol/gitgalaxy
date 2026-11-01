@@ -361,9 +361,13 @@ def test_an_unstated_install_symbol_or_a_missing_vsam_is_refused():
     # no symbols stated: the name stays symbolic and is refused as before (the engine's candidate join is separate)
     with pytest.raises(ec.Unsupported, match="no IDCAMS DEFINE"):
         ec.stub_files(_SymbolicIR(), "p.cbl", {"ZECS.ZCEXPIRE.TEST": {"vsam": _VSAM}})
-    # a name with no symbols at all is not touched by the stated ones
+    # a name with no symbols at all, defined only in the CSD: the stated vsam keys it (#7434), a missing one still refuses
+    (plain,) = ec.stub_files(
+        _SymbolicIR(dsname="PLAIN.ZCEXPIRE"), "p.cbl", {"PLAIN.ZCEXPIRE": {"vsam": _VSAM}}, symbols
+    )
+    assert plain["via"] == ["the case's vsam"]
     with pytest.raises(ec.Unsupported, match="no IDCAMS DEFINE"):
-        ec.stub_files(_SymbolicIR(dsname="PLAIN.ZCEXPIRE"), "p.cbl", {"PLAIN.ZCEXPIRE": {"vsam": _VSAM}}, symbols)
+        ec.stub_files(_SymbolicIR(dsname="PLAIN.ZCEXPIRE"), "p.cbl", {}, symbols)
 
 
 def test_a_retrieve_is_compared_as_the_task_records_it():

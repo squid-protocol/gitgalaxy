@@ -689,8 +689,8 @@ def test_options_honoured_without_code_say_why():
     whose having no effect the table states."""
     src = Path(C.__file__).read_text(encoding="utf-8")
     code = src[src.index("def command_key") :]
-    for family in (CC, CF, CT, CN, CFL):  # #5274: the command families split out of det/cics.py
-        code += Path(family.__file__).read_text(encoding="utf-8")
+    for family in Path(C.__file__).parent.glob("cics_*.py"):  # #5274: the command families split out of det/cics.py
+        code += family.read_text(encoding="utf-8")
     stated = {"NODUMP", "MAIN", "AUXILIARY", "NOSUSPEND", "EQUAL", "GTEQ", "TASK", "UOW", "MAXLIFETIME", "RESOURCE",
               "FOR", "INTERVAL", "TIME", "HOURS", "MINUTES", "SECONDS", "MILLISECS", "TS",
               "TERMINAL", "BELOW", "EXECUTABLE", "NAME", "EVENTUAL"}  # (#5079 X63: WAIT EVENT NAME only labels the task)  # (#5859 X32: WRITE OPERATOR EVENTUAL only says when the operator acts)  # (#4771 X47: GETMAIN's placement flags change no byte the program sees)  # fmt: skip

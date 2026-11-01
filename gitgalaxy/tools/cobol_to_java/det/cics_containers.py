@@ -19,6 +19,9 @@ class ContainerCommands:
     """The container and channel commands of `Cics` (det/cics.py), which defines the members declared below."""
 
     if TYPE_CHECKING:
+
+        def __getattr__(self, name: str) -> Any: ...
+
         g: Any
         region: str
 
@@ -187,6 +190,18 @@ class ContainerCommands:
         else:
             out.append(f"{ind}CicsTask.ContainerResult {r} = task.endBrowseContainer({self.int_(token)});")
         return out + self.outcome(opts, f"DetCics.resp({r}.resp())", f"{r}.resp2()", ind)
+
+    def dispatch(self, words: list[str], verb: str, key: str, opts: dict, ind: str) -> list[str] | None:  # noqa: ARG002
+        """The container and channel commands, or None for a command of another family."""
+        if key in ("PUT CONTAINER", "GET CONTAINER", "DELETE CONTAINER"):
+            return self.container(key, opts, ind)
+        if key in ("PUT64 CONTAINER", "GET64 CONTAINER"):  # #5005 (X17): the same, INTO / FROM an ordinary item
+            return self.container(key.replace("64", ""), opts, ind)
+        if key in ("MOVE CONTAINER", "STARTBROWSE CONTAINER", "GETNEXT CONTAINER", "ENDBROWSE CONTAINER"):
+            return self.container_browse(key, opts, ind)  # #4951
+        if key in ("DELETE CHANNEL", "QUERY CHANNEL"):
+            return self.channel_command(key, opts, ind)  # #5005
+        return None
 
 
 def _convertst(opts: dict) -> bool | None:

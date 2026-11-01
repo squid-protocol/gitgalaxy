@@ -47,7 +47,7 @@ Traps `--check` exists for:
 - [ ] **Before survey** (now, on the unchanged branch): `$PY tests/tools/cics_census.py survey --out $SCRATCH/s
       --label before --verb VERB` (det_survey.py, translation only; ~minutes per estate; background it with
       `tests/tools/box/heavy-run.sh`).
-- [ ] **Translator** (`det/cics.py`): OPTIONS and the refusals come from the spec entry (spec PR 2); every option it
+- [ ] **Translator** (the family's `dispatch` in `det/cics_<family>.py`; `det/cics.py` holds the registry and shared lookups, #5274): OPTIONS and the refusals come from the spec entry (spec PR 2); every option it
       does not honour refused BY NAME with the entry's reason; conditions through
       `outcome()` / `conditions()` with the RESP2 IBM documents; HANDLE CONDITION / NOHANDLE / RESP all honoured.
       Read IBM's command page (WebFetch `ibm.com/docs/en/cics-ts/6.x?topic=summary-...`) for a condition's exact

@@ -33,6 +33,7 @@ from gitgalaxy.tools.cobol_to_java.det import cics_conditions as CN  # noqa: E40
 from gitgalaxy.tools.cobol_to_java.det import cics_containers as CC  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import cics_faults as CFL  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import cics_filecontrol as CF  # noqa: E402
+from gitgalaxy.tools.cobol_to_java.det import cics_program as CP  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import cics_taskcontrol as CT  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -587,7 +588,7 @@ def test_the_abend_exit_check_is_one_shape_after_a_link_and_after_an_injected_fi
         "    if (exit1 != null) jump paragraph(exit1);",
         "    if (task.ended()) throw abended();",
     ]
-    src = Path(C.__file__).read_text(encoding="utf-8")
+    src = "".join(Path(m.__file__).read_text(encoding="utf-8") for m in (C, CP))
     assert src.count("self.abend_exit(ind)") == 2 and "task.abendExit()" not in src  # LINK and the file command
 
 

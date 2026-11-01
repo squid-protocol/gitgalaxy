@@ -5,7 +5,10 @@ translator's shared helpers come from det/cics_common.py (#7153), which imports 
 
 from __future__ import annotations
 
+import re
 from typing import TYPE_CHECKING, Any
+
+from gitgalaxy.tools.cobol_to_java.det.cics_common import _arg, jstr
 
 if TYPE_CHECKING:
     from gitgalaxy.tools.cobol_to_java.det import expr as E
@@ -15,6 +18,9 @@ class TaskControlCommands:
     """The task and interval control commands of `Cics` (det/cics.py), which defines the members declared below."""
 
     if TYPE_CHECKING:
+
+        def __getattr__(self, name: str) -> Any: ...
+
         g: Any
         region: str
         region_used: bool
@@ -357,7 +363,6 @@ class TaskControlCommands:
         one IBM documents no meaning (symbolic cursor positioning needs a map), so it is refused. No condition it
         documents arises on a plain terminal: NORMAL."""
         from gitgalaxy.tools.cobol_to_java.det.cics_common import _SEND_CONTROL, CicsError
-        from gitgalaxy.tools.cobol_to_java.det.cics_common import jstr as G_jstr
 
         cursor = "null"
         if "CURSOR" in opts:
@@ -365,5 +370,39 @@ class TaskControlCommands:
                 raise CicsError("SEND CONTROL CURSOR without a value: not modelled")
             cursor = self.int_(opts["CURSOR"])
         flags = [o for o in _SEND_CONTROL if o in opts]  # (sorted by the runtime)
-        return [f"{ind}task.sendControl({cursor}{''.join(', ' + G_jstr(x) for x in sorted(flags))});",
+        return [f"{ind}task.sendControl({cursor}{''.join(', ' + jstr(x) for x in sorted(flags))});",
                 *self.outcome(opts, "0", "0", ind)]  # fmt: skip
+
+    def dispatch(self, words: list[str], verb: str, key: str, opts: dict, ind: str) -> list[str] | None:
+        """The task and interval control commands, ENQ and DEQ, or None for a command of another family."""
+        if verb == "RUN":  # #4270 slice 2
+            return self.run_transid(opts, ind)
+        if words[:1] == ["FETCH"]:  # #4884, #4950: FETCH ANY / FETCH CHILD
+            return self.fetch(key, opts, ind)
+        if key == "FREE CHILD":  # #4950
+            return self.free_child(opts, ind)
+        if verb.split()[0] == "DELAY":  # #4950: the wait at which RUN children are dispatched
+            return self.delay(opts, ind)
+        if key == "POST":  # #5079 (X63): a timer-event control area
+            return self.post(opts, ind)
+        if key == "WAIT EVENT":
+            return self.wait_event(opts, ind)
+        if key in ("WAIT EXTERNAL", "WAITCICS"):
+            return self.wait_external(key, opts, ind)
+        if key == "CONVERSE":
+            return self.converse(opts, ind)
+        if verb in ("START", "RETRIEVE", "CANCEL"):  # #4270 slice 2: interval control
+            return {"START": self.start, "RETRIEVE": self.retrieve, "CANCEL": self.cancel}[verb](opts, ind)
+        if (
+            verb == "ENQ"
+        ):  # #5089 (X60): CicsTask.enq -- NORMAL, or the ENQBUSY a scenario plans for the RESOURCE as written
+            res = re.sub(r"\s+", "", (opts.get("RESOURCE") or "").upper())
+            r = self.g.tmpname("enq")
+            # LENGTH / MAXLIFETIME (X60): LENGERR 1 outside 1-255, INVREQ 2 for a CVDA that is not UOW / TASK
+            opt = {o: f"Integer.valueOf({self._number(_arg(opts[o]))})" if opts.get(o) else "null" for o in ("LENGTH", "MAXLIFETIME")}  # fmt: skip
+            nos = "true" if "NOSUSPEND" in opts else "false"
+            call = f"{ind}int[] {r} = task.enqChecked({jstr(res)}, {nos}, {opt['LENGTH']}, {opt['MAXLIFETIME']});"
+            return [call, *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
+        if verb.split()[0] in ("ENQ", "DEQ", "DELAY"):  # (DELAY FOR SECONDS(n): words DELAY FOR)
+            return self.outcome(opts, "0", "0", ind)  # (OPTIONS: one task in the region, nothing waits)
+        return None

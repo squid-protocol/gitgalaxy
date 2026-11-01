@@ -728,3 +728,34 @@ def test_a_case_edit_makes_the_committed_page_stale(tmp_path):
     before = trial.trial_pages(ledger, tmp_path)["fresh-1.md"]
     case.write_text(json.dumps({"scenarios": [{}] * 3}), encoding="utf-8")
     assert trial.trial_pages(ledger, tmp_path)["fresh-1.md"] != before
+
+
+# ---- #4493 Done-when 4: the first fresh estate's page reaches the `generated` branch ---------
+def _publish_step() -> str:
+    text = read_source(trial.REPO_ROOT / ".github" / "workflows" / "evidence-refresh.yml").text
+    start = text.index("- name: Publish the fresh-estate trial pages to the generated branch")
+    end = text.find("\n      - name:", start + 1)
+    return text[start : end if end != -1 else len(text)]
+
+
+def test_the_workflow_publishes_exactly_the_pages_the_trial_tool_writes():
+    step = _publish_step()
+    pages = trial.PAGES.relative_to(trial.REPO_ROOT).as_posix()
+    index = trial.PAGE.relative_to(trial.REPO_ROOT).as_posix()
+    publish = step[step.index("generated_branch.py publish") :]
+    assert pages in publish and index in publish
+    assert f"[ -d {pages} ]" in step and "exit 0" in step  # no trial yet: nothing to publish, not a failure
+    assert "github.ref == 'refs/heads/main'" in step  # main only, never PR code
+    assert "shepherd" not in step
+
+
+@pytest.mark.parametrize("private", [False, True])
+def test_a_fresh_estate_page_of_either_kind_carries_the_caveat_and_one_blocker_per_program(private):
+    ledger = _synthetic_ledger(private=private)
+    ((name, page),) = trial.trial_pages(ledger).items()
+    assert all(c in page for c in trial.CAVEATS)
+    assert "(rehearsal)" not in page  # a committed trial is not a rehearsal
+    blockers = trial.trial_blockers(ledger["trials"][0])
+    listed = [p for b in blockers for p in b["programs"]]
+    assert sorted(listed) == ["B", "C", "D"] and len(listed) == len(set(listed))
+    assert trial.stale_pages(ledger, trial.PAGES / "nonexistent-dir") == [name]

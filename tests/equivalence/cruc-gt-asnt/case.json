@@ -23,6 +23,15 @@
         80
       ],
       "why": "terminal task: facts logged"
+    },
+    {
+      "name": "no-terminal",
+      "commarea": null,
+      "terminal": null,
+      "startcode": "S",
+      "termid": "",
+      "userid": "CICSUSER",
+      "why": "a started task with no terminal: ASSIGN FACILITY is INVREQ (RESP2 5), the else arm logs the response"
     }
   ]
 }

@@ -113,6 +113,8 @@ Run targeted tests, not the whole `tests/cobol_mainframe` (it times out); CI run
 - A ladder report entry can be a data-dependent IF (e.g. a response code), not the named test: read the source line before choosing a scenario.
 - `equivalence.py run CASE --keep DIR` leaves uncovered lists in `DIR/coverage.json`; sweep `--cases` and `ladder_gaps.py --sweep` need comma-separated cases plus a sweep dir.
 - `ladder_refresh` diffs that only change the oracle sha are not coverage movement: discard them.
+- `evidence_report.build_program` picks ONE case per program, with no coverage merge: a sibling-case workaround does not lift the level.
+- A cics-crucible program whose service takes `Object request` cannot carry a per-scenario COMMAREA: check `handleTransaction(` in the generated service before writing scenarios (#7392).
 - `ggcics_web.c` caps WEB OPEN sessions at 64 per task; a scenario needing more is refused Unsupported (#6725).
 
 ## cics-crucible as a ladder corpus (owner OK 2026-10-31, #6072)

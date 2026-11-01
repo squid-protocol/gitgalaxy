@@ -23,6 +23,15 @@
         80
       ],
       "why": "a terminal task: FACILITY T001, SEND TEXT TERMINAL"
+    },
+    {
+      "name": "no-terminal",
+      "commarea": null,
+      "terminal": null,
+      "startcode": "S",
+      "termid": "",
+      "userid": "CICSUSER",
+      "why": "a started task with no terminal: ASSIGN FACILITY is INVREQ, a TS note instead of SEND TEXT"
     }
   ]
 }

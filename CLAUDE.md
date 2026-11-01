@@ -50,18 +50,17 @@ baseline-gated audits / `crucible_check.py` before pushing anything that touches
 - `.gitignore` ignores `*.json` repo-wide: a new committed JSON (data, a baseline, generated package
   data) needs a `!path` whitelist line like the existing ones, or `git add -f`. Confirm with
   `git ls-files <path>` before pushing.
-- A PR merged into a stacked base branch (not main) never fires its `Closes #N`: close those issues
-  when the stack lands, or say so. Stacked PRs run few CI checks until retargeted to main.
+- A PR merged into a stacked base branch (not main) never fires its `Closes #N`; stacked PRs run few CI checks until retargeted.
 - Text with backticks (PR bodies, commit messages, rulings) goes through a quoted heredoc
   (`<<'EOF'`) or a file, never an unquoted heredoc or a double-quoted `-c` string.
-- Third-party code, papers or tools: `docs/research/third-party-material-policy.md` (ideas only, never their code; ask the owner if legally questionable).
+- Third-party code, papers or tools: `docs/research/third-party-material-policy.md` (ideas only, never their code).
 - Agent knowledge (lessons, traps, owner policy) lives in the repo, not personal memory:
   `.claude/rules/agent-memory.md`.
 
 ## Scratch files & working directory
 
 Throwaway scripts, repro cases, debug output and generated artifacts do **not** belong in the repo tree, not even
-temporarily (that is how ~130 `scratch*.py`/`pr_*_body.md` files got committed and purged twice, #1091). Use
+temporarily (~130 `scratch*.py`/`pr_*_body.md` files were committed and purged twice, #1091). Use
 `/tmp/gitgalaxy-scratch/claude/` (create if missing) or your harness Scratchpad Directory (agy uses
 `/tmp/gitgalaxy-scratch/antigravity/`, see `ANTIGRAVITY.md`). If a file must live in-repo temporarily (relative pytest
 discovery), prefix it `scratch_` so `.gitignore` catches it, and delete it before ending the task.
@@ -69,28 +68,23 @@ discovery), prefix it `scratch_` so `.gitignore` catches it, and delete it befor
 ## Architecture
 
 Data flows through `gitgalaxy/core/` in a fixed pipeline, each stage handing off to the next
-(see `gitgalaxy/core/README.md` for the full writeup):
+(writeup: `gitgalaxy/core/README.md`):
 
 1. **`aperture.py`** — zero-trust ingestion filter (rejects binaries/huge files pre-I/O).
-2. **`guidestar_lens.py`** — parses manifests (`package.json`, `Cargo.toml`, etc.) for an
-   "Intent Lock" baseline, avoiding expensive heuristic guessing downstream.
-3. **`prism.py`** — splits raw source into the executable payload vs. the comment/doc surface,
-   shielding string literals so the splitter can't be fooled by delimiter-like text inside them.
-4. **`detector.py`** — the structural extractor: applies the per-language regex rules from
-   `gitgalaxy/standards/language_standards.py` to count signatures (branch, io, safety_bypasses,
-   etc.), including mid-file language switching for polyglot/embedded code.
-5. **`network_risk_sensor.py`** — builds the import-statement dependency DAG, runs PageRank for
-   blast-radius scoring.
+2. **`guidestar_lens.py`** — parses manifests for an "Intent Lock" baseline.
+3. **`prism.py`** — splits source into executable payload vs. comment/doc surface, shielding string literals.
+4. **`detector.py`** — applies the per-language regex rules from `gitgalaxy/standards/language_standards.py`
+   to count signatures (branch, io, safety_bypasses, ...), including mid-file language switching.
+5. **`network_risk_sensor.py`** — import-statement dependency DAG, PageRank for blast radius.
 6. **`spatial_mapper.py`** — projects the DAG into 3D coordinates for the WebGPU visualizer.
-7. **`state_rehydrator.py`** — incremental-scan cache (skips re-parsing unchanged files via the
-   SQLite-backed previous-run state).
+7. **`state_rehydrator.py`** — incremental-scan cache (SQLite-backed previous-run state).
 
 Downstream of core: `gitgalaxy/metrics/` (risk scoring math, false-positive suppression),
 `gitgalaxy/security/` (network-weighted threat scoring, taint tracking, AI/agentic threat
 detection), `gitgalaxy/recorders/` (output formatting: SARIF, SBOM, LLM-optimized summaries,
 SQLite), `gitgalaxy/standards/` (the per-language rule registry + `gitgalaxy_config.py` global
 config), `gitgalaxy/tools/` (standalone DevSecOps/legacy-migration CLIs built on top of core).
-Each has its own `README.md`: read it before working deep inside rather than re-deriving the architecture.
+Each has its own `README.md`: read it before working deep inside.
 
 The archetype brains (`analysis_lens.GENERAL_FUNCTION_INFERENCE_MODEL`, the file model and
 `gitgalaxy/standards/archetype_brains/*.json`) are not golden-neutral at any level: the golden
@@ -107,8 +101,7 @@ brain, or changing `SIGNAL_SCHEMA`, means a golden re-bless with the drift attri
 
 These are regression gates, not zero-tolerance floors: each has a committed baseline file
 (`tests/ruff_audit_baseline.json` etc.) and `--ci` mode fails only on *new* findings beyond it.
-This lets CI enforce "no new problems" without demanding the pre-existing backlog be fixed
-first. If you fix backlog findings, regenerate the baseline with `--write-baseline`
+If you fix backlog findings, regenerate the baseline with `--write-baseline`
 (`python tests/ruff_audit.py --write-baseline`, same for `mypy_audit.py`). `ruff format
 --check` is the one zero-tolerance exception (no backlog to carry).
 

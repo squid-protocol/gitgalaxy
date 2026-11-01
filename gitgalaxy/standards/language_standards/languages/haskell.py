@@ -13,7 +13,7 @@ from typing import Any
 from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: compiled on first use
 from gitgalaxy.standards.language_standards.identifiers import CAPITAL, ID_CONTINUE, ID_START, SMALL
 
-from .._shared_patterns import GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT, commented_keyword_statement
 
 # #6454: head of a juxtaposed application (`f x y`, `Just x`). The prefix is consumed, so a head
 # that follows another name (`x` in `f x`) is never one; `(?m:^)` is a statement or definition
@@ -423,8 +423,16 @@ DEFINITION: dict[str, Any] = {
             r"|writeTVar|modifyTVar'?|putMVar|modifyMVar_?|swapMVar|writeArray|writeSTArray|unsafeWrite|modify'?|put)\b"
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails)
+        # #7207: a statement's shape (`(...)`, a `=` binding, `... where`, an `import Mod`, a `putStrLn "..."`),
+        # not just the keyword. `-- |` / `---` lines are doc or rules, not code.
         "dead_code": re.compile(
-            r"--\s*(?:data|type|newtype|class|instance|let|where|import|putStrLn)\b",
+            commented_keyword_statement(
+                "data|type|newtype|class|instance|let|where|import|putStrLn",
+                marker=r"(?<![-!#$%&*+./<=>?@\\^|~:])--",
+                extra=r"(?:(?<=data)|(?<=newtype)|(?<=class)|(?<=instance))[ \t]+[^\n]{1,200}[ \t]where[ \t]*(?m:$)"
+                r"|(?<=import)[ \t]+(?:qualified[ \t]+)?[A-Z][\w.]{0,100}(?:[ \t]+(?:qualified|as[ \t]+[A-Z]\w{0,60}|hiding))?[ \t]*(?m:$)"
+                r"|(?<=putStrLn)[ \t]+(?:\"|\$|show\b)[^\n]{0,200}(?m:$)",
+            ),
             re.M,
         ),
         # doc: Structured Documentation. Haddock documentation markers.

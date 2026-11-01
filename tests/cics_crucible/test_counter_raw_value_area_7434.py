@@ -11,7 +11,7 @@ import pytest
 
 pytest.importorskip("tree_sitter_language_pack")
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "cobol_mainframe"))
-from test_det_translate import _LenCics  # noqa: E402
+from test_det_translate import _LenCics
 
 
 class _Item:

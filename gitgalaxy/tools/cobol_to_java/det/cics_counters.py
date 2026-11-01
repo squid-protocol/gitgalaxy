@@ -38,7 +38,10 @@ class CounterCommands:
             return False
         try:
             return self.g.resolve(e).category not in ("NUMERIC", "FLOAT")
-        except (Untranslatable, LookupError):  # an item the translator cannot place: the numeric path refuses it by name, as before
+        except (
+            Untranslatable,
+            LookupError,
+        ):  # an item the translator cannot place: the numeric path refuses it by name, as before
             return False
 
     def _clong(self, text: str) -> str:
@@ -153,9 +156,7 @@ class CounterCommands:
             for o, i in (("VALUE", 2), ("MINIMUM", 3), ("MAXIMUM", 4)):
                 if opts.get(o):
                     lines.append(
-                        ind
-                        + "    "
-                        + self._cstore(_arg(opts[o]), f"BigDecimal.valueOf({v}[{i}])", f"{v}[{i}]", False)
+                        ind + "    " + self._cstore(_arg(opts[o]), f"BigDecimal.valueOf({v}[{i}])", f"{v}[{i}]", False)
                     )
             return [*lines, f"{ind}}}", *self.outcome(opts, f"{v}[0]", f"{v}[1]", ind)]
         if verb in ("REWIND", "UPDATE") and ("COUNTER" in opts or "DCOUNTER" in opts):

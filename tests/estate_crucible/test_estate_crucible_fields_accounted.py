@@ -74,3 +74,16 @@ def test_every_key_field_is_named_in_the_scorer():
         for name in unaccounted(field_names(entry), source):
             missing.setdefault(name, []).append(member)
     assert not missing, {k: v[:3] for k, v in missing.items()}
+
+
+def test_the_six_jcl_fields_are_no_longer_listed_as_uncompared():
+    listed = set(ec.KEY_FIELDS_NOT_COMPARED)
+    for field in [
+        ("jcl_steps", "job"),
+        ("jcl_dds", "job"),
+        ("jcl_dds", "symbolic"),
+        ("jcl_dds", "added"),
+        ("jcl_utility_cards", "utility"),
+        ("jcl_utility_cards", "every"),
+    ]:
+        assert field not in listed

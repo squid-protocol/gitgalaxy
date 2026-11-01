@@ -9,24 +9,176 @@
   "transid": "PC03",
   "clock": "2026/10/01 10:30:15.00",
   "datasets": {},
-  "commarea": null,
-  "screens": {},
-  "programs": [],
-  "notes": "cics-crucible pseudo-conversational / pc-wizard (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): the confirmation step PCCONF (transaction PC03), the two arms that RETURN without a COMMAREA: PF3 cancel and ENTER posting. The COMMAREA is stated as raw bytes (commarea_hex): the elementary PIC X(30) DFHCOMMAREA has no generated DTO, and the harness refuses a RETURN / XCTL that carries a COMMAREA in a case with none, so the other arms are open (#6271). The oracle is GnuCOBOL plus the stub, not z/OS.",
+  "commarea": {
+    "segments": [
+      {
+        "copybook": "cases/pseudo-conversational/pc-wizard/src/PCCONF.cbl",
+        "record": "WS-STATE"
+      }
+    ]
+  },
+  "screens": {
+    "PCM2": {
+      "copybook": "cases/pseudo-conversational/pc-wizard/copy/PCSET.cpy",
+      "input": "PCM2I",
+      "output": "PCM2O"
+    },
+    "PCM3": {
+      "copybook": "cases/pseudo-conversational/pc-wizard/copy/PCSET.cpy",
+      "input": "PCM3I",
+      "output": "PCM3O"
+    }
+  },
+  "programs": [
+    {
+      "program": "PCWIZ",
+      "program_source": "cases/pseudo-conversational/pc-wizard/src/PCWIZ.cbl"
+    }
+  ],
+  "notes": "cics-crucible pseudo-conversational / pc-wizard (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): the confirmation step PCCONF (transaction PC03), every arm of its EVALUATE and the amount step. The COMMAREA is the typed WS-STATE record (the Object-service DTO fallback, #7422); PCWIZ is the PF7 XCTL target. Each scenario is one task. The oracle is GnuCOBOL plus the stub, not z/OS.",
   "scenarios": [
     {
       "name": "pf3-cancel",
       "aid": "DFHPF3",
-      "commarea": null,
-      "why": "PF3: SEND TEXT WIZARD CANCELLED, RETURN",
-      "commarea_hex": "33414c414e20202020202020202020200000999c00002020202020202020"
+      "commarea": {
+        "PC-STEP": 3,
+        "PC-NAME": "ALAN",
+        "PC-AMOUNT": 9.99,
+        "PC-ERRORS": 0,
+        "PC-BACK": "",
+        "PC-SPARE": ""
+      },
+      "why": "PF3: SEND TEXT WIZARD CANCELLED, RETURN"
     },
     {
       "name": "enter-post",
       "aid": "DFHENTER",
-      "commarea": null,
-      "why": "ENTER on the confirm step: the ledger line is written and POSTED shown",
-      "commarea_hex": "33414c414e20202020202020202020200000999c00002020202020202020"
+      "commarea": {
+        "PC-STEP": 3,
+        "PC-NAME": "ALAN",
+        "PC-AMOUNT": 9.99,
+        "PC-ERRORS": 0,
+        "PC-BACK": "",
+        "PC-SPARE": ""
+      },
+      "why": "ENTER on the confirm step: the ledger line is written and POSTED shown"
+    },
+    {
+      "name": "clear-step3",
+      "aid": "DFHCLEAR",
+      "commarea": {
+        "PC-STEP": 3,
+        "PC-NAME": "ALAN",
+        "PC-AMOUNT": 9.99,
+        "PC-ERRORS": 0,
+        "PC-BACK": "",
+        "PC-SPARE": ""
+      },
+      "why": "CLEAR on step 3: SCREEN RESTORED on the confirmation screen"
+    },
+    {
+      "name": "clear-step2",
+      "aid": "DFHCLEAR",
+      "commarea": {
+        "PC-STEP": 2,
+        "PC-NAME": "ALAN",
+        "PC-AMOUNT": 0,
+        "PC-ERRORS": 0,
+        "PC-BACK": "",
+        "PC-SPARE": ""
+      },
+      "why": "CLEAR on step 2 with no amount: the amount screen redrawn"
+    },
+    {
+      "name": "clear-step2-amount",
+      "aid": "DFHCLEAR",
+      "commarea": {
+        "PC-STEP": 2,
+        "PC-NAME": "ALAN",
+        "PC-AMOUNT": 12.5,
+        "PC-ERRORS": 0,
+        "PC-BACK": "",
+        "PC-SPARE": ""
+      },
+      "why": "CLEAR on step 2 with a kept amount: the amount is shown again"
+    },
+    {
+      "name": "amount-bad",
+      "aid": "DFHENTER",
+      "commarea": {
+        "PC-STEP": 2,
+        "PC-NAME": "ALAN",
+        "PC-AMOUNT": 0,
+        "PC-ERRORS": 0,
+        "PC-BACK": "",
+        "PC-SPARE": ""
+      },
+      "why": "step 2, non-digit amount: error counted, amount screen redrawn",
+      "receive": {
+        "PCM2": {
+          "AMTI": "ABC"
+        }
+      }
+    },
+    {
+      "name": "amount-mapfail",
+      "aid": "DFHENTER",
+      "commarea": {
+        "PC-STEP": 2,
+        "PC-NAME": "ALAN",
+        "PC-AMOUNT": 0,
+        "PC-ERRORS": 0,
+        "PC-BACK": "",
+        "PC-SPARE": ""
+      },
+      "why": "step 2, nothing typed: RECEIVE MAP MAPFAIL, error counted",
+      "receive": {
+        "PCM2": {}
+      }
+    },
+    {
+      "name": "amount-ok",
+      "aid": "DFHENTER",
+      "commarea": {
+        "PC-STEP": 2,
+        "PC-NAME": "ALAN",
+        "PC-AMOUNT": 0,
+        "PC-ERRORS": 0,
+        "PC-BACK": "",
+        "PC-SPARE": ""
+      },
+      "why": "step 2, digits typed: step 3 confirmation",
+      "receive": {
+        "PCM2": {
+          "AMTI": "0001999"
+        }
+      }
+    },
+    {
+      "name": "pf7-back",
+      "aid": "DFHPF7",
+      "commarea": {
+        "PC-STEP": 3,
+        "PC-NAME": "ALAN",
+        "PC-AMOUNT": 9.99,
+        "PC-ERRORS": 0,
+        "PC-BACK": "",
+        "PC-SPARE": ""
+      },
+      "why": "PF7 on step 3: PC-BACK Y, XCTL to PCWIZ"
+    },
+    {
+      "name": "other-key",
+      "aid": "DFHPF1",
+      "commarea": {
+        "PC-STEP": 3,
+        "PC-NAME": "ALAN",
+        "PC-AMOUNT": 9.99,
+        "PC-ERRORS": 0,
+        "PC-BACK": "",
+        "PC-SPARE": ""
+      },
+      "why": "PF1: WHEN OTHER, USE ENTER message on the confirmation"
     }
   ],
   "termid": "T001"

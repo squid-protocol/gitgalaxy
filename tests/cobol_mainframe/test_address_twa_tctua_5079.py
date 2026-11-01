@@ -1,4 +1,4 @@
-"""#5079 (oracle_assumptions.md X59): the facts and runtime under EXEC CICS ADDRESS TWA / TCTUA (slice 1; the spec stays refused).
+"""#5079 (oracle_assumptions.md X59): the facts and runtime under EXEC CICS ADDRESS TWA / TCTUA (slice 1; the spec models them since slice 2).
 
 IBM, EXEC CICS ADDRESS: TWA "returns a pointer reference set to the address of the transaction work area (TWA)", TCTUA the
 terminal control table user area. The sizes are definitions: TRANSACTION TWASIZE(n), TYPETERM USERAREALEN(n). The pieces, each

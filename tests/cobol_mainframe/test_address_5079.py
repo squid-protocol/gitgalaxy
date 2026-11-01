@@ -3,7 +3,7 @@
 IBM, EXEC CICS ADDRESS: EIB "returns a pointer reference set to the address of the EXEC interface block (EIB)"; COMMAREA
 "returns a pointer reference, set to the address of the communication area (COMMAREA) available to the currently executing
 program"; with no COMMAREA the pointer is X'FF000000' (no COBOL NULL, so refused). The pieces, each over the whole class:
-- the det translator, over a whole program: ADDRESS EIB / COMMAREA translate with no hole; CWA, TWA, TCTUA, ACEE, the old
+- the det translator, over a whole program: ADDRESS EIB / COMMAREA translate with no hole, as do CWA, TWA and TCTUA (sized by the definitions); ACEE, the old
   ADDRESS SET form, a program with no DFHCOMMAREA and a pointer that is no plain USAGE POINTER are holes by name; so are
   SEND PAGE and PURGE MESSAGE (each with its reason and the register entry; CONVERSE,
   POST, WAIT EVENT, WAIT EXTERNAL and WAITCICS are modelled by X63, test_post_wait_converse_5079.py);
@@ -162,6 +162,33 @@ def test_every_option_on_ibms_address_page_is_modelled_or_refused_by_name():
         assert ADDRESS.refused[key].register == "X59"
     assert "DFLTUSER" in ADDRESS.refused["ACEE"].why
     assert "current ADDRESS page" in ADDRESS.refused["SET"].why
+
+
+def test_the_system_areas_are_modelled_on_every_surface_and_no_text_says_the_spec_refuses_them():
+    """CWA / TWA / TCTUA: the spec, the stub harness and the det lowering all model them; no doc says otherwise (#5079)."""
+    import json
+
+    from gitgalaxy.standards.cics.commands.storage import ADDRESS
+
+    root = HERE.parents[1]
+    for area in ("CWA", "TWA", "TCTUA"):
+        assert area in ADDRESS.options and area not in ADDRESS.refused
+    det_dir = root / "gitgalaxy/tools/cobol_to_java/det"
+    # #5274: ADDRESS lives in the storage family module, split out of det/cics.py; read the host and every family
+    det = "".join(f.read_text(encoding="utf-8") for f in sorted(det_dir.glob("cics*.py")))
+    assert "DetCics.address{option.capitalize()}" in det
+    det_java = (det_dir / "cobolrt/cics/DetCics.java").read_text(encoding="utf-8")
+    harness = (root / "tests/tools/equivalence_cics_storage.py").read_text(encoding="utf-8")
+    for name in ("addressCwa", "addressTwa", "addressTctua"):
+        assert name in det, name
+        assert f"static void {name}(" in det_java, name
+    assert "CWA" in harness and "TWA" in harness and "TCTUA" in harness
+    rules = json.loads((root / "docs/language_status/cobolrt_rules.json").read_text(encoding="utf-8"))
+    title = next(r["title"] for r in rules["rules"] if r["id"] == "RT-CICS-ADDRESS")
+    register = (root / "docs/language_status/register/X59.md").read_text(encoding="utf-8")
+    for text in (title, register):
+        assert "spec still refuses" not in text
+        assert "not yet reachable from a program" not in text
 
 
 @pytest.mark.parametrize(

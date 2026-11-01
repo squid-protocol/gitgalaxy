@@ -1397,6 +1397,19 @@ def test_reconcile_triggers_on_the_required_checks_workflows_and_the_matrix_only
     assert "schedule" in on  # the cron still covers every other check and the rerun gap
 
 
+def test_a_skipped_completion_takes_no_pass_and_cannot_cancel_a_pending_one():
+    # #7455 item 1: 27% of the completions that wake a pass are `skipped` (a draft's heavy workflows). No job runs for
+    # them, and they must not share the group: GitHub would cancel the real pass pending there, and the cron is too
+    # sparse to catch it. Cancelled completions keep their pass: a cancel with no newer run is what the shepherd reruns.
+    doc, _ = _workflow("shepherd-reconcile.yml")
+    group = doc["concurrency"]["group"]
+    assert doc["concurrency"]["cancel-in-progress"] is False
+    assert "conclusion == 'skipped'" in group and "github.run_id" in group and group.endswith("|| 'shepherd' }}")
+    cond = doc["jobs"]["reconcile"]["if"]
+    assert "github.event_name != 'workflow_run' ||" in cond  # the cron and a manual run always pass
+    assert "conclusion != 'skipped'" in cond and "'cancelled'" not in cond
+
+
 def test_every_reconcile_pass_covers_all_labelled_prs():
     # a cancelled pending pass (one pending run per concurrency group) must not drop a PR until the cron
     rec = (REPO / ".github" / "workflows" / "shepherd-reconcile.yml").read_text(encoding="utf-8")

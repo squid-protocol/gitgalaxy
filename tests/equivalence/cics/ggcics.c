@@ -808,7 +808,8 @@ int GGCSTXT(gg_cics *c, char *from, int len) {
  * terminal (`from`, `fromlen` bytes), recorded as a plain SEND records it, then the terminal RECEIVE of the reply INTO `into` (GG-LEN the
  * most taken, GG-FLAGS NOTRUNCATE; on return GG-LEN the reply's length). A negative `fromlen` is LENGERR with nothing sent and nothing
  * read (GG-LEN -1: ASSUMED). Refused on an LUTYPE2 terminal (the reply would raise EOC, which IBM does not list for CONVERSE). */
-int GGCCONV(gg_cics *c, char *from, int fromlen, char *into) {
+/* CONVERSE's write half: 0 when the data was recorded, -1 (LENGERR, GG-LEN -1) for a negative length; the most taken is kept in GG-LEN. */
+static int converse_write(gg_cics *c, char *from, int fromlen) {
     char saved[40];
     int most = c->len;
     if (getenv("GGCICS_LU2") != NULL) refuse("CONVERSE on an LUTYPE2 terminal (the reply would raise EOC, which IBM does not list for CONVERSE)");
@@ -816,7 +817,7 @@ int GGCCONV(gg_cics *c, char *from, int fromlen, char *into) {
         c->resp = LENGERR;
         c->resp2 = 0;
         c->len = -1;
-        return 0;
+        return -1;
     }
     memcpy(saved, c->flags, sizeof saved);
     memset(c->flags, ' ', sizeof saved);
@@ -824,7 +825,11 @@ int GGCCONV(gg_cics *c, char *from, int fromlen, char *into) {
     send_text_event(c, from, fromlen);
     memcpy(c->flags, saved, sizeof saved);
     c->len = most;
-    terminal_receive(c, into);
+    return 0;
+}
+
+int GGCCONV(gg_cics *c, char *from, int fromlen, char *into) {
+    if (converse_write(c, from, fromlen) == 0) terminal_receive(c, into);
     return 0;
 }
 
@@ -2518,6 +2523,18 @@ int GGCRECP(gg_cics *c, void **slot) {
     memset(set_buf, 0, sizeof set_buf);
     int copied = terminal_receive(c, set_buf);
     if (copied >= 0) *slot = blk_set_new("RECEIVE", set_buf, (size_t)copied, 0);
+    return 0;
+}
+
+/* CONVERSE FROM FROMLENGTH SET(ptr) TOLENGTH (#5079, X63 / X58): GGCCONV's write, then RECEIVE SET's read -- the reply as a new block the
+ * pointer addresses (key "RECEIVE": it ends at the next RECEIVE SET or CONVERSE SET, ASSUMED). GG-LEN the most in, the length out; where
+ * nothing was delivered (a negative FROMLENGTH, a second terminal read) the pointer is as it was. */
+int GGCCONS(gg_cics *c, char *from, int fromlen, void **slot) {
+    if (converse_write(c, from, fromlen) == 0) {
+        memset(set_buf, 0, sizeof set_buf);
+        int copied = terminal_receive(c, set_buf);
+        if (copied >= 0) *slot = blk_set_new("RECEIVE", set_buf, (size_t)copied, 0);
+    }
     return 0;
 }
 

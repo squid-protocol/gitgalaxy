@@ -4471,8 +4471,10 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   command but whose CSD defines no TDQUEUE now gets an empty `tdqueues.cfg` from the runner, so the stub answers QIDERR instead of taking every
   queue as defined.
 - **Status:** ASSUMED where listed, REFUSED where IBM is silent. Reached by no corpus program yet (0 uses in the 18 corpora, #5079), so no
-  port moves and no ZECS program is made whole by this entry. cics-crucible cases to add (separate queue items): ADDRESS EIB / COMMAREA with the
-  EIB view reading EIBRESP after a command and a COMMAREA view written through; ADDRESS COMMAREA with no COMMAREA (refused).
+  port moves and no ZECS program is made whole by this entry. cics-crucible cases: `ca-address-commarea`, `ca-address-eib-commarea` (EIB view
+  after a command, COMMAREA written through, no COMMAREA) and `ca-address-twa-tctua` are pinned; `ca-address-cwa` arrives with the next pin
+  bump (the pin and its companion PR are tracked in #5079, not here). The equivalence harness (`equivalence.py`, GnuCOBOL end to end) does not pass
+  TWASIZE / USERAREALEN / WRKAREA, so those three areas are proven by the crucible runner only (open sibling gap).
 
 ### X60. ENQ fault injection: ENQBUSY with NOSUSPEND, RESP2 0 — ASSUMED, REFUSED where IBM is silent (#5089)
 - **What IBM says** (CICS TS 6.x, https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-enq). "If a resource is not available when ENQ

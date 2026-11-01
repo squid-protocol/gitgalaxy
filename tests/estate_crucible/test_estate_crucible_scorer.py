@@ -817,3 +817,32 @@ def test_a_file_without_key_fields_adds_no_check_even_if_the_engine_has_some():
     row = _fc_row(organization="SEQUENTIAL", record_key=None, access_mode="SEQUENTIAL")
     assert [c.status for c in _fc(key, row).checks] == ["pass"]
     assert [c.status for c in _fc(_fc_key(), _fc_row(alternate_keys=[("X", True)])).checks] == ["pass"]
+
+
+def test_every_output_jcl_statement_is_unscored_with_a_reason_at_job_and_step_level():
+    outs = [
+        dict(job="BDLDOUT", step=None, name="OUT1", params=["DEST", "CLASS"], line=3),
+        dict(job="BDLDOUT", step="OUT010", name="LOCAL", params=["COPIES"], line=9),
+    ]
+    eng = FakeEngine(files={"j.jcl": SimpleNamespace(job_flow=[])})
+    sc = ec.Score()
+    ec.score_jcl_outputs(sc, "j.jcl", {"jcl_outputs": outs}, eng)
+    assert [c.status for c in sc.checks] == ["unscored", "unscored"]
+    assert "OUT1 OUTPUT (job level)" in sc.checks[0].fact and "OUTPUT (OUT010)" in sc.checks[1].fact
+    assert all("job_flow_data keeps no OUTPUT" in c.detail for c in sc.checks)
+    assert "jcl_outputs" in ec.CHANNELS and ec.score_jcl_outputs in ec.SCORERS
+
+
+def test_a_sysout_dd_with_output_references_is_unscored_and_names_them():
+    key = [dict(_dd_key(output_refs=["*.OUT1", "*.LOCAL"]), dd="RPTOUT", dsn=None, disp=None, sysout="A")]
+    sc = _jcl([], jcl_dds=key)
+    assert [c.status for c in sc.checks] == ["unscored"]
+    assert "OUTPUT=*.OUT1,*.LOCAL" in sc.checks[0].detail
+
+
+def test_a_rerun_clause_adds_one_unscored_check_beside_the_scored_select():
+    key = _fc_key(rerun={"assign": "SYSCKPT", "every": 1000})
+    sc = _fc(key, _fc_row())
+    assert [c.status for c in sc.checks] == ["pass", "unscored"]
+    assert "RERUN SYSCKPT" in sc.checks[1].fact and "RERUN" in sc.checks[1].detail
+    assert [c.status for c in _fc(_fc_key(), _fc_row()).checks] == ["pass"]

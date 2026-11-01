@@ -23,7 +23,9 @@ GalaxyIR, and diffs every fact channel of the key against it:
   jcl_utility_cards  the control statements of an in-stream DD (job_flow_data INSTREAM rows)
   jcl_steps       STEP rows; JOB RESTART= (+ checkid), RD=, PARM.procstep=, COND.procstep= are unscored (no engine field)
   jcl_dds         DD rows (an override DD `//PROCSTEP.DD` matches the row named after its proc step);
-                  SYSOUT / DUMMY DDs are unscored (job_flow_data keeps only DDs that name a DSN)
+                  SYSOUT / DUMMY DDs are unscored (job_flow_data keeps only DDs that name a DSN), so a
+                  sysout DD's output_refs (OUTPUT=) are unscored with it
+  jcl_outputs     OUTPUT JCL statements: every one unscored (job_flow_data keeps no OUTPUT statement)
   sql_statements, sql_tables, jcl_steps, jcl_dds, screen_fields, csd_resources, transactions
   cics_resources  cics_resource_data (MAP / FILE / QUEUE commands)
   jcl_datasets    a JCL member's DSN references in file_data.raw_imports (a GDG reference as
@@ -88,6 +90,7 @@ CHANNELS = (
     "sql_tables",
     "jcl_steps",
     "jcl_dds",
+    "jcl_outputs",
     "jcl_utility_cards",
     "screen_fields",
     "csd_resources",
@@ -266,7 +269,9 @@ class Engine:
             self.units: dict[str, list[dict[str, Any]]] = defaultdict(list)
             # #7170: a program's main line is a function_data row with def_shape 'main_line'
             shape_col = (
-                "def_shape" if any(r[1] == "def_shape" for r in conn.execute("PRAGMA table_info(function_data)")) else "NULL"
+                "def_shape"
+                if any(r[1] == "def_shape" for r in conn.execute("PRAGMA table_info(function_data)"))
+                else "NULL"
             )
             for fid, name, start, loc, calls, transfers, usage, shape in conn.execute(
                 "SELECT file_id, func_name, start_line, loc, calls_out_to, transfers_to, usage_status, "  # noqa: S608
@@ -717,6 +722,36 @@ _STEP_FIELDS_WITHOUT_ENGINE_ROW = (
 )
 
 
+# Key fields the scorer has no check for yet (gitgalaxy#7065, found by tests/estate_crucible/test_estate_crucible_fields_accounted.py):
+# the key states them, the scorecard neither passes nor fails them and does not list them as `unscored`. Naming them here
+# keeps the gap visible; a field leaves this table when a scorer compares it or reports it `unscored` with a reason.
+KEY_FIELDS_NOT_COMPARED: tuple[tuple[str, str], ...] = (
+    ("member", "compile"),
+    ("member", "numbered"),
+    ("member", "lines"),
+    ("data_moves", "target_refmod_text"),
+    ("units", "span_end"),
+    ("edges", "thru"),
+    ("layouts", "unresolved"),
+    ("gaps", "lookalikes"),
+    ("csd_resources", "trigger_level"),
+    ("data_items", "implicit_filler"),
+    ("screen_fields", "map"),
+    ("screen_fields", "mapset"),
+    ("copies", "replacing"),
+    ("copy_libraries", "path"),
+    ("copy_libraries", "encoding"),
+    ("copy_libraries", "storage"),
+    ("jcl_steps", "job"),
+    ("jcl_dds", "job"),
+    ("jcl_utility_cards", "utility"),
+    ("jcl_utility_cards", "every"),
+    ("jcl_dds", "added"),
+    ("jcl_dds", "symbolic"),
+    ("member", "file"),
+)
+
+
 def _compact(v: Any) -> str:
     """A key value as one short token for a check label (a list of override dicts becomes `RPT020:QUARTERLY`)."""
     if isinstance(v, list):
@@ -798,7 +833,8 @@ def score_jcl(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
                 label,
                 "unscored",
                 f.get("horror"),
-                f"{what}: job_flow_data records only DDs that name a DSN (core/job_flow.py)",
+                f"{what}: job_flow_data records only DDs that name a DSN (core/job_flow.py)"
+                + (f"; OUTPUT={_compact(f['output_refs'])} is unread with it" if f.get("output_refs") else ""),
             )
             continue
         if "inline_lines" in f:
@@ -1071,6 +1107,20 @@ def score_jcl_datasets(sc: Score, path: str, entry: dict[str, Any], eng: Engine)
         )
 
 
+def score_jcl_outputs(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
+    """Every OUTPUT JCL statement is reported `unscored`: job_flow_data keeps no OUTPUT statement (gitgalaxy#7065, H-0094)."""
+    for f in entry.get("jcl_outputs", []):
+        where = f["step"] if f.get("step") else "job level"
+        sc.add(
+            "jcl_outputs",
+            path,
+            f"{f['name']} OUTPUT ({where}) @{f['line']}",
+            "unscored",
+            f.get("horror"),
+            "job_flow_data keeps no OUTPUT JCL statement (core/job_flow.py)",
+        )
+
+
 def score_file_control(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
     ef = eng.files.get(path)
     rows = list(ef.file_control) if ef else []
@@ -1102,6 +1152,15 @@ def score_file_control(sc: Score, path: str, entry: dict[str, Any], eng: Engine)
             ]
         )
         sc.add("file_control", path, label, "fail" if d else "pass", f.get("horror"), d)
+        if f.get("rerun"):
+            sc.add(
+                "file_control",
+                path,
+                f"{label} RERUN {f['rerun'].get('assign')}",
+                "unscored",
+                f.get("horror"),
+                "file_control_data keeps no RERUN clause of I-O-CONTROL (the checkpoint data set is not a SELECT)",
+            )
     for r in rows:
         if id(r) not in used:
             sc.add("file_control", path, f"SELECT {r.select_name} @{r.line}", "phantom", None, "not in the key")
@@ -1315,6 +1374,7 @@ SCORERS = (
     score_layouts,
     score_sql,
     score_jcl,
+    score_jcl_outputs,
     score_jcl_utility_cards,
     score_cics,
     score_cics_resources,

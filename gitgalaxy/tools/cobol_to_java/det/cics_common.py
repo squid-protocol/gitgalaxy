@@ -188,3 +188,9 @@ def _occurs_chain(it: L.Item) -> list[L.Item]:
             chain.append(a)
         a = a.parent
     return list(reversed(chain))
+
+
+def _literal(text: str | None) -> str | None:
+    if text and text.strip()[:1] in "'\"":
+        return text.strip()[1:-1].upper()
+    return None

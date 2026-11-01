@@ -44,12 +44,14 @@
 /LAYTOY.cbl	tests/cobol_mainframe
 /LICENSE.txt	tests/core_engine
 /MAIN.cbl	tests/cobol_mainframe
+/MAINLN.cbl	tests/cobol_mainframe
 /MAPSET.bms	tests/cobol_mainframe
 /MYDATA.cpy	tests/cobol_mainframe
 /MYREC.cpy	tests/cobol_mainframe
 /Main.java	tests/cobol_mainframe
 /MinApi.cs	tests/security_auditing
 /NIGHTLY.jcl	tests/core_engine
+/NOPARAS.cbl	tests/cobol_mainframe
 /P.cbl	tests/cobol_mainframe
 /P1.cbl	tests/cobol_mainframe
 /P2.cbl	tests/cobol_mainframe

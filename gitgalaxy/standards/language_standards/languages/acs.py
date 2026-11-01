@@ -12,7 +12,7 @@ from typing import Any
 
 from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: compiled on first use
 
-from .._shared_patterns import CALLS_OUT_C_STYLE, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import CALLS_OUT_C_STYLE, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT, commented_keyword_statement
 
 # A script name is a number, a quoted string or a bare word (`script 1`, `script "Open Door"`, `script Boom`, the old `script << 1 >>`).
 _SCRIPT_NAME = r"(\"[^\"\n]{1,80}\"|<<[ \t]*\d+[ \t]*>>|[A-Za-z_]\w*|\d+)"
@@ -78,8 +78,16 @@ DEFINITION: dict[str, Any] = {
             re.M,
         ),
         # 12. dead_code: commented-out statements.
+        # #7207: a statement's shape (`;{}`, `(...)`, an assignment, a `script N OPEN` header), not just the keyword;
+        # a call needs its `(...)` and `;`.
         "dead_code": re.compile(
-            r"//[ \t]*(?:(?:if|for|while|return|script|function)\b|[A-Za-z_]\w*[ \t]*\([^)\n]*\)[ \t]*;)", re.I
+            commented_keyword_statement(
+                "if|for|while|return|script|function",
+                block=False,
+                extra=r"(?<=script)[ \t]+(?:\d+|\"[^\"\n]{1,80}\")[ \t]+(?-i:[A-Z]+)[ \t]*(?m:$)",
+            )
+            + r"|//[ \t]*[A-Za-z_]\w*[ \t]*\([^)\n]*\)[ \t]*;",
+            re.I | re.M,
         ),
         # 13. doc: no documentation-comment convention in the language.
         "doc": None,

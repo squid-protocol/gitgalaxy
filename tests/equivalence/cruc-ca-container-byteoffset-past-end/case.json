@@ -1,0 +1,28 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "CABOFFX",
+  "program_source": "cases/commarea-mismatch/ca-container-byteoffset/src/CABOFFX.cbl",
+  "copy_dirs": [
+    "cases/commarea-mismatch/ca-container-byteoffset/copy"
+  ],
+  "transid": "CA0A",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "notes": "cics-crucible commarea-mismatch / ca-container-byteoffset (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): GET CONTAINER BYTEOFFSET: reads from offset 0, the middle, the last byte, past the container's remaining data, a negative offset, after a PREPEND, and an offset at or past the end (LENGERR RESP2 12). Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "past-end",
+      "commarea": null,
+      "terminal": "CA0A",
+      "why": "BYTEOFFSET at or past the end of the container: LENGERR RESP2 12",
+      "channel": {
+        "name": "CAHOME",
+        "containers": {}
+      }
+    }
+  ],
+  "linked": true
+}

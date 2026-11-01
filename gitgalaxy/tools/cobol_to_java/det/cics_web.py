@@ -24,9 +24,10 @@ class WebCommands:
         region_used: bool
         passes_bytes: bool
 
-        def __getattr__(self, name: str) -> Any: ...
+        def __getattr__(self, name: str) -> Any:
+            """The members `Cics` defines, for the type checker."""
 
-    def dispatch(self, words: list[str], verb: str, key: str, opts: dict, ind: str) -> list[str] | None:  # noqa: ARG002
+    def dispatch_web(self, words: list[str], verb: str, key: str, opts: dict, ind: str) -> list[str] | None:  # noqa: ARG002
         """The web and document commands, or None for a command of another family."""
         if key in ("DOCUMENT CREATE", "DOCUMENT RETRIEVE"):  # #4769 (X33): the document handler
             return self.document(key, opts, ind)

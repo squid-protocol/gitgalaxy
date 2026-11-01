@@ -23,30 +23,30 @@ def test_command_is_the_registry_loop_and_holds_no_command_body():
     assert len(src.splitlines()) < 40
 
 
-def test_every_family_is_a_base_of_cics_with_its_own_dispatch():
-    for family in C.COMMAND_FAMILIES:
-        assert issubclass(C.Cics, family), family
-        assert "dispatch" in vars(family), family
+def test_every_family_method_is_inherited_by_cics_under_its_own_name():
+    names = [d.__name__ for d in C.COMMAND_FAMILIES]
+    assert len(set(names)) == len(names)
+    for dispatch in C.COMMAND_FAMILIES:
+        assert getattr(C.Cics, dispatch.__name__) is dispatch
 
 
 def test_each_family_answers_none_for_a_command_of_another_family():
-    for family in C.COMMAND_FAMILIES:
-        if family is not CO.CounterCommands:
-            assert family.dispatch(_NoGen(), ["NOSUCHVERB"], "NOSUCHVERB", "NOSUCHVERB", {}, "") is None, family
+    for dispatch in C.COMMAND_FAMILIES:
+        assert dispatch(_NoGen(), ["NOSUCHVERB"], "NOSUCHVERB", "NOSUCHVERB", {}, "") is None, dispatch
 
 
 def test_counters_come_before_every_family_their_refusal_covers():
     """The counter family refuses any other command naming a counter, so only what ran before it in the old chain may
     run before it now."""
     order = list(C.COMMAND_FAMILIES)
-    at = order.index(CO.CounterCommands)
-    assert order[:at] == [C.ContainerCommands, C.TaskControlCommands]
+    at = order.index(CO.CounterCommands.dispatch_counters)
+    assert order[:at] == [C.ContainerCommands.dispatch_containers, C.TaskControlCommands.dispatch_taskcontrol]
 
 
 def test_queues_come_before_the_system_services():
     """INQUIRE TDQUEUE ran before INQUIRE PROGRAM's `verb and option` test in the old chain."""
     order = list(C.COMMAND_FAMILIES)
-    assert order.index(Q.QueueCommands) < order.index(S.SystemCommands)
+    assert order.index(Q.QueueCommands.dispatch_queues) < order.index(S.SystemCommands.dispatch_system)
 
 
 @pytest.mark.parametrize(

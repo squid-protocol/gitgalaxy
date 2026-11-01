@@ -25,9 +25,10 @@ class CounterCommands:
         region_used: bool
         passes_bytes: bool
 
-        def __getattr__(self, name: str) -> Any: ...
+        def __getattr__(self, name: str) -> Any:
+            """The members `Cics` defines, for the type checker."""
 
-    def dispatch(self, words: list[str], verb: str, key: str, opts: dict, ind: str) -> list[str] | None:  # noqa: ARG002
+    def dispatch_counters(self, words: list[str], verb: str, key: str, opts: dict, ind: str) -> list[str] | None:  # noqa: ARG002
         """The named counter commands; any other command naming a counter is refused here, or None for a command of another family."""
         if verb == "GET" and ("COUNTER" in opts or "DCOUNTER" in opts):
             # GET COUNTER: its value, then +1; INVREQ RESP2 201 for a counter not defined (X30). #4767 (X30) GET DCOUNTER

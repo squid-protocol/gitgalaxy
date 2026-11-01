@@ -27,9 +27,10 @@ class SystemCommands:
         region_used: bool
         passes_bytes: bool
 
-        def __getattr__(self, name: str) -> Any: ...
+        def __getattr__(self, name: str) -> Any:
+            """The members `Cics` defines, for the type checker."""
 
-    def dispatch(self, words: list[str], verb: str, key: str, opts: dict, ind: str) -> list[str] | None:  # noqa: ARG002
+    def dispatch_system(self, words: list[str], verb: str, key: str, opts: dict, ind: str) -> list[str] | None:  # noqa: ARG002
         """The system service commands, or None for a command of another family."""
         g = self.g
         if verb == "ASKTIME":

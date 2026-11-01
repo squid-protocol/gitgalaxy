@@ -19,7 +19,6 @@ from gitgalaxy.standards.cics.commands.assign import (
     TERMINAL_OPTIONS,  # noqa: F401 -- the conditions mixin reads it here
 )
 from gitgalaxy.standards.cics.commands.handles import AID_KEYS  # noqa: F401 -- the conditions mixin reads it here
-from gitgalaxy.standards.cics.commands.send_text import TEXT_OPTIONS  # noqa: F401 -- tests read it here
 from gitgalaxy.standards.cics.commands.task import DATE_FORMS, NUMBER_FORMS
 from gitgalaxy.standards.cics.commands.terminal import MAP_OPTIONS
 from gitgalaxy.standards.cics.resp import DFHRESP  # noqa: F401 -- tests and the conditions mixin read it here
@@ -55,22 +54,22 @@ from gitgalaxy.tools.cobol_to_java.det.cics_web import WebCommands  # #5274
 
 COPY = Path(__file__).parent / "copy"  # DFHEIBLK, DFHAID, DFHBMSCA
 
-# The translator's command families (#5274): `Cics._command` asks each `dispatch` in turn and the first that answers with
-# lines wins. A new command goes in its family's `dispatch`, so a slice leaves this file alone; a new family is one line
+# The translator's command families (#5274): `Cics._command` asks each family's `dispatch_<family>` in turn and the first that answers with
+# lines wins. A new command goes in that method, so a slice leaves this file alone; a new family is one line
 # here and one base of `Cics`. The order is the dispatch order, and it matters: containers and task control come before
-# counters, whose `dispatch` refuses every other command naming a counter; queues come before system (INQUIRE).
+# counters, whose method refuses every other command naming a counter; queues come before system (INQUIRE).
 COMMAND_FAMILIES: tuple[Any, ...] = (
-    ContainerCommands,
-    TaskControlCommands,
-    CounterCommands,
-    TerminalCommands,
-    ProgramControlCommands,
-    FileControlCommands,
-    ConditionCommands,
-    QueueCommands,
-    SystemCommands,
-    StorageCommands,
-    WebCommands,
+    ContainerCommands.dispatch_containers,
+    TaskControlCommands.dispatch_taskcontrol,
+    CounterCommands.dispatch_counters,
+    TerminalCommands.dispatch_terminal,
+    ProgramControlCommands.dispatch_program,
+    FileControlCommands.dispatch_filecontrol,
+    ConditionCommands.dispatch_conditions,
+    QueueCommands.dispatch_queues,
+    SystemCommands.dispatch_system,
+    StorageCommands.dispatch_storage,
+    WebCommands.dispatch_web,
 )
 
 
@@ -871,8 +870,8 @@ class Cics(
         verb = " ".join(words)
         check_options(words, opts)  # #4411: an option the translation would ignore is refused first
         key = command_key(words, opts)
-        for family in COMMAND_FAMILIES:
-            lines = family.dispatch(self, words, verb, key, opts, ind)
+        for dispatch in COMMAND_FAMILIES:
+            lines = dispatch(self, words, verb, key, opts, ind)
             if lines is not None:
                 return lines
         # #4270 spec PR 2: a command we do not model, refused whole -- with its name-only (or engine-only) entry's

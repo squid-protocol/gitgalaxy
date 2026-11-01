@@ -24,9 +24,10 @@ class ProgramControlCommands:
         region_used: bool
         passes_bytes: bool
 
-        def __getattr__(self, name: str) -> Any: ...
+        def __getattr__(self, name: str) -> Any:
+            """The members `Cics` defines, for the type checker."""
 
-    def dispatch(self, words: list[str], verb: str, key: str, opts: dict, ind: str) -> list[str] | None:  # noqa: ARG002
+    def dispatch_program(self, words: list[str], verb: str, key: str, opts: dict, ind: str) -> list[str] | None:  # noqa: ARG002
         """The program control commands, or None for a command of another family."""
         g = self.g
         if verb == "LINK":
@@ -41,6 +42,7 @@ class ProgramControlCommands:
             r, ca = g.tmpname("lr"), g.tmpname("ca")
             out: list[str] = []
             cls: str | None = None
+            f = length = ""  # (set by the COMMAREA arm, the only one that reads them)
             if "CHANNEL" in opts:  # #4270: the callee's current channel (CicsTask.linkChannel)
                 if "COMMAREA" in opts or "LENGTH" in opts:
                     raise CicsError(_msg("LINK", "at_most_one", "CHANNEL"))

@@ -19,7 +19,8 @@ class TaskControlCommands:
 
     if TYPE_CHECKING:
 
-        def __getattr__(self, name: str) -> Any: ...
+        def __getattr__(self, name: str) -> Any:
+            """The members `Cics` defines, for the type checker."""
 
         g: Any
         region: str
@@ -37,7 +38,6 @@ class TaskControlCommands:
 
     def _number(self, text: str) -> str:
         """An INTERVAL / TIME / HOURS ... value as a Java int expression (a literal's leading zeros dropped)."""
-        import re
 
         t = text.strip()
         return str(int(t)) if re.fullmatch(r"\d+", t) else self.int_(t)
@@ -94,7 +94,6 @@ class TaskControlCommands:
         the original length of the data"); RTRANSID / RTERMID / QUEUE get the values the START gave. ENDDATA,
         ENVDEFERR and LENGERR through RESP / HANDLE CONDITION. SET(pointer) LENGTH(data-area) (#5042, X58): the data in a new
         block of task storage the pointer addresses (DetCics.setBlock), LENGTH its length. WAIT is refused (OPTIONS)."""
-        import re
 
         from gitgalaxy.tools.cobol_to_java.det.cics_common import CicsError, _arg, _msg, _one_of
 
@@ -300,7 +299,6 @@ class TaskControlCommands:
         under LENGERR). LENGERR is the only condition IBM lists; the reply's EOC of an LUTYPE2 terminal is refused when it
         runs. A negative FROMLENGTH is LENGERR with nothing sent (ASSUMED). SET(pointer) puts the reply in a task-storage
         block as RECEIVE SET does (X58; needs TOLENGTH(data-area)); the conversation options are refused by name by the spec."""
-        import re
 
         from gitgalaxy.tools.cobol_to_java.det.cics_common import CicsError, _arg, _msg, _one_of
 
@@ -373,7 +371,7 @@ class TaskControlCommands:
         return [f"{ind}task.sendControl({cursor}{''.join(', ' + jstr(x) for x in sorted(flags))});",
                 *self.outcome(opts, "0", "0", ind)]  # fmt: skip
 
-    def dispatch(self, words: list[str], verb: str, key: str, opts: dict, ind: str) -> list[str] | None:
+    def dispatch_taskcontrol(self, words: list[str], verb: str, key: str, opts: dict, ind: str) -> list[str] | None:
         """The task and interval control commands, ENQ and DEQ, or None for a command of another family."""
         if verb == "RUN":  # #4270 slice 2
             return self.run_transid(opts, ind)

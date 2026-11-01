@@ -21,7 +21,8 @@ class ConditionCommands:
 
     if TYPE_CHECKING:
 
-        def __getattr__(self, name: str) -> Any: ...
+        def __getattr__(self, name: str) -> Any:
+            """The members `Cics` defines, for the type checker."""
 
         g: Any
         handle_aid: bool
@@ -126,7 +127,7 @@ class ConditionCommands:
         return [f"{ind}aid({resp});", *self.outcome(opts, resp, "0", ind),
                 f"{ind}int {to} = aid({resp});", f"{ind}if ({to} >= 0) {self.g.jump(to)}"]  # fmt: skip
 
-    def dispatch(self, words: list[str], verb: str, key: str, opts: dict, ind: str) -> list[str] | None:  # noqa: ARG002
+    def dispatch_conditions(self, words: list[str], verb: str, key: str, opts: dict, ind: str) -> list[str] | None:  # noqa: ARG002
         """The handler, ABEND and ASSIGN commands, or None for a command of another family."""
         g = self.g
         if verb == "HANDLE ABEND":

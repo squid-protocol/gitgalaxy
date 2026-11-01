@@ -20,7 +20,8 @@ class ContainerCommands:
 
     if TYPE_CHECKING:
 
-        def __getattr__(self, name: str) -> Any: ...
+        def __getattr__(self, name: str) -> Any:
+            """The members `Cics` defines, for the type checker."""
 
         g: Any
         region: str
@@ -191,7 +192,7 @@ class ContainerCommands:
             out.append(f"{ind}CicsTask.ContainerResult {r} = task.endBrowseContainer({self.int_(token)});")
         return out + self.outcome(opts, f"DetCics.resp({r}.resp())", f"{r}.resp2()", ind)
 
-    def dispatch(self, words: list[str], verb: str, key: str, opts: dict, ind: str) -> list[str] | None:  # noqa: ARG002
+    def dispatch_containers(self, words: list[str], verb: str, key: str, opts: dict, ind: str) -> list[str] | None:  # noqa: ARG002
         """The container and channel commands, or None for a command of another family."""
         if key in ("PUT CONTAINER", "GET CONTAINER", "DELETE CONTAINER"):
             return self.container(key, opts, ind)

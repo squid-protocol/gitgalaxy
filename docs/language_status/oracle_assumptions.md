@@ -3539,6 +3539,10 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   say CHANNEL(DFHTRANSACTION) selects the transaction channel, "always accessible in the task" when the link level changes. That
   scope is not modelled, and without the refusal a DFHTRANSACTION run as an ordinary channel and dropped out at the next level.
   (`RUN` / `START` CHANNEL already refused DFH names.) GET, GET64, the browse and QUERY CHANNEL are unchanged.
+  **Class pin (#5005):** `tests/cics_crucible/test_cics_dfh_class_5005.py` lists every spec command that names a channel or
+  container and fails on one with no stated DFH disposition. Refused by name: PUT, PUT64, DELETE CONTAINER, MOVE, DELETE CHANNEL, START,
+  RUN, LINK, XCTL, RETURN (PUT64 is the PUT command with 64-bit areas and shares its refusal and runtime call). Reads, unchanged
+  (reading a read-only item is legal): GET, GET64, the browse, QUERY CHANNEL, FETCH ANY / CHILD, ASSIGN CHANNEL; WEB's CHANNEL / AS are HTTP options.
   Still not modelled: the real outcomes, which need an IBM list of the read-only names. Census 2026-10-31 (`cics_census.py usage "MOVE CONTAINER" --no-census`): 0 programs
   in the burned and local corpora use MOVE CONTAINER, and no burned program deletes a DFH channel, so no estate needs the real
   outcomes; they need an IBM list of the read-only names. Proved in `tests/cics_crucible/test_cics_runtimes.py`.

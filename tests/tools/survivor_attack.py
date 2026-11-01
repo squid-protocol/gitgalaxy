@@ -51,15 +51,15 @@ HINTS = (
     (re.compile(r"eibresp|respond|\bresp\b", re.I),
      "A response store: plan a `faults` entry so a command answers a condition, then look for a later IF on the value."),
     (re.compile(r"linkArea|caBack|\braw\b|commarea", re.I),
-     "COMMAREA bytes: the program can be entered by XCTL or LINK from another program. Try a `{\"hex\": ...}` field "
-     "value and a longer or shorter area than the layout."),
+     ("COMMAREA bytes: the program can be entered by XCTL or LINK from another program. Try a `{\"hex\": ...}` field "
+      "value and a longer or shorter area than the layout.")),
     (re.compile(r'"[^"]*"\.|\.contains|indexOf|tally|inspect', re.I),
      "A text scan: try a value that holds the searched text. Install values such as URIMAP paths are inputs too."),
     (re.compile(r"\bif\b|\bwhile\b"),
      "A condition: find the boundary value that makes the original and the mutant take different branches."),
     (re.compile(r"length|\blen\b|maxlength", re.I),
      "A length: try exactly the limit, one over it, and empty."),
-)
+)  # fmt: skip
 _METHOD = re.compile(r"(?m)^    (?:public|private|protected)[^;{=\n]*?\b(\w+)\(")
 _CALL = re.compile(r"\b(\w+)\s*\(")
 _CONSTANT = re.compile(r"\bstatic final [\w<>\[\], ]+\s+(\w+)\s*=")
@@ -239,7 +239,9 @@ def attack(case_name: str, ids: list[str], inputs: Path, work: Path, timeout: fl
 
     case = eq.load_case(case_name)
     if case.get("kind", "batch") not in st.KINDS:
-        raise SystemExit(f"{case_name}: kind {case.get('kind', 'batch')}: use `strengthen.py run --mutation` for records")
+        raise SystemExit(
+            f"{case_name}: kind {case.get('kind', 'batch')}: use `strengthen.py run --mutation` for records"
+        )
     (corpus_entry,) = mc.select([case["corpus"]])
     proposals = json.loads(inputs.read_text(encoding="utf-8"))
     trial = attack_case(case, proposals, st.commarea_names(case, mc.require_clone(corpus_entry)))
@@ -321,7 +323,9 @@ def cmd_packet(case: str, mid: str, work: Path) -> int:
             print(f"Refused as written: {problem}")
     print("\n## The Java\n```java")
     print("\n".join(f"{'>' if i + 1 == m.line else ' '}{i + 1:5} {lines[i]}" for i in span))
-    print(f"```\n\nThe COBOL: {spec.get('program_source')} in corpus {spec.get('corpus')}. Read it: the Java is one reading.")
+    print(
+        f"```\n\nThe COBOL: {spec.get('program_source')} in corpus {spec.get('corpus')}. Read it: the Java is one reading."
+    )
     hints = [h for rx, h in HINTS if rx.search(m.before)]
     print("\n## Where to start\n" + ("\n".join(f"- {h}" for h in hints) or "- Read how this value reaches an output."))
     kind = spec.get("kind", "batch")
@@ -329,7 +333,9 @@ def cmd_packet(case: str, mid: str, work: Path) -> int:
         names = [e.get("name") for e in spec.get(st.KINDS[kind], [])]
         print(f"\n## The input format\n{st.INPUT_FORMAT[kind]}\n\nInputs the case has: {names}")
     print("\n## The command\n```bash")
-    print(f"python tests/tools/survivor_attack.py try {case} {mid} --inputs INPUTS.json --work {shlex.quote(str(work))}")
+    print(
+        f"python tests/tools/survivor_attack.py try {case} {mid} --inputs INPUTS.json --work {shlex.quote(str(work))}"
+    )
     print("```\nINPUTS.json is a JSON array of inputs. Never state an expected result: the COBOL decides.")
     return 0
 
@@ -380,9 +386,13 @@ def main(argv: list[str] | None = None) -> int:
     results = attack(args.case, args.ids.split(","), args.inputs, args.work.resolve(), args.timeout)
     wins = [i for i, r in results.items() if r["result"] == "killed"]
     if wins:
-        print(f"killed {', '.join(wins)}: add the input to tests/equivalence/{args.case}/case.json and re-run the ledger")
+        print(
+            f"killed {', '.join(wins)}: add the input to tests/equivalence/{args.case}/case.json and re-run the ledger"
+        )
     if any(r["result"] == "port-differs" for r in results.values()):
-        print("port-differs: the port is not equal to the COBOL on this input. Stop and report it: that is a real finding")
+        print(
+            "port-differs: the port is not equal to the COBOL on this input. Stop and report it: that is a real finding"
+        )
     return 0
 
 

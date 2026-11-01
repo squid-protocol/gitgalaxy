@@ -280,6 +280,56 @@ def test_the_harness_calls_the_stubs_entry_points():
     assert not any("MOVE GG-LEN TO" in line for line in plain)  # (no TOLENGTH: nothing to set)
 
 
+def test_the_harness_translates_wait_external_and_waitcics_to_the_ecb_stub():
+    ec = _ec()
+    for text, flag in (("WAIT EXTERNAL ECBLIST(P) NUMEVENTS(2) NAME('X') PURGEABLE RESP(R)", "EXTERNAL"),
+                       ("WAITCICS ECBLIST(P) NUMEVENTS(WS-N) NOTPURGEABLE RESP(R)", "WAITCICS")):  # fmt: skip
+        out = ec.translate_command(text)
+        assert (
+            out[0] == f"MOVE '{flag}' TO GG-FLAGS" and out[1].startswith("MOVE ") and out[1].endswith(" TO GG-NUM")
+        ), out
+        assert out[2:4] == ["CALL 'GGCECBW' USING GG-CICS", "    BY REFERENCE P"] and "MOVE GG-RESP TO R" in out
+    assert "MOVE 2 TO GG-NUM" in ec.translate_command("WAIT EXTERNAL ECBLIST(P) NUMEVENTS(2)")
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "WAIT EXTERNAL ECBLIST(P)",
+        "WAIT EXTERNAL NUMEVENTS(1)",
+        "WAITCICS ECBLIST(P)",
+        "WAITCICS NUMEVENTS(1)",
+        "WAIT EXTERNAL ECBLIST(P) NUMEVENTS(1) PURGEABLE NOTPURGEABLE",
+        "WAITCICS ECBLIST(P) NUMEVENTS(1) PURGEABLE NOTPURGEABLE",
+        "WAIT EXTERNAL ECBLIST(P) NUMEVENTS(1) PURGEABILITY(X)",
+        "WAITCICS ECBLIST(A OF B) NUMEVENTS(1)",
+        "WAIT EXTERNAL ECBLIST(A(1)) NUMEVENTS(1)",
+    ],
+)
+def test_the_harness_refuses_what_the_translator_refuses_for_the_ecb_waits(text):
+    with pytest.raises(_ec().Unsupported):
+        _ec().translate_command(text)
+
+
+def test_the_ecb_stub_is_defined_once_and_wired_into_the_spec():
+    from gitgalaxy.standards.cics.commands import COMMANDS
+
+    stub = (HERE.parents[1] / "tests/equivalence/cics/ggcics_taskcontrol.c").read_text(encoding="utf-8")
+    assert stub.count("int GGCECBW(gg_cics *c, void **slot)") == 1
+    for needle in (
+        "INVREQ",
+        "c->resp2 = 5",
+        "c->resp2 = 3",
+        "== 0x40",
+        "no posted ECB",
+        "WAITCICS with a null ECBLIST",
+    ):
+        assert needle in stub, needle
+    for key in ("WAIT EXTERNAL", "WAITCICS"):
+        impl = COMMANDS[key].impl
+        assert (impl.c, impl.harness, impl.java) == ("GGCECBW", "_wait_external", "waitExternal"), key
+
+
 @pytest.mark.parametrize(
     "text",
     [

@@ -704,6 +704,8 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
         return cics_taskcontrol._post(opts, labels)
     if verb == "WAIT" and "EVENT" in opts and opts["EVENT"] is None:
         return cics_taskcontrol._wait_event(opts, labels)
+    if verb == "WAITCICS" or (verb == "WAIT" and "EXTERNAL" in opts and opts["EXTERNAL"] is None):  # #5079 (X63)
+        return cics_taskcontrol._wait_external("WAITCICS" if verb == "WAITCICS" else "WAIT EXTERNAL", opts, labels)
     if verb == "CONVERSE":
         return cics_taskcontrol._converse(opts, labels)
     if verb in ("ENQ", "DEQ"):

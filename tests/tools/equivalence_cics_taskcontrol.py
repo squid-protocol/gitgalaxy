@@ -1,6 +1,6 @@
 """#5274: the task / interval control family of the CICS harness's stub translator (equivalence_cics.translate), split out
 of equivalence_cics.py: START / RETRIEVE / CANCEL (#4006, #4270, #5042), RUN TRANSID, FETCH, FREE CHILD (#4950), DELAY,
-POST, WAIT EVENT and CONVERSE (#5079), and how a START or RETRIEVE event is read back on the COBOL and Java sides (#4270,
+POST, WAIT EVENT, WAIT EXTERNAL / WAITCICS and CONVERSE (#5079), and how a START or RETRIEVE event is read back on the COBOL and Java sides (#4270,
 #5089). equivalence_cics's command dispatch calls these; they reach its shared helpers (the spec, `_call`, `_resp`, the
 refusals) through the module at call time, so the import works either way round."""
 
@@ -108,6 +108,25 @@ def _wait_event(opts: dict[str, str | None], labels: list[str]) -> list[str]:
     if not opts.get("ECADDR"):
         raise ec.Unsupported(ec._rule(key, "required", "ECADDR"), [key])
     return ec._call("GGCWEVT", [f"BY REFERENCE {ec._pointer(key, opts['ECADDR'])}"]) + ec._resp(opts, True, labels)
+
+
+def _wait_external(key: str, opts: dict[str, str | None], labels: list[str]) -> list[str]:
+    """#5079 (register X63): WAIT EXTERNAL / WAITCICS ECBLIST(ptr) NUMEVENTS(n) [NAME] [PURGEABLE | NOTPURGEABLE] -> GGCECBW
+    (NUMEVENTS in GG-NUM, GG-FLAGS 'WAITCICS' for WAITCICS; the stub reads the list as NUMEVENTS pointers in task storage, returns
+    at once on a posted ECB, INVREQ RESP2 2 / 3 / 5, and refuses what cannot be modelled). The option rules as the translator's."""
+    ec._check_spec(key, opts, tuple(key.split()), lambda bad: [f"{key} {o}" for o in bad])
+    for needed in ("ECBLIST", "NUMEVENTS"):
+        if not opts.get(needed):
+            raise ec.Unsupported(ec._rule(key, "required", needed), [key])
+    if "PURGEABLE" in opts and "NOTPURGEABLE" in opts:
+        raise ec.Unsupported(ec._rule(key, "at_most_one", "PURGEABLE"), [key])
+    flag = "WAITCICS" if key == "WAITCICS" else "EXTERNAL"
+    lines = [f"MOVE '{flag}' TO GG-FLAGS", f"MOVE {opts['NUMEVENTS']} TO GG-NUM"]
+    return (
+        lines
+        + ec._call("GGCECBW", [f"BY REFERENCE {ec._pointer(key, opts['ECBLIST'])}"])
+        + ec._resp(opts, True, labels)
+    )
 
 
 def _converse(opts: dict[str, str | None], labels: list[str]) -> list[str]:

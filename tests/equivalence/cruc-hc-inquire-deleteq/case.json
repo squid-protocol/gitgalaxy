@@ -1,0 +1,54 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "HCINQD",
+  "program_source": "cases/condition-handling/hc-inquire-deleteq/src/HCINQD.cbl",
+  "copy_dirs": [
+    "cases/condition-handling/hc-inquire-deleteq/copy"
+  ],
+  "transid": "HC61",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {
+    "HCM2": {
+      "copybook": "cases/condition-handling/hc-inquire-deleteq/copy/HCSET2.cpy",
+      "input": "HCM2I",
+      "output": "HCM2O"
+    }
+  },
+  "origin": {
+    "applid": "CRUAPPL1",
+    "userid": "CICSUSER",
+    "facilname": "T001",
+    "networkid": "CRUNET01",
+    "faciltype": "TERMINAL"
+  },
+  "notes": "cics-crucible condition-handling / hc-inquire-deleteq (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): INQUIRE ASSOCIATION(EIBTASKN) origin data (ODAPPLID, ODUSERID, ODFACILNAME, ODNETWORKID, ODFACILTYPE as a CVDA), DELETEQ TS (the whole queue and its NEXT position, QIDERR, INVREQ for a name of binary zeros), RECEIVE MAP ... TERMINAL. Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "origin",
+      "commarea": null,
+      "terminal": "HC61 I",
+      "why": "INQUIRE ASSOCIATION(EIBTASKN) with all five origin options (RESP / RESP2), then with two of them: the stated origin, ODFACILTYPE as the CVDA 213"
+    },
+    {
+      "name": "deleteq",
+      "commarea": null,
+      "terminal": "HC61 D",
+      "why": "DELETEQ TS removes the queue with its items and NEXT position (QIDERR afterwards, and for a second delete); a queue written anew starts at item 1; a name of binary zeros is INVREQ"
+    },
+    {
+      "name": "receive-terminal",
+      "commarea": null,
+      "terminal": "HC61 M",
+      "why": "SEND MAP, then RECEIVE MAP ... TERMINAL ASIS: the input of the terminal that started the task"
+    },
+    {
+      "name": "unmatched-mode",
+      "commarea": null,
+      "terminal": "HC61 Z",
+      "why": "takes the EVALUATE arm no crucible scenario reaches: a mode no WHEN names (falls through)"
+    }
+  ]
+}

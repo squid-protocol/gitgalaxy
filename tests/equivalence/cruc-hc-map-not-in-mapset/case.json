@@ -1,0 +1,58 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "HCMAB",
+  "program_source": "cases/condition-handling/hc-map-not-in-mapset/src/HCMAB.cbl",
+  "copy_dirs": [
+    "cases/condition-handling/hc-map-not-in-mapset/copy"
+  ],
+  "transid": "HC61",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {
+    "HCM3": {
+      "copybook": "cases/condition-handling/hc-map-not-in-mapset/copy/HCSET3.cpy",
+      "input": "HCM3I",
+      "output": "HCM3O"
+    }
+  },
+  "notes": "cics-crucible condition-handling / hc-map-not-in-mapset (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted, so it is the MAP name): abend ABM0, no condition, a HANDLE ABEND exit takes it. Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "in-mapset",
+      "commarea": null,
+      "terminal": "HC61 O",
+      "why": "SEND MAP('HCM3') MAPSET('HCSET3'): the map is in its mapset, the screen is sent"
+    },
+    {
+      "name": "omitted-mapset",
+      "commarea": null,
+      "terminal": "HC61 S",
+      "why": "SEND MAP('HCSET3') with no MAPSET: map HCSET3 is not in mapset HCSET3 (its map is HCM3), ABM0"
+    },
+    {
+      "name": "receive",
+      "commarea": null,
+      "terminal": "HC61 R",
+      "why": "RECEIVE MAP('HCSET3') with no MAPSET: the same, ABM0"
+    },
+    {
+      "name": "exit",
+      "commarea": null,
+      "terminal": "HC61 X",
+      "why": "HANDLE ABEND LABEL, then SEND MAP('HCNONE') MAPSET('HCSET3'): ABM0 goes to the exit, which logs ASSIGN ABCODE"
+    },
+    {
+      "name": "unmatched-mode",
+      "commarea": null,
+      "terminal": "HC61 Z",
+      "why": "takes the EVALUATE arm no crucible scenario reaches: a mode no WHEN names (falls through)"
+    }
+  ],
+  "maps": {
+    "HCM3": {
+      "mapset": "HCSET3"
+    }
+  }
+}

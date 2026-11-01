@@ -85,6 +85,9 @@ def test_the_spec_imports_only_the_stdlib():
 IMPORTERS: set[str] = {
     "gitgalaxy/tools/cobol_to_java/det/cics.py",
     "gitgalaxy/tools/cobol_to_java/det/cics_common.py",  # #7153: the helpers cics.py and its mixins share
+    "gitgalaxy/tools/cobol_to_java/det/cics_counters.py",  # #5274: the COUNTER refusal text
+    "gitgalaxy/tools/cobol_to_java/det/cics_system.py",  # #5274: FORMATTIME's forms
+    "gitgalaxy/tools/cobol_to_java/det/cics_terminal.py",  # #5274: the SEND TEXT and map options
     "gitgalaxy/tools/cobol_to_java/det/cics_conditions.py",  # #7153: TERMINAL_OPTIONS / AID_KEYS / DFHRESP, not via det/cics.py
     "gitgalaxy/tools/cobol_to_java/det/expr.py",
     "tests/tools/equivalence_cics.py",

@@ -14,9 +14,9 @@ Every cell that does not pass is ledgered in `tests/cics_crucible/baseline.json`
 | forge-compile | 48 | 0 | 0 | 48 |
 | cobol-stub | 155 | 10 | 6 | 171 |
 | java | 0 | 171 | 0 | 171 |
-| java-ported | 60 | 111 | 0 | 171 |
-| java-facade | 57 | 114 | 0 | 171 |
-| **all** | **368** | **406** | **6** | **780** |
+| java-ported | 61 | 110 | 0 | 171 |
+| java-facade | 58 | 113 | 0 | 171 |
+| **all** | **370** | **404** | **6** | **780** |
 
 ## By trap and case
 
@@ -34,7 +34,7 @@ Pass counts per side (scenario sides: passing / scenarios).
 | commarea-mismatch | `ca-getmain-pointer` | pass | pass | 1 / 2 | 0 / 2 | 2 / 2 | 2 / 2 |
 | commarea-mismatch | `ca-link-lengths` | pass | pass | 4 / 4 | 0 / 4 | 4 / 4 | 4 / 4 |
 | commarea-mismatch | `ca-load-set` | pass | pass | 2 / 2 | 0 / 2 | 2 / 2 | 2 / 2 |
-| commarea-mismatch | `ca-receive-retrieve-set` | pass | pass | 1 / 3 | 0 / 3 | 0 / 3 | 0 / 3 |
+| commarea-mismatch | `ca-receive-retrieve-set` | pass | pass | 1 / 3 | 0 / 3 | 1 / 3 | 1 / 3 |
 | commarea-mismatch | `ca-xctl-versions` | pass | pass | 4 / 4 | 0 / 4 | 4 / 4 | 4 / 4 |
 | condition-handling | `hc-abend-link` | pass | pass | 5 / 5 | 0 / 5 | 5 / 5 | 5 / 5 |
 | condition-handling | `hc-counter-increment-wrap` | pass | pass | 1 / 3 | 0 / 3 | 0 / 3 | 0 / 3 |
@@ -101,7 +101,7 @@ Each cobol-stub scenario runs the COBOL compiled with `-ftraceall` (tests/tools/
 | `ca-link-lengths` | CASUB | 3 | 1/1 | 4/4 | 0/0 | 0 | proven on 3 scenarios, covering 1/1 paragraphs and 4/4 branches |
 | `ca-load-set` | CALDST | 1 | 3/3 | 2/4 | 0/0 | 0 | proven on 1 scenario, covering 3/3 paragraphs and 2/4 branches |
 | `ca-load-set` | CALDSX | 1 | 2/2 | 2/4 | 0/0 | 0 | proven on 1 scenario, covering 2/2 paragraphs and 2/4 branches |
-| `ca-receive-retrieve-set` | CARCST | 1 | 1/1 | 2/5 | 0/0 | 0 | proven on 0 scenarios, covering 0/1 paragraphs and 0/5 branches |
+| `ca-receive-retrieve-set` | CARCST | 1 | 1/1 | 2/5 | 0/0 | 0 | proven on 1 scenario, covering 1/1 paragraphs and 2/5 branches |
 | `ca-receive-retrieve-set` | CARTWK | 0 | 0/1 | 0/2 | 0/0 | 0 | -- |
 | `ca-xctl-versions` | CAXA | 3 | 1/1 | 3/3 | 0/0 | 0 | proven on 3 scenarios, covering 1/1 paragraphs and 3/3 branches |
 | `ca-xctl-versions` | CAXB | 3 | 1/1 | 6/6 | 0/0 | 0 | proven on 3 scenarios, covering 1/1 paragraphs and 6/6 branches |
@@ -434,8 +434,10 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | cobol-stub | data bytes differ | 1 |
 | cobol-stub | text differs | 1 |
 | java | runTask records no events (the generated stub: PROCEDURE DIVISION not ported) | 171 |
-| java-ported | not ported | 111 |
-| java-facade | not ported | 111 |
+| java-ported | not ported | 108 |
+| java-ported | item differs | 2 |
+| java-facade | not ported | 108 |
+| java-facade | item differs | 2 |
 | java-facade | RECEIVE expected, other event | 3 |
 
 ## Every cell that does not pass
@@ -509,15 +511,13 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | `ca-load-set/pgmiderr/java` | fail | task 1 (CA0M) event 1: WRITEQ-TS expected, the side recorded no further event |
 | `ca-receive-retrieve-set/enddata/cobol-stub` | fail | task 2 (CA0E) event 2: item 1 expected, got 2 |
 | `ca-receive-retrieve-set/enddata/java` | fail | task 1 (CA0D) event 1: RECEIVE expected, the side recorded no further event |
-| `ca-receive-retrieve-set/enddata/java-facade` | fail | no port of any of its programs |
-| `ca-receive-retrieve-set/enddata/java-ported` | fail | no port of any of its programs |
+| `ca-receive-retrieve-set/enddata/java-facade` | fail | task 2 (CA0E) event 2: item 1 expected, got 2 |
+| `ca-receive-retrieve-set/enddata/java-ported` | fail | task 2 (CA0E) event 2: item 1 expected, got 2 |
 | `ca-receive-retrieve-set/retrieve-equal/cobol-stub` | fail | task 2 (CA0E) event 2: item 1 expected, got 2 |
 | `ca-receive-retrieve-set/retrieve-equal/java` | fail | task 1 (CA0D) event 1: RECEIVE expected, the side recorded no further event |
-| `ca-receive-retrieve-set/retrieve-equal/java-facade` | fail | no port of any of its programs |
-| `ca-receive-retrieve-set/retrieve-equal/java-ported` | fail | no port of any of its programs |
+| `ca-receive-retrieve-set/retrieve-equal/java-facade` | fail | task 2 (CA0E) event 2: item 1 expected, got 2 |
+| `ca-receive-retrieve-set/retrieve-equal/java-ported` | fail | task 2 (CA0E) event 2: item 1 expected, got 2 |
 | `ca-receive-retrieve-set/short-input/java` | fail | task 1 (CA0D) event 1: RECEIVE expected, the side recorded no further event |
-| `ca-receive-retrieve-set/short-input/java-facade` | fail | no port of any of its programs |
-| `ca-receive-retrieve-set/short-input/java-ported` | fail | no port of any of its programs |
 | `ca-xctl-versions/direct-entry/java` | fail | task 1 (CA03) event 1: SEND-TEXT expected, the side recorded no further event |
 | `ca-xctl-versions/length-range/java` | fail | task 1 (CA02) event 1: RECEIVE expected, the side recorded no further event |
 | `ca-xctl-versions/long-overread/java` | fail | task 1 (CA02) event 1: RECEIVE expected, the side recorded no further event |

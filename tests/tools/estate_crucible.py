@@ -740,6 +740,36 @@ def _instream_not_kept(dd: Any) -> str | None:
     )
 
 
+# Key fields the scorer has no check for yet (gitgalaxy#7065, found by tests/estate_crucible/test_estate_crucible_fields_accounted.py):
+# the key states them, the scorecard neither passes nor fails them and does not list them as `unscored`. Naming them here
+# keeps the gap visible; a field leaves this table when a scorer compares it or reports it `unscored` with a reason.
+KEY_FIELDS_NOT_COMPARED: tuple[tuple[str, str], ...] = (
+    ("member", "compile"),
+    ("member", "numbered"),
+    ("member", "lines"),
+    ("data_moves", "target_refmod_text"),
+    ("units", "span_end"),
+    ("edges", "thru"),
+    ("layouts", "unresolved"),
+    ("gaps", "lookalikes"),
+    ("csd_resources", "trigger_level"),
+    ("data_items", "implicit_filler"),
+    ("screen_fields", "map"),
+    ("screen_fields", "mapset"),
+    ("copies", "replacing"),
+    ("copy_libraries", "path"),
+    ("copy_libraries", "encoding"),
+    ("copy_libraries", "storage"),
+    ("jcl_steps", "job"),
+    ("jcl_dds", "job"),
+    ("jcl_utility_cards", "utility"),
+    ("jcl_utility_cards", "every"),
+    ("jcl_dds", "added"),
+    ("jcl_dds", "symbolic"),
+    ("member", "file"),
+)
+
+
 def _compact(v: Any) -> str:
     """A key value as one short token for a check label (a list of override dicts becomes `RPT020:QUARTERLY`)."""
     if isinstance(v, list):

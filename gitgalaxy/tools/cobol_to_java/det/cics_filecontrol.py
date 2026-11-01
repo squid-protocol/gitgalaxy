@@ -75,6 +75,10 @@ class FileControlCommands:
     """The file-control commands of `Cics` (det/cics.py), which defines the members declared below."""
 
     if TYPE_CHECKING:
+
+        def __getattr__(self, name: str) -> Any:
+            """The members `Cics` defines, for the type checker."""
+
         g: Any
         gp: Any
         region: str
@@ -550,3 +554,11 @@ class FileControlCommands:
         else:  # ENDBR
             out = [f"{ind}int {r} = task.endbr({file});"]
         return out + self.outcome(opts, r, "task.resp2()", ind)  # #4657: IBM's RESP2 (CicsTask.resp2)
+
+    def dispatch_filecontrol(self, words: list[str], verb: str, key: str, opts: dict, ind: str) -> list[str] | None:  # noqa: ARG002
+        """The file control commands, or None for a command of another family."""
+        if verb in ("READ", "READNEXT", "READPREV"):
+            return self.read(verb, opts, ind)
+        if verb in ("WRITE", "REWRITE", "DELETE", "STARTBR", "ENDBR", "UNLOCK"):
+            return self.file_update(verb, opts, ind)
+        return None

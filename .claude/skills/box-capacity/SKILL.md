@@ -88,7 +88,7 @@ pytest, a `--jobs` sweep) reads `GG_JOB_CORES` the same way, never `os.cpu_count
   same source files waits, or is told the exact seams (a new function / block / test at a distinct anchor, never a reorder).
   Hot files on this repo: `gitgalaxy/tools/cobol_to_java/det/cics.py`, `det/program.py`, `det/stmt.py`,
   `cobol_to_java_transaction_forge.py`, `cobolrt/Cobol.java`, the spec under `gitgalaxy/standards/cics/`, and the test files
-  agents append to (`tests/cobol_mainframe/test_det_translate.py`, `test_equivalence_cics.py`,
+  agents append to (`tests/cobol_mainframe/test_det_translate.py`, `test_equivalence_cics.py` and its family files,
   `tests/cics_crucible/test_cics_runtimes.py`): two PRs appending at the same anchor conflict; the second to merge keeps
   both blocks.
 - **Generated / ratchet files:** golden masters (`golden-lock.sh crucible_check.py --update --yes`), the ruff/mypy baselines (regenerate),

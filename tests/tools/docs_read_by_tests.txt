@@ -380,6 +380,8 @@ docs/language_status/register/X17.md	tests/cobol_mainframe
 docs/language_status/register/X18.md	tests/cobol_mainframe
 docs/language_status/register/X54.md	tests/cobol_mainframe
 docs/language_status/register/X55.md	tests/core_engine
+docs/language_status/register/X56.md	gitgalaxy
+docs/language_status/register/X56.md.	gitgalaxy
 docs/language_status/register/X59.md	tests/cobol_mainframe
 docs/language_status/register/X63.md	tests/cobol_mainframe
 docs/language_status/register/X65.md	tests/core_engine

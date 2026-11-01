@@ -57,6 +57,36 @@ def _word(name: str) -> str:
     return rf"(?<![A-Z0-9-])(?:{_NAME}-)?{name}(?:-{_NAME})?(?![A-Z0-9-])"
 
 
+# A BLL cell list (#5119, X56): a LINKAGE 01 group led by a FILLER fullword, then named fullwords; `_bll_hits` keeps it
+# only when an EXEC CICS SET / DATAPOINTER option names one of the named fullwords (IBM's SET(BLL cell)).
+_FULLWORD = (
+    r"PIC(?:TURE)?[ \t]+(?:IS[ \t]+)?S9\(0?[89]\)[ \t]+(?:USAGE[ \t]+(?:IS[ \t]+)?)?"
+    r"(?:COMP(?:UTATIONAL)?(?:-[45])?|BINARY)(?:[ \t]+SYNC(?:HRONIZED)?(?:[ \t]+(?:LEFT|RIGHT))?)?[ \t]*\."
+)
+_LEVEL = r"(?:0[2-9]|[1-4]\d)"
+_CELL_LIST = re.compile(
+    rf"^[ \t]*0?1[ \t]+{_NAME}[ \t]*\.\s+{_LEVEL}[ \t]+FILLER[ \t]+{_FULLWORD}"
+    rf"((?:\s+{_LEVEL}[ \t]+{_NAME}[ \t]+{_FULLWORD})+)",
+    _I | re.M,
+)
+_CELL_NAME = re.compile(rf"{_LEVEL}[ \t]+({_NAME})[ \t]+PIC", _I)
+_SET_OPTION = re.compile(rf"\b(?:SET|DATAPOINTER)\s*\(\s*({_NAME})\s*\)", _I)
+_SECTION = re.compile(r"\b(WORKING-STORAGE|LINKAGE|LOCAL-STORAGE|FILE)\s+SECTION\s*\.", _I)
+
+
+def _bll_hits(code: str, exec_text: str) -> list[re.Match[str]]:
+    """The cell lists in `code` that a SET / DATAPOINTER option names a cell of, outside WORKING-STORAGE and FILE."""
+    named = {m.group(1).upper() for m in _SET_OPTION.finditer(exec_text)}
+    hits = []
+    for m in _CELL_LIST.finditer(code):
+        sections = list(_SECTION.finditer(code, 0, m.start()))
+        if sections and sections[-1].group(1).upper() != "LINKAGE":
+            continue
+        if any(c.group(1).upper() in named for c in _CELL_NAME.finditer(m.group(1))):
+            hits.append(m)
+    return hits
+
+
 # (tell, era, scope, pattern). scope: "asm" = the file as written, only `*` lines dropped (assembler macro text), "raw" = the COBOL lines as written (CALL targets, CBL cards), "code" = the
 # program text without comments, sequence area and string literals, "cics" = inside EXEC CICS blocks, "cbl" = the CBL / PROCESS cards.
 TELLS: tuple[tuple[str, int, str, re.Pattern[str]], ...] = (
@@ -68,6 +98,7 @@ TELLS: tuple[tuple[str, int, str, re.Pattern[str]], ...] = (
     ),
     ("csa-tca-dsect", 0, "code", re.compile(r"(?<![A-Z0-9-])DFH(?:CSADS|TCADS)(?![A-Z0-9-])", _I)),
     ("bll-cells", 1, "code", re.compile(_word("BLL") + r"|(?<![A-Z0-9-])BLL\d+(?![A-Z0-9-])", _I)),
+    ("bll-cell-list", 1, "bll", _CELL_LIST),
     ("service-reload", 1, "code", re.compile(r"\bSERVICE\s+RELOAD\b", _I)),
     ("handle-condition", 1, "cics", re.compile(r"\bHANDLE\s+(?:CONDITION|AID|ABEND)\b", _I)),
     ("dli", 1, "raw", re.compile(r"\bCALL\s+['\"]CBLTDLI['\"]|\bEXEC\s+DLI\b", _I)),
@@ -121,6 +152,12 @@ CITE: dict[str, dict[str, Any]] = {
         "verified": True,
         "source": "https://publibfp.dhe.ibm.com/epubs/pdf/igy3mg00.pdf",
         "note": "Enterprise COBOL V3R1 Compiler and Run-Time Migration Guide (GC27-1409-00) ch.2 Table 8 p.9 ('eliminates the need for BLL cells') & ch.17 p.210-215 ('Base locator for LINKAGE-SECTION (BLL) cells', Example 1-3 replacing BLL cells with `ADDRESS OF` and `SET ADDRESS OF`).",
+    },
+    "bll-cell-list": {
+        "ibm": "OS/VS COBOL BLL cells: a LINKAGE 01 of fullwords led by a FILLER, one cell per following 01, named in a SET option",
+        "verified": True,
+        "source": "https://publibfp.dhe.ibm.com/epubs/pdf/igy3mg00.pdf",
+        "note": "Enterprise COBOL V3R1 Migration Guide (GC27-1409-00) ch.17 p.210-215 ('Base locator for LINKAGE-SECTION (BLL) cells', the cell list and `SET(cell)` replaced by `SET(ADDRESS OF AREA1)`); the shape is the one in CICS/MVS 2.1.2 Application Programmer's Reference (SC33-0512-1) ch.1.4 pp.21-23, as read for docs/language_status/register/X56.md.",
     },
     "service-reload": {
         "ibm": "OS/VS COBOL SERVICE RELOAD; not required in VS COBOL II or Enterprise COBOL (treated as a comment)",
@@ -255,6 +292,7 @@ PERIOD_BOUND = frozenset(
         "dfh-macro-call",
         "csa-tca-dsect",
         "bll-cells",
+        "bll-cell-list",
         "service-reload",
         "handle-condition",
         "dli",
@@ -315,13 +353,13 @@ def _scan(text: str) -> list[dict[str, Any]]:
             hay = cbl_text
         elif scope == "cics":
             hay = exec_text
-        else:
+        else:  # "code", and "bll" (the cell list is read in the code text)
             hay = code
-        hits = list(pat.finditer(hay))
+        hits = _bll_hits(code, exec_text) if scope == "bll" else list(pat.finditer(hay))
         if not hits:
             continue
         # "cics" and "cbl" scopes are joined blocks: the line is only meaningful against the whole text.
-        first = hay.count("\n", 0, hits[0].start()) + 1 if scope in ("raw", "code") else None
+        first = hay.count("\n", 0, hits[0].start()) + 1 if scope in ("raw", "code", "bll") else None
         found.append({"tell": tell, "era": era, "count": len(hits), "first_line": first})
     if found and any(t["era"] == 0 for t in found) and re.search(r"\bEXEC\s+CICS\b", code, _I):
         # DFHxx text beside EXEC CICS is a translated listing or a comment-like mention, not macro-level code.

@@ -25,11 +25,22 @@ def tells(text: str) -> dict[str, int]:
     return {t["tell"]: t["era"] for t in et.tag_program(text)["tells"]}
 
 
+BLL_LIST = "       01  PARMLIST.\n           02  FILLER PIC S9(8) COMP.\n           02  CELL1 PIC S9(8) COMP.\n"
+LINK = "       LINKAGE SECTION.\n"
+
+
 # tell -> (a program that has it, its era). One per tell of TELLS: test_every_tell_has_a_fixture keeps the two in step.
 FIXTURES = {
     "dfh-macro-call": ("DFHPC    TYPE=LINK,PROGRAM=SUBPGM\n         END\n", 0),
     "csa-tca-dsect": (prog(data="       COPY DFHCSADS.\n"), 0),
     "bll-cells": (prog(data="       01 BLL-CELLS.\n           05 FILLER PIC S9(8) COMP.\n"), 1),
+    "bll-cell-list": (
+        prog(
+            "EXEC CICS GETMAIN SET(CELL1) FLENGTH(8) END-EXEC.",
+            data="       LINKAGE SECTION.\n" + BLL_LIST,
+        ),
+        1,
+    ),
     "service-reload": (prog("SERVICE RELOAD DFHCOMMAREA."), 1),
     "handle-condition": (prog("EXEC CICS HANDLE CONDITION NOTFND(ERR) END-EXEC."), 1),
     "dli": (prog("CALL 'CBLTDLI' USING FN PCB IOAREA."), 1),
@@ -283,3 +294,94 @@ def test_summary_counts_skipped_programs_only_when_any():
     assert "copybook_skipped" not in et.summarise(plain)  # noqa: S101
     plain["b.cbl"] = et.mark_skipped(et.tag_program(PLAIN), "CopyNotFound")
     assert et.summarise(plain)["copybook_skipped"] == 1  # noqa: S101
+
+
+# ---- #5119: a BLL cell list a SET option names (the structure, not the word BLL) ----------------------------------
+def _bll(list_text: str = BLL_LIST, option: str = "SET(CELL1)", section: str = LINK) -> dict[str, int]:
+    return tells(prog(f"EXEC CICS GETMAIN {option} FLENGTH(8) END-EXEC.", data=section + list_text))
+
+
+@pytest.mark.parametrize(
+    "usage", ["COMP", "COMPUTATIONAL", "BINARY", "COMP-4", "USAGE COMP", "COMP SYNC", "COMP SYNCHRONIZED"]
+)
+@pytest.mark.parametrize("digits", ["8", "08", "9"])
+def test_a_cell_list_is_a_bll_list_whatever_the_fullword_spelling(usage, digits):
+    text = BLL_LIST.replace("S9(8) COMP", f"S9({digits}) {usage}")
+    assert _bll(text).get("bll-cell-list") == 1  # noqa: S101
+
+
+@pytest.mark.parametrize("option", ["SET(CELL1)", "DATAPOINTER(CELL1)", "set ( cell1 )"])
+def test_set_and_datapointer_options_name_a_cell(option):
+    assert _bll(option=option).get("bll-cell-list") == 1  # noqa: S101
+
+
+def test_a_cell_list_after_dfhcommarea_and_with_more_records_is_found():
+    text = (
+        "       01  DFHCOMMAREA PIC X(4).\n"
+        + BLL_LIST
+        + "           02  CELL2 PIC S9(8) COMP.\n       01  REC1 PIC X(80).\n"
+    )
+    assert _bll(text, "SET(CELL2)").get("bll-cell-list") == 1  # noqa: S101
+
+
+IBM_FIG3 = """\
+       01  PARMLIST.
+           02  FILLER             PIC S9(8) COMP.
+           02  FRPTR              PIC S9(8) COMP.
+           02  FRPTR1             PIC S9(8) COMP.
+           02  TSPTR              PIC S9(8) COMP.
+       01  FILE-REC               PIC X(5400).
+"""
+
+
+def test_ibms_own_cell_names_are_found_with_no_bll_word_and_no_service_reload():
+    got = _bll(IBM_FIG3, "SET(FRPTR)")
+    assert got.get("bll-cell-list") == 1 and "service-reload" not in got and "bll-cells" not in got  # noqa: S101
+
+
+@pytest.mark.parametrize(
+    "text, option, section",
+    [
+        (BLL_LIST, "SET(OTHER)", LINK),  # no option names a cell
+        (BLL_LIST, "SET(FILLER)", LINK),  # FILLER is the list's own locator, not a cell
+        (BLL_LIST, "SET(CELL1)", "       WORKING-STORAGE SECTION.\n"),  # not LINKAGE
+        (
+            BLL_LIST.replace("02  FILLER PIC S9(8) COMP.", "02  HEAD1 PIC S9(8) COMP."),
+            "SET(CELL1)",
+            LINK,
+        ),  # no FILLER first
+        (
+            BLL_LIST.replace(
+                "PIC S9(8) COMP.\n           02  CELL1 PIC S9(8) COMP", "PIC S9(8) COMP.\n           02  CELL1 PIC X(8)"
+            ),
+            "SET(CELL1)",
+            LINK,
+        ),
+        (BLL_LIST.replace("       01  PARMLIST.\n", "       01  PARMLIST PIC X(8).\n"), "SET(CELL1)", LINK),
+        (BLL_LIST.replace("S9(8)", "S9(4)"), "SET(CELL1)", LINK),  # halfwords are no cells
+    ],
+)
+def test_a_list_without_the_evidence_is_no_bll_list(text, option, section):
+    assert "bll-cell-list" not in _bll(text, option, section)  # noqa: S101
+
+
+def test_a_modern_pointer_program_has_no_bll_list():
+    got = tells(prog("EXEC CICS GETMAIN SET(P) FLENGTH(8) END-EXEC.", "SET ADDRESS OF REC1 TO P.",
+                     data=LINK + "       01  P USAGE POINTER.\n"))  # fmt: skip
+    assert "bll-cell-list" not in got and got["set-address"] == 2  # noqa: S101
+
+
+def test_a_bll_list_is_period_bound_and_makes_a_modern_program_mixed():
+    tag = et.tag_program(prog("EXEC CICS PUT CONTAINER('C') CHANNEL('CH') FROM(X) END-EXEC.",
+                              "EXEC CICS GETMAIN SET(CELL1) FLENGTH(8) END-EXEC.", data=LINK + BLL_LIST))  # fmt: skip
+    assert (tag["era"], tag["earliest"], tag["mixed"]) == (4, 1, True)  # noqa: S101
+    hit = next(t for t in tag["tells"] if t["tell"] == "bll-cell-list")
+    assert hit["first_line"] and hit["count"] == 1  # noqa: S101
+
+
+def test_a_comment_or_literal_does_not_make_a_bll_list():
+    text = prog(
+        "DISPLAY 'EXEC CICS GETMAIN SET(CELL1) END-EXEC'.",
+        data=LINK + "      *" + BLL_LIST[6:].replace("\n", "\n      *", 2) + "\n",
+    )
+    assert "bll-cell-list" not in tells(text)  # noqa: S101

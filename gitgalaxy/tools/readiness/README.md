@@ -15,13 +15,13 @@ strict allowlist schema that rejects any leaked source text or unredacted identi
 <tr>
 <td align="center" width="190"><h2>0 bytes</h2></td>
 <td align="center" width="190"><h2>5 eras</h2></td>
-<td align="center" width="190"><h2>24 tells</h2></td>
+<td align="center" width="190"><h2>25 tells</h2></td>
 <td align="center" width="190"><h2>100%</h2></td>
 </tr>
 <tr>
 <td align="center" valign="top"><sub><strong>network &amp; source text exfiltration</strong><br />socket guard + allowlist schema projection<br /><em><a href="#privacy-and-the-zero-leakage-contract">offline guard</a> · exit 3 on schema violation</em></sub></td>
 <td align="center" valign="top"><sub><strong>CICS &amp; COBOL eras classified</strong><br />Era 0 macro level through Era 4 Enterprise COBOL<br /><em><a href="#cics-era-tagging-era_tagspy">era model</a> · detects mixed-era code</em></sub></td>
-<td align="center" valign="top"><sub><strong>source &amp; copybook tells tracked</strong><br />each backed by an IBM manual or release citation<br /><em><a href="#cics-era-tagging-era_tagspy">the 24 tells</a> · copy-expanded pass</em></sub></td>
+<td align="center" valign="top"><sub><strong>source &amp; copybook tells tracked</strong><br />each backed by an IBM manual or release citation<br /><em><a href="#cics-era-tagging-era_tagspy">the 25 tells</a> · copy-expanded pass</em></sub></td>
 <td align="center" valign="top"><sub><strong>local, air-gapped execution</strong><br />no Docker, no Db2 container, no JDK required<br /><em><a href="#quickstart">quickstart</a> · uses the Python det parser</em></sub></td>
 </tr>
 </table>
@@ -70,7 +70,7 @@ and `EXEC CICS` directly in Python (`pip install "gitgalaxy[translator]"`).
 | *Will it write `.sqlite` or temp files into our source tree?* | Never. All intermediate scan databases and generated BMS copybooks live in a temporary directory outside the estate and are deleted on exit; passing `--out` inside the estate directory is rejected with exit code `2`. |
 | *Could a parser error or refusal message accidentally include a line of our COBOL source or a customer literal?* | No. [`schema.py`](schema.py) projects the raw inventory through a closed vocabulary allowlist (COBOL verbs, [`gitgalaxy/standards/cics`](../../standards/cics/README.md) command/option names, SQL clauses, and compiler options) and validates the result before writing a single byte to disk. |
 | *What if even our 8-character program and copybook names are confidential?* | `--redact` hashes every member and copybook name with a 32-byte key (`--redact-key-file` for repeatable labels across runs, or a fresh random key per run for unlinkable labels). |
-| *What eras of COBOL and CICS are in our repository, including hidden inside copybooks?* | [`era_tags.py`](era_tags.py) scans both the program text and its resolved copybooks across 24 constructs (`Era 0` macro level through `Era 4` Enterprise COBOL), flagging `mixed`-era layered code and `via_copybook` tells. |
+| *What eras of COBOL and CICS are in our repository, including hidden inside copybooks?* | [`era_tags.py`](era_tags.py) scans both the program text and its resolved copybooks across 25 constructs (`Era 0` macro level through `Era 4` Enterprise COBOL), flagging `mixed`-era layered code and `via_copybook` tells. |
 
 ---
 
@@ -94,14 +94,14 @@ be reviewed by security teams and shared safely:
 ## CICS era tagging (`era_tags.py`)
 
 Mainframe dates in file headers lie; constructs in the code do not. [`era_tags.py`](era_tags.py)
-determines a program's era from **24 syntactic tells** across five scopes (`asm`, `raw`, `code`,
+determines a program's era from **25 syntactic tells** across six scopes (`asm`, `raw`, `code`, `bll`,
 `cics`, and `cbl` option cards), checking both the program text and the copybooks its `COPY`
 statements resolve:
 
 | Era | Label | Tells (`TELLS` in `era_tags.py`) | Period-Bound vs. Floor |
 |---|---|---|---|
 | **0** | **CICS macro level** | `dfh-macro-call` (`DFHxx TYPE=`), `csa-tca-dsect` (`DFHCSADS` / `DFHTCADS`) | **Period-bound** (support dropped in CICS/ESA 3.2, 1991) |
-| **1** | **Command level, OS/VS COBOL** | `bll-cells`, `service-reload`, `handle-condition` (`HANDLE CONDITION/AID/ABEND`), `dli` (`CBLTDLI` / `EXEC DLI`), `langlvl-1` | **Period-bound** |
+| **1** | **Command level, OS/VS COBOL** | `bll-cells`, `bll-cell-list` (a FILLER-led fullword list a `SET()` names), `service-reload`, `handle-condition` (`HANDLE CONDITION/AID/ABEND`), `dli` (`CBLTDLI` / `EXEC DLI`), `langlvl-1` | **Period-bound** |
 | **2** | **COBOL II / COBOL 85** | `address-of`, `set-address`, `resp` (`RESP`/`RESP2`), `exec-sql`, `dpl-link-sysid` (`LINK SYSID`), `cmpr2`, `langlvl-2` | `cmpr2` & `langlvl-2` period-bound; `resp`, `exec-sql`, `address-of` are floors |
 | **3** | **LE / COBOL for OS/390** | `mq-call` (`MQOPEN`/`GET`/`PUT`/...), `exci` (`DFHXCIS`), `bridge-3270` (`DFHBR*`), `le-callable` (`CALL 'CEExxxx'`) | Floors |
 | **4** | **Enterprise COBOL & Modern CICS TS** | `channel-container`, `web-soap` (`EXEC CICS WEB` / `SOAPFAULT` / `INVOKE SERVICE`), `json-xml` (`JSON`/`XML PARSE`/`GENERATE`), `async` (`RUN TRANSID` / `FETCH`), `named-counter` (`COUNTER`/`DCOUNTER`), `arith-extend` | Floors |

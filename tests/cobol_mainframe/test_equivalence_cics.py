@@ -2170,6 +2170,36 @@ def test_a_case_says_its_program_takes_no_commarea(tmp_path):
     assert 'm = method(service, "handleLink", 0);' in java  # the facade side enters handleLink() itself
 
 
+@pytest.mark.parametrize("sig", ["handleTransaction(String transid, Object request)", "handleLink(Object request)"])
+def test_an_object_service_carries_the_cases_commarea_record_dto(tmp_path, sig):
+    """#6072: a service typed `Object` (PCCONF, PCDETL, PCIMMA) still carries the DTO of the case's COMMAREA record when
+    the case states one and the forge generated it; otherwise no DTO (an HLASM facade, #5859; a case with none)."""
+    svc = tmp_path / "PcconfService.java"
+    svc.write_text(f"public class PcconfService {{\n    public Object {sig} {{\n    }}\n}}\n", encoding="utf-8")
+    typed = {"program": "PCCONF", "commarea": {"segments": [{"copybook": "PCCONF.cbl", "record": "WS-STATE"}]}}
+    assert ec.commarea_class(typed, tmp_path, svc) is None  # the DTO was not generated
+    # a shared copybook record is named bare; the program's own record after its declarer (PcconfWsState), and the
+    # service also imports the XCTL target's PcwizWsState: the case program's own wins
+    (tmp_path / "WsState.java").write_text("public class WsState {}", encoding="utf-8")
+    assert ec.commarea_class(typed, tmp_path, svc) == "WsState"
+    for dto in ("PcwizWsState", "PcconfWsState"):
+        (tmp_path / f"{dto}.java").write_text(f"public class {dto} {{}}", encoding="utf-8")
+    svc.write_text(
+        "import x.dto.contract.PcwizWsState;\nimport x.dto.contract.PcconfWsState;\n" + svc.read_text(),
+        encoding="utf-8",
+    )
+    assert ec.commarea_class(typed, tmp_path, svc) == "PcconfWsState"
+    for none in ({"commarea": None}, {"commarea": {}}, {"commarea": {"segments": []}}, {}):
+        assert ec.commarea_class(none, tmp_path, svc) is None
+
+
+def test_a_typed_service_keeps_its_own_commarea_class(tmp_path):
+    svc = tmp_path / "XService.java"
+    svc.write_text("public void handleTransaction(String transid, XCa request) {}", encoding="utf-8")
+    case = {"commarea": {"segments": [{"copybook": "X.cbl", "record": "OTHER"}]}}
+    assert ec.commarea_class(case, tmp_path, svc) == "XCa"
+
+
 def test_a_commarea_in_an_event_of_a_case_with_none_is_refused(tmp_path):
     out = tmp_path / "out"
     out.mkdir()

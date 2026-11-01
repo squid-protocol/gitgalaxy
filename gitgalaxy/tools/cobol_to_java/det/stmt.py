@@ -838,19 +838,43 @@ def _initialize(p: E.Parser, text: str, line: int) -> Stmt:
     return Stmt("INITIALIZE", line, text, {"refs": refs, **({"replacing": replacing} if replacing else {})})
 
 
+_PTR_REF = (
+    r"[A-Z0-9][A-Z0-9-]*(?:\s*\([^():]*\))?"  # a name with optional subscripts (#5079: an element of a pointer table)
+)
+
+
+def _ptr_ref(text: str) -> tuple[str, E.Ref | None]:
+    """(NAME, the subscripted Ref or None): `TBL(I)` names an element of a pointer table (#5079, X47)."""
+    ref = E.Parser(E.tokenize(text)).ref()
+    return ref.name.upper(), (ref if ref.subscripts else None)
+
+
 def _set(p: E.Parser, text: str, line: int) -> Stmt:
-    m = re.fullmatch(r"(?is)\s*SET\s+([A-Z0-9][A-Z0-9-]*)\s+TO\s+ADDRESS\s+OF\s+([A-Z0-9][A-Z0-9-]*)\s*\.?\s*", text)
+    m = re.fullmatch(rf"(?is)\s*SET\s+({_PTR_REF})\s+TO\s+ADDRESS\s+OF\s+([A-Z0-9][A-Z0-9-]*)\s*\.?\s*", text)
     if m:  # a pointer set to an item's address: translated only where the pointer is never read (write_only_pointers)
-        return Stmt("SET-POINTER", line, text, {"target": m.group(1).upper(), "of": m.group(2).upper()})
+        name, elem = _ptr_ref(m.group(1))
+        data: dict[str, Any] = {"target": name, "of": m.group(2).upper()}
+        if elem is not None:
+            data["target_ref"] = elem
+        return Stmt("SET-POINTER", line, text, data)
     m = re.fullmatch(
-        r"(?is)\s*SET\s+ADDRESS\s+OF\s+([A-Z0-9][A-Z0-9-]*)\s+TO\s+(ADDRESS\s+OF\s+)?([A-Z0-9][A-Z0-9-]*)\s*\.?\s*",
+        rf"(?is)\s*SET\s+ADDRESS\s+OF\s+([A-Z0-9][A-Z0-9-]*)\s+TO\s+(ADDRESS\s+OF\s+)?({_PTR_REF})\s*\.?\s*",
         text,
     )
     if m and (
         m.group(2) or m.group(3).upper() != "NULL"
     ):  # #4771 (X47): a record set onto a pointer's / a record's storage
-        return Stmt("SET-ADDRESS", line, text, {"record": m.group(1).upper(), "of": m.group(3).upper() if m.group(2) else None,
-                                                "pointer": None if m.group(2) else m.group(3).upper()})  # fmt: skip
+        name, elem = _ptr_ref(m.group(3))
+        if m.group(2) and elem is not None:  # ADDRESS OF a table element
+            return Stmt("HOLE", line, text, {"why": f"ADDRESS OF {name}: a table element (not modelled)"})
+        data = {
+            "record": m.group(1).upper(),
+            "of": name if m.group(2) else None,
+            "pointer": None if m.group(2) else name,
+        }
+        if elem is not None:
+            data["pointer_ref"] = elem
+        return Stmt("SET-ADDRESS", line, text, data)
     if p.up() == "ADDRESS" or "ADDRESS" in [x.upper() for x in p.t]:
         return Stmt("HOLE", line, text, {"why": "SET ADDRESS OF (pointers)"})
     targets = []

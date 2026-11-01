@@ -1,0 +1,27 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "HCCWRP",
+  "program_source": "cases/condition-handling/hc-counter-increment-wrap/src/HCCWRP.cbl",
+  "copy_dirs": [],
+  "transid": "HC73",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "notes": "cics-crucible condition-handling / hc-counter-increment-wrap (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): DCOUNTER with INCREMENT, GET WRAP at the default doubleword maximum (rewinds to the minimum), and a GET without WRAP at the limit. Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs. The crucible's wrap and limit scenarios walk the counter to the doubleword maximum and past it: refused by name (register X45, GET COUNTER past a doubleword), left out of the case.",
+  "scenarios": [
+    {
+      "name": "incr",
+      "commarea": null,
+      "terminal": "HC73 I",
+      "why": "DEFINE VALUE(10), GET INCREMENT(5) twice, QUERY, GET with the default increment, QUERY"
+    },
+    {
+      "name": "unmatched-mode",
+      "commarea": null,
+      "terminal": "HC73 Z",
+      "why": "a mode no WHEN names: the EVALUATE falls through"
+    }
+  ]
+}

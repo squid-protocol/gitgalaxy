@@ -1,0 +1,27 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "CABLL",
+  "program_source": "cases/commarea-mismatch/ca-bll-cells/src/CABLL.cbl",
+  "transid": "CA0N",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "programs": [],
+  "notes": "cics-crucible commarea-mismatch / ca-bll-cells (Apache-2.0 corpus, #5119): OS/VS COBOL BLL cells with SERVICE RELOAD, READQ TS SET(cell), and a 5400-byte GETMAIN record over two cells. Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "read-set-cell",
+      "commarea": null,
+      "terminal": "CA0N R",
+      "why": "WRITEQ TS then READQ TS SET(cell) + SERVICE RELOAD: the record holds the item"
+    },
+    {
+      "name": "long-record",
+      "commarea": null,
+      "terminal": "CA0N L",
+      "why": "5400-byte GETMAIN record over two cells (second = first + 4096), a cell moved to another cell"
+    }
+  ]
+}

@@ -211,3 +211,10 @@ def test_jobs_measure_the_cases_as_one_at_a_time_does(tmp_path):
     two = runner.measure(fixture, None, {"engine-facts"}, tmp_path / "two", offline=True, jobs=2)
     assert len({c["case"] for c in one["cells"].values()}) == 2
     assert two["cells"] == one["cells"] and two["coverage"] == one["coverage"]
+
+
+def test_the_measure_job_installs_the_parser_a_bll_program_needs():
+    """#5119: the COBOL side lowers a BLL program through det/bll.py, which parses its records with tree-sitter; without
+    the package ca-bll-cells raised ImportError, the shard wrote no results.json and the merge failed."""
+    measure = WORKFLOW.read_text(encoding="utf-8").split("\n  measure:\n")[1].split("\n  runner-tests:\n")[0]
+    assert "ci/requirements/treesitter.txt" in measure.split("- name: Setup JDK 17")[0]

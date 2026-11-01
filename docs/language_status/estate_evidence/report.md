@@ -12,21 +12,21 @@ Rolled up from the per-program evidence records (#4048, #4054). A level is evide
 
 ## All reported estates
 
-- Programs: 58; at E0 0, E1 5, E2 31, E3 22, E4 0; executed equivalent or above (E2+): 53/58 (91.4%).
-- Coverage over the programs with a record: paragraphs 573/575 (99.7%), branch outcomes 1732/1821 (95.1%).
+- Programs: 59; at E0 0, E1 5, E2 31, E3 23, E4 0; executed equivalent or above (E2+): 54/59 (91.5%).
+- Coverage over the programs with a record: paragraphs 574/576 (99.7%), branch outcomes 1732/1821 (95.1%).
 - Mutation: 52 program(s) measured, killed 2868/4237 (67.7%) raw (adjusted for equivalent / unreachable survivors: 2868/3401 (84.3%)); survivors case_gap 388, harness_gap 144, equivalent 500, unreachable 336, untriaged 0; open survivors 532.
 - Holes (stub / ported_unproven methods): 3. Declared differences: 12.
 - Approved and current: 0. Stale records: 0 (stale mutation scores: 52).
-- Lines (PROCEDURE DIVISION code lines, copybooks not expanded; 57 of 58 programs measured): 11945 (15542 code lines in all); in programs at E2+ 10057/11945 (84.2%), E3+ 1070/11945 (9.0%), E4 0/11945 (0.0%); paragraph coverage weighted by lines 11913/11945 (99.7%).
+- Lines (PROCEDURE DIVISION code lines, copybooks not expanded; 57 of 59 programs measured): 11945 (15542 code lines in all); in programs at E2+ 10057/11945 (84.2%), E3+ 1070/11945 (9.0%), E4 0/11945 (0.0%); paragraph coverage weighted by lines 11913/11945 (99.7%).
 
 ## aws-mainframe-modernization-carddemo
 
-- Programs: 29; at E0 0, E1 4, E2 23, E3 2, E4 0; executed equivalent or above (E2+): 25/29 (86.2%).
-- Coverage over the programs with a record: paragraphs 461/462 (99.8%), branch outcomes 1503/1581 (95.1%).
+- Programs: 30; at E0 0, E1 4, E2 23, E3 3, E4 0; executed equivalent or above (E2+): 26/30 (86.7%).
+- Coverage over the programs with a record: paragraphs 462/463 (99.8%), branch outcomes 1503/1581 (95.1%).
 - Mutation: 23 program(s) measured, killed 2049/2737 (74.9%) raw (adjusted for equivalent / unreachable survivors: 2049/2132 (96.1%)); survivors case_gap 75, harness_gap 7, equivalent 380, unreachable 225, untriaged 0; open survivors 82.
 - Holes (stub / ported_unproven methods): 3. Declared differences: 0.
 - Approved and current: 0. Stale records: 0 (stale mutation scores: 23).
-- Lines (PROCEDURE DIVISION code lines, copybooks not expanded; 28 of 29 programs measured): 9642 (12295 code lines in all); in programs at E2+ 8278/9642 (85.9%), E3+ 140/9642 (1.5%), E4 0/9642 (0.0%); paragraph coverage weighted by lines 9631/9642 (99.9%).
+- Lines (PROCEDURE DIVISION code lines, copybooks not expanded; 28 of 30 programs measured): 9642 (12295 code lines in all); in programs at E2+ 8278/9642 (85.9%), E3+ 140/9642 (1.5%), E4 0/9642 (0.0%); paragraph coverage weighted by lines 9631/9642 (99.9%).
 
 | program | case | lines | level | proof | oracle | coverage (para / branch) | mutation | differences | approval | what stops the next level |
 |---|---|---|---|---|---|---|---|---|---|---|
@@ -50,7 +50,8 @@ Rolled up from the per-program evidence records (#4048, #4054). A level is evide
 | CBACT03C | carddemo-readxref | 91 | E2 | 7 runs / 6 fault | gnucobol-models | 5/5 / 21/22 | 69/83, open 8 | 0 | - | coverage short: 5/5 paragraphs, 21/22 branch outcomes |
 | CORPT00C | carddemo-report | 383 | E1 | 30 runs / 2 fault | gnucobol-models | 10/10 / 52/59 | 59/87, open 0 | 0 | - | 1 hole(s) in the port itself (stub or ported_unproven method) |
 | COSGN00C | carddemo-signon | 140 | E3 | 22 runs / 5 fault | gnucobol-models | 6/6 / 17/17 | 67/99, open 5 | 0 | - | mutation score stale: port, case, harness, oracle changed since it was judged (bcb4f6f82) |
-| DFSORTST | carddemo-sort-tranrept | - | E3 | 1 runs / 0 fault | gnucobol-models | 1/1 / 0/0 | - | 0 | - | no mutation score recorded |
+| DFSORTST | carddemo-sort-combtran | - | E3 | 3 runs / 2 fault | gnucobol-models | 1/1 / 0/0 | - | 0 | - | no mutation score recorded |
+| DFSORTST | carddemo-sort-tranrept | - | E3 | 2 runs / 1 fault | gnucobol-models | 1/1 / 0/0 | - | 0 | - | no mutation score recorded |
 | COTRN02C | carddemo-tranadd | 550 | E2 | 78 runs / 11 fault | gnucobol-models | 18/18 / 72/75 | 70/91, open 3 | 0 | - | coverage short: 18/18 paragraphs, 72/75 branch outcomes |
 | COTRN00C | carddemo-tranlist | 479 | E2 | 36 runs / 6 fault | gnucobol-models | 16/16 / 96/101 | 66/91, open 13 | 0 | - | coverage short: 16/16 paragraphs, 96/101 branch outcomes |
 | COTRN01C | carddemo-tranview | 187 | E2 | 25 runs / 4 fault | gnucobol-models | 9/9 / 23/24 | 67/100, open 0 | 0 | - | coverage short: 9/9 paragraphs, 23/24 branch outcomes |

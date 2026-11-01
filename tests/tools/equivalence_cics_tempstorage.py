@@ -116,3 +116,18 @@ def java_ts_as_compared(e: dict[str, Any]) -> dict[str, Any]:
         except UnicodeDecodeError:
             text = f"<undecodable {raw!r} in {REGION_PAGE}>"
     return {**e, "data": text, "item": e.get("item") or None}
+
+
+def command(
+    verb: str,
+    opts: dict[str, str | None],
+    pairs: list[tuple[str, str | None]],
+    labels: list[str],
+    handle_aid: bool,
+) -> list[str] | None:
+    """The temporary storage queue commands, or None for a command of another family."""
+    if verb == "DELETEQ" and "TD" not in opts:  # #4415 slice 2 (X29): the whole TS queue
+        return delete_queue(opts, labels)
+    if verb in ("READQ", "WRITEQ") and "TD" not in opts:  # #4002: temporary storage (TS is the default)
+        return ts_command(verb, opts, labels)
+    return None

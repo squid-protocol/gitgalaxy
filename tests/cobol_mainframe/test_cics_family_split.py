@@ -7,6 +7,7 @@ det, forge and harness)."""
 
 from __future__ import annotations
 
+import inspect
 import re
 import sys
 from pathlib import Path
@@ -16,6 +17,8 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 import equivalence_cics as ec  # noqa: E402
 import equivalence_cics_containers as ecc  # noqa: E402
+import evidence  # noqa: E402
+import trial  # noqa: E402
 
 from gitgalaxy.standards.cics.commands import COMMANDS  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_conditions as tcn  # noqa: E402
@@ -698,7 +701,21 @@ def test_an_undefinable_file_name_answers_filenotfound_with_resp2_1():
 
 # ---- #7153: equivalence_cics re-exports its families' names lazily, so import order does not matter ------------------
 _TOOLS = Path(__file__).resolve().parents[1] / "tools"
-_FAMILY_MODULES = ("conditions", "containers", "faults", "filecontrol", "taskcontrol", "tempstorage", "web")
+_FAMILY_MODULES = (
+    "conditions",
+    "containers",
+    "counters",
+    "faults",
+    "filecontrol",
+    "program",
+    "storage",
+    "system",
+    "taskcontrol",
+    "tdqueue",
+    "tempstorage",
+    "terminal",
+    "web",
+)
 
 
 def test_equivalence_cics_holds_no_import_time_copy_of_a_family_name():
@@ -727,9 +744,61 @@ def test_every_reexported_name_resolves_whichever_module_is_imported_first(first
         "import equivalence_cics as ec\n"
         "for name, fam in ec._FAMILY_NAMES.items():\n"
         "    assert getattr(ec, name) is getattr(fam, name), name\n"
-        "assert len(ec._FAMILY_NAMES) == 24\n"
+        "assert len(ec._FAMILY_NAMES) == 28\n"
         "try:\n    ec.no_such_name\nexcept AttributeError:\n    pass\n"
         "else:\n    raise SystemExit('no AttributeError')\n"
     )
     r = subprocess.run([sys.executable, "-I", "-c", code], capture_output=True, text=True, timeout=120)
     assert r.returncode == 0, r.stderr[-800:]
+
+
+def test_translate_command_is_the_registry_loop_and_holds_no_command():
+    """A slice adds a command to its family's `command`, so it does not edit (or collide on) the host."""
+    src = inspect.getsource(ec._translate_command)
+    assert "verb ==" not in src and "verb in" not in src
+    assert len(src.splitlines()) < 20
+
+
+def test_each_family_answers_none_for_a_command_of_another_family():
+    for family in ec._COMMAND_FAMILIES:
+        assert family.command("NOSUCHVERB", {}, [("NOSUCHVERB", None)], [], False) is None, family.__name__
+
+
+@pytest.mark.parametrize(
+    ("body", "stub"),
+    [
+        ("GET COUNTER(C) VALUE(V)", "GGCGCNT"),
+        ("GET CONTAINER(C) CHANNEL(H) INTO(A)", "GGCGETC"),
+        ("DELETE DCOUNTER(C)", "GGCXCNT"),
+        ("QUERY COUNTER(C) VALUE(V)", "GGCQCNT"),
+        ("SYNCPOINT", "GGCSYNC"),
+        ("GETMAIN SET(P) FLENGTH(9)", "GGCGETM"),
+        ("WRITEQ TD QUEUE('Q') FROM(A)", "GGCWRTD"),
+        ("SEND TEXT FROM(A) ERASE", "GGCSTXT"),
+        ("RECEIVE INTO(A)", "GGCRECT"),
+        ("XCTL PROGRAM('P')", "GGCXCTL"),
+        ("LINK PROGRAM('P')", "GGCLINK"),
+        ("ABEND ABCODE('A')", "GGCABND"),
+    ],
+)
+def test_the_registry_reaches_each_family(body, stub):
+    assert f"CALL '{stub}'" in "\n".join(ec._translate_command(body))
+
+
+def test_a_counter_is_tried_before_a_container_of_the_same_verb():
+    """The one place the family order shows: a command naming both is the counter's, as it was in the if-chain."""
+    families = ec._COMMAND_FAMILIES
+    assert families.index(ec.cics_counters) < families.index(ec.cics_containers)
+    assert families[0] is ec.cics_filecontrol
+
+
+def test_a_planned_abend_at_a_file_command_keeps_its_exit_check():
+    lines = ec._translate_command("READ FILE('F') INTO(A) RIDFLD(K)", ["HL"])
+    assert lines[0] == "MOVE 0 TO GG-GOTO"
+    assert ec._translate_command("UNLOCK FILE('F')", ["HL"])[0] != "MOVE 0 TO GG-GOTO"
+
+
+def test_every_harness_family_is_an_input_of_the_evidence_and_the_trial():
+    families = {p.name for p in (ROOT / "tests" / "tools").glob("equivalence_cics_*.py")}
+    for inputs in (evidence.HARNESS, trial.HARNESS_PATHS):
+        assert families <= {Path(p).name for p in inputs}

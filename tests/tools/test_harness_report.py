@@ -383,3 +383,31 @@ def test_cli_writes_the_page_from_a_proof_blockers_file_deterministically(tmp_pa
     assert pages[0][0].read_text(encoding="utf-8").startswith("# Equivalence harness report -- est")
     assert json.loads(pages[0][1].read_text(encoding="utf-8"))["estate"] == "est"
     assert [p.read_bytes() for p in pages[0]] == [p.read_bytes() for p in pages[1]]
+
+
+# ---- #4493: the harness report reaches the `generated` branch (pins the publish step, as #7467 does for trial pages) ----
+def _publish_step() -> str:
+    from gitgalaxy.core.source_text import read_source
+
+    repo = Path(__file__).resolve().parents[2]
+    text = read_source(repo / ".github" / "workflows" / "evidence-refresh.yml").text
+    start = text.index("- name: Publish the harness report to the generated branch")
+    end = text.find("\n      - name:", start + 1)
+    return text[start : end if end != -1 else len(text)]
+
+
+def test_the_workflow_publishes_exactly_the_files_the_report_writes():
+    step = _publish_step()
+    for name in ("harness_report.md", "harness_report.json"):
+        assert name in Path(hr.__file__).read_text(encoding="utf-8")  # the names the tool writes
+        assert f'"$src/{name}"' in step
+    publish = step[step.index("generated_branch.py publish") :]
+    assert "--stamp harness-report" in publish and "docs/language_status/harness" in publish
+
+
+def test_the_publish_step_is_main_only_and_tolerates_a_missing_report():
+    step = _publish_step()
+    assert "github.ref == 'refs/heads/main'" in step  # never PR code
+    guard = step[step.index('[ -f "$src/harness_report.md" ]') :].splitlines()[0]
+    assert "::warning" in guard and "exit 0" in guard  # a missing report never blocks the other publishes
+    assert "shepherd" not in step

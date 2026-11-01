@@ -1087,8 +1087,8 @@ _RESP_ELSEWHERE = {
     "FREEMAIN": "Cics.storage ends in outcome() (test_getmain_and_freemain_work_on_task_storage_through_a_pointer)",
     "ADDRESS": "Cics.address ends in outcome(); needs the generator's pointer items, which this double lacks: test_address_5079.py::test_a_program_addressing_the_eib_and_the_commarea_translates_whole",
     **dict.fromkeys(
-        ("POST", "WAIT EVENT", "CONVERSE"),
-        "Cics.post / wait_event / converse end in outcome() and need the generator's pointer items and fields, which this "
+        ("POST", "WAIT EVENT", "WAIT EXTERNAL", "WAITCICS", "CONVERSE"),
+        "Cics.post / wait_event / wait_external / converse end in outcome() and need the generator's pointer items and fields, which this "
         "double lacks: test_post_wait_converse_5079.py::test_post_raises_its_conditions_through_resp_and_handle_condition",
     ),
     "SET TERMINAL": "needs the generator's int_expr, which this double lacks: test_bif_deedit_and_the_terminal_uctranst_cvdas",

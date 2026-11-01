@@ -40,3 +40,12 @@ def test_every_refused_option_with_a_register_entry_names_an_existing_one():
     )
     assert unknown == []
     assert COMMANDS["HANDLE ABEND"].refused["PROGRAM"].register == "X67"
+
+
+def test_the_bms_routing_and_partition_commands_are_refused_under_x59_5079():
+    for key in ("ROUTE", "SEND PARTNSET", "RECEIVE PARTN"):
+        cmd = COMMANDS[key]
+        assert (cmd.status, cmd.register) == ("refused", "X59"), key
+    text = (REGISTER / "X59.md").read_text(encoding="utf-8")
+    assert all(f"**{n}**" in text for n in ("ROUTE", "SEND PARTNSET", "RECEIVE PARTN"))
+    assert "GGCECBW" in (REGISTER / "X63.md").read_text(encoding="utf-8")

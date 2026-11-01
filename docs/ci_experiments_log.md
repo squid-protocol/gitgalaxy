@@ -263,6 +263,7 @@ Sample is one durations file; the nightly refreshes it.
 
 | When | Issue | What | Measured result |
 |---|---|---|---|
+| 2026-11-01 | #7455 | aggregate gates `if: !cancelled()`, not `always()`: a cancelled run ends `cancelled`, not a false failure | sample of 108 cancelled PR runs: these 5 gates were the only jobs ending `failure`; 22 of 41 `env` fix runs (10-29..31) found only cancelled checks. To measure after merge (`docs/ci.md` "A cancelled run") |
 | 2026-10-25 | #5543 | ground-truth layouts: warm job, 4 parts calm / 2 busy, `plan` / aggregate folds | calm cache hit 7.5 min wall / 10.9 slot-min; busy runs queue-bound (13–30 min of queue); folding `plan` or the aggregate measured and not done |
 | 2026-10-22 | #5133 | full-suite parts balanced by `least_duration`, wall-calibrated durations | part 3 21.4 -> 4.3–5.9 min; balance after calibration still to be measured |
 | 2026-10-18 | #5264 | ground-truth split into parts | one 14–16.5 min job -> two of ~11 min |

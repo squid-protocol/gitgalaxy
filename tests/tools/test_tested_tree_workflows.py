@@ -53,8 +53,8 @@ def test_gate_is_wired(name):
     assert str(gate.get("if")).strip() in (PUSH, "${{ " + PUSH + " }}")
     heavy = [j for k, j in doc["jobs"].items() if k != "tested-tree" and "tested-tree" in str(j.get("needs", ""))]
     assert heavy, "no job waits on tested-tree"
-    # smoke-test's `full-suite` aggregator (if: always(), #4961) waits on the gate too and judges the skip itself
-    gated = [j for j in heavy if not str(j.get("if")).startswith("${{ always()")]
+    # the aggregators (`full-suite`, #4961, ...) wait on the gate too and judge the skip themselves
+    gated = [j for k, j in doc["jobs"].items() if j in heavy and k not in ("full-suite", "ground-truth", "equivalence-e2e")]
     assert gated
     for job in gated:
         assert "needs.tested-tree.outputs.skip != 'true'" in job["if"]

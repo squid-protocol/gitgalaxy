@@ -52,7 +52,7 @@ def test_the_three_ways_to_pass():
 
 def test_the_summary_always_reports_and_reads_the_parts():
     job = JOBS["full-suite"]
-    assert "always()" in job["if"]  # without it a failed part skips the summary, and a skipped check can read as green
+    assert "!cancelled()" in job["if"]  # without it a failed part skips the summary, and a skipped check can read as green
     assert "full-suite-part" in job["needs"]
     assert _summary_step()["env"]["PARTS"] == "${{ needs.full-suite-part.result }}"
     assert "continue-on-error" not in job and "continue-on-error" not in _summary_step()

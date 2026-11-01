@@ -198,6 +198,19 @@ def test_wait_external_and_waitcics_stay_name_only_with_the_x63_reason(tmp_path)
     for command in ("WAIT EXTERNAL ECBLIST(ECB-PTR) NUMEVENTS(1)", "WAITCICS ECBLIST(ECB-PTR) NUMEVENTS(1)"):
         holes, _java_text = _java(tmp_path, command)
         assert any("other than a POST's timer-event control area" in h for h in holes), holes
+        assert any("the pointer lane holds handles, never an address in a byte of storage" in h for h in holes), holes
+
+
+def test_the_x63_entry_records_ibms_wait_external_conditions_and_why_the_list_is_unreadable():
+    register = (HERE.parents[1] / "docs/language_status/register/X63.md").read_text(encoding="utf-8")
+    for needle in (
+        "topic=summary-wait-external",
+        "topic=summary-waitcics",
+        "ECBLIST(ptr-value)",
+        "previously posted and not subsequently cleared",
+        "pointer-table lane",
+    ):
+        assert needle in register, needle
 
 
 def test_the_register_entry_cites_each_ibm_page_and_the_spec_points_at_it():

@@ -130,7 +130,10 @@ FREEMAIN = Command(
 # communication area. TWA / TCTUA return the transaction work area / terminal control table user area, whose sizes the
 # definitions state (TRANSACTION TWASIZE, TYPETERM USERAREALEN; slice 2 of #5079). CWA returns the region's common work area, whose
 # size is the SIT's WRKAREA (slice 2a); ACEE is a system area the region does not define: not modelled.
-_SYSTEM_AREA = "the {} is a system area the region does not define: not modelled"
+_SYSTEM_AREA = (
+    "the {} is a system area the region does not define: not modelled (IBM returns the DFLTUSER's ACEE for a task "
+    "not signed on, and X'FF000000' when none exists; the region has no security manager to make either)"
+)
 
 ADDRESS = Command(
     key="ADDRESS",
@@ -147,7 +150,11 @@ ADDRESS = Command(
     },
     refused={
         "ACEE": Refusal(_SYSTEM_AREA.format("access control environment element (ACEE)"), "X59"),
-        "SET": Refusal("ADDRESS SET (the old form, a pointer to a data area's address) is not modelled", "X59"),
+        "SET": Refusal(
+            "ADDRESS SET (the old form, a pointer to a data area's address; not an option on IBM's current ADDRESS page, "
+            "which lists ACEE, COMMAREA, CWA, EIB, TCTUA and TWA) is not modelled",
+            "X59",
+        ),
     },
     default_refusal=Refusal("only EIB, COMMAREA, CWA, TWA and TCTUA are modelled", "X59"),
     outcomes=(Outcome("NORMAL", 0, "", writes=("EIB", "COMMAREA", "CWA", "TWA", "TCTUA")),),

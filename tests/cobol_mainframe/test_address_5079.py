@@ -150,6 +150,20 @@ def test_what_the_command_cannot_model_is_refused_by_name(tmp_path, edit, why):
     assert any(why in h for h in r.stats["holes"]), (why, r.stats["holes"])
 
 
+def test_every_option_on_ibms_address_page_is_modelled_or_refused_by_name():
+    """IBM's ADDRESS page (CICS TS 6.x) lists exactly ACEE, COMMAREA, CWA, EIB, TCTUA, TWA; SET is the old form."""
+    from gitgalaxy.standards.cics.commands.storage import ADDRESS
+
+    ibm_options = {"ACEE", "COMMAREA", "CWA", "EIB", "TCTUA", "TWA"}
+    modelled = {k for k in ADDRESS.options if k in ibm_options}
+    assert modelled | set(ADDRESS.refused) >= ibm_options
+    assert ibm_options - modelled == {"ACEE"}
+    for key in ("ACEE", "SET"):
+        assert ADDRESS.refused[key].register == "X59"
+    assert "DFLTUSER" in ADDRESS.refused["ACEE"].why
+    assert "current ADDRESS page" in ADDRESS.refused["SET"].why
+
+
 @pytest.mark.parametrize(
     ("command", "why"),
     [

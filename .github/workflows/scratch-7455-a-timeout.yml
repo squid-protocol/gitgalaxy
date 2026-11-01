@@ -1,0 +1,54 @@
+# #7455 scratch probe, never merged: what does a `!cancelled()` gate do when a needed job TIMES OUT and the run lives on?
+name: "scratch 7455 A timeout"
+on:
+  push:
+    branches: ["scratch/7455-cancel-probe"]
+permissions:
+  contents: read
+jobs:
+  slow:
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    steps:
+      - run: sleep 200
+  legs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    strategy:
+      fail-fast: false
+      matrix:
+        n: [1, 2]
+    steps:
+      - run: if [ "${{ matrix.n }}" = "1" ]; then sleep 200; fi
+  fastfail:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        n: [1, 2]
+    steps:
+      - run: if [ "${{ matrix.n }}" = "1" ]; then sleep 5; exit 1; else sleep 120; fi
+  gate-not-cancelled:
+    needs: [slow]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "slow=${{ needs.slow.result }}" && test "${{ needs.slow.result }}" = success
+  gate-not-cancelled-matrix:
+    needs: [legs]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "legs=${{ needs.legs.result }}" && test "${{ needs.legs.result }}" = success
+  gate-not-cancelled-failfast:
+    needs: [fastfail]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "fastfail=${{ needs.fastfail.result }}" && test "${{ needs.fastfail.result }}" = success
+  gate-always:
+    needs: [slow, legs, fastfail]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "cancelled()=${{ cancelled() }} slow=${{ needs.slow.result }} legs=${{ needs.legs.result }} fastfail=${{ needs.fastfail.result }}"

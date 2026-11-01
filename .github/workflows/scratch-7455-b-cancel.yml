@@ -1,0 +1,50 @@
+# #7455 scratch probe, never merged: a run cancelled mid-way: conclusions of `!cancelled()` and `always()` gates.
+name: "scratch 7455 B cancel"
+on:
+  push:
+    branches: ["scratch/7455-cancel-probe"]
+permissions:
+  contents: read
+jobs:
+  slow:
+    runs-on: ubuntu-latest
+    steps:
+      - run: sleep 240
+  quick:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo ok
+  red:
+    runs-on: ubuntu-latest
+    steps:
+      - run: exit 1
+  gate-all-cancelled:
+    needs: [slow]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "reached"
+  gate-mixed-red:
+    needs: [slow, red]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "reached"
+  gate-drafty:
+    needs: [slow, quick]
+    if: ${{ !cancelled() && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "reached"
+  gate-always:
+    needs: [slow]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "cancelled()=${{ cancelled() }} slow=${{ needs.slow.result }}"; exit 1
+  gate-after-quick-long-queue:
+    needs: [quick]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: sleep 200

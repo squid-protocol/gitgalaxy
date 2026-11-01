@@ -79,7 +79,8 @@ class WebCommands:
                 n = self.int_(_arg(opts["LENGTH"]))
                 call = f"task.documentCreateData(DetCics.documentBytes({self.read_field(area)}, {n}), {n})"
             elif "TEMPLATE" in opts:
-                call = f"task.documentCreateTemplate({self.name(_arg(opts['TEMPLATE']))}, CS)"
+                template = self.name(_arg(opts["TEMPLATE"]))
+                call = f"task.documentCreateTemplate({template}, CS)"
             else:
                 call = "task.documentCreateEmpty()"
             return [f"{ind}CicsTask.DocumentCreated {r} = {call};",

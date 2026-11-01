@@ -42,6 +42,13 @@
       "commarea": null,
       "terminal": "HC51 A",
       "why": "mode A: SEND MAP HCM1 (the crucible's asis scenario step 0) then RETURN TRANSID('HC52'); the second leg (RECEIVE MAP ASIS under HC52) is a separate task the harness cannot start under its own transid"
+    },
+    {
+      "name": "receive-asis",
+      "commarea": null,
+      "terminal": "HC52 R",
+      "why": "HC52 takes the ASIS paragraph (the transid is what routes, not the mode letter)",
+      "transid": "HC52"
     }
   ]
 }

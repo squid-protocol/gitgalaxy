@@ -1,0 +1,43 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "GTREAD",
+  "program_source": "cases/ghost-tasks/gt-start-options/src/GTREAD.cbl",
+  "copy_dirs": [],
+  "transid": "GT22",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "notes": "cics-crucible ghost-tasks / gt-start-options (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): RETRIEVE INTO with RTRANSID / RTERMID / QUEUE. Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "read",
+      "commarea": null,
+      "startcode": "S",
+      "start_data": [
+        {
+          "text": "PAYLOAD-ONE-0000001"
+        }
+      ],
+      "why": "started with 20 bytes"
+    },
+    {
+      "name": "read-long",
+      "commarea": null,
+      "startcode": "S",
+      "start_data": [
+        {
+          "text": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+        }
+      ],
+      "why": "30 bytes into 20: LENGERR"
+    },
+    {
+      "name": "read-none",
+      "commarea": null,
+      "startcode": "S",
+      "why": "no data: ENDDATA arm"
+    }
+  ]
+}

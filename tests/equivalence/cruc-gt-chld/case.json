@@ -1,0 +1,21 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "GTCHLD",
+  "program_source": "cases/ghost-tasks/gt-start-options/src/GTCHLD.cbl",
+  "copy_dirs": [],
+  "transid": "GT24",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "notes": "cics-crucible ghost-tasks / gt-start-options (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): the started child alone: one TS write. Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "ran",
+      "commarea": null,
+      "startcode": "S",
+      "why": "the child logs CHILD RAN"
+    }
+  ]
+}

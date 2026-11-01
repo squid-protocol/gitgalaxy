@@ -21,7 +21,8 @@
       "name": "eoc-own-label",
       "commarea": null,
       "terminal": "EE02 R",
-      "why": "HANDLE CONDITION ERROR and EOC: EOC's own label"
+      "why": "HANDLE CONDITION ERROR and EOC: EOC's own label",
+      "transid": "EE02"
     }
   ]
 }

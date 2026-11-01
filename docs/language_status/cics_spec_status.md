@@ -48,8 +48,8 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | FREE CHILD | full | yes (4 options) | yes | X18 | — | 0 | — |
 | POST | full | yes (12 options) | yes | X63 | — | 0 | — |
 | WAIT EVENT | full | yes (5 options) | yes | X63 | — | 0 | — |
-| WAIT EXTERNAL | full | yes (8 options) | refused whole | X63 | — | 0 | — |
-| WAITCICS | full | yes (8 options) | refused whole | X63 | — | 0 | — |
+| WAIT EXTERNAL | full | yes (8 options) | yes | X63 | — | 0 | — |
+| WAITCICS | full | yes (8 options) | yes | X63 | — | 0 | — |
 | ASSIGN | full | yes (14 options, 18 refused by name) | yes | X19 | startcode, userid, facility, screen | 34 (29 / 5) | ca-channel-containers, gt-assign-startcode, hc-abend-link |
 | SEND TEXT | full | yes (17 options, 22 refused by name) | yes | X20 | — | 35 (28 / 7) | ca-link-lengths, ca-xctl-versions, gt-assign-startcode, gt-start-options, gt-start-retrieve, gt-terminal-coalesce, hc-abend-link, hc-eoc-error, hc-handle-aid, hc-ignore-error, hc-perform-range, hc-terminal-eoc, hc-terminal-receive, pc-aid-menu, pc-wizard |
 | READ | full | yes (18 options, 1 refused by name) | yes | X14, X22 | — | 26 (25 / 1) | — |

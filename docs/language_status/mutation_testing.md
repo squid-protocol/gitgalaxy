@@ -963,3 +963,11 @@ reads ABND-APPLID as 9 bytes, yet the proof reports 2/2 events equal, because th
 | COACCT01 (carddemo-coacct01) | 150/989 | 74 | 70 | 6 | 70 | 74/144 (51%) |
 
 About 80 L4 programs of the burned estates still have no det-port mutation entry (the evidence report's "not measured (no det_mutation/ entry)" rows: carddemo, CBSA, GenApp, DBB MortgageApplication, zECS ZECS000/001/002).
+
+**#4047 (2026-11-02, second batch): the three CardDemo batch readers (CBACT01C, CBCUS01C, CBACT03C).** Det-port ledgers, fast mode, seed 0, JDK 17, one sample each; none reaches L5 and no survivor is triaged yet (every survivor is unaccounted). The numbers measure how much of each port the cases pin, not a claim about the ports.
+
+| program (case) | mutants run / in scope | killed | survived | stillborn | unaccounted | raw score |
+|---|---|---|---|---|---|---|
+| CBACT01C (carddemo-readacct) | 150/728 | 107 | 36 | 7 | 36 | 107/143 (75%) |
+| CBCUS01C (carddemo-readcust) | 150/247 | 91 | 49 | 10 | 49 | 91/140 (65%) |
+| CBACT03C (carddemo-readxref) | 150/244 | 92 | 48 | 10 | 48 | 92/140 (66%) |

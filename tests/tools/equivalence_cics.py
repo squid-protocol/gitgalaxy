@@ -2740,6 +2740,13 @@ def _generated_class(src: Path, pattern: str) -> str:
     raise RuntimeError(f"no generated class matches {pattern!r}")
 
 
+def layout_only(case: dict[str, Any]) -> bool:
+    """#7434: `"commarea": {"segments": [...], "layout_only": true}` -- the record is only the LAYOUT of the area the
+    task passes on (CAXA's XCTL of a WORKING-STORAGE item, WS-V1 / WS-BLOCK): the forge makes it an entity, never a
+    contract DTO, so the port has no COMMAREA class. The port's area is compared as bytes through the layout."""
+    return bool((case.get("commarea") or {}).get("layout_only"))
+
+
 def commarea_class(case: dict[str, Any], src: Path, svc_file: Path) -> str | None:
     """The COMMAREA DTO the task carries: the one the service's handleTransaction takes -- or, for a program that
     receives none and only builds one (CardDemo's sign-on, COSGN00C: it tests EIBCALEN, then XCTLs with
@@ -2747,6 +2754,8 @@ def commarea_class(case: dict[str, Any], src: Path, svc_file: Path) -> str | Non
     COMMAREA at all (`"commarea": null`, #4270: the async credit-card services, whose det service is handleLink())."""
     from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base
 
+    if layout_only(case):  # #7434 (#6271): a WORKING-STORAGE record is the layout of the area the task passes on
+        return None
     svc_text = svc_file.read_text(encoding="utf-8")
     m = re.search(r"handleTransaction\(String transid, (\w+) request\)", svc_text) or re.search(
         r"handleLink\((\w+) request\)", svc_text
@@ -3933,6 +3942,9 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
     scenarios = []
     for sc in case["scenarios"]:
         ca, area = None, None
+        if sc.get("commarea") is not None and layout_only(case):
+            raise Unsupported(f"scenario {sc['name']}: a layout_only COMMAREA has no DTO to carry a stated COMMAREA "
+                              "(the task starts with none: use \"commarea\": null)", ["COMMAREA"])  # fmt: skip
         if sc.get("commarea") is not None:  # the very COMMAREA the COBOL task started with, as the DTO
             enc = common.data_encoding(case)  # #3815
             raw_names = raw_commarea_names(

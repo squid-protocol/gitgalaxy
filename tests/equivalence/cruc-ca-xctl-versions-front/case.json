@@ -1,0 +1,49 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "CAXA",
+  "program_source": "cases/commarea-mismatch/ca-xctl-versions/src/CAXA.cbl",
+  "copy_dirs": [
+    "cases/commarea-mismatch/ca-xctl-versions/copy"
+  ],
+  "transid": "CA02",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": {
+    "segments": [
+      {
+        "copybook": "cases/commarea-mismatch/ca-xctl-versions/src/CAXA.cbl",
+        "record": "WS-BLOCK"
+      }
+    ],
+    "layout_only": true
+  },
+  "screens": {},
+  "programs": [
+    {
+      "program": "CAXB",
+      "program_source": "cases/commarea-mismatch/ca-xctl-versions/src/CAXB.cbl"
+    }
+  ],
+  "notes": "cics-crucible commarea-mismatch / ca-xctl-versions (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072), the front program CAXA (#7434, harness: #6271 layout_only): its XCTL passes a WORKING-STORAGE item (WS-V1 for 10 and 80 bytes, WS-BIG past the 32767-byte limit), which the forge makes an entity, so the case states WS-BLOCK as the LAYOUT of the XCTL area only (no DTO, bytes compared through the layout). The scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "xctl-short-10",
+      "commarea": null,
+      "terminal": "CA02 S",
+      "why": "XCTL COMMAREA(WS-V1) LENGTH(10): CAXB is entered with EIBCALEN 10"
+    },
+    {
+      "name": "xctl-long-80",
+      "commarea": null,
+      "terminal": "CA02 L",
+      "why": "XCTL COMMAREA(WS-V1) LENGTH(80): the 80 bytes run on into WS-NEIGHBOUR, the version-1 area's neighbour storage"
+    },
+    {
+      "name": "xctl-big-length",
+      "commarea": null,
+      "terminal": "CA02 X",
+      "why": "XCTL COMMAREA(WS-BIG) LENGTH(32767) with RESP: the length past what the area may be"
+    }
+  ]
+}

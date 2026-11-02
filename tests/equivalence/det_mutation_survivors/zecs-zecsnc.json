@@ -11,20 +11,20 @@
  "case": "zecs-zecsnc",
  "survivors": [
   {
-   "id": "42c5ccb393",
-   "op": "CON",
-   "line": 33,
-   "before": "private static final int GOTO = 1 << 20;",
-   "after": "private static final int GOTO = 2 << 20;",
-   "verdict": "equivalent",
-   "reason": "GOTO bitmask operator; any bit offset > 14 reliably flags a branch jump without conflicting with paragraph indices 0..13."
-  },
-  {
    "id": "0eeeb7a07d",
    "op": "CON",
    "line": 33,
    "before": "private static final int GOTO = 1 << 20;",
    "after": "private static final int GOTO = 1 << 21;",
+   "verdict": "equivalent",
+   "reason": "GOTO bitmask operator; any bit offset > 14 reliably flags a branch jump without conflicting with paragraph indices 0..13."
+  },
+  {
+   "id": "42c5ccb393",
+   "op": "CON",
+   "line": 33,
+   "before": "private static final int GOTO = 1 << 20;",
+   "after": "private static final int GOTO = 2 << 20;",
    "verdict": "equivalent",
    "reason": "GOTO bitmask operator; any bit offset > 14 reliably flags a branch jump without conflicting with paragraph indices 0..13."
   },
@@ -254,15 +254,6 @@
    "reason": "Field definition for counter boundary values; values fit safely within defined binary precision."
   },
   {
-   "id": "ee9c453fb0",
-   "op": "CON",
-   "line": 117,
-   "before": "private final Field f33_C_MIN = Field.binary(s_C_MIN, 0, 18, 0, false, true);",
-   "after": "private final Field f33_C_MIN = Field.binary(s_C_MIN, 0, 19, 0, false, true);",
-   "verdict": "equivalent",
-   "reason": "Field definition for counter boundary values; values fit safely within defined binary precision."
-  },
-  {
    "id": "cbf7d3404a",
    "op": "CON",
    "line": 117,
@@ -272,11 +263,11 @@
    "reason": "Field definition for counter boundary values; values fit safely within defined binary precision."
   },
   {
-   "id": "ed7e2b9c97",
+   "id": "ee9c453fb0",
    "op": "CON",
-   "line": 118,
-   "before": "private final Field f34_C_MAX = Field.binary(s_C_MAX, 0, 18, 0, false, true);",
-   "after": "private final Field f34_C_MAX = Field.binary(s_C_MAX, 0, 19, 0, false, true);",
+   "line": 117,
+   "before": "private final Field f33_C_MIN = Field.binary(s_C_MIN, 0, 18, 0, false, true);",
+   "after": "private final Field f33_C_MIN = Field.binary(s_C_MIN, 0, 19, 0, false, true);",
    "verdict": "equivalent",
    "reason": "Field definition for counter boundary values; values fit safely within defined binary precision."
   },
@@ -286,6 +277,15 @@
    "line": 118,
    "before": "private final Field f34_C_MAX = Field.binary(s_C_MAX, 0, 18, 0, false, true);",
    "after": "private final Field f34_C_MAX = Field.binary(s_C_MAX, 0, 18, 1, false, true);",
+   "verdict": "equivalent",
+   "reason": "Field definition for counter boundary values; values fit safely within defined binary precision."
+  },
+  {
+   "id": "ed7e2b9c97",
+   "op": "CON",
+   "line": 118,
+   "before": "private final Field f34_C_MAX = Field.binary(s_C_MAX, 0, 18, 0, false, true);",
+   "after": "private final Field f34_C_MAX = Field.binary(s_C_MAX, 0, 19, 0, false, true);",
    "verdict": "equivalent",
    "reason": "Field definition for counter boundary values; values fit safely within defined binary precision."
   },
@@ -344,20 +344,20 @@
    "reason": "Field definition for standard EIB header fields; populated during task startup and never read in ZECSNC."
   },
   {
-   "id": "9d616b95e3",
-   "op": "CON",
-   "line": 127,
-   "before": "private final Field f59_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
-   "after": "private final Field f59_EIBTASKN = Field.packed(s_DFHEIBLK, 13, 7, 0, true);",
-   "verdict": "equivalent",
-   "reason": "Field definition for standard EIB header fields; populated during task startup and never read in ZECSNC."
-  },
-  {
    "id": "42e8f4778f",
    "op": "CON",
    "line": 127,
    "before": "private final Field f59_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
    "after": "private final Field f59_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 8, 0, true);",
+   "verdict": "equivalent",
+   "reason": "Field definition for standard EIB header fields; populated during task startup and never read in ZECSNC."
+  },
+  {
+   "id": "9d616b95e3",
+   "op": "CON",
+   "line": 127,
+   "before": "private final Field f59_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+   "after": "private final Field f59_EIBTASKN = Field.packed(s_DFHEIBLK, 13, 7, 0, true);",
    "verdict": "equivalent",
    "reason": "Field definition for standard EIB header fields; populated during task startup and never read in ZECSNC."
   },
@@ -398,15 +398,6 @@
    "reason": "Field definition for f63_EIBCALEN; compared with 0 and 8 in sy_0010."
   },
   {
-   "id": "ac42bc65e8",
-   "op": "CON",
-   "line": 129,
-   "before": "private final Field f63_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
-   "after": "private final Field f63_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 5, 0, true, false);",
-   "verdict": "equivalent",
-   "reason": "Field definition for f63_EIBCALEN; compared with 0 and 8 in sy_0010."
-  },
-  {
    "id": "ab55ee2636",
    "op": "CON",
    "line": 129,
@@ -416,13 +407,13 @@
    "reason": "Field definition for f63_EIBCALEN; compared with 0 and 8 in sy_0010."
   },
   {
-   "id": "3dabd13bc3",
+   "id": "ac42bc65e8",
    "op": "CON",
-   "line": 130,
-   "before": "private final Field f84_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
-   "after": "private final Field f84_EIBRESP = Field.binary(s_DFHEIBLK, 76, 9, 0, true, false);",
+   "line": 129,
+   "before": "private final Field f63_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
+   "after": "private final Field f63_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 5, 0, true, false);",
    "verdict": "equivalent",
-   "reason": "Field definition for f84_EIBRESP / f85_EIBRESP2; command response codes are stored but never checked in ZECSNC."
+   "reason": "Field definition for f63_EIBCALEN; compared with 0 and 8 in sy_0010."
   },
   {
    "id": "2db5ed87e4",
@@ -430,6 +421,15 @@
    "line": 130,
    "before": "private final Field f84_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
    "after": "private final Field f84_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "Field definition for f84_EIBRESP / f85_EIBRESP2; command response codes are stored but never checked in ZECSNC."
+  },
+  {
+   "id": "3dabd13bc3",
+   "op": "CON",
+   "line": 130,
+   "before": "private final Field f84_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+   "after": "private final Field f84_EIBRESP = Field.binary(s_DFHEIBLK, 76, 9, 0, true, false);",
    "verdict": "equivalent",
    "reason": "Field definition for f84_EIBRESP / f85_EIBRESP2; command response codes are stored but never checked in ZECSNC."
   },
@@ -488,20 +488,11 @@
    "reason": "Field definition for f87_GG_RETURN_CODE; batch return code field, never accessed by CICS task execution."
   },
   {
-   "id": "bad1b98fa3",
-   "op": "NEG",
+   "id": "1c128558b8",
+   "op": "CON",
    "line": 155,
    "before": "if (task.level() > 1) {",
-   "after": "if (!(task.level() > 1)) {",
-   "verdict": "unreachable",
-   "reason": "task.level() check or caBack in abended(); all commands use NOHANDLE and abended() is never reached."
-  },
-  {
-   "id": "6eae968b29",
-   "op": "ROR",
-   "line": 155,
-   "before": "if (task.level() > 1) {",
-   "after": "if (task.level() <= 1) {",
+   "after": "if (task.level() > 2) {",
    "verdict": "unreachable",
    "reason": "task.level() check or caBack in abended(); all commands use NOHANDLE and abended() is never reached."
   },
@@ -515,11 +506,20 @@
    "reason": "task.level() check or caBack in abended(); all commands use NOHANDLE and abended() is never reached."
   },
   {
-   "id": "1c128558b8",
-   "op": "CON",
+   "id": "6eae968b29",
+   "op": "ROR",
    "line": 155,
    "before": "if (task.level() > 1) {",
-   "after": "if (task.level() > 2) {",
+   "after": "if (task.level() <= 1) {",
+   "verdict": "unreachable",
+   "reason": "task.level() check or caBack in abended(); all commands use NOHANDLE and abended() is never reached."
+  },
+  {
+   "id": "bad1b98fa3",
+   "op": "NEG",
+   "line": 155,
+   "before": "if (task.level() > 1) {",
+   "after": "if (!(task.level() > 1)) {",
    "verdict": "unreachable",
    "reason": "task.level() check or caBack in abended(); all commands use NOHANDLE and abended() is never reached."
   },
@@ -551,20 +551,20 @@
    "reason": "store() method body; ZECSNC contains no file control commands and store() is never invoked."
   },
   {
-   "id": "e548bf8314",
-   "op": "LIT",
-   "line": 166,
-   "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
-   "after": "throw new Hole(\"XICS file \" + name + \": the program names no file the generated project stores\");",
-   "verdict": "unreachable",
-   "reason": "store() method body; ZECSNC contains no file control commands and store() is never invoked."
-  },
-  {
    "id": "17017de259",
    "op": "LIT",
    "line": 166,
    "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
    "after": "throw new Hole(\"CICS file \" + name + \"X the program names no file the generated project stores\");",
+   "verdict": "unreachable",
+   "reason": "store() method body; ZECSNC contains no file control commands and store() is never invoked."
+  },
+  {
+   "id": "e548bf8314",
+   "op": "LIT",
+   "line": 166,
+   "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
+   "after": "throw new Hole(\"XICS file \" + name + \": the program names no file the generated project stores\");",
    "verdict": "unreachable",
    "reason": "store() method body; ZECSNC contains no file control commands and store() is never invoked."
   },
@@ -587,15 +587,6 @@
    "reason": "PARAGRAPHS table entry on line 170; table is only queried for dynamic condition handling which is unused in ZECSNC."
   },
   {
-   "id": "d03ecbc5fa",
-   "op": "LIT",
-   "line": 171,
-   "before": "java.util.Map.entry(\"SY-9000\", 12),",
-   "after": "java.util.Map.entry(\"XY-9000\", 12),",
-   "verdict": "unreachable",
-   "reason": "PARAGRAPHS table entry on line 171; table is only queried for dynamic condition handling which is unused in ZECSNC."
-  },
-  {
    "id": "4211e3dd3b",
    "op": "CON",
    "line": 171,
@@ -605,13 +596,13 @@
    "reason": "PARAGRAPHS table entry on line 171; table is only queried for dynamic condition handling which is unused in ZECSNC."
   },
   {
-   "id": "5a92044f82",
+   "id": "d03ecbc5fa",
    "op": "LIT",
-   "line": 172,
-   "before": "java.util.Map.entry(\"ER-0020\", 11),",
-   "after": "java.util.Map.entry(\"XR-0020\", 11),",
+   "line": 171,
+   "before": "java.util.Map.entry(\"SY-9000\", 12),",
+   "after": "java.util.Map.entry(\"XY-9000\", 12),",
    "verdict": "unreachable",
-   "reason": "PARAGRAPHS table entry on line 172; table is only queried for dynamic condition handling which is unused in ZECSNC."
+   "reason": "PARAGRAPHS table entry on line 171; table is only queried for dynamic condition handling which is unused in ZECSNC."
   },
   {
    "id": "1a480e9cb6",
@@ -619,6 +610,15 @@
    "line": 172,
    "before": "java.util.Map.entry(\"ER-0020\", 11),",
    "after": "java.util.Map.entry(\"ER-0020\", 12),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS table entry on line 172; table is only queried for dynamic condition handling which is unused in ZECSNC."
+  },
+  {
+   "id": "5a92044f82",
+   "op": "LIT",
+   "line": 172,
+   "before": "java.util.Map.entry(\"ER-0020\", 11),",
+   "after": "java.util.Map.entry(\"XR-0020\", 11),",
    "verdict": "unreachable",
    "reason": "PARAGRAPHS table entry on line 172; table is only queried for dynamic condition handling which is unused in ZECSNC."
   },
@@ -641,20 +641,20 @@
    "reason": "PARAGRAPHS table entry on line 173; table is only queried for dynamic condition handling which is unused in ZECSNC."
   },
   {
-   "id": "fe353c2a4d",
-   "op": "LIT",
-   "line": 174,
-   "before": "java.util.Map.entry(\"SY-0900\", 9),",
-   "after": "java.util.Map.entry(\"XY-0900\", 9),",
-   "verdict": "unreachable",
-   "reason": "PARAGRAPHS table entry on line 174; table is only queried for dynamic condition handling which is unused in ZECSNC."
-  },
-  {
    "id": "ec57401330",
    "op": "CON",
    "line": 174,
    "before": "java.util.Map.entry(\"SY-0900\", 9),",
    "after": "java.util.Map.entry(\"SY-0900\", 10),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS table entry on line 174; table is only queried for dynamic condition handling which is unused in ZECSNC."
+  },
+  {
+   "id": "fe353c2a4d",
+   "op": "LIT",
+   "line": 174,
+   "before": "java.util.Map.entry(\"SY-0900\", 9),",
+   "after": "java.util.Map.entry(\"XY-0900\", 9),",
    "verdict": "unreachable",
    "reason": "PARAGRAPHS table entry on line 174; table is only queried for dynamic condition handling which is unused in ZECSNC."
   },
@@ -677,20 +677,20 @@
    "reason": "PARAGRAPHS table entry on line 175; table is only queried for dynamic condition handling which is unused in ZECSNC."
   },
   {
-   "id": "70ce7a7431",
-   "op": "LIT",
-   "line": 176,
-   "before": "java.util.Map.entry(\"SY-0200\", 7),",
-   "after": "java.util.Map.entry(\"XY-0200\", 7),",
-   "verdict": "unreachable",
-   "reason": "PARAGRAPHS table entry on line 176; table is only queried for dynamic condition handling which is unused in ZECSNC."
-  },
-  {
    "id": "37f0602825",
    "op": "CON",
    "line": 176,
    "before": "java.util.Map.entry(\"SY-0200\", 7),",
    "after": "java.util.Map.entry(\"SY-0200\", 8),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS table entry on line 176; table is only queried for dynamic condition handling which is unused in ZECSNC."
+  },
+  {
+   "id": "70ce7a7431",
+   "op": "LIT",
+   "line": 176,
+   "before": "java.util.Map.entry(\"SY-0200\", 7),",
+   "after": "java.util.Map.entry(\"XY-0200\", 7),",
    "verdict": "unreachable",
    "reason": "PARAGRAPHS table entry on line 176; table is only queried for dynamic condition handling which is unused in ZECSNC."
   },
@@ -713,15 +713,6 @@
    "reason": "PARAGRAPHS table entry on line 177; table is only queried for dynamic condition handling which is unused in ZECSNC."
   },
   {
-   "id": "6e0904ff10",
-   "op": "LIT",
-   "line": 178,
-   "before": "java.util.Map.entry(\"SY-0100\", 5),",
-   "after": "java.util.Map.entry(\"XY-0100\", 5),",
-   "verdict": "unreachable",
-   "reason": "PARAGRAPHS table entry on line 178; table is only queried for dynamic condition handling which is unused in ZECSNC."
-  },
-  {
    "id": "3fac14ba52",
    "op": "CON",
    "line": 178,
@@ -731,13 +722,13 @@
    "reason": "PARAGRAPHS table entry on line 178; table is only queried for dynamic condition handling which is unused in ZECSNC."
   },
   {
-   "id": "6e5b42d4af",
+   "id": "6e0904ff10",
    "op": "LIT",
-   "line": 179,
-   "before": "java.util.Map.entry(\"SY-0030\", 4),",
-   "after": "java.util.Map.entry(\"XY-0030\", 4),",
+   "line": 178,
+   "before": "java.util.Map.entry(\"SY-0100\", 5),",
+   "after": "java.util.Map.entry(\"XY-0100\", 5),",
    "verdict": "unreachable",
-   "reason": "PARAGRAPHS table entry on line 179; table is only queried for dynamic condition handling which is unused in ZECSNC."
+   "reason": "PARAGRAPHS table entry on line 178; table is only queried for dynamic condition handling which is unused in ZECSNC."
   },
   {
    "id": "5d81727521",
@@ -745,6 +736,15 @@
    "line": 179,
    "before": "java.util.Map.entry(\"SY-0030\", 4),",
    "after": "java.util.Map.entry(\"SY-0030\", 5),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS table entry on line 179; table is only queried for dynamic condition handling which is unused in ZECSNC."
+  },
+  {
+   "id": "6e5b42d4af",
+   "op": "LIT",
+   "line": 179,
+   "before": "java.util.Map.entry(\"SY-0030\", 4),",
+   "after": "java.util.Map.entry(\"XY-0030\", 4),",
    "verdict": "unreachable",
    "reason": "PARAGRAPHS table entry on line 179; table is only queried for dynamic condition handling which is unused in ZECSNC."
   },
@@ -785,20 +785,20 @@
    "reason": "PARAGRAPHS table entry on line 181; table is only queried for dynamic condition handling which is unused in ZECSNC."
   },
   {
-   "id": "ab5dc178c7",
-   "op": "LIT",
-   "line": 182,
-   "before": "java.util.Map.entry(\"SYSDATE\", 1),",
-   "after": "java.util.Map.entry(\"XYSDATE\", 1),",
-   "verdict": "unreachable",
-   "reason": "PARAGRAPHS table entry on line 182; table is only queried for dynamic condition handling which is unused in ZECSNC."
-  },
-  {
    "id": "3cfd8632d0",
    "op": "CON",
    "line": 182,
    "before": "java.util.Map.entry(\"SYSDATE\", 1),",
    "after": "java.util.Map.entry(\"SYSDATE\", 2),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS table entry on line 182; table is only queried for dynamic condition handling which is unused in ZECSNC."
+  },
+  {
+   "id": "ab5dc178c7",
+   "op": "LIT",
+   "line": 182,
+   "before": "java.util.Map.entry(\"SYSDATE\", 1),",
+   "after": "java.util.Map.entry(\"XYSDATE\", 1),",
    "verdict": "unreachable",
    "reason": "PARAGRAPHS table entry on line 182; table is only queried for dynamic condition handling which is unused in ZECSNC."
   },
@@ -1208,15 +1208,6 @@
    "reason": "Standard EIB field assignment on line 298; field is never read anywhere in ZECSNC."
   },
   {
-   "id": "c9a3f7b1fe",
-   "op": "CON",
-   "line": 298,
-   "before": "Cobol.store(f57_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
-   "after": "Cobol.store(f57_EIBDATE, BigDecimal.valueOf((now.getYear() - 1901) * 1000L + now.getDayOfYear()), false, CS);",
-   "verdict": "equivalent",
-   "reason": "Standard EIB field assignment on line 298; field is never read anywhere in ZECSNC."
-  },
-  {
    "id": "2f937b5cc2",
    "op": "AOR",
    "line": 298,
@@ -1235,13 +1226,13 @@
    "reason": "Standard EIB field assignment on line 298; field is never read anywhere in ZECSNC."
   },
   {
-   "id": "ed2ebba550",
-   "op": "DEL",
-   "line": 299,
-   "before": "Cobol.store(f56_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
-   "after": "/* Cobol.store(f56_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS); */",
+   "id": "c9a3f7b1fe",
+   "op": "CON",
+   "line": 298,
+   "before": "Cobol.store(f57_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f57_EIBDATE, BigDecimal.valueOf((now.getYear() - 1901) * 1000L + now.getDayOfYear()), false, CS);",
    "verdict": "equivalent",
-   "reason": "Standard EIB field assignment on line 299; field is never read anywhere in ZECSNC."
+   "reason": "Standard EIB field assignment on line 298; field is never read anywhere in ZECSNC."
   },
   {
    "id": "15f093e69e",
@@ -1249,6 +1240,15 @@
    "line": 299,
    "before": "Cobol.store(f56_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
    "after": "Cobol.store(f56_EIBTIME, BigDecimal.valueOf(now.getHour() / 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "Standard EIB field assignment on line 299; field is never read anywhere in ZECSNC."
+  },
+  {
+   "id": "56e94f992d",
+   "op": "AOR",
+   "line": 299,
+   "before": "Cobol.store(f56_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f56_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() / 100L + now.getSecond()), false, CS);",
    "verdict": "equivalent",
    "reason": "Standard EIB field assignment on line 299; field is never read anywhere in ZECSNC."
   },
@@ -1262,11 +1262,11 @@
    "reason": "Standard EIB field assignment on line 299; field is never read anywhere in ZECSNC."
   },
   {
-   "id": "56e94f992d",
-   "op": "AOR",
+   "id": "ed2ebba550",
+   "op": "DEL",
    "line": 299,
    "before": "Cobol.store(f56_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
-   "after": "Cobol.store(f56_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() / 100L + now.getSecond()), false, CS);",
+   "after": "/* Cobol.store(f56_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS); */",
    "verdict": "equivalent",
    "reason": "Standard EIB field assignment on line 299; field is never read anywhere in ZECSNC."
   },
@@ -1316,40 +1316,22 @@
    "reason": "Commarea boundary check on line 310; commarea length matches DFHCA size (8 bytes) exactly."
   },
   {
-   "id": "7971a0921b",
-   "op": "ROR",
-   "line": 314,
-   "before": "if (calen == 0 && ca != null && !(ca instanceof byte[])) {",
-   "after": "if (calen != 0 && ca != null && !(ca instanceof byte[])) {",
-   "verdict": "equivalent",
-   "reason": "runTask setup on line 314."
-  },
-  {
    "id": "1792cb0b30",
    "op": "CON",
    "line": 314,
    "before": "if (calen == 0 && ca != null && !(ca instanceof byte[])) {",
    "after": "if (calen == 1 && ca != null && !(ca instanceof byte[])) {",
-   "verdict": "equivalent",
-   "reason": "runTask setup on line 314."
+   "verdict": "case-gap",
+   "reason": "the typed-COMMAREA guard compares calen with 1: a DTO would no longer be read. DFHCOMMAREA reached as a DTO needs a LINK from a program with a COMMAREA class of its own (ZECSNC's header says it is LINKed); the case has no `programs`, and `commarea_hex` is bytes, so this branch needs a caller in the case"
   },
   {
-   "id": "f183235bb1",
-   "op": "DEL",
-   "line": 316,
-   "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "after": "/* System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length)); */",
-   "verdict": "equivalent",
-   "reason": "runTask setup on line 316."
-  },
-  {
-   "id": "993f65a7f5",
-   "op": "CON",
-   "line": 316,
-   "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "after": "System.arraycopy(cb, 1, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "verdict": "equivalent",
-   "reason": "runTask setup on line 316."
+   "id": "7971a0921b",
+   "op": "ROR",
+   "line": 314,
+   "before": "if (calen == 0 && ca != null && !(ca instanceof byte[])) {",
+   "after": "if (calen != 0 && ca != null && !(ca instanceof byte[])) {",
+   "verdict": "case-gap",
+   "reason": "the typed-COMMAREA guard turned to calen != 0: a DTO would no longer be read. DFHCOMMAREA reached as a DTO needs a LINK from a program with a COMMAREA class of its own (ZECSNC's header says it is LINKed); the case has no `programs`, and `commarea_hex` is bytes, so this branch needs a caller in the case"
   },
   {
    "id": "5804f60796",
@@ -1357,8 +1339,26 @@
    "line": 316,
    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
    "after": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 1, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "verdict": "equivalent",
-   "reason": "runTask setup on line 316."
+   "verdict": "case-gap",
+   "reason": "the DTO's bytes land at offset 1 of DFHCOMMAREA, shifting CA_TRAN or overrunning the area. DFHCOMMAREA reached as a DTO needs a LINK from a program with a COMMAREA class of its own (ZECSNC's header says it is LINKed); the case has no `programs`, and `commarea_hex` is bytes, so this branch needs a caller in the case"
+  },
+  {
+   "id": "993f65a7f5",
+   "op": "CON",
+   "line": 316,
+   "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
+   "after": "System.arraycopy(cb, 1, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
+   "verdict": "case-gap",
+   "reason": "the DTO's bytes are copied from offset 1, shifting CA_TRAN one byte. DFHCOMMAREA reached as a DTO needs a LINK from a program with a COMMAREA class of its own (ZECSNC's header says it is LINKed); the case has no `programs`, and `commarea_hex` is bytes, so this branch needs a caller in the case"
+  },
+  {
+   "id": "f183235bb1",
+   "op": "DEL",
+   "line": 316,
+   "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
+   "after": "/* System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length)); */",
+   "verdict": "case-gap",
+   "reason": "the DTO's layout bytes are not copied, so CA_TRAN stays empty and Z_NC is wrong. DFHCOMMAREA reached as a DTO needs a LINK from a program with a COMMAREA class of its own (ZECSNC's header says it is LINKed); the case has no `programs`, and `commarea_hex` is bytes, so this branch needs a caller in the case"
   },
   {
    "id": "652af721dc",
@@ -1366,8 +1366,8 @@
    "line": 317,
    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
    "after": "if (!(cb.length > s_DFHCOMMAREA.bytes.length)) {",
-   "verdict": "equivalent",
-   "reason": "runTask setup on line 317."
+   "verdict": "case-gap",
+   "reason": "the over-length test on the DTO's bytes is negated, so an exact 8-byte area takes copyOfRange. DFHCOMMAREA reached as a DTO needs a LINK from a program with a COMMAREA class of its own (ZECSNC's header says it is LINKed); the case has no `programs`, and `commarea_hex` is bytes, so this branch needs a caller in the case"
   },
   {
    "id": "7045321c62",
@@ -1375,8 +1375,8 @@
    "line": 317,
    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
    "after": "if (cb.length <= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "equivalent",
-   "reason": "runTask setup on line 317."
+   "verdict": "case-gap",
+   "reason": "the over-length test on the DTO's bytes is <=, so an exact 8-byte area takes copyOfRange. DFHCOMMAREA reached as a DTO needs a LINK from a program with a COMMAREA class of its own (ZECSNC's header says it is LINKed); the case has no `programs`, and `commarea_hex` is bytes, so this branch needs a caller in the case"
   },
   {
    "id": "9d65975e18",
@@ -1384,8 +1384,8 @@
    "line": 317,
    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
    "after": "if (cb.length >= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "equivalent",
-   "reason": "runTask setup on line 317."
+   "verdict": "case-gap",
+   "reason": "the over-length test on the DTO's bytes is >=, the boundary at exactly 8 bytes. DFHCOMMAREA reached as a DTO needs a LINK from a program with a COMMAREA class of its own (ZECSNC's header says it is LINKed); the case has no `programs`, and `commarea_hex` is bytes, so this branch needs a caller in the case"
   },
   {
    "id": "d624d25814",
@@ -1393,8 +1393,8 @@
    "line": 318,
    "before": "s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length);",
    "after": "/* s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length); */",
-   "verdict": "equivalent",
-   "reason": "Commarea boundary check on line 318; commarea length matches DFHCA size (8 bytes) exactly."
+   "verdict": "case-gap",
+   "reason": "bytes of the DTO past 8 are not kept in `beyond`. DFHCOMMAREA reached as a DTO needs a LINK from a program with a COMMAREA class of its own (ZECSNC's header says it is LINKed); the case has no `programs`, and `commarea_hex` is bytes, so this branch needs a caller in the case"
   },
   {
    "id": "391af974e6",
@@ -1402,8 +1402,8 @@
    "line": 320,
    "before": "calen = cx(task, cb.length);",
    "after": "/* calen = cx(task, cb.length); */",
-   "verdict": "equivalent",
-   "reason": "runTask setup on line 320."
+   "verdict": "case-gap",
+   "reason": "EIBCALEN stays 0 for a DTO, so the program would RECEIVE instead of reading CA_TRAN. DFHCOMMAREA reached as a DTO needs a LINK from a program with a COMMAREA class of its own (ZECSNC's header says it is LINKed); the case has no `programs`, and `commarea_hex` is bytes, so this branch needs a caller in the case"
   },
   {
    "id": "08ced522e1",
@@ -1411,8 +1411,8 @@
    "line": 324,
    "before": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
    "after": "/* System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length)); */",
-   "verdict": "equivalent",
-   "reason": "runTask setup on line 324."
+   "verdict": "case-gap",
+   "reason": "the caller's bytes are not copied into DFHCOMMAREA, so CA_TRAN is lost. task.linkArea() holds bytes only for a caller's LINK or XCTL (the header: 'executed from another program via LINK'); the case has no `programs`, so raw is null in every scenario and a caller is what would kill this"
   },
   {
    "id": "82656b8931",
@@ -1420,8 +1420,8 @@
    "line": 324,
    "before": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
    "after": "System.arraycopy(raw, 1, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
-   "verdict": "equivalent",
-   "reason": "runTask setup on line 324."
+   "verdict": "case-gap",
+   "reason": "the caller's bytes are copied from offset 1, shifting CA_TRAN. task.linkArea() holds bytes only for a caller's LINK or XCTL (the header: 'executed from another program via LINK'); the case has no `programs`, so raw is null in every scenario and a caller is what would kill this"
   },
   {
    "id": "f226ff7a34",
@@ -1429,8 +1429,8 @@
    "line": 324,
    "before": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
    "after": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 1, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
-   "verdict": "equivalent",
-   "reason": "runTask setup on line 324."
+   "verdict": "case-gap",
+   "reason": "the caller's bytes land at DFHCOMMAREA offset 1, an overrun on an 8-byte area. task.linkArea() holds bytes only for a caller's LINK or XCTL (the header: 'executed from another program via LINK'); the case has no `programs`, so raw is null in every scenario and a caller is what would kill this"
   },
   {
    "id": "4614ea140a",
@@ -1438,8 +1438,8 @@
    "line": 326,
    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
    "after": "/* s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null; */",
-   "verdict": "equivalent",
-   "reason": "Commarea boundary check on line 326; commarea length matches DFHCA size (8 bytes) exactly."
+   "verdict": "case-gap",
+   "reason": "`beyond` is not set from a longer area. task.linkArea() holds bytes only for a caller's LINK or XCTL (the header: 'executed from another program via LINK'); the case has no `programs`, so raw is null in every scenario and a caller is what would kill this"
   },
   {
    "id": "c14ec40d61",
@@ -1447,8 +1447,8 @@
    "line": 326,
    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
    "after": "s_DFHCOMMAREA.beyond = raw.length <= keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
-   "verdict": "equivalent",
-   "reason": "Commarea boundary check on line 326; commarea length matches DFHCA size (8 bytes) exactly."
+   "verdict": "case-gap",
+   "reason": "`beyond` condition inverted: an exact 8-byte area takes an empty range, a longer one none. task.linkArea() holds bytes only for a caller's LINK or XCTL (the header: 'executed from another program via LINK'); the case has no `programs`, so raw is null in every scenario and a caller is what would kill this"
   },
   {
    "id": "c8305fee01",
@@ -1456,53 +1456,8 @@
    "line": 326,
    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
    "after": "s_DFHCOMMAREA.beyond = raw.length >= keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
-   "verdict": "equivalent",
-   "reason": "Commarea boundary check on line 326; commarea length matches DFHCA size (8 bytes) exactly."
-  },
-  {
-   "id": "bcb7e8143f",
-   "op": "DEL",
-   "line": 328,
-   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-   "after": "/* caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } }; */",
-   "verdict": "equivalent",
-   "reason": "Commarea boundary check on line 328; commarea length matches DFHCA size (8 bytes) exactly."
-  },
-  {
-   "id": "a6f21c7a16",
-   "op": "CON",
-   "line": 328,
-   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 1, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-   "verdict": "equivalent",
-   "reason": "Commarea boundary check on line 328; commarea length matches DFHCA size (8 bytes) exactly."
-  },
-  {
-   "id": "5b7f5275c4",
-   "op": "CON",
-   "line": 328,
-   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 1, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-   "verdict": "equivalent",
-   "reason": "Commarea boundary check on line 328; commarea length matches DFHCA size (8 bytes) exactly."
-  },
-  {
-   "id": "4ec028a850",
-   "op": "NEG",
-   "line": 328,
-   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (!(s_DFHCOMMAREA.beyond != null)) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-   "verdict": "equivalent",
-   "reason": "Commarea boundary check on line 328; commarea length matches DFHCA size (8 bytes) exactly."
-  },
-  {
-   "id": "a6d612e949",
-   "op": "ROR",
-   "line": 328,
-   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond == null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-   "verdict": "equivalent",
-   "reason": "Commarea boundary check on line 328; commarea length matches DFHCA size (8 bytes) exactly."
+   "verdict": "case-gap",
+   "reason": "`beyond` is set for an exact 8-byte area too, an empty range. task.linkArea() holds bytes only for a caller's LINK or XCTL (the header: 'executed from another program via LINK'); the case has no `programs`, so raw is null in every scenario and a caller is what would kill this"
   },
   {
    "id": "4b88cefa1e",
@@ -1510,8 +1465,44 @@
    "line": 328,
    "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
    "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } };",
-   "verdict": "equivalent",
-   "reason": "Commarea boundary check on line 328; commarea length matches DFHCA size (8 bytes) exactly."
+   "verdict": "case-gap",
+   "reason": "the write-back of `beyond` starts at the wrong offset of the bytes past 8. task.linkArea() holds bytes only for a caller's LINK or XCTL (the header: 'executed from another program via LINK'); the case has no `programs`, so raw is null in every scenario and a caller is what would kill this"
+  },
+  {
+   "id": "4ec028a850",
+   "op": "NEG",
+   "line": 328,
+   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (!(s_DFHCOMMAREA.beyond != null)) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+   "verdict": "case-gap",
+   "reason": "the test on `beyond` in the write-back is negated: a null `beyond` is copied. task.linkArea() holds bytes only for a caller's LINK or XCTL (the header: 'executed from another program via LINK'); the case has no `programs`, so raw is null in every scenario and a caller is what would kill this"
+  },
+  {
+   "id": "5b7f5275c4",
+   "op": "CON",
+   "line": 328,
+   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 1, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+   "verdict": "case-gap",
+   "reason": "the write-back lands at offset 1 of the caller's area, shifting its bytes. task.linkArea() holds bytes only for a caller's LINK or XCTL (the header: 'executed from another program via LINK'); the case has no `programs`, so raw is null in every scenario and a caller is what would kill this"
+  },
+  {
+   "id": "a6d612e949",
+   "op": "ROR",
+   "line": 328,
+   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond == null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+   "verdict": "case-gap",
+   "reason": "the test on `beyond` in the write-back is == null: a null `beyond` is copied. task.linkArea() holds bytes only for a caller's LINK or XCTL (the header: 'executed from another program via LINK'); the case has no `programs`, so raw is null in every scenario and a caller is what would kill this"
+  },
+  {
+   "id": "a6f21c7a16",
+   "op": "CON",
+   "line": 328,
+   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 1, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+   "verdict": "case-gap",
+   "reason": "the write-back reads DFHCOMMAREA from offset 1, an overrun of 8 bytes into the caller's area. task.linkArea() holds bytes only for a caller's LINK or XCTL (the header: 'executed from another program via LINK'); the case has no `programs`, so raw is null in every scenario and a caller is what would kill this"
   },
   {
    "id": "b6767a3008",
@@ -1519,17 +1510,17 @@
    "line": 328,
    "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
    "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } };",
-   "verdict": "equivalent",
-   "reason": "Commarea boundary check on line 328; commarea length matches DFHCA size (8 bytes) exactly."
+   "verdict": "case-gap",
+   "reason": "the length of the `beyond` write-back has the wrong sign. task.linkArea() holds bytes only for a caller's LINK or XCTL (the header: 'executed from another program via LINK'); the case has no `programs`, so raw is null in every scenario and a caller is what would kill this"
   },
   {
-   "id": "1f82d03799",
-   "op": "NEG",
-   "line": 331,
-   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (!(task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length)) {",
-   "verdict": "equivalent",
-   "reason": "Commarea boundary check on line 331; commarea length matches DFHCA size (8 bytes) exactly."
+   "id": "bcb7e8143f",
+   "op": "DEL",
+   "line": 328,
+   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+   "after": "/* caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } }; */",
+   "verdict": "case-gap",
+   "reason": "the write-back to the caller's bytes is gone, though ZECSNC never writes DFHCA. task.linkArea() holds bytes only for a caller's LINK or XCTL (the header: 'executed from another program via LINK'); the case has no `programs`, so raw is null in every scenario and a caller is what would kill this"
   },
   {
    "id": "15bd5f8c4b",
@@ -1541,11 +1532,11 @@
    "reason": "Commarea boundary check on line 331; commarea length matches DFHCA size (8 bytes) exactly."
   },
   {
-   "id": "eeb3f0cc9c",
-   "op": "ROR",
+   "id": "1f82d03799",
+   "op": "NEG",
    "line": 331,
    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (task.exactCommarea() && calen <= s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (!(task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length)) {",
    "verdict": "equivalent",
    "reason": "Commarea boundary check on line 331; commarea length matches DFHCA size (8 bytes) exactly."
   },
@@ -1555,6 +1546,15 @@
    "line": 331,
    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
    "after": "if (task.exactCommarea() && calen >= s_DFHCOMMAREA.bytes.length) {",
+   "verdict": "equivalent",
+   "reason": "Commarea boundary check on line 331; commarea length matches DFHCA size (8 bytes) exactly."
+  },
+  {
+   "id": "eeb3f0cc9c",
+   "op": "ROR",
+   "line": 331,
+   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (task.exactCommarea() && calen <= s_DFHCOMMAREA.bytes.length) {",
    "verdict": "equivalent",
    "reason": "Commarea boundary check on line 331; commarea length matches DFHCA size (8 bytes) exactly."
   },
@@ -1577,20 +1577,20 @@
    "reason": "IndexOutOfBoundsException handler in runTask(); no out-of-bounds access occurs in ZECSNC."
   },
   {
-   "id": "fa48743479",
-   "op": "CON",
-   "line": 341,
-   "before": "perform(0, 13);",
-   "after": "perform(1, 13);",
-   "verdict": "equivalent",
-   "reason": "runTask setup on line 341."
-  },
-  {
    "id": "e30a1b9fbd",
    "op": "CON",
    "line": 341,
    "before": "perform(0, 13);",
    "after": "perform(0, 14);",
+   "verdict": "equivalent",
+   "reason": "runTask setup on line 341."
+  },
+  {
+   "id": "fa48743479",
+   "op": "CON",
+   "line": 341,
+   "before": "perform(0, 13);",
+   "after": "perform(1, 13);",
    "verdict": "equivalent",
    "reason": "runTask setup on line 341."
   },
@@ -1613,20 +1613,20 @@
    "reason": "IndexOutOfBoundsException handler in runTask(); no out-of-bounds access occurs in ZECSNC."
   },
   {
-   "id": "82e6c3d494",
-   "op": "LIT",
-   "line": 349,
-   "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
-   "after": "throw new DetCics.PastFrom(\"XOMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
-   "verdict": "equivalent",
-   "reason": "runTask setup on line 349."
-  },
-  {
    "id": "202007c6f7",
    "op": "LIT",
    "line": 349,
    "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
    "after": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \"Xbytes): not modelled\");",
+   "verdict": "equivalent",
+   "reason": "runTask setup on line 349."
+  },
+  {
+   "id": "82e6c3d494",
+   "op": "LIT",
+   "line": 349,
+   "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
+   "after": "throw new DetCics.PastFrom(\"XOMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
    "verdict": "equivalent",
    "reason": "runTask setup on line 349."
   },
@@ -1694,20 +1694,20 @@
    "reason": "perform() control flow operator on line 392."
   },
   {
-   "id": "b27466059a",
-   "op": "DEL",
-   "line": 403,
-   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
-   "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */",
-   "verdict": "unreachable",
-   "reason": "performThru buffer resizing; ZECSNC has only a single top-level perform() call (depth 0), so depth 64 is never reached."
-  },
-  {
    "id": "15a95136c1",
    "op": "AOR",
    "line": 403,
    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
    "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);",
+   "verdict": "unreachable",
+   "reason": "performThru buffer resizing; ZECSNC has only a single top-level perform() call (depth 0), so depth 64 is never reached."
+  },
+  {
+   "id": "b27466059a",
+   "op": "DEL",
+   "line": 403,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */",
    "verdict": "unreachable",
    "reason": "performThru buffer resizing; ZECSNC has only a single top-level perform() call (depth 0), so depth 64 is never reached."
   },
@@ -1757,24 +1757,6 @@
    "reason": "performThru search loop; mine is 0 for the single perform call, so loop condition d >= 0 is immediately false."
   },
   {
-   "id": "8902b389f0",
-   "op": "CON",
-   "line": 416,
-   "before": "for (int d = mine - 1; d >= 0; d--) {",
-   "after": "for (int d = mine - 2; d >= 0; d--) {",
-   "verdict": "unreachable",
-   "reason": "performThru search loop; mine is 0 for the single perform call, so loop condition d >= 0 is immediately false."
-  },
-  {
-   "id": "d03fcfe266",
-   "op": "ROR",
-   "line": 416,
-   "before": "for (int d = mine - 1; d >= 0; d--) {",
-   "after": "for (int d = mine - 1; d > 0; d--) {",
-   "verdict": "unreachable",
-   "reason": "performThru search loop; mine is 0 for the single perform call, so loop condition d >= 0 is immediately false."
-  },
-  {
    "id": "8818aea800",
    "op": "CON",
    "line": 416,
@@ -1784,11 +1766,29 @@
    "reason": "performThru search loop; mine is 0 for the single perform call, so loop condition d >= 0 is immediately false."
   },
   {
+   "id": "8902b389f0",
+   "op": "CON",
+   "line": 416,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 2; d >= 0; d--) {",
+   "verdict": "unreachable",
+   "reason": "performThru search loop; mine is 0 for the single perform call, so loop condition d >= 0 is immediately false."
+  },
+  {
    "id": "ca8d6a5d95",
    "op": "AOR",
    "line": 416,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
    "after": "for (int d = mine - 1; d >= 0; d++) {",
+   "verdict": "unreachable",
+   "reason": "performThru search loop; mine is 0 for the single perform call, so loop condition d >= 0 is immediately false."
+  },
+  {
+   "id": "d03fcfe266",
+   "op": "ROR",
+   "line": 416,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d > 0; d--) {",
    "verdict": "unreachable",
    "reason": "performThru search loop; mine is 0 for the single perform call, so loop condition d >= 0 is immediately false."
   },
@@ -1865,20 +1865,20 @@
    "reason": "Default branch in run() paragraph switch; i is always within 0..13."
   },
   {
-   "id": "fbe3284ff1",
-   "op": "NEG",
-   "line": 459,
-   "before": "if (true) return GOTO | 1;",
-   "after": "if (!(true)) return GOTO | 1;",
-   "verdict": "equivalent",
-   "reason": "Entry jump in p0(); unconditionally branches to paragraph 2."
-  },
-  {
    "id": "5889002baf",
    "op": "CON",
    "line": 459,
    "before": "if (true) return GOTO | 1;",
    "after": "if (true) return GOTO | 2;",
+   "verdict": "equivalent",
+   "reason": "Entry jump in p0(); unconditionally branches to paragraph 2."
+  },
+  {
+   "id": "fbe3284ff1",
+   "op": "NEG",
+   "line": 459,
+   "before": "if (true) return GOTO | 1;",
+   "after": "if (!(true)) return GOTO | 1;",
    "verdict": "equivalent",
    "reason": "Entry jump in p0(); unconditionally branches to paragraph 2."
   },
@@ -1964,20 +1964,20 @@
    "reason": "TC-LEN calculation and store; TC-LEN is not passed to RECEIVE (uses INTO without LENGTH) and never read elsewhere."
   },
   {
-   "id": "c81d0eb43c",
-   "op": "DEL",
-   "line": 511,
-   "before": "f14_TC_LEN = Cobol.binary(v2, 4, true, false, true, CS);",
-   "after": "/* f14_TC_LEN = Cobol.binary(v2, 4, true, false, true, CS); */",
-   "verdict": "equivalent",
-   "reason": "TC-LEN calculation and store; TC-LEN is not passed to RECEIVE (uses INTO without LENGTH) and never read elsewhere."
-  },
-  {
    "id": "1f79e9003e",
    "op": "CON",
    "line": 511,
    "before": "f14_TC_LEN = Cobol.binary(v2, 4, true, false, true, CS);",
    "after": "f14_TC_LEN = Cobol.binary(v2, 5, true, false, true, CS);",
+   "verdict": "equivalent",
+   "reason": "TC-LEN calculation and store; TC-LEN is not passed to RECEIVE (uses INTO without LENGTH) and never read elsewhere."
+  },
+  {
+   "id": "c81d0eb43c",
+   "op": "DEL",
+   "line": 511,
+   "before": "f14_TC_LEN = Cobol.binary(v2, 4, true, false, true, CS);",
+   "after": "/* f14_TC_LEN = Cobol.binary(v2, 4, true, false, true, CS); */",
    "verdict": "equivalent",
    "reason": "TC-LEN calculation and store; TC-LEN is not passed to RECEIVE (uses INTO without LENGTH) and never read elsewhere."
   },
@@ -2099,20 +2099,20 @@
    "reason": "Planned fault check or debug label in sy_0800 SEND TEXT; planned faults are inactive during normal proof."
   },
   {
-   "id": "e4c58f04e7",
-   "op": "LIT",
-   "line": 575,
-   "before": "int[] planned7 = task.planned(\"SEND-TEXT\", \"-\");",
-   "after": "int[] planned7 = task.planned(\"XEND-TEXT\", \"-\");",
-   "verdict": "equivalent",
-   "reason": "Planned fault check or debug label in sy_0800 SEND TEXT; planned faults are inactive during normal proof."
-  },
-  {
    "id": "9b84790cdc",
    "op": "LIT",
    "line": 575,
    "before": "int[] planned7 = task.planned(\"SEND-TEXT\", \"-\");",
    "after": "int[] planned7 = task.planned(\"SEND-TEXT\", \"X\");",
+   "verdict": "equivalent",
+   "reason": "Planned fault check or debug label in sy_0800 SEND TEXT; planned faults are inactive during normal proof."
+  },
+  {
+   "id": "e4c58f04e7",
+   "op": "LIT",
+   "line": 575,
+   "before": "int[] planned7 = task.planned(\"SEND-TEXT\", \"-\");",
+   "after": "int[] planned7 = task.planned(\"XEND-TEXT\", \"-\");",
    "verdict": "equivalent",
    "reason": "Planned fault check or debug label in sy_0800 SEND TEXT; planned faults are inactive during normal proof."
   },
@@ -2126,20 +2126,20 @@
    "reason": "Planned fault check or debug label in sy_0800 SEND TEXT; planned faults are inactive during normal proof."
   },
   {
-   "id": "f285b12377",
-   "op": "DEL",
-   "line": 577,
-   "before": "Cobol.store(f84_EIBRESP, BigDecimal.valueOf(planned7[0]), false, CS);",
-   "after": "/* Cobol.store(f84_EIBRESP, BigDecimal.valueOf(planned7[0]), false, CS); */",
-   "verdict": "equivalent",
-   "reason": "Planned fault check or debug label in sy_0800 SEND TEXT; planned faults are inactive during normal proof."
-  },
-  {
    "id": "29ffa46b57",
    "op": "CON",
    "line": 577,
    "before": "Cobol.store(f84_EIBRESP, BigDecimal.valueOf(planned7[0]), false, CS);",
    "after": "Cobol.store(f84_EIBRESP, BigDecimal.valueOf(planned7[1]), false, CS);",
+   "verdict": "equivalent",
+   "reason": "Planned fault check or debug label in sy_0800 SEND TEXT; planned faults are inactive during normal proof."
+  },
+  {
+   "id": "f285b12377",
+   "op": "DEL",
+   "line": 577,
+   "before": "Cobol.store(f84_EIBRESP, BigDecimal.valueOf(planned7[0]), false, CS);",
+   "after": "/* Cobol.store(f84_EIBRESP, BigDecimal.valueOf(planned7[0]), false, CS); */",
    "verdict": "equivalent",
    "reason": "Planned fault check or debug label in sy_0800 SEND TEXT; planned faults are inactive during normal proof."
   },
@@ -2288,20 +2288,20 @@
    "reason": "MSG_0020 substring move in er_0020; destination buffer ER_DATA is 73 bytes, so length 73 and 74 copy identically."
   },
   {
-   "id": "ec26800bc1",
-   "op": "BDM",
-   "line": 618,
-   "before": "BigDecimal v11 = Cobol.subtract(Funcs.mod(Cobol.add(BigDecimal.valueOf(f2_HL_R1), DC_32768), D65536), DC_32768);",
-   "after": "BigDecimal v11 = Cobol.add(Funcs.mod(Cobol.add(BigDecimal.valueOf(f2_HL_R1), DC_32768), D65536), DC_32768);",
-   "verdict": "equivalent",
-   "reason": "ER-LEN calculation in er_0020; sends constant template (73 bytes)."
-  },
-  {
    "id": "ba8a884f75",
    "op": "BDM",
    "line": 618,
    "before": "BigDecimal v11 = Cobol.subtract(Funcs.mod(Cobol.add(BigDecimal.valueOf(f2_HL_R1), DC_32768), D65536), DC_32768);",
    "after": "BigDecimal v11 = Cobol.subtract(Funcs.mod(Cobol.subtract(BigDecimal.valueOf(f2_HL_R1), DC_32768), D65536), DC_32768);",
+   "verdict": "equivalent",
+   "reason": "ER-LEN calculation in er_0020; sends constant template (73 bytes)."
+  },
+  {
+   "id": "ec26800bc1",
+   "op": "BDM",
+   "line": 618,
+   "before": "BigDecimal v11 = Cobol.subtract(Funcs.mod(Cobol.add(BigDecimal.valueOf(f2_HL_R1), DC_32768), D65536), DC_32768);",
+   "after": "BigDecimal v11 = Cobol.add(Funcs.mod(Cobol.add(BigDecimal.valueOf(f2_HL_R1), DC_32768), D65536), DC_32768);",
    "verdict": "equivalent",
    "reason": "ER-LEN calculation in er_0020; sends constant template (73 bytes)."
   },
@@ -2351,20 +2351,20 @@
    "reason": "Planned fault check or debug label in er_0020 SEND TEXT; planned faults are inactive."
   },
   {
-   "id": "d05354a0a3",
-   "op": "DEL",
-   "line": 624,
-   "before": "Cobol.store(f84_EIBRESP, BigDecimal.valueOf(planned13[0]), false, CS);",
-   "after": "/* Cobol.store(f84_EIBRESP, BigDecimal.valueOf(planned13[0]), false, CS); */",
-   "verdict": "equivalent",
-   "reason": "Planned fault check or debug label in er_0020 SEND TEXT; planned faults are inactive."
-  },
-  {
    "id": "5da67a95a8",
    "op": "CON",
    "line": 624,
    "before": "Cobol.store(f84_EIBRESP, BigDecimal.valueOf(planned13[0]), false, CS);",
    "after": "Cobol.store(f84_EIBRESP, BigDecimal.valueOf(planned13[1]), false, CS);",
+   "verdict": "equivalent",
+   "reason": "Planned fault check or debug label in er_0020 SEND TEXT; planned faults are inactive."
+  },
+  {
+   "id": "d05354a0a3",
+   "op": "DEL",
+   "line": 624,
+   "before": "Cobol.store(f84_EIBRESP, BigDecimal.valueOf(planned13[0]), false, CS);",
+   "after": "/* Cobol.store(f84_EIBRESP, BigDecimal.valueOf(planned13[0]), false, CS); */",
    "verdict": "equivalent",
    "reason": "Planned fault check or debug label in er_0020 SEND TEXT; planned faults are inactive."
   },
@@ -2396,20 +2396,20 @@
    "reason": "Return register BAS_REG precision (9 vs 10); value fits safely."
   },
   {
-   "id": "c635bc85d0",
-   "op": "BDM",
-   "line": 647,
-   "before": "BigDecimal v14 = Cobol.subtract(Funcs.mod(Cobol.add(BigDecimal.valueOf(f2_HL_R1), DC_32768), D65536), DC_32768);",
-   "after": "BigDecimal v14 = Cobol.add(Funcs.mod(Cobol.add(BigDecimal.valueOf(f2_HL_R1), DC_32768), D65536), DC_32768);",
-   "verdict": "equivalent",
-   "reason": "TD-LEN calculation in sy_9000; sends constant TD-DATA (74 bytes)."
-  },
-  {
    "id": "0c13d4abe2",
    "op": "BDM",
    "line": 647,
    "before": "BigDecimal v14 = Cobol.subtract(Funcs.mod(Cobol.add(BigDecimal.valueOf(f2_HL_R1), DC_32768), D65536), DC_32768);",
    "after": "BigDecimal v14 = Cobol.subtract(Funcs.mod(Cobol.subtract(BigDecimal.valueOf(f2_HL_R1), DC_32768), D65536), DC_32768);",
+   "verdict": "equivalent",
+   "reason": "TD-LEN calculation in sy_9000; sends constant TD-DATA (74 bytes)."
+  },
+  {
+   "id": "c635bc85d0",
+   "op": "BDM",
+   "line": 647,
+   "before": "BigDecimal v14 = Cobol.subtract(Funcs.mod(Cobol.add(BigDecimal.valueOf(f2_HL_R1), DC_32768), D65536), DC_32768);",
+   "after": "BigDecimal v14 = Cobol.add(Funcs.mod(Cobol.add(BigDecimal.valueOf(f2_HL_R1), DC_32768), D65536), DC_32768);",
    "verdict": "equivalent",
    "reason": "TD-LEN calculation in sy_9000; sends constant TD-DATA (74 bytes)."
   },
@@ -2495,20 +2495,20 @@
    "reason": "EIBRESP / EIBRESP2 store after WRITE OPERATOR; ZECSNC does not check EIBRESP after WRITE OPERATOR (directly returns via R14)."
   },
   {
-   "id": "74c584a213",
-   "op": "DEL",
-   "line": 666,
-   "before": "f3_HL_R14 = Cobol.binary(BigDecimal.valueOf(f13_BAS_REG), 9, true, false, true, CS);",
-   "after": "/* f3_HL_R14 = Cobol.binary(BigDecimal.valueOf(f13_BAS_REG), 9, true, false, true, CS); */",
-   "verdict": "equivalent",
-   "reason": "R14 restore from BAS_REG in sy_9100; subroutine return."
-  },
-  {
    "id": "274143b2d9",
    "op": "CON",
    "line": 666,
    "before": "f3_HL_R14 = Cobol.binary(BigDecimal.valueOf(f13_BAS_REG), 9, true, false, true, CS);",
    "after": "f3_HL_R14 = Cobol.binary(BigDecimal.valueOf(f13_BAS_REG), 10, true, false, true, CS);",
+   "verdict": "equivalent",
+   "reason": "R14 restore from BAS_REG in sy_9100; subroutine return."
+  },
+  {
+   "id": "74c584a213",
+   "op": "DEL",
+   "line": 666,
+   "before": "f3_HL_R14 = Cobol.binary(BigDecimal.valueOf(f13_BAS_REG), 9, true, false, true, CS);",
+   "after": "/* f3_HL_R14 = Cobol.binary(BigDecimal.valueOf(f13_BAS_REG), 9, true, false, true, CS); */",
    "verdict": "equivalent",
    "reason": "R14 restore from BAS_REG in sy_9100; subroutine return."
   },
@@ -2531,20 +2531,20 @@
    "reason": "ASRA abend fallback in sy_9100 on line 673; subroutine return succeeds normally and fallback is never taken."
   },
   {
-   "id": "ea10ba8746",
-   "op": "NEG",
-   "line": 674,
-   "before": "if (exit17 == null) throw abended();",
-   "after": "if (!(exit17 == null)) throw abended();",
-   "verdict": "unreachable",
-   "reason": "ASRA abend fallback in sy_9100 on line 674; subroutine return succeeds normally and fallback is never taken."
-  },
-  {
    "id": "c8e5e3a9c0",
    "op": "ROR",
    "line": 674,
    "before": "if (exit17 == null) throw abended();",
    "after": "if (exit17 != null) throw abended();",
+   "verdict": "unreachable",
+   "reason": "ASRA abend fallback in sy_9100 on line 674; subroutine return succeeds normally and fallback is never taken."
+  },
+  {
+   "id": "ea10ba8746",
+   "op": "NEG",
+   "line": 674,
+   "before": "if (exit17 == null) throw abended();",
+   "after": "if (!(exit17 == null)) throw abended();",
    "verdict": "unreachable",
    "reason": "ASRA abend fallback in sy_9100 on line 674; subroutine return succeeds normally and fallback is never taken."
   },

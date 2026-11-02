@@ -3096,7 +3096,7 @@
       "python/numpy/__init__.py": 0,
       "python/numpy/_linalg.py": 10,
       "python/numpy/cfuncs.py": 0,
-      "python/numpy/core.py": 4,
+      "python/numpy/core.py": 7,
       "python/numpy/crackfortran.py": 0,
       "python/numpy/cversions.txt": 0,
       "python/numpy/func2subr.py": 0,

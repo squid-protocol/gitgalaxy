@@ -508,6 +508,11 @@ DEFINITION: dict[str, Any] = {
             # failed the operand lookahead). Strings and comments are excluded
             # by the `outside_literals` scope filter below, not here.
             r"\b(einsum|matmul|tensordot|vdot|bmm)\b|\.dot\s*\("
+            # #4108: torch's other product methods (`a.mm(b)`, addmm, baddbmm, ...), `kron`, and the
+            # module-qualified products `np.inner/outer`, `torch.mv`, `tf.linalg.matvec`. Bare `mm`,
+            # `mv`, `inner`, `outer` are ordinary names, so the short ones need a module prefix.
+            r"|\.(?:mm|addmm|addmv|addbmm|baddbmm|kron)\s*\("
+            r"|\b(?:torch|np|numpy|jnp|cp|cupy|tf|mx)\.(?:linalg\.)?(?:mv|inner|outer|matvec)\s*\("
             r"|(?<=[a-zA-Z0-9_\]\)])[ \t]*@(?:=|[ \t]*(?=[a-zA-Z0-9_\[\(]))"
         ),
         # #4136: the code stream keeps string literals, so `"gecko@003"` and an

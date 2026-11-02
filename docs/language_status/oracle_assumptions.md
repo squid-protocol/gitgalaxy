@@ -4316,6 +4316,13 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   as an operand of a relation (IBM defines the special register's value as a pointer, but the det port holds a record's handle only once
   it is addressed, so `ADDRESS OF rec = NULL` has no defined handle: ASSUMED refusal). Tests:
   tests/cobol_mainframe/test_pointer_compare_5042.py (the unit cases and one program proven against GnuCOBOL).
+- **A cell in a statement the lowering cannot keep (#5119 sweep).** Every mention of a cell outside the idioms above is refused as
+  "a BLL cell used as a number", now naming the statement it sits in: `CALL ... USING cell`, `INITIALIZE`, `ADD` / `SUBTRACT` /
+  `MULTIPLY` / `DIVIDE` / `COMPUTE`, `DISPLAY`, a relation with data (`IF cell = fullword`: IBM compares a pointer only with NULL or
+  another pointer). Defect fixed: the cell-against-cell test read `COMPUTE p = p + 1` (and `COMPUTE p = ZERO`) as a pointer test and
+  kept the arithmetic; a COMPUTE target is now never a comparison. A data holder that REDEFINES another item, or sits under one, is
+  refused (the token would overwrite bytes that are another item's: ASSUMED refusal); a level-77 fullword is a holder as a 01 is.
+  Tests: tests/cobol_mainframe/test_bll_cells_5119.py.
 - **Scanner fact (#5119, #5117).** The era tagger's `bll-cell-list` tell (era 1, period-bound) reads the structure, not the word BLL: a
   LINKAGE 01 with no PIC whose first child is a FILLER fullword (`S9(8)` / `S9(9)` COMP, COMPUTATIONAL, COMP-4/5, BINARY, USAGE, SYNC),
   then named fullwords, and an EXEC CICS `SET(x)` / `DATAPOINTER(x)` naming one of them (the evidence rule of assumption 1, minus the

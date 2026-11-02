@@ -971,3 +971,11 @@ About 80 L4 programs of the burned estates still have no det-port mutation entry
 | CBACT01C (carddemo-readacct) | 150/728 | 107 | 36 | 7 | 36 | 107/143 (75%) |
 | CBCUS01C (carddemo-readcust) | 150/247 | 91 | 49 | 10 | 49 | 91/140 (65%) |
 | CBACT03C (carddemo-readxref) | 150/244 | 92 | 48 | 10 | 48 | 92/140 (66%) |
+
+**#4047 (2026-11-02, third batch): CBACT02C, CSUTLDTC, CBACT04C.** Det-port ledgers, fast mode, seed 0, JDK 17, one sample each; none reaches L5 and no survivor is triaged yet (every survivor is unaccounted). CSUTLDTC (the date-validation callee) pins least: 71 of its 145 judged mutants survived.
+
+| program (case) | mutants run / in scope | killed | survived | stillborn | unaccounted | raw score |
+|---|---|---|---|---|---|---|
+| CBACT02C (carddemo-readcard) | 150/243 | 92 | 48 | 10 | 48 | 92/140 (66%) |
+| CSUTLDTC (carddemo-dateutil) | 150/269 | 74 | 71 | 5 | 71 | 74/145 (51%) |
+| CBACT04C (carddemo-intcalc) | 150/968 | 103 | 41 | 6 | 41 | 103/144 (72%) |

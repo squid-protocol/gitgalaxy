@@ -18,7 +18,7 @@
     ]
   },
   "screens": {},
-  "notes": "cics-crucible commarea-mismatch / ca-xctl-versions (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): CAXB, the version-2 target of the crucible's XCTL, entered with the COMMAREA lengths its three callers produce (0, 10, 80) and the PF3 end. CAXA is not in this case: its XCTL passes a WORKING-STORAGE item, which the harness cannot describe as a COMMAREA class. Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "notes": "cics-crucible commarea-mismatch / ca-xctl-versions (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): CAXB, the version-2 target of the crucible's XCTL, entered with the COMMAREA lengths its three callers produce (0, 10, 80) and the PF3 end. CAXA, whose XCTL passes a WORKING-STORAGE item, is the case cruc-ca-xctl-versions-front (a layout_only COMMAREA, #7434). Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
   "scenarios": [
     {
       "name": "direct-entry",

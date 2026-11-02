@@ -2494,7 +2494,8 @@ def _cics_tasks(
     for r in records:
         if r.get("name") and r.get("pic"):
             pics.setdefault(str(r["name"]).upper(), str(r["pic"]))
-    return extract_cics_tasks(code_stream, values, moves, pics, dialect, _shielded)
+    cells = bll_cell_records(records) if records else None  # #5119: SET(BLL cell) -> its record
+    return extract_cics_tasks(code_stream, values, moves, pics, dialect, _shielded, cells or None)
 
 
 def _dli_calls(code_stream: str) -> list[dict[str, Any]]:

@@ -224,13 +224,15 @@ def extract_cics_tasks(
     pics: dict[str, str] | None = None,
     dialect: str = "cobol",
     shielded: Callable[[int], bool] | None = None,
+    cell_records: dict[str, str] | None = None,
 ) -> list[dict[str, Any]]:
     """Every CICS task-control command in one file, as flat source-ordered rows
     (see the module header).
 
     `values` / `moves` are the file's VALUE and MOVEd-literal maps (as for
     cics_resources); `pics` is data-name -> PIC, which sizes a STRING source;
-    `shielded(offset)` says an offset sits inside a literal.
+    `shielded(offset)` says an offset sits inside a literal. `cell_records` (#5119) maps a BLL cell to the record it
+    addresses (`bll_cell_records`): a SET(cell) row reports that record, the cell in `record_cell`.
     """
     if not code_stream or "CICS" not in code_stream.upper():
         return []
@@ -293,22 +295,27 @@ def extract_cics_tasks(
                 attrs.append(f"{key}({value})")
             elif key in _FLAGS:
                 attrs.append(key)
-        rows.append(
-            {
-                "verb": verb,
-                "target_kind": target_key,
-                "operand": operand,
-                "name": name,
-                "resolution": resolution,
-                "candidates": candidates,
-                "channel_operand": channel_operand,
-                "channel": base(channel_operand)[0],
-                "token": " ".join(token.upper().split()) if token else None,
-                "record_clause": clause,
-                "record": opts[clause].upper() if clause and opts.get(clause) else None,  # type: ignore[union-attr]
-                "timing": " ".join(timing) or None,
-                "attributes": " ".join(attrs) or None,
-                "line": bisect.bisect_left(newlines, match.start()) + 1,
-            }
-        )
+        record = opts[clause].upper() if clause and opts.get(clause) else None  # type: ignore[union-attr]
+        cell = None
+        if clause == "SET" and cell_records and record in cell_records:
+            cell, record = record, cell_records[record]  # #5119: SET(BLL cell) addresses the cell's record
+        row = {
+            "verb": verb,
+            "target_kind": target_key,
+            "operand": operand,
+            "name": name,
+            "resolution": resolution,
+            "candidates": candidates,
+            "channel_operand": channel_operand,
+            "channel": base(channel_operand)[0],
+            "token": " ".join(token.upper().split()) if token else None,
+            "record_clause": clause,
+            "record": record,
+            "timing": " ".join(timing) or None,
+            "attributes": " ".join(attrs) or None,
+            "line": bisect.bisect_left(newlines, match.start()) + 1,
+        }
+        if cell:
+            row["record_cell"] = cell  # presence-keyed: only a SET(cell) row
+        rows.append(row)
     return rows

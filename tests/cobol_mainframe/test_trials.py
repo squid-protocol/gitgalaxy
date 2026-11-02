@@ -766,3 +766,57 @@ def test_the_wiki_describes_the_redefines_selector_detection():
     wiki = read_source(trial.REPO_ROOT / "docs" / "wiki" / "05-20-equivalence-harness.md").text
     assert "is not decided" not in wiki
     assert "(selector SEL)" in wiki and "(selector not found)" in wiki
+
+
+# ---- #4493 done-when 4: the protocol's page on a real (burned) estate's committed cases ------
+def _burned_estate_ledger(names: list[str]) -> dict:
+    """A trial over real CardDemo programs (one per committed `-generated` case): the first proves, the next
+    differs on the generator, the next could not run (ticket), the rest are not attempted. No estate code is read."""
+
+    def att(n, outcome, cause):
+        return {"n": n, "outcome": outcome, "cause": cause, "fix_commit": None, "at": "2026-11-02", "model": "m"}
+
+    steps = [("proven@1", [att(1, "proven", None)]), ("open", [att(1, "failed", "generator")]),
+             ("open", [att(1, "no-port", "ticket")])]  # fmt: skip
+    programs = {n: {"final": f, "attempts": a} for n, (f, a) in zip(names, steps, strict=False)}
+    programs |= {n: {"final": "open", "attempts": []} for n in names[len(steps) :]}
+    estate = {"id": "burned-rehearsal", "kind": "public", "status": "development", "repo": "https://example.com/r",
+              "ref": "a" * 40, "trialled_by": "trial-001"}  # fmt: skip
+    t = {"id": "trial-001", "estate": "burned-rehearsal", "started": "2026-11-02", "closed": None,
+         "system": {"engine_version": "v", "model_version": "m", "backend": "command"},
+         "eligible": list(names), "out_of_scope": {"ONLINE": "online (CICS)"}, "programs": programs}  # fmt: skip
+    return {"estates": [estate], "trials": [t]}
+
+
+def test_the_page_of_real_burned_cases_reports_each_program_once_and_the_unlock_counts_add_up():
+    import harness_report as hr
+
+    cases = sorted(p.name for p in hr.CASES.glob("carddemo-*-generated")
+                   if hr.scenario_count(hr.load_case(hr.CASES, p.name)) > 0)  # fmt: skip
+    assert len(cases) >= 6, "the burned CardDemo generated cases are committed"
+    names = [c.removeprefix("carddemo-").removesuffix("-generated").upper() for c in cases]
+    ledger = _burned_estate_ledger(names)
+    t = ledger["trials"][0]
+    facts = trial.case_facts(dict(zip(names, cases, strict=True)), None)
+    assert set(facts) == set(names)
+    tests = {n: hr.scenario_count(hr.load_case(hr.CASES, c)) for n, c in zip(names, cases, strict=True)}
+    assert all(facts[n]["tests"] == tests[n] and tests[n] > 0 for n in names)
+    page = trial.trial_page(ledger, t, facts=facts)
+    rows = trial.trial_blockers(t, facts)
+    listed = [p for b in rows for p in b["programs"]]
+    assert sorted(listed) == sorted(names[1:]) and len(listed) == len(set(listed))  # the proven one under none
+    for b in rows:  # the predicted unlock count is the sum of the held programs' tests
+        assert b["tests_unlocked"] == sum(tests[p] for p in b["programs"])
+    assert [b.get("tests_unlocked") for b in rows] == sorted((b["tests_unlocked"] for b in rows), reverse=True)
+    assert all(c in page for c in trial.CAVEATS) and "(rehearsal)" not in page
+    assert f"unlocks {len(rows[0]['programs'])} programs, {rows[0]['tests_unlocked']} tests" in page
+    assert "## Input generation" in page and "No equivalence case yet" not in page
+    # fixing the top blocker unlocks exactly the predicted tests
+    top = rows[0]
+    for p in top["programs"]:
+        t["programs"][p] = {"final": "proven@2(generator)", "attempts": [
+            {"n": 2, "outcome": "proven", "cause": None, "fix_commit": None, "at": "2026-11-02", "model": "m"}]}  # fmt: skip
+    after = trial.trial_blockers(t, facts)
+    assert top["cause"] not in {b["cause"] for b in after}
+    held = sum(b["tests_unlocked"] for b in rows) - sum(b["tests_unlocked"] for b in after)
+    assert held == top["tests_unlocked"]

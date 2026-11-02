@@ -797,6 +797,7 @@ class EquivalenceRunTest {
         JsonNode plan = json.readTree(in.resolve("plan.json").toFile());
         for (JsonNode sc : plan.get("scenarios")) {
             String id = sc.get("id").asText();
+            seedFiles(plan);
             json.writeValue(out.resolve(id + ".json").toFile(), new Scenario(plan, sc, false).drive());
             if (facades) {
                 // #4965: the same scenario again, each task entered by the byte-carrying handleTransaction overload
@@ -807,6 +808,37 @@ class EquivalenceRunTest {
                     json.writeValue(out.resolve(id + ".bytes.json").toFile(), log);
                 }
             }
+        }
+    }
+
+    /** #6876: the case's seeded file (data/<FILE>.dat, SPEC 2), as the records of the one repository whose entity reads
+     *  a record (fromRecord) -- the file the program's store reads. Only the unambiguous shape (one seeded file, one
+     *  such entity) is seeded; the repository is emptied first, so a scenario starts from the seed. */
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    void seedFiles(JsonNode plan) throws Exception {
+        if (plan.path("files").size() != 1) {
+            return;
+        }
+        org.springframework.data.repository.support.Repositories repos =
+                new org.springframework.data.repository.support.Repositories(context);
+        List<Class<?>> domains = new ArrayList<>();
+        for (Class<?> d : repos) {
+            try {
+                d.getMethod("fromRecord", byte[].class, java.nio.charset.Charset.class);
+                domains.add(d);
+            } catch (NoSuchMethodException e) {
+                // an entity that is no file's record
+            }
+        }
+        if (domains.size() != 1) {
+            return;
+        }
+        org.springframework.data.repository.CrudRepository repo =
+                (org.springframework.data.repository.CrudRepository) repos.getRepositoryFor(domains.get(0)).get();
+        Method from = domains.get(0).getMethod("fromRecord", byte[].class, java.nio.charset.Charset.class);
+        repo.deleteAll();
+        for (JsonNode rec : plan.path("files").elements().next()) {
+            repo.save(from.invoke(null, HexFormat.of().parseHex(rec.asText()), java.nio.charset.StandardCharsets.ISO_8859_1));
         }
     }
 
@@ -1708,6 +1740,7 @@ def java_plan(case: cc.Case, src: Path) -> dict[str, Any]:
                                 for q, items in ((sc.get("initial") or {}).get("ts_queues") or {}).items()}}
                  for sc in case.scenarios]  # fmt: skip
     return {
+        **({"files": seeded} if (seeded := java_file_seeds(case)) else {}),  # #6876: only when the case seeds a file
         "transactions": case.csd["transactions"],
         "programs": sorted(case.csd["programs"]),  # #4004: LINK's PGMIDERR
         "clock": case.data["clock"],  # #4006: the scheduler's virtual clock and terminal
@@ -1905,11 +1938,11 @@ def _java_file_event(kind: str, e: dict[str, Any]) -> dict[str, Any]:
         ev["set"] = True
     if kind in ("WRITE", "DELETE"):  # #6262: the key on entry (a DELETE of the held / token record has none)
         if e.get("ridfld") is not None:
-            ev["ridfld"] = base64.b64decode(e["ridfld"])
+            ev["ridfld"] = _key_to_ebcdic(base64.b64decode(e["ridfld"]))
         if e.get("generic"):
             ev["generic"] = True
     if kind in ("STARTBR", "READNEXT", "READPREV"):  # #6262: the key on entry; STARTBR's mode, a browse read's record
-        ev["ridfld"] = base64.b64decode(e["ridfld"]) if e.get("ridfld") is not None else None
+        ev["ridfld"] = _key_to_ebcdic(base64.b64decode(e["ridfld"])) if e.get("ridfld") is not None else None
         if e.get("rba"):  # the RBA browse: as the stub's `rba=` line, the file and RESP; RIDFLD is no key (SPEC 6.2)
             ev["ridfld"] = cc.Unmodelled("an RBA browse's event")
         elif kind == "STARTBR":
@@ -1918,16 +1951,16 @@ def _java_file_event(kind: str, e: dict[str, Any]) -> dict[str, Any]:
             if e.get("length") is not None:
                 ev["length"] = e["length"]
             b64 = e.get("data")
-            ev["data"] = cc.RawArea(base64.b64decode(b64), cc.EBCDIC) if b64 is not None else None
+            ev["data"] = cc.RawArea(base64.b64decode(b64), RUNTIME_PAGE) if b64 is not None else None
     if kind == "READ":
-        ev["ridfld"] = base64.b64decode(e["ridfld"]) if e.get("ridfld") is not None else None
+        ev["ridfld"] = _key_to_ebcdic(base64.b64decode(e["ridfld"])) if e.get("ridfld") is not None else None
         if e.get("update"):
             ev["update"] = True
         if e.get("length") is not None:
             ev["length"] = e["length"]
     if kind in ("READ", "REWRITE", "WRITE"):
         b64 = e.get("data")
-        ev["data"] = cc.RawArea(base64.b64decode(b64), cc.EBCDIC) if b64 is not None else None
+        ev["data"] = cc.RawArea(base64.b64decode(b64), RUNTIME_PAGE) if b64 is not None else None
     if (
         e.get("resp2") is not None
         and not e.get("rba")
@@ -2277,8 +2310,13 @@ def _read_screens(case: cc.Case) -> dict[str, Screen]:
 def _key_ebcdic(rid_hex: str) -> bytes:
     """A key the stub logged as hex, in the log's CCSID 037. The program's text is ASCII; an X'FF' (HIGH-VALUES) is no
     text and stays X'FF' on both legs (#6262: a READPREV from the end), where latin-1 would make it X'DF'."""
-    raw = bytes.fromhex(rid_hex)
-    return b"".join(b"\xff" if b == 0xFF else bytes([b]).decode("latin-1").encode(cc.EBCDIC) for b in raw)
+    return _key_to_ebcdic(bytes.fromhex(rid_hex))
+
+
+def _key_to_ebcdic(raw: bytes) -> bytes:
+    """A key's bytes in the log's CCSID 037 (X'FF' stays X'FF'); #6876: the Java runtime records the program's key in
+    RUNTIME_PAGE (ASCII), as the stub's is, so the Java side's `ridfld` goes through the same mapping."""
+    return b"".join(b"\xff" if b == 0xFF else bytes([b]).decode(RUNTIME_PAGE).encode(cc.EBCDIC) for b in raw)
 
 
 def _cobol_events(out: Path, program: str, screens: dict[str, Screen] | None = None) -> list[dict[str, Any]]:
@@ -2532,6 +2570,18 @@ def read_td(root: Path) -> dict[str, list[bytes]]:
             items.append(cc.to_ebcdic(cc.RawArea((d / f"{n:06d}.bin").read_bytes(), "latin-1")))
             n += 1
         out[bytes.fromhex(d.name[3:]).decode("latin-1")] = items
+    return out
+
+
+def java_file_seeds(case: cc.Case) -> dict[str, list[str]]:
+    """#6876: the records of each file the case seeds (`data/<FILE>.dat`, one record per line, in the runtime's page: the
+    program's own bytes, as the stub's files hold them) as hex, for the Java driver's repository seed."""
+    out: dict[str, list[str]] = {}
+    for name in sorted(case.csd.get("files") or ()):
+        seed = case.dir / "data" / f"{name}.dat"
+        lines = seed.read_bytes().splitlines() if seed.is_file() else []
+        if lines and len({len(x) for x in lines}) == 1:
+            out[name] = [x.hex() for x in lines]
     return out
 
 

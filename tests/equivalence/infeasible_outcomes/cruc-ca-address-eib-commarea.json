@@ -12,6 +12,14 @@
     },
     {
       "unit": "NONE-PARA",
+      "line": 130,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "`IF WS-PTR-X = X'FF000000'` ELSE (PRESENT) arm: NONE-PARA is reached only by transaction mode N, which starts with no COMMAREA (EIBCALEN 0), and ADDRESS COMMAREA then returns IBM's X'FF000000' on every run. A COMMAREA is present only through LINK-PARA, which does not run NONE-PARA."
+    },
+    {
+      "unit": "NONE-PARA",
       "line": 136,
       "kind": "IF",
       "outcome": "false",

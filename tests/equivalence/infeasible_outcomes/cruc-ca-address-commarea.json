@@ -3,6 +3,14 @@
   "case": "cruc-ca-address-commarea",
   "entries": [
     {
+      "unit": "NONE-PARA",
+      "line": 88,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "`IF WS-PTR-X = X'FF000000'` ELSE (PRESENT) arm: NONE-PARA is reached only by transaction mode N, which the crucible starts with no COMMAREA (EIBCALEN 0), and ADDRESS COMMAREA then returns IBM's X'FF000000' on every run. A COMMAREA is present only through the LINK path (LINK-PARA), which does not run NONE-PARA. The harness also refuses a COMMAREA length with no COMMAREA, so no scenario input changes it."
+    },
+    {
       "unit": "EIB-PARA",
       "line": 106,
       "kind": "IF",

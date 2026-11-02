@@ -70,6 +70,15 @@ _NIL = r"(?:ZEROS|ZEROES|ZERO|NULLS|NULL|LOW-VALUES|LOW-VALUE)(?![A-Z0-9-])"
 _COMPARE = re.compile(rf"\b({_NAME})\s+{_EQ}\s+{_NIL}|\b{_NIL}\s+{_EQ}\s+({_NAME})(?![A-Z0-9-])", re.I)
 # #5042: one cell compared with another (two pointers after the lowering: IBM allows = / NOT = between pointers)
 _COMPARE_CELLS = re.compile(rf"\b({_NAME})\s+{_EQ}\s+({_NAME})(?![A-Z0-9-])", re.I)
+# #5119: the target of a COMPUTE is arithmetic on a cell, never a comparison (`COMPUTE p = p + 1`, `COMPUTE p = ZERO`)
+_COMPUTE_TARGET = re.compile(r"\bCOMPUTE\s+$", re.I)
+# #5119: the statement a stray mention of a cell sits in, named in its refusal
+_USE = re.compile(
+    r"\b(CALL|INITIALIZE|ADD|SUBTRACT|MULTIPLY|DIVIDE|COMPUTE|DISPLAY|IF|EVALUATE|WHEN|STRING|UNSTRING|"
+    r"INSPECT|ACCEPT|READ|WRITE|SET|MOVE)\b(?!.*\b(?:CALL|INITIALIZE|ADD|SUBTRACT|MULTIPLY|DIVIDE|COMPUTE|"
+    r"DISPLAY|IF|EVALUATE|WHEN|STRING|UNSTRING|INSPECT|ACCEPT|READ|WRITE|SET|MOVE)\b)",
+    re.I | re.S,
+)
 _ADD = re.compile(rf"\bADD\s+4096\s*,?\s+({_NAME})\s+GIVING\s+({_NAME})", re.I)
 _OPTION = re.compile(rf"\b({_NAME})\s*\(\s*({_NAME})\s*\)", re.I)
 _PARAGRAPH = re.compile(rf"^ {{0,3}}({_NAME})(\s+SECTION)?\s*\.", re.I)
@@ -154,6 +163,8 @@ def _holder(records: list, name: str, quals: list[str], subs: int) -> bool:
         return False  # (none, or ambiguous without a qualifier: IBM's compiler refuses that too)
     it, up, levels = its[0], its[0], 0
     while up is not None:
+        if up.redefines:
+            return False  # (#5119: a token written over bytes that are another item's is not modelled)
         levels += up.occurs != 1
         up = up.parent
     return (levels == subs and not it.children and it.category == "NUMERIC" and it.usage in ("BINARY", "COMP-5")
@@ -356,7 +367,7 @@ def plan(lines: list[Line], records: list, own: str, oracle: bool = False) -> Pl
                 found.append((m.start(), m.end(), f"CALL 'GGCBLLG' USING {ca} {cb}", ("change", b)))
         for m in _COMPARE.finditer(text):
             cell, neg = (m.group(1), m.group(2)) if m.group(1) else (m.group(4), m.group(3))
-            if in_exec(m.start()) or cell.upper() not in cellset:
+            if in_exec(m.start()) or cell.upper() not in cellset or _COMPUTE_TARGET.search(text, 0, m.start()):
                 continue
             if cells.of.get(cell.upper(), ("", 0))[1]:
                 raise Refused(f"{cell} (line {lines[line_of(m.start())].line}): a secondary cell of a long record "
@@ -366,6 +377,8 @@ def plan(lines: list[Line], records: list, own: str, oracle: bool = False) -> Pl
             left, neg, right = m.group(1), m.group(2), m.group(3)
             if in_exec(m.start()) or left.upper() not in cellset or right.upper() not in cellset:
                 continue
+            if _COMPUTE_TARGET.search(text, 0, m.start()):
+                continue  # (COMPUTE cell = cell ...: arithmetic, refused below as a number)
             if cells.of.get(left.upper(), ("", 0))[1] or cells.of.get(right.upper(), ("", 0))[1]:
                 raise Refused(f"{left} (line {lines[line_of(m.start())].line}): a secondary cell of a long record "
                               "compared (only its base cell holds an address)")  # fmt: skip
@@ -387,7 +400,9 @@ def plan(lines: list[Line], records: list, own: str, oracle: bool = False) -> Pl
         for name in [*cellset, cells.name]:
             for m in re.finditer(rf"(?<![A-Z0-9-]){re.escape(name)}(?![A-Z0-9-])", text):
                 if not any(s <= m.start() < e for s, e in spans):
-                    raise Refused(f"{name} (line {lines[line_of(m.start())].line}): a BLL cell used as a number")
+                    verb = _USE.search(text[max(0, m.start() - 160) : m.start()])
+                    raise Refused(f"{name} (line {lines[line_of(m.start())].line}): a BLL cell used as a number"
+                                  + (f" (in {verb.group(1).upper()})" if verb else ""))  # fmt: skip
         through = _paragraph_rule(lines, proc, starts, found, cells, line_of)
     if not found:
         return None

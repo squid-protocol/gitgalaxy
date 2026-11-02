@@ -959,3 +959,70 @@ TABLE_SENT = CHAIN_SENT  # (the same list, its head and links kept in a table / 
 @_E2E
 def test_an_address_in_a_table_and_a_qualified_field_is_proven_against_gnucobol(tmp_path):
     _prove(tmp_path, "BLLTABLE", TABLE, TABLE_SENT)
+
+
+# ---- #5119: a cell used in a statement the lowering cannot keep (the sweep of the "used as a number" bucket) ----------
+@pytest.mark.parametrize(
+    "stmt, verb",
+    [
+        ("CALL 'SUBX' USING FRPTR.", "CALL"),
+        ("INITIALIZE FRPTR.", "INITIALIZE"),
+        ("ADD 1 TO FRPTR.", "ADD"),
+        ("SUBTRACT 1 FROM TSPTR.", "SUBTRACT"),
+        ("MULTIPLY 2 BY TSPTR.", "MULTIPLY"),
+        ("DISPLAY FRPTR.", "DISPLAY"),
+        ("IF FRPTR = WS-NUM GOBACK END-IF.", "IF"),
+        ("IF WS-NUM = FRPTR GOBACK END-IF.", "IF"),
+        ("COMPUTE FRPTR = FRPTR + 1.", "COMPUTE"),  # (was read as the pointer test FRPTR = FRPTR and kept)
+        ("COMPUTE TSPTR = FRPTR.", "COMPUTE"),
+        ("COMPUTE WS-NUM = FRPTR + 4.", "COMPUTE"),
+    ],
+)
+def test_a_cell_in_arithmetic_or_a_call_is_refused_naming_the_statement(tmp_path, stmt, verb):
+    with pytest.raises(B.Refused) as e:
+        _lowered(tmp_path, PROGRAM.replace(_HEAD, f"           {stmt}\n", 1))
+    msg = str(e.value)
+    assert f"a BLL cell used as a number (in {verb}): not modelled" in msg, msg
+
+
+@pytest.mark.parametrize("target", ["FRPTR", "TSPTR"])
+@pytest.mark.parametrize("rhs", ["ZERO", "NULL", "TSPTR"])
+def test_a_compute_target_is_never_read_as_a_pointer_test(tmp_path, target, rhs):
+    """`COMPUTE p = ZERO` / `COMPUTE p = q` must not become `p = NULL` / `p = q` (a comparison that changes nothing)."""
+    other = "FRPTR" if rhs == "TSPTR" and target == "TSPTR" else rhs
+    with pytest.raises(B.Refused, match=r"a BLL cell used as a number \(in COMPUTE\)"):
+        _lowered(tmp_path, PROGRAM.replace(_HEAD, f"           COMPUTE {target} = {other}.\n", 1))
+
+
+@pytest.mark.parametrize("stmt", ["IF FRPTR = TSPTR GOBACK END-IF.", "IF FRPTR NOT = NULL GOBACK END-IF.",
+                                  "IF TSPTR = ZERO GOBACK END-IF."])  # fmt: skip
+def test_the_pointer_tests_still_lower_after_a_compute_target_is_excluded(tmp_path, stmt):
+    got = _lowered(tmp_path, PROGRAM.replace(_HEAD, f"           COMPUTE WS-NUM = 1.\n           {stmt}\n", 1))
+    assert any(t.startswith("IF ") and "=" in t for t in got), got
+
+
+# the address-holding data item: a level-77 fullword works as a 01 does; a group, a halfword and a fullword that
+# REDEFINES another are refused (the token would be written over, or read from, bytes that are another item's)
+def _holder_program(decl: str) -> str:
+    return PROGRAM.replace("       01  WS-NUM                 PIC S9(8) COMP VALUE 0.\n", decl, 1).replace(
+        _HEAD, "           MOVE FRPTR TO WS-NUM.\n", 1
+    )
+
+
+def test_a_level_77_fullword_holds_an_address_like_a_level_01(tmp_path):
+    got = _lowered(tmp_path, _holder_program("       77  WS-NUM                 PIC S9(8) COMP VALUE 0.\n"))
+    assert "CALL 'GGCBLLG' USING FRPTR WS-NUM." in got or "CALL 'GGCBLLP' USING FRPTR WS-NUM." in got, got
+
+
+@pytest.mark.parametrize(
+    "decl",
+    [
+        "       01  WS-NUM.\n           05  WS-NUM-A PIC S9(8) COMP.\n           05  WS-NUM-B PIC S9(8) COMP.\n",
+        "       01  WS-NUM                 PIC S9(4) COMP VALUE 0.\n",
+        "       01  WS-BASE                PIC S9(8) COMP VALUE 0.\n"
+        + "       01  WS-NUM REDEFINES WS-BASE PIC S9(8) COMP.\n",
+    ],
+)
+def test_a_group_halfword_or_redefining_holder_is_refused_by_name(tmp_path, decl):
+    with pytest.raises(B.Refused, match="an address moved to or from WS-NUM"):
+        _lowered(tmp_path, _holder_program(decl))

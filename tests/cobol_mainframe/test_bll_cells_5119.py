@@ -428,6 +428,86 @@ def test_each_set_command_into_a_cell_keeps_its_own_refusal(tmp_path, command, h
     assert any(hole in h for h in r.stats["holes"]), r.stats["holes"]
 
 
+# ---- GETMAIN / FREEMAIN into a cell (X47's commands, the lowering's SET(pointer) form) ------------------------------
+def _storage_cmd(*statements: str) -> str:
+    """Each statement as its own `EXEC CICS ... END-EXEC.`, options one per line (columns 8-72 only)."""
+    out = []
+    for s in statements:
+        head, *opts = s.split(" | ")
+        out.append(
+            "EXEC CICS " + head + "".join(f"\n                {o}" for o in opts) + "\n                END-EXEC."
+        )
+    return "\n           ".join(out)
+
+
+@pytest.mark.parametrize(
+    "extra",
+    ["", "BELOW", "USERDATAKEY", "CICSDATAKEY", "EXECUTABLE", "BELOW | USERDATAKEY"],
+)
+def test_getmain_set_into_a_cell_is_the_pointer_form_whatever_its_placement(tmp_path, extra):
+    """IBM: GETMAIN's placement and key options change no byte the program sees (X47 assumption 1); the cell is the
+    pointer GETMAIN sets, then FREEMAIN DATAPOINTER(cell) releases the block it holds."""
+    getmain = "GETMAIN | SET(FRPTR) | FLENGTH(5400) | INITIMG(WS-IMG)" + (f" | {extra}" if extra else "")
+    source = PROGRAM.replace(_GETMAIN, _storage_cmd(getmain, "FREEMAIN | DATAPOINTER(FRPTR)"))
+    r = _translate(tmp_path, source)
+    assert r.stats["holes"] == [], r.stats["holes"]
+    assert "DetCics.getmain(task, f2_FRPTR, 5400, false, " in r.java
+    assert "task.freemain(DetCics.pointerValue(f2_FRPTR))" in r.java
+    sys.path.insert(0, str(TOOLS))
+    import equivalence_cics as ec
+
+    text, _ = ec.translate(source)
+    assert "CALL 'GGCGETM'" in text and "CALL 'GGCFREM'" in text and "BY REFERENCE FRPTR" in text
+
+
+@pytest.mark.parametrize(
+    "command, hole",
+    [  # a cell keeps each GETMAIN refusal of X47: the cell is the pointer after the lowering
+        ("GETMAIN | SET(FRPTR) | FLENGTH(5400) | INITIMG(WS-IMG) | SHARED", "GETMAIN SHARED: option not modelled"),
+        (
+            "GETMAIN | SET(FRPTR) | FLENGTH(5400) | INITIMG(WS-IMG) | NOSUSPEND",
+            "GETMAIN NOSUSPEND: option not modelled",
+        ),
+        ("GETMAIN | SET(FRPTR) | FLENGTH(5400) | INITIMG('*')", "GETMAIN INITIMG as a literal"),
+        ("GETMAIN | SET(FRPTR) | INITIMG(WS-IMG)", "GETMAIN needs one of FLENGTH / LENGTH"),
+        (
+            "GETMAIN | SET(FRPTR) | FLENGTH(5400) | LENGTH(10) | INITIMG(WS-IMG)",
+            "GETMAIN needs one of FLENGTH / LENGTH",
+        ),
+        ("GETMAIN64 | SET(FRPTR) | FLENGTH(5400) | INITIMG(WS-IMG)", "GETMAIN64 not modelled"),
+    ],
+)
+def test_getmain_set_into_a_cell_keeps_its_own_refusal(tmp_path, command, hole):
+    r = _translate(tmp_path, PROGRAM.replace(_GETMAIN, _storage_cmd(command)))
+    assert any(hole in h for h in r.stats["holes"]), r.stats["holes"]
+
+
+def test_freemain64_of_a_cell_keeps_its_refusal(tmp_path):
+    source = PROGRAM.replace(_GETMAIN, _storage_cmd(*(_GM, "FREEMAIN64 | DATAPOINTER(FRPTR)")))
+    r = _translate(tmp_path, source)
+    assert any("FREEMAIN64 not modelled" in h for h in r.stats["holes"]), r.stats["holes"]
+
+
+def test_freemain_data_naming_a_cell_is_refused_whole_by_name(tmp_path):
+    """FREEMAIN DATA(area) takes the storage's own data area (IBM), never an address: a cell there is a cell as a command's
+    data (the SET / DATAPOINTER options are the cell's, ADDRESS's included)."""
+    source = PROGRAM.replace(_GETMAIN, _storage_cmd(_GM, "FREEMAIN | DATA(FRPTR)"))
+    with pytest.raises(B.Refused, match=r"DATA\(FRPTR\) \(line \d+\): a BLL cell as a command's data"):
+        _lowered(tmp_path, source)
+
+
+def test_a_secondary_cell_is_no_getmain_or_freemain_target(tmp_path):
+    for command, why in (
+        ("GETMAIN | SET(FRPTR1) | FLENGTH(8) | INITIMG(WS-IMG)", "FRPTR1 .*secondary cell of a long record set by"),
+        ("FREEMAIN | DATAPOINTER(FRPTR1)", r"DATAPOINTER\(FRPTR1\) .*secondary cell of a long record holds no address"),
+    ):
+        with pytest.raises(B.Refused, match=why):
+            _lowered(tmp_path, PROGRAM.replace(_GETMAIN, _storage_cmd(_GM, command)))
+
+
+_GM = "GETMAIN | SET(FRPTR) | FLENGTH(5400) | INITIMG(WS-IMG)"
+
+
 # ---- ADDRESS into a cell (#5079's X59, the lowering's SET(pointer) form) ---------------------------------------------
 _WITH_CA = ("       01  PARMLIST.\n", "       01  DFHCOMMAREA PIC X(4).\n       01  PARMLIST.\n")
 

@@ -141,6 +141,7 @@ def _crucible_repo(tmp_path, monkeypatch, tag_at_head=True):
     _git("init", "-q", cwd=repo)
     _git("-c", "user.email=a@b", "-c", "user.name=n", "commit", "-q", "--allow-empty", "-m", "x", cwd=repo)
     entry = mc.select(["cics-crucible"])[0]
+    entry["ref"] = "fixture-pin"  # the real pin may be a commit SHA, which cannot name a tag
     if tag_at_head:
         _git("tag", entry["ref"], cwd=repo)
     else:

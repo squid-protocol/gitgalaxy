@@ -385,3 +385,44 @@ def test_a_comment_or_literal_does_not_make_a_bll_list():
         data=LINK + "      *" + BLL_LIST[6:].replace("\n", "\n      *", 2) + "\n",
     )
     assert "bll-cell-list" not in tells(text)  # noqa: S101
+
+
+# ---- #5119: the cell list and the SET option may sit in different members ---------------------------------------
+SET_CELL = "EXEC CICS GETMAIN SET(CELL1) FLENGTH(8) END-EXEC."
+SET_BOOK = "       PROCEDURE DIVISION.\n           " + SET_CELL + "\n"
+
+
+def _bll_tag(text: str, books: dict[str, str]) -> dict:
+    tag = et.tag_program(text, books)
+    return next((t for t in tag["tells"] if t["tell"] == "bll-cell-list"), {})
+
+
+def test_a_cell_list_in_a_copybook_is_named_by_a_set_option_in_the_program():
+    hit = _bll_tag(prog(SET_CELL), {"CELLS.cpy": LINK + BLL_LIST})
+    assert (hit["count"], hit["copybooks"], hit["via_copybook"]) == (1, ["CELLS.cpy"], True)  # noqa: S101
+
+
+def test_a_cell_list_in_the_program_is_named_by_a_set_option_in_a_copybook():
+    hit = _bll_tag(prog("GOBACK.", data=LINK + BLL_LIST), {"PROC.cpy": SET_BOOK})
+    assert hit["count"] == 1 and "via_copybook" not in hit  # noqa: S101
+
+
+def test_a_list_and_its_set_option_in_two_copybooks():
+    hit = _bll_tag(PLAIN, {"A.cpy": LINK + BLL_LIST, "B.cpy": SET_BOOK})
+    assert (hit["count"], hit["copybooks"]) == (1, ["A.cpy"])  # noqa: S101
+
+
+def test_no_set_option_anywhere_is_no_bll_list():
+    assert _bll_tag(PLAIN, {"A.cpy": LINK + BLL_LIST}) == {}  # noqa: S101
+    other = prog("EXEC CICS GETMAIN SET(OTHER) FLENGTH(8) END-EXEC.")
+    assert _bll_tag(other, {"A.cpy": LINK + BLL_LIST}) == {}  # noqa: S101
+
+
+def test_a_set_option_naming_the_filler_in_a_copybook_is_no_evidence():
+    book = SET_BOOK.replace("CELL1", "FILLER")
+    assert _bll_tag(prog("GOBACK.", data=LINK + BLL_LIST), {"P.cpy": book}) == {}  # noqa: S101
+
+
+def test_a_working_storage_list_stays_no_bll_list_beside_a_set_in_a_copybook():
+    ws = "       WORKING-STORAGE SECTION.\n" + BLL_LIST
+    assert _bll_tag(prog("GOBACK.", data=ws), {"P.cpy": SET_BOOK}) == {}  # noqa: S101

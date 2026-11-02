@@ -442,9 +442,9 @@ TRUSTED_BOTS_ENV = "SHEPHERD_TRUSTED_BOTS"
 def trusted_bots(api: Api) -> set[str]:
     """The accounts whose approval markers count. promoter-bot#64 (2026-10-24): the shepherd moves from AUTOMATION_PAT
     to a GitHub App (its own API quota), and an App's installation token cannot read `user`; its comments come from
-    `<app>[bot]`. #6694: SHEPHERD_TRUSTED_BOTS may still name the PAT's account (the workflows did while markers it
-    wrote were on open PRs; none are now), but only `[bot]` logins are trusted from it, so a marker from a human or
-    PAT account never counts. Without the variable, the token's own account, as before (local runs)."""
+    `<app>[bot]`. #6694: SHEPHERD_TRUSTED_BOTS names only the App (`squid-shepherd[bot]`; the workflows dropped the PAT's
+    `squid-protocol` once no open PR carried a marker it wrote, owner OK 2026-11-01), and only `[bot]` logins are
+    trusted from it, so a marker from a human or PAT account never counts even if a stale value names one. Without the variable, the token's own account, as before (local runs)."""
     if names := {x.strip() for x in os.environ.get(TRUSTED_BOTS_ENV, "").split(",") if x.strip()}:
         return {x for x in names if x.endswith("[bot]")}
     try:

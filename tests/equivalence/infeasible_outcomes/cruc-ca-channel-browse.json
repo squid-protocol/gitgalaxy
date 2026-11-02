@@ -1,0 +1,46 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "cruc-ca-channel-browse",
+  "entries": [
+    {
+      "unit": "MAIN-PARA",
+      "line": 65,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "R",
+      "reason": "`IF WS-SEEN-A = 'Y'`: the program PUTs CONTAINER('ALPHA') into CABROWSEME (with BETA and GAMMA, three PUTs in all) and STARTBROWSEs that channel; the three GETNEXTs (NEXT-NAME) return all three containers of a channel holding exactly those three, in an order IBM leaves undefined but a complete one, and each WHEN sets its seen-flag, so WS-SEEN-A is always 'Y' here. The program takes no input and no other task writes the channel."
+    },
+    {
+      "unit": "MAIN-PARA",
+      "line": 66,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "R",
+      "reason": "`IF WS-SEEN-B = 'Y'`: the program PUTs CONTAINER('BETA') into CABROWSEME (with BETA and GAMMA, three PUTs in all) and STARTBROWSEs that channel; the three GETNEXTs (NEXT-NAME) return all three containers of a channel holding exactly those three, in an order IBM leaves undefined but a complete one, and each WHEN sets its seen-flag, so WS-SEEN-B is always 'Y' here. The program takes no input and no other task writes the channel."
+    },
+    {
+      "unit": "MAIN-PARA",
+      "line": 67,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "R",
+      "reason": "`IF WS-SEEN-G = 'Y'`: the program PUTs CONTAINER('GAMMA') into CABROWSEME (with BETA and GAMMA, three PUTs in all) and STARTBROWSEs that channel; the three GETNEXTs (NEXT-NAME) return all three containers of a channel holding exactly those three, in an order IBM leaves undefined but a complete one, and each WHEN sets its seen-flag, so WS-SEEN-G is always 'Y' here. The program takes no input and no other task writes the channel."
+    },
+    {
+      "unit": "QUERY-MV",
+      "line": 169,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "R",
+      "reason": "`IF WS-RESP = 0`: QUERY-MV (QCH3) runs right after EXEC CICS MOVE CONTAINER('ALPHA') AS('ALPHA2') ... TOCHANNEL(WS-MV) completed, which creates channel CABMOVED, and QUERY CHANNEL of an existing channel completes NORMAL (RESP 0); IBM raises CHANNELERR only for a channel that does not exist. The program takes no input; its only caller is that one PERFORM."
+    },
+    {
+      "unit": "NEXT-NAME",
+      "line": 180,
+      "kind": "EVALUATE",
+      "outcome": "none",
+      "family": "R",
+      "reason": "`EVALUATE WS-NAME` with no WHEN matched: it is reached only when GETNEXT answered NORMAL (RESP 0), which returns the name of a container in CABROWSEME, and the only containers ever put there are ALPHA, BETA and GAMMA (the three PUTs), each named by a WHEN. The program takes no input."
+    }
+  ]
+}

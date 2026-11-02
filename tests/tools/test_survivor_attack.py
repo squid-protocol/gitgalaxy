@@ -50,6 +50,13 @@ def test_dead_code_is_dead_from_every_entry_point_not_from_the_tests():
     assert not {"condition", "paragraph"} & live
 
 
+def test_a_runtime_class_call_does_not_keep_a_method_alive():
+    text = PORT.replace("        int x = 1;\n", "        Cobol.condition(1);\n        task.paragraph(2);\n")
+    live = sa.live_methods(text)
+    assert "condition" not in live  # Cobol.condition is the runtime's
+    assert "paragraph" in live  # task.paragraph could be ours: an unsure call keeps it live
+
+
 def test_the_port_settles_only_what_its_text_shows():
     assert sa.port_fact(PORT, {"line": 22, "before": "int z = 3;"})["result"] == "no-entry-path"
     assert sa.port_fact(PORT, {"line": 17, "before": "int y = 2;"}) is None

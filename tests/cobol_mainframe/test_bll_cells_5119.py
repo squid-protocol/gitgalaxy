@@ -87,6 +87,57 @@ def _lowered(tmp_path: Path, source: str = PROGRAM) -> list[str]:
     return [ln.text.strip() for ln in B.lower(lines, lines[0].file) if ln.text.strip()]
 
 
+_LIST = PROGRAM[PROGRAM.index("       01  PARMLIST.\n") : PROGRAM.index("       01  FILE-REC.\n")]
+_RELOAD_STMT = "           MOVE 'TAIL-BYTES' TO FIELD3(1:10).\n"
+
+
+def _joined(tmp_path: Path, program: str, member: str) -> tuple[list[str], str]:
+    """`program` (with its COPY statement and the member's text) lowered by the det translator and by the oracle's
+    text rewrite: the non-blank statements of each."""
+    (tmp_path / "BLLMEM.cpy").write_text(member, encoding="ascii")
+    p = tmp_path / "BLLDEMO.cbl"
+    p.write_text(program, encoding="ascii")
+    lines = S.program_unit(S.program_lines(p, [tmp_path]))
+    det = [ln.text.strip() for ln in B.lower(lines, lines[0].file) if ln.text.strip()]
+    return det, B.lower_text(program, [tmp_path])
+
+
+def _same(det: list[str], oracle: str) -> None:
+    got = [re.sub(r"\s+", " ", ln).strip() for ln in oracle.splitlines() if ln.strip()]
+    det = [re.sub(r"CALL 'GGCBLLR' USING (\S+) (\S+)\.", r"SET ADDRESS OF \1 TO \2.", t) for t in det]  # (det's form)
+    assert [re.sub(r"\s+", " ", t) for t in det] == [g for g in got if not g.startswith("COPY ")], (det, got)
+    assert all(len(ln) <= 72 for ln in oracle.splitlines())
+
+
+def test_a_cell_list_in_a_copy_member_is_lowered_and_the_oracle_runs_the_same_program(tmp_path):
+    """#5119: the list in a copybook (the usual OS/VS layout) is a pointer list in WORKING-STORAGE, as if inline."""
+    program = PROGRAM.replace(_LIST, "           COPY BLLMEM.\n")
+    (tmp_path / "a").mkdir()
+    (tmp_path / "b").mkdir()
+    det, oracle = _joined(tmp_path / "a", program, _LIST)
+    assert det == _lowered(tmp_path / "b")  # (the same program as with the list inline)
+    ws = det.index("WORKING-STORAGE SECTION.")
+    assert det[ws + 1 : ws + 4] == ["01  PARMLIST.", "05  FRPTR USAGE POINTER.", "05  TSPTR USAGE POINTER."]
+    assert "COPY BLLMEM." not in det
+    _same(det, oracle)
+
+
+def test_a_service_reload_in_a_copy_member_is_lowered_and_the_oracle_agrees(tmp_path):
+    program = PROGRAM.replace(_RELOAD_STMT, "           COPY BLLMEM.\n")
+    det, oracle = _joined(tmp_path, program, _RELOAD_STMT + "           SERVICE RELOAD FILE-REC.\n")
+    assert "SET ADDRESS OF FILE-REC TO FRPTR." in det
+    _same(det, oracle)
+
+
+def test_a_program_with_no_bll_and_a_copy_member_is_left_alone(tmp_path):
+    plain = (
+        "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. PLAIN.\n       DATA DIVISION.\n"
+        "       WORKING-STORAGE SECTION.\n           COPY BLLMEM.\n       PROCEDURE DIVISION.\n           GOBACK.\n"
+    )
+    (tmp_path / "BLLMEM.cpy").write_text("       01  WS-X PIC X.\n", encoding="ascii")
+    assert B.lower_text(plain, [tmp_path]) == plain
+
+
 def test_the_cells_become_pointers_and_service_reload_a_set_address_of(tmp_path):
     """IBM's conversion, statement by statement: the list leaves LINKAGE (its FILLER and FRPTR1, the long record's
     secondary cell, dropped), its cells are POINTERs in WORKING-STORAGE; SERVICE RELOAD of the list itself is nothing
@@ -233,10 +284,12 @@ _HEAD = "           MOVE 'HEAD' TO FIELD1(1:4).\n"
     "stmt, why",
     [
         ("MOVE FRPTR TO WS-NUM(1:2).", "MOVE FRPTR TO WS-NUM ( (line 29): the operand is subscripted"),
-        ("MOVE FRPTR TO WS-NUM(1).", "the operand is subscripted, reference-modified or qualified"),
-        ("MOVE FRPTR TO WS-NUM OF WS-GRP.", "MOVE FRPTR TO WS-NUM OF (line 29): the operand is subscripted"),
-        ("MOVE FRPTR TO WS-NUM IN WS-GRP.", "the operand is subscripted, reference-modified or qualified"),
+        ("MOVE FRPTR TO WS-NUM(1).", "MOVE FRPTR TO WS-NUM(1) (line 29): an address moved to or from WS-NUM, no plain"),
+        ("MOVE FRPTR TO WS-NUM OF WS-GRP.", "MOVE FRPTR TO WS-NUM OF WS-GRP (line 29): an address moved to or from"),
+        ("MOVE FRPTR TO WS-NUM IN WS-GRP.", "a qualifier / subscript that does not name exactly one"),
         ("MOVE ZERO TO FRPTR(1).", "the operand is subscripted, reference-modified or qualified"),
+        ("MOVE ZERO TO FRPTR OF PARMLIST.", "the operand is subscripted, reference-modified or qualified"),
+        ("MOVE FRPTR(1:2) TO WS-NUM.", "MOVE FRPTR ( (line 29): the operand is subscripted"),
         ("SERVICE RELOAD FILE-REC TS-REC.", "SERVICE RELOAD FILE-REC TS-REC (line 29): the operand is not one plain"),
         ("SERVICE RELOAD FILE-REC OF X.", "SERVICE RELOAD FILE-REC OF (line 29): the operand is not one plain"),
         ("SERVICE RELOAD FILE-REC(1).", "SERVICE RELOAD FILE-REC ( (line 29): the operand is not one plain"),
@@ -426,6 +479,86 @@ def test_each_set_command_into_a_cell_keeps_its_own_refusal(tmp_path, command, h
     source = PROGRAM.replace(_GETMAIN, f"EXEC CICS {command}\n                END-EXEC.").replace(*_WS_LEN)
     r = _translate(tmp_path, source)
     assert any(hole in h for h in r.stats["holes"]), r.stats["holes"]
+
+
+# ---- GETMAIN / FREEMAIN into a cell (X47's commands, the lowering's SET(pointer) form) ------------------------------
+def _storage_cmd(*statements: str) -> str:
+    """Each statement as its own `EXEC CICS ... END-EXEC.`, options one per line (columns 8-72 only)."""
+    out = []
+    for s in statements:
+        head, *opts = s.split(" | ")
+        out.append(
+            "EXEC CICS " + head + "".join(f"\n                {o}" for o in opts) + "\n                END-EXEC."
+        )
+    return "\n           ".join(out)
+
+
+@pytest.mark.parametrize(
+    "extra",
+    ["", "BELOW", "USERDATAKEY", "CICSDATAKEY", "EXECUTABLE", "BELOW | USERDATAKEY"],
+)
+def test_getmain_set_into_a_cell_is_the_pointer_form_whatever_its_placement(tmp_path, extra):
+    """IBM: GETMAIN's placement and key options change no byte the program sees (X47 assumption 1); the cell is the
+    pointer GETMAIN sets, then FREEMAIN DATAPOINTER(cell) releases the block it holds."""
+    getmain = "GETMAIN | SET(FRPTR) | FLENGTH(5400) | INITIMG(WS-IMG)" + (f" | {extra}" if extra else "")
+    source = PROGRAM.replace(_GETMAIN, _storage_cmd(getmain, "FREEMAIN | DATAPOINTER(FRPTR)"))
+    r = _translate(tmp_path, source)
+    assert r.stats["holes"] == [], r.stats["holes"]
+    assert "DetCics.getmain(task, f2_FRPTR, 5400, false, " in r.java
+    assert "task.freemain(DetCics.pointerValue(f2_FRPTR))" in r.java
+    sys.path.insert(0, str(TOOLS))
+    import equivalence_cics as ec
+
+    text, _ = ec.translate(source)
+    assert "CALL 'GGCGETM'" in text and "CALL 'GGCFREM'" in text and "BY REFERENCE FRPTR" in text
+
+
+@pytest.mark.parametrize(
+    "command, hole",
+    [  # a cell keeps each GETMAIN refusal of X47: the cell is the pointer after the lowering
+        ("GETMAIN | SET(FRPTR) | FLENGTH(5400) | INITIMG(WS-IMG) | SHARED", "GETMAIN SHARED: option not modelled"),
+        (
+            "GETMAIN | SET(FRPTR) | FLENGTH(5400) | INITIMG(WS-IMG) | NOSUSPEND",
+            "GETMAIN NOSUSPEND: option not modelled",
+        ),
+        ("GETMAIN | SET(FRPTR) | FLENGTH(5400) | INITIMG('*')", "GETMAIN INITIMG as a literal"),
+        ("GETMAIN | SET(FRPTR) | INITIMG(WS-IMG)", "GETMAIN needs one of FLENGTH / LENGTH"),
+        (
+            "GETMAIN | SET(FRPTR) | FLENGTH(5400) | LENGTH(10) | INITIMG(WS-IMG)",
+            "GETMAIN needs one of FLENGTH / LENGTH",
+        ),
+        ("GETMAIN64 | SET(FRPTR) | FLENGTH(5400) | INITIMG(WS-IMG)", "GETMAIN64 not modelled"),
+    ],
+)
+def test_getmain_set_into_a_cell_keeps_its_own_refusal(tmp_path, command, hole):
+    r = _translate(tmp_path, PROGRAM.replace(_GETMAIN, _storage_cmd(command)))
+    assert any(hole in h for h in r.stats["holes"]), r.stats["holes"]
+
+
+def test_freemain64_of_a_cell_keeps_its_refusal(tmp_path):
+    source = PROGRAM.replace(_GETMAIN, _storage_cmd(*(_GM, "FREEMAIN64 | DATAPOINTER(FRPTR)")))
+    r = _translate(tmp_path, source)
+    assert any("FREEMAIN64 not modelled" in h for h in r.stats["holes"]), r.stats["holes"]
+
+
+def test_freemain_data_naming_a_cell_is_refused_whole_by_name(tmp_path):
+    """FREEMAIN DATA(area) takes the storage's own data area (IBM), never an address: a cell there is a cell as a command's
+    data (the SET / DATAPOINTER options are the cell's, ADDRESS's included)."""
+    source = PROGRAM.replace(_GETMAIN, _storage_cmd(_GM, "FREEMAIN | DATA(FRPTR)"))
+    with pytest.raises(B.Refused, match=r"DATA\(FRPTR\) \(line \d+\): a BLL cell as a command's data"):
+        _lowered(tmp_path, source)
+
+
+def test_a_secondary_cell_is_no_getmain_or_freemain_target(tmp_path):
+    for command, why in (
+        ("GETMAIN | SET(FRPTR1) | FLENGTH(8) | INITIMG(WS-IMG)", "FRPTR1 .*secondary cell of a long record set by"),
+        ("FREEMAIN | DATAPOINTER(FRPTR1)", r"DATAPOINTER\(FRPTR1\) .*secondary cell of a long record holds no address"),
+    ):
+        with pytest.raises(B.Refused, match=why):
+            _lowered(tmp_path, PROGRAM.replace(_GETMAIN, _storage_cmd(_GM, command)))
+
+
+_GM = "GETMAIN | SET(FRPTR) | FLENGTH(5400) | INITIMG(WS-IMG)"
 
 
 # ---- ADDRESS into a cell (#5079's X59, the lowering's SET(pointer) form) ---------------------------------------------
@@ -798,3 +931,157 @@ EIBCELL = """\
 def test_an_address_eib_into_a_cell_is_proven_against_gnucobol(tmp_path):
     """The EIB addressed through a BLL cell and reloaded: both runtimes show the task's transaction id (BLL1)."""
     _prove(tmp_path, "BLLEIB", EIBCELL, "BLL1")
+
+
+# ---- #5119: an address held in qualified or subscripted data -----------------------------------------------------
+TABLE = (
+    CHAIN.replace("       01  WS-HEAD                PIC S9(8) COMP VALUE 0.\n",
+                  "       01  WS-IX                  PIC 9 VALUE 2.\n       01  WS-TBL.\n"
+                  "           05  WS-HEAD            PIC S9(8) COMP VALUE 0 OCCURS 2.\n")
+    .replace("MOVE WS-HEAD TO USERPTR.", "MOVE WS-HEAD(2) TO USERPTR.")
+    .replace("MOVE WS-HEAD TO NNEXT.", "MOVE WS-HEAD(WS-IX) TO NNEXT.")
+    .replace("MOVE NEWPTR TO WS-HEAD.", "MOVE NEWPTR TO WS-HEAD(WS-IX).")
+    .replace("MOVE NEXTAREA TO USERPTR.", "MOVE NEXTAREA OF USERAREA TO USERPTR.")
+)  # fmt: skip
+
+
+def test_a_qualified_or_subscripted_holder_lowers_with_its_operand_as_written(tmp_path):
+    got = _lowered(tmp_path, TABLE)
+    assert "CALL 'GGCBLLG' USING WS-HEAD(2) USERPTR." in got
+    assert "CALL 'GGCBLLG' USING NEXTAREA OF USERAREA USERPTR." in got
+    assert "CALL 'GGCBLLP' USING NEWPTR WS-HEAD(WS-IX)." in got
+    r = _translate(tmp_path, TABLE)
+    assert r.stats["holes"] == [], r.stats["holes"]
+    assert "DetCics.bllToData(task, f2_NEWPTR," in r.java and "DetCics.bllFromData(task," in r.java
+
+
+@pytest.mark.parametrize("qual", ["OF", "IN", "of"])
+def test_either_qualifier_word_names_the_holder(tmp_path, qual):
+    source = TABLE.replace("NEXTAREA OF USERAREA", f"NEXTAREA {qual} USERAREA")
+    assert f"CALL 'GGCBLLG' USING NEXTAREA {qual.upper()} USERAREA USERPTR." in _lowered(tmp_path, source)
+
+
+def test_a_name_in_two_records_needs_its_qualifier(tmp_path):
+    twice = CHAIN.replace("           02  NFIELD             PIC X(4).\n", "           02  NFIELD             PIC X(4).\n"
+                          "           02  NEXTAREA           PIC S9(8) COMP.\n")  # fmt: skip
+    with pytest.raises(B.Refused, match="no plain fullword .or a qualifier / subscript that does not name exactly one"):
+        _lowered(tmp_path, twice)
+    assert "CALL 'GGCBLLG' USING NEXTAREA OF USERAREA USERPTR." in _lowered(
+        tmp_path, twice.replace("MOVE NEXTAREA TO USERPTR.", "MOVE NEXTAREA OF USERAREA TO USERPTR.")
+    )
+
+
+@pytest.mark.parametrize(
+    "old, new, why",
+    [
+        ("NEXTAREA OF USERAREA TO", "NEXTAREA OF NEWAREA TO", "does not name exactly one"),
+        ("WS-HEAD(2) TO USERPTR", "WS-HEAD TO USERPTR", "does not name exactly one"),
+        ("WS-HEAD(2) TO USERPTR", "WS-HEAD(1, 2) TO USERPTR", "does not name exactly one"),
+        ("WS-HEAD(2) TO USERPTR", "WS-HEAD(1:2) TO USERPTR", "MOVE WS-HEAD ( (line"),
+        ("WS-HEAD(2) TO USERPTR", "WS-HEAD(USERPTR) TO USERPTR", "a BLL cell used as a number"),
+        ("WS-HEAD(2) TO USERPTR", "WS-HEAD(2 * 2) TO USERPTR", "no plain name or number"),
+        ("MOVE NEWPTR TO WS-HEAD(WS-IX)", "MOVE NEWPTR TO WS-HEAD(NEWPTR)", "a BLL cell used as a number"),
+        ("MOVE NEWPTR TO WS-HEAD(WS-IX)", "MOVE NEWPTR TO WS-HEAD(WS-IX) WS-IX", "to several items"),
+        ("MOVE NEWPTR TO WS-HEAD(WS-IX)", "MOVE NEWPTR TO NEWPTR OF PARMLIST", "subscripted, reference-modified or qualified"),
+        ("PIC S9(8) COMP VALUE 0 OCCURS 2", "PIC S9(4) COMP VALUE 0 OCCURS 2", "no plain fullword"),
+    ],
+)  # fmt: skip
+def test_a_holder_that_is_not_exactly_one_fullword_is_refused_by_name(tmp_path, old, new, why):
+    assert old in TABLE, old
+    with pytest.raises(B.Refused, match=re.escape(why)):
+        _lowered(tmp_path, TABLE.replace(old, new, 1))
+
+
+def test_a_two_dimensional_table_takes_two_subscripts(tmp_path):
+    source = TABLE.replace("05  WS-HEAD            PIC S9(8) COMP VALUE 0 OCCURS 2.",
+                           "05  WS-ROW OCCURS 2.\n               10  WS-HEAD    PIC S9(8) COMP VALUE 0 OCCURS 2.")  # fmt: skip
+    with pytest.raises(B.Refused, match="does not name exactly one"):
+        _lowered(tmp_path, source)
+    two = source.replace("WS-HEAD(2)", "WS-HEAD(2, 1)").replace("WS-HEAD(WS-IX)", "WS-HEAD(WS-IX, 2 * 1)")
+    with pytest.raises(B.Refused, match="no plain name or number"):
+        _lowered(tmp_path, two)
+    two = two.replace("WS-HEAD(WS-IX, 2 * 1)", "WS-HEAD(WS-IX, WS-IX + 1)")
+    assert "CALL 'GGCBLLG' USING WS-HEAD(2, 1) USERPTR." in _lowered(tmp_path, two)
+
+
+TABLE_SENT = CHAIN_SENT  # (the same list, its head and links kept in a table / qualified field)
+
+
+@_E2E
+def test_an_address_in_a_table_and_a_qualified_field_is_proven_against_gnucobol(tmp_path):
+    _prove(tmp_path, "BLLTABLE", TABLE, TABLE_SENT)
+
+
+# ---- #5119: a cell used in a statement the lowering cannot keep (the sweep of the "used as a number" bucket) ----------
+@pytest.mark.parametrize(
+    "stmt, verb",
+    [
+        ("CALL 'SUBX' USING FRPTR.", "CALL"),
+        ("INITIALIZE FRPTR.", "INITIALIZE"),
+        ("ADD 1 TO FRPTR.", "ADD"),
+        ("SUBTRACT 1 FROM TSPTR.", "SUBTRACT"),
+        ("MULTIPLY 2 BY TSPTR.", "MULTIPLY"),
+        ("DISPLAY FRPTR.", "DISPLAY"),
+        ("IF FRPTR = WS-NUM GOBACK END-IF.", "IF"),
+        ("IF WS-NUM = FRPTR GOBACK END-IF.", "IF"),
+        ("COMPUTE FRPTR = FRPTR + 1.", "COMPUTE"),  # (was read as the pointer test FRPTR = FRPTR and kept)
+        ("COMPUTE TSPTR = FRPTR.", "COMPUTE"),
+        ("COMPUTE WS-NUM = FRPTR + 4.", "COMPUTE"),
+    ],
+)
+def test_a_cell_in_arithmetic_or_a_call_is_refused_naming_the_statement(tmp_path, stmt, verb):
+    with pytest.raises(B.Refused) as e:
+        _lowered(tmp_path, PROGRAM.replace(_HEAD, f"           {stmt}\n", 1))
+    msg = str(e.value)
+    assert f"a BLL cell used as a number (in {verb}): not modelled" in msg, msg
+
+
+@pytest.mark.parametrize("target", ["FRPTR", "TSPTR"])
+@pytest.mark.parametrize("rhs", ["ZERO", "NULL", "TSPTR"])
+def test_a_compute_target_is_never_read_as_a_pointer_test(tmp_path, target, rhs):
+    """`COMPUTE p = ZERO` / `COMPUTE p = q` must not become `p = NULL` / `p = q` (a comparison that changes nothing)."""
+    other = "FRPTR" if rhs == "TSPTR" and target == "TSPTR" else rhs
+    with pytest.raises(B.Refused, match=r"a BLL cell used as a number \(in COMPUTE\)"):
+        _lowered(tmp_path, PROGRAM.replace(_HEAD, f"           COMPUTE {target} = {other}.\n", 1))
+
+
+@pytest.mark.parametrize("stmt", ["IF FRPTR = TSPTR GOBACK END-IF.", "IF FRPTR NOT = NULL GOBACK END-IF.",
+                                  "IF TSPTR = ZERO GOBACK END-IF."])  # fmt: skip
+def test_the_pointer_tests_still_lower_after_a_compute_target_is_excluded(tmp_path, stmt):
+    got = _lowered(tmp_path, PROGRAM.replace(_HEAD, f"           COMPUTE WS-NUM = 1.\n           {stmt}\n", 1))
+    assert any(t.startswith("IF ") and "=" in t for t in got), got
+
+
+# the address-holding data item: a level-77 fullword works as a 01 does; a group, a halfword and a fullword that
+# REDEFINES another are refused (the token would be written over, or read from, bytes that are another item's)
+def _holder_program(decl: str) -> str:
+    return PROGRAM.replace("       01  WS-NUM                 PIC S9(8) COMP VALUE 0.\n", decl, 1).replace(
+        _HEAD, "           MOVE FRPTR TO WS-NUM.\n", 1
+    )
+
+
+def test_a_level_77_fullword_holds_an_address_like_a_level_01(tmp_path):
+    got = _lowered(tmp_path, _holder_program("       77  WS-NUM                 PIC S9(8) COMP VALUE 0.\n"))
+    assert "CALL 'GGCBLLG' USING FRPTR WS-NUM." in got or "CALL 'GGCBLLP' USING FRPTR WS-NUM." in got, got
+
+
+@pytest.mark.parametrize(
+    "decl",
+    [
+        "       01  WS-NUM.\n           05  WS-NUM-A PIC S9(8) COMP.\n           05  WS-NUM-B PIC S9(8) COMP.\n",
+        "       01  WS-NUM                 PIC S9(4) COMP VALUE 0.\n",
+        "       01  WS-BASE                PIC S9(8) COMP VALUE 0.\n"
+        + "       01  WS-NUM REDEFINES WS-BASE PIC S9(8) COMP.\n",
+    ],
+)
+def test_a_group_halfword_or_redefining_holder_is_refused_by_name(tmp_path, decl):
+    with pytest.raises(B.Refused, match="an address moved to or from WS-NUM"):
+        _lowered(tmp_path, _holder_program(decl))
+
+
+def test_paragraphs_in_a_copy_member_are_addressed_again_and_the_oracle_agrees(tmp_path):
+    """#5119: chained areas re-address a record at every paragraph name, including those of a copied member."""
+    tail = CHAIN[CHAIN.index("       BUILD-AREA.\n") : CHAIN.index('"""') if '"""' in CHAIN else len(CHAIN)]
+    det, oracle = _joined(tmp_path, CHAIN.replace(tail, "           COPY BLLMEM.\n"), tail)
+    assert "CALL 'GGCBLLR' USING USERAREA USERPTR." in det[det.index("BUILD-AREA.") :]  # (re-addressed in the member)
+    _same(det, oracle)

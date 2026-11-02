@@ -57,7 +57,11 @@ _WORD = re.compile(_NAME, re.I)
 _EXEC = re.compile(r"\bEXEC\s+(?:CICS|DLI|SQL)\b.*?\bEND-EXEC\b", re.I | re.S)
 _RELOAD = re.compile(rf"\bSERVICE\s+RELOAD\s+({_NAME})", re.I)
 _LABEL = re.compile(r"\bSERVICE\s+LABEL\b", re.I)
-_MOVE = re.compile(rf"\bMOVE\s+({_NAME})\s+TO\s+({_NAME})", re.I)
+# #5119: a MOVE operand is a name, its OF / IN qualifiers and one parenthesised group (subscripts, or a reference
+# modification when it holds a colon)
+_OPERAND = rf"{_NAME}(?:\s+(?:OF|IN)\s+{_NAME})*(?:\s*\([^()]*\))?"
+_MOVE = re.compile(rf"\bMOVE\s+({_OPERAND})\s+TO\s+({_OPERAND})", re.I)
+_SUBSCRIPT = re.compile(rf"^\s*{_NAME}(?:\s*[+-]\s*\d+)?\s*$", re.I)
 _EQ = r"(?:IS\s+)?(NOT\s+)?(?:=|EQUALS?(?:\s+TO)?)"
 _NIL = r"(?:ZEROS|ZEROES|ZERO|NULLS|NULL|LOW-VALUES|LOW-VALUE)(?![A-Z0-9-])"
 # #5197: a cell tested for no address, in either operand order (IBM's conversion makes the cell a POINTER: `= NULL`).
@@ -66,6 +70,15 @@ _NIL = r"(?:ZEROS|ZEROES|ZERO|NULLS|NULL|LOW-VALUES|LOW-VALUE)(?![A-Z0-9-])"
 _COMPARE = re.compile(rf"\b({_NAME})\s+{_EQ}\s+{_NIL}|\b{_NIL}\s+{_EQ}\s+({_NAME})(?![A-Z0-9-])", re.I)
 # #5042: one cell compared with another (two pointers after the lowering: IBM allows = / NOT = between pointers)
 _COMPARE_CELLS = re.compile(rf"\b({_NAME})\s+{_EQ}\s+({_NAME})(?![A-Z0-9-])", re.I)
+# #5119: the target of a COMPUTE is arithmetic on a cell, never a comparison (`COMPUTE p = p + 1`, `COMPUTE p = ZERO`)
+_COMPUTE_TARGET = re.compile(r"\bCOMPUTE\s+$", re.I)
+# #5119: the statement a stray mention of a cell sits in, named in its refusal
+_USE = re.compile(
+    r"\b(CALL|INITIALIZE|ADD|SUBTRACT|MULTIPLY|DIVIDE|COMPUTE|DISPLAY|IF|EVALUATE|WHEN|STRING|UNSTRING|"
+    r"INSPECT|ACCEPT|READ|WRITE|SET|MOVE)\b(?!.*\b(?:CALL|INITIALIZE|ADD|SUBTRACT|MULTIPLY|DIVIDE|COMPUTE|"
+    r"DISPLAY|IF|EVALUATE|WHEN|STRING|UNSTRING|INSPECT|ACCEPT|READ|WRITE|SET|MOVE)\b)",
+    re.I | re.S,
+)
 _ADD = re.compile(rf"\bADD\s+4096\s*,?\s+({_NAME})\s+GIVING\s+({_NAME})", re.I)
 _OPTION = re.compile(rf"\b({_NAME})\s*\(\s*({_NAME})\s*\)", re.I)
 _PARAGRAPH = re.compile(rf"^ {{0,3}}({_NAME})(\s+SECTION)?\s*\.", re.I)
@@ -100,6 +113,7 @@ class Plan:
     edits: dict[int, list[str]] = field(default_factory=dict)
     ws_at: int | None = None
     inserted: list[str] = field(default_factory=list)
+    foreign: bool = False  # (#5119: an edit lands in a COPY member's line: the oracle then writes the expanded program)
 
 
 @dataclass
@@ -122,18 +136,40 @@ def needed(texts: list[str]) -> bool:
     return bool(named) and any(m and m.group(1).upper() in named for m in map(_FULLWORD.match, texts))
 
 
-def _fullword(records: list, name: str) -> bool:
-    """Whether `name` is one plain fullword binary integer (no OCCURS above it): what may hold an address in data."""
-    its = [it for r in records for it in r.walk() if it.name.upper() == name]
+def _split(op: str) -> tuple[str, list[str], str | None]:
+    """A MOVE operand as (name, qualifiers innermost first, the parenthesised group or None)."""
+    group = None
+    if "(" in op:
+        op, group = op[: op.index("(")], op[op.index("(") + 1 : op.rindex(")")]
+    words = op.split()
+    return words[0], [w for w in words[1:] if w.upper() not in ("OF", "IN")], group
+
+
+def _holder(records: list, name: str, quals: list[str], subs: int) -> bool:
+    """Whether `name` (qualified by `quals`, named with `subs` subscripts) is one plain fullword binary integer, with
+    one subscript per OCCURS level above it: what may hold an address in data (#5119: a table of addresses too)."""
+    its = []
+    for r in records:
+        for it in r.walk():
+            if it.name.upper() != name.upper():
+                continue
+            up, want = it.parent, [q.upper() for q in quals]
+            while up is not None and want:
+                if up.name.upper() == want[0]:
+                    want.pop(0)
+                up = up.parent
+            if not want:
+                its.append(it)
     if len(its) != 1:
-        return False
-    it, up = its[0], its[0]
+        return False  # (none, or ambiguous without a qualifier: IBM's compiler refuses that too)
+    it, up, levels = its[0], its[0], 0
     while up is not None:
-        if up.occurs != 1:
-            return False
+        if up.redefines:
+            return False  # (#5119: a token written over bytes that are another item's is not modelled)
+        levels += up.occurs != 1
         up = up.parent
-    return (not it.children and it.category == "NUMERIC" and it.usage in ("BINARY", "COMP-5") and it.size == 4
-            and it.scale == 0)  # fmt: skip
+    return (levels == subs and not it.children and it.category == "NUMERIC" and it.usage in ("BINARY", "COMP-5")
+            and it.size == 4 and it.scale == 0)  # fmt: skip
 
 
 def _mask(text: str) -> str:
@@ -286,18 +322,34 @@ def plan(lines: list[Line], records: list, own: str, oracle: bool = False) -> Pl
                               f"secondary cell after {a} of one record")  # fmt: skip
             found.append((m.start(), m.end(), "CONTINUE", ("extra", rb[0], b)))
         for m in _MOVE.finditer(text):
-            a, b = m.group(1), m.group(2)
+            (a, qa, ga), (b, qb, gb) = _split(m.group(1)), _split(m.group(2))
             if in_exec(m.start()) or (a not in cellset and b not in cellset):
                 continue
             where = f"line {lines[line_of(m.start())].line}"
+            shown = f"MOVE {m.group(1)} TO {m.group(2)}"
             if cells.of.get(b, ("", 0))[1] or cells.of.get(a, ("", 0))[1]:
                 raise Refused(f"MOVE {a} TO {b} ({where}): a secondary cell of a long record (only ADD 4096 sets one)")
+            for n, q, g in ((a, qa, ga), (b, qb, gb)):
+                if g is not None and ":" in g:
+                    raise Refused(f"{shown.split('(')[0].strip()} ( ({where}): the operand is subscripted, "
+                                  "reference-modified or qualified, not one plain item")  # fmt: skip
+                if n in cellset and (q or g is not None):
+                    raise Refused(f"{shown} ({where}): the operand is subscripted, reference-modified or qualified, "
+                                  "not one plain item")  # fmt: skip
+                for sub in (g or "").split(",") if g is not None else []:
+                    if not _SUBSCRIPT.match(sub) or any(w.upper() in cellset for w in _WORD.findall(sub)):
+                        raise Refused(f"{shown} ({where}): a subscript that is no plain name or number, or a BLL "
+                                      "cell used as a number")  # fmt: skip
             clear = a.upper() in _CLEARS and b in cellset
             data = None if clear else b if a in cellset and b not in cellset else a if a not in cellset else None
             if data is not None and data.upper() in _FIGURATIVE:
                 raise Refused(f"MOVE {a} TO {b} ({where}): only ZERO or LOW-VALUES clears a cell")
-            if data is not None and (data == cells.name or not _fullword(records, data)):
-                raise Refused(f"MOVE {a} TO {b} ({where}): an address moved to or from {data}, no plain fullword")
+            if data is not None:
+                dq, dg = (qb, gb) if data == b else (qa, ga)
+                nsubs = len(dg.split(",")) if dg is not None else 0
+                if data == cells.name or not _holder(records, data, dq, nsubs):
+                    raise Refused(f"{shown} ({where}): an address moved to or from {data}, no plain "
+                                  "fullword (or a qualifier / subscript that does not name exactly one)")  # fmt: skip
             extra = _tail(text, m.end(), set())
             if extra in ("(", "OF", "IN"):
                 raise Refused(f"MOVE {a} TO {b} {extra} ({where}): the operand is subscripted, reference-modified or "
@@ -305,17 +357,18 @@ def plan(lines: list[Line], records: list, own: str, oracle: bool = False) -> Pl
             nxt = _WORD.match(text, len(text) - len(text[m.end() :].lstrip()))
             if nxt is not None and nxt.group(0) not in _ENDS and (nxt.group(0) in names or nxt.group(0) in cellset):
                 raise Refused(f"MOVE {a} TO {b} {nxt.group(0)} ({where}): an address moved to several items")
+            ca, cb = m.group(1), m.group(2)  # (the operands as written: the calls keep the qualifier / subscript)
             if clear:  # (#5119: a cell cleared; IBM's conversion makes it a POINTER, NULL = all-zero bytes, X47)
                 found.append((m.start(), m.end(), f"SET {b} TO NULL", ("change", b)))
             elif data is None:
                 found.append((m.start(), m.end(), f"SET {b} TO {a}", ("change", b)))
             elif data == b:  # (an address into data: the token for it, IBM's chained area's "pointer to the next area")
-                found.append((m.start(), m.end(), f"CALL 'GGCBLLP' USING {a} {b}", ("none",)))
+                found.append((m.start(), m.end(), f"CALL 'GGCBLLP' USING {ca} {cb}", ("none",)))
             else:
-                found.append((m.start(), m.end(), f"CALL 'GGCBLLG' USING {a} {b}", ("change", b)))
+                found.append((m.start(), m.end(), f"CALL 'GGCBLLG' USING {ca} {cb}", ("change", b)))
         for m in _COMPARE.finditer(text):
             cell, neg = (m.group(1), m.group(2)) if m.group(1) else (m.group(4), m.group(3))
-            if in_exec(m.start()) or cell.upper() not in cellset:
+            if in_exec(m.start()) or cell.upper() not in cellset or _COMPUTE_TARGET.search(text, 0, m.start()):
                 continue
             if cells.of.get(cell.upper(), ("", 0))[1]:
                 raise Refused(f"{cell} (line {lines[line_of(m.start())].line}): a secondary cell of a long record "
@@ -325,6 +378,8 @@ def plan(lines: list[Line], records: list, own: str, oracle: bool = False) -> Pl
             left, neg, right = m.group(1), m.group(2), m.group(3)
             if in_exec(m.start()) or left.upper() not in cellset or right.upper() not in cellset:
                 continue
+            if _COMPUTE_TARGET.search(text, 0, m.start()):
+                continue  # (COMPUTE cell = cell ...: arithmetic, refused below as a number)
             if cells.of.get(left.upper(), ("", 0))[1] or cells.of.get(right.upper(), ("", 0))[1]:
                 raise Refused(f"{left} (line {lines[line_of(m.start())].line}): a secondary cell of a long record "
                               "compared (only its base cell holds an address)")  # fmt: skip
@@ -338,12 +393,17 @@ def plan(lines: list[Line], records: list, own: str, oracle: bool = False) -> Pl
                                   "as a command's data")  # fmt: skip
                 if o.group(1) != "DATAPOINTER":
                     found.append((o.start(), o.start(), "", ("change", o.group(2))))
+                elif cells.of.get(o.group(2), ("", 0))[1]:  # (#5119: FREEMAIN reads the cell; a secondary one is gone)
+                    raise Refused(f"DATAPOINTER({o.group(2)}) (line {lines[line_of(o.start())].line}): a secondary "
+                                  "cell of a long record holds no address (only its base cell does)")  # fmt: skip
         # every other mention of a cell (or of the list) uses an address as a number
         spans = [(s, e) for s, e, _, ev in found if e > s] + execs
         for name in [*cellset, cells.name]:
             for m in re.finditer(rf"(?<![A-Z0-9-]){re.escape(name)}(?![A-Z0-9-])", text):
                 if not any(s <= m.start() < e for s, e in spans):
-                    raise Refused(f"{name} (line {lines[line_of(m.start())].line}): a BLL cell used as a number")
+                    verb = _USE.search(text[max(0, m.start() - 160) : m.start()])
+                    raise Refused(f"{name} (line {lines[line_of(m.start())].line}): a BLL cell used as a number"
+                                  + (f" (in {verb.group(1).upper()})" if verb else ""))  # fmt: skip
         through = _paragraph_rule(lines, proc, starts, found, cells, line_of)
     if not found:
         return None
@@ -354,8 +414,7 @@ def plan(lines: list[Line], records: list, own: str, oracle: bool = False) -> Pl
             continue
         first, last = line_of(s), line_of(e - 1)
         for i in range(first, last + 1):
-            if lines[i].file != own:
-                raise Refused(f"a BLL statement in the COPY member {Path(lines[i].file).name}")
+            out.foreign = out.foreign or lines[i].file != own
             k = proc.index(i)
             a = max(s, starts[k]) - starts[k]
             b = min(e, starts[k] + len(masked[i])) - starts[k]
@@ -441,8 +500,7 @@ def _paragraph_reloads(lines, proc, starts, text, cells: Cells, through: set[str
         end = starts[heads[n + 1]] if n + 1 < len(heads) else len(text)
         if text[starts[k] + m.end() : end].strip() == "EXIT.":
             continue
-        if lines[i].file != own:
-            raise Refused(f"a paragraph name in the COPY member {Path(lines[i].file).name}")
+        out.foreign = out.foreign or lines[i].file != own
         base = (out.edits.get(i) or [lines[i].text])[0]
         rest = base[m.end() :]
         out.edits[i] = [base[: m.end()], *stmts, *([rest] if rest.strip() else [])]
@@ -458,9 +516,7 @@ def _data_edits(lines: list[Line], cells: Cells, own: str, proc_at: int, out: Pl
     if at is None or ws is None:
         raise Refused("the BLL cell list or the WORKING-STORAGE SECTION is not in the program's own text")
     end = next((i for i in range(at + 1, proc_at + 1) if i == proc_at or _ENTRY.match(lines[i].text)), proc_at)
-    for i in [at, *range(at + 1, end), ws]:
-        if lines[i].file != own:
-            raise Refused(f"the BLL cell list in the COPY member {Path(lines[i].file).name}")
+    out.foreign = out.foreign or any(lines[i].file != own for i in [at, *range(at + 1, end), ws])
     for i in range(at, end):
         out.edits[i] = []
     secondary = {c for v in cells.extra.values() for c in v}
@@ -519,6 +575,15 @@ def lower_text(source: str, dirs: list[Path]) -> str:
     p = plan(lines, _records(lines), own, oracle=True)
     if p is None:
         return source
+    if (
+        p.foreign
+    ):  # (#5119: a COPY member holds a changed line, which has no line of the raw text: write the whole program)
+        rows: list[str] = []
+        for i, ln in enumerate(lines):
+            rows += ["       " + r for t in p.edits.get(i, [ln.text]) for r in _fixed(t)]
+            if i == p.ws_at:
+                rows += ["       " + r for t in p.inserted for r in _fixed(t)]
+        return "\n".join(rows) + "\n"
     edits: dict[int, list[str]] = {}
     for i, texts in p.edits.items():
         n = lines[i].line - 1

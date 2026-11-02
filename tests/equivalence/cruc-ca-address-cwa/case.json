@@ -1,0 +1,49 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "CACWAD",
+  "program_source": "cases/commarea-mismatch/ca-address-cwa/src/CACWAD.cbl",
+  "transid": "CA0K",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "termid": "T001",
+  "programs": [
+    {
+      "program": "CACWSB",
+      "program_source": "cases/commarea-mismatch/ca-address-cwa/src/CACWSB.cbl"
+    }
+  ],
+  "notes": "cics-crucible commarea-mismatch / ca-address-cwa (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): ADDRESS CWA, the region's common work area (SIT WRKAREA, register X59). The crucible's two-task scenario (S then R) is two single-step scenarios here: the harness does not carry the CWA across scenarios, so R reads a fresh area. Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "cwa-link",
+      "commarea": null,
+      "terminal": "CA0K W",
+      "wrkarea": 32,
+      "why": "WRKAREA 32: the caller stamps the CWA, the LINKed callee (no COMMAREA) reads the stamp and writes its reply through its own ADDRESS CWA"
+    },
+    {
+      "name": "cwa-store",
+      "commarea": null,
+      "terminal": "CA0K S",
+      "wrkarea": 32,
+      "why": "ADDRESS CWA, write a stamp through a view"
+    },
+    {
+      "name": "cwa-read",
+      "commarea": null,
+      "terminal": "CA0L R",
+      "wrkarea": 32,
+      "why": "ADDRESS CWA read in a task of its own: the area is the region's 32 bytes, fresh here"
+    },
+    {
+      "name": "unknown-mode",
+      "commarea": null,
+      "terminal": "CA0K X",
+      "wrkarea": 32,
+      "why": "A mode letter no WHEN names: the EVALUATE falls through"
+    }
+  ]
+}

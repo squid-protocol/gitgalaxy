@@ -1,0 +1,30 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "CALDST",
+  "program_source": "cases/commarea-mismatch/ca-load-set/src/CALDST.cbl",
+  "copy_dirs": [
+    "cases/commarea-mismatch/ca-load-set/copy"
+  ],
+  "transid": "CA0L",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "termid": "T001",
+  "programs": [
+    {
+      "program": "CALDTG",
+      "program_source": "cases/commarea-mismatch/ca-load-set/src/CALDTG.cbl"
+    }
+  ],
+  "notes": "cics-crucible commarea-mismatch / ca-load-set (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): CALDST LOADs the defined program CALDTG. LOAD PROGRAM SET(ptr) LENGTH(len) then RELEASE; each result is a 12-byte record in TS queue LDLOG (tag, RESP, RESP2, pointer flag, LENGTH flag). CALDTG is installed but never run. The oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "load",
+      "commarea": null,
+      "terminal": "CA0L",
+      "why": "pointer preset null and LENGTH preset 0; after the LOAD of a defined program the pointer is set and LENGTH is above zero, RELEASE completes NORMAL"
+    }
+  ]
+}

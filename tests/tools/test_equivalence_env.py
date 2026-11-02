@@ -152,7 +152,22 @@ def _repo(path: Path, tag: str | None = None, commits: int = 1) -> Path:
 
 
 @pytest.fixture
-def remote(tmp_path, monkeypatch):
+def fake_pin(monkeypatch):
+    """The real pin may be a commit SHA, which cannot name a tag in a throwaway repo: pin a fixture tag instead."""
+    real = ee.cics_pin
+    monkeypatch.setattr(cics_pin, "PINNED_REF", "fixture-pin")
+    monkeypatch.setattr(ee, "cics_pin", lambda: ("fixture-pin", real()[1]))
+    real_pin_of = ee.crucible_pins.pin_of
+    monkeypatch.setattr(
+        ee.crucible_pins,
+        "pin_of",
+        lambda name, *a, **k: {**real_pin_of(name, *a, **k), **({"ref": "fixture-pin"} if name == "cics" else {})},
+    )
+    return "fixture-pin"
+
+
+@pytest.fixture
+def remote(tmp_path, monkeypatch, fake_pin):
     base = tmp_path / "remote"
     _repo(base / "squid-protocol" / "cics-crucible", tag=cics_pin.PINNED_REF, commits=2)  # HEAD past the pin
     for r in ("o/one", "o/two"):
@@ -231,7 +246,7 @@ def test_the_census_list_is_the_ineligible_list_minus_burned():
     assert not set(repos) & ee.candidate_names()  # the committed lists never overlap
 
 
-def test_an_off_pin_checkout_fails_with_the_sync_hint(tmp_path, monkeypatch):
+def test_an_off_pin_checkout_fails_with_the_sync_hint(tmp_path, monkeypatch, fake_pin):
     checkout = _repo(tmp_path / "box" / "cics-crucible", tag=cics_pin.PINNED_REF, commits=2)
     monkeypatch.delenv(cics_pin.ALLOW_UNPINNED_ENV, raising=False)
     env = {"CICS_CRUCIBLE_PATH": str(checkout)}

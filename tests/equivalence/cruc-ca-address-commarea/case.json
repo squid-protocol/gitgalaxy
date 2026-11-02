@@ -30,6 +30,18 @@
       "commarea": null,
       "terminal": "CA02 X",
       "why": "A mode letter no WHEN names: the EVALUATE falls through and the report goes out unchanged"
+    },
+    {
+      "name": "link-view",
+      "commarea": null,
+      "terminal": "CA02 L",
+      "why": "LINK to CAADSB with COMMAREA(WS-AREA) LENGTH(20): the callee's ADDRESS COMMAREA pointer addresses the caller's bytes and its write through SET ADDRESS OF lands in the caller's AD-REPLY"
+    },
+    {
+      "name": "no-commarea",
+      "commarea": null,
+      "terminal": "CA02 N",
+      "why": "Mode N: the task has no COMMAREA (EIBCALEN 0); ADDRESS COMMAREA gives IBM's X'FF000000' and the program reads it through a PIC X(4) view (#7434)"
     }
   ]
 }

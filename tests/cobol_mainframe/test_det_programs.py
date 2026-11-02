@@ -2831,3 +2831,32 @@ def test_repeated_01_filler_groups_each_get_their_own_storage(tmp_path):
     assert java.count("Storage s_FILLER_") == 2, java
     if _java() is not None:  # the port compiles and each group's children read their own bytes
         assert _java_run("FILX", (src / "FILX.cbl").read_text(), tmp_path) == "abcxyz07\n"
+
+
+@pytest.mark.parametrize("typed,groups", [(False, False), (True, False), (True, True)])
+def test_structured_digit_first_names_write_legal_java_identifiers(tmp_path, typed, groups):
+    """#7375: a COBOL data item may start with a digit (zECS 50702-MESSAGE); structured style must prefix it, keep the
+    prefixed name apart from a real item of that name, and still avoid reserved words."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    src = program(
+        "DIGFIRST",
+        [
+            "01 50702-MESSAGE.",
+            "   02 50702-KEY PIC X(08) VALUE 'xxxxxxxx'.",
+            "01 F50702-MESSAGE PIC X(03) VALUE 'abc'.",
+            "01 CLASS PIC X(03) VALUE 'abc'.",
+            "01 123-N PIC 9(3) VALUE 0.",
+        ],
+        ["MOVE 'yyyyyyyy' TO 50702-KEY.", "MOVE 5 TO 123-N."],
+    )
+    (tmp_path / "DIGFIRST.cbl").write_text(src)
+    (tmp_path / "project").mkdir()
+    r = P.translate(tmp_path / "DIGFIRST.cbl", [], "public class DigfirstService {\n}\n", PKG, None,
+                    tmp_path / "project", style="structured", typed=typed, groups=groups)  # fmt: skip
+    decls = re.findall(r"^    private (?!static)(?:final )?[\w.<>]+ (\w+)\b", r.java, re.M)
+    assert decls
+    assert all(re.fullmatch(r"[A-Za-z_]\w*", d) for d in decls), decls
+    assert len(decls) == len(set(decls)), decls
+    assert {"f50702Message", "f50702Key", "f123N"} <= set(decls) and "class" not in decls

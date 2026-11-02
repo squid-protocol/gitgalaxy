@@ -356,6 +356,32 @@ int main(int argc, char **argv) {
 """
 
 
+_NONE_MAIN = r"""
+#include <stdio.h>
+#include <string.h>
+typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
+                 char qname[16]; int item; int num; int go_to; char chan[16]; int hours, mins, secs;
+                 char rtran[4], rterm[4], rqueue[8]; char as[16], tochan[16]; } gg_cics;
+int GGCADDR(gg_cics *c, void **slot, void *area);
+static gg_cics c;
+int main(int argc, char **argv) {
+    static char ca[4] = {1, 2, 3, 4};
+    void *q = NULL;
+    memset(&c, 0, sizeof c);
+    memset(c.flags, ' ', 40);
+    memcpy(c.flags, "COMMAREA NONE", 13);
+    c.num = 4;
+    GGCADDR(&c, &q, ca);
+    printf("with %d/%d %d\n", c.resp, c.resp2, q == (void *)ca);
+    c.num = 0;
+    GGCADDR(&c, &q, ca);
+    unsigned char *b = (unsigned char *)&q;
+    printf("none %d/%d %02X%02X%02X%02X\n", c.resp, c.resp2, b[0], b[1], b[2], b[3]);
+    return 0;
+}
+"""
+
+
 _CWA_MAIN = r"""
 #include <stdio.h>
 #include <string.h>
@@ -423,6 +449,30 @@ def test_the_stub_sets_the_pointer_to_the_area_and_refuses_a_missing_commarea(tm
     ]
 
 
+@R.needs_cc
+def test_the_stub_answers_x_ff000000_for_a_program_with_no_dfhcommarea(tmp_path):
+    """#7434: GG-FLAGS 'COMMAREA NONE' (the harness stand-in) with EIBCALEN 0 is the pointer whose first four bytes read X'FF000000'
+    (as an unsized TWA); with a COMMAREA it is still the caller's real address."""
+    exe = R._stub(tmp_path, _NONE_MAIN)
+    work = tmp_path / "w"
+    out = work / "out"
+    out.mkdir(parents=True)
+    env = {**R._stub_base_env(), "GGCICS_DIR": str(work), "GGCICS_OUT": str(out)}
+    run = subprocess.run([str(exe)], env=env, capture_output=True, text=True, check=False)  # noqa: S603
+    assert run.returncode == 0, (run.stdout, run.stderr)
+    assert run.stdout.splitlines() == ["with 0/0 1", "none 0/0 FF000000"]
+
+
+def test_the_harness_marks_only_a_program_with_no_dfhcommarea():
+    """#7434: the translator writes COMMAREA NONE only where it adds the DFHCOMMAREA stand-in; a program that names the record
+    keeps the plain COMMAREA flag, so the stub still refuses its EIBCALEN 0 (as the port does)."""
+    ec = _ec()
+    text, _ = ec.translate(_NO_RECORD)
+    assert "MOVE 'COMMAREA NONE' TO GG-FLAGS" in text
+    named, _ = ec.translate(PROGRAM)
+    assert "MOVE 'COMMAREA' TO GG-FLAGS" in named and "NONE" not in named
+
+
 def _javac() -> Path | None:
     home = os.environ.get("JDK_17") or os.environ.get("JAVA_HOME")
     return Path(home) / "bin" if home and (Path(home) / "bin/javac").is_file() else None
@@ -472,6 +522,20 @@ public class Main {
         } catch (UnsupportedOperationException e) {
             System.out.println(e.getMessage());
         }
+        byte[] raw = new byte[6];
+        raw[0] = 'X';
+        CicsTask linked = new CicsTask("ZC01", "ENTER", null, null).withLinkArea(raw);
+        Field lp = rec(8), lv = rec(4), big = rec(9);
+        DetCics.addressNoCommarea(linked, lp, 6);
+        DetCics.setAddress(linked, lv, lp);
+        lv.storage().bytes[1] = 'Y';
+        System.out.println((char) raw[0] + "" + (char) raw[1] + " " + DetCics.isNoCommareaAddress(lp) + " " + linked.linkAreaTaken());
+        try {
+            DetCics.setAddress(linked, big, lp);
+            System.out.println("not refused");
+        } catch (UnsupportedOperationException e) {
+            System.out.println("longer view refused");
+        }
         try {
             DetCics.addressCommarea(t, ptr, ca, 0);
             System.out.println("not refused");
@@ -496,7 +560,9 @@ public class Main {
         "true",
         "true false",
         "SET ADDRESS OF a null or unknown pointer: not modelled",
-        "ADDRESS COMMAREA with a COMMAREA in a program with no 01 DFHCOMMAREA: its bytes are not modelled",
+        "ADDRESS COMMAREA with a COMMAREA in a program with no 01 DFHCOMMAREA: the caller passed no bytes (not modelled)",
+        "XY false true",
+        "longer view refused",
         "ADDRESS COMMAREA with no COMMAREA: not modelled",
     ]
 

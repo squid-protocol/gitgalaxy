@@ -14,6 +14,7 @@ import re
 from pathlib import Path
 from typing import Any, TypedDict
 
+from gitgalaxy.core.dense_source import has_dense_definitions, is_dense_source
 from gitgalaxy.core.model_magic import MODEL_EXTENSIONS, sniff_model_format
 from gitgalaxy.core.source_text import decode_bytes, open_source
 from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
@@ -820,7 +821,9 @@ class ApertureFilter:
         if loc > 500:
             hex_count = content.count("0x") + content.count("0X")
             comma_count = content.count(",")
-            if (hex_count > loc or comma_count > (loc * 3)) and self._has_definitions(content.splitlines()):
+            if (hex_count > loc or comma_count > (loc * 3)) and self._has_source_definitions(
+                content.splitlines(), low_path
+            ):
                 hex_count = comma_count = 0
             if hex_count > loc:
                 report.update(
@@ -873,6 +876,10 @@ class ApertureFilter:
                 ]
         # #5460: a long line beside real definitions is a data row (`sound.h`), not minifier output.
         if long_lines and self._has_definitions(lines_list):
+            long_lines = []
+        # #7501: ... and so are functions defined inline on the long lines of a compiled language
+        # (dense hand-written source), while no line passes DENSE_LINE_MAX (gitgalaxy/core/dense_source.py).
+        if long_lines and is_dense_source(lines_list, low_path):
             long_lines = []
         if long_lines:
             report.update(
@@ -954,7 +961,9 @@ class ApertureFilter:
                 max_indent_freq = max(indent_counts.values())
                 # #5460 (owner ruling 2026-10-19): a file with at least one named function definition
                 # is source, not generated noise (tables.c).
-                if (max_indent_freq / len(meaningful_lines)) > 0.85 and not self._has_definitions(lines_list):
+                if (max_indent_freq / len(meaningful_lines)) > 0.85 and not self._has_source_definitions(
+                    lines_list, low_path
+                ):
                     report.update(
                         {
                             "valid": False,
@@ -1024,6 +1033,11 @@ class ApertureFilter:
                             return True
                     break
         return False
+
+    @classmethod
+    def _has_source_definitions(cls, lines: list[str], low_path: str) -> bool:
+        """The definitions exemption of the payload guards (3.4, 5.1): ordinary (#5460) or dense (#7501)."""
+        return cls._has_definitions(lines) or has_dense_definitions(lines, low_path)
 
     # #4351: the most NULs (and, separately, other C0 control characters) a member may carry and
     # still be text damaged in transfer rather than a binary.

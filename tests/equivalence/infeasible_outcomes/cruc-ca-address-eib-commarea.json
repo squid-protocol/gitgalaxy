@@ -9,6 +9,14 @@
       "outcome": "false",
       "family": "G",
       "reason": "`IF VE-RESP = EIBRESP AND VE-RESP = WS-RESP` ELSE arm: LS-EIB is based on the pointer ADDRESS EIB returns, the task's own EIB storage, so VE-RESP is EIBRESP; EIBRESP is the response of the READQ TD just issued, which is also what RESP(WS-RESP) returns. Equal on every run for any queue state."
+    },
+    {
+      "unit": "NONE-PARA",
+      "line": 136,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "`IF VE-CALEN = EIBCALEN` ELSE arm: LS-EIB is based on the pointer ADDRESS EIB returns, the task own EIB storage, so VE-CALEN is the storage EIBCALEN names. Equal on every run for any COMMAREA length."
     }
   ]
 }

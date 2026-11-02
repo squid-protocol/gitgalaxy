@@ -25,6 +25,7 @@ from typing import Any, ClassVar, TypedDict, cast
 from gitgalaxy.core import csharp_interpolation
 from gitgalaxy.core.call_resolver import BARE_CALL_SKIPS_METHODS, INIT_LIST_QUALIFIER
 from gitgalaxy.core.cobol_source_format import FIXED, line_formats
+from gitgalaxy.core.dense_source import DENSE_LANGS, defines_inline
 from gitgalaxy.core.fortran_calls import fortran_call_names
 from gitgalaxy.core.network_risk_sensor import CASE_INSENSITIVE_IMPORT_LANGS
 from gitgalaxy.core.preproc_toggles import toggle_condition_value
@@ -3451,9 +3452,12 @@ class StructuralExtractor:
         # Identifies absurdly long continuous lines (Make .depend files, C hex arrays)
         # and blanks them out before they reach the regex engine. Neutralizes Catastrophic
         # Backtracking while perfectly preserving the file's geometry (mass and LOC).
+        # #7501: ... except a line of dense hand-written source in a compiled language (functions
+        # defined inline, up to DENSE_LINE_MAX chars), which carries the file's definitions.
+        dense_lang = self.primary_lang_id in DENSE_LANGS
         safe_lines = []
         for line in code_stream.split("\n"):
-            if len(line) > 1500:
+            if len(line) > 1500 and not (dense_lang and defines_inline(line)):
                 # Preserve indentation and inject a single safe char so it isn't counted as a blank line
                 indent = len(line) - len(line.lstrip())
                 safe_lines.append(" " * indent + "x" + " " * (len(line) - indent - 1))

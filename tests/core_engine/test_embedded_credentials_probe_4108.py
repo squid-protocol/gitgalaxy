@@ -18,9 +18,9 @@ from gitgalaxy.security.security_lens import SecurityLens
 A = "abcdefghijklmnopqrstuvwxyz0123456789"
 
 FIRES = {
-    "compound_name": 'DB_PASSWORD = "' + A[:20] + '"\n',
+    "compound_name": 'DB_PASSWORD = "' + A[10:30] + '"\n',
     "aws_secret_access_key": 'aws_secret_access_key = "wJalrXUtnFEMI/K7MDENG/bPxRfiCY"\n',
-    "json_quoted_key": '{"password": "' + A[:20] + '"}\n',
+    "json_quoted_key": '{"password": "' + A[10:30] + '"}\n',
     "punctuation_value": 'password = "P@ssw0rd!Secret#2024"\n',
     "jwt": 'x = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.dBjftJeZ4CVPmB92K27"\n',
     "github_fine_grained": 'x = "github_pat_' + "11ABCDEFG0" + A + '"\n',
@@ -37,6 +37,7 @@ QUIET = {
     "secret_name_suffix": 'secret_name = "my-prod-database-secret-name"\n',
     "token_url_suffix": 'token_url = "https://example.com/oauth/token/x"\n',
     "plural_name": 'max_tokens = "' + A[:20] + '"\n',
+    "identifier_value": 'progress_token = "buildProgressToken"\n',
     "short_value": 'password = "hunter2"\n',
     "half_jwt": 'x = "eyJhbGci.notajwt"\n',
     "short_prefix": 'x = "gho_short"\n',

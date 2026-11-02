@@ -446,13 +446,16 @@ class SecurityLens:
             # German `passwort`, a Brazilian `senha` or a Spanish COBOL
             # `CONTRASENA` field is the same leak as an English `password`.
             "hardcoded_secrets": re.compile(
+                r"\b(" + CODE_CREDENTIAL_ALTERNATION + r")\b[ \t]*(?:[:=]|=>)[ \t]*[\"'][A-Za-z0-9\-_+/=]{16,}[\"']|"
                 # #4108: the name may be a compound (`DB_PASSWORD`, `aws_secret_access_key`: `\b` is no boundary
-                # inside `_`), may be closed by a quote (JSON `"password": "..."`), and the value may carry
-                # the punctuation of a real password. The suffix list is closed (`secret_name`, `token_url` stay out).
+                # inside `_`), may be closed by a quote (JSON `"password": "..."`), and the value may carry the
+                # punctuation of a real password. These are weaker anchors (`progress_token = "buildProgressToken"`
+                # is an identifier), so the value needs a digit or punctuation. The suffix list is closed
+                # (`secret_name`, `token_url` stay out).
                 r"(?<![A-Za-z0-9])(?:[A-Za-z0-9]{1,16}[_-]){0,3}("
                 + CODE_CREDENTIAL_ALTERNATION
-                + r")(?:[_-](?:access[_-]key|key|value|string))?[\"']?[ \t]*(?:[:=]|=>)[ \t]*"
-                r"[\"'][A-Za-z0-9\-_+/=!@#$%^&*~]{16,}[\"']|"
+                + r")(?:[_-](?:access[_-]key|key|value|string))?[\"']?[ \t]*(?:[:=]|=>)[ \t]*[\"']"
+                r"(?=[A-Za-z0-9\-_+/=!@#$%^&*~]*[0-9!@#$%^&*~/+=])[A-Za-z0-9\-_+/=!@#$%^&*~]{16,}[\"']|"
                 r"\beyJ[A-Za-z0-9_-]{10,}\.eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}|"
                 r"\bgithub_pat_[0-9a-zA-Z_]{40,}|"
                 r"\bgh[ousr]_[0-9a-zA-Z]{36}\b|"

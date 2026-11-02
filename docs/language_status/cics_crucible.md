@@ -711,17 +711,17 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | `hc-eoc-error/eoc-own-label/java-facade` | fail | no port of any of its programs |
 | `hc-eoc-error/eoc-own-label/java-ported` | fail | no port of any of its programs |
 | `hc-file-read-set/browse-back/java` | fail | task 1 (HC83) event 1: RECEIVE expected, the side recorded no further event |
-| `hc-file-read-set/browse-back/java-facade` | fail | task 1 (HC83) event 2: STARTBR expected, got WRITEQ-TS |
-| `hc-file-read-set/browse-back/java-ported` | fail | task 1 (HC83) event 2: STARTBR expected, got WRITEQ-TS |
+| `hc-file-read-set/browse-back/java-facade` | fail | task 1 (HC83) event 2: ridfld X'D2F0F4F0' expected, got X'4B303430' |
+| `hc-file-read-set/browse-back/java-ported` | fail | task 1 (HC83) event 2: ridfld X'D2F0F4F0' expected, got X'4B303430' |
 | `hc-file-read-set/browse-fwd/java` | fail | task 1 (HC83) event 1: RECEIVE expected, the side recorded no further event |
-| `hc-file-read-set/browse-fwd/java-facade` | fail | task 1 (HC83) event 2: STARTBR expected, got WRITEQ-TS |
-| `hc-file-read-set/browse-fwd/java-ported` | fail | task 1 (HC83) event 2: STARTBR expected, got WRITEQ-TS |
+| `hc-file-read-set/browse-fwd/java-facade` | fail | task 1 (HC83) event 2: ridfld X'D2F0F1F5' expected, got X'4B303135' |
+| `hc-file-read-set/browse-fwd/java-ported` | fail | task 1 (HC83) event 2: ridfld X'D2F0F1F5' expected, got X'4B303135' |
 | `hc-file-read-set/browse-notfnd/java` | fail | task 1 (HC83) event 1: RECEIVE expected, the side recorded no further event |
-| `hc-file-read-set/browse-notfnd/java-facade` | fail | task 1 (HC83) event 2: STARTBR expected, got WRITEQ-TS |
-| `hc-file-read-set/browse-notfnd/java-ported` | fail | task 1 (HC83) event 2: STARTBR expected, got WRITEQ-TS |
+| `hc-file-read-set/browse-notfnd/java-facade` | fail | task 1 (HC83) event 2: ridfld X'D2F0F6F0' expected, got X'4B303630' |
+| `hc-file-read-set/browse-notfnd/java-ported` | fail | task 1 (HC83) event 2: ridfld X'D2F0F6F0' expected, got X'4B303630' |
 | `hc-file-read-set/read-set/java` | fail | task 1 (HC83) event 1: RECEIVE expected, the side recorded no further event |
-| `hc-file-read-set/read-set/java-facade` | fail | task 1 (HC83) event 2: READ expected, got WRITEQ-TS |
-| `hc-file-read-set/read-set/java-ported` | fail | task 1 (HC83) event 2: READ expected, got WRITEQ-TS |
+| `hc-file-read-set/read-set/java-facade` | fail | task 1 (HC83) event 2: ridfld X'D2F0F3F0' expected, got X'4B303330' |
+| `hc-file-read-set/read-set/java-ported` | fail | task 1 (HC83) event 2: ridfld X'D2F0F3F0' expected, got X'4B303330' |
 | `hc-file-unlock/read-short/java` | fail | task 1 (HC81) event 1: RECEIVE expected, the side recorded no further event |
 | `hc-file-unlock/read-short/java-facade` | fail | task 1 (HC81) event 2: READ expected, got WRITEQ-TS |
 | `hc-file-unlock/read-short/java-ported` | fail | task 1 (HC81) event 2: READ expected, got WRITEQ-TS |

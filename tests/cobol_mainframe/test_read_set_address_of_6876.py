@@ -56,3 +56,40 @@ def test_set_address_of_a_linkage_record_gets_the_block(text, hold):
 def test_set_address_of_any_other_record_is_refused_by_name(name, why):
     with pytest.raises(T.C.CicsError, match=why):
         _LinkCics().command(f"READ FILE('KSDS') SET(ADDRESS OF {name}) RIDFLD(KEY)", "")
+
+
+@pytest.mark.parametrize(
+    ("text", "holds"),
+    [
+        ("READ FILE('KSDS') SET(ADDRESS OF LS-REC) RIDFLD(KEY)", ["task.readSetEvent(", ", false, () ->"]),
+        ("READ FILE('KSDS') SET(ADDRESS OF LS-REC) RIDFLD(KEY) UPDATE", ["task.readSetEvent(", ", true, () ->"]),
+        ("READNEXT FILE('KSDS') SET(ADDRESS OF LS-REC) RIDFLD(KEY)", ["task.readnextSetEvent(", "byte[] rid"]),
+        ("READPREV FILE('KSDS') SET(ADDRESS OF LS-REC) RIDFLD(KEY)", ["task.readprevSetEvent(", "byte[] rid"]),
+        ("STARTBR FILE('KSDS') RIDFLD(KEY)", ["task.startbrEvent(", "byte[] rid"]),
+        ("STARTBR FILE('KSDS') RIDFLD(KEY) EQUAL", ["task.startbrEvent(", ", true, () -> "]),
+        ("ENDBR FILE('KSDS')", ["task.endbrEvent("]),
+    ],
+)
+def test_the_file_commands_record_their_spec_6_2_events(text, holds):
+    """#7434: the event forms of CicsTask (READ with `set`, READNEXT / READPREV with `set`, STARTBR, ENDBR)."""
+    cics = _LinkCics()
+    cics.g.p = types.SimpleNamespace(
+        proc=types.SimpleNamespace(execs={1: "READNEXT FILE('KSDS') SET(PTR) RIDFLD(KEY)"})
+    )
+    out = "\n".join(cics.command(text, ""))
+    for h in holds:
+        assert h in out, out
+
+
+@pytest.mark.parametrize(
+    ("text", "plain"),
+    [("STARTBR FILE('KSDS') RIDFLD(KEY)", "task.startbr("), ("ENDBR FILE('KSDS')", "task.endbr(")],
+)
+def test_a_browse_that_reads_into_keeps_the_event_free_startbr_and_endbr(text, plain):
+    """#7434: the COBOL stub records neither, so an INTO-form browse is not given the event forms (sibling gap)."""
+    cics = _LinkCics()
+    cics.g.p = types.SimpleNamespace(
+        proc=types.SimpleNamespace(execs={1: "READNEXT FILE('KSDS') INTO(REC) RIDFLD(KEY)"})
+    )
+    out = "\n".join(cics.command(text, ""))
+    assert plain in out and "Event(" not in out, out

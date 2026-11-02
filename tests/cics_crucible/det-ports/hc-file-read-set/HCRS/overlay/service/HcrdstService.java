@@ -395,7 +395,7 @@ public class HcrdstService {
         Cobol.move("K030", f6_WS_KEY, CS);
         // EXEC CICS READ FILE('HCRS') SET(ADDRESS OF LS-REC) RIDFLD(WS-KEY) RESP(WS-RESP) RESP2(WS-RESP2) END-EXEC
         byte[] rec5 = DetCics.bytes(f6_WS_KEY);
-        CicsTask.FileRead<byte[]> read4 = task.read("HCRS".stripTrailing(), () -> store("HCRS".stripTrailing()).find(rec5));
+        CicsTask.FileRead<byte[]> read4 = task.readSetEvent("HCRS".stripTrailing(), rec5, false, () -> store("HCRS".stripTrailing()).find(rec5));
         if (read4.record() != null) {
             DetCics.setBlockAt(task, f19_LS_REC, "READ " + "HCRS".stripTrailing(), read4.record(), false);
         }
@@ -411,7 +411,7 @@ public class HcrdstService {
         Cobol.move("K035", f6_WS_KEY, CS);
         // EXEC CICS READ FILE('HCRS') SET(ADDRESS OF LS-REC) RIDFLD(WS-KEY) RESP(WS-RESP) RESP2(WS-RESP2) END-EXEC
         byte[] rec7 = DetCics.bytes(f6_WS_KEY);
-        CicsTask.FileRead<byte[]> read6 = task.read("HCRS".stripTrailing(), () -> store("HCRS".stripTrailing()).find(rec7));
+        CicsTask.FileRead<byte[]> read6 = task.readSetEvent("HCRS".stripTrailing(), rec7, false, () -> store("HCRS".stripTrailing()).find(rec7));
         if (read6.record() != null) {
             DetCics.setBlockAt(task, f19_LS_REC, "READ " + "HCRS".stripTrailing(), read6.record(), false);
         }
@@ -427,7 +427,7 @@ public class HcrdstService {
         Cobol.move("K050", f6_WS_KEY, CS);
         // EXEC CICS READ FILE('HCRS') SET(ADDRESS OF LS-REC) RIDFLD(WS-KEY) RESP(WS-RESP) RESP2(WS-RESP2) END-EXEC
         byte[] rec9 = DetCics.bytes(f6_WS_KEY);
-        CicsTask.FileRead<byte[]> read8 = task.read("HCRS".stripTrailing(), () -> store("HCRS".stripTrailing()).find(rec9));
+        CicsTask.FileRead<byte[]> read8 = task.readSetEvent("HCRS".stripTrailing(), rec9, false, () -> store("HCRS".stripTrailing()).find(rec9));
         if (read8.record() != null) {
             DetCics.setBlockAt(task, f19_LS_REC, "READ " + "HCRS".stripTrailing(), read8.record(), false);
         }
@@ -447,7 +447,8 @@ public class HcrdstService {
         // MOVE 'K015' TO WS-KEY
         Cobol.move("K015", f6_WS_KEY, CS);
         // EXEC CICS STARTBR FILE('HCRS') RIDFLD(WS-KEY) GTEQ RESP(WS-RESP) RESP2(WS-RESP2) END-EXEC
-        int resp10 = task.startbr("HCRS".stripTrailing(), new String(DetCics.bytes(f6_WS_KEY), CS), false, () -> store("HCRS".stripTrailing()).keys());
+        byte[] rid11 = DetCics.bytes(f6_WS_KEY);
+        int resp10 = task.startbrEvent("HCRS".stripTrailing(), rid11, new String(rid11, CS), false, () -> store("HCRS".stripTrailing()).keys());
         Cobol.store(f49_EIBRESP, BigDecimal.valueOf(resp10), false, CS);
         Cobol.store(f50_EIBRESP2, BigDecimal.valueOf(task.resp2()), false, CS);
         Cobol.store(f4_WS_RESP, BigDecimal.valueOf(resp10), false, CS);
@@ -460,16 +461,17 @@ public class HcrdstService {
         Cobol.move(D1, f7_WS_N, CS);
         while (!(Cobol.cmpNum(f7_WS_N, CS).compareTo(D5) > 0)) {
             // EXEC CICS READNEXT FILE('HCRS') SET(ADDRESS OF LS-REC) RIDFLD(WS-KEY) RESP(WS-RESP) RESP2(WS-RESP2) END-EXEC
-            CicsTask.Browsed read11 = task.readnext("HCRS".stripTrailing(), new String(DetCics.bytes(f6_WS_KEY), CS));
-            if (read11.normal()) {
-                DetCics.put(f6_WS_KEY, read11.key().getBytes(CS));
-                byte[] rec13 = store("HCRS".stripTrailing()).find(read11.key().getBytes(CS)).orElse(null);
-                if (rec13 != null) DetCics.setBlockAt(task, f19_LS_REC, "BROWSE " + "HCRS".stripTrailing(), rec13, true);
+            byte[] rid15 = DetCics.bytes(f6_WS_KEY);
+            CicsTask.Browsed read12 = task.readnextSetEvent("HCRS".stripTrailing(), rid15, new String(rid15, CS), k -> store("HCRS".stripTrailing()).find(k.getBytes(CS)));
+            if (read12.normal()) {
+                DetCics.put(f6_WS_KEY, read12.key().getBytes(CS));
+                byte[] rec14 = store("HCRS".stripTrailing()).find(read12.key().getBytes(CS)).orElse(null);
+                if (rec14 != null) DetCics.setBlockAt(task, f19_LS_REC, "BROWSE " + "HCRS".stripTrailing(), rec14, true);
             }
-            Cobol.store(f49_EIBRESP, BigDecimal.valueOf(read11.resp()), false, CS);
-            Cobol.store(f50_EIBRESP2, BigDecimal.valueOf(read11.resp2()), false, CS);
-            Cobol.store(f4_WS_RESP, BigDecimal.valueOf(read11.resp()), false, CS);
-            Cobol.store(f5_WS_RESP2, BigDecimal.valueOf(read11.resp2()), false, CS);
+            Cobol.store(f49_EIBRESP, BigDecimal.valueOf(read12.resp()), false, CS);
+            Cobol.store(f50_EIBRESP2, BigDecimal.valueOf(read12.resp2()), false, CS);
+            Cobol.store(f4_WS_RESP, BigDecimal.valueOf(read12.resp()), false, CS);
+            Cobol.store(f5_WS_RESP2, BigDecimal.valueOf(read12.resp2()), false, CS);
             // MOVE 'F ' TO CLOG-TAG
             Cobol.move("F  ", f10_CLOG_TAG, CS);
             // MOVE WS-N TO CLOG-TAG(2:1)
@@ -479,10 +481,10 @@ public class HcrdstService {
             Cobol.store(f7_WS_N, Cobol.receiverNum(f7_WS_N, CS).add(D1), false, CS);
         }
         // EXEC CICS ENDBR FILE('HCRS') RESP(WS-RESP) RESP2(WS-RESP2) END-EXEC
-        int resp14 = task.endbr("HCRS".stripTrailing());
-        Cobol.store(f49_EIBRESP, BigDecimal.valueOf(resp14), false, CS);
+        int resp16 = task.endbrEvent("HCRS".stripTrailing());
+        Cobol.store(f49_EIBRESP, BigDecimal.valueOf(resp16), false, CS);
         Cobol.store(f50_EIBRESP2, BigDecimal.valueOf(task.resp2()), false, CS);
-        Cobol.store(f4_WS_RESP, BigDecimal.valueOf(resp14), false, CS);
+        Cobol.store(f4_WS_RESP, BigDecimal.valueOf(resp16), false, CS);
         Cobol.store(f5_WS_RESP2, BigDecimal.valueOf(task.resp2()), false, CS);
         // MOVE 'F6 ' TO CLOG-TAG
         Cobol.move("F6 ", f10_CLOG_TAG, CS);
@@ -496,10 +498,11 @@ public class HcrdstService {
         // MOVE 'K040' TO WS-KEY
         Cobol.move("K040", f6_WS_KEY, CS);
         // EXEC CICS STARTBR FILE('HCRS') RIDFLD(WS-KEY) GTEQ RESP(WS-RESP) RESP2(WS-RESP2) END-EXEC
-        int resp15 = task.startbr("HCRS".stripTrailing(), new String(DetCics.bytes(f6_WS_KEY), CS), false, () -> store("HCRS".stripTrailing()).keys());
-        Cobol.store(f49_EIBRESP, BigDecimal.valueOf(resp15), false, CS);
+        byte[] rid18 = DetCics.bytes(f6_WS_KEY);
+        int resp17 = task.startbrEvent("HCRS".stripTrailing(), rid18, new String(rid18, CS), false, () -> store("HCRS".stripTrailing()).keys());
+        Cobol.store(f49_EIBRESP, BigDecimal.valueOf(resp17), false, CS);
         Cobol.store(f50_EIBRESP2, BigDecimal.valueOf(task.resp2()), false, CS);
-        Cobol.store(f4_WS_RESP, BigDecimal.valueOf(resp15), false, CS);
+        Cobol.store(f4_WS_RESP, BigDecimal.valueOf(resp17), false, CS);
         Cobol.store(f5_WS_RESP2, BigDecimal.valueOf(task.resp2()), false, CS);
         // MOVE 'B0 ' TO CLOG-TAG
         Cobol.move("B0 ", f10_CLOG_TAG, CS);
@@ -509,16 +512,17 @@ public class HcrdstService {
         Cobol.move(D1, f7_WS_N, CS);
         while (!(Cobol.cmpNum(f7_WS_N, CS).compareTo(D5) > 0)) {
             // EXEC CICS READPREV FILE('HCRS') SET(ADDRESS OF LS-REC) RIDFLD(WS-KEY) RESP(WS-RESP) RESP2(WS-RESP2) END-EXEC
-            CicsTask.Browsed read16 = task.readprev("HCRS".stripTrailing(), new String(DetCics.bytes(f6_WS_KEY), CS));
-            if (read16.normal()) {
-                DetCics.put(f6_WS_KEY, read16.key().getBytes(CS));
-                byte[] rec18 = store("HCRS".stripTrailing()).find(read16.key().getBytes(CS)).orElse(null);
-                if (rec18 != null) DetCics.setBlockAt(task, f19_LS_REC, "BROWSE " + "HCRS".stripTrailing(), rec18, true);
+            byte[] rid22 = DetCics.bytes(f6_WS_KEY);
+            CicsTask.Browsed read19 = task.readprevSetEvent("HCRS".stripTrailing(), rid22, new String(rid22, CS), k -> store("HCRS".stripTrailing()).find(k.getBytes(CS)));
+            if (read19.normal()) {
+                DetCics.put(f6_WS_KEY, read19.key().getBytes(CS));
+                byte[] rec21 = store("HCRS".stripTrailing()).find(read19.key().getBytes(CS)).orElse(null);
+                if (rec21 != null) DetCics.setBlockAt(task, f19_LS_REC, "BROWSE " + "HCRS".stripTrailing(), rec21, true);
             }
-            Cobol.store(f49_EIBRESP, BigDecimal.valueOf(read16.resp()), false, CS);
-            Cobol.store(f50_EIBRESP2, BigDecimal.valueOf(read16.resp2()), false, CS);
-            Cobol.store(f4_WS_RESP, BigDecimal.valueOf(read16.resp()), false, CS);
-            Cobol.store(f5_WS_RESP2, BigDecimal.valueOf(read16.resp2()), false, CS);
+            Cobol.store(f49_EIBRESP, BigDecimal.valueOf(read19.resp()), false, CS);
+            Cobol.store(f50_EIBRESP2, BigDecimal.valueOf(read19.resp2()), false, CS);
+            Cobol.store(f4_WS_RESP, BigDecimal.valueOf(read19.resp()), false, CS);
+            Cobol.store(f5_WS_RESP2, BigDecimal.valueOf(read19.resp2()), false, CS);
             // MOVE 'B ' TO CLOG-TAG
             Cobol.move("B  ", f10_CLOG_TAG, CS);
             // MOVE WS-N TO CLOG-TAG(2:1)
@@ -528,10 +532,10 @@ public class HcrdstService {
             Cobol.store(f7_WS_N, Cobol.receiverNum(f7_WS_N, CS).add(D1), false, CS);
         }
         // EXEC CICS ENDBR FILE('HCRS') RESP(WS-RESP) RESP2(WS-RESP2) END-EXEC
-        int resp19 = task.endbr("HCRS".stripTrailing());
-        Cobol.store(f49_EIBRESP, BigDecimal.valueOf(resp19), false, CS);
+        int resp23 = task.endbrEvent("HCRS".stripTrailing());
+        Cobol.store(f49_EIBRESP, BigDecimal.valueOf(resp23), false, CS);
         Cobol.store(f50_EIBRESP2, BigDecimal.valueOf(task.resp2()), false, CS);
-        Cobol.store(f4_WS_RESP, BigDecimal.valueOf(resp19), false, CS);
+        Cobol.store(f4_WS_RESP, BigDecimal.valueOf(resp23), false, CS);
         Cobol.store(f5_WS_RESP2, BigDecimal.valueOf(task.resp2()), false, CS);
         // MOVE 'B6 ' TO CLOG-TAG
         Cobol.move("B6 ", f10_CLOG_TAG, CS);
@@ -545,10 +549,11 @@ public class HcrdstService {
         // MOVE 'K060' TO WS-KEY
         Cobol.move("K060", f6_WS_KEY, CS);
         // EXEC CICS STARTBR FILE('HCRS') RIDFLD(WS-KEY) GTEQ RESP(WS-RESP) RESP2(WS-RESP2) END-EXEC
-        int resp20 = task.startbr("HCRS".stripTrailing(), new String(DetCics.bytes(f6_WS_KEY), CS), false, () -> store("HCRS".stripTrailing()).keys());
-        Cobol.store(f49_EIBRESP, BigDecimal.valueOf(resp20), false, CS);
+        byte[] rid25 = DetCics.bytes(f6_WS_KEY);
+        int resp24 = task.startbrEvent("HCRS".stripTrailing(), rid25, new String(rid25, CS), false, () -> store("HCRS".stripTrailing()).keys());
+        Cobol.store(f49_EIBRESP, BigDecimal.valueOf(resp24), false, CS);
         Cobol.store(f50_EIBRESP2, BigDecimal.valueOf(task.resp2()), false, CS);
-        Cobol.store(f4_WS_RESP, BigDecimal.valueOf(resp20), false, CS);
+        Cobol.store(f4_WS_RESP, BigDecimal.valueOf(resp24), false, CS);
         Cobol.store(f5_WS_RESP2, BigDecimal.valueOf(task.resp2()), false, CS);
         // MOVE 'N1 ' TO CLOG-TAG
         Cobol.move("N1 ", f10_CLOG_TAG, CS);
@@ -557,10 +562,11 @@ public class HcrdstService {
         // MOVE 'K025' TO WS-KEY
         Cobol.move("K025", f6_WS_KEY, CS);
         // EXEC CICS STARTBR FILE('HCRS') RIDFLD(WS-KEY) EQUAL RESP(WS-RESP) RESP2(WS-RESP2) END-EXEC
-        int resp21 = task.startbr("HCRS".stripTrailing(), new String(DetCics.bytes(f6_WS_KEY), CS), true, () -> store("HCRS".stripTrailing()).keys());
-        Cobol.store(f49_EIBRESP, BigDecimal.valueOf(resp21), false, CS);
+        byte[] rid27 = DetCics.bytes(f6_WS_KEY);
+        int resp26 = task.startbrEvent("HCRS".stripTrailing(), rid27, new String(rid27, CS), true, () -> store("HCRS".stripTrailing()).keys());
+        Cobol.store(f49_EIBRESP, BigDecimal.valueOf(resp26), false, CS);
         Cobol.store(f50_EIBRESP2, BigDecimal.valueOf(task.resp2()), false, CS);
-        Cobol.store(f4_WS_RESP, BigDecimal.valueOf(resp21), false, CS);
+        Cobol.store(f4_WS_RESP, BigDecimal.valueOf(resp26), false, CS);
         Cobol.store(f5_WS_RESP2, BigDecimal.valueOf(task.resp2()), false, CS);
         // MOVE 'N2 ' TO CLOG-TAG
         Cobol.move("N2 ", f10_CLOG_TAG, CS);
@@ -569,35 +575,37 @@ public class HcrdstService {
         // MOVE 'K030' TO WS-KEY
         Cobol.move("K030", f6_WS_KEY, CS);
         // EXEC CICS STARTBR FILE('HCRS') RIDFLD(WS-KEY) EQUAL RESP(WS-RESP) RESP2(WS-RESP2) END-EXEC
-        int resp22 = task.startbr("HCRS".stripTrailing(), new String(DetCics.bytes(f6_WS_KEY), CS), true, () -> store("HCRS".stripTrailing()).keys());
-        Cobol.store(f49_EIBRESP, BigDecimal.valueOf(resp22), false, CS);
+        byte[] rid29 = DetCics.bytes(f6_WS_KEY);
+        int resp28 = task.startbrEvent("HCRS".stripTrailing(), rid29, new String(rid29, CS), true, () -> store("HCRS".stripTrailing()).keys());
+        Cobol.store(f49_EIBRESP, BigDecimal.valueOf(resp28), false, CS);
         Cobol.store(f50_EIBRESP2, BigDecimal.valueOf(task.resp2()), false, CS);
-        Cobol.store(f4_WS_RESP, BigDecimal.valueOf(resp22), false, CS);
+        Cobol.store(f4_WS_RESP, BigDecimal.valueOf(resp28), false, CS);
         Cobol.store(f5_WS_RESP2, BigDecimal.valueOf(task.resp2()), false, CS);
         // MOVE 'N3 ' TO CLOG-TAG
         Cobol.move("N3 ", f10_CLOG_TAG, CS);
         // PERFORM LOG-R
         perform(6, 6);
         // EXEC CICS READNEXT FILE('HCRS') SET(ADDRESS OF LS-REC) RIDFLD(WS-KEY) RESP(WS-RESP) RESP2(WS-RESP2) END-EXEC
-        CicsTask.Browsed read23 = task.readnext("HCRS".stripTrailing(), new String(DetCics.bytes(f6_WS_KEY), CS));
-        if (read23.normal()) {
-            DetCics.put(f6_WS_KEY, read23.key().getBytes(CS));
-            byte[] rec25 = store("HCRS".stripTrailing()).find(read23.key().getBytes(CS)).orElse(null);
-            if (rec25 != null) DetCics.setBlockAt(task, f19_LS_REC, "BROWSE " + "HCRS".stripTrailing(), rec25, true);
+        byte[] rid33 = DetCics.bytes(f6_WS_KEY);
+        CicsTask.Browsed read30 = task.readnextSetEvent("HCRS".stripTrailing(), rid33, new String(rid33, CS), k -> store("HCRS".stripTrailing()).find(k.getBytes(CS)));
+        if (read30.normal()) {
+            DetCics.put(f6_WS_KEY, read30.key().getBytes(CS));
+            byte[] rec32 = store("HCRS".stripTrailing()).find(read30.key().getBytes(CS)).orElse(null);
+            if (rec32 != null) DetCics.setBlockAt(task, f19_LS_REC, "BROWSE " + "HCRS".stripTrailing(), rec32, true);
         }
-        Cobol.store(f49_EIBRESP, BigDecimal.valueOf(read23.resp()), false, CS);
-        Cobol.store(f50_EIBRESP2, BigDecimal.valueOf(read23.resp2()), false, CS);
-        Cobol.store(f4_WS_RESP, BigDecimal.valueOf(read23.resp()), false, CS);
-        Cobol.store(f5_WS_RESP2, BigDecimal.valueOf(read23.resp2()), false, CS);
+        Cobol.store(f49_EIBRESP, BigDecimal.valueOf(read30.resp()), false, CS);
+        Cobol.store(f50_EIBRESP2, BigDecimal.valueOf(read30.resp2()), false, CS);
+        Cobol.store(f4_WS_RESP, BigDecimal.valueOf(read30.resp()), false, CS);
+        Cobol.store(f5_WS_RESP2, BigDecimal.valueOf(read30.resp2()), false, CS);
         // MOVE 'N4 ' TO CLOG-TAG
         Cobol.move("N4 ", f10_CLOG_TAG, CS);
         // PERFORM LOG-D
         perform(5, 5);
         // EXEC CICS ENDBR FILE('HCRS') RESP(WS-RESP) RESP2(WS-RESP2) END-EXEC
-        int resp26 = task.endbr("HCRS".stripTrailing());
-        Cobol.store(f49_EIBRESP, BigDecimal.valueOf(resp26), false, CS);
+        int resp34 = task.endbrEvent("HCRS".stripTrailing());
+        Cobol.store(f49_EIBRESP, BigDecimal.valueOf(resp34), false, CS);
         Cobol.store(f50_EIBRESP2, BigDecimal.valueOf(task.resp2()), false, CS);
-        Cobol.store(f4_WS_RESP, BigDecimal.valueOf(resp26), false, CS);
+        Cobol.store(f4_WS_RESP, BigDecimal.valueOf(resp34), false, CS);
         Cobol.store(f5_WS_RESP2, BigDecimal.valueOf(task.resp2()), false, CS);
         // MOVE 'N5 ' TO CLOG-TAG
         Cobol.move("N5 ", f10_CLOG_TAG, CS);
@@ -647,11 +655,11 @@ public class HcrdstService {
             Cobol.move(f5_WS_RESP2, f14_CLOG_RESP2, CS);
         }
         // EXEC CICS WRITEQ TS QUEUE('HCLOG') FROM(WS-CLOG) LENGTH(40) END-EXEC
-        CicsTask.TsResult ts27 = task.writeqTs("HCLOG".strip(), DetCics.toRegion(DetCics.padded(f9_WS_CLOG, 40, "WRITEQ TS", CS), CS, REGION));
-        Cobol.store(f49_EIBRESP, BigDecimal.valueOf(DetCics.resp(ts27.resp())), false, CS);
+        CicsTask.TsResult ts35 = task.writeqTs("HCLOG".strip(), DetCics.toRegion(DetCics.padded(f9_WS_CLOG, 40, "WRITEQ TS", CS), CS, REGION));
+        Cobol.store(f49_EIBRESP, BigDecimal.valueOf(DetCics.resp(ts35.resp())), false, CS);
         Cobol.store(f50_EIBRESP2, BigDecimal.valueOf(0), false, CS);
-        if (DetCics.resp(ts27.resp()) != 0) {
-            int to = condition(DetCics.condition(DetCics.resp(ts27.resp())));
+        if (DetCics.resp(ts35.resp()) != 0) {
+            int to = condition(DetCics.condition(DetCics.resp(ts35.resp())));
             if (to >= 0) return GOTO | to;
         }
         return 8;

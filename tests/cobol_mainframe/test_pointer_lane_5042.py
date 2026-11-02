@@ -75,17 +75,17 @@ _SHAPES = [
     ),
     (
         "READ FILE('KSDS') SET(PTR) RIDFLD(KEY) UPDATE",
-        ["task.readForUpdate(", "read1.record(), true);", "heldKey.put("],
+        ["task.readSetEvent(", ", true, () ->", "read1.record(), true);", "heldKey.put("],
     ),
     ("READ FILE('KSDS') SET(PTR) RIDFLD(KEY) UPDATE TOKEN(TK)", ["read1.record(), true);", "task.holdToken("]),
     ("READ FILE('KSDS') SET(PTR) RIDFLD(KEY) GTEQ", ["read1.record(), false);"]),
     (
         "READNEXT FILE('KSDS') SET(PTR) RIDFLD(KEY)",
-        ["task.readnext(", "setBlock(task, f_PTR, \"BROWSE \" + 'KSDS'.stripTrailing(), rec", ", true);"],
+        ["task.readnextSetEvent(", "setBlock(task, f_PTR, \"BROWSE \" + 'KSDS'.stripTrailing(), rec", ", true);"],
     ),
     (
         "READPREV FILE('KSDS') SET(PTR) RIDFLD(KEY)",
-        ["task.readprev(", "setBlock(task, f_PTR, \"BROWSE \" + 'KSDS'.stripTrailing(), rec", ", true);"],
+        ["task.readprevSetEvent(", "setBlock(task, f_PTR, \"BROWSE \" + 'KSDS'.stripTrailing(), rec", ", true);"],
     ),
 ]
 

@@ -6088,6 +6088,11 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   MQDISC in code, and the three programs that call the MQI (CODATE01, COACCT01, COPAUA0C) are all CICS programs
   (`test_no_burned_program_is_batch_mq`). The connection model (a handle from MQCONN, MQDISC, MQCONNX options) stays
   refused by name until a burned program needs it (`mainframe-evidence-policy.md`, section 2: nothing to prove).
+- **The other verbs have no burned consumer (#5259).** No burned estate source names MQINQ, MQSET, MQSUB, MQSUBRQ,
+  MQCB, MQCTL, MQSTAT or a message-handle call (MQCRTMH, MQDLTMH, MQSETMP, MQINQMP, MQDLTMP, MQMHBUF, MQBUFMH) in code
+  (`test_no_burned_program_names_any_other_mqi_verb`), and each is refused by name with its reason
+  (`test_every_other_mqi_verb_is_refused_by_name_with_its_reason`). Their models stay unbuilt until a burned program
+  needs one (`mainframe-evidence-policy.md`, section 2: nothing to prove).
 - **COPAUA0C translates with no MQ hole (#5278).** Under CICS its MQOPEN / MQGET / MQPUT1 / MQCLOSE and the CMQ* layouts
   translate; the options it builds (MQGMO NO-SYNCPOINT + WAIT + CONVERT + FAIL-IF-QUIESCING, MQPMO NO-SYNCPOINT +
   DEFAULT-CONTEXT, MQOO INPUT-SHARED, MQCO NONE) are inside the modelled sets. Measured (#5278, det_survey on the

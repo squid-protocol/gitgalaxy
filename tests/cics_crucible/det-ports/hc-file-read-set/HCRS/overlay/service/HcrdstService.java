@@ -13,6 +13,8 @@ import com.gitgalaxy.modernized.entity.vsam.CobolRecords;
 import com.gitgalaxy.modernized.cics.CicsTask;
 import com.gitgalaxy.modernized.cobolrt.cics.DetCics;
 import com.gitgalaxy.modernized.entity.vsam.*;
+import com.gitgalaxy.modernized.repository.vsam.*;
+import com.gitgalaxy.modernized.repository.vsam.LsRecRepository;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.util.Base64;
@@ -116,7 +118,10 @@ public class HcrdstService {
         if (CicsTask.undefinableFile(name)) {
             return DetCics.Store.undefined(CS);
         }
-        throw new Hole("CICS file " + name + ": the program names no file the generated project stores");
+        return (DetCics.Store<E>) stores.computeIfAbsent(name, n -> switch (n) {
+            case "HCRS" -> new DetCics.Store<LsRec>(lsRecRepository::findAll, e -> e.toRecord(CS), b -> LsRec.fromRecord(b, CS), e -> task.write("HCRS", () -> lsRecRepository.save(e)), e -> task.write("HCRS", () -> lsRecRepository.delete(e)), 0, 4, CS).withLengths(CicsTask.recordLengths("LsRec"));
+            default -> throw new Hole("CICS file " + n + ": no store in the generated project");
+        });
     }
 
     private static final java.util.Map<String, Integer> PARAGRAPHS = java.util.Map.ofEntries(
@@ -167,8 +172,10 @@ public class HcrdstService {
     }
 
 
+    private final LsRecRepository lsRecRepository;
 
-    public HcrdstService() {
+    public HcrdstService(LsRecRepository lsRecRepository) {
+        this.lsRecRepository = lsRecRepository;
     }
 
     /** WORKING-STORAGE (and every storage) as its VALUE clauses set it: each entry point starts from here. */

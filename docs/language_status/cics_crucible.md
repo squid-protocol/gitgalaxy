@@ -14,9 +14,9 @@ Every cell that does not pass is ledgered in `tests/cics_crucible/baseline.json`
 | forge-compile | 51 | 0 | 0 | 51 |
 | cobol-stub | 167 | 10 | 0 | 177 |
 | java | 0 | 177 | 0 | 177 |
-| java-ported | 61 | 116 | 0 | 177 |
-| java-facade | 58 | 119 | 0 | 177 |
-| **all** | **388** | **422** | **0** | **810** |
+| java-ported | 67 | 110 | 0 | 177 |
+| java-facade | 64 | 113 | 0 | 177 |
+| **all** | **400** | **410** | **0** | **810** |
 
 ## By trap and case
 
@@ -58,7 +58,7 @@ Pass counts per side (scenario sides: passing / scenarios).
 | condition-handling | `hc-terminal-eoc` | pass | pass | 3 / 3 | 0 / 3 | 0 / 3 | 0 / 3 |
 | condition-handling | `hc-terminal-receive` | pass | pass | 7 / 7 | 0 / 7 | 0 / 7 | 0 / 7 |
 | ghost-tasks | `gt-assign-startcode` | pass | pass | 3 / 3 | 0 / 3 | 0 / 3 | 0 / 3 |
-| ghost-tasks | `gt-http-inbound` | pass | pass | 1 / 1 | 0 / 1 | 0 / 1 | 0 / 1 |
+| ghost-tasks | `gt-http-inbound` | pass | pass | 1 / 1 | 0 / 1 | 1 / 1 | 1 / 1 |
 | ghost-tasks | `gt-post-wait-event` | pass | pass | 5 / 5 | 0 / 5 | 0 / 5 | 0 / 5 |
 | ghost-tasks | `gt-send-text-terminal` | pass | pass | 1 / 1 | 0 / 1 | 0 / 1 | 0 / 1 |
 | ghost-tasks | `gt-start-options` | pass | pass | 7 / 7 | 0 / 7 | 0 / 7 | 0 / 7 |
@@ -67,8 +67,8 @@ Pass counts per side (scenario sides: passing / scenarios).
 | ghost-tasks | `gt-urimap-browse` | pass | pass | 2 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
 | ghost-tasks | `gt-web-client` | pass | pass | 2 / 2 | 0 / 2 | 2 / 2 | 2 / 2 |
 | ghost-tasks | `gt-web-parse-url` | pass | pass | 3 / 3 | 0 / 3 | 3 / 3 | 3 / 3 |
-| ghost-tasks | `gt-web-server-receive` | pass | pass | 4 / 4 | 0 / 4 | 0 / 4 | 0 / 4 |
-| ghost-tasks | `gt-web-server-send` | pass | pass | 1 / 1 | 0 / 1 | 0 / 1 | 0 / 1 |
+| ghost-tasks | `gt-web-server-receive` | pass | pass | 4 / 4 | 0 / 4 | 4 / 4 | 4 / 4 |
+| ghost-tasks | `gt-web-server-send` | pass | pass | 1 / 1 | 0 / 1 | 1 / 1 | 1 / 1 |
 | hex-attributes | `hx-attr-bytes` | pass | pass | 4 / 4 | 0 / 4 | 4 / 4 | 4 / 4 |
 | hex-attributes | `hx-extended-cursor` | pass | pass | 3 / 3 | 0 / 3 | 3 / 3 | 3 / 3 |
 | pseudo-conversational | `pc-aid-menu` | pass | pass | 4 / 4 | 0 / 4 | 4 / 4 | 4 / 4 |
@@ -117,7 +117,7 @@ Each cobol-stub scenario runs the COBOL compiled with `-ftraceall` (tests/tools/
 | `gt-assign-startcode` | GTASAB | 1 | 1/1 | 0/0 | 0/0 | 0 | proven on 0 scenarios, covering 0/1 paragraphs and 0/0 branches |
 | `gt-assign-startcode` | GTASGN | 3 | 2/2 | 5/6 | 0/0 | 0 | proven on 0 scenarios, covering 0/2 paragraphs and 0/6 branches |
 | `gt-assign-startcode` | GTASNT | 1 | 1/1 | 2/2 | 0/0 | 0 | proven on 0 scenarios, covering 0/1 paragraphs and 0/2 branches |
-| `gt-http-inbound` | GTHECHO | 1 | 1/1 | 0/0 | 0/0 | 0 | proven on 0 scenarios, covering 0/1 paragraphs and 0/0 branches |
+| `gt-http-inbound` | GTHECHO | 1 | 1/1 | 0/0 | 0/0 | 0 | proven on 1 scenario, covering 1/1 paragraphs and 0/0 branches |
 | `gt-post-wait-event` | GTPOST | 5 | 5/5 | 7/9 | 0/0 | 0 | proven on 0 scenarios, covering 0/5 paragraphs and 0/9 branches |
 | `gt-send-text-terminal` | GTSTXS | 1 | 1/1 | 2/2 | 0/0 | 0 | proven on 0 scenarios, covering 0/1 paragraphs and 0/2 branches |
 | `gt-send-text-terminal` | GTSTXT | 1 | 1/1 | 0/0 | 0/0 | 0 | proven on 0 scenarios, covering 0/1 paragraphs and 0/0 branches |
@@ -133,8 +133,8 @@ Each cobol-stub scenario runs the COBOL compiled with `-ftraceall` (tests/tools/
 | `gt-urimap-browse` | GTUNEXT | 2 | 1/1 | 0/0 | 0/0 | 0 | proven on 0 scenarios, covering 0/1 paragraphs and 0/0 branches |
 | `gt-web-client` | GTWCLI | 2 | 1/1 | 3/4 | 0/0 | 0 | proven on 2 scenarios, covering 1/1 paragraphs and 3/4 branches |
 | `gt-web-parse-url` | GTWPARS | 3 | 5/5 | 7/10 | 0/0 | 0 | proven on 3 scenarios, covering 5/5 paragraphs and 7/10 branches |
-| `gt-web-server-receive` | GTWRECV | 4 | 1/1 | 4/6 | 0/0 | 0 | proven on 0 scenarios, covering 0/1 paragraphs and 0/6 branches |
-| `gt-web-server-send` | GTWSEND | 1 | 1/1 | 5/7 | 0/0 | 0 | proven on 0 scenarios, covering 0/1 paragraphs and 0/7 branches |
+| `gt-web-server-receive` | GTWRECV | 4 | 1/1 | 4/6 | 0/0 | 0 | proven on 4 scenarios, covering 1/1 paragraphs and 4/6 branches |
+| `gt-web-server-send` | GTWSEND | 1 | 1/1 | 5/7 | 0/0 | 0 | proven on 1 scenario, covering 1/1 paragraphs and 5/7 branches |
 | `hc-abend-link` | HCMAIN | 5 | 4/4 | 4/4 | 2/2 | 0 | proven on 5 scenarios, covering 4/4 paragraphs and 4/4 branches |
 | `hc-abend-link` | HCSUB | 3 | 2/2 | 4/5 | 1/1 | 0 | proven on 3 scenarios, covering 2/2 paragraphs and 4/5 branches |
 | `hc-counter-increment-wrap` | HCCWRP | 1 | 7/10 | 3/8 | 0/0 | 0 | proven on 0 scenarios, covering 0/10 paragraphs and 0/8 branches |
@@ -450,12 +450,12 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | cobol-stub | item differs | 2 |
 | cobol-stub | data bytes differ | 1 |
 | java | runTask records no events (the generated stub: PROCEDURE DIVISION not ported) | 177 |
-| java-ported | not ported | 106 |
+| java-ported | not ported | 100 |
 | java-ported | ridfld differs | 4 |
 | java-ported | READ expected, other event | 3 |
 | java-ported | item differs | 2 |
 | java-ported | REWRITE expected, other event | 1 |
-| java-facade | not ported | 106 |
+| java-facade | not ported | 100 |
 | java-facade | ridfld differs | 4 |
 | java-facade | READ expected, other event | 3 |
 | java-facade | RECEIVE expected, other event | 3 |
@@ -572,8 +572,6 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | `gt-assign-startcode/terminal-and-started/java-facade` | fail | no port of any of its programs |
 | `gt-assign-startcode/terminal-and-started/java-ported` | fail | no port of any of its programs |
 | `gt-http-inbound/echo/java` | fail | task 1 (GT81) event 1: WEB-RECEIVE expected, the side recorded no further event |
-| `gt-http-inbound/echo/java-facade` | fail | no port of any of its programs |
-| `gt-http-inbound/echo/java-ported` | fail | no port of any of its programs |
 | `gt-post-wait-event/converse-cut/java` | fail | task 1 (GT61) event 1: RECEIVE expected, the side recorded no further event |
 | `gt-post-wait-event/converse-cut/java-facade` | fail | no port of any of its programs |
 | `gt-post-wait-event/converse-cut/java-ported` | fail | no port of any of its programs |
@@ -635,20 +633,10 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | `gt-web-parse-url/lengerr/java` | fail | task 1 (GT71) event 1: RECEIVE expected, the side recorded no further event |
 | `gt-web-parse-url/parse/java` | fail | task 1 (GT71) event 1: RECEIVE expected, the side recorded no further event |
 | `gt-web-server-receive/extract/java` | fail | task 1 (GT82) event 1: WEB-RECEIVE expected, the side recorded no further event |
-| `gt-web-server-receive/extract/java-facade` | fail | no port of any of its programs |
-| `gt-web-server-receive/extract/java-ported` | fail | no port of any of its programs |
 | `gt-web-server-receive/header/java` | fail | task 1 (GT82) event 1: WEB-RECEIVE expected, the side recorded no further event |
-| `gt-web-server-receive/header/java-facade` | fail | no port of any of its programs |
-| `gt-web-server-receive/header/java-ported` | fail | no port of any of its programs |
 | `gt-web-server-receive/lengerr/java` | fail | task 1 (GT82) event 1: WEB-RECEIVE expected, the side recorded no further event |
-| `gt-web-server-receive/lengerr/java-facade` | fail | no port of any of its programs |
-| `gt-web-server-receive/lengerr/java-ported` | fail | no port of any of its programs |
 | `gt-web-server-receive/receive/java` | fail | task 1 (GT82) event 1: WEB-RECEIVE expected, the side recorded no further event |
-| `gt-web-server-receive/receive/java-facade` | fail | no port of any of its programs |
-| `gt-web-server-receive/receive/java-ported` | fail | no port of any of its programs |
 | `gt-web-server-send/send/java` | fail | task 1 (GT83) event 1: WEB-WRITE-HTTPHEADER expected, the side recorded no further event |
-| `gt-web-server-send/send/java-facade` | fail | no port of any of its programs |
-| `gt-web-server-send/send/java-ported` | fail | no port of any of its programs |
 | `hc-abend-link/push-pop/java` | fail | task 1 (HC02) event 1: READQ-TS expected, the side recorded no further event |
 | `hc-abend-link/pushed-abend/java` | fail | task 1 (HC02) event 1: READQ-TS expected, the side recorded no further event |
 | `hc-abend-link/sub-own-exit/java` | fail | task 1 (HC02) event 1: READQ-TS expected, the side recorded no further event |

@@ -47,6 +47,9 @@ PROGRAMS = {
     "ca-receive-retrieve-set": ("CARR", ("CARCST", "CARTWK")),  # #6876: RECEIVE SET / RETRIEVE SET into a pointer
     "hc-file-read-set": ("HCRS", ("HCRDST",)),  # #6876: READ / STARTBR / READNEXT / READPREV SET(ADDRESS OF record)
     "hc-file-unlock": ("HCUF", ("HCUNLK",)),  # #6876: UNLOCK with no key after READ UPDATE
+    "gt-http-inbound": ("GTHE", ("GTHECHO",)),  # #6876: WEB RECEIVE / HTTPHEADER / SEND, server side
+    "gt-web-server-receive": ("GTWR", ("GTWRECV",)),  # #6876: WEB RECEIVE / EXTRACT QUERYSTRING, HTTPMETHOD
+    "gt-web-server-send": ("GTWS", ("GTWSEND",)),  # #6876: WEB WRITE HTTPHEADER / SEND
 }
 
 

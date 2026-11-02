@@ -149,3 +149,35 @@ def test_a_huge_pic_count_is_bounded():
 def test_receive_map_set_cell_reports_the_record():
     op = _one(_src(SMALL, "RECEIVE MAP('M') MAPSET('S') SET(FRPTR)"))
     assert (op["kind"], op["record"], op["record_cell"]) == ("MAP", "FILE-REC", "FRPTR")
+
+
+def _tasks(source: str) -> list[dict]:
+    return extract_boundary("cobol", source)["cics_tasks"]
+
+
+def test_retrieve_set_cell_reports_the_record_in_the_task_row():
+    (row,) = _tasks(_src(SMALL, "RETRIEVE SET(FRPTR) LENGTH(L)"))
+    assert (row["verb"], row["record_clause"], row["record"], row["record_cell"]) == (
+        "RETRIEVE",
+        "SET",
+        "FILE-REC",
+        "FRPTR",
+    )
+
+
+def test_a_task_row_secondary_cell_reports_the_same_record():
+    big = "       01  BIG-REC PIC X(5000).\n       01  TS-REC PIC X(40).\n"
+    (row,) = _tasks(_src(big, "RETRIEVE SET(FRPTR1) LENGTH(L)"))
+    assert (row["record"], row["record_cell"]) == ("BIG-REC", "FRPTR1")
+    (row,) = _tasks(_src(big, "RETRIEVE SET(TSPTR) LENGTH(L)"))
+    assert (row["record"], row["record_cell"]) == ("TS-REC", "TSPTR")
+
+
+def test_a_task_row_with_no_cell_is_unchanged():
+    for command, record in (
+        ("RETRIEVE SET(OTHER-PTR) LENGTH(L)", "OTHER-PTR"),
+        ("RETRIEVE INTO(FILE-REC) LENGTH(L)", "FILE-REC"),
+    ):
+        (row,) = _tasks(_src(SMALL, command))
+        assert row["record"] == record
+        assert "record_cell" not in row

@@ -129,7 +129,7 @@ def _statements(code_stream: str) -> list[tuple[int, str, str, str]]:
 
 _INSTREAM_DD = re.compile(r"^//([^ \t]*)[ \t]+DD[ \t]+(\*|DATA)(?:,([^ \t]*))?(?:[ \t]|$)", re.I)
 _DLM = re.compile(r"DLM=(?:'(..)'|(..))", re.I)
-# The control-statement DDs a utility reads in-stream (DFSORT: SYSIN / SYMNAMES, SORTCNTL, DFSPARM).
+# The control-statement DDs a utility reads in-stream (DFSORT: SYSIN / SYMNAMES, SORTCNTL, DFSPARM; IKJEFT01: SYSTSIN, #4890).
 _CONTROL_DDS = frozenset({"SYSIN", "SYMNAMES", "SORTCNTL", "DFSPARM"})
 
 

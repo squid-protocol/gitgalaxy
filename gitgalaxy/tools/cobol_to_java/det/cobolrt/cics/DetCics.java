@@ -873,15 +873,22 @@ public final class DetCics {
         setPointerToRecord(task, ptr, record);
     }
 
-    /** ADDRESS COMMAREA(ptr) in a program with no 01 DFHCOMMAREA (#6876, X59): a task with no COMMAREA (EIBCALEN 0) gets IBM's
-     *  X'FF000000' (NO_COMMAREA); one with a COMMAREA has no record here to address it through (its bytes are the caller's,
-     *  not stored by a program that names no DFHCOMMAREA): refused. */
+    /** ADDRESS COMMAREA(ptr) in a program with no 01 DFHCOMMAREA (#6876, #7434, X59): a task with no COMMAREA (EIBCALEN 0)
+     *  gets IBM's X'FF000000' (NO_COMMAREA). One LINKed with a COMMAREA whose bytes its caller passed (CicsTask.linkArea, by
+     *  reference) gets the handle of those bytes, so SET ADDRESS OF a record TO the pointer shares them with the caller (a write
+     *  goes back with the LINK). One whose COMMAREA arrived any other way (a RETURN TRANSID object, a DTO) has no bytes here:
+     *  refused. */
     // [rule RT-CICS-ADDRESS]
     public static void addressNoCommarea(CicsTask task, Field ptr, int eibcalen) {
-        if (eibcalen != 0) {
-            throw new PastFrom("ADDRESS COMMAREA with a COMMAREA in a program with no 01 DFHCOMMAREA: its bytes are not modelled");
+        if (eibcalen == 0) {
+            setPointer(ptr, NO_COMMAREA);
+            return;
         }
-        setPointer(ptr, NO_COMMAREA);
+        byte[] raw = task.linkArea();
+        if (raw == null) {
+            throw new PastFrom("ADDRESS COMMAREA with a COMMAREA in a program with no 01 DFHCOMMAREA: the caller passed no bytes (not modelled)");
+        }
+        setPointer(ptr, task.addressOf(raw));
     }
 
     /** #5079 (X59): ADDRESS TWA(ptr) / TCTUA(ptr) (IBM: the address of the transaction work area / terminal control table user

@@ -953,3 +953,13 @@ reads ABND-APPLID as 9 bytes, yet the proof reports 2/2 events equal, because th
 |---|---|---|---|---|---|---|---|---|
 | COUSR00C (carddemo-userlist) | 150/2828 | 136 | 11 | 3 | 10 | 1 | 136/147 (93%) | no |
 | ABNDPROC (cbsa-abndproc) | 150/453 | 45 | 96 | 9 | 62 | 34 | 45/141 (32%) | no |
+
+**#4047 (2026-11-02): three batch/MQ ports measured for the first time (COBSWAIT, CODATE01, COACCT01).** Det-port ledgers, fast mode, seed 0, JDK 17, one sample each; none reaches L5 and no survivor is triaged yet (every survivor is unaccounted: no verdict is stated without an attack on record, `survivor_attack.py`). The numbers are measurements of how much of each port the cases pin, not a claim about the ports.
+
+| program (case) | mutants run / in scope | killed | survived | stillborn | unaccounted | raw score |
+|---|---|---|---|---|---|---|
+| COBSWAIT (carddemo-cobswait) | 79/79 | 16 | 57 | 6 | 57 | 16/73 (22%) |
+| CODATE01 (carddemo-codate01) | 150/857 | 69 | 75 | 6 | 75 | 69/144 (48%) |
+| COACCT01 (carddemo-coacct01) | 150/989 | 74 | 70 | 6 | 70 | 74/144 (51%) |
+
+About 80 L4 programs of the burned estates still have no det-port mutation entry (the evidence report's "not measured (no det_mutation/ entry)" rows: carddemo, CBSA, GenApp, DBB MortgageApplication, zECS ZECS000/001/002).

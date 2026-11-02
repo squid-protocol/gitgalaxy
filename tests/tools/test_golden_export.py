@@ -1,5 +1,7 @@
 """#4052 slice 1: golden export of a case's COBOL outputs, and the byte-exact check of a Java run against it."""
 
+import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -86,3 +88,66 @@ def test_cli_check_exit_codes(golden, tmp_path, capsys):
     (java / "main" / "OUT").write_bytes(b"")
     assert g.main(["check", str(golden), "--java", str(java)]) == 1
     assert "DIFFERS" in capsys.readouterr().out
+
+
+def test_junit_writes_index_and_both_classes(golden, tmp_path):
+    written = g.write_junit(golden, tmp_path / "src", "com.acme.golden")
+    names = {p.name for p in written}
+    assert names == {"golden.index", "GoldenCheck.java", "GoldenRegressionTest.java"}
+    index = (golden / "golden.index").read_text().splitlines()
+    assert index[0] == "R\tfault-x\tU0016\t"
+    assert any(line.startswith("O\tmain\tOUT\t") for line in index)
+    test_src = (tmp_path / "src/com/acme/golden/GoldenRegressionTest.java").read_text()
+    assert "package com.acme.golden;" in test_src and "demo" in test_src and "__" not in test_src
+    assert "__" not in (tmp_path / "src/com/acme/golden/GoldenCheck.java").read_text()
+    with pytest.raises(ValueError):
+        g.write_junit(golden, tmp_path / "x", "a-b")
+
+
+@pytest.mark.skipif(not shutil.which("javac") or not shutil.which("java"), reason="needs a JDK")
+def test_the_generated_java_check_agrees_with_the_python_check(golden, tmp_path):
+    """The same messages, in the same order, for a run that differs in every way `check` can name."""
+    g.write_junit(golden, tmp_path / "src", "golden")
+    classes = tmp_path / "classes"
+    classes.mkdir()
+    done = subprocess.run(
+        ["javac", "-encoding", "UTF-8", "-d", str(classes), str(tmp_path / "src/golden/GoldenCheck.java")],
+        capture_output=True,
+        text=True,
+    )
+    assert done.returncode == 0, done.stderr
+    (tmp_path / "Run.java").write_text(
+        "import java.nio.file.Path;\n"
+        "public class Run { public static void main(String[] a) throws Exception {\n"
+        "  for (String p : golden.GoldenCheck.problems(Path.of(a[0]), Path.of(a[1]))) System.out.println(p);\n"
+        "} }\n"
+    )
+    javac = subprocess.run(
+        ["javac", "-cp", str(classes), "-d", str(classes), str(tmp_path / "Run.java")], capture_output=True, text=True
+    )
+    assert javac.returncode == 0, javac.stderr
+    bad = dict(MAIN_RUN, OUT=MAIN_RUN["OUT"][:7] + b"Z" + MAIN_RUN["OUT"][8:])
+    cases = {
+        "same": {"main": MAIN_RUN, "fault-x": {"ABEND": b"U0016\n", "FAULTS": b"x"}},
+        "byte": {"main": bad, "fault-x": {"ABEND": b"U0016\n"}},
+        "rc": {"main": {"RETURN-CODE": b"8\n", "EXTRA": b"x"}, "fault-x": {"RETURN-CODE": b"0\n", "OUT": b""}},
+        "norun": {"main": MAIN_RUN},
+        "abended-junk": {"main": MAIN_RUN, "fault-x": {"ABEND": b"U0016\n", "OUT": b"junk"}},
+    }
+    for label, runs in cases.items():
+        java = _java(tmp_path / label, runs)
+        out = subprocess.run(
+            [
+                "java",
+                "-Dfile.encoding=UTF-8",
+                "-Dstdout.encoding=UTF-8",
+                "-cp",
+                str(classes),
+                "Run",
+                str(golden),
+                str(java),
+            ],
+            capture_output=True,
+        )
+        assert out.returncode == 0, out.stderr.decode("utf-8")
+        assert out.stdout.decode("utf-8").splitlines() == g.check(golden, java), label

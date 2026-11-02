@@ -348,6 +348,7 @@ _NO_REQUEST = RuntimeRefusal(
     c="the HTTP request is not stated for this task",
 )
 
+
 WEB_SEND = Command(
     key="WEB SEND",
     ibm=ibm("EXEC CICS WEB SEND (server)", "summary-web-send-server"),
@@ -367,6 +368,8 @@ WEB_SEND = Command(
         "STATUSLEN": Arg("value"),
         "SRVCONVERT": Arg("flag"),
         "NOSRVCONVERT": Arg("flag"),
+        "CHARACTERSET": Arg("name"),  # #6876: only the identity pair, see code_page_pair_refusal
+        "HOSTCODEPAGE": Arg("name"),
         **RESP_OPTIONS,
     },
     refused={
@@ -375,13 +378,7 @@ WEB_SEND = Command(
             "responses (AWBP abend, RESP2 77 / 89-95) and no stated rule for the body the client sees",
             "X37",
         ),
-        "CHARACTERSET": Refusal(
-            "code-page conversion is not modelled: the response is in the program's characters", "X37"
-        ),
         "CLNTCODEPAGE": Refusal(
-            "code-page conversion is not modelled: the response is in the program's characters", "X37"
-        ),
-        "HOSTCODEPAGE": Refusal(
             "code-page conversion is not modelled: the response is in the program's characters", "X37"
         ),
         "CLOSESTATUS": Refusal("closing the connection after the response is not modelled", "X37"),
@@ -459,7 +456,7 @@ WEB_SEND = Command(
         ),
         RuntimeRefusal(
             "a FROMLENGTH or STATUSLEN not above zero (IBM lists LENGERR 50 and INVREQ 131 for zero), a STATUSCODE outside "
-            "100-599, a blank or malformed MEDIATYPE, SRVCONVERT on a media type that is not text/*, more than one "
+            "100-599, a blank or malformed MEDIATYPE, SRVCONVERT on a media type that is not text/* or application/json, more than one "
             "condition at once",
             "X37",
             java="WEB SEND",
@@ -722,14 +719,14 @@ WEB_RECEIVE = Command(
         "MEDIATYPE": Arg("area_out", width=56),
         "SRVCONVERT": Arg("flag"),
         "NOSRVCONVERT": Arg("flag"),
+        "CHARACTERSET": Arg("name"),  # #6876: only the identity pair, see code_page_pair_refusal
+        "HOSTCODEPAGE": Arg("name"),
         **RESP_OPTIONS,
     },
     refused={
         "NOTRUNCATE": Refusal("a body kept for later RECEIVEs (NOTRUNCATE) is not modelled", "X38"),
         "TOCONTAINER": Refusal("a body into a container is not modelled", "X38"),
         "TOCHANNEL": Refusal("a body into a container is not modelled", "X38"),
-        "CHARACTERSET": Refusal("code-page conversion is not modelled: the body is in the program's characters", "X38"),
-        "HOSTCODEPAGE": Refusal("code-page conversion is not modelled: the body is in the program's characters", "X38"),
         "CLNTCODEPAGE": Refusal("code-page conversion is not modelled: the body is in the program's characters", "X38"),
         "SERVERCONV": Refusal("the values of SERVERCONV are not documented", "X38"),
         "BODYCHARSET": Refusal("the body's character set is not stated", "X38"),
@@ -790,7 +787,7 @@ WEB_READ_HTTPHEADER = Command(
         "HTTPHEADER": Arg("area_in"),
         "NAMELENGTH": Arg("value"),
         "VALUE": Arg("area_out"),
-        "VALUELENGTH": Arg("area_inout", binary=True),
+        "VALUELENGTH": Arg("area_inout", binary=True, inout_unless_literal=True),  # #6876: a literal is input only
         **RESP_OPTIONS,
     },
     refused={

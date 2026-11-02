@@ -377,8 +377,8 @@ WEB_SESSION_JAVA = """\
                 throw refused("WEB SEND MEDIATYPE blank or not type/subtype");
             }
         }
-        if (conv == 1 && (mt == null || !mt.toLowerCase(java.util.Locale.ROOT).startsWith("text/"))) {
-            throw refused("WEB SEND SRVCONVERT on a media type that is not text/*");
+        if (conv == 1 && (mt == null || !(mt.toLowerCase(java.util.Locale.ROOT).startsWith("text/") || mt.equalsIgnoreCase("application/json")))) {
+            throw refused("WEB SEND SRVCONVERT on a media type that is not text/* or application/json");
         }
         java.util.List<int[]> c = new java.util.ArrayList<>();
         if (pre != null) {

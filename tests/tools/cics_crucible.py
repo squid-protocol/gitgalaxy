@@ -2853,7 +2853,12 @@ def http_peer_log(case: cc.Case, sc: dict[str, Any], tasks: list[dict[str, Any]]
         want_all = {"headers": {}, **stated[k]}  # a peer that states no headers expects none (SPEC section 2)
         want_all["headers"] = sorted(want_all["headers"].items())  # a header written twice is two headers
         for key, want in want_all.items():
-            if got.get(key) != want:
+            have = got.get(key)
+            if (
+                key == "body"
+            ):  # SPEC 6.1: trailing blanks are optional in a stated text (GTWRECV's 107-byte line, #6876)
+                have, want = str(have).rstrip(" "), str(want).rstrip(" ")
+            if have != want:
                 return {"http_peer": f"{where}: response {key} {got.get(key)!r}, the peer states {want!r}"}
     return {}
 

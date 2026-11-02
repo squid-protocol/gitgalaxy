@@ -477,7 +477,9 @@ static int web_send_body(gg_cics *c, const char *from, int fl, char *media, int 
     if (conv == 1) {
         int text = hasm && mtl >= 5 && tolower((unsigned char)mt[0]) == 't' && tolower((unsigned char)mt[1]) == 'e'
                    && tolower((unsigned char)mt[2]) == 'x' && tolower((unsigned char)mt[3]) == 't' && mt[4] == '/';
-        if (!text) refuse("WEB SEND SRVCONVERT on a media type that is not text/*");
+        int json = 0; /* ASSUMED, register X37: IANA text-based JSON */
+        if (hasm && mtl == 16) { json = 1; for (i = 0; i < 16; i++) if (tolower((unsigned char)mt[i]) != "application/json"[i]) json = 0; }
+        if (!text && !json) refuse("WEB SEND SRVCONVERT on a media type that is not text/* or application/json");
     }
     c->resp = NORMAL;
     c->resp2 = 0;

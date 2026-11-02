@@ -446,7 +446,21 @@ class SecurityLens:
             # German `passwort`, a Brazilian `senha` or a Spanish COBOL
             # `CONTRASENA` field is the same leak as an English `password`.
             "hardcoded_secrets": re.compile(
-                r"\b(" + CODE_CREDENTIAL_ALTERNATION + r")\b[ \t]*(?:[:=]|=>)[ \t]*[\"'][A-Za-z0-9\-_+/=]{16,}[\"']|"
+                # #4108: the name may be a compound (`DB_PASSWORD`, `aws_secret_access_key`: `\b` is no boundary
+                # inside `_`), may be closed by a quote (JSON `"password": "..."`), and the value may carry
+                # the punctuation of a real password. The suffix list is closed (`secret_name`, `token_url` stay out).
+                r"(?<![A-Za-z0-9])(?:[A-Za-z0-9]{1,16}[_-]){0,3}("
+                + CODE_CREDENTIAL_ALTERNATION
+                + r")(?:[_-](?:access[_-]key|key|value|string))?[\"']?[ \t]*(?:[:=]|=>)[ \t]*"
+                r"[\"'][A-Za-z0-9\-_+/=!@#$%^&*~]{16,}[\"']|"
+                r"\beyJ[A-Za-z0-9_-]{10,}\.eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}|"
+                r"\bgithub_pat_[0-9a-zA-Z_]{40,}|"
+                r"\bgh[ousr]_[0-9a-zA-Z]{36}\b|"
+                r"\bglpat-[0-9a-zA-Z_-]{20,}|"
+                r"\bnpm_[0-9a-zA-Z]{36}\b|"
+                r"\bsk-(?:ant|proj)-[0-9a-zA-Z_-]{20,}|"
+                r"\bhf_[0-9a-zA-Z]{34,}\b|"
+                r"hooks\.slack\.com/services/T[0-9A-Z]+/B[0-9A-Z]+/[0-9a-zA-Z]{20,}|"
                 # #4548: a COBOL data item opens with a level number, 1-2 digits (`05 WS-PASSWORD ...`, `1 WS-PASSWORD ...`); without it
                 # the stem `KEY` matched English prose ("keyword value 'acs'" in a changelog).
                 # #4987: the name, PIC and VALUE may sit on different lines (a continuation line carries no level
@@ -465,7 +479,7 @@ class SecurityLens:
                 + r")?VALUE"
                 + _COBOL_SEP
                 + r"['\"][^'\"\s]+['\"]|"
-                r"-----BEGIN (?:RSA |DSA |EC |OPENSSH |PGP )?(?:PRIVATE KEY|MESSAGE|CERTIFICATE)-----|"
+                r"-----BEGIN (?:RSA |DSA |EC |OPENSSH |PGP |ENCRYPTED )?(?:PRIVATE KEY|MESSAGE|CERTIFICATE)-----|"
                 r"\b(?:sk_live|rk_live)_[0-9a-zA-Z]{24,99}\b|"
                 r"\bghp_[0-9a-zA-Z]{36}\b|"
                 r"\bxox[baprs]-[0-9a-zA-Z]{10,48}\b|"

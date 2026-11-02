@@ -4,8 +4,9 @@ READ / STARTBR / READNEXT / READPREV SET(ADDRESS OF LS-REC) translate whole (#72
 (jcl/DEFVSAM.jcl: IDCAMS KEYS(4 0), cics-crucible #51), and the forge resolves the `ADDRESS OF LS-REC` record operand to
 LS-REC, so the generated project stores the file (entity LsRec, key from IDCAMS KEYS) and the port no longer stops at a Hole.
 Since #7434 the file commands are the SPEC 6.2 event forms (`readSetEvent`, `startbrEvent`, `readnextSetEvent`,
-`readprevSetEvent`, `endbrEvent`), so the log carries the READ / STARTBR event. The four scenarios still fail on both Java
-sides, for one named reason: the event's `ridfld` bytes are the program's (ASCII) bytes, the log's are EBCDIC."""
+`readprevSetEvent`, `endbrEvent`), so the log carries the READ / STARTBR event. Since #6876 the
+Java sides pass all four scenarios: the runner reads the event's `ridfld` / `data` bytes in the runtime's page (the
+program's ASCII bytes, as the stub's) and the Java driver seeds the repository from the case's data/HCRS.dat."""
 
 import json
 import os
@@ -50,13 +51,42 @@ def test_the_ports_dir_adds_the_runtime_and_keeps_the_service(tmp_path):
     assert runner.case_overlays(out) == {"HCRS": overlay}
 
 
-def test_the_ledger_names_the_ridfld_code_page_not_a_hole_for_every_scenario_and_both_ported_sides():
+def test_no_scenario_is_ledgered_as_failing_on_either_ported_side():
     ledger = json.loads((TESTS / "cics_crucible" / "baseline.json").read_text(encoding="utf-8"))["cells"]
-    for sc, ridfld in RIDFLD.items():
+    for sc in RIDFLD:
         for side in ("java-ported", "java-facade"):
-            reason = ledger[f"{CASE}/{sc}/{side}"]["reason"]
-            assert f"event 2: ridfld X'{ridfld}' expected, got X'4B" in reason
-            assert "Hole" not in reason and "no port" not in reason
+            assert f"{CASE}/{sc}/{side}" not in ledger  # the ledger holds failures only
+
+
+def test_a_java_file_event_reads_its_key_and_record_in_the_runtime_page():
+    import base64
+
+    def b64(b: bytes) -> str:
+        return base64.b64encode(b).decode()
+
+    for kind in ("READ", "WRITE", "DELETE", "STARTBR", "READNEXT", "READPREV"):
+        ev = runner._java_file_event(
+            kind, {"file": "F", "resp": "NORMAL", "ridfld": b64(b"K030"), "data": b64(b"K030 X")}, "latin-1"
+        )
+        assert ev["ridfld"] == bytes.fromhex("D2F0F3F0"), kind  # the log's CCSID 037
+        if "data" in ev:
+            assert ev["data"].encoding == "latin-1" and ev["data"].data == b"K030 X", kind
+    high = runner._java_file_event("STARTBR", {"file": "F", "resp": "NORMAL", "ridfld": b64(b"\xff\xff")}, "latin-1")
+    assert high["ridfld"] == b"\xff\xff"  # HIGH-VALUES is no text on either leg
+    kept = runner._java_file_event("READ", {"file": "F", "resp": "NORMAL", "ridfld": b64(b"\xd2\xf0")})
+    assert kept["ridfld"] == b"\xd2\xf0"  # a CicsTask's own events are EBCDIC already: no page, no change
+    assert runner._java_file_event("READ", {"file": "F", "resp": "NORMAL"})["ridfld"] is None
+    assert runner._java_file_event("DELETE", {"file": "F", "resp": "NORMAL"}).get("ridfld") is None
+
+
+def test_the_java_plan_seeds_the_files_the_case_has_data_for(tmp_path):
+    case = type("C", (), {})()
+    case.csd = {"files": {"A": {}, "B": {}, "C": {}}}
+    case.dir = tmp_path
+    (tmp_path / "data").mkdir()
+    (tmp_path / "data" / "A.dat").write_bytes(b"K1 a\nK2 b\n")
+    (tmp_path / "data" / "B.dat").write_bytes(b"short\nlonger\n")  # not fixed-length: no seed, as the stub's
+    assert runner.java_file_seeds(case) == {"A": [b"K1 a".hex(), b"K2 b".hex()]}
 
 
 def test_the_translated_service_resolves_the_file_and_cites_no_missing_key():
@@ -82,10 +112,9 @@ E2E = os.environ.get("EQUIVALENCE_E2E") == "1" and bool(os.environ.get(runner.PA
 @pytest.mark.slow(reason="a Maven build of the generated project with the det port, two sides")
 @pytest.mark.e2e
 @pytest.mark.skipif(not E2E, reason="needs EQUIVALENCE_E2E=1, a JDK + Maven and a cics-crucible checkout")
-def test_each_scenario_stops_at_the_ridfld_code_page_on_both_sides(tmp_path):
+def test_each_scenario_passes_on_both_sides(tmp_path):
     crucible = Path(os.environ[runner.PATH_ENV])
     offline = os.environ.get("MAVEN_OFFLINE") == "1"
     res = runner.measure(crucible, {CASE}, {"java-ported", "java-facade"}, tmp_path / "w", offline,
                          runner.PortOptions(ports=det.ports_dir(CASE, tmp_path / "ports")))  # fmt: skip
-    for c in res["cells"].values():
-        assert c["status"] == "fail" and f"event 2: ridfld X'{RIDFLD[c['scenario']]}' expected, got X'4B" in c["reason"]
+    assert {c["status"] for c in res["cells"].values()} == {"pass"}

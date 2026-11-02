@@ -1930,19 +1930,22 @@ def java_send_map(screen: Screen, e: dict[str, Any]) -> tuple[dict[str, Any], An
     return cics_bms.send_map(screen.bms, program, e.get("options") or [], e.get("cursor"))
 
 
-def _java_file_event(kind: str, e: dict[str, Any]) -> dict[str, Any]:
+def _java_file_event(kind: str, e: dict[str, Any], page: str = cc.EBCDIC) -> dict[str, Any]:
     """#4443: a READ / REWRITE / UNLOCK CicsTask recorded, as the log's keys: `update`, `resp2` and `length` only when
-    the command carries them. A LENGERR READ asserts its RESP only (SPEC section 2, Files), so its RESP2 is left out."""
+    the command carries them. A LENGERR READ asserts its RESP only (SPEC section 2, Files), so its RESP2 is left out.
+    #6876: `page` is the page the event's `ridfld` / `data` bytes are in -- EBCDIC as a CicsTask records them, or the
+    generated runtime's own page (RUNTIME_PAGE: the program's ASCII bytes), whose key goes to the log's CCSID 037."""
+    _key = (lambda raw: raw) if page == cc.EBCDIC else _key_to_ebcdic  # noqa: E731
     ev: dict[str, Any] = {"file": e.get("file"), "resp": e.get("resp")}
     if e.get("set"):  # #6262: the SET form
         ev["set"] = True
     if kind in ("WRITE", "DELETE"):  # #6262: the key on entry (a DELETE of the held / token record has none)
         if e.get("ridfld") is not None:
-            ev["ridfld"] = _key_to_ebcdic(base64.b64decode(e["ridfld"]))
+            ev["ridfld"] = _key(base64.b64decode(e["ridfld"]))
         if e.get("generic"):
             ev["generic"] = True
     if kind in ("STARTBR", "READNEXT", "READPREV"):  # #6262: the key on entry; STARTBR's mode, a browse read's record
-        ev["ridfld"] = _key_to_ebcdic(base64.b64decode(e["ridfld"])) if e.get("ridfld") is not None else None
+        ev["ridfld"] = _key(base64.b64decode(e["ridfld"])) if e.get("ridfld") is not None else None
         if e.get("rba"):  # the RBA browse: as the stub's `rba=` line, the file and RESP; RIDFLD is no key (SPEC 6.2)
             ev["ridfld"] = cc.Unmodelled("an RBA browse's event")
         elif kind == "STARTBR":
@@ -1951,16 +1954,16 @@ def _java_file_event(kind: str, e: dict[str, Any]) -> dict[str, Any]:
             if e.get("length") is not None:
                 ev["length"] = e["length"]
             b64 = e.get("data")
-            ev["data"] = cc.RawArea(base64.b64decode(b64), RUNTIME_PAGE) if b64 is not None else None
+            ev["data"] = cc.RawArea(base64.b64decode(b64), page) if b64 is not None else None
     if kind == "READ":
-        ev["ridfld"] = _key_to_ebcdic(base64.b64decode(e["ridfld"])) if e.get("ridfld") is not None else None
+        ev["ridfld"] = _key(base64.b64decode(e["ridfld"])) if e.get("ridfld") is not None else None
         if e.get("update"):
             ev["update"] = True
         if e.get("length") is not None:
             ev["length"] = e["length"]
     if kind in ("READ", "REWRITE", "WRITE"):
         b64 = e.get("data")
-        ev["data"] = cc.RawArea(base64.b64decode(b64), RUNTIME_PAGE) if b64 is not None else None
+        ev["data"] = cc.RawArea(base64.b64decode(b64), page) if b64 is not None else None
     if (
         e.get("resp2") is not None
         and not e.get("rba")
@@ -2018,7 +2021,7 @@ def java_actual(case: cc.Case, raw: dict[str, Any], src: Path,
                 "READPREV",
                 "ENDBR",
             ):  # #4443, #6262: byte[] ridfld / data arrive as base64, EBCDIC bytes
-                ev.update(_java_file_event(kind, e))
+                ev.update(_java_file_event(kind, e, RUNTIME_PAGE))
             elif kind == "WRITE-OPERATOR":  # #4270 zECS (X32): the console message, as the text CicsTask recorded
                 ev.update(data=cc.RawArea(str(e.get("text") or "").encode("latin-1"), "latin-1"), resp=e.get("resp"))
             elif kind == "RECEIVE-MAP":

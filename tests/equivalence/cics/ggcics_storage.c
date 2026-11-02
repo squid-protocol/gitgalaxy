@@ -315,14 +315,20 @@ static void *system_area(const char *kind) {
 
 /* GGCADDR: ADDRESS EIB(ptr) | COMMAREA(ptr) | CWA(ptr) | TWA(ptr) | TCTUA(ptr) (X59). `area` is the EIB or the program's DFHCOMMAREA; the pointer
  * takes its address (NORMAL: the command has no condition). GG-FLAGS COMMAREA with GG-NUM (EIBCALEN) 0: refused -- IBM sets X'FF000000',
- * which is no COBOL NULL, and a LINKAGE item the caller did not pass names no storage. GG-FLAGS CWA / TWA / TCTUA: the system area (`area`
+ * which is no COBOL NULL, and a LINKAGE item the caller did not pass names no storage. Except GG-FLAGS 'COMMAREA NONE' (#7434: the harness
+ * translator marks a program with no 01 DFHCOMMAREA, as the port's addressNoCommarea does): the pointer is 0xFF, whose first four bytes
+ * read as X'FF000000' through a PIC X(4) view, as an unsized TWA does. GG-FLAGS CWA / TWA / TCTUA: the system area (`area`
  * is unused). */
 int GGCADDR(gg_cics *c, void **slot, void *area) {
     char flags[41];
     trim(c->flags, 40, flags);
     c->resp = NORMAL;
     c->resp2 = 0;
-    if (strstr(flags, "COMMAREA") != NULL && c->num == 0) refuse("ADDRESS COMMAREA with no COMMAREA");
+    if (strstr(flags, "COMMAREA") != NULL && c->num == 0) {
+        if (strstr(flags, "NONE") == NULL) refuse("ADDRESS COMMAREA with no COMMAREA");
+        *slot = (void *)(size_t)0xFF;
+        return 0;
+    }
     if (strstr(flags, "CWA") != NULL) { *slot = system_area("CWA"); return 0; }
     if (strstr(flags, "TCTUA") != NULL) { *slot = system_area("TCTUA"); return 0; }
     if (strstr(flags, "TWA") != NULL) { *slot = system_area("TWA"); return 0; }

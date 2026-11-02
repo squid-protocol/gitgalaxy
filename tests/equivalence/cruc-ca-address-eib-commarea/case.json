@@ -36,6 +36,12 @@
       "commarea": null,
       "terminal": "CA0K W",
       "why": "LINK to CAEBSB with COMMAREA(WS-AREA): the callee reads EIBCALEN through its EIB view and writes PONG through its ADDRESS COMMAREA view"
+    },
+    {
+      "name": "no-commarea",
+      "commarea": null,
+      "terminal": "CA0K N",
+      "why": "Mode N: the task has no COMMAREA (EIBCALEN 0); ADDRESS COMMAREA gives IBM's X'FF000000' and the program reads it through a PIC X(4) view (#7434)"
     }
   ]
 }

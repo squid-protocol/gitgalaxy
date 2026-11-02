@@ -27,7 +27,7 @@ default_dir = "estate-crucible"
 
 [cics]
 repo = "https://github.com/squid-protocol/cics-crucible.git"
-ref = "904e98777548993f52b21bc2cfe2baefdb8b6b78"
+ref = "v0.12.0"
 path_env = "CICS_CRUCIBLE_PATH"
 allow_unpinned_env = "CICS_CRUCIBLE_ALLOW_UNPINNED"
 default_dir = "cics-crucible"

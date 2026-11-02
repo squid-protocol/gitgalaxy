@@ -1,6 +1,6 @@
 {
  "format": "cics-crucible-baseline/1",
- "crucible_ref": "904e98777548993f52b21bc2cfe2baefdb8b6b78",
+ "crucible_ref": "v0.12.0 (904e9877)",
  "note": "#3989: the CICS crucible cells that do not pass yet -- a ratchet (tests/tools/cics_crucible.py). CI fails on a cell not listed here, and on a listed cell that now passes: regenerate with --update-baseline, which only ever shrinks this as phase 3 lands.",
  "cells": {
   "ca-address-commarea/eib-view/java": {"status": "fail", "reason": "task 1 (CA02) event 1: RECEIVE expected, the side recorded no further event"},

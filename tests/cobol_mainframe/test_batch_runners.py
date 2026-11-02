@@ -153,3 +153,29 @@ def test_runner_jobs_become_application_utility_or_stay_runners(scanned, tmp_pat
     svc = (src / "service/PostitService.java").read_text(encoding="utf-8")
     assert "job DB2RUN step RUN (jcl/DB2RUN.jcl:2) through IKJEFT01 (RUN PROGRAM)" in svc
     assert "through DFSRRC00 (DFSRRC00)" in svc
+
+
+@pytest.mark.parametrize("runner", ["DFSRRC00", "DFSRRC0"])
+def test_every_ims_runner_alias_reads_its_parm(runner):
+    jcl = f"//J JOB (A)\n//BMP EXEC PGM={runner},\n//  PARM='BMP,POSTIT,POSTPSB'\n"
+    (row,) = runner_targets(jcl)
+    assert (row["runner"], row["program"], row["region"], row["psb"], row["via"]) == (
+        runner,
+        "POSTIT",
+        "BMP",
+        "POSTPSB",
+        "DFSRRC00",
+    )
+
+
+@pytest.mark.parametrize("runner", ["IKJEFT01", "IKJEFT1A", "IKJEFT1B"])
+def test_every_tso_runner_alias_reads_its_systsin(runner):
+    jcl = f"//J JOB (A)\n//RUN EXEC PGM={runner}\n//SYSTSIN DD *\n  RUN PROGRAM(POSTIT) PLAN(P)\n/*\n"
+    (row,) = runner_targets(jcl)
+    assert (row["runner"], row["program"], row["via"]) == (runner, "POSTIT", "RUN PROGRAM")
+
+
+def test_the_forge_knows_every_runner_alias():
+    from gitgalaxy.tools.cobol_to_java.cobol_to_java_batch_forge import RUNNERS
+
+    assert {"IKJEFT01", "IKJEFT1A", "IKJEFT1B", "DFSRRC00", "DFSRRC0"} <= RUNNERS

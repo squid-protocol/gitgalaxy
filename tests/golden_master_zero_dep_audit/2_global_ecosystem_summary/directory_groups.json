@@ -4471,7 +4471,7 @@
     },
     "python/fastapi/tests": {
       "avg_exposures": {
-        "api_exposure": 10.13,
+        "api_exposure": 10.22,
         "churn": 0.0,
         "cognitive_load": 4.9,
         "concurrency": 22.49,
@@ -4486,7 +4486,7 @@
         "verification": 0.0
       },
       "file_count": 205,
-      "total_mass": 9927.56
+      "total_mass": 10018.56
     },
     "python/homeassistant_anthropic": {
       "avg_exposures": {

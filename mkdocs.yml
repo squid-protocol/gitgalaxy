@@ -130,6 +130,8 @@ nav:
       - 'Welcome to the Museum': 'museum-of-code/index.md'
       - "DOOM's DNA (interactive)": "https://squid-protocol.github.io/gitgalaxy/museum-of-code/doom-dna/"
       - "DOOM's DNA (text edition)": 'museum-of-code/teardown-of-doom.md'
+      - "Every Model Has a Tell (interactive)": "https://squid-protocol.github.io/gitgalaxy/museum-of-code/agent-habits/"
+      - "Every Model Has a Tell (text edition)": 'museum-of-code/every-model-has-a-tell.md'
   - '🤖 AI Agent Directives':
       - 'Directory Index': 'agents/index.md'
       - 'Standard LLM Test Repos':

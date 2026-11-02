@@ -31,6 +31,7 @@ from typing import Any, cast
 from gitgalaxy.core.aperture import DENIED_EXTENSION, ApertureFilter, InaccessibleArtifactError
 from gitgalaxy.core.call_resolver import class_alias_tables, confident_file_pairs, resolve_calls
 from gitgalaxy.core.copy_libraries import load_copy_libraries
+from gitgalaxy.core.dense_source import is_dense_source
 from gitgalaxy.core.detector import HAS_TIKTOKEN, _compiled_rules
 from gitgalaxy.core.function_graph import attach_function_metrics, function_metrics
 from gitgalaxy.core.generated_fastlane import clean_directive_table_scan
@@ -843,7 +844,8 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             if total_loc > 0:
                 avg_line_length = size_bytes / total_loc
                 if avg_line_length > 800 or (size_bytes > 50000 and total_loc < 15):
-                    is_minified = True
+                    # #7501: dense hand-written source in a compiled language is not minifier output.
+                    is_minified = not is_dense_source(cast(str, content_buffer).splitlines(), rel_path.lower())
 
             vendor_paths = _worker_state["config"].get("APERTURE_CONFIG", {}).get("VENDOR_MINIFICATION_PATHS", [])
             # #4058: match the vendor markers against the path under the scan root (with a

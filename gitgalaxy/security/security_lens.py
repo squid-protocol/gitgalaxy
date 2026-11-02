@@ -440,9 +440,16 @@ class SecurityLens:
                 re.I,
             ),
             # 8. Steganographic Payload Imports
+            # #4108 slice 9: the loader may also be `require_relative`, `loadfile`, python's
+            # `import_module` / `run_path`; a backtick string and a PHP
+            # `__DIR__ . "/x.png"` path prefix are the same call; more payload containers (bmp, webp,
+            # bin, mp4, ogg; archives such as .gz stay out: a gradle `include "x.tar.gz"` is a copy spec). A bundler `import logo from "./x.png"` stays unmatched.
             "shadow_imports": re.compile(
-                r"\b(?:require|include|import|require_once|include_once|source|load|dofile)\b\s*\(?\s*"
-                r'["\'][^"\']+\.(?:png|jpg|jpeg|gif|ico|pdf|zip|tar|dat|tmp|log|txt|csv|wav|mp3)["\']',
+                r"\b(?:require|include|import|require_once|include_once|source|load|dofile|require_relative|loadfile"
+                r"|import_module|run_path)\b\s*\(?\s*"
+                r"(?:(?:__DIR__|dirname[ \t]*\([ \t]*__FILE__[ \t]*\))[ \t]*\.[ \t]*)?"
+                r'["\'`][^"\'`]+\.(?:png|jpg|jpeg|gif|ico|pdf|zip|tar|dat|tmp|log|txt|csv|wav|mp3'
+                r'|bmp|webp|bin|mp4|ogg)["\'`]',
                 re.I,
             ),
             # 9. Unicode Homoglyphs & Typosquatting

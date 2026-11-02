@@ -109,6 +109,7 @@ Each cobol-stub scenario runs the COBOL compiled with `-ftraceall` (tests/tools/
 | `ca-link-lengths` | CASUB | 3 | 1/1 | 4/4 | 0/0 | 0 | proven on 3 scenarios, covering 1/1 paragraphs and 4/4 branches |
 | `ca-load-set` | CALDST | 1 | 3/3 | 2/4 | 0/0 | 0 | proven on 1 scenario, covering 3/3 paragraphs and 2/4 branches |
 | `ca-load-set` | CALDSX | 1 | 2/2 | 2/4 | 0/0 | 0 | proven on 1 scenario, covering 2/2 paragraphs and 2/4 branches |
+| `ca-load-set` | CALDTG | 0 | 0/1 | 0/0 | 0/0 | 0 | -- |
 | `ca-receive-retrieve-set` | CARCST | 1 | 1/1 | 2/5 | 0/0 | 0 | proven on 1 scenario, covering 1/1 paragraphs and 2/5 branches |
 | `ca-receive-retrieve-set` | CARTWK | 0 | 0/1 | 0/2 | 0/0 | 0 | -- |
 | `ca-xctl-versions` | CAXA | 3 | 1/1 | 3/3 | 0/0 | 0 | proven on 3 scenarios, covering 1/1 paragraphs and 3/3 branches |
@@ -252,6 +253,10 @@ Each item is a scenario to propose: a crucible PR adds it with a hand-written, d
 
 - IF at line 37 in `MAIN-PARA`: never true
 - IF at line 42 in `MAIN-PARA`: never false
+
+#### `ca-load-set` CALDTG
+
+- paragraph `MAIN-PARA` (line 10)
 
 #### `ca-receive-retrieve-set` CARCST
 

@@ -476,6 +476,11 @@
     }
    }
   },
+  "ca-load-set/CALDTG": {
+   "live": 1,
+   "outcomes": 0,
+   "scenarios": {}
+  },
   "ca-receive-retrieve-set/CARCST": {
    "live": 1,
    "outcomes": 5,

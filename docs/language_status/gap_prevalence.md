@@ -28,8 +28,7 @@ One ranking over both scopes, highest estate coverage first; estates and program
 | `CEEHDLR: registering an LE user condition handler is not modelled` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #5106 (le-condition-handling) |
 | `CEEHDLU: unregistering an LE user condition handler is not modelled` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #5106 (le-condition-handling) |
 | `EPSCSMRI: no service of its own, its translation is refused: epscsmrd.cbl:N: the PICTURE N (…) is not modelled (…): the translator reads one byte a character` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #4272 |
-| `EPSCSMRO: no service of its own, its translation is refused: OS/VS COBOL BLL addressing: SERVICE LABEL (…): not modelled` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #5119 |
-| `EXEC CICS GETMAIN without INITIMG: IBM gives acquired storage no default contents` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #4270 (cics-command-slice) |
+| `EPSCSMRO: no service of its own, its translation is refused: LE recovery point: SERVICE LABEL (…): the resume point after <name>, not BLL addressing: not modelled` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #5106 (le-condition-handling) |
 | `EXEC CICS SOAPFAULT CREATE` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #4270 (cics-command-slice) |
 | `EXEC CICS WEB CONVERSE URIMAP POST` | C | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #4767 |
 | `EXEC CICS WEB RECEIVE NOTRUNCATE` | C | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #4767 |
@@ -42,7 +41,7 @@ One ranking over both scopes, highest estate coverage first; estates and program
 | `refused: LayoutDisagrees` | C | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | refused by name | #6926 |
 | `refused: UnitRefused` | C | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | refused by name | unowned |
 
-Coverage if closed, programs that translate whole after the highest-ranked gaps (from 134 today): top 1: 143 / 169 (84.6%, upper bound), top 3: 146 / 169 (86.4%, upper bound), top 5: 155 / 169 (91.7%, upper bound), top 10: 160 / 169 (94.7%, upper bound), top 25: 165 / 169 (97.6%, upper bound).
+Coverage if closed, programs that translate whole after the highest-ranked gaps (from 134 today): top 1: 143 / 169 (84.6%, upper bound), top 3: 146 / 169 (86.4%, upper bound), top 5: 155 / 169 (91.7%, upper bound), top 10: 160 / 169 (94.7%, upper bound), top 25: 166 / 169 (98.2%, upper bound).
 
 | top N gaps closed | programs whole | share | bound |
 |---|---|---|---|
@@ -50,7 +49,7 @@ Coverage if closed, programs that translate whole after the highest-ranked gaps 
 | 3 | 146 / 169 | 86.4% | upper |
 | 5 | 155 / 169 | 91.7% | upper |
 | 10 | 160 / 169 | 94.7% | upper |
-| 25 | 165 / 169 | 97.6% | upper |
+| 25 | 166 / 169 | 98.2% | upper |
 
 Close-next order (greedy: each step closes the gap that makes the most further programs whole, given the steps before it):
 
@@ -78,8 +77,7 @@ Coverage if closed, programs that translate whole after the highest-ranked gaps 
 | `CEEHDLR: registering an LE user condition handler is not modelled` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #5106 (le-condition-handling) |
 | `CEEHDLU: unregistering an LE user condition handler is not modelled` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #5106 (le-condition-handling) |
 | `EPSCSMRI: no service of its own, its translation is refused: epscsmrd.cbl:N: the PICTURE N (…) is not modelled (…): the translator reads one byte a character` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #4272 |
-| `EPSCSMRO: no service of its own, its translation is refused: OS/VS COBOL BLL addressing: SERVICE LABEL (…): not modelled` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #5119 |
-| `EXEC CICS GETMAIN without INITIMG: IBM gives acquired storage no default contents` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #4270 (cics-command-slice) |
+| `EPSCSMRO: no service of its own, its translation is refused: LE recovery point: SERVICE LABEL (…): the resume point after <name>, not BLL addressing: not modelled` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #5106 (le-condition-handling) |
 | `EXEC CICS SOAPFAULT CREATE` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #4270 (cics-command-slice) |
 | `SET TO ENTRY: procedure / function pointers are not modelled` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #5106 |
 
@@ -99,7 +97,7 @@ Needs several gaps together (1 program the order above leaves out: each turns wh
 
 | gaps closed together | programs | estates | e0 | e1 | e2 | e3 | e4 | none | bound |
 |---|---|---|---|---|---|---|---|---|---|
-| `<name> ADDRESS OF <name>: not an item of <name> or LINKAGE`; `CEEHDLR: registering an LE user condition handler is not modelled`; `CEEHDLU: unregistering an LE user condition handler is not modelled`; `EPSCSMRI: no service of its own, its translation is refused: epscsmrd.cbl:N: the PICTURE N (…) is not modelled (…): the translator reads one byte a character`; `EPSCSMRO: no service of its own, its translation is refused: OS/VS COBOL BLL addressing: SERVICE LABEL (…): not modelled`; `EXEC CICS GETMAIN without INITIMG: IBM gives acquired storage no default contents`; `EXEC CICS SOAPFAULT CREATE`; `SET TO ENTRY: procedure / function pointers are not modelled` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | exact |
+| `<name> ADDRESS OF <name>: not an item of <name> or LINKAGE`; `CEEHDLR: registering an LE user condition handler is not modelled`; `CEEHDLU: unregistering an LE user condition handler is not modelled`; `EPSCSMRI: no service of its own, its translation is refused: epscsmrd.cbl:N: the PICTURE N (…) is not modelled (…): the translator reads one byte a character`; `EPSCSMRO: no service of its own, its translation is refused: LE recovery point: SERVICE LABEL (…): the resume point after <name>, not BLL addressing: not modelled`; `EXEC CICS SOAPFAULT CREATE`; `SET TO ENTRY: procedure / function pointers are not modelled` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | exact |
 
 ## Census estates (9 estates, 40 programs, 8 translate whole today)
 

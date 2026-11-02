@@ -287,6 +287,95 @@ def _resolver(
     return resolve
 
 
+_BIN_USAGES = frozenset({"COMP", "COMP-4", "COMP-5", "BINARY", "COMPUTATIONAL", "COMPUTATIONAL-4", "COMPUTATIONAL-5"})
+_PACKED_USAGES = frozenset({"COMP-3", "COMPUTATIONAL-3", "PACKED-DECIMAL"})
+_CELL_SPAN = 4096  # IBM (SC33-0512-1, "BLL and large storage areas"): one BLL cell addresses 4096 bytes
+
+
+def _leaf_bytes(pic: str | None, usage: str | None) -> int | None:
+    """The storage bytes of one elementary item, None when its size cannot be read from its PIC / USAGE."""
+    use = (usage or "").upper()
+    if use in ("COMP-1", "COMPUTATIONAL-1", "POINTER", "INDEX"):
+        return 4
+    if use in ("COMP-2", "COMPUTATIONAL-2"):
+        return 8
+    if not pic:
+        return None
+    text = re.sub(r"([A-Z0-9])\((\d+)\)", lambda m: m.group(1) * min(int(m.group(2)), 1_000_000), pic.upper())
+    digits = sum(1 for ch in text if ch == "9")
+    if use in _BIN_USAGES:
+        return 2 if digits <= 4 else 4 if digits <= 9 else 8
+    if use in _PACKED_USAGES:
+        return digits // 2 + 1
+    if use not in ("", "DISPLAY"):
+        return None
+    return sum(2 if ch == "N" else 1 for ch in text if ch not in "SVP")
+
+
+def bll_cell_records(records: list[dict[str, Any]]) -> dict[str, str]:
+    """#5119 (register X56): each BLL cell -> the LINKAGE 01 it addresses, from a boundary `records` list.
+
+    The cell list is the LINKAGE 01 after DFHCOMMAREA (or the first): a group of fullword binaries led by a FILLER;
+    each following 01 takes one cell per 4096 bytes of its size (a secondary cell maps to the same record). A record
+    whose size cannot be read ends the mapping (its cell and the later ones stay unmapped). A level-1 REDEFINES or a
+    77 among the records ends it too: IBM's one-to-one rule no longer says which cell is whose.
+    """
+    linkage = [r for r in records if r.get("section") == "LINKAGE" and r.get("level") not in (66, 88)]
+    tops = [r for r in linkage if r.get("level") in (1, 77)]
+    at = 1 if tops and tops[0]["name"] == "DFHCOMMAREA" else 0
+    if len(tops) <= at:
+        return {}
+    cand = tops[at]
+    kids = [r for r in linkage if r.get("parent_ordinal") == cand["ordinal"]]
+    if (
+        cand["level"] != 1
+        or cand.get("pic")
+        or len(kids) < 2
+        or kids[0]["name"] != "FILLER"
+        or any(
+            _leaf_bytes(k.get("pic"), k.get("usage")) != 4
+            or k.get("redefines")
+            or (k.get("occurs_max") or 1) != 1
+            or (k.get("usage") or "").upper() not in _BIN_USAGES
+            for k in kids
+        )
+    ):
+        return {}
+    cells = [k["name"].upper() for k in kids[1:]]
+    by_parent: dict[Any, list[dict[str, Any]]] = {}
+    for r in linkage:
+        by_parent.setdefault(r.get("parent_ordinal"), []).append(r)
+
+    def size(item: dict[str, Any]) -> int | None:
+        if item.get("redefines"):
+            return 0
+        children = by_parent.get(item["ordinal"])
+        if children:
+            parts = [size(c) for c in children]
+            if None in parts:
+                return None
+            own: int | None = sum(parts)  # type: ignore[arg-type]
+        else:
+            own = _leaf_bytes(item.get("pic"), item.get("usage"))
+        return None if own is None else own * (item.get("occurs_max") or 1)
+
+    mapped: dict[str, str] = {}
+    i = 0
+    for rec in tops[at + 1 :]:
+        if rec["level"] != 1 or rec.get("redefines") or rec["name"] == "DFHCOMMAREA":
+            break
+        nbytes = size(rec)
+        if nbytes is None:
+            break
+        n = max(1, -(-nbytes // _CELL_SPAN))
+        for cell in cells[i : i + n]:
+            mapped[cell] = rec["name"].upper()
+        i += n
+        if i >= len(cells):
+            break
+    return mapped
+
+
 def _row(
     verb: str,
     kind: str,
@@ -299,6 +388,7 @@ def _row(
     ordered: list[tuple[str, str | None]],
     line: int,
     qualifier_fixed: str | None = None,
+    cell_records: dict[str, str] | None = None,
 ) -> dict[str, Any]:
     operand = opts.get(name_key) if name_key else None
     name, resolution, candidates = resolve(operand)
@@ -315,7 +405,10 @@ def _row(
             attrs.append(f"{key}({value})")
         elif key in _FLAGS:
             attrs.append(key)
-    return {
+    cell = None
+    if clause == "SET" and cell_records and record in cell_records:
+        cell, record = record, cell_records[record]  # #5119: SET(BLL cell) addresses the cell's record
+    row = {
         "verb": verb,
         "kind": kind,
         "access": access,
@@ -330,6 +423,9 @@ def _row(
         "attributes": " ".join(attrs) or None,
         "line": line,
     }
+    if cell:
+        row["record_cell"] = cell  # presence-keyed: only a SET(cell) row
+    return row
 
 
 def _two_word_spec(
@@ -357,6 +453,7 @@ def extract_cics_resources(
     moves: dict[str, set[str]] | None = None,
     dialect: str = "cobol",
     shielded: Callable[[int], bool] | None = None,
+    cell_records: dict[str, str] | None = None,
 ) -> list[dict[str, Any]]:
     """Every CICS command in one file that names a FILE, MAP, QUEUE, CONTAINER or
     passed CHANNEL, or does web / service / transform I/O (#3512), as flat
@@ -364,7 +461,8 @@ def extract_cics_resources(
 
     `values` is the file's data-name -> VALUE literal map and `moves` its
     data-name -> MOVEd literals; `shielded(offset)` says an offset sits inside a
-    literal. `dialect` picks the command terminator: END-EXEC, or `;` for PL/I.
+    literal. `cell_records` (#5119) maps a BLL cell to the record it addresses
+    (`bll_cell_records`). `dialect` picks the command terminator: END-EXEC, or `;` for PL/I.
     """
     if not code_stream or "CICS" not in code_stream.upper():
         return []
@@ -431,6 +529,7 @@ def extract_cics_resources(
                 ordered=ordered[1:],
                 line=bisect.bisect_left(newlines, match.start()) + 1,
                 qualifier_fixed=fixed,
+                cell_records=cell_records,
             )
         )
     return rows

@@ -86,7 +86,7 @@ from gitgalaxy.core.bms_screen_fields import bms_screen_fields
 # their own module and ride out of extract_boundary as `cics_resources`.
 from gitgalaxy.core.call_using import blank_stream, call_using_args, entry_points
 from gitgalaxy.core.cics_macro_tables import cics_macro_table_resources, cics_macro_table_transactions
-from gitgalaxy.core.cics_resources import cobol_move_literals, extract_cics_resources
+from gitgalaxy.core.cics_resources import bll_cell_records, cobol_move_literals, extract_cics_resources
 from gitgalaxy.core.cics_tasks import extract_cics_tasks
 from gitgalaxy.core.cobol_conditional import active_source
 from gitgalaxy.core.cobol_preprocessor import COPY_LIBRARY, COPY_OR_INCLUDE_HEAD, continued_literal
@@ -2449,7 +2449,9 @@ def _pli_uow_handlers(code_stream: str, values: dict[str, str]) -> list[dict[str
     return rows
 
 
-def _cics_resources(code_stream: str, values: dict[str, str], dialect: str) -> list[dict[str, Any]]:
+def _cics_resources(
+    code_stream: str, values: dict[str, str], dialect: str, records: list[dict[str, Any]] | None = None
+) -> list[dict[str, Any]]:
     """The CICS FILE/MAP/QUEUE/CONTAINER/CHANNEL operations of one file (#3351-#3354).
 
     Operands resolve through the same-file VALUE map (as LINK targets do), then a
@@ -2465,7 +2467,8 @@ def _cics_resources(code_stream: str, values: dict[str, str], dialect: str) -> l
         return _opens_inside_literal(code_stream, line_start, offset)
 
     moves = cobol_move_literals(code_stream, values) if dialect == "cobol" else {}  # #3578: + MOVE chains
-    return extract_cics_resources(code_stream, values, moves, dialect, _shielded)
+    cells = bll_cell_records(records) if records else None  # #5119: SET(BLL cell) -> its record
+    return extract_cics_resources(code_stream, values, moves, dialect, _shielded, cells)
 
 
 def _cics_tasks(
@@ -2663,7 +2666,7 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
             "transactions": [],
             "sql_tables": extract_sql_tables(code_stream, "cobol"),  # #3344
             "sql_statements": extract_sql_statements(code_stream, "cobol"),  # #3446
-            "cics_resources": _cics_resources(code_stream, values, "cobol"),  # #3351-#3354
+            "cics_resources": _cics_resources(code_stream, values, "cobol", records),  # #3351-#3354
             "entry_points": entry_points(code_stream),  # #3454
             "dli_calls": _dli_calls(code_stream),  # #3450
             "cics_tasks": _cics_tasks(code_stream, values, records, "cobol"),  # #3449

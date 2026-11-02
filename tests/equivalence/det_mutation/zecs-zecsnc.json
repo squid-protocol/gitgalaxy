@@ -5,8 +5,8 @@
  "case": "zecs-zecsnc",
  "entry": {
   "program": "ZECSNC",
-  "commit": "fc698d9a6029ca0f763f1dde5dc64657663fc4f4+uncommitted",
-  "date": "2026-10-31",
+  "commit": "001402f695260661b306534df51445a9202c0f15+uncommitted",
+  "date": "2026-11-01",
   "mode": "fast",
   "seed": 0,
   "mutants": 546,
@@ -2563,13 +2563,13 @@
   ],
   "inputs": {
    "port": "95c3b1119c8afe69c3acd6969a73de55649aeb91d414e9b1233febfc5f54f337",
-   "runtime": "69b6222f94604324826bc10795c0c05590ddc04f738fa8626f0e36b3021ebdf1",
-   "generator": "fd91a4b97e60286c0feb20a474007ca62aa57dc23193a29ce11a1dc25f832272",
+   "runtime": "09d039e8e63c4b061f9bcc416004e30cff7ce7f8901c15043fb83f49df644f45",
+   "generator": "fd955a1cebb1923ec2937ad70d55971c9d38e3851adc42aa00b32b38c3fb4dab",
    "case": "fbad57991db911fe4e0e65c689986cb9a4cd01244a03a80ec9ada7588e53236e",
    "corpus": "09feecf8028c77a136bbff56380f9babddf0b2e28fbb6a7ad7ba456273989ff6",
-   "harness": "f2f27aa43bfacba09293cf973184e387dc9533ef00c724e138ec6f3a6abc925b",
-   "oracle": "771c681a7e10b05bf6559d63a72f480312ac38dde95ca7a5c6adbb48dd093b96",
-   "survivors": "d19c66bf635e1c42f34adca6ebd2a7502f82708f422fc144f3a355d098f8771a"
+   "harness": "b88073698db013f9dc74cf873416c3553d27115cac916d7bbfebf52614051e29",
+   "oracle": "6a51f0c26da65b72d04dda8a383ddccd728bbf928bdc5a7042660da769569dd6",
+   "survivors": "479ef20be62147fa1aef8ee7a9264089b51d1238bc51fc5a470da4bb2a1dc145"
   },
   "components": {
    "generator": {
@@ -2581,7 +2581,7 @@
     "generator:det/cics_containers": "0b061073eabfc3de21e12ddd608470b6fbe70c1539fffc0a40a263f2a21d3142",
     "generator:det/cics_counters": "494271d107d6554da2b7436d5c882f6c92db2141bb3b97c8fff218194d4993c4",
     "generator:det/cics_faults": "863ce608ce8e183fe37350ba17f59b2176ce20452e1ebe86cb6b7ae6109fdb4e",
-    "generator:det/cics_filecontrol": "3d383fd7ba5aea467fbd27af35bf7906879c3e066af721b4453ac228389c2780",
+    "generator:det/cics_filecontrol": "3d5338f50899b757d370ac0712924fd9f3e294bfe6a01c843b6b0bea1ebae984",
     "generator:det/cics_program": "d48437e7dba39ab0eb4db61b75c2558892d9c45ff53e7feb114cf3eb700f313f",
     "generator:det/cics_queues": "0ad690c3e8132ee2c8ab6c28177e5069625a4d8821a374d3f9d69ba3a930e914",
     "generator:det/cics_storage": "895d283c439f9ea13977dc26fcf0df935474ede1e8e7c102b50d4a6b2e75567f",
@@ -2597,11 +2597,11 @@
     "generator:det/source": "fd7d20e0f7824a4d3b74201b0690914daf79834567b3fa5f064c98beb4d50e0b"
    },
    "harness": {
-    "harness:cics": "5a9c75252c2f112376a19371c9ba06442f2bc1b3037ccff17b28705571bc8669",
+    "harness:cics": "1f71bf1c66b94b2beaad3ef12d6c4744d6e6d9c5445e1be2fc4ee18430596b44",
     "harness:core": "8a7d18f97c68b94659c661facaab3877279b809e80143028b7cde992385b5718"
    },
    "oracle": {
-    "oracle:cics-stub": "9fd48afa43ae0a3906e24d28a903c06b82cc65a26863dbc6f795caf4ddbd460a",
+    "oracle:cics-stub": "65dc76e6e98241b26ee2fbec4bacc2ef5802a238ea806e80b9185312b9c90630",
     "oracle:core": "b4bb775f0a30746a6054f259b4c8613e08cb0d8cf3b40f4a789d953aca4144a0",
     "oracle:le": "670c92cc59b722e108b688267be1fd89ecda9b7be62bb485da2ad4839b4f7011"
    }

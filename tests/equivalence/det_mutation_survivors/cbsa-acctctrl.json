@@ -416,15 +416,6 @@
    "reason": "HV-NUMBER-OF-ACCOUNTS 8 -> 9 digits: the binary field stays four bytes; a count of 10^8 or more wraps at 10^8 into the 8-digit NUMBER-OF-ACCOUNTS on the MOVE either way (mod 10^8 both ways)"
   },
   {
-   "id": "e1b90d721c",
-   "op": "CON",
-   "line": 148,
-   "before": "private final Field f57_WS_U_TIME = Field.packed(s_WS_U_TIME, 0, 15, 0, true);",
-   "after": "private final Field f57_WS_U_TIME = Field.packed(s_WS_U_TIME, 0, 16, 0, true);",
-   "verdict": "unreachable",
-   "reason": "WS-U-TIME / WS-ORIG-DATE / WS-TIME-NOW are used only in POPULATE-TIME-DATE, which no paragraph PERFORMs (the program's flow is P010 -> GET-NUMBER-OF-ACCOUNTS-DB2 -> GET-ME-OUT-OF-HERE)"
-  },
-  {
    "id": "1ddfb21811",
    "op": "CON",
    "line": 148,
@@ -443,11 +434,11 @@
    "reason": "WS-U-TIME / WS-ORIG-DATE / WS-TIME-NOW are used only in POPULATE-TIME-DATE, which no paragraph PERFORMs (the program's flow is P010 -> GET-NUMBER-OF-ACCOUNTS-DB2 -> GET-ME-OUT-OF-HERE)"
   },
   {
-   "id": "c1e5d76ee4",
+   "id": "e1b90d721c",
    "op": "CON",
-   "line": 149,
-   "before": "private final Field f58_WS_ORIG_DATE = Field.alphanumeric(s_WS_ORIG_DATE, 0, 10, false);",
-   "after": "private final Field f58_WS_ORIG_DATE = Field.alphanumeric(s_WS_ORIG_DATE, 0, 11, false);",
+   "line": 148,
+   "before": "private final Field f57_WS_U_TIME = Field.packed(s_WS_U_TIME, 0, 15, 0, true);",
+   "after": "private final Field f57_WS_U_TIME = Field.packed(s_WS_U_TIME, 0, 16, 0, true);",
    "verdict": "unreachable",
    "reason": "WS-U-TIME / WS-ORIG-DATE / WS-TIME-NOW are used only in POPULATE-TIME-DATE, which no paragraph PERFORMs (the program's flow is P010 -> GET-NUMBER-OF-ACCOUNTS-DB2 -> GET-ME-OUT-OF-HERE)"
   },
@@ -461,6 +452,15 @@
    "reason": "WS-U-TIME / WS-ORIG-DATE / WS-TIME-NOW are used only in POPULATE-TIME-DATE, which no paragraph PERFORMs (the program's flow is P010 -> GET-NUMBER-OF-ACCOUNTS-DB2 -> GET-ME-OUT-OF-HERE)"
   },
   {
+   "id": "c1e5d76ee4",
+   "op": "CON",
+   "line": 149,
+   "before": "private final Field f58_WS_ORIG_DATE = Field.alphanumeric(s_WS_ORIG_DATE, 0, 10, false);",
+   "after": "private final Field f58_WS_ORIG_DATE = Field.alphanumeric(s_WS_ORIG_DATE, 0, 11, false);",
+   "verdict": "unreachable",
+   "reason": "WS-U-TIME / WS-ORIG-DATE / WS-TIME-NOW are used only in POPULATE-TIME-DATE, which no paragraph PERFORMs (the program's flow is P010 -> GET-NUMBER-OF-ACCOUNTS-DB2 -> GET-ME-OUT-OF-HERE)"
+  },
+  {
    "id": "20a2796db3",
    "op": "CON",
    "line": 150,
@@ -470,20 +470,20 @@
    "reason": "WS-U-TIME / WS-ORIG-DATE / WS-TIME-NOW are used only in POPULATE-TIME-DATE, which no paragraph PERFORMs (the program's flow is P010 -> GET-NUMBER-OF-ACCOUNTS-DB2 -> GET-ME-OUT-OF-HERE)"
   },
   {
-   "id": "d40f9c3f33",
-   "op": "CON",
-   "line": 150,
-   "before": "private final Field f72_WS_TIME_NOW = Field.zoned(s_WS_TIME_DATA, 0, 6, 0, false, false, false);",
-   "after": "private final Field f72_WS_TIME_NOW = Field.zoned(s_WS_TIME_DATA, 1, 6, 0, false, false, false);",
-   "verdict": "unreachable",
-   "reason": "WS-U-TIME / WS-ORIG-DATE / WS-TIME-NOW are used only in POPULATE-TIME-DATE, which no paragraph PERFORMs (the program's flow is P010 -> GET-NUMBER-OF-ACCOUNTS-DB2 -> GET-ME-OUT-OF-HERE)"
-  },
-  {
    "id": "c75c22409b",
    "op": "CON",
    "line": 150,
    "before": "private final Field f72_WS_TIME_NOW = Field.zoned(s_WS_TIME_DATA, 0, 6, 0, false, false, false);",
    "after": "private final Field f72_WS_TIME_NOW = Field.zoned(s_WS_TIME_DATA, 0, 6, 1, false, false, false);",
+   "verdict": "unreachable",
+   "reason": "WS-U-TIME / WS-ORIG-DATE / WS-TIME-NOW are used only in POPULATE-TIME-DATE, which no paragraph PERFORMs (the program's flow is P010 -> GET-NUMBER-OF-ACCOUNTS-DB2 -> GET-ME-OUT-OF-HERE)"
+  },
+  {
+   "id": "d40f9c3f33",
+   "op": "CON",
+   "line": 150,
+   "before": "private final Field f72_WS_TIME_NOW = Field.zoned(s_WS_TIME_DATA, 0, 6, 0, false, false, false);",
+   "after": "private final Field f72_WS_TIME_NOW = Field.zoned(s_WS_TIME_DATA, 1, 6, 0, false, false, false);",
    "verdict": "unreachable",
    "reason": "WS-U-TIME / WS-ORIG-DATE / WS-TIME-NOW are used only in POPULATE-TIME-DATE, which no paragraph PERFORMs (the program's flow is P010 -> GET-NUMBER-OF-ACCOUNTS-DB2 -> GET-ME-OUT-OF-HERE)"
   },
@@ -533,20 +533,20 @@
    "reason": "field layout of an item that is either a record byte the program never addresses (EIB fields: ACCTCTRL references no EIB field; GG-RETURN-CODE is never referenced) or the flag byte whose extra length writes a space into byte 45, which INITIALIZE had already blanked and nothing reads before the COMMAREA returns"
   },
   {
-   "id": "5303f872b5",
-   "op": "CON",
-   "line": 156,
-   "before": "private final Field f113_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
-   "after": "private final Field f113_EIBDATE = Field.packed(s_DFHEIBLK, 4, 8, 0, true);",
-   "verdict": "equivalent",
-   "reason": "field layout of an item that is either a record byte the program never addresses (EIB fields: ACCTCTRL references no EIB field; GG-RETURN-CODE is never referenced) or the flag byte whose extra length writes a space into byte 45, which INITIALIZE had already blanked and nothing reads before the COMMAREA returns"
-  },
-  {
    "id": "34725edacb",
    "op": "CON",
    "line": 156,
    "before": "private final Field f113_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
    "after": "private final Field f113_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 1, true);",
+   "verdict": "equivalent",
+   "reason": "field layout of an item that is either a record byte the program never addresses (EIB fields: ACCTCTRL references no EIB field; GG-RETURN-CODE is never referenced) or the flag byte whose extra length writes a space into byte 45, which INITIALIZE had already blanked and nothing reads before the COMMAREA returns"
+  },
+  {
+   "id": "5303f872b5",
+   "op": "CON",
+   "line": 156,
+   "before": "private final Field f113_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+   "after": "private final Field f113_EIBDATE = Field.packed(s_DFHEIBLK, 4, 8, 0, true);",
    "verdict": "equivalent",
    "reason": "field layout of an item that is either a record byte the program never addresses (EIB fields: ACCTCTRL references no EIB field; GG-RETURN-CODE is never referenced) or the flag byte whose extra length writes a space into byte 45, which INITIALIZE had already blanked and nothing reads before the COMMAREA returns"
   },
@@ -578,15 +578,6 @@
    "reason": "field layout of an item that is either a record byte the program never addresses (EIB fields: ACCTCTRL references no EIB field; GG-RETURN-CODE is never referenced) or the flag byte whose extra length writes a space into byte 45, which INITIALIZE had already blanked and nothing reads before the COMMAREA returns"
   },
   {
-   "id": "4bf04c6a9b",
-   "op": "CON",
-   "line": 158,
-   "before": "private final Field f115_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
-   "after": "private final Field f115_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 8, 0, true);",
-   "verdict": "equivalent",
-   "reason": "field layout of an item that is either a record byte the program never addresses (EIB fields: ACCTCTRL references no EIB field; GG-RETURN-CODE is never referenced) or the flag byte whose extra length writes a space into byte 45, which INITIALIZE had already blanked and nothing reads before the COMMAREA returns"
-  },
-  {
    "id": "29b4d19b25",
    "op": "CON",
    "line": 158,
@@ -601,6 +592,15 @@
    "line": 158,
    "before": "private final Field f115_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
    "after": "private final Field f115_EIBTASKN = Field.packed(s_DFHEIBLK, 13, 7, 0, true);",
+   "verdict": "equivalent",
+   "reason": "field layout of an item that is either a record byte the program never addresses (EIB fields: ACCTCTRL references no EIB field; GG-RETURN-CODE is never referenced) or the flag byte whose extra length writes a space into byte 45, which INITIALIZE had already blanked and nothing reads before the COMMAREA returns"
+  },
+  {
+   "id": "4bf04c6a9b",
+   "op": "CON",
+   "line": 158,
+   "before": "private final Field f115_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+   "after": "private final Field f115_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 8, 0, true);",
    "verdict": "equivalent",
    "reason": "field layout of an item that is either a record byte the program never addresses (EIB fields: ACCTCTRL references no EIB field; GG-RETURN-CODE is never referenced) or the flag byte whose extra length writes a space into byte 45, which INITIALIZE had already blanked and nothing reads before the COMMAREA returns"
   },
@@ -632,15 +632,6 @@
    "reason": "field layout of an item that is either a record byte the program never addresses (EIB fields: ACCTCTRL references no EIB field; GG-RETURN-CODE is never referenced) or the flag byte whose extra length writes a space into byte 45, which INITIALIZE had already blanked and nothing reads before the COMMAREA returns"
   },
   {
-   "id": "aa43d6b00f",
-   "op": "CON",
-   "line": 160,
-   "before": "private final Field f119_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
-   "after": "private final Field f119_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 5, 0, true, false);",
-   "verdict": "equivalent",
-   "reason": "field layout of an item that is either a record byte the program never addresses (EIB fields: ACCTCTRL references no EIB field; GG-RETURN-CODE is never referenced) or the flag byte whose extra length writes a space into byte 45, which INITIALIZE had already blanked and nothing reads before the COMMAREA returns"
-  },
-  {
    "id": "9bda22bed7",
    "op": "CON",
    "line": 160,
@@ -650,11 +641,11 @@
    "reason": "field layout of an item that is either a record byte the program never addresses (EIB fields: ACCTCTRL references no EIB field; GG-RETURN-CODE is never referenced) or the flag byte whose extra length writes a space into byte 45, which INITIALIZE had already blanked and nothing reads before the COMMAREA returns"
   },
   {
-   "id": "e354e4661c",
+   "id": "aa43d6b00f",
    "op": "CON",
-   "line": 161,
-   "before": "private final Field f143_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
-   "after": "private final Field f143_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 5, 0, true, false);",
+   "line": 160,
+   "before": "private final Field f119_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
+   "after": "private final Field f119_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 5, 0, true, false);",
    "verdict": "equivalent",
    "reason": "field layout of an item that is either a record byte the program never addresses (EIB fields: ACCTCTRL references no EIB field; GG-RETURN-CODE is never referenced) or the flag byte whose extra length writes a space into byte 45, which INITIALIZE had already blanked and nothing reads before the COMMAREA returns"
   },
@@ -677,13 +668,13 @@
    "reason": "field layout of an item that is either a record byte the program never addresses (EIB fields: ACCTCTRL references no EIB field; GG-RETURN-CODE is never referenced) or the flag byte whose extra length writes a space into byte 45, which INITIALIZE had already blanked and nothing reads before the COMMAREA returns"
   },
   {
-   "id": "2b5233b634",
-   "op": "NEG",
-   "line": 173,
-   "before": "if (task.level() > 1) {",
-   "after": "if (!(task.level() > 1)) {",
-   "verdict": "unreachable",
-   "reason": "abended() is called only from condition(); ACCTCTRL issues only EXEC CICS RETURN (and the SELECT, which reports through SQLCODE), so no CICS condition is raised and it never runs"
+   "id": "e354e4661c",
+   "op": "CON",
+   "line": 161,
+   "before": "private final Field f143_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+   "after": "private final Field f143_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 5, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "field layout of an item that is either a record byte the program never addresses (EIB fields: ACCTCTRL references no EIB field; GG-RETURN-CODE is never referenced) or the flag byte whose extra length writes a space into byte 45, which INITIALIZE had already blanked and nothing reads before the COMMAREA returns"
   },
   {
    "id": "222f031b79",
@@ -695,11 +686,11 @@
    "reason": "abended() is called only from condition(); ACCTCTRL issues only EXEC CICS RETURN (and the SELECT, which reports through SQLCODE), so no CICS condition is raised and it never runs"
   },
   {
-   "id": "cba8cfaf3f",
-   "op": "ROR",
+   "id": "2b5233b634",
+   "op": "NEG",
    "line": 173,
    "before": "if (task.level() > 1) {",
-   "after": "if (task.level() >= 1) {",
+   "after": "if (!(task.level() > 1)) {",
    "verdict": "unreachable",
    "reason": "abended() is called only from condition(); ACCTCTRL issues only EXEC CICS RETURN (and the SELECT, which reports through SQLCODE), so no CICS condition is raised and it never runs"
   },
@@ -709,6 +700,15 @@
    "line": 173,
    "before": "if (task.level() > 1) {",
    "after": "if (task.level() <= 1) {",
+   "verdict": "unreachable",
+   "reason": "abended() is called only from condition(); ACCTCTRL issues only EXEC CICS RETURN (and the SELECT, which reports through SQLCODE), so no CICS condition is raised and it never runs"
+  },
+  {
+   "id": "cba8cfaf3f",
+   "op": "ROR",
+   "line": 173,
+   "before": "if (task.level() > 1) {",
+   "after": "if (task.level() >= 1) {",
    "verdict": "unreachable",
    "reason": "abended() is called only from condition(); ACCTCTRL issues only EXEC CICS RETURN (and the SELECT, which reports through SQLCODE), so no CICS condition is raised and it never runs"
   },
@@ -731,15 +731,6 @@
    "reason": "An @SuppressWarnings annotation string has no run-time effect."
   },
   {
-   "id": "c4ffe4a466",
-   "op": "LIT",
-   "line": 181,
-   "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
-   "after": "throw new Hole(\"CICS file \" + name + \"X the program names no file the generated project stores\");",
-   "verdict": "unreachable",
-   "reason": "The Hole / IllegalStateException is thrown by a file-store or paragraph lookup reached only by a file command or a HANDLE label; ACCTCTRL issues none."
-  },
-  {
    "id": "206091facf",
    "op": "LIT",
    "line": 181,
@@ -749,13 +740,25 @@
    "reason": "The Hole / IllegalStateException is thrown by a file-store or paragraph lookup reached only by a file command or a HANDLE label; ACCTCTRL issues none."
   },
   {
-   "id": "9fc94793e2",
-   "op": "LIT",
-   "line": 185,
-   "before": "java.util.Map.entry(\"GMOFH999\", 11),",
-   "after": "java.util.Map.entry(\"XMOFH999\", 11),",
+   "id": "91afb37009",
+   "op": "NEG",
+   "line": 181,
+   "before": "if (CicsTask.undefinableFile(name)) {",
+   "after": "if (!(CicsTask.undefinableFile(name))) {",
    "verdict": "unreachable",
-   "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; ACCTCTRL has no HANDLE and raises no condition"
+   "reason": "ACCTCTRL's store(name), the CicsTask.undefinableFile test negated: nothing in this port calls store() (every `store(` call is Cobol.store), and the program's only commands are its SQL SELECT and EXEC CICS RETURN, so no file command looks a store up.",
+   "tried": [
+    "plain-count"
+   ]
+  },
+  {
+   "id": "c4ffe4a466",
+   "op": "LIT",
+   "line": 181,
+   "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
+   "after": "throw new Hole(\"CICS file \" + name + \"X the program names no file the generated project stores\");",
+   "verdict": "unreachable",
+   "reason": "The Hole / IllegalStateException is thrown by a file-store or paragraph lookup reached only by a file command or a HANDLE label; ACCTCTRL issues none."
   },
   {
    "id": "6d55de8e66",
@@ -763,6 +766,15 @@
    "line": 185,
    "before": "java.util.Map.entry(\"GMOFH999\", 11),",
    "after": "java.util.Map.entry(\"GMOFH999\", 12),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; ACCTCTRL has no HANDLE and raises no condition"
+  },
+  {
+   "id": "9fc94793e2",
+   "op": "LIT",
+   "line": 185,
+   "before": "java.util.Map.entry(\"GMOFH999\", 11),",
+   "after": "java.util.Map.entry(\"XMOFH999\", 11),",
    "verdict": "unreachable",
    "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; ACCTCTRL has no HANDLE and raises no condition"
   },
@@ -785,20 +797,20 @@
    "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; ACCTCTRL has no HANDLE and raises no condition"
   },
   {
-   "id": "ebbce0d225",
-   "op": "CON",
-   "line": 187,
-   "before": "java.util.Map.entry(\"GET-ME-OUT-OF-HERE\", 9),",
-   "after": "java.util.Map.entry(\"GET-ME-OUT-OF-HERE\", 10),",
-   "verdict": "unreachable",
-   "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; ACCTCTRL has no HANDLE and raises no condition"
-  },
-  {
    "id": "6e63c79374",
    "op": "LIT",
    "line": 187,
    "before": "java.util.Map.entry(\"GET-ME-OUT-OF-HERE\", 9),",
    "after": "java.util.Map.entry(\"XET-ME-OUT-OF-HERE\", 9),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; ACCTCTRL has no HANDLE and raises no condition"
+  },
+  {
+   "id": "ebbce0d225",
+   "op": "CON",
+   "line": 187,
+   "before": "java.util.Map.entry(\"GET-ME-OUT-OF-HERE\", 9),",
+   "after": "java.util.Map.entry(\"GET-ME-OUT-OF-HERE\", 10),",
    "verdict": "unreachable",
    "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; ACCTCTRL has no HANDLE and raises no condition"
   },
@@ -839,20 +851,20 @@
    "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; ACCTCTRL has no HANDLE and raises no condition"
   },
   {
-   "id": "d85abb1eca",
-   "op": "LIT",
-   "line": 190,
-   "before": "java.util.Map.entry(\"POPULATE-TIME-DATE\", 6),",
-   "after": "java.util.Map.entry(\"XOPULATE-TIME-DATE\", 6),",
-   "verdict": "unreachable",
-   "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; ACCTCTRL has no HANDLE and raises no condition"
-  },
-  {
    "id": "a0d1af5124",
    "op": "CON",
    "line": 190,
    "before": "java.util.Map.entry(\"POPULATE-TIME-DATE\", 6),",
    "after": "java.util.Map.entry(\"POPULATE-TIME-DATE\", 7),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; ACCTCTRL has no HANDLE and raises no condition"
+  },
+  {
+   "id": "d85abb1eca",
+   "op": "LIT",
+   "line": 190,
+   "before": "java.util.Map.entry(\"POPULATE-TIME-DATE\", 6),",
+   "after": "java.util.Map.entry(\"XOPULATE-TIME-DATE\", 6),",
    "verdict": "unreachable",
    "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; ACCTCTRL has no HANDLE and raises no condition"
   },
@@ -1055,20 +1067,20 @@
    "reason": "condition() runs only for a CICS condition a command raises without RESP; ACCTCTRL issues only EXEC CICS RETURN, which raises none"
   },
   {
-   "id": "c53d906517",
-   "op": "NEG",
-   "line": 225,
-   "before": "if (label == null) {",
-   "after": "if (!(label == null)) {",
-   "verdict": "unreachable",
-   "reason": "condition() runs only for a CICS condition a command raises without RESP; ACCTCTRL issues only EXEC CICS RETURN, which raises none"
-  },
-  {
    "id": "212294aa03",
    "op": "ROR",
    "line": 225,
    "before": "if (label == null) {",
    "after": "if (label != null) {",
+   "verdict": "unreachable",
+   "reason": "condition() runs only for a CICS condition a command raises without RESP; ACCTCTRL issues only EXEC CICS RETURN, which raises none"
+  },
+  {
+   "id": "c53d906517",
+   "op": "NEG",
+   "line": 225,
+   "before": "if (label == null) {",
+   "after": "if (!(label == null)) {",
    "verdict": "unreachable",
    "reason": "condition() runs only for a CICS condition a command raises without RESP; ACCTCTRL issues only EXEC CICS RETURN, which raises none"
   },
@@ -1136,6 +1148,33 @@
    "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values); a store that is widened or shifted lands in another named item (INITIALIZEd as well) or in FILLER, which the program never reads and the DTO has no property for"
   },
   {
+   "id": "694b47c34d",
+   "op": "CON",
+   "line": 240,
+   "before": "Cobol.move(d.getAccountControlSortCode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlSortCode().toString()), Field.zoned(s, base + 14, 6, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getAccountControlSortCode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlSortCode().toString()), Field.zoned(s, base + 14, 6, 1, false, false, false), CS);",
+   "verdict": "equivalent",
+   "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values); a store that is widened or shifted lands in another named item (INITIALIZEd as well) or in FILLER, which the program never reads and the DTO has no property for"
+  },
+  {
+   "id": "7116f5e043",
+   "op": "ROR",
+   "line": 240,
+   "before": "Cobol.move(d.getAccountControlSortCode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlSortCode().toString()), Field.zoned(s, base + 14, 6, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getAccountControlSortCode() != null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlSortCode().toString()), Field.zoned(s, base + 14, 6, 0, false, false, false), CS);",
+   "verdict": "equivalent",
+   "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values)"
+  },
+  {
+   "id": "7c784eddad",
+   "op": "CON",
+   "line": 240,
+   "before": "Cobol.move(d.getAccountControlSortCode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlSortCode().toString()), Field.zoned(s, base + 14, 6, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getAccountControlSortCode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlSortCode().toString()), Field.zoned(s, base + 15, 6, 0, false, false, false), CS);",
+   "verdict": "equivalent",
+   "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values); a store that is widened or shifted lands in another named item (INITIALIZEd as well) or in FILLER, which the program never reads and the DTO has no property for"
+  },
+  {
    "id": "87136ab853",
    "op": "CON",
    "line": 240,
@@ -1154,29 +1193,11 @@
    "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values)"
   },
   {
-   "id": "7c784eddad",
+   "id": "1253cf14e1",
    "op": "CON",
-   "line": 240,
-   "before": "Cobol.move(d.getAccountControlSortCode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlSortCode().toString()), Field.zoned(s, base + 14, 6, 0, false, false, false), CS);",
-   "after": "Cobol.move(d.getAccountControlSortCode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlSortCode().toString()), Field.zoned(s, base + 15, 6, 0, false, false, false), CS);",
-   "verdict": "equivalent",
-   "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values); a store that is widened or shifted lands in another named item (INITIALIZEd as well) or in FILLER, which the program never reads and the DTO has no property for"
-  },
-  {
-   "id": "7116f5e043",
-   "op": "ROR",
-   "line": 240,
-   "before": "Cobol.move(d.getAccountControlSortCode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlSortCode().toString()), Field.zoned(s, base + 14, 6, 0, false, false, false), CS);",
-   "after": "Cobol.move(d.getAccountControlSortCode() != null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlSortCode().toString()), Field.zoned(s, base + 14, 6, 0, false, false, false), CS);",
-   "verdict": "equivalent",
-   "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values)"
-  },
-  {
-   "id": "694b47c34d",
-   "op": "CON",
-   "line": 240,
-   "before": "Cobol.move(d.getAccountControlSortCode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlSortCode().toString()), Field.zoned(s, base + 14, 6, 0, false, false, false), CS);",
-   "after": "Cobol.move(d.getAccountControlSortCode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlSortCode().toString()), Field.zoned(s, base + 14, 6, 1, false, false, false), CS);",
+   "line": 241,
+   "before": "Cobol.move(d.getAccountControlNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlNumber().toString()), Field.zoned(s, base + 20, 8, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getAccountControlNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlNumber().toString()), Field.zoned(s, base + 21, 8, 0, false, false, false), CS);",
    "verdict": "equivalent",
    "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values); a store that is widened or shifted lands in another named item (INITIALIZEd as well) or in FILLER, which the program never reads and the DTO has no property for"
   },
@@ -1217,20 +1238,11 @@
    "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values)"
   },
   {
-   "id": "1253cf14e1",
-   "op": "CON",
-   "line": 241,
-   "before": "Cobol.move(d.getAccountControlNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlNumber().toString()), Field.zoned(s, base + 20, 8, 0, false, false, false), CS);",
-   "after": "Cobol.move(d.getAccountControlNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlNumber().toString()), Field.zoned(s, base + 21, 8, 0, false, false, false), CS);",
-   "verdict": "equivalent",
-   "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values); a store that is widened or shifted lands in another named item (INITIALIZEd as well) or in FILLER, which the program never reads and the DTO has no property for"
-  },
-  {
-   "id": "a7122eec6d",
+   "id": "13fafae330",
    "op": "CON",
    "line": 242,
    "before": "Cobol.move(d.getNumberOfAccounts() == null ? BigDecimal.ZERO : new BigDecimal(d.getNumberOfAccounts().toString()), Field.zoned(s, base + 28, 8, 0, false, false, false), CS);",
-   "after": "Cobol.move(d.getNumberOfAccounts() == null ? BigDecimal.ZERO : new BigDecimal(d.getNumberOfAccounts().toString()), Field.zoned(s, base + 28, 9, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getNumberOfAccounts() == null ? BigDecimal.ZERO : new BigDecimal(d.getNumberOfAccounts().toString()), Field.zoned(s, base + 29, 8, 0, false, false, false), CS);",
    "verdict": "equivalent",
    "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values); a store that is widened or shifted lands in another named item (INITIALIZEd as well) or in FILLER, which the program never reads and the DTO has no property for"
   },
@@ -1244,29 +1256,29 @@
    "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values); a store that is widened or shifted lands in another named item (INITIALIZEd as well) or in FILLER, which the program never reads and the DTO has no property for"
   },
   {
-   "id": "b4cdf8cc56",
-   "op": "DEL",
-   "line": 242,
-   "before": "Cobol.move(d.getNumberOfAccounts() == null ? BigDecimal.ZERO : new BigDecimal(d.getNumberOfAccounts().toString()), Field.zoned(s, base + 28, 8, 0, false, false, false), CS);",
-   "after": "/* Cobol.move(d.getNumberOfAccounts() == null ? BigDecimal.ZERO : new BigDecimal(d.getNumberOfAccounts().toString()), Field.zoned(s, base + 28, 8, 0, false, false, false), CS); */",
-   "verdict": "equivalent",
-   "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values)"
-  },
-  {
-   "id": "13fafae330",
-   "op": "CON",
-   "line": 242,
-   "before": "Cobol.move(d.getNumberOfAccounts() == null ? BigDecimal.ZERO : new BigDecimal(d.getNumberOfAccounts().toString()), Field.zoned(s, base + 28, 8, 0, false, false, false), CS);",
-   "after": "Cobol.move(d.getNumberOfAccounts() == null ? BigDecimal.ZERO : new BigDecimal(d.getNumberOfAccounts().toString()), Field.zoned(s, base + 29, 8, 0, false, false, false), CS);",
-   "verdict": "equivalent",
-   "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values); a store that is widened or shifted lands in another named item (INITIALIZEd as well) or in FILLER, which the program never reads and the DTO has no property for"
-  },
-  {
    "id": "8ea74303f0",
    "op": "ROR",
    "line": 242,
    "before": "Cobol.move(d.getNumberOfAccounts() == null ? BigDecimal.ZERO : new BigDecimal(d.getNumberOfAccounts().toString()), Field.zoned(s, base + 28, 8, 0, false, false, false), CS);",
    "after": "Cobol.move(d.getNumberOfAccounts() != null ? BigDecimal.ZERO : new BigDecimal(d.getNumberOfAccounts().toString()), Field.zoned(s, base + 28, 8, 0, false, false, false), CS);",
+   "verdict": "equivalent",
+   "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values)"
+  },
+  {
+   "id": "a7122eec6d",
+   "op": "CON",
+   "line": 242,
+   "before": "Cobol.move(d.getNumberOfAccounts() == null ? BigDecimal.ZERO : new BigDecimal(d.getNumberOfAccounts().toString()), Field.zoned(s, base + 28, 8, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getNumberOfAccounts() == null ? BigDecimal.ZERO : new BigDecimal(d.getNumberOfAccounts().toString()), Field.zoned(s, base + 28, 9, 0, false, false, false), CS);",
+   "verdict": "equivalent",
+   "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values); a store that is widened or shifted lands in another named item (INITIALIZEd as well) or in FILLER, which the program never reads and the DTO has no property for"
+  },
+  {
+   "id": "b4cdf8cc56",
+   "op": "DEL",
+   "line": 242,
+   "before": "Cobol.move(d.getNumberOfAccounts() == null ? BigDecimal.ZERO : new BigDecimal(d.getNumberOfAccounts().toString()), Field.zoned(s, base + 28, 8, 0, false, false, false), CS);",
+   "after": "/* Cobol.move(d.getNumberOfAccounts() == null ? BigDecimal.ZERO : new BigDecimal(d.getNumberOfAccounts().toString()), Field.zoned(s, base + 28, 8, 0, false, false, false), CS); */",
    "verdict": "equivalent",
    "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values)"
   },
@@ -1280,20 +1292,11 @@
    "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values)"
   },
   {
-   "id": "d14e789ad0",
-   "op": "ROR",
-   "line": 243,
-   "before": "Cobol.move(d.getLastAccountNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getLastAccountNumber().toString()), Field.zoned(s, base + 36, 8, 0, false, false, false), CS);",
-   "after": "Cobol.move(d.getLastAccountNumber() != null ? BigDecimal.ZERO : new BigDecimal(d.getLastAccountNumber().toString()), Field.zoned(s, base + 36, 8, 0, false, false, false), CS);",
-   "verdict": "equivalent",
-   "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values)"
-  },
-  {
-   "id": "6c95646b3b",
+   "id": "09757194f5",
    "op": "CON",
    "line": 243,
    "before": "Cobol.move(d.getLastAccountNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getLastAccountNumber().toString()), Field.zoned(s, base + 36, 8, 0, false, false, false), CS);",
-   "after": "Cobol.move(d.getLastAccountNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getLastAccountNumber().toString()), Field.zoned(s, base + 36, 8, 1, false, false, false), CS);",
+   "after": "Cobol.move(d.getLastAccountNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getLastAccountNumber().toString()), Field.zoned(s, base + 36, 9, 0, false, false, false), CS);",
    "verdict": "equivalent",
    "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values); a store that is widened or shifted lands in another named item (INITIALIZEd as well) or in FILLER, which the program never reads and the DTO has no property for"
   },
@@ -1307,13 +1310,22 @@
    "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values); a store that is widened or shifted lands in another named item (INITIALIZEd as well) or in FILLER, which the program never reads and the DTO has no property for"
   },
   {
-   "id": "09757194f5",
+   "id": "6c95646b3b",
    "op": "CON",
    "line": 243,
    "before": "Cobol.move(d.getLastAccountNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getLastAccountNumber().toString()), Field.zoned(s, base + 36, 8, 0, false, false, false), CS);",
-   "after": "Cobol.move(d.getLastAccountNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getLastAccountNumber().toString()), Field.zoned(s, base + 36, 9, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getLastAccountNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getLastAccountNumber().toString()), Field.zoned(s, base + 36, 8, 1, false, false, false), CS);",
    "verdict": "equivalent",
    "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values); a store that is widened or shifted lands in another named item (INITIALIZEd as well) or in FILLER, which the program never reads and the DTO has no property for"
+  },
+  {
+   "id": "d14e789ad0",
+   "op": "ROR",
+   "line": 243,
+   "before": "Cobol.move(d.getLastAccountNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getLastAccountNumber().toString()), Field.zoned(s, base + 36, 8, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getLastAccountNumber() != null ? BigDecimal.ZERO : new BigDecimal(d.getLastAccountNumber().toString()), Field.zoned(s, base + 36, 8, 0, false, false, false), CS);",
+   "verdict": "equivalent",
+   "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values)"
   },
   {
    "id": "1933d316e8",
@@ -1321,6 +1333,15 @@
    "line": 244,
    "before": "Cobol.move(d.getAccountControlSuccessFlag() == null ? \"\" : d.getAccountControlSuccessFlag(), Field.alphanumeric(s, base + 44, 1, false), CS);",
    "after": "Cobol.move(d.getAccountControlSuccessFlag() == null ? \"\" : d.getAccountControlSuccessFlag(), Field.alphanumeric(s, base + 44, 2, false), CS);",
+   "verdict": "equivalent",
+   "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values); a store that is widened or shifted lands in another named item (INITIALIZEd as well) or in FILLER, which the program never reads and the DTO has no property for"
+  },
+  {
+   "id": "387ee1ceb5",
+   "op": "CON",
+   "line": 244,
+   "before": "Cobol.move(d.getAccountControlSuccessFlag() == null ? \"\" : d.getAccountControlSuccessFlag(), Field.alphanumeric(s, base + 44, 1, false), CS);",
+   "after": "Cobol.move(d.getAccountControlSuccessFlag() == null ? \"\" : d.getAccountControlSuccessFlag(), Field.alphanumeric(s, base + 45, 1, false), CS);",
    "verdict": "equivalent",
    "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values); a store that is widened or shifted lands in another named item (INITIALIZEd as well) or in FILLER, which the program never reads and the DTO has no property for"
   },
@@ -1334,11 +1355,11 @@
    "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values)"
   },
   {
-   "id": "387ee1ceb5",
+   "id": "2a64c51a30",
    "op": "CON",
-   "line": 244,
-   "before": "Cobol.move(d.getAccountControlSuccessFlag() == null ? \"\" : d.getAccountControlSuccessFlag(), Field.alphanumeric(s, base + 44, 1, false), CS);",
-   "after": "Cobol.move(d.getAccountControlSuccessFlag() == null ? \"\" : d.getAccountControlSuccessFlag(), Field.alphanumeric(s, base + 45, 1, false), CS);",
+   "line": 245,
+   "before": "Cobol.move(d.getAccountControlFailCode() == null ? \"\" : d.getAccountControlFailCode(), Field.alphanumeric(s, base + 45, 1, false), CS);",
+   "after": "Cobol.move(d.getAccountControlFailCode() == null ? \"\" : d.getAccountControlFailCode(), Field.alphanumeric(s, base + 46, 1, false), CS);",
    "verdict": "equivalent",
    "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values); a store that is widened or shifted lands in another named item (INITIALIZEd as well) or in FILLER, which the program never reads and the DTO has no property for"
   },
@@ -1357,15 +1378,6 @@
    "line": 245,
    "before": "Cobol.move(d.getAccountControlFailCode() == null ? \"\" : d.getAccountControlFailCode(), Field.alphanumeric(s, base + 45, 1, false), CS);",
    "after": "Cobol.move(d.getAccountControlFailCode() == null ? \"\" : d.getAccountControlFailCode(), Field.alphanumeric(s, base + 45, 2, false), CS);",
-   "verdict": "equivalent",
-   "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values); a store that is widened or shifted lands in another named item (INITIALIZEd as well) or in FILLER, which the program never reads and the DTO has no property for"
-  },
-  {
-   "id": "2a64c51a30",
-   "op": "CON",
-   "line": 245,
-   "before": "Cobol.move(d.getAccountControlFailCode() == null ? \"\" : d.getAccountControlFailCode(), Field.alphanumeric(s, base + 45, 1, false), CS);",
-   "after": "Cobol.move(d.getAccountControlFailCode() == null ? \"\" : d.getAccountControlFailCode(), Field.alphanumeric(s, base + 46, 1, false), CS);",
    "verdict": "equivalent",
    "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values); a store that is widened or shifted lands in another named item (INITIALIZEd as well) or in FILLER, which the program never reads and the DTO has no property for"
   },
@@ -1406,15 +1418,6 @@
    "reason": "fill_ reads SORT-CODE, which INITIALIZE DFHCOMMAREA leaves at zero and no statement of the program sets (it sets only NUMBER-OF-ACCOUNTS and the success flag); a shifted, widened or scaled read of those zero bytes reads zeros all the same, so the DTO value is the same"
   },
   {
-   "id": "46c2a36017",
-   "op": "CON",
-   "line": 251,
-   "before": "d.setAccountControlNumber(Cobol.num(Field.zoned(s, base + 20, 8, 0, false, false, false), CS).intValue());",
-   "after": "d.setAccountControlNumber(Cobol.num(Field.zoned(s, base + 20, 9, 0, false, false, false), CS).intValue());",
-   "verdict": "equivalent",
-   "reason": "ACCOUNT-CONTROL-NUMBER length 8->9 reads into offset 28 which contains the leading zoned zero digit of NUMBER-OF-ACCOUNTS; numeric value parsed remains 0"
-  },
-  {
    "id": "8a85f09711",
    "op": "CON",
    "line": 251,
@@ -1422,15 +1425,6 @@
    "after": "d.setAccountControlNumber(Cobol.num(Field.zoned(s, base + 20, 8, 1, false, false, false), CS).intValue());",
    "verdict": "equivalent",
    "reason": "fill_ reads ACCOUNT-CONTROL-NUMBER, which INITIALIZE DFHCOMMAREA leaves at zero and no statement of the program sets (it sets only NUMBER-OF-ACCOUNTS and the success flag); a scaled read (zero divided by ten) reads zeros all the same, so the DTO value is the same"
-  },
-  {
-   "id": "db2802af42",
-   "op": "CON",
-   "line": 251,
-   "before": "d.setAccountControlNumber(Cobol.num(Field.zoned(s, base + 20, 8, 0, false, false, false), CS).intValue());",
-   "after": "d.setAccountControlNumber(Cobol.num(Field.zoned(s, base + 21, 8, 0, false, false, false), CS).intValue());",
-   "verdict": "equivalent",
-   "reason": "ACCOUNT-CONTROL-NUMBER (offset 20..27) is cleared by INITIALIZE DFHCOMMAREA to zoned zeros and never written; reading offset 21..28 reads zoned zeros, yielding identical numeric value 0"
   },
   {
    "id": "08c92f7244",
@@ -1449,6 +1443,24 @@
    "after": "d.setAccountControlSuccessFlag(Cobol.text(Field.alphanumeric(s, base + 44, 2, false), CS));",
    "verdict": "equivalent",
    "reason": "fill_ reads the success flag and, widened to 2, the FAIL-CODE byte after it, a space the program never sets; the comparison drops trailing spaces (_same_commarea), so 'Y ' and 'Y' are the same value"
+  },
+  {
+   "id": "46c2a36017",
+   "op": "CON",
+   "line": 254,
+   "before": "d.setAccountControlNumber(Cobol.num(Field.zoned(s, base + 20, 8, 0, false, false, false), CS).intValue());",
+   "after": "d.setAccountControlNumber(Cobol.num(Field.zoned(s, base + 20, 9, 0, false, false, false), CS).intValue());",
+   "verdict": "case-gap",
+   "reason": "fill_ reads ACCOUNT-CONTROL-NUMBER 9 wide, taking in the first digit of NUMBER-OF-ACCOUNTS: it shows only at a count of 10,000,000 or more ACCOUNT rows of the sort code, which a real region can hold and this case's seed does not. Not attacked: too costly to reseed per scenario."
+  },
+  {
+   "id": "db2802af42",
+   "op": "CON",
+   "line": 254,
+   "before": "d.setAccountControlNumber(Cobol.num(Field.zoned(s, base + 20, 8, 0, false, false, false), CS).intValue());",
+   "after": "d.setAccountControlNumber(Cobol.num(Field.zoned(s, base + 21, 8, 0, false, false, false), CS).intValue());",
+   "verdict": "case-gap",
+   "reason": "fill_ reads ACCOUNT-CONTROL-NUMBER one byte late (base + 21), so its last digit is NUMBER-OF-ACCOUNTS' first: it shows only at 10,000,000 or more ACCOUNT rows of the sort code, a count a real region can hold and this case's seed does not. Not attacked: too costly to reseed per scenario."
   },
   {
    "id": "8983b78223",
@@ -1766,38 +1778,11 @@
    "reason": "ACCTCTRL's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTASKN/EIBDATE/EIBTIME cannot show"
   },
   {
-   "id": "cb28cb15bb",
-   "op": "AOR",
-   "line": 349,
-   "before": "Cobol.store(f113_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
-   "after": "Cobol.store(f113_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);",
-   "verdict": "equivalent",
-   "reason": "ACCTCTRL's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTASKN/EIBDATE/EIBTIME cannot show"
-  },
-  {
-   "id": "b7015b5c34",
-   "op": "AOR",
-   "line": 349,
-   "before": "Cobol.store(f113_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
-   "after": "Cobol.store(f113_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);",
-   "verdict": "equivalent",
-   "reason": "ACCTCTRL's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTASKN/EIBDATE/EIBTIME cannot show"
-  },
-  {
    "id": "24c4655ed3",
    "op": "DEL",
    "line": 349,
    "before": "Cobol.store(f113_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
    "after": "/* Cobol.store(f113_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS); */",
-   "verdict": "equivalent",
-   "reason": "ACCTCTRL's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTASKN/EIBDATE/EIBTIME cannot show"
-  },
-  {
-   "id": "b4e137aecf",
-   "op": "CON",
-   "line": 349,
-   "before": "Cobol.store(f113_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
-   "after": "Cobol.store(f113_EIBDATE, BigDecimal.valueOf((now.getYear() - 1901) * 1000L + now.getDayOfYear()), false, CS);",
    "verdict": "equivalent",
    "reason": "ACCTCTRL's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTASKN/EIBDATE/EIBTIME cannot show"
   },
@@ -1811,6 +1796,33 @@
    "reason": "ACCTCTRL's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTASKN/EIBDATE/EIBTIME cannot show"
   },
   {
+   "id": "b4e137aecf",
+   "op": "CON",
+   "line": 349,
+   "before": "Cobol.store(f113_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f113_EIBDATE, BigDecimal.valueOf((now.getYear() - 1901) * 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "ACCTCTRL's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTASKN/EIBDATE/EIBTIME cannot show"
+  },
+  {
+   "id": "b7015b5c34",
+   "op": "AOR",
+   "line": 349,
+   "before": "Cobol.store(f113_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f113_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "ACCTCTRL's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTASKN/EIBDATE/EIBTIME cannot show"
+  },
+  {
+   "id": "cb28cb15bb",
+   "op": "AOR",
+   "line": 349,
+   "before": "Cobol.store(f113_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f113_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "ACCTCTRL's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTASKN/EIBDATE/EIBTIME cannot show"
+  },
+  {
    "id": "1110e820ee",
    "op": "AOR",
    "line": 350,
@@ -1820,20 +1832,20 @@
    "reason": "ACCTCTRL's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTASKN/EIBDATE/EIBTIME cannot show"
   },
   {
-   "id": "6651ae8f93",
-   "op": "AOR",
-   "line": 350,
-   "before": "Cobol.store(f112_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
-   "after": "Cobol.store(f112_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() / 100L + now.getSecond()), false, CS);",
-   "verdict": "equivalent",
-   "reason": "ACCTCTRL's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTASKN/EIBDATE/EIBTIME cannot show"
-  },
-  {
    "id": "2f68daf701",
    "op": "AOR",
    "line": 350,
    "before": "Cobol.store(f112_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
    "after": "Cobol.store(f112_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L - now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "ACCTCTRL's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTASKN/EIBDATE/EIBTIME cannot show"
+  },
+  {
+   "id": "6651ae8f93",
+   "op": "AOR",
+   "line": 350,
+   "before": "Cobol.store(f112_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f112_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() / 100L + now.getSecond()), false, CS);",
    "verdict": "equivalent",
    "reason": "ACCTCTRL's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTASKN/EIBDATE/EIBTIME cannot show"
   },
@@ -1874,20 +1886,20 @@
    "reason": "calen only reaches EIBCALEN (never read by the program) and the exactCommarea cut test; the scenarios with a stated length are answered by cx() before this default matters, and the default (the record's width, 98 or 99) makes the cut a no-op or a refused PastFrom the same on both sides"
   },
   {
-   "id": "e552bf672a",
-   "op": "DEL",
-   "line": 357,
-   "before": "in_AcctctrlDfhcommarea(x, s_DFHCOMMAREA, 0);",
-   "after": "/* in_AcctctrlDfhcommarea(x, s_DFHCOMMAREA, 0); */",
-   "verdict": "equivalent",
-   "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values); the call's removal or a shifted base changes only bytes INITIALIZE then overwrites"
-  },
-  {
    "id": "3f8650c062",
    "op": "CON",
    "line": 357,
    "before": "in_AcctctrlDfhcommarea(x, s_DFHCOMMAREA, 0);",
    "after": "in_AcctctrlDfhcommarea(x, s_DFHCOMMAREA, 1);",
+   "verdict": "equivalent",
+   "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values); the call's removal or a shifted base changes only bytes INITIALIZE then overwrites"
+  },
+  {
+   "id": "e552bf672a",
+   "op": "DEL",
+   "line": 357,
+   "before": "in_AcctctrlDfhcommarea(x, s_DFHCOMMAREA, 0);",
+   "after": "/* in_AcctctrlDfhcommarea(x, s_DFHCOMMAREA, 0); */",
    "verdict": "equivalent",
    "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values); the call's removal or a shifted base changes only bytes INITIALIZE then overwrites"
   },
@@ -1903,119 +1915,110 @@
   {
    "id": "5f0dd571ba",
    "op": "DEL",
-   "line": 361,
+   "line": 364,
    "before": "s_DFHCOMMAREA.beyond = null;",
    "after": "/* s_DFHCOMMAREA.beyond = null; */",
-   "verdict": "equivalent",
-   "reason": "s_DFHCOMMAREA.beyond is initialized to null on Storage creation; deleting this initialization leaves it null."
+   "verdict": "harness-gap",
+   "reason": "ACCTCTRL's bytes past the 98-byte record, deleted `s_DFHCOMMAREA.beyond = null;`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-120, bytes-46, bytes-97, bytes-98, bytes-99)."
   },
   {
    "id": "069c1e4aef",
    "op": "CON",
-   "line": 364,
+   "line": 367,
    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
    "after": "System.arraycopy(cb, 1, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "verdict": "unreachable",
-   "reason": "ca instanceof byte[] branch is unreachable: callers pass AcctctrlDfhcommarea DTO, never raw byte[]"
-  },
-  {
-   "id": "520e44e27a",
-   "op": "CON",
-   "line": 364,
-   "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "after": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 1, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "verdict": "unreachable",
-   "reason": "ca instanceof byte[] branch is unreachable: callers pass AcctctrlDfhcommarea DTO, never raw byte[]"
+   "verdict": "harness-gap",
+   "reason": "ACCTCTRL's byte[] COMMAREA entry, `System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, ` -> `b, 1, s_DFHCOMMAREA.bytes, `: killed with the case's layout dropped and commarea_hex inputs (bytes-120, bytes-46, bytes-97, bytes-98, bytes-99), so this branch is reachable by an XCTL or RETURN that passes bytes. `try` refuses commarea_hex on a typed case, so no case can state it yet."
   },
   {
    "id": "362d45a825",
    "op": "DEL",
-   "line": 364,
+   "line": 367,
    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
    "after": "/* System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length)); */",
-   "verdict": "unreachable",
-   "reason": "ca instanceof byte[] branch is unreachable: callers pass AcctctrlDfhcommarea DTO, never raw byte[]"
+   "verdict": "harness-gap",
+   "reason": "ACCTCTRL's byte[] COMMAREA entry, deleted `System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_`: run with commarea_hex (bytes-120, bytes-46, bytes-97, bytes-98, bytes-99) and equal, but this entry compares no end COMMAREA (no layout on the COBOL side) and the program shows nothing it reads (INITIALIZE replaces the named items); what the mutant changes here is outside the proof."
+  },
+  {
+   "id": "520e44e27a",
+   "op": "CON",
+   "line": 367,
+   "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
+   "after": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 1, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
+   "verdict": "harness-gap",
+   "reason": "ACCTCTRL's byte[] COMMAREA entry, ` s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s` -> `s, 1, Math.min(cb.length, s`: run with commarea_hex (bytes-120, bytes-46, bytes-97, bytes-98, bytes-99) and equal, but this entry compares no end COMMAREA (no layout on the COBOL side) and the program shows nothing it reads (INITIALIZE replaces the named items); what the mutant changes here is outside the proof."
   },
   {
    "id": "0e06f550c4",
    "op": "ROR",
-   "line": 365,
+   "line": 368,
    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
    "after": "if (cb.length <= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "unreachable",
-   "reason": "ca instanceof byte[] branch is unreachable: callers pass AcctctrlDfhcommarea DTO, never raw byte[]"
+   "verdict": "harness-gap",
+   "reason": "ACCTCTRL's byte[] COMMAREA entry, `if (cb.length > s_DFHCOMMAREA.bytes.le` -> `th <= s_DFHCOMMAREA.bytes.l`: killed with the case's layout dropped and commarea_hex inputs (bytes-120, bytes-46, bytes-97, bytes-98, bytes-99), so this branch is reachable by an XCTL or RETURN that passes bytes. `try` refuses commarea_hex on a typed case, so no case can state it yet."
   },
   {
    "id": "8f8fcdc78e",
    "op": "ROR",
-   "line": 365,
+   "line": 368,
    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
    "after": "if (cb.length >= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "unreachable",
-   "reason": "ca instanceof byte[] branch is unreachable: callers pass AcctctrlDfhcommarea DTO, never raw byte[]"
+   "verdict": "harness-gap",
+   "reason": "ACCTCTRL's byte[] COMMAREA entry, `if (cb.length > s_DFHCOMMAREA.bytes.len` -> `h >= s_DFHCOMMAREA.bytes.le`: run with commarea_hex (bytes-120, bytes-46, bytes-97, bytes-98, bytes-99) and equal, but this entry compares no end COMMAREA (no layout on the COBOL side) and the program shows nothing it reads (INITIALIZE replaces the named items); what the mutant changes here is outside the proof."
   },
   {
    "id": "de44fd9525",
    "op": "NEG",
-   "line": 365,
+   "line": 368,
    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
    "after": "if (!(cb.length > s_DFHCOMMAREA.bytes.length)) {",
-   "verdict": "unreachable",
-   "reason": "ca instanceof byte[] branch is unreachable: callers pass AcctctrlDfhcommarea DTO, never raw byte[]"
+   "verdict": "harness-gap",
+   "reason": "ACCTCTRL's byte[] COMMAREA entry, `if (cb.length > s_DFHCOMMARE` -> `f (!(cb.length > s_DFHCOMMA`: killed with the case's layout dropped and commarea_hex inputs (bytes-120, bytes-46, bytes-97, bytes-98, bytes-99), so this branch is reachable by an XCTL or RETURN that passes bytes. `try` refuses commarea_hex on a typed case, so no case can state it yet."
   },
   {
    "id": "e3b249b85b",
    "op": "DEL",
-   "line": 366,
+   "line": 369,
    "before": "s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length);",
    "after": "/* s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length); */",
-   "verdict": "unreachable",
-   "reason": "ca instanceof byte[] branch is unreachable: callers pass AcctctrlDfhcommarea DTO, never raw byte[]"
+   "verdict": "harness-gap",
+   "reason": "ACCTCTRL's byte[] COMMAREA entry, deleted `s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.`: run with commarea_hex (bytes-120, bytes-46, bytes-97, bytes-98, bytes-99) and equal, but this entry compares no end COMMAREA (no layout on the COBOL side) and the program shows nothing it reads (INITIALIZE replaces the named items); what the mutant changes here is outside the proof."
   },
   {
    "id": "bfa027f7f8",
    "op": "DEL",
-   "line": 368,
+   "line": 371,
    "before": "calen = cx(task, cb.length);",
    "after": "/* calen = cx(task, cb.length); */",
-   "verdict": "unreachable",
-   "reason": "ca instanceof byte[] branch is unreachable: callers pass AcctctrlDfhcommarea DTO, never raw byte[]"
+   "verdict": "harness-gap",
+   "reason": "ACCTCTRL's byte[] COMMAREA entry, deleted `calen = cx(task, cb.length);`: killed with the case's layout dropped and commarea_hex inputs (bytes-120, bytes-46, bytes-97, bytes-98, bytes-99), so this branch is reachable by an XCTL or RETURN that passes bytes. `try` refuses commarea_hex on a typed case, so no case can state it yet."
   },
   {
    "id": "8e70405752",
    "op": "DEL",
-   "line": 374,
+   "line": 377,
    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
    "after": "/* s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null; */",
-   "verdict": "unreachable",
-   "reason": "raw != null branch is unreachable: task.linkArea() is only passed by 2-param handleLink, which is never invoked"
+   "verdict": "harness-gap",
+   "reason": "ACCTCTRL's bytes past the 98-byte record, deleted `s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRang`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-120, bytes-46, bytes-97, bytes-98, bytes-99)."
   },
   {
    "id": "e191f2a317",
    "op": "ROR",
-   "line": 374,
+   "line": 377,
    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
    "after": "s_DFHCOMMAREA.beyond = raw.length >= keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
-   "verdict": "unreachable",
-   "reason": "raw != null branch is unreachable: task.linkArea() is only passed by 2-param handleLink, which is never invoked"
-  },
-  {
-   "id": "e2635941aa",
-   "op": "AOR",
-   "line": 376,
-   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } };",
-   "verdict": "unreachable",
-   "reason": "raw != null branch is unreachable: task.linkArea() is only passed by 2-param handleLink, which is never invoked"
+   "verdict": "harness-gap",
+   "reason": "ACCTCTRL's bytes past the 98-byte record, `.beyond = raw.length > keep ? java.util.Arrays` -> `h >= keep ? java.util.Array`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-120, bytes-46, bytes-97, bytes-98, bytes-99)."
   },
   {
    "id": "339a2ce1c2",
    "op": "CON",
-   "line": 376,
+   "line": 379,
    "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
    "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } };",
-   "verdict": "unreachable",
-   "reason": "raw != null branch is unreachable: task.linkArea() is only passed by 2-param handleLink, which is never invoked"
+   "verdict": "harness-gap",
+   "reason": "ACCTCTRL's bytes past the 98-byte record, `s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length` -> `d, 1, raw, keep, raw.length`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-120, bytes-46, bytes-97, bytes-98, bytes-99)."
   },
   {
    "id": "48df5b2eb1",
@@ -2025,6 +2028,15 @@
    "after": "if (task.exactCommarea() && calen <= s_DFHCOMMAREA.bytes.length) {",
    "verdict": "equivalent",
    "reason": "calen == the 98-byte storage would only copy the full area to an array of its own length and restore it; the result is the same bytes either way"
+  },
+  {
+   "id": "e2635941aa",
+   "op": "AOR",
+   "line": 379,
+   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } };",
+   "verdict": "harness-gap",
+   "reason": "ACCTCTRL's bytes past the 98-byte record, `raw, keep, raw.length - keep); } };` -> `th + keep); } };`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-120, bytes-46, bytes-97, bytes-98, bytes-99)."
   },
   {
    "id": "c14f11a161",
@@ -2110,56 +2122,56 @@
   {
    "id": "b666b1ca77",
    "op": "LIT",
-   "line": 423,
+   "line": 426,
    "before": "CicsTask task = region.linked(\"ACCTCTRL\", request, area);",
    "after": "CicsTask task = region.linked(\"XCCTCTRL\", request, area);",
-   "verdict": "unreachable",
-   "reason": "handleLink(request, byte[] area) overload is never called by the equivalence test runner"
+   "verdict": "harness-gap",
+   "reason": "ACCTCTRL's handleLink(request, byte[] area) / lastLinkBytes(), `task = region.linked(\"ACCTCTRL\", request, area` -> `d(\"XCCTCTRL\", request, area`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
   },
   {
    "id": "5081b1b958",
    "op": "LIT",
-   "line": 424,
+   "line": 427,
    "before": "region.run(task, \"ACCTCTRL\", this::runTask);",
    "after": "region.run(task, \"XCCTCTRL\", this::runTask);",
-   "verdict": "unreachable",
-   "reason": "handleLink(request, byte[] area) overload is never called by the equivalence test runner"
-  },
-  {
-   "id": "c8dcac24ae",
-   "op": "DEL",
-   "line": 426,
-   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "after": "/* lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null; */",
-   "verdict": "unreachable",
-   "reason": "handleLink(request, byte[] area) overload is never called by the equivalence test runner"
-  },
-  {
-   "id": "fd15e9a013",
-   "op": "ROR",
-   "line": 426,
-   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "after": "lastLinkBytes = task.linkAreaTaken() && left == null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "verdict": "unreachable",
-   "reason": "handleLink(request, byte[] area) overload is never called by the equivalence test runner"
+   "verdict": "harness-gap",
+   "reason": "ACCTCTRL's handleLink(request, byte[] area) / lastLinkBytes(), `region.run(task, \"ACCTCTRL\", this::runTask` -> `, \"XCCTCTRL\", this::runTask`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
   },
   {
    "id": "12d12301d2",
    "op": "COR",
-   "line": 426,
+   "line": 429,
    "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
    "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "verdict": "unreachable",
-   "reason": "handleLink(request, byte[] area) overload is never called by the equivalence test runner"
+   "verdict": "harness-gap",
+   "reason": "ACCTCTRL's handleLink(request, byte[] area) / lastLinkBytes(), ` task.linkAreaTaken() && left != null ? java.u` -> `() || left != null ? java.u`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
+  },
+  {
+   "id": "c8dcac24ae",
+   "op": "DEL",
+   "line": 429,
+   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "after": "/* lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null; */",
+   "verdict": "harness-gap",
+   "reason": "ACCTCTRL's handleLink(request, byte[] area) / lastLinkBytes(), deleted `lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Array`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
+  },
+  {
+   "id": "fd15e9a013",
+   "op": "ROR",
+   "line": 429,
+   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "after": "lastLinkBytes = task.linkAreaTaken() && left == null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "verdict": "harness-gap",
+   "reason": "ACCTCTRL's handleLink(request, byte[] area) / lastLinkBytes(), `nkAreaTaken() && left != null ? java.util.Arra` -> `ft == null ? java.util.Arra`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
   },
   {
    "id": "44fcd9edf7",
    "op": "ROR",
-   "line": 436,
+   "line": 439,
    "before": "return lastLinkBytes == null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
    "after": "return lastLinkBytes != null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
-   "verdict": "unreachable",
-   "reason": "lastLinkBytes() helper is never called in equivalence testing"
+   "verdict": "harness-gap",
+   "reason": "ACCTCTRL's handleLink(request, byte[] area) / lastLinkBytes(), `return lastLinkBytes == null ? null : java.ut` -> `es != null ? null : java.ut`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
   },
   {
    "id": "5ba9f085a7",
@@ -2189,15 +2201,6 @@
    "reason": "Only the exception's message and stack-trace suppression: nothing reads either (Goback / PerformExit are control flow)."
   },
   {
-   "id": "c8e52e960a",
-   "op": "CON",
-   "line": 499,
-   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
-   "after": "performThru = java.util.Arrays.copyOf(performThru, mine * 3);",
-   "verdict": "unreachable",
-   "reason": "performThru grows only when 64 PERFORMs are active at once; this program nests at most two"
-  },
-  {
    "id": "2cd8c8e306",
    "op": "AOR",
    "line": 499,
@@ -2212,6 +2215,15 @@
    "line": 499,
    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
    "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */",
+   "verdict": "unreachable",
+   "reason": "performThru grows only when 64 PERFORMs are active at once; this program nests at most two"
+  },
+  {
+   "id": "c8e52e960a",
+   "op": "CON",
+   "line": 499,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "performThru = java.util.Arrays.copyOf(performThru, mine * 3);",
    "verdict": "unreachable",
    "reason": "performThru grows only when 64 PERFORMs are active at once; this program nests at most two"
   },
@@ -2252,6 +2264,15 @@
    "reason": "ACCTCTRL has no GO TO. With `jumped` forced or the range-end return skipped, PERFORM 3..5 does not return at paragraph 5 (WCD999) and falls through 6..10: POPULATE-TIME-DATE's ASKTIME/FORMATTIME write only items nothing reads, and GET-ME-OUT-OF-HERE's RETURN fires with the COMMAREA already filled by WCD010, the same RETURN the original reaches after the second PERFORM"
   },
   {
+   "id": "023f8908ed",
+   "op": "ROR",
+   "line": 512,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d > 0; d--) {",
+   "verdict": "equivalent",
+   "reason": "the scan looks for an outer active PERFORM whose range ends at the paragraph just run; the only outer range is perform(0, 11) from runTask, whose end (paragraph 11) is never run (p10 throws Goback), so the scan never finds a match whatever its bounds"
+  },
+  {
    "id": "90676fa647",
    "op": "CON",
    "line": 512,
@@ -2266,15 +2287,6 @@
    "line": 512,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
    "after": "for (int d = mine - 1; d >= 1; d--) {",
-   "verdict": "equivalent",
-   "reason": "the scan looks for an outer active PERFORM whose range ends at the paragraph just run; the only outer range is perform(0, 11) from runTask, whose end (paragraph 11) is never run (p10 throws Goback), so the scan never finds a match whatever its bounds"
-  },
-  {
-   "id": "023f8908ed",
-   "op": "ROR",
-   "line": 512,
-   "before": "for (int d = mine - 1; d >= 0; d--) {",
-   "after": "for (int d = mine - 1; d > 0; d--) {",
    "verdict": "equivalent",
    "reason": "the scan looks for an outer active PERFORM whose range ends at the paragraph just run; the only outer range is perform(0, 11) from runTask, whose end (paragraph 11) is never run (p10 throws Goback), so the scan never finds a match whatever its bounds"
   },
@@ -2297,20 +2309,20 @@
    "reason": "next reaches 12 only if p11 returns it; p11 is never run (p10 throws Goback first), so the bound >= 12 vs > 12 / >= 13 is never decided"
   },
   {
-   "id": "f1800956c6",
-   "op": "ROR",
-   "line": 524,
-   "before": "if (e.depth != mine) {",
-   "after": "if (e.depth == mine) {",
-   "verdict": "unreachable",
-   "reason": "PerformExit is thrown only when control reaches the end of an outer active PERFORM range; there is no outer PERFORM, so the catch never runs"
-  },
-  {
    "id": "43307d6028",
    "op": "NEG",
    "line": 524,
    "before": "if (e.depth != mine) {",
    "after": "if (!(e.depth != mine)) {",
+   "verdict": "unreachable",
+   "reason": "PerformExit is thrown only when control reaches the end of an outer active PERFORM range; there is no outer PERFORM, so the catch never runs"
+  },
+  {
+   "id": "f1800956c6",
+   "op": "ROR",
+   "line": 524,
+   "before": "if (e.depth != mine) {",
+   "after": "if (e.depth == mine) {",
    "verdict": "unreachable",
    "reason": "PerformExit is thrown only when control reaches the end of an outer active PERFORM range; there is no outer PERFORM, so the catch never runs"
   },
@@ -2441,20 +2453,20 @@
    "reason": "INITIALIZE DFHCOMMAREA: the change either overlaps bytes the next statement writes again (a longer item), changes a ZEROS move's scale, which writes the same digits, or leaves the flag/fail-code byte that every path sets afterwards ('Y'/'N' by the SQLCODE test; the fail code is blanked by its own statement)"
   },
   {
-   "id": "69577541f3",
-   "op": "CON",
-   "line": 585,
-   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 28, 8, 0, false, false, false), CS);",
-   "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 28, 9, 0, false, false, false), CS);",
-   "verdict": "equivalent",
-   "reason": "INITIALIZE DFHCOMMAREA: the change either overlaps bytes the next statement writes again (a longer item), changes a ZEROS move's scale, which writes the same digits, or leaves the flag/fail-code byte that every path sets afterwards ('Y'/'N' by the SQLCODE test; the fail code is blanked by its own statement)"
-  },
-  {
    "id": "655f622e63",
    "op": "CON",
    "line": 585,
    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 28, 8, 0, false, false, false), CS);",
    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 28, 8, 1, false, false, false), CS);",
+   "verdict": "equivalent",
+   "reason": "INITIALIZE DFHCOMMAREA: the change either overlaps bytes the next statement writes again (a longer item), changes a ZEROS move's scale, which writes the same digits, or leaves the flag/fail-code byte that every path sets afterwards ('Y'/'N' by the SQLCODE test; the fail code is blanked by its own statement)"
+  },
+  {
+   "id": "69577541f3",
+   "op": "CON",
+   "line": 585,
+   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 28, 8, 0, false, false, false), CS);",
+   "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 28, 9, 0, false, false, false), CS);",
    "verdict": "equivalent",
    "reason": "INITIALIZE DFHCOMMAREA: the change either overlaps bytes the next statement writes again (a longer item), changes a ZEROS move's scale, which writes the same digits, or leaves the flag/fail-code byte that every path sets afterwards ('Y'/'N' by the SQLCODE test; the fail code is blanked by its own statement)"
   },
@@ -2477,20 +2489,20 @@
    "reason": "INITIALIZE DFHCOMMAREA: the change either overlaps bytes the next statement writes again (a longer item), changes a ZEROS move's scale, which writes the same digits, or leaves the flag/fail-code byte that every path sets afterwards ('Y'/'N' by the SQLCODE test; the fail code is blanked by its own statement)"
   },
   {
-   "id": "56aff2bcd2",
-   "op": "CON",
-   "line": 587,
-   "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 44, 1, false), CS);",
-   "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 45, 1, false), CS);",
-   "verdict": "equivalent",
-   "reason": "INITIALIZE DFHCOMMAREA: the change either overlaps bytes the next statement writes again (a longer item), changes a ZEROS move's scale, which writes the same digits, or leaves the flag/fail-code byte that every path sets afterwards ('Y'/'N' by the SQLCODE test; the fail code is blanked by its own statement)"
-  },
-  {
    "id": "5219f18d01",
    "op": "CON",
    "line": 587,
    "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 44, 1, false), CS);",
    "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 44, 2, false), CS);",
+   "verdict": "equivalent",
+   "reason": "INITIALIZE DFHCOMMAREA: the change either overlaps bytes the next statement writes again (a longer item), changes a ZEROS move's scale, which writes the same digits, or leaves the flag/fail-code byte that every path sets afterwards ('Y'/'N' by the SQLCODE test; the fail code is blanked by its own statement)"
+  },
+  {
+   "id": "56aff2bcd2",
+   "op": "CON",
+   "line": 587,
+   "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 44, 1, false), CS);",
+   "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 45, 1, false), CS);",
    "verdict": "equivalent",
    "reason": "INITIALIZE DFHCOMMAREA: the change either overlaps bytes the next statement writes again (a longer item), changes a ZEROS move's scale, which writes the same digits, or leaves the flag/fail-code byte that every path sets afterwards ('Y'/'N' by the SQLCODE test; the fail code is blanked by its own statement)"
   },

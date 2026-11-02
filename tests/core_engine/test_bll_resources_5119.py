@@ -144,3 +144,8 @@ def test_a_huge_pic_count_is_bounded():
         "FRPTR1": "FILE-REC",
         "TSPTR": "FILE-REC",
     }
+
+
+def test_receive_map_set_cell_reports_the_record():
+    op = _one(_src(SMALL, "RECEIVE MAP('M') MAPSET('S') SET(FRPTR)"))
+    assert (op["kind"], op["record"], op["record_cell"]) == ("MAP", "FILE-REC", "FRPTR")

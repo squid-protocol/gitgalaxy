@@ -628,6 +628,18 @@
     }
    }
   },
+  "gt-http-inbound/GTHECHO": {
+   "live": 1,
+   "outcomes": 0,
+   "scenarios": {
+    "echo": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": []
+    }
+   }
+  },
   "gt-post-wait-event/GTPOST": {
    "live": 5,
    "outcomes": 9,
@@ -1141,6 +1153,58 @@
      ]
     }
    }
+  },
+  "gt-web-server-receive/GTWRECV": {
+   "live": 1,
+   "outcomes": 6,
+   "scenarios": {
+    "receive": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "82:true",
+      "87:false",
+      "99:true"
+     ]
+    },
+    "lengerr": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "82:true",
+      "87:false",
+      "99:true"
+     ]
+    },
+    "extract": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "82:true",
+      "87:false",
+      "99:true"
+     ]
+    },
+    "header": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "82:true",
+      "87:false",
+      "99:false",
+      "99:true"
+     ]
+    }
+   }
+  },
+  "gt-web-server-send/GTWSEND": {
+   "live": 1,
+   "outcomes": 7,
+   "scenarios": {}
   },
   "hc-abend-link/HCMAIN": {
    "live": 4,

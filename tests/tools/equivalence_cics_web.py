@@ -10,6 +10,7 @@ from __future__ import annotations
 from typing import Any
 
 import equivalence_cics as ec
+from gitgalaxy.tools.cobol_to_java.det.cics_web import code_page_pair_refusal
 
 
 _HTTP_PEER_KEYS = {"scheme", "host", "port", "urimap", "path", "exchanges"}
@@ -211,6 +212,8 @@ def _web_send(opts: dict[str, str | None], labels: list[str] | None) -> list[str
         raise ec.Unsupported(_web_requires(key, "STATUSLEN", "STATUSTEXT"), [key])
     if "DOCSTATUS" in opts and "DOCTOKEN" not in opts:
         raise ec.Unsupported(_web_requires(key, "DOCSTATUS", "DOCTOKEN"), [key])
+    if (why := code_page_pair_refusal(opts, key)) is not None:
+        raise ec.Unsupported(why, [key])
     for o in (
         "FROMLENGTH",
         "DOCTOKEN",
@@ -225,7 +228,7 @@ def _web_send(opts: dict[str, str | None], labels: list[str] | None) -> list[str
     ):
         if o in opts and not opts[o]:
             raise ec.Unsupported(ec.NEEDS_ARGUMENT, [key])
-    for o in ("FROM", "DOCTOKEN", "MEDIATYPE", "STATUSTEXT"):
+    for o in ("FROM", "DOCTOKEN", "STATUSTEXT"):  # (#6876: MEDIATYPE may be a literal, GTHECHO)
         if opts.get(o) and ec._literal(opts[o]):
             raise ec.Unsupported(f"{key} {o} as a literal: a data area is the COBOL form", [key])
     conv = 1 if "SRVCONVERT" in opts else 2 if "NOSRVCONVERT" in opts else 0
@@ -352,6 +355,8 @@ def _web_receive(opts: dict[str, str | None], labels: list[str] | None) -> list[
         raise ec.Unsupported(_web_requires(key, "SET", "LENGTH"), [key])
     if "SRVCONVERT" in opts and "NOSRVCONVERT" in opts:
         raise ec.Unsupported(ec._rule(key, "at_most_one", "SRVCONVERT"), [key])
+    if (why := code_page_pair_refusal(opts, key)) is not None:
+        raise ec.Unsupported(why, [key])
     for o in ("INTO", "MEDIATYPE"):
         if o in opts and (not opts[o] or ec._literal(opts[o])):
             raise ec.Unsupported(
@@ -405,14 +410,19 @@ def _web_header(form: str, opts: dict[str, str | None], labels: list[str] | None
     for o in ("HTTPHEADER", "NAMELENGTH", "VALUE", "VALUELENGTH"):
         if not opts.get(o):
             raise ec.Unsupported(ec._rule(key, "required", o), [key])
-    for o in ("HTTPHEADER", "VALUE"):
-        if ec._literal(opts[o]):
-            raise ec.Unsupported(f"{key} {o} as a literal: a data area is the COBOL form", [key])
+    for o in ("HTTPHEADER", "VALUE"):  # #6876: a literal name (and WRITE's value) is a COBOL literal BY REFERENCE
+        if ec._literal(opts[o]) is not None and (form == "READ" and o == "VALUE"):
+            raise ec.Unsupported(f"{key} {o} as a literal: it is written to, so a data area is required", [key])
     lines = [f"MOVE {opts['NAMELENGTH']} TO GG-LEN", f"MOVE {opts['VALUELENGTH']} TO GG-NUM"]
     args = [f"BY REFERENCE {opts['HTTPHEADER']}", f"BY VALUE LENGTH OF {opts['HTTPHEADER']}",
             f"BY REFERENCE {opts['VALUE']}", f"BY VALUE LENGTH OF {opts['VALUE']}"]  # fmt: skip
     entry = "GGCWRDH" if form == "READ" else "GGCWWRH"
-    after = ["IF GG-RESP = 0", f"    MOVE GG-NUM TO {opts['VALUELENGTH']}", "END-IF"] if form == "READ" else []
+    literal_len = opts["VALUELENGTH"].strip().isdigit()  # #6876: a literal VALUELENGTH is input only (GTWSEND)
+    after = (
+        ["IF GG-RESP = 0", f"    MOVE GG-NUM TO {opts['VALUELENGTH']}", "END-IF"]
+        if form == "READ" and not literal_len
+        else []
+    )
     return lines + ec._call(entry, args) + after + ec._resp(opts, True, labels)
 
 

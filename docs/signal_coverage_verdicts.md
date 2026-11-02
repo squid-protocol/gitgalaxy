@@ -26,7 +26,7 @@ detection** (the construct is in the crucible or a plant and the rule misses it)
 ## Sibling gaps (not fixed here)
 
 * `lit_code_blocks` has the same fence shape gap as `lit_diagrams` (tilde fences, indented list fences not counted).
-* The `hardware_bridge` Python list still lacks `smbus`, `spidev`, `RPi.GPIO`, `gpiozero`: contract-eligible peripheral I/O.
+* The `hardware_bridge` Python list gained `smbus`/`smbus2`, `spidev`, `RPi`, `gpiozero`, `pigpio` (#4108 slice 5; the crucible holds none, golden unmoved). Still unnamed: `serial_asyncio`, `evdev`, `pyaudio`, `cv2` camera capture (each needs a contract call on what counts as a peripheral).
 * Crucible additions (needs a release and pin bump, `docs/ecosystem.md`): mermaid/plantuml docs in more repos, a
   feature-flagged, RAG and LLM-app service, pyserial/BLE code under `data/python`.
 * Safety bypass forms still unread: none known among the TLS-verification set of #6239 (Java trust-all, .NET and PowerShell accept-any callbacks and policies, `-SkipCertificateCheck`, `wget --no-check-certificate`, all read since #6414 / #6531 and this slice).

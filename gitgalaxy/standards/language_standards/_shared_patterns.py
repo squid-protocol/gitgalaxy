@@ -198,7 +198,11 @@ JS_DL_FRAMEWORKS = _js_package_import(
 # `x509` / `crypto` tokens) still count; `socket.io` is
 # dropped (not a python module name) and `webgl` kept as before.
 # python's serial library is `pyserial`, imported as `serial` (#4108); `bleak` is its bluetooth-LE client.
-PY_HARDWARE_BRIDGE = _py_package_import(r"serialport|serial|pyserial|usb|bluetooth|bleak|websocket|printer|webgl")
+# Peripheral-bus and single-board-computer libraries (#4108): `smbus`/`smbus2` (I2C), `spidev` (SPI), `RPi` (RPi.GPIO),
+# `gpiozero`, `pigpio`. Each is a top-level package, so `(?!\w)` keeps `smbus_helpers` silent.
+PY_HARDWARE_BRIDGE = _py_package_import(
+    r"serialport|serial|pyserial|usb|bluetooth|bleak|websocket|printer|webgl|smbus2?|spidev|RPi|gpiozero|pigpio"
+)
 PY_CRYPTOGRAPHY = _py_package_import(
     r"cryptography|OpenSSL|crypto|bcrypt|x509|tls|ssl|jsonwebtoken|argon2|hashlib|hmac"
 )

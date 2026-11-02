@@ -1,5 +1,5 @@
 {
- "commit": "4fe5acd33",
+ "commit": "217b2c5a6",
  "components": {
   "capabilities": {
    "groups": [
@@ -335,17 +335,17 @@
   "det_mutation": {
    "estates": {
     "aws-mainframe-modernization-carddemo": {
-     "caught": 1152,
+     "caught": 1647,
      "equivalent": 978,
      "l5": 5,
      "measured": 12,
      "mutants": 23824,
      "programs": 44,
-     "raw_pct": 64.4,
+     "raw_pct": 57.7,
      "ready": 0,
      "sampled": 2928,
      "sampled_pct": 12.3,
-     "survived": 637,
+     "survived": 1208,
      "unreachable": 202
     },
     "cics-async-api-credit-card-application-example": {
@@ -365,7 +365,7 @@
     "cics-banking-sample-application-cbsa": {
      "caught": 835,
      "equivalent": 1062,
-     "l5": 1,
+     "l5": 2,
      "measured": 6,
      "mutants": 2854,
      "programs": 31,
@@ -420,17 +420,17 @@
     }
    },
    "total": {
-    "caught": 8787,
+    "caught": 9282,
     "equivalent": 3185,
-    "l5": 20,
+    "l5": 21,
     "measured": 32,
     "mutants": 35362,
     "programs": 129,
-    "raw_pct": 72.7,
+    "raw_pct": 70.5,
     "ready": 0,
     "sampled": 13590,
     "sampled_pct": 38.4,
-    "survived": 3304,
+    "survived": 3875,
     "unreachable": 1182
    }
   },
@@ -481,7 +481,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-11-02T11:09:17Z",
+  "as_of": "2026-11-02T11:44:30Z",
   "core": {
    "closed": 206,
    "open": 9,
@@ -520,8 +520,8 @@
   },
   "infra": {
    "closed": 245,
-   "open": 27,
-   "total": 272
+   "open": 28,
+   "total": 273
   },
   "measured": true,
   "milestones": [
@@ -737,11 +737,11 @@
   "title_counts": {
    "cics": {
     "closed": 105,
-    "total": 118
+    "total": 119
    },
    "cobol": {
     "closed": 138,
-    "total": 152
+    "total": 153
    }
   },
   "window_days": 7
@@ -787,14 +787,14 @@
     "l2_plus_pct": 100.0,
     "l4_plus": 31,
     "l4_plus_pct": 100.0,
-    "l5": 1,
+    "l5": 2,
     "levels": {
      "L0": 0,
      "L1": 0,
      "L2": 0,
      "L3": 0,
-     "L4": 30,
-     "L5": 1
+     "L4": 29,
+     "L5": 2
     },
     "programs": 31,
     "translated_whole": 31
@@ -853,21 +853,21 @@
   },
   "test_estates": {
    "cics-crucible": {
-    "l2_plus": 65,
-    "l2_plus_pct": 76.5,
-    "l4_plus": 57,
-    "l4_plus_pct": 67.1,
+    "l2_plus": 77,
+    "l2_plus_pct": 90.6,
+    "l4_plus": 70,
+    "l4_plus_pct": 82.4,
     "l5": 0,
     "levels": {
-     "L0": 4,
-     "L1": 16,
-     "L2": 5,
+     "L0": 3,
+     "L1": 5,
+     "L2": 4,
      "L3": 3,
-     "L4": 57,
+     "L4": 70,
      "L5": 0
     },
     "programs": 85,
-    "translated_whole": 81
+    "translated_whole": 82
    }
   },
   "total": {
@@ -875,14 +875,14 @@
    "l2_plus_pct": 97.7,
    "l4_plus": 126,
    "l4_plus_pct": 97.7,
-   "l5": 20,
+   "l5": 21,
    "levels": {
     "L0": 3,
     "L1": 0,
     "L2": 0,
     "L3": 0,
-    "L4": 106,
-    "L5": 20
+    "L4": 105,
+    "L5": 21
    },
    "programs": 129,
    "reachable": 126,

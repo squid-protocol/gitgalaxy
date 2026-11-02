@@ -126,8 +126,8 @@ era 0: 0, era 1: 0, era 2: 0, era 3: 0, era 4: 7, era none: 3
 | L1 translated whole | 0 |
 | L2 executed equivalent | 0 |
 | L3 paragraph coverage | 0 |
-| L4 branch coverage | 30 |
-| L5 mutants accounted for | 1 |
+| L4 branch coverage | 29 |
+| L5 mutants accounted for | 2 |
 
 - translated whole: 31 / 31 (100%); with holes: 0; refused: 0
 - whole-translated but a CALL / LINK target has holes (below L2 until it is closed): 0
@@ -269,7 +269,7 @@ era 0: 0, era 1: 0, era 2: 2, era 3: 0, era 4: 1, era none: 3
 | 2 | CEEHDLR: registering an LE user condition handler is not modelled | 0 | 0 | 1 | - |
 | 3 | CEEHDLU: unregistering an LE user condition handler is not modelled | 0 | 0 | 1 | - |
 | 4 | EPSCSMRI: no service of its own, its translation is refused: epscsmrd.cbl:N: the PICTURE N (…) is not modelled | 0 | 0 | 1 | - |
-| 5 | EPSCSMRO: no service of its own, its translation is refused: OS/VS COBOL BLL addressing: SERVICE LABEL (…): no | 0 | 0 | 1 | - |
+| 5 | EPSCSMRO: no service of its own, its translation is refused: LE recovery point: SERVICE LABEL (…): the resume  | 0 | 0 | 1 | - |
 | 6 | EXEC CICS SOAPFAULT CREATE | 0 | 0 | 1 | - |
 | 7 | SET TO ENTRY: procedure / function pointers are not modelled | 0 | 0 | 1 | - |
 

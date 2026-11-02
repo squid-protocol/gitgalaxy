@@ -1,0 +1,29 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "CABRERR",
+  "program_source": "cases/commarea-mismatch/ca-channel-browse/src/CABRERR.cbl",
+  "copy_dirs": [
+    "cases/commarea-mismatch/ca-channel-browse/copy"
+  ],
+  "transid": "CA08",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "termid": "T001",
+  "notes": "cics-crucible commarea-mismatch / ca-channel-browse (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): DELETE CHANNEL of a channel that does not exist, with neither RESP nor HANDLE CONDITION (CICS's default action). The oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs. The program is a channel program the forge gives no terminal facade: it runs LINKed, with an empty channel it never reads.",
+  "scenarios": [
+    {
+      "name": "unhandled-channelerr",
+      "commarea": null,
+      "terminal": "CA08",
+      "why": "DELETE CHANNEL of a channel that does not exist, no RESP: the task abends",
+      "channel": {
+        "name": "CABRUNCHAN",
+        "containers": {}
+      }
+    }
+  ],
+  "linked": true
+}

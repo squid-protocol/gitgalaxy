@@ -1,0 +1,21 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "CALDTG",
+  "program_source": "cases/commarea-mismatch/ca-load-set/src/CALDTG.cbl",
+  "transid": "CA0M",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "termid": "T001",
+  "notes": "cics-crucible commarea-mismatch / ca-load-set (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): CALDTG is the program the other two LOAD; the crucible never runs it. Entered directly here (RETURN only) so its one paragraph is run. The transid is the harness's, not the crucible's.",
+  "scenarios": [
+    {
+      "name": "direct-return",
+      "commarea": null,
+      "terminal": "CA0M",
+      "why": "The program entered directly: it RETURNs"
+    }
+  ]
+}

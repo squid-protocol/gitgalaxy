@@ -983,6 +983,45 @@ def test_no_burned_program_names_an_mq_unit_of_work_call():
     assert not named, named
 
 
+REST_MQ_VERBS = (
+    "MQINQ", "MQSET", "MQSUB", "MQSUBRQ", "MQCB", "MQCTL", "MQSTAT",
+    "MQCRTMH", "MQDLTMH", "MQSETMP", "MQINQMP", "MQDLTMP", "MQMHBUF", "MQBUFMH",
+)  # fmt: skip
+REST_MQ_NAME = re.compile(r"\b(?:" + "|".join(REST_MQ_VERBS) + r")\b", re.IGNORECASE)
+
+
+def test_every_other_mqi_verb_is_refused_by_name_with_its_reason():
+    """#5259 (W6): MQINQ / MQSET, pub/sub, async, status and the message-handle calls are each in UNMODELLED, not in
+    CALLS, and a CALL of any of them is a translation hole naming W6 (never a silent pass-through)."""
+    from gitgalaxy.tools.cobol_to_java.det import mq
+
+    g, G = _gen(True)
+    for prog in REST_MQ_VERBS:
+        assert prog in SPEC.UNMODELLED and prog not in SPEC.CALLS, prog
+        assert mq.handles(prog)
+        with pytest.raises(G.Untranslatable, match=rf"CALL {prog}: .* not modelled \(register W6\)"):
+            mq.call(g, prog, _args("HC", "HO"), "")
+
+
+def test_no_burned_program_names_any_other_mqi_verb():
+    """#5259 (W6): no burned source names MQINQ / MQSET / MQSUB / MQSUBRQ / MQCB / MQCTL / MQSTAT or a message-handle
+    call in code (a literal or a data item a dynamic CALL could hold), so none has a burned consumer to prove."""
+    corpora = Path(os.environ.get("GITGALAXY_MAINFRAME_CORPORA", ROOT / ".mainframe_corpora"))
+    if not _burned_mq_calls():
+        pytest.skip("needs the burned mainframe corpora (GITGALAXY_MAINFRAME_CORPORA)")
+    named: list[str] = []
+    for name in BURNED_CORPORA:
+        for p in (corpora / name).rglob("*") if (corpora / name).is_dir() else ():
+            if p.suffix.lower() not in (".cbl", ".cob", ".cobol", ".cpy") or not p.is_file():
+                continue
+            code = [
+                ln[6:72] for ln in p.read_text(encoding="latin-1").splitlines() if len(ln) > 6 and ln[6] not in "*/"
+            ]
+            if any(REST_MQ_NAME.search(ln) for ln in code):
+                named.append(p.name)
+    assert not named, named
+
+
 def _c_masks(*names: str) -> dict[str, int]:
     """The `#define NAME expr` integer masks of ggmq.c (an expression of numbers and earlier defines)."""
     defs: dict[str, int] = {}

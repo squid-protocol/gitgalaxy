@@ -113,6 +113,7 @@ class Plan:
     edits: dict[int, list[str]] = field(default_factory=dict)
     ws_at: int | None = None
     inserted: list[str] = field(default_factory=list)
+    foreign: bool = False  # (#5119: an edit lands in a COPY member's line: the oracle then writes the expanded program)
 
 
 @dataclass
@@ -413,8 +414,7 @@ def plan(lines: list[Line], records: list, own: str, oracle: bool = False) -> Pl
             continue
         first, last = line_of(s), line_of(e - 1)
         for i in range(first, last + 1):
-            if lines[i].file != own:
-                raise Refused(f"a BLL statement in the COPY member {Path(lines[i].file).name}")
+            out.foreign = out.foreign or lines[i].file != own
             k = proc.index(i)
             a = max(s, starts[k]) - starts[k]
             b = min(e, starts[k] + len(masked[i])) - starts[k]
@@ -500,8 +500,7 @@ def _paragraph_reloads(lines, proc, starts, text, cells: Cells, through: set[str
         end = starts[heads[n + 1]] if n + 1 < len(heads) else len(text)
         if text[starts[k] + m.end() : end].strip() == "EXIT.":
             continue
-        if lines[i].file != own:
-            raise Refused(f"a paragraph name in the COPY member {Path(lines[i].file).name}")
+        out.foreign = out.foreign or lines[i].file != own
         base = (out.edits.get(i) or [lines[i].text])[0]
         rest = base[m.end() :]
         out.edits[i] = [base[: m.end()], *stmts, *([rest] if rest.strip() else [])]
@@ -517,9 +516,7 @@ def _data_edits(lines: list[Line], cells: Cells, own: str, proc_at: int, out: Pl
     if at is None or ws is None:
         raise Refused("the BLL cell list or the WORKING-STORAGE SECTION is not in the program's own text")
     end = next((i for i in range(at + 1, proc_at + 1) if i == proc_at or _ENTRY.match(lines[i].text)), proc_at)
-    for i in [at, *range(at + 1, end), ws]:
-        if lines[i].file != own:
-            raise Refused(f"the BLL cell list in the COPY member {Path(lines[i].file).name}")
+    out.foreign = out.foreign or any(lines[i].file != own for i in [at, *range(at + 1, end), ws])
     for i in range(at, end):
         out.edits[i] = []
     secondary = {c for v in cells.extra.values() for c in v}
@@ -578,6 +575,15 @@ def lower_text(source: str, dirs: list[Path]) -> str:
     p = plan(lines, _records(lines), own, oracle=True)
     if p is None:
         return source
+    if (
+        p.foreign
+    ):  # (#5119: a COPY member holds a changed line, which has no line of the raw text: write the whole program)
+        rows: list[str] = []
+        for i, ln in enumerate(lines):
+            rows += ["       " + r for t in p.edits.get(i, [ln.text]) for r in _fixed(t)]
+            if i == p.ws_at:
+                rows += ["       " + r for t in p.inserted for r in _fixed(t)]
+        return "\n".join(rows) + "\n"
     edits: dict[int, list[str]] = {}
     for i, texts in p.edits.items():
         n = lines[i].line - 1

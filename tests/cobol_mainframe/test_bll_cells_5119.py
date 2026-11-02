@@ -87,6 +87,57 @@ def _lowered(tmp_path: Path, source: str = PROGRAM) -> list[str]:
     return [ln.text.strip() for ln in B.lower(lines, lines[0].file) if ln.text.strip()]
 
 
+_LIST = PROGRAM[PROGRAM.index("       01  PARMLIST.\n") : PROGRAM.index("       01  FILE-REC.\n")]
+_RELOAD_STMT = "           MOVE 'TAIL-BYTES' TO FIELD3(1:10).\n"
+
+
+def _joined(tmp_path: Path, program: str, member: str) -> tuple[list[str], str]:
+    """`program` (with its COPY statement and the member's text) lowered by the det translator and by the oracle's
+    text rewrite: the non-blank statements of each."""
+    (tmp_path / "BLLMEM.cpy").write_text(member, encoding="ascii")
+    p = tmp_path / "BLLDEMO.cbl"
+    p.write_text(program, encoding="ascii")
+    lines = S.program_unit(S.program_lines(p, [tmp_path]))
+    det = [ln.text.strip() for ln in B.lower(lines, lines[0].file) if ln.text.strip()]
+    return det, B.lower_text(program, [tmp_path])
+
+
+def _same(det: list[str], oracle: str) -> None:
+    got = [re.sub(r"\s+", " ", ln).strip() for ln in oracle.splitlines() if ln.strip()]
+    det = [re.sub(r"CALL 'GGCBLLR' USING (\S+) (\S+)\.", r"SET ADDRESS OF \1 TO \2.", t) for t in det]  # (det's form)
+    assert [re.sub(r"\s+", " ", t) for t in det] == [g for g in got if not g.startswith("COPY ")], (det, got)
+    assert all(len(ln) <= 72 for ln in oracle.splitlines())
+
+
+def test_a_cell_list_in_a_copy_member_is_lowered_and_the_oracle_runs_the_same_program(tmp_path):
+    """#5119: the list in a copybook (the usual OS/VS layout) is a pointer list in WORKING-STORAGE, as if inline."""
+    program = PROGRAM.replace(_LIST, "           COPY BLLMEM.\n")
+    (tmp_path / "a").mkdir()
+    (tmp_path / "b").mkdir()
+    det, oracle = _joined(tmp_path / "a", program, _LIST)
+    assert det == _lowered(tmp_path / "b")  # (the same program as with the list inline)
+    ws = det.index("WORKING-STORAGE SECTION.")
+    assert det[ws + 1 : ws + 4] == ["01  PARMLIST.", "05  FRPTR USAGE POINTER.", "05  TSPTR USAGE POINTER."]
+    assert "COPY BLLMEM." not in det
+    _same(det, oracle)
+
+
+def test_a_service_reload_in_a_copy_member_is_lowered_and_the_oracle_agrees(tmp_path):
+    program = PROGRAM.replace(_RELOAD_STMT, "           COPY BLLMEM.\n")
+    det, oracle = _joined(tmp_path, program, _RELOAD_STMT + "           SERVICE RELOAD FILE-REC.\n")
+    assert "SET ADDRESS OF FILE-REC TO FRPTR." in det
+    _same(det, oracle)
+
+
+def test_a_program_with_no_bll_and_a_copy_member_is_left_alone(tmp_path):
+    plain = (
+        "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. PLAIN.\n       DATA DIVISION.\n"
+        "       WORKING-STORAGE SECTION.\n           COPY BLLMEM.\n       PROCEDURE DIVISION.\n           GOBACK.\n"
+    )
+    (tmp_path / "BLLMEM.cpy").write_text("       01  WS-X PIC X.\n", encoding="ascii")
+    assert B.lower_text(plain, [tmp_path]) == plain
+
+
 def test_the_cells_become_pointers_and_service_reload_a_set_address_of(tmp_path):
     """IBM's conversion, statement by statement: the list leaves LINKAGE (its FILLER and FRPTR1, the long record's
     secondary cell, dropped), its cells are POINTERs in WORKING-STORAGE; SERVICE RELOAD of the list itself is nothing
@@ -1026,3 +1077,11 @@ def test_a_level_77_fullword_holds_an_address_like_a_level_01(tmp_path):
 def test_a_group_halfword_or_redefining_holder_is_refused_by_name(tmp_path, decl):
     with pytest.raises(B.Refused, match="an address moved to or from WS-NUM"):
         _lowered(tmp_path, _holder_program(decl))
+
+
+def test_paragraphs_in_a_copy_member_are_addressed_again_and_the_oracle_agrees(tmp_path):
+    """#5119: chained areas re-address a record at every paragraph name, including those of a copied member."""
+    tail = CHAIN[CHAIN.index("       BUILD-AREA.\n") : CHAIN.index('"""') if '"""' in CHAIN else len(CHAIN)]
+    det, oracle = _joined(tmp_path, CHAIN.replace(tail, "           COPY BLLMEM.\n"), tail)
+    assert "CALL 'GGCBLLR' USING USERAREA USERPTR." in det[det.index("BUILD-AREA.") :]  # (re-addressed in the member)
+    _same(det, oracle)

@@ -392,7 +392,19 @@ class SecurityLens:
             "state_mutation": re.compile(
                 r"\b[A-Za-z0-9_]+[ \t]*\.[ \t]*prototype[ \t]*\.[ \t]*[A-Za-z0-9_]+[ \t]*=|"
                 r"\.[ \t]*__proto__[ \t]*=[ \t]*[{a-zA-Z]|"
-                r"\b(?:window|global|globalThis|document)[ \t]*\.[ \t]*(?:fetch|eval|setTimeout|setInterval|Promise|console|JSON)[ \t]*=|"
+                # #4108 slice 7: the same pollution reached by a property write THROUGH __proto__
+                # (`o.__proto__.admin = 1`, `o["__proto__"]["admin"] = 1`) or by a descriptor / merge
+                # call whose target is Object.prototype itself (a `Foo.prototype` mixin is ordinary).
+                r"[.\[][ \t]*[\"']?__proto__[\"']?[ \t]*\]?[ \t]*(?:\.[ \t]*[A-Za-z0-9_]+|\[[^\]\n]{1,80}\])[ \t]*=(?!=)|"
+                r"\bObject[ \t]*\.[ \t]*(?:defineProperty|defineProperties|assign|setPrototypeOf)[ \t]*\([ \t]*Object[ \t]*\.[ \t]*prototype\b|"
+                r"\b(?:window|global|globalThis|document)[ \t]*\.[ \t]*(?:fetch|eval|setTimeout|setInterval|Promise|console|JSON|XMLHttpRequest|WebSocket|Buffer)[ \t]*=|"
+                # #4108 slice 7: process-wide loader / runtime hijack through the environment: a write
+                # to LD_PRELOAD, LD_LIBRARY_PATH, DYLD_INSERT_LIBRARIES, PYTHONPATH or NODE_OPTIONS
+                # (`os.environ[..] =`, `os.putenv(..)`, `process.env.X =`, Go `os.Setenv`). Other
+                # variables are ordinary configuration and stay unmatched.
+                r"\benviron[ \t]*\[[ \t]*[\"']?(?:LD_PRELOAD|LD_LIBRARY_PATH|DYLD_INSERT_LIBRARIES|PYTHONPATH|NODE_OPTIONS)[\"']?[ \t]*\][ \t]*=(?!=)|"
+                r"\b(?:putenv|setenv)[ \t]*\([ \t]*[\"']?(?:LD_PRELOAD|LD_LIBRARY_PATH|DYLD_INSERT_LIBRARIES|PYTHONPATH|NODE_OPTIONS)\b|"
+                r"\bprocess[ \t]*\.[ \t]*env[ \t]*\.[ \t]*(?:LD_PRELOAD|LD_LIBRARY_PATH|DYLD_INSERT_LIBRARIES|PYTHONPATH|NODE_OPTIONS)[ \t]*=(?!=)|"
                 r"\$(?:GLOBALS|_(?:SERVER|GET|POST|COOKIE|REQUEST|ENV|SESSION))[ \t]*\[[^\]]+\][ \t]*=[ \t]*[^=]|"
                 r"\bextract[ \t]*\([ \t]*\$(?:_(?:GET|POST|REQUEST|COOKIE)|GLOBALS)\b|"
                 r"\b__builtins__[ \t]*\[[^\]]+\][ \t]*=|"

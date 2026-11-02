@@ -1692,6 +1692,13 @@ states each (`none (gap)`: no entry does). Only fields a burned corpus's COBOL n
 - **Not modelled.** VSAM's OPEN-time checks: 39 (attributes conflict), 04 (record length) and 97 (verified open).
   IBM defines 39 (the fixed file attributes against the program's) and 04 (a READ whose length is outside the FD's
   minimum or maximum; 00 under VLR(COMPAT)) in Table 34; 97 is VSAM's own, not in that table.
+- **Relative files (RRDS, #4894).** The level fixture `tests/equivalence/vsam/fixture/RRDLVL.cbl` (66 steps: sequential and
+  dynamic access; statuses 00, 10, 22, 23, 35, 41, 42, 43, 46, 47, 48, 49) has `expected.txt` written from IBM's rules
+  before either runtime ran it. First run (2026-11-02), oracle only: 64 of 66 steps match. GnuCOBOL 3.1.2 answers 00 where
+  IBM's invalid-key rule gives 23 for a REWRITE (step 49) and a DELETE (step 51, a second DELETE of one slot) of an EMPTY
+  slot inside the file's extent; past the extent it answers 23. The harness never loosens the expectation: a case that
+  reaches this is out of scope on the COBOL side until the oracle is calibrated or wrapped. The det runtime has no
+  relative-file model yet (`ORGANIZATION RELATIVE` is refused by name); its slice must print expected.txt, 23s included.
 
 ### F2. Injected faults — MATCHED
 - Fault runs (`ggfault.c`, CICS `faults.cfg`) give a statement the same status or RESP on both sides, and say which

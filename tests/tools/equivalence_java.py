@@ -30,13 +30,20 @@ import shutil
 import subprocess
 import threading
 import time
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
-from collections.abc import Callable
 
 import equivalence_common as common
 import java_target_matrix as jtm
-from maven_exe import JVM_SHORT_RUN_FLAGS, JVM_UTF8_FLAGS, decode_output, maven_utf8_env, mvn_executable, run_decoded
+from maven_exe import (
+    JVM_SHORT_RUN_FLAGS,
+    JVM_UTF8_FLAGS,
+    decode_output,
+    maven_utf8_env,
+    mvn_executable,
+    run_maven_retrying_resolution,
+)
 
 CASES = Path(__file__).resolve().parents[1] / "equivalence"  # == equivalence.CASES
 PKG = "com.gitgalaxy.modernized"
@@ -911,7 +918,9 @@ def run_maven(project: Path, work: Path, inputs: Path, env: dict[str, str] | Non
                f"-DargLine={maven_argline}"]  # fmt: skip
         try:
             with common.phase("java_maven"):  # #5882
-                proc = run_decoded(cmd, cwd=project, env=maven_utf8_env(shell), check=False, timeout=MAVEN_TEST_TIMEOUT)
+                proc = run_maven_retrying_resolution(
+                    cmd, cwd=project, env=maven_utf8_env(shell), check=False, timeout=MAVEN_TEST_TIMEOUT
+                )
         except subprocess.TimeoutExpired as exc:
             proc = subprocess.CompletedProcess(
                 args=cmd,

@@ -243,6 +243,10 @@ jobs:
             cics-crucible-m2-
             java-compile-m2-
 
+      # #7561: a restored cache can carry Maven's cached "not found" markers; one would fail a resolvable dependency
+      - name: Drop cached Maven resolution misses
+        run: find ~/.m2/repository -name '*.lastUpdated' -delete 2>/dev/null || true
+
       # Same image cache as cics-crucible.yml runner-tests (one entry per Dockerfile hash); the fingerprint check is the pin (#4309).
       - name: Cache the GnuCOBOL oracle image
         id: image

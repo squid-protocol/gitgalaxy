@@ -69,3 +69,31 @@ def run_decoded(cmd: list[str], **kwargs: Any) -> subprocess.CompletedProcess[st
     return subprocess.CompletedProcess(
         proc.args, proc.returncode, decode_output(proc.stdout), decode_output(proc.stderr)
     )
+
+
+# #7561: a Central miss or a cached negative lookup is the network's answer, not the program's. Only these texts
+# (never a compile or test failure) earn the one retry.
+RESOLUTION_FAILURE_MARKERS = (
+    "Could not find artifact",
+    "Could not transfer artifact",
+    "Connection reset",
+    "Read timed out",
+)
+
+
+def is_resolution_failure(text: str) -> bool:
+    """True when Maven's output shows a dependency that could not be fetched (a miss on Central, a dropped transfer)."""
+    return any(marker in text for marker in RESOLUTION_FAILURE_MARKERS)
+
+
+def run_maven_retrying_resolution(cmd: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
+    """`run_decoded(cmd)`; on a non-zero exit whose output is a resolution failure, run it once more with `-U` (which
+    ignores a cached `.lastUpdated` miss). A compile error, a test failure or a timeout is returned as it is."""
+    proc = run_decoded(cmd, **kwargs)
+    if proc.returncode == 0 or not is_resolution_failure(proc.stdout + proc.stderr):
+        return proc
+    again = run_decoded([cmd[0], "-U", *cmd[1:]], **kwargs)
+    note = "\n[maven_exe #7561: dependency resolution failed; reran once with -U]\n"
+    return subprocess.CompletedProcess(
+        again.args, again.returncode, proc.stdout + proc.stderr + note + again.stdout, again.stderr
+    )

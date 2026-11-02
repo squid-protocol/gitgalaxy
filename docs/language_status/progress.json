@@ -1,5 +1,5 @@
 {
- "commit": "886a171dd",
+ "commit": "b5b0c13ab",
  "components": {
   "capabilities": {
    "groups": [
@@ -336,17 +336,17 @@
    "estates": {
     "aws-mainframe-modernization-carddemo": {
      "caught": 1152,
-     "equivalent": 431,
+     "equivalent": 978,
      "l5": 5,
      "measured": 12,
      "mutants": 23824,
      "programs": 44,
      "raw_pct": 64.4,
      "ready": 0,
-     "sampled": 1847,
-     "sampled_pct": 7.8,
+     "sampled": 2928,
+     "sampled_pct": 12.3,
      "survived": 637,
-     "unreachable": 178
+     "unreachable": 202
     },
     "cics-async-api-credit-card-application-example": {
      "caught": 5665,
@@ -421,17 +421,17 @@
    },
    "total": {
     "caught": 8787,
-    "equivalent": 2638,
+    "equivalent": 3185,
     "l5": 20,
     "measured": 32,
     "mutants": 35362,
     "programs": 129,
     "raw_pct": 72.7,
     "ready": 0,
-    "sampled": 12509,
-    "sampled_pct": 35.4,
+    "sampled": 13590,
+    "sampled_pct": 38.4,
     "survived": 3304,
-    "unreachable": 1158
+    "unreachable": 1182
    }
   },
   "mutation": {
@@ -481,7 +481,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-11-02T10:04:40Z",
+  "as_of": "2026-11-02T10:29:21Z",
   "core": {
    "closed": 206,
    "open": 9,

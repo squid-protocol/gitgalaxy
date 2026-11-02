@@ -1,6 +1,6 @@
 # Progress
 
-Generated from main at `886a171dd` by `tests/tools/progress_report.py` (#5280); do not edit. Every
+Generated from main at `b5b0c13ab` by `tests/tools/progress_report.py` (#5280); do not edit. Every
 denominator is fixed and every number names its source below. A level is an evidence level, never a bare
 claim of correctness: the oracle is GnuCOBOL plus IBM documentation, not z/OS.
 
@@ -44,13 +44,13 @@ judged; *sample* is mutants judged of those the program has. Claims are the revi
 
 | Estate | Programs | Measured | L5 | Ready | Raw caught | Sample | Equivalent | Unreachable |
 |---|---|---|---|---|---|---|---|---|
-| `aws-mainframe-modernization-carddemo` | 44 | 12 | 5 | 0 | 64.4% (1152 of 1789) | 7.8% (1847 of 23824) | 431 | 178 |
+| `aws-mainframe-modernization-carddemo` | 44 | 12 | 5 | 0 | 64.4% (1152 of 1789) | 12.3% (2928 of 23824) | 978 | 202 |
 | `cics-async-api-credit-card-application-example` | 10 | 10 | 10 | 0 | 95.6% (5665 of 5923) | 100.0% (6083 of 6083) | 220 | 38 |
 | `cics-banking-sample-application-cbsa` | 31 | 6 | 1 | 0 | 44.4% (835 of 1882) | 69.3% (1978 of 2854) | 1062 | 505 |
 | `cics-genapp` | 31 | 0 | 0 | 0 | not measured | not measured | 0 | 0 |
 | `dbb-mortgage-application` | 6 | 0 | 0 | 0 | not measured | not measured | 0 | 0 |
 | `zecs` | 7 | 4 | 4 | 0 | 45.5% (1135 of 2497) | 100.0% (2601 of 2601) | 925 | 437 |
-| **Total** | 129 | 32 | 20 | 0 | 72.7% (8787 of 12091) | 35.4% (12509 of 35362) | 2638 | 1158 |
+| **Total** | 129 | 32 | 20 | 0 | 72.7% (8787 of 12091) | 38.4% (13590 of 35362) | 3185 | 1182 |
 
 ## Capability ledger
 
@@ -112,7 +112,7 @@ Source: tests/fixtures/feature_inventory/<estate>.json (era_tags.py). Programs p
 
 ## 4. Core burn-down
 
-Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-02T10:04:40Z.
+Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-02T10:29:21Z.
 
 - `scope:core`: 9 open, 206 closed.
 - Milestone 28: 5 open, 107 closed.

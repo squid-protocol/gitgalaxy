@@ -873,7 +873,15 @@ def translate(source: str, copy_dirs: list[Path] | None = None) -> tuple[str, bo
     text = re.sub(r"^(.{6} +WORKING-STORAGE\s+SECTION\.[^\n]*\n)", r"\1       COPY DFHEIBLK.\n" + dib + pad, text,
                   count=1, flags=re.M | re.I)  # fmt: skip
     if "COPY DFHEIBLK" not in text:
-        raise Unsupported("no WORKING-STORAGE SECTION to hold the EIB")
+        # #7434: a program with no data at all (a LOAD target that only RETURNs) still needs the EIB: the harness
+        # gives it a WORKING-STORAGE SECTION ahead of its LINKAGE SECTION / PROCEDURE DIVISION
+        has_data_division = bool(re.search(r"^.{6} +DATA\s+DIVISION\b", text, re.M | re.I))
+        head = ("" if has_data_division else "       DATA DIVISION.\n") + "       WORKING-STORAGE SECTION.\n"
+        text, n = re.subn(r"^(.{6} +(?:LINKAGE\s+SECTION|PROCEDURE\s+DIVISION)\b)",
+                          lambda m: head + "       COPY DFHEIBLK.\n" + dib + pad + m.group(1),
+                          text, count=1, flags=re.M | re.I)  # fmt: skip
+        if n != 1:
+            raise Unsupported("no WORKING-STORAGE SECTION to hold the EIB")
     if not has_commarea and "BY REFERENCE DFHCOMMAREA" in text:
         # #5079 (X59): ADDRESS COMMAREA in a program that declares no record (the callee asks CICS for the address). The harness
         # gives the LINKAGE SECTION a one-byte stand-in so the task is passed the real COMMAREA (the pointer GGCADDR stores is

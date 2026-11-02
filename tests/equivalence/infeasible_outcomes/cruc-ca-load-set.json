@@ -1,0 +1,22 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "cruc-ca-load-set",
+  "entries": [
+    {
+      "unit": "LOG-LOAD",
+      "line": 40,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "R",
+      "reason": "`IF WS-PTR = NULL`: LOAD PROGRAM('CALDTG') SET(WS-PTR) LENGTH(WS-LEN) of the defined CALDTG is the last command before it and completes NORMAL; IBM: SET(ptr-ref) is set to the address at which the program is loaded, so the pointer is never null after a NORMAL LOAD. The program takes no input and CALDTG is installed."
+    },
+    {
+      "unit": "LOG-LOAD",
+      "line": 45,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "R",
+      "reason": "`IF WS-LEN > 0`: LOAD of the defined CALDTG completes NORMAL; IBM: LENGTH(data-area) is set to the length of the loaded program, which is above zero. The program takes no input and CALDTG is installed."
+    }
+  ]
+}

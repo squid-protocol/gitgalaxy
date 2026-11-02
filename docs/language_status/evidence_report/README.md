@@ -17,3 +17,7 @@ publishes it to the `generated` branch, so one copy exists and it is the latest 
 The estate roll-up (`tests/tools/estate_evidence.py`, #4054: the E0-E4 level of each evidence record, coverage and mutation
 score, open survivors, lines) is published the same way, at `docs/language_status/estate_evidence/` on `generated`:
 `python tests/tools/generated_branch.py show docs/language_status/estate_evidence/report.md` (or `report.json`).
+Its E3 coverage bar is taken net of the case's reviewed infeasible outcomes (`tests/equivalence/infeasible_outcomes/`),
+the same entries the L4 bar here nets; the report prints raw and net, counts undefined-by-IBM (family U) outcomes apart,
+and never nets a stated outcome the proof reached (a refuted claim). A crucible port's record lists no uncovered
+outcomes, so its coverage stays raw.

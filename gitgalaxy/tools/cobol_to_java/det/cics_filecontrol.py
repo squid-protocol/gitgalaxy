@@ -343,7 +343,7 @@ class FileControlCommands:
             search = self._search(opts, file, st, rec)
             if search is not None:
                 call, held = search[0], search[1].format(r)
-            elif "TOKEN" not in opts:  # #7434: recorded as the SPEC 6.2 READ event (with `set`); GTEQ / GENERIC / TOKEN: not yet
+            elif "TOKEN" not in opts:  # #7434: the SPEC 6.2 READ event (`set`); GTEQ / GENERIC / TOKEN: not yet
                 call = f"task.readSetEvent({file}, {rec}, {'true' if fn == 'readForUpdate' else 'false'}, () -> {st}.find({rec}))"
             out = [f"{ind}byte[] {rec} = DetCics.bytes({rid});",
                    f"{ind}CicsTask.FileRead<byte[]> {r} = {call};",
@@ -360,9 +360,9 @@ class FileControlCommands:
         fn = "readnext" if verb == "READNEXT" else "readprev"
         got, entry = g.tmpname("rec"), g.tmpname("rid")
         # #7434: recorded as the SPEC 6.2 READNEXT / READPREV event (with `set`); `entry` is RIDFLD as it was on entry
+        call = f"task.{fn}SetEvent({file}, {entry}, new String({entry}, CS), k -> {st}.find(k.getBytes(CS)))"
         out = [f"{ind}byte[] {entry} = DetCics.bytes({rid});",
-               f"{ind}CicsTask.Browsed {r} = task.{fn}SetEvent({file}, {entry}, new String({entry}, CS), "
-               f"k -> {st}.find(k.getBytes(CS)));",
+               f"{ind}CicsTask.Browsed {r} = {call};",
                f"{ind}if ({r}.normal()) {{",
                f"{ind}    DetCics.put({rid}, {r}.key().getBytes(CS));",
                f"{ind}    byte[] {got} = {st}.find({r}.key().getBytes(CS)).orElse(null);",
@@ -517,8 +517,9 @@ class FileControlCommands:
 
         found = getattr(self, "_set_browse", None)
         if found is None:
+            execs = getattr(getattr(getattr(self.g, "p", None), "proc", None), "execs", None) or {}
             pat = re.compile(r"(?is)\bREAD(?:NEXT|PREV)\b.*\bSET\s*\(")
-            found = self._set_browse = any(pat.search(x) for x in self.g.p.proc.execs.values())
+            found = self._set_browse = any(pat.search(x) for x in execs.values())
         return found
 
     def file_update(self, verb: str, opts: dict, ind: str) -> list[str]:
@@ -568,9 +569,9 @@ class FileControlCommands:
             rid = self.field(opts["RIDFLD"])
             if self._browses_with_set():
                 entry = g.tmpname("rid")  # #7434: recorded as the SPEC 6.2 STARTBR event; RIDFLD as it is on entry
-                out = [f"{ind}byte[] {entry} = DetCics.bytes({rid});",
-                       f"{ind}int {r} = task.startbrEvent({file}, {entry}, new String({entry}, CS), "
-                       f"{'true' if 'EQUAL' in opts else 'false'}, () -> {st}.keys());"]  # fmt: skip
+                equal = "true" if "EQUAL" in opts else "false"
+                call = f"task.startbrEvent({file}, {entry}, new String({entry}, CS), {equal}, () -> {st}.keys())"
+                out = [f"{ind}byte[] {entry} = DetCics.bytes({rid});", f"{ind}int {r} = {call};"]
             else:
                 out = [f"{ind}int {r} = task.startbr({file}, new String(DetCics.bytes({rid}), CS), "
                        f"{'true' if 'EQUAL' in opts else 'false'}, () -> {st}.keys());"]  # fmt: skip

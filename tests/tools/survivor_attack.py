@@ -233,7 +233,7 @@ def find_mutants(case: str, port: Path, ids: list[str]) -> dict[str, Any]:
     return out
 
 
-def attack(case_name: str, ids: list[str], inputs: Path, work: Path, timeout: float) -> dict[str, dict[str, Any]]:
+def attack(case_name: str, ids: list[str], inputs: Path, work: Path, timeout: float, jobs: int = 1) -> dict[str, dict[str, Any]]:
     import equivalence as eq
     import mainframe_corpus as mc
     import mutation as mu
@@ -260,7 +260,9 @@ def attack(case_name: str, ids: list[str], inputs: Path, work: Path, timeout: fl
     names = [p["name"] for p in proposals]
     results: dict[str, dict[str, Any]] = {}
     classpath = mu.baseline_classpath(here / "baseline", here) if base["verdict"] == "proven" else ""
-    for i, m in mutants.items():
+
+    def evaluate_one(item: tuple[str, Any]) -> tuple[str, Any, dict[str, Any]]:
+        i, m = item
         record: dict[str, Any] = {"inputs": names, "date": time.strftime("%Y-%m-%d")}
         mdir = here / i
         if base["verdict"] != "proven":
@@ -274,8 +276,20 @@ def attack(case_name: str, ids: list[str], inputs: Path, work: Path, timeout: fl
                 res = mu.prove(case_name, mdir / "port", mdir / "proof", timeout,
                                (*flags, "--reuse", str(here / "baseline"), "--first-difference"))  # fmt: skip
                 record.update(result=judge(base, res), killed_by=res.get("killed_by", []))
-        results[i] = record
-        print(f"  {i} {m.op} {m.file}:{m.line}: {record['result']}", flush=True)
+        return i, m, record
+
+    if jobs > 1 and base["verdict"] == "proven":
+        import concurrent.futures
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=jobs) as pool:
+            for i, m, record in pool.map(evaluate_one, mutants.items()):
+                results[i] = record
+                print(f"  {i} {m.op} {m.file}:{m.line}: {record['result']}", flush=True)
+    else:
+        for i, m in mutants.items():
+            _, _, record = evaluate_one((i, m))
+            results[i] = record
+            print(f"  {i} {m.op} {m.file}:{m.line}: {record['result']}", flush=True)
     add_attempts(work, results)
     return results
 
@@ -374,6 +388,7 @@ def main(argv: list[str] | None = None) -> int:
     t.add_argument("--inputs", type=Path, required=True, help="a JSON array of inputs in the case's format")
     t.add_argument("--work", type=Path, required=True)
     t.add_argument("--timeout", type=float, default=600, help="seconds per mutant")
+    t.add_argument("--jobs", type=int, default=1, help="parallel mutants to prove")
     li = sub.add_parser("lint")
     li.add_argument("cases", nargs="*")
     args = ap.parse_args(argv)
@@ -385,7 +400,7 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_packet(args.case, args.id, args.work.resolve())
     if args.cmd == "lint":
         return cmd_lint(args.cases)
-    results = attack(args.case, args.ids.split(","), args.inputs, args.work.resolve(), args.timeout)
+    results = attack(args.case, args.ids.split(","), args.inputs, args.work.resolve(), args.timeout, args.jobs)
     wins = [i for i, r in results.items() if r["result"] == "killed"]
     if wins:
         print(

@@ -113,7 +113,7 @@ def test_the_generated_java_check_agrees_with_the_python_check(golden, tmp_path)
     done = subprocess.run(
         ["javac", "-encoding", "UTF-8", "-d", str(classes), str(tmp_path / "src/golden/GoldenCheck.java")],
         capture_output=True,
-        text=True,
+        encoding="utf-8",
     )
     assert done.returncode == 0, done.stderr
     (tmp_path / "Run.java").write_text(
@@ -123,7 +123,9 @@ def test_the_generated_java_check_agrees_with_the_python_check(golden, tmp_path)
         "} }\n"
     )
     javac = subprocess.run(
-        ["javac", "-cp", str(classes), "-d", str(classes), str(tmp_path / "Run.java")], capture_output=True, text=True
+        ["javac", "-encoding", "UTF-8", "-cp", str(classes), "-d", str(classes), str(tmp_path / "Run.java")],
+        capture_output=True,
+        encoding="utf-8",
     )
     assert javac.returncode == 0, javac.stderr
     bad = dict(MAIN_RUN, OUT=MAIN_RUN["OUT"][:7] + b"Z" + MAIN_RUN["OUT"][8:])

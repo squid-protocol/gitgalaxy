@@ -472,6 +472,20 @@ public class Main {
         } catch (UnsupportedOperationException e) {
             System.out.println(e.getMessage());
         }
+        byte[] raw = new byte[6];
+        raw[0] = 'X';
+        CicsTask linked = new CicsTask("ZC01", "ENTER", null, null).withLinkArea(raw);
+        Field lp = rec(8), lv = rec(4), big = rec(9);
+        DetCics.addressNoCommarea(linked, lp, 6);
+        DetCics.setAddress(linked, lv, lp);
+        lv.storage().bytes[1] = 'Y';
+        System.out.println((char) raw[0] + "" + (char) raw[1] + " " + DetCics.isNoCommareaAddress(lp) + " " + linked.linkAreaTaken());
+        try {
+            DetCics.setAddress(linked, big, lp);
+            System.out.println("not refused");
+        } catch (UnsupportedOperationException e) {
+            System.out.println("longer view refused");
+        }
         try {
             DetCics.addressCommarea(t, ptr, ca, 0);
             System.out.println("not refused");
@@ -496,7 +510,9 @@ public class Main {
         "true",
         "true false",
         "SET ADDRESS OF a null or unknown pointer: not modelled",
-        "ADDRESS COMMAREA with a COMMAREA in a program with no 01 DFHCOMMAREA: its bytes are not modelled",
+        "ADDRESS COMMAREA with a COMMAREA in a program with no 01 DFHCOMMAREA: the caller passed no bytes (not modelled)",
+        "XY false true",
+        "longer view refused",
         "ADDRESS COMMAREA with no COMMAREA: not modelled",
     ]
 

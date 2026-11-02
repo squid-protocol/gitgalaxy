@@ -46,7 +46,7 @@ from typing import Any
 
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import TraceLog, java_path, status_text
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base
-from gitgalaxy.tools.cobol_to_java.det import dfsort, idcams, tso
+from gitgalaxy.tools.cobol_to_java.det import dfsort, idcams, ims_region, tso
 from gitgalaxy.tools.cobol_to_java.java_target import JavaTarget, record_charset_java
 
 SUBPACKAGE = "batch"
@@ -270,6 +270,18 @@ class BatchForge:
         st.parm = run.parms
         return None
 
+    def _ims_refusal(self, st: Step) -> str | None:
+        """#4890: a DFSRRC00 step's PARM is the IMS region (`det/ims_region.py`), not the program's parameter: the program
+        runs with no PARM; a region type, option or program the model does not read is refused by name."""
+        try:
+            reg = ims_region.parse(st.parm)
+        except dfsort.Refused as e:
+            return f"uses {e}, which the DFSRRC00 model refuses"
+        if reg.program != st.program:
+            return f"runs {reg.program} in its PARM, not {st.program}"
+        st.parm = None
+        return None
+
     def _deck(self, file: str, ordinal: int, st: Step, dd: str) -> list[str]:
         """The in-stream bodies of the step's `dd` (job_sysin), the procedure step's else the job step's."""
         return self.sysin.get((file, ordinal, st.proc_step, dd)) or self.sysin.get((file, ordinal, None, dd)) or []
@@ -402,6 +414,8 @@ class BatchForge:
             st.key = self.programs.get(st.program)
             if tso and pick.get("via") == "RUN PROGRAM":
                 st.refused = self._tso_refusal(file, ordinal, st)
+            elif pick.get("via") == "DFSRRC00":
+                st.refused = self._ims_refusal(st)
             return
         member = next((r.get("member") for r in runs if r.get("member") and not r.get("program")), None)
         execs = [r["program"] for r in runs if r.get("via") == "TSO EXEC" and r.get("program")]

@@ -338,6 +338,9 @@ def plan(lines: list[Line], records: list, own: str, oracle: bool = False) -> Pl
                                   "as a command's data")  # fmt: skip
                 if o.group(1) != "DATAPOINTER":
                     found.append((o.start(), o.start(), "", ("change", o.group(2))))
+                elif cells.of.get(o.group(2), ("", 0))[1]:  # (#5119: FREEMAIN reads the cell; a secondary one is gone)
+                    raise Refused(f"DATAPOINTER({o.group(2)}) (line {lines[line_of(o.start())].line}): a secondary "
+                                  "cell of a long record holds no address (only its base cell does)")  # fmt: skip
         # every other mention of a cell (or of the list) uses an address as a number
         spans = [(s, e) for s, e, _, ev in found if e > s] + execs
         for name in [*cellset, cells.name]:

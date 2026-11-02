@@ -14,6 +14,13 @@
   "notes": "cics-crucible pseudo-conversational / pc-return-immediate (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): PCIMMA's four modes (RETURN IMMEDIATE, LINK with and without a COMMAREA, START) and the PCIMML it links. Each scenario is one task. The case is entered as a LINKed program (linked: true), as the pc-return-channel case is. The oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
   "scenarios": [
     {
+      "name": "immediate",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "why": "mode I: RETURN TRANSID(PC52) COMMAREA(WS-CA) LENGTH(8) IMMEDIATE from a WORKING-STORAGE record; PC52 is attached at once with the 8 bytes",
+      "terminal": "PC51 I"
+    },
+    {
       "name": "link-commarea",
       "aid": "DFHENTER",
       "commarea": null,
@@ -49,5 +56,13 @@
       "program_source": "cases/pseudo-conversational/pc-return-immediate/src/PCIMML.cbl"
     }
   ],
-  "linked": true
+  "linked": true,
+  "return_commarea": {
+    "segments": [
+      {
+        "copybook": "cases/pseudo-conversational/pc-return-immediate/src/PCIMMA.cbl",
+        "record": "WS-CA"
+      }
+    ]
+  }
 }

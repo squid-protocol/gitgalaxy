@@ -1518,6 +1518,22 @@ def commarea_fields(corpus: Path, case: dict[str, Any], occurrences: bool = Fals
     return out
 
 
+def return_fields(corpus: Path, case: dict[str, Any], occurrences: bool = False) -> list[dict[str, Any]]:
+    """#7366 (PCIMMA): the layout a task's RETURN / XCTL COMMAREA is READ by when the program takes none
+    (`"commarea": null`) and passes a WORKING-STORAGE record (RETURN TRANSID COMMAREA(WS-CA)): the case's
+    `"return_commarea": {"segments": [...]}`, same shape as `commarea`. Read side only -- a scenario cannot state it.
+    [] when the case states none; refused by name beside a typed `commarea`, or with no segments."""
+    if "return_commarea" not in case:
+        return []
+    if case.get("commarea") is not None:
+        raise Unsupported('"return_commarea" is for a case with "commarea": null; a typed COMMAREA is read by '
+                          '"commarea"', ["COMMAREA"])  # fmt: skip
+    segments = (case["return_commarea"] or {}).get("segments")
+    if not segments:
+        raise Unsupported('"return_commarea": {"segments": []} describes nothing', ["COMMAREA"])
+    return commarea_fields(corpus, {**case, "commarea": {"segments": segments}}, occurrences)
+
+
 def commarea_length(sc: dict[str, Any], ca_fields: list[dict[str, Any]]) -> int | None:
     """#4270 (oracle_assumptions.md X23): a scenario's stated EIBCALEN, `"commarea_length": N` -- the caller passed
     the first N bytes of the COMMAREA record and no more (GenApp's `IF EIBCALEN < 91`, its '98' "COMMAREA too short"
@@ -2214,7 +2230,8 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
 
     coverage([sc["name"] for sc in kept])
     RECOVER[str(work)] = coverage
-    return {sc["name"]: outputs(work / "scenarios" / sc["name"] / "out", case, corpus, ca_fields)
+    return {sc["name"]: outputs(work / "scenarios" / sc["name"] / "out", case, corpus,
+                                                            ca_fields or return_fields(corpus, case, True))
             for sc in kept}  # fmt: skip
 
 
@@ -3930,6 +3947,7 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
     stage_scenario_inputs(case, corpus, files, inputs)
     ca_fields = commarea_fields(corpus, case)  # as the DTO lists them: an OCCURS group's fields once
     ca_read = commarea_fields(corpus, case, occurrences=True)  # #4765: the whole record, every occurrence
+    ret_read = ca_read or return_fields(corpus, case, True)  # #7366: what a RETURN's bytes are read by
     scenarios = []
     for sc in case["scenarios"]:
         ca, area = None, None
@@ -3992,9 +4010,9 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
     sessions = equivalence_call.sessions_for(case, project, one_jvm)
     try:
         out = ej.run_maven(project, work, inputs, props=props, session=sessions.get() if sessions else None)
-        result = _java_events(case, out, shape, ca_read)
+        result = _java_events(case, out, shape, ret_read)
         if facade is not None:  # #4449: the java-facade side, the same project and inputs
-            _run_facade(ej, project, work, inputs, props, sessions, case, shape, ca_read, facade)
+            _run_facade(ej, project, work, inputs, props, sessions, case, shape, ret_read, facade)
         return result
     finally:
         if sessions:
@@ -4014,7 +4032,7 @@ def _java_untyped_commarea(case: dict[str, Any], sc: dict[str, Any], ca_fields: 
 
 
 def _run_facade(ej: Any, project: Path, work: Path, inputs: Path, props: str, sessions: Any, case: dict[str, Any],
-                shape: Any, ca_read: Any, facade: dict[str, Any]) -> None:  # fmt: skip
+                shape: Any, ret_read: Any, facade: dict[str, Any]) -> None:  # fmt: skip
     """#4449: the facade run into `facade` (`error` when the run itself fails)."""
     try:
         fout = ej.run_maven(project, work / "facade", inputs, props=f"{props} -Dequivalence.facades=true",
@@ -4023,7 +4041,7 @@ def _run_facade(ej: Any, project: Path, work: Path, inputs: Path, props: str, se
         facade["error"] = str(e)
         return
     facade["out"] = fout
-    facade["events"] = _java_events(case, fout, shape, ca_read)
+    facade["events"] = _java_events(case, fout, shape, ret_read)
     facade["entries"], facade["refused"] = {}, {}
     for sc in case["scenarios"]:
         ent, why = fout / f"{sc['name']}.entries.json", fout / f"{sc['name']}.refused"

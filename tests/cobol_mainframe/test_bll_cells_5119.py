@@ -1020,7 +1020,7 @@ def test_a_level_77_fullword_holds_an_address_like_a_level_01(tmp_path):
         "       01  WS-NUM.\n           05  WS-NUM-A PIC S9(8) COMP.\n           05  WS-NUM-B PIC S9(8) COMP.\n",
         "       01  WS-NUM                 PIC S9(4) COMP VALUE 0.\n",
         "       01  WS-BASE                PIC S9(8) COMP VALUE 0.\n"
-        "       01  WS-NUM REDEFINES WS-BASE PIC S9(8) COMP.\n",
+        + "       01  WS-NUM REDEFINES WS-BASE PIC S9(8) COMP.\n",
     ],
 )
 def test_a_group_halfword_or_redefining_holder_is_refused_by_name(tmp_path, decl):

@@ -18,6 +18,7 @@ import logging
 import statistics
 from typing import Any
 
+from gitgalaxy.core.dense_source import DENSE_LANGS
 from gitgalaxy.core.spatial_correlation import weighted_view
 
 # ==============================================================================
@@ -142,11 +143,26 @@ class StatisticalAuditor:
     DEFINITION_MIN_FUNCTIONS = 1
     DEFINITION_MAX_AVG_LINE = 120
 
+    # #7501: dense hand-written source (a whole program on a few dozen 500-3,000 char lines) fails the
+    # width test by construction. In a compiled language -- nobody minifies C, Rust or Go -- named
+    # functions at least every DENSE_LINES_PER_FUNCTION physical lines mark it as source. A packed
+    # payload carrying a function or two over hundreds of wide lines does not reach that rate.
+    DENSE_MIN_FUNCTIONS = 2
+    DENSE_LINES_PER_FUNCTION = 10
+
     def _has_named_definitions(self, artifact: dict[str, Any]) -> bool:
         named = [u for u in artifact.get("functions", []) if not u.get("calls_only")]
         if len(named) < self.DEFINITION_MIN_FUNCTIONS:
             return False
-        return self._is_ordinary_width(artifact)
+        return self._is_ordinary_width(artifact) or self._is_dense_source(artifact, len(named))
+
+    def _is_dense_source(self, artifact: dict[str, Any], named: int) -> bool:
+        physical = max(artifact.get("total_loc", artifact.get("coding_loc", 0)), 1)
+        return (
+            artifact.get("lang_id") in DENSE_LANGS
+            and named >= self.DENSE_MIN_FUNCTIONS
+            and named * self.DENSE_LINES_PER_FUNCTION >= physical
+        )
 
     def _is_ordinary_width(self, artifact: dict[str, Any]) -> bool:
         coding = max(artifact.get("coding_loc", 0), 1)

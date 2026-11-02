@@ -15,6 +15,7 @@ Using the **GitGalaxy blAST engine**, we have stripped away the abstractions of 
 * 🪙 **[Bitcoin v0.1.0](teardown-of-bitcoin.md)** - The original, highly coupled C++ prototype of decentralized finance.
 * 🔬 **[BLAST](teardown-of-blast.md)** - The high-performance C/C++ engine decoding genomics.
 * 👹 **[DOOM's DNA](doom-dna/index.html)** - 43 descendants of the 1993 shooter, measured by shape alone: who copied whom, and which translations kept the blueprint. An interactive article ([text edition](teardown-of-doom.md)).
+* 🖋️ **[Every Model Has a Tell](agent-habits/index.html)** - Three AI coding models built programs for the same ten jobs; measured by structure alone, each kept its own handwriting. An interactive study ([text edition](every-model-has-a-tell.md)).
 * 🏦 **[Fineract](teardown-of-fineract.md)** - The sprawling Java core banking platform.
 * 😈 **[FreeBSD](teardown-of-freebsd.md)** - The legendary 13.8-million-line OS monolith.
 * 🔐 **[GnuPG](teardown-of-gnupg.md)** - The strict C architecture securing the internet's cryptography.

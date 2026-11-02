@@ -4337,6 +4337,14 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   kept the arithmetic; a COMPUTE target is now never a comparison. A data holder that REDEFINES another item, or sits under one, is
   refused (the token would overwrite bytes that are another item's: ASSUMED refusal); a level-77 fullword is a holder as a 01 is.
   Tests: tests/cobol_mainframe/test_bll_cells_5119.py.
+- **A malformed cell list (#5119).** A LINKAGE 01 at the list's place (first, or second after DFHCOMMAREA) whose first child is a FILLER is
+  IBM's BLL list shape (SC33-0512-1, pp. 21-23). When one of its other children is no plain fullword binary cell (a halfword, packed or
+  DISPLAY item, an OCCURS table, a REDEFINES, a group) or the list itself REDEFINES another item, the lowering cannot map cells to records;
+  before this slice such a program read as VS COBOL II data and its SERVICE RELOAD became `CONTINUE` (IBM, p. 24, ignores SERVICE RELOAD
+  only in VS COBOL II), leaving the record unaddressed with no refusal. Now refused whole by name ("the BLL cell list L is not a list of
+  plain fullword binary cells (C is ...)") when a SET / DATAPOINTER option names one of its items or SERVICE RELOAD addresses a record. With no such
+  evidence it stays ordinary data; a group with no FILLER lead is no list (ASSUMED: IBM's first 02 is the FILLER). Tests:
+  tests/cobol_mainframe/test_bll_cells_5119.py.
 - **Scanner fact (#5119, #5117).** The era tagger's `bll-cell-list` tell (era 1, period-bound) reads the structure, not the word BLL: a
   LINKAGE 01 with no PIC whose first child is a FILLER fullword (`S9(8)` / `S9(9)` COMP, COMPUTATIONAL, COMP-4/5, BINARY, USAGE, SYNC),
   then named fullwords, and an EXEC CICS `SET(x)` / `DATAPOINTER(x)` naming one of them (the evidence rule of assumption 1, minus the

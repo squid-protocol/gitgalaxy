@@ -101,6 +101,20 @@
      "runTask",
      "handleTransaction"
     ]
+   },
+   {
+    "at": "2026-11-02T01:31:18+00:00",
+    "crucible_ref": "0af1af2e248f695b8cd6f4fe113065fa160d9ba2",
+    "summary": {
+     "no-terminal": "1/1"
+    },
+    "port_sha256": "c9b58b67f28e14d00dd822d1c8f339905ae318f62166047322ac5c36fd4bed52",
+    "harness_commit": "3e0603d7753a68bf665f0d3ed0d5121bdf900311",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program PCIMMS --report-dir)",
+    "entry_points": [
+     "runTask",
+     "handleTransaction"
+    ]
    }
   ]
  }

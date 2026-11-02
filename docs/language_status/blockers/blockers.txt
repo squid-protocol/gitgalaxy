@@ -1,9 +1,8 @@
-# blockers in baseline faac469eb83e (burned + local corpora (no census) + cics-crucible): programs with an EXEC CICS command
-translated whole: 186 / 191 (non-burned: not surveyed); refused whole (no statements translated): 0
-distinct gap classes per program: 0: 186, 1: 1, 2: 2, 3: 1, 7: 1
+# blockers in baseline d86d5eabbf0b (burned + local corpora (no census) + cics-crucible): programs with an EXEC CICS command
+translated whole: 187 / 191 (non-burned: not surveyed); refused whole (no statements translated): 0
+distinct gap classes per program: 0: 187, 2: 2, 3: 1, 7: 1
 
  only gap (B/NB)  one away (B/NB)  touched  gap  (* = refuses the whole program: its count is an upper bound; `--unmask GAP` shows what it hides)
-     1 ( 1/ 0)      0 ( 0/ 0)        1   EXEC CICS WsRec: no key
      0 ( 0/ 0)      2 ( 2/ 0)        3   EXEC CICS WEB SEND CHARACTERSET HOSTCODEPAGE
      0 ( 0/ 0)      1 ( 1/ 0)        2   EXEC CICS WEB RECEIVE CHARACTERSET HOSTCODEPAGE
      0 ( 0/ 0)      1 ( 1/ 0)        2   EXEC CICS not a data area: '…'
@@ -11,6 +10,6 @@ distinct gap classes per program: 0: 186, 1: 1, 2: 2, 3: 1, 7: 1
      0 ( 0/ 0)      0 ( 0/ 0)        1   CEEHDLR: registering an LE user condition handler is not modelled
      0 ( 0/ 0)      0 ( 0/ 0)        1   CEEHDLU: unregistering an LE user condition handler is not modelled
      0 ( 0/ 0)      0 ( 0/ 0)        1   EPSCSMRI: no service of its own, its translation is refused: epscsmrd.cbl:N: the PICTURE N (…) is not modelled
-     0 ( 0/ 0)      0 ( 0/ 0)        1   EPSCSMRO: no service of its own, its translation is refused: OS/VS COBOL BLL addressing: SERVICE LABEL (…): no
+     0 ( 0/ 0)      0 ( 0/ 0)        1   EPSCSMRO: no service of its own, its translation is refused: LE recovery point: SERVICE LABEL (…): the resume 
      0 ( 0/ 0)      0 ( 0/ 0)        1   EXEC CICS SOAPFAULT CREATE
      0 ( 0/ 0)      0 ( 0/ 0)        1   SET TO ENTRY: procedure / function pointers are not modelled

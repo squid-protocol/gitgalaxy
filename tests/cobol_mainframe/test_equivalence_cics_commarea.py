@@ -267,17 +267,23 @@ _PCIMMA_CASE = {
 }  # fmt: skip
 
 
-def _crucible_or_skip():
-    import os
-
-    root = os.environ.get("CICS_CRUCIBLE_PATH")
-    if not root or not (Path(root) / _PCIMMA_CASE["program_source"]).is_file():
-        pytest.skip("needs a cics-crucible checkout (CICS_CRUCIBLE_PATH)")
-    return Path(root)
+_WS_CA = """       WORKING-STORAGE SECTION.
+       01  WS-CA.
+           05  CA-STAGE          PIC X     VALUE '1'.
+           05  CA-TEXT           PIC X(7)  VALUE 'MENU-A1'.
+"""
 
 
-def test_a_return_commarea_layout_is_read_from_the_working_storage_record():
-    corpus = _crucible_or_skip()
+def _pcimma_corpus(tmp_path):
+    """A corpus holding PCIMMA's working-storage record (no checkout needed)."""
+    src = tmp_path / _PCIMMA_CASE["program_source"]
+    src.parent.mkdir(parents=True)
+    src.write_text(_WS_CA, encoding="ascii")
+    return tmp_path
+
+
+def test_a_return_commarea_layout_is_read_from_the_working_storage_record(tmp_path):
+    corpus = _pcimma_corpus(tmp_path)
     fields = ec.return_fields(corpus, _PCIMMA_CASE)
     assert [(f["name"], f["offset"], f["bytes"]) for f in fields] == [("CA-STAGE", 0, 1), ("CA-TEXT", 1, 7)]
     assert ec.commarea_fields(corpus, _PCIMMA_CASE) == []  # scenario inputs still see no COMMAREA
@@ -285,7 +291,7 @@ def test_a_return_commarea_layout_is_read_from_the_working_storage_record():
 
 
 def test_a_return_with_data_is_decoded_by_the_return_layout_and_refused_without_one(tmp_path):
-    corpus = _crucible_or_skip()
+    corpus = _pcimma_corpus(tmp_path)
     out = tmp_path / "out"
     out.mkdir()
     (out / "events.txt").write_text("001 RETURN transid=PC52 level=1 len=8\n", encoding="ascii")

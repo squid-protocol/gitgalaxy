@@ -1,0 +1,29 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "CABROW",
+  "program_source": "cases/commarea-mismatch/ca-channel-browse/src/CABROW.cbl",
+  "copy_dirs": [
+    "cases/commarea-mismatch/ca-channel-browse/copy"
+  ],
+  "transid": "CA07",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "termid": "T001",
+  "notes": "cics-crucible commarea-mismatch / ca-channel-browse (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER, MOVE CONTAINER across channels, QUERY CHANNEL, DELETE CHANNEL. Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs. The program is a channel program the forge gives no terminal facade: it runs LINKed, with an empty channel it never reads.",
+  "scenarios": [
+    {
+      "name": "browse-move-delete",
+      "commarea": null,
+      "terminal": "CA07",
+      "why": "Three containers put in a new channel, counted, browsed (three GETNEXTs, END, ENDBROWSE, a stale token), one MOVEd to a new channel, the channels DELETEd",
+      "channel": {
+        "name": "CABRUNCHAN",
+        "containers": {}
+      }
+    }
+  ],
+  "linked": true
+}

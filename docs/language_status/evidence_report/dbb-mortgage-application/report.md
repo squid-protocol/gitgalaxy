@@ -4,9 +4,9 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `faac469eb83e0a2bb1c94853ec2e408cddd37b91` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `d86d5eabbf0bb0994f05894546b1bbe28c7325f2` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
-The translation survey matches the translator in the tree (translator fingerprint `0f14f2b658a3`).
+The translation survey matches the translator in the tree (translator fingerprint `1764c3837edd`).
 
 ## How to read this report
 
@@ -209,7 +209,7 @@ From `tests/equivalence/estate_options/dbb-mortgage-application.json`: 9 values 
   - hole: CALL CEEHDLR: registering an LE user condition handler is not modelled (the procedure pointer it takes (SET TO ENTRY), LE's dispatch of a raised condition to the handler and its RESUME / PERCOLATE result are missing, so a no-op registration would hide the handler's effect)
   - hole: CALL CEEHDLU: unregistering an LE user condition handler is not modelled (the registration (CEEHDLR) is refused, so there is nothing to undo)
   - hole: CALL EPSCSMRI: no service of its own, its translation is refused: epscsmrd.cbl:1266: the PICTURE N (a national / DBCS item) is not modelled (national / DBCS data, #4664): the translator reads one byte a character
-  - hole: CALL EPSCSMRO: no service of its own, its translation is refused: OS/VS COBOL BLL addressing: SERVICE LABEL (line 3332: the CICS translator's output): not modelled
+  - hole: CALL EPSCSMRO: no service of its own, its translation is refused: LE recovery point: SERVICE LABEL (line 3332): the resume point after CEE3SRP, not BLL addressing: not modelled
   - hole: EXEC EXEC CICS: EXEC CICS SOAPFAULT CREATE not modelled (web services (SOAP / WS-Addressing) are not modelled)
   - hole: HOLE SET TO ENTRY: procedure / function pointers are not modelled
   - hole: SET-POINTER ADDRESS OF ERROR-RESPONSE: not an item of WORKING-STORAGE or LINKAGE (not modelled)
@@ -256,9 +256,9 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `faac469eb83e0a2bb1c94853ec2e408cddd37b91`
+- translator commit (the survey's): `d86d5eabbf0bb0994f05894546b1bbe28c7325f2`
 - corpus pin: `dbb-mortgage-application` at `ce2c1be58eb049e000c6627bd8273263fef0c606`
-- crucible pins: cics `v0.11.0`, estate `v0.5.0`, language `v1.7.0`; cics crucible baseline measured at `v0.11.0 (df992a3a)`; crucible cases per command measured at `v0.5.0`
+- crucible pins: cics `904e98777548993f52b21bc2cfe2baefdb8b6b78`, estate `v0.5.0`, language `v1.7.0`; cics crucible baseline measured at `904e98777548993f52b21bc2cfe2baefdb8b6b78`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
 - oracle base image: `debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251`
 - oracle images the evidence records ran on: none
@@ -266,8 +266,8 @@ From the spec entries of the commands the programs use, with the register's stat
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha faac469eb83e0a2bb1c94853ec2e408cddd37b91
-python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha faac469eb83e0a2bb1c94853ec2e408cddd37b91
+python tests/tools/cics_census.py survey --baseline --sha d86d5eabbf0bb0994f05894546b1bbe28c7325f2
+python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha d86d5eabbf0bb0994f05894546b1bbe28c7325f2
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases mortgage-cmort,mortgage-csmrt,mortgage-mlist,mortgage-mlist-generated,mortgage-mpmt,mortgage-nbrvl  # Db2 cases (1) need the Db2 container
 python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin

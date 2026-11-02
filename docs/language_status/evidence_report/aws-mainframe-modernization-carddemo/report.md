@@ -4,9 +4,9 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `faac469eb83e0a2bb1c94853ec2e408cddd37b91` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `d86d5eabbf0bb0994f05894546b1bbe28c7325f2` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
-The translation survey matches the translator in the tree (translator fingerprint `0f14f2b658a3`).
+The translation survey matches the translator in the tree (translator fingerprint `1764c3837edd`).
 
 ## How to read this report
 
@@ -91,7 +91,7 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 | app/cbl/CBSTM03A.CBL | L5 | 424/424 | 0 | carddemo-cbstm03a | equal | 2 | shown equal, unapproved | 25/25 (100.0%) | 43/46 (93.5%) | 43/43 (100.0%) | 66% | raw 66% (108/163 caught; 175 of 3751 mutants, seed 0); every survivor accounted for (55) | — |
 | app/cbl/COTRN01C.cbl | L5 | 95/95 | 0 | carddemo-tranview | equal | 25 | shown equal, unapproved | 9/9 (100.0%) | 23/24 (95.8%) | 23/23 (100.0%) | 57% | raw 57% (81/143 caught; 149 of 1486 mutants, seed 0); every survivor accounted for (62) | 4/5 |
 | app/cbl/COUSR00C.cbl | L5 | 288/288 | 0 | carddemo-userlist | equal | 72 | shown equal, unapproved | 16/16 (100.0%) | 95/100 (95.0%) | 95/95 (100.0%) | 72% | raw 72% (108/150 caught; 150 of 2851 mutants, seed 0); every survivor accounted for (42) | 4/8 |
-| app/cbl/COUSR01C.cbl | L5 | 94/94 | 0 | carddemo-useradd | equal | 25 | shown equal, unapproved | 9/9 (100.0%) | 20/21 (95.2%) | 20/20 (100.0%) | 64% | raw 64% (91/143 caught; 150 of 1231 mutants, seed 0); every survivor accounted for (52) | 4/5 |
+| app/cbl/COUSR01C.cbl | L5 | 94/94 | 0 | carddemo-useradd | equal | 25 | shown equal, unapproved | 9/9 (100.0%) | 20/21 (95.2%) | 20/20 (100.0%) | 48% | raw 48% (586/1209 caught; 1231 of 1231 mutants, seed 0); every survivor accounted for (623) | 4/5 |
 | app/cbl/COUSR03C.cbl | L5 | 115/115 | 0 | carddemo-userdel | equal | 32 | shown equal, unapproved | 11/11 (100.0%) | 31/32 (96.9%) | 31/31 (100.0%) | 57% | raw 57% (81/143 caught; 150 of 1319 mutants, seed 0); every survivor accounted for (62) | 4/6 |
 | app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | L4 | 110/110 | 0 | carddemo-cbpaup0c | equal | 1 | shown equal, unapproved | 15/16 (93.8%) | 39/40 (97.5%) | 39/39 (100.0%) | — | not measured (no det_mutation/ entry) | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | L4 | 344/344 | 0 | carddemo-copaua0c | equal | 26 | shown equal, unapproved | 41/41 (100.0%) | 66/71 (93.0%) | 66/66 (100.0%) | — | not measured (no det_mutation/ entry) | 2/7 |
@@ -240,7 +240,7 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 - **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X31 (ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)), X42 (ASSUMED (REFUSED where IBM is silent)); reach: X27, X31, X42 (entries of the commands case carddemo-useradd executed: ABEND, RECEIVE MAP, RETURN, SEND MAP, XCTL)
   - z/OS-calibrated: 0 of 3 named assumptions (none measured on z/OS)
   - stated infeasible branch outcome (reviewed claim, family G): RETURN-TO-PREV-SCREEN:167:true (IF) -- `IF CDEMO-TO-PROGRAM = LOW-VALUES OR SPACES` in RETURN-TO-PREV-SCREEN: the paragraph is only PERFORMed, and every PERFORM of it comes right after a MOVE of a non-blank program name into CDEMO-TO-PROGRAM (line 79 moves 'COSGN00C' and line 94 'COADM01C'; both fields PIC X(08), COCOM01Y). COUSR01C never moves SPACES or LOW-VALUES into it in between.
-- **Det-port mutation:** raw 64% (91/143 caught; 150 of 1231 mutants, seed 0); every survivor accounted for (52)
+- **Det-port mutation:** raw 48% (586/1209 caught; 1231 of 1231 mutants, seed 0); every survivor accounted for (623)
 - **Residual risk:** 1 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X31, X42; commands without oracle backing: WRITE; assumption reach (where not stated above) and the migration dimensions above: not measured
 
 ### app/cbl/COUSR03C.cbl -- L5
@@ -1341,18 +1341,18 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `faac469eb83e0a2bb1c94853ec2e408cddd37b91`
+- translator commit (the survey's): `d86d5eabbf0bb0994f05894546b1bbe28c7325f2`
 - corpus pin: `aws-mainframe-modernization-carddemo` at `59cc6c2fd7ebd7ef7925cad552a01a4b8b6e4d5e`
-- crucible pins: cics `v0.11.0`, estate `v0.5.0`, language `v1.7.0`; cics crucible baseline measured at `v0.11.0 (df992a3a)`; crucible cases per command measured at `v0.5.0`
+- crucible pins: cics `904e98777548993f52b21bc2cfe2baefdb8b6b78`, estate `v0.5.0`, language `v1.7.0`; cics crucible baseline measured at `904e98777548993f52b21bc2cfe2baefdb8b6b78`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
 - oracle base image: `debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251`
-- oracle images the evidence records ran on: `sha256:4605f2461a2def6642f727e5c29378290baf3b81c8301d0d603a60a465182edd`, `sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f`, `sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005`
+- oracle images the evidence records ran on: `sha256:b7b6fad9825b060f92271f2c7aef2a350849c0978ed3e0a2e578dc7b368faea2`, `sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f`, `sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005`
 
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha faac469eb83e0a2bb1c94853ec2e408cddd37b91
-python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha faac469eb83e0a2bb1c94853ec2e408cddd37b91
+python tests/tools/cics_census.py survey --baseline --sha d86d5eabbf0bb0994f05894546b1bbe28c7325f2
+python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha d86d5eabbf0bb0994f05894546b1bbe28c7325f2
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases carddemo-acctupdate,carddemo-acctview,carddemo-acctview-generated,carddemo-adminmenu,carddemo-adminmenu-generated,carddemo-billpay,carddemo-billpay-generated,carddemo-cardlist,carddemo-cardupdate,carddemo-cardview,carddemo-cardview-generated,carddemo-cbpaup0c,carddemo-cbstm03a,carddemo-cbstm03b,carddemo-coacct01,carddemo-cobswait,carddemo-cobtupdt,carddemo-cobtupdt-generated,carddemo-codate01,carddemo-copaua0c,carddemo-copaus0c,carddemo-copaus1c,carddemo-copaus2c,carddemo-copaus2c-generated,carddemo-cotrtlic,carddemo-cotrtlic-generated,carddemo-cotrtupc,carddemo-dailyval,carddemo-dateutil,carddemo-dbunldgs,carddemo-intcalc,carddemo-intcalc-generated,carddemo-menu,carddemo-menu-generated,carddemo-paudblod,carddemo-paudbunl,carddemo-posttran,carddemo-posttran-generated,carddemo-readacct,carddemo-readcard,carddemo-readcard-generated,carddemo-readcust,carddemo-readcust-generated,carddemo-readxref,carddemo-readxref-generated,carddemo-report,carddemo-report-generated,carddemo-signon,carddemo-signon-generated,carddemo-tranadd,carddemo-tranlist,carddemo-tranview,carddemo-tranview-generated,carddemo-trnrpt,carddemo-useradd,carddemo-useradd-generated,carddemo-userdel,carddemo-userdel-generated,carddemo-userlist,carddemo-userupd,carddemo-userupd-generated  # Db2 cases (8) need the Db2 container
 python tests/tools/evidence.py prove carddemo-acctview carddemo-acctview-generated carddemo-adminmenu carddemo-adminmenu-generated carddemo-billpay carddemo-billpay-generated carddemo-cardlist carddemo-cardview carddemo-cbpaup0c carddemo-cbstm03a carddemo-copaua0c carddemo-copaus0c carddemo-copaus1c carddemo-dailyval carddemo-dateutil carddemo-intcalc carddemo-menu carddemo-menu-generated carddemo-posttran carddemo-readcard carddemo-readcust carddemo-readxref carddemo-report carddemo-signon carddemo-signon-generated carddemo-tranadd carddemo-tranlist carddemo-tranview carddemo-tranview-generated carddemo-trnrpt carddemo-useradd carddemo-userdel carddemo-userlist carddemo-userupd

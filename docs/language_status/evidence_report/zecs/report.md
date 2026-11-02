@@ -4,9 +4,9 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `faac469eb83e0a2bb1c94853ec2e408cddd37b91` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `d86d5eabbf0bb0994f05894546b1bbe28c7325f2` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
-The translation survey matches the translator in the tree (translator fingerprint `0f14f2b658a3`).
+The translation survey matches the translator in the tree (translator fingerprint `1764c3837edd`).
 
 ## How to read this report
 
@@ -517,9 +517,9 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `faac469eb83e0a2bb1c94853ec2e408cddd37b91`
+- translator commit (the survey's): `d86d5eabbf0bb0994f05894546b1bbe28c7325f2`
 - corpus pin: `zecs` at `6d6bcbbc89c9be086a58cb7ad2ff4d702e873d02`
-- crucible pins: cics `v0.11.0`, estate `v0.5.0`, language `v1.7.0`; cics crucible baseline measured at `v0.11.0 (df992a3a)`; crucible cases per command measured at `v0.5.0`
+- crucible pins: cics `904e98777548993f52b21bc2cfe2baefdb8b6b78`, estate `v0.5.0`, language `v1.7.0`; cics crucible baseline measured at `904e98777548993f52b21bc2cfe2baefdb8b6b78`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
 - oracle base image: `debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251`
 - oracle images the evidence records ran on: none
@@ -527,8 +527,8 @@ From the spec entries of the commands the programs use, with the register's stat
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha faac469eb83e0a2bb1c94853ec2e408cddd37b91
-python tests/tools/evidence_report.py zecs --baseline --sha faac469eb83e0a2bb1c94853ec2e408cddd37b91
+python tests/tools/cics_census.py survey --baseline --sha d86d5eabbf0bb0994f05894546b1bbe28c7325f2
+python tests/tools/evidence_report.py zecs --baseline --sha d86d5eabbf0bb0994f05894546b1bbe28c7325f2
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases zecs-ecs001,zecs-zecs000,zecs-zecs001,zecs-zecs002,zecs-zecs003,zecs-zecsnc,zecs-zecsplt
 python tests/tools/evidence.py prove zecs-ecs001 zecs-zecs000 zecs-zecs001 zecs-zecs002 zecs-zecs003 zecs-zecsnc zecs-zecsplt

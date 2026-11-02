@@ -4281,6 +4281,15 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   cell` after it. Tests: each option translates with no hole and the oracle's text is the same lowered program; ACEE and CSA stay
   refused, a secondary cell is no target; ADDRESS EIB into a cell, reloaded and read, is proven against GnuCOBOL (tests/cobol_mainframe/test_bll_cells_5119.py).
   CWA / TWA / TCTUA into a cell are translation-level here (their run-time proofs are X59's own crucible cases); a cell program adds nothing at run time.
+- **GETMAIN / FREEMAIN into a cell (#5119).** `GETMAIN SET(cell) FLENGTH|LENGTH [INITIMG(area)]` and `FREEMAIN DATAPOINTER(cell)` need no
+  lowering of their own: the cell is a POINTER after `bll.py`, so they are X47's commands (IBM: GETMAIN SET "the address of the first byte
+  of the acquired storage"; the CICS/MVS 2.1.2 book's Figure 5, p. 30, is `GETMAIN ... SET(BLL-DATAA)`; FREEMAIN DATAPOINTER takes that
+  address back, DATA takes the storage's own data area, never an address). Placement and key options (BELOW, USERDATAKEY, CICSDATAKEY,
+  EXECUTABLE) are accepted as for a pointer (X47 assumption 1). A cell keeps each X47 refusal: SHARED, NOSUSPEND, a literal INITIMG, neither or
+  both of FLENGTH / LENGTH, GETMAIN64 / FREEMAIN64. Refused whole by name here: `FREEMAIN DATA(cell)` (a cell as a command's data), and
+  `FREEMAIN DATAPOINTER(secondary cell)` or `GETMAIN SET(secondary cell)` (the lowering drops a long record's secondary cells; only its base
+  cell holds an address; before this slice the FREEMAIN form reached the translator as an "undeclared item" hole). Tests:
+  tests/cobol_mainframe/test_bll_cells_5119.py (each form and each refusal).
 - **A cell or pointer tested for no address (#5197).** IBM's relation condition (Enterprise COBOL for z/OS Language Reference, "Conditional
   expressions", pointer comparisons; the manual's section was named, its page not checked) compares a pointer only for = and NOT =, with
   NULL or another pointer, never with a number. An OS/VS COBOL cell is a fullword, so `IF cell = ZERO` is its test for no address, and

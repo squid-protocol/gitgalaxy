@@ -385,7 +385,7 @@ Only generator output, never a test case:
   / `CONVERTST` / `CCSID`) and `BYTEOFFSET` / `PREPEND` on BIT containers (#5285), and `RETURN TRANSID CHANNEL` carried
   to the next terminal task (#6352, register X17). `GET64` / `PUT64 CONTAINER` run as their 31-bit twins (INTO / FROM an ordinary item, ASSUMED, register X17). Still refused by name: `SET` (and `GET64 ... SET`), `INQUIRE CONTAINER`
   (BTS only). Proven on both sides by `tests/cics_crucible/test_cics_runtimes.py`; the cics-crucible case `ca-channel-browse`
-  (PR #19 there) is not yet merged or pinned.
+  (cics-crucible #19 and #49) is merged and pinned at v0.11.0.
 - #4270 slice 2: interval control was refused whole -- START / RETRIEVE / RUN / FETCH in 10 census programs (3 outside
   the burned estates, all RUN / FETCH). `START` (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM / LENGTH,
   RTRANSID / RTERMID / QUEUE), `RETRIEVE` (INTO / LENGTH, the data options), `CANCEL REQID` and `RUN TRANSID CHILD` now

@@ -226,6 +226,35 @@ def test_what_the_lowering_cannot_keep_is_refused_whole_by_name(tmp_path, old, n
     assert isinstance(e.value, L.LayoutError)  # (the translator reads such a program no further, as any refused whole)
 
 
+_HEAD = "           MOVE 'HEAD' TO FIELD1(1:4).\n"
+
+
+@pytest.mark.parametrize(
+    "stmt, why",
+    [
+        ("MOVE FRPTR TO WS-NUM(1:2).", "MOVE FRPTR TO WS-NUM ( (line 29): the operand is subscripted"),
+        ("MOVE FRPTR TO WS-NUM(1).", "the operand is subscripted, reference-modified or qualified"),
+        ("MOVE FRPTR TO WS-NUM OF WS-GRP.", "MOVE FRPTR TO WS-NUM OF (line 29): the operand is subscripted"),
+        ("MOVE FRPTR TO WS-NUM IN WS-GRP.", "the operand is subscripted, reference-modified or qualified"),
+        ("MOVE ZERO TO FRPTR(1).", "the operand is subscripted, reference-modified or qualified"),
+        ("SERVICE RELOAD FILE-REC TS-REC.", "SERVICE RELOAD FILE-REC TS-REC (line 29): the operand is not one plain"),
+        ("SERVICE RELOAD FILE-REC OF X.", "SERVICE RELOAD FILE-REC OF (line 29): the operand is not one plain"),
+        ("SERVICE RELOAD FILE-REC(1).", "SERVICE RELOAD FILE-REC ( (line 29): the operand is not one plain"),
+    ],
+)
+def test_an_operand_that_is_not_one_plain_name_is_refused_by_name(tmp_path, stmt, why):
+    with pytest.raises(B.Refused) as e:
+        _lowered(tmp_path, PROGRAM.replace(_HEAD, f"           {stmt}\n", 1))
+    assert why in str(e.value), str(e.value)
+
+
+@pytest.mark.parametrize(
+    "stmt", ["MOVE FRPTR TO WS-NUM.", "MOVE FRPTR TO WS-NUM CONTINUE.", "SERVICE RELOAD FILE-REC."]
+)
+def test_a_plain_operand_followed_by_a_statement_still_lowers(tmp_path, stmt):
+    _lowered(tmp_path, PROGRAM.replace(_HEAD, f"           {stmt}\n", 1))
+
+
 @pytest.mark.parametrize("spelling", ["SERVICE LABEL.", "service   label."])
 @pytest.mark.parametrize("bll", [True, False])
 def test_service_label_is_an_le_recovery_point_not_a_bll_refusal(tmp_path, spelling, bll):

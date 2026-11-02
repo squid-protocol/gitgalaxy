@@ -454,15 +454,17 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | cobol-stub | data bytes differ | 1 |
 | cobol-stub | text differs | 1 |
 | java | runTask records no events (the generated stub: PROCEDURE DIVISION not ported) | 177 |
-| java-ported | not ported | 110 |
+| java-ported | not ported | 106 |
+| java-ported | READ expected, other event | 4 |
 | java-ported | STARTBR expected, other event | 3 |
 | java-ported | item differs | 2 |
-| java-ported | READ expected, other event | 1 |
-| java-facade | not ported | 110 |
+| java-ported | REWRITE expected, other event | 1 |
+| java-facade | not ported | 106 |
+| java-facade | READ expected, other event | 4 |
 | java-facade | RECEIVE expected, other event | 3 |
 | java-facade | STARTBR expected, other event | 3 |
 | java-facade | item differs | 2 |
-| java-facade | READ expected, other event | 1 |
+| java-facade | REWRITE expected, other event | 1 |
 
 ## Every cell that does not pass
 
@@ -716,17 +718,17 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | `hc-file-read-set/read-set/java-facade` | fail | task 1 (HC83) event 2: READ expected, got DRIVER-ERROR (runTask threw com.gitgalaxy.modernized.cobolrt.Hole: CICS file HCRS: the program names no file the generated project stores) |
 | `hc-file-read-set/read-set/java-ported` | fail | task 1 (HC83) event 2: READ expected, got DRIVER-ERROR (runTask threw com.gitgalaxy.modernized.cobolrt.Hole: CICS file HCRS: the program names no file the generated project stores) |
 | `hc-file-unlock/read-short/java` | fail | task 1 (HC81) event 1: RECEIVE expected, the side recorded no further event |
-| `hc-file-unlock/read-short/java-facade` | fail | no port of any of its programs |
-| `hc-file-unlock/read-short/java-ported` | fail | no port of any of its programs |
+| `hc-file-unlock/read-short/java-facade` | fail | task 1 (HC81) event 2: READ expected, got DRIVER-ERROR (runTask threw com.gitgalaxy.modernized.cobolrt.Hole: line 114: EXEC EXEC CICS: WsRec: no key (the generated entity states none: no IDCAMS DEFINE, RECORD KEY or RIDFLD field inside the record names it, and a KSDS key's offset is not guessed)) |
+| `hc-file-unlock/read-short/java-ported` | fail | task 1 (HC81) event 2: READ expected, got DRIVER-ERROR (runTask threw com.gitgalaxy.modernized.cobolrt.Hole: line 114: EXEC EXEC CICS: WsRec: no key (the generated entity states none: no IDCAMS DEFINE, RECORD KEY or RIDFLD field inside the record names it, and a KSDS key's offset is not guessed)) |
 | `hc-file-unlock/unlock-nothing/java` | fail | task 1 (HC81) event 1: RECEIVE expected, the side recorded no further event |
-| `hc-file-unlock/unlock-nothing/java-facade` | fail | no port of any of its programs |
-| `hc-file-unlock/unlock-nothing/java-ported` | fail | no port of any of its programs |
+| `hc-file-unlock/unlock-nothing/java-facade` | fail | task 1 (HC81) event 4: REWRITE expected, got DRIVER-ERROR (runTask threw com.gitgalaxy.modernized.cobolrt.Hole: line 100: EXEC EXEC CICS: WsRec: no key (the generated entity states none: no IDCAMS DEFINE, RECORD KEY or RIDFLD field inside the record names it, and a KSDS key's offset is not guessed)) |
+| `hc-file-unlock/unlock-nothing/java-ported` | fail | task 1 (HC81) event 4: REWRITE expected, got DRIVER-ERROR (runTask threw com.gitgalaxy.modernized.cobolrt.Hole: line 100: EXEC EXEC CICS: WsRec: no key (the generated entity states none: no IDCAMS DEFINE, RECORD KEY or RIDFLD field inside the record names it, and a KSDS key's offset is not guessed)) |
 | `hc-file-unlock/unlock-rewrite/java` | fail | task 1 (HC81) event 1: RECEIVE expected, the side recorded no further event |
-| `hc-file-unlock/unlock-rewrite/java-facade` | fail | no port of any of its programs |
-| `hc-file-unlock/unlock-rewrite/java-ported` | fail | no port of any of its programs |
+| `hc-file-unlock/unlock-rewrite/java-facade` | fail | task 1 (HC81) event 2: READ expected, got DRIVER-ERROR (runTask threw com.gitgalaxy.modernized.cobolrt.Hole: line 73: EXEC EXEC CICS: WsRec: no key (the generated entity states none: no IDCAMS DEFINE, RECORD KEY or RIDFLD field inside the record names it, and a KSDS key's offset is not guessed)) |
+| `hc-file-unlock/unlock-rewrite/java-ported` | fail | task 1 (HC81) event 2: READ expected, got DRIVER-ERROR (runTask threw com.gitgalaxy.modernized.cobolrt.Hole: line 73: EXEC EXEC CICS: WsRec: no key (the generated entity states none: no IDCAMS DEFINE, RECORD KEY or RIDFLD field inside the record names it, and a KSDS key's offset is not guessed)) |
 | `hc-file-unlock/update-rewrite/java` | fail | task 1 (HC81) event 1: RECEIVE expected, the side recorded no further event |
-| `hc-file-unlock/update-rewrite/java-facade` | fail | no port of any of its programs |
-| `hc-file-unlock/update-rewrite/java-ported` | fail | no port of any of its programs |
+| `hc-file-unlock/update-rewrite/java-facade` | fail | task 1 (HC81) event 2: READ expected, got DRIVER-ERROR (runTask threw com.gitgalaxy.modernized.cobolrt.Hole: line 56: EXEC EXEC CICS: WsRec: no key (the generated entity states none: no IDCAMS DEFINE, RECORD KEY or RIDFLD field inside the record names it, and a KSDS key's offset is not guessed)) |
+| `hc-file-unlock/update-rewrite/java-ported` | fail | task 1 (HC81) event 2: READ expected, got DRIVER-ERROR (runTask threw com.gitgalaxy.modernized.cobolrt.Hole: line 56: EXEC EXEC CICS: WsRec: no key (the generated entity states none: no IDCAMS DEFINE, RECORD KEY or RIDFLD field inside the record names it, and a KSDS key's offset is not guessed)) |
 | `hc-handle-aid/anykey-not-enter/java` | fail | task 1 (HA01) event 1: RECEIVE expected, the side recorded no further event |
 | `hc-handle-aid/anykey-not-enter/java-facade` | fail | no port of any of its programs |
 | `hc-handle-aid/anykey-not-enter/java-ported` | fail | no port of any of its programs |

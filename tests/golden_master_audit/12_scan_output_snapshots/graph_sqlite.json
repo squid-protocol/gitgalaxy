@@ -5867,7 +5867,7 @@
       "python/micropython_usb_tls/usb_simple_host_pyusb.py": "9d8387b6f14e",
       "python/numpy/_linalg.py": "b62c2e548b6d",
       "python/numpy/cfuncs.py": "a76d86a7f7c9",
-      "python/numpy/core.py": "a870b7198a38",
+      "python/numpy/core.py": "eb9e113577bd",
       "python/numpy/crackfortran.py": "036df1e367ca",
       "python/numpy/func2subr.py": "7f4ca4b170e0",
       "python/numpy/genapi.py": "e09b7c01c37b",

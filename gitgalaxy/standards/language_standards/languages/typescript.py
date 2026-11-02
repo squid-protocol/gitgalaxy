@@ -927,7 +927,8 @@ DEFINITION: dict[str, Any] = {
         "lazy_evaluation": re.compile(
             r"\byield\b|yield\s*\*|function\s*\*|\b(?:Generator|AsyncGenerator|Iterable|AsyncIterable)\b"
         ),
-        "vectorized_math": re.compile(r"\b(matmul|dot|cross|multiply)\s*\("),
+        # #4108: tf.js spells its products camelCase (`tf.matMul`, `batchMatMul`, `einsum`, `outerProduct`).
+        "vectorized_math": re.compile(r"\b(matmul|matMul|batchMatMul|einsum|outerProduct|dot|cross|multiply)\s*\("),
         # --- PHASE 3: HYBRID DOMAIN SENSORS (JS/TS Specifics) ---
         # auth_middleware (#3004): javascript's vocabulary plus Nest's @UseGuards
         # guard registration.

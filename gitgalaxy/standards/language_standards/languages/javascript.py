@@ -496,7 +496,8 @@ DEFINITION: dict[str, Any] = {
         "test_skip": re.compile(r"\b(test\.skip|it\.skip|describe\.skip|xit|xdescribe|mock|stub)\b"),
         # --- NEW: ADVANCED ALGORITHMIC SENSORS ---
         "lazy_evaluation": re.compile(r"\b(yield|yield\s*\*|function\s*\*)\b"),
-        "vectorized_math": re.compile(r"\b(matmul|dot|cross|multiply)\s*\("),
+        # #4108: tf.js spells its products camelCase (`tf.matMul`, `batchMatMul`, `einsum`, `outerProduct`).
+        "vectorized_math": re.compile(r"\b(matmul|matMul|batchMatMul|einsum|outerProduct|dot|cross|multiply)\s*\("),
         # --- PHASE 3: HYBRID DOMAIN SENSORS (JS/TS Specifics) ---
         # auth_middleware (#3004): passport's middleware registration, the express
         # session login/logout and check, JWT/bcrypt credential verification, and

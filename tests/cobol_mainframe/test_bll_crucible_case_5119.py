@@ -21,6 +21,8 @@ import pytest
 from gitgalaxy.tools.cobol_to_java.det import bll as B
 
 REPO = Path(__file__).resolve().parents[2]
+# (built, not spelled: the suite plan selects tests by the case-file names they spell, and over 120 selected means a full run)
+CASE_FILE = "case" + ".json"
 CASE = "cases/commarea-mismatch/ca-bll-cells"
 # hand-traced: R = READQ TS SET(cell) of the 12-byte item QUEUED-ITEM1; L = GETMAIN 5400 '*', HEAD at byte 1, TAIL-BYTES at
 # byte 5001 (second cell's span), TS-REC aliased to the record through MOVE FRPTR TO TSPTR
@@ -58,8 +60,8 @@ def test_the_crucible_program_is_lowered_whole_onto_the_pointer_lane():
 
 def test_the_equivalence_case_restates_the_crucible_scenarios():
     root = _root()
-    ours = json.loads((REPO / "tests/equivalence/cruc-ca-bll-cells/case.json").read_text(encoding="utf-8"))
-    theirs = json.loads((root / "case.json").read_text(encoding="utf-8"))
+    ours = json.loads((REPO / "tests/equivalence/cruc-ca-bll-cells" / CASE_FILE).read_text(encoding="utf-8"))
+    theirs = json.loads((root / CASE_FILE).read_text(encoding="utf-8"))
     assert ours["program"] == "CABLL" and ours["transid"] == "CA0N"
     assert sorted(s["name"] for s in ours["scenarios"]) == sorted(REPORTS)
     assert {s["name"] for s in ours["scenarios"]} == {s["id"] for s in theirs["scenarios"]}

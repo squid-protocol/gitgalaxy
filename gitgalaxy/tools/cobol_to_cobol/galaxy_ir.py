@@ -6301,6 +6301,8 @@ def _operand_name(operand: str | None) -> tuple[str | None, str | None]:
     if not operand:
         return None, None
     tokens = operand.replace("(", " ( ").split()
+    if len(tokens) >= 3 and tokens[0] == "ADDRESS" and tokens[1] == "OF":
+        tokens = tokens[2:]  # SET(ADDRESS OF LS-REC): the record is the based item
     name = tokens[0] if tokens and tokens[0][:1].isalpha() else None
     qual = None
     if len(tokens) >= 3 and tokens[1] in ("OF", "IN") and tokens[2][:1].isalpha():

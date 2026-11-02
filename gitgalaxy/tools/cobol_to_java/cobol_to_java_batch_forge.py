@@ -46,7 +46,7 @@ from typing import Any
 
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import TraceLog, java_path, status_text
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base
-from gitgalaxy.tools.cobol_to_java.det import dfsort, idcams
+from gitgalaxy.tools.cobol_to_java.det import dfsort, idcams, tso
 from gitgalaxy.tools.cobol_to_java.java_target import JavaTarget, record_charset_java
 
 SUBPACKAGE = "batch"
@@ -196,7 +196,7 @@ class BatchForge:
                     st.refused = self._idcams_refusal(j["file"], s["ordinal"], st)
                 elif prog in SORTS:
                     st.refused = self._sort_refusal(j["file"], s["ordinal"], st)
-                self._through_runner(st, ps.get("runner_programs") or [])
+                self._through_runner(st, ps.get("runner_programs") or [], j["file"], s["ordinal"])
                 steps.append(st)
         names = [st.jcl for st in steps]
         for st in steps:
@@ -252,6 +252,22 @@ class BatchForge:
             if dd not in have:
                 return f"names the DD {dd} in its REPRO, which is not a dataset of the step"
         st.copy_dds = (repro.infile, repro.outfile)
+        return None
+
+    def _tso_refusal(self, file: str, ordinal: int, st: Step) -> str | None:
+        """#4890: an IKJEFT01 step runs `RUN PROGRAM(x)` with the PARMS the command carries, not the EXEC PARM (that is
+        the TSO command line). One DSN / RUN / END deck (`tso.parse`) gives the program its PARMS; any other
+        subcommand or RUN keyword, or a second RUN, is refused by name. SSID, PLAN and LIB are not compared (no Db2)."""
+        decks = self._deck(file, ordinal, st, "SYSTSIN")
+        if len(decks) != 1:
+            return None  # a SYSTSIN dataset or none: the runner's rows already say what is known
+        try:
+            run = tso.parse(decks[0])
+        except dfsort.Refused as e:
+            return f"uses {e}, which the IKJEFT01 model refuses"
+        if run.program != st.program:
+            return f"runs {run.program} in its SYSTSIN, not {st.program}"
+        st.parm = run.parms
         return None
 
     def _deck(self, file: str, ordinal: int, st: Step, dd: str) -> list[str]:
@@ -364,7 +380,7 @@ class BatchForge:
             return next(iter(lrecls)), where
         return "; ".join(reasons) or "the job facts carry no record length (LRECL) to lower it"
 
-    def _through_runner(self, st: Step, runs: list[dict]) -> None:
+    def _through_runner(self, st: Step, runs: list[dict], file: str = "", ordinal: int = 0) -> None:
         """#3710: a runner step runs the program its SYSTSIN / PARM names -- the estate program
         when one resolves, else the first load module it runs (an IBM utility: DSNTEP2); a runner
         whose program is not known keeps its own name, with what is missing in `unresolved`."""
@@ -384,6 +400,8 @@ class BatchForge:
         if pick is not None:
             st.runner, st.via, st.program = st.program, pick.get("via"), str(pick["program"]).upper()
             st.key = self.programs.get(st.program)
+            if tso and pick.get("via") == "RUN PROGRAM":
+                st.refused = self._tso_refusal(file, ordinal, st)
             return
         member = next((r.get("member") for r in runs if r.get("member") and not r.get("program")), None)
         execs = [r["program"] for r in runs if r.get("via") == "TSO EXEC" and r.get("program")]
@@ -520,6 +538,8 @@ class BatchForge:
 
     def _step_todo(self, st: Step) -> str | None:
         p = st.program or "?"
+        if st.runner and st.refused:
+            return f"TODO: {st.jcl} runs {p} through {st.runner}, which {st.refused} -- not run: a utility step to port"
         if p in IDCAMS and st.refused:
             return f"TODO: {st.jcl} runs {p}, which {st.refused} -- not run as a record copy: a utility step to port"
         if p in IDCAMS and st.copy_dds:
@@ -549,6 +569,9 @@ class BatchForge:
     def _tasklet(self, j: Job, st: Step) -> str:
         consts = f"DDS_{self._const(st.name)}"
         head = f"{_jstr(st.name)}, {_jstr(st.jcl)}, {_jstr(j.cond)}, {_jstr(st.cond)}, {_jstr(st.if_cond)}"
+        if st.runner and st.refused:
+            todo = self._step_todo(st) or ""
+            return f"steps.utility({head}, {_jstr(st.program)}, {_jstr(todo.split(': ', 1)[-1])})"
         if st.key:
             return f"steps.program({head}, () -> {self._var(st.key)}.runBatch({consts}, {_jstr(st.parm)}))"
         if st.sort_service:  # #4268: the lowered SORT / MERGE, det-translated, on the step's DDs

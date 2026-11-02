@@ -343,6 +343,8 @@ class FileControlCommands:
             search = self._search(opts, file, st, rec)
             if search is not None:
                 call, held = search[0], search[1].format(r)
+            elif "TOKEN" not in opts:  # #7434: recorded as the SPEC 6.2 READ event (with `set`); GTEQ / GENERIC / TOKEN: not yet
+                call = f"task.readSetEvent({file}, {rec}, {'true' if fn == 'readForUpdate' else 'false'}, () -> {st}.find({rec}))"
             out = [f"{ind}byte[] {rec} = DetCics.bytes({rid});",
                    f"{ind}CicsTask.FileRead<byte[]> {r} = {call};",
                    f"{ind}if ({r}.record() != null) {{",
@@ -356,8 +358,11 @@ class FileControlCommands:
             out.append(f"{ind}}}")
             return out + self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)
         fn = "readnext" if verb == "READNEXT" else "readprev"
-        got = g.tmpname("rec")
-        out = [f"{ind}CicsTask.Browsed {r} = task.{fn}({file}, new String(DetCics.bytes({rid}), CS));",
+        got, entry = g.tmpname("rec"), g.tmpname("rid")
+        # #7434: recorded as the SPEC 6.2 READNEXT / READPREV event (with `set`); `entry` is RIDFLD as it was on entry
+        out = [f"{ind}byte[] {entry} = DetCics.bytes({rid});",
+               f"{ind}CicsTask.Browsed {r} = task.{fn}SetEvent({file}, {entry}, new String({entry}, CS), "
+               f"k -> {st}.find(k.getBytes(CS)));",
                f"{ind}if ({r}.normal()) {{",
                f"{ind}    DetCics.put({rid}, {r}.key().getBytes(CS));",
                f"{ind}    byte[] {got} = {st}.find({r}.key().getBytes(CS)).orElse(null);",
@@ -504,6 +509,18 @@ class FileControlCommands:
             out = [f"{ind}int {r} = task.unlockToken({file}, {tok});"]
         return out + self.outcome(opts, r, "task.resp2()", ind)
 
+    def _browses_with_set(self) -> bool:
+        """#7434: whether the program reads its browse with SET (READNEXT / READPREV SET(..)). Only such a program records
+        STARTBR / ENDBR as SPEC 6.2 events: the INTO forms keep the event-free calls, since the COBOL stub the det port
+        is proved against records neither (INTO-form READ / READNEXT / READPREV are the sibling gap)."""
+        import re
+
+        found = getattr(self, "_set_browse", None)
+        if found is None:
+            pat = re.compile(r"(?is)\bREAD(?:NEXT|PREV)\b.*\bSET\s*\(")
+            found = self._set_browse = any(pat.search(x) for x in self.g.p.proc.execs.values())
+        return found
+
     def file_update(self, verb: str, opts: dict, ind: str) -> list[str]:
 
         if self._rba(verb, opts):
@@ -549,9 +566,17 @@ class FileControlCommands:
                        f"{ind}int {r} = task.deleteHeld({file}, () -> {st}.remove({held}));"]  # fmt: skip
         elif verb == "STARTBR":
             rid = self.field(opts["RIDFLD"])
-            out = [f"{ind}int {r} = task.startbr({file}, new String(DetCics.bytes({rid}), CS), "
-                   f"{'true' if 'EQUAL' in opts else 'false'}, () -> {st}.keys());"]  # fmt: skip
-        else:  # ENDBR
+            if self._browses_with_set():
+                entry = g.tmpname("rid")  # #7434: recorded as the SPEC 6.2 STARTBR event; RIDFLD as it is on entry
+                out = [f"{ind}byte[] {entry} = DetCics.bytes({rid});",
+                       f"{ind}int {r} = task.startbrEvent({file}, {entry}, new String({entry}, CS), "
+                       f"{'true' if 'EQUAL' in opts else 'false'}, () -> {st}.keys());"]  # fmt: skip
+            else:
+                out = [f"{ind}int {r} = task.startbr({file}, new String(DetCics.bytes({rid}), CS), "
+                       f"{'true' if 'EQUAL' in opts else 'false'}, () -> {st}.keys());"]  # fmt: skip
+        elif self._browses_with_set():  # ENDBR, recorded as the SPEC 6.2 ENDBR event (#7434)
+            out = [f"{ind}int {r} = task.endbrEvent({file});"]
+        else:
             out = [f"{ind}int {r} = task.endbr({file});"]
         return out + self.outcome(opts, r, "task.resp2()", ind)  # #4657: IBM's RESP2 (CicsTask.resp2)
 

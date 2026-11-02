@@ -964,3 +964,64 @@ def test_a_rerun_every_count_is_named_in_the_unscored_file_control_check():
     ec.score_file_control(sc, "p.cbl", dict(language="cobol", file_control=[key]), eng)
     c = [c for c in sc.checks if c.status == "unscored"][0]
     assert "1000" in c.detail
+
+
+def _dli(line, pcb="DB-PCB", io="WS-IO-AREA", ssas=None):
+    return SimpleNamespace(line=line, pcb=pcb, io_area=io, ssas=ssas, interface="CALL", function=None)
+
+
+def _dli_eng(rows, resolved):
+    eng = FakeEngine(files={"w.cbl": SimpleNamespace(dli_calls=rows)})
+    eng.ir = SimpleNamespace(ims_calls=lambda: resolved)
+    return eng
+
+
+def _dli_key(line, **kw):
+    return dict(function="GN", pcb="DB-PCB", io_area="WS-IO-AREA", ssas=[], line=line, horror="H-0097", **kw)
+
+
+def test_a_cbltdli_call_is_scored_on_the_resolved_function_pcb_and_io_area():
+    eng = _dli_eng([_dli(28), _dli(34, pcb="OTHER-PCB")], [{"file": "w.cbl", "line": 28, "function": "GN"}])
+    sc = ec.Score()
+    ec.score_dli_calls(sc, "w.cbl", {"dli_calls": [_dli_key(28), _dli_key(34), _dli_key(40)]}, eng)
+    assert [c.status for c in sc.checks] == ["pass", "fail", "missing"]
+    assert {c.channel for c in sc.checks} == {"dli_calls"}
+
+
+def test_an_unresolved_function_fails_the_dli_call_not_passes_it():
+    sc = ec.Score()
+    ec.score_dli_calls(sc, "w.cbl", {"dli_calls": [_dli_key(28)]}, _dli_eng([_dli(28)], []))
+    assert sc.checks[0].status == "fail"
+
+
+def test_ssas_are_compared_comma_joined_in_order():
+    key = _dli_key(28)
+    key["ssas"] = ["SSA1", "SSA2"]
+    sc = ec.Score()
+    eng = _dli_eng([_dli(28, ssas="SSA1,SSA2")], [{"file": "w.cbl", "line": 28, "function": "GN"}])
+    ec.score_dli_calls(sc, "w.cbl", {"dli_calls": [key]}, eng)
+    assert sc.checks[0].status == "pass"
+
+
+def _gen(kind, name, line, parent=None, nbytes=None):
+    return SimpleNamespace(kind=kind, name=name, line=line, parent=parent, bytes=nbytes)
+
+
+def test_an_ims_gen_segm_is_scored_on_parent_and_bytes():
+    rows = [_gen("DBD", "HKEPDB", 2), _gen("SEGM", "KEEP", 3, None, 40), _gen("SEGM", "WALL", 4, "GATE", 40)]
+    keys = [
+        dict(kind="DBD", name="HKEPDB", line=2),
+        dict(kind="SEGM", name="KEEP", parent="", bytes=40, line=3),
+        dict(kind="SEGM", name="WALL", parent="KEEP", bytes=40, line=4),
+        dict(kind="SEGM", name="GATE", parent="WALL", bytes=40, line=5),
+    ]
+    sc = ec.Score()
+    ec.score_ims_gen(sc, "d.asm", {"ims_gen": keys}, FakeEngine(files={"d.asm": SimpleNamespace(ims_gen=rows)}))
+    assert [c.status for c in sc.checks] == ["pass", "pass", "fail", "missing"]
+
+
+def test_a_member_with_no_ims_keys_adds_no_ims_checks():
+    sc = ec.Score()
+    ec.score_dli_calls(sc, "x.cbl", {}, FakeEngine())
+    ec.score_ims_gen(sc, "x.cbl", {}, FakeEngine())
+    assert sc.checks == []

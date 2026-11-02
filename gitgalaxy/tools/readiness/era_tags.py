@@ -74,9 +74,16 @@ _SET_OPTION = re.compile(rf"\b(?:SET|DATAPOINTER)\s*\(\s*({_NAME})\s*\)", _I)
 _SECTION = re.compile(r"\b(WORKING-STORAGE|LINKAGE|LOCAL-STORAGE|FILE)\s+SECTION\s*\.", _I)
 
 
-def _bll_hits(code: str, exec_text: str) -> list[re.Match[str]]:
-    """The cell lists in `code` that a SET / DATAPOINTER option names a cell of, outside WORKING-STORAGE and FILE."""
-    named = {m.group(1).upper() for m in _SET_OPTION.finditer(exec_text)}
+def _set_names(exec_text: str) -> set[str]:
+    """The names a SET / DATAPOINTER option in `exec_text` (the joined EXEC blocks) names."""
+    return {m.group(1).upper() for m in _SET_OPTION.finditer(exec_text)}
+
+
+def _bll_hits(code: str, exec_text: str, other: frozenset[str] = frozenset()) -> list[re.Match[str]]:
+    """The cell lists in `code` that a SET / DATAPOINTER option names a cell of, outside WORKING-STORAGE and FILE.
+    `other` (#5119) holds the names options in the program's other texts (a COPY member) name: the list and the option
+    may sit in different members."""
+    named = _set_names(exec_text) | other
     hits = []
     for m in _CELL_LIST.finditer(code):
         sections = list(_SECTION.finditer(code, 0, m.start()))
@@ -337,8 +344,13 @@ def clean(text: str) -> tuple[str, str]:
     return raw, "\n".join(_LITERAL.sub(lambda m: " " * len(m.group()), ln) for ln in out)
 
 
-def _scan(text: str) -> list[dict[str, Any]]:
-    """The tells of one source text (a program or a copybook): [{tell, era, count, first_line}]."""
+def _exec_text(text: str) -> str:
+    return "\0".join(m.group(0) for m in _EXEC.finditer(clean(text)[1]))
+
+
+def _scan(text: str, other: frozenset[str] = frozenset()) -> list[dict[str, Any]]:
+    """The tells of one source text (a program or a copybook): [{tell, era, count, first_line}].
+    `other`: SET option names found in the program's other texts (see `_bll_hits`)."""
     raw, code = clean(text)
     asm = "\n".join("" if ln.startswith("*") else ln for ln in text.splitlines())
     exec_text = "\0".join(m.group(0) for m in _EXEC.finditer(code))
@@ -355,7 +367,7 @@ def _scan(text: str) -> list[dict[str, Any]]:
             hay = exec_text
         else:  # "code", and "bll" (the cell list is read in the code text)
             hay = code
-        hits = _bll_hits(code, exec_text) if scope == "bll" else list(pat.finditer(hay))
+        hits = _bll_hits(code, exec_text, other) if scope == "bll" else list(pat.finditer(hay))
         if not hits:
             continue
         # "cics" and "cbl" scopes are joined blocks: the line is only meaningful against the whole text.
@@ -383,12 +395,13 @@ def tag_program(text: str, copybooks: dict[str, str] | None = None, asm: bool = 
     copybook under `copybooks`; one only it has is a tell of the program too (`via_copybook`, count over the copybooks,
     no line). Those keys, `program_era` (when it differs from `era`) and `copybooks` are present only when non-empty.
     `asm` (an assembler member, #5195): its members are macro / COPY text too, so their assembler tells count."""
-    found = _scan(text)
+    books = copybooks or {}
+    named = frozenset(n for t in (text, *books.values()) for n in _set_names(_exec_text(t)))  # (#5119)
+    found = _scan(text, named)
     program_era = _verdict(found)[0]
     by_tell = {t["tell"]: t for t in found}
-    books = copybooks or {}
     for name in sorted(books):
-        for t in _scan(books[name]):
+        for t in _scan(books[name], named):
             if t["tell"] in _ASM_TELLS and not asm:
                 continue
             mine = by_tell.get(t["tell"])

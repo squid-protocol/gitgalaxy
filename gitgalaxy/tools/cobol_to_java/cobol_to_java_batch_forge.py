@@ -59,7 +59,7 @@ BUILD_PROGRAMS = frozenset({
     "DSNHLI", "DFHCSDUP", "DFHMAPS", "EYU9XDUT", "EYU9XECS", "IEBCOPY", "SDSF", "BPXBATCH", "ITPSTL",
     "ITPENTER", "ITPLL", "IEBUPDTE", "AMBLIST", "IKJEFT1A",
 })  # fmt: skip
-RUNNERS = frozenset({"IKJEFT01", "IKJEFT1B", "DFSRRC00", "DFSRRC0"})
+RUNNERS = frozenset({"IKJEFT01", "IKJEFT1A", "IKJEFT1B", "DFSRRC00", "DFSRRC0"})
 COPY = frozenset({"IEBGENER", "ICEGENER"})
 IDCAMS = frozenset({"IDCAMS"})  # #4268: a REPRO INFILE/OUTFILE step is a record copy
 SORTS = frozenset({"SORT", "DFSORT", "ICEMAN", "SYNCSORT", "ICETOOL"})

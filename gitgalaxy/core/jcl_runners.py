@@ -10,7 +10,7 @@
 #   (TSO batch)             in-stream SYSTSIN `CALL 'lib(x)'`            TSO CALL
 #                           in-stream SYSTSIN `EXEC 'lib(x)'` / `%x`     TSO EXEC (a REXX / CLIST
 #                                                                        exec, not a load module)
-#   DFSRRC00 (IMS)          PARM='region,x,psb'                          DFSRRC00
+#   DFSRRC00 / DFSRRC0 (IMS) PARM='region,x,psb'                          DFSRRC00
 #
 # One row per program run: `line` (of the step's EXEC), `step`, `runner`, `program`,
 # `via`, `plan` (RUN PROGRAM's PLAN), `region` / `psb` (DFSRRC00), `at` (the line
@@ -30,6 +30,8 @@ import re
 from typing import Any
 
 _TSO_RUNNERS = frozenset({"IKJEFT01", "IKJEFT1A", "IKJEFT1B"})
+# DFSRRC0 is the short alias of the IMS region controller; both read the same PARM (#4890).
+_IMS_RUNNERS = frozenset({"DFSRRC00", "DFSRRC0"})
 _STMT = re.compile(r"^//([A-Z0-9@#$.]{0,17})[ \t]+([A-Z]{2,8})(?:[ \t]+(.*))?$", re.I)
 _PGM = re.compile(r"\bPGM=([A-Z0-9@#$]{1,8})", re.I)
 _INSTREAM = re.compile(r"^[ \t]*(?:\*|DATA)(?![A-Z0-9@#$])", re.I)
@@ -111,7 +113,7 @@ def runner_targets(code_stream: str) -> list[dict[str, Any]]:
             pgm = _PGM.search(text)
             runner = pgm.group(1).upper() if pgm else None
             step = {"line": i + 1, "step": name or None, "runner": runner} if runner else None
-            if step is not None and runner == "DFSRRC00":
+            if step is not None and runner in _IMS_RUNNERS:
                 parm = _REGION_PARM.search(text)
                 parts = [p.strip().upper() for p in parm.group(1).split(",")] if parm else []
                 if len(parts) > 1 and parts[1]:

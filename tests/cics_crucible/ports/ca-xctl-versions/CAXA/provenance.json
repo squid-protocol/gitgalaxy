@@ -227,6 +227,22 @@
      "runTask",
      "handleTransaction"
     ]
+   },
+   {
+    "at": "2026-11-02T03:15:54+00:00",
+    "crucible_ref": "904e98777548993f52b21bc2cfe2baefdb8b6b78",
+    "summary": {
+     "length-range": "1/1",
+     "long-overread": "1/1",
+     "short-upgrade": "1/1"
+    },
+    "port_sha256": "f3ea69b4d98c401b9f5687257eb9bd7ae2e03bc13abc8a7a89629ca0f69b8bb9",
+    "harness_commit": "0e8800dcf9ffbcc237266b57f4eb6457a1d508ec",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program CAXA --report-dir)",
+    "entry_points": [
+     "runTask",
+     "handleTransaction"
+    ]
    }
   ]
  },

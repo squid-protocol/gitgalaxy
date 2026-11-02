@@ -171,8 +171,8 @@
   },
   "corpus": {
    "name": "cics-crucible",
-   "ref": "0af1af2e248f695b8cd6f4fe113065fa160d9ba2",
-   "sha256": "318ed9c23a56c6caa6d66da8f25f342b442ae69364fef021a5bf7cac2da89731"
+   "ref": "904e98777548993f52b21bc2cfe2baefdb8b6b78",
+   "sha256": "389b6c3175e96e575ee57eae70f1c85489bfdd66332fe7aac4fd2847660a625c"
   },
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
@@ -204,10 +204,10 @@
    },
    "runtime_sha256": "7c2b870db10a743ccc413269481a8a87b2a85fb6515efcad194d907b8ef94764"
   },
-  "digest": "7b3f069f4107d3d1bdb92a118fc6a3fe254f1fe8547b7e3abe84b02ebec5c55e"
+  "digest": "f32d8d76a2afd6a201ae731fa0e792930163299cd766f55ecb38b3347d51c2ff"
  },
  "proof": {
-  "at": "2026-11-02T01:51:00Z",
+  "at": "2026-11-02T03:37:55Z",
   "verdict": "proven",
   "runs": 4,
   "fault_runs": 0,
@@ -237,8 +237,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "5b94ee7af43e447216cde85183aa8e6994be6930+uncommitted",
-  "inputs_digest": "7b3f069f4107d3d1bdb92a118fc6a3fe254f1fe8547b7e3abe84b02ebec5c55e"
+  "harness_commit": "0e8800dcf9ffbcc237266b57f4eb6457a1d508ec+uncommitted",
+  "inputs_digest": "f32d8d76a2afd6a201ae731fa0e792930163299cd766f55ecb38b3347d51c2ff"
  },
  "coverage": {
   "paragraphs": {
@@ -253,7 +253,7 @@
   "handler_labels": null,
   "source": "tests/cics_crucible/coverage.json#programs/gt-terminal-coalesce/GTTERM",
   "ledger_sha256": "f1c77405f9536bee3ff2964d900d1f5e4410a045ba015346554068107f5b466a",
-  "inputs_digest": "7b3f069f4107d3d1bdb92a118fc6a3fe254f1fe8547b7e3abe84b02ebec5c55e"
+  "inputs_digest": "f32d8d76a2afd6a201ae731fa0e792930163299cd766f55ecb38b3347d51c2ff"
  },
  "reach": {
   "entry_points": [
@@ -318,7 +318,7 @@
  "differences": [],
  "oracle": {
   "kind": "crucible-expected-logs",
-  "source": "cics-crucible 0af1af2e248f695b8cd6f4fe113065fa160d9ba2: each scenario's hand-written expected event log, derived from IBM's documentation (its SPEC.md); the java-ported side (runTask) and the java-facade side (the deployed entry points, #4343) are compared with it exactly",
+  "source": "cics-crucible 904e98777548993f52b21bc2cfe2baefdb8b6b78: each scenario's hand-written expected event log, derived from IBM's documentation (its SPEC.md); the java-ported side (runTask) and the java-facade side (the deployed entry points, #4343) are compared with it exactly",
   "compiler": null,
   "image": null,
   "models": [],
@@ -338,9 +338,9 @@
   "provenance_file": {
    "path": "tests/cics_crucible/ports/gt-terminal-coalesce/GTTERM/provenance.json",
    "format": "cics-crucible-port/1",
-   "sha256": "4e1e1b65a67940a2437cf99c5b753b8026bcca2719e4a0f5e981406cb95e12b3"
+   "sha256": "bcf566cab776bd0661bbcd6e6d39dafe807b76e00814cc9cea0ed75123480973"
   },
-  "crucible_ref_proven": "0af1af2e248f695b8cd6f4fe113065fa160d9ba2"
+  "crucible_ref_proven": "904e98777548993f52b21bc2cfe2baefdb8b6b78"
  },
  "approvals": []
 }

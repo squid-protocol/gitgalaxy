@@ -171,8 +171,8 @@
   },
   "corpus": {
    "name": "cics-crucible",
-   "ref": "0af1af2e248f695b8cd6f4fe113065fa160d9ba2",
-   "sha256": "318ed9c23a56c6caa6d66da8f25f342b442ae69364fef021a5bf7cac2da89731"
+   "ref": "904e98777548993f52b21bc2cfe2baefdb8b6b78",
+   "sha256": "389b6c3175e96e575ee57eae70f1c85489bfdd66332fe7aac4fd2847660a625c"
   },
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
@@ -204,10 +204,10 @@
    },
    "runtime_sha256": "7c2b870db10a743ccc413269481a8a87b2a85fb6515efcad194d907b8ef94764"
   },
-  "digest": "e8b4534307f0d4d1aa91675f170bceacbad60e9dcfad7d1db629e2b76597a339"
+  "digest": "3d46f9a26a4d63e5471eb8cf83146999795a7cb40ed5f6135be9c2ee713a10aa"
  },
  "proof": {
-  "at": "2026-11-02T01:52:52Z",
+  "at": "2026-11-02T03:39:45Z",
   "verdict": "proven",
   "runs": 4,
   "fault_runs": 0,
@@ -237,8 +237,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "5b94ee7af43e447216cde85183aa8e6994be6930+uncommitted",
-  "inputs_digest": "e8b4534307f0d4d1aa91675f170bceacbad60e9dcfad7d1db629e2b76597a339"
+  "harness_commit": "0e8800dcf9ffbcc237266b57f4eb6457a1d508ec+uncommitted",
+  "inputs_digest": "3d46f9a26a4d63e5471eb8cf83146999795a7cb40ed5f6135be9c2ee713a10aa"
  },
  "coverage": {
   "paragraphs": {
@@ -253,7 +253,7 @@
   "handler_labels": null,
   "source": "tests/cics_crucible/coverage.json#programs/hx-attr-bytes/HXATTR",
   "ledger_sha256": "bb7ee89941298c8a93bde34eefdc5bb79e0c7eae176731f6cfc684f2b6b8a71b",
-  "inputs_digest": "e8b4534307f0d4d1aa91675f170bceacbad60e9dcfad7d1db629e2b76597a339"
+  "inputs_digest": "3d46f9a26a4d63e5471eb8cf83146999795a7cb40ed5f6135be9c2ee713a10aa"
  },
  "reach": {
   "entry_points": [
@@ -318,7 +318,7 @@
  "differences": [],
  "oracle": {
   "kind": "crucible-expected-logs",
-  "source": "cics-crucible 0af1af2e248f695b8cd6f4fe113065fa160d9ba2: each scenario's hand-written expected event log, derived from IBM's documentation (its SPEC.md); the java-ported side (runTask) and the java-facade side (the deployed entry points, #4343) are compared with it exactly",
+  "source": "cics-crucible 904e98777548993f52b21bc2cfe2baefdb8b6b78: each scenario's hand-written expected event log, derived from IBM's documentation (its SPEC.md); the java-ported side (runTask) and the java-facade side (the deployed entry points, #4343) are compared with it exactly",
   "compiler": null,
   "image": null,
   "models": [],
@@ -338,9 +338,9 @@
   "provenance_file": {
    "path": "tests/cics_crucible/ports/hx-attr-bytes/HXATTR/provenance.json",
    "format": "cics-crucible-port/1",
-   "sha256": "649e6bf51434cd543b57f0db79ee90713ef9f0c3232818855e2644a120bf6f8c"
+   "sha256": "f2f1af213edcac7952c904afa6e1e1b3be063ca35df102bcdc63a6aad430be66"
   },
-  "crucible_ref_proven": "0af1af2e248f695b8cd6f4fe113065fa160d9ba2"
+  "crucible_ref_proven": "904e98777548993f52b21bc2cfe2baefdb8b6b78"
  },
  "approvals": []
 }

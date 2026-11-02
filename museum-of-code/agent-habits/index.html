@@ -1,0 +1,938 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Every Model Has a Tell</title>
+<meta name="author" content="Joe Esquibel">
+<link rel="canonical" href="https://squid-protocol.github.io/gitgalaxy/museum-of-code/agent-habits/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Every Model Has a Tell">
+<meta property="og:description" content="Three AI coding models (Claude Sonnet, Claude Haiku and OpenAI Codex) built programs for the same ten jobs, 60 in all. Measured by structure alone, each model kept its own handwriting. An interactive study by Joe Esquibel, made with the GitGalaxy code-scanning engine.">
+<meta property="og:url" content="https://squid-protocol.github.io/gitgalaxy/museum-of-code/agent-habits/">
+<meta property="og:image" content="https://squid-protocol.github.io/gitgalaxy/museum-of-code/agent-habits/collage.png">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "Every Model Has a Tell: three AI models, the same ten jobs", "description": "Three AI coding models (Claude Sonnet, Claude Haiku and OpenAI Codex) built programs for the same ten jobs, 60 in all. Measured by structure alone, each model kept its own handwriting. An interactive study by Joe Esquibel, made with the GitGalaxy code-scanning engine.", "author": {"@type": "Person", "name": "Joe Esquibel"}, "datePublished": "2026-11-02", "url": "https://squid-protocol.github.io/gitgalaxy/museum-of-code/agent-habits/", "image": "https://squid-protocol.github.io/gitgalaxy/museum-of-code/agent-habits/collage.png", "isBasedOn": "https://github.com/squid-protocol/agent-habits", "publisher": {"@type": "Organization", "name": "GitGalaxy", "url": "https://github.com/squid-protocol/gitgalaxy"}}</script>
+<meta name="description" content="Three AI coding models (Claude Sonnet, Claude Haiku and OpenAI Codex) built programs for the same ten jobs, 60 in all. Measured by structure alone, each model kept its own handwriting. An interactive study by Joe Esquibel, made with the GitGalaxy code-scanning engine.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700;800;900&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root {
+  --paper: #f6f7f8; --panel: #ffffff; --ink: #15202b; --ink-2: #4a5663; --ink-3: #6f7a86; --rule: #d9dee3; --hover: #eef2f6;
+  --accent: #15202b; --tint: #eceff3; --chance: #8b949e; --deep: #15202b;
+  --sonnet: #2a78d6; --haiku: #eb6834; --codex: #1baf7a;
+  --good: #1f7a4d; --warn: #9a6a00; --bad: #b3261e;
+  --font-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Source Serif 4", Georgia, serif;
+  --font-data: "JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #14181c; --panel: #1b2026; --ink: #e9edf1; --ink-2: #b4bec8; --ink-3: #8994a0; --rule: #2d343c; --hover: #232a31;
+    --accent: #e9edf1; --tint: #20262d; --chance: #7d8792; --deep: #e9edf1;
+    --sonnet: #3987e5; --haiku: #d95926; --codex: #199e70; --good: #4cc38a; --warn: #e0a83a; --bad: #f2786d; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #14181c; --panel: #1b2026; --ink: #e9edf1; --ink-2: #b4bec8; --ink-3: #8994a0; --rule: #2d343c; --hover: #232a31;
+  --accent: #e9edf1; --tint: #20262d; --chance: #7d8792; --deep: #e9edf1;
+  --sonnet: #3987e5; --haiku: #d95926; --codex: #199e70; --good: #4cc38a; --warn: #e0a83a; --bad: #f2786d; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 1rem; line-height: 1.55;
+  padding-block: 1.8rem 4rem; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.wrap { max-width: 72rem; margin: 0 auto; display: flex; flex-direction: column; gap: 2.4rem; }
+.col { width: 100%; max-width: 44rem; margin: 0 auto; }
+.band { width: 100%; }
+p { margin: 0; }
+a { color: var(--sonnet); text-underline-offset: 2px; }
+:focus-visible { outline: 2px solid var(--sonnet); outline-offset: 2px; }
+h1, h2, h3 { font-family: var(--font-display); margin: 0; }
+.kicker { font-family: var(--font-display); font-weight: 700; font-size: 0.74rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
+header.col { display: flex; flex-direction: column; gap: 1rem; }
+h1.mast { font-weight: 900; font-size: clamp(2.8rem, 10vw, 5rem); line-height: 0.95; letter-spacing: -0.03em; }
+h1.mast small { display: block; font-weight: 700; font-size: 0.38em; letter-spacing: -0.01em; line-height: 1.2; margin-top: 0.5rem; color: var(--ink-2); }
+.dek { font-size: 1.25rem; line-height: 1.45; }
+.byline { font-family: var(--font-display); font-size: 0.84rem; color: var(--ink-3); }
+.prose { display: flex; flex-direction: column; gap: 1rem; }
+.prose p, .prose li { font-size: 1.0875rem; line-height: 1.65; }
+.prose h2 { margin-top: 1.2rem; }
+.prose h2, .bandhead h2 { font-weight: 800; font-size: clamp(1.5rem, 4.4vw, 1.95rem); line-height: 1.12; letter-spacing: -0.01em; text-wrap: balance; }
+.lede::first-letter { font-family: var(--font-display); font-weight: 900; float: left; font-size: 3.6em; line-height: 0.82; padding: 0.08em 0.1em 0 0; color: var(--sonnet); }
+.m { font-family: var(--font-display); font-weight: 800; }
+.m.sonnet { color: var(--sonnet); } .m.haiku { color: var(--haiku); } .m.codex { color: var(--codex); }
+code, .mono { font-family: var(--font-data); font-size: 0.9em; }
+.bigfacts { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: 1.2rem; }
+.bigfact { display: flex; flex-direction: column; gap: 0.35rem; padding-top: 0.75rem; border-top: 4px solid var(--ink); }
+.bigfact b { font-family: var(--font-display); font-weight: 900; font-size: 2.3rem; line-height: 1; letter-spacing: -0.02em; }
+.bigfact b small { font-size: 0.45em; font-weight: 700; color: var(--ink-3); letter-spacing: 0; }
+.bigfact span { font-size: 0.95rem; color: var(--ink-2); line-height: 1.4; }
+.abstract { background: var(--tint); border-radius: 8px; padding: 1.2rem 1.4rem; display: flex; flex-direction: column; gap: 0.6rem; }
+.abstract .kicker { color: var(--ink); }
+.abstract ul { margin: 0; padding-left: 1.1rem; display: flex; flex-direction: column; gap: 0.45rem; }
+.abstract li { font-size: 1rem; line-height: 1.5; }
+.pull { font-family: var(--font-display); font-weight: 800 !important; font-size: clamp(1.35rem, 4vw, 1.7rem) !important; line-height: 1.22 !important;
+  border-left: 5px solid var(--ink); padding: 0.2rem 0 0.2rem 1.1rem; letter-spacing: -0.01em; }
+.jump { display: flex; flex-wrap: wrap; gap: 0.4rem 0.6rem; align-items: center; font-family: var(--font-display); font-size: 0.9rem; }
+.jump span { color: var(--ink-3); font-weight: 700; }
+.jump a { text-decoration: none; padding: 0.3rem 0.75rem; border-radius: 999px; background: var(--tint); color: var(--ink); font-weight: 700; }
+.jump a:hover { background: var(--ink); color: var(--paper); }
+figure { margin: 0; background: var(--panel); border: 1px solid var(--rule); border-radius: 8px; padding: 1.2rem 1.2rem 1rem; display: flex; flex-direction: column; gap: 0.7rem; min-width: 0; }
+figure .over { font-family: var(--font-display); font-weight: 700; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
+figure .over.play { color: var(--ink); }
+figure h3 { font-weight: 800; font-size: 1.15rem; line-height: 1.25; text-wrap: balance; }
+figure .do { font-size: 0.98rem; color: var(--ink-2); }
+figcaption { font-size: 0.92rem; color: var(--ink-2); line-height: 1.5; }
+figure details { font-size: 0.9rem; color: var(--ink-2); }
+figure summary { font-family: var(--font-display); font-size: 0.82rem; font-weight: 700; color: var(--sonnet); cursor: pointer; }
+.legend { display: flex; flex-wrap: wrap; gap: 0.35rem 1.1rem; font-family: var(--font-display); font-size: 0.82rem; color: var(--ink-2); align-items: center; }
+.legend i { display: inline-block; width: 11px; height: 11px; border-radius: 50%; margin-right: 0.4rem; vertical-align: -1px; }
+.legend i.sq { border-radius: 2px; }
+.chart { overflow-x: auto; }
+.chart svg { display: block; width: 100%; height: auto; min-width: 34rem; }
+#nnbars svg { min-width: 0; }
+#heromap svg { min-width: 40rem; }
+.fu table, #scoretable { min-width: 36rem; }
+svg text { font-family: var(--font-display); fill: var(--ink-2); font-size: 12px; }
+svg .lab { fill: var(--ink); font-family: var(--font-data); font-size: 11.5px; }
+svg .grp { fill: var(--ink-3); font-size: 10.5px; font-weight: 700; letter-spacing: 0.07em; }
+svg .grid { stroke: var(--rule); stroke-width: 1; }
+svg .axis { stroke: var(--ink-3); stroke-width: 1; }
+svg .valtxt { fill: var(--ink); font-family: var(--font-data); font-size: 11px; }
+.side { background: var(--tint); border-radius: 8px; padding: 1.2rem 1.3rem; display: flex; flex-direction: column; gap: 0.6rem; }
+.side .over { font-family: var(--font-display); font-weight: 700; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
+.side p, .side li { font-size: 0.98rem !important; }
+.bandhead { display: flex; flex-direction: column; gap: 0.35rem; max-width: 46rem; }
+.tablewrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-family: var(--font-display); font-size: 0.86rem; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 0.42rem 0.7rem 0.42rem 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { color: var(--ink-3); font-weight: 700; font-size: 0.74rem; letter-spacing: 0.04em; text-transform: uppercase; }
+td.n, th.n { text-align: right; font-family: var(--font-data); font-size: 0.8rem; white-space: nowrap; }
+td.grouprow { font-weight: 800; color: var(--ink); padding-top: 0.9rem; border-bottom: 2px solid var(--ink); }
+.verdict { display: inline-block; font-weight: 800; font-size: 0.74rem; padding: 0.1rem 0.45rem; border-radius: 3px; white-space: nowrap; border: 1.5px solid currentColor; }
+.verdict.yes { color: var(--good); } .verdict.near { color: var(--warn); } .verdict.no { color: var(--ink-3); } .verdict.rev { color: var(--bad); }
+.btn, .chip { font: inherit; font-family: var(--font-display); font-size: 0.84rem; font-weight: 700; padding: 0.35rem 0.8rem; border-radius: 999px;
+  border: 1.5px solid var(--rule); background: var(--panel); color: var(--ink); cursor: pointer; }
+.btn:hover, .chip:hover { border-color: var(--ink); }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.btn.sonnet { border-color: var(--sonnet); } .btn.haiku { border-color: var(--haiku); } .btn.codex { border-color: var(--codex); }
+.row { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+.mystery { display: flex; flex-direction: column; gap: 0.8rem; }
+.mystery .what { font-family: var(--font-display); font-weight: 800; font-size: 1.3rem; }
+.clues { display: grid; grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr)); gap: 0.6rem; }
+.clue { border-top: 3px solid var(--ink); padding-top: 0.4rem; display: flex; flex-direction: column; gap: 0.1rem; }
+.clue b { font-family: var(--font-display); font-weight: 800; font-size: 1.35rem; font-variant-numeric: tabular-nums; }
+.clue span { font-size: 0.8rem; color: var(--ink-2); line-height: 1.3; }
+.score { font-family: var(--font-display); font-weight: 800; font-size: 1rem; display: flex; gap: 1.4rem; flex-wrap: wrap; }
+.score span { color: var(--ink-3); font-weight: 700; }
+.reveal { font-size: 1rem; line-height: 1.5; min-height: 3rem; }
+.lineup { display: flex; flex-direction: column; gap: 0.3rem; }
+.lu { display: grid; grid-template-columns: 10.5rem minmax(0, 1fr) 3rem; gap: 0.5rem; align-items: center; font-family: var(--font-display); font-size: 0.82rem; }
+.lu .bar { height: 14px; border-radius: 3px; }
+.lu .v { font-family: var(--font-data); font-size: 0.76rem; text-align: right; }
+.lu.hidden .bar { background: var(--rule) !important; }
+.lu b { font-weight: 800; }
+/* explorer */
+.xp { display: grid; grid-template-columns: minmax(0, 19rem) minmax(0, 1fr); gap: 1.2rem; align-items: start; }
+@media (max-width: 820px) { .xp { grid-template-columns: minmax(0, 1fr); } }
+.xlist { display: flex; flex-direction: column; max-height: 34rem; overflow-y: auto; border: 1px solid var(--rule); border-radius: 6px; }
+@media (max-width: 820px) { .xlist { max-height: 18rem; } }
+.xrow { display: grid; grid-template-columns: 0.7rem minmax(0, 1fr) 3.4rem; gap: 0.5rem; align-items: center; padding: 0.35rem 0.6rem; border: 0; border-bottom: 1px solid var(--rule);
+  background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.xrow:hover { background: var(--hover); }
+.xrow[aria-current="true"] { background: var(--hover); box-shadow: inset 3px 0 0 var(--ink); }
+.xrow i { width: 10px; height: 10px; border-radius: 50%; display: block; }
+.xrow .nm { font-family: var(--font-display); font-size: 0.86rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.xrow .v { font-family: var(--font-data); font-size: 0.74rem; text-align: right; color: var(--ink-2); }
+.xcard { display: flex; flex-direction: column; gap: 1rem; min-width: 0; }
+.xcard h3 { font-size: 1.4rem; font-weight: 800; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: 0.8rem; }
+.stat { display: flex; flex-direction: column; gap: 0.15rem; border-top: 3px solid var(--ink); padding-top: 0.45rem; }
+.stat b { font-family: var(--font-display); font-weight: 800; font-size: 1.4rem; line-height: 1.05; font-variant-numeric: tabular-nums; }
+.stat span { font-size: 0.8rem; color: var(--ink-2); line-height: 1.35; }
+.tip { position: fixed; pointer-events: none; background: var(--ink); color: var(--paper); font-family: var(--font-display); font-size: 0.78rem; line-height: 1.4;
+  padding: 0.4rem 0.6rem; border-radius: 4px; max-width: 18rem; z-index: 9; }
+.swipe { display: none; font-family: var(--font-display); font-size: 0.78rem; color: var(--ink-3); }
+@media (max-width: 700px) { .swipe { display: block; } }
+.credits { border-top: 4px solid var(--ink); padding-top: 1.6rem; }
+ul.sources { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.75rem; }
+ul.sources li { display: flex; flex-direction: column; gap: 0.1rem; padding-left: 0.9rem; border-left: 3px solid var(--rule); }
+ul.sources li span { font-size: 0.95rem; color: var(--ink-2); line-height: 1.45; }
+ul.plain { margin: 0; padding-left: 1.1rem; display: flex; flex-direction: column; gap: 0.5rem; }
+footer.col { font-size: 0.84rem; color: var(--ink-3); border-top: 1px solid var(--rule); padding-top: 1rem; }
+.hero { padding: 0; overflow: hidden; }
+.hero .chart svg { background: var(--panel); }
+.hero figcaption { padding: 0 1.2rem 1rem; }
+.hero .heroleg { padding: 1rem 1.2rem 0; }
+.fu { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.2rem; }
+.fu figure { display: grid; grid-template-columns: minmax(0, 22rem) minmax(0, 1fr); gap: 0.6rem 1.6rem; align-items: start; }
+.fu figure > * { grid-column: 1; }
+.fu figure > .chart, .fu figure > .legend { grid-column: 2; }
+.fu figure > .chart { grid-row: 2 / span 4; }
+.fu figure > .legend { grid-row: 1; }
+.fu figure.wide > * { grid-column: 1 / -1; }
+@media (max-width: 860px) { .fu figure { grid-template-columns: minmax(0, 1fr); } .fu figure > * , .fu figure > .chart, .fu figure > .legend { grid-column: 1; grid-row: auto; } }
+.verdict.dir { color: var(--ink-2); }
+.wires { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.8rem; }
+@media (max-width: 820px) { .wires { grid-template-columns: minmax(0, 1fr); } }
+.wire { display: flex; flex-direction: column; gap: 0.3rem; }
+.wire svg { background: var(--paper); border-radius: 6px; }
+.wire .t { font-family: var(--font-display); font-weight: 800; font-size: 0.95rem; }
+.wire .s { font-family: var(--font-display); font-size: 0.82rem; color: var(--ink-2); }
+select { font: inherit; font-family: var(--font-display); font-size: 0.86rem; padding: 0.3rem 0.4rem; background: var(--panel); color: var(--ink); border: 1.5px solid var(--rule); border-radius: 6px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="col">
+  <div class="kicker">GitGalaxy · A study of AI coding agents</div>
+  <h1 class="mast">Every Model Has a Tell<small>Three AI models built programs for the same ten jobs. The shape of their code kept giving them away.</small></h1>
+  <p class="dek">We gave Claude Code (running two different models) and OpenAI's Codex identical jobs: a chess engine and a logic-puzzle solver, each in five languages, 60 programs in all. Then we ignored every name and every word of every comment, measured only the code's structure, and asked: can you still tell who wrote it?</p>
+  <p class="byline">By Joe Esquibel, with the GitGalaxy code-scanning engine · November 2026 · Everything on this page is interactive: tap, hover, pick.</p>
+</header>
+
+<figure class="band hero" id="hero">
+  <div class="heroleg" style="display:flex;flex-direction:column;gap:0.5rem"><h3>Programs group by language first; inside a language, by model</h3><div class="legend" id="heroleg"></div></div>
+  <div class="chart" id="heromap"></div>
+  <figcaption id="herocap">Each dot is one of the programs, placed so that programs with similar structure sit close together. Colour is the model that wrote it; the labels mark the five languages. Tap a dot to open that program.</figcaption>
+</figure>
+
+<section class="col prose">
+  <p class="lede">Handwriting gives people away. A detective can match a ransom note to a suspect without reading a word of it, from the slant of the letters and the pressure of the pen. Code has handwriting too: how a program is cut into pieces, how long each piece runs, how many decisions it makes, which parts call which. Ignore what the names and comments say, and that shape is still there.</p>
+  <p>To find out whether AI coding agents have handwriting, we ran a controlled experiment. Three models built the same two programs, a chess engine that plays legal chess and a solver for logic puzzles called SAT, in C, Java, Python, Rust and COBOL. Each run started in a fresh, sealed container with the same written instructions and no human in the loop. An automatic judge with a hidden test set decided when a program was done. <span id="t-passed"></span></p>
+  <p>Then we pointed GitGalaxy at the results. It reads source code the way an X-ray reads a skeleton: no running the program, no AI judge, just the structure.</p>
+  <p><b>How it works, in one paragraph.</b> A <em>job</em> is one task in one language, such as "chess engine in Rust"; there are ten. For every program, GitGalaxy builds a shape profile: how many functions it has and how big they are, how many decisions each makes, which functions call which, and where comments sit (not what they say). Two profiles reduce to one <em>shape difference</em>: 0 means identical shape, and about 1 is typical for two programs written in different languages. Every comparison that matters below is made between programs doing the same job.</p>
+</section>
+
+<section class="col">
+  <div class="bigfacts">
+    <div class="bigfact"><b id="f-nn">83%</b><span>of programs had a closest look-alike, among programs doing the same job, written by the <em>same</em> model (43 of 52; a finding to repeat). Guessing would get <span id="f-chance">27%</span>.</span></div>
+    <div class="bigfact"><b>2&times; <small>as alike</small></b><span>Two programs by the same model for the same job differ about half as much as two by different models (shape difference 0.32 vs 0.62).</span></div>
+    <div class="bigfact"><b>10 <small>of</small> 10</b><span>jobs in which Haiku documented more of its functions than both Sonnet and Codex. It's the clearest single habit.</span></div>
+  </div>
+</section>
+
+<section class="col">
+  <div class="abstract">
+    <div class="kicker">The short version</div>
+    <ul>
+      <li><b>Our predictions weren't confirmed.</b> We wrote down in advance that Claude would differ from Codex in five specific ways. After correcting for running several tests, none of the five passed; the closest missed by a hair.</li>
+      <li><b>But each model kept its handwriting.</b> A model's second, independent round of programs looked like its first, and a program's closest look-alike came from the same model 83% of the time.</li>
+      <li><b>The habits belong to models, not companies.</b> Sonnet and Haiku both run inside Claude Code, yet they differ from each other as much as either differs from Codex.</li>
+      <li><b>Language matters most.</b> Changing a program's language moves its shape further than changing the model. That's why the model fingerprint only shows when you compare like with like.</li>
+    </ul>
+  </div>
+</section>
+
+<nav class="col jump" aria-label="Jump to the interactives"><span>Jump to the toys:</span>
+  <a href="#shape">What moves the shape</a><a href="#next">What else we can see</a><a href="#wiring">The wiring</a><a href="#explore">All 60 programs</a></nav>
+
+<section class="col prose">
+  <h2>Handwriting without a name</h2>
+  <p>Here is the simplest possible test. Take any program, and line it up against every other program that did the same job. Which one has the most similar shape? If structure carried no trace of its author, the closest look-alike would come from the same model about as often as a blind pick.</p>
+  <p>A blind pick would land on the same model <span id="t-chance">27%</span> of the time. The closest look-alike was the same model <span id="t-nn">43 times out of 52</span>.</p>
+  <p>Two honest footnotes. This test was an afterthought, not one of the predictions we registered, so it needs repeating on fresh programs. And for Sonnet and Haiku, the closest look-alike was usually the model's <em>own second round</em> (34 of the 43 matches): this is mostly the "a model repeats itself" result seen from another angle. Codex ran once per job except in two, so only 4 Codex programs could be scored here (all 4 matched).</p>
+</section>
+
+<figure class="col" id="nnchart">
+  <div class="over">Who's the closest look-alike?</div>
+  <h3>The closest look-alike is the same model three times as often as chance (exploratory)</h3>
+  <div class="legend"><span><i class="sq" style="background:var(--ink)"></i>measured</span><span><i class="sq" style="background:var(--chance)"></i>blind guess</span></div>
+  <div class="chart" id="nnbars"></div>
+  <figcaption>For each program, its closest look-alike among the 3 to 9 other programs doing the same job. "Blind guess" is the share of same-model programs in each line-up, averaged. A shuffle test (relabelling the models at random 2,000 times) never reached 43.</figcaption>
+</figure>
+
+
+
+
+
+<section class="col prose">
+  <h2>The prediction that wasn't confirmed</h2>
+  <p>This study began with someone else's experiment. Mathieu Acher, a computer scientist at the University of Rennes, published pairs of programs that Claude Code and Codex built for the same tasks, with a human steering each one. When we scanned his pairs, the two agents looked different: Claude seemed to comment more, Codex seemed to bail out of functions early with <code>return</code>, and so on.</p>
+  <p>Looking at data and then announcing what you saw is how you fool yourself, so we did it the slow way. We wrote down five predictions and the exact test for each, published them with a timestamp, and only then ran 60 fresh programs that no prediction had seen. Each test counts the plain way: in how many of the ten jobs did the prediction point the right way? The last column is the chance of a result that strong by luck alone, corrected for running several tests at once.</p>
+</section>
+
+<figure class="col" id="scorecard">
+  <div class="over">The scorecard</div>
+  <h3>The vendor story didn't hold; the model story did</h3>
+  <p class="do">Each row is one prediction written down before the new programs existed. "Held in" counts the jobs where it pointed the right way.</p>
+  <div class="legend"><span><span class="verdict yes">confirmed</span> survives the multiple-test correction</span><span><span class="verdict near">close</span> right direction, just short</span><span><span class="verdict no">not shown</span></span><span><span class="verdict rev">reversed</span> the opposite came out</span></div>
+  <div class="tablewrap"><table id="scoretable"></table></div>
+  <details><summary>Show all 15 registered tests</summary><div class="tablewrap"><table id="scoretable2"></table></div></details>
+  <figcaption>Source: the registered tests (sign tests over jobs, Holm-corrected within each group). The added Haiku tests were written down before the runs, too. "Not testable" means no program in either group did the thing at all. *Fragile: it loses significance if the failed runs are left out. The full registration and every deviation from it are linked under "Check my work".</figcaption>
+</figure>
+
+<section class="col prose">
+  <p>The closest call was Codex's early exits (leaving a function early with <code>return</code>): they showed up in 9 of 10 jobs, and missed the bar by a hair. Nothing was refuted either. But the rows that did pass tell a different story from the one we went looking for. Haiku, the smaller Claude model, documents its functions far more than Codex <em>and</em> far more than its sibling Sonnet. Sonnet, meanwhile, reaches for <code>while</code> loops more than Haiku in every language that has them.</p>
+  <p class="pull">The habits didn't follow the company name on the box. They followed the model inside it.</p>
+  </section>
+
+<section class="col prose">
+  <h2 id="shape-h">What moves a program's shape</h2>
+  <p>A fingerprint is only interesting if you know what else leaves marks. So we compared every pair of programs, about 1,700 of them, and sorted the pairs by what they had in common.</p>
+</section>
+
+<figure class="band" id="shape">
+  <div class="over">Every pair of programs</div>
+  <h3>Changing the language changes the code three times as much as changing the model</h3>
+  <p class="do">Each dot is one pair of programs; hover for the pair. The black tick is each row's median.</p>
+  <div class="legend"><span>Distance between the two programs' structure: 0 = same shape</span></div>
+  <div class="chart" id="pairstrip"></div>
+  <figcaption>Structural profile distances for all pairs among the 59 programs GitGalaxy could read. Pairs reuse programs, so the rows describe this set of 59 rather than independent trials. <span id="clipnote"></span> Pairs within the same job and language are coloured by model when both programs share it.</figcaption>
+  <details><summary>Show as a table</summary><div class="tablewrap"><table id="pairtable"></table></div></details>
+</figure>
+
+<section class="col prose">
+  <p>Read the chart top to bottom. Two runs of the same model on the same job sit close (median 0.32). Swap the model and the distance roughly doubles. Swap the task instead and it's about the same. Swap the <em>language</em> and the distance triples. A chess engine in COBOL and one in Python, written by the same model, have less in common than two Python chess engines by different models.</p>
+  <p class="pull">Language is the loudest accent. The model is the handwriting underneath it.</p>
+  <h2>A model repeats itself</h2>
+  <p>A fingerprint has to be stable to be useful. So Sonnet and Haiku each did the whole job twice, in two independent rounds, without any memory of the first. If the first round's style were a fluke, the second round would land anywhere.</p>
+</section>
+
+<figure class="col" id="repeat">
+  <div class="over">Round one vs round two</div>
+  <h3>A model's second attempt looks more like its first than like Codex</h3>
+  <div class="legend"><span><i id="rp-leg1"></i>round 2 vs round 1 (same model)</span><span><i style="background:var(--codex)"></i>round 1 vs Codex</span></div>
+  <div class="row" id="rp-pick"></div>
+  <div class="chart" id="rpchart"></div>
+  <figcaption id="rp-cap">Distance between the two rounds of one model, against the distance from that model to Codex on the same job. One row per job; Codex's C SAT solver is missing (no functions GitGalaxy could read).</figcaption>
+  <details><summary>Show as a table</summary><div class="tablewrap"><table id="rptable"></table></div></details>
+</figure>
+
+<section class="col prose">
+  <h2>Haiku's comment habit</h2>
+  <p>One habit is visible without any scanner at all. Haiku writes comments, and in particular it puts a comment above its functions. It does this more than Sonnet in every one of the ten jobs, and more than Codex in every one of them too. Codex, in most jobs, writes almost none.</p>
+</section>
+
+<figure class="col" id="comments">
+  <div class="over">Comments, job by job</div>
+  <h3 id="cm-title">Haiku documents more functions than both rivals in all 10 jobs</h3>
+  <div class="row" id="cm-pick"></div>
+  <div class="legend" id="cm-leg"></div>
+  <div class="chart" id="cmchart"></div>
+  <figcaption id="cm-cap"></figcaption>
+  <details><summary>Show as a table</summary><div class="tablewrap"><table id="cmtable"></table></div></details>
+</figure>
+
+<section class="col prose">
+  <p>Be careful with what this means. It's not "Claude comments more": Sonnet and Haiku run in the same Claude Code tool and differ sharply. And it's about how <em>much</em> they comment and <em>where</em>, not what the comments say. A tool that sorts comments by meaning was right only about half the time on this code, so we didn't use it.</p>
+  <h2>The clock</h2>
+  <p>The agents also worked at very different speeds. Sonnet typically finished in under three minutes. Codex took about six. Haiku, the smaller and supposedly faster model, took around twenty. One Haiku run and one Codex run ran out the 60-minute clock.</p>
+</section>
+
+<figure class="col" id="clock">
+  <div class="over">How long each run took</div>
+  <h3 id="ck-title">Haiku worked about eight times longer than Sonnet</h3>
+  <div class="legend" id="ck-leg"></div>
+  <div class="chart" id="ckchart"></div>
+  <figcaption>Active working time per run. The scale stretches short times so that equal gaps mean equal ratios (1 to 10 minutes is as wide as 6 to 60). The tick marks each round's median; diamonds are runs that hit the 60-minute cap. Both capped programs passed when checked afterwards.</figcaption>
+  <details><summary>Show as a table</summary><div class="tablewrap"><table id="cktable"></table></div></details>
+</figure>
+
+
+
+<section class="col prose" id="next">
+  <h2>What else GitGalaxy can now see</h2>
+  <p>The registered tests are finished. But the same scans answer more questions, and these are where the next study starts. Everything in this section is <b>exploratory</b>: measured after the fact, each with its own comparison, and to be confirmed on fresh runs before anyone builds on it.</p>
+</section>
+<div class="band fu" id="fu"></div>
+
+<figure class="band" id="wiring">
+  <div class="over play">Play with it</div>
+  <h3>See the wiring: one job, three models</h3>
+  <p class="do">Pick a task and language. Each map shows the program's functions as dots (bigger = called more often) and its calls as lines.</p>
+  <div class="row" id="wr-pick"></div>
+  <div class="wires" id="wr-maps"></div>
+  <figcaption id="wr-cap"></figcaption>
+</figure>
+
+<figure class="band" id="heat">
+  <div class="over play">Play with it</div>
+  <h3>The distance map: watch the blocks form</h3>
+  <p class="do">Every program against every other. Dark = similar shape. Re-sort the rows and see which grouping makes tidy blocks.</p>
+  <div class="row" id="hm-pick"></div>
+  <div class="legend"><span>similar</span><span style="display:inline-block;width:90px;height:10px;border-radius:2px;background:linear-gradient(90deg,var(--ink),var(--panel))"></span><span>different</span></div>
+  <div class="chart" id="hmchart"></div>
+  <p class="swipe">Swipe sideways to see the whole map.</p>
+  <figcaption id="hm-cap">Sorted by language first, the map breaks into five big blocks: language dominates. Sort by model first and the blocks dissolve, but inside each language the same-model squares stay darker.</figcaption>
+</figure>
+
+<figure class="band" id="explore">
+  <div class="over play">Explore all 60</div>
+  <h3>Every program, one card each</h3>
+  <p class="do">The <a href="../every-model-has-a-tell/">text edition</a> has every number without the interactives. Pick a program to see its habits and its line-up of look-alikes. Links like <code>#sat-rust-haiku-r1</code> open a card directly.</p>
+  <div class="xp">
+    <div><div class="row" style="margin-bottom:0.5rem" id="xp-filter"></div><div class="xlist" id="xp-list"></div></div>
+    <div class="xcard" id="xp-card"></div>
+  </div>
+</figure>
+
+<section class="col">
+  <aside class="side">
+    <div class="over">The scanner got caught too</div>
+    <p>Codex writes dense code, sometimes 2,000 characters on a single line. GitGalaxy has a safety rule that skips files that look minified, and it quietly skipped four of Codex's programs. We caught it by checking GitGalaxy's function counts against two independent tools (Tree-sitter and ctags), applied a rule we'd written down in advance, and fixed the scanner. Where GitGalaxy read a file, the three tools agreed almost function for function. The experiment didn't just use the instrument; it improved it.</p>
+  </aside>
+</section>
+
+<section class="col prose">
+  <h2>What it can't tell you</h2>
+  <ul class="plain">
+    <li><b>Which agent is better.</b> The judge was pass/fail. Nothing here ranks quality.</li>
+    <li><b>Anything beyond these models, tasks and languages.</b> Ten jobs is small, and several results rest on one or two of them. The look-alike result was exploratory, not one of the registered predictions; it needs repeating on fresh runs and a new task.</li>
+    <li><b>What the comments say.</b> We measure how much and where. Classifying comments by meaning was only right 54% of the time on this code.</li>
+  </ul>
+  <h2>How we know it's not luck</h2>
+  <ul class="plain">
+    <li><b>Written down first.</b> Predictions, tests and the fingerprint of every analysis script were published before the confirmation runs; every later change is a dated note made before it was used.</li>
+    <li><b>Against chance.</b> The look-alike result is compared with a shuffle test: relabelling the models at random never matched it in 2,000 tries.</li>
+    <li><b>Against itself.</b> Each Claude model ran twice; a model's two rounds differ less than models do, and none of the registered habits differed between rounds.</li>
+    <li><b>Against other tools.</b> GitGalaxy's function lists were checked against Tree-sitter and ctags on all 60 programs.</li>
+    <li><b>One instrument.</b> Every number comes from one pinned version of GitGalaxy (commit <code>7d2e1f627</code>).</li>
+  </ul>
+</section>
+
+<section class="col prose credits">
+  <p class="byline">Written by Joe Esquibel, using the GitGalaxy code-scanning engine.</p>
+  <p>Built on <a href="https://mathieuacher.com/">Mathieu Acher</a>'s paired-agent studies (<a href="https://github.com/acherm/agentic-cobol-study">agentic-cobol-study</a>, MIT licence), whose human-steered pairs suggested every prediction we tested. Any error here is ours.</p>
+  <h2>Check my work</h2>
+  <ul class="sources" id="sources">
+    <li><a href="https://github.com/squid-protocol/gitgalaxy-population-analyses/tree/main/agent-habits-prereg"><b>The preregistration</b></a><span>Predictions, tests and script hashes, committed before the runs.</span></li>
+    <li><a href="https://github.com/squid-protocol/agent-habits"><b>The study repository</b></a><span>All 60 programs as the agents wrote them, prompts, the hidden checker, the run log, measurement scripts, every result table and the exploratory follow-ups.</span></li>
+    <li><a href="https://github.com/squid-protocol/gitgalaxy/commit/7d2e1f627"><b>GitGalaxy at the exact commit</b></a><span>The engine every number came from.</span></li>
+    <li><a href="https://github.com/squid-protocol/gitgalaxy/issues/7501"><b>The scanner fix</b></a><span>How dense AI-written code was mistaken for minified code.</span></li>
+    <li><a href="data.json" id="dl" download="agent-habits-data.json"><b>This page's data</b></a><span>Every number on the page, in one file.</span></li>
+  </ul>
+</section>
+
+<footer class="col">Measurements, counts and names describe the measured code; the programs were written by the agents for this study. Claude, Sonnet and Haiku are Anthropic's; Codex is OpenAI's. GitGalaxy is not affiliated with either.</footer>
+</div>
+<div class="tip" id="tip" hidden></div>
+
+<script>
+"use strict";
+const MODELS = ["sonnet", "haiku", "codex"];
+const MNAME = { sonnet: "Sonnet", haiku: "Haiku", codex: "Codex" };
+const ARMNAME = { S: "Sonnet, round 1", S2: "Sonnet, round 2", K: "Haiku, round 1", K2: "Haiku, round 2", X: "Codex" };
+const TASK = { chess: "chess engine", sat: "SAT solver" };
+const LANG = { c: "C", java: "Java", python: "Python", rust: "Rust", cobol: "COBOL" };
+const LORDER = ["c", "java", "python", "rust", "cobol"];
+const SVGNS = "http://www.w3.org/2000/svg";
+let D, R, IDX;
+const col = m => `var(--${m})`;
+const $ = id => document.getElementById(id);
+function h(tag, attrs = {}, ...kids) {
+  const e = tag.startsWith("svg:") ? document.createElementNS(SVGNS, tag.slice(4)) : document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (v == null) continue;
+    if (k === "text") e.textContent = v; else if (k === "html") e.innerHTML = v;
+    else if (k.startsWith("on")) e.addEventListener(k.slice(2), v); else e.setAttribute(k, v);
+  }
+  for (const k of kids.flat()) if (k != null) e.append(k.nodeType ? k : document.createTextNode(k));
+  return e;
+}
+const S = (tag, a, ...k) => h("svg:" + tag, a, ...k);
+const tip = $("tip");
+function showTip(ev, html) { tip.innerHTML = html; tip.hidden = false; const x = Math.min(ev.clientX + 14, innerWidth - 300); tip.style.left = x + "px"; tip.style.top = (ev.clientY + 14) + "px"; }
+function hideTip() { tip.hidden = true; }
+function hoverable(el, html) { el.addEventListener("mousemove", e => showTip(e, html)); el.addEventListener("mouseleave", hideTip); return el; }
+const pct = x => Math.round(x * 100) + "%";
+const median = v => { const a = [...v].sort((x, y) => x - y), m = a.length >> 1; return a.length % 2 ? a[m] : (a[m - 1] + a[m]) / 2; };
+const nice = id => { const r = R[id]; return `${MNAME[r.model]}${r.round === 2 ? " (round 2)" : ""}, ${TASK[r.task]} in ${LANG[r.lang]}${r.rep > 1 ? " (repeat)" : ""}`; };
+const mins = s => s < 60 ? `${s} s` : s < 3600 ? `${(s / 60).toFixed(s < 600 ? 1 : 0)} min` : `${(s / 60).toFixed(0)} min`;
+function legendModels(el, extra = "") {
+  el.innerHTML = MODELS.map(m => `<span><i style="background:${col(m)}"></i>${MNAME[m]}</span>`).join("") + extra;
+}
+function tableFrom(el, head, rows) {
+  el.innerHTML = "<thead><tr>" + head.map((x, i) => `<th${i ? ' class="n"' : ""}>${x}</th>`).join("") + "</tr></thead><tbody>" +
+    rows.map(r => "<tr>" + r.map((x, i) => `<td${i ? ' class="n"' : ""}>${x}</td>`).join("") + "</tr>").join("") + "</tbody>";
+}
+const structIds = () => D.order.filter(id => R[id].in_structure);
+const dist = (a, b) => D.dist[IDX[a]][IDX[b]];
+
+// ---------------------------------------------------------------- hero: a map of the programs (classical MDS)
+function mds(ids) {
+  const n = ids.length, d2 = ids.map(a => ids.map(b => Math.min(dist(a, b), 2) ** 2));
+  const rm = d2.map(r => r.reduce((s, x) => s + x, 0) / n), gm = rm.reduce((s, x) => s + x, 0) / n;
+  const B = d2.map((r, i) => r.map((x, j) => -0.5 * (x - rm[i] - rm[j] + gm)));
+  const vecs = [];
+  for (let k = 0; k < 2; k++) {
+    let v = ids.map((_, i) => Math.sin(i * 7.3 + k * 2.1) + 0.5), lam = 0;
+    for (let it = 0; it < 300; it++) {
+      let w = B.map(r => r.reduce((s, x, j) => s + x * v[j], 0));
+      for (const [u, l] of vecs) { const dot = u.reduce((s, x, j) => s + x * w[j], 0); w = w.map((x, j) => x - dot * u[j]); }
+      lam = Math.hypot(...w); v = w.map(x => x / lam);
+    }
+    vecs.push([v, lam]);
+  }
+  return ids.map((_, i) => [vecs[0][0][i] * Math.sqrt(vecs[0][1]), vecs[1][0][i] * Math.sqrt(vecs[1][1])]);
+}
+function drawHero() {
+  const ids = structIds(), P = mds(ids), W = 1100, H = 520, pad = 40;
+  const xs = P.map(p => p[0]), ys = P.map(p => p[1]);
+  const [x0, x1, y0, y1] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)];
+  const sx = x => pad + (x - x0) / (x1 - x0) * (W - 2 * pad), sy = y => pad + (y - y0) / (y1 - y0) * (H - 2 * pad);
+  const svg = S("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Map of the programs by structural similarity" });
+  // language labels at centroids
+  for (const l of LORDER) {
+    const pts = ids.map((id, i) => [id, P[i]]).filter(([id]) => R[id].lang === l);
+    const cx = pts.reduce((s, [, p]) => s + sx(p[0]), 0) / pts.length, cy = pts.reduce((s, [, p]) => s + sy(p[1]), 0) / pts.length;
+    svg.append(S("text", { x: cx, y: Math.max(24, cy - 36), "text-anchor": "middle", style: "font-size:22px;font-weight:900;fill:var(--ink-3);letter-spacing:0.1em", text: LANG[l].toUpperCase() }));
+  }
+  ids.forEach((id, i) => {
+    const r = R[id], x = sx(P[i][0]), y = sy(P[i][1]);
+    const mark = r.task === "chess"
+      ? S("circle", { cx: x, cy: y, r: 8, fill: col(r.model), stroke: "var(--panel)", "stroke-width": 2 })
+      : S("rect", { x: x - 7, y: y - 7, width: 14, height: 14, rx: 2, fill: col(r.model), stroke: "var(--panel)", "stroke-width": 2 });
+    mark.style.cursor = "pointer";
+    mark.addEventListener("click", () => { location.hash = "#" + id; });
+    hoverable(mark, `<b>${nice(id)}</b><br>${id}`);
+    svg.append(mark);
+  });
+  $("heromap").append(svg);
+  legendModels($("heroleg"), `<span><i style="background:var(--ink-3)"></i>chess engine</span><span><i class="sq" style="background:var(--ink-3)"></i>SAT solver</span>`);
+  $("herocap").textContent = `Each mark is one of the ${ids.length} programs GitGalaxy could read; similar shapes sit close together. Circles are chess engines, squares logic-puzzle (SAT) solvers. Tap one to open its card.`;
+}
+
+// ---------------------------------------------------------------- scorecard
+const SC = [
+  ["Claude (Sonnet) vs Codex: the original predictions", "A", [
+    ["1", "Sonnet writes more comments", "S", "X"], ["2", "Sonnet documents more functions", "S", "X"], ["3", "Codex exits functions early more", "X", "S"],
+    ["5", "Sonnet uses more <code>while</code> loops", "S", "X"], ["4", "Codex adds Python helper scripts", "X", "S"]]],
+  ["Haiku vs Codex (added before the runs)", "B", [
+    ["2", "Haiku documents more functions", "K", "X"], ["1", "Haiku writes more comments", "K", "X"], ["3", "Codex exits early more", "X", "K"]]],
+  ["Haiku vs Sonnet (added before the runs)", "C", [
+    ["1", "Haiku writes more comments", "K", "S"], ["2", "Haiku documents more functions", "K", "S"], ["5", "Sonnet uses more <code>while</code>", "S", "K"]]],
+  ["Same model, two rounds (expected: no difference)", "D", [["*", "Sonnet round 1 vs round 2, all five habits", "", ""]]],
+  ["", "E", [["*", "Haiku round 1 vs round 2, all five habits", "", ""]]],
+];
+function drawScore() {
+  const head = "<thead><tr><th>Prediction</th><th class='n'>Held in</th><th class='n'>Fluke odds</th><th>Verdict</th></tr></thead><tbody>";
+  const famRows = (title, fam, rows) => {
+    let html = title ? `<tr><td class="grouprow" colspan="4">${title}</td></tr>` : "";
+    const F = D.families[fam].tests;
+    for (const [k, label, win, lose] of rows) {
+      if (k === "*") {
+        const mx = Math.min(...Object.values(F).map(x => x.p_holm));
+        html += `<tr><td>${label}</td><td class="n">—</td><td class="n">${mx >= 0.99 ? "1.0" : mx.toFixed(2)}</td><td><span class="verdict yes">as expected: no difference</span></td></tr>`;
+        continue;
+      }
+      const x = F[k], w = x[win + "_higher"], l = x[lose + "_higher"], n = x.cells - x.tie;
+      let v;
+      if (!n) v = '<span class="verdict no">not testable</span>';
+      else if (x.p_holm < 0.05 && w > l) v = fam === "B" && k === "1" ? '<span class="verdict yes">confirmed*</span>' : '<span class="verdict yes">confirmed</span>';
+      else if (x.p_holm < 0.1 && w > l) v = '<span class="verdict near">close</span>';
+      else v = '<span class="verdict no">not shown</span>';
+      html += `<tr><td>${label}</td><td class="n">${n ? `${w} of ${n}` : "0 of 0"}</td><td class="n">${n ? x.p_holm.toFixed(3) : "—"}</td><td>${v}</td></tr>`;
+    }
+    return html;
+  };
+  const s1 = D.secondary.S1;
+  const side = `<tr><td class="grouprow" colspan="4">A side prediction</td></tr><tr><td>Sonnet's functions call more other functions (fan-out)</td><td class="n">${s1.agree} of ${s1.of}</td><td class="n">—</td><td><span class="verdict rev">reversed</span></td></tr>`;
+  $("scoretable").innerHTML = head + famRows(...SC[0]) + side + `<tr><td class="grouprow" colspan="4">Added before the runs: Haiku vs Codex, Haiku vs Sonnet</td></tr><tr><td>Haiku documents more functions than either</td><td class="n">10 of 10</td><td class="n">≤ 0.01</td><td><span class="verdict yes">confirmed</span></td></tr><tr><td>Sonnet uses more <code>while</code> than Haiku</td><td class="n">8 of 8</td><td class="n">0.023</td><td><span class="verdict yes">confirmed</span></td></tr></tbody>`;
+  $("scoretable2").innerHTML = head + SC.map(x => famRows(...x)).join("") + side + "</tbody>";
+}
+
+// ---------------------------------------------------------------- nearest-neighbour bars
+function drawNN() {
+  const f = D.facts, el = $("nnbars");
+  el.innerHTML = [["Same model", f.nn_accuracy, "var(--ink)"], ["Blind guess", f.nn_chance, "var(--chance)"]].map(([lab, v, c]) =>
+    `<div style="display:grid;grid-template-columns:6.5rem minmax(0,1fr);gap:0.7rem;align-items:center;margin:0.45rem 0"><b style="font-family:var(--font-display);font-size:0.95rem">${lab}</b><div style="background:var(--tint);border-radius:4px"><div style="width:${v * 100}%;background:${c};border-radius:4px;color:var(--paper);font-family:var(--font-display);font-weight:900;font-size:1.25rem;padding:0.3rem 0.6rem;white-space:nowrap">${pct(v)}</div></div></div>`).join("");
+  $("f-nn").textContent = pct(f.nn_accuracy); $("f-chance").textContent = pct(f.nn_chance); $("t-chance").textContent = pct(f.nn_chance);
+  $("t-nn").textContent = `${f.nn_hits} times out of ${f.nn_of}`;
+  $("t-passed").textContent = `${f.passed} of the ${f.programs} programs passed it within their run; the two that ran out the clock passed when checked afterwards, so ${f.work_after_recheck} of ${f.programs} work.`;
+}
+
+// ---------------------------------------------------------------- pair strip (what moves the shape)
+const GROUPS = [
+  ["Same model, same job, same language", "another run"],
+  ["Different model, same job, same language", ""],
+  ["Same model and language, other task", ""],
+  ["Same model and task, other language", ""],
+  ["Same model, other task and language", ""],
+  ["Different model, other task or language", ""],
+];
+function groupOf(a, b) {
+  const A = R[a], B = R[b], sm = A.model === B.model, st = A.task === B.task, sl = A.lang === B.lang;
+  return sm && st && sl ? 0 : st && sl ? 1 : sm && sl ? 2 : sm && st ? 3 : sm ? 4 : 5;
+}
+function drawPairs() {
+  const ids = structIds(), rows = GROUPS.map(() => []);
+  for (let i = 0; i < ids.length; i++) for (let j = i + 1; j < ids.length; j++) rows[groupOf(ids[i], ids[j])].push([ids[i], ids[j], dist(ids[i], ids[j])]);
+  const W = 720, rh = 66, x0 = 10, xmax = 2, H = rows.length * rh + 34, sx = v => x0 + Math.min(v, xmax) / xmax * (W - x0 - 30);
+  const svg = S("svg", { viewBox: `0 0 ${W} ${H}`, style: "min-width:22rem" });
+  for (let t = 0; t <= 2; t += 0.5) {
+    svg.append(S("line", { x1: sx(t), x2: sx(t), y1: 6, y2: H - 26, class: "grid" }));
+    svg.append(S("text", { x: sx(t), y: H - 8, "text-anchor": "middle", style: "font-size:13px", text: t === 2 ? "2+" : t.toFixed(1) }));
+  }
+  const meds = [];
+  rows.forEach((pairs, g) => {
+    const top = 4 + g * rh, yc = top + 40, med = median(pairs.map(p => p[2]));
+    meds.push([GROUPS[g][0], pairs.length, med]);
+    svg.append(S("text", { x: x0, y: top + 14, style: "font-weight:800;fill:var(--ink);font-size:15px", text: GROUPS[g][0] }));
+    svg.append(S("text", { x: W - 4, y: top + 14, "text-anchor": "end", style: "font-size:13px", text: `median ${med.toFixed(2)} · ${pairs.length} pairs` }));
+    let seed = g * 97;
+    for (const [a, b, v] of pairs) {
+      seed = (seed * 9301 + 49297) % 233280;
+      const c = S("circle", { cx: sx(v), cy: yc + (seed / 233280 - 0.5) * 30, r: 2.8, fill: g < 2 ? (R[a].model === R[b].model ? col(R[a].model) : "var(--ink-3)") : "var(--ink-3)", "fill-opacity": 0.55 });
+      hoverable(c, `${nice(a)}<br>${nice(b)}<br><b>shape difference ${v.toFixed(2)}</b>`);
+      svg.append(c);
+    }
+    svg.append(S("line", { x1: sx(med), x2: sx(med), y1: yc - 18, y2: yc + 18, stroke: "var(--ink)", "stroke-width": 3.5 }));
+  });
+  $("pairstrip").append(svg);
+  const clipped = rows.flat().filter(p => p[2] > 2);
+  const jv = clipped.filter(p => p[0] === "chess-java-codex-r1" || p[1] === "chess-java-codex-r1").length;
+  $("clipnote").textContent = `The ${clipped.length} pairs that differ by more than 2 are piled at the right edge ("2+"); ${jv === clipped.length ? "all" : jv} of them involve Codex's Java chess engine, the oddest program in the set.`;
+  tableFrom($("pairtable"), ["Pair kind", "Pairs", "Median"], meds.map(([a, n, m]) => [a, n, m.toFixed(3)]));
+}
+
+// ---------------------------------------------------------------- repeat dumbbell
+function drawRepeat(which = "sonnet") {
+  const key = which === "sonnet" ? ["S-S2", "S-X"] : ["K-K2", "K-X"], el = $("rpchart"); el.innerHTML = "";
+  $("rp-leg1").style.background = col(which);
+  const rows = D.per_cell, W = 760, rh = 30, x0 = 150, H = rows.length * rh + 36, xmax = 1.4, sx = v => x0 + Math.min(v, xmax) / xmax * (W - x0 - 30);
+  const svg = S("svg", { viewBox: `0 0 ${W} ${H}` });
+  for (let t = 0; t <= 1.4; t += 0.2) { svg.append(S("line", { x1: sx(t), x2: sx(t), y1: 4, y2: H - 26, class: "grid" })); svg.append(S("text", { x: sx(t), y: H - 8, "text-anchor": "middle", text: t >= 1.4 ? "1.4+" : t.toFixed(1) })); }
+  let closer = 0, n = 0;
+  rows.forEach((c, i) => {
+    const y = 16 + i * rh, [t, task] = [c.cell.split("-")[1], c.cell.split("-")[0]];
+    svg.append(S("text", { x: x0 - 12, y: y + 4, "text-anchor": "end", style: "fill:var(--ink);font-weight:600", text: `${TASK[task].split(" ")[0]} · ${LANG[t]}` }));
+    const a = c[key[0]], b = c[key[1]];
+    if (b != null) { n++; closer += a < b; svg.append(S("line", { x1: sx(a), x2: sx(b), y1: y, y2: y, stroke: "var(--rule)", "stroke-width": 3 })); }
+    if (b != null) svg.append(hoverable(S("circle", { cx: sx(b), cy: y, r: 7, fill: col("codex"), stroke: "var(--panel)", "stroke-width": 2 }), `${c.cell}: ${MNAME[which]} round 1 vs Codex <b>${b.toFixed(2)}</b>`));
+    svg.append(hoverable(S("circle", { cx: sx(a), cy: y, r: 7, fill: col(which), stroke: "var(--panel)", "stroke-width": 2 }), `${c.cell}: ${MNAME[which]} round 2 vs round 1 <b>${a.toFixed(2)}</b>`));
+    if (b > xmax) svg.append(S("text", { x: sx(xmax) + 11, y: y + 4, class: "valtxt", text: b.toFixed(1) }));
+  });
+  el.append(svg);
+  $("rp-cap").textContent = `${MNAME[which]}'s two rounds were closer to each other than ${MNAME[which]} was to Codex in ${closer} of ${n} jobs. One row per job; Codex's C SAT solver is missing (GitGalaxy read no functions in it). Distances past 1.4 are clipped and labelled.`;
+  tableFrom($("rptable"), ["Pairing", "S2 vs S", "S vs Codex", "K2 vs K", "K vs Codex"], rows.map(c => [c.cell, c["S-S2"], c["S-X"] ?? "—", c["K-K2"], c["K-X"] ?? "—"].map((x, i) => i && typeof x === "number" ? x.toFixed(3) : x)));
+}
+
+// ---------------------------------------------------------------- comments by job
+function drawComments(which = "documented") {
+  const el = $("cmchart"); el.innerHTML = "";
+  const cells = [...new Set(D.runs.map(r => r.cell))].sort((a, b) => (a.split("-")[0] + LORDER.indexOf(a.split("-")[1])).localeCompare(b.split("-")[0] + LORDER.indexOf(b.split("-")[1])));
+  const get = (cell, arm) => { const r = D.runs.find(x => x.cell === cell && x.arm === arm && x.rep === 1); return r ? r[which] : null; };
+  const vals = cells.map(c => ({ c, S: get(c, "S"), K: get(c, "K"), X: get(c, "X") }));
+  const xmax = Math.max(...vals.flatMap(v => [v.S, v.K, v.X]).filter(x => x != null)) * 1.08;
+  const W = 760, rh = 30, x0 = 150, H = cells.length * rh + 36, sx = v => x0 + v / xmax * (W - x0 - 30);
+  const svg = S("svg", { viewBox: `0 0 ${W} ${H}` });
+  const ticks = which === "documented" ? [0, 0.25, 0.5, 0.75, 1].filter(t => t <= xmax) : [0, 0.02, 0.04, 0.06, 0.08, 0.1, 0.12].filter(t => t <= xmax);
+  for (const t of ticks) { svg.append(S("line", { x1: sx(t), x2: sx(t), y1: 4, y2: H - 26, class: "grid" })); svg.append(S("text", { x: sx(t), y: H - 8, "text-anchor": "middle", text: pct(t) })); }
+  let kWins = 0;
+  vals.forEach((v, i) => {
+    const y = 16 + i * rh, [task, l] = v.c.split("-");
+    svg.append(S("text", { x: x0 - 12, y: y + 4, "text-anchor": "end", style: "fill:var(--ink);font-weight:600", text: `${TASK[task].split(" ")[0]} · ${LANG[l]}` }));
+    const xs = [v.S, v.K, v.X].filter(x => x != null);
+    svg.append(S("line", { x1: sx(Math.min(...xs)), x2: sx(Math.max(...xs)), y1: y, y2: y, stroke: "var(--rule)", "stroke-width": 3 }));
+    kWins += v.K > Math.max(v.S ?? -1, v.X ?? -1);
+    for (const [arm, m] of [["X", "codex"], ["S", "sonnet"], ["K", "haiku"]]) if (v[arm] != null)
+      svg.append(hoverable(S("circle", { cx: sx(v[arm]), cy: y, r: 7, fill: col(m), stroke: "var(--panel)", "stroke-width": 2 }), `${v.c}: ${MNAME[m]} <b>${(v[arm] * 100).toFixed(1)}%</b>`));
+  });
+  el.append(svg);
+  legendModels($("cm-leg"));
+  const what = which === "documented" ? "share of functions with a comment directly above" : "comment lines per line of code";
+  $("cm-title").textContent = which === "documented" ? `Haiku documents more functions than both rivals in ${kWins} of ${cells.length} jobs` : `Haiku writes the most comments in ${kWins} of ${cells.length} jobs`;
+  $("cm-cap").textContent = `One row per job, round-one programs. Measure: ${what}. Codex wrote almost no comments in most jobs, so its dots sit at 0%, often hiding Sonnet's.`;
+  tableFrom($("cmtable"), ["Pairing", "Sonnet", "Haiku", "Codex"], vals.map(v => [v.c, ...[v.S, v.K, v.X].map(x => x == null ? "—" : (x * 100).toFixed(1) + "%")]));
+}
+
+// ---------------------------------------------------------------- clock
+function drawClock() {
+  const arms = ["S", "S2", "K", "K2", "X"], W = 760, rh = 40, x0 = 150, H = arms.length * rh + 40;
+  const lo = Math.log10(30), hi = Math.log10(3600), sx = s => x0 + (Math.log10(Math.max(s, 30)) - lo) / (hi - lo) * (W - x0 - 30);
+  const svg = S("svg", { viewBox: `0 0 ${W} ${H}` });
+  for (const [s, lab] of [[30, "30 s"], [60, "1 min"], [300, "5 min"], [600, "10 min"], [1800, "30 min"], [3600, "60 min"]]) {
+    svg.append(S("line", { x1: sx(s), x2: sx(s), y1: 4, y2: H - 26, class: "grid" })); svg.append(S("text", { x: sx(s), y: H - 8, "text-anchor": "middle", text: lab }));
+  }
+  const tab = [];
+  arms.forEach((a, i) => {
+    const y = 22 + i * rh, rs = D.runs.filter(r => r.arm === a), m = rs[0].model, v = rs.map(r => r.active_s).sort((x, y) => x - y), med = v[Math.floor(v.length / 2) - (v.length % 2 ? 0 : 1)] / 2 + v[Math.floor(v.length / 2)] / 2;
+    tab.push([ARMNAME[a], rs.length, mins(Math.round(med)), mins(v[0]), mins(v[v.length - 1])]);
+    svg.append(S("text", { x: x0 - 12, y: y + 4, "text-anchor": "end", style: "fill:var(--ink);font-weight:600", text: ARMNAME[a] }));
+    rs.forEach((r, k) => {
+      const yy = y + ((k * 37) % 11 - 5) * 1.4, x = sx(r.active_s);
+      const mk = r.capped ? S("rect", { x: x - 6, y: yy - 6, width: 12, height: 12, transform: `rotate(45 ${x} ${yy})`, fill: col(m), stroke: "var(--ink)", "stroke-width": 1.5 })
+        : S("circle", { cx: x, cy: yy, r: 5, fill: col(m), "fill-opacity": 0.8 });
+      hoverable(mk, `<b>${r.id}</b><br>${mins(r.active_s)}${r.capped ? " (hit the cap)" : ""}`);
+      mk.style.cursor = "pointer"; mk.addEventListener("click", () => { location.hash = "#" + r.id; });
+      svg.append(mk);
+    });
+    svg.append(S("line", { x1: sx(med), x2: sx(med), y1: y - 14, y2: y + 14, stroke: "var(--ink)", "stroke-width": 3 }));
+  });
+  $("ckchart").append(svg);
+  legendModels($("ck-leg"), `<span>◆ hit the 60-minute cap</span>`);
+  const mm = D.facts.median_minutes_by_model;
+  const am = D.facts.median_minutes_by_arm;
+  $("ck-title").textContent = `Haiku worked ${Math.round(am.K2 / am.S2)} to ${Math.round(am.K / am.S)} times longer than Sonnet`;
+  tableFrom($("cktable"), ["Round", "Runs", "Middle", "Fastest", "Slowest"], tab);
+}
+
+// ---------------------------------------------------------------- heat map
+function drawHeat(mode = "lang") {
+  const el = $("hmchart"); el.innerHTML = "";
+  const key = mode === "lang" ? r => [LORDER.indexOf(r.lang), r.task, MODELS.indexOf(r.model), r.round, r.rep]
+    : mode === "model" ? r => [MODELS.indexOf(r.model), LORDER.indexOf(r.lang), r.task, r.round, r.rep]
+    : r => [r.task, LORDER.indexOf(r.lang), MODELS.indexOf(r.model), r.round, r.rep];
+  const cmp = (a, b) => { const A = key(R[a]), B = key(R[b]); for (let i = 0; i < A.length; i++) if (A[i] !== B[i]) return A[i] < B[i] ? -1 : 1; return 0; };
+  const ids = structIds().sort(cmp), n = ids.length, c = 11, off = 14, W = off + n * c + 4;
+  const svg = S("svg", { viewBox: `0 0 ${W} ${W}`, style: `min-width:${Math.min(W, 640)}px;max-width:760px;margin:0 auto` });
+  ids.forEach((id, i) => {
+    svg.append(S("rect", { x: 0, y: off + i * c, width: 8, height: c - 1, fill: col(R[id].model) }));
+    svg.append(S("rect", { x: off + i * c, y: 0, width: c - 1, height: 8, fill: col(R[id].model) }));
+  });
+  for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
+    const v = i === j ? 0 : dist(ids[i], ids[j]), t = Math.min(v, 1.4) / 1.4;
+    const r = S("rect", { x: off + j * c, y: off + i * c, width: c - 0.6, height: c - 0.6, fill: `color-mix(in oklab, var(--ink) ${Math.round((1 - t) * 100)}%, var(--panel))` });
+    if (i !== j) hoverable(r, `${nice(ids[i])}<br>${nice(ids[j])}<br><b>distance ${v.toFixed(2)}</b>`);
+    svg.append(r);
+  }
+  el.append(svg);
+  $("hm-cap").textContent = mode === "lang" ? "Sorted by language, then task, then model. The darker squares gather into blocks along the diagonal by language, COBOL's the darkest: language shapes a program more than anything else. The coloured strips on the edges show the model."
+    : mode === "model" ? "Sorted by model first. The neat blocks dissolve into a speckle: grouping by model alone hides the fingerprint, because language swamps it. The fingerprint shows only when you compare like with like."
+    : "Sorted by task first. Chess engines and SAT solvers don't form two clean halves; inside each, language still makes the blocks.";
+}
+
+// ---------------------------------------------------------------- follow-ups (exploratory), filled from data.followups
+const CELLS = () => [...new Set(D.runs.map(r => r.cell))].sort((a, b) => { const [ta, la] = a.split("-"), [tb, lb] = b.split("-"); return ta === tb ? LORDER.indexOf(la) - LORDER.indexOf(lb) : ta < tb ? -1 : 1; });
+const fuv = (cell, arm, slug, k) => { const r = D.runs.find(x => x.cell === cell && x.arm === arm && x.rep === 1); const v = r && r.fu && r.fu[slug] ? r.fu[slug][k] : null; return typeof v === "number" ? v : null; };
+// one row per job, one dot per model (round one); returns per-pair win counts for the caption/title
+function cellDots(vals, fmt, ticks, opts = {}) {
+  const W = 560, rh = 24, x0 = 112, cells = CELLS(), H = cells.length * rh + 34, all = cells.flatMap(c => ["S", "K", "X"].map(a => vals(c, a))).filter(x => x != null);
+  const lo = opts.log ? Math.log10(Math.min(...all)) : 0, hiV = opts.log ? Math.log10(Math.max(...all)) : Math.max(...all) * 1.06;
+  const sx = v => x0 + ((opts.log ? Math.log10(v) : v) - lo) / (hiV - lo) * (W - x0 - 18);
+  const svg = S("svg", { viewBox: `0 0 ${W} ${H}` });
+  for (const t of ticks) if ((opts.log ? Math.log10(t) : t) <= hiV && (opts.log ? Math.log10(t) : t) >= lo) { svg.append(S("line", { x1: sx(t), x2: sx(t), y1: 2, y2: H - 24, class: "grid" })); svg.append(S("text", { x: sx(t), y: H - 7, "text-anchor": "middle", text: fmt(t) })); }
+  cells.forEach((c, i) => {
+    const y = 12 + i * rh, [task, l] = c.split("-"), v = { S: vals(c, "S"), K: vals(c, "K"), X: vals(c, "X") }, xs = Object.values(v).filter(x => x != null);
+    svg.append(S("text", { x: x0 - 10, y: y + 4, "text-anchor": "end", style: "fill:var(--ink);font-weight:600;font-size:11.5px", text: `${task === "chess" ? "Chess" : "SAT"} · ${LANG[l]}` }));
+    if (xs.length > 1) svg.append(S("line", { x1: sx(Math.min(...xs)), x2: sx(Math.max(...xs)), y1: y, y2: y, stroke: "var(--rule)", "stroke-width": 3 }));
+    for (const [arm, m] of [["X", "codex"], ["S", "sonnet"], ["K", "haiku"]]) if (v[arm] != null)
+      svg.append(hoverable(S("circle", { cx: sx(v[arm]), cy: y, r: 6, fill: col(m), stroke: "var(--panel)", "stroke-width": 2 }), `${c}: ${MNAME[m]} <b>${fmt(v[arm])}</b>`));
+  });
+  return svg;
+}
+function wins(vals, a, b) { let w = 0, l = 0; for (const c of CELLS()) { const x = vals(c, a), y = vals(c, b); if (x == null || y == null || x === y) continue; x > y ? w++ : l++; } return [w, w + l]; }
+function fuCard(over, title, sub, chart, legendHtml, caption, extra) {
+  const fig = h("figure", {}, h("div", { class: "over", text: over }), h("h3", { text: title }));
+  if (sub) fig.append(h("p", { class: "do", html: sub }));
+  if (legendHtml) fig.append(h("div", { class: "legend", html: legendHtml }));
+  if (chart) fig.append(h("div", { class: "chart" }, chart));
+  if (caption) fig.append(h("figcaption", { html: caption }));
+  if (extra) fig.append(extra);
+  return fig;
+}
+function drawFollowups() {
+  const el = $("fu"), F = D.followups || {}, ML = MODELS.map(m => `<span><i style="background:${col(m)}"></i>${MNAME[m]}</span>`).join("");
+  const k = v => v >= 1000 ? (v / 1000).toFixed(v >= 10000 ? 0 : 1) + "k" : String(Math.round(v));
+  // 1. size and shape
+  if (F["size-shape"]) {
+    const size = (c, a) => fuv(c, a, "size-shape", "nonws_chars"), dens = (c, a) => fuv(c, a, "size-shape", "chars_per_line"), top = (c, a) => fuv(c, a, "size-shape", "max_decisions");
+    const [xs, ns] = wins((c, a) => -size(c, a), "X", "S"), [xd, nd] = wins(dens, "X", "S"), [kt, nt] = wins((c, a) => -top(c, a), "K", "S"), [ks, nks] = wins(size, "K", "S");
+    el.append(fuCard("Exploratory · size and shape", "Codex packs its code tight; Haiku spreads it out",
+      `Codex's program was smaller than Sonnet's in ${xs} of ${ns} jobs, and denser per line in ${xd} of ${nd}: three of its chess engines fit in under 60 lines, dense enough to fool GitGalaxy's minified-code filter. Haiku wrote more code than Sonnet in ${ks} of ${nks} jobs, yet its most tangled function was simpler in ${kt} of ${nt}.`,
+      cellDots(size, k, [2000, 5000, 10000, 20000, 50000], { log: true }), ML,
+      "Program size in non-blank characters (so packing code onto fewer lines doesn't matter), round-one programs. A model's two rounds differ by a median 7% in size; different models by 53%."));
+  }
+  // 2. wiring
+  if (F.wiring) {
+    const hub = (c, a) => fuv(c, a, "wiring", "hub3_share"), depth = (c, a) => fuv(c, a, "wiring", "depth");
+    const [xs, ns] = wins(hub, "X", "S"), [kd, nd] = wins(depth, "K", "X");
+    el.append(fuCard("Exploratory · wiring", "Codex doesn't route its calls through a few hubs after all",
+      `An earlier COBOL-only study suggested Codex funnels its calls through a few busy functions. Across all five languages, Codex and Sonnet send about the same share of calls to their top 3 functions (medians 37% and 36%; Codex higher in ${xs} of ${ns} jobs). Haiku's call chains do run deeper than Codex's, in ${kd} of ${nd} jobs.`,
+      cellDots(hub, v => pct(v), [0.2, 0.4, 0.6, 0.8, 1]), ML,
+      `Share of all internal calls that go into the program's three most-called functions. Sonnet's Python SAT solver has only 4 functions, so its share is 100% by default. A null result, reported because we went looking for it. <a href="#wiring">See the wiring yourself</a>.`));
+  }
+  // 3. time vs code
+  if (F["time-vs-code"]) {
+    const rs = D.runs.filter(r => r.fu && r.fu["time-vs-code"] && r.fu["time-vs-code"].code_lines != null);
+    const W = 560, H = 300, x0 = 54, y0 = 16, lx = [Math.log10(60), Math.log10(3600)], vy = rs.map(r => r.fu["time-vs-code"].code_lines), ly = [Math.log10(Math.min(...vy) * 0.8), Math.log10(Math.max(...vy) * 1.2)];
+    const sx = s => x0 + (Math.log10(Math.max(s, 60)) - lx[0]) / (lx[1] - lx[0]) * (W - x0 - 14), sy = v => H - 34 - (Math.log10(v) - ly[0]) / (ly[1] - ly[0]) * (H - 34 - y0);
+    const svg = S("svg", { viewBox: `0 0 ${W} ${H}` });
+    for (const [s, lab] of [[60, "1 min"], [300, "5"], [600, "10"], [1800, "30"], [3600, "60 min"]]) { svg.append(S("line", { x1: sx(s), x2: sx(s), y1: y0, y2: H - 34, class: "grid" })); svg.append(S("text", { x: sx(s), y: H - 16, "text-anchor": "middle", text: lab })); }
+    for (const v of [30, 100, 300, 1000, 3000]) if (Math.log10(v) >= ly[0] && Math.log10(v) <= ly[1]) { svg.append(S("line", { x1: x0, x2: W - 14, y1: sy(v), y2: sy(v), class: "grid" })); svg.append(S("text", { x: x0 - 6, y: sy(v) + 4, "text-anchor": "end", text: k(v) })); }
+    svg.append(S("text", { x: W - 60, y: H - 2, "text-anchor": "end", style: "font-size:11px", text: "time worked →" }));
+    svg.append(S("text", { x: 4, y: 10, style: "font-size:11px", text: "lines of code ↑" }));
+    // same model, same job: link the two runs; count where the slower one is bigger
+    let big = 0, tot = 0;
+    const byKey = {};
+    for (const r of rs) (byKey[r.model + "|" + r.cell] = byKey[r.model + "|" + r.cell] || []).push(r);
+    for (const g of Object.values(byKey)) {
+      const ones = g.filter(r => r.rep === 1).sort((a, b) => a.round - b.round), pairs = ones.length === 2 ? [ones] : [];
+      if (g[0].model === "codex" && g.length === 2) pairs.push(g);
+      for (const [a, b] of pairs) {
+        const ta = a.active_s, tb = b.active_s, la = a.fu["time-vs-code"].code_lines, lb = b.fu["time-vs-code"].code_lines;
+        if (ta !== tb) { tot++; big += (ta > tb) === (la > lb); }
+        svg.append(S("line", { x1: sx(ta), y1: sy(la), x2: sx(tb), y2: sy(lb), stroke: col(a.model), "stroke-opacity": 0.35, "stroke-width": 1.5 }));
+      }
+    }
+    for (const r of rs) svg.append(hoverable(S("circle", { cx: sx(r.active_s), cy: sy(r.fu["time-vs-code"].code_lines), r: 5, fill: col(r.model), stroke: "var(--panel)", "stroke-width": 1.5 }), `<b>${r.id}</b><br>${mins(r.active_s)}, ${Math.round(r.fu["time-vs-code"].code_lines)} lines`));
+    el.append(fuCard("Exploratory · time vs code", "More time didn't mean more code",
+      `Haiku is slow because it builds its program in dozens of small steps where Sonnet writes it in one go, not because it fails more. Codex took more than twice Sonnet's time and still wrote less. And when one model did the same job twice, the slower run was the bigger one in ${big} of ${tot} pairs: a coin flip.`,
+      svg, ML + "<span>lines join a model's two runs of the same job</span>",
+      "Each dot is one program; both scales stretch small values, so equal gaps mean equal ratios. Lines are counted straight from the source (non-blank, non-comment). One lead for next time: within Haiku, longer runs left more comments."));
+  }
+  // 4. steered vs autonomous
+  const hb = F["steered-vs-autonomous"] && F["steered-vs-autonomous"].habits;
+  if (hb) {
+    const pickRows = [0, 1, 2, 7, 6, 29, 23, 4, 3, 5, 31], word = v => /^reversed/.test(v) ? "reversed" : /^vanished/.test(v) ? "didn't travel" : /only|weaken|thin/.test(v) ? "partly" : "same direction";
+    const tx = (o, who, side) => o && o.cells != null ? `${side === "Codex" ? "Codex" : who} higher in ${side === "Codex" ? o.codex_higher : o.claude_higher} of ${o.cells}` : String(o && o.text != null ? o.text : o).replace(/ \(.*\)/, "");
+    const short = s => s.replace(/ \(.*?\)/g, "").replace(/; else.*$/, "").replace(/\bnon-COBOL\b/, "");
+    const tbl = "<thead><tr><th>Habit (who had it when steered)</th><th>Steered pairs</th><th>Sonnet vs Codex</th><th>Haiku vs Codex</th><th>Now</th></tr></thead><tbody>" +
+      pickRows.map(i => hb.rows[i]).filter(Boolean).map(r => `<tr><td>${short(r.habit).replace(/`(.+?)`/g, "<code>$1</code>")} <span style="color:var(--ink-3)">(${r.exploratory_side})</span></td><td>${tx(r.steered, "Claude", r.exploratory_side)}</td><td>${tx(r.sonnet_vs_codex, "Sonnet", r.exploratory_side)}</td><td>${tx(r.haiku_vs_codex, "Haiku", r.exploratory_side)}</td><td><span class="verdict dir">${word(r.verdict)}</span></td></tr>`).join("") + "</tbody>";
+    const fig = fuCard("Exploratory · human-steered vs autonomous", "Which of the original hunches survived?",
+      "Our predictions came from Mathieu Acher's programs, where a person steered older, larger models. With no human and newer models, three habits kept their direction: Codex leaving functions early, Codex's more complex functions, and Claude's bitwise tricks. Heavy commenting survived only in Haiku, and Claude's wider fan-out flipped.",
+      null, "", "Directions only, uncorrected: about 450 such comparisons were made, so any single row is a hint, not a result. Steering, model generation and program size all changed at once, so a habit that didn't travel says nothing about why.",
+      h("details", {}, h("summary", { text: "Show the habit-by-habit table" }), h("div", { class: "tablewrap" }, h("table", { html: tbl }))));
+    fig.classList.add("wide");
+    el.append(fig);
+  }
+}
+function mdLite(md) {
+  return md.split(/\n{2,}/).map(b => {
+    if (/^#+ /.test(b)) return "";
+    if (/^\|/.test(b)) return '<div class="tablewrap"><table>' + b.split("\n").filter(l => !/^\|[-\s|:]+\|$/.test(l)).map((l, i) =>
+      "<tr>" + l.replace(/^\||\|$/g, "").split("|").map(c => i ? `<td>${c.trim()}</td>` : `<th>${c.trim()}</th>`).join("") + "</tr>").join("") + "</table></div>";
+    if (/^[-*] /.test(b)) return "<ul class='plain'>" + b.split(/\n(?=[-*] )/).map(l => `<li>${inl(l.replace(/^[-*] /, ""))}</li>`).join("") + "</ul>";
+    return `<p>${inl(b)}</p>`;
+  }).join("");
+}
+const inl = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/`(.+?)`/g, "<code>$1</code>");
+
+// ---------------------------------------------------------------- wiring maps (when the follow-up provides them)
+let WTOK = 0;
+async function drawWiring(cell) {
+  const el = $("wr-maps"), tok = ++WTOK; el.innerHTML = "";
+  if (!(D.followups.wiring || {}).has_maps) { el.append(h("p", { class: "do", text: "Wiring maps are being measured." })); return; }
+  const picks = ["S", "K", "X"].map(a => D.runs.find(r => r.cell === cell && r.arm === a && r.rep === 1)).filter(Boolean);
+  for (const r of picks) {
+    let g = null;
+    try { g = await (await fetch(`wiring/${r.id}.json`)).json(); } catch (e) { g = null; }
+    if (tok !== WTOK) return;  // a newer pick replaced this one
+    const box = h("div", { class: "wire" }, h("div", { class: "t", style: `color:${col(r.model)}`, text: MNAME[r.model] }));
+    if (!g || !g.nodes.length) { box.append(h("p", { class: "do", text: "No functions read." })); el.append(box); continue; }
+    box.append(wireSvg(g, r.model));
+    const top3 = [...g.nodes].sort((a, b) => b.in - a.in).slice(0, 3), E = g.edges.length, hub = top3.reduce((s, x) => s + x.in, 0);
+    box.append(h("div", { class: "s", html: `${g.nodes.length} functions, ${E} calls · top 3 functions receive <b>${E ? pct(hub / E) : "—"}</b> of calls` }));
+    el.append(box);
+  }
+}
+function wireSvg(g, model) {
+  const W = 320, H = 320, cx = W / 2, cy = H / 2, ns = [...g.nodes].sort((a, b) => b.in - a.in), pos = {};
+  // hubs in the middle, the rest on rings by how often they are called
+  ns.forEach((n, i) => {
+    const ring = i < 3 ? 0.18 : i < 12 ? 0.55 : 0.88, k = i < 3 ? i : i < 12 ? i - 3 : i - 12, m = i < 3 ? 3 : i < 12 ? Math.min(9, ns.length - 3) : Math.max(1, ns.length - 12);
+    const a = (k / m) * 2 * Math.PI + ring * 3;
+    pos[n.id] = [cx + Math.cos(a) * ring * (W / 2 - 14), cy + Math.sin(a) * ring * (H / 2 - 14)];
+  });
+  const svg = S("svg", { viewBox: `0 0 ${W} ${H}` });
+  for (const [a, b] of g.edges) if (pos[a] && pos[b]) svg.append(S("line", { x1: pos[a][0], y1: pos[a][1], x2: pos[b][0], y2: pos[b][1], stroke: col(model), "stroke-opacity": 0.28, "stroke-width": 1 }));
+  for (const n of ns) svg.append(hoverable(S("circle", { cx: pos[n.id][0], cy: pos[n.id][1], r: 2.5 + Math.sqrt(n.in) * 1.6, fill: col(model), stroke: "var(--paper)", "stroke-width": 1 }), `<b>${n.name}</b><br>called from ${n.in} place${n.in === 1 ? "" : "s"}, calls ${n.out}`));
+  return svg;
+}
+
+// ---------------------------------------------------------------- explorer
+let XF = "all";
+function drawList() {
+  const el = $("xp-list"); el.innerHTML = "";
+  const rs = D.runs.filter(r => XF === "all" || r.model === XF).sort((a, b) => (a.task + LORDER.indexOf(a.lang) + MODELS.indexOf(a.model) + a.round + a.rep).localeCompare(b.task + LORDER.indexOf(b.lang) + MODELS.indexOf(b.model) + b.round + b.rep));
+  for (const r of rs) el.append(h("button", { class: "xrow", "data-id": r.id, onclick: () => { location.hash = "#" + r.id; } },
+    h("i", { style: `background:${col(r.model)}` }), h("span", { class: "nm", title: r.id, text: `${r.task === "chess" ? "Chess" : "SAT"} · ${LANG[r.lang]} · ${MNAME[r.model]}${r.round === 2 ? " · round 2" : ""}${r.rep > 1 ? " · repeat" : ""}` }), h("span", { class: "v", text: mins(r.active_s) })));
+}
+function openCard(id) {
+  const r = R[id]; if (!r) return;
+  document.querySelectorAll(".xrow").forEach(b => b.setAttribute("aria-current", b.dataset.id === id));
+  const el = $("xp-card"), n = r.nearest;
+  const fu = r.fu || {}, ss = fu["size-shape"] || {}, wr = fu.wiring || {};
+  const stat = (b, s) => `<div class="stat"><b>${b}</b><span>${s}</span></div>`;
+  const pick = (o, ...ks) => { for (const k of ks) if (o[k] != null && o[k] !== "") return o[k]; return null; };
+  const lines = pick(ss, "code_lines"), fns = pick(ss, "n_funcs");
+  const hub = pick(wr, "hub3_share");
+  el.innerHTML = `<div class="kicker">${ARMNAME[r.arm]} · ${r.cli} · ${r.model_id}</div><h3 style="color:${col(r.model)}">${TASK[r.task][0].toUpperCase() + TASK[r.task].slice(1)} in ${LANG[r.lang]}</h3>
+    <p class="mono" style="font-size:0.8rem;color:var(--ink-3)">${r.id}</p>
+    <div class="stats">${stat(mins(r.active_s), r.capped ? "worked (hit the 60-min cap)" : "worked")}${stat(r.check === "PASS" ? "passed" : r.capped ? "passed later" : "failed", "the hidden check")}
+    ${stat(r.comments == null ? "—" : (r.comments * 100).toFixed(1) + "%", "comment lines per code line")}${stat(r.documented == null ? "—" : pct(r.documented), "functions with a comment above")}
+    ${lines != null ? stat(Math.round(lines).toLocaleString(), "lines of code") : ""}${fns != null ? stat(Math.round(fns), "functions") : ""}
+    ${hub != null ? stat(pct(hub), "of calls go to its top 3 functions") : ""}
+    ${stat(r.early_exit == null ? "—" : r.early_exit.toFixed(0), "early exits per 1,000 keywords")}</div>`;
+  if (n) {
+    const o = R[n.id];
+    el.insertAdjacentHTML("beforeend", `<p>Closest look-alike: <b class="m ${o.model}">${MNAME[o.model]}</b>'s program (<a href="#${n.id}">${n.id}</a>), distance ${n.d.toFixed(2)}. ${n.scored ? (n.same ? "Same model: the scanner would have named it correctly." : "A different model: one of the scanner's misses.") : "No other program by this model did the same job in this language, so it isn't scored."}</p>`);
+    const box = h("div", { class: "lineup" });
+    const max = Math.max(...n.lineup.map(x => Math.min(x.d, 2)), 0.5);
+    for (const x of n.lineup) { const o2 = R[x.id]; box.append(h("div", { class: "lu" }, h("span", { html: `<b style="color:${col(o2.model)}">${MNAME[o2.model]}</b>${o2.round === 2 ? " · round 2" : ""}${o2.rep > 1 ? " · repeat run" : ""}` }), h("div", {}, h("div", { class: "bar", style: `width:${Math.max(Math.min(x.d, 2) / max * 100, 3)}%;background:${col(o2.model)}` })), h("span", { class: "v", text: x.d.toFixed(2) }))); }
+    el.append(h("div", { class: "kicker", text: "Line-up: same job, same language" }), box);
+  } else el.insertAdjacentHTML("beforeend", `<p class="do">GitGalaxy read no functions from this program, so it has no structural profile (see "The scanner got caught too").</p>`);
+}
+function route() {
+  const id = decodeURIComponent(location.hash.slice(1));
+  if (R && R[id]) { openCard(id); $("explore").scrollIntoView({ behavior: "smooth", block: "start" }); }
+}
+
+
+// ---------------------------------------------------------------- figure export (for the README): ?export renders every chart in the
+// light theme and writes standalone SVGs (computed colours and fonts inlined, white ground) into <pre id="export"> as JSON.
+const EXPORT = new URLSearchParams(location.search).has("export");
+if (EXPORT) document.documentElement.setAttribute("data-theme", "light");
+function standalone(svg) {
+  const c = svg.cloneNode(true), src = [svg, ...svg.querySelectorAll("*")], dst = [c, ...c.querySelectorAll("*")];
+  const props = ["fill", "stroke", "stroke-width", "fill-opacity", "stroke-opacity", "font-family", "font-size", "font-weight", "letter-spacing", "text-anchor", "opacity"];
+  src.forEach((o, i) => {
+    const cs = getComputedStyle(o), d = dst[i];
+    const text = o.tagName === "text";
+    if (i) for (const k of props) {
+      if (!text && /^(font|letter|text-anchor)/.test(k)) continue;
+      const v = cs.getPropertyValue(k);
+      if (v && v !== "normal" && !(/opacity/.test(k) && v === "1") && !(k === "stroke" && v === "none") && !(k === "stroke-width" && cs.getPropertyValue("stroke") === "none")) d.setAttribute(k, v);
+    }
+    d.removeAttribute("class"); d.removeAttribute("style");
+  });
+  const vb = svg.viewBox.baseVal;
+  c.setAttribute("xmlns", "http://www.w3.org/2000/svg"); c.setAttribute("width", vb.width); c.setAttribute("height", vb.height);
+  c.insertBefore(Object.assign(document.createElementNS(SVGNS, "rect"), {}), c.firstChild);
+  const bg = c.firstChild; bg.setAttribute("x", vb.x); bg.setAttribute("y", vb.y); bg.setAttribute("width", vb.width); bg.setAttribute("height", vb.height); bg.setAttribute("fill", "#ffffff");
+  return c.outerHTML;
+}
+async function exportFigures() {
+  const out = {}, one = sel => document.querySelector(sel);
+  out["map"] = standalone(one("#heromap svg"));
+  out["pairs"] = standalone(one("#pairstrip svg"));
+  drawRepeat("sonnet"); out["repeat-sonnet"] = standalone(one("#rpchart svg"));
+  drawRepeat("haiku"); out["repeat-haiku"] = standalone(one("#rpchart svg"));
+  drawComments("documented"); out["comments-documented"] = standalone(one("#cmchart svg"));
+  drawComments("comments"); out["comments-lines"] = standalone(one("#cmchart svg"));
+  out["clock"] = standalone(one("#ckchart svg"));
+  drawHeat("lang"); out["distance-map"] = standalone(one("#hmchart svg"));
+  const fu = [...document.querySelectorAll("#fu figure .chart svg")];
+  ["size", "hubs", "time-vs-code"].forEach((k, i) => { if (fu[i]) out["followup-" + k] = standalone(fu[i]); });
+  await drawWiring("chess-python");
+  [...document.querySelectorAll("#wr-maps svg")].forEach((sv, i) => { out["wiring-chess-python-" + ["sonnet", "haiku", "codex"][i]] = standalone(sv); });
+  const pre = document.createElement("pre"); pre.id = "export"; pre.textContent = JSON.stringify(out); document.body.append(pre);
+}
+
+// ---------------------------------------------------------------- start
+async function start() {
+  D = await (await fetch("data.json")).json();
+  R = Object.fromEntries(D.runs.map(r => [r.id, r])); IDX = Object.fromEntries(D.order.map((id, i) => [id, i]));
+  drawHero(); drawScore(); drawNN(); drawPairs();
+  const pickRow = (el, opts, fn, init) => { for (const [v, lab] of opts) el.append(h("button", { class: "chip", "aria-pressed": v === init, onclick: e => { el.querySelectorAll(".chip").forEach(b => b.setAttribute("aria-pressed", b === e.currentTarget)); fn(v); }, text: lab })); fn(init); };
+  pickRow($("rp-pick"), [["sonnet", "Sonnet"], ["haiku", "Haiku"]], drawRepeat, "sonnet");
+  pickRow($("cm-pick"), [["documented", "Functions documented"], ["comments", "Comment lines"]], drawComments, "documented");
+  drawClock();
+  pickRow($("hm-pick"), [["lang", "Sort by language"], ["model", "Sort by model"], ["task", "Sort by task"]], drawHeat, "lang");
+  drawFollowups();
+  const cells = [...new Set(D.runs.map(r => r.cell))];
+  const sel = h("select", { "aria-label": "Task and language", onchange: e => drawWiring(e.target.value) }, ...cells.map(c => h("option", { value: c, text: `${TASK[c.split("-")[0]]} in ${LANG[c.split("-")[1]]}` })));
+  $("wr-pick").append(sel); sel.value = "chess-python"; drawWiring("chess-python");
+  pickRow($("xp-filter"), [["all", "All"], ["sonnet", "Sonnet"], ["haiku", "Haiku"], ["codex", "Codex"]], v => { XF = v; drawList(); }, "all");
+  openCard(location.hash.slice(1) && R[location.hash.slice(1)] ? location.hash.slice(1) : "chess-rust-haiku-r1");
+  addEventListener("hashchange", route);
+  if (location.hash.length > 1) route();
+  if (EXPORT) await exportFigures();
+}
+start().catch(e => { document.querySelector(".wrap").insertAdjacentHTML("afterbegin", `<p style="color:var(--bad)">Could not load the data: ${e}</p>`); });
+</script>
+</body>
+</html>

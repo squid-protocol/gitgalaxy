@@ -61,7 +61,7 @@ HINTS = (
      "A length: try exactly the limit, one over it, and empty."),
 )  # fmt: skip
 _METHOD = re.compile(r"(?m)^    (?:public|private|protected)[^;{=\n]*?\b(\w+)\(")
-_CALL = re.compile(r"\b(\w+)\s*\(")
+_CALL = re.compile(r"(?:\b(\w+)\.)?\b(\w+)\s*\(")  # (receiver, name)
 _CONSTANT = re.compile(r"\bstatic final [\w<>\[\], ]+\s+(\w+)\s*=")
 
 
@@ -104,8 +104,10 @@ def live_methods(text: str) -> set[str]:
     live = {n for n in spans if n in ENTRY_POINTS or n in public}
     todo = list(live)
     while todo:
-        for name in _CALL.findall(body.get(todo.pop(), "")):
-            if name in spans and name not in live:
+        for receiver, name in _CALL.findall(body.get(todo.pop(), "")):
+            # `Cobol.store(` is the runtime's method, not the port's private store(): a capitalised receiver is a
+            # class. Any other receiver counts, so an unsure call keeps a method live
+            if name in spans and name not in live and not receiver[:1].isupper():
                 live.add(name)
                 todo.append(name)
     return live

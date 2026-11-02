@@ -158,7 +158,7 @@ class Gen:
                 n += 1  # FILLER too: an 88 may be on one
                 if structured:
                     # the COBOL name in camelCase (acctId); a second item of the name: acctId2, ...
-                    base = camel(it.name) if it.name != "FILLER" else f"filler{n}"
+                    base = legal_ident(camel(it.name), "f") if it.name != "FILLER" else f"filler{n}"
                     name, k = base, 1
                     while name in taken or name in JAVA_RESERVED:
                         k += 1
@@ -913,8 +913,7 @@ class Gen:
             self._methods: list[str] = []
             taken: set[str] = set()
             for p in self.p.proc.paragraphs:
-                base = camel(p.name)
-                base = base if base[:1].isalpha() else "p" + base[:1].upper() + base[1:]
+                base = legal_ident(camel(p.name), "p")
                 name, k = base, 1
                 while name in taken or name in JAVA_RESERVED or name in METHODS_TAKEN:
                     k += 1
@@ -3722,6 +3721,11 @@ def camel(cobol: str) -> str:
     if not parts:
         return "x"
     return parts[0].lower() + "".join(p[:1].upper() + p[1:].lower() for p in parts[1:])
+
+
+def legal_ident(base: str, prefix: str) -> str:
+    """#7375: a Java identifier cannot start with a digit (COBOL names may: 50702-MESSAGE); prefix it."""
+    return base if base[:1].isalpha() else prefix + base[:1].upper() + base[1:]
 
 
 def _replacing_category(it: L.Item) -> str:

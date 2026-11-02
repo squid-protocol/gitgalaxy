@@ -456,7 +456,7 @@ WEB_SEND = Command(
         ),
         RuntimeRefusal(
             "a FROMLENGTH or STATUSLEN not above zero (IBM lists LENGERR 50 and INVREQ 131 for zero), a STATUSCODE outside "
-            "100-599, a blank or malformed MEDIATYPE, SRVCONVERT on a media type that is not text/*, more than one "
+            "100-599, a blank or malformed MEDIATYPE, SRVCONVERT on a media type that is not text/* or application/json, more than one "
             "condition at once",
             "X37",
             java="WEB SEND",

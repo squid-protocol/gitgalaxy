@@ -4232,8 +4232,8 @@ _X37_REFUSED = [  # (steps, what both runtimes stop with)
     (["x 1 # 2 - - - 0"], "MEDIATYPE blank or not type/subtype"),  # #6839: all padding is a blank area
     (["x 1 plain# 2 - - - 0"], "MEDIATYPE blank or not type/subtype"),
     (["x 1 text/pl#ain 2 - - - 0"], "MEDIATYPE blank or not type/subtype"),  # a X'00' with other bytes after it
-    (["x 1 application/json# 2 - - - 1"], "SRVCONVERT on a media type that is not text/*"),
-    (["x 1 application/json 2 - - - 1"], "SRVCONVERT on a media type that is not text/*"),
+    (["x 1 application/pdf# 2 - - - 1"], "SRVCONVERT on a media type that is not text/*"),
+    (["x 1 application/pdf 2 - - - 1"], "SRVCONVERT on a media type that is not text/*"),
     (["x 1 - 2 - - - 1"], "SRVCONVERT on a media type that is not text/*"),
     (["x 99 - 2 - - - 0"], "length beyond its area"),
     (["x 1 - 2 - OK 21 0"], "length beyond its area"),
@@ -5609,7 +5609,7 @@ _X37_DOC_REFUSED = [
     (["none - 7 - - - 0"], "WEB SEND with more than one condition at once"),
     (["empty - 2 - OK 0 0"], "FROMLENGTH or STATUSLEN not above zero"),
     (["empty - 2 99 - - 0"], "STATUSCODE outside 100-599"),
-    (["empty application/json 2 - - - 1"], "SRVCONVERT on a media type that is not text/*"),
+    (["empty application/pdf 2 - - - 1"], "SRVCONVERT on a media type that is not text/*"),
     (["empty - 2 - OK 21 0"], "length beyond its area"),
     (["empty - 2 - - - 0", "empty - 2 - - - 0"], "WEB SEND after a response was sent"),
 ]
@@ -7354,7 +7354,7 @@ _X37_CT_REFUSED = [
     (["chempty - 2 - 0"], "WEB SEND of an empty container"),
     (["chmiss - 7 - 0"], "WEB SEND with more than one condition at once"),
     (["chtext - 2 99 0"], "STATUSCODE outside 100-599"),
-    (["chtext application/json 2 - 1"], "SRVCONVERT on a media type that is not text/*"),
+    (["chtext application/pdf 2 - 1"], "SRVCONVERT on a media type that is not text/*"),
     (["chtext - 2 - 0", "chtext - 2 - 0"], "WEB SEND after a response was sent"),
 ]
 

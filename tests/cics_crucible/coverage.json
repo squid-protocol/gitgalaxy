@@ -1209,7 +1209,20 @@
   "gt-web-server-send/GTWSEND": {
    "live": 1,
    "outcomes": 7,
-   "scenarios": {}
+   "scenarios": {
+    "send": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "42:true",
+      "47:OTHER",
+      "47:WHEN@48",
+      "47:WHEN@52",
+      "65:false"
+     ]
+    }
+   }
   },
   "hc-abend-link/HCMAIN": {
    "live": 4,

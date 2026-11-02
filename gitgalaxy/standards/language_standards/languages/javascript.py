@@ -503,7 +503,8 @@ DEFINITION: dict[str, Any] = {
         # NextAuth's server-side session gate. Call-anchored: `isAuthenticated` as
         # a variable or a function definition never counts.
         "auth_middleware": re.compile(
-            r"\b(?:passport\.authenticate|jwt\.verify|bcrypt\.compare(?:Sync)?|getServerSession)\("
+            r"\b(?:passport\.(?:authenticate|authorize|initialize|session)|jwt\.verify|jwtVerify|expressjwt|argon2\.verify"
+            r"|bcrypt\.compare(?:Sync)?|getServerSession|verifyIdToken)\("
             r"|\breq\.(?:isAuthenticated|log(?:in|out))\("
         ),
         "serialization_parsing": re.compile(r"\b(JSON\.parse|JSON\.stringify)\b"),

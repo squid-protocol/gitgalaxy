@@ -520,9 +520,11 @@ DEFINITION: dict[str, Any] = {
         # login/logout calls. `authenticate(` is guarded against its own
         # definition site (`def authenticate(`).
         "auth_middleware": re.compile(
-            r"@(?:login_required|permission_required)\b"
+            r"@(?:login_required|permission_required|user_passes_test|jwt_required|permission_classes)\b"
+            r"|\b(?:LoginRequiredMixin|PermissionRequiredMixin)\b"
             r"|\.has_perm\("
-            r"|\b(?:check_password|login_user|logout_user|pam_authenticate)\("
+            r"|\b(?:check_password|check_password_hash|verify_password|login_user|logout_user|pam_authenticate)\("
+            r"|\bbcrypt\.checkpw\("
             r"|(?<!def )\bauthenticate\("
         ),
         "serialization_parsing": re.compile(

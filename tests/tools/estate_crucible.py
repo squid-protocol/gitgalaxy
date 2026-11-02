@@ -20,6 +20,10 @@ GalaxyIR, and diffs every fact channel of the key against it:
   layouts         GalaxyIR.record_layout of every 01 a program writes: bytes and every
                   elementary field's offset / length (REDEFINES overlays: unscored, the
                   layout reader skips them by design)
+  dli_calls       CALL 'CBLTDLI' rows (dli_call_data) by line: pcb, io_area and ssas as written; the function code is the
+                  RESOLVED one (GalaxyIR.ims_calls: the first operand's VALUE), since the table keeps only the operand
+  ims_gen         DBD and SEGM macro rows (ims_gen_data) by (kind, name): parent and bytes; every other kind is
+                  unkeyed until a later estate-crucible slice
   jcl_utility_cards  the control statements of an in-stream DD (job_flow_data INSTREAM rows); a DD outside
                   SYSIN / SYMNAMES / SORTCNTL / DFSPARM (SYSTSIN, SYSUT1, TOOLIN) is unscored: the engine keeps no body
   jcl_steps       STEP rows (+ job: the nearest preceding JOB row, none inside a PROC); JOB RESTART= (+ checkid), RD=, PARM.procstep=, COND.procstep= are unscored (no engine field)
@@ -94,6 +98,8 @@ CHANNELS = (
     "jcl_dds",
     "jcl_outputs",
     "jcl_utility_cards",
+    "dli_calls",
+    "ims_gen",
     "screen_fields",
     "csd_resources",
     "transactions",
@@ -988,6 +994,65 @@ def score_jcl_utility_cards(sc: Score, path: str, entry: dict[str, Any], eng: En
         sc.add("jcl_utility_cards", path, label, "fail" if d else "pass", f.get("horror"), d)
 
 
+def _resolved_ims_calls(eng: Engine) -> dict[tuple[str, int], dict[str, Any]]:
+    """GalaxyIR.ims_calls() by (file, line), computed once per engine: the CBLTDLI function code is the
+    first operand's VALUE, which only the reader resolves."""
+    cached = getattr(eng, "_resolved_ims_calls", None)
+    if cached is None:
+        cached = {(str(c["file"]).replace("\\", "/"), c["line"]): c for c in eng.ir.ims_calls()}
+        eng._resolved_ims_calls = cached  # type: ignore[attr-defined]
+    return cached
+
+
+def score_dli_calls(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
+    keyed = entry.get("dli_calls", [])
+    if not keyed:
+        return
+    ef = eng.files.get(path)
+    rows = {r.line: r for r in (ef.dli_calls if ef else [])}
+    resolved = _resolved_ims_calls(eng)
+    for f in keyed:
+        label = f"CBLTDLI {f['function']} @{f['line']}"
+        r = rows.get(f["line"])
+        if r is None:
+            sc.add("dli_calls", path, label, "missing", f.get("horror"))
+            continue
+        got = resolved.get((path, f["line"]), {})
+        d = _diff(
+            [
+                ("function", _u(f["function"]), _u(got.get("function"))),
+                ("pcb", _u(f["pcb"]), _u(r.pcb)),
+                ("io_area", _u(f["io_area"]), _u(r.io_area)),
+                ("ssas", ",".join(_u(x) for x in f["ssas"]) or None, _u(r.ssas)),
+            ]
+        )
+        sc.add("dli_calls", path, label, "fail" if d else "pass", f.get("horror"), d)
+
+
+def score_ims_gen(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
+    keyed = entry.get("ims_gen", [])
+    if not keyed:
+        return
+    ef = eng.files.get(path)
+    rows = list(ef.ims_gen) if ef else []
+    used: set = set()
+    for f in keyed:
+        label = f"{f['kind']} {f['name']} @{f['line']}"
+        r = next((x for x in rows if x.kind == f["kind"] and _u(x.name) == _u(f["name"]) and id(x) not in used), None)
+        if r is None:
+            sc.add("ims_gen", path, label, "missing", f.get("horror"))
+            continue
+        used.add(id(r))
+        pairs = [("line", f["line"], r.line)]
+        if f["kind"] == "SEGM":
+            pairs += [
+                ("parent", _u(f.get("parent") or None), _u(r.parent or None)),
+                ("bytes", f.get("bytes"), r.bytes),
+            ]
+        d = _diff(pairs)
+        sc.add("ims_gen", path, label, "fail" if d else "pass", f.get("horror"), d)
+
+
 def score_cics(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
     ef = eng.files.get(path)
     fields = list(ef.screen_fields) if ef else []
@@ -1434,6 +1499,8 @@ SCORERS = (
     score_jcl,
     score_jcl_outputs,
     score_jcl_utility_cards,
+    score_dli_calls,
+    score_ims_gen,
     score_cics,
     score_cics_resources,
     score_jcl_datasets,

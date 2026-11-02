@@ -233,10 +233,12 @@ _HEAD = "           MOVE 'HEAD' TO FIELD1(1:4).\n"
     "stmt, why",
     [
         ("MOVE FRPTR TO WS-NUM(1:2).", "MOVE FRPTR TO WS-NUM ( (line 29): the operand is subscripted"),
-        ("MOVE FRPTR TO WS-NUM(1).", "the operand is subscripted, reference-modified or qualified"),
-        ("MOVE FRPTR TO WS-NUM OF WS-GRP.", "MOVE FRPTR TO WS-NUM OF (line 29): the operand is subscripted"),
-        ("MOVE FRPTR TO WS-NUM IN WS-GRP.", "the operand is subscripted, reference-modified or qualified"),
+        ("MOVE FRPTR TO WS-NUM(1).", "MOVE FRPTR TO WS-NUM(1) (line 29): an address moved to or from WS-NUM, no plain"),
+        ("MOVE FRPTR TO WS-NUM OF WS-GRP.", "MOVE FRPTR TO WS-NUM OF WS-GRP (line 29): an address moved to or from"),
+        ("MOVE FRPTR TO WS-NUM IN WS-GRP.", "a qualifier / subscript that does not name exactly one"),
         ("MOVE ZERO TO FRPTR(1).", "the operand is subscripted, reference-modified or qualified"),
+        ("MOVE ZERO TO FRPTR OF PARMLIST.", "the operand is subscripted, reference-modified or qualified"),
+        ("MOVE FRPTR(1:2) TO WS-NUM.", "MOVE FRPTR ( (line 29): the operand is subscripted"),
         ("SERVICE RELOAD FILE-REC TS-REC.", "SERVICE RELOAD FILE-REC TS-REC (line 29): the operand is not one plain"),
         ("SERVICE RELOAD FILE-REC OF X.", "SERVICE RELOAD FILE-REC OF (line 29): the operand is not one plain"),
         ("SERVICE RELOAD FILE-REC(1).", "SERVICE RELOAD FILE-REC ( (line 29): the operand is not one plain"),
@@ -878,3 +880,82 @@ EIBCELL = """\
 def test_an_address_eib_into_a_cell_is_proven_against_gnucobol(tmp_path):
     """The EIB addressed through a BLL cell and reloaded: both runtimes show the task's transaction id (BLL1)."""
     _prove(tmp_path, "BLLEIB", EIBCELL, "BLL1")
+
+
+# ---- #5119: an address held in qualified or subscripted data -----------------------------------------------------
+TABLE = (
+    CHAIN.replace("       01  WS-HEAD                PIC S9(8) COMP VALUE 0.\n",
+                  "       01  WS-IX                  PIC 9 VALUE 2.\n       01  WS-TBL.\n"
+                  "           05  WS-HEAD            PIC S9(8) COMP VALUE 0 OCCURS 2.\n")
+    .replace("MOVE WS-HEAD TO USERPTR.", "MOVE WS-HEAD(2) TO USERPTR.")
+    .replace("MOVE WS-HEAD TO NNEXT.", "MOVE WS-HEAD(WS-IX) TO NNEXT.")
+    .replace("MOVE NEWPTR TO WS-HEAD.", "MOVE NEWPTR TO WS-HEAD(WS-IX).")
+    .replace("MOVE NEXTAREA TO USERPTR.", "MOVE NEXTAREA OF USERAREA TO USERPTR.")
+)  # fmt: skip
+
+
+def test_a_qualified_or_subscripted_holder_lowers_with_its_operand_as_written(tmp_path):
+    got = _lowered(tmp_path, TABLE)
+    assert "CALL 'GGCBLLG' USING WS-HEAD(2) USERPTR." in got
+    assert "CALL 'GGCBLLG' USING NEXTAREA OF USERAREA USERPTR." in got
+    assert "CALL 'GGCBLLP' USING NEWPTR WS-HEAD(WS-IX)." in got
+    r = _translate(tmp_path, TABLE)
+    assert r.stats["holes"] == [], r.stats["holes"]
+    assert "DetCics.bllToData(task, f2_NEWPTR," in r.java and "DetCics.bllFromData(task," in r.java
+
+
+@pytest.mark.parametrize("qual", ["OF", "IN", "of"])
+def test_either_qualifier_word_names_the_holder(tmp_path, qual):
+    source = TABLE.replace("NEXTAREA OF USERAREA", f"NEXTAREA {qual} USERAREA")
+    assert f"CALL 'GGCBLLG' USING NEXTAREA {qual.upper()} USERAREA USERPTR." in _lowered(tmp_path, source)
+
+
+def test_a_name_in_two_records_needs_its_qualifier(tmp_path):
+    twice = CHAIN.replace("           02  NFIELD             PIC X(4).\n", "           02  NFIELD             PIC X(4).\n"
+                          "           02  NEXTAREA           PIC S9(8) COMP.\n")  # fmt: skip
+    with pytest.raises(B.Refused, match="no plain fullword .or a qualifier / subscript that does not name exactly one"):
+        _lowered(tmp_path, twice)
+    assert "CALL 'GGCBLLG' USING NEXTAREA OF USERAREA USERPTR." in _lowered(
+        tmp_path, twice.replace("MOVE NEXTAREA TO USERPTR.", "MOVE NEXTAREA OF USERAREA TO USERPTR.")
+    )
+
+
+@pytest.mark.parametrize(
+    "old, new, why",
+    [
+        ("NEXTAREA OF USERAREA TO", "NEXTAREA OF NEWAREA TO", "does not name exactly one"),
+        ("WS-HEAD(2) TO USERPTR", "WS-HEAD TO USERPTR", "does not name exactly one"),
+        ("WS-HEAD(2) TO USERPTR", "WS-HEAD(1, 2) TO USERPTR", "does not name exactly one"),
+        ("WS-HEAD(2) TO USERPTR", "WS-HEAD(1:2) TO USERPTR", "MOVE WS-HEAD ( (line"),
+        ("WS-HEAD(2) TO USERPTR", "WS-HEAD(USERPTR) TO USERPTR", "a BLL cell used as a number"),
+        ("WS-HEAD(2) TO USERPTR", "WS-HEAD(2 * 2) TO USERPTR", "no plain name or number"),
+        ("MOVE NEWPTR TO WS-HEAD(WS-IX)", "MOVE NEWPTR TO WS-HEAD(NEWPTR)", "a BLL cell used as a number"),
+        ("MOVE NEWPTR TO WS-HEAD(WS-IX)", "MOVE NEWPTR TO WS-HEAD(WS-IX) WS-IX", "to several items"),
+        ("MOVE NEWPTR TO WS-HEAD(WS-IX)", "MOVE NEWPTR TO NEWPTR OF PARMLIST", "subscripted, reference-modified or qualified"),
+        ("PIC S9(8) COMP VALUE 0 OCCURS 2", "PIC S9(4) COMP VALUE 0 OCCURS 2", "no plain fullword"),
+    ],
+)  # fmt: skip
+def test_a_holder_that_is_not_exactly_one_fullword_is_refused_by_name(tmp_path, old, new, why):
+    assert old in TABLE, old
+    with pytest.raises(B.Refused, match=re.escape(why)):
+        _lowered(tmp_path, TABLE.replace(old, new, 1))
+
+
+def test_a_two_dimensional_table_takes_two_subscripts(tmp_path):
+    source = TABLE.replace("05  WS-HEAD            PIC S9(8) COMP VALUE 0 OCCURS 2.",
+                           "05  WS-ROW OCCURS 2.\n               10  WS-HEAD    PIC S9(8) COMP VALUE 0 OCCURS 2.")  # fmt: skip
+    with pytest.raises(B.Refused, match="does not name exactly one"):
+        _lowered(tmp_path, source)
+    two = source.replace("WS-HEAD(2)", "WS-HEAD(2, 1)").replace("WS-HEAD(WS-IX)", "WS-HEAD(WS-IX, 2 * 1)")
+    with pytest.raises(B.Refused, match="no plain name or number"):
+        _lowered(tmp_path, two)
+    two = two.replace("WS-HEAD(WS-IX, 2 * 1)", "WS-HEAD(WS-IX, WS-IX + 1)")
+    assert "CALL 'GGCBLLG' USING WS-HEAD(2, 1) USERPTR." in _lowered(tmp_path, two)
+
+
+TABLE_SENT = CHAIN_SENT  # (the same list, its head and links kept in a table / qualified field)
+
+
+@_E2E
+def test_an_address_in_a_table_and_a_qualified_field_is_proven_against_gnucobol(tmp_path):
+    _prove(tmp_path, "BLLTABLE", TABLE, TABLE_SENT)

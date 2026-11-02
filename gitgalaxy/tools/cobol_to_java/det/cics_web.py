@@ -13,6 +13,42 @@ from gitgalaxy.tools.cobol_to_java.det.cics_common import (
 )
 
 
+def code_page_pair_refusal(opts: dict[str, str | None], key: str) -> str | None:
+    """#6876 (X37 / X38): WEB SEND / WEB RECEIVE take CHARACTERSET and HOSTCODEPAGE only as the one pair the burned
+    programs state, CHARACTERSET('iso-8859-1') with HOSTCODEPAGE('037'), both literals: the model keeps the exchange in
+    the program's characters, so that pair converts nothing the model can see (ASSUMED, register X37). Any other value, a
+    data-area operand, or one of the two alone is refused by name. None when neither option is given or the pair is
+    the identity pair."""
+    if "CHARACTERSET" not in opts and "HOSTCODEPAGE" not in opts:
+        return None
+    given = {o: (opts.get(o) or "").strip() for o in ("CHARACTERSET", "HOSTCODEPAGE")}
+    stated = {o: v[1:-1].lower() if v[:1] in "'\"" and v[-1:] == v[:1] else None for o, v in given.items()}
+    if stated["CHARACTERSET"] != "iso-8859-1" or stated["HOSTCODEPAGE"] != "037":
+        return (
+            f"{key}: code-page conversion is not modelled except the literal pair "
+            "CHARACTERSET('iso-8859-1') with HOSTCODEPAGE('037'), both given: the data is in the program's characters"
+        )
+    return None
+
+
+def _quoted(v: str) -> str | None:
+    """A COBOL alphanumeric literal's text ('' / \"\" doubled quote inside kept as one quote), None for a data name."""
+    v = v.strip()
+    if len(v) >= 2 and v[0] in "'\"" and v[-1] == v[0]:
+        return v[1:-1].replace(v[0] * 2, v[0])
+    return None
+
+
+def _pair(opts: dict) -> dict:
+    """#6876: the code-page pair of a WEB SEND / WEB RECEIVE, the only options its refusal check reads."""
+    return {o: opts[o] for o in ("CHARACTERSET", "HOSTCODEPAGE") if o in opts}
+
+
+def _java_string(text: str) -> str:
+    """A Java string literal of `text`."""
+    return '"' + text.replace("\\", "\\\\").replace('"', '\\"') + '"'
+
+
 class WebCommands:
     """The web and document commands of `Cics` (det/cics.py), which defines the members declared below."""
 
@@ -204,8 +240,12 @@ class WebCommands:
             raise CicsError(_requires(key, "STATUSLEN", "STATUSTEXT"))
         if "DOCSTATUS" in opts and "DOCTOKEN" not in opts:
             raise CicsError(_requires(key, "DOCSTATUS", "DOCTOKEN"))
+        if (why := code_page_pair_refusal(_pair(opts), key)) is not None:
+            raise CicsError(why)
 
         def text(o: str) -> str:
+            if o == "MEDIATYPE" and o in opts and (lit := _quoted(_arg(opts[o]))) is not None:
+                return _java_string(lit)  # #6876: a literal media type (GTHECHO), the one literal WEB SEND takes
             return f"Cobol.text({self.read_field(_arg(opts[o]))}, CS)" if o in opts else "null"
 
         def num(o: str, absent: str) -> str:
@@ -311,16 +351,25 @@ class WebCommands:
             ("WEB READ FORMFIELD", "WEB READ QUERYPARM", "WEB STARTBROWSE ", "WEB READNEXT ", "WEB ENDBROWSE ")
         ):
             return self.web_forms(key, opts, ind, text, req, store, put)
+
+        def htext(o: str) -> str:
+            """#6876: an HTTPHEADER name or WRITE's VALUE may be a literal, lowered as a Java string (its length is the
+            area the lengths are checked against); READ's VALUE is written to, so it stays a data area."""
+            lit = _quoted(req(o))
+            return text(o) if lit is None else _java_string(lit)
+
         if key == "WEB WRITE HTTPHEADER":
-            call = f"task.webWriteHeader({text('HTTPHEADER')}, {self.int_(req('NAMELENGTH'))}, {text('VALUE')}, {self.int_(req('VALUELENGTH'))})"
+            call = f"task.webWriteHeader({htext('HTTPHEADER')}, {self.int_(req('NAMELENGTH'))}, {htext('VALUE')}, {self.int_(req('VALUELENGTH'))})"
             return [f"{ind}int[] {r} = {call};", *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
         if key == "WEB READ HTTPHEADER":
             vl = req("VALUELENGTH")
-            call = (f"task.webReadHeader({text('HTTPHEADER')}, {self.int_(req('NAMELENGTH'))}, {self.int_(vl)}, "
+            if _quoted(req("VALUE")) is not None:
+                raise CicsError(f"{key} VALUE as a literal: it is written to, so a data area is required")
+            call = (f"task.webReadHeader({htext('HTTPHEADER')}, {self.int_(req('NAMELENGTH'))}, {self.int_(vl)}, "
                     f"{self.size(req('VALUE'))})")  # fmt: skip
             return [f"{ind}CicsTask.WebHeader {r} = {call};", f"{ind}if ({r}.resp() == 0) {{",
                     put(req("VALUE"), f"{r}.value().getBytes(CS)", "WEB READ HTTPHEADER VALUE"),
-                    store("VALUELENGTH", f"{r}.value().length()"), f"{ind}}}",
+                    *([] if vl.strip().isdigit() else [store("VALUELENGTH", f"{r}.value().length()")]), f"{ind}}}",
                     *self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)]  # fmt: skip
         if key == "WEB RECEIVE":
             if ("INTO" in opts) == ("SET" in opts) or not (opts.get("INTO") or opts.get("SET")):
@@ -331,6 +380,8 @@ class WebCommands:
                 raise CicsError(_requires(key, "SET", "LENGTH"))
             if "SRVCONVERT" in opts and "NOSRVCONVERT" in opts:
                 raise CicsError(_msg(key, "at_most_one", "SRVCONVERT"))
+            if (why := code_page_pair_refusal(_pair(opts), key)) is not None:
+                raise CicsError(why)
             conv = 1 if "SRVCONVERT" in opts else 2 if "NOSRVCONVERT" in opts else 0
             if "SET" in opts:  # #4771 (X47): the body in a new block of task storage the pointer addresses
                 ptr = self.pointer(opts["SET"])

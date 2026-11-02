@@ -1,6 +1,6 @@
 # Progress
 
-Generated from main at `3d4105ccf` by `tests/tools/progress_report.py` (#5280); do not edit. Every
+Generated from main at `b98cc8c1f` by `tests/tools/progress_report.py` (#5280); do not edit. Every
 denominator is fixed and every number names its source below. A level is an evidence level, never a bare
 claim of correctness: the oracle is GnuCOBOL plus IBM documentation, not z/OS.
 
@@ -63,7 +63,7 @@ Counted from the code by `capability_ledger.py`. A blank denominator means no ho
 | COBOL language | Runtime spec tables | Works | no denominator | 8 tables, 71 rules, 153 test vectors, 162 matrix cells (part of the rules above: depth, not extra rules) |
 | CICS | Commands the estates use | Partial | 60 of 68 modelled on both runtimes | programs in the burned estates |
 | CICS | All CICS commands | Partial | 107 of 257 modelled; the rest refused by name | every command IBM's reference lists |
-| CICS | Command options | Partial | 946 of 1137 accepted | 191 refused by name |
+| CICS | Command options | Partial | 954 of 1141 accepted | 187 refused by name |
 | CICS | Macro resource tables | Reads only | no denominator | FCT, PCT, PPT, DCT, TST, SIT, SRT, JCT, TCT, MCT, PLT, DSNCRCT (12 tables read into the resource map; not run) |
 | Data and messaging | Db2 embedded SQL | Partial | 12 of 14 rules match IBM | 8 verbs refused by name |
 | Data and messaging | LE callable services | Partial | 12 of 19 rules match IBM | date, time and condition services |
@@ -90,7 +90,7 @@ z/OS: 0 of 191 rules measured. Register of named limits: 144 entries, 74 refuse 
 | CICS commands | 60 modelled on both runtimes | 68 commands a burned program uses (7 unlisted or unparsed forms, counted as not modelled) | docs/language_status/cics_spec_status.json (cics_spec_status.py) |
 | COBOL runtime rules | 91 MATCHED, 23 DIFFERS, 63 ASSUMED, 14 REFUSED; 0 measured on z/OS | 191 rules | docs/language_status/cobolrt_rules.json |
 | Mutation, hand ports (not the translator) | 3559 killed = 86.8% adjusted (68.0% raw) | 4100 adjusted, 5232 raw mutants over 59 ports | docs/language_status/mutation_scores.json |
-| CICS crucible | 82 programs, 209 scenarios | pinned at `904e98777548993f52b21bc2cfe2baefdb8b6b78` | tests/cics_crucible/coverage.json |
+| CICS crucible | 85 programs, 215 scenarios | pinned at `904e98777548993f52b21bc2cfe2baefdb8b6b78` | tests/cics_crucible/coverage.json |
 | Estate crucible | 87 of 90 horrors pass | pinned at `v0.6.0` | tests/estate_crucible/baseline.json |
 
 CICS commands not modelled on both runtimes: `(unlisted) ASKTIME NOHANDLE`, `(unlisted) GET`, `(unlisted) INQUIRE`, `(unlisted) INQUIRE URIMAP`, `(unlisted) SET`, `(unlisted) SYNCPOINT NOHANDLE`, `(unparsed)`, `SOAPFAULT CREATE`.
@@ -112,7 +112,7 @@ Source: tests/fixtures/feature_inventory/<estate>.json (era_tags.py). Programs p
 
 ## 4. Core burn-down
 
-Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-02T13:27:43Z.
+Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-02T13:31:23Z.
 
 - `scope:core`: 9 open, 206 closed.
 - Milestone 28: 5 open, 107 closed.

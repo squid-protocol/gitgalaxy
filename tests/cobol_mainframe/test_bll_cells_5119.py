@@ -1085,3 +1085,48 @@ def test_paragraphs_in_a_copy_member_are_addressed_again_and_the_oracle_agrees(t
     det, oracle = _joined(tmp_path, CHAIN.replace(tail, "           COPY BLLMEM.\n"), tail)
     assert "CALL 'GGCBLLR' USING USERAREA USERPTR." in det[det.index("BUILD-AREA.") :]  # (re-addressed in the member)
     _same(det, oracle)
+
+
+# #5119: a FILLER-led LINKAGE group that is nearly IBM's cell list (a cell that is no plain fullword binary) with BLL
+# evidence is refused by name, not read as VS COBOL II data whose SERVICE RELOAD is ignored
+_NO_ADD = "           ADD 4096, FRPTR\n               GIVING FRPTR1.\n"
+_CELL = "           02  TSPTR              PIC S9(8) COMP.\n"
+
+
+@pytest.mark.parametrize(
+    "new, why",
+    [
+        ("           02  TSPTR              PIC S9(4) COMP.\n", "TSPTR is not a fullword"),
+        ("           02  TSPTR              PIC S9(8) COMP-3.\n", "TSPTR is not binary"),
+        ("           02  TSPTR              PIC S9(8).\n", "TSPTR is not binary"),
+        ("           02  TSPTR              PIC S9(8) COMP OCCURS 2.\n", "TSPTR is an OCCURS table"),
+        ("           02  TSPTR              PIC S9(8) COMP.\n           02  FRPTR2 REDEFINES TSPTR PIC S9(8) COMP.\n",
+         "FRPTR2 is a REDEFINES"),
+        ("           02  TSPTR.\n               03  TS-A PIC S9(8) COMP.\n", "TSPTR is a group"),
+    ],
+)  # fmt: skip
+@pytest.mark.parametrize("evidence", ["reload", "set"])
+def test_a_malformed_cell_list_with_bll_evidence_is_refused_by_name(tmp_path, new, why, evidence):
+    src = PROGRAM.replace(_NO_ADD, "").replace(_CELL, new, 1)
+    if evidence == "set":
+        src = src.replace("SERVICE RELOAD FILE-REC.\n", "CONTINUE.\n").replace("SERVICE RELOAD PARMLIST.\n", "")
+        src = src.replace("MOVE FRPTR TO TSPTR SERVICE RELOAD TS-REC.", "MOVE FRPTR TO WS-NUM.")
+    with pytest.raises(B.Refused) as e:
+        _lowered(tmp_path, src)
+    msg = str(e.value)
+    assert (
+        msg.startswith(B.REFUSED_PREFIX + ": the BLL cell list PARMLIST is not a list of plain fullword") and why in msg
+    ), msg
+    assert msg.endswith(": not modelled")
+
+
+def test_a_malformed_list_with_no_bll_evidence_or_no_filler_is_left_alone(tmp_path):
+    """No SET naming an item and no SERVICE RELOAD of a record: ordinary data. A list with no FILLER lead is no list."""
+    plain = PROGRAM[: PROGRAM.index("       PROCEDURE DIVISION.")].replace(
+        _CELL, "           02  TSPTR PIC S9(4) COMP.\n"
+    )
+    plain += "       PROCEDURE DIVISION.\n           EXEC CICS RETURN END-EXEC.\n"
+    lines = _lines(tmp_path, plain)
+    assert B.lower(lines, lines[0].file) is lines
+    nofiller = PROGRAM.replace("02  FILLER             PIC S9(8) COMP.", "02  XFIL               PIC S9(8) COMP.")
+    assert _lowered(tmp_path, nofiller.replace(_NO_ADD, ""))

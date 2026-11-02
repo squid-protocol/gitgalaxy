@@ -33,6 +33,7 @@ import math
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Any
 
 from gitgalaxy.tools.cobol_to_java.det import layout as L
 from gitgalaxy.tools.cobol_to_java.det.source import Line, _outside_literals, expand, logical_lines
@@ -200,6 +201,33 @@ def _cell_list(records: list) -> tuple[object | None, list]:
     return (cand, linkage[at + 1 :]) if ok else (None, [])
 
 
+def _near_list(records: list) -> tuple[Any, str] | None:
+    """The LINKAGE 01 at the list's place that IBM's FILLER-led shape names but `_cell_list` rejects, with the first
+    child that is no plain fullword binary cell (#5119); None when there is no such group."""
+    linkage = [r for r in records if r.section == "LINKAGE" and r.level in (1, 77)]
+    at = 1 if linkage and linkage[0].name == "DFHCOMMAREA" else 0
+    if len(linkage) <= at:
+        return None
+    cand = linkage[at]
+    kids = cand.children
+    if cand.level != 1 or cand.pic is not None or len(kids) < 2 or kids[0].name != "FILLER":
+        return None
+    if cand.redefines:
+        return cand, f"{cand.name} REDEFINES {cand.redefines}"
+    for k in kids:
+        bad = (
+            "a group" if k.children else
+            "a REDEFINES" if k.redefines else
+            "an OCCURS table" if k.occurs != 1 else
+            "not binary" if k.category != "NUMERIC" or k.usage not in ("BINARY", "COMP-5") else
+            "not a fullword" if k.size != 4 or k.scale != 0 else
+            ""
+        )  # fmt: skip
+        if bad:
+            return cand, f"{k.name} is {bad}"
+    return None
+
+
 def _map(cand, rest: list) -> Cells:
     cells = [k.name.upper() for k in cand.children[1:]]
     base: dict[str, str] = {}
@@ -279,6 +307,24 @@ def plan(lines: list[Line], records: list, own: str, oracle: bool = False) -> Pl
         )
     ):
         cells = None  # a list of fullwords and no evidence of BLL addressing: ordinary data, as in VS COBOL II
+    near = _near_list(records) if cells is None else None
+    if near is not None:
+        named = [
+            o.group(2)
+            for a, b in execs
+            for o in _OPTION.finditer(text, a, b)
+            if o.group(1) in ("SET", "DATAPOINTER") and o.group(2) in {k.name.upper() for k in near[0].children[1:]}
+        ]
+        reloads = [m for m in _RELOAD.finditer(text) if not in_exec(m.start()) and m.group(1) != "DFHCOMMAREA"]
+        if named or reloads:
+            raise Refused(
+                f"the BLL cell list {near[0].name} is not a list of plain fullword binary cells ({near[1]}), but "
+                + (
+                    "a SET / DATAPOINTER option names one of its items"
+                    if named
+                    else "SERVICE RELOAD addresses a record"
+                )
+            )
     linkage = {r.name.upper() for r in records if r.section == "LINKAGE" and r.level == 1}
     names = {it.name.upper() for r in records for it in r.walk()}
     out = Plan()

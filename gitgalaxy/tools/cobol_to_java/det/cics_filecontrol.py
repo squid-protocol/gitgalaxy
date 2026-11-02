@@ -400,6 +400,8 @@ class FileControlCommands:
         search = self._search(opts, file, st, rec)  # #4270: GTEQ / GENERIC
         if search is not None:
             call, held = search[0], search[1].format(r)
+        elif "TOKEN" not in opts and self._records_file_events():  # #6876: the SPEC 6.2 READ event (`length`)
+            call = f"task.readInto({file}, {rec}, {str(update).lower()}, {self.int_(length)}, () -> {st}.find({rec}))"
         settable = re.fullmatch(r"(?is)\d+|LENGTH\s+OF\s+.+", length.strip()) is None
         out = [f"{ind}byte[] {rec} = DetCics.bytes({rid});",
                f"{ind}CicsTask.FileRead<byte[]> {r} = {call};",
@@ -522,6 +524,19 @@ class FileControlCommands:
             found = self._set_browse = any(pat.search(x) for x in execs.values())
         return found
 
+    def _records_file_events(self) -> bool:
+        """#6876: whether the program issues a tokenless UNLOCK, which is recorded as the SPEC 6.2 UNLOCK event; such a
+        program records its INTO-LENGTH READ and its REWRITE FROM as events too, so the log keeps their order. Other
+        programs keep the event-free calls (the INTO / REWRITE forms elsewhere are the sibling gap)."""
+        import re
+
+        found = getattr(self, "_file_events", None)
+        if found is None:
+            execs = getattr(getattr(getattr(self.g, "p", None), "proc", None), "execs", None) or {}
+            pat = re.compile(r"(?is)\bUNLOCK\b(?!.*\bTOKEN\s*\()")
+            found = self._file_events = any(pat.search(x) for x in execs.values())
+        return found
+
     def file_update(self, verb: str, opts: dict, ind: str) -> list[str]:
 
         if self._rba(verb, opts):
@@ -555,7 +570,12 @@ class FileControlCommands:
             out = [f"{ind}int {r} = task.write({file}, {st}.exists(DetCics.bytes({rid})), "
                    f"() -> {st}.store({self.record_from(opts)}));"]  # fmt: skip
         elif verb == "REWRITE":
-            out = [f"{ind}int {r} = task.rewrite({file}, () -> {st}.store({self.record_from(opts)}));"]
+            if self._records_file_events():  # #6876: recorded as the SPEC 6.2 REWRITE event (`data` as issued)
+                frm = g.tmpname("from")
+                out = [f"{ind}byte[] {frm} = {self.record_from(opts)};",
+                       f"{ind}int {r} = task.rewriteFrom({file}, {frm}, () -> {st}.store({frm}));"]  # fmt: skip
+            else:
+                out = [f"{ind}int {r} = task.rewrite({file}, () -> {st}.store({self.record_from(opts)}));"]
         elif verb == "DELETE":
             if opts.get("RIDFLD"):
                 rid = self.field(opts["RIDFLD"])

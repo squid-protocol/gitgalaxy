@@ -317,3 +317,17 @@ def test_a_return_commarea_is_refused_beside_a_typed_commarea_or_with_no_segment
     for empty in ({"segments": []}, {}, None):
         with pytest.raises(ec.Unsupported, match="describes nothing"):
             ec.return_fields(tmp_path, {"commarea": None, "return_commarea": empty})
+
+
+# ---- #7366: PCDETL's EIBCALEN 0 and EIBCALEN 10 arms (an elementary PIC X(10) DFHCOMMAREA) ---------------------
+def test_the_pcdetl_case_drives_both_eibcalen_arms():
+    """The case is entered as a LINKed program with the typed WS-CA record (#7422): one scenario starts with no
+    COMMAREA (EIBCALEN 0), one with the 10-byte record (EIBCALEN 10). Guards the case data; needs no checkout."""
+    import json
+
+    case = json.loads((Path(__file__).resolve().parents[1] / "equivalence/cruc-pc-detl/case.json").read_text("utf-8"))
+    assert case["linked"] is True
+    assert case["commarea"]["segments"][0]["record"] == "WS-CA"
+    by_name = {s["name"]: s for s in case["scenarios"]}
+    assert by_name["no-context"]["commarea"] is None
+    assert set(by_name["with-context"]["commarea"]) == {"MN-VISITS", "MN-LAST", "MN-FLAG"}

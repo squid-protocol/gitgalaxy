@@ -188,6 +188,19 @@ def _map(cand, rest: list) -> Cells:
     return Cells(cand.name.upper(), cells, base, extra, of)
 
 
+def _tail(text: str, end: int, names: set[str]) -> str | None:
+    """What follows a lowered statement's last operand and is no part of the statement's end: a subscript or reference
+    modification '(', a qualifier OF / IN, or a further data name (the operand is not one plain name); else None."""
+    rest = text[end:].lstrip()
+    if rest.startswith("("):
+        return "("
+    nxt = _WORD.match(rest)
+    if nxt is None or nxt.group(0).upper() in _ENDS:
+        return None
+    word = nxt.group(0).upper()
+    return word if word in ("OF", "IN") or word in names else None
+
+
 def plan(lines: list[Line], records: list, own: str, oracle: bool = False) -> Plan | None:
     """The lowering of a program (its logical lines, its records as det.layout parses them; `own` the program's file:
     only its own lines are changed), or None when it needs none; `oracle`: written for GnuCOBOL and the stub, not det.
@@ -248,6 +261,9 @@ def plan(lines: list[Line], records: list, own: str, oracle: bool = False) -> Pl
             continue
         rec = m.group(1)
         where = f"line {lines[line_of(m.start())].line}"
+        extra = _tail(text, m.end(), names | (set(cells.cells) if cells is not None else set()))
+        if extra is not None:
+            raise Refused(f"SERVICE RELOAD {rec} {extra} ({where}): the operand is not one plain record name")
         if cells is not None and rec == cells.name:
             found.append((m.start(), m.end(), "CONTINUE", ("none",)))  # (the list is always addressed)
         elif cells is not None and rec in cells.base:
@@ -282,6 +298,10 @@ def plan(lines: list[Line], records: list, own: str, oracle: bool = False) -> Pl
                 raise Refused(f"MOVE {a} TO {b} ({where}): only ZERO or LOW-VALUES clears a cell")
             if data is not None and (data == cells.name or not _fullword(records, data)):
                 raise Refused(f"MOVE {a} TO {b} ({where}): an address moved to or from {data}, no plain fullword")
+            extra = _tail(text, m.end(), set())
+            if extra in ("(", "OF", "IN"):
+                raise Refused(f"MOVE {a} TO {b} {extra} ({where}): the operand is subscripted, reference-modified or "
+                              "qualified, not one plain item")  # fmt: skip
             nxt = _WORD.match(text, len(text) - len(text[m.end() :].lstrip()))
             if nxt is not None and nxt.group(0) not in _ENDS and (nxt.group(0) in names or nxt.group(0) in cellset):
                 raise Refused(f"MOVE {a} TO {b} {nxt.group(0)} ({where}): an address moved to several items")

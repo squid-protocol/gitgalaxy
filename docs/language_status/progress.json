@@ -1,5 +1,5 @@
 {
- "commit": "a32a26585",
+ "commit": "31f6976a5",
  "components": {
   "capabilities": {
    "groups": [
@@ -327,9 +327,9 @@
     "scenarios": 209
    },
    "estate_crucible": {
-    "horrors": 63,
-    "pass": 61,
-    "ref": "v0.5.0"
+    "horrors": 90,
+    "pass": 87,
+    "ref": "v0.6.0"
    }
   },
   "det_mutation": {
@@ -481,7 +481,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-11-02T11:51:47Z",
+  "as_of": "2026-11-02T12:09:11Z",
   "core": {
    "closed": 206,
    "open": 9,

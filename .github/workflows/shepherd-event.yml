@@ -71,6 +71,6 @@ jobs:
       - name: Apply the label rules to this pull request
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token || secrets.AUTOMATION_PAT }}
-          SHEPHERD_TRUSTED_BOTS: "squid-shepherd[bot],squid-protocol"
+          SHEPHERD_TRUSTED_BOTS: "squid-shepherd[bot]"
           SHEPHERD_API_CACHE: api-cache
         run: python3 tests/tools/shepherd_gh.py event --event-path "$GITHUB_EVENT_PATH" --flake-cache flake-cache/flake_history.json

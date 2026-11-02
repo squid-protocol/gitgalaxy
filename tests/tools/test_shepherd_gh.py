@@ -1825,6 +1825,16 @@ def test_trusted_bots_come_from_the_workflow_then_the_tokens_own_account(monkeyp
     assert sg.trusted_bots(no_user) == set()  # nothing trusted: no marker counts (never everyone)
 
 
+def test_the_workflows_trust_only_the_app():
+    """#6694: every SHEPHERD_TRUSTED_BOTS value in the shepherd workflows is the App alone, not the PAT's account."""
+    root = Path(__file__).resolve().parents[2] / ".github" / "workflows"
+    seen = []
+    for name in ("shepherd-event.yml", "shepherd-reconcile.yml"):
+        seen += re.findall(r"SHEPHERD_TRUSTED_BOTS:\s*\"([^\"]*)\"", (root / name).read_text(encoding="utf-8"))
+    assert len(seen) == 3
+    assert set(seen) == {"squid-shepherd[bot]"}
+
+
 # --- ci-gate and auto-merge on red (#6919) ----------------------------------------------------------------------------
 
 

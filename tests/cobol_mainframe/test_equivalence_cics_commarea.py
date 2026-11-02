@@ -256,3 +256,64 @@ def test_the_x23_stub_test_is_skipped_where_there_is_no_guard_page():
     fn = next(n for n in tree.body if isinstance(n, ast.FunctionDef)
               and n.name == "test_the_stub_stops_a_reference_past_a_stated_commarea_length")  # fmt: skip
     assert any("skipif" in ast.unparse(d) and "win32" in ast.unparse(d) for d in fn.decorator_list)
+
+
+# ---- #7366: a RETURN's COMMAREA from a WORKING-STORAGE record (PCIMMA: "commarea": null) -----------------------
+_PCIMMA_CASE = {
+    "program_source": "cases/pseudo-conversational/pc-return-immediate/src/PCIMMA.cbl",
+    "commarea": None,
+    "return_commarea": {"segments": [{"copybook": "cases/pseudo-conversational/pc-return-immediate/src/PCIMMA.cbl",
+                                      "record": "WS-CA"}]},
+}  # fmt: skip
+
+
+_WS_CA = """       WORKING-STORAGE SECTION.
+       01  WS-CA.
+           05  CA-STAGE          PIC X     VALUE '1'.
+           05  CA-TEXT           PIC X(7)  VALUE 'MENU-A1'.
+"""
+
+
+def _pcimma_corpus(tmp_path):
+    """A corpus holding PCIMMA's working-storage record (no checkout needed)."""
+    src = tmp_path / _PCIMMA_CASE["program_source"]
+    src.parent.mkdir(parents=True)
+    src.write_text(_WS_CA, encoding="ascii")
+    return tmp_path
+
+
+def test_a_return_commarea_layout_is_read_from_the_working_storage_record(tmp_path):
+    corpus = _pcimma_corpus(tmp_path)
+    fields = ec.return_fields(corpus, _PCIMMA_CASE)
+    assert [(f["name"], f["offset"], f["bytes"]) for f in fields] == [("CA-STAGE", 0, 1), ("CA-TEXT", 1, 7)]
+    assert ec.commarea_fields(corpus, _PCIMMA_CASE) == []  # scenario inputs still see no COMMAREA
+    assert ec.return_fields(corpus, {"commarea": None}) == []  # a case stating none: none
+
+
+def test_a_return_with_data_is_decoded_by_the_return_layout_and_refused_without_one(tmp_path):
+    corpus = _pcimma_corpus(tmp_path)
+    out = tmp_path / "out"
+    out.mkdir()
+    (out / "events.txt").write_text("001 RETURN transid=PC52 level=1 len=8\n", encoding="ascii")
+    enc = ec.common.data_encoding(_PCIMMA_CASE)
+    (out / "001.bin").write_bytes("1MENU-A1".encode(enc))
+    res = ec.outputs(out, {"name": "x", **_PCIMMA_CASE}, corpus, ec.return_fields(corpus, _PCIMMA_CASE, True))
+    assert res["return"] == {"transid": "PC52", "commarea": {"CA-STAGE": "1", "CA-TEXT": "MENU-A1"}}
+    with pytest.raises(ec.Unsupported, match="describes none"):
+        ec.outputs(out, {"name": "x"}, corpus, [])
+    java = ec.java_commarea(
+        __import__("base64").b64encode("1MENU-A1".encode("cp037")).decode(),
+        {},
+        ec.return_fields(corpus, _PCIMMA_CASE, True),
+        enc,
+    )
+    assert java == res["return"]["commarea"]
+
+
+def test_a_return_commarea_is_refused_beside_a_typed_commarea_or_with_no_segments(tmp_path):
+    seg = {"copybook": "x.cbl", "record": "R"}
+    with pytest.raises(ec.Unsupported, match='for a case with "commarea": null'):
+        ec.return_fields(tmp_path, {"commarea": {"segments": [seg]}, "return_commarea": {"segments": [seg]}})
+    for empty in ({"segments": []}, {}, None):
+        with pytest.raises(ec.Unsupported, match="describes nothing"):
+            ec.return_fields(tmp_path, {"commarea": None, "return_commarea": empty})

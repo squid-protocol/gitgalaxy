@@ -896,6 +896,9 @@ def translate(source: str, copy_dirs: list[Path] | None = None) -> tuple[str, bo
             raise Unsupported(
                 "ADDRESS COMMAREA: no PROCEDURE DIVISION to hold the COMMAREA stand-in", ["ADDRESS COMMAREA"]
             )
+        # #7434: only such a program gets the stub's X'FF000000' pointer when EIBCALEN is 0 (the port's addressNoCommarea);
+        # a program that declares the record stays refused, as in the port
+        text = text.replace("MOVE 'COMMAREA' TO GG-FLAGS", "MOVE 'COMMAREA NONE' TO GG-FLAGS")
         has_commarea = True
     already = re.search(r"^.{6} +PROCEDURE\s+DIVISION\s+USING\s+DFHCOMMAREA\s*\.", text, re.M | re.I)
     if has_commarea and not already:  # (CBSA's ABNDPROC codes USING DFHCOMMAREA itself, as CICS allows)

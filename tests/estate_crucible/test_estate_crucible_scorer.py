@@ -1071,3 +1071,25 @@ def test_a_member_with_no_ims_keys_adds_no_ims_checks():
     ec.score_dli_calls(sc, "x.cbl", {}, FakeEngine())
     ec.score_ims_gen(sc, "x.cbl", {}, FakeEngine())
     assert sc.checks == []
+
+
+def _run_program_edge(got_edges, files, extra_calls=()):
+    eng = FakeEngine(files=files)
+    eng.file_edges = {"j.jcl": set(got_edges)}
+    entry = {"call_sites": [{"verb": "RUN PROGRAM", "operand": "BDLDDB2", "line": 22, "horror": "H-0068"}, *extra_calls]}
+    sc = ec.Score()
+    ec.score_file_edges(sc, "j.jcl", entry, eng)
+    return _statuses(sc)
+
+
+def test_a_run_program_call_site_implies_the_exec_file_edge():
+    files = {"d.cbl": SimpleNamespace(program_ids=["BDLDDB2"])}
+    assert _run_program_edge({("d.cbl", "exec")}, files) == [("file_edges", "exec -> d.cbl", "pass", "H-0068")]
+    assert _run_program_edge(set(), files) == [("file_edges", "exec -> d.cbl", "missing", "H-0068")]
+    # two steps running the same program draw one edge
+    twice = [{"verb": "RUN PROGRAM", "operand": "bdlddb2", "line": 40}]
+    assert _run_program_edge({("d.cbl", "exec")}, files, twice) == [("file_edges", "exec -> d.cbl", "pass", "H-0068")]
+    # an unresolved program states no edge; the engine's own exec edge stays a phantom
+    assert _run_program_edge({("d.cbl", "exec")}, {}) == [("file_edges", "exec -> d.cbl", "phantom", None)]
+    # a call edge is never excused by it
+    assert ("file_edges", "call -> d.cbl", "phantom", None) in _run_program_edge({("d.cbl", "call")}, files)

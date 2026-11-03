@@ -254,10 +254,10 @@
    "unscored": 0
   },
   "file_edges": {
-   "pass": 38,
+   "pass": 40,
    "fail": 0,
    "missing": 0,
-   "phantom": 2,
+   "phantom": 0,
    "unscored": 0
   },
   "data_moves": {
@@ -297,8 +297,6 @@
   "data_moves|apps/INVT/cobol/INVTRLD.cbl|ADD WS-BUMP -> RELOAD @33": "phantom",
   "data_moves|apps/INVT/cobol/INVTRLD.cbl|ADD WS-BUMP -> SERVICE @33": "phantom",
   "data_moves|apps/INVT/cobol/INVTRLD.cbl|ADD WS-BUMP -> STK-AREA @33": "phantom",
-  "file_edges|apps/BDLD/jcl/BDLDNITE.jcl|exec -> apps/BDLD/cobol/BDLDDB2.cbl": "phantom",
-  "file_edges|apps/BDLD/jcl/BDLDRST.jcl|exec -> apps/BDLD/cobol/BDLDDB2.cbl": "phantom",
   "jcl_datasets|apps/BDLD/jcl/BDLDOVR.jcl|raw import PROD.BDLD.PROCLIB": "phantom",
   "jcl_datasets|apps/BDLD/jcl/BDLDPRCJ.jcl|raw import PROD.BDLD.PROCLIB": "phantom",
   "jcl_dds|apps/ACCT/jcl/ACCTDLY.jcl|STEP030.SYSOUT @13": "unscored",

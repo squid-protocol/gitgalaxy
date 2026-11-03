@@ -37,7 +37,7 @@ GalaxyIR, and diffs every fact channel of the key against it:
   jcl_datasets    a JCL member's DSN references in file_data.raw_imports (a GDG reference as
                   its base or with its relative generation)
   file_control    file_control_data SELECTs (+ relative_key, alternate_keys with the DUPLICATES flag, when the key states them);  entry_points  entry_point_data
-  file_edges      edge_data kinds 'call' (CALL / LINK / XCTL) and 'exec' (EXEC PGM)
+  file_edges      edge_data kinds 'call' (CALL / LINK / XCTL) and 'exec' (EXEC PGM; a key RUN PROGRAM call site implies its exec edge)
   copy_collisions the scan's `copy_member_collisions` report (#4265), read from the master DB
                   (repo_data, #4421)
   gaps            a reference the estate cannot answer: no edge_data edge from the member to
@@ -1383,7 +1383,18 @@ def score_data_moves(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -
 
 def score_file_edges(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
     got = set(eng.file_edges.get(path, set()))
-    for f in entry.get("file_edges", []):
+    stated = list(entry.get("file_edges", []))
+    # a RUN PROGRAM call site (IKJEFT01 / IKJEFT1B running a program) is an EXEC PGM edge to that program's member,
+    # which the key does not repeat as a file edge (#7065)
+    for cs in entry.get("call_sites", []):
+        if cs.get("verb") != "RUN PROGRAM":
+            continue
+        member = next(
+            (p for p, ef in eng.files.items() if _u(cs.get("operand")) in {_u(i) for i in (ef.program_ids or [])}), None
+        )
+        if member and not any(f["kind"] == "exec" and f["target"] == member for f in stated):
+            stated.append({"kind": "exec", "target": member, "horror": cs.get("horror")})
+    for f in stated:
         label = f"{f['kind']} -> {f['target']}"
         ok = (f["target"], f["kind"]) in got
         got.discard((f["target"], f["kind"]))

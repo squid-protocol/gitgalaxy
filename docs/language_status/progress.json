@@ -1,5 +1,5 @@
 {
- "commit": "3213cc493",
+ "commit": "b7b9a893f",
  "components": {
   "capabilities": {
    "groups": [
@@ -335,9 +335,9 @@
   "det_mutation": {
    "estates": {
     "aws-mainframe-modernization-carddemo": {
-     "caught": 3270,
+     "caught": 3269,
      "equivalent": 1517,
-     "l5": 5,
+     "l5": 1,
      "measured": 25,
      "mutants": 30355,
      "programs": 44,
@@ -345,7 +345,7 @@
      "ready": 0,
      "sampled": 5976,
      "sampled_pct": 19.7,
-     "survived": 2468,
+     "survived": 2462,
      "unreachable": 226
     },
     "cics-async-api-credit-card-application-example": {
@@ -363,17 +363,17 @@
      "unreachable": 38
     },
     "cics-banking-sample-application-cbsa": {
-     "caught": 835,
+     "caught": 837,
      "equivalent": 894,
-     "l5": 2,
+     "l5": 1,
      "measured": 6,
      "mutants": 2854,
      "programs": 31,
-     "raw_pct": 44.4,
+     "raw_pct": 44.5,
      "ready": 0,
      "sampled": 2854,
      "sampled_pct": 100.0,
-     "survived": 1047,
+     "survived": 1046,
      "unreachable": 375
     },
     "cics-genapp": {
@@ -407,7 +407,7 @@
     "zecs": {
      "caught": 1135,
      "equivalent": 875,
-     "l5": 3,
+     "l5": 1,
      "measured": 4,
      "mutants": 2601,
      "programs": 7,
@@ -420,9 +420,9 @@
     }
    },
    "total": {
-    "caught": 11060,
+    "caught": 11061,
     "equivalent": 3506,
-    "l5": 20,
+    "l5": 13,
     "measured": 47,
     "mutants": 42537,
     "programs": 129,
@@ -430,7 +430,7 @@
     "ready": 0,
     "sampled": 17814,
     "sampled_pct": 41.9,
-    "survived": 5274,
+    "survived": 5267,
     "unreachable": 1031
    }
   },
@@ -469,19 +469,19 @@
    "programs": 16
   },
   "4": {
-   "l2_plus": 18,
-   "l4_plus": 18,
+   "l2_plus": 20,
+   "l4_plus": 20,
    "programs": 21
   },
   "none": {
    "l2_plus": 13,
-   "l4_plus": 12,
+   "l4_plus": 13,
    "programs": 13
   }
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-11-03T17:09:03Z",
+  "as_of": "2026-11-03T18:10:09Z",
   "core": {
    "closed": 206,
    "open": 11,
@@ -507,15 +507,15 @@
   },
   "eta": "9 days",
   "frontier": {
-   "closed": 123,
+   "closed": 124,
    "found_last_window": 2,
-   "open": 75,
+   "open": 74,
    "total": 198
   },
   "frontier_milestone": {
-   "closed": 15,
+   "closed": 16,
    "number": 30,
-   "open": 35,
+   "open": 34,
    "total": 50
   },
   "infra": {
@@ -715,9 +715,9 @@
     "total": 8
    },
    {
-    "closed": 15,
+    "closed": 16,
     "number": 30,
-    "open": 35,
+    "open": 34,
     "title": "Gap Atlas \ud83d\uddfa\ufe0f \u2014 mapped, not yet built",
     "total": 50
    },
@@ -753,14 +753,14 @@
     "l2_plus_pct": 95.5,
     "l4_plus": 42,
     "l4_plus_pct": 95.5,
-    "l5": 5,
+    "l5": 1,
     "levels": {
      "L0": 2,
      "L1": 0,
      "L2": 0,
      "L3": 0,
-     "L4": 37,
-     "L5": 5
+     "L4": 41,
+     "L5": 1
     },
     "programs": 44,
     "translated_whole": 42
@@ -787,14 +787,14 @@
     "l2_plus_pct": 100.0,
     "l4_plus": 31,
     "l4_plus_pct": 100.0,
-    "l5": 2,
+    "l5": 1,
     "levels": {
      "L0": 0,
      "L1": 0,
      "L2": 0,
      "L3": 0,
-     "L4": 29,
-     "L5": 2
+     "L4": 30,
+     "L5": 1
     },
     "programs": 31,
     "translated_whole": 31
@@ -834,18 +834,18 @@
     "translated_whole": 5
    },
    "zecs": {
-    "l2_plus": 5,
-    "l2_plus_pct": 71.4,
-    "l4_plus": 4,
-    "l4_plus_pct": 57.1,
-    "l5": 3,
+    "l2_plus": 7,
+    "l2_plus_pct": 100.0,
+    "l4_plus": 7,
+    "l4_plus_pct": 100.0,
+    "l5": 1,
     "levels": {
      "L0": 0,
-     "L1": 2,
-     "L2": 1,
+     "L1": 0,
+     "L2": 0,
      "L3": 0,
-     "L4": 1,
-     "L5": 3
+     "L4": 6,
+     "L5": 1
     },
     "programs": 7,
     "translated_whole": 7
@@ -853,17 +853,17 @@
   },
   "test_estates": {
    "cics-crucible": {
-    "l2_plus": 78,
-    "l2_plus_pct": 91.8,
-    "l4_plus": 73,
-    "l4_plus_pct": 85.9,
+    "l2_plus": 79,
+    "l2_plus_pct": 92.9,
+    "l4_plus": 74,
+    "l4_plus_pct": 87.1,
     "l5": 0,
     "levels": {
      "L0": 0,
-     "L1": 7,
+     "L1": 6,
      "L2": 2,
      "L3": 3,
-     "L4": 73,
+     "L4": 74,
      "L5": 0
     },
     "programs": 85,
@@ -871,18 +871,18 @@
    }
   },
   "total": {
-   "l2_plus": 124,
-   "l2_plus_pct": 96.1,
-   "l4_plus": 123,
-   "l4_plus_pct": 95.3,
-   "l5": 20,
+   "l2_plus": 126,
+   "l2_plus_pct": 97.7,
+   "l4_plus": 126,
+   "l4_plus_pct": 97.7,
+   "l5": 13,
    "levels": {
     "L0": 3,
-    "L1": 2,
-    "L2": 1,
+    "L1": 0,
+    "L2": 0,
     "L3": 0,
-    "L4": 103,
-    "L5": 20
+    "L4": 113,
+    "L5": 13
    },
    "programs": 129,
    "reachable": 126,

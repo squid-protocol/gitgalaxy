@@ -13,8 +13,8 @@ the charter in `definition_of_done.md`. Counts only; a level is an evidence leve
 | L1 translated whole | 0 |
 | L2 executed equivalent | 0 |
 | L3 paragraph coverage | 0 |
-| L4 branch coverage | 37 |
-| L5 mutants accounted for | 5 |
+| L4 branch coverage | 41 |
+| L5 mutants accounted for | 1 |
 
 - translated whole: 42 / 44 (95%); with holes: 2; refused: 0
 - whole-translated but a CALL / LINK target has holes (below L2 until it is closed): 0
@@ -57,14 +57,14 @@ source is corrected. Not counted among the rules to land below.
 | X27 | ASSUMED (the STARTCODE; REFUSED where IBM is silent) | CICS | 25 | 8 |
 | X42 | ASSUMED (REFUSED where IBM is silent) | CICS | 25 | 8 |
 | X31 | ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name) | CICS | 21 | 4 |
+| X14 | ASSUMED (REFUSED where IBM is silent) | CICS | 13 | 4 |
+| X22 | ASSUMED (REFUSED where IBM is silent or the layout decides) | CICS | 13 | 4 |
 | X3 | MATCHED | CICS | 9 | 7 |
 | X20 | MATCHED (REFUSED where the region cannot decide) | CICS | 7 | 4 |
-| X14 | ASSUMED (REFUSED where IBM is silent) | CICS | 4 | 4 |
-| X22 | ASSUMED (REFUSED where IBM is silent or the layout decides) | CICS | 4 | 4 |
+| X52 | ASSUMED (REFUSED where IBM is silent) | CICS | 4 | 2 |
 | X18 | ASSUMED (REFUSED where IBM is silent) | CICS | 3 | 3 |
 | X46 | ASSUMED (REFUSED where IBM is silent) | CICS | 3 | 3 |
 | X67 | REFUSED | CICS | 3 | 3 |
-| X52 | ASSUMED (REFUSED where IBM is silent) | CICS | 2 | 2 |
 
 ## cics-async-api-credit-card-application-example
 
@@ -126,8 +126,8 @@ era 0: 0, era 1: 0, era 2: 0, era 3: 0, era 4: 7, era none: 3
 | L1 translated whole | 0 |
 | L2 executed equivalent | 0 |
 | L3 paragraph coverage | 0 |
-| L4 branch coverage | 29 |
-| L5 mutants accounted for | 2 |
+| L4 branch coverage | 30 |
+| L5 mutants accounted for | 1 |
 
 - translated whole: 31 / 31 (100%); with holes: 0; refused: 0
 - whole-translated but a CALL / LINK target has holes (below L2 until it is closed): 0
@@ -224,20 +224,20 @@ era 0: 0, era 1: 4, era 2: 24, era 3: 0, era 4: 3, era none: 0
 | X20 | MATCHED (REFUSED where the region cannot decide) | CICS | 9 | 8 |
 | X3 | MATCHED | CICS | 6 | 5 |
 | X16 | MATCHED (REFUSED where IBM is silent) | CICS | 5 | 5 |
+| X22 | ASSUMED (REFUSED where IBM is silent or the layout decides) | CICS | 5 | 4 |
 | X31 | ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name) | CICS | 5 | 5 |
+| X14 | ASSUMED (REFUSED where IBM is silent) | CICS | 4 | 3 |
 | X15 | ASSUMED (REFUSED where IBM is silent) | CICS | 4 | 3 |
-| X22 | ASSUMED (REFUSED where IBM is silent or the layout decides) | CICS | 4 | 4 |
 | X30 | ASSUMED (REFUSED where IBM is silent) | CICS | 4 | 4 |
-| X14 | ASSUMED (REFUSED where IBM is silent) | CICS | 3 | 3 |
 | X19 | ASSUMED (REFUSED where the harness cannot decide) | CICS | 3 | 3 |
 | X45 | ASSUMED (REFUSED where IBM is silent) | CICS | 3 | 3 |
 | X29 | ASSUMED (REFUSED where IBM is silent) | CICS | 2 | 2 |
+| X52 | ASSUMED (REFUSED where IBM is silent) | CICS | 2 | 1 |
 | X53 | ASSUMED (REFUSED where IBM is silent) | CICS | 2 | 2 |
 | X60 | ASSUMED (REFUSED where IBM is silent) | CICS | 2 | 2 |
 | X17 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 | 1 |
 | X18 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 | 1 |
 | X50 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 | 1 |
-| X52 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 | 1 |
 
 ## dbb-mortgage-application
 
@@ -304,15 +304,15 @@ era 0: 0, era 1: 0, era 2: 2, era 3: 0, era 4: 1, era none: 3
 | level | programs at exactly this level |
 |---|---|
 | L0 inventoried | 0 |
-| L1 translated whole | 2 |
-| L2 executed equivalent | 1 |
+| L1 translated whole | 0 |
+| L2 executed equivalent | 0 |
 | L3 paragraph coverage | 0 |
-| L4 branch coverage | 1 |
-| L5 mutants accounted for | 3 |
+| L4 branch coverage | 6 |
+| L5 mutants accounted for | 1 |
 
 - translated whole: 7 / 7 (100%); with holes: 0; refused: 0
 - whole-translated but a CALL / LINK target has holes (below L2 until it is closed): 0
-- executed equivalent (L2 and above): 5 / 7
+- executed equivalent (L2 and above): 7 / 7
 - charter bars for L3 / L4: paragraphs 100.0%, branches 100.0%
 
 Era evidence (programs by latest era a tell reaches):
@@ -324,13 +324,10 @@ era 0: 0, era 1: 0, era 2: 0, era 3: 0, era 4: 4, era none: 3
 | rank | rule (gap class) | makes whole alone | one rule away | touched | era mix of the alone-set |
 |---|---|---|---|---|---|
 
-### Proof blockers (7 programs translated whole, 4 with no proof gap; top 3 of 3 classes, `proof_blockers.py` statistics)
+### Proof blockers (7 programs translated whole, 7 with no proof gap; top 0 of 0 classes, `proof_blockers.py` statistics)
 
 | rank | what stops the proof | alone | one gap away | touched |
 |---|---|---|---|---|
-| 1 | coverage: not measured | 1 | 0 | 1 |
-| 2 | its det port equal on every scenario of zecs-ecsN: infeasible outcome reached (the stated claim is wrong) | 1 | 0 | 1 |
-| 3 | its det port equal on every scenario of zecs-zecsN: infeasible outcome reached (the stated claim is wrong) | 1 | 0 | 1 |
 
 ### Missing inputs
 

@@ -12,11 +12,11 @@ Every cell that does not pass is ledgered in `tests/cics_crucible/baseline.json`
 |---|---|---|---|---|
 | engine-facts | 51 | 0 | 0 | 51 |
 | forge-compile | 51 | 0 | 0 | 51 |
-| cobol-stub | 168 | 9 | 0 | 177 |
+| cobol-stub | 170 | 7 | 0 | 177 |
 | java | 0 | 177 | 0 | 177 |
 | java-ported | 75 | 102 | 0 | 177 |
 | java-facade | 72 | 105 | 0 | 177 |
-| **all** | **417** | **393** | **0** | **810** |
+| **all** | **419** | **391** | **0** | **810** |
 
 ## By trap and case
 
@@ -40,7 +40,7 @@ Pass counts per side (scenario sides: passing / scenarios).
 | commarea-mismatch | `ca-receive-retrieve-set` | pass | pass | 1 / 3 | 0 / 3 | 1 / 3 | 1 / 3 |
 | commarea-mismatch | `ca-xctl-versions` | pass | pass | 4 / 4 | 0 / 4 | 4 / 4 | 4 / 4 |
 | condition-handling | `hc-abend-link` | pass | pass | 5 / 5 | 0 / 5 | 5 / 5 | 5 / 5 |
-| condition-handling | `hc-counter-increment-wrap` | pass | pass | 1 / 3 | 0 / 3 | 0 / 3 | 0 / 3 |
+| condition-handling | `hc-counter-increment-wrap` | pass | pass | 3 / 3 | 0 / 3 | 0 / 3 | 0 / 3 |
 | condition-handling | `hc-counter-shared-namespace` | pass | pass | 3 / 3 | 0 / 3 | 0 / 3 | 0 / 3 |
 | condition-handling | `hc-dcounters` | pass | pass | 2 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
 | condition-handling | `hc-deedit-uctranst` | pass | pass | 3 / 3 | 0 / 3 | 0 / 3 | 0 / 3 |
@@ -137,7 +137,7 @@ Each cobol-stub scenario runs the COBOL compiled with `-ftraceall` (tests/tools/
 | `gt-web-server-send` | GTWSEND | 1 | 1/1 | 5/7 | 0/0 | 0 | proven on 1 scenario, covering 1/1 paragraphs and 5/7 branches |
 | `hc-abend-link` | HCMAIN | 5 | 4/4 | 4/4 | 2/2 | 0 | proven on 5 scenarios, covering 4/4 paragraphs and 4/4 branches |
 | `hc-abend-link` | HCSUB | 3 | 2/2 | 4/5 | 1/1 | 0 | proven on 3 scenarios, covering 2/2 paragraphs and 4/5 branches |
-| `hc-counter-increment-wrap` | HCCWRP | 1 | 7/10 | 3/8 | 0/0 | 0 | proven on 0 scenarios, covering 0/10 paragraphs and 0/8 branches |
+| `hc-counter-increment-wrap` | HCCWRP | 3 | 10/10 | 7/8 | 0/0 | 0 | proven on 0 scenarios, covering 0/10 paragraphs and 0/8 branches |
 | `hc-counter-shared-namespace` | HCCNSP | 3 | 16/16 | 7/8 | 0/0 | 0 | proven on 0 scenarios, covering 0/16 paragraphs and 0/8 branches |
 | `hc-dcounters` | HCDCNT | 2 | 7/7 | 6/7 | 0/0 | 0 | proven on 0 scenarios, covering 0/7 paragraphs and 0/7 branches |
 | `hc-deedit-uctranst` | HCDEED | 3 | 7/7 | 3/4 | 0/0 | 0 | proven on 0 scenarios, covering 0/7 paragraphs and 0/4 branches |
@@ -307,14 +307,7 @@ Each item is a scenario to propose: a crucible PR adds it with a hand-written, d
 
 #### `hc-counter-increment-wrap` HCCWRP
 
-- paragraph `WRAP-PARA` (line 99)
-- paragraph `LIMIT-PARA` (line 130)
-- paragraph `GET-PLAIN` (line 171)
-- EVALUATE at line 53 in `MAIN-PARA`: `WHEN at line 56` never taken
-- EVALUATE at line 53 in `MAIN-PARA`: `WHEN at line 58` never taken
 - EVALUATE at line 53 in `MAIN-PARA`: no WHEN arm matched: never
-- IF at line 177 in `LOG-V`: never false
-- IF at line 187 in `LOG-W`: never true
 
 #### `hc-counter-shared-namespace` HCCNSP
 
@@ -440,9 +433,9 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 
 | side | reason | cells |
 |---|---|---|
-| cobol-stub | WRITEQ-TS missing | 3 |
 | cobol-stub | text differs | 3 |
 | cobol-stub | item differs | 2 |
+| cobol-stub | WRITEQ-TS missing | 1 |
 | cobol-stub | data bytes differ | 1 |
 | java | runTask records no events (the generated stub: PROCEDURE DIVISION not ported) | 177 |
 | java-ported | not ported | 100 |
@@ -633,11 +626,9 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | `hc-counter-increment-wrap/incr/java` | fail | task 1 (HC73) event 1: RECEIVE expected, the side recorded no further event |
 | `hc-counter-increment-wrap/incr/java-facade` | fail | no port of any of its programs |
 | `hc-counter-increment-wrap/incr/java-ported` | fail | no port of any of its programs |
-| `hc-counter-increment-wrap/limit/cobol-stub` | fail | task 1 (HC73) event 4: WRITEQ-TS expected, the side recorded no further event |
 | `hc-counter-increment-wrap/limit/java` | fail | task 1 (HC73) event 1: RECEIVE expected, the side recorded no further event |
 | `hc-counter-increment-wrap/limit/java-facade` | fail | no port of any of its programs |
 | `hc-counter-increment-wrap/limit/java-ported` | fail | no port of any of its programs |
-| `hc-counter-increment-wrap/wrap/cobol-stub` | fail | task 1 (HC73) event 5: WRITEQ-TS expected, the side recorded no further event |
 | `hc-counter-increment-wrap/wrap/java` | fail | task 1 (HC73) event 1: RECEIVE expected, the side recorded no further event |
 | `hc-counter-increment-wrap/wrap/java-facade` | fail | no port of any of its programs |
 | `hc-counter-increment-wrap/wrap/java-ported` | fail | no port of any of its programs |

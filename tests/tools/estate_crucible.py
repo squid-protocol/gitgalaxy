@@ -30,7 +30,7 @@ GalaxyIR, and diffs every fact channel of the key against it:
   jcl_dds         DD rows (an override DD `//PROCSTEP.DD` matches the row named after its proc step);
                   SYSOUT / DUMMY DDs are unscored (job_flow_data keeps only DDs that name a DSN), so a
                   sysout DD's output_refs (OUTPUT=) are unscored with it
-                  (+ symbolic: a single leading `&`; job; `added` is unscored: the engine cannot tell an added DD from an override)
+                  (+ symbolic: a single leading `&`; job; `added` against the proc definition's DD rows, unscored when the proc is not in the scan or the DD is SYSOUT / DUMMY)
   jcl_outputs     OUTPUT JCL statements: every one unscored (job_flow_data keeps no OUTPUT statement)
   sql_statements  (access: the engine's insert / delete / merge score as the key's `update`), sql_tables, jcl_steps, jcl_dds, screen_fields, csd_resources, transactions
   cics_resources  cics_resource_data (MAP / FILE / QUEUE commands)
@@ -827,6 +827,33 @@ def _is_symbolic(dsn: str | None) -> bool:
     return bool(dsn) and dsn.startswith("&") and not dsn.startswith("&&")  # type: ignore[union-attr]
 
 
+def _score_added(sc: Score, path: str, label: str, f: dict[str, Any], row: Any, steps: list[Any], eng: Engine) -> None:
+    """The key's `added` (a DD on a proc step the procedure does not define) against the proc definition's DD rows.
+
+    An override names a DD the proc step already has: a DD row with that step and DD name inside the procedure. The proc
+    may sit in another member, so every scanned file is searched; when no scanned file holds the procedure the engine
+    cannot tell, and the field stays `unscored` (gitgalaxy#7065).
+    """
+    exec_step = next((x for x in steps if _u(x.step_name) == _u(f["step"])), None)
+    proc = _u(exec_step.proc) if exec_step is not None else ""
+    rows = [r for file in eng.files.values() for r in (getattr(file, "job_flow", None) or [])]
+    if not proc or not any(_u(r.kind) == "STEP" and _u(r.in_proc) == proc for r in rows):
+        why = f"procedure {proc or '?'} is not in the scan, so job_flow_data cannot tell an added DD from an override"
+        sc.add("jcl_dds", path, f"{label} added", "unscored", f.get("horror"), why)
+        return
+    owner, dd = _u(f.get("override_of")), _u(f.get("dd"))
+    defined = any(
+        _u(r.kind) == "DD"
+        and r is not row
+        and _u(r.in_proc) == proc
+        and _u(r.step_name) == owner
+        and _u(r.dd_name) == dd
+        for r in rows
+    )
+    d = _diff([("added", bool(f["added"]), not defined)])
+    sc.add("jcl_dds", path, f"{label} added", "fail" if d else "pass", f.get("horror"), d)
+
+
 def score_jcl(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
     ef = eng.files.get(path)
     flow = list(ef.job_flow) if ef else []
@@ -923,7 +950,9 @@ def score_jcl(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
             continue
         # `//PROCSTEP.DD` on an EXEC of a procedure: job_flow names the row after the proc step (header of job_flow.py)
         owner = f.get("override_of") or f["step"]
-        r = next((x for x in dds if _u(x.step_name) == _u(owner) and _u(x.dd_name) == dd and id(x) not in used), None)
+        cands = [x for x in dds if _u(x.step_name) == _u(owner) and _u(x.dd_name) == dd and id(x) not in used]
+        # an override sits in the job, so it wins over the procedure's own DD of the same name (#7065)
+        r = next((x for x in cands if not (f.get("override_of") and x.in_proc)), cands[0] if cands else None)
         if r is None:
             sc.add("jcl_dds", path, label, "missing", f.get("horror"))
             continue
@@ -943,8 +972,8 @@ def score_jcl(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
             pairs.append(("job", _u(f["job"]), jobs[id(r)]))
         d = _diff(pairs)
         sc.add("jcl_dds", path, label, "fail" if d else "pass", f.get("horror"), d)
-        if added:
-            sc.add("jcl_dds", path, f"{label} added", "unscored", f.get("horror"), added[2:])
+        if "added" in f:
+            _score_added(sc, path, label, f, r, steps, eng)
     for r in dds:
         if id(r) not in used:
             sc.add("jcl_dds", path, f"{r.step_name}.{r.dd_name} @{r.line}", "phantom", None, "not in the key")

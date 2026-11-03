@@ -6,7 +6,7 @@ first move is an input that kills it, not a verdict. This tool makes the attack 
 `det_mutation.py state` asks for.
 
     python tests/tools/survivor_attack.py next [CASE ...] [--limit 20]        # the likeliest wrong verdicts first
-    python tests/tools/survivor_attack.py facts CASE --work DIR               # what the port itself settles
+    python tests/tools/survivor_attack.py facts CASE --work DIR               # what the port and the COBOL settle
     python tests/tools/survivor_attack.py packet CASE ID --work DIR           # everything needed to attack one mutant
     python tests/tools/survivor_attack.py try CASE ID[,ID...] --inputs F.json --work DIR   # run the attack
     python tests/tools/survivor_attack.py lint [CASE ...]                     # stated reasons that are not reasons
@@ -233,7 +233,9 @@ def find_mutants(case: str, port: Path, ids: list[str]) -> dict[str, Any]:
     return out
 
 
-def attack(case_name: str, ids: list[str], inputs: Path, work: Path, timeout: float, jobs: int = 1) -> dict[str, dict[str, Any]]:
+def attack(
+    case_name: str, ids: list[str], inputs: Path, work: Path, timeout: float, jobs: int = 1
+) -> dict[str, dict[str, Any]]:
     import equivalence as eq
     import mainframe_corpus as mc
     import mutation as mu
@@ -303,6 +305,117 @@ def cmd_next(cases: list[str], limit: int) -> int:
     return 0
 
 
+# ---- what the COBOL settles (tests/tools/branch_solver.py, #4175) ---------------------------------------------------
+def solver_paragraphs(case: str, work: Path) -> dict[str, str] | None:
+    """Paragraph name -> branch_solver verdict (confirmed: no input enters it; witness: some input does), or None when
+    z3 (the `solver` extra) is missing or the program cannot be walked."""
+    try:
+        import z3  # type: ignore[import-not-found,import-untyped,unused-ignore]  # noqa: F401, PLC0415
+    except ImportError:
+        return None
+    import branch_solver as bs  # noqa: PLC0415
+
+    try:
+        res = bs.paragraphs(case, work / "branch-solver")
+    except Exception as e:  # noqa: BLE001 -- a program the walk cannot read: no solver facts, never a failure
+        print(f"branch_solver: {case}: {type(e).__name__}: {e}"[:300])
+        return None
+    return {str(r["paragraph"]).upper(): str(r["verdict"]) for r in res["paragraphs"]}
+
+
+_CLAUSE = re.compile(r"[.;:,]|->|\bso\b|\bwhich\b|\bwhose\b|\bbut\b", re.I)
+_NEGATION = re.compile(r"\b(never|not|no|nothing|none|cannot|unreachable)\b", re.I)
+
+
+def named_paragraphs(reason: str, names: Any) -> list[str]:
+    """The program's paragraphs a stated reason says are not reached: named (whole word, four characters or more) in
+    a clause before its negation ("POPULATE-TIME-DATE is never PERFORMed"). A paragraph named as context ("the program
+    runs P010 -> GET-ME-OUT-OF-HERE", "which no paragraph PERFORMs from P010") is no claim."""
+    out: set[str] = set()
+    for clause in _CLAUSE.split(reason.upper()):
+        neg = _NEGATION.search(clause)
+        if not neg:
+            continue
+        for n in names:  # the paragraph is the clause's subject: named before its negation
+            m = re.search(rf"(?<![A-Z0-9-]){re.escape(n)}(?![A-Z0-9-])", clause)
+            if len(n) >= 4 and m and m.start() < neg.start():
+                out.add(n)
+    return sorted(out)
+
+
+def solver_fact(stated: dict[str, Any], verdicts: dict[str, str]) -> dict[str, str] | None:
+    """For an `unreachable` verdict whose reason says paragraphs are not reached: `solver-unreachable` (an attack that
+    held, for `det_mutation.py state`) when the solver finds no input that enters any of them; `solver-entered` (advice
+    only, never recorded: the reason's prose is read by a pattern) when it finds an input that enters one."""
+    if stated.get("verdict") != "unreachable":
+        return None
+    named = named_paragraphs(str(stated.get("reason") or ""), verdicts)
+    if not named:
+        return None
+    entered = [n for n in named if verdicts[n] == "witness"]
+    if entered:
+        return {"result": "solver-entered", "fact": f"branch_solver finds an input that enters {', '.join(entered)}"}
+    if all(verdicts[n] == "confirmed" for n in named):
+        return {
+            "result": "solver-unreachable",
+            "fact": f"branch_solver: no input of the program enters {', '.join(named)}",
+        }
+    return None
+
+
+_FIELD_DECL = re.compile(r"\bf\d+_(\w+)\s*=\s*Field\.\w+\(\s*s_(\w+)")
+
+
+def field_of(before: str) -> tuple[str, str] | None:
+    """(COBOL item, COBOL record) a det-port Field declaration names (`f12_WS_X = Field.alphanumeric(s_REC, ...)`)."""
+    m = _FIELD_DECL.search(before)
+    return (m.group(1).replace("_", "-"), m.group(2).replace("_", "-")) if m else None
+
+
+def solver_unread(case: str, work: Path) -> set[tuple[str, str]] | None:
+    """(record, item) of the WORKING-STORAGE items no reachable statement uses (branch_solver.py fields), or None."""
+    try:
+        import z3  # type: ignore[import-not-found,import-untyped,unused-ignore]  # noqa: F401, PLC0415
+    except ImportError:
+        return None
+    import branch_solver as bs  # noqa: PLC0415
+
+    try:
+        res = bs.fields_used(case, work / "branch-solver")
+    except Exception as e:  # noqa: BLE001 -- a program the walk cannot read: no solver facts, never a failure
+        print(f"branch_solver: {case}: {type(e).__name__}: {e}"[:300])
+        return None
+    return {(str(x["record"]).upper(), str(x["item"]).upper()) for x in res["unread"]}
+
+
+def solver_observability(case: str, work: Path) -> Any:
+    """field_observability.Observability for a case (its `judge(before, after)`), or None without z3 / a walk."""
+    try:
+        import z3  # type: ignore[import-not-found,import-untyped,unused-ignore]  # noqa: F401, PLC0415
+    except ImportError:
+        return None
+    import branch_solver as bs  # noqa: PLC0415
+    import field_observability as fo  # noqa: PLC0415
+
+    try:
+        spec = json.loads((dm.CASES / case / "case.json").read_text(encoding="utf-8"))
+        return fo.Observability(bs.case_program(case, work / "branch-solver"), spec, bs.corpus_root(spec["corpus"]))
+    except Exception as e:  # noqa: BLE001 -- a program the walk cannot read: no facts, never a failure
+        print(f"field_observability: {case}: {type(e).__name__}: {e}"[:300])
+        return None
+
+
+def unread_fact(mutant: dict[str, Any], unread: set[tuple[str, str]]) -> dict[str, str] | None:
+    """A mutant of the Field declaration of an item no reachable statement uses: nothing any input sees changes."""
+    f = field_of(str(mutant.get("before") or ""))
+    if f is None:
+        return None
+    item, record = f
+    if (record, item) in unread or (item == record and (record, item) in unread):
+        return {"result": "solver-unread", "fact": f"branch_solver: no reachable statement uses {item} ({record})"}
+    return None
+
+
 def cmd_facts(case: str, work: Path) -> int:
     port = det_port(case, work)
     entry = dm.load().get(case) or {}
@@ -313,9 +426,34 @@ def cmd_facts(case: str, work: Path) -> int:
         fact = port_fact(text, s)
         if fact:
             settled[s["id"]] = {**fact, "date": time.strftime("%Y-%m-%d")}
+    fields = [s for s in entry.get("survived", []) if field_of(s.get("before") or "")]
+    unread = solver_unread(case, work) if fields else None
+    obs = solver_observability(case, work) if fields else None
+    for s in fields:
+        if s["id"] in settled:
+            continue
+        fact = unread_fact(s, unread) if unread else None
+        why = obs.judge(s["before"], s["after"]) if obs is not None and not fact else None
+        if why:
+            fact = {"result": "solver-unobservable", "fact": f"field_observability: {why}"}
+        if fact:
+            settled[s["id"]] = {**fact, "date": time.strftime("%Y-%m-%d")}
+    stated = dm.stated(case)
+    pending = [s for s in entry.get("survived", []) if s["id"] not in settled and s["id"] in stated]
+    verdicts = solver_paragraphs(case, work) if pending else None
+    questioned = 0
+    for s in pending if verdicts else []:
+        fact = solver_fact(stated[s["id"]], verdicts or {})
+        if fact and fact["result"] == "solver-entered":
+            questioned += 1
+            print(f"  {s['id']}: stated unreachable, but {fact['fact']}: read the reason, then attack it")
+        elif fact:
+            settled[s["id"]] = {**fact, "date": time.strftime("%Y-%m-%d")}
     add_attempts(work, settled)
     total = len(entry.get("survived", []))
-    print(f"{case}: the port settles {len(settled)} of {total} survivors; the other {total - len(settled)} need `try`")
+    print(f"{case}: the port and the COBOL settle {len(settled)} of {total} survivors ({questioned} stated reasons the "
+          f"solver questions); the other {total - len(settled)} need `try`" + ("" if verdicts is not None else
+          " (no branch_solver: install the `solver` extra for the COBOL facts)"))  # fmt: skip
     return 0
 
 
@@ -335,6 +473,11 @@ def cmd_packet(case: str, mid: str, work: Path) -> int:
     print(f"The port settles it: {port_fact(text, {'line': m.line, 'before': m.before}) or 'no: it needs an attack'}")
     if stated:
         print(f"Stated: {stated.get('verdict')}: {stated.get('reason')}")
+        verdicts = solver_paragraphs(case, work) if stated.get("reason") else None
+        for name in named_paragraphs(str(stated.get("reason")), verdicts or {}):
+            what = {"confirmed": "no input of the program enters it", "witness": "an input enters it (branch_solver.py "
+                    "reach gives one)"}.get((verdicts or {})[name], "undecided")  # fmt: skip
+            print(f"branch_solver, {name}: {what}")
         for problem in dm.reason_problems(str(stated.get("verdict")), str(stated.get("reason"))):
             print(f"Refused as written: {problem}")
     print("\n## The Java\n```java")

@@ -14,6 +14,31 @@ COUNTERS_JAVA = """\
     /** #4770 (X45): the {minimum, maximum} (unsigned doublewords) of a counter DEFINE DCOUNTER made; a counter with no entry
      *  (DEFINE COUNTER's, or one a scenario states) has limits the run does not state. */
     private java.util.Map<String, long[]> counterLimits = new java.util.HashMap<>();
+    /** #7589: the counters in IBM's counter-at-limit condition, a flag beside the value (which is then MAXIMUM): the MAXIMUM + 1
+     *  marker overflows for the default doubleword maximum. */
+    private java.util.Set<String> counterAtLimit = new java.util.HashSet<>();
+
+    /** Whether the counter is at its limit. A value past MAXIMUM (a scenario's seed in the old MAXIMUM + 1 form) is read as the
+     *  flag with the value MAXIMUM. */
+    private boolean atLimit(String key, long[] lim) {
+        Long v = counters.get(key);
+        if (lim != null && lim[1] != -1L && v != null && Long.compareUnsigned(v, lim[1]) > 0) {
+            counters.put(key, lim[1]);
+            counterAtLimit.add(key);
+        }
+        return counterAtLimit.contains(key);
+    }
+
+    /** Store a counter's value after a command: MAXIMUM + 1 is the counter at its limit (the value MAXIMUM and the flag). */
+    private void storeCounter(String key, long[] lim, long value) {
+        if (lim != null && lim[1] != -1L && value == lim[1] + 1) {
+            counters.put(key, lim[1]);
+            counterAtLimit.add(key);
+        } else {
+            counters.put(key, value);
+            counterAtLimit.remove(key);
+        }
+    }
 
     /** The region's named counters, "POOL/NAME" -> the value the next GET COUNTER returns. */
     public CicsTask withCounters(java.util.Map<String, Long> counters) {
@@ -120,7 +145,7 @@ COUNTERS_JAVA = """\
         if (Long.compareUnsigned(increment, max - min) > 0) {
             throw refused("GET COUNTER with an INCREMENT beyond the counter's range");
         }
-        if (max != -1L && Long.compareUnsigned(v, max) > 0) {  // at its limit: the counter is MAXIMUM + 1
+        if (r.atLimit(key, lim)) {  // #7589: at its limit, a flag (the value is MAXIMUM)
             if (reduce) {
                 throw refused("GET COUNTER REDUCE at a counter already at its limit");
             }
@@ -131,22 +156,32 @@ COUNTERS_JAVA = """\
                 return new long[] {72, 101, 0};
             }
             r.counters.put(key, min + increment);
+            r.counterAtLimit.remove(key);
             return new long[] {0, 0, min};
         }
         if (!counterInRange(v, cmpMin, cmpMax)) {
             return new long[] {72, 103, 0};
         }
         long next = v + increment;
-        if (Long.compareUnsigned(next, v) < 0) {
+        boolean over = Long.compareUnsigned(next, v) < 0;
+        // the counter reaches its limit when it would be MAXIMUM + 1 (for the default maximum: 2^64, so next wraps to 0)
+        boolean hit = max == -1L ? over && next == 0 : !over && next == max + 1;
+        boolean beyond = max == -1L ? over && next != 0 : over || Long.compareUnsigned(next, max + 1) > 0;
+        if (over && !hit) {
             throw refused("GET COUNTER past a doubleword");
         }
-        if (Long.compareUnsigned(next, max) > 0 && Long.compareUnsigned(next - max, 1) > 0) {
+        if (!hit && beyond) {
             if (!reduce) {
                 throw refused("GET COUNTER with an INCREMENT past MAXIMUM + 1");
             }
-            next = max + 1;
+            hit = true;
         }
-        r.counters.put(key, next);
+        if (hit) {
+            r.counters.put(key, max);
+            r.counterAtLimit.add(key);
+        } else {
+            r.counters.put(key, next);
+        }
         return new long[] {0, 0, v};
     }
 
@@ -188,10 +223,11 @@ COUNTERS_JAVA = """\
         if (increment != 1) {
             throw refused("REWIND COUNTER with an INCREMENT above 1");
         }
-        if (max == -1L || Long.compareUnsigned(v, max) <= 0) {
+        if (!r.atLimit(key, lim)) {
             return new int[] {72, 102};
         }
         r.counters.put(key, min);
+        r.counterAtLimit.remove(key);
         return new int[] {0, 0};
     }
 
@@ -218,7 +254,7 @@ COUNTERS_JAVA = """\
         if (Long.compareUnsigned(value, lim[0]) < 0 || (lim[1] != -1L && Long.compareUnsigned(value, lim[1] + 1) > 0)) {
             return new int[] {16, 406};
         }
-        r.counters.put(key, value);
+        r.storeCounter(key, lim, value);
         return new int[] {0, 0};
     }
 
@@ -242,8 +278,8 @@ COUNTERS_JAVA = """\
         if (r.counters.containsKey(key)) {
             return new int[] {16, 202};
         }
-        r.counters.put(key, value);
         r.counterLimits.put(key, new long[] {min, max});
+        r.storeCounter(key, new long[] {min, max}, value);
         return new int[] {0, 0};
     }
 
@@ -264,6 +300,12 @@ COUNTERS_JAVA = """\
         long[] lim = r.counterLimits.get(key);
         if (lim == null && limits) {
             throw refused("QUERY DCOUNTER MINIMUM / MAXIMUM of a counter whose limits the run does not state");
+        }
+        if (r.atLimit(key, lim)) {
+            if (lim[1] == -1L) {
+                throw refused("QUERY DCOUNTER of a counter at its limit");
+            }
+            v = lim[1] + 1;
         }
         return new long[] {0, 0, v, lim == null ? 0 : lim[0], lim == null ? 0 : lim[1]};
     }
@@ -294,8 +336,8 @@ COUNTERS_JAVA = """\
         if (r.counters.containsKey(key)) {
             return new int[] {16, 202};
         }
-        r.counters.put(key, value);
         r.counterLimits.put(key, new long[] {min, max});
+        r.storeCounter(key, new long[] {min, max}, value);
         return new int[] {0, 0};
     }
 
@@ -311,6 +353,7 @@ COUNTERS_JAVA = """\
             return new int[] {16, bad};
         }
         root().counterLimits.remove(counterKey(pool, name));
+        root().counterAtLimit.remove(counterKey(pool, name));
         java.util.Map<String, Long> all = root().counters;
         return all.remove(counterKey(pool, name)) == null ? new int[] {16, 201} : new int[] {0, 0};
     }
@@ -336,7 +379,14 @@ COUNTERS_JAVA = """\
         if (lim != null && limits && (lim[0] < 0 || lim[0] > 2147483647L || lim[1] < 0 || lim[1] > 2147483647L)) {
             throw refused("QUERY COUNTER MINIMUM / MAXIMUM of a counter whose limits are beyond a fullword");
         }
-        int le = fullwordLengerr(lim, v);
+        boolean atLimit = r.atLimit(key, lim);
+        if (atLimit) {
+            if (lim[1] == -1L) {
+                throw refused("QUERY COUNTER of a counter at its limit");
+            }
+            v = lim[1] + 1;
+        }
+        int le = fullwordLengerr(atLimit, v);
         return new int[] {le == 0 ? 0 : 22, le, v.intValue(), lim == null ? 0 : (int) lim[0], lim == null ? 0 : (int) lim[1]};
     }
 
@@ -346,11 +396,11 @@ COUNTERS_JAVA = """\
      *  large: RESP2 1 the value overflowed into the sign bit (no bit above the low word), 2 "too large ... by only 1 bit; the
      *  overflow value is exactly 1" (the high word is 1), 3 greater than 1 (ASSUMED: IBM does not say how a value that is both
      *  is numbered; the high word decides). The operation completes: VALUE is the low-order 32 bits. */
-    private static int fullwordLengerr(long[] lim, long v) {
+    private static int fullwordLengerr(boolean atLimit, long v) {
         if (v >= 0 && v <= 2147483647L) {
             return 0;
         }
-        if (lim != null && lim[1] != -1L && Long.compareUnsigned(v, lim[1]) > 0) {
+        if (atLimit) {
             return 0;
         }
         long high = v >>> 32;
@@ -364,7 +414,7 @@ COUNTERS_JAVA = """\
         if (r[0] != 0) {
             return r;
         }
-        int le = fullwordLengerr(root().counterLimits.get(counterKey(pool, name)), r[2]);
+        int le = fullwordLengerr(false, r[2]);
         return le == 0 ? r : new long[] {22, le, (int) r[2]};
     }
 

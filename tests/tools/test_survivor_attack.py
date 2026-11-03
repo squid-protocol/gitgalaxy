@@ -176,3 +176,93 @@ def test_a_new_verdict_needs_its_attack_but_a_carried_one_does_not():
     assert "1 new verdicts" in dm.regressions("c", None, [old, new], None, [old])[0]
     assert dm.regressions("c", None, [old, {**new, "tried": ["long-body"]}], None, [old]) == []
     assert dm.regressions("c", None, [old, {**new, "verdict": "case-gap"}], None, [old]) == []
+
+
+# ---- what the COBOL settles (branch_solver.py, #4175): the verdicts are data here, no z3 ----------------------------
+VERDICTS = {
+    "POPULATE-TIME-DATE": "confirmed",
+    "PTD010": "confirmed",
+    "GET-ME-OUT-OF-HERE": "witness",
+    "A010": "witness",
+}
+
+
+def test_a_reason_names_paragraphs_as_whole_words_in_a_negated_clause():
+    reason = "POPULATE-TIME-DATE is never PERFORMed (PTD010 neither): the program runs A010 -> GET-ME-OUT-OF-HERE"
+    assert sa.named_paragraphs(reason, VERDICTS) == ["POPULATE-TIME-DATE"]
+    assert sa.named_paragraphs("PTD010 is not reached either", VERDICTS) == ["PTD010"]
+    assert sa.named_paragraphs("POPULATE-TIME-DATE-X is not PERFORMed", VERDICTS) == []
+    assert sa.named_paragraphs("used only where no paragraph PERFORMs it (the flow is A010)", VERDICTS) == []
+
+
+def test_the_solver_settles_an_unreachable_paragraph_and_questions_an_entered_one():
+    never = {"verdict": "unreachable", "reason": "POPULATE-TIME-DATE is never PERFORMed: it follows GET-ME-OUT-OF-HERE"}
+    assert sa.solver_fact(never, VERDICTS)["result"] == "solver-unreachable"
+    wrong = {"verdict": "unreachable", "reason": "GET-ME-OUT-OF-HERE is never reached"}
+    assert sa.solver_fact(wrong, VERDICTS)["result"] == "solver-entered"
+    assert sa.solver_fact({"verdict": "equivalent", "reason": never["reason"]}, VERDICTS) is None
+    assert sa.solver_fact({"verdict": "unreachable", "reason": "no paragraph named here"}, VERDICTS) is None
+
+
+def test_state_takes_a_solver_settlement_but_not_a_solver_question():
+    assert dm.attempt_problems("unreachable", [{"result": "solver-unreachable"}]) == []
+    assert "no attack" in dm.attempt_problems("unreachable", [{"result": "solver-entered"}])[0]
+
+
+# ---- Field declarations no reachable statement uses (branch_solver.py fields, #4175) ----------------------------------
+def test_a_field_declaration_names_its_item_and_record():
+    assert sa.field_of("private final Field f84_WS_U_TIME = Field.packed(s_WS_U_TIME, 0, 15, 0, true);") == (
+        "WS-U-TIME",
+        "WS-U-TIME",
+    )
+    assert sa.field_of("private final Field f69_TITLE01L = Field.binary(s_COADM1AI, 23, 4, 0, true, false);") == (
+        "TITLE01L",
+        "COADM1AI",
+    )
+    assert sa.field_of("if (task.exactCommarea()) {") is None
+
+
+def test_an_unread_item_settles_its_field_mutants_only():
+    unread = {("COADM1AI", "TITLE01L")}
+    hit = {"before": "private final Field f69_TITLE01L = Field.binary(s_COADM1AI, 23, 4, 0, true, false);"}
+    other = {"before": "private final Field f70_TITLE02L = Field.binary(s_COADM1AI, 27, 4, 0, true, false);"}
+    assert sa.unread_fact(hit, unread)["result"] == "solver-unread"
+    assert sa.unread_fact(other, unread) is None
+    assert dm.attempt_problems("equivalent", [{"result": "solver-unread"}]) == []
+
+
+def test_the_solver_finds_an_item_no_reachable_statement_uses(tmp_path):
+    pytest.importorskip("z3")
+    pytest.importorskip("tree_sitter_language_pack")
+    import branch_solver as bs
+
+    src = tmp_path / "T.cbl"
+    src.write_text(
+        "\n".join(
+            [
+                "       IDENTIFICATION DIVISION.",
+                "       PROGRAM-ID. T.",
+                "       DATA DIVISION.",
+                "       WORKING-STORAGE SECTION.",
+                "       01 W-USED PIC X VALUE 'A'.",
+                "       01 W-DEAD PIC X VALUE 'B'.",
+                "       01 W-NEVER PIC X VALUE 'C'.",
+                "       PROCEDURE DIVISION.",
+                "       A000.",
+                "           DISPLAY W-USED",
+                "           GOBACK.",
+                "       B000.",
+                "           DISPLAY W-DEAD.",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    got = bs.unread_items(bs.load_program(src, []), {})
+    assert {x["item"] for x in got["unread"]} == {"W-DEAD", "W-NEVER"}
+
+
+def test_dfhaid_counts_as_used_by_the_runtime():
+    import branch_solver as bs
+
+    assert "DFHAID" in bs.RUNTIME_RECORDS and "DFHEIBLK" in bs.RUNTIME_RECORDS

@@ -88,7 +88,11 @@ VERDICTS = {
 ACCOUNTED = ("equivalent", "unreachable")
 # what must stand behind an accounted verdict in `state`: an attack the mutant survived, or a fact of the port's own
 # text (tests/tools/survivor_attack.py). A verdict is a claim about every input; a reason alone does not show that
-ATTACK_SETTLED = ("no-entry-path", "constant-unused")
+# no-entry-path / constant-unused: the port's text (survivor_attack.py facts); solver-unreachable: branch_solver.py found no
+# input of the program that enters any paragraph the `unreachable` reason names; solver-unread: no reachable statement
+# uses the item whose Field declaration the mutant changes (#4175)
+# solver-unobservable: field_observability.py shows no input can tell a Field-declaration mutant apart (#4175)
+ATTACK_SETTLED = ("no-entry-path", "constant-unused", "solver-unreachable", "solver-unread", "solver-unobservable")
 ATTACK_HELD = ("survived", *ATTACK_SETTLED)
 # `unreachable` is about the program, never the tests: code a test does not call is a case or harness gap
 TESTS_NOT_PROGRAM = re.compile(
@@ -805,7 +809,9 @@ def ledger_regressions(ref: str, scope: set[str]) -> list[str]:
     for case in sorted(scope):
         old = _at_ref(ref, LEDGER / f"{case}.json") or {}
         old_s = _at_ref(ref, SURVIVORS / f"{case}.json") or {}
-        out += regressions(case, ledger.get(case), survivors.get(case, []), old.get("entry"), old_s.get("survivors", []))
+        out += regressions(
+            case, ledger.get(case), survivors.get(case, []), old.get("entry"), old_s.get("survivors", [])
+        )
     return out
 
 

@@ -593,7 +593,10 @@ class Walk:
 
     # -- fixed-length text as bit-vectors (byte i is bits 8*(n-i)-1 .. 8*(n-i-1)) --
     def sval(self, text: str) -> Any:
-        data = text.encode("latin-1", errors="replace") or b" "  # (no zero-length item: an empty text is one space)
+        # one byte per character: a character past latin-1 (none in COBOL source) stands as '?' (#3813: nothing lossy)
+        data = (
+            bytes(ord(c) if ord(c) < 256 else 0x3F for c in text) or b" "
+        )  # (no zero-length item: an empty text is one space)
         chunks = [data[i : i + 64] for i in range(0, len(data), 64)]  # (a huge int would pass Python's digit limit)
         return self.cat([self.z.BitVecVal(int.from_bytes(c, "big"), 8 * len(c)) for c in chunks])
 
@@ -646,7 +649,6 @@ class Walk:
 
     def read(self, x: Any, st: State, line: int) -> tuple[str, Any, int] | None:
         """('str', term, length) | ('num', term, scale) | None: an operand as z3 sees it."""
-        z = self.z
         if isinstance(x, E.Ref):
             hit = self.items.resolve(x)
             if len(hit) != 1 or hit[0].level == 88:
@@ -705,7 +707,6 @@ class Walk:
         return ("num", v, it.scale)
 
     def _group_string(self, g: L.Item, st: State) -> Any:
-        z = self.z
         parts: list[Any] = []
         pos = g.offset
         for c in g.children:
@@ -756,7 +757,6 @@ class Walk:
 
     # -- conditions --
     def compare(self, op: str, a: Any, b: Any, st: State, line: int) -> Any:
-        z = self.z
         ra, rb = self.read(a, st, line), self.read(b, st, line)
         if ra is None or rb is None:
             return None
@@ -988,7 +988,6 @@ class Walk:
 
     def add_to(self, st: State, s: S.Stmt) -> State:
         """ADD a b TO x / SUBTRACT a b FROM x: exact when the sum and every target are numbers the walk follows."""
-        z = self.z
         st = State(st.pc, dict(st.env))
         total = None
         for o in s.data.get("operands") or []:
@@ -1017,7 +1016,6 @@ class Walk:
                         st.env[id(x)] = self._fit(res, sc, x, s.line, bool(rounded))
                     else:
                         st.env[id(x)] = self.fresh(x, "set", s.line)
-        del z
         return st
 
     # -- control --
@@ -1451,7 +1449,6 @@ class Walk:
 def scenario(w: Walk, model: Any, formulas: list[Any], case: dict[str, Any], target: str) -> dict[str, Any]:
     """A witness as one input of strengthen.py / survivor_attack.py `try` (a CICS case): the COMMAREA fields, the
     AID and the RECEIVE MAP fields the outcome's condition depends on. Values not in it keep the case's defaults."""
-    z = w.z
     relevant = _names_in(formulas)
     roots = {seg.get("record", "").upper() for seg in (case.get("commarea") or {}).get("segments", [])}
     commarea: dict[str, Any] = {}
@@ -1479,7 +1476,6 @@ def scenario(w: Walk, model: Any, formulas: list[Any], case: dict[str, Any], tar
         out["receive"] = receive
     out["targets"] = [target]
     out["why"] = f"branch_solver witness for {target}: the values its condition depends on"
-    del z
     return out
 
 
@@ -1648,9 +1644,9 @@ def summary(results: list[dict[str, Any]]) -> dict[str, Any]:
 
 def render(results: list[dict[str, Any]]) -> str:
     lines = ["# Branch solver: stated infeasible outcomes", "",
-             "confirmed = no input of the program reaches it (z3: unsatisfiable, walk complete); witness = an input "
-             "of the program reaches it (for family G the claim may rest on callers); inconclusive = the walk or "
-             "the solver could not decide.", "", "| family | confirmed | witness | inconclusive |", "|---|---|---|---|"]  # fmt: skip
+             ("confirmed = no input of the program reaches it (z3: unsatisfiable, walk complete); witness = an input "
+              "of the program reaches it (for family G the claim may rest on callers); inconclusive = the walk or "
+              "the solver could not decide."), "", "| family | confirmed | witness | inconclusive |", "|---|---|---|---|"]  # fmt: skip
     for fam, t in sorted(summary(results).items()):
         lines.append(f"| {fam} | {t['confirmed']} | {t['witness']} | {t['inconclusive']} |")
     for r in results:

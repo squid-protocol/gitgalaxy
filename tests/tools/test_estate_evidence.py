@@ -60,8 +60,8 @@ def test_a_level_never_outruns_its_numbers(rows):
         if r["level"] in ("E2", "E3", "E4"):
             assert r["executed_equivalent"] and not r["holes"], r["key"]
         if r["level"] in ("E3", "E4"):
-            c = r["coverage"]
-            assert c["paragraphs"][0] == c["paragraphs"][1] and c["branches"][0] == c["branches"][1], r["key"]
+            p, b = ee.net_of(r["coverage"], "paragraphs"), ee.net_of(r["coverage"], "branches")
+            assert p[0] == p[1] and b[0] == b[1] and not r["coverage"].get("infeasible_refuted"), r["key"]
         if r["level"] == "E4":
             assert r["mutation"] and not r["mutation"]["survivors"]["untriaged"], r["key"]
 
@@ -179,6 +179,45 @@ def test_place(row, callee_holes, level):
     ee.place(row, callee_holes)
     assert row["level"] == level
     assert level == "E4" or row["why"]
+
+
+_SHORT = {"paragraphs": [3, 4], "branches": [7, 9], "uncovered_branches": 2,
+          "uncovered_branch_list": [{"line": 10, "outcome": "true"}, {"line": 12, "outcome": "false"}]}  # fmt: skip
+
+
+def _entry(**kw):
+    return {"unit": "P", "kind": "IF", "family": "C", "reason": "r", **kw}
+
+
+def test_net_coverage_takes_out_the_stated_outcomes_the_proof_left_uncovered():
+    entries = [_entry(line=10, outcome="true"), _entry(line=12, outcome="false", family="U"),
+               _entry(unit="Q", kind="PARAGRAPH", outcome="entered")]  # fmt: skip
+    net = ee.net_coverage("c", _SHORT, entries)
+    assert net == {"paragraphs_net": [3, 3], "branches_net": [7, 7], "infeasible_netted": 2,
+                   "undefined_by_ibm_netted": 1}  # fmt: skip
+    row = _row(coverage={**_SHORT, **net})
+    ee.place(row, [])
+    assert row["level"] == "E4"
+
+
+def test_a_reached_stated_outcome_is_refuted_and_keeps_the_row_short():
+    net = ee.net_coverage("c", _SHORT, [_entry(line=10, outcome="true"), _entry(line=11, outcome="true")])
+    assert net["branches_net"] == [7, 8] and net["infeasible_refuted"] == ["P:11:true"]
+    row = _row(coverage={**_SHORT, **net})
+    ee.place(row, [])
+    assert row["level"] == "E2" and "net of reviewed infeasible outcomes" in row["why"][0]
+
+
+def test_paragraph_entries_are_netted_only_when_they_cover_the_whole_gap():
+    two = [_entry(unit="Q", kind="PARAGRAPH", outcome="entered"), _entry(unit="R", kind="PARAGRAPH", outcome="entered")]
+    net = ee.net_coverage("c", _SHORT, two)
+    assert net["paragraphs_net"] == [3, 4] and "infeasible_refuted" not in net  # the record cannot say which one
+
+
+def test_the_report_shows_raw_and_net_coverage():
+    cell = ee._coverage_cell({**_SHORT, "paragraphs_net": [3, 3], "branches_net": [7, 7]})
+    assert cell == "3/4 / 7/9 (net 3/3 / 7/7)"
+    assert ee._coverage_cell(_row()["coverage"]) == "4/4 / 9/9"
 
 
 def test_a_stale_row_keeps_its_level_and_is_marked():

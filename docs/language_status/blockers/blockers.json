@@ -1,55 +1,14 @@
 {
  "programs": 191,
  "non_burned": 0,
- "whole": 187,
+ "whole": 190,
  "whole_non_burned": 0,
  "refused": 0,
  "histogram": {
-  "0": 187,
-  "2": 2,
-  "3": 1,
+  "0": 190,
   "7": 1
  },
  "gaps": [
-  {
-   "gap": "EXEC CICS WEB SEND CHARACTERSET HOSTCODEPAGE",
-   "only": 0,
-   "only_burned": 0,
-   "only_non_burned": 0,
-   "one_away": 2,
-   "one_away_burned": 2,
-   "one_away_non_burned": 0,
-   "touched": 3,
-   "touched_burned": 3,
-   "touched_non_burned": 0,
-   "refuses_program": false
-  },
-  {
-   "gap": "EXEC CICS WEB RECEIVE CHARACTERSET HOSTCODEPAGE",
-   "only": 0,
-   "only_burned": 0,
-   "only_non_burned": 0,
-   "one_away": 1,
-   "one_away_burned": 1,
-   "one_away_non_burned": 0,
-   "touched": 2,
-   "touched_burned": 2,
-   "touched_non_burned": 0,
-   "refuses_program": false
-  },
-  {
-   "gap": "EXEC CICS not a data area: '\u2026'",
-   "only": 0,
-   "only_burned": 0,
-   "only_non_burned": 0,
-   "one_away": 1,
-   "one_away_burned": 1,
-   "one_away_non_burned": 0,
-   "touched": 2,
-   "touched_burned": 2,
-   "touched_non_burned": 0,
-   "refuses_program": false
-  },
   {
    "gap": "<name> ADDRESS OF <name>: not an item of <name> or LINKAGE",
    "only": 0,

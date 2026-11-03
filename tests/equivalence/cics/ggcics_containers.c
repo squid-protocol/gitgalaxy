@@ -256,11 +256,9 @@ int GGCPUTC(gg_cics *c, char *from) {
     }
     if (c->len < 0) { c->resp = LENGERR; c->resp2 = 1; return 0; }
     gg_container *k = container_named(&chans[ch - 1], name, 0);
-    if (k) {
-        char key[96];
-        container_key(key, sizeof key, chans[ch - 1].name, name);
-        if (blk_held(key)) refuse("PUT CONTAINER onto a container a GET CONTAINER SET pointer addresses: IBM does not say what the pointer then sees");
-    }
+    /* PUT onto a container a GET CONTAINER SET pointer addresses (#7589, CAGCST): defined, the data is replaced. The held area is not
+     * on IBM's list of what ends it, so it stays allocated with its old bytes (stale); a read through it is undefined by IBM and is the
+     * case author's to avoid. */
     /* the other data type for an existing container: IBM says both that DATATYPE "applies only to new
      * containers" and that changing it is INVREQ RESP2 33 -- not settled, refused */
     if (k && (bit || chr) && k->bit != bit) refuse("PUT CONTAINER changing an existing container's data type");

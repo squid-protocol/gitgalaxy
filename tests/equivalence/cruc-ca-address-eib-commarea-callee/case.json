@@ -18,6 +18,12 @@
       "name": "no-commarea",
       "commarea": null,
       "why": "EIBCALEN 0: ADDRESS COMMAREA gives X'FF000000', the ABSENT arm"
+    },
+    {
+      "name": "link-view",
+      "commarea": null,
+      "commarea_hex": "50494E47434845434B2D4D452020202020202020",
+      "why": "EIBCALEN 20 (EYE PING, REQUEST CHECK-ME, REPLY blank): ADDRESS COMMAREA gives the caller's bytes, the PRESENT arm (56 false); the view's CALEN equals EIBCALEN (#7589)"
     }
   ]
 }

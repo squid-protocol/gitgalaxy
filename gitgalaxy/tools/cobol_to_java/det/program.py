@@ -1867,6 +1867,10 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
             ca_in += [f"        {kw} (ca instanceof {cls}) {{", f"            calen = cx(task, {size});"]
         if ca_in:
             ca_in.append("        }")
+        # #7589: untyped bytes (a LINK's area, or a scenario's commarea_hex) are EIBCALEN too, whatever the program's DTOs
+        ca_in += ["        if (calen == 0 && task.linkArea() != null) {",
+                  "            calen = cx(task, task.linkArea().length);",
+                  "        }"]  # fmt: skip
     store_cases = [f'            case "{n}" -> {e};' for n, e in cx.stores.items()]
     members = [
         "    private CicsTask task;",

@@ -386,7 +386,7 @@ def shards_for(p: dict, durations: dict[str, float] | None = None, waiting: int 
         return []  # not final: --ports turns it into a narrow (or full) plan
     if durations is not None:
         names = sorted(n for n, c in case_dirs().items() if not is_db2(c)) if p["cases"] == "all" else list(p["cases"])
-        n = _sized_shards(names, durations, waiting)
+        n = _sized_shards(names, durations, waiting, set(p.get("new_cases") or []))
     elif p["mode"] == "full":
         n = MAX_SHARDS
     else:
@@ -410,12 +410,14 @@ def planned_ratio(weight: dict[str, float], n: int) -> float | None:
     return max(loads) / min(loads) if min(loads) > 0 else None
 
 
-def _sized_shards(names: list[str], durations: dict[str, float], waiting: int | None) -> int:
+def _sized_shards(names: list[str], durations: dict[str, float], waiting: int | None,
+                  new: set[str] | frozenset[str] = frozenset()) -> int:  # fmt: skip
     """The non-Db2 shard count for `names`: the target-fitting count (ci_shard_plan), reduced until the planned ratio is
-    within MAX_RATIO (a smaller count balances better; one shard always does)."""
+    within MAX_RATIO (a smaller count balances better; one shard always does). `new`: cases this change adds, which no
+    sweep can have measured yet -- they weigh the median and do not count against the unmeasured allowance."""
     shard_plan = _shard_plan()
     w, missing = shard_plan.weights(names, durations)
-    shard_plan.check_measured(missing, len(w))
+    shard_plan.check_measured([c for c in missing if c not in new], len(w))
     n = shard_plan.shards_for(w, SHARD_SETUP_S, PROOF_JOBS, SHARD_TARGET_S, shard_plan.pool_cap(MAX_SHARDS, waiting))
     while n > 1 and (planned_ratio(w, n) or 0.0) > MAX_RATIO:
         n -= 1
@@ -453,7 +455,8 @@ def db2_shards_for(p: dict, n_db2: int | None = None, durations: dict[str, float
     if durations is not None:
         shard_plan = _shard_plan()
         w, missing = shard_plan.weights(db2_names(p), durations)
-        shard_plan.check_measured(missing, len(w), "Db2 case")
+        new = set(p.get("new_cases") or [])  # added by this change: no sweep measured them yet
+        shard_plan.check_measured([c for c in missing if c not in new], len(w), "Db2 case")
         n = shard_plan.shards_for(
             w,
             DB2_SETUP_S if setup_s is None else setup_s,
@@ -561,6 +564,20 @@ def file_texts(base: str) -> Callable[[str], tuple[str | None, str | None]]:
     return lambda path: (git_show(mb, path) if mb else None, git_show("HEAD", path))
 
 
+def new_cases(files: list[str], texts: Callable[[str], tuple[str | None, str | None]]) -> list[str]:
+    """The cases a change adds: a changed tests/equivalence/<case>/case.json that is absent at the merge base. A PR
+    adding three ladder cases (#7598: cruc-gt-*) had none measured, tripped ci_shard_plan.check_measured past its
+    allowance of two, and the plan crashed."""
+    out = []
+    for f in files:
+        parts = Path(f).parts
+        if len(parts) == 4 and parts[:2] == ("tests", "equivalence") and parts[3] == "case.json":
+            old, new = texts(f)
+            if old is None and new is not None:
+                out.append(parts[2])
+    return sorted(out)
+
+
 def changed_files(base: str) -> list[str]:
     proc = subprocess.run(["git", "diff", "--name-only", f"{base}...HEAD"], cwd=REPO_ROOT,  # noqa: S603, S607
                           capture_output=True, text=True, check=False)  # fmt: skip
@@ -624,11 +641,19 @@ def main() -> int:
     cases = case_dirs()
     if args.ports:
         p = narrow_by_ports(args.ports, [c for c in args.touched.split(",") if c], cases)
+        try:  # the cases this change adds weigh the median, as in the first plan
+            if added := new_cases(changed_files(args.base), file_texts(args.base)):
+                p["new_cases"] = added
+        except RuntimeError:
+            pass  # no diff: every unmeasured case counts, as before
         return emit(p, args.github_output, load_durations(args.durations), args.waiting, setup_s)
     try:
         files = args.files if args.files is not None else changed_files(args.base)
-        p = plan(files, args.event, cases, labels, file_texts(args.base)) if files or args.event != "pull_request" else {
+        texts = file_texts(args.base)
+        p = plan(files, args.event, cases, labels, texts) if files or args.event != "pull_request" else {
             "mode": "full", "cases": "all", "db2_cases": "all", "reason": "no changed files found (the diff is unreadable or empty)"}  # fmt: skip
+        if added := new_cases(files, texts):
+            p["new_cases"] = added
     except RuntimeError as e:  # cannot tell what changed: everything
         p = {"mode": "full", "cases": "all", "db2_cases": "all", "reason": f"cannot diff ({e})"}
     return emit(p, args.github_output, load_durations(args.durations), args.waiting, setup_s)

@@ -12,11 +12,11 @@ Every cell that does not pass is ledgered in `tests/cics_crucible/baseline.json`
 |---|---|---|---|---|
 | engine-facts | 51 | 0 | 0 | 51 |
 | forge-compile | 51 | 0 | 0 | 51 |
-| cobol-stub | 167 | 10 | 0 | 177 |
+| cobol-stub | 168 | 9 | 0 | 177 |
 | java | 0 | 177 | 0 | 177 |
 | java-ported | 75 | 102 | 0 | 177 |
 | java-facade | 72 | 105 | 0 | 177 |
-| **all** | **416** | **394** | **0** | **810** |
+| **all** | **417** | **393** | **0** | **810** |
 
 ## By trap and case
 
@@ -33,7 +33,7 @@ Pass counts per side (scenario sides: passing / scenarios).
 | commarea-mismatch | `ca-channel-containers` | pass | pass | 2 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
 | commarea-mismatch | `ca-container-byteoffset` | pass | pass | 2 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
 | commarea-mismatch | `ca-container-ccsid` | pass | pass | 1 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
-| commarea-mismatch | `ca-get-container-set` | pass | pass | 1 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
+| commarea-mismatch | `ca-get-container-set` | pass | pass | 2 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
 | commarea-mismatch | `ca-getmain-pointer` | pass | pass | 1 / 2 | 0 / 2 | 2 / 2 | 2 / 2 |
 | commarea-mismatch | `ca-link-lengths` | pass | pass | 4 / 4 | 0 / 4 | 4 / 4 | 4 / 4 |
 | commarea-mismatch | `ca-load-set` | pass | pass | 2 / 2 | 0 / 2 | 2 / 2 | 2 / 2 |
@@ -101,7 +101,7 @@ Each cobol-stub scenario runs the COBOL compiled with `-ftraceall` (tests/tools/
 | `ca-container-byteoffset` | CABOFFX | 1 | 4/4 | 0/0 | 0/0 | 0 | proven on 0 scenarios, covering 0/4 paragraphs and 0/0 branches |
 | `ca-container-ccsid` | CACCBIT | 1 | 3/3 | 0/0 | 0/0 | 0 | proven on 0 scenarios, covering 0/3 paragraphs and 0/0 branches |
 | `ca-container-ccsid` | CACCSID | 0 | 0/3 | 0/0 | 0/0 | 0 | -- |
-| `ca-get-container-set` | CAGCST | 0 | 0/2 | 0/0 | 0/0 | 0 | -- |
+| `ca-get-container-set` | CAGCST | 1 | 2/2 | 0/0 | 0/0 | 0 | proven on 0 scenarios, covering 0/2 paragraphs and 0/0 branches |
 | `ca-get-container-set` | CAGCSX | 1 | 2/2 | 0/0 | 0/0 | 0 | proven on 0 scenarios, covering 0/2 paragraphs and 0/0 branches |
 | `ca-getmain-pointer` | CAGMPT | 0 | 0/2 | 0/6 | 0/0 | 0 | -- |
 | `ca-getmain-pointer` | CAGMZ | 1 | 3/3 | 4/4 | 0/0 | 0 | proven on 1 scenario, covering 3/3 paragraphs and 4/4 branches |
@@ -230,11 +230,6 @@ Each item is a scenario to propose: a crucible PR adds it with a hand-written, d
 - paragraph `MAIN-PARA` (line 23)
 - paragraph `LOG-GET` (line 109)
 - paragraph `LOG-RESP` (line 113)
-
-#### `ca-get-container-set` CAGCST
-
-- paragraph `MAIN-PARA` (line 28)
-- paragraph `LOG-RESP` (line 81)
 
 #### `ca-getmain-pointer` CAGMPT
 
@@ -445,7 +440,7 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 
 | side | reason | cells |
 |---|---|---|
-| cobol-stub | WRITEQ-TS missing | 4 |
+| cobol-stub | WRITEQ-TS missing | 3 |
 | cobol-stub | text differs | 3 |
 | cobol-stub | item differs | 2 |
 | cobol-stub | data bytes differ | 1 |
@@ -530,7 +525,6 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | `ca-get-container-set/errors/java` | fail | task 1 (CA0G) event 1: WRITEQ-TS expected, the side recorded no further event |
 | `ca-get-container-set/errors/java-facade` | fail | no port of any of its programs |
 | `ca-get-container-set/errors/java-ported` | fail | no port of any of its programs |
-| `ca-get-container-set/set/cobol-stub` | fail | task 1 (CA0F) event 5: WRITEQ-TS expected, the side recorded no further event |
 | `ca-get-container-set/set/java` | fail | task 1 (CA0F) event 1: WRITEQ-TS expected, the side recorded no further event |
 | `ca-get-container-set/set/java-facade` | fail | no port of any of its programs |
 | `ca-get-container-set/set/java-ported` | fail | no port of any of its programs |

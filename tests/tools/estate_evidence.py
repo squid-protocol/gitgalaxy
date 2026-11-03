@@ -18,7 +18,11 @@ The ladder (cumulative; a level is the highest whose conditions hold; counts alw
                           policy 4 of mainframe-evidence-policy.md): the case is recorded at this lower level
   E2 executed equivalent  the record's proof ran its scenarios and fault runs against the GnuCOBOL oracle and every
                           output compared equal
-  E3 + coverage           ... and the proof executed every live paragraph and every branch outcome
+  E3 + coverage           ... and the proof executed every live paragraph and every branch outcome, net of the
+                          case's reviewed infeasible outcomes (tests/equivalence/infeasible_outcomes/<case>.json,
+                          #4602), as the L4 bar of evidence_report.py takes them; raw and net are both reported, an
+                          'undefined by IBM' outcome (family U) is netted but counted by name, and a stated outcome the
+                          proof reached is a refuted claim, never netted
   E4 + mutants accounted  ... and a mutation score is recorded with no untriaged survivor, and it is not stale
 
 The oracle is GnuCOBOL plus gitgalaxy's CICS / LE / Db2 models (or, for a crucible port, the crucible's hand-written
@@ -56,7 +60,7 @@ LEVEL_NAMES = {
     "E0": "no record",
     "E1": "recorded, not executed-equivalent or holes",
     "E2": "executed equivalent",
-    "E3": "executed equivalent, full coverage",
+    "E3": "executed equivalent, full coverage (net of reviewed infeasible outcomes)",
     "E4": "executed equivalent, full coverage, mutants accounted for",
 }
 OPEN_SURVIVORS = ("untriaged", "case_gap", "harness_gap")
@@ -115,6 +119,35 @@ def _ratio(text: str | None) -> tuple[int, int] | None:
     return int(a), int(b)
 
 
+def net_coverage(case: str, cov: dict[str, Any], entries: list[dict[str, Any]]) -> dict[str, Any]:
+    """The record's coverage net of the case's stated infeasible outcomes (infeasible_outcomes.py, the L4 rule).
+
+    A branch entry is netted when the record lists its outcome as uncovered and refuted when the proof took it. The
+    record keeps no names of uncovered paragraphs, so the paragraph entries are netted only when they account for the
+    whole paragraph gap; otherwise none is netted and none is called refuted (the record cannot tell which)."""
+    import infeasible_outcomes as io  # noqa: PLC0415
+
+    pc, pl = cov["paragraphs"]
+    bc, bt = cov["branches"]
+    paras = [e for e in entries if io.is_paragraph(e)]
+    branch_entries = [e for e in entries if not io.is_paragraph(e)]
+    uncovered = list(cov.get("uncovered_branch_list") or [])
+    netted_paras = paras if paras and pl - pc == len(paras) else []
+    uncovered += [io.PARAGRAPH_MARK + e["unit"] for e in netted_paras]
+    net, netted, refuted = io.adjust(case, (pc, pl, bc, bt), uncovered,
+                                     {case: branch_entries + netted_paras})  # fmt: skip
+    if net is None:  # adjust() returns None only for absent coverage, which the caller never passes
+        return {}
+    infeasible, undefined = io.split_undefined(netted, entries)
+    out: dict[str, Any] = {"paragraphs_net": [net[0], net[1]], "branches_net": [net[2], net[3]],
+                           "infeasible_netted": len(infeasible)}  # fmt: skip
+    if undefined:
+        out["undefined_by_ibm_netted"] = len(undefined)
+    if refuted:
+        out["infeasible_refuted"] = refuted
+    return out
+
+
 def callees(t: ev.Target, by_program: dict[tuple[str, str], list[ev.Target]]) -> list[str]:
     """The keys of the other ports a program's proof LINKs / CALLs into: the case's `programs` (an equivalence case),
     or the sibling programs of the same case (a crucible port: the proof lays every sibling)."""
@@ -150,7 +183,8 @@ def reaches_holes(key: str, rows: dict[str, dict[str, Any]], links: dict[str, li
     return sorted(bad)
 
 
-def row_of(t: ev.Target, rec: dict[str, Any] | None, st: dict[str, Any]) -> dict[str, Any]:
+def row_of(t: ev.Target, rec: dict[str, Any] | None, st: dict[str, Any],
+           infeasible: dict[str, list[dict[str, Any]]] | None = None) -> dict[str, Any]:
     """One program's record, flattened. No level yet: that needs the callees' rows."""
     row: dict[str, Any] = {"key": t.key, "program": t.program, "case": t.case, "kind": t.kind, "estate": estate_of(t),
                            "record": ev.rel_path(t.record) if t.record.is_file() else None}  # fmt: skip
@@ -160,6 +194,20 @@ def row_of(t: ev.Target, rec: dict[str, Any] | None, st: dict[str, Any]) -> dict
                 "status": "no-record", "reasons": []}  # fmt: skip
     proof = rec.get("proof") or {}
     cov = rec.get("coverage")
+    coverage = None
+    if cov:
+        coverage = {
+            "paragraphs": [cov["paragraphs"]["covered"], cov["paragraphs"]["live"]],
+            "branches": [cov["branches"]["covered"], cov["branches"]["total"]],
+            "uncovered_branches": len(cov.get("uncovered_branches") or []),
+        }
+        entries = (infeasible or {}).get(t.case, []) if t.kind != "crucible" else []
+        # a crucible record lists no uncovered outcomes, so a stated one could not be matched: crucible ports are raw
+        import infeasible_outcomes as io
+
+        listed = io.recorded_uncovered(cov)  # None for an incomplete list: a stated outcome cannot be matched
+        if entries and listed is not None:
+            coverage |= net_coverage(t.case, {**coverage, "uncovered_branch_list": listed}, entries)
     mut = rec.get("mutation")
     ap = st["approved"]
     reach = (rec.get("reach") or {}).get("counts") or {}
@@ -185,13 +233,7 @@ def row_of(t: ev.Target, rec: dict[str, Any] | None, st: dict[str, Any]) -> dict
         "oracle": (rec.get("oracle") or {}).get("kind"),
         "holes": own_holes(rec),
         "reach": {k: int(reach.get(k, 0)) for k in ("stub", "left_as_generated", "ported_unproven", "det_helper")},
-        "coverage": None
-        if not cov
-        else {
-            "paragraphs": [cov["paragraphs"]["covered"], cov["paragraphs"]["live"]],
-            "branches": [cov["branches"]["covered"], cov["branches"]["total"]],
-            "uncovered_branches": len(cov.get("uncovered_branches") or []),
-        },  # fmt: skip
+        "coverage": coverage,
         "mutation": mutation,
         "differences": len(rec.get("differences") or []),
         "approval": None
@@ -207,6 +249,20 @@ def row_of(t: ev.Target, rec: dict[str, Any] | None, st: dict[str, Any]) -> dict
         "status": st["status"],
         "reasons": list(st["reasons"]),
     }
+
+
+def net_of(cov: dict[str, Any], what: str) -> list[int]:
+    """[covered, total] of `what` (paragraphs / branches), net of the stated infeasible outcomes when there are any."""
+    return list(cov.get(f"{what}_net") or cov[what])
+
+
+def coverage_short(cov: dict[str, Any]) -> str | None:
+    """Why the coverage misses the E3 bar (net of the stated infeasible outcomes), or None when it meets it."""
+    p, b = net_of(cov, "paragraphs"), net_of(cov, "branches")
+    if p[0] >= p[1] and b[0] >= b[1]:
+        return None
+    net = " (net of reviewed infeasible outcomes)" if "branches_net" in cov else ""
+    return f"coverage short: {p[0]}/{p[1]} paragraphs, {b[0]}/{b[1]} branch outcomes{net}"
 
 
 def place(row: dict[str, Any], callee_holes: list[str]) -> None:
@@ -227,9 +283,8 @@ def place(row: dict[str, Any], callee_holes: list[str]) -> None:
         cov = row["coverage"]
         if not cov:
             why.append("coverage not recorded")
-        elif cov["paragraphs"][0] < cov["paragraphs"][1] or cov["branches"][0] < cov["branches"][1]:
-            why.append(f"coverage short: {cov['paragraphs'][0]}/{cov['paragraphs'][1]} paragraphs, "
-                       f"{cov['branches'][0]}/{cov['branches'][1]} branch outcomes")  # fmt: skip
+        elif short := coverage_short(cov):
+            why.append(short)
         else:
             level = "E3"
             m = row["mutation"]
@@ -255,9 +310,12 @@ def build(keys: list[str] | None = None, live: bool = True) -> dict[str, Any]:
             by_program.setdefault((t.corpus.get("name", ""), t.program), []).append(t)
     rows: dict[str, dict[str, Any]] = {}
     links: dict[str, list[str]] = {}
+    import infeasible_outcomes as io  # noqa: PLC0415
+
+    infeasible = io.load()
     for t in targets:
         rec = ev.load(t)
-        rows[t.key] = row_of(t, rec, ev.status(rec, t, live=live))
+        rows[t.key] = row_of(t, rec, ev.status(rec, t, live=live), infeasible)
         links[t.key] = callees(t, by_program)
     for k, r in rows.items():
         bad = reaches_holes(k, rows, links)
@@ -280,7 +338,8 @@ def build(keys: list[str] | None = None, live: bool = True) -> dict[str, Any]:
 
 def summarise(rows: list[dict[str, Any]]) -> dict[str, Any]:
     levels = Counter(r["level"] for r in rows)
-    para, br = [0, 0], [0, 0]
+    para, br, br_net = [0, 0], [0, 0], [0, 0]
+    netted = undefined = 0
     killed = judged = adj = stillborn = 0
     surv: Counter[str] = Counter()
     open_surv = 0
@@ -290,6 +349,11 @@ def summarise(rows: list[dict[str, Any]]) -> dict[str, Any]:
             para[1] += r["coverage"]["paragraphs"][1]
             br[0] += r["coverage"]["branches"][0]
             br[1] += r["coverage"]["branches"][1]
+            n = net_of(r["coverage"], "branches")
+            br_net[0] += n[0]
+            br_net[1] += n[1]
+            netted += r["coverage"].get("infeasible_netted", 0)
+            undefined += r["coverage"].get("undefined_by_ibm_netted", 0)
         m = r["mutation"]
         if m:
             killed += m["killed"]
@@ -327,6 +391,9 @@ def summarise(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "holes": sum(r["holes"] for r in rows),
         "paragraphs": para,
         "branches": br,
+        "branches_net": br_net,
+        "infeasible_netted": netted,
+        "undefined_by_ibm_netted": undefined,
         "mutation": {
             "programs_measured": sum(1 for r in rows if r["mutation"]),
             "killed": killed,
@@ -367,7 +434,8 @@ def _summary_lines(s: dict[str, Any]) -> list[str]:
         f"- Programs: {s['programs']}; at {', '.join(f'{k} {lv[k]}' for k in LEVELS)}; "
         f"executed equivalent or above (E2+): {_pct(s['at_or_above_e2'], s['programs'])}.",
         f"- Coverage over the programs with a record: paragraphs {_pct(*s['paragraphs'])}, "
-        f"branch outcomes {_pct(*s['branches'])}.",
+        f"branch outcomes {_pct(*s['branches'])}; net of {s['infeasible_netted']} reviewed infeasible and "
+        f"{s['undefined_by_ibm_netted']} undefined-by-IBM outcome(s): {_pct(*s['branches_net'])}.",
         f"- Mutation: {m['programs_measured']} program(s) measured, killed {_pct(m['killed'], m['judged'])} raw "
         f"(adjusted for equivalent / unreachable survivors: {_pct(m['killed'], m['adjusted_judged'])}); "
         f"survivors {', '.join(f'{k} {v}' for k, v in m['survivors'].items())}; open survivors {m['open_survivors']}.",
@@ -388,12 +456,21 @@ def _cell(r: dict[str, Any]) -> list[str]:
         r["level"] + ("" if r.get("level_current", True) else " (stale)"),
         f"{proof.get('runs', '-')} runs / {proof.get('fault_runs', '-')} fault" if proof else "-",
         r["oracle"] or "-",
-        f"{cov['paragraphs'][0]}/{cov['paragraphs'][1]} / {cov['branches'][0]}/{cov['branches'][1]}" if cov else "-",
+        _coverage_cell(cov) if cov else "-",
         f"{m['killed']}/{m['judged']}, open {m['open_survivors']}" if m else "-",
         str(r["differences"]),
         f"{ap['decision']} by {ap['by']} ({ap['at']}){'' if ap['current'] else ', earlier version'}" if ap else "-",
         "; ".join(r["why"]) or "-",
     ]
+
+
+def _coverage_cell(cov: dict[str, Any]) -> str:
+    raw = f"{cov['paragraphs'][0]}/{cov['paragraphs'][1]} / {cov['branches'][0]}/{cov['branches'][1]}"
+    if "branches_net" not in cov:
+        return raw
+    p, b = net_of(cov, "paragraphs"), net_of(cov, "branches")
+    refuted = f", {len(cov['infeasible_refuted'])} refuted" if cov.get("infeasible_refuted") else ""
+    return f"{raw} (net {p[0]}/{p[1]} / {b[0]}/{b[1]}{refuted})"
 
 
 def render(rep: dict[str, Any]) -> str:

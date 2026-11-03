@@ -305,3 +305,13 @@ def test_bnk1cac_x8_bounds_refusals_are_the_four_undefined_by_ibm_outcomes():
     got = {(e["line"], e["outcome"]) for e in entries if io.is_undefined(e)}
     assert got == {(611, "true"), (637, "true"), (637, "false"), (717, "true")}
     assert all("2026-10-29" in e["reason"] for e in entries if io.is_undefined(e))
+
+
+def test_recorded_uncovered_is_none_for_an_incomplete_list():
+    cov = {"branches": {"covered": 206, "total": 208}}
+    assert io.recorded_uncovered({**cov, "uncovered_branches": []}) is None
+    assert io.recorded_uncovered({**cov, "uncovered_branches": [{"line": 704, "outcome": "false"}]}) is None
+    full = [{"line": 704, "outcome": "false"}, {"line": 718, "outcome": "false"}]
+    assert io.recorded_uncovered({**cov, "uncovered_branches": full}) == full
+    assert io.recorded_uncovered({**cov, "uncovered_branches": None}) is None
+    assert io.recorded_uncovered({"branches": {"covered": 4, "total": 4}, "uncovered_branches": []}) == []

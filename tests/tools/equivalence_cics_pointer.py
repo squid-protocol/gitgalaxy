@@ -9,9 +9,12 @@ pointer itself, the two idioms the det translator models (`det/program.pointer_v
 * `ADD n TO view` / `SUBTRACT n FROM view` -> `CALL "GGCPTRADV" USING ptr BY VALUE n` (negated for SUBTRACT); n is an
   integer literal or a BINARY item of at most 9 digits; ggcics.c refuses a result outside the pointer's block;
 * `MOVE view1 TO view2` -> `SET ptr2 TO ptr1`;
+* `view [IS] [NOT] = | EQUAL [TO] 0 | ZERO | ZEROS | ZEROES` (the zero on either side) -> `ptr [NOT] = NULL`: a handle's
+  zero is NULL (the det port's `view_zero_relation`); a leading `NOT` stays in front of the relation;
+  an ordering test or a number other than zero stays refused;
 * the view's declaration is dropped.
 
-Any other use of a view (COMPUTE, IF, a MOVE to or from a number, ADD GIVING, several targets, a statement over several
+Any other use of a view (COMPUTE, any other IF test, a MOVE to or from a number, ADD GIVING, several targets, a statement over several
 lines) is `Unsupported`, refused by name as the translator refuses it. A program with no view comes back unchanged.
 (The batch twin for z/OS control blocks is equivalence_mvs.py.)
 """
@@ -36,6 +39,8 @@ _VIEW = re.compile(
 )
 # what may follow a modelled statement on its line: nothing, the period, or the next clause of the enclosing sentence
 _TAIL = re.compile(r"^\s*(\.|$|(ELSE|END-IF|END-PERFORM|END-EVALUATE|WHEN)\b)", FLAGS)
+_ZERO = r"(?:[+-]?0+(?:\.0+)?(?![\w-]|\.\d)|ZEROES|ZEROS|ZERO)(?![\w-])"
+_EQ = r"(?:IS\s+)?(NOT\s+)?(?:=|EQUAL(?:\s+TO)?(?![\w-]))"
 _BINARY = re.compile(r"\b(COMP|COMPUTATIONAL|BINARY)\b", FLAGS)
 _DIGITS = re.compile(r"\bS?9(?:\((\d+)\)|(9*))", FLAGS)
 
@@ -111,6 +116,10 @@ def _statement(code: str, views: dict[str, str], text: str) -> str:
                 if not _TAIL.match(code[m.end() :]):
                     raise Unsupported(f"{other}: `MOVE {view} TO {other}` with other targets")
                 code = code[: m.start()] + f"SET {optr} TO {ptr}" + code[m.end() :]
+    for view, ptr in views.items():
+        v = _word(view)
+        for pat in (rf"{v}\s*{_EQ}\s*{_ZERO}", rf"(?<![\w.+-]){_ZERO}\s*{_EQ}\s*{v}"):
+            code = re.sub(pat, lambda m, p=ptr: f"{p} {'NOT ' if m.group(1) else ''}= NULL", code, flags=FLAGS)
     return code
 
 

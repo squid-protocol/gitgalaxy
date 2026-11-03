@@ -1,10 +1,10 @@
-"""#6876: the deterministic port of hc-file-unlock's HCUNLK (70/70 statements, no holes).
+"""#6876: the deterministic port of hc-file-unlock's HCUNLK (70/70 statements, no holes), proved on both Java sides.
 
 UNLOCK with no TOKEN translates whole and records the SPEC 6.2 UNLOCK event (`task.unlock`, not the event-free `unlockHeld`).
-The case now states the key of file HCUF (jcl/DEFVSAM.jcl: IDCAMS KEYS(4 0), cics-crucible #51), so the generated entity has a
-key and the READ UPDATE / REWRITE / READ no longer stop at a named hole (X58). The four scenarios still fail on both Java sides:
-the port's READ UPDATE / REWRITE are the event-free `CicsTask.readForUpdate` / `rewrite` forms, so the log has no READ or
-REWRITE event (the next event is the WRITEQ-TS of the HCLOG line)."""
+The case states the key of file HCUF (jcl/DEFVSAM.jcl: IDCAMS KEYS(4 0), cics-crucible #51). A program with such an UNLOCK
+also records its `READ INTO LENGTH` (`task.readInto`, the READ event with `length`) and its `REWRITE FROM`
+(`task.rewriteFrom`) as events, so the four scenarios' logs hold the READ and REWRITE the COBOL stub records: all eight
+ported / facade cells pass. The facade's byte-carrying second pass seeds the file again, as the first pass does."""
 
 import json
 import os
@@ -48,13 +48,33 @@ def test_the_ports_dir_adds_the_runtime_and_keeps_the_service(tmp_path):
     assert runner.case_overlays(out) == {"HCUF": overlay}
 
 
-def test_the_ledger_names_the_missing_file_event_not_a_hole_on_both_ported_sides():
+def test_the_port_records_the_read_and_rewrite_events():
+    text = SERVICE.read_text(encoding="utf-8")
+    assert text.count("task.readInto(") == 4 and text.count("task.rewriteFrom(") == 3
+    assert "task.readForUpdate(" not in text and "task.rewrite(" not in text  # the event-free forms drop the events
+
+
+def test_a_program_without_a_tokenless_unlock_keeps_the_event_free_calls():
+    from gitgalaxy.tools.cobol_to_java.det.cics_filecontrol import FileControlCommands as FileControl  # noqa: PLC0415
+
+    class G:
+        class p:  # noqa: N801
+            class proc:  # noqa: N801
+                execs = {1: "READ FILE('F') INTO(R) LENGTH(L) RIDFLD(K) UPDATE", 2: "UNLOCK FILE('F') TOKEN(T)"}
+
+    fc = FileControl.__new__(FileControl)
+    fc.g = G
+    assert fc._records_file_events() is False
+    G.p.proc.execs[3] = "UNLOCK FILE('F')"
+    del fc._file_events
+    assert fc._records_file_events() is True
+
+
+def test_the_ledger_no_longer_holds_a_ported_or_facade_cell():
     ledger = json.loads((TESTS / "cics_crucible" / "baseline.json").read_text(encoding="utf-8"))["cells"]
     for sc in SCENARIOS:
         for side in ("java-ported", "java-facade"):
-            reason = ledger[f"{CASE}/{sc}/{side}"]["reason"]
-            assert "expected, got WRITEQ-TS" in reason
-            assert "Hole" not in reason and "no port" not in reason
+            assert f"{CASE}/{sc}/{side}" not in ledger
 
 
 E2E = os.environ.get("EQUIVALENCE_E2E") == "1" and bool(os.environ.get(runner.PATH_ENV))
@@ -63,10 +83,10 @@ E2E = os.environ.get("EQUIVALENCE_E2E") == "1" and bool(os.environ.get(runner.PA
 @pytest.mark.slow(reason="a Maven build of the generated project with the det port, two sides")
 @pytest.mark.e2e
 @pytest.mark.skipif(not E2E, reason="needs EQUIVALENCE_E2E=1, a JDK + Maven and a cics-crucible checkout")
-def test_each_scenario_stops_at_the_missing_file_event_on_both_sides(tmp_path):
+def test_each_scenario_passes_on_both_sides(tmp_path):
     crucible = Path(os.environ[runner.PATH_ENV])
     offline = os.environ.get("MAVEN_OFFLINE") == "1"
     res = runner.measure(crucible, {CASE}, {"java-ported", "java-facade"}, tmp_path / "w", offline,
                          runner.PortOptions(ports=det.ports_dir(CASE, tmp_path / "ports")))  # fmt: skip
     for c in res["cells"].values():
-        assert c["status"] == "fail" and "expected, got WRITEQ-TS" in c["reason"] and "Hole" not in c["reason"]
+        assert c["status"] == "pass", c["reason"]

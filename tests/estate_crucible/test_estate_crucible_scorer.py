@@ -165,6 +165,52 @@ def test_a_call_site_is_matched_on_verb_and_operand_then_compared():
     assert c.status == "fail" and "resolves_to" in c.detail and c.depends_on == ["H-0008"]
 
 
+def _runner_call(operand, target="BDLDDB2", resolves_to="cobol/BDLDDB2.cbl", line=22):
+    return SimpleNamespace(
+        verb="EXEC PGM", form="runner", operand=operand, target=target, resolves_to=resolves_to, line=line
+    )
+
+
+_RUN_KEY = {
+    "verb": "RUN PROGRAM",
+    "form": "literal",
+    "operand": "BDLDDB2",
+    "target": "BDLDDB2",
+    "line": 22,
+    "resolves_to": "cobol/BDLDDB2.cbl",
+}
+
+
+def _score_runner(calls, keyed=(_RUN_KEY,)):
+    eng = FakeEngine(files={"j.jcl": SimpleNamespace(calls=calls)})
+    sc = ec.Score()
+    ec.score_call_sites(sc, "j.jcl", {"call_sites": list(keyed)}, eng)
+    return [(c.fact, c.status) for c in sc.checks]
+
+
+@pytest.mark.parametrize("runner", ["IKJEFT01", "IKJEFT1A", "IKJEFT1B"])
+def test_a_tso_runner_row_is_the_keyed_run_program_call(runner):
+    assert _score_runner([_runner_call(f"{runner} RUN PROGRAM")]) == [("RUN PROGRAM BDLDDB2 @22", "pass")]
+
+
+def test_a_runner_row_with_another_target_or_line_fails_not_passes():
+    got = _score_runner([_runner_call("IKJEFT01 RUN PROGRAM", target="OTHER")])
+    assert ("RUN PROGRAM BDLDDB2 @22", "missing") in got and ("RUN PROGRAM OTHER @22", "phantom") in got
+    assert _score_runner([_runner_call("IKJEFT01 RUN PROGRAM", line=23)]) == [("RUN PROGRAM BDLDDB2 @22", "fail")]
+
+
+@pytest.mark.parametrize("via", ["TSO CALL", "DFSRRC00"])
+def test_a_runner_via_the_key_does_not_define_stays_a_phantom(via):
+    got = _score_runner([_runner_call(f"IKJEFT01 {via}")])
+    assert ("RUN PROGRAM BDLDDB2 @22", "missing") in got and any(s == "phantom" for _, s in got)
+
+
+def test_a_plain_exec_pgm_row_is_untouched():
+    plain = SimpleNamespace(verb="EXEC PGM", form="literal", operand="SORT", target="SORT", resolves_to=None, line=5)
+    key = {"verb": "EXEC PGM", "form": "literal", "operand": "SORT", "target": "SORT", "line": 5, "resolves_to": None}
+    assert _score_runner([plain], keyed=(key,)) == [("EXEC PGM SORT @5", "pass")]
+
+
 def test_a_value_keeps_the_blanks_inside_its_literal():
     assert ec._val("'PAGE '") == "PAGE "
     assert ec._val("PAGE ") == "PAGE "
@@ -1025,3 +1071,25 @@ def test_a_member_with_no_ims_keys_adds_no_ims_checks():
     ec.score_dli_calls(sc, "x.cbl", {}, FakeEngine())
     ec.score_ims_gen(sc, "x.cbl", {}, FakeEngine())
     assert sc.checks == []
+
+
+def _run_program_edge(got_edges, files, extra_calls=()):
+    eng = FakeEngine(files=files)
+    eng.file_edges = {"j.jcl": set(got_edges)}
+    entry = {"call_sites": [{"verb": "RUN PROGRAM", "operand": "BDLDDB2", "line": 22, "horror": "H-0068"}, *extra_calls]}
+    sc = ec.Score()
+    ec.score_file_edges(sc, "j.jcl", entry, eng)
+    return _statuses(sc)
+
+
+def test_a_run_program_call_site_implies_the_exec_file_edge():
+    files = {"d.cbl": SimpleNamespace(program_ids=["BDLDDB2"])}
+    assert _run_program_edge({("d.cbl", "exec")}, files) == [("file_edges", "exec -> d.cbl", "pass", "H-0068")]
+    assert _run_program_edge(set(), files) == [("file_edges", "exec -> d.cbl", "missing", "H-0068")]
+    # two steps running the same program draw one edge
+    twice = [{"verb": "RUN PROGRAM", "operand": "bdlddb2", "line": 40}]
+    assert _run_program_edge({("d.cbl", "exec")}, files, twice) == [("file_edges", "exec -> d.cbl", "pass", "H-0068")]
+    # an unresolved program states no edge; the engine's own exec edge stays a phantom
+    assert _run_program_edge({("d.cbl", "exec")}, {}) == [("file_edges", "exec -> d.cbl", "phantom", None)]
+    # a call edge is never excused by it
+    assert ("file_edges", "call -> d.cbl", "phantom", None) in _run_program_edge({("d.cbl", "call")}, files)

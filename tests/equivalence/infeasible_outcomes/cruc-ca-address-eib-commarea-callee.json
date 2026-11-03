@@ -1,0 +1,14 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "cruc-ca-address-eib-commarea-callee",
+  "entries": [
+    {
+      "unit": "SUB-MAIN",
+      "line": 53,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "`IF VE-CALEN = EIBCALEN` ELSE arm: LS-EIB is based on the pointer ADDRESS EIB returns, the task's own EIB storage, so VE-CALEN is the storage EIBCALEN names. Equal on every run for any COMMAREA length."
+    }
+  ]
+}

@@ -151,6 +151,10 @@ _REFUSALS = [
         "code-page conversion of a CCSID 1208 byte beyond ASCII",
     ),  # fmt: skip
     (
+        [("put", "x", "A", "414243313233", 1208, ["CHANNEL"]), ("get", "y", "A", 6, None, ["CHANNEL"])],
+        "read as region page 037 per #4528",
+    ),  # fmt: skip
+    (
         [("put", "x", "A", "A2", 37, ["CHANNEL"]), ("get", "y", "A", 4, 1208, ["CHANNEL", "INTOCCSID"])],
         "code-page conversion to CCSID 1208 of a character beyond ASCII",
     ),  # fmt: skip

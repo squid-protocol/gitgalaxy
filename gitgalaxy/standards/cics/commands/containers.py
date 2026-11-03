@@ -94,7 +94,7 @@ _CCSID_REFUSALS = (
         c="code-page conversion of a character the target CCSID lacks",
     ),
     RuntimeRefusal(
-        "a CCSID 1208 byte beyond ASCII (a multibyte character changes the length)",
+        "a CCSID 1208 byte the region page 037 reads at or above X'80' (a hex-literal ASCII byte, #4528; not multibyte)",
         "X17",
         java="code-page conversion of a CCSID 1208 byte beyond ASCII",
         c="code-page conversion of a CCSID 1208 byte beyond ASCII",

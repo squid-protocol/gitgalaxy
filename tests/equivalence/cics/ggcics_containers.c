@@ -159,7 +159,7 @@ static void ccsid_convert(char *d, int len, int from, int to, const char *what) 
         if (from == 1208) {
             int real = -1;  /* the byte the region's page encodes b as, when it is below X'80' */
             for (int j = 0; j < 128; j++) if (EBCDIC037_LOW[j] == b) { real = j; break; }
-            if (real < 0) refuse("code-page conversion of a CCSID 1208 byte beyond ASCII (a multibyte character)");
+            if (real < 0) refuse("code-page conversion of a CCSID 1208 byte beyond ASCII (the byte is read as region page 037 per #4528, where a hex-literal ASCII byte such as X'41' is not below X'80'; not multibyte; IBM Table 38 lists 1208 UTF-8; register X17)");
             ch = (unsigned char)real;
         } else if (from == 500) {
             ch = ccsid_perm500(b, 0);  /* the character CCSID 500 reads at the byte the region's page reads as b */

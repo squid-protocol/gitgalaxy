@@ -14,7 +14,7 @@ GalaxyIR, and diffs every fact channel of the key against it:
                   synthetic_unit_data row
   edges           PERFORM / CALL -> function_data.calls_out_to, GO TO -> transfers_to,
                   per owning unit (the main line's from synthetic_unit_data)
-  call_sites      call_site_data (CALL, LINK, XCTL, RETURN TRANSID, EXEC PGM)
+  call_sites      call_site_data (CALL, LINK, XCTL, RETURN TRANSID, EXEC PGM; a runner step's RUN PROGRAM row is read as the key's `RUN PROGRAM`)
   copies          file_data.raw_imports + edge_data import edges
   data_items      record_data entries
   layouts         GalaxyIR.record_layout of every 01 a program writes: bytes and every
@@ -32,12 +32,12 @@ GalaxyIR, and diffs every fact channel of the key against it:
                   sysout DD's output_refs (OUTPUT=) are unscored with it
                   (+ symbolic: a single leading `&`; job; `added` is unscored: the engine cannot tell an added DD from an override)
   jcl_outputs     OUTPUT JCL statements: every one unscored (job_flow_data keeps no OUTPUT statement)
-  sql_statements, sql_tables, jcl_steps, jcl_dds, screen_fields, csd_resources, transactions
+  sql_statements  (access: the engine's insert / delete / merge score as the key's `update`), sql_tables, jcl_steps, jcl_dds, screen_fields, csd_resources, transactions
   cics_resources  cics_resource_data (MAP / FILE / QUEUE commands)
   jcl_datasets    a JCL member's DSN references in file_data.raw_imports (a GDG reference as
                   its base or with its relative generation)
   file_control    file_control_data SELECTs (+ relative_key, alternate_keys with the DUPLICATES flag, when the key states them);  entry_points  entry_point_data
-  file_edges      edge_data kinds 'call' (CALL / LINK / XCTL) and 'exec' (EXEC PGM)
+  file_edges      edge_data kinds 'call' (CALL / LINK / XCTL) and 'exec' (EXEC PGM; a key RUN PROGRAM call site implies its exec edge)
   copy_collisions the scan's `copy_member_collisions` report (#4265), read from the master DB
                   (repo_data, #4421)
   gaps            a reference the estate cannot answer: no edge_data edge from the member to
@@ -72,6 +72,7 @@ import tempfile
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -114,7 +115,11 @@ CHANNELS = (
     "gaps",
     "dead",
 )
-RESOLVED_VERBS = ("CALL", "LINK", "XCTL", "EXEC PGM")
+RESOLVED_VERBS = ("CALL", "LINK", "XCTL", "EXEC PGM", "RUN PROGRAM")
+# The engine records a program a runner step runs as an `EXEC PGM` row of form `runner` whose operand is
+# "<RUNNER> <VIA>" and whose target is the program (#3710). The key (SPEC.md `call_sites`) keys the RUN PROGRAM
+# subcommand as verb `RUN PROGRAM`, operand the program: the same fact, so it is read in the key's shape.
+_KEYED_RUNNER_VIAS = ("RUN PROGRAM",)
 
 
 @dataclass
@@ -474,9 +479,21 @@ def score_edges(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> Non
             sc.add("edges", path, f"not {frm or '(main line)'} -> {t}", "pass", p.get("horror"))
 
 
+def _as_keyed_call(c: Any) -> Any:
+    """A runner row ("IKJEFT01 RUN PROGRAM" -> BDLDDB2) as the key's `RUN PROGRAM BDLDDB2` call site."""
+    if _u(c.verb) != "EXEC PGM" or _u(getattr(c, "form", None)) != "RUNNER" or not c.target:
+        return c
+    via = next((v for v in _KEYED_RUNNER_VIAS if _u(c.operand).endswith(" " + v)), None)
+    if via is None:
+        return c
+    return SimpleNamespace(
+        verb=via, form="literal", operand=c.target, target=c.target, resolves_to=c.resolves_to, line=c.line
+    )
+
+
 def score_call_sites(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
     ef = eng.files.get(path)
-    calls = list(ef.calls) if ef else []
+    calls = [_as_keyed_call(c) for c in ef.calls] if ef else []
     used: set = set()
     for f in entry.get("call_sites", []):
         label = f"{f['verb']} {f['operand']} @{f['line']}"
@@ -661,6 +678,15 @@ def score_layouts(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> N
             )
 
 
+# The key states a statement's access as read / update; the engine keeps the verb's own word. INSERT, DELETE and MERGE
+# change data like UPDATE does (IBM Db2 SQL Reference), so they score as the key's `update`; LOCK and the rest stay.
+_SQL_ACCESS_KEY_WORD = {"insert": "update", "delete": "update", "merge": "update"}
+
+
+def _sql_access(access: Any) -> Any:
+    return _SQL_ACCESS_KEY_WORD.get(str(access).lower(), access) if access else access
+
+
 def score_sql(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
     ef = eng.files.get(path)
     stmts = list(ef.sql_statements) if ef else []
@@ -678,7 +704,7 @@ def score_sql(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
             [
                 ("line", f["line"], s.line),
                 ("table", _u(f.get("table")), _u(s.table)),
-                ("access", f.get("access"), s.access),
+                ("access", f.get("access"), _sql_access(s.access)),
             ]
         )
         sc.add("sql_statements", path, label, "fail" if d else "pass", f.get("horror"), d)
@@ -1366,7 +1392,18 @@ def score_data_moves(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -
 
 def score_file_edges(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
     got = set(eng.file_edges.get(path, set()))
-    for f in entry.get("file_edges", []):
+    stated = list(entry.get("file_edges", []))
+    # a RUN PROGRAM call site (IKJEFT01 / IKJEFT1B running a program) is an EXEC PGM edge to that program's member,
+    # which the key does not repeat as a file edge (#7065)
+    for cs in entry.get("call_sites", []):
+        if cs.get("verb") != "RUN PROGRAM":
+            continue
+        member = next(
+            (p for p, ef in eng.files.items() if _u(cs.get("operand")) in {_u(i) for i in (ef.program_ids or [])}), None
+        )
+        if member and not any(f["kind"] == "exec" and f["target"] == member for f in stated):
+            stated.append({"kind": "exec", "target": member, "horror": cs.get("horror")})
+    for f in stated:
         label = f"{f['kind']} -> {f['target']}"
         ok = (f["target"], f["kind"]) in got
         got.discard((f["target"], f["kind"]))

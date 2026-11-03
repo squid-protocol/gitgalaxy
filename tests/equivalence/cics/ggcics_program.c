@@ -142,6 +142,15 @@ static void xctl_next(const char *program, char *commarea, int len) {
 static int program_defined(const char *program) {
     char path[4096], line[64], name[64];
     int found = 0;
+    /* #7589: noprograms.cfg names the programs the case states are not defined (a deny-list: PGMIDERR) */
+    snprintf(path, sizeof path, "%s/noprograms.cfg", dir_in());
+    FILE *g = fopen(path, "r");
+    if (g) {
+        while (fgets(line, sizeof line, g)) {
+            if (sscanf(line, "%63s", name) == 1 && strcmp(name, program) == 0) { fclose(g); return 0; }
+        }
+        fclose(g);
+    }
     snprintf(path, sizeof path, "%s/programs.cfg", dir_in());
     FILE *f = fopen(path, "r");
     if (!f) return 1;

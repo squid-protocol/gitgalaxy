@@ -71,6 +71,10 @@ tri-comparison = ["tree-sitter-language-pack"]
 # `full`, which is the scan engines only.
 translator = ["tree-sitter-language-pack"]
 
+# tests/tools/branch_solver.py (#4175): z3 over the det translator's reading of a COBOL program, to check stated
+# infeasible branch outcomes and find inputs that reach an outcome. A test tool only, never imported by a scan.
+solver = ["tree-sitter-language-pack", "z3-solver"]
+
 [project.urls]
 "Homepage" = "https://gitgalaxy.io"
 "Documentation" = "https://squid-protocol.github.io/gitgalaxy/"

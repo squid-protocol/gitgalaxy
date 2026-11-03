@@ -209,8 +209,20 @@ def test_the_java_side_gets_the_untyped_commarea_in_the_region_page():
     as a START's data is, and its length is EIBCALEN."""
     case = {"commarea": None, "data_encoding": "ascii"}
     got = ec._java_untyped_commarea(case, {"name": "s", "commarea_hex": "5A433031"}, [])
-    assert got == {"commarea_hex": "E9C3F0F1", "untyped_length": 4}
+    # #7589: and by reference (a LINK's area), in the case's data page: any length, so a callee with no 01 DFHCOMMAREA
+    # sees EIBCALEN > 0 and ADDRESS COMMAREA set
+    assert got == {"commarea_hex": "E9C3F0F1", "untyped_length": 4, "area": "5A433031"}
+    one = ec._java_untyped_commarea(case, {"name": "s", "commarea_hex": "41"}, [])
+    assert (one["untyped_length"], one["area"]) == (1, "41")
     assert ec._java_untyped_commarea(case, {"name": "s"}, []) == {}
+
+
+def test_a_det_port_with_no_dfhcommarea_takes_eibcalen_from_the_link_area():
+    """#7589: a callee with no 01 DFHCOMMAREA gets EIBCALEN from the untyped area the task carries, not only from a DTO."""
+    from gitgalaxy.tools.cobol_to_java.det import program
+
+    src = Path(program.__file__).read_text(encoding="utf-8")
+    assert "if (calen == 0 && task.linkArea() != null)" in src
 
 
 def test_the_java_template_reads_an_untyped_commarea():

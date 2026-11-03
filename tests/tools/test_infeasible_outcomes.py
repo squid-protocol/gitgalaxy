@@ -248,18 +248,22 @@ def test_carddemo_menu_admin_only_guard_and_readacct_loop_guard_are_stated():
 
 def test_cbsa_delacc_and_bankdata_state_the_one_outcome_their_proof_leaves():
     """#5864: DELACC's `IF SQLCODE = 0` (line 363) never sees another SQLCODE (+100 jumped, anything else abended); BANKDATA's
-    100-failed-draws arm (line 917) is a probability near zero. Each is the one outcome the det sweep left (13/14, 47/48)."""
+    100-failed-draws arm (line 917) is a probability near zero. Each is the one outcome the det sweep left (13/14, 47/48).
+    Owner ruling 2026-11-03 (#7577): BANKDATA 917:true is neither C nor R (an input does reach it, improbably: 100 FUNCTION
+    RANDOM draws in a row, seeded from the PARM, not a constant). An infeasible claim must be certain, so it is NOT netted:
+    the outcome stays an uncovered branch (47/48), a stated assumption of the proof, never proven and never infeasible."""
     ledger = io.load()
     for case, line, outcome, family, total in (
         ("cbsa-delacc", 363, "false", "G", 14),
-        ("cbsa-bankdata", 917, "true", "C", 48),
     ):
         (e,) = ledger[case]
         assert (e["line"], e["kind"], e["outcome"], e["family"]) == (line, "IF", outcome, family)
         uncovered = [{"line": line, "outcome": outcome}]
         assert io.adjust(case, (1, 1, total - 1, total), uncovered, ledger)[0] == (1, 1, total - 1, total - 1)
     assert "RAD999" in ledger["cbsa-delacc"][0]["reason"] and "HRAC" in ledger["cbsa-delacc"][0]["reason"]
-    assert "2014" in ledger["cbsa-bankdata"][0]["reason"] and "1900" in ledger["cbsa-bankdata"][0]["reason"]
+    assert "cbsa-bankdata" not in ledger  # 917:true is not netted (owner 2026-11-03)
+    uncovered = [{"line": 917, "outcome": "true"}]
+    assert io.adjust("cbsa-bankdata", (1, 1, 47, 48), uncovered, ledger)[0] == (1, 1, 47, 48)
 
 
 def test_cbsa_custctrl_reaches_the_sysiderr_retry_with_a_scenario():
@@ -305,3 +309,13 @@ def test_bnk1cac_x8_bounds_refusals_are_the_four_undefined_by_ibm_outcomes():
     got = {(e["line"], e["outcome"]) for e in entries if io.is_undefined(e)}
     assert got == {(611, "true"), (637, "true"), (637, "false"), (717, "true")}
     assert all("2026-10-29" in e["reason"] for e in entries if io.is_undefined(e))
+
+
+def test_recorded_uncovered_is_none_for_an_incomplete_list():
+    cov = {"branches": {"covered": 206, "total": 208}}
+    assert io.recorded_uncovered({**cov, "uncovered_branches": []}) is None
+    assert io.recorded_uncovered({**cov, "uncovered_branches": [{"line": 704, "outcome": "false"}]}) is None
+    full = [{"line": 704, "outcome": "false"}, {"line": 718, "outcome": "false"}]
+    assert io.recorded_uncovered({**cov, "uncovered_branches": full}) == full
+    assert io.recorded_uncovered({**cov, "uncovered_branches": None}) is None
+    assert io.recorded_uncovered({"branches": {"covered": 4, "total": 4}, "uncovered_branches": []}) == []

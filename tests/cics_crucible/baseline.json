@@ -73,7 +73,6 @@
   "ca-get-container-set/errors/java": {"status": "fail", "reason": "task 1 (CA0G) event 1: WRITEQ-TS expected, the side recorded no further event"},
   "ca-get-container-set/errors/java-facade": {"status": "fail", "reason": "no port of any of its programs"},
   "ca-get-container-set/errors/java-ported": {"status": "fail", "reason": "no port of any of its programs"},
-  "ca-get-container-set/set/cobol-stub": {"status": "fail", "reason": "task 1 (CA0F) event 5: WRITEQ-TS expected, the side recorded no further event"},
   "ca-get-container-set/set/java": {"status": "fail", "reason": "task 1 (CA0F) event 1: WRITEQ-TS expected, the side recorded no further event"},
   "ca-get-container-set/set/java-facade": {"status": "fail", "reason": "no port of any of its programs"},
   "ca-get-container-set/set/java-ported": {"status": "fail", "reason": "no port of any of its programs"},

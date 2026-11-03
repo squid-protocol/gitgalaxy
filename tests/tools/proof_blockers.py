@@ -410,26 +410,33 @@ def judge_equivalence(run: Run, det_baseline: dict[str, dict[str, Any]], sweeps:
         else:
             (cov, run.stale_coverage), checked = reading_coverage(reading), True
     if cov is None:
-        cov, uncovered = evidence_coverage(run.case, cases_dir), evidence_uncovered(run.case, cases_dir)
-        checked = uncovered is not None
+        cov, (uncovered, checked) = evidence_coverage(run.case, cases_dir), evidence_uncovered(run.case, cases_dir)
     if checked:
         cov = stated_infeasible(run, cov, uncovered, cases_dir)
     coverage_gaps(run, cov, branches)
 
 
-def evidence_uncovered(case: str, cases_dir: Path = CASES) -> list[dict[str, Any]] | None:
+def evidence_uncovered(case: str, cases_dir: Path = CASES) -> tuple[list[Any] | None, bool]:
+    """(the record's uncovered outcomes, whether the stated claims can be checked against the record).
+
+    A record with no list cannot check them. A det-sweep record whose list is shorter than its own count (written as
+    [] before evidence.ledger_uncovered) is read from the counts, as the ledger it came from is (uncovered None, checked):
+    CI's det-sweep `check` holds the claims there. Read as complete, every stated outcome it does not name looked
+    reached (zECS ECS001 L5 -> L1, ZECS001 L4 -> L1)."""
     f = cases_dir / case / "evidence.json"
     if not f.is_file():
-        return None
+        return None, False
     import infeasible_outcomes as io
 
-    uncovered = (json.loads(f.read_text(encoding="utf-8")).get("coverage") or {}).get("uncovered_branches")
+    cov = json.loads(f.read_text(encoding="utf-8")).get("coverage") or {}
+    uncovered = io.recorded_uncovered(cov)
     if uncovered is None:
-        return None
+        incomplete = cov.get("uncovered_branches") is not None
+        return None, incomplete and str(cov.get("source") or "").startswith("det sweep")
     # A record names no uncovered paragraphs, so it cannot show a stated paragraph claim reached: leave those entries
     # open, as the ledger-count path does (CI's det-sweep `check` holds them on a real sweep).
     stated = io.load(cases_dir / io.LEDGER.name).get(case, [])
-    return [*uncovered, *(io.PARAGRAPH_MARK + e["unit"] for e in stated if io.is_paragraph(e))]
+    return [*uncovered, *(io.PARAGRAPH_MARK + e["unit"] for e in stated if io.is_paragraph(e))], True
 
 
 def stated_infeasible(run: Run, cov: tuple[int, int, int, int] | None, uncovered: list[Any] | None,

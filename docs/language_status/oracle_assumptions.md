@@ -2368,6 +2368,11 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   built from a hex literal, which the port and GnuCOBOL's ASCII storage keep as the characters 'ABC123' (a TS write encodes them
   as X'C1C2C3F1F2F3', not the X'414243313233' the program meant). That is the hex-literal / TS-page convention of #4528, shared by
   both sides, not a container defect.
+  **CACCSID stays L1 (#7434), refused by name.** The refusal at event 11 ("a CCSID 1208 byte beyond ASCII") is not about
+  multibyte data: the hex literal `X'414243313233'` is read as region page 037, where `0x41` is the character `A` (real byte
+  `0xC1`), at or above X'80'. Modelling it would change the hex-literal convention (#4528) every port shares, so the refusal
+  stays and its text says so (Java runtime, stub and spec in step; pinned prefix kept). No burned program uses FROMCCSID with a
+  hex literal. CACCSID climbs only if that convention changes (owner decision).
 
 - **Burned-estate reach of the still-refused members (#5005, grep of the burned corpora 2026-10-30).** No burned program
   (CardDemo, CBSA, GenApp, zECS, DBB MortgageApplication, cicsdev async credit-card) uses GET64 / PUT64 CONTAINER, INQUIRE

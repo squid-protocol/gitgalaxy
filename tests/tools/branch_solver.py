@@ -593,7 +593,10 @@ class Walk:
 
     # -- fixed-length text as bit-vectors (byte i is bits 8*(n-i)-1 .. 8*(n-i-1)) --
     def sval(self, text: str) -> Any:
-        data = text.encode("latin-1", errors="replace") or b" "  # (no zero-length item: an empty text is one space)
+        # one byte per character: a character past latin-1 (none in COBOL source) stands as '?' (#3813: nothing lossy)
+        data = (
+            bytes(ord(c) if ord(c) < 256 else 0x3F for c in text) or b" "
+        )  # (no zero-length item: an empty text is one space)
         chunks = [data[i : i + 64] for i in range(0, len(data), 64)]  # (a huge int would pass Python's digit limit)
         return self.cat([self.z.BitVecVal(int.from_bytes(c, "big"), 8 * len(c)) for c in chunks])
 

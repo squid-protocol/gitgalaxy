@@ -393,3 +393,61 @@ def test_the_updacc_case_judges_each_nullable_column_of_the_select_alone():
         s = scs[name]
         assert rows[int(s["commarea"]["COMM-ACCNO"])] == [col], name
         assert "#4049" in s["why"] and "expected" not in s
+
+
+# ---- #4175: generated cases (`@generate` datasets, `scenario_generate`, #4506) ----------------------------------
+_GEN = {"copybook": "rec.cpy", "record": "REC", "records": 4, "seed": 4175}
+GENERATED = {"name": "g", "kind": "cics", "program": "G", "copy_dirs": [],
+             "datasets": {"USERS.KSDS": {"input": "@generate", "copybook": "rec.cpy", "record": "REC", "generate": _GEN}},
+             "scenario_generate": {"seed": 4175, "count": 3, "aid": "DFHENTER"},
+             "scenarios": [{"name": "stated", "aid": "DFHPF3", "commarea": None}]}  # fmt: skip
+
+
+def _prepared(tmp_path):
+    import equivalence_inputs
+
+    (tmp_path / "rec.cpy").write_text("       01  REC.\n           05 USR-ID   PIC X(4).\n"
+                                      "           05 USR-NAME PIC X(6).\n", encoding="ascii")  # fmt: skip
+    files = [
+        {"base": "USERS.KSDS", "reclen": 12, "key_offset": 0, "key_length": 4}
+    ]  # the file is wider than its layout
+    return equivalence_inputs.prepare_cics_case(GENERATED, tmp_path, files)
+
+
+def test_a_generated_cases_records_are_the_harnesses_from_its_seed(tmp_path):
+    import equivalence_inputs
+
+    prepared = _prepared(tmp_path)
+    assert st.generated(GENERATED) and not st.generated(CICS)
+    assert [s["name"] for s in st.made_scenarios(prepared)] == ["generated-01", "generated-02", "generated-03"]
+    inputs = st.cics_inputs(GENERATED, tmp_path, prepared)["USERS.KSDS"]
+    built = equivalence_inputs.generate_inputs(prepared, tmp_path)["USERS.KSDS"]
+    assert inputs["spec"]["reclen"] == 12 and b"".join(inputs["records"]) == built and len(inputs["records"]) == 4
+    assert st.cics_inputs(GENERATED, tmp_path, _prepared(tmp_path))["USERS.KSDS"]["records"] == inputs["records"]
+
+
+def test_a_new_record_follows_a_generated_files_records_and_the_case_stays_generated(tmp_path):
+    import equivalence_cics as ec
+    import equivalence_common as common
+
+    prepared = _prepared(tmp_path)
+    inputs = st.cics_inputs(GENERATED, tmp_path, prepared)
+    new = b"ZZZZNEWONE  "
+    out = st.cics_with_records(GENERATED, inputs, {"USERS.KSDS": [new]}, tmp_path / "w")
+    spec = out["datasets"]["USERS.KSDS"]
+    assert spec["input"] == "@generate" and spec["generate"] == _GEN and out["scenario_generate"]
+    assert Path(spec["append"]).name == "USERS.KSDS.txt"
+    built = b"".join(inputs["USERS.KSDS"]["records"])
+    enc = common.data_encoding(out)
+    assert ec.case_file_records(out, tmp_path, spec, 12, enc, built) == built + new  # what the harness stages
+
+
+def test_the_prompt_lists_a_generated_cases_generated_scenarios_and_records(tmp_path):
+    prepared = _prepared(tmp_path)
+    inputs = st.cics_inputs(GENERATED, tmp_path, prepared)
+    text = st.prompt(GENERATED, ["LINE"] * 5, [], [], [], "", prepared, inputs)
+    assert "(1 stated, 3 generated)" in text and '"name": "generated-02"' in text and '"name": "stated"' in text
+    assert "### USERS.KSDS: 4 records generated from its layout (seed 4175)" in text
+    first = inputs["USERS.KSDS"]["records"][0][:4].decode("ascii")
+    assert f'1. {{"USR-ID": "{first}"' in text
+    assert "generated)" not in st.prompt(CICS, ["LINE"], [], [], [], "")  # a stated case's prompt is as it was

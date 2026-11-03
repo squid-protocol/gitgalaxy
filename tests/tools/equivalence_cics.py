@@ -1739,10 +1739,14 @@ CICS_RESP = {c: DFHRESP[c] for c in ("NORMAL", "FILENOTFOUND", "NOTFND", "DUPREC
                                      "ISCINVREQ", "LOCKED", "ENQBUSY", "QBUSY", "INVMPSZ", "TSIOERR", "EXPIRED", "USERIDERR")}  # fmt: skip
 
 
-def case_file_records(case: dict[str, Any], corpus: Path, spec: dict[str, Any], reclen: int, enc: str) -> bytes:
-    """A CICS file's records: its dataset's `input`, then (#4049) the records of `append` -- a case's own file of
-    records added after the corpus's (the test-strengthening loop's new accounts, customers ...)."""
-    data = common._fixed(common._input_path(case, corpus, spec["input"]), reclen, enc)
+def case_file_records(case: dict[str, Any], corpus: Path, spec: dict[str, Any], reclen: int, enc: str,
+                      generated: bytes | None = None) -> bytes:  # fmt: skip
+    """A CICS file's records: its dataset's `input` (#4175: or `generated`, the records generate_inputs built for a
+    `@generate` dataset), then (#4049) the records of `append` -- a case's own file of records added after the
+    corpus's or the generated ones (the test-strengthening loop's new accounts, customers ...)."""
+    data = (
+        common._fixed(common._input_path(case, corpus, spec["input"]), reclen, enc) if generated is None else generated
+    )
     if spec.get("append"):
         data += common._fixed(common._input_path(case, corpus, spec["append"]), reclen, enc)
     return data
@@ -1891,9 +1895,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         spec = case.get("datasets", {}).get(f["base"])
         if spec is None:
             raise Unsupported(f"the case gives no data for {f['base']} (CICS file {f['file']})")
-        data = (
-            generated[f["base"]] if f["base"] in generated else case_file_records(case, corpus, spec, f["reclen"], enc)
-        )
+        data = case_file_records(case, corpus, spec, f["reclen"], enc, generated.get(f["base"]))
         (work / "files" / f["base"]).write_bytes(data)
         if variable_file(case, f["base"]):  # #6839: each record's own length (none stated: the slot's)
             (work / "files" / f"{f['base']}.len").write_bytes(record_lengths(case, corpus, spec, f))
@@ -4991,15 +4993,10 @@ def judge_facade(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]]
                              for m, sids in sorted(by_method.items())]}  # fmt: skip
 
 
-def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, port_dir: Path | None = None,
-             cobol_only: bool = False, sql_faults: str = "auto", facades: bool = False,
-             one_jvm: bool = False) -> int:  # fmt: skip
-    """A CICS case end to end: facts -> stub files, the COBOL tasks, the Java tasks, the report.
-
-    #4449: `facades` (with a port) runs the java-facade side too -- every scenario again, entered through the
-    program's deployed entry point -- and the case is proven only when both sides are (report `facade`)."""
-    import json
-
+def prepared_case(case: dict[str, Any], corpus: Path, work: Path) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    """(the case as run_case runs it, the stub's files): the program's CICS files from the scan, and the case's
+    generated files and scenarios made concrete from them (#3804). #4175: strengthen.py reads a generated case's
+    records and scenarios through here, so it never builds them a second way."""
     import equivalence_cache
 
     from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir
@@ -5010,7 +5007,19 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
     for extra in case.get("programs", []):  # the programs the task LINKs to use files of their own
         files += [f for f in stub_files(ir, extra["program_source"], case.get("datasets"), symbols)
                   if f["file"] not in {x["file"] for x in files}]  # fmt: skip
-    case = equivalence_inputs.prepare_cics_case(case, corpus, files)  # #3804: generated files and scenarios
+    return equivalence_inputs.prepare_cics_case(case, corpus, files), files
+
+
+def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, port_dir: Path | None = None,
+             cobol_only: bool = False, sql_faults: str = "auto", facades: bool = False,
+             one_jvm: bool = False) -> int:  # fmt: skip
+    """A CICS case end to end: facts -> stub files, the COBOL tasks, the Java tasks, the report.
+
+    #4449: `facades` (with a port) runs the java-facade side too -- every scenario again, entered through the
+    program's deployed entry point -- and the case is proven only when both sides are (report `facade`)."""
+    import json
+
+    case, files = prepared_case(case, corpus, work)  # #3804: generated files and scenarios
     # #4173: SQL faults -- `auto` adds a task per SQL statement the tasks executed (enumerated_sql_faults), each run
     # on both sides; `declared` runs only the scenarios' own sql_faults; `none` drops those too
     if sql_faults == "none":

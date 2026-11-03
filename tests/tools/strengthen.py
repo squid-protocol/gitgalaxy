@@ -27,6 +27,11 @@ driven by them as well as by its uncovered branches: every round shows the remai
 one is kept when the port is equal on it, the survivors are judged again after the round, and at the end a proposal
 that reached no new branch and killed no mutant is dropped.
 
+A generated case (#4175: a `@generate` dataset, a `scenario_generate` block, #4506) is read as the harness runs it
+(equivalence_cics.prepared_case, the case's own seed): the prompt lists its generated scenarios and records, a
+proposal is proven alone without them, and the candidate stays generated -- the new inputs are stated scenarios beside
+the `scenario_generate` block, and a new record follows a generated file's records (the dataset's `append`).
+
 Nothing is committed: DIR/candidate_case.json is the strengthened case for a person to review (and copy over
 tests/equivalence/<case>/case.json), DIR/strengthen.md the report. A gap no proposal reaches is reported as such:
 unreachable through the program, or behind an oracle that refuses (a z/OS run would settle it, #4050).
@@ -122,7 +127,11 @@ INPUT_FORMAT = {
 
 
 def prompt(case: dict[str, Any], src: list[str], gaps: list[dict[str, Any]], hints: list[dict[str, Any]],
-           feedback: list[str], oracle_notes: str) -> str:  # fmt: skip
+           feedback: list[str], oracle_notes: str, prepared: dict[str, Any] | None = None,
+           inputs: dict[str, Any] | None = None) -> str:  # fmt: skip
+    """`prepared` (#4175): a generated case as the harness runs it -- its generated scenarios are listed with the
+    stated ones, and its generated files' records shown (`inputs`, cics_inputs), since no file in the corpus holds
+    them."""
     kind = case.get("kind")
     shown = []
     for b in gaps:
@@ -143,10 +152,7 @@ def prompt(case: dict[str, Any], src: list[str], gaps: list[dict[str, Any]], hin
         "\n".join(f"{i + 1:5} {line}" for i, line in enumerate(src)),
         "```",
         "",
-        f"## The case's current inputs ({len(entries(case))})",
-        "```json",
-        json.dumps(entries(case), indent=1),
-        "```",
+        *current_inputs(case, prepared, inputs or {}),
     ]
     if hints:
         parts += ["", "## Mistakes no current input exposes: small changes to the Java port that every run still "
@@ -168,6 +174,32 @@ def prompt(case: dict[str, Any], src: list[str], gaps: list[dict[str, Any]], hin
         '"..."}. Answer with one JSON array in a ```json block and nothing else.',
     ]
     return "\n".join(parts) + "\n"
+
+
+def current_inputs(case: dict[str, Any], prepared: dict[str, Any] | None, inputs: dict[str, Any]) -> list[str]:
+    """The prompt's listing of the case's inputs. #4175: a generated case's generated scenarios too (made from its
+    seed on every run, so a new input names none of their names), and its generated files' records."""
+    made_scs = made_scenarios(prepared)
+    if not prepared:
+        return [f"## The case's current inputs ({len(entries(case))})", "```json", json.dumps(entries(case), indent=1),
+                "```"]  # fmt: skip
+    import equivalence_common as common
+
+    gen = case.get("scenario_generate") or {}
+    out = [f"## The case's current inputs ({len(entries(case))} stated, {len(made_scs)} generated)",
+           f"The generated ones (`\"generated\": true`) are made from the case's `scenario_generate` block (seed "
+           f"{gen.get('seed', 0)}) on every run: a new input is a stated one, beside them, named like none of them.",
+           "```json", json.dumps([*entries(case), *made_scs], indent=1), "```"]  # fmt: skip
+    enc = common.data_encoding(case)
+    for dd, spec in (case.get("datasets") or {}).items():
+        if spec.get("input") != "@generate" or dd not in inputs:
+            continue
+        recs = inputs[dd]["records"]
+        out += ["", f"### {dd}: {len(recs)} records generated from its layout (seed "
+                f"{spec['generate'].get('seed', 0)}), numbered for `based_on`",  # fmt: skip
+                *[f"{i + 1}. {json.dumps(eq_cics().decode_record(r, inputs[dd]['fields'], enc), default=str)}"
+                  for i, r in enumerate(recs[:50])]]  # fmt: skip
+    return out
 
 
 def oracle_notes(case: dict[str, Any]) -> str:
@@ -260,11 +292,37 @@ def commarea_names(case: dict[str, Any], corpus: Path) -> set[str] | None:
     return {f["name"] for f in eq_cics().commarea_fields(corpus, case)}
 
 
-def cics_inputs(case: dict[str, Any], corpus: Path) -> dict[str, dict[str, Any]]:
-    """#4049: the CICS case's files with a layout (a dataset's `copybook` and `record`): fields, record length and
-    records, so a proposal can add a record the way a batch one does."""
-    import equivalence_common as common
+def generated(case: dict[str, Any]) -> bool:
+    """#4175: a case with generated parts -- a `@generate` dataset (records from its layout) or a `scenario_generate`
+    block (scenarios from the case's seed)."""
+    datasets = (case.get("datasets") or {}).values()
+    return bool(case.get("scenario_generate")) or any(s.get("input") == "@generate" for s in datasets)
 
+
+def made(case: dict[str, Any], corpus: Path, work: Path) -> dict[str, Any] | None:
+    """#4175: a generated CICS case as the harness runs it (equivalence_cics.prepared_case: its `@generate` datasets'
+    record lengths and keys, its generated scenarios, from the case's own seed); None for a case with nothing
+    generated. The loop never edits what this makes: its new inputs are stated scenarios beside the generated ones."""
+    if case.get("kind") != "cics" or not generated(case):
+        return None
+    return eq_cics().prepared_case(case, corpus, work)[0]
+
+
+def made_scenarios(prepared: dict[str, Any] | None) -> list[dict[str, Any]]:
+    return [sc for sc in (prepared or {}).get("scenarios", []) if sc.get("generated")]
+
+
+def cics_inputs(
+    case: dict[str, Any], corpus: Path, prepared: dict[str, Any] | None = None
+) -> dict[str, dict[str, Any]]:
+    """#4049: the CICS case's files with a layout (a dataset's `copybook` and `record`): fields, record length and
+    records, so a proposal can add a record the way a batch one does. #4175: a `@generate` dataset's records are the
+    ones the harness builds (equivalence_inputs.generate_inputs on the `prepared` case, the case's seed), at its
+    file's record length."""
+    import equivalence_common as common
+    import equivalence_inputs
+
+    built = equivalence_inputs.generate_inputs(prepared, corpus) if prepared else {}
     out = {}
     for dd, spec in (case.get("datasets") or {}).items():
         if not spec.get("copybook") or not spec.get("input"):
@@ -273,7 +331,10 @@ def cics_inputs(case: dict[str, Any], corpus: Path) -> dict[str, dict[str, Any]]
         dirs = [src.parent, *(corpus / d for d in case.get("copy_dirs", [])), corpus]
         fields = common.layout_fields(corpus, spec["copybook"], spec.get("record"), dirs)
         reclen = max(f["offset"] + f["bytes"] for f in fields)
-        data = eq_cics().case_file_records(case, corpus, spec, reclen, common.data_encoding(case))
+        if prepared and dd in built:  # the file's own length and keys, as prepare_cics_case gives them
+            spec = prepared["datasets"][dd]
+            reclen = spec["reclen"]
+        data = eq_cics().case_file_records(case, corpus, spec, reclen, common.data_encoding(case), built.get(dd))
         recs = [data[i : i + reclen] for i in range(0, len(data), reclen)]
         out[dd] = {"fields": fields, "records": recs, "spec": {**spec, "reclen": reclen}}
     return out
@@ -299,7 +360,10 @@ def cics_with_records(case: dict[str, Any], inputs: dict[str, Any], added: dict[
         )
         old = [had[i : i + reclen] for i in range(0, len(had), reclen)]
         lines = [r.decode(enc).rstrip(" ") for r in old + new]
-        path = work / "inputs" / Path(spec["input"]).name
+        # (#4175: a generated dataset has no input file to name the new one after; its new records follow the
+        # generated ones, equivalence_cics.case_file_records)
+        name = re.sub(r"[^A-Za-z0-9.-]", "_", dd) + ".txt" if spec["input"] == "@generate" else Path(spec["input"]).name
+        path = work / "inputs" / name
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(("\n".join(lines) + "\n").encode(enc))
         out["datasets"][dd]["append"] = str(path)
@@ -376,7 +440,9 @@ def run(case_name: str, work: Path, rounds: int, model: str, command: str | None
     killed_ids: list[str] = []
     killers: set[str] = set()  # the accepted inputs some re-judged mutant was killed by
     ca_names = commarea_names(case, corpus)
-    inputs = cics_inputs(case, corpus) if case["kind"] == "cics" else {}
+    prepared = made(case, corpus, work / "baseline")  # #4175: a generated case's records and scenarios, its seed's
+    made_names = {sc["name"] for sc in made_scenarios(prepared)}
+    inputs = cics_inputs(case, corpus, prepared) if case["kind"] == "cics" else {}
     added: dict[str, list[bytes]] = {}  # the accepted proposals' new records, by dataset
     brought: dict[str, dict[str, list[bytes]]] = {}  # each accepted proposal's own new records
 
@@ -402,13 +468,12 @@ def run(case_name: str, work: Path, rounds: int, model: str, command: str | None
         if not gaps and not targets:
             break
         rw = work / f"round{rnd}"
-        text = prompt(
-            current, src, gaps, targets if driven else hints if rnd == 1 else [], feedback, oracle_notes(case)
-        )
+        text = prompt(current, src, gaps, targets if driven else hints if rnd == 1 else [], feedback,
+                      oracle_notes(case), prepared, inputs)  # fmt: skip
         print(f"round {rnd}: {len(gaps)} uncovered branches, {len(targets)} survivors; asking {model}", flush=True)
         response, secs = ask(text, rw, model, command)
         proposals = parse(response)
-        taken = {e["name"] for e in entries(current)}
+        taken = {e["name"] for e in entries(current)} | made_names
         feedback = []
         gap_keys = {branch_key(b) for b in gaps}
         target_ids = {t["id"] for t in targets}
@@ -437,6 +502,7 @@ def run(case_name: str, work: Path, rounds: int, model: str, command: str | None
             base_case = cics_with_records(current, inputs, trial, rw / entry["name"]) if trial else current
             alone = copy.deepcopy(base_case)
             alone[KINDS[current["kind"]]] = [entry]
+            alone.pop("scenario_generate", None)  # #4175: alone means without the generated scenarios too
             print(f"  {entry['name']}: proving it alone", flush=True)
             r = prove(case_name, alone, rw / entry["name"])
             if r.get("refused"):  # a report carries `refused: {}` when nothing was refused

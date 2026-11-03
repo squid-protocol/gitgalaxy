@@ -342,7 +342,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 8
+   "tests": 12
   },
   {
    "corpus": "cics-banking-sample-application-cbsa",
@@ -513,7 +513,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 23
+   "tests": 29
   },
   {
    "corpus": "cics-banking-sample-application-cbsa",
@@ -729,7 +729,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 23
+   "tests": 24
   },
   {
    "corpus": "zecs",
@@ -747,7 +747,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 18
+   "tests": 25
   },
   {
    "corpus": "zecs",
@@ -1501,7 +1501,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 8
+   "tests": 12
   },
   "cbsa-acctctrl": {
    "generated": [],
@@ -1767,7 +1767,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 23
+   "tests": 29
   },
   "cbsa-xfrfun": {
    "generated": [],
@@ -2104,7 +2104,7 @@
    "shipped": [],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 23
+   "tests": 24
   },
   "zecs-zecs000": {
    "generated": [],
@@ -2135,7 +2135,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 18
+   "tests": 25
   },
   "zecs-zecsplt": {
    "generated": [],

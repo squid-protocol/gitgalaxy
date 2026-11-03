@@ -252,7 +252,7 @@ def test_cbsa_delacc_and_bankdata_state_the_one_outcome_their_proof_leaves():
     ledger = io.load()
     for case, line, outcome, family, total in (
         ("cbsa-delacc", 363, "false", "G", 14),
-        ("cbsa-bankdata", 917, "true", "C", 48),
+        ("cbsa-bankdata", 917, "true", "R", 48),  # owner 2026-11-02: a probability, not a constant (#4175)
     ):
         (e,) = ledger[case]
         assert (e["line"], e["kind"], e["outcome"], e["family"]) == (line, "IF", outcome, family)

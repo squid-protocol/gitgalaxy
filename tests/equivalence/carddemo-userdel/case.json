@@ -592,6 +592,18 @@
     }
    ],
    "why": "#6166: EIBCALEN 0 sets the target COSGN00C and RETURN-TO-PREV-SCREEN's XCTL answers PGMIDERR RESP2 3 (the program could not be loaded, IBM CICS TS XCTL conditions); the source has no RESP, so CICS abends the task and no screen or COMMAREA is returned"
+  },
+  {
+   "name": "pf3-back-to-custom-caller",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU03",
+    "CDEMO-FROM-PROGRAM": "COUSR03C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "why": "#4628: PF3 with a custom caller program to exercise CDEMO-FROM-PROGRAM routing in MAIN-PARA (kills mutants d323c29bdb and 0257881db4)"
   }
  ],
  "notes": "CardDemo's delete-user screen (transaction CU03, program COUSR03C): entered from the user list with a selected user it reads the user FOR UPDATE and shows it; ENTER looks a user up, PF5 reads it FOR UPDATE and DELETEs it -- even when the read found nothing, so the DELETE then has no record held (INVREQ, 'Unable to Update User...'); PF3 / PF12 return, PF4 clears. Each scenario's USRSEC file is compared after the task. usrsec.txt is CardDemo's own DUSRSECJ in-stream data. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."

@@ -1,0 +1,724 @@
+{
+ "format": "det-mutation/1",
+ "issue": "#4628",
+ "about": "#4628: mutation testing of each det port (tests/tools/mutation.py on `det_port.py run --translate-only`'s port, fast mode, seeded sample), written only by tests/tools/det_mutation.py. An entry is trusted only while its fingerprints match the tree; stale or missing is unknown. Survivors are accounted for in det_mutation_survivors/ (reviewed).",
+ "case": "carddemo-dateutil",
+ "entry": {
+  "program": "CSUTLDTC",
+  "commit": "b062af0abb6a92c89f5e5a2eb5b33b983369be02",
+  "date": "2026-11-02",
+  "mode": "fast",
+  "seed": 0,
+  "mutants": 269,
+  "out_of_scope": 17,
+  "chosen": 150,
+  "coverage": "proven on 36 calls, covering 2/2 paragraphs and 4/10 branches",
+  "counts": {
+   "killed": 73,
+   "timeout": 1,
+   "survived": 71,
+   "stillborn": 5,
+   "error": 0,
+   "pending": 0
+  },
+  "killed": [
+   "005908f2df",
+   "07521d66c6",
+   "07a33ed1c5",
+   "118bebc9dc",
+   "18e649d661",
+   "19792b4ada",
+   "198997d1db",
+   "1dd853a10c",
+   "2737884214",
+   "2ec1839ec8",
+   "326aa980f4",
+   "34f8015e73",
+   "379cc3bdec",
+   "3994b6d0ed",
+   "39d228493e",
+   "3ad44992dd",
+   "3bb87330f1",
+   "3fd9c93d58",
+   "408f5873d6",
+   "421fa46229",
+   "43f0a7eb19",
+   "4718c14227",
+   "47c3509165",
+   "4d8a65de2f",
+   "4e168aae4c",
+   "4e568dc0cf",
+   "5041e88101",
+   "51a42cad63",
+   "5cea8ab6a9",
+   "5d18608f03",
+   "5d3fd6ea63",
+   "5fefc7d4c1",
+   "6042ca6398",
+   "60642a69f3",
+   "61fecee20c",
+   "69b5798d42",
+   "6dff532d45",
+   "6f8c88c461",
+   "864ee61ca9",
+   "86e2bb58e6",
+   "88672e97b6",
+   "89fe5acfd0",
+   "8fb6ebf22a",
+   "902e8b064e",
+   "90c05de5a5",
+   "95f16ef8a7",
+   "9a86a0394e",
+   "9e961bf107",
+   "a518032e80",
+   "a5a3d24367",
+   "acb0ab5eb3",
+   "b051a9fda6",
+   "b8f9db9047",
+   "bd96b34813",
+   "bec3dc36d1",
+   "cd9064ef52",
+   "ce29ffadde",
+   "d0a0fbe0bc",
+   "d5098b03f8",
+   "d51ad95c1b",
+   "d717b05516",
+   "d9f2daf522",
+   "dc265a71db",
+   "de0f012427",
+   "eba3b71119",
+   "ef65ce63da",
+   "f6e413b03e",
+   "f7a9654b35",
+   "fa06dc409a",
+   "fb120a87a8",
+   "fbf2af0b15",
+   "fd9814be71",
+   "feb50062df",
+   "ff331fd30a"
+  ],
+  "stillborn": [
+   "23b1c0e336",
+   "3697df322c",
+   "6a2e177a87",
+   "9bc31c436c",
+   "c9721fe80a"
+  ],
+  "survived": [
+   {
+    "id": "42fa84882e",
+    "op": "LIT",
+    "file": "service/CsutldtcService.java",
+    "line": 38,
+    "before": "\"AAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));",
+    "after": "\"XAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));"
+   },
+   {
+    "id": "e042e075f5",
+    "op": "LIT",
+    "file": "service/CsutldtcService.java",
+    "line": 40,
+    "before": "\"AAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));",
+    "after": "\"XAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));"
+   },
+   {
+    "id": "fc6dbf2a76",
+    "op": "LIT",
+    "file": "service/CsutldtcService.java",
+    "line": 42,
+    "before": "\"AAAAAA==\"));",
+    "after": "\"XAAAAA==\"));"
+   },
+   {
+    "id": "101ae3602a",
+    "op": "LIT",
+    "file": "service/CsutldtcService.java",
+    "line": 44,
+    "before": "\"ICAgIE1lc2cgQ29kZTogICAgICAgICAgICAgICAgICAgICAgVHN0RGF0ZTogICAgICAgICAgICBNYXNrIHVzZWQ6ICAgICAgICAgICAgICA=\"));",
+    "after": "\"XCAgIE1lc2cgQ29kZTogICAgICAgICAgICAgICAgICAgICAgVHN0RGF0ZTogICAgICAgICAgICBNYXNrIHVzZWQ6ICAgICAgICAgICAgICA=\"));"
+   },
+   {
+    "id": "493e4c401e",
+    "op": "LIT",
+    "file": "service/CsutldtcService.java",
+    "line": 46,
+    "before": "\"AAAAACAgICAAAAAA\"));",
+    "after": "\"XAAAACAgICAAAAAA\"));"
+   },
+   {
+    "id": "d82f3794d5",
+    "op": "LIT",
+    "file": "service/CsutldtcService.java",
+    "line": 48,
+    "before": "\"ICAgICAgICAgIA==\"));",
+    "after": "\"XCAgICAgICAgIA==\"));"
+   },
+   {
+    "id": "79fe4e5263",
+    "op": "LIT",
+    "file": "service/CsutldtcService.java",
+    "line": 50,
+    "before": "\"ICAgICAgICAgIA==\"));",
+    "after": "\"XCAgICAgICAgIA==\"));"
+   },
+   {
+    "id": "9438b454e1",
+    "op": "LIT",
+    "file": "service/CsutldtcService.java",
+    "line": 52,
+    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));"
+   },
+   {
+    "id": "538ab615ea",
+    "op": "LIT",
+    "file": "service/CsutldtcService.java",
+    "line": 54,
+    "before": "\"AAA=\"));",
+    "after": "\"XAA=\"));"
+   },
+   {
+    "id": "36dec160df",
+    "op": "CON",
+    "file": "service/CsutldtcService.java",
+    "line": 71,
+    "before": "private final Field f9_OUTPUT_LILLIAN = Field.binary(s_OUTPUT_LILLIAN, 0, 9, 0, true, false);",
+    "after": "private final Field f9_OUTPUT_LILLIAN = Field.binary(s_OUTPUT_LILLIAN, 0, 9, 1, true, false);"
+   },
+   {
+    "id": "9047fbcf83",
+    "op": "CON",
+    "file": "service/CsutldtcService.java",
+    "line": 77,
+    "before": "private final Field f23_WS_DATE_FMT = Field.alphanumeric(s_WS_MESSAGE, 66, 10, false);",
+    "after": "private final Field f23_WS_DATE_FMT = Field.alphanumeric(s_WS_MESSAGE, 66, 11, false);"
+   },
+   {
+    "id": "94a8031e9e",
+    "op": "CON",
+    "file": "service/CsutldtcService.java",
+    "line": 85,
+    "before": "private final Field f40_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+    "after": "private final Field f40_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 1, true, false);"
+   },
+   {
+    "id": "d4e4af86f6",
+    "op": "DEL",
+    "file": "service/CsutldtcService.java",
+    "line": 101,
+    "before": "System.arraycopy(IMAGE_s_WS_DATE_TO_TEST, 0, s_WS_DATE_TO_TEST.bytes, 0, IMAGE_s_WS_DATE_TO_TEST.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_DATE_TO_TEST, 0, s_WS_DATE_TO_TEST.bytes, 0, IMAGE_s_WS_DATE_TO_TEST.length); */"
+   },
+   {
+    "id": "6662bb4f34",
+    "op": "DEL",
+    "file": "service/CsutldtcService.java",
+    "line": 102,
+    "before": "System.arraycopy(IMAGE_s_WS_DATE_FORMAT, 0, s_WS_DATE_FORMAT.bytes, 0, IMAGE_s_WS_DATE_FORMAT.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_DATE_FORMAT, 0, s_WS_DATE_FORMAT.bytes, 0, IMAGE_s_WS_DATE_FORMAT.length); */"
+   },
+   {
+    "id": "bf694026c0",
+    "op": "DEL",
+    "file": "service/CsutldtcService.java",
+    "line": 103,
+    "before": "System.arraycopy(IMAGE_s_OUTPUT_LILLIAN, 0, s_OUTPUT_LILLIAN.bytes, 0, IMAGE_s_OUTPUT_LILLIAN.length);",
+    "after": "/* System.arraycopy(IMAGE_s_OUTPUT_LILLIAN, 0, s_OUTPUT_LILLIAN.bytes, 0, IMAGE_s_OUTPUT_LILLIAN.length); */"
+   },
+   {
+    "id": "b3c6f2ef1a",
+    "op": "DEL",
+    "file": "service/CsutldtcService.java",
+    "line": 108,
+    "before": "System.arraycopy(IMAGE_s_LS_RESULT, 0, s_LS_RESULT.bytes, 0, IMAGE_s_LS_RESULT.length);",
+    "after": "/* System.arraycopy(IMAGE_s_LS_RESULT, 0, s_LS_RESULT.bytes, 0, IMAGE_s_LS_RESULT.length); */"
+   },
+   {
+    "id": "6c84ca373f",
+    "op": "DEL",
+    "file": "service/CsutldtcService.java",
+    "line": 109,
+    "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
+    "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */"
+   },
+   {
+    "id": "b3f1b36b9b",
+    "op": "DEL",
+    "file": "service/CsutldtcService.java",
+    "line": 115,
+    "before": "initialState();",
+    "after": "/* initialState(); */"
+   },
+   {
+    "id": "1d9305d288",
+    "op": "DEL",
+    "file": "service/CsutldtcService.java",
+    "line": 116,
+    "before": "performDepth = 0;",
+    "after": "/* performDepth = 0; */"
+   },
+   {
+    "id": "c2ca50f7df",
+    "op": "DEL",
+    "file": "service/CsutldtcService.java",
+    "line": 131,
+    "before": "this.callAreas = areas;",
+    "after": "/* this.callAreas = areas; */"
+   },
+   {
+    "id": "1d0082ffea",
+    "op": "CON",
+    "file": "service/CsutldtcService.java",
+    "line": 141,
+    "before": "System.arraycopy(areas[0], 0, f37_LS_DATE.storage().bytes, f37_LS_DATE.offset(), Math.min(areas[0].length, f37_LS_DATE.length()));",
+    "after": "System.arraycopy(areas[0], 1, f37_LS_DATE.storage().bytes, f37_LS_DATE.offset(), Math.min(areas[0].length, f37_LS_DATE.length()));"
+   },
+   {
+    "id": "fbea2f003b",
+    "op": "DEL",
+    "file": "service/CsutldtcService.java",
+    "line": 142,
+    "before": "System.arraycopy(areas[1], 0, f38_LS_DATE_FORMAT.storage().bytes, f38_LS_DATE_FORMAT.offset(), Math.min(areas[1].length, f38_LS_DATE_FORMAT.length()));",
+    "after": "/* System.arraycopy(areas[1], 0, f38_LS_DATE_FORMAT.storage().bytes, f38_LS_DATE_FORMAT.offset(), Math.min(areas[1].length, f38_LS_DATE_FORMAT.length())); */"
+   },
+   {
+    "id": "5b9b07ecb1",
+    "op": "CON",
+    "file": "service/CsutldtcService.java",
+    "line": 142,
+    "before": "System.arraycopy(areas[1], 0, f38_LS_DATE_FORMAT.storage().bytes, f38_LS_DATE_FORMAT.offset(), Math.min(areas[1].length, f38_LS_DATE_FORMAT.length()));",
+    "after": "System.arraycopy(areas[1], 1, f38_LS_DATE_FORMAT.storage().bytes, f38_LS_DATE_FORMAT.offset(), Math.min(areas[1].length, f38_LS_DATE_FORMAT.length()));"
+   },
+   {
+    "id": "d89dbdac56",
+    "op": "CON",
+    "file": "service/CsutldtcService.java",
+    "line": 143,
+    "before": "System.arraycopy(areas[2], 0, f39_LS_RESULT.storage().bytes, f39_LS_RESULT.offset(), Math.min(areas[2].length, f39_LS_RESULT.length()));",
+    "after": "System.arraycopy(areas[3], 0, f39_LS_RESULT.storage().bytes, f39_LS_RESULT.offset(), Math.min(areas[2].length, f39_LS_RESULT.length()));"
+   },
+   {
+    "id": "3e0f86939e",
+    "op": "ROR",
+    "file": "service/CsutldtcService.java",
+    "line": 147,
+    "before": "Cobol.move(arg3.get() == null ? \"\" : arg3.get(), f39_LS_RESULT, CS);",
+    "after": "Cobol.move(arg3.get() != null ? \"\" : arg3.get(), f39_LS_RESULT, CS);"
+   },
+   {
+    "id": "e617bb8df6",
+    "op": "DEL",
+    "file": "service/CsutldtcService.java",
+    "line": 154,
+    "before": "arg1.set(Cobol.text(f37_LS_DATE, CS));",
+    "after": "/* arg1.set(Cobol.text(f37_LS_DATE, CS)); */"
+   },
+   {
+    "id": "2bf9539c42",
+    "op": "DEL",
+    "file": "service/CsutldtcService.java",
+    "line": 155,
+    "before": "arg2.set(Cobol.text(f38_LS_DATE_FORMAT, CS));",
+    "after": "/* arg2.set(Cobol.text(f38_LS_DATE_FORMAT, CS)); */"
+   },
+   {
+    "id": "99375a2850",
+    "op": "CON",
+    "file": "service/CsutldtcService.java",
+    "line": 159,
+    "before": "System.arraycopy(f38_LS_DATE_FORMAT.storage().bytes, f38_LS_DATE_FORMAT.offset(), areas[1], 0, Math.min(areas[1].length, f38_LS_DATE_FORMAT.length()));",
+    "after": "System.arraycopy(f38_LS_DATE_FORMAT.storage().bytes, f38_LS_DATE_FORMAT.offset(), areas[2], 0, Math.min(areas[1].length, f38_LS_DATE_FORMAT.length()));"
+   },
+   {
+    "id": "13cac0b227",
+    "op": "DEL",
+    "file": "service/CsutldtcService.java",
+    "line": 160,
+    "before": "System.arraycopy(f39_LS_RESULT.storage().bytes, f39_LS_RESULT.offset(), areas[2], 0, Math.min(areas[2].length, f39_LS_RESULT.length()));",
+    "after": "/* System.arraycopy(f39_LS_RESULT.storage().bytes, f39_LS_RESULT.offset(), areas[2], 0, Math.min(areas[2].length, f39_LS_RESULT.length())); */"
+   },
+   {
+    "id": "87b5643cf5",
+    "op": "CON",
+    "file": "service/CsutldtcService.java",
+    "line": 160,
+    "before": "System.arraycopy(f39_LS_RESULT.storage().bytes, f39_LS_RESULT.offset(), areas[2], 0, Math.min(areas[2].length, f39_LS_RESULT.length()));",
+    "after": "System.arraycopy(f39_LS_RESULT.storage().bytes, f39_LS_RESULT.offset(), areas[3], 0, Math.min(areas[2].length, f39_LS_RESULT.length()));"
+   },
+   {
+    "id": "deb7d5e5f9",
+    "op": "DEL",
+    "file": "service/CsutldtcService.java",
+    "line": 165,
+    "before": "Cobol.swapNumprocPfd(pfdBefore);",
+    "after": "/* Cobol.swapNumprocPfd(pfdBefore); */"
+   },
+   {
+    "id": "f08589d060",
+    "op": "DEL",
+    "file": "service/CsutldtcService.java",
+    "line": 175,
+    "before": "super(null, null, false, false);",
+    "after": "/* super(null, null, false, false); */"
+   },
+   {
+    "id": "0835801c4d",
+    "op": "CON",
+    "file": "service/CsutldtcService.java",
+    "line": 206,
+    "before": "private int[] performThru = new int[64];",
+    "after": "private int[] performThru = new int[65];"
+   },
+   {
+    "id": "39a0f6d760",
+    "op": "DEL",
+    "file": "service/CsutldtcService.java",
+    "line": 226,
+    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+    "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */"
+   },
+   {
+    "id": "9e6787a909",
+    "op": "AOR",
+    "file": "service/CsutldtcService.java",
+    "line": 226,
+    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+    "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);"
+   },
+   {
+    "id": "ae697db76b",
+    "op": "NEG",
+    "file": "service/CsutldtcService.java",
+    "line": 236,
+    "before": "if (i == thru) {",
+    "after": "if (!(i == thru)) {"
+   },
+   {
+    "id": "e68459a18f",
+    "op": "ROR",
+    "file": "service/CsutldtcService.java",
+    "line": 236,
+    "before": "if (i == thru) {",
+    "after": "if (i != thru) {"
+   },
+   {
+    "id": "ca6527d9ff",
+    "op": "AOR",
+    "file": "service/CsutldtcService.java",
+    "line": 239,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine + 1; d >= 0; d--) {"
+   },
+   {
+    "id": "bbdebef6b5",
+    "op": "ROR",
+    "file": "service/CsutldtcService.java",
+    "line": 239,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine - 1; d > 0; d--) {"
+   },
+   {
+    "id": "ccd5a8dac1",
+    "op": "ROR",
+    "file": "service/CsutldtcService.java",
+    "line": 239,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine - 1; d < 0; d--) {"
+   },
+   {
+    "id": "6fd536e2fc",
+    "op": "CON",
+    "file": "service/CsutldtcService.java",
+    "line": 239,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine - 1; d >= 1; d--) {"
+   },
+   {
+    "id": "830a97bfb6",
+    "op": "ROR",
+    "file": "service/CsutldtcService.java",
+    "line": 245,
+    "before": "if (next >= 3) {",
+    "after": "if (next > 3) {"
+   },
+   {
+    "id": "d0914ba44f",
+    "op": "NEG",
+    "file": "service/CsutldtcService.java",
+    "line": 251,
+    "before": "if (e.depth != mine) {",
+    "after": "if (!(e.depth != mine)) {"
+   },
+   {
+    "id": "bcc9aa4282",
+    "op": "ROR",
+    "file": "service/CsutldtcService.java",
+    "line": 251,
+    "before": "if (e.depth != mine) {",
+    "after": "if (e.depth == mine) {"
+   },
+   {
+    "id": "689ce827b1",
+    "op": "DEL",
+    "file": "service/CsutldtcService.java",
+    "line": 255,
+    "before": "performDepth = mine;",
+    "after": "/* performDepth = mine; */"
+   },
+   {
+    "id": "3d6c209a83",
+    "op": "LIT",
+    "file": "service/CsutldtcService.java",
+    "line": 264,
+    "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
+    "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);"
+   },
+   {
+    "id": "72ee307fbe",
+    "op": "DEL",
+    "file": "service/CsutldtcService.java",
+    "line": 271,
+    "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f10_WS_MESSAGE.storage(), f10_WS_MESSAGE.offset() + 0, 4, false), CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f10_WS_MESSAGE.storage(), f10_WS_MESSAGE.offset() + 0, 4, false), CS); */"
+   },
+   {
+    "id": "f9518240f5",
+    "op": "AOR",
+    "file": "service/CsutldtcService.java",
+    "line": 271,
+    "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f10_WS_MESSAGE.storage(), f10_WS_MESSAGE.offset() + 0, 4, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f10_WS_MESSAGE.storage(), f10_WS_MESSAGE.offset() - 0, 4, false), CS);"
+   },
+   {
+    "id": "d46f9d23f6",
+    "op": "DEL",
+    "file": "service/CsutldtcService.java",
+    "line": 272,
+    "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f10_WS_MESSAGE.storage(), f10_WS_MESSAGE.offset() + 15, 4, false), CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f10_WS_MESSAGE.storage(), f10_WS_MESSAGE.offset() + 15, 4, false), CS); */"
+   },
+   {
+    "id": "e0afc88b0f",
+    "op": "CON",
+    "file": "service/CsutldtcService.java",
+    "line": 272,
+    "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f10_WS_MESSAGE.storage(), f10_WS_MESSAGE.offset() + 15, 4, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f10_WS_MESSAGE.storage(), f10_WS_MESSAGE.offset() + 15, 5, false), CS);"
+   },
+   {
+    "id": "3045bba977",
+    "op": "DEL",
+    "file": "service/CsutldtcService.java",
+    "line": 273,
+    "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f10_WS_MESSAGE.storage(), f10_WS_MESSAGE.offset() + 20, 15, false), CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f10_WS_MESSAGE.storage(), f10_WS_MESSAGE.offset() + 20, 15, false), CS); */"
+   },
+   {
+    "id": "dddcaae960",
+    "op": "CON",
+    "file": "service/CsutldtcService.java",
+    "line": 273,
+    "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f10_WS_MESSAGE.storage(), f10_WS_MESSAGE.offset() + 20, 15, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f10_WS_MESSAGE.storage(), f10_WS_MESSAGE.offset() + 21, 15, false), CS);"
+   },
+   {
+    "id": "e58f400f13",
+    "op": "DEL",
+    "file": "service/CsutldtcService.java",
+    "line": 274,
+    "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f10_WS_MESSAGE.storage(), f10_WS_MESSAGE.offset() + 45, 10, false), CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f10_WS_MESSAGE.storage(), f10_WS_MESSAGE.offset() + 45, 10, false), CS); */"
+   },
+   {
+    "id": "53f4fca57d",
+    "op": "CON",
+    "file": "service/CsutldtcService.java",
+    "line": 275,
+    "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f10_WS_MESSAGE.storage(), f10_WS_MESSAGE.offset() + 66, 10, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f10_WS_MESSAGE.storage(), f10_WS_MESSAGE.offset() + 67, 10, false), CS);"
+   },
+   {
+    "id": "44211f50f5",
+    "op": "DEL",
+    "file": "service/CsutldtcService.java",
+    "line": 277,
+    "before": "Cobol.moveFigurative(Figurative.SPACES, f20_WS_DATE, CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.SPACES, f20_WS_DATE, CS); */"
+   },
+   {
+    "id": "1bf3764398",
+    "op": "NEG",
+    "file": "service/CsutldtcService.java",
+    "line": 285,
+    "before": "if (true) throw new Goback();",
+    "after": "if (!(true)) throw new Goback();"
+   },
+   {
+    "id": "8d5d908d14",
+    "op": "CON",
+    "file": "service/CsutldtcService.java",
+    "line": 297,
+    "before": "Cobol.move(BigDecimal.valueOf(10), f6_VSTRING_LENGTH, CS);",
+    "after": "Cobol.move(BigDecimal.valueOf(11), f6_VSTRING_LENGTH, CS);"
+   },
+   {
+    "id": "a09fbeeb55",
+    "op": "LIT",
+    "file": "service/CsutldtcService.java",
+    "line": 317,
+    "before": "Cobol.move(\"Insufficient\", f17_WS_RESULT, CS);",
+    "after": "Cobol.move(\"Xnsufficient\", f17_WS_RESULT, CS);"
+   },
+   {
+    "id": "d1a2b80966",
+    "op": "LIT",
+    "file": "service/CsutldtcService.java",
+    "line": 323,
+    "before": "Cobol.move(\"Invalid Era    \", f17_WS_RESULT, CS);",
+    "after": "Cobol.move(\"Xnvalid Era    \", f17_WS_RESULT, CS);"
+   },
+   {
+    "id": "3496938a59",
+    "op": "LIT",
+    "file": "service/CsutldtcService.java",
+    "line": 329,
+    "before": "Cobol.move(\"Invalid month  \", f17_WS_RESULT, CS);",
+    "after": "Cobol.move(\"Xnvalid month  \", f17_WS_RESULT, CS);"
+   },
+   {
+    "id": "ce0b3e4775",
+    "op": "LIT",
+    "file": "service/CsutldtcService.java",
+    "line": 332,
+    "before": "Cobol.move(\"Bad Pic String \", f17_WS_RESULT, CS);",
+    "after": "Cobol.move(\"Xad Pic String \", f17_WS_RESULT, CS);"
+   },
+   {
+    "id": "8ef3aae5a5",
+    "op": "NEG",
+    "file": "service/CsutldtcService.java",
+    "line": 336,
+    "before": "} else if ((isFcYearInEraZero())) {",
+    "after": "} else if (!((isFcYearInEraZero()))) {"
+   },
+   {
+    "id": "40551fbb99",
+    "op": "LIT",
+    "file": "service/CsutldtcService.java",
+    "line": 338,
+    "before": "Cobol.move(\"YearInEra is 0 \", f17_WS_RESULT, CS);",
+    "after": "Cobol.move(\"XearInEra is 0 \", f17_WS_RESULT, CS);"
+   },
+   {
+    "id": "4827e7a66d",
+    "op": "NEG",
+    "file": "service/CsutldtcService.java",
+    "line": 339,
+    "before": "} else if (true) {",
+    "after": "} else if (!(true)) {"
+   },
+   {
+    "id": "e5fcbf0064",
+    "op": "LIT",
+    "file": "service/CsutldtcService.java",
+    "line": 341,
+    "before": "Cobol.move(\"Date is invalid\", f17_WS_RESULT, CS);",
+    "after": "Cobol.move(\"Xate is invalid\", f17_WS_RESULT, CS);"
+   },
+   {
+    "id": "b836d11a32",
+    "op": "LIT",
+    "file": "service/CsutldtcService.java",
+    "line": 356,
+    "before": "private boolean isFcInsufficientData() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, Cobol.hex(\"\\000\\003\\011\\313Y\\303\\305\\305\", CS), CS) == 0; }",
+    "after": "private boolean isFcInsufficientData() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, Cobol.hex(\"X00\\003\\011\\313Y\\303\\305\\305\", CS), CS) == 0; }"
+   },
+   {
+    "id": "733156b311",
+    "op": "LIT",
+    "file": "service/CsutldtcService.java",
+    "line": 362,
+    "before": "private boolean isFcInvalidEra() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, Cobol.hex(\"\\000\\003\\011\\315Y\\303\\305\\305\", CS), CS) == 0; }",
+    "after": "private boolean isFcInvalidEra() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, Cobol.hex(\"X00\\003\\011\\315Y\\303\\305\\305\", CS), CS) == 0; }"
+   },
+   {
+    "id": "4aa4ed9453",
+    "op": "LIT",
+    "file": "service/CsutldtcService.java",
+    "line": 368,
+    "before": "private boolean isFcInvalidMonth() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, Cobol.hex(\"\\000\\003\\011\\325Y\\303\\305\\305\", CS), CS) == 0; }",
+    "after": "private boolean isFcInvalidMonth() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, Cobol.hex(\"X00\\003\\011\\325Y\\303\\305\\305\", CS), CS) == 0; }"
+   },
+   {
+    "id": "0c140d9ad4",
+    "op": "LIT",
+    "file": "service/CsutldtcService.java",
+    "line": 371,
+    "before": "private boolean isFcBadPicString() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, Cobol.hex(\"\\000\\003\\011\\326Y\\303\\305\\305\", CS), CS) == 0; }",
+    "after": "private boolean isFcBadPicString() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, Cobol.hex(\"X00\\003\\011\\326Y\\303\\305\\305\", CS), CS) == 0; }"
+   },
+   {
+    "id": "19687d9fdf",
+    "op": "LIT",
+    "file": "service/CsutldtcService.java",
+    "line": 377,
+    "before": "private boolean isFcYearInEraZero() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, Cobol.hex(\"\\000\\003\\011\\331Y\\303\\305\\305\", CS), CS) == 0; }",
+    "after": "private boolean isFcYearInEraZero() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, Cobol.hex(\"X00\\003\\011\\331Y\\303\\305\\305\", CS), CS) == 0; }"
+   },
+   {
+    "id": "b0c316e207",
+    "op": "ROR",
+    "file": "service/CsutldtcService.java",
+    "line": 377,
+    "before": "private boolean isFcYearInEraZero() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, Cobol.hex(\"\\000\\003\\011\\331Y\\303\\305\\305\", CS), CS) == 0; }",
+    "after": "private boolean isFcYearInEraZero() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, Cobol.hex(\"\\000\\003\\011\\331Y\\303\\305\\305\", CS), CS) != 0; }"
+   }
+  ],
+  "inputs": {
+   "port": "a40f6ef32ec95abd43f36d0c0d3bbb66d153e9cd9aafa9b28d4dfcd4e5d7da10",
+   "runtime": "919076a8b51b1df4bc09e798a3e62977adb18478dd088a27fd4ce3c39c209be7",
+   "generator": "1af26dd5c15e0f9880c9c2021e9bc43756d1779d883dfc25f58bcdb8769d0215",
+   "case": "c902197ab810544a25cf01b140099d497fb0917a389551bce05fd90cf157020c",
+   "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
+   "harness": "5a0a8b1be0925e2fef97219deebef4b8f6d6b62322b6d0fc9c283f6e90b67a42",
+   "oracle": "fd125d6869723ab4f48630ffd8f014179f611b91aa1e1d119551a887110ca7c3",
+   "survivors": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "components": {
+   "generator": {
+    "generator:core": "b0ce6bfa64f3eae33dc6e4c539cacd17a4f4451494896671c72e9e453001b64d",
+    "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
+    "generator:det/cics": "cc994b69236f857bf262fe907bfe9ec65b6ada76a5e1d02c76a10f2a8bc1ab27",
+    "generator:det/cics_common": "03fe34eeea3470e5e1b689ad1154e7012663890618326f8049c23025595e23c8",
+    "generator:det/cics_conditions": "3ebd12a753735f4cfb594d4e5d80ec98f3c19a1e30fe9a9d945ccc142cdb8752",
+    "generator:det/cics_containers": "0b061073eabfc3de21e12ddd608470b6fbe70c1539fffc0a40a263f2a21d3142",
+    "generator:det/cics_counters": "494271d107d6554da2b7436d5c882f6c92db2141bb3b97c8fff218194d4993c4",
+    "generator:det/cics_faults": "863ce608ce8e183fe37350ba17f59b2176ce20452e1ebe86cb6b7ae6109fdb4e",
+    "generator:det/cics_filecontrol": "3d383fd7ba5aea467fbd27af35bf7906879c3e066af721b4453ac228389c2780",
+    "generator:det/cics_program": "d48437e7dba39ab0eb4db61b75c2558892d9c45ff53e7feb114cf3eb700f313f",
+    "generator:det/cics_queues": "0ad690c3e8132ee2c8ab6c28177e5069625a4d8821a374d3f9d69ba3a930e914",
+    "generator:det/cics_storage": "895d283c439f9ea13977dc26fcf0df935474ede1e8e7c102b50d4a6b2e75567f",
+    "generator:det/cics_system": "7641dc83bab798b705d92ad0d483978402948eeb80dfda3d588104c1b74965c9",
+    "generator:det/cics_taskcontrol": "87a6ea18cc2bfae69ec93f318813460b05819c51ac5003f01082bf68db22e02e",
+    "generator:det/cics_terminal": "f0fd521e09fcae2fec35ff2ecde1ffc414083f96c054123a8b63549eb941c541",
+    "generator:det/cics_web": "1fdca9b226067ac18c2a95c9e0b950a3a52fbe5c1f3d2676ac88c76fda74abac",
+    "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
+    "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
+    "generator:det/hfp": "d7d641dafd602da31535a68f7f219c201a8d867cb7a1fec1c879be38e9ff86b7",
+    "generator:det/hlasm": "c7117c636ab25d2ccb7b4e2d7f23766ddacb9c9f7600c2fd6d894a49a60f4748",
+    "generator:det/layout": "d18ee78c6619817c817adda13a9e2cdd53737f372fadee306c4fd4d122cae2b7",
+    "generator:det/source": "fd7d20e0f7824a4d3b74201b0690914daf79834567b3fa5f064c98beb4d50e0b"
+   },
+   "harness": {
+    "harness:call": "92bdf0ee04a3153ef83fb7351b6b0d59eb67c7ea4490457401b2b14a4e36e667",
+    "harness:cics": "ab64b4a973ef9b9126678d57497ec76d08dc3d3afefb66fb49fd1e86521e221b",
+    "harness:core": "726a6345c865b1d49361b1ae91ca3327c89c0346641bf59209c518da01c61f43"
+   },
+   "oracle": {
+    "oracle:core": "b4bb775f0a30746a6054f259b4c8613e08cb0d8cf3b40f4a789d953aca4144a0",
+    "oracle:le": "670c92cc59b722e108b688267be1fd89ecda9b7be62bb485da2ad4839b4f7011"
+   }
+  },
+  "every": "005908f2df 01edaf92a7 022ea07df9 026a1f06e0 060014740b 06062379f6 06bb45c420 06de067082 07521d66c6 07a33ed1c5 0835801c4d 0948b3aaa5 0b97f9b9f6 0c140d9ad4 0c40e2df56 0c905205fa 0e5ab03d3e 0ec3febb6a 101ae3602a 118bebc9dc 11d6d1576b 1392cf7120 13b32a872d 13cac0b227 1765eef30c 18e649d661 19687d9fdf 19792b4ada 198997d1db 1ba4b1aa91 1bf3764398 1c36e90d7b 1d0082ffea 1d9305d288 1dd853a10c 2090e92947 23b1c0e336 24b46ebc37 261720ddcd 273429a2ad 2737884214 281f36ab4a 2943c70da1 2bf9539c42 2e095a633b 2ec1839ec8 2ee14687c6 3045bba977 30d956b195 31febf2c9a 326aa980f4 33e1a7c2fb 3442622655 3496938a59 34f8015e73 3697df322c 36dec160df 379cc3bdec 388ca92fef 3994b6d0ed 39a0f6d760 39d228493e 3a1330f482 3ad44992dd 3b4f4e5899 3bb87330f1 3bf8a85649 3c8a526197 3d6c209a83 3e0f86939e 3fd9c93d58 40551fbb99 408f5873d6 421fa46229 42fa84882e 43f0a7eb19 44211f50f5 4718c14227 47c3509165 4827e7a66d 493e4c401e 4aa4ed9453 4d8a65de2f 4e168aae4c 4e568dc0cf 5041e88101 51a42cad63 51d493a8f4 538ab615ea 53bd7ecc4d 53df693e70 53f4fca57d 54caeafb0e 5680d3628e 59bc28221e 59f3d916c1 5a767f5c0a 5b320bdeec 5b9b07ecb1 5c0cee4631 5c2e489fa2 5cea8ab6a9 5d18608f03 5d3fd6ea63 5d8957bc4f 5fefc7d4c1 6042ca6398 60642a69f3 617fb9040d 61fecee20c 6299521d7a 6454122ed3 6662bb4f34 689ce827b1 68f98741d0 69b5798d42 6a2e177a87 6aaeef2ff6 6c84ca373f 6d5688ccd1 6dff532d45 6f0f91109b 6f8c88c461 6fa73b06e6 6fd536e2fc 70fea651da 710e33304c 72ee307fbe 733156b311 7590fe6cf8 77a9a7109d 78715666d4 78eb8c1b28 79fe4e5263 7a57dcd122 7b1ef59545 81b0b048bc 830a97bfb6 845eef6a5b 864ee61ca9 86e2bb58e6 87b5643cf5 87e7b59949 882f6a03de 88672e97b6 8945823eab 8946797e8b 89fe5acfd0 8b6d013357 8d5d908d14 8ef3aae5a5 8f001eda2c 8fb6ebf22a 902e8b064e 9047fbcf83 90c05de5a5 93940b083d 9438b454e1 94a8031e9e 95f16ef8a7 99375a2850 9a86a0394e 9bc31c436c 9c1febfce8 9e6787a909 9e961bf107 a054c4fc03 a09ad3b94f a09fbeeb55 a10ce6c939 a11ef12eae a152be4c23 a21bda3369 a4ce1d323b a518032e80 a5a3d24367 a620651e21 ac32c6d302 acb0ab5eb3 ad58b6eab4 ae697db76b afa79a180c afc6c9d1af b051a9fda6 b060560eb7 b0c316e207 b346bb4f05 b3c6f2ef1a b3f1b36b9b b836d11a32 b8f9db9047 ba1e745f9a bbdebef6b5 bcc9aa4282 bd60944015 bd96b34813 bec3dc36d1 bf5bb24c8f bf694026c0 c28f68f890 c2ca50f7df c9721fe80a ca00f9b65d ca6527d9ff cb205bc7ec ccd5a8dac1 cd9064ef52 ce0b3e4775 ce29ffadde ce69d501d9 cf7b2f650b d0914ba44f d0a0fbe0bc d1532a9208 d1a2b80966 d46f9d23f6 d4e4af86f6 d5098b03f8 d51ad95c1b d6038f7c9d d6577c043c d717b05516 d75cf975c6 d82f3794d5 d89dbdac56 d923f3aa82 d9f2daf522 da0b8c10d2 da0dd5f36d da55b242f1 db408537f6 dc265a71db dc5c9e35a6 dcf9446cd2 dddcaae960 de0f012427 deb7d5e5f9 e042e075f5 e0afc88b0f e56a46eb9d e58f400f13 e5fcbf0064 e617bb8df6 e650b6a0b3 e68459a18f e9299dbeaa eba3b71119 ee9982552f ef65ce63da f08589d060 f4ee734397 f6e413b03e f7a9654b35 f846c036e1 f9518240f5 fa06dc409a fa28fa0e2a fa555cd725 fb120a87a8 fbea2f003b fbf2af0b15 fc313dafad fc6dbf2a76 fd611c1a12 fd9814be71 fe77db1006 feb50062df ff0b2a0fe2 ff331fd30a"
+ }
+}

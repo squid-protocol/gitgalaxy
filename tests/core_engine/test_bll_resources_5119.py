@@ -181,3 +181,87 @@ def test_a_task_row_with_no_cell_is_unchanged():
         (row,) = _tasks(_src(SMALL, command))
         assert row["record"] == record
         assert "record_cell" not in row
+
+
+# --- the cell survives the fact-channel DB (persist -> restore -> galaxy_ir) ---------------------------------------------
+
+_ROW_CELL = {"record_clause": "SET", "record": "FILE-REC", "record_cell": "FRPTR", "line": 3}
+
+
+def _channel_db(names, old=False):
+    import sqlite3
+
+    from gitgalaxy.core.fact_channels import CHANNELS_BY_NAME, create_channel_table
+    from gitgalaxy.recorders.record_keeper import _ensure_columns
+
+    conn = sqlite3.connect(":memory:")
+    conn.row_factory = sqlite3.Row
+    cur = conn.cursor()
+    cur.execute("CREATE TABLE file_data (id INTEGER PRIMARY KEY, repo_name TEXT, commit_hash TEXT, file_path TEXT)")
+    cur.execute("INSERT INTO file_data VALUES (1, 'r', 'c', 'a.cbl')")
+    for name in names:
+        create_channel_table(cur, name, _ensure_columns)
+        if old:  # a baseline written before #5119: the table has no record_cell
+            table = CHANNELS_BY_NAME[name].table
+            cur.execute(f"ALTER TABLE {table} DROP COLUMN record_cell")
+    return conn, cur
+
+
+@pytest.mark.parametrize("name", ["cics_resource", "cics_task"])
+def test_record_cell_round_trips_through_the_fact_channel(name):
+    from gitgalaxy.core.fact_channels import CHANNELS_BY_NAME
+    from gitgalaxy.core.state_rehydrator import _has_column, _has_table, _restore_child_table
+
+    channel = CHANNELS_BY_NAME[name]
+    conn, cur = _channel_db([name])
+    try:
+        for item in (
+            {"verb": "READ", "kind": "FILE", "verb_": 1, **_ROW_CELL},
+            {"verb": "READ", "kind": "FILE", "record_clause": "INTO", "record": "WS", "line": 4},
+        ):
+            marks = ", ".join("?" * (3 + len(channel.columns)))
+            cur.execute(
+                f"INSERT INTO {channel.table} (repo_name, commit_hash, file_id, {', '.join(channel.columns)}) "  # noqa: S608 -- registry literals
+                f"VALUES ({marks})",
+                ("r", "c", 1, *channel.to_row(item)),
+            )
+        sql = channel.select_sql(cur, _has_table, _has_column)
+        rows = _restore_child_table(cur, "r", "c", channel.table, sql, channel.to_payload)["a.cbl"]
+        assert (rows[0]["record"], rows[0]["record_cell"]) == ("FILE-REC", "FRPTR")
+        assert "record_cell" not in rows[1]  # presence-keyed: a row with no cell is as extracted
+    finally:
+        conn.close()
+
+
+@pytest.mark.parametrize("name", ["cics_resource", "cics_task"])
+def test_a_baseline_without_record_cell_restores_without_the_key(name):
+    from gitgalaxy.core.fact_channels import CHANNELS_BY_NAME
+    from gitgalaxy.core.state_rehydrator import _has_column, _has_table, _restore_child_table
+
+    channel = CHANNELS_BY_NAME[name]
+    conn, cur = _channel_db([name], old=True)
+    try:
+        cols = [c for c in channel.columns if c != "record_cell"]
+        cur.execute(
+            f"INSERT INTO {channel.table} (repo_name, commit_hash, file_id, verb, line_number) "  # noqa: S608 -- registry literal
+            "VALUES ('r', 'c', 1, 'READ', 3)"
+        )
+        assert "record_cell" in channel.columns and cols
+        sql = channel.select_sql(cur, _has_table, _has_column)
+        (row,) = _restore_child_table(cur, "r", "c", channel.table, sql, channel.to_payload)["a.cbl"]
+        assert row["verb"] == "READ" and "record_cell" not in row
+    finally:
+        conn.close()
+
+
+def test_a_scan_to_the_master_db_keeps_the_cell_for_galaxy_ir(tmp_path):
+    from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir, scan_to_db
+
+    src = _src(SMALL, "READ FILE('F') RIDFLD(K) SET(FRPTR)")
+    program = "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. BLLP.\n       DATA DIVISION.\n" + src
+    repo = tmp_path / "bllrepo"
+    repo.mkdir()
+    (repo / "BLLP.cbl").write_text(program, encoding="utf-8")
+    ir = load_galaxy_ir(scan_to_db(repo, tmp_path / "scan"))
+    (op,) = ir.files["BLLP.cbl"].cics_resources
+    assert (op.record_clause, op.record, op.record_cell) == ("SET", "FILE-REC", "FRPTR")

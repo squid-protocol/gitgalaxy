@@ -567,6 +567,7 @@ class EngineCicsResource:
     record: str | None
     attributes: str | None
     line: int
+    record_cell: str | None = None  # #5119: the BLL cell of a SET(cell) command; `record` is the record it addresses
 
     @property
     def names(self) -> set:
@@ -612,6 +613,7 @@ class EngineCicsTask:
     timing: str | None
     attributes: str | None
     line: int
+    record_cell: str | None = None  # #5119: as EngineCicsResource
 
     def matches(self, name: str) -> bool:
         """Whether `name` can be this command's target: the resolved name, or a
@@ -6809,9 +6811,10 @@ def load_galaxy_ir(db_path: Path, repo_name: str | None = None) -> GalaxyIR:
         # #3351-#3354: CICS resource operations. A pre-channel database has no such
         # table, so a missing table is "no CICS resources", never an error.
         if _has_table(cur, "cics_resource_data"):
+            cell_col = "record_cell" if _has_column(cur, "cics_resource_data", "record_cell") else "NULL"
             for row in cur.execute(
-                "SELECT file_id, verb, resource_kind, access, name_operand, resource_name, name_resolution, "
-                "name_candidates, qualifier_operand, qualifier, record_clause, record_name, attributes, line_number "
+                "SELECT file_id, verb, resource_kind, access, name_operand, resource_name, name_resolution, "  # noqa: S608 -- cell_col is one of two literals
+                f"name_candidates, qualifier_operand, qualifier, record_clause, record_name, attributes, line_number, {cell_col} "
                 "FROM cics_resource_data WHERE repo_name = ? AND commit_hash = ? ORDER BY file_id, line_number, id",
                 (repo_name, commit_hash),
             ):
@@ -6832,6 +6835,7 @@ def load_galaxy_ir(db_path: Path, repo_name: str | None = None) -> GalaxyIR:
                         record=row[11],
                         attributes=row[12],
                         line=int(row[13] or 0),
+                        record_cell=row[14],
                     )
                 )
         # #3496: web-services assistant steps. A pre-#3496 database has none.
@@ -7124,10 +7128,11 @@ def load_galaxy_ir(db_path: Path, repo_name: str | None = None) -> GalaxyIR:
         # #3449: CICS task control. A pre-#3449 database has no such table, so a
         # missing table is "no task commands", never an error.
         if _has_table(cur, "cics_task_data"):
+            cell_col = "record_cell" if _has_column(cur, "cics_task_data", "record_cell") else "NULL"
             for row in cur.execute(
-                "SELECT file_id, verb, target_kind, target_operand, target_name, target_resolution, "
+                "SELECT file_id, verb, target_kind, target_operand, target_name, target_resolution, "  # noqa: S608 -- cell_col is one of two literals
                 "target_candidates, channel_operand, channel_name, token, record_clause, record_name, timing, "
-                "attributes, line_number "
+                f"attributes, line_number, {cell_col} "
                 "FROM cics_task_data WHERE repo_name = ? AND commit_hash = ? ORDER BY file_id, line_number, id",
                 (repo_name, commit_hash),
             ):
@@ -7149,6 +7154,7 @@ def load_galaxy_ir(db_path: Path, repo_name: str | None = None) -> GalaxyIR:
                         timing=row[12],
                         attributes=row[13],
                         line=int(row[14] or 0),
+                        record_cell=row[15],
                     )
                 )
         copy_reports: dict[str, list[dict[str, Any]] | None] = {}

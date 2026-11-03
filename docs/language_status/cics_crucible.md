@@ -14,9 +14,9 @@ Every cell that does not pass is ledgered in `tests/cics_crucible/baseline.json`
 | forge-compile | 51 | 0 | 0 | 51 |
 | cobol-stub | 167 | 10 | 0 | 177 |
 | java | 0 | 177 | 0 | 177 |
-| java-ported | 67 | 110 | 0 | 177 |
-| java-facade | 64 | 113 | 0 | 177 |
-| **all** | **400** | **410** | **0** | **810** |
+| java-ported | 71 | 106 | 0 | 177 |
+| java-facade | 68 | 109 | 0 | 177 |
+| **all** | **408** | **402** | **0** | **810** |
 
 ## By trap and case
 
@@ -45,7 +45,7 @@ Pass counts per side (scenario sides: passing / scenarios).
 | condition-handling | `hc-dcounters` | pass | pass | 2 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
 | condition-handling | `hc-deedit-uctranst` | pass | pass | 3 / 3 | 0 / 3 | 0 / 3 | 0 / 3 |
 | condition-handling | `hc-eoc-error` | pass | pass | 2 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
-| condition-handling | `hc-file-read-set` | pass | pass | 4 / 4 | 0 / 4 | 0 / 4 | 0 / 4 |
+| condition-handling | `hc-file-read-set` | pass | pass | 4 / 4 | 0 / 4 | 4 / 4 | 4 / 4 |
 | condition-handling | `hc-file-unlock` | pass | pass | 4 / 4 | 0 / 4 | 0 / 4 | 0 / 4 |
 | condition-handling | `hc-handle-aid` | pass | pass | 9 / 9 | 0 / 9 | 0 / 9 | 0 / 9 |
 | condition-handling | `hc-ignore-error` | pass | pass | 9 / 9 | 0 / 9 | 0 / 9 | 0 / 9 |
@@ -142,7 +142,7 @@ Each cobol-stub scenario runs the COBOL compiled with `-ftraceall` (tests/tools/
 | `hc-dcounters` | HCDCNT | 2 | 7/7 | 6/7 | 0/0 | 0 | proven on 0 scenarios, covering 0/7 paragraphs and 0/7 branches |
 | `hc-deedit-uctranst` | HCDEED | 3 | 7/7 | 3/4 | 0/0 | 0 | proven on 0 scenarios, covering 0/7 paragraphs and 0/4 branches |
 | `hc-eoc-error` | HCEOE | 2 | 3/4 | 2/2 | 1/2 | 0 | proven on 0 scenarios, covering 0/4 paragraphs and 0/2 branches |
-| `hc-file-read-set` | HCRDST | 4 | 8/8 | 8/9 | 0/0 | 0 | proven on 0 scenarios, covering 0/8 paragraphs and 0/9 branches |
+| `hc-file-read-set` | HCRDST | 4 | 8/8 | 8/9 | 0/0 | 0 | proven on 4 scenarios, covering 8/8 paragraphs and 8/9 branches |
 | `hc-file-unlock` | HCUNLK | 4 | 9/9 | 7/9 | 0/0 | 0 | proven on 0 scenarios, covering 0/9 paragraphs and 0/9 branches |
 | `hc-handle-aid` | HCAID | 9 | 6/6 | 7/7 | 3/3 | 0 | proven on 0 scenarios, covering 0/6 paragraphs and 0/7 branches |
 | `hc-ignore-error` | HCIGN | 9 | 5/5 | 9/9 | 2/2 | 0 | proven on 0 scenarios, covering 0/5 paragraphs and 0/9 branches |
@@ -451,12 +451,10 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | cobol-stub | data bytes differ | 1 |
 | java | runTask records no events (the generated stub: PROCEDURE DIVISION not ported) | 177 |
 | java-ported | not ported | 100 |
-| java-ported | ridfld differs | 4 |
 | java-ported | READ expected, other event | 3 |
 | java-ported | item differs | 2 |
 | java-ported | REWRITE expected, other event | 1 |
 | java-facade | not ported | 100 |
-| java-facade | ridfld differs | 4 |
 | java-facade | READ expected, other event | 3 |
 | java-facade | RECEIVE expected, other event | 3 |
 | java-facade | item differs | 2 |
@@ -684,17 +682,9 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | `hc-eoc-error/eoc-own-label/java-facade` | fail | no port of any of its programs |
 | `hc-eoc-error/eoc-own-label/java-ported` | fail | no port of any of its programs |
 | `hc-file-read-set/browse-back/java` | fail | task 1 (HC83) event 1: RECEIVE expected, the side recorded no further event |
-| `hc-file-read-set/browse-back/java-facade` | fail | task 1 (HC83) event 2: ridfld X'D2F0F4F0' expected, got X'4B303430' |
-| `hc-file-read-set/browse-back/java-ported` | fail | task 1 (HC83) event 2: ridfld X'D2F0F4F0' expected, got X'4B303430' |
 | `hc-file-read-set/browse-fwd/java` | fail | task 1 (HC83) event 1: RECEIVE expected, the side recorded no further event |
-| `hc-file-read-set/browse-fwd/java-facade` | fail | task 1 (HC83) event 2: ridfld X'D2F0F1F5' expected, got X'4B303135' |
-| `hc-file-read-set/browse-fwd/java-ported` | fail | task 1 (HC83) event 2: ridfld X'D2F0F1F5' expected, got X'4B303135' |
 | `hc-file-read-set/browse-notfnd/java` | fail | task 1 (HC83) event 1: RECEIVE expected, the side recorded no further event |
-| `hc-file-read-set/browse-notfnd/java-facade` | fail | task 1 (HC83) event 2: ridfld X'D2F0F6F0' expected, got X'4B303630' |
-| `hc-file-read-set/browse-notfnd/java-ported` | fail | task 1 (HC83) event 2: ridfld X'D2F0F6F0' expected, got X'4B303630' |
 | `hc-file-read-set/read-set/java` | fail | task 1 (HC83) event 1: RECEIVE expected, the side recorded no further event |
-| `hc-file-read-set/read-set/java-facade` | fail | task 1 (HC83) event 2: ridfld X'D2F0F3F0' expected, got X'4B303330' |
-| `hc-file-read-set/read-set/java-ported` | fail | task 1 (HC83) event 2: ridfld X'D2F0F3F0' expected, got X'4B303330' |
 | `hc-file-unlock/read-short/java` | fail | task 1 (HC81) event 1: RECEIVE expected, the side recorded no further event |
 | `hc-file-unlock/read-short/java-facade` | fail | task 1 (HC81) event 2: READ expected, got WRITEQ-TS |
 | `hc-file-unlock/read-short/java-ported` | fail | task 1 (HC81) event 2: READ expected, got WRITEQ-TS |

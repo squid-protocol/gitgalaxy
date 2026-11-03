@@ -327,7 +327,10 @@ def test_run_maven_argline_carries_the_utf8_flags():
     source = (REPO_ROOT / "tests/tools/equivalence_java.py").read_text(encoding="utf-8")
     assert 'f"{JVM_UTF8_FLAGS} {argline}"' in source
     assert "-DargLine={maven_argline}" in source
-    assert "run_decoded(cmd, cwd=project, env=maven_utf8_env(shell)" in source  # #3813: bytes, decoded losslessly
+    assert (
+        "run_maven_retrying_resolution(" in source
+    )  # #3813 bytes, decoded losslessly (#7561: via run_decoded, one -U retry)
+    assert "cmd, cwd=project, env=maven_utf8_env(shell)" in source
 
 
 @pytest.mark.parametrize(

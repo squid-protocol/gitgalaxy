@@ -889,6 +889,12 @@ def _csd_resource_select(cursor, _has_table, has_column):
     )
 
 
+def _with_record_cell(cursor, has_column, table, alias, head, tail):
+    # #5119: `record_cell` (the BLL cell a SET(cell) row names) is NULL on a baseline written before it existed.
+    cell = f"{alias}.record_cell" if has_column(cursor, table, "record_cell") else "NULL AS record_cell"
+    return f"{head}, {cell} {tail}"
+
+
 def _call_site_select(cursor, has_table, has_column):
     # #3355: the COMMAREA contract operands are per-file (the site's own EXEC block), so they are
     # restored like `operand`. A baseline written before #3355 lacks the columns; its rows come
@@ -1226,6 +1232,7 @@ CHANNELS = (
         ir_field="cics_tasks",
         table="cics_task_data",
         ddl=_CICS_TASK_DDL,
+        extra_columns=(("record_cell TEXT",),),  # #5119: the BLL cell a SET(cell) row names
         indexes=(
             "CREATE INDEX IF NOT EXISTS idx_cics_task_file_id ON cics_task_data(file_id);",
             "CREATE INDEX IF NOT EXISTS idx_cics_task_target ON cics_task_data(verb, target_name);",
@@ -1247,6 +1254,7 @@ CHANNELS = (
             "timing",
             "attributes",
             "line_number",
+            "record_cell",
         ),
         to_row=lambda t: (
             t.get("verb"),
@@ -1263,14 +1271,19 @@ CHANNELS = (
             t.get("timing"),
             t.get("attributes"),
             int(t.get("line", 0) or 0),
+            t.get("record_cell"),
         ),
-        restore_select=(
+        restore_select=lambda cursor, _has_table, has_column: _with_record_cell(
+            cursor,
+            has_column,
+            "cics_task_data",
+            "ct",
             "SELECT fd.file_path AS _fp, ct.verb, ct.target_kind, ct.target_operand AS operand, "
             "ct.target_name AS name, ct.target_resolution AS resolution, ct.target_candidates AS candidates, "
             "ct.channel_operand, ct.channel_name AS channel, ct.token, ct.record_clause, "
-            "ct.record_name AS record, ct.timing, ct.attributes, ct.line_number AS line "
+            "ct.record_name AS record, ct.timing, ct.attributes, ct.line_number AS line",
             "FROM cics_task_data ct JOIN file_data fd ON ct.file_id = fd.id "
-            "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY ct.id"
+            "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY ct.id",
         ),
         to_payload=lambda r: {
             "verb": r["verb"],
@@ -1287,6 +1300,7 @@ CHANNELS = (
             "timing": r["timing"],
             "attributes": r["attributes"],
             "line": int(r["line"] or 0),
+            **({"record_cell": r["record_cell"]} if r["record_cell"] else {}),
         },
     ),
     # #3452: field-level data movement -- per-file. #3655: the refmod texts (healed onto an older table).
@@ -1952,7 +1966,7 @@ CHANNELS = (
         ir_field="cics_resources",
         table="cics_resource_data",
         ddl=_CICS_RESOURCE_DDL,
-        extra_columns=(),
+        extra_columns=(("record_cell TEXT",),),  # #5119: the BLL cell a SET(cell) row names
         indexes=(
             "CREATE INDEX IF NOT EXISTS idx_cics_resource_file_id ON cics_resource_data(file_id);",
             "CREATE INDEX IF NOT EXISTS idx_cics_resource_name ON cics_resource_data(resource_kind, resource_name);",
@@ -1973,6 +1987,7 @@ CHANNELS = (
             "record_name",
             "attributes",
             "line_number",
+            "record_cell",
         ),
         to_row=lambda op: (
             op.get("verb"),
@@ -1988,14 +2003,19 @@ CHANNELS = (
             op.get("record"),
             op.get("attributes"),
             int(op.get("line", 0) or 0),
+            op.get("record_cell"),
         ),
-        restore_select=(
+        restore_select=lambda cursor, _has_table, has_column: _with_record_cell(
+            cursor,
+            has_column,
+            "cics_resource_data",
+            "cr",
             "SELECT fd.file_path AS _fp, cr.verb, cr.resource_kind AS kind, cr.access, "
             "cr.name_operand AS operand, cr.resource_name AS name, cr.name_resolution AS resolution, "
             "cr.name_candidates AS candidates, cr.qualifier_operand, cr.qualifier, cr.record_clause, "
-            "cr.record_name AS record, cr.attributes, cr.line_number AS line "
+            "cr.record_name AS record, cr.attributes, cr.line_number AS line",
             "FROM cics_resource_data cr JOIN file_data fd ON cr.file_id = fd.id "
-            "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY cr.id"
+            "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY cr.id",
         ),
         to_payload=lambda r: {
             "verb": r["verb"],
@@ -2011,6 +2031,7 @@ CHANNELS = (
             "record": r["record"],
             "attributes": r["attributes"],
             "line": int(r["line"] or 0),
+            **({"record_cell": r["record_cell"]} if r["record_cell"] else {}),
         },
     ),
     # #3200: every mainframe call site, resolved or not -- inserted from the engine's resolved list.

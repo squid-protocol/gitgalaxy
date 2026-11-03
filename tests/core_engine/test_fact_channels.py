@@ -671,6 +671,8 @@ def test_a_baseline_without_the_refmod_texts_restores_them_as_null():
 
 _HEALED_ONLY = {
     "sql_statement": ("routine_name",),
+    "cics_resource": ("record_cell",),  # #5119
+    "cics_task": ("record_cell",),
     "job_flow": ("runs", "runs_via", "systsin_member", "parm", "instream", "lrecl", "recfm"),
 }
 

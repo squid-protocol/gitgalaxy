@@ -8497,7 +8497,7 @@
     },
     "python/fastapi/tests": {
       "Average Risk Exposures": {
-        "API Exposure": "10.13%",
+        "API Exposure": "10.22%",
         "Cognitive Load Exposure": "4.9%",
         "Commented Logic Exposure": "0.03%",
         "Concurrency Exposure": "22.49%",
@@ -8511,7 +8511,7 @@
         "Testing Exposure": "0.0%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 9927.56,
+      "Directory Group Magnitude": 10018.56,
       "Ecosystem Fingerprint (Archetypes)": {
         "Unclassified": "0.5%",
         "file_cluster_0": "13.2%",

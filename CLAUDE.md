@@ -33,6 +33,7 @@ python -m pytest -m golden_crucible            # opt-in: needs a local language-
 python tests/ruff_audit.py --ci                # baseline-gated lint (see "Baseline-gated audits" below)
 python tests/mypy_audit.py --ci                # baseline-gated type check
 python tests/dead_key_audit.py --ci            # baseline-gated dead-config-key audit
+python tests/doc_refs_audit.py --ci            # baseline-gated stale paths/links/flags/modules in hand-written docs
 ruff format .                                  # zero-tolerance formatting (not baseline-gated)
 ```
 
@@ -97,7 +98,7 @@ brain, or changing `SIGNAL_SCHEMA`, means a golden re-bless with the drift attri
 - Signal looks wrong for a file: check the engine's actual extraction first (`galaxyscope <path> --db-only --debug --output <scratch>`, grep `[WORKER-TRACE]`). Details, including the registry-declaration trap (a string value inside a language's `rules` is compiled to a regex; helper keys go at the TOP LEVEL of the definition) and scan non-determinism (`GALAXYSCOPE_MAX_WORKERS=1`): `docs/agents/detector-debugging.md`.
 - Adding or hardening a language: read `gitgalaxy/standards/how_to_add_a_language.md` directly (never paraphrase it); use the `harden-language-extraction` skill. Layout of strict/gauntlet tests: `docs/agents/language-signatures.md`.
 
-## Baseline-gated audits (ruff / mypy / dead-key)
+## Baseline-gated audits (ruff / mypy / dead-key / doc-refs)
 
 These are regression gates, not zero-tolerance floors: each has a committed baseline file
 (`tests/ruff_audit_baseline.json` etc.) and `--ci` mode fails only on *new* findings beyond it.
@@ -105,8 +106,9 @@ If you fix backlog findings, regenerate the baseline with `--write-baseline`
 (`python tests/ruff_audit.py --write-baseline`, same for `mypy_audit.py`). `ruff format
 --check` is the one zero-tolerance exception (no backlog to carry).
 
-Use `python tests/tools/audit_check.py` (add `--regenerate`) instead of running the three `--ci`
-scripts separately: it bundles all three plus the format check. Baseline keys are content-based
+Use `python tests/tools/audit_check.py` (add `--regenerate`) instead of running the `--ci`
+scripts separately: it bundles them (plus doc-refs) and the format check. A doc-refs finding your change caused (a
+renamed path, a dropped flag, a new module with no README row) is fixed in the same PR. Baseline keys are content-based
 (not line numbers); a new finding or new duplicate of a baselined line still fails. Details:
 `docs/agents/baseline-audits.md`.
 

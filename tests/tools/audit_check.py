@@ -153,6 +153,22 @@ def check_dead_key() -> bool:
     return ok
 
 
+def check_doc_refs() -> bool:
+    """Stale references in hand-written markdown (tests/doc_refs_audit.py), baseline-gated like dead-key."""
+    result = subprocess.run(
+        [sys.executable, str(TESTS_DIR / "doc_refs_audit.py"), "--ci"],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+    )
+    ok = result.returncode == 0
+    print(f"[doc-refs] {result.stdout.strip().splitlines()[-1]}" if ok else "[doc-refs] FAIL -- see details below:")
+    if not ok:
+        print(result.stdout)
+        print(result.stderr)
+    return ok
+
+
 def check_ast_accuracy() -> bool:
     """
     Numeric-metric regression gate (#1200), not a per-finding dict --
@@ -182,6 +198,7 @@ def main() -> int:
         "ruff": check_ruff(regenerate),
         "mypy": check_mypy(regenerate),
         "dead-key": check_dead_key(),
+        "doc-refs": check_doc_refs(),
         "ast-accuracy": check_ast_accuracy(),
     }
 

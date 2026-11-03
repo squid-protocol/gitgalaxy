@@ -43,7 +43,7 @@ The status above judges the record alone (policy: ported_unproven = block). Whet
 
 | line | kind | outcome | paragraph |
 |---|---|---|---|
-| 287 | IF | false | None |
+| 287 | IF | false |  |
 | 298 | EVALUATE | OTHER | 0000-START |
 | 318 | IF | false | 1000-MAINLINE |
 

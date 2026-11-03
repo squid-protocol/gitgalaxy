@@ -6,6 +6,7 @@ name: OS Smoke Grid
 # once per cadence window and only when main changed a non-docs file since its last run (#5136), plus nightly and on
 # release tags. PRs never ran it: they get ubuntu/3.12 and the --help entry-point checks through smoke-test.yml's
 # full-suite, and the full suite across the OS x Python matrix is full-suite-gate.yml. Main Watch reports a red grid.
+# Every step carries its own timeout-minutes (#5747, #7618): a runner hang ends as that step failing, not a bare cancel.
 # Read-only: nothing here writes to the repo.
 
 on:
@@ -40,11 +41,13 @@ jobs:
 
     steps:
       - name: Check out repository code
+        timeout-minutes: 3
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
       - name: Set up Python ${{ matrix.python-version }}
+        timeout-minutes: 5
         uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 #
         with:
           python-version: ${{ matrix.python-version }}
@@ -67,16 +70,21 @@ jobs:
           pip install --no-build-isolation -e .
 
       - name: Smoke Test - Core Engine
+        timeout-minutes: 3
         run: python -m gitgalaxy.galaxyscope --help
 
       - name: Smoke Test - Legacy Refractor Controller
+        timeout-minutes: 3
         run: python -m gitgalaxy.cobol_refractor_controller --help
 
       - name: Smoke Test - Java Spring Forge Controller
+        timeout-minutes: 3
         run: python -m gitgalaxy.cobol_to_java_controller --help
 
       - name: Smoke Test - Supply Chain Firewall
+        timeout-minutes: 3
         run: python -m gitgalaxy.tools.supply_chain_security.supply_chain_firewall --help
 
       - name: Smoke Test - API Network Map
+        timeout-minutes: 3
         run: python -m gitgalaxy.tools.network_auditing.full_api_network_map --help

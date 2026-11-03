@@ -1319,7 +1319,9 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
             # the bytes, when passed, are the items (the objects carry only what their DTOs name); else the objects
             body_in = ["        byte[][] areas = callAreas;", "        callAreas = null;", "        if (areas != null) {",
                        *areas_in, "        } else {", *("    " + x for x in ins), "        }"]  # fmt: skip
-            body_out = [*body_out, "        if (areas != null) {", *areas_out, "        }"]
+            # #7485: the areas' bytes first -- fill_ reads signed DISPLAY fields (PUT_SIGN) and would rewrite one the
+            # program never touched in the storage the caller gets back
+            body_out = ["        if (areas != null) {", *areas_out, "        }", *body_out]
 
         if body_in is None:
             call_entry = [
@@ -1824,8 +1826,11 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
                   f"            int keep = {st}.bytes.length;",
                   f"            {st}.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
                   "            Runnable typed = caBack;",
-                  (f"            caBack = () -> {{ typed.run(); System.arraycopy({st}.bytes, 0, raw, 0, Math.min(raw.length, keep)); "
-                   f"if ({st}.beyond != null) {{ System.arraycopy({st}.beyond, 0, raw, keep, raw.length - keep); }} }};"),
+                  # #7485: the bytes go to the link area BEFORE the typed fill: fill_ reads signed DISPLAY fields through
+                  # Cobol.num, which does GnuCOBOL's PUT_SIGN, so a read of a field the program never touched (spaces)
+                  # would rewrite its sign byte in the storage the caller gets back
+                  (f"            caBack = () -> {{ System.arraycopy({st}.bytes, 0, raw, 0, Math.min(raw.length, keep)); "
+                   f"if ({st}.beyond != null) {{ System.arraycopy({st}.beyond, 0, raw, keep, raw.length - keep); }} typed.run(); }};"),
                   "        }"]  # fmt: skip
         # #4270 (oracle_assumptions.md X23): a level-1 COMMAREA the runner says is exactly EIBCALEN bytes, shorter than
         # the record (a scenario's `commarea_length`), is all DFHCOMMAREA holds for the task: a reference past it fails

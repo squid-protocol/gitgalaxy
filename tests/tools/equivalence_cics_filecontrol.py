@@ -11,6 +11,36 @@ import re
 import equivalence_cics as ec
 
 FILE_VERBS = frozenset({"READ", "WRITE", "REWRITE", "STARTBR", "READNEXT", "READPREV", "ENDBR", "DELETE", "UNLOCK"})
+# #7434: the file events both runtimes record (SPEC 6.2) that the harness compares; the stub's other file events
+# (WRITE, DELETE, the browse) are the sibling gap
+FILE_EVENT_VERBS = frozenset({"READ", "REWRITE", "UNLOCK"})
+FILE_EVENT_KEYS = ("file", "update", "resp", "resp2", "length", "data")
+
+
+def cobol_file_event(verb: str, kv: dict[str, str], data: bytes) -> dict[str, object]:
+    """#7434: a stub READ / REWRITE / UNLOCK line as CicsTask records it: the file, UPDATE, RESP by name, RESP2 where
+    not NORMAL, the LENGTH (READ INTO) and the data bytes as hex (READ NORMAL, REWRITE FROM)."""
+    resp = int(kv.get("resp", "0"))
+    e: dict[str, object] = {"event": verb, "file": kv.get("file", ""), "resp": ec.RESP_NAMES.get(resp, str(resp))}
+    if kv.get("upd") == "1":
+        e["update"] = True
+    if "resp2" in kv:
+        e["resp2"] = int(kv["resp2"])
+    if "len" in kv:
+        e["length"] = int(kv["len"])
+    if data:
+        e["data"] = data.hex().upper()
+    return e
+
+
+def java_file_event_as_compared(e: dict[str, object]) -> dict[str, object]:
+    """#7434: CicsTask's READ / REWRITE / UNLOCK event with its base64 `data` as hex, as cobol_file_event gives it."""
+    import base64
+
+    out = dict(e)
+    if isinstance(out.get("data"), str):
+        out["data"] = base64.b64decode(str(out["data"])).hex().upper()
+    return out
 
 
 def _name(operand: str | None, into: str) -> str:
@@ -221,3 +251,12 @@ def command(
         return lines
     # #6271 (X70): a planned abend went to the HANDLE ABEND exit, or ends the task
     return ["MOVE 0 TO GG-GOTO", *lines, *ec._map_abend(labels)]
+
+
+def recorded_file_events(cobol, java):
+    """#7434: the COBOL events, minus the READ / REWRITE / UNLOCK ones of a verb the port records no event of. A port
+    records them only where its translator does (HCUNLK; a GTEQ / GENERIC READ is not yet, genapp-lgicvs01), and the
+    stub logs every one: pairing them by index would shift every later event. A verb the port does record is compared
+    in full, so a missing or extra one of it is a difference."""
+    seen = {e["event"] for e in java if e["event"] in FILE_EVENT_VERBS}
+    return [e for e in cobol if e["event"] not in FILE_EVENT_VERBS or e["event"] in seen]

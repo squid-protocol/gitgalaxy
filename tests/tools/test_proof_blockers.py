@@ -735,3 +735,22 @@ def test_the_rcode_file_commands_match_the_fault_planner():
     import equivalence_cics_faults as ecf
 
     assert pb.FILE_RCODE_COMMANDS == frozenset(ecf.FILE_FAULT_COMMANDS)
+
+
+def test_an_incomplete_record_list_does_not_refute_a_stated_claim(tmp_path):
+    """A record at 206/208 that lists no uncovered outcome is incomplete (a det-sweep record before the fix wrote []):
+    the stated outcome is taken as uncovered, from the counts, not as reached (zECS ZECS001 L4 -> L1)."""
+    cases, corpora, cru, det_baseline, rows = setup(tmp_path)
+    write(cases / "c-cov" / "evidence.json", {"coverage": {"paragraphs": {"covered": 3, "live": 3},
+                                                           "branches": {"covered": 3, "total": 4},
+                                                           "uncovered_branches": [],
+                                                           "source": "det sweep at abc1234 (det_coverage_ledger.py)"}})  # fmt: skip
+    kw = {"cases_dir": cases, "crucible_dir": cru, "det_baseline": det_baseline, "branches": True}
+    _stated(cases, {"c-cov": [_entry(9, "true")]})
+    cov = next(p for p in pb.proof_blockers(rows, [corpora], **kw)["programs"] if p["program"].endswith("COV.cbl"))
+    assert cov["gaps"] == [] and cov["infeasible"] == ["P:9:true"]
+    rec = json.loads((cases / "c-cov" / "evidence.json").read_text())
+    rec["coverage"]["source"] = "the proof's own traced COBOL runs (cobol_coverage.py)"  # not a ledger: unchecked
+    write(cases / "c-cov" / "evidence.json", rec)
+    cov = next(p for p in pb.proof_blockers(rows, [corpora], **kw)["programs"] if p["program"].endswith("COV.cbl"))
+    assert cov["gaps"] == ["coverage: branch outcomes no scenario runs"]

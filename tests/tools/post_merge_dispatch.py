@@ -20,6 +20,13 @@ dispatches it on main's head SHA only when ALL of these hold:
 A target whose run list cannot be read is skipped this tick (the next one retries) and the job fails at the end, so a
 broken dispatcher is visible. Dispatch uses DISPATCH_TOKEN (the PAT) when set: a run created with the repo
 GITHUB_TOKEN raises no `workflow_run`, so Main Watch would never see it (#4859).
+
+Hourly suites (2026-11-03, owner): equivalence-e2e, mainframe-ground-truth and smoke-test keep their own `push`
+trigger, but their tested-tree gate (skip_tested_tree.py, CADENCE_HOURS) defers a push that lands within an hour of
+main's last real run of that suite, and the deferred run cancels itself. RERUN_HOURLY re-runs the newest such
+deferred push run once the window has passed (rerun_decide), so the head of main is checked about hourly even when
+merges stop. This happens before, and regardless of, the waiting-PR-jobs deferral: those suites ran on every merge
+before, so at most once an hour is strictly less, and red main must not wait for an idle pool.
 """
 
 from __future__ import annotations
@@ -34,6 +41,9 @@ from collections.abc import Callable
 from datetime import datetime
 from pathlib import Path
 from typing import Any
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import skip_tested_tree  # noqa: E402  (the gate's own cadence rule, so the two never disagree)
 
 WORKFLOWS = Path(__file__).resolve().parents[2] / ".github" / "workflows"
 FROM_PR_FILTER = "from-pr-filter"
@@ -51,6 +61,40 @@ TARGETS: dict[str, list[str] | str] = {
     # #4599: deliberately every file -- a change outside its PR filter (aperture.py, #4569) moved every baseline once
     "tree-sitter-accuracy-audit.yml": ["**"],
 }
+
+
+# workflow file -> its cadence in hours (the CADENCE_HOURS its tested-tree step sets; a test pins the two together)
+RERUN_HOURLY: dict[str, float] = {
+    "equivalence-e2e.yml": 1,
+    "mainframe-ground-truth.yml": 1,
+    "smoke-test.yml": 1,
+}
+RERUN_ATTEMPTS_MAX = 6  # a run deferred again this often (always behind an in-progress run) is left to the next push
+
+
+def rerun_decide(runs: list[dict[str, Any]], now: float, cadence_s: float) -> tuple[int | None, str]:
+    """-> (run id to re-run, or None; reason). runs: the workflow's recent runs on branch main. Re-run the newest push
+    run when it ended cancelled (the gate deferred it), no real run started after it was created (that run's checkout
+    held its commit), and the gate would no longer defer it (skip_tested_tree.defer)."""
+    pushes = [r for r in runs if r.get("event") == "push"]
+    if not pushes:
+        return None, "no push run on main"
+    newest = max(pushes, key=lambda r: r["id"])
+    if newest.get("status") != "completed":
+        return None, f"newest push run {newest['id']} is {newest.get('status')}"
+    if newest.get("conclusion") != "cancelled":
+        return None, f"newest push run {newest['id']} ended {newest.get('conclusion')}: main's head is checked"
+    if int(newest.get("run_attempt") or 1) >= RERUN_ATTEMPTS_MAX:
+        return None, f"newest push run {newest['id']} was deferred {newest.get('run_attempt')} times: left to the next push"
+    created = epoch(newest["created_at"])
+    real = [r for r in runs if r.get("event") in skip_tested_tree.REAL_EVENTS and r["id"] != newest["id"]
+            and not (r.get("status") == "completed" and r.get("conclusion") == "cancelled")]  # fmt: skip
+    if any(skip_tested_tree.started(r) > created for r in real):
+        return None, "a real run started after the newest push: it checked that commit"
+    late, why, _ = skip_tested_tree.defer(runs, int(newest["id"]), now, cadence_s)
+    if late:
+        return None, f"still inside the window: {why}"
+    return int(newest["id"]), f"re-run deferred push run {newest['id']} ({newest.get('head_sha', '')[:12]}): {why}"
 
 
 def glob_re(pattern: str) -> re.Pattern[str]:
@@ -183,13 +227,28 @@ def main(argv: list[str]) -> int:
     cadence_s = float(os.environ.get("CADENCE_HOURS") or 3) * 3600
     sha = gh(f"repos/{repo}/branches/main")["commit"]["sha"]
     print(f"main is at {sha}; cadence {cadence_s / 3600:g} h")
+    errors = 0
+    for wf, hours in RERUN_HOURLY.items():  # before the waiting-PR deferral: hourly, however busy the pool is
+        try:
+            runs = gh(f"repos/{repo}/actions/workflows/{wf}/runs?branch=main&per_page=30")["workflow_runs"]
+            rid, reason = rerun_decide(runs, time.time(), hours * 3600)
+        except Exception as exc:  # noqa: BLE001
+            print(f"{wf}: re-run check skipped this tick, error: {exc}")
+            errors += 1
+            continue
+        print(f"{wf} (hourly): {reason}")
+        if rid and not dry:
+            env = dict(os.environ, GH_TOKEN=os.environ.get("DISPATCH_TOKEN") or os.environ.get("GH_TOKEN", ""))
+            res = subprocess.run(  # noqa: S603
+                ["gh", "api", "-X", "POST", f"repos/{repo}/actions/runs/{rid}/rerun"], env=env, check=False  # noqa: S607
+            )
+            errors += res.returncode != 0
     waiting = waiting_pr_jobs(repo)
     waiting_max = int(os.environ.get("WAITING_MAX") or 0)
     print(f"PR jobs waiting for a runner: {waiting} (max {waiting_max})")
     if waiting > waiting_max and not dry:
         print("Deferring: PR checks are waiting for runners.")
-        return 0
-    errors = 0
+        return 1 if errors else 0
     for wf in TARGETS:
         try:
             runs = gh(f"repos/{repo}/actions/workflows/{wf}/runs?branch=main&per_page=30")["workflow_runs"]

@@ -27,6 +27,15 @@ Fail-open: any API error, or anything unexpected, prints a reason and runs the w
 `success`, which is a true verdict: this exact tree passed the same workflow on the PR. Main Watch
 (tests/tools/main_watch.py) only counts success/failure conclusions, so a real red on main is still reported, and the
 nightly run still covers drift in the pinned inputs.
+
+Cadence (2026-11-03, owner: hourly): with CADENCE_HOURS set (equivalence-e2e, mainframe-ground-truth, smoke-test), a
+push run the tree rule did not skip is DEFERRED when another real run of this workflow on main (push, schedule or
+dispatch; not a cancelled one) started under CADENCE_HOURS ago or is still running: those suites cost ~75 run-minutes
+per merge, 17 times in 5.6 h that day, while PRs queued for runners. A deferred run cancels itself (the workflow's
+`Defer` step), so it never reports a green it did not earn; Main Watch counts only success / failure. The next push
+past the window runs as usual, and post_merge_dispatch.py re-runs the newest deferred push run once the window has
+passed, so main's head is checked within about CADENCE_HOURS + 20 min. Either way the run's tree holds every deferred
+commit, and `base` (the newest real run's SHA) tells a planner which files moved since main was last checked.
 """
 
 from __future__ import annotations
@@ -35,6 +44,8 @@ import json
 import os
 import subprocess
 import sys
+import time
+from datetime import datetime, timezone
 from typing import Any
 
 MAIN_REF = "refs/heads/main"
@@ -72,6 +83,32 @@ def decide(s: dict[str, Any]) -> tuple[bool, str]:
     if run.get("status") != "completed" or run.get("conclusion") != "success":
         return False, f"the PR head's newest run is {run.get('status')}/{run.get('conclusion')}, not a green verdict"
     return True, f"tree {s['tree'][:12]} passed in PR run {run['id']}"
+
+
+REAL_EVENTS = ("push", "schedule", "workflow_dispatch")
+
+
+def started(r: dict[str, Any]) -> float:
+    stamp = r.get("run_started_at") or r.get("created_at") or ""
+    return datetime.fromisoformat(stamp.replace("Z", "+00:00")).timestamp()
+
+
+def defer(runs: list[dict[str, Any]], run_id: int, now: float, cadence_s: float) -> tuple[bool, str, str]:
+    """-> (defer?, reason, base). runs: this workflow's recent runs on branch main; run_id: this run (a re-run keeps its
+    id). A real run is one of REAL_EVENTS that is not this run and did not end cancelled (a deferred run cancels
+    itself). base: the newest real run's head SHA ('' when there is none)."""
+    real = [r for r in runs if r.get("event") in REAL_EVENTS and r.get("id") != run_id
+            and not (r.get("status") == "completed" and r.get("conclusion") == "cancelled")]  # fmt: skip
+    if not real:
+        return False, "no earlier real run on main", ""
+    last = max(real, key=started)
+    base = str(last.get("head_sha") or "")
+    if last.get("status") != "completed":
+        return True, f"run {last.get('id')} on main is still {last.get('status')}", base
+    age = now - started(last)
+    if age < cadence_s:
+        return True, f"run {last.get('id')} on main started {age / 60:.0f} min ago (cadence {cadence_s / 3600:g} h)", base
+    return False, f"main last checked {age / 3600:.1f} h ago (cadence {cadence_s / 3600:g} h)", base
 
 
 # --- GitHub I/O -----------------------------------------------------------------------------------------------------
@@ -128,15 +165,28 @@ def main(argv: list[str]) -> int:
         skip, reason = decide(snapshot(env["GITHUB_REPOSITORY"], argv[1], env))
     except Exception as exc:  # fail-open: never let the gate's own trouble hide a run  # noqa: BLE001
         skip, reason = False, f"gate error, running the workflow: {exc}"
-    line = f"skip={'true' if skip else 'false'}"
-    print(f"{line}: {reason}")
+    late, base, why = False, "", ""
+    cadence_h = env.get("CADENCE_HOURS", "")
+    if (not skip and cadence_h and env.get("GITHUB_EVENT_NAME") == "push"
+            and env.get("GITHUB_REF") == MAIN_REF):  # fmt: skip
+        try:
+            doc = gh(f"repos/{env['GITHUB_REPOSITORY']}/actions/workflows/{argv[1]}/runs?branch=main&per_page=30")
+            late, why, base = defer(doc.get("workflow_runs", []), int(env.get("GITHUB_RUN_ID") or 0), time.time(),
+                                    float(cadence_h) * 3600)  # fmt: skip
+        except Exception as exc:  # fail-open: a cadence that cannot be read runs the workflow  # noqa: BLE001
+            late, why, base = False, f"cadence unreadable, running: {exc}", ""
+    lines = [f"skip={'true' if skip else 'false'}", f"defer={'true' if late else 'false'}", f"base={base}"]
+    print(f"{lines[0]}: {reason}")
+    if why:
+        print(f"{lines[1]}: {why}" + (f" (base {base[:12]})" if base else ""))
     if env.get("GITHUB_OUTPUT"):
         with open(env["GITHUB_OUTPUT"], "a", encoding="utf-8") as fh:
-            fh.write(line + "\n")
+            fh.write("\n".join(lines) + "\n")
     if env.get("GITHUB_STEP_SUMMARY"):
-        verb = "Skipped the heavy jobs" if skip else "Ran the heavy jobs"
+        verb = ("Skipped the heavy jobs" if skip else "Deferred to the hourly cadence (this run cancels itself)" if late
+                else "Ran the heavy jobs")  # fmt: skip
         with open(env["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as fh:
-            fh.write(f"**tested-tree (#4935):** {verb}: {reason}\n")
+            fh.write(f"**tested-tree (#4935):** {verb}: {why if late else reason}\n")
     return 0
 
 

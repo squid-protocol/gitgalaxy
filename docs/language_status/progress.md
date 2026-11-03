@@ -1,6 +1,6 @@
 # Progress
 
-Generated from main at `64ebf1be1` by `tests/tools/progress_report.py` (#5280); do not edit. Every
+Generated from main at `20b4b0b50` by `tests/tools/progress_report.py` (#5280); do not edit. Every
 denominator is fixed and every number names its source below. A level is an evidence level, never a bare
 claim of correctness: the oracle is GnuCOBOL plus IBM documentation, not z/OS.
 
@@ -91,7 +91,7 @@ z/OS: 0 of 191 rules measured. Register of named limits: 144 entries, 74 refuse 
 | COBOL runtime rules | 91 MATCHED, 23 DIFFERS, 63 ASSUMED, 14 REFUSED; 0 measured on z/OS | 191 rules | docs/language_status/cobolrt_rules.json |
 | Mutation, hand ports (not the translator) | 3559 killed = 86.8% adjusted (68.0% raw) | 4100 adjusted, 5232 raw mutants over 59 ports | docs/language_status/mutation_scores.json |
 | CICS crucible | 85 programs, 215 scenarios | pinned at `v0.12.0 (904e9877)` | tests/cics_crucible/coverage.json |
-| Estate crucible | 87 of 90 horrors pass | pinned at `v0.6.0` | tests/estate_crucible/baseline.json |
+| Estate crucible | 88 of 90 horrors pass | pinned at `v0.6.0` | tests/estate_crucible/baseline.json |
 
 CICS commands not modelled on both runtimes: `(unlisted) ASKTIME NOHANDLE`, `(unlisted) GET`, `(unlisted) INQUIRE`, `(unlisted) INQUIRE URIMAP`, `(unlisted) SET`, `(unlisted) SYNCPOINT NOHANDLE`, `(unparsed)`, `SOAPFAULT CREATE`.
 
@@ -112,7 +112,7 @@ Source: tests/fixtures/feature_inventory/<estate>.json (era_tags.py). Programs p
 
 ## 4. Core burn-down
 
-Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-03T14:46:55Z.
+Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-03T14:57:50Z.
 
 - `scope:core`: 10 open, 206 closed.
 - Milestone 28: 5 open, 107 closed.
@@ -123,7 +123,7 @@ Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-
 
 Frontier issues are discoveries, not debt: the sweeps keep finding siblings, and each one is a new entry.
 
-- `scope:frontier`: 2 found in the last 7 days, 198 in total (76 open, 122 closed).
+- `scope:frontier`: 2 found in the last 7 days, 198 in total (75 open, 123 closed).
 - Milestone 30 (Gap Atlas): 50 issues.
 - `scope:sweep`: 4 open, 96 closed.
 - `scope:infra`: 26 open, 247 closed.

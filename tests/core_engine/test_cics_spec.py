@@ -90,7 +90,6 @@ IMPORTERS: set[str] = {
     "gitgalaxy/tools/cobol_to_java/det/cics_terminal.py",  # #5274: the SEND TEXT and map options
     "gitgalaxy/tools/cobol_to_java/det/cics_conditions.py",  # #7153: TERMINAL_OPTIONS / AID_KEYS / DFHRESP, not via det/cics.py
     "gitgalaxy/tools/cobol_to_java/det/expr.py",
-    "tests/tools/branch_solver.py",  # #4175: DFHRESP values for the RESP-driven fault plans
     "tests/tools/equivalence_cics.py",
     "tests/tools/equivalence_cics_conditions.py",  # #5274: the conditions family split out of equivalence_cics.py
     "tests/tools/cics_spec_status.py",

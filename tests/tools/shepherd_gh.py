@@ -824,6 +824,9 @@ def apply(n: int, s: dict[str, Any], acts: list[dict[str, Any]], run: Run = _run
             "already running" in f"{r.stderr or ''} {r.stdout or ''}".lower()
         ):
             detail = "skipped (already running)"
+        elif what == "auto-merge off" and "can't disable auto-merge" in err.lower():
+            # GitHub's answer when auto-merge is not on: the state asked for already holds (#7594 went red on it)
+            detail = "skipped (auto-merge already off)"
         else:
             detail = "FAILED: " + err[:200]
         log.append(f"#{n} {what}: {detail}")

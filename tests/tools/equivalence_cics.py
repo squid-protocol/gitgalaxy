@@ -4043,7 +4043,10 @@ def _java_untyped_commarea(case: dict[str, Any], sc: dict[str, Any], ca_fields: 
     if raw is None:
         return {}
     page = raw.decode(common.data_encoding(case)).encode(REGION_PAGE)
-    return {"commarea_hex": page.hex().upper(), "untyped_length": len(page)}
+    # #7589: the same bytes by reference too (CicsTask.withLinkArea), as a LINK passes them -- in the case's data page, as
+    # the stub reads them: a callee with no 01 DFHCOMMAREA reads them through ADDRESS COMMAREA (DetCics.addressNoCommarea);
+    # a port that never takes them is not touched
+    return {"commarea_hex": page.hex().upper(), "untyped_length": len(page), "area": raw.hex().upper()}
 
 
 def _run_facade(ej: Any, project: Path, work: Path, inputs: Path, props: str, sessions: Any, case: dict[str, Any],
@@ -4168,6 +4171,10 @@ def _java_events(case: dict[str, Any], out: Path, shape: dict[str, Any],
                 child(e)
             if e.get("event") == "LINK":  # #4173: the target's DTO as issued, before it is mapped to this program's
                 e["link_area"] = e.get("commarea")
+            if e.get("event") == "COMMAREA" and not ca_fields:
+                e.pop(
+                    "area", None
+                )  # #7589: an untyped scenario's area is the page it passed in; the end storage is compared as #5859
             if e.get("event") == "WRITEQ-TS":  # #4607: the item's bytes as text
                 e.update(cics_tempstorage.java_ts_as_compared(e))
             if e.get("event") == "READQ-TS":  # #4270: the item's bytes as text

@@ -1,0 +1,23 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "CAGMZ",
+  "program_source": "cases/commarea-mismatch/ca-getmain-pointer/src/CAGMZ.cbl",
+  "copy_dirs": [
+    "cases/commarea-mismatch/ca-getmain-pointer/copy"
+  ],
+  "transid": "CA0C",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "notes": "cics-crucible commarea-mismatch / ca-getmain-pointer (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): CAGMZ issues GETMAIN with FLENGTH 0, FLENGTH -1 and LENGTH 0 (LENGERR RESP2 1 each, pointer zero), then a valid GETMAIN with INITIMG and FREEMAIN; each result is a record in TS queue GMLOG. The oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "length-errors",
+      "commarea": null,
+      "terminal": "CA0C",
+      "why": "GETMAIN FLENGTH 0, FLENGTH -1 and LENGTH 0 raise LENGERR RESP2 1 with a zero pointer; a valid GETMAIN INITIMG then FREEMAIN completes NORMAL"
+    }
+  ]
+}

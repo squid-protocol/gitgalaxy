@@ -1339,6 +1339,11 @@ def raw_commarea_names(values: dict[str, Any]) -> set[str]:
     return {k for k, v in values.items() if isinstance(v, dict) and set(v) == {"hex"}}
 
 
+class AlnumText(str):
+    """#7486: a COMMAREA value read from an alphanumeric (non-numeric PIC) field. It compares as bytes, never as a
+    number: PIC X "         1" and "0000000001" are different storage (`_same_commarea`)."""
+
+
 def decode_record(data: bytes, fields: list[dict[str, Any]], enc: str = common.DEFAULT_DATA_ENCODING,
                   keep_nulls: bool = False, exact: bool = False, unnamed: bool = False) -> dict[str, str]:  # fmt: skip
     """{field name: value as text} -- numeric fields as exact decimals, text with trailing
@@ -1372,9 +1377,10 @@ def decode_record(data: bytes, fields: list[dict[str, Any]], enc: str = common.D
             out[f["name"]] = str(v)
         else:
             if exact:
-                out[f["name"]] = v.rstrip(" ")
+                text = v.rstrip(" ")
             else:
-                out[f["name"]] = v if keep_nulls and v.rstrip(" ").endswith("\x00") else v.rstrip(" \x00")
+                text = v if keep_nulls and v.rstrip(" ").endswith("\x00") else v.rstrip(" \x00")
+            out[f["name"]] = AlnumText(text)
     return out
 
 
@@ -4587,6 +4593,8 @@ def _same_commarea(a: Any, b: Any) -> bool:
     only trailing spaces are dropped, so X'00' bytes and spaces differ."""
     if a is None or b is None or isinstance(a, (int, float)) or isinstance(b, (int, float)):
         return _same(a, b)
+    if isinstance(a, AlnumText) or isinstance(b, AlnumText):  # #7486: PIC X is compared by its bytes, not as a number
+        return str(a).rstrip(" ") == str(b).rstrip(" ")
     try:
         return Decimal(str(a)) == Decimal(str(b))
     except ArithmeticError:

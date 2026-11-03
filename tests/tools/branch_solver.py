@@ -80,6 +80,8 @@ EIB_STABLE = {"EIBCALEN", "EIBTRNID", "EIBTASKN", "EIBTRMID"}
 INIT_OPTIONS = re.compile(r"\b(REPLACING|VALUE|FILLER|DEFAULT|ALL)\b", re.I)  # an INITIALIZE the walk does not model
 # a CICS command as a scenario's fault plan names it (tests/tools/equivalence_cics_faults.py): two-word commands, and the
 # option whose argument is the resource (`file`, `program`, ...) the plan names
+# SQLCODEs a scenario's sql_faults commonly plans (#4173): reach prefers these, then any value
+SQLCODES = (100, -803, -811, -911, -913, -501, -530, -305, 923)
 FAULT_TWO_WORDS = {"SEND-MAP", "SEND-TEXT", "RECEIVE-MAP", "WRITEQ-TS", "WRITEQ-TD", "READQ-TD", "READQ-TS"}
 FAULT_RESOURCE = {"FILE": "file", "DATASET": "file", "PROGRAM": "program", "QUEUE": "queue", "TRANSID": "transid",
                   "REQID": "reqid", "MAP": "map", "RESOURCE": "resource"}  # fmt: skip
@@ -509,6 +511,8 @@ class Walk:
         # resp symbol -> (line, command, resource key, resource name): a CICS command's response, for a fault plan
         self.resp_meta: dict[str, tuple[int, str, str | None, str | None]] = {}
         self.known_values: dict[str, set[str]] = {}
+        self.sql_meta: dict[str, int] = {}  # sqlcode symbol -> the EXEC SQL's line
+        self.known_sqlcodes: set[int] = set(SQLCODES)  # reach prefers these (the case's own planned codes added)
         self.received_maps = {m.upper() for p in prog.proc.paragraphs for x in S.walk(p.body) if x.kind == "EXEC"
                                for m in re.findall(r"RECEIVE\s+MAP\s*\(\s*'([^']+)'", x.text, re.I)}  # fmt: skip  # field -> text values the case's scenarios use (reach prefers them)
         self._n = 0
@@ -1242,6 +1246,7 @@ class Walk:
             if re.match(r"EXEC CICS (RETURN|XCTL|ABEND)\b", t):
                 return None, gotos
         elif t.startswith("EXEC SQL"):
+            after = self.sqlcode(after, s.line)
             self._branch_to(self.handlers["sql"], after, gotos)
         return after, gotos
 
@@ -1263,6 +1268,19 @@ class Walk:
             if len(hit) == 1 and id(hit[0]) in env and _kind(hit[0]) == "num" and hit[0].scale == 0:
                 env[id(hit[0])] = self._fit(v, 0, hit[0], line)
         return State(st.pc, env)
+
+    def sqlcode(self, st: State, line: int) -> State:
+        """The statement's SQLCODE as one symbol the SQLCA's SQLCODE holds (any value: Db2's codes are not listed
+        here); `sql_meta` keeps its line, for an `sql_faults` plan (`scenario`)."""
+        hit = [it for it in self.writes.sqlca if it.name.upper() == "SQLCODE"]
+        if len(hit) != 1 or id(hit[0]) not in st.env or _kind(hit[0]) != "num":
+            return st
+        self._n += 1
+        name = f"sqlcode@{line}#{self._n}"
+        v = self.z.Int(name)
+        self.axioms[name] = []
+        self.sql_meta[name] = line
+        return State(st.pc, {**st.env, id(hit[0]): self._fit(v, 0, hit[0], line)})
 
     def fault_target(self, t: str) -> tuple[str, str | None, str | None]:
         """(command, resource key, resource name) of an EXEC CICS text, as a fault plan names them; the name is
@@ -1500,6 +1518,8 @@ class Walk:
                     _, cmd, _, _ = self.resp_meta[name]
                     codes = [0] + [DFHRESP_OF(c) for c in plans.get(cmd, {})]
                     sol.add(z.Or([z.Int(name) == c for c in codes if c is not None]))
+                if name in self.sql_meta:  # success, or an SQLCODE a sql_faults plan names
+                    sol.add(z.Or([z.Int(name) == c for c in [0, *sorted(self.known_sqlcodes)]]))
             for name in _names_in(formulas):
                 _, it, _ = self.symbols.get(name, ("", None, 0))
                 if it is not None and _kind(it) == "str":
@@ -1596,12 +1616,22 @@ def scenario(w: Walk, model: Any, formulas: list[Any], case: dict[str, Any], tar
                 val.rstrip()
             )  # a symbolic map's input field: what RECEIVE MAP types
     out: dict[str, Any] = {"name": "solver-" + re.sub(r"[^a-z0-9]+", "-", target.lower()).strip("-")}
-    out["aid"] = aid or "DFHENTER"
+    default_aid = next((sc.get("aid") for sc in case.get("scenarios", []) if sc.get("aid")), None)
+    if aid or default_aid:  # a terminal task's key; a LINKed program's scenarios name none
+        out["aid"] = aid or default_aid
     out["commarea"] = commarea or None
     if receive:
         out["receive"] = receive
     if faults:
         out["faults"] = faults
+    sql = []
+    for name in sorted(relevant & set(w.sql_meta), key=lambda n: w.sql_meta[n]):
+        code = model.eval(w.z.Int(name), model_completion=True).as_long()
+        line = w.sql_meta[name]
+        if code != 0 and not any(x["line"] == line for x in sql):
+            sql.append({"line": line, "nth": 1, "sqlcode": code})
+    if sql:
+        out["sql_faults"] = sql
     out["targets"] = [target]
     why = f"branch_solver witness for {target}: the values its condition depends on"
     if faults:
@@ -1769,6 +1799,8 @@ def reach(case: str, targets: list[str], work: Path, timeout_ms: int = TIMEOUT_M
     spec = json.loads((REPO / "tests" / "equivalence" / case / "case.json").read_text(encoding="utf-8"))
     prog = case_program(case, work)
     known: dict[str, set[str]] = {}
+    codes = {int(f["sqlcode"]) for sc in spec.get("scenarios", []) for f in sc.get("sql_faults") or []
+             if isinstance(f.get("sqlcode"), int)}  # fmt: skip
     for sc in spec.get("scenarios", []):
         for k, v in (sc.get("commarea") or {}).items():
             if isinstance(v, str):
@@ -1779,6 +1811,7 @@ def reach(case: str, targets: list[str], work: Path, timeout_ms: int = TIMEOUT_M
                     known.setdefault(k.upper(), set()).add(v)
     w = Walk(prog, evaluate_arms(prog.source))
     w.known_values = known
+    w.known_sqlcodes |= codes
     w.explore()
     out: dict[str, Any] = {"case": case, "incomplete": sorted(set(w.why)), "targets": []}
     for t in targets:

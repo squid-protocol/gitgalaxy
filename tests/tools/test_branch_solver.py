@@ -412,3 +412,22 @@ def test_a_witness_prefers_a_value_the_case_already_uses(tmp_path):
     ln = _line(src, "IF LK-CODE")
     _, model = w.ask(w.hits[(ln, "true")], printable=True)
     assert [x["value"] for x in w.witness(model, w.hits[(ln, "true")]) if x["item"] == "LK-CODE"] == ["Q7"]
+
+
+def test_an_sqlcode_arm_gets_an_sql_fault_on_its_statement(tmp_path):
+    w, src = _program(
+        tmp_path,
+        "01 SQLCA.\n   05 SQLCODE PIC S9(9) COMP.\n01 HV PIC X(4).",
+        """
+           EXEC SQL UPDATE T SET C = :HV END-EXEC
+           IF SQLCODE NOT = 0
+               CONTINUE
+           END-IF
+           GOBACK.""",
+    )
+    ln = _line(src, "IF SQLCODE")
+    f = w.hits[(ln, "true")]
+    verdict, model = w.ask(f, printable=True)
+    got = bs.scenario(w, model, f, {"kind": "cics"}, f"{ln}:true")
+    assert verdict == "witness" and got["sql_faults"][0]["line"] == _line(src, "EXEC SQL UPDATE")
+    assert got["sql_faults"][0]["sqlcode"] in bs.SQLCODES and "aid" not in got

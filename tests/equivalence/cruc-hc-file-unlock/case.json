@@ -47,7 +47,18 @@
       "why": "UNLOCK with no READ UPDATE, REWRITE with no READ UPDATE, READ of K001"
     },
     {
-      "name": "unmatched-mode",
+      "name": "read-notfound",
+   "commarea": null,
+   "terminal": "HC81 N",
+   "datasets": {
+    "CRUCIBLE.HC.UFILE": {
+     "input": "@case/hcuf-no-k001.txt"
+    }
+   },
+   "why": "mode N on a file without K001: the final READ answers NOTFND, so LOG-D takes its RESP not zero arm"
+  },
+  {
+   "name": "unmatched-mode",
       "commarea": null,
       "terminal": "HC81 Z",
       "why": "a mode no WHEN names: the EVALUATE falls through"

@@ -63,14 +63,13 @@ CONTAINERS_JAVA = """\
         }
     }
 
-    // #4270 (X17): the CCSIDs a CHAR container converts between -- the region's 037, 500 and 1140 (single-byte EBCDIC pages
-    // that keep a container's length) and 1208 (UTF-8) for ASCII data, one byte a character. The bytes a program holds in its
-    // storage are read as the region's page (the port's convention, #4528): an area's byte is the character the region's
-    // page gives the byte it encodes to, and a conversion is the character-to-character map between the two pages, applied
-    // to the storage's bytes (a 1208 byte is the ASCII character itself, kept in storage as the region's page decodes it). A
-    // character the target page lacks (037 / 500 <-> 1140: the currency sign and the euro) is CCSIDERR RESP2 4 ("replaced by
-    // a blank"), which IBM does not say what FLENGTH or a PUT then do with: refused, as is a 1208 byte or character beyond
-    // ASCII (a multibyte sequence changes the length).
+    // #4270 (X17), #7589: the CCSIDs a CHAR container converts between -- the region's 037, 500 and 1140 (single-byte EBCDIC pages)
+    // and 1208 (UTF-8, multibyte: the length may change). A container holds, per byte, the program's storage view of IBM's
+    // bytes: decode037(raw), the port's convention (#4528), so a raw EBCDIC 037 'A' (X'C1') sits as 0x41. A conversion is raw ->
+    // strict decode by the source page -> characters -> strict encode by the target page -> raw. A character the target page
+    // lacks (037 / 500 <-> 1140: the currency sign and the euro; 037 / 500 and anything beyond Latin-1) is CCSIDERR RESP2 4
+    // ("replaced by a blank"), which IBM does not say what FLENGTH or a PUT then do with: refused, as is malformed UTF-8 (IBM
+    // leaves it undefined). IBM "Conversion CCSIDs for CICS TS", Table 38.
     private static final int REGION_CCSID = 37;
     private int lastContainerCcsid;
     private Channel returnedChannel;  // #5005: the channel a RETURN CHANNEL made available (read on the root)
@@ -91,6 +90,34 @@ CONTAINERS_JAVA = """\
         }
     }
 
+    private static boolean validUtf8(byte[] raw) {
+        try {
+            java.nio.charset.StandardCharsets.UTF_8.newDecoder().onMalformedInput(java.nio.charset.CodingErrorAction.REPORT)
+                    .onUnmappableCharacter(java.nio.charset.CodingErrorAction.REPORT).decode(java.nio.ByteBuffer.wrap(raw));
+            return true;
+        } catch (java.nio.charset.CharacterCodingException e) {
+            return false;
+        }
+    }
+
+    /** PUT FROMCCSID(1208) data in the container's storage form. The program's bytes are read two ways -- A: UTF-8 text built
+     *  from character literals (raw = the 037 bytes of the program's characters), B: raw UTF-8 bytes from a hex literal
+     *  (#4528) -- and the one that is valid UTF-8 is the data; both valid and different is refused as ambiguous, neither as
+     *  malformed. */
+    static byte[] putUtf8(byte[] data) {
+        java.nio.charset.Charset region = ccsidCharset(REGION_CCSID, "PUT CONTAINER");
+        boolean a = validUtf8(new String(data, java.nio.charset.StandardCharsets.ISO_8859_1).getBytes(region));
+        boolean b = validUtf8(data);
+        if (a && b && !Arrays.equals(new String(data, java.nio.charset.StandardCharsets.ISO_8859_1).getBytes(region), data)) {
+            throw refused("PUT CONTAINER FROMCCSID(1208) data valid as UTF-8 both as the region's characters and as raw bytes: "
+                    + "IBM does not say which the program holds (#4528)");
+        }
+        if (!a && !b) {
+            throw refused("PUT CONTAINER FROMCCSID(1208) data that is not valid UTF-8: IBM leaves the conversion undefined");
+        }
+        return a ? data : new String(data, region).getBytes(java.nio.charset.StandardCharsets.ISO_8859_1);
+    }
+
     /** `data` (storage bytes holding CCSID `from` data) as CCSID `to` data; the same bytes when the CCSIDs are equal. */
     static byte[] convertContainer(byte[] data, int from, int to, String what) {
         java.nio.charset.Charset f = ccsidCharset(from, what);
@@ -99,21 +126,16 @@ CONTAINERS_JAVA = """\
             return data;
         }
         java.nio.charset.Charset region = ccsidCharset(REGION_CCSID, what);
-        byte[] out = new byte[data.length];
-        for (int i = 0; i < data.length; i++) {
-            byte real = String.valueOf((char) (data[i] & 0xFF)).getBytes(region)[0];
-            if (from == 1208 && real < 0) {
-                throw refused(what + " code-page conversion of a CCSID 1208 byte beyond ASCII (the byte is read as region page 037 per #4528, where a hex-literal ASCII byte such as X'41' is not below X'80'; not multibyte; IBM Table 38 lists 1208 UTF-8; register X17)");
-            }
-            String c = new String(new byte[] {real}, f);
-            if ((to == 1208 && c.charAt(0) >= 0x80) || !t.newEncoder().canEncode(c)) {
-                throw refused(what + (to == 1208 ? " code-page conversion to CCSID 1208 of a character beyond ASCII (a multibyte "
-                        + "sequence)" : " code-page conversion of a character the target CCSID lacks (CCSIDERR RESP2 4: IBM "
-                        + "does not say what the command then stores or sets)"));
-            }
-            out[i] = (byte) new String(c.getBytes(t), region).charAt(0);
+        byte[] fromRaw = new String(data, java.nio.charset.StandardCharsets.ISO_8859_1).getBytes(region);
+        if (from == 1208 && !validUtf8(fromRaw)) {
+            throw refused(what + " code-page conversion of malformed UTF-8 from CCSID 1208: IBM leaves it undefined");
         }
-        return out;
+        String text = new String(fromRaw, f);
+        if (!t.newEncoder().canEncode(text)) {
+            throw refused(what + " code-page conversion of a character the target CCSID lacks (CCSIDERR RESP2 4: IBM "
+                    + "does not say what the command then stores or sets)");
+        }
+        return new String(text.getBytes(t), region).getBytes(java.nio.charset.StandardCharsets.ISO_8859_1);
     }
 
     /** The CCSID of the container the last GET CONTAINER read (0: a BIT container): GET CONTAINER CCSID(area). */
@@ -364,6 +386,9 @@ CONTAINERS_JAVA = """\
         boolean chars = "CHAR".equals(type) || fromCcsid >= 0;
         if (prepend && (chars || (c != null && !c.bit))) {
             throw refused("PUT CONTAINER PREPEND on a CHAR container: IBM counts a CHAR container's data in its code page");
+        }
+        if (fromCcsid == 1208) {
+            data = putUtf8(data);
         }
         if (c == null) {
             ch.containers.put(name, new Container(data.clone(), !chars, chars ? (fromCcsid >= 0 ? fromCcsid : REGION_CCSID) : 0));

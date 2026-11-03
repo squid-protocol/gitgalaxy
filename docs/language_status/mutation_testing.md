@@ -971,3 +971,27 @@ About 80 L4 programs of the burned estates still have no det-port mutation entry
 | CBACT01C (carddemo-readacct) | 150/728 | 107 | 36 | 7 | 36 | 107/143 (75%) |
 | CBCUS01C (carddemo-readcust) | 150/247 | 91 | 49 | 10 | 49 | 91/140 (65%) |
 | CBACT03C (carddemo-readxref) | 150/244 | 92 | 48 | 10 | 48 | 92/140 (66%) |
+
+**#4047 (2026-11-02, third batch): CBACT02C, CSUTLDTC, CBACT04C.** Det-port ledgers, fast mode, seed 0, JDK 17, one sample each; none reaches L5 and no survivor is triaged yet (every survivor is unaccounted). CSUTLDTC (the date-validation callee) pins least: 71 of its 145 judged mutants survived.
+
+| program (case) | mutants run / in scope | killed | survived | stillborn | unaccounted | raw score |
+|---|---|---|---|---|---|---|
+| CBACT02C (carddemo-readcard) | 150/243 | 92 | 48 | 10 | 48 | 92/140 (66%) |
+| CSUTLDTC (carddemo-dateutil) | 150/269 | 74 | 71 | 5 | 71 | 74/145 (51%) |
+| CBACT04C (carddemo-intcalc) | 150/968 | 103 | 41 | 6 | 41 | 103/144 (72%) |
+
+**#4047 (2026-11-02, fourth batch): CBSTM03B, CBTRN01C.** Det-port ledgers, fast mode, seed 0, JDK 17, one sample each; none reaches L5 and no survivor is triaged yet (every survivor is unaccounted). COBTUPDT (carddemo-cobtupdt) was run in the same job and recorded nothing: every one of its 140 judged mutants came back `error` (none killed, none survived), so there is no score to state and no ledger was written.
+
+| program (case) | mutants run / in scope | killed | survived | stillborn | unaccounted | raw score |
+|---|---|---|---|---|---|---|
+| CBSTM03B (carddemo-cbstm03b) | 150/394 | 75 | 69 | 6 | 69 | 75/144 (52%) |
+| CBTRN01C (carddemo-dailyval) | 150/727 | 102 | 43 | 5 | 43 | 102/145 (70%) |
+
+**#4047 (2026-11-03, fifth batch): PAUDBLOD, PAUDBUNL, EPSMPMT, EPSNBRVL.** Det-port ledgers, fast mode, seed 0, JDK 17, one sample each; none reaches L5 and no survivor is triaged yet (every survivor is unaccounted). EPSMPMT (44%) is the weakest score recorded so far.
+
+| program (case) | mutants run / in scope | killed | survived | stillborn | unaccounted | raw score |
+|---|---|---|---|---|---|---|
+| PAUDBLOD (carddemo-paudblod) | 150/418 | 52 | 34 | 7 | 34 | 52/86 (60%) |
+| PAUDBUNL (carddemo-paudbunl) | 150/368 | 87 | 56 | 7 | 56 | 87/143 (61%) |
+| EPSMPMT (mortgage-mpmt) | 150/307 | 64 | 83 | 3 | 83 | 64/147 (44%) |
+| EPSNBRVL (mortgage-nbrvl) | 150/337 | 91 | 56 | 3 | 56 | 91/147 (62%) |

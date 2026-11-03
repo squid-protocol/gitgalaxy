@@ -376,3 +376,28 @@ def test_markdown_dependency_capture_redos_detonation():
     assert_redos_immune(pattern, "[link](" * 20000, timeout_sec=3.0)
     assert_redos_immune(pattern, "[a](" + "b" * 100000, timeout_sec=3.0)
     assert_redos_immune(pattern, "[x](" + " " * 50000 + ")", timeout_sec=3.0)
+
+
+def test_markdown_fences_inside_blockquotes_4108():
+    """A fence in a blockquote opens and closes a code block (and a diagram) like a bare one; deep indents do not."""
+    blocks = MARKDOWN_RULES["lit_code_blocks"]
+    diagrams = MARKDOWN_RULES["lit_diagrams"]
+
+    assert len(blocks.findall("> ```py\n> x = 1\n> ```\n")) == 2
+    assert len(blocks.findall(">```py\n>x\n>```\n")) == 2
+    assert len(blocks.findall("> > ~~~\n> > x\n> > ~~~\n")) == 2
+    assert len(blocks.findall("  >   ```\n")) == 1
+    assert diagrams.search("> ```mermaid\n> graph TD\n> ```\n")
+    assert diagrams.search("> ~~~ plantuml")
+
+    assert not blocks.search(">     ```py\n")  # 5 spaces after the marker: an indented code block
+    assert not blocks.search("    > ```py\n")  # 4-space indent before the marker
+    assert not blocks.search("> text ```py\n")
+    assert not blocks.search("> `` not a fence\n")
+    assert not diagrams.search("> ```python\n")
+
+
+def test_markdown_blockquote_fence_redos_4108():
+    assert_redos_immune(MARKDOWN_RULES["lit_code_blocks"], "> " * 20000 + "x", timeout_sec=3.0)
+    assert_redos_immune(MARKDOWN_RULES["lit_code_blocks"], ">" * 20000, timeout_sec=3.0)
+    assert_redos_immune(MARKDOWN_RULES["lit_diagrams"], "> " * 20000 + "```", timeout_sec=3.0)

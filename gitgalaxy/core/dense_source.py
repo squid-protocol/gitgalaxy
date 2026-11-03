@@ -42,10 +42,7 @@ def defines_inline(line: str) -> bool:
     """True when `line` (at most DENSE_LINE_MAX chars) defines a function inline."""
     if len(line) > DENSE_LINE_MAX:
         return False
-    for m in _DENSE_DEF.finditer(line):
-        if (m.group(1) or m.group(3)) not in _NOT_NAME and m.group(2) not in _NOT_TYPE:
-            return True
-    return False
+    return any(_is_definition(m) for m in _DENSE_DEF.finditer(line))
 
 
 def has_dense_definitions(lines: list[str], low_path: str) -> bool:
@@ -62,3 +59,30 @@ def is_dense_source(lines: list[str], low_path: str) -> bool:
         and all(len(line) <= DENSE_LINE_MAX for line in lines)
         and has_dense_definitions(lines, low_path)
     )
+
+
+def split_inline_definitions(text: str) -> str:
+    """#7504: `text` with a newline before every inline definition after the first on a line.
+
+    Each definition's `func_start` anchor is `^`, so a second definition on a shared line is never
+    found. The newline replaces the single whitespace character before the definition, so the result
+    has the same length as `text` and every index into it stays valid. Only a line of at most DENSE_LINE_MAX
+    chars with two or more `{` is read, so ordinary files come back as the same object.
+    """
+    out: list[str] | None = None
+    pos = 0
+    for line in text.split("\n"):
+        end = pos + len(line)
+        if len(line) <= DENSE_LINE_MAX and line.count("{") >= 2:
+            starts = [m.start() for m in _DENSE_DEF.finditer(line) if _is_definition(m)]
+            for s in starts[1:]:
+                if s > 0 and line[s - 1] in " \t":
+                    if out is None:
+                        out = list(text)
+                    out[pos + s - 1] = "\n"
+        pos = end + 1
+    return text if out is None else "".join(out)
+
+
+def _is_definition(m: "re.Match[str]") -> bool:
+    return (m.group(1) or m.group(3)) not in _NOT_NAME and m.group(2) not in _NOT_TYPE

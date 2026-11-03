@@ -160,6 +160,23 @@ def outcome_set(uncovered: Iterable[Any]) -> set[tuple[int, str]]:
     return out
 
 
+def recorded_uncovered(cov: dict[str, Any] | None) -> list[Any] | None:
+    """An evidence record's `uncovered_branches` when it names every branch outcome the proof missed, else None.
+
+    A list shorter than the record's own count (branches total - covered) is incomplete: a det-sweep record written
+    before the list was carried over had [] at 206/208. Read as complete, every stated infeasible outcome it does not
+    name looks reached and its claim refuted (zECS ECS001 L5 -> L1). None makes the reader fall back to the counts,
+    as for the committed det-sweep ledger."""
+    if not cov:
+        return None
+    listed = cov.get("uncovered_branches")
+    br = cov.get("branches") or {}
+    covered, total = br.get("covered"), br.get("total")
+    if listed is None or covered is None or total is None:
+        return listed
+    return listed if len(outcome_set(listed)) >= total - covered else None
+
+
 def paragraph_set(uncovered: Iterable[Any]) -> set[str]:
     """The names of the uncovered paragraphs in an `uncovered` list ("paragraph:NAME" strings, or {name, line})."""
     out = set()

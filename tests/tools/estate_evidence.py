@@ -203,8 +203,11 @@ def row_of(t: ev.Target, rec: dict[str, Any] | None, st: dict[str, Any],
         }
         entries = (infeasible or {}).get(t.case, []) if t.kind != "crucible" else []
         # a crucible record lists no uncovered outcomes, so a stated one could not be matched: crucible ports are raw
-        if entries and cov.get("uncovered_branches") is not None:
-            coverage |= net_coverage(t.case, {**coverage, "uncovered_branch_list": cov["uncovered_branches"]}, entries)
+        import infeasible_outcomes as io
+
+        listed = io.recorded_uncovered(cov)  # None for an incomplete list: a stated outcome cannot be matched
+        if entries and listed is not None:
+            coverage |= net_coverage(t.case, {**coverage, "uncovered_branch_list": listed}, entries)
     mut = rec.get("mutation")
     ap = st["approved"]
     reach = (rec.get("reach") or {}).get("counts") or {}

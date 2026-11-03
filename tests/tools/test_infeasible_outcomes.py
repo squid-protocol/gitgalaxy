@@ -4,6 +4,8 @@ import json
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import infeasible_outcomes as io
 
@@ -131,8 +133,6 @@ def test_add_writes_sorted_entries_and_takes_unit_and_kind_from_the_evidence(tmp
 
 
 def test_add_refuses_a_duplicate_an_unknown_case_a_missing_unit_and_a_bad_family(tmp_path):
-    import pytest
-
     cases, out = _case(tmp_path)
     kw = {"family": "G", "reason": "r", "cases_dir": cases, "directory": out}
     io.add("c", paragraph="X", **kw)
@@ -334,14 +334,13 @@ def _run_case_filter(tmp_path, listed, present):
 
     bash = shutil.which("bash")
     if bash is None:
-        import pytest
-
         pytest.skip("no bash")
     ledger = tmp_path / "tests" / "equivalence" / "infeasible_outcomes"
     ledger.mkdir(parents=True)
     for name in present:
-        (ledger / f"{name}.json").write_text("{}", encoding="utf-8")
-    (tmp_path / "cases.txt").write_text("".join(f"{n}\n" for n in listed), encoding="utf-8")
+        (ledger / f"{name}.json").write_bytes(b"{}")
+    # bytes, not write_text: text mode writes CRLF on Windows and `read -r c` would keep the \r
+    (tmp_path / "cases.txt").write_bytes("".join(f"{n}\n" for n in listed).encode("utf-8"))
     script = _workflow_case_filter() + '\necho "$cases"'
     r = subprocess.run(
         [bash, "-e", "-c", script],
@@ -351,9 +350,13 @@ def _run_case_filter(tmp_path, listed, present):
         text=True,
         check=False,
     )
+    assert r.returncode == 0, r.stderr
     return r.returncode, r.stdout.split()
 
 
+@pytest.mark.skipif(
+    sys.platform != "linux", reason="the solver-check step is bash for the ubuntu runner; on Windows `bash` is WSL"
+)
 def test_the_solver_check_filter_survives_a_case_the_pr_deleted(tmp_path):
     """A deleted case (listed by git diff, gone from disk) must not abort the bash -e step."""
     assert _run_case_filter(tmp_path / "a", ["gone"], []) == (0, [])  # deleted only

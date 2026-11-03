@@ -99,3 +99,20 @@ def test_committed_det_records_validate_and_are_listed():
         rec = ev.load(t)
         assert ev.validate(rec) == [] and rec["proof"]["source"] == ev.DET_SOURCE
         assert ev.status(rec, t)["status"].startswith(("proven", "stale"))
+
+
+def test_record_carries_the_ledger_s_uncovered_branches(det):
+    """The det-sweep ledger's uncovered outcomes reach the record; before, it wrote [] at 206/208 and every stated
+    infeasible outcome looked reached once the report read the record (zECS ECS001 L5 -> L1)."""
+    entry = _entry(branches={"covered": 28, "total": 30}, uncovered={"branches": ["704:false", "202:WHEN@209"]})
+    rec = ev.record_det_port(det, {CASE: entry}, mutation={})
+    assert rec["coverage"]["uncovered_branches"] == [
+        {"line": 704, "kind": None, "outcome": "false", "unit": None},
+        {"line": 202, "kind": None, "outcome": "WHEN@209", "unit": None},
+    ]
+    assert ev.validate(rec) == []
+
+
+def test_a_ledger_with_no_uncovered_list_records_none(det):
+    rec = ev.record_det_port(det, {CASE: _entry()}, mutation={})
+    assert rec["coverage"]["uncovered_branches"] is None

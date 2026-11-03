@@ -1013,6 +1013,20 @@ def det_only(t: Target) -> bool:
     return t.kind != "crucible" and not port_files(t)
 
 
+def ledger_uncovered(entry: dict[str, Any]) -> list[dict[str, Any]] | None:
+    """The det-sweep ledger entry's uncovered branch outcomes ("704:false", "202:WHEN@209") as record rows, or None when
+    the entry keeps no list. The ledger names no unit or kind, so those are None. Before this the record wrote [], so
+    every stated infeasible outcome looked reached once the report read the record (zECS ECS001 L5 -> L1)."""
+    listed = (entry.get("uncovered") or {}).get("branches")
+    if listed is None:
+        return None
+    rows = []
+    for u in listed:
+        ln, _, outcome = str(u).partition(":")
+        rows.append({"line": int(ln), "kind": None, "outcome": outcome, "unit": None})
+    return rows
+
+
 def record_det_port(t: Target, ledger: dict[str, Any] | None = None, mutation: Any = None) -> dict[str, Any]:
     """Write the record of a case's DET port from the det-sweep coverage ledger (tests/equivalence/det_sweep_coverage).
 
@@ -1047,7 +1061,7 @@ def record_det_port(t: Target, ledger: dict[str, Any] | None = None, mutation: A
                   "fault_runs": None, "environments": None, "outputs": {}, "java_failed": False,
                   "det_sweep": det, "harness_commit": harness_commit(), "inputs_digest": inputs["digest"]},
         "coverage": {"paragraphs": {"covered": pc, "live": pl}, "branches": {"covered": bc, "total": bt},
-                     "uncovered_branches": [], "handler_labels": {"covered": None, "total": None},
+                     "uncovered_branches": ledger_uncovered(entry), "handler_labels": {"covered": None, "total": None},
                      "source": f"det sweep at {last['measured_at'] or 'an unknown commit'} (det_coverage_ledger.py)",
                      "inputs_digest": inputs["digest"]},
         "reach": None,
@@ -1359,7 +1373,8 @@ def render_page(t: Target, rec: dict[str, Any]) -> str:
     c = rec.get("coverage") or {}
     if c.get("uncovered_branches"):
         lines += ["", "## Uncovered branches", "", "| line | kind | outcome | paragraph |", "|---|---|---|---|"]
-        lines += [f"| {u['line']} | {u['kind']} | {u['outcome']} | {u['unit']} |" for u in c["uncovered_branches"]]
+        lines += [f"| {u['line']} | {u['kind'] or ''} | {u['outcome']} | {u['unit'] or ''} |"
+                  for u in c["uncovered_branches"]]
     lines += ["", "## Approvals", ""]
     if not rec.get("approvals"):
         lines.append(

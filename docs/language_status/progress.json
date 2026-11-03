@@ -1,5 +1,5 @@
 {
- "commit": "392ac1fca",
+ "commit": "4f6b90880",
  "components": {
   "capabilities": {
    "groups": [
@@ -335,17 +335,17 @@
   "det_mutation": {
    "estates": {
     "aws-mainframe-modernization-carddemo": {
-     "caught": 1647,
+     "caught": 3270,
      "equivalent": 1517,
      "l5": 5,
-     "measured": 12,
-     "mutants": 23824,
+     "measured": 25,
+     "mutants": 30355,
      "programs": 44,
-     "raw_pct": 57.7,
+     "raw_pct": 57.0,
      "ready": 0,
-     "sampled": 4097,
-     "sampled_pct": 17.2,
-     "survived": 1208,
+     "sampled": 5976,
+     "sampled_pct": 19.7,
+     "survived": 2468,
      "unreachable": 226
     },
     "cics-async-api-credit-card-application-example": {
@@ -391,23 +391,23 @@
      "unreachable": 0
     },
     "dbb-mortgage-application": {
-     "caught": 0,
+     "caught": 155,
      "equivalent": 0,
      "l5": 0,
-     "measured": 0,
-     "mutants": 0,
+     "measured": 2,
+     "mutants": 644,
      "programs": 6,
-     "raw_pct": null,
+     "raw_pct": 52.7,
      "ready": 0,
-     "sampled": 0,
-     "sampled_pct": null,
-     "survived": 0,
+     "sampled": 300,
+     "sampled_pct": 46.6,
+     "survived": 139,
      "unreachable": 0
     },
     "zecs": {
      "caught": 1135,
      "equivalent": 925,
-     "l5": 4,
+     "l5": 3,
      "measured": 4,
      "mutants": 2601,
      "programs": 7,
@@ -420,17 +420,17 @@
     }
    },
    "total": {
-    "caught": 9282,
+    "caught": 11060,
     "equivalent": 3724,
-    "l5": 21,
-    "measured": 32,
-    "mutants": 35362,
+    "l5": 20,
+    "measured": 47,
+    "mutants": 42537,
     "programs": 129,
-    "raw_pct": 70.5,
+    "raw_pct": 67.7,
     "ready": 0,
-    "sampled": 14759,
-    "sampled_pct": 41.7,
-    "survived": 3875,
+    "sampled": 16938,
+    "sampled_pct": 39.8,
+    "survived": 5274,
     "unreachable": 1206
    }
   },
@@ -469,28 +469,28 @@
    "programs": 16
   },
   "4": {
-   "l2_plus": 20,
-   "l4_plus": 20,
+   "l2_plus": 18,
+   "l4_plus": 18,
    "programs": 21
   },
   "none": {
    "l2_plus": 13,
-   "l4_plus": 13,
+   "l4_plus": 12,
    "programs": 13
   }
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-11-03T10:37:31Z",
+  "as_of": "2026-11-03T12:05:23Z",
   "core": {
    "closed": 206,
-   "open": 9,
-   "total": 215
+   "open": 10,
+   "total": 216
   },
   "core_last_window": {
    "closed": 24,
-   "net_closed": 12,
-   "opened": 12
+   "net_closed": 11,
+   "opened": 13
   },
   "core_milestone": {
    "closed": 107,
@@ -505,7 +505,7 @@
    "4893": "open",
    "4894": "open"
   },
-  "eta": "5 days",
+  "eta": "6 days",
   "frontier": {
    "closed": 122,
    "found_last_window": 2,
@@ -737,7 +737,7 @@
   "title_counts": {
    "cics": {
     "closed": 107,
-    "total": 119
+    "total": 120
    },
    "cobol": {
     "closed": 139,
@@ -834,18 +834,18 @@
     "translated_whole": 5
    },
    "zecs": {
-    "l2_plus": 7,
-    "l2_plus_pct": 100.0,
-    "l4_plus": 7,
-    "l4_plus_pct": 100.0,
-    "l5": 4,
+    "l2_plus": 5,
+    "l2_plus_pct": 71.4,
+    "l4_plus": 4,
+    "l4_plus_pct": 57.1,
+    "l5": 3,
     "levels": {
      "L0": 0,
-     "L1": 0,
-     "L2": 0,
+     "L1": 2,
+     "L2": 1,
      "L3": 0,
-     "L4": 3,
-     "L5": 4
+     "L4": 1,
+     "L5": 3
     },
     "programs": 7,
     "translated_whole": 7
@@ -853,36 +853,36 @@
   },
   "test_estates": {
    "cics-crucible": {
-    "l2_plus": 77,
-    "l2_plus_pct": 90.6,
-    "l4_plus": 70,
-    "l4_plus_pct": 82.4,
+    "l2_plus": 78,
+    "l2_plus_pct": 91.8,
+    "l4_plus": 73,
+    "l4_plus_pct": 85.9,
     "l5": 0,
     "levels": {
-     "L0": 3,
-     "L1": 5,
-     "L2": 4,
+     "L0": 0,
+     "L1": 7,
+     "L2": 2,
      "L3": 3,
-     "L4": 70,
+     "L4": 73,
      "L5": 0
     },
     "programs": 85,
-    "translated_whole": 82
+    "translated_whole": 85
    }
   },
   "total": {
-   "l2_plus": 126,
-   "l2_plus_pct": 97.7,
-   "l4_plus": 126,
-   "l4_plus_pct": 97.7,
-   "l5": 21,
+   "l2_plus": 124,
+   "l2_plus_pct": 96.1,
+   "l4_plus": 123,
+   "l4_plus_pct": 95.3,
+   "l5": 20,
    "levels": {
     "L0": 3,
-    "L1": 0,
-    "L2": 0,
+    "L1": 2,
+    "L2": 1,
     "L3": 0,
-    "L4": 105,
-    "L5": 21
+    "L4": 103,
+    "L5": 20
    },
    "programs": 129,
    "reachable": 126,

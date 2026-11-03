@@ -1,0 +1,164 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "GTWSEND",
+  "program_source": "cases/ghost-tasks/gt-web-server-send/src/GTWSEND.cbl",
+  "copy_dirs": [],
+  "transid": "GT83",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "notes": "cics-crucible ghost-tasks / gt-web-server-send (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): server-side WEB task serving a stated inbound HTTP request (X37, X38), one request per scenario. The oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "code-200",
+      "commarea": null,
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "crucible.example",
+        "port": 80,
+        "method": "GET",
+        "version": "HTTP/1.1",
+        "path": "/gt/send",
+        "query": "item=42",
+        "headers": [
+          [
+            "X-Crucible-Code",
+            "200"
+          ]
+        ],
+        "mediatype": null,
+        "body": null
+      },
+      "why": "GET with X-Crucible-Code 200: 200 OK text/plain, body is the query string"
+    },
+    {
+      "name": "code-201",
+      "commarea": null,
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "crucible.example",
+        "port": 80,
+        "method": "GET",
+        "version": "HTTP/1.1",
+        "path": "/gt/send",
+        "query": "id=7",
+        "headers": [
+          [
+            "X-Crucible-Code",
+            "201"
+          ]
+        ],
+        "mediatype": null,
+        "body": null
+      },
+      "why": "GET with X-Crucible-Code 201: 201 Created application/json"
+    },
+    {
+      "name": "code-404",
+      "commarea": null,
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "crucible.example",
+        "port": 80,
+        "method": "GET",
+        "version": "HTTP/1.1",
+        "path": "/gt/send",
+        "query": "gone=9",
+        "headers": [
+          [
+            "X-Crucible-Code",
+            "404"
+          ]
+        ],
+        "mediatype": null,
+        "body": null
+      },
+      "why": "GET with X-Crucible-Code 404: 404 Not Found text/plain"
+    },
+    {
+      "name": "code-nonnumeric",
+      "commarea": null,
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "crucible.example",
+        "port": 80,
+        "method": "GET",
+        "version": "HTTP/1.1",
+        "path": "/gt/send",
+        "query": "item=1",
+        "headers": [
+          [
+            "X-Crucible-Code",
+            "abc"
+          ]
+        ],
+        "mediatype": null,
+        "body": null
+      },
+      "why": "X-Crucible-Code abc is not NUMERIC: the code stays 200 and WHEN OTHER answers"
+    },
+    {
+      "name": "code-missing",
+      "commarea": null,
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "crucible.example",
+        "port": 80,
+        "method": "GET",
+        "version": "HTTP/1.1",
+        "path": "/gt/send",
+        "query": "item=2",
+        "headers": [],
+        "mediatype": null,
+        "body": null
+      },
+      "why": "no X-Crucible-Code header: NOTFND, the code stays 200"
+    },
+    {
+      "name": "query-leading-qmark",
+      "commarea": null,
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "crucible.example",
+        "port": 80,
+        "method": "GET",
+        "version": "HTTP/1.1",
+        "path": "/gt/send",
+        "query": "?q=1",
+        "headers": [
+          [
+            "X-Crucible-Code",
+            "200"
+          ]
+        ],
+        "mediatype": null,
+        "body": null
+      },
+      "why": "a query string that itself begins with ?, as in /gt/send??q=1: the TRUE arm of the query test"
+    },
+    {
+      "name": "no-query",
+      "commarea": null,
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "crucible.example",
+        "port": 80,
+        "method": "GET",
+        "version": "HTTP/1.1",
+        "path": "/gt/send",
+        "query": "",
+        "headers": [
+          [
+            "X-Crucible-Code",
+            "200"
+          ]
+        ],
+        "mediatype": null,
+        "body": null
+      },
+      "why": "GET without a query string"
+    }
+  ]
+}

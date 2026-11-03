@@ -1,0 +1,245 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "GTWRECV",
+  "program_source": "cases/ghost-tasks/gt-web-server-receive/src/GTWRECV.cbl",
+  "copy_dirs": [],
+  "transid": "GT82",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "notes": "cics-crucible ghost-tasks / gt-web-server-receive (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): server-side WEB task serving a stated inbound HTTP request (X37, X38), one request per scenario. The oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "receive-hello",
+      "commarea": null,
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "crucible.example",
+        "port": 80,
+        "method": "POST",
+        "version": "HTTP/1.1",
+        "path": "/gt/recv",
+        "query": "k=1&n=22",
+        "headers": [
+          [
+            "X-Crucible-Tag",
+            "alpha"
+          ],
+          [
+            "X-Other",
+            "x"
+          ]
+        ],
+        "mediatype": "text/plain",
+        "body": "HELLO"
+      },
+      "why": "POST HELLO (5 bytes) into MAXLENGTH 8: NORMAL, LENGTH 5"
+    },
+    {
+      "name": "receive-max",
+      "commarea": null,
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "crucible.example",
+        "port": 80,
+        "method": "POST",
+        "version": "HTTP/1.1",
+        "path": "/gt/recv",
+        "query": "k=1&n=22",
+        "headers": [
+          [
+            "X-Crucible-Tag",
+            "alpha"
+          ],
+          [
+            "X-Other",
+            "x"
+          ]
+        ],
+        "mediatype": "text/plain",
+        "body": "ABCDEFGH"
+      },
+      "why": "POST ABCDEFGH (exactly MAXLENGTH 8): NORMAL, LENGTH 8"
+    },
+    {
+      "name": "lengerr",
+      "commarea": null,
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "crucible.example",
+        "port": 80,
+        "method": "POST",
+        "version": "HTTP/1.1",
+        "path": "/gt/recv",
+        "query": "k=1&n=22",
+        "headers": [
+          [
+            "X-Crucible-Tag",
+            "alpha"
+          ],
+          [
+            "X-Other",
+            "x"
+          ]
+        ],
+        "mediatype": "text/plain",
+        "body": "ABCDEFGHIJKL"
+      },
+      "why": "POST ABCDEFGHIJKL (12 bytes) into MAXLENGTH 8: LENGERR RESP2 57, truncated to 8"
+    },
+    {
+      "name": "extract-post",
+      "commarea": null,
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "crucible.example",
+        "port": 80,
+        "method": "POST",
+        "version": "HTTP/1.1",
+        "path": "/gt/recv",
+        "query": "a=1&b=2",
+        "headers": [
+          [
+            "X-Crucible-Tag",
+            "alpha"
+          ],
+          [
+            "X-Other",
+            "x"
+          ]
+        ],
+        "mediatype": "text/plain",
+        "body": "X"
+      },
+      "why": "WEB EXTRACT of a POST: method, host, path and query string"
+    },
+    {
+      "name": "extract-put",
+      "commarea": null,
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "other.example",
+        "port": 80,
+        "method": "PUT",
+        "version": "HTTP/1.1",
+        "path": "/gt/recv",
+        "query": "z=9",
+        "headers": [
+          [
+            "X-Crucible-Tag",
+            "gamma"
+          ],
+          [
+            "X-Other",
+            "x"
+          ]
+        ],
+        "mediatype": "text/plain",
+        "body": "NEW"
+      },
+      "why": "WEB EXTRACT of a PUT to another host, tag gamma"
+    },
+    {
+      "name": "header-present",
+      "commarea": null,
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "crucible.example",
+        "port": 80,
+        "method": "POST",
+        "version": "HTTP/1.1",
+        "path": "/gt/recv",
+        "query": "k=1&n=22",
+        "headers": [
+          [
+            "X-Crucible-Tag",
+            "alpha"
+          ],
+          [
+            "X-Other",
+            "x"
+          ]
+        ],
+        "mediatype": "text/plain",
+        "body": "PING"
+      },
+      "why": "WEB READ HTTPHEADER X-Crucible-Tag present (alpha)"
+    },
+    {
+      "name": "header-missing",
+      "commarea": null,
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "crucible.example",
+        "port": 80,
+        "method": "POST",
+        "version": "HTTP/1.1",
+        "path": "/gt/recv",
+        "query": "k=1&n=22",
+        "headers": [
+          [
+            "X-Other",
+            "x"
+          ]
+        ],
+        "mediatype": "text/plain",
+        "body": "PING"
+      },
+      "why": "X-Crucible-Tag absent with another header present: NOTFND RESP2 1"
+    },
+    {
+      "name": "query-leading-qmark",
+      "commarea": null,
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "crucible.example",
+        "port": 80,
+        "method": "POST",
+        "version": "HTTP/1.1",
+        "path": "/gt/recv",
+        "query": "?a=1",
+        "headers": [
+          [
+            "X-Crucible-Tag",
+            "alpha"
+          ],
+          [
+            "X-Other",
+            "x"
+          ]
+        ],
+        "mediatype": "text/plain",
+        "body": "PING"
+      },
+      "why": "a query string that itself begins with ?, as in /gt/recv??a=1: the TRUE arm of the query test"
+    },
+    {
+      "name": "no-slash-no-query",
+      "commarea": null,
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "crucible.example",
+        "port": 80,
+        "method": "POST",
+        "version": "HTTP/1.1",
+        "path": "gt",
+        "query": "",
+        "headers": [
+          [
+            "X-Crucible-Tag",
+            "alpha"
+          ],
+          [
+            "X-Other",
+            "x"
+          ]
+        ],
+        "mediatype": "text/plain",
+        "body": "PING"
+      },
+      "why": "path without a leading slash and no query string: the ELSE arms of the path and query tests"
+    }
+  ]
+}

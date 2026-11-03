@@ -11,6 +11,8 @@ on:
   pull_request:
     paths:
       - "tests/equivalence/infeasible_outcomes/**"
+      - "tests/tools/branch_solver.py"
+      - "tests/tools/mainframe_corpus.py"
 
 concurrency:
   group: solver-check-${{ github.event.pull_request.number }}
@@ -34,12 +36,13 @@ jobs:
         with:
           python-version: "3.12"
       - name: Restore the pinned corpora
+        id: corpora
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .mainframe_corpora
           key: mainframe-corpora-${{ hashFiles('tests/cobol_mainframe/corpora.json') }}
       - name: Install z3 and the translator's parser (hash-pinned)
-        run: pip install --require-hashes -r ci/requirements/solver.txt
+        run: tests/tools/ci_retry.sh 4 10 -- pip install --require-hashes -r ci/requirements/solver.txt
       - name: Check the touched cases' claims
         run: |
           git diff --name-only "origin/${{ github.base_ref }}...HEAD" -- tests/equivalence/infeasible_outcomes/ \
@@ -50,3 +53,11 @@ jobs:
           # shellcheck disable=SC2086
           PYTHONPATH="$PWD" python tests/tools/branch_solver.py check $cases --timeout 10 --github \
             --work "$RUNNER_TEMP/branch-solver"
+      # paired with the restore (test_cache_keys): a pull_request-only workflow never saves; det-sweep saves this key on main
+      - name: Save the pinned corpora (main)
+        if: github.event_name != 'pull_request' && steps.corpora.outputs.cache-hit != 'true'
+        continue-on-error: true  # best effort: a miss only costs the next run a clone
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .mainframe_corpora
+          key: mainframe-corpora-${{ hashFiles('tests/cobol_mainframe/corpora.json') }}

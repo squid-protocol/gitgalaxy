@@ -1,5 +1,5 @@
 {
- "commit": "1d49d25e4",
+ "commit": "3213cc493",
  "components": {
   "capabilities": {
    "groups": [
@@ -364,17 +364,17 @@
     },
     "cics-banking-sample-application-cbsa": {
      "caught": 835,
-     "equivalent": 1062,
+     "equivalent": 894,
      "l5": 2,
      "measured": 6,
      "mutants": 2854,
      "programs": 31,
      "raw_pct": 44.4,
      "ready": 0,
-     "sampled": 1978,
-     "sampled_pct": 69.3,
+     "sampled": 2854,
+     "sampled_pct": 100.0,
      "survived": 1047,
-     "unreachable": 505
+     "unreachable": 375
     },
     "cics-genapp": {
      "caught": 0,
@@ -406,7 +406,7 @@
     },
     "zecs": {
      "caught": 1135,
-     "equivalent": 925,
+     "equivalent": 875,
      "l5": 3,
      "measured": 4,
      "mutants": 2601,
@@ -416,22 +416,22 @@
      "sampled": 2601,
      "sampled_pct": 100.0,
      "survived": 1362,
-     "unreachable": 437
+     "unreachable": 392
     }
    },
    "total": {
     "caught": 11060,
-    "equivalent": 3724,
+    "equivalent": 3506,
     "l5": 20,
     "measured": 47,
     "mutants": 42537,
     "programs": 129,
     "raw_pct": 67.7,
     "ready": 0,
-    "sampled": 16938,
-    "sampled_pct": 39.8,
+    "sampled": 17814,
+    "sampled_pct": 41.9,
     "survived": 5274,
-    "unreachable": 1206
+    "unreachable": 1031
    }
   },
   "mutation": {
@@ -481,7 +481,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-11-03T17:04:15Z",
+  "as_of": "2026-11-03T17:09:03Z",
   "core": {
    "closed": 206,
    "open": 11,

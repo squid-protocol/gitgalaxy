@@ -29,6 +29,12 @@
       "commarea": null,
       "terminal": "HC83 R",
       "why": "READ SET of K030, of the absent K035 (NOTFND), of K050"
+    },
+    {
+      "name": "unmatched-mode",
+      "commarea": null,
+      "terminal": "HC83 Z",
+      "why": "a mode no WHEN names: the EVALUATE falls through (42:none)"
     }
   ]
 }

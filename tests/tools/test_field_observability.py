@@ -130,3 +130,15 @@ def test_a_named_map_subfield_is_left_to_an_attack(tmp_path):
     obs = _obs(tmp_path, MAP, proc)
     tl = next(x for x in obs.items.all if x.name.upper() == "TITLEL")
     assert obs.judge(_decl(obs, "TITLEL"), _decl(obs, "TITLEL", tl.offset + 1)) is None
+
+
+def test_a_group_only_moved_into_a_shorter_item_is_truncated_either_way(tmp_path):
+    data = (
+        "01 R.\n   05 D.\n      10 D1 PIC X(4) VALUE 'ABCD'.\n      10 D2 PIC X(4) VALUE 'EFGH'.\n"
+        "   05 TAIL PIC X(4) VALUE 'IJKL'.\n01 OUT8 PIC X(8).\n01 OUT9 PIC X(9)."
+    )
+    obs = _obs(tmp_path, data, "           MOVE D TO OUT8\n           DISPLAY OUT8\n           GOBACK.")
+    grp = "private final Field f1_D = Field.group(s_R, 0, 8);"
+    assert obs.judge(grp, grp.replace(", 0, 8)", ", 0, 9)")).startswith("truncated")
+    wide = _obs(tmp_path, data, "           MOVE D TO OUT9\n           DISPLAY OUT9\n           GOBACK.")
+    assert wide.judge(grp, grp.replace(", 0, 8)", ", 0, 9)")) is None  # a 9-byte target sees the extra byte

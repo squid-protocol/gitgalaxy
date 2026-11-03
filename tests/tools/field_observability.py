@@ -376,7 +376,7 @@ class Observability:
             return self._map_fact(it, st, off, ln, off2, ln2)
         window = set(range(off, off + ln)) | set(range(off2, off2 + ln2))
         if id(it) in self.read_ids or window & self.read_bytes.get(st, set()):
-            return self._relocated(it, st, off, ln, off2, ln2)
+            return self._relocated(it, st, off, ln, off2, ln2) or self._truncated(it, st, before, off, ln, off2, ln2)
         return f"dead window: no reachable statement or runtime reader reads {name} or bytes {min(window)}-{max(window)} of {st}"
 
     def _relocated(self, it: L.Item, st: str, off: int, ln: int, off2: int, ln2: int) -> str | None:
@@ -401,6 +401,36 @@ class Observability:
         return (
             f"relocated: every access to {it.name} goes through its own Field, nothing else touches bytes "
             f"{min(window)}-{max(window)} of {st}, and the initial image holds the same bytes at both addresses"
+        )
+
+    def _truncated(self, it: L.Item, st: str, before: str, off: int, ln: int, off2: int, ln2: int) -> str | None:
+        """A length-only mutant of an alphanumeric item or group the program only ever reads by MOVE X TO Y, every Y
+        alphanumeric and no longer than the shorter window: each MOVE takes the same leading bytes either way."""
+        if off2 != off or ln2 == ln or not re.search(r"Field\.(alphanumeric|group)\(", before):
+            return None
+        if st in ("DFHEIBLK", "DFHAID") or st in self.map_storages or id(it) in self._raw:
+            return None
+        names = {it.name.upper()} | {c.name.upper() for c in it.conditions}
+        word = re.compile(r"(?<![A-Z0-9-])(" + "|".join(re.escape(n) for n in sorted(names)) + r")(?![A-Z0-9-])")
+        short = min(ln, ln2)
+        for x in self.stmts:
+            if not word.search(x.text.upper()):
+                continue
+            src = x.data.get("from") if x.kind == "MOVE" else None
+            if not (
+                isinstance(src, E.Ref) and self.items.resolve(src) == [it] and not src.subscripts and not src.refmod
+            ):
+                return None
+            for r in x.data.get("to") or []:
+                hit = self.items.resolve(r)
+                if r.name.upper() in names or len(hit) != 1 or r.refmod:
+                    return None
+                tgt = hit[0]
+                if tgt.category in ("NUMERIC", "NUMERIC-EDITED", "FLOAT") or tgt.size > short or tgt.justified:
+                    return None
+        return (
+            f"truncated: {it.name} is only ever moved whole into alphanumeric items of at most {short} bytes, "
+            f"so its {ln} or {ln2} bytes give them the same leading bytes"
         )
 
     def _keyed_note(self, st: str) -> str:

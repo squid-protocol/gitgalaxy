@@ -1,0 +1,49 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "GTHECHO",
+  "program_source": "cases/ghost-tasks/gt-http-inbound/src/GTHECHO.cbl",
+  "copy_dirs": [],
+  "transid": "GT81",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "notes": "cics-crucible ghost-tasks / gt-http-inbound (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): server-side WEB task serving a stated inbound HTTP request (X37, X38), one request per scenario. The oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "echo-hello",
+      "commarea": null,
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "crucible.example",
+        "port": 80,
+        "method": "POST",
+        "version": "HTTP/1.1",
+        "path": "/crucible/echo",
+        "query": "",
+        "headers": [],
+        "mediatype": "text/plain",
+        "body": "HELLO"
+      },
+      "why": "POST HELLO (5 bytes): the task answers 200 ECHO:HELLO"
+    },
+    {
+      "name": "echo-ab",
+      "commarea": null,
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "crucible.example",
+        "port": 80,
+        "method": "POST",
+        "version": "HTTP/1.1",
+        "path": "/crucible/echo",
+        "query": "",
+        "headers": [],
+        "mediatype": "text/plain",
+        "body": "AB"
+      },
+      "why": "POST AB (2 bytes): the task answers 200 ECHO:AB"
+    }
+  ]
+}

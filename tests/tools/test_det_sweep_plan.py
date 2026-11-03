@@ -155,3 +155,30 @@ def test_every_harness_path_and_the_modules_it_imports_for_numbers_is_a_det_inpu
 def test_a_cobol_coverage_edit_plans_a_sweep_not_none():
     p = dsp.plan(["tests/tools/cobol_coverage.py"], "pull_request", CASES)
     assert p["mode"] != "none"
+
+
+def _narrow(cases: list[str], new: list[str] | None = None) -> dict:
+    p = {"mode": "narrow", "cases": cases, "db2_cases": []}
+    return {**p, "new_cases": new} if new else p
+
+
+def test_cases_this_change_adds_do_not_count_as_unmeasured():
+    """#7598 added three cruc-gt-* cases: none measured, past the allowance of two, and the plan crashed (the job then
+    reported success with no outputs, and `det` failed with "no shard reported a sweep.json")."""
+    durations = {"old-a": 30.0, "old-b": 40.0}
+    added = ["new-a", "new-b", "new-c"]
+    assert dsp.shards_for(_narrow(added, added), durations)
+    assert dsp.shards_for(_narrow(["old-a", *added], added), durations)
+    with pytest.raises(dsp._shard_plan().PlanError):  # the guard still holds for cases that exist at the base
+        dsp.shards_for(_narrow(added), durations)
+
+
+def test_new_cases_are_the_case_files_absent_at_the_base():
+    texts = {
+        "tests/equivalence/fresh/case.json": (None, "{}"),
+        "tests/equivalence/old/case.json": ("{}", "{}"),
+        "tests/equivalence/gone/case.json": ("{}", None),
+        "tests/equivalence/fresh/expected/x.txt": (None, "x"),
+        "tests/equivalence/det_sweep_baseline.json": ("{}", "{}"),
+    }
+    assert dsp.new_cases(list(texts), lambda f: texts[f]) == ["fresh"]

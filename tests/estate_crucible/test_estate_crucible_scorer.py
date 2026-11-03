@@ -1076,7 +1076,9 @@ def test_a_member_with_no_ims_keys_adds_no_ims_checks():
 def _run_program_edge(got_edges, files, extra_calls=()):
     eng = FakeEngine(files=files)
     eng.file_edges = {"j.jcl": set(got_edges)}
-    entry = {"call_sites": [{"verb": "RUN PROGRAM", "operand": "BDLDDB2", "line": 22, "horror": "H-0068"}, *extra_calls]}
+    entry = {
+        "call_sites": [{"verb": "RUN PROGRAM", "operand": "BDLDDB2", "line": 22, "horror": "H-0068"}, *extra_calls]
+    }
     sc = ec.Score()
     ec.score_file_edges(sc, "j.jcl", entry, eng)
     return _statuses(sc)
@@ -1093,3 +1095,22 @@ def test_a_run_program_call_site_implies_the_exec_file_edge():
     assert _run_program_edge({("d.cbl", "exec")}, {}) == [("file_edges", "exec -> d.cbl", "phantom", None)]
     # a call edge is never excused by it
     assert ("file_edges", "call -> d.cbl", "phantom", None) in _run_program_edge({("d.cbl", "call")}, files)
+
+
+def _sql_access_status(key_access, engine_access):
+    row = SimpleNamespace(verb="INSERT", line=5, table="T", access=engine_access)
+    eng = FakeEngine(files={"p.cbl": SimpleNamespace(sql_statements=[row], sql_tables=[])})
+    entry = {"sql_statements": [{"verb": "INSERT", "line": 5, "table": "T", "access": key_access}]}
+    sc = ec.Score()
+    ec.score_sql(sc, "p.cbl", entry, eng)
+    return [c.status for c in sc.checks if c.channel == "sql_statements"]
+
+
+@pytest.mark.parametrize("engine_access", ["insert", "delete", "merge", "update"])
+def test_a_data_change_verb_scores_as_the_keys_update(engine_access):
+    assert _sql_access_status("update", engine_access) == ["pass"]
+
+
+@pytest.mark.parametrize("key_access,engine_access", [("read", "insert"), ("update", "lock"), ("update", "read")])
+def test_other_access_words_still_differ(key_access, engine_access):
+    assert _sql_access_status(key_access, engine_access) == ["fail"]

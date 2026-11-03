@@ -5,23 +5,24 @@
  "case": "zecs-zecs003",
  "entry": {
   "program": "ZECS003",
-  "commit": "a9d86c81455e1e67d02d81bc222aea5e7ac100f2+uncommitted",
-  "date": "2026-11-01",
+  "commit": "114d72d48c380d6b578d6c0f4ba88c04d7bde360",
+  "date": "2026-11-02",
   "mode": "fast",
   "seed": 0,
   "mutants": 988,
   "out_of_scope": 6,
   "chosen": 988,
-  "coverage": "proven on 18 scenarios, covering 21/21 paragraphs and 30/30 branches",
+  "coverage": "proven on 25 scenarios, covering 21/21 paragraphs and 30/30 branches",
   "counts": {
-   "killed": 400,
+   "killed": 423,
    "timeout": 32,
-   "survived": 518,
+   "survived": 495,
    "stillborn": 38,
    "error": 0,
    "pending": 0
   },
   "killed": [
+   "001ccf4cf9",
    "00d2027db9",
    "01f9ff32d5",
    "0234d80784",
@@ -81,6 +82,7 @@
    "22642d142b",
    "230f5bf249",
    "2324a958f8",
+   "233a7b777d",
    "23c4865779",
    "23e293dac9",
    "257c531734",
@@ -166,6 +168,7 @@
    "4ec7ecad93",
    "4ecdf83cdc",
    "4ee041d0a7",
+   "4fbe60bd03",
    "500ba342bd",
    "504aa0433d",
    "50ac4bbcd9",
@@ -217,6 +220,7 @@
    "6bf5e9bb0f",
    "6c69f2134c",
    "6cc0484366",
+   "6d03abb7e5",
    "6db4f58311",
    "6dcdd2d8fd",
    "6dea9759b4",
@@ -234,10 +238,13 @@
    "7408865192",
    "741d19cce6",
    "74357e5562",
+   "751b85f6f2",
    "75c1bcd63c",
    "76ce265f8b",
    "76ce4a8aaf",
+   "76fdfb3eff",
    "772175b9ac",
+   "7783a5bf7c",
    "78877c3526",
    "79af995a81",
    "7a15c4647d",
@@ -277,11 +284,13 @@
    "8b5278906c",
    "8ba0fe1be5",
    "8cc2ba17fb",
+   "8e0934dcfc",
    "8e0bee89d3",
    "8f7579844a",
    "8f836f78ba",
    "8fc2e08739",
    "8ffb5abe08",
+   "9010e63836",
    "902be43f09",
    "90ffdda8bc",
    "91a0cacfea",
@@ -313,12 +322,14 @@
    "9d591b677c",
    "9f072bb7c5",
    "9f65f00496",
+   "9ff37a9701",
    "a016c1a473",
    "a052d6be91",
    "a184dd08b2",
    "a39aa7a7cd",
    "a4842d8927",
    "a4dd629e96",
+   "a561cb4d5e",
    "a5b3414ed9",
    "a5b535788d",
    "a7858e157f",
@@ -338,10 +349,13 @@
    "b3160b2bce",
    "b39017e70b",
    "b41f7acfc1",
+   "b4aec3fe2b",
    "b52062653e",
    "b5905b1a84",
+   "b59e6119f6",
    "b6cccffe8e",
    "b715fe999c",
+   "b740d01a51",
    "b759d7cb70",
    "b76df3f5d0",
    "b7fca03d36",
@@ -364,6 +378,7 @@
    "c2c975a8fb",
    "c3892a7fcc",
    "c3f80d5e5c",
+   "c4cf6556bf",
    "c4d2910599",
    "c5457b4aff",
    "c567c159ba",
@@ -388,7 +403,9 @@
    "d2fb1c3633",
    "d41d366565",
    "d4208a209f",
+   "d4ccb019c7",
    "d65ca3c484",
+   "d676614074",
    "d77f226d0d",
    "d7dbf51920",
    "d7de74127a",
@@ -402,6 +419,7 @@
    "dd321b3639",
    "dd440246bb",
    "dd77ac7eb8",
+   "de25717950",
    "de56b59cef",
    "de8d9a8682",
    "e0f18d1d32",
@@ -428,7 +446,9 @@
    "ee910d3ca7",
    "eeb6a2cf83",
    "ef87d88478",
+   "f021cffbaf",
    "f0463d41cc",
+   "f08557b65f",
    "f15ba44051",
    "f36ab66711",
    "f39a720b93",
@@ -439,11 +459,14 @@
    "f5f76f5c4b",
    "f6045ed549",
    "f65c747c34",
+   "f6986f15b3",
    "f756e3ddf7",
    "f7ce51c3ca",
    "f8755f8517",
    "f8a9ad1e9b",
+   "f8f0739120",
    "f92589073b",
+   "f995a091f9",
    "fab9d6b290",
    "fac7ecb8dc",
    "fb8755f525",
@@ -1689,14 +1712,6 @@
     "after": "private final Field f101_WEB_STATUS_ABSTIME = Field.zoned(s_WEB_STATUS_ABSTIME, 0, 15, 1, false, false, false);"
    },
    {
-    "id": "f8f0739120",
-    "op": "CON",
-    "file": "service/Zecs003Service.java",
-    "line": 276,
-    "before": "private final Field f104_CONVERSE_RESPONSE = Field.alphanumeric(s_CONVERSE_RESPONSE, 0, 40, false);",
-    "after": "private final Field f104_CONVERSE_RESPONSE = Field.alphanumeric(s_CONVERSE_RESPONSE, 1, 40, false);"
-   },
-   {
     "id": "1ce110b528",
     "op": "CON",
     "file": "service/Zecs003Service.java",
@@ -2529,36 +2544,12 @@
     "after": "if (label != null) {"
    },
    {
-    "id": "76fdfb3eff",
-    "op": "NEG",
-    "file": "service/Zecs003Service.java",
-    "line": 457,
-    "before": "if (d == null) {",
-    "after": "if (!(d == null)) {"
-   },
-   {
-    "id": "b59e6119f6",
-    "op": "ROR",
-    "file": "service/Zecs003Service.java",
-    "line": 457,
-    "before": "if (d == null) {",
-    "after": "if (d != null) {"
-   },
-   {
     "id": "ff9bea7e82",
     "op": "DEL",
     "file": "service/Zecs003Service.java",
     "line": 458,
     "before": "return;",
     "after": "/* return; */"
-   },
-   {
-    "id": "c4cf6556bf",
-    "op": "ROR",
-    "file": "service/Zecs003Service.java",
-    "line": 460,
-    "before": "Cobol.move(d.getCaType() == null ? \"\" : d.getCaType(), Field.alphanumeric(s, base + 0, 3, false), CS);",
-    "after": "Cobol.move(d.getCaType() != null ? \"\" : d.getCaType(), Field.alphanumeric(s, base + 0, 3, false), CS);"
    },
    {
     "id": "20d9f1e94f",
@@ -2569,28 +2560,12 @@
     "after": "Cobol.move(d.getCaType() == null ? \"\" : d.getCaType(), Field.alphanumeric(s, base - 0, 3, false), CS);"
    },
    {
-    "id": "7783a5bf7c",
-    "op": "CON",
-    "file": "service/Zecs003Service.java",
-    "line": 460,
-    "before": "Cobol.move(d.getCaType() == null ? \"\" : d.getCaType(), Field.alphanumeric(s, base + 0, 3, false), CS);",
-    "after": "Cobol.move(d.getCaType() == null ? \"\" : d.getCaType(), Field.alphanumeric(s, base + 1, 3, false), CS);"
-   },
-   {
     "id": "a5d62b8d70",
     "op": "CON",
     "file": "service/Zecs003Service.java",
     "line": 460,
     "before": "Cobol.move(d.getCaType() == null ? \"\" : d.getCaType(), Field.alphanumeric(s, base + 0, 3, false), CS);",
     "after": "Cobol.move(d.getCaType() == null ? \"\" : d.getCaType(), Field.alphanumeric(s, base + 0, 4, false), CS);"
-   },
-   {
-    "id": "d676614074",
-    "op": "ROR",
-    "file": "service/Zecs003Service.java",
-    "line": 461,
-    "before": "Cobol.move(d.getCaUriField01() == null ? \"\" : d.getCaUriField01(), Field.alphanumeric(s, base + 3, 10, false), CS);",
-    "after": "Cobol.move(d.getCaUriField01() != null ? \"\" : d.getCaUriField01(), Field.alphanumeric(s, base + 3, 10, false), CS);"
    },
    {
     "id": "93cad285a8",
@@ -2607,22 +2582,6 @@
     "line": 465,
     "before": "d.setCaType(Cobol.text(Field.alphanumeric(s, base + 0, 3, false), CS));",
     "after": "d.setCaType(Cobol.text(Field.alphanumeric(s, base - 0, 3, false), CS));"
-   },
-   {
-    "id": "f995a091f9",
-    "op": "CON",
-    "file": "service/Zecs003Service.java",
-    "line": 465,
-    "before": "d.setCaType(Cobol.text(Field.alphanumeric(s, base + 0, 3, false), CS));",
-    "after": "d.setCaType(Cobol.text(Field.alphanumeric(s, base + 1, 3, false), CS));"
-   },
-   {
-    "id": "001ccf4cf9",
-    "op": "CON",
-    "file": "service/Zecs003Service.java",
-    "line": 465,
-    "before": "d.setCaType(Cobol.text(Field.alphanumeric(s, base + 0, 3, false), CS));",
-    "after": "d.setCaType(Cobol.text(Field.alphanumeric(s, base + 0, 4, false), CS));"
    },
    {
     "id": "c037b75f0a",
@@ -3209,14 +3168,6 @@
     "after": "int calen = 1;"
    },
    {
-    "id": "a561cb4d5e",
-    "op": "DEL",
-    "file": "service/Zecs003Service.java",
-    "line": 611,
-    "before": "in_Zecs003Dfhcommarea(x, s_DFHCOMMAREA, 0);",
-    "after": "/* in_Zecs003Dfhcommarea(x, s_DFHCOMMAREA, 0); */"
-   },
-   {
     "id": "7cbffe22c9",
     "op": "DEL",
     "file": "service/Zecs003Service.java",
@@ -3311,30 +3262,6 @@
     "line": 622,
     "before": "calen = cx(task, cb.length);",
     "after": "/* calen = cx(task, cb.length); */"
-   },
-   {
-    "id": "6d03abb7e5",
-    "op": "NEG",
-    "file": "service/Zecs003Service.java",
-    "line": 625,
-    "before": "if (raw != null) {",
-    "after": "if (!(raw != null)) {"
-   },
-   {
-    "id": "f6986f15b3",
-    "op": "ROR",
-    "file": "service/Zecs003Service.java",
-    "line": 625,
-    "before": "if (raw != null) {",
-    "after": "if (raw == null) {"
-   },
-   {
-    "id": "d4ccb019c7",
-    "op": "DEL",
-    "file": "service/Zecs003Service.java",
-    "line": 626,
-    "before": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
-    "after": "/* System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length)); */"
    },
    {
     "id": "44fbde3f3a",
@@ -3737,14 +3664,6 @@
     "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);"
    },
    {
-    "id": "8e0934dcfc",
-    "op": "CON",
-    "file": "service/Zecs003Service.java",
-    "line": 790,
-    "before": "perform(3, 4);",
-    "after": "perform(3, 5);"
-   },
-   {
     "id": "2ec1028b85",
     "op": "CON",
     "file": "service/Zecs003Service.java",
@@ -3769,44 +3688,12 @@
     "after": "return 2;"
    },
    {
-    "id": "b4aec3fe2b",
-    "op": "DEL",
-    "file": "service/Zecs003Service.java",
-    "line": 805,
-    "before": "Cobol.move(f129_EIBTRNID.ref(3, Integer.valueOf(2)), f20_ZK_TRANID.ref(3, Integer.valueOf(2)), CS);",
-    "after": "/* Cobol.move(f129_EIBTRNID.ref(3, Integer.valueOf(2)), f20_ZK_TRANID.ref(3, Integer.valueOf(2)), CS); */"
-   },
-   {
-    "id": "9010e63836",
-    "op": "CON",
-    "file": "service/Zecs003Service.java",
-    "line": 805,
-    "before": "Cobol.move(f129_EIBTRNID.ref(3, Integer.valueOf(2)), f20_ZK_TRANID.ref(3, Integer.valueOf(2)), CS);",
-    "after": "Cobol.move(f129_EIBTRNID.ref(4, Integer.valueOf(2)), f20_ZK_TRANID.ref(3, Integer.valueOf(2)), CS);"
-   },
-   {
     "id": "76e968bc41",
     "op": "CON",
     "file": "service/Zecs003Service.java",
     "line": 805,
     "before": "Cobol.move(f129_EIBTRNID.ref(3, Integer.valueOf(2)), f20_ZK_TRANID.ref(3, Integer.valueOf(2)), CS);",
     "after": "Cobol.move(f129_EIBTRNID.ref(3, Integer.valueOf(3)), f20_ZK_TRANID.ref(3, Integer.valueOf(2)), CS);"
-   },
-   {
-    "id": "751b85f6f2",
-    "op": "DEL",
-    "file": "service/Zecs003Service.java",
-    "line": 806,
-    "before": "Cobol.move(f129_EIBTRNID.ref(3, Integer.valueOf(2)), f23_ZF_TRANID.ref(3, Integer.valueOf(2)), CS);",
-    "after": "/* Cobol.move(f129_EIBTRNID.ref(3, Integer.valueOf(2)), f23_ZF_TRANID.ref(3, Integer.valueOf(2)), CS); */"
-   },
-   {
-    "id": "4fbe60bd03",
-    "op": "CON",
-    "file": "service/Zecs003Service.java",
-    "line": 806,
-    "before": "Cobol.move(f129_EIBTRNID.ref(3, Integer.valueOf(2)), f23_ZF_TRANID.ref(3, Integer.valueOf(2)), CS);",
-    "after": "Cobol.move(f129_EIBTRNID.ref(4, Integer.valueOf(2)), f23_ZF_TRANID.ref(3, Integer.valueOf(2)), CS);"
    },
    {
     "id": "c377ba16f4",
@@ -3943,22 +3830,6 @@
     "line": 883,
     "before": "Cobol.store(f156_EIBRESP2, BigDecimal.valueOf(resp24), false, CS);",
     "after": "/* Cobol.store(f156_EIBRESP2, BigDecimal.valueOf(resp24), false, CS); */"
-   },
-   {
-    "id": "f021cffbaf",
-    "op": "ROR",
-    "file": "service/Zecs003Service.java",
-    "line": 890,
-    "before": "if (Cobol.num(f115_ZF_ABS, CS).compareTo(Cobol.num(f1_CURRENT_ABS, CS)) < 0) {",
-    "after": "if (Cobol.num(f115_ZF_ABS, CS).compareTo(Cobol.num(f1_CURRENT_ABS, CS)) <= 0) {"
-   },
-   {
-    "id": "9ff37a9701",
-    "op": "CON",
-    "file": "service/Zecs003Service.java",
-    "line": 890,
-    "before": "if (Cobol.num(f115_ZF_ABS, CS).compareTo(Cobol.num(f1_CURRENT_ABS, CS)) < 0) {",
-    "after": "if (Cobol.num(f115_ZF_ABS, CS).compareTo(Cobol.num(f1_CURRENT_ABS, CS)) < 1) {"
    },
    {
     "id": "df420fe092",
@@ -4129,14 +4000,6 @@
     "after": "/* Cobol.store(f156_EIBRESP2, BigDecimal.valueOf(doc12.resp2()), false, CS); */"
    },
    {
-    "id": "233a7b777d",
-    "op": "CON",
-    "file": "service/Zecs003Service.java",
-    "line": 956,
-    "before": "Cobol.move(BigDecimal.valueOf(172), f91_DC_LENGTH, CS);",
-    "after": "Cobol.move(BigDecimal.valueOf(173), f91_DC_LENGTH, CS);"
-   },
-   {
     "id": "17949be160",
     "op": "ROR",
     "file": "service/Zecs003Service.java",
@@ -4151,14 +4014,6 @@
     "line": 962,
     "before": "if (doc13.length() >= 0) Cobol.store(f91_DC_LENGTH, BigDecimal.valueOf(doc13.length()), false, CS);",
     "after": "if (doc13.length() >= 1) Cobol.store(f91_DC_LENGTH, BigDecimal.valueOf(doc13.length()), false, CS);"
-   },
-   {
-    "id": "b740d01a51",
-    "op": "DEL",
-    "file": "service/Zecs003Service.java",
-    "line": 963,
-    "before": "Cobol.store(f155_EIBRESP, BigDecimal.valueOf(doc13.resp()), false, CS);",
-    "after": "/* Cobol.store(f155_EIBRESP, BigDecimal.valueOf(doc13.resp()), false, CS); */"
    },
    {
     "id": "af5c072819",
@@ -4441,14 +4296,6 @@
     "after": "if (web22.body() == null) {"
    },
    {
-    "id": "f08557b65f",
-    "op": "ROR",
-    "file": "service/Zecs003Service.java",
-    "line": 1054,
-    "before": "if (web22.body().length > f104_CONVERSE_RESPONSE.length()) throw new DetCics.PastFrom(\"WEB CONVERSE INTO beyond its area: not modelled\"); DetCics.put(f104_CONVERSE_RESPONSE, web22.body());",
-    "after": "if (web22.body().length >= f104_CONVERSE_RESPONSE.length()) throw new DetCics.PastFrom(\"WEB CONVERSE INTO beyond its area: not modelled\"); DetCics.put(f104_CONVERSE_RESPONSE, web22.body());"
-   },
-   {
     "id": "8b7855df4f",
     "op": "LIT",
     "file": "service/Zecs003Service.java",
@@ -4511,14 +4358,6 @@
     "line": 1058,
     "before": "DetCics.putText(f120_ZF_MEDIA, web22.mediaType(), CS);",
     "after": "/* DetCics.putText(f120_ZF_MEDIA, web22.mediaType(), CS); */"
-   },
-   {
-    "id": "de25717950",
-    "op": "DEL",
-    "file": "service/Zecs003Service.java",
-    "line": 1060,
-    "before": "Cobol.store(f155_EIBRESP, BigDecimal.valueOf(web22.resp()), false, CS);",
-    "after": "/* Cobol.store(f155_EIBRESP, BigDecimal.valueOf(web22.resp()), false, CS); */"
    },
    {
     "id": "b131cd39c4",
@@ -4644,16 +4483,16 @@
   "inputs": {
    "port": "a10160c1b5735f7a8ccda0009669a4442997d8529790ac351f60b90e0541d815",
    "runtime": "69b6222f94604324826bc10795c0c05590ddc04f738fa8626f0e36b3021ebdf1",
-   "generator": "fd91a4b97e60286c0feb20a474007ca62aa57dc23193a29ce11a1dc25f832272",
-   "case": "fd32d2d8cd782b87ed2f2b50dfda7ad6d7bc76a58dac46d12d44841ef28b44c3",
+   "generator": "1af26dd5c15e0f9880c9c2021e9bc43756d1779d883dfc25f58bcdb8769d0215",
+   "case": "7a5c55b9269356180ff3ee90d690bd25b4b2925a5f266ec0ab3c51bb5f1b0307",
    "corpus": "09feecf8028c77a136bbff56380f9babddf0b2e28fbb6a7ad7ba456273989ff6",
-   "harness": "f2f27aa43bfacba09293cf973184e387dc9533ef00c724e138ec6f3a6abc925b",
-   "oracle": "771c681a7e10b05bf6559d63a72f480312ac38dde95ca7a5c6adbb48dd093b96",
-   "survivors": "580684920f965fa5b63091017ecd1e2f8cd1276c2c94cdde87fedc601f4ee6b9"
+   "harness": "5a0a8b1be0925e2fef97219deebef4b8f6d6b62322b6d0fc9c283f6e90b67a42",
+   "oracle": "fd125d6869723ab4f48630ffd8f014179f611b91aa1e1d119551a887110ca7c3",
+   "survivors": "75d5844b84e5144bb8095060c0083cbc58b5aae8312f63f68a2d52b3531d4910"
   },
   "components": {
    "generator": {
-    "generator:core": "f746c3f061ed6d88f1734cbf36ed2aa91e4439103fc1647f241a915188ec91be",
+    "generator:core": "b0ce6bfa64f3eae33dc6e4c539cacd17a4f4451494896671c72e9e453001b64d",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
     "generator:det/cics": "cc994b69236f857bf262fe907bfe9ec65b6ada76a5e1d02c76a10f2a8bc1ab27",
     "generator:det/cics_common": "03fe34eeea3470e5e1b689ad1154e7012663890618326f8049c23025595e23c8",
@@ -4668,7 +4507,7 @@
     "generator:det/cics_system": "7641dc83bab798b705d92ad0d483978402948eeb80dfda3d588104c1b74965c9",
     "generator:det/cics_taskcontrol": "87a6ea18cc2bfae69ec93f318813460b05819c51ac5003f01082bf68db22e02e",
     "generator:det/cics_terminal": "f0fd521e09fcae2fec35ff2ecde1ffc414083f96c054123a8b63549eb941c541",
-    "generator:det/cics_web": "22b035e0b47bf030eb312bd06fbf133be9b408db4cd0ad06ac7b0dda3810b9da",
+    "generator:det/cics_web": "1fdca9b226067ac18c2a95c9e0b950a3a52fbe5c1f3d2676ac88c76fda74abac",
     "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
     "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
     "generator:det/hfp": "d7d641dafd602da31535a68f7f219c201a8d867cb7a1fec1c879be38e9ff86b7",
@@ -4677,11 +4516,11 @@
     "generator:det/source": "fd7d20e0f7824a4d3b74201b0690914daf79834567b3fa5f064c98beb4d50e0b"
    },
    "harness": {
-    "harness:cics": "5a9c75252c2f112376a19371c9ba06442f2bc1b3037ccff17b28705571bc8669",
-    "harness:core": "8a7d18f97c68b94659c661facaab3877279b809e80143028b7cde992385b5718"
+    "harness:cics": "ab64b4a973ef9b9126678d57497ec76d08dc3d3afefb66fb49fd1e86521e221b",
+    "harness:core": "726a6345c865b1d49361b1ae91ca3327c89c0346641bf59209c518da01c61f43"
    },
    "oracle": {
-    "oracle:cics-stub": "9fd48afa43ae0a3906e24d28a903c06b82cc65a26863dbc6f795caf4ddbd460a",
+    "oracle:cics-stub": "197f8fee22c98decc18920029515934f5745aa165f7d1506d6915c0e3b363df2",
     "oracle:core": "b4bb775f0a30746a6054f259b4c8613e08cb0d8cf3b40f4a789d953aca4144a0",
     "oracle:le": "670c92cc59b722e108b688267be1fd89ecda9b7be62bb485da2ad4839b4f7011"
    }

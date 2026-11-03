@@ -45,7 +45,7 @@ import os
 import subprocess
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Any
 
 MAIN_REF = "refs/heads/main"

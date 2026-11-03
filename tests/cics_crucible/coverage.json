@@ -1331,6 +1331,42 @@
       "177:true",
       "187:false"
      ]
+    },
+    "wrap": {
+     "units": [
+      "DEF-C1",
+      "GET-PLAIN",
+      "HEX-VAL",
+      "LOG-R",
+      "LOG-V",
+      "LOG-W",
+      "MAIN-PARA",
+      "WRAP-PARA"
+     ],
+     "outcomes": [
+      "53:WHEN@56",
+      "177:true",
+      "187:false"
+     ]
+    },
+    "limit": {
+     "units": [
+      "DEF-C1",
+      "GET-PLAIN",
+      "HEX-VAL",
+      "LIMIT-PARA",
+      "LOG-R",
+      "LOG-V",
+      "LOG-W",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "53:WHEN@58",
+      "177:false",
+      "177:true",
+      "187:false",
+      "187:true"
+     ]
     }
    }
   },

@@ -27,6 +27,7 @@ from gitgalaxy.tools.cobol_to_java import cics_task_containers as tc  # noqa: E4
 from gitgalaxy.tools.cobol_to_java import cics_task_counters as tcr  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_faults as tfl  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_filecontrol as tf  # noqa: E402
+from gitgalaxy.tools.cobol_to_java import cics_task_storage as tst  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_taskcontrol as tt  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_tdqueues as tq  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_time as tim  # noqa: E402
@@ -830,3 +831,14 @@ def test_cicstask_holds_the_counters_java_once_where_it_sat():
     for method in ("withCounters", "getCounter", "rewindCounter", "updateCounter", "defineDcounter", "queryDcounter",
                    "defineCounter", "deleteCounter", "queryCounter", "fullwordGet"):  # fmt: skip
         assert re.search(rf"public \S+(?: \S+)? {method}\(", tcr.COUNTERS_JAVA), method
+
+
+def test_cicstask_holds_the_storage_java_once_where_it_sat():
+    """#5274: the storage family (GETMAIN / FREEMAIN / BLL cells) follows the web session methods and ends the web-request splice."""
+    java = forge.CICS_TASK_JAVA
+    assert java.count(tst.STORAGE_JAVA) == 1
+    a = java.index(tst.STORAGE_JAVA)
+    assert java[:a].endswith(tw.WEB_SESSION_JAVA)
+    assert java[a + len(tst.STORAGE_JAVA) :].startswith(tw.WEB_REQUEST_JAVA)
+    for method in ("newBlock", "getmain", "bllToken", "bllPointer", "growShared"):
+        assert re.search(rf"\b{method}\(", tst.STORAGE_JAVA), method

@@ -294,8 +294,15 @@ class Writes:
     """`targets(stmt)`: every item a statement may change (a superset of what the walk assigns), and the
     flow-insensitive value set of each tracked item."""
 
-    def __init__(self, prog: Program, items: Items):
+    def __init__(self, prog: Program, items: Items, entry: dict[str, set[Any] | None] | None = None):
+        """`entry` (caller-aware, `estate_entry`): COMMAREA region (offset, size, kind, scale) -> the values the
+        estate's senders can pass there (None: any). It applies to whatever a whole-area MOVE carries out of LINKAGE,
+        through any buffer, into a record (`area_move`). Key "~bottom": a region no sender gave yet is empty (the
+        fixpoint's start), else any value. None: caller-aware mode off."""
         self.prog, self.items = prog, items
+        self.entry = entry
+        self.buffers: dict[int, dict[Any, Any] | None] = {}  # elementary area -> its regions' values (None: any)
+        self._vs: dict[int, set[Any] | None] = {}
         self.status = [x for n in prog.file_status for it in items.by_name.get(n.upper(), []) for x in it.walk()]
         self.sqlca = [x for r in prog.records if r.name.upper() == "SQLCA" for x in r.walk()]
         self.eib = [x for r in prog.records if r.name.upper() == "DFHEIBLK" for x in r.walk()
@@ -356,6 +363,100 @@ class Writes:
             return self.refs(list(d.get("targets") or []))
         return None
 
+    def area_move(self, s: S.Stmt) -> tuple[L.Item, L.Item, int, int, int | None] | None:
+        """(source, target, source offset, target offset, length or None) of a whole-area MOVE the caller-aware
+        analysis follows byte region by byte region: a record, buffer or LINKAGE area into a record or buffer, neither
+        subscripted, a reference modification starting at a literal or at LENGTH OF x + n (MOVE DFHCOMMAREA(1:EIBCALEN)
+        TO WS-COMMAREA; MOVE X TO WS-COMMAREA(LENGTH OF Y + 1:LENGTH OF X)). A length the analysis cannot read (EIBCALEN)
+        counts as the whole area: the estate's senders send whole areas (estate_entry checks). None for any other
+        statement, and always when caller-aware mode is off."""
+        if self.entry is None or s.kind != "MOVE":
+            return None
+        src, to = s.data.get("from"), s.data.get("to") or []
+        if not isinstance(src, E.Ref) or len(to) != 1 or src.subscripts or to[0].subscripts:
+            return None
+        offs: list[int] = []
+        length: int | None = None
+        for r in (src, to[0]):
+            if not r.refmod:
+                offs.append(0)
+                continue
+            start = self._const_len(r.refmod[0])
+            if start is None or start < 1:
+                return None
+            offs.append(start - 1)
+            if r.refmod[1] is not None:
+                n = self._const_len(r.refmod[1])
+                length = n if length is None else (min(length, n) if n is not None else length)
+        a, b = self.items.resolve(src), self.items.resolve(to[0])
+        if len(a) != 1 or len(b) != 1 or b[0].section == "LINKAGE":
+            return None
+        a0, b0 = a[0], b[0]
+        if not (a0.children or b0.children or a0.section == "LINKAGE") or _kind(b0) == "num" or a0.level == 88:
+            return None
+        return a0, b0, offs[0], offs[1], length
+
+    def _buffer_fill(self, s: S.Stmt) -> tuple[L.Item, str] | None:
+        """(buffer, fill character) of an INITIALIZE / figurative MOVE of an unstructured alphanumeric area (caller-
+        aware mode): every byte of it takes the fill."""
+        if self.entry is None:
+            return None
+        refs = s.data.get("refs") if s.kind == "INITIALIZE" and not INIT_OPTIONS.search(s.text) else None
+        if s.kind == "MOVE" and isinstance(s.data.get("from"), E.Fig) and not s.data["from"].all_literal:
+            ch = FIG_CHAR.get(s.data["from"].kind)
+            refs = s.data.get("to") if ch is not None else None
+        else:
+            ch = " "
+        if not refs or len(refs) != 1 or refs[0].subscripts or refs[0].refmod:
+            return None
+        hit = self.items.resolve(refs[0])
+        if len(hit) != 1 or hit[0].children or _kind(hit[0]) != "str" or hit[0].section == "LINKAGE":
+            return None
+        return hit[0], ch or " "
+
+    def _const_len(self, x: Any) -> int | None:
+        """A literal, LENGTH OF item, or a sum of them, as a number; None otherwise."""
+        if isinstance(x, E.Lit) and isinstance(x.value, Decimal) and x.value == x.value.to_integral_value():
+            return int(x.value)
+        if isinstance(x, E.LengthOf):
+            hit = self.items.resolve(x.ref)
+            return hit[0].size * hit[0].occurs if len(hit) == 1 else None
+        if isinstance(x, E.Bin) and x.op in "+-":
+            a, b = self._const_len(x.left), self._const_len(x.right)
+            if a is None or b is None:
+                return None
+            return a + b if x.op == "+" else a - b
+        return None
+
+    @staticmethod
+    def carry(reg: dict[Any, Any] | None, src_off: int, dst_off: int, length: int | None) -> dict[Any, Any] | None:
+        """The regions a move carries, re-keyed from the source's start to the target's."""
+        if reg is None:
+            return None
+        out: dict[Any, Any] = {k: reg[k] for k in ("~bottom", "~fill") if k in reg}
+        for k, v in reg.items():
+            if k in ("~bottom", "~fill"):
+                continue
+            off, size, kind, scale = k
+            if off < src_off or (length is not None and off + size > src_off + length):
+                continue
+            out[(off - src_off + dst_off, size, kind, scale)] = v
+        return out
+
+    def regions_of(self, it: L.Item) -> dict[Any, Any] | None:
+        """An area's byte regions and the values each can hold (None: unknown -- every region any value)."""
+        if it.section == "LINKAGE":
+            if self.entry is None:
+                return None
+            return dict(self.entry)
+        if it.children:
+            out: dict[Any, Any] = {}
+            for c in it.walk():
+                if c is not it and not c.children and self.items.tracked(c):
+                    out[_region(c, it)] = self._vs.get(id(c))
+            return out
+        return self.buffers.get(id(it))
+
     def exec_targets(self, text: str) -> list[L.Item]:
         """What an EXEC may write: a CICS command's output options (every option but the read-only ones) and the
         EIB; an SQL statement's INTO host variables (all of a FETCH / CALL / SET) and the SQLCA; anything else, every
@@ -367,6 +468,8 @@ class Writes:
             out: list[L.Item] = list(self.eib)
             for opt, arg in _OPTION.findall(t[m.end() :]):
                 if opt in CICS_INPUT or (verb in CICS_QUIET and opt in ("LENGTH", "RIDFLD", "FLENGTH")):
+                    continue
+                if opt == "COMMAREA" and verb in ("RETURN", "XCTL"):  # sent, never written back (LINK's callee may)
                     continue
                 if verb == "FORMATTIME" and opt == "ABSTIME":
                     continue
@@ -390,7 +493,7 @@ class Writes:
         tracked = [it for it in self.items.all if self.items.tracked(it)]
         for it in tracked:
             if it.section != "WORKING-STORAGE" and it.section != "LOCAL-STORAGE":
-                vs[id(it)] = None
+                vs[id(it)] = None  # LINKAGE fields: the caller's bytes (area moves carry the caller-aware sets)
                 continue
             if not it.values:
                 vs[id(it)] = None
@@ -398,6 +501,8 @@ class Writes:
             v = norm_value(it.values[0], it)
             vs[id(it)] = None if v is None else {v}
         copies: list[tuple[L.Item, L.Item]] = []
+        moves: list[tuple[L.Item, L.Item, int, int, int | None]] = []  # caller-aware whole-area moves (area_move)
+        poisoned: set[int] = set()  # buffers something else writes
 
         def put(it: L.Item, v: Any) -> None:
             cur = vs.get(id(it), None)
@@ -411,7 +516,19 @@ class Writes:
         stmts = [x for p in self.prog.proc.paragraphs for x in S.walk(p.body)]
         for s in stmts:
             precise: set[int] = set()
-            if s.kind == "MOVE":
+            fill = self._buffer_fill(s)
+            if fill is not None:
+                buf, ch = fill
+                precise.add(id(buf))
+                cur = self.buffers.setdefault(id(buf), {"~bottom": True})
+                if cur is not None:
+                    cur.setdefault("~fill", set()).add(ch)
+            elif (am := self.area_move(s)) is not None:
+                moves.append(am)
+                precise |= {id(x) for x in am[1].walk()}  # what it carries: below, region by region
+                if not am[1].children:
+                    self.buffers.setdefault(id(am[1]), {"~bottom": True})
+            elif s.kind == "MOVE":
                 src = s.data.get("from")
                 for r in s.data.get("to") or []:
                     hit = self.items.resolve(r)
@@ -441,9 +558,57 @@ class Writes:
             for x in self.targets(s):
                 if id(x) not in precise:
                     put(x, None)
+                    poisoned.add(id(x))
+        for bid in poisoned:
+            if bid in self.buffers:
+                self.buffers[bid] = None
+        self._vs = vs
         changed = True
         while changed:
             changed = False
+            for src, dst, src_off, dst_off, length in moves:
+                reg = self.carry(self.regions_of(src), src_off, dst_off, length)
+                bottom = bool(reg and reg.get("~bottom"))
+                if not dst.children:  # an unstructured buffer: it holds the source's regions
+                    cur = self.buffers.get(id(dst))
+                    if cur is None:
+                        continue
+                    if reg is None:
+                        self.buffers[id(dst)] = None
+                        changed = True
+                        continue
+                    for k, v in reg.items():
+                        if k == "~bottom":
+                            if v and not cur.get("~bottom"):
+                                cur["~bottom"] = True
+                                changed = True
+                            continue
+                        if k == "~fill":
+                            if not v <= cur.setdefault("~fill", set()):
+                                cur["~fill"] |= v
+                                changed = True
+                            continue
+                        old = cur.get(k, set())
+                        new = None if v is None or old is None else old | v
+                        if new != old or k not in cur:
+                            cur[k] = new
+                            changed = True
+                    continue
+                for c in dst.walk():
+                    if c is dst or c.children or not self.items.tracked(c) or id(c) not in vs:
+                        continue
+                    k = _region(c, dst)
+                    got: set[Any] | None = (reg.get(k, set() if bottom else None)) if reg is not None else None
+                    got = _with_fill(got, reg, c)
+                    have = vs.get(id(c))
+                    if have is None:
+                        continue
+                    if got is None:
+                        vs[id(c)] = None
+                        changed = True
+                    elif not got <= have:
+                        have |= got
+                        changed = True
             for src, dst in copies:
                 a, b = vs.get(id(src)), vs.get(id(dst))
                 if b is None or id(dst) not in vs:
@@ -479,7 +644,8 @@ class State:
 
 class Walk:
     def __init__(self, prog: Program, evaluate_arms: dict[int, list[str]] | None = None,
-                 flags: dict[str, tuple[Any, Any, Any]] | None = None):  # fmt: skip
+                 flags: dict[str, tuple[Any, Any, Any]] | None = None,
+                 entry: dict[str, set[Any] | None] | None = None):  # fmt: skip
         """`flags`: name -> (sets(stmt), clears(stmt), watched(stmt)): a Boolean the walk carries along every path,
         True after a statement that sets it, False after one that clears it, fresh at a loop head; `flag_at[name]`
         holds the condition that it is True when a watched statement runs (field_observability.py)."""
@@ -496,7 +662,8 @@ class Walk:
                         if it.section in ("WORKING-STORAGE", "LOCAL-STORAGE"):
                             self.items.overlapped |= {id(x) for x in _root(it).walk()}
                             self.items.aliased.add(id(_root(it)))
-        self.writes = Writes(prog, self.items)
+        self.entry = entry or {}
+        self.writes = Writes(prog, self.items, entry)
         self.vs = self.writes.value_sets()
         self.tracked = [it for it in self.items.all if self.items.tracked(it)]
         self.axioms: dict[str, list[Any]] = {}  # symbol name -> the constraints on that symbol alone
@@ -938,6 +1105,20 @@ class Walk:
         return z.If(fits, w, self.fresh(it, "set", line))
 
     def move(self, st: State, s: S.Stmt) -> State:
+        z = self.z
+        am = self.writes.area_move(s)
+        if am is not None:  # a whole-area move out of LINKAGE or a buffer: each field one of its region's values
+            a_src, a_dst, src_off, dst_off, length = am
+            reg = self.writes.carry(self.writes.regions_of(a_src), src_off, dst_off, length)
+            st = State(st.pc, dict(st.env))
+            for x in a_dst.walk():
+                if id(x) not in st.env:
+                    continue
+                v = st.env[id(x)] = self.fresh(x, "callers", s.line)
+                got = _with_fill(reg.get(_region(x, a_dst)), reg, x) if reg is not None and a_dst.children else None
+                if got is not None:
+                    self.axioms[str(v)].append(z.Or([v == self.const(c, x) for c in got]) if got else z.BoolVal(False))
+            return st
         st = State(st.pc, dict(st.env))
         src = s.data.get("from")
         for r in s.data.get("to") or []:
@@ -1029,7 +1210,7 @@ class Walk:
         it = hit[0]
         prefix = ""
         for operands, delim in s.data.get("parts") or []:
-            cut = None if delim is None else (FIG_CHAR.get(delim.kind) if isinstance(delim, E.Fig) else
+            cut: str | bool | None = None if delim is None else (FIG_CHAR.get(delim.kind) if isinstance(delim, E.Fig) else
                                               delim.value if isinstance(delim, E.Lit) and isinstance(delim.value, str)
                                               else False)  # fmt: skip
             done = False
@@ -1037,9 +1218,9 @@ class Walk:
                 if not (isinstance(o, E.Lit) and isinstance(o.value, str)) or cut is False:
                     done = True
                     break
-                text = o.value if not cut else o.value.split(cut, 1)[0]
+                text = o.value.split(cut, 1)[0] if isinstance(cut, str) and cut else o.value
                 prefix += text
-                if cut and cut in o.value:
+                if isinstance(cut, str) and cut and cut in o.value:
                     continue
             if done:
                 break
@@ -1726,7 +1907,7 @@ def scenario(w: Walk, model: Any, formulas: list[Any], case: dict[str, Any], tar
         out["receive"] = receive
     if faults:
         out["faults"] = faults
-    sql = []
+    sql: list[dict[str, Any]] = []
     for name in sorted(relevant & set(w.sql_meta), key=lambda n: w.sql_meta[n]):
         code = model.eval(w.z.Int(name), model_completion=True).as_long()
         line = w.sql_meta[name]
@@ -1845,7 +2026,136 @@ def case_program(case: str, work: Path) -> Program:
     return load_program(base / data["program_source"], dirs, bms)
 
 
-def solve_case(case: str, work: Path, timeout_ms: int = TIMEOUT_MS) -> dict[str, Any]:
+def _with_fill(v: set[Any] | None, reg: dict[Any, Any] | None, x: L.Item) -> set[Any] | None:
+    """A region's values plus what a whole-buffer fill leaves there (a numeric field over a fill: any value)."""
+    fills = (reg or {}).get("~fill") or set()
+    if v is None or not fills:
+        return v
+    if _kind(x) == "num":
+        return None
+    return v | {ch * x.size for ch in fills}
+
+
+def _region(x: L.Item, base: L.Item) -> tuple[int, int, str, int]:
+    """Where an item sits in an area: (offset from the area's start, size, kind, scale)."""
+    return (x.offset - base.offset, x.size, _kind(x), x.scale)
+
+
+ESTATE_WHY: list[str] = []
+
+
+def estate_entry(case: str, work: Path, rounds: int = 20) -> dict[str, set[Any] | None] | None:
+    """Caller-aware entry sets for the case's program: COMMAREA field name -> the values the estate's programs can
+    send it (XCTL / LINK naming it, RETURN TRANSID of its transaction), to a fixpoint over the estate -- each sender's
+    values come from its own value sets, which see ITS entry values through its copy-in. None (no constraint) when the
+    estate cannot be read; a field any sender gives in another layout, or from an unresolved target, is any value.
+    Assumption, stated with every verdict that rests on it: the estate's programs are the program's only callers."""
+    spec = json.loads((REPO / "tests" / "equivalence" / case / "case.json").read_text(encoding="utf-8"))
+    base = corpus_root(spec["corpus"])
+    me = str(spec["program"]).upper()
+    ESTATE_WHY.clear()
+    transid: dict[str, str] = {}
+    own_dirs: dict[str, list[Path]] = {}  # program source -> its own case's copybook directories
+    for f in sorted((REPO / "tests" / "equivalence").glob("*/case.json")):
+        d = json.loads(f.read_text(encoding="utf-8"))
+        if d.get("corpus") != spec["corpus"]:
+            continue
+        if d.get("transid") and d.get("program"):
+            transid.setdefault(str(d["program"]).upper(), str(d["transid"]).upper())
+        if d.get("program_source"):
+            own_dirs.setdefault(
+                str((base / d["program_source"]).resolve()),
+                [base / x for x in [*d.get("copy_dirs", ["app/cpy"]), *(d.get("db2") or {}).get("include_dirs", [])]],
+            )
+    dirs = [base / d for d in spec.get("copy_dirs", ["app/cpy"])]
+    bms = work / f"bms-{spec['corpus']}"
+    progs: dict[str, Program] = {}
+    for src in sorted(p for p in base.rglob("*") if p.suffix.lower() in (".cbl", ".cob") and ".git" not in p.parts):
+        raw = src.read_bytes().upper()
+        if b"EXEC CICS" not in raw:
+            continue
+        try:
+            pr = load_program(src, own_dirs.get(str(src.resolve()), dirs), bms)
+        except Exception as e:  # noqa: BLE001 -- a program the front end cannot read: if it may send to us, give up
+            if me.encode() in raw or transid.get(me, "\0").encode() in raw:
+                ESTATE_WHY.append(f"{src.name} may send to {me} and does not load: {type(e).__name__}")
+                return None
+            continue
+        progs.setdefault(pr.name, pr)
+    if me not in progs:
+        ESTATE_WHY.append(f"{me} is not among the estate's loaded programs")
+        return None
+    items = {n: Items(pr.records) for n, pr in progs.items()}
+    # region -> values each program can be sent; "~bottom": regions nobody sent yet are empty (the fixpoint's start)
+    entry: dict[str, dict[Any, Any]] = {n: {"~bottom": True} for n in progs}
+    for _ in range(rounds):
+        sent: dict[str, dict[Any, Any]] = {n: {"~bottom": True} for n in progs}
+        for name, pr in progs.items():
+            wr = Writes(pr, items[name], entry[name])
+            vs = wr.value_sets()
+
+            def values(arg: str, wr: Writes = wr, vs: dict[int, Any] = vs) -> set[str] | None:
+                arg = arg.strip()
+                if arg[:1] in "'\"":
+                    return {arg.strip("'\"").strip().upper()}
+                hit = wr.items.by_name.get(arg.upper(), [])
+                got = vs.get(id(hit[0])) if len(hit) == 1 else None
+                return None if got is None else {str(v).strip().upper() for v in got}
+
+            for p in pr.proc.paragraphs:
+                for st in S.walk(p.body):
+                    t = re.sub(r"\s+", " ", st.text.upper()) if st.kind == "EXEC" else ""
+                    m = re.match(r"EXEC CICS (XCTL|LINK|RETURN)\b", t)
+                    opts = dict(_OPTION.findall(t)) if m else {}
+                    if not m or "COMMAREA" not in opts:
+                        continue
+                    if m.group(1) == "RETURN":
+                        tids = values(opts["TRANSID"]) if "TRANSID" in opts else set()
+                        to = [r for r, tid in transid.items() if tids is None or tid in tids] if tids else []
+                        if tids is None or (tids and not to):
+                            to = list(progs)  # an unknown transaction: any program may be its
+                    else:
+                        names = values(opts.get("PROGRAM", ""))
+                        to = list(progs) if names is None else [n for n in names if n in progs]
+                    area = opts["COMMAREA"].strip()
+                    hit = wr.items.by_name.get(area.upper(), [])
+                    length = opts.get("LENGTH", "")
+                    full = not length or re.fullmatch(r"LENGTH OF " + re.escape(area), length)
+                    reg = wr.regions_of(hit[0]) if len(hit) == 1 and full else None
+                    for r in to:
+                        box = sent[r]
+                        if reg is None:
+                            box["*"] = True  # an area the analysis cannot follow: every region any value
+                            continue
+                        if not reg.get("~bottom"):
+                            box["~bottom"] = False  # this sender's unlisted regions are any value
+                        for k, v in reg.items():
+                            if k == "~bottom":
+                                continue
+                            prev = box.get(k, set())
+                            box[k] = None if v is None or prev is None else prev | v
+        new: dict[str, dict[Any, Any]] = {}
+        for r, box in sent.items():
+            if "*" in box:
+                new[r] = {"~bottom": False}  # every region any value
+                continue
+            got = {k: (v if k == "~bottom" or v is None or len(v) <= MAX_VALUES else None)
+                   for k, v in box.items() if k != "*"}  # fmt: skip
+            new[r] = got
+        if new == entry:
+            break
+        entry = new
+    else:
+        ESTATE_WHY.append(f"no fixpoint in {rounds} rounds")
+        return None
+    mine = dict(entry.get(me, {}))
+    if mine.get("~bottom") is False and len(mine) == 1:
+        ESTATE_WHY.append("a sender's COMMAREA could not be followed: every region any value")
+    mine.pop("~bottom", None)  # in the program's own walk an unlisted region is any value
+    return mine
+
+
+def solve_case(case: str, work: Path, timeout_ms: int = TIMEOUT_MS, callers: bool = False) -> dict[str, Any]:
     """Every stated infeasible outcome of one case, checked."""
     import infeasible_outcomes as io  # noqa: PLC0415
 
@@ -1862,6 +2172,15 @@ def solve_case(case: str, work: Path, timeout_ms: int = TIMEOUT_MS) -> dict[str,
                                    "why": [out["error"]]})  # fmt: skip
         return out
     out["incomplete"] = sorted(set(w.why))
+    cw = None
+    if callers:
+        entry = estate_entry(case, work)
+        if entry:
+            cw = Walk(prog, evaluate_arms(prog.source), entry=entry)
+            cw.explore()
+            out["callers"] = {"fields": len(entry), "constrained": sum(1 for v in entry.values() if v is not None)}
+        else:
+            out["callers"] = {"none": list(ESTATE_WHY) or ["no estate program sends it a COMMAREA"]}
     known = w.known()
     paras = {p.name.upper() for p in prog.proc.paragraphs}
     for e_ in entries:
@@ -1888,6 +2207,12 @@ def solve_case(case: str, work: Path, timeout_ms: int = TIMEOUT_MS) -> dict[str,
             if not formulas:
                 row["note"] = "the walk never reaches this statement"
         verdict, model = w.ask(formulas, timeout_ms)
+        if verdict == "witness" and callers and cw is not None:  # does it hold given what the estate's callers send?
+            cf = cw.entered.get(str(e_["unit"]).upper(), []) if io.is_paragraph(e_) else cw.hits.get(
+                (int(e_["line"]), str(e_["outcome"])), [])  # fmt: skip
+            if cw.ask(cf, timeout_ms)[0] == "confirmed":
+                verdict = "confirmed-callers"
+                row["assumption"] = "the estate's programs are the program's only callers (their COMMAREA values)"
         row["verdict"] = verdict
         if verdict == "witness":
             row["witness"] = w.witness(model, formulas)
@@ -2031,7 +2356,8 @@ def summary(results: list[dict[str, Any]]) -> dict[str, Any]:
     tally: dict[str, dict[str, int]] = {}
     for r in results:
         for e in r["entries"]:
-            fam = tally.setdefault(e.get("family") or "?", {"confirmed": 0, "witness": 0, "inconclusive": 0})
+            fam = tally.setdefault(e.get("family") or "?",
+                                   {"confirmed": 0, "confirmed-callers": 0, "witness": 0, "inconclusive": 0})  # fmt: skip
             fam[e["verdict"]] += 1
     return tally
 
@@ -2040,9 +2366,9 @@ def render(results: list[dict[str, Any]]) -> str:
     lines = ["# Branch solver: stated infeasible outcomes", "",
              ("confirmed = no input of the program reaches it (z3: unsatisfiable, walk complete); witness = an input "
               "of the program reaches it (for family G the claim may rest on callers); inconclusive = the walk or "
-              "the solver could not decide."), "", "| family | confirmed | witness | inconclusive |", "|---|---|---|---|"]  # fmt: skip
+              "the solver could not decide."), "", "| family | confirmed | confirmed-callers | witness | inconclusive |", "|---|---|---|---|---|"]  # fmt: skip
     for fam, t in sorted(summary(results).items()):
-        lines.append(f"| {fam} | {t['confirmed']} | {t['witness']} | {t['inconclusive']} |")
+        lines.append(f"| {fam} | {t['confirmed']} | {t['confirmed-callers']} | {t['witness']} | {t['inconclusive']} |")
     for r in results:
         lines += ["", f"## {r['case']}", ""]
         if r.get("error"):
@@ -2063,6 +2389,9 @@ def main(argv: list[str] | None = None) -> int:
     c = sub.add_parser("check", help="check the stated infeasible outcomes of these cases (default: all)")
     c.add_argument("cases", nargs="*")
     c.add_argument("--json", action="store_true")
+    c.add_argument("--callers", action="store_true", help="also try each witness given what the estate's callers send")
+    c.add_argument("--github", action="store_true",
+                   help="CI: the report into $GITHUB_STEP_SUMMARY, a warning per family C witness (solver-check.yml)")  # fmt: skip
     c.add_argument("--timeout", type=float, default=TIMEOUT_MS / 1000)
     c.add_argument("--work", type=Path, default=Path("/tmp/gitgalaxy-scratch/branch-solver"))
     r = sub.add_parser("reach", help="find an input that takes these outcomes (LINE:OUTCOME)")
@@ -2106,7 +2435,22 @@ def main(argv: list[str] | None = None) -> int:
     import infeasible_outcomes as io  # noqa: PLC0415
 
     cases = args.cases or sorted(io.load())
-    results = [solve_case(cs, args.work, ms) for cs in cases]
+    results = [solve_case(cs, args.work, ms, callers=args.callers) for cs in cases]
+    if args.github:
+        import os  # noqa: PLC0415
+
+        summary_file = os.environ.get("GITHUB_STEP_SUMMARY")
+        if summary_file:
+            with open(summary_file, "a", encoding="utf-8") as fh:
+                fh.write(render(results))
+        for res in results:
+            for e in res["entries"]:
+                if e.get("family") == "C" and e["verdict"] == "witness":  # a constant test the program should settle
+                    print(
+                        f"::warning file=tests/equivalence/infeasible_outcomes/{res['case']}.json::{e['key']} (family C): "
+                        "branch_solver finds an input of the program that reaches it -- re-read the reason"
+                    )
+        return 0
     print(json.dumps({"format": FORMAT, "summary": summary(results), "cases": results}, indent=1, default=str)
           if args.json else render(results), end="")  # fmt: skip
     return 0

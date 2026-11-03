@@ -475,3 +475,40 @@ def test_a_counter_a_loop_only_moves_one_way_keeps_its_start_bound(tmp_path):
     )
     assert _verdict(w, _line(src, "EVALUATE IX"), "OTHER") == "confirmed"
     assert _verdict(w, _line(src, "IF DOWN > 3"), "true") == "confirmed"
+
+
+def test_caller_sets_flow_through_a_buffer_into_the_record_the_program_tests(tmp_path):
+    src = tmp_path / "T.cbl"
+    src.write_text(
+        "\n".join(
+            [
+                "       IDENTIFICATION DIVISION.",
+                "       PROGRAM-ID. T.",
+                "       DATA DIVISION.",
+                "       WORKING-STORAGE SECTION.",
+                "       01 WS-BUF PIC X(10).",
+                "       01 WS-REC.",
+                "          05 F1 PIC X.",
+                "          05 F2 PIC X(3).",
+                "       LINKAGE SECTION.",
+                "       01 DFHCOMMAREA PIC X(4).",
+                "       PROCEDURE DIVISION.",
+                "           MOVE DFHCOMMAREA(1:4) TO WS-BUF",
+                "           MOVE WS-BUF(1:4) TO WS-REC",
+                "           IF F1 = 'Q'",
+                "               CONTINUE",
+                "           END-IF",
+                "           GOBACK.",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    prog = bs.load_program(src, [])
+    ln = _line(src, "IF F1")
+    alone = bs.Walk(prog, bs.evaluate_arms(src))
+    alone.explore()
+    assert _verdict(alone, ln, "true") == "witness"  # the program alone: F1 is any byte a caller sends
+    callers = bs.Walk(prog, bs.evaluate_arms(src), entry={(0, 1, "str", 0): {"A", "B"}})
+    callers.explore()
+    assert _verdict(callers, ln, "true") == "confirmed"  # every caller sends A or B there

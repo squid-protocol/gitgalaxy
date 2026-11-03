@@ -388,6 +388,23 @@ def solver_unread(case: str, work: Path) -> set[tuple[str, str]] | None:
     return {(str(x["record"]).upper(), str(x["item"]).upper()) for x in res["unread"]}
 
 
+def solver_observability(case: str, work: Path) -> Any:
+    """field_observability.Observability for a case (its `judge(before, after)`), or None without z3 / a walk."""
+    try:
+        import z3  # type: ignore[import-not-found,import-untyped,unused-ignore]  # noqa: F401, PLC0415
+    except ImportError:
+        return None
+    import branch_solver as bs  # noqa: PLC0415
+    import field_observability as fo  # noqa: PLC0415
+
+    try:
+        spec = json.loads((dm.CASES / case / "case.json").read_text(encoding="utf-8"))
+        return fo.Observability(bs.case_program(case, work / "branch-solver"), spec, bs.corpus_root(spec["corpus"]))
+    except Exception as e:  # noqa: BLE001 -- a program the walk cannot read: no facts, never a failure
+        print(f"field_observability: {case}: {type(e).__name__}: {e}"[:300])
+        return None
+
+
 def unread_fact(mutant: dict[str, Any], unread: set[tuple[str, str]]) -> dict[str, str] | None:
     """A mutant of the Field declaration of an item no reachable statement uses: nothing any input sees changes."""
     f = field_of(str(mutant.get("before") or ""))
@@ -409,11 +426,16 @@ def cmd_facts(case: str, work: Path) -> int:
         fact = port_fact(text, s)
         if fact:
             settled[s["id"]] = {**fact, "date": time.strftime("%Y-%m-%d")}
-    unread = (
-        solver_unread(case, work) if any(field_of(s.get("before") or "") for s in entry.get("survived", [])) else None
-    )
-    for s in entry.get("survived", []):
-        fact = unread_fact(s, unread) if unread and s["id"] not in settled else None
+    fields = [s for s in entry.get("survived", []) if field_of(s.get("before") or "")]
+    unread = solver_unread(case, work) if fields else None
+    obs = solver_observability(case, work) if fields else None
+    for s in fields:
+        if s["id"] in settled:
+            continue
+        fact = unread_fact(s, unread) if unread else None
+        why = obs.judge(s["before"], s["after"]) if obs is not None and not fact else None
+        if why:
+            fact = {"result": "solver-unobservable", "fact": f"field_observability: {why}"}
         if fact:
             settled[s["id"]] = {**fact, "date": time.strftime("%Y-%m-%d")}
     stated = dm.stated(case)

@@ -472,11 +472,17 @@ def _convert_const(v: Any, src: L.Item, dst: L.Item) -> Any:
 @dataclass
 class State:
     pc: Any
-    env: dict[int, Any]
+    env: dict[Any, Any]  # id(item) -> value; "flag:NAME" -> a walked Boolean (Walk flags)
 
 
 class Walk:
-    def __init__(self, prog: Program, evaluate_arms: dict[int, list[str]] | None = None):
+    def __init__(self, prog: Program, evaluate_arms: dict[int, list[str]] | None = None,
+                 flags: dict[str, tuple[Any, Any, Any]] | None = None):  # fmt: skip
+        """`flags`: name -> (sets(stmt), clears(stmt), watched(stmt)): a Boolean the walk carries along every path,
+        True after a statement that sets it, False after one that clears it, fresh at a loop head; `flag_at[name]`
+        holds the condition that it is True when a watched statement runs (field_observability.py)."""
+        self.flags = flags or {}
+        self.flag_at: dict[str, list[Any]] = {n: [] for n in self.flags}
         self.z = _z3()
         self.prog = prog
         self.items = Items(prog.records)
@@ -617,7 +623,7 @@ class Walk:
         return parts[0] if len(parts) == 1 else self.z.Concat(*parts)
 
     def initial(self) -> State:
-        env = {}
+        env: dict[Any, Any] = {}
         for it in self.tracked:
             v = (
                 norm_value(it.values[0], it)
@@ -625,10 +631,20 @@ class Walk:
                 else None
             )
             env[id(it)] = self.const(v, it) if v is not None else self.fresh(it, "in", it.line)
+        for n in self.flags:
+            env[f"flag:{n}"] = self.z.BoolVal(False)
         return State(self.z.BoolVal(True), env)
 
     def top(self) -> State:
-        return State(self.z.BoolVal(True), {id(it): self.fresh(it, "loop", 0) for it in self.tracked})
+        env = {id(it): self.fresh(it, "loop", 0) for it in self.tracked}
+        return State(self.z.BoolVal(True), {**env, **self.fresh_flags()})
+
+    def fresh_flags(self) -> dict[Any, Any]:
+        out = {}
+        for n in self.flags:
+            self._n += 1
+            out[f"flag:{n}"] = self.z.Bool(f"flag:{n}#{self._n}")
+        return out
 
     def havoc(self, st: State, items: list[L.Item], line: int, origin: str = "set") -> State:
         env = dict(st.env)
@@ -1110,9 +1126,21 @@ class Walk:
             if cur is None:
                 break
             self.at.setdefault(id(s), []).append(cur.pc)  # where the statement runs (fields_used)
+            if self.flags:
+                cur = self.step_flags(s, cur)
             cur, g = self.stmt(s, cur)
             gotos += g
         return cur, gotos
+
+    def step_flags(self, s: S.Stmt, st: State) -> State:
+        env = None
+        for n, (sets, clears, watched) in self.flags.items():
+            if watched(s):
+                self.flag_at[n].append(self.z.And(st.pc, st.env[f"flag:{n}"]))
+            if sets(s) or clears(s):
+                env = env or dict(st.env)
+                env[f"flag:{n}"] = self.z.BoolVal(bool(sets(s)))
+        return st if env is None else State(st.pc, env)
 
     def _branch_to(self, labels: set[str], st: State, gotos: list[tuple[int, State]]) -> None:
         for lab in sorted(labels):
@@ -1370,6 +1398,8 @@ class Walk:
             gotos += g
         body = self.loop_writes([] if rg is None else list(range(rg[0], rg[1] + 1)), s.body if inline else [])
         head = self.havoc(st, body + self.writes.targets(s), s.line, "loop")
+        if self.flags:  # a loop may set or clear a flag on any iteration
+            head = State(head.pc, {**head.env, **self.fresh_flags()})
         if varying and var is not None and var not in body:
             frm, by = varying[1], varying[2]
             if all(isinstance(x, E.Lit) and isinstance(x.value, Decimal) for x in (frm, by)) and by.value > 0:

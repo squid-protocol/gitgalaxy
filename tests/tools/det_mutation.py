@@ -91,7 +91,8 @@ ACCOUNTED = ("equivalent", "unreachable")
 # no-entry-path / constant-unused: the port's text (survivor_attack.py facts); solver-unreachable: branch_solver.py found no
 # input of the program that enters any paragraph the `unreachable` reason names; solver-unread: no reachable statement
 # uses the item whose Field declaration the mutant changes (#4175)
-ATTACK_SETTLED = ("no-entry-path", "constant-unused", "solver-unreachable", "solver-unread")
+# solver-unobservable: field_observability.py shows no input can tell a Field-declaration mutant apart (#4175)
+ATTACK_SETTLED = ("no-entry-path", "constant-unused", "solver-unreachable", "solver-unread", "solver-unobservable")
 ATTACK_HELD = ("survived", *ATTACK_SETTLED)
 # `unreachable` is about the program, never the tests: code a test does not call is a case or harness gap
 TESTS_NOT_PROGRAM = re.compile(

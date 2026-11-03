@@ -15,13 +15,16 @@ Work in a directory outside the repo. Every proof goes through `tests/tools/box/
 
 ```bash
 python tests/tools/survivor_attack.py next CASE --limit 20           # the likeliest wrong verdicts first
-python tests/tools/survivor_attack.py facts CASE --work DIR          # what the port's text settles, no proof needed
+python tests/tools/survivor_attack.py facts CASE --work DIR          # what the port's text and the COBOL settle, no proof
 python tests/tools/survivor_attack.py packet CASE ID --work DIR      # the Java, the COBOL's path, hints, the input format
 python tests/tools/survivor_attack.py try CASE ID,ID --inputs I.json --work DIR
 python tests/tools/det_mutation.py state CASE TRIAGE.json --attempts DIR/attempts.json
 ```
 
-1. `facts`. It settles code no entry point of the program reaches, and constants nothing reads. Believe it only for that.
+1. `facts`. It settles code no entry point of the program reaches, and constants nothing reads. With the `solver` extra
+   it also settles an `unreachable` verdict whose reason says a paragraph is never reached when `branch_solver.py`
+   finds no input that enters it, and prints the stated reasons it questions (an input does enter the paragraph).
+   A questioned reason is read and attacked, never dropped on the solver's word. Believe `facts` only for that.
 2. Take the rest in `next` order. Read the packet, then read the COBOL: the Java is one reading of it.
 3. Write inputs that make the original and the mutant differ, aimed at the first place they diverge. Aim one input at
    several mutants when you can: `try` proves the port once.

@@ -176,3 +176,34 @@ def test_a_new_verdict_needs_its_attack_but_a_carried_one_does_not():
     assert "1 new verdicts" in dm.regressions("c", None, [old, new], None, [old])[0]
     assert dm.regressions("c", None, [old, {**new, "tried": ["long-body"]}], None, [old]) == []
     assert dm.regressions("c", None, [old, {**new, "verdict": "case-gap"}], None, [old]) == []
+
+
+# ---- what the COBOL settles (branch_solver.py, #4175): the verdicts are data here, no z3 ----------------------------
+VERDICTS = {
+    "POPULATE-TIME-DATE": "confirmed",
+    "PTD010": "confirmed",
+    "GET-ME-OUT-OF-HERE": "witness",
+    "A010": "witness",
+}
+
+
+def test_a_reason_names_paragraphs_as_whole_words_in_a_negated_clause():
+    reason = "POPULATE-TIME-DATE is never PERFORMed (PTD010 neither): the program runs A010 -> GET-ME-OUT-OF-HERE"
+    assert sa.named_paragraphs(reason, VERDICTS) == ["POPULATE-TIME-DATE"]
+    assert sa.named_paragraphs("PTD010 is not reached either", VERDICTS) == ["PTD010"]
+    assert sa.named_paragraphs("POPULATE-TIME-DATE-X is not PERFORMed", VERDICTS) == []
+    assert sa.named_paragraphs("used only where no paragraph PERFORMs it (the flow is A010)", VERDICTS) == []
+
+
+def test_the_solver_settles_an_unreachable_paragraph_and_questions_an_entered_one():
+    never = {"verdict": "unreachable", "reason": "POPULATE-TIME-DATE is never PERFORMed: it follows GET-ME-OUT-OF-HERE"}
+    assert sa.solver_fact(never, VERDICTS)["result"] == "solver-unreachable"
+    wrong = {"verdict": "unreachable", "reason": "GET-ME-OUT-OF-HERE is never reached"}
+    assert sa.solver_fact(wrong, VERDICTS)["result"] == "solver-entered"
+    assert sa.solver_fact({"verdict": "equivalent", "reason": never["reason"]}, VERDICTS) is None
+    assert sa.solver_fact({"verdict": "unreachable", "reason": "no paragraph named here"}, VERDICTS) is None
+
+
+def test_state_takes_a_solver_settlement_but_not_a_solver_question():
+    assert dm.attempt_problems("unreachable", [{"result": "solver-unreachable"}]) == []
+    assert "no attack" in dm.attempt_problems("unreachable", [{"result": "solver-entered"}])[0]

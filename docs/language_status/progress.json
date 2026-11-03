@@ -1,5 +1,5 @@
 {
- "commit": "5f75b6e72",
+ "commit": "046908c08",
  "components": {
   "capabilities": {
    "groups": [
@@ -336,44 +336,44 @@
    "estates": {
     "aws-mainframe-modernization-carddemo": {
      "caught": 3269,
-     "equivalent": 1517,
+     "equivalent": 2081,
      "l5": 1,
      "measured": 25,
      "mutants": 30355,
      "programs": 44,
      "raw_pct": 57.0,
      "ready": 0,
-     "sampled": 5976,
-     "sampled_pct": 19.7,
+     "sampled": 7239,
+     "sampled_pct": 23.8,
      "survived": 2462,
-     "unreachable": 226
+     "unreachable": 250
     },
     "cics-async-api-credit-card-application-example": {
-     "caught": 5665,
+     "caught": 5737,
      "equivalent": 220,
-     "l5": 10,
+     "l5": 0,
      "measured": 10,
      "mutants": 6083,
      "programs": 10,
-     "raw_pct": 95.6,
+     "raw_pct": 94.4,
      "ready": 0,
      "sampled": 6083,
      "sampled_pct": 100.0,
-     "survived": 258,
+     "survived": 342,
      "unreachable": 38
     },
     "cics-banking-sample-application-cbsa": {
-     "caught": 837,
+     "caught": 1334,
      "equivalent": 894,
-     "l5": 1,
+     "l5": 0,
      "measured": 6,
      "mutants": 2854,
      "programs": 31,
-     "raw_pct": 44.5,
+     "raw_pct": 48.8,
      "ready": 0,
      "sampled": 2854,
      "sampled_pct": 100.0,
-     "survived": 1046,
+     "survived": 1398,
      "unreachable": 375
     },
     "cics-genapp": {
@@ -405,33 +405,33 @@
      "unreachable": 0
     },
     "zecs": {
-     "caught": 1135,
+     "caught": 1169,
      "equivalent": 875,
-     "l5": 1,
+     "l5": 0,
      "measured": 4,
      "mutants": 2601,
      "programs": 7,
-     "raw_pct": 45.5,
+     "raw_pct": 46.7,
      "ready": 0,
      "sampled": 2601,
      "sampled_pct": 100.0,
-     "survived": 1362,
+     "survived": 1334,
      "unreachable": 392
     }
    },
    "total": {
-    "caught": 11061,
-    "equivalent": 3506,
-    "l5": 13,
+    "caught": 11664,
+    "equivalent": 4070,
+    "l5": 1,
     "measured": 47,
     "mutants": 42537,
     "programs": 129,
-    "raw_pct": 67.7,
+    "raw_pct": 67.3,
     "ready": 0,
-    "sampled": 17814,
-    "sampled_pct": 41.9,
-    "survived": 5267,
-    "unreachable": 1031
+    "sampled": 19077,
+    "sampled_pct": 44.8,
+    "survived": 5675,
+    "unreachable": 1055
    }
   },
   "mutation": {
@@ -465,7 +465,7 @@
   },
   "3": {
    "l2_plus": 14,
-   "l4_plus": 14,
+   "l4_plus": 13,
    "programs": 16
   },
   "4": {
@@ -481,7 +481,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-11-03T19:47:23Z",
+  "as_of": "2026-11-03T20:59:01Z",
   "core": {
    "closed": 206,
    "open": 11,
@@ -770,14 +770,14 @@
     "l2_plus_pct": 100.0,
     "l4_plus": 10,
     "l4_plus_pct": 100.0,
-    "l5": 10,
+    "l5": 0,
     "levels": {
      "L0": 0,
      "L1": 0,
      "L2": 0,
      "L3": 0,
-     "L4": 0,
-     "L5": 10
+     "L4": 10,
+     "L5": 0
     },
     "programs": 10,
     "translated_whole": 10
@@ -785,16 +785,16 @@
    "cics-banking-sample-application-cbsa": {
     "l2_plus": 31,
     "l2_plus_pct": 100.0,
-    "l4_plus": 31,
-    "l4_plus_pct": 100.0,
-    "l5": 1,
+    "l4_plus": 30,
+    "l4_plus_pct": 96.8,
+    "l5": 0,
     "levels": {
      "L0": 0,
      "L1": 0,
      "L2": 0,
-     "L3": 0,
+     "L3": 1,
      "L4": 30,
-     "L5": 1
+     "L5": 0
     },
     "programs": 31,
     "translated_whole": 31
@@ -838,14 +838,14 @@
     "l2_plus_pct": 100.0,
     "l4_plus": 7,
     "l4_plus_pct": 100.0,
-    "l5": 1,
+    "l5": 0,
     "levels": {
      "L0": 0,
      "L1": 0,
      "L2": 0,
      "L3": 0,
-     "L4": 6,
-     "L5": 1
+     "L4": 7,
+     "L5": 0
     },
     "programs": 7,
     "translated_whole": 7
@@ -853,17 +853,17 @@
   },
   "test_estates": {
    "cics-crucible": {
-    "l2_plus": 79,
-    "l2_plus_pct": 92.9,
-    "l4_plus": 74,
-    "l4_plus_pct": 87.1,
+    "l2_plus": 84,
+    "l2_plus_pct": 98.8,
+    "l4_plus": 82,
+    "l4_plus_pct": 96.5,
     "l5": 0,
     "levels": {
      "L0": 0,
-     "L1": 6,
+     "L1": 1,
      "L2": 2,
-     "L3": 3,
-     "L4": 74,
+     "L3": 0,
+     "L4": 82,
      "L5": 0
     },
     "programs": 85,
@@ -873,16 +873,16 @@
   "total": {
    "l2_plus": 126,
    "l2_plus_pct": 97.7,
-   "l4_plus": 126,
-   "l4_plus_pct": 97.7,
-   "l5": 13,
+   "l4_plus": 125,
+   "l4_plus_pct": 96.9,
+   "l5": 1,
    "levels": {
     "L0": 3,
     "L1": 0,
     "L2": 0,
-    "L3": 0,
-    "L4": 113,
-    "L5": 13
+    "L3": 1,
+    "L4": 124,
+    "L5": 1
    },
    "programs": 129,
    "reachable": 126,

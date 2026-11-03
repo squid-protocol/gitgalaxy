@@ -69,6 +69,12 @@ Known traps: `ladder_gaps.py` crashes on a paragraph entry from a copybook (`NAM
     (say so in the reason: "branch_solver confirms"); a `witness` on a family C claim means the reason is wrong or
     rests on callers / IBM (family G / R) -- re-read it before writing it. `inconclusive` names what the walk could not
     follow (ALTER, NEXT SENTENCE, an EVALUATE whose arms it cannot name).
+  - RESP-driven arms: the input carries the `faults` plan (command, resource, NOTFND / IOERR / ...) the solver chose
+    among the conditions the harness can plan (`equivalence_cics_faults.py`); an arm that needs an unplannable
+    response says so in `why` (#6271). Each fault is `nth: 1`: raise it when the command runs earlier in the task.
+  - Many gaps at once: `strengthen.py run CASE --work DIR --no-mutation --backend-command "python
+    tests/tools/branch_solver.py backend CASE {prompt_file}"` -- the solver answers strengthen's prompt instead of a
+    model, and the oracle proves each input alone (no model tokens spent).
   - What it does not model shows as `witness`, never as `confirmed`: STRING results, a plain `PERFORM UNTIL` counter's
     bounds, caller context, IBM response sets, Db2 data. A witness is a lead, not a refutation.
 - **Scenario first.** Add the input that reaches the arm. Before you add a fault, check nothing downstream resets the

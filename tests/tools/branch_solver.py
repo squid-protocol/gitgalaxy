@@ -4,6 +4,7 @@
     python tests/tools/branch_solver.py check [CASE ...] [--json] [--timeout S]   # the stated infeasible outcomes
     python tests/tools/branch_solver.py reach CASE LINE:OUTCOME [...] [--inputs]   # an input that takes an outcome
     python tests/tools/branch_solver.py paragraphs CASE                            # which paragraphs any input enters
+    python tests/tools/branch_solver.py backend CASE PROMPT_FILE   # strengthen.py --backend-command: inputs, no model
 
 It reads the program through the det translator's own parser (det/stmt.py, det/expr.py, det/layout.py) and executes
 it symbolically with z3: every IF and EVALUATE outcome gets the condition under which the program reaches it and takes
@@ -77,6 +78,11 @@ CICS_QUIET = {"SEND", "WRITE", "REWRITE", "DELETE", "XCTL", "RETURN", "START", "
 # the EIB fields a command leaves as they were at task start
 EIB_STABLE = {"EIBCALEN", "EIBTRNID", "EIBTASKN", "EIBTRMID"}
 INIT_OPTIONS = re.compile(r"\b(REPLACING|VALUE|FILLER|DEFAULT|ALL)\b", re.I)  # an INITIALIZE the walk does not model
+# a CICS command as a scenario's fault plan names it (tests/tools/equivalence_cics_faults.py): two-word commands, and the
+# option whose argument is the resource (`file`, `program`, ...) the plan names
+FAULT_TWO_WORDS = {"SEND-MAP", "SEND-TEXT", "RECEIVE-MAP", "WRITEQ-TS", "WRITEQ-TD", "READQ-TD", "READQ-TS"}
+FAULT_RESOURCE = {"FILE": "file", "DATASET": "file", "PROGRAM": "program", "QUEUE": "queue", "TRANSID": "transid",
+                  "REQID": "reqid", "MAP": "map", "RESOURCE": "resource"}  # fmt: skip
 _OPTION = re.compile(r"([A-Z][A-Z0-9-]*)\s*\(((?:[^()]|\([^()]*\))*)\)")
 SKIP_WORDS = {"OF", "IN", "TO", "FROM", "BY", "INTO", "GIVING", "USING", "AND", "OR", "NOT", "IS", "THAN", "ALL"}
 
@@ -493,6 +499,8 @@ class Walk:
         self.arms = evaluate_arms or {}
         self.symbols: dict[str, tuple[str, L.Item, int]] = {}  # z3 name -> (origin, item, line)
         self.exec_text: dict[int, str] = {}  # line -> EXEC text (where an exec: value came from)
+        # resp symbol -> (line, command, resource key, resource name): a CICS command's response, for a fault plan
+        self.resp_meta: dict[str, tuple[int, str, str | None, str | None]] = {}
         self._n = 0
         paras = prog.proc.paragraphs
         self.index = {p.name.upper(): i for i, p in enumerate(paras)}
@@ -1194,6 +1202,7 @@ class Walk:
         gotos: list[tuple[int, State]] = []
         after = self.havoc(st, self.writes.targets(s), s.line, "exec")
         if t.startswith("EXEC CICS"):
+            after = self.response(after, t, s.line)
             self._branch_to(self.handlers["abend"], after, gotos)
             if "RESP" not in t and "NOHANDLE" not in t:
                 self._branch_to(self.handlers["cics"], after, gotos)
@@ -1202,6 +1211,46 @@ class Walk:
         elif t.startswith("EXEC SQL"):
             self._branch_to(self.handlers["sql"], after, gotos)
         return after, gotos
+
+    def response(self, st: State, t: str, line: int) -> State:
+        """The command's response as one symbol: its RESP(item) and EIBRESP hold it, and it is one of IBM's DFHRESP
+        values. `resp_meta` keeps the command and resource a fault plan would name, for `scenario`."""
+        from gitgalaxy.standards.cics.resp import DFHRESP  # noqa: PLC0415
+
+        z = self.z
+        self._n += 1
+        name = f"resp@{line}#{self._n}"
+        v = z.Int(name)
+        self.axioms[name] = [z.Or([v == n for n in sorted(set(DFHRESP.values()))])]
+        self.resp_meta[name] = (line, *self.fault_target(t))
+        env = dict(st.env)
+        targets = re.findall(r"\bRESP\s*\(\s*([A-Z0-9][A-Z0-9-]*)\s*\)", t) + ["EIBRESP"]
+        for tname in targets:
+            hit = self.items.by_name.get(tname, [])
+            if len(hit) == 1 and id(hit[0]) in env and _kind(hit[0]) == "num" and hit[0].scale == 0:
+                env[id(hit[0])] = self._fit(v, 0, hit[0], line)
+        return State(st.pc, env)
+
+    def fault_target(self, t: str) -> tuple[str, str | None, str | None]:
+        """(command, resource key, resource name) of an EXEC CICS text, as a fault plan names them; the name is
+        None when the program computes it (no literal, no item with one value)."""
+        m = re.match(r"EXEC CICS (\w+)(?: (\w+))?", t)
+        verb = m.group(1) if m else ""
+        two = f"{verb}-{m.group(2)}" if m and m.group(2) else verb
+        cmd = two if two in FAULT_TWO_WORDS else verb
+        for opt, arg in _OPTION.findall(t):
+            key = FAULT_RESOURCE.get(opt)
+            if not key or (opt == "MAP" and cmd not in ("SEND-MAP", "RECEIVE-MAP")):
+                continue
+            arg = arg.strip()
+            if arg[:1] in "'\"":
+                return cmd, key, arg.strip("'\"").strip()
+            hit = self.items.by_name.get(arg, [])
+            vals = self.vs.get(id(hit[0])) if len(hit) == 1 else None
+            if vals and len(vals) == 1:
+                return cmd, key, str(next(iter(vals))).strip()
+            return cmd, key, None
+        return cmd, None, None
 
     def evaluate(self, s: S.Stmt, st: State) -> tuple[State | None, list[tuple[int, State]]]:
         z = self.z
@@ -1410,6 +1459,12 @@ class Walk:
         sol.add(goal)
         if printable:
             sol.push()
+            plans = plannable()
+            for name in _names_in(formulas):
+                if name in self.resp_meta:  # a response a scenario's fault plan can give, or NORMAL
+                    _, cmd, _, _ = self.resp_meta[name]
+                    codes = [0] + [DFHRESP_OF(c) for c in plans.get(cmd, {})]
+                    sol.add(z.Or([z.Int(name) == c for c in codes if c is not None]))
             for name in _names_in(formulas):
                 _, it, _ = self.symbols.get(name, ("", None, 0))
                 if it is not None and _kind(it) == "str":
@@ -1453,6 +1508,26 @@ def scenario(w: Walk, model: Any, formulas: list[Any], case: dict[str, Any], tar
     roots = {seg.get("record", "").upper() for seg in (case.get("commarea") or {}).get("segments", [])}
     commarea: dict[str, Any] = {}
     receive: dict[str, dict[str, str]] = {}
+    faults: list[dict[str, Any]] = []
+    unplanned: list[str] = []
+    plans = plannable()
+    names = {v: k for k, v in _dfhresp().items()}
+    for name in sorted(relevant & set(w.resp_meta), key=lambda n: w.resp_meta[n][0]):
+        code = model.eval(w.z.Int(name), model_completion=True).as_long()
+        if code == 0:
+            continue
+        line, cmd, key, res = w.resp_meta[name]
+        cond = names.get(code, str(code))
+        resp2 = plans.get(cmd, {}).get(cond)
+        if resp2 is None or (key is not None and res is None):
+            unplanned.append(f"{cmd} at line {line} answering {cond}")
+            continue
+        if any(x["cmd"] == cmd and x.get(key or "") == res for x in faults):
+            continue  # the same command performed from two places: one plan, its first run
+        f: dict[str, Any] = {"cmd": cmd, **({key: res} if key else {}), "nth": 1, "resp": cond}
+        if resp2:
+            f["resp2"] = resp2[0]
+        faults.append(f)
     aid = None
     for d in sorted(model.decls(), key=lambda d: w.symbols.get(d.name(), ("", None, 0))[2]):
         name = d.name()
@@ -1474,8 +1549,44 @@ def scenario(w: Walk, model: Any, formulas: list[Any], case: dict[str, Any], tar
     out["commarea"] = commarea or None
     if receive:
         out["receive"] = receive
+    if faults:
+        out["faults"] = faults
     out["targets"] = [target]
-    out["why"] = f"branch_solver witness for {target}: the values its condition depends on"
+    why = f"branch_solver witness for {target}: the values its condition depends on"
+    if faults:
+        why += "; each fault on the command's first run (nth 1): raise nth if the command runs before the one meant"
+    if unplanned:
+        why += "; needs " + ", ".join(unplanned) + ", which no fault plan gives (#6271): not a scenario as it stands"
+    out["why"] = why
+    return out
+
+
+def _dfhresp() -> dict[str, int]:
+    from gitgalaxy.standards.cics.resp import DFHRESP  # noqa: PLC0415
+
+    return dict(DFHRESP)
+
+
+def DFHRESP_OF(cond: str) -> int | None:  # noqa: N802 -- read as the COBOL function it mirrors
+    return _dfhresp().get(cond)
+
+
+def plannable() -> dict[str, dict[str, tuple[int, ...]]]:
+    """Command -> {condition: IBM's RESP2 values} a scenario's fault plan may give it (equivalence_cics_faults.py's
+    file-control and terminal tables, and the program-control conditions it documents); {} without the harness."""
+    try:
+        import equivalence_cics_faults as ecf  # noqa: PLC0415
+    except Exception:  # noqa: BLE001 -- the harness is not importable here: no fault is planned
+        return {}
+    out: dict[str, dict[str, tuple[int, ...]]] = {}
+    for cond, per_cmd in ecf.FILE_FAULT_CONDITIONS.items():
+        for cmd, resp2 in per_cmd.items():
+            if (cmd, cond) not in ecf.FILE_FAULT_UNMODELLED and (cmd, cond) not in ecf.DUP_KEY_REFUSED:
+                out.setdefault(cmd, {})[cond] = resp2
+    for cmd, conds in ecf.UI_FAULT_CONDITIONS.items():
+        out.setdefault(cmd, {}).update(conds)
+    out.setdefault("XCTL", {}).update({"PGMIDERR": (3,), "NOTAUTH": (101,), "INVREQ": ()})
+    out.setdefault("LINK", {}).update({"PGMIDERR": (3,), "NOTAUTH": (101,), "INVREQ": (), "LENGERR": ()})
     return out
 
 
@@ -1633,6 +1744,26 @@ def paragraphs(case: str, work: Path, timeout_ms: int = TIMEOUT_MS) -> dict[str,
     return {"case": case, "incomplete": sorted(set(w.why)), "paragraphs": rows}
 
 
+def backend(case: str, prompt_file: Path, work: Path, timeout_ms: int = TIMEOUT_MS) -> list[dict[str, Any]]:
+    """strengthen.py's backend (`--backend-command "python tests/tools/branch_solver.py backend CASE {prompt_file}"`):
+    the solver's inputs for the branches the prompt lists as reached by no run, in strengthen's input format. The
+    oracle then proves each one alone, as it does a model's proposal; an outcome the solver confirms unreachable gets
+    no input."""
+    text = prompt_file.read_text(encoding="utf-8")
+    keys = re.findall(r"(?m)^- ([A-Z0-9][A-Z0-9-]*|\(MAIN\)|PROCEDURE-DIVISION):(\d+):([A-Za-z0-9@]+) \(", text)
+    if not keys:
+        return []
+    res = reach(case, [f"{line}:{outcome}" for _, line, outcome in keys], work, timeout_ms)
+    out, seen = [], set()
+    for (unit, line, outcome), row in zip(keys, res["targets"]):
+        inp = row.get("input")
+        if not inp or inp["name"] in seen:
+            continue
+        seen.add(inp["name"])
+        out.append({**inp, "targets": [f"{unit}:{line}:{outcome}"]})
+    return out
+
+
 def summary(results: list[dict[str, Any]]) -> dict[str, Any]:
     tally: dict[str, dict[str, int]] = {}
     for r in results:
@@ -1681,9 +1812,17 @@ def main(argv: list[str] | None = None) -> int:
     g.add_argument("case")
     g.add_argument("--timeout", type=float, default=TIMEOUT_MS / 1000)
     g.add_argument("--work", type=Path, default=Path("/tmp/gitgalaxy-scratch/branch-solver"))
+    b = sub.add_parser("backend", help="strengthen.py's --backend-command: inputs for the prompt's uncovered branches")
+    b.add_argument("case")
+    b.add_argument("prompt_file", type=Path)
+    b.add_argument("--timeout", type=float, default=TIMEOUT_MS / 1000)
+    b.add_argument("--work", type=Path, default=Path("/tmp/gitgalaxy-scratch/branch-solver"))
     args = ap.parse_args(argv)
     args.work.mkdir(parents=True, exist_ok=True)
     ms = int(args.timeout * 1000)
+    if args.cmd == "backend":
+        print(json.dumps(backend(args.case, args.prompt_file, args.work, ms), indent=1, default=str))
+        return 0
     if args.cmd == "paragraphs":
         print(json.dumps(paragraphs(args.case, args.work, ms), indent=1))
         return 0

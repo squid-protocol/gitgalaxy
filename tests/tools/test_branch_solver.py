@@ -375,3 +375,24 @@ def test_an_item_whose_address_is_taken_is_not_followed(tmp_path):
            GOBACK.""",
     )
     assert _verdict(w, _line(src, "IF F"), "false") == "witness"
+
+
+def test_a_resp_arm_gets_a_fault_plan_on_the_command(tmp_path):
+    pytest.importorskip("equivalence_cics_faults")
+    w, src = _program(
+        tmp_path,
+        "01 WS-RESP PIC S9(8) COMP.\n01 KEYV PIC X(4) VALUE 'K001'.\n01 REC PIC X(10).",
+        """
+           EXEC CICS READ FILE('ACCTDAT') INTO(REC) RIDFLD(KEYV)
+                RESP(WS-RESP) END-EXEC
+           IF WS-RESP = DFHRESP(NOTFND)
+               CONTINUE
+           END-IF
+           EXEC CICS RETURN END-EXEC.""",
+    )
+    ln = _line(src, "IF WS-RESP")
+    f = w.hits[(ln, "true")]
+    verdict, model = w.ask(f, printable=True)
+    assert verdict == "witness"
+    got = bs.scenario(w, model, f, {"kind": "cics"}, f"{ln}:true")
+    assert got["faults"] == [{"cmd": "READ", "file": "ACCTDAT", "nth": 1, "resp": "NOTFND", "resp2": 80}]

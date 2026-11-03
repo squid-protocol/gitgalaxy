@@ -73,28 +73,32 @@ def tree_fingerprints_computed_once():
 
 
 @pytest.fixture(autouse=True, scope="module")
-def published_tip_fetched_once():
-    """Every live check fetched the `generated` branch's tip from origin (ls-remote + fetch, ~1.7 s a test): once a
-    module now (a tip does not move between two tests)."""
+def published_tip_is_never_fetched():
+    """#7612: a live check fetched the `generated` branch's tip from origin (ls-remote + fetch, retried with sleeps on a
+    dropped connection), and the module cached it, so whichever test ran first in a CI part paid it (26 s, over the
+    15 s per-test limit). No test here reads the published tip (they use the frozen FIXTURE or a tmp OUT outside the
+    repo), so it raises as in a checkout with no `origin`: `current_texts` and `materialize` fall back to the committed
+    copy."""
     import generated_branch as gb
 
-    real_tip, tips = gb.fetch_tip, {}
-
     def fetch_tip(*a, **k):
-        key = (a, tuple(sorted(k.items())))
-        if key not in tips:
-            try:
-                tips[key] = (real_tip(*a, **k), None)
-            except RuntimeError as e:  # (no origin: every call raises, as it would have)
-                tips[key] = (None, e)
-        tip, err = tips[key]
-        if err is not None:
-            raise err
-        return tip
+        raise RuntimeError("no origin (hermetic test module, #7612)")
 
     with pytest.MonkeyPatch.context() as mp:
         mp.setattr(gb, "fetch_tip", fetch_tip)
         yield
+
+
+def test_no_test_here_crosses_the_network_for_the_published_tip(monkeypatch):
+    import generated_branch as gb
+
+    def boom(*a, **k):
+        raise AssertionError("a network git call")
+
+    monkeypatch.setattr(gb, "_git_net", boom)
+    with pytest.raises(RuntimeError, match="hermetic"):
+        gb.fetch_tip()
+    assert er.current_texts([]) == {}
 
 
 # A number as the Markdown prints it: not part of a name (CBACT01C, L5) or a hex digest (8dff2ec2e).

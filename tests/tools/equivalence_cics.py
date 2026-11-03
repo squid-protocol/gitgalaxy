@@ -2563,6 +2563,8 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
                 res["starts"][-1]["channel"] = channel_copy(out / f"{seq}.channel")
         elif verb == "RETRIEVE":  # #5089: as CicsTask.retrieve records it
             res.setdefault("retrieves", []).append(cics_taskcontrol._cobol_retrieve(kv, data, enc))
+        elif verb in cics_filecontrol.FILE_EVENT_VERBS:  # #7434: as CicsTask.readInto / rewriteFrom / unlock record
+            res.setdefault("fileevents", []).append(cics_filecontrol.cobol_file_event(verb, kv, data))
         elif verb in equivalence_mq.EVENTS:  # #4892: an MQI call, as QueueManager records it
             res.setdefault("mq", []).append(equivalence_mq.cobol_event(verb, kv, data))
         elif verb == "CHILD":  # #4950: a RUN TRANSID child the task's wait dispatched -- what it did, in its directory
@@ -4172,9 +4174,10 @@ def _java_events(case: dict[str, Any], out: Path, shape: dict[str, Any],
             if e.get("event") == "LINK":  # #4173: the target's DTO as issued, before it is mapped to this program's
                 e["link_area"] = e.get("commarea")
             if e.get("event") == "COMMAREA" and not ca_fields:
-                e.pop(
-                    "area", None
-                )  # #7589: an untyped scenario's area is the page it passed in; the end storage is compared as #5859
+                # #7589: an untyped scenario's area is the page it passed in; the end storage is compared as #5859
+                e.pop("area", None)
+            if e.get("event") in cics_filecontrol.FILE_EVENT_VERBS:  # #7434: the data's bytes as hex
+                e.update(cics_filecontrol.java_file_event_as_compared(e))
             if e.get("event") == "WRITEQ-TS":  # #4607: the item's bytes as text
                 e.update(cics_tempstorage.java_ts_as_compared(e))
             if e.get("event") == "READQ-TS":  # #4270: the item's bytes as text
@@ -4416,6 +4419,7 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
     webheaders = iter(res.get("webheader", []))  # #4767 (X38): WEB WRITE HTTPHEADER
     webreceives = iter(res.get("webreceive", []))  # #4767 (X38): WEB RECEIVE
     children = iter(res.get("children", []))  # #4950: RUN TRANSID children
+    fileevents = iter(res.get("fileevents", []))  # #7434: READ / REWRITE / UNLOCK
     for line in res["events"]:
         verb, _, args = line.partition(" ")
         if verb == "SEND-MAP":
@@ -4469,6 +4473,8 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
             out.append({"event": "START", **next(starts)})
         elif verb == "RETRIEVE":  # #5089: CicsTask.retrieve records it
             out.append({"event": "RETRIEVE", **next(retrieves)})
+        elif verb in cics_filecontrol.FILE_EVENT_VERBS:  # #7434
+            out.append(next(fileevents))
         elif verb in equivalence_mq.EVENTS:  # #4892
             out.append(next(mq_calls))
         elif verb == "RECEIVE-MAP":  # #4009: CicsTask.receive records it too
@@ -4604,6 +4610,7 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
     a COMMAREA's FILLER bytes (decode_record `unnamed`) when the Java side gave back a DTO, which has no property for
     them -- listed with that reason, never counted equal."""
     diffs, equal, not_compared = [], 0, {}
+    cobol = cics_filecontrol.recorded_file_events(cobol, java)  # #7434: a verb the port never records is not paired
     for n in range(max(len(cobol), len(java))):
         c = cobol[n] if n < len(cobol) else None
         j = java[n] if n < len(java) else None
@@ -4620,6 +4627,10 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
             for key in ("termid", "interval", "time", "reqid", "protect", "resp2", "expires", "from",
                         "rtransid", "rtermid", "queue", "channel"):  # fmt: skip
                 if (key in c or key in j) and not _same(c.get(key), j.get(key)):
+                    bad.append({"field": key, "cobol": c.get(key), "java": j.get(key)})
+        if c["event"] in cics_filecontrol.FILE_EVENT_VERBS:  # #7434: file, UPDATE, RESP2, LENGTH, both ways
+            for key in ("file", "update", "resp", "resp2", "length", "data"):  # (data: hex, compared exactly)
+                if (key in c or key in j) and c.get(key) != j.get(key) and not any(b["field"] == key for b in bad):
                     bad.append({"field": key, "cobol": c.get(key), "java": j.get(key)})
         if c["event"] == "WEB-CONVERSE":  # #4767 (X35): the request each side sent, both ways
             for key in ("host", "method", "path", "query", "mediatype", "body", "resp2"):  # (exactly: blanks are sent)

@@ -933,7 +933,7 @@
    "cruc-ca-address-commarea-callee": [
     1,
     1,
-    1,
+    2,
     2
    ],
    "cruc-ca-address-cwa": [
@@ -957,7 +957,7 @@
    "cruc-ca-address-eib-commarea-callee": [
     1,
     1,
-    2,
+    3,
     4
    ],
    "cruc-ca-address-twa-callee": [
@@ -1032,6 +1032,12 @@
     0,
     0
    ],
+   "cruc-ca-get-container-set": [
+    2,
+    2,
+    0,
+    0
+   ],
    "cruc-ca-get-container-set-errors": [
     2,
     2,
@@ -1044,10 +1050,16 @@
     3,
     6
    ],
+   "cruc-ca-getmain-pointer-zero": [
+    3,
+    3,
+    4,
+    4
+   ],
    "cruc-ca-link-lengths": [
     1,
     1,
-    3,
+    4,
     4
    ],
    "cruc-ca-link-lengths-callee": [
@@ -1117,6 +1129,12 @@
     6
    ],
    "cruc-gt-chld": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "cruc-gt-http-inbound": [
     1,
     1,
     0,
@@ -1199,6 +1217,18 @@
     5,
     8,
     10
+   ],
+   "cruc-gt-web-server-receive": [
+    1,
+    1,
+    6,
+    6
+   ],
+   "cruc-gt-web-server-send": [
+    1,
+    1,
+    7,
+    7
    ],
    "cruc-gt-work": [
     1,
@@ -2163,10 +2193,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "0110c73435f4c531e05bcc40cfdb935b19fc2359",
+   "sha": "6bbfa299d54208d3af54f0cecc485bf80cec0975",
    "translator": {
     "files": 170,
-    "sha256": "5db5a63f24dac578082c5be0d52f7bcbc3d391caeb44317cbfb351818b746f2e"
+    "sha256": "740fbb4bd61855d159e329366915d330b8a06eb87a15a60d65416b0861c8cee4"
    }
   },
   "sweeps": {}
@@ -2426,7 +2456,7 @@
     "cases": [
      {
       "case": "zecs-ecs001",
-      "case_scenarios": 23,
+      "case_scenarios": 24,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -2456,7 +2486,7 @@
        "oracle_matches_pin": null,
        "records_compared": 0,
        "records_equal": 0,
-       "runs": 23,
+       "runs": 24,
        "scenarios": 0,
        "scenarios_equal": 0,
        "stale_inputs": [],
@@ -2468,7 +2498,7 @@
     ],
     "chosen": {
      "case": "zecs-ecs001",
-     "case_scenarios": 23,
+     "case_scenarios": 24,
      "db2": false,
      "det": {
       "source": "CI det-sweep ratchet on main",
@@ -2498,7 +2528,7 @@
       "oracle_matches_pin": null,
       "records_compared": 0,
       "records_equal": 0,
-      "runs": 23,
+      "runs": 24,
       "scenarios": 0,
       "scenarios_equal": 0,
       "stale_inputs": [],
@@ -2508,22 +2538,24 @@
      "role": "program"
     }
    },
-   "level": "L5",
+   "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 323,
-    "chosen": 684,
+    "accounted": 289,
+    "chosen": 690,
     "current": true,
-    "det_port": "raw 51% (339/662 caught; 684 of 684 mutants, seed 0); every survivor accounted for (323)",
-    "killed": 339,
-    "l5": true,
-    "mutants": 684,
-    "score": 0.5121,
+    "det_port": "raw 52% (347/668 caught; 690 of 690 mutants, seed 0); 32 of 321 survivors unaccounted",
+    "killed": 347,
+    "l5": false,
+    "mutants": 690,
+    "score": 0.5195,
     "stale_inputs": [],
-    "survived": 323,
-    "unaccounted": 0
+    "survived": 321,
+    "unaccounted": 32
    },
-   "next": [],
+   "next": [
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 52% (347/668 caught; 690 of 690 mutants, seed 0); 32 of 321 survivors unaccounted)"
+   ],
    "options": {
     "assumed": 6,
     "compiler": {
@@ -7063,7 +7095,7 @@
     "cases": [
      {
       "case": "zecs-zecs003",
-      "case_scenarios": 18,
+      "case_scenarios": 25,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -7090,7 +7122,7 @@
        "oracle_matches_pin": null,
        "records_compared": 0,
        "records_equal": 0,
-       "runs": 18,
+       "runs": 25,
        "scenarios": 0,
        "scenarios_equal": 0,
        "stale_inputs": [],
@@ -7102,7 +7134,7 @@
     ],
     "chosen": {
      "case": "zecs-zecs003",
-     "case_scenarios": 18,
+     "case_scenarios": 25,
      "db2": false,
      "det": {
       "source": "CI det-sweep ratchet on main",
@@ -7129,7 +7161,7 @@
       "oracle_matches_pin": null,
       "records_compared": 0,
       "records_equal": 0,
-      "runs": 18,
+      "runs": 25,
       "scenarios": 0,
       "scenarios_equal": 0,
       "stale_inputs": [],
@@ -7142,20 +7174,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 515,
+    "accounted": 477,
     "chosen": 988,
     "current": true,
-    "det_port": "raw 45% (432/950 caught; 988 of 988 mutants, seed 0); 3 of 518 survivors unaccounted",
-    "killed": 432,
+    "det_port": "raw 48% (455/950 caught; 988 of 988 mutants, seed 0); 18 of 495 survivors unaccounted",
+    "killed": 455,
     "l5": false,
     "mutants": 988,
-    "score": 0.4547,
+    "score": 0.4789,
     "stale_inputs": [],
-    "survived": 518,
-    "unaccounted": 3
+    "survived": 495,
+    "unaccounted": 18
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 45% (432/950 caught; 988 of 988 mutants, seed 0); 3 of 518 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 48% (455/950 caught; 988 of 988 mutants, seed 0); 18 of 495 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -7653,20 +7685,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 277,
+    "accounted": 261,
     "chosen": 546,
     "current": true,
-    "det_port": "raw 46% (240/524 caught; 546 of 546 mutants, seed 0); 7 of 284 survivors unaccounted",
-    "killed": 240,
+    "det_port": "raw 46% (243/524 caught; 546 of 546 mutants, seed 0); 20 of 281 survivors unaccounted",
+    "killed": 243,
     "l5": false,
     "mutants": 546,
-    "score": 0.458,
+    "score": 0.4637,
     "stale_inputs": [],
-    "survived": 284,
-    "unaccounted": 7
+    "survived": 281,
+    "unaccounted": 20
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 46% (240/524 caught; 546 of 546 mutants, seed 0); 7 of 284 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 46% (243/524 caught; 546 of 546 mutants, seed 0); 20 of 281 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -8269,8 +8301,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 0110c73435f4c531e05bcc40cfdb935b19fc2359",
-   "python tests/tools/evidence_report.py zecs --baseline --sha 0110c73435f4c531e05bcc40cfdb935b19fc2359",
+   "python tests/tools/cics_census.py survey --baseline --sha 6bbfa299d54208d3af54f0cecc485bf80cec0975",
+   "python tests/tools/evidence_report.py zecs --baseline --sha 6bbfa299d54208d3af54f0cecc485bf80cec0975",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases zecs-ecs001,zecs-zecs000,zecs-zecs001,zecs-zecs002,zecs-zecs003,zecs-zecsnc,zecs-zecsplt",
    "python tests/tools/evidence.py prove zecs-ecs001 zecs-zecs000 zecs-zecs001 zecs-zecs002 zecs-zecs003 zecs-zecsnc zecs-zecsplt",
@@ -8292,13 +8324,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "0110c73435f4c531e05bcc40cfdb935b19fc2359",
+   "sha": "6bbfa299d54208d3af54f0cecc485bf80cec0975",
    "translator": {
     "files": 170,
-    "sha256": "5db5a63f24dac578082c5be0d52f7bcbc3d391caeb44317cbfb351818b746f2e"
+    "sha256": "740fbb4bd61855d159e329366915d330b8a06eb87a15a60d65416b0861c8cee4"
    }
   },
-  "translator_commit": "0110c73435f4c531e05bcc40cfdb935b19fc2359",
+  "translator_commit": "6bbfa299d54208d3af54f0cecc485bf80cec0975",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -8309,8 +8341,8 @@
    "L1": 0,
    "L2": 0,
    "L3": 0,
-   "L4": 6,
-   "L5": 1
+   "L4": 7,
+   "L5": 0
   },
   "histogram_stale": {
    "L0": 0,
@@ -8341,6 +8373,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "5db5a63f24dac578082c5be0d52f7bcbc3d391caeb44317cbfb351818b746f2e"
+  "fingerprint": "740fbb4bd61855d159e329366915d330b8a06eb87a15a60d65416b0861c8cee4"
  }
 }

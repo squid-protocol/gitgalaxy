@@ -837,7 +837,7 @@
    "cruc-ca-address-commarea-callee": [
     1,
     1,
-    1,
+    2,
     2
    ],
    "cruc-ca-address-cwa": [
@@ -861,7 +861,7 @@
    "cruc-ca-address-eib-commarea-callee": [
     1,
     1,
-    2,
+    3,
     4
    ],
    "cruc-ca-address-twa-callee": [
@@ -936,6 +936,12 @@
     0,
     0
    ],
+   "cruc-ca-get-container-set": [
+    2,
+    2,
+    0,
+    0
+   ],
    "cruc-ca-get-container-set-errors": [
     2,
     2,
@@ -948,10 +954,16 @@
     3,
     6
    ],
+   "cruc-ca-getmain-pointer-zero": [
+    3,
+    3,
+    4,
+    4
+   ],
    "cruc-ca-link-lengths": [
     1,
     1,
-    3,
+    4,
     4
    ],
    "cruc-ca-link-lengths-callee": [
@@ -1021,6 +1033,12 @@
     6
    ],
    "cruc-gt-chld": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "cruc-gt-http-inbound": [
     1,
     1,
     0,
@@ -1103,6 +1121,18 @@
     5,
     8,
     10
+   ],
+   "cruc-gt-web-server-receive": [
+    1,
+    1,
+    6,
+    6
+   ],
+   "cruc-gt-web-server-send": [
+    1,
+    1,
+    7,
+    7
    ],
    "cruc-gt-work": [
     1,
@@ -2150,10 +2180,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "0110c73435f4c531e05bcc40cfdb935b19fc2359",
+   "sha": "6bbfa299d54208d3af54f0cecc485bf80cec0975",
    "translator": {
     "files": 170,
-    "sha256": "5db5a63f24dac578082c5be0d52f7bcbc3d391caeb44317cbfb351818b746f2e"
+    "sha256": "740fbb4bd61855d159e329366915d330b8a06eb87a15a60d65416b0861c8cee4"
    }
   },
   "sweeps": {}
@@ -4605,8 +4635,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 0110c73435f4c531e05bcc40cfdb935b19fc2359",
-   "python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha 0110c73435f4c531e05bcc40cfdb935b19fc2359",
+   "python tests/tools/cics_census.py survey --baseline --sha 6bbfa299d54208d3af54f0cecc485bf80cec0975",
+   "python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha 6bbfa299d54208d3af54f0cecc485bf80cec0975",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases mortgage-cmort,mortgage-csmrt,mortgage-mlist,mortgage-mlist-generated,mortgage-mpmt,mortgage-nbrvl  # Db2 cases (1) need the Db2 container",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -4627,13 +4657,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "0110c73435f4c531e05bcc40cfdb935b19fc2359",
+   "sha": "6bbfa299d54208d3af54f0cecc485bf80cec0975",
    "translator": {
     "files": 170,
-    "sha256": "5db5a63f24dac578082c5be0d52f7bcbc3d391caeb44317cbfb351818b746f2e"
+    "sha256": "740fbb4bd61855d159e329366915d330b8a06eb87a15a60d65416b0861c8cee4"
    }
   },
-  "translator_commit": "0110c73435f4c531e05bcc40cfdb935b19fc2359",
+  "translator_commit": "6bbfa299d54208d3af54f0cecc485bf80cec0975",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -4676,6 +4706,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "5db5a63f24dac578082c5be0d52f7bcbc3d391caeb44317cbfb351818b746f2e"
+  "fingerprint": "740fbb4bd61855d159e329366915d330b8a06eb87a15a60d65416b0861c8cee4"
  }
 }

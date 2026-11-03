@@ -4,9 +4,9 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `0110c73435f4c531e05bcc40cfdb935b19fc2359` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `6bbfa299d54208d3af54f0cecc485bf80cec0975` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
-The translation survey matches the translator in the tree (translator fingerprint `5db5a63f24da`).
+The translation survey matches the translator in the tree (translator fingerprint `740fbb4bd618`).
 
 ## How to read this report
 
@@ -41,18 +41,18 @@ The translation survey matches the translator in the tree (translator fingerprin
 | level | programs | of which stale (awaiting re-check) |
 |---|---|---|
 | L0 | 0 | 0 |
-| L1 | 6 | 0 |
+| L1 | 1 | 0 |
 | L2 | 2 | 0 |
-| L3 | 3 | 0 |
-| L4 | 74 | 0 |
+| L3 | 0 | 0 |
+| L4 | 82 | 0 |
 | L5 | 0 | 0 |
 
 - stale (`*`, last measured): 0 of 85 programs; the rest are current
-- L2+: 79 (0 awaiting re-check); L3+: 77 (0 awaiting re-check); L4+: 74 (0 awaiting re-check)
+- L2+: 84 (0 awaiting re-check); L3+: 82 (0 awaiting re-check); L4+: 82 (0 awaiting re-check)
 
 - programs: 85 (with an EXEC CICS command: 0; source not read: 85)
 - translated whole: 85; refused whole: 0; holes left: 0
-- with an equivalence case: 79; det port equal on its case: 79; with an evidence record: 0; record current at build: 0
+- with an equivalence case: 84; det port equal on its case: 84; with an evidence record: 0; record current at build: 0
 
 ## Options the estate compiles and runs under
 
@@ -84,9 +84,11 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 | program | level | translated / statements | holes | case | det port | scenarios | record | paragraphs | branches (raw) | branches (net of infeasible) | det-port mutation (raw) | det-port mutation | CICS commands oracle-backed |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | cases/commarea-mismatch/ca-address-commarea/src/CAADDR.cbl | L4 | 34/34 | 0 | cruc-ca-address-commarea | equal | 4 | none | 4/4 (100.0%) | 6/8 (75.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/commarea-mismatch/ca-address-commarea/src/CAADSB.cbl | L4 | 12/12 | 0 | cruc-ca-address-commarea-callee | equal | 2 | none | 1/1 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | — | not measured (no det_mutation/ entry) | — |
 | cases/commarea-mismatch/ca-address-cwa/src/CACWAD.cbl | L4 | 34/34 | 0 | cruc-ca-address-cwa | equal | 4 | none | 4/4 (100.0%) | 4/4 (100.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | — |
 | cases/commarea-mismatch/ca-address-cwa/src/CACWSB.cbl | L4 | 8/8 | 0 | cruc-ca-address-cwa-callee | equal | 1 | none | 1/1 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
 | cases/commarea-mismatch/ca-address-eib-commarea/src/CAEBCA.cbl | L4 | 40/40 | 0 | cruc-ca-address-eib-commarea | equal | 4 | none | 4/4 (100.0%) | 7/10 (70.0%) | 7/7 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/commarea-mismatch/ca-address-eib-commarea/src/CAEBSB.cbl | L4 | 16/16 | 0 | cruc-ca-address-eib-commarea-callee | equal | 2 | none | 1/1 (100.0%) | 3/4 (75.0%) | 3/3 (100.0%) | — | not measured (no det_mutation/ entry) | — |
 | cases/commarea-mismatch/ca-address-twa-tctua/src/CATWAD.cbl | L4 | 43/43 | 0 | cruc-ca-address-twa-tctua | equal | 6 | none | 5/5 (100.0%) | 7/7 (100.0%) | 7/7 (100.0%) | — | not measured (no det_mutation/ entry) | — |
 | cases/commarea-mismatch/ca-address-twa-tctua/src/CATWSB.cbl | L4 | 10/10 | 0 | cruc-ca-address-twa-callee | equal | 2 | none | 1/1 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | — | not measured (no det_mutation/ entry) | — |
 | cases/commarea-mismatch/ca-bll-cells/src/CABLL.cbl | L4 | 28/28 | 0 | cruc-ca-bll-cells | equal | 2 | none | 2/2 (100.0%) | 4/4 (100.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | — |
@@ -99,8 +101,11 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 | cases/commarea-mismatch/ca-container-byteoffset/src/CABOFF.cbl | L4 | 52/52 | 0 | cruc-ca-container-byteoffset | equal | 1 | none | 4/4 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
 | cases/commarea-mismatch/ca-container-byteoffset/src/CABOFFX.cbl | L4 | 34/34 | 0 | cruc-ca-container-byteoffset-past-end | equal | 1 | none | 4/4 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
 | cases/commarea-mismatch/ca-container-ccsid/src/CACCBIT.cbl | L4 | 25/25 | 0 | cruc-ca-container-bit | equal | 1 | none | 3/3 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/commarea-mismatch/ca-get-container-set/src/CAGCST.cbl | L4 | 37/37 | 0 | cruc-ca-get-container-set | equal | 1 | none | 2/2 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
 | cases/commarea-mismatch/ca-get-container-set/src/CAGCSX.cbl | L4 | 22/22 | 0 | cruc-ca-get-container-set-errors | equal | 1 | none | 2/2 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
 | cases/commarea-mismatch/ca-getmain-pointer/src/CAGMPT.cbl | L4 | 46/46 | 0 | cruc-ca-getmain-pointer | equal | 1 | none | 2/2 (100.0%) | 3/6 (50.0%) | 3/3 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/commarea-mismatch/ca-getmain-pointer/src/CAGMZ.cbl | L4 | 43/43 | 0 | cruc-ca-getmain-pointer-zero | equal | 1 | none | 3/3 (100.0%) | 4/4 (100.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/commarea-mismatch/ca-link-lengths/src/CALINK.cbl | L4 | 17/17 | 0 | cruc-ca-link-lengths | equal | 4 | none | 1/1 (100.0%) | 4/4 (100.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | — |
 | cases/commarea-mismatch/ca-link-lengths/src/CASUB.cbl | L4 | 11/11 | 0 | cruc-ca-link-lengths-callee | equal | 3 | none | 1/1 (100.0%) | 4/4 (100.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | — |
 | cases/commarea-mismatch/ca-load-set/src/CALDST.cbl | L4 | 23/23 | 0 | cruc-ca-load-set | equal | 1 | none | 3/3 (100.0%) | 2/4 (50.0%) | 2/2 (100.0%) | — | not measured (no det_mutation/ entry) | — |
 | cases/commarea-mismatch/ca-load-set/src/CALDSX.cbl | L4 | 27/27 | 0 | cruc-ca-load-set-pgmiderr | equal | 1 | none | 2/2 (100.0%) | 2/4 (50.0%) | 2/2 (100.0%) | — | not measured (no det_mutation/ entry) | — |
@@ -129,6 +134,7 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 | cases/ghost-tasks/gt-assign-startcode/src/GTASAB.cbl | L4 | 4/4 | 0 | cruc-gt-asab | equal | 1 | none | 1/1 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
 | cases/ghost-tasks/gt-assign-startcode/src/GTASGN.cbl | L4 | 27/27 | 0 | cruc-gt-assign-startcode | equal | 5 | none | 2/2 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | — |
 | cases/ghost-tasks/gt-assign-startcode/src/GTASNT.cbl | L4 | 14/14 | 0 | cruc-gt-asnt | equal | 2 | none | 1/1 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/ghost-tasks/gt-http-inbound/src/GTHECHO.cbl | L4 | 5/5 | 0 | cruc-gt-http-inbound | equal | 2 | none | 1/1 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
 | cases/ghost-tasks/gt-post-wait-event/src/GTPOST.cbl | L4 | 36/36 | 0 | cruc-gt-post-wait-event | equal | 5 | none | 5/5 (100.0%) | 7/9 (77.8%) | 7/7 (100.0%) | — | not measured (no det_mutation/ entry) | — |
 | cases/ghost-tasks/gt-send-text-terminal/src/GTSTXS.cbl | L4 | 6/6 | 0 | cruc-gt-stxs | equal | 2 | none | 1/1 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | — | not measured (no det_mutation/ entry) | — |
 | cases/ghost-tasks/gt-send-text-terminal/src/GTSTXT.cbl | L4 | 8/8 | 0 | cruc-gt-send-text-terminal | equal | 1 | none | 1/1 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
@@ -144,6 +150,8 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 | cases/ghost-tasks/gt-urimap-browse/src/GTUNEXT.cbl | L4 | 3/3 | 0 | cruc-gt-unext | equal | 1 | none | 1/1 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
 | cases/ghost-tasks/gt-web-client/src/GTWCLI.cbl | L4 | 15/15 | 0 | cruc-gt-web-client | equal | 3 | none | 1/1 (100.0%) | 4/4 (100.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | — |
 | cases/ghost-tasks/gt-web-parse-url/src/GTWPARS.cbl | L4 | 72/72 | 0 | cruc-gt-web-parse-url | equal | 4 | none | 5/5 (100.0%) | 8/10 (80.0%) | 8/8 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/ghost-tasks/gt-web-server-receive/src/GTWRECV.cbl | L4 | 21/21 | 0 | cruc-gt-web-server-receive | equal | 9 | none | 1/1 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/ghost-tasks/gt-web-server-send/src/GTWSEND.cbl | L4 | 22/22 | 0 | cruc-gt-web-server-send | equal | 7 | none | 1/1 (100.0%) | 7/7 (100.0%) | 7/7 (100.0%) | — | not measured (no det_mutation/ entry) | — |
 | cases/hex-attributes/hx-attr-bytes/src/HXATTR.cbl | L4 | 35/35 | 0 | cruc-hx-attr-bytes | equal | 4 | none | 4/4 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | — |
 | cases/hex-attributes/hx-extended-cursor/src/HXEXT.cbl | L4 | 26/26 | 0 | cruc-hx-extended-cursor | equal | 5 | none | 3/3 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | — |
 | cases/pseudo-conversational/pc-aid-menu/src/PCDETL.cbl | L4 | 11/11 | 0 | cruc-pc-detl | equal | 2 | none | 1/1 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | — | not measured (no det_mutation/ entry) | — |
@@ -157,17 +165,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 | cases/pseudo-conversational/pc-return-immediate/src/PCIMMS.cbl | L4 | 5/5 | 0 | cruc-pc-immediate-s | equal | 2 | none | 1/1 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
 | cases/pseudo-conversational/pc-wizard/src/PCCONF.cbl | L4 | 47/47 | 0 | cruc-pc-confirm | equal | 10 | none | 5/5 (100.0%) | 14/14 (100.0%) | 14/14 (100.0%) | — | not measured (no det_mutation/ entry) | — |
 | cases/pseudo-conversational/pc-wizard/src/PCWIZ.cbl | L4 | 39/39 | 0 | cruc-pc-wizard | equal | 8 | none | 5/5 (100.0%) | 10/10 (100.0%) | 10/10 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/commarea-mismatch/ca-address-commarea/src/CAADSB.cbl | L3 | 12/12 | 0 | cruc-ca-address-commarea-callee | equal | 1 | none | 1/1 (100.0%) | 1/2 (50.0%) | 1/2 (50.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/commarea-mismatch/ca-address-eib-commarea/src/CAEBSB.cbl | L3 | 16/16 | 0 | cruc-ca-address-eib-commarea-callee | equal | 1 | none | 1/1 (100.0%) | 2/4 (50.0%) | 2/3 (66.7%) | — | not measured (no det_mutation/ entry) | — |
-| cases/commarea-mismatch/ca-link-lengths/src/CALINK.cbl | L3 | 17/17 | 0 | cruc-ca-link-lengths | equal | 3 | none | 1/1 (100.0%) | 3/4 (75.0%) | 3/4 (75.0%) | — | not measured (no det_mutation/ entry) | — |
 | cases/condition-handling/hc-counter-increment-wrap/src/HCCWRP.cbl | L2 | 98/98 | 0 | cruc-hc-counter-increment-wrap | equal | 2 | none | 7/10 (70.0%) | 4/8 (50.0%) | 4/8 (50.0%) | — | not measured (no det_mutation/ entry) | — |
 | cases/condition-handling/hc-file-read-set/src/HCRDST.cbl | L2 | 77/77 | 0 | cruc-hc-file-read-set | equal | 1 | none | 4/8 (50.0%) | 5/9 (55.6%) | 5/9 (55.6%) | — | not measured (no det_mutation/ entry) | — |
 | cases/commarea-mismatch/ca-container-ccsid/src/CACCSID.cbl | L1 | 50/50 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
-| cases/commarea-mismatch/ca-get-container-set/src/CAGCST.cbl | L1 | 37/37 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
-| cases/commarea-mismatch/ca-getmain-pointer/src/CAGMZ.cbl | L1 | 43/43 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
-| cases/ghost-tasks/gt-http-inbound/src/GTHECHO.cbl | L1 | 5/5 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
-| cases/ghost-tasks/gt-web-server-receive/src/GTWRECV.cbl | L1 | 21/21 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
-| cases/ghost-tasks/gt-web-server-send/src/GTWSEND.cbl | L1 | 22/22 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
 
 ## Per program
 
@@ -188,6 +188,24 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
   - stated infeasible branch outcome (reviewed claim, family G): EIB-PARA:106:false (IF) -- `IF VE-TRNID = EIBTRNID AND VE-TRMID = EIBTRMID AND VE-TASKN = EIBTASKN AND VE-TIME = EIBTIME AND VE-DATE = EIBDATE` ELSE arm: LS-EIB is based on the pointer ADDRESS EIB returns (SET ADDRESS OF LS-EIB TO WS-PTR), i.e. the task's own EIB storage with the same field order and lengths (EIBTIME, EIBDATE, EIBTRNID, EIBTASKN, EIBTRMID), so each VE- field is the EIB field it is compared with and the AND is true on every run. No scenario input changes it.
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 2 branch outcomes unrun; assumption reach (where not stated above) and the migration dimensions above: not measured
+
+### cases/commarea-mismatch/ca-address-commarea/src/CAADSB.cbl -- L4
+
+- **Executed equivalent** on the 2 scenarios of cruc-ca-address-commarea-callee against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
+- **Translation:** 12/12 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
+- **Executed equivalence** (cruc-ca-address-commarea, linked): det port equal (CI det-sweep ratchet on main)
+  - evidence record: none (4 scenarios in case.json)
+- **Executed equivalence** (cruc-ca-address-commarea-callee, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
+  - evidence record: none (2 scenarios in case.json)
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 1/1 (100.0%), branch outcomes 2/2 (100.0%) raw, 2/2 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
+- **Oracle backing:** no EXEC CICS command found (source not read)
+- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
+  - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
+- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
 ### cases/commarea-mismatch/ca-address-cwa/src/CACWAD.cbl -- L4
 
@@ -241,6 +259,25 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
   - stated infeasible branch outcome (reviewed claim, family G): NONE-PARA:136:false (IF) -- `IF VE-CALEN = EIBCALEN` ELSE arm: LS-EIB is based on the pointer ADDRESS EIB returns, the task own EIB storage, so VE-CALEN is the storage EIBCALEN names. Equal on every run for any COMMAREA length.
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 3 branch outcomes unrun; assumption reach (where not stated above) and the migration dimensions above: not measured
+
+### cases/commarea-mismatch/ca-address-eib-commarea/src/CAEBSB.cbl -- L4
+
+- **Executed equivalent** on the 2 scenarios of cruc-ca-address-eib-commarea-callee against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
+- **Translation:** 16/16 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
+- **Executed equivalence** (cruc-ca-address-eib-commarea, linked): det port equal (CI det-sweep ratchet on main)
+  - evidence record: none (4 scenarios in case.json)
+- **Executed equivalence** (cruc-ca-address-eib-commarea-callee, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
+  - evidence record: none (2 scenarios in case.json)
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 1/1 (100.0%), branch outcomes 3/4 (75.0%) raw, 3/3 (100.0%) net of 1 stated infeasible; unrun paragraphs by name: not recorded
+- **Oracle backing:** no EXEC CICS command found (source not read)
+- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
+  - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
+  - stated infeasible branch outcome (reviewed claim, family G): SUB-MAIN:53:false (IF) -- `IF VE-CALEN = EIBCALEN` ELSE arm: LS-EIB is based on the pointer ADDRESS EIB returns, the task's own EIB storage, so VE-CALEN is the storage EIBCALEN names. Equal on every run for any COMMAREA length.
+- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Residual risk:** 1 branch outcomes unrun; assumption reach (where not stated above) and the migration dimensions above: not measured
 
 ### cases/commarea-mismatch/ca-address-twa-tctua/src/CATWAD.cbl -- L4
 
@@ -445,6 +482,22 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
+### cases/commarea-mismatch/ca-get-container-set/src/CAGCST.cbl -- L4
+
+- **Executed equivalent** on the 1 scenarios of cruc-ca-get-container-set against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
+- **Translation:** 37/37 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
+- **Executed equivalence** (cruc-ca-get-container-set, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
+  - evidence record: none (1 scenarios in case.json)
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 2/2 (100.0%), branch outcomes 0/0 (—%) raw, 0/0 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
+- **Oracle backing:** no EXEC CICS command found (source not read)
+- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
+  - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
+- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
+
 ### cases/commarea-mismatch/ca-get-container-set/src/CAGCSX.cbl -- L4
 
 - **Executed equivalent** on the 1 scenarios of cruc-ca-get-container-set-errors against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
@@ -480,6 +533,38 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 3 branch outcomes unrun; assumption reach (where not stated above) and the migration dimensions above: not measured
 
+### cases/commarea-mismatch/ca-getmain-pointer/src/CAGMZ.cbl -- L4
+
+- **Executed equivalent** on the 1 scenarios of cruc-ca-getmain-pointer-zero against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
+- **Translation:** 43/43 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
+- **Executed equivalence** (cruc-ca-getmain-pointer-zero, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
+  - evidence record: none (1 scenarios in case.json)
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 3/3 (100.0%), branch outcomes 4/4 (100.0%) raw, 4/4 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
+- **Oracle backing:** no EXEC CICS command found (source not read)
+- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
+  - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
+- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
+
+### cases/commarea-mismatch/ca-link-lengths/src/CALINK.cbl -- L4
+
+- **Executed equivalent** on the 4 scenarios of cruc-ca-link-lengths against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
+- **Translation:** 17/17 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
+- **Executed equivalence** (cruc-ca-link-lengths, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
+  - evidence record: none (4 scenarios in case.json)
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 1/1 (100.0%), branch outcomes 4/4 (100.0%) raw, 4/4 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
+- **Oracle backing:** no EXEC CICS command found (source not read)
+- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
+  - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
+- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
+
 ### cases/commarea-mismatch/ca-link-lengths/src/CASUB.cbl -- L4
 
 - **Executed equivalent** on the 3 scenarios of cruc-ca-link-lengths-callee against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
@@ -488,7 +573,7 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Options in force** (compile options that change results; Enterprise COBOL; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
 - **Executed equivalence** (cruc-ca-link-lengths, linked): det port equal (CI det-sweep ratchet on main)
-  - evidence record: none (3 scenarios in case.json)
+  - evidence record: none (4 scenarios in case.json)
 - **Executed equivalence** (cruc-ca-link-lengths-callee, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (3 scenarios in case.json)
 - **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 1/1 (100.0%), branch outcomes 4/4 (100.0%) raw, 4/4 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
@@ -949,6 +1034,22 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
+### cases/ghost-tasks/gt-http-inbound/src/GTHECHO.cbl -- L4
+
+- **Executed equivalent** on the 2 scenarios of cruc-gt-http-inbound against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
+- **Translation:** 5/5 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
+- **Executed equivalence** (cruc-gt-http-inbound, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
+  - evidence record: none (2 scenarios in case.json)
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 1/1 (100.0%), branch outcomes 0/0 (—%) raw, 0/0 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
+- **Oracle backing:** no EXEC CICS command found (source not read)
+- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
+  - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
+- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
+
 ### cases/ghost-tasks/gt-post-wait-event/src/GTPOST.cbl -- L4
 
 - **Executed equivalent** on the 5 scenarios of cruc-gt-post-wait-event against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
@@ -1207,6 +1308,38 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 2 branch outcomes unrun; assumption reach (where not stated above) and the migration dimensions above: not measured
 
+### cases/ghost-tasks/gt-web-server-receive/src/GTWRECV.cbl -- L4
+
+- **Executed equivalent** on the 9 scenarios of cruc-gt-web-server-receive against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
+- **Translation:** 21/21 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
+- **Executed equivalence** (cruc-gt-web-server-receive, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
+  - evidence record: none (9 scenarios in case.json)
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 1/1 (100.0%), branch outcomes 6/6 (100.0%) raw, 6/6 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
+- **Oracle backing:** no EXEC CICS command found (source not read)
+- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
+  - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
+- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
+
+### cases/ghost-tasks/gt-web-server-send/src/GTWSEND.cbl -- L4
+
+- **Executed equivalent** on the 7 scenarios of cruc-gt-web-server-send against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
+- **Translation:** 22/22 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
+- **Executed equivalence** (cruc-gt-web-server-send, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
+  - evidence record: none (7 scenarios in case.json)
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 1/1 (100.0%), branch outcomes 7/7 (100.0%) raw, 7/7 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
+- **Oracle backing:** no EXEC CICS command found (source not read)
+- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
+  - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
+- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
+
 ### cases/hex-attributes/hx-attr-bytes/src/HXATTR.cbl -- L4
 
 - **Executed equivalent** on the 4 scenarios of cruc-hx-attr-bytes against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
@@ -1423,59 +1556,6 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/commarea-mismatch/ca-address-commarea/src/CAADSB.cbl -- L3
-
-- **Executed equivalent** on the 1 scenarios of cruc-ca-address-commarea-callee against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** branch coverage >= 100.0 net (now 50.0 raw, 50.0 net of the reviewed infeasible outcomes)
-- **Translation:** 12/12 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; Enterprise COBOL; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
-  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
-- **Executed equivalence** (cruc-ca-address-commarea, linked): det port equal (CI det-sweep ratchet on main)
-  - evidence record: none (4 scenarios in case.json)
-- **Executed equivalence** (cruc-ca-address-commarea-callee, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
-  - evidence record: none (1 scenarios in case.json)
-- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 1/1 (100.0%), branch outcomes 1/2 (50.0%) raw, 1/2 (50.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
-- **Oracle backing:** no EXEC CICS command found (source not read)
-- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
-  - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
-- **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 1 branch outcomes unrun; assumption reach (where not stated above) and the migration dimensions above: not measured
-
-### cases/commarea-mismatch/ca-address-eib-commarea/src/CAEBSB.cbl -- L3
-
-- **Executed equivalent** on the 1 scenarios of cruc-ca-address-eib-commarea-callee against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** branch coverage >= 100.0 net (now 50.0 raw, 66.7 net of the reviewed infeasible outcomes)
-- **Translation:** 16/16 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; Enterprise COBOL; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
-  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
-- **Executed equivalence** (cruc-ca-address-eib-commarea, linked): det port equal (CI det-sweep ratchet on main)
-  - evidence record: none (4 scenarios in case.json)
-- **Executed equivalence** (cruc-ca-address-eib-commarea-callee, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
-  - evidence record: none (1 scenarios in case.json)
-- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 1/1 (100.0%), branch outcomes 2/4 (50.0%) raw, 2/3 (66.7%) net of 1 stated infeasible; unrun paragraphs by name: not recorded
-- **Oracle backing:** no EXEC CICS command found (source not read)
-- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
-  - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
-  - stated infeasible branch outcome (reviewed claim, family G): SUB-MAIN:53:false (IF) -- `IF VE-CALEN = EIBCALEN` ELSE arm: LS-EIB is based on the pointer ADDRESS EIB returns, the task's own EIB storage, so VE-CALEN is the storage EIBCALEN names. Equal on every run for any COMMAREA length.
-- **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 2 branch outcomes unrun; assumption reach (where not stated above) and the migration dimensions above: not measured
-
-### cases/commarea-mismatch/ca-link-lengths/src/CALINK.cbl -- L3
-
-- **Executed equivalent** on the 3 scenarios of cruc-ca-link-lengths against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** branch coverage >= 100.0 net (now 75.0 raw, 75.0 net of the reviewed infeasible outcomes)
-- **Translation:** 17/17 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; Enterprise COBOL; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
-  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
-- **Executed equivalence** (cruc-ca-link-lengths, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
-  - evidence record: none (3 scenarios in case.json)
-- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 1/1 (100.0%), branch outcomes 3/4 (75.0%) raw, 3/4 (75.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
-- **Oracle backing:** no EXEC CICS command found (source not read)
-- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
-  - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
-- **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 1 branch outcomes unrun; assumption reach (where not stated above) and the migration dimensions above: not measured
-
 ### cases/condition-handling/hc-counter-increment-wrap/src/HCCWRP.cbl -- L2
 
 - **Executed equivalent** on the 2 scenarios of cruc-hc-counter-increment-wrap against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
@@ -1522,76 +1602,6 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** coverage not measured; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/commarea-mismatch/ca-get-container-set/src/CAGCST.cbl -- L1
-
-- **Next level needs:** an equivalence case that runs it
-- **Translation:** 37/37 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; Enterprise COBOL; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
-  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
-- **Executed equivalence:** no equivalence case runs it
-- **Coverage:** not measured
-- **Oracle backing:** no EXEC CICS command found (source not read)
-- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
-  - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
-- **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** coverage not measured; assumption reach (where not stated above) and the migration dimensions above: not measured
-
-### cases/commarea-mismatch/ca-getmain-pointer/src/CAGMZ.cbl -- L1
-
-- **Next level needs:** an equivalence case that runs it
-- **Translation:** 43/43 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; Enterprise COBOL; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
-  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
-- **Executed equivalence:** no equivalence case runs it
-- **Coverage:** not measured
-- **Oracle backing:** no EXEC CICS command found (source not read)
-- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
-  - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
-- **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** coverage not measured; assumption reach (where not stated above) and the migration dimensions above: not measured
-
-### cases/ghost-tasks/gt-http-inbound/src/GTHECHO.cbl -- L1
-
-- **Next level needs:** an equivalence case that runs it
-- **Translation:** 5/5 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; Enterprise COBOL; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
-  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
-- **Executed equivalence:** no equivalence case runs it
-- **Coverage:** not measured
-- **Oracle backing:** no EXEC CICS command found (source not read)
-- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
-  - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
-- **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** coverage not measured; assumption reach (where not stated above) and the migration dimensions above: not measured
-
-### cases/ghost-tasks/gt-web-server-receive/src/GTWRECV.cbl -- L1
-
-- **Next level needs:** an equivalence case that runs it
-- **Translation:** 21/21 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; Enterprise COBOL; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
-  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
-- **Executed equivalence:** no equivalence case runs it
-- **Coverage:** not measured
-- **Oracle backing:** no EXEC CICS command found (source not read)
-- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
-  - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
-- **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** coverage not measured; assumption reach (where not stated above) and the migration dimensions above: not measured
-
-### cases/ghost-tasks/gt-web-server-send/src/GTWSEND.cbl -- L1
-
-- **Next level needs:** an equivalence case that runs it
-- **Translation:** 22/22 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; Enterprise COBOL; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
-  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
-- **Executed equivalence:** no equivalence case runs it
-- **Coverage:** not measured
-- **Oracle backing:** no EXEC CICS command found (source not read)
-- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
-  - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
-- **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** coverage not measured; assumption reach (where not stated above) and the migration dimensions above: not measured
-
 ## Assumptions the estate's CICS commands name
 
 From the spec entries of the commands the programs use, with the register's status. Which of them a program's scenarios reach is stated per program where its evidence record measured it.
@@ -1603,7 +1613,7 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `0110c73435f4c531e05bcc40cfdb935b19fc2359`
+- translator commit (the survey's): `6bbfa299d54208d3af54f0cecc485bf80cec0975`
 - corpus pin: `cics-crucible` at `—`
 - crucible pins: cics `v0.12.0`, estate `v0.6.0`, language `v1.7.0`; cics crucible baseline measured at `v0.12.0 (904e9877)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
@@ -1613,9 +1623,9 @@ From the spec entries of the commands the programs use, with the register's stat
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 0110c73435f4c531e05bcc40cfdb935b19fc2359
-python tests/tools/evidence_report.py cics-crucible --baseline --sha 0110c73435f4c531e05bcc40cfdb935b19fc2359
+python tests/tools/cics_census.py survey --baseline --sha 6bbfa299d54208d3af54f0cecc485bf80cec0975
+python tests/tools/evidence_report.py cics-crucible --baseline --sha 6bbfa299d54208d3af54f0cecc485bf80cec0975
 python tests/tools/evidence_report.py --refresh
-python tests/tools/proof_sweep.py --det-only --work DIR --cases cruc-ca-address-commarea,cruc-ca-address-commarea-callee,cruc-ca-address-cwa,cruc-ca-address-cwa-callee,cruc-ca-address-eib-commarea,cruc-ca-address-eib-commarea-callee,cruc-ca-address-twa-callee,cruc-ca-address-twa-tctua,cruc-ca-bll-cells,cruc-ca-channel-browse,cruc-ca-channel-browse-err,cruc-ca-channel-containers,cruc-ca-channel-containers-callee,cruc-ca-channel-errors,cruc-ca-channel-xctl-target,cruc-ca-container-bit,cruc-ca-container-byteoffset,cruc-ca-container-byteoffset-past-end,cruc-ca-get-container-set-errors,cruc-ca-getmain-pointer,cruc-ca-link-lengths,cruc-ca-link-lengths-callee,cruc-ca-load-set,cruc-ca-load-set-caldtg,cruc-ca-load-set-pgmiderr,cruc-ca-receive-retrieve-callee,cruc-ca-receive-retrieve-set,cruc-ca-xctl-versions,cruc-ca-xctl-versions-front,cruc-gt-asab,cruc-gt-asnt,cruc-gt-assign-startcode,cruc-gt-chld,cruc-gt-post-wait-event,cruc-gt-read,cruc-gt-rtrn,cruc-gt-send-text-terminal,cruc-gt-show,cruc-gt-start-options,cruc-gt-start-retrieve,cruc-gt-stxs,cruc-gt-terminal-coalesce,cruc-gt-unext,cruc-gt-urimap-browse,cruc-gt-web-client,cruc-gt-web-parse-url,cruc-gt-work,cruc-hc-abend-link,cruc-hc-abend-link-sub,cruc-hc-counter-increment-wrap,cruc-hc-counter-shared-namespace,cruc-hc-dcounters,cruc-hc-deedit-uctranst,cruc-hc-eoc-error,cruc-hc-file-read-set,cruc-hc-file-unlock,cruc-hc-handle-aid,cruc-hc-ignore-error,cruc-hc-inquire-deleteq,cruc-hc-map-not-in-mapset,cruc-hc-named-counters,cruc-hc-perform-range,cruc-hc-readq-td,cruc-hc-resp-options,cruc-hc-terminal-eoc,cruc-hc-terminal-receive,cruc-hx-attr-bytes,cruc-hx-extended-cursor,cruc-pc-aid-menu,cruc-pc-confirm,cruc-pc-detl,cruc-pc-immediate-a,cruc-pc-immediate-l,cruc-pc-immediate-s,cruc-pc-return-channel,cruc-pc-return-channel-b,cruc-pc-return-channel-l,cruc-pc-return-immediate-b,cruc-pc-wizard
+python tests/tools/proof_sweep.py --det-only --work DIR --cases cruc-ca-address-commarea,cruc-ca-address-commarea-callee,cruc-ca-address-cwa,cruc-ca-address-cwa-callee,cruc-ca-address-eib-commarea,cruc-ca-address-eib-commarea-callee,cruc-ca-address-twa-callee,cruc-ca-address-twa-tctua,cruc-ca-bll-cells,cruc-ca-channel-browse,cruc-ca-channel-browse-err,cruc-ca-channel-containers,cruc-ca-channel-containers-callee,cruc-ca-channel-errors,cruc-ca-channel-xctl-target,cruc-ca-container-bit,cruc-ca-container-byteoffset,cruc-ca-container-byteoffset-past-end,cruc-ca-get-container-set,cruc-ca-get-container-set-errors,cruc-ca-getmain-pointer,cruc-ca-getmain-pointer-zero,cruc-ca-link-lengths,cruc-ca-link-lengths-callee,cruc-ca-load-set,cruc-ca-load-set-caldtg,cruc-ca-load-set-pgmiderr,cruc-ca-receive-retrieve-callee,cruc-ca-receive-retrieve-set,cruc-ca-xctl-versions,cruc-ca-xctl-versions-front,cruc-gt-asab,cruc-gt-asnt,cruc-gt-assign-startcode,cruc-gt-chld,cruc-gt-http-inbound,cruc-gt-post-wait-event,cruc-gt-read,cruc-gt-rtrn,cruc-gt-send-text-terminal,cruc-gt-show,cruc-gt-start-options,cruc-gt-start-retrieve,cruc-gt-stxs,cruc-gt-terminal-coalesce,cruc-gt-unext,cruc-gt-urimap-browse,cruc-gt-web-client,cruc-gt-web-parse-url,cruc-gt-web-server-receive,cruc-gt-web-server-send,cruc-gt-work,cruc-hc-abend-link,cruc-hc-abend-link-sub,cruc-hc-counter-increment-wrap,cruc-hc-counter-shared-namespace,cruc-hc-dcounters,cruc-hc-deedit-uctranst,cruc-hc-eoc-error,cruc-hc-file-read-set,cruc-hc-file-unlock,cruc-hc-handle-aid,cruc-hc-ignore-error,cruc-hc-inquire-deleteq,cruc-hc-map-not-in-mapset,cruc-hc-named-counters,cruc-hc-perform-range,cruc-hc-readq-td,cruc-hc-resp-options,cruc-hc-terminal-eoc,cruc-hc-terminal-receive,cruc-hx-attr-bytes,cruc-hx-extended-cursor,cruc-pc-aid-menu,cruc-pc-confirm,cruc-pc-detl,cruc-pc-immediate-a,cruc-pc-immediate-l,cruc-pc-immediate-s,cruc-pc-return-channel,cruc-pc-return-channel-b,cruc-pc-return-channel-l,cruc-pc-return-immediate-b,cruc-pc-wizard
 python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin
 ```

@@ -194,7 +194,9 @@ DEFINITION: dict[str, Any] = {
         # `, Name` run needs a literal comma per step, so it cannot backtrack
         # ambiguously.
         "api": re.compile(
-            r"^func\s+(?:\([^)]*\)[ \t]+)?[A-Z]["
+            # #4108 probe: an unexported func whose signature takes an HTTP request/response is a registered handler.
+            r"^func\s+(?:\([^)]*\)[ \t]+)?\w+[ \t]*\([^)\n]*(?:http\.ResponseWriter|gin\.Context|echo\.Context)"
+            r"|^func\s+(?:\([^)]*\)[ \t]+)?[A-Z]["
             + ID_CONTINUE
             + r"]+|^(?:type|var|const)\s+[A-Z]["
             + ID_CONTINUE

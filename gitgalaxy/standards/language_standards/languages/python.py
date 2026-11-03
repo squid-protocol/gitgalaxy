@@ -280,7 +280,10 @@ DEFINITION: dict[str, Any] = {
         # 10. api (Public Surface Area)
         # Implicit public defaults (undercased root definitions) + explicit __all__.
         "api": re.compile(
-            r"^[ \t]*(?:async[ \t]+)?def\s+[^_]\w+|^[ \t]*class\s+[^_]\w+|^__all__[ \t]*=|@(?:app|router|blueprint)\.(?:get|post|put|delete)",
+            r"^[ \t]*(?:async[ \t]+)?def\s+[^_]\w+|^[ \t]*class\s+[^_]\w+|^__all__[ \t]*=|@(?:app|router|blueprint)\.(?:get|post|put|delete)"
+            # #4108 probe: a route decorator on ANY router object (`@bp.route`, `@api.patch`, `@v1.websocket`) is the
+            # public declaration, so an underscore-named handler under it is still exposed.
+            r"|^[ \t]*@\w+(?:\.\w+)*\.(?:route|get|post|put|patch|delete|head|options|websocket|api_route)[ \t]*\(",
             re.M,
         ),
         # 11. flux (State Mutation)

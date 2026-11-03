@@ -669,6 +669,8 @@ DEFINITION: dict[str, Any] = {
             r"|\bpublic[ \t\n]+(?:(?:static|readonly|abstract|override|async)[ \t\n]+){0,4}"
             r"(?:get\b|set\b|[" + ID_START + r"$#][" + ID_CONTINUE + r"$]*[ \t\n]*[(:?<=;,])"
             r"|@(Controller|Resolver|Get|Post|Put|Delete)\b"
+            # #4108 probe: an Express/Koa/Fastify route registration declares an endpoint without `export`.
+            r"|\b(?:app|router|server|api|fastify)\.(?:get|post|put|patch|delete|all)[ \t]*\([ \t]*[`'\"/]"
         ),
         # 11. flux (State Mutation)
         # Mutation of state. EXCLUDES const (freeze_hits).

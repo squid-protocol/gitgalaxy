@@ -247,6 +247,12 @@ family addition that widens the archetype vector, unlike #3004's dormant-slot ac
   4/256 and 2/124 files respectively, with string-literal false-positive shapes (#2899) in
   both — not worth owning until it is. Unplanted in keyword-rosetta; `declared`, not
   `stated`.
+- **Golden coverage (#4108 slice 13)**: seven languages now carry a live rule (jcl, csd, postgresql, crystal, fsharp,
+  acs, zscript). The golden fixture fires only csd (6 files) and jcl (6 files); language-crucible has no crystal / fsharp /
+  acs / zscript directory and its sql files hold no `ALTER SYSTEM`-shaped statement, so the other five are a corpus gap, not
+  broken detection. `tests/extraction/languages/test_system_config_mutation_live_rules.py` scans a planted file per
+  language and pins a count, plus a look-alike that must stay 0. Known limit: crystal's rule matches inside a string
+  literal (the #2899 shape; strict xfail in that test).
 - **Vector parity**: appending the key grows `SIGNAL_SCHEMA` 97→98; the candidate archetype
   feature set grows 83→84 but stays unread until retrained — the v2.8.1 self-describing
   brains classify from their own recorded feature names, so shipped brains simply ignore

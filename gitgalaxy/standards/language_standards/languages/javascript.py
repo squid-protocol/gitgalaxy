@@ -274,7 +274,11 @@ DEFINITION: dict[str, Any] = {
         ),
         # 10. api (Public Surface Area)
         # Exposure surface. Explicit exports + implicit architectural defaults.
-        "api": re.compile(r"\b(export|module\.exports|exports\.)\b|@(Controller|Resolver|Get|Post|Put|Delete)\b"),
+        "api": re.compile(
+            r"\b(export|module\.exports|exports\.)\b|@(Controller|Resolver|Get|Post|Put|Delete)\b"
+            # #4108 probe: an Express/Koa/Fastify route registration declares an endpoint without `export`.
+            r"|\b(?:app|router|server|api|fastify)\.(?:get|post|put|patch|delete|all)[ \t]*\([ \t]*[`'\"/]"
+        ),
         # 11. flux (State Mutation)
         # Mutation of state. EXCLUDES const (freeze_hits).
         "state_mutation": re.compile(

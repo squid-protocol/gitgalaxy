@@ -501,6 +501,9 @@ class Walk:
         self.exec_text: dict[int, str] = {}  # line -> EXEC text (where an exec: value came from)
         # resp symbol -> (line, command, resource key, resource name): a CICS command's response, for a fault plan
         self.resp_meta: dict[str, tuple[int, str, str | None, str | None]] = {}
+        self.known_values: dict[str, set[str]] = {}
+        self.received_maps = {m.upper() for p in prog.proc.paragraphs for x in S.walk(p.body) if x.kind == "EXEC"
+                               for m in re.findall(r"RECEIVE\s+MAP\s*\(\s*'([^']+)'", x.text, re.I)}  # fmt: skip  # field -> text values the case's scenarios use (reach prefers them)
         self._n = 0
         paras = prog.proc.paragraphs
         self.index = {p.name.upper(): i for i, p in enumerate(paras)}
@@ -1472,6 +1475,17 @@ class Walk:
                     for i in range(it.size):
                         b = self.sub(v, i, 1)
                         sol.add(z.Or(b == 32, b == 45, z.And(b >= 48, b <= 57), z.And(b >= 65, b <= 90)))
+            if self.known_values:  # first: values the case's scenarios already use for the same field
+                sol.push()
+                for name in _names_in(formulas):
+                    _, it, _ = self.symbols.get(name, ("", None, 0))
+                    vals = self.known_values.get(it.name.upper()) if it is not None and _kind(it) == "str" else None
+                    if vals and it is not None:
+                        sol.add(z.Or([z.BitVec(name, 8 * it.size) == self.sval(v[: it.size].ljust(it.size))
+                                      for v in sorted(vals)]))  # fmt: skip
+                if sol.check() == z.sat:
+                    return "witness", sol.model()
+                sol.pop()
             if sol.check() == z.sat:
                 return "witness", sol.model()
             sol.pop()
@@ -1544,6 +1558,11 @@ def scenario(w: Walk, model: Any, formulas: list[Any], case: dict[str, Any], tar
             commarea[it.name] = val.rstrip() if isinstance(val, str) else val
         elif origin == "exec" and (m := re.search(r"RECEIVE MAP\s*\(\s*'([A-Z0-9#@$]+)'", w.exec_text.get(line, ""))):
             receive.setdefault(m.group(1), {})[it.name] = val.rstrip() if isinstance(val, str) else str(val)
+        elif (top := (_ancestors(it) or [it])[-1].name.upper()).endswith("I") and top[:-1] in w.received_maps \
+                and it.name.upper().endswith("I") and isinstance(val, str):  # fmt: skip
+            receive.setdefault(top[:-1], {})[it.name] = (
+                val.rstrip()
+            )  # a symbolic map's input field: what RECEIVE MAP types
     out: dict[str, Any] = {"name": "solver-" + re.sub(r"[^a-z0-9]+", "-", target.lower()).strip("-")}
     out["aid"] = aid or "DFHENTER"
     out["commarea"] = commarea or None
@@ -1717,7 +1736,17 @@ def solve_case(case: str, work: Path, timeout_ms: int = TIMEOUT_MS) -> dict[str,
 def reach(case: str, targets: list[str], work: Path, timeout_ms: int = TIMEOUT_MS) -> dict[str, Any]:
     spec = json.loads((REPO / "tests" / "equivalence" / case / "case.json").read_text(encoding="utf-8"))
     prog = case_program(case, work)
+    known: dict[str, set[str]] = {}
+    for sc in spec.get("scenarios", []):
+        for k, v in (sc.get("commarea") or {}).items():
+            if isinstance(v, str):
+                known.setdefault(k.upper(), set()).add(v)
+        for fields in (sc.get("receive") or {}).values():
+            for k, v in (fields or {}).items() if isinstance(fields, dict) else []:
+                if isinstance(v, str):
+                    known.setdefault(k.upper(), set()).add(v)
     w = Walk(prog, evaluate_arms(prog.source))
+    w.known_values = known
     w.explore()
     out: dict[str, Any] = {"case": case, "incomplete": sorted(set(w.why)), "targets": []}
     for t in targets:

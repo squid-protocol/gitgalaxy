@@ -396,3 +396,19 @@ def test_a_resp_arm_gets_a_fault_plan_on_the_command(tmp_path):
     assert verdict == "witness"
     got = bs.scenario(w, model, f, {"kind": "cics"}, f"{ln}:true")
     assert got["faults"] == [{"cmd": "READ", "file": "ACCTDAT", "nth": 1, "resp": "NOTFND", "resp2": 80}]
+
+
+def test_a_witness_prefers_a_value_the_case_already_uses(tmp_path):
+    w, src = _program(
+        tmp_path,
+        "01 X PIC X.",
+        """
+           IF LK-CODE NOT = SPACES
+               MOVE 'A' TO X
+           END-IF
+           GOBACK.""",
+    )
+    w.known_values = {"LK-CODE": {"Q7"}}
+    ln = _line(src, "IF LK-CODE")
+    _, model = w.ask(w.hits[(ln, "true")], printable=True)
+    assert [x["value"] for x in w.witness(model, w.hits[(ln, "true")]) if x["item"] == "LK-CODE"] == ["Q7"]

@@ -47,6 +47,11 @@ in `tests/equivalence/infeasible_outcomes/<case>.json`.
 * **Extended (owner, 2026-10-31, #6839 row J):** the same class holds for an outcome reachable only through non-digit data
   in a numeric USAGE DISPLAY item (IBM documents no result; GnuCOBOL reads `ttl=abc` as zeros, so NUMERIC passes where
   z/OS would fail it). Register C11 records the wider ruling.
+* **Extended to mutants (owner ruling 2026-11-03, #7495, #7607):** a det-port mutant killed only by non-digit data in a
+  numeric USAGE DISPLAY item is `undefined-by-ibm` in `det_mutation_survivors/`: accounted, never killed and never
+  `equivalent`, each entry citing the item and the input (`undefined.item`, `undefined.input`). The ledger line names each
+  with counts. The input stays out of the case; the mutant's old `equivalent` verdict stays removed (the oracle refuted it).
+  First members: CBSA UPDCUST `ab6f13f763`, `0e4d7d1e73`; UPDACC `eb7aa72523`, `bee9666e07`.
 * Report it by name with counts (the evidence report's "undefined by IBM" line). Never as proven, never as infeasible: an
   input does reach it, and IBM does not say what happens.
 * The branch bar is taken net of it, as of stated infeasible outcomes; a proof that reaches one still refutes the entry.

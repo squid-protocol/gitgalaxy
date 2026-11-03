@@ -252,7 +252,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 32
+   "tests": 33
   },
   {
    "corpus": "cics-async-api-credit-card-application-example",
@@ -1474,7 +1474,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 32
+   "tests": 33
   },
   "carddemo-userlist": {
    "generated": [],

@@ -1143,3 +1143,14 @@ def test_a_data_change_verb_scores_as_the_keys_update(engine_access):
 @pytest.mark.parametrize("key_access,engine_access", [("read", "insert"), ("update", "lock"), ("update", "read")])
 def test_other_access_words_still_differ(key_access, engine_access):
     assert _sql_access_status(key_access, engine_access) == ["fail"]
+
+
+def test_a_jcllib_library_phantom_is_attributed_to_its_horror_with_the_keys_why():
+    why = "JCLLIB ORDER names a library search path, not a dataset a step reads"
+    ph = dict(channel="jcl_datasets", dsn="PROD.BDLD.PROCLIB", step=None, line=3, why=why, horror="H-0071")
+    eng = FakeEngine(raw_imports={"j.jcl": ["PROD.BDLD.PROCLIB"]})
+    sc = ec.Score()
+    ec.score_jcl_datasets(sc, "j.jcl", dict(language="jcl", jcl_datasets=[], phantoms=[ph]), eng)
+    assert [(c.fact, c.status, c.horror, c.detail) for c in sc.checks] == [
+        ("raw import PROD.BDLD.PROCLIB", "phantom", "H-0071", why)
+    ]

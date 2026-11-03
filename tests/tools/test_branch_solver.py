@@ -431,3 +431,47 @@ def test_an_sqlcode_arm_gets_an_sql_fault_on_its_statement(tmp_path):
     got = bs.scenario(w, model, f, {"kind": "cics"}, f"{ln}:true")
     assert verdict == "witness" and got["sql_faults"][0]["line"] == _line(src, "EXEC SQL UPDATE")
     assert got["sql_faults"][0]["sqlcode"] in bs.SQLCODES and "aid" not in got
+
+
+def test_a_string_with_a_literal_start_fixes_the_targets_first_bytes(tmp_path):
+    w, src = _program(
+        tmp_path,
+        "01 MSG PIC X(20).\n   88 MSG-OTHER VALUE 'Did not find'.",
+        """
+           STRING 'Account ' DELIMITED BY SIZE
+                  LK-CODE DELIMITED BY SPACE
+                  INTO MSG
+           IF MSG-OTHER
+               CONTINUE
+           END-IF
+           GOBACK.""",
+    )
+    assert _verdict(w, _line(src, "IF MSG-OTHER"), "true") == "confirmed"
+
+
+def test_a_counter_a_loop_only_moves_one_way_keeps_its_start_bound(tmp_path):
+    w, src = _program(
+        tmp_path,
+        "01 IX PIC S9(4) COMP.\n01 DOWN PIC S9(4) COMP.",
+        """
+           MOVE 1 TO IX
+           PERFORM UNTIL IX > 3
+               EVALUATE IX
+                   WHEN 1 THRU 3
+                       CONTINUE
+                   WHEN OTHER
+                       CONTINUE
+               END-EVALUATE
+               COMPUTE IX = IX + 1
+           END-PERFORM
+           MOVE 3 TO DOWN
+           PERFORM UNTIL DOWN <= 0
+               IF DOWN > 3
+                   CONTINUE
+               END-IF
+               SUBTRACT 1 FROM DOWN
+           END-PERFORM
+           GOBACK.""",
+    )
+    assert _verdict(w, _line(src, "EVALUATE IX"), "OTHER") == "confirmed"
+    assert _verdict(w, _line(src, "IF DOWN > 3"), "true") == "confirmed"

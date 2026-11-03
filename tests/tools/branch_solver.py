@@ -1018,6 +1018,39 @@ class Walk:
                         st.env[id(x)] = self.fresh(x, "set", s.line)
         return st
 
+    def string(self, st: State, s: S.Stmt) -> State:
+        """STRING ... INTO x (no POINTER): the literal pieces it starts with, each cut at its delimiter, are x's first
+        bytes; the rest of x is any value (later pieces depend on data, and STRING leaves bytes past its end as they
+        were). Anything else it names is set fresh, as an unmodelled statement's would be."""
+        after = self.havoc(st, self.writes.targets(s), s.line)
+        hit = self.items.resolve(s.data["into"])
+        if len(hit) != 1 or not self.items.tracked(hit[0]) or _kind(hit[0]) != "str" or s.data["into"].refmod:
+            return after
+        it = hit[0]
+        prefix = ""
+        for operands, delim in s.data.get("parts") or []:
+            cut = None if delim is None else (FIG_CHAR.get(delim.kind) if isinstance(delim, E.Fig) else
+                                              delim.value if isinstance(delim, E.Lit) and isinstance(delim.value, str)
+                                              else False)  # fmt: skip
+            done = False
+            for o in operands:
+                if not (isinstance(o, E.Lit) and isinstance(o.value, str)) or cut is False:
+                    done = True
+                    break
+                text = o.value if not cut else o.value.split(cut, 1)[0]
+                prefix += text
+                if cut and cut in o.value:
+                    continue
+            if done:
+                break
+        prefix = prefix[: it.size]
+        if not prefix:
+            return after
+        rest = it.size - len(prefix)
+        tail = [self.sub(after.env[id(it)], len(prefix), rest)] if rest > 0 else []
+        after.env[id(it)] = self.cat([self.sval(prefix), *tail])
+        return after
+
     def add_to(self, st: State, s: S.Stmt) -> State:
         """ADD a b TO x / SUBTRACT a b FROM x: exact when the sum and every target are numbers the walk follows."""
         st = State(st.pc, dict(st.env))
@@ -1114,16 +1147,73 @@ class Walk:
         return out
 
     def loop_writes(self, start: list[int], stmts: list) -> list[L.Item]:
-        ids = self._block_writes(stmts)
-        seen, todo = set(), list(start) + [j for s in S.walk(stmts) for j in self._calls(s)]
-        while todo:
-            j = todo.pop()
-            if j in seen:
-                continue
-            seen.add(j)
-            ids |= self.para_writes[j]
-            todo += list(self.succ[j])
+        ids = {id(x) for s in self.loop_stmts(start, stmts) for x in self.writes.targets(s)}
         return [it for it in self.tracked if id(it) in ids]
+
+    def loop_stmts(self, start: list[int], stmts: list) -> list[S.Stmt]:
+        """Every statement a loop body can run: its own, those of the ranges it PERFORMs (to each range's end), and
+        from a GO TO or HANDLE label on, every paragraph control can fall through to."""
+        paras = self.prog.proc.paragraphs
+        out: list[S.Stmt] = list(S.walk(stmts))
+        seen: set[tuple[int, bool]] = set()
+        todo: list[tuple[int, bool]] = [(j, False) for j in start]
+
+        def follow(body: list[S.Stmt]) -> None:
+            for s in body:
+                if s.kind == "PERFORM" and not s.data.get("inline") and s.data.get("target"):
+                    rg = self._range(s.data["target"], s.data.get("thru"))
+                    todo.extend((j, False) for j in (range(rg[0], rg[1] + 1) if rg else []))
+                elif s.kind == "GOTO":
+                    todo.extend((j, True) for t in s.data.get("targets") or [] if (j := self._jump(t)) is not None)
+                elif s.kind in ("EXEC",) and self.handlers:
+                    todo.extend((j, True) for labels in self.handlers.values() for lab in labels
+                                if (j := self._jump(lab)) is not None)  # fmt: skip
+
+        follow(out)
+        while todo:
+            j, free = todo.pop()
+            if (j, free) in seen:
+                continue
+            seen.add((j, free))
+            body = list(S.walk(paras[j].body))
+            out += body
+            follow(body)
+            if free and j + 1 < len(paras):  # after a GO TO, control falls through to the next paragraph
+                todo.append((j + 1, True))
+        return out
+
+    def _increment(self, it: L.Item, s: S.Stmt, op: str = "+") -> bool:
+        """COMPUTE it = it + <positive literal> (or the literal first); with op "-": COMPUTE it = it - <literal>."""
+        targets = [r for r, _ in s.data.get("targets") or []]
+        e = s.data.get("expr")
+        if len(targets) != 1 or self.items.resolve(targets[0]) != [it] or not isinstance(e, E.Bin) or e.op != op:
+            return False
+        if op == "-" and not (isinstance(e.left, E.Ref) and self.items.resolve(e.left) == [it]):
+            return False
+        sides = [e.left, e.right]
+        refs = [x for x in sides if isinstance(x, E.Ref) and self.items.resolve(x) == [it] and not x.subscripts]
+        lits = [x for x in sides if isinstance(x, E.Lit) and isinstance(x.value, Decimal) and x.value > 0]
+        return len(refs) == 1 and len(lits) == 1
+
+    def only_increased(self, it: L.Item, stmts: list[S.Stmt], down: bool = False) -> bool:
+        """Every statement among `stmts` that may write `it` is `ADD <positive literals> TO it` / `COMPUTE it = it +
+        <positive literal>` (`down`: SUBTRACT ... FROM it / COMPUTE it = it - ...): a loop over them only ever increases
+        (decreases) it."""
+        for s in stmts:
+            if not any(x is it for x in self.writes.targets(s)):
+                continue
+            d = s.data
+            if s.kind == "COMPUTE" and not s.phrases and self._increment(it, s, "-" if down else "+"):
+                continue
+            if s.kind != "ARITH" or d.get("op") != ("-=" if down else "+=") or s.phrases:
+                return False
+            refs = [r for r, _ in d.get("targets") or []]
+            if any(self.items.resolve(r) != [it] or r.subscripts or r.refmod for r in refs):
+                return False
+            ops = d.get("operands") or []
+            if not ops or not all(isinstance(o, E.Lit) and isinstance(o.value, Decimal) and o.value > 0 for o in ops):
+                return False
+        return True
 
     def block(self, stmts: list, st: State) -> tuple[State | None, list[tuple[int, State]]]:
         """Run a statement list: (the merged state at its normal end or None, [(paragraph index, state)] GO TOs)."""
@@ -1180,6 +1270,8 @@ class Walk:
             return self.initialize(st, s), []
         if k == "COMPUTE" and not s.phrases:
             return self.compute(st, s), []
+        if k == "STRING" and not s.phrases and not s.data.get("pointer") and s.data.get("into") is not None:
+            return self.string(st, s), []
         if k == "ARITH" and not s.phrases and s.data.get("op") in ("+=", "-=") and s.data.get("targets"):
             return self.add_to(st, s), []
         if k == "GOTO":
@@ -1419,6 +1511,16 @@ class Walk:
             gotos += g
         body = self.loop_writes([] if rg is None else list(range(rg[0], rg[1] + 1)), s.body if inline else [])
         head = self.havoc(st, body + self.writes.targets(s), s.line, "loop")
+        # a counter that holds a known number before the loop and that the loop only ever increases stays at least
+        # that number on every iteration (MOVE 1 TO IX ... PERFORM UNTIL IX > 5 ... ADD 1 TO IX)
+        inside = self.loop_stmts([] if rg is None else list(range(rg[0], rg[1] + 1)), s.body if inline else [])
+        for it in body:
+            before = st.env.get(id(it))
+            if _kind(it) == "num" and before is not None and z.is_int_value(before) and it is not var:
+                if self.only_increased(it, inside):
+                    head = State(z.And(head.pc, head.env[id(it)] >= before), head.env)
+                elif self.only_increased(it, inside, down=True):
+                    head = State(z.And(head.pc, head.env[id(it)] <= before), head.env)
         if self.flags:  # a loop may set or clear a flag on any iteration
             head = State(head.pc, {**head.env, **self.fresh_flags()})
         if varying and var is not None and var not in body:

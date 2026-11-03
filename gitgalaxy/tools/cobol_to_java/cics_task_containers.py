@@ -352,10 +352,8 @@ CONTAINERS_JAVA = """\
             return new ContainerResult("LENGERR", 1, -1, null);
         }
         Container c = ch.containers.get(name);
-        if (c != null && heldSet(containerKey(ch, name))) {
-            throw refused("PUT CONTAINER onto a container a GET CONTAINER SET pointer addresses: IBM does not say what the "
-                    + "pointer then sees");
-        }
+        // PUT onto a container a GET CONTAINER SET pointer addresses (#7589): defined; the held area stays allocated with its old
+        // bytes (stale, a read through it is undefined by IBM) until an end event IBM lists.
         if (c != null && type != null && c.bit != "BIT".equals(type)) {
             throw new UnsupportedOperationException("PUT CONTAINER " + type + " on an existing container of the other "
                     + "data type: ignored or INVREQ RESP2 33 is not settled by IBM's documentation, not modelled");

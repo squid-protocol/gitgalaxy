@@ -37,14 +37,11 @@ _STEPS = (
     "fm",
     "rd",
 )
-_PUT_HELD = (
-    "PUT CONTAINER onto a container a GET CONTAINER SET pointer addresses: IBM does not say what the pointer then sees"
-)
 _MOVE_HELD = (
     "MOVE CONTAINER onto a container a GET CONTAINER SET pointer addresses: IBM does not say what the pointer then sees"
 )
 _FREEMAIN = "FREEMAIN of storage already freed or received"
-_REFUSALS = (_PUT_HELD, _MOVE_HELD, _FREEMAIN)
+_REFUSALS = (_MOVE_HELD, _FREEMAIN)
 _Z4, _Z5, _Z8 = "00000000", "0000000000", "0000000000000000"
 
 # (steps, what both runtimes answer). Fixtures: terminal input "hello world"; one START's data "RETRIEVED"; TS queue Q1 with items
@@ -87,7 +84,12 @@ _CASES = [
         ["pc 0/0", "pc 0/0", "gc 0/0 5", "gc 0/0 5", "dc 0/0", "rd 68656C6C6F", "rd " + _Z5],
     ),  # fmt: skip
     (["pc A hello", "gc 0 NOPE"], ["pc 0/0", "gc 110/10"]),
-    (["pc A hello", "gc 0 A", "pc A world"], ["pc 0/0", "gc 0/0 5", _PUT_HELD]),
+    # (#7589: a PUT onto a held container succeeds; the held area is stale, never read here; a fresh GET SET sees the new data)
+    (
+        ["pc A hello", "gc 0 A", "pc A worlds", "gc 1 A", "rd 1 6"],
+        ["pc 0/0", "gc 0/0 5", "pc 0/0", "gc 0/0 6", "rd 776F726C6473"],
+    ),
+    (["pc A hello", "gc 0 A", "pc A worlds", "dc A", "rd 0 5"], ["pc 0/0", "gc 0/0 5", "pc 0/0", "dc 0/0", "rd " + _Z5]),
     (["pc A x", "pc B y", "gc 0 B", "mc A B"], ["pc 0/0", "pc 0/0", "gc 0/0 1", _MOVE_HELD]),
     (["pc A hello", "gc 0 A", "fm 0"], ["pc 0/0", "gc 0/0 5", _FREEMAIN]),
     # -- READ (IBM: valid "until the next READ command for the same file or until completion of a corresponding REWRITE, DELETE,

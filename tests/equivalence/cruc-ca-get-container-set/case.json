@@ -1,0 +1,24 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "CAGCST",
+  "program_source": "cases/commarea-mismatch/ca-get-container-set/src/CAGCST.cbl",
+  "copy_dirs": [
+    "cases/commarea-mismatch/ca-get-container-set/copy"
+  ],
+  "transid": "CA0F",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "notes": "cics-crucible commarea-mismatch / ca-get-container-set, program CAGCST (Apache-2.0 corpus, #7589): PUT1, GET CONTAINER SET and its FLENGTH, a repeated GET SET, a PUT that replaces the container the held SET pointer addresses (defined, owner-made ruling 2026-11-03: the held area goes stale, a read through it is undefined by IBM; the program never reads it), then a fresh GET SET with the new length and data. The oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "set",
+      "commarea": null,
+      "terminal": "CA0F",
+      "why": "PUT onto a container a GET SET pointer addresses succeeds; a fresh GET SET sees the new 8 bytes (FLENGTH 8)"
+    }
+  ],
+  "linked": true
+}

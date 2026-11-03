@@ -817,6 +817,21 @@ def test_rerun_refused_already_running_is_logged_as_skipped():
     assert lines == ["#7 rerun muninn (run 55): skipped (already running)"]
 
 
+def test_auto_merge_off_when_it_is_not_on_is_logged_as_skipped():
+    """#7594: GitHub refuses to disable an auto-merge that is not on; the state asked for holds, so no red check."""
+    s = snap()
+
+    def run_not_on(argv):
+        msg = "GraphQL: Can't disable auto-merge for this pull request. (disablePullRequestAutoMerge)"
+        return subprocess.CompletedProcess(argv, 1, "", msg)
+
+    lines = sg.apply(7, s, [{"op": "automerge", "on": False}], run=run_not_on)
+    assert lines == ["#7 auto-merge off: skipped (auto-merge already off)"]
+    other = sg.apply(7, s, [{"op": "automerge", "on": False}],
+                     run=lambda argv: subprocess.CompletedProcess(argv, 1, "", "HTTP 502"))  # fmt: skip
+    assert other == ["#7 auto-merge off: FAILED: HTTP 502"]
+
+
 def test_rerun_refused_already_running_in_stdout_is_logged_as_skipped():
     s = snap()
 

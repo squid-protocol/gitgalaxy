@@ -87,6 +87,58 @@ def test_every_other_use_of_a_view_is_refused_by_name(stmt):
         P.lower(prog(*PAIR, body=body))
 
 
+@pytest.mark.parametrize(
+    ("cond", "want"),
+    [
+        ("CACHE-ADDRESS-X = 0", "CACHE-ADDRESS = NULL"),
+        ("CACHE-ADDRESS-X NOT = 0", "CACHE-ADDRESS NOT = NULL"),
+        ("CACHE-ADDRESS-X IS NOT EQUAL TO ZERO", "CACHE-ADDRESS NOT = NULL"),
+        ("CACHE-ADDRESS-X EQUAL ZEROS", "CACHE-ADDRESS = NULL"),
+        ("CACHE-ADDRESS-X NOT EQUAL ZEROES", "CACHE-ADDRESS NOT = NULL"),
+        ("CACHE-ADDRESS-X = +0", "CACHE-ADDRESS = NULL"),
+        ("CACHE-ADDRESS-X = 0.0", "CACHE-ADDRESS = NULL"),
+        ("NOT CACHE-ADDRESS-X = 0", "NOT CACHE-ADDRESS = NULL"),
+        ("0 = CACHE-ADDRESS-X", "CACHE-ADDRESS = NULL"),
+        ("ZERO NOT = SAVE-ADDRESS-X", "SAVE-ADDRESS NOT = NULL"),
+        ("CACHE-ADDRESS-X = 0 AND SAVE-ADDRESS-X NOT = 0", "CACHE-ADDRESS = NULL AND SAVE-ADDRESS NOT = NULL"),
+        ("N-BYTES > 0 OR CACHE-ADDRESS-X = ZERO", "N-BYTES > 0 OR CACHE-ADDRESS = NULL"),
+    ],
+)
+def test_the_zero_test_of_a_view_is_the_pointers_null_test(cond, want):
+    out = P.lower(prog(*PAIR, body=(f"IF {cond}", "    DISPLAY 'X'", "END-IF.")))
+    assert want in re.sub(r"\s+", " ", code(out))
+    assert "-X" not in code(out).replace("REDEFINES", "")
+
+
+def test_a_zero_test_ending_the_sentence_and_beside_arithmetic_lowers():
+    out = P.lower(prog(*PAIR, body=("IF CACHE-ADDRESS-X = 0.", "ADD 4 TO CACHE-ADDRESS-X.")))
+    flat = re.sub(r"\s+", " ", code(out))
+    assert "IF CACHE-ADDRESS = NULL." in flat and "USING CACHE-ADDRESS BY VALUE 4" in flat
+
+
+@pytest.mark.parametrize(
+    "cond",
+    [
+        "CACHE-ADDRESS-X > 0",
+        "CACHE-ADDRESS-X < ZERO",
+        "CACHE-ADDRESS-X = 5",
+        "CACHE-ADDRESS-X = 10",
+        "CACHE-ADDRESS-X = SPACES",
+        "CACHE-ADDRESS-X = SAVE-ADDRESS-X",
+        "CACHE-ADDRESS-X = N-BYTES",
+        "CACHE-ADDRESS-X = 0.5",
+    ],
+)
+def test_any_other_test_of_a_view_is_refused(cond):
+    with pytest.raises(P.Unsupported):
+        P.lower(prog(*PAIR, body=(f"IF {cond}", "    DISPLAY 'X'", "END-IF.")))
+
+
+def test_a_zero_test_of_a_longer_name_or_a_non_view_is_untouched():
+    text = prog(*PAIR, "           02  OTHER PIC S9(08) COMP.", body=("IF OTHER = 0 DISPLAY 'X' END-IF.",))
+    assert "IF OTHER = 0" in P.lower(text)
+
+
 def test_a_program_with_no_view_is_untouched():
     text = prog("           02  CACHE-ADDRESS  USAGE POINTER.", body=("SET ADDRESS OF X TO CACHE-ADDRESS.",))
     assert P.lower(text) == text

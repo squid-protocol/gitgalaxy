@@ -47,7 +47,8 @@ jobs:
         run: |
           git diff --name-only "origin/${{ github.base_ref }}...HEAD" -- tests/equivalence/infeasible_outcomes/ \
             | sed -n 's#^tests/equivalence/infeasible_outcomes/\(.*\)\.json$#\1#p' > "$RUNNER_TEMP/cases.txt"
-          cases=$(while read -r c; do [ -f "tests/equivalence/infeasible_outcomes/$c.json" ] && echo "$c"; done < "$RUNNER_TEMP/cases.txt")
+          # a case the PR deleted is skipped: `[ -f ] && echo` as the loop's last command exits 1 and bash -e aborts the step
+          cases=$(while read -r c; do if [ -f "tests/equivalence/infeasible_outcomes/$c.json" ]; then echo "$c"; fi; done < "$RUNNER_TEMP/cases.txt")
           if [ -z "$cases" ]; then echo "no stated claims left to check" >> "$GITHUB_STEP_SUMMARY"; exit 0; fi
           PYTHONPATH="$PWD" python tests/tools/mainframe_corpus.py fetch
           # shellcheck disable=SC2086

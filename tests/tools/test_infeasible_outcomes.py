@@ -319,3 +319,44 @@ def test_recorded_uncovered_is_none_for_an_incomplete_list():
     assert io.recorded_uncovered({**cov, "uncovered_branches": full}) == full
     assert io.recorded_uncovered({**cov, "uncovered_branches": None}) is None
     assert io.recorded_uncovered({"branches": {"covered": 4, "total": 4}, "uncovered_branches": []}) == []
+
+
+def _workflow_case_filter() -> str:
+    """The `cases=$(while ...)` line of solver-check.yml's claims step, as shell."""
+    wf = Path(__file__).resolve().parents[2] / ".github" / "workflows" / "solver-check.yml"
+    return next(ln.strip() for ln in wf.read_text(encoding="utf-8").splitlines() if ln.strip().startswith("cases=$(while"))
+
+
+def _run_case_filter(tmp_path, listed, present):
+    """Run the workflow's filter under bash -e; return (exit code, cases)."""
+    import shutil
+    import subprocess
+
+    bash = shutil.which("bash")
+    if bash is None:
+        import pytest
+
+        pytest.skip("no bash")
+    ledger = tmp_path / "tests" / "equivalence" / "infeasible_outcomes"
+    ledger.mkdir(parents=True)
+    for name in present:
+        (ledger / f"{name}.json").write_text("{}", encoding="utf-8")
+    (tmp_path / "cases.txt").write_text("".join(f"{n}\n" for n in listed), encoding="utf-8")
+    script = _workflow_case_filter() + '\necho "$cases"'
+    r = subprocess.run(
+        [bash, "-e", "-c", script],
+        cwd=tmp_path,
+        env={"RUNNER_TEMP": str(tmp_path), "PATH": "/usr/bin:/bin"},
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    return r.returncode, r.stdout.split()
+
+
+def test_the_solver_check_filter_survives_a_case_the_pr_deleted(tmp_path):
+    """A deleted case (listed by git diff, gone from disk) must not abort the bash -e step."""
+    assert _run_case_filter(tmp_path / "a", ["gone"], []) == (0, [])  # deleted only
+    assert _run_case_filter(tmp_path / "b", ["here"], ["here"]) == (0, ["here"])  # present only
+    assert _run_case_filter(tmp_path / "c", ["here", "gone"], ["here"]) == (0, ["here"])  # mixed, deleted last
+    assert _run_case_filter(tmp_path / "d", ["gone", "here"], ["here"]) == (0, ["here"])  # mixed, deleted first

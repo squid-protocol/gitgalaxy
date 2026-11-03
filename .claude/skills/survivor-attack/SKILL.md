@@ -24,7 +24,9 @@ python tests/tools/det_mutation.py state CASE TRIAGE.json --attempts DIR/attempt
 1. `facts`. It settles code no entry point of the program reaches, and constants nothing reads. With the `solver` extra
    it also settles an `unreachable` verdict whose reason says a paragraph is never reached when `branch_solver.py`
    finds no input that enters it, and prints the stated reasons it questions (an input does enter the paragraph).
-   A questioned reason is read and attacked, never dropped on the solver's word. Believe `facts` only for that.
+   A questioned reason is read and attacked, never dropped on the solver's word. It also settles a mutant of a Field
+   declaration (`fNN_X = Field.kind(s_REC, offset, length ...)`) when `branch_solver.py fields` finds no reachable
+   statement that uses X (`solver-unread`: the accessor never runs). Believe `facts` only for that.
 2. Take the rest in `next` order. Read the packet, then read the COBOL: the Java is one reading of it.
 3. Write inputs that make the original and the mutant differ, aimed at the first place they diverge. Aim one input at
    several mutants when you can: `try` proves the port once.

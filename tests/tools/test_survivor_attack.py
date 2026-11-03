@@ -207,3 +207,62 @@ def test_the_solver_settles_an_unreachable_paragraph_and_questions_an_entered_on
 def test_state_takes_a_solver_settlement_but_not_a_solver_question():
     assert dm.attempt_problems("unreachable", [{"result": "solver-unreachable"}]) == []
     assert "no attack" in dm.attempt_problems("unreachable", [{"result": "solver-entered"}])[0]
+
+
+# ---- Field declarations no reachable statement uses (branch_solver.py fields, #4175) ----------------------------------
+def test_a_field_declaration_names_its_item_and_record():
+    assert sa.field_of("private final Field f84_WS_U_TIME = Field.packed(s_WS_U_TIME, 0, 15, 0, true);") == (
+        "WS-U-TIME",
+        "WS-U-TIME",
+    )
+    assert sa.field_of("private final Field f69_TITLE01L = Field.binary(s_COADM1AI, 23, 4, 0, true, false);") == (
+        "TITLE01L",
+        "COADM1AI",
+    )
+    assert sa.field_of("if (task.exactCommarea()) {") is None
+
+
+def test_an_unread_item_settles_its_field_mutants_only():
+    unread = {("COADM1AI", "TITLE01L")}
+    hit = {"before": "private final Field f69_TITLE01L = Field.binary(s_COADM1AI, 23, 4, 0, true, false);"}
+    other = {"before": "private final Field f70_TITLE02L = Field.binary(s_COADM1AI, 27, 4, 0, true, false);"}
+    assert sa.unread_fact(hit, unread)["result"] == "solver-unread"
+    assert sa.unread_fact(other, unread) is None
+    assert dm.attempt_problems("equivalent", [{"result": "solver-unread"}]) == []
+
+
+def test_the_solver_finds_an_item_no_reachable_statement_uses(tmp_path):
+    pytest.importorskip("z3")
+    pytest.importorskip("tree_sitter_language_pack")
+    import branch_solver as bs
+
+    src = tmp_path / "T.cbl"
+    src.write_text(
+        "\n".join(
+            [
+                "       IDENTIFICATION DIVISION.",
+                "       PROGRAM-ID. T.",
+                "       DATA DIVISION.",
+                "       WORKING-STORAGE SECTION.",
+                "       01 W-USED PIC X VALUE 'A'.",
+                "       01 W-DEAD PIC X VALUE 'B'.",
+                "       01 W-NEVER PIC X VALUE 'C'.",
+                "       PROCEDURE DIVISION.",
+                "       A000.",
+                "           DISPLAY W-USED",
+                "           GOBACK.",
+                "       B000.",
+                "           DISPLAY W-DEAD.",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    got = bs.unread_items(bs.load_program(src, []), {})
+    assert {x["item"] for x in got["unread"]} == {"W-DEAD", "W-NEVER"}
+
+
+def test_dfhaid_counts_as_used_by_the_runtime():
+    import branch_solver as bs
+
+    assert "DFHAID" in bs.RUNTIME_RECORDS and "DFHEIBLK" in bs.RUNTIME_RECORDS

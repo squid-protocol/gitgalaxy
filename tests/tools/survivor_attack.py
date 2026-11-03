@@ -363,6 +363,42 @@ def solver_fact(stated: dict[str, Any], verdicts: dict[str, str]) -> dict[str, s
     return None
 
 
+_FIELD_DECL = re.compile(r"\bf\d+_(\w+)\s*=\s*Field\.\w+\(\s*s_(\w+)")
+
+
+def field_of(before: str) -> tuple[str, str] | None:
+    """(COBOL item, COBOL record) a det-port Field declaration names (`f12_WS_X = Field.alphanumeric(s_REC, ...)`)."""
+    m = _FIELD_DECL.search(before)
+    return (m.group(1).replace("_", "-"), m.group(2).replace("_", "-")) if m else None
+
+
+def solver_unread(case: str, work: Path) -> set[tuple[str, str]] | None:
+    """(record, item) of the WORKING-STORAGE items no reachable statement uses (branch_solver.py fields), or None."""
+    try:
+        import z3  # type: ignore[import-not-found,import-untyped,unused-ignore]  # noqa: F401, PLC0415
+    except ImportError:
+        return None
+    import branch_solver as bs  # noqa: PLC0415
+
+    try:
+        res = bs.fields_used(case, work / "branch-solver")
+    except Exception as e:  # noqa: BLE001 -- a program the walk cannot read: no solver facts, never a failure
+        print(f"branch_solver: {case}: {type(e).__name__}: {e}"[:300])
+        return None
+    return {(str(x["record"]).upper(), str(x["item"]).upper()) for x in res["unread"]}
+
+
+def unread_fact(mutant: dict[str, Any], unread: set[tuple[str, str]]) -> dict[str, str] | None:
+    """A mutant of the Field declaration of an item no reachable statement uses: nothing any input sees changes."""
+    f = field_of(str(mutant.get("before") or ""))
+    if f is None:
+        return None
+    item, record = f
+    if (record, item) in unread or (item == record and (record, item) in unread):
+        return {"result": "solver-unread", "fact": f"branch_solver: no reachable statement uses {item} ({record})"}
+    return None
+
+
 def cmd_facts(case: str, work: Path) -> int:
     port = det_port(case, work)
     entry = dm.load().get(case) or {}
@@ -371,6 +407,13 @@ def cmd_facts(case: str, work: Path) -> int:
     for s in entry.get("survived", []):
         text = texts.setdefault(s["file"], (port / s["file"]).read_text(encoding="utf-8"))
         fact = port_fact(text, s)
+        if fact:
+            settled[s["id"]] = {**fact, "date": time.strftime("%Y-%m-%d")}
+    unread = (
+        solver_unread(case, work) if any(field_of(s.get("before") or "") for s in entry.get("survived", [])) else None
+    )
+    for s in entry.get("survived", []):
+        fact = unread_fact(s, unread) if unread and s["id"] not in settled else None
         if fact:
             settled[s["id"]] = {**fact, "date": time.strftime("%Y-%m-%d")}
     stated = dm.stated(case)

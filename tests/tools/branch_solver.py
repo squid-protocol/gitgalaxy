@@ -499,6 +499,7 @@ class Walk:
         self.arms = evaluate_arms or {}
         self.symbols: dict[str, tuple[str, L.Item, int]] = {}  # z3 name -> (origin, item, line)
         self.exec_text: dict[int, str] = {}  # line -> EXEC text (where an exec: value came from)
+        self.at: dict[int, list[Any]] = {}  # id(statement) -> the path conditions it runs under
         # resp symbol -> (line, command, resource key, resource name): a CICS command's response, for a fault plan
         self.resp_meta: dict[str, tuple[int, str, str | None, str | None]] = {}
         self._n = 0
@@ -1108,6 +1109,7 @@ class Walk:
         for s in stmts:
             if cur is None:
                 break
+            self.at.setdefault(id(s), []).append(cur.pc)  # where the statement runs (fields_used)
             cur, g = self.stmt(s, cur)
             gotos += g
         return cur, gotos
@@ -1764,6 +1766,73 @@ def backend(case: str, prompt_file: Path, work: Path, timeout_ms: int = TIMEOUT_
     return out
 
 
+RUNTIME_RECORDS = ("DFHEIBLK", "SQLCA", "DFHAID")  # records the det runtime reads or sets outside any statement
+
+
+def fields_used(case: str, work: Path, timeout_ms: int = TIMEOUT_MS) -> dict[str, Any]:
+    """Which WORKING-STORAGE items' accessors no reachable statement runs (`unread`): a det-port mutant of such an
+    item's Field declaration (offset, length, kind) changes nothing any input can see. An item counts as `used` when a
+    reachable statement names it, an ancestor or a condition-name of either; a symbolic-map item when a reachable SEND
+    / RECEIVE MAP names its map; and always when the runtime may touch it outside a statement (LINKAGE, FILE SECTION,
+    the EIB, DFHAID, the SQLCA, FILE STATUS, an ODO object, an item whose ADDRESS is taken, a numeric-edited item set at creation).
+    Every doubt counts as used. {"case", "incomplete", "unread": [{"record", "item"}], "used": count}."""
+    prog = case_program(case, work)
+    spec = json.loads((REPO / "tests" / "equivalence" / case / "case.json").read_text(encoding="utf-8"))
+    return {"case": case, **unread_items(prog, spec, timeout_ms)}
+
+
+def unread_items(prog: Program, spec: dict[str, Any], timeout_ms: int = TIMEOUT_MS) -> dict[str, Any]:
+    """fields_used for a loaded program and its case.json (`spec`)."""
+    w = Walk(prog, evaluate_arms(prog.source))
+    w.explore()
+    out: dict[str, Any] = {"incomplete": sorted(set(w.why)), "unread": [], "used": 0}
+    stmts = [x for p in prog.proc.paragraphs for x in S.walk(p.body)]
+    maps = {m.upper() for x in stmts if x.kind == "EXEC" for m in re.findall(r"\bMAP\s*\(\s*'([^']+)'", x.text, re.I)}
+    # the records the harness fills or reads through a typed DTO: the COMMAREA segments, the datasets' records
+    dto = {str(seg.get("record", "")).upper() for seg in (spec.get("commarea") or {}).get("segments", [])}
+    for ds in (spec.get("datasets") or {}).values():
+        dto |= {str(ds.get(k, "")).upper() for k in ("record", "into") if isinstance(ds, dict) and ds.get(k)}
+    always: set[int] = set()
+    for r in prog.records:
+        if r.name.upper() in dto:
+            always |= {id(x) for x in r.walk()}
+        for x in r.walk():
+            # DFHAID: the runtime's AID switch reads its constants at task start (MOVE DFHPF3 TO EIBAID), no statement
+            if x.section not in ("WORKING-STORAGE", "LOCAL-STORAGE") or r.name.upper() in RUNTIME_RECORDS:
+                always.add(id(x))
+            if x.depending:
+                always |= {id(d) for d in w.items.by_name.get(x.depending.upper(), [])}
+        always |= {id(x) for x in L.runtime_init(r)}
+    always |= {id(x) for x in w.writes.status}
+    always |= {id(x) for r in prog.records if id(_root(r)) in w.items.aliased for x in r.walk()}
+    users: dict[int, list[Any]] = {}
+    for x in stmts:
+        if id(x) not in w.at:
+            continue  # never reached by the walk: no use
+        named = {id(i) for i in w.items.mentioned(x.text)}
+        if x.kind == "EXEC" and re.search(r"\b(SEND|RECEIVE)\s+MAP\b", x.text, re.I):
+            named |= {id(i) for r in prog.records if r.name.upper()[:-1] in maps and r.name.upper()[-1:] in "IO"
+                      for i in r.walk()}  # fmt: skip
+        for i in named:
+            users.setdefault(i, []).extend(w.at[id(x)])
+    for r in prog.records:
+        for x in r.walk():
+            if x.level in (66, 88):
+                continue
+            if id(x) in always:
+                out["used"] += 1
+                continue
+            pcs = users.get(id(x), [])
+            if pcs and w.ask(pcs, timeout_ms)[0] != "confirmed":
+                out["used"] += 1
+                continue
+            out["unread"].append({"record": r.name, "item": x.name})
+    if w.why:  # an incomplete walk settles nothing
+        out["used"] += len(out["unread"])
+        out["unread"] = []
+    return out
+
+
 def summary(results: list[dict[str, Any]]) -> dict[str, Any]:
     tally: dict[str, dict[str, int]] = {}
     for r in results:
@@ -1812,6 +1881,10 @@ def main(argv: list[str] | None = None) -> int:
     g.add_argument("case")
     g.add_argument("--timeout", type=float, default=TIMEOUT_MS / 1000)
     g.add_argument("--work", type=Path, default=Path("/tmp/gitgalaxy-scratch/branch-solver"))
+    fu = sub.add_parser("fields", help="WORKING-STORAGE items no reachable statement uses (Field-mutant facts)")
+    fu.add_argument("case")
+    fu.add_argument("--timeout", type=float, default=TIMEOUT_MS / 1000)
+    fu.add_argument("--work", type=Path, default=Path("/tmp/gitgalaxy-scratch/branch-solver"))
     b = sub.add_parser("backend", help="strengthen.py's --backend-command: inputs for the prompt's uncovered branches")
     b.add_argument("case")
     b.add_argument("prompt_file", type=Path)
@@ -1820,6 +1893,9 @@ def main(argv: list[str] | None = None) -> int:
     args = ap.parse_args(argv)
     args.work.mkdir(parents=True, exist_ok=True)
     ms = int(args.timeout * 1000)
+    if args.cmd == "fields":
+        print(json.dumps(fields_used(args.case, args.work, ms), indent=1))
+        return 0
     if args.cmd == "backend":
         print(json.dumps(backend(args.case, args.prompt_file, args.work, ms), indent=1, default=str))
         return 0

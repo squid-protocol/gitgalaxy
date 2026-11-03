@@ -1439,6 +1439,23 @@ def csd_programs(corpus: Path, case: dict[str, Any]) -> list[str] | None:
     return sorted(set(re.findall(r"DEFINE\s+PROGRAM\(([A-Z0-9@#$]{1,8})\)", text)))
 
 
+def undefined_programs(case: dict[str, Any]) -> list[str]:
+    """#7589: the programs the case states are not defined in the region (`"undefined_programs"`, a deployment fact like
+    `csd`): a LINK / XCTL / INQUIRE / LOAD / RELEASE of one is PGMIDERR (RESP2 1) on both sides, as IBM documents. Another
+    untranslated program is still refused (NOPROGRAM), so the list is a deny-list. Absent: none."""
+    names = case.get("undefined_programs")
+    if names is None:
+        return []
+    own = {case.get("program"), *(x["program"] for x in case.get("programs", []))}
+    if not isinstance(names, list) or not all(
+        isinstance(n, str) and re.fullmatch(r"[A-Z0-9@#$]{1,8}", n) for n in names
+    ):
+        raise Unsupported('"undefined_programs" is a list of program names (1-8 characters of A-Z 0-9 @ # $)')
+    if bad := sorted(set(names) & own):
+        raise Unsupported(f'"undefined_programs" names {", ".join(bad)}, a program the case runs')
+    return sorted(set(names))
+
+
 def csd_tdqueues(corpus: Path, case: dict[str, Any]) -> list[str] | None:
     """The transient-data queues the case's CSD defines (DEFINE TDQUEUE), or None: every queue is defined."""
     types = csd_tdqueue_types(corpus, case)
@@ -1993,6 +2010,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
     if db2:
         script.append(f"gcc -O2 -o ggsqlrun src/ggsqlrun.c {equivalence_db2.COBOL_LINK}")
     programs = csd_programs(corpus, case)
+    gone = undefined_programs(case)  # #7589
     tdqueues = csd_tdqueue_types(corpus, case)
     if "'APPLID' TO GG-NAME2" in text or "'SYSID' TO GG-NAME2" in text:
         if not (case.get("region") or {}).get("applid") or not case["region"].get("sysid"):
@@ -2091,6 +2109,8 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             )
         if programs is not None:  # the CSD's programs; absent, every program is defined
             (d / "programs.cfg").write_text("".join(f"{p}\n" for p in programs), encoding="ascii")
+        if gone:  # #7589: the programs the case states undefined (the stub's program_defined)
+            (d / "noprograms.cfg").write_text("".join(f"{p}\n" for p in gone), encoding="ascii")
         if tdqueues is not None:  # the CSD's transient-data queues; absent, every queue is defined
             # (#5079, X57: `NAME TYPE`; the stub reads INTRA, EXTRA, and any other TYPE as a queue it does not model)
             tdattrs = csd_tdqueue_attrs(
@@ -3272,10 +3292,17 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
         for p in extras
     )  # the case's other programs (a LINK's target), each through its service (#4449: java-facade: its handleLink)
     transactions = case_transactions(case) if case.get("transactions") is not None else None
-    if programs is not None or extras or transactions is not None:  # the CSD's programs: an XCTL / LINK / INQUIRE
+    gone = undefined_programs(case)  # #7589
+    if (
+        programs is not None or extras or transactions is not None or gone
+    ):  # the CSD's programs: an XCTL / LINK / INQUIRE
         # of any other is PGMIDERR; #4270: its transactions (a RUN TRANSID / START of any other is TRANSIDERR)
         defined = (f"java.util.Set.of({', '.join(f'{chr(34)}{p}{chr(34)}' for p in programs)}).contains(program)"
                    if programs is not None else "true")  # fmt: skip
+        if gone:  # #7589: stated undefined, whatever the CSD says
+            defined = (
+                f"!java.util.Set.of({', '.join(f'{chr(34)}{p}{chr(34)}' for p in gone)}).contains(program) && {defined}"
+            )
         tx_java = ("" if transactions is None else "                public boolean transaction(String transid) { "
                    f"return java.util.Set.of({', '.join(f'{chr(34)}{t}{chr(34)}' for t in transactions)})"
                    ".contains(transid); }\n")  # fmt: skip
@@ -4202,6 +4229,8 @@ def _java_events(case: dict[str, Any], out: Path, shape: dict[str, Any],
                 e["commarea"] = java_area(e.pop("area"), ca_fields or [], enc)
             elif e.get("event") == "COMMAREA" and isinstance(e.get("commarea"), str) and not ca_fields:
                 pass  # #5859: an untyped COMMAREA's end storage: linked_result drops it for a program not LINKed to, as the stub's
+            elif e.get("event") == "LINK" and isinstance(e.get("commarea"), str) and not ca_fields:
+                pass  # #7589: a LINK that failed (PGMIDERR) carries the caller's bytes as issued; a LINK is compared by target
             elif "commarea" in e:
                 if isinstance(e["commarea"], dict):  # #4778: a DTO -- no property holds a FILLER (compare_events)
                     e["commarea_dto"] = True

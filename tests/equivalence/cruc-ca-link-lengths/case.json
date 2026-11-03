@@ -17,6 +17,9 @@
       "program_source": "cases/commarea-mismatch/ca-link-lengths/src/CASUB.cbl"
     }
   ],
+  "undefined_programs": [
+    "CAGONE"
+  ],
   "notes": "cics-crucible commarea-mismatch / ca-link-lengths (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): LINK with a COMMAREA shorter than, longer than, or absent from what the callee declares; LINK to an undefined program. Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
   "scenarios": [
     {
@@ -36,6 +39,12 @@
       "commarea": null,
       "terminal": "CA01 Z",
       "why": "LINK without COMMAREA: EIBCALEN 0, the callee must not touch DFHCOMMAREA"
+    },
+    {
+      "name": "undefined-program",
+      "commarea": null,
+      "terminal": "CA01 P",
+      "why": "LINK PROGRAM('CAGONE') with RESP/RESP2, a program the region does not define: PGMIDERR (RESP 27), RESP2 1 (IBM, EXEC CICS LINK); the callee never runs (#7589)"
     }
   ]
 }

@@ -12,9 +12,11 @@ import equivalence_cics as ec
 
 FILE_VERBS = frozenset({"READ", "WRITE", "REWRITE", "STARTBR", "READNEXT", "READPREV", "ENDBR", "DELETE", "UNLOCK"})
 # #7434: the file events both runtimes record (SPEC 6.2) that the harness compares; the stub's other file events
-# (WRITE, DELETE, the browse) are the sibling gap
-FILE_EVENT_VERBS = frozenset({"READ", "REWRITE", "UNLOCK"})
+# (WRITE, DELETE, RESETBR, the RBA browse) are the sibling gap
+BROWSE_EVENT_VERBS = frozenset({"STARTBR", "READNEXT", "READPREV", "ENDBR"})
+FILE_EVENT_VERBS = frozenset({"READ", "REWRITE", "UNLOCK"}) | BROWSE_EVENT_VERBS
 FILE_EVENT_KEYS = ("file", "update", "resp", "resp2", "length", "data")
+BROWSE_EVENT_KEYS = ("ridfld", "mode", "set")
 
 
 def cobol_file_event(verb: str, kv: dict[str, str], data: bytes) -> dict[str, object]:
@@ -30,6 +32,15 @@ def cobol_file_event(verb: str, kv: dict[str, str], data: bytes) -> dict[str, ob
         e["length"] = int(kv["len"])
     if data:
         e["data"] = data.hex().upper()
+    if (
+        verb in BROWSE_EVENT_VERBS
+    ):  # the key on entry (hex, ASCII as the program holds it), STARTBR's mode, the SET form
+        if "rid" in kv:
+            e["ridfld"] = kv["rid"].upper()
+        if "mode" in kv:
+            e["mode"] = kv["mode"]
+        if kv.get("set") == "1":
+            e["set"] = True
     return e
 
 
@@ -40,6 +51,8 @@ def java_file_event_as_compared(e: dict[str, object]) -> dict[str, object]:
     out = dict(e)
     if isinstance(out.get("data"), str):
         out["data"] = base64.b64decode(str(out["data"])).hex().upper()
+    if isinstance(out.get("ridfld"), str):  # a browse's key on entry, in the program's page like `data`
+        out["ridfld"] = base64.b64decode(str(out["ridfld"])).hex().upper()
     return out
 
 

@@ -4666,7 +4666,8 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
                 if (key in c or key in j) and not _same(c.get(key), j.get(key)):
                     bad.append({"field": key, "cobol": c.get(key), "java": j.get(key)})
         if c["event"] in cics_filecontrol.FILE_EVENT_VERBS:  # #7434: file, UPDATE, RESP2, LENGTH, both ways
-            for key in ("file", "update", "resp", "resp2", "length", "data"):  # (data: hex, compared exactly)
+            browse = c["event"] in cics_filecontrol.BROWSE_EVENT_VERBS  # the key on entry, STARTBR's mode, the SET form
+            for key in (*cics_filecontrol.FILE_EVENT_KEYS, *(cics_filecontrol.BROWSE_EVENT_KEYS if browse else ())):
                 if (key in c or key in j) and c.get(key) != j.get(key) and not any(b["field"] == key for b in bad):
                     bad.append({"field": key, "cobol": c.get(key), "java": j.get(key)})
         if c["event"] == "WEB-CONVERSE":  # #4767 (X35): the request each side sent, both ways

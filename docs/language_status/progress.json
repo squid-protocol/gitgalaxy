@@ -1,5 +1,5 @@
 {
- "commit": "0110c7343",
+ "commit": "3ae2d742e",
  "components": {
   "capabilities": {
    "groups": [
@@ -481,15 +481,15 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-11-03T15:10:21Z",
+  "as_of": "2026-11-03T15:42:49Z",
   "core": {
    "closed": 206,
    "open": 10,
    "total": 216
   },
   "core_last_window": {
-   "closed": 24,
-   "net_closed": 11,
+   "closed": 23,
+   "net_closed": 10,
    "opened": 13
   },
   "core_milestone": {
@@ -505,7 +505,7 @@
    "4893": "open",
    "4894": "open"
   },
-  "eta": "6 days",
+  "eta": "7 days",
   "frontier": {
    "closed": 123,
    "found_last_window": 2,

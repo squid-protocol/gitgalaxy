@@ -5,6 +5,7 @@
  "verdicts": {
   "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
   "unreachable": "no input of the program reaches the changed code",
+  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
   "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
   "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
  },
@@ -2797,8 +2798,8 @@
    "line": 780,
    "before": "if (planned14[0] == 0) task.sendText(text13.substring(0, Math.min(text13.length(), BigDecimal.valueOf(1920).intValue())), BigDecimal.valueOf(1920).intValue(), \"ERASE\");",
    "after": "if (planned14[1] == 0) task.sendText(text13.substring(0, Math.min(text13.length(), BigDecimal.valueOf(1920).intValue())), BigDecimal.valueOf(1920).intValue(), \"ERASE\");",
-   "verdict": "equivalent",
-   "reason": "Buffer length 1920 vs 1921: text length is 1920 so Math.min clamps to 1920 producing identical output."
+   "verdict": "harness-gap",
+   "reason": "Z1000-EXIT-PROGRAM SEND FROM(TERM-DATA) LENGTH(LENGTH OF TERM-DATA) ERASE NOHANDLE: the length is the compile-time constant 1920, so IBM's SEND (3270 logical) LENGERR (out-of-range LENGTH) cannot occur and INVREQ RESP2 200 is a DPL-server condition this terminal-started program never is. The mutant reads planned14[1] (RESP2) instead of planned14[0] (RESP) and differs only when SEND fails with a nonzero RESP and RESP2 of 0, which IBM documents as TERMERR (session error, any operands); the stub cannot plan a TERMERR (register X71), so that input cannot be stated"
   },
   {
    "id": "c8c22e9cb2",

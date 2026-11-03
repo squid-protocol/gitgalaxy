@@ -407,20 +407,20 @@
    "reason": "the length of the SQLCA group is never used: SQLCODE is addressed by its own field and DetSql stores into that"
   },
   {
-   "id": "67ce2d8428",
-   "op": "CON",
-   "line": 150,
-   "before": "private final Field f84_WS_U_TIME = Field.packed(s_WS_U_TIME, 0, 15, 0, true);",
-   "after": "private final Field f84_WS_U_TIME = Field.packed(s_WS_U_TIME, 0, 16, 0, true);",
-   "verdict": "unreachable",
-   "reason": "POPULATE-TIME-DATE (p9..p11) is never PERFORMed: the program runs P010 -> UPDATE-ACCOUNT-DB2 -> GET-ME-OUT-OF-HERE and GOBACKs at the RETURN; WS-U-TIME, WS-ORIG-DATE and WS-TIME-NOW are written and read only there"
-  },
-  {
    "id": "64bac24e25",
    "op": "CON",
    "line": 150,
    "before": "private final Field f84_WS_U_TIME = Field.packed(s_WS_U_TIME, 0, 15, 0, true);",
    "after": "private final Field f84_WS_U_TIME = Field.packed(s_WS_U_TIME, 0, 15, 1, true);",
+   "verdict": "unreachable",
+   "reason": "POPULATE-TIME-DATE (p9..p11) is never PERFORMed: the program runs P010 -> UPDATE-ACCOUNT-DB2 -> GET-ME-OUT-OF-HERE and GOBACKs at the RETURN; WS-U-TIME, WS-ORIG-DATE and WS-TIME-NOW are written and read only there"
+  },
+  {
+   "id": "67ce2d8428",
+   "op": "CON",
+   "line": 150,
+   "before": "private final Field f84_WS_U_TIME = Field.packed(s_WS_U_TIME, 0, 15, 0, true);",
+   "after": "private final Field f84_WS_U_TIME = Field.packed(s_WS_U_TIME, 0, 16, 0, true);",
    "verdict": "unreachable",
    "reason": "POPULATE-TIME-DATE (p9..p11) is never PERFORMed: the program runs P010 -> UPDATE-ACCOUNT-DB2 -> GET-ME-OUT-OF-HERE and GOBACKs at the RETURN; WS-U-TIME, WS-ORIG-DATE and WS-TIME-NOW are written and read only there"
   },
@@ -434,15 +434,6 @@
    "reason": "POPULATE-TIME-DATE (p9..p11) is never PERFORMed: the program runs P010 -> UPDATE-ACCOUNT-DB2 -> GET-ME-OUT-OF-HERE and GOBACKs at the RETURN; WS-U-TIME, WS-ORIG-DATE and WS-TIME-NOW are written and read only there"
   },
   {
-   "id": "6defa7bf16",
-   "op": "CON",
-   "line": 151,
-   "before": "private final Field f85_WS_ORIG_DATE = Field.alphanumeric(s_WS_ORIG_DATE, 0, 10, false);",
-   "after": "private final Field f85_WS_ORIG_DATE = Field.alphanumeric(s_WS_ORIG_DATE, 1, 10, false);",
-   "verdict": "unreachable",
-   "reason": "POPULATE-TIME-DATE (p9..p11) is never PERFORMed: the program runs P010 -> UPDATE-ACCOUNT-DB2 -> GET-ME-OUT-OF-HERE and GOBACKs at the RETURN; WS-U-TIME, WS-ORIG-DATE and WS-TIME-NOW are written and read only there"
-  },
-  {
    "id": "3c9c8f35be",
    "op": "CON",
    "line": 151,
@@ -452,11 +443,11 @@
    "reason": "POPULATE-TIME-DATE (p9..p11) is never PERFORMed: the program runs P010 -> UPDATE-ACCOUNT-DB2 -> GET-ME-OUT-OF-HERE and GOBACKs at the RETURN; WS-U-TIME, WS-ORIG-DATE and WS-TIME-NOW are written and read only there"
   },
   {
-   "id": "6e060bbbcc",
+   "id": "6defa7bf16",
    "op": "CON",
-   "line": 152,
-   "before": "private final Field f104_WS_TIME_NOW = Field.zoned(s_WS_TIME_DATA, 0, 6, 0, false, false, false);",
-   "after": "private final Field f104_WS_TIME_NOW = Field.zoned(s_WS_TIME_DATA, 1, 6, 0, false, false, false);",
+   "line": 151,
+   "before": "private final Field f85_WS_ORIG_DATE = Field.alphanumeric(s_WS_ORIG_DATE, 0, 10, false);",
+   "after": "private final Field f85_WS_ORIG_DATE = Field.alphanumeric(s_WS_ORIG_DATE, 1, 10, false);",
    "verdict": "unreachable",
    "reason": "POPULATE-TIME-DATE (p9..p11) is never PERFORMed: the program runs P010 -> UPDATE-ACCOUNT-DB2 -> GET-ME-OUT-OF-HERE and GOBACKs at the RETURN; WS-U-TIME, WS-ORIG-DATE and WS-TIME-NOW are written and read only there"
   },
@@ -466,6 +457,15 @@
    "line": 152,
    "before": "private final Field f104_WS_TIME_NOW = Field.zoned(s_WS_TIME_DATA, 0, 6, 0, false, false, false);",
    "after": "private final Field f104_WS_TIME_NOW = Field.zoned(s_WS_TIME_DATA, 0, 6, 1, false, false, false);",
+   "verdict": "unreachable",
+   "reason": "POPULATE-TIME-DATE (p9..p11) is never PERFORMed: the program runs P010 -> UPDATE-ACCOUNT-DB2 -> GET-ME-OUT-OF-HERE and GOBACKs at the RETURN; WS-U-TIME, WS-ORIG-DATE and WS-TIME-NOW are written and read only there"
+  },
+  {
+   "id": "6e060bbbcc",
+   "op": "CON",
+   "line": 152,
+   "before": "private final Field f104_WS_TIME_NOW = Field.zoned(s_WS_TIME_DATA, 0, 6, 0, false, false, false);",
+   "after": "private final Field f104_WS_TIME_NOW = Field.zoned(s_WS_TIME_DATA, 1, 6, 0, false, false, false);",
    "verdict": "unreachable",
    "reason": "POPULATE-TIME-DATE (p9..p11) is never PERFORMed: the program runs P010 -> UPDATE-ACCOUNT-DB2 -> GET-ME-OUT-OF-HERE and GOBACKs at the RETURN; WS-U-TIME, WS-ORIG-DATE and WS-TIME-NOW are written and read only there"
   },
@@ -506,11 +506,11 @@
    "reason": "COMM-ACC-TYPE one byte longer overlaps the first byte of COMM-INT-RATE: `COMM-ACC-TYPE = SPACES` is only true when byte 1 is a space, which the OR'd `(1:1) = ' '` test also catches, and a longer source MOVEs into HV-ACCOUNT-ACC-TYPE (8) with the extra byte cut; the success path rewrites COMM-INT-RATE after COMM-ACC-TYPE"
   },
   {
-   "id": "af7aac3f57",
+   "id": "0ddf67e60a",
    "op": "CON",
    "line": 172,
    "before": "private final Field f151_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
-   "after": "private final Field f151_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 1, true);",
+   "after": "private final Field f151_EIBTIME = Field.packed(s_DFHEIBLK, 1, 7, 0, true);",
    "verdict": "equivalent",
    "reason": "EIB / RETURN-CODE field layout: UPDACC's PROCEDURE DIVISION references no EIB field and not RETURN-CODE, and neither block is compared, so the layout cannot show"
   },
@@ -524,20 +524,11 @@
    "reason": "EIB / RETURN-CODE field layout: UPDACC's PROCEDURE DIVISION references no EIB field and not RETURN-CODE, and neither block is compared, so the layout cannot show"
   },
   {
-   "id": "0ddf67e60a",
+   "id": "af7aac3f57",
    "op": "CON",
    "line": 172,
    "before": "private final Field f151_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
-   "after": "private final Field f151_EIBTIME = Field.packed(s_DFHEIBLK, 1, 7, 0, true);",
-   "verdict": "equivalent",
-   "reason": "EIB / RETURN-CODE field layout: UPDACC's PROCEDURE DIVISION references no EIB field and not RETURN-CODE, and neither block is compared, so the layout cannot show"
-  },
-  {
-   "id": "2a7569cab3",
-   "op": "CON",
-   "line": 173,
-   "before": "private final Field f152_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
-   "after": "private final Field f152_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 1, true);",
+   "after": "private final Field f151_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 1, true);",
    "verdict": "equivalent",
    "reason": "EIB / RETURN-CODE field layout: UPDACC's PROCEDURE DIVISION references no EIB field and not RETURN-CODE, and neither block is compared, so the layout cannot show"
   },
@@ -551,20 +542,20 @@
    "reason": "EIB / RETURN-CODE field layout: UPDACC's PROCEDURE DIVISION references no EIB field and not RETURN-CODE, and neither block is compared, so the layout cannot show"
   },
   {
+   "id": "2a7569cab3",
+   "op": "CON",
+   "line": 173,
+   "before": "private final Field f152_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+   "after": "private final Field f152_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 1, true);",
+   "verdict": "equivalent",
+   "reason": "EIB / RETURN-CODE field layout: UPDACC's PROCEDURE DIVISION references no EIB field and not RETURN-CODE, and neither block is compared, so the layout cannot show"
+  },
+  {
    "id": "2d856ab943",
    "op": "CON",
    "line": 173,
    "before": "private final Field f152_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
    "after": "private final Field f152_EIBDATE = Field.packed(s_DFHEIBLK, 5, 7, 0, true);",
-   "verdict": "equivalent",
-   "reason": "EIB / RETURN-CODE field layout: UPDACC's PROCEDURE DIVISION references no EIB field and not RETURN-CODE, and neither block is compared, so the layout cannot show"
-  },
-  {
-   "id": "f58c64874f",
-   "op": "CON",
-   "line": 174,
-   "before": "private final Field f153_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 4, false);",
-   "after": "private final Field f153_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 9, 4, false);",
    "verdict": "equivalent",
    "reason": "EIB / RETURN-CODE field layout: UPDACC's PROCEDURE DIVISION references no EIB field and not RETURN-CODE, and neither block is compared, so the layout cannot show"
   },
@@ -578,11 +569,11 @@
    "reason": "EIB / RETURN-CODE field layout: UPDACC's PROCEDURE DIVISION references no EIB field and not RETURN-CODE, and neither block is compared, so the layout cannot show"
   },
   {
-   "id": "7d9f9f57dc",
+   "id": "f58c64874f",
    "op": "CON",
-   "line": 175,
-   "before": "private final Field f154_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
-   "after": "private final Field f154_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 1, true);",
+   "line": 174,
+   "before": "private final Field f153_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 4, false);",
+   "after": "private final Field f153_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 9, 4, false);",
    "verdict": "equivalent",
    "reason": "EIB / RETURN-CODE field layout: UPDACC's PROCEDURE DIVISION references no EIB field and not RETURN-CODE, and neither block is compared, so the layout cannot show"
   },
@@ -592,6 +583,15 @@
    "line": 175,
    "before": "private final Field f154_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
    "after": "private final Field f154_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 8, 0, true);",
+   "verdict": "equivalent",
+   "reason": "EIB / RETURN-CODE field layout: UPDACC's PROCEDURE DIVISION references no EIB field and not RETURN-CODE, and neither block is compared, so the layout cannot show"
+  },
+  {
+   "id": "7d9f9f57dc",
+   "op": "CON",
+   "line": 175,
+   "before": "private final Field f154_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+   "after": "private final Field f154_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 1, true);",
    "verdict": "equivalent",
    "reason": "EIB / RETURN-CODE field layout: UPDACC's PROCEDURE DIVISION references no EIB field and not RETURN-CODE, and neither block is compared, so the layout cannot show"
   },
@@ -623,6 +623,15 @@
    "reason": "EIB / RETURN-CODE field layout: UPDACC's PROCEDURE DIVISION references no EIB field and not RETURN-CODE, and neither block is compared, so the layout cannot show"
   },
   {
+   "id": "27a83a4d1d",
+   "op": "CON",
+   "line": 177,
+   "before": "private final Field f158_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
+   "after": "private final Field f158_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "EIB / RETURN-CODE field layout: UPDACC's PROCEDURE DIVISION references no EIB field and not RETURN-CODE, and neither block is compared, so the layout cannot show"
+  },
+  {
    "id": "93a933d53a",
    "op": "CON",
    "line": 177,
@@ -641,29 +650,11 @@
    "reason": "EIB / RETURN-CODE field layout: UPDACC's PROCEDURE DIVISION references no EIB field and not RETURN-CODE, and neither block is compared, so the layout cannot show"
   },
   {
-   "id": "27a83a4d1d",
-   "op": "CON",
-   "line": 177,
-   "before": "private final Field f158_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
-   "after": "private final Field f158_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 1, true, false);",
-   "verdict": "equivalent",
-   "reason": "EIB / RETURN-CODE field layout: UPDACC's PROCEDURE DIVISION references no EIB field and not RETURN-CODE, and neither block is compared, so the layout cannot show"
-  },
-  {
    "id": "694ea9ce02",
    "op": "CON",
    "line": 178,
    "before": "private final Field f182_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
    "after": "private final Field f182_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 1, 4, 0, true, false);",
-   "verdict": "equivalent",
-   "reason": "EIB / RETURN-CODE field layout: UPDACC's PROCEDURE DIVISION references no EIB field and not RETURN-CODE, and neither block is compared, so the layout cannot show"
-  },
-  {
-   "id": "f82448ef64",
-   "op": "CON",
-   "line": 178,
-   "before": "private final Field f182_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
-   "after": "private final Field f182_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 5, 0, true, false);",
    "verdict": "equivalent",
    "reason": "EIB / RETURN-CODE field layout: UPDACC's PROCEDURE DIVISION references no EIB field and not RETURN-CODE, and neither block is compared, so the layout cannot show"
   },
@@ -677,11 +668,20 @@
    "reason": "EIB / RETURN-CODE field layout: UPDACC's PROCEDURE DIVISION references no EIB field and not RETURN-CODE, and neither block is compared, so the layout cannot show"
   },
   {
-   "id": "6780201f17",
-   "op": "ROR",
+   "id": "f82448ef64",
+   "op": "CON",
+   "line": 178,
+   "before": "private final Field f182_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+   "after": "private final Field f182_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 5, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "EIB / RETURN-CODE field layout: UPDACC's PROCEDURE DIVISION references no EIB field and not RETURN-CODE, and neither block is compared, so the layout cannot show"
+  },
+  {
+   "id": "2f7b493661",
+   "op": "NEG",
    "line": 192,
    "before": "if (task.level() > 1) {",
-   "after": "if (task.level() >= 1) {",
+   "after": "if (!(task.level() > 1)) {",
    "verdict": "unreachable",
    "reason": "abended() is called only from condition(); UPDACC issues no CICS command that can raise a condition (its EXEC CICS RETURN, and ASKTIME/FORMATTIME in the never PERFORMed paragraph), so it never runs"
   },
@@ -695,11 +695,11 @@
    "reason": "abended() is called only from condition(); UPDACC issues no CICS command that can raise a condition (its EXEC CICS RETURN, and ASKTIME/FORMATTIME in the never PERFORMed paragraph), so it never runs"
   },
   {
-   "id": "2f7b493661",
-   "op": "NEG",
+   "id": "6780201f17",
+   "op": "ROR",
    "line": 192,
    "before": "if (task.level() > 1) {",
-   "after": "if (!(task.level() > 1)) {",
+   "after": "if (task.level() >= 1) {",
    "verdict": "unreachable",
    "reason": "abended() is called only from condition(); UPDACC issues no CICS command that can raise a condition (its EXEC CICS RETURN, and ASKTIME/FORMATTIME in the never PERFORMed paragraph), so it never runs"
   },
@@ -740,6 +740,18 @@
    "reason": "The Hole / IllegalStateException is thrown by a file-store lookup reached only by a file command; UPDACC issues none."
   },
   {
+   "id": "b2d629ed56",
+   "op": "NEG",
+   "line": 200,
+   "before": "if (CicsTask.undefinableFile(name)) {",
+   "after": "if (!(CicsTask.undefinableFile(name))) {",
+   "verdict": "unreachable",
+   "reason": "UPDACC's store(name), the CicsTask.undefinableFile test negated: nothing in this port calls store() (every `store(` call is Cobol.store), and the program uses Db2 and EXEC CICS RETURN only, so no file command looks a store up.",
+   "tried": [
+    "plain-update"
+   ]
+  },
+  {
    "id": "ddd5ac8ac3",
    "op": "LIT",
    "line": 200,
@@ -749,20 +761,20 @@
    "reason": "The Hole / IllegalStateException is thrown by a file-store lookup reached only by a file command; UPDACC issues none."
   },
   {
-   "id": "b419e5bd5f",
-   "op": "LIT",
-   "line": 204,
-   "before": "java.util.Map.entry(\"PTD999\", 11),",
-   "after": "java.util.Map.entry(\"XTD999\", 11),",
-   "verdict": "unreachable",
-   "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; UPDACC has no HANDLE and raises no condition"
-  },
-  {
    "id": "40f6dfddf1",
    "op": "CON",
    "line": 204,
    "before": "java.util.Map.entry(\"PTD999\", 11),",
    "after": "java.util.Map.entry(\"PTD999\", 12),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; UPDACC has no HANDLE and raises no condition"
+  },
+  {
+   "id": "b419e5bd5f",
+   "op": "LIT",
+   "line": 204,
+   "before": "java.util.Map.entry(\"PTD999\", 11),",
+   "after": "java.util.Map.entry(\"XTD999\", 11),",
    "verdict": "unreachable",
    "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; UPDACC has no HANDLE and raises no condition"
   },
@@ -803,15 +815,6 @@
    "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; UPDACC has no HANDLE and raises no condition"
   },
   {
-   "id": "e615045eab",
-   "op": "LIT",
-   "line": 207,
-   "before": "java.util.Map.entry(\"GMOOH999\", 8),",
-   "after": "java.util.Map.entry(\"XMOOH999\", 8),",
-   "verdict": "unreachable",
-   "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; UPDACC has no HANDLE and raises no condition"
-  },
-  {
    "id": "dcd79ec644",
    "op": "CON",
    "line": 207,
@@ -821,11 +824,11 @@
    "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; UPDACC has no HANDLE and raises no condition"
   },
   {
-   "id": "49756be363",
+   "id": "e615045eab",
    "op": "LIT",
-   "line": 208,
-   "before": "java.util.Map.entry(\"GMOOH010\", 7),",
-   "after": "java.util.Map.entry(\"XMOOH010\", 7),",
+   "line": 207,
+   "before": "java.util.Map.entry(\"GMOOH999\", 8),",
+   "after": "java.util.Map.entry(\"XMOOH999\", 8),",
    "verdict": "unreachable",
    "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; UPDACC has no HANDLE and raises no condition"
   },
@@ -835,6 +838,15 @@
    "line": 208,
    "before": "java.util.Map.entry(\"GMOOH010\", 7),",
    "after": "java.util.Map.entry(\"GMOOH010\", 8),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; UPDACC has no HANDLE and raises no condition"
+  },
+  {
+   "id": "49756be363",
+   "op": "LIT",
+   "line": 208,
+   "before": "java.util.Map.entry(\"GMOOH010\", 7),",
+   "after": "java.util.Map.entry(\"XMOOH010\", 7),",
    "verdict": "unreachable",
    "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; UPDACC has no HANDLE and raises no condition"
   },
@@ -929,15 +941,6 @@
    "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; UPDACC has no HANDLE and raises no condition"
   },
   {
-   "id": "77e136e047",
-   "op": "LIT",
-   "line": 214,
-   "before": "java.util.Map.entry(\"A010\", 1),",
-   "after": "java.util.Map.entry(\"X010\", 1),",
-   "verdict": "unreachable",
-   "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; UPDACC has no HANDLE and raises no condition"
-  },
-  {
    "id": "4de3ae79a7",
    "op": "CON",
    "line": 214,
@@ -947,11 +950,11 @@
    "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; UPDACC has no HANDLE and raises no condition"
   },
   {
-   "id": "cd545537b0",
+   "id": "77e136e047",
    "op": "LIT",
-   "line": 215,
-   "before": "java.util.Map.entry(\"PREMIERE\", 0)",
-   "after": "java.util.Map.entry(\"XREMIERE\", 0)",
+   "line": 214,
+   "before": "java.util.Map.entry(\"A010\", 1),",
+   "after": "java.util.Map.entry(\"X010\", 1),",
    "verdict": "unreachable",
    "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; UPDACC has no HANDLE and raises no condition"
   },
@@ -961,6 +964,15 @@
    "line": 215,
    "before": "java.util.Map.entry(\"PREMIERE\", 0)",
    "after": "java.util.Map.entry(\"PREMIERE\", 1)",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; UPDACC has no HANDLE and raises no condition"
+  },
+  {
+   "id": "cd545537b0",
+   "op": "LIT",
+   "line": 215,
+   "before": "java.util.Map.entry(\"PREMIERE\", 0)",
+   "after": "java.util.Map.entry(\"XREMIERE\", 0)",
    "verdict": "unreachable",
    "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; UPDACC has no HANDLE and raises no condition"
   },
@@ -992,20 +1004,20 @@
    "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; UPDACC has no HANDLE and raises no condition"
   },
   {
-   "id": "cacbdb60d2",
-   "op": "ROR",
-   "line": 233,
-   "before": "if (h != null) {",
-   "after": "if (h == null) {",
-   "verdict": "unreachable",
-   "reason": "condition() runs only for a CICS condition a command raises without RESP; UPDACC raises none"
-  },
-  {
    "id": "399223b715",
    "op": "NEG",
    "line": 233,
    "before": "if (h != null) {",
    "after": "if (!(h != null)) {",
+   "verdict": "unreachable",
+   "reason": "condition() runs only for a CICS condition a command raises without RESP; UPDACC raises none"
+  },
+  {
+   "id": "cacbdb60d2",
+   "op": "ROR",
+   "line": 233,
+   "before": "if (h != null) {",
+   "after": "if (h == null) {",
    "verdict": "unreachable",
    "reason": "condition() runs only for a CICS condition a command raises without RESP; UPDACC raises none"
   },
@@ -1037,15 +1049,6 @@
    "reason": "condition() runs only for a CICS condition a command raises without RESP; UPDACC raises none"
   },
   {
-   "id": "39add1566d",
-   "op": "ROR",
-   "line": 240,
-   "before": "if (error != null) {",
-   "after": "if (error == null) {",
-   "verdict": "unreachable",
-   "reason": "condition() runs only for a CICS condition a command raises without RESP; UPDACC raises none"
-  },
-  {
    "id": "2a4b5b44f2",
    "op": "NEG",
    "line": 240,
@@ -1055,11 +1058,11 @@
    "reason": "condition() runs only for a CICS condition a command raises without RESP; UPDACC raises none"
   },
   {
-   "id": "d5eafc0ff5",
-   "op": "NEG",
-   "line": 244,
-   "before": "if (label == null) {",
-   "after": "if (!(label == null)) {",
+   "id": "39add1566d",
+   "op": "ROR",
+   "line": 240,
+   "before": "if (error != null) {",
+   "after": "if (error == null) {",
    "verdict": "unreachable",
    "reason": "condition() runs only for a CICS condition a command raises without RESP; UPDACC raises none"
   },
@@ -1069,6 +1072,15 @@
    "line": 244,
    "before": "if (label == null) {",
    "after": "if (label != null) {",
+   "verdict": "unreachable",
+   "reason": "condition() runs only for a CICS condition a command raises without RESP; UPDACC raises none"
+  },
+  {
+   "id": "d5eafc0ff5",
+   "op": "NEG",
+   "line": 244,
+   "before": "if (label == null) {",
+   "after": "if (!(label == null)) {",
    "verdict": "unreachable",
    "reason": "condition() runs only for a CICS condition a command raises without RESP; UPDACC raises none"
   },
@@ -1109,15 +1121,6 @@
    "reason": "the 11-wide COMM-CUSTNO write puts an eleventh byte on COMM-SCODE's first byte, which the program overwrites (line 161) and the next move rewrites"
   },
   {
-   "id": "a1a51aa76c",
-   "op": "ROR",
-   "line": 260,
-   "before": "Cobol.move(d.getCommScode() == null ? \"\" : d.getCommScode(), Field.alphanumeric(s, base + 14, 6, false), CS);",
-   "after": "Cobol.move(d.getCommScode() != null ? \"\" : d.getCommScode(), Field.alphanumeric(s, base + 14, 6, false), CS);",
-   "verdict": "equivalent",
-   "reason": "COMM-SCODE is overwritten by MOVE SORTCODE TO COMM-SCODE (UPDACC.cbl line 161, before the SELECT) on every path, so what in_ maps into it never shows; the null test only picks which value goes in"
-  },
-  {
    "id": "0bcb77380a",
    "op": "CON",
    "line": 260,
@@ -1125,6 +1128,15 @@
    "after": "Cobol.move(d.getCommScode() == null ? \"\" : d.getCommScode(), Field.alphanumeric(s, base + 15, 6, false), CS);",
    "verdict": "equivalent",
    "reason": "COMM-SCODE is overwritten by MOVE SORTCODE TO COMM-SCODE (UPDACC.cbl line 161, before the SELECT) on every path, so what in_ maps into it never shows; a shifted start leaves the initial byte, overwritten by line 161 all the same"
+  },
+  {
+   "id": "a1a51aa76c",
+   "op": "ROR",
+   "line": 260,
+   "before": "Cobol.move(d.getCommScode() == null ? \"\" : d.getCommScode(), Field.alphanumeric(s, base + 14, 6, false), CS);",
+   "after": "Cobol.move(d.getCommScode() != null ? \"\" : d.getCommScode(), Field.alphanumeric(s, base + 14, 6, false), CS);",
+   "verdict": "equivalent",
+   "reason": "COMM-SCODE is overwritten by MOVE SORTCODE TO COMM-SCODE (UPDACC.cbl line 161, before the SELECT) on every path, so what in_ maps into it never shows; the null test only picks which value goes in"
   },
   {
    "id": "e9e1aee017",
@@ -1145,15 +1157,6 @@
    "reason": "the 9-wide COMM-ACC-TYPE write puts a ninth byte on COMM-INT-RATE's first byte, which the next move (line 263) overwrites"
   },
   {
-   "id": "51feee23d5",
-   "op": "CON",
-   "line": 270,
-   "before": "Cobol.move(d.getCommSuccess() == null ? \"\" : d.getCommSuccess(), Field.alphanumeric(s, base + 98, 1, false), CS);",
-   "after": "Cobol.move(d.getCommSuccess() == null ? \"\" : d.getCommSuccess(), Field.alphanumeric(s, base + 98, 2, false), CS);",
-   "verdict": "equivalent",
-   "reason": "COMM-SUCCESS is set to 'N' or 'Y' on every path (lines 227, 268, 291, 327), so what in_ maps into it never shows; a second byte falls past the 99-byte record"
-  },
-  {
    "id": "19f11a861a",
    "op": "ROR",
    "line": 270,
@@ -1161,6 +1164,15 @@
    "after": "Cobol.move(d.getCommSuccess() != null ? \"\" : d.getCommSuccess(), Field.alphanumeric(s, base + 98, 1, false), CS);",
    "verdict": "equivalent",
    "reason": "COMM-SUCCESS is set to 'N' or 'Y' on every path (lines 227, 268, 291, 327), so the value in_ maps into it never shows"
+  },
+  {
+   "id": "51feee23d5",
+   "op": "CON",
+   "line": 270,
+   "before": "Cobol.move(d.getCommSuccess() == null ? \"\" : d.getCommSuccess(), Field.alphanumeric(s, base + 98, 1, false), CS);",
+   "after": "Cobol.move(d.getCommSuccess() == null ? \"\" : d.getCommSuccess(), Field.alphanumeric(s, base + 98, 2, false), CS);",
+   "verdict": "equivalent",
+   "reason": "COMM-SUCCESS is set to 'N' or 'Y' on every path (lines 227, 268, 291, 327), so what in_ maps into it never shows; a second byte falls past the 99-byte record"
   },
   {
    "id": "73b4a86f07",
@@ -1505,11 +1517,11 @@
    "reason": "UPDACC's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTASKN/EIBDATE/EIBTIME cannot show"
   },
   {
-   "id": "f5a716bd03",
-   "op": "CON",
+   "id": "25e67db576",
+   "op": "AOR",
    "line": 376,
    "before": "Cobol.store(f152_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
-   "after": "Cobol.store(f152_EIBDATE, BigDecimal.valueOf((now.getYear() - 1901) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f152_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);",
    "verdict": "equivalent",
    "reason": "UPDACC's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTASKN/EIBDATE/EIBTIME cannot show"
   },
@@ -1523,15 +1535,6 @@
    "reason": "UPDACC's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTASKN/EIBDATE/EIBTIME cannot show"
   },
   {
-   "id": "44d59c7276",
-   "op": "AOR",
-   "line": 376,
-   "before": "Cobol.store(f152_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
-   "after": "Cobol.store(f152_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);",
-   "verdict": "equivalent",
-   "reason": "UPDACC's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTASKN/EIBDATE/EIBTIME cannot show"
-  },
-  {
    "id": "3becd7b08b",
    "op": "DEL",
    "line": 376,
@@ -1541,20 +1544,20 @@
    "reason": "UPDACC's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTASKN/EIBDATE/EIBTIME cannot show"
   },
   {
-   "id": "25e67db576",
+   "id": "44d59c7276",
    "op": "AOR",
    "line": 376,
    "before": "Cobol.store(f152_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
-   "after": "Cobol.store(f152_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f152_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);",
    "verdict": "equivalent",
    "reason": "UPDACC's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTASKN/EIBDATE/EIBTIME cannot show"
   },
   {
-   "id": "664866bf49",
-   "op": "DEL",
-   "line": 377,
-   "before": "Cobol.store(f151_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
-   "after": "/* Cobol.store(f151_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS); */",
+   "id": "f5a716bd03",
+   "op": "CON",
+   "line": 376,
+   "before": "Cobol.store(f152_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f152_EIBDATE, BigDecimal.valueOf((now.getYear() - 1901) * 1000L + now.getDayOfYear()), false, CS);",
    "verdict": "equivalent",
    "reason": "UPDACC's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTASKN/EIBDATE/EIBTIME cannot show"
   },
@@ -1573,6 +1576,15 @@
    "line": 377,
    "before": "Cobol.store(f151_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
    "after": "Cobol.store(f151_EIBTIME, BigDecimal.valueOf(now.getHour() / 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "UPDACC's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTASKN/EIBDATE/EIBTIME cannot show"
+  },
+  {
+   "id": "664866bf49",
+   "op": "DEL",
+   "line": 377,
+   "before": "Cobol.store(f151_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "/* Cobol.store(f151_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS); */",
    "verdict": "equivalent",
    "reason": "UPDACC's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTASKN/EIBDATE/EIBTIME cannot show"
   },
@@ -1624,155 +1636,128 @@
   {
    "id": "b7197a0ba1",
    "op": "DEL",
-   "line": 388,
+   "line": 391,
    "before": "s_DFHCOMMAREA.beyond = null;",
    "after": "/* s_DFHCOMMAREA.beyond = null; */",
-   "verdict": "equivalent",
-   "reason": "s_DFHCOMMAREA.beyond is initialized to null on Storage creation; deleting this initialization leaves it null."
+   "verdict": "harness-gap",
+   "reason": "UPDACC's bytes past the 99-byte record, deleted `s_DFHCOMMAREA.beyond = null;`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-100, bytes-120, bytes-50, bytes-98, bytes-99)."
   },
   {
    "id": "2404a54455",
    "op": "DEL",
-   "line": 391,
+   "line": 394,
    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
    "after": "/* System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length)); */",
-   "verdict": "unreachable",
-   "reason": "ca instanceof byte[] branch is unreachable: callers pass UpdaccDfhcommarea DTO, never raw byte[]"
-  },
-  {
-   "id": "e1fc443066",
-   "op": "CON",
-   "line": 391,
-   "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "after": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 1, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "verdict": "unreachable",
-   "reason": "ca instanceof byte[] branch is unreachable: callers pass UpdaccDfhcommarea DTO, never raw byte[]"
+   "verdict": "harness-gap",
+   "reason": "UPDACC's byte[] COMMAREA entry, deleted `System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_`: killed with the case's layout dropped and commarea_hex inputs (bytes-100, bytes-120, bytes-50, bytes-98, bytes-99), so this branch is reachable by an XCTL or RETURN that passes bytes. `try` refuses commarea_hex on a typed case, so no case can state it yet."
   },
   {
    "id": "9eac9b039f",
    "op": "CON",
-   "line": 391,
+   "line": 394,
    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
    "after": "System.arraycopy(cb, 1, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "verdict": "unreachable",
-   "reason": "ca instanceof byte[] branch is unreachable: callers pass UpdaccDfhcommarea DTO, never raw byte[]"
+   "verdict": "harness-gap",
+   "reason": "UPDACC's byte[] COMMAREA entry, `System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, ` -> `b, 1, s_DFHCOMMAREA.bytes, `: killed with the case's layout dropped and commarea_hex inputs (bytes-100, bytes-120, bytes-50, bytes-98, bytes-99), so this branch is reachable by an XCTL or RETURN that passes bytes. `try` refuses commarea_hex on a typed case, so no case can state it yet."
+  },
+  {
+   "id": "e1fc443066",
+   "op": "CON",
+   "line": 394,
+   "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
+   "after": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 1, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
+   "verdict": "harness-gap",
+   "reason": "UPDACC's byte[] COMMAREA entry, ` s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s` -> `s, 1, Math.min(cb.length, s`: killed with the case's layout dropped and commarea_hex inputs (bytes-100, bytes-120, bytes-50, bytes-98, bytes-99), so this branch is reachable by an XCTL or RETURN that passes bytes. `try` refuses commarea_hex on a typed case, so no case can state it yet."
   },
   {
    "id": "0d4b214460",
    "op": "ROR",
-   "line": 392,
+   "line": 395,
    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
    "after": "if (cb.length <= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "unreachable",
-   "reason": "ca instanceof byte[] branch is unreachable: callers pass UpdaccDfhcommarea DTO, never raw byte[]"
-  },
-  {
-   "id": "c9cc381138",
-   "op": "NEG",
-   "line": 392,
-   "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (!(cb.length > s_DFHCOMMAREA.bytes.length)) {",
-   "verdict": "unreachable",
-   "reason": "ca instanceof byte[] branch is unreachable: callers pass UpdaccDfhcommarea DTO, never raw byte[]"
+   "verdict": "harness-gap",
+   "reason": "UPDACC's byte[] COMMAREA entry, `if (cb.length > s_DFHCOMMAREA.bytes.le` -> `th <= s_DFHCOMMAREA.bytes.l`: killed with the case's layout dropped and commarea_hex inputs (bytes-100, bytes-120, bytes-50, bytes-98, bytes-99), so this branch is reachable by an XCTL or RETURN that passes bytes. `try` refuses commarea_hex on a typed case, so no case can state it yet."
   },
   {
    "id": "5100dca141",
    "op": "ROR",
-   "line": 392,
+   "line": 395,
    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
    "after": "if (cb.length >= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "unreachable",
-   "reason": "ca instanceof byte[] branch is unreachable: callers pass UpdaccDfhcommarea DTO, never raw byte[]"
+   "verdict": "harness-gap",
+   "reason": "UPDACC's byte[] COMMAREA entry, `if (cb.length > s_DFHCOMMAREA.bytes.len` -> `h >= s_DFHCOMMAREA.bytes.le`: run with commarea_hex (bytes-100, bytes-120, bytes-50, bytes-98, bytes-99) and equal, but this entry compares no end COMMAREA (no layout on the COBOL side) and the program shows the UPDATE; what the mutant changes here is outside the proof."
+  },
+  {
+   "id": "c9cc381138",
+   "op": "NEG",
+   "line": 395,
+   "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (!(cb.length > s_DFHCOMMAREA.bytes.length)) {",
+   "verdict": "harness-gap",
+   "reason": "UPDACC's byte[] COMMAREA entry, `if (cb.length > s_DFHCOMMARE` -> `f (!(cb.length > s_DFHCOMMA`: killed with the case's layout dropped and commarea_hex inputs (bytes-100, bytes-120, bytes-50, bytes-98, bytes-99), so this branch is reachable by an XCTL or RETURN that passes bytes. `try` refuses commarea_hex on a typed case, so no case can state it yet."
   },
   {
    "id": "f421cf3c99",
    "op": "DEL",
-   "line": 393,
+   "line": 396,
    "before": "s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length);",
    "after": "/* s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length); */",
-   "verdict": "unreachable",
-   "reason": "ca instanceof byte[] branch is unreachable: callers pass UpdaccDfhcommarea DTO, never raw byte[]"
+   "verdict": "harness-gap",
+   "reason": "UPDACC's byte[] COMMAREA entry, deleted `s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.`: run with commarea_hex (bytes-100, bytes-120, bytes-50, bytes-98, bytes-99) and equal, but this entry compares no end COMMAREA (no layout on the COBOL side) and the program shows the UPDATE; what the mutant changes here is outside the proof."
   },
   {
    "id": "6c52daae60",
    "op": "DEL",
-   "line": 395,
+   "line": 398,
    "before": "calen = cx(task, cb.length);",
    "after": "/* calen = cx(task, cb.length); */",
-   "verdict": "unreachable",
-   "reason": "ca instanceof byte[] branch is unreachable: callers pass UpdaccDfhcommarea DTO, never raw byte[]"
+   "verdict": "harness-gap",
+   "reason": "UPDACC's byte[] COMMAREA entry, deleted `calen = cx(task, cb.length);`: killed with the case's layout dropped and commarea_hex inputs (bytes-100, bytes-120, bytes-50, bytes-98, bytes-99), so this branch is reachable by an XCTL or RETURN that passes bytes. `try` refuses commarea_hex on a typed case, so no case can state it yet."
   },
   {
    "id": "5839bbc797",
    "op": "DEL",
-   "line": 399,
+   "line": 402,
    "before": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
    "after": "/* System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length)); */",
-   "verdict": "unreachable",
-   "reason": "raw != null branch is unreachable: task.linkArea() is only passed by 2-param handleLink, which is never invoked"
-  },
-  {
-   "id": "fb7b371828",
-   "op": "ROR",
-   "line": 401,
-   "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
-   "after": "s_DFHCOMMAREA.beyond = raw.length >= keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
-   "verdict": "unreachable",
-   "reason": "raw != null branch is unreachable: task.linkArea() is only passed by 2-param handleLink, which is never invoked"
+   "verdict": "harness-gap",
+   "reason": "deleted the link-area arraycopy: killed on the det port by raw-blank-type-spaces, low-values and spaces in numeric COMMAREA fields a DTO cannot carry, returned untouched on a failure path. The committed cbsa-updacc port reads them as 0 on its java-facade side, so the case cannot carry that input."
   },
   {
    "id": "ac4ab15700",
    "op": "DEL",
-   "line": 401,
+   "line": 404,
    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
    "after": "/* s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null; */",
-   "verdict": "unreachable",
-   "reason": "raw != null branch is unreachable: task.linkArea() is only passed by 2-param handleLink, which is never invoked"
+   "verdict": "harness-gap",
+   "reason": "UPDACC's bytes past the 99-byte record, deleted `s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRang`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-100, bytes-120, bytes-50, bytes-98, bytes-99)."
   },
   {
-   "id": "4ffcd210d7",
-   "op": "CON",
-   "line": 403,
-   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } };",
-   "verdict": "unreachable",
-   "reason": "raw != null branch is unreachable: task.linkArea() is only passed by 2-param handleLink, which is never invoked"
+   "id": "fb7b371828",
+   "op": "ROR",
+   "line": 404,
+   "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
+   "after": "s_DFHCOMMAREA.beyond = raw.length >= keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
+   "verdict": "harness-gap",
+   "reason": "UPDACC's bytes past the 99-byte record, `.beyond = raw.length > keep ? java.util.Arrays` -> `h >= keep ? java.util.Array`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-100, bytes-120, bytes-50, bytes-98, bytes-99)."
   },
   {
    "id": "1f546ba48f",
    "op": "AOR",
-   "line": 403,
+   "line": 406,
    "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
    "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } };",
-   "verdict": "unreachable",
-   "reason": "raw != null branch is unreachable: task.linkArea() is only passed by 2-param handleLink, which is never invoked"
+   "verdict": "harness-gap",
+   "reason": "UPDACC's bytes past the 99-byte record, `raw, keep, raw.length - keep); } };` -> `th + keep); } };`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-100, bytes-120, bytes-50, bytes-98, bytes-99)."
   },
   {
-   "id": "2cc463f675",
-   "op": "NEG",
+   "id": "4ffcd210d7",
+   "op": "CON",
    "line": 406,
-   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (!(task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length)) {",
-   "verdict": "equivalent",
-   "reason": "`calen <= length` enters the cut path when calen equals the record (99): the copy is the whole record, so storage, write-back and refusal are unchanged"
-  },
-  {
-   "id": "bee9666e07",
-   "op": "COR",
-   "line": 406,
-   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (task.exactCommarea() || calen < s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "equivalent",
-   "reason": "`calen <= length` enters the cut path when calen equals the record (99): the copy is the whole record, so storage, write-back and refusal are unchanged"
-  },
-  {
-   "id": "efce3d4f32",
-   "op": "ROR",
-   "line": 406,
-   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (task.exactCommarea() && calen >= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "equivalent",
-   "reason": "`calen <= length` enters the cut path when calen equals the record (99): the copy is the whole record, so storage, write-back and refusal are unchanged"
+   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } };",
+   "verdict": "harness-gap",
+   "reason": "UPDACC's bytes past the 99-byte record, `s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length` -> `d, 1, raw, keep, raw.length`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-100, bytes-120, bytes-50, bytes-98, bytes-99)."
   },
   {
    "id": "8aa227952a",
@@ -1784,13 +1769,40 @@
    "reason": "`calen <= length` enters the cut path when calen equals the record (99): the copy is the whole record, so storage, write-back and refusal are unchanged"
   },
   {
+   "id": "2cc463f675",
+   "op": "NEG",
+   "line": 409,
+   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (!(task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length)) {",
+   "verdict": "harness-gap",
+   "reason": "`!(exactCommarea() && calen < 99)`: never cuts a short area. Killed on the det port by eibcalen-0 and the other short inputs; the committed cbsa-updacc port's java-facade side fails that input (evidence.py prove: it runs on where the COBOL stops at the reference), so the case cannot carry it."
+  },
+  {
+   "id": "bee9666e07",
+   "op": "COR",
+   "line": 409,
+   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (task.exactCommarea() || calen < s_DFHCOMMAREA.bytes.length) {",
+   "verdict": "case-gap",
+   "reason": "`exactCommarea() || calen < 99`: killed by a LINK with no COMMAREA (input no-commarea), where the port cuts DFHCOMMAREA to nothing. Held out of the case: that run moves COMM-ACCNO's non-digit bytes into 9(8) DESIRED-ACC-NO, so it needs the owner ruling on non-digits in a numeric MOVE."
+  },
+  {
+   "id": "efce3d4f32",
+   "op": "ROR",
+   "line": 409,
+   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (task.exactCommarea() && calen >= s_DFHCOMMAREA.bytes.length) {",
+   "verdict": "harness-gap",
+   "reason": "`calen >= 99` for `calen < 99` in the cut test: a short area stays whole, a full one is cut. Killed on the det port by eibcalen-0 and the other short inputs; the committed cbsa-updacc port's java-facade side fails that input (evidence.py prove: it runs on where the COBOL stops at the reference), so the case cannot carry it."
+  },
+  {
    "id": "1d45af47ed",
    "op": "DEL",
-   "line": 408,
+   "line": 411,
    "before": "s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen);",
    "after": "/* s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen); */",
-   "verdict": "unreachable",
-   "reason": "calen < s_DFHCOMMAREA.bytes.length is never true: every scenario passes the full 99-byte COMMAREA"
+   "verdict": "harness-gap",
+   "reason": "deleted `s_DFHCOMMAREA.bytes = copyOf(caWhole, calen)`: the area is not cut, so a short EIBCALEN reads past it unstopped. Killed on the det port by EIBCALEN 0 to 98 inputs (eibcalen-20, dto-eibcalen-20); the committed cbsa-updacc port's java-facade side fails that input (evidence.py prove: it runs on where the COBOL stops at the reference), so the case cannot carry it."
   },
   {
    "id": "d6ba105603",
@@ -1829,22 +1841,13 @@
    "reason": "p0 (PREMIERE) is empty and returns 1, so starting at paragraph 1 or stopping at thru 12 runs the same paragraphs: p7's RETURN throws Goback before anything after it"
   },
   {
-   "id": "8c4f66ad37",
-   "op": "ROR",
-   "line": 421,
-   "before": "if (caWhole == null) {",
-   "after": "if (caWhole != null) {",
-   "verdict": "unreachable",
-   "reason": "IndexOutOfBoundsException is never thrown: calen is 99 and all references are within bounds"
-  },
-  {
    "id": "07c58a0930",
    "op": "NEG",
-   "line": 421,
+   "line": 424,
    "before": "if (caWhole == null) {",
    "after": "if (!(caWhole == null)) {",
-   "verdict": "unreachable",
-   "reason": "IndexOutOfBoundsException is never thrown: calen is 99 and all references are within bounds"
+   "verdict": "harness-gap",
+   "reason": "`if (!(caWhole == null))` in the IndexOutOfBounds handler: a reference past a cut area rethrows instead of PastFrom. The det port's proof crashed on the short EIBCALEN inputs (eibcalen-20); the committed cbsa-updacc port's java-facade side fails that input (evidence.py prove: it runs on where the COBOL stops at the reference), so the case cannot carry it."
   },
   {
    "id": "32dbcab3ad",
@@ -1854,6 +1857,15 @@
    "after": "throw new DetCics.PastFrom(\"XOMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
    "verdict": "equivalent",
    "reason": "the PastFrom text is diagnostic: a scenario whose run raises it is refused on both sides and no event is compared"
+  },
+  {
+   "id": "8c4f66ad37",
+   "op": "ROR",
+   "line": 424,
+   "before": "if (caWhole == null) {",
+   "after": "if (caWhole != null) {",
+   "verdict": "harness-gap",
+   "reason": "`if (caWhole != null)` in the IndexOutOfBounds handler: a reference past a cut area rethrows instead of PastFrom. The det port's proof crashed on the short EIBCALEN inputs (eibcalen-20); the committed cbsa-updacc port's java-facade side fails that input (evidence.py prove: it runs on where the COBOL stops at the reference), so the case cannot carry it."
   },
   {
    "id": "945e2ed933",
@@ -1867,11 +1879,11 @@
   {
    "id": "fd6244465a",
    "op": "DEL",
-   "line": 427,
+   "line": 430,
    "before": "caWhole(caWhole);",
    "after": "/* caWhole(caWhole); */",
-   "verdict": "unreachable",
-   "reason": "caWhole is always null because calen is 99; if (caWhole != null) guard is never entered"
+   "verdict": "harness-gap",
+   "reason": "deleted the finally's `caWhole(caWhole)`: storage stays cut after a stopped task, and the next task fails. Killed on the det port by the short EIBCALEN inputs; the committed cbsa-updacc port's java-facade side fails that input (evidence.py prove: it runs on where the COBOL stops at the reference), so the case cannot carry it."
   },
   {
    "id": "2ba797870e",
@@ -1903,56 +1915,56 @@
   {
    "id": "6472895711",
    "op": "LIT",
-   "line": 449,
+   "line": 452,
    "before": "CicsTask task = region.linked(\"UPDACC\", request, area);",
    "after": "CicsTask task = region.linked(\"XPDACC\", request, area);",
-   "verdict": "unreachable",
-   "reason": "handleLink(request, byte[] area) overload is never called by the equivalence test runner"
+   "verdict": "harness-gap",
+   "reason": "UPDACC's handleLink(request, byte[] area) / lastLinkBytes(), `task = region.linked(\"UPDACC\", request, area);` -> `d(\"XPDACC\", request, area);`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
   },
   {
    "id": "0dcde5589d",
    "op": "LIT",
-   "line": 450,
+   "line": 453,
    "before": "region.run(task, \"UPDACC\", this::runTask);",
    "after": "region.run(task, \"XPDACC\", this::runTask);",
-   "verdict": "unreachable",
-   "reason": "handleLink(request, byte[] area) overload is never called by the equivalence test runner"
-  },
-  {
-   "id": "a0dee969b0",
-   "op": "ROR",
-   "line": 452,
-   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "after": "lastLinkBytes = task.linkAreaTaken() && left == null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "verdict": "unreachable",
-   "reason": "handleLink(request, byte[] area) overload is never called by the equivalence test runner"
+   "verdict": "harness-gap",
+   "reason": "UPDACC's handleLink(request, byte[] area) / lastLinkBytes(), `region.run(task, \"UPDACC\", this::runTask);` -> `, \"XPDACC\", this::runTask);`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
   },
   {
    "id": "702227ad2f",
    "op": "COR",
-   "line": 452,
+   "line": 455,
    "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
    "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "verdict": "unreachable",
-   "reason": "handleLink(request, byte[] area) overload is never called by the equivalence test runner"
+   "verdict": "harness-gap",
+   "reason": "UPDACC's handleLink(request, byte[] area) / lastLinkBytes(), ` task.linkAreaTaken() && left != null ? java.u` -> `() || left != null ? java.u`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
   },
   {
    "id": "7cd48aeaa6",
    "op": "DEL",
-   "line": 452,
+   "line": 455,
    "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
    "after": "/* lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null; */",
-   "verdict": "unreachable",
-   "reason": "handleLink(request, byte[] area) overload is never called by the equivalence test runner"
+   "verdict": "harness-gap",
+   "reason": "UPDACC's handleLink(request, byte[] area) / lastLinkBytes(), deleted `lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Array`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
+  },
+  {
+   "id": "a0dee969b0",
+   "op": "ROR",
+   "line": 455,
+   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "after": "lastLinkBytes = task.linkAreaTaken() && left == null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "verdict": "harness-gap",
+   "reason": "UPDACC's handleLink(request, byte[] area) / lastLinkBytes(), `nkAreaTaken() && left != null ? java.util.Arra` -> `ft == null ? java.util.Arra`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
   },
   {
    "id": "9493f40b8b",
    "op": "ROR",
-   "line": 462,
+   "line": 465,
    "before": "return lastLinkBytes == null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
    "after": "return lastLinkBytes != null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
-   "verdict": "unreachable",
-   "reason": "lastLinkBytes() helper is never called in equivalence testing"
+   "verdict": "harness-gap",
+   "reason": "UPDACC's handleLink(request, byte[] area) / lastLinkBytes(), `return lastLinkBytes == null ? null : java.ut` -> `es != null ? null : java.ut`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
   },
   {
    "id": "2b0d6aa9ad",
@@ -1982,11 +1994,11 @@
    "reason": "Only the exception's message and stack-trace suppression: nothing reads either (Goback / PerformExit are control flow)."
   },
   {
-   "id": "e558baa6bd",
-   "op": "AOR",
+   "id": "5c7a9ec10d",
+   "op": "CON",
    "line": 519,
    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
-   "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);",
+   "after": "performThru = java.util.Arrays.copyOf(performThru, mine * 3);",
    "verdict": "unreachable",
    "reason": "performThru grows only when 64 PERFORMs are active at once; this program nests at most two"
   },
@@ -2000,11 +2012,11 @@
    "reason": "performThru grows only when 64 PERFORMs are active at once; this program nests at most two"
   },
   {
-   "id": "5c7a9ec10d",
-   "op": "CON",
+   "id": "e558baa6bd",
+   "op": "AOR",
    "line": 519,
    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
-   "after": "performThru = java.util.Arrays.copyOf(performThru, mine * 3);",
+   "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);",
    "verdict": "unreachable",
    "reason": "performThru grows only when 64 PERFORMs are active at once; this program nests at most two"
   },
@@ -2045,15 +2057,6 @@
    "reason": "`jumped` only decides whether a paragraph that falls off the end of the PERFORM range returns there. A wrong value lets control run on past UAD999 (a no-op EXIT) into GET-ME-OUT-OF-HERE, whose RETURN (p7) is the same RETURN the second PERFORM reaches, with the COMMAREA already filled by UAD010"
   },
   {
-   "id": "da4ee4355f",
-   "op": "CON",
-   "line": 532,
-   "before": "for (int d = mine - 1; d >= 0; d--) {",
-   "after": "for (int d = mine - 1; d >= 1; d--) {",
-   "verdict": "equivalent",
-   "reason": "the scan looks for an outer active PERFORM whose range ends at the paragraph just run; the only outer range is perform(0, 11) whose end (paragraph 11) is never run, so the scan never finds a match whatever its bounds"
-  },
-  {
    "id": "41e197038a",
    "op": "CON",
    "line": 532,
@@ -2068,6 +2071,15 @@
    "line": 532,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
    "after": "for (int d = mine - 1; d > 0; d--) {",
+   "verdict": "equivalent",
+   "reason": "the scan looks for an outer active PERFORM whose range ends at the paragraph just run; the only outer range is perform(0, 11) whose end (paragraph 11) is never run, so the scan never finds a match whatever its bounds"
+  },
+  {
+   "id": "da4ee4355f",
+   "op": "CON",
+   "line": 532,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d >= 1; d--) {",
    "verdict": "equivalent",
    "reason": "the scan looks for an outer active PERFORM whose range ends at the paragraph just run; the only outer range is perform(0, 11) whose end (paragraph 11) is never run, so the scan never finds a match whatever its bounds"
   },
@@ -2135,20 +2147,20 @@
    "reason": "run(i) is only called with 0..11; the default arm never runs"
   },
   {
-   "id": "fc1e4c996c",
-   "op": "CON",
-   "line": 583,
-   "before": "perform(3, 5);",
-   "after": "perform(4, 5);",
-   "verdict": "equivalent",
-   "reason": "PERFORM UPDATE-ACCOUNT-DB2 3..5: p3 is the empty section header, p5 an EXIT, so starting at 4 or running on to p6 (empty) changes nothing, and p7's RETURN ends the task either way"
-  },
-  {
    "id": "32e657e8ba",
    "op": "CON",
    "line": 583,
    "before": "perform(3, 5);",
    "after": "perform(3, 6);",
+   "verdict": "equivalent",
+   "reason": "PERFORM UPDATE-ACCOUNT-DB2 3..5: p3 is the empty section header, p5 an EXIT, so starting at 4 or running on to p6 (empty) changes nothing, and p7's RETURN ends the task either way"
+  },
+  {
+   "id": "fc1e4c996c",
+   "op": "CON",
+   "line": 583,
+   "before": "perform(3, 5);",
+   "after": "perform(4, 5);",
    "verdict": "equivalent",
    "reason": "PERFORM UPDATE-ACCOUNT-DB2 3..5: p3 is the empty section header, p5 an EXIT, so starting at 4 or running on to p6 (empty) changes nothing, and p7's RETURN ends the task either way"
   },
@@ -2252,15 +2264,6 @@
    "reason": "MOVE HV-ACCOUNT-INT-RATE TO COMM-INT-RATE: HV-ACCOUNT-INT-RATE was set from COMM-INT-RATE (9(4)V99 into S9(4)V99 packed) after the SELECT and the UPDATE stores it as is, so the move writes the same value"
   },
   {
-   "id": "d51b3fb97d",
-   "op": "CON",
-   "line": 675,
-   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 0, 4, 0, false, false, false), CS);",
-   "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 1, 4, 0, false, false, false), CS);",
-   "verdict": "equivalent",
-   "reason": "INITIALIZE DB2-DATE-REFORMAT: the next MOVE of the 10-byte Db2 date writes all ten bytes of the group, so what the INITIALIZE leaves (deleted, shifted or resized) is overwritten before the year/month/day parts are read"
-  },
-  {
    "id": "42a9ffdc1a",
    "op": "AOR",
    "line": 675,
@@ -2279,15 +2282,6 @@
    "reason": "INITIALIZE DB2-DATE-REFORMAT: the next MOVE of the 10-byte Db2 date writes all ten bytes of the group, so what the INITIALIZE leaves (deleted, shifted or resized) is overwritten before the year/month/day parts are read"
   },
   {
-   "id": "ef89863d9d",
-   "op": "DEL",
-   "line": 675,
-   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 0, 4, 0, false, false, false), CS);",
-   "after": "/* Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 0, 4, 0, false, false, false), CS); */",
-   "verdict": "equivalent",
-   "reason": "INITIALIZE DB2-DATE-REFORMAT: the next MOVE of the 10-byte Db2 date writes all ten bytes of the group, so what the INITIALIZE leaves (deleted, shifted or resized) is overwritten before the year/month/day parts are read"
-  },
-  {
    "id": "8c56c030ab",
    "op": "CON",
    "line": 675,
@@ -2297,11 +2291,20 @@
    "reason": "INITIALIZE DB2-DATE-REFORMAT: the next MOVE of the 10-byte Db2 date writes all ten bytes of the group, so what the INITIALIZE leaves (deleted, shifted or resized) is overwritten before the year/month/day parts are read"
   },
   {
-   "id": "bd45f5a3a1",
+   "id": "d51b3fb97d",
    "op": "CON",
-   "line": 676,
-   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 5, 2, 0, false, false, false), CS);",
-   "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 6, 2, 0, false, false, false), CS);",
+   "line": 675,
+   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 0, 4, 0, false, false, false), CS);",
+   "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 1, 4, 0, false, false, false), CS);",
+   "verdict": "equivalent",
+   "reason": "INITIALIZE DB2-DATE-REFORMAT: the next MOVE of the 10-byte Db2 date writes all ten bytes of the group, so what the INITIALIZE leaves (deleted, shifted or resized) is overwritten before the year/month/day parts are read"
+  },
+  {
+   "id": "ef89863d9d",
+   "op": "DEL",
+   "line": 675,
+   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 0, 4, 0, false, false, false), CS);",
+   "after": "/* Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 0, 4, 0, false, false, false), CS); */",
    "verdict": "equivalent",
    "reason": "INITIALIZE DB2-DATE-REFORMAT: the next MOVE of the 10-byte Db2 date writes all ten bytes of the group, so what the INITIALIZE leaves (deleted, shifted or resized) is overwritten before the year/month/day parts are read"
   },
@@ -2333,11 +2336,11 @@
    "reason": "INITIALIZE DB2-DATE-REFORMAT: the next MOVE of the 10-byte Db2 date writes all ten bytes of the group, so what the INITIALIZE leaves (deleted, shifted or resized) is overwritten before the year/month/day parts are read"
   },
   {
-   "id": "fad9e96378",
-   "op": "DEL",
-   "line": 677,
-   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 8, 2, 0, false, false, false), CS);",
-   "after": "/* Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 8, 2, 0, false, false, false), CS); */",
+   "id": "bd45f5a3a1",
+   "op": "CON",
+   "line": 676,
+   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 5, 2, 0, false, false, false), CS);",
+   "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 6, 2, 0, false, false, false), CS);",
    "verdict": "equivalent",
    "reason": "INITIALIZE DB2-DATE-REFORMAT: the next MOVE of the 10-byte Db2 date writes all ten bytes of the group, so what the INITIALIZE leaves (deleted, shifted or resized) is overwritten before the year/month/day parts are read"
   },
@@ -2351,20 +2354,11 @@
    "reason": "INITIALIZE DB2-DATE-REFORMAT: the next MOVE of the 10-byte Db2 date writes all ten bytes of the group, so what the INITIALIZE leaves (deleted, shifted or resized) is overwritten before the year/month/day parts are read"
   },
   {
-   "id": "eb7aa72523",
+   "id": "fad9e96378",
    "op": "DEL",
-   "line": 687,
-   "before": "Cobol.move(f12_HV_ACCOUNT_OVERDRAFT_LIM, f136_COMM_OVERDRAFT, CS);",
-   "after": "/* Cobol.move(f12_HV_ACCOUNT_OVERDRAFT_LIM, f136_COMM_OVERDRAFT, CS); */",
-   "verdict": "equivalent",
-   "reason": "MOVE HV-ACCOUNT-OVERDRAFT-LIM TO COMM-OVERDRAFT: HV-ACCOUNT-OVERDRAFT-LIM was set from COMM-OVERDRAFT (9(8) into S9(9) binary) after the SELECT, so the move writes the same value"
-  },
-  {
-   "id": "d07f3cb15b",
-   "op": "CON",
-   "line": 689,
-   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 0, 4, 0, false, false, false), CS);",
-   "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 0, 5, 0, false, false, false), CS);",
+   "line": 677,
+   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 8, 2, 0, false, false, false), CS);",
+   "after": "/* Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 8, 2, 0, false, false, false), CS); */",
    "verdict": "equivalent",
    "reason": "INITIALIZE DB2-DATE-REFORMAT: the next MOVE of the 10-byte Db2 date writes all ten bytes of the group, so what the INITIALIZE leaves (deleted, shifted or resized) is overwritten before the year/month/day parts are read"
   },
@@ -2374,15 +2368,6 @@
    "line": 689,
    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 0, 4, 0, false, false, false), CS);",
    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 1, 4, 0, false, false, false), CS);",
-   "verdict": "equivalent",
-   "reason": "INITIALIZE DB2-DATE-REFORMAT: the next MOVE of the 10-byte Db2 date writes all ten bytes of the group, so what the INITIALIZE leaves (deleted, shifted or resized) is overwritten before the year/month/day parts are read"
-  },
-  {
-   "id": "d9d36476bd",
-   "op": "CON",
-   "line": 689,
-   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 0, 4, 0, false, false, false), CS);",
-   "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 0, 4, 1, false, false, false), CS);",
    "verdict": "equivalent",
    "reason": "INITIALIZE DB2-DATE-REFORMAT: the next MOVE of the 10-byte Db2 date writes all ten bytes of the group, so what the INITIALIZE leaves (deleted, shifted or resized) is overwritten before the year/month/day parts are read"
   },
@@ -2405,11 +2390,20 @@
    "reason": "INITIALIZE DB2-DATE-REFORMAT: the next MOVE of the 10-byte Db2 date writes all ten bytes of the group, so what the INITIALIZE leaves (deleted, shifted or resized) is overwritten before the year/month/day parts are read"
   },
   {
-   "id": "37f560feb7",
-   "op": "DEL",
-   "line": 690,
-   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 5, 2, 0, false, false, false), CS);",
-   "after": "/* Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 5, 2, 0, false, false, false), CS); */",
+   "id": "d07f3cb15b",
+   "op": "CON",
+   "line": 689,
+   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 0, 4, 0, false, false, false), CS);",
+   "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 0, 5, 0, false, false, false), CS);",
+   "verdict": "equivalent",
+   "reason": "INITIALIZE DB2-DATE-REFORMAT: the next MOVE of the 10-byte Db2 date writes all ten bytes of the group, so what the INITIALIZE leaves (deleted, shifted or resized) is overwritten before the year/month/day parts are read"
+  },
+  {
+   "id": "d9d36476bd",
+   "op": "CON",
+   "line": 689,
+   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 0, 4, 0, false, false, false), CS);",
+   "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 0, 4, 1, false, false, false), CS);",
    "verdict": "equivalent",
    "reason": "INITIALIZE DB2-DATE-REFORMAT: the next MOVE of the 10-byte Db2 date writes all ten bytes of the group, so what the INITIALIZE leaves (deleted, shifted or resized) is overwritten before the year/month/day parts are read"
   },
@@ -2432,6 +2426,15 @@
    "reason": "INITIALIZE DB2-DATE-REFORMAT: the next MOVE of the 10-byte Db2 date writes all ten bytes of the group, so what the INITIALIZE leaves (deleted, shifted or resized) is overwritten before the year/month/day parts are read"
   },
   {
+   "id": "37f560feb7",
+   "op": "DEL",
+   "line": 690,
+   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 5, 2, 0, false, false, false), CS);",
+   "after": "/* Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 5, 2, 0, false, false, false), CS); */",
+   "verdict": "equivalent",
+   "reason": "INITIALIZE DB2-DATE-REFORMAT: the next MOVE of the 10-byte Db2 date writes all ten bytes of the group, so what the INITIALIZE leaves (deleted, shifted or resized) is overwritten before the year/month/day parts are read"
+  },
+  {
    "id": "cb37744900",
    "op": "CON",
    "line": 690,
@@ -2441,13 +2444,13 @@
    "reason": "INITIALIZE DB2-DATE-REFORMAT: the next MOVE of the 10-byte Db2 date writes all ten bytes of the group, so what the INITIALIZE leaves (deleted, shifted or resized) is overwritten before the year/month/day parts are read"
   },
   {
-   "id": "966ec0af29",
+   "id": "eb7aa72523",
    "op": "DEL",
-   "line": 691,
-   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 8, 2, 0, false, false, false), CS);",
-   "after": "/* Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 8, 2, 0, false, false, false), CS); */",
-   "verdict": "equivalent",
-   "reason": "INITIALIZE DB2-DATE-REFORMAT: the next MOVE of the 10-byte Db2 date writes all ten bytes of the group, so what the INITIALIZE leaves (deleted, shifted or resized) is overwritten before the year/month/day parts are read"
+   "line": 690,
+   "before": "Cobol.move(f12_HV_ACCOUNT_OVERDRAFT_LIM, f136_COMM_OVERDRAFT, CS);",
+   "after": "/* Cobol.move(f12_HV_ACCOUNT_OVERDRAFT_LIM, f136_COMM_OVERDRAFT, CS); */",
+   "verdict": "case-gap",
+   "reason": "DEL MOVE HV-ACCOUNT-OVERDRAFT-LIM TO COMM-OVERDRAFT: killed on the oracle with COMM-OVERDRAFT all spaces (input raw-overdraft-spaces), where the success path normalises the field to digits. Held out of the case: GnuCOBOL's MOVE of spaces into the host variable is not z/OS's (a possible data exception), so it needs an owner ruling."
   },
   {
    "id": "8fccbaa234",
@@ -2459,29 +2462,11 @@
    "reason": "INITIALIZE DB2-DATE-REFORMAT: the next MOVE of the 10-byte Db2 date writes all ten bytes of the group, so what the INITIALIZE leaves (deleted, shifted or resized) is overwritten before the year/month/day parts are read"
   },
   {
-   "id": "f7eae909b4",
+   "id": "966ec0af29",
    "op": "DEL",
-   "line": 701,
-   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 0, 4, 0, false, false, false), CS);",
-   "after": "/* Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 0, 4, 0, false, false, false), CS); */",
-   "verdict": "equivalent",
-   "reason": "INITIALIZE DB2-DATE-REFORMAT: the next MOVE of the 10-byte Db2 date writes all ten bytes of the group, so what the INITIALIZE leaves (deleted, shifted or resized) is overwritten before the year/month/day parts are read"
-  },
-  {
-   "id": "e282214ebf",
-   "op": "AOR",
-   "line": 701,
-   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 0, 4, 0, false, false, false), CS);",
-   "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() - 0, 4, 0, false, false, false), CS);",
-   "verdict": "equivalent",
-   "reason": "INITIALIZE DB2-DATE-REFORMAT: the next MOVE of the 10-byte Db2 date writes all ten bytes of the group, so what the INITIALIZE leaves (deleted, shifted or resized) is overwritten before the year/month/day parts are read"
-  },
-  {
-   "id": "afb8df07bb",
-   "op": "CON",
-   "line": 701,
-   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 0, 4, 0, false, false, false), CS);",
-   "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 1, 4, 0, false, false, false), CS);",
+   "line": 691,
+   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 8, 2, 0, false, false, false), CS);",
+   "after": "/* Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 8, 2, 0, false, false, false), CS); */",
    "verdict": "equivalent",
    "reason": "INITIALIZE DB2-DATE-REFORMAT: the next MOVE of the 10-byte Db2 date writes all ten bytes of the group, so what the INITIALIZE leaves (deleted, shifted or resized) is overwritten before the year/month/day parts are read"
   },
@@ -2500,6 +2485,42 @@
    "line": 701,
    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 0, 4, 0, false, false, false), CS);",
    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 0, 5, 0, false, false, false), CS);",
+   "verdict": "equivalent",
+   "reason": "INITIALIZE DB2-DATE-REFORMAT: the next MOVE of the 10-byte Db2 date writes all ten bytes of the group, so what the INITIALIZE leaves (deleted, shifted or resized) is overwritten before the year/month/day parts are read"
+  },
+  {
+   "id": "afb8df07bb",
+   "op": "CON",
+   "line": 701,
+   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 0, 4, 0, false, false, false), CS);",
+   "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 1, 4, 0, false, false, false), CS);",
+   "verdict": "equivalent",
+   "reason": "INITIALIZE DB2-DATE-REFORMAT: the next MOVE of the 10-byte Db2 date writes all ten bytes of the group, so what the INITIALIZE leaves (deleted, shifted or resized) is overwritten before the year/month/day parts are read"
+  },
+  {
+   "id": "e282214ebf",
+   "op": "AOR",
+   "line": 701,
+   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 0, 4, 0, false, false, false), CS);",
+   "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() - 0, 4, 0, false, false, false), CS);",
+   "verdict": "equivalent",
+   "reason": "INITIALIZE DB2-DATE-REFORMAT: the next MOVE of the 10-byte Db2 date writes all ten bytes of the group, so what the INITIALIZE leaves (deleted, shifted or resized) is overwritten before the year/month/day parts are read"
+  },
+  {
+   "id": "f7eae909b4",
+   "op": "DEL",
+   "line": 701,
+   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 0, 4, 0, false, false, false), CS);",
+   "after": "/* Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 0, 4, 0, false, false, false), CS); */",
+   "verdict": "equivalent",
+   "reason": "INITIALIZE DB2-DATE-REFORMAT: the next MOVE of the 10-byte Db2 date writes all ten bytes of the group, so what the INITIALIZE leaves (deleted, shifted or resized) is overwritten before the year/month/day parts are read"
+  },
+  {
+   "id": "5423bdc13b",
+   "op": "DEL",
+   "line": 702,
+   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 5, 2, 0, false, false, false), CS);",
+   "after": "/* Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 5, 2, 0, false, false, false), CS); */",
    "verdict": "equivalent",
    "reason": "INITIALIZE DB2-DATE-REFORMAT: the next MOVE of the 10-byte Db2 date writes all ten bytes of the group, so what the INITIALIZE leaves (deleted, shifted or resized) is overwritten before the year/month/day parts are read"
   },
@@ -2527,15 +2548,6 @@
    "line": 702,
    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 5, 2, 0, false, false, false), CS);",
    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 6, 2, 0, false, false, false), CS);",
-   "verdict": "equivalent",
-   "reason": "INITIALIZE DB2-DATE-REFORMAT: the next MOVE of the 10-byte Db2 date writes all ten bytes of the group, so what the INITIALIZE leaves (deleted, shifted or resized) is overwritten before the year/month/day parts are read"
-  },
-  {
-   "id": "5423bdc13b",
-   "op": "DEL",
-   "line": 702,
-   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 5, 2, 0, false, false, false), CS);",
-   "after": "/* Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 5, 2, 0, false, false, false), CS); */",
    "verdict": "equivalent",
    "reason": "INITIALIZE DB2-DATE-REFORMAT: the next MOVE of the 10-byte Db2 date writes all ten bytes of the group, so what the INITIALIZE leaves (deleted, shifted or resized) is overwritten before the year/month/day parts are read"
   },
@@ -2621,20 +2633,20 @@
    "reason": "ASKTIME/FORMATTIME are in PTD010, reached only by PERFORM POPULATE-TIME-DATE, which the program never performs"
   },
   {
-   "id": "8b273e2a0f",
-   "op": "LIT",
-   "line": 759,
-   "before": "Cobol.move(CicsTask.formatDate(Cobol.num(f84_WS_U_TIME, CS).longValue(), \"DDMMYYYY\", \"/\"), f85_WS_ORIG_DATE, CS);",
-   "after": "Cobol.move(CicsTask.formatDate(Cobol.num(f84_WS_U_TIME, CS).longValue(), \"XDMMYYYY\", \"/\"), f85_WS_ORIG_DATE, CS);",
-   "verdict": "unreachable",
-   "reason": "ASKTIME/FORMATTIME are in PTD010, reached only by PERFORM POPULATE-TIME-DATE, which the program never performs"
-  },
-  {
    "id": "2a88acf331",
    "op": "LIT",
    "line": 759,
    "before": "Cobol.move(CicsTask.formatDate(Cobol.num(f84_WS_U_TIME, CS).longValue(), \"DDMMYYYY\", \"/\"), f85_WS_ORIG_DATE, CS);",
    "after": "Cobol.move(CicsTask.formatDate(Cobol.num(f84_WS_U_TIME, CS).longValue(), \"DDMMYYYY\", \"X\"), f85_WS_ORIG_DATE, CS);",
+   "verdict": "unreachable",
+   "reason": "ASKTIME/FORMATTIME are in PTD010, reached only by PERFORM POPULATE-TIME-DATE, which the program never performs"
+  },
+  {
+   "id": "8b273e2a0f",
+   "op": "LIT",
+   "line": 759,
+   "before": "Cobol.move(CicsTask.formatDate(Cobol.num(f84_WS_U_TIME, CS).longValue(), \"DDMMYYYY\", \"/\"), f85_WS_ORIG_DATE, CS);",
+   "after": "Cobol.move(CicsTask.formatDate(Cobol.num(f84_WS_U_TIME, CS).longValue(), \"XDMMYYYY\", \"/\"), f85_WS_ORIG_DATE, CS);",
    "verdict": "unreachable",
    "reason": "ASKTIME/FORMATTIME are in PTD010, reached only by PERFORM POPULATE-TIME-DATE, which the program never performs"
   },

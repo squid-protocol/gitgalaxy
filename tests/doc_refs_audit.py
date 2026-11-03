@@ -30,7 +30,7 @@ not churn the baseline)
     module  a package README (gitgalaxy/**/README.md) that never names one of the public .py modules beside it.
 
 SCOPE
-Generated pages are skipped (GENERATED below): fix their generator, not the page. A line that names a sibling repo
+Generated pages are skipped (GENERATED below): fix their generator, not the page. A paragraph that names a sibling repo
 (SIBLING_REPOS) skips the path / name / flag checks: `tools/bias_report.py` in a keyword-rosetta sentence is that
 repo's path. Placeholders (`<lang>`, `*`, `{x}`, `$VAR`, `...`) are never checked. Text inside a fenced block is
 checked for paths and flags but not for links.
@@ -280,6 +280,20 @@ def _check_link(repo: Repo, doc: str, lineno: int, target: str, out: list[Findin
         out.append(Finding("link", doc, lineno, path))
 
 
+def _sibling_paragraphs(lines: list[str]) -> list[bool]:
+    """Per line: does its paragraph (a run of non-blank lines) name a sibling repo? A sentence about keyword-rosetta's
+    `docs/GATING.md` often wraps, so the repo's name and the path sit on different lines."""
+    out = [False] * len(lines)
+    start = 0
+    for i in range(len(lines) + 1):
+        if i == len(lines) or not lines[i].strip():
+            hit = any(name in ln for ln in lines[start:i] for name in SIBLING_REPOS)
+            for j in range(start, i):
+                out[j] = hit
+            start = i + 1
+    return out
+
+
 def audit_doc(repo: Repo, doc: str, skills: set[str]) -> list[Finding]:
     out: list[Finding] = []
     in_fence = False
@@ -288,13 +302,14 @@ def audit_doc(repo: Repo, doc: str, skills: set[str]) -> list[Finding]:
     if lines and lines[0].strip() == "---":  # YAML frontmatter: SEO descriptions hold truncated link text
         front = next((i for i, ln in enumerate(lines[1:], 2) if ln.strip() == "---"), 0)
     about_others = _matches(doc, ABOUT_OTHERS)
+    sibling_para = _sibling_paragraphs(lines)
     for lineno, line in enumerate(lines, 1):
         if lineno <= front:
             continue
         if FENCE.match(line):
             in_fence = not in_fence
             continue
-        sibling = any(name in line for name in SIBLING_REPOS)
+        sibling = sibling_para[lineno - 1]
         if not in_fence:
             prose = SPAN.sub("``", line)  # link syntax inside a code span is an example, not a link
             for m in LINK.finditer(prose):

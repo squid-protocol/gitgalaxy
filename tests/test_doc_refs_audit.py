@@ -87,6 +87,8 @@ def test_bare_python_name_with_no_file_and_skills(repo):
 def test_sibling_repo_lines_and_write_ups_about_other_projects_skip_names(repo):
     assert _run(repo, "keyword-rosetta's `tools/bias_report.py` and `screen_plant.py`\n") == []
     assert _run(repo, "NVDA's `braille.py`\n", doc="docs/wiki/museum-of-code/teardown.md") == []
+    wrapped = "Per keyword-rosetta's gating rules,\nadd a row to its `docs/GATING.md`.\n\nOurs: `docs/GATING.md`\n"
+    assert _run(repo, wrapped) == [("path", "docs/GATING.md")]  # the paragraph names the repo; the next one does not
 
 
 def test_ignored_and_generated_branch_paths_exist(repo):

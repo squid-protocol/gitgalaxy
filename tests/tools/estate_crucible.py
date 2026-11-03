@@ -32,7 +32,7 @@ GalaxyIR, and diffs every fact channel of the key against it:
                   sysout DD's output_refs (OUTPUT=) are unscored with it
                   (+ symbolic: a single leading `&`; job; `added` is unscored: the engine cannot tell an added DD from an override)
   jcl_outputs     OUTPUT JCL statements: every one unscored (job_flow_data keeps no OUTPUT statement)
-  sql_statements, sql_tables, jcl_steps, jcl_dds, screen_fields, csd_resources, transactions
+  sql_statements  (access: the engine's insert / delete / merge score as the key's `update`), sql_tables, jcl_steps, jcl_dds, screen_fields, csd_resources, transactions
   cics_resources  cics_resource_data (MAP / FILE / QUEUE commands)
   jcl_datasets    a JCL member's DSN references in file_data.raw_imports (a GDG reference as
                   its base or with its relative generation)
@@ -678,6 +678,15 @@ def score_layouts(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> N
             )
 
 
+# The key states a statement's access as read / update; the engine keeps the verb's own word. INSERT, DELETE and MERGE
+# change data like UPDATE does (IBM Db2 SQL Reference), so they score as the key's `update`; LOCK and the rest stay.
+_SQL_ACCESS_KEY_WORD = {"insert": "update", "delete": "update", "merge": "update"}
+
+
+def _sql_access(access: Any) -> Any:
+    return _SQL_ACCESS_KEY_WORD.get(str(access).lower(), access) if access else access
+
+
 def score_sql(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
     ef = eng.files.get(path)
     stmts = list(ef.sql_statements) if ef else []
@@ -695,7 +704,7 @@ def score_sql(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
             [
                 ("line", f["line"], s.line),
                 ("table", _u(f.get("table")), _u(s.table)),
-                ("access", f.get("access"), s.access),
+                ("access", f.get("access"), _sql_access(s.access)),
             ]
         )
         sc.add("sql_statements", path, label, "fail" if d else "pass", f.get("horror"), d)

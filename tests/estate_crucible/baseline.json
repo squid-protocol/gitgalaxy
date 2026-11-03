@@ -149,8 +149,8 @@
    "unscored": 5
   },
   "sql_statements": {
-   "pass": 5,
-   "fail": 1,
+   "pass": 6,
+   "fail": 0,
    "missing": 0,
    "phantom": 0,
    "unscored": 2
@@ -384,7 +384,6 @@
   "layouts|apps/ACCT/cobol/ACCTPOST.cbl|WS-DATE-AREA @44 overlays": "unscored",
   "layouts|apps/CUST/cobol/CUSTINQ.cbl|WS-DATE-AREA @16 overlays": "unscored",
   "layouts|apps/PAYR/cobol/PAYMAIN.cbl|WS-SHARED-DATE @34 overlays": "unscored",
-  "sql_statements|apps/BDLD/cobol/BDLDDB2.cbl|INSERT @38": "fail",
   "sql_statements|apps/CUST/cobol/CUSTDBIO.cbl|CALL @38 procedure PRODPROC.CUSTBAL": "unscored",
   "sql_statements|apps/CUST/cobol/CUSTDBIO.cbl|CALL @42 procedure CUSTAUDT": "unscored"
  },

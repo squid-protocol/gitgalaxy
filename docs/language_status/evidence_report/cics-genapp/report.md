@@ -4,9 +4,9 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `d86d5eabbf0bb0994f05894546b1bbe28c7325f2` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `392ac1fca006a976aed2c2ad21f75f0d9cb0deac` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
-The translation survey matches the translator in the tree (translator fingerprint `1764c3837edd`).
+The translation survey matches the translator in the tree (translator fingerprint `27527bfad630`).
 
 ## How to read this report
 
@@ -44,11 +44,11 @@ The translation survey matches the translator in the tree (translator fingerprin
 | L1 | 0 | 0 |
 | L2 | 0 | 0 |
 | L3 | 0 | 0 |
-| L4 | 31 | 0 |
+| L4 | 31 | 31 |
 | L5 | 0 | 0 |
 
-- stale (`*`, last measured): 0 of 31 programs; the rest are current
-- L2+: 31 (0 awaiting re-check); L3+: 31 (0 awaiting re-check); L4+: 31 (0 awaiting re-check)
+- stale (`*`, last measured): 31 of 31 programs; the rest are current
+- L2+: 31 (31 awaiting re-check); L3+: 31 (31 awaiting re-check); L4+: 31 (31 awaiting re-check)
 
 - programs: 31 (with an EXEC CICS command: 31; source not read: 0)
 - translated whole: 31; refused whole: 0; holes left: 0
@@ -88,41 +88,43 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 
 | program | level | translated / statements | holes | case | det port | scenarios | record | paragraphs | branches (raw) | branches (net of infeasible) | det-port mutation (raw) | det-port mutation | CICS commands oracle-backed |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| base/src/lgacdb01.cbl | L4 | 61/61 | 0 | genapp-lgacdb01 | equal | 6 | none | 4/4 (100.0%) | 15/16 (93.8%) | 15/15 (100.0%) | — | not measured (no det_mutation/ entry) | 3/6 |
-| base/src/lgacdb02.cbl | L4 | 39/39 | 0 | genapp-lgacdb02 | equal | 10 | none | 3/3 (100.0%) | 10/10 (100.0%) | 10/10 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
-| base/src/lgacus01.cbl | L4 | 34/34 | 0 | genapp-lgacus01 | equal | 5 | none | 3/3 (100.0%) | 4/8 (50.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
-| base/src/lgacvs01.cbl | L4 | 25/25 | 0 | genapp-lgacvs01 | equal | 8 | none | 3/3 (100.0%) | 5/6 (83.3%) | 5/5 (100.0%) | — | not measured (no det_mutation/ entry) | 3/6 |
-| base/src/lgapdb01.cbl | L4 | 124/124 | 0 | genapp-lgapdb01 | equal | 16 | shown equal, unapproved | 7/7 (100.0%) | 29/31 (93.5%) | 29/29 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
-| base/src/lgapol01.cbl | L4 | 30/30 | 0 | genapp-lgapol01 | equal | 6 | none | 2/2 (100.0%) | 5/8 (62.5%) | 5/5 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
-| base/src/lgapvs01.cbl | L4 | 47/47 | 0 | genapp-lgapvs01 | equal | 13 | shown equal, unapproved | 3/3 (100.0%) | 10/11 (90.9%) | 10/10 (100.0%) | — | not measured (no det_mutation/ entry) | 2/5 |
-| base/src/lgastat1.cbl | L4 | 30/30 | 0 | genapp-lgastat1 | equal | 8 | none | 1/1 (100.0%) | 12/12 (100.0%) | 12/12 (100.0%) | — | not measured (no det_mutation/ entry) | 3/7 |
-| base/src/lgdpdb01.cbl | L4 | 45/45 | 0 | genapp-lgdpdb01 | equal | 11 | none | 3/3 (100.0%) | 12/12 (100.0%) | 12/12 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
-| base/src/lgdpol01.cbl | L4 | 36/36 | 0 | genapp-lgdpol01 | equal | 11 | none | 3/3 (100.0%) | 9/12 (75.0%) | 9/9 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
-| base/src/lgdpvs01.cbl | L4 | 28/28 | 0 | genapp-lgdpvs01 | equal | 8 | none | 3/3 (100.0%) | 5/6 (83.3%) | 5/5 (100.0%) | — | not measured (no det_mutation/ entry) | 2/5 |
-| base/src/lgicdb01.cbl | L4 | 44/44 | 0 | genapp-lgicdb01 | equal | 18 | shown equal, unapproved | 4/4 (100.0%) | 11/12 (91.7%) | 11/11 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
-| base/src/lgicus01.cbl | L4 | 34/34 | 0 | genapp-lgicus01 | equal | 5 | none | 4/4 (100.0%) | 4/8 (50.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
-| base/src/lgicvs01.cbl | L4 | 51/51 | 0 | genapp-lgicvs01 | equal | 9 | none | 1/1 (100.0%) | 18/18 (100.0%) | 18/18 (100.0%) | — | not measured (no det_mutation/ entry) | 6/9 |
-| base/src/lgipdb01.cbl | L4 | 238/238 | 0 | genapp-lgipdb01 | equal | 47 | none | 12/12 (100.0%) | 74/74 (100.0%) | 74/74 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
-| base/src/lgipol01.cbl | L4 | 26/26 | 0 | genapp-lgipol01 | equal | 10 | none | 2/2 (100.0%) | 3/6 (50.0%) | 3/3 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
-| base/src/lgipvs01.cbl | L4 | 31/31 | 0 | genapp-lgipvs01 | equal | 7 | none | 1/1 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | 4/5 |
-| base/src/lgsetup.cbl | L4 | 91/91 | 0 | genapp-lgsetup | equal | 2 | none | 1/1 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | — | not measured (no det_mutation/ entry) | 4/7 |
-| base/src/lgstsq.cbl | L4 | 26/26 | 0 | genapp-lgstsq | equal | 8 | shown equal, unapproved | 1/1 (100.0%) | 4/6 (66.7%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | 5/6 |
-| base/src/lgtestc1.cbl | L4 | 130/130 | 0 | genapp-lgtestc1 | equal | 14 | none | 10/10 (100.0%) | 20/20 (100.0%) | 20/20 (100.0%) | — | not measured (no det_mutation/ entry) | 9/12 |
-| base/src/lgtestp1.cbl | L4 | 152/152 | 0 | genapp-lgtestp1 | equal | 15 | none | 10/10 (100.0%) | 19/19 (100.0%) | 19/19 (100.0%) | — | not measured (no det_mutation/ entry) | 7/8 |
-| base/src/lgtestp2.cbl | L4 | 140/140 | 0 | genapp-lgtestp2 | equal | 15 | none | 10/10 (100.0%) | 19/19 (100.0%) | 19/19 (100.0%) | — | not measured (no det_mutation/ entry) | 7/8 |
-| base/src/lgtestp3.cbl | L4 | 137/137 | 0 | genapp-lgtestp3 | equal | 15 | none | 10/10 (100.0%) | 19/19 (100.0%) | 19/19 (100.0%) | — | not measured (no det_mutation/ entry) | 7/8 |
-| base/src/lgtestp4.cbl | L4 | 144/144 | 0 | genapp-lgtestp4 | equal | 16 | none | 9/9 (100.0%) | 22/22 (100.0%) | 22/22 (100.0%) | — | not measured (no det_mutation/ entry) | 7/8 |
-| base/src/lgucdb01.cbl | L4 | 39/39 | 0 | genapp-lgucdb01 | equal | 6 | none | 4/4 (100.0%) | 9/10 (90.0%) | 9/9 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
-| base/src/lgucus01.cbl | L4 | 32/32 | 0 | genapp-lgucus01 | equal | 5 | none | 4/4 (100.0%) | 5/8 (62.5%) | 5/5 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
-| base/src/lgucvs01.cbl | L4 | 32/32 | 0 | genapp-lgucvs01 | equal | 10 | none | 3/3 (100.0%) | 7/8 (87.5%) | 7/7 (100.0%) | — | not measured (no det_mutation/ entry) | 3/7 |
-| base/src/lgupdb01.cbl | L4 | 116/116 | 0 | genapp-lgupdb01 | equal | 22 | shown equal, unapproved | 9/9 (100.0%) | 38/38 (100.0%) | 38/38 (100.0%) | — | not measured (no det_mutation/ entry) | 3/6 |
-| base/src/lgupol01.cbl | L4 | 45/45 | 0 | genapp-lgupol01 | equal | 10 | none | 4/4 (100.0%) | 13/16 (81.2%) | 13/13 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
-| base/src/lgupvs01.cbl | L4 | 55/55 | 0 | genapp-lgupvs01 | equal | 12 | shown equal, unapproved | 3/3 (100.0%) | 12/13 (92.3%) | 12/12 (100.0%) | — | not measured (no det_mutation/ entry) | 3/7 |
-| base/src/lgwebst5.cbl | L4 | 278/278 | 0 | genapp-lgwebst5 | equal | 4 | none | 3/3 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | — | not measured (no det_mutation/ entry) | 5/9 |
+| base/src/lgacdb01.cbl | L4* | 61/61 | 0 | genapp-lgacdb01 | equal | 6 | none | 4/4 (100.0%) | 15/16 (93.8%) | 15/15 (100.0%) | — | not measured (no det_mutation/ entry) | 3/6 |
+| base/src/lgacdb02.cbl | L4* | 39/39 | 0 | genapp-lgacdb02 | equal | 10 | none | 3/3 (100.0%) | 10/10 (100.0%) | 10/10 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
+| base/src/lgacus01.cbl | L4* | 34/34 | 0 | genapp-lgacus01 | equal | 5 | none | 3/3 (100.0%) | 4/8 (50.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
+| base/src/lgacvs01.cbl | L4* | 25/25 | 0 | genapp-lgacvs01 | equal | 8 | none | 3/3 (100.0%) | 5/6 (83.3%) | 5/5 (100.0%) | — | not measured (no det_mutation/ entry) | 3/6 |
+| base/src/lgapdb01.cbl | L4* | 124/124 | 0 | genapp-lgapdb01 | equal | 16 | shown equal, unapproved | 7/7 (100.0%) | 29/31 (93.5%) | 29/29 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
+| base/src/lgapol01.cbl | L4* | 30/30 | 0 | genapp-lgapol01 | equal | 6 | none | 2/2 (100.0%) | 5/8 (62.5%) | 5/5 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
+| base/src/lgapvs01.cbl | L4* | 47/47 | 0 | genapp-lgapvs01 | equal | 13 | shown equal, unapproved | 3/3 (100.0%) | 10/11 (90.9%) | 10/10 (100.0%) | — | not measured (no det_mutation/ entry) | 2/5 |
+| base/src/lgastat1.cbl | L4* | 30/30 | 0 | genapp-lgastat1 | equal | 8 | none | 1/1 (100.0%) | 12/12 (100.0%) | 12/12 (100.0%) | — | not measured (no det_mutation/ entry) | 3/7 |
+| base/src/lgdpdb01.cbl | L4* | 45/45 | 0 | genapp-lgdpdb01 | equal | 11 | none | 3/3 (100.0%) | 12/12 (100.0%) | 12/12 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
+| base/src/lgdpol01.cbl | L4* | 36/36 | 0 | genapp-lgdpol01 | equal | 11 | none | 3/3 (100.0%) | 9/12 (75.0%) | 9/9 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
+| base/src/lgdpvs01.cbl | L4* | 28/28 | 0 | genapp-lgdpvs01 | equal | 8 | none | 3/3 (100.0%) | 5/6 (83.3%) | 5/5 (100.0%) | — | not measured (no det_mutation/ entry) | 2/5 |
+| base/src/lgicdb01.cbl | L4* | 44/44 | 0 | genapp-lgicdb01 | equal | 18 | shown equal, unapproved | 4/4 (100.0%) | 11/12 (91.7%) | 11/11 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
+| base/src/lgicus01.cbl | L4* | 34/34 | 0 | genapp-lgicus01 | equal | 5 | none | 4/4 (100.0%) | 4/8 (50.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
+| base/src/lgicvs01.cbl | L4* | 51/51 | 0 | genapp-lgicvs01 | equal | 9 | none | 1/1 (100.0%) | 18/18 (100.0%) | 18/18 (100.0%) | — | not measured (no det_mutation/ entry) | 6/9 |
+| base/src/lgipdb01.cbl | L4* | 238/238 | 0 | genapp-lgipdb01 | equal | 47 | none | 12/12 (100.0%) | 74/74 (100.0%) | 74/74 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
+| base/src/lgipol01.cbl | L4* | 26/26 | 0 | genapp-lgipol01 | equal | 10 | none | 2/2 (100.0%) | 3/6 (50.0%) | 3/3 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
+| base/src/lgipvs01.cbl | L4* | 31/31 | 0 | genapp-lgipvs01 | equal | 7 | none | 1/1 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | 4/5 |
+| base/src/lgsetup.cbl | L4* | 91/91 | 0 | genapp-lgsetup | equal | 2 | none | 1/1 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | — | not measured (no det_mutation/ entry) | 4/7 |
+| base/src/lgstsq.cbl | L4* | 26/26 | 0 | genapp-lgstsq | equal | 8 | shown equal, unapproved | 1/1 (100.0%) | 4/6 (66.7%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | 5/6 |
+| base/src/lgtestc1.cbl | L4* | 130/130 | 0 | genapp-lgtestc1 | equal | 14 | none | 10/10 (100.0%) | 20/20 (100.0%) | 20/20 (100.0%) | — | not measured (no det_mutation/ entry) | 9/12 |
+| base/src/lgtestp1.cbl | L4* | 152/152 | 0 | genapp-lgtestp1 | equal | 15 | none | 10/10 (100.0%) | 19/19 (100.0%) | 19/19 (100.0%) | — | not measured (no det_mutation/ entry) | 7/8 |
+| base/src/lgtestp2.cbl | L4* | 140/140 | 0 | genapp-lgtestp2 | equal | 15 | none | 10/10 (100.0%) | 19/19 (100.0%) | 19/19 (100.0%) | — | not measured (no det_mutation/ entry) | 7/8 |
+| base/src/lgtestp3.cbl | L4* | 137/137 | 0 | genapp-lgtestp3 | equal | 15 | none | 10/10 (100.0%) | 19/19 (100.0%) | 19/19 (100.0%) | — | not measured (no det_mutation/ entry) | 7/8 |
+| base/src/lgtestp4.cbl | L4* | 144/144 | 0 | genapp-lgtestp4 | equal | 16 | none | 9/9 (100.0%) | 22/22 (100.0%) | 22/22 (100.0%) | — | not measured (no det_mutation/ entry) | 7/8 |
+| base/src/lgucdb01.cbl | L4* | 39/39 | 0 | genapp-lgucdb01 | equal | 6 | none | 4/4 (100.0%) | 9/10 (90.0%) | 9/9 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
+| base/src/lgucus01.cbl | L4* | 32/32 | 0 | genapp-lgucus01 | equal | 5 | none | 4/4 (100.0%) | 5/8 (62.5%) | 5/5 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
+| base/src/lgucvs01.cbl | L4* | 32/32 | 0 | genapp-lgucvs01 | equal | 10 | none | 3/3 (100.0%) | 7/8 (87.5%) | 7/7 (100.0%) | — | not measured (no det_mutation/ entry) | 3/7 |
+| base/src/lgupdb01.cbl | L4* | 116/116 | 0 | genapp-lgupdb01 | equal | 22 | shown equal, unapproved | 9/9 (100.0%) | 38/38 (100.0%) | 38/38 (100.0%) | — | not measured (no det_mutation/ entry) | 3/6 |
+| base/src/lgupol01.cbl | L4* | 45/45 | 0 | genapp-lgupol01 | equal | 10 | none | 4/4 (100.0%) | 13/16 (81.2%) | 13/13 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
+| base/src/lgupvs01.cbl | L4* | 55/55 | 0 | genapp-lgupvs01 | equal | 12 | shown equal, unapproved | 3/3 (100.0%) | 12/13 (92.3%) | 12/12 (100.0%) | — | not measured (no det_mutation/ entry) | 3/7 |
+| base/src/lgwebst5.cbl | L4* | 278/278 | 0 | genapp-lgwebst5 | equal | 4 | none | 3/3 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | — | not measured (no det_mutation/ entry) | 5/9 |
 
 ## Per program
 
-### base/src/lgacdb01.cbl -- L4
+### base/src/lgacdb01.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 6 scenarios of genapp-lgacdb01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -157,7 +159,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 1 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X30, X42, X45, X46, X53; commands without oracle backing: ASKTIME, FORMATTIME, GET COUNTER; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### base/src/lgacdb02.cbl -- L4
+### base/src/lgacdb02.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 10 scenarios of genapp-lgacdb02 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -194,7 +198,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X27, X42, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### base/src/lgacus01.cbl -- L4
+### base/src/lgacus01.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 5 scenarios of genapp-lgacus01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -227,7 +233,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 4 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X42, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### base/src/lgacvs01.cbl -- L4
+### base/src/lgacvs01.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 8 scenarios of genapp-lgacvs01 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -264,7 +272,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 1 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X42, X46; commands without oracle backing: ASKTIME, FORMATTIME, WRITE; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### base/src/lgapdb01.cbl -- L4
+### base/src/lgapdb01.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 9 scenarios of genapp-lgapdb01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -307,7 +317,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 2 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X42, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### base/src/lgapol01.cbl -- L4
+### base/src/lgapol01.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 6 scenarios of genapp-lgapol01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -345,7 +357,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 3 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X42, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### base/src/lgapvs01.cbl -- L4
+### base/src/lgapvs01.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 13 scenarios of genapp-lgapvs01 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -389,7 +403,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 1 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X42, X46; commands without oracle backing: ASKTIME, FORMATTIME, WRITE; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### base/src/lgastat1.cbl -- L4
+### base/src/lgastat1.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 8 scenarios of genapp-lgastat1 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -416,7 +432,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X17, X27, X30, X42, X45, X46, X53; commands without oracle backing: ASKTIME, FORMATTIME, GET CONTAINER, GET COUNTER; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### base/src/lgdpdb01.cbl -- L4
+### base/src/lgdpdb01.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 11 scenarios of genapp-lgdpdb01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -455,7 +473,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X27, X42, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### base/src/lgdpol01.cbl -- L4
+### base/src/lgdpol01.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 11 scenarios of genapp-lgdpol01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -493,7 +513,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 3 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X42, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### base/src/lgdpvs01.cbl -- L4
+### base/src/lgdpvs01.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 8 scenarios of genapp-lgdpvs01 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -535,7 +557,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 1 branch outcomes unrun; ASSUMED / DIFFERS entries named: X22, X27, X42, X46; commands without oracle backing: ASKTIME, DELETE, FORMATTIME; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### base/src/lgicdb01.cbl -- L4
+### base/src/lgicdb01.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 17 scenarios of genapp-lgicdb01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -571,7 +595,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 1 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X42, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### base/src/lgicus01.cbl -- L4
+### base/src/lgicus01.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 5 scenarios of genapp-lgicus01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -604,7 +630,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 4 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X42, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### base/src/lgicvs01.cbl -- L4
+### base/src/lgicvs01.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 9 scenarios of genapp-lgicvs01 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -636,7 +664,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X14, X15, X19, X22, X27, X42, X60; commands without oracle backing: DEQ, ENQ, READ; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### base/src/lgipdb01.cbl -- L4
+### base/src/lgipdb01.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 47 scenarios of genapp-lgipdb01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -675,7 +705,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X27, X42, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### base/src/lgipol01.cbl -- L4
+### base/src/lgipol01.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 10 scenarios of genapp-lgipol01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -713,7 +745,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 3 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X42, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### base/src/lgipvs01.cbl -- L4
+### base/src/lgipvs01.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 7 scenarios of genapp-lgipvs01 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -741,7 +775,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X14, X15, X19, X22, X27, X42; commands without oracle backing: READ; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### base/src/lgsetup.cbl -- L4
+### base/src/lgsetup.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 2 scenarios of genapp-lgsetup against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -768,7 +804,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X15, X27, X29, X30, X42; commands without oracle backing: DEFINE COUNTER, DELETE COUNTER, DELETEQ TS; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### base/src/lgstsq.cbl -- L4
+### base/src/lgstsq.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 8 scenarios of genapp-lgstsq against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -879,7 +917,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 2 branch outcomes unrun; ASSUMED / DIFFERS entries named: X15, X19, X27, X42; commands without oracle backing: WRITEQ TD; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### base/src/lgtestc1.cbl -- L4
+### base/src/lgtestc1.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 14 scenarios of genapp-lgtestc1 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -911,7 +951,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X27, X31, X42, X60; commands without oracle backing: DEQ, ENQ, SYNCPOINT ROLLBACK; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### base/src/lgtestp1.cbl -- L4
+### base/src/lgtestp1.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 15 scenarios of genapp-lgtestp1 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -939,7 +981,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X27, X31, X42; commands without oracle backing: SYNCPOINT ROLLBACK; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### base/src/lgtestp2.cbl -- L4
+### base/src/lgtestp2.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 15 scenarios of genapp-lgtestp2 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -967,7 +1011,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X27, X31, X42; commands without oracle backing: SYNCPOINT ROLLBACK; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### base/src/lgtestp3.cbl -- L4
+### base/src/lgtestp3.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 15 scenarios of genapp-lgtestp3 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -995,7 +1041,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X27, X31, X42; commands without oracle backing: SYNCPOINT ROLLBACK; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### base/src/lgtestp4.cbl -- L4
+### base/src/lgtestp4.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 16 scenarios of genapp-lgtestp4 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -1023,7 +1071,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X27, X31, X42; commands without oracle backing: SYNCPOINT ROLLBACK; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### base/src/lgucdb01.cbl -- L4
+### base/src/lgucdb01.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 6 scenarios of genapp-lgucdb01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -1057,7 +1107,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 1 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X42, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### base/src/lgucus01.cbl -- L4
+### base/src/lgucus01.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 5 scenarios of genapp-lgucus01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -1089,7 +1141,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 3 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X42, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### base/src/lgucvs01.cbl -- L4
+### base/src/lgucvs01.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 10 scenarios of genapp-lgucvs01 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -1127,7 +1181,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 1 branch outcomes unrun; ASSUMED / DIFFERS entries named: X14, X22, X27, X42, X46, X52; commands without oracle backing: ASKTIME, FORMATTIME, READ, REWRITE; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### base/src/lgupdb01.cbl -- L4
+### base/src/lgupdb01.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 15 scenarios of genapp-lgupdb01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -1169,7 +1225,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X27, X42, X46; commands without oracle backing: ASKTIME, FORMATTIME, SYNCPOINT ROLLBACK; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### base/src/lgupol01.cbl -- L4
+### base/src/lgupol01.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 10 scenarios of genapp-lgupol01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -1207,7 +1265,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 3 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X42, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### base/src/lgupvs01.cbl -- L4
+### base/src/lgupvs01.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 12 scenarios of genapp-lgupvs01 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -1253,7 +1313,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 1 branch outcomes unrun; ASSUMED / DIFFERS entries named: X14, X22, X27, X42, X46, X52; commands without oracle backing: ASKTIME, FORMATTIME, READ, REWRITE; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### base/src/lgwebst5.cbl -- L4
+### base/src/lgwebst5.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 4 scenarios of genapp-lgwebst5 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -1314,18 +1376,18 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `d86d5eabbf0bb0994f05894546b1bbe28c7325f2`
+- translator commit (the survey's): `392ac1fca006a976aed2c2ad21f75f0d9cb0deac`
 - corpus pin: `cics-genapp` at `f6f3f4b2580d31b7d8dcc31ce3e3676f4cceaaaa`
-- crucible pins: cics `904e98777548993f52b21bc2cfe2baefdb8b6b78`, estate `v0.5.0`, language `v1.7.0`; cics crucible baseline measured at `904e98777548993f52b21bc2cfe2baefdb8b6b78`; crucible cases per command measured at `v0.5.0`
+- crucible pins: cics `v0.12.0`, estate `v0.6.0`, language `v1.7.0`; cics crucible baseline measured at `v0.12.0 (904e9877)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
 - oracle base image: `debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251`
-- oracle images the evidence records ran on: `sha256:b7b6fad9825b060f92271f2c7aef2a350849c0978ed3e0a2e578dc7b368faea2`, `sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f`
+- oracle images the evidence records ran on: `sha256:28a4e99668e988bdfd1118de255f626880102454c2463676108cc1e90320c5e1`, `sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f`
 
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha d86d5eabbf0bb0994f05894546b1bbe28c7325f2
-python tests/tools/evidence_report.py cics-genapp --baseline --sha d86d5eabbf0bb0994f05894546b1bbe28c7325f2
+python tests/tools/cics_census.py survey --baseline --sha 392ac1fca006a976aed2c2ad21f75f0d9cb0deac
+python tests/tools/evidence_report.py cics-genapp --baseline --sha 392ac1fca006a976aed2c2ad21f75f0d9cb0deac
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases genapp-lgacdb01,genapp-lgacdb01-generated,genapp-lgacdb02,genapp-lgacdb02-generated,genapp-lgacus01,genapp-lgacus01-generated,genapp-lgacvs01,genapp-lgapdb01,genapp-lgapdb01-generated,genapp-lgapol01,genapp-lgapol01-generated,genapp-lgapvs01,genapp-lgastat1,genapp-lgdpdb01,genapp-lgdpdb01-generated,genapp-lgdpol01,genapp-lgdpol01-generated,genapp-lgdpvs01,genapp-lgicdb01,genapp-lgicdb01-generated,genapp-lgicus01,genapp-lgicus01-generated,genapp-lgicvs01,genapp-lgicvs01-linked,genapp-lgipdb01,genapp-lgipdb01-generated,genapp-lgipol01,genapp-lgipol01-generated,genapp-lgipvs01,genapp-lgipvs01-linked,genapp-lgsetup,genapp-lgstsq,genapp-lgtestc1,genapp-lgtestp1,genapp-lgtestp2,genapp-lgtestp3,genapp-lgtestp4,genapp-lgucdb01,genapp-lgucdb01-generated,genapp-lgucus01,genapp-lgucus01-generated,genapp-lgucvs01,genapp-lgupdb01,genapp-lgupdb01-generated,genapp-lgupol01,genapp-lgupol01-generated,genapp-lgupvs01,genapp-lgwebst5  # Db2 cases (35) need the Db2 container
 python tests/tools/evidence.py prove genapp-lgapdb01 genapp-lgapvs01 genapp-lgicdb01 genapp-lgstsq genapp-lgupdb01 genapp-lgupvs01

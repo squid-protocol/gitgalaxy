@@ -4,9 +4,9 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `d86d5eabbf0bb0994f05894546b1bbe28c7325f2` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `392ac1fca006a976aed2c2ad21f75f0d9cb0deac` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
-The translation survey matches the translator in the tree (translator fingerprint `1764c3837edd`).
+The translation survey matches the translator in the tree (translator fingerprint `27527bfad630`).
 
 ## How to read this report
 
@@ -44,11 +44,11 @@ The translation survey matches the translator in the tree (translator fingerprin
 | L1 | 0 | 0 |
 | L2 | 0 | 0 |
 | L3 | 0 | 0 |
-| L4 | 37 | 0 |
-| L5 | 5 | 0 |
+| L4 | 37 | 37 |
+| L5 | 5 | 4 |
 
-- stale (`*`, last measured): 0 of 44 programs; the rest are current
-- L2+: 42 (0 awaiting re-check); L3+: 42 (0 awaiting re-check); L4+: 42 (0 awaiting re-check)
+- stale (`*`, last measured): 41 of 44 programs; the rest are current
+- L2+: 42 (41 awaiting re-check); L3+: 42 (41 awaiting re-check); L4+: 42 (41 awaiting re-check)
 
 - programs: 44 (with an EXEC CICS command: 25; source not read: 0)
 - translated whole: 42; refused whole: 0; holes left: 10
@@ -88,54 +88,56 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 
 | program | level | translated / statements | holes | case | det port | scenarios | record | paragraphs | branches (raw) | branches (net of infeasible) | det-port mutation (raw) | det-port mutation | CICS commands oracle-backed |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| app/cbl/CBSTM03A.CBL | L5 | 424/424 | 0 | carddemo-cbstm03a | equal | 2 | shown equal, unapproved | 25/25 (100.0%) | 43/46 (93.5%) | 43/43 (100.0%) | 66% | raw 66% (108/163 caught; 175 of 3751 mutants, seed 0); every survivor accounted for (55) | — |
-| app/cbl/COTRN01C.cbl | L5 | 95/95 | 0 | carddemo-tranview | equal | 25 | shown equal, unapproved | 9/9 (100.0%) | 23/24 (95.8%) | 23/23 (100.0%) | 57% | raw 57% (81/143 caught; 149 of 1486 mutants, seed 0); every survivor accounted for (62) | 4/5 |
-| app/cbl/COUSR00C.cbl | L5 | 288/288 | 0 | carddemo-userlist | equal | 72 | shown equal, unapproved | 16/16 (100.0%) | 95/100 (95.0%) | 95/95 (100.0%) | 72% | raw 72% (108/150 caught; 150 of 2851 mutants, seed 0); every survivor accounted for (42) | 4/8 |
-| app/cbl/COUSR01C.cbl | L5 | 94/94 | 0 | carddemo-useradd | equal | 25 | shown equal, unapproved | 9/9 (100.0%) | 20/21 (95.2%) | 20/20 (100.0%) | 48% | raw 48% (586/1209 caught; 1231 of 1231 mutants, seed 0); every survivor accounted for (623) | 4/5 |
-| app/cbl/COUSR03C.cbl | L5 | 115/115 | 0 | carddemo-userdel | equal | 32 | shown equal, unapproved | 11/11 (100.0%) | 31/32 (96.9%) | 31/31 (100.0%) | 57% | raw 57% (81/143 caught; 150 of 1319 mutants, seed 0); every survivor accounted for (62) | 4/6 |
-| app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | L4 | 110/110 | 0 | carddemo-cbpaup0c | equal | 1 | shown equal, unapproved | 15/16 (93.8%) | 39/40 (97.5%) | 39/39 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | L4 | 344/344 | 0 | carddemo-copaua0c | equal | 26 | shown equal, unapproved | 41/41 (100.0%) | 66/71 (93.0%) | 66/66 (100.0%) | — | not measured (no det_mutation/ entry) | 2/7 |
-| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | L4 | 370/370 | 0 | carddemo-copaus0c | equal | 39 | shown equal, unapproved | 20/20 (100.0%) | 90/93 (96.8%) | 90/90 (100.0%) | — | not measured (no det_mutation/ entry) | 4/6 |
-| app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | L4 | 193/193 | 0 | carddemo-copaus1c | equal | 35 | shown equal, unapproved | 15/15 (100.0%) | 50/50 (100.0%) | 50/50 (100.0%) | — | not measured (no det_mutation/ entry) | 5/7 |
-| app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl | L4 | 56/56 | 0 | carddemo-copaus2c | equal | 5 | none | 2/2 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | 1/3 |
-| app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | L4 | 67/67 | 0 | carddemo-dbunldgs | equal | None | none | 14/14 (100.0%) | 18/18 (100.0%) | 18/18 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | L4 | 88/88 | 0 | carddemo-paudblod | equal | None | none | 16/16 (100.0%) | 33/34 (97.1%) | 33/33 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | L4 | 73/73 | 0 | carddemo-paudbunl | equal | None | none | 10/10 (100.0%) | 22/22 (100.0%) | 22/22 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| app/app-transaction-type-db2/cbl/COBTUPDT.cbl | L4 | 58/58 | 0 | carddemo-cobtupdt | equal | None | none | 9/9 (100.0%) | 16/20 (80.0%) | 16/16 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | L4 | 632/632 | 0 | carddemo-cotrtlic | equal | 62 | none | 59/59 (100.0%) | 218/230 (94.8%) | 218/218 (100.0%) | — | not measured (no det_mutation/ entry) | 5/6 |
-| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | L4 | 436/436 | 0 | carddemo-cotrtupc | equal | 50 | none | 63/63 (100.0%) | 140/166 (84.3%) | 140/140 (100.0%) | — | not measured (no det_mutation/ entry) | 7/8 |
-| app/app-vsam-mq/cbl/COACCT01.cbl | L4 | 205/205 | 0 | carddemo-coacct01 | equal | 18 | none | 13/13 (100.0%) | 33/33 (100.0%) | 33/33 (100.0%) | — | not measured (no det_mutation/ entry) | 2/4 |
-| app/app-vsam-mq/cbl/CODATE01.cbl | L4 | 182/182 | 0 | carddemo-codate01 | equal | 17 | none | 13/13 (100.0%) | 28/28 (100.0%) | 28/28 (100.0%) | — | not measured (no det_mutation/ entry) | 2/5 |
-| app/cbl/CBACT01C.cbl | L4 | 190/190 | 0 | carddemo-readacct | equal | None | none | 16/16 (100.0%) | 43/44 (97.7%) | 43/43 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| app/cbl/CBACT02C.cbl | L4 | 63/63 | 0 | carddemo-readcard | equal | 0 | shown equal, unapproved | 5/5 (100.0%) | 21/22 (95.5%) | 21/21 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| app/cbl/CBACT03C.cbl | L4 | 64/64 | 0 | carddemo-readxref | equal | 0 | shown equal, unapproved | 5/5 (100.0%) | 21/22 (95.5%) | 21/21 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| app/cbl/CBACT04C.cbl | L4 | 294/294 | 0 | carddemo-intcalc | equal | 2 | shown equal, unapproved | 22/22 (100.0%) | 85/86 (98.8%) | 85/85 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| app/cbl/CBCUS01C.cbl | L4 | 64/64 | 0 | carddemo-readcust | equal | 0 | shown equal, unapproved | 5/5 (100.0%) | 21/22 (95.5%) | 21/21 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| app/cbl/CBSTM03B.CBL | L4 | 53/53 | 0 | carddemo-cbstm03b | equal | None | none | 14/14 (100.0%) | 29/29 (100.0%) | 29/29 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| app/cbl/CBTRN01C.cbl | L4 | 216/216 | 0 | carddemo-dailyval | equal | 0 | shown equal, unapproved | 18/18 (100.0%) | 65/66 (98.5%) | 65/65 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| app/cbl/CBTRN02C.cbl | L4 | 339/339 | 0 | carddemo-posttran | equal | 4 | shown equal, unapproved | 26/26 (100.0%) | 95/96 (99.0%) | 95/95 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| app/cbl/CBTRN03C.cbl | L4 | 315/315 | 0 | carddemo-trnrpt | equal | 1 | shown equal, unapproved | 26/26 (100.0%) | 81/82 (98.8%) | 81/81 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| app/cbl/COACTUPC.cbl | L4 | 1415/1415 | 0 | carddemo-acctupdate | equal | 249 | none | 95/95 (100.0%) | 377/397 (95.0%) | 377/377 (100.0%) | — | not measured (no det_mutation/ entry) | 7/11 |
-| app/cbl/COACTVWC.cbl | L4 | 275/275 | 0 | carddemo-acctview | equal | 37 | shown equal, unapproved | 32/32 (100.0%) | 61/69 (88.4%) | 61/61 (100.0%) | — | not measured (no det_mutation/ entry) | 7/8 |
-| app/cbl/COADM01C.cbl | L4 | 80/80 | 0 | carddemo-adminmenu | equal | 34 | shown equal, unapproved | 8/8 (100.0%) | 20/26 (76.9%) | 20/20 (100.0%) | 53% | raw 53% (80/151 caught; 156 of 1398 mutants, seed 0); 6 of 71 survivors unaccounted | 5/5 |
-| app/cbl/COBIL00C.cbl | L4 | 190/190 | 0 | carddemo-billpay | equal | 35 | shown equal, unapproved | 16/16 (100.0%) | 46/48 (95.8%) | 46/46 (100.0%) | 66% | raw 66% (97/148 caught; 151 of 1675 mutants, seed 0); 4 of 51 survivors unaccounted | 4/12 |
-| app/cbl/COBSWAIT.cbl | L4 | 4/4 | 0 | carddemo-cobswait | equal | None | none | 1/1 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| app/cbl/COCRDLIC.cbl | L4 | 500/500 | 0 | carddemo-cardlist | equal | 46 | shown equal, unapproved | 36/36 (100.0%) | 147/149 (98.7%) | 147/147 (100.0%) | — | not measured (no det_mutation/ entry) | 5/9 |
-| app/cbl/COCRDSLC.cbl | L4 | 263/263 | 0 | carddemo-cardview | equal | 25 | shown equal, unapproved | 30/30 (100.0%) | 69/75 (92.0%) | 69/69 (100.0%) | 95% | raw 95% (141/148 caught; 152 of 2225 mutants, seed 0); 7 of 7 survivors unaccounted | 7/8 |
-| app/cbl/COCRDUPC.cbl | L4 | 488/488 | 0 | carddemo-cardupdate | equal | 45 | none | 45/45 (100.0%) | 175/189 (92.6%) | 175/175 (100.0%) | — | not measured (no det_mutation/ entry) | 7/10 |
-| app/cbl/COMEN01C.cbl | L4 | 91/91 | 0 | carddemo-menu | equal | 16 | shown equal, unapproved | 7/7 (100.0%) | 29/33 (87.9%) | 29/29 (100.0%) | — | not measured (no det_mutation/ entry) | 4/5 |
-| app/cbl/CORPT00C.cbl | L4 | 220/220 | 0 | carddemo-report | equal | 30 | shown equal, unapproved | 10/10 (100.0%) | 52/59 (88.1%) | 52/52 (100.0%) | — | not measured (no det_mutation/ entry) | 4/5 |
-| app/cbl/COSGN00C.cbl | L4 | 71/71 | 0 | carddemo-signon | equal | 22 | shown equal, unapproved | 6/6 (100.0%) | 17/17 (100.0%) | 17/17 (100.0%) | 46% | raw 46% (67/145 caught; 149 of 1163 mutants, seed 0); 2 of 78 survivors unaccounted | 6/7 |
-| app/cbl/COTRN00C.cbl | L4 | 294/294 | 0 | carddemo-tranlist | equal | 36 | shown equal, unapproved | 16/16 (100.0%) | 96/101 (95.0%) | 96/96 (100.0%) | 58% | raw 58% (91/156 caught; 158 of 2850 mutants, seed 0); 13 of 65 survivors unaccounted | 4/8 |
-| app/cbl/COTRN02C.cbl | L4 | 300/300 | 0 | carddemo-tranadd | equal | 78 | shown equal, unapproved | 18/18 (100.0%) | 72/75 (96.0%) | 72/72 (100.0%) | 71% | raw 71% (105/147 caught; 149 of 2454 mutants, seed 0); 6 of 42 survivors unaccounted | 4/9 |
-| app/cbl/COUSR02C.cbl | L4 | 148/148 | 0 | carddemo-userupd | equal | 32 | shown equal, unapproved | 11/11 (100.0%) | 44/46 (95.7%) | 44/44 (100.0%) | 67% | raw 67% (102/152 caught; 158 of 1421 mutants, seed 0); 3 of 50 survivors unaccounted | 4/6 |
-| app/cbl/CSUTLDTC.cbl | L4 | 27/27 | 0 | carddemo-dateutil | equal | 1 | shown equal, unapproved | 2/2 (100.0%) | 4/10 (40.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| app/cbl/CBSTM03A.CBL | L5* | 424/424 | 0 | carddemo-cbstm03a | equal | 2 | shown equal, unapproved | 25/25 (100.0%) | 43/46 (93.5%) | 43/43 (100.0%) | 66% | raw 66% (108/163 caught; 175 of 3751 mutants, seed 0); every survivor accounted for (55) | — |
+| app/cbl/COTRN01C.cbl | L5* | 95/95 | 0 | carddemo-tranview | equal | 25 | shown equal, unapproved | 9/9 (100.0%) | 23/24 (95.8%) | 23/23 (100.0%) | 57% | raw 57% (81/143 caught; 149 of 1486 mutants, seed 0); every survivor accounted for (62) | 4/5 |
+| app/cbl/COUSR00C.cbl | L5* | 288/288 | 0 | carddemo-userlist | equal | 72 | shown equal, unapproved | 16/16 (100.0%) | 95/100 (95.0%) | 95/95 (100.0%) | 72% | raw 72% (108/150 caught; 150 of 2851 mutants, seed 0); every survivor accounted for (42) | 4/8 |
+| app/cbl/COUSR01C.cbl | L5* | 94/94 | 0 | carddemo-useradd | equal | 25 | shown equal, unapproved | 9/9 (100.0%) | 20/21 (95.2%) | 20/20 (100.0%) | 48% | raw 48% (586/1209 caught; 1231 of 1231 mutants, seed 0); every survivor accounted for (623) | 4/5 |
+| app/cbl/COUSR03C.cbl | L5 | 115/115 | 0 | carddemo-userdel | equal | 33 | shown equal, unapproved | 11/11 (100.0%) | 31/32 (96.9%) | 31/31 (100.0%) | 52% | raw 52% (670/1295 caught; 1319 of 1319 mutants, seed 0); every survivor accounted for (625) | 4/6 |
+| app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | L4* | 110/110 | 0 | carddemo-cbpaup0c | equal | 1 | shown equal, unapproved | 15/16 (93.8%) | 39/40 (97.5%) | 39/39 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | L4* | 344/344 | 0 | carddemo-copaua0c | equal | 26 | shown equal, unapproved | 41/41 (100.0%) | 66/71 (93.0%) | 66/66 (100.0%) | — | not measured (no det_mutation/ entry) | 2/7 |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | L4* | 370/370 | 0 | carddemo-copaus0c | equal | 39 | shown equal, unapproved | 20/20 (100.0%) | 90/93 (96.8%) | 90/90 (100.0%) | — | not measured (no det_mutation/ entry) | 4/6 |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | L4* | 193/193 | 0 | carddemo-copaus1c | equal | 35 | shown equal, unapproved | 15/15 (100.0%) | 50/50 (100.0%) | 50/50 (100.0%) | — | not measured (no det_mutation/ entry) | 5/7 |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl | L4* | 56/56 | 0 | carddemo-copaus2c | equal | 5 | none | 2/2 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | 1/3 |
+| app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | L4* | 67/67 | 0 | carddemo-dbunldgs | equal | None | none | 14/14 (100.0%) | 18/18 (100.0%) | 18/18 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | L4* | 88/88 | 0 | carddemo-paudblod | equal | None | none | 16/16 (100.0%) | 33/34 (97.1%) | 33/33 (100.0%) | 60% | raw 60% (52/86 caught; 150 of 418 mutants, seed 0); 34 of 34 survivors unaccounted | — |
+| app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | L4* | 73/73 | 0 | carddemo-paudbunl | equal | None | none | 10/10 (100.0%) | 22/22 (100.0%) | 22/22 (100.0%) | 61% | raw 61% (87/143 caught; 150 of 368 mutants, seed 0); 56 of 56 survivors unaccounted | — |
+| app/app-transaction-type-db2/cbl/COBTUPDT.cbl | L4* | 58/58 | 0 | carddemo-cobtupdt | equal | None | none | 9/9 (100.0%) | 16/20 (80.0%) | 16/16 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | L4* | 632/632 | 0 | carddemo-cotrtlic | equal | 62 | none | 59/59 (100.0%) | 218/230 (94.8%) | 218/218 (100.0%) | — | not measured (no det_mutation/ entry) | 5/6 |
+| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | L4* | 436/436 | 0 | carddemo-cotrtupc | equal | 50 | none | 63/63 (100.0%) | 140/166 (84.3%) | 140/140 (100.0%) | — | not measured (no det_mutation/ entry) | 7/8 |
+| app/app-vsam-mq/cbl/COACCT01.cbl | L4* | 205/205 | 0 | carddemo-coacct01 | equal | 18 | none | 13/13 (100.0%) | 33/33 (100.0%) | 33/33 (100.0%) | 51% | raw 51% (74/144 caught; 150 of 989 mutants, seed 0); 70 of 70 survivors unaccounted | 2/4 |
+| app/app-vsam-mq/cbl/CODATE01.cbl | L4* | 182/182 | 0 | carddemo-codate01 | equal | 17 | none | 13/13 (100.0%) | 28/28 (100.0%) | 28/28 (100.0%) | 48% | raw 48% (69/144 caught; 150 of 857 mutants, seed 0); 75 of 75 survivors unaccounted | 2/5 |
+| app/cbl/CBACT01C.cbl | L4* | 190/190 | 0 | carddemo-readacct | equal | None | none | 16/16 (100.0%) | 43/44 (97.7%) | 43/43 (100.0%) | 75% | raw 75% (107/143 caught; 150 of 728 mutants, seed 0); 36 of 36 survivors unaccounted | — |
+| app/cbl/CBACT02C.cbl | L4* | 63/63 | 0 | carddemo-readcard | equal | 0 | shown equal, unapproved | 5/5 (100.0%) | 21/22 (95.5%) | 21/21 (100.0%) | 66% | raw 66% (92/140 caught; 150 of 243 mutants, seed 0); 48 of 48 survivors unaccounted | — |
+| app/cbl/CBACT03C.cbl | L4* | 64/64 | 0 | carddemo-readxref | equal | 0 | shown equal, unapproved | 5/5 (100.0%) | 21/22 (95.5%) | 21/21 (100.0%) | 66% | raw 66% (92/140 caught; 150 of 244 mutants, seed 0); 48 of 48 survivors unaccounted | — |
+| app/cbl/CBACT04C.cbl | L4* | 294/294 | 0 | carddemo-intcalc | equal | 2 | shown equal, unapproved | 22/22 (100.0%) | 85/86 (98.8%) | 85/85 (100.0%) | 72% | raw 72% (103/144 caught; 150 of 968 mutants, seed 0); 41 of 41 survivors unaccounted | — |
+| app/cbl/CBCUS01C.cbl | L4* | 64/64 | 0 | carddemo-readcust | equal | 0 | shown equal, unapproved | 5/5 (100.0%) | 21/22 (95.5%) | 21/21 (100.0%) | 65% | raw 65% (91/140 caught; 150 of 247 mutants, seed 0); 49 of 49 survivors unaccounted | — |
+| app/cbl/CBSTM03B.CBL | L4* | 53/53 | 0 | carddemo-cbstm03b | equal | None | none | 14/14 (100.0%) | 29/29 (100.0%) | 29/29 (100.0%) | 52% | raw 52% (75/144 caught; 150 of 394 mutants, seed 0); 69 of 69 survivors unaccounted | — |
+| app/cbl/CBTRN01C.cbl | L4* | 216/216 | 0 | carddemo-dailyval | equal | 0 | shown equal, unapproved | 18/18 (100.0%) | 65/66 (98.5%) | 65/65 (100.0%) | 70% | raw 70% (102/145 caught; 150 of 727 mutants, seed 0); 43 of 43 survivors unaccounted | — |
+| app/cbl/CBTRN02C.cbl | L4* | 339/339 | 0 | carddemo-posttran | equal | 4 | shown equal, unapproved | 26/26 (100.0%) | 95/96 (99.0%) | 95/95 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| app/cbl/CBTRN03C.cbl | L4* | 315/315 | 0 | carddemo-trnrpt | equal | 1 | shown equal, unapproved | 26/26 (100.0%) | 81/82 (98.8%) | 81/81 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| app/cbl/COACTUPC.cbl | L4* | 1415/1415 | 0 | carddemo-acctupdate | equal | 249 | none | 95/95 (100.0%) | 377/397 (95.0%) | 377/377 (100.0%) | — | not measured (no det_mutation/ entry) | 7/11 |
+| app/cbl/COACTVWC.cbl | L4* | 275/275 | 0 | carddemo-acctview | equal | 37 | shown equal, unapproved | 32/32 (100.0%) | 61/69 (88.4%) | 61/61 (100.0%) | — | not measured (no det_mutation/ entry) | 7/8 |
+| app/cbl/COADM01C.cbl | L4* | 80/80 | 0 | carddemo-adminmenu | equal | 34 | shown equal, unapproved | 8/8 (100.0%) | 20/26 (76.9%) | 20/20 (100.0%) | 53% | raw 53% (80/151 caught; 156 of 1398 mutants, seed 0); 6 of 71 survivors unaccounted | 5/5 |
+| app/cbl/COBIL00C.cbl | L4* | 190/190 | 0 | carddemo-billpay | equal | 35 | shown equal, unapproved | 16/16 (100.0%) | 46/48 (95.8%) | 46/46 (100.0%) | 66% | raw 66% (97/148 caught; 151 of 1675 mutants, seed 0); 4 of 51 survivors unaccounted | 4/12 |
+| app/cbl/COBSWAIT.cbl | L4* | 4/4 | 0 | carddemo-cobswait | equal | None | none | 1/1 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | 22% | raw 22% (16/73 caught; 79 of 79 mutants, seed 0); 57 of 57 survivors unaccounted | — |
+| app/cbl/COCRDLIC.cbl | L4* | 500/500 | 0 | carddemo-cardlist | equal | 46 | shown equal, unapproved | 36/36 (100.0%) | 147/149 (98.7%) | 147/147 (100.0%) | — | not measured (no det_mutation/ entry) | 5/9 |
+| app/cbl/COCRDSLC.cbl | L4* | 263/263 | 0 | carddemo-cardview | equal | 25 | shown equal, unapproved | 30/30 (100.0%) | 69/75 (92.0%) | 69/69 (100.0%) | 95% | raw 95% (141/148 caught; 152 of 2225 mutants, seed 0); 7 of 7 survivors unaccounted | 7/8 |
+| app/cbl/COCRDUPC.cbl | L4* | 488/488 | 0 | carddemo-cardupdate | equal | 45 | none | 45/45 (100.0%) | 175/189 (92.6%) | 175/175 (100.0%) | — | not measured (no det_mutation/ entry) | 7/10 |
+| app/cbl/COMEN01C.cbl | L4* | 91/91 | 0 | carddemo-menu | equal | 16 | shown equal, unapproved | 7/7 (100.0%) | 29/33 (87.9%) | 29/29 (100.0%) | — | not measured (no det_mutation/ entry) | 4/5 |
+| app/cbl/CORPT00C.cbl | L4* | 220/220 | 0 | carddemo-report | equal | 30 | shown equal, unapproved | 10/10 (100.0%) | 52/59 (88.1%) | 52/52 (100.0%) | — | not measured (no det_mutation/ entry) | 4/5 |
+| app/cbl/COSGN00C.cbl | L4* | 71/71 | 0 | carddemo-signon | equal | 22 | shown equal, unapproved | 6/6 (100.0%) | 17/17 (100.0%) | 17/17 (100.0%) | 46% | raw 46% (67/145 caught; 149 of 1163 mutants, seed 0); 2 of 78 survivors unaccounted | 6/7 |
+| app/cbl/COTRN00C.cbl | L4* | 294/294 | 0 | carddemo-tranlist | equal | 36 | shown equal, unapproved | 16/16 (100.0%) | 96/101 (95.0%) | 96/96 (100.0%) | 58% | raw 58% (91/156 caught; 158 of 2850 mutants, seed 0); 13 of 65 survivors unaccounted | 4/8 |
+| app/cbl/COTRN02C.cbl | L4* | 300/300 | 0 | carddemo-tranadd | equal | 78 | shown equal, unapproved | 18/18 (100.0%) | 72/75 (96.0%) | 72/72 (100.0%) | 71% | raw 71% (105/147 caught; 149 of 2454 mutants, seed 0); 6 of 42 survivors unaccounted | 4/9 |
+| app/cbl/COUSR02C.cbl | L4* | 148/148 | 0 | carddemo-userupd | equal | 32 | shown equal, unapproved | 11/11 (100.0%) | 44/46 (95.7%) | 44/44 (100.0%) | 67% | raw 67% (102/152 caught; 158 of 1421 mutants, seed 0); 3 of 50 survivors unaccounted | 4/6 |
+| app/cbl/CSUTLDTC.cbl | L4* | 27/27 | 0 | carddemo-dateutil | equal | 1 | shown equal, unapproved | 2/2 (100.0%) | 4/10 (40.0%) | 4/4 (100.0%) | 51% | raw 51% (74/145 caught; 150 of 269 mutants, seed 0); 71 of 71 survivors unaccounted | — |
 | app/cbl/CBEXPORT.cbl | L0 | 217/224 | 7 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
 | app/cbl/CBIMPORT.cbl | L0 | 172/175 | 3 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
 
 ## Per program
 
-### app/cbl/CBSTM03A.CBL -- L5
+### app/cbl/CBSTM03A.CBL -- L5*
+
+- **Stale level:** L5 is the last measurement, stale since `d86d5eabbf0b` (harness); not yet re-checked
 
 - **Executed equivalent** on the batch runs of carddemo-cbstm03a against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** 
@@ -154,7 +156,9 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 - **Det-port mutation:** raw 66% (108/163 caught; 175 of 3751 mutants, seed 0); every survivor accounted for (55)
 - **Residual risk:** 3 branch outcomes unrun; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### app/cbl/COTRN01C.cbl -- L5
+### app/cbl/COTRN01C.cbl -- L5*
+
+- **Stale level:** L5 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 25 scenarios of carddemo-tranview against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** 
@@ -182,7 +186,9 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 - **Det-port mutation:** raw 57% (81/143 caught; 149 of 1486 mutants, seed 0); every survivor accounted for (62)
 - **Residual risk:** 1 branch outcomes unrun; ASSUMED / DIFFERS entries named: X14, X22, X27, X31, X42; commands without oracle backing: READ; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### app/cbl/COUSR00C.cbl -- L5
+### app/cbl/COUSR00C.cbl -- L5*
+
+- **Stale level:** L5 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 72 scenarios of carddemo-userlist against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** 
@@ -215,7 +221,9 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 - **Det-port mutation:** raw 72% (108/150 caught; 150 of 2851 mutants, seed 0); every survivor accounted for (42)
 - **Residual risk:** 5 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X31, X42, X52; commands without oracle backing: ENDBR, READNEXT, READPREV, STARTBR; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### app/cbl/COUSR01C.cbl -- L5
+### app/cbl/COUSR01C.cbl -- L5*
+
+- **Stale level:** L5 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 25 scenarios of carddemo-useradd against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** 
@@ -245,13 +253,13 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 
 ### app/cbl/COUSR03C.cbl -- L5
 
-- **Executed equivalent** on the 32 scenarios of carddemo-userdel against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Executed equivalent** on the 33 scenarios of carddemo-userdel against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** 
 - **Translation:** 115/115 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.CURRENTDATA=YES [no effect; found at samples/proc/BLDCIDB2.prc:149]; db2.bind.ISOLATION=CS [no effect; found at samples/proc/BLDCIDB2.prc:148]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.PARM=HOST(IBMCOB),XREF,SOURCE,FLAG(I),APOST [no effect; found at samples/proc/BLDCIDB2.prc:47]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; found at samples/proc/BUILDONL.prc:40]
 - **Executed equivalence** (carddemo-userdel, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
-  - evidence record (the case's committed port): shown equal, unapproved; its proof: all equal, 32/32 scenarios equal, 95/95 records equal, 32 runs (6 fault runs); through its deployed entry points 32/32
+  - evidence record (the case's committed port): shown equal, unapproved; its proof: all equal, 33/33 scenarios equal, 97/97 records equal, 33 runs (6 fault runs); through its deployed entry points 33/33
 - **Executed equivalence** (carddemo-userdel-generated, program): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (6 scenarios in case.json)
 - **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 11/11 (100.0%), branch outcomes 31/32 (96.9%) raw, 31/31 (100.0%) net of 1 stated infeasible; unrun paragraphs by name: not recorded
@@ -269,10 +277,12 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 - **Assumptions relied on:** named by its commands' spec entries: X14 (ASSUMED (REFUSED where IBM is silent)), X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X31 (ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)), X42 (ASSUMED (REFUSED where IBM is silent)); reach: X27, X31, X42 (entries of the commands case carddemo-userdel executed: ABEND, RECEIVE MAP, RETURN, SEND MAP, XCTL)
   - z/OS-calibrated: 0 of 5 named assumptions (none measured on z/OS)
   - stated infeasible branch outcome (reviewed claim, family G): RETURN-TO-PREV-SCREEN:199:true (IF) -- `IF CDEMO-TO-PROGRAM = LOW-VALUES OR SPACES` in RETURN-TO-PREV-SCREEN: the paragraph is only PERFORMed, and every PERFORM of it comes right after a MOVE of a non-blank program name into CDEMO-TO-PROGRAM (lines 91, 113 and 124 move 'COSGN00C' / 'COADM01C', and line 116 moves CDEMO-FROM-PROGRAM only after testing it is neither SPACES nor LOW-VALUES; both fields PIC X(08), COCOM01Y). COUSR03C never moves SPACES or LOW-VALUES into it in between.
-- **Det-port mutation:** raw 57% (81/143 caught; 150 of 1319 mutants, seed 0); every survivor accounted for (62)
+- **Det-port mutation:** raw 52% (670/1295 caught; 1319 of 1319 mutants, seed 0); every survivor accounted for (625)
 - **Residual risk:** 1 branch outcomes unrun; ASSUMED / DIFFERS entries named: X14, X22, X27, X31, X42; commands without oracle backing: DELETE, READ; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl -- L4
+### app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness); not yet re-checked
 
 - **Executed equivalent** on the batch runs of carddemo-cbpaup0c against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -290,7 +300,9 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 1 live paragraphs unrun; 1 branch outcomes unrun; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl -- L4
+### app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 26 scenarios of carddemo-copaua0c against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -322,7 +334,9 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 5 branch outcomes unrun; ASSUMED / DIFFERS entries named: X14, X18, X22, X27, X42, X46; commands without oracle backing: ASKTIME, FORMATTIME, READ, SYNCPOINT, WRITEQ TD; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl -- L4
+### app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 39 scenarios of carddemo-copaus0c against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -351,7 +365,9 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 3 branch outcomes unrun; ASSUMED / DIFFERS entries named: X14, X22, X27, X31, X42; commands without oracle backing: READ, SYNCPOINT; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl -- L4
+### app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 33 scenarios of carddemo-copaus1c against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -378,7 +394,9 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X27, X31, X42; commands without oracle backing: SYNCPOINT, SYNCPOINT ROLLBACK; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl -- L4
+### app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 5 scenarios of carddemo-copaus2c against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -405,7 +423,9 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X27, X42, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL -- L4
+### app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness); not yet re-checked
 
 - **Executed equivalent** on the batch runs of carddemo-dbunldgs against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -421,10 +441,12 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL -- L4
+### app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness); not yet re-checked
 
 - **Executed equivalent** on the batch runs of carddemo-paudblod against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 60% (52/86 caught; 150 of 418 mutants, seed 0); 34 of 34 survivors unaccounted)
 - **Translation:** 88/88 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.CURRENTDATA=YES [no effect; found at samples/proc/BLDCIDB2.prc:149]; db2.bind.ISOLATION=CS [no effect; found at samples/proc/BLDCIDB2.prc:148]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.PARM=HOST(IBMCOB),XREF,SOURCE,FLAG(I),APOST [no effect; found at samples/proc/BLDCIDB2.prc:47]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; found at samples/proc/BUILDONL.prc:40]
@@ -435,13 +457,15 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
   - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
   - stated infeasible branch outcome (reviewed claim, family G): 3100-INSERT-CHILD-SEG:310:true (IF) -- `IF PAUT-PCB-STATUS NOT EQUAL TO SPACES AND 'II'` (310) has no END-IF of its own: it sits inside `IF PAUT-PCB-STATUS = SPACES` (309) and runs right after `PERFORM 3200-INSERT-IMS-CALL`. 3200 returns only with the status blank or 'II' (its own test at 3200 sends any other status to 9999-ABEND, which GOBACKs), so the status read at 310 is never outside blank / 'II' and the ROOT GU CALL FAIL arm cannot run; a failed root GU (not blank) skips 309's body altogether.
-- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Det-port mutation:** raw 60% (52/86 caught; 150 of 418 mutants, seed 0); 34 of 34 survivors unaccounted
 - **Residual risk:** 1 branch outcomes unrun; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL -- L4
+### app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness); not yet re-checked
 
 - **Executed equivalent** on the batch runs of carddemo-paudbunl against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 61% (87/143 caught; 150 of 368 mutants, seed 0); 56 of 56 survivors unaccounted)
 - **Translation:** 73/73 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.CURRENTDATA=YES [no effect; found at samples/proc/BLDCIDB2.prc:149]; db2.bind.ISOLATION=CS [no effect; found at samples/proc/BLDCIDB2.prc:148]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.PARM=HOST(IBMCOB),XREF,SOURCE,FLAG(I),APOST [no effect; found at samples/proc/BLDCIDB2.prc:47]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; found at samples/proc/BUILDONL.prc:40]
@@ -451,10 +475,12 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 - **Oracle backing:** no EXEC CICS command
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
   - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
-- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Det-port mutation:** raw 61% (87/143 caught; 150 of 368 mutants, seed 0); 56 of 56 survivors unaccounted
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### app/app-transaction-type-db2/cbl/COBTUPDT.cbl -- L4
+### app/app-transaction-type-db2/cbl/COBTUPDT.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness); not yet re-checked
 
 - **Executed equivalent** on the batch runs of carddemo-cobtupdt against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -476,7 +502,9 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 4 branch outcomes unrun; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### app/app-transaction-type-db2/cbl/COTRTLIC.cbl -- L4
+### app/app-transaction-type-db2/cbl/COTRTLIC.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 62 scenarios of carddemo-cotrtlic against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -516,7 +544,9 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 12 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X31, X42; commands without oracle backing: SYNCPOINT; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### app/app-transaction-type-db2/cbl/COTRTUPC.cbl -- L4
+### app/app-transaction-type-db2/cbl/COTRTUPC.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 50 scenarios of carddemo-cotrtupc against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -570,10 +600,12 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 26 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X31, X42; commands without oracle backing: SYNCPOINT; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### app/app-vsam-mq/cbl/COACCT01.cbl -- L4
+### app/app-vsam-mq/cbl/COACCT01.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 18 scenarios of carddemo-coacct01 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 51% (74/144 caught; 150 of 989 mutants, seed 0); 70 of 70 survivors unaccounted)
 - **Translation:** 205/205 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.CURRENTDATA=YES [no effect; found at samples/proc/BLDCIDB2.prc:149]; db2.bind.ISOLATION=CS [no effect; found at samples/proc/BLDCIDB2.prc:148]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.PARM=HOST(IBMCOB),XREF,SOURCE,FLAG(I),APOST [no effect; found at samples/proc/BLDCIDB2.prc:47]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; found at samples/proc/BUILDONL.prc:40]
@@ -591,13 +623,15 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 
 - **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X14 (ASSUMED (REFUSED where IBM is silent)), X18 (ASSUMED (REFUSED where IBM is silent)), X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X42 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - z/OS-calibrated: 0 of 6 named assumptions (none measured on z/OS)
-- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Det-port mutation:** raw 51% (74/144 caught; 150 of 989 mutants, seed 0); 70 of 70 survivors unaccounted
 - **Residual risk:** ASSUMED / DIFFERS entries named: X14, X18, X22, X27, X42; commands without oracle backing: READ, SYNCPOINT; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### app/app-vsam-mq/cbl/CODATE01.cbl -- L4
+### app/app-vsam-mq/cbl/CODATE01.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 17 scenarios of carddemo-codate01 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 48% (69/144 caught; 150 of 857 mutants, seed 0); 75 of 75 survivors unaccounted)
 - **Translation:** 182/182 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.CURRENTDATA=YES [no effect; found at samples/proc/BLDCIDB2.prc:149]; db2.bind.ISOLATION=CS [no effect; found at samples/proc/BLDCIDB2.prc:148]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.PARM=HOST(IBMCOB),XREF,SOURCE,FLAG(I),APOST [no effect; found at samples/proc/BLDCIDB2.prc:47]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; found at samples/proc/BUILDONL.prc:40]
@@ -616,13 +650,15 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 
 - **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X18 (ASSUMED (REFUSED where IBM is silent)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X42 (ASSUMED (REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - z/OS-calibrated: 0 of 5 named assumptions (none measured on z/OS)
-- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Det-port mutation:** raw 48% (69/144 caught; 150 of 857 mutants, seed 0); 75 of 75 survivors unaccounted
 - **Residual risk:** ASSUMED / DIFFERS entries named: X18, X27, X42, X46; commands without oracle backing: ASKTIME, FORMATTIME, SYNCPOINT; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### app/cbl/CBACT01C.cbl -- L4
+### app/cbl/CBACT01C.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness); not yet re-checked
 
 - **Executed equivalent** on the batch runs of carddemo-readacct against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 75% (107/143 caught; 150 of 728 mutants, seed 0); 36 of 36 survivors unaccounted)
 - **Translation:** 190/190 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.CURRENTDATA=YES [no effect; found at samples/proc/BLDCIDB2.prc:149]; db2.bind.ISOLATION=CS [no effect; found at samples/proc/BLDCIDB2.prc:148]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.PARM=HOST(IBMCOB),XREF,SOURCE,FLAG(I),APOST [no effect; found at samples/proc/BLDCIDB2.prc:47]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; found at samples/proc/BUILDONL.prc:40]
@@ -633,13 +669,15 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
   - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
   - stated infeasible branch outcome (reviewed claim, family C): PROCEDURE-DIVISION:148:false (IF) -- `IF END-OF-FILE = 'N'` (the outer test of the read loop) runs only inside `PERFORM UNTIL END-OF-FILE = 'Y'` (line 147), so END-OF-FILE is not 'Y' on entry; END-OF-FILE has VALUE 'N' and the only statement that writes it is `MOVE 'Y' TO END-OF-FILE` (line 190), so it holds only 'N' or 'Y' and the false outcome (neither) is never reached
-- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Det-port mutation:** raw 75% (107/143 caught; 150 of 728 mutants, seed 0); 36 of 36 survivors unaccounted
 - **Residual risk:** 1 branch outcomes unrun; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### app/cbl/CBACT02C.cbl -- L4
+### app/cbl/CBACT02C.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness); not yet re-checked
 
 - **Executed equivalent** on the batch runs of carddemo-readcard against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 66% (92/140 caught; 150 of 243 mutants, seed 0); 48 of 48 survivors unaccounted)
 - **Translation:** 63/63 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.CURRENTDATA=YES [no effect; found at samples/proc/BLDCIDB2.prc:149]; db2.bind.ISOLATION=CS [no effect; found at samples/proc/BLDCIDB2.prc:148]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.PARM=HOST(IBMCOB),XREF,SOURCE,FLAG(I),APOST [no effect; found at samples/proc/BLDCIDB2.prc:47]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; found at samples/proc/BUILDONL.prc:40]
@@ -652,13 +690,15 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
   - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
   - stated infeasible branch outcome (reviewed claim, family C): PROCEDURE-DIVISION:75:false (IF) -- `IF END-OF-FILE = 'N'` (the outer test of the read loop) runs only inside `PERFORM UNTIL END-OF-FILE = 'Y'` (line 74), so END-OF-FILE is not 'Y' on entry; END-OF-FILE has VALUE 'N' and the only statement that writes it is `MOVE 'Y' TO END-OF-FILE` (line 108), so it holds only 'N' or 'Y' and the false outcome (neither) is never reached
-- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Det-port mutation:** raw 66% (92/140 caught; 150 of 243 mutants, seed 0); 48 of 48 survivors unaccounted
 - **Residual risk:** 1 branch outcomes unrun; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### app/cbl/CBACT03C.cbl -- L4
+### app/cbl/CBACT03C.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness); not yet re-checked
 
 - **Executed equivalent** on the batch runs of carddemo-readxref against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 66% (92/140 caught; 150 of 244 mutants, seed 0); 48 of 48 survivors unaccounted)
 - **Translation:** 64/64 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.CURRENTDATA=YES [no effect; found at samples/proc/BLDCIDB2.prc:149]; db2.bind.ISOLATION=CS [no effect; found at samples/proc/BLDCIDB2.prc:148]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.PARM=HOST(IBMCOB),XREF,SOURCE,FLAG(I),APOST [no effect; found at samples/proc/BLDCIDB2.prc:47]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; found at samples/proc/BUILDONL.prc:40]
@@ -671,13 +711,15 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
   - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
   - stated infeasible branch outcome (reviewed claim, family C): PROCEDURE-DIVISION:75:false (IF) -- `IF END-OF-FILE = 'N'` (the outer test of the read loop) runs only inside `PERFORM UNTIL END-OF-FILE = 'Y'` (line 74), so END-OF-FILE is not 'Y' on entry; END-OF-FILE has VALUE 'N' and the only statement that writes it is `MOVE 'Y' TO END-OF-FILE` (line 108), so it holds only 'N' or 'Y' and the false outcome (neither) is never reached
-- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Det-port mutation:** raw 66% (92/140 caught; 150 of 244 mutants, seed 0); 48 of 48 survivors unaccounted
 - **Residual risk:** 1 branch outcomes unrun; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### app/cbl/CBACT04C.cbl -- L4
+### app/cbl/CBACT04C.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness); not yet re-checked
 
 - **Executed equivalent** on the batch runs of carddemo-intcalc against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 72% (103/144 caught; 150 of 968 mutants, seed 0); 41 of 41 survivors unaccounted)
 - **Translation:** 294/294 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.CURRENTDATA=YES [no effect; found at samples/proc/BLDCIDB2.prc:149]; db2.bind.ISOLATION=CS [no effect; found at samples/proc/BLDCIDB2.prc:148]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.PARM=HOST(IBMCOB),XREF,SOURCE,FLAG(I),APOST [no effect; found at samples/proc/BLDCIDB2.prc:47]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; found at samples/proc/BUILDONL.prc:40]
@@ -690,13 +732,15 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
   - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
   - stated infeasible branch outcome (reviewed claim, family C): PROCEDURE-DIVISION:189:false (IF) -- `IF END-OF-FILE = 'N'` (the outer test of the read loop) runs only inside `PERFORM UNTIL END-OF-FILE = 'Y'` (line 188), so END-OF-FILE is not 'Y' on entry; END-OF-FILE has VALUE 'N' and the only statement that writes it is `MOVE 'Y' TO END-OF-FILE` (line 340), so it holds only 'N' or 'Y' and the false outcome (neither) is never reached
-- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Det-port mutation:** raw 72% (103/144 caught; 150 of 968 mutants, seed 0); 41 of 41 survivors unaccounted
 - **Residual risk:** 1 branch outcomes unrun; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### app/cbl/CBCUS01C.cbl -- L4
+### app/cbl/CBCUS01C.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness); not yet re-checked
 
 - **Executed equivalent** on the batch runs of carddemo-readcust against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 65% (91/140 caught; 150 of 247 mutants, seed 0); 49 of 49 survivors unaccounted)
 - **Translation:** 64/64 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.CURRENTDATA=YES [no effect; found at samples/proc/BLDCIDB2.prc:149]; db2.bind.ISOLATION=CS [no effect; found at samples/proc/BLDCIDB2.prc:148]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.PARM=HOST(IBMCOB),XREF,SOURCE,FLAG(I),APOST [no effect; found at samples/proc/BLDCIDB2.prc:47]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; found at samples/proc/BUILDONL.prc:40]
@@ -709,13 +753,15 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
   - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
   - stated infeasible branch outcome (reviewed claim, family C): PROCEDURE-DIVISION:75:false (IF) -- `IF END-OF-FILE = 'N'` (the outer test of the read loop) runs only inside `PERFORM UNTIL END-OF-FILE = 'Y'` (line 74), so END-OF-FILE is not 'Y' on entry; END-OF-FILE has VALUE 'N' and the only statement that writes it is `MOVE 'Y' TO END-OF-FILE` (line 108), so it holds only 'N' or 'Y' and the false outcome (neither) is never reached
-- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Det-port mutation:** raw 65% (91/140 caught; 150 of 247 mutants, seed 0); 49 of 49 survivors unaccounted
 - **Residual risk:** 1 branch outcomes unrun; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### app/cbl/CBSTM03B.CBL -- L4
+### app/cbl/CBSTM03B.CBL -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness); not yet re-checked
 
 - **Executed equivalent** on the batch runs of carddemo-cbstm03b against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 52% (75/144 caught; 150 of 394 mutants, seed 0); 69 of 69 survivors unaccounted)
 - **Translation:** 53/53 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.CURRENTDATA=YES [no effect; found at samples/proc/BLDCIDB2.prc:149]; db2.bind.ISOLATION=CS [no effect; found at samples/proc/BLDCIDB2.prc:148]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.PARM=HOST(IBMCOB),XREF,SOURCE,FLAG(I),APOST [no effect; found at samples/proc/BLDCIDB2.prc:47]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; found at samples/proc/BUILDONL.prc:40]
@@ -725,13 +771,15 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 - **Oracle backing:** no EXEC CICS command
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
   - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
-- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Det-port mutation:** raw 52% (75/144 caught; 150 of 394 mutants, seed 0); 69 of 69 survivors unaccounted
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### app/cbl/CBTRN01C.cbl -- L4
+### app/cbl/CBTRN01C.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness); not yet re-checked
 
 - **Executed equivalent** on the batch runs of carddemo-dailyval against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 70% (102/145 caught; 150 of 727 mutants, seed 0); 43 of 43 survivors unaccounted)
 - **Translation:** 216/216 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.CURRENTDATA=YES [no effect; found at samples/proc/BLDCIDB2.prc:149]; db2.bind.ISOLATION=CS [no effect; found at samples/proc/BLDCIDB2.prc:148]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.PARM=HOST(IBMCOB),XREF,SOURCE,FLAG(I),APOST [no effect; found at samples/proc/BLDCIDB2.prc:47]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; found at samples/proc/BUILDONL.prc:40]
@@ -742,10 +790,12 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
   - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
   - stated infeasible branch outcome (reviewed claim, family C): MAIN-PARA:165:false (IF) -- `IF END-OF-DAILY-TRANS-FILE = 'N'` (the outer test of the read loop) runs only inside `PERFORM UNTIL END-OF-DAILY-TRANS-FILE = 'Y'` (line 164), so END-OF-DAILY-TRANS-FILE is not 'Y' on entry; END-OF-DAILY-TRANS-FILE has VALUE 'N' and the only statement that writes it is `MOVE 'Y' TO END-OF-DAILY-TRANS-FILE` (line 217), so it holds only 'N' or 'Y' and the false outcome (neither) is never reached
-- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Det-port mutation:** raw 70% (102/145 caught; 150 of 727 mutants, seed 0); 43 of 43 survivors unaccounted
 - **Residual risk:** 1 branch outcomes unrun; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### app/cbl/CBTRN02C.cbl -- L4
+### app/cbl/CBTRN02C.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness); not yet re-checked
 
 - **Executed equivalent** on the batch runs of carddemo-posttran against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -764,7 +814,9 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 1 branch outcomes unrun; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### app/cbl/CBTRN03C.cbl -- L4
+### app/cbl/CBTRN03C.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness); not yet re-checked
 
 - **Executed equivalent** on the batch runs of carddemo-trnrpt against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -781,7 +833,9 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 1 branch outcomes unrun; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### app/cbl/COACTUPC.cbl -- L4
+### app/cbl/COACTUPC.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 249 scenarios of carddemo-acctupdate against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -832,7 +886,9 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 20 branch outcomes unrun; ASSUMED / DIFFERS entries named: X14, X22, X27, X31, X42, X52; commands without oracle backing: READ, REWRITE, SYNCPOINT, SYNCPOINT ROLLBACK; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### app/cbl/COACTVWC.cbl -- L4
+### app/cbl/COACTVWC.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 37 scenarios of carddemo-acctview against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -870,7 +926,9 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 8 branch outcomes unrun; ASSUMED / DIFFERS entries named: X14, X22, X27, X31, X42; commands without oracle backing: READ; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### app/cbl/COADM01C.cbl -- L4
+### app/cbl/COADM01C.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 34 scenarios of carddemo-adminmenu against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 53% (80/151 caught; 156 of 1398 mutants, seed 0); 6 of 71 survivors unaccounted)
@@ -903,7 +961,9 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 - **Det-port mutation:** raw 53% (80/151 caught; 156 of 1398 mutants, seed 0); 6 of 71 survivors unaccounted
 - **Residual risk:** 6 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X31, X42; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### app/cbl/COBIL00C.cbl -- L4
+### app/cbl/COBIL00C.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 35 scenarios of carddemo-billpay against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 66% (97/148 caught; 151 of 1675 mutants, seed 0); 4 of 51 survivors unaccounted)
@@ -939,10 +999,12 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 - **Det-port mutation:** raw 66% (97/148 caught; 151 of 1675 mutants, seed 0); 4 of 51 survivors unaccounted
 - **Residual risk:** 2 branch outcomes unrun; ASSUMED / DIFFERS entries named: X14, X22, X27, X31, X42, X46, X52; commands without oracle backing: ASKTIME, ENDBR, FORMATTIME, READ, READPREV, REWRITE, STARTBR, WRITE; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### app/cbl/COBSWAIT.cbl -- L4
+### app/cbl/COBSWAIT.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness); not yet re-checked
 
 - **Executed equivalent** on the batch runs of carddemo-cobswait against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 22% (16/73 caught; 79 of 79 mutants, seed 0); 57 of 57 survivors unaccounted)
 - **Translation:** 4/4 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.CURRENTDATA=YES [no effect; found at samples/proc/BLDCIDB2.prc:149]; db2.bind.ISOLATION=CS [no effect; found at samples/proc/BLDCIDB2.prc:148]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.PARM=HOST(IBMCOB),XREF,SOURCE,FLAG(I),APOST [no effect; found at samples/proc/BLDCIDB2.prc:47]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; found at samples/proc/BUILDONL.prc:40]
@@ -952,10 +1014,12 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 - **Oracle backing:** no EXEC CICS command
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
   - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
-- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Det-port mutation:** raw 22% (16/73 caught; 79 of 79 mutants, seed 0); 57 of 57 survivors unaccounted
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### app/cbl/COCRDLIC.cbl -- L4
+### app/cbl/COCRDLIC.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 62 scenarios of carddemo-cardlist against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -986,7 +1050,9 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 2 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X31, X42, X52; commands without oracle backing: ENDBR, READNEXT, READPREV, STARTBR; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### app/cbl/COCRDSLC.cbl -- L4
+### app/cbl/COCRDSLC.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 25 scenarios of carddemo-cardview against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 95% (141/148 caught; 152 of 2225 mutants, seed 0); 7 of 7 survivors unaccounted)
@@ -1022,7 +1088,9 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 - **Det-port mutation:** raw 95% (141/148 caught; 152 of 2225 mutants, seed 0); 7 of 7 survivors unaccounted
 - **Residual risk:** 6 branch outcomes unrun; ASSUMED / DIFFERS entries named: X14, X22, X27, X31, X42; commands without oracle backing: READ; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### app/cbl/COCRDUPC.cbl -- L4
+### app/cbl/COCRDUPC.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 45 scenarios of carddemo-cardupdate against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -1066,7 +1134,9 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 14 branch outcomes unrun; ASSUMED / DIFFERS entries named: X14, X22, X27, X31, X42, X52; commands without oracle backing: READ, REWRITE, SYNCPOINT; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### app/cbl/COMEN01C.cbl -- L4
+### app/cbl/COMEN01C.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 18 scenarios of carddemo-menu against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -1097,7 +1167,9 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 4 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X31, X34, X42; commands without oracle backing: INQUIRE PROGRAM; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### app/cbl/CORPT00C.cbl -- L4
+### app/cbl/CORPT00C.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 30 scenarios of carddemo-report against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -1131,7 +1203,9 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 7 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X31, X42; commands without oracle backing: WRITEQ TD; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### app/cbl/COSGN00C.cbl -- L4
+### app/cbl/COSGN00C.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 22 scenarios of carddemo-signon against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 46% (67/145 caught; 149 of 1163 mutants, seed 0); 2 of 78 survivors unaccounted)
@@ -1161,7 +1235,9 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 - **Det-port mutation:** raw 46% (67/145 caught; 149 of 1163 mutants, seed 0); 2 of 78 survivors unaccounted
 - **Residual risk:** ASSUMED / DIFFERS entries named: X14, X19, X22, X27, X31, X42; commands without oracle backing: READ; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### app/cbl/COTRN00C.cbl -- L4
+### app/cbl/COTRN00C.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 36 scenarios of carddemo-tranlist against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 58% (91/156 caught; 158 of 2850 mutants, seed 0); 13 of 65 survivors unaccounted)
@@ -1194,7 +1270,9 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 - **Det-port mutation:** raw 58% (91/156 caught; 158 of 2850 mutants, seed 0); 13 of 65 survivors unaccounted
 - **Residual risk:** 5 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X31, X42, X52; commands without oracle backing: ENDBR, READNEXT, READPREV, STARTBR; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### app/cbl/COTRN02C.cbl -- L4
+### app/cbl/COTRN02C.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 78 scenarios of carddemo-tranadd against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 71% (105/147 caught; 149 of 2454 mutants, seed 0); 6 of 42 survivors unaccounted)
@@ -1226,7 +1304,9 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 - **Det-port mutation:** raw 71% (105/147 caught; 149 of 2454 mutants, seed 0); 6 of 42 survivors unaccounted
 - **Residual risk:** 3 branch outcomes unrun; ASSUMED / DIFFERS entries named: X14, X22, X27, X31, X42, X52; commands without oracle backing: ENDBR, READ, READPREV, STARTBR, WRITE; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### app/cbl/COUSR02C.cbl -- L4
+### app/cbl/COUSR02C.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 32 scenarios of carddemo-userupd against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 67% (102/152 caught; 158 of 1421 mutants, seed 0); 3 of 50 survivors unaccounted)
@@ -1256,10 +1336,12 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 - **Det-port mutation:** raw 67% (102/152 caught; 158 of 1421 mutants, seed 0); 3 of 50 survivors unaccounted
 - **Residual risk:** 2 branch outcomes unrun; ASSUMED / DIFFERS entries named: X14, X22, X27, X31, X42, X52; commands without oracle backing: READ, REWRITE; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### app/cbl/CSUTLDTC.cbl -- L4
+### app/cbl/CSUTLDTC.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `d86d5eabbf0b` (harness); not yet re-checked
 
 - **Executed equivalent** on the batch runs of carddemo-dateutil against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 51% (74/145 caught; 150 of 269 mutants, seed 0); 71 of 71 survivors unaccounted)
 - **Translation:** 27/27 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.CURRENTDATA=YES [no effect; found at samples/proc/BLDCIDB2.prc:149]; db2.bind.ISOLATION=CS [no effect; found at samples/proc/BLDCIDB2.prc:148]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.PARM=HOST(IBMCOB),XREF,SOURCE,FLAG(I),APOST [no effect; found at samples/proc/BLDCIDB2.prc:47]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; found at samples/proc/BUILDONL.prc:40]
@@ -1275,7 +1357,7 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
   - stated infeasible branch outcome (reviewed claim, family G): A000-MAIN:128:WHEN@139 (EVALUATE) -- FC-INVALID-MONTH (CEE2EL, 2517) is the message for a month not recognized. IBM's documentation does not say what a numeric month outside 1-12 is; the owner ruled 2026-10-29 that it is CEE2EC (2508, date value not valid), recorded as ASSUMED in register L1 (not z/OS calibration). Under that ruling the model never raises 2517 for a numeric picture, and every caller of CSUTLDTC (COTRN02C and CORPT00C 'YYYY-MM-DD', CSUTLDPY 'YYYYMMDD') passes one; a month name needs a month-name picture, which the oracle refuses by name. The month-13 date itself is run (carddemo-dateutil month-13, month-00) and takes the 2508 arm.
   - stated infeasible branch outcome (reviewed claim, family G): A000-MAIN:128:WHEN@141 (EVALUATE) -- FC-BAD-PIC-STRING (CEE2EM, 2518) needs a picture string IBM rejects. Every caller passes a constant, valid numeric picture (COTRN02C / CORPT00C 'YYYY-MM-DD', CSUTLDPY 'YYYYMMDD'); a picture the oracle does not model is refused by name (exit 98), never answered, so no run reaches it.
   - stated infeasible branch outcome (reviewed claim, family G): A000-MAIN:128:WHEN@145 (EVALUATE) -- FC-YEAR-IN-ERA-ZERO (CEE2EP, 2521) is raised for a year of zero in an era-based date (era picture). Every caller passes a numeric Gregorian picture with YYYY, where year 0000 is outside the supported range (2513, taken by the year-zero scenario); an era picture is refused by the oracle by name, so no run reaches it.
-- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Det-port mutation:** raw 51% (74/145 caught; 150 of 269 mutants, seed 0); 71 of 71 survivors unaccounted
 - **Residual risk:** 6 branch outcomes unrun; assumption reach (where not stated above) and the migration dimensions above: not measured
 
 ### app/cbl/CBEXPORT.cbl -- L0
@@ -1341,18 +1423,18 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `d86d5eabbf0bb0994f05894546b1bbe28c7325f2`
+- translator commit (the survey's): `392ac1fca006a976aed2c2ad21f75f0d9cb0deac`
 - corpus pin: `aws-mainframe-modernization-carddemo` at `59cc6c2fd7ebd7ef7925cad552a01a4b8b6e4d5e`
-- crucible pins: cics `904e98777548993f52b21bc2cfe2baefdb8b6b78`, estate `v0.5.0`, language `v1.7.0`; cics crucible baseline measured at `904e98777548993f52b21bc2cfe2baefdb8b6b78`; crucible cases per command measured at `v0.5.0`
+- crucible pins: cics `v0.12.0`, estate `v0.6.0`, language `v1.7.0`; cics crucible baseline measured at `v0.12.0 (904e9877)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
 - oracle base image: `debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251`
-- oracle images the evidence records ran on: `sha256:b7b6fad9825b060f92271f2c7aef2a350849c0978ed3e0a2e578dc7b368faea2`, `sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f`, `sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005`
+- oracle images the evidence records ran on: `sha256:28a4e99668e988bdfd1118de255f626880102454c2463676108cc1e90320c5e1`, `sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f`, `sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005`
 
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha d86d5eabbf0bb0994f05894546b1bbe28c7325f2
-python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha d86d5eabbf0bb0994f05894546b1bbe28c7325f2
+python tests/tools/cics_census.py survey --baseline --sha 392ac1fca006a976aed2c2ad21f75f0d9cb0deac
+python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha 392ac1fca006a976aed2c2ad21f75f0d9cb0deac
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases carddemo-acctupdate,carddemo-acctview,carddemo-acctview-generated,carddemo-adminmenu,carddemo-adminmenu-generated,carddemo-billpay,carddemo-billpay-generated,carddemo-cardlist,carddemo-cardupdate,carddemo-cardview,carddemo-cardview-generated,carddemo-cbpaup0c,carddemo-cbstm03a,carddemo-cbstm03b,carddemo-coacct01,carddemo-cobswait,carddemo-cobtupdt,carddemo-cobtupdt-generated,carddemo-codate01,carddemo-copaua0c,carddemo-copaus0c,carddemo-copaus1c,carddemo-copaus2c,carddemo-copaus2c-generated,carddemo-cotrtlic,carddemo-cotrtlic-generated,carddemo-cotrtupc,carddemo-dailyval,carddemo-dateutil,carddemo-dbunldgs,carddemo-intcalc,carddemo-intcalc-generated,carddemo-menu,carddemo-menu-generated,carddemo-paudblod,carddemo-paudbunl,carddemo-posttran,carddemo-posttran-generated,carddemo-readacct,carddemo-readcard,carddemo-readcard-generated,carddemo-readcust,carddemo-readcust-generated,carddemo-readxref,carddemo-readxref-generated,carddemo-report,carddemo-report-generated,carddemo-signon,carddemo-signon-generated,carddemo-tranadd,carddemo-tranlist,carddemo-tranview,carddemo-tranview-generated,carddemo-trnrpt,carddemo-useradd,carddemo-useradd-generated,carddemo-userdel,carddemo-userdel-generated,carddemo-userlist,carddemo-userupd,carddemo-userupd-generated  # Db2 cases (8) need the Db2 container
 python tests/tools/evidence.py prove carddemo-acctview carddemo-acctview-generated carddemo-adminmenu carddemo-adminmenu-generated carddemo-billpay carddemo-billpay-generated carddemo-cardlist carddemo-cardview carddemo-cbpaup0c carddemo-cbstm03a carddemo-copaua0c carddemo-copaus0c carddemo-copaus1c carddemo-dailyval carddemo-dateutil carddemo-intcalc carddemo-menu carddemo-menu-generated carddemo-posttran carddemo-readcard carddemo-readcust carddemo-readxref carddemo-report carddemo-signon carddemo-signon-generated carddemo-tranadd carddemo-tranlist carddemo-tranview carddemo-tranview-generated carddemo-trnrpt carddemo-useradd carddemo-userdel carddemo-userlist carddemo-userupd

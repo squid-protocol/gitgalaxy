@@ -6,9 +6,16 @@ static int counters_read(counter_row *rows) {
     FILE *f = fopen(path, "r");
     while (f && n < MAXCNT && fgets(line, sizeof line, f))
     {
-        int got = sscanf(line, "%63s %63s %llu %llu %llu", rows[n].pool, rows[n].name, &rows[n].value, &rows[n].min, &rows[n].max);
-        rows[n].limited = got == 5;
-        if (got == 3 || got == 5) n++;
+        int lim = 0;
+        int got = sscanf(line, "%63s %63s %llu %llu %llu %d", rows[n].pool, rows[n].name, &rows[n].value, &rows[n].min, &rows[n].max, &lim);
+        rows[n].limited = got >= 5;
+        rows[n].at_limit = rows[n].limited && lim == 1;
+        /* #7589: a seed that states the old MAXIMUM + 1 marker (value past MAXIMUM) is the flag with the value MAXIMUM */
+        if (rows[n].limited && rows[n].max != ~0ULL && rows[n].value > rows[n].max) {
+            rows[n].value = rows[n].max;
+            rows[n].at_limit = 1;
+        }
+        if (got == 3 || got >= 5) n++;
     }
     if (f) fclose(f);
     return n;
@@ -19,7 +26,9 @@ static void counters_write(const counter_row *rows, int n) {
     snprintf(path, sizeof path, "%s/counters.cfg", dir_in());
     FILE *f = fopen(path, "w");
     for (int i = 0; f && i < n; i++) {
-        if (rows[i].limited)
+        if (rows[i].limited && rows[i].at_limit)
+            fprintf(f, "%s %s %llu %llu %llu 1\n", rows[i].pool, rows[i].name, rows[i].value, rows[i].min, rows[i].max);
+        else if (rows[i].limited)
             fprintf(f, "%s %s %llu %llu %llu\n", rows[i].pool, rows[i].name, rows[i].value, rows[i].min, rows[i].max);
         else
             fprintf(f, "%s %s %llu\n", rows[i].pool, rows[i].name, rows[i].value);
@@ -80,23 +89,38 @@ static int counter_step_x(counter_row *r, unsigned long long incr, int wrap, int
         return 0;
     }
     if (incr > r->max - r->min) refuse("GET COUNTER with an INCREMENT beyond the counter's range");
-    if (r->max != ~0ULL && v > r->max) { /* at its limit: the counter is MAXIMUM + 1 */
+    if (r->at_limit) { /* #7589: IBM's counter-at-limit condition, a flag (the value is MAXIMUM) */
         if (reduce) refuse("GET COUNTER REDUCE at a counter already at its limit");
         if (has_min || has_max) refuse("GET COUNTER COMPAREMIN / COMPAREMAX at a counter already at its limit");
         if (!wrap) return 1;
         *out = r->min;
         r->value = r->min + incr;
+        r->at_limit = 0;
         return 0;
     }
     if (!counter_in_range(v, has_min, cmin, has_max, cmax)) return 2;
     next = v + incr;
-    if (next < v) refuse("GET COUNTER past a doubleword");
-    if (next > r->max && next - r->max > 1) {
+    /* The counter reaches its limit when it would be MAXIMUM + 1: for the default maximum that is 2^64, so next wraps to 0. */
+    int over = next < v, hit, beyond;
+    if (r->max == ~0ULL) {
+        hit = over && next == 0;
+        beyond = over && next != 0;
+    } else {
+        hit = !over && next == r->max + 1;
+        beyond = over || next > r->max + 1;
+    }
+    if (over && !hit) refuse("GET COUNTER past a doubleword");
+    if (!hit && beyond) {
         if (!reduce) refuse("GET COUNTER with an INCREMENT past MAXIMUM + 1");
-        next = r->max + 1;
+        hit = 1;
     }
     *out = v;
-    r->value = next;
+    if (hit) {
+        r->value = r->max;
+        r->at_limit = 1;
+    } else {
+        r->value = next;
+    }
     return 0;
 }
 
@@ -118,9 +142,9 @@ static void put32(unsigned char *p, unsigned long long v) {
  * a signed fullword or the counter is at its limit (v past MAXIMUM: "LENGERR can't occur at counter-at-limit"); else 1 (no bit above
  * the low word: the sign bit), 2 (the high word is 1), 3 (above 1). The operation completes: VALUE is the low 32 bits. As
  * CicsTask.fullwordLengerr. */
-static int counter_lengerr(const counter_row *r, unsigned long long v) {
+static int counter_lengerr(int at_limit, unsigned long long v) {
     if (v <= 2147483647ULL) return 0;
-    if (r->limited && r->max != ~0ULL && v > r->max) return 0;
+    if (at_limit) return 0;
     return (v >> 32) == 0 ? 1 : (v >> 32) == 1 ? 2 : 3;
 }
 
@@ -159,7 +183,7 @@ int GGCGCNT(gg_cics *c, unsigned char *value, int valuelen, unsigned char *inc, 
         }
         put32(value, v);
         counters_write(rows, n);
-        if ((c->resp2 = counter_lengerr(&rows[at], v))) c->resp = LENGERR;
+        if ((c->resp2 = counter_lengerr(0, v))) c->resp = LENGERR;
     }
     return 0;
 }
@@ -245,7 +269,7 @@ static int get_counter_x(gg_cics *c, int width, unsigned char *value, int valuel
         unsigned long long got = v;
         for (int i = width - 1; i >= 0; i--) { value[i] = (unsigned char)(v & 255); v >>= 8; }
         counters_write(rows, n);
-        if (width == 4 && (c->resp2 = counter_lengerr(&rows[at], got))) c->resp = LENGERR;
+        if (width == 4 && (c->resp2 = counter_lengerr(0, got))) c->resp = LENGERR;
     }
     return 0;
 }
@@ -294,12 +318,13 @@ static int rewind_counter(gg_cics *c, int width, unsigned char *inc, int inclen)
         return 0;
     }
     if (incr != 1) refuse("REWIND COUNTER with an INCREMENT above 1");
-    if (r->max == ~0ULL || r->value <= r->max) {
+    if (!r->at_limit) {
         c->resp = SUPPRESSED;
         c->resp2 = 102;
         return 0;
     }
     r->value = r->min;
+    r->at_limit = 0;
     counters_write(rows, n);
     return 0;
 }
@@ -338,7 +363,8 @@ static int update_counter(gg_cics *c, int width, unsigned char *val, int vallen)
         c->resp2 = 406;
         return 0;
     }
-    r->value = value;
+    r->at_limit = r->max != ~0ULL && value == r->max + 1;
+    r->value = r->at_limit ? r->max : value;
     counters_write(rows, n);
     return 0;
 }
@@ -377,7 +403,8 @@ int GGCDDCN(gg_cics *c, unsigned char *val, int vallen, unsigned char *lo, int l
     } else {
         snprintf(rows[n].pool, sizeof rows[n].pool, "%s", pool);
         snprintf(rows[n].name, sizeof rows[n].name, "%s", want);
-        rows[n].value = v;
+        rows[n].at_limit = mx != ~0ULL && v == mx + 1;
+        rows[n].value = rows[n].at_limit ? mx : v;
         rows[n].limited = 1;
         rows[n].min = mn;
         rows[n].max = mx;
@@ -408,7 +435,8 @@ int GGCQDCN(gg_cics *c, unsigned char *val, int vallen, unsigned char *lo, int l
     } else {
         if ((lolen || hilen) && !rows[at].limited)
             refuse("QUERY DCOUNTER MINIMUM / MAXIMUM of a counter whose limits the run does not state");
-        if (vallen) put64(val, rows[at].value);
+        if (rows[at].at_limit && rows[at].max == ~0ULL) refuse("QUERY DCOUNTER of a counter at its limit");
+        if (vallen) put64(val, rows[at].at_limit ? rows[at].max + 1 : rows[at].value);
         if (lolen) put64(lo, rows[at].min);
         if (hilen) put64(hi, rows[at].max);
     }
@@ -441,8 +469,10 @@ int GGCQCNT(gg_cics *c, unsigned char *val, int vallen, unsigned char *lo, int l
             refuse("QUERY COUNTER MINIMUM / MAXIMUM of a counter whose limits the run does not state");
         if ((lolen && rows[at].min > 2147483647ULL) || (hilen && rows[at].max > 2147483647ULL))
             refuse("QUERY COUNTER MINIMUM / MAXIMUM of a counter whose limits are beyond a fullword");
-        if ((c->resp2 = counter_lengerr(&rows[at], rows[at].value))) c->resp = LENGERR;
-        if (vallen) put32(val, rows[at].value);
+        if (rows[at].at_limit && rows[at].max == ~0ULL) refuse("QUERY COUNTER of a counter at its limit");
+        unsigned long long shown_v = rows[at].at_limit ? rows[at].max + 1 : rows[at].value; /* MAXIMUM + 1 */
+        if ((c->resp2 = counter_lengerr(rows[at].at_limit, shown_v))) c->resp = LENGERR;
+        if (vallen) put32(val, shown_v);
         if (lolen) put32(lo, rows[at].min);
         if (hilen) put32(hi, rows[at].max);
     }
@@ -487,7 +517,8 @@ int GGCDCNT(gg_cics *c, unsigned char *val, int vallen, unsigned char *lo, int l
     } else {
         snprintf(rows[n].pool, sizeof rows[n].pool, "%s", pool);
         snprintf(rows[n].name, sizeof rows[n].name, "%s", want);
-        rows[n].value = v;
+        rows[n].at_limit = mx != ~0ULL && v == mx + 1;
+        rows[n].value = rows[n].at_limit ? mx : v;
         rows[n].limited = 1;
         rows[n].min = mn;
         rows[n].max = mx;

@@ -5426,17 +5426,45 @@ _X45_CASES = [
         ["0/0", "0/0 10", "0/0 5", "0/0 8 5 10", "0/0", "0/0 10", "72/101", "0/0 0"],
         None,
     ),
-    # a doubleword is unsigned: a value at X'FF..FF' reads back as one, and nothing is past it
+    # a doubleword is unsigned: a value at X'FF..FF' reads back as one. #7589: the GET that hands out the default maximum puts the
+    # counter at its limit (a flag, not MAXIMUM + 1, which overflows): 101 without WRAP, the minimum with it (HCCWRP W / L)
     (
         "",
-        ["def G - 18446744073709551614 - -", "get G - 1 0", "qry G - 0", "get G - 1 1"],
-        ["0/0", "0/0 18446744073709551614", "0/0 18446744073709551615"],
-        "GET COUNTER past a doubleword",
+        [
+            "def G - 18446744073709551614 - -",
+            "get G - 1 0",
+            "qry G - 0",
+            "get G - 1 1",
+            "get G - 1 0",
+            "get G - 5 0",
+            "get G - 1 1",
+            "get G - 1 0",
+            "get G - 1 1",
+        ],
+        [
+            "0/0",
+            "0/0 18446744073709551614",
+            "0/0 18446744073709551615",
+            "0/0 18446744073709551615",
+            "72/101",
+            "72/101",
+            "0/0 0",
+            "0/0 1",
+            "0/0 2",
+        ],
+        None,
     ),
     (
         "",
-        ["def H - 18446744073709551615 - -", "qry H - 0", "get H - 1 0"],
-        ["0/0", f"0/0 {_U64}"],
+        ["def H - 18446744073709551615 - -", "qry H - 0", "get H - 1 0", "get H - 1 0", "qry H - 0"],
+        ["0/0", f"0/0 {_U64}", f"0/0 {_U64}", "72/101"],
+        "QUERY DCOUNTER of a counter at its limit",
+    ),
+    # an INCREMENT that carries a counter not yet at its limit past a doubleword stays refused
+    (
+        "",
+        ["def M - 18446744073709551612 - -", "get M - 3 0", "get M - 3 0"],
+        ["0/0", "0/0 18446744073709551612"],
         "GET COUNTER past a doubleword",
     ),
     # DELETE DCOUNTER is DELETE COUNTER's: 201 when none; a redefined counter has its own limits

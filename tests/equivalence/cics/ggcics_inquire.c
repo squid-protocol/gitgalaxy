@@ -144,5 +144,6 @@ int GGCAOUT(const char *ca, int len) {
  * sees the result. */
 #define MAXCNT 64
 /* #4770 (X45): `limited` rows (DEFINE DCOUNTER's) carry MINIMUM / MAXIMUM, unsigned doublewords; a row of three fields has limits
- * the run does not state. */
-typedef struct { char pool[64], name[64]; unsigned long long value; int limited; unsigned long long min, max; } counter_row; /* #4836: long is 32-bit on Windows */
+ * the run does not state. #7589: `at_limit` is IBM's counter-at-limit condition, a flag beside the value (the value is then MAXIMUM): the
+ * old MAXIMUM + 1 marker overflows for the default doubleword maximum. counters.cfg carries it as an optional sixth field, 1. */
+typedef struct { char pool[64], name[64]; unsigned long long value; int limited; unsigned long long min, max; int at_limit; } counter_row; /* #4836: long is 32-bit on Windows */

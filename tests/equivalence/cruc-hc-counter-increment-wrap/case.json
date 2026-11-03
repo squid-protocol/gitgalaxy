@@ -9,13 +9,25 @@
   "datasets": {},
   "commarea": null,
   "screens": {},
-  "notes": "cics-crucible condition-handling / hc-counter-increment-wrap (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): DCOUNTER with INCREMENT, GET WRAP at the default doubleword maximum (rewinds to the minimum), and a GET without WRAP at the limit. Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs. The crucible's wrap and limit scenarios walk the counter to the doubleword maximum and past it: refused by name (register X45, GET COUNTER past a doubleword), left out of the case.",
+  "notes": "cics-crucible condition-handling / hc-counter-increment-wrap (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): DCOUNTER with INCREMENT, GET WRAP at the default doubleword maximum (rewinds to the minimum), and a GET without WRAP at the limit. Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs. Scenarios W and L walk the counter to the default doubleword maximum (X'FF..FF') and past it: #7589 keeps the counter-at-limit condition as a flag beside the value (not MAXIMUM + 1, which overflows), so GET without WRAP at the limit is SUPPRESSED RESP2 101 with the counter unchanged and GET WRAP rewinds it to the minimum (IBM, DEFINE COUNTER / GET COUNTER).",
   "scenarios": [
     {
       "name": "incr",
       "commarea": null,
       "terminal": "HC73 I",
       "why": "DEFINE VALUE(10), GET INCREMENT(5) twice, QUERY, GET with the default increment, QUERY"
+    },
+    {
+      "name": "wrap",
+      "commarea": null,
+      "terminal": "HC73 W",
+      "why": "DEFINE at max-2, GETs up to the default maximum, GET WRAP rewinds to the minimum, QUERY, GET"
+    },
+    {
+      "name": "limit",
+      "commarea": null,
+      "terminal": "HC73 L",
+      "why": "DEFINE at max-1, GETs up to the maximum, then GET (with and without INCREMENT) without WRAP at the limit: SUPPRESSED RESP2 101, then GET WRAP and GET"
     },
     {
       "name": "unmatched-mode",

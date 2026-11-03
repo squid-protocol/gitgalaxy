@@ -1,7 +1,7 @@
 {
   "schema": "cobolrt-api/1",
   "about": ["The cobolrt public API (#4718). Written by tests/tools/cobolrt_api.py generate: edit only a `visibility`, to public or internal; docs/cobolrt_api_contract.md says what they promise.", "`evidence` records who called the item when it was last refreshed, and is never checked: det-port, model-port (committed ports), frozen-overlay (a frozen runtime copy's call to a live class), generated (translator output), emitter (a translator string), emitter-dynamic (a name a computed emission may take), runtime, harness; empty: no caller was found."],
-  "summary": {"types": 124, "types_public": 101, "members": 1181, "members_public": 790, "members_internal": 391},
+  "summary": {"types": 124, "types_public": 101, "members": 1181, "members_public": 792, "members_internal": 389},
   "types": [
     {"id": "batch.CobolAbend", "kind": "class", "source": "gitgalaxy/tools/cobol_to_java/cobol_to_java_batch_forge.py", "variants": ["forge-batch-jobs", "forge-batch-files"], "supers": ["RuntimeException"], "visibility": "public", "evidence": ["det-port", "emitter", "model-port", "signature", "harness"], "members": [
       {"id": "batch.CobolAbend.<init>(String,String)", "kind": "constructor", "visibility": "internal", "evidence": []},
@@ -242,7 +242,7 @@
       {"id": "cics.CicsTask.rcode()", "kind": "method", "returns": "byte[]", "visibility": "public", "evidence": ["emitter", "harness"]},
       {"id": "cics.CicsTask.read(String,java.util.function.Supplier)", "kind": "method", "returns": "cics.CicsTask.FileRead<T>", "visibility": "public", "evidence": ["det-port", "emitter", "emitter-dynamic", "model-port", "harness", "runtime"]},
       {"id": "cics.CicsTask.readForUpdate(String,java.util.function.Supplier)", "kind": "method", "returns": "cics.CicsTask.FileRead<T>", "visibility": "public", "evidence": ["det-port", "emitter", "emitter-dynamic", "model-port", "harness", "runtime"]},
-      {"id": "cics.CicsTask.readInto(String,byte[],boolean,int,java.util.function.Supplier)", "kind": "method", "returns": "cics.CicsTask.FileRead<byte[]>", "visibility": "internal", "evidence": ["harness"]},
+      {"id": "cics.CicsTask.readInto(String,byte[],boolean,int,java.util.function.Supplier)", "kind": "method", "returns": "cics.CicsTask.FileRead<byte[]>", "visibility": "public", "evidence": ["det-port", "emitter", "harness"]},
       {"id": "cics.CicsTask.readInvalid(String,boolean,int)", "kind": "method", "returns": "cics.CicsTask.FileRead<T>", "visibility": "public", "evidence": ["emitter", "harness"]},
       {"id": "cics.CicsTask.readSearch(String,boolean,java.util.function.Supplier)", "kind": "method", "returns": "cics.CicsTask.FileRead<T>", "visibility": "public", "evidence": ["emitter", "harness"]},
       {"id": "cics.CicsTask.readSetEvent(String,byte[],boolean,java.util.function.Supplier)", "kind": "method", "returns": "cics.CicsTask.FileRead<byte[]>", "visibility": "public", "evidence": ["det-port", "emitter", "harness"]},
@@ -285,7 +285,7 @@
       {"id": "cics.CicsTask.returnedChannel()", "kind": "method", "returns": "cics.CicsTask.Channel", "visibility": "internal", "evidence": ["harness"]},
       {"id": "cics.CicsTask.rewindCounter(String,String,long)", "kind": "method", "returns": "int[]", "visibility": "public", "evidence": ["emitter", "harness"]},
       {"id": "cics.CicsTask.rewrite(String,Runnable)", "kind": "method", "returns": "int", "visibility": "public", "evidence": ["det-port", "emitter", "emitter-dynamic", "model-port", "harness", "runtime"]},
-      {"id": "cics.CicsTask.rewriteFrom(String,byte[],Runnable)", "kind": "method", "returns": "int", "visibility": "internal", "evidence": ["harness"]},
+      {"id": "cics.CicsTask.rewriteFrom(String,byte[],Runnable)", "kind": "method", "returns": "int", "visibility": "public", "evidence": ["det-port", "emitter", "harness"]},
       {"id": "cics.CicsTask.rewriteToken(String,int,byte[],Runnable)", "kind": "method", "returns": "int", "visibility": "public", "evidence": ["emitter", "harness"]},
       {"id": "cics.CicsTask.rewriteqTs(String,int,byte[])", "kind": "method", "returns": "cics.CicsTask.TsResult", "visibility": "public", "evidence": ["emitter", "harness"]},
       {"id": "cics.CicsTask.rollback()", "kind": "method", "returns": "void", "visibility": "public", "evidence": ["det-port", "emitter", "emitter-dynamic", "model-port", "harness"]},
@@ -335,21 +335,21 @@
       {"id": "cics.CicsTask.webClose(String)", "kind": "method", "returns": "int[]", "visibility": "public", "evidence": ["det-port", "emitter", "harness"]},
       {"id": "cics.CicsTask.webConverse(String,int,String,int,String,int,String,int,String,int,int,java.nio.charset.Charset)", "kind": "method", "returns": "cics.CicsTask.WebResponse", "visibility": "public", "evidence": ["det-port", "emitter", "harness"]},
       {"id": "cics.CicsTask.webEndBrowse(String)", "kind": "method", "returns": "int[]", "visibility": "public", "evidence": ["emitter", "harness"]},
-      {"id": "cics.CicsTask.webExtract(Integer,int,Integer,int,Integer,int,Integer,int,Integer,int)", "kind": "method", "returns": "cics.CicsTask.WebExtracted", "visibility": "public", "evidence": ["emitter", "harness"]},
+      {"id": "cics.CicsTask.webExtract(Integer,int,Integer,int,Integer,int,Integer,int,Integer,int)", "kind": "method", "returns": "cics.CicsTask.WebExtracted", "visibility": "public", "evidence": ["det-port", "emitter", "harness"]},
       {"id": "cics.CicsTask.webOpenHost(String,int,int,boolean,int)", "kind": "method", "returns": "cics.CicsTask.WebOpened", "visibility": "public", "evidence": ["det-port", "emitter", "harness"]},
       {"id": "cics.CicsTask.webOpenUrimap(String)", "kind": "method", "returns": "cics.CicsTask.WebOpened", "visibility": "public", "evidence": ["emitter", "harness"]},
       {"id": "cics.CicsTask.webParse(String,int,int,Integer,int,Integer,int,Integer,int)", "kind": "method", "returns": "cics.CicsTask.WebParsed", "visibility": "public", "evidence": ["det-port", "emitter", "harness"]},
-      {"id": "cics.CicsTask.webReadHeader(String,int,int,int)", "kind": "method", "returns": "cics.CicsTask.WebHeader", "visibility": "public", "evidence": ["emitter", "harness"]},
+      {"id": "cics.CicsTask.webReadHeader(String,int,int,int)", "kind": "method", "returns": "cics.CicsTask.WebHeader", "visibility": "public", "evidence": ["det-port", "emitter", "harness"]},
       {"id": "cics.CicsTask.webReadNext(String,int,int,int,int)", "kind": "method", "returns": "cics.CicsTask.WebNext", "visibility": "public", "evidence": ["emitter", "harness"]},
       {"id": "cics.CicsTask.webReadParam(String,String,int,int,int)", "kind": "method", "returns": "cics.CicsTask.WebParam", "visibility": "public", "evidence": ["emitter", "harness"]},
       {"id": "cics.CicsTask.webReceive(int,int)", "kind": "method", "returns": "cics.CicsTask.WebReceived", "visibility": "public", "evidence": ["emitter", "harness"]},
-      {"id": "cics.CicsTask.webReceive(int,int,int)", "kind": "method", "returns": "cics.CicsTask.WebReceived", "visibility": "public", "evidence": ["emitter", "harness", "runtime"]},
+      {"id": "cics.CicsTask.webReceive(int,int,int)", "kind": "method", "returns": "cics.CicsTask.WebReceived", "visibility": "public", "evidence": ["det-port", "emitter", "harness", "runtime"]},
       {"id": "cics.CicsTask.webRetrieve()", "kind": "method", "returns": "cics.CicsTask.DocumentCreated", "visibility": "public", "evidence": ["emitter", "harness"]},
-      {"id": "cics.CicsTask.webSend(String,int,String,int,int,String,int,int)", "kind": "method", "returns": "int[]", "visibility": "public", "evidence": ["emitter", "harness"]},
+      {"id": "cics.CicsTask.webSend(String,int,String,int,int,String,int,int)", "kind": "method", "returns": "int[]", "visibility": "public", "evidence": ["det-port", "emitter", "harness"]},
       {"id": "cics.CicsTask.webSendContainer(String,String,String,int,int,String,int,int,java.nio.charset.Charset)", "kind": "method", "returns": "int[]", "visibility": "public", "evidence": ["emitter", "harness"]},
       {"id": "cics.CicsTask.webSendDocument(String,String,int,int,String,int,int,int,java.nio.charset.Charset)", "kind": "method", "returns": "int[]", "visibility": "public", "evidence": ["emitter", "harness"]},
       {"id": "cics.CicsTask.webStartBrowse(String,String,Integer)", "kind": "method", "returns": "int[]", "visibility": "public", "evidence": ["emitter", "harness"]},
-      {"id": "cics.CicsTask.webWriteHeader(String,int,String,int)", "kind": "method", "returns": "int[]", "visibility": "public", "evidence": ["emitter", "harness"]},
+      {"id": "cics.CicsTask.webWriteHeader(String,int,String,int)", "kind": "method", "returns": "int[]", "visibility": "public", "evidence": ["det-port", "emitter", "harness"]},
       {"id": "cics.CicsTask.withChannel(Channel)", "kind": "method", "returns": "cics.CicsTask", "visibility": "internal", "evidence": ["harness"]},
       {"id": "cics.CicsTask.withClock(LocalDateTime)", "kind": "method", "returns": "cics.CicsTask", "visibility": "internal", "evidence": ["harness"]},
       {"id": "cics.CicsTask.withCounters(java.util.Map)", "kind": "method", "returns": "cics.CicsTask", "visibility": "internal", "evidence": ["harness"]},
@@ -640,23 +640,23 @@
       {"id": "cics.CicsTask.TsResult.numItems()", "kind": "method", "returns": "int", "visibility": "public", "evidence": ["emitter-dynamic", "harness"]},
       {"id": "cics.CicsTask.TsResult.resp()", "kind": "method", "returns": "String", "visibility": "public", "evidence": ["det-port", "emitter-dynamic", "model-port", "harness"]}
     ]},
-    {"id": "cics.CicsTask.WebExtracted", "kind": "record", "source": "gitgalaxy/tools/cobol_to_java/cobol_to_java_transaction_forge.py", "variants": ["forge-cics"], "supers": [], "visibility": "public", "evidence": ["emitter-dynamic", "signature", "harness"], "members": [
+    {"id": "cics.CicsTask.WebExtracted", "kind": "record", "source": "gitgalaxy/tools/cobol_to_java/cobol_to_java_transaction_forge.py", "variants": ["forge-cics"], "supers": [], "visibility": "public", "evidence": ["det-port", "emitter-dynamic", "signature", "harness"], "members": [
       {"id": "cics.CicsTask.WebExtracted.<init>(int,int,int,String,int,String,String,String,String)", "kind": "constructor", "visibility": "internal", "evidence": []},
-      {"id": "cics.CicsTask.WebExtracted.host()", "kind": "method", "returns": "String", "visibility": "public", "evidence": ["harness"]},
-      {"id": "cics.CicsTask.WebExtracted.method()", "kind": "method", "returns": "String", "visibility": "public", "evidence": ["harness"]},
-      {"id": "cics.CicsTask.WebExtracted.path()", "kind": "method", "returns": "String", "visibility": "public", "evidence": ["harness"]},
+      {"id": "cics.CicsTask.WebExtracted.host()", "kind": "method", "returns": "String", "visibility": "public", "evidence": ["det-port", "harness"]},
+      {"id": "cics.CicsTask.WebExtracted.method()", "kind": "method", "returns": "String", "visibility": "public", "evidence": ["det-port", "harness"]},
+      {"id": "cics.CicsTask.WebExtracted.path()", "kind": "method", "returns": "String", "visibility": "public", "evidence": ["det-port", "harness"]},
       {"id": "cics.CicsTask.WebExtracted.port()", "kind": "method", "returns": "int", "visibility": "public", "evidence": ["emitter-dynamic", "harness"]},
-      {"id": "cics.CicsTask.WebExtracted.query()", "kind": "method", "returns": "String", "visibility": "public", "evidence": ["harness"]},
-      {"id": "cics.CicsTask.WebExtracted.resp()", "kind": "method", "returns": "int", "visibility": "public", "evidence": ["emitter-dynamic", "harness"]},
-      {"id": "cics.CicsTask.WebExtracted.resp2()", "kind": "method", "returns": "int", "visibility": "public", "evidence": ["emitter-dynamic", "harness"]},
+      {"id": "cics.CicsTask.WebExtracted.query()", "kind": "method", "returns": "String", "visibility": "public", "evidence": ["det-port", "harness"]},
+      {"id": "cics.CicsTask.WebExtracted.resp()", "kind": "method", "returns": "int", "visibility": "public", "evidence": ["det-port", "emitter-dynamic", "harness"]},
+      {"id": "cics.CicsTask.WebExtracted.resp2()", "kind": "method", "returns": "int", "visibility": "public", "evidence": ["det-port", "emitter-dynamic", "harness"]},
       {"id": "cics.CicsTask.WebExtracted.scheme()", "kind": "method", "returns": "int", "visibility": "public", "evidence": ["emitter-dynamic", "harness"]},
       {"id": "cics.CicsTask.WebExtracted.version()", "kind": "method", "returns": "String", "visibility": "public", "evidence": ["harness"]}
     ]},
-    {"id": "cics.CicsTask.WebHeader", "kind": "record", "source": "gitgalaxy/tools/cobol_to_java/cobol_to_java_transaction_forge.py", "variants": ["forge-cics"], "supers": [], "visibility": "public", "evidence": ["emitter-dynamic", "signature", "harness"], "members": [
+    {"id": "cics.CicsTask.WebHeader", "kind": "record", "source": "gitgalaxy/tools/cobol_to_java/cobol_to_java_transaction_forge.py", "variants": ["forge-cics"], "supers": [], "visibility": "public", "evidence": ["det-port", "emitter-dynamic", "signature", "harness"], "members": [
       {"id": "cics.CicsTask.WebHeader.<init>(int,int,String)", "kind": "constructor", "visibility": "internal", "evidence": []},
-      {"id": "cics.CicsTask.WebHeader.resp()", "kind": "method", "returns": "int", "visibility": "public", "evidence": ["emitter-dynamic", "harness"]},
-      {"id": "cics.CicsTask.WebHeader.resp2()", "kind": "method", "returns": "int", "visibility": "public", "evidence": ["emitter-dynamic", "harness"]},
-      {"id": "cics.CicsTask.WebHeader.value()", "kind": "method", "returns": "String", "visibility": "public", "evidence": ["emitter-dynamic", "harness"]}
+      {"id": "cics.CicsTask.WebHeader.resp()", "kind": "method", "returns": "int", "visibility": "public", "evidence": ["det-port", "emitter-dynamic", "harness"]},
+      {"id": "cics.CicsTask.WebHeader.resp2()", "kind": "method", "returns": "int", "visibility": "public", "evidence": ["det-port", "emitter-dynamic", "harness"]},
+      {"id": "cics.CicsTask.WebHeader.value()", "kind": "method", "returns": "String", "visibility": "public", "evidence": ["det-port", "emitter-dynamic", "harness"]}
     ]},
     {"id": "cics.CicsTask.WebNext", "kind": "record", "source": "gitgalaxy/tools/cobol_to_java/cobol_to_java_transaction_forge.py", "variants": ["forge-cics"], "supers": [], "visibility": "public", "evidence": ["emitter-dynamic", "signature", "harness"], "members": [
       {"id": "cics.CicsTask.WebNext.<init>(int,int,String,String,int,int)", "kind": "constructor", "visibility": "internal", "evidence": []},
@@ -690,12 +690,12 @@
       {"id": "cics.CicsTask.WebParsed.resp2()", "kind": "method", "returns": "int", "visibility": "public", "evidence": ["det-port", "emitter-dynamic", "harness"]},
       {"id": "cics.CicsTask.WebParsed.scheme()", "kind": "method", "returns": "String", "visibility": "public", "evidence": ["det-port", "emitter-dynamic", "harness"]}
     ]},
-    {"id": "cics.CicsTask.WebReceived", "kind": "record", "source": "gitgalaxy/tools/cobol_to_java/cobol_to_java_transaction_forge.py", "variants": ["forge-cics"], "supers": [], "visibility": "public", "evidence": ["emitter-dynamic", "signature", "harness", "runtime"], "members": [
+    {"id": "cics.CicsTask.WebReceived", "kind": "record", "source": "gitgalaxy/tools/cobol_to_java/cobol_to_java_transaction_forge.py", "variants": ["forge-cics"], "supers": [], "visibility": "public", "evidence": ["det-port", "emitter-dynamic", "signature", "harness", "runtime"], "members": [
       {"id": "cics.CicsTask.WebReceived.<init>(int,int,String,String)", "kind": "constructor", "visibility": "internal", "evidence": []},
-      {"id": "cics.CicsTask.WebReceived.body()", "kind": "method", "returns": "String", "visibility": "public", "evidence": ["emitter-dynamic", "harness"]},
+      {"id": "cics.CicsTask.WebReceived.body()", "kind": "method", "returns": "String", "visibility": "public", "evidence": ["det-port", "emitter-dynamic", "harness"]},
       {"id": "cics.CicsTask.WebReceived.mediaType()", "kind": "method", "returns": "String", "visibility": "public", "evidence": ["emitter-dynamic", "harness"]},
-      {"id": "cics.CicsTask.WebReceived.resp()", "kind": "method", "returns": "int", "visibility": "public", "evidence": ["emitter-dynamic", "harness"]},
-      {"id": "cics.CicsTask.WebReceived.resp2()", "kind": "method", "returns": "int", "visibility": "public", "evidence": ["emitter-dynamic", "harness"]}
+      {"id": "cics.CicsTask.WebReceived.resp()", "kind": "method", "returns": "int", "visibility": "public", "evidence": ["det-port", "emitter-dynamic", "harness"]},
+      {"id": "cics.CicsTask.WebReceived.resp2()", "kind": "method", "returns": "int", "visibility": "public", "evidence": ["det-port", "emitter-dynamic", "harness"]}
     ]},
     {"id": "cics.CicsTask.WebResponse", "kind": "record", "source": "gitgalaxy/tools/cobol_to_java/cobol_to_java_transaction_forge.py", "variants": ["forge-cics"], "supers": [], "visibility": "public", "evidence": ["det-port", "emitter-dynamic", "signature", "harness"], "members": [
       {"id": "cics.CicsTask.WebResponse.<init>(int,int,byte[],int,int,String,String)", "kind": "constructor", "visibility": "internal", "evidence": []},

@@ -1,6 +1,6 @@
 # Progress
 
-Generated from main at `bab98ee61` by `tests/tools/progress_report.py` (#5280); do not edit. Every
+Generated from main at `735064d38` by `tests/tools/progress_report.py` (#5280); do not edit. Every
 denominator is fixed and every number names its source below. A level is an evidence level, never a bare
 claim of correctness: the oracle is GnuCOBOL plus IBM documentation, not z/OS.
 
@@ -13,7 +13,7 @@ Reachable denominator: 126 programs (129 - 2 - 1). These programs stay in the fi
 | Not reachable for a non-translator reason | Programs | Issue | Reason |
 |---|---|---|---|
 | source defect (source IBM rejects) | 2: `aws-mainframe-modernization-carddemo/app/cbl/CBEXPORT.cbl`, `aws-mainframe-modernization-carddemo/app/cbl/CBIMPORT.cbl` | #5866 | RECORD KEY names an item defined in WORKING-STORAGE, not in a record of the file; IBM requires it in a record description of that file (Enterprise COBOL Language Reference, RECORD KEY clause) |
-| held by an owner ruling or z/OS calibration | 1: `dbb-mortgage-application/zBuilder/MortgageApplication/cobol/epscsmrd.cbl` | #5106 | Language Environment condition handlers (CEEHDLR) refused by name, owner ruling 2026-10-21 |
+| refused by design (owner ruling: outside what the port proves) | 1: `dbb-mortgage-application/zBuilder/MortgageApplication/cobol/epscsmrd.cbl` | #5106 | its 7 holes are Language Environment condition handling (CEEHDLR / CEEHDLU and the CEE3SRP recovery point, refused by the owner's 2026-10-21 ruling) and CICS web services (SOAPFAULT CREATE), which no oracle backs, plus procedure pointers (SET TO ENTRY) and national / DBCS text, breadth work no ladder program needs (#5042, #4664); owner ruling 2026-11-03: no model built on assumptions alone, the program stays at L0 |
 
 Entries that no longer hold (the program is above L0): dbb-mortgage-application/zBuilder/MortgageApplication/cobol/epsmpmt.cbl, zecs/Source/ZECS002.asm.
 
@@ -112,7 +112,7 @@ Source: tests/fixtures/feature_inventory/<estate>.json (era_tags.py). Programs p
 
 ## 4. Core burn-down
 
-Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-03T23:37:52Z.
+Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-03T23:48:25Z.
 
 - `scope:core`: 12 open, 207 closed.
 - Milestone 28: 4 open, 108 closed.

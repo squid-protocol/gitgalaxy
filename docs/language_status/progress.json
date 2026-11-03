@@ -1,5 +1,5 @@
 {
- "commit": "bab98ee61",
+ "commit": "735064d38",
  "components": {
   "capabilities": {
    "groups": [
@@ -481,7 +481,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-11-03T23:37:52Z",
+  "as_of": "2026-11-03T23:48:25Z",
   "core": {
    "closed": 207,
    "open": 12,
@@ -890,7 +890,7 @@
    "unreachable": {
     "count": 3,
     "kinds": {
-     "owner_held": {
+     "refused_by_design": {
       "count": 1,
       "issues": [
        "#5106"
@@ -899,7 +899,7 @@
        "dbb-mortgage-application/zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
       ],
       "reasons": [
-       "Language Environment condition handlers (CEEHDLR) refused by name, owner ruling 2026-10-21"
+       "its 7 holes are Language Environment condition handling (CEEHDLR / CEEHDLU and the CEE3SRP recovery point, refused by the owner's 2026-10-21 ruling) and CICS web services (SOAPFAULT CREATE), which no oracle backs, plus procedure pointers (SET TO ENTRY) and national / DBCS text, breadth work no ladder program needs (#5042, #4664); owner ruling 2026-11-03: no model built on assumptions alone, the program stays at L0"
       ]
      },
      "source_defect": {

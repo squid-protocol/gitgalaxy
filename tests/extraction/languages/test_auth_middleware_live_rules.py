@@ -14,6 +14,10 @@ import sys
 
 import pytest
 
+pytestmark = pytest.mark.slow(
+    reason="two real scans of 55 planted files; the fixture's cost lands on whichever test runs first in a CI split part"
+)
+
 # language -> (file name, text that must fire, minimum count, text that must not fire)
 LIVE = {
     "c": (
@@ -154,17 +158,38 @@ LIVE = {
 # Tiny files are dropped by the aperture before the detector runs: pad the look-alike files with inert lines in the
 # file's own comment syntax so they are scanned and the zero is a real zero.
 _COMMENT = {
-    "cr": "#",
-    "pl": "#",
-    "rb": "#",
+    **dict.fromkeys(("cr", "pl", "rb", "py", "sh", "ps1", "hs"), "#"),
+    **dict.fromkeys(
+        (
+            "c",
+            "cpp",
+            "cs",
+            "dart",
+            "fs",
+            "go",
+            "java",
+            "js",
+            "kt",
+            "m",
+            "php",
+            "rs",
+            "scala",
+            "sol",
+            "swift",
+            "ts",
+            "zig",
+        ),
+        "//",
+    ),
     "psql": "--",
-    "fs": "//",
-    "cpp": "//",
-    "java": "//",
-    "swift": "//",
-    "ts": "//",
+    "hs": "--",
+    "cbl": "      *",
+    "pli": "/*",
 }
-_PAD = {ext: "\n".join(f"{c} filler line {i}" for i in range(40)) + "\n" for ext, c in _COMMENT.items()}
+_PAD = {
+    ext: "\n".join(f"{c} filler line {i}" + (" */" if c == "/*" else "") for i in range(40)) + "\n"
+    for ext, c in _COMMENT.items()
+}
 
 
 def _scan(tmp_path, files: dict) -> dict:
@@ -190,24 +215,26 @@ def _scan(tmp_path, files: dict) -> dict:
 
 
 @pytest.fixture(scope="module")
-def scans(tmp_path_factory):
+def scan(tmp_path_factory):
+    """(planted scan, look-alike scan): one directory each, since a single mixed directory drops some files."""
     fire = {name: text for name, text, _, _ in LIVE.values()}
     quiet = {"quiet_" + name: text + _PAD.get(name.rsplit(".", 1)[1], "") for name, _, _, text in LIVE.values()}
+    quiet["d.py"] = "def check_password(u):\n    return 1\n"
     return _scan(tmp_path_factory.mktemp("fire"), fire), _scan(tmp_path_factory.mktemp("quiet"), quiet)
 
 
 @pytest.mark.parametrize("language", sorted(LIVE))
-def test_planted_auth_site_fires_through_a_real_scan(scans, language):
+def test_planted_auth_site_fires_through_a_real_scan(scan, language):
     name, _, minimum, _ = LIVE[language]
-    lang, count = scans[0][name]
+    lang, count = scan[0][name]
     assert lang == language
     assert count >= minimum
 
 
 @pytest.mark.parametrize("language", sorted(LIVE))
-def test_lookalike_text_does_not_fire(scans, language):
+def test_lookalike_text_does_not_fire(scan, language):
     name = "quiet_" + LIVE[language][0]
-    lang, count = scans[1][name]
+    lang, count = scan[1][name]
     assert lang == language
     assert count == 0
 
@@ -216,6 +243,5 @@ def test_lookalike_text_does_not_fire(scans, language):
     strict=True,
     reason="sibling gap: python's `check_password(` alternative has no `(?<!def )` guard, so a definition counts as an auth site",
 )
-def test_a_check_password_definition_does_not_fire(tmp_path):
-    got = _scan(tmp_path, {"d.py": "def check_password(u):\n    return 1\n"})
-    assert got["d.py"] == ("python", 0)
+def test_a_check_password_definition_does_not_fire(scan):
+    assert scan[1]["d.py"] == ("python", 0)

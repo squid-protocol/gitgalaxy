@@ -58,3 +58,11 @@ in `tests/equivalence/infeasible_outcomes/<case>.json`.
 * First members: BNK1CAC `ED010` 611:true, 637:true, 637:false, 717:true; ZECS001 `1310-TTL` 704:false (non-digit). The harness slice that would judge them is queued
   in #6072 (Remaining slices).
 
+### 8. Refused by design (owner, 2026-11-03, #5106)
+A program whose remaining holes are constructs no oracle can back (GnuCOBOL has no Language Environment runtime and no
+CICS web services), or breadth work no ladder program needs, is **refused by design**: it stays at L0 as a stated
+boundary, is left off the ladder, and is reported in its own row (`refused_by_design` in
+`tests/tools/ladder_exclusions.py`, with its issue and reason). Never build a model on assumptions alone to lift one
+program: it would be the weakest claim in the evidence. Asked for as a demo, such work is labelled assumed
+(IBM-documented), never proven.
+* First member: DBB `epscsmrd.cbl` (LE `CEEHDLR` / `CEEHDLU` / `CEE3SRP`, `SOAPFAULT CREATE`, `SET TO ENTRY`, `PIC N`).

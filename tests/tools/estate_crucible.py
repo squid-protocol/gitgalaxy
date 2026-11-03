@@ -14,7 +14,7 @@ GalaxyIR, and diffs every fact channel of the key against it:
                   synthetic_unit_data row
   edges           PERFORM / CALL -> function_data.calls_out_to, GO TO -> transfers_to,
                   per owning unit (the main line's from synthetic_unit_data)
-  call_sites      call_site_data (CALL, LINK, XCTL, RETURN TRANSID, EXEC PGM)
+  call_sites      call_site_data (CALL, LINK, XCTL, RETURN TRANSID, EXEC PGM; a runner step's RUN PROGRAM row is read as the key's `RUN PROGRAM`)
   copies          file_data.raw_imports + edge_data import edges
   data_items      record_data entries
   layouts         GalaxyIR.record_layout of every 01 a program writes: bytes and every
@@ -72,6 +72,7 @@ import tempfile
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -114,7 +115,11 @@ CHANNELS = (
     "gaps",
     "dead",
 )
-RESOLVED_VERBS = ("CALL", "LINK", "XCTL", "EXEC PGM")
+RESOLVED_VERBS = ("CALL", "LINK", "XCTL", "EXEC PGM", "RUN PROGRAM")
+# The engine records a program a runner step runs as an `EXEC PGM` row of form `runner` whose operand is
+# "<RUNNER> <VIA>" and whose target is the program (#3710). The key (SPEC.md `call_sites`) keys the RUN PROGRAM
+# subcommand as verb `RUN PROGRAM`, operand the program: the same fact, so it is read in the key's shape.
+_KEYED_RUNNER_VIAS = ("RUN PROGRAM",)
 
 
 @dataclass
@@ -474,9 +479,21 @@ def score_edges(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> Non
             sc.add("edges", path, f"not {frm or '(main line)'} -> {t}", "pass", p.get("horror"))
 
 
+def _as_keyed_call(c: Any) -> Any:
+    """A runner row ("IKJEFT01 RUN PROGRAM" -> BDLDDB2) as the key's `RUN PROGRAM BDLDDB2` call site."""
+    if _u(c.verb) != "EXEC PGM" or _u(getattr(c, "form", None)) != "RUNNER" or not c.target:
+        return c
+    via = next((v for v in _KEYED_RUNNER_VIAS if _u(c.operand).endswith(" " + v)), None)
+    if via is None:
+        return c
+    return SimpleNamespace(
+        verb=via, form="literal", operand=c.target, target=c.target, resolves_to=c.resolves_to, line=c.line
+    )
+
+
 def score_call_sites(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
     ef = eng.files.get(path)
-    calls = list(ef.calls) if ef else []
+    calls = [_as_keyed_call(c) for c in ef.calls] if ef else []
     used: set = set()
     for f in entry.get("call_sites", []):
         label = f"{f['verb']} {f['operand']} @{f['line']}"

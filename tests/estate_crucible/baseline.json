@@ -74,7 +74,7 @@
   "H-0065": "PASS",
   "H-0066": "PASS",
   "H-0067": "PASS",
-  "H-0068": "FAIL",
+  "H-0068": "PASS",
   "H-0069": "PASS",
   "H-0070": "PASS",
   "H-0071": "PASS",
@@ -121,10 +121,10 @@
    "unscored": 0
   },
   "call_sites": {
-   "pass": 114,
+   "pass": 116,
    "fail": 0,
-   "missing": 2,
-   "phantom": 2,
+   "missing": 0,
+   "phantom": 0,
    "unscored": 0
   },
   "copies": {
@@ -189,6 +189,20 @@
    "missing": 0,
    "phantom": 0,
    "unscored": 8
+  },
+  "dli_calls": {
+   "pass": 0,
+   "fail": 0,
+   "missing": 0,
+   "phantom": 0,
+   "unscored": 0
+  },
+  "ims_gen": {
+   "pass": 0,
+   "fail": 0,
+   "missing": 0,
+   "phantom": 0,
+   "unscored": 0
   },
   "screen_fields": {
    "pass": 16,
@@ -276,10 +290,6 @@
   }
  },
  "not_passing": {
-  "call_sites|apps/BDLD/jcl/BDLDNITE.jcl|EXEC PGM IKJEFT01 RUN PROGRAM @22": "phantom",
-  "call_sites|apps/BDLD/jcl/BDLDNITE.jcl|RUN PROGRAM BDLDDB2 @22": "missing",
-  "call_sites|apps/BDLD/jcl/BDLDRST.jcl|EXEC PGM IKJEFT01 RUN PROGRAM @20": "phantom",
-  "call_sites|apps/BDLD/jcl/BDLDRST.jcl|RUN PROGRAM BDLDDB2 @20": "missing",
   "cics_resources|apps/INVT/cobol/INVTONL.cbl|READ FILE INVTMST @32": "fail",
   "cics_resources|apps/INVT/cobol/INVTRLD.cbl|READ FILE INVTMST @30": "fail",
   "data_moves|apps/INVT/cobol/INVTBAT.cbl|MOVE 'Y' -> WS-EOF @49": "phantom",
@@ -380,5 +390,5 @@
   "sql_statements|apps/CUST/cobol/CUSTDBIO.cbl|CALL @38 procedure PRODPROC.CUSTBAL": "unscored",
   "sql_statements|apps/CUST/cobol/CUSTDBIO.cbl|CALL @42 procedure CUSTAUDT": "unscored"
  },
- "checks_total": 2351
+ "checks_total": 2349
 }

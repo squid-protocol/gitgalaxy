@@ -1,0 +1,44 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "HCUNLK",
+  "program_source": "cases/condition-handling/hc-file-unlock/src/HCUNLK.cbl",
+  "copy_dirs": [],
+  "transid": "HC81",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {
+    "CRUCIBLE.HC.UFILE": {
+      "input": "@case/hcuf.txt",
+      "entity": "WsRec",
+      "vsam": {
+        "key_offset": 0,
+        "key_length": 4,
+        "reclen": 16,
+        "why": "hc-file-unlock: hcuf.txt records, 4-byte key, 16-byte records (CSD DEFINE FILE has a DSNAME, no IDCAMS)"
+      }
+    }
+  },
+  "commarea": null,
+  "screens": {},
+  "notes": "cics-crucible condition-handling / hc-file-unlock (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): READ UPDATE / REWRITE / UNLOCK on a KSDS (K001..K003); REWRITE after UNLOCK, UNLOCK with nothing held, READ INTO with LENGTH below the record (LENGERR). Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs. Scenarios U (UNLOCK after READ UPDATE) and N (UNLOCK with nothing held) are left out: the det port records an UNLOCK event (#7569) that the equivalence oracle stub does not log, so the side-by-side event lists differ (harness gap, #6271).",
+  "scenarios": [
+    {
+      "name": "update-rewrite",
+      "commarea": null,
+      "terminal": "HC81 R",
+      "why": "READ UPDATE of K002, REWRITE, READ again"
+    },
+    {
+      "name": "read-short",
+      "commarea": null,
+      "terminal": "HC81 S",
+      "why": "READ INTO of K002 with LENGTH 8 on a 16-byte record (LENGERR), then LENGTH 16"
+    },
+    {
+      "name": "unmatched-mode",
+      "commarea": null,
+      "terminal": "HC81 Z",
+      "why": "a mode no WHEN names: the EVALUATE falls through"
+    }
+  ]
+}

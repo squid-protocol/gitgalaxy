@@ -253,6 +253,14 @@ family addition that widens the archetype vector, unlike #3004's dormant-slot ac
   broken detection. `tests/extraction/languages/test_system_config_mutation_live_rules.py` scans a planted file per
   language and pins a count, plus a look-alike that must stay 0. Known limit: crystal's rule matches inside a string
   literal (the #2899 shape; strict xfail in that test).
+- **Golden coverage (#4108 slice 14)**: `auth_middleware` has a live rule in 27 languages but the golden fixture fires
+  in only six (c, java, php, ruby, solidity: one file each; powershell: six), 11 of 3,364 files. The other 21 live rules
+  (cpp, crystal, csharp, dart, fsharp, go, haskell, javascript, kotlin, objective-c, perl, pli, cobol, python,
+  rust, scala, shell, swift, typescript, zig, postgresql) are a corpus gap, not broken detection.
+  `tests/extraction/languages/test_auth_middleware_live_rules.py` scans a planted file per language and pins a count in
+  `def_auth`, plus a look-alike that must stay 0. Known limit: python's `check_password(` alternative lacks the
+  `(?<!def )` guard its `authenticate(` sibling has, so `def check_password(` counts (strict xfail in that test).
+  db2_sql, hlasm and sql-extension dispatch are not planted here.
 - **Vector parity**: appending the key grows `SIGNAL_SCHEMA` 97→98; the candidate archetype
   feature set grows 83→84 but stays unread until retrained — the v2.8.1 self-describing
   brains classify from their own recorded feature names, so shipped brains simply ignore

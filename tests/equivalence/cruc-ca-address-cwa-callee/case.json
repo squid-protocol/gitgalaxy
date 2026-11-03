@@ -1,0 +1,17 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "CACWSB",
+  "program_source": "cases/commarea-mismatch/ca-address-cwa/src/CACWSB.cbl",
+  "transid": "CA0K",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "termid": "T001",
+  "programs": [],
+  "notes": "cics-crucible commarea-mismatch / ca-address-cwa, CACWSB entered directly (the #7426 pattern): the callee of CACWAD mode W run as the root program so its own coverage is measured (a LINKed callee is capped at L2, #4270). The oracle is GnuCOBOL plus the stub.",
+  "scenarios": [
+    {"name": "cwa-read", "commarea": null, "wrkarea": 32, "why": "WRKAREA 32: the callee reads the CWA through ADDRESS CWA and writes its reply"}
+  ]
+}

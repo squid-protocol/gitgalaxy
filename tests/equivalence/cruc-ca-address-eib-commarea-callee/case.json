@@ -1,0 +1,23 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "CAEBSB",
+  "program_source": "cases/commarea-mismatch/ca-address-eib-commarea/src/CAEBSB.cbl",
+  "copy_dirs": [
+    "cases/commarea-mismatch/ca-address-eib-commarea/copy"
+  ],
+  "transid": "CA0K",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "programs": [],
+  "notes": "cics-crucible commarea-mismatch / ca-address-eib-commarea, CAEBSB entered directly (the #7426 pattern): the callee of CAEBCA mode W run as the root program so its own coverage is measured (a LINKed callee is capped at L2, #4270). The oracle is GnuCOBOL plus the stub.",
+  "scenarios": [
+    {
+      "name": "no-commarea",
+      "commarea": null,
+      "why": "EIBCALEN 0: ADDRESS COMMAREA gives X'FF000000', the ABSENT arm"
+    }
+  ]
+}

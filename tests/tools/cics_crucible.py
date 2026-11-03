@@ -801,7 +801,9 @@ class EquivalenceRunTest {
             json.writeValue(out.resolve(id + ".json").toFile(), new Scenario(plan, sc, false).drive());
             if (facades) {
                 // #4965: the same scenario again, each task entered by the byte-carrying handleTransaction overload
-                // (the previous RETURN's bytes in, lastAnswerBytes() out) -- written only when some task was
+                // (the previous RETURN's bytes in, lastAnswerBytes() out) -- written only when some task was; a file
+                // the first run rewrote is seeded again (#6876: HCUNLK's REWRITE would else show in the second READ)
+                seedFiles(plan);
                 Scenario again = new Scenario(plan, sc, true);
                 Map<String, Object> log = again.drive();
                 if (again.usedBytes) {

@@ -80,7 +80,9 @@ class ProgramControlCommands:
                     else f"Math.max({dsize}, Math.min({length}, 32763))"
                 )
                 out += [f"{ind}Storage {w} = Cobol.commarea({f}, {span});",
-                        f"{ind}{cls} {ca} = out_{cls}({w}, 0);",
+                        # #7485: the DTO is read from a copy of the area: out_ reads a signed DISPLAY field through
+                        # Cobol.num (GnuCOBOL's PUT_SIGN), and a read of `w` would rewrite the bytes passed by reference
+                        f"{ind}{cls} {ca} = out_{cls}(Cobol.commarea({f}, {span}), 0);",
                         # #4181 follow-up: the bytes too (by reference), every one the target's DTO does not name
                         f"{ind}String {r} = task.link({prog}, {ca}, {length}, {w}.bytes);",
                         # what the linked program left in the COMMAREA is the caller's area now: #4806 its bytes when

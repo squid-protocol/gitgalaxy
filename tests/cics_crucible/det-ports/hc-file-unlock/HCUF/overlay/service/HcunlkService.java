@@ -396,7 +396,7 @@ public class HcunlkService {
         Cobol.move("K002", f7_WS_KEY, CS);
         // EXEC CICS READ FILE('HCUF') INTO(WS-REC) LENGTH(WS-LEN) RIDFLD(WS-KEY) UPDATE RESP(WS-RESP) RESP2(WS-RESP2) END-EXEC
         byte[] rec5 = DetCics.bytes(f7_WS_KEY);
-        CicsTask.FileRead<byte[]> read4 = task.readForUpdate("HCUF".stripTrailing(), () -> store("HCUF".stripTrailing()).find(rec5));
+        CicsTask.FileRead<byte[]> read4 = task.readInto("HCUF".stripTrailing(), rec5, true, Cobol.num(f6_WS_LEN, CS).intValue(), () -> store("HCUF".stripTrailing()).find(rec5));
         int resp6 = read4.resp();
         int resp27 = read4.resp2();
         if (read4.record() != null) {
@@ -416,7 +416,8 @@ public class HcunlkService {
         // MOVE '0099' TO WS-REC(13:4)
         Cobol.move("0099", f8_WS_REC.ref(13, Integer.valueOf(4)), CS);
         // EXEC CICS REWRITE FILE('HCUF') FROM(WS-REC) LENGTH(WS-LEN) RESP(WS-RESP) RESP2(WS-RESP2) END-EXEC
-        int resp8 = task.rewrite("HCUF".stripTrailing(), () -> store("HCUF".stripTrailing()).store(DetCics.bytes(f8_WS_REC, Cobol.num(f6_WS_LEN, CS).intValue())));
+        byte[] from9 = DetCics.bytes(f8_WS_REC, Cobol.num(f6_WS_LEN, CS).intValue());
+        int resp8 = task.rewriteFrom("HCUF".stripTrailing(), from9, () -> store("HCUF".stripTrailing()).store(from9));
         Cobol.store(f47_EIBRESP, BigDecimal.valueOf(resp8), false, CS);
         Cobol.store(f48_EIBRESP2, BigDecimal.valueOf(task.resp2()), false, CS);
         Cobol.store(f4_WS_RESP, BigDecimal.valueOf(resp8), false, CS);
@@ -439,29 +440,29 @@ public class HcunlkService {
         // MOVE 'K002' TO WS-KEY
         Cobol.move("K002", f7_WS_KEY, CS);
         // EXEC CICS READ FILE('HCUF') INTO(WS-REC) LENGTH(WS-LEN) RIDFLD(WS-KEY) UPDATE RESP(WS-RESP) RESP2(WS-RESP2) END-EXEC
-        byte[] rec10 = DetCics.bytes(f7_WS_KEY);
-        CicsTask.FileRead<byte[]> read9 = task.readForUpdate("HCUF".stripTrailing(), () -> store("HCUF".stripTrailing()).find(rec10));
-        int resp11 = read9.resp();
-        int resp212 = read9.resp2();
-        if (read9.record() != null) {
-            resp11 = DetCics.readInto(f8_WS_REC, read9.record(), Cobol.num(f6_WS_LEN, CS).intValue(), true);
-            resp212 = resp11 == 22 ? 11 : 0;
-            heldKey.put("HCUF".stripTrailing(), rec10);
-            Cobol.store(f6_WS_LEN, BigDecimal.valueOf(read9.record().length), false, CS);
+        byte[] rec11 = DetCics.bytes(f7_WS_KEY);
+        CicsTask.FileRead<byte[]> read10 = task.readInto("HCUF".stripTrailing(), rec11, true, Cobol.num(f6_WS_LEN, CS).intValue(), () -> store("HCUF".stripTrailing()).find(rec11));
+        int resp12 = read10.resp();
+        int resp213 = read10.resp2();
+        if (read10.record() != null) {
+            resp12 = DetCics.readInto(f8_WS_REC, read10.record(), Cobol.num(f6_WS_LEN, CS).intValue(), true);
+            resp213 = resp12 == 22 ? 11 : 0;
+            heldKey.put("HCUF".stripTrailing(), rec11);
+            Cobol.store(f6_WS_LEN, BigDecimal.valueOf(read10.record().length), false, CS);
         }
-        Cobol.store(f47_EIBRESP, BigDecimal.valueOf(resp11), false, CS);
-        Cobol.store(f48_EIBRESP2, BigDecimal.valueOf(resp212), false, CS);
-        Cobol.store(f4_WS_RESP, BigDecimal.valueOf(resp11), false, CS);
-        Cobol.store(f5_WS_RESP2, BigDecimal.valueOf(resp212), false, CS);
+        Cobol.store(f47_EIBRESP, BigDecimal.valueOf(resp12), false, CS);
+        Cobol.store(f48_EIBRESP2, BigDecimal.valueOf(resp213), false, CS);
+        Cobol.store(f4_WS_RESP, BigDecimal.valueOf(resp12), false, CS);
+        Cobol.store(f5_WS_RESP2, BigDecimal.valueOf(resp213), false, CS);
         // MOVE 'U1 ' TO CLOG-TAG
         Cobol.move("U1 ", f11_CLOG_TAG, CS);
         // PERFORM LOG-D
         perform(6, 6);
         // EXEC CICS UNLOCK FILE('HCUF') RESP(WS-RESP) RESP2(WS-RESP2) END-EXEC
-        int resp13 = task.unlock("HCUF".stripTrailing());
-        Cobol.store(f47_EIBRESP, BigDecimal.valueOf(resp13), false, CS);
+        int resp14 = task.unlock("HCUF".stripTrailing());
+        Cobol.store(f47_EIBRESP, BigDecimal.valueOf(resp14), false, CS);
         Cobol.store(f48_EIBRESP2, BigDecimal.valueOf(task.resp2()), false, CS);
-        Cobol.store(f4_WS_RESP, BigDecimal.valueOf(resp13), false, CS);
+        Cobol.store(f4_WS_RESP, BigDecimal.valueOf(resp14), false, CS);
         Cobol.store(f5_WS_RESP2, BigDecimal.valueOf(task.resp2()), false, CS);
         // MOVE 'U2 ' TO CLOG-TAG
         Cobol.move("U2 ", f11_CLOG_TAG, CS);
@@ -470,10 +471,11 @@ public class HcunlkService {
         // MOVE '0099' TO WS-REC(13:4)
         Cobol.move("0099", f8_WS_REC.ref(13, Integer.valueOf(4)), CS);
         // EXEC CICS REWRITE FILE('HCUF') FROM(WS-REC) LENGTH(WS-LEN) RESP(WS-RESP) RESP2(WS-RESP2) END-EXEC
-        int resp14 = task.rewrite("HCUF".stripTrailing(), () -> store("HCUF".stripTrailing()).store(DetCics.bytes(f8_WS_REC, Cobol.num(f6_WS_LEN, CS).intValue())));
-        Cobol.store(f47_EIBRESP, BigDecimal.valueOf(resp14), false, CS);
+        byte[] from16 = DetCics.bytes(f8_WS_REC, Cobol.num(f6_WS_LEN, CS).intValue());
+        int resp15 = task.rewriteFrom("HCUF".stripTrailing(), from16, () -> store("HCUF".stripTrailing()).store(from16));
+        Cobol.store(f47_EIBRESP, BigDecimal.valueOf(resp15), false, CS);
         Cobol.store(f48_EIBRESP2, BigDecimal.valueOf(task.resp2()), false, CS);
-        Cobol.store(f4_WS_RESP, BigDecimal.valueOf(resp14), false, CS);
+        Cobol.store(f4_WS_RESP, BigDecimal.valueOf(resp15), false, CS);
         Cobol.store(f5_WS_RESP2, BigDecimal.valueOf(task.resp2()), false, CS);
         // MOVE 'U3 ' TO CLOG-TAG
         Cobol.move("U3 ", f11_CLOG_TAG, CS);
@@ -491,10 +493,10 @@ public class HcunlkService {
     /** NOTHING-PARA. */
     private int p3() {
         // EXEC CICS UNLOCK FILE('HCUF') RESP(WS-RESP) RESP2(WS-RESP2) END-EXEC
-        int resp15 = task.unlock("HCUF".stripTrailing());
-        Cobol.store(f47_EIBRESP, BigDecimal.valueOf(resp15), false, CS);
+        int resp17 = task.unlock("HCUF".stripTrailing());
+        Cobol.store(f47_EIBRESP, BigDecimal.valueOf(resp17), false, CS);
         Cobol.store(f48_EIBRESP2, BigDecimal.valueOf(task.resp2()), false, CS);
-        Cobol.store(f4_WS_RESP, BigDecimal.valueOf(resp15), false, CS);
+        Cobol.store(f4_WS_RESP, BigDecimal.valueOf(resp17), false, CS);
         Cobol.store(f5_WS_RESP2, BigDecimal.valueOf(task.resp2()), false, CS);
         // MOVE 'N1 ' TO CLOG-TAG
         Cobol.move("N1 ", f11_CLOG_TAG, CS);
@@ -503,10 +505,11 @@ public class HcunlkService {
         // MOVE 'K001ALPHA 0099' TO WS-REC
         Cobol.move("K001ALPHA   0099", f8_WS_REC, CS);
         // EXEC CICS REWRITE FILE('HCUF') FROM(WS-REC) LENGTH(WS-LEN) RESP(WS-RESP) RESP2(WS-RESP2) END-EXEC
-        int resp16 = task.rewrite("HCUF".stripTrailing(), () -> store("HCUF".stripTrailing()).store(DetCics.bytes(f8_WS_REC, Cobol.num(f6_WS_LEN, CS).intValue())));
-        Cobol.store(f47_EIBRESP, BigDecimal.valueOf(resp16), false, CS);
+        byte[] from19 = DetCics.bytes(f8_WS_REC, Cobol.num(f6_WS_LEN, CS).intValue());
+        int resp18 = task.rewriteFrom("HCUF".stripTrailing(), from19, () -> store("HCUF".stripTrailing()).store(from19));
+        Cobol.store(f47_EIBRESP, BigDecimal.valueOf(resp18), false, CS);
         Cobol.store(f48_EIBRESP2, BigDecimal.valueOf(task.resp2()), false, CS);
-        Cobol.store(f4_WS_RESP, BigDecimal.valueOf(resp16), false, CS);
+        Cobol.store(f4_WS_RESP, BigDecimal.valueOf(resp18), false, CS);
         Cobol.store(f5_WS_RESP2, BigDecimal.valueOf(task.resp2()), false, CS);
         // MOVE 'N2 ' TO CLOG-TAG
         Cobol.move("N2 ", f11_CLOG_TAG, CS);
@@ -530,19 +533,19 @@ public class HcunlkService {
         // MOVE 8 TO WS-LEN
         Cobol.move(D8, f6_WS_LEN, CS);
         // EXEC CICS READ FILE('HCUF') INTO(WS-REC) LENGTH(WS-LEN) RIDFLD(WS-KEY) RESP(WS-RESP) RESP2(WS-RESP2) END-EXEC
-        byte[] rec18 = DetCics.bytes(f7_WS_KEY);
-        CicsTask.FileRead<byte[]> read17 = task.read("HCUF".stripTrailing(), () -> store("HCUF".stripTrailing()).find(rec18));
-        int resp19 = read17.resp();
-        int resp220 = read17.resp2();
-        if (read17.record() != null) {
-            resp19 = DetCics.readInto(f8_WS_REC, read17.record(), Cobol.num(f6_WS_LEN, CS).intValue(), false);
-            resp220 = resp19 == 22 ? 11 : 0;
-            Cobol.store(f6_WS_LEN, BigDecimal.valueOf(read17.record().length), false, CS);
+        byte[] rec21 = DetCics.bytes(f7_WS_KEY);
+        CicsTask.FileRead<byte[]> read20 = task.readInto("HCUF".stripTrailing(), rec21, false, Cobol.num(f6_WS_LEN, CS).intValue(), () -> store("HCUF".stripTrailing()).find(rec21));
+        int resp22 = read20.resp();
+        int resp223 = read20.resp2();
+        if (read20.record() != null) {
+            resp22 = DetCics.readInto(f8_WS_REC, read20.record(), Cobol.num(f6_WS_LEN, CS).intValue(), false);
+            resp223 = resp22 == 22 ? 11 : 0;
+            Cobol.store(f6_WS_LEN, BigDecimal.valueOf(read20.record().length), false, CS);
         }
-        Cobol.store(f47_EIBRESP, BigDecimal.valueOf(resp19), false, CS);
-        Cobol.store(f48_EIBRESP2, BigDecimal.valueOf(resp220), false, CS);
-        Cobol.store(f4_WS_RESP, BigDecimal.valueOf(resp19), false, CS);
-        Cobol.store(f5_WS_RESP2, BigDecimal.valueOf(resp220), false, CS);
+        Cobol.store(f47_EIBRESP, BigDecimal.valueOf(resp22), false, CS);
+        Cobol.store(f48_EIBRESP2, BigDecimal.valueOf(resp223), false, CS);
+        Cobol.store(f4_WS_RESP, BigDecimal.valueOf(resp22), false, CS);
+        Cobol.store(f5_WS_RESP2, BigDecimal.valueOf(resp223), false, CS);
         // MOVE 'S1 ' TO CLOG-TAG
         Cobol.move("S1 ", f11_CLOG_TAG, CS);
         // MOVE SPACES TO CLOG-DATA
@@ -552,11 +555,11 @@ public class HcunlkService {
         // MOVE 0 TO CLOG-RESP2
         Cobol.move(D0, f15_CLOG_RESP2, CS);
         // EXEC CICS WRITEQ TS QUEUE('HCLOG') FROM(WS-CLOG) LENGTH(33) END-EXEC
-        CicsTask.TsResult ts21 = task.writeqTs("HCLOG".strip(), DetCics.toRegion(DetCics.padded(f10_WS_CLOG, 33, "WRITEQ TS", CS), CS, REGION));
-        Cobol.store(f47_EIBRESP, BigDecimal.valueOf(DetCics.resp(ts21.resp())), false, CS);
+        CicsTask.TsResult ts24 = task.writeqTs("HCLOG".strip(), DetCics.toRegion(DetCics.padded(f10_WS_CLOG, 33, "WRITEQ TS", CS), CS, REGION));
+        Cobol.store(f47_EIBRESP, BigDecimal.valueOf(DetCics.resp(ts24.resp())), false, CS);
         Cobol.store(f48_EIBRESP2, BigDecimal.valueOf(0), false, CS);
-        if (DetCics.resp(ts21.resp()) != 0) {
-            int to = condition(DetCics.condition(DetCics.resp(ts21.resp())));
+        if (DetCics.resp(ts24.resp()) != 0) {
+            int to = condition(DetCics.condition(DetCics.resp(ts24.resp())));
             if (to >= 0) return GOTO | to;
         }
         // MOVE 16 TO WS-LEN
@@ -575,19 +578,19 @@ public class HcunlkService {
     /** READ-PARA. */
     private int p5() {
         // EXEC CICS READ FILE('HCUF') INTO(WS-REC) LENGTH(WS-LEN) RIDFLD(WS-KEY) RESP(WS-RESP) RESP2(WS-RESP2) END-EXEC
-        byte[] rec23 = DetCics.bytes(f7_WS_KEY);
-        CicsTask.FileRead<byte[]> read22 = task.read("HCUF".stripTrailing(), () -> store("HCUF".stripTrailing()).find(rec23));
-        int resp24 = read22.resp();
-        int resp225 = read22.resp2();
-        if (read22.record() != null) {
-            resp24 = DetCics.readInto(f8_WS_REC, read22.record(), Cobol.num(f6_WS_LEN, CS).intValue(), false);
-            resp225 = resp24 == 22 ? 11 : 0;
-            Cobol.store(f6_WS_LEN, BigDecimal.valueOf(read22.record().length), false, CS);
+        byte[] rec26 = DetCics.bytes(f7_WS_KEY);
+        CicsTask.FileRead<byte[]> read25 = task.readInto("HCUF".stripTrailing(), rec26, false, Cobol.num(f6_WS_LEN, CS).intValue(), () -> store("HCUF".stripTrailing()).find(rec26));
+        int resp27 = read25.resp();
+        int resp228 = read25.resp2();
+        if (read25.record() != null) {
+            resp27 = DetCics.readInto(f8_WS_REC, read25.record(), Cobol.num(f6_WS_LEN, CS).intValue(), false);
+            resp228 = resp27 == 22 ? 11 : 0;
+            Cobol.store(f6_WS_LEN, BigDecimal.valueOf(read25.record().length), false, CS);
         }
-        Cobol.store(f47_EIBRESP, BigDecimal.valueOf(resp24), false, CS);
-        Cobol.store(f48_EIBRESP2, BigDecimal.valueOf(resp225), false, CS);
-        Cobol.store(f4_WS_RESP, BigDecimal.valueOf(resp24), false, CS);
-        Cobol.store(f5_WS_RESP2, BigDecimal.valueOf(resp225), false, CS);
+        Cobol.store(f47_EIBRESP, BigDecimal.valueOf(resp27), false, CS);
+        Cobol.store(f48_EIBRESP2, BigDecimal.valueOf(resp228), false, CS);
+        Cobol.store(f4_WS_RESP, BigDecimal.valueOf(resp27), false, CS);
+        Cobol.store(f5_WS_RESP2, BigDecimal.valueOf(resp228), false, CS);
         return 6;
     }
 
@@ -626,11 +629,11 @@ public class HcunlkService {
             Cobol.move(f5_WS_RESP2, f15_CLOG_RESP2, CS);
         }
         // EXEC CICS WRITEQ TS QUEUE('HCLOG') FROM(WS-CLOG) LENGTH(33) END-EXEC
-        CicsTask.TsResult ts26 = task.writeqTs("HCLOG".strip(), DetCics.toRegion(DetCics.padded(f10_WS_CLOG, 33, "WRITEQ TS", CS), CS, REGION));
-        Cobol.store(f47_EIBRESP, BigDecimal.valueOf(DetCics.resp(ts26.resp())), false, CS);
+        CicsTask.TsResult ts29 = task.writeqTs("HCLOG".strip(), DetCics.toRegion(DetCics.padded(f10_WS_CLOG, 33, "WRITEQ TS", CS), CS, REGION));
+        Cobol.store(f47_EIBRESP, BigDecimal.valueOf(DetCics.resp(ts29.resp())), false, CS);
         Cobol.store(f48_EIBRESP2, BigDecimal.valueOf(0), false, CS);
-        if (DetCics.resp(ts26.resp()) != 0) {
-            int to = condition(DetCics.condition(DetCics.resp(ts26.resp())));
+        if (DetCics.resp(ts29.resp()) != 0) {
+            int to = condition(DetCics.condition(DetCics.resp(ts29.resp())));
             if (to >= 0) return GOTO | to;
         }
         return 9;

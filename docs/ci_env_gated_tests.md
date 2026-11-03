@@ -4,7 +4,7 @@ A test gated on `EQUIVALENCE_E2E=1` or `CICS_CRUCIBLE_PATH` skips unless the pyt
 variable and provides what the test needs. Two workflows set `EQUIVALENCE_E2E`: `cics-crucible.yml` `runner-tests`
 (`tests/cics_crucible -m e2e`) and `equivalence-e2e.yml` (`tests/cobol_mainframe` and `tests/tools/test_zos_probes.py`:
 three shards, plus the `db2` job for the five files that need a Db2 container, #5954 slices 2-3). `CICS_CRUCIBLE_PATH` is
-set by `runner-tests` for the four files that read it. No gated file is left unreached. `tests/tools/test_env_gated_tests_run_in_ci_5954.py`
+set by `runner-tests` for the files that read it. No gated file is left unreached. `tests/tools/test_env_gated_tests_run_in_ci_5954.py`
 fails when a gated file is reached by no workflow and is not listed in its shrink-only `UNCOVERED_*` sets (empty now; it
 reads each shard's `--ignore` flags, so a file the shards ignore must be named by another pytest run), and reads each
 listed file's needs from its skip reasons; this page carries one row per listed file with those needs.

@@ -469,11 +469,23 @@ def main() -> int:
     args.work.mkdir(parents=True, exist_ok=True)
     results = []
     estates: dict[str, tuple[Path, Path]] = {}  # corpus name -> (clone, generated project)
+    missing: dict[
+        str, str
+    ] = {}  # corpus name -> why its checkout is unusable (#7531): its cases are skipped, not an abort
+    explicit = set(args.cases)
     for n in names:
         cname = eq.load_case(n)["corpus"]
+        if cname in missing:
+            results.append({"case": n, "skipped": missing[cname]})
+            continue
         if cname not in estates:
             (entry,) = mc.select([cname])
-            corpus = mc.require_clone(entry)
+            try:
+                corpus = mc.require_clone(entry)
+            except SystemExit as e:  # require_clone exits on a missing or unpinned checkout
+                missing[cname] = str(e.code)
+                results.append({"case": n, "skipped": missing[cname]})
+                continue
             # CardDemo's estate in DIR/estate (as before); another corpus's in DIR/estate-<corpus>
             where = args.work if cname == "aws-mainframe-modernization-carddemo" else args.work / f"estate-{cname}"
             estates[cname] = (corpus, estate(corpus, where))
@@ -494,7 +506,13 @@ def main() -> int:
             ):  # reason: length may differ
                 x.update(p)
     (args.work / "summary.json").write_text(json.dumps(results, indent=2) + "\n", encoding="utf-8")
+    for cname, why in missing.items():
+        n_skipped = sum(1 for x in results if "skipped" in x and eq.load_case(x["case"])["corpus"] == cname)
+        print(f"{cname}: {why}: its {n_skipped} cases skipped")
     for x in results:
+        if "skipped" in x:
+            print(f"{x['case']:<28} SKIPPED")
+            continue
         st = x.get("statements")
         what = "ERROR " + x["error"] if st is None else f"{x['translated_statements']}/{st} translated"
         verdict = "" if "proved" not in x else (
@@ -502,7 +520,8 @@ def main() -> int:
         print(f"{x['case']:<28} {what}{verdict}")
         for w in x.get("parity_warnings", []):
             print(f"{'':<28}   parity warning: {w}")
-    return 0
+    # a skipped case the caller named is a failure (summary.json is still written); one only --all-cases reached is not
+    return 1 if any("skipped" in x and x["case"] in explicit for x in results) else 0
 
 
 if __name__ == "__main__":

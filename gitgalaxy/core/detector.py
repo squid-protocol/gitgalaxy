@@ -25,7 +25,7 @@ from typing import Any, ClassVar, TypedDict, cast
 from gitgalaxy.core import csharp_interpolation
 from gitgalaxy.core.call_resolver import BARE_CALL_SKIPS_METHODS, INIT_LIST_QUALIFIER
 from gitgalaxy.core.cobol_source_format import FIXED, line_formats
-from gitgalaxy.core.dense_source import DENSE_LANGS, defines_inline
+from gitgalaxy.core.dense_source import DENSE_LANGS, defines_inline, split_inline_definitions
 from gitgalaxy.core.fortran_calls import fortran_call_names
 from gitgalaxy.core.network_risk_sensor import CASE_INSENSITIVE_IMPORT_LANGS
 from gitgalaxy.core.preproc_toggles import toggle_condition_value
@@ -6771,6 +6771,8 @@ class StructuralExtractor:
             opener, closer = "(", ")"
 
         safe_code = self._build_brace_safe_stream(code, lang_id)
+        if lang_id in DENSE_LANGS:
+            safe_code = split_inline_definitions(safe_code)  # #7504: same length, one definition per anchor
         # Java receiver typing: a field's declared class, for every unit in this file
         self._file_declared_types = (
             _java_declared_types(self._apply_literal_shield(code, lang_id))

@@ -2,7 +2,7 @@
 
 This is the companion doc to `how_to_harden_extraction.md`, scoped to the *other* test concern
 that lives alongside it in `tests/extraction/languages/`: `test_<lang>_strict.py`, one file per
-language, proving `language_standards.py`'s ~43-key structural-signature rules (`branch`, `io`,
+language, proving `language_standards/`'s ~43-key structural-signature rules (`branch`, `io`,
 `safety_bypasses`, ReDoS immunity, etc.) — **not** the four extraction pillars (`func_start`,
 `args`, `class_start`, `_dependency_capture`), which stay `how_to_harden_extraction.md`'s job.
 If you're not sure which concern a rule belongs to: the four pillars extract an *exact identifier*
@@ -27,7 +27,7 @@ etc.) completely untested despite being a real detection-capability claim, not j
 - **`tests/extraction/tools/audit_strict_coverage.py`** — the gap detector. Run
   `--lang <x> --json` before touching any language to get its exact missing-signature list,
   ghost-prevention gaps, and current ReDoS-assertion count, instead of reading
-  `language_standards.py` cold to figure out what's missing.
+  `language_standards/` cold to figure out what's missing.
 - **`tests/extraction/tools/verify_candidates.py`** — `check_case`/`check_many` (empirically
   verify a candidate `(rule, payload, expect_match)` against the real compiled regex before
   writing it into a test file) and `check_redos_scaling` (geometric-sweep diagnostic, see below).
@@ -43,7 +43,7 @@ etc.) completely untested despite being a real detection-capability claim, not j
 
 Same reasoning as the extraction-pillar doc: load one language's full `rules` dict once
 (`audit_strict_coverage.py --lang X --json` gives you the sliced, relevant subset — you don't need
-the whole multi-thousand-line `LANGUAGE_DEFINITIONS` file in context), close as many of that
+every language's definition in context), close as many of that
 language's gaps across sections A–D below as apply in one sitting, then move on.
 
 ### A/B — ReDoS coverage (issues #1070, #1071)
@@ -118,7 +118,7 @@ unambiguous just to hit a number.
    automatic fix.
 3. Real bugs get the full discipline: ReDoS scaling check on any quantifier change,
    `python tests/tools/audit_check.py`, `pytest tests/extraction/languages/test_<lang>_strict.py`,
-   and `python tests/tools/crucible_check.py` if `language_standards.py`/`detector.py`/`prism.py`
+   and `python tests/tools/crucible_check.py` if `language_standards/`/`detector.py`/`prism.py`
    changed (see `CLAUDE.md`'s Differential Scan section — never point a shared/stale venv at this).
 4. This suite is almost entirely test-writing, not regex-fixing — expect far fewer real bugs than
    epic #813 found, since these rules were never claiming to isolate an *exact* identifier, only to

@@ -5,7 +5,7 @@ description: "Where the add-a-language protocol and extraction gauntlet hardenin
 
 Moved verbatim from CLAUDE.md (kept out of the always-loaded context). CLAUDE.md links here.
 
-Full protocol (LLM generation prompt, the 12 numbered engine rules for ReDoS/boundary
+Full protocol (LLM generation prompt, the numbered engine rules for ReDoS/boundary
 correctness, strict-testing prompt) lives in
 `gitgalaxy/standards/how_to_add_a_language.md` — read that file directly rather than expecting
 a summary here; it's long because the rules matter and drift if paraphrased. Tests for this

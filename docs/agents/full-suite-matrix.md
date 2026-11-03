@@ -1,34 +1,34 @@
 ---
-description: "How to re-run the Full Suite Gate (All OS x Python) matrix on a labelled PR after pushing new commits, trimmed vs full grid, and why synchronize is not used."
+description: "How to run the Full Suite Gate (All OS x Python) matrix on a PR head (shepherd:matrix label or a dispatch), when it runs on its own, and why there is no PR trigger."
 ---
-# Re-running the OS x Python matrix on a PR head
+# Running the OS x Python matrix on a PR head
 
-Moved verbatim from CLAUDE.md (kept out of the always-loaded context). CLAUDE.md links here.
+Moved from CLAUDE.md (kept out of the always-loaded context). CLAUDE.md links here.
 
-`full-suite-gate.yml` (the "Full Suite Gate (All OS x Python)" check) triggers on
-`pull_request: types: [labeled]`, not on `synchronize`. That was deliberate — per-label runs had
-put 48 jobs on one SHA and pushed the queue to 23-65 minutes — but it means **the matrix runs
-once, against the SHA that carried the label, and a commit pushed afterwards never goes through
-it.** #3207 merged a Windows-only fix that way: it was correct and test-covered, but the matrix
-never saw it.
+`full-suite-gate.yml` (the "Full Suite Gate (All OS x Python)" check) has **no `pull_request` trigger** (#4518:
+`gh pr create --label` fired the matrix on every PR and starved the queue). It runs nightly, on `v*` tags, and when
+`post-merge.yml` dispatches it on main (cadence-limited, #4825/#5136). So a PR head never goes through the matrix
+unless you ask. Before #4518 it ran on `labeled` only, and #3207 merged a Windows-only fix the matrix never saw.
 
-So after pushing to a PR that has already been labelled, re-run it deliberately:
+For a change that can break on one OS or Python version (Windows paths, 3.11 syntax, macOS fork safety), run it on
+the head deliberately:
 
 ```bash
-gh workflow run "Full Suite Gate (All OS x Python)" --ref <branch>       # trimmed PR grid
-gh workflow run "Full Suite Gate (All OS x Python)" --ref <branch> -f full_matrix=true   # 12-way
+# preferred: the shepherd dispatches it on the PR branch (same-repo only); auto-merge waits for a green run on that head (docs/ci.md)
+gh api repos/squid-protocol/gitgalaxy/issues/<n>/labels -f 'labels[]=shepherd:matrix'
+# or by hand on a same-repo branch
+gh workflow run "Full Suite Gate (All OS x Python)" --ref <branch>
 gh run list --workflow full-suite-gate.yml --branch <branch> --limit 3   # find the run
 ```
 
-The trimmed grid is what a label gives you; since Python 3.10 was dropped (#3322) the supported
-Pythons are only the floor (3.11) and ceiling (3.12), so it is the same 12 legs as `full_matrix=true`,
-the untrimmed grid a `v*` tag gets. Removing and
-re-adding a label still works and is equivalent to the first form. Don't reach for `synchronize`
-as a fix — that hands back the queue cost the label-only rule bought (#3209).
+The legs (parts, timeouts) come from `suite_shard_plan.py --gate` over the committed `.test_durations` (#5919), not
+from YAML. Since Python 3.10 was dropped (#3322) the trimmed and untrimmed grids are equal; `-f full_matrix=true`
+only matters on a main dispatch, where it keeps the ubuntu / 3.12 leg (otherwise dropped because `smoke-test.yml`
+already runs it, #5953). Don't add a `pull_request` / `synchronize` trigger: that hands back the queue cost (#3209, #4518).
 
 ## Cap headroom (#5156)
 
-Each `full-suite-gate.yml` leg's `timeout` is ~1.5x its expected part time. Re-measure when a leg passes ~80% of its cap
+Each `full-suite-gate.yml` leg's `timeout` is ~1.5x its expected part time (now planned from the measured durations, #5919). Re-measure when a leg passes ~80% of its cap
 (`gh run view <id> --json jobs`, job `completedAt - startedAt`) and add a part rather than raise the cap.
 Measured 2026-10-18 on two scheduled main runs (minutes, worst part / cap):
 

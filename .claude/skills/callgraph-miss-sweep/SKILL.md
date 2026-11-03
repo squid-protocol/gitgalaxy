@@ -1,6 +1,6 @@
 ---
 name: callgraph-miss-sweep
-description: The fix loop for the Level 2 call graph (epic #3772) -- triage one language's missed and wrong call links against its compiler reference, pick the biggest bucket, recognise it against the known-pattern table, verify samples against source, root-cause one with explain_call.py, file or find the issue in milestone "Compiler call-graph comparison", fix it, and prove the NET change (fixed minus newly broken) before shipping. Use when the user says "work the call-graph misses", "improve <lang> call-graph recall/precision", "fix the next call-graph bucket", "run a call-graph sweep", or picks up a bug in that milestone (e.g. #3786-#3789). NOT for adding a language's reference (callgraph-language-onboarding) and not for Level 1 callee-name accuracy vs tree-sitter.
+description: The fix loop for the Level 2 call graph (epic #3772) -- triage one language's missed and wrong call links against its compiler reference, pick the biggest bucket, recognise it against the known-pattern table, verify samples against source, root-cause one with explain_call.py, file or find the issue in milestone "Compiler call-graph comparison", fix it, and prove the NET change (fixed minus newly broken) before shipping. Use when the user says "work the call-graph misses", "improve <lang> call-graph recall/precision", "fix the next call-graph bucket", "run a call-graph sweep", or picks up a bug in that milestone. NOT for adding a language's reference (callgraph-language-onboarding) and not for Level 1 callee-name accuracy vs tree-sitter.
 ---
 
 # Call-graph miss sweep
@@ -12,7 +12,7 @@ The mechanical part (run triage, report buckets, draft issue text) can go to the
 really says, and whether a fix is net positive.
 
 A reference is not ground truth. Nothing is called an engine bug until a sample was read in
-source (CLAUDE.md, "Comparative-correctness claims").
+source (CLAUDE.md, "Comparative claims and AST comparison").
 
 ## 1. Start green, and keep a "before"
 
@@ -50,10 +50,10 @@ zod (269 edges) split into:
 | `wrong` among same-name defs in one file | block scopes (`const Node` per callback) | TS/JS nearest-preceding binding | #3759 (fixed) |
 | `external` | untyped receiver's built-in (`str.trim()`, `map.get()`) hits a repo method | resolver untyped-receiver fallback: JS/TS `_BUILTIN_INSTANCE_METHODS` -> `receiver`, `_BUILTIN_NAMESPACES` -> `none` | #3756 (fixed, ts/js; other languages unmeasured) |
 | `caller_unmapped` for `async "key"()` | modifier captured as the name | detector quoted-key naming | #3760 (fixed) |
-| `resolved_outside`, site `...f()` | spread recorded as qualifier `<expr>` | TS/JS qualifier capture | #3787 |
-| `resolved_outside`, `ns.f()` with an alias ≠ file stem | namespace-import alias not mapped | import graph / resolver | #3788 |
-| `resolved_outside`, `pkg.f()` for the repo's own package name | self-import by package name unresolved | import graph (`package.json` exports, workspaces) | #3789 |
-| `explain_call` WARNING: `class` fresh vs `file` rehydrated | delta scans lose class inheritance | `state_rehydrator.py` | #3786 |
+| `resolved_outside`, site `...f()` | spread recorded as qualifier `<expr>` | TS/JS qualifier capture | #3787 (fixed) |
+| `resolved_outside`, `ns.f()` with an alias ≠ file stem | namespace-import alias not mapped | import graph / resolver | #3788 (fixed) |
+| `resolved_outside`, `pkg.f()` for the repo's own package name | self-import by package name unresolved | import graph (`package.json` exports, workspaces) | #3789 (fixed) |
+| `explain_call` WARNING: `class` fresh vs `file` rehydrated | delta scans lose class inheritance | `state_rehydrator.py` | #3786 (fixed) |
 | `not_extracted/in_string` | calls inside template-literal interpolation are blanked with the string | prism / detector calls_out | none yet |
 | `not_extracted/after_nested_def` | the caller's span ends where a nested function starts | detector span / loc | none yet |
 | `not_extracted/same_name` | a call to a different function of the caller's own name, dropped like recursion | detector calls_out | none yet |

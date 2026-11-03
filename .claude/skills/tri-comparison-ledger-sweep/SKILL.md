@@ -559,17 +559,14 @@ Never write a Gemini verdict straight into the ledger on trust -- read it the wa
             `xml/apex/IterationRecipes_Tests.cls` once run against the full corpus -- confirming
             the fix generalizes rather than being narrowly tailored to the files you happened to
             find it in).
-         5. Re-bless BOTH golden master fixtures via `python tests/tools/update_golden_master.py
-            --yes` -- it auto-detects full-precision vs. zero-dependency mode from whichever
-            venv's packages are currently importable, so it only ever blesses ONE fixture per
-            invocation. To bless the other, re-run explicitly through that mode's own venv:
-            ```bash
-            export PATH="$PWD/.crucible_venvs/zero_dependency/bin:$PATH"
-            LANGUAGE_CRUCIBLE_PATH=<sibling-path> \
-              .crucible_venvs/zero_dependency/bin/python tests/tools/update_golden_master.py --yes
-            ```
-            (swap `zero_dependency` for `full_precision` for the other direction). Read every
-            mismatch line it prints before confirming -- they should all trace back to your fix's
+         5. Re-bless BOTH golden master fixtures with ONE command,
+            `tests/tools/box/golden-lock.sh python tests/tools/crucible_check.py --update --yes`
+            (it builds the CI-matched `.crucible_venvs/{full_precision,zero_dependency}` and blesses
+            both legs; `.claude/rules/golden-master-guidelines.md`). Never call
+            `update_golden_master.py` directly from your shell or a personal venv: it auto-detects
+            one mode from whatever is importable and silently blesses only that one fixture (#2547),
+            and a py3.12 venv gave ~2.9k phantom diffs (#4258).
+            Read every mismatch line it prints before confirming -- they should all trace back to your fix's
             direct effect (function/param counts) or its obvious downstream ripple (topological
             coordinates, risk percentages, structural magnitude recomputing from the corrected
             counts), never an unrelated language or file.

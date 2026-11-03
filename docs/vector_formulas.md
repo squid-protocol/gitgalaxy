@@ -14,6 +14,10 @@ gitgalaxy#2991 — this is a naming/documentation change, not a formula change.
 
 2026-09-13
 
+Line numbers below are as of that date. By 2026-11-03 every calculator had moved down by the same
+138 lines (`_calc_cog_load` now starts at line 1528, `_calc_secrets_risk` at 1956), so add 138 to a
+line reference here, or search `signal_processor.py` for the function name.
+
 ## Structural finding
 
 **11 of 13 vectors are density formulas** (numerator ÷ LOC/mass). The validation record

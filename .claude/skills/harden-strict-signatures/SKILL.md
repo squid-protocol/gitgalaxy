@@ -13,13 +13,14 @@ belongs to.
 ## Process
 
 1. **Scope the request.** One language across all applicable sections (A–D from the doc), one
-   section across a batch of languages, or a specific issue number (#1070–#1074). Sub-issues are
+   section across a batch of languages, or a specific issue number (the original #1070–#1074 are
+   closed; follow-ups get new issues). Sub-issues are
    grouped by problem type, not per-language — don't default to "just do #1070" if the user asked
    for a language.
 2. **Get the gap report before reading anything else.** Either run
    `python tests/extraction/tools/audit_strict_coverage.py --lang <X> --json` yourself, or delegate
    it to the `strict-signature-scout` subagent (Haiku-pinned — this step is pure script execution,
-   no judgment, exactly what that agent is for). Don't open `language_standards.py` cold to figure
+   no judgment, exactly what that agent is for). Don't open the language's rules file cold to figure
    out what's missing; the script already slices it.
 3. **Draft candidate cases** (the judgment step — keep this in the main conversation or a
    Sonnet-tier agent, not the scout). For each gap the report surfaced:
@@ -34,7 +35,7 @@ belongs to.
    `pytest tests/extraction/languages/test_<lang>_strict.py` and
    `python tests/tools/audit_check.py` before considering the language done.
 6. **If a real regex bug surfaced**, fix it with the full discipline the doc describes (ReDoS
-   scaling proof, `crucible_check.py` if `language_standards.py`/`detector.py`/`prism.py` changed)
+   scaling proof, `crucible_check.py` if `language_standards/`/`detector.py`/`prism.py` changed)
    — keep this part in the main conversation; it needs the same tight iteration and judgment
    `harden-language-extraction` reserves for step 5 of its own process, not a subagent.
 
@@ -56,7 +57,8 @@ or have each agent report its diff back for serial application instead.
 
 ## Closing the loop
 
-Use the `issue-generation` skill to close out #1070–#1074 (or comment progress) as batches
+Epic #1069 and #1070–#1074 are all closed (2026-11): use the `issue-generation` skill to file
+new gaps as their own issues (linking the epic for history) and to close them as batches
 complete, and update `how_to_harden_strict_signatures.md` itself if a genuinely new recurring-bug
 class turns up — this suite is getting adversarial attention for the first time, so a new class is
-plausible, not just a repeat of `how_to_add_a_language.md`'s existing 16 rules.
+plausible, not just a repeat of `how_to_add_a_language.md`'s existing numbered rules (19 as of 2026-11).

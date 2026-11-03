@@ -51,8 +51,9 @@ the auth vocabulary never appears in its own source. This is the same failure cl
 further: the idiom is not wrapped in-repo but behind a library boundary.
 
 **CPython, `memory_alloc`: reproduced in the pinned corpus.** In language-crucible v1.4.0 (the
-CI pin), all seven CPython C files record `Manual Memory Allocation = 0` in
-`tests/golden_master_audit.json`. Between them they make **45** calls through CPython's own
+CI pin at the time; `tests/crucible_pins.toml` has the current one), all seven CPython C files
+record `Manual Memory Allocation = 0` in the golden master (then `tests/golden_master_audit.json`,
+now the `tests/golden_master_audit/` directory). Between them they make **45** calls through CPython's own
 allocator API (`PyMem_Malloc`/`PyMem_Free`/`PyMem_Realloc`/`PyObject_Malloc`/..., which wraps the C
 allocator in `Objects/obmalloc.c`). By file: typeobject.c 15, ceval.c 8, compile.c 6,
 frameobject.c 6, dictobject.c 5, object.c 4, gc.c 1. The wrapper definitions are not in the
@@ -91,8 +92,9 @@ is still counted. That is a fact about this corpus's content, not immunity.
 Wrapper *detection* is epic gitgalaxy#3313. Step 3 records wrappers in the master DB's
 `wrapper_data` table, inside the scope steps 1-2 measured: short branchless print/abort wrappers in
 every by-name language, and allocator wrappers (functions, `#define` aliases and chains of both) in
-C/C++/Objective-C. A reported literal count does not include them yet; a derived figure beside it is
-step 4. The design keeps
+C/C++/Objective-C. Step 4 reports a derived count beside the literal one, never inside it:
+`wrapped_debug_prints`, `wrapped_panics_and_aborts` and `wrapped_memory_alloc` on `file_data` and
+`repo_data` ([`wrapper_aware_count_contract.md`](wrapper_aware_count_contract.md)). The design keeps
 the literal signal exactly as it is and records wrappers as a **fact**, not a count, the same
 signal/fact split the fact channels use (`gitgalaxy/core/how_to_add_a_fact_channel.md`):
 
@@ -113,7 +115,7 @@ configured what.
 
 ### What detection will still not see
 
-Even with the planned pass, these stay blind and belong on this page:
+Even with the detection pass, these stay blind and belong on this page:
 - **Object-like macro redirects.** `#define malloc(size) Curl_cmalloc(size)` (curl 8.17) or
   `#define xmalloc malloc` silently re-points an existing name. The literal call is still counted,
   so the count is right, but *which* allocator runs is invisible. Function-like *aliases* under a

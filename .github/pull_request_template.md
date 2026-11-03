@@ -6,7 +6,7 @@
 
 - [ ] Bug fix
 - [ ] New feature / language support
-- [ ] Parsing or engine logic (`gitgalaxy/core/detector.py`, `language_standards.py`, `prism.py`, or a per-language rule)
+- [ ] Parsing or engine logic (`gitgalaxy/core/detector.py`, `gitgalaxy/standards/language_standards/`, `prism.py`, or a per-language rule)
 - [ ] Docs, tooling, or CI only
 - [ ] Other (describe above)
 

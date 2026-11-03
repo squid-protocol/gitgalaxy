@@ -242,7 +242,7 @@ def execution_timeout_failsafe(_signum, _frame):
 
     Registered via the Unix 'signal' library, this failsafe forcibly halts the worker
     process if a malformed file traps the regex engine in an exponential evaluation loop
-    for more than 15 seconds, preventing pipeline starvation.
+    for more than 60 seconds, preventing pipeline starvation.
     """
     raise RegexFuseTimeout("Structural Saturation (ReDoS Timeout)")
 
@@ -807,7 +807,7 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
 
         if is_posix:
             signal.signal(signal.SIGALRM, execution_timeout_failsafe)
-            signal.alarm(60)  # 15-second fuse for POSIX systems
+            signal.alarm(60)  # 60-second fuse for POSIX systems
 
         try:
             # Phase 3: Linguistic Detector
@@ -1277,7 +1277,7 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
                 logic_data["regex_telemetry"][f"{lang_id}::Worker_Popularity_Tokens"] = t_end - t_token
 
         except (TimeoutError, RegexFuseTimeout):
-            logger.warning(f"TIMEOUT FAILSAFE: '{rel_path}' exceeded 15s. Relegating to Unparsable Artifacts.")
+            logger.warning(f"TIMEOUT FAILSAFE: '{rel_path}' exceeded 60s. Relegating to Unparsable Artifacts.")
             observation["status"] = "parser_bypass"
             observation["reason"] = "Unparsable (Structural Saturation / Global Regex Timeout)"
             observation["size_bytes"] = filter_res.get("size_bytes", 0)

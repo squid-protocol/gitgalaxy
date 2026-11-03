@@ -11,7 +11,7 @@ globs: "tests/golden_master_audit/**, tests/golden_master_zero_dep_audit/**, tes
 * **Rule:** Keep scratch files outside the repo (`/tmp/gitgalaxy-scratch/`) and bless in a clean worktree. Never `git clean -fdx` in the primary checkout: it deletes `.crucible_venvs/` (the CI-matched bless venvs).
 
 ### 2. Environment Symmetry & Local Bypasses (The Timeout Trap)
-`GalaxyScope` uses a hardcoded 15-second `SIGALRM` ReDoS fuse. Slower CI runners may timeout on large files (like `frames.ts`) even if your local CPU doesn't, yielding `0` results on CI versus your locally generated master. Temporarily editing the local fuse to bypass the timeout locally guarantees a CI mismatch.
+`GalaxyScope` uses a hardcoded 60-second `SIGALRM` ReDoS fuse. Slower CI runners may timeout on large files (like `frames.ts`) even if your local CPU doesn't, yielding `0` results on CI versus your locally generated master. Temporarily editing the local fuse to bypass the timeout locally guarantees a CI mismatch.
 * **Rule:** NEVER bypass test configurations, timeouts, or constraints locally. If an execution timeout is tripping, you must increase the timeout in the committed codebase (e.g., `gitgalaxy/galaxyscope.py`) so the CI and local environments behave symmetrically.
 
 ### 3. Ghost Clones (Language Crucible Location)

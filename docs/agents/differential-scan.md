@@ -5,7 +5,7 @@ description: "Full Differential Scan protocol: golden-master fixture directories
 
 Moved verbatim from CLAUDE.md (kept out of the always-loaded context). CLAUDE.md links here.
 
-Any PR touching parsing logic (`detector.py`, `language_standards.py`, `prism.py`, etc.) is
+Any PR touching parsing logic (`detector.py`, `language_standards/`, `prism.py`, etc.) is
 expected to be verified against `tests/golden_master_audit/` /
 `tests/golden_master_zero_dep_audit/` — snapshots diffed by the `crucible-audit` CI check
 against a ~80-repo corpus plus the PR's target repo. A failing diff means output changed: either

@@ -1,15 +1,15 @@
 ---
 name: ci-push-checklist
-description: The required CI validation gauntlet for shipping a code fix to GitGalaxy's core engine (language_standards.py, detector.py, prism.py). Use when preparing to push an issue fix, generating a PR, or validating any change to core parsing logic.
+description: The required CI validation gauntlet for shipping a code fix to GitGalaxy's core engine (gitgalaxy/standards/language_standards/, detector.py, prism.py). Use when preparing to push an issue fix, generating a PR, or validating any change to core parsing logic.
 ---
 
 When shipping a code fix or addressing a discrepancy in GitGalaxy, the following full validation chain MUST be executed before opening the PR. This ensures parsing accuracy is preserved and data-driven artifacts are synchronized. Rough time budget per section is noted -- most of this is I/O-bound (venv builds, corpus scans) and safe to background while you do something else, not something to babysit synchronously.
 
 ## -1. Orient before reading code cold (~1 min)
 Before grepping or opening a file to gauge "how big/risky is this," check GitGalaxy's own self-scan of itself first -- it exists specifically to make this near-zero-token:
-* **`docs/gitgalaxy_architecture_brief.md`** -- repo-wide blast-radius/risk framing (auto-committed on every merge to main, so it's always close to current HEAD).
+* **`docs/gitgalaxy_architecture_brief.md`** -- repo-wide blast-radius/risk framing. Published daily to the `generated` branch, not in the checkout: read it with `python tests/tools/generated_branch.py show docs/gitgalaxy_architecture_brief.md`.
 * **`docs/self_scan/gitgalaxy_master.db`** (SQLite) -- targeted per-file/function complexity queries. Regenerate with `python tests/tools/self_scan.py` if missing/stale (gitignored on purpose). See the `self-scan-query` skill for query patterns.
-See CLAUDE.md's "Using GitGalaxy's self-scan output for orientation" section for the full detail (query examples, full-precision dependency requirements) -- not repeated here.
+See `docs/agents/self-scan-orientation.md` for the full detail (query examples, full-precision dependency requirements) -- not repeated here.
 
 ## 0. Clean Working Directory
 * **Untracked Files:** Before committing, ALWAYS run `git status` and review untracked files. Do not use `git add .` blindly. Accidentally committing local virtual environments (e.g. `venv/`, `venv_zero/`) or temporary Python scratch scripts will immediately trigger pipeline failures from the X-Ray Inspector (flagging checked-in binaries) or CodeQL (flagging dirty script code).
@@ -17,7 +17,7 @@ See CLAUDE.md's "Using GitGalaxy's self-scan output for orientation" section for
 
 ## 1. Local & Unit Validation (~1 min)
 * **Standalone Regex Re-test:** Isolate the target regex (e.g., `func_start`) against the failing corpus file manually to ensure false positives and negatives are resolved without affecting real matches.
-* **See what the engine actually extracted before re-deriving it from source:** `galaxyscope <path> --db-only --debug --output <scratch-dir>` and grep the log for `[WORKER-TRACE] extracted functions for` -- one line per file with the exact satellite/function names produced. Much cheaper than tracing `_slice_by_keywords`/`_slice_by_terminator`/etc. cold when the question is "what did the engine actually name/count here." See CLAUDE.md's "Debugging what detector.py actually extracted from a specific file" for the full recipe (DB cross-reference, etc.) -- not repeated here.
+* **See what the engine actually extracted before re-deriving it from source:** `galaxyscope <path> --db-only --debug --output <scratch-dir>` and grep the log for `[WORKER-TRACE] extracted functions for` -- one line per file with the exact satellite/function names produced. Much cheaper than tracing `_slice_by_keywords`/`_slice_by_terminator`/etc. cold when the question is "what did the engine actually name/count here." See `docs/agents/detector-debugging.md` for the full recipe (DB cross-reference, etc.) -- not repeated here.
 * **Extraction Gauntlet & Strict Tests:** Run `pytest tests/extraction/languages/test_<lang>.py` and `test_<lang>_strict.py` for the language you modified.
 * **Parametrized ReDoS payloads need short `ids=`.** pytest exports every node id as the `PYTEST_CURRENT_TEST` environment variable, and Windows caps one variable at 32,767 characters -- a 50,000-character payload inside a parametrize id passes on Linux/macOS and ERRORs at setup on every Windows leg of the matrix (`ValueError: the environment variable is longer than 32767 characters`, #2903). Build the payload inside the test or pass `ids=`; `pytest --collect-only -q` shows the ids.
 
@@ -30,7 +30,7 @@ See CLAUDE.md's "Using GitGalaxy's self-scan output for orientation" section for
 * **Run the Crucible Check (Mandatory):** Execute `python tests/tools/crucible_check.py` against the full ~80-repo corpus.
 * **Before blessing anything, prove the change reaches a REAL SCAN.** A green unit test is not that proof: tests and both probes (`rule_probe.py`, `census_probe.py`) build the extractor straight from `LANGUAGE_DEFINITIONS`, while a real scan goes through `language_lens.py`, which compiles every *string* value inside a registry's `rules` into a regex, and through `galaxyscope.py`'s config assembly. #2806 declared a string helper in `rules`, passed every test, and blessed a golden master in which nothing had changed. One file, one scan, one query -- `galaxyscope <dir> --output /tmp/x --db-only` then `sqlite3 /tmp/x/*_master.db "select file_path, <column> from file_data;"` -- costs ~20 seconds and is the only thing that catches this class.
 * **Re-Bless Golden Masters:** If `crucible_check.py` shows expected, accurately traced diffs resulting from your fix, bless the new state:
-  `python tests/tools/crucible_check.py --update --yes`
+  `tests/tools/box/golden-lock.sh python tests/tools/crucible_check.py --update --yes`
   * Always go through `crucible_check.py --update`, never `python tests/tools/update_golden_master.py`
     directly -- the latter only updates whichever ONE fixture matches whatever happens to be
     importable in your current shell, with no automatic venv/PATH management; `crucible_check.py
@@ -65,7 +65,7 @@ See CLAUDE.md's "Using GitGalaxy's self-scan output for orientation" section for
      ad hoc or omitting `env=` (which inherits everything, unfiltered).
 
 ## 4. Discrepancy Ledgers & Tri-Comparison
-* **CI now gates this automatically if you touched `detector.py`/`prism.py`/`language_standards.py`:**
+* **CI now gates this automatically if you touched `detector.py`/`prism.py`/`language_standards/`:**
   `tri-comparison-audit.yml` fails your PR if GitGalaxy's own *validated* precision
   (`func_precision`/`class_precision`, read after ledger verdicts are applied — never a raw
   disagreement count) regresses against the committed `tests/tri_comparison_baseline_<lang>.json`.
@@ -91,10 +91,10 @@ See CLAUDE.md's "Using GitGalaxy's self-scan output for orientation" section for
   * **Note on Ground Truth Drift:** GitGalaxy supplements tree-sitter ground truth inside blind spots. Improving GitGalaxy's regex precision can therefore cause `real_functions` or `real_classes` (the ground truth) to drop (as false positives are correctly eliminated).
 * **Regenerate AST Accuracy Baseline (If needed):** If `tree_sitter_accuracy_audit.py` fails due to ground truth drifting for valid reasons, regenerate the baseline:
   `python tests/tools/tree_sitter_accuracy_audit.py --regenerate --lang <lang>`
-* **Regenerate AST Accuracy History & Chart:**
-  `python tests/tools/tree_sitter_accuracy_audit.py --history`
-  `python tests/tools/tree_sitter_accuracy_audit.py --chart`
-  *(Commit the resulting CSV, SVG, baseline JSON, and `language_standards.py` changes.)*
+* **AST Accuracy History & Chart: not a pre-push step any more.** `tree-sitter-accuracy-history.yml` runs
+  `--history` / `--chart` after merge and publishes the CSV and SVG to the `generated` branch (#4847; the copies on
+  main are frozen). Commit only the baseline JSON and the summary table `--regenerate` refreshed in
+  `gitgalaxy/standards/language_standards/__init__.py`.
 
 **Note:** Tools that scan the `language-crucible` corpus (such as `crucible_check.py`, `tri_comparison_chart.py`, and `tree_sitter_accuracy_audit.py`) require reading a sibling repository and should be executed using `BypassSandbox=true` or run with proper path resolution.
 

@@ -76,7 +76,7 @@ tracking where else it shows up rather than letting bash/perl stand in as the on
 
 - **m4** — confirmed, already implemented, no further work needed. `define(foo, ...)` macros have
   no parameter-list syntax at all, identical to bash's situation; GitGalaxy's m4 `args` rule
-  already reads the same `$1`/`$2`/`$@`/`$#` body idiom (`gitgalaxy/standards/language_standards.py`,
+  already reads the same `$1`/`$2`/`$@`/`$#` body idiom (`gitgalaxy/standards/language_standards/languages/m4.py`,
   m4's `"args"` rule) — this is a second, real instance of Claim 1, just never separately logged
   until now.
 - **shell, re-confirmed 3-way (2026-08-28, tri-comparison-ledger-sweep)** — the ledger's
@@ -88,9 +88,10 @@ tracking where else it shows up rather than letting bash/perl stand in as the on
   Claim 1's mechanism, but an independent corroboration that the tree-sitter number is the artifact
   and GitGalaxy's is the signal.
 - **batch** (`.bat`/`.cmd`) — same shape again (`%1`-`%9`, `%*` read from the body, no declared
-  parameter list), but **not yet implemented**: batch's entry in `language_standards.py` currently
-  has `"rules": {}` — no `func_start`, no `args`, no structural signatures of any kind extracted
-  from batch files today. This isn't a measured win (there's nothing running to measure), it's an
+  parameter list), but **not yet implemented** for `args`: batch's entry
+  (`gitgalaxy/standards/language_standards/languages/batch.py`) has had a `func_start` rule since
+  #3338 (a `:label` the same file reaches with `call :label`), but still no `args` rule, so no
+  arity is read from batch files today. This isn't a measured win (there's nothing running to measure), it's an
   open, scoped opportunity for a future `harden-language-extraction` pass — noted here so it
   doesn't get lost as a one-off observation.
 

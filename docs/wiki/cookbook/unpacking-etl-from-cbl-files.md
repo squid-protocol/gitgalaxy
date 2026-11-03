@@ -52,7 +52,7 @@ The unpacker is executed via a headless CLI, designed to sit directly between ma
 
 ```bash
 # Execute the unpacker using the raw binary and the GitGalaxy generated schema
-python3 cobol_etl_unpacker.py ./mainframe_exports/GLDATA.BIN ./schemas/GLPOST_schema.json --out ./cloud_imports/GLDATA.csv
+cobol-etl-unpacker ./mainframe_exports/GLDATA.BIN ./schemas/GLPOST_schema.json --out ./cloud_imports/GLDATA.csv
 ```
 
 ## 5. Recommended Next Steps (Refactoring for Enterprise Scale)

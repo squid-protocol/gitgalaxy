@@ -13,10 +13,17 @@ formatting without either failure mode.
 **Note:** most languages' cases have since migrated out of the four dict files below into
 `languages/test_<lang>.py`, one file per language (see `how_to_harden_extraction.md`). That same
 `languages/` directory also colocates a second, independent test concern: `test_<lang>_strict.py`
-per language, proving `language_standards.py`'s *structural signature* rules (branch, io,
+per language, proving `gitgalaxy/standards/language_standards/`'s *structural signature* rules (branch, io,
 safety_bypasses, ReDoS immunity, etc. — not the func_start/args/class_start/dependency extraction
 this readme describes). The `_strict` suffix and a separate `_strict_harness.py` helper module
 keep the two concerns' files distinguishable and independently importable side by side.
+
+Also here: `_extraction_harness.py` (the shared valid/invalid/pathological assertions the
+per-language files import), the `test_unicode_identifiers*.py` and `test_identifier_astral_fill.py`
+suites (#3814: identifiers follow Unicode UAX #31), and `tools/` (`verify_candidates.py`,
+`audit_strict_coverage.py`, `sweep_redos_scaling.py`). The how-to guides:
+`how_to_harden_extraction.md` (the four pillars), `how_to_harden_strict_signatures.md` (the
+`_strict` suites) and `how_to_extend_class_start_named_extraction.md` (named class extraction).
 
 ---
 
@@ -37,7 +44,7 @@ Each file below proves the engine can cleanly extract its target while ignoring 
 noise — long attribute chains, async modifiers, preprocessor macros.
 
 #### 1. `test_function_extraction.py`
-* **Validates:** The `func_start` heuristic rules across 32 distinct language grammars.
+* **Validates:** The `func_start` heuristic rules for the languages not yet migrated to `languages/`.
 * **Proves:** The engine can pinpoint exact function and method names while stripping away C++ macros, Scala 3 transparency modifiers, Java annotations, and multi-line generic declarations without losing scope.
 
 #### 2. `test_class_extraction.py`
@@ -49,7 +56,7 @@ noise — long attribute chains, async modifiers, preprocessor macros.
 * **Proves:** Parameter extraction is the hardest of the four to parse heuristically. This suite checks the engine can handle large parameter blocks, default array arguments, and multi-line lambda closures without a nested-parentheses ReDoS spiral.
 
 #### 4. `test_dependency_extraction.py`
-* **Validates:** The `_dependency_capture` rules, tested across 37 languages.
+* **Validates:** The `_dependency_capture` rules for the languages not yet migrated to `languages/`.
 * **Proves:** The engine extracts the exact file path or module name from an import statement, correctly handling ES6 destructuring, Rust `pub use crate::` chains, and Python alias stacking without capturing extra modifiers.
 
 ---
@@ -67,8 +74,9 @@ three to ship.
 
 ### Extending a Gauntlet
 
-To add a new language to a gauntlet, add it to the constant dictionaries at the top of the
-relevant test file using the standard schema:
+To add a new language to a gauntlet, add a `languages/test_<lang>.py` file (see
+`how_to_harden_extraction.md`); its case dicts use the same schema as the dictionaries at the top
+of the four files above:
 
 ```python
 "new_language": {

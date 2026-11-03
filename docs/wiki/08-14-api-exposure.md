@@ -7,7 +7,7 @@ description: "> **File Reference:** [`gitgalaxy/metrics/signal_processor.py`](ht
 >
 > **Vector:** `connectivity` (legacy alias `risk_api_exposure`) — Public API Surface Area & Export Ratio
 >
-> **⚠️ Naming update ([#2991](https://github.com/squid-protocol/gitgalaxy/issues/2991)):** formerly "API Exposure / `risk_api_exposure`." This vector measures the **size of a module's public surface**, not a probability of defect. See [`vectors.md`](../vectors.md) for the full reframe and the temporal-crucible evidence behind it.
+> **⚠️ Naming update ([#2991](https://github.com/squid-protocol/gitgalaxy/issues/2991)):** formerly "API Exposure / `risk_api_exposure`." This vector measures the **size of a module's public surface**, not a probability of defect. See [`vectors.md`](https://github.com/squid-protocol/gitgalaxy/blob/main/docs/vectors.md) for the full reframe and the temporal-crucible evidence behind it.
 >
 > **Summary:** Measures the permeability of a module's public boundary by comparing exported public endpoints to total declared entities (functions + classes). It allows developers to distinguish encapsulated internal helpers from heavily exposed public interfaces.
 >

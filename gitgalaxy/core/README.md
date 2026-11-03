@@ -115,6 +115,15 @@ During CI/CD pipelines, it is highly inefficient to re-parse 10,000 unchanged fi
 **Role:** Page-cache warming for cold spinning disks.
 The extraction pool dispatches largest-first and reads concurrently, which on a cold HDD costs one seek per file (illumos-gate: 425 s in `2_Disk_IO`). A daemon thread streams the scan's files in path order (`posix_fadvise(WILLNEED)`, else plain reads) ahead of the pool, capped at 70% of `MemAvailable` and a lead window past what the pool has finished. It is skipped for small scans, in-process runs and non-rotational devices. `GITGALAXY_PREFETCH=0` disables it, `=1` forces it. It only warms the cache, so output cannot change. Phase 0's stat walk is not covered.
 
+### Module index: the rest of `core/`
+Each module's header comment is its full description; the issue numbers below point at the design.
+
+* **Function and call graph:** `call_resolver.py` (callee names to definitions, #3328), `function_graph.py` (function-level graph metrics, #3330), `function_population.py` (the one definition of "a function", #4110), `graph_engine.py` (the native CSR graph engine, #3033), `wrapper_extractor.py` / `wrapper_resolver.py` (idiom wrappers, #3313), `csharp_interpolation.py` (#6266), `fortran_calls.py` (#5638).
+* **Import resolution:** `go_modules.py` (#3798), `rust_modules.py` (#4544), `package_self_reference.py` (#3789).
+* **Ingestion and text:** `dense_source.py` (dense hand-written source vs minifier output, #7501), `model_magic.py` (model-weight header sniffing, #4138), `unicode_paths.py` (NFC/NFD path normalisation, #3815), `ebcdic_codecs.py` / `ebcdic_dbcs.py` (EBCDIC and mixed CJK code pages), `rule_prefilter.py` (required-literal prefilter, #3069), `preproc_toggles.py` (C-family preprocessor toggles, #6770).
+* **COBOL source:** `cobol_preprocessor.py`, `cobol_source_format.py`, `cobol_conditional.py` (`>>IF` / `>>DEFINE`, #5648), `compiler_options.py` (CBL / PROCESS cards, #3828), `special_names.py` (#3820), `relation_facts.py` (#4035), `estate_options.py` / `runtime_options.py` (estate compile and runtime options, #4704 / #4707).
+* **Mainframe fact channels:** `data_moves.py` (#3452), `file_control.py` (#3455), `call_using.py` (#3454), `db2_sql_statements.py` (#3446), `dli_calls.py` (#3450), `ims_gen.py` (#3477), `mq_calls.py` (#3447), `cics_tasks.py` (#3449), `uow_handlers.py` (#3453), `bms_symbolic.py` (#3490), `hlasm_cics.py` (#3495), `jcics.py` (#3497), `web_services.py` (#3496), `job_flow.py` (#3451), `job_submits.py` (#3448), `jcl_runners.py` (#3710), `pli_calls.py` / `pli_data_moves.py` / `pli_on_units.py` (#3491).
+
 ---
 
 ## Engineering Highlights

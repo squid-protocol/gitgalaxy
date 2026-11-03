@@ -33,6 +33,10 @@ Static code analysis is often blind to human behavior. The Chronometer bridges t
 As repositories increasingly embed local AI models, standard parsers crash attempting to evaluate gigabyte-scale binaries.
 * **Zero-RAM Auditing:** Performs binary header audits on local model weights (`.gguf`, `.safetensors`). It surgically extracts architectural metadata without loading the massive weights into system memory, safely visualizing AI infrastructure without risking OS-level crashes.
 
+### 5. `archetype_classifier.py` + `archetype_parity.py` (Archetype Classification)
+* **`archetype_classifier.py`:** Classifies each file and the repository into a composition archetype from the frozen brains in `gitgalaxy/standards/archetype_brains/` (`analysis_lens.FILE_ARCHETYPE_BRAIN` / `REPO_ARCHETYPE_BRAIN`). Features are percentile-ranked against each brain's frozen reference quantiles, so one scan reproduces the corpus ranks. Pure Python, so it runs in zero-dependency mode.
+* **`archetype_parity.py`:** The parity gate between the offline trainers (gitgalaxy-population-analyses) and this engine (#3125): it recomputes the brain's `feature_contract_sha` and checks a loaded brain's features and dimensionality against what the engine can compute, so a refrozen brain cannot drift silently. A brain swap is not golden-neutral (see `CLAUDE.md`).
+
 ---
 
 ## Engineering Highlights (Architectural Defenses)

@@ -49,12 +49,13 @@ those are the *why*.
 
 ## The steps, in order
 
-1. **Golden master fixtures** — `tests/tools/update_golden_master.py --yes`,
-   once per dependency mode (full-precision / zero-dependency; it only
-   updates whichever matches your current environment's installed
-   packages). Do this *before* touching the pin — `flag-golden-master-changes`
-   is non-blocking, but the pin's whole job is to make this fixture
-   reproducible, so get it right first.
+1. **Golden master fixtures** —
+   `tests/tools/box/golden-lock.sh python tests/tools/crucible_check.py --update --yes`,
+   which regenerates both dependency modes (full-precision and zero-dependency)
+   in their own CI-matched venvs (`.claude/rules/golden-master-guidelines.md`).
+   Never call `tests/tools/update_golden_master.py` from your default shell: it
+   only updates whichever mode matches the installed packages (#2547). The
+   pin's whole job is to make this fixture reproducible, so get it right first.
 2. **Tri-comparison chart + ledger** —
    `tests/tools/tri_comparison_chart.py --all --write` (always `--all`, per
    `.claude/rules/tri-comparison-chart.md` — a partial `--languages` list
@@ -100,7 +101,7 @@ those are the *why*.
    instead of `crucible_pins.py get language`.
 8. **Push, then watch CI actually pass** before merging —
    `crucible-audit` (both modes), `tri-comparison-audit`,
-   `tree-sitter-accuracy-audit`, `flag-golden-master-changes`, and
+   `tree-sitter-accuracy-audit`, and
    `crucible-path-independence` (#4248: scans the new corpus from a neutral parent
    and from `tmp/docs/vendor/src/`, fails naming the leaves if they differ; run it
    by hand with `python tests/tools/crucible_path_check.py` since it only
@@ -174,7 +175,7 @@ The CICS crucible (squid-protocol/cics-crucible) has its own pin and its own bum
    `tests/cics_crucible/ports/<case>/<PROGRAM>/provenance.json` names the crucible version its proof ran at, and
    `tests/cics_crucible/test_port_provenance.py` fails until each one is at the new pin. Run
    `python tests/tools/crucible_port_provenance.py reprove` (Docker, a JDK 17 and Maven). It runs
-   `cics_crucible.py --cases C --program P --sides java-ported --report-dir ...` for each port at the pinned checkout
+   `cics_crucible.py --cases C --program P --sides java-ported java-facade --report-dir ...` for each port at the pinned checkout
    and writes the outcome into the record:
    - proven: a `proof.reproven` entry is **appended** (the crucible ref, the per-scenario summary, the port tree's
      sha256, the harness commit). The loop's own `proof.crucible_ref` and `history` are never rewritten: they say

@@ -54,7 +54,7 @@ To ensure your contribution integrates smoothly into the Zero-Trust ecosystem:
 2. **Maintain the Contract:** Ensure that any backend changes to the CLI do not break the universal JSON schema contract expected by the frontend Observatory. 
 3. **Test Visually:** Run your newly generated `_galaxy_gpu.json` through either **[GitGalaxy.io](https://gitgalaxy.io)** or your local **Airgap Observatory** to verify that 3D WebGPU rendering and visual physics constraints remain intact. 
 4. **Document:** If you are adding new language phenotypes or altering the parsing logic, please update the [Language Lens](docs/wiki/02-05-language-lens.md) documentation in the wiki.
-5. **Pass the CI Pipeline Locally:** Before pushing, always run `ruff check .` to check for linter errors (like the strict `flake8-bandit` rules which require you to append `# noqa: S101` to all `assert` statements in tests). You should also verify that all `pytest` checks pass. If your change touches parsing/engine logic, also run `crucible_check.py` **and** `tree_sitter_accuracy_audit.py --all --ci` (see the Differential Scan section above) — they check different things and both are required.
+5. **Pass the CI Pipeline Locally:** Before pushing, run `python tests/tools/audit_check.py`: it runs the baseline-gated ruff, mypy and dead-key audits plus `ruff format --check`, and fails only on findings your change adds (a plain `ruff check .` also lists the pre-existing backlog). The strict `flake8-bandit` rules apply to tests too, so a new `assert` in a test needs `# noqa: S101`. You should also verify that all `pytest` checks pass. If your change touches parsing/engine logic, also run `crucible_check.py` **and** `tree_sitter_accuracy_audit.py --all --ci` (see the Differential Scan section above) — they check different things and both are required.
 6. **Submit:** Open a PR with a clear title. Explain the *why* behind your structural changes, not just the *what*. Be sure to include the link to the target repository so we can include it in the Differential Scan.
 
 ---
@@ -79,7 +79,7 @@ When you modify GitGalaxy's core engine, several CI workflows will rigorously te
    - If your regex fix legitimately drops false positives causing ground truth drift, regenerate the baseline: `python tests/tools/tree_sitter_accuracy_audit.py --regenerate --lang <lang>`
 
 4. **Cross-Language Consistency (`rosetta-audit`, the [keyword-rosetta](https://github.com/squid-protocol/keyword-rosetta) corpus)**
-   This runs the control corpus's verifier across all 46 language folders against your engine build,
+   This runs the control corpus's verifier across every language folder (56 on 2026-11-03) against your engine build,
    then re-runs anything that failed against a build of the branch you target, so it can tell
    "this PR moves the corpus" from "the corpus is behind main" (the latter is a notice, not a
    failure). Unlike the three baselines above, the expected values live in *another repository* —

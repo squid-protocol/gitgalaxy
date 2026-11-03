@@ -40,7 +40,7 @@ flowchart LR
 - **Logarithmic Normalization**: Normalizing regex hit scores logarithmically against lines of code favors structural density over raw length, which sacrifices sensitivity in extremely large, sparse files.
 
 ## Limitations
-- Requires a pre-defined `LanguageSpec` registry.
+- Requires the pre-defined `LANGUAGE_DEFINITIONS` registry (`gitgalaxy/standards/language_standards/`).
 - Embedded language detection is constrained to tracked transition markers.
 - Heavily obfuscated files or single-line minified logic can thwart the discovery funnel.
 

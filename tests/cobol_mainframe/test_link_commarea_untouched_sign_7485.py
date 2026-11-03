@@ -158,10 +158,10 @@ def test_the_untouched_signed_field_comes_back_as_sent(tmp_path, field):
             "programs": [{"program": "SGNCALEE", "program_source": "cbl/SGNCALEE.cbl", "copy_dirs": ["cbl"]}],
             "commarea": {"segments": [{"copybook": "cbl/SGNCALLR.cbl", "record": "DFHCOMMAREA"}]},
             "scenarios": [{"name": "untouched-sign", "commarea": {}}]}  # fmt: skip
-    (tmp_path / "case.json").write_text(json.dumps(case), encoding="utf-8")
+    (tmp_path / "link_case.json").write_text(json.dumps(case), encoding="utf-8")
     keep = tmp_path / "proof"
     proc = subprocess.run([sys.executable, str(TOOLS / "equivalence.py"), "run", "link-7485", "--case-file",  # noqa: S603
-                           str(tmp_path / "case.json"), "--corpus-dir", str(estate), "--port", str(port), "--keep",
+                           str(tmp_path / "link_case.json"), "--corpus-dir", str(estate), "--port", str(port), "--keep",
                            str(keep), "--faults", "none"], capture_output=True, text=True, check=False)  # fmt: skip
     report_file = keep / "report.json"
     report = json.loads(report_file.read_text(encoding="utf-8")) if report_file.is_file() else {}

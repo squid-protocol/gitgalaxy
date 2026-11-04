@@ -2201,12 +2201,17 @@ def case_async_refusals(case: cc.Case) -> list[str]:
 def translate_programs(case: cc.Case) -> dict[str, Any]:
     """{program: (translated source, takes a COMMAREA) or the Unsupported the translator raised}."""
     import equivalence_cics as ec
+    import equivalence_cics_pointer as ecp
 
     out: dict[str, Any] = {}
     for rel in case.data["sources"]["cobol"]:
         prog = Path(rel).stem.upper()
         try:
-            out[prog] = ec.translate((case.dir / rel).read_text(encoding="utf-8"))
+            # #7589 (X47): a POINTER's numeric view is address arithmetic on the pointer, as in equivalence_cics.run
+            source = ecp.lower((case.dir / rel).read_text(encoding="utf-8"))
+            out[prog] = ec.translate(source)
+        except ecp.Unsupported as e:
+            out[prog] = ec.Unsupported(str(e), ["POINTER numeric view"])
         except ec.Unsupported as e:
             out[prog] = e
     return out

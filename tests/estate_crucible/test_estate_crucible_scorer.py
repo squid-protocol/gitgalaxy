@@ -614,9 +614,51 @@ def test_a_key_without_the_new_fields_scores_a_step_as_before():
     assert [c.status for c in sc.checks] == ["pass"]
 
 
-def test_a_job_restart_is_unscored_because_the_engine_keeps_none():
-    sc = _jcl([_step_row()], jcl_steps=[_step_key(restart="LOAD020")])
-    assert [c.status for c in sc.checks] == ["pass", "unscored"]
+def _eng_with(rows, extra):
+    eng = FakeEngine(files={"j.jcl": SimpleNamespace(job_flow=rows)})
+    eng.jcl_extra = extra
+    return eng
+
+
+def _score(eng, **entry):
+    sc = ec.Score()
+    ec.score_jcl(sc, "j.jcl", dict(language="jcl", **entry), eng)
+    return sc
+
+
+def test_a_job_restart_and_checkid_are_scored_against_the_job_row():
+    job = _row("JOB", name="J", line=1)
+    key = [_step_key(job="J", restart="CHK020", restart_checkid="C0000012")]
+    ok = _eng_with([job, _step_row()], {("j.jcl", 1): {"restart": "CHK020", "restart_checkid": "C0000012"}})
+    assert [c.status for c in _score(ok, jcl_steps=key).checks] == ["pass"]
+    bad = _eng_with([job, _step_row()], {("j.jcl", 1): {"restart": "CHK010"}})
+    sc = _score(bad, jcl_steps=key)
+    assert sc.checks[0].status == "fail"
+    assert "restart:" in sc.checks[0].detail and "restart_checkid" in sc.checks[0].detail
+
+
+def test_a_bare_restart_step_has_no_checkid_to_score():
+    job = _row("JOB", name="J", line=1)
+    eng = _eng_with([job, _step_row()], {("j.jcl", 1): {"restart": "LOAD020"}})
+    assert [c.status for c in _score(eng, jcl_steps=[_step_key(job="J", restart="LOAD020")]).checks] == ["pass"]
+
+
+def test_rd_and_the_proc_step_overrides_are_scored_against_the_exec_row():
+    extra = {
+        ("j.jcl", 5): {
+            "rd": "R",
+            "parm_overrides": [{"step": "RPT020", "parm": "QUARTERLY"}],
+            "cond_overrides": [{"step": "RPT020", "cond": "(4,LT,SRT010)"}],
+        }
+    }
+    key = [_step_key(rd="R", **{k: v for k, v in _SLICE3_STEP_FIELDS.items() if k.endswith("overrides")})]
+    assert [c.status for c in _score(_eng_with([_step_row()], extra), jcl_steps=key).checks] == ["pass"]
+    for field, wrong in (("rd", "NR"), ("parm_overrides", [{"step": "RPT020", "parm": "X"}]), ("cond_overrides", [])):
+        sc = _score(
+            _eng_with([_step_row()], {("j.jcl", 5): dict(extra[("j.jcl", 5)], **{field: wrong})}), jcl_steps=key
+        )
+        assert sc.checks[0].status == "fail" and field in sc.checks[0].detail
+    assert _score(_eng_with([_step_row()], {}), jcl_steps=key).checks[0].status == "fail"
 
 
 _SLICE3_STEP_FIELDS = {
@@ -625,19 +667,6 @@ _SLICE3_STEP_FIELDS = {
     "parm_overrides": [{"step": "RPT020", "parm": "QUARTERLY"}],
     "cond_overrides": [{"step": "RPT020", "cond": "(4,LT,SRT010)"}],
 }
-
-
-@pytest.mark.parametrize("field", sorted(_SLICE3_STEP_FIELDS))
-def test_each_slice3_step_field_is_reported_unscored_with_a_reason_never_dropped(field):
-    sc = _jcl([_step_row()], jcl_steps=[_step_key(**{field: _SLICE3_STEP_FIELDS[field]})])
-    assert [c.status for c in sc.checks] == ["pass", "unscored"]
-    assert field in sc.checks[1].fact and "job_flow_data keeps no" in sc.checks[1].detail
-
-
-def test_a_step_with_every_slice3_field_adds_one_unscored_check_per_field():
-    sc = _jcl([_step_row()], jcl_steps=[_step_key(restart="CHK020", **_SLICE3_STEP_FIELDS)])
-    assert sorted(c.status for c in sc.checks) == ["pass"] + ["unscored"] * 5
-    assert "RPT020:QUARTERLY" in " ".join(c.fact for c in sc.checks)
 
 
 def test_a_step_without_the_slice3_fields_adds_no_check():

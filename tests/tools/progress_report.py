@@ -50,6 +50,7 @@ sys.path.insert(0, str(TOOLS))
 sys.path.insert(0, str(REPO))
 
 import capability_ledger  # noqa: E402
+import estate_size  # noqa: E402
 import ladder_exclusions  # noqa: E402
 
 FORMAT = "gitgalaxy-progress/1"
@@ -564,6 +565,7 @@ def build(
     ledger: dict[str, dict[str, Any]] | None = None,
     claims: dict[str, list[dict[str, Any]]] | None = None,
     estate_levels_plan: dict[str, Any] | None = None,
+    sizes: dict[str, dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     per, pairs = {}, {}
     for name in sorted(reports):
@@ -578,6 +580,13 @@ def build(
             for p in progs
         ]
     total = sum_ladders(list(per.values()))
+    for name, size in (sizes or {}).items():  # recorded from the corpora (estate_size.py); shown, never counted
+        if name in per:
+            per[name]["size"] = size
+    if sizes:
+        keys = ("program_lines", "copybooks", "copybook_lines", "jcl_members", "jcl_jobs", "jcl_cond_jobs",
+                "jcl_checked_jobs")  # fmt: skip
+        total["size"] = {k: sum((sizes.get(n) or {}).get(k, 0) for n in per) for k in keys}
     unreachable = ladder_exclusions.summarize({n: reports[n]["programs"] for n in reports})
     if unreachable:  # added only when non-empty; every program stays in the fixed denominator
         total["unreachable"] = unreachable
@@ -646,6 +655,7 @@ def gather() -> dict[str, Any]:
         det_mutation.load(),
         det_mutation.load_survivors(),
         _load(ESTATE_LEVELS) if ESTATE_LEVELS.is_file() else None,
+        estate_size.load(),
     )
 
 

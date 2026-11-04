@@ -225,6 +225,11 @@ def build(rules: dict[str, Any], cics: dict[str, Any]) -> dict[str, Any]:
     cpg = code_pages()
     gnt = cultural_gauntlet()
     mc_ok, mc_n = multicultural_estate()
+    import estate_size
+
+    sizes = estate_size.load()
+    jz = {k: sum(v.get(k, 0) for v in sizes.values()) for k in ("jcl_members", "jcl_jobs", "jcl_cond_jobs",
+                                                                "jcl_checked_jobs")} if sizes else {}  # fmt: skip
     sorts = len(list(CASES.glob("*-sort-*")))
     fc, cics_py = DET / "cics_filecontrol.py", DET / "cics.py"
     keyed = proved_organizations().get("indexed", 0)
@@ -399,6 +404,18 @@ def build(rules: dict[str, Any], cics: dict[str, Any]) -> dict[str, Any]:
             unit="IBM-written scenarios",
             note="answers written from IBM's JCL Reference before the evaluator ran",
         ),
+        row(
+            "Batch",
+            "JCL in the real codebases",
+            f"{jz['jcl_jobs']} jobs read in {jz['jcl_members']} JCL members; {jz['jcl_cond_jobs']} depend on COND / IF",
+            of_state(jz["jcl_checked_jobs"], jz["jcl_cond_jobs"]) if jz["jcl_cond_jobs"] else "none",
+            done=jz["jcl_checked_jobs"] if jz["jcl_cond_jobs"] else None,
+            of=jz["jcl_cond_jobs"] or None,
+            unit="COND jobs answer-checked",
+            note="sizes recorded from the pinned corpora (estate_size.py)",
+        )
+        if jz
+        else row("Batch", "JCL in the real codebases", "not recorded", "none"),
         row(
             "Batch",
             "JCL job execution",

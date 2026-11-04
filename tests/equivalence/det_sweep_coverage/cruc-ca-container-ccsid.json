@@ -12,11 +12,11 @@
  "inputs": {
   "case": "4baf6efcd1b164aa4fa3053d71293d867d62b763d1b70403dd200345afa9ff05",
   "corpus": "bfea00a9f77a5e777a0d6ffe75847c17e25a24c024b01404f0167fe059c233bf",
-  "harness": "bed50630cc01d686751445681d88a239b539e09773168ff517fbeb68ac3fd7ee",
+  "harness": "449628be271dab75d8a6be313986d09e02ea0e00994293c714356fe62c589dab",
   "oracle": "ae977de22fe57cb3d75f039d3c8576c2c50f66f7e2523f6f771e91589ed30e71",
   "components": {
    "harness": {
-    "harness:cics": "495486cfb0f5b7c6726773f51fe84e7e9ccc567c508a54446b31e2d810485872",
+    "harness:cics": "cd014752ae3776c7a11465aba2433baf9a635e9bb9f51dfcbe3ac64261081d46",
     "harness:core": "726a6345c865b1d49361b1ae91ca3327c89c0346641bf59209c518da01c61f43"
    },
    "oracle": {
@@ -26,5 +26,5 @@
    }
   }
  },
- "measured_at": "96ad5f4764469e6dc38439fe224cea7448a72ebb"
+ "measured_at": "a50e793937e127de62f9b8db847761e0db1c082a"
 }

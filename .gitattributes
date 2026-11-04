@@ -55,6 +55,10 @@ tests/cobol_mainframe/port_invariance/**/java/** -text linguist-generated=true
 tests/cobol_mainframe/refraction_snapshot/** text eol=lf
 tests/unicode_gauntlet/baseline.txt merge=union
 tests/cultural_gauntlet/baseline.txt merge=union
+# Append-only log (tests/tools/record_language_cost.py writes one JSON line per row; nothing edits or reorders a
+# row). Two PRs each appending a row conflicted on it 4 times in Oct 19-Nov 3 (nyx churn conflict study): a union
+# merge keeps both rows.
+gitgalaxy/standards/language_addition_costs.jsonl merge=union
 
 # Evidence and port-provenance records hash these files' bytes (tests/tools/evidence.py,
 # crucible_port_provenance.py): a Windows checkout with core.autocrlf=true would turn the LF the ports were

@@ -39,6 +39,23 @@ not an entry. Newest first within each section.
 
 ---
 
+## 2026-11-04 merge queue re-check for red main
+
+### Re-run the repo-wide guards in a merge queue — `open PR` (off until the ruleset enables it)
+- **Hypothesis:** most red-main issues are merge skew: a PR green on an old main, broken by a sibling merged in between.
+  Re-running the few tests that read repo-wide state on the merge result catches them before they land.
+- **Measurement (25 `ci-red-main` issues, 2026-10-31..11-04, triaged from each failed run's log):** 13 merge skew (the
+  suite plan's case cap x5, det pin/translator races x4, `docs_read_by_tests.txt` x2, ground-truth snapshots, time
+  ratchet), 3 platform-only (py3.11 syntax, Windows bash x2), 4 flakes or cancelled legs, 2 nondeterministic test ids,
+  3 other. The guard set (`MERGE_GUARDS` + `TREE_GUARDS`) replayed on 7 red merge commits failed on 6 (#7269, #7274,
+  #7277, #7456, #7493, #7662; #7429 needs the mainframe corpora). It passes on main at 16b8562b1 and runs in 150 s
+  serial locally. Merges, all PRs 10-20..11-04: median 5 per hour, p90 9, max 19.
+- **Cost estimate:** one Smoke part (setup about 1.5 min + the guards) and four plan-only jobs per merge, about 6
+  runner-min; about 700 runner-min a day at 120 merges (about 2.5% of the 20-runner pool) and 5-6 min more per merge.
+- **Not built:** the shepherd posting `ci-gate` on the queue's commit (its own code, owner OK per PR) and the ruleset rule.
+- **Follow-up (owed):** after the queue is on, red-main issues per 100 merges against the 2026-10-31..11-04 window, and
+  the queue's wait per merge.
+
 ## 2026-11-01 admission floor and main's runs (#7455)
 
 ### Raise the admission floor — `shipped` (config, not code)

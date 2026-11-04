@@ -178,7 +178,6 @@ def test_jcl_args_mode_a_window_bounded_no_over_count():
 DEPENDENCY_VALID = [
     ("//  INCLUDE MEMBER=COMMON", "COMMON"),
     ("//STEP INCLUDE MEMBER=COMMON", "COMMON"),
-    ("//MYLIB JCLLIB ORDER=(SYS1.PROCLIB,USER.PROCLIB)", "SYS1.PROCLIB"),
     ("//DD1 DD DSN=PROD.DATA,DISP=SHR", "PROD.DATA"),
     ("//DD1 DD DSN=PROD.LIB(MEM1),DISP=SHR", "PROD.LIB(MEM1)"),
     ("//DD1 DD DSN=A.B.C,DISP=SHR\n//    DD DSN=D.E.F,DISP=SHR", "A.B.C"),
@@ -191,6 +190,8 @@ DEPENDENCY_VALID = [
 ]
 
 DEPENDENCY_INVALID = [
+    "//MYLIB JCLLIB ORDER=(SYS1.PROCLIB,USER.PROCLIB)",  # #7065: a proc search path, not a dataset a step reads
+    "//         JCLLIB ORDER=PROD.BDLD.PROCLIB",
     "//DD1 DD DSN=&&TEMP,DISP=(NEW,PASS)",
     "//DD1 DD DSN=*.STEP1.DD1,DISP=SHR",
     pytest.param(

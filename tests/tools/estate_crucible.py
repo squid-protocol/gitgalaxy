@@ -25,15 +25,15 @@ GalaxyIR, and diffs every fact channel of the key against it:
   ims_gen         DBD and SEGM macro rows (ims_gen_data) by (kind, name): parent and bytes; every other kind is
                   unkeyed until a later estate-crucible slice
   jcl_utility_cards  the control statements of an in-stream DD (job_flow_data INSTREAM rows); a DD outside
-                  SYSIN / SYMNAMES / SORTCNTL / DFSPARM (SYSTSIN, SYSUT1, TOOLIN) is unscored: the engine keeps no body
-  jcl_steps       STEP rows (+ job: the nearest preceding JOB row, none inside a PROC); JOB RESTART= (+ checkid), RD=, PARM.procstep=, COND.procstep= are unscored (no engine field)
+                  SYSIN / SYMNAMES / SORTCNTL / DFSPARM / TOOLIN / xxxxCNTL / SYSTSIN / STDPARM / STDIN / STDENV (SYSUT1, SORTIN) is unscored: the engine keeps no body
+  jcl_steps       STEP rows (+ job: the nearest preceding JOB row, none inside a PROC); JOB RESTART= (+ checkid), RD=, PARM.procstep=, COND.procstep=, SET and INCLUDE are scored from their own job_flow rows
   jcl_dds         DD rows (an override DD `//PROCSTEP.DD` matches the row named after its proc step);
                   SYSOUT (+ class) and DUMMY DDs are their own row kinds (#7065); a sysout DD's output_refs (OUTPUT=)
                   are scored from the SYSOUT row's output_refs column
-                  (+ symbolic: a single leading `&`; job; `added` against the proc definition's DD rows, unscored when the proc is not in the scan)
+                  (an INCLUDE member's DDs against its own step-less rows; + symbolic: a single leading `&`; job; `added` against the proc definition's DD rows, unscored when the proc is not in the scan)
   jcl_outputs     OUTPUT JCL statements (name, step, line, keyword names) against job_flow's OUTPUT rows (#7065)
   sql_statements  (access: the engine's insert / delete / merge score as the key's `update`), sql_tables, jcl_steps, jcl_dds, screen_fields, csd_resources, transactions
-  cics_resources  cics_resource_data (MAP / FILE / QUEUE commands)
+  cics_resources  cics_resource_data (MAP / FILE / QUEUE commands; + ridfld, addressing RBA / RRN / XRBA when the key states them)
   jcl_datasets    a JCL member's DSN references in file_data.raw_imports (a GDG reference as
                   its base or with its relative generation)
   file_control    file_control_data SELECTs (+ relative_key, alternate_keys with the DUPLICATES flag, when the key states them);  entry_points  entry_point_data
@@ -65,6 +65,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sqlite3
 import subprocess
 import sys
@@ -82,6 +83,8 @@ for p in (str(REPO_ROOT), str(TESTS)):
         sys.path.insert(0, p)
 
 from _estate_crucible_pin import PATH_ENV, PINNED_REF, pin_mismatch  # noqa: E402
+
+from gitgalaxy.core.job_flow import is_control_dd  # noqa: E402
 
 KEY_FORMAT = "estate-crucible-key/1"
 STATUSES = ("pass", "fail", "missing", "phantom", "unscored")
@@ -784,20 +787,15 @@ _STEP_FIELDS_WITHOUT_ENGINE_ROW = ()
 
 
 # The in-stream DDs job_flow_data keeps an INSTREAM row for (core/job_flow.py `_CONTROL_DDS`). Any other `DD *` has no
-# row: SYSTSIN has its own channel (runs / systsin_member), SYSUT1 / TOOLIN / SORTIN bodies are not kept (#7065).
-_INSTREAM_KEPT_DDS = frozenset({"SYSIN", "SYMNAMES", "SORTCNTL", "DFSPARM"})
+# row: SYSUT1 / SORTIN data bodies are not kept (#7065).
 
 
 def _instream_not_kept(dd: Any) -> str | None:
     """Why job_flow_data has no INSTREAM row for an in-stream DD named `dd`, or None when it keeps one."""
     name = _u(dd)
-    if name in _INSTREAM_KEPT_DDS:
+    if is_control_dd(name):
         return None
-    if name == "SYSTSIN":
-        return "SYSTSIN: job_flow_data keeps no body for it, its commands are the runs / systsin_member channel (core/job_flow.py)"
-    return (
-        f"{name}: job_flow_data keeps an in-stream body only for SYSIN, SYMNAMES, SORTCNTL, DFSPARM (core/job_flow.py)"
-    )
+    return f"{name}: job_flow_data keeps an in-stream body only for SYSIN, SYMNAMES, SORTCNTL, DFSPARM, TOOLIN, xxxxCNTL, SYSTSIN, STDPARM, STDIN and STDENV (core/job_flow.py)"
 
 
 # Key fields the scorer has no check for yet (gitgalaxy#7065, found by tests/estate_crucible/test_estate_crucible_fields_accounted.py):
@@ -951,16 +949,30 @@ def score_jcl(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
         dd = f.get("dd") or f.get("concat_of")
         label = f"{f['step']}.{f.get('dd') or '+' + str(f.get('concat_of'))} @{f['line']}"
         if f.get("include"):
-            # a DD of an INCLUDE group has no job, proc or step of its own (SPEC.md section 3). The member lives in its
-            # own file and INCLUDE is not expanded, so its DDs stay unscored (the INCLUDE statement is scored on the step).
-            sc.add(
-                "jcl_dds",
-                path,
-                f"INCLUDE {f['include']}: {f.get('dd')} @{f['line']}",
-                "unscored",
-                f.get("horror"),
-                "a member of an INCLUDE group: job_flow_data does not expand INCLUDE (core/job_flow.py)",
+            # a DD of an INCLUDE group has no job, proc or step of its own (SPEC.md section 3). The member is its own
+            # file, so job_flow keeps its DDs as step-less rows; score them there (the INCLUDE statement is scored on the step).
+            kind = "SYSOUT" if f.get("sysout") else "DUMMY" if f.get("dummy") else "DD"
+            label = f"INCLUDE {f['include']}: {f.get('dd')} @{f['line']}"
+            r = next(
+                (
+                    x
+                    for x in flow
+                    if _u(x.kind) == kind and not x.step_name and _u(x.dd_name) == dd and id(x) not in used
+                ),
+                None,
             )
+            if r is None:
+                sc.add("jcl_dds", path, label, "missing", f.get("horror"), f"no step-less {kind} row for this DD")
+                continue
+            used.add(id(r))
+            pairs = [("line", f["line"], r.line)]
+            if kind == "SYSOUT":
+                key_cls = str(f["sysout"]).strip().lstrip("(").split(",")[0].rstrip(")").strip()
+                pairs.append(("sysout", key_cls, getattr(eng, "sysout", {}).get((path, r.line))))
+            elif kind == "DD":
+                pairs += [("dsn", _u(f.get("dsn")), _u(r.dsn)), ("disp", f.get("disp"), r.disp)]
+            d = _diff(pairs)
+            sc.add("jcl_dds", path, label, "fail" if d else "pass", f.get("horror"), d)
             continue
         added = (
             f"; added to {f.get('override_of')}: job_flow_data keeps only DDs that name a DSN, so it cannot tell an added DD from an override"
@@ -1064,28 +1076,35 @@ def _if_branch(text: str | None) -> tuple[str | None, str | None]:
     return t, branch
 
 
-def _cards(body: str) -> list[tuple[int, str, str]]:
+def _cards(body: str, plus: bool = False) -> list[tuple[int, str, str]]:
     """The control statements of an in-stream body as (index of its first line, verb, operands).
 
     A line ending in `-` (IDCAMS) or `,` (DFSORT / ICETOOL) continues on the next; the hyphen is dropped and
-    the pieces joined with one blank. This is the scorer's own reading of the text the engine kept."""
+    the pieces joined with one blank. With `plus` (a TSO SYSTSIN deck or an IDCAMS step) a trailing `+` also
+    continues, joined with no blank to the next line stripped of its leading blanks. This is the scorer's
+    own reading of the text the engine kept."""
     out: list[tuple[int, str, str]] = []
-    pending: list[str] = []
+    text = ""
+    open_card = False
+    glued = False
     start = 0
     for i, raw in enumerate(body.split("\n")):
         line = raw.strip()
-        if not pending:
-            if not line or line.startswith("*"):
+        if not open_card:
+            if not line or line.startswith(("*", "--")):  # `--` is a DB2 utility (DSNUTILB SYSIN) comment
                 continue
             start = i
-        cont = line.endswith(("-", ","))
-        pending.append(line[:-1].rstrip() if line.endswith("-") else line)
-        if cont:
+            text = ""
+        glue = plus and line.endswith("+")
+        piece = line[:-1] if glue or line.endswith("-") else line
+        piece = piece.rstrip() if line.endswith("-") else piece
+        text = text + piece if glued else (text + " " + piece if text else piece)
+        glued = glue
+        open_card = glue or line.endswith(("-", ","))
+        if open_card:
             continue
-        text = " ".join(" ".join(pending).split())
-        verb, _, operands = text.partition(" ")
+        verb, _, operands = " ".join(text.split()).partition(" ")
         out.append((start, verb.upper(), operands.strip()))
-        pending = []
     return out
 
 
@@ -1095,7 +1114,7 @@ def score_jcl_utility_cards(sc: Score, path: str, entry: dict[str, Any], eng: En
     ef = eng.files.get(path)
     ins = [r for r in (ef.job_flow if ef else []) if _u(r.kind) == "INSTREAM"]
     steps = [r for r in (ef.job_flow if ef else []) if _u(r.kind) == "STEP"]
-    parsed: dict[int, list[tuple[int, str, str]]] = {}
+    parsed: dict[tuple[int, bool], list[tuple[int, str, str]]] = {}
     for f in entry.get("jcl_utility_cards", []):
         label = f"{f['step']}.{f['dd']} {f['verb']} @{f['line']}"
         why = _instream_not_kept(f["dd"])
@@ -1106,12 +1125,14 @@ def score_jcl_utility_cards(sc: Score, path: str, entry: dict[str, Any], eng: En
         if r is None:
             sc.add("jcl_utility_cards", path, label, "missing", f.get("horror"), "no INSTREAM row for this DD")
             continue
-        cards = parsed.setdefault(id(r), _cards(r.instream or ""))
+        owner = next((x for x in steps if _u(x.step_name) == f["step"] and _u(x.in_proc) == _u(f.get("proc"))), None)
+        program = _u(owner.program) if owner is not None else _u(f.get("utility"))
+        plus = _u(f["dd"]) == "SYSTSIN" or program == "IDCAMS"
+        cards = parsed.setdefault((id(r), plus), _cards(r.instream or "", plus))
         c = next((x for x in cards if r.line + 1 + x[0] == f["line"] and x[1] == f["verb"]), None)
         if c is None:
             sc.add("jcl_utility_cards", path, label, "missing", f.get("horror"), "no such statement at that line")
             continue
-        owner = next((x for x in steps if _u(x.step_name) == f["step"] and _u(x.in_proc) == _u(f.get("proc"))), None)
         pairs = [("operands", f["operands"], c[2])]
         if owner is not None:  # no STEP row: the jcl_steps channel reports it, the card is scored on what it has
             pairs.append(("utility", _u(f.get("utility")), _u(owner.program)))
@@ -1281,6 +1302,14 @@ def score_cics(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None
             sc.add("transactions", path, f"not {txid}", "pass", p.get("horror"))
 
 
+def _ridfld_and_addressing(attributes: str | None) -> tuple[str | None, str | None]:
+    """The RIDFLD operand and the RBA / RRN / XRBA flag the engine keeps in a FILE row's `attributes`."""
+    text = (attributes or "").upper()
+    m = re.search(r"RIDFLD\(([^)]*)\)", text)
+    flags = [w for w in re.findall(r"[A-Z]+", re.sub(r"[A-Z]+\([^)]*\)", " ", text)) if w in ("RBA", "RRN", "XRBA")]
+    return (m.group(1).strip() if m else None), (flags[0] if flags else None)
+
+
 def score_cics_resources(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
     ef = eng.files.get(path)
     rows = list(ef.cics_resources) if ef else []
@@ -1299,8 +1328,15 @@ def score_cics_resources(sc: Score, path: str, entry: dict[str, Any], eng: Engin
             sc.add("cics_resources", path, label, "missing", f.get("horror"))
             continue
         used.add(id(r))
+        ridfld, addressing = _ridfld_and_addressing(r.attributes)
+        stated = []
+        if "ridfld" in f:  # #7065: how the record is addressed, when the key states it
+            stated.append(("ridfld", _u(f["ridfld"]), _u(ridfld)))
+        if "addressing" in f:
+            stated.append(("addressing", _u(f["addressing"]), _u(addressing)))
         d = _diff(
-            [
+            stated
+            + [
                 ("name", _u(f["name"]), _u(r.name)),
                 ("qualifier", _u(f.get("qualifier")), _u(r.qualifier)),
                 ("record", _u(f.get("record")), _u(r.record)),
@@ -1315,11 +1351,15 @@ def score_cics_resources(sc: Score, path: str, entry: dict[str, Any], eng: Engin
 
 def score_jcl_datasets(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
     """A JCL member's dataset references, against file_data.raw_imports: a GDG reference may
-    be recorded as its base or with its relative generation, never anything else."""
+    be recorded as its base or with its relative generation, never anything else. A raw import naming a
+    stated INCLUDE member is accepted too."""
     if entry["language"] != "jcl":
         return
     raw = {r.upper() for r in eng.raw_imports.get(path, [])}
     accepted: set = set()
+    # An INCLUDE MEMBER= name is a job -> member import edge the key states as `jcl_steps.includes`, not a dataset (#7065, H-0083).
+    for st in entry.get("jcl_steps", []):
+        accepted |= {_u(m) for m in st.get("includes") or []}
     for f in entry.get("jcl_datasets", []):
         forms = {f["dsn"].upper()} | ({f"{f['dsn']}({f['generation']})".upper()} if f.get("generation") else set())
         accepted |= forms

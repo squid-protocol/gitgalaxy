@@ -39,6 +39,7 @@ def load(name):
 
 
 PUSH = "github.event_name == 'push'"
+HOURLY = ("equivalence-e2e", "mainframe-ground-truth", "smoke-test")  # post_merge_dispatch.RERUN_HOURLY
 
 
 @pytest.mark.parametrize("name", GATED)
@@ -47,7 +48,14 @@ def test_gate_is_wired(name):
     gate = doc["jobs"]["tested-tree"]
     runs = [s.get("run", "") for s in gate["steps"]]
     assert f"python tests/tools/skip_tested_tree.py {name}.yml" in runs  # the gate asks about ITS OWN workflow
-    assert gate["permissions"] == {"contents": "read", "actions": "read", "pull-requests": "read"}
+    if name in HOURLY:  # 2026-11-03: at most hourly on main; a deferred push cancels itself (actions: write)
+        assert gate["permissions"] == {"contents": "read", "actions": "write", "pull-requests": "read"}
+        decide = next(s for s in gate["steps"] if s.get("id") == "decide")
+        assert decide["env"]["CADENCE_HOURS"] == "1" and {"defer", "base"} <= set(gate["outputs"])
+        (step,) = [s for s in gate["steps"] if "gh run cancel" in s.get("run", "")]
+        assert "steps.decide.outputs.defer == 'true'" in step["if"] and "|| exit 0" in step["run"]  # fail-open
+    else:
+        assert gate["permissions"] == {"contents": "read", "actions": "read", "pull-requests": "read"}
     # #5129: the gate runs on a main push only; elsewhere it is skipped, `skip` is empty and the heavy jobs run, so the
     # workflow still concludes success or failure for Main Watch
     assert str(gate.get("if")).strip() in (PUSH, "${{ " + PUSH + " }}")

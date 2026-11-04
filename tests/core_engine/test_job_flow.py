@@ -311,3 +311,38 @@ def test_a_sysout_dd_keeps_its_output_references_in_every_form():
     )
     got = {r["dd_name"]: r.get("output_refs") for r in _flow(jcl, "SYSOUT")}
     assert got == {"A": ["*.OUT1"], "B": ["*.OUT1", "*.S.LOCAL"], "C": ["OUT2"], "D": None}
+
+
+def _parm_of(operand: str) -> str | None:
+    return _flow(f"//J JOB (A)\n//S EXEC PGM=X,PARM={operand}\n", "STEP")[0]["parm"]
+
+
+def test_exec_parm_reads_every_form_of_the_operand_one_element_at_a_time():
+    """A sublist's elements are each unquoted; a comma inside apostrophes stays; a quoted string is not a sublist."""
+    cases = {
+        "ABC": "ABC",
+        "'A,B'": "A,B",
+        "(A,B)": "A,B",
+        "('A','B')": "A,B",
+        "('A,1','B')": "A,1,B",
+        "('IT''S')": "IT'S",
+        "(A,'B C')": "A,B C",
+        "('A')": "A",
+        "'(AA,BB)'": "(AA,BB)",
+        "'&RPT,2'": "&RPT,2",
+        "": "",
+    }
+    for operand, want in cases.items():
+        assert _parm_of(operand) == want, operand
+
+
+def test_a_continued_quoted_parm_and_a_proc_step_parm_override_use_the_same_reading():
+    jcl = "//J JOB (A)\n//S EXEC PGM=X,PARM='AAA,BBB,\n//             CCC'\n"
+    assert _flow(jcl, "STEP")[0]["parm"] == "AAA,BBB,CCC"
+    step = _flow("//J JOB (A)\n//S EXEC P,PARM.A=('X','Y Z'),PARM.B=(Q,R)\n", "STEP")[0]
+    assert step["parm_overrides"] == [{"step": "A", "parm": "X,Y Z"}, {"step": "B", "parm": "Q,R"}]
+
+
+def test_a_set_value_is_not_read_as_a_sublist():
+    sets = _flow("//J JOB (A)\n// SET P=(A,B),Q='(C)'\n//S EXEC PGM=X\n", "SET")
+    assert [(r["name"], r["parm"]) for r in sets] == [("P", "(A,B)"), ("Q", "(C)")]

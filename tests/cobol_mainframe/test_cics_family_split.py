@@ -36,6 +36,7 @@ from gitgalaxy.tools.cobol_to_java import cics_task_terminal as tte  # noqa: E40
 from gitgalaxy.tools.cobol_to_java import cics_task_time as tim  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_tsqueues as tsq  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_uctranst as tuc  # noqa: E402
+from gitgalaxy.tools.cobol_to_java import cics_task_urimap as tur  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_web as tw  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cobol_to_java_transaction_forge as forge  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import cics as C  # noqa: E402
@@ -717,6 +718,7 @@ def test_an_undefinable_file_name_answers_filenotfound_with_resp2_1():
 # ---- #7153: equivalence_cics re-exports its families' names lazily, so import order does not matter ------------------
 _TOOLS = Path(__file__).resolve().parents[1] / "tools"
 _FAMILY_MODULES = (
+    "compare",
     "conditions",
     "containers",
     "counters",
@@ -759,7 +761,7 @@ def test_every_reexported_name_resolves_whichever_module_is_imported_first(first
         "import equivalence_cics as ec\n"
         "for name, fam in ec._FAMILY_NAMES.items():\n"
         "    assert getattr(ec, name) is getattr(fam, name), name\n"
-        "assert len(ec._FAMILY_NAMES) == 28\n"
+        "assert len(ec._FAMILY_NAMES) == 37\n"
         "try:\n    ec.no_such_name\nexcept AttributeError:\n    pass\n"
         "else:\n    raise SystemExit('no AttributeError')\n"
     )
@@ -894,3 +896,14 @@ def test_cicstask_holds_the_association_java_once_where_it_sat():
     assert java[a + len(tas.ASSOCIATION_JAVA) :].lstrip().startswith("// #4270 zECS (register X32)")
     for method in ("withOrigin", "inquireAssociation"):
         assert re.search(rf"public \S+(?: \S+)? {method}\(", tas.ASSOCIATION_JAVA), method
+
+
+def test_cicstask_holds_the_urimap_java_once_where_it_sat():
+    """#5274: the URIMAP browse and WRITE OPERATOR sit after the association family and before VERIFY PASSWORD."""
+    java = forge.CICS_TASK_JAVA
+    assert java.count(tur.URIMAP_JAVA) == 1
+    a = java.index(tur.URIMAP_JAVA)
+    assert java[:a].endswith(tas.ASSOCIATION_JAVA)
+    assert java[a + len(tur.URIMAP_JAVA) :].lstrip().startswith("/** VERIFY PASSWORD USERID(userid)")
+    for method in ("withUrimaps", "inquireUrimapStart", "inquireUrimapNext", "inquireUrimapEnd", "urimapName", "writeOperator"):
+        assert re.search(rf"public \S+(?: \S+)? {method}\(", tur.URIMAP_JAVA), method

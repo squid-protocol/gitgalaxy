@@ -84,3 +84,15 @@ def test_long_unterminated_pod_is_bounded():
     got = _imports(src)
     assert time.perf_counter() - t0 < 5
     assert got == set()  # the whole tail is POD
+
+
+def test_plack_shaped_module_pod_synopsis_and_trailing_pod_are_no_import():
+    # #6572: a Plack middleware file: code, a long POD SYNOPSIS with indented `use` samples, `=cut`-less trailing POD
+    src = (
+        "package Plack::Middleware::Sample;\nuse strict;\nuse parent qw(Plack::Middleware);\n\n1;\n\n__END__\n\n"
+        "=head1 SYNOPSIS\n\n  use Plack::Builder;\n  builder { enable 'Sample' };\n\n"
+        + "=head1 DESCRIPTION\n\n"
+        + "prose line\n" * 3000
+        + "\n  use Doc::Tail;\n"
+    )
+    assert _imports(src) == {"strict", "parent"}

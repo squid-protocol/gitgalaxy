@@ -66,7 +66,8 @@ A *pattern* is not a call, even though it is spelled like one (#3641, decided by
 pattern that only tests or binds, construct nothing. The same `Ok(t)` in an expression is a
 constructor call. Rust's own pattern (`CALLS_OUT_RUST`, #3643) drops a capitalised `Name(…)` whose
 one-line argument list is followed by `=>`, a pattern `|`, a binding `=` or a guard `if`; it also
-takes macros (`format!(`, `vec![`) and turbofish calls (`collect::<Vec<_>>()`). A closure-trait bound
+takes macros (`format!(`, `vec![`) and turbofish calls (`collect::<Vec<_>>()`; the generic list may nest four
+levels and hold `->`, a tuple type or a const-generic `{..}` block, #6454). A closure-trait bound
 (`F: Fn(&T)`, `impl FnOnce(u8)`) is a type, and `Fn`/`FnMut`/`FnOnce` are in rust's keyword set (C2).
 The pattern operand of `matches!` / `assert_matches!` / `debug_assert_matches!` (`matches!(x, A(_) | B(..))`)
 is a pattern too, though its last alternative is followed by the macro's `)`: rust's `_calls_out_masked_blocks`

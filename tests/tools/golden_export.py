@@ -27,6 +27,23 @@ same messages as `check`) and `PKG/GoldenRegressionTest.java` (a JUnit 5 test th
 directories from the system properties `golden.dir` and `java.out.dir`). Producing `java.out.dir` (running the port on
 the case's inputs, laid out as `check` expects) is the project harness's step: wiring it in, and proving the class fails
 on a mutant the proof kills, are later slices of #4052.
+
+    python tests/tools/golden_export.py project CASE PROJECT_DIR [--port DIR] [--faults all|none|NAME,NAME] [--package PKG]
+
+`project` is the harness step that wires both ends into a generated Maven project (#4052 slice 3): the golden files go
+to `PROJECT_DIR/src/test/resources/golden/CASE`, the two classes to `src/test/java/PKG`, and the port is RUN on the
+case's inputs (the same Java run the equivalence proof makes, faults included) with its outputs written to
+`PROJECT_DIR/target/golden-java-out/<run>/<DD>` -- the default of the JUnit class's `java.out.dir`. Fault runs are named
+`fault-NAME` on both sides.
+
+    python tests/tools/golden_export.py prove-mutant CASE --port DIR --mutants ID,ID [--faults ...] --out DIR
+
+`prove-mutant` is #4052's "done when": the golden files are exported once, then the det port `DIR` and each mutant of it
+(an id from `tests/tools/mutation.py`) are RUN on the case's inputs and checked against them, by `check` and by the
+generated `GoldenCheck.java` (the class `GoldenRegressionTest` calls), compiled and run here. It exits 0 only when the
+unmutated port passes and every mutant fails. Only a mutant the committed det-mutation ledger
+(`tests/equivalence/det_mutation/CASE.json`) records as KILLED by the equivalence proof is accepted: the claim is that
+the regression suite keeps what the proof kills, not that it kills something the proof would let live.
 """
 
 from __future__ import annotations
@@ -34,6 +51,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import shutil
 import sys
 import tempfile
 from pathlib import Path
@@ -296,6 +314,202 @@ def write_junit(golden_dir: Path, src_dir: Path, package: str = "golden") -> lis
     return written
 
 
+GOLDEN_RESOURCES = Path("src") / "test" / "resources" / "golden"
+JAVA_OUT = Path("target") / "golden-java-out"
+
+
+def java_run_name(name: str) -> str | None:
+    """The harness's Java run name as a golden run name: `default` is `main`, `fault:X` is `fault-X`; an
+    environment other than the first, and an `entry:` run, have no golden counterpart (None)."""
+    if name == "default":
+        return MAIN
+    if name.startswith("fault:"):
+        return "fault-" + name[len("fault:") :]
+    return None
+
+
+def write_java_out(runs: dict[str, dict[str, bytes]], dest: Path) -> list[str]:
+    """Lay the harness's Java runs ({run name: {DD: bytes}}) out as `dest/<run>/<DD>`, the `java.out.dir` layout."""
+    written = []
+    for name, outputs in sorted(runs.items()):
+        run = java_run_name(name)
+        if run is None:
+            continue
+        d = dest / _safe(run)
+        d.mkdir(parents=True, exist_ok=True)
+        for dd, data in outputs.items():
+            (d / _safe(dd)).write_bytes(data)
+        written.append(run)
+    return written
+
+
+def install_project(golden_dir: Path, project: Path, package: str = "golden") -> list[Path]:
+    """Copy the golden files into `project`'s test resources and write the JUnit classes into its test sources."""
+    manifest = json.loads((golden_dir / MANIFEST).read_text(encoding="utf-8"))
+    resources = project / GOLDEN_RESOURCES / _safe(manifest["case"])
+    if resources.exists():
+        shutil.rmtree(resources)
+    shutil.copytree(golden_dir, resources)
+    return write_junit(resources, project / "src" / "test" / "java", package)
+
+
+def _run_ports(case_name: str, faults: str, ports: dict[str, Path | None], work: Path, golden: Path) -> dict[str, Any]:
+    """The COBOL side once (golden files written to `golden`), then the Java side of each port in `ports`
+    ({label: port dir, None = the case's own port}): {label: {harness run name: {DD: bytes}}}."""
+    import equivalence
+    import equivalence_java as ej
+    import mainframe_corpus as mc
+
+    case = equivalence.load_case(case_name)
+    if (case.get("kind") or "batch") != "batch" or case.get("db2") or case.get("ims"):
+        raise SystemExit(f"{case_name}: only a plain batch case is wired in this slice")
+    (entry,) = mc.select([case["corpus"]])
+    corpus = mc.require_clone(entry)
+    equivalence.build_image()
+    chosen = equivalence.selected_faults(case, faults)
+    cobol = {MAIN: equivalence.run_cobol(case, corpus, work / "cobol")}
+    fired = []
+    for f in chosen:  # a fault the COBOL side cannot run has no golden run, so none on the Java side either
+        try:
+            cobol[f"fault-{f['name']}"] = equivalence.run_cobol(case, corpus, work / "faults" / f["name"], f)
+            fired.append(f)
+        except RuntimeError as e:
+            print(f"{case_name}: fault {f['name']} not run: {str(e).strip().splitlines()[0]}")
+    faults_arg = tuple(
+        (
+            f["name"],
+            equivalence.fault_plan(f),
+            "\n".join(f.get("sql_plan", [])),
+            equivalence.run_parm(case, f) if f.get("parm") is not None else "",
+            f["sysin"] if f.get("sysin") is not None else "",
+            equivalence.fault_dli_dir(work, f),
+        )
+        for f in fired
+    )
+    java = {
+        label: ej.run_java_environments(
+            case, corpus, work / "java" / label, work / "cobol", [ej.environment("default")], True, port, faults_arg
+        )
+        for label, port in ports.items()
+    }
+    export(case, cobol, golden, equivalence.equivalence_common.data_encoding(case))
+    return java
+
+
+def _project_case(case_name: str, project: Path, faults: str, port: Path | None, package: str) -> int:
+    with tempfile.TemporaryDirectory(prefix=f"golden_{case_name}_") as tmp:
+        work = Path(tmp)
+        java = _run_ports(case_name, faults, {"port": port}, work, work / "golden")
+        install_project(work / "golden", project, package)
+    out = project / JAVA_OUT
+    if out.exists():
+        shutil.rmtree(out)
+    names = write_java_out(java["port"], out)
+    print(f"{case_name}: golden files and classes in {project}, Java run(s) {', '.join(names)} in {out}")
+    return 0
+
+
+def killed_ids(case_name: str) -> set[str]:
+    """The mutant ids the committed det-mutation ledger records as killed by the equivalence proof."""
+    ledger = Path(__file__).resolve().parents[1] / "equivalence" / "det_mutation" / f"{case_name}.json"
+    if not ledger.is_file():
+        return set()
+    return set(json.loads(ledger.read_text(encoding="utf-8")).get("entry", {}).get("killed", []))
+
+
+def find_mutants(port: Path, ids: list[str]) -> dict[str, Any]:
+    """The mutants of the port's .java files (tests/tools/mutation.py's operators) with the given ids."""
+    import mutation
+
+    found = {}
+    for f in sorted(port.rglob("*.java")):
+        rel = f.relative_to(port).as_posix()
+        for m in mutation.mutants_of(rel, f.read_text(encoding="utf-8"), set(mutation.OPERATORS)):
+            if m.id in ids:
+                found[m.id] = m
+    if missing := sorted(set(ids) - set(found)):
+        raise SystemExit(f"no mutant {', '.join(missing)} in {port} (a different translation than the ledger's?)")
+    return found
+
+
+RUN_JAVA = (
+    "import java.nio.file.Path;\n"
+    "public class GoldenRun { public static void main(String[] a) throws Exception {\n"
+    "  for (String p : PKG.GoldenCheck.problems(Path.of(a[0]), Path.of(a[1]))) System.out.println(p);\n"
+    "} }\n"
+)
+
+
+def java_problems(golden_dir: Path, java_dirs: list[Path], scratch: Path) -> list[list[str]]:
+    """The problems the generated `GoldenCheck.java` reports for each Java run directory (compiled and run here)."""
+    import subprocess
+
+    write_junit(golden_dir, scratch / "src", "goldenrun")
+    classes = scratch / "classes"
+    classes.mkdir(exist_ok=True)
+    (scratch / "GoldenRun.java").write_text(RUN_JAVA.replace("PKG", "goldenrun"), encoding="utf-8")
+    for srcs in ([scratch / "src/goldenrun/GoldenCheck.java"], [scratch / "GoldenRun.java"]):
+        done = subprocess.run(
+            ["javac", "-encoding", "UTF-8", "-cp", str(classes), "-d", str(classes), *map(str, srcs)],
+            capture_output=True,
+            encoding="utf-8",
+        )
+        if done.returncode:
+            raise SystemExit(f"javac failed: {done.stderr}")
+    result = []
+    for jd in java_dirs:
+        run = subprocess.run(
+            ["java", "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(classes), "GoldenRun"]
+            + [str(golden_dir), str(jd)],
+            capture_output=True,
+        )
+        if run.returncode:
+            raise SystemExit(f"java failed: {run.stderr.decode('utf-8')}")
+        result.append(run.stdout.decode("utf-8").splitlines())
+    return result
+
+
+def _prove_mutants(case_name: str, port: Path, ids: list[str], faults: str, out: Path) -> int:
+    unproven = sorted(set(ids) - killed_ids(case_name))
+    if unproven:
+        raise SystemExit(f"{case_name}: {', '.join(unproven)} not recorded as killed in tests/equivalence/det_mutation")
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import mutation
+
+    mutants = find_mutants(port, ids)
+    ports: dict[str, Path | None] = {"unmutated": port}
+    with tempfile.TemporaryDirectory(prefix=f"golden_{case_name}_") as tmp:
+        work = Path(tmp)
+        for mid, m in mutants.items():
+            ports[mid] = mutation.write_mutant(port, m, work / "mutants" / mid)
+        golden = out / "golden"
+        java = _run_ports(case_name, faults, ports, work, golden)
+        write_junit(golden, out / "src", "golden")
+        dirs = {label: out / "java-out" / label for label in ports}
+        for label, runs in java.items():
+            if dirs[label].exists():
+                shutil.rmtree(dirs[label])
+            write_java_out(runs, dirs[label])
+        by_java = dict(zip(ports, java_problems(golden, list(dirs.values()), work)))
+    ok = True
+    for label in ports:
+        py = check(golden, dirs[label])
+        if py != by_java[label]:
+            print(f"{label}: the Python and the generated Java check disagree: {py} / {by_java[label]}")
+            ok = False
+        want_fail = label != "unmutated"
+        m = mutants.get(label)
+        what = (
+            f"{m.op} {m.file}:{m.line} `{m.before.strip()[:60]}` -> `{m.after.strip()[:60]}`"
+            if m
+            else "the port as translated"
+        )
+        print(f"{label}: {what}: {len(py)} problem(s)" + "".join(f"\n    {p}" for p in py[:3]))
+        ok = ok and bool(py) == want_fail
+    print("prove-mutant: " + ("the unmutated port passes and every mutant fails" if ok else "NOT AS EXPECTED"))
+    return 0 if ok else 1
+
+
 def _export_case(case_name: str, out: Path, faults: str) -> int:
     import equivalence
     import mainframe_corpus as mc
@@ -332,7 +546,23 @@ def main(argv: list[str] | None = None) -> int:
     j.add_argument("golden", type=Path)
     j.add_argument("--out", type=Path, required=True)
     j.add_argument("--package", default="golden")
+    pj = sub.add_parser("project")
+    pj.add_argument("case")
+    pj.add_argument("project", type=Path)
+    pj.add_argument("--port", type=Path)
+    pj.add_argument("--faults", default="all")
+    pj.add_argument("--package", default="golden")
+    pm = sub.add_parser("prove-mutant")
+    pm.add_argument("case")
+    pm.add_argument("--port", type=Path, required=True)
+    pm.add_argument("--mutants", required=True)
+    pm.add_argument("--faults", default="all")
+    pm.add_argument("--out", type=Path, required=True)
     args = ap.parse_args(argv)
+    if args.cmd == "prove-mutant":
+        return _prove_mutants(args.case, args.port, args.mutants.split(","), args.faults, args.out)
+    if args.cmd == "project":
+        return _project_case(args.case, args.project, args.faults, args.port, args.package)
     if args.cmd == "junit":
         for p in write_junit(args.golden, args.out, args.package):
             print(p)

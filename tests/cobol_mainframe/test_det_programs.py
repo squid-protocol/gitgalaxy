@@ -2931,9 +2931,11 @@ def test_comp5_zos_byte_order_is_big_endian_and_the_default_is_the_oracles(tmp_p
     )
     out_dir = tmp_path / "probe"
     out_dir.mkdir()
-    javac_run([str(jdk / "javac"), "-nowarn", "-cp", str(rt), "-d", str(out_dir), str(src)], check=True)  # noqa: S603
-    run = subprocess.run([str(jdk / "java"), "-cp", f"{out_dir}{os.pathsep}{rt}", "Probe"],  # noqa: S603
-                         capture_output=True, text=True, check=True)  # fmt: skip
+    javac_run(
+        [str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-cp", str(rt), "-d", str(out_dir), str(src)], check=True
+    )
+    run = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", f"{out_dir}{os.pathsep}{rt}", "Probe"],  # noqa: S603
+                         capture_output=True, text=True, encoding="utf-8", check=True)  # fmt: skip
     lines = run.stdout.splitlines()
     n = len(COMP5_ZOS_BYTES)
     for line, (_, value, zos_hex) in zip(lines[:n], COMP5_ZOS_BYTES, strict=True):

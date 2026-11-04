@@ -4,6 +4,11 @@ on:
   pull_request:  # #4825: a required check -- runs on every PR
     branches:
       - main
+  # The merge queue: each required check must report on the queue's commit (main + the PR). Only the Smoke suite does
+  # work there (suite_select_plan.MERGE_GUARDS); this one reports success without it. Inert until the ruleset turns
+  # the queue on.
+  merge_group:
+    types: [checks_requested]
 
 permissions:
   contents: read
@@ -44,6 +49,8 @@ jobs:
           PR: ${{ github.event.pull_request.number }}
           REPO: ${{ github.repository }}
         run: |
+          # the merge queue: the PR's own run audited this code; nothing a sibling merge changes is read here
+          if [ "$GITHUB_EVENT_NAME" = "merge_group" ]; then echo "mode=none" >> "$GITHUB_OUTPUT"; exit 0; fi
           labels=$(gh api "repos/$REPO/issues/$PR/labels" --jq '[.[].name] | join(",")' || echo "shepherd:full")
           mapfile -t files < <(gh api --paginate "repos/$REPO/pulls/$PR/files" --jq '.[] | .filename, (.previous_filename // empty)' || true)
           count=$(gh api "repos/$REPO/pulls/$PR" --jq .changed_files || echo 0)

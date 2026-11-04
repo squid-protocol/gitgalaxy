@@ -458,11 +458,20 @@ CALLS_OUT_PERL = re.compile(
 # Every quantifier is bounded or runs over characters its neighbours cannot start
 # with (Rules 1-3); the pattern check runs only at a capitalised word start.
 # #3814: the pattern's name continues through combining marks (UAX #31).
-_RUST_GENERIC_CHAR = r"[^<>(){}\n\"]"
-_RUST_TURBOFISH = (
-    r"::<(?:" + _RUST_GENERIC_CHAR + r"|<(?:" + _RUST_GENERIC_CHAR + r"|<" + _RUST_GENERIC_CHAR + r"{0,200}>){0,200}>)"
-    r"{1,200}>"
-)
+# #6454: a generic argument is a plain character, `->` (`Box<dyn Fn(u8) -> u8>`), a one-line `(..)` group (a tuple
+# type) or `{..}` group (a const-generic block), or a nested `<..>`, four levels deep. The alternatives start with
+# disjoint characters (a `-` is plain only when no `>` follows), so the bounded runs cannot backtrack against each other.
+_RUST_GENERIC_FLAT = r"[^<>(){}\n\"-]|-(?!>)|->|" + r"\([^()\n\"]{0,100}\)|" + r"\{[^{}\n\"]{0,60}\}"
+
+
+def _rust_generic_run(depth: int) -> str:
+    inner = _RUST_GENERIC_FLAT
+    if depth:
+        inner += r"|<" + _rust_generic_run(depth - 1) + r">"
+    return r"(?:" + inner + r"){0,200}"
+
+
+_RUST_TURBOFISH = r"::<(?=[^>\n])" + _rust_generic_run(4) + r">"
 _RUST_BALANCED_ARGS = r"\((?:[^()\n]|\((?:[^()\n]|\([^()\n]{0,200}\)){0,200}\)){0,200}\)"
 _RUST_PATTERN_TAIL = r"(?:[ \t]{0,8}[)\]]){0,8}(?:[ \t]{0,8}(?:=>|=(?![=>])|if\b)|\s{0,16}\|(?![|=]))"
 CALLS_OUT_RUST = re.compile(

@@ -164,6 +164,7 @@ def test_ci_check_end_to_end(tmp_path, monkeypatch, capsys):
     lb.write_baseline(baseline_path, lb.to_baseline(_findings(tmp_path)))
     monkeypatch.setattr(ruff_audit, "BASELINE_PATH", baseline_path)
     monkeypatch.setattr(ruff_audit, "run_ruff_format_check", lambda: True)
+    monkeypatch.setattr(ruff_audit, "run_syntax_check", lambda: [])  # #7667: no real ruff
     monkeypatch.setattr(ruff_audit, "run_ruff_findings", lambda: _findings(tmp_path))
 
     _write(tmp_path, "\n\n" + BASE_SOURCE)

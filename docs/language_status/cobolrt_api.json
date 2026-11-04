@@ -1,7 +1,7 @@
 {
   "schema": "cobolrt-api/1",
   "about": ["The cobolrt public API (#4718). Written by tests/tools/cobolrt_api.py generate: edit only a `visibility`, to public or internal; docs/cobolrt_api_contract.md says what they promise.", "`evidence` records who called the item when it was last refreshed, and is never checked: det-port, model-port (committed ports), frozen-overlay (a frozen runtime copy's call to a live class), generated (translator output), emitter (a translator string), emitter-dynamic (a name a computed emission may take), runtime, harness; empty: no caller was found."],
-  "summary": {"types": 124, "types_public": 101, "members": 1182, "members_public": 792, "members_internal": 390},
+  "summary": {"types": 124, "types_public": 101, "members": 1182, "members_public": 793, "members_internal": 389},
   "types": [
     {"id": "batch.CobolAbend", "kind": "class", "source": "gitgalaxy/tools/cobol_to_java/cobol_to_java_batch_forge.py", "variants": ["forge-batch-jobs", "forge-batch-files"], "supers": ["RuntimeException"], "visibility": "public", "evidence": ["det-port", "emitter", "model-port", "signature", "harness"], "members": [
       {"id": "batch.CobolAbend.<init>(String,String)", "kind": "constructor", "visibility": "internal", "evidence": []},
@@ -802,7 +802,7 @@
       {"id": "cobolrt.Cobol.swapNumprocPfd(boolean)", "kind": "method", "static": true, "returns": "boolean", "visibility": "public", "evidence": ["det-port", "emitter", "harness"]},
       {"id": "cobolrt.Cobol.swapTruncBinary(boolean)", "kind": "method", "static": true, "returns": "boolean", "visibility": "public", "evidence": ["det-port", "emitter", "harness"]},
       {"id": "cobolrt.Cobol.swapTruncOpt(boolean)", "kind": "method", "static": true, "returns": "boolean", "visibility": "public", "evidence": ["det-port", "emitter", "harness"]},
-      {"id": "cobolrt.Cobol.swapZosComp5(boolean)", "kind": "method", "static": true, "returns": "boolean", "visibility": "internal", "evidence": ["emitter", "harness"]},
+      {"id": "cobolrt.Cobol.swapZosComp5(boolean)", "kind": "method", "static": true, "returns": "boolean", "visibility": "public", "evidence": ["emitter", "harness"]},
       {"id": "cobolrt.Cobol.text(Field,Charset)", "kind": "method", "static": true, "returns": "String", "visibility": "public", "evidence": ["det-port", "emitter", "model-port", "harness", "runtime"]},
       {"id": "cobolrt.Cobol.unstring(Field,Field,Field,List,Charset,Into...)", "kind": "method", "static": true, "returns": "boolean", "visibility": "public", "evidence": ["det-port", "emitter", "emitter-dynamic"]},
       {"id": "cobolrt.Cobol.zoned(BigDecimal,int,int,boolean,boolean,Charset)", "kind": "method", "static": true, "returns": "BigDecimal", "visibility": "public", "evidence": ["det-port", "emitter", "emitter-dynamic", "model-port", "harness"]}

@@ -341,26 +341,52 @@ def main_tip(
         return None
 
 
+# 2026-11-03: equivalence-e2e, mainframe-ground-truth and smoke-test run on main at most hourly (their tested-tree gate's
+# CADENCE_HOURS): the commits in between carry those checks cancelled, or not at all. A cancelled check on main says
+# nothing, so it is undecided, never a failure (it would excuse a PR's real red as main's), and a check the PR failed
+# (`wanted`) is looked up as far as WANTED_LOOKBACK first-parent commits back, to the last commit main really ran it on.
+WANTED_LOOKBACK = 6
+
+
+def _main_names(runs: list[dict[str, Any]]) -> tuple[set[str], set[str], set[str]]:
+    """(failed, decided, cancelled) check names of one main commit: a check whose verdict is `cancelled` is in
+    neither of the first two."""
+    c = pr_check.classify(runs, [])
+    cancelled = {x.rsplit(" (", 1)[0] for x in c["failed"] if x.endswith(" (cancelled)")}
+    failed = {x.rsplit(" (", 1)[0] for x in c["failed"]} - cancelled
+    neutral = {x.rsplit(" (", 1)[0] for x in c["neutral"]}
+    return failed, set(c["passed"]) | failed | neutral, cancelled
+
+
 def main_failures(
     api: pr_check.Api,
     lookback: int = 3,
     graphql: pr_check.GraphQL | None = None,
     tip: tuple[dict[str, Any], list[dict[str, Any]]] | None = None,
+    wanted: set[str] | None = None,
+    wanted_lookback: int = WANTED_LOOKBACK,
 ) -> set[str]:
     """The checks failing on main's newest commit (#4790): a PR failing the same check inherited it from main.
     Basal persistence: when main's tip commit just landed and its checks are still pending (or not yet registered),
     walk up to `lookback` first-parent commits on main so checks not yet completed on tip retain their last known
-    completed main status instead of causing a false 'real' failure during the post-merge CI window.
+    completed main status instead of causing a false 'real' failure during the post-merge CI window. A check cancelled
+    on a commit is undecided there, like a pending one. `wanted` (the checks a PR failed) are walked for up to
+    `wanted_lookback` commits until each has a verdict (the hourly suites skip most commits).
     `tip`: main_tip's answer, when the pass already read it."""
     tip = tip or main_tip(api, graphql)
     if tip is None:
         return set()
     commit, runs = tip
-    failed, decided = _completed_names(runs)
-    pending = {x.rsplit(" (", 1)[0] for x in pr_check.classify(runs, [])["pending"]}
+    failed, decided, cancelled = _main_names(runs)
+    pending = {x.rsplit(" (", 1)[0] for x in pr_check.classify(runs, [])["pending"]} | cancelled
+    want = set(wanted or ())
     parents = commit.get("parents") or []
     steps = 0
-    while steps < lookback and parents and (pending - decided or not runs):
+    while parents:
+        near = steps < lookback and (pending - decided or not runs)
+        far = steps < wanted_lookback and want - decided
+        if not (near or far):
+            break
         parent_sha = (parents[0] or {}).get("sha")
         if not parent_sha:
             break
@@ -368,11 +394,11 @@ def main_failures(
             p_commit, p_runs = commit_runs(api, parent_sha, graphql)
         except (SystemExit, KeyError, TypeError):
             break
-        p_failed, p_decided = _completed_names(p_runs)
+        p_failed, p_decided, p_cancelled = _main_names(p_runs)
         failed |= p_failed - decided
         decided |= p_decided
-        if p_runs and not (pending - decided):
-            break
+        pending |= p_cancelled
+        runs = runs or p_runs
         parents = p_commit.get("parents") or [] if isinstance(p_commit, dict) else []
         steps += 1
     return failed
@@ -416,7 +442,6 @@ def digest(
     """`pr`, `runs`: the pull request and its head's check runs when the caller already read them (#6534).
     `graphql`: what is still unread (the PR, its runs, main's tip and parents) comes from GraphQL, REST when a query
     fails or comes back incomplete."""
-    on_main = main_failures(api, graphql=graphql) if on_main is None else on_main
     if (pr is None or runs is None) and graphql:
         got = pr_check._graphql_check(graphql, n)
         if got and (pr is None or pr["head"]["sha"] == got["pr"]["head"]["sha"]):
@@ -427,6 +452,7 @@ def digest(
     if runs is None:
         runs = pr_check.paged(api, f"repos/{REPO_SLUG}/commits/{sha}/check-runs", "check_runs")
     failed = pr_check.failed_names(runs)
+    on_main = main_failures(api, graphql=graphql, wanted=failed) if on_main is None else on_main
     newest: dict[str, dict[str, Any]] = {}
     for r in sorted(runs, key=lambda r: r.get("id", 0)):
         if r["name"] in failed and r.get("conclusion") not in pr_check.NEUTRAL | {None}:

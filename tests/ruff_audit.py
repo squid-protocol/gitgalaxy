@@ -15,6 +15,13 @@ is a zero-tolerance floor from that point on -- there's no backlog to
 carry forward, and letting formatting drift would just mean redoing
 the same one-time cleanup later.
 
+Also runs a zero-tolerance SYNTAX check over the whole repo, not just
+gitgalaxy/ (#7667): `ruff check . --select E9` at pyproject's
+target-version (py311), which reports what the 3.11 floor cannot parse
+(a backslash or a reused quote inside an f-string expression). PR CI runs
+3.12 only, so before this a tests/ file with 3.12-only syntax passed every
+PR check and broke main's py3.11 legs (#7637 -> #7667).
+
 USAGE
     python tests/ruff_audit.py          # full report, exits 1 if ruff
                                          # finds anything.
@@ -127,6 +134,25 @@ def run_ruff_check() -> dict[str, str]:
     return lint_baseline.to_baseline(run_ruff_findings())
 
 
+def run_syntax_check(repo_root: Path = REPO_ROOT) -> list[str]:
+    """#7667: what ruff cannot parse anywhere in the repo at pyproject's target-version (py311), one line each; [] when
+    clean. Zero-tolerance (no baseline): the floor is that every tracked .py file parses under the oldest supported
+    Python. Covers tests/ and tools, which the baseline-gated lint above does not scan."""
+    result = subprocess.run(
+        ["ruff", "check", ".", "--select", "E9", "--output-format=concise", "--no-cache", "--color=never"],
+        capture_output=True,
+        text=True,
+        cwd=repo_root,
+        env=lint_baseline.colourless_env(),
+    )
+    if result.returncode == 0:
+        return []
+    lines = [ln for ln in result.stdout.splitlines() if ln.strip() and not ln.startswith(("Found ", "["))]
+    if result.returncode != 1 or not lines:
+        lint_baseline.require_parsed("ruff", result.stdout + result.stderr, result.returncode, 0)
+    return lines
+
+
 def run_ruff_format_check() -> bool:
     """Returns True if every file already matches `ruff format`'s output (zero-tolerance, not baselined)."""
     result = subprocess.run(
@@ -189,6 +215,12 @@ def run_ci_check() -> int:
     format_ok = run_ruff_format_check()
     if not format_ok:
         print("Ruff Audit: files are not `ruff format`-compliant (zero-tolerance -- run `ruff format` locally).")
+    syntax = run_syntax_check()
+    if syntax:
+        format_ok = False
+        print(f"Ruff Audit: {len(syntax)} line(s) Python 3.11 cannot parse (zero-tolerance, #7667):")
+        for line in syntax:
+            print(f"  {line}")
 
     findings = run_ruff_findings()
     baseline = load_baseline()

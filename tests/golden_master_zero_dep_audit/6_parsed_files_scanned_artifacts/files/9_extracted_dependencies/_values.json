@@ -8413,15 +8413,12 @@
     },
     "jcl/cics-banking-sample-application-cbsa": {
       "jcl/cics-banking-sample-application-cbsa/ABNDPROC.jcl": [
-        "CBSA.CICSBSA.BUILDJCL",
         "DEFAULT"
       ],
       "jcl/cics-banking-sample-application-cbsa/ACCLOAD.jcl": [
-        "CBSA.CICSBSA.BUILDJCL",
         "DEFAULT"
       ],
       "jcl/cics-banking-sample-application-cbsa/ACCOFFL.jcl": [
-        "CBSA.CICSBSA.BUILDJCL",
         "DEFAULT"
       ],
       "jcl/cics-banking-sample-application-cbsa/BANKDATA.jcl": [
@@ -8446,79 +8443,60 @@
         "&LEHLQ..SCEESAMP"
       ],
       "jcl/cics-banking-sample-application-cbsa/BNK1ACC.jcl": [
-        "CBSA.CICSBSA.BUILDJCL",
         "DEFAULT"
       ],
       "jcl/cics-banking-sample-application-cbsa/BNK1CAC.jcl": [
-        "CBSA.CICSBSA.BUILDJCL",
         "DEFAULT"
       ],
       "jcl/cics-banking-sample-application-cbsa/BNK1CAM.jcl": [
-        "CBSA.CICSBSA.BUILDJCL",
         "DEFAULT"
       ],
       "jcl/cics-banking-sample-application-cbsa/BNK1CCA.jcl": [
-        "CBSA.CICSBSA.BUILDJCL",
         "DEFAULT"
       ],
       "jcl/cics-banking-sample-application-cbsa/BNK1CCM.jcl": [
-        "CBSA.CICSBSA.BUILDJCL",
         "DEFAULT"
       ],
       "jcl/cics-banking-sample-application-cbsa/BNK1CCS.jcl": [
-        "CBSA.CICSBSA.BUILDJCL",
         "DEFAULT"
       ],
       "jcl/cics-banking-sample-application-cbsa/BNK1CDM.jcl": [
-        "CBSA.CICSBSA.BUILDJCL",
         "DEFAULT"
       ],
       "jcl/cics-banking-sample-application-cbsa/BNK1CRA.jcl": [
-        "CBSA.CICSBSA.BUILDJCL",
         "DEFAULT"
       ],
       "jcl/cics-banking-sample-application-cbsa/BNK1DAC.jcl": [
-        "CBSA.CICSBSA.BUILDJCL",
         "DEFAULT"
       ],
       "jcl/cics-banking-sample-application-cbsa/BNK1DAM.jcl": [
-        "CBSA.CICSBSA.BUILDJCL",
         "DEFAULT"
       ],
       "jcl/cics-banking-sample-application-cbsa/BNK1DCM.jcl": [
-        "CBSA.CICSBSA.BUILDJCL",
         "DEFAULT"
       ],
       "jcl/cics-banking-sample-application-cbsa/BNK1DCS.jcl": [
-        "CBSA.CICSBSA.BUILDJCL",
         "DEFAULT"
       ],
       "jcl/cics-banking-sample-application-cbsa/BNK1MAI.jcl": [
-        "CBSA.CICSBSA.BUILDJCL",
         "DEFAULT"
       ],
       "jcl/cics-banking-sample-application-cbsa/BNK1TFM.jcl": [
-        "CBSA.CICSBSA.BUILDJCL",
         "DEFAULT"
       ],
       "jcl/cics-banking-sample-application-cbsa/BNK1TFN.jcl": [
-        "CBSA.CICSBSA.BUILDJCL",
         "DEFAULT"
       ],
       "jcl/cics-banking-sample-application-cbsa/BNK1UAC.jcl": [
-        "CBSA.CICSBSA.BUILDJCL",
         "DEFAULT"
       ],
       "jcl/cics-banking-sample-application-cbsa/BNK1UAM.jcl": [
-        "CBSA.CICSBSA.BUILDJCL",
         "DEFAULT"
       ],
       "jcl/cics-banking-sample-application-cbsa/BNKMENU.jcl": [
-        "CBSA.CICSBSA.BUILDJCL",
         "DEFAULT"
       ],
       "jcl/cics-banking-sample-application-cbsa/BTCHSQL.jcl": [
-        "DSNC10.PROCLIB",
         "DSNC10.SDSNLOAD"
       ],
       "jcl/cics-banking-sample-application-cbsa/CBSACSD.jcl": [
@@ -8565,39 +8543,30 @@
         "TCPIP.SEZATCP"
       ],
       "jcl/cics-banking-sample-application-cbsa/COMPALL.jcl": [
-        "CBSA.CICSBSA.BUILDJCL",
         "DEFAULT"
       ],
       "jcl/cics-banking-sample-application-cbsa/CRDTAGY1.jcl": [
-        "CBSA.CICSBSA.BUILDJCL",
         "DEFAULT"
       ],
       "jcl/cics-banking-sample-application-cbsa/CRDTAGY2.jcl": [
-        "CBSA.CICSBSA.BUILDJCL",
         "DEFAULT"
       ],
       "jcl/cics-banking-sample-application-cbsa/CRDTAGY3.jcl": [
-        "CBSA.CICSBSA.BUILDJCL",
         "DEFAULT"
       ],
       "jcl/cics-banking-sample-application-cbsa/CRDTAGY4.jcl": [
-        "CBSA.CICSBSA.BUILDJCL",
         "DEFAULT"
       ],
       "jcl/cics-banking-sample-application-cbsa/CRDTAGY5.jcl": [
-        "CBSA.CICSBSA.BUILDJCL",
         "DEFAULT"
       ],
       "jcl/cics-banking-sample-application-cbsa/CREACC.jcl": [
-        "CBSA.CICSBSA.BUILDJCL",
         "DEFAULT"
       ],
       "jcl/cics-banking-sample-application-cbsa/CRECUST.jcl": [
-        "CBSA.CICSBSA.BUILDJCL",
         "DEFAULT"
       ],
       "jcl/cics-banking-sample-application-cbsa/CREDB00.jcl": [
-        "DSNC10.PROCLIB",
         "DSNC10.SDSNLOAD"
       ],
       "jcl/cics-banking-sample-application-cbsa/CREDB2L.jcl": [
@@ -8605,15 +8574,12 @@
         "&HLQ..DB2.JCL.INSTALL(EMPTY)"
       ],
       "jcl/cics-banking-sample-application-cbsa/CREI101.jcl": [
-        "DSNC10.PROCLIB",
         "DSNC10.SDSNLOAD"
       ],
       "jcl/cics-banking-sample-application-cbsa/CREI201.jcl": [
-        "DSNC10.PROCLIB",
         "DSNC10.SDSNLOAD"
       ],
       "jcl/cics-banking-sample-application-cbsa/CREI301.jcl": [
-        "DSNC10.PROCLIB",
         "DSNC10.SDSNLOAD"
       ],
       "jcl/cics-banking-sample-application-cbsa/CREL001.jcl": [
@@ -8655,7 +8621,6 @@
         "&HLQ..CICSBSA.REORG(EMPTY)"
       ],
       "jcl/cics-banking-sample-application-cbsa/CRELIBS.jcl": [
-        "CBSA.JCL.INSTALL",
         "CREDB2L",
         "CREL001",
         "CREL002",
@@ -8670,39 +8635,30 @@
         "CREL011"
       ],
       "jcl/cics-banking-sample-application-cbsa/CRESG01.jcl": [
-        "DSNC10.PROCLIB",
         "DSNC10.SDSNLOAD"
       ],
       "jcl/cics-banking-sample-application-cbsa/CRESG02.jcl": [
-        "DSNC10.PROCLIB",
         "DSNC10.SDSNLOAD"
       ],
       "jcl/cics-banking-sample-application-cbsa/CRESG03.jcl": [
-        "DSNC10.PROCLIB",
         "DSNC10.SDSNLOAD"
       ],
       "jcl/cics-banking-sample-application-cbsa/CRETB01.jcl": [
-        "DSNC10.PROCLIB",
         "DSNC10.SDSNLOAD"
       ],
       "jcl/cics-banking-sample-application-cbsa/CRETB02.jcl": [
-        "DSNC10.PROCLIB",
         "DSNC10.SDSNLOAD"
       ],
       "jcl/cics-banking-sample-application-cbsa/CRETB03.jcl": [
-        "DSNC10.PROCLIB",
         "DSNC10.SDSNLOAD"
       ],
       "jcl/cics-banking-sample-application-cbsa/CRETS01.jcl": [
-        "DSNC10.PROCLIB",
         "DSNC10.SDSNLOAD"
       ],
       "jcl/cics-banking-sample-application-cbsa/CRETS02.jcl": [
-        "DSNC10.PROCLIB",
         "DSNC10.SDSNLOAD"
       ],
       "jcl/cics-banking-sample-application-cbsa/CRETS03.jcl": [
-        "DSNC10.PROCLIB",
         "DSNC10.SDSNLOAD"
       ],
       "jcl/cics-banking-sample-application-cbsa/DB2BIND.jcl": [
@@ -8718,105 +8674,80 @@
         "&BANKDBRM(XFRFUN)",
         "&DB2HLQ..SDSNEXIT",
         "&DB2HLQ..SDSNLOAD",
-        "CBSA.DB2.JCL.INSTALL",
         "DEFAULT"
       ],
       "jcl/cics-banking-sample-application-cbsa/DBCRFUN.jcl": [
-        "CBSA.CICSBSA.BUILDJCL",
         "DEFAULT"
       ],
       "jcl/cics-banking-sample-application-cbsa/DEFAULT.jcl": [],
       "jcl/cics-banking-sample-application-cbsa/DELACC.jcl": [
-        "CBSA.CICSBSA.BUILDJCL",
         "DEFAULT"
       ],
       "jcl/cics-banking-sample-application-cbsa/DELCUS.jcl": [
-        "CBSA.CICSBSA.BUILDJCL",
         "DEFAULT"
       ],
       "jcl/cics-banking-sample-application-cbsa/DROPDB2.jcl": [
-        "DSNC10.PROCLIB",
         "DSNC10.SDSNLOAD"
       ],
       "jcl/cics-banking-sample-application-cbsa/DRPDB00.jcl": [
-        "DSNC10.PROCLIB",
         "DSNC10.SDSNLOAD"
       ],
       "jcl/cics-banking-sample-application-cbsa/DRPI101.jcl": [
-        "DSNC10.PROCLIB",
         "DSNC10.SDSNLOAD"
       ],
       "jcl/cics-banking-sample-application-cbsa/DRPI201.jcl": [
-        "DSNC10.PROCLIB",
         "DSNC10.SDSNLOAD"
       ],
       "jcl/cics-banking-sample-application-cbsa/DRPI301.jcl": [
-        "DSNC10.PROCLIB",
         "DSNC10.SDSNLOAD"
       ],
       "jcl/cics-banking-sample-application-cbsa/DRPSG01.jcl": [
-        "DSNC10.PROCLIB",
         "DSNC10.SDSNLOAD"
       ],
       "jcl/cics-banking-sample-application-cbsa/DRPSG02.jcl": [
-        "DSNC10.PROCLIB",
         "DSNC10.SDSNLOAD"
       ],
       "jcl/cics-banking-sample-application-cbsa/DRPSG03.jcl": [
-        "DSNC10.PROCLIB",
         "DSNC10.SDSNLOAD"
       ],
       "jcl/cics-banking-sample-application-cbsa/DRPTB01.jcl": [
-        "DSNC10.PROCLIB",
         "DSNC10.SDSNLOAD"
       ],
       "jcl/cics-banking-sample-application-cbsa/DRPTB02.jcl": [
-        "DSNC10.PROCLIB",
         "DSNC10.SDSNLOAD"
       ],
       "jcl/cics-banking-sample-application-cbsa/DRPTB03.jcl": [
-        "DSNC10.PROCLIB",
         "DSNC10.SDSNLOAD"
       ],
       "jcl/cics-banking-sample-application-cbsa/DRPTS01.jcl": [
-        "DSNC10.PROCLIB",
         "DSNC10.SDSNLOAD"
       ],
       "jcl/cics-banking-sample-application-cbsa/DRPTS02.jcl": [
-        "DSNC10.PROCLIB",
         "DSNC10.SDSNLOAD"
       ],
       "jcl/cics-banking-sample-application-cbsa/DRPTS03.jcl": [
-        "DSNC10.PROCLIB",
         "DSNC10.SDSNLOAD"
       ],
       "jcl/cics-banking-sample-application-cbsa/EXTDCUST.jcl": [
-        "CTSSVT.CICSBSA.BUILDJCL",
         "DEFAULT"
       ],
       "jcl/cics-banking-sample-application-cbsa/GETCOMPY.jcl": [
-        "CBSA.CICSBSA.BUILDJCL",
         "DEFAULT"
       ],
       "jcl/cics-banking-sample-application-cbsa/GETSCODE.jcl": [
-        "CBSA.CICSBSA.BUILDJCL",
         "DEFAULT"
       ],
       "jcl/cics-banking-sample-application-cbsa/INQACC.jcl": [
-        "CBSA.CICSBSA.BUILDJCL",
         "DEFAULT"
       ],
       "jcl/cics-banking-sample-application-cbsa/INQACCCU.jcl": [
-        "CBSA.CICSBSA.BUILDJCL",
         "DEFAULT"
       ],
       "jcl/cics-banking-sample-application-cbsa/INQCUST.jcl": [
-        "CBSA.CICSBSA.BUILDJCL",
         "DEFAULT"
       ],
       "jcl/cics-banking-sample-application-cbsa/INSTDB2.jcl": [
         "&DB2HLQ..SDSNLOAD",
-        "CBSA.DB2.JCL.INSTALL",
         "DEFAULT"
       ],
       "jcl/cics-banking-sample-application-cbsa/MAPGEN.jcl": [
@@ -8840,15 +8771,12 @@
       "jcl/cics-banking-sample-application-cbsa/SHUTCICS.jcl": [],
       "jcl/cics-banking-sample-application-cbsa/SHUTZOSC.jcl": [],
       "jcl/cics-banking-sample-application-cbsa/UPDACC.jcl": [
-        "CBSA.CICSBSA.BUILDJCL",
         "DEFAULT"
       ],
       "jcl/cics-banking-sample-application-cbsa/UPDCUST.jcl": [
-        "CBSA.CICSBSA.BUILDJCL",
         "DEFAULT"
       ],
       "jcl/cics-banking-sample-application-cbsa/XFRFUN.jcl": [
-        "CBSA.CICSBSA.BUILDJCL",
         "DEFAULT"
       ],
       "jcl/cics-banking-sample-application-cbsa/ZOSCSEC.jcl": []

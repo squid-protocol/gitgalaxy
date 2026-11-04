@@ -19,7 +19,9 @@
 #         COND.procstep= on a procedure call, [{step, parm|cond}] in coded order); on a JOB row restart
 #         (the RESTART= step) and restart_checkid (its checkid)
 #   SET   #7065: one row per `// SET NAME=value` operand: name (the symbol), parm (its value, quotes removed),
-#         in_proc, line. INCLUDE: name (the MEMBER=), step_name (the step above it), in_proc, line. The member is not
+#         in_proc, line. OUTPUT (#7065): name, step_name (the step above it, none at job level), in_proc, line,
+#         output_params (the keyword names it codes); a SYSOUT row also carries output_refs (its OUTPUT= references).
+#         INCLUDE: name (the MEMBER=), step_name (the step above it), in_proc, line. The member is not
 #         expanded.
 #   DD    step_name (the step, or for an override `//PROCSTEP.DD` the proc step),
 #         dd_name, dsn (as written, generation stripped), disp (NEW / OLD / SHR /
@@ -59,6 +61,7 @@ _STATEMENT_LIMIT = 4000
 _KW_RESTART = "RESTART"
 _KW_RD = "RD"
 _KW_MEMBER = "MEMBER"
+_KW_OUTPUT = "OUTPUT"
 _GEN = re.compile(r"\(([+-]?[0-9]{1,3})\)$")
 
 
@@ -71,6 +74,16 @@ def _operand_field(text: str) -> str:
         elif not quoted and ch in " \t":
             return text[:i]
     return text
+
+
+def _output_refs(value: str | None) -> list[str]:
+    """#7065: a SYSOUT DD's `OUTPUT=ref` or `OUTPUT=(ref,ref)` as written (`*.NAME`, `*.STEP.NAME`), upper-cased."""
+    if not value:
+        return []
+    v = value.strip()
+    if v.startswith("(") and v.endswith(")"):
+        v = v[1:-1]
+    return [x.strip().upper() for x in v.split(",") if x.strip()]
 
 
 def _split(field: str) -> list[tuple[str | None, str]]:
@@ -389,6 +402,21 @@ def jcl_job_flow(code_stream: str) -> list[dict[str, Any]]:
                 for k, v in _split(field)
                 if k
             )
+        elif op == "OUTPUT":
+            # #7065: z/OS MVS JCL Reference, OUTPUT: step_name is the step above it (None at job level); output_params
+            # are the keyword names it codes, in coded order
+            params = [k for k, _v in _split(field) if k]
+            rows.append(
+                dict(
+                    blank,
+                    kind="OUTPUT",
+                    name=name or None,
+                    step_name=step,
+                    in_proc=in_proc,
+                    line=line,
+                    **({"output_params": params} if params else {}),
+                )
+            )
         elif op == "INCLUDE":
             member = next((v.strip().upper() for k, v in _split(field) if k == _KW_MEMBER), None)
             if member:
@@ -470,6 +498,7 @@ def jcl_job_flow(code_stream: str) -> list[dict[str, Any]]:
                         in_proc=in_proc,
                         line=line,
                         **({"sysout": cls} if cls else {}),
+                        **({"output_refs": refs} if (refs := _output_refs(keyed.get(_KW_OUTPUT))) else {}),
                     )
                 )
                 continue

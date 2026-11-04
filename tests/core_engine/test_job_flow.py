@@ -274,3 +274,40 @@ def test_set_keeps_one_row_per_symbol_and_include_keeps_its_member():
 def test_a_job_without_set_or_include_has_no_such_rows_and_a_memberless_include_is_dropped():
     assert not {"SET", "INCLUDE"} & {r["kind"] for r in jcl_job_flow("//J JOB (A)\n//S EXEC PGM=X\n")}
     assert _flow("//J JOB (A)\n// INCLUDE\n//S EXEC PGM=X\n", "INCLUDE") == []
+
+
+def test_output_statements_are_rows_with_their_step_and_keyword_names():
+    jcl = (
+        "//J JOB (A)\n"
+        "//OUT1 OUTPUT DEST=RMT1,CLASS=A,\n"
+        "//     COPIES=2\n"
+        "//S1 EXEC PGM=X\n"
+        "//LOCAL OUTPUT COPIES=3\n"
+        "//BARE OUTPUT\n"
+        "//P PROC\n"
+        "//INP OUTPUT FORMS=STD\n"
+        "//PS EXEC PGM=Y\n"
+        "// PEND\n"
+    )
+    got = [(r["name"], r["step_name"], r["in_proc"], r.get("output_params")) for r in _flow(jcl, "OUTPUT")]
+    assert got == [
+        ("OUT1", None, None, ["DEST", "CLASS", "COPIES"]),
+        ("LOCAL", "S1", None, ["COPIES"]),
+        ("BARE", "S1", None, None),
+        ("INP", None, "P", ["FORMS"]),
+    ]
+    assert not {"OUTPUT"} & {r["kind"] for r in jcl_job_flow("//J JOB (A)\n//S EXEC PGM=X\n")}
+
+
+def test_a_sysout_dd_keeps_its_output_references_in_every_form():
+    jcl = (
+        "//J JOB (A)\n"
+        "//S EXEC PGM=X\n"
+        "//A DD SYSOUT=*,OUTPUT=*.OUT1\n"
+        "//B DD SYSOUT=A,OUTPUT=(*.OUT1,*.S.LOCAL)\n"
+        "//C DD SYSOUT=(A,,STD),\n"
+        "//     OUTPUT=(OUT2)\n"
+        "//D DD SYSOUT=*\n"
+    )
+    got = {r["dd_name"]: r.get("output_refs") for r in _flow(jcl, "SYSOUT")}
+    assert got == {"A": ["*.OUT1"], "B": ["*.OUT1", "*.S.LOCAL"], "C": ["OUT2"], "D": None}

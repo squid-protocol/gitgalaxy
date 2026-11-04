@@ -15,6 +15,9 @@
 #         parm (the text EXEC PARM= passes the program, #3624),
 #         if_cond (the enclosing IF conditions: `(RC = 0)`, `NOT (RC = 0)` in an
 #         ELSE, nested ones joined by ` AND `), in_proc (the PROC it belongs to)
+#         #7065, presence-keyed: rd (EXEC RD=), parm_overrides / cond_overrides (EXEC PARM.procstep= /
+#         COND.procstep= on a procedure call, [{step, parm|cond}] in coded order); on a JOB row restart
+#         (the RESTART= step) and restart_checkid (its checkid)
 #   DD    step_name (the step, or for an override `//PROCSTEP.DD` the proc step),
 #         dd_name, dsn (as written, generation stripped), disp (NEW / OLD / SHR /
 #         MOD; NEW when a DSN is coded without DISP), generation (+1 / 0 / -1),
@@ -251,6 +254,25 @@ def _parm(value: str | None) -> str | None:
     return v
 
 
+def _restart(value: str | None) -> tuple[str | None, str | None]:
+    """#7065: JOB `RESTART=stepname` or `RESTART=(stepname,checkid)` as (step, checkid); checkid None when omitted."""
+    if not value:
+        return None, None
+    v = value.strip()
+    if v.startswith("(") and v.endswith(")"):
+        v = v[1:-1]
+    step, _, checkid = v.partition(",")
+    return step.strip().upper() or None, checkid.strip().strip("'") or None
+
+
+def _step_overrides(keyed: dict[str, str]) -> dict[str, Any]:
+    """#7065: EXEC `PARM.procstep=` / `COND.procstep=` operands, in coded order, as presence-keyed
+    `parm_overrides` [{step, parm}] and `cond_overrides` [{step, cond}]."""
+    parms = [{"step": k[5:].upper(), "parm": _parm(v)} for k, v in keyed.items() if k.startswith("PARM.") and k[5:]]
+    conds = [{"step": k[5:].upper(), "cond": v} for k, v in keyed.items() if k.startswith("COND.") and k[5:]]
+    return {**({"parm_overrides": parms} if parms else {}), **({"cond_overrides": conds} if conds else {})}
+
+
 # #5154: what a JCL job assembles. A step is an assembler step when it runs one of these programs (HLASM
 # ASMA90 and its IEV90 alias, assembler F IEUASM / IFOX00, the older ASMAHL / ASMBLR) or calls a procedure that
 # wraps it: CICS's DFHAUPLE, the HLASM cataloged procedures ASMAC / ASMACG / ASMACL / ASMACLG and the assembler F
@@ -330,7 +352,18 @@ def jcl_job_flow(code_stream: str) -> list[dict[str, Any]]:
     for line, name, op, field in _statements(code_stream):
         if op == "JOB":
             job_ops = dict(_split(field))
-            rows.append(dict(blank, kind="JOB", name=name or None, cond=job_ops.get("COND"), line=line))
+            restart_step, restart_checkid = _restart(job_ops.get("RESTART"))
+            rows.append(
+                dict(
+                    blank,
+                    kind="JOB",
+                    name=name or None,
+                    cond=job_ops.get("COND"),
+                    line=line,
+                    **({"restart": restart_step} if restart_step else {}),
+                    **({"restart_checkid": restart_checkid} if restart_checkid else {}),
+                )
+            )
             in_proc, ordinal, step = None, 0, None
         elif op == "PROC":
             in_proc, ordinal, step = (name or "PROC"), 0, None
@@ -366,6 +399,9 @@ def jcl_job_flow(code_stream: str) -> list[dict[str, Any]]:
                     if_cond=" AND ".join(ifs) or None,
                     in_proc=in_proc,
                     line=line,
+                    # #7065: presence-keyed RD= and the per-proc-step overrides PARM.step= / COND.step=
+                    **({"rd": keyed["RD"].strip()} if keyed.get("RD") else {}),
+                    **_step_overrides(keyed),
                 )
             )
         elif op == "DD":

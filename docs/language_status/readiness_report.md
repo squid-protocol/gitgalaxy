@@ -60,8 +60,8 @@ source is corrected. Not counted among the rules to land below.
 | X14 | ASSUMED (REFUSED where IBM is silent) | CICS | 13 | 4 |
 | X22 | ASSUMED (REFUSED where IBM is silent or the layout decides) | CICS | 13 | 4 |
 | X3 | MATCHED | CICS | 9 | 7 |
+| X52 | ASSUMED (REFUSED where IBM is silent) | CICS | 8 | 2 |
 | X20 | MATCHED (REFUSED where the region cannot decide) | CICS | 7 | 4 |
-| X52 | ASSUMED (REFUSED where IBM is silent) | CICS | 4 | 2 |
 | X18 | ASSUMED (REFUSED where IBM is silent) | CICS | 3 | 3 |
 | X46 | ASSUMED (REFUSED where IBM is silent) | CICS | 3 | 3 |
 | X67 | REFUSED | CICS | 3 | 3 |
@@ -76,8 +76,8 @@ source is corrected. Not counted among the rules to land below.
 | L1 translated whole | 0 |
 | L2 executed equivalent | 0 |
 | L3 paragraph coverage | 0 |
-| L4 branch coverage | 10 |
-| L5 mutants accounted for | 0 |
+| L4 branch coverage | 0 |
+| L5 mutants accounted for | 10 |
 
 - translated whole: 10 / 10 (100%); with holes: 0; refused: 0
 - whole-translated but a CALL / LINK target has holes (below L2 until it is closed): 0

@@ -1,5 +1,5 @@
 {
- "commit": "e3b0ef12b",
+ "commit": "a1c4ac41d",
  "components": {
   "capabilities": {
    "groups": [
@@ -335,23 +335,23 @@
   "det_mutation": {
    "estates": {
     "aws-mainframe-modernization-carddemo": {
-     "caught": 3269,
+     "caught": 3928,
      "equivalent": 2081,
      "l5": 1,
      "measured": 25,
      "mutants": 30355,
      "programs": 44,
-     "raw_pct": 57.0,
+     "raw_pct": 56.3,
      "ready": 0,
      "sampled": 7239,
      "sampled_pct": 23.8,
-     "survived": 2462,
+     "survived": 3049,
      "unreachable": 250
     },
     "cics-async-api-credit-card-application-example": {
      "caught": 5737,
      "equivalent": 272,
-     "l5": 0,
+     "l5": 10,
      "measured": 10,
      "mutants": 6239,
      "programs": 10,
@@ -405,32 +405,32 @@
      "unreachable": 0
     },
     "zecs": {
-     "caught": 1169,
+     "caught": 1196,
      "equivalent": 869,
      "l5": 0,
      "measured": 4,
      "mutants": 2601,
      "programs": 7,
-     "raw_pct": 46.7,
-     "ready": 0,
+     "raw_pct": 47.8,
+     "ready": 1,
      "sampled": 2601,
      "sampled_pct": 100.0,
-     "survived": 1334,
+     "survived": 1307,
      "unreachable": 373
     }
    },
    "total": {
-    "caught": 11664,
+    "caught": 12350,
     "equivalent": 4116,
-    "l5": 1,
+    "l5": 11,
     "measured": 47,
     "mutants": 42693,
     "programs": 129,
-    "raw_pct": 67.3,
-    "ready": 0,
+    "raw_pct": 66.5,
+    "ready": 1,
     "sampled": 19233,
     "sampled_pct": 45.0,
-    "survived": 5675,
+    "survived": 6235,
     "unreachable": 1068
    }
   },
@@ -481,7 +481,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-11-04T11:27:44Z",
+  "as_of": "2026-11-04T11:55:01Z",
   "core": {
    "closed": 210,
    "open": 9,
@@ -770,14 +770,14 @@
     "l2_plus_pct": 100.0,
     "l4_plus": 10,
     "l4_plus_pct": 100.0,
-    "l5": 0,
+    "l5": 10,
     "levels": {
      "L0": 0,
      "L1": 0,
      "L2": 0,
      "L3": 0,
-     "L4": 10,
-     "L5": 0
+     "L4": 0,
+     "L5": 10
     },
     "programs": 10,
     "translated_whole": 10
@@ -853,17 +853,17 @@
   },
   "test_estates": {
    "cics-crucible": {
-    "l2_plus": 84,
-    "l2_plus_pct": 98.8,
-    "l4_plus": 82,
-    "l4_plus_pct": 96.5,
+    "l2_plus": 85,
+    "l2_plus_pct": 100.0,
+    "l4_plus": 85,
+    "l4_plus_pct": 100.0,
     "l5": 0,
     "levels": {
      "L0": 0,
-     "L1": 1,
-     "L2": 2,
+     "L1": 0,
+     "L2": 0,
      "L3": 0,
-     "L4": 82,
+     "L4": 85,
      "L5": 0
     },
     "programs": 85,
@@ -875,14 +875,14 @@
    "l2_plus_pct": 97.7,
    "l4_plus": 125,
    "l4_plus_pct": 96.9,
-   "l5": 1,
+   "l5": 11,
    "levels": {
     "L0": 3,
     "L1": 0,
     "L2": 0,
     "L3": 1,
-    "L4": 124,
-    "L5": 1
+    "L4": 114,
+    "L5": 11
    },
    "programs": 129,
    "reachable": 126,

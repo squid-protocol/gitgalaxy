@@ -769,3 +769,26 @@ def test_a_digit_only_varying_step_counts_as_ever(tmp_path):
     )
     assert run.returncode == 0, run.stderr
     assert "R=0005" in run.stdout.replace("\r", ""), run.stdout
+
+
+@pytest.mark.parametrize("literal", ["15", "1.5", "-15", "0"])
+@pytest.mark.parametrize("op", ["STRING {} DELIMITED BY SIZE INTO X", "STRING 'a' DELIMITED BY {} INTO X"])
+def test_a_numeric_literal_string_sender_or_delimiter_is_refused_by_name(literal, op, tmp_path):
+    """#7523: STRING (SC27-8713-03): "literal-1 or literal-2 must be of category alphanumeric, DBCS, or national", so a
+    numeric literal, integer or not, is a compile error on z/OS. A figurative constant stays valid."""
+    pytest.importorskip("tree_sitter_language_pack")
+    holes = _holes(_pprogram("PIC 99PP", op.format(literal), b"12"), tmp_path)
+    assert len(holes) == 1 and "a numeric literal is a compile error" in holes[0], holes
+
+
+@pytest.mark.parametrize(
+    "op",
+    [
+        "STRING 'a' ZERO DELIMITED BY SIZE INTO X",
+        "STRING 'a' DELIMITED BY SPACE INTO X",
+        "STRING N DELIMITED BY SIZE INTO X",
+    ],
+)
+def test_a_figurative_or_integer_item_string_sender_is_still_translated(op, tmp_path):
+    pytest.importorskip("tree_sitter_language_pack")
+    assert _holes(_pprogram("PIC 99PP", op, b"12"), tmp_path) == []

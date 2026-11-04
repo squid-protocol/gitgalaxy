@@ -297,6 +297,10 @@ def test_render_adds_the_census_section(rows_and_inv):
             "STRING sender <name>, PIC <name>(…)<name>: a numeric item with a P or a decimal place is a compile error",
             "STRING: numeric sender with P or a decimal place",
         ),
+        (
+            "STRING sender <name>: a numeric literal is a compile error in Enterprise COBOL (…)",
+            "STRING: numeric literal sender",
+        ),
         ("<name>: its bytes hold <name> <name>", "<name>: bytes overlap another item"),
         ("ACCEPT from SYSIN / console", "ACCEPT: from SYSIN / console"),
         ("PERFORM <name>: undeclared paragraph", "PERFORM: undeclared paragraph"),

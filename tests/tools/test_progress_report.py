@@ -202,6 +202,29 @@ def test_the_committed_level_plan_names_only_pinned_or_merged_horrors():
             assert not hit or len(hit) == len(c["horrors"]), (lv["name"], c["name"])
 
 
+def test_a_recorded_first_run_is_complete_and_consistent():
+    """Open World rule 5 (#7065): a level's first-time run is recorded once, with its date, the engine commit and the
+    key; its scan numbers add up and name every failing horror, and it reaches the report and the slide."""
+    plan = json.loads(pr.ESTATE_LEVELS.read_text())
+    pinned = json.loads(pr.ESTATE_CRUCIBLE.read_text())["horrors"]
+    recorded = [lv for lv in plan["levels"] if lv["first_run"]]
+    assert any(lv["name"] == "Batch Badlands" for lv in recorded)
+    for lv in recorded:
+        fr = lv["first_run"]
+        assert re.fullmatch(r"\d{4}-\d{2}-\d{2}", fr["date"]), lv["name"]
+        assert re.fullmatch(r"[0-9a-f]{7,40}", fr["engine"]), lv["name"]
+        assert re.fullmatch(r"v\d+\.\d+\.\d+", fr["key"]), lv["name"]
+        scan = fr["scan"]
+        assert scan["pass"] + len(scan["fail"]) == scan["horrors"], lv["name"]
+        assert set(scan["fail"]) <= set(pinned), lv["name"]
+        tr = fr["translate"]
+        assert tr["whole"] + tr["holes"] + tr["refused"] == tr["programs"], lv["name"]
+    out = pr.estate_levels(plan, {"horrors": pinned})
+    assert {lv["name"]: lv["first_run"]["date"] for lv in out if lv["first_run"]} == {
+        lv["name"]: lv["first_run"]["date"] for lv in recorded
+    }
+
+
 def test_estate_levels_members_match_the_pinned_key():
     """members_at_pin is the level app's COBOL / JCL count in the pinned release's key; checked against a local
     estate-crucible clone when one is present (ESTATE_CRUCIBLE_PATH, else ../estate-crucible beside the checkout)."""

@@ -47,7 +47,7 @@ description: "| Metric | Value |"
 **Architecture & Domain Sensors**
 - `api`: Matches `//name PROC` — a cataloged or in-stream procedure, the callable surface that `EXEC name` / `EXEC PROC=name` in other members invoke (the [api contract](../api_rule_contract.md)'s fallback family; the call site is a reference and does not count). Added by [#2748](https://github.com/squid-protocol/gitgalaxy/issues/2748). 13 declarations in 13 corpus files, invoked by 185 of its 376 `EXEC` statements.
 - `import`: Matches JCL includes (`INCLUDE`).
-- `_dependency_capture`: Captures the `MEMBER=` name for the dependency graph, as well as dataset names in `DD` statements and `JCLLIB` orders.
+- `_dependency_capture`: Captures the `MEMBER=` name for the dependency graph, as well as dataset names in `DD` statements. A `JCLLIB ORDER=` library is a PROC/INCLUDE search path, not a dataset a step reads, so it is not captured (#7065).
 - `ownership`: Matches ownership/maintainer comments like `//* Author:` (counted on the comment stream since #2610 — previously it only worked by accident on the code stream, see §10).
 - `telemetry`: Matches `MSGLEVEL=` / `MSGCLASS=` (job-log verbosity and routing — JCL's observability dials). Added by #2610.
 - `planned_debt` / `fragile_debt`: The shared `GLOBAL_PLANNED_DEBT` / `GLOBAL_FRAGILE_DEBT` comment-anchored patterns (same wiring as cobol) — a `//* TODO ...` / `//* HACK ...` banner in a job deck now counts. Added by #2610; structurally dead before it because JCL's comment stream was always empty (§10).

@@ -340,7 +340,7 @@
     "### ☢️ X-Ray & 🧱 Supply Chain Firewall",
     "- **Binary Anomalies (X-Ray):** `63` (High entropy, packed payloads, or magic byte mismatches).",
     "- **Blacklisted Dependencies:** `0` explicitly banned packages imported.",
-    "- **Unknown Dependencies:** `10645` packages imported that bypass the Zero-Trust whitelist.",
+    "- **Unknown Dependencies:** `10573` packages imported that bypass the Zero-Trust whitelist.",
     "",
     "## 11. RANKED ARTIFACTS (Top 25 by Structural Magnitude)",
     "> Ranked by Structural Magnitude: the file's structural weight and centralization within the system. Magnitude is **not** a risk score and is independent of the surface vectors in section 6. Each entry carries a **Blast Radius** line stating what a change to it would reach -- that, not the vector percentages, is the actionable part.",

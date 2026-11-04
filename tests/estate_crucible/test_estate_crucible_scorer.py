@@ -1392,3 +1392,14 @@ def test_a_utility_control_deck_is_scored_pass_not_unscored(program, dd, body, l
     flow = [_row("STEP", step_name="S1", step_ordinal=1, program=program, line=9), row]
     card = dict(_card(verb, operands, line), dd=dd, utility=program)
     assert _st(flow, "jcl_utility_cards", jcl_utility_cards=[card]) == ["pass"]
+
+
+def test_a_card_in_a_dd_whose_statement_continues_is_scored_on_the_engines_own_row():
+    """The engine's INSTREAM row for `//SYSIN DD *,` + `// DLM=ZZ` carries the statement's last line, so the card keyed
+    on its real source line passes (#7065)."""
+    from gitgalaxy.core.job_flow import jcl_job_flow
+
+    jcl = "//J JOB 'X'\n//S1 EXEC PGM=IDCAMS\n//SYSIN DD *,\n// DLM=ZZ\n  DELETE PROD.X -\n  PURGE\nZZ\n"
+    flow = [_row(**{**r, "kind": r["kind"]}) for r in jcl_job_flow(jcl)]
+    card = dict(_card("DELETE", "PROD.X PURGE", 5), dd="SYSIN", utility="IDCAMS")
+    assert _st(flow, "jcl_utility_cards", jcl_utility_cards=[card]) == ["pass"]

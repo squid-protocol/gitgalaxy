@@ -26,7 +26,7 @@ GalaxyIR, and diffs every fact channel of the key against it:
                   unkeyed until a later estate-crucible slice
   jcl_utility_cards  the control statements of an in-stream DD (job_flow_data INSTREAM rows); a DD outside
                   SYSIN / SYMNAMES / SORTCNTL / DFSPARM / TOOLIN / xxxxCNTL / SYSTSIN / STDPARM / STDIN / STDENV (SYSUT1, SORTIN) is unscored: the engine keeps no body
-  jcl_steps       STEP rows (+ job: the nearest preceding JOB row, none inside a PROC); JOB RESTART= (+ checkid), RD=, PARM.procstep=, COND.procstep= are unscored (no engine field)
+  jcl_steps       STEP rows (+ job: the nearest preceding JOB row, none inside a PROC); JOB RESTART= (+ checkid), RD=, PARM.procstep=, COND.procstep=, SET and INCLUDE are scored from their own job_flow rows
   jcl_dds         DD rows (an override DD `//PROCSTEP.DD` matches the row named after its proc step);
                   SYSOUT (+ class) and DUMMY DDs are their own row kinds (#7065); a sysout DD's output_refs (OUTPUT=)
                   are scored from the SYSOUT row's output_refs column

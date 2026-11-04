@@ -41,7 +41,7 @@
 #     In-stream `*` DDs are not DD rows.
 #     An in-stream control deck (`DD *` / `DD DATA` named SYSIN, SYMNAMES, SORTCNTL, DFSPARM, ICETOOL's TOOLIN and its USING(xxxx) xxxxCNTL, IKJEFT01's
 #     SYSTSIN, BPXBATCH's STDPARM / STDIN / STDENV, #4268) is an INSTREAM row: step_name, dd_name, in_proc, line,
-#     instream (the body as written). Other in-stream DDs (SORTIN, SYSUT1 data) are not kept. SYSTSIN's commands
+#     instream (the body as written); `line` is the DD statement's last physical line (the body starts on the next). Other in-stream DDs (SORTIN, SYSUT1 data) are not kept. SYSTSIN's commands
 #     are also read by the runs / systsin_member channel (RUN PROGRAM).
 #   - Its own statement reader, bounded per statement: a DD with a dotted
 #     override name (`//PRC001.FILEIN DD`) and IF / ELSE / ENDIF, which the
@@ -153,7 +153,7 @@ def _statements(code_stream: str) -> list[tuple[int, str, str, str]]:
     return out
 
 
-_INSTREAM_DD = re.compile(r"^//([^ \t]*)[ \t]+DD[ \t]+(\*|DATA)(?:,([^ \t]*))?(?:[ \t]|$)", re.I)
+_INSTREAM_DD = re.compile(r"^//([^ \t]*)[ \t]+DD[ \t]+(\*|DATA)((?:,[^ \t]*)?)(?:[ \t]|$)", re.I)
 _DLM = re.compile(r"DLM=(?:'(..)'|(..))", re.I)
 # The control-statement DDs a utility reads in-stream (DFSORT: SYSIN / SYMNAMES, SORTCNTL, DFSPARM; ICETOOL: TOOLIN;
 # IKJEFT01: SYSTSIN, the DSN / BIND subcommands; BPXBATCH: STDPARM, STDIN, STDENV, #4890).
@@ -170,13 +170,34 @@ def is_control_dd(name: str | None) -> bool:
     return dd in _CONTROL_DDS or bool(_USING_CNTL_DD.match(dd))
 
 
-def _instream_bodies(code_stream: str, dds: frozenset[str] | None = _CONTROL_DDS) -> dict[int, str]:
-    """DD statement line -> the in-stream body of a `DD *` / `DD DATA` named in `_CONTROL_DDS` (#4268).
+def _dd_continuation(lines: list[str], i: int, operands: str) -> tuple[str, int]:
+    """The operand text of a `DD *` statement whose operands run on: `(text, index of the first line after it)`.
+
+    A statement whose operand field ends in `,` continues on the next `//` line that has a blank in column 3; a
+    `//*` comment line between them neither ends nor joins it (as in `_statements`). `i` indexes the line after
+    the DD statement's first line."""
+    text = operands
+    while text.endswith(",") and i < len(lines):
+        line = lines[i][:72].rstrip()
+        if line.startswith("//*") or not line:
+            i += 1
+        elif line.startswith("//") and line[2:3] in " \t":
+            text += line[2:].strip().split(" ")[0].split("\t")[0]
+            i += 1
+        else:
+            break
+    return text, i
+
+
+def _instream_scan(code_stream: str, dds: frozenset[str] | None = _CONTROL_DDS) -> dict[int, tuple[str, int]]:
+    """DD statement line -> (the in-stream body of a `DD *` / `DD DATA` named in `_CONTROL_DDS`, the line of the
+    DD statement's last physical line) (#4268).
 
     `DD *` ends at `/*`, at the next `//` statement, or at its `DLM=xx` delimiter; `DD DATA` ends at `/*` (or its
-    DLM) only, a `//` line being data. A DD whose operands continue on the next line is not read (none seen)."""
+    DLM) only, a `//` line being data. A DD whose operands continue on `//` lines (`//SYSIN DD *,` then
+    `// DLM=ZZ`) is read with the continuation joined; the body starts after its last line."""
     lines = code_stream.split("\n")
-    out: dict[int, str] = {}
+    out: dict[int, tuple[str, int]] = {}
     i = 0
     while i < len(lines):
         m = _INSTREAM_DD.match(lines[i][:72])
@@ -184,16 +205,25 @@ def _instream_bodies(code_stream: str, dds: frozenset[str] | None = _CONTROL_DDS
         if not m or (dds is not None and not is_control_dd(m.group(1))):
             continue
         dd_line = i
-        dlm = _DLM.search(m.group(3) or "")
+        operands = m.group(3)  # the operand text from the comma after `*`
+        if operands.endswith(","):
+            operands, i = _dd_continuation(lines, i, operands)
+        dlm = _DLM.search(operands)
         end = (dlm.group(1) or dlm.group(2)) if dlm else "/*"
+        last = i
         body: list[str] = []
         while i < len(lines):
             if lines[i].startswith(end) or (m.group(2) == "*" and not dlm and lines[i].startswith("//")):
                 break
             body.append(lines[i].rstrip())
             i += 1
-        out[dd_line] = "\n".join(body).rstrip("\n")
+        out[dd_line] = ("\n".join(body).rstrip("\n"), last)
     return out
+
+
+def _instream_bodies(code_stream: str, dds: frozenset[str] | None = _CONTROL_DDS) -> dict[int, str]:
+    """DD statement line -> the in-stream body (see `_instream_scan`)."""
+    return {k: v[0] for k, v in _instream_scan(code_stream, dds).items()}
 
 
 def _disp(value: str | None) -> str | None:
@@ -380,7 +410,7 @@ def jcl_job_flow(code_stream: str) -> list[dict[str, Any]]:
     last_dd: str | None = None
     last_dd_step: str | None = None
     ifs: list[str] = []
-    bodies = _instream_bodies(code_stream)
+    bodies = _instream_scan(code_stream)
     for line, name, op, field in _statements(code_stream):
         if op == "JOB":
             job_ops = dict(_split(field))
@@ -481,8 +511,8 @@ def jcl_job_flow(code_stream: str) -> list[dict[str, Any]]:
                         step_name=dd_step,
                         dd_name=dd_name or None,
                         in_proc=in_proc,
-                        line=line,
-                        instream=bodies[line],
+                        line=bodies[line][1],  # the DD's last physical line: the body starts on the next
+                        instream=bodies[line][0],
                     )
                 )
                 continue

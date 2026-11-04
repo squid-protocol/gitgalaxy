@@ -249,3 +249,28 @@ def test_proc_step_parm_and_cond_overrides_keep_coded_order_and_quoting():
 def test_a_plain_step_keeps_its_old_shape_without_the_new_keys():
     step = _flow("//J JOB (A)\n//S EXEC PGM=X,PARM='Y',COND=(4,LT)\n", "STEP")[0]
     assert not {"rd", "parm_overrides", "cond_overrides"} & step.keys()
+
+
+def test_set_keeps_one_row_per_symbol_and_include_keeps_its_member():
+    jcl = (
+        "//J JOB (A)\n"
+        "// SET HLQ=PROD,MSG='A,B',\n"
+        "//     Q='IT''S'\n"
+        "//S1 EXEC PGM=X\n"
+        "// INCLUDE MEMBER=bdldds\n"
+        "//P PROC\n"
+        "// SET LOCAL=1\n"
+        "//PS EXEC PGM=Y\n"
+        "// INCLUDE MEMBER=INPROC\n"
+        "// PEND\n"
+    )
+    sets = [(r["name"], r["parm"], r["in_proc"]) for r in _flow(jcl, "SET")]
+    assert sets == [("HLQ", "PROD", None), ("MSG", "A,B", None), ("Q", "IT'S", None), ("LOCAL", "1", "P")]
+    inc = [(r["name"], r["step_name"], r["in_proc"]) for r in _flow(jcl, "INCLUDE")]
+    assert inc == [("BDLDDS", "S1", None), ("INPROC", "PS", "P")]
+    assert [r["kind"] for r in jcl_job_flow(jcl)].count("STEP") == 2
+
+
+def test_a_job_without_set_or_include_has_no_such_rows_and_a_memberless_include_is_dropped():
+    assert not {"SET", "INCLUDE"} & {r["kind"] for r in jcl_job_flow("//J JOB (A)\n//S EXEC PGM=X\n")}
+    assert _flow("//J JOB (A)\n// INCLUDE\n//S EXEC PGM=X\n", "INCLUDE") == []

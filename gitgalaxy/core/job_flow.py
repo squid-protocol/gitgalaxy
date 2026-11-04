@@ -18,6 +18,9 @@
 #         #7065, presence-keyed: rd (EXEC RD=), parm_overrides / cond_overrides (EXEC PARM.procstep= /
 #         COND.procstep= on a procedure call, [{step, parm|cond}] in coded order); on a JOB row restart
 #         (the RESTART= step) and restart_checkid (its checkid)
+#   SET   #7065: one row per `// SET NAME=value` operand: name (the symbol), parm (its value, quotes removed),
+#         in_proc, line. INCLUDE: name (the MEMBER=), step_name (the step above it), in_proc, line. The member is not
+#         expanded.
 #   DD    step_name (the step, or for an override `//PROCSTEP.DD` the proc step),
 #         dd_name, dsn (as written, generation stripped), disp (NEW / OLD / SHR /
 #         MOD; NEW when a DSN is coded without DISP), generation (+1 / 0 / -1),
@@ -55,6 +58,7 @@ _STATEMENT_LIMIT = 4000
 # JCL operand names (not dict keys): named so the dead-key audit does not read them as payload keys
 _KW_RESTART = "RESTART"
 _KW_RD = "RD"
+_KW_MEMBER = "MEMBER"
 _GEN = re.compile(r"\(([+-]?[0-9]{1,3})\)$")
 
 
@@ -378,6 +382,17 @@ def jcl_job_flow(code_stream: str) -> list[dict[str, Any]]:
             ifs[-1] = f"NOT {ifs[-1]}"
         elif op == "ENDIF" and ifs:
             ifs.pop()
+        elif op == "SET":
+            # #7065: z/OS MVS JCL Reference, SET: one symbol per NAME=value operand, in coded order
+            rows.extend(
+                dict(blank, kind="SET", name=k, parm=_parm(v), in_proc=in_proc, line=line)
+                for k, v in _split(field)
+                if k
+            )
+        elif op == "INCLUDE":
+            member = next((v.strip().upper() for k, v in _split(field) if k == _KW_MEMBER), None)
+            if member:
+                rows.append(dict(blank, kind="INCLUDE", name=member, step_name=step, in_proc=in_proc, line=line))
         elif op == "EXEC":
             exec_ops = _split(field)
             keyed = {k: v for k, v in exec_ops if k}

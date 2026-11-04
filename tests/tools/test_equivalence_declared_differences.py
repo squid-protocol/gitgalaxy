@@ -134,3 +134,36 @@ def test_compare_item_reverses_the_oracle_item_on_the_area_and_the_dto_paths(tmp
     assert bad
     bad, _ = ec.compare_item(case, tmp_path, u, lo, {"h": -2, "w": 70001}, None, props, "latin-1", True)
     assert [b["field"] for b in bad] == ["ITEM.W"]
+
+
+# --- cics file comparator (#7646 slice 5) ---
+
+
+def _files_fixture(tmp_path, monkeypatch, left, right):
+    ecx = pytest.importorskip("equivalence_cics")
+    layout = [_field("H", 0, 2, "S9(4)", "COMP-5"), _field("W", 2, 4, "S9(9)", "COMP-5")]
+    monkeypatch.setattr(ecx.common, "layout_fields", lambda *a, **k: layout)
+    (tmp_path / "out").mkdir()
+    (tmp_path / "out" / "s.F.out").write_bytes(right)
+    f = [{"base": "F", "reclen": 6, "key_offset": 0, "key_length": 2}]
+    return ecx, f
+
+
+def _run(ecx, tmp_path, f, left, extra):
+    case = {"name": "c", "datasets": {"F": {"copybook": "x.cpy"}}, **extra}
+    return ecx.compare_files(case, tmp_path, f, {"F": left}, tmp_path / "out", "s")
+
+
+def test_compare_files_reverses_the_oracle_records_only_when_declared(tmp_path, monkeypatch):
+    lo, be = struct.pack("<hi", 1, 70000), struct.pack(">hi", 1, 70000)
+    ecx, f = _files_fixture(tmp_path, monkeypatch, lo, be)
+    assert _run(ecx, tmp_path, f, lo, {"declared_differences": ["comp5_byte_order"]}) == {}
+    assert "F" in _run(ecx, tmp_path, f, lo, {})  # undeclared: exactly as before, a difference
+    # a port that kept the oracle's little-endian image is NOT equal under the declaration (raw equality is not a pass)
+    (tmp_path / "out" / "s.F.out").write_bytes(lo)
+    assert "F" in _run(ecx, tmp_path, f, lo, {"declared_differences": ["comp5_byte_order"]})
+    assert _run(ecx, tmp_path, f, lo, {}) == {}
+    # a real value difference still differs
+    (tmp_path / "out" / "s.F.out").write_bytes(struct.pack(">hi", 1, 70001))
+    d = _run(ecx, tmp_path, f, lo, {"declared_differences": ["comp5_byte_order"]})
+    assert [x["field"] for x in d["F"]["diffs"][0]["fields"]] == ["W"]

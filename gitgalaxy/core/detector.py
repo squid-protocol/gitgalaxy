@@ -2855,6 +2855,10 @@ _WORD_NAME_RE = re.compile(r"\w+")
 # per-name `name(?![...])` pattern would recompile the wide class for every function.
 _HASKELL_NAME_CHAR = re.compile(r"['" + ID_CONTINUE + r"]")
 
+# #6454: a column-0 C-preprocessor line (`#ifdef`, `#else`, `#endif`) between a Haskell function's
+# statements is not a new top-level definition; it must not end the body (calls past it were lost).
+_HASKELL_CPP_LINE = re.compile(r"#[ \t]*(?:if|ifdef|ifndef|elif|else|endif|define|undef|include)\b")
+
 # #3182: a name that is a single maximal word-or-hyphen run. The bisect fast
 # path in `_is_orphan` accepts these too, because coding_analysis indexes the
 # segment-aligned hyphenated sub-runs of every `[\w-]+` token (see the
@@ -8488,6 +8492,9 @@ class StructuralExtractor:
                         ):
                             if equation_start_idx is None:
                                 equation_start_idx = scan_pos
+                            scan_pos = line_end
+                            continue
+                        if lang_id == "haskell" and _HASKELL_CPP_LINE.match(stripped):
                             scan_pos = line_end
                             continue
                         end_idx = scan_pos

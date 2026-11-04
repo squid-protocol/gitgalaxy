@@ -1750,7 +1750,7 @@
     },
     "haskell/pandoc": {
       "haskell/pandoc/AUTHORS.md": -86.45,
-      "haskell/pandoc/App.hs": -124.86,
+      "haskell/pandoc/App.hs": -124.87,
       "haskell/pandoc/CONTRIBUTING.md": -249.4,
       "haskell/pandoc/COPYING.md": -133.66,
       "haskell/pandoc/COPYRIGHT": -119.48,

@@ -26620,7 +26620,7 @@
       "haskell/pandoc/App.hs": {
         "adjustMetadata@417": 1,
         "configureCommonState@351": 1,
-        "convertWithOpts'@138": 0,
+        "convertWithOpts'@138": 1,
         "convertWithOpts@83": 0,
         "createPngFallbacks@380": 1,
         "defFlavor@152": 1,
@@ -26632,8 +26632,8 @@
         "isWarning@114": 0,
         "makeSandboxed@165": 1,
         "readAbbreviations@372": 1,
-        "writeFnBinary@420": 0,
-        "writerFn@424": 0
+        "writeFnBinary@420": 1,
+        "writerFn@424": 1
       },
       "haskell/pandoc/Filter.hs": {
         "applyFilter@87": 0,

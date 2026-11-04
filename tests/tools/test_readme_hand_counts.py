@@ -162,3 +162,24 @@ def test_snapshot_counts_in_tests_readme_and_claude_md_are_dated(page, pattern):
     text = (REPO / page).read_text(encoding="utf-8")
     for m in found:
         assert re.search(r"\d{4}-\d{2}-\d{2}", text[m.start() : m.end() + 160]), f"{page}: undated count: {m.group(0)}"
+
+
+def test_wiki_and_network_auditing_counts_match_the_code():
+    """#7626 slice 4: the registry, signal and framework-profile counts quoted in docs/wiki/01-* and the network-audit README."""
+    from gitgalaxy.metrics.signal_processor import SignalProcessor
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+    from gitgalaxy.tools.network_auditing.full_api_network_map import FRAMEWORK_SIGNATURES
+
+    rag = (REPO / "docs" / "wiki" / "01-06-the-structural-rag-graph.md").read_text(encoding="utf-8")
+    overview = (REPO / "docs" / "wiki" / "01-01-project-overview.md").read_text(encoding="utf-8")
+    n_sig, n_lang = len(SignalProcessor.SIGNAL_SCHEMA), len(LANGUAGE_DEFINITIONS)
+    n_ext = len({e for d in LANGUAGE_DEFINITIONS.values() for e in d.get("extensions") or []})
+    assert f"{n_sig}-signal" in rag
+    assert f"{n_lang} languages" in overview and f"{n_ext} file extensions" in overview
+    for text in (rag, overview):
+        for m in re.finditer(rf"\b{n_lang} (?:registered )?languages|\b{n_ext} file extensions", text):
+            assert re.search(r"as of \d{4}-\d{2}-\d{2}", text[m.start() : m.end() + 80]), f"undated: {m.group(0)}"
+    readme = (REPO / "gitgalaxy" / "tools" / "network_auditing" / "README.md").read_text(encoding="utf-8")
+    names = {n.split(" (")[0] for n in FRAMEWORK_SIGNATURES}
+    assert "nine framework profiles" in readme and len(FRAMEWORK_SIGNATURES) == 9
+    assert "eight languages" in readme and len(names) == 8  # two C# profiles share one language

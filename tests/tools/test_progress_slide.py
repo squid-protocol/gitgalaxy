@@ -105,12 +105,11 @@ def test_every_number_on_the_slide_is_the_progress_json_value(report):
     ]
     for w in want:
         assert w in texts, w
-    # the total row: one count per level, then the programs
-    total_cells = [str(lad["total"]["levels"][k]) if lad["total"]["levels"][k] else "·" for k in pr.LEVELS]
-    joined = " ".join(texts)
-    assert " ".join([*total_cells, str(lad["total"]["programs"])]) in joined or all(c in texts for c in total_cells)
+    assert f"{lad['total']['l4_plus']} / {lad['total']['programs']}" in texts  # the highlighted L4 tile
+    # each estate row and the total end in its L4+ count; the bars carry the per-level counts
+    assert f"{lad['total']['l4_plus']} / {lad['total']['programs']} at L4+" in texts
     for estate in lad["estates"].values():
-        assert str(estate["programs"]) in texts
+        assert f"{estate['l4_plus']} / {estate['programs']} at L4+" in texts
     for era, row in report["eras"].items():
         if era != "none" and row["programs"]:
             assert f"{row['programs']} programs" in texts
@@ -165,6 +164,27 @@ def test_the_language_row_leaves_out_the_families_that_are_not_cobol():
 def test_the_spec_tables_are_shown_as_depth_of_the_rules_not_as_more_rules(report):
     row = next(r for r in report["components"]["capabilities"]["rows"] if r["name"] == "Runtime spec tables")
     assert row["of"] is None and "part of the rules above" in row["note"]
+
+
+def test_external_and_internal_estates_are_apart_and_the_levels_show_their_build(report):
+    texts = _texts(ps.render(report))
+    joined = " ".join(texts)
+    assert joined.index("External estates:") < joined.index("All external estates") < joined.index("Internal estates:")
+    for lv in report["components"]["crucibles"]["estate_crucible"]["levels"]:
+        assert lv["name"] in texts
+        assert f"{lv['built']} of {lv['constructs']} planned constructs" in texts
+        assert f"{lv['built_pct']:.0f}%" in texts
+
+
+def test_every_program_below_l4_is_named_with_its_reason(report):
+    texts = _texts(ps.render(report))
+    below = report["ladder"]["below_l4"]
+    if not below:
+        pytest.skip("the fixture estates have no program below L4")
+    assert any(t.startswith(f"Below L4") and f"{len(below)} programs" in t for t in texts)
+    for b in below:
+        assert any(b["program"] in t for t in texts), b["program"]
+        assert b["why"] in texts
 
 
 def test_a_test_estate_is_shown_and_never_counted():

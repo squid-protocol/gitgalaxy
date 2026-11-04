@@ -21,6 +21,7 @@ sys.path.insert(0, str(TOOLS))
 sys.path.insert(0, str(TOOLS.parents[1]))
 
 import capability_ledger  # noqa: E402
+import ladder_exclusions  # noqa: E402
 
 W = 1280
 PAD = 40
@@ -41,8 +42,9 @@ LEVELS = [
     ("L2", "Runs equal", "same outputs as the oracle"),
     ("L3", "Every paragraph", "tests run every paragraph"),
     ("L4", "Every branch", "tests take every branch"),
-    ("L5", "Mutants accounted", "every planted bug caught or explained"),
+    ("L5", "Mutants accounted", "planted bugs caught or explained"),
 ]
+LEVELS_IDX = {lv: i for i, (lv, _, _) in enumerate(LEVELS)}
 ERAS = [
     ("0", "~1969-80", "Macro-level CICS", "ANS 68 COBOL", "DFHxx macros, CSA/TCA"),
     ("1", "~1978-88", "CICS/VS command level", "OS/VS COBOL (74)", "BLL cells, HANDLE CONDITION"),
@@ -170,7 +172,7 @@ def render(prog: dict[str, Any]) -> str:
     s.text(
         PAD,
         y + 52,
-        f"{len(estates)} burned estates, {n_prog} programs. Generated from main {prog['commit'][:9]}"
+        f"{len(estates)} external (burned) estates, {n_prog} programs. Generated from main {prog['commit'][:9]}"
         f"{' on ' + iss['as_of'][:10] if measured else '; GitHub counts ' + NOT_MEASURED}. Oracle: GnuCOBOL plus IBM documentation (not yet measured on z/OS).",
         cls="t3",
         size=14,
@@ -178,41 +180,42 @@ def render(prog: dict[str, Any]) -> str:
     y += 80
 
     # ---------------------------------------------------------------- hero tiles
-    tw, th, gap = (W - 2 * PAD - 3 * 16) / 4, 112, 16
+    gap = 14
+    tw, th = (W - 2 * PAD - 4 * gap) / 5, 112
+    l4p = lad["total"]["l4_plus"]
     tiles = [
         (
             f"{comp['translator']['whole']} / {comp['translator']['of']}",
             pct(comp["translator"]["whole"], comp["translator"]["of"]),
-            "programs translated whole",
-            "Java with no holes (L1 or above)",
+            "translated whole",
+            "Java with no holes (L1+)",
+            False,
         ),
-        (
-            f"{l2p} / {n_prog}",
-            pct(l2p, n_prog),
-            "programs run equal to the oracle",
-            "same outputs on their cases (L2 or above)",
-        ),
-        (
-            f"{comp['cics']['modelled_both_runtimes']} / {comp['cics']['burned_commands']}",
-            pct(comp["cics"]["modelled_both_runtimes"], comp["cics"]["burned_commands"]),
-            "CICS commands the estates use",
-            "modelled on both runtimes",
-        ),
+        (f"{l2p} / {n_prog}", pct(l2p, n_prog), "run equal to the oracle", "same outputs on their cases (L2+)", False),
+        (f"{l4p} / {n_prog}", pct(l4p, n_prog), "take every branch", "every branch outcome run (L4+)", True),
         (
             f"{total['L5']} / {n_prog}",
             pct(total["L5"], n_prog),
             "programs at L5",
             f"{det['total']['ready']} more pass, awaiting a refresh",
+            False,
+        ),
+        (
+            f"{comp['cics']['modelled_both_runtimes']} / {comp['cics']['burned_commands']}",
+            pct(comp["cics"]["modelled_both_runtimes"], comp["cics"]["burned_commands"]),
+            "CICS commands used",
+            "modelled on both runtimes",
+            False,
         ),
     ]
-    for i, (big, p, lab, sub) in enumerate(tiles):
+    for i, (big, p, lab, sub, hi) in enumerate(tiles):
         x = PAD + i * (tw + gap)
-        s.rect(x, y, tw, th, "card", rx=10)
-        s.text(x + 18, y + 44, big, cls="t1", size=32, weight=700)
+        s.rect(x, y, tw, th, "card-hi" if hi else "card", rx=10)
+        s.text(x + 16, y + 42, big, cls="t1", size=26, weight=700)
         if p:
-            s.text(x + tw - 18, y + 44, p, cls="t2", size=22, weight=600, anchor="end")
-        s.text(x + 18, y + 72, lab, cls="t1", size=15, weight=600)
-        s.text(x + 18, y + 94, sub, cls="t3", size=13)
+            s.text(x + tw - 14, y + 42, p, cls="hi" if hi else "t2", size=18, weight=700 if hi else 600, anchor="end")
+        s.text(x + 16, y + 70, lab, cls="t1", size=14.5, weight=600)
+        s.text(x + 16, y + 92, sub, cls="t3", size=12)
     y += th + 36
 
     # ---------------------------------------------------------------- ladder
@@ -220,46 +223,25 @@ def render(prog: dict[str, Any]) -> str:
     s.text(
         PAD,
         y + 22,
-        "Each program sits at the highest level it has reached. Levels from definition_of_done.md.",
+        "Each program sits at the highest level it has reached (definition_of_done.md). Bars: level · programs.",
         cls="t3",
         size=13,
     )
-    y += 40
-    lw = (W - 2 * PAD) / 3
+    y += 46
+    lw = (W - 2 * PAD) / len(LEVELS)
     for i, (lv, name, desc) in enumerate(LEVELS):
-        x, yy = PAD + (i % 3) * lw, y + (i // 3) * 26
-        s.rect(x, yy, 14, 14, f"lv{i}", rx=3)
-        s.text(x + 22, yy + 12, f"{lv} {name}:", cls="t1", size=13.5, weight=600)
-        s.text(x + 22 + 7.6 * len(f"{lv} {name}:") + 6, yy + 12, desc, cls="t3", size=12.5)
-    y += 62
-    name_w, cnt_w, row_h, bar_h = 190, 6 * 46 + 70, 34, 22
-    bar_x, bar_w = PAD + name_w, W - 2 * PAD - name_w - cnt_w - 20
-    cx0 = bar_x + bar_w + 20
-    s.text(PAD, y + 4, "Estate", cls="t3", size=12, weight=600)
-    s.text(
-        bar_x,
-        y + 4,
-        "Share of the estate's programs at each level (segments: level · programs)",
-        cls="t3",
-        size=12,
-        weight=600,
-    )
-    for j, (lv, _, _) in enumerate(LEVELS):
-        s.text(cx0 + 46 * j + 30, y + 4, lv, cls="t3", size=12, weight=600, anchor="end")
-    s.text(cx0 + 46 * 6 + 60, y + 4, "Programs", cls="t3", size=12, weight=600, anchor="end")
-    y += 14
-    rows = sorted(estates.items(), key=lambda kv: -kv[1]["programs"]) + [
-        ("__total__", {"levels": total, "programs": n_prog})
-    ]
-    rows += list(lad.get("test_estates", {}).items())  # below the total: never part of it
-    for key, e in rows:
-        is_total = key == "__total__"
-        nm = "All estates" if is_total else ESTATE_NAMES.get(key) or TEST_ESTATE_NAMES.get(key, key)
-        if is_total:
-            s.add(f'<line x1="{PAD}" x2="{W - PAD}" y1="{y + 4}" y2="{y + 4}" class="rule"/>')
-            y += 8
+        x = PAD + i * lw
+        s.rect(x, y - 2, 18, 18, f"lv{i}", rx=4)
+        s.text(x + 26, y + 13, f"{lv} {name}", cls="t1", size=15, weight=700)
+        s.text(x + 26, y + 32, desc, cls="t3", size=11.5)
+    y += 52
+    name_w, sum_w, row_h, bar_h = 200, 150, 34, 24
+    bar_x, bar_w = PAD + name_w, W - 2 * PAD - name_w - sum_w
+
+    def ladder_row(nm: str, e: dict[str, Any], bold: bool = False) -> None:
+        nonlocal y
         vals = [e["levels"][k] for k in ["L0", "L1", "L2", "L3", "L4", "L5"]]
-        s.text(PAD, y + 20, nm, cls="t1", size=14, weight=700 if is_total else 500)
+        s.text(PAD, y + 21, nm, cls="t1", size=14, weight=700 if bold else 500)
         stacked(
             s,
             bar_x,
@@ -272,28 +254,108 @@ def render(prog: dict[str, Any]) -> str:
             label_cls=["on-light", "on-light", "on-light", "on-dark", "on-light", "on-dark"],
             names=[lv for lv, _, _ in LEVELS],
         )
-        for j, v in enumerate(vals):
-            s.text(
-                cx0 + 46 * j + 30,
-                y + 20,
-                v if v else "·",
-                cls="t1" if v else "t3",
-                size=14,
-                weight=700 if is_total else 400,
-                anchor="end",
-            )
-        s.text(cx0 + 46 * 6 + 60, y + 20, e["programs"], cls="t1", size=14, weight=700, anchor="end")
+        l4 = e["levels"]["L4"] + e["levels"]["L5"]
+        s.text(W - PAD, y + 21, f"{l4} / {e['programs']} at L4+", cls="t1", size=14, weight=700 if bold else 600,
+               anchor="end")  # fmt: skip
         y += row_h
-    if lad.get("test_estates"):
+
+    def group_head(title: str, sub: str) -> None:
+        nonlocal y
+        s.text(PAD, y + 14, title, cls="t1", size=15.5, weight=700)
+        s.text(PAD, y + 32, sub, cls="t3", size=12.5)
+        y += 42
+
+    group_head(
+        f"External estates: {len(estates)} real codebases we did not write (burned), {n_prog} programs",
+        "IBM and AWS sample applications. Their totals are the headline numbers above.",
+    )
+    for key, e in sorted(estates.items(), key=lambda kv: -kv[1]["programs"]):
+        ladder_row(ESTATE_NAMES.get(key, key), e)
+    s.add(f'<line x1="{PAD}" x2="{W - PAD}" y1="{y + 4}" y2="{y + 4}" class="rule"/>')
+    y += 8
+    ladder_row("All external estates", {"levels": total, "programs": n_prog}, bold=True)
+    y += 14
+
+    # the stance: what stops below L4, and why -- named, so nothing looks dropped
+    below = lad.get("below_l4") or []
+    if below:
+        groups: dict[tuple, list[str]] = {}
+        for b in below:
+            groups.setdefault((b["kind"], b["estate"], b["level"], b["why"], b["issue"]), []).append(b["program"])
+        bh = 54 + 24 * len(groups)
+        s.rect(PAD, y, W - 2 * PAD, bh, "card", rx=10)
+        n_below = len(below)
+        n_open = sum(1 for b in below if b["kind"] == "open")
+        head = "by decision" if not n_open else "each named"
+        s.text(PAD + 18, y + 26, f"Below L4 {head}: {n_below} programs, named, not dropped", cls="t1", size=15,
+               weight=700)  # fmt: skip
+        s.text(
+            PAD + 18,
+            y + 44,
+            f"Each stays in the denominator. {n_below - n_open} stop where a ruling stops them"
+            + (f"; {n_open} still climbing." if n_open else "; every other program is at L4 or above."),
+            cls="t3",
+            size=12.5,
+        )
+        yy = y + 70
+        for (kind, estate, lv, why, issue), progs in sorted(groups.items(), key=lambda kv: (kv[0][2], kv[0][1])):
+            s.rect(PAD + 18, yy - 12, 30, 16, f"lv{LEVELS_IDX[lv]}", rx=3)
+            s.text(PAD + 33, yy + 1, lv, cls="on-dark" if lv in ("L3", "L5") else "on-light", size=11, weight=700,
+                   anchor="middle")  # fmt: skip
+            s.text(PAD + 58, yy, f"{ESTATE_NAMES.get(estate, estate)} {', '.join(progs)}", cls="t1", size=13.5,
+                   weight=600)  # fmt: skip
+            s.text(PAD + 330, yy, ladder_exclusions.KIND_SHORT.get(kind, kind), cls="t2", size=13, weight=700)
+            s.text(PAD + 470, yy, why, cls="t3", size=12.5)
+            if issue:
+                s.text(W - PAD - 18, yy, issue, cls="t2", size=12.5, weight=600, anchor="end")
+            yy += 24
+        y += bh + 26
+
+    # internal estates: ours, written to break the translator; never in a total
+    tests = lad.get("test_estates") or {}
+    cc = (comp.get("crucibles") or {}).get("estate_crucible") or {}
+    levels = cc.get("levels") or []
+    if tests or levels:
+        group_head(
+            "Internal estates: written by us to break the translator",
+            "Kept out of every total above. A crucible finds the gaps before a customer estate does.",
+        )
+        for key, e in tests.items():
+            ladder_row(TEST_ESTATE_NAMES.get(key, key), e)
+        y += 10
+    if levels:
+        s.text(PAD, y + 14, "Estate crucible: the Open World levels", cls="t1", size=15, weight=700)
         s.text(
             PAD,
-            y + 8,
-            "A test estate is written to break the translator, so it stays out of the totals above.",
+            y + 32,
+            f"Each level is built blind before its support lands; its first run is measured once (rule 5). "
+            f"Built = planned constructs planted at the pinned release {cc.get('ref')}; "
+            f"{cc.get('pass')} of {cc.get('horrors')} horrors pass there.",
             cls="t3",
-            size=12,
+            size=12.5,
         )
-        y += 18
-    y += 30
+        y += 46
+        cg = 16
+        cw, ch = (W - 2 * PAD - (len(levels) - 1) * cg) / len(levels), 178
+        for i, lv in enumerate(levels):
+            x = PAD + i * (cw + cg)
+            s.rect(x, y, cw, ch, "card", rx=10)
+            s.text(x + 16, y + 26, lv["name"], cls="t1", size=15.5, weight=700)
+            s.text(x + 16, y + 45, f"Level {lv['region']} · {lv['about']}", cls="t3", size=12)
+            bp = lv["built_pct"] or 0
+            s.text(x + 16, y + 84, f"{bp:.0f}%", cls="t1", size=30, weight=700)
+            s.text(x + 16 + 20 * len(f"{bp:.0f}%") + 12, y + 84, "built", cls="t2", size=14, weight=600)
+            s.rect(x + 16, y + 96, cw - 32, 10, "track", rx=4)
+            s.rect(x + 16, y + 96, (cw - 32) * bp / 100, 10, "lv4", rx=4,
+                   title=f"{lv['name']}: {lv['built']} of {lv['constructs']} planned constructs")  # fmt: skip
+            s.text(x + 16, y + 126, f"{lv['built']} of {lv['constructs']} planned constructs", cls="t2", size=12.5,
+                   weight=600)  # fmt: skip
+            s.text(x + 16, y + 145, f"{lv['horrors']} horrors, {lv['pass']} pass", cls="t3", size=12)
+            fr = lv.get("first_run")
+            s.text(x + 16, y + 164, f"First-time run: {fr['date'] + ' at ' + fr['commit'][:9] if fr else 'pending'}",
+                   cls="t3", size=12)  # fmt: skip
+        y += ch
+    y += 40
 
     # ---------------------------------------------------------------- L5
     s.text(PAD, y, "L5: what it rests on", cls="t1", size=20, weight=700)
@@ -631,6 +693,7 @@ def render(prog: dict[str, Any]) -> str:
     svg {{ font-family: {FONT}; }}
     .bg {{ fill: #fcfcfb; }}
     .card {{ fill: #f3f2ef; }}
+    .card-hi {{ fill: #f3f2ef; stroke: {LADDER_LIGHT[4]}; stroke-width: 2.5; }} .hi {{ fill: #127a55; }}
     .track {{ fill: #e6e5e0; }}
     .rule {{ stroke: #c3c2b7; stroke-width: 1; }}
     .t1 {{ fill: #0b0b0b; }} .t2 {{ fill: #3a3936; }} .t3 {{ fill: #52514e; }}
@@ -641,7 +704,8 @@ def render(prog: dict[str, Any]) -> str:
     .st-good {{ fill: #0ca30c; }} .st-warn {{ fill: none; stroke: #c98500; stroke-width: 2; }}
     .st-warn-fill {{ fill: #c98500; }} .st-none {{ fill: none; stroke: #8a8984; stroke-width: 2; }}
     @media (prefers-color-scheme: dark) {{
-      .bg {{ fill: #1a1a19; }} .card {{ fill: #242422; }} .track {{ fill: #383835; }} .rule {{ stroke: #52514e; }}
+      .bg {{ fill: #1a1a19; }} .card {{ fill: #242422; }}
+      .card-hi {{ fill: #242422; stroke: {LADDER_DARK[4]}; }} .hi {{ fill: #3ccf98; }} .track {{ fill: #383835; }} .rule {{ stroke: #52514e; }}
       .t1 {{ fill: #f0efec; }} .t2 {{ fill: #dddcd6; }} .t3 {{ fill: #c3c2b7; }}
       .on-light {{ fill: #0b0b0b; }} .prog {{ fill: #3987e5; }}
       {"".join(f".lv{i} {{ fill: {c}; }} " for i, c in enumerate(LADDER_DARK))}

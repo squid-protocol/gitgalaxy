@@ -104,6 +104,7 @@ museum_2/
 # and mypy_audit_baseline.json -- these are source, not generated output.
 !tests/*_baseline.json
 !tests/*_baseline_*.json
+!tests/estate_crucible/levels.json
 # The DOOM's DNA article's data file, served by the docs site (docs/wiki/museum-of-code/doom-dna/)
 !docs/wiki/museum-of-code/doom-dna/data.json
 # The "Every Model Has a Tell" (agent habits) article's data and call graphs, served by the docs site

@@ -59,6 +59,7 @@ RULES = STATUS_DOCS / "cobolrt_rules.json"
 MUTATION = STATUS_DOCS / "mutation_scores.json"
 CICS_CRUCIBLE = REPO / "tests" / "cics_crucible" / "coverage.json"
 ESTATE_CRUCIBLE = REPO / "tests" / "estate_crucible" / "baseline.json"
+ESTATE_LEVELS = REPO / "tests" / "estate_crucible" / "levels.json"  # the Open World levels' plan (#7065)
 ISSUES_CACHE = STATUS_DOCS / "progress_issues_cache.json"  # git-ignored (*.json); `fetch` writes it
 CACHE_ENV = "PROGRESS_ISSUES_CACHE"
 REPO_SLUG = "squid-protocol/gitgalaxy"
@@ -79,7 +80,7 @@ SOURCES = {
     "mutation": "docs/language_status/mutation_scores.json",
     "det_mutation": "the estate reports, tests/equivalence/det_mutation/, tests/equivalence/det_mutation_survivors/",
     "capabilities": "tests/tools/capability_ledger.py, from the code",
-    "crucibles": "tests/cics_crucible/coverage.json, tests/estate_crucible/baseline.json",
+    "crucibles": "tests/cics_crucible/coverage.json, tests/estate_crucible/baseline.json and levels.json",
     "eras": "tests/fixtures/feature_inventory/<estate>.json (era_tags.py)",
     "issues": "GitHub issues by scope:* label (progress_issues_cache.json)",
 }
@@ -268,7 +269,61 @@ def det_mutation_component(
     return {"estates": estates, "total": total}
 
 
-def crucibles_component(cics: dict[str, Any], estate: dict[str, Any]) -> dict[str, Any]:
+def estate_levels(plan: dict[str, Any], baseline: dict[str, Any]) -> list[dict[str, Any]]:
+    """Each Open World level's progress at the pinned estate-crucible release: a planned construct is built when every
+    horror it names is in the pinned baseline; the horrors and passes count only built constructs."""
+    horrors = baseline.get("horrors") or {}
+    out = []
+    for lv in plan.get("levels") or []:
+        cons = lv["constructs"]
+        built = [c for c in cons if c["horrors"] and all(h in horrors for h in c["horrors"])]
+        hs = sorted({h for c in built for h in c["horrors"]})
+        out.append(
+            {
+                "name": lv["name"],
+                "region": lv["region"],
+                "app": lv["app"],
+                "about": lv["about"],
+                "issues": lv["issues"],
+                "constructs": len(cons),
+                "built": len(built),
+                "built_pct": pct(len(built), len(cons)),
+                "horrors": len(hs),
+                "pass": sum(1 for h in hs if horrors[h] == "PASS"),
+                "next": [c["name"] for c in cons if c not in built],
+                "first_run": lv.get("first_run"),
+            }
+        )
+    return out
+
+
+def below_l4(reports: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
+    """The burned programs below L4, each with the reason it stops there: a ladder exclusion or owner hold (with its
+    issue), else the evidence report's next step ("open"). The status slide shows these as a stance, not a gap."""
+    out = []
+    for estate in sorted(reports):
+        for p in reports[estate]["programs"]:
+            lv = str(p["level"]).rstrip("*")
+            if lv in LEVELS[4:]:
+                continue
+            e = ladder_exclusions.lookup(estate, p["program"]) or ladder_exclusions.held(estate, p["program"])
+            nxt = p.get("next") or []
+            out.append(
+                {
+                    "estate": estate,
+                    "program": p["program"].replace("\\", "/").rsplit("/", 1)[-1].rsplit(".", 1)[0],
+                    "level": lv,
+                    "kind": e["kind"] if e else "open",
+                    "issue": e["issue"] if e else None,
+                    "why": (e.get("short") or e["reason"]) if e else (nxt[0] if nxt else "no next step recorded"),
+                }
+            )
+    return out
+
+
+def crucibles_component(
+    cics: dict[str, Any], estate: dict[str, Any], levels_plan: dict[str, Any] | None = None
+) -> dict[str, Any]:
     progs = cics["programs"]
     horrors = estate.get("horrors") or {}
     return {
@@ -281,6 +336,7 @@ def crucibles_component(cics: dict[str, Any], estate: dict[str, Any]) -> dict[st
             "ref": estate.get("pinned_ref"),
             "horrors": len(horrors),
             "pass": sum(1 for v in horrors.values() if v == "PASS"),
+            "levels": estate_levels(levels_plan or {}, estate),
         },
     }
 
@@ -473,6 +529,7 @@ def build(
     test_estates: dict[str, dict[str, Any]] | None = None,
     ledger: dict[str, dict[str, Any]] | None = None,
     claims: dict[str, list[dict[str, Any]]] | None = None,
+    estate_levels_plan: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     per, pairs = {}, {}
     for name in sorted(reports):
@@ -501,6 +558,7 @@ def build(
             "estates": per,
             "total": total,
             "test_estates": {n: ladder(r["programs"]) for n, r in sorted((test_estates or {}).items())},
+            "below_l4": below_l4(reports),
         },
         "components": {
             "translator": {"whole": total["translated_whole"], "of": total["programs"]},
@@ -509,7 +567,7 @@ def build(
             "mutation": mutation_component(mutation),
             "det_mutation": det_mutation_component(reports, ledger or {}, claims or {}),
             "capabilities": capability_ledger.build(rules, cics),
-            "crucibles": crucibles_component(cics_crucible, estate_crucible),
+            "crucibles": crucibles_component(cics_crucible, estate_crucible, estate_levels_plan),
         },
         "eras": era_table(pairs),
         "issues": issues_component(issues),
@@ -553,6 +611,7 @@ def gather() -> dict[str, Any]:
         tests,
         det_mutation.load(),
         det_mutation.load_survivors(),
+        _load(ESTATE_LEVELS) if ESTATE_LEVELS.is_file() else None,
     )
 
 

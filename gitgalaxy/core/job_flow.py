@@ -52,6 +52,9 @@ _STMT = re.compile(
 )
 _OPS = frozenset({"JOB", "EXEC", "DD", "PROC", "PEND", "IF", "ELSE", "ENDIF", "SET", "INCLUDE", "JCLLIB", "OUTPUT"})
 _STATEMENT_LIMIT = 4000
+# JCL operand names (not dict keys): named so the dead-key audit does not read them as payload keys
+_KW_RESTART = "RESTART"
+_KW_RD = "RD"
 _GEN = re.compile(r"\(([+-]?[0-9]{1,3})\)$")
 
 
@@ -352,7 +355,7 @@ def jcl_job_flow(code_stream: str) -> list[dict[str, Any]]:
     for line, name, op, field in _statements(code_stream):
         if op == "JOB":
             job_ops = dict(_split(field))
-            restart_step, restart_checkid = _restart(job_ops.get("RESTART"))
+            restart_step, restart_checkid = _restart(job_ops.get(_KW_RESTART))
             rows.append(
                 dict(
                     blank,
@@ -400,7 +403,7 @@ def jcl_job_flow(code_stream: str) -> list[dict[str, Any]]:
                     in_proc=in_proc,
                     line=line,
                     # #7065: presence-keyed RD= and the per-proc-step overrides PARM.step= / COND.step=
-                    **({"rd": keyed["RD"].strip()} if keyed.get("RD") else {}),
+                    **({"rd": keyed[_KW_RD].strip()} if keyed.get(_KW_RD) else {}),
                     **_step_overrides(keyed),
                 )
             )

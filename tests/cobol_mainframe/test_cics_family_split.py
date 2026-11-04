@@ -718,6 +718,7 @@ def test_an_undefinable_file_name_answers_filenotfound_with_resp2_1():
 # ---- #7153: equivalence_cics re-exports its families' names lazily, so import order does not matter ------------------
 _TOOLS = Path(__file__).resolve().parents[1] / "tools"
 _FAMILY_MODULES = (
+    "compare",
     "conditions",
     "containers",
     "counters",
@@ -760,7 +761,7 @@ def test_every_reexported_name_resolves_whichever_module_is_imported_first(first
         "import equivalence_cics as ec\n"
         "for name, fam in ec._FAMILY_NAMES.items():\n"
         "    assert getattr(ec, name) is getattr(fam, name), name\n"
-        "assert len(ec._FAMILY_NAMES) == 28\n"
+        "assert len(ec._FAMILY_NAMES) == 37\n"
         "try:\n    ec.no_such_name\nexcept AttributeError:\n    pass\n"
         "else:\n    raise SystemExit('no AttributeError')\n"
     )

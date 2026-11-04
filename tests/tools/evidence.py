@@ -100,6 +100,7 @@ SCHEDULED = ("harness", "oracle", "generator")  # Q1: stale here is re-proven by
 MUTATION_INPUTS = ("port", "case", "corpus", "harness", "oracle")  # Q3: the generator alone keeps a score
 HARNESS = ("tests/tools/equivalence.py", "tests/tools/equivalence_common.py", "tests/tools/equivalence_java.py",
            "tests/tools/equivalence_inputs.py", "tests/tools/equivalence_cics.py",
+           "tests/tools/equivalence_cics_compare.py",
            "tests/tools/equivalence_cics_containers.py", "tests/tools/equivalence_cics_filecontrol.py",
            "tests/tools/equivalence_cics_conditions.py",
            "tests/tools/equivalence_cics_faults.py",
@@ -251,6 +252,7 @@ COMPONENTS: tuple[Component, ...] = (
         "harness",
         (
             "tests/tools/equivalence_cics.py",
+            "tests/tools/equivalence_cics_compare.py",
             "tests/tools/equivalence_cics_containers.py",
             "tests/tools/equivalence_cics_filecontrol.py",
             "tests/tools/equivalence_cics_conditions.py",

@@ -809,6 +809,7 @@ def _job_flow_select(cursor, has_table, has_column):
             col("lrecl", "lrecl", "recfm"),
             col("sysout", "sysout"),
             col("restart", "restart", "restart_checkid", "rd", "parm_overrides", "cond_overrides"),
+            col("output_params", "output_params", "output_refs"),
         )
     )
     return (
@@ -2203,6 +2204,7 @@ CHANNELS = (
             ("lrecl INTEGER", "recfm TEXT"),
             ("sysout TEXT",),
             ("restart TEXT", "restart_checkid TEXT", "rd TEXT", "parm_overrides TEXT", "cond_overrides TEXT"),
+            ("output_params TEXT", "output_refs TEXT"),
         ),
         indexes=(
             "CREATE INDEX IF NOT EXISTS idx_job_flow_file_id ON job_flow_data(file_id);",
@@ -2239,6 +2241,8 @@ CHANNELS = (
             "rd",
             "parm_overrides",
             "cond_overrides",
+            "output_params",
+            "output_refs",
         ),
         to_row=lambda j: (
             j.get("kind"),
@@ -2269,6 +2273,8 @@ CHANNELS = (
             j.get("rd"),
             json.dumps(j["parm_overrides"]) if j.get("parm_overrides") else None,
             json.dumps(j["cond_overrides"]) if j.get("cond_overrides") else None,
+            json.dumps(j["output_params"]) if j.get("output_params") else None,
+            json.dumps(j["output_refs"]) if j.get("output_refs") else None,
         ),
         restore_select=_job_flow_select,
         to_payload=lambda r: {
@@ -2292,7 +2298,11 @@ CHANNELS = (
                 for k in ("runs", "runs_via", "systsin_member", "parm", "instream", "lrecl", "recfm", "sysout")
                 if r[k]
             },
-            **{k: json.loads(r[k]) for k in ("parm_overrides", "cond_overrides") if r[k]},
+            **{
+                k: json.loads(r[k])
+                for k in ("parm_overrides", "cond_overrides", "output_params", "output_refs")
+                if r[k]
+            },
             **{k: r[k] for k in ("restart", "restart_checkid", "rd") if r[k]},
         },
     ),

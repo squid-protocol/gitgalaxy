@@ -686,6 +686,8 @@ _HEALED_ONLY = {
         "rd",
         "parm_overrides",
         "cond_overrides",
+        "output_params",
+        "output_refs",
     ),
 }
 

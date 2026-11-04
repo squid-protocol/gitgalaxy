@@ -732,14 +732,23 @@ def test_a_dummy_dd_is_the_dummy_row_and_an_unkeyed_dummy_row_is_a_phantom():
     assert "pass" not in [c.status for c in _jcl([row], jcl_dds=dsn_key).checks]
 
 
-def test_a_sysout_dd_keeps_its_output_refs_unscored():
-    key = [dict(_dd_key(), line=7, step="S1", dd="RPT", dsn=None, disp=None, sysout="*", output_refs=["OUT1"])]
+def _sysout_refs(refs, got):
+    key = [dict(_dd_key(), line=7, step="S1", dd="RPT", dsn=None, disp=None, sysout="*", output_refs=refs)]
     row = _row("SYSOUT", step_name="S1", dd_name="RPT", line=7)
     eng = FakeEngine(files={"j.jcl": SimpleNamespace(job_flow=[row])})
     eng.sysout = {("j.jcl", 7): "*"}
+    eng.jcl_extra = {("j.jcl", 7): {"output_refs": got}} if got else {}
     sc = ec.Score()
     ec.score_jcl(sc, "j.jcl", dict(language="jcl", jcl_dds=key), eng)
-    assert [c.status for c in sc.checks] == ["pass", "unscored"]
+    return sc
+
+
+def test_a_sysout_dd_scores_its_output_refs():
+    assert [c.status for c in _sysout_refs(["OUT1"], ["OUT1"]).checks] == ["pass", "pass"]
+    assert [c.status for c in _sysout_refs(["*.a", "*.B"], ["*.A", "*.B"]).checks] == ["pass", "pass"]
+    wrong = _sysout_refs(["OUT1"], ["OUT2"])
+    assert [c.status for c in wrong.checks] == ["pass", "fail"] and "output_refs" in wrong.checks[1].detail
+    assert [c.status for c in _sysout_refs(["OUT1"], None).checks] == ["pass", "fail"]  # engine silent
 
 
 def _set_row(name, value, line):
@@ -974,24 +983,41 @@ def test_a_file_without_key_fields_adds_no_check_even_if_the_engine_has_some():
     assert [c.status for c in _fc(_fc_key(), _fc_row(alternate_keys=[("X", True)])).checks] == ["pass"]
 
 
-def test_every_output_jcl_statement_is_unscored_with_a_reason_at_job_and_step_level():
+def _outputs(flow, extra, outs):
+    eng = FakeEngine(files={"j.jcl": SimpleNamespace(job_flow=flow)})
+    eng.jcl_extra = extra
+    sc = ec.Score()
+    ec.score_jcl_outputs(sc, "j.jcl", {"jcl_outputs": outs}, eng)
+    return sc
+
+
+def test_output_jcl_statements_are_scored_at_job_and_step_level():
     outs = [
         dict(job="BDLDOUT", step=None, name="OUT1", params=["DEST", "CLASS"], line=3),
         dict(job="BDLDOUT", step="OUT010", name="LOCAL", params=["COPIES"], line=9),
     ]
-    eng = FakeEngine(files={"j.jcl": SimpleNamespace(job_flow=[])})
-    sc = ec.Score()
-    ec.score_jcl_outputs(sc, "j.jcl", {"jcl_outputs": outs}, eng)
-    assert [c.status for c in sc.checks] == ["unscored", "unscored"]
+    flow = [
+        _row("OUTPUT", name="OUT1", line=3),
+        _row("OUTPUT", name="LOCAL", step_name="OUT010", line=9),
+    ]
+    extra = {("j.jcl", 3): {"output_params": ["DEST", "CLASS"]}, ("j.jcl", 9): {"output_params": ["COPIES"]}}
+    sc = _outputs(flow, extra, outs)
+    assert [c.status for c in sc.checks] == ["pass", "pass"]
     assert "OUT1 OUTPUT (job level)" in sc.checks[0].fact and "OUTPUT (OUT010)" in sc.checks[1].fact
-    assert all("job_flow_data keeps no OUTPUT" in c.detail for c in sc.checks)
     assert "jcl_outputs" in ec.CHANNELS and ec.score_jcl_outputs in ec.SCORERS
+    # wrong param names, wrong step, wrong line, no row at all
+    assert [c.status for c in _outputs(flow, {}, outs).checks] == ["fail", "fail"]
+    moved = [_row("OUTPUT", name="OUT1", step_name="S1", line=4), flow[1]]
+    assert "step" in _outputs(moved, extra, outs).checks[0].detail
+    assert "line" in _outputs(moved, extra, outs).checks[0].detail
+    assert [c.status for c in _outputs([], {}, outs).checks] == ["missing", "missing"]
+    assert _outputs(flow, extra, []).checks == []  # key silent: no phantom check
 
 
-def test_a_sysout_dd_with_output_references_is_unscored_and_names_them():
+def test_a_sysout_dd_with_output_references_names_them():
     key = [dict(_dd_key(output_refs=["*.OUT1", "*.LOCAL"]), dd="RPTOUT", dsn=None, disp=None, sysout="A")]
     sc = _jcl([_row("SYSOUT", step_name="S1", dd_name="RPTOUT", line=6)], jcl_dds=key)
-    assert [c.status for c in sc.checks] == ["fail", "unscored"]  # no sysout class in the fake engine
+    assert [c.status for c in sc.checks] == ["fail", "fail"]  # no sysout class / refs in the fake engine
     assert "OUTPUT=*.OUT1,*.LOCAL" in sc.checks[1].fact
 
 

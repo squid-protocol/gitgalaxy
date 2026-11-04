@@ -128,7 +128,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X14 | CICS | READ ... INTO LENGTH: in-out, truncation and LENGERR; a VSAM file's LENGTH need not equal its record length; LENGERR on READ UPDATE refused | ASSUMED (REFUSED where IBM is silent) | yes, NORMAL only (GenApp LGUCVS01 / LGUPVS01) |
 | X15 | CICS | Terminal RECEIVE (INTO / SET, LENGTH, MAXLENGTH, NOTRUNCATE; LENGERR, EOC on an LUTYPE2 terminal) and SEND CONTROL | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible hc-terminal-receive, hc-terminal-eoc) |
 | X16 | CICS | HANDLE AID, IGNORE CONDITION, PUSH / POP HANDLE and HANDLE CONDITION ERROR on the det port | MATCHED (REFUSED where IBM is silent) | yes (cics-crucible hc-handle-aid, hc-ignore-error, hc-eoc-error) |
-| X17 | CICS | Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port and the stub, carried to the next terminal task), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs and multibyte 1208 refused GET64 / PUT64 CONTAINER as GET / PUT with INTO / FROM an ordinary item (GET64 SET refused); MOVE and the browse: X42; DELETE CHANNEL and QUERY CHANNEL: X44) | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible ca-channel-containers, pinned at v0.10.0) |
+| X17 | CICS | Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port and the stub, carried to the next terminal task), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (1208 as real UTF-8) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs refused GET64 / PUT64 CONTAINER as GET / PUT with INTO / FROM an ordinary item (GET64 SET refused); MOVE and the browse: X42; DELETE CHANNEL and QUERY CHANNEL: X44) | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible ca-channel-containers, pinned at v0.10.0) |
 | X18 | CICS | Interval control on the det port: START (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM, RTRANSID / RTERMID / QUEUE, CHANNEL), RETRIEVE (INTO / LENGTH, the data options, ENVDEFERR), CANCEL REQID, RUN TRANSID CHILD [CHANNEL], FETCH ANY / CHILD (NOSUSPEND, TIMEOUT or waiting), FREE CHILD, and DELAY as the wait that dispatches RUN children (#4950); the child schedule, TIME RESP2 and the order of out-of-range checks assumed; ties, a child's region-resource commands, RETRIEVE SET / WAIT refused | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible gt-start-retrieve, gt-terminal-coalesce, gt-start-options, pinned at v0.10.0) |
 | X19 | CICS | ASSIGN on the det port: STARTCODE (TD / S / SD / D), USERID (the default user), FACILITY / SCRNHT / SCRNWD (INVREQ RESP2 5 without a terminal) from facts the harness states; no data area written when ASSIGN raises INVREQ; OPID, NETNAME, TERMCODE, FCI, the other screen sizes, work-area lengths and the rest refused | ASSUMED (REFUSED where the harness cannot decide) | yes (cics-crucible gt-assign-startcode, pinned at v0.10.0) |
 | X20 | CICS | SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused | MATCHED (REFUSED where the region cannot decide) | yes (cics-crucible gt-send-text-terminal, unreleased) |
@@ -2285,9 +2285,12 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   for the CCSIDs 37, 500, 1140 and 1208 only. IBM lists all four as conversion CCSIDs ("Conversion CCSIDs for CICS TS",
   https://www.ibm.com/docs/en/cics-ts/6.x?topic=reference-conversion-ccsids-cics-ts: Table 23 "037 ... ibm037", "500 ...
   ibm500", "1140 ... ibm01140 ... with euro"; Table 38 "1208 UTF-8 ... Unicode"). 37, 500 and 1140 are single-byte EBCDIC
-  pages, so a conversion never changes a length; 1208 (UTF-8) is modelled for ASCII bytes only, one byte a character, so the
-  length is kept there too -- a 1208 byte at or above X'80', or a character beyond ASCII converted to 1208 (a multibyte
-  sequence), is refused. INTOCCSID on a BIT container is CCSIDERR RESP2 3, "The data was created with a data type of BIT" and
+  pages, so between them a conversion never changes a length; 1208 is real UTF-8 (#7589): a conversion goes through
+  Unicode (the source page strictly decoded, the target page strictly encoded), so a character beyond ASCII becomes two to
+  four bytes and the length changes. GET into an INTO shorter than the converted data is LENGERR RESP2 11 with FLENGTH the
+  converted length. Strict UTF-8: no overlong forms, no surrogates, nothing above U+10FFFF. 500 is 037 with seven
+  characters permuted; 1140 is 037 with the euro for the currency sign, so a character a target page lacks (the euro in
+  037 / 500, the currency sign in 1140, anything above U+00FF in the EBCDIC pages) is refused, below. INTOCCSID on a BIT container is CCSIDERR RESP2 3, "The data was created with a data type of BIT" and
   "The data was returned without any code page conversion" (GET CONTAINER page): both runtimes return CCSIDERR/3 with the
   data in INTO unconverted and leave FLENGTH and CCSID(area) alone -- ASSUMED: the page says FLENGTH is set to the length of
   the data, but not whether that holds under this condition, and the case's hand-traced log does not log it either. A program's
@@ -2304,8 +2307,10 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   time): BYTEOFFSET and PREPEND on a CHAR container (below); RETURN
   CHANNEL on the stub (the next task's channel: only the Java runner carries it); LINK / XCTL with both CHANNEL and COMMAREA. At run
   time: a CCSID other than 37, 500, 1140 and 1208 (IBM: CCSIDERR RESP2 1 outside the valid range, 2 for an unsupported pair; a
-  real region converts many more); a CCSID 1208 byte beyond ASCII, or a character beyond ASCII converted to 1208 (multibyte:
-  the length would change); a character the target CCSID lacks (037 / 500 <-> 1140: the currency sign and the euro),
+  real region converts many more); malformed UTF-8 from CCSID 1208 (IBM leaves the conversion undefined: undefined by IBM, owner
+  ruling 2026-11-03, #7589); PUT FROMCCSID(1208) data that is not valid UTF-8 under either reading below, or valid under both
+  and different (ambiguous); on the stub only, GET CONTAINER SET INTOCCSID of data whose converted length differs (the block is
+  converted in place; CicsTask converts it); a character the target CCSID lacks (037 / 500 <-> 1140: the currency sign and the euro),
   which IBM answers with CCSIDERR RESP2 4 and a blank in the converted data, without saying what FLENGTH or a PUT then do;
   INTOCCSID on a BIT container longer than INTO (whether LENGERR or CCSIDERR wins is not said) and GET CONTAINER SET with
   INTOCCSID on a BIT container (whether a block is acquired is not said);
@@ -2350,7 +2355,7 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
 - **Burned-estate reach of the container options still refused (#5005, census 2026-10-31, COBOL and PL/I).** BYTEOFFSET, PREPEND,
   FROMCODEPAGE / INTOCODEPAGE, CONVERTST, CCSID(area) and GET64 / PUT64 CONTAINER: 0 burned programs. The only CCSID option in a
   burned estate is DBB `epscsmrd.cbl`: GET CONTAINER SET FLENGTH INTOCCSID(1140) and PUT CONTAINER FROMCCSID(1140), a literal in
-  the modelled four; so CHAR BYTEOFFSET / PREPEND, a CCSID outside 37 / 500 / 1140 / 1208, multibyte 1208, the code-page names and
+  the modelled four; so CHAR BYTEOFFSET / PREPEND, a CCSID outside 37 / 500 / 1140 / 1208, the code-page names and
   GET SET with INTOCCSID on a BIT container stay REFUSED by name, settled until a burned program reads them. Pinned by
   `tests/cobol_mainframe/test_container_options_reach_5005.py`.
 - **Names (#4950).** PUT CONTAINER (CHANNEL) documents the set: "A-Z a-z 0-9 $ @ # / % ? ! : | " = , ; > . - and _.
@@ -2368,11 +2373,15 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   built from a hex literal, which the port and GnuCOBOL's ASCII storage keep as the characters 'ABC123' (a TS write encodes them
   as X'C1C2C3F1F2F3', not the X'414243313233' the program meant). That is the hex-literal / TS-page convention of #4528, shared by
   both sides, not a container defect.
-  **CACCSID stays L1 (#7434), refused by name.** The refusal at event 11 ("a CCSID 1208 byte beyond ASCII") is not about
-  multibyte data: the hex literal `X'414243313233'` is read as region page 037, where `0x41` is the character `A` (real byte
-  `0xC1`), at or above X'80'. Modelling it would change the hex-literal convention (#4528) every port shares, so the refusal
-  stays and its text says so (Java runtime, stub and spec in step; pinned prefix kept). No burned program uses FROMCCSID with a
-  hex literal. CACCSID climbs only if that convention changes (owner decision).
+  **CACCSID (#7434, #7589).** The refusal at event 11 was not about multibyte data: the hex literal `X'414243313233'` is read as
+  region page 037, where `0x41` is the character `A` (real byte `0xC1`). #7589 models 1208 as real UTF-8 (IBM "Conversion CCSIDs
+  for CICS TS", Table 38) and resolves PUT FROMCCSID(1208) by a two-reading rule -- ASSUMED, IBM does not say how a COBOL
+  program's bytes map to a 1208 FROM area: reading A takes the region's characters as the text (raw bytes = the 037 encoding of the
+  storage, what a character literal holds); reading B takes the storage bytes as the raw UTF-8 (what a hex literal holds,
+  stored as decode-037 of them). Only one valid UTF-8: use it; both valid and different: refused as ambiguous; neither: refused
+  as malformed. Caveat: character text mislabelled as 1208 is nonsense on a real region, which the rule tolerates only when the
+  bytes happen to be unambiguous. The case `cruc-ca-container-ccsid` runs CACCSID end to end on the stub and the det port.
+  No burned program uses FROMCCSID(1208).
 
 - **Burned-estate reach of the still-refused members (#5005, grep of the burned corpora 2026-10-30).** No burned program
   (CardDemo, CBSA, GenApp, zECS, DBB MortgageApplication, cicsdev async credit-card) uses GET64 / PUT64 CONTAINER, INQUIRE

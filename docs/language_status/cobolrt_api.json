@@ -1,7 +1,7 @@
 {
   "schema": "cobolrt-api/1",
   "about": ["The cobolrt public API (#4718). Written by tests/tools/cobolrt_api.py generate: edit only a `visibility`, to public or internal; docs/cobolrt_api_contract.md says what they promise.", "`evidence` records who called the item when it was last refreshed, and is never checked: det-port, model-port (committed ports), frozen-overlay (a frozen runtime copy's call to a live class), generated (translator output), emitter (a translator string), emitter-dynamic (a name a computed emission may take), runtime, harness; empty: no caller was found."],
-  "summary": {"types": 124, "types_public": 101, "members": 1181, "members_public": 792, "members_internal": 389},
+  "summary": {"types": 124, "types_public": 101, "members": 1182, "members_public": 792, "members_internal": 390},
   "types": [
     {"id": "batch.CobolAbend", "kind": "class", "source": "gitgalaxy/tools/cobol_to_java/cobol_to_java_batch_forge.py", "variants": ["forge-batch-jobs", "forge-batch-files"], "supers": ["RuntimeException"], "visibility": "public", "evidence": ["det-port", "emitter", "model-port", "signature", "harness"], "members": [
       {"id": "batch.CobolAbend.<init>(String,String)", "kind": "constructor", "visibility": "internal", "evidence": []},
@@ -55,7 +55,7 @@
       {"id": "batch.Dd.status()", "kind": "method", "returns": "String", "visibility": "public", "evidence": ["emitter-dynamic", "harness", "runtime"]}
     ]},
     {"id": "batch.JclConditions", "kind": "class", "source": "gitgalaxy/tools/cobol_to_java/cobol_to_java_batch_forge.py", "variants": ["forge-batch-jobs", "forge-batch-files"], "supers": [], "visibility": "public", "evidence": ["emitter", "harness", "runtime"], "members": [
-      {"id": "batch.JclConditions.bypass(String,Map)", "kind": "method", "static": true, "returns": "boolean", "visibility": "public", "evidence": ["emitter", "runtime"]},
+      {"id": "batch.JclConditions.bypass(String,Map)", "kind": "method", "static": true, "returns": "boolean", "visibility": "public", "evidence": ["emitter", "harness", "runtime"]},
       {"id": "batch.JclConditions.holds(String,Map)", "kind": "method", "static": true, "returns": "boolean", "visibility": "public", "evidence": ["emitter", "harness", "runtime"]}
     ]},
     {"id": "batch.JclJobLauncher", "kind": "class", "source": "gitgalaxy/tools/cobol_to_java/cobol_to_java_batch_forge.py", "variants": ["forge-batch-jobs"], "supers": [], "visibility": "public", "evidence": ["harness"], "members": [
@@ -130,7 +130,7 @@
       {"id": "cics.CicsTask.containerCcsid()", "kind": "method", "returns": "int", "visibility": "public", "evidence": ["emitter", "harness"]},
       {"id": "cics.CicsTask.converse(String,int,int,boolean)", "kind": "method", "returns": "cics.CicsTask.Received", "visibility": "public", "evidence": ["emitter", "harness"]},
       {"id": "cics.CicsTask.currentChannel()", "kind": "method", "returns": "cics.CicsTask.Channel", "visibility": "internal", "evidence": ["harness"]},
-      {"id": "cics.CicsTask.cwaHandle()", "kind": "method", "returns": "long", "visibility": "internal", "evidence": ["runtime"]},
+      {"id": "cics.CicsTask.cwaHandle()", "kind": "method", "returns": "long", "visibility": "internal", "evidence": ["harness", "runtime"]},
       {"id": "cics.CicsTask.deeditResp(int)", "kind": "method", "static": true, "returns": "int", "visibility": "public", "evidence": ["emitter", "harness"]},
       {"id": "cics.CicsTask.defineCounter(String,String,int)", "kind": "method", "returns": "int[]", "visibility": "public", "evidence": ["emitter", "harness"]},
       {"id": "cics.CicsTask.defineCounter(String,String,long,long,long)", "kind": "method", "returns": "int[]", "visibility": "public", "evidence": ["emitter", "harness", "runtime"]},
@@ -314,13 +314,13 @@
       {"id": "cics.CicsTask.storageAt(long,int)", "kind": "method", "returns": "byte[]", "visibility": "public", "evidence": ["frozen-overlay", "harness", "runtime"]},
       {"id": "cics.CicsTask.syncpoint()", "kind": "method", "returns": "void", "visibility": "public", "evidence": ["det-port", "emitter", "emitter-dynamic", "model-port", "harness"]},
       {"id": "cics.CicsTask.taskNumber()", "kind": "method", "returns": "long", "visibility": "public", "evidence": ["det-port", "emitter", "harness"]},
-      {"id": "cics.CicsTask.tctuaHandle()", "kind": "method", "returns": "long", "visibility": "internal", "evidence": ["runtime"]},
+      {"id": "cics.CicsTask.tctuaHandle()", "kind": "method", "returns": "long", "visibility": "internal", "evidence": ["harness", "runtime"]},
       {"id": "cics.CicsTask.tdTransid(String)", "kind": "method", "returns": "String", "visibility": "public", "evidence": ["emitter", "harness"]},
       {"id": "cics.CicsTask.termid()", "kind": "method", "returns": "String", "visibility": "public", "evidence": ["det-port", "emitter", "model-port", "harness", "runtime"]},
       {"id": "cics.CicsTask.terminalInputRead()", "kind": "method", "returns": "void", "visibility": "internal", "evidence": []},
       {"id": "cics.CicsTask.transferResp2()", "kind": "method", "returns": "int", "visibility": "public", "evidence": ["det-port", "emitter", "harness"]},
       {"id": "cics.CicsTask.transid()", "kind": "method", "returns": "String", "visibility": "public", "evidence": ["det-port", "emitter", "emitter-dynamic", "model-port", "harness"]},
-      {"id": "cics.CicsTask.twaHandle()", "kind": "method", "returns": "long", "visibility": "internal", "evidence": ["runtime"]},
+      {"id": "cics.CicsTask.twaHandle()", "kind": "method", "returns": "long", "visibility": "internal", "evidence": ["harness", "runtime"]},
       {"id": "cics.CicsTask.undefinableFile(String)", "kind": "method", "static": true, "returns": "boolean", "visibility": "public", "evidence": ["det-port", "emitter", "harness", "runtime"]},
       {"id": "cics.CicsTask.unlock(String)", "kind": "method", "returns": "int", "visibility": "public", "evidence": ["det-port", "emitter", "emitter-dynamic", "harness"]},
       {"id": "cics.CicsTask.unlockHeld(String)", "kind": "method", "returns": "int", "visibility": "public", "evidence": ["harness", "runtime"]},
@@ -785,7 +785,7 @@
       {"id": "cobolrt.Cobol.rawUnsigned(Field)", "kind": "method", "static": true, "returns": "long", "visibility": "public", "evidence": ["emitter", "harness"]},
       {"id": "cobolrt.Cobol.receiverNum(Field,Charset)", "kind": "method", "static": true, "returns": "BigDecimal", "visibility": "public", "evidence": ["det-port", "emitter"]},
       {"id": "cobolrt.Cobol.recordCharset(Charset)", "kind": "method", "static": true, "returns": "Charset", "visibility": "public", "evidence": ["det-port", "emitter", "harness", "runtime"]},
-      {"id": "cobolrt.Cobol.remainder(BigDecimal,BigDecimal,BigDecimal,int)", "kind": "method", "static": true, "returns": "BigDecimal", "visibility": "public", "evidence": ["emitter", "emitter-dynamic"]},
+      {"id": "cobolrt.Cobol.remainder(BigDecimal,BigDecimal,BigDecimal,int)", "kind": "method", "static": true, "returns": "BigDecimal", "visibility": "public", "evidence": ["emitter", "emitter-dynamic", "harness"]},
       {"id": "cobolrt.Cobol.sameBytes(Field,Field)", "kind": "method", "static": true, "returns": "boolean", "visibility": "public", "evidence": ["det-port", "emitter", "harness"]},
       {"id": "cobolrt.Cobol.setTruncBinary(boolean)", "kind": "method", "static": true, "returns": "void", "visibility": "internal", "evidence": ["harness"]},
       {"id": "cobolrt.Cobol.setTruncOpt(boolean)", "kind": "method", "static": true, "returns": "void", "visibility": "internal", "evidence": ["harness"]},
@@ -802,6 +802,7 @@
       {"id": "cobolrt.Cobol.swapNumprocPfd(boolean)", "kind": "method", "static": true, "returns": "boolean", "visibility": "public", "evidence": ["det-port", "emitter", "harness"]},
       {"id": "cobolrt.Cobol.swapTruncBinary(boolean)", "kind": "method", "static": true, "returns": "boolean", "visibility": "public", "evidence": ["det-port", "emitter", "harness"]},
       {"id": "cobolrt.Cobol.swapTruncOpt(boolean)", "kind": "method", "static": true, "returns": "boolean", "visibility": "public", "evidence": ["det-port", "emitter", "harness"]},
+      {"id": "cobolrt.Cobol.swapZosComp5(boolean)", "kind": "method", "static": true, "returns": "boolean", "visibility": "internal", "evidence": ["harness"]},
       {"id": "cobolrt.Cobol.text(Field,Charset)", "kind": "method", "static": true, "returns": "String", "visibility": "public", "evidence": ["det-port", "emitter", "model-port", "harness", "runtime"]},
       {"id": "cobolrt.Cobol.unstring(Field,Field,Field,List,Charset,Into...)", "kind": "method", "static": true, "returns": "boolean", "visibility": "public", "evidence": ["det-port", "emitter", "emitter-dynamic"]},
       {"id": "cobolrt.Cobol.zoned(BigDecimal,int,int,boolean,boolean,Charset)", "kind": "method", "static": true, "returns": "BigDecimal", "visibility": "public", "evidence": ["det-port", "emitter", "emitter-dynamic", "model-port", "harness"]}
@@ -1231,7 +1232,7 @@
       {"id": "cobolrt.cics.DetCics.Store.remove(byte[])", "kind": "method", "returns": "void", "visibility": "public", "evidence": ["emitter-dynamic", "harness"]},
       {"id": "cobolrt.cics.DetCics.Store.search(byte[],int,boolean)", "kind": "method", "returns": "Optional<byte[]>", "visibility": "public", "evidence": ["emitter-dynamic", "harness"]},
       {"id": "cobolrt.cics.DetCics.Store.store(byte[])", "kind": "method", "returns": "void", "visibility": "public", "evidence": ["emitter-dynamic", "harness"]},
-      {"id": "cobolrt.cics.DetCics.Store.undefined(Charset)", "kind": "method", "static": true, "returns": "cobolrt.cics.DetCics.Store<E>", "visibility": "public", "evidence": ["det-port"]},
+      {"id": "cobolrt.cics.DetCics.Store.undefined(Charset)", "kind": "method", "static": true, "returns": "cobolrt.cics.DetCics.Store<E>", "visibility": "public", "evidence": ["det-port", "harness"]},
       {"id": "cobolrt.cics.DetCics.Store.withFindById(Function)", "kind": "method", "returns": "cobolrt.cics.DetCics.Store<E>", "visibility": "public", "evidence": ["det-port", "model-port"]},
       {"id": "cobolrt.cics.DetCics.Store.withLengths(java.util.Map)", "kind": "method", "returns": "cobolrt.cics.DetCics.Store<E>", "visibility": "public", "evidence": ["det-port"]}
     ]},
